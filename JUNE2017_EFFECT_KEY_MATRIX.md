@@ -107,7 +107,7 @@ everything else → the parser phase in the `phase` column.
 | phase | scope | key | verdict | June site | March site |
 |---|---|---|---|---|---|
 | 6b | `DE.LOCK_ON_DATA` (top) | `NOT_TARGET_PRE_LOCK_ON_TARGET` | differ(type: June int (getter 32fe9fd0) vs March bool) | 31f72367 → 32fe9fd0 int, default None | X2DamageEffect.cpp:8128 |
-| 8a | `DE.DAMAGE_DATA` EXTRA_DAMAGE | `EXTRA_DAMAGE_TYPE` | differ(post: 32632390@32636204-32636214 remaps EDT_MANA_DAMAGE_WITH_NO_DISPLAY 67 -> EDT_MANA_DAMAGE 16 and sets a no-display flag; default EBX=0 = EDT_NONE is the same; fixed under SERV_IRUHADEV_JUNE_DAMAGEDATA) | 326361ec → 32fe9fd0 int, default None | X2DamageManager.cpp:415 |
+| 8a | `DE.DAMAGE_DATA` EXTRA_DAMAGE | `EXTRA_DAMAGE_TYPE` | differ(post: 32632390@32636204-32636214 remaps EDT_MANA_DAMAGE_WITH_NO_DISPLAY 67 -> EDT_MANA_DAMAGE 16 and sets a no-display flag; default EBX=0 = EDT_NONE is the same; fixed under SERV_IRUHADEV_JUNE_DAMAGEDATA) | 326361ec → 32fe9fd0 int, default None | X2DamageManager.cpp:419 |
 
 ### March reads it, June does not
 
@@ -431,8 +431,8 @@ The full spec is in the plan, Phases 4a and 4b.
 | `CAN_REVENGE` | june-ignores(dead-here) |  | 7 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `CLEAR_SCREEN` | june-ignores(dead-here) |  | 3 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DAMAGE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
-| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:15229 |  |  |  |
-| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:39896 |  |  |  |
+| `DAMAGE_DATA_MEMO` | june-ignores(unread) |  | 9 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:15571 |  |  |  |
+| `DAMAGE_DATA_NEXT_MEMO` | june-ignores(unread) |  | 2 | not decrypted, not plaintext, no compatible failed row; March: reads it at X2Lib/X2GUUser.cpp:40280 |  |  |  |
 | `DAMAGE_DATA_NEXT_MEMO%d` | june-ignores(unread) |  | 4 | not decrypted, not plaintext, no compatible failed row; March: no quoted literal in X2Lib/KTDXLIB |  |  | 2 names |
 | `DAMAGE_TYPE` | june-ignores(dead-here) |  | 2 | decrypted only by 32632390, loader(s) of other sub-tables, inside the table they open; not read at this level |  |  |  |
 | `DamageTime` | june-ignores(typo) |  | 1 | data typo of `DAMAGE_TIME` (this scope, decrypted in 31f7aab0); the binary never reads this spelling |  |  |  |
@@ -476,44 +476,44 @@ The full spec is in the plan, Phases 4a and 4b.
 | `NUMERICAL_DATA_INDEX` | handed-off |  | 2065 | direct 32632390@3263fb25 | X2DamageManager:272 | same (32632390@3263fc86: int into a stack local, default EBX, zeroed @3263fc6b) [June int = None] |  |
 | `NUMERICAL_DATA_NAME` | handed-off |  |  | binary-only 32632390@3263fcdd | X2DamageManager:273 | same [June string = ''] |  |
 | `ROSE_WEAPON_ATTACK_TYPE` | handed-off |  | 38 | direct 32632390@326400bc | X2DamageManager:281 | same [June int = -1] |  |
-| `ADDITIONAL_ATTACK_TRIGGER_TYPE` | implemented |  | 58 | direct 32632390 | X2DamageManager:727 | n/a (sub-table name) |  |
-| `ADD_CHECK_DAMAGE_UNIT_NUM` | implemented |  | 2 | direct 32632390@3263abf5 | X2DamageManager:319 | same [June int = 0] | C3: AreaHit result count |
+| `ADDITIONAL_ATTACK_TRIGGER_TYPE` | implemented |  | 58 | direct 32632390 | X2DamageManager:735 | n/a (sub-table name) |  |
+| `ADD_CHECK_DAMAGE_UNIT_NUM` | implemented |  | 2 | direct 32632390@3263abf5 | X2DamageManager:323 | same [June int = 0] | C3: AreaHit result count |
 | `APPLIED_MEMO_ID` | implemented |  |  | binary-only 32632390@326325cc | X2DamageManager:290 | same [June enum = 0] | binary-only: no June data uses it; C3: parsed and stored (+0x5c8), logged; reader = skill-memo switch 3202ac40 (C8b, queued) |
-| `APPLY_CRITICAL_DAMAGE_PERCENT` | implemented |  | 2 | direct 32632390@3263e462 | X2DamageManager:698 | same [June float = 0] |  |
-| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` | implemented |  | 1 | direct 32630d20 | X2DamageManager:4792 | n/a (sub-table name) |  |
-| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | implemented |  |  | binary-only 32630d20@3263127f | X2DamageManager:4777 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` at X2DamageManager.cpp:4777 is not a GetValue key) [June enum = 0] | binary-only: no June data uses it |
-| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` | implemented |  | 1 | direct 32630d20@32630efe | X2DamageManager:4774 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` at X2DamageManager.cpp:4774 is not a GetValue key) [June enum = 0] |  |
-| `APPLY_MOTION_OFFSET` | implemented |  | 19 | direct 32632390@32638716 | X2DamageManager:561 | same [June bool = 1] |  |
-| `ARRANGED_FLY` | implemented |  | 2350 | direct 32632390@32639f6b | X2DamageManager:588 | same [June bool = 0] |  |
-| `ATTACKER_GET` | implemented |  |  | binary-only 32632390 | X2DamageManager:373 | same (32632390@32635b14-32635cf1: HP/MP floats default 0 into protected members; March attackerGet the same) | binary-only: no June data uses it |
+| `APPLY_CRITICAL_DAMAGE_PERCENT` | implemented |  | 2 | direct 32632390@3263e462 | X2DamageManager:706 | same [June float = 0] |  |
+| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID` | implemented |  | 1 | direct 32630d20 | X2DamageManager:4800 | n/a (sub-table name) |  |
+| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` | implemented |  |  | binary-only 32630d20@3263127f | X2DamageManager:4785 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_BUFF_TEMPLATE_ID` at X2DamageManager.cpp:4785 is not a GetValue key) [June enum = 0] | binary-only: no June data uses it |
+| `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` | implemented |  | 1 | direct 32630d20@32630efe | X2DamageManager:4782 | unchecked(March: `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID_RELATIVE_SKILL_ID` at X2DamageManager.cpp:4782 is not a GetValue key) [June enum = 0] |  |
+| `APPLY_MOTION_OFFSET` | implemented |  | 19 | direct 32632390@32638716 | X2DamageManager:569 | same [June bool = 1] |  |
+| `ARRANGED_FLY` | implemented |  | 2350 | direct 32632390@32639f6b | X2DamageManager:596 | same [June bool = 0] |  |
+| `ATTACKER_GET` | implemented |  |  | binary-only 32632390 | X2DamageManager:377 | same (32632390@32635b14-32635cf1: HP/MP floats default 0 into protected members; March attackerGet the same) | binary-only: no June data uses it |
 | `ATTACK_ALL_TEAM` | implemented |  | 9 | direct 32632390@3263324a | X2DamageManager:176 | same [June bool = 0] |  |
-| `ATTACK_ONLY_ME` | implemented |  | 6 | direct 32632390@3263bd42 | X2DamageManager:323 | same [June bool = 0] | C3: six hit paths + both DamageReact invincible gates |
-| `ATTACK_OUR_TEAM` | implemented |  | 78 | direct 32632390@3263b82d | X2DamageManager:627 | same [June bool = 0] |  |
-| `ATTACK_TRIGGER_TYPE` | implemented |  | 697 | direct 32632390@3263cebe | X2DamageManager:664 | same [June enum = 0] |  |
+| `ATTACK_ONLY_ME` | implemented |  | 6 | direct 32632390@3263bd42 | X2DamageManager:327 | same [June bool = 0] | C3: six hit paths + both DamageReact invincible gates |
+| `ATTACK_OUR_TEAM` | implemented |  | 78 | direct 32632390@3263b82d | X2DamageManager:635 | same [June bool = 0] |  |
+| `ATTACK_TRIGGER_TYPE` | implemented |  | 697 | direct 32632390@3263cebe | X2DamageManager:672 | same [June enum = 0] |  |
 | `ATTACK_TYPE` | implemented |  | 5108 | direct 32632390@32632c7b | X2DamageManager:162 | same [June enum = 0] |  |
-| `BACK_SPEED_W` | implemented |  | 2 | direct 32632390@32637e94 | X2DamageManager:555 | same [June bool = 0] |  |
-| `BACK_SPEED_X` | implemented |  | 5464 | direct 32632390@32637fb5 | X2DamageManager:556 | same [June float = 0] |  |
-| `BACK_SPEED_Y` | implemented |  | 3544 | direct 32632390@326380d8 | X2DamageManager:557 | same [June float = 0] |  |
+| `BACK_SPEED_W` | implemented |  | 2 | direct 32632390@32637e94 | X2DamageManager:563 | same [June bool = 0] |  |
+| `BACK_SPEED_X` | implemented |  | 5464 | direct 32632390@32637fb5 | X2DamageManager:564 | same [June float = 0] |  |
+| `BACK_SPEED_Y` | implemented |  | 3544 | direct 32632390@326380d8 | X2DamageManager:565 | same [June float = 0] |  |
 | `BOUNDING_BACK_SPEED_X` | implemented |  | 13 | direct 32632390@32638214 | X2DamageManager:305 | same [June float = 0] | C3: parsed, stored, logged; reader = DamageReactStateChange 31feabd0 @31feb6c6 behind 31fd86b0 (C3b) |
 | `BOUNDING_BACK_SPEED_Y` | implemented |  | 14 | direct 32632390@326383e0 | X2DamageManager:306 | same [June float = 0] | C3: parsed, stored, logged; reader = DamageReactStateChange 31feabd0 @31feb6d8 behind 31fd86b0 (C3b) |
-| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:4495 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
-| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:4844 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_ID_PVP` | implemented |  | 2 | direct 32630d20 | X2DamageManager:4843 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_ID_ULTIMATE` | implemented |  | 26 | direct 32630d20 | X2DamageManager:4804 | n/a (sub-table name) |  |
-| `BUFF_FACTOR_ID_ULTIMATE_PVP` | implemented |  |  | binary-only 32630d20 | X2DamageManager:4802 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
-| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:4874 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
-| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:4856, X2DamageManager:4873 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
-| `CAMERA_CRASH_GAP` | implemented |  | 5814 | direct 32632390@32639481 | X2DamageManager:578 | same [June float = 0] |  |
-| `CAMERA_CRASH_TIME` | implemented |  | 5814 | direct 32632390@326395f1 | X2DamageManager:579 | same [June float = 0] |  |
-| `CAMERA_SHAKE_TYPE` | implemented |  | 5 | direct 32632390@326392f9 | X2DamageManager:577 | same [June int = 3] |  |
-| `CAN_ACTIVATE_NASOD_ARMOR_COMBO` | implemented |  | 52 | direct 32632390@32635559 | X2DamageManager:780 | same [June bool = 0] |  |
-| `CAN_REFLEX` | implemented |  | 3830 | direct 32632390@3263a290 | X2DamageManager:593 | same [June bool = 0] |  |
-| `CAN_REVENGE` | implemented |  | 6361 | direct 32632390@3263a17e | X2DamageManager:592 | same [June bool = 1] |  |
-| `CLEAR_SCREEN` | implemented |  | 2999 | direct 32632390@32639765 | X2DamageManager:581 | same [June int = 0] |  |
-| `CLEAR_SCREEN_COLOR_A` | implemented |  | 427 | direct 32632390@3263989f | X2DamageManager:582 | same [June float = 0] |  |
-| `CLEAR_SCREEN_COLOR_B` | implemented |  | 435 | direct 32632390@32639dc7 | X2DamageManager:585 | same [June float = 1] |  |
-| `CLEAR_SCREEN_COLOR_G` | implemented |  | 435 | direct 32632390@32639c0f | X2DamageManager:584 | same [June float = 1] |  |
-| `CLEAR_SCREEN_COLOR_R` | implemented |  | 435 | direct 32632390@32639a57 | X2DamageManager:583 | same [June float = 1] |  |
+| `BUFF_FACTOR` | implemented |  | 967 | other-func 32630910 | X2DamageManager:4503 | same (32630910: BeginTable, ParsingBuffFactor(lua, false), SetGameUnitBuffFactor(attacker), push_back = March ParsingBuffFactor; nested keys not compared) |  |
+| `BUFF_FACTOR_ID` | implemented |  | 361 | direct 32630d20 | X2DamageManager:4852 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_ID_PVP` | implemented |  | 2 | direct 32630d20 | X2DamageManager:4851 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_ID_ULTIMATE` | implemented |  | 26 | direct 32630d20 | X2DamageManager:4812 | n/a (sub-table name) |  |
+| `BUFF_FACTOR_ID_ULTIMATE_PVP` | implemented |  |  | binary-only 32630d20 | X2DamageManager:4810 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
+| `BUFF_FACTOR_RELATIVE_MASTER_UNIT` | implemented |  | 1 | direct 32630d20@326320df | X2DamageManager:4882 | same (32630d20@326320df: bool, default false; master lookup and level-0 skip identical) [June bool = None] |  |
+| `BUFF_FACTOR_RELATIVE_SKILL_ID` | implemented |  | 114 | direct 32630d20@32631a60, 32630d20@32631edc | X2DamageManager:4864, X2DamageManager:4881 | same (32630d20@32631a60: user default = vtable 0x524, a now-state skill-ID getter (GetNowStateSkillID); @32631edc: NPC default 0; level rule and learn-check identical) [June int = None] |  |
+| `CAMERA_CRASH_GAP` | implemented |  | 5814 | direct 32632390@32639481 | X2DamageManager:586 | same [June float = 0] |  |
+| `CAMERA_CRASH_TIME` | implemented |  | 5814 | direct 32632390@326395f1 | X2DamageManager:587 | same [June float = 0] |  |
+| `CAMERA_SHAKE_TYPE` | implemented |  | 5 | direct 32632390@326392f9 | X2DamageManager:585 | same [June int = 3] |  |
+| `CAN_ACTIVATE_NASOD_ARMOR_COMBO` | implemented |  | 52 | direct 32632390@32635559 | X2DamageManager:788 | same [June bool = 0] |  |
+| `CAN_REFLEX` | implemented |  | 3830 | direct 32632390@3263a290 | X2DamageManager:601 | same [June bool = 0] |  |
+| `CAN_REVENGE` | implemented |  | 6361 | direct 32632390@3263a17e | X2DamageManager:600 | same [June bool = 1] |  |
+| `CLEAR_SCREEN` | implemented |  | 2999 | direct 32632390@32639765 | X2DamageManager:589 | same [June int = 0] |  |
+| `CLEAR_SCREEN_COLOR_A` | implemented |  | 427 | direct 32632390@3263989f | X2DamageManager:590 | same [June float = 0] |  |
+| `CLEAR_SCREEN_COLOR_B` | implemented |  | 435 | direct 32632390@32639dc7 | X2DamageManager:593 | same [June float = 1] |  |
+| `CLEAR_SCREEN_COLOR_G` | implemented |  | 435 | direct 32632390@32639c0f | X2DamageManager:592 | same [June float = 1] |  |
+| `CLEAR_SCREEN_COLOR_R` | implemented |  | 435 | direct 32632390@32639a57 | X2DamageManager:591 | same [June float = 1] |  |
 | `CREATE_DAMAGE_EFFECT_NAME` | implemented |  | 155 | direct 32632390@326334db | X2DamageManager:181 | same [June string = ''] |  |
 | `CREATE_DAMAGE_EFFECT_NAME_SCALE_X` | implemented |  |  | binary-only 32632390@32633724 | X2DamageManager:297 | same [June float = 1] | binary-only: no June data uses it; C3: SetScale on RT_CREATE_DAMAGE_EFFECT children (3 sites) |
 | `CREATE_DAMAGE_EFFECT_NAME_SCALE_Y` | implemented |  |  | binary-only 32632390@326339df | X2DamageManager:298 | same [June float = 1] | binary-only: no June data uses it; C3: see _X |
@@ -523,84 +523,84 @@ The full spec is in the plan, Phases 4a and 4b.
 | `CREATE_EFFECT_SET_MAIN_EFFECT_LIFTTIME` | implemented |  | 2 | direct 32632390@32633f70 | X2DamageManager:186 | same [June bool = 0] |  |
 | `CREATE_EFFECT_SET_NAME` | implemented |  | 48 | direct 32632390@32634782 | X2DamageManager:197 | same [June string = ''] |  |
 | `CREATE_EFFECT_SET_TRACE_UNIT` | implemented |  | 41 | direct 32632390@32634976 | X2DamageManager:198 | same [June bool = 0] |  |
-| `CRITICAL_RATE` | implemented |  | 131 | direct 32632390@3263c0e4 | X2DamageManager:638 | same [June float = 0] |  |
-| `CUSTOM_HIT_PARTICLE%d` | implemented |  | 7 | direct 32632390 | X2DamageManager:541 | n/a (sub-table name) |  |
-| `DAMAGE` | implemented |  | 5063 | direct 32632390 | X2DamageManager:365 | n/a (sub-table name) |  |
-| `DAMAGE_AREA_TYPE` | implemented |  | 10 | direct 32632390@3263a906 | X2DamageManager:604 | same [June enum = 0] |  |
-| `DAMAGE_DATA_KEY_NAME` | implemented |  | 3 | direct 32632390@3263ec64 | X2DamageManager:711 | same [June string = ''] |  |
-| `DAMAGE_DISTANCE` | implemented |  | 42 | direct 32632390@3263a6c7 | X2DamageManager:599 | same [June float = 99999] |  |
-| `DAMAGE_LIGHT_TIME` | implemented |  | 5 | direct 32632390@3263ee3a | X2DamageManager:325 | same [June float = 0.2] | C3: user DamageReact + AttackResult, NPC DamageReact |
-| `DAMAGE_LINEGROUP` | implemented |  | 20 | direct 32632390@3263a557 | X2DamageManager:598 | same [June bool = 0] |  |
-| `DAMAGE_RATE_TO_SUPERAMOR` | implemented |  |  | binary-only 32632390@3263f787 | X2DamageManager:332 | same [June float = 1] | binary-only: no June data uses it; C3: GetFinalDamage multiply for a super-armored defender (June's Luciel_Duo uses it) |
-| `DAMAGE_TRIGGER_CONDITION` | implemented |  |  | binary-only 32632390@3263e92b | X2DamageManager:766 | same [June int = -1] | binary-only: no June data uses it |
-| `DAMAGE_TRIGGER_DATA` | implemented |  | 1 | direct 32632390 | X2DamageManager:746 | n/a (sub-table name) |  |
+| `CRITICAL_RATE` | implemented |  | 131 | direct 32632390@3263c0e4 | X2DamageManager:646 | same [June float = 0] |  |
+| `CUSTOM_HIT_PARTICLE%d` | implemented |  | 7 | direct 32632390 | X2DamageManager:549 | n/a (sub-table name) |  |
+| `DAMAGE` | implemented |  | 5063 | direct 32632390 | X2DamageManager:369 | n/a (sub-table name) |  |
+| `DAMAGE_AREA_TYPE` | implemented |  | 10 | direct 32632390@3263a906 | X2DamageManager:612 | same [June enum = 0] |  |
+| `DAMAGE_DATA_KEY_NAME` | implemented |  | 3 | direct 32632390@3263ec64 | X2DamageManager:719 | same [June string = ''] |  |
+| `DAMAGE_DISTANCE` | implemented |  | 42 | direct 32632390@3263a6c7 | X2DamageManager:607 | same [June float = 99999] |  |
+| `DAMAGE_LIGHT_TIME` | implemented |  | 5 | direct 32632390@3263ee3a | X2DamageManager:329 | same [June float = 0.2] | C3: user DamageReact + AttackResult, NPC DamageReact |
+| `DAMAGE_LINEGROUP` | implemented |  | 20 | direct 32632390@3263a557 | X2DamageManager:606 | same [June bool = 0] |  |
+| `DAMAGE_RATE_TO_SUPERAMOR` | implemented |  |  | binary-only 32632390@3263f787 | X2DamageManager:336 | same [June float = 1] | binary-only: no June data uses it; C3: GetFinalDamage multiply for a super-armored defender (June's Luciel_Duo uses it) |
+| `DAMAGE_TRIGGER_CONDITION` | implemented |  |  | binary-only 32632390@3263e92b | X2DamageManager:774 | same [June int = -1] | binary-only: no June data uses it |
+| `DAMAGE_TRIGGER_DATA` | implemented |  | 1 | direct 32632390 | X2DamageManager:754 | n/a (sub-table name) |  |
 | `DAMAGE_TYPE` | implemented |  | 7264 | direct 32632390@32632b5a | X2DamageManager:161 | same [June enum = 0] |  |
-| `DAMAGE_UNIT_NUM` | implemented |  | 15 | direct 32632390@3263aa7c | X2DamageManager:605 | same [June int = 0] |  |
-| `DECREASE_FORCE_DOWN` | implemented |  | 1 | direct 32632390@3263c230 | X2DamageManager:639 | same [June float = 0] |  |
-| `DISABLE_ATTACKBOX` | implemented |  |  | binary-only 32632390 | X2DamageManager:521 | same (32632390@32637a96-32637b71: as ENABLE_ATTACKBOX with false) | binary-only: no June data uses it |
-| `DIVIDE_DAMAGE_FROM_RANGE` | implemented |  |  | binary-only 32632390 | X2DamageManager:788 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
-| `DIVISION_NUM` | implemented |  |  | binary-only 32632390@32632898 | X2DamageManager:810 | same [June int = 0] | binary-only: no June data uses it |
-| `DIVISION_OFF_TIME` | implemented |  |  | binary-only 32632390@326329dc | X2DamageManager:811 | same [June float = 0] | binary-only: no June data uses it |
+| `DAMAGE_UNIT_NUM` | implemented |  | 15 | direct 32632390@3263aa7c | X2DamageManager:613 | same [June int = 0] |  |
+| `DECREASE_FORCE_DOWN` | implemented |  | 1 | direct 32632390@3263c230 | X2DamageManager:647 | same [June float = 0] |  |
+| `DISABLE_ATTACKBOX` | implemented |  |  | binary-only 32632390 | X2DamageManager:529 | same (32632390@32637a96-32637b71: as ENABLE_ATTACKBOX with false) | binary-only: no June data uses it |
+| `DIVIDE_DAMAGE_FROM_RANGE` | implemented |  |  | binary-only 32632390 | X2DamageManager:796 | unchecked(June: no decrypt site, binary-only) | binary-only: no June data uses it |
+| `DIVISION_NUM` | implemented |  |  | binary-only 32632390@32632898 | X2DamageManager:818 | same [June int = 0] | binary-only: no June data uses it |
+| `DIVISION_OFF_TIME` | implemented |  |  | binary-only 32632390@326329dc | X2DamageManager:819 | same [June float = 0] | binary-only: no June data uses it |
 | `DRAIN` | implemented |  |  | binary-only 32632390@3263308f | X2DamageManager:166 | same [June bool = 0] | binary-only: no June data uses it |
-| `DRAIN_HP_PARTICLE_WEAPON` | implemented |  | 4 | direct 32632390@3263b589 | X2DamageManager:622 | same [June bool = 0] |  |
-| `DRAIN_HP_RATE` | implemented |  | 7 | direct 32632390@3263aedd | X2DamageManager:610 | same [June float = 0] |  |
+| `DRAIN_HP_PARTICLE_WEAPON` | implemented |  | 4 | direct 32632390@3263b589 | X2DamageManager:630 | same [June bool = 0] |  |
+| `DRAIN_HP_RATE` | implemented |  | 7 | direct 32632390@3263aedd | X2DamageManager:618 | same [June float = 0] |  |
 | `DRAIN_MANA` | implemented |  | 14 | direct 32632390@3263313d | X2DamageManager:167 | same [June bool = 0] |  |
-| `DRAIN_MP_RATE_REACT` | implemented |  |  | binary-only 32632390@3263b17e | X2DamageManager:614 | same [June float = 1] | binary-only: no June data uses it |
-| `DRAIN_MP_REACT` | implemented |  | 4 | direct 32632390@3263b022 | X2DamageManager:613 | same [June float = 0] |  |
+| `DRAIN_MP_RATE_REACT` | implemented |  |  | binary-only 32632390@3263b17e | X2DamageManager:622 | same [June float = 1] | binary-only: no June data uses it |
+| `DRAIN_MP_REACT` | implemented |  | 4 | direct 32632390@3263b022 | X2DamageManager:621 | same [June float = 0] |  |
 | `DUNGEON_RATE` | implemented |  | 63 | direct 32632390@32633398 | X2DamageManager:179 | same [June float = 1] |  |
 | `DYNAMO_PARTICLE_RATE_TYPE` | implemented |  | 291 | direct 32632390@3263517a | X2DamageManager:217 | same (32632390@3263532a-32635340: int, default EDI=-1 = DPRT_NONE) [June int = None] |  |
-| `ENABLE_ATTACKBOX` | implemented |  |  | binary-only 32632390 | X2DamageManager:506 | same (32632390@326379bc-32637a91: strings from index 1, SetEnableAttackBox(name, true) when the attacker is live) | binary-only: no June data uses it |
-| `EXCEPT_ME_HP_UP` | implemented |  | 1 | direct 32632390@3263bbed | X2DamageManager:322 | same [June bool = 0] | C3: NPC DamageReact heal gate |
-| `EXTRA_DAMAGE` | implemented |  | 124 | direct 32632390 | X2DamageManager:413 | n/a (sub-table name) |  |
-| `FLIP_DIR` | implemented |  | 3 | direct 32632390@3263a815 | X2DamageManager:601 | same [June bool = 0] |  |
-| `FORCE_BACK_SPEED` | implemented |  | 26 | direct 32632390@3263859d | X2DamageManager:314 | same [June bool = 0] | C3: DamageReact (user 320462a0 @32046f56, NPC 327b1f30 @327b2efa) ported; the six DamageReactStateChange tests behind 31fd86b0 are C3b |
-| `FORCE_DOWN` | implemented |  | 1597 | direct 32632390@326388a8 | X2DamageManager:565 | same [June float = 0] |  |
-| `FORCE_FLY` | implemented |  | 1656 | direct 32632390@3263a088 | X2DamageManager:591 | same [June bool = 0] |  |
-| `GROGGY_TIME` | implemented |  | 18 | direct 32632390@326389b0 | X2DamageManager:566 | same [June float = 0] |  |
-| `HIT_ADD_FORCE_POWER` | implemented |  | 4 | direct 32632390@3263dcd5 | X2DamageManager:684 | same (32632390@3263de28: int, default EBX, zeroed @3263de06) [June int = None] |  |
-| `HIT_ADD_HP_PERCENT` | implemented |  | 3 | direct 32632390@32638c66 | X2DamageManager:571 | same [June float = 0] |  |
-| `HIT_ADD_HP_PERCENT_ATTACKPOWER` | implemented |  | 1 | direct 32632390@3263e6c4 | X2DamageManager:699 | same [June float = 0] |  |
-| `HIT_ADD_MP` | implemented |  | 3105 | direct 32632390@32638ac9 | X2DamageManager:568 | same [June float = 6] |  |
-| `HIT_ADD_MP_PERCENT` | implemented |  |  | binary-only 32632390@32638e7f | X2DamageManager:317 | same [June float = 0] | binary-only: no June data uses it; C3: CEffect::AttackResult + CX2GUUser::AttackResult (322736f0) |
-| `HIT_DAMAGE_EFFECT_INVOKE_RATE` | implemented |  | 36 | direct 32632390@3263beae | X2DamageManager:634 | same [June float = 1] |  |
-| `HIT_GAP` | implemented |  | 3748 | direct 32632390@3263a479 | X2DamageManager:596 | same [June float = 0] |  |
+| `ENABLE_ATTACKBOX` | implemented |  |  | binary-only 32632390 | X2DamageManager:514 | same (32632390@326379bc-32637a91: strings from index 1, SetEnableAttackBox(name, true) when the attacker is live) | binary-only: no June data uses it |
+| `EXCEPT_ME_HP_UP` | implemented |  | 1 | direct 32632390@3263bbed | X2DamageManager:326 | same [June bool = 0] | C3: NPC DamageReact heal gate |
+| `EXTRA_DAMAGE` | implemented |  | 124 | direct 32632390 | X2DamageManager:417 | n/a (sub-table name) |  |
+| `FLIP_DIR` | implemented |  | 3 | direct 32632390@3263a815 | X2DamageManager:609 | same [June bool = 0] |  |
+| `FORCE_BACK_SPEED` | implemented |  | 26 | direct 32632390@3263859d | X2DamageManager:318 | same [June bool = 0] | C3: DamageReact (user 320462a0 @32046f56, NPC 327b1f30 @327b2efa) ported; C3c: the six DamageReactStateChange tests and the FORCE block (31feabd0, 31feb28f) ported |
+| `FORCE_DOWN` | implemented |  | 1597 | direct 32632390@326388a8 | X2DamageManager:573 | same [June float = 0] |  |
+| `FORCE_FLY` | implemented |  | 1656 | direct 32632390@3263a088 | X2DamageManager:599 | same [June bool = 0] |  |
+| `GROGGY_TIME` | implemented |  | 18 | direct 32632390@326389b0 | X2DamageManager:574 | same [June float = 0] |  |
+| `HIT_ADD_FORCE_POWER` | implemented |  | 4 | direct 32632390@3263dcd5 | X2DamageManager:692 | same (32632390@3263de28: int, default EBX, zeroed @3263de06) [June int = None] |  |
+| `HIT_ADD_HP_PERCENT` | implemented |  | 3 | direct 32632390@32638c66 | X2DamageManager:579 | same [June float = 0] |  |
+| `HIT_ADD_HP_PERCENT_ATTACKPOWER` | implemented |  | 1 | direct 32632390@3263e6c4 | X2DamageManager:707 | same [June float = 0] |  |
+| `HIT_ADD_MP` | implemented |  | 3105 | direct 32632390@32638ac9 | X2DamageManager:576 | same [June float = 6] |  |
+| `HIT_ADD_MP_PERCENT` | implemented |  |  | binary-only 32632390@32638e7f | X2DamageManager:321 | same [June float = 0] | binary-only: no June data uses it; C3: CEffect::AttackResult + CX2GUUser::AttackResult (322736f0) |
+| `HIT_DAMAGE_EFFECT_INVOKE_RATE` | implemented |  | 36 | direct 32632390@3263beae | X2DamageManager:642 | same [June float = 1] |  |
+| `HIT_GAP` | implemented |  | 3748 | direct 32632390@3263a479 | X2DamageManager:604 | same [June float = 0] |  |
 | `HIT_TYPE` | implemented |  | 7291 | direct 32632390@32632d91 | X2DamageManager:163 | same [June enum = 0] |  |
-| `HP_PERCENT_UP` | implemented |  | 22 | direct 32632390@3263b97e | X2DamageManager:628 | same [June float = 0] |  |
-| `IGNORE_ATTACK_SUCCESS` | implemented |  | 2 | direct 32632390@3263f0e2 | X2DamageManager:327 | same [June bool = 0] | C3: CEffect::AttackResult (bHit of the owner, 31fcee10); 31fcee40 counter not ported (C3b) |
-| `IGNORE_DEFENCE` | implemented |  | 34 | direct 32632390@3263c5d2 | X2DamageManager:648 | same [June bool = 0] |  |
-| `IGNORE_DEFENCE_DECLINE` | implemented |  | 18 | direct 32632390@3263ccde | X2DamageManager:655 | same [June bool = 0] |  |
-| `IGNORE_DEFENCE_ON_PVP` | implemented |  | 13 | direct 32632390@3263c72e | X2DamageManager:652 | unchecked(unchecked-default(June: default store not recognised: mov ecx, dword ptr [esp + 0x14]; mov dl, byte ptr [ecx]; mov byte ptr [edi], dl)) [June bool = None] |  |
-| `IGNORE_DEFENCE_RATE` | implemented |  | 25 | direct 32632390@3263c8fb | X2DamageManager:653 | same [June float = 0] |  |
-| `IGNORE_DEFENCE_RATE_ON_PVP` | implemented |  | 25 | direct 32632390@3263cab8 | X2DamageManager:654 | unchecked(unchecked-default(June: default store not recognised: fld dword ptr [ebp]; fstp dword ptr [edi])) [June float = None] |  |
-| `IGNORE_STATE_DEFENCE` | implemented |  | 70 | direct 32632390@3263d168 | X2DamageManager:666 | same [June bool = 0] |  |
-| `INCREASE_MP` | implemented |  | 1 | direct 32632390@3263dbac | X2DamageManager:675 | same [June float = 0] |  |
-| `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | implemented |  | 4 | direct 32632390@32635e57 | X2DamageManager:403 | same [June bool = 0] | C3: parse-time ExtraDamageData reset (31f8e430) |
-| `IS_AURA_BUFF` | implemented |  | 1 | direct 32632390@3263efab | X2DamageManager:341 | unchecked(March: `IS_AURA_BUFF` at X2DamageManager.cpp:341 is not a GetValue key) [June bool = 0] |  |
-| `LEVEL_DAMAGE` | implemented |  | 2 | direct 32632390@3263b312 | X2DamageManager:615 | same [June bool = 0] |  |
-| `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` | implemented |  | 1 | direct 32632390@326402d5 | X2DamageManager:345 | unchecked(March: `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` at X2DamageManager.cpp:345 is not a GetValue key) [June int = -1] |  |
-| `MAKE_TARGET` | implemented |  | 1 | direct 32632390@3263eb25 | X2DamageManager:706 | same [June bool = 0] |  |
+| `HP_PERCENT_UP` | implemented |  | 22 | direct 32632390@3263b97e | X2DamageManager:636 | same [June float = 0] |  |
+| `IGNORE_ATTACK_SUCCESS` | implemented |  | 2 | direct 32632390@3263f0e2 | X2DamageManager:331 | same [June bool = 0] | C3: CEffect::AttackResult (bHit of the owner, 31fcee10); 31fcee40 counter not ported (C3b) |
+| `IGNORE_DEFENCE` | implemented |  | 34 | direct 32632390@3263c5d2 | X2DamageManager:656 | same [June bool = 0] |  |
+| `IGNORE_DEFENCE_DECLINE` | implemented |  | 18 | direct 32632390@3263ccde | X2DamageManager:663 | same [June bool = 0] |  |
+| `IGNORE_DEFENCE_ON_PVP` | implemented |  | 13 | direct 32632390@3263c72e | X2DamageManager:660 | unchecked(unchecked-default(June: default store not recognised: mov ecx, dword ptr [esp + 0x14]; mov dl, byte ptr [ecx]; mov byte ptr [edi], dl)) [June bool = None] |  |
+| `IGNORE_DEFENCE_RATE` | implemented |  | 25 | direct 32632390@3263c8fb | X2DamageManager:661 | same [June float = 0] |  |
+| `IGNORE_DEFENCE_RATE_ON_PVP` | implemented |  | 25 | direct 32632390@3263cab8 | X2DamageManager:662 | unchecked(unchecked-default(June: default store not recognised: fld dword ptr [ebp]; fstp dword ptr [edi])) [June float = None] |  |
+| `IGNORE_STATE_DEFENCE` | implemented |  | 70 | direct 32632390@3263d168 | X2DamageManager:674 | same [June bool = 0] |  |
+| `INCREASE_MP` | implemented |  | 1 | direct 32632390@3263dbac | X2DamageManager:683 | same [June float = 0] |  |
+| `INIT_EXTRA_DAMAGE_BEFORE_LOAD` | implemented |  | 4 | direct 32632390@32635e57 | X2DamageManager:407 | same [June bool = 0] | C3: parse-time ExtraDamageData reset (31f8e430) |
+| `IS_AURA_BUFF` | implemented |  | 1 | direct 32632390@3263efab | X2DamageManager:345 | unchecked(March: `IS_AURA_BUFF` at X2DamageManager.cpp:345 is not a GetValue key) [June bool = 0] |  |
+| `LEVEL_DAMAGE` | implemented |  | 2 | direct 32632390@3263b312 | X2DamageManager:623 | same [June bool = 0] |  |
+| `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` | implemented |  | 1 | direct 32632390@326402d5 | X2DamageManager:349 | unchecked(March: `LIMIT_APPLY_BUFF_COUNT_EACH_UNIT` at X2DamageManager.cpp:349 is not a GetValue key) [June int = -1] |  |
+| `MAKE_TARGET` | implemented |  | 1 | direct 32632390@3263eb25 | X2DamageManager:714 | same [June bool = 0] |  |
 | `MELEE_ATTACK` | implemented |  | 100 | direct 32632390@32632f88 | X2DamageManager:165 | same (32632390@3263305e: bool getter, result ignored, so a missing key leaves the member as it was = March default-to-itself) [June bool = None] |  |
-| `MP_PERCENT_UP` | implemented |  | 10 | direct 32632390@3263bab1 | X2DamageManager:629 | same [June float = 0] |  |
-| `NO_BUFF` | implemented |  | 57 | direct 32632390@3263c3be | X2DamageManager:642 | same [June bool = 0] |  |
-| `NO_DAMAGE` | implemented |  | 514 | direct 32632390@3263ade6 | X2DamageManager:608 | same [June bool = 0] |  |
-| `NO_DETONATION` | implemented |  | 322 | direct 32632390@3263b439 | X2DamageManager:619 | same [June bool = 0] |  |
-| `NO_MISS` | implemented |  | 203 | direct 32632390@3263d301 | X2DamageManager:667 | same [June bool = 0] |  |
-| `ONLY_BASIC` | implemented |  | 18 | direct 32632390@3263d055 | X2DamageManager:665 | same [June bool = 0] |  |
-| `ONYL_ATTACK_USER` | implemented |  | 1 | direct 32632390@3263f60a | X2DamageManager:329 | same [June bool = 0] | C3: UnitToUnit / MeshToUnit / CollisionDataToUnit / EffectToUnit |
-| `PAUSE_NPC_AI_TIME` | implemented |  | 1 | direct 32632390@3263f977 | X2DamageManager:334 | same [June float = 0] | C3: GetFinalDamage -> SetTimePauseNPCAI (3275b330) |
-| `PVP_RATE` | implemented |  | 1504 | direct 32632390@32635d43 | X2DamageManager:393 | same [June float = 1] |  |
-| `RATE_MODIFIER` | implemented |  | 943 | direct 32632390@3263c495 | X2DamageManager:645 | same [June float = 1] |  |
+| `MP_PERCENT_UP` | implemented |  | 10 | direct 32632390@3263bab1 | X2DamageManager:637 | same [June float = 0] |  |
+| `NO_BUFF` | implemented |  | 57 | direct 32632390@3263c3be | X2DamageManager:650 | same [June bool = 0] |  |
+| `NO_DAMAGE` | implemented |  | 514 | direct 32632390@3263ade6 | X2DamageManager:616 | same [June bool = 0] |  |
+| `NO_DETONATION` | implemented |  | 322 | direct 32632390@3263b439 | X2DamageManager:627 | same [June bool = 0] |  |
+| `NO_MISS` | implemented |  | 203 | direct 32632390@3263d301 | X2DamageManager:675 | same [June bool = 0] |  |
+| `ONLY_BASIC` | implemented |  | 18 | direct 32632390@3263d055 | X2DamageManager:673 | same [June bool = 0] |  |
+| `ONYL_ATTACK_USER` | implemented |  | 1 | direct 32632390@3263f60a | X2DamageManager:333 | same [June bool = 0] | C3: UnitToUnit / MeshToUnit / CollisionDataToUnit / EffectToUnit |
+| `PAUSE_NPC_AI_TIME` | implemented |  | 1 | direct 32632390@3263f977 | X2DamageManager:338 | same [June float = 0] | C3: GetFinalDamage -> SetTimePauseNPCAI (3275b330) |
+| `PVP_RATE` | implemented |  | 1504 | direct 32632390@32635d43 | X2DamageManager:397 | same [June float = 1] |  |
+| `RATE_MODIFIER` | implemented |  | 943 | direct 32632390@3263c495 | X2DamageManager:653 | same [June float = 1] |  |
 | `REACT_TYPE` | implemented |  | 7309 | direct 32632390@32632e7d | X2DamageManager:164 | same [June enum = 0] |  |
-| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:4858 | same [June bool = 0] |  |
-| `RELAX_NPC_REACTION_STATE_CHECK` | implemented |  | 4 | direct 32632390@3263e1f6 | X2DamageManager:694 | same [June bool = 0] |  |
-| `RESIST` | implemented |  | 7 | direct 32632390@3263b75c | X2DamageManager:626 | same [June int = 0] |  |
-| `RE_ATTACK` | implemented |  | 5198 | direct 32632390@3263a38d | X2DamageManager:595 | same [June bool = 0] |  |
-| `STOP_TIME_ATT` | implemented |  | 2828 | direct 32632390@32639084 | X2DamageManager:574 | same [June float = 0] |  |
-| `STOP_TIME_DEF` | implemented |  | 3648 | direct 32632390@326391b7 | X2DamageManager:575 | same [June float = 0] |  |
-| `TECH_POINT` | implemented |  | 2833 | direct 32632390@32637d94 | X2DamageManager:554 | same [June int = 0] |  |
+| `RELATIVE_SKILL_LEARN_CHECK` | implemented |  | 25 | direct 32630d20@32631c6b | X2DamageManager:4866 | same [June bool = 0] |  |
+| `RELAX_NPC_REACTION_STATE_CHECK` | implemented |  | 4 | direct 32632390@3263e1f6 | X2DamageManager:702 | same [June bool = 0] |  |
+| `RESIST` | implemented |  | 7 | direct 32632390@3263b75c | X2DamageManager:634 | same [June int = 0] |  |
+| `RE_ATTACK` | implemented |  | 5198 | direct 32632390@3263a38d | X2DamageManager:603 | same [June bool = 0] |  |
+| `STOP_TIME_ATT` | implemented |  | 2828 | direct 32632390@32639084 | X2DamageManager:582 | same [June float = 0] |  |
+| `STOP_TIME_DEF` | implemented |  | 3648 | direct 32632390@326391b7 | X2DamageManager:583 | same [June float = 0] |  |
+| `TECH_POINT` | implemented |  | 2833 | direct 32632390@32637d94 | X2DamageManager:562 | same [June int = 0] |  |
 | `TRACE_NEAREST_BONE` | implemented |  | 16 | direct 32632390@32634bac | X2DamageManager:204 | same [June bool = 0] |  |
 | `TRACE_UNIT_DIE_DELETE_EFFECT_SET` | implemented |  | 16 | direct 32632390@32634d60 | X2DamageManager:208 | same [June bool = 1] |  |
-| `USED_SKILL_ID` | implemented |  | 373 | direct 32632390@3263de71 | X2DamageManager:687 | same [June enum = 0] |  |
+| `USED_SKILL_ID` | implemented |  | 373 | direct 32632390@3263de71 | X2DamageManager:695 | same [June enum = 0] |  |
 | `WAY_OF_SWORD_TYPE` | implemented |  | 423 | direct 32632390@32634fd7 | X2DamageManager:212 | same [June enum = 0] |  |
 | `ANIMATION_SPEED_UP` | june-ignores(removed-in-June) |  | 2 | March reads it in SetDamageDataFromLUA (X2DamageManager.cpp:360) between IGNORE_DEFENCE and ATTACK_TRIGGER_TYPE. June 32632390 decrypts NO_BUFF, RATE_MODIFIER,  |  |  |  |
 | `ANIMATION_SPEED_UP_RATE` | june-ignores(removed-in-June) |  | 2 | see ANIMATION_SPEED_UP (March X2DamageManager.cpp:361) |  |  |  |
@@ -637,8 +637,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `HP` | implemented |  |  | binary-only 32632390@32635b56 | X2DamageManager:375 | same [June float = 0] | binary-only: no June data uses it |
-| `MP` | implemented |  |  | binary-only 32632390@32635baf | X2DamageManager:376 | same [June float = 0] | binary-only: no June data uses it |
+| `HP` | implemented |  |  | binary-only 32632390@32635b56 | X2DamageManager:379 | same [June float = 0] | binary-only: no June data uses it |
+| `MP` | implemented |  |  | binary-only 32632390@32635baf | X2DamageManager:380 | same [June float = 0] | binary-only: no June data uses it |
 
 ### BuffFactor (nested in DAMAGE_DATA)
 
@@ -650,10 +650,10 @@ The full spec is in the plan, Phases 4a and 4b.
 |---|---|---|---|---|---|---|---|
 | `APPLIED_SKILL_ID` | handed-off |  | 2 | direct 32632390@32632446 | X2DamageManager:233 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `BEHAVIOR` | implemented |  | 967 | other-func 32d4c9c0 | X2BuffFactor:803 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:643, X2DamageManager:753 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `BUFF_TEMPLET_ID` | implemented |  | 967 | direct 32632390@3263d647 | X2BuffFactor:643, X2DamageManager:761 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `FINALIZER` | implemented |  | 967 | other-func 32d4ca60 | X2BuffFactor:830 | unchecked(buff parser row: March matched path-insensitively) |  |
 | `IGNORE_REGIST_FOR_RATE` | implemented |  | 967 | other-func 32d4d850@32d4da34 | X2BuffFactor:652 | unchecked(buff parser row: March matched path-insensitively) |  |
-| `RATE` | implemented |  | 967 | direct 32632390@3263623e | X2BuffFactor:647, X2DamageManager:434 | unchecked(buff parser row: March matched path-insensitively) |  |
+| `RATE` | implemented |  | 967 | direct 32632390@3263623e | X2BuffFactor:647, X2DamageManager:438 | unchecked(buff parser row: March matched path-insensitively) |  |
 
 ### DamageData
 
@@ -663,7 +663,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `PARTICLE_NAME` | implemented |  | 7 | direct 32632390@32637bff | X2DamageManager:543 | same [June string = ''] |  |
+| `PARTICLE_NAME` | implemented |  | 7 | direct 32632390@32637bff | X2DamageManager:551 | same [June string = ''] |  |
 
 #### `DE.DAMAGE_DATA` DAMAGE
 
@@ -671,8 +671,8 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `MAGIC` | implemented |  | 3590 | direct 32632390@32635858 | X2DamageManager:368 | same [June float = 0] |  |
-| `PHYSIC` | implemented |  | 2463 | direct 32632390@326357a6 | X2DamageManager:367 | same [June float = 0] |  |
+| `MAGIC` | implemented |  | 3590 | direct 32632390@32635858 | X2DamageManager:372 | same [June float = 0] |  |
+| `PHYSIC` | implemented |  | 2463 | direct 32632390@326357a6 | X2DamageManager:371 | same [June float = 0] |  |
 | `HYSIC` | june-ignores(typo) |  | 1 | data typo of `PHYSIC` (this scope, decrypted in 32632390); the binary never reads this spelling |  |  |  |
 
 #### `DE.DAMAGE_DATA` DAMAGE_DATA
@@ -696,7 +696,7 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `RANGE%d` | implemented |  |  | binary-only 32632390 | X2DamageManager:791 | n/a (sub-table name) | binary-only: no June data uses it |
+| `RANGE%d` | implemented |  |  | binary-only 32632390 | X2DamageManager:799 | n/a (sub-table name) | binary-only: no June data uses it |
 
 #### `DE.DAMAGE_DATA` EXTRA_DAMAGE
 
@@ -704,22 +704,22 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ADD_LEVEL` | implemented |  |  | binary-only 32632390@32636901 | X2DamageManager:461 | same (32632390@326369b2: int, default EBX, zeroed @32636997) [June int = None] | binary-only: no June data uses it |
-| `ADD_MEMBER_COUNT` | implemented |  | 2 | direct 32632390@326375e9 | X2DamageManager:492 | same [June int = 0] | C3: parsed into ExtraDamageData +0x104, stored, logged; no June reader found (C3b) |
-| `ADD_MEMBER_COUNT_DISTANCE` | implemented |  | 1 | direct 32632390@32637772 | X2DamageManager:493 | same [June float = -1] | C3: parsed into ExtraDamageData +0x108, stored, logged; no June reader found (C3b) |
-| `ANIMSPEED_RATE` | implemented |  |  | binary-only 32632390@3263711c | X2DamageManager:476 | same [June float = 0] | binary-only: no June data uses it |
-| `DAMAGE` | implemented |  | 89 | direct 32632390@326366a1 | X2DamageManager:446 | same [June float = 0] |  |
-| `DAMAGE_PER_SEC` | implemented |  |  | binary-only 32632390@326364f2 | X2DamageManager:443 | same [June float = 0] | binary-only: no June data uses it |
-| `DAMAGE_RATE` | implemented |  | 6 | direct 32632390@32636d6a | X2DamageManager:472 | same [June float = 0] |  |
-| `DEFENDER_LEVEL` | implemented |  |  | binary-only 32632390@32636c1f | X2DamageManager:468 | same [June bool = 0] | binary-only: no June data uses it |
-| `EXTRA_DAMAGE_TYPE` | implemented | 8a | 124 | direct 32632390@326360c1 | X2DamageManager:415 | differ(post: 32632390@32636204-32636214 remaps EDT_MANA_DAMAGE_WITH_NO_DISPLAY 67 -> EDT_MANA_DAMAGE 16 and sets a no-display flag; default EBX=0 = EDT_NONE is the same; fixed under SERV_IRUHADEV_JUNE_DAMAGEDATA) [June int = None] |  |
-| `FIXED_DAMAGE` | implemented |  | 15 | direct 32632390@326372df | X2DamageManager:480 | same [June bool = 0] |  |
-| `IGNORE_RESIST` | implemented |  | 116 | direct 32632390@32636a6b | X2DamageManager:463 | same [June bool = 0] |  |
-| `JUMP_SPEED_RATE` | implemented |  |  | binary-only 32632390@3263740c | X2DamageManager:483 | same [June float = 0] | binary-only: no June data uses it |
-| `LEVEL` | implemented |  | 27 | direct 32632390@326367e1 | X2DamageManager:459 | same (32632390@32636851: int, default EDI=-1 set @326367a9) [June int = None] |  |
-| `RATE` | implemented |  | 7 | direct 32632390@3263623e | X2DamageManager:434 | same [June float = 1] |  |
-| `RUNJUMP_SPEED_RATE` | implemented |  |  | binary-only 32632390@32636f10 | X2DamageManager:474 | same [June float = 0] | binary-only: no June data uses it |
-| `TIME` | implemented |  | 32 | direct 32632390@326363cf | X2DamageManager:440 | same [June float = 0] |  |
+| `ADD_LEVEL` | implemented |  |  | binary-only 32632390@32636901 | X2DamageManager:465 | same (32632390@326369b2: int, default EBX, zeroed @32636997) [June int = None] | binary-only: no June data uses it |
+| `ADD_MEMBER_COUNT` | implemented |  | 2 | direct 32632390@326375e9 | X2DamageManager:496 | same [June int = 0] | C3c: read by Process_ExtraDamage EDT_TRANSIT_DEBUFF (32034e50 @3203683c): above 0 runs the member loop; the count only gates, it is never a limit (JUNE_BUGS 133) |
+| `ADD_MEMBER_COUNT_DISTANCE` | implemented |  | 1 | direct 32632390@32637772 | X2DamageManager:497 | same [June float = -1] | C3c: read by the same member loop (@3203686d): the collection distance, 1000.0 when not above 0 |
+| `ANIMSPEED_RATE` | implemented |  |  | binary-only 32632390@3263711c | X2DamageManager:480 | same [June float = 0] | binary-only: no June data uses it |
+| `DAMAGE` | implemented |  | 89 | direct 32632390@326366a1 | X2DamageManager:450 | same [June float = 0] |  |
+| `DAMAGE_PER_SEC` | implemented |  |  | binary-only 32632390@326364f2 | X2DamageManager:447 | same [June float = 0] | binary-only: no June data uses it |
+| `DAMAGE_RATE` | implemented |  | 6 | direct 32632390@32636d6a | X2DamageManager:476 | same [June float = 0] |  |
+| `DEFENDER_LEVEL` | implemented |  |  | binary-only 32632390@32636c1f | X2DamageManager:472 | same [June bool = 0] | binary-only: no June data uses it |
+| `EXTRA_DAMAGE_TYPE` | implemented | 8a | 124 | direct 32632390@326360c1 | X2DamageManager:419 | differ(post: 32632390@32636204-32636214 remaps EDT_MANA_DAMAGE_WITH_NO_DISPLAY 67 -> EDT_MANA_DAMAGE 16 and sets a no-display flag; default EBX=0 = EDT_NONE is the same; fixed under SERV_IRUHADEV_JUNE_DAMAGEDATA) [June int = None] |  |
+| `FIXED_DAMAGE` | implemented |  | 15 | direct 32632390@326372df | X2DamageManager:484 | same [June bool = 0] |  |
+| `IGNORE_RESIST` | implemented |  | 116 | direct 32632390@32636a6b | X2DamageManager:467 | same [June bool = 0] |  |
+| `JUMP_SPEED_RATE` | implemented |  |  | binary-only 32632390@3263740c | X2DamageManager:487 | same [June float = 0] | binary-only: no June data uses it |
+| `LEVEL` | implemented |  | 27 | direct 32632390@326367e1 | X2DamageManager:463 | same (32632390@32636851: int, default EDI=-1 set @326367a9) [June int = None] |  |
+| `RATE` | implemented |  | 7 | direct 32632390@3263623e | X2DamageManager:438 | same [June float = 1] |  |
+| `RUNJUMP_SPEED_RATE` | implemented |  |  | binary-only 32632390@32636f10 | X2DamageManager:478 | same [June float = 0] | binary-only: no June data uses it |
+| `TIME` | implemented |  | 32 | direct 32632390@326363cf | X2DamageManager:444 | same [June float = 0] |  |
 
 ### BuffFactor (nested in DAMAGE_DATA)
 
@@ -793,10 +793,10 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `ATTACK_TRIGGER_TYPE` | implemented |  | 1 | direct 32632390@3263d4a0 | X2DamageManager:752 | same [June enum = 0] |  |
-| `BUFF_TEMPLET_ID` | implemented |  | 1 | direct 32632390@3263d647 | X2DamageManager:753 | same [June enum = 0] |  |
-| `POWER_RATE` | implemented |  | 1 | direct 32632390@3263d7a2 | X2DamageManager:754 | same [June float = 1] |  |
-| `POWER_RATE_ACCUMULATION_MULTIPLIER` | implemented |  | 1 | direct 32632390@3263d8e7 | X2DamageManager:755 | same [June float = 0] |  |
+| `ATTACK_TRIGGER_TYPE` | implemented |  | 1 | direct 32632390@3263d4a0 | X2DamageManager:760 | same [June enum = 0] |  |
+| `BUFF_TEMPLET_ID` | implemented |  | 1 | direct 32632390@3263d647 | X2DamageManager:761 | same [June enum = 0] |  |
+| `POWER_RATE` | implemented |  | 1 | direct 32632390@3263d7a2 | X2DamageManager:762 | same [June float = 1] |  |
+| `POWER_RATE_ACCUMULATION_MULTIPLIER` | implemented |  | 1 | direct 32632390@3263d8e7 | X2DamageManager:763 | same [June float = 0] |  |
 
 ### BuffFactor (nested in DAMAGE_DATA)
 
@@ -1670,15 +1670,15 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `DAMAGE_ADDMP` | implemented |  | 107 | direct 32621080@3262170c | X2DamageManager:3538 | same [June float = 0] |  |
-| `DAMAGE_ATTACK_TYPE` | implemented |  | 107 | direct 32621080@32621cc1 | X2DamageManager:3542 | unchecked(unchecked-default(June: non-standard shape after the call: fldz fld movzx neg)) [June int = None] |  |
-| `DAMAGE_DOWN_POINT` | implemented |  | 107 | direct 32621080@326219bf | X2DamageManager:3540 | same [June float = 0] |  |
-| `DAMAGE_KEY_NAME` | implemented |  | 107 | direct 32621080@3262114a | X2DamageManager:3520 | same [June string = ''] |  |
-| `DAMAGE_MAGIC` | implemented |  | 107 | direct 32621080@326214b1 | X2DamageManager:3536 | same [June float = 0] |  |
-| `DAMAGE_PHYSIC` | implemented |  | 107 | direct 32621080@326215d9 | X2DamageManager:3537 | same [June float = 0] |  |
-| `DAMAGE_PVP_RATE` | implemented |  | 107 | direct 32621080@32621356 | X2DamageManager:3535 | same [June float = 1] |  |
-| `DAMAGE_SKILL_ID` | implemented |  | 103 | direct 32621080@32621b48 | X2DamageManager:3541 | same [June enum = 0] |  |
-| `DAMAGE_TECH_POINT` | implemented |  | 107 | direct 32621080@3262183e | X2DamageManager:3539 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esp + 0x20], ebx)) [June int = None] |  |
+| `DAMAGE_ADDMP` | implemented |  | 107 | direct 32621080@3262170c | X2DamageManager:3546 | same [June float = 0] |  |
+| `DAMAGE_ATTACK_TYPE` | implemented |  | 107 | direct 32621080@32621cc1 | X2DamageManager:3550 | unchecked(unchecked-default(June: non-standard shape after the call: fldz fld movzx neg)) [June int = None] |  |
+| `DAMAGE_DOWN_POINT` | implemented |  | 107 | direct 32621080@326219bf | X2DamageManager:3548 | same [June float = 0] |  |
+| `DAMAGE_KEY_NAME` | implemented |  | 107 | direct 32621080@3262114a | X2DamageManager:3528 | same [June string = ''] |  |
+| `DAMAGE_MAGIC` | implemented |  | 107 | direct 32621080@326214b1 | X2DamageManager:3544 | same [June float = 0] |  |
+| `DAMAGE_PHYSIC` | implemented |  | 107 | direct 32621080@326215d9 | X2DamageManager:3545 | same [June float = 0] |  |
+| `DAMAGE_PVP_RATE` | implemented |  | 107 | direct 32621080@32621356 | X2DamageManager:3543 | same [June float = 1] |  |
+| `DAMAGE_SKILL_ID` | implemented |  | 103 | direct 32621080@32621b48 | X2DamageManager:3549 | same [June enum = 0] |  |
+| `DAMAGE_TECH_POINT` | implemented |  | 107 | direct 32621080@3262183e | X2DamageManager:3547 | unchecked(unchecked-default(June: default store not recognised: mov dword ptr [esp + 0x20], ebx)) [June int = None] |  |
 
 ### DamageSound
 
@@ -1688,16 +1688,16 @@ The full spec is in the plan, Phases 4a and 4b.
 
 | key | status | phase | uses | June | March | semantics | leads / note |
 |---|---|---|---|---|---|---|---|
-| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:3807 | same [June string = ''] |  |
-| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:3797 | same [June string = ''] |  |
-| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:3811 | same [June string = ''] |  |
-| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:3816 | same [June string = ''] |  |
-| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:3798 | same [June string = ''] |  |
-| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:3804 | same [June string = ''] |  |
-| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:3805 | same [June string = ''] |  |
-| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:3801 | same [June string = ''] |  |
-| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:3802 | same [June string = ''] |  |
-| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:3799 | same [June string = ''] |  |
+| `HTD_BEEHOUSE` | implemented |  | 48 | direct 32610ff0@32611666 | X2DamageManager:3815 | same [June string = ''] |  |
+| `HTD_DEFAULT` | implemented |  | 51 | direct 32610ff0@32611071 | X2DamageManager:3805 | same [June string = ''] |  |
+| `HTD_GUARD_1` | implemented |  | 49 | direct 32610ff0@3261176b | X2DamageManager:3819 | same [June string = ''] |  |
+| `HTD_GUARD_2` | implemented |  | 49 | direct 32610ff0@32611863 | X2DamageManager:3824 | same [June string = ''] |  |
+| `HTD_MEAT` | implemented |  | 46 | direct 32610ff0@32611160 | X2DamageManager:3806 | same [June string = ''] |  |
+| `HTD_METAL` | implemented |  | 45 | direct 32610ff0@326114a6 | X2DamageManager:3812 | same [June string = ''] |  |
+| `HTD_METAL2` | implemented |  | 45 | direct 32610ff0@3261157f | X2DamageManager:3813 | same [June string = ''] |  |
+| `HTD_STONE` | implemented |  | 48 | direct 32610ff0@326112eb | X2DamageManager:3809 | same [June string = ''] |  |
+| `HTD_STONE2` | implemented |  | 48 | direct 32610ff0@326113c4 | X2DamageManager:3810 | same [June string = ''] |  |
+| `HTD_WOOD` | implemented |  | 48 | direct 32610ff0@32611223 | X2DamageManager:3807 | same [June string = ''] |  |
 
 ### Outside the scope roots
 

@@ -573,7 +573,10 @@ for `CEffect::JuneGetLockOnAimPos`, with an `#error` in `X2GameUnit.cpp` if it i
    fire once on the first super-armour refusal and on the first member loop. `census_completion.KEY_NOTES` moved for the three keys.
 
 **Hygiene** (`flagcheck`, paste after the commit):
-(pending: pasted by the follow-up commit)
+- `flagcheck JUNE_SUPER_ARMOR_CONDITION --range 57c5651^..57c5651 --with JUNE_TUTORIAL_MODE`: files: 1 PASS, 0 PASS~, 1 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR; in this flag's files: 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 `#else`/`#endif` without the flag token, 0 encoding change(s); RESULT: PASS.
+  The `-2` on `X2GUUser.cpp` is the two-line comment correction inside buff 14c's tutorial block (an OTHER row: `JUNE_TUTORIAL_MODE`).
+- `flagcheck JUNE_DAMAGEDATA --range 57c5651^..57c5651 --with JUNE_SUPER_ARMOR_CONDITION --files <the six code files>`: 5 PASS, 1 OTHER (that comment), 0 FAIL, 0 ERROR; RESULT: PASS.
+  Without `--files` the tool ERRORs on `Always.h:5380` (`#if defined(...CREATE_EFFECT_SET) && !defined(...DAMAGEDATA)`), an older line this commit does not touch; the commit's `Always.h` change is the other flag's DEFINE.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,405,312 B, dated 2026-10-08 18:26:07, md5 eeabc914b8cf2deab8f2ae39720430d8, equal to X2/US_SERVICE/x2.exe (2026-10-08 18:26:02); built at mods/june-buff-port 61d480c + 11 uncommitted code file(s).` New strings checked in the deployed exe (UTF-16): both `JUNE_FX C3c ... (first seen)` lines and `bounding user states (C3d-3)`.
 
