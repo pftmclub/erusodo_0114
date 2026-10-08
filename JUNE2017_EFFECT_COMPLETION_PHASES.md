@@ -3006,7 +3006,7 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 
 **Open for the user**: /cost.
 
-### C9h-4d - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE` + `_DEBUG` (on for the play-test); log `JUNE_FX EFFECT_SET_DELETE`; play-test pending)
+### C9h-4d - Done (2026-10-08, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE` + `_DEBUG` (on for the play-test); log `JUNE_FX EFFECT_SET_DELETE`; play-test run, logs read: new exe, 0 EXCEPTION, 0 phase lines; data036 copied)
 
 June's three effect-set delete conditions, the hyper check and the played-handle list are ported. Files: `X2GameUnit.h/.cpp`, `X2GUUser.h/.cpp`, `X2GUNPC.cpp`, `X2StateDungeonGame.cpp`, `Always.h`, `data036` `Enum.lua`. Ghidra read-only; 8 funcmap rows `Effect C9h-4d`; JUNE_BUGS 123-124; key matrix: the two `STOP_CREATE_NEW_EFFECT_WHEN_STATE_CHANGE` rows flipped from "deferred".
 
@@ -3037,11 +3037,11 @@ June's three effect-set delete conditions, the hyper check and the played-handle
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,374,592 B, dated 2026-10-08 13:19:24, md5 779e41742c4649b0ea5f7b54fce70e96, equal to X2/US_SERVICE/x2.exe (2026-10-08 13:19:19)`. The strings `JUNE_FX EFFECT_SET_DELETE %s n=%d extra=%d unit=%d` and the four keys are in the exe.
 
-**Data:** `Enum.src.lua` got `DCES_SKILL_STATE_END = 5`; `kom.py compile data036` = `COMPILE OK`; `kom.py pack data036` = `PACK OK data036 ... 192 entries, 10655716 bytes ... ~1 changed: Enum.lua`. **Not copied: asking the user** (nothing March reads needs it; June's scripts that use value 5 are C9h-4e's / the asset port's).
+**Data:** `Enum.src.lua` got `DCES_SKILL_STATE_END = 5`; `kom.py compile data036` = `COMPILE OK`; `kom.py pack data036` = `PACK OK data036 ... 192 entries, 10655716 bytes ... ~1 changed: Enum.lua`. **Copied 2026-10-08 13:21** (`COPY OK`, md5 `cb5625f6`; backup `kom_backup_tools/data036.kom.20261008_132140`). **Play-test (Lord Knight, jtLordKnight): `logs.py` = run after deploy, 0 EXCEPTION, 0 `JUNE_FX EFFECT_SET_DELETE` lines, as expected on March data** (2 unrelated `E_DISABLE_HB_CHECK_REQ` UNHANDLED lines, not this phase's).
 
 **How to see it in game.** Nothing visible changes on March data. Regression play-test: a dungeon stage change with a skill effect set running, a riding-pet summon / unsummon, a few skills and state changes; expect no change, 0 EXCEPTION, and no `JUNE_FX EFFECT_SET_DELETE` line.
 
-**Open for the user:** copy data036 (`Enum.lua` only) when you want; `/cost`.
+**Open for the user:** `/cost`.
 
 ### C9h-4b - Done (2026-10-08, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_NPC_SOUND` + `SERV_IRUHADEV_JUNE_SQUARE_SOUND`, each + `_DEBUG` on for the play-test; logs `JUNE_FX NPC_SOUND`, `JUNE_FX SQUARE_SOUND`; play-test PASSED, logs read; `_DEBUG` off)
 
