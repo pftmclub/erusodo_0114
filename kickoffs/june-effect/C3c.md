@@ -48,7 +48,7 @@ compute one: map each **by name** (`june_src_fixed/data036_kom/Enum.src.lua`).
      member and **all its writers** (`dispsweep.py`; March's `SetNowForceDown` body names the member). If June moved the reset elsewhere
      (state start, landing), port it there. Only if it is gone, follow June: drop it under the flag and add a JUNE_BUGS row (June
      removed a March fix). **This is the one live change.**
-   - **Left out.** The pre-switch `+0x9175` block and the RT_BOUNDING case (C3d) are not ported.
+   - **Left out.** The pre-switch `+0x9175` block and the RT_BOUNDING case (C3d-3) are not ported.
 3. **ADD_MEMBER_COUNT reader** (rows `32034e50 @3203681f-32036c81 (C3b)`, `32294e30 (C3b)`, `322a8240 (C3b)`).
    - **Where.** `CX2GUUser::Process_ExtraDamage`, case `EDT_TRANSIT_DEBUFF` (`X2GUUser.cpp:11634`). After March's
      `ProcessTransitDebuff` call, port the member loop.
@@ -64,12 +64,12 @@ compute one: map each **by name** (`june_src_fixed/data036_kom/Enum.src.lua`).
 4. **Logs.**
    - Under the flags, drop the C3 rule-5 lines for `ADD_MEMBER_COUNT` / `_DISTANCE` (`X2DamageManager.cpp` ~494-500), because they are
      consumed now.
-   - Change BOUNDING's system text (~311) to `bounding user states (D10, C3d)`.
+   - Change BOUNDING's system text (~311) to `bounding user states (C3d-3)`.
    - Add `JUNE_FX C3c` once-per-session lines on the TRANSIT member loop and on the first SAC filter that changes a result.
 5. **Census.** Run `june2017_re/census.py`; the `ADD_MEMBER_COUNT*` and `FORCE_BACK_SPEED` rows leave "parsed only"
    (`census_completion.KEY_NOTES`).
 
-Not ported, by C3b's verdicts: `31fcee40`'s counter (no reader in June), the bounding state (C3d), and the class rows (checklist 7l).
+Not ported, by C3b's verdicts: `31fcee40`'s counter (no reader in June), the bounding state (C3d-1..3, D10 (a)), and the class rows (checklist 7l).
 
 **Done means:**
 - flagcheck PASS for both flags;

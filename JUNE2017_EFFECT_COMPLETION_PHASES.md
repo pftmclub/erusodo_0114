@@ -114,7 +114,7 @@ Not in this definition, handed to their owners (C0 records each hand-off):
 | D7 | **Answered 2026-10-06: hand C1 off to the character ports** (C1a's recommendation). Census: `Numerical skill data` and `Applied skill ID` are `handed-off`, receiver `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1, and `DAMAGE_SKILL_ID` follows them (`KEY_SYSTEM`); item 1's numerical line passes as handed off. C1b and its review are not run here. Question: C1a found that every numerical block uses a June reform skill ID (21000-32605) no March character learns, and June's `NewSkillTempletVer2.lua` is a different skill system. (a) hand off, (b) adopt June's file now, (c) dormant port? | (a) hand off | character ports |
 | D8 | **Answered 2026-10-06: (a) hand off, and as a standing rule (user): anything in this plan that belongs to a character port is handed to the character ports, not ported here.** So all of C8c (every per-class `SetDamageExceptionProcess` block, Ara's `0x780` body) goes to `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 7b; C8c and its review are not run here. Original question (C8a): June re-keys three passives March characters have now. Rena's Powerful Bowstring (3405 -> 23405) and Sharp Kick (3400 -> 23400) are the same skills under reform IDs. Aisha's Battle Magician Fitness block (2413) is gone, and in its place Magical Staff (22409) applies the same two abilities (`SA_FORCE_DOWN_RANGE_REL`, `SA_MP_GAIN_ON_HIT_REL`). No March character learns a reform ID, so a verbatim port switches the three passives off. (a) hand the three blocks to the Rena/Aisha character ports, March's blocks stay until then; (b) port verbatim in C8c now | (a) hand off: the D7 precedent, and the port that brings the reform skills turns them on together | C8c (the Rena and Aisha parts only) |
 | D9 | **Answered 2026-10-06 (user): build the engine now, and the UI later with the June UI port.** C10b-2 keeps the values in `GameOptions.lua` under June's own keys, so that port only has to wire them up. C10b-3 is handed to `JUNE_PORT_BACKLOG_ORDER.md` Stage 9 (UI sweep), with `kickoffs/june-effect/C10b-3.md` as its brief. Original question (C10a): the effect-alpha option's UI. June's option window is Scaleform GFx: `32f246d0` (`DW_GAME_SET_VALUE`, one of 39 `DW_*` GFx data wrappers) pushes `fEffectAlphaMineValue` / `fEffectAlphaMyTeamValue` / `fEffectAlphaOtherTeamValue` into a Flash movie. March has no GFx, so June's UI cannot be ported, and C10b-3 builds a designed stand-in under its own flag. (a) three sliders (my / my team / other team effects, 10-100 %) in March's option window `DLG_UI_Option_Back_New.lua` (data034), wired like `Slider_Sound_Volume` in `X2StateOption.cpp`; (b) no UI: the `GameOptions.lua` keys (C10b-2) plus a dev-console line; (c) defer the UI | (a): D2 asked for a UI, and the sound sliders are March's own pattern for a 0-1 value | C10b-3 |
-| D10 | **Open (C3b, 2026-10-08).** June's RT_BOUNDING hit puts a user into three new user states, `USI_BOUNDING_DOWN` / `_LANDCRASH` / `_UP` (June `GUSI_END + 115..117`). They cannot be added to March as is. March's user state id is a `UCHAR` (`UserUnitStateData::stateID`, `SyncData::nowState`), and Chung's last state, `CSI_A_CIP_ARTILLERY_NOVA_FIRE`, is already **255** (`cl` probe), so three more `USI_*` entries before `USI_END` overflow it. June widened the id to 16 bits: registration `31fd89b0` reads a word into a vector state list, and checklist 7's row for `+0x7e84` has the future `nowState` as a protected short. March's own enum confirms the cap: `X2GUUser.h:436` comments out `USI_RIDING_HYPER_MODE` as "temporarily removed: more than 255 states". All 12 June classes register the three states in their own InitState, each with `*_DAMAGE_BOUNDING_*` tables in its class script. Options: **(a)** a new engine phase (Opus identifies, Sonnet ports) widens March's user state id to 16 bits as June did (`stateID`, `nowState`, the `m_StateList` key, every `UCHAR` cast and sync field; offline only). Then C3d ports the bounding case, the five handlers, the registration in March's nine class InitStates with June's state tables in their scripts, and the NPC half. The three entries before `USI_END` shift every class state id by 3; class ids are compile-time only, but `Enum.lua`'s `USER_STATE_ID` (data036) gains three rows and data036 is repacked. **(b)** hand the user half to the character ports (the registration is per class, and each class script needs its tables), with the widening as the checklist's blocker; C3d ports only the NPC half now. **(c)** park C3d whole until a character port needs it. | (a): any June class with more states than March's (Chung is already at 255) needs the widening anyway, and doing it once in the engine keeps C3d a straight port. RT_BOUNDING is in no March script, so nothing waits on it in play. | C3d |
+| D10 | **Answered 2026-10-08 (user): (a).** A new engine phase widens March's user state id to 16 bits as June did, then the bounding port: C3d-1 (Opus, identify the widening), C3d-2 (Sonnet, port it), C3d-3 (Sonnet, the bounding state, user and NPC, with the registration in March's nine classes). Original question (C3b, 2026-10-08): June's RT_BOUNDING hit puts a user into three new user states, `USI_BOUNDING_DOWN` / `_LANDCRASH` / `_UP` (June `GUSI_END + 115..117`). They cannot be added to March as is. March's user state id is a `UCHAR` (`UserUnitStateData::stateID`, `SyncData::nowState`), and Chung's last state, `CSI_A_CIP_ARTILLERY_NOVA_FIRE`, is already **255** (`cl` probe), so three more `USI_*` entries before `USI_END` overflow it. June widened the id to 16 bits: registration `31fd89b0` reads a word into a vector state list, and checklist 7's row for `+0x7e84` has the future `nowState` as a protected short. March's own enum confirms the cap: `X2GUUser.h:436` comments out `USI_RIDING_HYPER_MODE` as "temporarily removed: more than 255 states". All 12 June classes register the three states in their own InitState, each with `*_DAMAGE_BOUNDING_*` tables in its class script. Options: **(a)** a new engine phase (Opus identifies, Sonnet ports) widens March's user state id to 16 bits as June did (`stateID`, `nowState`, the `m_StateList` key, every `UCHAR` cast and sync field; offline only). Then C3d ports the bounding case, the five handlers, the registration in March's nine class InitStates with June's state tables in their scripts, and the NPC half. The three entries before `USI_END` shift every class state id by 3; class ids are compile-time only, but `Enum.lua`'s `USER_STATE_ID` (data036) gains three rows and data036 is repacked. **(b)** hand the user half to the character ports (the registration is per class, and each class script needs its tables), with the widening as the checklist's blocker; C3d ports only the NPC half now. **(c)** park C3d whole until a character port needs it. | (a): any June class with more states than March's (Chung is already at 255) needs the widening anyway, and doing it once in the engine keeps C3d a straight port. RT_BOUNDING is in no March script, so nothing waits on it in play. | C3d |
 
 **Census plumbing (Sonnet):**
 - add the status `handed-off`, with `receiver` = document + phase, for the hand-off rows above;
@@ -526,7 +526,7 @@ deployed exe is unchanged.
 - **C3c** (Sonnet 5.5 high, kickoff written): items 1 and 3. Inert on March data, except DOWN's dropped `SetNowForceDown( 0 )`, which is live.
 - **C3d** (kickoff written, blocked on D10 and C9h-4f): item 2.
 
-**Open for the user:** D10 (decisions table). `/cost`.
+**Open for the user:** D10 (decisions table). `/cost`. *D10 answered the same day: (a); C3d is split into C3d-1 / C3d-2 / C3d-3 below.*
 
 ---
 
@@ -540,12 +540,32 @@ deployed exe is unchanged.
 - **Exit:** strings in the deployed exe; a regression play-test (get knocked down, launched and dragged up in a dungeon) with 0 EXCEPTION;
   census rows `ADD_MEMBER_COUNT*` / `FORCE_BACK_SPEED` leave "parsed only".
 
-## C3d - port: the bounding back-speed state (blocked on D10)
+## C3d-1 - identify: widening the user state id to 16 bits (D10 (a))
 
-**Status: blocked on D10 and C9h-4f (and after C3c, same function). Model:** decided with D10. Kickoff `kickoffs/june-effect/C3d.md`.
+**Status: ready (D10 answered 2026-10-08). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3d-1.md`.
 
-- **Scope:** C3b item 2: the user RT_BOUNDING case, the five `CX2GUUser` handlers, `m_vBoundingBackSpeed`, the last-attacker UID / unit type
-  (`+0x40e0` / `+0x40e8`, written next to buff 9b's `+0x40dc` serial), and the NPC half (`32769060`, `3275d900`, `3275a070`). The shape depends on D10's answer.
+- **Scope:** every March site that stores, casts, compares, serializes or indexes a user state id as 8 bits (`UserUnitStateData::stateID`,
+  `SyncData::nowState` and its Put/Get or sync packing, the `m_StateList` key, `UCHAR` casts, arrays sized 256, Lua binds that pass a
+  state id), each with June's form where June has one (`31fd89b0` registration, the future `nowState` protected short, June's
+  `StateChange` `320348c0`). Also: where the three `USI_BOUNDING_*` go before `USI_END`, what the +3 shift touches (`Enum.lua`
+  `USER_STATE_ID` in data036; any saved or Lua-visible class state id), and the NPC side if it shares the type.
+- **Exit:** a site list (`june2017_re/c3d1_state_id_sites.tsv`), funcmap rows `(C3d-1)`, C3d-2's kickoff with the flag name.
+
+## C3d-2 - port: the 16-bit user state id
+
+**Status: blocked on C3d-1. Model:** Sonnet 5.5, high, then an Opus review. Kickoff written by C3d-1.
+
+- **Scope:** C3d-1's site list, behind one flag; nothing else changes. **Not with:** C3c (both edit `X2GUUser.h/.cpp`).
+- **Exit:** builds with the flag on and off; a regression play-test across several classes (state changes, skills, riding, a dungeon
+  run; Chung's top states still reachable) with 0 EXCEPTION.
+
+## C3d-3 - port: the bounding back-speed state
+
+**Status: blocked on C3d-2, C9h-4f and C3c. Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-3.md`.
+
+- **Scope:** C3b item 2: the user RT_BOUNDING case, the three `USI_BOUNDING_*` states, the five `CX2GUUser` handlers, `m_vBoundingBackSpeed`,
+  the last-attacker UID / unit type (`+0x40e0` / `+0x40e8`, written next to buff 9b's `+0x40dc` serial), the registration in March's nine
+  class InitStates with June's state tables in their data036 scripts (+ `Enum.lua`, packed), and the NPC half (`32769060`, `3275d900`, `3275a070`).
 
 ---
 

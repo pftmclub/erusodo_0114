@@ -31,8 +31,8 @@ Readers of `+0x8ef4` are mostly class code (`dispsweep.py 8ef4`: `329d7220`.. `3
 **Added by C3b (2026-10-08): the second (Now) set.** June has both sites.
 - **Now set.** `CommonStateStart` (`32057b80`) `@32060cd9-32060dd5` zeroes a second set, `+0x8eb8..+0x8ef0` (5 rows x 3 floats). It then
   reads `USEFUL_VALUE0..4` (the same stem `33478e24` + index; 3 floats from index 1; a miss gives 0.0).
-- **Its user engine readers:** `31fd0260` (the bounding LANDCRASH EventProcess, which reads `USEFUL_VALUE0[1]`; that state is C3d's, so
-  port the member and parse here and leave the handler to C3d) and `3200d1d0 @3200d2cc` (unidentified: identify it with the other three).
+- **Its user engine readers:** `31fd0260` (the bounding LANDCRASH EventProcess, which reads `USEFUL_VALUE0[1]`; that state is C3d-3's, so
+  port the member and parse here and leave the handler to C3d-3) and `3200d1d0 @3200d2cc` (unidentified: identify it with the other three).
 - **Its other readers** (`dispsweep.py 8eb8 .. 8ef0`) are class code (checklist 7h) or other classes' layouts (`327xxxxx` NPC hits).
-- **Port both sets with the same Now / Future split as March's frame data.** C3d depends on this phase.
+- **Port both sets with the same Now / Future split as March's frame data.** C3d-3 depends on this phase.
 - funcmap row: `CX2GUUser +0x8eb8..+0x8ef0 (C3b)`.
