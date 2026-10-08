@@ -58,6 +58,7 @@ The user's remaining backlog, in the order they listed it:
 | 14 | Byte-exact June asset extraction *(added 2026-10-07, user)* | - (the user's question: do June assets load in March unchanged?) | Not a backlog item but a prerequisite for porting any June asset faithfully. June's formats load in March unchanged, but elstools cuts 18,571 June V.0.4 entries short. Planned in full as `JUNE_ASSET_EXTRACT_PHASES.md` (X0-X5): an extractor, a packing helper and a long-name engine fix. It touches only tooling, staging and `KGCMassFileManager.cpp`, so it can run alongside Stages 2-8. Every stage that stages June assets benefits from it. |
 | 16 | June item-side systems *(added 2026-10-07, june-item-kim K0)* | - (found by june-item-kim K0) | Not a backlog item but missing systems: June's item templet carries fields and flags March has no reader for (damage range, equipment group, description-in-shop type, item expiry, PvP-equip), and June's `ResetItemManager` opens item tables March never loads (`SetItemGroup`, `ItemManager` item lock, `CoordiItem` and others). It depends on Stage 13 (K2) for the record. Numbered 16 to keep the earlier numbers stable. |
 | 17 | Pet and riding-pet remainder *(added 2026-10-07, june-effect C9h)* | - (found by june-effect C9h) | Not a backlog item but missing data and one packet field: June's pet **variant** byte (a `KPetInfo` field read by the pet-info viewer, the in-game pet and `ResetPet`'s texture-variant branch) and June's 8 pets / riding pets that March has no enum, templet or script for. Its code waits on june-effect C9h-2a (the viewer half) and C9h-3 (the riding-pet engine). Numbered 17 to keep the earlier numbers stable. |
+| 18 | NPC friendship system *(added 2026-10-08, june-effect C9h-5)* | - (found by june-effect C9h-5) | Not a backlog item but a missing system: June's per-NPC friendship (likeability) manager `32696fa0`, its gift / level-up / daily-reward talks, the friendship talk sequencer and the friendship marks on village NPCs. Every reach is gated on code event 2215, which the offline emulator never enables. Elysion E1 ports the gated call sites in `CX2TFieldNpc`. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -149,6 +150,8 @@ Start from `ATLAS_PORT_PHASES.md`'s Phase A0 kickoff. That doc owns the shared g
 - the code-event refresh `32344880`.
 
 The last is the tail of `Handler_EGS_UPDATE_CODE_EVENT_NOT` (`31f00970`). On `mods/june-buff-port` that handler's flag-on block (`SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`, C9h-2d) already copies June's map and two sets but does not make the call. Add the call there, behind E1's own flag; whichever branch merges second wires it. Rows: funcmap `Effect C9h-2e`.
+
+**Handed in by june-effect C9h-5 (2026-10-08):** E1 step 6. June's `CX2TFieldNpc` is a rewrite. Its `OnFrameMove` has 44 blocks, and the house loader reads 56 keys March lacks. It includes the village-NPC effect set (`EFFECT_SET_NAME`, used only by the three Elysion houses) and its `+0xe0` engine branches, which sit next to C9h-3a's. Merge `mods/june-buff-port` after C9h-3a lands, before E1 ports them. The friendship branches go to Stage 18. Rows: funcmap `Effect C9h-5`.
 
 ### Stage 2: engine remainder and measurements
 
@@ -485,12 +488,27 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   - Every riding EventProcess calls it (10 callers). C9h-4c ports `RidingAttackZEventProcess` calling March's version meanwhile.
   - The `VALUE_POS` reader is `32005520`, via `320322e0`.
   - The data that reaches it is DarkChaser and Rakshasa.
-- **The `APPLY_RIDINGPET_ANIM_MOVE` readers** (`+0x5a1`; getter `323bddf0`, user `32015b30`, square `323b2e80` / `323c2aa0` /
-  `323eef70`, `324f3260`). Bumblebee and Optimus_Prime set it, with the transformer pets above.
+- **The `APPLY_RIDINGPET_ANIM_MOVE` readers** (`+0x5a1`; user `32015b30`, square `323b2e80` / `323c2aa0` /
+  `323eef70`). Bumblebee and Optimus_Prime set it, with the transformer pets above. *(june-effect C9h-5, 2026-10-08: `323bddf0`
+  and `324f3260` were wrongly listed here. They are the field NPC's house templet `bOnlyClickable` (`+0x198` -> `+0x5a1`), which goes to
+  Elysion E1. The four readers above were not re-checked against that offset coincidence.)*
 - **The `CX2Pet` loader's `SOUND_PLAY_ALL_OPTION`** (`326ef840`, 8 fields, via the nation reader). Only June's `PET_Pette_HEDGEHOG_STEB_1..3`
   use it, and they are not in March. `CX2Pet` has its own `SoundPlayData` (X2Pet.h:136), so this is a separate change from C9h-4a's.
 
 ---
+
+### Stage 18: NPC friendship system (june-effect C9h-5, 2026-10-08)
+
+june-effect C9h-5 diffed June's `CX2TFieldNpc::OnFrameMove` (`june2017_re/c9h5_fieldnpc_onframemove_diff.md`, blocks 19, 26, 30, 32 and 33). The village NPC calls into a June-only friendship system. March has none of it.
+- **The manager:** singleton getter `32696fa0` (0x610 bytes), lookup `321cd500( houseID, &value, &flag )`, max test `325d1d70` (value >= `+0x490`), a gift-cursor flag at `+0x4a4`, plus `32679e10` and `326878c0`.
+- **The NPC side:** the talk sequencer `325c9e70` (NPC `+0x5a4..+0x5ab`), the friendship mark on particle `+0x230` (`Npc_Talk.dds` / `Npc_FriendShip_Max.dds`), and the gift cursor (state 0x1a, likely) with talk `+0x588`.
+- **The keys:** the house keys `Receive_Like/DisLike/Normal/Cash_Gift_Talk`, `Level_Up_Talk`, `Every_Day_Reward_Talk`, `After_Talk`, `Reject_Gift_Talk` and `Gift_UI_Talk` (HouseParsing `324f3260`; the C9h-5 Done note lists the addresses).
+- **The gate:** everything sits behind `IsEnableCode( 2215 )` (`@325cec47`).
+  - The offline emulator never sets a code event, so nothing here is reachable until code events are emulated.
+  - Elysion E1 ports the gated call sites with June's gate; whichever of E1 and this stage lands second wires them.
+- **Still to identify:** the manager's loader, data file and packets. Name them when this stage is planned.
+
+**Depends on:** Elysion E1 (the call sites), and a decision to emulate code event 2215.
 
 ## Open decisions that gate stages
 

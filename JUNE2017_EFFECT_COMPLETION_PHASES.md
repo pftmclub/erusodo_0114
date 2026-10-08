@@ -2796,6 +2796,53 @@ March keeps the old values in all three cases, which is the behaviour June's sna
 
 **Open for the user**: /cost.
 
+### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
+
+Read-only in Ghidra. There are 22 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.
+
+**1. The key.**
+- NPC `+0x198` is March's `m_pHouseTemplet`. June's `HouseParsing` (`324f3260`) writes `EVENT_NPC` to templet `+0x1e8` (`@324fbf54`, then the start/wait/active floats in March's order). It writes **`EFFECT_SET_NAME`** to `+0x5e8` (`@324febb4`, `L""` on a miss) through the same templet register.
+- The file is `data034` `DLG_Map_House.lua`. It is the only house file June opens (`32503150`). `_1` carries the same three rows.
+- **Reach: 3 houses in June, all Elysion.** `HI_BERNARD` plays `EffectSet_Elysion_NPC_Ver_ring`, `HI_DURANDA` plays `_Dyurenda_AC`, and `HI_THEODOR` plays `_Teo_ring`. All are `Bip01_Head` with `TRACE_MATRIX`, in June's `EffectSet.lua` and `UIEffectSet.lua`.
+- **March: 0.** No `DLG_Map_House*` in the March kom extract carries the key, and March's `EffectSet.lua` has none of the three sets.
+
+**2. Readers of instance `+0xe0`** (sweep over `321d9000-321f8000`):
+- `GetEffectPosition @321dd1a3` (known from C9h-3);
+- `GetCombineMatrix @321dc8af`: NPC skin `GetCloneFrame( BONE_NAME )`, frame `+0x90`;
+- `GetEffectPositionByBoneName @321dd9dc`: `321f2c70`, else NPC `+0x5b4` = `m_vPos`;
+- the create-time anim gate `@321eebf3`: NPC skin `+0x214`, as the riding pet's.
+
+There is no `GetUnitRotation` branch. The dtor does not touch the raw pointer. The other sweep hits are `EffectData` floats and `g_pData+0xe0`.
+
+**3. Handle lifetime.**
+- The ctor `325d13e0` sets `+0x190 = -1`.
+- `OnFrameMove @325ce1d9` plays the set once, after the first skin is built, then calls `SetShowObject( true )` (`321de4f0`) and nothing more. The set ignores the NPC's show state.
+- The **dtor** `325cd7c0` is the only stop: `321dafb0( &+0x190, false )`, which only queues.
+
+**4. `OnFrameMove` changed throughout** (44 blocks: 13 June-only, about 25 June-only members). The second skin, `MultiTex`, a motion-name map from 8 `*_MOTION_NAME` keys (June's defaults equal March's literals, plus `Talkloop` / `TalkWait`) and a motion queue are new. So are the quest-conditional messages (`325ca0b0`), `Upgrade/Service/Trade_Talk`, the house 40082 / 40129 branches and `bOnlyClickable`. The talk and bye blocks were moved into `325ccf60` and `325ca2f0`, not yet diffed. The friendship branches are gated on `IsEnableCode( 2215 )` (`@325cec47`).
+- **Corrects C9h-4:** `323bddf0` is `CX2TFieldNpc` reading templet `bOnlyClickable` (`+0x5a1`), not a riding-pet getter. Its funcmap row and the Stage 17 bullet are fixed.
+
+**The 56 June-only `HouseParsing` keys** (use VAs in the funcmap / the diff file):
+- **mesh and render:** `NPCMeshName2nd`, `NPCAniTex2nd`, `AlphaBlend1stMesh`, `AlphaBlend2ndMesh`, `NoEdge2ndMesh`, `OutlineWidthMesh`, `bApplyAlphaTest`, `UseRenderOption`, `UseAlphaBlend`, `MultiTex`, `SrcBlend`, `DestBlend`, `Color`, `EFFECT_SET_NAME`;
+- **motion:** `JoinAnimSpeed`, `WaitAnimSpeed`, `ByeAnimSpeed`, `TalkLoopAniNpc`, `WAIT01/02/03`, `TALKLOOP`, `TALK`, `TALKWAIT`, `BYE`, `NORMAL` `_MOTION_NAME`;
+- **services:** `OLD_ENCHANT`, `OLD_ADVANCED_ENCHANT`, `PHOTOZONE`, `FRAGMENT_EXCHANGE`, `ROCKSCISSORSPAPER_NPC`, `HENIR_EQUIP_UPGRADE`, `GUILD_AGIT_SERVICE`, `GUILD_ENTER`, `EXTRACTION`, `TRADE`;
+- **talks:** `Upgrade_Talk`, `Service_Talk`, `Trade_Talk`, `Receive_{Like,DisLike,Normal,Cash}_Gift_Talk`, `Level_Up_Talk`, `Every_Day_Reward_Talk`, `After_Talk`, `Reject_Gift_Talk`, `Gift_UI_Talk`;
+- **message rows:** `TYPE`, `STATE`, `QUEST_ID`, `SUB_QUEST_ID`, `MOTION`;
+- **flags:** `AlwaysShow`, `bOnlyClickable`, `bMovingNPC`.
+
+**Routing (no port kickoff and no new STATUS row; all three have owners):**
+- **Elysion E1, new step 6.** E1 already owns `X2TFieldNpc` and `HouseParsing`, and the no-partial rule makes `OnFrameMove` one port. Step 6 covers:
+  - the whole function and its keys;
+  - the effect set with its engine overload and four readers;
+  - a merge note: the `+0xe0` branches sit next to C9h-3a's `+0xd8`, so merge after C9h-3a lands;
+  - the behaviour change in March villages (June wins);
+  - the asset list for E2 / E13.
+  - The backlog Stage 1 hand-off line was added.
+- **Friendship manager and sequencer -> new backlog Stage 18.** Whichever of E1 and Stage 18 lands second wires the calls.
+- No JUNE_BUGS row: nothing is ported. E1 records the diff file's five candidates when it ports them.
+
+**Open for the user**: /cost.
+
 ## C10 - Decided absent systems
 
 **Status: C10a done 2026-10-06 (identification, no code; Done note below). Building is split into C10b-1 (HP-rate),

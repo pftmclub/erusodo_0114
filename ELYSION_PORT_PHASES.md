@@ -310,6 +310,45 @@ with the session cost, then commit on mods/elysion-port.
    - the ByVillage row for `VMI_SPA_RANOX` (1501, a **March** village) swaps its
      billboard to June's `UI_NPC_BILLBOARD_SPA.lua`, which March lacks. Settle
      this row before claiming "existing villages unchanged".
+6. *(Added by june-effect C9h-5, 2026-10-08; rows are funcmap `Effect C9h-5`,
+   block list `june2017_re/c9h5_fieldnpc_onframemove_diff.md`.)* Step 2's key
+   list is short: June's `HouseParsing` (`324f3260`) reads **56** keys March
+   does not (decoded list in the C9h-5 Done note). Port June's
+   `CX2TFieldNpc` with them, not only step 2's eight:
+   - **`OnFrameMove` whole** (`325cdfa0`, 44 blocks, 13 June-only), plus the
+     outlined talk / bye steps `325ccf60` / `325ca2f0` (diff those first;
+     C9h-5 did not), `325ca0b0` (quest-conditional `MESSAGE` rows, templet
+     `+0x590`), the motion map `+0x1f4` (8 `*_MOTION_NAME` keys; June's
+     defaults are March's literals plus `Talkloop` / `TalkWait`), the motion
+     queue `+0x204` / `325ca920`, the second skin (`NPCMeshName2nd`), the
+     `MultiTex` xet, `Upgrade/Service/Trade_Talk`, the house 40082 agit-bank
+     and 40129 highlight branches, `bOnlyClickable` (`323bddf0`, not a
+     riding-pet getter as C9h-4 had it).
+   - **The village-NPC effect set:** key `EFFECT_SET_NAME` -> templet
+     `+0x5e8`; play once after the skin is built (`@325ce1d9`), handle `+0x190`
+     (ctor -1, stop only in the dtor `325cd7c0`), `SetShowObject( true )`
+     and nothing after. Engine: `PlayEffectSet( name, CX2TFieldNpc* )`
+     `321e26d0` (instance `+0xe0`, mode `ESM_FIELD`) and its four readers:
+     `GetEffectPosition @321dd1a3`, `GetCombineMatrix @321dc8af`,
+     `GetEffectPositionByBoneName @321dd9dc`, the create-time anim gate
+     `@321eebf3` (no `GetUnitRotation` branch), with the NPC's bone helpers
+     `321f2c10` / `321f2c70`. These sit in the same switch cases as C9h-3a's
+     `+0xd8` riding-pet branches (`X2EffectSet.cpp`): merge
+     `mods/june-buff-port` after C9h-3a lands before porting them.
+   - **Friendship branches** (gated `IsEnableCode( 2215 )`, never on
+     offline): port the gate and the calls as June has them; the manager
+     `32696fa0` and the sequencer `325c9e70` belong to backlog **Stage 18**.
+     Whichever lands second wires the calls.
+   - **Behaviour change in March villages** (June wins): the quest button
+     follows only new normal quests, the talk mark no longer blinks (`_Down`
+     never shown), and static NPCs with a `TalkWait` anim play it while
+     joined. Add JUNE_BUGS rows for the five candidates the diff file lists,
+     plus the effect instance's raw `+0xe0` pointer if the queued stop lets it
+     read a freed NPC.
+   - **Assets (E2 / E13):** `EffectSet_Elysion_NPC_Ver_ring`, `_Dyurenda_AC`,
+     `_Teo_ring` (June `EffectSet.lua` and `UIEffectSet.lua`) and their
+     `NPC_Elysion_*` particles; the three houses are `HI_BERNARD`,
+     `HI_DURANDA`, `HI_THEODOR`.
 
 **Done when:** census reports no unread key/binding owned by E1; build rc=0,
 new literals in the exe; existing villages unchanged (their files carry none
