@@ -528,7 +528,8 @@ Check the following:
 **Code change:** the comment address in `X2Lib/X2DropItemManager.cpp:294`, byte-patched. Encoding and EOL classes are unchanged, and
 `flagcheck JUNE_ITEM_KIM --worktree --files X2Lib/X2DropItemManager.cpp` gives 1 PASS, RESULT PASS (the 1 deleted line is that
 comment, inside the flag). **No build or deploy**:
-- a comment-only edit compiles to the same code, so the deployed `c49f3628` already matches HEAD;
+- a comment-only edit compiles to the same code. At review time (07:10) the game dir still held `c49f3628`, whose build was
+  `e9cfdca` + K2's 9 files: HEAD's code exactly, apart from this comment;
 - a peer's `build.py` held the lock while building its own uncommitted C9h work, so a deploy from here would have shipped their files.
 
 No re-play-test is needed.
