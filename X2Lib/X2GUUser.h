@@ -3268,6 +3268,18 @@ public:
 #endif // FIX_NO_STATE_SKILL_BUG
 
 		virtual	bool				IsSuperArmor() const;
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+		/// June Enum.lua SUPER_ARMOR_CONDITION: the values a state's SUPER_ARMOR_CONDITION list may hold
+		enum JUNE_SUPER_ARMOR_CONDITION
+		{
+			SAC_FRONT = 0,			/// armour only against a hit from the front
+			SAC_NORMAL_ATTACK,		/// armour not against AT_SPECIAL
+			SAC_SPECIAL_ATTACK,		/// armour only against AT_SPECIAL
+		};
+		/// June CX2GUUser vslot 0x81c, 31fd86b0 ( bool bAttackerFront, DamageData* ): IsSuperArmor() filtered by the state's SUPER_ARMOR_CONDITION set.
+		/// An empty set gives IsSuperArmor(). No June class overrides it.
+		bool JuneIsSuperArmorAgainst( const bool bAttackerFront_, const CX2DamageManager::DamageData* pDamageData_ ) const;
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 
 		bool						EventTimer( float fTime, bool bFuture );
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

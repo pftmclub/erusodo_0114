@@ -63,6 +63,7 @@ column.
 | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (before the 14b block) | `X2Lib/X2Main.h`/`.cpp` (out-of-line `SetIsPlayingTutorial`, `JuneOnExitTutorialRestoreKeys`, `m_bJuneTutorialKeyLatch`), `X2KeyPad.h`/`.cpp`, `X2DungeonGame.cpp` (Release), `X2GUUser.cpp` (clamp, RT_FLY, StartEnd), `X2Game.cpp`, `X2State.cpp`, `X2UIManager.cpp`, `X2UIQuestNew.h`/`.cpp`, `X2StateDungeonGame.cpp`, `X2SlideShot.cpp`, `X2PetManager.cpp`, `X2PlayGuide.cpp`, `X2UIQuickSlot.cpp`, `X2StateServerSelect.cpp` | -- |
 | `SERV_IRUHADEV_JUNE_TOUCH_LAND` | 2026-10-07 (June effect completion C7) | `KTDXLIB/Always.h` (end; needs `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`) | `KTDXLIB/KTDGXMeshPlayer.h`/`.cpp` (`m_vVelocityBefore`, ctor init, per-frame snapshot, `GetGravity` / `GetVelocityBefore`), `X2Lib/X2DamageEffect.h`/`.cpp` (OnFrameMove gate, `JuneTouchLandDamageEffect`, `CreateTouchLandDamageEffect`); C7's other three items extend `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` (`X2GameUnit.h` vslot 0x328, CEffect ctor hook, `JuneApplyCreateDamageEffectRate`) and `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME` (CREATE-loop INHERIT_CRITICAL, `JuneAssignLockOnData`, die INHERITLOCKONDATA) | -- |
 | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` | 2026-10-08 (June effect completion C6c) | `KTDXLIB/Always.h` (end; the list needs `SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME` and `SERV_IRUHADEV_JUNE_ENCHANT_PARITY`, the fix needs the list) | `X2Lib/X2EffectSet.h`/`.cpp` (`BuffFactorListEntry` / `BuffFactorListMod`, `EffectSetInstance::m_vecBuffFactorList`, `AttachBuffFactorToEffectSet`, `ApplyBuffFactorListToDamageEffect`, the call in `OnFrameMove_CreateEffect`), `X2Lib/X2BuffFactor.h` (`JuneSetFinalizerValue`), `X2Lib/X2GUUser.cpp` (SIEE 15 attach in `ProcessSocketEffectEx`) | -- |
+| `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION`, plus the C3c part of `SERV_IRUHADEV_JUNE_DAMAGEDATA` | 2026-10-08 (June effect completion C3c) | `KTDXLIB/Always.h` (before the costume-shop block; the `_DAMAGEDATA` part needs `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME`) | `X2Lib/X2GameUnit.h`/`.cpp` (`StateParam::setSuperArmorCondition`, `JuneCollectUnitsAround`, `JuneIsPacketBuffRefused`, the two additions in `SetKBuffFactorPacketToGameUnit`), `X2Lib/X2GUUser.h`/`.cpp` (`JuneIsSuperArmorAgainst`, `CommonStateStart` parse, six `DamageReactStateChange` cases, `Process_ExtraDamage` EDT_TRANSIT_DEBUFF member loop), `X2Lib/X2DamageEffect.h` (friend), `X2Lib/X2DamageManager.cpp` (two rule-5 log blocks off, BOUNDING text) | -- |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
 
@@ -3159,6 +3160,20 @@ play-test; the pre-edit backup is `db_backup/els_db_20261007_104747_pre_createch
   dungeon (last match wins, JUNE_BUGS 99). Dormant: March loads no `HeroDungeonData_Client.lua` and has no Hero dungeon, so the
   list stays empty and nothing changes in play. One `JUNE_FX HERO_ANIM` line per run in ErrorLog.txt says so.
   **Revert:** undefine it and rebuild all projects.
+
+### June effect completion C3c: super-armour condition, DamageReactStateChange's gates, ADD_MEMBER_COUNT
+
+- **`SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION`.** A state may set `SUPER_ARMOR_FRONT = TRUE` and a `SUPER_ARMOR_CONDITION = { ... }` list
+  (`SAC_FRONT` 0 only from the front, `SAC_NORMAL_ATTACK` 1 not against special attacks, `SAC_SPECIAL_ATTACK` 2 only against them);
+  `DamageReactStateChange` asks `JuneIsSuperArmorAgainst` at June's 22 sites and `FORCE_BACK_SPEED` at its 6 tests, so a hit that
+  super armour would stop can still give the unit the hit's vertical knock speed. No March script sets either key, so all of it is
+  inert **except one change that is live**: a knock-down (RT_DOWN) no longer empties the force-down gage, because June's case has no
+  `SetNowForceDown( 0 )` (March's `FIX_FORCE_DOWN_INITIALIZE_BUG` added one). The gage now fills across knock-downs until it overflows
+  into the invincible fall. JUNE_BUGS 131. **Revert:** undefine it and rebuild all projects.
+- **`SERV_IRUHADEV_JUNE_DAMAGEDATA` (C3c part).** `ADD_MEMBER_COUNT` / `_DISTANCE` now have their reader: an EDT_TRANSIT_DEBUFF hit also
+  runs the attacker's debuff transit on each team-mate around the attacker (PvP user defenders only in June's data). The per-factor
+  packet buff apply gains June's two extra steps (a per-class refusal hook that is always false in March, and the finalizers learning
+  their buff templet id). JUNE_BUGS 132-133. **Revert:** undefine `SERV_IRUHADEV_JUNE_DAMAGEDATA` (this also removes C3's keys).
 
 ### June effect completion C9f-2: per-equip effect sets (DITT_CONDITION_EQUIP_PLAY_EFFECT_SET)
 

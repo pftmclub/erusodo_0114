@@ -1226,6 +1226,9 @@ class CX2DamageEffect
 				void			JuneLockOnSteerForward( CKTDGXMeshPlayer::CXMeshInstance* pMeshInst_ );	/// FUN_31f83aa0 @31f8497c-31f84a0e
 				static bool		JuneIsLockOnCandidate( const CX2GameUnit* pUnit_, int iTeam_ );
 				static D3DXVECTOR3	JuneGetLockOnAimPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_ );	/// vtable slot 0x3e4 (NPC 3275ac50, User 31fd61a0)
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				friend class CX2GameUnit;	/// C3c: CX2GameUnit::JuneCollectUnitsAround (June 32294e30) asks each unit for its aim point, like vtable slot 0x3e4
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 				static D3DXVECTOR3	JuneGetNearestCollisionPos( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vFrom_, OUT bool& bFound_ );
 
 				// June2017 CREATE_DAMAGE_EFFECT loop runtime (Phase 7c); evidence in june2017_re/funcmap.tsv.

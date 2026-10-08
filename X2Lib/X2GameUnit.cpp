@@ -12385,6 +12385,100 @@ void CX2GameUnit::ProcessTransitDebuff( const CX2DamageManager::DamageData* pDam
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifndef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+#error SERV_IRUHADEV_JUNE_DAMAGEDATA's CX2GameUnit::JuneCollectUnitsAround needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME (CEffect::JuneGetLockOnAimPos)
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+/// June 32293b80 (CX2GameUnit, pos by value): the same test as X2BuffTemplet.cpp's file-static JuneIsPosAlongLastTouchLine, which this file cannot reach.
+/// True without game, world or line map; false when the unit's last touched line (GetLastTouchLineIndex( true )) has no data; else whether the way from
+/// the unit to vPos_ runs along that line's dirVector: the dot product of the two normalised vectors is above 0.
+static bool JuneCollectIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetLineMap() )
+		return true;
+
+	const CKTDGLineMap::LineData* pLineData = g_pX2Game->GetLineMap()->GetLineData( pUnit_->GetLastTouchLineIndex( true ) );
+	if ( NULL == pLineData )
+		return false;
+
+	D3DXVECTOR3 vToPos = vPos_ - pUnit_->GetPos( false );
+	D3DXVec3Normalize( &vToPos, &vToPos );
+	D3DXVECTOR3 vLineDir = pLineData->dirVector;
+	D3DXVec3Normalize( &vLineDir, &vLineDir );
+	return 0.0f < D3DXVec3Dot( &vToPos, &vLineDir );
+}
+
+static bool JuneCollectUnitNearer( const std::pair<CX2GameUnit*, float>& lhs_, const std::pair<CX2GameUnit*, float>& rhs_ )
+{
+	return lhs_.second < rhs_.second;
+}
+
+/// June effect completion C3c, CX2GameUnit 32294e30 ( out vector<CX2GameUnit*>, count, float maxDistance, float minAngle, float maxAngle, bool facingOnly,
+/// bool sameTeam ), RET 0x1c; the single caller is CX2GUUser::Process_ExtraDamage's EDT_TRANSIT_DEBUFF member loop @32036c11. Walks the game's unit list
+/// and keeps the units that pass, nearest first:
+///   not NULL and in the game's unit list (322ccf50 = IsValidUnit); ( team == this team ) == bSameTeam_ (protected +0x278); not GUSI_DIE (vslot 0x174 == 4);
+///   not a gage with no HP gage or HP <= 0; facing test when bFacingOnly_ ( 32293b80 == GetIsRight, vslot 0x170 ); an NPC must be NCT_BASIC (templet +0x85f8
+///   +4 == 0) and counts its size away from the distance ( ( org width + org height ) * 0.25 [33437830], the March pattern of X2GUAdd.cpp:7137 );
+///   the angle of the way from this unit's position to the unit's aim point (vtable slot 0x3e4 with an empty bone name = JuneGetLockOnAimPos, queried from this
+///   unit's GetPos( false )), 31c19930 = GetDirVecToDegree, component z, must lie in [ fMinAngle_, fMaxAngle_ ] (a NaN passes, @32295114-3229512b);
+///   distance = the length of that way minus the NPC size must be <= fMaxDistance_ (not above, so a NaN refuses, @32295177). The survivors are sorted by
+///   distance ascending (322acc40 = std::_Sort with a float compare, @322aa820-322aa839) and copied out. iCount_ ( stack arg +0xa0 ) is never read: the
+///   output is not cut to it (JUNE_BUGS). June's null game pointer would crash here; this returns an empty list
+void CX2GameUnit::JuneCollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const bool bSameTeam_ )
+{
+	vecUnits_.clear();		// @32294e90-32294e98: June zeroes the out vector's three pointers
+
+	if ( NULL == g_pX2Game )
+		return;
+
+	std::vector< std::pair<CX2GameUnit*, float> > vecFound;
+	for ( int iUnit = 0; iUnit < g_pX2Game->GetUnitNum(); ++iUnit )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( iUnit );
+		if ( NULL == pUnit )
+			continue;
+		if ( false == g_pX2Game->IsValidUnit( pUnit ) )
+			continue;
+		if ( ( GetTeam() == pUnit->GetTeam() ) != bSameTeam_ )
+			continue;
+		if ( GUSI_DIE == pUnit->GetGameUnitState() )
+			continue;
+		if ( pUnit->GetNowHp() <= 0.f )
+			continue;
+
+		const D3DXVECTOR3 vMyPos = GetPos( false );
+		const D3DXVECTOR3 vAimPos = CX2DamageEffect::CEffect::JuneGetLockOnAimPos( pUnit, vMyPos );
+
+		if ( true == bFacingOnly_ && JuneCollectIsPosAlongLastTouchLine( this, vAimPos ) != GetIsRight() )
+			continue;
+
+		float fExtraDistance = 0.f;
+		if ( GUT_NPC == pUnit->GetGameUnitType() )
+		{
+			CX2GUNPC* pNpc = static_cast<CX2GUNPC*>( pUnit );
+			if ( CX2UnitManager::NCT_BASIC != pNpc->GetNPCTemplet().m_ClassType )
+				continue;
+			fExtraDistance = ( pUnit->GetOrgUnitSize().x + pUnit->GetOrgUnitSize().y ) * 0.25f;
+		}
+
+		const D3DXVECTOR3 vToUnit = vAimPos - GetPos( false );
+		const D3DXVECTOR3 vDegree = GetDirVecToDegree( vToUnit );
+		if ( vDegree.z < fMinAngle_ || fMaxAngle_ < vDegree.z )
+			continue;
+
+		const float fDistance = D3DXVec3Length( &vToUnit ) - fExtraDistance;
+		if ( false == ( fDistance <= fMaxDistance_ ) )
+			continue;
+
+		vecFound.push_back( std::make_pair( pUnit, fDistance ) );
+	}
+
+	std::stable_sort( vecFound.begin(), vecFound.end(), JuneCollectUnitNearer );
+
+	for ( size_t uFound = 0; uFound < vecFound.size(); ++uFound )
+		vecUnits_.push_back( vecFound[uFound].first );
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 void CX2GameUnit::FadeInWeaponRenderEffect(const D3DXCOLOR& _StartColor, const D3DXCOLOR& _EndColor, float _fChangeTime, float _fDuration)
 {
 #ifdef NEW_HENIR_TEST
@@ -15772,6 +15866,12 @@ void CX2GameUnit::SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vec
 
 	BOOST_FOREACH( const KBuffFactor& kBuffFactor, vecBuffFactor_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June effect completion C3c, 322a6d00 (the per-factor packet apply; 322a6fd0, June's vector form, is a loop over it, and 322a8240's ProcessTransitDebuff
+		/// calls it per element): vslot 0x3e0( BTI ) true skips the factor (class code, default false)
+		if ( true == JuneIsPacketBuffRefused( static_cast<BUFF_TEMPLET_ID>( kBuffFactor.m_BuffIdentity.m_eBuffTempletID ) ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		auto FindFunc = [&kBuffFactor]( CX2BuffTempletPtr ptr_ ) {
 			return ( ptr_->GetBuffTempletID() == kBuffFactor.m_BuffIdentity.m_eBuffTempletID
 				&& ptr_->GetUniqueNum() == kBuffFactor.m_BuffIdentity.m_uiUniqueNum );
@@ -15789,6 +15889,20 @@ void CX2GameUnit::SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vec
 				CX2BuffTempletPtr ptrCloneBuffTemplet = ptrBuffTemplet->GetClonePtr();
 				if ( ptrCloneBuffTemplet->SetFactorFromPacket( kBuffFactor, this ) )
 				{
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+					/// June 322a6d00 @322a6e0a-322a6e69, before the counters: every finalizer of the applied clone (a copy of its list, 3236c830) gets the
+					/// buff templet id (finalizer vslot 6 = SetBuffTempletID, a stub but for Time and FinishHyper). March only did this through
+					/// ChangeBuffFinalizerTempletPtrList
+					{
+						vector<CX2BuffFinalizerTempletPtr> vecJuneFinalizerPtr;
+						ptrCloneBuffTemplet->GetFinalizerTempletPtrList( vecJuneFinalizerPtr );
+						for ( size_t uFinalizer = 0; uFinalizer < vecJuneFinalizerPtr.size(); ++uFinalizer )
+						{
+							if ( NULL != vecJuneFinalizerPtr[uFinalizer] )
+								vecJuneFinalizerPtr[uFinalizer]->SetBuffTempletID( ptrCloneBuffTemplet->GetBuffTempletID() );
+						}
+					}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 					/// 디버프면 디버프카운트를, 버프면 버프카운트를 증가
 					( true == ptrCloneBuffTemplet->IsDeBuff() ? SetNumOfDeBuff( GetNumOfDeBuff() + 1 ) : SetNumOfBuff( GetNumOfBuff() + 1 ) );
 					/// 각 유닛마다 특정 버프가 실행될 때 셋팅해줘야 하는 값(ex: 매지컬메이크업이 시전중이라는 플래그 등...)

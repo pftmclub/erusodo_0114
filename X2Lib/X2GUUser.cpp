@@ -1,5 +1,11 @@
 #include "StdAfx.h"
 #include ".\x2guuser.h"
+#if defined( SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 
 
 #ifdef REDUCED_PRECOMPILED_HEADER_TEST
@@ -11637,6 +11643,37 @@ void CX2GUUser::Process_ExtraDamage( const CX2DamageManager::DamageData* pDamage
 			if ( NULL != pAttackerUnit )
 			{
 				pAttackerUnit->ProcessTransitDebuff( pDamageData, this );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+				/// June effect completion C3c, CX2GUUser::Process_ExtraDamage 32034e50 @3203683c-32036c81 (EDT_TRANSIT_DEBUFF): after the attacker's own
+				/// ProcessTransitDebuff( DD, defender ) (322a8240), a DamageData member count above 0 (DD +0x154 = the main m_ExtraDamage's ADD_MEMBER_COUNT,
+				/// whichever extra damage is being processed: JUNE_BUGS) collects the attacker's team-mates around it (32294e30; distance = DD +0x158 when
+				/// above 0 else 1000.0 [33437b40], angles -180.0 [33477e98] .. 180.0 [3344d398], no facing test, same team) and each of them (not the attacker) runs
+				/// ProcessTransitDebuff( DD, defender ) too. The NPC case stays March's (June's twin 327995c0 case 0x28 has no member loop)
+				if ( pDamageData->m_ExtraDamage.m_iAddMemberCount > 0 )
+				{
+					float fMemberDistance = pDamageData->m_ExtraDamage.m_fAddMemberCountDistance;
+					if ( false == ( 0.f < fMemberDistance ) )		// @3203686d: not above 0, or NaN
+						fMemberDistance = 1000.f;
+
+					std::vector<CX2GameUnit*> vecMemberUnit;
+					pAttackerUnit->JuneCollectUnitsAround( vecMemberUnit, pDamageData->m_ExtraDamage.m_iAddMemberCount, fMemberDistance, -180.f, 180.f, false, true );
+					for( size_t uMember = 0; uMember < vecMemberUnit.size(); ++uMember )
+					{
+						CX2GameUnit* pMemberUnit = vecMemberUnit[uMember];
+						if ( NULL != pMemberUnit && pMemberUnit != pAttackerUnit )		// @32036c43-32036c49
+							pMemberUnit->ProcessTransitDebuff( pDamageData, this );
+					}
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+					static bool s_bTransitMemberLogged = false;
+					if ( false == s_bTransitMemberLogged )
+					{
+						s_bTransitMemberLogged = true;
+						CX2OfflineLog::Server( L"JUNE_FX C3c EDT_TRANSIT_DEBUFF member loop ran (first seen): count %d, distance %.1f, %d unit(s) collected, defender %I64d",
+							pDamageData->m_ExtraDamage.m_iAddMemberCount, fMemberDistance, static_cast<int>( vecMemberUnit.size() ), GetUnitUID() );
+					}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+				}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 			}
 			//bGetExtraDamage = true; extradamage아님
 		} break;
@@ -12202,6 +12239,53 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 #endif SEASON3_MONSTER_2010_12
 		//}} JHKang / 강정훈 / 2010/12/16 / 현재 피격 상태인가?
 
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+		/// June effect completion C3c, CX2GUUser::DamageReactStateChange 31feabd0, RT_SMALL_DAMAGE / RT_FLIP_* @31feae0b-31feaf58 (june2017_re/c3b_damage_react_sites.tsv).
+		/// IsSuperArmor() becomes JuneIsSuperArmorAgainst( false, DD ) (vslot 0x81c @31feae21) and FORCE_BACK_SPEED (DD +0x3ec, m_bForceBackSpeed) lets the case
+		/// run past it (@31feae27). A unit that is super-armoured, or armoured against a hit from the front it took from the front (@31feae41, @31feae61),
+		/// only takes the hit's vertical knock speed (the FORCE block @31feb28f): no state change
+		if ( true == JuneIsSuperArmorAgainst( false, pDamageData ) && false == pDamageData->m_bForceBackSpeed )
+			break;
+
+		if ( true == JuneIsSuperArmorAgainst( false, pDamageData )
+			|| ( true == m_FrameDataFuture.unitCondition.bAttackerFront && true == JuneIsSuperArmorAgainst( true, pDamageData ) ) )
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+			break;
+		}
+
+		if( m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y < LINE_RADIUS * 5.0f
+			|| (pAttackerUnit != NULL && pDamageData->attackerType == CX2DamageManager::AT_UNIT && pAttackerUnit->GetPos().y - pAttackerUnit->GetUnitCondition().landPosition.y < LINE_RADIUS * 3.0f) )
+		{
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				m_PhysicParam.nowSpeed.y = 0.0f;
+			if( m_FrameDataFuture.unitCondition.bAttackerFront == true )
+			{
+				if ( true == JuneIsSuperArmorAgainst( true, pDamageData ) )	// @31feaf02: cannot hold after @31feae61, June keeps it
+					break;
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_FRONT, true );
+				else
+					StateChange( USI_DAMAGE_SMALL_FRONT, true );
+			}
+			else
+			{
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_BACK, true );
+				else
+					StateChange( USI_DAMAGE_SMALL_BACK, true );
+			}
+		}
+		else
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+			if ( true == GetRidingOn() )
+				StateChange( USI_RIDING_DAMAGE_FRONT, true );
+			else
+				StateChange( USI_DAMAGE_AIR_SMALL, true );
+		}
+		break;
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		if ( IsSuperArmor() )
 			break;
 
@@ -12244,6 +12328,7 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 		}
 		break;
 
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 	case CX2DamageManager::RT_GROGGY:
 		m_fGroggyTime = pDamageData->fGroggyTime;
 		StateChange( USI_DAMAGE_GROGGY, true );
@@ -12260,6 +12345,51 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 #endif SEASON3_MONSTER_2010_12
 		//}} JHKang / 강정훈 / 2010/12/16 / 현재 피격 상태인가?
 
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+		/// June effect completion C3c, 31feabd0 RT_BIG_DAMAGE / RT_REFLECT @31feaf7d-31feb0f5: the same gates as RT_SMALL_DAMAGE (@31feaf93 / @31feaf99,
+		/// @31feafb3, @31feafd3, @31feb09f), with the BIG states
+		if ( true == JuneIsSuperArmorAgainst( false, pDamageData ) && false == pDamageData->m_bForceBackSpeed )
+			break;
+
+		if ( true == JuneIsSuperArmorAgainst( false, pDamageData )
+			|| ( true == m_FrameDataFuture.unitCondition.bAttackerFront && true == JuneIsSuperArmorAgainst( true, pDamageData ) ) )
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+			break;
+		}
+
+		if( m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y < LINE_RADIUS * 5.0f
+			|| (pAttackerUnit != NULL && pDamageData->attackerType == CX2DamageManager::AT_UNIT && pAttackerUnit->GetPos().y - pAttackerUnit->GetUnitCondition().landPosition.y < LINE_RADIUS * 3.0f) )
+		{
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				m_PhysicParam.nowSpeed.y = 0.0f;
+			if( m_FrameDataFuture.unitCondition.bAttackerFront == true )
+			{
+				if ( true == JuneIsSuperArmorAgainst( true, pDamageData ) )	// @31feb09f: cannot hold after @31feafd3, June keeps it
+					break;
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_FRONT, true );
+				else
+					StateChange( USI_DAMAGE_BIG_FRONT, true );
+			}
+			else
+			{
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_BACK, true );
+				else
+					StateChange( USI_DAMAGE_BIG_BACK, true );
+			}
+		}
+		else
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+			if ( true == GetRidingOn() )
+				StateChange( USI_RIDING_DAMAGE_FRONT, true );
+			else
+				StateChange( USI_DAMAGE_AIR_SMALL, true );
+		}
+		break;
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		if ( IsSuperArmor() )
 			break;
 
@@ -12303,12 +12433,60 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 		}
 		break;
 
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 	case CX2DamageManager::RT_DOWN:
 #ifdef RIDING_SYSTEM
 		if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
 			SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_BUFF_SUPER_AMOR_FOR_RIDING ) );
 #endif //RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+		/// June effect completion C3c, 31feabd0 RT_DOWN @31feb0fa-31feb28a (after the riding super-armour buff above, @31feb13b / @31feb141, @31feb15b,
+		/// @31feb17b, @31feb1c1). June has no SetNowForceDown( 0.f ) here (March's FIX_FORCE_DOWN_INITIALIZE_BUG put it at the end of this case): the force-down
+		/// gage is cleared only by ForceDownAndDetonationProcess / its flush (JUNE_BUGS)
+		if ( true == JuneIsSuperArmorAgainst( false, pDamageData ) && false == pDamageData->m_bForceBackSpeed )
+			break;
+
+		if ( true == JuneIsSuperArmorAgainst( false, pDamageData )
+			|| ( true == m_FrameDataFuture.unitCondition.bAttackerFront && true == JuneIsSuperArmorAgainst( true, pDamageData ) ) )
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+			break;
+		}
+
+		if( true == IsOnSomethingFuture() )
+		{
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				m_PhysicParam.nowSpeed.y = 0.0f;
+			if( m_FrameDataFuture.unitCondition.bAttackerFront == true )
+			{
+				if ( true == JuneIsSuperArmorAgainst( true, pDamageData ) )	// @31feb1c1: cannot hold after @31feb17b, June keeps it
+					break;
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_FRONT, true );
+				else
+					StateChange( USI_DAMAGE_DOWN_FRONT, true );
+			}
+			else
+			{
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_BACK, true );
+				else
+					StateChange( USI_DAMAGE_DOWN_BACK, true );
+			}
+		}
+		else
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+			if ( true == GetRidingOn() )
+				StateChange( USI_RIDING_DAMAGE_FRONT, true );
+			else
+				StateChange( USI_DAMAGE_AIR_DOWN, true );
+		}
+
+		SetHoldStateID( USI_DAMAGE_AIR_FALL );	// June sets it (+0x8be8 = 0x26) after each state change above
+		break;
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		if ( IsSuperArmor() )
 			break;
 
@@ -12360,6 +12538,7 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 #endif // FIX_FORCE_DOWN_INITIALIZE_BUG
 		break;
 
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 	case CX2DamageManager::RT_UP:
 		//{{ JHKang / 강정훈 / 2010/12/16 / 현재 피격 상태인가?
 #ifdef SEASON3_MONSTER_2010_12
@@ -12371,6 +12550,45 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 			SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_BUFF_SUPER_AMOR_FOR_RIDING ) );
 #endif //RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+		/// June effect completion C3c, 31feabd0 RT_UP @31feb2a0-31feb3c4 (after SetNowHit and the riding buff above): the gate @31feb2e8 / @31feb2ee, then the
+		/// vertical speed is taken whether or not the state changes, and the state change itself needs the 0x81c check ( false @31feb330, true @31feb350, true @31feb377 )
+		if ( true == JuneIsSuperArmorAgainst( false, pDamageData ) && false == pDamageData->m_bForceBackSpeed )
+			break;
+
+		if( m_FlyCount > 2 )
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
+		}
+		else
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+		}
+
+		if ( false == JuneIsSuperArmorAgainst( false, pDamageData )
+			&& ( false == m_FrameDataFuture.unitCondition.bAttackerFront || false == JuneIsSuperArmorAgainst( true, pDamageData ) ) )
+		{
+			ResetOnSomethingFuture();
+
+			if( m_FrameDataFuture.unitCondition.bAttackerFront == true )
+			{
+				if ( true == JuneIsSuperArmorAgainst( true, pDamageData ) )	// @31feb377: cannot hold after @31feb350, June keeps it
+					break;
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_FRONT, true );
+				else
+					StateChange( USI_DAMAGE_AIR_UP, true );
+			}
+			else
+			{
+				if ( true == GetRidingOn() )
+					StateChange( USI_RIDING_DAMAGE_BACK, true );
+				else
+					StateChange( USI_DAMAGE_AIR_UP, true );
+			}
+		}
+		break;
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		if ( IsSuperArmor() )
 			break;
 
@@ -12406,6 +12624,7 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 #endif //RIDING_SYSTEM 데미지 State 변경
 		break;
 
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 	case CX2DamageManager::RT_FLY:
 		//{{ JHKang / 강정훈 / 2010/12/16 / 현재 피격 상태인가?
 #ifdef SEASON3_MONSTER_2010_12
@@ -12418,10 +12637,77 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 			SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_BUFF_SUPER_AMOR_FOR_RIDING ) );
 #endif //RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+		/// June effect completion C3c, 31feabd0 RT_FLY @31feb3c9-31feb572 (after SetNowHit and the riding buff above). Buff 14c's tutorial block below gains
+		/// June's FORCE term (@31feb425): super armour stops the launch only outside the tutorial and while DD +0x3ec is clear. The launch's vertical speed is
+		/// taken whether or not the state changes; the state change needs the 0x81c check ( false @31feb499, true @31feb4b9, true @31feb4e0 ) and the
+		/// reset of OnSomethingFuture sits inside it
+		{	// braces: the const below must not be skipped by the later case labels
+#ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+		const bool bJuneFlyTutorial = g_pMain->GetIsPlayingTutorial();
+#else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+		const bool bJuneFlyTutorial = false;
+#endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+		if ( IsSuperArmor() && false == bJuneFlyTutorial && false == pDamageData->m_bForceBackSpeed )
+			break;
+
+		if( m_FlyCount > 2 )
+		{
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
+		}
+		else
+		{
+			if ( IsSuperArmor() && true == bJuneFlyTutorial )
+				m_PhysicParam.nowSpeed.x = pDamageData->backSpeed.x * -1.f;
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+		}
+
+		if ( false == JuneIsSuperArmorAgainst( false, pDamageData )
+			&& ( false == m_FrameDataFuture.unitCondition.bAttackerFront || false == JuneIsSuperArmorAgainst( true, pDamageData ) ) )
+		{
+			ResetOnSomethingFuture();
+
+			if( m_FrameDataFuture.unitCondition.bAttackerFront == true )
+			{
+				if ( true == JuneIsSuperArmorAgainst( true, pDamageData ) )	// @31feb4e0: cannot hold after @31feb4b9, June keeps it
+					break;
+				if ( true == GetRidingOn() )
+				{
+					StateChange( USI_RIDING_DAMAGE_FRONT, true );
+					SetHoldStateID( USI_RIDING_DAMAGE_FRONT );
+					SetGrapStateID ( USI_RIDING_DAMAGE_FRONT );
+				}
+				else
+				{
+					StateChange( USI_DAMAGE_AIR_FLY_FRONT, true );
+					SetHoldStateID( USI_DAMAGE_AIR_FLY_FRONT );
+					SetGrapStateID ( USI_DAMAGE_AIR_FLY_FRONT );
+				}
+			}
+			else
+			{
+				if ( true == GetRidingOn() )
+				{
+					StateChange( USI_RIDING_DAMAGE_BACK, true );
+					SetHoldStateID( USI_RIDING_DAMAGE_BACK );
+					SetGrapStateID ( USI_RIDING_DAMAGE_BACK );
+				}
+				else
+				{
+					StateChange( USI_DAMAGE_AIR_FLY_BACK, true );
+					SetHoldStateID( USI_DAMAGE_AIR_FLY_BACK );
+					SetGrapStateID ( USI_DAMAGE_AIR_FLY_BACK );
+				}
+			}
+		}
+		break;
+		}
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 		/// June buff port Phase 14c, CX2GUUser::DamageReactStateChange 31feabd0, RT_FLY @31feb404-31feb42c: super armor
-		/// stops the launch only outside the tutorial, and only while June's DamageData byte +0x3ec is clear (a June-only
-		/// key with no March counterpart, so it reads as false here)
+		/// stops the launch only outside the tutorial, and only while June's DamageData byte +0x3ec (FORCE_BACK_SPEED, m_bForceBackSpeed) is
+		/// clear. This March-form block ignores that byte; with SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION (effect completion C3c) the RT_FLY
+		/// case above replaces it, tutorial term and FORCE term both
 		if ( IsSuperArmor() && false == g_pMain->GetIsPlayingTutorial() )
 			break;
 #else SERV_IRUHADEV_JUNE_TUTORIAL_MODE
@@ -12498,9 +12784,41 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 		break;
 
 		//{{ kimhc // 2010.2.8 // 위치보정 없이 위로 계속 끌어 올리는 공격
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 #ifdef	EVE_SECOND_CLASS_CHANGE
 	case CX2DamageManager::RT_DRAG_UP:
 		{
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+			/// June effect completion C3c, 31feabd0 RT_DRAG_UP @31feb577-31feb64e: the gate is IsSuperArmor() with the FORCE term (@31feb585, @31feb58b); the vertical
+			/// speed is taken whether or not the state changes; the state change needs the 0x81c check ( false @31feb5b1, true @31feb5d1, true @31feb5f8 )
+			if ( IsSuperArmor() && false == pDamageData->m_bForceBackSpeed )
+				break;
+
+			m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+
+			if ( false == JuneIsSuperArmorAgainst( false, pDamageData )
+				&& ( false == m_FrameDataFuture.unitCondition.bAttackerFront || false == JuneIsSuperArmorAgainst( true, pDamageData ) ) )
+			{
+				ResetOnSomethingFuture();
+
+				if( m_FrameDataFuture.unitCondition.bAttackerFront == true )
+				{
+					if ( true == JuneIsSuperArmorAgainst( true, pDamageData ) )	// @31feb5f8: cannot hold after @31feb5d1, June keeps it
+						break;
+					if ( true == GetRidingOn() )
+						StateChange( USI_RIDING_DAMAGE_FRONT, true );
+					else
+						StateChange( USI_DAMAGE_AIR_FLY_FRONT, true );
+				}
+				else
+				{
+					if ( true == GetRidingOn() )
+						StateChange( USI_RIDING_DAMAGE_BACK, true );
+					else
+						StateChange( USI_DAMAGE_AIR_FLY_BACK, true );
+				}
+			}
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 			if ( IsSuperArmor() )
 				break;
 
@@ -12528,6 +12846,7 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 			else
 				StateChange( USI_DAMAGE_AIR_FLY_BACK, true );
 #endif //RIDING_SYSTEM 데미지 State 변경
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		}
 		break;
 #endif	EVE_SECOND_CLASS_CHANGE
@@ -14857,6 +15176,29 @@ void CX2GUUser::CommonStateStart()
 	bool bSuperArmor = false;
 	LUA_GET_VALUE( m_LuaManager, "SUPER_ARMOR",			bSuperArmor,			false );
 	m_FrameDataNow.stateParam.bSuperArmor			= bSuperArmor;
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+	/// June effect completion C3c, CX2GUUser::CommonStateStart 32057b80 @320588e5-32058d38, in June's order: SUPER_ARMOR_FRONT (bool, miss false),
+	/// then the state's SUPER_ARMOR_CONDITION set is cleared on every state start (3260ea70 @32058c06) and refilled from the int list (indexes from 1,
+	/// until a miss; @32058c0b-32058c83), then FRONT true makes the state a super-armoured one (the local at [esp+0x28] and the state param's
+	/// bSuperArmor) and inserts SAC_FRONT 0 (@32058c99-32058d33). The local feeds m_bStateSuperArmor below (June @32058f05 compares it with +0x89fc)
+	/// and the bSuperArmor == true test of the NotRed block (@32059000), so FRONT's true reaches both.
+	bool bSuperArmorFront = false;
+	LUA_GET_VALUE( m_LuaManager, "SUPER_ARMOR_FRONT",	bSuperArmorFront,	false );
+	m_FrameDataNow.stateParam.setSuperArmorCondition.clear();
+	if( m_LuaManager.BeginTable( "SUPER_ARMOR_CONDITION" ) == true )
+	{
+		int iSuperArmorCondition = 0;
+		for( int iConditionIndex = 1; m_LuaManager.GetValue( iConditionIndex, iSuperArmorCondition ) == true; ++iConditionIndex )
+			m_FrameDataNow.stateParam.setSuperArmorCondition.insert( iSuperArmorCondition );
+		m_LuaManager.EndTable();
+	}
+	if( true == bSuperArmorFront )
+	{
+		bSuperArmor = true;
+		m_FrameDataNow.stateParam.bSuperArmor = true;
+		m_FrameDataNow.stateParam.setSuperArmorCondition.insert( SAC_FRONT );
+	}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 	
 	bool bSuperArmorNotRed = true;
 	LUA_GET_VALUE( m_LuaManager, "SUPER_ARMOR_NOT_RED", bSuperArmorNotRed,		true );
@@ -36642,6 +36984,48 @@ void CX2GUUser::CountReservedSkillUse()
 		return m_FrameDataNow.stateParam.bSuperArmor;	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+/** @function : JuneIsSuperArmorAgainst
+	@brief : June CX2GUUser vslot 0x81c, 31fd86b0 (effect completion C3c; ( bool bAttackerFront, DamageData* ), RET 8). A non-empty
+		super-armour buff list (this +0x42a0 / +0x42a4 = m_vecSuperArmorPtr) is armour; otherwise the state param's bSuperArmor (+0x7ff4) must be
+		set, and the state's SUPER_ARMOR_CONDITION set (+0x8030, 32345340 = set::find, +0x8034 = end()) filters it: SAC_FRONT 0 refuses a hit that
+		does not come from the front, SAC_SPECIAL_ATTACK 2 refuses a DamageData that is not AT_SPECIAL, SAC_NORMAL_ATTACK 1 refuses an AT_SPECIAL
+		one (a null DamageData refuses neither). An empty set gives IsSuperArmor(). June's DamageReactStateChange calls it with ( false, DD ) and
+		( true, DD ); Add's DamageReact override 32a07fc0 @32a080cc is class code (checklist 7l).
+*/
+bool CX2GUUser::JuneIsSuperArmorAgainst( const bool bAttackerFront_, const CX2DamageManager::DamageData* pDamageData_ ) const
+{
+	if ( !m_vecSuperArmorPtr.empty() )		// @31fd86b6-31fd86c4
+		return true;
+
+	if ( false == m_FrameDataNow.stateParam.bSuperArmor )	// @31fd86cd-31fd86e8
+		return false;
+
+	const std::set<int>& setCondition = m_FrameDataNow.stateParam.setSuperArmorCondition;
+	bool bArmour = true;
+	if ( setCondition.end() != setCondition.find( SAC_FRONT ) && false == bAttackerFront_ )	// @31fd8706-31fd871c
+		bArmour = false;
+	else if ( setCondition.end() != setCondition.find( SAC_SPECIAL_ATTACK ) && NULL != pDamageData_ && CX2DamageManager::AT_SPECIAL != pDamageData_->attackType )	// @31fd8733-31fd8750
+		bArmour = false;
+	else if ( setCondition.end() != setCondition.find( SAC_NORMAL_ATTACK ) && NULL != pDamageData_ && CX2DamageManager::AT_SPECIAL == pDamageData_->attackType )	// @31fd8766-31fd8777
+		bArmour = false;
+
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	if ( false == bArmour )
+	{
+		static bool s_bSuperArmorFilterLogged = false;
+		if ( false == s_bSuperArmorFilterLogged )
+		{
+			s_bSuperArmorFilterLogged = true;
+			CX2OfflineLog::Server( L"JUNE_FX C3c super armour condition refused a hit (first seen): unit %I64d, condition set size %d, attacker in front %d, attack type %d",
+				GetUnitUID(), static_cast<int>( setCondition.size() ), static_cast<int>( bAttackerFront_ ), NULL != pDamageData_ ? static_cast<int>( pDamageData_->attackType ) : -1 );
+		}
+	}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+
+	return bArmour;
+}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 /** @function : ResetLeftSkillCoolTimeBySkillType
 	@brief : 인자로 전달받은 스킬 타입에 해당하는 스킬들의 쿨타임을 초기화 시킨다.
 	@param : 쿨타임을 초기화 시킬 스킬타입(eSkillType_)

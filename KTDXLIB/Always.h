@@ -6056,6 +6056,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-08
+// Description: June effect completion C3c (JUNE2017_EFFECT_COMPLETION_PHASES.md): June's directional /
+//              typed super armour. CommonStateStart reads SUPER_ARMOR_FRONT and the SUPER_ARMOR_CONDITION
+//              int list (SAC_FRONT 0, SAC_NORMAL_ATTACK 1, SAC_SPECIAL_ATTACK 2) into a per-state set next
+//              to bSuperArmor (June 32057b80 @320588e5-32058d38); CX2GUUser::JuneIsSuperArmorAgainst
+//              (June 31fd86b0) filters super armour by that set; DamageReactStateChange (June 31feabd0)
+//              uses it at its 22 vslot-0x81c sites and FORCE_BACK_SPEED at its 6 tests, and drops the
+//              SetNowForceDown( 0 ) that March's FIX_FORCE_DOWN_INITIALIZE_BUG put in the RT_DOWN case
+//              (June has none: JUNE_BUGS). Inert on March data (no script sets either key) except that
+//              last change. Off = March's IsSuperArmor() gates and the force-down reset.
+#define SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-08
 // Description: Costume shop S0. The offline cash shop catalog (cash_product, written into els_db.sql by
 //              costume_shop/insert_products.py) now holds every June fashion item and every character's GM
 //              weapon at price 1. With this flag CX2OfflineCashShop::EnsureLoaded withholds, from the catalog

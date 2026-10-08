@@ -365,11 +365,11 @@ def summary_lines(rows):
 # Hand-written consumer notes for `implemented` rows, appended to the matrix's last column by census.note_s (so a regeneration
 # keeps them). Keyed by the bare key name. C3 (JUNE2017_EFFECT_COMPLETION_PHASES.md "C3 - Done"): what the key does in March.
 KEY_NOTES = {
-    'ADD_MEMBER_COUNT': 'C3: parsed into ExtraDamageData +0x104, stored, logged; no June reader found (C3b)',
-    'ADD_MEMBER_COUNT_DISTANCE': 'C3: parsed into ExtraDamageData +0x108, stored, logged; no June reader found (C3b)',
+    'ADD_MEMBER_COUNT': 'C3c: read by Process_ExtraDamage EDT_TRANSIT_DEBUFF (32034e50 @3203683c): above 0 runs the member loop; the count only gates, it is never a limit (JUNE_BUGS 133)',
+    'ADD_MEMBER_COUNT_DISTANCE': 'C3c: read by the same member loop (@3203686d): the collection distance, 1000.0 when not above 0',
     'BOUNDING_BACK_SPEED_X': 'C3: parsed, stored, logged; reader = DamageReactStateChange 31feabd0 @31feb6c6 behind 31fd86b0 (C3b)',
     'BOUNDING_BACK_SPEED_Y': 'C3: parsed, stored, logged; reader = DamageReactStateChange 31feabd0 @31feb6d8 behind 31fd86b0 (C3b)',
-    'FORCE_BACK_SPEED': 'C3: DamageReact (user 320462a0 @32046f56, NPC 327b1f30 @327b2efa) ported; the six DamageReactStateChange tests behind 31fd86b0 are C3b',
+    'FORCE_BACK_SPEED': 'C3: DamageReact (user 320462a0 @32046f56, NPC 327b1f30 @327b2efa) ported; C3c: the six DamageReactStateChange tests and the FORCE block (31feabd0, 31feb28f) ported',
     'APPLIED_MEMO_ID': 'C3: parsed and stored (+0x5c8), logged; reader = skill-memo switch 3202ac40 (C8b, queued)',
     'ATTACK_ONLY_ME': 'C3: six hit paths + both DamageReact invincible gates',
     'ONYL_ATTACK_USER': 'C3: UnitToUnit / MeshToUnit / CollisionDataToUnit / EffectToUnit',

@@ -308,7 +308,11 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		{
 			WCHAR wszJuneValue[48] = L"";
 			StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f, %.3f", pDamageData->m_fBoundingBackSpeedX, pDamageData->m_fBoundingBackSpeedY );
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+			JuneDamageDataUnsupported( pwszJuneTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding user states (C3d-3)", wszJuneValue );
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 			JuneDamageDataUnsupported( pwszJuneTemplet, pTableName, L"BOUNDING_BACK_SPEED_X/Y", L"bounding back-speed state change (31feabd0 / 31fd86b0 not identified)", wszJuneValue );
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		}
 		// June2017 FUN_32632390 @32638555-326386c0: FORCE_BACK_SPEED, bool getter 32fe9e40 @326386b5, false when absent, to +0x3ec.
 		LUA_GET_VALUE( luaManager, "FORCE_BACK_SPEED",					pDamageData->m_bForceBackSpeed,					false );
@@ -491,6 +495,9 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 			// manager never touch ED +0x104/+0x108), so they are stored and logged once per key per templet (plan rule 5).
 			LUA_GET_VALUE( luaManager, "ADD_MEMBER_COUNT",				pDamageData->m_ExtraDamage.m_iAddMemberCount,			0 );
 			LUA_GET_VALUE( luaManager, "ADD_MEMBER_COUNT_DISTANCE",	pDamageData->m_ExtraDamage.m_fAddMemberCountDistance,	-1.f );
+			// Effect completion C3b found the reader (CX2GUUser::Process_ExtraDamage's EDT_TRANSIT_DEBUFF case) and C3c ported it, so the two keys are consumed
+			// and the rule-5 lines below no longer fire
+#if 0
 			if( 0 != pDamageData->m_ExtraDamage.m_iAddMemberCount )
 				JuneDamageDataUnsupportedInt( GetJuneDamageDataTemplet(), pTableName, L"ADD_MEMBER_COUNT", L"ExtraDamage member-count reader (not identified)", pDamageData->m_ExtraDamage.m_iAddMemberCount );
 			if( -1.f != pDamageData->m_ExtraDamage.m_fAddMemberCountDistance )
@@ -499,6 +506,7 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 				StringCchPrintfW( wszJuneValue, ARRAY_SIZE(wszJuneValue), L"%.3f", pDamageData->m_ExtraDamage.m_fAddMemberCountDistance );
 				JuneDamageDataUnsupported( GetJuneDamageDataTemplet(), pTableName, L"ADD_MEMBER_COUNT_DISTANCE", L"ExtraDamage member-count reader (not identified)", wszJuneValue );
 			}
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 			luaManager.EndTable();
 		}

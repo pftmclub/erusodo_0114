@@ -532,13 +532,54 @@ deployed exe is unchanged.
 
 ## C3c - port: super-armour condition, DamageReactStateChange's gates, ADD_MEMBER_COUNT
 
-**Status: ready (C3b done 2026-10-08). Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3c.md`.
+**Status: code done 2026-10-08 (see "C3c - Done" below); play-test and Opus review owed. Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3c.md`, review `kickoffs/june-effect/C3c-review.md`.
 
 - **Scope:** C3b items 1 and 3 (funcmap rows `(C3b)`, `june2017_re/c3b_damage_react_sites.tsv`). New flag `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION`
   (parse, check, the 22 sites, the 6 FORCE tests, DOWN's `SetNowForceDown`); `SERV_IRUHADEV_JUNE_DAMAGEDATA` extended for the TRANSIT reader.
 - **Not with:** C9h-4f or C8b (`X2GUUser.cpp` CommonStateStart / DamageReact areas).
 - **Exit:** strings in the deployed exe; a regression play-test (get knocked down, launched and dragged up in a dungeon) with 0 EXCEPTION;
   census rows `ADD_MEMBER_COUNT*` / `FORCE_BACK_SPEED` leave "parsed only".
+
+### C3c - Done (2026-10-08, Sonnet 5.5 high)
+
+Flags: new `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION` (items 1-2), `SERV_IRUHADEV_JUNE_DAMAGEDATA` extended (item 3; the collector needs `_DAMAGEEFFECT_RUNTIME`
+for `CEffect::JuneGetLockOnAimPos`, with an `#error` in `X2GameUnit.cpp` if it is off). Funcmap rows `(C3c)` hold every address. Inert on March data
+(no script sets `SUPER_ARMOR_FRONT`, `SUPER_ARMOR_CONDITION`, `FORCE_BACK_SPEED` or `ADD_MEMBER_COUNT`) **except RT_DOWN**.
+
+1. **Parse + check.**
+   - `CommonStateStart` reads `SUPER_ARMOR_FRONT`, clears the per-state set, reads the `SUPER_ARMOR_CONDITION` int list, and FRONT true sets
+     `bSuperArmor` and inserts `SAC_FRONT`, in June's order (`@320588e5-32058d38`).
+   - The set lives in `StateParam` (June's `+0x8030` is inside the state param, so it is copied and cleared with it).
+   - `m_bStateSuperArmor` does take FRONT's true: the one June local is compared with `+0x89fc` (`@32058f05`) and tested by the NotRed block (`@32059000`).
+   - `CX2GUUser::JuneIsSuperArmorAgainst` = `31fd86b0`, non-virtual (no June class overrides it).
+2. **DamageReactStateChange.** The six June cases wrap the March bodies, which stay in `#else`:
+   - SMALL / BIG / DOWN / UP / FLY / DRAG_UP carry all 22 `0x81c` calls, the 6 FORCE tests and the FORCE block (`nowSpeed.y = backSpeed.y`, no state);
+   - the inner re-checks that cannot fire after the gate (`@31feaf02` ...) are kept as June has them;
+   - FLY carries buff 14c's tutorial term plus `&& !FORCE` (`@31feb425`), and that block's comment is corrected;
+   - UP / FLY / DRAG_UP take the vertical speed before the `0x81c` check and call `ResetOnSomethingFuture` inside it.
+3. **DOWN, the one live change.** June's writers of the force-down gage (`SetNowForceDown 32081520`) are unit init `31fee7a9`, `AttackResult @3201382c`, the NPC
+   `3276a8be` and `UpdateFlushForceDown 32a33dd2`. Nothing moved the RT_DOWN reset elsewhere, so it is dropped under the flag: a knock-down no longer empties
+   the gage (JUNE_BUGS 131).
+4. **ADD_MEMBER_COUNT.**
+   - `Process_ExtraDamage` `EDT_TRANSIT_DEBUFF` runs the member loop after `ProcessTransitDebuff`. Distance = DD `+0x158` when above 0, else 1000.0; the
+     idiom `fldz; fcomp; test ah,5; jp` is the one `x87test.py` documents (continues only for mem > 0, NaN skips).
+   - `CX2GameUnit::JuneCollectUnitsAround` = `32294e30`, whole. Argument order from the call: ( vec, count, dist, -180.0, 180.0, no facing test, same team ).
+     The NPC branch is the March pattern of `X2GUAdd.cpp:7137`. The facing branch is dead for the one caller but kept (a local copy of
+     `JuneIsPosAlongLastTouchLine`, because the buff file's is file-static). The count is never read (JUNE_BUGS 133); the reader uses the main extra damage (132).
+   - `ProcessTransitDebuff` needs no change: the HP test is `GetNowHp() > 0` in both. June's per-element loop is `322a6fd0` over `322a6d00`, so that body
+     went into March's `SetKBuffFactorPacketToGameUnit` loop (two additions: the `vslot 0x3e0` refusal hook, `CX2GameUnit::JuneIsPacketBuffRefused`, default
+     false, Add overrides it for BTI 0x156 / 0x1b6 -> checklist 7l; the finalizers' `SetBuffTempletID`).
+5. **Logs, census.** The rule-5 lines for ADD_MEMBER_COUNT / _DISTANCE are `#if 0`; BOUNDING's text says `bounding user states (C3d-3)`; `JUNE_FX C3c` lines
+   fire once on the first super-armour refusal and on the first member loop. `census_completion.KEY_NOTES` moved for the three keys.
+
+**Hygiene** (`flagcheck`, paste after the commit):
+(pending: pasted by the follow-up commit)
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,405,312 B, dated 2026-10-08 18:26:07, md5 eeabc914b8cf2deab8f2ae39720430d8, equal to X2/US_SERVICE/x2.exe (2026-10-08 18:26:02); built at mods/june-buff-port 61d480c + 11 uncommitted code file(s).` New strings checked in the deployed exe (UTF-16): both `JUNE_FX C3c ... (first seen)` lines and `bounding user states (C3d-3)`.
+
+**How to see it in game** (play-test hand-off in the final message): knock-down, launch and drag-up in a dungeon with 0 EXCEPTION; after a knock-down the
+force-down invincible fall comes sooner than before (the gage is no longer emptied by the knock-down). The two new JUNE_FX lines do not appear on March data.
+**Open for the user:** nothing; June's Add class hook goes to the Add port (checklist 7l).
 
 ## C3d-1 - identify: widening the user state id to 16 bits (D10 (a))
 

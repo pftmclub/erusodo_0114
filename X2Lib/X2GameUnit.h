@@ -718,6 +718,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			int						hitCamera;
 			bool					bResetCamera;
 			bool					bEventFlagList[EVENT_FLAG_LIST_NUM];
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+			/// June CX2GUUser +0x8030 (inside the state param, between bSuperArmor +0x7ff4 and bSuperArmorNotRed +0x8040): the
+			/// SUPER_ARMOR_CONDITION set of this state, refilled by every CommonStateStart (32057b80 @32058c00), read by
+			/// CX2GUUser::JuneIsSuperArmorAgainst (31fd86b0). Copied with the rest of the state param.
+			std::set<int>			setSuperArmorCondition;
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
             bool                    bSuperArmorNotRed;		/// 슈퍼 아머일 때 붉은색을로 나타내지 않음
             int                     fGuardDefence;			/// 방어
 			bool					bAttackState;			/// 지금 상태가 공격상태인지, m_AttackTimeList가 empty가 아니거나 이 변수가 설정되어 있다면 공격상태임
@@ -802,6 +808,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				hitCamera				= data.hitCamera;
 				bResetCamera			= data.bResetCamera;
                 bSuperArmorNotRed       = data.bSuperArmorNotRed;
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+				setSuperArmorCondition	= data.setSuperArmorCondition;
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
                 fGuardDefence           = data.fGuardDefence;
 				bAttackState			= data.bAttackState;
 #ifdef SERV_EVE_BATTLE_SERAPH
@@ -861,6 +870,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				hitCamera				= 0;
 				bResetCamera			= true;
                 bSuperArmorNotRed       = false;
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
+				setSuperArmorCondition.clear();
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
                 fGuardDefence           = 0;
 				bAttackState			= false;
 #ifdef SERV_EVE_BATTLE_SERAPH
@@ -3201,6 +3213,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 		// oasis907 : 김상윤 [2011.6.16] 청 2차 전직 - 아이언 팔라딘
 		void ProcessTransitDebuff( const CX2DamageManager::DamageData* pDamageData_, CX2GameUnit* pTargetUnit_ );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June effect completion C3c, 32294e30 (CX2GameUnit method, single caller: Process_ExtraDamage's EDT_TRANSIT_DEBUFF member loop): fills
+		/// vecUnits_ with the game units around this one, nearest first. iCount_ is June's second argument, which its body never reads
+		void JuneCollectUnitsAround( OUT std::vector<CX2GameUnit*>& vecUnits_, IN const int iCount_, IN const float fMaxDistance_, IN const float fMinAngle_, IN const float fMaxAngle_, IN const bool bFacingOnly_, IN const bool bSameTeam_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		bool GetEnableWeaponRenderEffect(){ return m_bEnableWeaponRenderEffect; }
 		void SetEnableWeaponRenderEffect( bool _bVal );
 		D3DXCOLOR GetWeaponRenderEffectColor(){ return m_WeaponRenderEffectColor; }
@@ -3559,6 +3576,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 		void SetKBuffFactorPacketToGameUnit( const vector<KBuffFactor>& vecBuffFactor_ );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+		/// June CX2GameUnit vslot 0x3e0( BTI ), called first by the per-factor packet apply 322a6d00: true skips that factor. Base 331a4950 returns
+		/// false; CX2GUAdd 329d4640 overrides it (BTI 0x156 / 0x1b6 -> true), CX2GUAin 32a38f80 returns false: class code, JUNE2017_CHARACTER_PORT_CHECKLIST.md 7l
+		virtual bool JuneIsPacketBuffRefused( const BUFF_TEMPLET_ID eBuffTempletID_ ) const { return false; }
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 		
 		/// 필드<->던전 이동 시 자신에게 걸린 버프를 GageManager에 임시로 저장 했던 것을 다시 GameUnit에 적용하는 함수
 		void SetKBuffFactorFromGageManagerToGameUnit();
