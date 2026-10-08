@@ -2896,7 +2896,7 @@ RESULT: PASS
 
 **How to see it in game (play-test hand-off is in the reply):** inert on March data except the clamp. `JUNE_FX UPDOWN_CANCEL attack_z ...` prints the four cancel-after values per RIDING_ATTACK_Z entry; `JUNE_FX CANCEL_CLAMP ...` prints one line per value the clamp changed (state id, key, old value), so one session shows whether March data uses values below 0.1.
 
-**Open for the user:** keep or drop the clamp (`SERV_IRUHADEV_JUNE_CANCEL_CLAMP`) once the log shows what it changes. **User owes:** the play-test, `/cost`.
+**Decided:** the clamp (`SERV_IRUHADEV_JUNE_CANCEL_CLAMP`) is kept (user, 2026-10-08: it follows June). Play-test: 17 riding `attack_z` lines and a 30 s Lord Knight field run, 0 clamp lines in both. **User owes:** `/cost`.
 
 ### C9h-6 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the snapshot exists because June's running state data are pointers; March copies them by value, so a port would never change anything -> no port, routing only
 
