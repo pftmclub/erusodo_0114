@@ -7374,10 +7374,13 @@ static int JuneStopEffectSetHandles( std::vector< CX2EffectSet::Handle >& vecHan
 
 void CX2GameUnit::JuneDeleteEffectSetOnStageEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+	const int iJuneListed = static_cast<int>( m_vecJuneEffectSetToDeleteOnStageEnd.size() );	/// review diagnostic: listed handles before the drain
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 	const int iStopped = JuneStopEffectSetHandles( m_vecJuneEffectSetToDeleteOnStageEnd );
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
-	if( 0 < iStopped )
-		JuneEffectSetDeleteLog( L"stage_end", iStopped, 0, static_cast<int>( GetUnitUID() ) );
+	/// review diagnostic: always printed ( n = live instances stopped, extra = handles listed )
+	JuneEffectSetDeleteLog( L"stage_end", iStopped, iJuneListed, static_cast<int>( GetUnitUID() ) );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 }
 
@@ -7430,6 +7433,15 @@ void CX2GameUnit::JuneStopPlayedEffectSetOnEarlyDamageReact()
 		return;
 
 	const float fStateTime = GetUnitCondition( false ).fStateTime;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
+	{
+		/// review diagnostic: every damage react a user takes in a skill state, before the 0.5 s test
+		WCHAR wszJuneFx[256] = {0};
+		StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX EFFECT_SET_DELETE damage_react_check skill=%d t=%.3f listed=%d unit=%d",
+			iNowStateSkillID, fStateTime, static_cast<int>( m_vecJuneEffectSetPlayed.size() ), static_cast<int>( GetUnitUID() ) );
+		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE_DEBUG
 	if( false == ( fStateTime < 0.5f ) )
 		return;
 
