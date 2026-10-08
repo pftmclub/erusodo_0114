@@ -3612,6 +3612,7 @@ Files: `X2RidingPet.h/.cpp`, `X2GUUser.h`, `X2GameUnit.h/.cpp`, `X2SquareUnit.h/
 - not June's code; its own flag; retest passed; flagcheck PASS (below);
 - it keys on C9h-3b's first-change gate `m_bJuneFirstStateChanged`;
 - whether the pre-C9h-3b exe showed the pet in this case was never tested;
+- **June's client has no starter here either.** June's square riding-on `323f70a0` (on branch) calls only CreateRidingPet `321f71b0`, with no square or pet StateChange. None of the 46 callers of `32d3cb10` is the creation / load path. June relies on the square's next StateChange, as March does, so there is no June call to port instead;
 - **keep or drop is the user's call** (kept).
 
 **`_DEBUG` off:** `SERV_IRUHADEV_JUNE_RIDINGPET_USER_KEYS_DEBUG` and `SERV_IRUHADEV_JUNE_FIX_RIDINGPET_ENTRY_STATE_DEBUG` are commented out in `Always.h` (bytepatch, 2 lines). **No build, no deploy.** The tree holds the peer C3d-2's uncommitted 16-bit state id, which shifts every class state id by 3 and must reach the game together with its data036. The deployed exe (`e2c02f4f`, a peer's 21:58 deploy) still prints both tags; the next deploy carries the switch. No behaviour change, so no play-test.
