@@ -29,6 +29,7 @@ import argparse
 import collections
 import hashlib
 import json
+import math
 import os
 import re
 import struct
@@ -684,7 +685,7 @@ def field_values(k, r, field, decode_strings=True):
         o = r["ofs_" + field + "s"]
         return list(struct.unpack_from("<%di" % k.u32(o), k.b, o + 4)) if o else []
     if field in ("attached_particle", "attached_mesh"):
-        o = r["ofs_" + field + "s"]
+        o = r[{"attached_particle": "ofs_attached_particles", "attached_mesh": "ofs_attached_meshes"}[field]]
         if not o:
             return []
         return [k.wstr(k.u32(o + 4 + 8 * j) & 0x7FFFFFFF) for j in range(k.u32(o))]
@@ -834,8 +835,8 @@ def fmt_cell(k, field, vals, raw=False, width=0):
         if lab:
             parts.append(lab)
         elif isinstance(v, float):
-            f = round(v, 4)
-            parts.append("%d" % f if f == int(f) else repr(f))
+            f = round(v, 4) if math.isfinite(v) else v
+            parts.append("%d" % f if math.isfinite(f) and f == int(f) else repr(f))
         else:
             parts.append(str(v).replace("\r", " ").replace("\n", " ").replace("\t", " "))
     s = ",".join(parts)
@@ -881,7 +882,10 @@ def cmd_find(a):
             return (0, v[0]) if v else (1, 0)
         hits.sort(key=sk, reverse=rev)
     shown = hits if not a.limit else hits[: a.limit]
-    rows = [[field_values(k, k.raw(i), c) for c in cols] for i in shown]
+    rows = []
+    for i in shown:
+        r = k.raw(i)
+        rows.append([field_values(k, r, c) for c in cols])
     if a.json:
         doc = []
         for row in rows:
