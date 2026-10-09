@@ -1103,6 +1103,8 @@ No staged data (user rule: no invented Lua).
 
 **In game.** There is nothing new to see. Falls (jumps, knock-ups, monsters dropping) should feel exactly as before, and `offline_server.log` has no `JUNE_FX C3g` line.
 
+**Play-test (2026-10-09): PASSED.** (user; exe 48df41bf, a peer's rebuild from 22dc099, which contains 525a82b; run on battlefield 40032 as reyaa, Lire Grand Archer, not the handed-off dungeon 30000: user and field-monster falls unchanged; logs read: 0 `JUNE_FX C3g` lines as expected, 0 EXCEPTION, only the baseline E_DISABLE_HB_CHECK_REQ UNHANDLED).
+
 ---
 
 ## C3h - port: June's APPLY_MOVEMENT_SPEED (PhysicParam's new first field)
