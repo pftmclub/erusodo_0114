@@ -2208,13 +2208,12 @@ Every gate is a June reform skill (`RNSI_*`, absent from March's enum). The help
 **Hygiene:** `flagcheck JUNE_DAMAGE_EXCEPTION --with JUNE_COLLISION --worktree --files <my files>`: RESULT PASS, 6 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 `#else`/`#endif` without the token. The 6 deleted lines are Phase 9's own TEST/COLLIDE/DIFF trace lines (inside the flag and `_JUNE_FX_DEBUG`), rewritten for the path tag, owner and age.
 **Deploy:** DEPLOY OK: X2_offline.exe is 19,497,472 B, dated 2026-10-09 18:00:11, md5 153e7bab5aca8b64f82c514f7c837cc5, equal to X2/US_SERVICE/x2.exe (2026-10-09 18:00:06); built at mods/june-buff-port a39a4ce + 27 uncommitted code file(s) (peers' work is in that exe too). The six trace strings and `JUNE_FX unsupported skill memo` are in the exe.
 
-**How to see it in game** (`python tools/logs.py --grep "JUNE_FX HIT"`; the dev console is on, `auth_level` 3):
-1. UnitToUnit: any melee on any monster -> a `JUNE_FX HIT UNIT_TO_UNIT COLLIDE` line.
-2. UnitToEffect: `/CM "LIZARDMAN_SHAMAN" 0 70`, then melee its `LIZARDMAN_SHAMAN_MAGIC_MISSILE` -> `UNIT_TO_EFFECT COLLIDE` (effect= names it).
-3. MeshToUnit: `jtVoidPrincess` (uid 28, Aisha / Void Princess lv 80), `ComboX3down` or `EvasionStandupAttack` -> `MESH_TO_UNIT`.
-4. CollisionDataToUnit: the same character's `ComboX3front`, or `ravbe` (uid 23, Raven / Reckless Fist lv 67) `COMBO_ZZZX` -> `COLLISION_DATA_TO_UNIT`.
-5. T6: `/CM "MAG_CHARGER" 0 70`; the `TEST` lines now carry `owner` and `age`. **Ask the user: how many Mag Chargers were on screen?**
-Any `DIFF` line is a place where June's hit test and March's disagree (expected only on line x sphere pairs).
+**How to see it in game** (full spec in the session hand-off; log read with `python tools/logs.py --grep "JUNE_FX HIT"`). Place: Ruben field (40000), console `END`, `auth_level` 3. Setup: `/invin 0` (invincible, no MP cost). Corrections to the C8a/kickoff trigger list, found while writing the spec:
+1. UnitToUnit: `/CM "LOW_LIZARDMAN_WARRIOR" 0 70` (Lizardman Commander), any melee hit -> `UNIT_TO_UNIT COLLIDE`.
+2. UnitToEffect: `/CM "LOW_LIZARDMAN_SHAMAN" 0 70` (Lizardman Healer, state `LOW_LIZARDMAN_SHAMAN_MAGIC_MISSILE`), melee its `LIZARDMAN_SHAMAN_MAGIC_MISSILE` projectile -> `UNIT_TO_EFFECT COLLIDE`. **The kickoff's `data037 Lizardman_Shaman.lua` does not use that templet** (it uses `DamageEffect_LIZARDMAN_SHAMAN_ATTACK_A`); the users are `Low_Lizardman_Shaman`, `BES_SHAMAN`, `Lizardman_Shaman_Dark`.
+3. MeshToUnit: `jtVoidPrincess` (uid 28, Aisha / Void Princess lv 80): X, X, then X with Down held = `AVSI_DARK_MAGICIAN_COMBO_X3down` (`AT_MESH`, `X2GUArme_VioletMage.cpp:9365`). **`ComboX3down` / `EvasionStandupAttack` are not the Void Princess's states** (the former is registered for Violet Mage / High Magician / Elemental Master only).
+4. CollisionDataToUnit: the same character, X, X, then X with forward held = `ComboX3front` (`:9074`, Void Princess is in its class list); or `ravbe` (uid 23, Raven / Reckless Fist lv 67): Z, Z, Z, then X before the third swing ends = `RSI_COMBO_ZZZX` (`X2GURaven.cpp:7945`).
+5. T6: `/CM "MAG_CHARGER" 0 70` in Ruben field; the `TEST` lines now carry `owner` and `age`. Ask: how many Mag Chargers were on screen?
 
 ---
 
