@@ -965,6 +965,45 @@ platforms (line changes) and a village walk; `python tools/logs.py` should show 
 
 **Open for the user:** none.
 
+### C3e-1 - Review (2026-10-09, Opus 5.5 high; no code change, no build)
+
+**Verdict: PASS, no transcription errors.** All six kickoff items were checked against the June binary (Ghidra read-only) and the source at HEAD.
+
+1. **Codec width: June confirmed, JUNE_BUGS #146 stays.** `32006d80` @32006e54 and `32000f70` @32001044 both read `MOVZX ECX, byte ptr [ESP+0x18]` (param 4), so the
+   functions read only the low byte. June's own callers agree. SetData `3201f5f0` pushes `MOVZX byte [EDI+0x12]` into the decoder (@3201f62b / @3201f64b), then copies the
+   full word `[EDI+0x12]` -> syncData `+0x20` (@3201f66b). SendFrameData `3203d4d0` pushes the syncData dword `[ESP+0x240]` (+0x20) to both encode calls (@3203d6e4 /
+   @3203d709; the second is B, Stage 8) and stores `SI` (16 bits) into packet `+0x12` (@3203d7c1, packet base `ESP+0x20`). March's cast at both sites = June.
+2. **NPC twin: 1 byte in June too.** Sender `327837c0`: `MOVZX EAX, byte [ESI+0x8470]` -> NPC encoder `327761d0` (`param_5 & 0xff`); the packet byte at `+0x16` is
+   written from `byte [ESI+0x8470]` (@327838ca). `+0x8471` / `+0x8472` / `+0x8473` are separate bools, so June's NPC syncData line index is a 1-byte member. Receive:
+   `32776350` (decode pos) / `327764c0` (decode Y) read their index as `MOVZX byte`. Both callers `327c8bd0` (NPC SetData) and `3277b500` read packet `+0x16` as a byte.
+   So June narrows a user's 16-bit index into the NPC byte exactly as March now does. A one-TU `/w14244` pass on `X2GUNPC.cpp` puts the 3 narrowings at
+   `X2GUNPC.cpp:19901` (hitter = user), `:31241` and `:31343` (non-host push-pass: `kFrameData` of the pushing user). `:19530` / `:19957` / `:25147` are NPC <- NPC and
+   unchanged. `:31235` / `:31337` pass the index to `GetLineGroupIncludesLineData( int )`, which needs no narrowing.
+3. **G on the wire: matches June.** Serialize `32d5c2e0`: compare `FLD [+0x2a]; FLD [+0x2a]; FUCOMPP` (a float compare, @32d5c4a1), then writes in the order
+   `0x8000`, `0x80000`, `0x100000`, **`0x200000`** (@32d5c705), `0x800000`. Deserialize `32d5be30`: `0x8000`, `0x80000`, `0x100000`, **`0x200000`** (4-byte reader
+   `32d5bd60`), `0x800000`. March's flag is a DWORD (`SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER`, buff Phase 8), so bit 21 survives. A first packet (`prev == NULL`) sets
+   every bit, including `0x200000`, so the receiver's accumulated `m_usDataFieldFlag` reaches `All` (`X2GUUser.cpp:24893`; `X2Game.cpp:906` seeds `All` for the
+   push-pass path, which does not depend on the order). `Reset()` is `*this = ctor`, and the ctor zeroes G.
+4. **G in SyncData: complete.** `Init` sets 0. The sender copies it (`X2GUUser.cpp:24689`, inside the per-entry loop, before both `Serialize` calls) and `SetData`
+   copies it (`:36663`). Future -> Now goes through `FrameData::operator=` -> the implicit `SyncData` copy. There are no member-wise SyncData copies elsewhere: the
+   `m_dwRelativePos` / `dwBuffSyncCount` writers are the sender, SetData and the RelativePos reset, which are not G's concern. **Verify:** no June function touches the
+   protected slots by absolute offset as a set: a displacement sweep of nowState `+0x7e6c` / `+0x810c`, hp `+0x7e90` / `+0x8130` and G `+0x7ed8` / `+0x8178` finds only
+   class drivers, the converters, accessors and the debug dump `31fdfd70`. So June's SyncData verifier (if it still exists) cannot be found this way. **Decision: G stays
+   out of `SyncData::Verify`.** There is no June evidence for it, and leaving it out cannot cause a false hacking flag.
+5. **Line-map overloads: same body as the `unsigned char*` wrappers**, with the same const-ness (GetLandPosition const, CanDown non-const). A `USHORT*` converts
+   implicitly to neither `int*` nor `unsigned char*`, so no call site can silently pick the `int*` version. Literal-NULL callers already had to cast (int* vs uchar*
+   ambiguity before this phase), and the build is clean. No file outside the warndiff's 37 TUs touches `syncData.lastTouchLineIndex`; the others go through
+   `GetLastTouchLineIndex()` (returns `int`).
+6. **Hygiene / placement.** `flagcheck JUNE_LINE_INDEX16 --with JUNE_SYNC_CLASS_FLOAT --range a39a4ce^..a39a4ce`:
+   `files: 4 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+   0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. In HEAD the encode cast sits inside the `for( u )` loop (`:24657-24661`), the G copy
+   right after `m_dwRelativePos` (`:24688-24690`), and the SetData lines are at `:36630-36634` and `:36663-36665`.
+
+**Note (no change):** `SYNC_CLASS_FLOAT` depends on `JUNE_BUFF_NEW_FINALIZER`. With the latter off, the field flag is a `USHORT`, bit 21 is truncated, `All` is never
+reached and every user sync packet is dropped. Both flags are on and nothing toggles them separately; if that ever changes, add a guard.
+
+**Open for the user:** none.
+
 ## C3e-2 - port: June's START / WIN / LOSE variant re-binding (N)
 
 **Status: ready (found by C3e, 2026-10-09); not with the C3d-3 review (the nine class files), the C3f port (StateChange) or C3e-1. Model:** Sonnet 5.5, high, then an Opus review.
