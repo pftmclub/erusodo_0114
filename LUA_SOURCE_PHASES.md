@@ -900,6 +900,7 @@ in `KTDXApp.cpp`, plus one enum line in `KTDXApp.h` and the comment in `Always.h
   deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding
   change(s)`; `RESULT: PASS` (the 2 deleted lines are the comment and `#define` of the DEBUG block; the tokenless `#endif` is L6's tripwire).
   The `[LUA_SRC]` error logging stays on. The deployed exe holds 0 copies of `LUA_SRC_DEBUG` and 6 of `LUA_SRC]`.
+- Post-commit `flagcheck LUA_SOURCE --with LUA_SOURCE_DEBUG --range 04d4964^..04d4964`: `files: 0 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; same `in this flag's files` counts as above; `RESULT: PASS`.
 - Deploy: `DEPLOY OK: X2_offline.exe is 19,454,976 B, dated 2026-10-09 17:11:47, md5 10df7f3e94b22aa5d31af22a1b191ee7, equal to X2/US_SERVICE/x2.exe (2026-10-09 17:11:42); built at mods/june-buff-port 7f00a64 + 1 uncommitted code file(s).`
 - **Parse-cost baseline:** no new baseline. L3 put no BOM-source file into a kom that reached the game (`kom_contents` holds 0 BOM-text
   `.lua`; ledger rows are the 2 `EXC` bytecode exceptions), so the L6 numbers stand: 2,048 loads, KOG bytecode 2,006 loads / 2,483 ms,

@@ -3386,7 +3386,7 @@ Revert: copy back `24965799\kom_backup_tools\<kom>.kom.<stamp>` for the 13 koms,
 ### June partial ports replaced (2026-10-09)
 
 Data only, no flag. Every earlier June port that was still a recompiled decompile or a March/June merge is now June's own bytecode via
-`ljconv`: 120 files in data034/036/037/039/040/217 (105 kom entries changed; the 121st, datai014's Cobo dialog, was reverted; data036 `BattleFieldData.lua` was reverted too, see below). Per-file list with kind and probe:
+`ljconv`: 120 files in data034/036/037/039/040/217 (105 kom entries changed; the 121st, datai014's Cobo dialog, was reverted). Per-file list with kind and probe:
 `june2017_re/june_partial_port_replace_20261009.tsv`. Kinds: 88 were June's content already (decompile drift removed), 9 dropped small
 Lanox March-compat edits, 24 were March files with June parts (now June whole). 110 `.src.lua` sidecars moved to the backup below;
 the matching `march2014/` sources are superseded. L0's six data217 ledger rows are marked `restored` (superseded).
@@ -3398,7 +3398,6 @@ the matching `march2014/` sources are superseded. L0's six data217 ledger rows a
 - `DLG_Map_Village.lua`, `DLG_Map_Local.lua`, `DLG_Map_House.lua`: stop loading at the first Elysion / June house id ("table index is nil"); clean once Atlas/Elysion adds the ids.
 - `NPCTemplet.lua`, `DungeonData.lua`: registries (also kept by the NPC port above).
 - `DLG_Destination_byButton.lua` (datai014, reverted the same day after the play-test): June's drops `Village_1000` / `Village_1002`, and March's `CX2StateMenu::InitWarpList` dereferences them unchecked, so Cobo Express (B) crashed. Comes back with June's `InitWarpList` / `CreateWarpDest` in Atlas A5 step 5.
-- `BattleFieldData.lua` (data036, reverted 2026-10-09 after the Ara/Ruben play-test): June's uses `BFT_BOSS_RAID` / `BFT_EVENT` / `BFT_NEW_BOSS_RAID`, which March's `CX2BattleFieldManager` never registers; lua_tinker aborts the script (`can't find 'BFT_BOSS_RAID' class variable`), `OpenScriptFile` fails (ErrorEnum 10002) and the client has no battlefield data. March's merged copy (29,521 B, shipped 2026-10-03) and its `.src.lua` are back in `kom_contents`, core-list row kept-merged; June's copy saved to `kom_backup_stage_june\20261009_battlefielddata_june\`. Returns with June's battlefield types (atlas A6b).
 
 The 20 "uncertain" ones went in (user's call): `WorldData`, `MapData`, `BattleFieldData`, `PVP_Map_List` and 16 map dialogs load, but name
 Elysion / Atlas / hero-dungeon ids March lacks (nil to the C++). If a map or world misbehaves, check that file's probe column first.
