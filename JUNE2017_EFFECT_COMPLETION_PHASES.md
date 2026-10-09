@@ -1111,6 +1111,10 @@ The new log string is in the exe (UTF-16), and the old one is gone.
 **Play-test (regression, optional):** one jtLordKnight dungeon run: the same `roll` / `rebind` pairs as before. **LOSE cannot be play-tested:** it is entered only from
 `X2PVPGame.cpp:531` -> `Lose()` with HP > 0, and the offline client has no PvP yet (user, 2026-10-10). The LOSE re-bind is settled by the code reading in item 4. **Open for the user:** none.
 
+**Regression result (2026-10-10, jtLordKnight; exe md5 ca7fe237, a peer's build at `4720231`, which includes this fix): PASS.** 21 lines, 0 EXCEPTION, only the baseline
+`E_DISABLE_HB_CHECK_REQ` UNHANDLED. Dungeon run rolled START 0 `ESSI_ELK_START`, WIN 1 `ESSI_ELK_WIN2`. It re-bound START index 0 four times at the start and WIN index 1 `ESSI_ELK_WIN2` twice at
+the clear (`6:10:07`), equal to the roll. There was no `empty table name` line. An Ara roll (`ASI_AYR_*`, sizes 3 / 6 / 6, indices in range) shows a second class rolling.
+
 ## C3e-3 - identify: June's per-attacker hit-stop and the state-skip flag (A)
 
 **Status: ready (found by C3e, 2026-10-09). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3e-3.md`.
