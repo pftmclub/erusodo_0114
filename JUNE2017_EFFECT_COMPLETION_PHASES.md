@@ -1200,7 +1200,7 @@ no such key, so nothing sets it today. The engine half reaches play with the Ara
 
 **Hygiene.** `flagcheck --worktree --files` (the 3 files): `2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; 0 deleted lines; 0 encoding changes. RESULT PASS.
 
-**Deploy.** DEPLOY OK: X2_offline.exe is 19,456,512 B, dated 2026-10-09 16:20:16, md5 192ac6b58ea0453f94e82c3a84eb838e, equal to X2/US_SERVICE/x2.exe (2026-10-09 16:20:09); built at mods/june-buff-port 1b12baa + 7 uncommitted code file(s) (C3h's 3, plus a peer's uncommitted C3i-family flags in Always.h / X2GUNPC / X2Game / X2DamageEffect). Strings checked in the deployed exe: `JUNE_FX C3h user state` (UTF-16) and `APPLY_MOVEMENT_SPEED` present.
+**Deploy.** DEPLOY OK: X2_offline.exe is 19,456,512 B, dated 2026-10-09 16:20:16, md5 192ac6b58ea0453f94e82c3a84eb838e, equal to X2/US_SERVICE/x2.exe (2026-10-09 16:20:09); built at mods/june-buff-port 1b12baa + 7 uncommitted code file(s) (C3h's 3, plus a peer's uncommitted C3i-family flags in Always.h / X2GUNPC / X2Game / X2DamageEffect). Strings checked in the deployed exe: `JUNE_FX C3h user state` (UTF-16) and `APPLY_MOVEMENT_SPEED` present. A peer redeployed at 16:21:06 (md5 5464aeda, same size), built from this tree; it also carries both strings, so it is the exe to play-test. Build consistency: Always.h (16:04) and X2GUNPC.h (16:05) predate both X2Lib.pch (16:09) and x2.pch (16:19), so X2Lib and X2 used the same flags and layouts. Reach re-checked: no `.lua` under `24965799/kom_contents/data*_kom/` contains `APPLY_MOVEMENT_SPEED`.
 
 **In game.** There is nothing new to see. Dashes, runs and slides should stop exactly as before, and `offline_server.log` has no `JUNE_FX C3h` line.
 
