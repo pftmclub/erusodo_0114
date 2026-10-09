@@ -1103,7 +1103,8 @@ A peer's build (it held the lock) compiled this worktree; my own `build.py` then
    (xrefs; `push 0xb` after it, 3 spot-checked). Added there as item 4: the engine delegate is ours, its WIN registration and the 0x82 target go with `*_WAIT_STATE_CHANGE`.
 
 **Hygiene.** Phase range before the fix (`--range f3f13d0^..HEAD`): `files: 4 PASS, 0 PASS~, 1 DEFINE, 6 OTHER (C3n bfadac6), 0 FAIL, 0 ERROR`, `0 deleted`, `RESULT: PASS`.
-Fix (`--worktree --files X2Lib/X2GUUser.cpp`): `1 PASS`, `11 deleted line(s)` = this flag's own earlier lines, `RESULT: PASS`. The post-commit range is in the commit's STATUS row.
+Fix (`--worktree --files X2Lib/X2GUUser.cpp`): `1 PASS`, `11 deleted line(s)` = this flag's own earlier lines, `RESULT: PASS`. Post-commit (`214dec9`): `--range f3f13d0^..HEAD` `5 PASS, 1 DEFINE,
+6 OTHER, 0 FAIL`, `RESULT: PASS` (the same 11 own lines); against the pre-phase base (`--base f3f13d0^ --at HEAD`): `X2GUUser.cpp PASS +141`, **`0 deleted line(s)`**, `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,502,592 B, dated 2026-10-10 05:31:24, md5 4a9c0c237b66046b655ea936d3781040, equal to X2/US_SERVICE/x2.exe (2026-10-10 05:31:18); built at mods/june-buff-port 13ed5f2 + 1 uncommitted code file(s).`
 The new log string is in the exe (UTF-16), and the old one is gone.
 
