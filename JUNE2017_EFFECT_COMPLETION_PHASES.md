@@ -1622,10 +1622,12 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 **How to see it in game:** nothing should change. No March or June NPC script names a bounding key or state, and no shipped DamageEffect uses RT_BOUNDING, so every new line is dormant (ids 0). The play-test is a regression: monsters still launch, fall and render.
 
-**Open for the user: the fallback decision** (`C3j-1` is written once it is made):
-- (a) port verbatim (JUNE_BUGS row): every monster's up-launch is replaced by the bounding back speed, which is (0,0) until a bounding hit;
-- (b) port the fallbacks under a `SERV_IRUHADEV_JUNE_FIX_*` flag that keeps RT_UP's own speed, i.e. skips the overwrite unless the state was entered by an RT_BOUNDING path;
-- (c) leave the fallbacks out (today's state: an RT_BOUNDING hit on an NPC changes no state).
+**Open for the user: the fallback decision** (`C3j-1` is written once it is made). No NPC path enters the UP id except through it: June's `+0x870c` has readers only (`32759fd0`, `3275a010`, `3275a070`, `32768c70`), and March's NPC code makes no state change to it. With the fallback, June's overwrite therefore hits only ordinary launches (RT_UP into `m_UpDamage`).
+- **(a) Verbatim** (plus a JUNE_BUGS row): every monster's launch takes the bounding back speed. No shipped DamageEffect uses RT_BOUNDING, so with current data that speed stays (0,0) and **monsters never launch again**.
+- **(b) Fallbacks verbatim, the speed write behind a `SERV_IRUHADEV_JUNE_FIX_*` flag** (recommended). All three ids match June everywhere: the RT_BOUNDING case, the render gate, and `JuneIsBoundingUp/LandCrash` for Lu/Ciel's monster-target check. Only the one NPC line in `CommonStateStart` that kills launches is switched off. Dropping only the UP fallback instead would make `JuneIsBoundingUp` false on a launched monster where June returns true, which changes Lu/Ciel's `32b34680` targeting.
+- **(c) Leave them out** (today's state): an RT_BOUNDING hit on an NPC still changes no state.
+
+**Post-commit hygiene** (`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --range 308abe4^..308abe4`): `files: 4 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 13 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 
 ## C3k - port: June stopped counting fly hits
 
