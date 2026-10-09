@@ -150,8 +150,11 @@ here for whoever touches loose non-Lua files later:
 ## Design
 
 ### Overlay location, layout and precedence
-- **Location:** `...\24965799\dev_overlay\`, outside `data\`, so `SetSubDirectory` never adds it and `DeleteOtherFile` never
-  scans it.
+- **Location:** `...\24965799\dev_overlay\`, a sibling of `data\` (user confirmed, 2026-10-09). **Do not move it inside `data\`.**
+  - `SetSubDirectory` recursively adds every subfolder of `data\` as a search root in **every** build.
+  - A flag-off exe would then still serve the overlay: unindexed, unlogged, after the `data\` root, and with one extra failed open
+    per kom subfolder on every load.
+  - As a sibling, only the flagged exe ever sees it.
 - **Layout:** one subfolder per kom, named exactly like it (`dataNNN` or `dataiNNN`). Each subfolder also holds its ledger
   `_overlay.json`.
 - **Startup index (under the flag).** Right after `SetSubDirectory()` (`KTDXDeviceManager.cpp:67`):
