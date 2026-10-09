@@ -469,3 +469,20 @@ user half does nothing until a class port brings June's state tables. Carry the 
   copied from the main one) in step with the main one (funcmap `32015b30 @3201745a-32017861 (C3g)`). March has no minor unit; it comes
   with the Lu/Ciel port (backlog Stage 8). June builds the limit for it and then ignores it (JUNE_BUGS 142): keep that verbatim.
 - **Ara's `APPLY_MOVEMENT_SPEED = TRUE`** (one state, `Ara_Martial_Artist.src.lua:7334`) needs the engine field first: june-effect C3h.
+
+### 7p. Hit-stop class sites and the time-stop immune state (from June effect completion C3e-3)
+
+june-effect C3e-4 (`SERV_IRUHADEV_JUNE_HIT_STOP_LISTS`) ports the engine side:
+- SetStopTime / SetStop2Time take four arguments, `( fStopTime, bDamageDataStop, pAttacker, bForce )`;
+- the user keeps per-attacker lists;
+- the state key `TIME_STOP_IMMUNE_STATE` is read at every user state start.
+
+A state with the key ignores every unforced hit-stop on the player's own unit. March's class scripts carry no such key, and the class sites
+below still call the 1-argument form. Carry them over with June's arguments (`june2017_re/c3e3_stop_time_callers.tsv` rows 21-23):
+
+| Class | June site | June call |
+|---|---|---|
+| All classes | `TIME_STOP_IMMUNE_STATE = TRUE` in 76 June states over 16 class files (`grep -c TIME_STOP_IMMUNE_STATE june_src_fixed/data036_kom/*.src.lua`) | the state table, verbatim |
+| Chung | DamageReact `32c0cf90` (vslot `0x60`) @32c0d18c / @32c0d19c / @32c0d1b4 | attacker `SetStopTime( 0.5, false, NULL, false )`, own `SetStopTime( 0.5, false, NULL, false )`, own `SetStop2Time( 0, false, NULL, false )` |
+| Aisha (Violet Mage) | binding circle hyper FrameMove `32cd5d60` @32cd6152 (March `AVSI_SI1_AV_BINDING_CIRCLE_HYPER_FrameMove`) | `SetStopTime( 3.0, false, NULL, true )`: the exe's only forced stop, so it overrides the immune state |
+| Elsword | March `THROW_WOODEN_PIECE_FrameMove` `SetStopTime( 1.5f )` | no June `+0x100` call loads 1.5: confirm June dropped it, then drop it too |

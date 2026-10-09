@@ -946,6 +946,101 @@ Kickoff `kickoffs/june-effect/C3e-2.md`.
   - The NPC twin.
 - **Exit:** funcmap rows `Effect C3e-3` and a port phase (row, flag, kickoff); class callers go to the checklist.
 
+### C3e-3 - Done (2026-10-09, Opus 5.5 high; no code, no flag, no build)
+
+There are 9 funcmap rows `(C3e-3)`. The caller table, March to June, is `june2017_re/c3e3_stop_time_callers.tsv` (25 rows). Ghidra was read-only.
+
+1. **Signatures.**
+   - **User vslots and arguments.** The user's SetStopTime is vslot `0x100` and SetStop2Time is `0x104`; GetStopTime is `0x108`. Both setters take
+     `( float, bool bDamageDataStop, CX2GameUnit* pAttacker, bool bForce )` (`ret 0x10`).
+   - **What the user bodies do.**
+     - They ignore arg 2.
+     - The list entry is `{ float fTime; __int64 attackerUID }`. C3e's `?` is int64 padding.
+     - The UID is -1 unless the attacker is a `GUT_USER`.
+     - The early return needs `IsMyUnit`, the protected bool at `+0x7dc4` (the new state key `TIME_STOP_IMMUNE_STATE`, read in
+       CommonStateStart) and `!bForce`. SetStop2Time ignores `bForce`.
+     - The linemap `max` is unchanged.
+   - **NPC overrides** (`32772aa0` / `32772c10`).
+     - Arg 2 picks which immunity applies: `IMMUNITY_DAMAGE_DATA_STOP_TIME` (June-only, `+0x8e82`) when true, March's `IMMUNITY_TIME_STOP` when false.
+     - The NPC still writes its stop time directly. It has no lists.
+   - **Ain** multiplies `t` by its `+0x97ac` and forwards.
+2. **Callers** (tsv).
+   - Unit hit paths pass `bDamageDataStop = true`: user and NPC DamageReact and AttackResult. Everything else passes false, CEffect::AttackResult included.
+   - Only StopOtherUnit (the attacker is `pNonStopUnit`) and StopAllUnit (the attacker is `pMyUnit` for the others) pass an attacker. Every other
+     caller passes NULL.
+   - VioletMage's binding circle is the only `bForce = true` caller.
+   - Class sites go to checklist **7p**: Chung and VioletMage. Elsword's 1.5 s throw stop was not found in June: no `+0x100` call
+     loads 1.5. The class port confirms it.
+3. **The tick** (OnFrameMove `3206eaf0 @3206fa63-3206fd7c`). C3e's "DoFrameMove 3206d770" is InitSocketData.
+   - **Where.** It runs in the IsLocalUnit block, before the stop gate.
+   - **Each entry.** It counts down to 0 and stays in the list. It is erased only when its attacker, a user found by UID, has Now A set, or by
+     the trim. The trim fires above 1000 entries and keeps the newest 500.
+   - **The two Future fields.** `+0x7df4` / `+0x7df8` are Future fStopTime / fStop2Time (GetStopTime proves it). Each frame, each one is set to
+     the newest entry's time, or decremented when its list is empty.
+   - **The gate.** It no longer decrements: March's else-branch decrement is gone.
+   - **A.** Set in StateChange's receive-replay loop when Future stateChangeNum > Now + 1 (signed bytes); cleared in DoStateEndStartFuture.
+4. **Reach offline.**
+   - **What the local player feels.**
+     - Every hit-stop on the local player, taken or dealt, ends **one frame earlier**: about `ceil(t/dt) - 1` frames against March's `ceil(t/dt)`.
+       The entry is ticked once before the gate sees it.
+     - Nothing else changes for the player, because the newest entry gives March's "last SetStopTime wins".
+     - A direct write of Future fStopTime (`UnitCondition::Init`, a FrameData copy) lasts one frame at most while an entry is above 0.
+   - **The A erase never fires.**
+     - NPC attackers are stored as -1.
+     - The local player's StopAll / StopOther victims are NPCs, which keep no lists.
+     - The bots are NPCs.
+   - **The visible change is on monsters.** Counted by value from `june_src_fixed` over the shipped data037 scripts:
+     - 241 set `IMMUNITY_TIME_STOP = TRUE` alone. They now do hit-stop on damage, being hit and hitting; March gave them none. For example
+       Armadillo_King, Ancient_Bone_Dragon and Bater_FD_Boss.
+     - 77 set both keys TRUE (summons, the Elysion bosses), so nothing changes for them.
+     - None set `IMMUNITY_DAMAGE_DATA_STOP_TIME` alone.
+   - **`TIME_STOP_IMMUNE_STATE` (76 June class states) is inert** until the class ports bring the keys.
+5. **Found, not owned.** June's DamageReact gives a super-armored unit a short fixed hit-stop: 0.05 / 0.10 / 0.15 s by damage type, with a 0.5 s
+   cooldown at `+0x68d0`, for user and NPC. -> **C3e-5** (identify, then port), straight after C3e-4: until then that call site has June's
+   arguments under March's condition.
+
+**Routes:**
+- **C3e-4:** port everything above, with A.
+- **C3e-5:** identify, then port, the super-armor hit-stop.
+- **Checklist 7p:** the class sites.
+- **Backlog Stage 8:** Ain's override.
+- **Not ported:** CX2PVEGame's override and the GT_PVE team skip, which need June's PVE game.
+
+**Open for the user:** none.
+
+## C3e-4 - port: June's per-attacker hit-stop, the stop immunities and A
+
+**Status: ready (found by C3e-3, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3e-4.md`. Flag `SERV_IRUHADEV_JUNE_HIT_STOP_LISTS`.
+
+- **Scope:** everything C3e-3's Done note and `c3e3_stop_time_callers.tsv` route to C3e-4:
+  - the 4-argument SetStopTime / SetStop2Time on CX2GameUnit / CX2GUUser / CX2GUNPC;
+  - the user lists and the OnFrameMove tick that replaces March's gate decrement;
+  - `TIME_STOP_IMMUNE_STATE` (user) and `IMMUNITY_DAMAGE_DATA_STOP_TIME` (NPC);
+  - the June arguments at every engine caller (tsv rows 1-2, 4-9, 11-19);
+  - A (SyncData byte, bit `0x400000`, 4th on the wire) with its StateChange writer and DoStateEndStartFuture clear.
+- **Not with:** C3e-1 / C3e-2 (the same packet), the C3f port (StateChange), the C3g review (X2GUUser.cpp / X2GUNPC.cpp), C3e-5 (the same
+  DamageReact call sites).
+- **Exit:** built and deployed. The play-test shows:
+  - hit-stop on an `IMMUNITY_TIME_STOP`-only boss, which March gave none;
+  - none on a both-keys monster;
+  - the player's own hit-stop as before.
+
+  Write `C3e-4-review.md`.
+
+## C3e-5 - identify, then port: June's super-armor hit-stop in DamageReact
+
+**Status: ready (found by C3e-3, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3e-5.md`. Flag
+`SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP`. Runs after C3e-4.
+
+- **Scope:**
+  - User DamageReact `320462a0 @32046c7e-32046d4c` and NPC `327b1f30 @327b3160-327b31d5`.
+  - The jump tables `3204a7bc` / `327b536c`, which give 0.05 / 0.10 / 0.15 s by DamageData `+0x28`.
+  - The cooldown `+0x68d0`: set to 0.5, ticked in CX2GameUnit::OnFrameMove `3229ecc0 @3229f501`, written in `322a2700`.
+  - The user guard: protected byte `+0x96f0` forces DamageData `+0x28 = 0x14` and fStopTimeDef = 0.
+  - March's conditions on the same call: `IsSuperArmor() != true`, `RT_DUMMY_DAMAGE` and `fStopTimeDef > 0`.
+- **Exit:** funcmap rows `Effect C3e-5`, then the port (no partial update), built and deployed. Play-test: a super-armored monster stops
+  briefly when hit. Write `C3e-5-review.md`.
+
 ## C3f - identify: June's force-down flush in StateChange
 
 **Status: ready (found by the C3c review, 2026-10-08). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3f.md`.

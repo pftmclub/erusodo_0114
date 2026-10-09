@@ -1,0 +1,26 @@
+#	march_site	march_function	june_function	june_site	call	args (fStopTime, bDamageDataStop, pAttacker, bForce)	route
+1	X2GUUser.cpp DamageReact RT_CREATE_DAMAGE_EFFECT / RT_CREATE_EFFECT_SET case	CX2GUUser::DamageReact	320462a0	@32046d57 / @32046d70	SetStopTime / SetStop2Time	( fStopTimeDef DD+0x420, true, NULL, false ) / ( 0, true, NULL, false )	C3e-4 (args); the June-only super-armor branch in front of it (@32046d2c) -> C3e-5
+2	X2GUUser.cpp DamageReact general hit-stop	CX2GUUser::DamageReact	320462a0	@3204834a / @32048363	SetStopTime / SetStop2Time	( fStopTimeDef, true, NULL, false ) / ( 0, true, NULL, false )	C3e-4
+3	-	none in March: super-armor hit-stop	320462a0	@32046d2c	SetStopTime	( 0.05 / 0.10 / 0.15 by DD+0x28, true, NULL, false ), then +0x68d0 = 0.5	C3e-5
+4	X2GUUser.cpp Process_ExtraDamage	CX2GUUser::Process_ExtraDamage	32034e50	@320364d8	SetStopTime	( fDuration, false, NULL, false ) (EBX = 0 @32034ea0)	C3e-4
+5	X2GUUser.cpp DetonationStateChange	CX2GUUser::DetonationStateChange (vslot 0x4d4)	31ff0eb0	@31ff0f40	SetStopTime	( 0.7 [3344c858], false, NULL, false )	C3e-4
+6	X2GUUser.cpp AttackResult	CX2GUUser::AttackResult	32012b50	@320137b5	SetStopTime	( fStopTimeAtt, true, NULL, false )	C3e-4
+7	X2GUUser.cpp CommonStateStartFuture (two STOP_TIME sites)	CX2GUUser::CommonStateStartFuture	320506f0	@32055737 / @32055857	SetStopTime	( stopTime.y, false, NULL, false )	C3e-4
+8	X2GUUser.cpp CommonFrameMoveFuture_TimedEvent	CX2GUUser::CommonFrameMoveFuture_TimedEvent	31ff1ff0	@31ff2691 / @31ff2761	SetStopTime / SetStop2Time	( stopTime.y, false, NULL, false )	C3e-4
+9	X2GUNPC.cpp DamageReact	CX2GUNPC::DamageReact	327b1f30	@327b31e0 / @327b31f9	SetStopTime / SetStop2Time	( fStopTimeDef, true, NULL, false ) / ( 0, true, NULL, false )	C3e-4; super-armor branch @327b31b5 -> C3e-5
+10	-	none in March: NPC super-armor hit-stop	327b1f30	@327b31b5	SetStopTime	( 0.05 / 0.10 / 0.15 by DD+0x28, true, NULL, false ), then +0x68d0 = 0.5	C3e-5
+11	X2GUNPC.cpp DoStateRage	CX2GUNPC::DoStateRage	32768d50	@3276901a	SetStop2Time	( 0.7, false, NULL, false )	C3e-4
+12	X2GUNPC.cpp DamageReactStateChange	CX2GUNPC::DamageReactStateChange (by the 0.7 constant)	32769240 (Ghidra's carve: it starts right after a ret 4 @3276923d that ends the body funcmap calls 32769060; @3276a0b6 lies in 32769240)	@3276a0b6	SetStopTime	( 0.7, false, NULL, false )	C3e-4
+13	X2GUNPC.cpp AttackResult	CX2GUNPC::AttackResult	3276a320	@3276a87d	SetStopTime	( fStopTimeAtt, true, NULL, false )	C3e-4
+14	X2GUNPC.cpp CommonFrameMove_TimedEvent	CX2GUNPC::CommonFrameMove_TimedEvent	327970d0	@327985fd / @3279866b	SetStopTime / SetStop2Time	( stopTime.y, false, NULL, false )	C3e-4
+15	X2DamageEffect.cpp CEffect::AttackResult	CX2DamageEffect::CEffect::AttackResult	31f85910	@31f87917	SetStopTime on the owner	( fStopTimeAtt CEffect+0x61c, false, NULL, false ): false here, true in the unit AttackResults	C3e-4
+16	X2Game.cpp StopOtherUnit	CX2Game::StopOtherUnit (game vslot 0x70)	322d0350	@322d0416	SetStopTime	( fStopTime, false, pNonStopUnit, false )	C3e-4 (the only attacker-carrying callers are 16 and 17)
+17	X2Game.cpp StopAllUnit	CX2Game::StopAllUnit (vslot 0x74)	322d0450	@322d0495 / @322d0533	SetStopTime	pMyUnit: ( fMyStopTime, false, NULL, false ); others: ( fStopTime, false, pMyUnit, false )	C3e-4
+18	X2Game.cpp Stop2OtherUnit	CX2Game::Stop2OtherUnit (vslot 0x78)	322d0570	@322d0635	SetStop2Time	( fStopTime, false, NULL, false )	C3e-4
+19	X2Game.cpp Stop2AllUnit	CX2Game::Stop2AllUnit (vslot 0x7c)	322d0670	@322d06b5 / @322d0753	SetStop2Time	( fMyStopTime or fStopTime, false, NULL, false )	C3e-4
+20	-	CX2PVEGame::StopOtherUnit (June-only game class)	328bded0	@328be011	SetStopTime	( fStopTime, false, NULL, false )	not ported: March has no CX2PVEGame
+21	X2GUChung.cpp DamageReact (attacker, self, self)	CX2GUChung::DamageReact (vslot 0x60)	32c0cf90	@32c0d18c / @32c0d19c / @32c0d1b4	SetStopTime x2 / SetStop2Time	( 0.5, false, NULL, false ) / ( 0.5, false, NULL, false ) / ( 0, false, NULL, false )	checklist 7p
+22	X2GUArme_VioletMage.cpp AVSI_SI1_AV_BINDING_CIRCLE_HYPER_FrameMove	CX2GUArme_VioletMage (fastcall FrameMove)	32cd5d60	@32cd6152	SetStopTime on each unit in range	( 3.0 [33436700], false, NULL, true ): the only bForce = true caller	checklist 7p
+23	X2GUElsword_SwordMan.cpp THROW_WOODEN_PIECE_FrameMove	CX2GUElsword_SwordMan	not found	-	SetStopTime( 1.5f )	no +0x100 call in June loads 1.5 (scan of all 928 +0x100 / +0x104 sites)	checklist 7p (confirm June dropped it)
+24	-	CX2GUAin::SetStopTime / SetStop2Time overrides	32a38e70 / 32a38ea0	-	forward	( t * Ain +0x97ac, args 2-4 as given )	backlog Stage 8
+25	-	non-unit +0x100 / +0x104 calls with 4 pushes	31ce5400, 31d17860 (x2), 31d62760, 32154820, 32868a00	-	-	COM objects through global 3375c9ac, or a different class at +0x90: not SetStopTime	none

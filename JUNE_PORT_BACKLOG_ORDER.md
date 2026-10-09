@@ -261,6 +261,8 @@ Everything from Stages 5 and 6, plus:
   - their drivers of the class-skill float C3e-1 ports (`0x200000`), including Rose's Neil the Sniper aim (`3200d3f0` / `3200d900`).
 - the item-templet fields June-item-kim K0 found for them: Lu/Ciel's minor-unit item id and flag, the Extra keys 10-13,
   and their item-type and unit-class guards from K2 (character-port checklist 7g).
+- Ain's SetStopTime / SetStop2Time overrides (june-effect C3e-3, funcmap `32a38e70 / 32a38ea0 (C3e-3)`): the stop time times Ain's
+  `+0x97ac`, then the user's 4-argument setters that C3e-4 ports.
 
 **Hard gate:** the live-DB starter-item rows (below).
 
