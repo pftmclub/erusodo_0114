@@ -616,7 +616,8 @@ in `KTDXApp.cpp`, plus one enum line in `KTDXApp.h` and the comment in `Always.h
   - The scope only reads (a head of at most 4 B) and sets a thread-local pointer.
   - `_ALERT` changes where `print_error`'s text goes, nothing else.
   - No client script reads `_ALERT`. Greping `kom_contents` finds only the `NUI_MI_*_ALERT_*` enum names.
-  - Play-test: 47 `KEM_ERROR72` and 1 `KEM_ERROR73` (TutorSystem.lua), the same list as the pre-L6 run.
+  - L6 play-test: 47 `KEM_ERROR72` and 1 `KEM_ERROR73` (TutorSystem.lua), the same list as the pre-L6 run according to the L6
+    note. That sorted list is kept in this session's scratchpad (`kem7273_L6_baseline.txt`) to diff against the review play-test.
 - **Parser guard: trips as intended.** A scratch `cl -Zs` probe of `KTDX.h` with KTDXLIB's US_SERVICE defines gave:
   - as built: `REMOVE_INTERPRETER` off;
   - with `_SERVICE_`: off;
