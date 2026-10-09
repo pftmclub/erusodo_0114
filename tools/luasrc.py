@@ -15,6 +15,11 @@
     python tools/luasrc.py t2 SRC.lua REF.lua [--out DIR]      # T2 report: globals in raw next order, mock environment
     python tools/luasrc.py selftest                            # seeded edits T1 must reject (and controls it must accept)
     python tools/luasrc.py calibrate [--sets march-t0,june,class] [--seed X --exclude TSV]
+  L3 (tools/adoptjune.py; skill x2-adopt-june):
+    python tools/luasrc.py adopt-june [<june kom>] X.lua [Y.lua ..] [--dry-run]   # June's bytecode via ljconv; refuses a core-list name
+    python tools/luasrc.py adopt-june --source X.lua [--dry-run]                  # core-list names only: decompile + T1 -> BOM source
+    python tools/luasrc.py core --check | --list | --add KOM NAME --why .. | --set KOM NAME STATE | --classify
+    python tools/luasrc.py iter-audit X.lua                                       # pairs/next/foreach tables a text load may reorder
 
 Proof tiers (Rule 1): T0 = the source compiles BYTE-IDENTICAL to the shipped bytecode (luajit -b, mar-2014 header).
 T1 = identical per prototype, constants equal by value and slot order ignored (tools/ljbc.py). T2 = behaviour only: `t2`
@@ -339,6 +344,9 @@ def classify_file(d, name, man, decompile=True):
         return "already-source", "BOM text", data, None, None, None
     if k != "march-bytecode":
         return "not-march-bytecode", k, data, None, None, None
+    adopted = _aj().is_adopted_june(os.path.basename(d)[:-4], name, data)
+    if adopted:
+        return "june-adopted", adopted, data, None, None, None
     if str(man.get(name, "?")) != "2":
         return "manifest", "manifest value %r (convert only touches \"2\" files)" % man.get(name, "(missing)"), data, None, None, None
     label, path, text, tried = find_t0(d, name, data)
@@ -456,6 +464,9 @@ def cmd_convert(a):
                 p("  REFUSED  %-8s %s: %s" % (kom, n, detail))
     if rows:
         ledger_save(ledger_load() + rows)
+        aj = _aj()
+        for r in rows:       # a converted March file is on the core list by definition (Rule 3)
+            aj.core_add(r["kom"], r["name"], r["origin"], "edit: %s %s" % (a.phase, a.reason), "source", update=True)
     if a.plan_out:
         with open(a.plan_out, "w", encoding="utf-8", newline="\n") as f:
             f.write("\n".join(tsv) + "\n")
@@ -509,6 +520,7 @@ def cmd_restore(kom, names):
                 note = "  (note: snapshot sha1 differs from the ledger's reference sha1)"
         else:
             note = "  (no ledger row for it)"
+        _aj().core_set_state(kom, rel, "bytecode", "restored %s" % datetime.date.today().isoformat())
         p("  RESTORED %s %s: %d bytes from the snapshot%s%s" % (kom, rel, len(data), " + sidecar" if os.path.isfile(side) else "", note))
     ledger_save(rows)
     if bad:
@@ -713,6 +725,13 @@ import ljbc  # noqa: E402  (tools/ljbc.py: the dump reader and the T1 comparison
 import ljsrc  # noqa: E402  (tools/ljsrc.py: Lua tokenizer, constructors, the template-layout tidy-up)
 
 _ljconv = []
+
+
+def _aj():
+    """tools/adoptjune.py (core list, adopt-june), wired to this module."""
+    import adoptjune
+    adoptjune.L = sys.modules[__name__]
+    return adoptjune
 
 
 def ljconv_mod():
@@ -1319,6 +1338,19 @@ def main():
     s.add_argument("--seed", action="append", metavar="KOM:NAME[:t0]", help="add a seed file (its decompile must be T1; "
                    ":t0 = mutate its proven T0 studio source instead)")
     s.add_argument("--jobs", type=int, default=JOBS)
+    s = sub.add_parser("core", help="the core list (Rule 2)")
+    s.add_argument("--check", action="store_true"); s.add_argument("--list", action="store_true")
+    s.add_argument("--classify", action="store_true", help="every X.src.lua sidecar against ljconv(June's file), T1")
+    s.add_argument("--add", nargs=2, metavar=("KOM", "NAME")); s.add_argument("--set", nargs=3, metavar=("KOM", "NAME", "STATE"))
+    s.add_argument("--origin", choices=("march", "june", "merged"), default="june"); s.add_argument("--why")
+    s.add_argument("--state", default="pending"); s.add_argument("--out"); s.add_argument("--jobs", type=int, default=JOBS)
+    s = sub.add_parser("adopt-june", help="June's bytecode via ljconv (default), or core-list BOM source (--source)")
+    s.add_argument("items", nargs="*", help="[june kom] name ...")
+    s.add_argument("--list"); s.add_argument("--source", action="store_true"); s.add_argument("--dry-run", action="store_true")
+    s.add_argument("--lifted", action="store_true", help="with --source: the kept-merged row's blocker is gone, take June's whole")
+    s.add_argument("--long-names", action="store_true"); s.add_argument("--jobs", type=int, default=8)
+    s.add_argument("--plan-out"); s.add_argument("--tsv-out"); s.add_argument("--compare", metavar="TSV")
+    s = sub.add_parser("iter-audit", help="pairs/next/foreach sites of source files"); s.add_argument("files", nargs="+")
     s = sub.add_parser("calibrate"); s.add_argument("--per-dir", type=int, default=20)
     s.add_argument("--quota", action="append", metavar="KOM=N"); s.add_argument("--jobs", type=int, default=JOBS)
     s.add_argument("--sets", default="march-t0,march-nogt,june,class", help="comma list of march-t0, march-nogt, june, class")
@@ -1326,6 +1358,9 @@ def main():
     s.add_argument("--exclude", action="append", metavar="TSV", help="skip files already listed in a calibration TSV")
     s.add_argument("--out")
     a = ap.parse_args()
+    if a.cmd in ("core", "adopt-june", "iter-audit"):
+        aj = _aj()
+        return {"core": aj.cmd_core, "adopt-june": aj.cmd_adopt, "iter-audit": aj.cmd_iter_audit}[a.cmd](a)
     if a.cmd in ("decompile", "check", "calibrate", "t2", "selftest"):
         return {"decompile": cmd_decompile, "check": cmd_check, "calibrate": cmd_calibrate, "t2": cmd_t2,
                 "selftest": cmd_selftest}[a.cmd](a)

@@ -532,7 +532,12 @@ def add_manifest_keys(d, items):
     return len(items)
 
 
-def cmd_stage_june(args, dry, long_names, jobs, plan_out):
+def cmd_stage_june(args, dry, long_names, jobs, plan_out, transform=None, only_koms=None, move_sidecars=False, exit_on_refuse=True,
+                   transform_jobs=1):
+    """transform(name, june_bytes, stem) -> (bytes or None, note): applied to the strict-decoded June bytes before they are planned
+    and staged (adopt-june: ljconv, or decompile + T1); None refuses the name with `note`. only_koms: restrict June's candidates to
+    these koms (stems). move_sidecars: a staged X.src.lua beside a replaced X.lua goes to the backup dir (compile would fold it back
+    over the new file). Returns {plan, refused, staged, by_kom, backup}; exits 4 on any refusal unless exit_on_refuse is False."""
     jk = _junekom()
     names, seen = [], set()
     for a in args:
@@ -546,6 +551,8 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out):
     june = {}
     for kp in koms:
         k = jk.Kom(kp)
+        if only_koms and k.stem.lower() not in only_koms:
+            continue
         for e in k.entries:
             june.setdefault(e["name"].lower(), []).append((kp, k.stem, k.v04, e))
     live, staged = live_names(), staged_names()
@@ -557,7 +564,7 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out):
         key = n.lower()
         cands = june.get(key)
         if not cands:
-            refused.append((n, "", "not in any June kom")); continue
+            refused.append((n, "", "not in any June kom" if not only_koms else "not in June kom %s" % ", ".join(sorted(only_koms)))); continue
         if "/" in n or "\\" in n:
             refused.append((n, "", "name has a path separator")); continue
         if len(n) > LONG_NAME and not long_names:
@@ -577,7 +584,7 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out):
         plan[key] = dict(name=spelling, stem=stem, origin=origin, cands=cands)
 
     # strict decode of every June copy (identical bytes -> any copy will do; differing -> refuse and list the koms)
-    tasks = [(k, v["cands"], not dry) for k, v in plan.items()]
+    tasks = [(k, v["cands"], not dry or transform is not None) for k, v in plan.items()]
     tasks.sort(key=lambda t: -sum(c[3]["csize"] * (1 if c[3]["algo"] == 0 else 25) for c in t[1]))
     if jobs > 1 and len(tasks) > 8:
         import multiprocessing
@@ -598,6 +605,22 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out):
         else:
             v["size"], v["sha1"], v["junes"] = rows[0][3], rows[0][2], sorted(r[0] for r in rows)
             data[key] = first
+    if transform is not None:
+        order = sorted(data, key=lambda k: plan[k]["name"].lower())
+        if transform_jobs > 1 and len(order) > 1:       # the work is subprocesses (ljd, luajit): threads are enough
+            import concurrent.futures as cf
+            with cf.ThreadPoolExecutor(max_workers=transform_jobs) as ex:
+                outs = list(ex.map(lambda k: transform(plan[k]["name"], data[k], plan[k]["stem"]), order))
+        else:
+            outs = [transform(plan[k]["name"], data[k], plan[k]["stem"]) for k in order]
+        for key, (out, note) in zip(order, outs):
+            v = plan[key]
+            if out is None:
+                refused.append((v["name"], v["stem"], note))
+                del plan[key], data[key]
+                continue
+            data[key] = out
+            v["size"], v["sha1"], v["note"] = len(out), hashlib.sha1(out).hexdigest(), note
 
     # per-kom plan / write
     by_kom = {}
@@ -605,6 +628,7 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out):
         by_kom.setdefault(v["stem"], []).append(key)
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     totals = {"new": 0, "replace": 0, "same": 0}
+    staged_out, moved_sidecars = [], []
     tsv = ["name\tkom\tchosen_by\tjune_koms\tsize\tstate\tmanifest"]
     for stem in sorted(by_kom):
         d = os.path.join(KOM_ROOT, stem + "_kom")
@@ -633,6 +657,16 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out):
             listing.append("    %-8s %-52s %9d B  %s%s  manifest %s" % (
                 state, v["name"], v["size"], v["origin"] + "'s " + stem, "" if len(v["junes"]) == 1 else "  [June copies: %s, identical]" % ",".join(v["junes"]), mnote))
             tsv.append("\t".join([v["name"], stem, v["origin"], ",".join(v["junes"]), str(v["size"]), state, mnote]))
+            staged_out.append(dict(name=v["name"], stem=stem, state=state, junes=list(v["junes"]), size=v["size"], sha1=v["sha1"],
+                                   origin=v["origin"], manifest=want, note=v.get("note", "")))
+            side = os.path.join(d, v["name"][:-4] + ".src.lua") if move_sidecars and v["name"].lower().endswith(".lua") else None
+            if side and os.path.isfile(side):
+                moved_sidecars.append((stem, v["name"][:-4] + ".src.lua"))
+                listing.append("             sidecar %s is superseded: %s" % (v["name"][:-4] + ".src.lua", "(dry run)" if dry else "moved to the backup dir"))
+                if not dry:
+                    bk = os.path.join(STAGE_BACKUP_ROOT, stamp, stem + "_kom", v["name"][:-4] + ".src.lua")
+                    os.makedirs(os.path.dirname(bk), exist_ok=True)
+                    shutil.move(side, bk)
             if not dry and state != "same":
                 if state == "replace":
                     bk = os.path.join(STAGE_BACKUP_ROOT, stamp, stem + "_kom", v["name"])
@@ -662,16 +696,18 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out):
         with open(plan_out, "w", encoding="utf-8", newline="\n") as f:
             f.write("\n".join(tsv) + "\n")
         p("  plan written: %s" % plan_out)
-    if not dry and plan:
+    if not dry and (plan or moved_sidecars):
         os.makedirs(STAGE_BACKUP_ROOT, exist_ok=True)
-        p("  replaced files were backed up under %s\\%s" % (STAGE_BACKUP_ROOT, stamp))
+        p("  replaced files%s were backed up under %s\\%s" % (" and sidecars" if moved_sidecars else "", STAGE_BACKUP_ROOT, stamp))
     p("STAGE-JUNE %s: %d kom(s), %d staged (%d new, %d replaced, %d identical), %d refused, %.0fs" % (
         "DRY RUN" if dry else ("OK" if not refused else "PARTIAL"), len(by_kom), len(plan),
         totals["new"], totals["replace"], totals["same"], len(refused), time.time() - t0))
     if not dry and plan:
         p("Next: kom.py pack %s   (then ask before `copy`)" % " ".join(sorted(by_kom)))
-    if refused:
+    if refused and exit_on_refuse:
         sys.exit(4)
+    return dict(plan=plan, refused=refused, staged=staged_out, by_kom=sorted(by_kom), sidecars=moved_sidecars,
+                backup=os.path.join(STAGE_BACKUP_ROOT, stamp))
 
 
 def cmd_status(names, days):

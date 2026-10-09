@@ -622,6 +622,62 @@ bytecode; source is only for the core list.
 - `--source` calibration outcomes recorded, and the core-list files that fail T1 are named (they decide whether L5 runs);
 - the skill triggers, and its examples run as written on a scratch target.
 
+**Done note (2026-10-09, Sonnet 5.5 high): L3 done.** Tools only: no flag, no build, no live kom touched, no kom copy. Calibration ran
+in a scratch target (`.build/l3/scratch`, with `X2_KOM_CONTENTS` / `X2_LUA_LEDGER` / `X2_LUA_CORE_LIST` overridden).
+- **New / changed.**
+  - New: `tools/adoptjune.py`, `tools/data/lua_core_list.tsv`, skill `.claude/skills/x2-adopt-june/SKILL.md`.
+  - Changed: `tools/luasrc.py` (subcommands `core`, `adopt-june`, `iter-audit`; `convert` refuses ljconv'd June files and adds a core
+    row for what it converts; `restore` sets the row to `bytecode`), `tools/kom.py` (`cmd_stage_june` got `transform`, `only_koms`,
+    `move_sidecars`, `exit_on_refuse`, `transform_jobs` and now returns its result; the CLI is unchanged), `CLAUDE.md` (Rule 2 + a
+    *Workflow automation* row), `tools/README.md`.
+- **Core list (user confirmed 2026-10-09: "Only the 10").**
+  - The ten kept-merged files, each with its blocker: `Enum`, `DungeonEnum`, `DamageEffect`, `EffectSet` (data036); `DLG_Map_Village`,
+    `DLG_Map_Local`, `DLG_Map_House` (data034); `NPCTemplet` (data037); `DungeonData` (data035); `DLG_Destination_byButton` (datai014).
+  - `core --classify` compared all 65 `X.src.lua` sidecars with `ljconv(June's file)`:
+    - **54 recompile T0 to it**, so the shipped file already equals June's bytecode and the sidecar is a leftover June superseded: 9
+      `DLG_Map_Local_*_Back_NEW`, 6 data036 tables (`AnimationNameTable`, `BattleFieldBuffFactor_INT`, `PVPData`, `PetPreView`,
+      `SkillLevelUpSocketGroup`, `StringID_def`), `UI_MUL_MAI`, the 38 data040 Ranox stage scripts.
+    - 10 differ from June: exactly the kept-merged ten.
+    - 1 has no June file: data036 `FieldBonusDrop` (server-only Lua the user packs; stays bytecode, not core).
+    - **No sidecar was deleted or moved.** No class-script row: C3d-4 chose "character port adopts June's whole script".
+  - `core --check` PASS (`ledger --check` PASS). It fails on BOM text that is not on the list, and on a `source` row that is not BOM text.
+- **`adopt-june`, default mode.**
+  - Sample: 20 names spread over `june_npc_lua_port_20261009.tsv` (data035, data037, datai016).
+  - Result: **COMPARE OK 20 of 20 byte-identical to `a5f7298`'s staged sha1s, same kom.**
+  - The sidecar move was proven in a second scratch: a staged `X.src.lua` goes to the `kom_backup_stage_june` backup, not left to be
+    folded back.
+  - Refusals proven: a core-list name, a name outside the given June kom, and `--source` on a non-core name.
+- **`adopt-june --source` calibration** (scratch core rows for the non-core names; the 3 kept-merged ones used `--lifted`, a guard I added:
+  `--source` on a kept-merged row would swap the merge for June's whole, which is what crashed Cobo):
+
+| file | result |
+|---|---|
+| T0: `DamageSound`, `EffectSet_Description`, `Elsword_DamageData`, `UnitViewerEffectSetTable` | staged, ledger T0 |
+| T1: `EffectSet_INT`, `UIEffectSet`, `UIEffectSet_INT`, `Enum` (core) | staged, ledger T1 |
+| `DamageEffect`, `_Character`, `_ETC`, `_INT`, `EffectSet` | FAIL, the catalogued deepcopy hoist (matches L2's 6 misses) |
+| `DamageEffect_Dungeon`, `NewSkillTempletVer2` | decompile does not compile (`slot3` global; a `}` expected). The expected `NewSkillTempletVer2` fail |
+| `ELYSION_SOLESS` | ljd timed out after 900 s (nothing staged) |
+| class script `Elsword_SwordMan` | T1; June's has `ESSI_DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP`, March's has none (bounding tables arrive) |
+
+  - Every failure stages nothing and writes `blocked: <reason>` on the scratch row. The 12 staged files passed `ledger --check`, and
+    `luasrc.py check` against the snapshot (the ljconv bytes) gives T1 again for `Enum` and `DLG_Destination_byButton`.
+  - The real core-list files, measured the same way (all ten):
+    - **T1 ok (4):** `Enum`, `DungeonEnum`, `DungeonData`, `DLG_Destination_byButton`.
+    - **T1 FAIL (6, `blocked:` in the real list):** `DamageEffect`, `EffectSet` (the hoist), and four with a new class,
+      `DLG_Map_Village` (3,979 vs 4,013 instructions), `DLG_Map_Local` (51 vs 63), `DLG_Map_House` (10,075 vs 10,167), `NPCTemplet`
+      (45,612 vs 45,611). **These six decide L5.**
+    - These measure `--source` (adopting June's file whole). The kept-merged files stay March's merged bytecode today, and their
+      sidecars are T0, so `convert` can still turn them into source for edits.
+- **Iteration-order audit** (`iter-audit`, also run by `--source`): each site is reported as the call or loop (`ISNEXT` / `ITERN` /
+  `ITERC`, or a `pairs` / `next` / `foreach` / `foreachi` / `ipairs` call), its table expression and its source line, and marked
+  order-sensitive or index order. All 12 staged calibration files have **0 sites** (they are data tables). A real file (June
+  `Crazy_Puppet`) reports its one `ipairs` site. Note: `Enum` passes T1 with 72 table constants stored in another order, which matters only
+  to a `pairs` walk, and the engine's two `lua_next` loops are order-free (L2).
+- **`convert` refusal.** It refuses ljconv'd June files by sha1 against the per-run TSVs (`june_npc_lua_port_*`, `june_partial_port_replace_*`,
+  `june_adopt_*`), exit 4. I matched on kom + name + **sha1**, not kom + name alone: `DLG_Destination_byButton` is in the partial TSV but was
+  reverted to March's, and must stay convertible. `selftest` PASS 517/517 (re-run after the last edit).
+- **Open for the user:** whether L5 runs for the six failing core files (STATUS L5 row; Opus 5.5 xhigh). Packing and copying: nothing owed.
+
 ## Phase L4 - dropped (rescope, 2026-10-09)
 
 Was: audit every shipped June-named `.lua` against `ljconv(June)`. The 120 partial ports were replaced by June's `ljconv` bytecode on
