@@ -20,7 +20,8 @@ Try to make the checker pass a wrong file. Check:
 - **Normalization.** Could ignoring constant order hide a swapped pair? Are child-proto indices resolved through the tree?
 - **Numbers.** Are `KNUM` doubles compared bitwise (`-0.0`, NaN)?
 - **Upvalues and flags.** Are the descriptors compared?
-- **June mode.** Does it really compare against `ljconv` output?
+- **June mode.** Does it really compare against `ljconv` output? Spot-check 3 entries of `lua_source_opcode_check.tsv` in Ghidra
+  yourself, including one from a same-mode family (arith VV/VN/NV or ISLT/ISGE/ISLE/ISGT).
 - **`convert`.** Does it refuse on every non-T0/T1 path?
 - **Mock environment.** Where are the T2 report's blind spots?
 

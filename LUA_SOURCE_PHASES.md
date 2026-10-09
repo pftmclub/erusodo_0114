@@ -16,7 +16,8 @@ Lua blocks that today:
 
 The user wants this settled once, so nobody has to think about it again (2026-10-09). End state:
 
-- **June `.lua` arrives through one command, `adopt-june` (skill `x2-adopt-june`), and the client runs exactly June's code.**
+- **June `.lua` arrives through one command, `adopt-june` (skill `x2-adopt-june`), and the client runs June's code as transcoded
+  by `ljconv.py`.** L2 verifies `ljconv`'s opcode table independently, against June's own VM handlers.
   - If a decompile is proven to compile to the same instructions as June's own bytecode, it ships as plaintext source:
     UTF-8 BOM + text, packed with the same zlib + XOR-CRC as everything else.
   - Otherwise June's bytecode ships, transcoded exactly by `ljconv.py`, and the reason is recorded.
@@ -67,6 +68,9 @@ bytecode; see "Established facts".
 4. **Conversion changes format only.** Content changes are the port's own diff, made after conversion.
 5. **The pack gate enforces it.** Every `.lua` must be either BOM text that parses under the vendored luajit, or a bytecode file listed
    as an exception in the ledger.
+   - **Exception: server-only Lua that the user packs by hand** (CLAUDE.md's server-Lua rule, which stays as written). These files
+     are manifest `"0"` and loaded with `bEncryption=false`, and they may be PUC-5.1 text LuaJIT rejects. The gate only warns on them,
+     never refuses.
 6. **Bookkeeping.**
    - Original bytecode is snapshotted to `24965799\kom_contents_bytecode\dataNNN_kom\` (on F:).
    - The ledger `tools/data/lua_source_ledger.tsv` has one row per converted or adopted file, with these columns: kom, name,
@@ -263,6 +267,8 @@ Write a Done note, start the ledger with these 6 rows (tier T0, source `src.lua`
    - It refuses BOM-less text, `0x82` bytecode, anything else, and any text that fails to parse. The refusal names the file and the
      parser's message.
    - The two oddities are seeded as ledger exceptions.
+   - Manifest-`"0"` `.lua` files (user-packed server Lua, Rule 5's exception) get a warning, never a refusal. The CLAUDE.md
+     server-Lua rule survives the docs rewrite verbatim.
 3. **`kom.py compile` repointed** to fold `X.src.lua` into BOM-source `X.lua`. It no longer produces bytecode; `--bytecode` stays
    for rollback only.
    - It folds when the `.src.lua` is T0 against the current `X.lua`, or newer than it (an intended edit, reported as such).
@@ -329,9 +335,19 @@ sections "Residual ljd defects (Phase 8, the remaining ~4,200 files)" and "Statu
      exact source is known is a ljd or checker bug, and each must be explained.
    - Then run the 14 `june2017_re/june_lua/` files (`--ref june`) and the **nine class scripts** (`--ref march`). Record the class
      verdicts for C3d-4; nothing is converted.
-7. **Wire T1 into `convert`** as Rule 3's last source. Extend the `x2-lua` skill with `check` / `decompile` and what each tier means.
+7. **Opcode-table independence (June mode).** `ljconv.py`'s table is elstools' translation plus `ljd_jun2017.FIX`, and the June
+   decompile uses the same table. So June-mode T1 catches ljd printer and AST defects, but **not a wrong table entry**.
+   - `ljconv`'s own assertions (injective, operand modes agree with June's `lj_bc_mode`) cannot catch a swap inside a same-mode
+     family. Examples: the arithmetic VV/VN/NV groups, or ISLT/ISGE/ISLE/ISGT. That is the same class of mistake as the 0x2f-0x37 bug.
+   - Verify every mapped opcode independently. In Ghidra (`june2017-binary-is-readable`; skill `ghidra`), locate June's VM dispatch
+     table and compare each June opcode's handler with March's handler for the stock opcode it maps to.
+   - Any mismatch is fixed in `ljconv` and re-checked.
+   - If this proves infeasible, say so. Until it is done, June files may only be labelled "T1 vs ljconv", never "exactly June".
+8. **Wire T1 into `convert`** as Rule 3's last source. Extend the `x2-lua` skill with `check` / `decompile` and what each tier means.
 
 **Done gate:**
+- every `ljconv` opcode mapping is verified against June's handlers (table in `june2017_re/lua_source_opcode_check.tsv`), or the
+  gap is stated;
 - the self-test catches 100%;
 - every calibration miss is explained, in an archive `.tsv` (`june2017_re/lua_source_calibration.tsv`);
 - the class-script verdicts are recorded in the Done note;
