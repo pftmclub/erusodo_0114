@@ -1091,6 +1091,9 @@ class CX2GUNPC : public CX2GameUnit
             float                       m_fSlashTraceTipWide;
             D3DXVECTOR3                 m_vDefenceTime;
             float                       m_fSetGuardDefenceValue;
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+            float                       m_fJuneLimitMaxGSpeed;     /// C3g: June StateData +0x430, key SET_LIMIT_MAX_G_SPEED ( default 1.0 )
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
             D3DXVECTOR2                 m_v2SetRevengeTimeValue;
             D3DXVECTOR2                 m_v2SetReflectMagicValue;
             std::map< int, D3DXVECTOR3 > m_mapAddSlashTrace;
@@ -1221,6 +1224,9 @@ class CX2GUNPC : public CX2GameUnit
                   m_iSetFollowHitterValue( 0 ),
                   m_vDefenceTime(-1.f,-1.f,0.f),
                   m_fSetGuardDefenceValue( 0.f ),
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+                  m_fJuneLimitMaxGSpeed( 1.f ),
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
                   m_v2SetRevengeTimeValue( -1.f, -1.f ),
                   m_v2SetReflectMagicValue( 0.f, 0.f ),
                   m_wstrAnimName(),

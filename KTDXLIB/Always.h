@@ -6283,3 +6283,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_LUA_SOURCE_DEBUG needs SERV_IRUHADEV_LUA_SOURCE
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June effect completion C3g (JUNE2017_EFFECT_COMPLETION_PHASES.md). June's state key SET_LIMIT_MAX_G_SPEED:
+//              a float read at every user state start (CommonStateStartFuture 320506f0 @32054734, default 1.0) and into the
+//              NPC StateData (LoadStateData 32784c00 @32787303, +0x430, default 1.0; CommonStateStart 327ac9d0 @327ad4a0 copies
+//              it to the unit). The unit keeps it in a protected float at +0x40f8 (ctor 322a2700 @322a43d3: 1.0). Both
+//              PhysicProcess gravity clamps (user 32015b30 @32016f5e, NPC 3277fbf0 @32780466) use it as the fall-speed cap
+//              when it is below 0, else March's fMaxGSpeed * buoyancy. Live data today: the 17 June NPC scripts in data037
+//              (PVP_HERO_* / TIME_CHUNG* DAMAGE_AIR_FALL = -4000). Log tag: JUNE_FX C3g (offline_server.log).
+#define SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+//////////////////////////////////////////////////////////////////////////

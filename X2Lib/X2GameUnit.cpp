@@ -304,6 +304,10 @@ m_fNoSkillTime( 0 )
 	m_uidJuneLastAttacker = 0;
 	m_eJuneLastAttackerUnitType = GUT_USER;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+	/// C3g: June ctor 322a2700 @322a43d3-322a4408 builds +0x40f8 from fld1
+	m_fJuneLimitMaxGSpeed = 1.f;
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 	m_fForceInvincibleTime		= 0.0f;
 	m_fShowInvincibleTime		= 0.0f;
 	m_fShowInvincibleSwapTime	= 0.05f;

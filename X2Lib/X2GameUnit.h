@@ -3354,6 +3354,14 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		UidType GetJuneLastAttackerUID() const { return m_uidJuneLastAttacker; }
 		void SetJuneLastAttacker( const GAME_UNIT_TYPE eUnitType_, const UidType uidAttacker_ ) { m_eJuneLastAttackerUnitType = eUnitType_; m_uidJuneLastAttacker = uidAttacker_; }
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+		/// C3g: June +0x40f8 ( a protected float, ctor 1.0 ), the state's SET_LIMIT_MAX_G_SPEED. PhysicProcess ( user 32015b30 @32016f5e,
+		/// NPC 3277fbf0 @32780466 ) does fldz / fcomp / test ah,0x41 / jne: only a value strictly below 0 replaces the cap; 0, positive and
+		/// NaN keep fMaxGSpeed * buoyancy ( x87 run, C3g ). The negative limit is used as it is: no buoyancy, no unit scale.
+		float GetJuneLimitMaxGSpeed() const { return m_fJuneLimitMaxGSpeed; }
+		void SetJuneLimitMaxGSpeed( const float fLimit_ ) { m_fJuneLimitMaxGSpeed = fLimit_; }
+		float JuneGetMaxGSpeedCap( const float fBuoyancy_ ) const { return ( m_fJuneLimitMaxGSpeed < 0.f ) ? m_fJuneLimitMaxGSpeed : m_PhysicParam.fMaxGSpeed * fBuoyancy_; }
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 		void EraseCustomFunctionByBuff( const KBuffIdentity& BuffIdentity_ );
 		void DoCustomFunctionByBuffInCommonStateStart();
 		void DoCustomFunctionByBuffInCommonFrameMove();
@@ -5133,6 +5141,9 @@ protected:
 		UidType																																		m_uidJuneLastAttacker;			/// June +0x40e0: the last attacker's UID ( DamageReact )
 		GAME_UNIT_TYPE																											m_eJuneLastAttackerUnitType;		/// June +0x40e8: the last attacker's game-unit type ( 0 = user )
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+		float																		m_fJuneLimitMaxGSpeed;			/// June +0x40f8 ( protected ): the state's SET_LIMIT_MAX_G_SPEED, 1.0 = no limit
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 		CKTDGXSkinAfterImage*						m_pAfterImage;
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 		D3DXCOLOR									m_coAfterImageColorByState;	/// June +0x6880: the user state's AFTER_IMAGE_COLOR; EnableAfterImage uses it while no buff after-image is on

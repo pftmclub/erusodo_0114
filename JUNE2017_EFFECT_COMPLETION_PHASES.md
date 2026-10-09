@@ -934,6 +934,67 @@ Kickoff `kickoffs/june-effect/C3e-2.md`.
 
 ---
 
+## C3g - port: June's SET_LIMIT_MAX_G_SPEED (the per-state fall-speed cap)
+
+**Status: code done 2026-10-09 (see "C3g - Done"). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3g.md`.
+
+- **Scope:** found by C3d-3. A float state key (user `320506f0 @32054734`, NPC `32784c00 @32787303`) kept in the unit's protected `+0x40f8`; identify the
+  default and every reader, then port the member, both parses and the readers.
+
+### C3g - Done (2026-10-09, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED` (`KTDXLIB/Always.h`, end; no dependency). funcmap rows `(C3g)` (8 new, row `(C3d-3)` closed), JUNE_BUGS 142, checklist 7o.
+
+**What June does.** The unit's `+0x40f8` is a protected float, 1.0 from the ctor (`322a2700 @322a43d3`). The user reads `SET_LIMIT_MAX_G_SPEED` at **every**
+state start (`320506f0 @32054734`, right after `DISABLE_GRAVITY_TIME_END`, miss = 1.0), so a state without the key turns it off again. The NPC parses it
+into StateData `+0x430` (`@32787303`, after `TRANSITION`) and its CommonStateStart copies it to the unit (`327ac9d0 @327ad4a0`; the kickoff's `327a0fa0`
+is the same code, Ghidra merges the two functions). Both PhysicProcess gravity clamps (user `32015b30 @32016f5e`, NPC `3277fbf0 @32780462`, per adaptive
+sub-step) compute the cap as **`L < 0 ? L : fMaxGSpeed * buoyancy`**. The limit is not multiplied by buoyancy or unit scale. Both clamps use the cap, with March's `<=`.
+The reverse-gravity branches do not read it.
+
+**x87, settled by running June's bytes** (two-operand harness built on `x87test.py`: ST0 = a, compare with memory b, the same flags as `ST0` vs `ST(1)`):
+the reader `fldz; fcomp L; test ah,0x41; jne` falls through (limit) for -4000 / -5000 / -0.0001 and jumps (March cap) for 0 / 1 / NaN. Clamp 1
+(`@32017414`, `test ah,1; jne`) and clamp 2 (`@32017447`, `test ah,0x41; jp`) both store the cap for y <= cap and keep y for y > cap or NaN.
+The setter (`fucompp; test ah,0x44; jnp`) skips only when the values are equal, so it is a plain store.
+
+**What is in.** `CX2GameUnit::m_fJuneLimitMaxGSpeed` (1.f), `Get/SetJuneLimitMaxGSpeed`, `JuneGetMaxGSpeedCap( fBuoyancy )`. The user parse is in
+`CommonStateStartFuture` after `DISABLE_GRAVITY_TIME_END`, and the user cap is in `PhysicProcess`'s two clamps. On the NPC side: `StateData::m_fJuneLimitMaxGSpeed`
+(1.f) is parsed after `TRANSITION`, CommonStateStart copies it after the NOT_BOUNDING copy (the `#else` twin reads the LuaManager), and the cap is in both
+`X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` branches. Original code in every `#else`. Log: `JUNE_FX C3g user|npc ... SET_LIMIT_MAX_G_SPEED %.1f replaces the fall
+cap ( fMaxGSpeed %.1f )` per state entry with a value below 0, the first 32 per side (offline_server.log).
+
+**Not ported, routed.**
+- **The minor unit.** `@3201745a-32017861` clamps a second PhysicParam (`+0x36c`). Its passive speeds come from `MINOR_UNIT_PASSIVE_SPEED_X/Y`, so it
+  is read as Lu/Ciel's second body. March has none: checklist 7o. June builds the limit for it and then clamps with a fresh `fMaxGSpeed * buoyancy`,
+  i.e. throws the limit away: JUNE_BUGS 142, verbatim.
+- **`APPLY_MOVEMENT_SPEED`** (`@32054181`, the new first byte of June's PhysicParam, read by the x decay). No phase owned it -> new phase **C3h**.
+
+**June data and reach.** 32 states in `june_src_fixed`: 13 `*_DAMAGE_BOUNDING_DOWN` (12 classes, -4000), Raven `RRF_DASH_JUMP_COMBO_XX` (-5000), Add
+`ANSI_APT_DASH_JUMP_COMBO_ZX` (-4000), and 17 NPC `*_DAMAGE_AIR_FALL` (-4000: `PVP_HERO_ANNONA/ARUS/BERRY/BRIGIS/DEAR/HYSLEY/LEAH/NEJI/RIBE/SUENA/TAV/
+VARNES/VINTON/WAKID`, `TIME_CHUNG1-3`). The 17 ship in data037 as June bytecode (a5f7298), but March's `NPCTemplet` (kept March's) names none of
+them. March's class scripts carry no such key. **So nothing sets the key today. Both halves are dormant and the play-test is a regression check.**
+The user half reaches play with the character ports (checklist 7o, after C3d-4's route 2). The NPC half reaches play when a June NPC registry names those NPCs.
+No staged data (user rule: no invented Lua).
+
+**Hygiene.** `flagcheck --worktree --files` (the 6 code files): `5 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; 0 deleted lines; 0 encoding changes. RESULT PASS.
+
+**Deploy.** DEPLOY OK: X2_offline.exe is 19,451,904 B, dated 2026-10-09 14:53:24, md5 6b5d4f1b4c10bf8bf1a143c77e29cd4e, equal to X2/US_SERVICE/x2.exe (2026-10-09 14:53:17); built at mods/june-buff-port fdcf60b + 6 uncommitted code file(s) (the 6 are C3g's). Strings checked in the deployed exe: `JUNE_FX C3g user` and `JUNE_FX C3g npc` (UTF-16) and `SET_LIMIT_MAX_G_SPEED` present.
+
+**In game.** There is nothing new to see. Falls (jumps, knock-ups, monsters dropping) should feel exactly as before, and `offline_server.log` has no `JUNE_FX C3g` line.
+
+---
+
+## C3h - port: June's APPLY_MOVEMENT_SPEED (PhysicParam's new first field)
+
+**Status: ready (found by C3g, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3h.md`.
+
+- **Scope:** a bool user state key (`320506f0 @32054181`) June stores as the new first byte of its PhysicParam (`+0x300`) and copies to the minor
+  unit's (`+0x36c`). PhysicProcess's x decay scales by `31e4f990()` / walk speed when it is set. Identify every reader and port the engine side; the
+  minor unit's copy is Lu/Ciel's (checklist 7o). June data: one Ara state.
+- **Exit:** funcmap rows `Effect C3h`; flag `SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED`; regression play-test.
+
+---
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and

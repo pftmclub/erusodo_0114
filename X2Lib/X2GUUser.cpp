@@ -14917,6 +14917,22 @@ void CX2GUUser::CommonStateStartFuture()
 	LUA_GET_VALUE( m_LuaManager, "DISABLE_GRAVITY_TIME_START", m_vDisableGravityInScriptTime.x, 0.f );
 	LUA_GET_VALUE( m_LuaManager, "DISABLE_GRAVITY_TIME_END", m_vDisableGravityInScriptTime.y, 0.f );
 	ASSERT( m_vDisableGravityInScriptTime.x <= m_vDisableGravityInScriptTime.y );
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+	/// June CommonStateStartFuture 320506f0 @32054734-3205493b ( C3g ): right after DISABLE_GRAVITY_TIME_END, in every state start, so a
+	/// state without the key puts 1.0 ( no limit ) back. June stores through the protected type's assign-if-changed ( fucompp, test ah,0x44 ).
+	{
+		float fJuneLimitMaxGSpeed = 1.f;
+		LUA_GET_VALUE( m_LuaManager, "SET_LIMIT_MAX_G_SPEED", fJuneLimitMaxGSpeed, 1.f );
+		SetJuneLimitMaxGSpeed( fJuneLimitMaxGSpeed );
+		static int s_iJuneC3gUserLines = 0;
+		if ( fJuneLimitMaxGSpeed < 0.f && s_iJuneC3gUserLines < 32 )
+		{
+			++s_iJuneC3gUserLines;
+			CX2OfflineLog::Server( L"JUNE_FX C3g user state %d: SET_LIMIT_MAX_G_SPEED %.1f replaces the fall cap ( fMaxGSpeed %.1f )",
+				GetFutureStateID(), fJuneLimitMaxGSpeed, m_PhysicParam.fMaxGSpeed );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 
 #ifdef  AISHA_SECOND_CLASS_CHANGE
 	LUA_GET_VALUE( m_LuaManager, "IGNORE_LINE_TIME_START", m_vFutureIgnoreLineTime.x, 0.f );
@@ -22074,6 +22090,19 @@ void CX2GUUser::PhysicProcess()
 			// m_bDisableGravity 이게 이제 들어가는게 확정되면 요걸 써야할듯 음헤헤 m_bRidingMachine 요부분은 임시임 ~~
 			if ( m_bRidingMachine == false  )
 			{
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+				/// June PhysicProcess 32015b30 @32016f5e-320173e6 ( C3g ): the cap is SET_LIMIT_MAX_G_SPEED when it is below 0, else
+				/// fMaxGSpeed * buoyancy; both clamps use it ( @32017414 and @32017447 are March's `<=`, x87 run ). The second read
+				/// @3201745a is June's minor-unit PhysicParam ( +0x36c ), which March does not have; June discards it there ( JUNE_BUGS ).
+				const float fJuneMaxGSpeedCap = JuneGetMaxGSpeedCap( fBuoyancy );
+				m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime * fBuoyancy;
+				if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
+					m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
+
+				m_PhysicParam.nowSpeed.y -= m_PhysicParam.fDownAccel * m_fElapsedTime;
+				if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
+					m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
+#else SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 				m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime * fBuoyancy;
 				if( m_PhysicParam.nowSpeed.y <= m_PhysicParam.fMaxGSpeed * fBuoyancy )
 					m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * fBuoyancy;
@@ -22081,6 +22110,7 @@ void CX2GUUser::PhysicProcess()
 				m_PhysicParam.nowSpeed.y -= m_PhysicParam.fDownAccel * m_fElapsedTime;
 				if( m_PhysicParam.nowSpeed.y <= m_PhysicParam.fMaxGSpeed * fBuoyancy )
 					m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * fBuoyancy;
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 			}
 		}
 		else

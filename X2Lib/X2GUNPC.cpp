@@ -5169,6 +5169,10 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 
 	LUA_GET_VALUE( luaManager_, "TRANSITION", bTemp, true );
     NOWSTATE_SET_FLAG( TRANSITION, bTemp );
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+    /// June LoadStateData 32784c00 @32787303-3278747f ( C3g ): SET_LIMIT_MAX_G_SPEED right after TRANSITION, a float into StateData +0x430, miss 1.0
+    LUA_GET_VALUE( luaManager_, "SET_LIMIT_MAX_G_SPEED", nowStateData.m_fJuneLimitMaxGSpeed, 1.f );
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 
     nowStateData.m_vecEffectSetToPlay.resize( 0 );
     {
@@ -15517,6 +15521,25 @@ void CX2GUNPC::CommonStateStart()
 	LUA_GET_VALUE( m_LuaManager, "NOT_BOUNDING", m_bJuneNotBounding, false );
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+	/// June CommonStateStart 327ac9d0 @327ad4a0-327ad527 ( C3g ): the state's StateData +0x430 goes to the unit's +0x40f8 ( assign-if-changed )
+	{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		const float fJuneLimitMaxGSpeed = GetNowStateData().m_fJuneLimitMaxGSpeed;
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		float fJuneLimitMaxGSpeed = 1.f;
+		LUA_GET_VALUE( m_LuaManager, "SET_LIMIT_MAX_G_SPEED", fJuneLimitMaxGSpeed, 1.f );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+		SetJuneLimitMaxGSpeed( fJuneLimitMaxGSpeed );
+		static int s_iJuneC3gNpcLines = 0;
+		if ( fJuneLimitMaxGSpeed < 0.f && s_iJuneC3gNpcLines < 32 )
+		{
+			++s_iJuneC3gNpcLines;
+			CX2OfflineLog::Server( L"JUNE_FX C3g npc %I64d ( %s ) state %d: SET_LIMIT_MAX_G_SPEED %.1f replaces the fall cap ( fMaxGSpeed %.1f )",
+				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int) m_NPCFrameData.syncData.nowState, fJuneLimitMaxGSpeed, m_PhysicParam.fMaxGSpeed );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 
 	//if( m_bNeverMove == true )
 	{
@@ -25242,15 +25265,38 @@ void CX2GUNPC::PhysicProcess()
             {
                 if ( i > 0 && bPassive == true )
                     m_PhysicParam.nowSpeed.y = m_PhysicParam.passiveSpeed.y; // * m_PhysicParam.fSpeedFactor;
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+			    /// June PhysicProcess 3277fbf0 @32780462-327806d7 ( C3g ): per sub-step, the cap is SET_LIMIT_MAX_G_SPEED when below 0,
+			    /// else fMaxGSpeed * buoyancy ( @327806c1 ); both clamps use it
+			    const float fJuneMaxGSpeedCap = JuneGetMaxGSpeedCap( fBuoyancy );
+			    m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fOneShotElapsedTime * fBuoyancy;
+			    if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
+				    m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
+			    m_PhysicParam.nowSpeed.y -= m_PhysicParam.fDownAccel * m_fOneShotElapsedTime;
+			    if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
+				    m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
+#else SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 			    m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fOneShotElapsedTime * fBuoyancy;
 			    if( m_PhysicParam.nowSpeed.y <= m_PhysicParam.fMaxGSpeed * fBuoyancy )
 				    m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * fBuoyancy;
 			    m_PhysicParam.nowSpeed.y -= m_PhysicParam.fDownAccel * m_fOneShotElapsedTime;
 			    if( m_PhysicParam.nowSpeed.y <= m_PhysicParam.fMaxGSpeed * fBuoyancy )
 				    m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * fBuoyancy;
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
                 fActiveNowSpeedYPos += m_PhysicParam.nowSpeed.y * m_fOneShotElapsedTime;
             }
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+			/// June PhysicProcess 3277fbf0 @32780462 ( C3g ): the same cap without the adaptive frame loop
+			const float fJuneMaxGSpeedCap = JuneGetMaxGSpeedCap( fBuoyancy );
+			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime * fBuoyancy;
+			if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
+				m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
+
+			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fDownAccel * m_fElapsedTime;
+			if( m_PhysicParam.nowSpeed.y <= fJuneMaxGSpeedCap )
+				m_PhysicParam.nowSpeed.y = fJuneMaxGSpeedCap;
+#else SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime * fBuoyancy;
 			if( m_PhysicParam.nowSpeed.y <= m_PhysicParam.fMaxGSpeed * fBuoyancy )
 				m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * fBuoyancy;
@@ -25258,6 +25304,7 @@ void CX2GUNPC::PhysicProcess()
 			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fDownAccel * m_fElapsedTime;
 			if( m_PhysicParam.nowSpeed.y <= m_PhysicParam.fMaxGSpeed * fBuoyancy )
 				m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * fBuoyancy;
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 		}

@@ -452,3 +452,20 @@ it on Now. Nothing in March drives it until these rows are ported. Classes are c
 
 Rose (Neil the Sniper `RNSI_SA_RFY_NEIL_THE_SNIPER`: `3200d3f0` / `3200d900`, in base code), Ain and Lu/Ciel drive it too. They go to
 backlog Stage 8 with the new characters.
+
+### 7o. Fall-speed limit data and the minor unit's physics (from June effect completion C3g)
+
+The engine side is ported by june-effect C3g (`SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED`): a state's `SET_LIMIT_MAX_G_SPEED` below 0 replaces
+`fMaxGSpeed * buoyancy` as the fall cap, read at every user state start (default 1.0 = off). March's class scripts carry no such key, so the
+user half does nothing until a class port brings June's state tables. Carry the key over with the tables, verbatim:
+
+| Class | June states with the key | Value |
+|---|---|---|
+| All 12 classes in 7l (13 tables: Lu and Ciel have one each) | `<prefix>DAMAGE_BOUNDING_DOWN` | -4000 |
+| Raven | `RRF_DASH_JUMP_COMBO_XX` | -5000 |
+| Add | `ANSI_APT_DASH_JUMP_COMBO_ZX` | -4000 |
+
+- **Lu/Ciel's minor unit.** June integrates a second PhysicParam (`+0x36c`; `MINOR_UNIT_PASSIVE_SPEED_X/Y`, its `APPLY_MOVEMENT_SPEED`
+  copied from the main one) in step with the main one (funcmap `32015b30 @3201745a-32017861 (C3g)`). March has no minor unit; it comes
+  with the Lu/Ciel port (backlog Stage 8). June builds the limit for it and then ignores it (JUNE_BUGS 142): keep that verbatim.
+- **Ara's `APPLY_MOVEMENT_SPEED = TRUE`** (one state, `Ara_Martial_Artist.src.lua:7334`) needs the engine field first: june-effect C3h.
