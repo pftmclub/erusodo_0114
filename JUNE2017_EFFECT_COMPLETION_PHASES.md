@@ -1105,6 +1105,47 @@ No staged data (user rule: no invented Lua).
 
 **Play-test (2026-10-09): PASSED.** (user; exe 48df41bf, a peer's rebuild from 22dc099, which contains 525a82b; run on battlefield 40032 as reyaa, Lire Grand Archer, not the handed-off dungeon 30000: user and field-monster falls unchanged; logs read: 0 `JUNE_FX C3g` lines as expected, 0 EXCEPTION, only the baseline E_DISABLE_HB_CHECK_REQ UNHANDLED).
 
+### C3g - Review (2026-10-09, Opus 5.5 high)
+
+**Verdict: correct against June. No code change, so no build.** Read-only: capstone over `unpacked_x2.exe` (`disasm_range.py`, `funcdis.py`), plus a
+scratch x87 harness built like `x87test.py` (June's compare bytes, run on concrete floats).
+
+1. **Parse sites.** User `@32054734`: xorstring `3379d12c` decodes to `SET_LIMIT_MAX_G_SPEED`. The `fld1` default is stored at `@320546e4`, before the
+   lazy-init branch, so the first-use and cached paths both start from 1.0. A miss stores `fld1` again (`@320548a4`). The setter (`fucompp; test ah,0x44;
+   jnp`) skips only on equal, which makes it a plain store. The one branch in `320506f0` that passes the parse is `@32050753`: ProcessSocketEffectEx(20) == 20
+   returns. March has the same early return (the SIEE 20 `return` under `JUNE_SOCKET_PARITY` at the head of CommonStateStartFuture), and there is no other
+   `return` before the parse. NPC `@32787303`: xorstring `337a9a90` decodes to the same key, right after `NOWSTATE_SET_FLAG( 0x2b )` (TRANSITION). It is a
+   plain `fstp [StateData +0x430]` with miss = `fld1`, followed by the effect-set list `resize( 0 )`, as in March.
+2. **NPC copy `327ac9d0 @327ad4a0`.** `327ac9d0` has its own SEH prologue, so the Done note's correction of the kickoff's `327a0fa0` stands. Two paths avoid
+   the copy. `@327aca28` returns when the skin anim (`+0x8604`) is null; March has `if ( NULL == m_pXSkinAnim ) return;`. `@327ace8f` jumps into the protector
+   section (`33ea82b4`, a Themida VM entry). That jump is the body of an `if` whose three skip branches all land on the join at `327acf83`, ahead of the copy.
+   No other branch crosses the copy. **Stale placement:** the NOT_BOUNDING copy that the kickoff and Done note put C3g's copy after was removed by the C3d-3
+   review (`9946eea`: NOT_BOUNDING is an INIT key). The copy now follows the NEVER_MOVE read in both `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` branches. The two
+   stores are independent, so the order is moot. The funcmap row now says so.
+3. **Readers and clamps.** User `@32016f5e`: on both buoyancy paths ST0 is the compiler's carried 0.0 (`fldz` re-pushed after each call: `@320169e5`,
+   `@32016a52`, `@32016f28`), so `fcomp L` compares 0 with L. NPC `@32780462`: `fld buoyancy` sits outside the sub-step loop and `fldz; fcomp L` runs every
+   iteration (back edge `@327809d9` -> `32780466`). Both NPC paths leave the x87 stack balanced: the limit path pops with `fstp st0` at `@3278049d`, the other
+   with `fmul`/`fstp` at `@327806c1`. The NPC clamps `@32780974` / `@327809a7` are the user's two idioms (`@32017414` / `@32017447`).
+   The harness gives:
+   - Reader: the limit for L = -4000, -5000 and -0.0001; March's `fMaxGSpeed * buoyancy` for -0.0, 0, 1, 4000 and NaN. March's `L < 0.f` agrees, -0.0 included.
+   - Both clamps: y <= cap stores the cap; y > cap or NaN keeps y; a NaN cap keeps y.
+
+   The limit is not scaled by buoyancy. The only `+0x40f8` reads in the two functions are user `32016f5e`, user `3201745a` (minor unit) and NPC `32780466`.
+   The March clamps C3g leaves alone (`X2GUUser.cpp:21997`, `X2GUNPC.cpp:25171` / `:25203`) are `REVERSE_GRAVITY_TEST` branches.
+4. **Not ported, reasons hold.** For the minor unit, the limit temp is built (`@32017476`, else `@32017625` `fmul [+0x38c]`), but both clamps (`@32017819`,
+   `@32017852`) use a fresh `fld [+0x38c]; fmulp` with buoyancy, so the limit is dropped. JUNE_BUGS 142 and checklist 7o stand. `APPLY_MOVEMENT_SPEED`
+   (`@32054181`, a bool into `+0x300`, then `+0x36c`) went to C3h, which has its row and kickoff.
+5. **Reach.** data037 `NPCTemplet.lua` is March bytecode (`1B 4B 4C 81`, unchanged since 10-01). It names 14 `PVP_HERO_*` scripts (AMELIA, APPLE, BALAK,
+   CODE_Q_PROTO_00, EDAN, LIME(_EVENT), LOW(_EVENT), NOA, PENENSIO(_EVENT), Q, SPIKA). None of them is one of the 14 June names, and it names no `TIME_CHUNG`.
+   The 9 March class scripts in data036 do not carry the key (Ain, Lu/Ciel and Rose do not exist in March). A byte scan of all 192 `kom_contents` dirs finds
+   the key in exactly the 17 June NPC scripts. There are no loose `.lua` overrides in the game dir. The port is dormant, as the Done note says.
+6. **Hygiene.** `flagcheck JUNE_LIMIT_MAX_G_SPEED --range 525a82b^..HEAD`: `5 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; 0 deleted lines,
+   0 non-ASCII inserted lines, 0 EOL mismatches, 0 encoding changes. RESULT: PASS. The 3 OTHER rows are `9946eea` (C3d-3 review, `JUNE_BOUNDING_STATE`) in
+   `X2GUNPC.cpp/.h` and `X2GUUser.cpp`. The nested `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` `#ifdef/#else/#endif` lines inside C3g's NPC blocks are March's own
+   adaptive-frame split (ON in US_SERVICE). C3g's copy and cap appear once in each branch, and each keeps March's original code in the flag's `#else`.
+
+The review needs no play-test; the C3g regression play-test already passed.
+
 ---
 
 ## C3h - port: June's APPLY_MOVEMENT_SPEED (PhysicParam's new first field)
