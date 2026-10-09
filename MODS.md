@@ -3348,6 +3348,24 @@ so an RT_BOUNDING hit is ignored and logged once. No data file and no kom change
 
 Revert: undefine the flag and rebuild all four projects.
 
+### June NPC and dungeon Lua via ljconv (2026-10-09)
+
+Data only, no flag, no exe change. Every June NPC / monster script (data037, datai016) and dungeon stage script (data035 `Dungeon_*`,
+datai030) ships as June's own bytecode, transcoded to March's opcode numbering by `june2017_re/ljconv.py` (no decompile, no recompile):
+3,518 files, 2,145 replacing March or earlier-port files, 1,373 June-only. Per-file list: `june2017_re/june_npc_lua_port_20261009.tsv`.
+Packed and copied: `data035` md5 b76d3cb3, `data037` 42e6ccc6, `datai016` 86d9291a, new `datai030` 21dd2fdb.
+
+- **Kept March's:** the registries `NPCTemplet.lua` / `NPCTemplet_1.lua` / `NPCTemplet_LA.lua` and `DungeonData.lua`, pets and riding pets,
+  datai016 `UI_*`, data035 `El_Tree_Main_Test.lua`, and every table / map (data036, data040). June-only scripts are therefore
+  unreachable until a registry names them.
+- **Lanox ports replaced, edits included (user, 2026-10-09):** the 252 Lanox `.src.lua` ports in data035/037/040 had 45 that differ from
+  June on purpose (e.g. `RAGE_DRYADKENTA` softlock fix). All in this scope are now June's bytecode; their sidecars moved to the backup below.
+  **`march2014/update/data035` and `data037` `.src.lua` are superseded**: do not `kom.py compile` them back over June's files.
+- Origin of a regression: a June script stopping at a name March lacks logs `[LUA_SRC] lua error while loading X.lua` in `ErrorLog.txt`.
+
+Revert: copy back the live koms from `24965799\kom_backup_tools\{data035,data037,datai016}.kom.20261009_135512*` and delete `data\datai030.kom`;
+for the staging tree, restore `24965799\kom_backup_stage_june\20261009_135231\` (replaced files + moved sidecars) over `kom_contents\`.
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.
