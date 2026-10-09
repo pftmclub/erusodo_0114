@@ -1070,6 +1070,11 @@ A peer's build (it held the lock) compiled this worktree; my own `build.py` then
   (again once from StateChange, once from DoStateEndStart). Same index and table as the roll on every pair = pass. Different table = a miss (#151). Any `list is empty` line = #152.
 - Not testable here: the chat commands (Photozone) and the LOSE delegate (flag never set).
 
+**Play-test result (2026-10-10, jtLordKnight, 5 dungeon runs; `logs.py --grep "JUNE_FX C3e-2"`): PASS.** 32 lines, 0 EXCEPTION, only the baseline `E_DISABLE_HB_CHECK_REQ` UNHANDLED.
+- Rolls vary run to run: WIN `ESSI_ELK_WIN` (index 0), `ESSI_ESK_WIN` (2), `ESSI_ESK_WIN2` (3); LOSE `ESSI_ELK_LOSE` (0 / 2 in one run), `ESSI_ELK_LOSE2` (1); list sizes START 3, WIN 6, LOSE 6.
+- Every re-bind repeats the rolled index and table: START 9 index 0 `ESSI_ELK_START` (4 re-binds per start); at the clear (`5:15:34`) WIN 11 index 2 `ESSI_ESK_WIN`, twice (StateChange and DoStateEndStart), equal to that run's roll.
+- No `list is empty` or skipped re-bind line; no roll index reached its list size (JUNE_BUGS 151 not seen for this class; 152 not hit). Other classes not rolled in this test.
+
 **Open for the user:** none.
 
 ## C3e-3 - identify: June's per-attacker hit-stop and the state-skip flag (A)
