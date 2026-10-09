@@ -943,6 +943,28 @@ bool CX2GameOption::OpenScriptFile()
 		LUA_GET_VALUE( luaManager, "LOGIN_ID",		m_OptionList.m_wstrSavedLoginID,	L"" );
 #endif // PLAYER_ID_IN_GAME_OPTION
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// June2017 CX2GameOption::OpenScriptFile 324214a0 @32427d93 / @32427f14 / @324280f7: the three effect-alpha keys, each read only when
+		// g_pKTDXApp exists, a float defaulting to 1.0, then CKTDXApp::SetEffectAlpha( 2 / 3 / 4, value ) (which clamps to [0.1, 1.0]).
+		if( NULL != g_pKTDXApp )
+		{
+			float fJuneEffectAlphaMy = 1.0f;
+			LUA_GET_VALUE( luaManager, "MY_EFFECT_ALPHA",			fJuneEffectAlphaMy,			1.0f );
+			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_MY_EFFECT, fJuneEffectAlphaMy );
+		}
+		if( NULL != g_pKTDXApp )
+		{
+			float fJuneEffectAlphaMyTeam = 1.0f;
+			LUA_GET_VALUE( luaManager, "MY_TEAM_EFFECT_ALPHA",		fJuneEffectAlphaMyTeam,		1.0f );
+			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_MY_TEAM_EFFECT, fJuneEffectAlphaMyTeam );
+		}
+		if( NULL != g_pKTDXApp )
+		{
+			float fJuneEffectAlphaOther = 1.0f;
+			LUA_GET_VALUE( luaManager, "ANOTHER_TEAM_EFFECT_ALPHA",	fJuneEffectAlphaOther,		1.0f );
+			g_pKTDXApp->SetEffectAlpha( CKTDXApp::AEACBO_ANOTHER_TEAM_EFFECT, fJuneEffectAlphaOther );
+		}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		luaManager.EndTable();
 	}
 
@@ -1387,6 +1409,18 @@ bool CX2GameOption::SaveScriptFile()
 	fwprintf( file, L"\tLOGIN_ID		= \"%s\", \n", m_OptionList.m_wstrSavedLoginID.c_str() );
 #endif // PLAYER_ID_IN_GAME_OPTION
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// June2017 CX2GameOption::SaveScriptFile 3241ef40, after SHOW_AMUSEMENT_ITEM_DESCRIPTION (March has no such key: after the last one) and
+	// only with g_pKTDXApp: the three values as %f, in June's layout, inside the GAME_OPTION_CURRENT table.
+	if( NULL != g_pKTDXApp )
+	{
+		fwprintf( file, L"\n\n\n" );
+		fwprintf( file, L"\t-- EFFECT ALPHA OPTION \n" );
+		fwprintf( file, L"\tMY_EFFECT_ALPHA\t\t= %f, \n", g_pKTDXApp->GetEffectAlpha( CKTDXApp::AEACBO_MY_EFFECT ) );
+		fwprintf( file, L"\tMY_TEAM_EFFECT_ALPHA\t\t= %f, \n", g_pKTDXApp->GetEffectAlpha( CKTDXApp::AEACBO_MY_TEAM_EFFECT ) );
+		fwprintf( file, L"\tANOTHER_TEAM_EFFECT_ALPHA\t\t= %f, \n", g_pKTDXApp->GetEffectAlpha( CKTDXApp::AEACBO_ANOTHER_TEAM_EFFECT ) );
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	fwprintf( file, L"} \n" );
 	
 	fclose(file);

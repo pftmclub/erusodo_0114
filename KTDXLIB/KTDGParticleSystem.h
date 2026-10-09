@@ -1331,6 +1331,11 @@ class CKTDGParticleSystem
 
 				void SetZEnable( bool bZEnable ){ m_bZEnable = bZEnable; }
 				bool GetZEnable() const { return m_bZEnable; }
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				void SetEffectAlphaCondition( BYTE byEffectAlphaCondition ){ m_byEffectAlphaCondition = byEffectAlphaCondition; }	/// June2017 sequence +0x1b0
+				BYTE GetEffectAlphaCondition() const { return m_byEffectAlphaCondition; }
+				DWORD JuneApplyEffectAlphaToColor( DWORD dwColor ) const;	/// June2017 31cf4ed0 @31cf580e: vertex colour with this category's alpha
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 				void SetLightPos( D3DXVECTOR3 lightPos ){ m_LightPos = lightPos; }
 				D3DXVECTOR3 GetLightPos() const { return m_LightPos; }
@@ -1654,6 +1659,9 @@ class CKTDGParticleSystem
 
 				bool							m_bZWriteEnable;
 				bool							m_bZEnable;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				BYTE							m_byEffectAlphaCondition;	/// June2017 CParticleEventSequence +0x1b0 (ctor default 0 @31cf795b): APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				D3DXVECTOR3						m_LightPos;
 				CKTDGXRenderer::RENDER_TYPE		m_MeshRenderType;
 

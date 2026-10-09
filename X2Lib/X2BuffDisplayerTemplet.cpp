@@ -463,6 +463,28 @@ bool CX2BuffDisplayerTemplet::ParsingDisplayerTemplateMethod( KLuaManager& luaMa
 			}
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	/// June2017 CX2BuffEffectSetDisplayerTemplet::StartDisplayer 32eb9c70 @32eba1f8-32eba2cb (creator visibility flag), after the effect sets are played. The
+	/// awakening-BTI item-effect override that sets June's skip flag ([esp+0x17]) is not in this build, so the flag is always clear: the category is the
+	/// buff creator's (the templet's creator uid, an NPC when it is not a user), 0 without one. Every live handle's instance whose condition is not 1
+	/// takes it.
+	if( NULL != g_pX2Game )
+	{
+		CX2GameUnit* pJuneCreatorGameUnit = NULL;
+		if( true == pBuffTemplet_->IsJuneCreatorNotUser() )
+			pJuneCreatorGameUnit = g_pX2Game->GetNPCUnitByUID( static_cast<int>( pBuffTemplet_->GetJuneCreatorUID() ) );
+		else
+			pJuneCreatorGameUnit = g_pX2Game->GetUserUnitByUID( pBuffTemplet_->GetJuneCreatorUID() );
+		const BYTE byJuneCreatorCondition = g_pX2Game->GetEffectAlphaCondition( pJuneCreatorGameUnit );
+
+		BOOST_FOREACH( CX2EffectSet::Handle& hHandleTag, m_vecHandleEffectSet )
+		{
+			CX2EffectSet::EffectSetInstance* pJuneInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hHandleTag );
+			if( NULL != pJuneInstance && 1 != pJuneInstance->m_byEffectAlphaCondition )
+				pJuneInstance->m_byEffectAlphaCondition = byJuneCreatorCondition;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 }
 
 /** @function : GetClonePtr
@@ -780,6 +802,15 @@ void CX2BuffWeaponParticleDisplayerTemplet::StartDisplayerByBuffTempletID( CX2Ga
 		}
 		break;
 	}
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	/// June2017 CX2BuffWeaponParticleDisplayerTemplet::StartDisplayerByBuffTempletID 32eb9400 @32eb95d1, beyond March: each handle goes through the
+	/// unit's effect-alpha category (major particle system) for a non-null unit, before the first OnFrameMove
+	if( NULL != g_pX2Game && NULL != pGameUnit_ )
+	{
+		for( UINT uiIndexTag = 0; uiIndexTag < m_vecHandleParticle.size(); ++uiIndexTag )
+			g_pX2Game->JuneTagEffectAlphaParticleHandle( pGameUnit_, m_vecHandleParticle[uiIndexTag], false );
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     OnFrameMove( pGameUnit_, 0.f );
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

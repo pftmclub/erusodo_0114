@@ -5020,6 +5020,21 @@ Hygiene, worktree (`--files X2GUNPC.cpp X2GUUser.cpp`):
 
 ---
 
+**C10b-2 - Done (2026-10-09, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`; log `JUNE_FX alpha` under `SERV_IRUHADEV_JUNE_FX_DEBUG`; play-test pending).**
+June's effect-alpha option engine on March; the option UI stays with the June UI port (D9). 26 client files, 18 funcmap rows `Effect C10b-2`, JUNE_BUGS 147-148.
+- *Storage / file:* `CKTDXApp` three floats (default 1.0), `SetEffectAlpha` clamps [0.1, 1.0] and stores 2 / 3 / 4, `GetEffectAlpha` gives 1.0 for 0 / 1. `GameOptions.lua`: `MY_EFFECT_ALPHA`, `MY_TEAM_EFFECT_ALPHA`, `ANOTHER_TEAM_EFFECT_ALPHA` read before the table closes, written last in it in June's layout.
+- *Category (`322d4d10`):* `CX2Game::GetEffectAlphaCondition`: user mine = `IsMyUnit`, NPC mine = owner UID == my UID; mine 2, team differs 4, else 3; user override = 1 in `USI_START` and the win / lose states (riding: the two riding-wait states). funcmap corrects the earlier "vslot 50 = GetEffectAlphaCondition" rows: vslot 50 is the unit lookup.
+- *Readers:* EffectSet instance byte (templet key, else owner category) + per-EFFECT hand-off (the key counts only as 1) to damage effect / mesh / particle; CEffect ctor, `OnFrameMove` (main mesh, every frame), `SetParticleData`, `AttackResult` (hit set, unconditional). The four rule-5 "unsupported" log lines are retired under the flag (old lines in `#else`).
+- *Render:* mesh `OnFrameMove` (blend SRCALPHA / INVSRCALPHA unless INVSRCCOLOR / DESTALPHA, outline + colour alpha), both slash traces, particle mesh draw, particle vertex path (not RHW).
+- *Owned NPCs:* `CX2GUNPC::SetOwnerGameUnit` stores the owner's category; NPC body (after the skin's Prepare, as June) and `CX2GameUnit::Weapon` fade. **AI party: `cl /P` (flagprobe) shows `DUNGEON_RANK_NEW`, `X2OPTIMIZE_UNITTYPE_BUG_FIX`, `GIANT_UNIT_GIANT_EFFECT_TEST`, `SERV_TRAPPING_RANGER_TEST` ON, so `SetOwnerGameUnit` is compiled and the bots (NAT_ALLY owned by my unit) are category 2: their bodies, weapons and effects fade with `MY_EFFECT_ALPHA`. That is verbatim June (summons).**
+- *Helpers / binds:* five tag helpers, `CreateApplyAlphaParticleSequence_LUA` / `CreateApplyAlphaMeshInstance_LUA` (bound on `CX2Game`; fixes SMITH_CART.lua's call). Sites ported: CEffect/EffectSet readers, delayed-firing emoticons (`32298eb0`), NPC timed-event particle (`327975f9`), PhantomSword mesh, weapon-particle displayer, buff effect-set displayer (creator category), PlayEmotion unit-viewer set (`32043cf0`, set in place).
+- *Not ported (host absent in March, ported with their host):* ApplyHyperModeBuff's TRANScendence sets (`32298c5b`), `3203e1b0` sit-item sets (`3203e56d` / `3203e754`), `3204b5e0` (PARANOIA / AMUSEMENT_ITEM_PRESS), `32011f50`, `32028790`, PlayEmotion's EmotionData path (`320443c5`); `31f64040` (dead), the 238 class sites (checklist 7c), `SetEffectAlpha_LUA`.
+- *June quirks kept verbatim:* JUNE_BUGS 147 (slash-trace alpha compounds every frame), 148 (displayer overwrites with the creator's 0).
+- Census: `census_completion.py` names the flag for "Effect-alpha option".
+`BUILD OK` x2.exe 19,497,472 B; `DEPLOY OK: X2_offline.exe is 19,497,472 B, dated 2026-10-09 18:00:11, md5 153e7bab5aca8b64f82c514f7c837cc5, equal to X2/US_SERVICE/x2.exe (2026-10-09 18:00:06); built at mods/june-buff-port 11d0f38 + 27 uncommitted code file(s).` The strings `JUNE_FX alpha set=%s`, `MY_EFFECT_ALPHA` and `CreateApplyAlphaParticleSequence_LUA` are in the deployed exe.
+**How to see it in game:** `GameOptions.lua` in the game dir now has `MY_EFFECT_ALPHA = 0.3` and `ANOTHER_TEAM_EFFECT_ALPHA = 0.3` (backup `db_backup/GameOptions.lua.pre_C10b2`). With jtLordKnight (class 100, Lv 80) in a dungeon with the AI party: my skill effects, the monsters' effects, the bots' bodies / weapons / effects are faded; my own body and weapon are not. After a clean exit `GameOptions.lua` still holds `0.300000` for both keys.
+**Open:** none for the user except the play-test. Hygiene lines are in the post-commit note below.
+
 ## C11 - Verification on June data
 
 **Status: not started. Model:** Sonnet 5, high. A dev-console pass in the same shape as the rebuild

@@ -154,6 +154,11 @@ public:
 	/// June templet +0xbc: the creator's GetPowerRate() when the buff was applied (3236d400, the top of
 	/// SetFactor; ctor 326c48a0 sets 1.0). June's custom-function SetFactor passes it on (32e79b00).
 	float GetCreatorPowerRate() const { return m_fCreatorPowerRate; }
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	/// C10b-2: the creator's UID (June templet +0xb0) and whether it is not a user (+0xb8), for the effect-set displayer's creator lookup
+	UidType GetJuneCreatorUID() const { return m_uidJuneCreator; }
+	bool IsJuneCreatorNotUser() const { return m_bJuneCreatorNotUser; }
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
 //}}

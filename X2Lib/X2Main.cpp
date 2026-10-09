@@ -3919,6 +3919,11 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Game>( L, "GetElapsedTimeAfterLastKeyboardInput",	&CX2Game::GetElapsedTimeAfterLastKeyboardInput );
 	lua_tinker::class_def<CX2Game>( L, "PauseNPCAI",							&CX2Game::PauseNPCAI );
 	lua_tinker::class_def<CX2Game>( L, "KillAllNPC_LUA",						&CX2Game::KillAllNPC_LUA );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// June2017 C10b-2: 31d95080 @31ddfa54 / @31ddfd6b. March's deployed SMITH_CART.lua (data037) already calls the first.
+	lua_tinker::class_def<CX2Game>( L, "CreateApplyAlphaParticleSequence_LUA",	&CX2Game::CreateApplyAlphaParticleSequence_LUA );
+	lua_tinker::class_def<CX2Game>( L, "CreateApplyAlphaMeshInstance_LUA",		&CX2Game::CreateApplyAlphaMeshInstance_LUA );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	lua_tinker::class_def<CX2Game>( L, "KillNPC",								&CX2Game::KillNPC );
 	lua_tinker::class_def<CX2Game>( L, "EnableAllNPCAI",						&CX2Game::EnableAllNPCAI );
 	lua_tinker::class_def<CX2Game>( L, "SetFreeCamera",							&CX2Game::SetFreeCamera);

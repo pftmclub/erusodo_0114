@@ -2513,6 +2513,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		bool						GetDyingStart() const { return m_bDyingStart; }
 
 		virtual bool				IsMyUnit()	const		= NULL;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		/// June2017 C10b-2: vslot 0x418, the effect-alpha category an owned NPC carries (0 for everything else: a user's own body and weapon never fade)
+		virtual BYTE				GetOwnedEffectAlphaCondition() const { return 0; }
+		/// June2017 C10b-2: vslot 0x41c ( 3208ddc0, a no-op ), the owner's say on its own category; a user overrides it
+		virtual void				JuneOverrideEffectAlphaCondition( BYTE* pbyResult ) const {}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		virtual bool				IsLocalUnit() const		= NULL;
 		virtual bool				IsFocusUnit() const		= NULL;
 		virtual void				RenderName()		= NULL;

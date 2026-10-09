@@ -11439,6 +11439,123 @@ void CX2Game::PauseNPCAI( float fTime )
 
 
 // 운영자 이상 치트용으로만 사용
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+/// June2017 CX2Game::GetEffectAlphaCondition 322d4d10: the effect-alpha category of an effect's owner. 0 (none) unless there is a my-unit, an
+/// owner and CX2Main's CX2GameEdit (always allocated in this build). A user owner is mine when it is the my-unit (vslot 0x1a8 = IsMyUnit,
+/// 31fc7b20); an NPC owner (3276b2b0) when its owner unit's UID is my unit's. Mine -> 2; otherwise the team differs from my unit's -> 4, else 3.
+/// The owner's override (vslot 0x41c, a no-op but for a user in the start / win / lose states) may then set 1 (never fade).
+BYTE CX2Game::GetEffectAlphaCondition( CX2GameUnit* pOwner )
+{
+	BYTE byResult = CKTDXApp::AEACBO_NONE;
+
+	CX2GUUser* pMyUnit = GetMyUnit();
+	if( NULL != pMyUnit && NULL != pOwner && NULL != g_pMain && NULL != g_pMain->GetGameEdit() )
+	{
+		bool bMine = false;
+		if( CX2GameUnit::GUT_USER == pOwner->GetGameUnitType() )
+			bMine = pOwner->IsMyUnit();
+		else if( CX2GameUnit::GUT_NPC == pOwner->GetGameUnitType() )
+			bMine = ( static_cast<CX2GUNPC*>( pOwner )->GetOwnerGameUnitUID() == pMyUnit->GetUnitUID() );
+
+		if( true == bMine )
+			byResult = CKTDXApp::AEACBO_MY_EFFECT;
+		else if( pOwner->GetTeam() != pMyUnit->GetTeam() )
+			byResult = CKTDXApp::AEACBO_ANOTHER_TEAM_EFFECT;
+		else
+			byResult = CKTDXApp::AEACBO_MY_TEAM_EFFECT;
+
+		pOwner->JuneOverrideEffectAlphaCondition( &byResult );
+	}
+
+	return byResult;
+}
+
+/// June2017 32296d60: a particle sequence takes its owner's category (sequence +0x1b0)
+void CX2Game::JuneTagEffectAlphaParticle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequence* pSeq )
+{
+	if( NULL != pSeq )
+		pSeq->SetEffectAlphaCondition( GetEffectAlphaCondition( pUnit ) );
+}
+
+/// June2017 32296da0: the same for a handle on the major (bMinor false) or minor particle system
+void CX2Game::JuneTagEffectAlphaParticleHandle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequenceHandle hSeq, bool bMinor )
+{
+	CKTDGParticleSystem* pParticleSystem = ( true == bMinor ? GetMinorParticle() : GetMajorParticle() );
+	if( NULL == pParticleSystem )
+		return;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = pParticleSystem->GetInstanceSequence( hSeq );
+	if( NULL != pSeq )
+		pSeq->SetEffectAlphaCondition( GetEffectAlphaCondition( pUnit ) );
+}
+
+/// June2017 32296e40: 32296da0 over an array of handles
+void CX2Game::JuneTagEffectAlphaParticleHandles( CX2GameUnit* pUnit, const CKTDGParticleSystem::CParticleEventSequenceHandle* pHandles, int iCount, bool bMinor )
+{
+	if( NULL == pHandles )
+		return;
+
+	for( int i = 0; i < iCount; ++i )
+		JuneTagEffectAlphaParticleHandle( pUnit, pHandles[i], bMinor );
+}
+
+/// June2017 32296ee0: a mesh instance takes its owner's category (mesh +0x4a8 and its two slash traces)
+void CX2Game::JuneTagEffectAlphaMesh( CX2GameUnit* pUnit, CKTDGXMeshPlayer::CXMeshInstance* pMesh )
+{
+	if( NULL != pMesh )
+		pMesh->SetEffectAlphaCondition( GetEffectAlphaCondition( pUnit ) );
+}
+
+/// June2017 32296f30: an effect-set instance (on the UI effect-set manager with bByPointer, else this game's) takes byCategory when it is not 0,
+/// else its owner's category (instance +0x1bc)
+void CX2Game::JuneTagEffectAlphaEffectSet( CX2GameUnit* pUnit, CX2EffectSet::Handle hEffectSet, BYTE byCategory, bool bByPointer )
+{
+	CX2EffectSet* pEffectSet = ( true == bByPointer ? ( NULL != g_pData ? g_pData->GetUIEffectSet() : NULL ) : GetEffectSet() );
+	if( NULL == pEffectSet )
+		return;
+
+	CX2EffectSet::EffectSetInstance* pInstance = pEffectSet->GetEffectSetInstance( hEffectSet );
+	if( NULL != pInstance )
+		pInstance->m_byEffectAlphaCondition = ( 0 != byCategory ? byCategory : GetEffectAlphaCondition( pUnit ) );
+}
+
+/// June2017 322f2660 (Lua CreateApplyAlphaParticleSequence_LUA): CreateSequence on the major / minor particle system, then the owner tag when a unit is given
+CKTDGParticleSystem::CParticleEventSequence* CX2Game::CreateApplyAlphaParticleSequence_LUA( bool bMajor, CX2GameUnit* pUnit, const char* pSequenceName, D3DXVECTOR3 pos, D3DXVECTOR2 emitRate, D3DXVECTOR2 trigger )
+{
+	CKTDGParticleSystem* pParticleSystem = ( true == bMajor ? GetMajorParticle() : GetMinorParticle() );
+	if( NULL == pParticleSystem )
+		return NULL;
+
+	wstring wstrSequenceName;
+	ConvertUtf8ToWCHAR( wstrSequenceName, pSequenceName );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = pParticleSystem->CreateSequence( pUnit, wstrSequenceName.c_str(),
+		pos.x, pos.y, pos.z, emitRate.x, emitRate.y, -1, (int)trigger.x, trigger.y );
+
+	if( NULL != pUnit )
+		JuneTagEffectAlphaParticle( pUnit, pSeq );
+
+	return pSeq;
+}
+
+/// June2017 322f2720 (Lua CreateApplyAlphaMeshInstance_LUA): CreateInstance on the major / minor mesh player, then the owner tag when a unit is given
+CKTDGXMeshPlayer::CXMeshInstance* CX2Game::CreateApplyAlphaMeshInstance_LUA( bool bMajor, CX2GameUnit* pUnit, const char* pMeshName, D3DXVECTOR3 pos, D3DXVECTOR3 angleDegree, D3DXVECTOR3 moveAxisDegree, int iLayer )
+{
+	CKTDGXMeshPlayer* pMeshPlayer = ( true == bMajor ? GetMajorXMeshPlayer() : GetMinorXMeshPlayer() );
+	if( NULL == pMeshPlayer )
+		return NULL;
+
+	wstring wstrMeshName;
+	ConvertUtf8ToWCHAR( wstrMeshName, pMeshName );
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMesh = pMeshPlayer->CreateInstance( pUnit, wstrMeshName.c_str(), pos, angleDegree, moveAxisDegree, iLayer );
+
+	if( NULL != pUnit )
+		JuneTagEffectAlphaMesh( pUnit, pMesh );
+
+	return pMesh;
+}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 void CX2Game::KillAllNPC_LUA( bool bActiveOnly /* = true */ )
 {
 #ifndef _SERVICE_

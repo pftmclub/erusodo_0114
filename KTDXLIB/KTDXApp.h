@@ -109,6 +109,47 @@ class CKTDXApp
 		IDirect3DDevice9*	GetDevice(){ return m_pd3dDevice; }
 		HWND				GetHWND(){ return m_hWnd; }
 		HINSTANCE			GetHInstance(){ return m_hInstance; }
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// June2017 C10b-2: the effect-alpha game option, three floats on CKTDXApp so the KTDXLIB renderers can read them.
+		// Name and values are June's APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION (Enum.lua AEACBO_*).
+		enum APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
+		{
+			AEACBO_NONE					= 0,
+			AEACBO_NOT_APPLY			= 1,
+			AEACBO_MY_EFFECT			= 2,
+			AEACBO_MY_TEAM_EFFECT		= 3,
+			AEACBO_ANOTHER_TEAM_EFFECT	= 4,
+		};
+
+		/// June 31be2a90: alpha <= 0.1 -> 0.1, alpha >= 1.0 -> 1.0; category 2 / 3 / 4 store, anything else stores nothing
+		void	SetEffectAlpha( BYTE byCategory, float fAlpha )
+		{
+			if( fAlpha <= 0.1 )
+				fAlpha = 0.1f;
+			if( fAlpha >= 1.0 )
+				fAlpha = 1.0f;
+
+			switch( byCategory )
+			{
+			case AEACBO_MY_EFFECT:				m_fEffectAlphaMy = fAlpha;				break;
+			case AEACBO_MY_TEAM_EFFECT:			m_fEffectAlphaMyTeam = fAlpha;			break;
+			case AEACBO_ANOTHER_TEAM_EFFECT:	m_fEffectAlphaAnotherTeam = fAlpha;		break;
+			default:							break;
+			}
+		}
+
+		/// June 31be2b00: 2 / 3 / 4 give the stored value, every other category (0 none, 1 not apply) gives 1.0
+		float	GetEffectAlpha( BYTE byCategory ) const
+		{
+			switch( byCategory )
+			{
+			case AEACBO_MY_EFFECT:				return m_fEffectAlphaMy;
+			case AEACBO_MY_TEAM_EFFECT:			return m_fEffectAlphaMyTeam;
+			case AEACBO_ANOTHER_TEAM_EFFECT:	return m_fEffectAlphaAnotherTeam;
+			default:							return 1.0f;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
         //{{ seojt // 2009-1-14, 20:49
         DWORD               GetMainThreadID() const { return m_dwMainThreadID; }
         //}} seojt // 2009-1-14, 20:49
@@ -409,6 +450,11 @@ class CKTDXApp
 #endif CONVERSION_VS
 		HWND					m_hWnd;
 		HINSTANCE				m_hInstance;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		float					m_fEffectAlphaMy;				/// June CKTDXApp +0x2d8
+		float					m_fEffectAlphaMyTeam;			/// June +0x2dc
+		float					m_fEffectAlphaAnotherTeam;		/// June +0x2e0
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
         //{{ seojt // 2009-1-14, 20:49
         /// main thread의 ID를 가진다. GetCurrentThreadID()를 호출하여
         /// 함수가 main thread에서 호출되는지 어떤지를 검사하기 위해서 사용한다.

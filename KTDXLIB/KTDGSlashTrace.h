@@ -119,6 +119,9 @@ class CKTDGSlashTrace : public CKTDGObject
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		void	SetEffectAlphaCondition( BYTE byEffectAlphaCondition ){ m_byEffectAlphaCondition = byEffectAlphaCondition; }	/// June2017 CXMeshInstance 31c83620 -> +0x268
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 protected:
 		void	PushRenderBuffer( D3DXVECTOR3 posUp, D3DXVECTOR3 posDown, D3DXCOLOR color, bool bColorGradation, bool bTexturedSlashTrace = false, float fTextureStride = 0.f );
 
@@ -142,6 +145,9 @@ private:
         int                     m_iSlashVertexList_StartIndex;
 #endif  X2OPTIMIZE_DYNAMICVB_SUPPORT_SPLIT_DATA
 		bool					m_bHasVisibleVertex;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		BYTE					m_byEffectAlphaCondition;	/// June2017 CKTDGSlashTrace +0x268: APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION, set by the owning mesh instance
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef TEXTURED_SLASH_TRACE_TEST
 		bool							m_bEnabledSlashTraceTexture;

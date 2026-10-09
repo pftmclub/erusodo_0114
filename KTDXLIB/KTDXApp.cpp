@@ -184,6 +184,12 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 #else
 	g_pKTDXApp = this;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// June2017 CKTDXApp ctor 31c17ed0 @31c18ddb: the three effect-alpha values start at 1.0
+	m_fEffectAlphaMy			= 1.0f;
+	m_fEffectAlphaMyTeam		= 1.0f;
+	m_fEffectAlphaAnotherTeam	= 1.0f;
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #if !defined(X2VIEWER)
     std::wstring wstrGeneralStringFileName( L"General.ess" );

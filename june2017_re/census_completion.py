@@ -46,7 +46,7 @@ SYSTEM_DISPOSITION = {
                              'D7 2026-10-06: C1a found every block uses June reform skill IDs no March character learns'),
     'Applied skill ID': ('handed-off', '%s section 1 (character ports: June skill reform)' % CHECKLIST, None,
                          'D7 2026-10-06: its readers (numerical override, memo/ultimate gate) need the June skill system'),
-    'Effect-alpha option': ('build', 'C10', None, 'D2 2026-10-05: build'),
+    'Effect-alpha option': ('build', 'C10', 'SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION', 'D2 2026-10-05: build (C10b-2 2026-10-09, engine; the option UI goes to the June UI port, D9)'),
     'HP-rate damage': ('build', 'C10', 'SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE', 'D4 2026-10-05: build (C10b-1 2026-10-07)'),
     'Combination point': ('handed-off', '%s section 3 (Lu/Ciel port)' % CHECKLIST, None,
                           'D5 2026-10-06: C2 found the only reader in CX2GULuciel (32b14bc0); port it with Lu/Ciel'),

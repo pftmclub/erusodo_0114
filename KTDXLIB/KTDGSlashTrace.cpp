@@ -42,6 +42,9 @@ CKTDGSlashTrace::CKTDGSlashTrace( int vertexNum, bool bTexturedSlashTrace /*= fa
 
     SetAlphaObject( true );
 	m_bHasVisibleVertex	= false;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	m_byEffectAlphaCondition	= 0;
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	
 	m_VertexNum			= vertexNum;
 	m_pSlashVertexList	= new VERTEX_SLASH_TRACE[m_VertexNum];
@@ -235,6 +238,11 @@ HRESULT CKTDGSlashTrace::OnFrameMove( float fElapsedTime )
 		for( int i=0; i<m_VertexNum; i++ )
 		{
 			tempColor = m_pSlashVertexList[i].color;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+			// June2017 CKTDGSlashTrace::OnFrameMove 31d39320 @31d39402: the vertex alpha is the option's alpha times its stored alpha, before
+			// the fade below. The product is stored back every frame (June's own behaviour, JUNE_BUGS 147).
+			tempColor.a *= g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 			if( tempColor.a > 0.f  )
 			{
 				tempColor.a -= (fElapsedTime / m_DisableTime);
@@ -273,6 +281,10 @@ HRESULT CKTDGSlashTrace::OnFrameMove( float fElapsedTime )
 			for( int i=0; i<m_VertexNum; i++ )
 			{
 				tempColor = m_pSlashVertexTexturedList[j].color;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				// June2017 31d39320 @31d396eb: the same product for the textured list
+				tempColor.a *= g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				if( tempColor.a > 0.f  )
 				{
 					tempColor.a -= (fElapsedTime / m_DisableTime);

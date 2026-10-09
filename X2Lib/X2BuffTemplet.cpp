@@ -1449,6 +1449,12 @@ void CX2CustomFunctionByBuffPhantomSword::InitializeMeshThirdBaldeCenter( CX2Gam
 			pMeshInstCenter->OnFrameMove( g_pKTDXApp->GetTime(), 0.01f );
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// June2017 CX2CustomFunctionByBuffPhantomSword::InitializeMeshThirdBaldeCenter 3236d920 @3236dbc6, after the mesh block (the helper takes NULL): the mesh
+	// takes the unit's effect-alpha category
+	if( NULL != g_pX2Game )
+		g_pX2Game->JuneTagEffectAlphaMesh( pGameUnit_, pMeshInstCenter );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 }
 
 /** @function : CreateAndInsertThirdBladeData

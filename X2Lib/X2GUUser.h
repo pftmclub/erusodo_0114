@@ -1721,6 +1721,9 @@ public:
 		void						SendFrameData();
 
 		virtual bool				IsMyUnit() const;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		virtual void				JuneOverrideEffectAlphaCondition( BYTE* pbyResult ) const;	/// June2017 31fd8350
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		virtual bool				IsLocalUnit() const;
 		virtual bool				IsFocusUnit() const;
 

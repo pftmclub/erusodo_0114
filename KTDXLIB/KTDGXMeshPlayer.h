@@ -1275,6 +1275,10 @@ public:
 #ifdef SEASON3_MONSTER_2010_12
 				void SetScale_LUA( float fX, float fY, float fZ ){ SetScale( fX, fY, fZ ); }
 #endif SEASON3_MONSTER_2010_12
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				void SetEffectAlphaCondition( BYTE byEffectAlphaCondition );	/// June2017 31c83620: +0x4a8, and the two slash traces
+				BYTE GetEffectAlphaCondition() const { return m_byEffectAlphaCondition; }
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				//}} JHKang / 강정훈 / 2010/12/21 / 함수 형태 문제로 Lua에서 사용할 SetScale_LUA 생성
 
 //#ifdef GIANT_UNIT_GIANT_EFFECT_TEST
@@ -1599,6 +1603,9 @@ public:
 				bool						m_bSlashTrace;
 				CKTDGSlashTrace*			m_pSlashTrace;
 				CKTDGSlashTrace*			m_pSlashTraceTip;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				BYTE						m_byEffectAlphaCondition;	/// June2017 CXMeshInstance +0x4a8 (ctor default 0 @31c8d246): APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 				CKTDXDeviceXSkinMesh::MultiAnimFrame*			m_pFrame_TRACE_START0;
 				CKTDXDeviceXSkinMesh::MultiAnimFrame*			m_pFrame_TRACE_END0;	

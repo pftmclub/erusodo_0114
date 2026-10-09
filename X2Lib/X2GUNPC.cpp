@@ -1765,6 +1765,9 @@ CX2GUNPC::CX2GUNPC( int unitIndex, int teamNum, int uid, const CX2UnitManager::N
 #ifdef ALWAYS_EVENT_MONSTER_ALPHA_BLEND
 , m_bForceColor(false)
 #endif ALWAYS_EVENT_MONSTER_ALPHA_BLEND
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+, m_byEffectAlphaCondition( 0 )
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 {
 
 	//if( NULL == pNPCTemplet )
@@ -1892,6 +1895,9 @@ CX2GUNPC::CX2GUNPC( const CNpcCreatedInfoPtr NpcCreatedInfoPtr_
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 , m_iJuneAbsoluteMonsterState( 0 )		/// June ctor @327b1bd5
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+, m_byEffectAlphaCondition( 0 )
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 {
     if ( pNPCUnitInfo == NULL || pNPCUnitInfo->m_pInitData == NULL )
 		return;
@@ -20408,6 +20414,11 @@ void CX2GUNPC::CommonFrameMove_TimedEvent()
 						}
 
 						pSeq->SetScaleFactor(pParticleEffectData->m_vScale); // added by wonpok
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+						// June2017 CX2GUNPC::CommonFrameMove_TimedEvent 327970d0 @327975f9, after the scale factor: the particle takes this NPC's category
+						if( NULL != g_pX2Game )
+							g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 					}
 
@@ -24782,8 +24793,24 @@ RENDER_HINT CX2GUNPC::OnFrameRender_Prepare()
 
     RENDER_HINT renderHintResult = m_pXSkinAnim->OnFrameRender_Prepare();
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+    if ( renderHintResult.m_eHint != RENDER_HINT::NORENDER )
+    {
+        m_pXSkinAnim->SetInstantShow( true );
+
+        // June2017 CX2GUNPC render-param setup @3276fae0-3276fb35, right after the skin's OnFrameRender_Prepare and SetInstantShow( true ): an owned NPC's
+        // body takes the option's alpha for its category (a < 1: bAlphaBlend on, colour alpha multiplied; June does not touch the blend factors here).
+        const float fJuneEffectAlpha = g_pKTDXApp->GetEffectAlpha( GetOwnedEffectAlphaCondition() );
+        if( fJuneEffectAlpha < 1.0f )
+        {
+            pRenderParam->bAlphaBlend = true;
+            pRenderParam->color.a *= fJuneEffectAlpha;
+        }
+    }
+#else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
     if ( renderHintResult.m_eHint != RENDER_HINT::NORENDER )
         m_pXSkinAnim->SetInstantShow( true );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
     if ( !IsRecursivelyManagedByDGManager() && !m_vecpWeapon.empty() )
     {
@@ -32233,6 +32260,12 @@ void    CX2GUNPC::SetOwnerGameUnit( CX2GUUser* pOwnerGameUnit_ )
 {
     if ( pOwnerGameUnit_ != NULL )
         m_optrOwnerGameUnit = pOwnerGameUnit_;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+    // June2017 CX2GUNPC::SetOwnerGameUnit 327765e0 @32776663: +0x9074 = g_pX2Game->GetEffectAlphaCondition( the owner argument ). The AI-party bots are created
+    // as NAT_ALLY NPCs owned by my unit, so they are my summons here too (category 2): their bodies, weapons and effects fade with MY_EFFECT_ALPHA.
+    if ( NULL != g_pX2Game )
+        m_byEffectAlphaCondition = g_pX2Game->GetEffectAlphaCondition( pOwnerGameUnit_ );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 }
 #endif  X2OPTIMIZE_UNITTYPE_BUG_FIX
 #endif  DUNGEON_RANK_NEW

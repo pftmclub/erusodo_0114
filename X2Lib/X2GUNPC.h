@@ -2082,6 +2082,9 @@ class CX2GUNPC : public CX2GameUnit
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 
 		virtual bool				IsMyUnit() const;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		virtual BYTE				GetOwnedEffectAlphaCondition() const { return m_byEffectAlphaCondition; }	/// June2017 32755a90
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		virtual bool				IsLocalUnit() const;
 		virtual bool				IsFocusUnit() const;
 		void						SetUID( int uid ){ m_UnitUID = uid; }
@@ -4377,6 +4380,9 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SEASON3_MONSTER_2010_12
 		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hSeqDrainHPEffect;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		BYTE						m_byEffectAlphaCondition;	/// June2017 CX2GUNPC +0x9074 (0 at construction): the category of this NPC's owner, stored by SetOwnerGameUnit
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		//}} 
 
 		//{{ JHKang / 강정훈 / 2011/02/21 / 소환된 유닛이 NPC(몬스터)에게 준 데미지

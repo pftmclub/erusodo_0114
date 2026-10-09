@@ -6375,3 +6375,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION needs SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June effect completion C10b-2 (JUNE2017_EFFECT_COMPLETION_PHASES.md, C10). June's effect-alpha game
+//              option engine: CKTDXApp stores three floats (my / my team / other team, default 1.0, set clamped to
+//              [0.1, 1.0], 31be2a90 / 31be2b00), GameOptions.lua carries MY_EFFECT_ALPHA / MY_TEAM_EFFECT_ALPHA /
+//              ANOTHER_TEAM_EFFECT_ALPHA (324214a0 / 3241ef40), CX2Game::GetEffectAlphaCondition (322d4d10) gives an
+//              effect owner's category (2 mine, 3 my team, 4 other team; 1 = never fade), and the effect-set,
+//              damage-effect, mesh, particle and slash-trace readers multiply their alpha by the category's value.
+//              Owned NPCs (summons, the offline AI-party bots) fade their body and weapon too. The option UI is June's
+//              GFx and goes to the June UI port (D9); only GameOptions.lua drives it here. Log tag: JUNE_FX alpha
+//              (SERV_IRUHADEV_JUNE_FX_DEBUG).
+#define SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#if defined(SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION) && !defined(SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME)
+#error SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME ( it retires that flag's effect-alpha log lines )
+#endif
+#if defined(SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION) && !defined(SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION)
+#error SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION needs SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION ( the buff creator uid, for the effect-set displayer )
+#endif
+#if defined(SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION) && !defined(SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE)
+#error SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION needs SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE ( the PlayEmotion effect-set tag )
+#endif
+//////////////////////////////////////////////////////////////////////////

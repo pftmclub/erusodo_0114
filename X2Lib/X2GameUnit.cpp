@@ -11098,6 +11098,18 @@ RENDER_HINT CX2GameUnit::Weapon::OnFrameRender_Prepare()
 	    CKTDGXRenderer::RenderParam* pRenderParam = m_pXSkinWeapon->GetRenderParam();
         ASSERT( pRenderParam != NULL );
 	    *pRenderParam = GetOwnerUnit().GetUnitRenderParam();
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// June2017 CX2GameUnit::Weapon render-param prepare 32273230 @322732e6: right after the unit's render-param copy, an owned NPC's weapon takes the
+		// option's alpha for its category (a user returns category 0, so this is 1.0 for a user's weapon).
+		{
+			const float fJuneEffectAlpha = g_pKTDXApp->GetEffectAlpha( GetOwnerUnit().GetOwnedEffectAlphaCondition() );
+			if( fJuneEffectAlpha < 1.0f )
+			{
+				pRenderParam->bAlphaBlend = true;
+				pRenderParam->color.a *= fJuneEffectAlpha;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 	    if( GetOwnerUnit().GetRemainHyperModeTime() > 0.0f )
 	    {
@@ -17915,6 +17927,9 @@ void CX2GameUnit::SetStartOfDelayedFiringEmoticon()		/// 지연의 신호탄 이모티콘 
 
 	int  iLocalUnitArrowCount	= 0;					/// 로컬 유닛이 적용한 화살 갯수
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	CX2GameUnit* pJuneLastLocalUnit = NULL;	/// June2017 32298eb0: the last local attacker found below (esp+0x10)
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	for( UINT i = 0; i < m_ExtraDamagePack.m_StartOfDelayedFiring.m_vecStartOfDelayedFiringData.size(); ++i)
 	{
         CX2DamageManager::StartOfDelayedFiringData* pArrowData = m_ExtraDamagePack.m_StartOfDelayedFiring.m_vecStartOfDelayedFiringData[ i ];
@@ -17929,8 +17944,16 @@ void CX2GameUnit::SetStartOfDelayedFiringEmoticon()		/// 지연의 신호탄 이모티콘 
 
 		if( NULL != pUnit )
 		{
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+			if( true == pUnit->IsLocalUnit() )
+			{
+				++iLocalUnitArrowCount;
+				pJuneLastLocalUnit = pUnit;
+			}
+#else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 			if( true == pUnit->IsLocalUnit() )
 				++iLocalUnitArrowCount;
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		}
 	}
 
@@ -17952,6 +17975,15 @@ void CX2GameUnit::SetStartOfDelayedFiringEmoticon()		/// 지연의 신호탄 이모티콘 
 			pSeqArrowOfExplosionEmoticon->SetShowObject( false );
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// June2017 CX2GameUnit::SetStartOfDelayedFiringEmoticon 32298eb0 @322990a5-322990cc: with a local attacker found, the overlap emoticon (+0x41e4) and the
+	// arrow-of-explosion emoticon (+0x41e0) go through its effect-alpha category (major particle system)
+	if( NULL != pJuneLastLocalUnit && NULL != g_pX2Game )
+	{
+		g_pX2Game->JuneTagEffectAlphaParticleHandle( pJuneLastLocalUnit, m_hStartOfDelayedFiringOverlap, false );
+		g_pX2Game->JuneTagEffectAlphaParticleHandle( pJuneLastLocalUnit, m_hSeqEnchant_ArrowOfExplosion, false );
+	}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 }
 
 void CX2GameUnit::CheckDamageEffectType( CX2DamageEffect::CEffect* pCEffect )	/// DamageEffect에서 Type이 있는 이펙트에 대해 검사

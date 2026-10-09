@@ -1756,6 +1756,13 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 			// when it is 1; any other value takes the instance's (+0x1bc, see _CreateEffectSetInstance). It then
 			// goes to the damage effect (+0xb32), the mesh (FUN_31c83620) or the particle (+0x1b0, @ 321f254a).
 			// This build has no effect-alpha option, so a set using the key is logged only (plan rule 5).
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+			// Effect completion C10b-2: June 321ee600 @321f1ec8-321f1ee4: v = this EFFECT's value, which counts only as 1 (AEACBO_NOT_APPLY); anything else
+			// takes the instance's. Handed on in the switch below: damage effect (@321f20ff), mesh (@321f2426), particle (@321f254a).
+			BYTE byJuneEffectAlphaCondition = (BYTE) pEffectData->m_iApplyEffectAlphaConditionByOption;
+			if( 1 != byJuneEffectAlphaCondition )
+				byJuneEffectAlphaCondition = pEffectSetInstance->m_byEffectAlphaCondition;
+#else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 			if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption )
 			{
 				WCHAR wszJuneScope[32] = {0};
@@ -1763,6 +1770,7 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 				JuneFxUnsupported( pEffectSetInstance->m_pEffectSetData, L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", wszJuneScope,
 					L"effect-alpha option", pEffectData->m_iApplyEffectAlphaConditionByOption, L"321f1ec8" );
 			}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
 			switch( pEffectData->m_eEffectType )
@@ -1781,6 +1789,9 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_hMeshPlayer			= INVALID_MESH_INSTANCE_HANDLE;
 						pEffectInstance->m_hParticleSequence	= INVALID_PARTICLE_SEQUENCE_HANDLE;
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+						pEffect->JuneSetEffectAlphaCondition( byJuneEffectAlphaCondition );		// June2017 321ee600 @321f20ff
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
@@ -1883,6 +1894,9 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_hMeshPlayer			= pMeshInstance->GetHandle();
 						pEffectInstance->m_hParticleSequence	= INVALID_PARTICLE_SEQUENCE_HANDLE;
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+						pMeshInstance->SetEffectAlphaCondition( byJuneEffectAlphaCondition );		// June2017 321ee600 @321f2426
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 						pEffectSetInstance->m_vecpEffectInstance.push_back( pEffectInstance );
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
@@ -2026,6 +2040,9 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 						pEffectInstance->m_hMeshPlayer			= INVALID_MESH_INSTANCE_HANDLE;
 						pEffectInstance->m_hParticleSequence	= pParticleSequence->GetHandle();
 						pEffectInstance->m_optrGameUnit			= pEffectSetInstance->m_optrGameUnit;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+						pParticleSequence->SetEffectAlphaCondition( byJuneEffectAlphaCondition );		// June2017 321ee600 @321f254a
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 						// June2017 FUN_321ee600 @ 321f2483-321f24f1: a GROUP_NAME child keeps the flag (EffectInstance +0x2c),
@@ -3263,9 +3280,34 @@ CX2EffectSet::EffectSetInstance*   CX2EffectSet::_CreateEffectSetInstance(
 	// (+0x1bc) is the templet's APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION when non-zero, else a value derived
 	// from the game options (FUN_322d4d10), for every set. This build has neither, so a set using the key is
 	// logged only (plan rule 5).
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// Effect completion C10b-2: June 321e1bf0 @321e1dac-321e1e0c, only when g_pX2Game exists: the instance's effect-alpha condition (+0x1bc) is the
+	// templet's APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION when that is non-zero, else the category of the instance's owner unit (321da020).
+	if( NULL != g_pX2Game )
+	{
+		if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
+			pEffectSetInstance->m_byEffectAlphaCondition = (BYTE) pEffectSetData->m_iApplyEffectAlphaConditionByOption;
+		else
+			pEffectSetInstance->m_byEffectAlphaCondition = g_pX2Game->GetEffectAlphaCondition( pGameUnit );
+	}
+#ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
+	// one line per effect-set templet per session: the owner, the category the instance took and the alpha that category gives
+	if( NULL != g_pX2Game && NULL != g_pKTDXApp )
+	{
+		static std::set<std::wstring> s_setJuneAlphaLogged;
+		if( true == s_setJuneAlphaLogged.insert( pEffectSetData->m_wstrEffectSetName ).second )
+		{
+			CX2OfflineLog::Server( L"JUNE_FX alpha set=%s owner=%I64d cat=%d alpha=%.2f", pEffectSetData->m_wstrEffectSetName.c_str(),
+				( NULL != pGameUnit ? (__int64) pGameUnit->GetUnitUID() : (__int64) -1 ),
+				(int) pEffectSetInstance->m_byEffectAlphaCondition, g_pKTDXApp->GetEffectAlpha( pEffectSetInstance->m_byEffectAlphaCondition ) );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_FX_DEBUG
+#else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
 		JuneFxUnsupported( pEffectSetData, L"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION", L"", L"effect-alpha option",
 			pEffectSetData->m_iApplyEffectAlphaConditionByOption, L"321e1dd7" );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
     return  pEffectSetInstance;
@@ -3937,6 +3979,9 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 			pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iAppliedSkillID );
 		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
 	}
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// Effect completion C10b-2: the effect-alpha option exists now: no 'unsupported' line for APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION.
+#else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	if( 0 != pEffectSetData->m_iApplyEffectAlphaConditionByOption )
 	{
 		WCHAR wszJuneFx[512] = {0};
@@ -3944,6 +3989,7 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 			pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iApplyEffectAlphaConditionByOption );
 		ErrorLogMsg( XEM_ERROR142, wszJuneFx );
 	}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef SERV_IRUHADEV_JUNE_FX_DEBUG
 	// JUNE_FX ES_TEMPLET <name> <key>=<v> ..., only for templets that set a June key
@@ -4159,6 +4205,9 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 		// getter, default 0, low byte kept (NEG AL / SBB AL,AL / AND AL,[temp]) - the same
 		// read as the templet level's. Unsupported (plan rule 5): logged once per templet.
 		LUA_GET_VALUE( luaManager,		"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION",	pEffectData->m_iApplyEffectAlphaConditionByOption,	0		);
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// Effect completion C10b-2: the effect-alpha option exists now: no 'unsupported' line for the effect-level key either.
+#else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		if( 0 != pEffectData->m_iApplyEffectAlphaConditionByOption && false == bJuneFxEffectAlphaLogged )
 		{
 			bJuneFxEffectAlphaLogged = true;
@@ -4167,6 +4216,7 @@ bool CX2EffectSet::AddEffectSetTemplet_LUA()
 				pEffectSetData->m_wstrEffectSetName.c_str(), iEffectTableIndex, pEffectData->m_iApplyEffectAlphaConditionByOption );
 			ErrorLogMsg( XEM_ERROR142, wszJuneFx );
 		}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 		// June2017 FUN_321e48e0 @ 321ea63a-321ea64b: which sub-tables are read depends on
 		// EFFECT_TYPE. 1 (ET_DAMAGE_EFFECT) reads APPLY_DAMAGE_EFFECT_VELOCITY; 2..5 (the four
@@ -4725,6 +4775,9 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 , m_fElapsedTime( 0.f )
 , m_bUseAnimationTiming( true )
 , m_iCurrDeleteShakeCount( 0 )
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+, m_byEffectAlphaCondition( 0 )
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 #ifdef SERV_PET_SYSTEM
 , m_pPet( pPet )
 #endif

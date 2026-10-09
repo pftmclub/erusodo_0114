@@ -746,6 +746,9 @@ public:
 		std::vector< bool >				m_vecCameraShakeDone;
 		float							m_fPrevElapsedTime;
 		float							m_fElapsedTime;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		BYTE							m_byEffectAlphaCondition;		// June2017 EffectSetInstance +0x1bc (ctor default 0 @321df516): APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 
 		bool							m_bUseAnimationTiming;		// 유닛의 애니메이션 타이밍에 맞춰서 이펙트를 생성하는지 아닌지

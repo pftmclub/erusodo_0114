@@ -471,6 +471,17 @@ class CX2Game : public CKTDXStage
 //#endif  SERV_OPTIMIZE_ROBUST_USER_NPC_PACKET_SEND
 		
 		virtual CX2GUUser*			GetMyUnit()	const			{ return ( null != m_optrMyUnit ? static_cast<CX2GUUser*>( m_optrMyUnit.GetObservable() ) : NULL ); }
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// June2017 C10b-2: the effect-alpha option's category of an effect owner (CKTDXApp::AEACBO_*) and the helpers that tag what an owner creates
+		BYTE						GetEffectAlphaCondition( CX2GameUnit* pOwner );											/// 322d4d10
+		void						JuneTagEffectAlphaParticle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequence* pSeq );	/// 32296d60
+		void						JuneTagEffectAlphaParticleHandle( CX2GameUnit* pUnit, CKTDGParticleSystem::CParticleEventSequenceHandle hSeq, bool bMinor );	/// 32296da0
+		void						JuneTagEffectAlphaParticleHandles( CX2GameUnit* pUnit, const CKTDGParticleSystem::CParticleEventSequenceHandle* pHandles, int iCount, bool bMinor );	/// 32296e40
+		void						JuneTagEffectAlphaMesh( CX2GameUnit* pUnit, CKTDGXMeshPlayer::CXMeshInstance* pMesh );		/// 32296ee0
+		void						JuneTagEffectAlphaEffectSet( CX2GameUnit* pUnit, CX2EffectSet::Handle hEffectSet, BYTE byCategory, bool bByPointer );	/// 32296f30
+		CKTDGParticleSystem::CParticleEventSequence*	CreateApplyAlphaParticleSequence_LUA( bool bMajor, CX2GameUnit* pUnit, const char* pSequenceName, D3DXVECTOR3 pos, D3DXVECTOR2 emitRate, D3DXVECTOR2 trigger );	/// 322f2660
+		CKTDGXMeshPlayer::CXMeshInstance*				CreateApplyAlphaMeshInstance_LUA( bool bMajor, CX2GameUnit* pUnit, const char* pMeshName, D3DXVECTOR3 pos, D3DXVECTOR3 angleDegree, D3DXVECTOR3 moveAxisDegree, int iLayer );	/// 322f2720
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		virtual CX2GameUnit*		GetFocusUnit() const		{ return ( null != m_optrFocusUnit ? m_optrFocusUnit.GetObservable() : NULL ); }
 		D3DXVECTOR3					GetFocusUnitPos_LUA();
 		

@@ -936,6 +936,9 @@ class CX2DamageEffect
 
 
 				CKTDGXMeshPlayer::CXMeshInstanceHandle GetMainEffectHandle() { return m_hMeshInstHandle; }
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				void JuneSetEffectAlphaCondition( int iEffectAlphaCondition ){ m_iApplyEffectAlphaConditionByOption = iEffectAlphaCondition; }	/// June2017 CEffect +0xb32
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				CKTDGXMeshPlayer::CXMeshInstance* GetMainEffect();
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 				// June2017 FUN_31f75570, called by the EffectSet's EffectInstance::SetShowObject (FUN_321de0c0):

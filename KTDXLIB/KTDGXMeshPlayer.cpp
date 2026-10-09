@@ -1415,6 +1415,9 @@ CKTDGXMeshPlayer::CXMeshInstance::CXMeshInstance( CKTDGXMeshPlayer* pMeshPlayer,
 	m_bSlashTrace		= false;
 	m_pSlashTrace		= NULL;
 	m_pSlashTraceTip	= NULL;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	m_byEffectAlphaCondition	= 0;		/// June2017 31c8d246
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 
 #ifdef PARTICLE_NOTAPPLY_UNITSCALE
@@ -1727,6 +1730,18 @@ void CKTDGXMeshPlayer::CXMeshInstance::ChangeAnimByTrigger( const WCHAR* wszAnim
 
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+/// June2017 31c83620: the category goes to the mesh and, when they exist, to both slash traces (+0x620 / +0x624)
+void CKTDGXMeshPlayer::CXMeshInstance::SetEffectAlphaCondition( BYTE byEffectAlphaCondition )
+{
+	m_byEffectAlphaCondition = byEffectAlphaCondition;
+
+	if( NULL != m_pSlashTrace )
+		m_pSlashTrace->SetEffectAlphaCondition( byEffectAlphaCondition );
+	if( NULL != m_pSlashTraceTip )
+		m_pSlashTraceTip->SetEffectAlphaCondition( byEffectAlphaCondition );
+}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElapsedTime )
 {
 	m_fElapsedTime		= fElapsedTime;
@@ -2106,6 +2121,22 @@ HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElap
 #ifdef ADD_ALPHATESTENABLE
 		pParam->bAlphaTestEnable	= m_TempletData.bAlphaTestEnable;
 #endif //ADD_ALPHATESTENABLE
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// June2017 CXMeshInstance::OnFrameMove 31c87b80 @31c88cce-31c88d2f, after the render-param copy: the option's alpha for this
+		// mesh's category. Not 1.0 (IsSamef, FLT_EPSILON): the blend becomes SRCALPHA / INVSRCALPHA (a dest blend of INVSRCCOLOR or
+		// DESTALPHA is kept) and the outline and the colour alpha are multiplied. bAlphaBlend is not touched here.
+		{
+			const float fJuneEffectAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
+			if( false == IsSamef( fJuneEffectAlpha, 1.0f ) )
+			{
+				pParam->srcBlend = D3DBLEND_SRCALPHA;
+				if( D3DBLEND_INVSRCCOLOR != pParam->destBlend && D3DBLEND_DESTALPHA != pParam->destBlend )
+					pParam->destBlend = D3DBLEND_INVSRCALPHA;
+				pParam->outLineColor.a *= fJuneEffectAlpha;
+				pParam->color.a *= fJuneEffectAlpha;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 
 		m_pXSkinAnim->GetMatrix().Rotate( vRot );

@@ -1752,6 +1752,11 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// wired into behaviour, same as the EffectSet-level one (Phase 2).
 	PLUA_GET_VALUE( m_pLuaManager, "APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION",	m_iApplyEffectAlphaConditionByOption,	0 );
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// June2017 CEffect::CEffect 31f7aab0 @31f7c269-31f7c2df: +0xb32 is the key; 0 -> the category of the effect's owner
+	if( 0 == m_iApplyEffectAlphaConditionByOption && NULL != g_pX2Game )
+		m_iApplyEffectAlphaConditionByOption = g_pX2Game->GetEffectAlphaCondition( pGameUnit );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 	PLUA_GET_VALUE( m_pLuaManager, "USE_CANNONBALL",						m_bUseCannonBall,		false );
@@ -2511,6 +2516,11 @@ void CX2DamageEffect::CEffect::OnFrameMove( double fTime, float fElapsedTime )
 	{   
 		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hMeshInstHandle );
 		ASSERT( pMeshInst != NULL );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// June2017 CEffect::OnFrameMove 31f88790 @31f88928-31f88943, every frame: a main mesh that exists takes the effect's condition unless it is 1
+		if( 1 != m_iApplyEffectAlphaConditionByOption && NULL != pMeshInst )
+			pMeshInst->SetEffectAlphaCondition( (BYTE) m_iApplyEffectAlphaConditionByOption );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 		// June2017 FUN_31f88790 @31f88943-31f889e9: TRACE_OWNER_BONE. Every frame the main effect
@@ -5218,6 +5228,10 @@ void CX2DamageEffect::CEffect::AttackResult()
 
 							pInstance->m_bTraceUnitDieDeleteEffectSet = m_DamageData.m_bTraceUnitDieDeleteEffectSet;
 							pInstance->m_bCreateEffectSetTraceUnit = m_DamageData.m_bCreateEffectSetTraceUnit;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+							// June2017 CEffect::AttackResult 31f85910 @31f867e5-31f867eb: the hit effect set's instance takes this effect's condition, unconditionally
+							pInstance->m_byEffectAlphaCondition = (BYTE) m_iApplyEffectAlphaConditionByOption;
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 #ifdef ADD_RENA_SYSTEM //김창한
 							//스킬, 관련 데이터 값, 첫타인지 체크 하는 값을 상속함
@@ -7976,6 +7990,11 @@ void CX2DamageEffect::CEffect::SetParticleData( ParticleData* pData )
 		}
 	}
 #endif // ARA_CHANGE_CLASS_FIRST
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	// June2017 CEffect::SetParticleData 31f70500 @31f70e8d-31f70e98, at the end: the particle sequence takes the effect's condition unless it is 1
+	if( 1 != m_iApplyEffectAlphaConditionByOption )
+		pSeq->SetEffectAlphaCondition( (BYTE) m_iApplyEffectAlphaConditionByOption );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
 }
 

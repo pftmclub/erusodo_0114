@@ -2722,6 +2722,9 @@ CKTDGParticleSystem::CParticleEventSequence::CParticleEventSequence( CKTDGPartic
 	m_BillBoardType		= CKTDGMatrix::BT_ALL;
 
 	m_bZEnable			= true;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	m_byEffectAlphaCondition	= 0;		/// June2017 31cf795b
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	m_bZWriteEnable		= true;	
 
 
@@ -2873,6 +2876,20 @@ CKTDGParticleSystem::CParticleEventSequence::CParticleEventSequence( CKTDGPartic
 #endif
 }
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+/// June2017 CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE 31cf4ed0 @31cf580e-31cf5836: the vertex colour's alpha (its stored byte / 255)
+/// times GetEffectAlpha( category ). Category 0 / 1 give 1.0 and leave the colour as it was.
+DWORD CKTDGParticleSystem::CParticleEventSequence::JuneApplyEffectAlphaToColor( DWORD dwColor ) const
+{
+	const float fAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
+	if( 1.0f == fAlpha )
+		return dwColor;
+
+	D3DXCOLOR colorOut( dwColor );
+	colorOut.a *= fAlpha;
+	return (DWORD) colorOut;
+}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 CKTDGParticleSystem::CParticleEventSequence::~CParticleEventSequence()
 {
 	ClearAllParticle();
@@ -4023,6 +4040,9 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->color = (DWORD)pPart->m_Color;
 				pVertices->tex.x = 0.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 0.0f + pPart->GetTexStage0UV().y;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// June2017 31cf4ed0 @31cf580e (vertex 1)
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 
 				//2
@@ -4036,6 +4056,9 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->color = (DWORD)pPart->m_Color;
 				pVertices->tex.x = 0.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 1.0f + pPart->GetTexStage0UV().y;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// (vertex 2)
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 
 				//3
@@ -4049,6 +4072,9 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->color = (DWORD)pPart->m_Color;
 				pVertices->tex.x = 1.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 0.0f + pPart->GetTexStage0UV().y;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// (vertex 3; vertices 4 and 5 copy 3 and 1)
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 
 				//4
@@ -4070,6 +4096,9 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRender_VERTEX_PARTICLE(
 				pVertices->color = (DWORD)pPart->m_Color;
 				pVertices->tex.x = 1.0f + pPart->GetTexStage0UV().x;
 				pVertices->tex.y = 1.0f + pPart->GetTexStage0UV().y;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				pVertices->color = JuneApplyEffectAlphaToColor( pVertices->color );	/// (vertex 6)
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 				pVertices++;
 
 				KTDXPROFILE_END();
@@ -4857,6 +4886,21 @@ void CKTDGParticleSystem::CParticleEventSequence::OnFrameRenderMesh_Draw()
 #ifdef ADD_ALPHATESTENABLE
 		renderParam.bAlphaTestEnable = m_bAlphaTest;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		// June2017 CParticleEventSequence::OnFrameRenderMesh_Draw 31cf16b0 @31cf1888-31cf18d1, after the render-param fill: the option's alpha for this
+		// sequence's category (31ceefb0: SRCALPHA / INVSRCALPHA unless the dest blend is INVSRCCOLOR or DESTALPHA, outline and colour alpha multiplied).
+		{
+			const float fJuneEffectAlpha = g_pKTDXApp->GetEffectAlpha( m_byEffectAlphaCondition );
+			if( fabs( fJuneEffectAlpha - 1.0f ) > FLT_EPSILON )
+			{
+				renderParam.srcBlend = D3DBLEND_SRCALPHA;
+				if( D3DBLEND_INVSRCCOLOR != renderParam.destBlend && D3DBLEND_DESTALPHA != renderParam.destBlend )
+					renderParam.destBlend = D3DBLEND_INVSRCALPHA;
+				renderParam.outLineColor.a *= fJuneEffectAlpha;
+				renderParam.color.a *= fJuneEffectAlpha;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 
         g_pKTDXApp->GetDGManager()->GetXRenderer()->OnFrameRender( renderParam, matWorld, *m_pXMesh, m_pChangeTexXET, m_pMultiTexXET, m_pAniData, pPart->m_fEventTimer, m_DrawCount );
 

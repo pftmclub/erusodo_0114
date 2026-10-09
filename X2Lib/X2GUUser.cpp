@@ -14480,6 +14480,24 @@ void CX2GUUser::NotifyDGManagerChanged( CKTDGManager& refInManager_ )
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+/// June2017 CX2GUUser vslot 0x41c 31fd8350: the effect-alpha override. In the start, win or lose state (riding: the two riding-wait states that
+/// GetWinStateID / GetLoseStateID give) the category becomes 1 (AEACBO_NOT_APPLY), so a user's effects do not fade there. June reads the state id
+/// off its running-state pointer ( ( +0x7cbc - +0x7cec ) / 100 ); March's m_NowStateData.stateID is that id. June 9 / 11 / 12 / 75 / 76 = USI_START /
+/// USI_WIN / USI_LOSE / USI_RIDING_WAIT_HABIT / USI_RIDING_WAIT by name.
+/*virtual*/ void CX2GUUser::JuneOverrideEffectAlphaCondition( BYTE* pbyResult ) const
+{
+	const int iNowStateID = GetNowStateID();
+	const bool bRidingOn = GetRidingOn();
+
+	if( USI_START == iNowStateID
+		|| ( true == bRidingOn ? USI_RIDING_WAIT_HABIT : USI_WIN ) == iNowStateID
+		|| ( true == bRidingOn ? USI_RIDING_WAIT : USI_LOSE ) == iNowStateID )
+	{
+		*pbyResult = CKTDXApp::AEACBO_NOT_APPLY;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 bool CX2GUUser::IsMyUnit() const
 {
 	if( NULL != g_pX2Game && 
@@ -30461,6 +30479,13 @@ bool CX2GUUser::PlayEmotion(CX2Unit::EMOTION_TYPE eEmotionId, wstring &wstrEmoti
 				// June @32043cda / @32043ce2: +0x9438 = the emotion id, +0x943c = the handle
 				m_eJuneEmotionEffectSetEmotion = eEmotionId;
 				m_hJuneEmotionEffectSet = hJuneEffectSet;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+				// June2017 PlayEmotion 32043380 @32043cf0: 32296f30( handle, category 1, by pointer ): the instance on the UI effect-set manager never fades.
+				// Done in place: the helper does not need g_pX2Game for a fixed category, and a unit viewer has none.
+				CX2EffectSet::EffectSetInstance* pJuneEmotionInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( hJuneEffectSet );
+				if( NULL != pJuneEmotionInstance )
+					pJuneEmotionInstance->m_byEffectAlphaCondition = CKTDXApp::AEACBO_NOT_APPLY;
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 			}
 		}
 	}
