@@ -174,8 +174,17 @@ def _const_kind(ts):
         if t.kind == "kw" and t.text == "nil":
             return "nil"
     if len(ts) == 2 and ts[0].kind == "op" and ts[0].text == "-" and ts[1].kind == "num":
-        return "const"
+        # a negated zero is not folded (lj_parse bcemit_unop avoids -0): KSHORT + UNM + TSETS, an instruction (L2 review)
+        return "expr" if _is_zero(ts[1].text) else "const"
     return "expr"
+
+
+def _is_zero(num):
+    try:
+        t = num.lower()
+        return (int(t, 16) if t.startswith("0x") else float(t)) == 0
+    except ValueError:
+        return True          # unreadable: treat as not movable
 
 
 def constructor(toks, i, s):

@@ -547,7 +547,8 @@ defects were fixed (one T1 hole reachable only by a crafted dump, one T2 blind s
     functions compare by presence, metatables are not dumped, NaN payloads are not seen, an erroring chunk is compared up to the error.
 - **June mode.** `reference_of(--ref june)` is `ljconv.transcode(June)`. The decompile uses `transcode_stock` with the same table, so
   only the Ghidra check covers the table.
-  - Ghidra spot-check: `lj_dispatch_init` `0x32ffb270` copies `PTR 0x337411d8` (85 + 70 entries). Its JIT-off fixups land on stock
+  - Spot-check (Ghidra for the pointer table and `lj_dispatch_init`; handler bytes disassembled with capstone through
+    `opcode_check.py`'s PE/map helpers, compared by hand): `lj_dispatch_init` `0x32ffb270` copies `PTR 0x337411d8` (85 + 70 entries). Its JIT-off fixups land on stock
     FORL/ITERL/LOOP/FUNCF/FUNCV, so ops `0x49+` keep stock positions.
   - The pointer table matches the TSV for `00`, `01`, `1a`, `1f` and `24`. Disassembly compared myself (normalised): June `00` = March
     ISLT (`jbe`), `01` = ISGE (`ja`), `1a` = ADDVN, `1f` = ADDNV. These are the same-mode families.
@@ -557,15 +558,18 @@ defects were fixed (one T1 hole reachable only by a crafted dump, one T2 blind s
 - **Layout tidy-up (`ljsrc.py`).** Only fields with a constant key and a constant or nil value move. Every other field keeps its
   relative order, and a trailing positional item is pinned. Each round's result is kept only if T1 passes, and `prove_decompile`
   re-checks the final text. So a move that changed anything but storage order (a crossed duplicate key, a multret tail) is discarded.
-- **Self-test: PASS 517/517.**
+  - **Fixed: `-0` counted as movable.** `a = -0` (or `-0.0`, `-0x0`) is not folded by LuaJIT (`bcemit_unop` avoids `-0`): it emits
+    `KSHORT; UNM; TSETS`, yet `_const_kind` called it a constant. It was never a soundness hole, because T1 re-proves every round.
+    A negated zero now counts as an expression.
+- **Self-test: PASS 517/517** (re-run after every fix).
   - 5 new source kinds (`swap-keyed-values`, `pair-to-other-table`, `array-item-to-hash`, `nil-valued-pair`, `duplicate-key`, now
     required) and 2 new bytecode kinds (a repeated hash key reordered; an array item stored in the hash part at its own index).
   - Seeds: `ANCIENT_CRAB.lua` had no T0 source any more (June's ljconv bytecode since `a5f7298`). It was replaced by
     `PET_ANCIENT_PPORU_HALLOW_DARK.lua` and `Night_Watcher_Event.lua` (March, T0, declare locals). `Wedding_OfficiantTemplet.lua` was added.
 - **Calibration: 35 fresh known-T0 files** (`R1` per-dir 2 gave 14; `R2` per-dir 3 gave 21; rows appended to
   `june2017_re/lua_source_calibration.tsv`): T0 20, T1 9, FAIL 6.
-  - Every FAIL is an ljd defect T1 rightly rejects: 3 slotN locals, 2 constructor field order (Hamel/Velder_Battle_Ship_Field, Ara's
-    class), 1 dropped local (Shadow_Stinger_EVENT, registers one lower).
+  - Every FAIL is an ljd defect T1 rightly rejects: 3 slotN locals, 2 constructor field order (Hamel/Velder_Battle_Ship_Field, both
+    diffs read: `SIEGE_MONSTER = {}` printed last; Ara's class), 1 dropped local (Shadow_Stinger_EVENT, registers one lower).
 - **Finding for L3 (rescope).** Since `a5f7298` / `c6c8c58`, 3,639 staged `.lua` are ljconv'd June bytecode with the March `0x81`
   header. `kind()` calls them March, so `convert` would prove one against itself and write a ledger row saying origin `march`.
   `L3.md` now asks `convert` to refuse names in the two per-file TSVs and point to `adopt-june --source`.

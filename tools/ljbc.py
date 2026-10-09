@@ -14,7 +14,8 @@ T1 (Rule 1), per prototype in tree order (the main chunk first, children paired 
     constant tables (str / num / tab / cdata / func modes of lj_bc_mode) is compared by the RESOLVED value, byte for
     byte: strings and cdata by their bytes, numbers by their dump encoding (int32, or the IEEE-754 bit pattern - so
     -0.0, NaN payloads and 1 vs 1.0 all differ), TDUP templates by their contents - the array part position by
-    position, the hash part as a set of byte-exact (key, value) pairs - and FNEW children by a recursive T1 comparison;
+    position, the hash part as a set of byte-exact (key, value) pairs (byte for byte when a key repeats: the last pair wins, so
+    the order is content; L2 review) - and FNEW children by a recursive T1 comparison;
   - the constant tables are also equal as multisets (unused or duplicated constants are a difference);
   - ignored: constant-slot ORDER, and the storage order of a template's hash part (user, 2026-10-09: "as long as the
     key-value pairs are not in the wrong parent". A template is compared with the one its own TDUP instruction loads, so a

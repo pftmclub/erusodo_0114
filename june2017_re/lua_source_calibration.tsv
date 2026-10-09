@@ -295,7 +295,7 @@ review-march-t0	data034	DLG_Map_Local_Velder_South_Front.lua	18	ClientScript	0.4
 review-march-t0	data035	Dungeon_Training_common_1.lua	1126	ClientScript	0.5	T0	0	0		
 review-march-t0	data035	Dungeon_Elder_Newyear_Normal.lua	3481	ClientScript	0.5	T0	0	0		
 review-march-t0	data035	Dungeon_Training_Arme_3.lua	2089	ClientScript	0.6	T0	0	0		
-review-march-t0	data036	Velder_Battle_Ship_Field.lua	1893	ClientScript	0.5	FAIL	108	0	main pc 5: TDUP 3 template{0 array, 3 hash; 50 bytes}  vs  TNEW 3 0	ljd: constructor field order - keyed non-constant SIEGE_MONSTER = {} printed after the positional items (Ara's class); same file shape as Hamel
+review-march-t0	data036	Velder_Battle_Ship_Field.lua	1893	ClientScript	0.5	FAIL	108	0	main pc 5: TDUP 3 template{0 array, 3 hash; 50 bytes}  vs  TNEW 3 0	ljd: constructor field order - keyed non-constant SIEGE_MONSTER = {} printed after the positional items (Ara's class); confirmed from the diff (same first diff as Hamel)
 review-march-t0	data036	LocaleInfo.lua	13637	ClientScript	1.1	T0	0	0		
 review-march-t0	data036	Wedding_OfficiantTemplet.lua	1377	ClientScript	0.6	T1	0	0		
 review-march-t0	data037	Wally9th_Type2.lua	26464	ClientScript	2.5	T1	0	0		
