@@ -754,7 +754,7 @@ The literal tables are untouched (`ESSI_COMBO_X1` / `AVSI_COMBO_X1` 60, `LESI_CO
 
 ## C3d-3 - port: the bounding back-speed state
 
-**Status: code done (2026-10-09), class tables missing -> C3d-4. Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-3.md`, review `kickoffs/june-effect/C3d-3-review.md`.
+**Status: code done (2026-10-09); class tables -> character ports (C3d-4, user 2026-10-09). Model:** Sonnet 5.5, high, then an Opus review. Kickoff `kickoffs/june-effect/C3d-3.md`, review `kickoffs/june-effect/C3d-3-review.md`.
 
 - **Scope:** C3b item 2: the user RT_BOUNDING case, the three `USI_BOUNDING_*` states, the five `CX2GUUser` handlers, `m_vBoundingBackSpeed`,
   the last-attacker UID / unit type (`+0x40e0` / `+0x40e8`, written next to buff 9b's `+0x40dc` serial), the registration in March's nine
@@ -789,6 +789,34 @@ was not located, so whether June counts RT_BOUNDING hits there is unchecked.
 **Found on the way.** `SET_LIMIT_MAX_G_SPEED` (every `*_DAMAGE_BOUNDING_DOWN` carries -4000): a float state key June reads into a protected unit float (`+0x40f8`, user `@32054734`, NPC `@32787303`); March reads none. Phase **C3g**.
 
 **Hygiene.** `flagcheck --worktree` on the changed files: PASS; the commit range pass is in the commit message of the revert. **Deploy:** see the revert commit (`DEPLOY OK` line in STATUS).
+
+## C3d-4 - decide: how March's classes get June's bounding state tables
+
+**Status: done 2026-10-09 (decision, no code). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3d-4.md`.
+
+### C3d-4 - Done (2026-10-09, Opus 5.5 high; no code, no flag, no build, no kom)
+
+**User's choice: route 2. The character ports give the classes the tables.** No C3d-5 port phase. The nine March class scripts stay unedited bytecode.
+
+**Why (evidence shown to the user).**
+- **Nothing reaches RT_BOUNDING today.** A `grep RT_BOUNDING` over `june_src_fixed/` finds only data036 `DamageEffect`, `DamageEffect_Character` and `Enum`.
+  The 3,518 June NPC/dungeon scripts shipped by ljconv (`a5f7298`) have none. June's `DamageEffect.lua` is still one of the nine kept merged (D1, `c6c8c58`).
+  So the C3d-3 engine code stays dormant, and stays harmless (logged once), until the June damage effects and class scripts arrive. Those come with the character ports.
+- **Route 1 would be thrown away.** The character ports replace each class script with June's, which has the three tables inline. Adding them to March's copies now (the
+  `luasrc.py convert` edit, Ara's open TDUP order, and a monster-script edit to stage a hit) would test a path nothing uses.
+- **A wholesale swap to June's class scripts now is not a shortcut** (the user asked). Each class script pairs with that class's C++ InitState, which looks up state tables by name:
+  - March C++ asks for tables June dropped: Elsword has 35 March-only top-level tables and Raven 25, mostly the `_HYPER` awakening states the June skill rework removed.
+  - June adds states March has no handler for: Elsword 70, Raven 60.
+  - 121 June damage tables (Elsword 20, Raven 25) get their damage only from numerical skill data (checklist 1), so they would do 0 damage.
+  - `CUSTOM_RENDER_STATE` cuts off Add's and Ara's scripts (checklist 4).
+  - Method: decompile March's bytecode with `luasrc.py decompile`, then compare top-level `NAME =` sets with `june_src_fixed`.
+- Routes 3 (byte-level splice) and 4 were not pursued once route 2 was chosen.
+
+**D10 (a) amended.** The 16-bit id (C3d-1/2) and the engine half (C3d-3) stay C3d's. The registration in March's nine classes moves to the character ports.
+Each port calls `JuneInitBoundingStates( "<prefix>" )` in its class InitState and brings June's tables in its class script. That is checklist 7l, amended to cover all 12 classes.
+
+**Moved with it.** C3d-3 review's play-test legs (registration lines, a staged bounding hit) go to the first character port. The code-only part of that review is unchanged.
+**User owes nothing.**
 
 ## C3e - identify: June's user-sync packet extension
 

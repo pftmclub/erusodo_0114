@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3d-3 review` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` |
-| Depends on | C3d-3 done (its Done note and commits) and its play-test passed |
+| Depends on | C3d-3 done (its Done note and commits). There is no play-test to wait for (C3d-4) |
 | Flag | `SERV_IRUHADEV_JUNE_BOUNDING_STATE` |
 | Log tag | `JUNE_FX C3d-3` (`python tools/logs.py --grep "JUNE_FX C3d-3"`) |
 
@@ -31,7 +31,8 @@ Review C3d-3's commit(s) against the June binary (Ghidra read-only; `june2017_re
 5. **Twins checked and left alone** (the Done note gives the evidence; re-check one): March's dead `DamageReactStateChange_CheckOnly` NPC case
    (`X2OPTIMIZE_NPC_NONHOST_SIMULATION_ANALYSIS` is OFF) and the `m_FlyCount++` RT_BOUNDING case (`BOUNDING_COMBO_TEST`, OFF). **Open from the Done note:**
    whether June's DamageReact (`32045dc0`) still counts RT_BOUNDING hits in its fly count (not located by pattern). Find June's counter and decide.
-6. **Play-test legs** (registration log lines, a bounding hit) wait for C3d-4.
+6. **Play-test legs** (registration log lines, a bounding hit) are not part of this review. C3d-4 (user, 2026-10-09) left the registration to the
+   character ports, so no class registers the states yet and they run with the first port (checklist 7l). This review is code-only and deploys only if item 1-5 finds a fix.
 7. **Hygiene.** `python tools/flagcheck.py JUNE_BOUNDING_STATE --range <first C3d-3 commit>^..HEAD`. Explain the nested `#else`/`#endif X2OPTIMIZE_*` rows.
 
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`). Write "C3d-3 - Review" under the phase in the plan, update the
