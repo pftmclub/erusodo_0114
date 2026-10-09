@@ -1683,7 +1683,7 @@ and backlog Stage 3c updated. Review kickoff `kickoffs/june-effect/C3l-review.md
 March: no `.lua` under any `24965799/kom_contents/data*_kom` contains `SPEED_TIME_ULTIMATE`. The 9 March class scripts (decompiled) have 690 SPEED_TIME
 rows, all 4 columns with iFlag 1-3, and none of them is a June adoption. **Nothing reaches play today; the play-test is a regression.**
 
-**Hygiene.** `flagcheck --worktree --files` (the 4 files): `1 PASS, 1 DEFINE, 2 OTHER, 0 FAIL`; 0 deleted lines, 0 non-ASCII inserted lines, 0 encoding changes; RESULT PASS. The two OTHER rows are a peer's uncommitted C3j hunks (`SERV_IRUHADEV_JUNE_BOUNDING_STATE`) in `X2GUUser.h` / `X2GameUnit.h`; this commit stages only the C3l hunks.
+**Hygiene.** `flagcheck --worktree --files` (the 4 files): `1 PASS, 1 DEFINE, 2 OTHER, 0 FAIL`; 0 deleted lines, 0 non-ASCII inserted lines, 0 encoding changes; RESULT PASS. The two OTHER rows are a peer's uncommitted C3j hunks (`SERV_IRUHADEV_JUNE_BOUNDING_STATE`) in `X2GUUser.h` / `X2GameUnit.h`; this commit stages only the C3l hunks. Post-commit `--range 688d41c^..688d41c`: `3 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; 0 deleted lines; 0 encoding changes; RESULT PASS.
 
 **Deploy.** DEPLOY OK: X2_offline.exe is 19,505,664 B, dated 2026-10-10 05:55:29, md5 ca7fe2379d29fc9282d5a1124d0fa9ed, equal to X2/US_SERVICE/x2.exe (2026-10-10 05:55:24); built at mods/june-buff-port 4720231 + 6 uncommitted code file(s) (C3l's 4, plus a peer's C3j in X2GUNPC / X2GUUser.h / X2GameUnit.h; the link came from the peer's build in the same tree, after the C3l edits). `JUNE_FX C3l user state` (UTF-16) is in the deployed exe; `SPEED_TIME_ULTIMATE` is not, as expected: the constant-false gate lets the compiler drop that read.
 
