@@ -6831,6 +6831,37 @@ void CX2GUNPC::InitState()
     m_JuneBoundingDown = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_DOWN ];
     m_JuneBoundingLandCrash = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH ];
     m_JuneBoundingUp = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_UP ];
+	/// June CX2GUNPC::InitState 327989e0 @327992a2-327992fd ( C3j-1; verbatim, the user's decision 2026-10-10; JUNE_BUGS 154 ): after the type
+	/// loop and the member fills, a missing bounding state falls back. DOWN ( +0x8704 ) to DOWN_DAMAGE_AIR ( +0x4098 ); LANDCRASH ( +0x8708 ) to the
+	/// DOWN_DAMAGE_AIR_LANDING type ( read from the type table @327992c9, not a member ), then DOWN_DAMAGE_AIR; UP ( +0x870c ) to UP_DAMAGE ( +0x8690 ).
+	/// With UP = m_UpDamage, CommonStateStart's tail replaces the speed of every RT_UP launch by the bounding back speed ( (0,0) until an RT_BOUNDING hit ).
+	if( 0 == m_JuneBoundingDown )
+		m_JuneBoundingDown = m_CommonState.m_DownDamageAir;
+	if( 0 == m_JuneBoundingLandCrash )
+		m_JuneBoundingLandCrash = initStateData.m_acStateType[ STATE_TYPE_DOWN_DAMAGE_AIR_LANDING ];
+	if( 0 == m_JuneBoundingLandCrash )
+		m_JuneBoundingLandCrash = m_CommonState.m_DownDamageAir;
+	if( 0 == m_JuneBoundingUp )
+		m_JuneBoundingUp = m_UpDamage;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
+	{
+		/// JUNE_FX C3j-1 ids: once per NPC script, the first 10 scripts initialised; each id with where it came from.
+		static std::set<std::wstring> s_setJuneC3j1Scripts;
+		if( s_setJuneC3j1Scripts.size() < 10 && true == s_setJuneC3j1Scripts.insert( GetNPCTemplet().m_LuaFileName ).second )
+		{
+			const int iJuneKeyDown = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_DOWN ];
+			const int iJuneKeyLandCrash = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH ];
+			const int iJuneKeyUp = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_UP ];
+			const int iJuneLanding = initStateData.m_acStateType[ STATE_TYPE_DOWN_DAMAGE_AIR_LANDING ];
+			CX2OfflineLog::Server( L"JUNE_FX C3j-1 ids: npc %I64d ( %s ): down %d ( %s ), landcrash %d ( %s ), up %d ( %s )",
+				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(),
+				m_JuneBoundingDown, ( 0 != iJuneKeyDown ) ? L"key" : ( ( 0 != m_JuneBoundingDown ) ? L"fallback DOWN_DAMAGE_AIR" : L"0" ),
+				m_JuneBoundingLandCrash, ( 0 != iJuneKeyLandCrash ) ? L"key" : ( ( 0 != iJuneLanding ) ? L"fallback DOWN_DAMAGE_AIR_LANDING"
+					: ( ( 0 != m_JuneBoundingLandCrash ) ? L"fallback DOWN_DAMAGE_AIR" : L"0" ) ),
+				m_JuneBoundingUp, ( 0 != iJuneKeyUp ) ? L"key" : ( ( 0 != m_JuneBoundingUp ) ? L"fallback UP_DAMAGE" : L"0" ) );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
     m_FlyDamageFront = initStateData.m_acStateType[ STATE_TYPE_FLY_DAMAGE_FRONT ];
     m_FlyDamageBack = initStateData.m_acStateType[ STATE_TYPE_FLY_DAMAGE_BACK ];
@@ -8597,7 +8628,8 @@ void    CX2GUNPC::OnFrameRender_Draw()
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	/// June CX2GUNPC::OnFrameRender_Draw 32768c70 ( NPC vslot 3 ) @32768cd1-32768d40 ( C3j ): the state's table opens as in March, and the NPC is
 	/// also drawn when the table did not open but nowState is one of the three bounding states ( +0x8704 / +0x8708 / +0x870c ); EndTable only when it
-	/// opened. The 0 != tests are ours, as in CommonStateStart: without them an NPC that has no bounding state would be drawn in state 0.
+	/// opened. The 0 != tests are ours, as in CommonStateStart. Since C3j-1's InitState fallbacks they matter only for an NPC whose DOWN_DAMAGE_AIR /
+	/// UP_DAMAGE is also missing: without them that NPC would be drawn in state 0.
 	const bool bJuneStateTable = m_LuaManager.BeginTableByReference( m_NPCFrameData.syncData.nowState );
 	if( true == bJuneStateTable
 		|| ( 0 != m_JuneBoundingDown && m_NPCFrameData.syncData.nowState == m_JuneBoundingDown )
@@ -13179,7 +13211,8 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 				/// June CX2GUNPC::DamageReactStateChange 32769240 @32769da7-32769e75 ( C3d-3; the function start corrected by C3i ). Ignored while super armored, never-move, NOT_BOUNDING ( +0x872b / +0x8ac6 ) or
 				/// NOT_UP_STATE ( +0x8ac4, an INIT key: C3d-3 review ); a guarding NPC with a down-guard state takes it;
 				/// otherwise the attacker's facing ( June compares the NPC's OWN facing == 1 here, the user case compares the two ) mirrors BOUNDING_BACK_SPEED_X, DOWN with the
-				/// hit's back speed Y in the air, LANDCRASH with y = 0 on the ground. A state id 0 changes no state ( StateChange_Reaction_FIRST refuses it ).
+				/// hit's back speed Y in the air, LANDCRASH with y = 0 on the ground. Since C3j-1's InitState fallbacks DOWN / LANDCRASH are 0 only for an NPC
+				/// whose DOWN_DAMAGE_AIR is also missing; a state id 0 changes no state ( StateChange_Reaction_FIRST refuses it ).
 				if( IsSuperArmor() || true == m_bNeverMove || true == m_bJuneNotBounding || true == m_bJuneNotUpState )
 					break;
 
@@ -17007,11 +17040,24 @@ void CX2GUNPC::CommonStateStart()
 	/// back speed ( +0x40f0 / +0x40f4 into nowSpeed ). June calls it near the end of the function: after the SPEED_X / SPEED_Y block ( @327add8a ) and
 	/// after March's tail above ( 32275440 / 32071c30 / 32761b40 @327af1d9-327af1f7 ), so it overrides a state's own SPEED_X / SPEED_Y. C3d-3 had put it at
 	/// the top, before them. June's second half of 3275a070 ( the Lu/Ciel hook, compared with +0x8708 = LANDCRASH ) is class code ( checklist 7l ). June
-	/// does not guard the compare; a state id 0 ( no bounding state ) would match nowState 0, which is never entered, so the guard changes nothing.
+	/// does not guard the compare; the guard matters only for an NPC whose UP_DAMAGE is also missing ( id 0 would match nowState 0, which is never
+	/// entered, so it changes nothing ). Since C3j-1 the UP id falls back to UP_DAMAGE, so every RT_UP launch into it takes the stored back speed,
+	/// (0,0) until an RT_BOUNDING hit: June's behaviour, kept verbatim ( JUNE_BUGS 154 ).
 	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
 	{
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
+		const D3DXVECTOR2 vJuneC3j1Before = m_PhysicParam.nowSpeed;
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 		m_PhysicParam.nowSpeed.x = GetJuneBoundingBackSpeed().x;
 		m_PhysicParam.nowSpeed.y = GetJuneBoundingBackSpeed().y;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
+		/// JUNE_FX C3j-1 overwrite: once per NPC unit ( at most 32 ), the first time this write fires.
+		static std::set<UidType> s_setJuneC3j1Overwritten;
+		if( s_setJuneC3j1Overwritten.size() < 32 && true == s_setJuneC3j1Overwritten.insert( GetUnitUID() ).second )
+			CX2OfflineLog::Server( L"JUNE_FX C3j-1 overwrite: npc %I64d ( %s ) state %d ( bounding up %d, UP_DAMAGE %d ): nowSpeed ( %.1f, %.1f ) -> ( %.1f, %.1f )",
+				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int)m_NPCFrameData.syncData.nowState, m_JuneBoundingUp, m_UpDamage,
+				vJuneC3j1Before.x, vJuneC3j1Before.y, m_PhysicParam.nowSpeed.x, m_PhysicParam.nowSpeed.y );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 	}
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 }

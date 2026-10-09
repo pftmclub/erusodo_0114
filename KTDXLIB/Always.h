@@ -6250,6 +6250,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              classes' InitState registration ( NOT wired: June's tables are not in March's class scripts yet ) and the
 //              NPC half ( three DAMAGE_BOUNDING_* common-state types, NOT_BOUNDING ). Off = March's dead BOUNDING_COMBO_TEST case.
 //              Log: "JUNE_FX C3d-3" in offline_server.log.
+//              C3j-1 ( user, 2026-10-10: verbatim ): InitState's fallbacks ( June 327992a2-327992fd ) give a missing DOWN / LANDCRASH
+//              DOWN_DAMAGE_AIR ( LANDCRASH tries DOWN_DAMAGE_AIR_LANDING first ) and a missing UP UP_DAMAGE, so every NPC RT_UP launch
+//              takes the bounding back speed, (0,0) until an RT_BOUNDING hit ( JUNE_BUGS 154 ).
 #define SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE) && !defined(SERV_IRUHADEV_JUNE_USER_STATE_ID16)
 #error SERV_IRUHADEV_JUNE_BOUNDING_STATE needs SERV_IRUHADEV_JUNE_USER_STATE_ID16 ( USI_BOUNDING_* )
@@ -6459,4 +6462,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              identity; Rose overrides it ). MINOR_UNIT_* lists and the second body: checklist 7o.
 //              Log tag: JUNE_FX C3l ( first 32 firings ).
 #define SERV_IRUHADEV_JUNE_SPEED_TIME
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3j-1 play-test lines ( short-lived; turn OFF in the C3j-1 review ): "JUNE_FX C3j-1 ids" for
+//              the first 10 NPC scripts initialised ( down / landcrash / up and where each id came from ) and "JUNE_FX C3j-1 overwrite"
+//              once per NPC ( at most 32 ) when CommonStateStart's tail replaces a launch speed. Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG) && !defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE)
+#error SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG needs SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#endif
 //////////////////////////////////////////////////////////////////////////

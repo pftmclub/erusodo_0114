@@ -1666,6 +1666,45 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 **Build:** none (no code change). C3j's regression play-test already passed. The `C3j-1` kickoff needs no change: its fills sit in InitState, and the tail and guards it re-words are as reviewed here.
 
+## C3j-1 - port verbatim: June's NPC bounding-state fallbacks
+
+**Status: code done 2026-10-10, play-test owed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-1.md`; review `kickoffs/june-effect/C3j-1-review.md`.
+
+### C3j-1 - Done (2026-10-10, Opus 5.5 high)
+
+**What landed** (flag `SERV_IRUHADEV_JUNE_BOUNDING_STATE`, plain transcription by the user's decision; play-test lines under the new
+`SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG`, ON):
+- **`CX2GUNPC::InitState`**, after C3d-3's raw key reads: June `327989e0 @327992a2-327992fd`, re-read in Ghidra (each step is `TEST EAX,EAX / JNZ`
+  on the value just stored). DOWN == 0 -> `m_CommonState.m_DownDamageAir` (`+0x4098`). LANDCRASH == 0 -> `m_acStateType[ STATE_TYPE_DOWN_DAMAGE_AIR_LANDING ]`
+  (byte `+0x14f`, type 0x13, not a member), then == 0 -> `+0x4098`. UP == 0 -> `m_UpDamage` (`+0x8690`). Both members are filled a few lines
+  above. The `GetStateID` copies at `X2GUNPC.cpp` ~7033 / 7043 are in InitState's dead `#else X2OPTIMIZE_NPC_NONHOST_SIMULATION`.
+- **Consequence, kept verbatim** (JUNE_BUGS 154): every NPC with an UP_DAMAGE state now has UP = that state, so CommonStateStart's tail (C3j)
+  replaces each RT_UP launch's speed with `m_vJuneBoundingBackSpeed`. That speed is (0,0) until an RT_BOUNDING hit, and no shipped DamageEffect has one,
+  so **monsters no longer rise when launched**.
+- **Comments reworded** (3 deleted lines, all inside the flag): the render gate (`OnFrameRender_Draw`), the RT_BOUNDING case and the CommonStateStart tail
+  now say the `0 !=` guards matter only for an NPC whose DOWN_DAMAGE_AIR / UP_DAMAGE is also missing. `Always.h`'s flag block gained 3 lines on the fallbacks.
+- **Debug** (offline_server.log, not ErrorLog: the NPC lines beside it, C3d-3 / C3i, use `CX2OfflineLog::Server`): `JUNE_FX C3j-1 ids` once per NPC
+  script for the first 10 scripts (each id with key / fallback / 0), and `JUNE_FX C3j-1 overwrite` once per NPC unit (cap 32) when the tail fires
+  (state, bounding up, UP_DAMAGE, nowSpeed before -> after).
+- funcmap row `327992a2-327992fd (C3j-1)`.
+
+**Play-test trigger checked in the data the exe loads:** March's deployed `data036 Elsword_SwordMan.lua` (the only Elsword class script, so
+Lord Knight uses it; decompiled for reading only) has `ESSI_DASH_ATTACK_X` `DAMAGE_DATA.REACT_TYPE = RT_UP`. `DashEventProcess` goes to it on
+`oneX` with no job branch. `ESSI_COMBO_Z1..Z3` are `RT_SMALL_DAMAGE`. jtLordKnight = uid 25, `ELSWORD_LORD_KNIGHT`, Lv80 (`elsdb.py chars`).
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --worktree --files X2Lib/X2GUNPC.cpp`): `1 PASS, 0 OTHER, 0 FAIL, 0 ERROR`;
+`3 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+With `KTDXLIB/Always.h` in `--files` the main flag gives an ERROR on C3i's pre-existing `#if defined(SERV_IRUHADEV_JUNE_NOT_UP_STATE) && ...`
+(line 6336), which flagcheck cannot evaluate; C3j left Always.h out for the same reason. `_DEBUG` flag (`--files X2GUNPC.cpp Always.h`):
+`0 PASS, 1 DEFINE, 1 OTHER (X2GUNPC.cpp: belongs to the main flag), 0 FAIL`; `0 deleted`, `1 #else/#endif without the flag token` (the
+`#endif` of its own `#error` dependency guard, the house pattern of its neighbours); `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,507,712 B, dated 2026-10-10 06:30:40, md5 4fcd8bd2097c93102d64281ba8ca1937, equal to X2/US_SERVICE/x2.exe (2026-10-10 06:30:35); built at mods/june-buff-port 689828f + 2 uncommitted code file(s)`
+(the 2 are this phase's; X2Lib 0 errors). Both `JUNE_FX C3j-1` strings are in the deployed exe. No kom.
+
+**How to see it in game:** jtLordKnight in the Elder Village field: dash X on a soldier, and it plays its hit-up animation without rising.
+`overwrite` then shows the speed after = (0.0, 0.0). Z hits are unchanged.
+
 ## C3k - port: June stopped counting fly hits
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
