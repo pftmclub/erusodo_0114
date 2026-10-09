@@ -524,6 +524,48 @@ private:
 extern CRITICAL_SECTION g_csGameMessage;
 extern bool KTDXSendGameMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, bool bDirectProcess = true );
 
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+/// Lua source L6 ( LUA_SOURCE_PHASES.md ): one script load as the [LUA_SRC] lines see it. While it lives, the [LUA_SRC]
+/// "lua error" lines name its file ( the chunk name is always "lua_tinker::dobuffer()" ). SetBuffer classifies the bytes
+/// handed to DoMemoryNotEncrypt at once ( the uncompress buffer is gone by the time KEM_ERROR73 is written ), and
+/// ReportFailure writes "[LUA_SRC] <file>: <kind>, <reason>" beside KEM_ERROR73. Defined in KTDXApp.cpp.
+class KLuaSrcLoadScope
+{
+public:
+	enum LUA_SRC_KIND
+	{
+		LSK_NONE,					/// nothing reached DoMemoryNotEncrypt
+		LSK_UNCOMPRESS_FAILED,
+		LSK_KOG_BYTECODE,			/// 1B 4B 4C 81
+		LSK_OTHER_BYTECODE,			/// 1B, any other header ( 82 = June )
+		LSK_BOM_TEXT,				/// EF BB BF
+		LSK_TEXT_NO_BOM,
+		LSK_NOT_LUA,
+		LSK_END,
+	};
+
+	explicit KLuaSrcLoadScope( const WCHAR* pFileName_ );
+	~KLuaSrcLoadScope();
+	void	SetBuffer( const char* pBuffer_, long lSize_ );		/// right before DoMemoryNotEncrypt
+	void	SetUncompressFailed();
+	void	ReportFailure();									/// beside KEM_ERROR73
+
+private:
+	KLuaSrcLoadScope( const KLuaSrcLoadScope& );
+	KLuaSrcLoadScope& operator=( const KLuaSrcLoadScope& );
+
+	const WCHAR*	m_pFileName;
+	const WCHAR*	m_pPrevFileName;
+	LUA_SRC_KIND	m_eKind;
+	long			m_lSize;
+	unsigned char	m_abyHead[4];
+#ifdef SERV_IRUHADEV_LUA_SOURCE_DEBUG
+	LARGE_INTEGER	m_liStart;
+	LARGE_INTEGER	m_liRun;
+#endif SERV_IRUHADEV_LUA_SOURCE_DEBUG
+};
+#endif SERV_IRUHADEV_LUA_SOURCE
+
 
 
 template<typename LUADOMEMORYNOTENCRYPT>
@@ -544,6 +586,9 @@ __forceinline HRESULT CKTDXApp::LoadAndDoMemory_ErrorCode( LUADOMEMORYNOTENCRYPT
         return E_INVALIDARG;
     }
 
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+	KLuaSrcLoadScope kLuaSrcLoad( pFileName );		/// Lua source L6: [LUA_SRC] lines name this file
+#endif SERV_IRUHADEV_LUA_SOURCE
 	KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_POINTER Info;
 //#ifdef X2OPTIMIZE_MASS_FILE_FIRST_BUGFIX
 	Info = GetDeviceManager()->GetMassFileManager()->LoadDataFile( pFileName, true
@@ -623,21 +668,33 @@ __forceinline HRESULT CKTDXApp::LoadAndDoMemory_ErrorCode( LUADOMEMORYNOTENCRYPT
 		    if ( Z_OK == uncompress((BYTE*)pRealBuffer,&size,(BYTE*)pDecryptedBuffer,Info->compressedSize) )
             {
                 ASSERT( size == Info->size );
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+                kLuaSrcLoad.SetBuffer( pRealBuffer, Info->size );
+#endif SERV_IRUHADEV_LUA_SOURCE
                 bRetVal = pLuaManager->DoMemoryNotEncrypt( pRealBuffer, Info->size );
             }
             else
             {
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+                kLuaSrcLoad.SetUncompressFailed();
+#endif SERV_IRUHADEV_LUA_SOURCE
                 bRetVal = false;
             }
 #else   X2OPTIMIZE_ZLIB_UNCOMPRESS_ERROR_CHECK
 		    uncompress((BYTE*)pRealBuffer,&size,(BYTE*)pDecryptedBuffer,Info->compressedSize);
             ASSERT( size == Info->size );
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+            kLuaSrcLoad.SetBuffer( pRealBuffer, Info->size );
+#endif SERV_IRUHADEV_LUA_SOURCE
             bRetVal = pLuaManager->DoMemoryNotEncrypt( pRealBuffer, Info->size );
 #endif  X2OPTIMIZE_ZLIB_UNCOMPRESS_ERROR_CHECK
         }
         else
 #endif  X2OPTIMIZE_ENCRYPT_AFTER_COMPRESS     
         {  
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+            kLuaSrcLoad.SetBuffer( pDecryptedBuffer, Info->size );
+#endif SERV_IRUHADEV_LUA_SOURCE
             bRetVal = pLuaManager->DoMemoryNotEncrypt( pDecryptedBuffer, Info->size );
         }
 #ifdef _ENCRIPT_SCRIPT_
@@ -648,6 +705,9 @@ __forceinline HRESULT CKTDXApp::LoadAndDoMemory_ErrorCode( LUADOMEMORYNOTENCRYPT
 
 		if( bRetVal == false )
 		{
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+			kLuaSrcLoad.ReportFailure();
+#endif SERV_IRUHADEV_LUA_SOURCE
 #ifdef MASSFILE_MAPPING_FUNCTION
 			ErrorLogMsg( KEM_ERROR73, wstrFileNameExtension.c_str() );
 #else //MASSFILE_MAPPING_FUNCTION
@@ -659,8 +719,14 @@ __forceinline HRESULT CKTDXApp::LoadAndDoMemory_ErrorCode( LUADOMEMORYNOTENCRYPT
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+		kLuaSrcLoad.SetBuffer( Info->pRealData, Info->size );
+#endif SERV_IRUHADEV_LUA_SOURCE
 		if( pLuaManager->DoMemoryNotEncrypt( Info->pRealData, Info->size ) == false )
 		{
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+			kLuaSrcLoad.ReportFailure();
+#endif SERV_IRUHADEV_LUA_SOURCE
 #ifdef MASSFILE_MAPPING_FUNCTION
 			ErrorLogMsg( KEM_ERROR73, wstrFileNameExtension.c_str() );
 #else //MASSFILE_MAPPING_FUNCTION
@@ -699,6 +765,9 @@ __forceinline HRESULT CKTDXApp::LoadAndDoMemory_LocalFile_ErrorCode( LUADOMEMORY
         return E_INVALIDARG;
     }
 
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+	KLuaSrcLoadScope kLuaSrcLoad( pFileName );		/// Lua source L6: [LUA_SRC] lines name this file
+#endif SERV_IRUHADEV_LUA_SOURCE
 	KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_POINTER Info;
 //#ifdef X2OPTIMIZE_MASS_FILE_FIRST_BUGFIX
 	Info = GetDeviceManager()->GetMassFileManager()->LoadDataFile_LocalFile( pFileName );
@@ -711,8 +780,14 @@ __forceinline HRESULT CKTDXApp::LoadAndDoMemory_LocalFile_ErrorCode( LUADOMEMORY
 		return HRESULT_FROM_WIN32( ERROR_FILE_NOT_FOUND );
 	}
 
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+	kLuaSrcLoad.SetBuffer( Info->pRealData, Info->size );
+#endif SERV_IRUHADEV_LUA_SOURCE
 	if( pLuaManager->DoMemoryNotEncrypt( Info->pRealData, Info->size ) == false )
 	{
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+		kLuaSrcLoad.ReportFailure();
+#endif SERV_IRUHADEV_LUA_SOURCE
 		ErrorLogMsg( KEM_ERROR73, pFileName );
 		return HRESULT_FROM_WIN32( ERROR_INVALID_DATA );
 	}

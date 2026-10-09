@@ -433,8 +433,8 @@ March files are not mass-converted, because June replaces them.
 | L3 | waiting (L2 review) | Sonnet 5.5 / high | L2 review | `tools/luasrc.py`, `.claude/skills/x2-adopt-june/` (new), CLAUDE.md | `L3.md` |
 | L4 | optional, waiting (L3) | Sonnet 5.5 / high, then user decisions | L3 | report only (`june2017_re/lua_source_port_audit.tsv`) | `L4.md` |
 | L5 | conditional (only if L3/L4 show too many fallbacks; user decides) | Opus 5.5 / **xhigh** | L3 (+L4) | `june2017_re/` ljd hooks | `L5.md` |
-| L6 | ready | Opus 5.5 / high, then user play-test (dev console) | L0 | `KTDXLIB/KTDX.h`, `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6.md` |
-| L6 review | waiting (L6) | Opus 5.5 / high | L6 | review only | `L6-review.md` |
+| L6 | **built + deployed 2026-10-09, play-test pending** (parser guard + `#error` tripwires, `[LUA_SRC]` load-failure kinds, C `_ALERT` in every binder state, deduplicated; `[LUA_SRC_DEBUG]` load timing; LuaCommon untouched). User owes: the dev-console play-test in the plan's L6 Done note / hand-off, then "check logs" | Opus 5.5 / high, then user play-test (dev console) | L0 | `KTDXLIB/KTDX.h`, `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6.md` |
+| L6 review | waiting (L6 play-test) | Opus 5.5 / high | L6 | review only | `L6-review.md` |
 | L7 | waiting (L3, L6 review) | Sonnet 5.5 / high | L3, L6 review (+L4/L5 if run) | kickoffs, skills, memory, `KTDXLIB/Always.h` (`_DEBUG` off) | `L7.md` |
 
 Running together:

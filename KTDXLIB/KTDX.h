@@ -395,9 +395,14 @@
 #ifdef  X2OPTIMIZE_APPLY_UNPACK_HACK_PREVENTION
 
     #define _USE_LUAJIT_
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+    // Lua source L6: the LuaJIT parser stays linked in every config, because client .lua ships as BOM text source
+    // ( luajitLib_NoInterpreter rejects text, lj_load.c:37-43 ). Tripwire below and in KTDXApp.cpp.
+#else SERV_IRUHADEV_LUA_SOURCE
     #if  defined(_SERVICE_) || defined(_IN_HOUSE_SERVICE_READY_QA_)
         #define X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE    
     #endif // defined(_SERVICE_) || defined(_IN_HOUSE_SERVICE_READY_QA_)
+#endif SERV_IRUHADEV_LUA_SOURCE
     #if !defined(DEBUG) && !defined(_DEBUG)
         #define X2OPTIMIZE_ACCELERATE_SHARED_NPC_LUA_BY_LUAJIT
     #endif
@@ -411,6 +416,11 @@
 #if     defined(X2OPTIMIZE_TET_XET_PREPROCESSING) && defined(X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE)
 #define X2OPTIMIZE_DISABLE_LUA_MULTITHREADING
 #endif  //defined(X2OPTIMIZE_TET_XET_PREPROCESSING) && defined(X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE)
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+#ifdef X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE
+#error SERV_IRUHADEV_LUA_SOURCE: X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE is defined, so source .lua could not load
+#endif X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE
+#endif SERV_IRUHADEV_LUA_SOURCE
 
 // 2개의 인접한 mass file 읽기 지원, 텍스쳐와 TET 파일 로딩 속도 개선
 #define X2OPTIMIZE_SUPPORT_LOADING_TWO_ADJACENT_MASS_FILES

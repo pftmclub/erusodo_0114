@@ -6261,3 +6261,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_BOUNDING_STATE needs SERV_IRUHADEV_JUNE_DAMAGEDATA ( BOUNDING_BACK_SPEED_X/Y )
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: Lua source plan, Phase L6 ( LUA_SOURCE_PHASES.md ). Engine side of "client .lua is BOM source":
+//              - KTDX.h never defines X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE, so the LuaJIT parser stays linked even if
+//                a later config defines _SERVICE_ ( luajitLib_NoInterpreter cannot load text, lj_load.c:37-43 ); #error
+//                tripwires in KTDX.h and KTDXApp.cpp if it ever comes back.
+//              - a script load that fails writes "[LUA_SRC] <file>: <kind>, <reason>" beside KEM_ERROR73 ( kinds: KOG
+//                bytecode, other bytecode, BOM text, text without BOM, not Lua, uncompress failed ).
+//              - a C _ALERT in every binder state ( main + per-thread ) sends Lua syntax and runtime errors, with the file
+//                being loaded, to ErrorLog.txt as "[LUA_SRC] lua error ..." lines, deduplicated, instead of printf.
+//              Nothing that loads today loads differently. LuaCommon/ is untouched. Log tag: [LUA_SRC].
+#define SERV_IRUHADEV_LUA_SOURCE
+// Description: L6 load-time baseline: "[LUA_SRC_DEBUG] load ..." per BOM-text load and per load over 20 ms, plus running
+//              totals per kind every 256 loads. Turned off in L7.
+#define SERV_IRUHADEV_LUA_SOURCE_DEBUG
+#if defined(SERV_IRUHADEV_LUA_SOURCE_DEBUG) && !defined(SERV_IRUHADEV_LUA_SOURCE)
+#error SERV_IRUHADEV_LUA_SOURCE_DEBUG needs SERV_IRUHADEV_LUA_SOURCE
+#endif
+//////////////////////////////////////////////////////////////////////////

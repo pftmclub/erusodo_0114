@@ -528,6 +528,44 @@ If a `LuaCommon/` edit proves unavoidable:
   text and line;
 - a normal session shows no new noise.
 
+**Done note (2026-10-09, Opus 5.5): L6 built and deployed, play-test pending.** Flags `SERV_IRUHADEV_LUA_SOURCE` +
+`SERV_IRUHADEV_LUA_SOURCE_DEBUG` (`KTDXLIB/Always.h`). `LuaCommon/` untouched, so there is no second home.
+- **Parser guard.** `KTDX.h:398-405` keeps the `#define X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE` block in the flag's `#else`.
+  `#error` tripwires sit at `KTDX.h:419-423` and at the lib pragma in `KTDXApp.cpp:28`; the latter also catches a later or
+  command-line define.
+- **Load diagnostics.** `KLuaSrcLoadScope` (declared in `KTDXApp.h`, defined in `KTDXApp.cpp`) wraps
+  `LoadAndDoMemory_ErrorCode` and `LoadAndDoMemory_LocalFile_ErrorCode`. `LoadLuaTinker` already routes through the first.
+  - It classifies the bytes handed to `DoMemoryNotEncrypt` at that moment, because the uncompress buffer is gone by the time
+    `KEM_ERROR73` is written.
+  - On failure it writes `[LUA_SRC] <file>: <kind>, <reason>`. Kinds: KOG bytecode, other bytecode (header printed; 82 = June),
+    BOM text, text without BOM, not Lua (first bytes printed), uncompress failed.
+  - Not covered: the two X2Lib loaders that call `DoMemoryNotEncrypt` directly (`X2ItemManager.cpp`, `X2World.cpp`). Their Lua
+    errors still reach ErrorLog through `_ALERT`, with "at run time" in place of the file name.
+- **`_ALERT`.** It is registered at the top of `CKTDXApp::RegisterLuabind`, which runs for the main binder (`KTDXApp.cpp:461`)
+  and every per-thread binder (`:513`). `KLuaManager` threads find it through their env's `__index`, because `print_error`
+  uses `lua_gettable` (`lua_tinker.cpp:262`).
+  - Lines: `[LUA_SRC] lua error while loading <file>: <msg>`, or `... at run time: <msg>`, followed by on_error's call stack.
+  - Heads are deduplicated by text and written on the 1st, 10th, 100th... sighting. A repeat has no stack. A cap of 512
+    distinct heads, then one "no longer written" line. All writes take one lock.
+  - The function never raises, since `print_error` calls it unprotected from inside the pcall handler.
+- **`_DEBUG`.** `[LUA_SRC_DEBUG]` lines (a separate tag, so `--tag LUA_SRC` stays clean). One line per BOM-text load and per
+  load over 20 ms, with kind, bytes, total ms and run (parse + execute) ms. Running totals per kind every 256 loads.
+  Mount-time loads never reach ErrorLog (memory `errorlog-loses-mount-time-lines`), so the baseline covers use-time loads;
+  the totals line still counts every load.
+- **Expected in a normal session:** Lua errors that were printf-only before now appear once each, for example
+  `lua_tinker::call() attempt to call global ...`. They are existing defects made visible, not noise; the gate fails only on
+  repeated lines.
+- Hygiene (`--worktree`): `files: 1 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; 0 deleted lines;
+  one tokenless `#endif` (the `#if defined(...)` DEBUG-needs-main tripwire in `Always.h`, same shape as its neighbours);
+  `RESULT: PASS`.
+- Deploy: `DEPLOY OK: X2_offline.exe is 19,449,856 B, dated 2026-10-09 09:21:17, md5 8da01b9451b8d7d2952c58eadbac3ebf`
+  (built at 3d48592 + the four L6 files). The exe carries `[LUA_SRC]`, `[LUA_SRC_DEBUG]` and `_ALERT`.
+- **How to see it in game.** Dev console (END key; `settings.auth_level` is 3), any character, in a village or dungeon:
+  1. `error("LUA_SRC test")` -> `[LUA_SRC] lua error at run time: [string "lua_tinker::dobuffer()"]:1: LUA_SRC test`, plus stack lines.
+  2. `x = = 1` -> `[LUA_SRC] lua error at run time: [string "lua_tinker::dobuffer()"]:1: unexpected symbol near '='`.
+  3. `assert(loadstring("local a = 1\nlocal b = = 2"))` -> the same kind of line with `:2:`, so line numbers come from the source.
+  4. Paste 1 nine more times -> nothing new until the 10th, which writes `(seen 10 times) ...` with no stack.
+
 ## Phase L6-review
 
 - **Threads.** Is `_ALERT` safe when loader threads call it? Does ErrorLog writing lock?

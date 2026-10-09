@@ -23,6 +23,12 @@
 
 #pragma comment( lib, "Imm32.lib")
 
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+#ifdef X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE
+#error SERV_IRUHADEV_LUA_SOURCE: X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE would link luajitLib_NoInterpreter.lib, which cannot load source .lua
+#endif X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE
+#endif SERV_IRUHADEV_LUA_SOURCE
+
 #if defined(DEBUG) || defined(_DEBUG)
 #ifdef  _USE_LUAJIT_
     #pragma comment( lib, "luajitLibD.lib" )
@@ -1522,6 +1528,282 @@ CKTDXStage* CKTDXApp::GetStage( const WCHAR* wszStageName )
 	return pStage;
 }
 
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+//{{ Iruha : 2026-10-09 // Lua source L6 ( LUA_SOURCE_PHASES.md "Phase L6" ): [LUA_SRC] lines in ErrorLog.txt
+/// Before this, Lua errors ended in printf ( lua_tinker::print_error finds no _ALERT global, LuaCommon/lua_tinker.cpp:262 ),
+/// and a script the binder refused left only "KEM_ERROR73 <file>" ( June hides them the same way: print_error FUN_32fe7730,
+/// nothing registers _ALERT ). LuaSrcAlert is registered as _ALERT in every binder state by RegisterLuabind ( main and
+/// per-thread; KLuaManager threads reach it through their env's __index, and print_error looks it up with lua_gettable ).
+/// One error arrives as a head ( the message ) plus continuation lines from on_error's call stack ( "\t<call stack>",
+/// "->\t...", "\t..." ). Heads are deduplicated by text: written the 1st, 10th, 100th... time, at most
+/// LUA_SRC_MAX_HEADS distinct ones per session; a continuation is written only right after its head was.
+namespace
+{
+	struct KLuaSrcLogLock
+	{
+		CRITICAL_SECTION	m_cs;
+		KLuaSrcLogLock()	{ InitializeCriticalSection( &m_cs ); }		/// never deleted: an error late at exit still finds it
+	};
+	KLuaSrcLogLock							g_kLuaSrcLogLock;
+	std::map<std::string, unsigned int>*	g_pmapLuaSrcHead = NULL;				/// head -> times seen; under the lock, never freed
+	bool									g_bLuaSrcHeadCapped = false;
+	const size_t							LUA_SRC_MAX_HEADS = 512;
+	__declspec(thread) bool					g_bLuaSrcEmitContinuation = false;		/// this thread's last head was written
+	__declspec(thread) const WCHAR*			g_pLuaSrcLoadingFile = NULL;			/// the script this thread is loading
+
+	const char* const						s_aszLuaSrcKind[KLuaSrcLoadScope::LSK_END] =
+	{
+		"nothing loaded", "uncompress failed", "KOG bytecode", "other bytecode", "BOM text", "text without BOM", "not Lua",
+	};
+
+	void LuaSrcFileName( const WCHAR* pFileName_, char* szOut_, int iOutSize_ )
+	{
+		szOut_[0] = 0;
+		if ( NULL == pFileName_ )
+			strcpy_s( szOut_, iOutSize_, "(no file)" );
+		else if ( 0 == WideCharToMultiByte( CP_ACP, 0, pFileName_, -1, szOut_, iOutSize_, NULL, NULL ) )
+			strcpy_s( szOut_, iOutSize_, "(unprintable name)" );
+	}
+
+	/// caller holds the lock
+	void LuaSrcWrite( const char* szTag_, const char* szLine_ )
+	{
+		KLOG( "ErrorLog.txt" ) << szTag_ << " " << szLine_ << fileout;
+	}
+
+	/// one head line ( a Lua error or a load failure ), deduplicated; returns whether it was written as a first sighting
+	bool LuaSrcHead( const char* szHead_ )
+	{
+		bool bFirst = false;
+		EnterCriticalSection( &g_kLuaSrcLogLock.m_cs );
+		if ( NULL == g_pmapLuaSrcHead )
+			g_pmapLuaSrcHead = new std::map<std::string, unsigned int>;
+
+		std::map<std::string, unsigned int>::iterator mit = g_pmapLuaSrcHead->find( szHead_ );
+		if ( mit == g_pmapLuaSrcHead->end() )
+		{
+			if ( g_pmapLuaSrcHead->size() < LUA_SRC_MAX_HEADS )
+			{
+				( *g_pmapLuaSrcHead )[ szHead_ ] = 1;
+				LuaSrcWrite( "[LUA_SRC]", szHead_ );
+				bFirst = true;
+			}
+			else if ( false == g_bLuaSrcHeadCapped )
+			{
+				g_bLuaSrcHeadCapped = true;
+				LuaSrcWrite( "[LUA_SRC]", "more than 512 distinct Lua error lines this session; new ones are no longer written" );
+			}
+		}
+		else
+		{
+			const unsigned int uiSeen = ++mit->second;
+			unsigned int uiMark = uiSeen;
+			while ( uiMark >= 10 && 0 == uiMark % 10 )
+				uiMark /= 10;
+			if ( 1 == uiMark )		/// the 10th, 100th, 1000th... time, without its call stack
+			{
+				char szSeen[32] = { 0, };
+				_snprintf_s( szSeen, _countof( szSeen ), _TRUNCATE, "(seen %u times)", uiSeen );
+				KLOG( "ErrorLog.txt" ) << "[LUA_SRC] " << szSeen << " " << szHead_ << fileout;
+			}
+		}
+		LeaveCriticalSection( &g_kLuaSrcLogLock.m_cs );
+		return bFirst;
+	}
+
+	/// _ALERT( text ). lua_tinker::print_error calls it with an unprotected lua_call, sometimes from inside the pcall error
+	/// handler ( on_error ), so nothing here may raise a Lua error.
+	int LuaSrcAlert( lua_State* L )
+	{
+		const char* szText = lua_tostring( L, 1 );
+		if ( NULL == szText )
+			szText = "(non-string)";
+
+		if ( '\t' == szText[0] || '-' == szText[0] )		/// on_error's call stack
+		{
+			if ( g_bLuaSrcEmitContinuation )
+			{
+				EnterCriticalSection( &g_kLuaSrcLogLock.m_cs );
+				LuaSrcWrite( "[LUA_SRC]  ", szText );
+				LeaveCriticalSection( &g_kLuaSrcLogLock.m_cs );
+			}
+			return 0;
+		}
+
+		char szHead[1024] = { 0, };
+		if ( NULL != g_pLuaSrcLoadingFile )
+		{
+			char szFile[MAX_PATH] = { 0, };
+			LuaSrcFileName( g_pLuaSrcLoadingFile, szFile, _countof( szFile ) );
+			_snprintf_s( szHead, _countof( szHead ), _TRUNCATE, "lua error while loading %s: %s", szFile, szText );
+		}
+		else
+		{
+			_snprintf_s( szHead, _countof( szHead ), _TRUNCATE, "lua error at run time: %s", szText );
+		}
+		g_bLuaSrcEmitContinuation = LuaSrcHead( szHead );
+		return 0;
+	}
+
+	void LuaSrcRegisterAlert( lua_State* L )
+	{
+		if ( NULL == L )
+			return;
+		lua_pushcfunction( L, LuaSrcAlert );
+		lua_setglobal( L, "_ALERT" );
+	}
+
+#ifdef SERV_IRUHADEV_LUA_SOURCE_DEBUG
+	const double							LUA_SRC_DEBUG_SLOW_MS = 20.0;
+	unsigned int							g_uiLuaSrcLoads = 0;						/// under the lock
+	unsigned int							g_auiLuaSrcKindLoads[KLuaSrcLoadScope::LSK_END] = { 0, };
+	double									g_adLuaSrcKindRunMs[KLuaSrcLoadScope::LSK_END] = { 0, };
+
+	double LuaSrcMs( const LARGE_INTEGER& liFrom_, const LARGE_INTEGER& liTo_ )
+	{
+		LARGE_INTEGER liFreq;
+		if ( FALSE == QueryPerformanceFrequency( &liFreq ) || 0 == liFreq.QuadPart )
+			return 0.0;
+		return (double)( liTo_.QuadPart - liFrom_.QuadPart ) * 1000.0 / (double)liFreq.QuadPart;
+	}
+#endif SERV_IRUHADEV_LUA_SOURCE_DEBUG
+}
+
+KLuaSrcLoadScope::KLuaSrcLoadScope( const WCHAR* pFileName_ )
+: m_pFileName( pFileName_ )
+, m_pPrevFileName( g_pLuaSrcLoadingFile )
+, m_eKind( LSK_NONE )
+, m_lSize( 0 )
+{
+	memset( m_abyHead, 0, sizeof( m_abyHead ) );
+	g_pLuaSrcLoadingFile = pFileName_;
+#ifdef SERV_IRUHADEV_LUA_SOURCE_DEBUG
+	QueryPerformanceCounter( &m_liStart );
+	m_liRun.QuadPart = 0;
+#endif SERV_IRUHADEV_LUA_SOURCE_DEBUG
+}
+
+KLuaSrcLoadScope::~KLuaSrcLoadScope()
+{
+	g_pLuaSrcLoadingFile = m_pPrevFileName;		/// loads nest ( a script can make C++ load another )
+#ifdef SERV_IRUHADEV_LUA_SOURCE_DEBUG
+	if ( m_eKind < LSK_KOG_BYTECODE || 0 == m_liRun.QuadPart )
+		return;
+	LARGE_INTEGER liNow;
+	QueryPerformanceCounter( &liNow );
+	const double dTotalMs = LuaSrcMs( m_liStart, liNow );
+	const double dRunMs = LuaSrcMs( m_liRun, liNow );		/// parse + run, nested loads included
+
+	EnterCriticalSection( &g_kLuaSrcLogLock.m_cs );
+	++g_uiLuaSrcLoads;
+	++g_auiLuaSrcKindLoads[m_eKind];
+	g_adLuaSrcKindRunMs[m_eKind] += dRunMs;
+	if ( LSK_BOM_TEXT == m_eKind || dTotalMs >= LUA_SRC_DEBUG_SLOW_MS )
+	{
+		char szFile[MAX_PATH] = { 0, };
+		LuaSrcFileName( m_pFileName, szFile, _countof( szFile ) );
+		char szLine[512] = { 0, };
+		_snprintf_s( szLine, _countof( szLine ), _TRUNCATE, "load %s: %s, %ld B, %.1f ms ( run %.1f ms )",
+			szFile, s_aszLuaSrcKind[m_eKind], m_lSize, dTotalMs, dRunMs );
+		LuaSrcWrite( "[LUA_SRC_DEBUG]", szLine );
+	}
+	if ( 0 == g_uiLuaSrcLoads % 256 )
+	{
+		char szLine[512] = { 0, };
+		_snprintf_s( szLine, _countof( szLine ), _TRUNCATE,
+			"totals after %u loads ( count, run ms ): KOG bytecode %u, %.0f; BOM text %u, %.0f; other bytecode %u; text without BOM %u; not Lua %u",
+			g_uiLuaSrcLoads,
+			g_auiLuaSrcKindLoads[LSK_KOG_BYTECODE], g_adLuaSrcKindRunMs[LSK_KOG_BYTECODE],
+			g_auiLuaSrcKindLoads[LSK_BOM_TEXT], g_adLuaSrcKindRunMs[LSK_BOM_TEXT],
+			g_auiLuaSrcKindLoads[LSK_OTHER_BYTECODE], g_auiLuaSrcKindLoads[LSK_TEXT_NO_BOM], g_auiLuaSrcKindLoads[LSK_NOT_LUA] );
+		LuaSrcWrite( "[LUA_SRC_DEBUG]", szLine );
+	}
+	LeaveCriticalSection( &g_kLuaSrcLogLock.m_cs );
+#endif SERV_IRUHADEV_LUA_SOURCE_DEBUG
+}
+
+void KLuaSrcLoadScope::SetBuffer( const char* pBuffer_, long lSize_ )
+{
+	const unsigned char* pby = (const unsigned char*)pBuffer_;
+	m_lSize = lSize_;
+	memset( m_abyHead, 0, sizeof( m_abyHead ) );
+	if ( NULL == pby || lSize_ <= 0 )
+	{
+		m_eKind = LSK_NOT_LUA;
+		return;
+	}
+	memcpy( m_abyHead, pby, lSize_ < 4 ? lSize_ : 4 );
+
+	if ( 0x1b == pby[0] )
+	{
+		m_eKind = ( lSize_ >= 4 && 0x4b == pby[1] && 0x4c == pby[2] && 0x81 == pby[3] ) ? LSK_KOG_BYTECODE : LSK_OTHER_BYTECODE;
+	}
+	else if ( lSize_ >= 3 && 0xef == pby[0] && 0xbb == pby[1] && 0xbf == pby[2] )
+	{
+		m_eKind = LSK_BOM_TEXT;
+	}
+	else
+	{
+		m_eKind = LSK_TEXT_NO_BOM;		/// text unless a control byte shows up early ( a wrong key yields one fast )
+		const long lScan = lSize_ < 256 ? lSize_ : 256;
+		for ( long i = 0; i < lScan; ++i )
+		{
+			const unsigned char by = pby[i];
+			if ( by < 0x20 && '\t' != by && '\r' != by && '\n' != by )
+			{
+				m_eKind = LSK_NOT_LUA;
+				break;
+			}
+		}
+	}
+#ifdef SERV_IRUHADEV_LUA_SOURCE_DEBUG
+	QueryPerformanceCounter( &m_liRun );
+#endif SERV_IRUHADEV_LUA_SOURCE_DEBUG
+}
+
+void KLuaSrcLoadScope::SetUncompressFailed()
+{
+	m_eKind = LSK_UNCOMPRESS_FAILED;
+}
+
+void KLuaSrcLoadScope::ReportFailure()
+{
+	char szReason[320] = { 0, };
+	switch ( m_eKind )
+	{
+	case LSK_UNCOMPRESS_FAILED:
+		strcpy_s( szReason, "zlib uncompress failed after the XORCRC decrypt: not algo 2 ( zlib + XORCRC ) under this member name" );
+		break;
+	case LSK_KOG_BYTECODE:
+		strcpy_s( szReason, "the VM rejected it or it failed while running; a [LUA_SRC] lua error line just above says why ( stripped bytecode has no line numbers )" );
+		break;
+	case LSK_OTHER_BYTECODE:
+		_snprintf_s( szReason, _countof( szReason ), _TRUNCATE, "header %02X %02X %02X %02X is not KOG LuaJIT 1B 4B 4C 81 ( 82 = June bytecode: adopt it with adopt-june / ljconv )",
+			m_abyHead[0], m_abyHead[1], m_abyHead[2], m_abyHead[3] );
+		break;
+	case LSK_BOM_TEXT:
+		strcpy_s( szReason, "parse or run error; the [LUA_SRC] lua error line just above has the message and line" );
+		break;
+	case LSK_TEXT_NO_BOM:
+		strcpy_s( szReason, "text without a UTF-8 BOM: the binder ( LuaCommon/KLuabinder.h DoMemoryNotEncrypt ) refuses it without a message; store it as BOM + UTF-8" );
+		break;
+	case LSK_NOT_LUA:
+		_snprintf_s( szReason, _countof( szReason ), _TRUNCATE, "neither bytecode nor text ( first bytes %02X %02X %02X %02X, %ld B ): wrong key or member name, or not a Lua file",
+			m_abyHead[0], m_abyHead[1], m_abyHead[2], m_abyHead[3], m_lSize );
+		break;
+	default:
+		strcpy_s( szReason, "no buffer reached DoMemoryNotEncrypt" );
+		break;
+	}
+
+	char szFile[MAX_PATH] = { 0, };
+	LuaSrcFileName( m_pFileName, szFile, _countof( szFile ) );
+	char szHead[640] = { 0, };
+	_snprintf_s( szHead, _countof( szHead ), _TRUNCATE, "%s: %s, %s", szFile, s_aszLuaSrcKind[ m_eKind < LSK_END ? m_eKind : LSK_NONE ], szReason );
+	LuaSrcHead( szHead );
+}
+//}} Iruha : 2026-10-09 // Lua source L6
+#endif SERV_IRUHADEV_LUA_SOURCE
 void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 {
 	if ( pKLuabinder == NULL )
@@ -1534,6 +1816,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 
 	//D3D Å¬·¡½º
 	lua_State* L = pKLuabinder->GetLuaState();
+#ifdef SERV_IRUHADEV_LUA_SOURCE
+	LuaSrcRegisterAlert( L );		/// Lua source L6: Lua syntax and runtime errors reach ErrorLog.txt as [LUA_SRC] lines
+#endif SERV_IRUHADEV_LUA_SOURCE
 
 	lua_tinker::class_add<D3DXVECTOR2>( L, "D3DXVECTOR2" );
 	lua_tinker::class_con<D3DXVECTOR2>( L, lua_tinker::constructor<float, float>() );
