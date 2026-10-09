@@ -62,6 +62,7 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
 | Flag hygiene / unifdef | `python tools/flagcheck.py <FLAG> --worktree` then `--range` | x2-byte-edit |
 | Play-test logs | `python tools/logs.py --tag <TAG>` | x2-check-logs |
 | One doc section | `python tools/docsection.py <doc> "<heading>"` | - |
+| Convert / edit / prove a March `.lua` as BOM source | `python tools/luasrc.py find/convert/restore/refresh/ledger` (`kom.py compile` folds `X.src.lua`) | x2-lua |
 
 ## Finish (same session)
 

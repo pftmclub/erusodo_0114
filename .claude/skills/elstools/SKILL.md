@@ -12,7 +12,7 @@ Archive `dataNNN` = dir `dataNNN_kom/` in, `dataNNN_packed.kom` out. `data036`, 
 ```sh
 python tools/kom.py pack data036              # = elstools pack -i <kom_contents>/data036_kom -o <kom_contents>/data036_packed.kom -v mar-2014
 python tools/kom.py pack data036 data005      # several in one call
-python tools/kom.py compile data036           # stale X.src.lua -> X.lua bytecode (mar-2014), per file
+python tools/kom.py compile data036           # FOLD X.src.lua into BOM-source X.lua (T0 or newer), per file; --bytecode = old rollback path
 python tools/kom.py status [data036]          # what needs a pack / a copy (no arg: archives touched in the last 2 days)
 ```
 
@@ -35,6 +35,14 @@ user only asked for the pack. When *you* need a kom packed for a play-test, run 
 - **WARN stale X.src.lua** - the `.src.lua` is newer than its `.lua`. If those edits should ship, run
   `compile` first. Never use `elstools compile-dir`: it overwrites every X.lua that has an X.src.lua,
   including files deliberately converted another way (June `deepcopy` files via `ljconv.py`).
+- **`compile` now FOLDS source, it no longer makes bytecode** (LUA_SOURCE_PHASES L1; skill `x2-lua`). X.lua becomes `EF BB BF` +
+  the sidecar text and the sidecar is removed after the old bytecode is snapshotted to `kom_contents_bytecode/`. It folds when the
+  sidecar compiles byte-identical to the current X.lua (T0) or is newer than it (an intended edit, ledger tier EDIT); it REFUSES
+  an older non-T0 sidecar (stale decompile beside a converted file) or one that does not compile (exit 4).
+- **REFUSED: Lua gate** - before packing, every `.lua` must be March bytecode (`1B 4B 4C 81`), BOM + text that parses under the
+  vendored luajit, or a ledger exception (`tools/data/lua_source_ledger.tsv`, tier EXC). It refuses BOM-less text, June `0x82`
+  bytecode, other headers and parse errors, naming the file and the parser's message; nothing is written. Manifest-`"0"` `.lua`
+  (the user's hand-packed server Lua) only warns. See the `x2-lua` skill for the fix per message.
 - **vs live kom: +added -removed ~changed** - confirms the change you made is actually in the pack
   (a pack that shows `~0 changed` after you edited something means the edit is not in the dir or the
   manifest). `-removed` entries mean the dir is out of step with the live archive (data101 is);

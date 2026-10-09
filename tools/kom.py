@@ -3,7 +3,8 @@
 
     python tools/kom.py pack data036            # kom_contents/data036_kom -> kom_contents/data036_packed.kom
     python tools/kom.py pack 36 5 13            # several at once; data036 / 036 / 36 / data036_kom all work
-    python tools/kom.py compile data036         # recompile ONLY stale X.src.lua -> X.lua (bytecode, mar-2014)
+    python tools/kom.py compile data036         # FOLD X.src.lua into BOM-source X.lua (T0 or newer; see tools/luasrc.py)
+    python tools/kom.py compile data036 --bytecode   # old behaviour, rollback only: stale X.src.lua -> mar-2014 bytecode
     python tools/kom.py copy data036            # kom_contents/data036_packed.kom -> <game dir>/data036.kom
     python tools/kom.py status                  # recently touched archives that need a pack / a copy
     python tools/kom.py status data036          # one archive in detail (entry diff vs the live kom)
@@ -18,8 +19,17 @@ pack  : runs `elstools pack -i <dir> -o <packed> -v mar-2014`. NOTE (measured 20
         X.src.lua (newer than X.lua). After it runs it re-reads the result with `elstools inspect`,
         checks entry set + per-entry algo against dir + manifest, then replaces the old packed kom
         atomically. Prints the entry diff against the LIVE kom.
-compile: see above; per-file (compile-batch), never compile-dir, because compile-dir overwrites every
-        X.lua that has an X.src.lua beside it, including ones deliberately converted another way.
+        LUA GATE (Rule 5, LUA_SOURCE_PHASES.md; tools/luasrc.py): every .lua (not .src.lua) must be March bytecode
+        (1B 4B 4C 81) or BOM + text that parses under the vendored luajit, or a ledger exception (tools/data/
+        lua_source_ledger.tsv, tier EXC). It REFUSES (exit 4, nothing written): BOM-less text, June 0x82 bytecode,
+        any other header, a parse error - each named with the parser's message. Manifest "0" .lua (user-packed
+        server Lua) only WARNS, never refuses.
+compile: folds every X.src.lua into X.lua = BOM + the source text (and removes the sidecar after snapshotting the
+        old bytecode to kom_contents_bytecode/). Folds when the sidecar compiles byte-identical to the current
+        X.lua (T0) or is NEWER than it (an intended edit, ledger tier EDIT, no equivalence claimed); REFUSES an
+        older sidecar that is not T0 (a stale decompile beside a converted file) or one that does not compile.
+        Per file, never elstools compile-dir (it overwrites every X.lua that has an X.src.lua beside it).
+        --bytecode keeps the old elstools bytecode compile for rollback.
 copy  : refuses while X2_offline.exe runs, if the kom_contents dir is newer than the packed kom, or
         if the packed kom DROPS entries the live kom has (--allow-removed overrides). Backs the
         live kom up to <kom_contents>/../kom_backup_tools/ (newest 5 kept per archive), copies via
@@ -241,6 +251,18 @@ def cmd_pack(name, allow_unlisted=False):
         p("  WARN %d X.src.lua newer than X.lua (edited after the last compile) - run `kom.py compile %s` first if those edits should ship:" % (len(stale), name))
         lst([os.path.relpath(s, d) for s in stale], "!")
 
+    refusals, warnings, notes = _luasrc().gate(d, name, man)
+    for n in notes:
+        p("  note: %s" % n)
+    if warnings:
+        p("  WARN %d lua gate warning(s):" % len(warnings))
+        lst(warnings, "!")
+    if refusals:
+        p("REFUSED: %d .lua file(s) fail the Lua gate (Rule 5); nothing was packed:" % len(refusals))
+        lst(refusals, "x", limit=40)
+        die(4, "Fix each file (lead BOM-less text with EF BB BF, fix the parse error, run a June 0x82 file through ljconv / adopt-june). "
+               "Only a ledger exception row (tools/data/lua_source_ledger.tsv, tier EXC) lets any other .lua through.")
+
     part = pa["packed"] + ".part.kom"
     if os.path.exists(part):
         os.remove(part)
@@ -280,10 +302,35 @@ def cmd_pack(name, allow_unlisted=False):
     p("PACK OK %s: %s" % (name, pa["packed"]))
 
 
-def cmd_compile(name):
+def _luasrc():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import luasrc
+    return luasrc
+
+
+def cmd_compile(name, bytecode=False):
     d = paths(name)["dir"]
     if not os.path.isdir(d):
         die(2, "no such kom dir: %s" % d)
+    if not bytecode:
+        ls = _luasrc()
+        folded, refused, skipped = ls.fold(d, name, phase="compile")
+        p("== compile %s: fold X.src.lua into BOM-source X.lua" % name)
+        for n, how in folded:
+            p("    folded %s  [%s]" % (n, how))
+        for n in skipped:
+            p("    already folded (text equal): %s" % n)
+        for n, why in refused:
+            p("    REFUSED %s: %s" % (n, why))
+        if refused:
+            die(4, "COMPILE REFUSED %s: %d folded, %d refused (see above)." % (name, len(folded), len(refused)))
+        if not folded and not skipped:
+            p("nothing to compile (no X.src.lua in the dir).")
+            return
+        p("COMPILE OK %s: %d folded (BOM source), %d already folded. Old bytecode is in kom_contents_bytecode/." % (name, len(folded), len(skipped)))
+        if folded:
+            p("Next: kom.py pack %s" % name)
+        return
     stale = stale_sources(d)
     p("== compile %s: %d stale X.src.lua" % (name, len(stale)))
     if not stale:
@@ -688,6 +735,8 @@ def main():
             s.add_argument("--force", action="store_true", help="copy even if the kom dir is newer than the packed kom")
         if c == "status":
             s.add_argument("--days", type=float, default=2, help="no-arg status: only archives touched within N days (default 2)")
+        if c == "compile":
+            s.add_argument("--bytecode", action="store_true", help="rollback only: compile stale X.src.lua to mar-2014 bytecode with elstools")
         if c == "pack":
             s.add_argument("--allow-unlisted", action="store_true", help="pack files the manifest does not list (they get algo 2)")
     a = ap.parse_args()
@@ -702,7 +751,7 @@ def main():
         if a.cmd == "pack":
             cmd_pack(n, a.allow_unlisted)
         elif a.cmd == "compile":
-            cmd_compile(n)
+            cmd_compile(n, a.bytecode)
         else:
             cmd_copy(n, a.allow_removed, a.force)
 

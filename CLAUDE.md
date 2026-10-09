@@ -23,8 +23,9 @@ Added 2026-10-04. Every repeated step of the phase loop is a script. A session t
 | Play-test logs | `python tools/logs.py --tag <TAG>` | x2-check-logs |
 | Pack a March kom (`kom_contents/dataNNN_kom` -> `dataNNN_packed.kom`) | `python tools/kom.py pack dataNNN` | `/elstools pack dataNNN` |
 | Deploy a packed kom (-> game dir `dataNNN.kom`) | `python tools/kom.py copy dataNNN` | `/x2-kom-packed copy dataNNN` |
+| Convert / edit / prove a March `.lua` as BOM source (`find`, `convert`, `restore`, `refresh`, `ledger`; `kom.py compile` folds `X.src.lua`) | `python tools/luasrc.py convert dataNNN X.lua` | `/x2-lua` |
 
-- **Packing koms is not the user's step any more (2026-10-06).** When a change needs a `.kom` packed, run `/elstools pack` yourself, then **ask the user before every `/x2-kom-packed copy`** (user, 2026-10-06; it overwrites a live archive; copy also refuses while the game runs, then ask them to close it) and report the `PACK OK` / `COPY OK` lines in the hand-off; the user's only job is the play-test. **Exception (user, 2026-10-06): server-only Lua** (the rule below) stays fully manual - the user encrypts and packs it themselves, a rare case; do not run `kom.py` for it, just name the file as that rule says. For everything else the tools pack what is in `kom_contents/dataNNN_kom/` and encrypt nothing (`compile` handles `.src.lua` only).
+- **Packing koms is not the user's step any more (2026-10-06).** When a change needs a `.kom` packed, run `/elstools pack` yourself, then **ask the user before every `/x2-kom-packed copy`** (user, 2026-10-06; it overwrites a live archive; copy also refuses while the game runs, then ask them to close it) and report the `PACK OK` / `COPY OK` lines in the hand-off; the user's only job is the play-test. **Exception (user, 2026-10-06): server-only Lua** (the rule below) stays fully manual - the user encrypts and packs it themselves, a rare case; do not run `kom.py` for it, just name the file as that rule says. For everything else the tools pack what is in `kom_contents/dataNNN_kom/` and encrypt nothing (`compile` folds `X.src.lua` into BOM-source `X.lua`; `pack` runs the Lua gate in *Rule: client `.lua` is source* below).
 - **Every phase and review finishes the same way** (x2-phase "Finish"):
   - `flagcheck --worktree` passes;
   - `build.py --deploy`, with its `DEPLOY OK` line pasted into the Done note;
@@ -158,6 +159,31 @@ is announced in the log. Anything that cannot be sourced that way — a Lua
 Do not create new `.lua` files: no side files, helper tables or "temporary stand-ins". A new Lua file is allowed only when it is a **server Lua** the client needs packed into a client kom (the user packs it; see the server-Lua rule above).
 
 If a change needs data that lives in an existing Lua (a class script, `DamageEffect`, a monster script) and you cannot reach it safely, do not route around it with a new file. Say what blocks the work, and if it feels beyond the current model (a risky recompile, an equivalence proof, unclear RE), say **"this needs a higher model"** and stop. Editing an existing Lua that has a `.src.lua` is a separate question: ask first, do not assume it from an earlier phase's precedent.
+
+## Rule: client `.lua` is BOM source, not bytecode (user, 2026-10-09; `LUA_SOURCE_PHASES.md`, skill `x2-lua`)
+
+The client engine loads XOR-encrypted **BOM + UTF-8 text** as readily as bytecode (L0 proved it in game), so a March `.lua` that
+has to change is stored as source and every later change is a text edit. Use `python tools/luasrc.py` and `kom.py`; never decompile
+or compile by hand.
+
+1. **Proof tiers.** Only T0 and T1 convert automatically. **T0:** the source compiles byte-identical to the reference bytecode.
+   **T1:** the recompile is identical per prototype (opcodes, registers, child-proto tree, upvalues, numparams, framesize, flags;
+   constants compared by value, slot order ignored). **T2:** behaviour-equal only, needs an Opus reader audit and the user's yes.
+   **T3:** unproven, the bytecode ships. The reference is the shipped March bytecode (June files: `ljconv(June bytecode)`).
+2. **June `.lua` only through `adopt-june`** (L3): junekom extract, `ljconv`, decompile, T1, then BOM source; on failure it ships the
+   `ljconv` bytecode and writes a ledger exception row. `june_src_fixed/` is reading material.
+3. **Editing a March `.lua` starts with `luasrc.py convert`.** Sources are tried in order: sibling `X.src.lua` (T0), a studio original
+   in `ClientScript\` / `_ClientScript\` (T0), a T1 decompile (after L2). Afterwards `X.lua` **is** BOM + UTF-8 source on disk.
+   `kom.py compile` folds a sidecar `X.src.lua` into it (when T0, or newer than `X.lua` as an intended edit, tier EDIT).
+4. **Conversion changes format only.** Content changes are the port's own diff, made after conversion.
+5. **The pack gate enforces it.** Every `.lua` must be BOM text that parses under the vendored luajit, or `1B 4B 4C 81` bytecode, or a
+   bytecode exception in the ledger (tier `EXC`; seeded: `data014 UI_NPC_KELAINO.lua`, `data036 PvPDropTable.lua`). `pack` refuses
+   BOM-less text, June `0x82` bytecode, other headers and parse errors, naming file and message. Manifest-`"0"` `.lua`
+   (server-only Lua the user packs by hand, rule above) only warns, never refuses.
+6. **Bookkeeping.** Original bytecode is snapshotted to `24965799\kom_contents_bytecode\dataNNN_kom\`. The ledger
+   `tools/data/lua_source_ledger.tsv` has one row per converted or adopted file (kom, name, origin, reference, reference sha1, source,
+   tier, source sha1, phase, date, reason, state); `luasrc.py ledger --check` must stay PASS, and `luasrc.py refresh` re-records a file
+   after a deliberate text edit.
 
 ## Rule: `DataBase/` and `ScriptData/` are a stale snapshot — the live DB is the source of record
 

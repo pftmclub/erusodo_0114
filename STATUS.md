@@ -427,8 +427,8 @@ March files are not mass-converted, because June replaces them.
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | L0 | **done 2026-10-09** (data217 pilot: decode-back 6/6, rollback proven, play-test passed, 0 KEM_ERROR) | Sonnet 5.5 / high, then user play-test | - | `kom_contents/data217_kom`, `tools/data/lua_source_ledger.tsv` (new) | `L0.md` |
-| L1 | ready | Sonnet 5.5 / high | L0 | `tools/kom.py`, `tools/luasrc.py` (new), `.claude/skills/x2-lua/` (new), `.claude/skills/elstools/`, `.claude/skills/x2-phase/`, CLAUDE.md, `tools/README.md` | `L1.md` |
-| L2 | waiting (L1) | Opus 5.5 / **xhigh** | L1 | `tools/luasrc.py`, `june2017_re/ljdiff/`, `.claude/skills/x2-lua/` | `L2.md` |
+| L1 | **done 2026-10-09** (`luasrc.py` + Lua pack gate + `compile` fold + skill `x2-lua`; real dry run 2,402 T0 / 2,441 need L2; gate, fold and convert-restore proven in scratch dirs; no kom touched) | Sonnet 5.5 / high | L0 | `tools/kom.py`, `tools/luasrc.py` (new), `.claude/skills/x2-lua/` (new), `.claude/skills/elstools/`, `.claude/skills/x2-phase/`, CLAUDE.md, `tools/README.md` | `L1.md` |
+| L2 | ready | Opus 5.5 / **xhigh** | L1 | `tools/luasrc.py`, `june2017_re/ljdiff/`, `.claude/skills/x2-lua/` | `L2.md` |
 | L2 review | waiting (L2) | Opus 5.5 / high | L2 | review only | `L2-review.md` |
 | L3 | waiting (L2 review) | Sonnet 5.5 / high | L2 review | `tools/luasrc.py`, `.claude/skills/x2-adopt-june/` (new), CLAUDE.md | `L3.md` |
 | L4 | optional, waiting (L3) | Sonnet 5.5 / high, then user decisions | L3 | report only (`june2017_re/lua_source_port_audit.tsv`) | `L4.md` |

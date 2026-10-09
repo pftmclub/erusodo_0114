@@ -327,6 +327,39 @@ Write a Done note, start the ledger with these 6 rows (tier T0, source `src.lua`
 
 No kom copy in this phase.
 
+**Done note (2026-10-09, Sonnet 5.5): L1 done - tools, gate, fold, skill and docs landed; no live kom touched.**
+- **Files:** `tools/luasrc.py` (new: `find` / `convert` / `restore` / `refresh` / `ledger [--check]`, plus the `gate()` and `fold()`
+  that `kom.py` imports), `tools/kom.py` (Lua pack gate; `compile` folds, `--bytecode` keeps the old path), `.claude/skills/x2-lua/`
+  (new), CLAUDE.md (*Rule: client `.lua` is BOM source*, a *Workflow automation* row, the line-27 tail; the server-Lua exception
+  sentence is byte-identical), the `elstools` and `x2-phase` skills, `tools/README.md`. No engine code, so no flag, no build.
+- **Compile mechanics:** every compile is file to file from `.build/luasrc_tmp/` with the BOM stripped by us (the stdout pipe adds
+  CRLFs: 1151 vs 1150 bytes on a data217 file). The standalone luajit also accepts a BOM file, but we never rely on it.
+- **Ledger:** gained a 12th column `state` (`live` / `restored`; the L0 rows read as `live`) and two seeded exception rows, tier `EXC`
+  (`data014 UI_NPC_KELAINO.lua`, June 0x82; `data036 PvPDropTable.lua`, January XOR). `--check` verifies an EXC row against its
+  `reference_sha1`, demands no BOM row for it, and a BOM-text file needs a live row whose `source_sha1` matches (else `refresh`).
+  A fold of a newer sidecar records tier `EDIT` (no equivalence claimed). Real ledger: `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
+- **Gate evidence** (scratch tree under `.build/l1/scratch`, all three roots overridden so the real ledger and snapshots were never
+  written): pack refused, exit 4, nothing packed, naming each file: BOM-less text (`... binder returns false with no log`), a June
+  0x82 file listed `"2"`, and a syntax error (`line 3: unexpected symbol near '='` on a 3-line file). A manifest-`"0"` 0x82 file only
+  warned; after the three bad files were removed `PACK OK` (3 entries, algos `{'0': 1, '2': 2}`). The real gate over all 15 kom dirs:
+  0 refusals, 2 exception notes.
+- **Fold evidence:** a sidecar that compiles byte-identical folds as T0; a newer sidecar folds as `EDIT`; an older non-T0 sidecar is
+  refused (`stale sidecar beside a converted file`); a sidecar with a syntax error is refused; each fold snapshots the old bytecode.
+- **Round trip:** `convert` then `restore` over 4 files (two with sidecars, two ClientScript originals) left the scratch dirs
+  byte-identical (`diff -r` clean); restore also brings the sidecars back; ledger rows go to `restored`.
+- **Dry run, all 15 dirs (real tree):** `CONVERT DRY RUN: 2402 T0 convertible, 2441 need L2, 8 skipped; nothing changed.` Breakdown
+  of the 2,402: 328 sibling `src.lua` (334 minus data217's 6) + 2,072 ClientScript + 2 `_ClientScript`, which is exactly the plan's
+  2,408 minus the 6 already converted. The 2,441 are the plan's 2,443 minus the two oddities (skipped as not March bytecode). A
+  sha1 of every `.lua` / `.src.lua` (path, bytes, mtime) in the 15 dirs plus the ledger was identical before and after.
+  By kom (T0): data037 1249, data040 619, data035 241, datai016 81, data039 68, data034 68, data036 65, datai015 6, datai014 3, data038 2.
+- **Skill:** `x2-lua` appeared in this session's skill list right after the file was written, so the list picks it up live. The
+  example commands in `SKILL.md` were run as written against the scratch copy (`find`, `convert`, `restore`, `refresh`,
+  `ledger --check`, `kom.py compile`, `kom.py pack`).
+- **Known edges (not defects):** whole-kom `convert` without `--dry-run` converts every provable file in that kom (name files, or go one
+  kom at a time; `--all` needs `--dry-run`). Sidecar-vs-`X.lua` age uses mtime, so a deliberate sidecar edit must be saved after the
+  last `X.lua` write (the fold says so when it refuses).
+- **Open question for the user:** none. Next: L2 on Opus 5.5 xhigh (`/x2-phase lua-source L2`); L6 can run alongside.
+
 ## Phase L2 - Equivalence checker (March + June)
 
 **Scope.** Build the instruction-level proof that makes decompiles shippable. This is the core engineering of the plan.
