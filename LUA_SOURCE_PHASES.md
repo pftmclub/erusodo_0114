@@ -80,8 +80,9 @@ bytecode; see "Established facts".
      take `adopt-june --source`: decompile, T1 against the `ljconv` output, then BOM source plus a ledger row. If T1 fails, nothing
      is staged (June's bytecode would drop the merge or the edit); the core-list row records the reason, and the file goes to L5 or
      a T2 sign-off. The default route refuses a core-list name.
-   - Adding a file to the core list needs a reason in its row (the blocker, or the port and the edit). Editing a June file still follows
-     CLAUDE.md's ask-first rule for existing Lua and the byte-exact June rule (Rule 8): the port asks, then adds the row.
+   - Adding a file to the core list needs a reason in its row (the blocker, or the port and the edit). A port that finds it must edit
+     a June file adds the row itself and carries on; no question (user, 2026-10-09). This is the one exception to Rule 8's byte-exact
+     June rule, and the row is the record of it.
    - Never decompile or compile by hand. `june_src_fixed/` is reading material.
 3. **Editing a March `.lua` starts with `convert`** (the file is on the core list by definition). Sources are tried in this order:
    - the sibling `X.src.lua` (T0);
@@ -107,7 +108,7 @@ bytecode; see "Established facts".
    - Cite the June address for every conclusion drawn from it.
 8. **Standing rules still apply.**
    - No new `.lua` files (CLAUDE.md). Conversion keeps every name.
-   - June files are byte-exact (`june-assets-byte-exact-no-edits`).
+   - June files are byte-exact (`june-assets-byte-exact-no-edits`), except a `.lua` on the core list that a port must edit (Rule 2).
    - Ask before every `/x2-kom-packed copy`.
    - Edit CP949 sources with `bytepatch.py` only.
 
@@ -772,7 +773,7 @@ in `KTDXApp.cpp`, plus one enum line in `KTDXApp.h` and the comment in `Always.h
 - **atlas / elysion / lanox:** their "compiled `1B 4B 4C 81`" gates are superseded once L1/L3 land (kickoffs updated in L7). Elysion
   E0's decompile-check of `ELYSION_SOLESS` becomes `adopt-june` (`--source` only if Elysion must edit it). Atlas A5 owns the
   core-list row for `DLG_Destination_byButton`; Atlas/Elysion own the three `DLG_Map_*` rows.
-- **Any plan that must edit a June `.lua`:** ask first (CLAUDE.md), then add the core-list row (Rule 2) and run `adopt-june --source`.
+- **Any plan that must edit a June `.lua`:** add the core-list row (Rule 2) and run `adopt-june --source`; no question (user, 2026-10-09).
 - **june-asset-port:** unaffected (non-lua). P5's March constant scan reads text for any converted file.
 
 ## Play-test hand-off
