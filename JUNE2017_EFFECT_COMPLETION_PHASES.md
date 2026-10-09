@@ -1635,6 +1635,37 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 **Post-commit hygiene** (`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --range 308abe4^..308abe4`): `files: 4 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 13 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 
+### C3j - Review (2026-10-10, Opus 5.5 high)
+
+**Verdict: no transcription error in `308abe4`; no code change.** Checked against June (capstone, Ghidra read-only):
+- **Key table** `0x334b9178`: entries 33-35 are `{ BOUNDING_DOWN, 0x21 }`, `{ BOUNDING_LANDCRASH, 0x22 }`, `{ BOUNDING_UP, 0x23 }`, and 36 is `REVENGE_ATTACK` (March's order, the bounding types last in the reaction block).
+  - Loop `@3279f1cd-3279f2ad`: `32feb110` reads the key with default `''`. Only when its size (`[esp+0x64]`) is 0 does `3275d900( type )` supply the name, which is `DAMAGE_BOUNDING_*` for `0x21-0x23` and `''` otherwise.
+  - The map lookup (`325c7d80`) gives 0 at end, otherwise the byte `+0x28`.
+  - March matches: the default applies on `empty()`, and `GetStateID` returns `GUSI_NONE` (0) when the name is absent. `X2OPTIMIZE_VERIFY_NPC_SCRIPT_CONSISTENCY` is commented out (`KTDX.h:460`), so the default names log nothing.
+- **UP launch position:**
+  - June's tail `@327af1d2-327af1f7` is `31e4d160` (SetIsRightNow: it sets `+0x8471` and flips the rotation by 180, the SET_DIRECTION block), then `32275440`, `32071c30`, `+0x8f1c = 0` and `32761b40( 0.0 )`. That is March's last lines in order, under `X2OPTIMIZE_ROBUST_NPC_ROTATION`.
+  - The C3j block is now the function's last statement, so no March line writes nowSpeed after it.
+  - Early exits match: June `@327aca28` jumps to the epilogue `327af5ea` when `+0x8604` is null, the twin of March's `NULL == m_pXSkinAnim` return. The block is therefore reached on the same paths as `@327af3aa`.
+  - June's SPEED_X / SPEED_Y writes to `+0x304 / +0x308` (`@327addf5 / 327ade0d`) come before `3275a070`.
+- **`OnFrameRender_Draw`** `32768c70`:
+  - The two gates are March's: cash shop `+0x290 / +0xd8`, then game type 3 (`GT_BATTLE_FIELD`) and vslot `0x278` (DidReceiveFirstSyncPacket).
+  - Then `32fe9b20( nowState )`, a draw (vslot `0x464`) when it opened or nowState is `+0x8704 / 08 / 0c`, and `32fe9a10` only when it opened.
+  - The flag branch always uses nowState. That equals March's live branch, because `X2OPTIMIZE_NPC_NONHOST_SIMULATION` is defined (`KTDX.h:281`).
+  - The `0 !=` guards are behaviour-neutral: NPC nowState starts at `GUSI_LOADING` (`X2GUNPC.cpp:3147`), and `CommonRender_Draw` reads no Lua.
+- **Vslots:**
+  - Slots `0x2f0 / 0x2f4`: NPC `3275a010 / 3275a030`, user `31fd7ec0 / 31fd7f00`, base `31aa1d30` in both.
+  - User: `(ptr - +0x7cec) / 100` (magic `0x51eb851f`, `sar 5`). Now `== 0x7a`; Now `== 0x79` or Future (`+0x7cb0`) `== 0x79`.
+  - NPC LANDCRASH: nowState or `movzx word +0x8404`. March's `nextState` is a signed short (`SERV_IRUHADEV_JUNE_USER_STATE_ID16`, `Always.h:6193`), which is equal for ids 0-255; the -1 sentinel matches neither.
+- **Trace spot-checks:**
+  - (2) `dispsweep 40f0 40f4`: the writers are only `31feb6d2 / de` and `32769e1b / 27`; the readers are `31fc9d20` and `3275a070`; there is no third writer.
+  - (4) is confirmed by the SPEED write addresses above.
+
+**Correction (bookkeeping):** the funcmap row `327ac9d0 @327af1d2-327af3bb (C3j)` said "-> C3f-1 item 6". It is item **2b** (item 6 is the C3c comment), and the row is fixed.
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --range 308abe4^..308abe4`): `files: 4 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `13 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 13 deletions are C3d-3's own lines inside the flag: the three `DAMAGE_BOUNDING_*` key rows and the 10-line UP block (`#ifdef`..`#endif`) that moved to the tail.
+
+**Build:** none (no code change). C3j's regression play-test already passed. The `C3j-1` kickoff needs no change: its fills sit in InitState, and the tail and guards it re-words are as reviewed here.
+
 ## C3k - port: June stopped counting fly hits
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
