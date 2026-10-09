@@ -3367,6 +3367,22 @@ Packed and copied: `data035` md5 b76d3cb3, `data037` 42e6ccc6, `datai016` 86d929
 Revert: copy back the live koms from `24965799\kom_backup_tools\{data035,data037,datai016}.kom.20261009_135512*` and delete `data\datai030.kom`;
 for the staging tree, restore `24965799\kom_backup_stage_june\20261009_135231\` (replaced files + moved sidecars) over `kom_contents\`.
 
+### June meshes for the replaced NPC / dungeon scripts (2026-10-09)
+
+Data only, no flag, no exe change. The ljconv scripts above that **replaced** a March script name June-renamed meshes March never
+had (e.g. `Thief_Thin_Toto.x` -> `Motion_THIEF_THIN_TOTO.X`). The monster's motion then fails to open and `CX2GUNPC::Init` dereferences
+the NULL `m_pMotion` (`+0x775c`): the client crashed entering Ruben field 40000 (Toto). User chose to bring June's files in (option B).
+`june2017_re/npc_mesh_census.py` scans the 2,267 replaced `.lua` (stage backups `20261009_135231` and `_141115`) for asset names June has
+and March lacks, then follows each mesh to its textures: **143 files, 178 MB** (97 `.x`, 31 `.dds`, 15 `.tga`), list
+`june2017_re/npc_mesh_need_replaced.tsv`. Staged with `kom.py stage-june` (June's exact bytes, June's kom number, all 13 exist in March):
+data005 +6, data006 +4, data007 +19, data008 +15, data009 +12, data043 +31, data057 +4, data100 +16, data111 +22, data119 +1, data126 +6,
+data136 +4, data151 +3. Added only: no March file replaced. (`kom.py status` also lists hundreds of `~changed` entries in these koms:
+compressed size only, raw size equal: elstools compresses differently from KOG's packer.) June-only scripts (1,373 new files) name
+~1,700 more missing assets; they are unreachable until a registry names them, and stay with june-asset-port P2-P4.
+
+Revert: copy back `24965799\kom_backup_tools\<kom>.kom.<stamp>` for the 13 koms, and delete the 143 names (TSV) from
+`kom_contents\dataNNN_kom\` and their `_manifest.json` keys.
+
 ### June partial ports replaced (2026-10-09)
 
 Data only, no flag. Every earlier June port that was still a recompiled decompile or a March/June merge is now June's own bytecode via
