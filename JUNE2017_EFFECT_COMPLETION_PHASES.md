@@ -1150,7 +1150,7 @@ The review needs no play-test; the C3g regression play-test already passed.
 
 ## C3h - port: June's APPLY_MOVEMENT_SPEED (PhysicParam's new first field)
 
-**Status: code done 2026-10-09 (regression play-test pending), found by C3g. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3h.md`.
+**Status: done 2026-10-09 (regression play-test passed), found by C3g. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3h.md`.
 
 - **Scope:** a bool user state key (`320506f0 @32054181`) June stores as the new first byte of its PhysicParam (`+0x300`) and copies to the minor
   unit's (`+0x36c`). PhysicProcess's x decay scales by `31e4f990()` / walk speed when it is set. Identify every reader and port the engine side; the
@@ -1203,6 +1203,8 @@ no such key, so nothing sets it today. The engine half reaches play with the Ara
 **Deploy.** DEPLOY OK: X2_offline.exe is 19,456,512 B, dated 2026-10-09 16:20:16, md5 192ac6b58ea0453f94e82c3a84eb838e, equal to X2/US_SERVICE/x2.exe (2026-10-09 16:20:09); built at mods/june-buff-port 1b12baa + 7 uncommitted code file(s) (C3h's 3, plus a peer's uncommitted C3i-family flags in Always.h / X2GUNPC / X2Game / X2DamageEffect). Strings checked in the deployed exe: `JUNE_FX C3h user state` (UTF-16) and `APPLY_MOVEMENT_SPEED` present. A peer redeployed at 16:21:06 (md5 5464aeda, same size), built from this tree; it also carries both strings, so it is the exe to play-test. Build consistency: Always.h (16:04) and X2GUNPC.h (16:05) predate both X2Lib.pch (16:09) and x2.pch (16:19), so X2Lib and X2 used the same flags and layouts. Reach re-checked: no `.lua` under `24965799/kom_contents/data*_kom/` contains `APPLY_MOVEMENT_SPEED`.
 
 **In game.** There is nothing new to see. Dashes, runs and slides should stop exactly as before, and `offline_server.log` has no `JUNE_FX C3h` line.
+
+**Play-test (2026-10-09): PASSED.** (user; exe 10df7f3e, a peer's redeploy carrying C3h; Ruben field 40000 as arasss, Ara Yama Raja: air dash, runs; reyaa runs). Logs read: 0 `JUNE_FX C3h` lines as expected, 0 EXCEPTION, only the baseline E_DISABLE_HB_CHECK_REQ UNHANDLED, field 40000 placed 21 monsters, no `BattleFieldData` error, no monster `OpenXSkinMesh` failure. The first attempt crashed in `CX2GUNPC::Init` (NULL m_pMotion: June's `Thief_Thin_toto.lua` names `Motion_THIEF_THIN_TOTO.X`): not C3h; fixed by staging 143 June meshes/textures (`7f00a64`) and restoring March's merged `BattleFieldData.lua` (`c4c6b18`, `2830cb9`; June's needs `BFT_*` -> atlas A6b).
 
 ## C3i - port: June's NOT_UP_STATE in the NPC reaction cases
 
