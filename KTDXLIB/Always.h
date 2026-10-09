@@ -6310,3 +6310,39 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ASI_AIRIAL_DASH only (June class script, not in March yet). Log tag: JUNE_FX C3h.
 #define SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June effect completion C3i (JUNE2017_EFFECT_COMPLETION_PHASES.md). June's NPC DamageReactStateChange
+//              (32769240) opens SMALL / BIG / DOWN / UP / FLY / DRAG_UP with the FORCE_BACK_SPEED gate that C3c ported for
+//              the user: a super-armoured NPC ignores the hit unless the DamageData's FORCE_BACK_SPEED (+0x3ec) is set, and
+//              then takes only the hit's vertical speed, with no state change (SMALL also gets +700 and the walk-speed / 3
+//              x push). March's NPC cases only break on IsSuperArmor(). Log tag: JUNE_FX C3i (offline_server.log).
+#define SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
+#if defined(SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED) && !defined(SERV_IRUHADEV_JUNE_DAMAGEDATA)
+#error SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED needs SERV_IRUHADEV_JUNE_DAMAGEDATA ( DamageData::m_bForceBackSpeed )
+#endif
+// Description: C3i. June's NPC INIT key NOT_UP_STATE (+0x8ac4; read under SERV_IRUHADEV_JUNE_BOUNDING_STATE) in the RT_UP /
+//              RT_FLY / RT_DRAG_UP cases (@32769b1a, b72, be9, c41, cad, ced): the launch's nowSpeed.y write is skipped and
+//              the reaction state still starts; on the forced super-armour path nothing at all happens. 36 June NPC
+//              scripts set it (e.g. Lanox Burned Forest MAG_STONE).
+#define SERV_IRUHADEV_JUNE_NOT_UP_STATE
+#if defined(SERV_IRUHADEV_JUNE_NOT_UP_STATE) && !defined(SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED)
+#error SERV_IRUHADEV_JUNE_NOT_UP_STATE needs SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED ( three of its six tests sit in that gate )
+#endif
+#if defined(SERV_IRUHADEV_JUNE_NOT_UP_STATE) && !defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE)
+#error SERV_IRUHADEV_JUNE_NOT_UP_STATE needs SERV_IRUHADEV_JUNE_BOUNDING_STATE ( m_bJuneNotUpState and its key read )
+#endif
+// Description: C3i. June's black-hole pull (CEffect::OnFrameMove_BlackHoleData 31f6eea0). The NPC INIT key
+//              NOT_AFFECT_BLACKHOLE (InitComponent 327a0fa0 @327a5f0b, +0x8ac5, bool, default false; 36 June NPC scripts)
+//              keeps an NPC out of every pull (@31f6f0bf). A NaN distance (_isnan @31f6f2a2) or an invincible unit
+//              (GetInvincible, vslot 0x180 @31f6f2bd) is not moved, but a user in range is still marked as held by the
+//              hole. June's PvE owner filter (@31f6f1a6, CX2Game::IsPve 322cc1c0 = game type 4) is not ported: March has
+//              no game type 4.
+#define SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+// Description: C3i. June's NPC state key NO_FALL_DOWN_AT_STATE (LoadStateData 32784c00 @32796254, StateData +0x401,
+//              bool, default false; 47 June NPC scripts): a fall-down NPC in such a state is not pulled by a black hole
+//              (31f6eea0 @31f6f0b2) and is not knocked down when a user resurrects in the dungeon
+//              (Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK, @3230ec81).
+#define SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+//////////////////////////////////////////////////////////////////////////

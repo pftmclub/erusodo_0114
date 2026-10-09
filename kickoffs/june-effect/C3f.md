@@ -36,7 +36,9 @@ The C3c review found that June moved the user's force-down flush.
 2. **June's CommonStateStart.** Confirm that `32057b80` has no flush call. Its only callers of `32a33dc0` are `320348c0` and `327577d0`. Note
    anything else June runs there in place of March's `ForceDownAndDetonationProcess()`.
 3. **The NPC twin** `327577d0` (states `+0x4090` / `+0x4094` / `+0x4098`) against March's NPC path (`X2GUNPC.cpp:13101` `FlushForceDown`, and
-   any NPC flush on state change). Find which NPC states those are and where they are set.
+   any NPC flush on state change). Find which NPC states those are and where they are set. Also (found by C3i, funcmap
+   `32769240 @3276a18d-3276a1f3`): June's NPC `DamageReactStateChange` skips its whole FlushForceDown branch while nowState is one of the
+   same three states; March's branch has no such test. Plan its port with the rest.
 4. **Overrides.** Luciel overrides all three getters (`32b4d810` / `32b4d850` / `32b4d9d0`): record what they return. Class material goes to
    `JUNE2017_CHARACTER_PORT_CHECKLIST.md` (standing rule D8, no question).
 5. **Plan the port** (follow June, no partial update): a phase row, a flag and a kickoff. The port moves the flush to StateChange under

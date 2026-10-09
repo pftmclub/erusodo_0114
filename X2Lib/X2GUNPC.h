@@ -1091,6 +1091,9 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
             float                       m_fJuneLimitMaxGSpeed;     /// C3g: June StateData +0x430, key SET_LIMIT_MAX_G_SPEED ( default 1.0 )
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+#ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+            bool                        m_bJuneNoFallDownAtState;  /// C3i: June StateData +0x401, key NO_FALL_DOWN_AT_STATE ( default false )
+#endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
             D3DXVECTOR2                 m_v2SetRevengeTimeValue;
             D3DXVECTOR2                 m_v2SetReflectMagicValue;
             std::map< int, D3DXVECTOR3 > m_mapAddSlashTrace;
@@ -1224,6 +1227,9 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
                   m_fJuneLimitMaxGSpeed( 1.f ),
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+#ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+                  m_bJuneNoFallDownAtState( false ),
+#endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
                   m_v2SetRevengeTimeValue( -1.f, -1.f ),
                   m_v2SetReflectMagicValue( 0.f, 0.f ),
                   m_wstrAnimName(),
@@ -2455,6 +2461,13 @@ class CX2GUNPC : public CX2GameUnit
 		bool							m_bJuneNotBounding;		/// June +0x8ac6: the NPC's INIT key NOT_BOUNDING ( 327a0fa0 @327a683d, = InitComponent ); a bounding hit is ignored while it is set ( C3d-3 review )
 		bool							m_bJuneNotUpState;		/// June +0x8ac4: the NPC's INIT key NOT_UP_STATE ( 327a0fa0 @327a5d52 ); the RT_BOUNDING case refuses on it ( C3d-3 review; its other reaction cases: C3i )
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+		bool							m_bJuneNotAffectBlackHole;	/// June +0x8ac5: the NPC's INIT key NOT_AFFECT_BLACKHOLE ( 327a0fa0 @327a5f0b ); a black hole never pulls this NPC ( 31f6eea0 @31f6f0bf, C3i )
+		bool							GetJuneNotAffectBlackHole() const { return m_bJuneNotAffectBlackHole; }
+#endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+#ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+		bool							GetJuneNoFallDownAtState() const { return GetNowStateData().m_bJuneNoFallDownAtState; }	/// June: GetNowStateData() 31e8a990 + 0x401 ( C3i )
+#endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 		int							GetAirFallState() const { return m_AirFallState; }
 		int							GetRideStateID() const { return m_RideState; }
 #endif RIDING_MONSTER

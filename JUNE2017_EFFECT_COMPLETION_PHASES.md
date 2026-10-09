@@ -1211,6 +1211,61 @@ no such key, so nothing sets it today. The engine half reaches play with the Ara
 - **Scope:** the NPC INIT key `NOT_UP_STATE` (`+0x8ac4`, read since the C3d-3 review) gates six more reaction cases in `32769060` (`@32769b1a`, `b72`, `be9`, `c41`, `cad`, `ced`). 36 shipped June NPC scripts set it.
 - **Exit:** funcmap rows `Effect C3i`; flag `SERV_IRUHADEV_JUNE_NOT_UP_STATE`; play-test on a `NOT_UP_STATE` monster.
 
+### C3i - Done (2026-10-09, Opus 5.5 high)
+
+**Landed** in the `June effect Phase C3i` commit. funcmap rows `(C3i)`, JUNE_BUGS 143. Four flags (one per logical change):
+`SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED`, `SERV_IRUHADEV_JUNE_NOT_UP_STATE`, `SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE`,
+`SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE`.
+
+**Address corrected.** June's NPC `DamageReactStateChange` starts at **`32769240`** (ret 8, called by DamageReact `@327b3253`).
+`32769060` (ret 4, ends `3276923d`) is a separate function DamageReact calls at `@327b52cf`. C3b, C3d-3 and the C3d-3 review cited
+`32769060`. The funcmap rows, the RT_BOUNDING comment in `X2GUNPC.cpp` and the C3i / C3j kickoffs now cite `32769240`. This note's
+`@` offsets were always inside `32769240`.
+
+**1. The six sites.** Switch table `0x3276a2b0` (index `0x3276a2d4`): UP holds `b1a` / `b72`, FLY `be9` / `c41`, DRAG_UP `cad` / `ced`.
+- **`b1a` / `be9` / `cad`:** in the forced super-armour path (below). Set: the hit does nothing (no speed, no state).
+- **`b72` / `c41` / `ced`:** after the guard test. Set: only the `nowSpeed.y` write is skipped (kept, not zeroed). The state still
+  starts (UP `m_UpDamage`; FLY / DRAG_UP `m_FlyDamageFront` / `Back`).
+- **Hosts:** three sites sat in a gate March's NPC did not have. All six June cases (SMALL incl. RT 18 / 21, BIG, DOWN, UP, FLY,
+  DRAG_UP) open with the FORCE_BACK_SPEED gate C3c ported for the user only. A super-armoured NPC breaks unless DD `+0x3ec`. With it,
+  speed only and no state: SMALL `y = backSpeed.y + 700`, `x -/+ GetWalkSpeed() / 3`; BIG / DOWN / DRAG_UP `y = backSpeed.y`; UP / FLY
+  the m_FlyCount division. Ported under its own flag (no partial June update). The bodies after the gate are March's, checked.
+- **Data:** no shipped kom sets `FORCE_BACK_SPEED`. June's DamageEffect files have 21 entries; none is in the March merge. So the gate,
+  and the three tests inside it, are dormant today. The three normal-path tests are live: 36 June NPC scripts set `NOT_UP_STATE`, all
+  shipped in data037.
+- **Tail:** the second switch (flip-on-hit) = March. June adds a nowState guard on the FlushForceDown branch (`@3276a18d-3276a1f3`),
+  routed to **C3f item 3** (kickoff amended).
+
+**2. User side.** No `NOT_UP_STATE` reader: the operand sweep of `+0x8ac4` finds the 7 NPC tests and the user's own member only
+(`m_bSpecialAttackEventProcessedAtThisFrame`, class code).
+
+**3. NOT_AFFECT_BLACKHOLE** (`327a0fa0 @327a5f0b`, `+0x8ac5`, after NOT_UP_STATE, default false). One reader,
+`OnFrameMove_BlackHoleData 31f6eea0 @31f6f0bf`. The function was ported whole. Its June deltas:
+- the key;
+- **`NO_FALL_DOWN_AT_STATE`**: StateData `+0x401`, a new state key, below;
+- `_isnan( dist )` or `GetInvincible()` (vslot `0x180`): the unit is not moved, but a user is still marked as held;
+- **not ported:** the PvE owner filter (`IsPve 322cc1c0`, game type 4, which March lacks).
+
+The rest = March: `+0x8aa0` is siege mode (`32756e10` = SetSiegeMode); class types 100..107 = March's eight `NCT_THING_*` (enumprobe);
+Valentine skips flag-OFF; the displace assigns.
+
+**4. NO_FALL_DOWN_AT_STATE** (LoadStateData `@327960e6-3279625d`, after HINT_NO_PERFRAME_EVENT, default false; 47 June scripts).
+Two readers: the black hole, and the host's resurrect loop (`Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK @3230ec81`, March
+`X2Game.cpp:13373`, otherwise identical). Both ported. A raw byte search finds both; `dispsweep.py` misses `cmp byte [eax+0x401]`.
+
+**Hygiene.** `flagcheck <flag> --worktree --files X2GUNPC.cpp X2GUNPC.h X2DamageEffect.cpp X2Game.cpp` (before the commit):
+- `NPC_FORCE_BACK_SPEED`, `NOT_UP_STATE`, `NOT_AFFECT_BLACKHOLE`: `files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER, 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+OTHER rows are the four flags sharing files. The one deleted line is the RT_BOUNDING comment's address (inside
+`SERV_IRUHADEV_JUNE_BOUNDING_STATE`, comment only).
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,456,512 B, dated 2026-10-09 16:21:06, md5 5464aeda168608003b52c89c47c6e237, equal to X2/US_SERVICE/x2.exe (2026-10-09 16:21:00); built at mods/june-buff-port 1b12baa + 7 uncommitted code file(s).`
+
+**How to see it** (hand-off in the session): MAG_STONE in Lanox Burned Forest takes a launcher without leaving the ground.
+`JUNE_FX C3i npc ... RT 4: NOT_UP_STATE: no launch speed`. A black hole (Void Princess's Aging) does not drag SMITH_STAIN (Ashes Village)
+or GEYSER_MULSAYRENA: `JUNE_FX C3i blackhole ... NOT_AFFECT_BLACKHOLE`.
+
+**Open for the user:** nothing.
+
 ## C3j - identify, then decide: June's NPC bounding-state fallbacks
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j.md`.

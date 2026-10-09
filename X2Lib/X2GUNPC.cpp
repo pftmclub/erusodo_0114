@@ -2406,6 +2406,9 @@ void CX2GUNPC::CommonConstructor()
 	m_bJuneNotBounding = false;		/// June's ctor 32762c60 zeroes +0x8ac4..+0x8ac7 with one dword store
 	m_bJuneNotUpState = false;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+	m_bJuneNotAffectBlackHole = false;	/// June's ctor 32762c60 zeroes +0x8ac4..+0x8ac7 ( this is +0x8ac5 ) with one dword store
+#endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 	m_bEnableEventProcess		= true;
 	m_bIsActiveMonster			= true;
 	m_AddRotateDegree			= D3DXVECTOR3(0,0,0);
@@ -4400,6 +4403,11 @@ void CX2GUNPC::InitComponent()
 		/// The RT_BOUNDING case reads it here; June's six other reaction cases that test it are phase C3i.
 		LUA_GET_VALUE( m_LuaManager, "NOT_UP_STATE",			m_bJuneNotUpState,		false	);
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+		/// June 327a0fa0 @327a5f0b ( C3i ): NOT_AFFECT_BLACKHOLE, a bool INIT key ( default false ) read right after NOT_UP_STATE into +0x8ac5.
+		/// Its one reader is the black-hole pull ( CEffect::OnFrameMove_BlackHoleData 31f6eea0 @31f6f0bf ). 36 June NPC scripts set it.
+		LUA_GET_VALUE( m_LuaManager, "NOT_AFFECT_BLACKHOLE",	m_bJuneNotAffectBlackHole,	false	);
+#endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 
         LUA_GET_VALUE( m_LuaManager, "SKY_DIE",				    m_bSkyDie,			    false	);
 		LUA_GET_VALUE( m_LuaManager, "DEFENCE_RATE",			m_DefenceRate,			0		);
@@ -6507,6 +6515,11 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
     {
         NOWSTATE_SET_FLAG( HINT_NO_PERFRAME_EVENT, bTemp );
     }//if
+#ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+    /// June LoadStateData 32784c00 @327960e6-3279625d ( C3i ): NO_FALL_DOWN_AT_STATE right after HINT_NO_PERFRAME_EVENT, a bool into StateData +0x401,
+    /// miss false. Read by the black-hole pull ( 31f6eea0 @31f6f0b2 ) and the resurrect fall-down loop ( @3230ec81 )
+    LUA_GET_VALUE( luaManager_, "NO_FALL_DOWN_AT_STATE", nowStateData.m_bJuneNoFallDownAtState, false );
+#endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 
@@ -12439,6 +12452,19 @@ void CX2GUNPC::DamageReact_Rage( CX2DamageManager::DamageData* pDamageData )
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED	// the NOT_UP_STATE gate logs through it too ( its flag needs this one )
+// JUNE_FX C3i npc <uid> ( <script> ) RT <n>: <what> ( nowSpeed.y <y> ). Use-time proof lines for the C3i reaction gates
+// ( offline_server.log ), at most 32 per session.
+static void JuneC3iReactLog( CX2GUNPC* pNPC_, int iReActResult_, const WCHAR* pwszWhat_, float fSpeedY_ )
+{
+	static int s_iJuneC3iReactLines = 0;
+	if ( s_iJuneC3iReactLines >= 32 )
+		return;
+	++s_iJuneC3iReactLines;
+	CX2OfflineLog::Server( L"JUNE_FX C3i npc %I64d ( %s ) RT %d: %s ( nowSpeed.y %.1f )",
+		pNPC_->GetUnitUID(), pNPC_->GetNPCTemplet().m_LuaFileName.c_str(), iReActResult_, pwszWhat_, fSpeedY_ );
+}
+#endif SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData, int iAttackerUnitIndex )
 #else   X2OPTIMIZE_NPC_NONHOST_SIMULATION
@@ -12589,8 +12615,26 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 		case CX2DamageManager::RT_FLIP_DIFF_DIR : 
 #endif // SERV_ELESIS_SECOND_CLASS_CHANGE // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
 
+#ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
+			/// June effect completion C3i, CX2GUNPC::DamageReactStateChange 32769240, RT_SMALL_DAMAGE / RT_FLIP_* @327696cf-3276975d ( the C3c user gate's NPC
+			/// twin ): super armour stops the hit unless FORCE_BACK_SPEED ( DD +0x3ec ) is set; then the NPC only takes the air knock of the case below
+			/// ( y = backSpeed.y + 700, x -/+ walk speed / 3 by bAttackerFront, +0x844d ) and no state change
+			if( IsSuperArmor() && false == pDamageData->m_bForceBackSpeed )
+				break;
+			if( IsSuperArmor() )
+			{
+				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y + 700.0f;
+				if( m_NPCFrameData.unitCondition.bAttackerFront == true )
+					m_PhysicParam.nowSpeed.x	-= GetWalkSpeed()/3.0f;
+				else
+					m_PhysicParam.nowSpeed.x	+= GetWalkSpeed()/3.0f;
+				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: air knock only, no state", m_PhysicParam.nowSpeed.y );
+				break;
+			}
+#else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 			if( IsSuperArmor() ) 
 				break;
+#endif SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 
 			if( m_NPCFrameData.syncData.position.y - m_NPCFrameData.unitCondition.landPosition.y < LINE_RADIUS * 7.0f
 				|| (pAttackerUnit != NULL && pDamageData->attackerType == CX2DamageManager::AT_UNIT && pAttackerUnit->GetPos().y - pAttackerUnit->GetUnitCondition().landPosition.y < LINE_RADIUS * 3.0f) )
@@ -12663,8 +12707,20 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 			break;
 
 		case CX2DamageManager::RT_BIG_DAMAGE:
+#ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
+			/// June C3i, 32769240 RT_BIG_DAMAGE @327698ba-327698f7: super armour without FORCE_BACK_SPEED stops the hit; with it, y = backSpeed.y and no state
+			if( IsSuperArmor() && false == pDamageData->m_bForceBackSpeed )
+				break;
+			if( IsSuperArmor() )
+			{
+				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
+				break;
+			}
+#else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 			if( IsSuperArmor() )
 				break;
+#endif SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 
 			if( m_NPCFrameData.syncData.position.y - m_NPCFrameData.unitCondition.landPosition.y < LINE_RADIUS * 7.0f
 				|| (pAttackerUnit != NULL && pDamageData->attackerType == CX2DamageManager::AT_UNIT && pAttackerUnit->GetPos().y - pAttackerUnit->GetUnitCondition().landPosition.y < LINE_RADIUS * 3.0f) )
@@ -12730,8 +12786,20 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 			break;
 
 		case CX2DamageManager::RT_DOWN:
+#ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
+			/// June C3i, 32769240 RT_DOWN @32769a12-32769a4f: super armour without FORCE_BACK_SPEED stops the hit; with it, y = backSpeed.y and no state
+			if( IsSuperArmor() && false == pDamageData->m_bForceBackSpeed )
+				break;
+			if( IsSuperArmor() )
+			{
+				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
+				break;
+			}
+#else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 			if( IsSuperArmor() )
 				break;
+#endif SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 
 			if( IsOnSomething() == true )
 			{
@@ -12777,8 +12845,31 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 			break;
 
 		case CX2DamageManager::RT_UP:
+#ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
+			/// June C3i, 32769240 RT_UP @32769ae9-32769b4b: super armour without FORCE_BACK_SPEED stops the hit; with it, only the launch speed
+			/// ( m_FlyCount damped as below ) and no state
+			if( IsSuperArmor() && false == pDamageData->m_bForceBackSpeed )
+				break;
+			if( IsSuperArmor() )
+			{
+#ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
+				if( true == m_bJuneNotUpState )		/// @32769b1a: NOT_UP_STATE drops the forced launch as well, so the hit does nothing
+				{
+					JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
+					break;
+				}
+#endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
+				if( m_FlyCount > 2 )
+					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
+				else
+					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: launch speed only, no state", m_PhysicParam.nowSpeed.y );
+				break;
+			}
+#else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 			if( IsSuperArmor() )
 				break;
+#endif SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 
             if( m_bGuard == true && m_DownDamageLandGuard != 0)
             {
@@ -12791,6 +12882,12 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
                 break;
             }
 
+#ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
+			/// June C3i @32769b72: NOT_UP_STATE skips only the launch speed; nowSpeed.y keeps its value and m_UpDamage still starts
+			if( true == m_bJuneNotUpState )
+				JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE: no launch speed, the up state still starts", m_PhysicParam.nowSpeed.y );
+			else
+#endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
 			if( m_FlyCount > 2 )
 			{
 				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
@@ -12808,8 +12905,31 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 			break;
 
 		case CX2DamageManager::RT_FLY:
+#ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
+			/// June C3i, 32769240 RT_FLY @32769bb8-32769c1a: super armour without FORCE_BACK_SPEED stops the hit; with it, only the launch speed
+			/// ( m_FlyCount damped as below ) and no state
+			if( IsSuperArmor() && false == pDamageData->m_bForceBackSpeed )
+				break;
+			if( IsSuperArmor() )
+			{
+#ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
+				if( true == m_bJuneNotUpState )		/// @32769be9: NOT_UP_STATE drops the forced launch as well, so the hit does nothing
+				{
+					JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
+					break;
+				}
+#endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
+				if( m_FlyCount > 2 )
+					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
+				else
+					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+				JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: launch speed only, no state", m_PhysicParam.nowSpeed.y );
+				break;
+			}
+#else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 			if( IsSuperArmor() )
 				break;
+#endif SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 
             if( m_bGuard == true && m_DownDamageLandGuard != 0)
             {
@@ -12822,6 +12942,12 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
                 break;
             }
 
+#ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
+			/// June C3i @32769c41: NOT_UP_STATE skips only the launch speed; nowSpeed.y keeps its value and the fly state still starts
+			if( true == m_bJuneNotUpState )
+				JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE: no launch speed, the fly state still starts", m_PhysicParam.nowSpeed.y );
+			else
+#endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
 			if( m_FlyCount > 2 )
 			{
 				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y / (m_FlyCount - 1);
@@ -12848,8 +12974,28 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef	EVE_SECOND_CLASS_CHANGE
 		case CX2DamageManager::RT_DRAG_UP:
 			{
+#ifdef SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
+				/// June C3i, 32769240 RT_DRAG_UP @32769c7c-32769cc6: super armour without FORCE_BACK_SPEED stops the hit; with it, y = backSpeed.y
+				/// and no state
+				if( IsSuperArmor() && false == pDamageData->m_bForceBackSpeed )
+					break;
+				if( IsSuperArmor() )
+				{
+#ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
+					if( true == m_bJuneNotUpState )		/// @32769cad: NOT_UP_STATE drops the forced speed as well, so the hit does nothing
+					{
+						JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE under forced super armour: hit ignored", m_PhysicParam.nowSpeed.y );
+						break;
+					}
+#endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
+					m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
+					JuneC3iReactLog( this, pDamageData->reActResult, L"FORCE_BACK_SPEED through super armour: speed only, no state", m_PhysicParam.nowSpeed.y );
+					break;
+				}
+#else SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 				if( IsSuperArmor() )
 					break;
+#endif SERV_IRUHADEV_JUNE_NPC_FORCE_BACK_SPEED
 
 				if( m_bGuard == true && m_DownDamageLandGuard != 0)
 				{
@@ -12862,6 +13008,12 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 					break;
 				}
 
+#ifdef SERV_IRUHADEV_JUNE_NOT_UP_STATE
+				/// June C3i @32769ced: NOT_UP_STATE skips only the drag-up speed; nowSpeed.y keeps its value and the fly state still starts
+				if( true == m_bJuneNotUpState )
+					JuneC3iReactLog( this, pDamageData->reActResult, L"NOT_UP_STATE: no drag-up speed, the fly state still starts", m_PhysicParam.nowSpeed.y );
+				else
+#endif SERV_IRUHADEV_JUNE_NOT_UP_STATE
 				m_PhysicParam.nowSpeed.y = pDamageData->backSpeed.y;
 				
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
@@ -12987,7 +13139,7 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		case CX2DamageManager::RT_BOUNDING:
 			{
-				/// June CX2GUNPC::DamageReactStateChange 32769060 @32769da7-32769e75 ( C3d-3 ). Ignored while super armored, never-move, NOT_BOUNDING ( +0x872b / +0x8ac6 ) or
+				/// June CX2GUNPC::DamageReactStateChange 32769240 @32769da7-32769e75 ( C3d-3; the function start corrected by C3i ). Ignored while super armored, never-move, NOT_BOUNDING ( +0x872b / +0x8ac6 ) or
 				/// NOT_UP_STATE ( +0x8ac4, an INIT key: C3d-3 review ); a guarding NPC with a down-guard state takes it;
 				/// otherwise the attacker's facing ( June compares the NPC's OWN facing == 1 here, the user case compares the two ) mirrors BOUNDING_BACK_SPEED_X, DOWN with the
 				/// hit's back speed Y in the air, LANDCRASH with y = 0 on the ground. A state id 0 changes no state ( StateChange_Reaction_FIRST refuses it ).

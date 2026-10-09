@@ -20,7 +20,7 @@ grep -n "(C3d-3 review)" june2017_re/funcmap.tsv
 
 `NOT_UP_STATE` is an NPC INIT key (bool, default false; June `327a0fa0 @327a5d52` into `+0x8ac4`, proven by decoding the key buffer
 `0x337aa208..213`). 36 June NPC scripts set it to TRUE, and those scripts ship today (ljconv, `a5f7298`), so March ignores live data.
-June's `CX2GUNPC::DamageReactStateChange` (`32769060`) tests it in six reaction cases besides RT_BOUNDING:
+June's `CX2GUNPC::DamageReactStateChange` (`32769060`; C3i found the real start is `32769240`) tests it in six reaction cases besides RT_BOUNDING:
 `@32769b1a`, `@32769b72`, `@32769be9`, `@32769c41`, `@32769cad`, `@32769ced` (`cmp byte ptr [esi+0x8ac4], 0`).
 
 1. For each site: name the reaction case (switch table of `32769060`), and say what the set flag skips. `@32769b72` (RT_UP, `m_UpDamage` at

@@ -38,7 +38,7 @@ shipped game, so first find what the reading misses:
 1. Is `+0x8454` (decrypted, `movzx` low byte) `nowState`, or another id (reserved, future)? Check its writers and March's `syncData`.
 2. Is `+0x40f0/+0x40f4` written anywhere else? The review's operand sweep found only the two RT_BOUNDING stores; also check `rep stos` or
    memset in the `CX2GameUnit` ctor.
-3. Does anything after `CommonStateStart` re-apply the reaction's `nowSpeed.y`? The NPC DamageReact `327b1f30` calls `32769060` at `@327b52cf`.
+3. Does anything after `CommonStateStart` re-apply the reaction's `nowSpeed.y`? The NPC DamageReact `327b1f30` calls DamageReactStateChange `32769240` at `@327b3253` (corrected by C3i: `32769060`, called at `@327b52cf`, is a separate one-argument function).
 4. The two virtuals `IsBoundingUp` (`3275a010`, vslot 0x2f4) and `IsBoundingLandCrash` (`3275a030`, vslot 0x2f8, also tests `+0x8404`)
    have one caller each, both in class code (`32b34726`, `32951511`): name the classes, add them to checklist 7l, and port the base
    virtuals (engine side). `32759fd0` (any bounding state) has no caller.

@@ -13372,6 +13372,18 @@ bool CX2Game::Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK( KEGS_RESURRECT_TO_C
 			{
 				if( pCX2GUNPC->GetIsFallDownMonster() == true )
 				{
+#ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+					/// June Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK @3230ec71-3230ecaa ( C3i ): a fall-down NPC whose state sets NO_FALL_DOWN_AT_STATE
+					/// ( StateData +0x401 ) is not knocked down; June tests it before GetIsFallDownState ( vslot 0x184 )
+					if( true == pCX2GUNPC->GetJuneNoFallDownAtState() )
+					{
+#ifdef SERV_IRUHADEV_OFFLINE
+						CX2OfflineLog::Server( L"JUNE_FX C3i resurrect npc %I64d ( %s ): NO_FALL_DOWN_AT_STATE, not knocked down",
+							pCX2GUNPC->GetUnitUID(), pCX2GUNPC->GetNPCTemplet().m_LuaFileName.c_str() );
+#endif SERV_IRUHADEV_OFFLINE
+					}
+					else
+#endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 					if( true == pCX2GUNPC->GetIsFallDownState() )
 					{
 						pCX2GUNPC->StateChange( pCX2GUNPC->GetDownDamageLandFront(), true );

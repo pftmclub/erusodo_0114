@@ -3557,6 +3557,29 @@ void CX2DamageEffect::CEffect::OnFrameMove_SoundData()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+#include <float.h>	// _isnan, June's NaN-distance test in the black-hole pull ( C3i )
+#ifdef SERV_IRUHADEV_OFFLINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
+// JUNE_FX C3i blackhole unit <uid> type <n>: <why>. Use-time proof lines for the June black-hole exclusions ( offline_server.log ),
+// at most 16 per reason per session: the pull runs every frame for every unit in range.
+static void JuneC3iBlackHoleLog( CX2GameUnit* pUnit_, int iReason_, const WCHAR* pwszWhy_ )
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	static int s_aiJuneC3iBlackHoleLines[3] = { 0, 0, 0 };
+	if ( iReason_ < 0 || iReason_ >= 3 || s_aiJuneC3iBlackHoleLines[iReason_] >= 16 )
+		return;
+	++s_aiJuneC3iBlackHoleLines[iReason_];
+	CX2OfflineLog::Server( L"JUNE_FX C3i blackhole unit %I64d type %d: %s", pUnit_->GetUnitUID(), (int) pUnit_->GetGameUnitType(), pwszWhy_ );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+#ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+#ifdef SERV_IRUHADEV_OFFLINE
+#include "Offline/X2OfflineLog.h"	// C3i NO_FALL_DOWN_AT_STATE proof line
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 {
     if ( g_pX2Game == NULL )
@@ -3627,6 +3650,31 @@ void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 					if( false == pNPC->GetIsFallDownMonster() )		
 						continue;
 
+#ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+					/// June OnFrameMove_BlackHoleData 31f6eea0 @31f6f0ab-31f6f0b9 ( C3i ): not while the NPC's state sets NO_FALL_DOWN_AT_STATE ( StateData +0x401 )
+					if( true == pNPC->GetJuneNoFallDownAtState() )
+					{
+#ifdef SERV_IRUHADEV_OFFLINE
+						static int s_iJuneC3iNoFallDownLines = 0;	// JUNE_FX C3i proof line, at most 16 per session ( per-frame loop )
+						if ( s_iJuneC3iNoFallDownLines < 16 )
+						{
+							++s_iJuneC3iNoFallDownLines;
+							CX2OfflineLog::Server( L"JUNE_FX C3i blackhole npc %I64d ( %s ) state %d: NO_FALL_DOWN_AT_STATE, not pulled in this state",
+								pNPC->GetUnitUID(), pNPC->GetNPCTemplet().m_LuaFileName.c_str(), pNPC->GetNowStateID() );
+						}
+#endif SERV_IRUHADEV_OFFLINE
+						continue;
+					}
+#endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+#ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+					/// June @31f6f0bf ( C3i ): never an NPC whose INIT_COMPONENT sets NOT_AFFECT_BLACKHOLE ( +0x8ac5 ). The siege-mode test below is June's +0x8aa0 ( 32756e10 = SetSiegeMode )
+					if( true == pNPC->GetJuneNotAffectBlackHole() )
+					{
+						JuneC3iBlackHoleLog( pUnit, 1, L"NOT_AFFECT_BLACKHOLE: never pulled" );
+						continue;
+					}
+#endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+
 					if( true == pNPC->GetSiegeMode() )
 						continue;
 
@@ -3692,6 +3740,13 @@ void CX2DamageEffect::CEffect::OnFrameMove_BlackHoleData( float fElapsedTime )
 			//	pUnit->SetFixedUnitPosition( vPos );
 			//}
 			//else
+#ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+			/// June 31f6eea0 @31f6f29c-31f6f2c1 ( C3i ): a NaN distance ( _isnan ) or an invincible unit ( GetInvincible, vslot 0x180 ) is not moved;
+			/// a user in range is still marked as held by the hole below ( @31f6f384 )
+			if( 0 != _isnan( fDist ) || true == pUnit->GetInvincible() )
+				JuneC3iBlackHoleLog( pUnit, 2, L"in range but not moved: invincible or NaN distance" );
+			else
+#endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 			{
 				D3DXVec3Normalize( &vDir, &vDir );
 				ASSERT( m_BlackHoleData.m_fDraggingRange != 0.f );
