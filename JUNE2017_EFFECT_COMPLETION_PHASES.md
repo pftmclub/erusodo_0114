@@ -2275,7 +2275,7 @@ play-test; update matrix and MODS.md.
 
 ## C8 - Hit path, second half (old Phase 9)
 
-**Status: C8a done 2026-10-06; C8b code done 2026-10-09 (play-test owed, see its Done note); C8c (per-class) handed off to the character ports (D8).** Phase 9 ported June's collision for `EffectToUnit` only.
+**Status: C8a done 2026-10-06; C8b done 2026-10-09 (play-test passed except UnitToEffect; review PASS, comment-only citation fix); C8c (per-class) handed off to the character ports (D8).** Phase 9 ported June's collision for `EffectToUnit` only.
 **Model:** Opus, high, for the comparisons; Sonnet 5, high, for the edits.
 
 - **Collision:** switch `UnitToUnit` (`32611970` inlines the same code), `UnitToEffect`,
@@ -2390,6 +2390,62 @@ Every gate is a June reform skill (`RNSI_*`, absent from March's enum). The help
 5. T6: `/CM "MAG_CHARGER" 0 70` in Ruben field; the `TEST` lines now carry `owner` and `age`. Ask: how many Mag Chargers were on screen?
 
 **Play-test 2026-10-09: PASSED, except UnitToEffect (skipped by the user).** Logs read (`JUNE_FX HIT`): `UNIT_TO_UNIT` COLLIDE for `jtVoidPrincess` (uid 28) and `ravbe` (uid 23); `MESH_TO_UNIT` x2 (Void Princess, `AVSI_DARK_MAGICIAN_COMBO_X3down`); `COLLISION_DATA_TO_UNIT` for both characters; 0 EXCEPTION. T6: 60 Mag Charger `TEST` lines, one owner (1000027), age <= 1.03 of 2.00, hitbox centre = mesh position on every sample, so the far samples did not reproduce with one charger. **`UNIT_TO_EFFECT` never fired:** the Lizardman Healer would not throw its missile (invisible, 1 s life, 700 units/s), and the console `BOMB` spawn did not work, so the user skipped the check as too conditional. The path is verified by code only; the C8b review must read it against `326413c0` (and may use the `UNIT_TO_UNIT` DIFF lines below, which run the same instance driver). **DIFF lines:** 3 x `june=0 march=1` and 2 x `june=1 march=0` on `UNIT_TO_UNIT` (both directions, player and monster attackers); the review checks they are line x sphere cases.
+
+### C8b - Review (2026-10-09, Opus 5.5 high)
+
+**Verdict: PASS. The logic is correct against June. One comment-only fix:** the memo-switch citations for cases 0xd and later in `X2GUUser.cpp` were wrong. The case bodies were right.
+
+**Hit paths (Ghidra + raw disassembly):**
+- **UnitToUnit `32611970`:** the attacker sets `+0x214`, then `+0x224` (the flags are re-zeroed @326146b2), then the pair sets. Each instance has one guard call (`32640770` @326145b1). It returns on a hit (`[esp+0x34]`) or on guard-only (@32614646). The port's per-attack-list driver gives the same result.
+- **UnitToEffect `326413c0`:** the same three instances (`+0x214` @3264171d, `+0x224` @326442fc) against the effect's list, with 3 guard calls. Read by code only, as the C8b note asked; it shares its driver with UnitToUnit.
+- **MeshToUnit `32625670`:** one instance, 4 halfway multiplies, guard present.
+- **CollisionDataToUnit `32628890`:**
+  - A = the defender datum (ESI, from unit `+0x204`), B = the manual datum (EBX). A is tested for `CT_LINE` first, then B, as in the template.
+  - **line A x sphere B: the halfway point starts from B's centre.** `[esp+0x9c]` is written from EBX `+0x74..` @3262a529-3262a630; the impact is built @3262a913-3262a96c. **sphere x sphere starts from A** (`[esp+0x34]`, ESI's point @3262903a; @3262b1a9-3262b1fc). Both match `JuneEffectCollisionDataCheck`.
+  - The C8a table's "halfway from A" holds only for sphere x sphere and sphere x line.
+  - There is no guard call. The first hit stores B's type (@3262b23e) and sets `m_bGuard` for type 2 (@3262b26b), as the port claims.
+  - The line x line `0.5` (@32629a13) is the parallel-segment midpoint, which March has too (`KTDXCollision.h:2035`).
+
+**SetDamageExceptionProcess:**
+- **User layer `32045340`:**
+  - **Gate:** `+0x4108` (@320453a0) is -1 or `== DD+8`, after `SetHitNasodWeapon(false)` (`+0x8b62` @320453a6).
+  - **Calls:** 0x758 is called on the attacker for both gate outcomes (@32045402); the socket copy follows; 0x780 is called on `this` (@32045488).
+  - **Early-outs:** they jump past both calls (@32045496).
+- **`+0x4108`:** the ctor writes 2 (@322a5bf7) and Raven's inlined reset writes -1 (@32c438a5). March's only `ChangeDamageType` caller (`X2GURaven.cpp:5111-5115`) resets first, so the gate is inert.
+- **0x758 `3202ac40`:**
+  - The jump table was decoded from the binary (byte index @3202b0ec, targets @3202b0b8): 1/4 -> acd9, 2 -> ad03, 5 -> ad23, 6 -> ad39, 8 -> ad49, 0xc -> ad6d, 0xd -> ad7d, 0xf -> af87, 0x10 -> afbc, 0x11 -> aff1, 0x12 -> b088, 0x16 -> b0a2, any other type -> return.
+  - Cases 5 and 6 enter the tail at acdd with v1; v2 is 0 when the entry has two values or fewer. Every body matches the port.
+  - **Fixed (comments only):** the citations for 0xd (`-af84`, not `-af17`), 0xf/0x10, 0x11, 0x12 and 0x16 pointed at the middle of case 0xd.
+- **NPC `32759f30`:** the base runs, then the `+0x8d5c` owner's `+0x867c` and `+0xaf0` are checked, `[templet] != 0` (= `m_UnitType != UT_NONE`), then 0x758 with EDI = the DD (@32759fc4). The port matches, with one difference: it skips a non-user owner (JUNE_BUGS 145).
+- **0x780:** an empty virtual, called last.
+- **Nothing added twice:** C8b does not touch AT_COMMAND 85/86, `GetChargeMpRateByBuff`, the custom-function tail or the 16-step3c socket copy. The copy sits between 0x758 and 0x780, where June has it.
+- **JUNE_FX HIT lines:** all four paths have COLLIDE and DIFF lines, and EffectToUnit's lines carry `path=` / `owner` / `age`.
+
+**UNIT_TO_UNIT DIFF lines (judged by code; the logs are gone):** a later play-test rewrote `ErrorLog.txt` at 19:45, and it now has 0 `JUNE_FX HIT` lines, so the 5 DIFF lines can't be re-read. Line x line and sphere x sphere are the same test in both. Only the two clamped pair tests can disagree:
+- **`june=1 march=0`:** a sphere behind the segment start. March's `LineToSphere` rejects a projection < 0; June clamps it to the start point.
+- **`june=0 march=1`:** a sphere just past the segment end. March checks the perpendicular distance to the infinite line, and its only bound is `|start->c| - r <= L` (`KTDXCollision.h:1542`). June measures to the clamped end point. Example: centre at (L + 0.9 rsum, 0.9 rsum) is a March hit and a June miss.
+
+Both directions are the expected line x sphere cases.
+
+**T6 far samples: not reproduced.** In C8b's run, one charger (owner 1000027) logged 60 `TEST` lines, and the hitbox sat on the mesh in every sample. This review closes T6 as not reproduced, and the trace stays compiled in.
+
+**census.py:** `census.py --summary` exit 0, every check PASS, `census.tsv` unchanged. Open rows: C10 6, C11 3, none for C8. `APPLIED_MEMO_ID` stays `implemented`: C8b only compiled out C3's unsupported log; the key is still parsed.
+
+**Hygiene (`flagcheck --range 735ccc4^..HEAD`, both PASS):**
+- **JUNE_COLLISION:** `files: 0 PASS, 37 OTHER, 0 FAIL, 0 ERROR` / `0 deleted` / `RESULT: PASS`.
+  - `X2DamageManager.cpp` is OTHER on its own: the same commit also adds DAMAGE_EXCEPTION's `#ifndef` (the C3 log).
+  - With `--commits 735ccc4 --with JUNE_DAMAGE_EXCEPTION JUNE_FX_DEBUG` it is `PASS +222 -6`, plus a DEFINE row; RESULT PASS.
+  - The 6 deleted lines are Phase 9's TEST/COLLIDE/DIFF trace lines, rewritten with the path tag, owner and age.
+- **JUNE_DAMAGE_EXCEPTION:** `files: 6 PASS, 4 PASS~, 1 DEFINE, 30 OTHER, 0 FAIL, 0 ERROR` / `82 deleted, 1 non-ASCII, 0 EOL, 3 tok, 0 encoding` / `RESULT: PASS`.
+  - The 82 deleted lines are b69d2a2's moves (+N/-N in four files).
+  - The non-ASCII line is a moved studio line in `X2GUUser.h` (the `NOT_CANCEL_BBT_STUN_BY_HIT` comment).
+  - `tok! 3` are the `#endif`s of the `#if defined && !defined / #error` dependency guards in `Always.h`.
+  - Each PASS~ is one blank line after a closing `#endif` (735ccc4) or a pure move (b69d2a2).
+- **This review's fix:** `--worktree --files X2Lib/X2GUUser.cpp`: `PASS +5 -5`, 0 non-ASCII, 0 EOL. The 5 deleted lines are C8b's wrong citations.
+
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,497,472 B, dated 2026-10-09 21:57:01, md5 35778ad9d417af7da1ebea6a2472b784, equal to X2/US_SERVICE/x2.exe (2026-10-09 21:56:56); built at mods/june-buff-port 4d0549a + 1 uncommitted code file(s) (this review's `X2GUUser.cpp`). This exe is the first one built from HEAD after b69d2a2 rewrote the committed blobs; the C8b note's 18:00 exe predates that fix-up.
+
+**User owes:** nothing; no play-test is needed (comments only). UnitToEffect stays verified by code only.
 
 ---
 

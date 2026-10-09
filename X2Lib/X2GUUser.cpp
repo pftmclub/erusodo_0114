@@ -38443,7 +38443,7 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 		return;
 
 	case 0xd:
-		/// @3202ad7d-3202af17: a fixed mana-damage extra damage: +0x50 type = 0x10 (EDT_MANA_DAMAGE), +0xa4 m_Damage += v0, +0xc8
+		/// @3202ad7d-3202af84: a fixed mana-damage extra damage: +0x50 type = 0x10 (EDT_MANA_DAMAGE), +0xa4 m_Damage += v0, +0xc8
 		/// m_bIgnoreResist = true, +0x8c m_fRate = 1.0, +0xb0 m_iLevel = 0, +0x55 m_bFixedDamage = true
 		pDamageData_->m_ExtraDamage.m_ExtraDamageType	= CX2DamageManager::EDT_MANA_DAMAGE;
 		pDamageData_->m_ExtraDamage.m_Damage			+= fValue0;
@@ -38455,22 +38455,22 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 
 	case 0xf:
 	case 0x10:
-		/// @3202af18-3202af53: 32089ff0 on the DamageData's buff-factor list (a rescale by v0: case 0xf = (v0, 1), case 0x10 = (1, v0)) is NOT
+		/// @3202af87-3202afb9 (0xf), @3202afbc-3202afee (0x10): 32089ff0 on the DamageData's buff-factor list (a rescale by v0: case 0xf = (v0, 1), case 0x10 = (1, v0)) is NOT
 		/// ported: 32089ff0 is not decoded (funcmap row 3202ac40)
 		return;
 
 	case 0x11:
-		/// @3202af54-3202afc9: +0x3f8 fHitAddMP x= v0
+		/// @3202aff1-3202b085: +0x3f8 fHitAddMP x= v0
 		pDamageData_->fHitAddMP *= fValue0;
 		return;
 
 	case 0x12:
-		/// @3202afca-3202afd7: +0x3f0 fForceDownValue += v0
+		/// @3202b088-3202b09f: +0x3f0 fForceDownValue += v0
 		pDamageData_->fForceDownValue += fValue0;
 		return;
 
 	case 0x16:
-		/// @3202afd8: +0x5dc = v0 is NOT ported (no March member identified; funcmap row 3202ac40)
+		/// @3202b0a2-3202b0a6: +0x5dc = v0 is NOT ported (no March member identified; funcmap row 3202ac40)
 		return;
 
 	default:
