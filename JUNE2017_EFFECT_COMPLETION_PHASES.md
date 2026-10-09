@@ -1306,11 +1306,59 @@ or GEYSER_MULSAYRENA: `JUNE_FX C3i blackhole ... NOT_AFFECT_BLACKHOLE`.
 
 ## C3m - identify: June's world-physics scale and its PhysicParam backup
 
-**Status: ready (found by C3h, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3m.md`.
+**Status: done 2026-10-09 (see "C3m - Done"; the port is C3n). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3m.md`.
 
 - **Scope:** `32296290` backs PhysicParam up once (`+0x300` -> `+0x334`, flag `+0x368`) and scales fReloadAccel / fGAccel / fMaxGSpeed by a factor
   from global `3372c0fc` (vslot `0x90`, `+0x184`). Decide whether this is March's `GetGravityAndSpeedRate` block moved or a June-only system.
 - **Exit:** funcmap rows `Effect C3m`; a Done note; a port phase if June-only behaviour exists.
+
+### C3m - Done (2026-10-09, Opus 5.5 high; no code, no flag, no build)
+
+funcmap: rows `32296290 (C3m)` (was the C3h candidate, now confirmed), `32800800`, `327cab80`, `327ac9d0 @327add8a-327ade8a`, `31ffe387` (all `(C3m)`), and a C3m note on the C3h `322886a0` row.
+
+**1. What it is.** `3372c0fc` is the `g_pX2Game` holder. Game vslot `0x90` is `GetWorld` (`3231f490`, `+0x39c`) and `+0x184` is
+`CX2World::m_fGravityAndSpeedRate`, March's `DEEP_WATER_DUNGEON_TEST` rate (`X2World.h:1268`; June's world init `327fddf0` sets it and the anim rate to 1.0).
+- **The verdict: March's mechanism, kept, extended and trimmed.** It was not moved. June still reads the same rate with the same MAGIC 0.5 / 1.5 (read from the exe).
+- **The only caller of `32296290`** is `327cab80`. That function walks the game's unit list (`+0x304`) and is called only from June's
+  `CX2World::SetGravityAndSpeedRate` (`32800800`). A raw `.text` call scan confirms both, and the only pointer to `32800800` is its Lua binding (`31db9ef4`).
+- **The four June deltas:**
+  - **Live re-apply (new).** The Lua setter stores the rate. Then, in a `GT_DUNGEON` game only, it re-scales every unit at once through `32296290`, from a
+    one-time PhysicParam backup (`+0x334`, byte `+0x368`): reload / G accel / max G speed x rate, with no MAGIC and no `!= 1` test. March applies the rate only
+    in `ResetPhysicParam` and at NPC state start.
+  - **`ResetPhysicParam` trimmed.** June scales only the three gravity fields. March's Walk/Run/Jump/DashJump `*= rate` (`X2GameUnit.cpp:4212-4215`) is gone.
+  - **NPC `CommonStateStart`, `SPEED_X`/`SPEED_Y`.** These are stored unscaled. March multiplies them by the rate (`X2GUNPC.cpp:15572-15575`).
+  - **NPC `CommonStateStart`, `G_ACCEL`/`DOWN_ACCEL`.** These are now always written: the state value or, when absent, the Org value, x rate x MAGIC. March
+    writes them only when the state sets them (`:15568-15571`). Passive speed and the come-back x4.0 are unchanged.
+- **Unchanged:** `SetUnitAnimSpeedRate` (plain setter) and its one reader, `CX2GUUser::ResetAnimSpeed` (= March `X2GUUser.cpp:30141-30148`).
+
+**2. Reach: none, in either data set.** No `.lua` calls `SetGravityAndSpeedRate` or `SetUnitAnimSpeedRate`. Searched:
+- March `kom_contents`: 6,037 files.
+- The studio `ClientScript` / `_ClientScript`: 4,057 files.
+- June `14JUN17/data/*_kom`: all 7,343 files, plain text and bytecode, the 30 not in `june_src_fixed/` included.
+
+So the rate stays 1.0 and the player sees nothing. At 1.0 every delta is a no-op:
+- the setter is never called;
+- `ResetPhysicParam` tests `!= 1`;
+- the NPC Org fallback writes what March's `CommonStateEnd` already left. That is `fGAccel = Org` (`:24150`) and `fDownAccel = 0` (`:24112`). June's
+  Org `fDownAccel` is only ever 0: the ctor zeroes it, `InitPhysic` has no `DOWN_ACCEL` key, and the NPC `DOWN_ACCEL` read stores into state data `+0xfc`.
+
+The edge case: `elstools` can cut 1-255 bytes off a June algo-2 entry's tail, so the June search is not byte-exact.
+
+**3. The port.** June-only behaviour exists and no STATUS row owns it, so it is planned as **C3n** (below; STATUS row + kickoff). It is regression-only until a
+script sets the rate. **No questions for the user.**
+
+## C3n - port: June's world gravity rate (live re-apply, ResetPhysicParam trim, NPC state start)
+
+**Status: ready (found by C3m, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3n.md`. **Not with C3j / C3k** (same NPC code), nor with a
+peer editing `ResetPhysicParam`.
+
+- **Scope:** the four deltas in "C3m - Done" item 1, read from the C3m funcmap rows.
+  - **Flag `SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY`:** the setter's dungeon-only tail (it stops being inline in `X2World.h`), the unit walk and `32296290`, with its
+    backup block and byte as plain `CX2GameUnit` members. Not PhysicParam fields: nothing copies them back.
+  - **Flag `SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM`:** `ResetPhysicParam`'s three-field scale, and the NPC block's unscaled SPEED_X/Y and Org fallback for G/DOWN accel.
+  - **Bugs, kept verbatim:** the stale backup and the MAGIC mismatch, each a `JUNE_BUGS.md` row.
+- **Exit:** funcmap rows `Effect C3n`; both flags; a regression play-test (dungeon + field: jumps, falls, NPC launches look as before). No script sets the rate, so
+  there is no positive test unless the user wants one from the dev console.
 
 ---
 
