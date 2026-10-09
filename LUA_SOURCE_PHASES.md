@@ -471,6 +471,9 @@ touched.
   - `convert` tries the decompile last and records T0 or T1; anything else refuses with exit 4 and the first difference.
   - `--no-decompile` keeps the fast T0-only census.
   - The skill's examples ran as written.
+  - Real write, proven in a scratch tree (all three roots overridden): Elsword_SwordMan converted at T1 (ledger tier T1, source
+    `decompile`, sha1 matches the text). `ledger --check` and the `kom.py pack` gate PASS, and `restore` is byte-identical.
+  - Real-tree dry run of the nine class scripts: 8 `[decompile, T1]`, Ara refused with exit 4.
 - **Finding: loading text changes `pairs` order anyway, even at T0.**
   - Cause: the bytecode reader re-inserts keys into a pre-sized table, while the parser grows it. Ariel's T0 source iterates 9 of
     17 tables differently from the shipped file, and L0's data217 does too.
