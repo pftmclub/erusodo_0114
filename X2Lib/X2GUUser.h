@@ -2848,9 +2848,6 @@ public:
 #ifdef MODIFY_SET_DAMAGE_DATA
 		virtual	void				SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);
 #endif //MODIFY_SET_DAMAGE_DATA
-
-#ifdef NOT_CANCEL_BBT_STUN_BY_HIT		/// 버프를 통한 스턴 그로기 스테이트 전환 여부
-		void SetChangeGroggyState( bool bChangeGroggyState_ ) { m_bChangeGroggyState = bChangeGroggyState_; }
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		/// June effect completion C8b: one skill-memo entry, June 31fdbbb0's result: +0 the type, +0xc / +0x10 a float vector (the
 		/// entry's values v0, v1, v2; a value past the end of the vector reads 0 in 3202ac40 @3202ac6c-3202aca9).
@@ -2869,6 +2866,9 @@ public:
 		/// layer. Only Ara overrides it (32bca010, the Ara port).
 		virtual void				JuneDamageExceptionClassHook( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate_ ) {}
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+
+#ifdef NOT_CANCEL_BBT_STUN_BY_HIT		/// 버프를 통한 스턴 그로기 스테이트 전환 여부
+		void SetChangeGroggyState( bool bChangeGroggyState_ ) { m_bChangeGroggyState = bChangeGroggyState_; }
 #endif NOT_CANCEL_BBT_STUN_BY_HIT
 
 		float GetNowTimeAnimFuture() const

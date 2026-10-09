@@ -3215,29 +3215,29 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			m_bChangeDamageType = false;
 			m_eDamageType = CX2DamageManager::DT_PHYSIC;
 			m_fDamageRel = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+			m_iJuneChangeDamageAttackType = -1;		/// June 32c438a5 (Raven ResetDamageType, inlined): +0x4108 = -1
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		}
 		bool GetChangeDamageType(CX2DamageManager::DAMAGE_TYPE &eDamageType, float &fDamageRel)
 		{
 			eDamageType = m_eDamageType;
 			fDamageRel = m_fDamageRel;
 			return m_bChangeDamageType;
-#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-			m_iJuneChangeDamageAttackType = -1;		/// June 32c438a5 (Raven ResetDamageType, inlined): +0x4108 = -1
-#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		}
 		void ChangeDamageTimes(int iDamageTimes) { m_iDamageTimes = iDamageTimes; }
 		void ResetDamageTimes() { m_iDamageTimes = -1; }
 		int  GetDamageTimes() { return m_iDamageTimes; }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+		/// June +0x4108: the attack type the damage-type change applies to; -1 = every attack type (see CX2GUUser::SetDamageExceptionProcess)
+		int  GetJuneChangeDamageAttackType() const { return m_iJuneChangeDamageAttackType; }
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #endif
 		
 		/** @function SetShieldDamageReduce
 			@brief 쉴드의 데미지 감소 능력
 		*/
         //{{ JHKang / 강정훈 / 2010/12/07
-#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-		/// June +0x4108: the attack type the damage-type change applies to; -1 = every attack type (see CX2GUUser::SetDamageExceptionProcess)
-		int  GetJuneChangeDamageAttackType() const { return m_iJuneChangeDamageAttackType; }
-#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #ifdef NEW_SKILL_2010_11
         void SetShieldDamageReduce( IN float fValue_ ) { m_fAtomicShieldDamageRate = fValue_; }
 #endif NEW_SKILL_2010_11
@@ -4822,17 +4822,17 @@ protected:
 		int								m_iDamageTimes;	/// 이건.. 일섬에서 사용하는 것 같은데..
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+		/// June CX2GameUnit +0x4108 (ctor 322a2700 @322a5bf7 = 2, ResetDamageType -1; the 2 is written again by Raven's Burning Nasod Hand, which is the
+		/// Raven port's, checklist 7b). The user layer applies the damage-type change only when this is -1 or equals the hit's attack type.
+		int								m_iJuneChangeDamageAttackType;
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #ifdef DAMAGE_HISTORY
 		bool	m_bDamageHistory;	/// 핵방지용.. NPC만 사용
 		float	*m_fDamageHistory;	/// 유저는 사용 안해되 될텐데.. NPC가 데미지를 입을때마다 여기에 더하고, 죽을 때 이 값이 <= 0 이면 해킹 유저로 판단
 #endif
 
 //{{ kimhc // 2010.2.17 //
-#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-		/// June CX2GameUnit +0x4108 (ctor 322a2700 @322a5bf7 = 2, ResetDamageType -1; the 2 is written again by Raven's Burning Nasod Hand, which is the
-		/// Raven port's, checklist 7b). The user layer applies the damage-type change only when this is -1 or equals the hit's attack type.
-		int								m_iJuneChangeDamageAttackType;
-#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #ifdef	APPLY_MOTION_OFFSET
 		bool	m_bApplyMotionOffset;	/// 모션에 의해 이동되지 않도록 하는 플래그로... 유저만 사용
 #endif	APPLY_MOTION_OFFSET

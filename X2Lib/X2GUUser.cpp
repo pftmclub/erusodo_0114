@@ -38273,7 +38273,15 @@ void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamage
 
 		pUser->SetHitNasodWeapon(false);
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		bool bChange = pUser->GetChangeDamageType(eDamageType, fDamageRel);
+		/// June 32045340 @320453a0-320453b5: the damage-type change runs only when the attacker's +0x4108 is -1 or equals the hit's attack type
+		/// (+8). SetHitNasodWeapon( false ) above is before the test. Raven's ResetDamageType leaves it at -1, so March data never fails it.
+		if ( -1 != pUser->GetJuneChangeDamageAttackType() && pUser->GetJuneChangeDamageAttackType() != pDamageData_->attackType )
+			bChange = false;
+#else SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+		bool bChange = pUser->GetChangeDamageType(eDamageType, fDamageRel);
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 		if( bChange == true
 #ifdef FIX_EXPLOSIVE_NASOD_HAND
 			&& eDamageType == CX2DamageManager::DT_MAGIC
@@ -38298,15 +38306,7 @@ void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamage
 			switch(eDamageType)
 			{
 			case CX2DamageManager::DT_PHYSIC:
-#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-		bool bChange = pUser->GetChangeDamageType(eDamageType, fDamageRel);
-		/// June 32045340 @320453a0-320453b5: the damage-type change runs only when the attacker's +0x4108 is -1 or equals the hit's attack type
-		/// (+8). SetHitNasodWeapon( false ) above is before the test. Raven's ResetDamageType leaves it at -1, so March data never fails it.
-		if ( -1 != pUser->GetJuneChangeDamageAttackType() && pUser->GetJuneChangeDamageAttackType() != pDamageData_->attackType )
-			bChange = false;
-#else SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 				pDamageData_->damage.fPhysic = fDamageRelOri * fDamageRel;
-#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 				break;
 			case CX2DamageManager::DT_MAGIC:
 				pDamageData_->damage.fMagic = fDamageRelOri * fDamageRel;
@@ -38326,6 +38326,14 @@ void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamage
 		}
 	}
 #endif
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+	/// June 32045340 @32045359-3204538c: everything below runs for a user attacker only (any other attacker jumps to the epilogue @32045496,
+	/// past both vslot calls). vslot 0x758 (3202ac40) is called on the attacker @32045402-3204540b, after the Raven block above.
+	const bool bJuneUserAttacker = ( null != pDamageData_->optrAttackerGameUnit
+		&& CX2GameUnit::GUT_USER == pDamageData_->optrAttackerGameUnit->GetGameUnitType() );
+	if ( true == bJuneUserAttacker )
+		static_cast<CX2GUUser*>( pDamageData_->optrAttackerGameUnit.GetObservable() )->JuneApplySkillMemoToDamageData( pDamageData_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_EDT
 	/// June 32045340 @3204540d-32045483: a hit with magic or physic damage above 0 from a user attacker takes that user's
 	/// second socket list (aggregate +0x458 -> DamageData +0x3b4) when it carries none of its own
@@ -38341,46 +38349,13 @@ void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamage
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
-}
-#endif //MODIFY_SET_DAMAGE_DATA
-
-
-#ifdef REALTIME_SCRIPT_PATCH
-void CX2GUUser::SetScriptFileName()
-{
-	if( NULL == GetUnit() )
-		return;
-
-#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-	/// June 32045340 @32045359-3204538c: everything below runs for a user attacker only (any other attacker jumps to the epilogue @32045496,
-	/// past both vslot calls). vslot 0x758 (3202ac40) is called on the attacker @32045402-3204540b, after the Raven block above.
-	const bool bJuneUserAttacker = ( null != pDamageData_->optrAttackerGameUnit
-		&& CX2GameUnit::GUT_USER == pDamageData_->optrAttackerGameUnit->GetGameUnitType() );
-	if ( true == bJuneUserAttacker )
-		static_cast<CX2GUUser*>( pDamageData_->optrAttackerGameUnit.GetObservable() )->JuneApplySkillMemoToDamageData( pDamageData_ );
-#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-	switch ( GetUnit()->GetType() )
-	{
-	case CX2Unit::UT_ELSWORD:	m_ScriptFileName = L"ELSWORD_SWORDMAN.lua"; break;
-	case CX2Unit::UT_ARME:		m_ScriptFileName = L"ARME_VIOLETMAGE.lua"; break;
-	case CX2Unit::UT_LIRE:		m_ScriptFileName = L"LIRE_ELVENRANGER.lua"; break;
-	case CX2Unit::UT_RAVEN:		m_ScriptFileName = L"RAVEN_FIGHTER.lua"; break;
-	case CX2Unit::UT_EVE:		m_ScriptFileName = L"EVE_NASOD.lua"; break;
-	case CX2Unit::UT_CHUNG:		m_ScriptFileName = L"CHUNG_IRON_CANNON.lua"; break;
-	case CX2Unit::UT_ARA:		m_ScriptFileName = L"ARA_MARTIAL_ARTIST.lua";	break;
-	case CX2Unit::UT_ELESIS:	m_ScriptFileName = L"ELESIS_KNIGHT.lua";	break;
-	case CX2Unit::UT_ADD:		m_ScriptFileName = L"ADD_NASODRULER.lua";	break;
-	default:
-		break;
-	}
-}
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 	/// June 32045340 @32045488-32045494: the last call of the user layer, vslot 0x780 of THIS unit ( DD, fPowerRate ), for a user attacker.
 	if ( true == bJuneUserAttacker )
 		JuneDamageExceptionClassHook( pDamageData_, fPowerRate );
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
-
-#endif //REALTIME_SCRIPT_PATCH
+}
+#endif //MODIFY_SET_DAMAGE_DATA
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 /// June2017 31fdbbb0 (CX2GUUser, thiscall, arg = APPLIED_SKILL_ID): the user's skill-memo lookup; it searches the memo list of the user's CX2Unit
@@ -38507,6 +38482,31 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 	pDamageData_->damage.fPhysic	*= fTailScale;
 }
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+
+
+#ifdef REALTIME_SCRIPT_PATCH
+void CX2GUUser::SetScriptFileName()
+{
+	if( NULL == GetUnit() )
+		return;
+
+	switch ( GetUnit()->GetType() )
+	{
+	case CX2Unit::UT_ELSWORD:	m_ScriptFileName = L"ELSWORD_SWORDMAN.lua"; break;
+	case CX2Unit::UT_ARME:		m_ScriptFileName = L"ARME_VIOLETMAGE.lua"; break;
+	case CX2Unit::UT_LIRE:		m_ScriptFileName = L"LIRE_ELVENRANGER.lua"; break;
+	case CX2Unit::UT_RAVEN:		m_ScriptFileName = L"RAVEN_FIGHTER.lua"; break;
+	case CX2Unit::UT_EVE:		m_ScriptFileName = L"EVE_NASOD.lua"; break;
+	case CX2Unit::UT_CHUNG:		m_ScriptFileName = L"CHUNG_IRON_CANNON.lua"; break;
+	case CX2Unit::UT_ARA:		m_ScriptFileName = L"ARA_MARTIAL_ARTIST.lua";	break;
+	case CX2Unit::UT_ELESIS:	m_ScriptFileName = L"ELESIS_KNIGHT.lua";	break;
+	case CX2Unit::UT_ADD:		m_ScriptFileName = L"ADD_NASODRULER.lua";	break;
+	default:
+		break;
+	}
+}
+
+#endif //REALTIME_SCRIPT_PATCH
 
 const CX2GUUser::UserUnitStateData& CX2GUUser::GetPressedSkillState( const int iPressedIndex_ )
 {
