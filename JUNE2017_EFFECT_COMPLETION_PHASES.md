@@ -1636,12 +1636,59 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 ## C3l - identify, then port: June's SPEED_TIME additions
 
-**Status: ready (found by C3h, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3l.md`.
+**Status: done 2026-10-10 (see "C3l - Done"); regression play-test and review pending. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3l.md`.
 
 - **Scope:** June loads the user's SPEED_TIME through `31fe3a60`. `SPEED_TIME_ULTIMATE` wins when `31fca8e0(...)` `+0x178` is set, and the parser
   `31fe2740` reads a 5th TIME_SPEED column (a bool at `+0x10`). Identify the gate and the column's reader (`CommonFrameMoveFuture` `32061bf0`),
   then port them. The `MINOR_UNIT_*` lists are Lu/Ciel's (checklist 7o).
 - **Exit:** funcmap rows `Effect C3l`; flag `SERV_IRUHADEV_JUNE_SPEED_TIME`; regression play-test.
+
+### C3l - Done (2026-10-10, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SPEED_TIME` (`KTDXLIB/Always.h`, end). funcmap: 8 `(C3l)` rows; the two `(C3h)` rows are closed. JUNE_BUGS 153. Checklist 7o
+and backlog Stage 3c updated. Review kickoff `kickoffs/june-effect/C3l-review.md`.
+
+**What June does.**
+- **Parser** `31fe2740` = March's loop plus a 5th column, a bool (`+0x10`, miss false; read as March's `GetValue( int, bool& )` reads it). It
+  returns whether at least one entry was read.
+- **Gate.** `31fe3a60` reads `SPEED_TIME_ULTIMATE` when `31fca8e0( Future state m_eSkillID, upgrade swap )` is non-null and its templet `+0x178`
+  is non-zero. `+0x178` is the key **`m_DeleteSkillIDByUpgrade`** (`32216320 @3221851e-322186ca`; EBP there is templet - 4, calibrated against
+  `m_ePowerRate` and the power-rate vector). Its non-zero value also fills the skill tree's `+0x20` old->new map (`32205c00`). So the gate means
+  "the equipped version of this state's skill is an upgraded skill". An empty ULTIMATE falls back to SPEED_TIME. This corrects the older funcmap
+  names for `+0x178` (memo / base / transcendence id).
+- **Consumer** `CommonFrameMoveFuture 32061bf0 @320620ec-320623c7`. March's tests and erase are unchanged, and two things are new:
+  - **The 5th column.** A TRUE turns the entry by the Future `dirDegree.z` (`+0x7e0c`, the slope; Now getter `3208dfd0`). It computes
+    `x = cos * x` first and then `y = sin * x` from the already-turned x, so `y = x cos sin` (JUNE_BUGS 153, kept verbatim).
+  - **iFlag 11 / 12 / 13.** These are cases 1 / 2 / 3 on the vector returned by user vslot `0x778`. The base (`3208e1e0`) returns it
+    unchanged; only Rose overrides it (`32a7ab60`). Flags 4-10 fall to default.
+- **Other SPEED_TIME parsers** (NPC `32784c00`, `326ef840`, `32d2f560`) read 4 columns.
+
+**What is in.**
+- `TIME_SPEED::bJuneRotateByDirZ` (last field, ctor false; NPC / riding-pet users default it).
+- The file-static `JuneParseSpeedTimeList` and the loader in `CommonStateStartFuture` (March's loop in `#else`). The gate is a constant
+  false with the reason in the comment: March has no `m_DeleteSkillIDByUpgrade` and no upgrade swap. This matches the other forced-off
+  `_ULTIMATE` gates; all of them switch on with backlog Stage 3c.
+- In `CommonFrameMoveFuture`: the turn before March's switch, cases 11-13 before `default`, and the virtual `CX2GUUser::JuneGetTimeSpeedVector`
+  (identity).
+- Log `JUNE_FX C3l user state ...` for the first 32 firings of a turn or of iFlag >= 11.
+
+**Not ported, routed.** Rose's override, the minor lists, the `+0x8e90` swap, the second-body anim clock and the minor consumer pass go to checklist 7o.
+`m_DeleteSkillIDByUpgrade`, the `+0x20` map and the upgrade swap go to backlog Stage 3c.
+
+**June data and reach.** Counts are from `june_src_fixed` (all 25 class scripts present):
+- `SPEED_TIME_ULTIMATE`: 2 rows, Ara `ASI_A_ARA_QUICK_STAB`.
+- A 5th column: 1 real use (Ara `ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH`, TRUE) and 2 malformed rows (Elesis, Shay; iFlag 0, never fires).
+- iFlag 12: 5 rows, Rose_Freyja. iFlag 11 and 13: none.
+
+March: no `.lua` under any `24965799/kom_contents/data*_kom` contains `SPEED_TIME_ULTIMATE`. The 9 March class scripts (decompiled) have 690 SPEED_TIME
+rows, all 4 columns with iFlag 1-3, and none of them is a June adoption. **Nothing reaches play today; the play-test is a regression.**
+
+**Hygiene.** `flagcheck --worktree --files` (the 4 files): `1 PASS, 1 DEFINE, 2 OTHER, 0 FAIL`; 0 deleted lines, 0 non-ASCII inserted lines, 0 encoding changes; RESULT PASS. The two OTHER rows are a peer's uncommitted C3j hunks (`SERV_IRUHADEV_JUNE_BOUNDING_STATE`) in `X2GUUser.h` / `X2GameUnit.h`; this commit stages only the C3l hunks.
+
+**Deploy.** DEPLOY OK: X2_offline.exe is 19,505,664 B, dated 2026-10-10 05:55:29, md5 ca7fe2379d29fc9282d5a1124d0fa9ed, equal to X2/US_SERVICE/x2.exe (2026-10-10 05:55:24); built at mods/june-buff-port 4720231 + 6 uncommitted code file(s) (C3l's 4, plus a peer's C3j in X2GUNPC / X2GUUser.h / X2GameUnit.h; the link came from the peer's build in the same tree, after the C3l edits). `JUNE_FX C3l user state` (UTF-16) is in the deployed exe; `SPEED_TIME_ULTIMATE` is not, as expected: the constant-false gate lets the compiler drop that read.
+
+**In game.** Nothing new to see. Dashes, skills with scripted speed bursts and slides on slopes should move exactly as before, and `offline_server.log`
+has no `JUNE_FX C3l` line.
 
 ## C3m - identify: June's world-physics scale and its PhysicParam backup
 

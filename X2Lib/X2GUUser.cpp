@@ -14745,6 +14745,29 @@ void CX2GUUser::DyingStart()
 #endif SERV_RENA_NIGHT_WATCHER
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
+/// June 31fe2740 ( C3l ): clears the list, then reads <name>0, <name>1, ... ( "%s%d" 33449104, as KLuaManager::BeginTable( name, index ) ):
+/// [1] x ( miss 0 ), [2] y ( miss 0 ), [3] anim time ( miss -1 ), [4] iFlag ( miss 0 ), [5] bool ( 32fe9ed0, miss false; a number, != 0 ).
+/// Returns true when at least one entry was read ( @31fe28cd ), which is what lets SPEED_TIME_ULTIMATE fall back to SPEED_TIME.
+static bool JuneParseSpeedTimeList( KLuaManager& luaManager_, const char* pszName_, std::vector<CX2GameUnit::TIME_SPEED>& vecSpeed_ )
+{
+	vecSpeed_.clear();
+	int iJuneIndex = 0;
+	while ( true == luaManager_.BeginTable( pszName_, iJuneIndex ) )
+	{
+		CX2GameUnit::TIME_SPEED timeSpeed;
+		LUA_GET_VALUE( luaManager_, 1, timeSpeed.vSpeed.x, 0.0f );
+		LUA_GET_VALUE( luaManager_, 2, timeSpeed.vSpeed.y, 0.0f );
+		LUA_GET_VALUE( luaManager_, 3, timeSpeed.vSpeed.z, -1.0f );
+		LUA_GET_VALUE( luaManager_, 4, timeSpeed.iFlag, 0 );
+		LUA_GET_VALUE( luaManager_, 5, timeSpeed.bJuneRotateByDirZ, false );
+		vecSpeed_.push_back( timeSpeed );
+		++iJuneIndex;
+		luaManager_.EndTable();
+	}
+	return 0 < iJuneIndex;
+}
+#endif SERV_IRUHADEV_JUNE_SPEED_TIME
 void CX2GUUser::CommonStateStartFuture()
 {
 	KTDXPROFILE();
@@ -14922,6 +14945,17 @@ void CX2GUUser::CommonStateStartFuture()
 	if( m_LuaManager.GetValue( "SPEED_Y", speed.y ) == true )
 		m_PhysicParam.nowSpeed.y = speed.y;
 	
+#ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
+	/// June 31fe3a60 ( called @32053fd4, C3l ). Main list +0x85f4 ( +0x8604 while the second body +0x8e90 is active: Lu/Ciel, checklist 7o ).
+	/// SPEED_TIME_ULTIMATE is read when GetEquippedActiveSkillTemplet( Future state m_eSkillID, upgrade swap 328905b0 ) ( 31fca8e0 ) is
+	/// non-null with +0x178 = m_DeleteSkillIDByUpgrade ( 32216320 @3221868b ) non-zero, i.e. the equipped skill is an upgraded version;
+	/// SPEED_TIME when that gate is off or ULTIMATE has no entry. March's templets have no m_DeleteSkillIDByUpgrade and no 328905b0 swap,
+	/// so the gate is off, like the other _ULTIMATE gates ( SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID, SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE );
+	/// backlog Stage 3c. The MINOR_UNIT_SPEED_TIME(_ULTIMATE) twins are Lu/Ciel's ( checklist 7o ) and are not read.
+	const bool bJuneSpeedTimeUltimate = false;	/// = templet && templet->m_DeleteSkillIDByUpgrade != 0 ( field absent in March )
+	if ( false == bJuneSpeedTimeUltimate || false == JuneParseSpeedTimeList( m_LuaManager, "SPEED_TIME_ULTIMATE", m_vecSpeedFactor ) )
+		JuneParseSpeedTimeList( m_LuaManager, "SPEED_TIME", m_vecSpeedFactor );
+#else SERV_IRUHADEV_JUNE_SPEED_TIME
 	index = 0;
 	m_vecSpeedFactor.clear();
 	while( m_LuaManager.BeginTable( "SPEED_TIME", index ) == true )
@@ -14937,6 +14971,7 @@ void CX2GUUser::CommonStateStartFuture()
 		index++;
 		m_LuaManager.EndTable();
 	}
+#endif SERV_IRUHADEV_JUNE_SPEED_TIME
 
 
 	LUA_GET_VALUE( m_LuaManager, "PASSIVE_SPEED_X", m_PhysicParam.passiveSpeed.x, -1.0f );
@@ -16412,6 +16447,31 @@ void CX2GUUser::CommonFrameMoveFuture()
 
 			if( timeSpeed.iFlag > 0 && timeSpeed.vSpeed.z >= 0.f && timeSpeed.vSpeed.z <= fNowAnimTime )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
+				/// June CommonFrameMoveFuture 32061bf0 @320621f4-32062267 ( C3l ): a 5th-column TRUE ( byte == 1 ) turns the entry by the
+				/// Future dirDegree.z ( +0x7e0c; Now +0x80ac is GetZRotateDegree 3208dfd0 ): angle = deg * (double)D3DX_PI / 180.0 stored
+				/// as a float, then cos ( 32fe2b4e ) and sin ( 32fe2b54 ), each stored as a float. x = cos * x is written back first and
+				/// y = sin * that x, so y = x cos sin and the table's y is dropped: June's bug, kept ( JUNE_BUGS 153 ).
+				if ( true == timeSpeed.bJuneRotateByDirZ )
+				{
+					const float fJuneRad = static_cast<float>( m_FrameDataFuture.unitCondition.dirDegree.z * static_cast<double>( D3DX_PI ) / 180.0 );
+					const float fJuneCos = static_cast<float>( cos( static_cast<double>( fJuneRad ) ) );
+					timeSpeed.vSpeed.x = fJuneCos * timeSpeed.vSpeed.x;
+					const float fJuneSin = static_cast<float>( sin( static_cast<double>( fJuneRad ) ) );
+					timeSpeed.vSpeed.y = fJuneSin * timeSpeed.vSpeed.x;
+				}
+				if ( true == timeSpeed.bJuneRotateByDirZ || 11 <= timeSpeed.iFlag )
+				{
+					static int s_iJuneC3lLines = 0;
+					if ( s_iJuneC3lLines < 32 )
+					{
+						++s_iJuneC3lLines;
+						CX2OfflineLog::Server( L"JUNE_FX C3l user state %d: SPEED_TIME iFlag %d at %.3f ( anim %.3f ), rotate %d by dirDegree.z %.2f -> speed ( %.1f, %.1f )",
+							GetFutureStateID(), timeSpeed.iFlag, timeSpeed.vSpeed.z, fNowAnimTime, timeSpeed.bJuneRotateByDirZ ? 1 : 0,
+							m_FrameDataFuture.unitCondition.dirDegree.z, timeSpeed.vSpeed.x, timeSpeed.vSpeed.y );
+					}
+				}
+#endif SERV_IRUHADEV_JUNE_SPEED_TIME
 				switch(timeSpeed.iFlag)
 				{
 				case 1:
@@ -16428,6 +16488,31 @@ void CX2GUUser::CommonFrameMoveFuture()
 					m_PhysicParam.passiveSpeed.y = timeSpeed.vSpeed.y;
 					break;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
+				/// June @320622d2 / @3206230c / @3206233a ( jump table 32063618, index bytes 32063634; flags 4-10 fall to default ):
+				/// 11 / 12 / 13 are 1 / 2 / 3 on the vector returned by user vslot 0x778 ( JuneGetTimeSpeedVector ).
+				case 11:
+					{
+						const D3DXVECTOR3 vJuneSpeed = JuneGetTimeSpeedVector( timeSpeed.vSpeed );
+						m_PhysicParam.nowSpeed.x += vJuneSpeed.x;
+						m_PhysicParam.nowSpeed.y += vJuneSpeed.y;
+					}
+					break;
+				case 12:
+					{
+						const D3DXVECTOR3 vJuneSpeed = JuneGetTimeSpeedVector( timeSpeed.vSpeed );
+						m_PhysicParam.nowSpeed.x = vJuneSpeed.x;
+						m_PhysicParam.nowSpeed.y = vJuneSpeed.y;
+					}
+					break;
+				case 13:
+					{
+						const D3DXVECTOR3 vJuneSpeed = JuneGetTimeSpeedVector( timeSpeed.vSpeed );
+						m_PhysicParam.passiveSpeed.x = vJuneSpeed.x;
+						m_PhysicParam.passiveSpeed.y = vJuneSpeed.y;
+					}
+					break;
+#endif SERV_IRUHADEV_JUNE_SPEED_TIME
 				default:
 					break;
 				}				

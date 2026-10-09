@@ -2352,6 +2352,11 @@ public:
 
 		const std::vector<TIME_SPEED>& GetSpeedFatorVector() const { return m_vecSpeedFactor; }
         std::vector<TIME_SPEED>& AccessSpeedFatorVector() { return m_vecSpeedFactor; }
+#ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
+		/// June user vslot 0x778 ( base 3208e1e0: returns the vector unchanged ): the SPEED_TIME iFlag 11 / 12 / 13 hook ( C3l ).
+		/// Only Rose overrides it ( 32a7ab60: y x a per-state rate, x x +0x9778 ): checklist 7.
+		virtual D3DXVECTOR3 JuneGetTimeSpeedVector( const D3DXVECTOR3& vSpeed_ ) const { return vSpeed_; }
+#endif SERV_IRUHADEV_JUNE_SPEED_TIME
 
 		void SetDeleteEffectSetOnStateEnd( IN bool bVal_ ) { m_bDeleteEffectSetOnStateEnd = bVal_; }
 		void SetDeleteEffectSetOnDamageReact( IN bool bVal_ ) { m_bDeleteEffectSetOnDamageReact = bVal_; }

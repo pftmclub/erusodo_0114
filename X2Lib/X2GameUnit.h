@@ -459,10 +459,16 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			D3DXVECTOR3 vSpeed;		/// x는 X축, y는 Y축, z는 스피드가 적용될 애니메이션 타임 시점
 			int iFlag;				/// 1이면 m_PhysicParam.nowSpeed 의 x, y에 += 연산을\n
 									///	2이면 = 연산을 수행하게하는 플래그
+#ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
+			bool bJuneRotateByDirZ;	/// June 31fe2740 5th column ( +0x10, miss false ): turn x / y by the Future dirDegree.z ( C3l )
+#endif SERV_IRUHADEV_JUNE_SPEED_TIME
 
 			TIME_SPEED() :
 			vSpeed( D3DXVECTOR3(0.f, 0.f, 0.f) ),
 			iFlag( 0 )
+#ifdef SERV_IRUHADEV_JUNE_SPEED_TIME
+			, bJuneRotateByDirZ( false )
+#endif SERV_IRUHADEV_JUNE_SPEED_TIME
 			{
 			}
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

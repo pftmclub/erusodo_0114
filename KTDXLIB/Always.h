@@ -6444,3 +6444,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Log tag: JUNE_FX C3e-2 ( one line per roll and per re-bind ).
 #define SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion Phase C3l: June's user SPEED_TIME additions.
+//              Loader 31fe3a60 / parser 31fe2740: TIME_SPEED gains a 5th column, a bool
+//              ( bJuneRotateByDirZ ); SPEED_TIME_ULTIMATE is chosen when the Future state's
+//              equipped skill templet ( 31fca8e0 ) has m_DeleteSkillIDByUpgrade ( +0x178 ) set,
+//              a field March's templets lack, so that gate is off here ( backlog Stage 3c ).
+//              Consumer CommonFrameMoveFuture 32061bf0 @320621f4-3206236a: the bool turns the
+//              entry by the Future dirDegree.z ( June's y = x cos sin, JUNE_BUGS 153 ), and
+//              iFlag 11 / 12 / 13 = 1 / 2 / 3 through user vslot 0x778 ( JuneGetTimeSpeedVector,
+//              identity; Rose overrides it ). MINOR_UNIT_* lists and the second body: checklist 7o.
+//              Log tag: JUNE_FX C3l ( first 32 firings ).
+#define SERV_IRUHADEV_JUNE_SPEED_TIME
+//////////////////////////////////////////////////////////////////////////

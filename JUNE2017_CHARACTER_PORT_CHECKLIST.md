@@ -478,6 +478,19 @@ user half does nothing until a class port brings June's state tables. Carry the 
   (the movement-speed buffs), and so is the state's x decay every frame. Carry the key over with Ara's June table, verbatim; it does nothing
   until then. The minor unit's half (June copies the bool to `+0x36c` and scales the minor speeds and `MINOR_UNIT_SPEED_TIME`; its decay
   uses the main unit's `GetWalkSpeed()` over the minor unit's own `fWalkSpeed`) comes with Lu/Ciel (funcmap `(C3h)` rows `3205419d`, `32015b30 @32016996`).
+- **June's SPEED_TIME additions** (june-effect C3l, `SERV_IRUHADEV_JUNE_SPEED_TIME`; funcmap `(C3l)` rows). The engine side is ported: a 5th
+  TIME_SPEED column (TRUE turns the entry by the unit's `dirDegree.z`, with June's `y = x cos sin`, JUNE_BUGS 153), iFlag 11 / 12 / 13
+  through the user hook `JuneGetTimeSpeedVector` (June vslot `0x778`), and the `SPEED_TIME_ULTIMATE` choice (its gate stays off until the
+  skill templet's `m_DeleteSkillIDByUpgrade` is ported, backlog Stage 3c). March's class scripts use none of it. Carry verbatim with the tables:
+  - **Ara:** `ASI_A_ARA_QUICK_STAB` `SPEED_TIME_ULTIMATE0/1` (2 rows); `ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH` `SPEED_TIME0 = { 2550, 0, 0.496, 2, TRUE }`.
+  - **Elesis / Shay:** `ELESIS_KNIGHT` and `PVP_HERO_SHAY` each carry `SPEED_TIME1 = { 150, 127, 0.527, 0.8, 2 }`: iFlag reads `(int)0.8 = 0`, so the
+    row never fires (the 5th value 2 reads true). Keep it as June has it.
+  - **Rose (Stage 8):** `Rose_Freyja` uses iFlag 12 five times (`RSI_RVK_NITRO_MOTOR_JUMP_UP`, `_UP_FRONT` x2, `_JUMP_FRONT` x2). Rose overrides
+    the hook (`32a7ab60`): copy the vector; byte `+0x977c` == 2 -> `y *= +0x8ef8`, > 2 -> `y *= +0x8efc`; then if `+0x9778 > 0` and byte
+    `+0x9762` == 1 -> `x *= +0x9778`. Port it as Rose's `JuneGetTimeSpeedVector` override.
+  - **Lu/Ciel (Stage 8):** the `MINOR_UNIT_SPEED_TIME(_ULTIMATE)` twins (`+0x8604`, 262 June rows), the main/minor list swap on the second body
+    (`+0x8e90`, `31fe3a60`), the anim-clock override before the consumer loop (`+0x8f6d` + vslot `0x260` + `+0x8e91`, `@3206211c-32062172`)
+    and the minor list's own consumer pass (`@320623c9..`).
 
 ### 7p. Hit-stop class sites and the time-stop immune state (from June effect completion C3e-3)
 
