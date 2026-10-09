@@ -175,9 +175,9 @@ or compile by hand.
    `adopt-june` (L3). By default that is junekom extract + `ljconv` (header `0x82` -> `0x81`, opcodes renumbered, nothing else): no
    decompile, no edit. A file becomes BOM source only if it is on the **core list** (`tools/data/lua_core_list.tsv`): kept merged
    because March's C++ and June's file disagree (`Enum`, `DungeonEnum`, `DamageEffect`, `EffectSet`, the `DLG_Map_*` dialogs, the
-   registries, `DLG_Destination_byButton`; mostly data036 / datai014 / datai015), or a port must edit it. Those take
-   `adopt-june --source` (decompile, T1, BOM source); on a T1 fail nothing is staged. A port that must edit a June file adds the
-   core-list row itself, no question. `june_src_fixed/` is reading material.
+   registries, `DLG_Destination_byButton`; data036 and data034, plus single files in data035 / data037 / datai014), or a port must edit it. Those take
+   `adopt-june --source` (decompile, T1, BOM source); on a T1 fail nothing is staged. A port that must edit a June file asks first
+   (the never-invent-Lua rule), then adds the core-list row. `june_src_fixed/` is reading material.
 3. **Editing a March `.lua` starts with `luasrc.py convert`.** Sources are tried in order: sibling `X.src.lua` (T0), a studio original
    in `ClientScript\` / `_ClientScript\` (T0), a T1 decompile (after L2). Afterwards `X.lua` **is** BOM + UTF-8 source on disk.
    `kom.py compile` folds a sidecar `X.src.lua` into it (when T0, or newer than `X.lua` as an intended edit, tier EDIT).

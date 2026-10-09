@@ -26,9 +26,10 @@ The user wants this settled once, so nobody has to think about it again (2026-10
   - or a port **must edit** it (a March-compat edit to a June file, or a March file that needs a change before June's replacement
     can land).
 
-  In kom terms the core list sits mostly in data036 (enums, effect tables, class scripts, templets), datai014/datai015 (map dialogs,
-  warp list, config) and single files elsewhere (data034 dialogs only where June's dialog calls a UI binding March lacks; the data035 /
-  data037 registries). The kom is a pointer, not the rule.
+  In kom terms (checked 2026-10-09) the core list sits in data036 (`Enum`, `DungeonEnum`, `DamageEffect`, `EffectSet`; class scripts
+  and templets when a port must edit them) and data034 (the three `DLG_Map_*` dialogs; its nine `*_Back_NEW` sidecars are classified in L3; other
+  dialogs only where June's calls a UI binding March lacks), with single files in data035 (`DungeonData`), data037 (`NPCTemplet`) and
+  datai014 (`DLG_Destination_byButton`). The kom is a pointer, not the rule.
 - **June `.lua` arrives through one command, `adopt-june` (skill `x2-adopt-june`).** The default is the `ljconv` bytecode, with no
   decompile. `--source` (core-list files only) adds decompile + T1 against the `ljconv` output, and ships BOM source on a pass.
   L2 verified `ljconv`'s opcode table against June's own VM handlers (71/71).
@@ -79,8 +80,8 @@ bytecode; see "Established facts".
      take `adopt-june --source`: decompile, T1 against the `ljconv` output, then BOM source plus a ledger row. If T1 fails, nothing
      is staged (June's bytecode would drop the merge or the edit); the core-list row records the reason, and the file goes to L5 or
      a T2 sign-off. The default route refuses a core-list name.
-   - Adding a file to the core list needs a reason in its row (the blocker, or the port and the edit). A port that finds it must edit
-     a June file adds the row itself; that is not a question for the user.
+   - Adding a file to the core list needs a reason in its row (the blocker, or the port and the edit). Editing a June file still follows
+     CLAUDE.md's ask-first rule for existing Lua and the byte-exact June rule (Rule 8): the port asks, then adds the row.
    - Never decompile or compile by hand. `june_src_fixed/` is reading material.
 3. **Editing a March `.lua` starts with `convert`** (the file is on the core list by definition). Sources are tried in this order:
    - the sibling `X.src.lua` (T0);
@@ -771,7 +772,7 @@ in `KTDXApp.cpp`, plus one enum line in `KTDXApp.h` and the comment in `Always.h
 - **atlas / elysion / lanox:** their "compiled `1B 4B 4C 81`" gates are superseded once L1/L3 land (kickoffs updated in L7). Elysion
   E0's decompile-check of `ELYSION_SOLESS` becomes `adopt-june` (`--source` only if Elysion must edit it). Atlas A5 owns the
   core-list row for `DLG_Destination_byButton`; Atlas/Elysion own the three `DLG_Map_*` rows.
-- **Any plan that must edit a June `.lua`:** add the core-list row (Rule 2), then `adopt-june --source`; no user question needed.
+- **Any plan that must edit a June `.lua`:** ask first (CLAUDE.md), then add the core-list row (Rule 2) and run `adopt-june --source`.
 - **june-asset-port:** unaffected (non-lua). P5's March constant scan reads text for any converted file.
 
 ## Play-test hand-off
