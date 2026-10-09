@@ -1257,6 +1257,9 @@ Two readers: the black hole, and the host's resurrect loop (`Handler_EGS_RESURRE
 - `NPC_FORCE_BACK_SPEED`, `NOT_UP_STATE`, `NOT_AFFECT_BLACKHOLE`: `files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER, 0 FAIL, 0 ERROR`; `RESULT: PASS`.
 OTHER rows are the four flags sharing files. The one deleted line is the RT_BOUNDING comment's address (inside
 `SERV_IRUHADEV_JUNE_BOUNDING_STATE`, comment only).
+After the commit, `--range 603400e^..603400e`: `NOT_UP_STATE`, `NOT_AFFECT_BLACKHOLE`, `NO_FALL_DOWN_AT_STATE` `RESULT: PASS`
+(0 FAIL, 0 ERROR). `NPC_FORCE_BACK_SPEED`: `0 FAIL, 1 ERROR` = Always.h's `#if defined(..._NOT_UP_STATE) && !defined(..._NPC_FORCE_BACK_SPEED)`
+dependency guard, which the tool cannot evaluate (C3d-3's `USER_STATE_ID16` guard gives the same). Checked by hand: it only `#error`s.
 
 **Deploy.** `DEPLOY OK: X2_offline.exe is 19,456,512 B, dated 2026-10-09 16:21:06, md5 5464aeda168608003b52c89c47c6e237, equal to X2/US_SERVICE/x2.exe (2026-10-09 16:21:00); built at mods/june-buff-port 1b12baa + 7 uncommitted code file(s).`
 
