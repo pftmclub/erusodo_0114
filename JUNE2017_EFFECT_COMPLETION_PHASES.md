@@ -5033,7 +5033,8 @@ June's effect-alpha option engine on March; the option UI stays with the June UI
 - Census: `census_completion.py` names the flag for "Effect-alpha option".
 `BUILD OK` x2.exe 19,497,472 B; `DEPLOY OK: X2_offline.exe is 19,497,472 B, dated 2026-10-09 18:00:11, md5 153e7bab5aca8b64f82c514f7c837cc5, equal to X2/US_SERVICE/x2.exe (2026-10-09 18:00:06); built at mods/june-buff-port 11d0f38 + 27 uncommitted code file(s).` The strings `JUNE_FX alpha set=%s`, `MY_EFFECT_ALPHA` and `CreateApplyAlphaParticleSequence_LUA` are in the deployed exe.
 **How to see it in game:** `GameOptions.lua` in the game dir now has `MY_EFFECT_ALPHA = 0.3` and `ANOTHER_TEAM_EFFECT_ALPHA = 0.3` (backup `db_backup/GameOptions.lua.pre_C10b2`). With jtLordKnight (class 100, Lv 80) in a dungeon with the AI party: my skill effects, the monsters' effects, the bots' bodies / weapons / effects are faded; my own body and weapon are not. After a clean exit `GameOptions.lua` still holds `0.300000` for both keys.
-**Open:** none for the user except the play-test. Hygiene lines are in the post-commit note below.
+**Open:** none for the user except the play-test.
+Commit `bd6e73d`. Hygiene (`flagcheck --range bd6e73d^..bd6e73d`, with `JUNE_FX_DEBUG`): `files: 25 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 5 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The 5 tokens: 3 bare `#endif` closing the `#error` dependency checks in Always.h (house style) and 2 `#endif SERV_IRUHADEV_JUNE_FX_DEBUG` of the debug line.
 
 ## C11 - Verification on June data
 
