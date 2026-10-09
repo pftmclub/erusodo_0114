@@ -5077,6 +5077,42 @@ June's effect-alpha option engine on March; the option UI stays with the June UI
 **Play-test finding (user, 2026-10-09): the AI-party bots' bodies faded (June's summon rule for NPCs owned by my unit).** New flag `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER` (user chose: skills follow `MY_TEAM_EFFECT_ALPHA`): a bot (`IsOfflinePartyBotUID`) is never "mine", so its effects take the team category (3, or 4 if its team differs), and its body and weapon take category 0 (never fade). Off = June. `DEPLOY OK: X2_offline.exe is 19,497,472 B, dated 2026-10-09 19:30:07, md5 ff5316e79158e2efa2d24269528de2eb, equal to X2/US_SERVICE/x2.exe (2026-10-09 19:30:03); built at mods/june-buff-port b30d3d7 + 6 uncommitted code file(s).` Re-test: with the current `GameOptions.lua` (my 0.3, team 1.0) the bots' skills stay solid and their bodies do not fade; set `MY_TEAM_EFFECT_ALPHA = 0.3` and their skills fade.
 Commit `bd6e73d`. Hygiene (`flagcheck --range bd6e73d^..bd6e73d`, with `JUNE_FX_DEBUG`): `files: 25 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 5 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The 5 tokens: 3 bare `#endif` closing the `#error` dependency checks in Always.h (house style) and 2 `#endif SERV_IRUHADEV_JUNE_FX_DEBUG` of the debug line.
 
+**C10b-2 - Review (2026-10-09, Opus 5.5 high): PASS, no code findings, nothing rebuilt.** Commits `bd6e73d` (engine), `4378554` (AI-party flag), against
+the kickoff and the June binary (Ghidra read-only). The deployed exe ff5316e7 (play-test PASSED) stands.
+- *Category `322d4d10`*: vslot `0x1a8` "is mine" -> 2; else the protected team (`+0x278`) vs my unit's -> 4 if different, 3 if equal; then the owner's
+  vslot `0x41c`. The whole block runs only with my unit, an owner and `g_pMain +0x43c`, as March. NPC "mine" (`3276b2b0`) = owner UID == my UID, with -1
+  without an owner. That is March's `GetOwnerGameUnitUID()`.
+- *User override `31fd8350`*: state id == 9, or (riding ? 75 : 11), or (riding ? 76 : 12) -> 1. March pairs `USI_WIN`/`USI_RIDING_WAIT_HABIT` and
+  `USI_LOSE`/`USI_RIDING_WAIT` the same way.
+- *Effect-set tag `32296f30`*: bByPointer -> `g_pData +0x9c`, else `322ceae0` = `g_pData +0xe0`. In March's `CX2Data` these are `m_UIEffectSet` (right after
+  `m_pGameMinorXMeshPlayer` `+0x98`) and `m_GameEffectSet`. The port's `GetUIEffectSet()` / `GetEffectSet()` match; byte `+0x1bc` = the category if non-zero.
+- *Lua binds*: the Lua-facing shape is June's thunk `31e59970` (bMajor, unit, char* name, pos, emitRate, trigger). It calls `322f2660` with emit.x / .y,
+  drawCount -1, `(int)trigger.x` (ftol `@31e59aa0`), trigger.y, bCullCheck 1, latency 0.0, bNextFrame 0. `322f2660`'s trailing -1 is a June-only
+  CreateSequence argument. That is March's `CreateSequence_LUA` call exactly; `g_pData +0x84` / `+0x88` = game major / minor particle. The mesh thunk
+  `31e59b10` passes its args through as the port does. June scripts call both as (bool, unit, name, pos, v2, v2) / (bool, unit, name, pos, v3, v3, layer).
+- *Slash trace `31d39320` @31d39402*: `GetEffectAlpha( +0x268 ) * stored alpha`, then the `- elapsed / +0x1e0` fade, then stored back. JUNE_BUGS 147 holds.
+- *Buff effect-set displayer `32eb9c70` @32eba1f8-32eba2cb*: the byte starts at 1. Unless the skip flag `[esp+0x17]` is set, it becomes
+  `322d4d10( g_pX2Game vslot 0xc8( uid +0xb0/+0xb4, +0xb8 == 1 ) )`. Then every handle's instance not already 1 takes it. vslot `0xc8` = `322d80a0`
+  scans the unit list for UID and `GameUnitType (+0x264) == arg`, so `+0xb8` (March `m_bJuneCreatorNotUser`, i.e. `m_bIsMesGameUnitNpc`) selects
+  GUT_NPC. The port's NPC / user lookup split is equivalent.
+- *Render resets (March side)*: the NPC body (`*pRenderParam = m_RenderParam`), the weapon (copy of the owner's unfaded `m_RenderParam`) and the mesh (per-field
+  copy from the templet) are all rewritten every frame before the multiply. Nothing compounds, and a weapon fades once, not squared.
+- *Rows*: every `C10b-2` / `C10b-2 checks` / `C10b-2 (june-buff file)` row of `c10a_alpha_sites.tsv` is ported or recorded as host-absent (`32298c5b`,
+  `3203e56d` / `3203e754`, funcmap row 2322), plus the `32043cf0` exception. No `with host` or `class code` row was ported. Census: `SYSTEM_DISPOSITION`
+  names the flag (`census_completion.py:49`). The NPC timed-event (`327975f9`), delayed-firing (`322990b8/cc`), PhantomSword and the readers match their funcmap rows.
+
+Hygiene (`--range bd6e73d^..HEAD`): `files: 27 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 4 OTHER (other flags), 0 FAIL, 1 ERROR` / `in this flag's
+files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)` /
+`RESULT: FAIL`.
+- The ERROR is `4378554`'s Always.h `#if defined(..._PARTY_BOT_AS_PLAYER) && !defined(..._EFFECT_ALPHA_OPTION)` `#error` dependency guard. It is the
+  documented tool limitation (C6b / C4 precedent), not a code finding. Over the dependency closure (`--with ..._PARTY_BOT_AS_PLAYER
+  SERV_IRUHADEV_JUNE_FX_DEBUG`): `27 PASS, 2 DEFINE, 4 OTHER, 0 FAIL, 0 ERROR`, `0 deleted`, `RESULT: PASS`. The bot flag alone (`4378554^..4378554`):
+  `2 PASS, 1 DEFINE, 0 FAIL`, `RESULT: PASS`.
+- The 4 OTHER rows are peer `b69d2a2` (C8b fix-up, `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION`, X2GUNPC.cpp / X2GUUser.cpp/.h / X2GameUnit.h, +/-82 block moves).
+  None of them touches this flag's lines.
+- The 3 tokens are the bare `#endif`s of `bd6e73d`'s own Always.h dependency guards (house style).
+*Owed:* nothing. C10b-3 is handed off (D9); next in the plan: C11 (blocked on C2-C10, see STATUS).
+
 ## C11 - Verification on June data
 
 **Status: not started. Model:** Sonnet 5, high. A dev-console pass in the same shape as the rebuild
