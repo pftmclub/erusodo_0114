@@ -1269,6 +1269,16 @@ or GEYSER_MULSAYRENA: `JUNE_FX C3i blackhole ... NOT_AFFECT_BLACKHOLE`.
 
 **Open for the user:** nothing.
 
+**Play-test (2026-10-09, exe `5464aeda`, logs read: 34 `JUNE_FX C3i` lines, 0 EXCEPTION).**
+- `NOT_UP_STATE`, normal path: `npc 1000000 ( LOW_MAG_STONE_FD.lua ) RT 5: NOT_UP_STATE: no launch speed, the fly state still starts ( nowSpeed.y 0.0 )`
+  twice (Iivue's Generate Black Hole hit, field 40029).
+- `NOT_AFFECT_BLACKHOLE`: `blackhole unit 1000010 type 1: NOT_AFFECT_BLACKHOLE: never pulled` (16, the cap). Unit 1000010 is the
+  stage-4 boss of dungeon 33280, id 1693 = `NUI_SMITH_STAIN`.
+- Invincible skip: `blackhole unit 1000015 ... not moved: invincible or NaN distance` (16), id 5157 = `NUI_LOW_RAGE_BABYFIG_FD`.
+- Not exercised: RT 4 (X X X). The Lord Knight's Burned Forest run (dungeon 33270, three `NUI_MAG_STONE`) logged no C3i line.
+  The RT 4 test has the same shape as the RT 5 one that fired. `NO_FALL_DOWN_AT_STATE` and the FORCE gate also logged nothing;
+  neither was expected to.
+
 ## C3j - identify, then decide: June's NPC bounding-state fallbacks
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j.md`.
