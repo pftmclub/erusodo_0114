@@ -494,3 +494,16 @@ below still call the 1-argument form. Carry them over with June's arguments (`ju
 | Chung | DamageReact `32c0cf90` (vslot `0x60`) @32c0d18c / @32c0d19c / @32c0d1b4 | attacker `SetStopTime( 0.5, false, NULL, false )`, own `SetStopTime( 0.5, false, NULL, false )`, own `SetStop2Time( 0, false, NULL, false )` |
 | Aisha (Violet Mage) | binding circle hyper FrameMove `32cd5d60` @32cd6152 (March `AVSI_SI1_AV_BINDING_CIRCLE_HYPER_FrameMove`) | `SetStopTime( 3.0, false, NULL, true )`: the exe's only forced stop, so it overrides the immune state |
 | Elsword | March `THROW_WOODEN_PIECE_FrameMove` `SetStopTime( 1.5f )` | no June `+0x100` call loads 1.5: confirm June dropped it, then drop it too |
+
+### 7q. Luciel's down-state getters (from June effect completion C3f)
+
+June's force-down flush (C3f-1, `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH`) compares the state being left with three virtual getters, and
+ForceDownAndDetonationProcess compares the new state with a fourth. March's getters are non-virtual (`X2GUUser.h:1987`) and C3f-1 uses the
+base ids. Luciel overrides all four; make them virtual (or test the class) when Lu/Ciel is ported.
+
+| June vslot | Base (12 classes) | Luciel | Luciel returns |
+|---|---|---|---|
+| `0x114` DOWN_FRONT | `3208de60` -> `0x1e` | `32b4d810` | if `31fc9d90( 2 )` (byte `+0x8f6e` or `+0x8f6f` set): `0x1a8`, `+0x2d` when vslot `0x260` (`3208e160`, byte `+0x8e90`) is set; else `0x1e`, `+0xb4` when vslot `0x260` is set |
+| `0x118` DOWN_BACK | `3208de70` -> `0x1f` | `32b4d850` | same, base `0x1f` (the `0x1a8` / `0x1d5` branch is identical for all four) |
+| `0x48c` AIR_DOWN_INVINCIBLE | `3208deb0` -> `0x24` | `32b4d990` | same, base `0x24` |
+| `0x490` AIR_DOWN_LANDING | `330de330` -> `0x25` | `32b4d9d0` | same, base `0x25` |

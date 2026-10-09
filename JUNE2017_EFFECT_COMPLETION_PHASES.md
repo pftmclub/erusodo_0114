@@ -1132,7 +1132,7 @@ There are 9 funcmap rows `(C3e-3)`. The caller table, March to June, is `june201
 
 ## C3f - identify: June's force-down flush in StateChange
 
-**Status: ready (found by the C3c review, 2026-10-08). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3f.md`.
+**Status: done 2026-10-09 (no code, no build); port -> C3f-1. Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3f.md`.
 
 - **Scope:** June calls the gage's UpdateFlushForceDown (`32a33dc0`) from `CX2GUUser::StateChange` `320348c0 @32034931-32034994`, when the state
   being **left** is DOWN_FRONT / DOWN_BACK / AIR_DOWN_LANDING (vslots `0x114` / `0x118` / `0x490`; Luciel overrides all three). March calls
@@ -1141,6 +1141,52 @@ There are 9 funcmap rows `(C3e-3)`. The caller table, March to June, is `june201
   the detonation flush and the clears (or show they are gone). Cover the NPC twin `327577d0` against March's NPC path (`X2GUNPC.cpp:13101`) and every class override.
 - **Exit:** funcmap rows `Effect C3f`; a port phase (row, flag, kickoff) that follows June and also corrects the C3c RT_DOWN comment in `X2GUUser.cpp`;
   class overrides go to the checklist.
+
+### C3f - Done (2026-10-09, Opus 5.5 high; no code, no flag, no build)
+
+10 funcmap rows `(C3f)`, 2 corrected (C3d-1's `0x114 / 0x118 / 0x490` were not "wait / charge-MP ids"; the C3c review row's "open").
+Ghidra read-only, raw bytes via `disasm_range.py` (two functions are not carved), E8 sweeps of `.text` for every caller.
+
+**The C3c review's picture was half right. June did not move ForceDownAndDetonationProcess; it moved only the force-down clear.**
+1. **The detonation half is unchanged.** June's ForceDownAndDetonationProcess is `3202a9c0`, still called from CommonStateStart
+   (`@3206068e`, March's position: after `32275440` / `32071c30`, before `31fe32d0` and the skill-state-end checks `@320606a2`). Same
+   five entry states (DOWN_FRONT / DOWN_BACK via vslots `0x114` / `0x118`, AIR_DOWN_INVINCIBLE via vslot `0x48c` = `0x24`,
+   RIDING_DAMAGE_FRONT / BACK as literals `0x55` / `0x56`). It runs UpdateDamageFlushMP (`32a33d50`, = March, its only caller) and
+   the same four clears (`m_vecStunPtr +0x6554`, `m_vecFreezePtr +0x6564`, `m_ExtraDamagePack.m_Stun +0x1ee8`, `m_bChangeGroggyState
+   +0x91e5`). DamageFlushMp (gage vslot `0x30`, `32a31dc0`) and FlushForceDown (`32a31e10`) are March's FIX forms.
+2. **The force-down half changed in two ways.** `3202a9c0` no longer calls UpdateFlushForceDown: it only *tests* the gage flag `+0xf8`.
+   When it is set, it zeroes `nowSpeed.y` (`+0x308`, June-only) and runs the clears; otherwise the clears run only when the detonation
+   flushed. The flag is not cleared there and the gage is not emptied. Both happen in StateChange `320348c0 @3203492b-32034994`, on
+   **leaving** DOWN_FRONT / DOWN_BACK / AIR_DOWN_LANDING (`0x25`, not AIR_DOWN_INVINCIBLE `0x24`). That block sits **before** the
+   IsLocalUnit and HP / shock / frozen early returns, so a refused or remote StateChange flushes too. Kickoff item 2 resolves the
+   other way: CommonStateStart does have a flush-family call (`3202a9c0`), it just no longer flushes the force-down gage.
+3. **The stun gate is unchanged** (CommonFrameMove `@32067528-3206753b` = March `:17915`, both flags). Because `+0xf8` now stays set
+   until the unit leaves the down state, a stun cannot turn into groggy while the unit lies down (March reopened the gate on entry).
+4. **NPC.** `327577d0` is **CX2GUNPC::StateChangeForce**. Its first block flushes when the (byte) `syncData.nowState` is
+   `m_DownDamageLandFront` / `LandBack` / `m_DownDamageAir` (`+0x4090` / `+0x4094` / `+0x4098`), before the bounds and cool-time tests,
+   so a refused change flushes too. March's NPC empties the gage instead **every frame** while in those states (CommonFrameMove
+   `X2GUNPC.cpp:18472`, compiled unconditionally; `:14878` is dead under BALANCE_PATCH_20110303). June dropped that reset: no
+   SetNowForceDown caller in `327b53b0`, no inline write (C3c review sweep), and the only `+0x4090` read there (`@327b9fa8`) is a death-path
+   StateChange. C3i's DRSC guard (`@3276a1a0-3276a1f3`: FlushForceDown true while in one of the three -> skip the branch) is the
+   other half: June keeps the gage full through the down state and stops it re-forcing.
+5. **Overrides.** Luciel overrides all **four** getters (`0x114` / `0x118` / `0x48c` / `0x490`); the other 12 classes use the base ->
+   checklist 7q. March's three getters (`X2GUUser.h:1987`) are non-virtual and return the base ids.
+6. **Riding.** RIDING_DAMAGE_FRONT / BACK end in RIDING_WAIT / RIDING_OFF (`X2GUUser.cpp:39591`), never in a down state, so after a
+   riding force-down June keeps the flag and the full gage until the unit next leaves a down state (only AttackResult empties the value).
+   The port keeps that and records it in JUNE_BUGS.
+
+Port planned as **C3f-1** (flag `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH`, Sonnet 5.5 high, kickoff `kickoffs/june-effect/C3f-1.md`,
+review `C3f-1-review.md`). User owes nothing.
+
+## C3f-1 - port: June's force-down flush on leaving a down state (user + NPC)
+
+**Status: ready. Model:** Sonnet 5.5, high. Flag `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH` (+ `_DEBUG` for the play-test lines). Kickoff
+`kickoffs/june-effect/C3f-1.md`.
+
+- **Scope:** "C3f - Done" items 1-4: the user StateChange flush and ForceDownAndDetonationProcess's test-only form; the NPC
+  StateChangeForce flush, the dropped per-frame reset, and C3i's DRSC nowState guard; the C3c RT_DOWN comment; JUNE_BUGS rows.
+- **Exit:** builds, flag hygiene PASS, deployed; play-test shows the gage emptied on leaving the down state (`JUNE_FX C3f-1` lines),
+  0 EXCEPTION.
 
 ---
 
