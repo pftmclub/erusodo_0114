@@ -1687,10 +1687,11 @@ rows, all 4 columns with iFlag 1-3, and none of them is a June adoption. **Nothi
 
 **Hygiene.** `flagcheck --worktree --files` (the 4 files): `1 PASS, 1 DEFINE, 2 OTHER, 0 FAIL`; 0 deleted lines, 0 non-ASCII inserted lines, 0 encoding changes; RESULT PASS. The two OTHER rows are a peer's uncommitted C3j hunks (`SERV_IRUHADEV_JUNE_BOUNDING_STATE`) in `X2GUUser.h` / `X2GameUnit.h`; this commit stages only the C3l hunks. Post-commit `--range 688d41c^..688d41c`: `3 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; 0 deleted lines; 0 encoding changes; RESULT PASS.
 
-**Deploy.** DEPLOY OK: X2_offline.exe is 19,505,664 B, dated 2026-10-10 05:55:29, md5 ca7fe2379d29fc9282d5a1124d0fa9ed, equal to X2/US_SERVICE/x2.exe (2026-10-10 05:55:24); built at mods/june-buff-port 4720231 + 6 uncommitted code file(s) (C3l's 4, plus a peer's C3j in X2GUNPC / X2GUUser.h / X2GameUnit.h; the link came from the peer's build in the same tree, after the C3l edits). `JUNE_FX C3l user state` (UTF-16) is in the deployed exe; `SPEED_TIME_ULTIMATE` is not, as expected: the constant-false gate lets the compiler drop that read.
+**Deploy.** DEPLOY OK: X2_offline.exe is 19,505,664 B, dated 2026-10-10 05:55:29, md5 ca7fe2379d29fc9282d5a1124d0fa9ed, equal to X2/US_SERVICE/x2.exe (2026-10-10 05:55:24); built at mods/june-buff-port 4720231 + 6 uncommitted code file(s) (C3l's 4, plus a peer's C3j in X2GUNPC / X2GUUser.h / X2GameUnit.h; the link came from the peer's build in the same tree, after the C3l edits). `JUNE_FX C3l user state` (UTF-16) is in the deployed exe; `SPEED_TIME_ULTIMATE` is not, as expected: the constant-false gate lets the compiler drop that read. Build consistency: Always.h, X2GameUnit.h and X2GUUser.h (05:43:49) predate X2Lib.pch (05:47:20), x2.pch (05:55:17) and the TIME_SPEED / vtable-exposed objects (X2GURaven 05:50, X2GUChung 05:50, X2RidingPet 05:52). The only older objects are sqlite3.obj (C), KTDXLIB Browser.obj (no X2Lib headers) and two orphan Offline objects not in the project.
 
 **In game.** Nothing new to see. Dashes, skills with scripted speed bursts and slides on slopes should move exactly as before, and `offline_server.log`
-has no `JUNE_FX C3l` line.
+has no `JUNE_FX C3l` line. Hand-off: `arasss` (Ara Yama Raja): Z Z Z, dash X, double jump forward (iFlag 2 rows) and dash, jump, Z X
+(`ASI_DASH_JUMP_COMBO_ALD_ZX`, iFlag 3) on a flat and a sloped line; `python tools/logs.py --grep "JUNE_FX C3l"` must show 0 lines.
 
 ## C3m - identify: June's world-physics scale and its PhysicParam backup
 
