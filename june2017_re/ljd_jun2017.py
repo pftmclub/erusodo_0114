@@ -175,7 +175,7 @@ def decompile(lua_path, fixed=True):
         ' [%s]' % sys.modules['ljd_fixed'].stats_line() if fixed else ''))
 
 
-def check(lua_path, fixed=True, seeds=32):
+def check(lua_path, fixed=True, seeds=32, march=False):
     """Run june2017_re/ljdiff against lua_path's own June bytecode (no .std.luac
     needed -- ljdiff.build() uses Phase 0's no-sibling transcode path) and raise
     SystemExit if the rt side has any clobber, or any dropped-assignment site not
@@ -199,6 +199,7 @@ def check(lua_path, fixed=True, seeds=32):
     from phase5_aggregate import deepcopy_exempt_at_line, SLOTNAME_SITE  # noqa: E402
     abspath = os.path.abspath(lua_path)
     LD.use_fixed_ljd(fixed)
+    LD.accept_march(march)
     os.makedirs(LD.TMP, exist_ok=True)
     table = LC.load_table(LC.TABLE_TSV)
     try:
@@ -260,7 +261,12 @@ if __name__ == '__main__':
     argv = sys.argv[1:]
     fixed = '--unfixed' not in argv
     do_check = '--check' in argv
-    files = [a for a in argv if a not in ('--unfixed', '--fixed', '--check')]
+    # --march --check FILE (LUA_SOURCE_PHASES.md L2): ljdiff-check a March 0x81 file against its own shipped bytecode.
+    # Only --check: the decompile step here needs June's .std.luac (use `tools/luasrc.py decompile` for March files).
+    march = '--march' in argv
+    files = [a for a in argv if a not in ('--unfixed', '--fixed', '--check', '--march')]
+    if march and not do_check:
+        raise SystemExit('--march only works with --check (decompile March files with tools/luasrc.py decompile)')
     if len(files) != 1:
         # ljd keeps global state per process; run one file per interpreter.
         import subprocess
@@ -271,6 +277,8 @@ if __name__ == '__main__':
                 cmd.append('--unfixed')
             if do_check:
                 cmd.append('--check')
+            if march:
+                cmd.append('--march')
             # Priority, not |= or max(): --check's exit codes (1 = real finding,
             # 2 = harness couldn't run) are severity levels, not a bitmask --
             # ORing 1 and 2 would silently produce 3 (neither code's meaning),
@@ -282,6 +290,9 @@ if __name__ == '__main__':
             elif this_rc and rc != 1:
                 rc = this_rc
         sys.exit(rc)
+    if march:
+        check(files[0], fixed, march=True)
+        sys.exit(0)
     decompile(files[0], fixed)
     if do_check:
         check(files[0], fixed)

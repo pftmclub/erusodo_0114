@@ -2,17 +2,26 @@
 """Keep March client .lua as BOM + UTF-8 source (not bytecode), and prove each conversion.  See LUA_SOURCE_PHASES.md.
 
     python tools/luasrc.py find data036 X.lua               # exact sources for one file, compile-compared
-    python tools/luasrc.py convert data036 X.lua [Y.lua..]  # bytecode X.lua -> BOM + source (T0 proof only)
+    python tools/luasrc.py convert data036 X.lua [Y.lua..]  # bytecode X.lua -> BOM + source (T0 or T1 proof only)
     python tools/luasrc.py convert data036 'DLG_*.lua'      # names may be globs
     python tools/luasrc.py convert data036 --dry-run        # whole kom dir: what WOULD convert, writes nothing
-    python tools/luasrc.py convert --all --dry-run          # every kom dir that has .lua
+    python tools/luasrc.py convert --all --dry-run [--no-decompile]   # every kom dir that has .lua (T0 only: fast)
     python tools/luasrc.py restore data036 X.lua            # put the snapshot bytes back, ledger row -> restored
     python tools/luasrc.py refresh data036 X.lua            # re-record the sha after a deliberate text edit
     python tools/luasrc.py ledger [--check]                 # census; --check = consistency (exit 1 on any FAIL)
+  L2:
+    python tools/luasrc.py decompile X.lua [-o out.lua]       # March 0x81 or June 0x82 -> BOM source (not proven by itself)
+    python tools/luasrc.py check SRC.lua REF.lua [--ref june]  # T0 / T1 / FAIL against shipped (or ljconv'd June) bytecode
+    python tools/luasrc.py t2 SRC.lua REF.lua [--out DIR]      # T2 report: globals in raw next order, mock environment
+    python tools/luasrc.py selftest                            # seeded edits T1 must reject (and controls it must accept)
+    python tools/luasrc.py calibrate [--sets march-t0,june,class] [--seed X --exclude TSV]
 
 Proof tiers (Rule 1): T0 = the source compiles BYTE-IDENTICAL to the shipped bytecode (luajit -b, mar-2014 header).
-T1 / T2 / T3 arrive with L2 and are not offered here. Sources tried, in Rule 3's order: the sibling X.src.lua, then a studio
-original from ClientScript\\ or _ClientScript\\ (every copy of the name is tried). Conversion changes FORMAT only (Rule 4).
+T1 = identical per prototype, constants equal by value and slot order ignored (tools/ljbc.py). T2 = behaviour only: `t2`
+reports, it never passes a file. T3 = unproven, the bytecode ships. Sources tried, in Rule 3's order: the sibling X.src.lua,
+a studio original from ClientScript\\ or _ClientScript\\ (every copy of the name is tried), then the ljd decompile (with the
+template-layout tidy-up, tools/ljsrc.py), which converts only at T0 or T1. Conversion changes FORMAT only (Rule 4).
+A table constant passes T1 with the same key/value pairs in its own table; their storage order is ignored (user, 2026-10-09).
 
 Files: bytecode snapshots go to <kom_contents>/../kom_contents_bytecode/dataNNN_kom/ (X.lua and any X.src.lua);
 the ledger is tools/data/lua_source_ledger.tsv. Overrides: X2_KOM_CONTENTS, X2_KOM_BYTECODE, X2_LUA_LEDGER,
@@ -111,8 +120,9 @@ def _env():
     return e
 
 
-def compile_text(text, want_bytes=True):
-    """Compile source bytes (BOM already stripped). Returns (bytecode|None, error message). Stripped (flags 02) like the shipped files."""
+def compile_text(text, want_bytes=True, debug=False):
+    """Compile source bytes (BOM already stripped). Returns (bytecode|None, error message). Stripped (flags 02) like the shipped
+    files; debug=True keeps line info (`-bg`, used only to map a T1 difference back to a source line)."""
     if not os.path.isfile(LUAJIT):
         die(1, "luajit.exe not found at %s" % LUAJIT)
     os.makedirs(TMP, exist_ok=True)
@@ -121,7 +131,7 @@ def compile_text(text, want_bytes=True):
     try:
         with open(src, "wb") as f:
             f.write(text)
-        r = subprocess.run([LUAJIT, "-b", src, out if want_bytes else "NUL"], stdin=subprocess.DEVNULL, capture_output=True,
+        r = subprocess.run([LUAJIT, "-bg" if debug else "-b", src, out if want_bytes else "NUL"], stdin=subprocess.DEVNULL, capture_output=True,
                            env=_env(), timeout=600)
         if r.returncode != 0:
             msg = (r.stderr or r.stdout).decode("utf-8", "replace").strip()
@@ -320,8 +330,9 @@ def write_source(d, name, text):
 
 
 # ----------------------------------------------------------------------------------------------
-def classify_file(d, name, man, pool_results=None):
-    """What `convert` would do with one staged file: (state, detail, ref, label, path, text)."""
+def classify_file(d, name, man, decompile=True):
+    """What `convert` would do with one staged file: (state, detail, ref, label, path, text). Rule 3's order: sibling
+    .src.lua, studio copies (T0), then the decompile (T0 or T1, proven by the strict T1 check; L2)."""
     data = read(os.path.join(d, name))
     k = kind(data)
     if k == "bom-text":
@@ -334,6 +345,11 @@ def classify_file(d, name, man, pool_results=None):
     if label:
         return "t0", label, data, label, path, text
     why = "; ".join("%s: %s" % (lb, w) for lb, _p, w in tried) if tried else "no exact source found (no sibling .src.lua, no studio copy)"
+    if decompile:
+        tier, text, dwhy = prove_decompile(data)
+        if text is not None:
+            return "decompiled", tier, data, "decompile", None, text
+        why += "; decompile: " + dwhy
     return "no-proof", why, data, None, None, None
 
 
@@ -373,9 +389,10 @@ def convert_one(kom, d, name, st, label, path, text, ref, a):
         folded = "; sidecar folded"
     elif os.path.isfile(side):
         folded = "; unrelated sidecar left"
+    tier = st if st in ("T0", "T1") else "T0"
     return new_row(kom, name, a.origin, "shipped March bytecode" if a.origin == "march" else "ljconv(June bytecode)", sha1(ref),
-                   {"src.lua": "src.lua", "ClientScript": "ClientScript", "_ClientScript": "_ClientScript"}.get(label, label), "T0",
-                   sha1(text), a.phase, a.reason + folded)
+                   {"src.lua": "src.lua", "ClientScript": "ClientScript", "_ClientScript": "_ClientScript"}.get(label, label), tier,
+                   sha1(text), a.phase, a.reason + folded + ("; ljd decompile proven %s (L2)" % tier if label == "decompile" else ""))
 
 
 def cmd_convert(a):
@@ -409,7 +426,7 @@ def cmd_convert(a):
     studio_index()   # build once, before the pool
     results = []
     with cf.ThreadPoolExecutor(max_workers=a.jobs) as ex:
-        futs = [ex.submit(classify_file, d, n, man) for kom, d, n, man in work]
+        futs = [ex.submit(classify_file, d, n, man, not a.no_decompile) for kom, d, n, man in work]
         for (kom, d, n, man), fu in zip(work, futs):
             results.append(((kom, d, n), fu.result()))
     refused_explicit = 0
@@ -417,14 +434,17 @@ def cmd_convert(a):
     by_label, by_kom = {}, {}
     for (kom, d, n), (st, detail, ref, label, path, text) in results:
         tsv.append("\t".join([kom, n, st, label or "", detail.replace("\t", " ")]))
-        if st == "t0":
+        if st in ("t0", "decompiled"):
+            tier = "T0" if st == "t0" else detail
             t0_list.append((kom, n))
-            by_label[label] = by_label.get(label, 0) + 1
+            key = label if st == "t0" else "decompile %s" % tier
+            by_label[key] = by_label.get(key, 0) + 1
             by_kom[kom] = by_kom.get(kom, 0) + 1
             if not a.dry_run:
-                rows.append(convert_one(kom, d, n, st, label, path, text, ref, a))
+                rows.append(convert_one(kom, d, n, tier, label, path, text, ref, a))
             if explicit or len(work) <= 20:
-                p("  %s %-8s %s  [%s%s]" % ("would convert" if a.dry_run else "CONVERTED", kom, n, label, "" if a.dry_run else ", snapshot + ledger"))
+                p("  %s %-8s %s  [%s, %s%s]" % ("would convert" if a.dry_run else "CONVERTED", kom, n, label, tier,
+                                              "" if a.dry_run else ", snapshot + ledger"))
         elif st in skipped:
             skipped[st] += 1
             if explicit:
@@ -443,14 +463,15 @@ def cmd_convert(a):
     nokom = {}
     for kom, n, _w in noproof:
         nokom[kom] = nokom.get(kom, 0) + 1
-    p("  T0 by source: %s;  by kom: %s" % (by_label or "none", dict(sorted(by_kom.items())) or "none"))
-    p("  no T0 proof (needs the L2 decompile tier): %d  %s" % (len(noproof), dict(sorted(nokom.items())) if nokom else ""))
+    p("  proven by source: %s;  by kom: %s" % (by_label or "none", dict(sorted(by_kom.items())) or "none"))
+    p("  unproven (no T0 source%s): %d  %s" % (" and decompile not tried: --no-decompile" if a.no_decompile else ", and the decompile is not T1",
+                                             len(noproof), dict(sorted(nokom.items())) if nokom else ""))
     p("  skipped: already source %d, not March bytecode %d, manifest not \"2\" %d" % (
         skipped["already-source"], skipped["not-march-bytecode"], skipped["manifest"]))
     if a.dry_run:
-        p("CONVERT DRY RUN: %d T0 convertible, %d need L2, %d skipped; nothing changed." % (len(t0_list), len(noproof), sum(skipped.values())))
+        p("CONVERT DRY RUN: %d convertible (T0/T1), %d unproven, %d skipped; nothing changed." % (len(t0_list), len(noproof), sum(skipped.values())))
     else:
-        p("CONVERT OK: %d converted (T0), %d refused/unproven, %d skipped. Next: kom.py pack %s   (then ask before `copy`)" % (
+        p("CONVERT OK: %d converted (T0/T1), %d refused/unproven, %d skipped. Next: kom.py pack %s   (then ask before `copy`)" % (
             len(t0_list), len(noproof), sum(skipped.values()), " ".join(sorted({k for k, _n in t0_list}))))
     if explicit and refused_explicit:
         sys.exit(4)
@@ -680,6 +701,565 @@ def fold(d, kom, phase="compile", dry_run=False):
     return folded, refused, skipped
 
 
+# ----------------------------------------------------------------------------------------------
+# L2: decompile, the T1 check, calibration (LUA_SOURCE_PHASES.md Phase L2)
+RE_DIR = os.path.join(TRUNK, "june2017_re")
+LJD_FIXED = os.path.join(RE_DIR, "ljd_fixed.py")
+STD_BC = b"\x1bLJ\x01"
+DECOMPILE_TIMEOUT = int(os.environ.get("X2_LJD_TIMEOUT", "900"))
+CALIBRATION_TSV = os.path.join(RE_DIR, "lua_source_calibration.tsv")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ljbc  # noqa: E402  (tools/ljbc.py: the dump reader and the T1 comparison)
+import ljsrc  # noqa: E402  (tools/ljsrc.py: Lua tokenizer, constructors, the template-layout tidy-up)
+
+_ljconv = []
+
+
+def ljconv_mod():
+    """june2017_re/ljconv.py with its opcode table loaded (once)."""
+    if not _ljconv:
+        if RE_DIR not in sys.path:
+            sys.path.insert(0, RE_DIR)
+        import ljconv as m
+        _ljconv.append((m, m.load_table(m.TABLE_TSV)))
+    return _ljconv[0]
+
+
+def reference_of(data, ref="auto"):
+    """-> (reference 0x81 bytes, label). --ref march: the shipped 0x81 file itself; --ref june: ljconv(June 0x82 bytecode)."""
+    k = kind(data)
+    if ref == "auto":
+        ref = "june" if k == "june-bytecode" else "march"
+    if ref == "march":
+        if k != "march-bytecode":
+            raise ValueError("--ref march needs shipped March bytecode (1B 4B 4C 81); the reference is %s" % k)
+        return data, "shipped March bytecode"
+    if k != "june-bytecode":
+        raise ValueError("--ref june needs June bytecode (1B 4B 4C 82); the reference is %s" % k)
+    m, table = ljconv_mod()
+    return m.transcode(data, table)[0], "ljconv(June bytecode)"
+
+
+def decompile_bc(data, timeout=DECOMPILE_TIMEOUT, repair=True):
+    """Bytecode -> (source bytes without BOM, or None; error).
+    March 0x81: the header is swapped to stock 1B 4C 4A 01. June 0x82: ljconv.transcode_stock, i.e. the bytes ljd_jun2017.py
+    feeds ljd from elstools' .std.luac with its FIX slots corrected (`ljconv.py --verify-stock` proves them equal), with no
+    .std.luac needed. Both then go through june2017_re/ljd_fixed.py (the vendored ljd; the slotworks fix is baked into both
+    vendored copies, sha256 2235d0a1...)."""
+    k = kind(data)
+    if k == "march-bytecode":
+        stock = STD_BC + data[4:]
+    elif k == "june-bytecode":
+        m, table = ljconv_mod()
+        stock = m.transcode_stock(data, table)[0]
+    else:
+        return None, "not bytecode (%s)" % k
+    os.makedirs(TMP, exist_ok=True)
+    stem = os.path.join(TMP, uuid.uuid4().hex)
+    src, out = stem + ".luac", stem + ".dec.lua"
+    try:
+        with open(src, "wb") as f:
+            f.write(stock)
+        r = subprocess.run([sys.executable, LJD_FIXED, "-f", src, "-o", out], stdin=subprocess.DEVNULL, capture_output=True,
+                           cwd=TRUNK, timeout=timeout)
+        err = r.stderr.decode("utf-8", "replace")
+        if r.returncode != 0 or not os.path.isfile(out):
+            last = [ln for ln in err.strip().splitlines() if ln.strip()]
+            return None, "ljd failed (rc %d): %s" % (r.returncode, last[-1][:300] if last else "no message")
+        if "slotworks fix active" not in err:
+            return None, "ljd_fixed.py ran without reporting the slotworks fix active"
+        text = read(out)
+        if repair:
+            text = repair_layout(text, data)[0]
+        return text, ""
+    except subprocess.TimeoutExpired:
+        return None, "ljd timed out after %ds" % timeout
+    finally:
+        for f in (src, out):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+
+
+def repair_layout(text, data):
+    """Best-effort: reorder constant constructor fields so the parsed templates store their pairs in the reference's order
+    (tools/ljsrc.py). -> (text, notes). Runs only on a text that passes T1 and returns one that still does."""
+    try:
+        ref = reference_of(data)[0]
+    except ValueError:
+        return text, ["no reference"]
+    try:
+        return ljsrc.repair_layout(text, ref, lambda t, dbg: compile_text(t, True, dbg), ljbc.t1_bytes)
+    except (ljsrc.LexError, ljbc.DumpError, RuntimeError, subprocess.TimeoutExpired) as e:
+        return text, ["layout repair skipped: %s" % e]
+
+
+def t1_tier(text, ref):
+    """Source bytes (no BOM) against a 0x81 reference. -> (tier, ljbc.T1Result or None, error).
+    tier: T0 (byte-identical) | T1 | FAIL (T1 differences) | NOCOMPILE."""
+    bc, err = compile_text(text)
+    if bc is None:
+        return "NOCOMPILE", None, err
+    if bc == ref:
+        return "T0", ljbc.T1Result(), ""
+    r = ljbc.t1_bytes(bc, ref)
+    return ("T1" if r.ok else "FAIL"), r, ""
+
+
+def prove_decompile(ref):
+    """Rule 3's last source: decompile the reference and prove the text at T1. -> (tier, text or None, why)."""
+    text, err = decompile_bc(ref)
+    if text is None:
+        return "DECOMPILE-FAIL", None, err
+    tier, r, err = t1_tier(text, ref)
+    if tier == "NOCOMPILE":
+        return tier, None, "the decompile does not compile (%s)" % err
+    if tier in ("T0", "T1"):
+        return tier, text, "%s: decompile proven (%d prototype(s), %d instruction(s))" % (tier, r.protos, r.ins)
+    first = ("%s: %s" % r.diffs[0])[:240] if r.diffs else "?"
+    return "FAIL", None, "decompile is not T1: %d difference(s); first %s" % (r.total, first)
+
+
+def show_t1(r, n=12):
+    for path, msg in r.diffs[:n]:
+        p("    %s: %s" % (path, msg))
+    if r.total > n:
+        p("    ... %d difference(s) in total" % r.total)
+
+
+def bytecode_arg(arg):
+    """A path, or KOM/NAME (data038/SQUARE_GM_Ariel.lua): the staged file, or its snapshot once the file was converted."""
+    if os.path.isfile(arg):
+        return read(arg)
+    m = re.fullmatch(r"([^/\\:]+)[/\\:](.+)", arg)
+    kom = None
+    if m and re.fullmatch(r"(?i)(?:data)?i?\d+(?:_kom)?", m.group(1)):
+        kom = norm(m.group(1))
+    if kom:
+        for path in (os.path.join(kom_dir(kom), m.group(2)), os.path.join(snapshot_dir(kom), m.group(2))):
+            if os.path.isfile(path) and kind(read(path)) in ("march-bytecode", "june-bytecode"):
+                return read(path)
+    die(2, "no such bytecode file: %s (give a path, or KOM/NAME like data038/SQUARE_GM_Ariel.lua)" % arg)
+
+
+def cmd_decompile(a):
+    data = bytecode_arg(a.bytecode)
+    text, err = decompile_bc(data, a.timeout)
+    if text is None:
+        die(1, "DECOMPILE FAILED %s: %s" % (a.bytecode, err))
+    out = a.out or os.path.join(TRUNK, ".build", "luasrc_dec", os.path.basename(a.bytecode.replace(":", "/")))
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    write_atomic(out, BOM + text)
+    p("DECOMPILED %s -> %s (%d bytes, BOM + UTF-8). Not proven: run `luasrc.py check %s %s`" % (
+        a.bytecode, out, len(text) + 3, out, a.bytecode))
+
+
+def cmd_check(a):
+    src = read(a.source)
+    if kind(src) not in ("bom-text", "bare-text"):
+        die(2, "%s is not source text (%s)" % (a.source, kind(src)))
+    try:
+        ref, label = reference_of(bytecode_arg(a.reference), a.ref)
+    except ValueError as e:
+        die(2, str(e))
+    tier, r, err = t1_tier(strip_bom(src), ref)
+    p("== check %s against %s (%s)" % (a.source, a.reference, label))
+    if tier == "NOCOMPILE":
+        die(1, "CHECK FAIL: the source does not compile (%s)" % err)
+    if tier == "FAIL":
+        show_t1(r, a.show)
+        die(1, "CHECK FAIL: not T1 - %d difference(s) over %d prototype(s), %d instruction(s)" % (r.total, r.protos, r.ins))
+    p("CHECK %s: %s" % (tier, "byte-identical" if tier == "T0" else "%d prototype(s), %d instruction(s) equal; constants equal by value%s" % (
+        r.protos, r.ins, "; %d table constant(s) hold the same pairs in another storage order (pairs() may walk them "
+                         "differently; ignored since 2026-10-09)" % r.layout if r.layout else "")))
+
+
+# ---- T2 report (reports only; it never passes a file)
+T2_HARNESS = r"""
+local MAXINS = tonumber(arg[3]) or 50000000
+local function rd(p) local f = assert(io.open(p, "rb")); local s = f:read("*a"); f:close(); return s end
+local STUBS = setmetatable({}, { __mode = "k" })
+local function stub(name)
+  local s = {}
+  STUBS[s] = name
+  return setmetatable(s, {
+    __index = function(t, k) local c = stub(name .. "." .. tostring(k)); rawset(t, k, c); return c end,
+    __call = function(_, ...) return stub(name .. "()") end,
+    __add = function() return stub(name .. "+") end, __sub = function() return stub(name .. "-") end,
+    __mul = function() return stub(name .. "*") end, __div = function() return stub(name .. "/") end,
+    __mod = function() return stub(name .. "%") end, __unm = function() return stub("-" .. name) end,
+    __concat = function() return stub(name .. "..") end, __len = function() return 0 end,
+  })
+end
+local function q(v)
+  local t = type(v)
+  if t == "string" then return string.format("%q", v) end
+  if t == "number" then return string.format("%.17g", v) end
+  if t == "table" and STUBS[v] then return "<" .. STUBS[v] .. ">" end
+  if t == "table" or t == "function" or t == "userdata" or t == "thread" then return "<" .. t .. ">" end
+  return tostring(v)
+end
+local function dump(out, v, path, seen, depth)
+  if type(v) ~= "table" or STUBS[v] then return end
+  if seen[v] then out[#out + 1] = path .. " = <same as " .. seen[v] .. ">"; return end
+  seen[v] = path
+  if depth > 40 then out[#out + 1] = path .. " = <too deep>"; return end
+  local k, val = next(v)
+  while k ~= nil do
+    local p = path .. "[" .. q(k) .. "]"
+    out[#out + 1] = p .. " = " .. q(val)
+    dump(out, val, p, seen, depth + 1)
+    k, val = next(v, k)
+  end
+end
+local s = rd(arg[1])
+if s:sub(1, 3) == "\239\187\191" then s = s:sub(4) end
+local f, err = loadstring(s, "=chunk")
+if not f then io.write("LOAD ERROR ", tostring(err), "\n"); return end
+local env = setmetatable({}, { __index = function(t, k) return stub(tostring(k)) end })
+setfenv(f, env)
+local n = 0
+debug.sethook(function() n = n + 1; if n * 1000 > MAXINS then error("instruction budget exhausted", 0) end end, "", 1000)
+local ok, e = pcall(f)
+debug.sethook()
+local out = {}
+if not ok then out[1] = "MAIN ERROR " .. tostring(e) end
+dump(out, env, "_G", {}, 0)
+local fh = assert(io.open(arg[2], "wb")); fh:write(table.concat(out, "\n"), "\n"); fh:close()
+io.write("OK ", #out, "\n")
+"""
+
+
+def t2_dump(chunk_bytes, tag):
+    """Run one chunk (bytecode or BOM/plain text) in the mock environment. -> (lines, error)."""
+    os.makedirs(TMP, exist_ok=True)
+    stem = os.path.join(TMP, uuid.uuid4().hex + "_" + tag)
+    src, out = stem + ".chunk", stem + ".t2"
+    try:
+        with open(src, "wb") as f:
+            f.write(chunk_bytes)
+        r = subprocess.run([LUAJIT, "-", src, out], input=T2_HARNESS.encode(), capture_output=True, cwd=LUAJIT_DIR, env=_env(),
+                           timeout=600)
+        msg = r.stdout.decode("utf-8", "replace").strip()
+        if not msg.startswith("OK"):
+            return None, (msg or r.stderr.decode("utf-8", "replace").strip())[:300]
+        return read(out).decode("utf-8", "replace").splitlines(), ""
+    except subprocess.TimeoutExpired:
+        return None, "mock run timed out"
+    finally:
+        for f in (src, out):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+
+
+def t2_compare(a, b):
+    """-> 'identical' | 'order only' (same lines, other raw next order) | 'content: N line(s) differ'."""
+    if a == b:
+        return "identical"
+    if sorted(a) == sorted(b):
+        return "order only"
+    sa, sb = set(a), set(b)
+    return "content: %d line(s) only in the first, %d only in the second" % (len(sa - sb), len(sb - sa))
+
+
+def t2_report(text, ref):
+    """R = reference bytecode, B = the source compiled to bytecode, S = the source loaded as text (what the client runs
+    after conversion). -> dict of the three comparisons plus the dumps."""
+    bc, err = compile_text(text)
+    dumps = {"R": t2_dump(ref, "R"), "S": t2_dump(BOM + text, "S")}
+    dumps["B"] = t2_dump(bc, "B") if bc is not None else (None, "does not compile: %s" % err)
+    res = {}
+    for x, y, what in (("R", "B", "bytecode vs bytecode"), ("B", "S", "loader effect (T0 files show it too)"),
+                       ("R", "S", "what conversion changes")):
+        (da, ea), (db, eb) = dumps[x], dumps[y]
+        res[x + y] = (what, t2_compare(da, db) if da is not None and db is not None else "not run: %s" % (ea or eb))
+    return res, dumps
+
+
+def cmd_t2(a):
+    src = read(a.source)
+    try:
+        ref, label = reference_of(bytecode_arg(a.reference), a.ref)
+    except ValueError as e:
+        die(2, str(e))
+    res, dumps = t2_report(strip_bom(src), ref)
+    p("== T2 report %s against %s (%s). Reports only: T2 never passes a file (Rule 1)." % (a.source, a.reference, label))
+    for key in ("RB", "BS", "RS"):
+        what, verdict = res[key]
+        p("  %s  %-40s %s" % (key, what, verdict))
+    for x in ("R", "S"):
+        lines, err = dumps[x]
+        if lines and lines[0].startswith("MAIN ERROR"):
+            p("  note: %s main chunk stopped: %s" % (x, lines[0][11:200]))
+    if a.out:
+        os.makedirs(a.out, exist_ok=True)
+        for x, (lines, err) in dumps.items():
+            with open(os.path.join(a.out, "%s.t2.txt" % x), "w", encoding="utf-8", newline="\n") as f:
+                f.write("\n".join(lines) + "\n" if lines is not None else "not run: %s\n" % err)
+        p("  dumps written to %s (R/B/S.t2.txt)" % a.out)
+    p("Blind spots: function bodies are not run (only the main chunk), engine globals are stubs, and a main chunk that "
+      "errors is compared up to the error.")
+
+
+# ---- mutation self-test (LUA_SOURCE_PHASES.md L2 step 5): every seeded change must fail T1, every control must pass
+SELFTEST_SEEDS = [("data038", "SQUARE_GM_Ariel.lua"), ("data037", "Soldier_Benders_Thief_Arcade.lua"),
+                  ("data037", "Gliter_Great_Rock.lua"), ("data038", "SQUARE_Unit.lua"), ("data036", "IceHeaterPreView.lua"),
+                  ("data217", "DLG_Map_Local_Ranox.lua"), ("data035", "Dungeon_El_Forest_Gate_Normal.lua"),
+                  ("datai015", "UIEffectSet_INT.lua"),
+                  # ljd prints stripped locals as slotN globals (no `local`), so the local-to-global seeds mutate proven T0
+                  # studio sources that declare locals.
+                  ("data037", "ANCIENT_CRAB.lua", "t0"), ("data035", "Dungeon_Arcade_Ruben.lua", "t0"),
+                  # the only March files with upvalues; no provable text, so only their bytecode seeds run
+                  ("data037", "Wally9th_Armor.lua", "bc")]
+
+
+def seed_reference(kom, name):
+    """The shipped bytecode of a seed: the staged file, or its snapshot once the file was converted."""
+    for path in (os.path.join(kom_dir(kom), name), os.path.join(snapshot_dir(kom), name)):
+        if os.path.isfile(path) and kind(read(path)) == "march-bytecode":
+            return read(path)
+    return None
+
+
+def _selftest_seed(item):
+    kom, name, mode, per_kind = item
+    ref = seed_reference(kom, name)
+    res = {"seed": "%s %s%s" % (kom, name, {"t0": " (T0 source)", "bc": " (bytecode seeds only)"}.get(mode, "")), "rows": [],
+           "error": ""}
+    if ref is None:
+        res["error"] = "no March bytecode for the seed"
+        return res
+    text = None
+    if mode == "t0":
+        label, _path, text, _tried = find_t0(kom_dir(kom), name, ref)
+        if not label:
+            res["error"] = "no T0 source"
+            return res
+    elif mode == "decompile":
+        text, err = decompile_bc(ref)
+        if text is None:
+            res["error"] = "decompile failed: %s" % err
+            return res
+    if text is not None:
+        tier, r, err = t1_tier(text, ref)
+        if tier not in ("T0", "T1"):
+            res["error"] = "the seed's text is not T1 (%s); pick another seed" % (err or "%d difference(s)" % r.total)
+            return res
+        base, _ = compile_text(text)
+    for kind_, where, mtext in (ljsrc.mutants(text, per_kind) if text is not None else ()):
+        bc, err = compile_text(mtext)
+        if bc is None:
+            res["rows"].append((kind_, where, "fail", "invalid", "does not compile"))
+            continue
+        if bc == base:
+            res["rows"].append((kind_, where, "fail", "equivalent", "bytecode unchanged by the edit"))
+            continue
+        rr = ljbc.t1_bytes(bc, ref)
+        res["rows"].append((kind_, where, "fail", "pass" if rr.ok else "fail", "" if rr.ok else "%s: %s" % rr.diffs[0]))
+    for kind_, expect, mbytes, against in ljbc.dump_mutants(ref):
+        rr = ljbc.t1_bytes(mbytes, against)
+        res["rows"].append(("bc:" + kind_, "bytecode", expect, "pass" if rr.ok else "fail", "" if rr.ok else "%s: %s" % rr.diffs[0]))
+    return res
+
+
+def cmd_selftest(a):
+    seeds = [(x[0], x[1], x[2] if len(x) > 2 else "decompile") for x in SELFTEST_SEEDS]
+    for spec in a.seed or []:
+        k, _, n = spec.partition(":")
+        mode = "decompile"
+        if n.endswith((":t0", ":bc")):
+            n, mode = n[:-3], n[-2:]
+        seeds.append((norm(k), n, mode))
+    p("== selftest: %d seed file(s); source mutants (%d per kind per seed) + bytecode seeds" % (len(seeds), a.per_kind))
+    with cf.ThreadPoolExecutor(max_workers=a.jobs) as ex:
+        results = list(ex.map(_selftest_seed, [(k, n, m, a.per_kind) for k, n, m in seeds]))
+    tally, misses, bad_seeds = {}, [], 0
+    for res in results:
+        if res["error"]:
+            bad_seeds += 1
+            p("  SEED SKIPPED %s: %s" % (res["seed"], res["error"]))
+            continue
+        for kind_, where, expect, got, why in res["rows"]:
+            t = tally.setdefault(kind_, {"valid": 0, "ok": 0, "invalid": 0, "equivalent": 0})
+            if got in ("invalid", "equivalent"):
+                t[got] += 1
+                continue
+            t["valid"] += 1
+            if got == expect:
+                t["ok"] += 1
+            else:
+                misses.append("%s %s %s: expected %s, T1 said %s" % (res["seed"], kind_, where, expect, got))
+    p("  %-58s %6s %6s %8s %10s" % ("kind", "valid", "right", "invalid", "equivalent"))
+    for kind_ in sorted(tally):
+        t = tally[kind_]
+        p("  %-58s %6d %6d %8d %10d" % (kind_, t["valid"], t["ok"], t["invalid"], t["equivalent"]))
+    for m in misses:
+        p("  MISS %s" % m)
+    total = sum(t["valid"] for t in tally.values())
+    right = sum(t["ok"] for t in tally.values())
+    empty = [k for k, t in tally.items() if not t["valid"]]
+    want = {"number-constant", "string-constant", "string-byte-flip", "drop-statement", "operator", "constructor-reorder",
+            "local-to-global", "swap-string-constants", "swap-number-constants"}
+    absent = sorted(want - {k for k, t in tally.items() if t["valid"]})
+    ok = not misses and not absent and not bad_seeds
+    p("SELFTEST %s: %d/%d seeded edits judged right (%.1f%%)%s%s" % (
+        "PASS" if ok else "FAIL", right, total, 100.0 * right / max(1, total),
+        "; kinds with no valid mutant: %s" % ", ".join(absent) if absent else "",
+        "; %d seed(s) skipped" % bad_seeds if bad_seeds else ""))
+    if not ok:
+        sys.exit(1)
+
+
+# ---- calibration
+CLASS_SCRIPTS = ["Elsword_SwordMan.lua", "Arme_VioletMage.lua", "Lire_ElvenRanger.lua", "RAVEN_FIGHTER.lua", "Eve_Nasod.lua",
+                 "Chung_Iron_Cannon.lua", "Ara_Martial_Artist.lua", "ELESIS_KNIGHT.lua", "Add_NasodRuler.lua"]
+JUNE_LUA_DIR = os.path.join(RE_DIR, "june_lua")
+_SLOTG = re.compile(r'^"(slot|uv)\d+"$')
+
+
+def _calib_pick(per_dir, seed="L2", exclude=()):
+    """Known-T0 March files: [(set, kom, name, ref bytes, exact label)], a deterministic spread over every kom dir that has
+    any (the largest file of each dir always included), plus data217's converted files from their snapshots."""
+    picks = []
+    for kom in kom_dirs_with_lua():
+        d = kom_dir(kom)
+        man = load_manifest(d)
+        names = [n for n in lua_names(d) if str(man.get(n)) == "2" and (kom, n) not in exclude]
+        cands = [n for n in names if kind(read(os.path.join(d, n))) == "march-bytecode" and candidates(d, n)]
+        if not cands:
+            continue
+        cands.sort(key=lambda n: hashlib.sha1((seed + kom + n.lower()).encode()).hexdigest())
+        biggest = max(cands, key=lambda n: os.path.getsize(os.path.join(d, n)))
+        order = ([biggest] if seed == "L2" else []) + [n for n in cands if n != biggest or seed != "L2"]
+        got = 0
+        for n in order:
+            if got >= per_dir.get(kom, per_dir.get("*", 0)):
+                break
+            ref = read(os.path.join(d, n))
+            label, _path, _text, _tried = find_t0(d, n, ref)
+            if label:
+                picks.append(("march-t0", kom, n, ref, label))
+                got += 1
+    if seed == "L2":
+        for r in ledger_latest(ledger_load()).values():
+            if r["kom"] == "data217" and r["tier"] == "T0" and ("data217", r["name"]) not in exclude:
+                snap = os.path.join(snapshot_dir("data217"), r["name"])
+                if os.path.isfile(snap):
+                    picks.append(("march-t0", "data217", r["name"], read(snap), "ledger T0 (%s)" % r["source"]))
+    return picks
+
+
+def _auto_cause(row, r):
+    """A first-pass cause from the T1 differences; every miss is then read and confirmed in the calibration TSV."""
+    if row["verdict"] == "DECOMPILE-FAIL":
+        return "ljd: " + ("timeout" if "timed out" in row["first_diff"] else "crash (%s)" % row["first_diff"][:80])
+    if row["verdict"] == "NOCOMPILE":
+        return "ljd printer: invalid Lua (%s)" % row["first_diff"][:80]
+    if r is None:
+        return ""
+    texts = " ".join(m for _p, m in r.diffs)
+    if re.search(r'only in source \{[^}]*"slot\d+"', texts):
+        return "ljd: a local printed as a slotN global (no `local`; stripped bytecode has no names)"
+    if re.search(r'"uv\d+"', texts):
+        return "ljd: an upvalue printed as a uvN global"
+    if "0x4330" in texts:
+        return "ljd: a multi-value tail (TSETM count) printed differently"
+    return "other: " + (r.diffs[0][1][:100] if r.diffs else "?")
+
+
+def _calib_one(item):
+    set_, kom, name, data, label = item
+    t = datetime.datetime.now()
+    row = {"set": set_, "kom": kom, "name": name, "bytes": len(data), "exact_source": label}
+    try:
+        ref = reference_of(data)[0]
+    except ValueError as e:
+        row.update(verdict="NO-REFERENCE", first_diff=str(e), decompile_s="0")
+        return row
+    text, err = decompile_bc(data)
+    row["decompile_s"] = "%.1f" % (datetime.datetime.now() - t).total_seconds()
+    r = None
+    if text is None:
+        row.update(verdict="DECOMPILE-FAIL", first_diff=err)
+    else:
+        tier, r, err = t1_tier(text, ref)
+        if tier == "NOCOMPILE":
+            row.update(verdict="NOCOMPILE", first_diff=err)
+        else:
+            verdict = tier
+            row.update(verdict=verdict, diffs=r.total, reordered_tables=r.layout,
+                       first_diff=("%s: %s" % r.diffs[0])[:300] if r.diffs else "")
+    if row["verdict"] not in ("T0", "T1"):
+        row["cause"] = _auto_cause(row, r)
+    return row
+
+
+CALIB_COLS = ["set", "kom", "name", "bytes", "exact_source", "decompile_s", "verdict", "diffs", "reordered_tables", "first_diff", "cause"]
+
+
+def cmd_calibrate(a):
+    sets = set(a.sets.split(","))
+    per = {"*": a.per_dir}
+    for spec in a.quota or []:
+        k, _, n = spec.partition("=")
+        per[norm(k)] = int(n)
+    exclude = set()
+    for path in a.exclude or []:
+        for ln in read(path).decode("utf-8").splitlines():
+            if ln.startswith(("#", "set\t")):
+                continue
+            c = ln.split("\t")
+            if len(c) > 2:
+                exclude.add((c[1], c[2]))
+    picks = []
+    if "march-t0" in sets:
+        picks += _calib_pick(per, a.seed, exclude)
+    if "march-nogt" in sets:
+        # kom dirs with no exact source at all: decompile + T1 verdicts without ground truth
+        t0_dirs = {x[1] for x in _calib_pick({"*": 1}, "L2")}
+        for kom in kom_dirs_with_lua():
+            if kom in t0_dirs:
+                continue
+            d = kom_dir(kom)
+            for n in lua_names(d):
+                data = read(os.path.join(d, n))
+                if kind(data) == "march-bytecode":
+                    picks.append(("march-nogt", kom, n, data, "none (no exact source in this dir)"))
+    if "june" in sets:
+        for f in sorted(os.listdir(JUNE_LUA_DIR)):
+            if f.lower().endswith(".lua") and not f.lower().endswith(".src.lua"):
+                picks.append(("june", "june_lua", f, read(os.path.join(JUNE_LUA_DIR, f)), "ljconv reference"))
+    if "class" in sets:
+        for n in CLASS_SCRIPTS:
+            picks.append(("class", "data036", n, read(os.path.join(kom_dir("data036"), n)), "none (bytecode only)"))
+    p("== calibrate: %d file(s) (%s); decompiling with %d job(s)" % (
+        len(picks), ", ".join("%s %d" % (s_, sum(1 for x in picks if x[0] == s_)) for s_ in sorted({x[0] for x in picks})), a.jobs))
+    rows = []
+    with cf.ThreadPoolExecutor(max_workers=a.jobs) as ex:
+        for row in ex.map(_calib_one, picks):
+            rows.append(row)
+            p("  %-16s %-6s %-8s %s%s" % (row["verdict"], row["set"], row["kom"], row["name"],
+                                          "  -- " + row.get("cause", "") if row.get("cause") else ""))
+    out = a.out or os.path.join(TRUNK, ".build", "luasrc_calibration.tsv")
+    os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
+    with open(out, "w", encoding="utf-8", newline="\n") as f:
+        f.write("# luasrc.py calibrate --sets %s --seed %s --per-dir %d %s(%s)\n" % (
+            a.sets, a.seed, a.per_dir, "".join("--quota %s " % q for q in a.quota or []), datetime.date.today().isoformat()))
+        f.write("\t".join(CALIB_COLS) + "\n")
+        for r in rows:
+            f.write("\t".join(str(r.get(c, "")).replace("\t", " ").replace("\n", " ") for c in CALIB_COLS) + "\n")
+    for s_ in sorted({r["set"] for r in rows}):
+        tally = {}
+        for r in rows:
+            if r["set"] == s_:
+                tally[r["verdict"]] = tally.get(r["verdict"], 0) + 1
+        p("CALIBRATE %s: %s" % (s_, dict(sorted(tally.items()))))
+    p("  -> %s (every non-T0/T1 row carries a first-pass cause; confirm each by reading it)" % out)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -693,10 +1273,30 @@ def main():
     s.add_argument("--reason", default="convert (format change only)")
     s.add_argument("--jobs", type=int, default=JOBS)
     s.add_argument("--plan-out", help="write the per-file verdicts as a TSV")
+    s.add_argument("--no-decompile", action="store_true", help="T0 sources only (skip the slower decompile + T1 tier)")
     s = sub.add_parser("restore"); s.add_argument("kom"); s.add_argument("names", nargs="+")
     s = sub.add_parser("refresh"); s.add_argument("kom"); s.add_argument("names", nargs="+")
     s = sub.add_parser("ledger"); s.add_argument("--check", action="store_true")
+    s = sub.add_parser("decompile"); s.add_argument("bytecode"); s.add_argument("-o", "--out")
+    s.add_argument("--timeout", type=int, default=DECOMPILE_TIMEOUT)
+    s = sub.add_parser("check"); s.add_argument("source"); s.add_argument("reference")
+    s.add_argument("--ref", choices=("auto", "march", "june"), default="auto"); s.add_argument("--show", type=int, default=12)
+    s = sub.add_parser("t2"); s.add_argument("source"); s.add_argument("reference")
+    s.add_argument("--ref", choices=("auto", "march", "june"), default="auto"); s.add_argument("--out")
+    s = sub.add_parser("selftest"); s.add_argument("--per-kind", type=int, default=3)
+    s.add_argument("--seed", action="append", metavar="KOM:NAME[:t0]", help="add a seed file (its decompile must be T1; "
+                   ":t0 = mutate its proven T0 studio source instead)")
+    s.add_argument("--jobs", type=int, default=JOBS)
+    s = sub.add_parser("calibrate"); s.add_argument("--per-dir", type=int, default=20)
+    s.add_argument("--quota", action="append", metavar="KOM=N"); s.add_argument("--jobs", type=int, default=JOBS)
+    s.add_argument("--sets", default="march-t0,march-nogt,june,class", help="comma list of march-t0, march-nogt, june, class")
+    s.add_argument("--seed", default="L2", help="selection seed (another value draws other files; L2 = the phase's own set)")
+    s.add_argument("--exclude", action="append", metavar="TSV", help="skip files already listed in a calibration TSV")
+    s.add_argument("--out")
     a = ap.parse_args()
+    if a.cmd in ("decompile", "check", "calibrate", "t2", "selftest"):
+        return {"decompile": cmd_decompile, "check": cmd_check, "calibrate": cmd_calibrate, "t2": cmd_t2,
+                "selftest": cmd_selftest}[a.cmd](a)
     if a.cmd == "ledger":
         cmd_ledger(a.check)
     elif a.cmd == "convert":

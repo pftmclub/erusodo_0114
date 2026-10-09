@@ -51,7 +51,8 @@ bytecode; see "Established facts".
    - **T0:** the source compiles byte-identical to the reference bytecode.
    - **T1:** the recompile is identical per prototype:
      - opcodes, registers, child-proto tree, upvalues, numparams, framesize and flags are all equal;
-     - constants are compared by value, byte for byte, and constant-slot order is ignored.
+     - constants are compared by value, byte for byte, and constant-slot order is ignored;
+     - a table constant counts as its key/value pairs: the array part position by position, the hash part as a set, so their storage order (what `pairs` walks) is ignored (user, 2026-10-09: "as long as the key-value pairs are not in the wrong parent"); a pair in another table is a difference.
    - **T2:** behaviour-equal only. It needs an Opus reader audit and the user's yes.
    - **T3:** unproven. The bytecode ships.
 
@@ -415,6 +416,69 @@ sections "Residual ljd defects (Phase 8, the remaining ~4,200 files)" and "Statu
 - every calibration miss is explained, in an archive `.tsv` (`june2017_re/lua_source_calibration.tsv`);
 - the class-script verdicts are recorded in the Done note;
 - the skill's `check` example runs as written.
+
+**Done note (2026-10-09, Opus 5.5 xhigh): L2 done.** It delivers the T1 checker, the decompile route, the T2 report and the
+self-test (100%), verifies `ljconv` 71/71 against June's VM, and records the class verdicts. Tools only: no flag, no build, no kom
+touched.
+- **Files.**
+  - New: `tools/ljbc.py` (dump reader and writer, T1 compare, bytecode seeds), `tools/ljsrc.py` (tokenizer, constructors, layout
+    tidy-up, source seeds), `june2017_re/opcode_check.py`, `lua_source_opcode_check.tsv`, `lua_source_calibration.tsv`.
+  - Changed: `tools/luasrc.py` (`decompile` / `check` / `t2` / `selftest` / `calibrate`, T1 in `convert`, `KOM/NAME` arguments),
+    `ljdiff.py` and `ljd_jun2017.py` (`--march`), `funcmap.tsv` (4 `LUA_SRC` rows), skill `x2-lua`, kickoffs `L2-review.md` and
+    `L3.md`, Rule 1 here and in CLAUDE.md.
+- **1. ljd.** Both vendored `slotworks.py` carry the patched SHA `2235d0a1...`, and the trees are `diff -rq` clean.
+- **2. `decompile`.** March: header to `1b4c4a01`, then `ljd_fixed.py`. June: `ljconv.transcode_stock`;
+  `ljconv.py --verify-stock june_lua` (14/14) proves ljd gets the same bytes as the `.std.luac` route.
+- **3. T1 (`check`).**
+  - The reader and writer round-trip all 4,843 March files byte-exact.
+  - Instruction words are compared raw, with only the constant-index operand resolved by value: strings by bytes, numbers by
+    bits, FNEW children recursively. Constant multisets, flags, params, framesize, upvalues and the child tree are compared too.
+  - `--ref june` compares against `ljconv(June)`.
+  - **Rule 1 amended (user, 2026-10-09):** a table constant compares as its key/value pairs (the array part by position, the
+    hash part as a set). Storage order is ignored; a pair in another table still fails.
+  - ljd's key order re-parses into another storage order, which had failed ~1 in 4 decompiles. `decompile` still tidies the
+    order where it can (constant fields only, searched with the real parser, small budget, the result kept only if it still
+    passes). Ariel: T1 raw, T0 after the tidy-up.
+- **4. T2 (`t2`).**
+  - R = reference bytecode, B = source compiled, S = source as text; globals dumped in raw `next` order in a mock environment.
+  - Blind spots: only the main chunk runs, and engine globals are stubs.
+  - `ljdiff.py --march` / `ljd_jun2017.py --march --check` accept `0x81` (Ariel 52/52 pass); without the flag they still refuse.
+- **5. Self-test: PASS 293/293.**
+  - Seeds: 9 source kinds (incl. local to global and swapped constants) and 11 bytecode kinds (incl. `-0.0`, NaN payload,
+    upvalue bit, unrenumbered slot swaps, a pair moved to another table).
+  - Controls that must pass, and do: slot renumbering, and a table's pairs stored in reverse order.
+- **6. Calibration** (`june2017_re/lua_source_calibration.tsv`; every miss has a cause read from its full diff, and none is a
+  checker defect):
+  - **March, exact source known:** 227 files over all 11 dirs that have one; T0 138 + T1 44 = **182 (80%)**.
+  - The 45 March misses are ljd defects: 39 locals printed as `slotN` globals, 4 constructor folding, 1 constructor field
+    order, 1 inlined local.
+  - **March, no exact source** (data001/014/119/i022): **15/15 T0**.
+  - **June:** T0 4 + T1 4. The other 6 are all the catalogued deepcopy hoist (DamageEffect* / EffectSet).
+- **Class scripts (C3d-4).**
+  - **T1:** Elsword_SwordMan, Arme_VioletMage, Lire_ElvenRanger, RAVEN_FIGHTER, Eve_Nasod, Chung_Iron_Cannon, ELESIS_KNIGHT,
+    Add_NasodRuler.
+  - **Ara_Martial_Artist: not T1.** In `CHAIN_SYSTEM[1]` the original sets `SECRET_SKILL_STATE_ID` and
+    `TRIGGER_STATE_ID_TO_SECRET_SKILL` before its positional sub-tables; ljd prints them after.
+  - T2 for Ara: same content, order only. So Ara is a T2 candidate (Opus audit + the user's yes), or L5 work (let the tidy-up
+    move keyed non-constant fields too, then prove it at T1).
+- **7. Opcode table.**
+  - June addresses: `lj_dispatch_init` `0x32ffb270` (renamed in Ghidra), handler pointers `PTR 0x337411d8`, `lj_vm_asm_begin`
+    `0x32fee670`.
+  - Each June handler was compared with every March one: **71/71 VERIFIED**, unique, same-mode families included.
+  - ISNEXT writes `0x2f`, which is FIX's ITERC.
+  - The 22 unmapped slots are identified, and `ljconv` refuses them, so there is no gap.
+- **8. Wiring.**
+  - `convert` tries the decompile last and records T0 or T1; anything else refuses with exit 4 and the first difference.
+  - `--no-decompile` keeps the fast T0-only census.
+  - The skill's examples ran as written.
+- **Finding: loading text changes `pairs` order anyway, even at T0.**
+  - Cause: the bytecode reader re-inserts keys into a pre-sized table, while the parser grows it. Ariel's T0 source iterates 9 of
+    17 tables differently from the shipped file, and L0's data217 does too.
+  - March audit: nothing depends on it. 11 files use `ipairs`, 2 use `pairs` only in a `TableCopy`, and the engine's two
+    `lua_next` loops are order-free.
+  - `L3.md` now asks for the same check on each adopted June file.
+- **Hygiene.** `ledger --check` PASS (0 FAIL, 0 WARN). There is no `SERV_IRUHADEV_` code, so no flagcheck.
+- **Open question:** none. Ara's route is C3d-4's call.
 
 ## Phase L2-review
 

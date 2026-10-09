@@ -1,0 +1,276 @@
+# Lua source L2 calibration (tools/luasrc.py calibrate). Sets: march-t0 = files whose exact source is known (sibling
+# .src.lua / ClientScript T0), so any miss is an ljd or checker defect; march-nogt = every March bytecode file in the 4 kom
+# dirs that have no exact source at all (data001, data014, data119, datai022; verdict only, no ground truth); june =
+# june2017_re/june_lua against ljconv(June); class = the nine data036 class scripts (C3d-4). Exact sources exist in only
+# 11 of the 15 kom dirs with .lua. Every non-T0/T1 row has a cause read from its full T1 diff.
+# Verdicts follow the user rule of 2026-10-09 (a table constant compares as its key/value pairs in its own table;
+# storage order ignored). Every miss of the runs below was re-checked under it; the 6 former layout-only rows were
+# re-decompiled and are now T1. reordered_tables = tables holding the same pairs in another storage order (information).
+# luasrc.py calibrate --sets march-t0,march-nogt --seed L2 --per-dir 25 --quota data037=40 --quota data040=35 --quota data035=35 (2026-10-09)
+# luasrc.py calibrate --sets june,class --jobs 4 (2026-10-09)
+set	kom	name	bytes	exact_source	decompile_s	verdict	diffs	reordered_tables	first_diff	cause
+march-t0	data034	DLG_Map_Village_Altera_Front.lua	18	ClientScript	0.6	T0	0	0		
+march-t0	data034	DLG_Map_Village_Elder_Front.lua	18	ClientScript	0.6	T0	0	0		
+march-t0	data034	DLG_Room_Talk_Box.lua	166	ClientScript	0.6	T0	0	0		
+march-t0	data034	DLG_PVP_Result_Front_MatchPvp.lua	297	ClientScript	0.6	T0	0	0		
+march-t0	data034	DLG_Map_World_Back.lua	163	ClientScript	0.6	T0	0	0		
+march-t0	data034	DLG_UI_World_Map_NEW.lua	47956	src.lua	3.6	T0	0	0		
+march-t0	data034	DLG_Map_World.lua	100	ClientScript	0.6	FAIL	8	0	main: 7 vs 8 instructions	ljd: constructor folding - the original `T = {}` followed by `T[ENUM.X] = ...` statements is printed as one constructor (TNEW size hint 2048 vs 0, assignments evaluated inside the constructor)
+march-t0	data034	DLG_Map_Local_Velder_East.lua	1462	ClientScript	0.6	T1	0	0		
+march-t0	data034	DLG_PVP_Game_ChatBox_Pos.lua	262	ClientScript	0.5	T0	0	0		
+march-t0	data034	DLG_Map_World_Elios.lua	376	src.lua	0.5	T0	0	0		
+march-t0	data034	DLG_Shop_Sell.lua	18	ClientScript	0.5	T0	0	0		
+march-t0	data034	DLG_Map_Local_Hamel_Back_NEW.lua	813	src.lua	0.5	T0	0	0		
+march-t0	data034	DLG_Map_Local_Hamel_Icon_NEW.lua	10171	src.lua	1.0	T0	0	0		
+march-t0	data034	DLG_Map_Local_Altera_Island_Back_NEW.lua	814	src.lua	0.6	T0	0	0		
+march-t0	data034	DLG_Map_Local_Velder_South.lua	1402	ClientScript	0.5	T1	0	0		
+march-t0	data034	DLG_UI_RANOX_SECRET_FEVER_GAGE.lua	2597	src.lua	0.8	T0	0	0		
+march-t0	data034	DLG_Map_Local_Velder.lua	1432	src.lua	0.7	T0	0	0		
+march-t0	data034	DLG_UI_FIELD_MAP_Ranox_04_NEW.lua	2761	src.lua	0.7	T0	0	0		
+march-t0	data034	DLG_Join_Front.lua	163	ClientScript	0.6	T0	0	0		
+march-t0	data034	DLG_Map_Local_Besma_Icon_NEW.lua	9101	src.lua	1.2	T0	0	0		
+march-t0	data034	DLG_Map_Village_Ruben_Front.lua	18	ClientScript	0.6	T0	0	0		
+march-t0	data034	DLG_Map_Local_Besma.lua	1313	src.lua	0.6	T0	0	0		
+march-t0	data034	DLG_Map_Village.lua	48680	src.lua	4.1	T0	0	0		
+march-t0	data034	DLG_Skill_Tree_Main.lua	535	ClientScript	0.4	T0	0	0		
+march-t0	data034	DLG_UI_FIELD_MAP_Ranox_Village_NEW.lua	11567	src.lua	1.2	T0	0	0		
+march-t0	data035	DungeonData.lua	176948	src.lua	10.6	T0	0	0		
+march-t0	data035	Dungeon_Training_lire_0.lua	15873	ClientScript	1.6	T1	0	0		
+march-t0	data035	Dungeon_Peita_Tower_Heart_Expert.lua	6415	ClientScript	1.2	T0	0	0		
+march-t0	data035	Dungeon_Elder_Benders_Cave_Normal.lua	5362	ClientScript	0.8	T0	0	0		
+march-t0	data035	Dungeon_El_Forest_West_Normal.lua	4991	ClientScript	1.0	T0	0	0		
+march-t0	data035	Dungeon_Ranox_Secret_Hell.lua	25801	src.lua	2.4	T0	0	0		
+march-t0	data035	Dungeon_Elder_Secret_Hell.lua	18310	ClientScript	2.4	T1	0	0		
+march-t0	data035	Dungeon_El_Forest_Gate_Normal.lua	2501	ClientScript	1.4	T0	0	0		
+march-t0	data035	Dungeon_Besma_Mine_Expert.lua	14196	ClientScript	2.2	T0	0	0		
+march-t0	data035	Dungeon_Training_Free.lua	2663	ClientScript	2.2	T0	0	0		
+march-t0	data035	Dungeon_Besma_Dragon_Canyon_Normal.lua	7779	ClientScript	1.9	T0	0	0		
+march-t0	data035	Dungeon_Hamel_Break_Resiam_Hard.lua	8548	ClientScript	1.5	T1	0	0		
+march-t0	data035	Dungeon_Besma_Lake_Expert.lua	6312	ClientScript	1.0	T1	0	0		
+march-t0	data035	Dungeon_Velder_Palace_Entrance_Expert.lua	6888	ClientScript	1.4	T0	0	0		
+march-t0	data035	Dungeon_Altera_Plain_Expert.lua	7749	ClientScript	1.6	T0	0	0		
+march-t0	data035	Dungeon_Training_Elsword_3.lua	7600	ClientScript	1.3	T0	0	0		
+march-t0	data035	Dungeon_Besma_Dragon_Nest_Hard.lua	6708	ClientScript	1.4	T0	0	0		
+march-t0	data035	Dungeon_Ranox_FinalHall_Hard.lua	10850	src.lua	1.2	T0	0	0		
+march-t0	data035	Dungeon_Velder_Palace_Entrance_Normal.lua	6938	ClientScript	1.4	T0	0	0		
+march-t0	data035	Dungeon_Ranox_FireTemple_Expert.lua	8097	src.lua	1.3	T0	0	0		
+march-t0	data035	Dungeon_El_Forest_Monkey_Normal.lua	6074	ClientScript	0.9	T0	0	0		
+march-t0	data035	Dungeon_Ruben_Secret_Hell.lua	13000	ClientScript	1.6	T0	0	0		
+march-t0	data035	Dungeon_Besma_Lake_Night_Normal.lua	5749	ClientScript	0.9	T0	0	0		
+march-t0	data035	Dungeon_Altera_Secret_Hard.lua	10096	ClientScript	1.7	T1	0	0		
+march-t0	data035	Dungeon_ElTutorial_Raven.lua	23013	ClientScript	1.9	T0	0	0		
+march-t0	data035	Dungeon_El_Forest_Hell_Normal.lua	13000	ClientScript	1.3	T0	0	0		
+march-t0	data035	Dungeon_Training_lire_5.lua	7792	ClientScript	1.0	T0	0	0		
+march-t0	data035	Dungeon_Besma_Dragon_Nest_Normal.lua	6105	ClientScript	0.8	T0	0	0		
+march-t0	data035	Dungeon_El_Forest_West_Hard.lua	6481	ClientScript	0.8	T0	0	0		
+march-t0	data035	Dungeon_Peita_Under_Garden_Expert.lua	5790	ClientScript	1.0	T0	0	0		
+march-t0	data035	Dungeon_Velder_Gate_Normal.lua	8981	ClientScript	1.5	T1	0	0		
+march-t0	data035	Dungeon_Besma_Mine2_Hard.lua	10887	ClientScript	1.3	T1	0	0		
+march-t0	data035	Dungeon_Training_Elsword_6.lua	10214	ClientScript	1.4	T0	0	0		
+march-t0	data035	Dungeon_Altera_Below_Tunnel_Hard.lua	11418	ClientScript	1.5	T1	0	0		
+march-t0	data035	Dungeon_Elder_Druid_Forest_Expert.lua	7799	ClientScript	1.0	T1	0	0		
+march-t0	data036	DamageEffect.lua	2872098	src.lua	417.8	T0	0	0		
+march-t0	data036	Config_S_B.lua	1569	ClientScript	0.7	T0	0	0		
+march-t0	data036	IceHeaterPreView.lua	5850	ClientScript	1.1	T0	0	0		
+march-t0	data036	NewNPCStat.lua	476743	src.lua	78.9	T1	0	0		
+march-t0	data036	SocketGroupDataForCashAvatar.lua	324	ClientScript	0.6	T0	0	0		
+march-t0	data036	PetPreView.lua	17094	src.lua	1.7	T0	0	0		
+march-t0	data036	Area.lua	19113	ClientScript	1.3	T0	0	0		
+march-t0	data036	StringID_def.lua	974472	src.lua	34.3	T0	0	0		
+march-t0	data036	CheckSumFileList.lua	63	ClientScript	0.8	T0	0	0		
+march-t0	data036	Ranox_Field_03.lua	4852	src.lua	0.8	T0	0	0		
+march-t0	data036	CashShopCategory_Test.lua	1940	ClientScript	0.8	FAIL	197	0	main: 200 vs 207 instructions	ljd: constructor folding - the original `T = {}` followed by `T[ENUM.X] = ...` statements is printed as one constructor (TNEW size hint 6144 vs 0, assignments evaluated inside the constructor)
+march-t0	data036	AnimationNameTable.lua	20748	src.lua	2.1	T0	0	0		
+march-t0	data036	Wedding_Manager.lua	838	ClientScript	0.5	T0	0	0		
+march-t0	data036	CashShopCategory.lua	1940	ClientScript	0.6	FAIL	197	0	main: 200 vs 207 instructions	ljd: constructor folding - the original `T = {}` followed by `T[ENUM.X] = ...` statements is printed as one constructor (TNEW size hint 6144 vs 0, assignments evaluated inside the constructor)
+march-t0	data036	Config_S.lua	1568	ClientScript	1.8	T0	0	0		
+march-t0	data036	OptionItemData.lua	2728664	src.lua	908.3	T0	0	0		
+march-t0	data036	Enum.lua	332171	src.lua	732.9	T1	0	52		
+march-t0	data036	StringTable.lua	18	ClientScript	0.6	T0	0	0		
+march-t0	data036	PVPEmblem_new.lua	808	ClientScript	0.7	T0	0	0		
+march-t0	data036	Config.lua	1704	ClientScript	0.8	T0	0	0		
+march-t0	data036	IceHeaterEvent.lua	4076	ClientScript	2.2	T1	0	0		
+march-t0	data036	PVPEmblem_Season2.lua	683	ClientScript	1.1	T0	0	0		
+march-t0	data036	Elder_Field_01.lua	25655	ClientScript	2.8	FAIL	1120	38	main pc 5: TDUP 3 template{0 array, 3 hash; 50 bytes}  vs  TNEW 3 0	ljd: constructor field order - ljd prints positional items before keyed ones; the original sets a keyed non-constant field first (`SIEGE_MONSTER = {}` before the spawn entries), so the evaluation order differs
+march-t0	data036	RenderDivisionItemTemplet.lua	48151	src.lua	3.7	T0	0	0		
+march-t0	data036	PVEData.lua	1485	src.lua	1.9	T0	0	0		
+march-t0	data037	NPCStat.lua	772282	src.lua	28.0	T0	0	0		
+march-t0	data037	Soldier_Benders_Thief_Arcade.lua	34396	ClientScript	4.1	T1	0	0		
+march-t0	data037	MonkeyRolling_Arcade2.lua	7411	ClientScript	2.0	T1	0	0		
+march-t0	data037	Nasod_MinerThin_Defect_Die.lua	42235	ClientScript	12.2	T1	0	0		
+march-t0	data037	HENIR_CODE_Q_PROTO_00.lua	85656	ClientScript	4.8	FAIL	530	175	main/fn#0: framesize 12 vs 13	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5)
+march-t0	data037	Gliter_Great_Rock.lua	4381	ClientScript	3.7	T1	0	0		
+march-t0	data037	GOD_Special_Elf_Healer_B_Hidden.lua	7988	ClientScript	1.8	FAIL	309	5	main/fn#1: framesize 11 vs 12	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot11,slot13,slot14,slot3,slot4,slot5,slot6,slot8)
+march-t0	data037	Valentine_Poison_Cup_Cake_Killer.lua	5541	ClientScript	1.6	FAIL	84	3	main/fn#0: framesize 12 vs 14	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4)
+march-t0	data037	Halloween_Darkelf_Boss.lua	30133	ClientScript	8.8	T1	0	0		
+march-t0	data037	GOD_Archer_Soldier_Crossbow_A.lua	7773	ClientScript	1.9	FAIL	205	5	main/fn#1: framesize 11 vs 12	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot8)
+march-t0	data037	GOD_Swordman_Shadow_Stinger_C.lua	9800	ClientScript	1.8	FAIL	297	7	main/fn#1: framesize 11 vs 12	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot8,slot9)
+march-t0	data037	SteamTrap_Right.lua	3933	ClientScript	5.2	T1	0	0		
+march-t0	data037	Ghost_Soldier_Thunder_Arcade.lua	27908	ClientScript	8.6	T1	0	0		
+march-t0	data037	CSM_IS.lua	7782	ClientScript	2.2	FAIL	34	14	main/fn#0: framesize 11 vs 13	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot4,slot5)
+march-t0	data037	Mushroom_Poison_Arcade.lua	17599	ClientScript	4.9	T1	0	0		
+march-t0	data037	PVP_HERO_LOW.lua	74842	ClientScript	4.9	FAIL	671	150	main/fn#0: framesize 12 vs 13	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5)
+march-t0	data037	CSM_PVP_HERO_PENENSIO.lua	84999	ClientScript	6.0	FAIL	772	165	main/fn#0: framesize 11 vs 12	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot6)
+march-t0	data037	GiantPporu_Arcade.lua	15178	ClientScript	6.4	T1	0	0		
+march-t0	data037	Wyvern.lua	16631	ClientScript	39.7	T1	0	0		
+march-t0	data037	PET_PETTE_PPORU_STEB_2.lua	21783	ClientScript	2.5	FAIL	55	6	main/fn#0: framesize 10 vs 17	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot6,slot7,slot8,slot9)
+march-t0	data037	Shadow_Defender.lua	22155	ClientScript	2.9	FAIL	512	19	main/fn#0: framesize 12 vs 13	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot7,slot8)
+march-t0	data037	Npc_Aisha_04.lua	47575	ClientScript	2.6	FAIL	505	93	main/fn#0: framesize 12 vs 13	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5)
+march-t0	data037	Barricade_Demon.lua	3407	ClientScript	2.3	T1	0	0		
+march-t0	data037	Mana_Linker.lua	21131	ClientScript	2.1	FAIL	691	12	main/fn#0: framesize 8 vs 9	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot10,slot11,slot13,slot3,slot4,slot5,slot6,slot7)
+march-t0	data037	Gliter_Tomb_Hell.lua	4825	ClientScript	0.9	FAIL	87	4	main/fn#0 pc 18: JMP 3 =>+6  vs  JMP 4 =>+6	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4)
+march-t0	data037	GOD_Archer_Soldier_Crossbow_C.lua	7891	ClientScript	0.9	FAIL	205	6	main/fn#1: framesize 11 vs 12	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot8)
+march-t0	data037	PET_ANCIENT_PPORU_STEB_3.lua	21976	ClientScript	1.7	FAIL	15	6	main/fn#0: framesize 7 vs 8	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3)
+march-t0	data037	EVENT_FINALHALL_BOSS2.lua	4648	src.lua	1.7	T1	0	0		
+march-t0	data037	Nasod_Spray_Ice_P_Hell.lua	28934	ClientScript	1.6	FAIL	30	27	main/fn#0: framesize 7 vs 8	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3)
+march-t0	data037	PHYSIC_TENTACLE_SUMMON.lua	5163	ClientScript	1.0	FAIL	51	6	main/fn#1: framesize 7 vs 10	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4)
+march-t0	data037	Wally8th_Fist_Hell.lua	48898	ClientScript	2.9	FAIL	77	45	main/fn#42: framesize 11 vs 17	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot10,slot5,slot6,slot7,slot8,slot9)
+march-t0	data037	Benders_Expert.lua	22381	ClientScript	3.1	T1	0	0		
+march-t0	data037	GOD_Defender_Forest_Guardian_B.lua	8002	ClientScript	1.2	FAIL	182	6	main/fn#1: framesize 11 vs 12	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot8)
+march-t0	data037	Halloween_Golem_Boss.lua	33328	ClientScript	39.3	T1	0	1		
+march-t0	data037	PET_Petit_Lightbringer_Uniel_2.lua	23426	ClientScript	1.8	FAIL	45	6	main/fn#2: framesize 11 vs 14	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot5)
+march-t0	data037	Giant_Sprigan.lua	3826	ClientScript	0.6	FAIL	61	6	main/fn#0: framesize 6 vs 7	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5)
+march-t0	data037	GhostMagician_Event2.lua	23543	ClientScript	4.0	T1	0	0		
+march-t0	data037	PET_Silverfox_Miho_2.lua	21659	ClientScript	39.3	FAIL	193	6	main/fn#0: framesize 15 vs 21	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot13,slot14,slot3,slot4,slot5,slot8)
+march-t0	data037	PET_Haech_Fire_1.lua	21828	ClientScript	2.0	FAIL	84	5	main/fn#0: framesize 15 vs 18	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot7,slot8)
+march-t0	data037	FIRE_DEVIL_FIGHTER_FIRETEMPLE.lua	15313	src.lua	1.9	T0	0	0		
+march-t0	data038	SQUARE_Unit.lua	19086	ClientScript	3.8	T0	0	0		
+march-t0	data038	SQUARE_GM_Ariel.lua	5815	ClientScript	1.3	T0	0	0		
+march-t0	data039	UI_FACEOFF.lua	1578	src.lua	1.0	T0	0	0		
+march-t0	data039	UI_ALLEGRO.lua	603	ClientScript	0.7	T0	0	0		
+march-t0	data039	UI_ADAMS.lua	1577	ClientScript	0.9	T1	0	0		
+march-t0	data039	UI_NPC_EVENT_BENDERS.lua	639	ClientScript	0.7	T0	0	0		
+march-t0	data039	UI_NPC_SHASHA_SKY.lua	549	ClientScript	1.2	T0	0	0		
+march-t0	data039	UI_AMOS.lua	1481	ClientScript	0.9	T1	0	0		
+march-t0	data039	UI_NPC_BILLBOARD.lua	583	ClientScript	1.2	T0	0	0		
+march-t0	data039	UI_ADEL.lua	687	ClientScript	1.1	T1	0	0		
+march-t0	data039	UI_NPC_IS.lua	613	ClientScript	0.9	T0	0	0		
+march-t0	data039	UI_EMIRATE.lua	580	ClientScript	0.7	T0	0	0		
+march-t0	data039	UI_RICHANG.lua	1502	ClientScript	1.4	T1	0	0		
+march-t0	data039	UI_EDEL.lua	1188	src.lua	1.4	T0	0	0		
+march-t0	data039	UI_NPC_STEEL_TROCK.lua	627	ClientScript	1.2	T0	0	0		
+march-t0	data039	UI_DENKA.lua	591	ClientScript	0.8	T0	0	0		
+march-t0	data039	UI_Event_Fairy_Guardian.lua	614	ClientScript	0.7	T0	0	0		
+march-t0	data039	UI_NPC_MERMAN.lua	601	ClientScript	0.7	T0	0	0		
+march-t0	data039	UI_NOEL.lua	543	ClientScript	0.7	T0	0	0		
+march-t0	data039	UI_ROSEANG.lua	580	ClientScript	0.6	T0	0	0		
+march-t0	data039	UI_PENENSIO.lua	609	ClientScript	0.6	T0	0	0		
+march-t0	data039	UI_LENTO.lua	591	ClientScript	0.6	T0	0	0		
+march-t0	data039	UI_NPC_DAO.lua	632	ClientScript	0.6	T0	0	0		
+march-t0	data039	UI_NPC_EVENT_CRAYONPOP.lua	651	ClientScript	0.6	T0	0	0		
+march-t0	data039	UI_LOW.lua	1535	ClientScript	0.9	T1	0	0		
+march-t0	data039	UI_NPC_RAN.lua	525	ClientScript	0.8	T0	0	0		
+march-t0	data039	UI_NPC_DARKMOON.lua	562	ClientScript	0.6	T0	0	0		
+march-t0	data040	WorldData.lua	86531	src.lua	3.5	T0	0	0		
+march-t0	data040	Arcade_Elder_Stage04.lua	1197	ClientScript	0.7	T0	0	0		
+march-t0	data040	Besma_Besma_Lake_Stage4.lua	4449	ClientScript	1.1	T0	0	0		
+march-t0	data040	Altera_Nasod_Factory_Stage5.lua	14913	ClientScript	1.8	T0	0	0		
+march-t0	data040	Arcade_Ruben_Stage07.lua	1195	ClientScript	1.1	T0	0	0		
+march-t0	data040	Besma_Dragon_Road_Stage2B.lua	5675	ClientScript	1.0	T0	0	0		
+march-t0	data040	DarkGate2013.lua	18998	ClientScript	2.3	T0	0	0		
+march-t0	data040	Besma_Hell_Stage2.lua	5437	ClientScript	1.0	T0	0	0		
+march-t0	data040	Velder_Market_Stage2_1.lua	14324	ClientScript	1.9	T0	0	0		
+march-t0	data040	Arcade_Ruben_Stage23.lua	1194	ClientScript	0.8	T0	0	0		
+march-t0	data040	Arcade_Ruben_Stage08.lua	1136	ClientScript	0.6	T0	0	0		
+march-t0	data040	Besma_Hell_Extra_Boss.lua	3728	ClientScript	0.9	T0	0	0		
+march-t0	data040	New_Besma_Air_Ship_Stage2A.lua	9624	ClientScript	1.5	T0	0	0		
+march-t0	data040	Field_Besma_Stage2.lua	37508	ClientScript	4.5	T0	0	0		
+march-t0	data040	Field_Ranox_Stage0.lua	10947	src.lua	1.9	T0	0	0		
+march-t0	data040	Peita_Spiral_Corridor_Pvp.lua	6567	ClientScript	1.6	T0	0	0		
+march-t0	data040	Event_Tree_Day_Stage_Boss.lua	20167	ClientScript	2.7	T0	0	0		
+march-t0	data040	Velder_Bridge_Burning_Stage2-1.lua	21871	ClientScript	2.7	T0	0	0		
+march-t0	data040	El_Forest_West_Stage2.lua	2620	ClientScript	0.9	T0	0	0		
+march-t0	data040	Peita_Chapel_Stage1.lua	7780	ClientScript	1.3	T0	0	0		
+march-t0	data040	Elder_Wally_Castle_Lab_Stage2.lua	5773	ClientScript	1.0	T0	0	0		
+march-t0	data040	Ranox_FinalHall_Stage1.lua	10329	src.lua	1.5	T0	0	0		
+march-t0	data040	Elder_below_passage_stage2A.lua	5081	ClientScript	0.8	T0	0	0		
+march-t0	data040	Field_Velder_Stage1.lua	9087	ClientScript	1.3	T0	0	0		
+march-t0	data040	Elder_Dungeon_Gate_Snow.lua	31677	ClientScript	4.2	T0	0	0		
+march-t0	data040	Hamel_Frozen_Water_Hall_Stage3.lua	22850	ClientScript	2.6	T0	0	0		
+march-t0	data040	SUMMER_2008_PVP.lua	14961	ClientScript	1.9	T0	0	0		
+march-t0	data040	El_Forest_Main_Stage2-1.lua	4426	ClientScript	0.8	T0	0	0		
+march-t0	data040	El_Forest_Extra_Stage4.lua	3595	ClientScript	0.8	T0	0	0		
+march-t0	data040	Altera_core_S2_Middle.lua	1543	ClientScript	0.7	T0	0	0		
+march-t0	data040	Hamel_Cave_Of_Magmanta_Stage4.lua.lua	2243	ClientScript	1.2	T0	0	0		
+march-t0	data040	Elder_Wally_Castle_Event_Boss.lua	16520	ClientScript	2.5	T0	0	0		
+march-t0	data040	Besma_Secret_S5.lua	6403	ClientScript	1.7	T0	0	0		
+march-t0	data040	World_WorldTool_Default.lua	143	ClientScript	1.4	T0	0	0		
+march-t0	data040	Altera_Battle_Air_Ship_s2.lua	14856	ClientScript	1.8	T0	0	0		
+march-t0	datai014	DLG_Map_Village_1.lua	46977	ClientScript	2.5	FAIL	2976	12	main: 3209 vs 3236 instructions	ljd: constructor folding - the original `T = {}` followed by `T[ENUM.X] = ...` statements is printed as one constructor (TNEW size hint 10240 vs 0, assignments evaluated inside the constructor)
+march-t0	datai014	DLG_PVP_Tag_Map_List.lua	349	ClientScript	1.0	T1	0	0		
+march-t0	datai014	DLG_Destination_byButton.lua	10888	src.lua	1.3	T0	0	0		
+march-t0	datai015	ItemRandomSocket.lua	12173	_ClientScript	1.6	T0	0	0		
+march-t0	datai015	GameOption.lua	341	ClientScript	0.8	T0	0	0		
+march-t0	datai015	UIEffectSet_INT.lua	4841	ClientScript	1.2	T1	0	0		
+march-t0	datai015	AddCubePackageData.lua	492	ClientScript	0.5	T0	0	0		
+march-t0	datai015	AttractionRandomItemData.lua	812	_ClientScript	0.9	T0	0	0		
+march-t0	datai015	GameOptionPreset.lua	616	ClientScript	0.9	T0	0	0		
+march-t0	datai016	CSM_PVP_HERO_LIME_EVENT.lua	85498	ClientScript	4.5	FAIL	600	151	main/fn#0: framesize 7 vs 9	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5)
+march-t0	datai016	PET_Haech_Star_3.lua	24128	ClientScript	2.5	FAIL	84	5	main/fn#0: framesize 15 vs 18	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot7,slot8)
+march-t0	datai016	PET_HALLOWEEN_PUMPKIN_FAIRY_STEB_2.lua	25438	ClientScript	3.0	FAIL	111	6	main/fn#3: framesize 15 vs 21	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot13,slot14,slot3,slot4,slot8)
+march-t0	datai016	PET_PANDA_ROYAL_RED.lua	20487	ClientScript	2.3	FAIL	59	6	main/fn#0: framesize 11 vs 15	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot6)
+march-t0	datai016	PET_SHERIFF_NORM_STEB_1.lua	23351	ClientScript	2.0	FAIL	141	6	main/fn#1 pc 20: JMP 3 =>+3  vs  JMP 4 =>+3	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot5,slot7)
+march-t0	datai016	HalloweenPot.lua	4604	ClientScript	1.2	FAIL	56	8	main/fn#0: framesize 7 vs 9	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5)
+march-t0	datai016	PET_DEATH_SCYTHE_STEB_3.lua	21273	ClientScript	2.1	FAIL	82	6	main/fn#0: framesize 7 vs 8	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot10,slot3,slot4,slot5,slot6,slot7)
+march-t0	datai016	PET_PETTE_PPORU_YoungByung_STEB_1.lua	21792	ClientScript	2.1	FAIL	42	7	main/fn#0: framesize 11 vs 15	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot5,slot7)
+march-t0	datai016	CSM_Darkelf_Sentinel_EVENT.lua	21738	ClientScript	13.0	T1	0	0		
+march-t0	datai016	Event_Hovalanche_SubStage1.lua	20501	ClientScript	1.7	FAIL	726	21	main/fn#1: framesize 12 vs 15	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot6,slot7,slot8,slot9)
+march-t0	datai016	EVENT_INT_Gliter_Zombie.lua	19022	ClientScript	3.5	T1	0	0		
+march-t0	datai016	PET_RAINCOAT_CAT_BLACK_STEB_1.lua	22290	ClientScript	1.7	FAIL	116	6	main/fn#1 pc 20: JMP 3 =>+3  vs  JMP 4 =>+3	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot8)
+march-t0	datai016	WilliamPporu_Thief_Event.lua	34634	ClientScript	7.4	T1	0	0		
+march-t0	datai016	PET_TREE_KNIGHT_WINTER_STEB_1.lua	21651	ClientScript	1.6	FAIL	15	7	main/fn#0: framesize 7 vs 8	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3)
+march-t0	datai016	PET_RAINCOAT_CAT_BLACK_STEB_2.lua	24177	ClientScript	2.8	FAIL	155	6	main/fn#0 pc 20: JMP 3 =>+3  vs  JMP 4 =>+3	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot6,slot7,slot8)
+march-t0	datai016	PET_SHERIFF_NORM_STEB_3.lua	25903	ClientScript	2.2	FAIL	281	6	main/fn#1 pc 20: JMP 3 =>+3  vs  JMP 4 =>+3	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot5,slot7)
+march-t0	datai016	Dimension_Witch_Event.lua	11043	ClientScript	2.8	T1	0	0		
+march-t0	datai016	CSM_Gliter_Hammer_Great_EVENT.lua	34975	ClientScript	5.0	T1	0	0		
+march-t0	datai016	PET_RAINCOAT_CAT_YELLOW_STEB_3.lua	25495	ClientScript	5.0	FAIL	181	6	main/fn#0 pc 20: JMP 3 =>+3  vs  JMP 4 =>+3	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3,slot4,slot5,slot6,slot7,slot8)
+march-t0	datai016	Event_Pumpkin_Farm.lua	5216	ClientScript	0.8	FAIL	38	7	main/fn#1: framesize 7 vs 8	ljd: a single-use local inlined (`local nBoss = f(); if nBoss > 0` printed as `if f() > 0` in PUMPKIN_FARM_START_STATE_START), one register fewer (framesize 8 vs 7)
+march-t0	datai016	PET_DEATH_SCYTHE_STEB_1.lua	21257	ClientScript	1.7	FAIL	90	6	main/fn#0: framesize 7 vs 8	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot10,slot3,slot4,slot5,slot6,slot7)
+march-t0	datai016	Infinite_Sword_Event.lua	11998	ClientScript	2.0	T1	0	0		
+march-t0	datai016	Peng_Santa.lua	8378	ClientScript	1.8	T1	0	0		
+march-t0	datai016	Event_Field_Pporu.lua	29583	ClientScript	50.2	T1	0	1		
+march-t0	datai016	PET_TREE_KNIGHT_FALL_STEB_1.lua	21645	ClientScript	1.9	FAIL	15	7	main/fn#0: framesize 7 vs 8	ljd: stripped locals printed as slotN globals (no `local`; GSET/GGET slotN where the original used registers), so registers and framesize shift; every later difference in the row cascades from that (slot3)
+march-t0	data217	DLG_Map_Local_Peita_Icon_NEW.lua	7471	ledger T0 (src.lua)	1.4	T0	0	0		
+march-t0	data217	DLG_Map_Local_Ranox.lua	1150	ledger T0 (src.lua)	0.9	T0	0	0		
+march-t0	data217	DLG_Map_Local_Ranox_Icon_NEW.lua	9302	ledger T0 (src.lua)	1.2	T0	0	0		
+march-t0	data217	DLG_Map_Local_Special.lua	388	ledger T0 (src.lua)	0.7	T0	0	0		
+march-t0	data217	DLG_Map_Local_Special_Back_NEW.lua	818	ledger T0 (src.lua)	0.6	T0	0	0		
+march-t0	data217	DLG_Map_Local_Special_Icon_NEW.lua	2474	ledger T0 (src.lua)	0.8	T0	0	0		
+march-nogt	data001	DLG_Guide_Skill_Popup.lua	3681	none (no exact source in this dir)	0.8	T0	0	0		
+march-nogt	data001	DLG_Ready_To_Sosun_Event.lua	1461	none (no exact source in this dir)	0.8	T0	0	0		
+march-nogt	data001	DLG_UI_Accumulation_Spirit.lua	4941	none (no exact source in this dir)	0.8	T0	0	0		
+march-nogt	data001	DLG_UI_Accumulation_Spirit_WorldMap.lua	3851	none (no exact source in this dir)	0.7	T0	0	0		
+march-nogt	data001	DLG_UI_Arbor_Day_Event01.lua	596	none (no exact source in this dir)	0.5	T0	0	0		
+march-nogt	data001	DLG_UI_Arbor_Day_Event02.lua	597	none (no exact source in this dir)	0.5	T0	0	0		
+march-nogt	data001	DLG_UI_Event_PvpExperience.lua	2587	none (no exact source in this dir)	0.9	T0	0	0		
+march-nogt	data001	DLG_UI_Event_VelentineHeart.lua	2953	none (no exact source in this dir)	0.8	T0	0	0		
+march-nogt	data001	DLG_UI_Event_VelentineHeart_NotShow.lua	3053	none (no exact source in this dir)	0.8	T0	0	0		
+march-nogt	data001	DLG_UI_Global_Mission.lua	3159	none (no exact source in this dir)	0.8	T0	0	0		
+march-nogt	data001	DLG_UI_Halloween_Event1.lua	601	none (no exact source in this dir)	0.7	T0	0	0		
+march-nogt	data001	DLG_UI_Halloween_Event2.lua	601	none (no exact source in this dir)	0.7	T0	0	0		
+march-nogt	data001	DLG_UI_PPoru_Letter.lua	4072	none (no exact source in this dir)	0.7	T0	0	0		
+march-nogt	data119	Eve_AT_Sp2a_SonicWave.lua	683	none (no exact source in this dir)	1.1	T0	0	0		
+march-nogt	datai022	DLG_MarryEvent_Nickname.lua	5437	none (no exact source in this dir)	1.0	T0	0	0		
+june	june_lua	DamageEffect.lua	5424117	ljconv reference	597.2	FAIL	430069	21	main: framesize 8 vs 31	ljd: the catalogued deepcopy hoist (RANOX_LUA_DECOMPILE_BUG.md 'ljd caveat'): the local deepcopy helper is printed as a global `function slot0(slot0)` and main-chunk locals as globals (framesize 31 vs 8)
+june	june_lua	DamageEffect_Character.lua	985993	ljconv reference	41.7	FAIL	71624	0	main: framesize 7 vs 8	ljd: the catalogued deepcopy hoist (RANOX_LUA_DECOMPILE_BUG.md 'ljd caveat'): the local deepcopy helper is printed as a global `function slot0(slot0)` and main-chunk locals as globals (slot0/slot1/slot5/slot6/uv0)
+june	june_lua	DamageEffect_Dungeon.lua	673339	ljconv reference	23.2	NOCOMPILE			line 3912: syntax error near 'slot3'	ljd printer: the hoisted deepcopy IIFE is printed without parentheses (`function (slot0) ... end(ARGS)`), a syntax error; catalogued in RANOX_LUA_DECOMPILE_BUG.md 'Residual ljd defects (Phase 8)'
+june	june_lua	DamageEffect_ETC.lua	340232	ljconv reference	9.5	FAIL	24299	0	main: framesize 9 vs 10	ljd: the catalogued deepcopy hoist (RANOX_LUA_DECOMPILE_BUG.md 'ljd caveat'): the local deepcopy helper is printed as a global `function slot0(slot0)` and main-chunk locals as globals (slot0/slot1/slot5/slot6/uv0)
+june	june_lua	DamageEffect_INT.lua	323832	ljconv reference	11.2	FAIL	3309	480	main: framesize 7 vs 8	ljd: the catalogued deepcopy hoist (RANOX_LUA_DECOMPILE_BUG.md 'ljd caveat'): the local deepcopy helper is printed as a global `function slot0(slot0)` and main-chunk locals as globals (slot0; framesize 8 vs 7)
+june	june_lua	DamageSound.lua	14508	ljconv reference	1.0	T0	0	0		
+june	june_lua	EffectSet.lua	5970143	ljconv reference	427.1	FAIL	351642	1	main: framesize 9 vs 26	ljd: the catalogued deepcopy hoist (RANOX_LUA_DECOMPILE_BUG.md 'ljd caveat'): the local deepcopy helper is printed as a global `function slot0(slot0)` and main-chunk locals as globals (framesize 26 vs 9)
+june	june_lua	EffectSet_Description.lua	25370	ljconv reference	1.0	T0	0	0		
+june	june_lua	EffectSet_INT.lua	112518	ljconv reference	5.6	T1	0	0		
+june	june_lua	Elsword_DamageData.lua	25024	ljconv reference	1.0	T0	0	0		
+june	june_lua	Enum.lua	500464	ljconv reference	731.1	T1	0	71		
+june	june_lua	UIEffectSet.lua	206071	ljconv reference	13.2	T1	0	0		
+june	june_lua	UIEffectSet_INT.lua	6275	ljconv reference	0.7	T1	0	0		
+june	june_lua	UnitViewerEffectSetTable.lua	1932	ljconv reference	0.3	T0	0	0		
+class	data036	Elsword_SwordMan.lua	192287	none (bytecode only)	14.9	T1	0	0		
+class	data036	Arme_VioletMage.lua	136603	none (bytecode only)	8.0	T1	0	0		
+class	data036	Lire_ElvenRanger.lua	160708	none (bytecode only)	10.8	T1	0	0		
+class	data036	RAVEN_FIGHTER.lua	171064	none (bytecode only)	14.3	T1	0	0		
+class	data036	Eve_Nasod.lua	138560	none (bytecode only)	8.4	T1	0	0		
+class	data036	Chung_Iron_Cannon.lua	204340	none (bytecode only)	17.2	T1	0	0		
+class	data036	Ara_Martial_Artist.lua	148831	none (bytecode only)	5.0	FAIL	300	362	main pc 7: TNEW 3 4  vs  GGET 3 "ARA_STATE_ID"	ljd: constructor field order - ljd prints positional items before keyed ones; the original sets a keyed non-constant field first (CHAIN_SYSTEM[1]: `SECRET_SKILL_STATE_ID` and `TRIGGER_STATE_ID_TO_SECRET_SKILL` before its positional sub-tables; T2: identical content, order only), so the evaluation order differs
+class	data036	ELESIS_KNIGHT.lua	157500	none (bytecode only)	12.9	T1	0	0		
+class	data036	Add_NasodRuler.lua	107302	none (bytecode only)	7.4	T1	0	0		

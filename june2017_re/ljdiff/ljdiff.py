@@ -72,6 +72,9 @@ LUAJIT_DIR = os.path.join(TRUNK, 'elstools', 'vendor', 'luajit')
 LUAJIT = os.path.join(LUAJIT_DIR, 'luajit.exe')
 LJD = os.path.join(TRUNK, 'elstools', 'vendor', 'ljd', 'main.py')
 LJD_FIXED = os.path.join(RE, 'ljd_fixed.py')  # same CLI as main.py, with the Phase 4 slotworks fix
+# --march (LUA_SOURCE_PHASES.md L2): also accept March 0x81 files. Their orig side is the shipped bytecode itself and the
+# rt side is decompiled from it with the header swapped to stock (no ljconv). Off by default: the June-only refusal stays.
+ACCEPT_MARCH = False
 ELSTOOLS = os.path.join(TRUNK, 'elstools', 'elstools.exe')
 RUNTIME = os.path.join(HERE, 'ljdiff.lua')
 TYPES = os.path.join(HERE, 'types.tsv')
@@ -193,7 +196,10 @@ def compile_mar(src, out, twin=True):
 def decompile(path, table, flat, decompile_timeout=600):
     """June file -> tmp ljd source (Phase 0's no-sibling path). -> src path"""
     d = open(path, 'rb').read()
-    stock, _, _ = ljconv.transcode_stock(d, table)
+    if ACCEPT_MARCH and d[:4] == ljconv.MAR_MAGIC:
+        stock = ljconv.STD_MAGIC + d[4:]
+    else:
+        stock, _, _ = ljconv.transcode_stock(d, table)
     stock_path = tmp(flat, 'stock.luac')
     open(stock_path, 'wb').write(stock)
     src = tmp(flat, 'src.lua')
@@ -209,10 +215,14 @@ def build(path, table, extras, twin=True, decompile_timeout=600):
     """-> (flat, {side: chunk_path}, {side: source_path}) for one June file."""
     flat = flat_of(path)
     d = open(path, 'rb').read()
-    if d[:4] != ljconv.JUNE_MAGIC:
-        raise StepError('%s: header %s, expected June %s' % (path, d[:4].hex(), ljconv.JUNE_MAGIC.hex()))
+    if ACCEPT_MARCH and d[:4] == ljconv.MAR_MAGIC:
+        orig = d
+    elif d[:4] != ljconv.JUNE_MAGIC:
+        raise StepError('%s: header %s, expected June %s%s' % (path, d[:4].hex(), ljconv.JUNE_MAGIC.hex(),
+                                                             '' if ACCEPT_MARCH else ' (March 0x81 needs --march)'))
+    else:
+        orig, _, _ = ljconv.transcode(d, table)
     sides, srcs = {}, {}
-    orig, _, _ = ljconv.transcode(d, table)
     sides['orig'] = tmp(flat, 'orig.luac')
     open(sides['orig'], 'wb').write(orig)
 
@@ -950,6 +960,11 @@ def fixloop(june_path, fixes_path, seeds, opts):
 
 # ---------------------------------------------------------------- main
 
+def accept_march(on):
+    global ACCEPT_MARCH
+    ACCEPT_MARCH = bool(on)
+
+
 def use_fixed_ljd(fixed):
     global LJD
     if fixed:
@@ -1002,8 +1017,11 @@ def main(argv):
                     help='only run selftest/selftest.lua (CLOBBER, re-entry, poison, learners, static pass)')
     ap.add_argument('--fixed', action='store_true',
                     help='decompile the rt side with ljd_fixed.py (the Phase 4 slotworks fix)')
+    ap.add_argument('--march', action='store_true',
+                    help='also accept March 0x81 files (absolute paths); orig = the shipped bytecode (LUA_SOURCE_PHASES.md L2)')
     args = ap.parse_args(argv)
     use_fixed_ljd(args.fixed)
+    accept_march(args.march)
     os.makedirs(TMP, exist_ok=True)
     if args.selftest:
         try:

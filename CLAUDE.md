@@ -168,7 +168,8 @@ or compile by hand.
 
 1. **Proof tiers.** Only T0 and T1 convert automatically. **T0:** the source compiles byte-identical to the reference bytecode.
    **T1:** the recompile is identical per prototype (opcodes, registers, child-proto tree, upvalues, numparams, framesize, flags;
-   constants compared by value, slot order ignored). **T2:** behaviour-equal only, needs an Opus reader audit and the user's yes.
+   constants compared by value, slot order ignored; a table constant's pairs compared as a set, so their storage order is
+   ignored, user 2026-10-09). **T2:** behaviour-equal only, needs an Opus reader audit and the user's yes.
    **T3:** unproven, the bytecode ships. The reference is the shipped March bytecode (June files: `ljconv(June bytecode)`).
 2. **June `.lua` only through `adopt-june`** (L3): junekom extract, `ljconv`, decompile, T1, then BOM source; on failure it ships the
    `ljconv` bytecode and writes a ledger exception row. `june_src_fixed/` is reading material.
