@@ -46,3 +46,7 @@ shipped game, so first find what the reading misses:
 Then hand the user the verdict. Either June really does this, and porting it verbatim changes every March monster's launch (ask: port
 verbatim, or port with a `SERV_IRUHADEV_JUNE_FIX_*`), or the trace shows why it doesn't, and the fallbacks port as a plain transcription
 under `SERV_IRUHADEV_JUNE_BOUNDING_STATE`.
+
+Current state, latent: without the fallbacks an RT_BOUNDING hit on an NPC still writes `nowSpeed.y` and `m_vJuneBoundingBackSpeed`, then
+changes no state (`StateChange_Reaction_FIRST` refuses `state <= 0`). It matches neither June nor March; nothing reaches it yet (no shipped
+DamageEffect uses RT_BOUNDING).

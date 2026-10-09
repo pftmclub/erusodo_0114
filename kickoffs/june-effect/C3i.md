@@ -31,3 +31,6 @@ June's `CX2GUNPC::DamageReactStateChange` (`32769060`) tests it in six reaction 
 3. Check the user side has no `NOT_UP_STATE` reader (the user `+0x8ac4` is a different member: `31fcadd0` row in funcmap).
 4. Play-test: an NPC whose June script sets `NOT_UP_STATE = TRUE` (e.g. data037 `ELSION_DEFENDER`) hit by a launcher takes the up
    state without the upward speed, as June does (step 1 settles the exact look per case); an ordinary monster still launches.
+5. **Same INIT block, unowned:** `NOT_AFFECT_BLACKHOLE` (`327a0fa0 @327a5f0b` into `+0x8ac5`, key buffer `0x337aa1f4..207`; set by 36 June NPC
+   scripts; March has no such key). Its one June reader is `31f6f0bf` (`cmp byte ptr [esi+0x8ac5], 1`, DamageEffect range). Identify that
+   function, then port the key read and the reader under their own flag `SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE` in this phase.
