@@ -3374,6 +3374,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		GAME_UNIT_TYPE GetJuneLastAttackerUnitType() const { return m_eJuneLastAttackerUnitType; }
 		UidType GetJuneLastAttackerUID() const { return m_uidJuneLastAttacker; }
 		void SetJuneLastAttacker( const GAME_UNIT_TYPE eUnitType_, const UidType uidAttacker_ ) { m_eJuneLastAttackerUnitType = eUnitType_; m_uidJuneLastAttacker = uidAttacker_; }
+		/// C3j: June vslots 0x2f0 / 0x2f4. June's base ( 31aa1d30 ) is a trap stub ( a log, then a write to address 0 ), so both are pure here; the user
+		/// and the NPC override them. The only June caller is Lu/Ciel class code ( 32b34680 ). ( The C3d-3 review's 0x2f4 / 0x2f8 was one slot off. )
+		virtual bool JuneIsBoundingUp() const = 0;
+		virtual bool JuneIsBoundingLandCrash() const = 0;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 		/// C3g: June +0x40f8 ( a protected float, ctor 1.0 ), the state's SET_LIMIT_MAX_G_SPEED. PhysicProcess ( user 32015b30 @32016f5e,

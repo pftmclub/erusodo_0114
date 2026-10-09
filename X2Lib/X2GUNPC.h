@@ -1991,6 +1991,12 @@ class CX2GUNPC : public CX2GameUnit
 		CX2UnitManager::NPC_CLASS_TYPE GetClassType() const { return GetNPCTemplet().m_ClassType; }
 
 		virtual GAME_UNIT_STATE_ID	GetGameUnitState() const					{ return (GAME_UNIT_STATE_ID)m_NPCFrameData.syncData.nowState; }
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		/// C3j: June CX2GameUnit vslots 0x2f0 / 0x2f4, NPC 3275a010 / 3275a030. The only caller is Lu/Ciel class code ( 32b34680, checklist 7l ). LANDCRASH
+		/// also matches the queued nextState ( June's word +0x8404 ). No 0 != guard: June has none and nothing in March calls these yet.
+		virtual bool JuneIsBoundingUp() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingUp; }
+		virtual bool JuneIsBoundingLandCrash() const { return m_NPCFrameData.syncData.nowState == m_JuneBoundingLandCrash || m_NPCFrameData.unitCondition.nextState == m_JuneBoundingLandCrash; }
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 		/// June buff port Phase 7b: CX2GUNPC slot 96 (June 32758760) is true while a BBT_INVINCIBLE buff is on
 		virtual bool				GetInvincible()	const						{ return IsInvincibleByBuff() || m_NPCFrameData.stateParam.bInvincible; }

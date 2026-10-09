@@ -104,9 +104,10 @@ static const KStateEnumType   s_aStateTypes[] =
         { "DAMAGE_THROWN", CX2GUNPC::STATE_TYPE_DAMAGE_THROWN },
 #endif GRAPPLING_TEST
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-        { "DAMAGE_BOUNDING_DOWN", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_DOWN },
-        { "DAMAGE_BOUNDING_LANDCRASH", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH },
-        { "DAMAGE_BOUNDING_UP", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_UP },
+        /// C3j: June's INIT_STATE keys ( name table 0x334b9178, entries 33-35 ). DAMAGE_BOUNDING_* is only the default STATE name a missing key falls back to ( below )
+        { "BOUNDING_DOWN", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_DOWN },
+        { "BOUNDING_LANDCRASH", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH },
+        { "BOUNDING_UP", CX2GUNPC::STATE_TYPE_DAMAGE_BOUNDING_UP },
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
         { "REVENGE_ATTACK", CX2GUNPC::STATE_TYPE_REVENGE_ATTACK },
         { "DYING_LAND_FRONT", CX2GUNPC::STATE_TYPE_DYING_LAND_FRONT },
@@ -4812,6 +4813,20 @@ out_hint:
             ASSERT( s_aStateTypes[i].m_eStateType == EStateType( i ) );
             LUA_GET_VALUE_UTF8( luaManager_, s_aStateTypes[i].m_pszName, stateName, "" );
             int idStateID = 0;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+            /// June CX2GUNPC::InitState's type loop 3279dc80 @3279f1cd-3279f220 ( C3j ): a missing key takes a default STATE name from 3275d900,
+            /// DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP for types 0x21 / 0x22 / 0x23 and "" for every other type. No June NPC script has the keys or
+            /// states of either name; June's InitState fallbacks ( 327992a2-fd ) then decide the ids ( C3j, not ported: a user decision ).
+            if ( stateName.empty() == true )
+            {
+                if ( i == STATE_TYPE_DAMAGE_BOUNDING_DOWN )
+                    stateName = "DAMAGE_BOUNDING_DOWN";
+                else if ( i == STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH )
+                    stateName = "DAMAGE_BOUNDING_LANDCRASH";
+                else if ( i == STATE_TYPE_DAMAGE_BOUNDING_UP )
+                    stateName = "DAMAGE_BOUNDING_UP";
+            }
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
             if ( stateName.empty() == false )
                 idStateID = initState.GetStateID( stateName );
 #ifdef X2OPTIMIZE_VERIFY_NPC_SCRIPT_CONSISTENCY
@@ -8579,6 +8594,21 @@ void    CX2GUNPC::OnFrameRender_Draw()
 
 	if ( g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD && false == DidReceiveFirstSyncPacket() )
 		return;
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June CX2GUNPC::OnFrameRender_Draw 32768c70 ( NPC vslot 3 ) @32768cd1-32768d40 ( C3j ): the state's table opens as in March, and the NPC is
+	/// also drawn when the table did not open but nowState is one of the three bounding states ( +0x8704 / +0x8708 / +0x870c ); EndTable only when it
+	/// opened. The 0 != tests are ours, as in CommonStateStart: without them an NPC that has no bounding state would be drawn in state 0.
+	const bool bJuneStateTable = m_LuaManager.BeginTableByReference( m_NPCFrameData.syncData.nowState );
+	if( true == bJuneStateTable
+		|| ( 0 != m_JuneBoundingDown && m_NPCFrameData.syncData.nowState == m_JuneBoundingDown )
+		|| ( 0 != m_JuneBoundingLandCrash && m_NPCFrameData.syncData.nowState == m_JuneBoundingLandCrash )
+		|| ( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp ) )
+	{
+		CommonRender_Draw();
+		if( true == bJuneStateTable )
+			m_LuaManager.EndTable();
+	}
+#else SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
     if ( true == m_LuaManager.BeginTableByReference( m_NPCFrameData.syncData.nowState ) )
 #else   X2OPTIMIZE_NPC_NONHOST_SIMULATION
@@ -8594,6 +8624,7 @@ void    CX2GUNPC::OnFrameRender_Draw()
 
 		m_LuaManager.EndTable();
 	}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 }
 
@@ -14900,16 +14931,6 @@ void CX2GUNPC::CommonStateStart()
 		SetNoDetonationByDamage( false );
 	m_bNowStateDamageReactForDetonation = false;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
-#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af3aa -> 3275a070 ( C3d-3 ): entering DAMAGE_BOUNDING_UP launches with the stored back speed ( +0x40f0 / +0x40f4 into
-	/// nowSpeed ). June's second half of 3275a070 ( the Lu/Ciel hook, compared with +0x8708 = LANDCRASH, not UP ) is class code ( checklist 7l ). June does not guard
-	/// the compare; a state id 0 ( the NPC script names no bounding state ) would match nowState 0, which is never entered, so the guard changes nothing.
-	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
-	{
-		m_PhysicParam.nowSpeed.x = GetJuneBoundingBackSpeed().x;
-		m_PhysicParam.nowSpeed.y = GetJuneBoundingBackSpeed().y;
-	}
-#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	LoadImmunityAtThisStateFromScript( m_LuaManager );
@@ -16981,6 +17002,18 @@ void CX2GUNPC::CommonStateStart()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af3aa -> 3275a070 ( C3d-3; moved here by C3j ): entering DAMAGE_BOUNDING_UP launches with the stored
+	/// back speed ( +0x40f0 / +0x40f4 into nowSpeed ). June calls it near the end of the function: after the SPEED_X / SPEED_Y block ( @327add8a ) and
+	/// after March's tail above ( 32275440 / 32071c30 / 32761b40 @327af1d9-327af1f7 ), so it overrides a state's own SPEED_X / SPEED_Y. C3d-3 had put it at
+	/// the top, before them. June's second half of 3275a070 ( the Lu/Ciel hook, compared with +0x8708 = LANDCRASH ) is class code ( checklist 7l ). June
+	/// does not guard the compare; a state id 0 ( no bounding state ) would match nowState 0, which is never entered, so the guard changes nothing.
+	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
+	{
+		m_PhysicParam.nowSpeed.x = GetJuneBoundingBackSpeed().x;
+		m_PhysicParam.nowSpeed.y = GetJuneBoundingBackSpeed().y;
+	}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 }
 
 void CX2GUNPC::CommonFrameMoveHost()

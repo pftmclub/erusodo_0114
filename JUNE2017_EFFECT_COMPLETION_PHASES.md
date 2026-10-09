@@ -1596,6 +1596,37 @@ INIT_COMPONENT closes at line 42), not ten. Row 143 and the funcmap `@32769b1a .
 - **Scope:** InitState `327992a2-fd` gives every NPC bounding states (DOWN / LANDCRASH -> `m_DownDamageAir`, UP -> `m_UpDamage`). Read literally, `3275a070` then overwrites every NPC up-launch's speed. Trace what that reading misses, port the `IsBoundingUp` / `IsBoundingLandCrash` virtuals, and hand the user the port decision.
 - **Exit:** funcmap rows `Effect C3j`; a user decision; code only after it.
 
+### C3j - Done (2026-10-10, Opus 5.5 high)
+
+**Verdict: the trace finds nothing that stops June's overwrite.** Evidence is in funcmap rows `(C3j)`; the kickoff's four questions:
+1. **`+0x8454` is nowState.** GetNowStateData indexes by it, and DoStateEndStart `32768ac0` stores nextState (`+0x8404`) into it. It does so right before CommonStateStartHost / CommonStateStart, and nothing runs after them.
+2. **`+0x40f0/+0x40f4` have two writers in all of `.text`**: user DRSC and the NPC RT_BOUNDING case. No ctor stores them, no block zero covers them, and NPCs come from the CRT `operator new`, so in June they stay uninitialized until the first RT_BOUNDING hit. March's ctor zeroes them (`X2GameUnit.cpp:306`).
+3. **Nothing re-applies the reaction speed.** The RT_UP case writes `nowSpeed.y`, then `327590c0` only queues the state. The state starts at the next DoStateEndStart, and DamageReact's later `327588c0` touches x only.
+4. **The kickoff's premise was wrong in one point.** `3275a070` runs near the end of CommonStateStart (`@327af3aa`), after the SPEED_X / SPEED_Y block (`@327add8a`). The 663 states with SPEED_Y are therefore not exceptions: with the fallback, **every** NPC up-launch takes the bounding back speed.
+
+June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_UP uses (class combos included), and Pporu's UP state has no SPEED_Y. Read verbatim, June kills every monster's launch unless the monster has already taken an RT_BOUNDING hit. No client-side reason was found; the shipped game launched monsters.
+
+**Code** (flag `SERV_IRUHADEV_JUNE_BOUNDING_STATE`; fixes to C3d-3 plus the engine pieces that do not depend on the decision):
+- **INIT_STATE keys** (`3279dc80 @3279f1cd-3279f2ad`, table `0x334b9178`): the keys are `BOUNDING_DOWN / _LANDCRASH / _UP`. `DAMAGE_BOUNDING_*` is only the default **state name** a missing key falls back to (`3275d900`). C3d-3 had read `DAMAGE_BOUNDING_*` as the keys.
+- **The UP launch moved** from the top of `CommonStateStart` to its end, after March's InsertBuffFactor tail, which is where June calls it. C3d-3's position let a state's own SPEED_X / SPEED_Y win; June's does not. The `0 !=` guard is kept (C3d-3's documented deviation).
+- **`OnFrameRender_Draw`** (`32768c70`, NPC vslot 3): June also draws when nowState is a bounding state and the state table did not open. The C3d-3 review's sweep missed this reader. The `0 !=` guards are ours, so an NPC with no bounding state is not drawn in state 0.
+- **`JuneIsBoundingUp` / `JuneIsBoundingLandCrash`**: June vslots `0x2f0 / 0x2f4`. The review's `0x2f4 / 0x2f8` was one slot off, and `32951511` is a quick-slot `0x2f8` caller, not a bounding one. They are pure on `CX2GameUnit` (June's base `31aa1d30` is a trap stub). The user override is `31fd7ec0 / 31fd7f00`. The NPC override is `3275a010 / 3275a030`, unguarded as June has it. The only caller is Luciel `32b34680`, now a checklist 7l row.
+
+**Routed:**
+- The NPC tail's force-down `nowSpeed.y = 0` (`@327af202-327af255`) goes to the **C3f-1 kickoff, new item 2b**. The kickoff was amended because the block is the NPC twin of that phase's item 2.
+- The tail's flag `0x2000` / `0x8000` blocks, the world-colour tail and state type `0x30 GAME_START_STATE` go to the new phase **C3o**.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --worktree --files X2GUNPC.cpp X2GUNPC.h X2GUUser.h X2GameUnit.h`: 4 PASS, 0 FAIL, 0 OTHER, 0 encoding changes, RESULT PASS. All 13 deleted lines are C3d-3's own lines inside the flag: the three `DAMAGE_BOUNDING_*` key rows and the 10-line UP block that moved.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,505,664 B, dated 2026-10-10 05:55:29, md5 ca7fe2379d29fc9282d5a1124d0fa9ed` (X2Lib 0 errors; built with a peer's uncommitted C3l files in the tree). No kom.
+
+**How to see it in game:** nothing should change. No March or June NPC script names a bounding key or state, and no shipped DamageEffect uses RT_BOUNDING, so every new line is dormant (ids 0). The play-test is a regression: monsters still launch, fall and render.
+
+**Open for the user: the fallback decision** (`C3j-1` is written once it is made):
+- (a) port verbatim (JUNE_BUGS row): every monster's up-launch is replaced by the bounding back speed, which is (0,0) until a bounding hit;
+- (b) port the fallbacks under a `SERV_IRUHADEV_JUNE_FIX_*` flag that keeps RT_UP's own speed, i.e. skips the overwrite unless the state was entered by an RT_BOUNDING path;
+- (c) leave the fallbacks out (today's state: an RT_BOUNDING hit on an NPC changes no state).
+
 ## C3k - port: June stopped counting fly hits
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
@@ -1705,6 +1736,13 @@ use MAGIC (JUNE_BUGS 150).
 **Play-test PASSED 2026-10-10** (user, exe `3bb8764c`). The dungeon and field regression showed no change. The console positive test logged `rate 0.500000 game type 2 units 11`, then `rate 1.000000 game type 2 units 11` in the dungeon, and `rate 0.500000 game type 3 units -1` in the field (the dungeon gate holds). 0 EXCEPTION; the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ`.
 
 No questions for the user.
+
+## C3o - identify, then port: June's NPC CommonStateStart tail and GAME_START_STATE
+
+**Status: ready (found by C3j, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3o.md`.
+
+- **Scope:** the June-only code after March's last CommonStateStart block (`327ac9d0 @327af25b-327af612`): the state-flag `0x2000` block, `+0x8e39` from flag `0x8000`, vslot `0x3bc` / `32776e10`, the `+0x244` stores and `CHANGE_WORLD_COLOR_DATA`. Also state type `0x30 GAME_START_STATE`. The force-down block is C3f-1's (2b) and `3275a070` is C3j's.
+- **Exit:** funcmap rows `Effect C3o`; a flag per change ported; regression play-test.
 ---
 
 ## C4 - 8b, damage math

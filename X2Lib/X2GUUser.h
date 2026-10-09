@@ -2212,6 +2212,10 @@ public:
 		/// June InitState of every class ( pszPrefix_ = the class's table prefix, e.g. "ESSI_" ): registers the three states, or none ( logged ) when a table is missing
 		void JuneInitBoundingStates( const char* pszPrefix_ );
 		bool JuneIsBoundingStatesReady() const { return m_bJuneBoundingStatesReady; }
+		/// C3j: June CX2GameUnit vslots 0x2f0 / 0x2f4, user 31fd7ec0 / 31fd7f00 ( the Now state data's index == June 0x7a USI_BOUNDING_UP; Now or Future
+		/// == 0x79 USI_BOUNDING_LANDCRASH ). The only caller is Lu/Ciel class code ( 32b34680, checklist 7l ).
+		virtual bool JuneIsBoundingUp() const { return GetNowStateID() == USI_BOUNDING_UP; }
+		virtual bool JuneIsBoundingLandCrash() const { return GetNowStateID() == USI_BOUNDING_LANDCRASH || GetFutureStateID() == USI_BOUNDING_LANDCRASH; }
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		// DamageRevenge
 		void DamageRevengeStart();
