@@ -6345,4 +6345,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (31f6eea0 @31f6f0b2) and is not knocked down when a user resurrects in the dungeon
 //              (Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK, @3230ec81).
 #define SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
+// Description: C3e-1. June's 16-bit lastTouchLineIndex of the user sync (SetData 3201f5f0 syncData +0x20 short, SendFrameData
+//              3203d4d0, PhysicProcess 32015b30 @32019dc9, packet bit 0x40 = 2 bytes in Deserialize 32d5be30). SyncData and the
+//              user packet field widen to USHORT; the NPC sync stays 1 byte (June 327837c0 -> 32d5c1f0 writes one byte); the
+//              position codec (_Encode/_DecodeUserSyncPos, June 32006d80 / 32000f70) keeps the low byte only ( param & 0xff ).
+//              KTDGLineMap::CanDown / GetLandPosition get USHORT* overloads for the callers that pass &syncData.lastTouchLineIndex.
+#define SERV_IRUHADEV_JUNE_LINE_INDEX16
+// Description: C3e-1. June's class-skill float slot of the user sync (packet bit 0x200000, 4 bytes after RelativePos 0x8000 and
+//              before BuffSyncCount, SetData 3201f5f0 syncData +0x58, protected slot Future +0x7ed8 / Now +0x8178, default 0).
+//              The engine member, the wire field and the Future-set / Now-get accessors; no March class drives it yet (checklist 7n).
+#define SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 //////////////////////////////////////////////////////////////////////////

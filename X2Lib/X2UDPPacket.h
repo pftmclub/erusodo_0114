@@ -259,6 +259,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 		eUnitUserSync_DataField_NumOfDeBuff = ( 1 << 14 ),
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
         eUnitUserSync_DataField_RelativePos = ( 1 << 15 ),
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+		eUnitUserSync_DataField_ClassSkillFloat = ( 1 << 21 ),	/// C3e-1: June's bit 0x200000 (32d5be30), wire position after 0x8000 and before 0x800000
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		eUnitUserSync_DataField_BuffSyncCount = ( 1 << 23 ),	/// June buff port Phase 8: June's bit for the buff-change counter (32d5be30 @32d5c0f8)
@@ -281,6 +284,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                                                     | eUnitUserSync_DataField_RelativePos
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+                                                    | eUnitUserSync_DataField_ClassSkillFloat
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
                                                     | eUnitUserSync_DataField_BuffSyncCount
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
@@ -310,7 +316,11 @@ struct KDYNAMIC_UNIT_USER_SYNC
 //    USHORT              m_usPosY;
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 	USHORT              m_usPosZ;
+#ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
+	USHORT              m_ucLastTouchLineIndex;	// June 32d5be30 bit 0x40: 2 bytes ( name kept )
+#else SERV_IRUHADEV_JUNE_LINE_INDEX16
 	UCHAR               m_ucLastTouchLineIndex;
+#endif SERV_IRUHADEV_JUNE_LINE_INDEX16
 
 	//UCHAR				m_ucNowHpPercent;
 	//UCHAR				m_ucNowMpPercent;
@@ -332,6 +342,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 	UCHAR				m_ucHittedCount;		/// 피격횟수
 	UCHAR				m_ucNumOfDeBuff;		/// 디버프개수
     DWORD               m_dwRelativePos;
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+	float				m_fClassSkillFloat;		/// C3e-1: June's class-skill float, bit 0x200000, packet +0x2a
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	DWORD				m_dwBuffSyncCount;		/// June buff port Phase 8: the sender's buff-change counter (CX2GameUnit +0x6dd0, low 32 bits), June packet +0x3d
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
@@ -360,6 +373,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
         m_ucHittedCount = 0;
         m_ucNumOfDeBuff = 0;
         m_dwRelativePos = 0;
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+        m_fClassSkillFloat = 0.f;
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
         m_dwBuffSyncCount = 0;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER

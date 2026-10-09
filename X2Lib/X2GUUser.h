@@ -832,7 +832,11 @@ public:
 			char					stateChangeNum;
 
 			D3DXVECTOR3				position;
+#ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
+			USHORT					lastTouchLineIndex;		// June 3201f5f0 syncData +0x20: 16-bit ( short )
+#else SERV_IRUHADEV_JUNE_LINE_INDEX16
 			unsigned char 			lastTouchLineIndex;
+#endif SERV_IRUHADEV_JUNE_LINE_INDEX16
 
 			bool					bIsRight;
 			bool					bFrameStop;
@@ -862,6 +866,9 @@ public:
 			UCHAR				ucNumOfDeBuff;		/// 디버프개수
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
             DWORD                   m_dwRelativePos;
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+			KProtectedType<float>	fClassSkillFloat;	/// C3e-1: June's class-skill float ( syncData +0x58; protected slot Future +0x7ed8 / Now +0x8178 ), default 0
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			DWORD				dwBuffSyncCount;	/// June buff port Phase 8: the buff-change counter (June +0x7e68 Future / +0x8108 Now, syncData +0x34)
@@ -911,6 +918,9 @@ public:
 				ucNumOfDeBuff			= 0;		/// 디버프개수
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                 m_dwRelativePos         = 0;
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+				fClassSkillFloat		= 0.0f;
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 				dwBuffSyncCount			= 0;
@@ -1882,6 +1892,13 @@ public:
 				return m_FrameDataNow.syncData.lastTouchLineIndex;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+		/// C3e-1: June's class-skill float slot of the user sync. Class code writes the Future copy and reads the Now copy
+		/// ( the value reaches Now through the normal Future -> send list -> Now path ); no March class drives it yet ( checklist 7n ).
+		void						SetClassSkillFloat( float fValue )	{ m_FrameDataFuture.syncData.fClassSkillFloat = fValue; }
+		float						GetClassSkillFloat() const			{ return m_FrameDataNow.syncData.fClassSkillFloat; }
+
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 		virtual const D3DXVECTOR3&		GetLandPos( bool bFuture = false ) const
 		{
 			if( true == bFuture )

@@ -24636,7 +24636,11 @@ void CX2GUUser::SendFrameData()
                 kXPT_UNIT_USER_SYNC.m_cStateChangeNum			= pSyncData->stateChangeNum;
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                 kXPT_UNIT_USER_SYNC.m_fPosY = pSyncData->position.y;
+#ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
+                _EncodeUserSyncPos( kXPT_UNIT_USER_SYNC.m_usPosX, kXPT_UNIT_USER_SYNC.m_usPosZ, pSyncData->position, static_cast<unsigned char>( pSyncData->lastTouchLineIndex ) );	// June 32006d80 uses index & 0xff
+#else SERV_IRUHADEV_JUNE_LINE_INDEX16
                 _EncodeUserSyncPos( kXPT_UNIT_USER_SYNC.m_usPosX, kXPT_UNIT_USER_SYNC.m_usPosZ, pSyncData->position, pSyncData->lastTouchLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINE_INDEX16
 //#else   X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 //                _EncodeUserSyncPos( kXPT_UNIT_USER_SYNC.m_usPosX, kXPT_UNIT_USER_SYNC.m_usPosY, kXPT_UNIT_USER_SYNC.m_usPosZ, pSyncData->position, pSyncData->lastTouchLineIndex );
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -24663,6 +24667,9 @@ void CX2GUUser::SendFrameData()
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                 kXPT_UNIT_USER_SYNC.m_dwRelativePos = pSyncData->m_dwRelativePos;
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+                kXPT_UNIT_USER_SYNC.m_fClassSkillFloat = pSyncData->fClassSkillFloat;
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
                 BYTE* pByBuffer = &bySerialized[0];
                 kXPT_UNIT_USER_SYNC.Serialize( pByBuffer, &kLastSync );
 //#else   X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -36595,7 +36602,11 @@ void CX2GUUser::SyncData::SetData( const KDYNAMIC_UNIT_USER_SYNC& SyncPacket, DW
 	stateChangeNum			= SyncPacket.m_cStateChangeNum;
 
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
+	_DecodeUserSyncPos( position, SyncPacket.m_usPosX, SyncPacket.m_usPosZ, static_cast<unsigned char>( SyncPacket.m_ucLastTouchLineIndex ) );	// June 32000f70 uses index & 0xff
+#else SERV_IRUHADEV_JUNE_LINE_INDEX16
 	_DecodeUserSyncPos( position, SyncPacket.m_usPosX, SyncPacket.m_usPosZ, SyncPacket.m_ucLastTouchLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINE_INDEX16
     position.y              = SyncPacket.m_fPosY;
 //#else   X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 //	_DecodeUserSyncPos( position, SyncPacket.m_usPosX, SyncPacket.m_usPosY, SyncPacket.m_usPosZ, SyncPacket.m_ucLastTouchLineIndex );
@@ -36623,6 +36634,9 @@ void CX2GUUser::SyncData::SetData( const KDYNAMIC_UNIT_USER_SYNC& SyncPacket, DW
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
     m_dwRelativePos         = SyncPacket.m_dwRelativePos;
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+	fClassSkillFloat		= SyncPacket.m_fClassSkillFloat;	/// June 3201f5f0: syncData +0x58 from packet +0x2a
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 }
 

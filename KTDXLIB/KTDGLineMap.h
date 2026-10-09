@@ -1101,6 +1101,40 @@ class CKTDGLineMap : public CKTDGObject
 			}
 		}
 		__forceinline D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, float fRadius = 1.0f, int* pLineIndex = NULL ) const;
+#ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
+		// C3e-1: the user's syncData.lastTouchLineIndex is 16-bit now ( June 3201f5f0 +0x20 ); same wrappers as the unsigned char* ones, no default argument
+		__forceinline D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, float fRadius, unsigned short* pLineIndex ) const
+		{
+			if( pLineIndex != NULL )
+			{
+				int tempLineIndex = *pLineIndex;
+				D3DXVECTOR3 bRetVal = GetLandPosition( pos, fRadius, &tempLineIndex );
+				*pLineIndex = (unsigned short) tempLineIndex;
+				return bRetVal;
+			}
+			else
+			{
+				int* pTemp = NULL;
+				return GetLandPosition( pos, fRadius, pTemp );
+			}
+		}
+
+		__forceinline bool CanDown( const D3DXVECTOR3& pos, float fRadius, D3DXVECTOR3* pOutPos, unsigned short* pLineIndex )
+		{
+			if( pLineIndex != NULL )
+			{
+				int tempLineIndex = *pLineIndex;
+				bool bRetVal = CanDown( pos, fRadius, pOutPos, &tempLineIndex );
+				*pLineIndex = (unsigned short) tempLineIndex;
+				return bRetVal;
+			}
+			else
+			{
+				int* pTemp = NULL;
+				return CanDown( pos, fRadius, pOutPos, pTemp );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_LINE_INDEX16
 
 		bool CanPassUp( const D3DXVECTOR3& pos );
 

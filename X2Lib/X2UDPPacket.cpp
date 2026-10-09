@@ -234,6 +234,10 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
 	if( pPrevSync == NULL || pPrevSync->m_dwRelativePos != m_dwRelativePos )
 		m_usDataFieldFlag |= eUnitUserSync_DataField_RelativePos;
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+	if( pPrevSync == NULL || pPrevSync->m_fClassSkillFloat != m_fClassSkillFloat )
+		m_usDataFieldFlag |= eUnitUserSync_DataField_ClassSkillFloat;
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	if( pPrevSync == NULL || pPrevSync->m_dwBuffSyncCount != m_dwBuffSyncCount )
 		m_usDataFieldFlag |= eUnitUserSync_DataField_BuffSyncCount;
@@ -284,6 +288,10 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
 	if( m_usDataFieldFlag & eUnitUserSync_DataField_RelativePos )
         _Serialize( pbyBuffer, m_dwRelativePos );
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+	if( m_usDataFieldFlag & eUnitUserSync_DataField_ClassSkillFloat )
+		_Serialize( pbyBuffer, m_fClassSkillFloat );
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	if( m_usDataFieldFlag & eUnitUserSync_DataField_BuffSyncCount )
 		_Serialize( pbyBuffer, m_dwBuffSyncCount );
@@ -396,6 +404,13 @@ bool    KDYNAMIC_UNIT_USER_SYNC::Deserialize( const BYTE*& pbyBuffer, const BYTE
             return false;
     }
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+	if ( usDataFieldFlag & eUnitUserSync_DataField_ClassSkillFloat )
+	{
+		if ( false == _Deserialize( pbyBuffer, pbyEnd, m_fClassSkillFloat ) )
+			return false;
+	}
+#endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	if ( usDataFieldFlag & eUnitUserSync_DataField_BuffSyncCount )
 	{
