@@ -909,7 +909,7 @@ syncData bases (`31fe6a40`, `3203c3a0`) and the HitCount finalizer (`32ec2300`).
 
 ## C3e-1 - port: June's 16-bit line index and the class-skill float slot (C, G)
 
-**Status: ready (found by C3e, 2026-10-09); not with C3g or C3e-2. Model:** Sonnet 5.5, high, then an Opus review. Kickoff
+**Status: done 2026-10-09 (`a39a4ce`); play-test owed. Model:** Sonnet 5.5, high, then an Opus review. Kickoff
 `kickoffs/june-effect/C3e-1.md`.
 
 - **Scope:**
@@ -919,6 +919,51 @@ syncData bases (`31fe6a40`, `3203c3a0`) and the HitCount finalizer (`32ec2300`).
     Now accessors for class code.
   - No March class drives G yet; checklist 7n lists its drivers.
 - **Exit:** a `/w14244` warning diff, flag off vs on (as C3d-2); the wire order checked against `32d5be30`; a regression play-test.
+
+### C3e-1 - Done (2026-10-09, Sonnet 5.5 high)
+
+Flags `SERV_IRUHADEV_JUNE_LINE_INDEX16` (C) and `SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT` (G), `KTDXLIB/Always.h` (end). Commit `a39a4ce`.
+
+**What landed**
+- **C, the user sync:** `SyncData::lastTouchLineIndex` and `KDYNAMIC_UNIT_USER_SYNC::m_ucLastTouchLineIndex` (name kept) are `USHORT`. Serialize /
+  Deserialize are templates, so bit `0x40` is 2 bytes with no `.cpp` edit. The sender copy and SetData already assign one to the other.
+- **C, the line map (not in the kickoff):** about 140 user call sites pass `&syncData.lastTouchLineIndex` to `CKTDGLineMap::CanDown` /
+  `GetLandPosition`, which took `unsigned char*`. `KTDGLineMap.h` gets `unsigned short*` overloads (no default argument, so the existing
+  `(int*) NULL` callers stay unambiguous). June's own `CanDown` `31c6c310` writes a 32-bit index (`uint*`).
+- **G:** `SyncData::fClassSkillFloat` (`KProtectedType<float>`, 0), `m_fClassSkillFloat`, bit `0x200000` (`1 << 21`) in the enum and in `All`
+  (`ReceiveFrameData` compares the accumulated flag with `All`), Serialize compare + write, Deserialize, sender copy, SetData, and
+  `CX2GUUser::SetClassSkillFloat( float )` (Future) / `GetClassSkillFloat()` (Now). Nothing in March drives it (checklist 7n).
+- **Wire order** against `32d5be30`: ... `0x8000` RelativePos, **`0x200000` G**, `0x800000` BuffSyncCount. Bits `0x10000`, `0x20000`-`0x80000`,
+  `0x100000`, `0x400000` and the later ones stay out, with their slots free.
+
+**June verdicts (differs from the kickoff)**
+- **Encode / decode keep a `unsigned char` parameter.** June's `32006d80` (encode) and `32000f70` (decode) both test `index & 0xff`, so the position
+  codec only sees the low byte. The two call sites cast (`static_cast<unsigned char>`); recorded as `JUNE_BUGS.md` #146 (latent: no June map has > 243 lines).
+- **NPC twin: not widened.** `327837c0` (type `0x16`) -> `32d5c1f0` writes a single byte (`uStack_36 = (char)param_1[0x211c]`). March's
+  `KDYNAMIC_UNIT_NPC_SYNC` and `NPCSyncData` stay `unsigned char`.
+
+**Gate**
+- Build: `BUILD OK: X2/US_SERVICE/x2.exe 19,492,352 B, 2026-10-09 17:37:04`, 0 errors (built when only these 6 files were dirty).
+- `/Zs /w14244 /w14242`, 37 TUs, flag off vs on (`june2017_re/c3e1_warndiff.py`, per-(file, message) counts because peers' concurrent
+  edits shifted line numbers between the passes). The only differences:
+  - 15 sites in `X2GUUser.cpp` int -> `unsigned char` became int -> `USHORT` (4 `const int`, 11 `int`: the PhysicProcess / SetPos writers; same count both ways);
+  - 3 sites in `X2GUNPC.cpp` (the NPC copies a user's index: `pCX2GUUser->GetSyncData().lastTouchLineIndex` and two `kFrameData.syncData.lastTouchLineIndex`) now
+    narrow `USHORT` -> `unsigned char`. That is the intended NPC-stays-1-byte edge; harmless for <= 243 lines.
+  - `X2UDPPacket.cpp` needs `/FIstdafx.h`; checked on its own (rc 0, no new warning).
+  - The `KRoomUserInfo::BONUS_TYPE` row (36 vs 35) is a peer's edit, not this phase.
+
+**Hygiene** (`flagcheck --range a39a4ce^..a39a4ce`, both flags):
+```
+files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR   (OTHER = X2UDPPacket.cpp: it only carries the other flag)
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,497,472 B, dated 2026-10-09 18:00:11, md5 153e7bab5aca8b64f82c514f7c837cc5, equal to X2/US_SERVICE/x2.exe (2026-10-09 18:00:06); built at mods/june-buff-port a39a4ce + 27 uncommitted code file(s).` The exe is a peer session's build (it held the build lock), so it carries this phase's code plus that peer's uncommitted files; my own 17:37 build above was the clean, phase-only compile.
+
+**How to see it in game:** nothing changes (no June line map exceeds 243 lines; no class drives G). Regression play-test: a dungeon run with jumps across
+platforms (line changes) and a village walk; `python tools/logs.py` should show 0 EXCEPTION and the usual baseline UNHANDLED set.
+
+**Open for the user:** none.
 
 ## C3e-2 - port: June's START / WIN / LOSE variant re-binding (N)
 
