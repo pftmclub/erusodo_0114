@@ -75,7 +75,13 @@ bytecode; see "Established facts".
    - Original bytecode is snapshotted to `24965799\kom_contents_bytecode\dataNNN_kom\` (on F:).
    - The ledger `tools/data/lua_source_ledger.tsv` has one row per converted or adopted file, with these columns: kom, name,
      origin (march / june), reference, reference sha1, source, tier, source sha1, phase, date, reason.
-7. **Standing rules still apply.**
+7. **June's binary is open for reference (user, 2026-10-09).**
+   - Any phase may look into June's `unpacked_x2.exe` with the `ghidra` skill for logic that helps. Useful targets: the
+     opcode/handler mapping (L2), June's loader and Lua handling (L3, L6), and how June treats a case March gets wrong.
+   - Read-only: rename or comment only when it helps later sessions, and record addresses in `june2017_re/funcmap.tsv` with the tag
+     `LUA_SRC`.
+   - Cite the June address for every conclusion drawn from it.
+8. **Standing rules still apply.**
    - No new `.lua` files (CLAUDE.md). Conversion keeps every name.
    - June files are byte-exact (`june-assets-byte-exact-no-edits`).
    - Ask before every `/x2-kom-packed copy`.
@@ -95,6 +101,7 @@ Every repeated step is a tool (`tools/README.md`). Do not hand-type msbuild, els
 | June -> March bytecode transcode | `python june2017_re/ljconv.py OUTDIR <june .lua ...>` |
 | Fixed decompiler (June) | `python june2017_re/ljd_jun2017.py ... [--check]`; `june2017_re/ljd_fixed.py` |
 | Vendored compiler | `elstools/vendor/luajit/luajit.exe` (LuaJIT 2.0.2, KOG build); `-b - -` through pipes works (undo CRLF on stdout) |
+| June binary (Ghidra, read-only reference) | `ghidra` skill (curl to `http://127.0.0.1:8080`); June addresses in `june2017_re/funcmap.tsv` |
 | Edit a CP949 source | `python tools/bytepatch.py show / find / apply <spec>` (x2-byte-edit) |
 | Flag hygiene | `python tools/flagcheck.py SERV_IRUHADEV_LUA_SOURCE --worktree --files <files>` |
 | Build + deploy | `python tools/build.py --deploy` (background; x2-build-deploy) |
@@ -141,6 +148,12 @@ Every repeated step is a tool (`tools/README.md`). Do not hand-type msbuild, els
   - Syntax and runtime errors go `print_error` -> `_ALERT` (unregistered) -> `printf` (`lua_tinker.cpp:253-273`), so they are invisible.
   - The chunk name is always `"lua_tinker::dobuffer()"`.
   - Shipped March bytecode is stripped (flags `02`), so it carries no line numbers. Source does.
+- **June hides Lua errors the same way** (Ghidra, `unpacked_x2.exe`, 2026-10-09).
+  - `print_error` is `FUN_32fe7730`. It looks up the global `"_ALERT"` (`3355f880`), and that string's only xref is this read, so
+    nothing in June registers `_ALERT`.
+  - `lua_tinker::dobuffer` is `FUN_32fe8880`, same shape as March's. It also latches the first error message into a function-local
+    static (`DAT_337b2714`) that nothing reads.
+  - So L6's error logging is a March-side diagnostic with no June counterpart to port; it is not a parity change.
 - **Build traps for engine work.**
   - `LuaCommon/` is gitignored (`.gitignore:11`).
   - `lua_tinker.cpp`, `KLuabinder.cpp` and `KLuaManager.cpp` compile inside luajitLib (`luajitLib.vcxproj:489-491`), which never
