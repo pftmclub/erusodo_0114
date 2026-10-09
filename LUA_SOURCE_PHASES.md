@@ -1,4 +1,4 @@
-# Lua source: June Lua reaches the March client as proven plaintext source
+# Lua source: core client Lua as proven plaintext source, the rest as June's bytecode
 
 Plan key `lua-source` · branch `mods/june-buff-port` · log tag `[LUA_SRC]` · flag `SERV_IRUHADEV_LUA_SOURCE` (+ `_DEBUG`, L6 only) ·
 kickoffs `kickoffs/lua-source/` · skills `x2-lua`, `x2-adopt-june` (built here) · created 2026-10-09.
@@ -16,29 +16,44 @@ Lua blocks that today:
 
 The user wants this settled once, so nobody has to think about it again (2026-10-09). End state:
 
-- **June `.lua` arrives through one command, `adopt-june` (skill `x2-adopt-june`), and the client runs June's code as transcoded
-  by `ljconv.py`.** L2 verifies `ljconv`'s opcode table independently, against June's own VM handlers.
-  - If a decompile is proven to compile to the same instructions as June's own bytecode, it ships as plaintext source:
-    UTF-8 BOM + text, packed with the same zlib + XOR-CRC as everything else.
-  - Otherwise June's bytecode ships, transcoded exactly by `ljconv.py`, and the reason is recorded.
-- **March `.lua` is not mass-converted**, because June overwrites it. A March file is converted, with proof, only when a port
-  must edit it before its June replacement lands (`convert`, skill `x2-lua`).
+- **Scope: source only where a file must differ from June (user, 2026-10-09, rescope after L2).** Most June `.lua` ships as June's
+  own bytecode transcoded by `ljconv.py` (the "adjusted June lua": header `0x82` -> `0x81` and opcode bytes renumbered, nothing else).
+  This is already how 3,638 files (3,518 + 120) shipped on 2026-10-09 (`a5f7298`, `c6c8c58`, MODS "June NPC and dungeon Lua via ljconv" and
+  "June partial ports replaced"). A file becomes BOM source only if it is in the **core list** (Rule 2):
+  - it is **kept merged** because March's C++ lacks something June's file needs, or June's file lacks something March's C++ needs
+    (today: `Enum`, `DungeonEnum`, `DamageEffect`, `EffectSet`, the three `DLG_Map_*` dialogs, `NPCTemplet`, `DungeonData`,
+    `DLG_Destination_byButton`, with their blockers in MODS);
+  - or a port **must edit** it (a March-compat edit to a June file, or a March file that needs a change before June's replacement
+    can land).
+
+  In kom terms the core list sits mostly in data036 (enums, effect tables, class scripts, templets), datai014/datai015 (map dialogs,
+  warp list, config) and single files elsewhere (data034 dialogs only where June's dialog calls a UI binding March lacks; the data035 /
+  data037 registries). The kom is a pointer, not the rule.
+- **June `.lua` arrives through one command, `adopt-june` (skill `x2-adopt-june`).** The default is the `ljconv` bytecode, with no
+  decompile. `--source` (core-list files only) adds decompile + T1 against the `ljconv` output, and ships BOM source on a pass.
+  L2 verified `ljconv`'s opcode table against June's own VM handlers (71/71).
+- **March `.lua` is not mass-converted**, because June overwrites it. A March file is converted, with proof, only when it is on
+  the core list (`convert`, skill `x2-lua`).
+- **Why the core files are worth source:** every shipped bytecode file, March and June, is stripped (flags `02`, checked
+  2026-10-09 over data034/035/036/037/datai016), so L6's line-numbered Lua errors only exist for source files. A failing dungeon
+  script without a line is cheap to chase; a failing `DamageEffect` is not.
 - **The tools enforce it.** `kom.py pack` refuses anything but parseable BOM source or a ledger-listed bytecode exception. The
   engine logs Lua errors with line numbers.
 - **One-way.** Once converted, a file stays source. The bytecode snapshot exists for rollback only.
 - **Every tool is also a skill**, so a future session reaches it by `/x2-lua`, `/x2-adopt-june`, or plain words.
 
 **This plan builds tools; it does not do other plans' conversions.** june-effect C3d-4 is about the `*_DAMAGE_BOUNDING_*` tables
-missing from the nine class scripts. It uses these tools on either route:
-- **add now:** C3d-5 runs `convert` on the nine March class scripts, then adds June's three tables as a text edit.
-- **wait:** each character port adopts June's class script with `adopt-june`. The tables are inline in June's file, so they arrive
-  with it; the per-class C++ registration call is `JUNE2017_CHARACTER_PORT_CHECKLIST.md` §7l.
+missing from the nine class scripts. It closed on the "wait" route (`fdcf60b`, user): each character port adopts June's class
+script with `adopt-june`. The tables are inline in June's file, so they arrive with it; the per-class C++ registration call is
+`JUNE2017_CHARACTER_PORT_CHECKLIST.md` §7l. (The "add now" route, `convert` on the nine March class scripts, was not taken.)
 
 **User decisions (2026-10-09):**
 - Keep the LuaJIT VM; there is no PUC 5.1 revert.
 - Unprovable files stay bytecode, with a named reason.
 - Sources live in kom_contents only, not mirrored into git.
-- This is the permanent, June-focused version, not convert-on-touch alone.
+- ~~This is the permanent, June-focused version, not convert-on-touch alone.~~ **Superseded the same day (user, 2026-10-09,
+  after L2):** source is scoped to the core list; everything else is June's `ljconv` bytecode ("the bytecode changed header one").
+  L3 is rescoped, L4 is dropped, L5 is limited to core-list files.
 - The class-script conversion stays in june-effect.
 - Every tool is a skill.
 
@@ -57,18 +72,25 @@ bytecode; see "Established facts".
    - **T3:** unproven. The bytecode ships.
 
    The reference is the shipped March bytecode for March files, and `ljconv(June bytecode)` for June files.
-2. **June `.lua` only through `adopt-june`.** It runs junekom extract, `ljconv`, decompile, T1, then writes BOM source. On failure
-   it ships the `ljconv` bytecode and writes a ledger exception row. Never decompile or compile by hand. `june_src_fixed/` is reading
-   material.
-3. **Editing a March `.lua` starts with `convert`.** Sources are tried in this order:
+2. **June `.lua` only through `adopt-june`; source only for the core list (rescope, user 2026-10-09).**
+   - **Default:** junekom extract, then `ljconv`. June's bytecode ships as `1B 4B 4C 81`, with no decompile and no edit. The run is
+     recorded in a per-run TSV under `june2017_re/` (the shape of `june_npc_lua_port_20261009.tsv`), not in the ledger.
+   - **Core list** (`tools/data/lua_core_list.tsv`, built in L3): a file that is kept merged or that a port must edit. Only these
+     take `adopt-june --source`: decompile, T1 against the `ljconv` output, then BOM source plus a ledger row. If T1 fails, nothing
+     is staged (June's bytecode would drop the merge or the edit); the core-list row records the reason, and the file goes to L5 or
+     a T2 sign-off. The default route refuses a core-list name.
+   - Adding a file to the core list needs a reason in its row (the blocker, or the port and the edit). A port that finds it must edit
+     a June file adds the row itself; that is not a question for the user.
+   - Never decompile or compile by hand. `june_src_fixed/` is reading material.
+3. **Editing a March `.lua` starts with `convert`** (the file is on the core list by definition). Sources are tried in this order:
    - the sibling `X.src.lua` (T0);
    - a studio original from `ClientScript\` or `_ClientScript\` (T0);
    - a T1 decompile.
 
    Afterwards `X.lua` **is** BOM + UTF-8 source, with the BOM stored on disk, and every later change is a text edit.
 4. **Conversion changes format only.** Content changes are the port's own diff, made after conversion.
-5. **The pack gate enforces it.** Every `.lua` must be either BOM text that parses under the vendored luajit, or a bytecode file listed
-   as an exception in the ledger.
+5. **The pack gate enforces it.** Every `.lua` must be BOM text that parses under the vendored luajit, March `1B 4B 4C 81` bytecode
+   (which is also what `ljconv` writes), or a bytecode file listed as an exception in the ledger. June `0x82` bytecode is refused.
    - **Exception: server-only Lua that the user packs by hand** (CLAUDE.md's server-Lua rule, which stays as written). These files
      are manifest `"0"` and loaded with `bEncryption=false`, and they may be PUC-5.1 text LuaJIT rejects. The gate only warns on them,
      never refuses.
@@ -222,16 +244,17 @@ mock-environment dump of a decompile + recompile:
 | L1 | `luasrc.py` convert / restore / ledger, pack gate, compile fold, **skill `x2-lua`** | Sonnet 5.5 high | L0 | `tools/kom.py`, `tools/luasrc.py` (new), `tools/data/lua_source_ledger.tsv` (new), `.claude/skills/x2-lua/` (new), `.claude/skills/elstools/`, `.claude/skills/x2-phase/`, CLAUDE.md, `tools/README.md` | - |
 | L2 | Equivalence checker (March + June modes); `x2-lua` gains `check` / `decompile` | Opus 5.5 **xhigh** | L1 | `tools/luasrc.py`, `june2017_re/ljdiff/`, `.claude/skills/x2-lua/` | - |
 | L2-review | Adversarial review of the checker | Opus 5.5 high | L2 | review only | - |
-| L3 | `adopt-june` + **skill `x2-adopt-june`** | Sonnet 5.5 high | L2-review | `tools/luasrc.py`, `.claude/skills/x2-adopt-june/` (new), CLAUDE.md | - |
-| L4 | Audit of existing June ports (optional) | Sonnet 5.5 high | L3 | report only | decide each listed difference |
-| L5 | Decompiler fixes (conditional on L3/L4) | Opus 5.5 **xhigh** | L3 (+L4) | `june2017_re/` ljd hooks | - |
+| L3 | Core list + `adopt-june` (default `ljconv`, `--source` for the core list) + **skill `x2-adopt-june`** | Sonnet 5.5 high | L2-review | `tools/luasrc.py`, `tools/data/lua_core_list.tsv` (new), `.claude/skills/x2-adopt-june/` (new), CLAUDE.md | confirm the core list |
+| L4 | ~~Audit of existing June ports~~ **dropped** (rescope 2026-10-09: the 120 partial ports are already June's `ljconv` bytecode) | - | - | - | - |
+| L5 | Decompiler fixes for core-list files only (conditional on L3) | Opus 5.5 **xhigh** | L3 | `june2017_re/` ljd hooks | - |
 | L6 | Engine: errors visible, parser kept | Opus 5.5 high | L0 | `KTDXLIB/KTDX.h`, `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | play-test via dev console |
 | L6-review | Review of L6 | Opus 5.5 high | L6 | review only | - |
-| L7 | Close-out | Sonnet 5.5 high | L3, L6-review (+L4/L5 if run) | docs, kickoffs, skills, memory | - |
+| L7 | Close-out | Sonnet 5.5 high | L3, L6-review (+L5 if run) | docs, kickoffs, skills, memory | - |
 
 **Running together:**
 - L6 alongside L1/L2 (engine files vs tools).
-- june-effect C3d-4 can start once L2-review is done; it then reads L2's class-script verdicts.
+- june-effect C3d-4 closed on route 2 (`fdcf60b`): the character ports bring June's class scripts. A class script a port must edit
+  is a core-list file and takes `adopt-june --source`; one that loads unchanged takes the default.
 - Builds and copies queue as usual.
 
 ## Phase L0 - Pilot: encrypted source through a real kom
@@ -495,58 +518,64 @@ Adversarial: try to make the checker pass a wrong file.
 Fix clear defects in the tool and send design questions to the user. Write the review into this doc, update the STATUS row, and check
 the L3 kickoff.
 
-## Phase L3 - `adopt-june` + skill `x2-adopt-june`
+## Phase L3 - Core list + `adopt-june` + skill `x2-adopt-june`
 
-**Scope.** Implement Rule 2 end to end, behind one command and one skill.
+**Scope (rescoped 2026-10-09, user).** Implement Rule 2 behind one command and one skill. The default route is June's `ljconv`
+bytecode; source is only for the core list.
 
-**Run with:** Sonnet 5.5 high. **Read list:** Rules, Starting context, Phase L2's Done note and review.
+**Run with:** Sonnet 5.5 high. **Read list:** Context, Rules, Starting context, Phase L2's Done note and review, MODS.md sections
+"June NPC and dungeon Lua via ljconv" and "June partial ports replaced".
 
-1. **`luasrc.py adopt-june <june kom> <file> ... | --list F [--dry-run]`**, in order:
-   1. extract with `tools/junekom.py`;
-   2. `ljconv` to `0x81`;
-   3. decompile;
-   4. T1 against the `ljconv` output;
-   5. on pass, BOM source; on fail, the `ljconv` bytecode plus a ledger exception row that names the reason;
-   6. staging through `kom.py stage-june`'s placement, duplicate and long-name rules (reuse them; do not reimplement).
+1. **Core list `tools/data/lua_core_list.tsv`.** Columns: kom, name, origin (march / june / merged), why (`kept-merged: <blocker>` or
+   `edit: <plan phase> <what>`), state (`source` / `bytecode` / `pending` / `blocked: <reason>`), date. Seed it from:
+   - the ten kept-merged files and their blockers (MODS "June partial ports replaced");
+   - every `X.src.lua` sidecar still in kom_contents (65 on 2026-10-09: data034 12, data035 1, data036 11, data037 1, data039 1,
+     data040 38, datai014 1). Classify each one: a live intended edit (core), or a leftover that June's bytecode has superseded
+     (report it; do not delete a sidecar without the user);
+   - edits other plans already name: Atlas A5 (`DLG_Destination_byButton` + warp C++), the three `DLG_Map_*` dialogs (Atlas/Elysion
+     ids), class scripts a character port must edit (checklist §6/§7l).
 
-   Packing stays a separate step.
-2. **Calibration in a scratch target.** No writes to live dirs:
-   - the 14 `june_lua/` files;
-   - Elysion's `ELYSION_SOLESS.lua`, a pending port;
-   - `NewSkillTempletVer2`, which must take the `ljconv` fallback until L5;
-   - one June class script (e.g. Elsword's), showing that the `*_DAMAGE_BOUNDING_*` tables arrive with it.
-3. **Skill `.claude/skills/x2-adopt-june/SKILL.md`:**
-   - triggers: "port / adopt / bring in June's X.lua", "/x2-adopt-june";
-   - copy-ready commands;
-   - how to read the outcome (proven source vs `ljconv` fallback + reason);
-   - the steps it does not take itself: `/elstools pack`, ask, `/x2-kom-packed copy`.
-4. **CLAUDE.md:** June `.lua` only through `adopt-june`, plus a *Workflow automation* table row.
+   Add `luasrc.py core --check`: every BOM-source `.lua` in kom_contents is on the list, and every `source` row is BOM source.
+2. **`luasrc.py adopt-june <june kom> <file> ... | --list F [--dry-run] [--source]`.**
+   - **Default:** extract with `tools/junekom.py`, `ljconv` to `0x81`, stage through `kom.py stage-june`'s placement, duplicate and
+     long-name rules (reuse them; do not reimplement), write the per-run TSV. **It refuses a name on the core list** (staging June's
+     bytecode would drop the merge; that is how `DLG_Destination_byButton` crashed Cobo) unless `--source` is given.
+   - **`--source`** (core-list names only; refuses others): extract, `ljconv`, decompile, T1 against the `ljconv` output; on a pass,
+     BOM source + a ledger row. On a fail, **nothing is staged**; the reason goes into the core-list row (`blocked: ...`) and the file
+     is an L5 / T2 candidate.
+   - Packing stays a separate step.
+3. **Calibration in a scratch target.** No writes to live dirs:
+   - default mode on 20 files from `june2017_re/june_npc_lua_port_20261009.tsv`: output byte-identical to what `a5f7298` staged;
+   - `--source` on the 14 `june_lua/` files, `ELYSION_SOLESS.lua`, `NewSkillTempletVer2` (expect a fail), and one June class script
+     (show the `*_DAMAGE_BOUNDING_*` tables arrive);
+   - the refusal on a core-list name without `--source`.
+4. **Iteration-order audit for `--source` files (added by L2).** A file loaded as text builds its constant tables with the parser, so
+   `pairs`/`next` can walk them in another order than the bytecode build would. Flag every adopted source file that has an
+   ITERC/ITERN/ISNEXT loop or a `next`/`pairs`/`foreach`/`foreachi` lookup (`tools/ljbc.py` reads both), naming the table each walks.
+5. **Skill `.claude/skills/x2-adopt-june/SKILL.md`:** triggers ("port / adopt / bring in June's X.lua", "/x2-adopt-june"); copy-ready
+   commands for both modes; when a file belongs on the core list; how to read the outcome; the steps it does not take itself
+   (`/elstools pack`, ask, `/x2-kom-packed copy`).
+6. **CLAUDE.md:** the Rule 2 wording plus a *Workflow automation* table row.
 
 **Done gate:**
-- calibration outcomes are recorded;
-- the share of T1 vs fallback is reported (it decides whether L5 runs);
-- the skill triggers, and its example runs as written on a scratch target.
+- the core list is written, `core --check` passes, and the user has confirmed the list (one AskUserQuestion with the rows that are
+  not kept-merged);
+- the default mode reproduces `a5f7298`'s bytes on the sample;
+- `--source` calibration outcomes recorded, and the core-list files that fail T1 are named (they decide whether L5 runs);
+- the skill triggers, and its examples run as written on a scratch target.
 
-## Phase L4 - Audit of existing June ports (optional)
+## Phase L4 - dropped (rescope, 2026-10-09)
 
-**Scope.** Before this plan, June files were ported by decompile + recompile. Check what those ports actually ship.
+Was: audit every shipped June-named `.lua` against `ljconv(June)`. The 120 partial ports were replaced by June's `ljconv` bytecode on
+2026-10-09 (`c6c8c58`, per-file kinds in `june2017_re/june_partial_port_replace_20261009.tsv`), and the NPC / dungeon scripts shipped
+the same way (`a5f7298`), so there is nothing left to audit outside the core list, and L3 covers that.
 
-**Run with:** Sonnet 5.5 high. **Read list:** Rules, Phase L3's Done note.
+## Phase L5 - Decompiler fixes (core-list files only; only if L3 names failures)
 
-1. For every kom_contents `.lua` whose name exists in June (the 268 port additions, plus March files already replaced), compare the
-   shipped bytecode with `ljconv(June)`: identical / T1 / differs.
-2. A "differs" is either an intentional change (a `JUNE_BUGS.md` row, a March-compat edit, a repair) or decompile drift.
-3. The report goes to the user, who decides each "differs" row.
-4. Identical / T1 files can be re-adopted as proven June source with `adopt-june`, on the user's say-so.
+**Scope.** Make the core-list files that fail T1 in L3 convertible, so they can be edited as source. No fix is made for a file off the
+core list; those ship as June's bytecode and need none. `NewSkillTempletVer2` (data036) is the expected first case.
 
-**Done gate:** every June-named file classified, in `june2017_re/lua_source_port_audit.tsv`; the Done note carries the counts and
-the list of "differs".
-
-## Phase L5 - Decompiler fixes (only if L3/L4 show too many fallbacks)
-
-**Scope.** Raise the share of June files that ship as source.
-
-**Run with:** Opus 5.5 **xhigh**. **Read list:** Established facts, Phase L3's Done note, the L4 audit if run, and
+**Run with:** Opus 5.5 **xhigh**. **Read list:** Established facts, Phase L3's Done note and `tools/data/lua_core_list.tsv`, and
 `RANOX_LUA_DECOMPILE_BUG.md` "Residual ljd defects".
 
 Fix as tracked hooks, like `june2017_re/ljd_fixed.py`, never by silently editing the vendored tree:
@@ -555,9 +584,10 @@ Fix as tracked hooks, like `june2017_re/ljd_fixed.py`, never by silently editing
 - deepcopy-hoist;
 - TIMEOUT / MemoryError on big tables.
 
-Re-run `adopt-june` on the fallbacks.
+Fix only the defects the blocked core-list files actually hit. Re-run `adopt-june --source` on them. Where a fix is out of reach, the
+alternative is a T2 report for that one file (Rule 1: Opus audit + the user's yes).
 
-**Done gate:** the fallback count drops; every remaining fallback has a specific reason in the ledger.
+**Done gate:** every `blocked` core-list row is either `source` now or carries a specific reason and a T2 / wait decision.
 
 ## Phase L6 - Engine: errors visible, parser kept
 
@@ -720,27 +750,28 @@ in `KTDXApp.cpp`, plus one enum line in `KTDXApp.h` and the comment in `Always.h
    - **elysion E0.**
    - **lanox:** the "compile every `.lua`" rule.
    - **june-effect** kickoffs that use `kom.py compile`.
-   - **`JUNE2017_CHARACTER_PORT_CHECKLIST.md` §6:** copy the June script becomes `adopt-june`.
+   - **`JUNE2017_CHARACTER_PORT_CHECKLIST.md` §6:** copy the June script becomes `adopt-june` (default), or `adopt-june --source`
+     after adding a core-list row when the port must edit it.
    - **STATUS:** a "superseded by `LUA_SOURCE_PHASES.md`" line for the plans whose docs keep the old wording.
 2. **Memory.** Update `march-class-scripts-bytecode-only-no-recompile`, `kom-pack-copy-skills`, `march-kom-contents-extract` and
    `elstools-decompile-drops-assignments-becomes-globals`. The `lua-source-plan` note names `x2-lua` / `x2-adopt-june` as the entry
    points.
 3. **Skills.** `x2-lua`, `x2-adopt-june`, `elstools` and `x2-phase` must agree with the final tool behaviour and with
    `tools/README.md`.
-4. **Wrap-up.** Switch `_DEBUG` off; the error logging stays. `ledger --check` is clean.
+4. **Wrap-up.** Switch `_DEBUG` off; the error logging stays. `ledger --check` and `core --check` are clean.
 
 **Done gate:** the sweep is listed in the Done note, the ledger is clean, and the skills are consistent.
 
 ## Effects on other plans
 
-- **june-effect C3d-4:** depends on L2-review and reads L2's class-script verdicts.
-  - Route 1 ("add now") becomes C3d-5: `convert` the nine class scripts, then add June's tables as a text edit. Ara's constructor is
-    settled there.
-  - Route 2 ("wait") is the character ports through `adopt-june`.
-- **Character ports:** June's class scripts arrive through `adopt-june`, with the bounding tables inline. The C++ registration call
-  is checklist §7l.
+- **june-effect C3d-4:** closed on route 2 (`fdcf60b`, user): the character ports bring June's class scripts.
+- **Character ports:** June's class scripts arrive through `adopt-june`, with the bounding tables inline; the default `ljconv` route
+  when the script loads unchanged, `--source` after a core-list row when the port must edit it. The C++ registration call is
+  checklist §7l.
 - **atlas / elysion / lanox:** their "compiled `1B 4B 4C 81`" gates are superseded once L1/L3 land (kickoffs updated in L7). Elysion
-  E0's decompile-check of `ELYSION_SOLESS` becomes `adopt-june`.
+  E0's decompile-check of `ELYSION_SOLESS` becomes `adopt-june` (`--source` only if Elysion must edit it). Atlas A5 owns the
+  core-list row for `DLG_Destination_byButton`; Atlas/Elysion own the three `DLG_Map_*` rows.
+- **Any plan that must edit a June `.lua`:** add the core-list row (Rule 2), then `adopt-june --source`; no user question needed.
 - **june-asset-port:** unaffected (non-lua). P5's March constant scan reads text for any converted file.
 
 ## Play-test hand-off

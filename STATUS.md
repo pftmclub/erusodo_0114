@@ -411,7 +411,7 @@ Plan `ELYSION_PORT_PHASES.md` · same branch and worktree as `atlas` · log tag 
 Running together: E1, E5, E6 and E7 are independent, each in its own extra worktree off `mods/elysion-port`, merged back
 E7 -> E5 -> E6 -> E1 (the plan's "Model, effort, review").
 
-## lua-source - June Lua reaches the March client as proven plaintext source
+## lua-source - core client Lua as proven plaintext source, the rest as June's bytecode
 
 Plan `LUA_SOURCE_PHASES.md` · branch `mods/june-buff-port` · log tag `[LUA_SRC]` · flag `SERV_IRUHADEV_LUA_SOURCE` (+ `_DEBUG`, L6
 only) · kickoffs `kickoffs/lua-source/` · skills `x2-lua`, `x2-adopt-june` (built here) · created 2026-10-09 (user request).
@@ -426,23 +426,26 @@ parser linked), so there is no VM migration. This plan builds tools only:
 
 March files are not mass-converted, because June replaces them.
 
+**Rescope (user, 2026-10-09, after L2).** Source only where a file must differ from June: the kept-merged files and files a port must
+edit (the core list). Everything else ships as June's own bytecode transcoded by `ljconv` (header `0x82` -> `0x81`), as 3,638 files
+already did on 2026-10-09. L4 dropped; L5 limited to core-list files.
+
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | L0 | **done 2026-10-09** (data217 pilot: decode-back 6/6, rollback proven, play-test passed, 0 KEM_ERROR) | Sonnet 5.5 / high, then user play-test | - | `kom_contents/data217_kom`, `tools/data/lua_source_ledger.tsv` (new) | `L0.md` |
 | L1 | **done 2026-10-09** (`luasrc.py` + Lua pack gate + `compile` fold + skill `x2-lua`; real dry run 2,402 T0 / 2,441 need L2; gate, fold and convert-restore proven in scratch dirs; no kom touched) | Sonnet 5.5 / high | L0 | `tools/kom.py`, `tools/luasrc.py` (new), `.claude/skills/x2-lua/` (new), `.claude/skills/elstools/`, `.claude/skills/x2-phase/`, CLAUDE.md, `tools/README.md` | `L1.md` |
 | L2 | **done 2026-10-09** (T1 checker + decompile + T2 report; self-test 293/293; ljconv 71/71 verified against June's VM; calibration: March known-T0 182/227 proven, no-source dirs 15/15 T0, June 8/14; class scripts 8/9 T1, Ara not T1 (constructor order, T2 order-only); T1 table rule amended by the user; no kom touched) | Opus 5.5 / **xhigh** | L1 | `tools/luasrc.py`, `tools/ljbc.py` (new), `tools/ljsrc.py` (new), `june2017_re/` (opcode_check, ljdiff `--march`, TSVs), `.claude/skills/x2-lua/` | `L2.md` |
 | L2 review | ready | Opus 5.5 / high | L2 | review only | `L2-review.md` |
-| L3 | waiting (L2 review) | Sonnet 5.5 / high | L2 review | `tools/luasrc.py`, `.claude/skills/x2-adopt-june/` (new), CLAUDE.md | `L3.md` |
-| L4 | optional, waiting (L3) | Sonnet 5.5 / high, then user decisions | L3 | report only (`june2017_re/lua_source_port_audit.tsv`) | `L4.md` |
-| L5 | conditional (only if L3/L4 show too many fallbacks; user decides) | Opus 5.5 / **xhigh** | L3 (+L4) | `june2017_re/` ljd hooks | `L5.md` |
+| L3 | waiting (L2 review) - **rescoped 2026-10-09 (user):** core list (`tools/data/lua_core_list.tsv`) + `adopt-june` (default June `ljconv` bytecode; `--source` for core-list files only) | Sonnet 5.5 / high, then user confirms the core list | L2 review | `tools/luasrc.py`, `tools/data/lua_core_list.tsv` (new), `.claude/skills/x2-adopt-june/` (new), CLAUDE.md | `L3.md` |
+| L4 | **dropped 2026-10-09** (rescope: the partial ports are already June's `ljconv` bytecode, `c6c8c58`) | - | - | - | `L4.md` (stub) |
+| L5 | conditional (only if L3 names core-list files that fail T1; user decides; `NewSkillTempletVer2` expected) | Opus 5.5 / **xhigh** | L3 | `june2017_re/` ljd hooks | `L5.md` |
 | L6 | **done 2026-10-09** (`dc32d70`; play-test passed: 4/4 console checks, no noise, KEM_ERROR72/73 list unchanged; one reason-text finding (BOM-only `TutorSystem.lua`) handed to the review) | Opus 5.5 / high, then user play-test (dev console) | L0 | `KTDXLIB/KTDX.h`, `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6.md` |
 | L6 review | **done 2026-10-09, play-test pending** (`7f6f3fb`; fixed: `[LUA_SRC]` lines no longer go through the unlocked `KLOG` / `g_kSuperAssert`, load-failure heads exempt from the 512 cap, new "empty" kind + non-Lua-reader reasons (TutorSystem.lua); parser guard, flag-off and loads verified; open for the user: the studio's own loader-thread `ErrorLogMsg` race, pre-existing) | Opus 5.5 / high, then user play-test (dev console) | L6 | `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6-review.md` |
-| L7 | waiting (L3, L6 review) | Sonnet 5.5 / high | L3, L6 review (+L4/L5 if run) | kickoffs, skills, memory, `KTDXLIB/Always.h` (`_DEBUG` off) | `L7.md` |
+| L7 | waiting (L3, L6 review) | Sonnet 5.5 / high | L3, L6 review (+L5 if run) | kickoffs, skills, memory, `KTDXLIB/Always.h` (`_DEBUG` off) | `L7.md` |
 
 Running together:
 - L6 alongside L1/L2 (engine files vs tools).
-- june-effect C3d-4 waits for L2 review and reads L2's class-script verdicts. Route "add now" = `convert` the nine class scripts in
-  C3d-5; route "wait" = the character ports via `adopt-june`.
+- june-effect C3d-4 closed on route 2 (`fdcf60b`): class scripts arrive with the character ports through `adopt-june` (`--source` only when the port must edit one).
 
 ## dev-overlay - loose Lua for development, pack at plan close-out and release
 
