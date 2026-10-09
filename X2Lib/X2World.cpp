@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include ".\x2world.h"
 #include "KHelpSystem.h"
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+#ifdef SERV_IRUHADEV_OFFLINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 
 
 #ifdef KHELP_SYSTEM_TEST // 2008-10-23
@@ -1912,4 +1917,40 @@ void CX2World::SetProjection( float fNear, float fFar, float fPerspective, float
 	m_fCameraDistanceStep[2] = fStepDist3;
 }
 #endif //MODIFY_FRUSTUM
+
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+// June effect completion C3n: CX2World::SetGravityAndSpeedRate ( June 32800800; March's was an inline store in X2World.h ). June stores the rate
+// ( world +0x184 ), then, only in a GT_DUNGEON game ( GetGameType, vslot 0x10c, == 2: not battlefield 3, not PvE 4 ), dynamic_casts the game to
+// CX2DungeonGame and walks its unit list ( 327cab80: +0x304..+0x308, NULL entries skipped ), calling ApplyJuneWorldGravityRate ( 32296290 ) on
+// each unit, users and NPCs alike. Lua-bound ( X2Main.cpp class_def ); no March or June script calls it ( C3m ).
+void CX2World::SetGravityAndSpeedRate( float val )
+{
+	m_fGravityAndSpeedRate = val;
+
+	int iGameType = -1;		// log only: -1 = no game
+	int iUnitNum = -1;		// log only: -1 = not re-applied ( no game, not GT_DUNGEON, or the cast failed )
+	if ( NULL != g_pX2Game )
+	{
+		iGameType = (int) g_pX2Game->GetGameType();
+		if ( CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() )
+		{
+			CX2DungeonGame* pDungeonGame = dynamic_cast<CX2DungeonGame*>( g_pX2Game );
+			if ( NULL != pDungeonGame )
+			{
+				const vector<CX2GameUnit*>& vecUnitList = pDungeonGame->GetUnitList();
+				for ( UINT i = 0; i < vecUnitList.size(); ++i )
+				{
+					if ( NULL != vecUnitList[i] )
+						vecUnitList[i]->ApplyJuneWorldGravityRate();
+				}
+				iUnitNum = (int) vecUnitList.size();
+			}
+		}
+	}
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"JUNE_FX C3n SetGravityAndSpeedRate rate %f game type %d units %d ( -1 = not re-applied )", val, iGameType, iUnitNum );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 

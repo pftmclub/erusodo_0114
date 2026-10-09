@@ -15571,6 +15571,16 @@ void CX2GUNPC::CommonStateStart()
 	
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM
+    // June CX2GUNPC::CommonStateStart 327ac9d0 @327add8a-327ade13 ( C3n ): G / DOWN accel are always written ( the state value, else the Org value,
+    // x rate x magic ); SPEED_X / SPEED_Y are stored unscaled. Passive speed and the heavy-monster tail below are unchanged.
+    m_PhysicParam.fGAccel = ( NOWSTATE_FLAG( SET_G_ACCEL ) == true ? nowStateData.m_fSetGAccelValue : m_OrgPhysicParam.fGAccel ) * fWorldGravitySpeedScale * MAGIC_GRAVITY_SCALE;
+    m_PhysicParam.fDownAccel = ( NOWSTATE_FLAG( SET_DOWN_ACCEL ) == true ? nowStateData.m_fSetDownAccelValue : m_OrgPhysicParam.fDownAccel ) * fWorldGravitySpeedScale * MAGIC_GRAVITY_SCALE;
+    if ( NOWSTATE_FLAG( SET_SPEED_X ) == true )
+        m_PhysicParam.nowSpeed.x = nowStateData.m_v2SetSpeedValue.x;
+    if ( NOWSTATE_FLAG( SET_SPEED_Y ) == true )
+        m_PhysicParam.nowSpeed.y = nowStateData.m_v2SetSpeedValue.y;
+#else  SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM
     if ( NOWSTATE_FLAG( SET_G_ACCEL ) == true )
         m_PhysicParam.fGAccel = nowStateData.m_fSetGAccelValue * fWorldGravitySpeedScale * MAGIC_GRAVITY_SCALE;
     if ( NOWSTATE_FLAG( SET_DOWN_ACCEL ) == true )
@@ -15579,6 +15589,7 @@ void CX2GUNPC::CommonStateStart()
         m_PhysicParam.nowSpeed.x = nowStateData.m_v2SetSpeedValue.x * fWorldGravitySpeedScale;
     if ( NOWSTATE_FLAG( SET_SPEED_Y ) == true )
         m_PhysicParam.nowSpeed.y = nowStateData.m_v2SetSpeedValue.y * fWorldGravitySpeedScale;
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM
     m_PhysicParam.passiveSpeed = nowStateData.m_v2SetPassiveSpeedValue;
 
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE

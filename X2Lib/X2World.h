@@ -1096,7 +1096,11 @@ public:
 
 #ifdef DEEP_WATER_DUNGEON_TEST
 		float GetGravityAndSpeedRate() const { return m_fGravityAndSpeedRate; }
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+		void SetGravityAndSpeedRate(float val);	/// June 32800800 ( C3n ): out of line ( X2World.cpp ), re-applies the rate to every unit of a dungeon game
+#else  SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 		void SetGravityAndSpeedRate(float val) { m_fGravityAndSpeedRate = val; }
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 
 		float GetUnitAnimSpeedRate() const { return m_fUnitAnimSpeedRate; }
 		void SetUnitAnimSpeedRate(float val) { m_fUnitAnimSpeedRate = val; }

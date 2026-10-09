@@ -3811,6 +3811,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		virtual float	GetEnchantResist( CX2EnchantItem::ENCHANT_TYPE enchantType );
 		
 		virtual void		ResetPhysicParam(bool bPreserveNowSpeed = false );
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+		void				ApplyJuneWorldGravityRate();	/// June 32296290 ( C3n ): the world gravity rate, now, from a one-time PhysicParam backup
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 		virtual void		ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );
 		virtual void DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ ) {}
 		virtual void		ApplyWorldLightColor( OUT CKTDGXRenderer::RenderParam* pRenderParam_ ){}
@@ -4293,6 +4296,10 @@ protected:
 		//PhysicParam										m_ScriptedPhysicParam;		/// 스크립트에 지정된 원본 physic param
 		PhysicParam										m_OrgPhysicParam;	/// Original이 변경될 것이라면 왜 Original 인가..?
 		PhysicParam										m_PhysicParam;		/// 현재의 PhysicParam... 잘 정리해 보자.../
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+		PhysicParam										m_JuneWorldRateBackupPhysicParam;	/// June unit +0x334 ( C3n ): m_PhysicParam at the first ApplyJuneWorldGravityRate. Never refreshed, never copied back; a plain member, not a PhysicParam field, so the whole-struct copies ( C3h ) leave it alone
+		bool											m_bJuneWorldRateBackupTaken;		/// June unit +0x368: set by the first ApplyJuneWorldGravityRate, cleared only by the ctor ( June @322a5e44 )
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 
 		CX2DamageManager::DamageData					m_DamageData;		/// User 또는 NPC 스크립트에 있는 DamageData
 		

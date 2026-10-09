@@ -259,6 +259,9 @@ m_fNoSkillTime( 0 )
 	//À¯´Ö ÄÄÆ÷³ÍÆ®
 	m_pUnitShadow				= NULL;
 	m_fRevengeAddDamage			= 0.0f;
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+	m_bJuneWorldRateBackupTaken	= false;	// June ctor @322a5e44; ReInit ( 322a5f90 ) does not clear it
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 	m_DamageReducePercent		= 0;
     m_DamageGuardPercent        = 0;
 
@@ -4209,14 +4212,40 @@ void CX2GameUnit::InitStat()
 		m_PhysicParam.fGAccel             	*= fScale * MAGIC_GRAVITY_SCALE;
 		m_PhysicParam.fMaxGSpeed          	*= fScale * MAGIC_GRAVITY_SCALE;
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM
+		// June 322886a0 @32288800-322888a5 ( C3n ): only the three gravity fields above are scaled; the walk / run / jump / dash-jump speeds are not.
+#else  SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM
 		m_PhysicParam.fWalkSpeed          	*= fScale;
 		m_PhysicParam.fRunSpeed           	*= fScale;
 		m_PhysicParam.fJumpSpeed          	*= fScale;
 		m_PhysicParam.fDashJumpSpeed      	*= fScale;
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM
 
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+// June 32296290 ( C3n ), called only from CX2World::SetGravityAndSpeedRate's unit walk ( 327cab80 ). Re-checks the game and the world, then once per
+// unit ( the bool is cleared only by the ctor ) copies the whole m_PhysicParam to the backup; then reload / G accel / max G speed = backup x the world
+// rate. No MAGIC_GRAVITY_SCALE and no != 1 test, unlike ResetPhysicParam ( JUNE_BUGS 150 ); a ResetPhysicParam at a rate != 1 before the first
+// call bakes a scaled value into the backup, which this then scales again ( JUNE_BUGS 149 ). Both kept verbatim.
+void CX2GameUnit::ApplyJuneWorldGravityRate()
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetWorld() )
+		return;
+
+	const float fRate = g_pX2Game->GetWorld()->GetGravityAndSpeedRate();
+	if ( false == m_bJuneWorldRateBackupTaken )
+	{
+		m_JuneWorldRateBackupPhysicParam = m_PhysicParam;
+		m_bJuneWorldRateBackupTaken = true;
+	}
+
+	m_PhysicParam.fReloadAccel	= m_JuneWorldRateBackupPhysicParam.fReloadAccel * fRate;
+	m_PhysicParam.fGAccel		= m_JuneWorldRateBackupPhysicParam.fGAccel * fRate;
+	m_PhysicParam.fMaxGSpeed	= m_JuneWorldRateBackupPhysicParam.fMaxGSpeed * fRate;
+}
+#endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 /*virtual*/ void CX2GameUnit::SetSmallGage()
 {
 	wstring wstrSmallHPbar;

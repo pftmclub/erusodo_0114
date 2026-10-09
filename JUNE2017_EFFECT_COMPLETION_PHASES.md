@@ -1618,7 +1618,7 @@ script sets the rate. **No questions for the user.**
 
 ## C3n - port: June's world gravity rate (live re-apply, ResetPhysicParam trim, NPC state start)
 
-**Status: ready (found by C3m, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3n.md`. **Not with C3j / C3k** (same NPC code), nor with a
+**Status: done 2026-10-09 (Done note below). Was: ready (found by C3m, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3n.md`. **Not with C3j / C3k** (same NPC code), nor with a
 peer editing `ResetPhysicParam`.
 
 - **Scope:** the four deltas in "C3m - Done" item 1, read from the C3m funcmap rows.
@@ -1629,6 +1629,41 @@ peer editing `ResetPhysicParam`.
 - **Exit:** funcmap rows `Effect C3n`; both flags; a regression play-test (dungeon + field: jumps, falls, NPC launches look as before). No script sets the rate, so
   there is no positive test unless the user wants one from the dev console.
 
+
+### C3n - Done (2026-10-09, Opus 5.5 high)
+
+Flags `SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY` and `SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM` (`KTDXLIB/Always.h`). funcmap rows `(C3n)` x3. JUNE_BUGS 149, 150.
+June's bytes were re-read for `32800800`, `327cab80`, `32296290` and the NPC block `327ac9d0 @327add8a-327ade13`. They match the C3m rows. The NPC block is
+`(value x rate) x magic`, with magic in `[esp+0x1c]`, the same as March's expression order.
+
+**What landed.**
+- **APPLY.**
+  - `CX2World::SetGravityAndSpeedRate` is now out of line (`X2World.cpp`), and March's inline store is kept in `X2World.h`'s `#else`.
+  - It stores the rate. Then, only in a `GT_DUNGEON` game, it does a `dynamic_cast<CX2DungeonGame*>`. If the cast succeeds, it walks `GetUnitList()` (NULL
+    skipped) and calls the new `CX2GameUnit::ApplyJuneWorldGravityRate`.
+  - The walk (`327cab80`) is inlined, so `X2Game.h` is untouched.
+  - The apply function re-checks `g_pX2Game` and `GetWorld()`. Then it takes a one-time backup: `m_JuneWorldRateBackupPhysicParam` and
+    `m_bJuneWorldRateBackupTaken`, plain members cleared only in the ctor (not `ReInit`). Then it sets reload / G / max G = backup x rate.
+  - The Lua binding `X2Main.cpp:3696` is unchanged and binds the out-of-line member.
+  - The setter writes one `JUNE_FX C3n` line per call (under `SERV_IRUHADEV_OFFLINE`).
+- **TRIM.** `ResetPhysicParam`'s walk / run / jump / dash-jump x rate goes to `#else`. The NPC `CommonStateStart` always writes G / DOWN accel: the state
+  value, else the Org value, x rate x magic. It stores SPEED_X / SPEED_Y unscaled.
+- **Scope check.** March has no other reader of the rate: grep of `X2Lib` / `KTDXLIB` finds only `ResetPhysicParam` and the NPC block.
+
+**Hygiene** (`flagcheck --worktree --files <the 6 files>`):
+- `APPLY`: RESULT PASS. 2 PASS, 1 PASS~ (`X2World.cpp`: the blank separator line), 3 OTHER (Always.h; `X2GameUnit.cpp` / `X2GUNPC.cpp` carry `TRIM`). 0 deleted, 0 encoding changes.
+- `TRIM`: RESULT PASS. 1 PASS (`X2GUNPC.cpp`), 5 OTHER (`APPLY`'s files). 0 deleted.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,502,592 B, dated 2026-10-09 22:58:15, md5 3bb8764c4cffdf9a699924fca9efa8e7`. Built at `5463f49` plus C3n plus a peer's uncommitted C3e-2 edits.
+The UTF-16 `JUNE_FX C3n SetGravityAndSpeedRate ...` string is in the deployed exe (offset `0x10231a0`), so the APPLY side compiled in.
+
+**How to see it in game.** It is dormant: no script sets the rate, so the regression play-test should show no change and no `JUNE_FX C3n` line. Positive test
+from the dev console (END key, auth level 3), in a dungeon: `g_pX2Game:GetWorld():SetGravityAndSpeedRate( 0.5 )`. Both bindings exist: `X2Main.cpp:3931`
+`GetWorld`, and the `g_pX2Game` decl in `X2GameEdit.cpp:958`. Falls get slower, and the log line shows `game type 2` (`GT_DUNGEON`) with the unit count.
+`( 1.0 )` restores the backup values. The NPC SPEED/accel and ResetPhysicParam scaling apply only after a reset / state start at a rate != 1, and those
+use MAGIC (JUNE_BUGS 150).
+
+No questions for the user.
 ---
 
 ## C4 - 8b, damage math

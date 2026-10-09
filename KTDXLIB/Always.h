@@ -6416,6 +6416,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-09
+// Description: June effect completion C3n. June's live re-apply of the world gravity rate ( March's DEEP_WATER_DUNGEON_TEST CX2World rate ):
+//              the Lua setter CX2World::SetGravityAndSpeedRate ( June 32800800 ) stops being an inline store; in a GT_DUNGEON game it walks the unit
+//              list ( 327cab80 ) and calls CX2GameUnit::ApplyJuneWorldGravityRate ( 32296290 ): a one-time PhysicParam backup, then reload / G accel /
+//              max G speed = backup x rate ( no MAGIC, no != 1 test; JUNE_BUGS 149 / 150 ). Dormant: no March or June script calls the setter.
+//              Log tag: JUNE_FX C3n ( one line per setter call ).
+#define SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June effect completion C3n. June's trims of the world gravity rate: CX2GameUnit::ResetPhysicParam ( June 322886a0 ) scales only
+//              the three gravity fields ( March's walk / run / jump / dash-jump x rate are gone ), and CX2GUNPC::CommonStateStart ( 327ac9d0
+//              @327add8a-327ade13 ) always writes G / DOWN accel ( the state value, else the Org value, x rate x magic ) and stores SPEED_X / SPEED_Y
+//              unscaled. At rate 1.0 ( every shipped script ) nothing changes.
+#define SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
 // Description: June effect completion C3e-2. June's START / WIN / LOSE variant index N: the roll ( June 31fe22d0, March's
 //              InitStateCommonRandom ) also stores each list's picked index in a map ( +0x8aac, keys USI_START / WIN / LOSE ) and clears the
 //              by-chat flag ( +0x8abc ); StateChange ( 320348c0 @320348dc -> 31fea640 ) and DoStateEndStart ( 3203c3a0 @3203c449-3203c536 ) re-bind the
