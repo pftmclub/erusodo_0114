@@ -11454,8 +11454,19 @@ BYTE CX2Game::GetEffectAlphaCondition( CX2GameUnit* pOwner )
 		bool bMine = false;
 		if( CX2GameUnit::GUT_USER == pOwner->GetGameUnitType() )
 			bMine = pOwner->IsMyUnit();
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER
+		else if( CX2GameUnit::GUT_NPC == pOwner->GetGameUnitType() )
+		{
+			// An AI-party bot stands in for another player, not for my summon: never "mine", so its effects take the team category.
+			if( true == IsOfflinePartyBotUID( (int) pOwner->GetUnitUID() ) )
+				bMine = false;
+			else
+				bMine = ( static_cast<CX2GUNPC*>( pOwner )->GetOwnerGameUnitUID() == pMyUnit->GetUnitUID() );
+		}
+#else SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER
 		else if( CX2GameUnit::GUT_NPC == pOwner->GetGameUnitType() )
 			bMine = ( static_cast<CX2GUNPC*>( pOwner )->GetOwnerGameUnitUID() == pMyUnit->GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER
 
 		if( true == bMine )
 			byResult = CKTDXApp::AEACBO_MY_EFFECT;

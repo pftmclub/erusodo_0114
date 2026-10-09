@@ -32265,6 +32265,11 @@ void    CX2GUNPC::SetOwnerGameUnit( CX2GUUser* pOwnerGameUnit_ )
     // as NAT_ALLY NPCs owned by my unit, so they are my summons here too (category 2): their bodies, weapons and effects fade with MY_EFFECT_ALPHA.
     if ( NULL != g_pX2Game )
         m_byEffectAlphaCondition = g_pX2Game->GetEffectAlphaCondition( pOwnerGameUnit_ );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER
+    // An AI-party bot's body and weapon never fade (a real other player's do not): category 0, not its owner's.
+    if ( NULL != g_pX2Game && true == g_pX2Game->IsOfflinePartyBotUID( (int) GetUnitUID() ) )
+        m_byEffectAlphaCondition = 0;
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 }
 #endif  X2OPTIMIZE_UNITTYPE_BUG_FIX

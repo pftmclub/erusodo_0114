@@ -6398,3 +6398,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION needs SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE ( the PlayEmotion effect-set tag )
 #endif
 //////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June effect completion C10b-2, play-test finding (user, 2026-10-09). June gives every NPC owned by my unit the category "mine" (a summon), so the
+//              offline AI-party bots (NAT_ALLY NPCs owned by my unit) faded their whole body and weapon with MY_EFFECT_ALPHA. A real other player is a user unit:
+//              only their skills fade, with MY_TEAM_EFFECT_ALPHA, and their body never does. With this flag an AI-party bot is treated as a teammate: its body and
+//              weapon never fade and its effects take the team category (3, or 4 if its team differs from mine). Off = June's summon rule.
+#define SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER
+#if defined(SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER) && !defined(SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION)
+#error SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER needs SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#endif
+#if defined(SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER) && !defined(SERV_IRUHADEV_AIPARTY_PERSIST)
+#error SERV_IRUHADEV_JUNE_EFFECT_ALPHA_PARTY_BOT_AS_PLAYER needs SERV_IRUHADEV_AIPARTY_PERSIST ( CX2Game::IsOfflinePartyBotUID )
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
