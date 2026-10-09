@@ -6691,6 +6691,7 @@ void CX2GUUser::DoStateEndStart()
 
 #ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		/// June 3203c3a0 @3203c449-@3203c531: after the old state's StateEnd, before the Now state data copy: Now nowState 9 / 0xb / 0xc re-binds to list[ Now N % size ]
+		/// ( C3e-2 ports this pick: the Phase 6b "not ported" note below names 31fd65f0 as out of the buff port's scope, not as a decision against it )
 		JuneRebindCommonRandomState( static_cast<int>( m_FrameDataNow.syncData.nowState ), static_cast<UCHAR>( m_FrameDataNow.syncData.ucCommonRandomIndex ) );
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		//m_FrameDataNow.unitCondition.nextState	= GUSI_NONE;
@@ -32374,14 +32375,12 @@ void CX2GUUser::InitStateCommonRandom( OUT std::string &tableNameStartUTF8, OUT 
 
 /// June 31fd65f0( state, tableName ), reached only from the re-binds: LOSE's OnEventProcess ( +0x44 / +0x48 ) = 320718d0 while the by-chat flag is set, else cleared
 /// ( no March LOSE state registers one ); then MakeTableReference( name, state ). June's last step, re-registering the entry with its protect registry
-/// ( +0x7cfc == 1 -> 31c594b0 ), has no March counterpart. An empty name is logged and skipped ( June logs 334730a0 and goes on ).
+/// ( +0x7cfc == 1 -> 31c594b0: an anti-tamper checksum refresh of the edited state data ), has no March counterpart. An empty name is logged and June goes on
+/// ( @31fd662b-@31fd6641: log 334730a0, then the LOSE delegate and MakeTableReference ); March's MakeTableReference( "" ) reads a nil global and changes nothing.
 void CX2GUUser::JuneUpdateCommonRandomState( int iState, const std::string& strTableName )
 {
 	if( true == strTableName.empty() )
-	{
-		ErrorLogMsg( XEM_ERROR142, L"JUNE_FX C3e-2 JuneUpdateCommonRandomState: empty table name, state not re-bound" );
-		return;
-	}
+		ErrorLogMsg( XEM_ERROR142, L"JUNE_FX C3e-2 JuneUpdateCommonRandomState: empty table name, the table reference is left as it was" );
 
 	if( USI_LOSE == iState )
 	{
@@ -32439,14 +32438,12 @@ void CX2GUUser::JuneRebindCommonRandomStateOnStateChange( int iState )
 	JuneRebindCommonRandomState( iState, ucIndex );
 }
 
-/// June 320718d0 -> 31fcd0b0, the LOSE state's OnEventProcess while the by-chat flag is set: once the animation ends ( +0x2ac ), StateChange( 0x82, false ) -- June's
-/// *_WAIT_STATE_CHANGE state, which March does not have ( C9h-4g ), so it is entered only if some class registered it -- then CommonEventProcess ( vslot 0x7d4 ).
-/// June reads the alternate skin ( +0x8e84 ) when +0x8e90 is set, else m_pXSkinAnimFuture; March has no alternate skin. Nothing sets the flag in March.
+/// June 320718d0 -> 31fcd0b0, the LOSE state's OnEventProcess while the by-chat flag is set (June's class Inits also register it as WIN's, C9h-4g): once the
+/// animation ends ( June reads the alternate skin +0x8e84 when +0x8e90 is set, else m_pXSkinAnimFuture; byte +0x2ac ) it enters June's state 0x82 = *_WAIT_STATE_CHANGE,
+/// then CommonEventProcess ( vslot 0x7d4 ). That state has no March id yet: in March 0x82 is an ordinary class state ( USI_END = 0x5b ), so the state change is not
+/// made until C9h-4g gives *_WAIT_STATE_CHANGE an id and points it here (C3e-2 review). Nothing sets the by-chat flag in March.
 void CX2GUUser::JuneRandomLoseEventProcess()
 {
-	const UserUnitStateDataMap::key_type kWaitStateChange = 0x82;
-	if( NULL != m_pXSkinAnimFuture && true == m_pXSkinAnimFuture->IsAnimationEnd() && m_StateList.end() != m_StateList.find( kWaitStateChange ) )
-		StateChange( static_cast<int>( kWaitStateChange ), false );
 
 	CommonEventProcess();
 }

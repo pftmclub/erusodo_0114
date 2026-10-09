@@ -1077,6 +1077,39 @@ A peer's build (it held the lock) compiled this worktree; my own `build.py` then
 
 **Open for the user:** none.
 
+### C3e-2 - Review (2026-10-10, Opus 5.5 high; two code fixes, same flag)
+
+**Verdict: correct against June except two transcription errors, both fixed** under `SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE` (`X2GUUser.cpp` only). Neither changes anything the play-test saw.
+
+1. **Roll `31fe22d0`: matches.** Byte counters `[esp+0x11..0x13]`, incremented only on a non-match (`JL` = `rand()%100 < acc`), so a miss stores the size; draws START, WIN, LOSE;
+   then map `+0x8aac`[9 / 0xb / 0xc] with `+0x8abc = 0` after each store; `RET 0xc`. 12 callers. The Eve Init (`329ba9c0`) binds **all three**: START `@329babf1`, WIN `@329bacc3`,
+   **LOSE `@329bad8e`** (the Done note / funcmap said START and WIN; corrected). March's nine Inits bind all three as well, so no class file needed an edit.
+2. **StateChange re-bind `31fea640`: matches.** Map hit: BL = map[state], Future `+0x7f98` written only if it differs; miss: BL = 0, no write. One caller (`320348c0 @320348dc`, right after
+   the riding-pet reset). March's 3-argument StateChange makes no nested StateChange call, which matches June (no second caller, no vtable user).
+3. **DoStateEndStart: matches.** `@3203c449` runs after the old state's `EndTable` (`@3203c444`): Now N low byte, `nowState & 0xffff`, before `@3203c536`. `31fd65f0` has exactly four
+   callers (`31fea640` x3, `3203c531`), so June's DoStateEndStartFuture has no counterpart. A line in the block now says C3e-2 supersedes Phase 6b's "not ported" note (a scope deferral).
+4. **`31fd65f0`: fix 1.** On an empty name June logs `334730a0` and **goes on** (`@31fd662b-@31fd6641`) to the LOSE delegate and `MakeTableReference`. March returned early. Now it logs
+   and goes on. `MakeTableReference( "" )` is a no-op in March: `Get` reads a nil global and it returns false before `rawseti`. Clearing LOSE's `OnEventProcess` is safe: an empty `srutil::delegate0`
+   has `stub_ptr == 0`, so `!= NULL` is false, the same as `Init()` leaves it, and no March class registers a LOSE `OnEventProcess` (all nine read).
+   `31c594b0` (`+0x7cfc == 1`) refreshes an anti-tamper checksum of a registered block (it finds the entry and recomputes `+0x14`). Nothing reads data through it, so leaving it out is right.
+5. **Delegate `31fcd0b0`: fix 2.** The body matches (`disasm_range.py`: `+0x8e90 ? +0x8e84 : +0x87d0`, byte `+0x2ac == 1` -> vslot `0x5c( 0x82, 0 )`, `jmp` vslot `0x7d4`). But the port's guard
+   `m_StateList.find( 0x82 )` is always true in March: `USI_END` = 0x5b (`enumprobe.py`), so 0x82 is an ordinary class state, and a by-chat LOSE would have jumped into it.
+   June's `*_WAIT_STATE_CHANGE` has no March id, so the state change is now not made (only `CommonEventProcess`); C9h-4g re-points it once the state has an id. It was unreachable either way (nothing sets the flag).
+6. **N on the wire: matches.** Serialize `32d5c2e0`: change test `byte [prev+0x75] != [this+0x75]` -> `0x40000000` (`@32d5c55c`), written last (`@32d5c792`, 1 byte). Deserialize `32d5be30`:
+   `0x40000000` last (`@32d5c1ba`, packet `+0x75`). The flag is a DWORD, `All` includes the bit, ctor / `Reset()` (= ctor) zero it, the sender copies it, `SetData` copies it, and Future -> Now goes through `FrameData::operator=` (whole `SyncData`).
+7. **Play-test log (re-read): PASS as recorded.** 32 lines, 0 EXCEPTION. **JUNE_BUGS 151 / 152 cannot fire on March data:** all 165 START / WIN / LOSE lists in the nine
+   data036 class scripts (read-only decompile) sum to exactly 100, and none is empty.
+8. **Routing.** Backlog Stage 21 is correct (it depends on C9h-4g for state 0x82). **The C9h-4g kickoff lacked the WIN item:** `320718d0` is WIN's `OnEventProcess` in all 12 June class Inits
+   (xrefs; `push 0xb` after it, 3 spot-checked). Added there as item 4: the engine delegate is ours, its WIN registration and the 0x82 target go with `*_WAIT_STATE_CHANGE`.
+
+**Hygiene.** Phase range before the fix (`--range f3f13d0^..HEAD`): `files: 4 PASS, 0 PASS~, 1 DEFINE, 6 OTHER (C3n bfadac6), 0 FAIL, 0 ERROR`, `0 deleted`, `RESULT: PASS`.
+Fix (`--worktree --files X2Lib/X2GUUser.cpp`): `1 PASS`, `11 deleted line(s)` = this flag's own earlier lines, `RESULT: PASS`. The post-commit range is in the commit's STATUS row.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,502,592 B, dated 2026-10-10 05:31:24, md5 4a9c0c237b66046b655ea936d3781040, equal to X2/US_SERVICE/x2.exe (2026-10-10 05:31:18); built at mods/june-buff-port 13ed5f2 + 1 uncommitted code file(s).`
+The new log string is in the exe (UTF-16), and the old one is gone.
+
+**Play-test (regression, optional):** one jtLordKnight dungeon run: the same `roll` / `rebind` pairs as before. To see LOSE, lose a PvP match against the AI heroes **while alive**. LOSE is entered only from
+`X2PVPGame.cpp:531` -> `Lose()` with HP > 0. Expect `rebind state 12` lines with the rolled LOSE index and table, and no crash. **Open for the user:** none.
+
 ## C3e-3 - identify: June's per-attacker hit-stop and the state-skip flag (A)
 
 **Status: ready (found by C3e, 2026-10-09). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3e-3.md`.

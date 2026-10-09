@@ -27,5 +27,10 @@ C9h-4f's decode found three June-only blocks that no STATUS row owns (rule: a Ju
    `USI_EVENT_SNIPER_END` when the timer RUNS OUT, `3200d1d0` creates NPC `0x10f6` = `NUI_NEIL_THE_SNIPER_EVENT` (own unit only; the line-map distance call `31c5f090` is inferred) and sends the target `NEIL_THE_SNIPER_*` NPC to its DYING state; `3200d1d0` is also named for registration `0x76` (GUN_DANCE_INIT): re-check). They are June states March has no enum row for: design the id placement
    with `C3d-2`'s ids (`USER_STATE_ID16`), then port the handlers; the per-class registration of `*_WAIT_STATE_CHANGE` is a char-port item (checklist 7h), the shared EventProcess is ours.
    Check first whether any March script or class can reach them at all; if none can, port the engine handler and leave the registration to the class ports (no invented data).
+4. **WIN's `OnEventProcess` and the `0x82` target** (added by the C3e-2 review). June's delegate `320718d0` -> `31fcd0b0` (anim end -> `StateChange( 0x82 )`, then `CommonEventProcess`)
+   is registered as **WIN's** `OnEventProcess` by all 12 June class Inits (xrefs to `320718d0`; e.g. Eve `329bac9e`, followed by `push 0xb`); March's WIN registers none. The engine side is
+   ported as `CX2GUUser::JuneRandomLoseEventProcess` (C3e-2; LOSE uses it only while the chat flag is set), but its state change is **disabled**: in March `0x82` is an ordinary class state
+   (`USI_END` = 0x5b). Once item 3 gives `*_WAIT_STATE_CHANGE` a March id, point the delegate's state change at it. The per-class WIN registration goes with item 3's registration
+   (a char-port item, checklist 7h).
 
 Done means: each piece ported under its own flag with a funcmap row, or a row saying why it stays unported; June scripts are not touched.
