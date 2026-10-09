@@ -426,7 +426,7 @@ March files are not mass-converted, because June replaces them.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| L0 | ready (no code: data217 pilot, pack + decode-back compare, then user copy OK + play-test) | Sonnet 5.5 / high, then user play-test | - | `kom_contents/data217_kom`, `tools/data/lua_source_ledger.tsv` (new) | `L0.md` |
+| L0 | packed + copied 2026-10-09 (decode-back 6/6, rollback proven); **waiting on user play-test** (world map, Ranox + Special local maps), then `check logs` for KEM_ERROR72/73 | Sonnet 5.5 / high, then user play-test | - | `kom_contents/data217_kom`, `tools/data/lua_source_ledger.tsv` (new) | `L0.md` |
 | L1 | waiting (L0) | Sonnet 5.5 / high | L0 | `tools/kom.py`, `tools/luasrc.py` (new), `.claude/skills/x2-lua/` (new), `.claude/skills/elstools/`, `.claude/skills/x2-phase/`, CLAUDE.md, `tools/README.md` | `L1.md` |
 | L2 | waiting (L1) | Opus 5.5 / **xhigh** | L1 | `tools/luasrc.py`, `june2017_re/ljdiff/`, `.claude/skills/x2-lua/` | `L2.md` |
 | L2 review | waiting (L2) | Opus 5.5 / high | L2 | review only | `L2-review.md` |

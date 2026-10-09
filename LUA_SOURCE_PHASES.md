@@ -259,6 +259,21 @@ local-map dialogs all have an exact `.src.lua`, so semantic risk is zero.
 
 Write a Done note, start the ledger with these 6 rows (tier T0, source `src.lua`, phase L0), and commit.
 
+**Done note (2026-10-09, Sonnet 5.5): code-side gate passed, play-test pending.**
+- **T0:** all 6 `.src.lua` compile byte-identical to the shipped `X.lua`. The vendored luajit needs `LUA_PATH=<luajit dir>\?.lua` or it
+  dies with "jit.* modules not installed"; its stdout CRLF is the usual artefact, undone before comparing. The sidecars are CRLF with no BOM.
+- **Snapshot:** `24965799\kom_contents_bytecode\data217_kom\` (all 13 files, sha1-verified against the originals before staging) and
+  `data217_packed_prepilot.kom` beside it (md5 equals the live kom's before the copy).
+- **Stage and pack:** each `X.lua` is `EF BB BF` + the sidecar text; sidecars removed; manifest unchanged (`"2"`).
+  `PACK OK data217`: 6 entries, 8047 bytes, algos `{'2': 6}`.
+- **Decode back:** `elstools extract` of the packed kom equals the staged files, 6 of 6 (`.build\lua_source_l0\decoded`). The packer
+  does not compile on the fly (settles `LANOX_TROUBLESHOOTING.md:258`).
+- **Rollback:** a scratch copy of the snapshot packs to a kom byte-identical to `data217_packed_prepilot.kom`.
+- **Copy:** `COPY OK data217 ... 8047 bytes, 6 entries, md5 9fb43f49f066485bd080bd86f722ee6b`; the old kom is in
+  `kom_backup_tools\data217.kom.20261009_083925`.
+- **Ledger:** `tools/data/lua_source_ledger.tsv` started with the 6 rows (`source_sha1` = sidecar text without the BOM).
+- **Still owed:** the user's play-test (world map, Ranox local map, Special local maps) and the `KEM_ERROR72/73` check in `ErrorLog.txt`.
+
 ## Phase L1 - Conversion tooling, pack gate, compile fold, skill `x2-lua`
 
 **Scope.** Write the conversion tool and its skill, and make `kom.py` enforce the format.
