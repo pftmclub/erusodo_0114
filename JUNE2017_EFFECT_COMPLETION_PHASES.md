@@ -1644,7 +1644,7 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 ## C3l - identify, then port: June's SPEED_TIME additions
 
-**Status: done 2026-10-10 (see "C3l - Done"); regression play-test and review pending. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3l.md`.
+**Status: done 2026-10-10 (see "C3l - Done"), play-test passed; review pending. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3l.md`.
 
 - **Scope:** June loads the user's SPEED_TIME through `31fe3a60`. `SPEED_TIME_ULTIMATE` wins when `31fca8e0(...)` `+0x178` is set, and the parser
   `31fe2740` reads a 5th TIME_SPEED column (a bool at `+0x10`). Identify the gate and the column's reader (`CommonFrameMoveFuture` `32061bf0`),
@@ -1698,6 +1698,8 @@ rows, all 4 columns with iFlag 1-3, and none of them is a June adoption. **Nothi
 **In game.** Nothing new to see. Dashes, skills with scripted speed bursts and slides on slopes should move exactly as before, and `offline_server.log`
 has no `JUNE_FX C3l` line. Hand-off: `arasss` (Ara Yama Raja): Z Z Z, dash X, double jump forward (iFlag 2 rows) and dash, jump, Z X
 (`ASI_DASH_JUMP_COMBO_ALD_ZX`, iFlag 3) on a flat and a sloped line; `python tools/logs.py --grep "JUNE_FX C3l"` must show 0 lines.
+
+**Play-test (2026-10-10): PASSED** (user; exe ca7fe237, `arasss` unit 24 in a battle field (Elder entrance), combos / dash / jump moves as handed off). Logs read: run after the deploy, 0 `JUNE_FX C3l` lines as expected, 0 EXCEPTION, only the baseline E_DISABLE_HB_CHECK_REQ UNHANDLED (x3), clean exit with census. The per-move check is the user's report (no log names unit states).
 
 ## C3m - identify: June's world-physics scale and its PhysicParam backup
 
