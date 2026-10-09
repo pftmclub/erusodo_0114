@@ -6295,3 +6295,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (PVP_HERO_* / TIME_CHUNG* DAMAGE_AIR_FALL = -4000). Log tag: JUNE_FX C3g (offline_server.log).
 #define SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June effect completion C3h. June's APPLY_MOVEMENT_SPEED state key (user CommonStateStartFuture
+//              320506f0 @32054181, a bool read at every state start, miss = false). June keeps it as the first
+//              byte of PhysicParam (+0x300); ported as a PhysicParam field so the three m_PhysicParam =
+//              m_OrgPhysicParam copies clear it, as June's rep movsd copies do (322a5f90, 322886a0, 31fcde30).
+//              When set, the state's x speeds follow the movement-speed buffs: rate = GetWalkSpeed() (31e4f990)
+//              / fWalkSpeed scales nowSpeed.x, passiveSpeed.x (unless -1) and every SPEED_TIME vSpeed.x at state
+//              start (@3205419d-320542b9), and PhysicProcess's x decay (32015b30 @320168b8 / @32016927) every
+//              frame. The minor unit's copy (+0x36c) is Lu/Ciel's (checklist 7o): not ported. Live data: Ara
+//              ASI_AIRIAL_DASH only (June class script, not in March yet). Log tag: JUNE_FX C3h.
+#define SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
+//////////////////////////////////////////////////////////////////////////

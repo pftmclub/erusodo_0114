@@ -468,7 +468,12 @@ user half does nothing until a class port brings June's state tables. Carry the 
 - **Lu/Ciel's minor unit.** June integrates a second PhysicParam (`+0x36c`; `MINOR_UNIT_PASSIVE_SPEED_X/Y`, its `APPLY_MOVEMENT_SPEED`
   copied from the main one) in step with the main one (funcmap `32015b30 @3201745a-32017861 (C3g)`). March has no minor unit; it comes
   with the Lu/Ciel port (backlog Stage 8). June builds the limit for it and then ignores it (JUNE_BUGS 142): keep that verbatim.
-- **Ara's `APPLY_MOVEMENT_SPEED = TRUE`** (one state, `Ara_Martial_Artist.src.lua:7334`) needs the engine field first: june-effect C3h.
+- **Ara's `APPLY_MOVEMENT_SPEED = TRUE`** (one state, `ASI_AIRIAL_DASH`, `Ara_Martial_Artist.src.lua:7334`; it also carries
+  `PASSIVE_SPEED_X = INIT_PHYSIC.RUN_SPEED * 1.5`). The engine side is ported by june-effect C3h (`SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED`):
+  at state start, the state's `nowSpeed.x`, `PASSIVE_SPEED_X` and every `SPEED_TIME` x speed are scaled by `GetWalkSpeed() / fWalkSpeed`
+  (the movement-speed buffs), and so is the state's x decay every frame. Carry the key over with Ara's June table, verbatim; it does nothing
+  until then. The minor unit's half (June copies the bool to `+0x36c` and scales the minor speeds and `MINOR_UNIT_SPEED_TIME`; its decay
+  uses the main unit's `GetWalkSpeed()` over the minor unit's own `fWalkSpeed`) comes with Lu/Ciel (funcmap `(C3h)` rows `3205419d`, `32015b30 @32016996`).
 
 ### 7p. Hit-stop class sites and the time-stop immune state (from June effect completion C3e-3)
 

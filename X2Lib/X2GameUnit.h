@@ -1053,6 +1053,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			float			fRunSpeed;		/// 달리기 속도
 			float			fJumpSpeed;		/// 일반 점프 상승속도
 			float			fDashJumpSpeed;	/// 대시 점프 상승속도
+#ifdef SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
+			/// June APPLY_MOVEMENT_SPEED ( C3h ): June's PhysicParam +0x00 ( unit +0x300; June's struct is 0x34 bytes ). Kept in the
+			/// struct so every whole-struct copy carries it, as in June; placed last ( nothing in March depends on the offset ).
+			bool			bJuneApplyMovementSpeed;
+#endif SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 
 //			float			fSpeedFactor;	/// 걷기, 달리기, 점프, 대시 점프 속도에 곱해진다. fix!! 근데 현재 구현은 이동속도에만 적용되도록 되어있다??
 
@@ -1085,6 +1090,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				fRunSpeed		= 0.0f;
 				fJumpSpeed		= 0.0f;
 				fDashJumpSpeed	= 0.0f;
+#ifdef SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
+				bJuneApplyMovementSpeed	= false;	/// June CX2GameUnit ctor 322a2700 @322a3184 ( bl = 0 )
+#endif SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 				
 //				fSpeedFactor	= 1.f;
 

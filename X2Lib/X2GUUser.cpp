@@ -14911,6 +14911,32 @@ void CX2GUUser::CommonStateStartFuture()
 
 	LUA_GET_VALUE( m_LuaManager, "PASSIVE_SPEED_X", m_PhysicParam.passiveSpeed.x, -1.0f );
 	LUA_GET_VALUE( m_LuaManager, "PASSIVE_SPEED_Y", m_PhysicParam.passiveSpeed.y, -1.0f );
+#ifdef SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
+	/// June CommonStateStartFuture 320506f0 @32054181-320542b9 ( C3h ): after SPEED_X/Y, PASSIVE_SPEED_X/Y and the SPEED_TIME lists
+	/// ( 31fe3a60 ), in every state start ( miss = false ). When set, rate = GetWalkSpeed() ( 31e4f990 ) / fWalkSpeed, stored as a float,
+	/// scales nowSpeed.x ( also when the state set no SPEED_X ), passiveSpeed.x unless IsSamef( x, -1 ) ( 31c7b640 ) and vSpeed.x of
+	/// every SPEED_TIME entry whatever its flag. June then copies the byte to the minor unit ( +0x36c ) and scales its nowSpeed.x,
+	/// passiveSpeed.x ( |x - (-1)| > FLT_EPSILON ) and MINOR_UNIT_SPEED_TIME list ( +0x8604 ): Lu/Ciel's, checklist 7o, not ported.
+	LUA_GET_VALUE( m_LuaManager, "APPLY_MOVEMENT_SPEED", m_PhysicParam.bJuneApplyMovementSpeed, false );
+	if ( true == m_PhysicParam.bJuneApplyMovementSpeed )
+	{
+		const float fJuneMoveRate = GetWalkSpeed() / m_PhysicParam.fWalkSpeed;
+		m_PhysicParam.nowSpeed.x *= fJuneMoveRate;
+		if ( false == IsSamef( m_PhysicParam.passiveSpeed.x, -1.f ) )
+			m_PhysicParam.passiveSpeed.x *= fJuneMoveRate;
+		for ( UINT uiJune = 0; uiJune < m_vecSpeedFactor.size(); ++uiJune )
+			m_vecSpeedFactor[uiJune].vSpeed.x *= fJuneMoveRate;
+
+		static int s_iJuneC3hLines = 0;
+		if ( s_iJuneC3hLines < 32 )
+		{
+			++s_iJuneC3hLines;
+			CX2OfflineLog::Server( L"JUNE_FX C3h user state %d: APPLY_MOVEMENT_SPEED rate %.3f ( GetWalkSpeed %.1f / fWalkSpeed %.1f ), nowSpeed.x %.1f, passiveSpeed.x %.1f, %d SPEED_TIME",
+				GetFutureStateID(), fJuneMoveRate, GetWalkSpeed(), m_PhysicParam.fWalkSpeed, m_PhysicParam.nowSpeed.x,
+				m_PhysicParam.passiveSpeed.x, static_cast<int>( m_vecSpeedFactor.size() ) );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 
 
 
@@ -21975,12 +22001,31 @@ void CX2GUUser::PhysicProcess()
 		positive = false;
 	if( positive == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
+		/// June PhysicProcess 32015b30 @320168b8-320168fc ( C3h ): with APPLY_MOVEMENT_SPEED the decay is scaled by GetWalkSpeed()
+		/// ( 31e4f990 ) / fWalkSpeed, recomputed every frame. The sign test and both clamps are March's ( x87 run, C3h ).
+		if ( true == m_PhysicParam.bJuneApplyMovementSpeed )
+		{
+			const float fJuneMoveRate = GetWalkSpeed() / m_PhysicParam.fWalkSpeed;
+			m_PhysicParam.nowSpeed.x -= m_PhysicParam.fReloadAccel * m_fElapsedTime * fJuneMoveRate;
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 		m_PhysicParam.nowSpeed.x -= m_PhysicParam.fReloadAccel * m_fElapsedTime;
 		if( m_PhysicParam.nowSpeed.x <= 0.0f )
 			m_PhysicParam.nowSpeed.x = 0.0f;
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
+		/// June PhysicProcess @32016927-32016969 ( C3h ): the negative branch, same scale.
+		if ( true == m_PhysicParam.bJuneApplyMovementSpeed )
+		{
+			const float fJuneMoveRate = GetWalkSpeed() / m_PhysicParam.fWalkSpeed;
+			m_PhysicParam.nowSpeed.x += m_PhysicParam.fReloadAccel * m_fElapsedTime * fJuneMoveRate;
+		}
+		else
+#endif SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED
 		m_PhysicParam.nowSpeed.x += m_PhysicParam.fReloadAccel * m_fElapsedTime;
 		if( m_PhysicParam.nowSpeed.x > 0.0f )
 			m_PhysicParam.nowSpeed.x = 0.0f;

@@ -1150,12 +1150,59 @@ The review needs no play-test; the C3g regression play-test already passed.
 
 ## C3h - port: June's APPLY_MOVEMENT_SPEED (PhysicParam's new first field)
 
-**Status: ready (found by C3g, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3h.md`.
+**Status: code done 2026-10-09 (regression play-test pending), found by C3g. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3h.md`.
 
 - **Scope:** a bool user state key (`320506f0 @32054181`) June stores as the new first byte of its PhysicParam (`+0x300`) and copies to the minor
   unit's (`+0x36c`). PhysicProcess's x decay scales by `31e4f990()` / walk speed when it is set. Identify every reader and port the engine side; the
   minor unit's copy is Lu/Ciel's (checklist 7o). June data: one Ara state.
 - **Exit:** funcmap rows `Effect C3h`; flag `SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED`; regression play-test.
+
+### C3h - Done (2026-10-09, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED` (`KTDXLIB/Always.h`, end). funcmap: 12 new `(C3h)` rows; the `(C3g)` candidate row is closed. Checklist 7o was updated.
+
+**What June does.**
+- **Default.** The bool is the first byte of June's PhysicParam (`+0x300`). The ctor sets it to 0 (`322a2700 @322a3184`).
+- **Parse.** `CommonStateStartFuture` reads it at **every** state start (`320506f0 @32054181`; a miss stores false). The read comes after
+  SPEED_X/Y, PASSIVE_SPEED_X/Y and the SPEED_TIME lists. When it is set, `@3205419d-320542b9` computes `rate = GetWalkSpeed() / fWalkSpeed`
+  (`31e4f990` = March's `CX2GameUnit::GetWalkSpeed()`: the walk states store it straight into `nowSpeed.x`) and scales three things:
+  - `nowSpeed.x`, always;
+  - `passiveSpeed.x`, unless it is `-1` (`IsSamef`);
+  - every SPEED_TIME entry's `vSpeed.x`.
+
+  So a state's scripted x speeds follow the movement-speed buffs.
+- **Decay.** `PhysicProcess` (`32015b30 @320168b8` / `@32016927`) multiplies the x decay `fReloadAccel * elapsed` by the same rate, every frame.
+- **Clearers.** The only other writers are the three Org -> PhysicParam whole-struct copies: Init `322a5f90`, ResetPhysicParam `322886a0` and
+  RidingOffEnd `31fcde30`. Org's byte is always 0, so each copy clears the flag.
+- **Not readers.** The other `+0x300` hits (a checksum, other classes' fields, NPC AI pointer arguments, `32010440`'s pointer) are not readers.
+  Each one is listed in the funcmap rows.
+
+**x87, settled by running June's bytes.** I used a popping `fldz; fcomp` harness, because `x87test.make_func` leaks one stack slot per call and
+reads "unordered" after 8 calls. The sign test is `x >= 0` (NaN negative), the positive clamp is `x <= 0 -> 0` and the negative clamp is
+`x > 0 -> 0` (NaN kept in both). All three are March's own compares, so June changes only the decay term.
+
+**What is in.**
+- **The field.** `PhysicParam::bJuneApplyMovementSpeed` (last field; struct ctor sets it false). It is a struct field, **not the plain member the
+  kickoff asked for**, because the whole-struct copies are its writers. March has the same three copies (`X2GameUnit.cpp:731`, `:4179`,
+  `X2GUUser.cpp:38618`), so the field gets June's clears with no extra call sites. `ResetPhysicParam` also runs mid-state (`X2DungeonGame.cpp:733`).
+- **The parse and rescale** are in `CommonStateStartFuture`, after PASSIVE_SPEED_Y.
+- **The decay** is in PhysicProcess: an `if` before each of March's two decay lines, which stay in place as the `else`.
+- **Log.** `JUNE_FX C3h user state %d: APPLY_MOVEMENT_SPEED rate ...`, the first 32 state entries that carry the key.
+
+**Not ported, routed.**
+- **The minor unit** (byte copy to `+0x36c`, its speeds, `MINOR_UNIT_SPEED_TIME`, its decay): Lu/Ciel, checklist 7o.
+- **June's SPEED_TIME loader and parser** (`31fe3a60` / `31fe2740`: `SPEED_TIME_ULTIMATE`, a 5th TIME_SPEED column): no phase owned them -> **C3l**.
+- **`32296290`**, a world-physics scale that backs PhysicParam up once to a June-only block at `+0x334`. It never copies it back, so the bool is
+  unaffected, but it is unidentified -> **C3m**.
+
+**June data and reach.** One state in the June files: Ara `ASI_AIRIAL_DASH` (`PASSIVE_SPEED_X = RUN_SPEED * 1.5`). March's class scripts carry
+no such key, so nothing sets it today. The engine half reaches play with the Ara port (checklist 7o), and the play-test is a regression check.
+
+**Hygiene.** `flagcheck --worktree --files` (the 3 files): `2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; 0 deleted lines; 0 encoding changes. RESULT PASS.
+
+**Deploy.** DEPLOY OK: X2_offline.exe is 19,456,512 B, dated 2026-10-09 16:20:16, md5 192ac6b58ea0453f94e82c3a84eb838e, equal to X2/US_SERVICE/x2.exe (2026-10-09 16:20:09); built at mods/june-buff-port 1b12baa + 7 uncommitted code file(s) (C3h's 3, plus a peer's uncommitted C3i-family flags in Always.h / X2GUNPC / X2Game / X2DamageEffect). Strings checked in the deployed exe: `JUNE_FX C3h user state` (UTF-16) and `APPLY_MOVEMENT_SPEED` present.
+
+**In game.** There is nothing new to see. Dashes, runs and slides should stop exactly as before, and `offline_server.log` has no `JUNE_FX C3h` line.
 
 ## C3i - port: June's NOT_UP_STATE in the NPC reaction cases
 
@@ -1177,6 +1224,23 @@ The review needs no play-test; the C3g regression play-test already passed.
 
 - **Scope:** June never increments `m_FlyCount` (`+0xdf8`): no write except zeroes, so the `/( m_FlyCount - 1 )` lift damping is dead in June. March still counts RT_UP / FLY / DRAG_UP.
 - **Exit:** funcmap rows `Effect C3k`; flag `SERV_IRUHADEV_JUNE_FLY_COUNT`; juggle play-test.
+
+## C3l - identify, then port: June's SPEED_TIME additions
+
+**Status: ready (found by C3h, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3l.md`.
+
+- **Scope:** June loads the user's SPEED_TIME through `31fe3a60`. `SPEED_TIME_ULTIMATE` wins when `31fca8e0(...)` `+0x178` is set, and the parser
+  `31fe2740` reads a 5th TIME_SPEED column (a bool at `+0x10`). Identify the gate and the column's reader (`CommonFrameMoveFuture` `32061bf0`),
+  then port them. The `MINOR_UNIT_*` lists are Lu/Ciel's (checklist 7o).
+- **Exit:** funcmap rows `Effect C3l`; flag `SERV_IRUHADEV_JUNE_SPEED_TIME`; regression play-test.
+
+## C3m - identify: June's world-physics scale and its PhysicParam backup
+
+**Status: ready (found by C3h, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3m.md`.
+
+- **Scope:** `32296290` backs PhysicParam up once (`+0x300` -> `+0x334`, flag `+0x368`) and scales fReloadAccel / fGAccel / fMaxGSpeed by a factor
+  from global `3372c0fc` (vslot `0x90`, `+0x184`). Decide whether this is March's `GetGravityAndSpeedRate` block moved or a June-only system.
+- **Exit:** funcmap rows `Effect C3m`; a Done note; a port phase if June-only behaviour exists.
 
 ---
 
