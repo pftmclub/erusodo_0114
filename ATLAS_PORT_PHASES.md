@@ -980,6 +980,12 @@ cost, then commit on mods/elysion-port.
    `InitWarpList`/`CreateWarpDest` pairs + `Village_1008` controls in
    `DLG_Destination.lua` and `datai014/DLG_Destination_byButton.lua`, and the
    return-scroll case if A1a says June has one. Chat `atlas` → 1008.
+   **Changed 2026-10-09:** `DLG_Destination.lua` (data034) is already June's whole file (ljconv bytecode, MODS
+   "June partial ports replaced"), `Village_1008` included. `DLG_Destination_byButton.lua` (datai014) is **March's
+   merged copy on purpose**. June's whole file drops `Village_1000` / `Village_1002` (Elder and Altera rest), and
+   March's `CX2StateMenu::InitWarpList` dereferences both unchecked, so pressing B crashed. With June's
+   `InitWarpList`/`CreateWarpDest` ported here, adopt June's whole `DLG_Destination_byButton.lua` (`kom.py stage-june` +
+   ljconv) instead of adding `Village_1008` by hand; the Elder and Altera rest stops then leave Cobo, as in June.
 6. **World map:** June's Elysion block (`DLG_UI_World_Map_NEW.src.lua:1842-2080`)
    — the rest + F01/F02 pins land here; the cloud static's `AddDummyInt(99999)`
    placeholder (`M14 …World_Map_NEW.src.lua:2315`) becomes the real VMI.

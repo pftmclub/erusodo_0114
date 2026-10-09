@@ -122,4 +122,4 @@ DLG_Map_Local_Ranox_Icon_NEW.lua	data217	same as June	missing 0	43482c0e7f951a0f
 DLG_Map_Local_Special.lua	data217	merged/partial	missing 4 DUNGEON_ID.DI_2017_ERDA DUNGEON_ID.DI_ADD_CENTER DUNGEON_ID.DI_HERO_DUMMY_COMMON DUNGEON_ID.DI_SPACE_OF_THOUGHT_DUMMY	7c918299ad72ea4b5c8decd6a88922dd4fd6da5b
 DLG_Map_Local_Special_Back_NEW.lua	data217	same as June	missing 0	4bafdb69563026ceb72bda822fbd73f7668a2c67
 DLG_Map_Local_Special_Icon_NEW.lua	data217	merged/partial	missing 4 DUNGEON_ID.DI_2017_ERDA DUNGEON_ID.DI_ADD_CENTER DUNGEON_ID.DI_HERO_DUMMY_COMMON DUNGEON_ID.DI_SPACE_OF_THOUGHT_DUMMY	8ebf63a99ade2ff6e918da1a06057fbf0d86606e
-DLG_Destination_byButton.lua	datai014	merged/partial	missing 0	fd2a03f5a274730b2ae0f6df998ad553c8ea38f7
+DLG_Destination_byButton.lua	datai014	REVERTED to March (Cobo crash, Atlas A5)	missing 0	fd2a03f5a274730b2ae0f6df998ad553c8ea38f7
