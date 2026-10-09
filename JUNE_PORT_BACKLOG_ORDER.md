@@ -61,6 +61,7 @@ The user's remaining backlog, in the order they listed it:
 | 18 | NPC friendship system *(added 2026-10-08, june-effect C9h-5)* | - (found by june-effect C9h-5) | Not a backlog item but a missing system: June's per-NPC friendship (likeability) manager `32696fa0`, its gift / level-up / daily-reward talks, the friendship talk sequencer and the friendship marks on village NPCs. Every reach is gated on code event 2215, which the offline emulator never enables. Elysion E1 ports the gated call sites in `CX2TFieldNpc`. |
 | 19 | June event dungeons *(added 2026-10-08, june-effect C10d)* | - (found by june-effect C10d) | Not a backlog item but missing content: June's event dungeons (e.g. `DI_EVENT_2017_TREASURE` 41470 and `DI_EVENT_ALCHEMY_LAB` 41350) carry engine gimmicks in `DamageReact`, a `CX2Game` manager and June-only NPC classes (`CX2GUKiddayNPC`). March has none of these dungeon IDs; its highest is 41311. Nothing reaches them until the dungeons themselves are ported. |
 | 20 | Damage-number customization *(added 2026-10-09, june-effect C3e)* | - (found by june-effect C3e) | Not a backlog item but a missing system: June's damage-number skin items (Damage Custom A / B / Critical, Christmas, Nature) pick the font of the numbers a character deals, and the user sync carries the choice to other players. March has none of it. It depends on Stage 13 (the item ids) and touches no other stage's files. Numbered 20 to keep the earlier numbers stable. |
+| 21 | Photozone *(added 2026-10-09, june-effect C3e-2)* | - (found by june-effect C3e-2) | Not a backlog item but a missing game state: June's `XS_PHOTOZONE_LOBBY` (0x19) / `XS_PHOTOZONE_GAME` (0x1a), where the chat box's WIN / LOSE commands re-roll the start / win / lose motion. March has no Photozone. Numbered 21 to keep the earlier numbers stable. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -580,6 +581,20 @@ Found by june-effect C3e (funcmap row `31fe0f60 / 31fe9ff0 / 31fcfb10 (C3e)`). W
   - how the items are owned (inventory lookup `32869c80`).
 
 **Depends on:** Stage 13 (the item ids, done). It touches no other stage's files.
+
+### Stage 21: Photozone (june-effect C3e-2, 2026-10-09)
+
+Found by june-effect C3e-2 (funcmap rows `31ec2700 @31ec6187-31ec66db (C3e-2)`, `31d6fd60`). What June has and March lacks:
+- **The states:** `XS_PHOTOZONE_LOBBY` 0x19 and `XS_PHOTOZONE_GAME` 0x1a (March's `X2_STATE` ends at `XS_WEDDING_GAME`).
+- **The chat commands** (chat box handler `31ec2700`, only while `g_pMain +0x8c == 0x1a` and my unit exists):
+  - the typed text equal to string `0xabeb` (44011) picks `rand() % size` of the WIN list, calls `JuneSetCommonRandomStateIndex( USI_WIN, index, true )`
+    and, unless riding, `StateChange( USI_WIN )`;
+  - string `0xabec` (44012) does the same for LOSE.
+- **What is already in March** (june-effect C3e-2): the roll, the re-bind on StateChange / DoStateEndStart, N in the user sync, and the setter
+  `CX2GUUser::JuneSetCommonRandomStateIndex`, uncalled. The LOSE re-bind sets `OnEventProcess` = `JuneRandomLoseEventProcess` while the by-chat flag is set.
+- **Still to identify:** the Photozone's lobby, scene, UI and entry path; the two command strings in June's string table.
+
+**Depends on:** C9h-4g for June's `*_WAIT_STATE_CHANGE` state (the delegate's target, state `0x82`). It touches no other stage's files.
 
 ## Open decisions that gate stages
 

@@ -1179,6 +1179,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	m_bJuneBoundingStatesReady = false;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+	m_bJuneCommonRandomByChat = false;
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 
 #ifdef HYPER_MODE_FIX
 	m_iLastStateHyperModeCount	= 0;
@@ -6686,6 +6689,10 @@ void CX2GUUser::DoStateEndStart()
 			m_LuaManager.EndTable();
 
 
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+		/// June 3203c3a0 @3203c449-@3203c531: after the old state's StateEnd, before the Now state data copy: Now nowState 9 / 0xb / 0xc re-binds to list[ Now N % size ]
+		JuneRebindCommonRandomState( static_cast<int>( m_FrameDataNow.syncData.nowState ), static_cast<UCHAR>( m_FrameDataNow.syncData.ucCommonRandomIndex ) );
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		//m_FrameDataNow.unitCondition.nextState	= GUSI_NONE;
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
@@ -7830,6 +7837,10 @@ bool CX2GUUser::StateChange( int state, bool bDirectChange )
 	if ( NULL != m_ptrRidingPet )
 		m_ptrRidingPet->ResetOnGroundChangedState();
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+	/// June 320348c0 @320348dc -> 31fea640, right after the riding-pet reset and before every early return: Future N = map[ state ], then the re-bind
+	JuneRebindCommonRandomStateOnStateChange( state );
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 
 #ifndef BALANCE_ELEMENTAL_MASTER_20130117		/// 버프에 있는 엠피 회복 기능을 사용하므로, 해당 부분은 필요 없다.
 #ifdef FIX_MEDITATION_RUN
@@ -24688,6 +24699,9 @@ void CX2GUUser::SendFrameData()
 #ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
                 kXPT_UNIT_USER_SYNC.m_fClassSkillFloat = pSyncData->fClassSkillFloat;
 #endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+                kXPT_UNIT_USER_SYNC.m_ucCommonRandomIndex = pSyncData->ucCommonRandomIndex;
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
                 BYTE* pByBuffer = &bySerialized[0];
                 kXPT_UNIT_USER_SYNC.Serialize( pByBuffer, &kLastSync );
 //#else   X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -32312,6 +32326,132 @@ void CX2GUUser::SetInputData( InputData* pInputData )
 //
 //
 
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+/// C3e-2 log line ( ErrorLog.txt ): JUNE_FX C3e-2 <what> state <id> index <n> ( list size <n> ) table <name>
+static void JuneC3e2Log( const WCHAR* wszWhat, int iState, int iIndex, int iListSize, const char* pszTable )
+{
+	WCHAR wszJuneFx[256] = {0};
+	StringCchPrintfW( wszJuneFx, ARRAY_SIZE(wszJuneFx), L"JUNE_FX C3e-2 %s state %d index %d ( list size %d ) table %hs",
+		wszWhat, iState, iIndex, iListSize, ( NULL != pszTable ) ? pszTable : "" );
+	ErrorLogMsg( XEM_ERROR142, wszJuneFx );
+}
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+
+/// June 31fe22d0 ( RET 0xc: this + three OUT strings, as March's ): one weighted rand() % 100 pick per list, in START, WIN, LOSE order.
+/// The index stored is the count of entries walked before the match, so a miss ( percents below 100 ) stores the list size; the out
+/// string then stays empty ( March's ASSERT ) and the first re-bind picks list[ size % size ] = list[ 0 ] ( JUNE_BUGS ).
+void CX2GUUser::InitStateCommonRandom( OUT std::string &tableNameStartUTF8, OUT std::string &tableNameWinUTF8, OUT std::string &tableNameLoseUTF8 )
+{
+	const std::vector< CommonRandomState >* apList[3] = { &m_vecRandomStartState, &m_vecRandomWinState, &m_vecRandomLoseState };
+	std::string* apTableName[3] = { &tableNameStartUTF8, &tableNameWinUTF8, &tableNameLoseUTF8 };
+	const int aiState[3] = { USI_START, USI_WIN, USI_LOSE };
+
+	for( int i = 0; i < 3; ++i )
+	{
+		const int iRandomPercent = rand() % 100;
+		int iAccumulatedPercent = 0;
+		UCHAR ucIndex = 0;
+		for( std::vector< CommonRandomState >::const_iterator it = apList[i]->begin(); it != apList[i]->end(); ++it )
+		{
+			iAccumulatedPercent += it->m_iPercent;
+			if( iRandomPercent < iAccumulatedPercent )
+			{
+				*apTableName[i] = it->m_StateName;
+				break;
+			}
+			++ucIndex;
+		}
+		ASSERT( false == apTableName[i]->empty() );
+
+		m_mapJuneCommonRandomIndex[ aiState[i] ] = ucIndex;
+		m_bJuneCommonRandomByChat = false;		/// June clears +0x8abc after each store
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		JuneC3e2Log( L"roll", aiState[i], static_cast<int>( ucIndex ), static_cast<int>( apList[i]->size() ), apTableName[i]->c_str() );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+	}
+}
+
+/// June 31fd65f0( state, tableName ), reached only from the re-binds: LOSE's OnEventProcess ( +0x44 / +0x48 ) = 320718d0 while the by-chat flag is set, else cleared
+/// ( no March LOSE state registers one ); then MakeTableReference( name, state ). June's last step, re-registering the entry with its protect registry
+/// ( +0x7cfc == 1 -> 31c594b0 ), has no March counterpart. An empty name is logged and skipped ( June logs 334730a0 and goes on ).
+void CX2GUUser::JuneUpdateCommonRandomState( int iState, const std::string& strTableName )
+{
+	if( true == strTableName.empty() )
+	{
+		ErrorLogMsg( XEM_ERROR142, L"JUNE_FX C3e-2 JuneUpdateCommonRandomState: empty table name, state not re-bound" );
+		return;
+	}
+
+	if( USI_LOSE == iState )
+	{
+		UserUnitStateDataMap::iterator itState = m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( iState ) );
+		if( itState != m_StateList.end() )
+		{
+			if( true == m_bJuneCommonRandomByChat )
+				itState->second.OnEventProcess = SET_CB_FUNC( CX2GUUser, JuneRandomLoseEventProcess );
+			else
+				itState->second.OnEventProcess = GUStateCBFunc();
+		}
+	}
+
+	m_LuaManager.MakeTableReference( strTableName.c_str(), iState );
+}
+
+/// June 31fea640 cases 9 / 0xb / 0xc and 3203c3a0 @3203c449-@3203c531: list[ N % size ] of the state's list ( June divides by the size; March's empty list is skipped )
+void CX2GUUser::JuneRebindCommonRandomState( int iState, UCHAR ucIndex )
+{
+	const std::vector< CommonRandomState >* pList = NULL;
+	if( USI_START == iState )
+		pList = &m_vecRandomStartState;
+	else if( USI_WIN == iState )
+		pList = &m_vecRandomWinState;
+	else if( USI_LOSE == iState )
+		pList = &m_vecRandomLoseState;
+	else
+		return;
+
+	if( true == pList->empty() )
+	{
+		ErrorLogMsg( XEM_ERROR142, L"JUNE_FX C3e-2 re-bind skipped: the state's list is empty ( June would divide by zero )" );
+		return;
+	}
+
+	const CommonRandomState& kState = (*pList)[ ucIndex % pList->size() ];
+	JuneUpdateCommonRandomState( iState, kState.m_StateName );
+#if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	JuneC3e2Log( L"rebind", iState, static_cast<int>( ucIndex ), static_cast<int>( pList->size() ), kState.m_StateName.c_str() );
+#endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+
+/// June 31fea640 ( from StateChange 320348c0 @320348dc ): N = map[ state ] when the state is a key ( then written to Future N only if it differs ), else 0 and Future N
+/// is left alone; only START / WIN / LOSE re-bind.
+void CX2GUUser::JuneRebindCommonRandomStateOnStateChange( int iState )
+{
+	UCHAR ucIndex = 0;
+	std::map< int, UCHAR >::const_iterator itIndex = m_mapJuneCommonRandomIndex.find( iState );
+	if( itIndex != m_mapJuneCommonRandomIndex.end() )
+	{
+		ucIndex = itIndex->second;
+		if( static_cast<UCHAR>( m_FrameDataFuture.syncData.ucCommonRandomIndex ) != ucIndex )
+			m_FrameDataFuture.syncData.ucCommonRandomIndex = ucIndex;
+	}
+	JuneRebindCommonRandomState( iState, ucIndex );
+}
+
+/// June 320718d0 -> 31fcd0b0, the LOSE state's OnEventProcess while the by-chat flag is set: once the animation ends ( +0x2ac ), StateChange( 0x82, false ) -- June's
+/// *_WAIT_STATE_CHANGE state, which March does not have ( C9h-4g ), so it is entered only if some class registered it -- then CommonEventProcess ( vslot 0x7d4 ).
+/// June reads the alternate skin ( +0x8e84 ) when +0x8e90 is set, else m_pXSkinAnimFuture; March has no alternate skin. Nothing sets the flag in March.
+void CX2GUUser::JuneRandomLoseEventProcess()
+{
+	const UserUnitStateDataMap::key_type kWaitStateChange = 0x82;
+	if( NULL != m_pXSkinAnimFuture && true == m_pXSkinAnimFuture->IsAnimationEnd() && m_StateList.end() != m_StateList.find( kWaitStateChange ) )
+		StateChange( static_cast<int>( kWaitStateChange ), false );
+
+	CommonEventProcess();
+}
+
+#else SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 void CX2GUUser::InitStateCommonRandom( OUT std::string &tableNameStartUTF8, OUT std::string &tableNameWinUTF8, OUT std::string &tableNameLoseUTF8 )
 {
 
@@ -32359,6 +32499,7 @@ void CX2GUUser::InitStateCommonRandom( OUT std::string &tableNameStartUTF8, OUT 
 	}
 	ASSERT( false == tableNameLoseUTF8.empty() );
 }
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 
 bool CX2GUUser::DoScaleHeadBone()
 {
@@ -36662,6 +36803,9 @@ void CX2GUUser::SyncData::SetData( const KDYNAMIC_UNIT_USER_SYNC& SyncPacket, DW
 #ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 	fClassSkillFloat		= SyncPacket.m_fClassSkillFloat;	/// June 3201f5f0: syncData +0x58 from packet +0x2a
 #endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+	ucCommonRandomIndex		= SyncPacket.m_ucCommonRandomIndex;	/// June 3201f5f0: syncData +0x90 from packet +0x75
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 }
 

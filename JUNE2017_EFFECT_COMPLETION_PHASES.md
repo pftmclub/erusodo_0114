@@ -1022,6 +1022,56 @@ Kickoff `kickoffs/june-effect/C3e-2.md`.
   - N's SyncData member and bit `0x40000000` (last on the wire).
 - **Exit:** the start / win motion varies between runs (log tag `JUNE_FX C3e-2`); the chat command identified, then ported or routed.
 
+### C3e-2 - Done (2026-10-09, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE`, `KTDXLIB/Always.h` (end; needs `JUNE_BUFF_NEW_FINALIZER`'s 32-bit field flag, `#error` otherwise). Log tag `JUNE_FX C3e-2`.
+Funcmap rows `(C3e-2)`: `june2017_re/funcmap.tsv`. JUNE_BUGS 151 / 152. Backlog Stage 21 (Photozone).
+
+**What landed** (`X2GUUser.cpp` / `.h`, `X2UDPPacket.cpp` / `.h`; no class file touched)
+- **The roll `31fe22d0`:** its stack is `RET 0xc` with three OUT strings (Ghidra dropped them), i.e. March's own `InitStateCommonRandom` signature. So the
+  nine class Inits needed no edit: the body is replaced under `#ifdef / #else original / #endif`. Same draws, same order; it also stores each list's
+  index in `m_mapJuneCommonRandomIndex` (June `+0x8aac`, keys `USI_START` / `WIN` / `LOSE`) and clears `m_bJuneCommonRandomByChat` (`+0x8abc`).
+  The class Inits then bind the rolled START / WIN names **once**, as before (`329babf1` / `329bacc3`).
+- **StateChange re-bind `31fea640`** (only caller `320348c0 @320348dc`; the 3-argument StateChange has none): `JuneRebindCommonRandomStateOnStateChange`,
+  first thing after the riding-pet block of `StateChange( int, bool )`. A map hit writes Future N (only if it differs); START / WIN / LOSE then re-bind to `list[ N % size ]`.
+- **DoStateEndStart re-bind** (`3203c449-3203c531`): from Now nowState and Now N, before `m_NowStateData` is copied.
+- **`31fd65f0`** = `JuneUpdateCommonRandomState`: LOSE's `OnEventProcess` (`+0x44` / `+0x48`) is set to `JuneRandomLoseEventProcess` while the by-chat flag is set, else cleared
+  (no March LOSE registers one), then `MakeTableReference( name, state )`. June's trailing protect-registry call (`31c594b0`) has no March counterpart.
+- **N in the sync:** `SyncData::ucCommonRandomIndex` (`KProtectedType<UCHAR>`, 0), `m_ucCommonRandomIndex`, bit `1 << 30` in the enum and in `All`, change test,
+  Serialize / Deserialize **after** BuffSyncCount (last on the wire), sender copy, SetData. `SyncData` has no hand-written copy, so it reaches Now by struct copy.
+- **The setter `31ecd040`** = `JuneSetCommonRandomStateIndex( state, index, byChat )`, public, uncalled in March.
+
+**The kickoff's open items, answered**
+- *Does June bind once in InitState before the first re-bind?* Yes. The first bind is March's; the re-binds then use the same index, so with no setter caller a re-bind
+  picks the table Init bound. The roll only happens at unit creation, as in March: **the observable START / WIN variety is unchanged**, and the log is the proof.
+- *The `+0x44` / `+0x48` delegate:* OnEventProcess = thunk `320718d0` -> `31fcd0b0`. When the skin anim ends (`+0x2ac`) it calls `StateChange( 0x82, false )`, then `CommonEventProcess`.
+  `0x82` is June's `*_WAIT_STATE_CHANGE` (C9h-4f, not in March). June's class InitState also registers this delegate as **WIN's** OnEventProcess, always (corrects funcmap row
+  `31fd8350`, which called it a frame move): not ported, it is C9h-4g. The LOSE delegate is ported and guarded (`StateChange( 0x82 )` only if a class registered it); nothing sets the flag.
+- *The chat command:* handler `31ec2700` (vtable `33458f98`) compares the typed text with string `0xabeb` (44011, WIN) or `0xabec` (44012, LOSE). It is gated on
+  `g_pMain +0x8c == 0x1a` = **`XS_PHOTOZONE_GAME`** (row `31d6fd60`), which March does not have. Not ported; new backlog **Stage 21: Photozone**.
+
+**Deviations from June (both logged / in JUNE_BUGS)**
+- Empty list: June divides by zero (#152); March skips the re-bind and logs it. An empty name is skipped the same way.
+- A roll miss stores the list size (#151, kept verbatim).
+
+**Hygiene** (`flagcheck --worktree --files`, 5 files)
+```
+files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR   (OTHER = Always.h: it also holds a peer's uncommitted C3n flags)
+in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+RESULT: PASS
+```
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,502,592 B, dated 2026-10-09 22:58:15, md5 3bb8764c4cffdf9a699924fca9efa8e7, equal to X2/US_SERVICE/x2.exe (2026-10-09 22:58:11); built at mods/june-buff-port 5463f49 + 10 uncommitted code file(s).`
+A peer's build (it held the lock) compiled this worktree; my own `build.py` then found nothing to relink. Both `JUNE_FX C3e-2` format strings are in the exe (UTF-16 search). The exe carries a peer's C3n files too.
+
+**Play-test (log read, no koms needed)**
+1. Start the offline client, log in as **jtLordKnight** (Elsword, Lord Knight, level 80), enter any dungeon, clear it. Also **jtCodeEmpress** (Eve) once if time allows.
+2. Say "check logs". I read `python tools/logs.py --grep "JUNE_FX C3e-2"` (ErrorLog.txt).
+- Look for: per unit creation, three `roll` lines (state 9 / 11 / 12: index, list size, table); at the dungeon start a `rebind state 9` with the same index and table, and at the clear a `rebind state 11`
+  (again once from StateChange, once from DoStateEndStart). Same index and table as the roll on every pair = pass. Different table = a miss (#151). Any `list is empty` line = #152.
+- Not testable here: the chat commands (Photozone) and the LOSE delegate (flag never set).
+
+**Open for the user:** none.
+
 ## C3e-3 - identify: June's per-attacker hit-stop and the state-skip flag (A)
 
 **Status: ready (found by C3e, 2026-10-09). Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3e-3.md`.

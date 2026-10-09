@@ -869,6 +869,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 			KProtectedType<float>	fClassSkillFloat;	/// C3e-1: June's class-skill float ( syncData +0x58; protected slot Future +0x7ed8 / Now +0x8178 ), default 0
 #endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+			KProtectedType<UCHAR>	ucCommonRandomIndex;	/// C3e-2: June's START / WIN / LOSE variant index N ( syncData +0x90; protected slot Future +0x7f98 / Now +0x8238 ), default 0
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			DWORD				dwBuffSyncCount;	/// June buff port Phase 8: the buff-change counter (June +0x7e68 Future / +0x8108 Now, syncData +0x34)
@@ -921,6 +924,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 				fClassSkillFloat		= 0.0f;
 #endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+				ucCommonRandomIndex		= 0;
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 				dwBuffSyncCount			= 0;
@@ -1902,6 +1908,12 @@ public:
 		float						GetClassSkillFloat() const			{ return m_FrameDataNow.syncData.fClassSkillFloat; }
 
 #endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+		/// C3e-2: June's setter 31ecd040( state, index, byChat ): the picked index of one of USI_START / USI_WIN / USI_LOSE and the by-chat flag ( +0x8abc ).
+		/// Its only June caller is the chat box's WIN / LOSE command, which June allows in XS_PHOTOZONE_GAME only ( 31ec2700 @31ec63be / @31ec65db, g_pMain +0x8c == 0x1a ); March has no such state, so nothing calls it.
+		void						JuneSetCommonRandomStateIndex( int iState, UCHAR ucIndex, bool bByChat )	{ m_mapJuneCommonRandomIndex[ iState ] = ucIndex; m_bJuneCommonRandomByChat = bByChat; }
+
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		virtual const D3DXVECTOR3&		GetLandPos( bool bFuture = false ) const
 		{
 			if( true == bFuture )
@@ -3244,6 +3256,12 @@ public:
 
 
 		void InitStateCommonRandom( OUT std::string &tableNameStartUTF8, OUT std::string &tableNameWinUTF8, OUT std::string &tableNameLoseUTF8 );
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+		void JuneUpdateCommonRandomState( int iState, const std::string& strTableName );		/// June 31fd65f0
+		void JuneRebindCommonRandomState( int iState, UCHAR ucIndex );							/// June 31fea640 @31fea6a0-@31fea7e0 / 3203c3a0 @3203c449-@3203c531: list[ N % size ] of START / WIN / LOSE
+		void JuneRebindCommonRandomStateOnStateChange( int iState );							/// June 31fea640
+		void JuneRandomLoseEventProcess();														/// June 320718d0 -> 31fcd0b0
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		
 		void						ProcessAcceleraterBuff( CX2SkillTree::SKILL_ID eSkillID, bool bHyperMode );	/// 엑셀레이터류 버프 시전
 		virtual	float				GetAdditionalAccelBuffTime( const CX2SkillTree::SKILL_ID eSkillID_ ) const { return 0.0f; }	/// 엑셀레이터류 버프 추가시간
@@ -4185,6 +4203,10 @@ public:
 		std::vector< CommonRandomState > m_vecRandomStartState;
 		std::vector< CommonRandomState > m_vecRandomWinState;
 		std::vector< CommonRandomState > m_vecRandomLoseState;
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+		std::map< int, UCHAR >			m_mapJuneCommonRandomIndex;		/// C3e-2: June +0x8aac, key USI_START / USI_WIN / USI_LOSE, the index the roll picked in the matching list
+		bool							m_bJuneCommonRandomByChat;		/// C3e-2: June +0x8abc, cleared by the roll, set by the setter's chat caller
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 
 
 		SPECIAL_ATTACK_KEY_PRESSED m_eSpecialAttackKeyPressed;

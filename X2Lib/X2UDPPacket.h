@@ -266,6 +266,12 @@ struct KDYNAMIC_UNIT_USER_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		eUnitUserSync_DataField_BuffSyncCount = ( 1 << 23 ),	/// June buff port Phase 8: June's bit for the buff-change counter (32d5be30 @32d5c0f8)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#error SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE needs the 32-bit sync field flag of SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		eUnitUserSync_DataField_CommonRandomIndex = ( 1 << 30 ),	/// C3e-2: June's bit 0x40000000 (32d5be30), 1 byte, last on the wire
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 		eUnitUserSync_DataField_All = eUnitUserSync_DataField_nowState | 
 													eUnitUserSync_DataField_nowAction | 
 													eUnitUserSync_DataField_stateChangeNum | 
@@ -290,6 +296,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
                                                     | eUnitUserSync_DataField_BuffSyncCount
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+                                                    | eUnitUserSync_DataField_CommonRandomIndex
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 	};
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
@@ -348,6 +357,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	DWORD				m_dwBuffSyncCount;		/// June buff port Phase 8: the sender's buff-change counter (CX2GameUnit +0x6dd0, low 32 bits), June packet +0x3d
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+	UCHAR				m_ucCommonRandomIndex;	/// C3e-2: June's START / WIN / LOSE variant index N, bit 0x40000000, packet +0x75
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
     KDYNAMIC_UNIT_USER_SYNC()
@@ -379,6 +391,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
         m_dwBuffSyncCount = 0;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+        m_ucCommonRandomIndex = 0;
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
     }
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 

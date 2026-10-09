@@ -242,6 +242,10 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
 	if( pPrevSync == NULL || pPrevSync->m_dwBuffSyncCount != m_dwBuffSyncCount )
 		m_usDataFieldFlag |= eUnitUserSync_DataField_BuffSyncCount;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+	if( pPrevSync == NULL || pPrevSync->m_ucCommonRandomIndex != m_ucCommonRandomIndex )
+		m_usDataFieldFlag |= eUnitUserSync_DataField_CommonRandomIndex;
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
     
     _Serialize( pbyBuffer, m_usDataFieldFlag );
     if ( m_usDataFieldFlag & eUnitUserSync_DataField_nowState )
@@ -296,6 +300,10 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
 	if( m_usDataFieldFlag & eUnitUserSync_DataField_BuffSyncCount )
 		_Serialize( pbyBuffer, m_dwBuffSyncCount );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+	if( m_usDataFieldFlag & eUnitUserSync_DataField_CommonRandomIndex )
+		_Serialize( pbyBuffer, m_ucCommonRandomIndex );
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 }
 
 bool    KDYNAMIC_UNIT_USER_SYNC::Deserialize( const BYTE*& pbyBuffer, const BYTE* pbyEnd )
@@ -418,6 +426,13 @@ bool    KDYNAMIC_UNIT_USER_SYNC::Deserialize( const BYTE*& pbyBuffer, const BYTE
 			return false;
 	}
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+	if ( usDataFieldFlag & eUnitUserSync_DataField_CommonRandomIndex )
+	{
+		if ( false == _Deserialize( pbyBuffer, pbyEnd, m_ucCommonRandomIndex ) )
+			return false;
+	}
+#endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 
     return true;
 }

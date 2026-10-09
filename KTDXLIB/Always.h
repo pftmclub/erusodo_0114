@@ -6413,3 +6413,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June effect completion C3e-2. June's START / WIN / LOSE variant index N: the roll ( June 31fe22d0, March's
+//              InitStateCommonRandom ) also stores each list's picked index in a map ( +0x8aac, keys USI_START / WIN / LOSE ) and clears the
+//              by-chat flag ( +0x8abc ); StateChange ( 320348c0 @320348dc -> 31fea640 ) and DoStateEndStart ( 3203c3a0 @3203c449-3203c536 ) re-bind the
+//              state's table to list[ N % size ] ( 31fd65f0 ), and N is a user-sync member ( protected slot Future +0x7f98 / Now +0x8238, syncData
+//              +0x90, packet bit 0x40000000, 1 byte, last on the wire ). Needs SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER ( the 32-bit sync field
+//              flag ). The chat box's WIN / LOSE re-roll is Photozone-only ( JUNE_BUGS / Done note ) and is not ported; the setter is.
+//              Log tag: JUNE_FX C3e-2 ( one line per roll and per re-bind ).
+#define SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+//////////////////////////////////////////////////////////////////////////
