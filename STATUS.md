@@ -132,7 +132,7 @@ today's Sonnet 5.5.
 | C3d-2 | **done 2026-10-08, play-test passed, review DONE 2026-10-08 (no code finding)** (exe 22:21 + data036 copied 22:34; all 8 checks passed, logs 0 EXCEPTION, only the baseline E_DISABLE_HB_CHECK_REQ UNHANDLED): flags `SERV_IRUHADEV_JUNE_USER_STATE_ID16` (tsv rows 1-9 + the three reserved ids + Enum.lua `USER_STATE_ID`, data036 packed, exe and kom deploy together) and `SERV_IRUHADEV_JUNE_USER_ACTION_ID16` (`nowAction` + its packet field); gate: enum probe (USI_END 91, Chung last 258 = Lua) and a `/w14244` warning diff flag off vs on; regression play-test incl. a created Deadly Chaser / Iron Paladin for ids 256-258 | Sonnet 5.5 / high | C3d-1; **not with C3c or C9h-4f** | X2GUUser.h/.cpp, X2GameUnit.h, X2UDPPacket.h/.cpp, Always.h, data036 Enum.lua (+ pack), MODS.md | `C3d-2.md`, review `C3d-2-review.md` |
 | C3d-2 review | **done 2026-10-08: no code finding; no build, no deploy** (all tsv rows as planned; flag-on `/Zs /w14244 /w14242` over 127 TUs of committed HEAD `43a1733`: no implicit user-state-id narrowing, one more action site `X2GUUser.cpp:41426` inside row 10's decision; one dead explicit cast `X2StateDungeonGame.cpp:3952` added to tsv row 12 (`OLD_COMBO_LIST_UI` undefined, `cl /P`); the 35-line shift does not reproduce (compiler is stable; the source changed between C3d-2's passes); sentinel / layout parity / Enum.lua / packed kom / Ghidra `32034a77` + `32d5be30` all confirmed). User owes nothing | Opus 5.5 / high | C3d-2 | plan doc, `c3d1_state_id_sites.tsv` row 12, STATUS (no code) | `C3d-2-review.md` |
 | C3d-3 | **code done 2026-10-09; nothing registered** (flag `SERV_IRUHADEV_JUNE_BOUNDING_STATE`): user RT_BOUNDING case, 5 handlers, `JuneInitBoundingStates`, NPC half (3 types, NOT_BOUNDING, last attacker). The invented data file and the Mars staging were REMOVED (user rule: no invented Lua); data036 / data037 pack identical to live, no copy needed; exe rebuilt. Open: June's fly counter | Sonnet 5.5 / high | C3d-2, C9h-4f, C3c | X2GUUser.h/.cpp, X2GUNPC.h/.cpp, X2GameUnit.h/.cpp, X2DamageManager.cpp, Always.h | `C3d-3.md`, review `C3d-3-review.md` |
-| C3d-4 | **ready (decision phase, no edits)**: find the best way to give the nine March classes June's `*_DAMAGE_BOUNDING_*` tables (inline edit of the bytecode-only class scripts vs leaving it to the character ports vs byte-level append vs other; no invented Lua, no hard-coded tables); recompile equivalence already proven for 8 classes, Ara has one differing constructor to settle; recommend, ask the user, then write the port kickoff C3d-5 | Opus 5.5 / high | C3d-3 | kickoffs, STATUS (no code) | `C3d-4.md` |
+| C3d-4 | **waiting (lua-source L2 review; decision phase, no edits)**: find the best way to give the nine March classes June's `*_DAMAGE_BOUNDING_*` tables (inline edit of the bytecode-only class scripts vs leaving it to the character ports vs byte-level append vs other; no invented Lua, no hard-coded tables); recompile equivalence already proven for 8 classes, Ara has one differing constructor to settle; recommend, ask the user, then write the port kickoff C3d-5 | Opus 5.5 / high | C3d-3, lua-source L2 review (user 2026-10-09) | kickoffs, STATUS (no code) | `C3d-4.md` |
 | C3d-3 review | **ready** (code-only review; waits for nothing, but its play-test legs wait for C3d-4): handlers / NPC half / last attacker against June, the open fly-count question | Opus 5.5 / high | C3d-3 | review only | `C3d-3-review.md` |
 | C3g | **ready** (found by C3d-3): port June's `SET_LIMIT_MAX_G_SPEED` (user `@32054734`, NPC `@32787303`, protected unit float `+0x40f8`; the bounding DOWN tables carry -4000) | Opus 5.5 / high | C3d-3 | X2GUUser.cpp, X2GUNPC.cpp, X2GameUnit.h/.cpp, Always.h | `C3g.md` |
 | C3e | **done 2026-10-09** (no code, no build): `june2017_re/c3e_user_sync_fields.tsv`, 15 funcmap rows `(C3e)`, 3 corrected (C3d-1's syncData bases are `+0x7e34` / `+0x80d4`; the HitCount finalizer row). 14 June-only bits, not 15 (`0x20000`-`0x80000` are one vector); bit `0x40` lastTouchLineIndex is 2 bytes in June. **Reach corrected:** SendFrameData feeds the receive list before the peer test, so every member flows Future -> Now locally; AI-party bots are NPCs, so readers gated on "not my unit" never run. Routes: C3e-1 (C 16-bit line index + G class-skill float), C3e-2 (N start / win / lose variant), C3e-3 (identify A's per-attacker hit-stop); checklist 7n (G's March-class drivers); backlog Stage 8 (B, E, F, H, I), Stage 12 (J, K), new Stage 20 (L, M damage-number skins); D not ported (buff 4b-ii). User owes nothing | Opus 5.5 / high | - | `funcmap.tsv`, `c3e_user_sync_fields.tsv`, plan doc, kickoffs, checklist 7n, backlog (no code) | `C3e.md` |
@@ -408,6 +408,39 @@ Plan `ELYSION_PORT_PHASES.md` · same branch and worktree as `atlas` · log tag 
 
 Running together: E1, E5, E6 and E7 are independent, each in its own extra worktree off `mods/elysion-port`, merged back
 E7 -> E5 -> E6 -> E1 (the plan's "Model, effort, review").
+
+## lua-source - June Lua reaches the March client as proven plaintext source
+
+Plan `LUA_SOURCE_PHASES.md` · branch `mods/june-buff-port` · log tag `[LUA_SRC]` · flag `SERV_IRUHADEV_LUA_SOURCE` (+ `_DEBUG`, L6
+only) · kickoffs `kickoffs/lua-source/` · skills `x2-lua`, `x2-adopt-june` (built here) · created 2026-10-09 (user request).
+
+**The point.** The engine already loads XOR-encrypted BOM plaintext Lua next to bytecode (binder gate `LuaCommon/KLuabinder.h:24-61`,
+parser linked), so there is no VM migration. This plan builds tools only:
+- an instruction-level equivalence checker;
+- `adopt-june`: every June `.lua` arrives as proven source, or as an exact `ljconv` fallback with a reason;
+- `convert`: a March file becomes proven source only when a port must edit it;
+- a pack gate that refuses anything else;
+- Lua errors with line numbers in ErrorLog.
+
+March files are not mass-converted, because June replaces them.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| L0 | ready (no code: data217 pilot, pack + decode-back compare, then user copy OK + play-test) | Sonnet 5.5 / high, then user play-test | - | `kom_contents/data217_kom`, `tools/data/lua_source_ledger.tsv` (new) | `L0.md` |
+| L1 | waiting (L0) | Sonnet 5.5 / high | L0 | `tools/kom.py`, `tools/luasrc.py` (new), `.claude/skills/x2-lua/` (new), `.claude/skills/elstools/`, `.claude/skills/x2-phase/`, CLAUDE.md, `tools/README.md` | `L1.md` |
+| L2 | waiting (L1) | Opus 5.5 / **xhigh** | L1 | `tools/luasrc.py`, `june2017_re/ljdiff/`, `.claude/skills/x2-lua/` | `L2.md` |
+| L2 review | waiting (L2) | Opus 5.5 / high | L2 | review only | `L2-review.md` |
+| L3 | waiting (L2 review) | Sonnet 5.5 / high | L2 review | `tools/luasrc.py`, `.claude/skills/x2-adopt-june/` (new), CLAUDE.md | `L3.md` |
+| L4 | optional, waiting (L3) | Sonnet 5.5 / high, then user decisions | L3 | report only (`june2017_re/lua_source_port_audit.tsv`) | `L4.md` |
+| L5 | conditional (only if L3/L4 show too many fallbacks; user decides) | Opus 5.5 / **xhigh** | L3 (+L4) | `june2017_re/` ljd hooks | `L5.md` |
+| L6 | waiting (L0) | Opus 5.5 / high, then user play-test (dev console) | L0 | `KTDXLIB/KTDX.h`, `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6.md` |
+| L6 review | waiting (L6) | Opus 5.5 / high | L6 | review only | `L6-review.md` |
+| L7 | waiting (L3, L6 review) | Sonnet 5.5 / high | L3, L6 review (+L4/L5 if run) | kickoffs, skills, memory, `KTDXLIB/Always.h` (`_DEBUG` off) | `L7.md` |
+
+Running together:
+- L6 alongside L1/L2 (engine files vs tools).
+- june-effect C3d-4 waits for L2 review and reads L2's class-script verdicts. Route "add now" = `convert` the nine class scripts in
+  C3d-5; route "wait" = the character ports via `adopt-june`.
 
 ## Other plans
 
