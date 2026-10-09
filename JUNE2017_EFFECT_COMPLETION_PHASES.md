@@ -1663,6 +1663,8 @@ from the dev console (END key, auth level 3), in a dungeon: `g_pX2Game:GetWorld(
 `( 1.0 )` restores the backup values. The NPC SPEED/accel and ResetPhysicParam scaling apply only after a reset / state start at a rate != 1, and those
 use MAGIC (JUNE_BUGS 150).
 
+**Play-test PASSED 2026-10-10** (user, exe `3bb8764c`). The dungeon and field regression showed no change. The console positive test logged `rate 0.500000 game type 2 units 11`, then `rate 1.000000 game type 2 units 11` in the dungeon, and `rate 0.500000 game type 3 units -1` in the field (the dungeon gate holds). 0 EXCEPTION; the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ`.
+
 No questions for the user.
 ---
 
