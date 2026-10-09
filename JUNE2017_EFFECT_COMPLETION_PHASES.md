@@ -1732,6 +1732,68 @@ has no `JUNE_FX C3l` line. Hand-off: `arasss` (Ara Yama Raja): Z Z Z, dash X, do
 
 **Play-test (2026-10-10): PASSED** (user; exe ca7fe237, `arasss` unit 24 in a battle field (Elder entrance), combos / dash / jump moves as handed off). Logs read: run after the deploy, 0 `JUNE_FX C3l` lines as expected, 0 EXCEPTION, only the baseline E_DISABLE_HB_CHECK_REQ UNHANDLED (x3), clean exit with census. The per-move check is the user's report (no log names unit states).
 
+### C3l - Review (2026-10-10, Opus 5.5 high)
+
+**Verdict: no transcription error in `688d41c`; no code change, no build, no deploy.** The deployed exe (`ca7fe237`, play-test passed) stays the live one, and nothing new needs testing. Checked against June with capstone (`disasm_range.py`, `vtslot.py`); Ghidra was not written to.
+- **Parser `31fe2740`.**
+  - It clears the list (`32073340` over begin..end), then builds `"%s%d"` (`33449104`) from index 0 and calls BeginTable `32fe9940`.
+  - Each pass re-zeroes a local 0x14-byte entry before reading it:
+
+    | Column | Field | Getter | Miss value |
+    |---|---|---|---|
+    | 1 | x | `32fea820` | 0 |
+    | 2 | y | `32fea820` | 0 |
+    | 3 | z | `32fea820` | -1.0 (`334380f0` = `0xbf800000`) |
+    | 4 | iFlag | `32fea4e0` | 0 |
+    | 5 | bool (`+0x10`) | `32fe9ed0` | `al` (0) |
+
+  - The entry is then pushed (`31cee980`), and EndTable is `32fe9a10`.
+  - The loop exits with `al = 1` at `@31fe28cd` when the first BeginTable succeeded, and `0` at `@31fe28d1` otherwise.
+  - `32fe9ed0` does pushnumber, gettable, the number test `32fe4d70` (the same test the int getter `32fea4e0` calls), tonumber, then `ftol` (`32fe25f0`) `!= 0`. That is March `KLuaManager::GetValue( int, bool& )` (`KLuaManager.cpp:696`) step for step.
+- **Loader `31fe3a60`** (called `@32053fd4` with `movzx [+0x8e90]`).
+  - With arg 1, SPEED_TIME goes to `+0x8604` and MINOR to `+0x85f4`; otherwise the reverse.
+  - The gate is `31fca8e0( Future m_eSkillID, 1 )` non-null and `[templet + 0x178] != 0`. When it holds:
+    - parse main `SPEED_TIME_ULTIMATE` (`334747d8`) into `bl`, then minor `MINOR_UNIT_SPEED_TIME_ULTIMATE` (`334747b8`) into the local flag;
+    - when `bl != 0`, skip SPEED_TIME (`334747ac`);
+    - when the minor flag is 0, parse `MINOR_UNIT_SPEED_TIME` (`33474794`).
+  - When the gate is off, SPEED_TIME and MINOR_UNIT_SPEED_TIME are read.
+  - The port's main path matches this, and the minor half stays 7o.
+- **Gate key.** The xorstring `3379e4fc` decodes to exactly `m_DeleteSkillIDByUpgrade` (24 bytes, keys `@32218535-3221865b`). Its value is written to `[EBP+0x17c]`. EBP = templet - 4 holds two independent ways:
+  - **From the map node.** `[esp+0x34] = [esp+0x448] + 0xc` (`@3221662c`). `[esp+0x448] / +0x44c` is the insert's pair<iterator, bool>, so EBP is the node's `_Myval`, the key, and the templet is at EBP + 4.
+  - **From the key read into `[EBP+0x178]` `@32217cbb`.** The key decodes to `m_ePowerRate`. `32205590` tests templet `+0x174 == 5`, and `[EBP+0x144]` (into `32207430`) is the `+0x140` vector that `32071720` reads.
+
+  The `+0x20` insert `@322186ca` pairs (key, `[EBP+0xc]` = templet `+0x8`), and `32205c00` reads it back (node `+0x10`, miss -1).
+- **Consumer `@320620ec-320623c7`.**
+  - The entry is copied to a local (`[esp+0x54..0x64]`). Like March's `TIME_SPEED timeSpeed` copy, the turned x / y never reach the vector, which is erased anyway.
+  - The tests match March: iFlag `jle`, z `< 0` skips, and anim `< z` skips; a NaN skips (C0).
+  - The bool test is `cmp byte, 1`.
+  - The angle is `fld [+0x7e0c]`, then a float round-trip, `fmul` by the double `(float)PI` (`33439ba0`), `fdiv` 180.0 (`33438080`), and a float store `@32062217`. cos and sin each go through a float store.
+  - `@32062234-38` writes x = cos·x.
+  - **The tail `@32062255-32062263`, run byte for byte on a popping x87 harness:** y = sin·x′ (deg 30, x 100, table y 7 gives y 43.3013, against a true rotation's 56.06). ST0 is left holding x′ for the switch (`fstp` / `fadd` in cases 1/2/3), and TOP is balanced. **JUNE_BUGS 153 stands, and the port's `fJuneSin * timeSpeed.vSpeed.x` is it.**
+  - **`+0x7e0c` is the Future `dirDegree.z`.**
+    - `3208dfd0` = `fld [ecx+0x80ac]`.
+    - June's own bFuture pairs are 0x2a0 apart: `GetStateTime( bFuture )` `3208e240` reads `+0x7de8 / +0x8088`, and SetAttackSuccess reads `+0x7e2c / +0x80cc`.
+    - `CommonFrameMoveFuture` itself writes `fStateTimeBack +0x7dec = fStateTime +0x7de8` and adds elapsed `+0x2b0` (`@320625fb-32062619`).
+    - So "Now - 0x2a0" is Future, not March's `m_FrameDataNowBefore`. June's unitCondition carries `dirDegree` at `+0x20`, while March's carries it at `+0x18`. The port reads the field by name, so the layout does not matter.
+  - The cos / sin thunks are bound IAT jumps (`333bc930 / 2c`). Their names rest on `31b29850`: `2b4e` lands on both diagonal slots and `2b54` / `-2b54` off the diagonal.
+- **iFlag 11 / 12 / 13.**
+  - Index bytes `32063634` = `0,1,2,6,6,6,6,6,6,6,3,4,5`, and the table `32063618` maps 1 / 2 / 3 to `32062287 / 22a8 / 22bd`, 4-10 to `32062368` (pop, default), and 11 / 12 / 13 to `320622d2 / 230c / 233a`.
+  - Each of 11 / 12 / 13 pops ST0 and calls vslot `0x778( &out, &local entry )`, i.e. the turned vector. Then:
+
+    | iFlag | Applies the vector to |
+    |---|---|
+    | 11 | `+0x304 / +0x308` with `+=` |
+    | 12 | `+0x304 / +0x308` with `=` |
+    | 13 | `+0x30c / +0x310` with `=` |
+  - `3208e1e0` copies 12 bytes and returns 8. The 12 user class vtables (offset 0) keep it, except `CX2GURose` (`32a7ab60`).
+  - March has one `JuneGetTimeSpeedVector`, in `CX2GUUser`, so nothing shadows it. `ARA_CHANGE_CLASS_FIRST` is live (`Always.h:2068`), so March case 3 exists beside case 13.
+- **Routes.** Rose's override, the minor lists, the swap, the anim clock and the minor pass are all in checklist 7o (C3l bullet). Stage 3c names the field, the `+0x20` map and the swap.
+  - **Added:** `GetSkillPowerRateValue 32071720 @32071723` is a second June reader of `m_DeleteSkillIDByUpgrade`. When the field is non-zero, it reads the power rate from the `32206fb0( 0xad, level )` lookup before the `+0x140` vector.
+  - It is a Stage 3c consumer, now named in the backlog line and in funcmap row `32071720 (C3l review)`.
+- **Cosmetic, not fixed:** the `X2GUUser.h` comment says "checklist 7", not "7o". Fix it the next time that header is touched for code, rather than rebuilding for a comment.
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_SPEED_TIME --range 688d41c^..HEAD`): `files: 3 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+
 ## C3m - identify: June's world-physics scale and its PhysicParam backup
 
 **Status: done 2026-10-09 (see "C3m - Done"; the port is C3n). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3m.md`.
