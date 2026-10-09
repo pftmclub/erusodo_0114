@@ -790,6 +790,32 @@ was not located, so whether June counts RT_BOUNDING hits there is unchecked.
 
 **Hygiene.** `flagcheck --worktree` on the changed files: PASS; the commit range pass is in the commit message of the revert. **Deploy:** see the revert commit (`DEPLOY OK` line in STATUS).
 
+### C3d-3 - Review (2026-10-09, Opus 5.5 high; code-only, two fixes)
+
+Commits `fea1dc9` + `7a5c9ad` checked against the June binary (Ghidra + `disasm_range.py`; operand sweeps over all of `.text`). funcmap rows `(C3d-3 review)`; new phases **C3i**, **C3j**, **C3k**.
+
+**1. User handlers and case: correct.** State ids by name (GUSI_END = 5: `0x78/0x79/0x7a` = BOUNDING_DOWN/LANDCRASH/UP, `0x25` AIR_DOWN_LANDING, `0x26` AIR_FALL); `StateChange( id, 0 )` in the handlers, `( id, 1 )` in the case; `+0x304/+0x308` = nowSpeed; DD `+0x3e0` = `backSpeed.y` (`+0x3dc` feeds nowSpeed.x at `@32046f6f`). LANDCRASH reads the future skin anim (or `+0x8e84`), `[+0x24c]` = `m_fAnimOneshotTimer`; `EventTimerOneshot( t )` is exactly `m_fAnimOneshotTimer < t && EventTimer( t )`. **x87 re-settled by running June's own bytes** (scratch harness, `fld/fld/fcom st(1)` and `fld/fcomp m64` on concrete floats): `31fd0291` proceeds only for value > mark (equal and NaN skip); `31fd0354` falls (0x26) only for y < 0 (-0, 0, NaN go to the landing test); `[0x334350e8]` = double 0.0. x87test's trace line "`[esp]` = mark" is a tool artifact: after `fstp st(1)` the value is on top, so `31d28e10` gets the value. Do not "fix" it.
+
+**2. NPC half: two transcription errors fixed, one gap routed.**
+- Type order 0x21/0x22/0x23 confirmed (name lengths 20/25/18); guard path `+0x8b7a`/`+0x8700` = `m_bGuard`/`m_DownDamageLandGuard` (type 0x20, `enumprobe`); `31e8ae10` = March `IsOnSomething()`; facing test (own `+0x844d`) correct.
+- **Fixed: `NOT_BOUNDING` is an NPC INIT key, not a state key.** Its read is in `327a0fa0` (= `InitComponent`, after `SHOW_DAMAGE_AT_IMPACT_POINT`), `@327a683d`. June has only three `+0x8ac6` operands: that read, the ctor's dword zero `32762c60`, and the bounding test. The port now reads it in `CX2GUNPC::InitComponent()`; the LoadStateData read, `FLAG_JUNE_NOT_BOUNDING`, the CommonStateStart re-read (both `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` branches) and the ReInit reset are gone. March never calls `CX2GUNPC::ReInit`; its one call site is commented out, `X2Game.cpp:6238`.
+- **Fixed: `+0x8ac4` is written: it is `NOT_UP_STATE`.** `327a0fa0 @327a5d52` reads a bool INIT key into it. The decoded key buffer `0x337aa208..213` = `NOT_UP_STATE` (`+0x8ac5` = `0x337aa1f4..207` = `NOT_AFFECT_BLACKHOLE`). 36 June NPC scripts set it, and they ship. The port reads it (`m_bJuneNotUpState`, after `DAMAGE_DOWN` as June does) and the RT_BOUNDING case refuses on it, in June's order. June's six other reaction cases that test it -> **C3i**.
+- **Routed: June's InitState fallbacks** (`327992a2-fd`: DOWN else `m_DownDamageAir`, LANDCRASH else type 0x13 else `m_DownDamageAir`, UP else `m_UpDamage`) were not ported by C3d-3. Not ported here: with them, `3275a070` (unconditional in CommonStateStart) would overwrite every NPC up-launch's speed with the bounding back speed. That reading is implausible for a shipped game, so it needs a trace and then a user decision -> **C3j**. Two virtuals `IsBoundingUp` / `IsBoundingLandCrash` (vslots 0x2f4 / 0x2f8) have one class-code caller each -> C3j.
+
+**3. No data: confirmed.** `grep -rn June_Bounding_States X2Lib KTDXLIB` = 0; no file in `kom_contents/data036_kom`; `PACK OK data036` / `PACK OK data037`, both `+0 added, -0 removed, ~0 changed` vs live.
+
+**4. Last attacker: correct, and JUNE_BUGS 141 withdrawn.** Stored type = attacker `+0x264` (game-unit type), UID = vslot 0x54, on both sides. June **does** guard the user store: `@32046db2 cmp [esp+0x38],0 / je 0x32046f2d` jumps past it. `[esp+0x38]` is the attacker (DD `+0xc` observer − 0x1a0, `@320463a9-b9`) and is written nowhere else. The `@32046e90` test that the first pass read as the attacker test is on a different pointer (`31c25fa0`'s result). The X2GUUser comment is corrected; the code was already June's.
+
+**5. Fly counter: closed.** `m_FlyCount` = `CX2GameUnit +0xdf8` (the `fidiv` sites). June never increments it: the only stores are ctor zeroes and two damage-path resets (`3206c7db`, `327bca82`). So June counts no RT_BOUNDING hit, and no other kind either. March still counts RT_UP/FLY/DRAG_UP -> **C3k** (June wins). The twins (`DamageReactStateChange_CheckOnly`, `BOUNDING_COMBO_TEST`) stay dead.
+
+**Hygiene.** `flagcheck JUNE_BOUNDING_STATE --worktree --files X2GUNPC.cpp X2GUNPC.h X2GUUser.cpp`: 3 PASS, 0 FAIL, 0 OTHER, 0 encoding changes, RESULT PASS. The 27 deleted lines are all C3d-3's own lines inside the flag (state-key NOT_BOUNDING read, `FLAG_JUNE_NOT_BOUNDING`, the CommonStateStart re-read with its nested `#else`/`#endif X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` rows, the ReInit block, two comment lines). The other nested `X2OPTIMIZE_*` rows (`X2OPTIMIZE_NPC_NONHOST_SIMULATION` around the NPC case's StateChange; `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` in `JuneBoundingLandCrashEventProcess`) are March's own pattern copied inside the new code, both branches present.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,451,904 B, dated 2026-10-09 15:04:24, md5 48df41bfe3fc77907e41d9e086609051` (X2Lib 0 errors). No kom: nothing to pack.
+
+**How to see it in game.** Nothing yet: no class registers the user states (C3d-4), and no shipped DamageEffect uses RT_BOUNDING. The NPC fixes change behaviour only for an RT_BOUNDING hit.
+
+**Open for the user:** C3j's decision, once its trace is done.
+
 ## C3d-4 - decide: how March's classes get June's bounding state tables
 
 **Status: done 2026-10-09 (decision, no code). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3d-4.md`.
@@ -992,6 +1018,27 @@ No staged data (user rule: no invented Lua).
   unit's (`+0x36c`). PhysicProcess's x decay scales by `31e4f990()` / walk speed when it is set. Identify every reader and port the engine side; the
   minor unit's copy is Lu/Ciel's (checklist 7o). June data: one Ara state.
 - **Exit:** funcmap rows `Effect C3h`; flag `SERV_IRUHADEV_JUNE_APPLY_MOVEMENT_SPEED`; regression play-test.
+
+## C3i - port: June's NOT_UP_STATE in the NPC reaction cases
+
+**Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3i.md`.
+
+- **Scope:** the NPC INIT key `NOT_UP_STATE` (`+0x8ac4`, read since the C3d-3 review) gates six more reaction cases in `32769060` (`@32769b1a`, `b72`, `be9`, `c41`, `cad`, `ced`). 36 shipped June NPC scripts set it.
+- **Exit:** funcmap rows `Effect C3i`; flag `SERV_IRUHADEV_JUNE_NOT_UP_STATE`; play-test on a `NOT_UP_STATE` monster.
+
+## C3j - identify, then decide: June's NPC bounding-state fallbacks
+
+**Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j.md`.
+
+- **Scope:** InitState `327992a2-fd` gives every NPC bounding states (DOWN / LANDCRASH -> `m_DownDamageAir`, UP -> `m_UpDamage`). Read literally, `3275a070` then overwrites every NPC up-launch's speed. Trace what that reading misses, port the `IsBoundingUp` / `IsBoundingLandCrash` virtuals, and hand the user the port decision.
+- **Exit:** funcmap rows `Effect C3j`; a user decision; code only after it.
+
+## C3k - port: June stopped counting fly hits
+
+**Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
+
+- **Scope:** June never increments `m_FlyCount` (`+0xdf8`): no write except zeroes, so the `/( m_FlyCount - 1 )` lift damping is dead in June. March still counts RT_UP / FLY / DRAG_UP.
+- **Exit:** funcmap rows `Effect C3k`; flag `SERV_IRUHADEV_JUNE_FLY_COUNT`; juggle play-test.
 
 ---
 

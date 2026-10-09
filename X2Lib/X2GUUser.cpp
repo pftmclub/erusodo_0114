@@ -8515,8 +8515,8 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	/// June CX2GUUser::DamageReact 320462a0 @32046f06-32046f27 ( C3d-3 ): the attacker's game-unit type ( attacker +0x264 ) and UID become this unit's
-	/// last attacker ( +0x40e8 / +0x40e0 ), read by USI_BOUNDING_UP's Lu/Ciel hook. June reads the attacker unguarded ( its @32046e90 null branch lands on
-	/// the store ); a missing attacker keeps the old value here instead of crashing.
+	/// last attacker ( +0x40e8 / +0x40e0 ), read by USI_BOUNDING_UP's Lu/Ciel hook. June guards it like this: @32046db2 tests the attacker ( [esp+0x38] ) and
+	/// jumps past the store ( 0x32046f2d ) when it is null ( C3d-3 review; JUNE_BUGS 141 withdrawn ).
 	if ( NULL != pAttackerUnit )
 		SetJuneLastAttacker( pAttackerUnit->GetGameUnitType(), pAttackerUnit->GetUnitUID() );
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE

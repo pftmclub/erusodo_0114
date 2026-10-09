@@ -1070,9 +1070,6 @@ class CX2GUNPC : public CX2GameUnit
 				FLAG_STOP_SOUND_AT_STATE_END,		/// June effect completion C9h-4b: June bit 0x4e (32784c00 @3278dacf, key STOP_SOUND_AT_STATE_END); appended, June's enum does not line up with March's
 				FLAG_CUSTOM_STATE_DELETE_SOUND,		/// June bit 0x13 (@327894a7, key CUSTOM_STATE_DELETE_SOUND), consumed by CommonStateStart @327adaa7
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
-#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-				FLAG_JUNE_NOT_BOUNDING,				/// June effect completion C3d-3: key NOT_BOUNDING ( @327a678e, bool, default false ), read into the NPC's +0x8ac6 ( m_bJuneNotBounding ); appended
-#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 				FLAG_MAX
             };
             std::bitset<FLAG_MAX>       m_bitsetFlags;
@@ -2455,7 +2452,8 @@ class CX2GUNPC : public CX2GameUnit
 		int																																								m_JuneBoundingDown;								/// June +0x8704: the DAMAGE_BOUNDING_DOWN state ( 0 when the NPC script names none )
 		int																																								m_JuneBoundingLandCrash;			/// June +0x8708: DAMAGE_BOUNDING_LANDCRASH
 		int																																								m_JuneBoundingUp;										/// June +0x870c: DAMAGE_BOUNDING_UP
-		bool																																							m_bJuneNotBounding;								/// June +0x8ac6: the state's NOT_BOUNDING; a bounding hit is ignored while it is set
+		bool							m_bJuneNotBounding;		/// June +0x8ac6: the NPC's INIT key NOT_BOUNDING ( 327a0fa0 @327a683d, = InitComponent ); a bounding hit is ignored while it is set ( C3d-3 review )
+		bool							m_bJuneNotUpState;		/// June +0x8ac4: the NPC's INIT key NOT_UP_STATE ( 327a0fa0 @327a5d52 ); the RT_BOUNDING case refuses on it ( C3d-3 review; its other reaction cases: C3i )
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		int							GetAirFallState() const { return m_AirFallState; }
 		int							GetRideStateID() const { return m_RideState; }

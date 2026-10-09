@@ -2403,7 +2403,8 @@ void CX2GUNPC::CommonConstructor()
 	m_JuneBoundingDown = 0;
 	m_JuneBoundingLandCrash = 0;
 	m_JuneBoundingUp = 0;
-	m_bJuneNotBounding = false;
+	m_bJuneNotBounding = false;		/// June's ctor 32762c60 zeroes +0x8ac4..+0x8ac7 with one dword store
+	m_bJuneNotUpState = false;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	m_bEnableEventProcess		= true;
 	m_bIsActiveMonster			= true;
@@ -3003,12 +3004,6 @@ void CX2GUNPC::ReInit( bool bUseTeamPos, int startPosIndex )
 	m_bNeverMove				= false;
 
 	m_bEnableEventProcess		= true;
-#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-	m_JuneBoundingDown = 0;
-	m_JuneBoundingLandCrash = 0;
-	m_JuneBoundingUp = 0;
-	m_bJuneNotBounding = false;
-#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	m_fCoolTime					= 0.0f;
 
@@ -4400,6 +4395,11 @@ void CX2GUNPC::InitComponent()
 
 		LUA_GET_VALUE( m_LuaManager, "FALL_DOWN",				m_bFallDown,			false	);
         LUA_GET_VALUE( m_LuaManager, "DAMAGE_DOWN",				m_bDamageDown,			true	);
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		/// June 327a0fa0 @327a5d52 ( C3d-3 review ): NOT_UP_STATE, a bool INIT key ( default false ) read right after DAMAGE_DOWN into +0x8ac4. 36 June NPC scripts set it.
+		/// The RT_BOUNDING case reads it here; June's six other reaction cases that test it are phase C3i.
+		LUA_GET_VALUE( m_LuaManager, "NOT_UP_STATE",			m_bJuneNotUpState,		false	);
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
         LUA_GET_VALUE( m_LuaManager, "SKY_DIE",				    m_bSkyDie,			    false	);
 		LUA_GET_VALUE( m_LuaManager, "DEFENCE_RATE",			m_DefenceRate,			0		);
@@ -4409,6 +4409,11 @@ void CX2GUNPC::InitComponent()
 
 		LUA_GET_VALUE( m_LuaManager, "ATTRIBUTE_EMOTION_FLAG",	m_bAttributeEmotionFlag,	true	    );		
 
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+		/// June 327a0fa0 @327a683d ( C3d-3 review ): NOT_BOUNDING is an INIT key ( bool, default false, +0x8ac6 ), read once per NPC after SHOW_DAMAGE_AT_IMPACT_POINT,
+		/// not a state key; no other June code writes +0x8ac6
+		LUA_GET_VALUE( m_LuaManager, "NOT_BOUNDING",			m_bJuneNotBounding,		false	);
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef ADD_BACKATTACK
 		LUA_GET_VALUE( m_LuaManager, "BACK_ATTACK",	m_bApplyBackAttack,		true	    );
 #endif
@@ -5291,11 +5296,6 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 
 	LUA_GET_VALUE( luaManager_, "NEVER_MOVE", bTemp,	false );
     NOWSTATE_SET_FLAG( SET_NEVER_MOVE_VALUE, bTemp );
-#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-    /// June 327a0fa0 @327a678e ( C3d-3 ): NOT_BOUNDING, a bool state key ( default false ); a state that sets it ignores RT_BOUNDING
-    LUA_GET_VALUE( luaManager_, "NOT_BOUNDING", bTemp, false );
-    NOWSTATE_SET_FLAG( JUNE_NOT_BOUNDING, bTemp );
-#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 
 	LUA_GET_VALUE( luaManager_, "DYING_END", bTemp, false );
     NOWSTATE_SET_FLAG( DYING_END, bTemp );
@@ -12988,10 +12988,10 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 		case CX2DamageManager::RT_BOUNDING:
 			{
 				/// June CX2GUNPC::DamageReactStateChange 32769060 @32769da7-32769e75 ( C3d-3 ). Ignored while super armored, never-move, NOT_BOUNDING ( +0x872b / +0x8ac6 ) or
-				/// the unnamed +0x8ac4 ( written by no NPC code: only zeroed by the ctor 32762c5f, so it never blocks ); a guarding NPC with a down-guard state takes it;
+				/// NOT_UP_STATE ( +0x8ac4, an INIT key: C3d-3 review ); a guarding NPC with a down-guard state takes it;
 				/// otherwise the attacker's facing ( June compares the NPC's OWN facing == 1 here, the user case compares the two ) mirrors BOUNDING_BACK_SPEED_X, DOWN with the
 				/// hit's back speed Y in the air, LANDCRASH with y = 0 on the ground. A state id 0 changes no state ( StateChange_Reaction_FIRST refuses it ).
-				if( IsSuperArmor() || true == m_bNeverMove || true == m_bJuneNotBounding )
+				if( IsSuperArmor() || true == m_bNeverMove || true == m_bJuneNotBounding || true == m_bJuneNotUpState )
 					break;
 
 				int iJuneBoundingState = 0;
@@ -15514,13 +15514,6 @@ void CX2GUNPC::CommonStateStart()
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	LUA_GET_VALUE( m_LuaManager, "NEVER_MOVE",	m_bNeverMove,	false );
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
-#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
-#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
-	m_bJuneNotBounding = NOWSTATE_FLAG( JUNE_NOT_BOUNDING );
-#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
-	LUA_GET_VALUE( m_LuaManager, "NOT_BOUNDING", m_bJuneNotBounding, false );
-#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
-#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
 	/// June CommonStateStart 327ac9d0 @327ad4a0-327ad527 ( C3g ): the state's StateData +0x430 goes to the unit's +0x40f8 ( assign-if-changed )
 	{
