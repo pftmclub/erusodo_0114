@@ -191,8 +191,11 @@ values, before loading the script. Otherwise **every state after the first refer
    depends on. Without it, June character damage is 0.
 4. Decide on `ADD_RENA_SYSTEM` (section 3) before touching Rena.
 5. A per-character parser census (section 5).
-6. Only then copy the character's June script, and rerun `charport_scan.py` to confirm nothing new
-   appeared.
+6. Only then bring in the character's June script with `python tools/luasrc.py adopt-june <kom> <Class>.lua`
+   (default: June's own bytecode via `ljconv`; `--dry-run` first), and rerun `charport_scan.py` to confirm nothing new
+   appeared. If the port must edit the script, first add the core-list row
+   (`luasrc.py core --add <kom> <Class>.lua --origin june --why "edit: <phase> <what>"`, no question), then `adopt-june --source`
+   (see `LUA_SOURCE_PHASES.md` Rule 2, skill `x2-adopt-june`). Never copy from `june_src_fixed/` or compile by hand.
 
 ## 7. Buff-engine hooks that only character code reads (from the June buff port, 4b-i part 3)
 

@@ -34,7 +34,7 @@ user only asked for the pack. When *you* need a kom packed for a play-test, run 
 - **WARN manifest entry has no file** - that entry is not packed; usually a typo against an unlisted file.
 - **WARN stale X.src.lua** - the `.src.lua` is newer than its `.lua`. If those edits should ship, run
   `compile` first. Never use `elstools compile-dir`: it overwrites every X.lua that has an X.src.lua,
-  including files deliberately converted another way (June `deepcopy` files via `ljconv.py`).
+  including files deliberately converted another way (June `.lua` adopted as `ljconv` bytecode, BOM-source core-list files).
 - **`compile` now FOLDS source, it no longer makes bytecode** (LUA_SOURCE_PHASES L1; skill `x2-lua`). X.lua becomes `EF BB BF` +
   the sidecar text and the sidecar is removed after the old bytecode is snapshotted to `kom_contents_bytecode/`. It folds when the
   sidecar compiles byte-identical to the current X.lua (T0) or is newer than it (an intended edit, ledger tier EDIT); it REFUSES

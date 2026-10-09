@@ -365,6 +365,11 @@ flags: the plan's "Flags" table (`LEVEL_CAP_99`, `ELYSION_PORT`, `ELYSION_SCRIPT
 Stage 1 · planned 2026-10-03, rows added 2026-10-08 (the plan predates STATUS and was never started: every Done note is empty).
 **Order (user, 2026-10-08): the june-effect plan is completed before this one starts.**
 
+**Superseded by `LUA_SOURCE_PHASES.md` (L7, 2026-10-09):** the plan doc's "Lua compile/stage" block (`elstools compile-batch`, "compiled `1B 4B 4C 81`"), its
+"Lanox lessons" compiled-Lua gate and A5's `DLG_Destination` line keep the old wording and are frozen. Use instead: `luasrc.py adopt-june` (June's file, default = `ljconv` bytecode),
+`adopt-june --source` after a `core --add` row when the phase must edit it (A5 owns the `DLG_Destination_byButton` row, A3/A7 the `DLG_Map_*` rows), `luasrc.py convert` for a March file,
+then `/elstools pack` (the pack gate replaces the compiled-header check). No hand compile or decompile.
+
 This doc owns the groundwork both halves share (worktree, census, RE maps, level cap, enums); `elysion` below assumes it.
 Phases from A1 on run inside the worktree; update these rows in the main Trunk with a path-limited commit. Before deploying from
 the worktree, check that it carries every exe-side change the live koms need ("Worktrees and the game dir" above).
@@ -379,6 +384,7 @@ the worktree, check that it carries every exe-side change the live koms need ("W
 | A4 | queued: Atlas-half script engine | Opus 5.5 / high | A1b, A3 | C++ | written on first use |
 | A5 | queued: Atlas Station (rest area 1008) | Opus 5.5 / high | A3 | data + C++ switches | written on first use |
 | A6 | queued: Lanox -> Atlas crossing + Fields 01/02 | Opus 5.5 / high | A4, A5 | data + C++ | written on first use |
+| A6b | queued (found 2026-10-09): port June's battlefield types (`BFT_BOSS_RAID` / `BFT_EVENT` / `BFT_NEW_BOSS_RAID`, none in March's `CX2BattleFieldManager`) so June's `data036 BattleFieldData.lua` loads; it was restored to March's merged copy (core list, kept-merged) because lua_tinker aborted June's on `BFT_BOSS_RAID` and left the client with no battlefield data; with A3's region enums (28 missing names), June's file replaces the merged one | Opus 5.5 / high | A3, A6 | C++ (X2BattleFieldManager) + data036 | written on first use |
 | A7 | queued: local map, Atlas half | Opus 5.5 / high | A3 | data + C++ | written on first use |
 | A8 | queued: AtlasDevelopment line (pattern-setter) | Opus 5.5 / high | A4, A6, A7 | data (+ C++ if gaps) | written on first use |
 | A9 | queued: AtlasCity line | Sonnet 5.5 if the census shows 0 open gaps, else Opus 5.5 / high | A8 | data | written on first use |
@@ -395,6 +401,9 @@ the main Trunk, so it can run alongside any june-* session.
 Plan `ELYSION_PORT_PHASES.md` · same branch and worktree as `atlas` · log tag `[ELYDBG]` · flags: the Atlas doc's "Flags" table
 (`ELYSION_VILLAGE`, `JUNE_MOVABLE_LINE`, `JUNE_SIMPLE_DLG`, ...) · kickoffs `kickoffs/elysion/` · backlog Stage 1 · planned
 2026-10-03, rows added 2026-10-08. Quests are deferred to backlog Stage 4.
+
+**Superseded by `LUA_SOURCE_PHASES.md` (L7, 2026-10-09):** E0's `ELYSION_SOLESS` decompile-check (`elstools decompile-batch` + `ljd_jun2017.py --check`) becomes
+`luasrc.py adopt-june ELYSION_SOLESS.lua` (June's `ljconv` bytecode; `--source` only if Elysion must edit it, after a `core --add` row). The Atlas rule above applies to every staging/compile line.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
@@ -448,7 +457,7 @@ already did on 2026-10-09. L4 dropped; L5 limited to core-list files.
 | L5 | **ready, user decides** (L3 named 6 core files failing T1: the 2 hoist files plus 4 with an instruction-count difference; `NewSkillTempletVer2` and `ELYSION_SOLESS` (ljd timeout) are off the core list) | Opus 5.5 / **xhigh** | L3 | `june2017_re/` ljd hooks | `L5.md` |
 | L6 | **done 2026-10-09** (`dc32d70`; play-test passed: 4/4 console checks, no noise, KEM_ERROR72/73 list unchanged; one reason-text finding (BOM-only `TutorSystem.lua`) handed to the review) | Opus 5.5 / high, then user play-test (dev console) | L0 | `KTDXLIB/KTDX.h`, `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6.md` |
 | L6 review | **done 2026-10-09, play-test pending** (`7f6f3fb`; fixed: `[LUA_SRC]` lines no longer go through the unlocked `KLOG` / `g_kSuperAssert`, load-failure heads exempt from the 512 cap, new "empty" kind + non-Lua-reader reasons (TutorSystem.lua); parser guard, flag-off and loads verified; open for the user: the studio's own loader-thread `ErrorLogMsg` race, pre-existing) | Opus 5.5 / high, then user play-test (dev console) | L6 | `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6-review.md` |
-| L7 | waiting (L6 review; L3 done) | Sonnet 5.5 / high | L3, L6 review (+L5 if run) | kickoffs, skills, memory, `KTDXLIB/Always.h` (`_DEBUG` off) | `L7.md` |
+| L7 | **done 2026-10-09** (convention sweep: P3 kickoff, checklist s6, "superseded by" lines for atlas / elysion / lanox; memory + skills aligned; `_DEBUG` off, built + deployed `10df7f3e`; ledger and core `--check` PASS; plan closed, open for you: L5 and the unreported L6-review play-test) | Sonnet 5.5 / high | L3, L6 review (+L5 if run) | kickoffs, skills, memory, `KTDXLIB/Always.h` (`_DEBUG` off) | `L7.md` |
 
 Running together:
 - L6 alongside L1/L2 (engine files vs tools).
@@ -494,5 +503,5 @@ phase section (kickoffs/TEMPLATE.md) on first use and shows it before starting.
 | backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12); 14 byte-exact June asset extraction (planned as `june-asset-extract` above); 15 every remaining June non-lua asset (planned as `june-asset-port` above); 16 June item-side systems (added by june-item-kim K0); 17 pet and riding-pet remainder (added by june-effect C9h: the pet variant byte and June's 8 pets / riding pets); 18 NPC friendship system (added by june-effect C9h-5, gated on code event 2215). |
 | atlas | `ATLAS_PORT_PHASES.md` | Not started (the Done-note headings through A13 are empty). Rows: the `atlas` block above (2026-10-08). |
 | elysion | `ELYSION_PORT_PHASES.md` | Not started (the Done-note headings through E15 are empty). Rows: the `elysion` block above (2026-10-08). |
-| lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. |
+| lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. **Superseded by `LUA_SOURCE_PHASES.md` (L7, 2026-10-09)** for Lua: the docs' "compile every `.lua` with `elstools compile-batch`" rule is frozen; use `luasrc.py adopt-june` / `convert` and the pack gate. |
 | char-port | `JUNE2017_CHARACTER_PORT_CHECKLIST.md` | Checklist, not phased; buff phases append to section 7. |

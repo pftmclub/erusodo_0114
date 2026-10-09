@@ -6277,8 +6277,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Nothing that loads today loads differently. LuaCommon/ is untouched. Log tag: [LUA_SRC].
 #define SERV_IRUHADEV_LUA_SOURCE
 // Description: L6 load-time baseline: "[LUA_SRC_DEBUG] load ..." per BOM-text load and per load over 20 ms, plus running
-//              totals per kind every 256 loads. Turned off in L7.
-#define SERV_IRUHADEV_LUA_SOURCE_DEBUG
+//              totals per kind every 256 loads. Switched off in L7 ( 2026-10-09 ); remove the // to measure load cost again.
+//#define SERV_IRUHADEV_LUA_SOURCE_DEBUG
 #if defined(SERV_IRUHADEV_LUA_SOURCE_DEBUG) && !defined(SERV_IRUHADEV_LUA_SOURCE)
 #error SERV_IRUHADEV_LUA_SOURCE_DEBUG needs SERV_IRUHADEV_LUA_SOURCE
 #endif

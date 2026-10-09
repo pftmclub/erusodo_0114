@@ -876,6 +876,40 @@ in `KTDXApp.cpp`, plus one enum line in `KTDXApp.h` and the comment in `Always.h
 
 **Done gate:** the sweep is listed in the Done note, the ledger is clean, and the skills are consistent.
 
+**Done note (2026-10-09, Sonnet 5.5 high): plan closed. `_DEBUG` off, built and deployed. No play-test owed for L7 itself.**
+- **Sweep (kickoff files only; frozen plan docs untouched):**
+  - `kickoffs/june-asset-port/P3.md`: the RidingPet_GodBeast_Fire step now says `luasrc.py adopt-june data037 RidingPet_GodBeast_Fire.lua`
+    (was: copy from `june_src_fixed/` + `kom.py compile`).
+  - Every other kickoff that names `compile` / `decompile-batch` / `compile-batch` / `.src.lua` belongs to a phase STATUS shows done
+    (june-buff 13 review, 15-step2b, 16-data; june-effect C3d-2, C9c-2b, C9h-2d, C10b-1 review), so it is history and stays as written.
+    The remaining kickoff greps (`june-backlog`, `offline-grade`, `dev-overlay`, `june-item-kim`) only read `june_src_fixed/` or describe
+    the pack gate; nothing to change. Atlas A0 is the only atlas kickoff and has no Lua step; Elysion and Lanox have no kickoff files yet.
+  - `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 6 step 6: `adopt-june` (default), or a `core --add` row + `adopt-june --source` when the
+    port must edit the script; never copy from `june_src_fixed/` or compile by hand.
+  - STATUS: "Superseded by `LUA_SOURCE_PHASES.md` (L7)" lines in the `atlas` and `elysion` blocks and the `lanox` row of "Other plans"
+    (their plan docs keep the `compile-batch` / "compiled `1B 4B 4C 81`" wording, frozen; Atlas A5 owns the `DLG_Destination_byButton` row).
+- **Memory:** `march-class-scripts-bytecode-only-no-recompile`, `kom-pack-copy-skills`, `march-kom-contents-extract`,
+  `elstools-decompile-drops-assignments-becomes-globals` updated; `lua-source-plan` names `/x2-adopt-june` and `/x2-lua` as the entry
+  points and records L7.
+- **Skills vs the tools:** compared with `luasrc.py --help`, `kom.py --help` and a real `convert --dry-run` on an ljconv'd June file.
+  Fixed: `x2-lua` (new refusal row for ljconv'd June files; a converted file is on the core list), `x2-phase` (tool table gets the
+  `adopt-june` row), `elstools` (the `compile-dir` warning no longer cites "deepcopy files via ljconv"). `x2-adopt-june` and
+  `tools/README.md` already matched.
+- **`_DEBUG` off:** `//#define SERV_IRUHADEV_LUA_SOURCE_DEBUG` in `KTDXLIB/Always.h` (bytepatch, CRLF kept). `flagcheck LUA_SOURCE --with
+  LUA_SOURCE_DEBUG --worktree --files KTDXLIB/Always.h`: `files: 0 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 2
+  deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding
+  change(s)`; `RESULT: PASS` (the 2 deleted lines are the comment and `#define` of the DEBUG block; the tokenless `#endif` is L6's tripwire).
+  The `[LUA_SRC]` error logging stays on. The deployed exe holds 0 copies of `LUA_SRC_DEBUG` and 6 of `LUA_SRC]`.
+- Deploy: `DEPLOY OK: X2_offline.exe is 19,454,976 B, dated 2026-10-09 17:11:47, md5 10df7f3e94b22aa5d31af22a1b191ee7, equal to X2/US_SERVICE/x2.exe (2026-10-09 17:11:42); built at mods/june-buff-port 7f00a64 + 1 uncommitted code file(s).`
+- **Parse-cost baseline:** no new baseline. L3 put no BOM-source file into a kom that reached the game (`kom_contents` holds 0 BOM-text
+  `.lua`; ledger rows are the 2 `EXC` bytecode exceptions), so the L6 numbers stand: 2,048 loads, KOG bytecode 2,006 loads / 2,483 ms,
+  BOM text 6 loads / 1 ms (63-1,263 B, 0.1-0.4 ms each). Re-enable `_DEBUG` when the first large core-list source file is packed.
+- **Checks:** `luasrc.py ledger --check` PASS (0 FAIL, 0 WARN); `luasrc.py core --check` PASS (0 FAIL, 0 WARN; a peer session
+  added `data036 BattleFieldData.lua` to the list, not part of this commit).
+- **Open for the user:** (1) the L6-review play-test (4 console checks, KEM_ERROR72/73 list against `kem7273_L6_baseline.txt`) was never
+  reported; L7 switched the debug lines off, which does not affect those checks. (2) L5 (6 core files fail T1 under `--source`) is still
+  your call.
+
 ## Effects on other plans
 
 - **june-effect C3d-4:** closed on route 2 (`fdcf60b`, user): the character ports bring June's class scripts.

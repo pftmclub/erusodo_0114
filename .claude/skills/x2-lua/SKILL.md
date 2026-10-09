@@ -44,6 +44,7 @@ constants equal **by value**, slot order ignored; a table constant's key/value p
 storage order (what `pairs` walks) is ignored (user, 2026-10-09). Only T0/T1 convert: sibling
 `X.src.lua`, studio copy, then the ljd decompile (with the template-layout repair). **T2** = `t2` report only (needs an Opus audit + the
 user's yes); **T3** = unproven, the bytecode ships.
+A converted March file is on the **core list** by definition (`convert` adds the row; `luasrc.py core --check` must stay PASS, as must `ledger --check`).
 **To edit a bytecode-only `.lua`:** `convert` it (`find` first if you want to see the candidates), edit the text `X.lua`
 (CRLF/BOM kept; ASCII comments), `luasrc.py refresh`, `kom.py pack`, then ask before `/x2-kom-packed copy`.
 
@@ -57,6 +58,7 @@ A new edit may also start from a sidecar: put `X.src.lua` beside `X.lua`, and `k
 | `REFUSED X: ...; decompile: decompile is not T1: N difference(s); first ...` (convert, exit 4) | No T0 source and the decompile differs (usual causes: ljd prints locals as `slotN` globals, an upvalue as `uvN`, a hoisted IIFE). The file stays bytecode. Do **not** hand-fix the decompile into a "pass"; a T2 route needs an Opus audit and the user. For `C3d-4`-style needs, report the blocker (CLAUDE.md "never invent a new .lua"; "this needs a higher model"). |
 | `REFUSED X: ...; decompile: ljd timed out / ljd failed` | ljd could not decompile it (huge file, printer crash). Stays bytecode; `X2_LJD_TIMEOUT=1800` for a retry. |
 | `CHECK T1 ... N table constant(s) hold the same pairs in another storage order` | Passes (the user's rule): same pairs in the same tables, only the `pairs` walk order differs. `decompile` already tries to restore the original order (best effort, small budget). |
+| `REFUSED X: June's own bytecode (ljconv), staged by an earlier adopt run` (convert) | `convert` is for March files; June `.lua` goes through `/x2-adopt-june` (default stays ljconv bytecode; `--source` only for a core-list file, after `core --add` when a port must edit it). |
 | `not-march-bytecode` / `manifest not "2"` (skipped) | Already text, June 0x82, the January-XOR file, or a user-packed manifest-`"0"` file. Convert never touches them. |
 | pack `REFUSED ... text without the UTF-8 BOM` | Plain text without `EF BB BF`: the binder returns false with no log (only `KEM_ERROR73`). Add the BOM. |
 | pack `REFUSED ... June 0x82 bytecode` / `unknown header` | March cannot load it. June files go through ljconv / adopt-june (L3), never packed as-is. |

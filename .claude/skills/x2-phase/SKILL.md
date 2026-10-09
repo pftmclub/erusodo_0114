@@ -63,6 +63,7 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
 | Play-test logs | `python tools/logs.py --tag <TAG>` | x2-check-logs |
 | One doc section | `python tools/docsection.py <doc> "<heading>"` | - |
 | Convert / edit / prove a March `.lua` as BOM source | `python tools/luasrc.py find/convert/restore/refresh/ledger` (`kom.py compile` folds `X.src.lua`) | x2-lua |
+| Bring a June `.lua` into March (default June's `ljconv` bytecode; `--source` + core-list row only when it must differ or be edited) | `python tools/luasrc.py adopt-june [<kom>] X.lua` / `core --check / --add` | x2-adopt-june |
 
 ## Finish (same session)
 
