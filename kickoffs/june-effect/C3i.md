@@ -23,7 +23,7 @@ grep -n "(C3d-3 review)" june2017_re/funcmap.tsv
 June's `CX2GUNPC::DamageReactStateChange` (`32769060`; C3i found the real start is `32769240`) tests it in six reaction cases besides RT_BOUNDING:
 `@32769b1a`, `@32769b72`, `@32769be9`, `@32769c41`, `@32769cad`, `@32769ced` (`cmp byte ptr [esi+0x8ac4], 0`).
 
-1. For each site: name the reaction case (switch table of `32769060`), and say what the set flag skips. `@32769b72` (RT_UP, `m_UpDamage` at
+1. For each site: name the reaction case (switch table of `32769240`), and say what the set flag skips. `@32769b72` (RT_UP, `m_UpDamage` at
    `+0x8690`) skips only the `nowSpeed.y` write and still changes state; `@32769b1a` sits on the super-armour branch. Do not assume the
    others follow either shape.
 2. Port all six into March's `CX2GUNPC::DamageReactStateChange` under the new flag, original code in `#else`. Keep June's quirks verbatim

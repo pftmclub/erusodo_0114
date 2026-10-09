@@ -1384,7 +1384,7 @@ The review needs no play-test; the C3h regression play-test already passed.
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3i.md`.
 
-- **Scope:** the NPC INIT key `NOT_UP_STATE` (`+0x8ac4`, read since the C3d-3 review) gates six more reaction cases in `32769060` (`@32769b1a`, `b72`, `be9`, `c41`, `cad`, `ced`). 36 shipped June NPC scripts set it.
+- **Scope:** the NPC INIT key `NOT_UP_STATE` (`+0x8ac4`, read since the C3d-3 review) gates six more reaction cases in `32769240` (cited as `32769060` until C3i; `@32769b1a`, `b72`, `be9`, `c41`, `cad`, `ced`). 36 shipped June NPC scripts set it.
 - **Exit:** funcmap rows `Effect C3i`; flag `SERV_IRUHADEV_JUNE_NOT_UP_STATE`; play-test on a `NOT_UP_STATE` monster.
 
 ### C3i - Done (2026-10-09, Opus 5.5 high)
@@ -1454,6 +1454,51 @@ or GEYSER_MULSAYRENA: `JUNE_FX C3i blackhole ... NOT_AFFECT_BLACKHOLE`.
 - Not exercised: RT 4 (X X X). The Lord Knight's Burned Forest run (dungeon 33270, three `NUI_MAG_STONE`) logged no C3i line.
   The RT 4 test has the same shape as the RT 5 one that fired. `NO_FALL_DOWN_AT_STATE` and the FORCE gate also logged nothing;
   neither was expected to.
+
+### C3i - Review (2026-10-09, Opus 5.5 high)
+
+**Verdict: the port is correct against June. No code change, no build.** Doc fixes only (below). All binary facts were re-read
+from a fresh full read of `unpacked_x2.exe` (md5 `3d043b4e5cdd...`) after the F: drive dropped mid-review.
+
+1. **Function start.** `32769240` opens `sub esp, 0x14`, returns `ret 8` (`@3276926a`, `@32769d3b`, `@3276a2ac`) and is called at
+   `@327b3253`. `32769060` ends `ret 4` at `3276923d` and is called at `@327b52cf`. The funcmap rows, the RT_BOUNDING comment and the
+   C3j kickoff cite `32769240`. **Missed, fixed here:** the C3i kickoff item 1 ("switch table of `32769060`") and this phase's Scope line.
+   The C3b / C3d-3 sections and kickoffs keep `32769060` as history; the C3i Done note records the correction.
+2. **FORCE gate.** Table `0x3276a2b0`, index `0x3276a2d4`, bound `cmp eax, 0x14`: RT 1 / 18 / 21 SMALL, 2 BIG, 3 DOWN, 4 UP, 5 FLY,
+   6 REVENGE, 15 BOUNDING, 16 DRAG_UP, 22+ none. Each case: IsSuperArmor (vslot `0x264( 0 )`) and DD `+0x3ec == 0` -> switch end; IsSuperArmor
+   again -> forced body -> `jmp 32769e7c` (no state call). SMALL: `y = +0x3e0 + 700.0` (`0x3344ce98`); `+0x844d == 1` -> `x -= GetWalkSpeed()
+   / 3.0` (`31e4f990`, `0x33439b50`), else `+=`. BIG `327698eb` / DOWN `32769a43` / DRAG_UP `32769cba`: `y = backSpeed.y`. UP / FLY: `+0xdf8 > 2`
+   -> `fidiv` by `n - 1`, else `jle 327698eb` (BIG's forced body). Port = June. **`+0x844d` = bAttackerFront:** June's landPosition.y is
+   `+0x8444` (the 210.0 ground test, `+0x8468 - +0x8444`); offsetprobe puts March's bAttackerFront 9 bytes past landPosition.y (`0x75b8` /
+   `0x75c1`; UnitCondition: landPosition, bHit, bAttackerFront), and June's normal bodies test `+0x844d` where March tests bAttackerFront.
+3. **NOT_UP_STATE.** `b1a` / `be9` / `cad` -> `jne 32769e7c` (nothing). `b72` -> `32769ba3` (m_UpDamage `+0x8690`); `c41` / `ced` -> `32769d02`
+   (Front `+0x8694` / Back `+0x8698` by `+0x844d`). The speed write is skipped, not zeroed. The port's `if( set ) log; else if( m_FlyCount > 2 )
+   {..} else {..}` and DRAG_UP's `if( set ) log; else nowSpeed.y = ..` bind as June branches; the StateChange lines follow unconditionally
+   and the guard branch (`+0x8b7a`) comes first in both.
+4. **Black hole** `31f6eea0..31f6f3c1`. NPC order NeverMove, FALL_DOWN, `+0x401`, `+0x8ac5`, siege, `+0x4090` / `+0x4094`, class 100..107 = port.
+   Range: `fld dist; fld range; fcomp st(1); test ah, 5; jp` = in range when `dist <= range` or NaN = March's `fDist > range` exit. Clamp
+   `min( 1.5 - dist / range, 1 )` (`0x334396c8` = 1.5) = March. `_isnan @31f6f2a2` / GetInvincible `@31f6f2bd` -> `31f6f384` (user AddEffective)
+   = port. `+0xa15` -> vslot `0x3a4( 1 )` inside the move = March's SetCanPassUnit (ARA_CHARACTER_BASE). **PvE filter:** `IsPve 322cc1c0` =
+   GetGameType (vslot `0x10c`) `== 4`; March's GAME_TYPE stops at 3 (GT_BATTLE_FIELD), so the filter could never fire: not porting it
+   changes nothing. flagprobe: X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE, NEW_SKILL_2010_11, ARA_CHARACTER_BASE, EVE_SECOND_CLASS_CHANGE,
+   X2OPTIMIZE_NPC_NONHOST_SIMULATION ON; SERV_EVENT_VALENTINE_DUNGEON / _INT OFF.
+5. **NO_FALL_DOWN_AT_STATE.** Buffer `337a9124` (xorstrings), between HINT_NO_PERFRAME_EVENT and ATTACK_POWER_RATE_FURY;
+   `32fe9e40( name, StateData + 0x401, 1 )`, miss -> `bl = 0`. March's read sits in the live `#ifdef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE`
+   block of LoadStateData. Raw `.text` sweep of byte `[reg + 0x401]`: readers `31f6f0b2` (`cmp , 1`) and `3230ec81` (`cmp , 0`) only;
+   `32394858` / `32394ee4` are member-wise StateData copies (`+0x400`, `+0x401`, `+0x404` in a row); the rest are `[esp + 0x401]` locals.
+   Resurrect loop `3230ec71-3230ecaa` = port.
+6. **Routed:** the C3f kickoff item 3 names `32769240 @3276a18d-3276a1f3`. Yes.
+7. **Hygiene** (`--range 603400e^..603400e`): `NOT_UP_STATE`, `NOT_AFFECT_BLACKHOLE`, `NO_FALL_DOWN_AT_STATE` `RESULT: PASS` (0 FAIL, 0 ERROR,
+   0 deleted lines). `NPC_FORCE_BACK_SPEED`: `4 OTHER, 0 FAIL, 1 ERROR` = the Always.h dependency guard
+   `#if defined(..._NOT_UP_STATE) && !defined(..._NPC_FORCE_BACK_SPEED)`, which only `#error`s (as the Done note). The OTHER rows are
+   the four flags sharing the five files; X2GUNPC.cpp `+153 -1`.
+   The one deleted line is the RT_BOUNDING comment's address, inside `SERV_IRUHADEV_JUNE_BOUNDING_STATE` (comment only).
+
+**Data.** june_src_fixed: `NOT_UP_STATE` 36 files, `NOT_AFFECT_BLACKHOLE` 36, `NO_FALL_DOWN_AT_STATE` 47 = the Done note.
+**JUNE_BUGS 143 count fixed:** Treasure_Mimic sets `NOT_UP_STATE` in **eleven** state tables (MIMIC_START2 .. MIMIC_ESCAPE;
+INIT_COMPONENT closes at line 42), not ten. Row 143 and the funcmap `@32769b1a ... (C3i)` row corrected.
+
+**Open for the user:** nothing. RT 4 (UP) is still unseen in a play-test; it has the same shape as the RT 5 test that fired.
 
 ## C3j - identify, then decide: June's NPC bounding-state fallbacks
 
