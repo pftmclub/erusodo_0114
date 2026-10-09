@@ -328,8 +328,10 @@ def value_key(e):
 
 
 def loose_key(e):
-    """Like value_key, but a template's hash part as a set: equal contents, possibly a different node layout."""
-    if e is not None and e[0] == "tab":
+    """Like value_key, but a template's hash part as a set: equal contents, possibly a different node layout. Only when
+    its keys are unique: bcread_ktab stores the pairs in dump order, so with a repeated key the last pair wins and the order
+    is content (the parser never writes one; a crafted dump can. L2 review)."""
+    if e is not None and e[0] == "tab" and len({k for k, _v in e[3]}) == len(e[3]):
         return ("tab", tuple(e[2]), frozenset(e[3]))
     return value_key(e)
 
@@ -672,6 +674,23 @@ def dump_mutants(ref):
             pt.kgc[a], pt.kgc_raw[a] = _tab_entry(arr_a, [kv for kv in hsh_a if kv is not move])
             pt.kgc[b], pt.kgc_raw[b] = _tab_entry(arr_b, hsh_b + [move])
             add("one key/value pair moved to another table", "fail", d)
+        # L2 review: a repeated key (last pair wins), the two pairs in the other order; and an array item stored in the
+        # hash part at its own index (an equal table, but Rule 1 compares the array part position by position)
+        k0, v0 = hsh_a[0]
+        other = next((v for _k, v in hsh_a if v != v0), ("s", v0[1] + b"Z") if v0[0] == "s" else ("p", 2 if v0 != ("p", 2) else 1))
+        a_ = fresh(); b_ = fresh()
+        a_.protos[tp.index].kgc[a], a_.protos[tp.index].kgc_raw[a] = _tab_entry(arr_a, hsh_a + [(k0, other)])
+        b_.protos[tp.index].kgc[a], b_.protos[tp.index].kgc_raw[a] = _tab_entry(arr_a, [(k0, other)] + hsh_a)
+        add("repeated hash key, its two pairs in the other order (last one wins)", "fail", b_, serialize(a_))
+    ap = next(((pt, j) for pt in base.protos for j, e in enumerate(pt.kgc)
+               if e[0] == "tab" and len([v for v in e[2] if v != ("p", 0)]) >= 1), None)
+    if ap is not None:
+        pt0, j = ap
+        d = fresh(); pt = d.protos[pt0.index]
+        _t, _r, arr, hsh = pt.kgc[j]
+        i = max(i for i, v in enumerate(arr) if v != ("p", 0))
+        pt.kgc[j], pt.kgc_raw[j] = _tab_entry(arr[:i], hsh + [(("i", i), arr[i])])
+        add("last array item stored in the hash part at its own index", "fail", d)
     fp = next((pt for pt in base.protos if len([e for e in pt.kgc if e[0] == "child"]) >= 2), None)
     if fp is not None:
         d = fresh(); pt = d.protos[fp.index]

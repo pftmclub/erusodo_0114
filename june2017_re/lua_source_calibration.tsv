@@ -274,3 +274,39 @@ class	data036	Chung_Iron_Cannon.lua	204340	none (bytecode only)	17.2	T1	0	0
 class	data036	Ara_Martial_Artist.lua	148831	none (bytecode only)	5.0	FAIL	300	362	main pc 7: TNEW 3 4  vs  GGET 3 "ARA_STATE_ID"	ljd: constructor field order - ljd prints positional items before keyed ones; the original sets a keyed non-constant field first (CHAIN_SYSTEM[1]: `SECRET_SKILL_STATE_ID` and `TRIGGER_STATE_ID_TO_SECRET_SKILL` before its positional sub-tables; T2: identical content, order only), so the evaluation order differs
 class	data036	ELESIS_KNIGHT.lua	157500	none (bytecode only)	12.9	T1	0	0		
 class	data036	Add_NasodRuler.lua	107302	none (bytecode only)	7.4	T1	0	0		
+# L2 review (2026-10-09): 35 fresh known-T0 March files (seeds R1 per-dir 2 + R2 per-dir 3, excluding everything above): T0 20, T1 9, FAIL 6; every FAIL is an ljd defect, none a checker defect
+review-march-t0	data034	DLG_UI_Community_Relation_Only_Partner_Showing.lua	280	ClientScript	0.6	T0	0	0		
+review-march-t0	data034	DLG_PVP_Room_Lua_Func.lua	2369	ClientScript	0.6	T0	0	0		
+review-march-t0	data035	Dungeon_Training_lire_3.lua	10787	ClientScript	1.0	T0	0	0		
+review-march-t0	data035	Dungeon_Elder_Wally_Castle_Lab_Expert.lua	8088	ClientScript	0.7	T0	0	0		
+review-march-t0	data036	Hamel_Battle_Ship_Field.lua	1056	ClientScript	0.6	FAIL	56	0	main pc 5: TDUP 3 template{0 array, 3 hash; 50 bytes}  vs  TNEW 3 0	ljd: constructor field order - keyed non-constant SIEGE_MONSTER = {} printed after the positional items (Ara's class); confirmed from the diff
+review-march-t0	data036	AccountQuest.lua	18	ClientScript	0.6	T0	0	0		
+review-march-t0	data037	MonkeyApple_NoDrop.lua	15924	ClientScript	1.4	T1	0	0		
+review-march-t0	data037	ChainGatePost.lua	3445	ClientScript	1.0	T1	0	0		
+review-march-t0	data039	UI_HELLEN.lua	543	ClientScript	0.6	T0	0	0		
+review-march-t0	data039	UI_LUCY.lua	585	ClientScript	0.6	T0	0	0		
+review-march-t0	data040	Altera_Below_Tunnel_Stage1.lua	15926	ClientScript	1.2	T0	0	0		
+review-march-t0	data040	TrainingCenter_Stage3.lua	1813	ClientScript	0.6	T0	0	0		
+review-march-t0	datai016	PET_FIREWORK_PPORU.lua	23411	ClientScript	0.7	FAIL	31	6	main/fn#0: framesize 7 vs 9	ljd: a local printed as a slotN global (no `local`; stripped bytecode has no names) (confirmed: slotN globals in the diff)
+review-march-t0	datai016	CSM_WilliamPporu_Fire_Event2.lua	30408	ClientScript	4.8	T1	0	0		
+review-march-t0	data034	DLG_Map_Village_Besma_Front.lua	18	ClientScript	0.4	T0	0	0		
+review-march-t0	data034	DLG_PVP_Map_List.lua	3714	ClientScript	0.7	T1	0	0		
+review-march-t0	data034	DLG_Map_Local_Velder_South_Front.lua	18	ClientScript	0.4	T0	0	0		
+review-march-t0	data035	Dungeon_Training_common_1.lua	1126	ClientScript	0.5	T0	0	0		
+review-march-t0	data035	Dungeon_Elder_Newyear_Normal.lua	3481	ClientScript	0.5	T0	0	0		
+review-march-t0	data035	Dungeon_Training_Arme_3.lua	2089	ClientScript	0.6	T0	0	0		
+review-march-t0	data036	Velder_Battle_Ship_Field.lua	1893	ClientScript	0.5	FAIL	108	0	main pc 5: TDUP 3 template{0 array, 3 hash; 50 bytes}  vs  TNEW 3 0	ljd: constructor field order - keyed non-constant SIEGE_MONSTER = {} printed after the positional items (Ara's class); same file shape as Hamel
+review-march-t0	data036	LocaleInfo.lua	13637	ClientScript	1.1	T0	0	0		
+review-march-t0	data036	Wedding_OfficiantTemplet.lua	1377	ClientScript	0.6	T1	0	0		
+review-march-t0	data037	Wally9th_Type2.lua	26464	ClientScript	2.5	T1	0	0		
+review-march-t0	data037	CSM_Stone_Axe_Trock_Butrue.lua	30658	ClientScript	1.1	FAIL	419	24	main/fn#5: framesize 13 vs 12	ljd: a local printed as a slotN global (no `local`; stripped bytecode has no names) (confirmed: slotN globals in the diff)
+review-march-t0	data037	CSM_Cactus.lua	22441	ClientScript	5.7	T1	0	0		
+review-march-t0	data039	UI_NPC_TROCKTA.lua	603	ClientScript	0.4	T0	0	0		
+review-march-t0	data039	UI_NPC_APINK.lua	575	ClientScript	0.4	T0	0	0		
+review-march-t0	data039	UI_HAGERS.lua	693	ClientScript	0.6	T1	0	0		
+review-march-t0	data040	Arcade_Elder_Stage34.lua	195	ClientScript	0.4	T0	0	0		
+review-march-t0	data040	Besma_Besma_Lake_Stage2-1A.lua	11574	ClientScript	0.9	T0	0	0		
+review-march-t0	data040	Arcade_Ruben_Stage16.lua	1139	ClientScript	0.5	T0	0	0		
+review-march-t0	datai016	Shadow_Stinger_EVENT.lua	26266	ClientScript	0.9	FAIL	350	23	main/fn#1: framesize 12 vs 13	ljd: an inlined/dropped local - every register in fn#1/#2 one lower, framesize 12 vs 13; confirmed from the diff
+review-march-t0	datai016	Event_Pumpkin_Magician.lua	26591	ClientScript	2.1	T1	0	0		
+review-march-t0	datai016	PET_SHERIFF_WHITE_STEB_3.lua	26156	ClientScript	0.9	FAIL	281	7	main/fn#1 pc 20: JMP 3 =>+3  vs  JMP 4 =>+3	ljd: a local printed as a slotN global (no `local`; stripped bytecode has no names) (confirmed: slotN globals in the diff)

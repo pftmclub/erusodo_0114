@@ -880,12 +880,16 @@ T2_HARNESS = r"""
 local MAXINS = tonumber(arg[3]) or 50000000
 local function rd(p) local f = assert(io.open(p, "rb")); local s = f:read("*a"); f:close(); return s end
 local STUBS = setmetatable({}, { __mode = "k" })
+local CALLS = {}   -- L2 review: every call into an engine stub, in call order, with its arguments (g_pX:AddY{...} scripts)
 local function stub(name)
   local s = {}
   STUBS[s] = name
   return setmetatable(s, {
     __index = function(t, k) local c = stub(name .. "." .. tostring(k)); rawset(t, k, c); return c end,
-    __call = function(_, ...) return stub(name .. "()") end,
+    __call = function(_, ...)
+      CALLS[#CALLS + 1] = { name = name, n = select("#", ...), ... }
+      return stub(name .. "()")
+    end,
     __add = function() return stub(name .. "+") end, __sub = function() return stub(name .. "-") end,
     __mul = function() return stub(name .. "*") end, __div = function() return stub(name .. "/") end,
     __mod = function() return stub(name .. "%") end, __unm = function() return stub("-" .. name) end,
@@ -901,14 +905,19 @@ local function q(v)
   return tostring(v)
 end
 local function dump(out, v, path, seen, depth)
-  if type(v) ~= "table" or STUBS[v] then return end
-  if seen[v] then out[#out + 1] = path .. " = <same as " .. seen[v] .. ">"; return end
+  if type(v) ~= "table" then return end
+  if seen[v] then
+    if not STUBS[v] then out[#out + 1] = path .. " = <same as " .. seen[v] .. ">" end
+    return
+  end
   seen[v] = path
   if depth > 40 then out[#out + 1] = path .. " = <too deep>"; return end
+  local stubbed = STUBS[v]
   local k, val = next(v)
   while k ~= nil do
     local p = path .. "[" .. q(k) .. "]"
-    out[#out + 1] = p .. " = " .. q(val)
+    -- inside an engine stub only what the chunk wrote is content (Engine.T.x = 1); the stubs its reads made are not
+    if not (stubbed and type(val) == "table" and STUBS[val]) then out[#out + 1] = p .. " = " .. q(val) end
     dump(out, val, p, seen, depth + 1)
     k, val = next(v, k)
   end
@@ -917,7 +926,12 @@ local s = rd(arg[1])
 if s:sub(1, 3) == "\239\187\191" then s = s:sub(4) end
 local f, err = loadstring(s, "=chunk")
 if not f then io.write("LOAD ERROR ", tostring(err), "\n"); return end
-local env = setmetatable({}, { __index = function(t, k) return stub(tostring(k)) end })
+local ENGINE = {}   -- one stub per engine global, so writes into it survive to the dump (kept out of env's own layout)
+local env = setmetatable({}, { __index = function(t, k)
+  local s = ENGINE[k]
+  if s == nil then s = stub(tostring(k)); ENGINE[k] = s end
+  return s
+end })
 setfenv(f, env)
 local n = 0
 debug.sethook(function() n = n + 1; if n * 1000 > MAXINS then error("instruction budget exhausted", 0) end end, "", 1000)
@@ -925,7 +939,17 @@ local ok, e = pcall(f)
 debug.sethook()
 local out = {}
 if not ok then out[1] = "MAIN ERROR " .. tostring(e) end
-dump(out, env, "_G", {}, 0)
+local seen = {}
+dump(out, env, "_G", seen, 0)
+for i, c in ipairs(CALLS) do
+  local p = "CALL[" .. i .. "]"
+  out[#out + 1] = p .. " " .. c.name .. " (" .. c.n .. " argument(s))"
+  for j = 1, c.n do
+    out[#out + 1] = p .. "[" .. j .. "] = " .. q(c[j])
+    dump(out, c[j], p .. "[" .. j .. "]", seen, 1)
+  end
+end
+dump(out, ENGINE, "ENGINE", seen, 0)
 local fh = assert(io.open(arg[2], "wb")); fh:write(table.concat(out, "\n"), "\n"); fh:close()
 io.write("OK ", #out, "\n")
 """
@@ -1000,8 +1024,10 @@ def cmd_t2(a):
             with open(os.path.join(a.out, "%s.t2.txt" % x), "w", encoding="utf-8", newline="\n") as f:
                 f.write("\n".join(lines) + "\n" if lines is not None else "not run: %s\n" % err)
         p("  dumps written to %s (R/B/S.t2.txt)" % a.out)
-    p("Blind spots: function bodies are not run (only the main chunk), engine globals are stubs, and a main chunk that "
-      "errors is compared up to the error.")
+    p("Blind spots: function bodies are not run (only the main chunk); engine globals are stubs - calls into them are "
+      "recorded with their arguments and writes into them are dumped, but every call returns a stub, so a branch on an "
+      "engine value takes one side only; functions compare by presence, metatables are not dumped, numbers print with "
+      "%.17g (a NaN payload is not seen); a main chunk that errors is compared up to the error.")
 
 
 # ---- mutation self-test (LUA_SOURCE_PHASES.md L2 step 5): every seeded change must fail T1, every control must pass
@@ -1010,8 +1036,12 @@ SELFTEST_SEEDS = [("data038", "SQUARE_GM_Ariel.lua"), ("data037", "Soldier_Bende
                   ("data217", "DLG_Map_Local_Ranox.lua"), ("data035", "Dungeon_El_Forest_Gate_Normal.lua"),
                   ("datai015", "UIEffectSet_INT.lua"),
                   # ljd prints stripped locals as slotN globals (no `local`), so the local-to-global seeds mutate proven T0
-                  # studio sources that declare locals.
-                  ("data037", "ANCIENT_CRAB.lua", "t0"), ("data035", "Dungeon_Arcade_Ruben.lua", "t0"),
+                  # studio sources that declare locals. (L2 review: ANCIENT_CRAB.lua became June's ljconv bytecode in a5f7298, so
+                  # it has no T0 source any more; two March pets/events that a5f7298 kept replace it. Several decompile seeds in
+                  # data035/data037 are ljconv'd June bytecode now, which is still a valid reference for T1.)
+                  ("data037", "PET_ANCIENT_PPORU_HALLOW_DARK.lua", "t0"), ("datai016", "Night_Watcher_Event.lua", "t0"),
+                  ("data035", "Dungeon_Arcade_Ruben.lua", "t0"),
+                  ("data036", "Wedding_OfficiantTemplet.lua"),   # a fresh T1 decompile from the review's calibration
                   # the only March files with upvalues; no provable text, so only their bytecode seeds run
                   ("data037", "Wally9th_Armor.lua", "bc")]
 
@@ -1102,7 +1132,9 @@ def cmd_selftest(a):
     right = sum(t["ok"] for t in tally.values())
     empty = [k for k, t in tally.items() if not t["valid"]]
     want = {"number-constant", "string-constant", "string-byte-flip", "drop-statement", "operator", "constructor-reorder",
-            "local-to-global", "swap-string-constants", "swap-number-constants"}
+            "local-to-global", "swap-string-constants", "swap-number-constants",
+            # L2 review: table constants (Rule 1's pair rule)
+            "swap-keyed-values", "pair-to-other-table", "array-item-to-hash", "nil-valued-pair", "duplicate-key"}
     absent = sorted(want - {k for k, t in tally.items() if t["valid"]})
     ok = not misses and not absent and not bad_seeds
     p("SELFTEST %s: %d/%d seeded edits judged right (%.1f%%)%s%s" % (

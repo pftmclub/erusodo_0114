@@ -648,3 +648,75 @@ def mutants(text, per_kind=3):
         for x, y in _spread(pairs, per_kind):
             new = s[:x.start] + y.text + s[x.end:y.start] + x.text + s[y.end:]
             yield emit(kind, x, new)
+    # L2 review: table constants, which T1 compares as pairs (array part by position, hash part as a set)
+    ctors = []
+    for j, t in enumerate(toks):
+        if t.kind == "op" and t.text == "{":
+            try:
+                close, fields = constructor(toks, j, s)
+            except LexError:
+                continue
+            ctors.append((j, close, fields))
+
+    def val_span(f):
+        e = match_close(toks, f.a) + 1 if f.kind == "bracket" else f.a + 1 if f.kind == "name" else f.a - 1
+        return toks[e + 1].start, toks[f.b - 1].end
+
+    def key_text(f):
+        return f.key if f.kind == "name" else "[%s]" % f.key
+
+    def edits(*eds):
+        out = s
+        for a, b, new in sorted(eds, reverse=True):
+            out = out[:a] + new + out[b:]
+        return out
+
+    # 9. two constant keyed fields of one constructor swap their values (same keys, same values, other pairs)
+    swapv = []
+    for j, close, fields in ctors:
+        kc = [f for f in fields if f.template_const]
+        for f, g in zip(kc, kc[1:]):
+            (fa, fb), (ga, gb) = val_span(f), val_span(g)
+            if s[fa:fb] != s[ga:gb]:
+                swapv.append((toks[f.a], (fa, fb, s[ga:gb]), (ga, gb, s[fa:fb])))
+                break
+    for t, e1, e2 in _spread(swapv, per_kind):
+        yield emit("swap-keyed-values", t, edits(e1, e2))
+    # 10. a constant keyed field moves into the next constructor that lacks its key (the pair lands in another table)
+    moves = []
+    for n, (j, close, fields) in enumerate(ctors):
+        f = next((f for f in fields if f.template_const), None)
+        if f is None:
+            continue
+        nxt = next(((j2, c2) for j2, c2, f2 in ctors[n + 1:] if f.key not in {g.key for g in f2}), None)
+        if nxt is None:
+            continue
+        sep = f.b < close and toks[f.b].kind == "op" and toks[f.b].text in ",;"
+        cut = (toks[f.a].start, toks[f.b].end if sep else toks[f.b - 1].end, "")
+        moves.append((toks[f.a], cut, (toks[nxt[0]].end, toks[nxt[0]].end, s[toks[f.a].start:toks[f.b - 1].end] + ",")))
+    for t, cut, ins in _spread(moves, per_kind):
+        yield emit("pair-to-other-table", t, edits(cut, ins))
+    # 11. a positional constant item becomes a keyed one (array part -> hash part, at an index nothing else uses)
+    arrh = []
+    for j, close, fields in ctors:
+        f = next((f for f in fields if f.kind == "pos" and f.val_kind == "const"), None)
+        if f is not None:
+            arrh.append((toks[f.a], (toks[f.a].start, toks[f.a].start, "[%d] = " % (100000 + toks[f.a].line))))
+    for t, ins in _spread(arrh, per_kind):
+        yield emit("array-item-to-hash", t, edits(ins))
+    # 12. a constant keyed field's value becomes nil (a nil-valued pair, i.e. the pair disappears)
+    nils = [(toks[f.a], val_span(f)) for _j, _c, fields in ctors for f in fields[:1] if f.template_const]
+    for t, (a, b) in _spread(nils, per_kind):
+        yield emit("nil-valued-pair", t, edits((a, b, "nil")))
+    # 13. a repeated key: a constant keyed field is set again, to another value, at the end of its constructor
+    dups = []
+    for j, close, fields in ctors:
+        f = next((f for f in fields if f.template_const), None)
+        if f is None:
+            continue
+        a, b = val_span(f)
+        other = '"L2_dup"' if s[a:b] != '"L2_dup"' else "0"
+        lead = "" if toks[close - 1].kind == "op" and toks[close - 1].text in ",;{" else ", "
+        dups.append((toks[f.a], (toks[close].start, toks[close].start, "%s%s = %s " % (lead, key_text(f), other))))
+    for t, ins in _spread(dups, per_kind):
+        yield emit("duplicate-key", t, edits(ins))

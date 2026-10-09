@@ -83,6 +83,6 @@ Bytecode snapshots: `...\24965799\kom_contents_bytecode\dataNNN_kom\` (X.lua and
   can walk a table in another order than the shipped client did. L2 audited March:
   nothing depends on it (11 files use `ipairs`, 2 use `pairs` only in a shallow `TableCopy`, the engine's two `lua_next` loops are
   order-free). `t2` shows it as `BS loader effect ... order only`.
-- T2's mock environment runs only the main chunk; engine globals are stubs; function bodies are compared by T1 alone.
+- T2's mock environment runs only the main chunk; engine globals are stubs (calls into them are recorded with their arguments and writes into them are dumped, L2 review; every call returns a stub, so a branch on an engine value takes one side only); function bodies are compared by T1 alone.
 - June mode compares against `ljconv`'s output; its opcode table was verified against June's VM handlers
   (`june2017_re/lua_source_opcode_check.tsv`, 71/71).

@@ -520,6 +520,58 @@ Adversarial: try to make the checker pass a wrong file.
 Fix clear defects in the tool and send design questions to the user. Write the review into this doc, update the STATUS row, and check
 the L3 kickoff.
 
+**Done note (2026-10-09, Opus 5.5 high): L2 review done.** T1 is sound for every file the vendored compiler can produce. Two tool
+defects were fixed (one T1 hole reachable only by a crafted dump, one T2 blind spot). Tools only: no flag, no build, no kom touched.
+- **Attacks on T1** (24 hand-made source pairs, all judged right).
+  - These all fail: swapped keyed values; a pair moved to a sibling, parent, child, or same-shape sibling table; an array item moved
+    to the hash part at another index; a nil value replacing a pair; a repeated key with another final value; int vs string vs
+    float keys; templates swapped between two TDUPs; swapped functions, top-level and nested; upvalue order; `"1"` vs `1`; keyed
+    non-constant field order.
+  - These pass, correctly: equal tables (a nil-valued pair added, a repeated key with the same final value, pair order only).
+  - An array item moved to the hash part **at its own index** fails. That is an equal table, so the check is stricter than needed
+    (Rule 1 compares the array part by position), and safe.
+  - Child prototypes are paired through each FNEW's constant, recursively, plus the total prototype count. Numbers compare by their
+    dump encoding (int vs double, sign, NaN payload). Upvalue descriptors and prototype flags compare raw.
+- **Fixed: repeated key in a template (`tools/ljbc.py` `loose_key`).**
+  - The hash part was compared as a `frozenset`. Two dumps holding `(b,1),(b,2)` and `(b,2),(b,1)` passed T1, yet LuaJIT loads them
+    as `b=2` and `b=1` (`bcread_ktab`: the last pair wins).
+  - The parser never writes a repeated key, but a crafted dump can. The set comparison now applies only when the keys are unique;
+    otherwise the template compares byte for byte.
+- **Fixed: T2 dropped every engine call (`luasrc.py` T2 harness).**
+  - Stub calls threw away their arguments, so `g_pX:AddY{...}` scripts (most March data files) reported "identical" whatever the
+    tables held. Writes into engine tables were lost too, because each read of a global made a fresh stub.
+  - Each stub call is now recorded in call order with its arguments dumped. Each engine global has one cached stub, and writes into
+    it are dumped. Hamel_Battle_Ship_Field's T2 now compares its spawn groups (RS identical).
+  - Ara has no engine calls, so its "order only" verdict stands.
+  - Blind spots still printed: function bodies are not run, every call returns a stub (a branch on one takes one side only),
+    functions compare by presence, metatables are not dumped, NaN payloads are not seen, an erroring chunk is compared up to the error.
+- **June mode.** `reference_of(--ref june)` is `ljconv.transcode(June)`. The decompile uses `transcode_stock` with the same table, so
+  only the Ghidra check covers the table.
+  - Ghidra spot-check: `lj_dispatch_init` `0x32ffb270` copies `PTR 0x337411d8` (85 + 70 entries). Its JIT-off fixups land on stock
+    FORL/ITERL/LOOP/FUNCF/FUNCV, so ops `0x49+` keep stock positions.
+  - The pointer table matches the TSV for `00`, `01`, `1a`, `1f` and `24`. Disassembly compared myself (normalised): June `00` = March
+    ISLT (`jbe`), `01` = ISGE (`ja`), `1a` = ADDVN, `1f` = ADDNV. These are the same-mode families.
+  - March VAs differ from the TSV's (the exe was rebuilt since L2); handler content is unchanged.
+- **`convert`.** It refuses every non-T0/T1 path (decompile fail, no compile, T1 FAIL), with exit 4 on named files (checked on Ara).
+  - The text it writes is exactly the text T1 proved. Every studio source (4,115) and every March string constant is valid UTF-8.
+- **Layout tidy-up (`ljsrc.py`).** Only fields with a constant key and a constant or nil value move. Every other field keeps its
+  relative order, and a trailing positional item is pinned. Each round's result is kept only if T1 passes, and `prove_decompile`
+  re-checks the final text. So a move that changed anything but storage order (a crossed duplicate key, a multret tail) is discarded.
+- **Self-test: PASS 517/517.**
+  - 5 new source kinds (`swap-keyed-values`, `pair-to-other-table`, `array-item-to-hash`, `nil-valued-pair`, `duplicate-key`, now
+    required) and 2 new bytecode kinds (a repeated hash key reordered; an array item stored in the hash part at its own index).
+  - Seeds: `ANCIENT_CRAB.lua` had no T0 source any more (June's ljconv bytecode since `a5f7298`). It was replaced by
+    `PET_ANCIENT_PPORU_HALLOW_DARK.lua` and `Night_Watcher_Event.lua` (March, T0, declare locals). `Wedding_OfficiantTemplet.lua` was added.
+- **Calibration: 35 fresh known-T0 files** (`R1` per-dir 2 gave 14; `R2` per-dir 3 gave 21; rows appended to
+  `june2017_re/lua_source_calibration.tsv`): T0 20, T1 9, FAIL 6.
+  - Every FAIL is an ljd defect T1 rightly rejects: 3 slotN locals, 2 constructor field order (Hamel/Velder_Battle_Ship_Field, Ara's
+    class), 1 dropped local (Shadow_Stinger_EVENT, registers one lower).
+- **Finding for L3 (rescope).** Since `a5f7298` / `c6c8c58`, 3,639 staged `.lua` are ljconv'd June bytecode with the March `0x81`
+  header. `kind()` calls them March, so `convert` would prove one against itself and write a ledger row saying origin `march`.
+  `L3.md` now asks `convert` to refuse names in the two per-file TSVs and point to `adopt-june --source`.
+- **Hygiene.** `ledger --check` PASS (0 FAIL, 0 WARN). There is no `SERV_IRUHADEV_` code, so no flagcheck or build.
+- **Open questions:** none.
+
 ## Phase L3 - Core list + `adopt-june` + skill `x2-adopt-june`
 
 **Scope (rescoped 2026-10-09, user).** Implement Rule 2 behind one command and one skill. The default route is June's `ljconv`
