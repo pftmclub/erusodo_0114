@@ -2419,9 +2419,8 @@ Against March's `CKTDXCollision::CollisionDataCheck( list, listSet )`:
   be rejected outright (projection < 0). Now its distance to the start point is tested. The reverse
   is possible too: a sphere far beyond a line's end, which March's unclamped projection accepted.
   The `JUNE_FX HIT DIFF` line below shows every such disagreement.
-- **Known gap.** June's `UnitToUnit` check (`FUN_32611970`) inlines the same code, so June changed
-  the shared header. Here only `EffectToUnit` is switched over. Melee (`UnitToUnit`),
-  `UnitToEffect`, `MeshToUnit` and `CollisionDataToUnit` keep March semantics.
+- ~~**Known gap.**~~ **Closed by C8b (2026-10-09).** June's `UnitToUnit` check (`32611970`) inlines the
+  same code, so the other four hit paths are switched over too (see "C8b" below).
 
 **Not ported, recorded:**
 - written by June with no identified reader: `DamageData +0x62c` = the hit defender datum's centre,
@@ -2456,26 +2455,64 @@ The trace strings are present in the binary. ~~**Not play-tested yet.**~~ **Play
 
 Revert: undefine `SERV_IRUHADEV_JUNE_COLLISION`. Pure addition: 331 lines inserted, none deleted.
 
-**`SetDamageExceptionProcess` (`SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION`): compared in part, no code
-yet.**
-- **How the functions were found.** `june2017_re/vtslot.py` resolves vtable slot `0x2b8` from RTTI
-  for every class.
-- **The base and user layers are compared:** `CX2GameUnit` `322990e0`, and `CX2GUUser` `32045340`
-  (also Ara's). **Every `fPowerRate` multiply is March's**: `damage.fPhysic/fMagic`, extra damage
-  unless fixed, `EDT_PAIN`. So no damage number moves from these two layers.
-- **Their June-only additions are all in systems March lacks, or unidentified:**
-  - an MP-gain multiplier for `attackType == AT_COMMAND (2)`, a value March's `ATTACK_TYPE` does
-    not have;
-  - an MP-gain multiplier and a hook, both keyed on `APPLIED_SKILL_ID` (the skill memo);
-  - three per-hit tags with no known reader;
-  - an attack-type gate (`+0x4108`) on Raven's damage-type change, whose writer is not identified;
-  - one unidentified call.
-- **NPC `32759f30`** (June-only; March NPCs inherit the base): the base, then the master unit's
-  skill-memo hook (vtable `0x758`), only for an NPC with a live master. On March data a monster hit
-  is exactly March's base.
-- **Still to compare:** eight per-class overrides (`funcmap.tsv`, rows marked `candidate`). Four
-  have March counterparts: Add, Elesis, Lire, Arme. Four are June-only overrides: Eve, Chung,
-  Raven, Elsword.
+**C8b (2026-10-09): the other four hit paths (`SERV_IRUHADEV_JUNE_COLLISION`, extended) and the
+`SetDamageExceptionProcess` layers (new flag `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION`).**
+
+*The four hit paths.* Every path takes `EffectToUnit`'s pair math (`JuneEffectCollisionDataCheck`, left
+untouched) with the advance branch off (`USE_ADVANCE_COLLISIOIN_CHECK` is read in `EffectToUnit` only).
+March's calls stay in the `#else`. All four are in `X2Lib/X2DamageManager.cpp`:
+
+| path | June | March site | shape |
+|---|---|---|---|
+| UnitToUnit | `32611970` | `UnitToUnit`'s call of `CollisionDataCheckFromUnitToUnit` | attack set, sub set, each pair sub set, each a listSet x listSet instance; returns at the first hit or guard-only |
+| UnitToEffect | `326413c0` | the lambda in `UnitToEffect` | the same three instances against the defender effect's one list |
+| MeshToUnit | `32625670` | `MeshToUnit` | the attacker animation's attack list x the defender's set |
+| CollisionDataToUnit | `32628890` | `CollisionDataToUnit` | the defender's set (A) x the DamageData's manual datum (B); no guard call; the reported type is B's, which the caller maps to `m_bGuard` |
+
+- Each listSet x listSet instance runs `JuneEffectCollisionDataCheck` once per attack list. The result is
+  the same as June's single pass: a guard seen first is what a later hit reports anyway, and a guard
+  alone reports `CT_GUARD`.
+- **What changes in game.**
+  - Hit and miss: line x sphere and sphere x line pairs only (the clamped closest point), as in
+    Phase 9. Sphere x sphere hit and miss is March's. The melee path is live on every hit.
+  - Impact point: halfway from one centre to the other, so hit particles and `DEPT_IMPACT_POINT`
+    effects can move on line-shaped hitboxes.
+- **Trace** (`SERV_IRUHADEV_JUNE_FX_DEBUG`): `JUNE_FX HIT <path> COLLIDE | DIFF ...`, one line a second per
+  path and branch, `<path>` = `UNIT_TO_UNIT`, `UNIT_TO_EFFECT`, `MESH_TO_UNIT`, `COLLISION_DATA_TO_UNIT`.
+  `DIFF` runs March's test on the same pair. `EffectToUnit`'s COLLIDE / DIFF / TEST lines gain
+  `path=EFFECT_TO_UNIT`, and TEST gains `owner=<uid> age=<now>/<max>` (the main mesh's life time).
+  6 lines of Phase 9's trace were rewritten for that; they sit inside the flag and the debug flag.
+- **Not ported, recorded:** `DamageData +0x62c` (June writes it at each hit; no reader found).
+
+*`SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION`* (`KTDXLIB/Always.h`; `#error` without `_JUNE_DAMAGEDATA`,
+`_JUNE_BUFF_NEW_STAT`, `_JUNE_BUFF_CUSTOM_FUNCTION`, whose DamageData members the switch writes). **Every
+`fPowerRate` multiply is unchanged, so no damage number moves; on March data the whole flag is inert.**
+- **`+0x4108`.** `CX2GameUnit::m_iJuneChangeDamageAttackType` (2 in the ctor `@322a5bf7`, -1 in
+  `ResetDamageType`). The user layer applies Raven's damage-type change only when it is -1 or equals the
+  hit's attack type (`32045340 @320453a0`). Raven's `ResetDamageType` leaves -1, so March data never
+  fails the gate; the `= 2` write belongs to the Raven port.
+- **User vslot `0x758` (`3202ac40`), the skill-memo switch.** `CX2GUUser::JuneApplySkillMemoToDamageData`,
+  transcribed case by case. Its lookup `31fdbbb0` is a plan-rule-5 stub (`GetJuneSkillMemoEntry`: returns
+  none, logs `JUNE_FX unsupported skill memo` once), so the switch never runs. Ported cases: 1/4, 2
+  (DamageDistance half), 5, 6, 8, 0xd, 0x11, 0x12; the `APPLIED_MEMO_ID` test reads
+  `DamageData::m_iAppliedMemoID`, and C3's "unsupported" log line for that key is compiled out. Skipped, each
+  named in a comment: `+0x4f8` (case 0xc), `+0x5d0` (case 2; see the C3 review note: the CEffect scale
+  base is not ported, so mapping it would reset a scaled child), `+0x5dc` (case 0x16), `+0x5e4` (cases
+  1/4/5/6 tail), cases 0xf/0x10 (`32089ff0` not decoded). Cases 5 and 6 fall into the shared
+  tail with v1 (JUNE_BUGS 144).
+- **Call order in the user layer** (user attacker only, as June's early-outs): Raven block, `0x758`, the
+  socket copy (`_JUNE_SOCKET_EDT`, already in), vslot `0x780`.
+- **`0x780`** `CX2GUUser::JuneDamageExceptionClassHook( DD, fPowerRate )`: empty, called last; Ara
+  overrides it (Ara port).
+- **NPC `32759f30`.** `CX2GUNPC::SetDamageExceptionProcess`: the base, then the owner's `0x758` when the
+  owner is a live user whose CX2Unit and unit templet are set with a non-zero type. A non-user owner is
+  skipped (June would read its `+0x867c` through the wrong layout; JUNE_BUGS 145).
+- **Not ported:** DD `+0x638` (vslot `0x2e0`, always -1); the socket copy to DD `+0x3b4`
+  (june-buff 16-step3c's, already in); the eight per-class overrides (checklist 7b, the character ports).
+
+Revert: undefine `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` for the layers. The four paths go back to March with
+`SERV_IRUHADEV_JUNE_COLLISION`, which also reverts `EffectToUnit` (Phase 9). The functions were found with
+`june2017_re/vtslot.py` (vtable slot `0x2b8`); every row is in `funcmap.tsv` (`Effect C8a`).
 
 ### June2017 effect engine: XMeshPlayer `.txt` templet keys (Phase 10)
 

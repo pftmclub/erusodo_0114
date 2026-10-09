@@ -2848,6 +2848,24 @@ public:
 
 #ifdef NOT_CANCEL_BBT_STUN_BY_HIT		/// 버프를 통한 스턴 그로기 스테이트 전환 여부
 		void SetChangeGroggyState( bool bChangeGroggyState_ ) { m_bChangeGroggyState = bChangeGroggyState_; }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+		/// June effect completion C8b: one skill-memo entry, June 31fdbbb0's result: +0 the type, +0xc / +0x10 a float vector (the
+		/// entry's values v0, v1, v2; a value past the end of the vector reads 0 in 3202ac40 @3202ac6c-3202aca9).
+		struct JuneSkillMemoEntry
+		{
+			int					m_iType;
+			std::vector<float>	m_vecValue;
+		};
+		/// June 31fdbbb0 (user, thiscall, one arg: APPLIED_SKILL_ID): the user's skill-memo entry for that skill, or null. March has no
+		/// skill-memo system, so this is a plan-rule-5 stub: it returns null and logs "JUNE_FX unsupported skill memo" once.
+		const JuneSkillMemoEntry*	GetJuneSkillMemoEntry( const int iAppliedSkillID_ ) const;
+		/// June CX2GUUser vslot 0x758 (3202ac40): the skill-memo DamageData switch. Called on the attacker by the user layer of
+		/// SetDamageExceptionProcess, and by the NPC override on the NPC's owner.
+		virtual void				JuneApplySkillMemoToDamageData( CX2DamageManager::DamageData* pDamageData_ );
+		/// June CX2GUUser vslot 0x780 (empty 33093ad0 in the user vtable): the per-class hook ( DD, fPowerRate ), the last call of the user
+		/// layer. Only Ara overrides it (32bca010, the Ara port).
+		virtual void				JuneDamageExceptionClassHook( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate_ ) {}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #endif NOT_CANCEL_BBT_STUN_BY_HIT
 
 		float GetNowTimeAnimFuture() const

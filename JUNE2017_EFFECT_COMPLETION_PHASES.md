@@ -2101,7 +2101,7 @@ play-test; update matrix and MODS.md.
 
 ## C8 - Hit path, second half (old Phase 9)
 
-**Status: C8a done 2026-10-06 (see below); C8b (collision + base/user/NPC layers) queued; C8c (per-class) handed off to the character ports (D8).** Phase 9 ported June's collision for `EffectToUnit` only.
+**Status: C8a done 2026-10-06; C8b code done 2026-10-09 (play-test owed, see its Done note); C8c (per-class) handed off to the character ports (D8).** Phase 9 ported June's collision for `EffectToUnit` only.
 **Model:** Opus, high, for the comparisons; Sonnet 5, high, for the edits.
 
 - **Collision:** switch `UnitToUnit` (`32611970` inlines the same code), `UnitToEffect`,
@@ -2188,6 +2188,33 @@ Every gate is a June reform skill (`RNSI_*`, absent from March's enum). The help
 - CollisionDataToUnit: Aisha `ComboX3front` (`:9074`), Raven `COMBO_ZZZX` (`X2GURaven.cpp:7945`);
 - UnitToEffect: melee on an enemy's `ATTACKED_BY_UNIT` effect (221 templets in `DamageEffect.src.lua`);
 - UnitToUnit: any melee.
+
+### C8b - Done (2026-10-09, Sonnet 5.5 high; code, play-test owed)
+
+**What landed** (flags `SERV_IRUHADEV_JUNE_COLLISION` extended, `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` new; MODS.md entries "C8b"):
+- **Four hit paths** on `EffectToUnit`'s pair math, advance off (`X2DamageManager.cpp`). `JuneEffectCollisionDataCheck` is untouched; three small drivers sit under it:
+  - UnitToUnit `32611970` and UnitToEffect `326413c0`: the attacker's three instances (attack set, sub set, pair sub sets), one run per attack list. The result equals June's single pass (a guard seen first is what a later hit reports anyway). UnitToEffect wraps the effect's list in a one-list set.
+  - MeshToUnit `32625670`: the attacker anim's list x the defender's set, `pAttackerAnim != NULL` kept.
+  - CollisionDataToUnit `32628890`: defender set (A) x the manual datum (B). The type reported is B's: `MOV EBX,[EBX+0x20]` @3262b23e is DD `+0x1c`'s type, as March's. No guard call; the caller maps `CT_GUARD` to `m_bGuard`. Run as defender lists x a one-datum set (identical result even for a `CT_GUARD` B: the first hit point, type `CT_GUARD`).
+  - Trace: `JUNE_FX HIT UNIT_TO_UNIT | UNIT_TO_EFFECT | MESH_TO_UNIT | COLLISION_DATA_TO_UNIT COLLIDE | DIFF` (March's test run on the same pair); `EffectToUnit`'s lines gain `path=EFFECT_TO_UNIT`, TEST gains `owner=<uid> age=<now>/<max>` (T6).
+- **`+0x4108`**: `CX2GameUnit::m_iJuneChangeDamageAttackType` (ctor 2, `ResetDamageType` -1) and the user-layer gate `@320453a0-320453b5`; `SetHitNasodWeapon( false )` stays before it. Inert: Raven's reset leaves -1.
+- **`0x758` hook** `CX2GUUser::JuneApplySkillMemoToDamageData` (`3202ac40`, all cases re-read from the raw disassembly) and the rule-5 stub `GetJuneSkillMemoEntry` (`31fdbbb0`: returns none, logs `JUNE_FX unsupported skill memo` once). Skipped, each with a comment: `+0x4f8`, `+0x5d0`, `+0x5dc`, `+0x5e4`, cases 0xf/0x10. The `APPLIED_MEMO_ID` test reads C3's `m_iAppliedMemoID`; C3's "unsupported" log for that key is compiled out under the new flag.
+- **Call order** in the user layer, user attackers only (June's early-outs `@32045359-3204538c` skip both calls): Raven block, `0x758`, the socket copy (already in under `_SOCKET_EDT`), `0x780`. **`0x780`** = empty `JuneDamageExceptionClassHook( DD, fPowerRate )`, last.
+- **NPC `32759f30`**: `CX2GUNPC::SetDamageExceptionProcess` = the base, then the owner's `0x758` (live user owner, CX2Unit and unit templet set, type != 0).
+- **No damage number moves**: every `fPowerRate` multiply is unchanged. UnitToUnit is live on every melee hit, so hit/miss and the impact point can change on line x sphere pairs (as Phase 9 did for effects).
+- C3 review note: `+0x5d0` is not mapped and the CEffect scale base is not ported, so nothing resets a scaled child; the switch cannot run behind the stub anyway.
+- **JUNE_BUGS 144** (memo cases 5/6 fall into the shared tail with v1) and **145** (June reads an NPC owner's `+0x867c` with no user test; the port skips a non-user owner, the one deviation).
+
+**Hygiene:** `flagcheck JUNE_DAMAGE_EXCEPTION --with JUNE_COLLISION --worktree --files <my files>`: RESULT PASS, 6 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 `#else`/`#endif` without the token. The 6 deleted lines are Phase 9's own TEST/COLLIDE/DIFF trace lines (inside the flag and `_JUNE_FX_DEBUG`), rewritten for the path tag, owner and age.
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,497,472 B, dated 2026-10-09 18:00:11, md5 153e7bab5aca8b64f82c514f7c837cc5, equal to X2/US_SERVICE/x2.exe (2026-10-09 18:00:06); built at mods/june-buff-port a39a4ce + 27 uncommitted code file(s) (peers' work is in that exe too). The six trace strings and `JUNE_FX unsupported skill memo` are in the exe.
+
+**How to see it in game** (`python tools/logs.py --grep "JUNE_FX HIT"`; the dev console is on, `auth_level` 3):
+1. UnitToUnit: any melee on any monster -> a `JUNE_FX HIT UNIT_TO_UNIT COLLIDE` line.
+2. UnitToEffect: `/CM "LIZARDMAN_SHAMAN" 0 70`, then melee its `LIZARDMAN_SHAMAN_MAGIC_MISSILE` -> `UNIT_TO_EFFECT COLLIDE` (effect= names it).
+3. MeshToUnit: `jtVoidPrincess` (uid 28, Aisha / Void Princess lv 80), `ComboX3down` or `EvasionStandupAttack` -> `MESH_TO_UNIT`.
+4. CollisionDataToUnit: the same character's `ComboX3front`, or `ravbe` (uid 23, Raven / Reckless Fist lv 67) `COMBO_ZZZX` -> `COLLISION_DATA_TO_UNIT`.
+5. T6: `/CM "MAG_CHARGER" 0 70`; the `TEST` lines now carry `owner` and `age`. **Ask the user: how many Mag Chargers were on screen?**
+Any `DIFF` line is a place where June's hit test and March's disagree (expected only on line x sphere pairs).
 
 ---
 

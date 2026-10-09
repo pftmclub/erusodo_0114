@@ -6356,3 +6356,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              The engine member, the wire field and the Future-set / Now-get accessors; no March class drives it yet (checklist 7n).
 #define SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 //////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-09
+// Description: June2017 effect completion C8b (JUNE2017_EFFECT_COMPLETION_PHASES.md C8): the layers of SetDamageExceptionProcess that March
+//              lacks. CX2GameUnit's ChangeDamageType attack-type member (June +0x4108: 2 in the ctor, -1 in ResetDamageType) and the
+//              user layer's gate on it (32045340 @320453a0); the user vslot 0x758 skill-memo DamageData switch (3202ac40) with its memo
+//              lookup 31fdbbb0 as a plan-rule-5 stub (returns none, logs once); the NPC override 32759f30 (the base, then the owner's
+//              0x758); the empty user vslot 0x780 per-class hook. Needs the DamageData members the switch writes: DAMAGEDATA
+//              (APPLIED_SKILL_ID, APPLIED_MEMO_ID), BUFF_NEW_STAT (IGNORE_DEFENCE_RATE*), BUFF_CUSTOM_FUNCTION (m_fJuneAddCriticalRate).
+#define SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+#if defined(SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION) && !defined(SERV_IRUHADEV_JUNE_DAMAGEDATA)
+#error SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION needs SERV_IRUHADEV_JUNE_DAMAGEDATA
+#endif
+#if defined(SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION) && !defined(SERV_IRUHADEV_JUNE_BUFF_NEW_STAT)
+#error SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION needs SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
+#endif
+#if defined(SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION) && !defined(SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION)
+#error SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION needs SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#endif
+//////////////////////////////////////////////////////////////////////////

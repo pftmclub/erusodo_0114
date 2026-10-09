@@ -38273,7 +38273,15 @@ void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamage
 			switch(eDamageType)
 			{
 			case CX2DamageManager::DT_PHYSIC:
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+		bool bChange = pUser->GetChangeDamageType(eDamageType, fDamageRel);
+		/// June 32045340 @320453a0-320453b5: the damage-type change runs only when the attacker's +0x4108 is -1 or equals the hit's attack type
+		/// (+8). SetHitNasodWeapon( false ) above is before the test. Raven's ResetDamageType leaves it at -1, so March data never fails it.
+		if ( -1 != pUser->GetJuneChangeDamageAttackType() && pUser->GetJuneChangeDamageAttackType() != pDamageData_->attackType )
+			bChange = false;
+#else SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 				pDamageData_->damage.fPhysic = fDamageRelOri * fDamageRel;
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 				break;
 			case CX2DamageManager::DT_MAGIC:
 				pDamageData_->damage.fMagic = fDamageRelOri * fDamageRel;
@@ -38318,6 +38326,14 @@ void CX2GUUser::SetScriptFileName()
 	if( NULL == GetUnit() )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+	/// June 32045340 @32045359-3204538c: everything below runs for a user attacker only (any other attacker jumps to the epilogue @32045496,
+	/// past both vslot calls). vslot 0x758 (3202ac40) is called on the attacker @32045402-3204540b, after the Raven block above.
+	const bool bJuneUserAttacker = ( null != pDamageData_->optrAttackerGameUnit
+		&& CX2GameUnit::GUT_USER == pDamageData_->optrAttackerGameUnit->GetGameUnitType() );
+	if ( true == bJuneUserAttacker )
+		static_cast<CX2GUUser*>( pDamageData_->optrAttackerGameUnit.GetObservable() )->JuneApplySkillMemoToDamageData( pDamageData_ );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 	switch ( GetUnit()->GetType() )
 	{
 	case CX2Unit::UT_ELSWORD:	m_ScriptFileName = L"ELSWORD_SWORDMAN.lua"; break;
@@ -38333,8 +38349,139 @@ void CX2GUUser::SetScriptFileName()
 		break;
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+	/// June 32045340 @32045488-32045494: the last call of the user layer, vslot 0x780 of THIS unit ( DD, fPowerRate ), for a user attacker.
+	if ( true == bJuneUserAttacker )
+		JuneDamageExceptionClassHook( pDamageData_, fPowerRate );
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 
 #endif //REALTIME_SCRIPT_PATCH
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+/// June2017 31fdbbb0 (CX2GUUser, thiscall, arg = APPLIED_SKILL_ID): the user's skill-memo lookup; it searches the memo list of the user's CX2Unit
+/// (+0x867c) with the skill id and returns the entry or null. March has no skill-memo system (the memo that swaps a skill for another is a
+/// June reform feature; March only has the hard-coded SKILL_MEMO_ID notes), so per plan rule 5 this returns null, and logs once that the memo
+/// switch below can never run. Nothing is guessed in its place.
+const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int iAppliedSkillID_ ) const
+{
+	static bool s_bLogged = false;
+	if ( false == s_bLogged )
+	{
+		s_bLogged = true;
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"JUNE_FX unsupported skill memo: March has no skill-memo system, so every lookup returns none and the memo DamageData switch (3202ac40) never runs (first lookup: APPLIED_SKILL_ID %d)", iAppliedSkillID_ );
+#endif SERV_IRUHADEV_OFFLINE
+	}
+	return NULL;
+}
+
+/// June2017 CX2GUUser vslot 0x758 = 3202ac40: the skill-memo DamageData switch, on the attacker. Called from the user layer of
+/// SetDamageExceptionProcess (32045340 @32045402) and from the NPC override (32759f30). With GetJuneSkillMemoEntry a stub it returns at the
+/// lookup, so on March data nothing changes; the switch is transcribed so the memo system only needs the lookup.
+/*virtual*/ void CX2GUUser::JuneApplySkillMemoToDamageData( CX2DamageManager::DamageData* pDamageData_ )
+{
+	/// @3202ac43-3202ac4e: no CX2Unit (+0x867c) -> return
+	if ( NULL == GetUnit() || NULL == pDamageData_ )
+		return;
+
+	/// @3202ac54-3202ac66: the entry for DamageData +0x5c4 (APPLIED_SKILL_ID); none -> return
+	const JuneSkillMemoEntry* pEntry = GetJuneSkillMemoEntry( pDamageData_->m_iAppliedSkillID );
+	if ( NULL == pEntry )
+		return;
+
+	/// @3202ac6c-3202aca9: v0, v1, v2 = the entry's first three values, 0 where the vector is shorter
+	const int	iValueCount	= static_cast<int>( pEntry->m_vecValue.size() );
+	const float	fValue0		= ( 1 <= iValueCount ) ? pEntry->m_vecValue[0] : 0.f;
+	const float	fValue1		= ( 2 <= iValueCount ) ? pEntry->m_vecValue[1] : 0.f;
+	const float	fValue2		= ( 3 <= iValueCount ) ? pEntry->m_vecValue[2] : 0.f;
+
+	/// @3202aca9-3202acbf: DamageData +0x5c8 (APPLIED_MEMO_ID, C3) set and not the entry's type -> return
+	if ( 0 != pDamageData_->m_iAppliedMemoID && pEntry->m_iType != pDamageData_->m_iAppliedMemoID )
+		return;
+
+	/// June EDT 0x10 is March's EDT_MANA_DAMAGE (case 0xd writes it); the compile breaks here if the enums ever stop agreeing
+	typedef char JuneMemoEdtCheck[ ( CX2DamageManager::EDT_MANA_DAMAGE == 0x10 ) ? 1 : -1 ];
+
+	/// @3202acc5-3202acd2: the jump table on the type (1..0x16; any other type returns). Cases 1, 4, 5 and 6 end in the shared tail
+	/// @3202acd9-3202acfc, which multiplies fMagic, fPhysic (and +0x5e4, below) by the value the case left in st(0).
+	float fTailScale = 0.f;
+	switch ( pEntry->m_iType )
+	{
+	case 1:
+	case 4:
+		/// @3202acd9: the tail with v0
+		fTailScale = fValue0;
+		break;
+
+	case 2:
+		/// @3202ad03-3202ad19: DamageData +0x5d0 = v0 is NOT ported (no March member: it is the CEffect ctor's scale, see the C3 review
+		/// note in kickoffs/june-effect/C8b.md); +0x4c8 (DamageDistance) x= v0 is. Returns without the tail.
+		pDamageData_->DamageDistance *= fValue0;
+		return;
+
+	case 5:
+		/// @3202ad23-3202ad33: +0x44c (fHitGap) x= v0, then the shared tail with v1 (0 when the entry has one value only)
+		pDamageData_->fHitGap *= fValue0;
+		fTailScale = fValue1;
+		break;
+
+	case 6:
+		/// @3202ad39-3202ad47: +0x5d4 (m_fJuneAddCriticalRate) = v0, then the shared tail with v1 (see JUNE_BUGS.md)
+		pDamageData_->m_fJuneAddCriticalRate = fValue0;
+		fTailScale = fValue1;
+		break;
+
+	case 8:
+		/// @3202ad49-3202ad6a: +0x541 m_bIgnoreStateDefence = true, +0x52c m_fIgnoreDefenceRate = v1, +0x530 m_fIgnoreDefenceRateOnPvp = v2
+		pDamageData_->m_bIgnoreStateDefence			= true;
+		pDamageData_->m_fIgnoreDefenceRate			= fValue1;
+		pDamageData_->m_fIgnoreDefenceRateOnPvp		= fValue2;
+		return;
+
+	case 0xc:
+		/// @3202ad6d-3202ad7a: +0x4f8 = true is NOT ported: no March member of DamageData has an identified reader there (funcmap row 3202ac40)
+		return;
+
+	case 0xd:
+		/// @3202ad7d-3202af17: a fixed mana-damage extra damage: +0x50 type = 0x10 (EDT_MANA_DAMAGE), +0xa4 m_Damage += v0, +0xc8
+		/// m_bIgnoreResist = true, +0x8c m_fRate = 1.0, +0xb0 m_iLevel = 0, +0x55 m_bFixedDamage = true
+		pDamageData_->m_ExtraDamage.m_ExtraDamageType	= CX2DamageManager::EDT_MANA_DAMAGE;
+		pDamageData_->m_ExtraDamage.m_Damage			+= fValue0;
+		pDamageData_->m_ExtraDamage.m_bIgnoreResist		= true;
+		pDamageData_->m_ExtraDamage.m_fRate				= 1.f;
+		pDamageData_->m_ExtraDamage.m_iLevel			= 0;
+		pDamageData_->m_ExtraDamage.m_bFixedDamage		= true;
+		return;
+
+	case 0xf:
+	case 0x10:
+		/// @3202af18-3202af53: 32089ff0 on the DamageData's buff-factor list (a rescale by v0: case 0xf = (v0, 1), case 0x10 = (1, v0)) is NOT
+		/// ported: 32089ff0 is not decoded (funcmap row 3202ac40)
+		return;
+
+	case 0x11:
+		/// @3202af54-3202afc9: +0x3f8 fHitAddMP x= v0
+		pDamageData_->fHitAddMP *= fValue0;
+		return;
+
+	case 0x12:
+		/// @3202afca-3202afd7: +0x3f0 fForceDownValue += v0
+		pDamageData_->fForceDownValue += fValue0;
+		return;
+
+	case 0x16:
+		/// @3202afd8: +0x5dc = v0 is NOT ported (no March member identified; funcmap row 3202ac40)
+		return;
+
+	default:
+		return;
+	}
+
+	/// the shared tail @3202acd9-3202acf9: +0x3c fMagic x= s, +0x38 fPhysic x= s; +0x5e4 x= s is NOT ported (no March member identified)
+	pDamageData_->damage.fMagic		*= fTailScale;
+	pDamageData_->damage.fPhysic	*= fTailScale;
+}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 
 const CX2GUUser::UserUnitStateData& CX2GUUser::GetPressedSkillState( const int iPressedIndex_ )
 {

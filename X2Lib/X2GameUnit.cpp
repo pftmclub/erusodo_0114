@@ -502,6 +502,9 @@ m_fNoSkillTime( 0 )
 	m_eDamageType		= CX2DamageManager::DT_PHYSIC;
 	m_fDamageRel		= 1.f;
 	m_iDamageTimes		= -1;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+	m_iJuneChangeDamageAttackType	= 2;		/// June 322a2700 @322a5bf7 (the CX2GameUnit ctor): +0x4108 = 2 (AT_COMMAND)
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 #endif
 
 #ifdef DAMAGE_HISTORY

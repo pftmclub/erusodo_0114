@@ -1809,6 +1809,10 @@ class CX2GUNPC : public CX2GameUnit
         const InitStateData&        GetInitStateData() const    { return m_pInitData->m_state; }
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 		virtual void				DamageReact( CX2DamageManager::DamageData* pDamageData );
+#if defined( SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ) && defined( MODIFY_SET_DAMAGE_DATA )
+		/// June2017 32759f30 (CX2GUNPC::SetDamageExceptionProcess, vslot 0x2b8; March's NPC inherits the base): the base, then the owner's vslot 0x758
+		virtual	void				SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* pDamageData_, OUT float& fPowerRate );
+#endif defined( SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ) && defined( MODIFY_SET_DAMAGE_DATA )
 
 		void DamageReact_ExtraDamage( CX2DamageManager::DamageData* pDamageData, bool bApplyExtraDamageOfAttacker
 #ifdef  X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION

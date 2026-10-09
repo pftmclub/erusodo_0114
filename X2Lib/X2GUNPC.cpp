@@ -32270,6 +32270,30 @@ void CX2GUNPC::SetEntryMonsterMessage( IN const char* pMonsterName_, IN float fV
 }
 #endif // ENTRY_MONSTER_MESSAGE
 
+#if defined( SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ) && defined( MODIFY_SET_DAMAGE_DATA )
+/// June2017 32759f30 (CX2GUNPC::SetDamageExceptionProcess): the base (322990e0), then, when the NPC's owner (the observer at +0x8d5c) is live and
+/// its CX2Unit (+0x867c) and that unit's templet (+0xaf0) are set with a non-zero type ( @32759f9b ), the owner's vslot 0x758 on the DamageData.
+/// June reads +0x867c of whatever the owner is; March's owner of an NPC is a user (GetOwnerGameUnit casts it to CX2GUUser), and a non-user owner is
+/// skipped here instead of being read through the wrong layout.
+/*virtual*/ void CX2GUNPC::SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* pDamageData_, OUT float& fPowerRate )
+{
+	CX2GameUnit::SetDamageExceptionProcess( pDamageData_, fPowerRate );
+
+	if ( null == m_optrOwnerGameUnit )
+		return;
+	CX2GameUnit* pOwnerGameUnit = m_optrOwnerGameUnit.GetObservable();
+	if ( NULL == pOwnerGameUnit || CX2GameUnit::GUT_USER != pOwnerGameUnit->GetGameUnitType() )
+		return;
+
+	CX2GUUser* pOwnerUser = static_cast<CX2GUUser*>( pOwnerGameUnit );
+	const CX2Unit* pOwnerUnit = pOwnerUser->GetUnit();
+	if ( NULL == pOwnerUnit || NULL == pOwnerUnit->GetUnitTemplet() || CX2Unit::UT_NONE == pOwnerUnit->GetType() )
+		return;
+
+	pOwnerUser->JuneApplySkillMemoToDamageData( pDamageData_ );
+}
+#endif defined( SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ) && defined( MODIFY_SET_DAMAGE_DATA )
+
 #ifdef FIELD_BOSS_RAID
 /** @function : FollowTargetUnitBone_FrameMove
 	@brief : 지정된 타겟 유닛의 본 위치로, 내(NPC) 위치를 이동 시키는 함수
