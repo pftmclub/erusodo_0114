@@ -1108,8 +1108,8 @@ Fix (`--worktree --files X2Lib/X2GUUser.cpp`): `1 PASS`, `11 deleted line(s)` = 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,502,592 B, dated 2026-10-10 05:31:24, md5 4a9c0c237b66046b655ea936d3781040, equal to X2/US_SERVICE/x2.exe (2026-10-10 05:31:18); built at mods/june-buff-port 13ed5f2 + 1 uncommitted code file(s).`
 The new log string is in the exe (UTF-16), and the old one is gone.
 
-**Play-test (regression, optional):** one jtLordKnight dungeon run: the same `roll` / `rebind` pairs as before. To see LOSE, lose a PvP match against the AI heroes **while alive**. LOSE is entered only from
-`X2PVPGame.cpp:531` -> `Lose()` with HP > 0. Expect `rebind state 12` lines with the rolled LOSE index and table, and no crash. **Open for the user:** none.
+**Play-test (regression, optional):** one jtLordKnight dungeon run: the same `roll` / `rebind` pairs as before. **LOSE cannot be play-tested:** it is entered only from
+`X2PVPGame.cpp:531` -> `Lose()` with HP > 0, and the offline client has no PvP yet (user, 2026-10-10). The LOSE re-bind is settled by the code reading in item 4. **Open for the user:** none.
 
 ## C3e-3 - identify: June's per-attacker hit-stop and the state-skip flag (A)
 
