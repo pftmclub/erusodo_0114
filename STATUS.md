@@ -326,7 +326,7 @@ the ports.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| P0 | **queued: rebased onto the dev overlay by dev-overlay O6 (user, 2026-10-09); do not start before O6** | Sonnet 5.5 / high | dev-overlay O6 | `tools/kom.py`, `tools/README.md`, new `june2017_re/asset_port_census.py` + `p0_*.tsv`, `kom_contents/data101_kom` + `data118_kom` (restore only) | `P0.md` |
+| P0 | ready | Sonnet 5.5 / high | - | `tools/kom.py`, `tools/README.md`, new `june2017_re/asset_port_census.py` + `p0_*.tsv`, `kom_contents/data101_kom` + `data118_kom` (restore only) | `P0.md` |
 | P1 | waiting (P0) | Sonnet 5.5 / high, then user play-test | P0 | `KTDXLIB/KGCMassFileManager.cpp`, `KTDXLIB/Always.h`, `tools/logs.py` | `P1.md` |
 | P1 review | waiting (P1) | Sonnet 5.5 / high | P1 | review (P1 files only if a fix) | `P1-review.md` |
 | P2 | waiting (P1 review) | Sonnet 5.5 / high, then user play-test | P1 review | new `kom_contents/data152,179,214,224,i027_kom`, game dir koms | `P2.md` |
@@ -442,38 +442,35 @@ Running together:
 - june-effect C3d-4 waits for L2 review and reads L2's class-script verdicts. Route "add now" = `convert` the nine class scripts in
   C3d-5; route "wait" = the character ports via `adopt-june`.
 
-## dev-overlay - loose files for development, pack at plan close-out and release
+## dev-overlay - loose Lua for development, pack at plan close-out and release
 
 Plan `DEV_OVERLAY_PHASES.md` · branch `mods/june-buff-port` · log tag `[DEV_OVERLAY]` (`data\dev_overlay.log`) · flag
 `SERV_IRUHADEV_DEV_OVERLAY` · kickoffs `kickoffs/dev-overlay/` · tool `tools/overlay.py` + skill `x2-overlay` (built here) ·
-created 2026-10-09 (user request).
+created 2026-10-09 (user request) · **`.lua` only** (user, 2026-10-09). Non-Lua assets keep the usual kom flow.
 
 **The point.** The engine already reads loose files ahead of the koms (proven 2026-10-09 with a loose BOM-source dialog Lua).
-This plan builds the rest of the loose-file workflow:
-- **Overlay.** Development moves to `...\24965799\dev_overlay\<kom>\`, which the engine indexes once at startup and serves first.
-- **Ledger.** A per-kom `_overlay.json` records what changed and where it ships.
-- **Promote.** Packing happens only at a plan's close-out and at release, with decode-back byte equality as the proof.
-- **Engine fixes first:** the loose-texture `hFile2` typo, `item.kim` deleted at launch, and the 60+-character name overflow.
+- `.lua` development moves to `...\24965799\dev_overlay\<kom>\`. The engine indexes it at startup and serves it first, from
+  `LoadRealFile` only.
+- A per-kom `_overlay.json` records what changed.
+- Lua is packed only at a plan's close-out and at release ("promote"), with decode-back byte equality as the proof.
 
-Until O6 lands, the old pack/copy flow stays in force for every other plan.
+Until O5 lands, the old Lua pack/copy flow stays in force for every other plan.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| O0 | ready | Sonnet 5.5 / high | - | `tools/data/overlay_baseline.tsv`, `tools/data/overlay_shadow_allowlist.tsv` (new); may pack/copy pending koms | `O0.md` |
-| O1 | waiting (O0) | Opus 5.5 / high, then user play-test | O0 | `KTDXLIB/KGCMassFileManager.cpp/.h`, `KTDXLIB/KTDXDeviceManager.cpp`, `X2Lib/X2Main.cpp`, `X2Lib/X2ItemManager.cpp`, `KTDXLIB/Always.h` | `O1.md` |
+| O0 | ready | Sonnet 5.5 / high | - | `tools/data/overlay_baseline.tsv` (new); may pack/copy pending koms | `O0.md` |
+| O1 | waiting (O0) | Opus 5.5 / high, then user play-test | O0 | `KTDXLIB/KGCMassFileManager.cpp/.h`, `KTDXLIB/KTDXDeviceManager.cpp`, `KTDXLIB/Always.h` | `O1.md` |
 | O1 review | waiting (O1) | Opus 5.5 / high | O1 | review (O1's files if a fix is needed) | `O1-review.md` |
 | O2 | waiting (O0) | Sonnet 5.5 / high | O0 (O1 for `served`) | `tools/overlay.py` (new), `tools/logs.py`, `.claude/skills/x2-overlay/` (new), `tools/README.md` | `O2.md` |
 | O3 | waiting (O1 review, O2) | Sonnet 5.5 / high, then user play-tests | O1 review, O2 | overlay test files only (all dropped at the end) | `O3.md` |
 | O4 | waiting (O3, lua-source L2 committed) | Opus 5.5 / high, then user play-test | O3, lua-source L2 | `tools/overlay.py`, `tools/luasrc.py` (produce/commit split), `tools/data/overlay_promotions.tsv` (new), `kom_contents/data217_kom` | `O4.md` |
-| O5 | waiting (O4) | Sonnet 5.5 / high, then user play-test | O4 | `tools/overlay.py` | `O5.md` |
-| O6 | waiting (O5) | Opus 5.5 / high | O5 | CLAUDE.md, `.claude/skills/` (x2-phase, x2-lua, elstools, x2-kom-packed, x2-check-logs), `LUA_SOURCE_PHASES.md`, `kickoffs/lua-source/`, `kickoffs/june-asset-port/`, this file, memory | `O6.md` |
-| O6 review | waiting (O6) | Opus 5.5 / high | O6 | docs (fixes only) | `O6-review.md` |
+| O5 | waiting (O4) | Opus 5.5 / high | O4 | CLAUDE.md, `.claude/skills/` (x2-lua, x2-phase, elstools, x2-kom-packed, x2-check-logs), `LUA_SOURCE_PHASES.md`, `kickoffs/lua-source/`, this file, memory | `O5.md` |
+| O5 review | waiting (O5) | Opus 5.5 / high | O5 | docs (fixes only) | `O5-review.md` |
 
 Running together:
-- **With lua-source L2/L6:** O0, O1 and O2 can run alongside them. O1 touches engine files L6 does not (`KTDXApp.h` is read
-  only). O2 imports `luasrc.py` and never edits it.
-- **O1 and O2** can run at the same time: engine files vs tools.
-- **june-asset-port** does not start before O6. O6 rebases it onto the overlay (user, 2026-10-09).
+- O0, O1 and O2 can run alongside lua-source L2/L6. O1's engine files are not L6's (L6 only reads `KTDXApp.h`). O2 imports
+  `luasrc.py` and never edits it.
+- O1 and O2 can run at the same time: engine files vs tools.
 
 ## Other plans
 
