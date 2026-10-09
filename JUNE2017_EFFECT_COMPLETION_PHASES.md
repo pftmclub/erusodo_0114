@@ -981,15 +981,20 @@ platforms (line changes) and a village walk; `python tools/logs.py` should show 
    unchanged. `:31235` / `:31337` pass the index to `GetLineGroupIncludesLineData( int )`, which needs no narrowing.
 3. **G on the wire: matches June.** Serialize `32d5c2e0`: compare `FLD [+0x2a]; FLD [+0x2a]; FUCOMPP` (a float compare, @32d5c4a1), then writes in the order
    `0x8000`, `0x80000`, `0x100000`, **`0x200000`** (@32d5c705), `0x800000`. Deserialize `32d5be30`: `0x8000`, `0x80000`, `0x100000`, **`0x200000`** (4-byte reader
-   `32d5bd60`), `0x800000`. March's flag is a DWORD (`SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER`, buff Phase 8), so bit 21 survives. A first packet (`prev == NULL`) sets
-   every bit, including `0x200000`, so the receiver's accumulated `m_usDataFieldFlag` reaches `All` (`X2GUUser.cpp:24893`; `X2Game.cpp:906` seeds `All` for the
-   push-pass path, which does not depend on the order). `Reset()` is `*this = ctor`, and the ctor zeroes G.
+   `32d5bd60`), `0x800000`. March's flag is a DWORD (`SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER`, buff Phase 8), so bit 21 survives. `ReceiveFrameData` (`X2GUUser.cpp:24893`) gets `All`
+   because the receiver seeds it: `X2Game.cpp:906` (with `0x200000` now in `All`) is the only path into `ReceiveFrameData`, and the `else` branch (`:916`) only
+   skips bytes. The sender diffs against a default-constructed `kLastSync` (`NULL` only on the overflow retry), so G = 0 goes on the wire only once it changes, and
+   the receiver's ctor default (0) stands in until then; `m_dwRelativePos` / `dwBuffSyncCount` already work this way. `Reset()` is `*this = ctor`, and the ctor zeroes G.
+   Offline never serializes a user sync (no peers; bots are NPCs), so this is wire parity only.
 4. **G in SyncData: complete.** `Init` sets 0. The sender copies it (`X2GUUser.cpp:24689`, inside the per-entry loop, before both `Serialize` calls) and `SetData`
    copies it (`:36663`). Future -> Now goes through `FrameData::operator=` -> the implicit `SyncData` copy. There are no member-wise SyncData copies elsewhere: the
-   `m_dwRelativePos` / `dwBuffSyncCount` writers are the sender, SetData and the RelativePos reset, which are not G's concern. **Verify:** no June function touches the
-   protected slots by absolute offset as a set: a displacement sweep of nowState `+0x7e6c` / `+0x810c`, hp `+0x7e90` / `+0x8130` and G `+0x7ed8` / `+0x8178` finds only
-   class drivers, the converters, accessors and the debug dump `31fdfd70`. So June's SyncData verifier (if it still exists) cannot be found this way. **Decision: G stays
-   out of `SyncData::Verify`.** There is no June evidence for it, and leaving it out cannot cause a false hacking flag.
+   `m_dwRelativePos` / `dwBuffSyncCount` writers are the sender, SetData and the RelativePos reset, which are not G's concern. **Verify: June's verifier not located; undetermined.** In June the 12-byte
+   slots are March's `KProtectedType` (`m_data`, `m_verifyData`, `m_ucTableIndex`). No non-inlined SyncData member is called on Future: no `lea ecx, [reg+0x7e34]`
+   anywhere. The one `lea ecx, [ebp+0x80d4]` (@3204ecce in `3204ea20`) is the Future -> Now copy `320861a0` (protected `SyncData::operator=`), which re-encodes every
+   slot. No function reads the slot set together by absolute offset either: nowState `+0x7e6c` / `+0x810c`, hp `+0x7e90` / `+0x8130` and G `+0x7ed8` / `+0x8178` hit only
+   class drivers, CommonFrameMove `32063650` (plain decoded reads), the converters, accessors and the debug dump `31fdfd70`. A `this`-relative sweep
+   (`+0x38`/`+0x44`/... in one function) was too noisy to settle it. **Decision: G stays out of March's `SyncData::Verify`.** That is the conservative side: leaving
+   it out cannot raise a false hacking flag, and the check can be added later if June's verifier is found.
 5. **Line-map overloads: same body as the `unsigned char*` wrappers**, with the same const-ness (GetLandPosition const, CanDown non-const). A `USHORT*` converts
    implicitly to neither `int*` nor `unsigned char*`, so no call site can silently pick the `int*` version. Literal-NULL callers already had to cast (int* vs uchar*
    ambiguity before this phase), and the build is clean. No file outside the warndiff's 37 TUs touches `syncData.lastTouchLineIndex`; the others go through
