@@ -2215,6 +2215,8 @@ Every gate is a June reform skill (`RNSI_*`, absent from March's enum). The help
 4. CollisionDataToUnit: the same character, X, X, then X with forward held = `ComboX3front` (`:9074`, Void Princess is in its class list); or `ravbe` (uid 23, Raven / Reckless Fist lv 67): Z, Z, Z, then X before the third swing ends = `RSI_COMBO_ZZZX` (`X2GURaven.cpp:7945`).
 5. T6: `/CM "MAG_CHARGER" 0 70` in Ruben field; the `TEST` lines now carry `owner` and `age`. Ask: how many Mag Chargers were on screen?
 
+**Play-test 2026-10-09: PASSED, except UnitToEffect (skipped by the user).** Logs read (`JUNE_FX HIT`): `UNIT_TO_UNIT` COLLIDE for `jtVoidPrincess` (uid 28) and `ravbe` (uid 23); `MESH_TO_UNIT` x2 (Void Princess, `AVSI_DARK_MAGICIAN_COMBO_X3down`); `COLLISION_DATA_TO_UNIT` for both characters; 0 EXCEPTION. T6: 60 Mag Charger `TEST` lines, one owner (1000027), age <= 1.03 of 2.00, hitbox centre = mesh position on every sample, so the far samples did not reproduce with one charger. **`UNIT_TO_EFFECT` never fired:** the Lizardman Healer would not throw its missile (invisible, 1 s life, 700 units/s), and the console `BOMB` spawn did not work, so the user skipped the check as too conditional. The path is verified by code only; the C8b review must read it against `326413c0` (and may use the `UNIT_TO_UNIT` DIFF lines below, which run the same instance driver). **DIFF lines:** 3 x `june=0 march=1` and 2 x `june=1 march=0` on `UNIT_TO_UNIT` (both directions, player and monster attackers); the review checks they are line x sphere cases.
+
 ---
 
 ## C9 - The June effect files March still does not open
