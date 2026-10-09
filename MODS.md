@@ -3366,6 +3366,27 @@ Packed and copied: `data035` md5 b76d3cb3, `data037` 42e6ccc6, `datai016` 86d929
 Revert: copy back the live koms from `24965799\kom_backup_tools\{data035,data037,datai016}.kom.20261009_135512*` and delete `data\datai030.kom`;
 for the staging tree, restore `24965799\kom_backup_stage_june\20261009_135231\` (replaced files + moved sidecars) over `kom_contents\`.
 
+### June partial ports replaced (2026-10-09)
+
+Data only, no flag. Every earlier June port that was still a recompiled decompile or a March/June merge is now June's own bytecode via
+`ljconv`: 121 files in data034/036/037/039/040/217, datai014 (106 kom entries changed). Per-file list with kind and probe:
+`june2017_re/june_partial_port_replace_20261009.tsv`. Kinds: 88 were June's content already (decompile drift removed), 9 dropped small
+Lanox March-compat edits, 24 were March files with June parts (now June whole). 110 `.src.lua` sidecars moved to the backup below;
+the matching `march2014/` sources are superseded. L0's six data217 ledger rows are marked `restored` (superseded).
+
+**Kept merged on purpose (user, 2026-10-09), with their blockers** (measured by loading June's file over March's enums):
+- `Enum.lua`: 454 names differ in value from March's C++ (user / Chung / Raven / Ara state ids, UI message ids), 164 March names gone. Needs the C++ on June's numbering.
+- `DungeonEnum.lua`: drops 59 March dungeon names (the 9 battle-field tutorials, Besma Mine/Canyon, secret dungeons).
+- `DamageEffect.lua` + `EffectSet.lua`: D1, 1,915 blocks take June's numerical skill data (character ports) and deal 0.
+- `DLG_Map_Village.lua`, `DLG_Map_Local.lua`, `DLG_Map_House.lua`: stop loading at the first Elysion / June house id ("table index is nil"); clean once Atlas/Elysion adds the ids.
+- `NPCTemplet.lua`, `DungeonData.lua`: registries (also kept by the NPC port above).
+
+The 20 "uncertain" ones went in (user's call): `WorldData`, `MapData`, `BattleFieldData`, `PVP_Map_List` and 16 map dialogs load, but name
+Elysion / Atlas / hero-dungeon ids March lacks (nil to the C++). If a map or world misbehaves, check that file's probe column first.
+
+Revert: live koms from `24965799\kom_backup_tools\*.20261009_1412*`; staging from `24965799\kom_backup_stage_june\20261009_141115\`; set the
+six data217 ledger rows back to `live`.
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.
