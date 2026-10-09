@@ -566,6 +566,21 @@ If a `LuaCommon/` edit proves unavoidable:
   3. `assert(loadstring("local a = 1\nlocal b = = 2"))` -> the same kind of line with `:2:`, so line numbers come from the source.
   4. Paste 1 nine more times -> nothing new until the 10th, which writes `(seen 10 times) ...` with no stack.
 
+**Play-test (2026-10-09 09:43-09:45, deployed exe md5 8da01b94): PASSED.** The session covered login, a village and a battle-field join
+(no dungeon), plus the four console checks.
+- All four console checks were written exactly as predicted (ErrorLog lines 463-474). Check 3 shows
+  `[string "local a = 1..."]:2: unexpected symbol near '='`, so source line numbers reach the log.
+- No noise: the session wrote no `[LUA_SRC]` head besides the tests and the one below.
+- Loads are unchanged: 47 `KEM_ERROR72` and 1 `KEM_ERROR73`, the same file list as the pre-L6 run.
+- `[LUA_SRC_DEBUG]` works. Particle `.txt` loads show as "text without BOM" and load fine, because their reader takes BOM-less text.
+- **Finding for the review: the reason text is misleading for one kind of failure.** The one `KEM_ERROR73` is `TutorSystem.lua`,
+  logged as "BOM text, parse or run error; the lua error line just above...", but no lua line precedes it.
+  - The file is 3 B, a BOM and nothing else. It is the per-user tutor save written by `CX2TutorSystem::SaveScriptFile`.
+  - Its reader is `KLuaManagerProxy::DoMemoryNotEncrypt` (`KLuaManagerProxy.cpp:532-542`), a hand parser, not Lua. After the BOM
+    it returns false on an empty buffer, so `_ALERT` never runs.
+  - The failure is pre-existing and harmless. The fix belongs in the reason text: class an empty buffer (BOM only) on its own,
+    and say "no lua line above = a non-Lua reader refused it" in the BOM-text reason.
+
 ## Phase L6-review
 
 - **Threads.** Is `_ALERT` safe when loader threads call it? Does ErrorLog writing lock?

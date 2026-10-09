@@ -22,6 +22,9 @@ Review Phase L6's commits:
 - **Flag off.** Does the build equal base?
 - **Loads.** Is the set of files that load unchanged?
 - **Parser guard.** Does it trip as intended?
+- **Play-test finding (fix it).** The reason text is misleading for one failure. See the L6 Done note's "Play-test" paragraph:
+  `TutorSystem.lua` is a BOM-only (3 B) file that `KLuaManagerProxy` refuses. Its `[LUA_SRC]` reason points at a lua error line
+  that never exists. Give an empty buffer its own kind, and make the BOM-text reason cover non-Lua readers.
 
 Hygiene is one command:
 `python tools/flagcheck.py SERV_IRUHADEV_LUA_SOURCE --range <first L6 commit>^..HEAD --with SERV_IRUHADEV_LUA_SOURCE_DEBUG`.
