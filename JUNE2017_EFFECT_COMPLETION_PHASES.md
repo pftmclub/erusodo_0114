@@ -1118,7 +1118,7 @@ scratch x87 harness built like `x87test.py` (June's compare bytes, run on concre
    plain `fstp [StateData +0x430]` with miss = `fld1`, followed by the effect-set list `resize( 0 )`, as in March.
 2. **NPC copy `327ac9d0 @327ad4a0`.** `327ac9d0` has its own SEH prologue, so the Done note's correction of the kickoff's `327a0fa0` stands. Two paths avoid
    the copy. `@327aca28` returns when the skin anim (`+0x8604`) is null; March has `if ( NULL == m_pXSkinAnim ) return;`. `@327ace8f` jumps into the protector
-   section (`33ea82b4`, a Themida VM entry). That jump is the body of an `if` whose three skip branches all land on the join at `327acf83`, ahead of the copy.
+   section (`33ea82b4`, a Themida VM entry). That jump is the body of an `if` whose three skip branches all land on the join at `327acf83`, ahead of the copy (the VM's own exit is inferred from where its junk span ends at that join, not traced).
    No other branch crosses the copy. **Stale placement:** the NOT_BOUNDING copy that the kickoff and Done note put C3g's copy after was removed by the C3d-3
    review (`9946eea`: NOT_BOUNDING is an INIT key). The copy now follows the NEVER_MOVE read in both `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` branches. The two
    stores are independent, so the order is moot. The funcmap row now says so.
