@@ -541,6 +541,7 @@ public:
 		LSK_BOM_TEXT,				/// EF BB BF
 		LSK_TEXT_NO_BOM,
 		LSK_NOT_LUA,
+		LSK_EMPTY,					/// 0 B, or a UTF-8 BOM and nothing else ( L6 review )
 		LSK_END,
 	};
 

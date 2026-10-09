@@ -6270,7 +6270,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //                a later config defines _SERVICE_ ( luajitLib_NoInterpreter cannot load text, lj_load.c:37-43 ); #error
 //                tripwires in KTDX.h and KTDXApp.cpp if it ever comes back.
 //              - a script load that fails writes "[LUA_SRC] <file>: <kind>, <reason>" beside KEM_ERROR73 ( kinds: KOG
-//                bytecode, other bytecode, BOM text, text without BOM, not Lua, uncompress failed ).
+//                bytecode, other bytecode, BOM text, text without BOM, not Lua, empty, uncompress failed ).
+//                L6 review: the [LUA_SRC] lines are appended by their own writer, not KLOG ( g_kSuperAssert has no lock ).
 //              - a C _ALERT in every binder state ( main + per-thread ) sends Lua syntax and runtime errors, with the file
 //                being loaded, to ErrorLog.txt as "[LUA_SRC] lua error ..." lines, deduplicated, instead of printf.
 //              Nothing that loads today loads differently. LuaCommon/ is untouched. Log tag: [LUA_SRC].
