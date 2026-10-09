@@ -1,6 +1,7 @@
 # Partly ported Lua replaced by June bytecode via ljconv on 2026-10-09 (MODS.md "June partial ports replaced").
 # kind: same as June = content was June already (recompiled decompile); June + small edits = Lanox March-compat edits dropped; merged/partial = March file with June parts, now June whole.
 # probe = load over March Enum/DungeonEnum: enum names June asks for that March lacks (they read as nil).
+# ROLLED BACK 2026-10-09 (user): every row is back to its pre-wave file (MODS.md "June partial ports replaced", rollback note); kept as the record of what the wave did.
 name	kom	kind	probe	shipped_sha1
 DLG_Destination.lua	data034	merged/partial	missing 0	e1c5b0af68528a9cf2ddf79dee7de90397f3e483
 DLG_Map_Local_Altera_Island.lua	data034	merged/partial	missing 2 DUNGEON_ID.DI_BESTERA_START DUNGEON_ID.DI_HERO_DUMMY_COMMON	0cfca5602e6f48f6b44d0ae12d48e03a2da2af17
