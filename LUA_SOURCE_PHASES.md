@@ -259,7 +259,7 @@ local-map dialogs all have an exact `.src.lua`, so semantic risk is zero.
 
 Write a Done note, start the ledger with these 6 rows (tier T0, source `src.lua`, phase L0), and commit.
 
-**Done note (2026-10-09, Sonnet 5.5): code-side gate passed, play-test pending.**
+**Done note (2026-10-09, Sonnet 5.5): L0 closed - gate passed, play-test passed.**
 - **T0:** all 6 `.src.lua` compile byte-identical to the shipped `X.lua`. The vendored luajit needs `LUA_PATH=<luajit dir>\?.lua` or it
   dies with "jit.* modules not installed"; its stdout CRLF is the usual artefact, undone before comparing. The sidecars are CRLF with no BOM.
 - **Snapshot:** `24965799\kom_contents_bytecode\data217_kom\` (all 13 files, sha1-verified against the originals before staging) and
@@ -272,7 +272,9 @@ Write a Done note, start the ledger with these 6 rows (tier T0, source `src.lua`
 - **Copy:** `COPY OK data217 ... 8047 bytes, 6 entries, md5 9fb43f49f066485bd080bd86f722ee6b`; the old kom is in
   `kom_backup_tools\data217.kom.20261009_083925`.
 - **Ledger:** `tools/data/lua_source_ledger.tsv` started with the 6 rows (`source_sha1` = sidecar text without the BOM).
-- **Still owed:** the user's play-test (world map, Ranox local map, Special local maps) and the `KEM_ERROR72/73` check in `ErrorLog.txt`.
+- **Play-test (user, 2026-10-09):** world map, Ranox, Special and Peita local maps looked as before. Logs (run started 08:41, after the
+  08:39 copy): `ErrorLog.txt` has 0 `KEM_ERROR` lines; `OpenScriptFile.log` shows `DLG_Map_Local_Special_Back_NEW.lua` (data217) opened at 08:42:8.
+  The two `E_DISABLE_HB_CHECK_REQ` UNHANDLED lines are unrelated. L0 proves BOM source survives pack + load; L1 and L6 are unblocked.
 
 ## Phase L1 - Conversion tooling, pack gate, compile fold, skill `x2-lua`
 
