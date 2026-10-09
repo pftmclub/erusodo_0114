@@ -1341,6 +1341,45 @@ no such key, so nothing sets it today. The engine half reaches play with the Ara
 
 **Play-test (2026-10-09): PASSED.** (user; exe 10df7f3e, a peer's redeploy carrying C3h; Ruben field 40000 as arasss, Ara Yama Raja: air dash, runs; reyaa runs). Logs read: 0 `JUNE_FX C3h` lines as expected, 0 EXCEPTION, only the baseline E_DISABLE_HB_CHECK_REQ UNHANDLED, field 40000 placed 21 monsters, no `BattleFieldData` error, no monster `OpenXSkinMesh` failure. The first attempt crashed in `CX2GUNPC::Init` (NULL m_pMotion: June's `Thief_Thin_toto.lua` names `Motion_THIEF_THIN_TOTO.X`): not C3h; fixed by staging 143 June meshes/textures (`7f00a64`) and restoring March's merged `BattleFieldData.lua` (`c4c6b18`, `2830cb9`; June's needs `BFT_*` -> atlas A6b).
 
+### C3h - Review (2026-10-09, Opus 5.5 high)
+
+**Verdict: correct against June. No code change, so no build.** One funcmap correction (row `31e4f990 (C3h)`). Read-only: capstone over
+`unpacked_x2.exe` (`disasm_range.py`, `dispsweep.py`), plus a scratch popping x87 harness (`fldz; fcomp`, June's mask/jcc bytes).
+
+1. **Parse.** `@32053fd4` (SPEED_TIME loader) to `@32054181`: the only branch is the xorstring lazy-init (`@32053fe4`), whose two paths join at
+   `@3205403f`. A miss stores `al = 0` (`@3205418a`), so the key is read at every state start, default false. The C3g review already showed that the
+   function's only earlier exit (SIEE 20, `@32050753`) is mirrored in March. xorstrings: `APPLY_MOVEMENT_SPEED` has exactly one use in June
+   (`3379d178`, nuses 1), with no plain or UTF-16 copy. So nothing else parses it: not the riding pet's user-key parse (`X2RidingPet.cpp:1145`), and not
+   the NPC. March's placement (after PASSIVE_SPEED_X/Y; March parses SPEED_TIME before PASSIVE, June after, which are independent) is fine.
+2. **Rescale** `@3205419d-320542b9`. GetWalkSpeed is inlined and rounded to float (`@320541c1`), then divided by `+0x324` and rounded to float again
+   (`@320541cf`). The x87 stack trace holds through the loop (`fld st0` per element, rate left in ST0 for the minor unit, `fstp st0` at `@320542b9`).
+   nowSpeed.x is always scaled, passiveSpeed.x unless `31c7b640( x, -1 )`, and each `+0x85f4` entry's `+0x0`. `31c7b640` is `|a-b| <= FLT_EPSILON`
+   (`test ah,0x41`, NaN = same), which is March's `IsSamef` (`KTDXCommonFunc.h:1449`). The port matches.
+   **`31e4f990` = GetWalkSpeed confirmed, but the funcmap had the two fields swapped.** June's `InitAddtionalDashAndJumpBasicStatValue` (`32272023`)
+   feeds `+0x324/+0x328/+0x32c/+0x330` to the stat objects at `+0x4870/+0x4924/+0x49d8/+0x4a8c` (0xb4 bytes each). So `+0x4910` is the **walk** object's
+   protected result (`+0xa0`), and `+0x423c` is the shared `m_fRunJumpSpeedRate`: dash is `+0x423c * protected +0x49c4` (94 key reads at
+   `+0x49c8`, e.g. `31fd1cde`). The kickoff carried the same swap. The row is fixed; no code or comment names the two offsets.
+3. **Decay** `@320168ab-32016990`. The popping harness gave identical results over 3 rounds x 8 values x 3 compares (no leak):
+   - sign `x >= 0` (-0.0 positive, NaN negative);
+   - positive clamp `x <= 0 -> 0`;
+   - negative clamp `x > 0 -> 0` (NaN kept in both).
+
+   These are March's `X2GUUser.cpp` compares. June's flag path computes `(fReloadAccel * fElapsed) * rate`, with rate = `31e4f990() / +0x324` rounded to float.
+   The port uses the same association. The flag-off path (`@320168fe`, `@3201696b`) is March's line, so only the decay term changed.
+4. **Storage.** Byte writes to `+0x300/+0x2cc` binary-wide: the unit ctor (`322a2700 @322a3184 / @322a3126`) and three other classes' functions
+   (`31c91930`, `31c926b0` (own vtable `3344ac24`), `3289e740`). Every 13-dword `rep movsd` (75) was listed. The unit-side ones are exactly Init `322a5f90`,
+   ResetPhysicParam `322886a0`, RidingOffEnd `31fcde30` and C3m's `+0x300 -> +0x334` backup `3229635b` (read only, never copied back). The rest are
+   stack locals, `std::vector` element loops (`3221d690`, `32226154`, `32207960`) or another class's `+0x2f0`. Every `lea [reg+0x300]` outside the
+   known unit / NPC ones is another class: wstring SSO tests, members with destructors, buffer pointers. March has the same three copies
+   (`X2GameUnit.cpp:734`, `:4182`, `X2GUUser.cpp:38849`), no `m_OrgPhysicParam =` copy and no other whole-struct writer of the unit's struct. The field
+   placement stands.
+5. **Routes.** Minor unit and Ara's state: checklist 7o. `31fe3a60` / `31fe2740`: C3l kickoff. `32296290`: C3m done, port planned as C3n.
+6. **Hygiene.** `flagcheck JUNE_APPLY_MOVEMENT_SPEED --range 6ed3d50^..HEAD`: `2 PASS, 0 PASS~, 1 DEFINE, 53 OTHER, 0 FAIL, 0 ERROR`; 0 deleted lines,
+   0 non-ASCII inserted lines, 0 EOL mismatches, 0 encoding changes. RESULT: PASS. The 53 OTHER rows are peers' commits in the range (C3e-1, C3i, C8b,
+   C10b-2 and others), none touching this flag's lines.
+
+The review needs no play-test; the C3h regression play-test already passed.
+
 ## C3i - port: June's NOT_UP_STATE in the NPC reaction cases
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3i.md`.
