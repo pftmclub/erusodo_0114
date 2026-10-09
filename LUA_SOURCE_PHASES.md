@@ -590,6 +590,58 @@ If a `LuaCommon/` edit proves unavoidable:
 
 Hygiene: `flagcheck --range <first L6 commit>^..HEAD --with SERV_IRUHADEV_LUA_SOURCE_DEBUG`.
 
+**Done note (2026-10-09, Opus 5.5 high): two defects fixed, the play-test finding fixed, one older hazard handed to the user.
+Built and deployed; play-test pending.** The fix commit is `7f6f3fb`, under the same flag. It changes only L6's own lines
+in `KTDXApp.cpp`, plus one enum line in `KTDXApp.h` and the comment in `Always.h`.
+- **Threads.**
+  - `_ALERT` itself is safe. The file being loaded and the continuation state are thread-local, the head map sits under the
+    lock, and the function never raises.
+  - `KLuaManager` threads do reach it, confirmed by reading the code: `lua_newthread` + `setfenv` with `__index`
+    (`KLuaManager.cpp:108-115`), and `print_error` uses `lua_gettable(L, LUA_GLOBALSINDEX)`, which resolves to the thread's env.
+  - **Defect, fixed: ErrorLog writing did not lock.** `KLOG` is `g_kSuperAssert` (`KSuperAssert.h:109,231`), a single global
+    whose `std::string` buffers have no lock. L6's lock covered only L6's own lines, while `ErrorLogMsg` on any other thread
+    edits the same strings. That is a heap-corruption risk, and L6 added loader-thread writers (71 `[LUA_SRC_DEBUG]` lines in
+    the play-test). `LuaSrcWrite` now appends to the file itself, so no L6 line touches `g_kSuperAssert`. It mirrors
+    `KSuperAssert::_fileout` (`fstream` app in text mode, the `CHAT_LOG_TO_TXT` timestamp, opened per line because
+    `X2Main.cpp:429` deletes the file at start).
+  - **Older hazard, not fixed (your call):** the studio's own `ErrorLogMsg` from loader threads (`KEM_ERROR72/73/136`) races
+    in the same way. The fix would be a lock inside `KSuperAssert`, a studio file that every `KLOG` user goes through.
+- **Throttle: bounded.**
+  - The same text is written the 1st, 10th, 100th... time.
+  - Varying text stops at 512 heads plus their stacks, then one cap line.
+  - **Defect, fixed:** load-failure heads shared that cap, so a per-frame error with varying text could silence every later
+    `<file>: <kind>` line. They are now exempt (`LuaSrcHead(.., true)`); their number is bounded by the file count.
+- **Flag off = base.** flagcheck below. `KTDX.h`'s `#else` is the base block verbatim.
+- **Loads: unchanged.**
+  - The scope only reads (a head of at most 4 B) and sets a thread-local pointer.
+  - `_ALERT` changes where `print_error`'s text goes, nothing else.
+  - No client script reads `_ALERT`. Greping `kom_contents` finds only the `NUI_MI_*_ALERT_*` enum names.
+  - Play-test: 47 `KEM_ERROR72` and 1 `KEM_ERROR73` (TutorSystem.lua), the same list as the pre-L6 run.
+- **Parser guard: trips as intended.** A scratch `cl -Zs` probe of `KTDX.h` with KTDXLIB's US_SERVICE defines gave:
+  - as built: `REMOVE_INTERPRETER` off;
+  - with `_SERVICE_`: off;
+  - with `_IN_HOUSE_SERVICE_READY_QA_`: off;
+  - with a command-line define: `KTDX.h(421) : fatal error C1189`.
+  - luajitLib `Release` never defines it (only `Release_NoInterpreter` and `IN_*`, `luajitLib.vcxproj:353-458`), so the
+    client headers and the linked lib agree.
+- **Play-test finding, fixed.**
+  - New kind `LSK_EMPTY` ("empty"): 0 B (which was "not Lua" before), or a BOM with nothing after it. The Lua binder runs a
+    bare BOM as an empty chunk, so only a non-Lua reader refuses one.
+  - The BOM-text and KOG-bytecode reasons now say that no lua error line above means a reader that is not Lua refused the
+    file. The text-without-BOM reason now covers the `.txt` compilers.
+- Hygiene (`--range dc32d70^..HEAD --with SERV_IRUHADEV_LUA_SOURCE_DEBUG`):
+  - `files: 3 PASS, 2 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 21 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - The deleted lines are all L6's own replaced lines inside the flag: comments, the `LuaSrcWrite` body, the `LuaSrcHead`
+    signature and cap, the "seen" `KLOG`, two call sites, four reason strings, the kind array, the totals, and two buffer
+    sizes.
+  - The tokenless `#endif` (counted once per revision pair) is L6's DEBUG-needs-main tripwire in `Always.h`, the same shape as the JUNE_BOUNDING_STATE one
+    above it.
+  - The PASS~ lines are one blank line after each L6 block in `KTDXApp.cpp` and `KTDXApp.h`.
+- Deploy: `DEPLOY OK: X2_offline.exe is 19,450,880 B, dated 2026-10-09 10:11:51, md5 567c51df156d3f74c26a72d18408a890` (built at 509e3a1 + the three fix files). The exe carries the new strings ("no script after the BOM", "empty %u", the timestamp format).
+- **L7 baseline (from the L6 play-test, `_DEBUG`):** totals after 2,048 loads were KOG bytecode 2,006 loads / 2,483 ms run,
+  BOM text 6 / 1 ms, text without BOM 35, not Lua 1. Five of the BOM-text loads (63-1,263 B) took 0.1-0.4 ms each. The sixth,
+  the 3 B TutorSystem.lua (now counted as "empty"), took 1.1 ms. There is no large source file yet, so this does not measure parse cost.
+
 ## Phase L7 - Close-out
 
 **Run with:** Sonnet 5.5 high. **Read list:** Rules, every phase's Done note.

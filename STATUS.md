@@ -434,7 +434,7 @@ March files are not mass-converted, because June replaces them.
 | L4 | optional, waiting (L3) | Sonnet 5.5 / high, then user decisions | L3 | report only (`june2017_re/lua_source_port_audit.tsv`) | `L4.md` |
 | L5 | conditional (only if L3/L4 show too many fallbacks; user decides) | Opus 5.5 / **xhigh** | L3 (+L4) | `june2017_re/` ljd hooks | `L5.md` |
 | L6 | **done 2026-10-09** (`dc32d70`; play-test passed: 4/4 console checks, no noise, KEM_ERROR72/73 list unchanged; one reason-text finding (BOM-only `TutorSystem.lua`) handed to the review) | Opus 5.5 / high, then user play-test (dev console) | L0 | `KTDXLIB/KTDX.h`, `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6.md` |
-| L6 review | ready | Opus 5.5 / high | L6 | review only | `L6-review.md` |
+| L6 review | **done 2026-10-09, play-test pending** (`7f6f3fb`; fixed: `[LUA_SRC]` lines no longer go through the unlocked `KLOG` / `g_kSuperAssert`, load-failure heads exempt from the 512 cap, new "empty" kind + non-Lua-reader reasons (TutorSystem.lua); parser guard, flag-off and loads verified; open for the user: the studio's own loader-thread `ErrorLogMsg` race, pre-existing) | Opus 5.5 / high, then user play-test (dev console) | L6 | `KTDXLIB/KTDXApp.h/.cpp`, `KTDXLIB/Always.h` | `L6-review.md` |
 | L7 | waiting (L3, L6 review) | Sonnet 5.5 / high | L3, L6 review (+L4/L5 if run) | kickoffs, skills, memory, `KTDXLIB/Always.h` (`_DEBUG` off) | `L7.md` |
 
 Running together:
