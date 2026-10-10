@@ -1836,6 +1836,12 @@ Reviews C3j-1 (`c74f63f`, fix `8c2c7c5`) and C3j-2 (`aac4b70`). **No code findin
 
 **How to see it in game (regression):** jtLordKnight, Elder Village field, dash X on an Elder Bridge guard: it still rises, and `offline_server.log` has no `JUNE_FX C3j-1` line.
 
+**Regression play-test PASSED 2026-10-10** (user; exe `bbc8eb4b`, a peer's build at `d001ec0` + uncommitted, logs after the deploy).
+- That exe has the main flag on and `_DEBUG` off: `JUNE_FX C3j-1` strings 0, `C3j-2 ... not registered` 1. So 0 `JUNE_FX C3j` lines is expected, not evidence.
+- Evidence of the launch: C3k's lines on the Elder Bridge guards show `backSpeed.y 1950.0, nowSpeed.y 1950.0` on every launch hit without super armour.
+  The one `super armour 1` hit gives 0.0, which is C3k's expected mismatch, not a bounding overwrite.
+- 0 EXCEPTION; the only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ` x5; clean exit.
+
 ## C3k - port: June stopped counting fly hits
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
