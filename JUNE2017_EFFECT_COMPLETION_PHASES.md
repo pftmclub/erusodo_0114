@@ -1726,6 +1726,55 @@ new phase **C3j-2** (`kickoffs/june-effect/C3j-2.md`, four leads).
   keep the launch speed, e.g. `( -1110.0, 1950.0 ) kept, June would write ( 0.0, 0.0 )`. 0 EXCEPTION, only the known UNHANDLED. The guard's June
   script was checked too: no June NPC script names a BOUNDING key, and its UP state (`THIEF_THIN_DAMAGE_AIR_UP`) sets no speed, so the Lua is not the missing piece.
 
+## C3j-2 - find, then port: what keeps June's NPC RT_UP launch alive
+
+**Status: done 2026-10-10 (found and ported, FIX flag removed); play-test owed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-2.md`;
+review (C3j-1 and C3j-2 together) `kickoffs/june-effect/C3j-2-review.md`.
+
+### C3j-2 - Done (2026-10-10, Opus 5.5 high)
+
+**Found: June gives every NPC three bounding states of its own.** InitState's loader `3279dc80` calls `3275f280` for types 0x21/0x22/0x23
+(`@3279dd68-3279dd9d`). That happens after the INIT_STATE index walk and before NONE..END go into the name map.
+- When the script's INIT_STATE has no `BOUNDING_*` key (`3275cfc0`), June inserts a default state into the name map: `DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP`, id `++counter + index + 4`, so after the script's own states.
+- `@3279dda9` grows the state vector by the counter.
+- The type loop's default-name lookup (C3j) then finds these states. InitState's fallbacks (C3j-1) never fire, `+0x870c` is never `m_UpDamage`, RT_UP queues `+0x8690`, and `3275a070`'s copy never touches a launch.
+- March lacked only the registration: C3j's default name pointed at a state that did not exist, `GetStateID` gave 0, and C3j-1's fallback turned UP into UP_DAMAGE.
+
+**The four leads, all ruled out with addresses (funcmap rows `(C3j-2)`):**
+1. All four NPC vtables share InitState `327989e0` and CommonStateStart `327ac9d0`, and `+0x870c` has only the two InitState writers.
+2. `+0x40f0/f4` has no `lea`, struct-copy or setter writer.
+3. Nothing re-applies the speed on the host. The re-apply after DoStateEndStart (`3277d320 @3277dc48/@3277dc66`) is the non-host sync path. `32776e10` and `32763eb0` write no speed.
+4. CommonStateStart's only early exit is at its top (`@327aca28`), and the nowState setter `31c1fc80` is immediate.
+
+**What landed** (flag `SERV_IRUHADEV_JUNE_BOUNDING_STATE`; the original resize is in `#else`):
+- **Registration** in the NPC state loader (`X2GUNPC.cpp`, after the INIT_STATE count), with the counter added to the resize.
+  - Ours: an id over 127 is not registered and is logged (`JUNE_FX C3j-2: ... not registered`), because March's state ids are a signed `char`.
+- **Clone** after the state-table load (`@3279f937-3279faf4` + `32761f80`).
+  - Source: DOWN_DAMAGE_AIR / _LANDING / UP_DAMAGE (each if > 0, else WAIT_STATE if > 0, else START_STATE).
+  - Copies the motion and its PLAY_TYPE.
+  - Flags: IMMADIATE_PACKET_SEND and FLY_AI's "set" bit on; LAND_CONNECT, TRANSITION and ALLOW_DIR_CHANGE off; NEVER_MOVE from the source (LANDCRASH and UP); G_ACCEL from the source when it is above 0 (UP).
+  - DOWN also gets SET_LIMIT_MAX_G_SPEED = -4000.
+  - Events: DOWN lands into LANDCRASH. LANDCRASH goes to UP at MOTION_END or at ANIM_TIMER 0.2. UP takes the source's NEGATIVE_Y_SPEED / FOOT_ON_LINE_TRUE events. In LANDCRASH and UP a never-move NPC goes to SMALL_DAMAGE_LAND_FRONT.
+  - Every June offset and bit was matched to a March member through the Lua key June's `32784c00` reads into it (table in funcmap `32761f80 (C3j-2)`).
+- **`SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED` removed** (Always.h block and the CommonStateStart branch). June's copy runs as June has it, and now fires only when the bounding UP state is entered.
+- **Comments and the `ids` debug line reworded.** The line now also prints UP_DAMAGE and the state count. **JUNE_BUGS 154 withdrawn** (a port gap, not a June bug).
+- **What it changes in game:**
+  - `JuneIsBoundingUp` is now false on a monster launched by RT_UP, as in June. That reverses C3j's option-(b) reasoning about Luciel `32b34680`.
+  - The bounding states have no Lua table, which is why June's render gate (C3j) exists.
+  - Entering a bounding state still needs an RT_BOUNDING hit, and no shipped DamageEffect has one, so the new states stay dormant.
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --worktree --files X2Lib/X2GUNPC.cpp`): `1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+`27 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The 27 deleted lines are all C3j-1's own lines inside the flag: 4 fallback-comment lines, the 6-line `ids` log call, and the 17-line FIX branch (`#ifdef` .. `#else`, `#endif`).
+Always.h: the FIX block (14 lines) and 3 description lines replaced, both C3j-1's.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,513,856 B, dated 2026-10-10 10:06:15, md5 1035e5efe737aa3080173f5d2842d942, equal to X2/US_SERVICE/x2.exe (2026-10-10 10:06:10); built at mods/june-buff-port 886ae18 + 2 uncommitted code file(s)` (the 2 are this phase's; X2Lib 0 errors). The `JUNE_FX C3j-2` and new `ids` format strings are in the exe; the `C3j-1 fix` string is gone. No kom.
+
+**How to see it in game** (jtLordKnight, dash X on an Elder Bridge guard in the Elder Village field):
+- The soldier rises, now with no FIX flag.
+- `JUNE_FX C3j-1 ids` shows down / landcrash / up as "type table" ids at the end of the state vector, e.g. `states N` with the ids N-3..N-1, and not 23 / 26 / 24 (= UP_DAMAGE).
+- No `overwrite` line appears.
+
 ## C3k - port: June stopped counting fly hits
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.

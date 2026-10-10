@@ -6251,8 +6251,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              NPC half ( three DAMAGE_BOUNDING_* common-state types, NOT_BOUNDING ). Off = March's dead BOUNDING_COMBO_TEST case.
 //              Log: "JUNE_FX C3d-3" in offline_server.log.
 //              C3j-1 ( user, 2026-10-10: verbatim ): InitState's fallbacks ( June 327992a2-327992fd ) give a missing DOWN / LANDCRASH
-//              DOWN_DAMAGE_AIR ( LANDCRASH tries DOWN_DAMAGE_AIR_LANDING first ) and a missing UP UP_DAMAGE, so every NPC RT_UP launch
-//              takes the bounding back speed, (0,0) until an RT_BOUNDING hit ( JUNE_BUGS 154 ).
+//              DOWN_DAMAGE_AIR ( LANDCRASH tries DOWN_DAMAGE_AIR_LANDING first ) and a missing UP UP_DAMAGE.
+//              C3j-2: the NPC state loader registers June's three default states DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP for every
+//              script without a BOUNDING_* key ( June 3279dc80 @3279dd68 ) and builds them from DOWN_DAMAGE_AIR / _LANDING / UP_DAMAGE
+//              ( @3279f937, 32761f80 ), so the fallbacks no longer fire and an RT_UP launch keeps its speed, as in June.
 #define SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE) && !defined(SERV_IRUHADEV_JUNE_USER_STATE_ID16)
 #error SERV_IRUHADEV_JUNE_BOUNDING_STATE needs SERV_IRUHADEV_JUNE_USER_STATE_ID16 ( USI_BOUNDING_* )
@@ -6531,22 +6533,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June effect completion C3j-1 play-test lines ( short-lived; turn OFF in the C3j-1 review ): "JUNE_FX C3j-1 ids" for
 //              the first 10 NPC scripts initialised ( down / landcrash / up and where each id came from ) and "JUNE_FX C3j-1 overwrite"
 //              once per NPC ( at most 32 ) when CommonStateStart's tail replaces a launch speed. Log: offline_server.log.
+//              C3j-2: the ids line also gives UP_DAMAGE and the state count; "overwrite" should no longer appear on an RT_UP launch.
 #define SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 #if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG) && !defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE)
 #error SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG needs SERV_IRUHADEV_JUNE_BOUNDING_STATE
-#endif
-//////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-10
-// Description: June effect completion C3j-1 fix ( user, 2026-10-10 ). June's game launches monsters, but the June code ported by C3j-1
-//              ( InitState's UP fallback to UP_DAMAGE + CommonStateStart's tail 3275a070 ) would replace every NPC RT_UP launch speed
-//              with the bounding back speed, (0,0) here. The piece of June that keeps the launch is not found yet ( phase C3j-2 ).
-//              ON: the tail's speed copy is skipped, the fallbacks stay. OFF: June's code as ported ( monsters do not rise ).
-//              Log: "JUNE_FX C3j-1 fix" in offline_server.log ( with SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG ).
-#define SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
-#if defined(SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED) && !defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE)
-#error SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED needs SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #endif
 //////////////////////////////////////////////////////////////////////////

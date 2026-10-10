@@ -4719,7 +4719,36 @@ void    CX2GUNPC::InitState( InitData& OutInit_, KLuaManager& luaManager_
 			index++;
 			luaManager_.EndTable();
         }
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+        /// June CX2GUNPC::InitState's type loop 3279dc80 @3279dd68-3279ddb0 ( C3j-2 ): after the state count and before NONE..END, June registers a
+        /// default state for each bounding type whose INIT_STATE key is empty ( 3275f280: 3275cfc0 reads the key on this table, 3275d900 gives the
+        /// name ). The ids follow the script's states ( June: ++counter + index + 4 ) and the state vector grows by the counter ( @3279dda9 ). So every
+        /// NPC without a BOUNDING_* key owns DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP, the type loop below finds them, and InitState's fallbacks ( C3j-1 )
+        /// never fire: an RT_UP launch enters UP_DAMAGE, not the bounding UP state, and keeps its speed. Their data is built after the state tables
+        /// load ( below, @3279f937 ).
+        int iJuneBoundingCount = 0;
+        for ( int iJuneType = STATE_TYPE_DAMAGE_BOUNDING_DOWN; iJuneType <= STATE_TYPE_DAMAGE_BOUNDING_UP; ++iJuneType )
+        {
+            std::string strJuneKey;
+            LUA_GET_VALUE_UTF8( luaManager_, s_aStateTypes[ iJuneType ].m_pszName, strJuneKey, "" );
+            if ( strJuneKey.empty() == false )
+                continue;
+            const char* pszJuneName = ( STATE_TYPE_DAMAGE_BOUNDING_DOWN == iJuneType ) ? "DAMAGE_BOUNDING_DOWN"
+                : ( ( STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH == iJuneType ) ? "DAMAGE_BOUNDING_LANDCRASH" : "DAMAGE_BOUNDING_UP" );
+            const int iJuneStateID = GUSI_END + ( index - 1 ) + iJuneBoundingCount + 1;
+            if ( iJuneStateID > 127 )
+            {
+                /// Ours: March keeps state ids in a signed char ( June reads them unsigned ), so a larger id would index the state vector below 0.
+                CX2OfflineLog::Server( L"JUNE_FX C3j-2: %S not registered, its state id %d is over 127 ( %d script states )", pszJuneName, iJuneStateID, index - 1 );
+                continue;
+            }
+            ++iJuneBoundingCount;
+            initState.m_mapStateNameID.insert( std::make_pair( std::string( pszJuneName ), (char) iJuneStateID ) );
+        }
+        initState.m_vecStateData.resize( GUSI_END + 1 + (index - 1 ) + iJuneBoundingCount );
+#else SERV_IRUHADEV_JUNE_BOUNDING_STATE
         initState.m_vecStateData.resize( GUSI_END + 1 + (index - 1 ) );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
         initState.m_mapStateNameID.insert( std::make_pair( "NONE", GUSI_NONE ) );
         initState.m_mapStateNameID.insert( std::make_pair( "LOADING", GUSI_LOADING ) );
         initState.m_mapStateNameID.insert( std::make_pair( "READY", GUSI_READY ) );
@@ -5082,6 +5111,136 @@ out_hint:
 #endif  X2OPTIMIZE_VERIFY_NPC_SCRIPT_CONSISTENCY
     }//
 //}} robobeg : 2008-10-28
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+    /// June 3279dc80 @3279f937-3279faf4 ( C3j-2 ): after the state tables load, each bounding state without a motion of its own is built from a
+    /// source state: DOWN from DOWN_DAMAGE_AIR, LANDCRASH from DOWN_DAMAGE_AIR_LANDING, UP from UP_DAMAGE ( each if > 0, else WAIT_STATE if > 0, else
+    /// START_STATE ). Both ids must lie above GUSI_END and inside the state vector. The motion is copied with its PLAY_TYPE ( June +0xa8 / +0xc4 ),
+    /// then 32761f80 builds the rest. Its June offsets and bits were matched to March through the keys June's LoadStateData ( 32784c00 ) reads
+    /// into them ( funcmap C3j-2 ): bit 0x1f IMMADIATE_PACKET_SEND, 0x24 LAND_CONNECT, 0x2b TRANSITION, 4 ALLOW_DIR_CHANGE, 0x2e NEVER_MOVE, 0x36 the
+    /// "set" bit of FLY_AI, 0x3d G_ACCEL ( value +0xf8 ), +0x430 SET_LIMIT_MAX_G_SPEED; +0x3f0 is m_vecNPCEventProcessData ( June's 0x28-byte entry
+    /// is NPCEventProcessData, its 0xbc condition is ConditionTableData: +0x20 ANIM_TIMER, +0x70 HAVE_TARGET, +0xbb CHECK_NEVER_MOVE_TRUE ). The
+    /// state-change types 1 / 3 / 5 / 7 are June's Enum.lua values, the same as March's.
+    {
+        const int aiJuneBoundingSourceType[3] = { STATE_TYPE_DOWN_DAMAGE_AIR, STATE_TYPE_DOWN_DAMAGE_AIR_LANDING, STATE_TYPE_UP_DAMAGE };
+        for ( int iJune = 0; iJune < 3; ++iJune )
+        {
+            const int iJuneType = STATE_TYPE_DAMAGE_BOUNDING_DOWN + iJune;
+            const int iJuneDst = initState.m_acStateType[ iJuneType ];
+            int iJuneSrc = initState.m_acStateType[ aiJuneBoundingSourceType[ iJune ] ];
+            if ( iJuneSrc <= 0 )
+                iJuneSrc = initState.m_acStateType[ STATE_TYPE_WAIT_STATE ];
+            if ( iJuneSrc <= 0 )
+                iJuneSrc = initState.m_acStateType[ STATE_TYPE_START_STATE ];
+            const int iJuneNum = (int) initState.m_vecStateData.size();
+            if ( iJuneDst <= GUSI_END || iJuneDst >= iJuneNum || iJuneSrc <= GUSI_END || iJuneSrc >= iJuneNum
+                || initState.m_vecStateData[ iJuneDst ].m_wstrAnimName.empty() == false )
+                continue;
+
+            StateData& nowStateData = initState.m_vecStateData[ iJuneDst ];
+            const StateData& srcStateData = initState.m_vecStateData[ iJuneSrc ];
+            nowStateData.m_wstrAnimName = srcStateData.m_wstrAnimName;
+            nowStateData.m_ePlayType = srcStateData.m_ePlayType;
+
+            /// 32761f80: the flags every type gets
+#ifdef SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+            if ( STATE_TYPE_DAMAGE_BOUNDING_DOWN == iJuneType )
+                nowStateData.m_fJuneLimitMaxGSpeed = -4000.f;   /// @32762367 ( 0x33476cf0 ), DOWN only
+#endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+            NOWSTATE_SET_FLAG( IMMEDIATE_PACKET_SEND, true );
+            NOWSTATE_SET_FLAG( SET_LAND_CONNECT_VALUE, false );
+            NOWSTATE_SET_FLAG( TRANSITION, false );
+            NOWSTATE_SET_FLAG( ALLOW_DIR_CHANGE, false );
+            if ( STATE_TYPE_DAMAGE_BOUNDING_DOWN != iJuneType )
+                NOWSTATE_SET_FLAG( SET_NEVER_MOVE_VALUE, srcStateData.m_bitsetFlags.test( StateData::FLAG_SET_NEVER_MOVE_VALUE ) );
+#ifdef AI_FLY
+            NOWSTATE_SET_FLAG( SET_FLY_AI, true );
+#endif AI_FLY
+
+            std::vector<NPCEventProcessData>& vecJuneEvent = nowStateData.m_vecNPCEventProcessData;
+            if ( STATE_TYPE_DAMAGE_BOUNDING_DOWN == iJuneType )
+            {
+                /// @327623a4-327623c3: landing goes to LANDCRASH
+                vecJuneEvent.resize( 1 );
+                vecJuneEvent[0].m_StateChangeType = SCT_FOOT_ON_LINE_TRUE;
+                vecJuneEvent[0].m_NextStateID = initState.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH ];
+            }
+            else if ( STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH == iJuneType )
+            {
+                /// @327622a0-32762365: UP at the motion's end or at anim time 0.2 ( 0x3346eeb8, also a hint timer ), SMALL_DAMAGE_LAND_FRONT
+                /// ( type 6 ) for a never-move NPC
+                vecJuneEvent.resize( 3 );
+                vecJuneEvent[0].m_StateChangeType = SCT_MOTION_END;
+                vecJuneEvent[0].m_NextStateID = initState.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_UP ];
+                vecJuneEvent[1].m_StateChangeType = SCT_CONDITION_TABLE;
+                vecJuneEvent[1].m_NextStateID = initState.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_UP ];
+                vecJuneEvent[1].m_pConditionTableData = new ConditionTableData;
+                vecJuneEvent[1].m_pConditionTableData->m_fAnimTimerFactor = 0.2f;
+                vecJuneEvent[1].m_pConditionTableData->m_iHaveTarget = -1;
+                nowStateData.m_vecfHintAnimTimer.push_back( 0.2f );
+                vecJuneEvent[2].m_StateChangeType = SCT_CONDITION_TABLE;
+                vecJuneEvent[2].m_NextStateID = initState.m_acStateType[ STATE_TYPE_SMALL_DAMAGE_LAND_FRONT ];
+                vecJuneEvent[2].m_pConditionTableData = new ConditionTableData;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+                vecJuneEvent[2].m_pConditionTableData->m_bCheckNeverMoveTrue = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+                vecJuneEvent[2].m_pConditionTableData->m_iHaveTarget = -1;
+            }
+            else
+            {
+                /// @32761ff6-32762245: the source's G_ACCEL when above 0; the source's NEGATIVE_Y_SPEED / FOOT_ON_LINE_TRUE events ( in order, March
+                /// gives them no condition ) then the never-move event, or with none of them never-move plus NEGATIVE_Y_SPEED, both to SMALL_DAMAGE_LAND_FRONT
+                if ( 0.f < srcStateData.m_fSetGAccelValue )
+                {
+                    nowStateData.m_fSetGAccelValue = srcStateData.m_fSetGAccelValue;
+                    NOWSTATE_SET_FLAG( SET_G_ACCEL, true );
+                }
+                const std::vector<NPCEventProcessData>& vecJuneSrcEvent = srcStateData.m_vecNPCEventProcessData;
+                unsigned uiJuneCopy = 0;
+                for ( unsigned ui = 0; ui < vecJuneSrcEvent.size(); ++ui )
+                {
+                    if ( SCT_NEGATIVE_Y_SPEED == vecJuneSrcEvent[ui].m_StateChangeType || SCT_FOOT_ON_LINE_TRUE == vecJuneSrcEvent[ui].m_StateChangeType )
+                        ++uiJuneCopy;
+                }
+                if ( 0 == uiJuneCopy )
+                {
+                    vecJuneEvent.resize( 2 );
+                    vecJuneEvent[0].m_StateChangeType = SCT_CONDITION_TABLE;
+                    vecJuneEvent[0].m_NextStateID = initState.m_acStateType[ STATE_TYPE_SMALL_DAMAGE_LAND_FRONT ];
+                    vecJuneEvent[0].m_pConditionTableData = new ConditionTableData;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+                    vecJuneEvent[0].m_pConditionTableData->m_bCheckNeverMoveTrue = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+                    vecJuneEvent[0].m_pConditionTableData->m_iHaveTarget = -1;
+                    vecJuneEvent[1].m_StateChangeType = SCT_NEGATIVE_Y_SPEED;
+                    vecJuneEvent[1].m_NextStateID = initState.m_acStateType[ STATE_TYPE_SMALL_DAMAGE_LAND_FRONT ];
+                    vecJuneEvent[1].m_pConditionTableData = new ConditionTableData;   /// June allocates one here too ( @327620f3 ), unused by type 5
+                    vecJuneEvent[1].m_pConditionTableData->m_iHaveTarget = -1;
+                }
+                else
+                {
+                    vecJuneEvent.resize( uiJuneCopy + 1 );
+                    unsigned uiJuneOut = 0;
+                    for ( unsigned ui = 0; ui < vecJuneSrcEvent.size(); ++ui )
+                    {
+                        if ( SCT_NEGATIVE_Y_SPEED != vecJuneSrcEvent[ui].m_StateChangeType && SCT_FOOT_ON_LINE_TRUE != vecJuneSrcEvent[ui].m_StateChangeType )
+                            continue;
+                        vecJuneEvent[uiJuneOut].m_StateChangeType = vecJuneSrcEvent[ui].m_StateChangeType;
+                        vecJuneEvent[uiJuneOut].m_NextStateID = vecJuneSrcEvent[ui].m_NextStateID;
+                        vecJuneEvent[uiJuneOut].m_strCustomCondition = vecJuneSrcEvent[ui].m_strCustomCondition;
+                        ++uiJuneOut;
+                    }
+                    vecJuneEvent[uiJuneOut].m_StateChangeType = SCT_CONDITION_TABLE;
+                    vecJuneEvent[uiJuneOut].m_NextStateID = initState.m_acStateType[ STATE_TYPE_SMALL_DAMAGE_LAND_FRONT ];
+                    vecJuneEvent[uiJuneOut].m_pConditionTableData = new ConditionTableData;
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+                    vecJuneEvent[uiJuneOut].m_pConditionTableData->m_bCheckNeverMoveTrue = true;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+                    vecJuneEvent[uiJuneOut].m_pConditionTableData->m_iHaveTarget = -1;
+                }
+            }
+        }
+    }
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 }
 
 /*static*/
@@ -6831,10 +6990,10 @@ void CX2GUNPC::InitState()
     m_JuneBoundingDown = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_DOWN ];
     m_JuneBoundingLandCrash = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH ];
     m_JuneBoundingUp = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_UP ];
-	/// June CX2GUNPC::InitState 327989e0 @327992a2-327992fd ( C3j-1; verbatim, the user's decision 2026-10-10; JUNE_BUGS 154 ): after the type
-	/// loop and the member fills, a missing bounding state falls back. DOWN ( +0x8704 ) to DOWN_DAMAGE_AIR ( +0x4098 ); LANDCRASH ( +0x8708 ) to the
-	/// DOWN_DAMAGE_AIR_LANDING type ( read from the type table @327992c9, not a member ), then DOWN_DAMAGE_AIR; UP ( +0x870c ) to UP_DAMAGE ( +0x8690 ).
-	/// With UP = m_UpDamage, CommonStateStart's tail replaces the speed of every RT_UP launch by the bounding back speed ( (0,0) until an RT_BOUNDING hit ).
+	/// June CX2GUNPC::InitState 327989e0 @327992a2-327992fd ( C3j-1; verbatim, the user's decision 2026-10-10 ): after the type loop and the member
+	/// fills, a missing bounding state falls back. DOWN ( +0x8704 ) to DOWN_DAMAGE_AIR ( +0x4098 ); LANDCRASH ( +0x8708 ) to the DOWN_DAMAGE_AIR_LANDING
+	/// type ( read from the type table @327992c9, not a member ), then DOWN_DAMAGE_AIR; UP ( +0x870c ) to UP_DAMAGE ( +0x8690 ). Since C3j-2 the
+	/// loader registers June's three default bounding states, so these fire only for a script that names a BOUNDING_* key whose state does not exist.
 	if( 0 == m_JuneBoundingDown )
 		m_JuneBoundingDown = m_CommonState.m_DownDamageAir;
 	if( 0 == m_JuneBoundingLandCrash )
@@ -6853,12 +7012,15 @@ void CX2GUNPC::InitState()
 			const int iJuneKeyLandCrash = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_LANDCRASH ];
 			const int iJuneKeyUp = initStateData.m_acStateType[ STATE_TYPE_DAMAGE_BOUNDING_UP ];
 			const int iJuneLanding = initStateData.m_acStateType[ STATE_TYPE_DOWN_DAMAGE_AIR_LANDING ];
-			CX2OfflineLog::Server( L"JUNE_FX C3j-1 ids: npc %I64d ( %s ): down %d ( %s ), landcrash %d ( %s ), up %d ( %s )",
+			/// C3j-2: "type table" is a script key or June's default state ( registered by the loader ); "states" is the state vector's size,
+			/// so a default state's id is at the end of it. "UP_DAMAGE" is m_UpDamage, the state an RT_UP launch enters.
+			CX2OfflineLog::Server( L"JUNE_FX C3j-1 ids: npc %I64d ( %s ): down %d ( %s ), landcrash %d ( %s ), up %d ( %s ); UP_DAMAGE %d, states %d",
 				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(),
-				m_JuneBoundingDown, ( 0 != iJuneKeyDown ) ? L"key" : ( ( 0 != m_JuneBoundingDown ) ? L"fallback DOWN_DAMAGE_AIR" : L"0" ),
-				m_JuneBoundingLandCrash, ( 0 != iJuneKeyLandCrash ) ? L"key" : ( ( 0 != iJuneLanding ) ? L"fallback DOWN_DAMAGE_AIR_LANDING"
+				m_JuneBoundingDown, ( 0 != iJuneKeyDown ) ? L"type table" : ( ( 0 != m_JuneBoundingDown ) ? L"fallback DOWN_DAMAGE_AIR" : L"0" ),
+				m_JuneBoundingLandCrash, ( 0 != iJuneKeyLandCrash ) ? L"type table" : ( ( 0 != iJuneLanding ) ? L"fallback DOWN_DAMAGE_AIR_LANDING"
 					: ( ( 0 != m_JuneBoundingLandCrash ) ? L"fallback DOWN_DAMAGE_AIR" : L"0" ) ),
-				m_JuneBoundingUp, ( 0 != iJuneKeyUp ) ? L"key" : ( ( 0 != m_JuneBoundingUp ) ? L"fallback UP_DAMAGE" : L"0" ) );
+				m_JuneBoundingUp, ( 0 != iJuneKeyUp ) ? L"type table" : ( ( 0 != m_JuneBoundingUp ) ? L"fallback UP_DAMAGE" : L"0" ),
+				(int) m_UpDamage, (int) initStateData.m_vecStateData.size() );
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
@@ -17041,24 +17203,8 @@ void CX2GUNPC::CommonStateStart()
 	/// after March's tail above ( 32275440 / 32071c30 / 32761b40 @327af1d9-327af1f7 ), so it overrides a state's own SPEED_X / SPEED_Y. C3d-3 had put it at
 	/// the top, before them. June's second half of 3275a070 ( the Lu/Ciel hook, compared with +0x8708 = LANDCRASH ) is class code ( checklist 7l ). June
 	/// does not guard the compare; the guard matters only for an NPC whose UP_DAMAGE is also missing ( id 0 would match nowState 0, which is never
-	/// entered, so it changes nothing ). Since C3j-1 the UP id falls back to UP_DAMAGE, so every RT_UP launch into it takes the stored back speed,
-	/// (0,0) until an RT_BOUNDING hit: June's behaviour, kept verbatim ( JUNE_BUGS 154 ).
-#ifdef SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
-	/// C3j-1 fix ( user, 2026-10-10 ): June's game launches monsters, so a piece of June that keeps the RT_UP launch speed alive is not found
-	/// yet ( phase C3j-2 traces it ). Until it is, the copy of the bounding back speed into nowSpeed is skipped and the launch keeps its speed.
-	/// The three InitState fallbacks stay as June has them. June's line ( 3275a070 @3275a094-3275a0a6 ) is in #else.
-#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
-	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
-	{
-		/// JUNE_FX C3j-1 fix: once per NPC unit ( at most 32 ), the first time June's write would have fired.
-		static std::set<UidType> s_setJuneC3j1Kept;
-		if( s_setJuneC3j1Kept.size() < 32 && true == s_setJuneC3j1Kept.insert( GetUnitUID() ).second )
-			CX2OfflineLog::Server( L"JUNE_FX C3j-1 fix: npc %I64d ( %s ) state %d ( bounding up %d, UP_DAMAGE %d ): nowSpeed ( %.1f, %.1f ) kept, June would write ( %.1f, %.1f )",
-				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int)m_NPCFrameData.syncData.nowState, m_JuneBoundingUp, m_UpDamage,
-				m_PhysicParam.nowSpeed.x, m_PhysicParam.nowSpeed.y, GetJuneBoundingBackSpeed().x, GetJuneBoundingBackSpeed().y );
-	}
-#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
-#else SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
+	/// entered, so it changes nothing ). Since C3j-2 the UP id is June's default DAMAGE_BOUNDING_UP state ( registered by the loader ), so an
+	/// ordinary RT_UP launch, which enters UP_DAMAGE, never comes here and keeps its speed ( the C3j-1 fix flag that skipped this copy is gone ).
 	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
 	{
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
@@ -17075,7 +17221,6 @@ void CX2GUNPC::CommonStateStart()
 				vJuneC3j1Before.x, vJuneC3j1Before.y, m_PhysicParam.nowSpeed.x, m_PhysicParam.nowSpeed.y );
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 	}
-#endif SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 }
 

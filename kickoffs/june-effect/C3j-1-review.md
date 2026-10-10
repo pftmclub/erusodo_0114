@@ -1,5 +1,8 @@
 # June effect completion - C3j-1 review
 
+> **Superseded 2026-10-10 by `C3j-2-review.md`**, which reviews C3j-1 and C3j-2 together (C3j-2 removed the FIX flag this file checks). Use that file.
+
+
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3j-1 review` |
