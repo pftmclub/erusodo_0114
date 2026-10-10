@@ -1761,6 +1761,7 @@ review (C3j-1 and C3j-2 together) `kickoffs/june-effect/C3j-2-review.md`.
 - **What it changes in game:**
   - `JuneIsBoundingUp` is now false on a monster launched by RT_UP, as in June. That reverses C3j's option-(b) reasoning about Luciel `32b34680`.
   - The bounding states have no Lua table, which is why June's render gate (C3j) exists.
+  - The other code that walks every state tolerates that. The per-NPC `MakeTableReference` loop (Init, ~`:7460`) gets nil and returns false without logging (`KLuaManager.cpp:457`). The type loop's reaction marking (`:4855`) flags the three as REACTION_STATE, and so does June's (`@3279f2ff`, types 6..0x23).
   - Entering a bounding state still needs an RT_BOUNDING hit, and no shipped DamageEffect has one, so the new states stay dormant.
 
 **Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --worktree --files X2Lib/X2GUNPC.cpp`): `1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
