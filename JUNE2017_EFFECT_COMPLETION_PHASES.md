@@ -5741,6 +5741,8 @@ f07940f^..HEAD EVENT_KIT_PICKUP:   0 PASS, 20 OTHER, 0 FAIL, 0 ERROR; RESULT: PA
 
 **Play-test (regression only; nothing reaches these states):** one dungeon run. Logs: one `JUNE_FX C9h-4h event states registered` line, no `CommonSkillState.lua NOT loaded`, 0 EXCEPTION.
 
+**Regression play-test PASSED (user, 2026-10-10; run 13:13-13:16 on the deployed md5 79ce7ab6, dungeon to result screen, clean exit):** one `JUNE_FX C9h-4h event states registered: SNIPER_INIT 88 .. GUN_DANCE_INIT 96` line (offline_server.log:146), no `NOT loaded` line, 0 EXCEPTION, UNHANDLED = 2x `E_DISABLE_HB_CHECK_REQ` (baseline).
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.
