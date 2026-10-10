@@ -2752,8 +2752,15 @@ bytecode (junekom + ljconv) in the KOG luajit and diffs every `AddDungeonData` t
 - Henir (38100): 80-99, item level 120, `m_NPCLevel` 99, not relative.
 - Besma Lake's extra requirement is emptied. 14 event / defence rows gain `DUNGEON_CHECK_CONDITION`.
 - `IS_HELL_MODE`: June's loader never reads it (54 keys: the 47 XOR-guarded ones in `xorstrings.tsv`, matching the 47 guard
-  blocks in `327e0f80`, plus 7 plain). In March it only drives the local map's `<name>_Icon_Info` toggle;
-  `CanGoOneSecretDungeonAtLeast` has no caller. June's data puts it on the Elder / Besma `*_SECRET_COMMON` rows instead. Kept as June has it.
+  blocks in `327e0f80`, plus 7 plain). March still reads it, and June's data now sets it on the Elder / Besma `*_SECRET_COMMON`
+  rows. That is a no-op in March: the `<name>_Icon_Info` readers (`X2LocalMapUI.cpp:1486` / `1548` / `1569`) sit in the `#else` of
+  `SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS` (no such string in the exe), and `CanGoOneSecretDungeonAtLeast` has no caller.
+- **Monster levels (live now):** Henir is a fixed `m_NPCLevel` 99 (June's design), and the Secret Hells' relative base is the
+  emulator's `m_MaxLevel` (99). No crash path was found:
+  - EXP clamps to NpcExpTable's last row, level 80 (`X2OfflineDropTable.cpp:710`);
+  - NPC stats are formulas (`CalculateExtraStatValue` takes the level as a number);
+  - buff factors index by the buff's level and return 0 past the end.
+  - Difficulty is not June's until C3z-6.
 
 **Edits** (`luasrc.py convert` T0 for both registries; `refresh`; ledger and core PASS):
 - `DungeonData.lua`: each of the 155 blocks is replaced in place by June's block (`june_src_fixed`), between `--{{ Iruha ... June's
