@@ -6580,7 +6580,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-10
 // Description: June effect completion C3o play-test line ( short-lived; turn OFF in the C3o review ): "JUNE_FX C3o cinematic" once per NPC
 //              ( at most 16 ) the first time a state start stores IS_APPLY_CINEMATIC_UI = FALSE. Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG
+//              _DEBUG OFF 2026-10-10 (C3o review: parser bits, tail order and window re-derived against June; play-test lines all GUSI_DIE, ctor-only flags = June).
+//#define SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG
 #if defined(SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG) && !defined(SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI)
 #error SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG needs SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
 #endif

@@ -522,3 +522,13 @@ base ids. Luciel overrides all four; make them virtual (or test the class) when 
 | `0x118` DOWN_BACK | `3208de70` -> `0x1f` | `32b4d850` | same, base `0x1f` (the `0x1a8` / `0x1d5` branch is identical for all four) |
 | `0x48c` AIR_DOWN_INVINCIBLE | `3208deb0` -> `0x24` | `32b4d990` | same, base `0x24` |
 | `0x490` AIR_DOWN_LANDING | `330de330` -> `0x25` | `32b4d9d0` | same, base `0x25` |
+
+### 7r. Chung's cinematic-UI writes (from June effect completion C3o review)
+
+June moved Chung's `SetFocusCamera / SetFocusCameraForce / SetApplyCinematicUI( false )` on the targeting NPC. Neither site changes
+anything on screen (JUNE_BUGS 164; the readers need the NPC's start state), but the Chung port should match June's placement.
+
+| Class | June site | March site | Port |
+|---|---|---|---|
+| Chung (Missile Shower 6019, Quantum Ballista 6011) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE` StateStartFuture `32bff3d0 @32bff412-32bff420` (state `0xf5`, registered `@32c1fffa`) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess` (`X2GUChung.cpp`, before `StateChange( ..._CONTROL_IDLE )`) | move the three writes into a CONTROL_IDLE StateStartFuture; June has no `IsMyUnit` test there |
+| Chung (June-only Heavy Field) | `CSI_SA_CTT_HEAVY_FIELD_LOOP` (`0x151`) `32c0ba60 @32c0ba9f-32c0bac2`: every frame, when vslot `0x198` is true, the same three writes, then the NPC state from a 9-way switch (`SHOT_ARTILLERY_STRIKE_*`, only when it differs) | none | comes with the skill |

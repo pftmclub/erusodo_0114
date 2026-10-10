@@ -2160,7 +2160,7 @@ No questions for the user.
 
 ## C3o - identify, then port: June's NPC CommonStateStart tail and GAME_START_STATE
 
-**Status: done 2026-10-10 (see C3o - Done). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3o.md`.
+**Status: done 2026-10-10 (see C3o - Done), play-test passed, reviewed 2026-10-10 (see C3o - Review). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3o.md`.
 
 - **Scope:** the June-only code after March's last CommonStateStart block (`327ac9d0 @327af25b-327af612`): the state-flag `0x2000` block, `+0x8e39` from flag `0x8000`, vslot `0x3bc` / `32776e10`, the `+0x244` stores and `CHANGE_WORLD_COLOR_DATA`. Also state type `0x30 GAME_START_STATE`. The force-down block is C3f-1's (2b) and `3275a070` is C3j's.
 - **Exit:** funcmap rows `Effect C3o`; a flag per change ported; regression play-test.
@@ -2197,6 +2197,31 @@ No questions for the user.
 - **World colour.** Dormant.
 
 **Regression play-test PASSED 2026-10-10** (user, Tree of El; exe `bbc8eb4b`, logs after the deploy): 0 EXCEPTION, the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ` x5. 16 `JUNE_FX C3o cinematic` lines, all `state 4` (chicken, Thief_Thin_Zero, Ruben_El_Tree_Gate). State 4 is `GUSI_DIE`: ids <= `GUSI_END` never pass LoadStateData, so their flags come from the StateData ctor alone, and June's (`32393dc0 @3239426b-323942e9`: word 0 bits 2/4/6/7/11/12/13/25/26, word +4 bits 36/37/41/43, word +8 none) leaves bit `0x4f` at 0, as March's does. A dying NPC therefore stores FALSE in June too. The member is read only in the focus-camera branch, so nothing changes on screen. The code ran on every NPC and no scripted state stored FALSE.
+
+### C3o - Review (2026-10-10, Opus 5.5 high)
+
+**No code finding against June.** Re-derived from the bytes (`funcdis.py`, `disasm_range.py --x87`, `statedata_keys.py`, `dispsweep.py`):
+- **Parser** `32784c00`: `statedata_keys.py` gives `@32789e76` bit `0x1a` FALL_DOWN, `@3278a04d` bit `0x4f` IS_APPLY_CINEMATIC_UI, `@3278a145` bit `0x50` FURY_MODE, `@3278bbcb` bit `0x4d` DIRECTION_STATE. A miss stores 1 for `0x4f` (`@3278a03f mov [esp+0x14], 1`) and 0 for `0x4d` (`@3278bbbe` stores `bl`, zeroed `@3278bba2`).
+- **Tail** `@327af38e-327af5e5`: `[flags+8] & 0x8000` -> `+0x8e39`, then `3275a070`, then the `+0x40dc` reset when bit 0 is clear (checklist 7l), then vslot `0x3bc` -> `32776e10`, then `CHANGE_WORLD_COLOR_DATA`. The cursor `+0x8f18 = 0` is at `@327adab4`, after the CUSTOM_STATE_DELETE_SOUND call `@327adaa7`, which is March's `m_iEffectSetToPlayProgress = 0` position (`X2GUNPC.cpp` CommonStateStart, after ChangeAnim / Play, so `GetNowAnimationTime()` is the new state's).
+- **World colour parse:** both -1 (`334380f0` = -1.0), BeginTable( `33478ee0` "CHANGE_WORLD_COLOR_DATA", 1 ) on `+0x2b4`. The keys were decoded by hand: `0x337aa59c` ^ (fb 20 c5 8b 47 57 12 11 b0 6f) = `START_TIME`, and `0x337aa594` ^ (20 c5 8b 47 57 12 11 b0) = `END_TIME`. Miss: `fldz` and `3346ede8` = 9999.0. March's `m_LuaManager` holds the state table there (`DoStateEndStart` wraps CommonStateStart in `BeginTableByReference`).
+- **Window** `327b53b0 @327b54bb-327b557d`: `fldz; fcomp START; test ah,0x41; jp` skips when START < 0 or NaN; `fld START; fcomp t; test ah,0x41; jp` restores when START > t; `fld END; fcompp; test ah,1; jne` restores when END < t. The port's `0 <= START`, `START <= t && t <= END`, else restore is the same, NaN included.
+- **Colour:** `fld1` -> r; `0x334387b0` (1/255) x `0x334350e8` (0.0) -> g, b; the remaining `fld1` -> a. So `D3DXCOLOR( 1, 0, 0, 1 )`. This is a hand trace plus the constants; the `--x87` trace confirms the pop order (it does not evaluate `fmul`). `x87test.py` was not run because it covers compare idioms only.
+- **Restore** `32296be0`: only when START >= 0, world `+0xc4..+0xd0` = `+0x90..+0x9c`, `+0xd4` = 1.0, both -1. `31e4c8f0` writes `+0xb4`, `+0xc4` and `+0xd4` = 0, which is March's SetWorldColor. March's layout (`m_OriginColor` / `m_FadeOriginColor` / `m_fFadeOriginTime` / `m_NowColor` / `m_FadeColor` / `m_fFadeTime`) gives the same offsets.
+- **`+0x8e39`:** `dispsweep.py 8e39` returns exactly the Done note's list. Dungeon `327cea70`: `@327cec78` comes after the `m_bFocusCamera` (`+0x8750`) / start-state / flag `0x20000000` gate, and `@327cecf8` after the state-id compare. Battle field `32d530a0 @32d53249` is reached from `@32d53122` (state flag `0x20000000`) after the focus handle `+0x2e4` is set. These are March's two `GetApplyCinematicUI()` readers (`X2DungeonGame.cpp:2372`, `X2BattleFieldGame.cpp:1080`).
+
+**Checked further: the class writers (no visible change).** March writes `false` once, in Chung's `CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess`; Missile Shower 6019 and Quantum Ballista 6011 both use this state. The store now overwrites it at the NPC's next state start:
+- the user's CONTROL_IDLE StateStart calls `StateChange( "SHOT_ARTILLERY_STRIKE_IDLE", true )`;
+- Targeting_Chung has no `IS_APPLY_CINEMATIC_UI`, so the state start stores TRUE.
+
+June does the same. It moved the write into CONTROL_IDLE's StateStartFuture (`32bff3d0 @32bff420`, registered `@32c1fffa`, state `0xf5`), and the StateStart (`32bff370`) then calls `3275da30( "SHOT_ARTILLERY_STRIKE_IDLE", 1 )`, which has no same-state skip. That is JUNE_BUGS 164.
+
+Nothing changes on screen in either game. Both readers run only while the NPC is in its start state (`SHOT_ARTILLERY_STRIKE_START`) or in a state with `FOCUS_CAMERA_AT_CURRENT_STATE`, which Targeting_Chung never sets. The later states take the focus-force branch, which shows the UI. The relocation and June-only Heavy Field (`32c0ba60`, `CSI_SA_CTT_HEAVY_FIELD_LOOP` `0x151`, writes every frame) go to checklist **7r**. The June event NPCs (sniper, proton bomb) set FALSE in their own states.
+
+**Fix:** `SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG` is OFF (`Always.h`).
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI --range d001ec0^..HEAD --with _DEBUG, _STATE_START_EFFECT_SET, _WORLD_COLOR_WINDOW`: `X2GUNPC.cpp` PASS +69, `X2GUNPC.h` PASS +3, `Always.h` DEFINE +40, 7 OTHER (peers' C9h-4h files, and `X2GameUnit.*`, which belong to `_WORLD_COLOR_WINDOW`), 0 FAIL, 0 ERROR, 0 deleted, RESULT PASS. `_WORLD_COLOR_WINDOW` on `d001ec0`: `X2GameUnit.cpp` / `.h` PASS, RESULT PASS. The one tokenless `#endif` is the house `_DEBUG` `#error` guard.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port bf3c61e + 5 uncommitted code file(s).` The 4 other files are peers' in-progress C3s / C3q. `JUNE_FX C3o cinematic` is absent from the deployed exe; `IS_APPLY_CINEMATIC_UI` and `CHANGE_WORLD_COLOR_DATA` (ASCII) are present. No kom. Save: Freils (uid 18) got Missile Shower 6019 on slot C (backup `db_backup/els_db_20261010_120107_pre_sql.sql`).
 
 ## C3p - port: June's skip-the-start (ESC) system and DIRECTION_STATE
 
