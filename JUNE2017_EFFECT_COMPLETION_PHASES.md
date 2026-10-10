@@ -1668,7 +1668,7 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 ## C3j-1 - port verbatim: June's NPC bounding-state fallbacks
 
-**Status: done 2026-10-10; launch kept by a FIX flag until C3j-2 finds June's missing piece; play-test of the fix owed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-1.md`; review `kickoffs/june-effect/C3j-1-review.md`.
+**Status: done 2026-10-10; launch kept by a FIX flag until C3j-2 finds June's missing piece; fix play-test PASSED; C3j-2 next. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-1.md`; review `kickoffs/june-effect/C3j-1-review.md`.
 
 ### C3j-1 - Done (2026-10-10, Opus 5.5 high)
 
@@ -1722,6 +1722,9 @@ new phase **C3j-2** (`kickoffs/june-effect/C3j-2.md`, four leads).
   `1 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; `0 deleted`; `1 #else/#endif without the flag token` (its `#error` guard's `#endif`); `RESULT: PASS`.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,296 B, dated 2026-10-10 09:22:04, md5 3b63d3a04848b7e8d3ca95ddd18b405d, equal to X2/US_SERVICE/x2.exe (2026-10-10 09:21:59); built at mods/june-buff-port 485b929 + 2 uncommitted code file(s)`
   (the 2 are this fix's). The `JUNE_FX C3j-1 fix` string is in the exe.
+- **Fix play-test PASSED 2026-10-10** (user: "back to the original flow"; exe `3b63d3a0`). Six `JUNE_FX C3j-1 fix` lines (guards, mushrooms, a chest)
+  keep the launch speed, e.g. `( -1110.0, 1950.0 ) kept, June would write ( 0.0, 0.0 )`. 0 EXCEPTION, only the known UNHANDLED. The guard's June
+  script was checked too: no June NPC script names a BOUNDING key, and its UP state (`THIEF_THIN_DAMAGE_AIR_UP`) sets no speed, so the Lua is not the missing piece.
 
 ## C3k - port: June stopped counting fly hits
 
