@@ -2223,6 +2223,8 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port bf3c61e + 5 uncommitted code file(s).` The 4 other files are peers' in-progress C3s / C3q. `JUNE_FX C3o cinematic` is absent from the deployed exe; `IS_APPLY_CINEMATIC_UI` and `CHANGE_WORLD_COLOR_DATA` (ASCII) are present. No kom. Save: Freils (uid 18) got Missile Shower 6019 on slot C (backup `db_backup/els_db_20261010_120107_pre_sql.sql`).
 
+**Regression play-test PASSED 2026-10-10** (user; exe `79ce7ab6`, logs after the deploy): 0 EXCEPTION, the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ` x2, no `JUNE_FX C3o` line (`_DEBUG` off). Freils cast Missile Shower three times (`JUNE_FX MP_CRASH CDC_CHUNG_ARTILLERY_STRIKE_SHELL`, ErrorLog 646-684, 13:14:45 / 13:14:53 / 13:15:15); no HUD loss reported.
+
 ## C3p - port: June's skip-the-start (ESC) system and DIRECTION_STATE
 
 **Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3p.md`.
