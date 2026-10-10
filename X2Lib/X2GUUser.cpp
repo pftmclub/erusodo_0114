@@ -21787,8 +21787,10 @@ void CX2GUUser::JuneInitEventStates()
 	}
 }
 
-/// The event NPC create of June 3200d1d0 @3200d36f / 3200e040 @3200e1e8 ( CreateNPCReq 322e67c0, the same argument list as JuneDieCreateNpc's:
+/// The event NPC create of June 3200d1d0 @3200d36f / 3200e040 @3200e1e8 ( CreateNPCReq 322e67c0; March's 14 arguments match June's first 14:
 /// level 0, active, fDelayTime 0.3f ( 3345993c ), no drop, key -1, my team ( +0x278 ), NAT_ALLY ( 1 ), ally = my UID, not elite, TN_NONE, NCT_NONE ), only on my own unit.
+/// June passes two more ( C9h-4h review ): the IsMyUnit byte ( 1 here ), which lets a non-host send the request past 322e67c0's host gate, and a 0 packet field.
+/// March's CreateNPCReq keeps its IsHost gate; offline the local player is always host, so nothing differs ( 322e67c0 not ported, funcmap ).
 /// Not June: an NPC id with no templet ( March has no NPCTemplet row for 4342 / 4343 until the asset port ) is not requested; logged once per id.
 void CX2GUUser::JuneEventCreateNpc( IN int iNpcID_, IN const D3DXVECTOR3& vPos_, IN bool bIsRight_ )
 {
@@ -22026,7 +22028,8 @@ void CX2GUUser::JuneEventSniperControlFireStateStart()
 void CX2GUUser::JuneEventSniperControlFireEventProcess()
 {
 	m_fJuneEventTimer = m_fElapsedTime + m_fJuneEventTimer;
-	if( !( m_FrameDataFuture.unitCondition.fStateTime < JuneGetUsefulValueFuture( 0, 0 ) ) )
+	/// C9h-4h review: >= as June's fcompp / test ah,1 ( a NaN state time does not fire; !( < ) did )
+	if( m_FrameDataFuture.unitCondition.fStateTime >= JuneGetUsefulValueFuture( 0, 0 ) )
 		StateChange( ( 0 < m_cJuneEventShotCount ) ? USI_EVENT_SNIPER_CONTROL_IDLE : USI_EVENT_SNIPER_END, false );
 
 	CommonEventProcess();
@@ -22163,7 +22166,8 @@ void CX2GUUser::JuneEventProtonBombControlIdleEventProcess()
 		StateChange( USI_EVENT_PROTON_BOMB_CONTROL_FIRE, false );
 	}
 	else if( m_fEventTime[0].keyInputStart <= fStateTime &&
-		( true == m_InputData.oneZ || true == m_InputData.oneX || false == ( fStateTime < m_fEventTime[0].keyInputEnd ) ) )
+		/// C9h-4h review: fStateTime >= keyInputEnd as June's fcompp / test bl,ah ( a NaN state time does not fire; false == ( < ) did )
+		( true == m_InputData.oneZ || true == m_InputData.oneX || fStateTime >= m_fEventTime[0].keyInputEnd ) )
 	{
 		StateChange( USI_EVENT_PROTON_BOMB_CONTROL_FIRE, false );
 	}
