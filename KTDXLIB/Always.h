@@ -6534,8 +6534,32 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the first 10 NPC scripts initialised ( down / landcrash / up and where each id came from ) and "JUNE_FX C3j-1 overwrite"
 //              once per NPC ( at most 32 ) when CommonStateStart's tail replaces a launch speed. Log: offline_server.log.
 //              C3j-2: the ids line also gives UP_DAMAGE and the state count; "overwrite" should no longer appear on an RT_UP launch.
-#define SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
+//              _DEBUG OFF 2026-10-10 (C3j-2 review: C3j-1 + C3j-2 match June; play-test ids at the end of each state list, 0 overwrite).
+//#define SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 #if defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG) && !defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE)
 #error SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG needs SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3k: June never counts fly hits. Neither DamageReact ( user 320462a0, NPC 327b1f30 ) touches
+//              m_FlyCount ( CX2GameUnit +0xdf8 ): no RT_UP / RT_FLY / RT_DRAG_UP increment and no FORCE_FLY reset. Its only writes are
+//              the ctor zeroes and CommonFrameMove's invincible / super armour reset, which March already has. So the count stays 0
+//              and the "m_FlyCount > 2" launch damping ( backSpeed.y / ( m_FlyCount - 1 ) ) never fires: a 3rd and later launch is as
+//              high as the 1st. The damping code stays as dead code, as in June.
+#define SERV_IRUHADEV_JUNE_FLY_COUNT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3k play-test lines ( short-lived; turn OFF in the C3k review ): "JUNE_FX C3k" for every
+//              RT_UP / RT_FLY / RT_DRAG_UP hit on an NPC ( at most 48 lines ): per-NPC hit number, fly count, backSpeed.y and the
+//              launch speed nowSpeed.y. Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG) && !defined(SERV_IRUHADEV_JUNE_FLY_COUNT)
+#error SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG needs SERV_IRUHADEV_JUNE_FLY_COUNT
 #endif
 //////////////////////////////////////////////////////////////////////////

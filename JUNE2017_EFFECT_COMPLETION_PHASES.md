@@ -1781,12 +1781,91 @@ Always.h: the FIX block (14 lines) and 3 description lines replaced, both C3j-1'
 - `Ruben_El_Tree_Gate.lua`: 10/11/12 of 13. `chicken_female.lua` has UP_DAMAGE 0, so its UP state takes WAIT / START as its source.
 - 0 `overwrite` lines, 0 `not registered` lines, 0 EXCEPTION; the only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ` x2; clean exit.
 
+### C3j-2 - Review (2026-10-10, Opus 5.5 high; covers C3j-1)
+
+Reviews C3j-1 (`c74f63f`, fix `8c2c7c5`) and C3j-2 (`aac4b70`). **No code finding against June.** Read from the exe bytes
+(`disasm_range.py` / `funcdis.py`; Ghidra was not running).
+- **C3j-1's fallbacks** `@327992a2-327992fd`: DOWN, LANDCRASH, UP, each a `TEST / JNZ` on the value just stored. DOWN -> `+0x4098`. LANDCRASH -> type byte
+  `+0x14f` (type table `+0x13c`; 0x21..0x23 at `+0x15d..f`), then `+0x4098`. UP -> `+0x8690`. Matches.
+- **Registration** `@3279dd3c-3279ddb0`. ESI = first missing INIT_STATE index (March's `index`), and the counter is zeroed `@3279dd77`.
+  - `3275cfc0( lua, type )`: false for type >= 0x31; else reads `0x334b9178[type]` as a string (default "") on the INIT_STATE table and tests it non-empty.
+  - `3275f280` then does `++counter`; id = counter + index + 4, inserted into the name map `+0x10` before NONE..END. Resize `@3279dda9` = counter + index + 5.
+  - Equal to March's `GUSI_END + ( index - 1 ) + count + 1` / `GUSI_END + 1 + ( index - 1 ) + count` (GUSI_END = 5).
+- **Id-over-127 guard (ours)**: UP's id is n + 8 (n = script states), so it fires only for n >= 120.
+  - The largest June NPC script has 108 states (`PVP_HERO_ARUS`, `STATE_NAME =` count over `june_src_fixed/`, 3,448 scripts).
+  - For n = 120..122 the defaults would be dropped and C3j-1's fallback would fire again; March's own ids overflow from n = 123.
+- **Clone** `@3279f937-3279faf4` (each source is taken only when its id is `> 0`, in this order):
+  - Sources: `+0xd6/d7/d8` (types 0x12..0x14), then `+0xc6` WAIT, then `[ebx]` START (`[esp+0x2c]` is the type-array base, `@3279f2ad`).
+  - Guards: `> 5` and `< size` (bytes / 0x448) on both ids, and dst `+0xb8` (anim-name length) == 0. Copies `+0xa8` / `+0xc4`.
+  - `32761f80`: the -4000 at `+0x430` (`0x33476cf0`) and the 0.2 ANIM_TIMER (`0x3346eeb8`, also pushed to `+0x30`).
+  - `32761f80` event lists: next states arr[0x22] / arr[0x23] / arr[6], HAVE_TARGET -1, CHECK_NEVER_MOVE_TRUE (`+0xbb`).
+  - `32761f80` UP: G_ACCEL copied when `0 < src` (`test ah,5 / jp`); both event shapes. All as ported.
+- **Bits, by decoding the keys** `32784c00` builds (XOR-masked; new `june2017_re/statedata_keys.py`):
+  - 4 ALLOW_DIR_CHANGE, 0x1f IMMADIATE_PACKET_SEND, 0x24 LAND_CONNECT, 0x2b TRANSITION, 0x2e NEVER_MOVE.
+  - 0x36 / 0x37 FLY_AI (0x36 = key present, 0x37 = value), 0x3d G_ACCEL (float getter into `+0xf8`).
+  - Each matches the March flag the same key fills in LoadStateData.
+- **New check: the default states never pass LoadStateData**, so both games start them from the StateData ctor.
+  - June `32393dc0 @3239426b-323942ef` sets the same 13 bits as March's ctor: HINT_NO_PERFRAME_EVENT, ALLOW_DIR_CHANGE, LAND_CONNECT, CAN_PUSH_UNIT, CAN_PASS_ALLY_UNIT, APPLY_ANIM_MOVE, APPLY_MOVEBONE, GUARD_DEFENCE_FRONT / _BACK, DAMAGE_DOWN, TRANSITION, USE_MIND_FLAG, FALL_DOWN.
+  - `+0x430` = 1.0, `+0x401` = 0 and `+0x414/418` = 1.0 match the June-port members' initializers.
+- **Per-unit runtime**: `CX2GUNPC::InitState` (`X2GUNPC.cpp` ~6939) sizes each state's event runtime from `m_vecNPCEventProcessData` for every state, table or not.
+  - Lua refs are made only for CONDITION_FUNCTION / _TABLE custom conditions; UP copies only types 3 / 5.
+  - The bounding hint flag stays at the ctor default and the 0.2 hint wakes the anim timer, as for a scripted state.
+- **FIX flag gone**: no `FIX_BOUNDING_UP_SPEED` in any code file; CommonStateStart's tail is June's copy, inside the main flag only.
+- **Play-test lines re-read** (exe `1035e5ef`): 10 `ids` lines at the end of each list (guards 33/34/35 of 36 = 5 + 27 + 1..3; Ruben gate 10/11/12 of 13); 0 `overwrite`, 0 `not registered`, 0 EXCEPTION.
+
+**Changed:**
+- `SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG` OFF (`Always.h`: `#define` commented, dated OFF line).
+- Stale main-flag comment in the type loop (`X2GUNPC.cpp` ~4847, "fallbacks ... not ported") now names the C3j-2 registration (2 of C3j's own lines out, 3 in).
+- funcmap rows `327992a2-327992fd (C3j)` / `(C3j-1)` marked superseded by C3j-2.
+- `tools/flagcheck.py`: a flag with no `#define` (a `_DEBUG` turned OFF) no longer crashes `define_sites` (`git grep` exit 1 = no match).
+
+**Hygiene** (worktree; the peer's C3k edits share `X2GUNPC.cpp` / `Always.h`, so this review's lines are judged by the `--range` run below):
+`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --worktree --files X2Lib/X2GUNPC.cpp`: `0 PASS, 1 OTHER (C3k's FLY_COUNT hunks in the same file), 0 FAIL`; `0 deleted`; `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,808 B, dated 2026-10-10 10:43:46, md5 580feb5d11813e3a5cc9d1feb4dfb701, equal to X2/US_SERVICE/x2.exe (2026-10-10 10:43:41); built at mods/june-buff-port 198411b + 3 uncommitted code file(s).`
+- The 3 files are this review's two plus the peer's uncommitted C3k (`X2GUUser.cpp`, its `X2GUNPC.cpp` / `Always.h` hunks). The peer's 10:43 build compiled both; this review's build had nothing to relink.
+- In the exe: `JUNE_FX C3j-1 ids` / `overwrite` 0 times, `JUNE_FX C3j-2: %S not registered` once (DEBUG is off, the main flag is on). No kom.
+
+**How to see it in game (regression):** jtLordKnight, Elder Village field, dash X on an Elder Bridge guard: it still rises, and `offline_server.log` has no `JUNE_FX C3j-1` line.
+
 ## C3k - port: June stopped counting fly hits
 
 **Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
 
 - **Scope:** June never increments `m_FlyCount` (`+0xdf8`): no write except zeroes, so the `/( m_FlyCount - 1 )` lift damping is dead in June. March still counts RT_UP / FLY / DRAG_UP.
 - **Exit:** funcmap rows `Effect C3k`; flag `SERV_IRUHADEV_JUNE_FLY_COUNT`; juggle play-test.
+
+### C3k - Done (2026-10-10, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_FLY_COUNT` (+ short-lived `SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG`). funcmap rows `(C3k)`; the C3d-3 review row is marked ported.
+
+**1. Sweep re-confirmed; June counts nothing.**
+- `dispsweep df8` gives 28 hits: 11 `esp` locals, the 6 `fidiv` reads, 4 zero stores, `sub esp`, and one other class's vector (`+0xdf4/+0xdf8/+0xdfc`).
+  - The vector hits: `327ca2f0` / `327cee60` / `327cef20` compute `(end - begin) / 192`, and `327cf18c` is that class's ctor (`327cef70`) zeroing `+0xdd8..+0xdfc`. The C3d-3 review did not list `327ca2f0` / `327cf18c`.
+- Sub-object bases: CX2GameUnit's ctor `322a2700` stores vtables at `+0x190` / `+0x1a0`, so `0xc68` / `0xc58` were swept too. Every hit is unrelated: a scaled table, two other classes' stores, and misdecodes.
+- No `lea` or add-immediate of `0xdf8` anywhere.
+- Both DamageReacts (user `320462a0`, NPC `327b1f30`) were checked instruction by instruction. Every `inc`/`add` to memory is a refcount or another member, and neither function has a `+0xdf8` operand. **So June has no FORCE_FLY reset either.**
+- The NPC readers are in `32769240` (C3i's start; dispsweep's `fstart` prints `32769060`).
+
+**2. June's reset rule = CommonFrameMove only.**
+- `3206c7db` (user `32063650`, test `@3206c7bb`) and `327bca82` (NPC `327b53b0`, `@327bca62`) zero the count when `GetInvincible()` (vslot `0x180` = slot 96) or `IsSuperArmor()`.
+- That is March's CommonFrameMove reset, already June's under `SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG` (Buff 7b). It is unchanged.
+
+**3. Port.** In both DamageReacts (`X2GUUser.cpp` ~8212, `X2GUNPC.cpp` ~9166) the whole `bForceFly` reset + RT_UP / RT_FLY / RT_DRAG_UP count block now sits in `#else`; the `#ifdef` branch is a comment.
+- The `m_FlyCount > 2` damping reads (user 5, NPC 5 incl. C3i's FORCE paths) stay as they are: dead code, as in June.
+- No JUNE_BUGS row: June dropping the increment while keeping the readers is a June change (no damping), not a mistake.
+
+**Debug line** (`JUNE_FX C3k`, NPC DamageReact after DamageReactStateChange): every RT_UP / RT_FLY / RT_DRAG_UP hit on an NPC, at most 48 lines. It gives the per-NPC hit number, reAct, fly count, super armour, backSpeed.y and nowSpeed.y.
+
+**Hygiene** (`flagcheck JUNE_FLY_COUNT --with JUNE_FLY_COUNT_DEBUG --worktree --files X2GUUser.cpp X2GUNPC.cpp Always.h`):
+`2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 1 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The one token-less `#endif` closes the DEBUG block's `#error` guard in Always.h (the house shape of every `_DEBUG` block).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,808 B, dated 2026-10-10 10:43:46, md5 580feb5d11813e3a5cc9d1feb4dfb701, equal to X2/US_SERVICE/x2.exe (2026-10-10 10:43:41); built at mods/june-buff-port 198411b + 3 uncommitted code file(s)` (the 3 are this phase's). The `JUNE_FX C3k` string is in the exe. No kom.
+
+**How to see it in game** (jtLordKnight, dash X on an Elder Bridge guard, Elder Village field; the C3j-2 launcher): launch the same guard 3+ times. Each launch is as high as the first. In the log, `fly count 0` is on every line and nowSpeed.y = backSpeed.y on hit 3 and later. Under March, hit 3 would be backSpeed.y / 2, then / 3.
+
+**Open for the user:** none.
 
 ## C3l - identify, then port: June's SPEED_TIME additions
 

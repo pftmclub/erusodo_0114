@@ -423,8 +423,13 @@ def code_files_changed(rev_old, rev_new):
 
 
 def define_sites(flag):
-    out = git("grep", "-n", "-E", r"^\s*#\s*define\s+%s\b" % flag, "--", ".")
-    return [l for l in out.splitlines() if l]
+    # git grep exits 1 on no match: a flag whose #define is commented out ( a _DEBUG turned OFF ) has no sites.
+    r = subprocess.run(["git", "-C", TRUNK, "grep", "-n", "-E", r"^\s*#\s*define\s+%s\b" % flag, "--", "."], capture_output=True)
+    if r.returncode == 1:
+        return []
+    if r.returncode != 0:
+        raise RuntimeError("git grep: %s" % r.stderr.decode(errors="replace").strip())
+    return [l for l in r.stdout.decode("utf-8", errors="replace").strip().splitlines() if l]
 
 
 def print_row(label, r):

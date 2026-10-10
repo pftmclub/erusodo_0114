@@ -4844,8 +4844,9 @@ out_hint:
             int idStateID = 0;
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
             /// June CX2GUNPC::InitState's type loop 3279dc80 @3279f1cd-3279f220 ( C3j ): a missing key takes a default STATE name from 3275d900,
-            /// DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP for types 0x21 / 0x22 / 0x23 and "" for every other type. No June NPC script has the keys or
-            /// states of either name; June's InitState fallbacks ( 327992a2-fd ) then decide the ids ( C3j, not ported: a user decision ).
+            /// DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP for types 0x21 / 0x22 / 0x23 and "" for every other type. No June NPC script has the keys; the
+            /// loader registered states of these names above ( C3j-2, 3275f280 ), so the lookup finds them. InitState's fallbacks ( 327992a2-fd, C3j-1 )
+            /// fire only for a script whose BOUNDING_* key names a state that does not exist.
             if ( stateName.empty() == true )
             {
                 if ( i == STATE_TYPE_DAMAGE_BOUNDING_DOWN )
@@ -9163,6 +9164,12 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	m_bNowStateDamageReactForDetonation = true;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
 	
+#ifdef SERV_IRUHADEV_JUNE_FLY_COUNT
+	/// June C3k: June's CX2GUNPC::DamageReact ( 327b1f30 ) has no m_FlyCount ( +0xdf8 ) operand, so no FORCE_FLY reset and no
+	/// RT_UP / RT_FLY / RT_DRAG_UP count. June's only writes are the ctor zeroes and CommonFrameMove's invincible / super armour
+	/// reset ( @327bca82, kept ). The count stays 0, so DamageReactStateChange's "m_FlyCount > 2" damping ( 32769240 @32769b27,
+	/// @32769b7b, @32769bf6, @32769c4e ) never fires.
+#else SERV_IRUHADEV_JUNE_FLY_COUNT
 	if( pDamageData->bForceFly == true )
 	{
 		m_FlyCount = 0;
@@ -9187,6 +9194,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			} break;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_FLY_COUNT
 
 
 
@@ -10095,6 +10103,26 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
     if ( bLocalUnit == true )
         DamageReactStateChange( pDamageData );
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+#ifdef SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG
+	/// JUNE_FX C3k: every RT_UP / RT_FLY / RT_DRAG_UP hit on an NPC ( at most 48 lines ) with its per-NPC hit number. With
+	/// SERV_IRUHADEV_JUNE_FLY_COUNT the fly count is 0 on every line and a launch's nowSpeed.y equals backSpeed.y, the 3rd hit and later too.
+	{
+		bool bJuneC3kLaunch = ( CX2DamageManager::RT_UP == pDamageData->reActResult || CX2DamageManager::RT_FLY == pDamageData->reActResult );
+#ifdef	EVE_SECOND_CLASS_CHANGE
+		bJuneC3kLaunch = bJuneC3kLaunch || CX2DamageManager::RT_DRAG_UP == pDamageData->reActResult;
+#endif	EVE_SECOND_CLASS_CHANGE
+		static int s_iJuneC3kLines = 0;
+		static std::map<UidType, int> s_mapJuneC3kHits;
+		if( true == bJuneC3kLaunch && s_iJuneC3kLines < 48 )
+		{
+			++s_iJuneC3kLines;
+			const int iJuneC3kHit = ++s_mapJuneC3kHits[ GetUnitUID() ];
+			CX2OfflineLog::Server( L"JUNE_FX C3k: npc %I64d ( %s ) launch hit %d, reAct %d, fly count %d, super armour %d, backSpeed.y %.1f, nowSpeed.y %.1f",
+				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), iJuneC3kHit, (int)pDamageData->reActResult, m_FlyCount,
+				IsSuperArmor() ? 1 : 0, pDamageData->backSpeed.y, m_PhysicParam.nowSpeed.y );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG
 	
 	if( true == IsDamagedReaction( pDamageData ) &&
 		false == pDamageData->m_bNoDamage 

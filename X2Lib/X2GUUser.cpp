@@ -8209,6 +8209,12 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	m_bManeuverParryingState = false;
 #endif // ADD_EVE_SYSTEM_2014	// 김종훈, 2014 - 이브 추가 시스템, 나소드 코어
 
+#ifdef SERV_IRUHADEV_JUNE_FLY_COUNT
+	/// June C3k: June's CX2GUUser::DamageReact ( 320462a0 ) has no m_FlyCount ( +0xdf8 ) operand, so no FORCE_FLY reset and no
+	/// RT_UP / RT_FLY / RT_DRAG_UP count. June's only writes are the ctor zeroes and CommonFrameMove's invincible / super armour
+	/// reset ( @3206c7db, kept below ). The count stays 0, so DamageReactStateChange's "m_FlyCount > 2" damping ( 31feabd0
+	/// @31feb2fb, @31feb432 ) never fires.
+#else SERV_IRUHADEV_JUNE_FLY_COUNT
 	if( pDamageData->bForceFly == true )
 	{
 		m_FlyCount = 0;
@@ -8233,6 +8239,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			} break;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_FLY_COUNT
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
     CX2DamageEffect::CEffect*   pAttackerEffect = g_pX2Game->GetDamageEffect()->GetInstance( pDamageData->hAttackerEffect );
