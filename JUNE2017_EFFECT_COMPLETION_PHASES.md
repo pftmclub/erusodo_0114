@@ -2315,6 +2315,8 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
   - The world goes dark grey during the skill, or red while awakened, and fades back when the state ends, as before.
 - **NPC state-end fade:** dormant, since no NPC script has the table.
 
+**Regression play-test PASSED 2026-10-10** (user; ElesisGM, Grand Master, Sonic Blade: dungeon normal grey, dungeon awakened red, battle field grey, each fading back at skill end). Logs: run 12:39-12:43 after the deploy on exe `79ce7ab6`, 0 EXCEPTION, the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ` x4, clean-exit census. C3r writes no log lines; the verdict is visual.
+
 No questions for the user.
 
 ## C3s - identify, then port: June's UpdateUnitPointer
