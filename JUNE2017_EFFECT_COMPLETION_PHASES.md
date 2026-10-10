@@ -5053,6 +5053,10 @@ OTHER = the four flags share the three files. RESERVED_STATE_IDS's one ERROR is 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,808 B, dated 2026-10-10 07:03:04, md5 444092992fed518aa5615fdec4fe5a55, equal to X2/US_SERVICE/x2.exe (2026-10-10 07:03:00); built at mods/june-buff-port c74f63f + 3 uncommitted code file(s).` Strings in the exe: the three wide `JUNE_FX C9h-4g` formats and the three narrow keys, once each.
 **data036:** `COPY OK data036: ...\data\data036.kom  10650176 bytes, 192 entries, md5 fe54e8bdda6e4e8cbf2a449aa4ec3173` (user's yes, 2026-10-10; backup `kom_backup_tools\data036.kom.20261010_085357`). The exe and this kom go together: either alone puts every class state id 11 off between C++ and Lua.
 
+**Trap for the next data036 Lua edit:** `kom.py status data036` still says `stale .src.lua: compile`. A plain `kom.py compile data036` would fold the 30 T0 sidecars again (the sidecars are not core-list files: restore them, as here). The route for a future Enum edit is the text `Enum.lua` itself + `luasrc.py refresh data036 Enum.lua`; `Enum.src.lua` is now a stale copy of it.
+
+**Play-test facts (enumprobe):** only Chung crosses 255 after the shift (last 269; the other classes top out at 239). Tactical Trooper `CSI_CTT_COMBO_DASH_X` is 262 (was 251), Rapid Cannon loop / final 267 / 268, Artillery Nova fire 269, `CSI_COMBO_XX` 126, Wolf Spear 212, Wolf Break 214.
+
 **Open for the user:** none. Next: the play-test (hand-off below), then `/x2-phase june-effect C9h-4g review`; C9h-4h after it.
 
 ### C9h-4h - port: the event states (Heavenly Combat Support Kit)
