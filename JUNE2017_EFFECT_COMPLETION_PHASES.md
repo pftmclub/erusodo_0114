@@ -2512,6 +2512,17 @@ where March's C++ forces it (the registries are kept merged). **Every dungeon** 
   - `DungeonData.lua` (data035, kept merged) and `DungeonEnum.lua`: take June's rows (stage lists, limits, levels, names) for every
     dungeon March and June share; record each March-only consumer that blocks a row.
   - Census first, then the edit. Not at the same time as C3z-2 (both pack data036).
+- **C3z-5 - June's DungeonData fields March's client loader does not read** (found by C3z-3). Kickoff `C3z-5.md`.
+  - June's `AddDungeonData_LUA` (`327e0f80`) reads keys March's lacks: `Min/MaxAdequateMemberCount`, `FixMaximumDifficulty`,
+    `DUNGEON_CHECK_CONDITION`, `m_SuitableLevelFixValue`, `m_HardMin/MaxLevel`, `m_HardRequireItemLevel`, `m_fExtraValue`, plus
+    (June-only rows today) `additionalTicket`, `m_bShowNpcKillCount`, `m_bNoDarkBackGroundBy60S`, `m_iRequireCompleteQuestID`,
+    `m_bAprilFoolsDungeon`. Port each reader and its consumers, or record June's no-system answer.
+- **C3z-6 - the emulator's server-side DungeonData semantics** (found by C3z-3). Kickoff `C3z-6.md`.
+  - Relative-level monsters: the emulator bases them on `m_MaxLevel` (`Handlers_Room.cpp:1827`); the server clamps the party's
+    average level into [`m_MinLevel`, `m_MaxLevel`], +5 in secret-hell mode (`CenterServer/DungeonRoom.cpp:3656-3710`).
+    June's Secret Hell band 70-99 now spawns level-99+ monsters.
+  - Server-only keys no client reads: `m_bSwitchingWithEventInfo`, `m_bForbidEnterDungeon`, `requireLevel`, the poison limits,
+    `m_bArcadeMode`; and the server half of `DUNGEON_CHECK_CONDITION`.
 
 ### C3z-1 - Done (2026-10-10, Opus 5.5 high; data only, no C++, no flag, no build; 11 koms + 17 music copied)
 
@@ -2718,6 +2729,55 @@ the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Pe
 - **Startup line:** `[EXTRA_NPC_STAT] ... skipped: 709 nil NPC_ID` (was 835). 0 EXCEPTION.
 - **As expected:** the June monsters gave 0 EXP and 0 ED (open item 1). The boss still drops through the special-drop path.
 - The `IsVotingLuto` / `SetMovieDescriptionData` Lua errors in this run are C3z-1 / C3z-4 scope (`65ef74f`), not this phase.
+
+### C3z-3 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data035 + data036 + data065 packed and copied)
+
+**Gate:** `june2017_re/dungeon_registry_census.py` (driver `dungeon_registry_dump.lua`) runs March's staged files and June's own
+bytecode (junekom + ljconv) in the KOG luajit and diffs every `AddDungeonData` table per dungeon id.
+- 217 ids registered by both (the 4 `*_SECRET_COMMON` count: June registers them through `UNUSED_DUNGEON_ID`).
+- Before (`dungeon_registry_census_before.tsv`): 155 differ, 62 equal. **After (`dungeon_registry_census.tsv`): 217 SAME.**
+- Names: every shared `dungeonName` is the same `STR_ID`, so no dungeon was renamed. Every June `STR_ID` exists in March's
+  `StringID_def.lua` and `General.ess`. All 175 item ids in June's lists are in the live item.kim. The room titles are equal.
+- Stage lists and time limits are not in `DungeonData` (stage lists are in the dungeon scripts, June's since C3x).
+  No shared `m_fTimeLimit` differs.
+
+**What June changed in the 155** (all now live):
+- `BOSS_DROP_ITEM` (129) and `ENDING_SPEECH` (53): new lists. That is the party UI's boss-item list (`X2PartyUI.cpp:2065`).
+- `requireDungeonID` dropped in 92 rows: Hard no longer needs Normal, Expert no longer needs Hard (`IsActiveDungeon`,
+  `X2DungeonManager.cpp:603`). `GetNextDungeon`'s "new dungeon" list shrinks to match.
+- The 4 Secret Hells (33031 / 33041 / 33051 / 33191):
+  - levels 50-70 become 70-99, item level 85 becomes 90, entry item 700015;
+  - no `EXTRA_REQUIRE_DUNGEON_ID`, and no `IS_HELL_MODE`;
+  - Elder's image is now `Image06` / `Dungeon_Image_Elder_Secret`.
+- Henir (38100): 80-99, item level 120, `m_NPCLevel` 99, not relative.
+- Besma Lake's extra requirement is emptied. 14 event / defence rows gain `DUNGEON_CHECK_CONDITION`.
+- `IS_HELL_MODE`: June's loader never reads it (54 keys: the 47 XOR-guarded ones in `xorstrings.tsv`, matching the 47 guard
+  blocks in `327e0f80`, plus 7 plain). In March it only drives the local map's `<name>_Icon_Info` toggle;
+  `CanGoOneSecretDungeonAtLeast` has no caller. June's data puts it on the Elder / Besma `*_SECRET_COMMON` rows instead. Kept as June has it.
+
+**Edits** (`luasrc.py convert` T0 for both registries; `refresh`; ledger and core PASS):
+- `DungeonData.lua`: each of the 155 blocks is replaced in place by June's block (`june_src_fixed`), between `--{{ Iruha ... June's
+  row` / `--}}` markers. March's 31 own rows stay. June's 251 June-only rows are not added (C3y).
+- `DungeonEnum.lua`: June's `UNUSED_DUNGEON_ID` (62) appended verbatim; its 59 March names keep equal values. `DI_END` is now 41530,
+  June's value (was 41120); no Lua reads it.
+- `Enum.lua`: June's `DUNGEON_CHECK_CONDITION` (16) appended. Without it the script stops at row 86, and every later row is lost.
+- Both tables are equal by value to June's own bytecode.
+- **Strict load test** (`dungeon_registry_strict.lua`): March's real Enum / DungeonEnum / StringID_def, and any unknown global or
+  enum member raises. Result: `OK 248 rows, 10 titles, 0 fail(s)`.
+  - Controls: without the new Enum table the script stops at row 86; without `UNUSED_DUNGEON_ID` it stops at row 172. data035 and
+    data036 ship together.
+- `DLG_UI_Dungeon_Image06.dds` (data065): June's copy staged; it differs from March's in 2,860 DXT5 bytes, with the same TET.
+
+**Packs and copies:**
+- `PACK OK` data035 (`~1`), data036 (`~2`), data065 (`~1`).
+- `COPY OK data035 ... md5 780396af690c95b4cd7f40097dac2597`
+- `COPY OK data036 ... md5 9ee02c70935f7949dc0ab9ac7622d6b5`
+- `COPY OK data065 ... md5 093b1ef0cf210567517908fd9b66d8f1`
+
+**Routed, not done here:**
+- C3z-5: the June client fields March's loader skips.
+- C3z-6: the emulator's relative monster level, which now spawns level-99+ monsters in the Secret Hells, and the server-only keys.
+- Checklist 7s: the AIN / LUCIEL / ROSE tables in `BOSS_DROP_ITEM` / `ENDING_SPEECH`.
 
 ## C4 - 8b, damage math
 

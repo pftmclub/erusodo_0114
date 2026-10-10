@@ -1,0 +1,44 @@
+# June effect C3z-3: the AddDungeonData keys March's loader reads in this build (CX2DungeonManager::AddDungeonData_LUA,
+# X2Lib/X2DungeonManager.cpp:112-574). Every #ifdef'd read below is compiled in: its key string is in the US_SERVICE x2.exe
+# (2026-10-10, grep -c -a); the 19 June-only / March-unread keys are not. X2TOOL's toolDungeonName is absent.
+dungeonID
+dungeonName
+dataFileName
+requireDungeonID
+m_RequireItemLevel
+EXTRA_REQUIRE_DUNGEON_ID
+IS_HELL_MODE
+requireItemID
+requireItemCount
+requireItemID2
+requireItemCount2
+requireSpirit
+difficulty
+normalOnly
+m_fTimeLimit
+m_bShowStageTime
+m_bLevelEqualized
+m_bDamageEqualized
+m_bEventDungeon
+m_usFixedMembers
+m_iLimitedPlayTimes
+m_iLimitedClearTimes
+m_MinLevel
+m_MaxLevel
+m_NPCLevel	SERV_IRUHADEV_OFFLINE_NPC_GROUP_RATE
+m_eDefaultDungeonLoungeWorldID
+m_eDungeonType
+m_bRelativeMonsterLevel
+m_DungeonDescription
+m_bHideLoadingTip
+BOSS_DROP_ITEM
+m_TextureName
+m_PieceName
+m_Explanation
+m_PopUpOffsetPosX
+m_PopUpOffsetPosY
+m_LoadingScreenFileName
+m_LoadingScreenFileName2
+AUTO_DUNGEON_ROOM_TITLE
+ENDING_SPEECH0
+ENDING_SPEECH1

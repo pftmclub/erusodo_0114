@@ -1,0 +1,218 @@
+dungeon_id	name	march_name	june_name	differ	march_only	june_only	june_unread_june_client_reads	june_unread_no_client_reads	june_unread_class_tables	str_missing	verdict
+30000	DI_RUBEN_EL_TREE_NORMAL	Tree of El	Tree of El				FixMaximumDifficulty,MinAdequateMemberCount	m_LocalQuestPosX,m_LocalQuestPosY,m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30050	DI_ELDER_BENDERS_CAVE_NORMAL	Banthus Cave	Banthus Cave					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30051	DI_ELDER_BENDERS_CAVE_HARD	Banthus Cave	Banthus Cave								SAME
+30052	DI_ELDER_BENDERS_CAVE_EXPERT	Banthus Cave	Banthus Cave				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30070	DI_ELDER_DRUID_FOREST_NORMAL	Shadow Forest	Shadow Forest					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30071	DI_ELDER_DRUID_FOREST_HARD	Shadow Forest	Shadow Forest						BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+30072	DI_ELDER_DRUID_FOREST_EXPERT	Shadow Forest	Shadow Forest				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+30080	DI_RUBEN_RUIN_OF_ELF_NORMAL	Forest Ruins	Forest Ruins					m_LocalQuestPosX,m_LocalQuestPosY,m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30081	DI_RUBEN_RUIN_OF_ELF_HARD	Forest Ruins	Forest Ruins								SAME
+30082	DI_RUBEN_RUIN_OF_ELF_EXPERT	Forest Ruins	Forest Ruins				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30090	DI_RUBEN_SWAMP_NORMAL	White Mist Swamp	White Mist Swamp					m_LocalQuestPosX,m_LocalQuestPosY,m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30091	DI_RUBEN_SWAMP_HARD	White Mist Swamp	White Mist Swamp								SAME
+30092	DI_RUBEN_SWAMP_EXPERT	White Mist Swamp	White Mist Swamp				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30100	DI_ELDER_WALLY_CASTLE_CENTER_NORMAL	Wally's Castle	Wally's Castle					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30101	DI_ELDER_WALLY_CASTLE_CENTER_HARD	Wally's Castle	Wally's Castle								SAME
+30102	DI_ELDER_WALLY_CASTLE_CENTER_EXPERT	Wally's Castle	Wally's Castle				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30110	DI_ELDER_WALLY_CASTLE_ROOF_NORMAL	The Suburbs of the Wally's Castle	The Suburbs of the Wally's Castle					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30111	DI_ELDER_WALLY_CASTLE_ROOF_HARD	The Suburbs of the Wally's Castle	The Suburbs of the Wally's Castle								SAME
+30112	DI_ELDER_WALLY_CASTLE_ROOF_EXPERT	The Suburbs of the Wally's Castle	The Suburbs of the Wally's Castle				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30120	DI_ELDER_BELOW_PASSAGE_NORMAL	Underground waterway	Underground waterway					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30121	DI_ELDER_BELOW_PASSAGE_HARD	Underground waterway	Underground waterway								SAME
+30122	DI_ELDER_BELOW_PASSAGE_EXPERT	Underground waterway	Underground waterway				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30140	DI_BESMA_DRAGON_ROAD_NORMAL	Dragon Road	Dragon Road					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30141	DI_BESMA_DRAGON_ROAD_HARD	Dragon Road	Dragon Road								SAME
+30142	DI_BESMA_DRAGON_ROAD_EXPERT	Dragon Road	Dragon Road				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30170	DI_BESMA_LAKE_NORMAL	Bethma Lake 	Bethma Lake 					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.AIN,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30171	DI_BESMA_LAKE_HARD	Bethma Lake 	Bethma Lake 						BOSS_DROP_ITEM.AIN		SAME
+30172	DI_BESMA_LAKE_EXPERT	Bethma Lake 	Bethma Lake 				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN		SAME
+30180	DI_BESMA_DRAGON_NEST_NORMAL	Dragon Nest	Dragon Nest					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30181	DI_BESMA_DRAGON_NEST_HARD	Dragon Nest	Dragon Nest								SAME
+30182	DI_BESMA_DRAGON_NEST_EXPERT	Dragon Nest	Dragon Nest				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30190	DI_BESMA_AIRSHIP_NORMAL	Cargo Airship	Cargo Airship					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30191	DI_BESMA_AIRSHIP_HARD	Cargo Airship	Cargo Airship								SAME
+30192	DI_BESMA_AIRSHIP_EXPERT	Cargo Airship	Cargo Airship				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30200	DI_BESMA_LAKE_NIGHT_NORMAL	Bethma Lake (night)	Bethma Lake (night)					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30201	DI_BESMA_LAKE_NIGHT_HARD	Bethma Lake (night)	Bethma Lake (night)						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+30202	DI_BESMA_LAKE_NIGHT_EXPERT	Bethma Lake (night)	Bethma Lake (night)				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+30210	DI_BESMA_MINE2_NORMAL	Richie Mine -mining area-	Richie Mine -mining area-					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30211	DI_BESMA_MINE2_HARD	Richie Mine -mining area-	Richie Mine -mining area-								SAME
+30212	DI_BESMA_MINE2_EXPERT	Richie Mine -mining area-	Richie Mine -mining area-				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30240	DI_ALTERA_BATTLE_AIR_SHIP_NORMAL	Black Crow	Black Crow					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30241	DI_ALTERA_BATTLE_AIR_SHIP_HARD	Black Crow	Black Crow								SAME
+30242	DI_ALTERA_BATTLE_AIR_SHIP_EXPERT	Black Crow	Black Crow				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30250	DI_ALTERA_PLAIN_RECYCLE_NORMAL	The Return Plains	The Return Plains					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30251	DI_ALTERA_PLAIN_RECYCLE_HARD	The Return Plains	The Return Plains								SAME
+30252	DI_ALTERA_PLAIN_RECYCLE_EXPERT	The Return Plains	The Return Plains				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30260	DI_ALTERA_BELOW_TUNNEL_NORMAL	Transporting Tunnel B4-1	Transporting Tunnel B4-1					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30261	DI_ALTERA_BELOW_TUNNEL_HARD	Transporting Tunnel B4-1	Transporting Tunnel B4-1						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+30262	DI_ALTERA_BELOW_TUNNEL_EXPERT	Transporting Tunnel B4-1	Transporting Tunnel B4-1				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+30270	DI_ALTERA_PLAIN_NORMAL	Altera Plains	Altera Plains					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.AIN,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30271	DI_ALTERA_PLAIN_HARD	Altera Plains	Altera Plains						BOSS_DROP_ITEM.AIN		SAME
+30272	DI_ALTERA_PLAIN_EXPERT	Altera Plains	Altera Plains				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN		SAME
+30280	DI_ALTERA_NASOD_FACTORY_NORMAL	Nasod Foundry	Nasod Foundry					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30281	DI_ALTERA_NASOD_FACTORY_HARD	Nasod Foundry	Nasod Foundry								SAME
+30282	DI_ALTERA_NASOD_FACTORY_EXPERT	Nasod Foundry	Nasod Foundry				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+30300	DI_ALTERA_CORE_NORMAL	Altera Core	Altera Core					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+30301	DI_ALTERA_CORE_HARD	Altera Core	Altera Core								SAME
+30302	DI_ALTERA_CORE_EXPERT	Altera Core	Altera Core				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+32000	DI_TEMP0	\nDungeon for Monster tests.	\nDungeon for Monster tests.								SAME
+32100	DI_TEST_DUNGEON_NORMAL	Dagul Dungeon	Dagul Dungeon					requireLevel			SAME
+32101	DI_TEST_DUNGEON_HARD	Dagul Dungeon	Dagul Dungeon					requireLevel			SAME
+32102	DI_TEST_DUNGEON_EXPERT	Dagul Dungeon	Dagul Dungeon					requireLevel			SAME
+32200	DI_TEST1_DUNGEON_NORMAL	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32201	DI_TEST1_DUNGEON_HARD	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32202	DI_TEST1_DUNGEON_EXPERT	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32300	DI_TEST2_DUNGEON_NORMAL	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32301	DI_TEST2_DUNGEON_HARD	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32302	DI_TEST2_DUNGEON_EXPERT	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32400	DI_TEST3_DUNGEON_NORMAL	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32401	DI_TEST3_DUNGEON_HARD	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32402	DI_TEST3_DUNGEON_EXPERT	Dungeon for concept tests.	Dungeon for concept tests.								SAME
+32600	DI_PEITA_OFFERINGS_NORMAL	Shrine of Dedication Entrance	Shrine of Dedication Entrance					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+32601	DI_PEITA_OFFERINGS_HARD	Shrine of Dedication Entrance	Shrine of Dedication Entrance								SAME
+32602	DI_PEITA_OFFERINGS_EXPERT	Shrine of Dedication Entrance	Shrine of Dedication Entrance				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+32700	DI_PEITA_SPIRAL_CORRIDOR_NORMAL	Spiral Corridor	Spiral Corridor					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+32701	DI_PEITA_SPIRAL_CORRIDOR_HARD	Spiral Corridor	Spiral Corridor								SAME
+32702	DI_PEITA_SPIRAL_CORRIDOR_EXPERT	Spiral Corridor	Spiral Corridor				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+32800	DI_ELDER_NEWYEAR_NORMAL	A new year celebration at Wally's Castle	A new year celebration at Wally's Castle								SAME
+32910	DI_EVENT_KIDDAY_RUBEN	William's time and space	William's time and space				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+32920	DI_EVENT_KIDDAY_ELDER	William's time and space	William's time and space				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+32930	DI_EVENT_KIDDAY_BESMA	William's time and space	William's time and space				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+32940	DI_EVENT_KIDDAY_ALTERA	William's time and space	William's time and space				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+32950	DI_PEITA_CHAPEL_NORMAL	Underground Chapel	Underground Chapel					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+32951	DI_PEITA_CHAPEL_HARD	Underground Chapel	Underground Chapel						BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+32952	DI_PEITA_CHAPEL_EXPERT	Underground Chapel	Underground Chapel				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+32960	DI_PEITA_UNDER_GARDEN_NORMAL	Underground Garden	Underground Garden					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+32961	DI_PEITA_UNDER_GARDEN_HARD	Underground Garden	Underground Garden								SAME
+32962	DI_PEITA_UNDER_GARDEN_EXPERT	Underground Garden	Underground Garden				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+32970	DI_PEITA_TOWER_HEART_NORMAL	The Heart of Spire	The Heart of Spire					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+32971	DI_PEITA_TOWER_HEART_HARD	The Heart of Spire	The Heart of Spire								SAME
+32972	DI_PEITA_TOWER_HEART_EXPERT	The Heart of Spire	The Heart of Spire				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+32980	DI_PEITA_OFFERINGS_ALTER_NORMAL	Altar of Dedication	Altar of Dedication					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+32981	DI_PEITA_OFFERINGS_ALTER_HARD	Altar of Dedication	Altar of Dedication								SAME
+32982	DI_PEITA_OFFERINGS_ALTER_EXPERT	Altar of Dedication	Altar of Dedication				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33000	DI_VELDER_THIRD_DWELLING_NORMAL	Residential Area 3	Residential Area 3					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33001	DI_VELDER_THIRD_DWELLING_HARD	Residential Area 3	Residential Area 3								SAME
+33002	DI_VELDER_THIRD_DWELLING_EXPERT	Residential Area 3	Residential Area 3				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33010	DI_VELDER_BRIDGE_HOPE_NORMAL	Hope Bridge	Hope Bridge					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33011	DI_VELDER_BRIDGE_HOPE_HARD	Hope Bridge	Hope Bridge								SAME
+33012	DI_VELDER_BRIDGE_HOPE_EXPERT	Hope Bridge	Hope Bridge				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33030	DI_ELDER_SECRET_COMMON	Wally's Lab	Wally's Lab					m_LocalStarPosX,m_LocalStarPosY,m_bForbidEnterDungeon	ENDING_SPEECH0.LUCIEL		SAME
+33031	DI_ELDER_SECRET_HELL	Wally's Lab	Wally's Lab				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33040	DI_BESMA_SECRET_COMMON	Dragon Nest: Abyss	Dragon Nest: Abyss					m_LocalStarPosX,m_LocalStarPosY,m_bForbidEnterDungeon	ENDING_SPEECH0.LUCIEL		SAME
+33041	DI_BESMA_SECRET_HELL	Dragon Nest: Abyss	Dragon Nest: Abyss				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33050	DI_ALTERA_SECRET_COMMON	Transporting Tunnel : CA	Transporting Tunnel : CA					m_LocalStarPosX,m_LocalStarPosY,m_bForbidEnterDungeon,m_fPoisonTimeLimit	ENDING_SPEECH0.LUCIEL		SAME
+33051	DI_ALTERA_SECRET_HELL	Transporting Tunnel : CA	Transporting Tunnel : CA				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY,m_fExtraStagePoisonTimeLimit,m_fPoisonTimeLimit	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33060	DI_VELDER_PALACE_ENTRANCE_NORMAL	Palace Entrance	Palace Entrance					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33061	DI_VELDER_PALACE_ENTRANCE_HARD	Palace Entrance	Palace Entrance								SAME
+33062	DI_VELDER_PALACE_ENTRANCE_EXPERT	Palace Entrance	Palace Entrance				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33070	DI_VELDER_BRIDGE_BUNNING_NORMAL	Burning Hope Bridge	Burning Hope Bridge					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.AIN,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33071	DI_VELDER_BRIDGE_BUNNING_HARD	Burning Hope Bridge	Burning Hope Bridge						BOSS_DROP_ITEM.AIN		SAME
+33072	DI_VELDER_BRIDGE_BUNNING_EXPERT	Burning Hope Bridge	Burning Hope Bridge				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN		SAME
+33080	DI_VELDER_MARKET_NORMAL	Commercial Area 1	Commercial Area 1					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33081	DI_VELDER_MARKET_HARD	Commercial Area 1	Commercial Area 1						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33082	DI_VELDER_MARKET_EXPERT	Commercial Area 1	Commercial Area 1				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33090	DI_VELDER_GATE_NORMAL	Southern Gate	Southern Gate					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33091	DI_VELDER_GATE_HARD	Southern Gate	Southern Gate								SAME
+33092	DI_VELDER_GATE_EXPERT	Southern Gate	Southern Gate				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33120	DI_HAMEL_OUTSKIRTS_RESIAM_NORMAL	Resiam Outskirts	Resiam Outskirts					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33121	DI_HAMEL_OUTSKIRTS_RESIAM_HARD	Resiam Outskirts	Resiam Outskirts								SAME
+33122	DI_HAMEL_OUTSKIRTS_RESIAM_EXPERT	Resiam Outskirts	Resiam Outskirts				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33130	DI_HAMEL_BREAK_RESIAM_NORMAL	Sunken Resiam	Sunken Resiam					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33131	DI_HAMEL_BREAK_RESIAM_HARD	Sunken Resiam	Sunken Resiam								SAME
+33132	DI_HAMEL_BREAK_RESIAM_EXPERT	Sunken Resiam	Sunken Resiam				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33140	DI_HAMEL_ANCIENT_WATERWAY_NORMAL	Ancient Waterway	Ancient Waterway					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33141	DI_HAMEL_ANCIENT_WATERWAY_HARD	Ancient Waterway	Ancient Waterway						BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33142	DI_HAMEL_ANCIENT_WATERWAY_EXPERT	Ancient Waterway	Ancient Waterway				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33150	DI_HAMEL_ANCIENT_WATERWAY_CORE_NORMAL	Heart of the Ancient Waterway	Heart of the Ancient Waterway					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33151	DI_HAMEL_ANCIENT_WATERWAY_CORE_HARD	Heart of the Ancient Waterway	Heart of the Ancient Waterway								SAME
+33152	DI_HAMEL_ANCIENT_WATERWAY_CORE_EXPERT	Heart of the Ancient Waterway	Heart of the Ancient Waterway				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33160	DI_HAMEL_CAVE_OF_MAGMANTA_NORMAL	Magmanta's Cave	Magmanta's Cave					m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33161	DI_HAMEL_CAVE_OF_MAGMANTA_HARD	Magmanta's Cave	Magmanta's Cave								SAME
+33162	DI_HAMEL_CAVE_OF_MAGMANTA_EXPERT	Magmanta's Cave	Magmanta's Cave				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33170	DI_HAMEL_FROZEN_WATER_TEMPLE_NORMAL	Temple of Frozen Water	Temple of Frozen Water					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.AIN,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33171	DI_HAMEL_FROZEN_WATER_TEMPLE_HARD	Temple of Frozen Water	Temple of Frozen Water						BOSS_DROP_ITEM.AIN		SAME
+33172	DI_HAMEL_FROZEN_WATER_TEMPLE_EXPERT	Temple of Frozen Water	Temple of Frozen Water				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN		SAME
+33180	DI_HAMEL_FROZEN_WATER_HALL_NORMAL	Halls of Water	Halls of Water					m_LocalStarPosX,m_LocalStarPosY	BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33181	DI_HAMEL_FROZEN_WATER_HALL_HARD	Halls of Water	Halls of Water						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33182	DI_HAMEL_FROZEN_WATER_HALL_EXPERT	Halls of Water	Halls of Water				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33190	DI_VELDER_SECRET_COMMON	Velder's Hallucination	Velder's Hallucination					m_LocalStarPosX,m_LocalStarPosY,m_bForbidEnterDungeon	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33191	DI_VELDER_SECRET_HELL	Velder's Hallucination	Velder's Hallucination				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33200	DI_SANDER_DRY_SANDER_NORMAL	Barren Sander	Barren Sander						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33201	DI_SANDER_DRY_SANDER_HARD	Barren Sander	Barren Sander								SAME
+33202	DI_SANDER_DRY_SANDER_EXPERT	Barren Sander	Barren Sander				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33210	DI_SANDER_GARPAI_ROCK_NORMAL	Garpai Rock	Garpai Rock						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33211	DI_SANDER_GARPAI_ROCK_HARD	Garpai Rock	Garpai Rock						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33212	DI_SANDER_GARPAI_ROCK_EXPERT	Garpai Rock	Garpai Rock				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33220	DI_SANDER_DEN_OF_TROCK_NORMAL	Trock's Lair	Trock's Lair						BOSS_DROP_ITEM.AIN,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33221	DI_SANDER_DEN_OF_TROCK_HARD	Trock's Lair	Trock's Lair						BOSS_DROP_ITEM.AIN		SAME
+33222	DI_SANDER_DEN_OF_TROCK_EXPERT	Trock's Lair	Trock's Lair				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN		SAME
+33230	DI_SANDER_KARUSO_VILLAGE_NORMAL	Caluso Tribal Village	Caluso Tribal Village						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33231	DI_SANDER_KARUSO_VILLAGE_HARD	Caluso Tribal Village	Caluso Tribal Village								SAME
+33232	DI_SANDER_KARUSO_VILLAGE_EXPERT	Caluso Tribal Village	Caluso Tribal Village				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33240	DI_SANDER_SANTILUS_SHIP_NORMAL	Sandtilus 	Sandtilus 						BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33241	DI_SANDER_SANTILUS_SHIP_HARD	Sandtilus 	Sandtilus 						BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33242	DI_SANDER_SANTILUS_SHIP_EXPERT	Sandtilus 	Sandtilus 				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33250	DI_SANDER_BEHIMOSS_HEART_NORMAL	Heart of Behemoth	Heart of Behemoth						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33251	DI_SANDER_BEHIMOSS_HEART_HARD	Heart of Behemoth	Heart of Behemoth								SAME
+33252	DI_SANDER_BEHIMOSS_HEART_EXPERT	Heart of Behemoth	Heart of Behemoth				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33270	DI_RANOX_BURNDEDFOREST_NORMAL	Burnt Forest	Burnt Forest						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33271	DI_RANOX_BURNDEDFOREST_HARD	Burnt Forest	Burnt Forest						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33272	DI_RANOX_BURNDEDFOREST_EXPERT	Burnt Forest	Burnt Forest				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33280	DI_RANOX_ASHESVILLAGE_NORMAL	Ash Covered Village	Ash Covered Village						BOSS_DROP_ITEM.AIN,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33281	DI_RANOX_ASHESVILLAGE_HARD	Ash Covered Village	Ash Covered Village						BOSS_DROP_ITEM.AIN		SAME
+33282	DI_RANOX_ASHESVILLAGE_EXPERT	Ash Covered Village	Ash Covered Village				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN		SAME
+33290	DI_RANOX_GEYSER_NORMAL	Phantasmal Geyser	Phantasmal Geyser						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33291	DI_RANOX_GEYSER_HARD	Phantasmal Geyser	Phantasmal Geyser								SAME
+33292	DI_RANOX_GEYSER_EXPERT	Phantasmal Geyser	Phantasmal Geyser				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33300	DI_RANOX_GATEWAY_NORMAL	Volcanic Flame Entrance	Volcanic Flame Entrance						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33301	DI_RANOX_GATEWAY_HARD	Volcanic Flame Entrance	Volcanic Flame Entrance						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33302	DI_RANOX_GATEWAY_EXPERT	Volcanic Flame Entrance	Volcanic Flame Entrance				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
+33310	DI_RANOX_FIRETEMPLE_NORMAL	Collapsing Temple of Fire	Collapsing Temple of Fire						BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33311	DI_RANOX_FIRETEMPLE_HARD	Collapsing Temple of Fire	Collapsing Temple of Fire						BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL		SAME
+33312	DI_RANOX_FIRETEMPLE_EXPERT	Collapsing Temple of Fire	Collapsing Temple of Fire				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.AIN,BOSS_DROP_ITEM.LUCIEL		SAME
+33320	DI_RANOX_FINALHALL_NORMAL	Grand Cavern: Chasm of the Divided Land	Grand Cavern: Chasm of the Divided Land						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
+33321	DI_RANOX_FINALHALL_HARD	Grand Cavern: Chasm of the Divided Land	Grand Cavern: Chasm of the Divided Land								SAME
+33322	DI_RANOX_FINALHALL_EXPERT	Grand Cavern: Chasm of the Divided Land	Grand Cavern: Chasm of the Divided Land				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+38020	DI_ARCADE_SEASON1	Imir's time and space : full screen mode	Imir's time and space : full screen mode					m_bArcadeMode			SAME
+38100	DI_ELDER_HENIR_SPACE	Henir's	Henir's				DUNGEON_CHECK_CONDITION,m_HardMaxLevel,m_HardMinLevel,m_HardRequireItemLevel,m_fExtraValue	m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE,ENDING_SPEECH1.AIN,ENDING_SPEECH1.LUCIEL,ENDING_SPEECH1.ROSE		SAME
+38300	DI_DEFENCE_DUNGEON_ELDER_NORMAL	Gates of Darkness	Gates of Darkness				DUNGEON_CHECK_CONDITION		ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE,ENDING_SPEECH1.AIN,ENDING_SPEECH1.LUCIEL,ENDING_SPEECH1.ROSE		SAME
+38301	DI_DEFENCE_DUNGEON_ELDER_HARD	Gates of Darkness	Gates of Darkness				DUNGEON_CHECK_CONDITION				SAME
+38302	DI_DEFENCE_DUNGEON_ELDER_EXPERT	Gates of Darkness	Gates of Darkness				DUNGEON_CHECK_CONDITION				SAME
+39000	DI_TRAINING_FREE	Free training	Free training								SAME
+39100	DI_TRAINING_ELSWORD_0	Combo training 1	Combo training 1								SAME
+39101	DI_TRAINING_ELSWORD_1	Combo training 2	Combo training 2								SAME
+39102	DI_TRAINING_ELSWORD_2	Combo training 3	Combo training 3								SAME
+39103	DI_TRAINING_ELSWORD_3	Counterattack training	Counterattack training								SAME
+39104	DI_TRAINING_ELSWORD_4	Movement training 2	Movement training 2								SAME
+39105	DI_TRAINING_ELSWORD_5	Movement training 1	Movement training 1								SAME
+39106	DI_TRAINING_ELSWORD_6	Special ability training	Special ability training								SAME
+39200	DI_TRAINING_ARME_0	Combo training 1	Combo training 1								SAME
+39201	DI_TRAINING_ARME_1	Combo training 2	Combo training 2								SAME
+39202	DI_TRAINING_ARME_2	Combo training 3	Combo training 3								SAME
+39204	DI_TRAINING_ARME_4	Movement training 2	Movement training 2								SAME
+39205	DI_TRAINING_ARME_5	Movement training 1	Movement training 1								SAME
+39206	DI_TRAINING_ARME_6	Special ability training	Special ability training								SAME
+39300	DI_TRAINING_LIRE_0	Combo training 1	Combo training 1								SAME
+39301	DI_TRAINING_LIRE_1	Combo training 2	Combo training 2								SAME
+39302	DI_TRAINING_LIRE_2	Combo training 3	Combo training 3								SAME
+39303	DI_TRAINING_LIRE_3	Siege mode training	Siege mode training								SAME
+39304	DI_TRAINING_LIRE_4	Movement training 2	Movement training 2								SAME
+39305	DI_TRAINING_LIRE_5	Movement training 1	Movement training 1								SAME
+39306	DI_TRAINING_LIRE_6	Special ability training	Special ability training								SAME
+39400	DI_TRAINING_RAVEN_0	Combo training 1	Combo training 1								SAME
+39401	DI_TRAINING_RAVEN_1	Combo training 2	Combo training 2								SAME
+39402	DI_TRAINING_RAVEN_2	Combo training 3	Combo training 3								SAME
+39403	DI_TRAINING_RAVEN_3	Burning rush training	Burning rush training								SAME
+39404	DI_TRAINING_RAVEN_4	Movement training 2	Movement training 2								SAME
+39405	DI_TRAINING_RAVEN_5	Movement training 1	Movement training 1								SAME
+39406	DI_TRAINING_RAVEN_6	Special ability training	Special ability training								SAME
+39500	DI_EVENT_TREE_DAY_ELDER	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+39510	DI_EVENT_TREE_DAY_BESMA	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+39520	DI_EVENT_TREE_DAY_ALTERA	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+39530	DI_EVENT_TREE_DAY_PEITA	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+39540	DI_EVENT_TREE_DAY_VELDER	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+39550	DI_EVENT_TREE_DAY_HAMEL	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+41271	DI_RANOX_SECRET_HELL	Grand Cavern: The Source of Demonic Energy	Grand Cavern: The Source of Demonic Energy				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME

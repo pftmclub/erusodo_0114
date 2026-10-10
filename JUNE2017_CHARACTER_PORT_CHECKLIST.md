@@ -532,3 +532,15 @@ anything on screen (JUNE_BUGS 164; the readers need the NPC's start state), but 
 |---|---|---|---|
 | Chung (Missile Shower 6019, Quantum Ballista 6011) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_CONTROL_IDLE` StateStartFuture `32bff3d0 @32bff412-32bff420` (state `0xf5`, registered `@32c1fffa`) | `CSI_SI_SA_CDC_ARTILLERY_STRIKE_READY_EventProcess` (`X2GUChung.cpp`, before `StateChange( ..._CONTROL_IDLE )`) | move the three writes into a CONTROL_IDLE StateStartFuture; June has no `IsMyUnit` test there |
 | Chung (June-only Heavy Field) | `CSI_SA_CTT_HEAVY_FIELD_LOOP` (`0x151`) `32c0ba60 @32c0ba9f-32c0bac2`: every frame, when vslot `0x198` is true, the same three writes, then the NPC state from a 9-way switch (`SHOT_ARTILLERY_STRIKE_*`, only when it differs) | none | comes with the skill |
+
+### 7s. Dungeon-registry class tables only the new classes read (from June effect completion C3z-3)
+
+Since C3z-3, June's `DungeonData.lua` rows carry per-class tables March's `AddDungeonData_LUA` has no branch for
+(`X2DungeonManager.cpp:252-552` reads COMMON / ELSWORD / AISHA / RENA / RAVEN / EVE / CHUNG / ARA / ELESIS / ADD only). The data is
+already live; only the readers are missing. Count per class: `june2017_re/dungeon_registry_census.tsv`, column `june_unread_class_tables`.
+
+| Class | Tables | Port |
+|---|---|---|
+| Ain | `BOSS_DROP_ITEM.AIN` and `ENDING_SPEECH<n>.AIN` (94 tables in the shared rows) | add the `AIN` branch to both loops, mapped to Ain's `UT_` |
+| Luciel | `BOSS_DROP_ITEM.LUCIEL` and `ENDING_SPEECH<n>.LUCIEL` (98 tables); the speech entries are `{ LU = STR_ID, CIEL = STR_ID }` pairs, not `{ STR_ID }` | the branch plus June's two-speaker speech read (June `327e0f80`, the `ENDING_SPEECH` block `@~1837-2001`) |
+| Rose | `BOSS_DROP_ITEM.ROSE` and `ENDING_SPEECH<n>.ROSE` (92 tables) | add the `ROSE` branch |
