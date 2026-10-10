@@ -2365,6 +2365,20 @@ No questions for the user.
 - Dungeon openings with a focus camera (stop-at-start, boss focus) should behave as before. Test with Elder Druid Forest (Normal): its boss `NUI_ANGER_FOREST_ENT` sets `FOCUS_CAMERA` and `STOP_AT_START_STATE`, which runs the restructured empty-string path.
 - A battle field should still focus your character and the field boss.
 
+**Play-test 1 (2026-10-10): crash entering Elder Druid Forest. Not C3s.** The crash bundle resolves to `CX2DungeonGame::StageLoading+0x899`,
+which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` with `m_pWorld` NULL.
+- The adopted June scripts name June's reworked worlds (`WI_ELDER_DARK_FOREST_*`), and March has none of them, so CreateWorld returns NULL
+  without logging -> **C3x**.
+- A census found 128 such world IDs in 73 June dungeon scripts. Only 7 are registered: Druid Forest x3, Benders Cave x3 (boss stage) and
+  Henir Space (Elysion / Atlas / Sander boss stages).
+- **Monster assets (user, 2026-10-10: copy them all).** `npc_mesh_census.py --all-npc` scanned all 3,364 unit scripts and wrote
+  `june2017_re/npc_mesh_need_all.tsv`: 1,666 June files, about 1.17 GB.
+  - `kom.py stage-june` placed them: 1,666 new, 0 replaced, 0 refused, in 62 koms (14 of them new archive numbers, all inside the
+    `SERV_IRUHADEV_KOM_FILE_COUNT_226` mount range).
+  - `data118_kom` first got its missing `blur_16.dds` back from the live kom.
+  - All 62 PACK OK, each `-0 removed` against the live archive. Copy waits for the user's OK.
+- Re-test C3s in Elder Wally's Castle Roof (Normal): William Phoru B / C set `FOCUS_CAMERA` + `STOP_AT_START_STATE`, and the maps are March's.
+
 ## C3v - identify, then port: June's CX2Game::UpdateUnitPointer
 
 **Status: ready (found by C3s, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3v.md`.
@@ -2389,6 +2403,14 @@ No questions for the user.
 
 - **Scope:** `CX2GUUser::SumSocketOption 3204f190 @3204fb89-3204fc1d`: March's summon-NPC socket push, plus June's gate: NPC ids `0x1017 / 0x1018` only in `GT_DUNGEON` (game vslot `0x10c` == 2).
 ---
+
+## C3x - port: June's reworked dungeon worlds
+
+**Status: ready (found by the C3s play-test, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3x.md`.
+
+- **Scope:** add June's `WI_ELDER_DARK_FOREST_STAGE_0 / _1 / _BOSS_STAGE` (June 575-577) and `WI_ELDER_BENDERS_STAGE_BOSS` (June 33) to
+  `Enum.lua` and their rows to `WorldData.lua`. Check every value against March's IDs first. Then adopt June's world scripts, stage the
+  line maps / meshes / textures they name, and log a NULL `CreateWorld`. Henir Space's 5 boss-stage worlds go to atlas / elysion.
 
 ## C4 - 8b, damage math
 

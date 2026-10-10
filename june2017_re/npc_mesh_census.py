@@ -39,10 +39,21 @@ def resolve(tok):
             return c
     return None
 
-# which lua files: everything adopted today (stage backup dir lists the replaced names) plus anything else in those koms
+# which lua files: everything adopted today (stage backup dir lists the replaced names) plus anything else in those koms.
+# --all-npc (2026-10-10, user: copy every monster mesh): every unit script in kom_contents (a .lua naming INIT_MOTION), so June-only
+# monster scripts no registry reaches yet are covered too; writes npc_mesh_need_all.tsv.
+ALL_NPC = "--all-npc" in sys.argv
 lua_files = []
 seenf = set()
-for stamp in ("20261009_135231", "20261009_141115"):
+if ALL_NPC:
+    for kd in sorted(os.listdir(KC)):
+        if not kd.endswith("_kom") or not os.path.isdir(os.path.join(KC, kd)):
+            continue
+        for f in os.listdir(os.path.join(KC, kd)):
+            p = os.path.join(KC, kd, f)
+            if f.lower().endswith(".lua") and not f.lower().endswith(".src.lua") and b"INIT_MOTION" in open(p, "rb").read():
+                seenf.add(p.lower()); lua_files.append((kd, f, p))
+for stamp in (() if ALL_NPC else ("20261009_135231", "20261009_141115")):
     stage = os.path.join(os.path.dirname(KC), "kom_backup_stage_june", stamp)
     for kd in os.listdir(stage):
         if not kd.endswith("_kom"):
@@ -51,7 +62,7 @@ for stamp in ("20261009_135231", "20261009_141115"):
             p = os.path.join(KC, kd, f)
             if f.lower().endswith(".lua") and os.path.exists(p) and p.lower() not in seenf:
                 seenf.add(p.lower()); lua_files.append((kd, f, p))
-print("adopted lua files:", len(lua_files))
+print("unit scripts (--all-npc):" if ALL_NPC else "adopted lua files:", len(lua_files))
 
 need = {}            # lower name -> spelling
 need_by = collections.defaultdict(set)
@@ -106,8 +117,9 @@ print("june koms:", dict(by_kom))
 print("long names (>59):", long_names)
 print("undecodable:", undecodable)
 print("in several June koms:", len(multi))
-with open(os.path.join(OUT, "npc_mesh_need_replaced.tsv"), "w", encoding="utf-8", newline="\n") as fh:
+TSV = os.path.join(OUT, "npc_mesh_need_all.tsv" if ALL_NPC else "npc_mesh_need_replaced.tsv")
+with open(TSV, "w", encoding="utf-8", newline="\n") as fh:
     fh.write("name\tjune_kom\tsize\tneeded_by\n")
     for ln in sorted(need):
         fh.write("%s\t%s\t%d\t%s\n" % (need[ln], june[ln][0][1], june[ln][0][3]["size"], ";".join(sorted(need_by[ln]))[:400]))
-print("wrote", os.path.join(OUT, "npc_mesh_need_replaced.tsv"))
+print("wrote", TSV)
