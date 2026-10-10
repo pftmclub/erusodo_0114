@@ -6637,3 +6637,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP needs SERV_IRUHADEV_JUNE_EVENT_STATES
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3r: CX2GUUser::GetShowCutInAndChangeWorldColor ( June 32001380 @320013d0-320013f7 ) in a battle field:
+//              a user that is not your own unit returns false while the game has no my-unit, instead of reading GetMyUnit()'s
+//              position through a NULL pointer ( March ). Gates the hyper world colour and the skill / hyper cut-ins.
+#define SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD
+//////////////////////////////////////////////////////////////////////////

@@ -3828,6 +3828,9 @@ public:
 
 		bool GetShowCutInAndChangeWorldColor();
 		void ChangeWorldColorByHyperMode();
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+		bool IsJuneChangeWorldColorNow();	/// June 31fd3260 ( C3r ): CHANGE_WORLD_COLOR, or now inside the state's CHANGE_WORLD_COLOR_DATA window
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 		bool GetShowActiveSkillShow() const;
 		
 		void ResetNotBusyTimerOnSpecificState();	// 바쁜 상태 타이머를 리셋

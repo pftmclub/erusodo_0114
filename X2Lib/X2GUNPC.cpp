@@ -24824,6 +24824,12 @@ void CX2GUNPC::CommonStateEnd()
 	if ( NOWSTATE_FLAG( DYING_END ) || NOWSTATE_FLAG( ESCAPE_END ) || _IsDyingState( m_NPCFrameData.syncData.nowState ) )
 		FinishAndClearAllBuff();
 #endif SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277fbe0 ( C3r; C3o missed it ): every path ends in a tail jump to 32296be0, so an NPC state that ends inside
+	/// its CHANGE_WORLD_COLOR_DATA window fades the world back and clears the window. The user's CommonStateEnd fades back on its own ( March's
+	/// FadeWorldColor after TRANSITION; June 32015250 @3201572f-3201574f ).
+	RestoreJuneWorldColor();
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 }
 
 

@@ -2214,15 +2214,71 @@ No questions for the user.
 
 ## C3r - port: June's user CHANGE_WORLD_COLOR_DATA window
 
-**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3r.md`.
+**Status: done 2026-10-10 (see "C3r - Done"; found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3r.md`, review `C3r-review.md`.
 
 - **Scope:** the user side of C3o's world-colour window: `CX2GUUser::CommonStateStart 32057b80 @32060286-320603b2`, the reader `3204f190 @3204fb99`, `31fd3260` and its caller `32063650 @3206cdb9-3206cdcb`. Same flag as C3o. Dormant (only Ain's class script has the table).
+
+### C3r - Done (2026-10-10, Opus 5.5 high)
+
+**Mapped** (funcmap rows `(C3r)`; Ghidra, `xordec2.py`, a raw rel32 scan of `.text`):
+1. **Parse** `32057b80 @32060286-32060497`. The keys around it are `CHANGE_WORLD_COLOR` (`+0x927c`, March `m_bChangeWorldColor`), then `SHOW_SKILL_CUT_IN_TIME` (`+0x9278`), then the table, then `SHOW_HYPER_CUT_IN_TIME` (`+0x9280`, June-only -> **C3t**).
+   - **The kickoff's `[ebx]` question:** `ebx = edi + 0x9278` (`@32060255`), so the `@32060290` store is `SHOW_SKILL_CUT_IN_TIME`'s miss default of -1, which March's `LUA_GET_VALUE( ..., -1.f )` already does.
+   - The table parse is the NPC's: both times -1, START miss 0 (`@320603b0`), END miss 9999 (`@3206048b`).
+2. **`31fd3260`** (one caller, `32063650 @3206cdb9`) = `m_bChangeWorldColor` (`@31fd3266`), else START >= 0 and START <= t <= END. t is the Now anim's time: `32071d80` gives `+0x87d4` = `m_pXSkinAnim`, or June's second-body anim `+0x8e88` while `+0x8e90` is on (not in March).
+3. **The caller** replaces March's `if( m_bChangeWorldColor ) ChangeWorldColorByHyperMode();`: true -> `32001460`, false -> `32296be0`.
+   - `32001460` is March's `ChangeWorldColorByHyperMode`, constant for constant: `0xffff0000` in hyper mode, else `0x22 / 255` grey.
+   - So **the user window tints by hyper mode**, where the NPC's (C3o) is fixed red.
+4. **`32001380` = `GetShowCutInAndChangeWorldColor`**:
+   - Game types 1-2 return true, and 3-5 take the battle-field test. March's enum ends at 3.
+   - June adds a `GetMyUnit()` NULL test (`@320013f5`) before the distance test (640000 = `LIMIT_DISTANCE_SQ`).
+5. **`3204f190 @3204fb99` is not world colour.** C3o's scan matched an offset.
+   - EBX there is the socket templet: the same EBX reads `+0x27c` (`m_eHyperModeEffectiveType`) a few lines later.
+   - So `+0x240 / +0x244 / +0x248` are March's `m_iSummonNpcId / m_fSummonNpcRate / m_fSummonNpcCoolTime`, pushed onto `m_vecSummonNpcSocket` (`+0x8d80`).
+   - June's one addition there is a dungeon-only gate for NPC ids `0x1017 / 0x1018`, routed to **C3u**.
+6. **C3o missed a third restore caller:** NPC `CommonStateEnd` `3277ee10` ends in `jmp 0x32296be0` (`@3277fbe0`) on every path.
+   - The raw scan finds `32296be0` at exactly 3 sites: user CommonFrameMove, NPC CommonFrameMove, NPC CommonStateEnd.
+   - The user's `CommonStateEnd` still fades back itself (June `32015250 @3201572f-3201574f`, March after `TRANSITION`).
+   - So **JUNE_BUGS 156 is withdrawn**: a state cut short inside its window fades back on both sides.
+
+**Code** (`X2GUUser.h/.cpp`, `X2GUNPC.cpp`, `Always.h`):
+- **`SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW`** (C3o's flag):
+  - the table parse after `SHOW_SKILL_CUT_IN_TIME`;
+  - `CX2GUUser::IsJuneChangeWorldColorNow` (`31fd3260`; the anim null check is ours);
+  - the CommonFrameMove gate, with March's line in `#else`;
+  - `RestoreJuneWorldColor()` as the last statement of `CX2GUNPC::CommonStateEnd`.
+- **`SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD`** (new): the battle-field case of `GetShowCutInAndChangeWorldColor`, with March's in `#else`.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW --with SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD --worktree` (C3r's files):
+- `X2GUUser.cpp` PASS +56, `X2GUUser.h` PASS +3, `X2GUNPC.cpp` PASS +6, `Always.h` OTHER (the define, plus a peer's line).
+- 0 FAIL, 0 ERROR, 0 deleted, 0 non-ASCII, 0 tokenless `#else` / `#endif`, RESULT PASS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port 3eb8ef0 + 8 uncommitted code file(s).` The exe was linked by a peer's build at 12:20 from this tree, after C3r's edits (`X2GUUser.obj` 12:14 > `X2GUUser.cpp` 11:58, `X2GUNPC.obj` 12:20), so it carries C3r; the uncommitted files include peers' C3q / C3s work. No kom.
+
+**How to see it in game:**
+- **Ain's window:** dormant, since Ain is not in March.
+- **The replaced branch (regression):** every March `CHANGE_WORLD_COLOR = TRUE` state now runs through the June gate. Examples: Elesis's special actives (e.g. Grand Master `ESI_SA_SGM_SONIC_BLADE`), Add's SAs, Ara's, and every class's hyper active.
+  - The world goes dark grey during the skill, or red while awakened, and fades back when the state ends, as before.
+- **NPC state-end fade:** dormant, since no NPC script has the table.
+
+No questions for the user.
 
 ## C3s - identify, then port: June's UpdateUnitPointer
 
 **Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3s.md`.
 
 - **Scope:** June's dungeon `327cea70` and battle-field `32d530a0` focus-camera walks against March's `UpdateUnitPointer` (`+0x8e38`, anim-name compares, state flags `0x2000000` / `0x20000000`, the cinematic-UI hide by main-state id). One flag per logical change.
+
+## C3t - identify, then port: June's user SHOW_HYPER_CUT_IN_TIME
+
+**Status: ready (found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t.md`.
+
+- **Scope:** the June-only state key `SHOW_HYPER_CUT_IN_TIME` (`32057b80` @32060505 -> user `+0x9280`, miss -1) and its reader (`32063650 @3206ce0a-3206ce42`, user vslot `0x838` ( time, false ) when not -1). Data: every June class script (hyper actives); none in March, so dormant until the character ports.
+
+## C3u - port: June's summon-NPC socket gate
+
+**Status: ready (found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3u.md`.
+
+- **Scope:** `CX2GUUser::SumSocketOption 3204f190 @3204fb89-3204fc1d`: March's summon-NPC socket push, plus June's gate: NPC ids `0x1017 / 0x1018` only in `GT_DUNGEON` (game vslot `0x10c` == 2).
 ---
 
 ## C4 - 8b, damage math

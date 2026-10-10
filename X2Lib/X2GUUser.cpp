@@ -16364,6 +16364,22 @@ void CX2GUUser::CommonStateStart()
 
 	LUA_GET_VALUE(	m_LuaManager, "CHANGE_WORLD_COLOR",					m_bChangeWorldColor,		false );
 	LUA_GET_VALUE(	m_LuaManager, "SHOW_SKILL_CUT_IN_TIME",				m_fShowSkillCutInTime,		-1.f );
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+	/// June CX2GUUser::CommonStateStart 32057b80 @32060286-32060497 ( C3r ), right after SHOW_SKILL_CUT_IN_TIME ( the store @32060290 is that key's miss
+	/// default -1 into +0x9278 = m_fShowSkillCutInTime, which LUA_GET_VALUE above already does ): the NPC's parse ( C3o ). Both times = -1 ( 334380f0 ), then
+	/// CHANGE_WORLD_COLOR_DATA ( 33478ee0 ): START_TIME ( a miss stores 0, @320603b0 ) and END_TIME ( a miss stores 9999, 3346ede8 @3206048b ). Read by
+	/// CommonFrameMove through IsJuneChangeWorldColorNow ( 31fd3260 ). Only Ain's class script ( Ain_Apostasia, not in March ) has the table.
+	m_fJuneWorldColorStartTime	= -1.f;
+	m_fJuneWorldColorEndTime	= -1.f;
+	if ( true == m_LuaManager.BeginTable( "CHANGE_WORLD_COLOR_DATA" ) )
+	{
+		if ( false == m_LuaManager.GetValue( "START_TIME", m_fJuneWorldColorStartTime ) )
+			m_fJuneWorldColorStartTime = 0.f;
+		if ( false == m_LuaManager.GetValue( "END_TIME", m_fJuneWorldColorEndTime ) )
+			m_fJuneWorldColorEndTime = 9999.f;
+		m_LuaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	/// June 32057b80 @320606a2: 3228a490 stops the effect sets of a skill state that has ended ( user only ), first of the two skill-state-end checks
@@ -19880,8 +19896,19 @@ void CX2GUUser::CommonFrameMove()
 	}
 #endif SUMMON_MONSTER_CARD_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+	/// June CX2GUUser::CommonFrameMove 32063650 @3206cdb7-3206cdcb ( C3r ): 31fd3260 ( IsJuneChangeWorldColorNow ) widens March's CHANGE_WORLD_COLOR test
+	/// with the state's CHANGE_WORLD_COLOR_DATA window. True -> ChangeWorldColorByHyperMode ( 32001460 = March's: 0xffff0000 in hyper mode, else 0xff222222;
+	/// June's constants 334387b0 x 334350e8 = 0 and 33474d80 = 0x22 / 255 ), so the user window tints by hyper mode where the NPC's ( C3o ) is fixed red.
+	/// False -> RestoreJuneWorldColor ( 32296be0 ), which does nothing unless a window is set ( START >= 0 ).
+	if ( true == IsJuneChangeWorldColorNow() )
+		ChangeWorldColorByHyperMode();
+	else
+		RestoreJuneWorldColor();
+#else SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 	if( true == m_bChangeWorldColor )
 		ChangeWorldColorByHyperMode();
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 
 	if( false == IsSamef( -1.f, m_fShowSkillCutInTime ) )
 		ShowActiveSkillCutInAndLightByScript( m_fShowSkillCutInTime, false );
@@ -37948,10 +37975,21 @@ bool CX2GUUser::GetShowCutInAndChangeWorldColor()
 	switch ( g_pX2Game->GetGameType() )
 	{
 	case CX2Game::GT_BATTLE_FIELD:	// 거리 800 이내 인 경우
+#ifdef SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD
+		/// June 32001380 ( C3r ): game types 1 and 2 ( PvP, dungeon ) -> true; 3, 4, 5 ( jump table 3200144c; March's enum ends at 3 = GT_BATTLE_FIELD ) ->
+		/// IsMyUnit ( vslot 0x198 ) -> true, else no my-unit ( game vslot 0x98, @320013f5 ) -> false, else the distance test ( 33475a38 = 640000 =
+		/// LIMIT_DISTANCE_SQ ). March read GetMyUnit()->GetPos() without the NULL test.
+		if ( IsMyUnit() )
+			return true;
+		if ( NULL == g_pX2Game->GetMyUnit() )
+			return false;
+		return GetDistance3Sq( GetPos(), g_pX2Game->GetMyUnit()->GetPos() ) < LIMIT_DISTANCE_SQ;
+#else SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD
 		if ( IsMyUnit() || GetDistance3Sq( GetPos(), g_pX2Game->GetMyUnit()->GetPos() ) < LIMIT_DISTANCE_SQ )
 			return true;
 		else
 			return false;
+#endif SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD
 		break;
 
 	case CX2Game::GT_DUNGEON:
@@ -37978,6 +38016,24 @@ void CX2GUUser::ChangeWorldColorByHyperMode()
 			g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+// June 31fd3260 ( C3r ), called only by CommonFrameMove ( 32063650 @3206cdb9; raw rel32 scan ). True when the state has CHANGE_WORLD_COLOR ( byte +0x927c =
+// m_bChangeWorldColor, @31fd3266 ), else when a CHANGE_WORLD_COLOR_DATA window is set ( 0 <= START, @31fd3271 ) and START <= t <= END ( @31fd32aa-31fd32cc ).
+// t = the now skin anim's time ( 32071d80: June's second-body anim +0x8e88 while +0x8e90 is on, else +0x87d4 = m_pXSkinAnim; March has no second body ).
+// June does not null-check the anim: the check is ours.
+bool CX2GUUser::IsJuneChangeWorldColorNow()
+{
+	if ( true == m_bChangeWorldColor )
+		return true;
+	if ( 0.f <= m_fJuneWorldColorStartTime && NULL != m_pXSkinAnim )
+	{
+		const float fJuneWorldColorTime = m_pXSkinAnim->GetNowAnimationTime();
+		if ( m_fJuneWorldColorStartTime <= fJuneWorldColorTime && fJuneWorldColorTime <= m_fJuneWorldColorEndTime )
+			return true;
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 
 void CX2GUUser::SetEquippedSkillFunc( const CX2Unit::UnitData& kUnitData_, const bool bSlotB_ )
 {
