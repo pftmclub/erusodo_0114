@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3y-1b` |
 | Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C3y; not at the same time as C3y-1a (shared registries) |
+| Depends on | C3y; can run with C3y-1a (no shared file); not with the port halves of C3y-1c / 2 / 3 / 4 (data036 Enum.lua, data040 WorldData.lua) |
 | Flag | a `SERV_IRUHADEV_JUNE_*` flag only if C++ must change (none expected) |
 | Log tag | `JUNE_FX C3y-1b` (`python tools/logs.py --grep "JUNE_FX C3y-1b"`) |
 | Review | none unless the phase ships code |

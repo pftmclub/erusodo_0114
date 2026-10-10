@@ -2602,6 +2602,9 @@ User, 2026-10-10: give the old dungeons their own phases and update them to what
 - **One world-id clash, harmless:** June's `WI_PVE_BATTLE_WORLD_ISLAND_OF_ERDA` = 573 = March's Lua `WI_END`, named only by the dead
   `Dungeon_Pve_Battle_World_Island_of_Erda.lua`. C++ `WI_END` (752) bounds village / field worlds only (`X2State.cpp:6797` and three
   more), not dungeon stages, so Space of Thought's 771-773 are not blocked by it.
+- **Running together:** C3y-1a and C3y-1b share no file; the identify halves of C3y-2 / 3 / 5 run with anything; the port halves
+  of C3y-1b / 1c / 2 / 3 / 4 edit the same core registries (data036 Enum / DungeonEnum, data035 DungeonData, data040 WorldData,
+  data037 NPCTemplet) and run one at a time.
 - **Routing notes added:** STATUS rows C3y-1a..C3y-5 + kickoffs; backlog Stage 19's "still to identify" now lists the 13 event ids;
   the atlas / elysion blocks point at the census.
 
@@ -2618,7 +2621,7 @@ world March lacks? Default if unanswered: they stay with atlas / elysion.
   `DI_HAMEL_SECRET_HELL` 33261 in DungeonEnum, with 0 unresolved NPCs. Missing:
   - June's 2 DungeonData rows (data035 `DungeonData.lua`, core) and `UNUSED:DI_RANOX_SECRET_COMMON` 41270's row;
   - the map button: June's `DLG_Map_Local_Hamel_Icon_NEW.lua` (data217 in June) has `HamelSecret`; March's data034 copy omitted it in
-    UI parity Phase 3. Not on the core list yet: `core --add`, then convert (T0 from its sidecar) or adopt June's;
+    UI parity Phase 3. Default: adopt June's file (June asset wins); editing March's sidecar'd copy needs the user's OK first;
   - UI assets: `HQ_LoadingDungeon_HARMEL_SECRET1/2.tga`, `DLG_UI_Dungeon_Image09.dds`, button texture keys; entry item 700015 in item.kim.
 - Check `m_eDefaultDungeonLoungeWorldID = WI_HAMEL_SECRET_STAGE_BOSS` (no such June enum name; June's world is `..._BOSS_STAGE`):
   keep June's value verbatim (JUNE_BUGS row) unless the strict load test fails.
@@ -2642,7 +2645,7 @@ world March lacks? Default if unanswered: they stay with atlas / elysion.
   all 32 have June templets, and their unit scripts are already staged; meshes (`npc_mesh_census.py`); stat tables.
   DropTable is server-only, so they give 0 EXP / ED (C3z-2's open question applies).
 - Map button: June's `DLG_Map_Local_Sander_Icon_NEW.lua` has `SanderSecret` + `_Desc` + `TitleBG`, which March's data034 copy omits
-  (UI parity Phase 3). Texture keys `SANDER_SECRET_DUNGEON_NORMAL/_OVER` (`DLG_Common_Button04_NEW.tga`), `TITLE_SANDER_SECRET`
+  (UI parity Phase 3). Default: adopt June's file, as C3y-1a. Texture keys `SANDER_SECRET_DUNGEON_NORMAL/_OVER` (`DLG_Common_Button04_NEW.tga`), `TITLE_SANDER_SECRET`
   (`DLG_Localmap_Title_01`, June data151), `HQ_LoadingDungeon_Sander_SECRET1/2.tga`, `DLG_UI_Dungeon_Image10.dds`; entry items
   700015 / 113277 in item.kim.
 - The emulator: C3z-6's secret-dungeon path (relative level, `DT_SECRET`); check nothing keys on a fixed list of secret ids.

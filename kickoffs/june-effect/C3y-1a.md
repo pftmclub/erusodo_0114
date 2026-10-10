@@ -27,8 +27,10 @@ grep -E "HAMEL_SECRET|RANOX_SECRET_COMMON" june2017_re/c3y_june_only_dungeon_ids
    - `m_eDefaultDungeonLoungeWorldID = WI_HAMEL_SECRET_STAGE_BOSS` names no enum in either build (reads `WI_NONE`): keep it verbatim
      with a `JUNE_BUGS.md` row, unless the strict test fails.
 2. **Map button:** June's `DLG_Map_Local_Hamel_Icon_NEW.lua` (June data217) has `HamelSecret` + `_Desc`; March's data034 copy omitted
-   them (UI parity Phase 3). `luasrc.py core --add data034 DLG_Map_Local_Hamel_Icon_NEW.lua --origin march --why "edit: june-effect
-   C3y-1a HamelSecret button"`, convert, restore the June controls. Check the texture keys exist in March's TETs.
+   them (UI parity Phase 3) and has a `.src.lua` sidecar. Default: take June's own file with `luasrc.py adopt-june` (June asset wins),
+   after checking where `stage-june` places it (June data217, March data034) and whether UI parity Phase 3's other March-compat
+   omissions in it still apply (each omitted control: does March now have its id / texture?). Only if March's copy must stay is it
+   edited, and that needs the user's OK first (CLAUDE.md: a `.lua` with a `.src.lua` is asked about). Check the texture keys.
 3. **Assets / items:** `HQ_LoadingDungeon_HARMEL_SECRET1/2.tga`, `DLG_UI_Dungeon_Image09.dds`; entry items 700015 / 113277 in item.kim
    (`/x2-kim`). Stage what March lacks (`kom.py stage-june`), pack, ask before every copy.
 4. **Gate:** the registry census shows the 3 ids SAME; the Hamel local map shows the secret button; a Hamel Secret Hell room starts
