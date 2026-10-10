@@ -2697,6 +2697,15 @@ the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Pe
 - The `[EXTRA_NPC_STAT] loaded 1693 rows (skipped: N nil NPC_ID` line drops from 835 to **709**.
 - Elder Druid Forest spawns its monsters and no longer clears itself. Exact checks are in the hand-off.
 
+**Play-test PASSED (user, 2026-10-10; run 14:47-14:55, after the 14:22 kom copy; logs read).** Character: reyaa (Lire Grand Archer, unit 12).
+- **Druid Forest (30070).**
+  - Spawns: stage 0 `+NPC` ids 1608 / 1609 / 1610 / 1611 / 1614 (10 entries); stage 1 has 13; boss stage has the Ent 1613 (BOSS) and 2× 1611.
+  - Every one died to KILL_BY_USER, and the stage advanced only after gate 1614 died. Then `30070 CLEARED`.
+- **Besma Lake Night (30200).** Gates 1633 / 1634 spawned in sub-stage 1 of stages 0 and 1 and were killed. Then `30200 CLEARED`.
+- **Startup line:** `[EXTRA_NPC_STAT] ... skipped: 709 nil NPC_ID` (was 835). 0 EXCEPTION.
+- **As expected:** the June monsters gave 0 EXP and 0 ED (open item 1). The boss still drops through the special-drop path.
+- The `IsVotingLuto` / `SetMovieDescriptionData` Lua errors in this run are C3z-1 / C3z-4 scope (`65ef74f`), not this phase.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
