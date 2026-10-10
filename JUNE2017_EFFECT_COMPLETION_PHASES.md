@@ -3078,6 +3078,23 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
    `GSUserFunction.cpp:11698-11704`, `12848`). Offline they run at full stats; that has been true since the emulator existed.
    Plan a phase to port it, or leave it?
 
+**Answers (user, 2026-10-11): "skip any non important stuff for now".** Both are left as they are: event dungeons stay open
+offline, and no stat-revision phase is planned.
+
+### C3z-6 - play-test (2026-10-10 23:29-23:33, Freils unit 18, level 72, 3 bots): PASSED
+
+- Elder Secret Hell (33031, mode 4):
+  - `start: average level 72 (4 of 4 member(s) counted, mode 4)`
+  - `scales monsters to the party: base 77`, band 70-99. The user confirmed the monster levels.
+- Altera Secret Hell (33051, mode 4):
+  - base 77;
+  - `poison countdown 720s` sent after play start.
+- 0 EXCEPTION. The 4 UNHANDLED (`E_DISABLE_HB_CHECK_REQ`, `EGS_SKIP_CONTINUE_DUNGEON_NOT`) are not this phase's.
+- Not exercised:
+  - an `ST_EXTRA` stage (base 79, the `SecretDungeonData.lua` note);
+  - the poison timeout itself (12 min);
+  - the extra-stage poison restart.
+
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
 **Status: planned. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`. The user asked for June's boss-intro skip.
