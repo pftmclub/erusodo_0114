@@ -520,6 +520,10 @@ class CX2Game : public CKTDXStage
 		virtual int					GetEmptyNPCIndex();
 		int							LiveUserUnitNum();
 		int							LiveActiveNPCNum();
+#ifdef SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+		// June 2017 CX2Game vslot 0x244 ( 330e7c10 ): the base always reports a Luto vote. CX2DungeonGame overrides it.
+		virtual bool				IsVotingLuto() { return true; }
+#endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 		int							LiveNPCNumType_LUA( CX2UnitManager::NPC_UNIT_ID unitID );
 		bool						IsKillNPCKeyCode_LUA( int keyCode );
 		int							GetKilledKeyCodeNPCCount( int keyCode );

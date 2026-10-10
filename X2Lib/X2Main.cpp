@@ -3892,6 +3892,10 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Game>( L, "GetFocusUnitPos_LUA",					&CX2Game::GetFocusUnitPos_LUA );
 	lua_tinker::class_def<CX2Game>( L, "LiveUserUnitNum",						&CX2Game::LiveUserUnitNum );
 	lua_tinker::class_def<CX2Game>( L, "LiveActiveNPCNum",						&CX2Game::LiveActiveNPCNum );
+#ifdef SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+	// June binder 31d95080 @31dda25e ( registered on CX2Game, after InitDLG_RutoVoteSystem )
+	lua_tinker::class_def<CX2Game>( L, "IsVotingLuto",							&CX2Game::IsVotingLuto );
+#endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 	lua_tinker::class_def<CX2Game>( L, "LiveNPCNumType_LUA",					&CX2Game::LiveNPCNumType_LUA );
 	lua_tinker::class_def<CX2Game>( L, "IsKillNPCKeyCode_LUA",					&CX2Game::IsKillNPCKeyCode_LUA );
 	lua_tinker::class_def<CX2Game>( L, "LiveKeyCodeNPCNum",						&CX2Game::LiveKeyCodeNPCNum );

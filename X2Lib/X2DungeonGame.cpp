@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2dungeongame.h"
+#if defined(SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
 
 
 
@@ -108,9 +111,44 @@ m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
 	m_pDLGTitle			= NULL;
 	m_fDungeonNameTime	= 0.f;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+	// June ctor 327cef80 @327cf464: dword [+0xdd0] = 0
+	m_abJuneVotingLuto[0] = m_abJuneVotingLuto[1] = m_abJuneVotingLuto[2] = false;
+#endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+/*virtual*/ bool CX2DungeonGame::IsVotingLuto()
+{
+	// June 327c94a0: +0xdd1 || +0xdd2 || +0xdd3
+	const bool bVoting = m_abJuneVotingLuto[0] || m_abJuneVotingLuto[1] || m_abJuneVotingLuto[2];
+#if defined(SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
+	static DWORD s_dwLastLog = 0;
+	const DWORD dwNow = ::GetTickCount();
+	if( dwNow - s_dwLastLog >= 1000 )
+	{
+		s_dwLastLog = dwNow;
+		std::wstring wstrLive;
+		int iLive = 0;
+		for( unsigned i = 0; i < m_NPCUnitList.size(); i++ )
+		{
+			CX2GUNPC* pNPC = (CX2GUNPC*) m_NPCUnitList[i];
+			if( NULL == pNPC || pNPC->GetTeam() != CX2Room::TN_MONSTER || pNPC->IsActiveMonster() == false )
+				continue;
+			if( ++iLive <= 4 )
+			{
+				WCHAR wszBuf[160];
+				swprintf_s( wszBuf, L" %d:%s", (int) pNPC->GetNPCTemplet().m_nNPCUnitID, pNPC->GetNPCTemplet().m_LuaFileName.c_str() );
+				wstrLive += wszBuf;
+			}
+		}
+		CX2OfflineLog::Server( L"JUNE_FX C3z-1 IsVotingLuto %d, LiveActiveNPCNum %d%s", bVoting ? 1 : 0, iLive, wstrLive.c_str() );
+	}
+#endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
+	return bVoting;
+}
+#endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 CX2DungeonGame::~CX2DungeonGame(void)
 {
 	/*

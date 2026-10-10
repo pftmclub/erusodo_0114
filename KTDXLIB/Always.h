@@ -6685,3 +6685,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ( user, 2026-10-10 ). No June counterpart; a diagnostic.
 #define SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-1 play-test 2: bind June's CX2Game:IsVotingLuto. Ten adopted June gate scripts
+//              ( SMALLGATE_WALLY_CASTLE_A, SMALLGATE_BESMA_AIR_SHIP, ... ) ask it before LiveActiveNPCNum; unbound, the
+//              call raised "can't find 'IsVotingLuto' class variable" every frame and the gate never left its invincible
+//              wait state ( 46 dungeons, june2017_re/c3z1_unbound_reach.tsv ). June: binder 31d95080 @31dda25e pushes the
+//              vcall thunk 31e4e9c0 ( this->vslot 0x244 ); CX2Game 330e7c10 returns true, CX2DungeonGame / CX2PVEGame
+//              327c94a0 returns +0xdd1 || +0xdd2 || +0xdd3, which the ctor 327cef80 zeroes ( @327cf464 ). Their writers are
+//              June's Ruto vote system ( 327caa70, 327cc19d, 327d28c7 / 327d28dc, 327d4149 ), which March does not have.
+#define SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: Short-lived diagnostic for SERV_IRUHADEV_JUNE_IS_VOTING_LUTO: once a second while a gate asks, log the
+//              answer and the live active monsters ( offline_server.log, JUNE_FX C3z-1 ). Remove after the play-test.
+#define SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
+//////////////////////////////////////////////////////////////////////////

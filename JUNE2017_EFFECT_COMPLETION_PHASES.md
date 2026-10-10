@@ -2592,6 +2592,47 @@ the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Pe
     165 / 180 / 181 / 184 / 189 / 211 / 212 / 225 / i002 / i027. All 29 are `in sync` (live md5 = packed).
   - Re-run: `--all-npc` needs **0**.
 
+### C3z-1 - play-test 2 (2026-10-10): gates stay invincible -> IsVotingLuto bound; 37 more unbound methods -> C3z-4
+
+- **Symptom (user):** on Battle Air Ship and Wally Castle Roof the gate stays invincible after the room is cleared. Not every
+  dungeon has the problem.
+- **Cause:** ErrorLog repeats `can't find 'IsVotingLuto' class variable` (>1,000 times). Ten June gate scripts start
+  `CF_SMALL_GATE_*_WAIT` with `if slot1:IsVotingLuto() == true then return false end` and only then check `LiveActiveNPCNum() == 0`
+  to leave `..._WAIT_INVINCIBLE`. March never bound that method, so the call aborts and the gate never changes state.
+  - The ten: `SMALLGATE_WALLY_CASTLE_A`, `SMALLGATE_BESMA_AIR_SHIP`, `_DRAGON_ROAD`, `_LAKE`, their `_POST_` pillars,
+    `LatticeGate_BelowPassage` and `Velder_market_gate`.
+  - Gates whose condition does not ask (`SmallGate_Red`, `SMALLGATE_BENDERS_CAVE_A`, ...) work, which is why only some dungeons
+    are affected.
+  - **58 dungeons reach them:** Altera Air Ship / Nasod Factory / Plain / Plain Recycle / Secret, Besma Air Ship / Dragon Canyon /
+    Dragon Road / Lake / Lake Night / Secret, Elder Below Passage / Wally Center / Lab / Roof / Secret / New Year, KidDay, and
+    Velder Market / Secret.
+- **June (RE):**
+  - The binder `31d95080 @31dda25e` registers `IsVotingLuto` on `CX2Game`, after `InitDLG_RutoVoteSystem`, as the vcall thunk
+    `31e4e9c0`, which calls this->vslot `0x244`.
+  - `CX2Game 330e7c10` returns true. `CX2DungeonGame` and `CX2PVEGame` (`327c94a0`; vtables `334bb094` / `334c1f34`) return
+    `+0xdd1 || +0xdd2 || +0xdd3`.
+  - The ctor `327cef80` zeroes those bytes (`@327cf464`). Only June's Ruto vote system writes them (`327caa70`, `327cc19d`,
+    `327d28c7` / `327d28dc`, `327d4149`), and March has no vote system. Not ported; the answer offline is June's with no vote
+    running: false.
+- **Port:** `SERV_IRUHADEV_JUNE_IS_VOTING_LUTO`:
+  - `CX2Game::IsVotingLuto` is a virtual returning true (`X2Game.h`), bound in `X2Main.cpp`.
+  - `CX2DungeonGame` overrides it over `m_abJuneVotingLuto[3]`, zeroed in the ctor.
+  - The game reaches Lua as `g_pX2Game` (`X2GUNPC.cpp:23509`, a `CX2Game*`), so the override is the one that runs.
+  - `SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG` (short-lived) logs `JUNE_FX C3z-1 IsVotingLuto %d, LiveActiveNPCNum %d <id:script ...>`
+    once a second.
+- **Census of the whole class:** `june2017_re/c3z1_unbound_reach.py` -> `c3z1_unbound_reach.tsv`.
+  - It covers every method called (`x:Method(`) by a script a registered dungeon reaches (unit scripts, world files, the dungeon
+    script) that no March string literal spells. March has no macro binders.
+  - It also scans each dungeon's June source for its `NUI_` names, because C3z-2's `read_by` column is cut at about 400 characters.
+  - Result: 2,363 scripts, **37 unbound methods left** after `IsVotingLuto`. Both runtime `can't find` names are in it
+    (`IsVotingLuto`, `SetMovieDescriptionData`).
+  - Routed to **C3z-4**. `GetHostGameUnit` and `GetDyingStart` already exist in March's C++ and only need binding; the rest need
+    June's bodies or June's no-system answer.
+- Hygiene: `flagcheck --worktree --files` (with `_DEBUG`): 3 PASS, 1 PASS~ (a blank line before the `X2DungeonGame.h` block), 1 DEFINE,
+  0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatches; RESULT: PASS.
+- `DEPLOY OK: X2_offline.exe is 19,533,312 B, dated 2026-10-10 15:15:55, md5 f8f23b2b0c7e9af175999d3f1e9c52c3` (`IsVotingLuto` and the
+  `JUNE_FX C3z-1` log string are in the exe).
+
 ### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
 
 **Census tool.** `june2017_re/dungeon_npc_census.py` (with `dungeon_npc_dump.lua` and `lua_registry_dump.lua`).

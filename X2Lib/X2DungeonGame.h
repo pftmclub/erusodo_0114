@@ -372,4 +372,15 @@ class CX2DungeonGame : public CX2Game
 	private:
 		bool m_bEscape;
 #endif//ACTIVE_KOG_GAME_PERFORMANCE_CHECK
+
+#ifdef SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+	public:
+		// June 2017 CX2DungeonGame / CX2PVEGame vslot 0x244 ( 327c94a0 )
+		virtual bool		IsVotingLuto();
+
+	private:
+		// June +0xdd1 / +0xdd2 / +0xdd3, zeroed by the ctor 327cef80 ( @327cf464 ). Only June's Ruto vote system writes
+		// them ( 327caa70, 327cc19d, 327d28c7 / 327d28dc, 327d4149 ); March has none, so they stay false.
+		bool				m_abJuneVotingLuto[3];
+#endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 };
