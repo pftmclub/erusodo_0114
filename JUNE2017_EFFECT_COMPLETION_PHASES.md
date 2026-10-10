@@ -3199,6 +3199,15 @@ matches June. **Finding, fixed:**
 - `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` is **on** for one play-test; it goes off after. The fix is funcmap rows `327af620 @327b0943`,
   `3230d2b0 @3230d3b4` and `327573e0`. No JUNE_BUGS row, no open question.
 
+### C3z-4 - review play-test (2026-10-11 05:57-06:05, reyaa unit 12): PASSED; `_C3Z4_DEBUG` off
+
+- Santilus Ship Normal (33240): `substage CreateGUNPC npc 1390 team 2 ally 1 ai 1`. The motor stays type 1. `team 2` is the script's
+  TEAM that the line prints; the ctor's `IsAllyNPCID` override still puts it on TN_RED. The room's summoners log
+  `CreateNPCReq_LUA ... keycode=-1 team=2 ai=0`.
+- Ranox Gateway Normal (33300): `npc 1897 team 0 ally 1 ai 4` at stages 0 and 1, unchanged. The user confirmed both checks.
+- ErrorLog: 0 C3z-4 lines, 0 EXCEPTION. The run used a peer's deploy built from `e67eff2`, so it includes the fix.
+- `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` is commented out (OFF note in `Always.h`). DEBUGOFF_DEPLOY
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
@@ -3373,6 +3382,20 @@ DCC 0 and 3-7 have no client reader (C3z-6's server-half verdicts).
 - `party dungeon N fixed to its top difficulty 2 (was 0)` appears only when the stored party data held a lower difficulty.
   For example, the first party-window open with a dungeon kept from before this build. A local-map pick already starts at
   Expert (GetDefaultDifficulty), so it logs nothing.
+
+### C3z-5 - play-test (2026-10-11 05:57-06:05, reyaa unit 12, lv 80): PASSED
+
+The user confirmed the checks, and the logs agree.
+- The run used the deployed exe (md5 1c28ab87).
+- 0 EXCEPTION. The 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, not this phase's.
+- `party dungeon 33300 fixed to its top difficulty 2 (was 0)`: the stored Gateway pick was raised to Expert.
+- 32 `need_user` lines across Ruben, Elder, Sander and Ranox:
+  - `1~4` green on every Expert row (e.g. 30082, 30142-30212, 33202-33312);
+  - `1` green on El Tree (30000).
+- Both dungeon starts were Expert, from Quick Start with no difficulty boxes: `dungeonID=33240 dif=2` (Santilus Ship) and
+  `dungeonID=33300 dif=2` (Gateway).
+- Henir challenge (90-99, item level 140) was the user's visual check; no log line covers it.
+- DCC 11 was not exercised (it can't be reached offline; see the Done note).
 
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
