@@ -2608,10 +2608,9 @@ User, 2026-10-10: give the old dungeons their own phases and update them to what
 - **Routing notes added:** STATUS rows C3y-1a..C3y-5 + kickoffs; backlog Stage 19's "still to identify" now lists the 13 event ids;
   the atlas / elysion blocks point at the census.
 
-**Open question for the user (one):** the 4 atlas / elysion Henir boss worlds (`WI_ATLASDEVELOPMENT_BOSSATGE`, `WI_TOWER_BOSSATGE`,
-`WI_SKYCROSSROADS_BOSSSTAGE`, `WI_ADRIAN_BOSSSTAGE`) wait for atlas, which starts after this plan. Should their world-only port
-(enum, WorldData, world + line map, assets, as C3y-1b does for Sander) move forward into june-effect so a Henir run cannot reach a
-world March lacks? Default if unanswered: they stay with atlas / elysion.
+**Decided (user, 2026-10-11): the 4 atlas / elysion Henir boss worlds are ported in june-effect** (`WI_ATLASDEVELOPMENT_BOSSATGE`,
+`WI_TOWER_BOSSATGE`, `WI_SKYCROSSROADS_BOSSSTAGE`, `WI_ADRIAN_BOSSSTAGE`), world-only, in C3y-1b next to Sander's, so no Henir Space
+stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; their dungeons stay with atlas / elysion.
 
 ## C3y-1a - port: Hamel secret dungeon rows + the Ranox secret common row
 
@@ -2626,15 +2625,24 @@ world March lacks? Default if unanswered: they stay with atlas / elysion.
 - Check `m_eDefaultDungeonLoungeWorldID = WI_HAMEL_SECRET_STAGE_BOSS` (no such June enum name; June's world is `..._BOSS_STAGE`):
   keep June's value verbatim (JUNE_BUGS row) unless the strict load test fails.
 
-## C3y-1b - port: Sander secret worlds (Henir Space stage 22 names the boss one)
+## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
 
-**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
+**Status: ready (routed by C3y, 2026-10-11; the 4 atlas / elysion boss worlds added by the user the same day). Model:** Opus 5.5,
+high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
 
-- **Scope:** `WI_SANDER_SECRET_STAGE0-3 / BOSS_STAGE / EXTRA_STAGE1-3 / EXTRA_BOSS_STAGE` = June 614-622, all free in March.
-  - data036 `Enum.lua` (core) + data040 `WorldData.lua` (core) rows; 9 world scripts + 9 line maps by `adopt-june`;
-  - assets: the world scripts name 130, **112 missing in March** (73 `.Y`, 33 `.x`, 6 `.ogg`); a lower bound, since MSZIP meshes
-    are not inflated yet: `npc_mesh_census.py --worlds` after staging, as C3x did. Check overlap with june-asset-port before staging.
-- Gate: the C3x CreateWorld log shows no missing row for the 9; a Henir run that reaches stage 22 loads (if it can be reached).
+- **Scope:** 13 worlds, world-only (no dungeon rows, no NPCs). All June ids are free in March.
+  - Sander: `WI_SANDER_SECRET_STAGE0-3 / BOSS_STAGE / EXTRA_STAGE1-3 / EXTRA_BOSS_STAGE` = June 614-622 (Henir Space stage 22 names
+    the boss one).
+  - Henir Space stages 32-35: `WI_ATLASDEVELOPMENT_BOSSATGE` 645, `WI_TOWER_BOSSATGE` 654, `WI_SKYCROSSROADS_BOSSSTAGE` 675, `WI_ADRIAN_BOSSSTAGE` 710
+    (`Elysion_<name>_BossStage.lua` + `_LineMap.lua`; the dungeons that also use them stay with atlas A8 / A10 and elysion E8 / E9).
+  - data036 `Enum.lua` (core) + data040 `WorldData.lua` (core) rows; 13 world scripts + 13 line maps by `adopt-june`.
+  - Assets (world-script level; MSZIP meshes not inflated yet, so a lower bound): Sander 130 named / **112 missing** (73 `.Y`, 33 `.x`,
+    6 `.ogg`); the 4 boss worlds 102 named / **93 missing** (77 `.Y`, 7 `.x`, 9 `.ogg`). Run `npc_mesh_census.py --worlds` after staging,
+    as C3x did, and check overlap with june-asset-port before staging.
+  - **Binding audit:** the 4 Elysion world scripts may call Elysion-half methods March lacks (elysion E5 moving platforms, E7
+    "additional world"). An unknown binding aborts the rest of the chunk. Port a missing binding here if it is small and world-only;
+    otherwise stop and report which call needs which E-phase.
+- Gate: the C3x CreateWorld log shows no missing row for the 13; Henir Space stages 22 and 32-35 load if a run reaches them.
 
 ## C3y-1c - port: the Sander secret dungeon
 
