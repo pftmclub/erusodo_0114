@@ -2207,10 +2207,39 @@ No questions for the user.
 
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 
-**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3q.md`.
+**Status: done 2026-10-10 (see C3q - Done; found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3q.md`, review `kickoffs/june-effect/C3q-review.md`.
 
 - **Scope:** June's `CX2GUNPC::CommonFrameMove_EffectSet` body (`32776e10`: 0x3c-byte entries, CONSUME_MP gate through vslot `0xe4`, hyper bit `0x200000`, delete lists by flags `0x8000 / 0x4000 / 0x10000 / 0x20000`) together with the `EFFECT_SET_LIST_FINAL` block of the state loader `32784c00` that fills it.
 - **Data:** 10 shipped PvP-hero NPC scripts (`PVP_HERO_*`, not the AI-party `CSM_PVP_HERO_*`); offline has no PvP, so a regression play-test unless a reachable spawn is found.
+
+### C3q - Done (2026-10-10, Opus 5.5 high)
+
+**What June does** (funcmap rows `(C3q)`):
+1. **Loader** `32784c00 @32787475-32787d29`. It reads `EFFECT_SET_LIST` (pairs), then `_EX` (tables), then **`EFFECT_SET_LIST_FINAL`**, and appends all three to the same list (state `+0x1e4`). It then sorts the list with `327c8b30`, a stable sort on the start time (= March's `operator<`). **Nothing wins:** a state with several lists plays all of them, and a tie keeps the order LIST, EX, FINAL. BIX, EOR and ZENITH carry the same effect set in both EX and FINAL, so June plays it twice. That is data, so it gets no bug row.
+   - FINAL keys are `sprintf_s( "%s%d", "EFFECT_SET", n )` from **n = 0**. All 10 scripts start at `EFFECT_SET0`.
+   - Each entry: `EFFECT_NAME` (a miss gives L""), `START_TIME` (miss 0), `CONSUME_MP` (miss -1), and `DELETE_CONDITION` = { ints }.
+   - The reset `32079980` seeds the delete conditions with `{ DCES_NONE }`; EX entries get no seed. When the table is present, it clears the seed (`3221db80`) and refills it.
+   - An empty name ends the whole FINAL list (`@32787984`). FINAL has no `START_TIME >= 0` filter (LIST and EX have one): JUNE_BUGS 163, latent.
+2. **Entry** = 0x3c bytes. `+0x30` = CONSUME_MP: -1 from all three ctors (`32079750` / `320797f0` / `32079890`) and the reset. `+0x34` (byte) and `+0x38` (int) are read by neither the NPC loader nor the player. They look like the user parser `3200b030`'s `IS_LEARN_SKILL_CHECK` / `RELATE_SKILL_ID`, so they belong to the checklist (the user `EFFECT_SET_LIST_FINAL` row) and are not ported.
+3. **Player** `32776e10`: the same as March's `CommonFrameMove_EffectSet` except for the gate `@32776f10-32776f39`.
+   - `+0x30 > 0` and `vslot 0xe4( +0x30, 0 ) != 1` skip the entry, and the cursor still advances (`@327770b5`).
+   - Checked equal to March: the flag bits (`statedata_keys.py`: `0x4000` STATE_END, `0x8000` DAMAGE_REACT, `0x10000` DIE, `0x20000` ON_CUSTOM_STATE, `0x200000` HYPER), the push order, the `PlayEffectSet 321e1e60` arguments (March's defaults plus June's trailing 1.0), the `+0xc4` animation-timing clear and `3227a570`.
+4. **vslot `0xe4` = `CX2GameUnit::FlushMp`** (`3208dc70`). It calls the gage's slot `0x2c` (`32a31910`): `( fMp, IsMyUnit(), 0 )`. That is March's `CX2GageData::FlushMp` (fails when MP < cost, else `UpNowMp( -cost )`).
+   - `UpNowMp` `322b33d0` has a June-only accounting tail (gage `+0x100` / `+0x104`, counter `32676150( 9 )`). It runs only when `IsMyUnit()` is true. For an NPC that is `32756c10` = `xor al, al`, so March's `FlushMp( cost )` is exact.
+
+**Code** (flag `SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST`; `X2GameUnit.h`, `X2GUNPC.cpp`, `Always.h`):
+- `EffectSetToPlay::m_fJuneConsumeMP` = -1 in the 3 live ctors. User entries keep -1, so the user player is unchanged.
+- `LoadStateData`: FINAL's indexed tables are added to the reserve count, and the FINAL block sits after EX, before the sort.
+- `CommonFrameMove_EffectSet`: `if ( c > 0.f && false == FlushMp( c ) ) continue;` inside the start-time branch.
+- No `_DEBUG` flag: no reachable data could fire it (below).
+
+**Reachability: none.** `EFFECT_SET_LIST_FINAL` is in exactly the 10 `data037` `PVP_HERO_*` scripts (kom_contents grep). None can spawn in March: no `NUI_PVP_HERO_BIX` (etc.) in `X2UnitManager.h` or `Enum.lua`, and March's `NPCTemplet.lua` names none of them. The play-test is therefore a regression check only. It cannot exercise the new loop or the gate, and the review (`C3q-review.md`) is the only line-by-line check of them.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST --worktree --files X2GUNPC.cpp X2GameUnit.h Always.h`: `X2GameUnit.h` PASS +12. `X2GUNPC.cpp` and `Always.h` show OTHER only from peers' uncommitted hunks (`_WORLD_COLOR_WINDOW`, C3r / C3s / C3o-review defines). 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 encoding changes, RESULT PASS. The commit stages only C3q's hunks (HEAD-based blobs). Post-commit `--range`: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port 3eb8ef0 + 8 uncommitted code file(s).` The other uncommitted files are peers' C3r / C3s / C3o-review work. `EFFECT_SET_LIST_FINAL` is in the deployed exe (2 hits), and `X2GUNPC.obj` is newer than the source. No kom.
+
+**How to see it in game:** nothing new can be seen. Regression: monsters' effect sets (Tree of El, any dungeon) play as before, and the log shows 0 EXCEPTION.
 
 ## C3r - port: June's user CHANGE_WORLD_COLOR_DATA window
 

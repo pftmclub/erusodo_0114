@@ -6646,3 +6646,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              position through a NULL pointer ( March ). Gates the hyper world colour and the skill / hyper cut-ins.
 #define SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3q: June's NPC effect-set list. LoadStateData ( June 32784c00 @32787775-32787d09 ) reads
+//              EFFECT_SET_LIST_FINAL = { EFFECT_SET0 = { EFFECT_NAME, START_TIME, CONSUME_MP, DELETE_CONDITION = {...} }, EFFECT_SET1 ... }
+//              after EFFECT_SET_LIST / _EX into the same list, and CommonFrameMove_EffectSet ( 32776e10 @32776f10-32776f39 ) plays an
+//              entry with CONSUME_MP > 0 only when FlushMp( CONSUME_MP ) succeeds ( vslot 0xe4 = 3208dc70 ). Data: 10 PVP_HERO_* scripts.
+#define SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+//////////////////////////////////////////////////////////////////////////

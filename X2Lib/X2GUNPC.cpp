@@ -5383,6 +5383,14 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
             luaManager_.EndTable();
         }
 #endif  MODIFY_EFFECT_SET_DELETE
+#ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+        /// June 32784c00 @327874e4-32787503: the reserve count also adds EFFECT_SET_LIST_FINAL's indexed tables ( 0 for its EFFECT_SETn keys )
+        if ( true == luaManager_.BeginTable( "EFFECT_SET_LIST_FINAL" ) )
+        {
+            iNumEffectSetList += luaManager_.GetNumIndexedTables();
+            luaManager_.EndTable();
+        }
+#endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
         nowStateData.m_vecEffectSetToPlay.reserve( iNumEffectSetList );
 	    if( true == luaManager_.BeginTable( "EFFECT_SET_LIST" ) )
 	    {
@@ -5448,6 +5456,49 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 		    luaManager_.EndTable(); //EFFECT_SET_LIST
 	    }
 #endif // MODIFY_EFFECT_SET_DELETE
+#ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+        /// June 32784c00 @32787775-32787d09: EFFECT_SET_LIST_FINAL, after _LIST and _EX, appended to the same list; the stable sort on the
+        /// start time ( 327c8b30 ) follows, so nothing wins: a tie keeps LIST, EX, FINAL order. Keys "%s%d" of "EFFECT_SET" from 0 ( @327877d4 ).
+        /// Each entry is reset ( 32079980 ): name L"", START_TIME 0, CONSUME_MP -1, delete conditions { DCES_NONE } ( the seed EX lacks ).
+        /// An empty EFFECT_NAME ends the whole list ( @32787984 ); no START_TIME >= 0 filter ( JUNE_BUGS 163 ).
+        /// DELETE_CONDITION, when present, replaces the seed ( 3221db80 clear, then indices 1.. ).
+	    if( true == luaManager_.BeginTable( "EFFECT_SET_LIST_FINAL" ) )
+	    {
+            int iJuneEffectSetIndex = 0;
+            char szJuneEffectSetKey[256] = "";
+            StringCchPrintfA( szJuneEffectSetKey, ARRAY_SIZE(szJuneEffectSetKey), "%s%d", "EFFECT_SET", iJuneEffectSetIndex );
+            while ( true == luaManager_.BeginTable( szJuneEffectSetKey ) )
+            {
+                EffectSetToPlay effectSetFinal;
+                LUA_GET_VALUE( luaManager_, "EFFECT_NAME", effectSetFinal.m_wstrEffectSetName, L"" );
+                if ( true == effectSetFinal.m_wstrEffectSetName.empty() )
+                {
+                    luaManager_.EndTable(); //EFFECT_SETn
+                    break;
+                }
+                LUA_GET_VALUE( luaManager_, "START_TIME", effectSetFinal.m_fStartAnimationTime, 0.f );
+                LUA_GET_VALUE( luaManager_, "CONSUME_MP", effectSetFinal.m_fJuneConsumeMP, -1.f );
+                if ( true == luaManager_.BeginTable( "DELETE_CONDITION" ) )
+                {
+                    effectSetFinal.m_vecDeleteCondition.clear();
+                    int iConditionIndex = 1;
+                    UINT uiDeleteConditionType = 0;
+                    while ( true == luaManager_.GetValue( iConditionIndex, uiDeleteConditionType ) )
+                    {
+                        effectSetFinal.m_vecDeleteCondition.push_back( static_cast<CX2GameUnit::DELETE_CONDITION_EFFECT_SET>( uiDeleteConditionType ) );
+                        ++iConditionIndex;
+                    }
+                    luaManager_.EndTable(); //DELETE_CONDITION
+                }
+                nowStateData.m_vecEffectSetToPlay.push_back( effectSetFinal );
+
+                ++iJuneEffectSetIndex;
+                StringCchPrintfA( szJuneEffectSetKey, ARRAY_SIZE(szJuneEffectSetKey), "%s%d", "EFFECT_SET", iJuneEffectSetIndex );
+                luaManager_.EndTable(); //EFFECT_SETn
+            }
+            luaManager_.EndTable(); //EFFECT_SET_LIST_FINAL
+        }
+#endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
         std::stable_sort( nowStateData.m_vecEffectSetToPlay.begin(), nowStateData.m_vecEffectSetToPlay.end() );
     }
 
@@ -32847,6 +32898,13 @@ void    CX2GUNPC::CommonFrameMove_EffectSet( float fNowAnimationTime )
 		const EffectSetToPlay& effectSetToPlay = nowStateData.m_vecEffectSetToPlay[m_iEffectSetToPlayProgress];
 		if( 0.f == effectSetToPlay.m_fStartAnimationTime || fNowAnimationTime >= effectSetToPlay.m_fStartAnimationTime )
 		{
+#ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+			/// June 32776e10 @32776f10-32776f39: CONSUME_MP > 0 plays the entry only when FlushMp succeeds ( vslot 0xe4 = 3208dc70 =
+			/// GetGageData()->FlushMp 32a31910, March's math; the IsMyUnit() it also passes is false for an NPC, 32756c10 ). A failed check
+			/// skips the entry for this state: the cursor still advances ( @327770b5 ).
+			if ( effectSetToPlay.m_fJuneConsumeMP > 0.f && false == FlushMp( effectSetToPlay.m_fJuneConsumeMP ) )
+				continue;
+#endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 			CX2EffectSet::Handle hEffectSetInst = g_pX2Game->GetEffectSet()->PlayEffectSet( effectSetToPlay.m_wstrEffectSetName, this, NULL, 
                 bHyperEffectSet, GetPowerRate(), nowStateData.m_fEffectSetLifeTime );
 			

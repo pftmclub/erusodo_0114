@@ -1997,6 +1997,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 #ifdef ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
 			vector<DELETE_CONDITION_EFFECT_SET> m_vecDeleteCondition;
+#ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+			float		m_fJuneConsumeMP;	/// June entry +0x30 ( entry 0x3c bytes ): CONSUME_MP of EFFECT_SET_LIST_FINAL; -1 ( 334380f0 ) in every ctor ( 32079750 / 320797f0 / 32079890 )
+#endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 #else // ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
 			DELETE_CONDITION_EFFECT_SET m_eDeleteCondition;
 #endif // ADD_TO_EFFECT_SET_LIST_EX_DELETE_CONDITION	  // 김종훈, EFFECT_SET_LIST_EX 테이블의 종료 조건 추가 확장
@@ -2005,6 +2008,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			EffectSetToPlay()
 				: m_wstrEffectSetName( L"" )
 				, m_fStartAnimationTime( 0.f )
+#ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+				, m_fJuneConsumeMP( -1.f )
+#endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 			{
 				m_vecDeleteCondition.push_back( DCES_NONE );
 			}
@@ -2013,6 +2019,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			{
 				m_wstrEffectSetName = name;
 				m_fStartAnimationTime = fTime;
+#ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+				m_fJuneConsumeMP = -1.f;
+#endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 				m_vecDeleteCondition.push_back( DCES_NONE );
 			}
 			
@@ -2020,6 +2029,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			{
 				m_wstrEffectSetName = name;
 				m_fStartAnimationTime = fTime;
+#ifdef SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
+				m_fJuneConsumeMP = -1.f;
+#endif SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 				m_vecDeleteCondition.clear();
 				m_vecDeleteCondition.resize( vecDeleteCondition.size() );
 				std::copy ( vecDeleteCondition.begin(), vecDeleteCondition.end(), m_vecDeleteCondition.begin() );
