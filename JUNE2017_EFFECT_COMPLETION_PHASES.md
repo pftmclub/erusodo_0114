@@ -2885,6 +2885,18 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
 - `flagcheck SERV_IRUHADEV_JUNE_GAME_NPC_COUNT --worktree --files` (4 files): 2 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, 0 deleted; RESULT PASS.
   `DEPLOY OK: X2_offline.exe is 19,538,432 B, dated 2026-10-10 21:32:59, md5 5445212b23053255f72f6735753edb1c` (the method name and its log string are in the exe).
 
+### C3z-4 - play-test 3 (2026-10-10 21:47-21:54, reyaa unit 12): PASSED for summons, stored user, game ints, cool time; Gateway still owed
+
+- 0 EXCEPTION, no crash, **no `can't find` line at all** in ErrorLog (play-test 2 had 5 for `GetNPCUnitNumCheckTeam`).
+- **Den of Trock stage 2, room 2 (33220, 21:48).** The caves ask `GetNPCUnitNumCheckTeam team=2` (10 logged, `-> 10`), then
+  `CreateNPCReq_LUA` with npc ids 1203-1207 (`NUI_RASH_*_SUMMON`, e.g. 1205 `NUI_RASH_BOMB_TROCK_SUMMON`), 30 logged. The trocks appear.
+- **Ranox Ash Village (33280, 21:51-21:54, stages 0-4).** The smiths' `SetInt_LUA` [0] / [1] / [2] / [4] (20 logged) and an
+  `InitStateCoolTime` (npc 1000113, state 13 of 44). The user saw the workers spawn. Their `CreateNPCReq_LUA` lines are not in the log:
+  the debug caps (30 creates, 10 counts per launch) were already used up in Den of Trock.
+- Fire Temple stages 3 and 1 (21:49-21:51): no C3z-4 line (the iplitans did not reach `ATTACK_B_EVENT_FIRE`); not a failure.
+- **Still not exercised:** `GetNowStateID_LUA` / `GetIsLastStage` (spawn of a plain berserker: Ranox Gateway stage 3),
+  `PushCreateNPCReq_Lua`, `GetStoredGUUser`, `GetHostGameUnit`, `GetDyingStart`. Gateway was not played.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
