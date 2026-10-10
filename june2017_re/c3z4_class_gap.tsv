@@ -150,7 +150,6 @@ CX2Game	GetNearestNPCUnitRot_LUA	absent
 CX2Game	GetSummonNPCCount	absent
 CX2Game	GetPveWinTeam	absent
 CX2Game	GetNPCUnitNumCheckTeam	absent
-CX2Game	GetIsLastStage	absent
 CX2Game	ShowDangerAlarmFont_LUA	absent
 CX2Game	GetNearestUnitCompareMidPos_LUA	absent
 CX2Game	GetNearestUnitInSpecificRange_IncludeSameTeam_LUA	absent
@@ -170,8 +169,6 @@ CX2Game	GetFindedRandomSelectUserUnits_LUA	absent
 CX2Game	FindRandomSelectUserUnitsFromRange_LUA	absent
 CX2Game	GetFindedRandomSelectUserUnitsSize_LUA	absent
 CX2Game	SetLiveNPCOnlyLimitCount	absent
-CX2Game	SetInt_LUA	elsewhere
-CX2Game	GetInt_LUA	elsewhere
 CX2Game	AllTeamMemberUserUnitInRange	absent
 CX2Game	AllTeamMemberUserUnitInPlaneRange	absent
 CX2Game	CountTeamMemberUserUnitInPlaneRange	absent
@@ -182,10 +179,8 @@ CX2Game	PushCreateNPCReqWithTeam_Lua	absent
 CX2Game	GetTeamRating	absent
 CX2Game	IsFront	absent
 CX2Game	EnableMovingPortalLimitTime	absent
-CX2Game	GetHostGameUnit	absent
 CX2Game	GetIsGoNextPacketSended_LUA	absent
 CX2Game	Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ	absent
-CX2Game	GetNowStateID_LUA	absent
 CX2Game	CanPassThisStage	absent
 CX2Game	GetHenirLimitLevel	absent
 CX2Game	InitDLG_RutoVoteSystem	absent
@@ -271,8 +266,6 @@ CX2GUNPC	GetSummonAllyNpcForceTargetUnit	absent
 CX2GUNPC	IsUnitID_LUA	absent
 CX2GUNPC	GetWinState	absent
 CX2GUNPC	DamageStateChangeForce	absent
-CX2GUNPC	InitStateCoolTime	absent
-CX2GUNPC	GetDyingStart	absent
 CX2GUNPC	GetSelfDestruction	absent
 CX2GUNPC	GetLastUserUnitAttackMe_LUA	absent
 CX2GUNPC	SetApplyCinematicUI	absent
@@ -286,8 +279,6 @@ CX2GUNPC	DiePveMidMonster	absent
 CX2GUNPC	DiePveColorMonster	absent
 CX2GUNPC	MonsterSummonStateStartAfterProcess	absent
 CX2GUNPC	GetHasBossGage	absent
-CX2GUNPC	GetStoredGUUser	absent
-CX2GUNPC	SetStoredGUUser	absent
 CX2GUNPC	GetStoredNPC	absent
 CX2GUNPC	ClearStoredNPC	absent
 CX2GUNPC	SetStoredNPC	absent
@@ -319,14 +310,9 @@ CX2GUNPC	AnimResume	absent
 CX2GUNPC	GetUnitID	absent
 CX2GUNPC	SetStateCoolTime_LUA	absent
 CX2GUNPC	AddStateCoolTime_LUA	absent
-CX2GUNPC	CreateNPCReq_LUA	elsewhere
-CX2GUNPC	CreateNPCReq_LUA2	elsewhere
 CX2GUNPC	CreateNPCReq_LUA3	elsewhere
 CX2GUNPC	CreateNPCReqCheckPos_LUA	absent
 CX2GUNPC	PushCreateNPCReq_LUA4	absent
-CX2GUNPC	CreateNPCReqElite	elsewhere
-CX2GUNPC	CreateNPCReqAlly	elsewhere
-CX2GUNPC	PushCreateNPCReq_Lua	elsewhere
 CX2GUNPC	PushCreateNPCReq_LUA3	elsewhere
 CX2GUNPC	PushCreateAlliedNPCReq_LUA	absent
 CX2GUNPC	PushCreateNPCReqWithTeam_Lua	absent

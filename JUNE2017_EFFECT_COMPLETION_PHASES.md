@@ -2512,6 +2512,8 @@ where March's C++ forces it (the registries are kept merged). **Every dungeon** 
   - `DungeonData.lua` (data035, kept merged) and `DungeonEnum.lua`: take June's rows (stage lists, limits, levels, names) for every
     dungeon March and June share; record each March-only consumer that blocks a row.
   - Census first, then the edit. Not at the same time as C3z-2 (both pack data036).
+- **C3z-4 - Lua methods adopted June scripts call and March never binds** (found by C3z-1). Kickoff `C3z-4.md`; batch 2 / 3
+  `C3z-4b.md`; the June systems behind them: C3z-4f (the summoner packet field), C3z-4t (tutorial guide), C3z-4s (SimpleDLG).
 - **C3z-5 - June's DungeonData fields March's client loader does not read** (found by C3z-3). Kickoff `C3z-5.md`.
   - June's `AddDungeonData_LUA` (`327e0f80`) reads keys March's lacks: `Min/MaxAdequateMemberCount`, `FixMaximumDifficulty`,
     `DUNGEON_CHECK_CONDITION`, `m_SuitableLevelFixValue`, `m_HardMin/MaxLevel`, `m_HardRequireItemLevel`, `m_fExtraValue`, plus
@@ -2796,6 +2798,62 @@ bytecode (junekom + ljconv) in the KOG luajit and diffs every `AddDungeonData` t
 - No `DungeonData` / `XEM_ERROR2` / `can't find` / `attempt to index` line. 0 EXCEPTION.
 - 4 UNHANDLED: 3 are `E_DISABLE_HB_CHECK_REQ` and 1 is `EGS_SKIP_CONTINUE_DUNGEON_NOT`; neither is this phase's.
 - Geyser's 0 EXP rows come from DropTable (no Ranox monster rows), not this phase.
+
+### C3z-4 - Done (batch 1) (2026-10-10, Opus 5.5 high; 7 flags + `SERV_IRUHADEV_JUNE_C3Z4_DEBUG`)
+
+**Census, class-aware** (`june2017_re/c3z4_class_census.py`, committed `3d94334`).
+- June side: the two binder string rows `31be67a0` / `31d95080`, read as class then methods; 135 classes.
+- March side: the six binder files under `cl /P` (dead `#ifdef`s drop out), with `class_inh` walked; 122 Lua classes, 569 class gaps
+  (`c3z4_class_gap.tsv`).
+- Receiver typing per call site:
+  - Callbacks have the script kind's signature: unit scripts are `(CKTDXApp, CX2Game, CX2GUNPC)`, dungeon triggers are
+    `(CKTDXApp, CX2DungeonGame, CX2DungeonSubStage)`.
+  - Helpers take their types from their call sites. Getter return types are read inside the declaring class.
+  - 68,795 of 95,316 reached sites typed (72%). An untyped site of a name June binds on a class March lacks is kept as `untyped-gap`.
+- Before batch 1: 65 rows / 59 methods. After: **45 rows / 45 methods** (`c3z4_unbound.tsv`).
+- Every reached name the name-only census had (incl. both live ErrorLog names) is in it. `CreateNPCReq_LUA` on CX2GUNPC was the gap
+  that census missed.
+- Triage of every row: `june2017_re/c3z4_bind_plan.tsv` (June use site, bound fn, body summary, flag, batch).
+
+**Batch 1 (this commit):**
+
+| Flag | Lua methods (class) | June | Dungeons |
+|---|---|---|---|
+| `_NPC_CREATE_NPC_REQ` | CreateNPCReq_LUA / _LUA2 / Elite / Ally, PushCreateNPCReq_Lua (CX2GUNPC) | `327790e0`, `327791c0`, `32779ad0`, `32779bc0`, `32779cb0` | 113 / 4 / 13 / 4 / 82 |
+| `_NPC_STORED_GUUSER` | Get/SetStoredGUUser (CX2GUNPC) | `32759660`, `31e57960` | 37 / 26 |
+| `_GAME_LUA_INT` | Get/SetInt_LUA (CX2Game) | `31e4de10`, `31e4ddf0` | 19 / 13 |
+| `_NPC_INIT_STATE_COOL_TIME` | InitStateCoolTime (CX2GUNPC) | `3275d9d0` | 15 |
+| `_GAME_HOST_GAME_UNIT` | GetHostGameUnit (CX2Game), bind-only | `31aa6280` | 13 |
+| `_NPC_GET_DYING_START` | GetDyingStart (CX2GUNPC), bind-only | `31e4ce00` | 12 |
+| `_GAME_STAGE_QUERY` | GetIsLastStage, GetNowStateID_LUA (CX2Game) | `322f36e0`, `322cf9b0` | 12 / 12 |
+
+- **NPC create requests.** Each one is March's `CX2Game::CreateNPCReq`, which keeps June's host gate, called with the NPC's
+  `GetUID()` as ally UID. March only reads that UID for `NAT_ALLY`, and an NPC UID finds no user, so `Ally` summons get no owner
+  user, as in June.
+  - June's extra packet field (the summoner's templet unit ID, `+0x85f8[0]`) is not carried (user, 2026-10-10): row C3z-4f.
+  - June's NPC `PushCreateNPCReq_Lua` creates at once, with no push list (JUNE_BUGS #168).
+- **Game ints.** Ten ints (`+0x7e0`), zeroed in the ctor `32306600`, with no bounds check (JUNE_BUGS #167). June's DungeonGame
+  writes `[0]` only for `DI_EVENT_2017_TREASURE`, which March lacks.
+- **`GetNowStateID_LUA`.** June inserted `XS_GUILD_AGIT_GAME = 15`, and the scripts compare compiled literals
+  (berserker: `== 18`, June's `XS_TRAINING_GAME`; March's is 17, by `enumprobe`).
+  - March's state is returned under June's number, by name. The four arcade states return -1, a labelled stand-in.
+- **`InitStateCoolTime`.** Sets `runtime[id].m_fStateElapsedTime` to the state's `STATE_COOL_TIME`, so the state is ready at once.
+  The stored-user observer is cleared only by June's ctors and dtor, so a default-constructed member is enough.
+- Not bound, by design: 6 names no June binder has, so June fails the same way (JUNE_BUGS #169). The tutorial guide (3) goes to row
+  C3z-4t and SimpleDLG (8) to row C3z-4s. 22 ports plus 5 untyped-gap rows go to C3z-4b (kickoff `C3z-4b.md`).
+
+**Hygiene.** `flagcheck --worktree --files` on all 8 flags: RESULT PASS, 0 deleted, 0 non-ASCII, 0 EOL mismatches (378 lines
+inserted, 6 files; the OTHER rows are the sibling batch-1 flags sharing the files).
+
+`DEPLOY OK: X2_offline.exe is 19,537,408 B, dated 2026-10-10 16:50:29, md5 c1bcf39df31a318dca435b0b52092e87, equal to X2/US_SERVICE/x2.exe (2026-10-10 16:50:24); built at mods/june-buff-port 7482b9e + 6 uncommitted code file(s).`
+The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
+
+**How to see it.**
+- Ranox Fire Temple Normal: no gap left. The berserker / fighter scripts read the game ints, last-stage and state ID; ska /
+  smith stain call `InitStateCoolTime`; the ignia / sniker fallbacks call `GetHostGameUnit`.
+- Sander Den of Trock Normal: trock summoners call `CreateNPCReq_LUA` / `PushCreateNPCReq_Lua` and Get/SetStoredGUUser. One
+  `can't find 'GetNPCUnitNumCheckTeam'` (C3z-4b) is expected.
+- Log: `offline_server.log` `JUNE_FX C3z-4 ...` (first 10-30 calls per method). ErrorLog has no `can't find` for a batch-1 name.
 
 ## C4 - 8b, damage math
 

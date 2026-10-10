@@ -28983,6 +28983,146 @@ bool CX2GUNPC::JuneGetFuryAttackPowerRate( float& fRate_ ) const
 }
 #endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 //}}
+
+//{{ Iruha : 2026-10-10 // June effect completion C3z-4 batch 1 (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
+/** @function : JuneCreateNPCReqFromNPC ( file local )
+	@brief : the shared tail of June's five NPC-side create requests ( 327790e0 / 327791c0 / 32779ad0 / 32779bc0 /
+			 32779cb0 ): when g_pX2Game is valid, its create core 322e67c0 ( here March's CX2Game::CreateNPCReq, which
+			 keeps June's host gate ) with ally UID = the NPC's GetUID() ( +0x270, sign-extended ), ally team TN_NONE,
+			 create type 0. June's last argument, the summoner's templet unit ID ( +0x85f8[0] ), fills a KNPCUnitReq
+			 field March does not have: not carried ( user 2026-10-10, its own STATUS row ).
+*/
+static void JuneCreateNPCReqFromNPC( const CX2GUNPC* pNPC_, const WCHAR* pwszWhich_, int unitID, int level, bool bActive,
+	D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop, int iKeyCode, CX2Room::TEAM_NUM eTeam, CX2NPCAI::NPC_AI_TYPE eAIType,
+	bool bElite )
+{
+	if ( NULL == g_pX2Game || NULL == pNPC_ )
+		return;
+
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 30 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 npc %s summoner=%d npc_id=%d level=%d keycode=%d team=%d ai=%d elite=%d delay=%.2f",
+			pwszWhich_, pNPC_->GetUID(), unitID, level, iKeyCode, (int) eTeam, (int) eAIType, bElite ? 1 : 0, fDelayTime );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+
+#ifdef SERV_NEW_DEFENCE_DUNGEON
+	g_pX2Game->CreateNPCReq( (CX2UnitManager::NPC_UNIT_ID) unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop, iKeyCode,
+		eTeam, eAIType, (UidType) pNPC_->GetUID(), bElite, CX2Room::TN_NONE, CX2GUNPC::NCT_NONE );
+#else // SERV_NEW_DEFENCE_DUNGEON
+	g_pX2Game->CreateNPCReq( (CX2UnitManager::NPC_UNIT_ID) unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop, iKeyCode,
+		eTeam, eAIType, (UidType) pNPC_->GetUID(), bElite, CX2Room::TN_NONE, false );
+#endif // SERV_NEW_DEFENCE_DUNGEON
+}
+
+/// June 327790e0: keycode -1, TN_MONSTER, NAT_NORMAL
+void CX2GUNPC::CreateNPCReq_LUA( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop )
+{
+	JuneCreateNPCReqFromNPC( this, L"CreateNPCReq_LUA", unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop,
+		-1, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, false );
+}
+
+/// June 327791c0: delay = .x, keycode = (int) .y ( ftol 32fe25f0 ), TN_MONSTER, NAT_NORMAL
+void CX2GUNPC::CreateNPCReq_LUA2( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop )
+{
+	JuneCreateNPCReqFromNPC( this, L"CreateNPCReq_LUA2", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
+		(int) vfDelayTimeNKeyCode.y, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, false );
+}
+
+/// June 32779ad0: as LUA2, plus the elite flag
+void CX2GUNPC::CreateNPCReqElite( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop, bool bElite )
+{
+	JuneCreateNPCReqFromNPC( this, L"CreateNPCReqElite", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
+		(int) vfDelayTimeNKeyCode.y, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, bElite );
+}
+
+/// June 32779bc0: as LUA2 with the given team and NAT_ALLY. March looks an ally NPC's owner up as a user by this UID
+/// ( CX2Game::CreateNPC ): an NPC UID finds none, so the summon gets no owner user, as in June ( no user has it either ).
+void CX2GUNPC::CreateNPCReqAlly( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop, int iTeam )
+{
+	JuneCreateNPCReqFromNPC( this, L"CreateNPCReqAlly", unitID, level, bActive, vPos, bRight, vfDelayTimeNKeyCode.x, bNoDrop,
+		(int) vfDelayTimeNKeyCode.y, (CX2Room::TEAM_NUM) iTeam, CX2NPCAI::NAT_ALLY, false );
+}
+
+/// June 32779cb0: the NPC version calls the create core directly, not the push list ( kept, JUNE_BUGS ).
+void CX2GUNPC::PushCreateNPCReq_Lua( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop, int iKeyCode )
+{
+	JuneCreateNPCReqFromNPC( this, L"PushCreateNPCReq_Lua", unitID, level, bActive, vPos, bRight, fDelayTime, bNoDrop,
+		iKeyCode, CX2Room::TN_MONSTER, CX2NPCAI::NAT_NORMAL, false );
+}
+#endif SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+/** @function : GetStoredGUUser
+	@brief : June 32759660: the observer at +0x8d64, when it still points at a unit whose game unit type ( +0x264 ) is
+			 GUT_USER; else NULL.
+*/
+CX2GUUser* CX2GUNPC::GetStoredGUUser()
+{
+	if ( null == m_optrJuneStoredGUUser )
+		return NULL;
+
+	CX2GameUnit* pUnit = m_optrJuneStoredGUUser.GetObservable();
+	if ( NULL == pUnit || CX2GameUnit::GUT_USER != pUnit->GetGameUnitType() )
+		return NULL;
+
+	return static_cast<CX2GUUser*>( pUnit );
+}
+
+/** @function : SetStoredGUUser
+	@brief : June 31e57960: a non-NULL unit of type GUT_USER replaces the observer ( 31e56b80, KObserverPtr assign );
+			 anything else leaves it as it was.
+*/
+void CX2GUNPC::SetStoredGUUser( CX2GUUser* pGUUser_ )
+{
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 20 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 npc SetStoredGUUser npc=%d user=%I64d", GetUID(),
+			NULL != pGUUser_ ? pGUUser_->GetUnitUID() : (UidType) -1 );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	if ( NULL == pGUUser_ || CX2GameUnit::GUT_USER != pGUUser_->GetGameUnitType() )
+		return;
+
+	m_optrJuneStoredGUUser = pGUUser_;
+}
+#endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+/** @function : InitStateCoolTime
+	@brief : June 3275d9d0: id = GetStateID( name ) ( 3207adf0 ); a non-negative id below the runtime count ( +0x7c9c,
+			 36-byte rows ) gets runtime[id].elapsed = InitStateData state[id].STATE_COOL_TIME ( templet +0x85fc +0x78,
+			 0x448 stride, +0x370 ), so the state is ready at once.
+*/
+void CX2GUNPC::InitStateCoolTime( const char* pszStateName_ )
+{
+	if ( NULL == pszStateName_ )
+		return;
+
+	const int iStateID = GetStateID( pszStateName_ );
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 20 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 npc InitStateCoolTime npc=%d state=%d runtime=%d", GetUID(), iStateID,
+			(int) m_vecStateRuntime.size() );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	if ( iStateID < 0 || iStateID >= (int) m_vecStateRuntime.size() )
+		return;
+
+	m_vecStateRuntime[iStateID].m_fStateElapsedTime = GetInitStateData().m_vecStateData[iStateID].m_fStateCoolTime;
+}
+#endif SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+//}}
 void CX2GUNPC::ResetAnimSpeed()
 {
 	if( m_pXSkinAnim != NULL )

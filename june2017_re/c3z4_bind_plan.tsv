@@ -1,0 +1,60 @@
+method	june_class	n_dungeons	june_use	june_fn	triage	batch	flag	march_target	notes
+CreateNPCReq_LUA	CX2GUNPC	113	31e0dfc2	327790e0	port	1	SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ	CX2GUNPC::CreateNPCReq_LUA -> g_pX2Game->CreateNPCReq	g_pX2Game valid -> CreateNPCReq core 322e67c0( args, keycode -1, TN_MONSTER, NAT_NORMAL, allyUID = (int64)GetUID() +0x270, elite 0, ally team -1, create type 0, force 0, summoner templet unit id +0x85f8[0] ). The last field is June-only (KNPCUnitReq after m_iBossGroupID): not carried (user 2026-10-10, own STATUS row). C9h-4h ruled 322e67c0 not ported.
+CreateNPCReq_LUA2	CX2GUNPC	4	31e0e172	327791c0	port	1	SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ	CX2GUNPC::CreateNPCReq_LUA2	as LUA, keycode = (int)vfDelayTimeNKeyCode.y (ftol 32fe25f0), delay = .x
+CreateNPCReqElite	CX2GUNPC	13	31e0e96f	32779ad0	port	1	SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ	CX2GUNPC::CreateNPCReqElite	as LUA2 + bElite param
+CreateNPCReqAlly	CX2GUNPC	4	31e0eb24	32779bc0	port	1	SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ	CX2GUNPC::CreateNPCReqAlly	as LUA2, eTeam param, NAT_ALLY, allyUID = summoner NPC UID (March looks the owner up as a user: no user, no owner; harmless)
+PushCreateNPCReq_Lua	CX2GUNPC	82	31e0ecec	32779cb0	port	1	SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ	CX2GUNPC::PushCreateNPCReq_Lua	June quirk: the NPC version calls the CREATE core 322e67c0 directly (no push list); keycode param, TN_MONSTER, NAT_NORMAL, summoner allyUID. Kept verbatim (JUNE_BUGS)
+GetStoredGUUser	CX2GUNPC	37	31e07e4e	32759660	port	1	SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER	CX2GUNPC::GetStoredGUUser	observer at +0x8d64 (-0x1a0 base) -> CX2GUUser*, NULL unless GetGameUnitType() (+0x264) == GUT_USER. Ctors 327b04a3 / 327b18a5 zero it, dtor 327a0a83, reset @32763470
+SetStoredGUUser	CX2GUNPC	26	31e07fe2	31e57960	port	1	SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER	CX2GUNPC::SetStoredGUUser	p && p->GetGameUnitType() == GUT_USER -> observer assign 31e56b80 (KObserverPtr operator=); else no change
+GetInt_LUA	CX2Game	19	31dd764c	31e4de10	port	1	SERV_IRUHADEV_JUNE_GAME_LUA_INT	CX2Game::GetInt_LUA	int[10] at +0x7e0, zeroed in the CX2Game ctor 32306600 (@32307f44-7a); no bounds check (JUNE_BUGS); reached scripts use literal 0..9. CX2DungeonGame writes [0] only for DI_EVENT_2017_TREASURE (327c9560, 327ca871): March lacks that dungeon
+SetInt_LUA	CX2Game	13	31dd752b	31e4ddf0	port	1	SERV_IRUHADEV_JUNE_GAME_LUA_INT	CX2Game::SetInt_LUA	as GetInt_LUA
+InitStateCoolTime	CX2GUNPC	15	31df9399	3275d9d0	port	1	SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME	CX2GUNPC::InitStateCoolTime	id = GetStateID( name ) 3207adf0; id >= 0 && id < m_vecStateRuntime.size() -> runtime[id].m_fStateElapsedTime = InitStateData.m_vecStateData[id].m_fStateCoolTime (templet +0x85fc +0x78, 0x448 stride, +0x370): the state is ready at once
+GetHostGameUnit	CX2Game	13	31dd906c	31aa6280	bind-only	1	SERV_IRUHADEV_JUNE_GAME_HOST_GAME_UNIT	CX2Game::GetHostGameUnit	June: observer at +0x89c, -0x1a0 -> CX2GUUser* = March m_optrHostGameUnit (X2OPTIMIZE_NPC_NONHOST_SIMULATION ON); both set by UpdateMyGameUnit / UpdateHostGameUnit
+GetDyingStart	CX2GUNPC	12	31df98c5	31e4ce00	bind-only	1	SERV_IRUHADEV_JUNE_NPC_GET_DYING_START	CX2GameUnit::GetDyingStart (bound on CX2GUNPC)	June byte +0xdac, set to 1 by DyingStart 32299c80 (@32299c97) = March m_bDyingStart / CX2GameUnit::DyingStart
+GetIsLastStage	CX2Game	12	31dd22b0	322f36e0	port	1	SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY	CX2Game::GetIsLastStage	GetGameType() == GT_DUNGEON (June also tests != 4 GT_PVE, always true then) && dungeon game (31e921e0 dynamic_cast) && m_pDungeon (+0xc44) && GetNowStage() (+4) && GetNowStageIndex() (+8) == m_StageDataList.size() - 1
+GetNowStateID_LUA	CX2Game	12	31dd9a6c	322cf9b0	port	1	SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY	CX2Game::GetNowStateID_LUA	g_pMain ? g_pMain +0x8c (m_NowStateID) : 0. June renumbered X2_STATE (XS_GUILD_AGIT_GAME = 15) and scripts compare compiled literals (FIRE_DEVIL_BERSERKER: == 18 = June XS_TRAINING_GAME); March's Enum.lua has no X2_STATE, so the March state is returned in June's numbering (by name; March-only arcade states -> -1, a labelled stand-in)
+SetMovieDescriptionData	CX2GUNPC	59	31e0419c	32758730	port	2	SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION	CX2State + render	g_pMain +0x90 (now state) -> 31ef7370 stores string id +0x1ec, seconds +0x1f0; 31f179b0 draws it (font 6, (620,512)) and counts down by +0x60; callers 324bb230, 324cff10 (state render). UI port
+GetNearestSiegeModeNpcUID	CX2GUNPC	10	31df537b	327714c0	port	2	SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY	CX2GUNPC::GetNearestSiegeModeNpcUID	nearest other NPC (not dying, siege-mode byte unit[0x22a8]) by distance; returns its UID
+IsActiveMonster	CX2GUNPC	8	31e0c395	31e4d210	port	2	SERV_IRUHADEV_JUNE_NPC_ACTIVE_MONSTER	CX2GUNPC::IsActiveMonster	byte +0x872c: find June's writers first
+GetNPCUnitNumCheckTeam	CX2Game	7	31dd13bf	322d4a10	port	2	SERV_IRUHADEV_JUNE_GAME_NPC_COUNT	CX2Game::GetNPCUnitNumCheckTeam	count NPCs whose team (protected +0x278) == arg
+LiveKeyCodeNPCNumExceptDying	CX2Game	3	31ddcc68	322d09c0	port	2	SERV_IRUHADEV_JUNE_GAME_NPC_COUNT	CX2Game::LiveKeyCodeNPCNumExceptDying	TN_MONSTER, not dying, keycode match (+0xc04 ...): read fully
+Play2DSound_LUA	CX2GameUnit	7	31de3cb3	32276540	port	2	SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND	CX2GameUnit::Play2DSound_LUA	utf8 name -> 2D sound 32276220; skips DieLight.ogg when g_pMain +0x1ac == 2
+ChangeMotion_LUA	CX2GUNPC	6	31e0a329	32761cd0	port	2	SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION	CX2GUNPC::ChangeMotion_LUA	reloads the motion mesh (+0x8600), Bip01: read fully
+FadeOriginWorldColor_LUA	CX2Game	6	31ddcf0a	31e4dd10	port	2	SERV_IRUHADEV_JUNE_GAME_WORLD_FADE	CX2Game::FadeOriginWorldColor_LUA	GetWorld() (vslot 0x90) +0xa0..+0xb0 = 5 args: map onto CX2World's fade members
+SetShowAllNPCExceptMe	CX2GUNPC	6	31e04600	32777fd0	port	2	SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS	CX2GUNPC::SetShowAllNPCExceptMe	every other NPC: gage (+0x302*4) slot 0x20( show ), +0x172 show flag, slot 0x28 when visibility changed
+CanPassThisStage	CX2Game	5	31dd9c27	31e4e7f0	port	2	SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY	CX2Game vslot 0x210	vcall thunk: resolve in CX2Game 3348bf94 and CX2DungeonGame 334bb094 / CX2PVEGame 334c1f34
+GetHenirLimitLevel	CX2Game	5	31dd9de3	31e4e930	port	2	SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY	CX2Game vslot 0x214	as CanPassThisStage
+GetLiveUserUnitRandom	CX2Game	2	31dcacbd	31e4e860	port	2	SERV_IRUHADEV_JUNE_GAME_RANDOM_USER	CX2Game vslot 0xbc	as CanPassThisStage
+GetIsGoNextPacketSended_LUA	CX2Game	3	31dd945f	322f14d0	port	2	SERV_IRUHADEV_JUNE_GAME_GO_NEXT	CX2Game::GetIsGoNextPacketSended_LUA	dungeon game byte +0xc4c
+Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ	CX2Game	3	31dd9757	322f1550	port	2	SERV_IRUHADEV_JUNE_GAME_GO_NEXT	CX2Game::Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ	dungeon game 327c9fa0( 0 )
+GetMainEffectPos	CEffect	3	31e2d024	31e4c3a0	port	2	SERV_IRUHADEV_JUNE_EFFECT_MAIN_POS	CX2DamageEffect::CEffect::GetMainEffectPos	main effect 31f6eb30 ? its +0x3f0 pos : own +0x1f4 pos
+GetNowStateName	CX2GUNPC	3	31e0cb18	3275b060	port	2	SERV_IRUHADEV_JUNE_NPC_STATE_NAME	CX2GUNPC::GetNowStateName	now state id (protected +0x8454) -> name, map at templet +0x8c
+GetUnitType	CX2GUUser	3	31e13a93	31e4d0e0	port	2	SERV_IRUHADEV_JUNE_USER_UNIT_TYPE	CX2GUUser::GetUnitType	m_pUnit (+0x867c) ? its templet (+0xaf0) [0] : 0
+GetWorldObjectMeshByName	CX2World	3	31dbab2e	327fcc40	port	2	SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME	CX2World::GetWorldObjectMeshByName	walk world objects (+0xe8), type 1 (mesh), name compare
+GetCenterPositionLineIndex	CKTDGLineMap	8	31bedb4c	31c6ad50	port	2	SERV_IRUHADEV_JUNE_LINEMAP_QUERY	CKTDGLineMap::GetCenterPositionLineIndex	line idx valid -> its centre 31c7b7f0, else 0 vector
+SetEnableLinebyPos	CKTDGLineMap	3	31bee5a5	31c6afb0	port	2	SERV_IRUHADEV_JUNE_LINEMAP_QUERY	CKTDGLineMap::SetEnableLinebyPos	every line whose centre distance test passes: enable flag (+8) + 31c5c2e0
+SetImmuneToExtraDamage	CX2GUNPC	2	31e0c55e	31e4d000	port	2	SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE	CX2GUNPC::SetImmuneToExtraDamage	byte +0x4104: find June's reader first (a setter with no consumer is a partial port)
+SetCameraDistance	CX2World	1	31dbad5e	31e4ca10	port	2	SERV_IRUHADEV_JUNE_WORLD_CAMERA_DISTANCE	CX2World::SetCameraDistance	4 floats +0x194..+0x1a0: find the reader
+GetLastTouchLineIndex	CX2GUUser	2	31e03bcd	31e4e960	bind-only?	2	SERV_IRUHADEV_JUNE_USER_LAST_TOUCH_LINE	CX2GUUser vslot 0x12c	March binds it on CX2GUNPC only; check the GUUser slot
+PlaySound_LUA	CX2GameUnit	117	-	-	census	3	-	-	untyped-gap: March binds it on CX2GameUnit already; the gap is CX2RidingPetManager (not reached). Expected 0 once typed
+GetIsRight	CX2GameUnit	73	-	-	census	3	SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS	CX2GameUnit	untyped-gap: June also binds it on CX2GameUnit; March only on GUNPC / GUUser. A CX2GameUnit* receiver (GetFocusUnit, ...) fails in March only
+GetRotateDegree	CX2GameUnit	66	-	-	census	3	SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS	CX2GameUnit	as GetIsRight
+SetIsRight	CX2GUUser	23	-	-	census	3	SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS	CX2GUUser	untyped-gap: June binds it on CX2GUUser too
+CannotInput	CX2DungeonGame	6	-	-	census	3	SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT	CX2DungeonGame	untyped-gap: June binds on CX2DungeonGame (dungeon trigger scripts get a CX2DungeonGame*)
+GetTutorialGuideManager	CX2Game	9	31dd631f	322cc010	system	-	-	-	g_pMain +0x8c4 (embedded CX2TutorialGuideManager, 31d70b00). User 2026-10-10: own STATUS row (tutorial guide system)
+CheckToNeedTutorialGuide	CX2TutorialGuideManager	9	31e3ae82	31fbde90	system	-	-	-	own STATUS row (quest 11000 done -> false; else per-unit check)
+OnBeginGuideNo	CX2TutorialGuideManager	9	31e3b1da	31fc5e20	system	-	-	-	own STATUS row
+CreateSimpleDLG	CX2Game	1	31ddd6e8	322def10	system	-	-	-	CX2SimpleDLG_WithLuaFunc (new 0x14, 326b24a0) into game +0xba8; Ranox Secret Hell only (secret_scene_dummy.lua): own STATUS row
+GetSimpleDLG	CX2Game	1	31ddd9f5	31e4de40	system	-	-	-	own STATUS row (SimpleDLG)
+SetShow_LUA	CX2SimpleDLG_WithLuaFunc	1	31e42615	326b1380	system	-	-	-	own STATUS row (SimpleDLG)
+SetNumberInNumberStatic_LUA	CX2SimpleDLG_WithLuaFunc	1	31e427bb	326b1bb0	system	-	-	-	own STATUS row (SimpleDLG)
+SetNumberInGageStatic_LUA	CX2SimpleDLG_WithLuaFunc	1	31e42a55	326b1d40	system	-	-	-	own STATUS row (SimpleDLG)
+SetNumber_LUA	CX2SimpleDLG_WithLuaFunc	1	31e42c6f	31e4d8a0	system	-	-	-	own STATUS row (SimpleDLG)
+GetNumber_LUA	CX2SimpleDLG_WithLuaFunc	1	31e42dce	?	system	-	-	-	own STATUS row (SimpleDLG); the resolver read 32e4ea40, outside the 326b1xxx group: re-read when the row starts
+CrashAndColorChange_LUA	CX2SimpleDLG_WithLuaFunc	1	31e42f77	326b1a10	system	-	-	-	own STATUS row (SimpleDLG)
+ClearAllParticle	-	5	-	-	june-bug	-	-	-	no June binder registers it (31be67a0 / 31d95080 fully decrypted; no other func_strings row): June raises the same can't find. JUNE_BUGS, kept
+GetDestPos	-	2	-	-	june-bug	-	-	-	as ClearAllParticle
+GetDropItemPosition	-	2	-	-	june-bug	-	-	-	as ClearAllParticle
+GetNPCAI	-	2	-	-	june-bug	-	-	-	as ClearAllParticle
+NotfiyCreateValentimeCupCake	-	1	-	-	june-bug	-	-	-	as ClearAllParticle
+ShowTimerAlarm_LUA	-	1	-	-	june-bug	-	-	-	as ClearAllParticle

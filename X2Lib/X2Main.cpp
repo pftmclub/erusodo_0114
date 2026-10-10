@@ -3896,6 +3896,19 @@ void CX2Main::RegisterLuabind()
 	// June binder 31d95080 @31dda25e ( registered on CX2Game, after InitDLG_RutoVoteSystem )
 	lua_tinker::class_def<CX2Game>( L, "IsVotingLuto",							&CX2Game::IsVotingLuto );
 #endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+#ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
+	// June binder 31d95080 @31dd752b ( 31e4ddf0 ) / @31dd764c ( 31e4de10 ), on CX2Game
+	lua_tinker::class_def<CX2Game>( L, "SetInt_LUA",							&CX2Game::SetInt_LUA );
+	lua_tinker::class_def<CX2Game>( L, "GetInt_LUA",							&CX2Game::GetInt_LUA );
+#endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_GAME_HOST_GAME_UNIT
+	// June @31dd906c ( 31aa6280: the host observer +0x89c, -0x1a0 -> CX2GUUser* ) = March m_optrHostGameUnit
+	lua_tinker::class_def<CX2Game>( L, "GetHostGameUnit",						&CX2Game::GetHostGameUnit );
+#endif SERV_IRUHADEV_JUNE_GAME_HOST_GAME_UNIT
+#ifdef SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
+	lua_tinker::class_def<CX2Game>( L, "GetIsLastStage",						&CX2Game::GetIsLastStage );		// June @31dd22b0 ( 322f36e0 )
+	lua_tinker::class_def<CX2Game>( L, "GetNowStateID_LUA",						&CX2Game::GetNowStateID_LUA );	// June @31dd9a6c ( 322cf9b0 )
+#endif SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
 	lua_tinker::class_def<CX2Game>( L, "LiveNPCNumType_LUA",					&CX2Game::LiveNPCNumType_LUA );
 	lua_tinker::class_def<CX2Game>( L, "IsKillNPCKeyCode_LUA",					&CX2Game::IsKillNPCKeyCode_LUA );
 	lua_tinker::class_def<CX2Game>( L, "LiveKeyCodeNPCNum",						&CX2Game::LiveKeyCodeNPCNum );
@@ -4636,6 +4649,25 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GUNPC>( L, "SetFuryMode",					&CX2GUNPC::SetFuryMode );	/// June 31e4d7c0 (bound @31e0ad15)
 	lua_tinker::class_def<CX2GUNPC>( L, "GetFuryMode",					&CX2GUNPC::GetFuryMode );	/// June 31e4d7d0 (bound @31e0ae4a)
 #endif SERV_IRUHADEV_JUNE_NPC_FURY_MODE
+//}}
+//{{ Iruha : 2026-10-10 // June effect completion C3z-4 batch 1 (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
+	lua_tinker::class_def<CX2GUNPC>( L, "CreateNPCReq_LUA",				&CX2GUNPC::CreateNPCReq_LUA );		/// June 327790e0 (bound @31e0dfc2)
+	lua_tinker::class_def<CX2GUNPC>( L, "CreateNPCReq_LUA2",				&CX2GUNPC::CreateNPCReq_LUA2 );		/// June 327791c0 (bound @31e0e172)
+	lua_tinker::class_def<CX2GUNPC>( L, "CreateNPCReqElite",				&CX2GUNPC::CreateNPCReqElite );		/// June 32779ad0 (bound @31e0e96f)
+	lua_tinker::class_def<CX2GUNPC>( L, "CreateNPCReqAlly",				&CX2GUNPC::CreateNPCReqAlly );		/// June 32779bc0 (bound @31e0eb24)
+	lua_tinker::class_def<CX2GUNPC>( L, "PushCreateNPCReq_Lua",			&CX2GUNPC::PushCreateNPCReq_Lua );	/// June 32779cb0 (bound @31e0ecec)
+#endif SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
+#ifdef SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+	lua_tinker::class_def<CX2GUNPC>( L, "GetStoredGUUser",				&CX2GUNPC::GetStoredGUUser );		/// June 32759660 (bound @31e07e4e)
+	lua_tinker::class_def<CX2GUNPC>( L, "SetStoredGUUser",				&CX2GUNPC::SetStoredGUUser );		/// June 31e57960 (bound @31e07fe2)
+#endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+#ifdef SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+	lua_tinker::class_def<CX2GUNPC>( L, "InitStateCoolTime",				&CX2GUNPC::InitStateCoolTime );		/// June 3275d9d0 (bound @31df9399)
+#endif SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+#ifdef SERV_IRUHADEV_JUNE_NPC_GET_DYING_START
+	lua_tinker::class_def<CX2GUNPC>( L, "GetDyingStart",					&CX2GameUnit::GetDyingStart );		/// June 31e4ce00 (bound @31df98c5): byte +0xdac = m_bDyingStart
+#endif SERV_IRUHADEV_JUNE_NPC_GET_DYING_START
 //}}
 
 	lua_tinker::class_add<CX2GUUser>( L, "CX2GUUser" );

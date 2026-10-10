@@ -524,6 +524,15 @@ class CX2Game : public CKTDXStage
 		// June 2017 CX2Game vslot 0x244 ( 330e7c10 ): the base always reports a Luto vote. CX2DungeonGame overrides it.
 		virtual bool				IsVotingLuto() { return true; }
 #endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+#ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
+		// June 31e4ddf0 / 31e4de10: ten Lua scratch ints at +0x7e0. June does no bounds check ( JUNE_BUGS ).
+		void						SetInt_LUA( int iIndex_, int iValue_ );
+		int							GetInt_LUA( int iIndex_ );
+#endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
+		bool						GetIsLastStage();		// June 322f36e0
+		int							GetNowStateID_LUA();	// June 322cf9b0, in June's X2_STATE numbering
+#endif SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
 		int							LiveNPCNumType_LUA( CX2UnitManager::NPC_UNIT_ID unitID );
 		bool						IsKillNPCKeyCode_LUA( int keyCode );
 		int							GetKilledKeyCodeNPCCount( int keyCode );
@@ -1951,6 +1960,9 @@ protected:
 		CX2GameUnitoPtr			m_optrHostGameUnit;		// 필드 테스트용
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 //#endif	BATTLE_FIELD_TEST
+#ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
+		int							m_aiJuneLuaInt[10];		/// June +0x7e0..+0x804: zeroed in the ctor 32306600 ( @32307f44-7a ), Lua only
+#endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
 		
 #ifdef ADD_GAME_STAGE_DELETE_DAMAGEEFFECT
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE

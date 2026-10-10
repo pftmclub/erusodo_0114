@@ -319,6 +319,9 @@ m_bSkillSlotJustChanged(true)
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION_REDUCE_OVERHEAD
     CX2GUNPC::ResetReactionSimulationCounter();
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION_REDUCE_OVERHEAD
+#ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
+	ZeroMemory( m_aiJuneLuaInt, sizeof( m_aiJuneLuaInt ) );	/// June CX2Game ctor 32306600 @32307f44-7a
+#endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
 
 // #ifndef _SERVICE_
 // 	g_pData->GetUnitManager()->OpenNPCStatScriptFile( L"NPCStat.lua" );
@@ -5850,6 +5853,99 @@ int CX2Game::LiveActiveNPCNum()
 	return iCount;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
+/** @function : SetInt_LUA / GetInt_LUA
+	@brief : June 31e4ddf0 ( mov [ecx+idx*4+0x7e0], v ) / 31e4de10 ( mov eax, [ecx+idx*4+0x7e0] ), bound on CX2Game
+			 @31dd752b / @31dd764c. No bounds check in June, kept ( JUNE_BUGS ); the reached scripts index 0..9.
+			 CX2DungeonGame also writes [0] ( 327c9560, 327ca871 ), only for DI_EVENT_2017_TREASURE, which March lacks.
+*/
+void CX2Game::SetInt_LUA( int iIndex_, int iValue_ )
+{
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 20 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 game SetInt_LUA [%d] = %d", iIndex_, iValue_ );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	m_aiJuneLuaInt[iIndex_] = iValue_;
+}
+
+int CX2Game::GetInt_LUA( int iIndex_ )
+{
+	return m_aiJuneLuaInt[iIndex_];
+}
+#endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+
+#ifdef SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
+/** @function : GetIsLastStage
+	@brief : June 322f36e0 ( bound @31dd22b0 ): GetGameType() == 2 ( June then also tests != 4, GT_PVE: always true by
+			 then ), the dungeon game ( 31e921e0 cast ) has a dungeon ( +0xc44 ) with a now stage ( +4 ), and its now
+			 stage index ( +8 ) is the last of its stage data list ( +0x14..+0x18 ).
+*/
+bool CX2Game::GetIsLastStage()
+{
+	bool bLast = false;
+	if ( GT_DUNGEON == GetGameType() )
+	{
+		CX2Dungeon* pDungeon = static_cast<CX2DungeonGame*>( this )->GetDungeon();
+		if ( NULL != pDungeon && NULL != pDungeon->GetNowStage() )
+			bLast = ( pDungeon->GetNowStageIndex() == pDungeon->GetNumberOfStageData() - 1 );
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 GetIsLastStage %d", bLast ? 1 : 0 );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return bLast;
+}
+
+/** @function : GetNowStateID_LUA
+	@brief : June 322cf9b0 ( bound @31dd9a6c ): g_pMain ? g_pMain->m_NowStateID ( +0x8c ) : 0.
+			 June's X2_STATE inserts XS_GUILD_AGIT_GAME = 15 and has no arcade states, and the adopted scripts compare
+			 compiled literals ( FIRE_DEVIL_BERSERKER* : == 18, June's XS_TRAINING_GAME ). March's Enum.lua has no
+			 X2_STATE table, so March's state goes out under June's number for the same name ( june_src_fixed
+			 data036 Enum X2_STATE ). The four arcade states have no June number: -1, a labelled stand-in.
+*/
+int CX2Game::GetNowStateID_LUA()
+{
+	if ( NULL == g_pMain )
+		return 0;
+
+	const int iMarchState = (int) g_pMain->GetNowStateID();
+	int iJuneState = -1;
+	if ( iMarchState <= (int) CX2Main::XS_VILLAGE_MAP )
+		iJuneState = iMarchState;	/// XS_INVALID .. XS_VILLAGE_MAP are 0 .. 14 in both
+	else
+	{
+		switch ( iMarchState )
+		{
+		case CX2Main::XS_SQUARE_GAME:		iJuneState = 16;	break;
+		case CX2Main::XS_TRAINING_SCHOOL:	iJuneState = 17;	break;
+		case CX2Main::XS_TRAINING_GAME:		iJuneState = 18;	break;
+		case CX2Main::XS_TRAINING_RESULT:	iJuneState = 19;	break;
+		case CX2Main::XS_CLASS_CHANGE:		iJuneState = 20;	break;
+		case CX2Main::XS_BATTLE_FIELD:		iJuneState = 21;	break;
+		case CX2Main::XS_WEDDING_GAME:		iJuneState = 22;	break;
+		case CX2Main::XS_END:				iJuneState = 27;	break;
+		default:							iJuneState = -1;	break;
+		}
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 GetNowStateID_LUA march %d -> june %d", iMarchState, iJuneState );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return iJuneState;
+}
+#endif SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
 int	CX2Game::LiveNPCNumType_LUA( CX2UnitManager::NPC_UNIT_ID unitID ) 
 {
 	int iCount = 0;

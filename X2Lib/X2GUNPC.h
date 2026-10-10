@@ -3172,6 +3172,23 @@ class CX2GUNPC : public CX2GameUnit
 		void SetMultiplicationAnimSpeed( float fRate_ ) { m_fMultiplicationAnimSpeed = fRate_; }	/// June stores +0x8fdc directly (327ef570 @327ef8a4, phase C4d); the speed follows at the next ResetAnimSpeed
 #endif defined( SERV_IRUHADEV_JUNE_HERO_NPC_ANIM_SPEED ) && defined( SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED )
 //}}
+//{{ Iruha : 2026-10-10 // June effect completion C3z-4 batch 1 (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
+		/// June's NPC-side create requests: the game's CreateNPCReq with this NPC's UID as ally UID
+		void CreateNPCReq_LUA( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop );	/// June 327790e0
+		void CreateNPCReq_LUA2( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop );	/// June 327791c0
+		void CreateNPCReqElite( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop, bool bElite );	/// June 32779ad0
+		void CreateNPCReqAlly( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, D3DXVECTOR3 vfDelayTimeNKeyCode, bool bNoDrop, int iTeam );	/// June 32779bc0
+		void PushCreateNPCReq_Lua( int unitID, int level, bool bActive, D3DXVECTOR3 vPos, bool bRight, float fDelayTime, bool bNoDrop, int iKeyCode );	/// June 32779cb0: creates at once, no push list ( JUNE_BUGS )
+#endif SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
+#ifdef SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+		CX2GUUser* GetStoredGUUser();					/// June 32759660
+		void SetStoredGUUser( CX2GUUser* pGUUser_ );	/// June 31e57960
+#endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+#ifdef SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+		void InitStateCoolTime( const char* pszStateName_ );	/// June 3275d9d0
+#endif SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+//}}
 
 #ifdef USE_UNIT_FOG_RENDER_PARAM //JHKang
 		void SetFogNPC( float fNearX_, float fFarX_, float fNearY_, float fFarY_, float fDensity_, D3DXCOLOR fogColor_ )
@@ -4540,6 +4557,11 @@ class CX2GUNPC : public CX2GameUnit
 		float						m_fRoseSummonAnimSpeedRate;	/// June +0x8b6c (1.0): its only writer is Rose's vslot 0x860 32ab0560 (checklist 7f)
 		float						m_fMultiplicationAnimSpeed;	/// June +0x8fdc (1.0): its only writer is the Hero-dungeon CreateGUNPC tail 327ef570 (phase C4d)
 #endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+//}}
+//{{ Iruha : 2026-10-10 // June effect completion C3z-4 batch 1
+#ifdef SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+		CX2GameUnitoPtr				m_optrJuneStoredGUUser;	/// June +0x8d64 ( observer ): ctors 327b04a3 / 327b18a5 and CommonConstructor @32763470 clear it, dtor 327a0a83
+#endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
 //}}
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR
 		bool						m_bIsRemainingNpcWhenStageCleard;	// Stage, SubStage 가 클리어 되더라도

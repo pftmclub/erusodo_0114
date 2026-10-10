@@ -6707,3 +6707,79 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // OFF 2026-10-10: C3z-1 gate play-test passed (IsVotingLuto 0 on every gate, gates break on clear)
 //#define SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-4 batch 1: bind June's NPC-side CreateNPCReq_LUA, CreateNPCReq_LUA2,
+//              CreateNPCReqElite, CreateNPCReqAlly and PushCreateNPCReq_Lua on CX2GUNPC ( 113 / 4 / 13 / 4 / 82 dungeons,
+//              june2017_re/c3z4_bind_plan.tsv ). March binds them on CX2Game only, so NPC scripts raised "can't find
+//              'CreateNPCReq_LUA'" and the summon never came. June 327790e0 / 327791c0 / 32779ad0 / 32779bc0 / 32779cb0
+//              ( binder 31d95080 @31e0dfc2 / @31e0e172 / @31e0e96f / @31e0eb24 / @31e0ecec ) call the game's create
+//              core 322e67c0 with the NPC's UID ( +0x270 ) as ally UID; the extra June packet field ( the summoner's
+//              templet unit ID, +0x85f8[0] ) is not carried ( user 2026-10-10, own STATUS row ).
+#define SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-4 batch 1: June CX2GUNPC::GetStoredGUUser / SetStoredGUUser ( 32759660 /
+//              31e57960, bound @31e07e4e / @31e07fe2 ): one user observer per NPC ( +0x8d64 ), set and read only for a
+//              unit whose game unit type is GUT_USER. 16 linker / shadow master / trock scripts, 37 dungeons.
+#define SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-4 batch 1: June CX2Game::SetInt_LUA / GetInt_LUA ( 31e4ddf0 / 31e4de10, bound
+//              @31dd752b / @31dd764c ): ten Lua scratch ints on the game ( +0x7e0, zeroed in the ctor 32306600 ), no
+//              bounds check ( JUNE_BUGS ). Fire Temple / Gateway berserker and fighter scripts share boss state through
+//              them ( 19 dungeons ).
+#define SERV_IRUHADEV_JUNE_GAME_LUA_INT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-4 batch 1: June CX2GUNPC::InitStateCoolTime( state name ) ( 3275d9d0, bound
+//              @31df9399 ): the named state's elapsed time is set to its STATE_COOL_TIME, so it is ready at once
+//              ( fire devil / dryad kenta / smith stain scripts, 15 dungeons ).
+#define SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-4 batch 1: bind CX2Game::GetHostGameUnit, which March has and never bound.
+//              June 31aa6280 ( @31dd906c ) reads the host observer ( +0x89c ) exactly as March's m_optrHostGameUnit
+//              ( 13 dungeons: fire devil target fallbacks ).
+#define SERV_IRUHADEV_JUNE_GAME_HOST_GAME_UNIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-4 batch 1: bind CX2GameUnit::GetDyingStart on CX2GUNPC, where June binds it
+//              ( 31e4ce00, @31df98c5: byte +0xdac, set by DyingStart 32299c80 = March m_bDyingStart ). Elysion and Henir
+//              shield / summon scripts, 12 dungeons.
+#define SERV_IRUHADEV_JUNE_NPC_GET_DYING_START
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3z-4 batch 1: June CX2Game::GetIsLastStage ( 322f36e0, @31dd22b0 ) and
+//              GetNowStateID_LUA ( 322cf9b0, @31dd9a6c ). The state ID is returned in June's X2_STATE numbering, which
+//              the adopted scripts compare as compiled literals ( fire devil berserker / fighter, 12 dungeons ).
+#define SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: Short-lived diagnostic for the C3z-4 batch 1 bindings: the first calls of each new method per launch are
+//              logged ( offline_server.log, JUNE_FX C3z-4 ). Remove after the play-test.
+#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
+//////////////////////////////////////////////////////////////////////////
