@@ -2499,7 +2499,7 @@ User, 2026-10-10: give the old dungeons their own phases and update them to what
 
 **Status: planned. Model:** Opus 5.5, high. The dungeon scripts and maps are June's since C3x; the data they stand on is still March's.
 June wins at the same filename and in behaviour (standing rules), so each phase replaces March's copy with June's and merges only
-where March's C++ forces it (the registries are kept merged).
+where March's C++ forces it (the registries are kept merged). **Every dungeon** (user, 2026-10-10: "make sure to check all dungeon"): each phase's gate is a per-dungeon census TSV, not the sampled play-test.
 
 - **C3z-1 - June's map assets at the same filename (layout).** Kickoff `kickoffs/june-effect/C3z-1.md`.
   - Replace the 221 colliding meshes and the textures they name, closed over inflated meshes, June bytes wherever June's differ.
