@@ -2377,7 +2377,7 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
     `SERV_IRUHADEV_KOM_FILE_COUNT_226` mount range).
   - `data118_kom` first got its missing `blur_16.dds` back from the live kom.
   - All 62 PACK OK, each `-0 removed` against the live archive. Copy waits for the user's OK.
-- Re-test C3s in Elder Wally's Castle Roof (Normal): William Phoru B / C set `FOCUS_CAMERA` + `STOP_AT_START_STATE`, and the maps are March's.
+- Re-test C3s in Elder Wally's Castle (Normal), whose maps are identical to June's. (The Roof's stages 1-2 are among the 137 reworked maps, see C3x.)
 
 ## C3v - identify, then port: June's CX2Game::UpdateUnitPointer
 
@@ -2404,13 +2404,19 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 - **Scope:** `CX2GUUser::SumSocketOption 3204f190 @3204fb89-3204fc1d`: March's summon-NPC socket push, plus June's gate: NPC ids `0x1017 / 0x1018` only in `GT_DUNGEON` (game vslot `0x10c` == 2).
 ---
 
-## C3x - port: June's reworked dungeon worlds
+## C3x - port: June's maps for the June dungeon scripts
 
-**Status: ready (found by the C3s play-test, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3x.md`.
+**Status: ready (found by the C3s play-tests, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3x.md`.
 
-- **Scope:** add June's `WI_ELDER_DARK_FOREST_STAGE_0 / _1 / _BOSS_STAGE` (June 575-577) and `WI_ELDER_BENDERS_STAGE_BOSS` (June 33) to
-  `Enum.lua` and their rows to `WorldData.lua`. Check every value against March's IDs first. Then adopt June's world scripts, stage the
-  line maps / meshes / textures they name, and log a NULL `CreateWorld`. Henir Space's 5 boss-stage worlds go to atlas / elysion.
+- **Scope:** the adopted June dungeon scripts run on March's maps. `june2017_re/world_census.py` (writes `world_census.tsv`, June bytecode
+  ljconv'd before comparing) covers the 374 worlds they use: 235 are identical, **137 were reworked by June** and 4 are missing.
+  - The 137: 126 line maps and 61 world scripts, i.e. 162 files, 6 of them only in June. 11 world IDs are renamed to June file names.
+    142 dungeon scripts sit on them, and their layouts are wrong.
+  - The 4 missing: `WI_ELDER_DARK_FOREST_STAGE_0 / _1 / _BOSS_STAGE` and `WI_ELDER_BENDERS_STAGE_BOSS`. Entering them crashes,
+    because CreateWorld returns NULL into StageLoading.
+  - Work: add the IDs to Enum.lua; add and rename rows in WorldData.lua; `adopt-june` the map scripts and line maps; stage their assets;
+    log a NULL CreateWorld.
+  - Henir Space's 5 boss-stage worlds go to atlas / elysion.
 
 ## C4 - 8b, damage math
 
