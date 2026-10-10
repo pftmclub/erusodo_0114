@@ -1728,7 +1728,7 @@ new phase **C3j-2** (`kickoffs/june-effect/C3j-2.md`, four leads).
 
 ## C3j-2 - find, then port: what keeps June's NPC RT_UP launch alive
 
-**Status: done 2026-10-10 (found and ported, FIX flag removed); play-test owed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-2.md`;
+**Status: done 2026-10-10 (found and ported, FIX flag removed); play-test PASSED; C3j-2 review next. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-2.md`;
 review (C3j-1 and C3j-2 together) `kickoffs/june-effect/C3j-2-review.md`.
 
 ### C3j-2 - Done (2026-10-10, Opus 5.5 high)
@@ -1775,6 +1775,11 @@ Always.h: the FIX block (14 lines) and 3 description lines replaced, both C3j-1'
 - The soldier rises, now with no FIX flag.
 - `JUNE_FX C3j-1 ids` shows down / landcrash / up as "type table" ids at the end of the state vector, e.g. `states N` with the ids N-3..N-1, and not 23 / 26 / 24 (= UP_DAMAGE).
 - No `overwrite` line appears.
+
+**Play-test PASSED 2026-10-10** (user; exe `1035e5ef`, logs after the deploy). The soldier rises and other hits react as before.
+- 10 `JUNE_FX C3j-1 ids` lines, all "type table", each at the end of the state list. For example, `Elder_Bridge_guard_Big.lua` / `_Small.lua`: down 33, landcrash 34, up 35, UP_DAMAGE 24, states 36.
+- `Ruben_El_Tree_Gate.lua`: 10/11/12 of 13. `chicken_female.lua` has UP_DAMAGE 0, so its UP state takes WAIT / START as its source.
+- 0 `overwrite` lines, 0 `not registered` lines, 0 EXCEPTION; the only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ` x2; clean exit.
 
 ## C3k - port: June stopped counting fly hits
 
@@ -5184,7 +5189,9 @@ RESERVED_STATE_IDS: 3 OTHER, 0 FAIL, 2 ERROR   RESULT: FAIL  (both = Always.h:65
 - Wide strings in the deployed exe: `JUNE_FX C9h-4g USEFUL_STRING` 0, `NOT_SELECT` 0, `USI_WAIT_STATE_CHANGE registered:` 0, `NOT registered` 1 (not behind the debug flag).
 - data036 is unchanged (md5 fe54e8bd stays).
 
-**Open for the user:** none. A quick regression play-test is optional (no behaviour change; the exe only drops the `JUNE_FX C9h-4g` lines). Next: C9h-4h (`/x2-phase june-effect C9h-4h`, Opus 5.5 high).
+**Regression play-test PASSED (user, 2026-10-10; run 10:13-10:16).** The exe was a peer's later deploy (10:06:15, md5 1035e5ef, built at 886ae18 + 2 uncommitted files, so it includes this review). Logs: 0 `JUNE_FX C9h-4g` lines, 0 EXCEPTION, UNHANDLED = 2x `E_DISABLE_HB_CHECK_REQ` (baseline), clean exit.
+
+**Open for the user:** none. Next: C9h-4h (`/x2-phase june-effect C9h-4h`, Opus 5.5 high).
 
 ### C9h-4h - port: the event states (Heavenly Combat Support Kit)
 
