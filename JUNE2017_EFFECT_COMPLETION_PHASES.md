@@ -2545,6 +2545,9 @@ where March's C++ forces it (the registries are kept merged). **Every dungeon** 
   - The 2,026 March rows are unchanged.
   - Every `CLASS_TYPE` resolves in March's `NPC_CLASS_TYPE`, and every row has `IS_NPC` (`AddNPCTemplet_LUA` returns false otherwise).
 - **Unit scripts and meshes:** all 142 unit scripts are staged, and no `.x` they name is missing.
+  - They are also in the live koms (`kom.live_names()`).
+  - `npc_mesh_census.py --all-npc` (textures included) needs 0 files.
+- **Stats:** 125 of the 142 have an ExtraNPCStat (`NewNPCStat.lua`) row and 17 an `NPCStat.lua` row; none has neither.
 - **Bookkeeping:** `luasrc.py refresh` on both files; `ledger --check` PASS, `core --check` PASS (the NPCTemplet core row is now `source`).
 
 **C++: nothing to change.**
