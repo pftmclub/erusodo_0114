@@ -149,7 +149,6 @@ CX2Game	GetDistanceByGameUnit_LUA	absent
 CX2Game	GetNearestNPCUnitRot_LUA	absent
 CX2Game	GetSummonNPCCount	absent
 CX2Game	GetPveWinTeam	absent
-CX2Game	GetNPCUnitNumCheckTeam	absent
 CX2Game	ShowDangerAlarmFont_LUA	absent
 CX2Game	GetNearestUnitCompareMidPos_LUA	absent
 CX2Game	GetNearestUnitInSpecificRange_IncludeSameTeam_LUA	absent
