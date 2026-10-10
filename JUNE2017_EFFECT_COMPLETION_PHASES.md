@@ -1881,6 +1881,12 @@ The one token-less `#endif` closes the DEBUG block's `#error` guard in Always.h 
 - March would show hit 3 at backSpeed.y / 2, then / 3, but only inside one continuous juggle: an invincible or super-armour frame (e.g. a stand-up) resets the count.
 - **Expected mismatches, not failures:** `super armour 1`, a guarded hit, `NOT_UP_STATE`, and a hit that changed no state all leave nowSpeed.y unwritten.
 
+**Play-test PASSED 2026-10-10** (user: re-launches as high as the first).
+- **Exe:** `bbc8eb4b`, the C3o deploy at `d001ec0`. It was built after C3k landed, and the C3k lines prove the flag is in.
+- **30 `JUNE_FX C3k` lines, all RT_UP (`reAct 4`).** All 30 show `fly count 0`. All 20 `super armour 0` lines have nowSpeed.y = backSpeed.y (0 mismatches), including Elder_Bridge_guard_Big hits 3, 4, 5, 7, 8, 12 and _Small hits 3, 5-8 at 1950.0. The 10 `super armour 1` lines show nowSpeed.y 0.0, as expected.
+- **Debug-counter quirk:** the per-NPC hit counter is keyed by UID, and UIDs restart from 1,000,000 per stage. So `npc 1000015` continues from a chicken to a guard. This affects only the debug counter, not the port.
+- **Clean run:** 0 EXCEPTION. The only UNHANDLED lines are the known `E_DISABLE_HB_CHECK_REQ` x5. Clean exit.
+
 **Open for the user:** none.
 
 ## C3l - identify, then port: June's SPEED_TIME additions
