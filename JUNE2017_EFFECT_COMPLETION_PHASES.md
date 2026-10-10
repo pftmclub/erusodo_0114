@@ -5645,6 +5645,68 @@ EVENT_KIT_PICKUP:   files: 0 PASS, 0 PASS~, 0 DEFINE, 5 OTHER (other flags), 0 F
 
 **Open:** C3o's commit d001ec0 left funcmap row `322f11d0` with its last clause doubled ("; no March CX2Game member" x2). It is left as committed; this phase only appended rows.
 
+### C9h-4h - Review (2026-10-10, Opus 5.5 high): two NaN-direction compares fixed (`>=`), no other finding
+
+Read-only against June (`disasm_range.py`, Ghidra decompile of `322e67c0`). Every item the kickoff lists was walked in the raw disassembly, and the constants were read from the exe.
+Fixes are under `SERV_IRUHADEV_JUNE_EVENT_STATES`, inside C9h-4h's own block in `X2GUUser.cpp`; flag-off is unchanged.
+
+**Findings (fixed)**
+- **`31fc9a20` (SNIPER CONTROL_FIRE event):** `fcompp` (state time vs Future[0][0]) + `test ah,1; jne skip` changes state only when the compare is ordered and not below.
+  - The port's `!( t < v )` also fired on a NaN state time. It is now `t >= v`.
+- **`3200e260` (PROTON CONTROL_IDLE event):** the keyInputEnd compare is `fcompp` + `test bl(1),ah; jne aim`, so it fires on `t >= keyInputEnd` ordered.
+  - The port's `false == ( t < end )` also fired on NaN. It is now `t >= end`.
+- Neither can trigger in practice (a state time is never NaN); the kickoff asks for exact NaN behaviour.
+- **Comment only:** `JuneEventCreateNpc` said "the same argument list as JuneDieCreateNpc's". The full picture: June passes 16 arguments, and March's 14 match June's first 14.
+  - June then adds the IsMyUnit byte (1 here), which lets a non-host past `322e67c0`'s host gate, and a 0 packet field.
+  - March keeps its `IsHost` gate. Offline the local player is always host, so nothing differs. Funcmap row `3200d1d0 (C9h-4h)` says the same.
+
+**Checked, matches June**
+- **Aim classifier** `3200d450 @3200d6e0-3200d859`:
+  - nine branches in order 1, 3, 7, 9, 4, 6, 2, 8, else 5;
+  - each branch's x / y sign test (`test ah,1` = `>= 0`, `test ah,0x41; jp` = `<= 0`) and keys (pureUp `+0x86e2` / Down `+0x86e6` / Left `+0x86da` / Right `+0x86de`, = March InputData);
+  - constants 1.0 .. 9.0 read from the exe. The 7 branch's inline compare against qword 7.0 (`334729f8`) is the same store.
+  - The store (`fucompp` + `test ah,0x44; jnp`) writes on unequal or NaN, which is the port's `!( == )`.
+  - The `-750` block (`33476834` = -750.0) runs only when the distance is `<= -750`, i.e. never (JUNE_BUGS 160). The 1500 step is `NPC.y >= my.y + 1500`.
+- **Proton aim body** `3200e2f1-3200e6c1` = `3200d450`'s: identical constants, key offsets and the `+0x7ed8` store through `323101d0`. Only stack offsets and one `mov ecx, edi` differ. Its exit runs InputData.Init, then CommonEventProcess.
+- **Jump tables** `3200db78` / `3200e9b8` (strings read): 1 UP_LEFT, 2 UP, 3 UP_RIGHT, 4 LEFT, 5 / default IDLE, 6 RIGHT, 7 DOWN_LEFT, 8 DOWN, 9 DOWN_RIGHT = `s_apszJuneEvent*AimState`; `_ftol` truncation, `dec; cmp 8; ja`.
+- **x87 compares:** `320211d0` / `320212b0` anim `+0x214 >= (double)0.6f` (the port's double `0.6` is equivalent for every float), then `5 < t` or `!3201bd60( false )`;
+  `3200d450` `Future[0][0] < timer` strict; `3200e260` `keyInputStart <= t`; `3200d1d0` / `3200e040` `0.001 > +0x24c` = `EventTimerOneshot`. Shots: `jg` = signed; X2Lib has no `/J`.
+- **Cancel windows** `31fcfb70` / `31fcfde0`: each window is `0 <= after` (`test ah,0x41; jp`), then anim strictly above it (`test ah,5; jp`), then on the ground (`+0x7e1c`).
+  - Keys: WALK = pureRight / pureLeft. BWALK = (pureLeft && bIsRight) || (pureRight && !bIsRight) (`+0x7e56`). DASH = pureDoubleRight `+0x86e0` / pureDoubleLeft `+0x86dc` -> vslot 0x668.
+  - ATTACK_EX `+0x8c88`: oneZ, then oneX, each with its own window. Meca's anim end goes to WAIT on the ground, else JUMP_DOWN (0x11).
+  - The SKILL / awakening block is C9h-4c's proven `SKILL_CANCEL_AFTER` expansion.
+- **Proton fire start** `3200e9e0`: +180 (qword `33438080`) to rot.y only when vslot 0x170 (isRight) is false; dir.y = 0.
+  - Offset = dir * -800 (qword `33476ac8`), added facing right and subtracted facing left. Hyper = gage `+0xe8 > 0`.
+  - The set is `EffectSet_SA_RHB_Proton_Bomb_Attack_EVENT` with (1,1,1), -1.0, custom position, then pos / rot / dir. Sniper fire `3200dba0`: dir.y = 0 only, and `+0x9488 == 1` -> Gun Dance set.
+- **NPC create** `@3200d36f` / `@3200e1e8`: (`0x10f6` / `0x10f7`, 0, 1, pos, isRight, 0.3f, 1, -1, team `+0x278`, 1 = NAT_ALLY, my UID, 0, -1 = TN_NONE, 0 = NCT_NONE, IsMyUnit, 0); see the comment fix above.
+  - The old sniper keeps its UID at INIT. The old bomb's UID goes to -1, and `327573b0` = an IsHost query (NPC vslot 0x19c, result unused) + SetNowHp( 0 ).
+- **`3201bd60( false )`:** no game -> false; GT 3 (= `GT_BATTLE_FIELD`): `+0xc74` and not near a portal; else `+0x748 != 2` and not `+0x3b9` (argument false). Phase 1 has no March counterpart (labelled).
+- **`3230c1a0 @3230cd79-3230ce5e`:**
+  - 4342: the owner keeps the UID, power 1.0.
+  - 4343: when the old UID is still found, the camera bytes and SetNowHp( 0 ) go to the **new** NPC (`edi`; JUNE_BUGS 161).
+  - New UID, power 1.0, and `SetShowObject( false, true )` (push 1, push 0) only when `GetMyUnit()` exists and the teams differ.
+- **Latch `+0x9490`:** closed only at `@3230bf78` after a kit matched (table `3230c034`: 100005740 -> 0x6e, 41 -> 0x75, 42 -> 0x72, 43 -> 0x76); opened by `3200dff0` (before
+  CommonStateEnd), `3200ed60` (after it) and `31fcfde0 @31fd00ef` on every exit; the port orders all three the same way.
+- **Also re-read:** `31fc99c0` / `31fc9cf0` (shots 10 / 1, Gun Dance 0 / 1, timer 0), `31fc9a80`, `31fc9aa0` (WAIT 0xd), `3200d3f0`, `3200df80`, `3200e6e0`, the three preload lists.
+- **Not a finding:** June picks the second skin anim (`+0x8e84/+0x8e88`) when `+0x8e90` is set. That is the June-only dual body, read as March's single anim as in C3b / C9h-4 (checklist 7).
+
+**Hygiene** (`flagcheck <flag> --range <first>^..HEAD`, after the commit):
+```
+review commit 3eb8ef0 alone (EVENT_STATES): 1 PASS (X2GUUser.cpp +7 -3), 0 FAIL, 0 ERROR; RESULT: PASS
+f07940f^..HEAD COMMON_SKILL_STATE: 1 PASS, 4 OTHER, 0 FAIL, 2 ERROR, 1 deleted
+f07940f^..HEAD EVENT_STATES:       1 PASS, 9 OTHER, 0 FAIL, 4 ERROR, 4 deleted
+f07940f^..HEAD EVENT_KIT_PICKUP:   0 PASS, 20 OTHER, 0 FAIL, 0 ERROR; RESULT: PASS
+  0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the token, 0 encoding change(s) in all three
+```
+
+- The two range FAILs come from ERROR rows only: the `Always.h` dependency-guard `#if defined(..) && !(..)` lines, which flagcheck cannot evaluate (the known limit), re-reported for each later commit that touched `Always.h`.
+- The deleted lines: 3 are this review's replaced lines inside C9h-4h's own `#ifdef` block (flag-off unchanged). 1 is 085ddf9 (C3k review) commenting out `FLY_COUNT_DEBUG`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port bf3c61e + 5 uncommitted code file(s).`
+- A peer's build compiled the fix: `X2GUUser.obj` is 12:14:40, after the edit at 11:58:51. Mine found nothing to relink. No new strings (one compare operator per site, plus comments).
+
+**Play-test (regression only; nothing reaches these states):** one dungeon run. Logs: one `JUNE_FX C9h-4h event states registered` line, no `CommonSkillState.lua NOT loaded`, 0 EXCEPTION.
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.
