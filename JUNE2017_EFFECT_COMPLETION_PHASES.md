@@ -2232,7 +2232,7 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 
-**Status: done 2026-10-10 (see C3q - Done; found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3q.md`, review `kickoffs/june-effect/C3q-review.md`.
+**Status: done 2026-10-10 (see C3q - Done; found by C3o), regression play-test passed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3q.md`, review `kickoffs/june-effect/C3q-review.md`.
 
 - **Scope:** June's `CX2GUNPC::CommonFrameMove_EffectSet` body (`32776e10`: 0x3c-byte entries, CONSUME_MP gate through vslot `0xe4`, hyper bit `0x200000`, delete lists by flags `0x8000 / 0x4000 / 0x10000 / 0x20000`) together with the `EFFECT_SET_LIST_FINAL` block of the state loader `32784c00` that fills it.
 - **Data:** 10 shipped PvP-hero NPC scripts (`PVP_HERO_*`, not the AI-party `CSM_PVP_HERO_*`); offline has no PvP, so a regression play-test unless a reachable spawn is found.
@@ -2265,6 +2265,8 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port 3eb8ef0 + 8 uncommitted code file(s).` The other uncommitted files are peers' C3r / C3s / C3o-review work. `EFFECT_SET_LIST_FINAL` is in the deployed exe (2 hits), and `X2GUNPC.obj` is newer than the source. No kom.
 
 **How to see it in game:** nothing new can be seen. Regression: monsters' effect sets (Tree of El, any dungeon) play as before, and the log shows 0 EXCEPTION.
+
+**Regression play-test PASSED 2026-10-10** (user, Tree of El through auto-party, so the AI heroes loaded their EX lists through the changed loader; exe `79ce7ab6`, run after the deploy, clean exit): 0 EXCEPTION, the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ` x4, and no log line names `EFFECT_SET_LIST_FINAL`, `DELETE_CONDITION` or `CONSUME_MP`.
 
 ## C3r - port: June's user CHANGE_WORLD_COLOR_DATA window
 
