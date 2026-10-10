@@ -3048,22 +3048,35 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
 - `DUNGEON_CHECK_CONDITION`, server half: March's server reads no `DCC_*`.
   - The 13 `DCC_EVENT_DUNGEON` rows are exactly March's hard-coded `CXSLDungeon::IsEventDungeon` list (`XSLDungeon.cpp:1103-1135`:
     KidDay 4, Tree Day 6, Defence 3), so June moved a March ID list into data.
-  - Its consumers:
-    - spirit (`UserSpiritManager.cpp:82`): offline spirit is pinned full (`FillSpirit`), so nothing to do;
-    - the stat "revision" (`GSUserFunction.cpp:11698`, `12848`): the emulator does not mirror it, and that gap predates June.
-  - `DCC_NOT_SUMMON_RIDING_PET` (Henir) and the client half: C3z-5.
+  - Per member:
+    - `DCC_EVENT_DUNGEON` = `IsEventDungeon` by ID. Its consumers are spirit (`UserSpiritManager.cpp:82`) and the stat
+      "revision" (`GSUserFunction.cpp:11698`, `12848`). The emulator does not mirror the stat revision, and that gap
+      predates June (open question 2).
+    - `DCC_NOT_DECREASE_SPIRIT`: offline spirit is pinned full (`FillSpirit`), so there is nothing to do.
+    - `DCC_ONLY_GET_EL_EXP`: no March reader. Its nearest March behaviour is the `bRevisionDungeon == false` gate on the
+      socket-option / title EXP-ED bonus (`GSUserFunction.cpp:11706-11727`), and the emulator applies no such bonus at all
+      (no reader in `X2Lib/Offline/`). Nothing to gate.
+    - `DCC_NOT_USE_QUICK_SLOT`, `DCC_NOT_SUMMON_RIDING_PET` (Henir): the client half, C3z-5.
 
-**Hygiene** (both flags; the compound `#if` blocks need `--with`):
-- `RELATIVE_NPC_LEVEL --with SECRET_POISON --worktree`: 2 PASS~, 2 OTHER (Always.h defines; Handlers_Field's block is POISON), 0 FAIL, 0 ERROR.
+**Hygiene** (commit `6a06565`, `--range 6a06565^..6a06565`; the compound `#if defined(A) || defined(B)` blocks need `--with`):
+- `RELATIVE_NPC_LEVEL --with SECRET_POISON`: 0 PASS, 2 PASS~, 1 DEFINE, 1 OTHER (Handlers_Field's block is POISON), 0 FAIL,
+  0 ERROR. RESULT: PASS.
+  - This run leaves out `X2Dungeon.h` / `X2DungeonManager.cpp`: they hold POISON-only changes, and their existing
+    `#if defined(X2TOOL) || defined(SERV_IRUHADEV_OFFLINE_NPC_GROUP_RATE)` is a line flagcheck cannot evaluate.
+- `SECRET_POISON --with RELATIVE_NPC_LEVEL` (all 6 code files): 2 PASS, 3 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR.
   RESULT: PASS.
-- `SECRET_POISON --with RELATIVE_NPC_LEVEL --worktree`: 2 PASS, 3 PASS~, 1 OTHER (Always.h), 0 FAIL, 0 ERROR. RESULT: PASS.
-- 0 deleted lines, 0 non-ASCII, 0 encoding changes. `X2Dungeon.h` / `X2DungeonManager.cpp` were edited with bytepatch (CP949).
+- Both runs: 0 deleted lines, 0 non-ASCII, 0 untokened `#else` / `#endif`, 0 encoding changes. `X2Dungeon.h` and
+  `X2DungeonManager.cpp` were edited with bytepatch (CP949).
 - `DEPLOY OK: X2_offline.exe is 19,551,232 B, dated 2026-10-10 23:22:04, md5 f29f14935e30771ee21f0a17645a8577` (built at
   `3e66b8a` + this phase's files; it includes C3t). The `JUNE_FX C3z-6` and `scales monsters to the party: base` strings
   are in the exe.
 
-**Open question (user):** event dungeons (KidDay, Tree Day) with no event running. Live, they are refused (`ERR_PARTY_22`).
-Offline they stay enterable, as before this phase. Port the gate (they become unenterable offline), or keep them open?
+**Open questions (user):**
+1. Event dungeons (KidDay, Tree Day) with no event running. Live, they are refused (`ERR_PARTY_22`). Offline they stay
+   enterable, as before this phase. Port the gate (they become unenterable offline), or keep them open?
+2. The live server plays the 13 event / defence dungeons with "revised" stats (`CalculateDungeonUnitStat( bRevisionDungeon )`,
+   `GSUserFunction.cpp:11698-11704`, `12848`). Offline they run at full stats; that has been true since the emulator existed.
+   Plan a phase to port it, or leave it?
 
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
