@@ -2467,7 +2467,9 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 - Hygiene: `flagcheck --worktree --files` 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatches; the
   2 untokened lines are the inner `#endif SERV_IRUHADEV_OFFLINE`. RESULT: PASS. `ledger --check` and `core --check` PASS.
 - `DEPLOY OK: X2_offline.exe is 19,532,288 B, dated 2026-10-10 13:41:38, md5 b9b1fdca0d1be39d48fbc8f4c9f8c44c`
-  (both log strings are in the exe). The kom copies and `Music063_Stage.ogg` need the user's OK (STATUS row).
+  (both log strings are in the exe).
+- **Copied (user OK, 2026-10-10 13:49):** `COPY OK` for data040 (1210 entries, md5 26aa6d05), data036 (192, 7bda0c1c), data026 (1268),
+  data028 (993), data029 (1694), data031 (1106) and data032 (1310). `Music063_Stage.ogg` is in `data\music\` (md5 46525597, = June's).
 - **Not here:**
   - Henir Space boss-stage worlds: `WI_ADRIAN_BOSSSTAGE` and `WI_SKYCROSSROADS_BOSSSTAGE` go to elysion;
     `WI_ATLASDEVELOPMENT_BOSSATGE` and `WI_TOWER_BOSSATGE` go to atlas.
