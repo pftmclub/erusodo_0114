@@ -2148,6 +2148,8 @@ No questions for the user.
 - **Effect sets.** A monster's time-0 effect sets now start one frame earlier: nothing to see.
 - **World colour.** Dormant.
 
+**Regression play-test PASSED 2026-10-10** (user, Tree of El; exe `bbc8eb4b`, logs after the deploy): 0 EXCEPTION, the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ` x5. 16 `JUNE_FX C3o cinematic` lines, all `state 4` (chicken, Thief_Thin_Zero, Ruben_El_Tree_Gate). State 4 is `GUSI_DIE`: ids <= `GUSI_END` never pass LoadStateData, so their flags come from the StateData ctor alone, and June's (`32393dc0 @3239426b-323942e9`: word 0 bits 2/4/6/7/11/12/13/25/26, word +4 bits 36/37/41/43, word +8 none) leaves bit `0x4f` at 0, as March's does. A dying NPC therefore stores FALSE in June too. The member is read only in the focus-camera branch, so nothing changes on screen. The code ran on every NPC and no scripted state stored FALSE.
+
 ## C3p - port: June's skip-the-start (ESC) system and DIRECTION_STATE
 
 **Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3p.md`.
