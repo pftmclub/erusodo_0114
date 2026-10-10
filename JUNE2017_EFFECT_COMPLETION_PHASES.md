@@ -3287,6 +3287,77 @@ offline, and no stat-revision phase is planned.
   - the poison timeout itself (12 min);
   - the extra-stage poison restart.
 
+### C3z-5 - Done (2026-10-11, Opus 5.5 high; 5 flags)
+
+**Gate:** every key has a ported reader or a routing row, per key in `june2017_re/c3z5_key_readers.tsv` (June offset,
+default, accessor, every June reader, the March counterpart, verdict).
+- June's readers come from June's own accessors (`327da980`, `327da920`, `327da9f0`, `327db250`, `327d9df0`), a dataflow scan
+  from `GetDungeonData` (`327da150`, 54 callers), and the 23 callers of g_pData `31edf8f0`. That function is the only path to
+  the DCC bitset: `327e6d20` has one caller.
+- Earlier ports had left "June-only DungeonData field, omitted" comments at these sites. Those comments now sit above the
+  ported code; they are kept, because edits are insert-only.
+
+**Loader + members** (`X2Dungeon.h`, `X2DungeonManager.cpp`; June `327e0f80`). Defaults read from the disassembly:
+- MinAdequateMemberCount / MaxAdequateMemberCount: -1.
+- FixMaximumDifficulty: false.
+- m_SuitableLevelFixValue: 2. m_iRequireCompleteQuestID: 0.
+- m_HardRequireItemLevel: -1. m_HardMinLevel / m_HardMaxLevel: 0.
+- DUNGEON_CHECK_CONDITION: a dword, cleared, then bit N for each listed 0 <= N < 15.
+
+**The five flags:**
+- **`SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS`:** `GetAdequateMemberCount` (327da980). The party UI's `need_user` becomes
+  "min" or "min~max", red while the party is below the minimum, else green (`322be5c0` @322be93d; no party counts as 1).
+- **`SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY`:** `GetMaxDifficulty` / `IsFixMaximumDifficulty` / `GetDefaultDifficulty`
+  (327da920 / 327da9f0 / 327db250). Its consumers:
+  - UpdatePartyDLG switches the party to the top difficulty, both before the sum and after the Ruben fallback
+    (`322c3078`, `322c312d`);
+  - UpdateDifficultyButton hides NORMAL / HARD / EXPERT (`322b6600`);
+  - the local-map click starts at `GetDefaultDifficulty` (`3293d6d6` / `3293d717`);
+  - MakeDungeonNameString drops the difficulty suffix (`327ddb60`).
+- **`SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL`:** two consumers.
+  - IsActiveDungeon (`327da190`) uses `m_MinLevel - m_SuitableLevelFixValue` instead of `- 2`, and also needs
+    `m_iRequireCompleteQuestID` (GetUnitCompleteQuest). Its other branches are commented in place: the local-map templet
+    quest (+0x70), the Atlas event keys 2260 / 2261, and Hero / Bestera.
+  - The party-list join check (`322ca040`) uses the same slack.
+- **`SERV_IRUHADEV_JUNE_HENIR_HARD`:** in Henir challenge, the item level comes from +0x64 (UpdatePartyDLG `322c31d9` and
+  SelectDungeonDifficulty `322c1826`). At a non-normal difficulty, need_level shows +0x94 / +0x98 (UpdateAdequateLevel
+  `322beb90`).
+- **`SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION`:** `IsDungeonCheckCondition` (327d9df0). DCC 11 (NOT_USE_QUICK_SLOT)
+  replaces the KidDay ID list in the dungeon-game state ctor (`324d9f80` @324dac97; the list is kept in `#else`), and it is
+  added after the Henir test in SetShowUI (`32154820` @32154ced).
+
+**Visible now:**
+- The 51 Expert rows with FixMaximumDifficulty make Ruben through Ranox play at Expert only: no difficulty boxes, no suffix,
+  and "1~4" recommended.
+- The 4 Secret Hells (m_SuitableLevelFixValue 0) open at m_MinLevel exactly (70), not 68.
+- KidDay already hid the quick slot; that is unchanged.
+
+**Routed to C3z-5b** (kickoff `C3z-5b.md`):
+- DCC 8 (riding pet; live on Henir, 5 sites);
+- DCC 2, whose lists equal March's IsEventDungeon today, so nothing changes yet;
+- DCC 1 / 9 / 10 / 12 / 13 / 14 and `322c4708` (June-only rows only);
+- June's GetLastClearDungeonID (`32350560`) and the UpdatePartyDLG fallback;
+- `m_fExtraValue` (a Henir-practice NPC stat scale in `32384d10`, stat not identified);
+- additionalTicket, m_bShowNpcKillCount, m_bAprilFoolsDungeon, m_bNoDarkBackGroundBy60S.
+
+DCC 0 and 3-7 have no client reader (C3z-6's server-half verdicts).
+
+**Hygiene** (worktree, `--files` the 7 code files, each flag `--with` the other four):
+- FIX_MAX_DIFFICULTY: 4 PASS, 1 PASS~, 2 OTHER (the DCC flag's files), 0 FAIL, 0 ERROR; RESULT: PASS.
+- CHECK_CONDITION: 4 PASS, 1 PASS~, 2 OTHER (X2LocalMapUI = FIX_MAX; X2PartyUI = the other new flags), 0 FAIL; RESULT: PASS.
+- Both: 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`, 0 encoding changes. Every file was
+  edited with bytepatch (CP949).
+
+**Deploy:**
+- `DEPLOY OK: X2_offline.exe is 19,556,352 B, dated 2026-10-11 05:53:10, md5 1c28ab8727eb2aeec0bdf7fd85cb9eb1` (built at
+  `e67eff2` + this phase's files; `--pch force`).
+- The first deploy (md5 f30f41b1) linked a peer's build that had a stale PCH, and none of the new strings were in it.
+- The strings `JUNE_FX C3z-5 need_user`, `JUNE_FX C3z-5 party dungeon`, `FixMaximumDifficulty`, `DUNGEON_CHECK_CONDITION`
+  and `m_SuitableLevelFixValue` are in the exe.
+
+**Log:** `logs.py --grep "JUNE_FX C3z-5"`. It shows `party dungeon N fixed to its top difficulty 2 (was 0)` and
+`need_user 1~4 for dungeon N (party of K, green)`.
+
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
 **Status: planned. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`. The user asked for June's boss-intro skip.

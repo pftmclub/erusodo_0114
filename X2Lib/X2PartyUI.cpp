@@ -1861,6 +1861,17 @@ void CX2PartyUI::UpdatePartyDLG( bool /*bRenamePartyTitle = false*/ )
 	// +0xb0/+0xb6) replaces the difficulty. All June-only, omitted.
 	// June computes this sum before the inactive-dungeon fallback below and does not
 	// recompute it; kept in that order.
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+	// June 322c2e50 @322c3066-322c3095 ( the branch for non-Hero, non-Bestera dungeons ): a dungeon fixed to its top
+	// difficulty is switched to it ( 327da9f0, then 327da920 into party data +0x14 ) before the sum below.
+	if( true == g_pData->GetDungeonManager()->IsFixMaximumDifficulty( pPartyData->m_iDungeonID ) )
+		pPartyData->m_iDungeonDifficulty = g_pData->GetDungeonManager()->GetMaxDifficulty( pPartyData->m_iDungeonID );
+#ifdef SERV_IRUHADEV_OFFLINE
+	if( iOldDifficulty != pPartyData->m_iDungeonDifficulty && true == g_pData->GetDungeonManager()->IsFixMaximumDifficulty( pPartyData->m_iDungeonID ) )
+		CX2OfflineLog::Server( L"JUNE_FX C3z-5 party dungeon %d fixed to its top difficulty %d (was %d)",
+			pPartyData->m_iDungeonID, pPartyData->m_iDungeonDifficulty, iOldDifficulty );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
 	const int iDungeonIDWithDifficulty = pPartyData->m_iDungeonID + pPartyData->m_iDungeonDifficulty;
 
 	const bool bGM = ( NULL != g_pData->GetMyUser() && g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR );
@@ -1872,6 +1883,11 @@ void CX2PartyUI::UpdatePartyDLG( bool /*bRenamePartyTitle = false*/ )
 		pPartyData->m_iDungeonDifficulty	= CX2Dungeon::DL_NORMAL;
 		pPartyData->m_iDungeonMode			= CX2Dungeon::DM_INVALID;
 		pPartyData->m_iDungeonID			= SEnum::DI_RUBEN_EL_TREE_NORMAL;
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+		// June @322c3128-322c3150: the fallback dungeon is checked the same way ( Ruben's El Tree is fixed, normal-only ).
+		if( true == g_pData->GetDungeonManager()->IsFixMaximumDifficulty( pPartyData->m_iDungeonID ) )
+			pPartyData->m_iDungeonDifficulty = g_pData->GetDungeonManager()->GetMaxDifficulty( pPartyData->m_iDungeonID );
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
 	}
 
 	if( true == g_pData->GetPartyManager()->AmIPartyLeader() &&
@@ -1887,7 +1903,13 @@ void CX2PartyUI::UpdatePartyDLG( bool /*bRenamePartyTitle = false*/ )
 
 	// June: Henir (DI_ELDER_HENIR_SPACE) in challenge mode reads a second item level,
 	// DungeonData +0x64, which March lacks; omitted.
+#ifdef SERV_IRUHADEV_JUNE_HENIR_HARD
+	// June @322c31c6-322c31e7: Henir ( 32931920 ) in challenge mode ( party data +0x38 == 2 ) shows +0x64.
+	UpdateAdequateItemLevel( ( true == CX2Dungeon::IsHenirDungeon( pDungeonData->m_DungeonID ) &&
+		CX2Dungeon::DM_HENIR_CHALLENGE == pPartyData->m_iDungeonMode ) ? pDungeonData->m_iHardRequireItemLevel : pDungeonData->m_RequireItemLevel );
+#else SERV_IRUHADEV_JUNE_HENIR_HARD
 	UpdateAdequateItemLevel( pDungeonData->m_RequireItemLevel );
+#endif SERV_IRUHADEV_JUNE_HENIR_HARD
 	UpdateDungeonThumbnailQuestMark();
 	// June FUN_322b6e20: Static_HeroDungeonTitle, shown for Hero dungeons only. The control
 	// is dropped from the staged lua (Hero content), so there is nothing to drive.
@@ -3486,7 +3508,12 @@ void CX2PartyUI::OnJoinParty()
 
 		const CX2Dungeon::DungeonData* pDungeonData	= g_pData->GetDungeonManager()->GetDungeonData( eDungeonIDWithDifficulty );
 
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
+		// June party-list join 322ca040 @322ca10e-322ca12b: the slack is the row's m_SuitableLevelFixValue, not 2.
+		if( g_pData->GetSelectUnitLevel() < pDungeonData->m_MinLevel - pDungeonData->m_iSuitableLevelFixValue )
+#else SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
 		if( g_pData->GetSelectUnitLevel() < pDungeonData->m_MinLevel - 2)
+#endif SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
 #else
 		const CX2Dungeon::DungeonData* pDungeonData = g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID) m_aPartyData[m_iPickedPartyListSlotIndex].m_iDungeonID );
 
@@ -5121,6 +5148,17 @@ void CX2PartyUI::UpdateDifficultyButton(CX2Dungeon::DIFFICULTY_LEVEL eDifficulty
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+	// June 322b6600 @322b679d-322b67d9: g_pData 31edf200( party dungeon ID ) = IsFixMaximumDifficulty; when set the three boxes
+	// are hidden and none is checked.
+	if( NULL != pPartyData && true == g_pData->GetDungeonManager()->IsFixMaximumDifficulty( pPartyData->m_iDungeonID ) )
+	{
+		pCheckBox_Normal->SetShowEnable( false, false );
+		pCheckBox_Hard->SetShowEnable( false, false );
+		pCheckBox_Expert->SetShowEnable( false, false );
+	}
+	else
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
 	// June: g_pData FUN_31edf200 (DungeonData +0xb6, a June-only fixed-difficulty field)
 	// hides NORMAL/HARD/EXPERT instead of checking one; March's data never sets it.
 	switch( eDifficultyLevel_ )
@@ -5318,6 +5356,32 @@ void CX2PartyUI::UpdateAdequateMemberCount(CX2Dungeon::DUNGEON_TYPE eDungeonType
 		break;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+	// June 322be5c0 @322be93d-322beb55: when the row ( party dungeon ID + difficulty ) sets a minimum, the text becomes "min"
+	// or "min~max", red while the party ( DoIHaveParty 32430b80 ? member count : 1 ) is smaller than the minimum, else green.
+	{
+		int iMinCount = -1;
+		int iMaxCount = -1;
+		if( true == g_pData->GetDungeonManager()->GetAdequateMemberCount( pPartyData->m_iDungeonID + pPartyData->m_iDungeonDifficulty, iMinCount, iMaxCount ) )
+		{
+			std::wstringstream wstrmCount;
+			wstrmCount << iMinCount;
+			if( 0 <= iMaxCount )
+				wstrmCount << L"~" << iMaxCount;
+			pString->msg = wstrmCount.str();
+
+			const int iMemberCount = ( true == g_pData->GetPartyManager()->DoIHaveParty() ? pPartyData->GetPartyMemberCount() : 1 );
+			if( iMemberCount < iMinCount )
+				pString->color = D3DXCOLOR( 1,0,0,1 );
+			else
+				pString->color = D3DXCOLOR( 0,1,0,1 );
+#ifdef SERV_IRUHADEV_OFFLINE
+			CX2OfflineLog::Server( L"JUNE_FX C3z-5 need_user %s for dungeon %d (party of %d, %s)", pString->msg.c_str(),
+				pPartyData->m_iDungeonID + pPartyData->m_iDungeonDifficulty, iMemberCount, ( iMemberCount < iMinCount ) ? L"red" : L"green" );
+#endif SERV_IRUHADEV_OFFLINE
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
 	// June: type 5 reads "6"; and a DungeonData min/max party size (FUN_327da980, fields
 	// +0xb4/+0xb5) overrides the text and colours it against the party size. Both June-only.
 }
@@ -5382,7 +5446,15 @@ void CX2PartyUI::UpdateAdequateLevel(CX2Dungeon::DIFFICULTY_LEVEL eDifficultyLev
 
 	// June: Henir (DI_ELDER_HENIR_SPACE) at a non-normal difficulty reads a second min/max
 	// pair, DungeonData +0x94/+0x98, which March lacks; the first pair is used.
+#ifdef SERV_IRUHADEV_JUNE_HENIR_HARD
+	// June 322beb90 @322bed84-322bedb8: Henir ( 32931920 on the party dungeon ID ) at a non-normal difficulty shows +0x94 / +0x98.
+	if( true == CX2Dungeon::IsHenirDungeon( static_cast<SEnum::DUNGEON_ID>( iDungeonID ) ) && CX2Dungeon::DL_NORMAL != eDifficultyLevel_ )
+		pStatic_AdequateLevel->GetString(1)->msg = GET_REPLACED_STRING( ( STR_ID_16458, "ii", pDungeonData->m_iHardMinLevel, pDungeonData->m_iHardMaxLevel ) );
+	else
+		pStatic_AdequateLevel->GetString(1)->msg = GET_REPLACED_STRING( ( STR_ID_16458, "ii", pDungeonData->m_MinLevel, pDungeonData->m_MaxLevel ) );
+#else SERV_IRUHADEV_JUNE_HENIR_HARD
 	pStatic_AdequateLevel->GetString(1)->msg = GET_REPLACED_STRING( ( STR_ID_16458, "ii", pDungeonData->m_MinLevel, pDungeonData->m_MaxLevel ) );
+#endif SERV_IRUHADEV_JUNE_HENIR_HARD
 	pStatic_AdequateLevel->GetString(1)->color = g_pData->GetDungeonManager()->GetDifficultyColor( iDungeonID, 0, g_pData->GetSelectUnitLevel() );
 }
 #else
@@ -5827,7 +5899,13 @@ bool CX2PartyUI::SelectDungeonDifficulty(const int iSelectDungeonDifficulty_)
 			static_cast<SEnum::DUNGEON_ID>( pPartyData->m_iDungeonID + pPartyData->m_iDungeonDifficulty ) );
 		if( NULL != pDungeonData )
 		{
+#ifdef SERV_IRUHADEV_JUNE_HENIR_HARD
+			// June 322c1700 @322c180e-322c182c: Henir ( 32931920 ) in challenge mode ( +0x38 == 2 ) shows +0x64.
+			UpdateAdequateItemLevel( ( true == CX2Dungeon::IsHenirDungeon( pDungeonData->m_DungeonID ) &&
+				CX2Dungeon::DM_HENIR_CHALLENGE == pPartyData->m_iDungeonMode ) ? pDungeonData->m_iHardRequireItemLevel : pDungeonData->m_RequireItemLevel );
+#else SERV_IRUHADEV_JUNE_HENIR_HARD
 			UpdateAdequateItemLevel( pDungeonData->m_RequireItemLevel );
+#endif SERV_IRUHADEV_JUNE_HENIR_HARD
 			UpdateBossItemList( pDungeonData->m_mapBossDropItem, ( pPartyData->m_iDungeonMode == CX2Dungeon::DM_HENIR_CHALLENGE ) );
 		}
 		UpdateDungeonThumbnailQuestMark();

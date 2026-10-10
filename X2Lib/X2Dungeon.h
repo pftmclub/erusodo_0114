@@ -190,6 +190,35 @@ class CX2Dungeon
 			float			m_fPoisonTimeLimit;
 			float			m_fExtraStagePoisonTimeLimit;
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+			// June effect C3z-5: June AddDungeonData_LUA 327e0f80 @327e270b / @327e28f7 ( DungeonData +0xb4 / +0xb5 ): the party
+			// size the party UI recommends. Read as ints, kept as signed chars, -1 when absent ( "not set" ).
+			char			m_cMinAdequateMemberCount;
+			char			m_cMaxAdequateMemberCount;
+#endif SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+			// June effect C3z-5: June 327e0f80 @327e2aab ( +0xb6 ), false when absent. Set on a dungeon's top-difficulty row; the
+			// whole dungeon is then played at that difficulty ( IsFixMaximumDifficulty, June 327da9f0 ).
+			bool			m_bFixMaximumDifficulty;
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
+			// June effect C3z-5: June 327e0f80 @327e4462 ( +0xa8, 2 when absent ) and @327e50b6 ( +0x1cc, 0 when absent ). The level
+			// slack below m_MinLevel ( March hard-codes 2 ) and a quest that must be complete before the dungeon opens.
+			int				m_iSuitableLevelFixValue;
+			int				m_iRequireCompleteQuestID;
+#endif SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
+#ifdef SERV_IRUHADEV_JUNE_HENIR_HARD
+			// June effect C3z-5: June 327e0f80 @327e19a0 ( +0x64, -1 when absent ), @327e3f54 / @327e40a2 ( +0x94 / +0x98, 0 when
+			// absent ). Henir challenge mode's item level and level band ( read by the party UI ).
+			int				m_iHardRequireItemLevel;
+			int				m_iHardMinLevel;
+			int				m_iHardMaxLevel;
+#endif SERV_IRUHADEV_JUNE_HENIR_HARD
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
+			// June effect C3z-5: June 327e0f80 @327e382c-327e389e ( +0xc4, a std::bitset<15>: one dword, cleared, then bit N set
+			// for each listed DUNGEON_CHECK_CONDITION value 0 <= N < 15 ). Kept as the dword; read with IsDungeonCheckCondition.
+			unsigned int	m_uiDungeonCheckCondition;
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 		};
 
 		

@@ -166,7 +166,13 @@ m_pDlgHeroRecruit(NULL)
 			// June FUN_327db250: DL_EXPERT in hero mode, otherwise DL_NORMAL. June can also force
 			// DL_EXPERT (or back to DL_NORMAL) through DungeonData fields (+0xb0/+0xb6/+0xb7, via
 			// FUN_327da9f0) that March's DungeonData does not have, so that test is not ported.
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+			// June effect C3z-5: the DungeonData test is ported; 327db250( dungeon, hero mode ) at both call sites
+			// ( @3293d6d6 with a party, @3293d717 without ).
+			const int iDungeonDifficulty = g_pData->GetDungeonManager()->GetDefaultDifficulty( iDungeonID, m_bHeroMode );
+#else SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
 			const int iDungeonDifficulty = ( true == m_bHeroMode ) ? (int) CX2Dungeon::DL_EXPERT : (int) CX2Dungeon::DL_NORMAL;
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
 
 			const CX2Dungeon::DUNGEON_TYPE eDungeonType =
 				static_cast<CX2Dungeon::DUNGEON_TYPE>( g_pData->GetDungeonManager()->GetDungeonType( iDungeonID ) );

@@ -50,6 +50,17 @@ class CX2DungeonManager
 #endif SERV_NEW_EVENT_TYPES
 
 		bool IsActiveDungeon( int iDungeonID, int iDiffLevel );
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+		bool GetAdequateMemberCount( int iDungeonID, int& iMinCount, int& iMaxCount );
+#endif SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+		int GetMaxDifficulty( int iDungeonID );
+		bool IsFixMaximumDifficulty( int iDungeonID );
+		int GetDefaultDifficulty( int iDungeonID, bool bHeroMode );
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
+		bool IsDungeonCheckCondition( int iDungeonID, int iCheckCondition );
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 		//{{ 허상형 : [2011/3/18/] //	월드 미션
 #ifdef SERV_INSERT_GLOBAL_SERVER
 		bool IsDefenceDungeon( IN const int iDungeonID ) const;

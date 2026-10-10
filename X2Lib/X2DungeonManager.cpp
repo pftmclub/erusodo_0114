@@ -221,6 +221,46 @@ bool CX2DungeonManager::AddDungeonData_LUA()
 #endif SERV_LIMITED_DUNGEON_PLAY_TIMES
 	LUA_GET_VALUE(				luaManager, "m_MinLevel",			pDungeonData->m_MinLevel,		0 );
 	LUA_GET_VALUE(				luaManager, "m_MaxLevel",			pDungeonData->m_MaxLevel,		0 );
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+	// June effect C3z-5: June AddDungeonData_LUA 327e0f80 @327e257c-327e28f7, int reads stored as signed chars, -1 when absent.
+	{
+		int iAdequateMemberCount = -1;
+		LUA_GET_VALUE(			luaManager, "MinAdequateMemberCount",	iAdequateMemberCount,	-1 );
+		pDungeonData->m_cMinAdequateMemberCount = static_cast<char>( iAdequateMemberCount );
+		LUA_GET_VALUE(			luaManager, "MaxAdequateMemberCount",	iAdequateMemberCount,	-1 );
+		pDungeonData->m_cMaxAdequateMemberCount = static_cast<char>( iAdequateMemberCount );
+	}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+	// June 327e0f80 @327e2947-327e2aab.
+	LUA_GET_VALUE(				luaManager, "FixMaximumDifficulty",		pDungeonData->m_bFixMaximumDifficulty,	false );
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
+	// June 327e0f80 @327e42cd-327e4462 ( default 2 ) and @327e4f01-327e50b6 ( default 0 ).
+	LUA_GET_VALUE(				luaManager, "m_SuitableLevelFixValue",		pDungeonData->m_iSuitableLevelFixValue,		2 );
+	LUA_GET_VALUE(				luaManager, "m_iRequireCompleteQuestID",	pDungeonData->m_iRequireCompleteQuestID,	0 );
+#endif SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
+#ifdef SERV_IRUHADEV_JUNE_HENIR_HARD
+	// June 327e0f80 @327e181c-327e19a0 ( default -1 ), @327e3e50-327e3f54 and @327e3f9e-327e40a2 ( default 0 ).
+	LUA_GET_VALUE(				luaManager, "m_HardRequireItemLevel",	pDungeonData->m_iHardRequireItemLevel,	-1 );
+	LUA_GET_VALUE(				luaManager, "m_HardMinLevel",			pDungeonData->m_iHardMinLevel,			0 );
+	LUA_GET_VALUE(				luaManager, "m_HardMaxLevel",			pDungeonData->m_iHardMaxLevel,			0 );
+#endif SERV_IRUHADEV_JUNE_HENIR_HARD
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
+	// June 327e0f80 @327e3821-327e389e: the set is cleared, then each value of the plain-string table DUNGEON_CHECK_CONDITION
+	// ( GetValue( i ) from 1 until a read fails ) sets its bit when 0 <= value < 15; other values are skipped.
+	pDungeonData->m_uiDungeonCheckCondition = 0;
+	if( true == luaManager.BeginTable( "DUNGEON_CHECK_CONDITION" ) )
+	{
+		int iCheckCondition = 0;
+		for( int iValueIndex = 1; true == luaManager.GetValue( iValueIndex, iCheckCondition ); ++iValueIndex )
+		{
+			if( 0 <= iCheckCondition && iCheckCondition < 15 )
+				pDungeonData->m_uiDungeonCheckCondition |= ( 1u << iCheckCondition );
+		}
+		luaManager.EndTable(); // DUNGEON_CHECK_CONDITION
+	}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 
 #ifdef X2TOOL
 	LUA_GET_VALUE(				luaManager, "m_NPCLevel",			pDungeonData->m_iNpcLevel,		0 );
@@ -597,6 +637,84 @@ CX2Dungeon::DungeonData* CX2DungeonManager::GetDungeonDataAt( int iIdx )
 	return pkDungeonData;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+// June effect C3z-5: June CX2DungeonManager 327da980. A map find ( no insert ); both counts are written whenever the row
+// exists, and the result is true only when the minimum is set ( its byte below 0x80 ).
+bool CX2DungeonManager::GetAdequateMemberCount( int iDungeonID, int& iMinCount, int& iMaxCount )
+{
+	DungeonDataIterator iD = m_mapDungeonData.find( static_cast<SEnum::DUNGEON_ID>( iDungeonID ) );
+	if( iD == m_mapDungeonData.end() || NULL == iD->second )
+		return false;
+
+	iMinCount = static_cast<int>( iD->second->m_cMinAdequateMemberCount );
+	iMaxCount = static_cast<int>( iD->second->m_cMaxAdequateMemberCount );
+	return ( 0 <= iMinCount );
+}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+// June effect C3z-5: June 327da920. The top difficulty of the dungeon a row belongs to: DL_NORMAL for a normal-only row
+// ( +0xb7 ), DL_EXPERT otherwise, and DL_EXPERT for an ID with no row.
+int CX2DungeonManager::GetMaxDifficulty( int iDungeonID )
+{
+	DungeonDataIterator iD = m_mapDungeonData.find( static_cast<SEnum::DUNGEON_ID>( iDungeonID ) );
+	if( iD != m_mapDungeonData.end() && NULL != iD->second && true == iD->second->m_bNormalOnly )
+		return CX2Dungeon::DL_NORMAL;
+
+	return CX2Dungeon::DL_EXPERT;
+}
+
+// June effect C3z-5: June 327da9f0. Looks the row up, steps back by its difficulty ( +0xb0; -1 means no answer ) to the
+// dungeon's base ID, forward by GetMaxDifficulty to its top-difficulty row, and returns that row's FixMaximumDifficulty.
+bool CX2DungeonManager::IsFixMaximumDifficulty( int iDungeonID )
+{
+	DungeonDataIterator iD = m_mapDungeonData.find( static_cast<SEnum::DUNGEON_ID>( iDungeonID ) );
+	if( iD == m_mapDungeonData.end() || NULL == iD->second )
+		return false;
+
+	const int iDifficulty = static_cast<int>( iD->second->m_eDifficulty );
+	if( -1 == iDifficulty )
+		return false;
+
+	const int iMaxDifficultyDungeonID = GetMaxDifficulty( iDungeonID ) + ( iDungeonID - iDifficulty );
+	DungeonDataIterator iMax = m_mapDungeonData.find( static_cast<SEnum::DUNGEON_ID>( iMaxDifficultyDungeonID ) );
+	if( iMax == m_mapDungeonData.end() || NULL == iMax->second )
+		return false;
+
+	return iMax->second->m_bFixMaximumDifficulty;
+}
+
+// June effect C3z-5: June 327db250, the difficulty a dungeon picked on the local map starts at: DL_EXPERT in hero mode
+// ( June-only; March passes false ) else DL_NORMAL; DL_EXPERT when the dungeon is fixed to its top difficulty, and back to
+// DL_NORMAL when this row is normal-only.
+int CX2DungeonManager::GetDefaultDifficulty( int iDungeonID, bool bHeroMode )
+{
+	int iDifficulty = ( true == bHeroMode ) ? CX2Dungeon::DL_EXPERT : CX2Dungeon::DL_NORMAL;
+	if( true == IsFixMaximumDifficulty( iDungeonID ) )
+	{
+		iDifficulty = CX2Dungeon::DL_EXPERT;
+		DungeonDataIterator iD = m_mapDungeonData.find( static_cast<SEnum::DUNGEON_ID>( iDungeonID ) );
+		if( iD != m_mapDungeonData.end() && NULL != iD->second && true == iD->second->m_bNormalOnly )
+			iDifficulty = CX2Dungeon::DL_NORMAL;
+	}
+	return iDifficulty;
+}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
+// June effect C3z-5: June 327d9df0 ( reached through g_pData 31edf8f0, which returns false while the manager is NULL ).
+// False for an ID with no row or a value outside [0, 15).
+bool CX2DungeonManager::IsDungeonCheckCondition( int iDungeonID, int iCheckCondition )
+{
+	DungeonDataIterator iD = m_mapDungeonData.find( static_cast<SEnum::DUNGEON_ID>( iDungeonID ) );
+	if( iD == m_mapDungeonData.end() || NULL == iD->second )
+		return false;
+	if( iCheckCondition < 0 || 15 <= iCheckCondition )
+		return false;
+
+	return 0 != ( iD->second->m_uiDungeonCheckCondition & ( 1u << iCheckCondition ) );
+}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 bool CX2DungeonManager::IsActiveDungeon( int iDungeonID, int iDiffLevel )
 {
 	const CX2Dungeon::DungeonData* pkDungeonData = 
@@ -622,7 +740,18 @@ bool CX2DungeonManager::IsActiveDungeon( int iDungeonID, int iDiffLevel )
 
 
 	// 던전 최소레벨 - 2 보다 작으면 열리지 않는다.
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
+	// June IsActiveDungeon 327da190 @327da26f-327da2ac: the slack is the row's m_SuitableLevelFixValue ( 2 when absent; the
+	// Secret Hells set 0 ), and a row's m_iRequireCompleteQuestID > 0 must be a completed quest ( g_pData +0x4c 32322260 =
+	// CX2QuestManager::GetUnitCompleteQuest ). June then ( @327da2b8-327da38c ) asks the local map's templet for a quest
+	// ( +0x70 ) and gates the Atlas dungeons ( 33330-33352 ) on event keys 2260 / 2261; March's templet and event map have
+	// neither, and its Hero / Bestera branches ( @327da1a0-327da1d3 ) are June-only dungeons.
+	if ( g_pData->GetSelectUnitLevel() < pkDungeonData->m_MinLevel - pkDungeonData->m_iSuitableLevelFixValue ||
+		( 0 < pkDungeonData->m_iRequireCompleteQuestID &&
+		  ( NULL == g_pData->GetQuestManager() || false == g_pData->GetQuestManager()->GetUnitCompleteQuest( pkDungeonData->m_iRequireCompleteQuestID ) ) ) )
+#else SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
 	if ( g_pData->GetSelectUnitLevel() < pkDungeonData->m_MinLevel - 2 )
+#endif SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
 	{
 		return false;
 	}
@@ -850,6 +979,16 @@ wstring CX2DungeonManager::MakeDungeonNameString( SEnum::DUNGEON_ID dungeonID, C
 	default:
 	case CX2Dungeon::DT_NORMAL:
 		{
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+			// June MakeDungeonNameString 327ddb60 @327dde86 / @327de0c5 / @327de685: for difficulty 0-2 a dungeon fixed to its
+			// top difficulty is named without the difficulty suffix. ( June's other branches here are June-only: Hero dungeon
+			// IDs, and 32863880's numbered normal suffix STR 0xb001. )
+			if( CX2Dungeon::DL_NORMAL <= eDifficulty && eDifficulty <= CX2Dungeon::DL_EXPERT && true == IsFixMaximumDifficulty( dungeonID ) )
+			{
+				wstrmDungeonName << pDungeonData->m_DungeonName;
+				break;
+			}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
 			switch( eDifficulty )
 			{
 			case CX2Dungeon::DL_NORMAL: 

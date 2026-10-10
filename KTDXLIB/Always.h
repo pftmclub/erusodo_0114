@@ -6841,3 +6841,44 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              June's UnitTemplet.lua are ported ( checklist 7t ).
 #define SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect C3z-5. DungeonData MinAdequateMemberCount / MaxAdequateMemberCount ( June AddDungeonData_LUA
+//              327e0f80, +0xb4 / +0xb5, -1 when absent ), CX2DungeonManager::GetAdequateMemberCount ( 327da980 ), and the
+//              party UI's need_user text ( UpdateAdequateMemberCount 322be5c0: "min~max", red below the minimum ).
+#define SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect C3z-5. DungeonData FixMaximumDifficulty ( +0xb6 ) and June's GetMaxDifficulty ( 327da920 ),
+//              IsFixMaximumDifficulty ( 327da9f0 ), GetDefaultDifficulty ( 327db250 ). A dungeon whose top-difficulty row sets
+//              it is played at that difficulty: UpdatePartyDLG switches to it ( 322c2e50 ), the difficulty boxes are hidden
+//              ( 322b6600 ), the local map starts it there ( 3293d280 ), and its name drops the difficulty suffix ( 327ddb60 ).
+#define SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect C3z-5. DungeonData m_SuitableLevelFixValue ( +0xa8, 2 when absent ) and m_iRequireCompleteQuestID
+//              ( +0x1cc ): IsActiveDungeon ( 327da190 ) and the party-list join check ( 322ca040 ) use the row's level slack
+//              instead of a hard-coded 2, and a required quest must be complete.
+#define SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect C3z-5. Henir's DungeonData m_HardRequireItemLevel ( +0x64 ), m_HardMinLevel / m_HardMaxLevel
+//              ( +0x94 / +0x98 ): the party UI shows them for Henir challenge ( 322c2e50, 322c1700, 322beb90 ).
+#define SERV_IRUHADEV_JUNE_HENIR_HARD
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect C3z-5. DungeonData DUNGEON_CHECK_CONDITION ( +0xc4, std::bitset<15> ) and
+//              CX2DungeonManager::IsDungeonCheckCondition ( 327d9df0 ). Consumers ported here: DCC_NOT_USE_QUICK_SLOT ( 11 ) in
+//              the dungeon-game state ctor ( 324d9f80 ) and CX2UIManager::SetShowUI ( 32154820 ). The other client readers
+//              ( DCC 1 / 2 / 8 / 9 / 10 / 12 / 13 / 14 ) are C3z-5b's.
+#define SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
+//////////////////////////////////////////////////////////////////////////

@@ -272,6 +272,16 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 	SetOpenCommonBG( false );
 
 	// 09.04.27 태완 : 특정던전에서 퀵슬롯 못쓰게
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
+	// June effect C3z-5: June's dungeon-game state ctor 324d9f80 @324dac81-324dacb2 asks the room's dungeon for
+	// DCC_NOT_USE_QUICK_SLOT ( 11; g_pData 31edf8f0 ) instead of listing the Children's Day dungeons, and clears the quick slot
+	// flag ( UI manager +0x8a = m_bShowQuickSlot ). June's data sets it on the four KidDay rows, March's list.
+	if( NULL != g_pData->GetDungeonRoom() && NULL != g_pData->GetDungeonManager() &&
+		true == g_pData->GetDungeonManager()->IsDungeonCheckCondition( g_pData->GetDungeonRoom()->GetDungeonID(), 11 /* DCC_NOT_USE_QUICK_SLOT */ ) )
+	{
+		g_pData->GetUIManager()->SetShowQuickSlot(false);
+	}
+#else SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 #ifdef CHILDRENS_DAY_EVENT_DUNGEON
 	if( NULL != g_pData->GetDungeonRoom() )
 	{
@@ -292,6 +302,7 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 		}
 	}
 #endif CHILDRENS_DAY_EVENT_DUNGEON
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 
 	if( true == CX2Dungeon::IsHenirDungeon( static_cast<const SEnum::DUNGEON_ID>( g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonID ) ) &&
 		CX2Dungeon::DM_HENIR_CHALLENGE == g_pData->GetPartyManager()->GetMyPartyData()->m_iDungeonMode )
