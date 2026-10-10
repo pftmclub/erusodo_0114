@@ -5424,6 +5424,8 @@ EVENT_KIT_PICKUP:   files: 0 PASS, 0 PASS~, 0 DEFINE, 5 OTHER (other flags), 0 F
 **datai015:** `PACK OK datai015` (`kom_contents\datai015_packed.kom`). Against the live kom: +1 `CommonSkillState.lua`. The other 17 "changed" entries have equal uncompressed sizes; only their zlib output differs.
 `COPY OK datai015: ...\data\datai015.kom  113122 bytes, 24 entries, md5 d7c0f00afc09ffb0e6831bea67d3de80` (user's yes, 2026-10-10; backup `kom_backup_tools\datai015.kom.20261010_112639`).
 
+**Regression play-test PASSED (user, 2026-10-10; run 11:35-11:39, after the deploy and the datai015 copy):** dungeon with AI party, full clear, other classes, battle field. Logs: exactly one `JUNE_FX C9h-4h event states registered: SNIPER_INIT 88 .. GUN_DANCE_INIT 96` (offline_server.log:133), no `CommonSkillState.lua NOT loaded`, no event NPC / kit lines (nothing enters the states), 0 EXCEPTION, UNHANDLED = 5x `E_DISABLE_HB_CHECK_REQ` (baseline), clean-exit census.
+
 **Open:** C3o's commit d001ec0 left funcmap row `322f11d0` with its last clause doubled ("; no March CX2Game member" x2). It is left as committed; this phase only appended rows.
 
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
