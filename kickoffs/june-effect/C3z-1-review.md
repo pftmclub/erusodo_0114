@@ -35,7 +35,8 @@ Review C3z-1's census, staging and removals. No C++ changed, so there is no flag
    Also re-check that `Besma_Dragon_Road_Stage4.lua` (KidDay) is the only reachable March-side user (`c3z1_users.tsv`).
 4. **The live koms hold June's bytes:** decode 10 of the 404 staged names from the live game-dir kom and compare them with junekom's
    strict June extract. Check that the 17 `data\music\` files md5-equal June's `14JUN17\data\music\`.
-5. **Play-test logs** (if the user played): 0 EXCEPTION. Every `XEM_ERROR109` / `OpenXSkinMesh` line names a file in
-   `c3z1_june_dropped.tsv` or the 2 Velder Bridge Hope 3-1 data101 meshes; any other name is a finding.
+5. **Play-test logs** (if the user played): 0 EXCEPTION. Every `XEM_ERROR109` / `XEM_ERROR110` / `KEM_ERROR136` / `OpenXSkinMesh`
+   line names a file in `c3z1_june_dropped.tsv` or one of Velder Bridge Hope 3-1's 4 data101 meshes (`River_Wave`, `Wall01`,
+   `Back_Gate`, `Gate_Window`). Any other name is a finding.
 
 Write "C3z-1 - Review" into the plan doc, update the C3z-1 STATUS row, check `kickoffs/june-effect/C3z-1b.md`, and commit.

@@ -2570,8 +2570,10 @@ the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Pe
 
 **Play-test:** the kickoff's three maps, plus Besma Mine stage 1, where the removed pieces were. Logs:
 - 0 EXCEPTION.
-- `XEM_ERROR109` lines for `Besma_besma_Mine_s1_bc2.Y` and the like are expected: June logs the same.
-- Any `XEM_ERROR109` for a name **not** in `c3z1_june_dropped.tsv` is new.
+- Expected: `XEM_ERROR109` / `XEM_ERROR110` (LOD) / `KEM_ERROR136` lines naming a file in `c3z1_june_dropped.tsv` (June logs the
+  same), and Velder Bridge Hope 3-1's 4 data101 meshes (`River_Wave`, `Wall01`, `Back_Gate`, `Gate_Window`; C3z-1b).
+- Any other name is new. A missing mesh fails once per load: `SetLOD(bool)`'s reload (`X2WorldObjectMesh.cpp:352`) has no caller, and
+  `OnFrameMove` closes a FAILED mesh without retrying.
 
 ### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
 
