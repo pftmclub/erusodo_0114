@@ -3138,6 +3138,58 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
 - Batch 1 is done. Not exercised in game: `PushCreateNPCReq_Lua`, `GetStoredGUUser`, `GetHostGameUnit`, `GetDyingStart` (rare
   boss moves / fallbacks); the review reads them against June.
 
+### C3z-4 - Review (2026-10-11, Opus 5.5 high): one finding fixed (stage allies with an `IsAllyNPCID` id stay type 1); the rest matches June
+
+**Census** (`c3z4_class_census.py`, re-run with a fresh `cl /P`): the committed TSVs come back unchanged, 44 rows. Every March
+unit-script push site (`X2GUNPC.cpp` 14474-24765, `X2GUNPCAI.cpp:81`) is `(g_pKTDXApp, g_pX2Game, this)`, as the script assumes. No
+receiver is typed wrongly. Two blind spots; neither adds a row:
+- 18 reached scripts have no `june_src_fixed` source. 16 are bytecode in kom_contents, and a name scan finds only `GetIsRight` /
+  `SetIsRight` / `GetRotateDegree` / `PlaySound_LUA` (Spriggan Small, Henir Three Way) and `CannotInput` (the 9 Battle Field
+  tutorials), all already untyped-gap rows (C3z-4b batch 3). `altera_field_stage2.lua` and `test_ver2_field1.lua` are not on disk.
+- Upvalue receivers (`uvN`) stay untyped. An indented nested `function` is read as part of its parent's body (4 Wally armor files;
+  their one gap name is already a row).
+
+**Bindings against June** (`disasm_range.py`):
+- The five `CreateNPCReq*` wrappers pass `322e67c0` the same arguments in the same order as March's `CreateNPCReq`: (id, level,
+  active, pos, right, delay, nodrop, keycode, team, AI, ally UID, elite, ally team -1, 0, 0, summoner templet).
+  - `_LUA`: keycode -1, team 2, AI 0. `_LUA2`, `Elite` and `Ally`: delay `.x`, keycode = ftol `.y` (`32fe25f0`).
+  - `Elite` takes elite from argument 8. `Ally` takes team from argument 8 and uses AI 1. `PushCreateNPCReq_Lua` takes the keycode
+    from argument 8, with team 2 and AI 0.
+- Ally owner: June's `CX2Game::CreateNPC` (`3230d2b0` @3230d3b4) looks it up only for AI 1 with ally UID != -1, through
+  `GetUserUnitByUID` (vslot 0xa0). An NPC UID finds no user, as in March.
+- Stored user: both accessors gate on `GUT_USER` (0) and use the observer at `+0x8d64`.
+- `InitStateCoolTime`: June writes runtime row `+0` (36-byte rows), March's `m_fStateElapsedTime`, the first member. The index is
+  `GetStateID`'s, and March's map value is the `m_vecStateData` position (`X2GUNPC.cpp:4796`).
+- `GetIsLastStage`, `GetNowStateID_LUA` (states 0-14 same, 15-19 +1, arcade -1, 24->21, 25->22, 26->27) and
+  `GetNPCUnitNumCheckTeam` (team `+0x278` == argument, no life test) match June.
+
+**Sub-stage team** (`327eb8e0`: the XOR'd key decodes to `TEAM`, default 2 -> `+0x5c`; `327ef570`: AI = `+0x52` ? 4 : 0, no owner)
+matches June. **Finding, fixed:**
+- June's ctor `327af620` runs `IsAllyNPCID` (`327573e0`: uid != 0 -> type 1, team 0) before its AI switch, so an ally-id NPC
+  sent as type 4 is built as a plain type 1. The port wrote 4 after the factory returned, which undid that.
+- Affected: Santilus Ship's `NUI_MOTOR` (stage 0 sub-stage 1, every difficulty), Defence's `NUI_DEFENCE_CRYSTAL` /
+  `NUI_GOD_GATE_ALLY`, and the Valentine box maker / cup cake killer. With the flag off, March's ctor made them NAT_ALLY. Every
+  `== NAT_ALLY` reader skipped them, so this was a C3z-4 regression against both March and June.
+- Fix (same flag `SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM`): `CreateGUNPC` passes 4, and the ctor gets June's `case 4`: the ally AI
+  with the caller's owner, then `SetAIType( 4 )` and `SetRenderLv( false )`, as type 1 does (@327b0943-327b095f).
+  - Nothing reads the AI type during construction (the ctor tail, `CommonConstructor` 2205-2806), so Gateway Ignia is unchanged.
+- **No June code distinguishes type 4.** All 50 June AI-type compares after a `+0x7c98` load test 0-3, and the register operands
+  hold 0 or 1. The exe's three `cmp [r+0x38], 4` are not NPC AI: engine `31d4e5dd`, UI `32514c80`, and one misdecoded. Keeping 4
+  is therefore June's behaviour: every `== NAT_ALLY` test skips it.
+
+**Hygiene.**
+- The fix, `flagcheck --worktree --files` (3 files): 2 PASS, 1 OTHER; RESULT PASS. The 5 deleted lines are the old post-factory
+  `SetAIType` lines, inside the flag's own `#ifdef`.
+- C3z-4, `--range 6788262^..19a72fd`: every flag RESULT PASS, 0 FAIL. Batch-1 files show OTHER per flag because the flags share
+  files, so they were checked as groups with `--with`:
+  - all 10 flags: X2GUNPC.cpp/.h and X2Main.cpp PASS/PASS~ (only `//{{ //}}` markers outside);
+  - the game flags: X2Game.cpp/.h 2 PASS, 2 PASS~;
+  - `_SUBSTAGE_NPC_TEAM`: 4 PASS.
+- `DEPLOY OK: X2_offline.exe is 19,552,768 B, dated 2026-10-11 05:42:19, md5 f30f41b1143f590c05237abdc5183c1b, equal to X2/US_SERVICE/x2.exe (2026-10-11 05:42:15); built at mods/june-buff-port 17a518e + 10 uncommitted code file(s).`
+  The 10 files include a peer's C3z-5 WIP. The `substage CreateGUNPC` debug string is in the exe.
+- `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` is **on** for one play-test; it goes off after. The fix is funcmap rows `327af620 @327b0943`,
+  `3230d2b0 @3230d3b4` and `327573e0`. No JUNE_BUGS row, no open question.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).

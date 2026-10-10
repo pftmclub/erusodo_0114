@@ -6797,6 +6797,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              hard-coded TN_MONSTER / NAT_NORMAL there. June passes NPCData +0x5c as the team and AI type 4 for an ALLY_NPC
 //              ( @327ef72d-327ef74b ); its ctor 327af620 builds type 4 as the ally AI ( 32f0e3d0, as type 1 ) and stores 4 in
 //              the AI's type ( +0x38 ), so the "user summon" tests ( type == 1 ) skip it.
+//              C3z-4 review: the 4 now goes into the ctor ( CX2GUNPC.cpp case 4 ), as June's does, so the ctor's IsAllyNPCID
+//              override ( Santilus NUI_MOTOR, NUI_DEFENCE_CRYSTAL, NUI_GOD_GATE_ALLY, the Valentine allies ) keeps them type 1.
 #define SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -6805,7 +6807,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: Short-lived diagnostic for the C3z-4 batch 1 bindings: the first calls of each new method per launch are
 //              logged ( offline_server.log, JUNE_FX C3z-4 ). Remove after the play-test.
 // OFF 2026-10-10: C3z-4 play-tests passed (Den of Trock caves + chief, Ash Village smiths, Gateway berserkers, Gateway Ignia ally)
-//#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
+// ON 2026-10-11 for the C3z-4 review play-test ( sub-stage CreateGUNPC "ai" line: Santilus motor 1, Gateway Ignia 4 ); off after it.
+#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

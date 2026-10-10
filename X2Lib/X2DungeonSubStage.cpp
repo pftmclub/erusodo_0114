@@ -2444,13 +2444,12 @@ CX2GUNPC*    CX2DungeonSubStage::CreateGUNPC( const NPCData* pNpcData_ )
 
 //#ifdef	X2OPTIMIZE_NPC_LUASPACE_SHARING
 #ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
-	// June 327ef570 @327ef72d-327ef74b: team = NPCData +0x5c ( the script's TEAM ), AI = ALLY_NPC ( +0x52 ) ? 4 : 0. June's ctor
-	// 327af620 builds type 4 exactly as NAT_ALLY ( CX2AllyNPCAI 32f0e3d0, no owner here ) and then stores 4 as the AI's type.
+	// June 327ef570 @327ef72d-327ef74b: team = NPCData +0x5c ( the script's TEAM ), AI = ALLY_NPC ( +0x52 ) ? 4 : 0. The ctor's
+	// case 4 ( 327af620 @327b0943-327b095f ) builds it as NAT_ALLY ( CX2AllyNPCAI, no owner here ) and stores 4 as the AI's type,
+	// after IsAllyNPCID has turned an ally-id NPC ( Santilus NUI_MOTOR, NUI_DEFENCE_CRYSTAL, ... ) into a plain NAT_ALLY ( C3z-4 review ).
 	const bool bJuneStageAlly = ( true == pNpcData_->m_bAllyNpc );
 	CX2GUNPC* pCX2GUNPC = CX2GUNPC::CreateGUNPC( 0, (CX2Room::TEAM_NUM) pNpcData_->m_iJuneTeam, pNpcData_->m_UID,
-		pInfo, (int)( bJuneStageAlly ? CX2NPCAI::NAT_ALLY : CX2NPCAI::NAT_NORMAL ), NULL, pNpcData_->m_fUnitScale );
-	if ( true == bJuneStageAlly && NULL != pCX2GUNPC && NULL != pCX2GUNPC->GetNPCAI() )
-		pCX2GUNPC->GetNPCAI()->SetAIType( (CX2NPCAI::NPC_AI_TYPE) 4 );	/// June ctor @327b0a.. : *( ai + 0x38 ) = 4
+		pInfo, ( bJuneStageAlly ? 4 : (int)CX2NPCAI::NAT_NORMAL ), NULL, pNpcData_->m_fUnitScale );
 #if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 	if ( (int)CX2Room::TN_MONSTER != pNpcData_->m_iJuneTeam || true == bJuneStageAlly )
 		CX2OfflineLog::Server( L"JUNE_FX C3z-4 substage CreateGUNPC npc %d team %d ally %d ai %d", (int)eNPCID, pNpcData_->m_iJuneTeam,

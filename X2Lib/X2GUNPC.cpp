@@ -1835,6 +1835,19 @@ CX2GUNPC::CX2GUNPC( int unitIndex, int teamNum, int uid, const CX2UnitManager::N
 
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
+	case 4:		/// June 327af620 @327b0943-327b095f: a sub-stage ALLY_NPC ( 327ef570 passes 4 ) builds CX2AllyNPCAI as NAT_ALLY does,
+				/// then stores 4 as the AI's type. IsAllyNPCID ( 327573e0, above ) has already turned an ally-id NPC into NAT_ALLY.
+		{
+			CX2AllyNPCAI* pAllyAI = new CX2AllyNPCAI( this );
+			pAllyAI->SetAllyGameUnit( pOwnerGameUnit_ );
+			pAllyAI->SetAIType( (CX2NPCAI::NPC_AI_TYPE) 4 );
+			m_pAI = pAllyAI;
+#ifdef SERV_SECRET_HELL
+			SetRenderLv( false );	/// June 327b09a1: +0x8cf1 = 0 on the type 1 and type 4 paths alike
+#endif SERV_SECRET_HELL
+		} break;
+#endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 //#ifdef TRANSFORMER_TEST
 //	case CX2NPCAI::NAT_NO_BRAIN:
 //		{
