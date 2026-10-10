@@ -2633,6 +2633,19 @@ the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Pe
 - `DEPLOY OK: X2_offline.exe is 19,533,312 B, dated 2026-10-10 15:15:55, md5 f8f23b2b0c7e9af175999d3f1e9c52c3` (`IsVotingLuto` and the
   `JUNE_FX C3z-1` log string are in the exe).
 
+### C3z-1 - play-test 3 (2026-10-10 15:20): PASSED
+
+- **User:** the phase's checks passed, and the Air Ship crash is gone.
+- **Logs** (exe `f8f23b2b`, run after the deploy):
+  - 114 `JUNE_FX C3z-1` lines, all `IsVotingLuto 0`. Live counts ran from 12 down to 1, then the gate stopped asking: it left its wait
+    state at 0.
+  - No `can't find 'IsVotingLuto'` line, no new CrashRpt bundle, clean exit.
+- **New in the run:** one `can't find 'CreateNPCReq_LUA'`. March binds it on `CX2Game` only; June also binds it on `CX2GUNPC`. The
+  name-only census cannot see that, so C3z-4's kickoff now starts with a class-aware census.
+- `SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG` is off (commented out in `Always.h`).
+  `DEPLOY OK: X2_offline.exe is 19,532,288 B, dated 2026-10-10 15:38:16, md5 d60e4b9fbfb265962cd94a2ca7ed2a2f`; `IsVotingLuto` is still in the exe,
+  and the debug string is gone.
+
 ### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
 
 **Census tool.** `june2017_re/dungeon_npc_census.py` (with `dungeon_npc_dump.lua` and `lua_registry_dump.lua`).

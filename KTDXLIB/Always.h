@@ -6704,5 +6704,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-10
 // Description: Short-lived diagnostic for SERV_IRUHADEV_JUNE_IS_VOTING_LUTO: once a second while a gate asks, log the
 //              answer and the live active monsters ( offline_server.log, JUNE_FX C3z-1 ). Remove after the play-test.
-#define SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
+// OFF 2026-10-10: C3z-1 gate play-test passed (IsVotingLuto 0 on every gate, gates break on clear)
+//#define SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
 //////////////////////////////////////////////////////////////////////////
