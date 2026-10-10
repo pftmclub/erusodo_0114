@@ -2862,6 +2862,16 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
   `_THIN_HENIR`. In March the nil id arrives as 0, `CX2Game::CreateNPC` finds no templet and creates nothing, so there is no crash.
   Their Enum + NPCTemplet rows (the C3z-2 recipe) go to C3z-4b. The other 6 have rows and are inside C3z-1's `--all-npc` mesh closure.
 
+### C3z-4 - play-test 1 (2026-10-10 20:06-20:48): inconclusive, the batch-1 paths were not reached
+
+- Played Ranox Fire Temple Normal (33310: stage 0 for 52 s, then `/stage 3` for 30 s) and Sander Den of Trock Normal (33220:
+  `/stage 2` first room only, then `/stage 3` for 49 s).
+- 0 EXCEPTION, no crash, no `can't find` line in ErrorLog, and also no `JUNE_FX C3z-4` line: `EGS_NPC_UNIT_CREATE_REQ` 0 times.
+  - The berserkers (`GetNowStateID_LUA` / `GetIsLastStage` on spawn) are in stages 1 / 2, which were skipped.
+  - The iplitans and the chief died before `ATTACK_B_EVENT_FIRE` / `HP_DRAIN` / `SA_A` / `SA_B`.
+  - The summon caves are in Den stage 2's second room, which was never opened.
+- Re-test: `/stage 1` in Fire Temple; Den `/stage 2` past the first room, and `/stage 3` waiting out the chief under `/invin`.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
