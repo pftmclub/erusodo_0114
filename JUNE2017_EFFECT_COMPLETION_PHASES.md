@@ -2575,6 +2575,23 @@ the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Pe
 - Any other name is new. A missing mesh fails once per load: `SetLOD(bool)`'s reload (`X2WorldObjectMesh.cpp:352`) has no caller, and
   `OnFrameMove` closes a FAILED mesh without retrying.
 
+### C3z-1 - play-test 1 (2026-10-10 14:40): crash at Air Ship stage 1 -> 199 NPC assets
+
+- **Crash:** Battle Air Ship stage 0 crashed during sub-stage loading. The CrashRpt bundle has an access violation at `0x32e77ac8`,
+  which is `CX2GUNPC::Init+0x88` (`X2.map`, base `0x32830000`): `m_pMotion` was NULL.
+  - The last lines before it are `Airship_Soldier_RepairMan.lua` and
+    `OpenXSkinMesh` failing on `MOTION_ALTERA_AIRSHIP_SOLDIER_REPAIRMAN.X`.
+  - That is one of the June ids C3z-2 added. June ships the mesh (`data009`, strict decode ok); March had none.
+- **Cause:** C3s's `--all-npc` census used the old greedy tokenizer, so it missed names glued onto the constant before them. With
+  this phase's fix, `npc_mesh_census.py --all-npc` found **199 June-only NPC files**: 54 `Motion_*` meshes, the rest models and
+  textures. List: `june2017_re/c3z1_npc_mesh_need.tsv`.
+- **Fix:** staged all 199, all new and 0 refused (plan `c3z1_npc_stage_plan.tsv`). First, all 29 target dirs were checked equal to
+  their live koms (names and sizes).
+  - `PACK OK` for all 29. Only data117 shows extra changes: 117 `~changed`, all recompression (each decodes equal to live).
+  - Copied with the user's OK: data002 / 006-009 / 012 / 013 / 017 / 023 / 033 / 043 / 100 / 107 / 111 / 116 / 117 / 136 / 140 / 147 /
+    165 / 180 / 181 / 184 / 189 / 211 / 212 / 225 / i002 / i027. All 29 are `in sync` (live md5 = packed).
+  - Re-run: `--all-npc` needs **0**.
+
 ### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
 
 **Census tool.** `june2017_re/dungeon_npc_census.py` (with `dungeon_npc_dump.lua` and `lua_registry_dump.lua`).
