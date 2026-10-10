@@ -2280,6 +2280,7 @@ No questions for the user.
 **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW --with SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD --worktree` (C3r's files):
 - `X2GUUser.cpp` PASS +56, `X2GUUser.h` PASS +3, `X2GUNPC.cpp` PASS +6, `Always.h` OTHER (the define, plus a peer's line).
 - 0 FAIL, 0 ERROR, 0 deleted, 0 non-ASCII, 0 tokenless `#else` / `#endif`, RESULT PASS.
+- Post-commit (`--range 268627e^..HEAD`, same `--with`): `files: 3 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port 3eb8ef0 + 8 uncommitted code file(s).` The exe was linked by a peer's build at 12:20 from this tree, after C3r's edits (`X2GUUser.obj` 12:14 > `X2GUUser.cpp` 11:58, `X2GUNPC.obj` 12:20), so it carries C3r; the uncommitted files include peers' C3q / C3s work. No kom.
 
