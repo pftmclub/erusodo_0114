@@ -2319,9 +2319,59 @@ No questions for the user.
 
 ## C3s - identify, then port: June's UpdateUnitPointer
 
-**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3s.md`.
+**Status: done 2026-10-10; regression play-test pending (found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3s.md`, review `C3s-review.md`.
 
 - **Scope:** June's dungeon `327cea70` and battle-field `32d530a0` focus-camera walks against March's `UpdateUnitPointer` (`+0x8e38`, anim-name compares, state flags `0x2000000` / `0x20000000`, the cinematic-UI hide by main-state id). One flag per logical change.
+
+### C3s - Done (2026-10-10, Opus 5.5 high)
+
+**Identified** (funcmap rows `(C3s)`). Both June functions return bool and start with the base `CX2Game::UpdateUnitPointer` (`322d5f70`), returning 1 when it does.
+
+1. **`+0x8f8c` is not an animation name. It is a narrow `std::string` read from `FORCE_CINEMATIC_STATE`** in INIT_COMPONENT: `327a0fa0 @327ab5fe`, right after `BUFF_GROUP_ID`; a miss assigns `""`. `3275aaf0` = `GetStateID( string )`, `+0x8454` = now-state, `327d65d0` = "string not empty". Only June `Secret_Mad_Trock_Summoner` sets it (`"MAD_TROCK_SUMMONER_START"`), and no NPCTemplet, March or June, names that script.
+2. **Dungeon `327cea70`** = March's `MODIFY_DUNGEON_STAGING` walk, except where a `FORCE_CINEMATIC_STATE` is set:
+   - `CanNotInputAndDisalbeNPCAI( now == GetStateID( name ) )` replaces the stop-at-start test, whether or not `m_bStopAtStartState` (`+0x8e38`) is set.
+   - The same compare replaces **both** focus conditions (`m_bFocusCamera` + start state, and `FOCUS_CAMERA_AT_CURRENT_STATE`).
+   - Without the key it is March's code.
+3. **Members and keys check out against March:**
+   - The flags `0x2000000` (word `+4`) and `0x20000000` (word `0`) are `STOP_AT_CURRENT_STATE` (bit `0x39`) and `FOCUS_CAMERA_AT_CURRENT_STATE` (bit `0x1d`), the same as March's `NOWSTATE_FLAG` getters.
+   - `+0x8e38` is `m_bStopAtStartState`: cleared in CommonStateEnd and set by CreateGUNPC, as in March.
+   - `+0x8750` is `m_bFocusCamera` and `+0x8d34` is `m_bFocusCameraForce`; the revert to my-unit is March's.
+   - `322cef70` is `CanNotInputAndDisalbeNPCAI`.
+4. **The state-id jump tables are March's `IsInheritStateMenu`, inlined.** The 26 bytes give false for the same nine March states, plus June-only `PVE_RESULT` / `PHOTOZONE_LOBBY` / `PHOTOZONE_GAME`, and `g_pMain +0x90 -> +0x3e8` is `SetShowUI`. No change.
+5. **Battle field `32d530a0`** = March with `MODIFY_DUNGEON_STAGING` and `SERV_BATTLEFIELD_MIDDLE_BOSS` on (flagprobe: both ON). `+0x8e80` is `m_bIsMainBoss`, and the `+0x8c4` bytes 0 / 1 are `CinematicUI::m_bStart` / `m_bEnd`, so the check is `GetIsCinematicUIActive`. **New:** June returns before the base call when `GetMyUnit()` is NULL. March's only direct call (`X2BattleFieldGame.cpp`, the leave handler) runs with a my-unit, so only the virtual calls made while your unit is still loading change.
+6. **Routed:**
+   - The base `322d5f70`: a timed second focus unit (`+0x2f0`..`+0x301`), the bool signature and the derived early returns, including `X2PVPGame.cpp`. -> **C3v**.
+   - June's `ShowBossNameAtStart` `327ef160`: the forced-state boss intro, several boss names, game type 4. -> **C3w** (whole).
+   - The seven keys June reads after `FORCE_CINEMATIC_STATE` (`NOT_CHECK_INDICATOR` ...) are Atlas A1b / A4's unit-script keys.
+
+**Code** (`X2GUNPC.h/.cpp`, `X2DungeonGame.cpp`, `X2BattleFieldGame.cpp`, `Always.h`):
+- `SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE`: `m_strJuneForceCinematicState` + `GetJuneForceCinematicState` / `HasJuneForceCinematicState`, the parse after `BUFF_GROUP_ID`, and the dungeon walk (the stop-at-start block and the focus condition, March's in `#else`).
+- `SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT`: the battle-field guard before `CX2Game::UpdateUnitPointer()`.
+
+**Hygiene:** `flagcheck --worktree --files` (C3s's files only):
+- `_FORCE_CINEMATIC_STATE`: `X2DungeonGame.cpp` PASS +25, `X2GUNPC.h` PASS +9. `X2GUNPC.cpp` OTHER: the peers' uncommitted C3q / C3r edits; C3s adds 6 lines there.
+- `_BF_FOCUS_NEEDS_MY_UNIT`: `X2BattleFieldGame.cpp` PASS +6.
+- `Always.h` OTHER: the peers' defines plus these two.
+- Both flags: RESULT PASS, 0 deleted lines in their files, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`.
+- Post-commit `--range` lines: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port 085ddf9 + 8 uncommitted code file(s).` The other files are the peers' uncommitted C3q / C3r edits. No kom.
+
+**How to see it in game:** nothing new can be seen. The one script with the key is not spawned by any templet, so this is a regression play-test.
+- Dungeon openings with a focus camera (stop-at-start, boss focus) should behave as before.
+- A battle field should still focus your character and the field boss.
+
+## C3v - identify, then port: June's CX2Game::UpdateUnitPointer
+
+**Status: ready (found by C3s, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3v.md`.
+
+- **Scope:** June's base `322d5f70` (a timed second focus unit `+0x2f0`..`+0x301`, CanNotInput while it holds, two camera calls, returns bool) against March `X2Game.cpp` (`m_fFocusTime` only); the bool signature and `if( base() ) return true;` in every override (dungeon, battle field after C3s's guard, `X2PVPGame.cpp` = June caller `328ba013`); the writers of the timed focus.
+
+## C3w - port: June's ShowBossNameAtStart
+
+**Status: ready (found by C3s, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3w.md`.
+
+- **Scope:** June `CX2DungeonSubStage::ShowBossNameAtStart 327ef160` whole: game type 2 or 4, the `FORCE_CINEMATIC_STATE` gate (C3s's member) that bypasses `m_bShowBossName` and its delay, several boss names through `327cc7c0` with a counter `<= 7`, the danger particles and the sub-boss branch.
 
 ## C3t - identify, then port: June's user SHOW_HYPER_CUT_IN_TIME
 

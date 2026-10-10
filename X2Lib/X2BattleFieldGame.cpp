@@ -1062,6 +1062,12 @@ bool CX2BattleFieldGame::Handler_EGS_JOIN_BATTLE_FIELD_NOT( KEGS_JOIN_ROOM_NOT& 
 
 /*virtual*/ void CX2BattleFieldGame::UpdateUnitPointer()
 {
+#ifdef SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
+	// June effect completion C3s: June CX2BattleFieldGame::UpdateUnitPointer 32d530a0 @32d530a3-32d530b4 returns before the base
+	// update ( 322d5f70, CX2Game::UpdateUnitPointer ) and the NPC walk while the game has no my-unit ( vslot 0x98 GetMyUnit ).
+	if( NULL == GetMyUnit() )
+		return;
+#endif SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
 	CX2Game::UpdateUnitPointer();
 	for( int i = 0; i < (int)m_NPCUnitList.size(); i++ )
 	{

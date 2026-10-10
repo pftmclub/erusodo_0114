@@ -2582,6 +2582,12 @@ class CX2GUNPC : public CX2GameUnit
 		void SetApplyCinematicUI(bool bVal) { m_bIsApplyCinematicUI = bVal; }
 #endif //MODIFY_DUNGEON_STAGING
 
+#ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
+		/// June effect completion C3s: INIT_COMPONENT FORCE_CINEMATIC_STATE ( June +0x8f8c, a narrow string, "" when absent ).
+		const std::string& GetJuneForceCinematicState() const { return m_strJuneForceCinematicState; }
+		/// June 327d65d0: true when the script names a forced cinematic state.
+		bool HasJuneForceCinematicState() const { return false == m_strJuneForceCinematicState.empty(); }
+#endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 		bool GetShowSubBossName() const { return m_bShowSubBossName; }
 		void SetShowSubBossName(bool val) { m_bShowSubBossName = val; }
 
@@ -4474,6 +4480,9 @@ class CX2GUNPC : public CX2GameUnit
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		bool						m_bIsApplyCinematicUI;		 //카메라 포커싱 적용 됐을 때 시네메택 UI도 적용 시킬지 여부.
 #endif //MODIFY_DUNGEON_STAGING
+#ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
+		std::string					m_strJuneForceCinematicState;	/// June +0x8f8c ( ctor 32762670 @327633b2, read 327a0fa0 @327ab5fe )
+#endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 		wstring						m_wstrHyperBoostRightParticleName;
 		wstring						m_wstrHyperBoostLeftParticleName;
 

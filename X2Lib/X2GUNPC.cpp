@@ -4677,6 +4677,12 @@ void CX2GUNPC::InitComponent()
 			m_iMonsterBuffGroupID = 0;
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
 //}}
+#ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
+		/// June effect completion C3s: June 327a0fa0 @327ab5d2-327ab610, right after BUFF_GROUP_ID in INIT_COMPONENT: string getter
+		/// ( 32feb110 ) into +0x8f8c, a miss assigns "" ( 3322f910 ). Read by UpdateUnitPointer ( dungeon 327cea70 ) and the sub-stage
+		/// boss-name start ( 327ef160, C3w ). Shipped: June Secret_Mad_Trock_Summoner = "MAD_TROCK_SUMMONER_START" ( no templet names it ).
+		LUA_GET_VALUE_UTF8( m_LuaManager, "FORCE_CINEMATIC_STATE", m_strJuneForceCinematicState, "" );
+#endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 
 		m_LuaManager.EndTable();
 	}

@@ -2348,6 +2348,22 @@ void CX2DungeonGame::TextOutTutorial_LUA( int nMsg, float fTime )
 		{
 #ifdef MODIFY_DUNGEON_STAGING
 			//던전 스크립트에 의한 동작
+#ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
+			// June effect completion C3s: June CX2DungeonGame::UpdateUnitPointer 327cea70 @327ceaaf-327ceb43. A FORCE_CINEMATIC_STATE
+			// ( +0x8f8c ) replaces the start-state test: input stops while the NPC is in that state ( GetStateID 3275aaf0 vs nowState
+			// +0x8454 ), whether or not m_bStopAtStartState ( +0x8e38 ) is set. Without the key June runs March's test.
+			const bool bJuneForceCinematic = pCX2GUNPC->HasJuneForceCinematicState();
+			const bool bJuneInForceCinematic = true == bJuneForceCinematic
+				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetJuneForceCinematicState() ) == static_cast<int>(pCX2GUNPC->GetGameUnitState());
+			if( true == pCX2GUNPC->GetStopAtStartState() && false == bJuneForceCinematic )
+			{
+				CanNotInputAndDisalbeNPCAI( pCX2GUNPC->GetStartState() == static_cast<int>(pCX2GUNPC->GetGameUnitState()) );
+			}
+			else if( true == bJuneForceCinematic )
+			{
+				CanNotInputAndDisalbeNPCAI( bJuneInForceCinematic );
+			}
+#else SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 			if( true == pCX2GUNPC->GetStopAtStartState() )
 			{
 				if( pCX2GUNPC->GetStartState() == static_cast<int>(pCX2GUNPC->GetGameUnitState()) )
@@ -2360,14 +2376,23 @@ void CX2DungeonGame::TextOutTutorial_LUA( int nMsg, float fTime )
 				}
 			}
 
+#endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 			//NPC 스크립트에 의한 동작
 			if( true == pCX2GUNPC->GetStopAtCurrentState() )
 			{//키입력 제한 해제는 NPC의 스테이트 종료시 해제. (C ommonStateEnd() )
 				CanNotInputAndDisalbeNPCAI(true);				
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
+			// June @327ceb67-327cebee: with a FORCE_CINEMATIC_STATE the camera goes to the NPC exactly while it is in that state, and
+			// m_bFocusCamera / FOCUS_CAMERA_AT_CURRENT_STATE are not read; otherwise March's two conditions.
+			if( true == bJuneForceCinematic ? true == bJuneInForceCinematic :
+				( ( true == pCX2GUNPC->GetFocusCamera() && pCX2GUNPC->GetStartState() == (int)pCX2GUNPC->GetGameUnitState() )
+				|| true == pCX2GUNPC->GetFocusCameraAtCurrentState() ) )
+#else SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 			if( true == pCX2GUNPC->GetFocusCamera() && pCX2GUNPC->GetStartState() == (int)pCX2GUNPC->GetGameUnitState()
 				|| true == pCX2GUNPC->GetFocusCameraAtCurrentState() )
+#endif SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
 			{
 				if( true == pCX2GUNPC->GetApplyCinematicUI() && true == g_pMain->IsInheritStateMenu())
 				{

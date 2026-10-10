@@ -6657,3 +6657,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              entry with CONSUME_MP > 0 only when FlushMp( CONSUME_MP ) succeeds ( vslot 0xe4 = 3208dc70 ). Data: 10 PVP_HERO_* scripts.
 #define SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3s: the NPC INIT_COMPONENT key FORCE_CINEMATIC_STATE ( June 327a0fa0 @327ab5fe, +0x8f8c, a state
+//              name ). In CX2DungeonGame::UpdateUnitPointer ( June 327cea70 ) a named state replaces the stop-at-start and focus-camera
+//              tests: input stops and the camera holds the NPC exactly while it is in that state. Data: June Secret_Mad_Trock_Summoner only.
+#define SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3s: CX2BattleFieldGame::UpdateUnitPointer ( June 32d530a0 @32d530a3-32d530b4 ) returns before the
+//              base update and the NPC focus walk while the game has no my-unit.
+#define SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
+//////////////////////////////////////////////////////////////////////////
