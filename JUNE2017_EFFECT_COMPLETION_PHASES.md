@@ -2844,6 +2844,7 @@ bytecode (junekom + ljconv) in the KOG luajit and diffs every `AddDungeonData` t
 
 **Hygiene.** `flagcheck --worktree --files` on all 8 flags: RESULT PASS, 0 deleted, 0 non-ASCII, 0 EOL mismatches (378 lines
 inserted, 6 files; the OTHER rows are the sibling batch-1 flags sharing the files).
+After the commit, `flagcheck --range 6788262^..6788262 --files <the 6 code files>`: RESULT PASS for all 8 flags.
 
 `DEPLOY OK: X2_offline.exe is 19,537,408 B, dated 2026-10-10 16:50:29, md5 c1bcf39df31a318dca435b0b52092e87, equal to X2/US_SERVICE/x2.exe (2026-10-10 16:50:24); built at mods/june-buff-port 7482b9e + 6 uncommitted code file(s).`
 The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
@@ -2854,6 +2855,12 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
 - Sander Den of Trock Normal: trock summoners call `CreateNPCReq_LUA` / `PushCreateNPCReq_Lua` and Get/SetStoredGUUser. One
   `can't find 'GetNPCUnitNumCheckTeam'` (C3z-4b) is expected.
 - Log: `offline_server.log` `JUNE_FX C3z-4 ...` (first 10-30 calls per method). ErrorLog has no `can't find` for a batch-1 name.
+- Not exercised by these two dungeons: `GetDyingStart` (Elysion / Henir / Ranox Secret Hell scripts) and `GetHostGameUnit`
+  (the last fallback of `GetUser`, after the target and a random user are both nil; no log line). Both are bound and in the exe.
+- **Summon IDs March lacks.** The newly bound NPC calls name 176 NPC ids. 8 exist only in June's Enum: `NUI_ELSION_PIMPIM`,
+  `NUI_ELSION_SUMMON2`, `NUI_SUMMON_SAND_HAND` (+`_EXTRA`), `NUI_TARANVASH_THE_SHINE_FAKE_A_HENIR` / `_B_HENIR`, `NUI_THIEF_FAT_HENIR` /
+  `_THIN_HENIR`. In March the nil id arrives as 0, `CX2Game::CreateNPC` finds no templet and creates nothing, so there is no crash.
+  Their Enum + NPCTemplet rows (the C3z-2 recipe) go to C3z-4b. The other 6 have rows and are inside C3z-1's `--all-npc` mesh closure.
 
 ## C4 - 8b, damage math
 

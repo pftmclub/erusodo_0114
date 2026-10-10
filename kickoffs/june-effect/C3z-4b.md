@@ -32,6 +32,8 @@ site, the bound function and what its body does (C3z-4 read them). Batch 1's cod
   NPC scripts see a `CX2Game*`, so a dungeon override is a March `virtual` override, as `IsVotingLuto` did.
 - **Batch 3** (`untyped-gap` rows): June also binds `GetIsRight` / `GetRotateDegree` on CX2GameUnit, `SetIsRight` on CX2GUUser and
   `CannotInput` on CX2DungeonGame. Check what types reach those receivers, then bind June's class.
+- **Data:** add the 8 June-only summon ids C3z-4 found (Done note, 'Summon IDs March lacks') to data036 `Enum.lua` and data037
+  `NPCTemplet.lua` by the C3z-2 recipe (June values, verbatim rows, mesh census), then pack and copy (ask before the copy).
 - Not this phase: the `system` rows (tutorial guide, SimpleDLG: their own STATUS rows) and `june-bug` rows (JUNE_BUGS #169).
 
 Gate: `python june2017_re/c3z4_class_census.py` lists only `system` and `june-bug` rows (and `untyped-gap` rows whose receiver is
