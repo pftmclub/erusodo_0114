@@ -3327,10 +3327,13 @@ default, accessor, every June reader, the March counterpart, verdict).
   added after the Henir test in SetShowUI (`32154820` @32154ced).
 
 **Visible now:**
-- The 51 Expert rows with FixMaximumDifficulty make Ruben through Ranox play at Expert only: no difficulty boxes, no suffix,
-  and "1~4" recommended.
+- 50 Expert rows set FixMaximumDifficulty, from Ruben's Ruins of Elf / Swamp through Ranox, so those dungeons play at Expert
+  only: no difficulty boxes, no suffix, and "1~4" recommended.
+- Ruben's El Tree sets FixMaximumDifficulty on its normal-only row, so it stays Normal and shows "1".
 - The 4 Secret Hells (m_SuitableLevelFixValue 0) open at m_MinLevel exactly (70), not 68.
-- KidDay already hid the quick slot; that is unchanged.
+- KidDay already hid the quick slot, so that is unchanged.
+- **DCC 11 can't be play-tested offline.** No local-map or location lua lists a KidDay dungeon, and no dev-console command
+  enters a dungeon by ID. Its proof is the exe strings and the flagcheck lines.
 
 **Routed to C3z-5b** (kickoff `C3z-5b.md`):
 - DCC 8 (riding pet; live on Henir, 5 sites);
@@ -3347,6 +3350,8 @@ DCC 0 and 3-7 have no client reader (C3z-6's server-half verdicts).
 - CHECK_CONDITION: 4 PASS, 1 PASS~, 2 OTHER (X2LocalMapUI = FIX_MAX; X2PartyUI = the other new flags), 0 FAIL; RESULT: PASS.
 - Both: 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`, 0 encoding changes. Every file was
   edited with bytepatch (CP949).
+- Post-commit, `--range da63fb2^..da63fb2`, the same `--with` sets. FIX_MAX_DIFFICULTY and CHECK_CONDITION each give 4 PASS,
+  1 PASS~, 1 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR, 0 deleted lines, 0 encoding changes; RESULT: PASS.
 
 **Deploy:**
 - `DEPLOY OK: X2_offline.exe is 19,556,352 B, dated 2026-10-11 05:53:10, md5 1c28ab8727eb2aeec0bdf7fd85cb9eb1` (built at
@@ -3355,8 +3360,11 @@ DCC 0 and 3-7 have no client reader (C3z-6's server-half verdicts).
 - The strings `JUNE_FX C3z-5 need_user`, `JUNE_FX C3z-5 party dungeon`, `FixMaximumDifficulty`, `DUNGEON_CHECK_CONDITION`
   and `m_SuitableLevelFixValue` are in the exe.
 
-**Log:** `logs.py --grep "JUNE_FX C3z-5"`. It shows `party dungeon N fixed to its top difficulty 2 (was 0)` and
-`need_user 1~4 for dungeon N (party of K, green)`.
+**Log:** `logs.py --grep "JUNE_FX C3z-5"`.
+- `need_user 1~4 for dungeon N (party of K, green)` is the reliable line.
+- `party dungeon N fixed to its top difficulty 2 (was 0)` appears only when the stored party data held a lower difficulty.
+  For example, the first party-window open with a dungeon kept from before this build. A local-map pick already starts at
+  Expert (GetDefaultDifficulty), so it logs nothing.
 
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
