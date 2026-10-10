@@ -5034,7 +5034,7 @@ RESULT: PASS
 
 **Next:** C9h-4g (Opus 5.5 high, kickoff updated), not at the same time as C3d-2 / C3d-3.
 
-### C9h-4g - Done (2026-10-10, Opus 5.5 high; flags `SERV_IRUHADEV_JUNE_USEFUL_STRING`, `_NOT_SELECT_UNIT_OFFSET`, `_RESERVED_STATE_IDS`, `_WAIT_STATE_CHANGE` + `SERV_IRUHADEV_JUNE_C9H4G_DEBUG` (on for the play-test); log `JUNE_FX C9h-4g`; data036 Enum.lua repacked; play-test pending)
+### C9h-4g - Done (2026-10-10, Opus 5.5 high; flags `SERV_IRUHADEV_JUNE_USEFUL_STRING`, `_NOT_SELECT_UNIT_OFFSET`, `_RESERVED_STATE_IDS`, `_WAIT_STATE_CHANGE` + `SERV_IRUHADEV_JUNE_C9H4G_DEBUG` (on for the play-test); log `JUNE_FX C9h-4g`; data036 Enum.lua repacked; play-test PASSED 2026-10-10, logs read)
 
 Files: `X2GUUser.h/.cpp`, `Always.h`, data036 `Enum.src.lua` (folded into BOM-source `Enum.lua`). Funcmap rows `(C9h-4g)` (13), JUNE_BUGS 155, checklist 7h row, backlog Stage 8 lines.
 
@@ -5078,7 +5078,9 @@ OTHER = the four flags share the three files. RESERVED_STATE_IDS's one ERROR is 
 
 **Play-test facts (enumprobe):** only Chung crosses 255 after the shift (last 269; the other classes top out at 239). Tactical Trooper `CSI_CTT_COMBO_DASH_X` is 262 (was 251), Rapid Cannon loop / final 267 / 268, Artillery Nova fire 269, `CSI_COMBO_XX` 126, Wolf Spear 212, Wolf Break 214.
 
-**Open for the user:** none. Next: the play-test (hand-off below), then `/x2-phase june-effect C9h-4g review`; C9h-4h after it.
+**Play-test PASSED (user, 2026-10-10; run 09:29-09:36, after the deploy):** all 7 checks (Chung guard XX, Freils dash X 262 / Bigbang / Aceldama, Rapid Cannon 267/268, Artillery Nova 269, Ara Wolf Spear -> Wolf Break, every class's common states + one skill, a full clear). Logs: 12 `USEFUL_STRING ... rows=0` and 12 `NOT_SELECT ... offset=0,0 motion_difference=1` lines (the miss default is true, as June), no `USI_WAIT_STATE_CHANGE` line (no class registers it), 0 EXCEPTION, UNHANDLED = 8x `E_DISABLE_HB_CHECK_REQ` (baseline), clean-exit census.
+
+**Open for the user:** none. Next: `/x2-phase june-effect C9h-4g review` (Opus 5.5 high); C9h-4h after it.
 
 ### C9h-4h - port: the event states (Heavenly Combat Support Kit)
 
