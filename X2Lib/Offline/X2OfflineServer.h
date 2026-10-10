@@ -338,6 +338,28 @@ public:
 #endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		DWORD			m_dwPlayStartTick;
 
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+		/// June effect C3z-6. KDungeonRoom::m_iExtraStageLoadCount: zeroed at StartGame (DungeonRoom.cpp:756),
+		/// counted on each ST_EXTRA stage load of a secret dungeon in DM_SECRET_HELL (:3687), read at :4150.
+		/// m_iLoadedStageType is the STAGE_TYPE the last EGS_DUNGEON_STAGE_LOAD_REQ loaded. BuildStageNpcData
+		/// sets both, under either flag, so each flag still builds on its own.
+		int				m_iExtraStageLoadCount;
+		int				m_iLoadedStageType;
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+		/// KDungeonRoom::m_iAverageUserLevelAtDungeonStart (DungeonRoom.cpp:780 / :820), frozen at dungeon start
+		/// by OnDungeonStartGame, so a level-up mid-run does not move the monsters.
+		int				m_iAverageUserLevelAtDungeonStart;
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+		/// KDungeonRoom::m_fPoisonTimeLimit (DungeonRoom.cpp:758): seconds of play before the poison; -1 once the
+		/// timeout has gone out (:182). m_bPoisonSecretDungeon is m_eDungeonType == DT_SECRET (:170 / :1073), and
+		/// m_dwPoisonClockTick is the play clock the limit counts against (KRoom::StartPlay; reset at :4156).
+		float			m_fPoisonTimeLimit;
+		bool			m_bPoisonSecretDungeon;
+		DWORD			m_dwPoisonClockTick;
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
 		//////////////////////////////////////////////////////////////////////////
 		/// AI party members (AI_PARTY_PLAN.md phase 1). One entry per bot the
 		/// auto-party button asked for; empty for every other way into a room,
@@ -405,6 +427,15 @@ public:
 			m_kResultData.m_vecDungeonUnitInfo.clear();
 			m_kResultData.m_mapHaveExpInDungeon.clear();
 			m_bResultDataPending = false;
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+			m_iExtraStageLoadCount	= 0;
+			m_iLoadedStageType		= 0;		///< CX2DungeonStage::ST_NONE
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+			m_fPoisonTimeLimit		= -1.f;
+			m_bPoisonSecretDungeon	= false;
+			m_dwPoisonClockTick		= 0;
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 		}
 
 		void Clear()
@@ -442,6 +473,9 @@ public:
 			m_setMiddleBossAlive.clear();
 #endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			m_dwPlayStartTick	= 0;
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+			m_iAverageUserLevelAtDungeonStart = 0;
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
 			m_vecBot.clear();		///< a fresh room has no bots until auto-party asks
 		}
 	};
@@ -1022,6 +1056,27 @@ private:
 	/// copy of the dungeon script; mirrors CXSLDungeon::GetNPCData. Stamps a UID
 	/// on every monster and records its level and ID for the kill reward.
 	void BuildStageNpcData( int iStageID, OUT std::map< int, KNPCList >& mapOut );
+
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+	/// June effect C3z-6: the dungeon half of KDungeonRoom::StartGame (DungeonRoom.cpp:756-820) - the extra-stage
+	/// count, the poison limit and the party's average level, frozen. Called at both dungeon start points.
+	void OnDungeonStartGame( const KOfflineUnitRow& kRow );
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+	/// The relative monster level KDungeonRoom's stage load hands GetNPCData (DungeonRoom.cpp:3656-3710), from the
+	/// room's DungeonData (type, min / max level) and the loaded stage's STAGE_TYPE. BuildStageNpcData counts the
+	/// ST_EXTRA load (:3687) itself, so the count also exists without this flag.
+	int RelativeMonsterLevelForStage( int iDungeonType, int iMinLevel, int iMaxLevel, int iStageType );
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+	/// KDungeonRoom::StartPlay's poison countdown (DungeonRoom.cpp:1072-1078), sent after EGS_PLAY_START_NOT.
+	void StartSecretPoison( KOfflineSession& kSes );
+	/// KDungeonRoom::Tick's poison check (DungeonRoom.cpp:167-186), on the three-second play-status beat.
+	void TickSecretPoison( KOfflineSession& kSes );
+	/// The first ST_EXTRA load of Altera's secret dungeon restarts the clock with the extra-stage limit
+	/// (DungeonRoom.cpp:4147-4166). Called from the stage-load handler after BuildStageNpcData.
+	void ExtraStageSecretPoison( KOfflineSession& kSes );
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 	//////////////////////////////////////////////////////////////////////////
 	// Handlers_Inventory.cpp - phase 5

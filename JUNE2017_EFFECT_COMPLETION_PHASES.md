@@ -2999,6 +2999,72 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
 - Batch 1 is done. Not exercised in game: `PushCreateNPCReq_Lua`, `GetStoredGUUser`, `GetHostGameUnit`, `GetDyingStart` (rare
   boss moves / fallbacks); the review reads them against June.
 
+### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
+
+**`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
+- **Start** (`OnDungeonStartGame`, called at both dungeon start points):
+  - The base is the party's average level, frozen at dungeon start (`DungeonRoom.cpp:780`): `GetAverageUserLevel(5)`
+    (`RoomUserManager.cpp:6309-6352`) skips a member more than 5 below the highest and uses integer division.
+  - Henir challenge takes 1 (`:787-798`; `SERV_HENIR_RENEWAL_2013` is off). An average of `<= 0` becomes `g_iMaxLevel`
+    (`:842-852`, standing in for `GetLimitsLevel`).
+  - **"Party" offline** is the player plus the AI bots: `MakeRoomSlots` puts them in the room's slots, so they are the server's
+    `UT_GAME` users. `MakePartyBots` gives them the player's level, so the average is the player's level either way.
+- **Stage load** (`RelativeMonsterLevelForStage`, `:3656-3712`):
+  - `DT_SECRET` clamps into [`m_MinLevel`, `m_MaxLevel`], then adds +5 in `DM_SECRET_HELL`. An `ST_EXTRA` stage adds
+    +5 + the extra-stage level instead.
+  - A defence dungeon (`CASE_DEFENCE_DUNGEON`, ID without difficulty) clamps to the minimum only. Nothing is clamped after the +5.
+  - The base applies only to a relative dungeon (`XSLDungeon.cpp:374-376`); the script's per-NPC `LEVEL` is still added.
+  - **Mode offline:** the room's `m_cDungeonMode`, as sent. The local map and party manager send `DM_SECRET_HELL` (4) for every
+    secret dungeon under `SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS`.
+- **Extra-stage level** comes from server Lua `SecretDungeonData.lua` (`SetSecretDungeonExtraStageNpcLevel( 2 )`, line 6).
+  - It is loaded the shipped way, borrowing `g_pDungeonManager` and handing it back. Its other two calls are bound and unused
+    (extra-stage entry odds; offline the client's secret-stage pad decides).
+  - **Not packed yet:** the cited live value 2 stands in, and the log says so.
+  - All 5 Secret Hell scripts have an `ST_EXTRA` stage, so this branch is live.
+- **Was** (`#else`): `m_MaxLevel`, else `m_MinLevel`. That was 99 for June's 70-99 Secret Hells.
+- **Expected:** Freils (unit 18, level 72) in Elder Secret Hell: base 77 (72 + 5), 79 on the extra stage. A level-80 character
+  gets 85 / 87.
+
+**`SERV_IRUHADEV_OFFLINE_SECRET_POISON`**: the server's poison timer.
+- `m_fPoisonTimeLimit` / `m_fExtraStagePoisonTimeLimit` are read into the client's `DungeonData` (`X2Dungeon.h`,
+  `X2DungeonManager.cpp`; the server's reads are `XSLDungeonManager.cpp:173-174`).
+- The emulator sends:
+  - `EGS_DUNGEON_EFFECT_REMAINING_TIME_NOT` after `EGS_PLAY_START_NOT` (`:1072-1078`);
+  - `EGS_DUNGEON_EFFECT_TIME_OUT_NOT` (`DDT_POISON`) once, on the 3 s play-status beat, after the limit (`:167-186`);
+  - the extra limit on Altera's first `ST_EXTRA` load (`:4147-4166`).
+- **Only Altera Secret Hell sets one:** 720 s, extra stage 900 s. The client applies the poison to Altera ids only
+  (`X2DungeonGame.cpp:2497-2519`).
+- **Deviation:** `:4156-4157` (the play-time limit reset) is not mirrored on `m_dwPlayStartTick`. Offline's limit is 19999 s,
+  and that tick also times the result screen. The poison clock restarts instead.
+
+**Server-only keys, verdicts** (`june2017_re/dungeon_registry_census.tsv` lists none of them as a June client read):
+- `requireLevel`: the March server's reader is commented out (`XSLDungeonManager.cpp:107`). Only 4 test rows set it, all 0.
+  Nothing.
+- `m_bForbidEnterDungeon` (the 4 `*_SECRET_COMMON` rows, unreachable `UNUSED_DUNGEON_ID`s) and `m_bArcadeMode` (3 arcade rows):
+  no March server reader exists, and June's server is not available. Nothing.
+- `m_bSwitchingWithEventInfo` (KidDay x4, Tree Day x6). Live, it gates entry by the event schedule (`GSUserParty.cpp:1094`,
+  `GSUserFunction.cpp:10480` / `10810`) and drives `EGS_UPDATE_DUNGEON_STATUS_NOT` (`:17940`). The emulator sends no status
+  packet, so the client (`IsDungeonEnable`) treats them as enabled. **Not ported, open question below.**
+- `DUNGEON_CHECK_CONDITION`, server half: March's server reads no `DCC_*`.
+  - The 13 `DCC_EVENT_DUNGEON` rows are exactly March's hard-coded `CXSLDungeon::IsEventDungeon` list (`XSLDungeon.cpp:1103-1135`:
+    KidDay 4, Tree Day 6, Defence 3), so June moved a March ID list into data.
+  - Its consumers:
+    - spirit (`UserSpiritManager.cpp:82`): offline spirit is pinned full (`FillSpirit`), so nothing to do;
+    - the stat "revision" (`GSUserFunction.cpp:11698`, `12848`): the emulator does not mirror it, and that gap predates June.
+  - `DCC_NOT_SUMMON_RIDING_PET` (Henir) and the client half: C3z-5.
+
+**Hygiene** (both flags; the compound `#if` blocks need `--with`):
+- `RELATIVE_NPC_LEVEL --with SECRET_POISON --worktree`: 2 PASS~, 2 OTHER (Always.h defines; Handlers_Field's block is POISON), 0 FAIL, 0 ERROR.
+  RESULT: PASS.
+- `SECRET_POISON --with RELATIVE_NPC_LEVEL --worktree`: 2 PASS, 3 PASS~, 1 OTHER (Always.h), 0 FAIL, 0 ERROR. RESULT: PASS.
+- 0 deleted lines, 0 non-ASCII, 0 encoding changes. `X2Dungeon.h` / `X2DungeonManager.cpp` were edited with bytepatch (CP949).
+- `DEPLOY OK: X2_offline.exe is 19,551,232 B, dated 2026-10-10 23:22:04, md5 f29f14935e30771ee21f0a17645a8577` (built at
+  `3e66b8a` + this phase's files; it includes C3t). The `JUNE_FX C3z-6` and `scales monsters to the party: base` strings
+  are in the exe.
+
+**Open question (user):** event dungeons (KidDay, Tree Day) with no event running. Live, they are refused (`ERR_PARTY_22`).
+Offline they stay enterable, as before this phase. Port the gate (they become unenterable offline), or keep them open?
+
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
 **Status: planned. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`. The user asked for June's boss-intro skip.

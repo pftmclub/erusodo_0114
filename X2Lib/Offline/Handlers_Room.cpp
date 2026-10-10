@@ -1288,6 +1288,11 @@ bool CX2OfflineServer::SendDungeonGameStartNot( KOfflineSession& kSes, const KOf
 	// the first one's numbers.
 	m_kRoom.ClearPlayRun();
 
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+	// June effect C3z-6: KDungeonRoom::StartGame's dungeon half (average level, poison limit, extra-stage count).
+	OnDungeonStartGame( kRow );
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
 	KEGS_PARTY_GAME_START_NOT kNot;
 	kNot.m_sWorldID	= 0;
 	MakeRoomInfo( kNot.m_RoomInfo );
@@ -1636,6 +1641,11 @@ bool CX2OfflineServer::Handler_EGS_STATE_CHANGE_GAME_START_REQ( KOfflineSession&
 	// the first one's numbers.
 	m_kRoom.ClearPlayRun();
 
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+	// June effect C3z-6: KDungeonRoom::StartGame's dungeon half (average level, poison limit, extra-stage count).
+	OnDungeonStartGame( kRow );
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
 	KEGS_STATE_CHANGE_GAME_START_NOT kNot;
 	kNot.m_cRoomState	= (char)CX2Room::RS_LOADING;
 	kNot.m_iGameType	= (int)CX2Game::GT_DUNGEON;
@@ -1697,6 +1707,11 @@ bool CX2OfflineServer::Handler_EGS_GAME_LOADING_REQ( KOfflineSession& kSes, cons
 		m_kRoom.m_kInfo.m_iDungeonID );
 
 	Reply( kSes, EGS_PLAY_START_NOT, kStart );
+
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+	// June effect C3z-6: KDungeonRoom::StartPlay's poison countdown (DungeonRoom.cpp:1072-1078).
+	StartSecretPoison( kSes );
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 #ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 	// GSUserRoomCommon.cpp:1223-1225: loading at 100 sends the room's buff list
@@ -1787,9 +1802,357 @@ bool CX2OfflineServer::Handler_EGS_BATTLE_FIELD_NPC_LOAD_COMPLETE_REQ( KOfflineS
 // studio's own (SubStageData::LoadNPCData, revived under the flag), and this
 // function is only the KNPCUnitReq assembly the server did on top of it.
 
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+//////////////////////////////////////////////////////////////////////////
+/// June effect C3z-6: the server's SecretDungeonData.lua (KncWX2Server/ServerResource/US), which sets
+/// CXSLDungeonManager::m_iSecretDungeonExtraStageNpcLevel - the extra levels a Secret Hell's ST_EXTRA stage adds on
+/// top of +5 (DungeonRoom.cpp:3690). Server-only, so it is read only if the user has packed it into data036.kom;
+/// otherwise the live US value it sets, 2 (SecretDungeonData.lua:6), stands in and the log says so.
+///
+/// The file also calls AddExtraStageCondition and SetExtraStageFactor (lines 10-19). Both are bound so the chunk
+/// runs to the end, and neither is used: they tune the server's extra-stage entry odds, which offline the
+/// client's secret-stage pad already decides (Handler_EGS_DUNGEON_SECRET_STAGE_ENTER_CHECK_REQ).
+class CX2OfflineSecretDungeonData
+{
+public:
+	CX2OfflineSecretDungeonData()
+		: m_bAttempted( false )
+		, m_bLoaded( false )
+		, m_bSet( false )
+		, m_iExtraStageNpcLevel( 2 )			///< SecretDungeonData.lua:6, the live US value
+		, m_iConditionRows( 0 )
+	{
+	}
+
+	int ExtraStageNpcLevel()
+	{
+		EnsureLoaded();
+		return m_iExtraStageNpcLevel;
+	}
+
+	/// XSLDungeonManager.cpp:701-712: a negative level is refused and the old value kept.
+	void SetSecretDungeonExtraStageNpcLevel_LUA( int iLevel )
+	{
+		if( iLevel < 0 )
+		{
+			CX2OfflineLog::Server( L"GAME     ERROR SecretDungeonData.lua: extra-stage NPC level %d refused (negative)", iLevel );
+			return;
+		}
+
+		m_iExtraStageNpcLevel	= iLevel;
+		m_bSet					= true;
+	}
+
+	void AddExtraStageCondition_LUA( int /*iBeginLevel*/, int /*iEndLevel*/, float /*fFactor*/ )
+	{
+		++m_iConditionRows;
+	}
+
+	void SetExtraStageFactor_LUA( float /*fFactor*/ )
+	{
+	}
+
+private:
+	void EnsureLoaded()
+	{
+		if( true == m_bAttempted )
+			return;
+
+		m_bAttempted = true;
+
+		const wchar_t* const szName = L"SecretDungeonData.lua";
+
+		if( NULL == g_pKTDXApp || NULL == g_pKTDXApp->GetLuaBinder() ||
+			NULL == g_pKTDXApp->GetLuaBinder()->GetLuaState() ||
+			NULL == g_pKTDXApp->GetDeviceManager() ||
+			NULL == g_pKTDXApp->GetDeviceManager()->GetMassFileManager() )
+		{
+			return;
+		}
+
+		// The shipped load path, as X2OfflineBattleField.cpp's server-data loader does it.
+		KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_POINTER kInfo;
+#ifdef SERV_IRUHADEV_OFFLINE_PROBE_ENCRYPT_FIX
+		kInfo = g_pKTDXApp->GetDeviceManager()->GetMassFileManager()->LoadDataFile( szName, true, true );
+#else
+		kInfo = g_pKTDXApp->GetDeviceManager()->GetMassFileManager()->LoadDataFile( szName );
+#endif SERV_IRUHADEV_OFFLINE_PROBE_ENCRYPT_FIX
+
+		if( NULL == kInfo->pRealData || kInfo->size <= 0 )
+		{
+			CX2OfflineLog::Server(
+				L"GAME     NOTE '%s' not packed - a Secret Hell extra stage adds the live US value %d"
+				L" (SecretDungeonData.lua:6). XOR-encrypt KncWX2Server/ServerResource/US/%s and pack it into data036.kom.",
+				szName, m_iExtraStageNpcLevel, szName );
+			return;
+		}
+
+		lua_State* pLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+
+		lua_tinker::class_add< CX2OfflineSecretDungeonData >( pLuaState, "CX2OfflineSecretDungeonData" );
+		lua_tinker::class_def< CX2OfflineSecretDungeonData >( pLuaState, "SetSecretDungeonExtraStageNpcLevel",
+			&CX2OfflineSecretDungeonData::SetSecretDungeonExtraStageNpcLevel_LUA );
+		lua_tinker::class_def< CX2OfflineSecretDungeonData >( pLuaState, "AddExtraStageCondition",
+			&CX2OfflineSecretDungeonData::AddExtraStageCondition_LUA );
+		lua_tinker::class_def< CX2OfflineSecretDungeonData >( pLuaState, "SetExtraStageFactor",
+			&CX2OfflineSecretDungeonData::SetExtraStageFactor_LUA );
+
+		// The file calls g_pDungeonManager, which is the client's CX2DungeonManager (X2DungeonManager.cpp:53);
+		// borrow the name for the run and hand it back.
+		lua_tinker::decl( pLuaState, "g_pDungeonManager", this );
+
+		if( false == g_pKTDXApp->LoadAndDoMemory( g_pKTDXApp->GetLuaBinder(), szName ) || false == m_bSet )
+		{
+			CX2OfflineLog::Server( L"GAME     NOTE '%s' read without decryption", szName );
+			g_pKTDXApp->LoadAndDoMemory( g_pKTDXApp->GetLuaBinder(), szName, false );
+		}
+
+		if( NULL != g_pData && NULL != g_pData->GetDungeonManager() )
+			lua_tinker::decl( pLuaState, "g_pDungeonManager", g_pData->GetDungeonManager() );
+
+		if( false == m_bSet )
+		{
+			CX2OfflineLog::Server( L"GAME     ERROR '%s' loaded but set nothing - the live US value %d"
+				L" (SecretDungeonData.lua:6) is kept.", szName, m_iExtraStageNpcLevel );
+			return;
+		}
+
+		m_bLoaded = true;
+		CX2OfflineLog::Server( L"GAME     '%s' loaded: extra-stage NPC level %d, %d extra-stage condition row(s) (unused offline)",
+			szName, m_iExtraStageNpcLevel, m_iConditionRows );
+	}
+
+	bool	m_bAttempted;
+	bool	m_bLoaded;
+	bool	m_bSet;
+	int		m_iExtraStageNpcLevel;
+	int		m_iConditionRows;
+};
+
+static CX2OfflineSecretDungeonData g_kOfflineSecretDungeonData;
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+void CX2OfflineServer::OnDungeonStartGame( const KOfflineUnitRow& kRow )
+{
+	// KDungeonRoom::StartGame (DungeonRoom.cpp:697), its dungeon half. The room is entered by ID + difficulty, the
+	// key GetDungeonIDAndDif() looks DungeonData up by.
+	const int iDungeonIDAndDif = m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel;
+
+	const CX2Dungeon::DungeonData* pData = NULL;
+	if( NULL != g_pData && NULL != g_pData->GetDungeonManager() )
+		pData = g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID)iDungeonIDAndDif );
+
+	// :756
+	m_kRoom.m_iExtraStageLoadCount = 0;
+
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+	// :758 (GetPoisonTimeLimit returns -1 for a dungeon it cannot find, XSLDungeonManager.cpp:633) and :771.
+	m_kRoom.m_fPoisonTimeLimit		= ( NULL != pData ) ? pData->m_fPoisonTimeLimit : -1.f;
+	m_kRoom.m_bPoisonSecretDungeon	= ( NULL != pData && CX2Dungeon::DT_SECRET == pData->m_eDungeonType );
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+	// :784-825, the #else of SERV_HENIR_RENEWAL_2013 (commented out, ServerDefine.h:4156): Henir's challenge mode
+	// takes 1, every other dungeon the party's average.
+	int iAverage		= 0;
+	int iMemberCount	= 0;
+	int iCountedCount	= 0;
+
+	if( NULL != pData && CX2Dungeon::DT_HENIR == pData->m_eDungeonType &&
+		CX2Dungeon::DM_HENIR_CHALLENGE == (int)m_kRoom.m_kInfo.m_cDungeonMode )
+	{
+		iAverage = 1;
+	}
+	else
+	{
+		// KRoomUserManager::GetAverageUserLevel( DE_CALC_AVERAGE_INCLUDE_LEVEL_GAP = 5 ) (RoomUserManager.cpp:6309-6352,
+		// XSLDungeon.h:87) over the room's game users: the player and the AI party bots, which MakeRoomSlots puts in
+		// the room's slots. A member more than 5 levels below the highest is left out; integer division.
+		std::vector< int > vecLevel;
+		vecLevel.push_back( kRow.m_iLevel );
+		for( size_t i = 0; i < m_kRoom.m_vecBot.size(); ++i )
+			vecLevel.push_back( m_kRoom.m_vecBot[i].m_iLevel );
+
+		int iHighest = 0;
+		for( size_t i = 0; i < vecLevel.size(); ++i )
+		{
+			if( vecLevel[i] > iHighest )
+				iHighest = vecLevel[i];
+		}
+
+		int iTotal = 0;
+		for( size_t i = 0; i < vecLevel.size(); ++i )
+		{
+			if( ( iHighest - vecLevel[i] ) > 5 )
+				continue;
+
+			iTotal += vecLevel[i];
+			++iCountedCount;
+		}
+
+		iMemberCount = (int)vecLevel.size();
+		iAverage = ( 0 != iCountedCount ) ? ( iTotal / iCountedCount ) : 0;
+	}
+
+	// :842-852: an average of 0 or less becomes GetLimitsLevel(); offline's cap is g_iMaxLevel (as at
+	// Handlers_Inventory.cpp's level-up scroll refusal).
+	if( iAverage <= 0 )
+	{
+		CX2OfflineLog::Server( L"GAME     ERROR dungeon %d average level %d at start - using the cap %d",
+			iDungeonIDAndDif, iAverage, (int)_CONST_X2GAME_::g_iMaxLevel );
+		iAverage = (int)_CONST_X2GAME_::g_iMaxLevel;
+	}
+
+	m_kRoom.m_iAverageUserLevelAtDungeonStart = iAverage;
+
+	if( NULL != pData && true == pData->m_bRelativeMonsterLevel )
+	{
+		CX2OfflineLog::Server( L"JUNE_FX C3z-6 dungeon %d start: average level %d (%d of %d member(s) counted, mode %d)",
+			iDungeonIDAndDif, iAverage, iCountedCount, iMemberCount, (int)m_kRoom.m_kInfo.m_cDungeonMode );
+	}
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+}
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+int CX2OfflineServer::RelativeMonsterLevelForStage( int iDungeonType, int iMinLevel, int iMaxLevel, int iStageType )
+{
+	// DungeonRoom.cpp:3656 (SERV_DUNGEON_NPC_LEVEL, ServerDefine.h:1937): the average frozen at dungeon start.
+	int iLevel = m_kRoom.m_iAverageUserLevelAtDungeonStart;
+
+	// :3662-3699 (SERV_SECRET_HELL, ServerDefine.h:229). Min and max are GetDungeonMin/MaxLevel( GetDungeonIDAndDif() ),
+	// i.e. this DungeonData's m_MinLevel / m_MaxLevel (XSLDungeonManager.cpp:303-311). No clamp after the +5.
+	if( CX2Dungeon::DT_SECRET == iDungeonType )
+	{
+		if( iLevel < iMinLevel )
+			iLevel = iMinLevel;
+
+		if( iLevel > iMaxLevel )
+			iLevel = iMaxLevel;
+
+		if( CX2Dungeon::DM_SECRET_HELL == (int)m_kRoom.m_kInfo.m_cDungeonMode )
+		{
+			// :3684-3690 (the ++m_iExtraStageLoadCount at :3687 is BuildStageNpcData's) and :3692-3696.
+			if( CX2DungeonStage::ST_EXTRA == iStageType )
+				iLevel = iLevel + 5 + g_kOfflineSecretDungeonData.ExtraStageNpcLevel();
+			else
+				iLevel = iLevel + 5;
+		}
+	}
+	else
+	{
+		// :3701-3712 (SERV_INSERT_GLOBAL_SERVER, ServerDefine.h:978): CXSLDungeon::IsDefenceDungeon( GetDungeonID() ),
+		// the ID without difficulty, clamps to the minimum only.
+		switch( m_kRoom.m_kInfo.m_iDungeonID )
+		{
+		CASE_DEFENCE_DUNGEON
+			if( iLevel < iMinLevel )
+				iLevel = iMinLevel;
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	return iLevel;
+}
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+void CX2OfflineServer::StartSecretPoison( KOfflineSession& kSes )
+{
+	if( false == m_kRoom.m_bActive || (char)CX2Room::RT_DUNGEON != m_kRoom.m_kInfo.m_RoomType )
+		return;
+
+	// KRoom::StartPlay starts the play clock the limit counts against.
+	m_kRoom.m_dwPoisonClockTick = ::GetTickCount();
+
+	// DungeonRoom.cpp:1072-1078: a secret dungeon with a limit shows the countdown from the start.
+	if( false == m_kRoom.m_bPoisonSecretDungeon || m_kRoom.m_fPoisonTimeLimit <= 0.0f )
+		return;
+
+	KEGS_DUNGEON_EFFECT_REMAINING_TIME_NOT kNot;
+	kNot.m_fRemainingTime = m_kRoom.m_fPoisonTimeLimit;
+
+	CX2OfflineLog::Server( L"JUNE_FX C3z-6 poison countdown %.0fs (dungeon %d)", kNot.m_fRemainingTime,
+		m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel );
+
+	Reply( kSes, EGS_DUNGEON_EFFECT_REMAINING_TIME_NOT, kNot );
+}
+
+void CX2OfflineServer::TickSecretPoison( KOfflineSession& kSes )
+{
+	// KDungeonRoom::Tick (DungeonRoom.cpp:165-186) runs in S_PLAY; offline, a dungeon in play.
+	if( NULL == g_pMain || CX2Main::XS_DUNGEON_GAME != g_pMain->GetNowStateID() )
+		return;
+
+	if( false == m_kRoom.m_bActive || (char)CX2Room::RS_PLAY != m_kRoom.m_kInfo.m_RoomState )
+		return;
+
+	if( false == m_kRoom.m_bPoisonSecretDungeon || m_kRoom.m_fPoisonTimeLimit <= 0.0f || 0 == m_kRoom.m_dwPoisonClockTick )
+		return;
+
+	// :175 ( m_fPoisonTimeLimit + GetRemainingPlayTime() ) < GetPlayTimeLimit(): the play clock has run past the limit.
+	const float fElapsed = (float)( ::GetTickCount() - m_kRoom.m_dwPoisonClockTick ) / 1000.0f;
+	if( fElapsed <= m_kRoom.m_fPoisonTimeLimit )
+		return;
+
+	// :177-182: DDT_POISON once, then -1 so it is not sent again.
+	KEGS_DUNGEON_EFFECT_TIME_OUT_NOT kNot;
+	kNot.m_cType = KEGS_DUNGEON_EFFECT_TIME_OUT_NOT::DDT_POISON;
+
+	CX2OfflineLog::Server( L"JUNE_FX C3z-6 poison on after %.0fs (limit %.0fs, dungeon %d)", fElapsed,
+		m_kRoom.m_fPoisonTimeLimit, m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel );
+
+	m_kRoom.m_fPoisonTimeLimit = -1.f;
+
+	Reply( kSes, EGS_DUNGEON_EFFECT_TIME_OUT_NOT, kNot );
+}
+
+void CX2OfflineServer::ExtraStageSecretPoison( KOfflineSession& kSes )
+{
+	// DungeonRoom.cpp:4147-4150: the first extra-stage load.
+	if( CX2DungeonStage::ST_EXTRA != m_kRoom.m_iLoadedStageType || 1 != m_kRoom.m_iExtraStageLoadCount )
+		return;
+
+	// :4153 CXSLDungeon::IsAlteraDungeon( GetDungeonIDAndDif() ) (XSLDungeon.cpp:949-975). Its only DT_SECRET ids are
+	// these two, and only a DT_SECRET room in DM_SECRET_HELL counts an extra stage, so the rest of the list cannot
+	// reach here.
+	const int iDungeonIDAndDif = m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel;
+	if( SEnum::DI_ALTERA_SECRET_COMMON != iDungeonIDAndDif && SEnum::DI_ALTERA_SECRET_HELL != iDungeonIDAndDif )
+		return;
+
+	const CX2Dungeon::DungeonData* pData = NULL;
+	if( NULL != g_pData && NULL != g_pData->GetDungeonManager() )
+		pData = g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID)iDungeonIDAndDif );
+
+	// :4155-4157 restart the room's play-time limit. Not mirrored on m_dwPlayStartTick: offline's limit is 19999 s
+	// (effectively none), and that tick also times the result screen. The poison clock restarts instead, which is
+	// what :4156 does to the limit test at :175.
+	m_kRoom.m_dwPoisonClockTick = ::GetTickCount();
+
+	// :4160-4164
+	m_kRoom.m_fPoisonTimeLimit = ( NULL != pData ) ? pData->m_fExtraStagePoisonTimeLimit : -1.f;
+
+	KEGS_DUNGEON_EFFECT_REMAINING_TIME_NOT kNot;
+	kNot.m_fRemainingTime = m_kRoom.m_fPoisonTimeLimit;
+
+	CX2OfflineLog::Server( L"JUNE_FX C3z-6 poison countdown %.0fs (dungeon %d, extra stage)", kNot.m_fRemainingTime,
+		iDungeonIDAndDif );
+
+	Reply( kSes, EGS_DUNGEON_EFFECT_REMAINING_TIME_NOT, kNot );
+}
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
 void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCList >& mapOut )
 {
 	mapOut.clear();
+
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+	m_kRoom.m_iLoadedStageType = (int)CX2DungeonStage::ST_NONE;
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 	if( NULL == g_pData || NULL == g_pData->GetDungeonManager() )
 		return;
@@ -1817,6 +2180,12 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 	int iRelativeBase = 0;
 	bool bRelative = false;
 
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+	// June effect C3z-6: the base is the server's (RelativeMonsterLevelForStage), set below once the stage - and
+	// so its STAGE_TYPE - is known.
+	if( NULL != pDungeon->GetDungeonData() )
+		bRelative = pDungeon->GetDungeonData()->m_bRelativeMonsterLevel;
+#else // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
 #ifdef HENIR_TEST
 	if( NULL != pDungeon->GetDungeonData() )
 	{
@@ -1835,6 +2204,7 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 		}
 	}
 #endif HENIR_TEST
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
 
 	std::vector< CX2DungeonStage::StageData* >& vecStage = pDungeon->GetStageDataList();
 
@@ -1852,6 +2222,44 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 		SAFE_DELETE( pDungeon );
 		return;
 	}
+
+#if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
+	// June effect C3z-6: SiCXSLDungeonManager()->GetStageType( GetDungeonIDAndDif(), iStageID ) (DungeonRoom.cpp:3646),
+	// and the extra-stage count the server keeps inside its DT_SECRET / DM_SECRET_HELL branch (:3662, :3681-3687).
+	m_kRoom.m_iLoadedStageType = (int)pStageData->m_eStageType;
+
+	if( NULL != pDungeon->GetDungeonData() &&
+		CX2Dungeon::DT_SECRET == pDungeon->GetDungeonData()->m_eDungeonType &&
+		CX2Dungeon::DM_SECRET_HELL == (int)m_kRoom.m_kInfo.m_cDungeonMode &&
+		CX2DungeonStage::ST_EXTRA == pStageData->m_eStageType )
+	{
+		++m_kRoom.m_iExtraStageLoadCount;
+	}
+#endif // SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL || SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
+#ifdef SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+	if( NULL != pDungeon->GetDungeonData() )
+	{
+		const CX2Dungeon::DungeonData* pData = pDungeon->GetDungeonData();
+
+		// The server computes this for every stage load and applies it only to a relative-level dungeon
+		// (XSLDungeon.cpp:374-376), so it is logged only for one.
+		iRelativeBase = RelativeMonsterLevelForStage( (int)pData->m_eDungeonType, pData->m_MinLevel, pData->m_MaxLevel,
+			(int)pStageData->m_eStageType );
+
+		if( true == bRelative )
+		{
+			CX2OfflineLog::Server(
+				L"GAME     NOTE dungeon %d scales monsters to the party: base %d (server rule; the script's LEVEL is added)",
+				(int)eDungeonID, iRelativeBase );
+			CX2OfflineLog::Server(
+				L"JUNE_FX C3z-6 stage %d base %d: average %d, type %d, band %d-%d, mode %d, stage type %d, extra loads %d",
+				iStageID, iRelativeBase, m_kRoom.m_iAverageUserLevelAtDungeonStart, (int)pData->m_eDungeonType,
+				pData->m_MinLevel, pData->m_MaxLevel, (int)m_kRoom.m_kInfo.m_cDungeonMode, (int)pStageData->m_eStageType,
+				m_kRoom.m_iExtraStageLoadCount );
+		}
+	}
+#endif SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
 
 	for( size_t iSub = 0; iSub < pStageData->m_SubStageDataList.size(); ++iSub )
 	{
@@ -2108,6 +2516,12 @@ bool CX2OfflineServer::Handler_EGS_DUNGEON_STAGE_LOAD_REQ( KOfflineSession& kSes
 	// m_mapNPCData does not mean "use your own data", it means "this stage has
 	// no monsters", which is what the first run of this phase produced.
 	BuildStageNpcData( kReq.m_iStageID, kNot.m_mapNPCData );
+
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+	// June effect C3z-6: Altera's first extra stage restarts the poison clock (DungeonRoom.cpp:4147-4166), sent
+	// before the stage's NOT as the server does.
+	ExtraStageSecretPoison( kSes );
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 	int iNpcTotal = 0;
 	std::map< int, KNPCList >::const_iterator mit;

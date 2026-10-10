@@ -231,6 +231,11 @@ bool CX2OfflineServer::Handler_EGS_UPDATE_PLAY_STATUS_NOT( KOfflineSession& kSes
 	// into every dungeon. See PushRemainingPlayTime for the full story.
 	PushRemainingPlayTime( kSes );
 
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+	// June effect C3z-6: KDungeonRoom::Tick's poison check (DungeonRoom.cpp:167-186) rides the same beat.
+	TickSecretPoison( kSes );
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
+
 	// ...and the auto-party queue's, for the same reason. This packet is the
 	// only regular beat the village has - CX2StateMenu::OnFrameMove pushes it
 	// every three seconds through m_TimerForSendingPlayStatus - so the fake

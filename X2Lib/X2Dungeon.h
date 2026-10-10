@@ -184,6 +184,12 @@ class CX2Dungeon
 #if defined(X2TOOL) || defined(SERV_IRUHADEV_OFFLINE_NPC_GROUP_RATE)
 			int				m_iNpcLevel;
 #endif
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+			// June effect C3z-6: server-only keys ( XSLDungeonManager.cpp:173-174, read under SERV_SECRET_HELL ). The
+			// client never read them; the offline emulator runs the server's poison timer off them ( Handlers_Room.cpp ).
+			float			m_fPoisonTimeLimit;
+			float			m_fExtraStagePoisonTimeLimit;
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 		};
 
 		

@@ -241,6 +241,11 @@ bool CX2DungeonManager::AddDungeonData_LUA()
 	// 유저의 레벨에 따라서 몬스터의 레벨이 변경되게 할것인지 여부 지정
 	LUA_GET_VALUE(				luaManager, "m_bRelativeMonsterLevel",		pDungeonData->m_bRelativeMonsterLevel,		false );
 #endif HENIR_TEST
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+	// June effect C3z-6: the server's reads ( XSLDungeonManager.cpp:173-174 ), same keys and defaults.
+	LUA_GET_VALUE(				luaManager, "m_fPoisonTimeLimit",			pDungeonData->m_fPoisonTimeLimit,			-1.f );
+	LUA_GET_VALUE(				luaManager, "m_fExtraStagePoisonTimeLimit",	pDungeonData->m_fExtraStagePoisonTimeLimit,	-1.f );
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 	LUA_GET_VALUE(				luaManager, "m_DungeonDescription",		iStringIndex,	STR_ID_EMPTY );
 	pDungeonData->m_DungeonDescription = GET_STRING( iStringIndex );

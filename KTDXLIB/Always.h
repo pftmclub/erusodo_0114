@@ -6810,6 +6810,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-10
+// Description: June effect C3z-6. The offline emulator bases a relative-level dungeon's monsters on the server's rule
+//              ( CenterServer/DungeonRoom.cpp:3656-3710 ): the party's average level frozen at dungeon start
+//              ( RoomUserManager.cpp:6309-6352, members more than 5 below the highest skipped ), clamped into
+//              [ m_MinLevel, m_MaxLevel ] for DT_SECRET, +5 in DM_SECRET_HELL ( +5 + SecretDungeonData.lua's extra-stage
+//              level on an ST_EXTRA stage ), min-only for a defence dungeon. Was: m_MaxLevel ( else m_MinLevel ), which
+//              made June's 70-99 Secret Hells spawn level-99+ monsters. Server Lua: SecretDungeonData.lua ( data036 ).
+#define SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect C3z-6. Secret-dungeon poison timer, server half ( DungeonRoom.cpp:758, 1073-1078, 170-184,
+//              4147-4166 ): DungeonData's m_fPoisonTimeLimit / m_fExtraStagePoisonTimeLimit are read into the client's
+//              DungeonData, and the emulator sends EGS_DUNGEON_EFFECT_REMAINING_TIME_NOT at play start and
+//              EGS_DUNGEON_EFFECT_TIME_OUT_NOT ( DDT_POISON ) when the limit runs out. Only Altera's Secret Hell sets one.
+#define SERV_IRUHADEV_OFFLINE_SECRET_POISON
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
 // Description: June effect C3t. June's user state key SHOW_HYPER_CUT_IN_TIME ( 32057b80 @32060505, user +0x9280 ) and its
 //              reader ( CommonFrameMove 32063650 @3206ce0a ): user vslot 0x838 ( 32014fc0 ) shows the unit templet's
 //              m_HyperCutIn ( or m_BerserkCutIn in a 3-bead awakening, flag +0x951c set in CommonStateStart @3205e0d0 ) at
