@@ -3180,6 +3180,7 @@ matches June. **Finding, fixed:**
 **Hygiene.**
 - The fix, `flagcheck --worktree --files` (3 files): 2 PASS, 1 OTHER; RESULT PASS. The 5 deleted lines are the old post-factory
   `SetAIType` lines, inside the flag's own `#ifdef`.
+  Post-commit, `--range 52dd9a1^..52dd9a1`: 2 PASS (X2GUNPC.cpp +13, X2DungeonSubStage.cpp +4 -5), 1 OTHER; RESULT PASS.
 - C3z-4, `--range 6788262^..19a72fd`: every flag RESULT PASS, 0 FAIL. Batch-1 files show OTHER per flag because the flags share
   files, so they were checked as groups with `--with`:
   - all 10 flags: X2GUNPC.cpp/.h and X2Main.cpp PASS/PASS~ (only `//{{ //}}` markers outside);
