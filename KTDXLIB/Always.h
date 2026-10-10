@@ -6674,3 +6674,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              base update and the NPC focus walk while the game has no my-unit.
 #define SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3x: make a world that fails to load loud ( offline_server.log, JUNE_FX C3x ).
+//              CX2WorldManager::CreateWorld logs a world ID with no WorldData.lua row ( it returns NULL, which
+//              CX2DungeonGame::StageLoading dereferences ), a world script that fails to load and one that sets no
+//              line map; CX2World::SetLineMap_LUA logs a line map that fails to load. Log only: the crash stays
+//              ( user, 2026-10-10 ). No June counterpart; a diagnostic.
+#define SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
+//////////////////////////////////////////////////////////////////////////

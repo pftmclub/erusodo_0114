@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\x2worldmanager.h"
+#if defined(SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG) && defined(SERV_IRUHADEV_OFFLINE)
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 
 
 #ifdef KHELP_SYSTEM_TEST // 2008-10-24
@@ -80,8 +83,20 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 	}
 
 	// WorldData가 없으면
+#ifdef SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
+	// June effect C3x: a world ID with no WorldData.lua row used to return NULL silently, and
+	// CX2DungeonGame::StageLoading then read m_pWorld->GetLineMap() through it ( crash, no log ).
+	if ( NULL == pWorldData )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"JUNE_FX C3x world %d: no WorldData row ( data040 WorldData.lua ), CreateWorld returns NULL", (int) worldID );
+#endif SERV_IRUHADEV_OFFLINE
+		return NULL;
+	}
+#else
 	if ( NULL == pWorldData )
 		return NULL;
+#endif SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 	else // WorldData가 있으면
 	{
 		CX2World* pCX2World = new CX2World( pWorldData, bBackgroundLoad_ );
@@ -89,7 +104,21 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 
 		m_pX2WorldLatestRef = pCX2World; // 가장 최근에 생성한 월드 객체에 대한 참고 포인터를 저장해 둔다.
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
+		// June effect C3x: name the world whose script failed, or that never set a line map
+		// ( m_pLineMap stays NULL, which StageLoading dereferences ).
+		const bool bJuneC3xScriptOk = pCX2World->OpenScriptFile( pWorldData->dataFileName.c_str(), pKLuabinder );
+#ifdef SERV_IRUHADEV_OFFLINE
+		if ( false == bJuneC3xScriptOk )
+			CX2OfflineLog::Server( L"JUNE_FX C3x world %d %s: script %s failed to load ( XEM_ERROR71 / lua error in ErrorLog.txt )",
+				(int) worldID, pWorldData->worldName.c_str(), pWorldData->dataFileName.c_str() );
+		else if ( NULL == pCX2World->GetLineMap() )
+			CX2OfflineLog::Server( L"JUNE_FX C3x world %d %s: script %s loaded but set no line map",
+				(int) worldID, pWorldData->worldName.c_str(), pWorldData->dataFileName.c_str() );
+#endif SERV_IRUHADEV_OFFLINE
+#else
 		pCX2World->OpenScriptFile( pWorldData->dataFileName.c_str(), pKLuabinder );
+#endif SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 
 #ifdef X2OPTIMIZE_GAMEOPTION_BUGFIX
 		pCX2World->SetMapDetail( g_pMain->GetGameOption().GetOptionList().m_MapDetail );

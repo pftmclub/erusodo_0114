@@ -3447,6 +3447,24 @@ six data217 ledger rows back to `live`.
 
 **Rolled back 2026-10-09 (user: "rollback game core lua that got replaced by june lua, not the mobs/dungeon one").** `kom_backup_stage_june\20261009_141115\` restored over `kom_contents\` for data034/036/037/039/040/217 (119 `.lua` + 108 `.src.lua`; BattleFieldData and datai014 were already March's), repacked (104 entries changed). About 88 files only change format back to the recompiled decompile; the 24 merged files get their March parts back and the 9 small-edit files get the Lanox March-compat edits back. The rollback also covers the 14 data037 `RidingPet_*` and the data040 Ranox line maps / `Ranox_*_Stage*.lua`. The data217 L0 ledger rows are `live` again and on the core list (kept-merged: user rollback); for these files the sidecars and `march2014/` sources are current again, not superseded. The NPC/dungeon wave above is untouched. To redo the June wave, re-run the original `stage-june` replace for the TSV's names (per file, the TSV `kind` column), or restore the current koms from `kom_backup_tools\` stamped after this note.
 
+### June maps under the June dungeon scripts (june-effect C3x, 2026-10-10)
+
+Data, plus one log-only flag (`SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG`).
+- `Enum.lua` (data036) gains `WI_ELDER_DARK_FOREST_STAGE_0 / _1 / _BOSS_STAGE` (575-577), `WI_ELDER_BENDERS_STAGE_BOSS = 33` and
+  `CTT_RIM_LIGHT_BLUE = 10`. World 33 is June's Benders Cave boss stage now; the user chose June parity, and the old name is an alias.
+- `WorldData.lua` (data040) is BOM source on the core list, with June's rows for every ID March knows. March keeps the three Ranox
+  secret extra rows June lacks.
+- 170 June world scripts and line maps replace March's in data040 (`june2017_re/june_adopt_20261010_133232.tsv`).
+- 363 June world meshes and textures are added to data026 / 028 / 029 / 031 / 032 (`june2017_re/world_asset_need.tsv`). data101
+  is staged but not packed: its dir is corrupt.
+
+Revert:
+- `luasrc.py restore data040 WorldData.lua`.
+- Remove the 5 Enum.lua lines tagged `June effect C3x`, then `luasrc.py refresh data036 Enum.lua`.
+- Restore the 170 map files and 34 sidecars from `24965799\kom_backup_stage_june\20261010_133232\`, and delete the 24 new names and
+  the 363 asset names (TSVs) with their manifest keys.
+- Repack, or put back the live koms from `kom_backup_tools`.
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

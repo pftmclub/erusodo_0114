@@ -2420,6 +2420,54 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
     log a NULL CreateWorld.
   - Henir Space's 5 boss-stage worlds go to atlas / elysion.
 
+### C3x - Done
+
+**2026-10-10, code + data; play-test owed.** Flag `SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG` (log only). Commit: see `git log --grep "Phase C3x"`.
+
+- **Users first:** every `.lua` naming a reworked world is June bytecode (146 scripts), apart from 7 registries / map dialogs
+  (Enum, EnumString, WorldData, DungeonData, 3 `DLG_Map_*`), so swapping the maps moves no March-only dungeon.
+- **Enum.lua** (data036, BOM source): `WI_ELDER_DARK_FOREST_STAGE_0 / _1 / _BOSS_STAGE` = June's 575-577 (free in March).
+  **33 collided:** June renamed March's `WI_ELDER_BENDERS_CAVE_STAGE2_1` to `WI_ELDER_BENDERS_STAGE_BOSS`. The user chose June
+  parity: the new name is added at 33, the old one is kept as an alias, and the old name has no other user.
+  `CTT_RIM_LIGHT_BLUE = 10` was added, the C++ value under `SERV_IRUHADEV_RANOX_RIM_LIGHT` (June's Lua has 15).
+  June's `Ranox_Secret_Boss_Stage.lua` passes it; nil read as 0 and did not abort. No C++ names the world IDs (`WI_END` = 752).
+- **WorldData.lua** (data040): converted (T0 from its sidecar, new core row `edit: june-effect C3x`), then given June's rows:
+  - the 11 renamed files and Valley of Abyss's missing `.lua`;
+  - world 33 now points at `Elder_Benders_Cave_Boss_Stage.lua`; March's row is kept as a comment;
+  - the 3 Druid Forest rows.
+
+  Kept, because June lacks them: `WI_RANOX_SECRET_EXTRA_STAGE1-3`, which June's `Dungeon_Ranox_Secret_Hell.lua` uses.
+  Also kept as-is: the 157 June rows whose IDs March lacks. Row diff: March 591, June 748; 12 changed rows, all taken.
+- **Map files:** `adopt-june` staged 170 files into data040: the census's 162 plus the 4 missing worlds' scripts and line maps.
+  - 24 new, 146 replaced, 0 refused; 34 sidecars superseded. Run record: `june2017_re/june_adopt_20261010_133232.tsv`.
+  - Six were Lanox March-compat edits; June's calls are bound now (`SetTriggerID`, `SetShowObject`, `SetIsForceNotCull`,
+    `SetRimLightTextureIndex`, `SetCartoonRender`; the `SERV_IRUHADEV_RANOX_*` flags probe ON).
+- **Binding audit:** all 65 methods in the 170 June sources are bound. The only gap in the enum tables was the CTT member above.
+  - Geyser stage 0's restored `TAT_ETC_PLAY_EFFECTSET` rows carry `MOTIONNAME_EFFECTSETNAME`, which March does not read.
+  - An empty `EFFECT_NAME` is skipped, so the rows are inert, as Lanox kept them (Elysion's plan says the same).
+- **Assets:** `npc_mesh_census.py --worlds` is a new mode that also takes `.ogg` / `.wav`.
+  - It inflates MSZIP meshes (`xof 0303bzip0032`, `fxdata.xfile_text`); without that, the `.Y` textures are invisible.
+  - Result: 363 files (36 `.x`, 295 `.Y`, 32 `.dds`; no sounds), in `june2017_re/world_asset_need.tsv`, all new.
+    They are staged into data026 / 028 / 029 / 031 / 032 / 101.
+  - **data101 is not packed:** its kom_contents dir lacks 1,071 of the live entries (the known corrupt extract).
+    Its 2 files (Velder Bridge Hope 3-1 `River_Wave`, `Wall01`) wait for that dir's repair.
+  - BGM: `Music063_Stage.ogg` (Druid Forest 0-1) is missing from `data\music\`; June has it at `14JUN17\data\music\`.
+- **Packed:** data026 / 028 / 029 / 031 / 032 / 036 / 040, `PACK OK`.
+  - The data028-032 "changed" entries are recompression only: same raw size and algo, first pack by the tools.
+  - data036 warns of 30 newer `.src.lua` sidecars that are not C3x's (present before this phase).
+- **C++:** `CX2WorldManager::CreateWorld` logs a world ID with no WorldData row (NULL return), a script that fails, and a world
+  that sets no line map. `CX2World::SetLineMap_LUA` logs a line map that fails to load. The crash stays (user: log only).
+- Hygiene: `flagcheck --worktree --files` 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatches; the
+  2 untokened lines are the inner `#endif SERV_IRUHADEV_OFFLINE`. RESULT: PASS. `ledger --check` and `core --check` PASS.
+- `DEPLOY OK: X2_offline.exe is 19,532,288 B, dated 2026-10-10 13:41:38, md5 b9b1fdca0d1be39d48fbc8f4c9f8c44c`
+  (both log strings are in the exe). The kom copies and `Music063_Stage.ogg` need the user's OK (STATUS row).
+- **Not here:**
+  - Henir Space boss-stage worlds: `WI_ADRIAN_BOSSSTAGE` and `WI_SKYCROSSROADS_BOSSSTAGE` go to elysion;
+    `WI_ATLASDEVELOPMENT_BOSSATGE` and `WI_TOWER_BOSSATGE` go to atlas.
+  - `WI_SANDER_SECRET_BOSS_STAGE` and the 66 June-only dungeons no registry reaches go to the new **C3y** (no owner;
+    `DI_SANDER_SECRET_HELL` is June-only).
+  - Valley of Abyss's June file is in no March kom; no dungeon uses it (field boss raid).
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and

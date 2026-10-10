@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include ".\x2world.h"
 #include "KHelpSystem.h"
+#if defined(SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG) && defined(SERV_IRUHADEV_OFFLINE)
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 #ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 #ifdef SERV_IRUHADEV_OFFLINE
 #include "Offline/X2OfflineLog.h"
@@ -911,6 +914,11 @@ bool CX2World::SetLineMap_LUA( const char* pFileName )
 
 	m_pLineMap = CKTDGLineMap::CreateLineMap();
 	bool retval = m_pLineMap->LoadLineMap( strBuf );
+#if defined(SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG) && defined(SERV_IRUHADEV_OFFLINE)
+	// June effect C3x: a line map that fails to load leaves an empty map ( units fall, nothing spawns on a line ).
+	if( false == retval )
+		CX2OfflineLog::Server( L"JUNE_FX C3x line map %s failed to load", strBuf.c_str() );
+#endif SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 	
 #if defined(WORLD_TOOL) || defined(X2TOOL)
 	if( retval == false )
