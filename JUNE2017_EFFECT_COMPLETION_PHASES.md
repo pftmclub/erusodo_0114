@@ -2786,6 +2786,17 @@ bytecode (junekom + ljconv) in the KOG luajit and diffs every `AddDungeonData` t
 - C3z-6: the emulator's relative monster level, which now spawns level-99+ monsters in the Secret Hells, and the server-only keys.
 - Checklist 7s: the AIN / LUCIEL / ROSE tables in `BOSS_DROP_ITEM` / `ENDING_SPEECH`.
 
+**Play-test PASSED (user, 2026-10-10; run 16:20-16:27 after the 16:05 / 16:07 copies; logs read).**
+- reyaa (Lire Grand Archer, unit 12) played Ranox Geyser (33290) through stages 0-3. Every Ranox button resolves
+  (`[RANOXDBG] ... pDungeonData=OK`), so the file loaded past row 172.
+- Freils (Chung Tactical Trooper, unit 18, level 72) started Elder Secret Hell (33031) by quick start without the Elder Expert
+  clears, and stage 0 loaded (36 NPCs).
+  - The emulator logged `using its own level band (99)`, as predicted (C3z-6).
+- Wally Roof Expert being selectable was the user's own check. No room was started for it, so no log line covers it.
+- No `DungeonData` / `XEM_ERROR2` / `can't find` / `attempt to index` line. 0 EXCEPTION.
+- 4 UNHANDLED: 3 are `E_DISABLE_HB_CHECK_REQ` and 1 is `EGS_SKIP_CONTINUE_DUNGEON_NOT`; neither is this phase's.
+- Geyser's 0 EXP rows come from DropTable (no Ranox monster rows), not this phase.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
