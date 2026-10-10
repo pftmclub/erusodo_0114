@@ -3872,6 +3872,16 @@ public:
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 		
 		virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ ){}
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+		/// June 32014fc0 ( C3t ): vslot 0x838, the slot after ShowActiveSkillCutInAndLightByScript ( 0x834 ); no June class overrides it
+		virtual void ShowHyperSkillCutInByScript( float fTimeToShow_, bool bOnlyLight_ );
+		/// June unit vslot 0xa4 ( C3t ): a June-only virtual between SetFullHyperMode ( 0xa0 ) and SetHyperModeCount ( 0xa8 ). Base 31e4c550 = false;
+		/// only Chung overrides it ( 32c24b90: +0x9714 > GetRandomFloat( 0 ), checklist 7t ). Read with GetHyperModeCount for the berserk cut-in.
+		virtual bool JuneIsBerserkByChance() { return false; }
+		/// June user vslot 0x51c ( C3t ): base 3208e6d0 = the now state is 0x17 = USI_HYPER_MODE ( June reads the state record index, March the id ).
+		/// Ara ( 32bd85f0: or 0x9b = ASI_BERSERK_MODE ) and Luciel ( 32b4dbe0 ) override it ( checklist 7t ).
+		virtual bool JuneIsHyperModeState() const { return USI_HYPER_MODE == GetNowStateID(); }
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 		//}} Protected Function End
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // 김종훈, 엘리시스 1-2 그랜드 마스터, 2-2 블레이징 하트
@@ -4727,6 +4737,10 @@ private:
 	// 스킬컷인 관리를 스크립트에서 할 수 있도록 추가
 	float m_fShowSkillCutInTime;
 	bool m_bChangeWorldColor;
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+	float m_fShowHyperCutInTime;		/// June +0x9280 ( C3t ): SHOW_HYPER_CUT_IN_TIME, -1 = none
+	bool m_bJuneBerserkHyperCutIn;		/// June +0x951c ( C3t ): this state shows m_BerserkCutIn instead of m_HyperCutIn
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 
 #ifdef CHEAT_SELF_DAMAGE // 김태환
 	int m_iFrontDamage;		/// 자신에게 데미지를 주는 치트중 피격 방향 설정

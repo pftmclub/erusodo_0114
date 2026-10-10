@@ -329,6 +329,16 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 			
 			wstring				m_IntroMovieFileName;		// 캐릭터 생성 창에서 사용 할 동영상 이름
 #endif // REFORM_ENTRY_POINT	// 13-11-11, 진입 구조 개편, kimjh
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+			/// June AddUnitTemplet_LUA ( 3237aa40 @3237f346-3237fafa, C3t ): five cut-in texture names, read last, after introMovieFIleName
+			/// ( a miss stores L"" ). Templet +0x2dc / +0x2f8 / +0x314 / +0x330 / +0x34c in June ( the parser's base is the map node + 0xc ).
+			/// Read by CX2GUUser::ShowHyperSkillCutInByScript ( June 32014fc0 ); the last three only on Lu/Ciel's branches ( checklist 7t ).
+			wstring				m_HyperCutIn;
+			wstring				m_BerserkCutIn;
+			wstring				m_MinorUnitHyperCutIn;
+			wstring				m_HyperCutIn_Trans;
+			wstring				m_MinorUnitHyperCutIn_Trans;
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 		};
 
 		struct UnitData

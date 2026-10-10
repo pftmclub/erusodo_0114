@@ -6807,3 +6807,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // OFF 2026-10-10: C3z-4 play-tests passed (Den of Trock caves + chief, Ash Village smiths, Gateway berserkers, Gateway Ignia ally)
 //#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect C3t. June's user state key SHOW_HYPER_CUT_IN_TIME ( 32057b80 @32060505, user +0x9280 ) and its
+//              reader ( CommonFrameMove 32063650 @3206ce0a ): user vslot 0x838 ( 32014fc0 ) shows the unit templet's
+//              m_HyperCutIn ( or m_BerserkCutIn in a 3-bead awakening, flag +0x951c set in CommonStateStart @3205e0d0 ) at
+//              that anim time. Unit templet keys m_HyperCutIn / m_BerserkCutIn / m_MinorUnitHyperCutIn / m_HyperCutIn_Trans /
+//              m_MinorUnitHyperCutIn_Trans ( June AddUnitTemplet_LUA 3237aa40 ). Dormant until June's class scripts and
+//              June's UnitTemplet.lua are ported ( checklist 7t ).
+#define SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+//////////////////////////////////////////////////////////////////////////

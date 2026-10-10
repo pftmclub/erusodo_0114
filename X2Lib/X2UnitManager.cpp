@@ -888,6 +888,15 @@ bool CX2UnitManager::AddUnitTemplet_LUA()
 	
 	LUA_GET_VALUE( luaManager, "introMovieFIleName",	pUnitTemplet->m_IntroMovieFileName,					L"" );
 #endif // REFORM_ENTRY_POINT	// 13-11-11, 진입 구조 개편, kimjh
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+	/// June AddUnitTemplet_LUA ( 3237aa40, C3t ): the last five keys, in June's order, each a miss = L"" ( 3344f1f4 ). June reads m_fLobbyRotationY and
+	/// m_fMinorUnitLobbyRotationY between introMovieFIleName and these; March has neither ( not this phase ).
+	LUA_GET_VALUE( luaManager, "m_HyperCutIn",					pUnitTemplet->m_HyperCutIn,					L"" );
+	LUA_GET_VALUE( luaManager, "m_BerserkCutIn",				pUnitTemplet->m_BerserkCutIn,				L"" );
+	LUA_GET_VALUE( luaManager, "m_MinorUnitHyperCutIn",			pUnitTemplet->m_MinorUnitHyperCutIn,		L"" );
+	LUA_GET_VALUE( luaManager, "m_HyperCutIn_Trans",			pUnitTemplet->m_HyperCutIn_Trans,			L"" );
+	LUA_GET_VALUE( luaManager, "m_MinorUnitHyperCutIn_Trans",	pUnitTemplet->m_MinorUnitHyperCutIn_Trans,	L"" );
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 	if( m_UnitTempletMap.find(pUnitTemplet->m_UnitClass) != m_UnitTempletMap.end() )
 	{
 		SAFE_DELETE(pUnitTemplet); 

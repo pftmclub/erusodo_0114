@@ -740,6 +740,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 , m_fShowSkillCutInTime(-1.f)
 , m_bChangeWorldColor(false)
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+, m_fShowHyperCutInTime(-1.f)		/// June ctor @32041c22 ( the same -1 as +0x9278 @32041c16 )
+, m_bJuneBerserkHyperCutIn(false)	/// June ctor @320432a3
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 , m_iSkillCutInSetSubIndex( 0 )
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // ±èÅÂÈ¯
 , m_bIsLimitCrusherCharge( false )
@@ -16103,6 +16107,13 @@ void CX2GUUser::CommonStateStart()
 	else
 		usShoundSet = 0;
 
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+	/// June CommonStateStart 32057b80 @3205e0d0-3205e108 ( C3t ): after the sound-set rate pick, right before BeginTable( "SOUND_SET" ). The berserk
+	/// cut-in flag: ( GetHyperModeCount ( vslot 0xac ) > 2, unsigned `ja`, or vslot 0xa4 ) and vslot 0x51c. Its one reader is ShowHyperSkillCutInByScript.
+	m_bJuneBerserkHyperCutIn = false;
+	if ( ( static_cast<UINT>( GetHyperModeCount() ) > 2 || true == JuneIsBerserkByChance() ) && true == JuneIsHyperModeState() )
+		m_bJuneBerserkHyperCutIn = true;
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 	if ( m_LuaManager.BeginTable( "SOUND_SET", usShoundSet ) == true )
 	{
 		m_vecSoundPlayData.resize(0);
@@ -16380,6 +16391,12 @@ void CX2GUUser::CommonStateStart()
 		m_LuaManager.EndTable();
 	}
 #endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+	/// June CommonStateStart 32057b80 @32060505-3206067c ( C3t ): right after the CHANGE_WORLD_COLOR_DATA table ( EndTable 32fe9a10 @32060497 ).
+	/// +0x9280, a miss stores -1 ( 334380f0 @32060676 ). Every June class script sets it in its awakening states ( ESSI_*_HYPER_MODE, Ara's berserk
+	/// ones too ); no March class script does.
+	LUA_GET_VALUE(	m_LuaManager, "SHOW_HYPER_CUT_IN_TIME",				m_fShowHyperCutInTime,		-1.f );
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	/// June 32057b80 @320606a2: 3228a490 stops the effect sets of a skill state that has ended ( user only ), first of the two skill-state-end checks
@@ -19912,6 +19929,11 @@ void CX2GUUser::CommonFrameMove()
 
 	if( false == IsSamef( -1.f, m_fShowSkillCutInTime ) )
 		ShowActiveSkillCutInAndLightByScript( m_fShowSkillCutInTime, false );
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+	/// June CommonFrameMove 32063650 @3206ce0a-3206ce42 ( C3t ): the same test on +0x9280 ( 31c7b640 = IsSamef ), then vslot 0x838 ( time, false )
+	if( false == IsSamef( -1.f, m_fShowHyperCutInTime ) )
+		ShowHyperSkillCutInByScript( m_fShowHyperCutInTime, false );
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 
 	DoCustomFunctionByBuffInCommonFrameMove();
 
@@ -38034,6 +38056,40 @@ bool CX2GUUser::IsJuneChangeWorldColorNow()
 	return false;
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+#ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+// June 32014fc0 ( C3t ): CX2GUUser vslot 0x838; vtslot.py resolves it to 32014fc0 on all 12 June user classes. Called by CommonFrameMove with
+// SHOW_HYPER_CUT_IN_TIME and false. In June's order:
+// - the now anim's one-shot timer: 32071d80 ( the second-body anim while +0x8e90 is on; March has no second body ) +0x24c = m_fAnimOneshotTimer < t,
+//   then EventTimer ( 31d28e10 ) = EventTimerOneshot. June does not null-check the anim: the check is ours.
+// - GetShowCutInAndChangeWorldColor ( 32001380 ), then GetShowActiveSkillShow ( 31fd3180; June rewrote its body, routed to C3t-1 ).
+// - the name: unit templet m_HyperCutIn ( +0x2dc ), replaced by m_BerserkCutIn ( +0x2f8 ) when +0x951c is set and that name is not empty. June does
+//   not null-check m_pUnit or the templet before this first read ( @32015073 ); the check is ours.
+// - two Lu/Ciel branches March cannot reach ( no second body, no UT_LUCIEL; checklist 7t ): unit vslot 0x260 ( second body +0x8e90 ) and
+//   m_MinorUnitHyperCutIn not empty -> that name; then, when the templet is unit type 10 / class 0x81 ( UT_LUCIEL / UC_LUCIEL_DEMONIO ), the
+//   future state index ( 320761a0 ) is 0x1c2 without the second body -> m_HyperCutIn_Trans, or 0x1f6 with it -> m_MinorUnitHyperCutIn_Trans,
+//   each only when not empty.
+// - SkillCutIn( name ) ( 32078b70 = March's one-argument constructor: 512 x 512 at ( 256, 512 ) ), then ActiveSkillShow( L"Dummy1_Rhand", name,
+//   size, pos, false, bOnlyLight ) ( 31fde0f0, ret 0x24 ). June passes bHyper = 0 ( @320151bb ), where March's class cut-ins pass IsHyperState().
+/*virtual*/ void CX2GUUser::ShowHyperSkillCutInByScript( float fTimeToShow_, bool bOnlyLight_ )
+{
+	if ( NULL == m_pXSkinAnim || false == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) )
+		return;
+
+	if ( false == GetShowCutInAndChangeWorldColor() || false == GetShowActiveSkillShow() )
+		return;
+
+	if ( NULL == m_pUnit || NULL == m_pUnit->GetUnitTemplet() )
+		return;
+
+	const CX2Unit::UnitTemplet* pUnitTemplet = m_pUnit->GetUnitTemplet();
+	wstring wstrCutInName = pUnitTemplet->m_HyperCutIn;
+	if ( true == m_bJuneBerserkHyperCutIn && false == pUnitTemplet->m_BerserkCutIn.empty() )
+		wstrCutInName = pUnitTemplet->m_BerserkCutIn;
+
+	const SkillCutIn juneHyperCutIn( wstrCutInName );
+	ActiveSkillShow( L"Dummy1_Rhand", juneHyperCutIn.fileName.c_str(), juneHyperCutIn.vSize, juneHyperCutIn.vPosition, false, bOnlyLight_ );
+}
+#endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 
 void CX2GUUser::SetEquippedSkillFunc( const CX2Unit::UnitData& kUnitData_, const bool bSlotB_ )
 {
