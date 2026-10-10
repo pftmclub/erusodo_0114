@@ -2478,6 +2478,41 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
   - Valley of Abyss's June file is in no March kom; no dungeon uses it (field boss raid).
   - C3s's `--all-npc` census never inflated MSZIP meshes (373 of 812): added to C3s's review kickoff.
 
+### C3x - play-test 1 (2026-10-10 13:54): two gaps -> C3z
+
+The user reports two problems, and both are outside what C3x ported:
+- Map layouts still look wrong.
+- Elder Druid Forest has no monsters and clears itself.
+
+The causes were measured, not guessed:
+- **Druid Forest (30070) is empty.** The offline emulator parsed its stages (10 / 13 / 3 NPC cases) but spawned 1 / 1 / 0, the box
+  `NUI_BOX` only. The 6 monster ids are June-only (`NUI_ANGER_FOREST_ENT` / `_FAIRY` / `_KNIGHT`, `NUI_CURSE_WISP`,
+  `NUI_FOREST_DARK_MAGICIAN`, `NUI_ELDER_DRUID_FOREST_GATE`, June 1608-1614). March's merged `Enum.lua` and `NPCTemplet.lua` (data037,
+  kept merged) lack them, so they read nil. Wally Castle Roof (30110) spawned its 14.
+- **Layouts:** C3x staged only the assets March *lacks*. 221 of the 1,062 names that the 205 adopted world scripts use exist in both
+  builds with different bytes (Battle Air Ship `s1_ground1.y`: 14 KB March vs 70 KB June). March's old geometry draws over June's line
+  maps. List: `june2017_re/world_asset_collide.tsv` (script `world_asset_collide.py`; textures not closed yet).
+
+User, 2026-10-10: give the old dungeons their own phases and update them to what June has. That is **C3z** below.
+
+## C3z - old dungeons on June's data (user, 2026-10-10)
+
+**Status: planned. Model:** Opus 5.5, high. The dungeon scripts and maps are June's since C3x; the data they stand on is still March's.
+June wins at the same filename and in behaviour (standing rules), so each phase replaces March's copy with June's and merges only
+where March's C++ forces it (the registries are kept merged).
+
+- **C3z-1 - June's map assets at the same filename (layout).** Kickoff `kickoffs/june-effect/C3z-1.md`.
+  - Replace the 221 colliding meshes and the textures they name, closed over inflated meshes, June bytes wherever June's differ.
+  - Re-run the collision census to 0, then pack and copy. Touches the asset koms only.
+- **C3z-2 - June's NPCs for the old dungeons.** Kickoff `C3z-2.md`.
+  - Census every `NUI_*` that the dungeon scripts name against March's `Enum.lua` `NPC_UNIT_ID` and `NPCTemplet.lua`.
+  - Add June's ids and templet rows; check their unit scripts, meshes and any C++ bound.
+  - Gate: Druid Forest spawns its monsters. Touches data036 `Enum.lua` and data037 `NPCTemplet.lua`.
+- **C3z-3 - June's dungeon registry rows for the old dungeons.** Kickoff `C3z-3.md`.
+  - `DungeonData.lua` (data035, kept merged) and `DungeonEnum.lua`: take June's rows (stage lists, limits, levels, names) for every
+    dungeon March and June share; record each March-only consumer that blocks a row.
+  - Census first, then the edit. Not at the same time as C3z-2 (both pack data036).
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
