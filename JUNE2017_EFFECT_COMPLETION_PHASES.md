@@ -5353,6 +5353,73 @@ the NPCs (`NUI_NEIL_THE_SNIPER_EVENT` 4342, ...), June's loader of `datai015 Com
 Run with: Opus 5.5 high. Read list: this section, "C9h-4g - Done", funcmap rows `(C9h-4g)` / `(C9h-4f)`. Done gate: each piece under its own flag with a funcmap row,
 or a row saying why not; the June quirks named in the kickoff get JUNE_BUGS rows.
 
+### C9h-4h - Done (2026-10-10, Opus 5.5 high; flags `SERV_IRUHADEV_JUNE_COMMON_SKILL_STATE`, `_EVENT_STATES`, `_EVENT_KIT_PICKUP`; log `JUNE_FX C9h-4h` ( offline_server.log ); datai015 CommonSkillState.lua adopted + packed)
+
+Files: `X2GUUser.h/.cpp`, `X2Game.cpp`, `X2GameUnit.cpp`, `Always.h`; datai015 `CommonSkillState.lua` (June ljconv bytecode, 9044 B). Funcmap rows `(C9h-4h)` (17), JUNE_BUGS 157-162,
+dependency census `june2017_re/c9h4h_event_state_deps.tsv`.
+
+**User decisions (2026-10-10):** port the C++ now, inert; **no stand-in drop** (June's client never drops the kits: item ids 100005740..3 appear in the June exe only in the
+pick-up switch, negated compare `@3230bf49`; a server dropped them).
+
+**Decoded** (every handler; details in the funcmap rows)
+- **Loader:** `32286cb0` is the base `CX2GameUnit::InitSystem`; after the unit script it loads `CommonSkillState.lua` into every unit's Lua state (users and NPCs).
+- **Registration** `3202b110` (slots re-verified): 9 states, 25 delegates; the 8 that are only a Common* body stay NULL (March falls back to the same).
+- **Sniper / Random Fire:** at anim 0.001 the old NPC dies and NPC 4342 is requested `Now USEFUL_VALUE0[0]` (500) ahead (0.3 s delay, NAT_ALLY, my team).
+  - From anim 0.6 the NPC takes the camera, and CONTROL_IDLE starts.
+  - The arrow keys aim. The value goes into C3e-1's synced `fClassSkillFloat`, and the NPC plays `NEIL_THE_SNIPER_<dir>`.
+  - One Z fires (10 shots; 1 for Random Fire, which plays `EffectSet_SA_RBD_Gun_Dance_EVENT`). One X, 10 s, or no NPC ends it.
+  - END kills the NPC, resets the camera (`InitFocusUnit`, game vslot 0x8c) and opens the latch.
+- **Proton Bomb:** the same shape with NPC 4343, at `m_fEventTime[0].keyInputStart` (500) ahead. Z/X fires from 0.3 s, and it fires anyway at 3 s. The attack set plays
+  800 back along the dir.
+- **Meca Drop:** a Lua-driven skill state (the damage comes from its table). Its event is the skill-cancel set plus ATTACK_EX Z/X.
+- **`3201bd60( false )`** is "game still running": in a battle field, NPCs loaded and not at a portal; otherwise `!m_bGameEnd && !m_bLastKillCheck`.
+- **NPC side:** the `+0x8750 / +0x8d34 / +0x8e39` bytes are `SetFocusCamera` / `SetFocusCameraForce` / `SetApplyCinematicUI` (June Lua binds). `SetUserSummonedNPCInfo` stores the UIDs
+  (`3230c1a0`, no stat set).
+- **Latch `+0x9490`:** it is closed by the pick-up and opened by SNIPER_END's end and PROTON fire's end. MECA_DROP's event opens it every frame (JUNE_BUGS 162).
+- **JUNE_BUGS:**
+  - 157: GUN_DANCE uses the sniper table and handlers.
+  - 158: SNIPER_INIT's StateEnd calls StateChange.
+  - 159: BACK_STEP is never registered.
+  - 160: the aim offset block can never run (distance <= -750).
+  - 161: a second bomb kills the NEW bomb.
+  - 162: the MECA latch.
+
+**What landed**
+- `_COMMON_SKILL_STATE`: `CX2GameUnit::InitSystem` loads the file after the script block. A miss logs once.
+- `_EVENT_STATES`:
+  - `JuneInitEventStates` runs at the top of `InitStateCommonRandom`, both variants. Every class calls it right after InitStateCommon, as June's 12 classes call `3202b110`.
+  - The 25 handlers and the 6 members (ctor: UIDs -1, the rest 0) are in.
+  - The event-NPC cases sit before the summon switch in `SetUserSummonedNPCInfo`.
+  - March safety, labelled in the code:
+    - a missing table registers none of the states;
+    - an NPC id with no templet is not requested.
+    - Both are logged once.
+- `_EVENT_KIT_PICKUP`: `Handler_EGS_GET_ITEM_NOT` calls `JuneStartEventKit( m_iItemID )` after the HP / DIE return. Any picker counts, AI-party bots included (June).
+- **Inert in play:**
+  - No drop exists.
+  - The NPCs (no `NPCTemplet` / `Enum` rows), the five `*_EVENT` effect sets (June `EffectSet_INT.lua`) and 26 of the 41 preload files are June assets March lacks.
+  - The asset port brings them; NPC templet rows -> asset port / core-list registries.
+
+**Hygiene** (`flagcheck <flag> --worktree --files Always.h X2GUUser.h X2GUUser.cpp X2Game.cpp X2GameUnit.cpp`):
+```
+COMMON_SKILL_STATE: files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 1 ERROR
+EVENT_STATES:       files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 1 ERROR
+EVENT_KIT_PICKUP:   files: 0 PASS, 0 PASS~, 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR   RESULT: PASS
+  in this flag's files (all three): 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+```
+- **OTHER:** the three flags share these files, and X2GameUnit.cpp also carries C3o's WORLD_COLOR_WINDOW.
+- **The 2 ERRORs** are `Always.h`'s dependency-guard `#if defined(..) && !(..)` lines (`EVENT_STATES` needs `RESERVED_STATE_IDS`, `USEFUL_VALUE`, `SYNC_CLASS_FLOAT`, `COMMON_SKILL_STATE` and `BUFF_AWAKE_LOCK`). flagcheck cannot evaluate those lines; they are not findings.
+- Insert-only.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,530,752 B, dated 2026-10-10 11:10:39, md5 bbc8eb4bef00e8df2ad3f9752b256375, equal to X2/US_SERVICE/x2.exe (2026-10-10 11:10:34); built at mods/june-buff-port d001ec0 + 5 uncommitted code file(s).`
+- C3o's peer build compiled these edits; mine found nothing to relink.
+- Strings in the exe: the 5 `JUNE_FX C9h-4h` formats, `USI_EVENT_SNIPER_READY`, `NEIL_THE_SNIPER_DYING`, `PROTON_BOMB_UP_LEFT`, `EffectSet_SA_RHB_Proton_Bomb_Attack_EVENT`.
+
+**datai015:** `PACK OK datai015` (`kom_contents\datai015_packed.kom`). Against the live kom: +1 `CommonSkillState.lua`. The other 17 "changed" entries have equal uncompressed sizes; only their zlib output differs.
+**Copy pending the user's yes.** The exe works without it: it logs `CommonSkillState.lua NOT loaded` and registers nothing.
+
+**Open:** C3o's commit d001ec0 left funcmap row `322f11d0` with its last clause doubled ("; no March CX2Game member" x2). It is left as committed; this phase only appended rows.
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.

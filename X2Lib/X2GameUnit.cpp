@@ -4103,6 +4103,20 @@ void CX2GameUnit::InitSystem()
 	//}} robobeg : 2008-10-28
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_COMMON_SKILL_STATE
+	/// C9h-4h: June CX2GameUnit::InitSystem 32286cb0 @32287856-32287dc4: after the unit script ( the jump at @32286cfd skips only the script when its name is empty ),
+	/// every unit ( the user's 3202b9e0 and the NPC's 3275f360 both call it ) also loads CommonSkillState.lua ( 33487bc4 ) into its Lua state: the USI_EVENT_*
+	/// state tables ( datai015 ). A miss only logs ( June: 31bd0f50 with the name ); logged once here.
+	if( false == g_pKTDXApp->LoadAndDoMemory( &m_LuaManager, L"CommonSkillState.lua" ) )
+	{
+		static bool s_bJuneCommonSkillStateLogged = false;
+		if( false == s_bJuneCommonSkillStateLogged )
+		{
+			s_bJuneCommonSkillStateLogged = true;
+			CX2OfflineLog::Server( L"JUNE_FX C9h-4h CommonSkillState.lua NOT loaded ( datai015 ); the event states stay unregistered" );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_COMMON_SKILL_STATE
 	m_DamagedMap.clear();
 
 

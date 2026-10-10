@@ -9655,6 +9655,11 @@ bool CX2Game::Handler_EGS_GET_ITEM_NOT( KEGS_GET_ITEM_NOT& kEGS_GET_ITEM_NOT )
 			return true;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
+		/// C9h-4h: June 3230bdd0 @3230bf35 ( after the HP / GUSI_DIE returns, before the outlay item ): the packet's item id ( +8 = m_iItemID ) may start an event kit
+		pCX2GUUser->JuneStartEventKit( kEGS_GET_ITEM_NOT.m_iItemID );
+#endif SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
+
 		ProcessGetOutlayItem(pItemTemplet, pCX2GUUser, 
 							kEGS_GET_ITEM_NOT.m_iDropItemUID, kEGS_GET_ITEM_NOT.m_bIsItemSuccess);
 		ProcessGetEquipItem(pItemTemplet);
@@ -14857,6 +14862,31 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			pNPC->SetRelateSkillData( pUser->GetNowDamageRelateSkillData() );
 #endif //ADD_RENA_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
+			/// C9h-4h: June 3230c1a0's two event-NPC cases skip the stat set of the default ( 322ece70 ). Neil the Sniper ( 0x10f6 @3230cd79 ): the owner keeps the
+			/// NPC's UID ( 31fc9900 ), power rate 1.0 ( +0x8ce0 ). Proton Bomb ( 0x10f7 @3230cdb0 ): when the owner's previous bomb still exists, June clears the camera
+			/// bytes and sets HP 0 ( vslot 0xf4 ) on the NEW bomb, not the old one ( JUNE_BUGS ); the owner keeps the new UID, power rate 1.0, and a bomb of another
+			/// team than my unit's is hidden ( @3230ce01: 31cfe4a0 = SetShowObject( false, true ) ).
+			if( CX2GUUser::JUNE_NUI_NEIL_THE_SNIPER_EVENT == static_cast<int>( unitID ) )
+			{
+				pUser->JuneSetEventNpcUID( pNPC->GetUID() );
+				pNPC->SetDefaultPowerRate( 1.f );
+			}
+			else if( CX2GUUser::JUNE_NUI_PROTON_BOMB_EVENT == static_cast<int>( unitID ) )
+			{
+				if( -1 != pUser->JuneGetEventBombNpcUID() && NULL != GetNPCUnitByUID( pUser->JuneGetEventBombNpcUID() ) )
+				{
+					pNPC->SetFocusCamera( false );
+					pNPC->SetFocusCameraForce( false );
+					pNPC->SetNowHp( 0.f );
+				}
+				pUser->JuneSetEventBombNpcUID( pNPC->GetUID() );
+				pNPC->SetDefaultPowerRate( 1.f );
+				if( NULL != GetMyUnit() && pUser->GetTeam() != GetMyUnit()->GetTeam() )
+					pNPC->SetShowObject( false, true );
+			}
+			else
+#endif SERV_IRUHADEV_JUNE_EVENT_STATES
 			switch( unitID )
 			{
 

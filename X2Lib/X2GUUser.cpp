@@ -1185,6 +1185,15 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	m_bJuneBoundingStatesReady = false;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
+	/// June ctor 3203e850 @3204318f-320431b6 ( edi = -1, ebx = 0 ): the event NPC UIDs -1, shots, timer, Gun Dance byte and the kit latch 0
+	m_iJuneEventNpcUID			= -1;
+	m_cJuneEventShotCount		= 0;
+	m_fJuneEventTimer			= 0.f;
+	m_bJuneEventGunDance		= false;
+	m_iJuneEventBombNpcUID		= -1;
+	m_bJuneEventKitLatch		= false;
+#endif SERV_IRUHADEV_JUNE_EVENT_STATES
 #ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 	m_bJuneCommonRandomByChat = false;
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
@@ -21648,6 +21657,709 @@ void CX2GUUser::JuneWaitStateChangeEventProcess()
 	CommonEventProcess();
 }
 #endif SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
+/// June 3201bd60( bool ) ( ret 4, no this ), called with false by the event states ( 320211d0 @3202127a, 320212b0 @3202135a ): is the game still running.
+/// Battle field ( GetGameType() == 3 ): the NPC load is complete ( +0xc74 ) and my unit is not at a portal ( 32d53810 = IsNearPortalLineMap ).
+/// Else: the game has not ended ( June's end phase +0x748 != 2; 2 is set by Handler_EGS_END_GAME_NOT 322cd0f0 = March m_bGameEnd; June's phase 1,
+/// "end requested" 327ca110, has no March counterpart and counts as running ) and, with the argument false, no last-kill check ( +0x3b9 = SetLastKillCheck ).
+/// The argument-true branch ( 322f43e0 / 322f42a0 / 322f4340 ) has other callers only ( 3202daf0 and class code ) and is not ported.
+static bool JuneIsEventGamePlayable()
+{
+	if( NULL == g_pX2Game )
+		return false;
+
+	if( CX2Game::GT_BATTLE_FIELD == g_pX2Game->GetGameType() )
+	{
+		CX2BattleFieldGame* pBattleFieldGame = static_cast<CX2BattleFieldGame*>( g_pX2Game );
+		bool bPlayable = pBattleFieldGame->GetIsNpcLoadComplete();
+		if( true == pBattleFieldGame->IsNearPortalLineMap() )
+			bPlayable = false;
+		return bPlayable;
+	}
+
+	const bool bPlayable = ( false == g_pX2Game->GetGameEnd() );
+	if( true == g_pX2Game->GetLastKillCheck() )
+		return false;
+	return bPlayable;
+}
+
+/// The two event NPCs' scripts ( data037 SI_SA_RFY_NEIL_THE_SNIPER.lua / SI_RHB_SA_PROTON_BOMB.lua ) name their states <prefix>UP_LEFT .. <prefix>DOWN_RIGHT;
+/// June's frame moves 3200d900 / 3200e740 pick one by ( int ) aim value 1 .. 9 ( jump tables 3200db78 / 3200e9b8 ), anything else is <prefix>IDLE.
+static const char* const s_apszJuneEventSniperAimState[10] =
+{
+	"NEIL_THE_SNIPER_IDLE", "NEIL_THE_SNIPER_UP_LEFT", "NEIL_THE_SNIPER_UP", "NEIL_THE_SNIPER_UP_RIGHT", "NEIL_THE_SNIPER_LEFT",
+	"NEIL_THE_SNIPER_IDLE", "NEIL_THE_SNIPER_RIGHT", "NEIL_THE_SNIPER_DOWN_LEFT", "NEIL_THE_SNIPER_DOWN", "NEIL_THE_SNIPER_DOWN_RIGHT",
+};
+static const char* const s_apszJuneEventProtonBombAimState[10] =
+{
+	"PROTON_BOMB_IDLE", "PROTON_BOMB_UP_LEFT", "PROTON_BOMB_UP", "PROTON_BOMB_UP_RIGHT", "PROTON_BOMB_LEFT",
+	"PROTON_BOMB_IDLE", "PROTON_BOMB_RIGHT", "PROTON_BOMB_DOWN_LEFT", "PROTON_BOMB_DOWN", "PROTON_BOMB_DOWN_RIGHT",
+};
+
+/// June base InitState part 3202b110 ( called by all 12 June class InitStates right after their InitStateCommon, e.g. Eve 329ba9c0 @329baa8f; March: the top of
+/// InitStateCommonRandom, which every March class calls right after its InitStateCommon ). The tables live in datai015 CommonSkillState.lua ( loaded into every
+/// unit by CX2GameUnit::InitSystem, SERV_IRUHADEV_JUNE_COMMON_SKILL_STATE ). June registers USI_EVENT_GUN_DANCE_INIT ( 0x76 ) with the table
+/// "USI_EVENT_SNIPER_READY" and SNIPER_INIT's frame / event / end ( JUNE_BUGS ), and registers USI_EVENT_GUN_DANCE_BACK_STEP nowhere. Delegates June gives only
+/// the Common* body ( 31fc99f0, 31fc9a00, 31fc9a10, 31fc9a70, 31fc9b70, 31fc9b80, 31fc9b90, 31fc9bb0 ) stay NULL: March's state machine falls back to the same Common*.
+/// Not June: a missing table registers none of the nine states ( logged once ), so a kit pick-up never enters a state that has no table.
+void CX2GUUser::JuneInitEventStates()
+{
+	struct JuneEventStateRow { int iStateID; const char* pszTable; };
+	const JuneEventStateRow aRows[] =
+	{
+		{ USI_EVENT_SNIPER_INIT,				"USI_EVENT_SNIPER_READY" },
+		{ USI_EVENT_SNIPER_CONTROL_IDLE,		"USI_EVENT_SNIPER_CONTROL_IDLE" },
+		{ USI_EVENT_SNIPER_CONTROL_FIRE,		"USI_EVENT_SNIPER_CONTROL_FIRE" },
+		{ USI_EVENT_SNIPER_END,					"USI_EVENT_SNIPER_END" },
+		{ USI_EVENT_PROTON_BOMB_INIT,			"USI_EVENT_PROTON_BOMB_READY" },
+		{ USI_EVENT_PROTON_BOMB_CONTROL_IDLE,	"USI_EVENT_PROTON_BOMB_CONTROL_IDLE" },
+		{ USI_EVENT_PROTON_BOMB_CONTROL_FIRE,	"USI_EVENT_PROTON_BOMB_CONTROL_FIRE" },
+		{ USI_EVENT_MECA_DROP_INIT,				"USI_EVENT_MECA_DROP" },
+		{ USI_EVENT_GUN_DANCE_INIT,				"USI_EVENT_SNIPER_READY" },
+	};
+	const int iRows = static_cast<int>( ARRAY_SIZE( aRows ) );
+
+	UserUnitStateData aStateData[ ARRAY_SIZE( aRows ) ];
+	static bool s_bLogged = false;
+	for( int i = 0; i < iRows; ++i )
+	{
+		aStateData[i].Init();
+		aStateData[i].stateID = aRows[i].iStateID;
+		if( false == m_LuaManager.MakeTableReference( aRows[i].pszTable, aStateData[i].stateID ) )
+		{
+			if( false == s_bLogged )
+			{
+				s_bLogged = true;
+				CX2OfflineLog::Server( L"JUNE_FX C9h-4h event states NOT registered: no table %hs ( datai015 CommonSkillState.lua missing? ); the kit pick-up starts nothing",
+					aRows[i].pszTable );
+			}
+			return;
+		}
+	}
+
+	/// 0x6e USI_EVENT_SNIPER_INIT: init 31fc9920, start 31fc99c0, frame 3200d1d0, event 320211d0, end 3200d3f0
+	aStateData[0].StateInit			= SET_CB_FUNC( CX2GUUser, JuneEventSniperInit );
+	aStateData[0].StateStart		= SET_CB_FUNC( CX2GUUser, JuneEventSniperStateStart );
+	aStateData[0].OnFrameMove		= SET_CB_FUNC( CX2GUUser, JuneEventSniperReadyFrameMove );
+	aStateData[0].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventSniperReadyEventProcess );
+	aStateData[0].StateEnd			= SET_CB_FUNC( CX2GUUser, JuneEventSniperReadyStateEnd );
+	/// 0x6f USI_EVENT_SNIPER_CONTROL_IDLE: start 31fc99f0 ( Common ), frame 3200d900, event 3200d450
+	aStateData[1].OnFrameMove		= SET_CB_FUNC( CX2GUUser, JuneEventSniperControlIdleFrameMove );
+	aStateData[1].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventSniperControlIdleEventProcess );
+	/// 0x70 USI_EVENT_SNIPER_CONTROL_FIRE: start-future 31fc9a00 ( Common ), start 3200dba0, frame 31fc9a10 ( Common ), event 31fc9a20, end 31fc9a70 ( Common )
+	aStateData[2].StateStart		= SET_CB_FUNC( CX2GUUser, JuneEventSniperControlFireStateStart );
+	aStateData[2].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventSniperControlFireEventProcess );
+	/// 0x71 USI_EVENT_SNIPER_END: start-future 31fc9a80, start 3200df80, event 31fc9aa0, end 3200dff0
+	aStateData[3].StateStartFuture	= SET_CB_FUNC( CX2GUUser, JuneEventSniperEndStateStartFuture );
+	aStateData[3].StateStart		= SET_CB_FUNC( CX2GUUser, JuneEventSniperEndStateStart );
+	aStateData[3].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventSniperEndEventProcess );
+	aStateData[3].StateEnd			= SET_CB_FUNC( CX2GUUser, JuneEventSniperEndStateEnd );
+	/// 0x72 USI_EVENT_PROTON_BOMB_INIT ( table _READY ): init 31fc9ac0, start 31fc9b70 ( Common ), frame 3200e040, event 320212b0, end 31fc9b80 ( Common )
+	aStateData[4].StateInit			= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombInit );
+	aStateData[4].OnFrameMove		= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombReadyFrameMove );
+	aStateData[4].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombReadyEventProcess );
+	/// 0x73 USI_EVENT_PROTON_BOMB_CONTROL_IDLE: start 3200e6e0, frame 3200e740, event 3200e260
+	aStateData[5].StateStart		= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombControlIdleStateStart );
+	aStateData[5].OnFrameMove		= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombControlIdleFrameMove );
+	aStateData[5].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombControlIdleEventProcess );
+	/// 0x74 USI_EVENT_PROTON_BOMB_CONTROL_FIRE: start 3200e9e0, frame 31fc9b90 ( Common ), event 31fcfb70, end 3200ed60
+	aStateData[6].StateStart		= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombControlFireStateStart );
+	aStateData[6].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombControlFireEventProcess );
+	aStateData[6].StateEnd			= SET_CB_FUNC( CX2GUUser, JuneEventProtonBombControlFireStateEnd );
+	/// 0x75 USI_EVENT_MECA_DROP_INIT ( table USI_EVENT_MECA_DROP ): init 31fc9ba0, frame 31fc9bb0 ( Common ), event 31fcfde0
+	aStateData[7].StateInit			= SET_CB_FUNC( CX2GUUser, JuneEventMecaDropInit );
+	aStateData[7].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventMecaDropEventProcess );
+	/// 0x76 USI_EVENT_GUN_DANCE_INIT ( table USI_EVENT_SNIPER_READY, JUNE_BUGS ): init 31fc9bc0, start 31fc9cf0, then SNIPER_INIT's frame / event / end
+	aStateData[8].StateInit			= SET_CB_FUNC( CX2GUUser, JuneEventGunDanceInit );
+	aStateData[8].StateStart		= SET_CB_FUNC( CX2GUUser, JuneEventGunDanceStateStart );
+	aStateData[8].OnFrameMove		= SET_CB_FUNC( CX2GUUser, JuneEventSniperReadyFrameMove );
+	aStateData[8].OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneEventSniperReadyEventProcess );
+	aStateData[8].StateEnd			= SET_CB_FUNC( CX2GUUser, JuneEventSniperReadyStateEnd );
+
+	for( int i = 0; i < iRows; ++i )
+		m_StateList[ aStateData[i].stateID ] = aStateData[i];
+
+	if( false == s_bLogged )
+	{
+		s_bLogged = true;
+		CX2OfflineLog::Server( L"JUNE_FX C9h-4h event states registered: SNIPER_INIT %d .. GUN_DANCE_INIT %d ( 9 states, CommonSkillState.lua tables )",
+			static_cast<int>( USI_EVENT_SNIPER_INIT ), static_cast<int>( USI_EVENT_GUN_DANCE_INIT ) );
+	}
+}
+
+/// The event NPC create of June 3200d1d0 @3200d36f / 3200e040 @3200e1e8 ( CreateNPCReq 322e67c0, the same argument list as JuneDieCreateNpc's:
+/// level 0, active, fDelayTime 0.3f ( 3345993c ), no drop, key -1, my team ( +0x278 ), NAT_ALLY ( 1 ), ally = my UID, not elite, TN_NONE, NCT_NONE ), only on my own unit.
+/// Not June: an NPC id with no templet ( March has no NPCTemplet row for 4342 / 4343 until the asset port ) is not requested; logged once per id.
+void CX2GUUser::JuneEventCreateNpc( IN int iNpcID_, IN const D3DXVECTOR3& vPos_, IN bool bIsRight_ )
+{
+	if( false == IsMyUnit() )
+		return;
+
+	if( NULL == g_pData->GetUnitManager()->GetNPCUnitTemplet( static_cast<CX2UnitManager::NPC_UNIT_ID>( iNpcID_ ) ) )
+	{
+		static std::set<int> s_setLogged;
+		if( true == s_setLogged.insert( iNpcID_ ).second )
+			CX2OfflineLog::Server( L"JUNE_FX C9h-4h event NPC %d NOT created: no NPCTemplet row ( June asset port ); the event state runs without it", iNpcID_ );
+		return;
+	}
+
+	g_pX2Game->CreateNPCReq( static_cast<CX2UnitManager::NPC_UNIT_ID>( iNpcID_ ), 0, true, vPos_, bIsRight_, 0.3f, true, -1,
+		static_cast<CX2Room::TEAM_NUM>( GetTeam() ), CX2NPCAI::NAT_ALLY, GetUnitUID(), false, CX2Room::TN_NONE, CX2GUNPC::NCT_NONE );
+	CX2OfflineLog::Server( L"JUNE_FX C9h-4h event NPC %d requested at ( %.1f, %.1f, %.1f )", iNpcID_, vPos_.x, vPos_.y, vPos_.z );
+}
+
+/// June 3200d450 @3200d514-3200d8d9 and 3200e260 @3200e2f1-3200e6bc ( the same code twice ): the aim value 1 .. 9 from the arrow keys, stored in the synced
+/// syncData.fClassSkillFloat ( June Future +0x7ed8, C3e-1 ) when it differs. vDiff.x / vDiff.y start at 0 ( fldz @3200d514 ); the block that would set them runs
+/// only when the distance of the two direction-scaled positions is <= -750 ( 33476834 ), which a distance never is ( JUNE_BUGS ), so x stays 0. y becomes 1500
+/// ( dy - ( dy - 1500 ), @3200d6ce ) when the NPC is at least 1500 above me.
+void CX2GUUser::JuneEventSetAimByKeys( IN CX2GUNPC* pNpc_ )
+{
+	D3DXVECTOR3 vDiff( 0.f, 0.f, 0.f );
+
+	const D3DXVECTOR3 vMy( GetPos().x * GetDirVector().x, GetPos().y * GetDirVector().y, GetPos().z * GetDirVector().z );
+	const D3DXVECTOR3 vNpc( pNpc_->GetPos().x * GetDirVector().x, pNpc_->GetPos().y * GetDirVector().y, pNpc_->GetPos().z * GetDirVector().z );
+	if( GetDistance( vMy, vNpc ) <= -750.f )
+	{
+		const float fDx = vMy.x - vNpc.x;
+		const float fDy = vMy.y - vNpc.y;
+		const float fDz = vMy.z - vNpc.z;
+		vDiff.x = fDz + fDx;
+		vDiff.y = fDy;
+		vDiff.z = fDz;
+	}
+
+	if( static_cast<double>( GetPos().y ) + 1500.0 <= static_cast<double>( pNpc_->GetPos().y ) )
+		vDiff.y = vDiff.y - ( vDiff.y - 1500.f );
+
+	const float fX = vDiff.x;
+	const float fY = vDiff.y;
+	float fAim = 5.f;
+	if( fX >= 0.f && fY <= 0.f && true == m_InputData.pureUp && true == m_InputData.pureLeft )
+		fAim = 1.f;
+	else if( fX <= 0.f && fY <= 0.f && true == m_InputData.pureUp && true == m_InputData.pureRight )
+		fAim = 3.f;
+	else if( fX >= 0.f && fY >= 0.f && true == m_InputData.pureDown && true == m_InputData.pureLeft )
+		fAim = 7.f;
+	else if( fX <= 0.f && fY >= 0.f && true == m_InputData.pureDown && true == m_InputData.pureRight )
+		fAim = 9.f;
+	else if( fX >= 0.f && true == m_InputData.pureLeft )
+		fAim = 4.f;
+	else if( fX <= 0.f && true == m_InputData.pureRight )
+		fAim = 6.f;
+	else if( fY <= 0.f && true == m_InputData.pureUp )
+		fAim = 2.f;
+	else if( fY >= 0.f && true == m_InputData.pureDown )
+		fAim = 8.f;
+
+	if( !( static_cast<float>( m_FrameDataFuture.syncData.fClassSkillFloat ) == fAim ) )
+		m_FrameDataFuture.syncData.fClassSkillFloat = fAim;
+}
+
+/// June 3200d900 @3200d93f-3200db60 / 3200e740 @3200e77f-3200e9a0: ( int ) Now aim value ( June +0x8178, ftol 32fe25f0 ) -> the NPC's state of that name, changed
+/// only when the NPC is not in it already ( 3207adf0 = GetStateID( name ) against the NPC's now state byte ).
+void CX2GUUser::JuneEventNpcFollowAim( IN CX2GUNPC* pNpc_, IN const char* const* apszStateName_ )
+{
+	const int iAim = static_cast<int>( static_cast<float>( m_FrameDataNow.syncData.fClassSkillFloat ) );
+	const char* pszState = ( 1 <= iAim && iAim <= 9 ) ? apszStateName_[iAim] : apszStateName_[0];
+	if( pNpc_->GetStateID( pszState ) != static_cast<int>( static_cast<BYTE>( pNpc_->GetNowStateID() ) ) )
+		pNpc_->StateChange( pszState, true );
+}
+
+/// June 3200dba0 @3200dd18 / 3200e9e0 @3200ec1f: PlayEffectSet( name, this, NULL, hyper ( gage +0xc04 remain time > 0 ), GetPowerRate() ( vslot 0x204 ), -1, ( 1, 1, 1 ),
+/// custom position, pos, rotation, dir ). June's trailing 1.0f ( 321e1e60's force-down rate ) is March's default.
+void CX2GUUser::JuneEventPlayEffectSet( IN const WCHAR* pwszName_, IN const D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vRot_, IN const D3DXVECTOR3& vDir_ )
+{
+	if( NULL == g_pX2Game->GetEffectSet() )
+		return;
+
+	const bool bHyper = ( GetRemainHyperModeTime() > 0.f );
+	g_pX2Game->GetEffectSet()->PlayEffectSet( std::wstring( pwszName_ ), this, NULL, bHyper, GetPowerRate(), -1.f, D3DXVECTOR3( 1.f, 1.f, 1.f ), true, vPos_, vRot_, vDir_ );
+}
+
+/// June 31fc9920 ( StateInit of 0x6e ): background-ready the sniper's resources ( 31d171d0 = TextureReadyInBackground, 31d17270 = XSkinMeshReadyInBackground, 31d17310 = XMeshReadyInBackground, priority 2 )
+void CX2GUUser::JuneEventSniperInit()
+{
+	TextureReadyInBackground( L"Gunner_FireWave05.dds" );
+	XSkinMeshReadyInBackground( L"RFY_Neil_The_Sniper_Radio.X" );
+	XMeshReadyInBackground( L"RFY_NeilTheSniper_telescope.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"Gunner_LightGrow01.dds" );
+	TextureReadyInBackground( L"LD_MagicSquare_Piece01.dds" );
+	XSkinMeshReadyInBackground( L"RFY_NeilTheSniper_Crack1.X" );
+	XSkinMeshReadyInBackground( L"RFY_NeilTheSniper_Crack2.X" );
+	XMeshReadyInBackground( L"RFY_NeilTheSniper_Crack3.Y" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+}
+
+/// June 31fc99c0: 10 shots, timer 0, not Gun Dance
+void CX2GUUser::JuneEventSniperStateStart()
+{
+	CommonStateStart();
+	m_fJuneEventTimer		= 0.f;
+	m_cJuneEventShotCount	= 10;
+	m_bJuneEventGunDance	= false;
+}
+
+/// June 3200d1d0 ( SNIPER_INIT and GUN_DANCE_INIT ): once, at animation time 0.001 ( EventTimerOneshot: 33431564 > +0x24c and 31d28e10 ), the old sniper NPC dies
+/// and a new one is requested Now USEFUL_VALUE0[0] ( +0x8eb8 ) ahead on the line map ( game vslot 0x90 -> +0x34, 31c5f090 ).
+void CX2GUUser::JuneEventSniperReadyFrameMove()
+{
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		const bool bIsRight = GetIsRight();
+		D3DXVECTOR3 vPos = GetPos();
+		CX2GUNPC* pOldNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventNpcUID );
+		if( NULL != pOldNpc )
+		{
+			pOldNpc->SetFocusCamera( false );
+			pOldNpc->SetFocusCameraForce( false );
+			pOldNpc->StateChange( "NEIL_THE_SNIPER_DYING", true );
+		}
+		const D3DXVECTOR3 vNpcPos = g_pX2Game->GetWorld()->GetLineMap()->GetFixedDistancePosition( &vPos, JuneGetUsefulValueNow( 0, 0 ), bIsRight );
+		JuneEventCreateNpc( JUNE_NUI_NEIL_THE_SNIPER_EVENT, vNpcPos, bIsRight );
+	}
+
+	CommonFrameMove();
+}
+
+/// June 320211d0: from Future animation time 0.6 ( qword 3343bd80 ): with the NPC -> CONTROL_IDLE ( my unit: the NPC takes the camera, no cinematic UI );
+/// without it -> END once the state time passes 5 ( 33443804 ) or the game stops running ( 3201bd60( false ) ). Keys are cleared every frame ( 31fc66d0 ).
+void CX2GUUser::JuneEventSniperReadyEventProcess()
+{
+	if( static_cast<double>( m_pXSkinAnimFuture->GetNowAnimationTime() ) >= 0.6 )
+	{
+		CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventNpcUID );
+		if( NULL != pNpc )
+		{
+			if( true == IsMyUnit() )
+			{
+				pNpc->SetFocusCamera( true );
+				pNpc->SetFocusCameraForce( true );
+				pNpc->SetApplyCinematicUI( false );
+			}
+			StateChange( USI_EVENT_SNIPER_CONTROL_IDLE, false );
+		}
+		else if( 5.f < m_FrameDataFuture.unitCondition.fStateTime || false == JuneIsEventGamePlayable() )
+		{
+			StateChange( USI_EVENT_SNIPER_END, false );
+		}
+	}
+
+	m_InputData.Init();
+	CommonEventProcess();
+}
+
+/// June 3200d3f0 ( StateEnd of 0x6e and 0x76 ): the NPC goes idle; without it the StateEnd itself changes to SNIPER_END ( JUNE_BUGS )
+void CX2GUUser::JuneEventSniperReadyStateEnd()
+{
+	CommonStateEnd();
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventNpcUID );
+	if( NULL != pNpc )
+		pNpc->StateChange( "NEIL_THE_SNIPER_IDLE", true );
+	else
+		StateChange( USI_EVENT_SNIPER_END, false );
+}
+
+/// June 3200d900
+void CX2GUUser::JuneEventSniperControlIdleFrameMove()
+{
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventNpcUID );
+	if( NULL != pNpc )
+		JuneEventNpcFollowAim( pNpc, s_apszJuneEventSniperAimState );
+
+	CommonFrameMove();
+}
+
+/// June 3200d450: the control timer ( +0x9484 += elapsed +0x2b0 ) running past Future USEFUL_VALUE0[0] ( strictly ) or a missing NPC -> END; one Z fires ( shot count - 1 ),
+/// one X -> END, else the arrow keys aim. Keys are cleared every frame.
+void CX2GUUser::JuneEventSniperControlIdleEventProcess()
+{
+	m_fJuneEventTimer = m_fElapsedTime + m_fJuneEventTimer;
+	const bool bTimeOver = ( JuneGetUsefulValueFuture( 0, 0 ) < m_fJuneEventTimer );
+
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventNpcUID );
+	if( NULL == pNpc || true == bTimeOver )
+	{
+		StateChange( USI_EVENT_SNIPER_END, false );
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		--m_cJuneEventShotCount;
+		StateChange( USI_EVENT_SNIPER_CONTROL_FIRE, false );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( USI_EVENT_SNIPER_END, false );
+	}
+	else
+	{
+		JuneEventSetAimByKeys( pNpc );
+	}
+
+	m_InputData.Init();
+	CommonEventProcess();
+}
+
+/// June 3200dba0: the NPC fires; the hit effect set plays at the NPC ( or at me without it ), its dir's y zeroed ( @3200dcea ). Gun Dance ( +0x9488 ) plays
+/// EffectSet_SA_RBD_Gun_Dance_EVENT, the sniper EffectSet_SA_RFY_Neil_The_Sniper_Hit_EVENT ( both June EffectSet_INT.lua; not in March until the asset port ).
+void CX2GUUser::JuneEventSniperControlFireStateStart()
+{
+	CommonStateStart();
+
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventNpcUID );
+	D3DXVECTOR3 vPos = GetPos();
+	D3DXVECTOR3 vRot = GetRotateDegree();
+	D3DXVECTOR3 vDir = GetDirVector();
+	if( NULL != pNpc )
+	{
+		pNpc->StateChange( "NEIL_THE_SNIPER_FIRE", true );
+		vPos = pNpc->GetPos();
+		vRot = pNpc->GetRotateDegree();
+		vDir = pNpc->GetDirVector();
+	}
+	vDir.y = 0.f;
+
+	JuneEventPlayEffectSet( ( true == m_bJuneEventGunDance ) ? L"EffectSet_SA_RBD_Gun_Dance_EVENT" : L"EffectSet_SA_RFY_Neil_The_Sniper_Hit_EVENT", vPos, vRot, vDir );
+}
+
+/// June 31fc9a20: timer += elapsed; once the state time reaches Future USEFUL_VALUE0[0] ( not strictly ) -> CONTROL_IDLE while shots are left ( signed byte > 0 ), else END
+void CX2GUUser::JuneEventSniperControlFireEventProcess()
+{
+	m_fJuneEventTimer = m_fElapsedTime + m_fJuneEventTimer;
+	if( !( m_FrameDataFuture.unitCondition.fStateTime < JuneGetUsefulValueFuture( 0, 0 ) ) )
+		StateChange( ( 0 < m_cJuneEventShotCount ) ? USI_EVENT_SNIPER_CONTROL_IDLE : USI_EVENT_SNIPER_END, false );
+
+	CommonEventProcess();
+}
+
+/// June 31fc9a80
+void CX2GUUser::JuneEventSniperEndStateStartFuture()
+{
+	m_cJuneEventShotCount = 0;
+	CommonStateStartFuture();
+}
+
+/// June 3200df80: the sniper NPC lets the camera go and dies; its UID is forgotten
+void CX2GUUser::JuneEventSniperEndStateStart()
+{
+	CommonStateStart();
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventNpcUID );
+	if( NULL != pNpc )
+	{
+		pNpc->SetFocusCamera( false );
+		pNpc->SetFocusCameraForce( false );
+		pNpc->StateChange( "NEIL_THE_SNIPER_DYING", true );
+		m_iJuneEventNpcUID = -1;
+	}
+}
+
+/// June 31fc9aa0
+void CX2GUUser::JuneEventSniperEndEventProcess()
+{
+	StateChange( USI_WAIT, false );
+	CommonEventProcess();
+}
+
+/// June 3200dff0: my unit's camera goes back ( game vslot 0x8c = InitFocusUnit ), the kit latch opens
+void CX2GUUser::JuneEventSniperEndStateEnd()
+{
+	if( true == IsMyUnit() )
+		g_pX2Game->InitFocusUnit();
+	m_bJuneEventKitLatch = false;
+	CommonStateEnd();
+}
+
+/// June 31fc9ac0 ( StateInit of 0x72 )
+void CX2GUUser::JuneEventProtonBombInit()
+{
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	TextureReadyInBackground( L"Explosion_Sphere.dds" );
+	TextureReadyInBackground( L"LCG_Ring01.dds" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	TextureReadyInBackground( L"LD_MagicSquare06.dds" );
+	XMeshReadyInBackground( L"Lire_FeatherA.Y" );
+	XMeshReadyInBackground( L"Lire_Uplight01.Y" );
+	XSkinMeshReadyInBackground( L"RGA_GungnirStigmaWait.X" );
+	XSkinMeshReadyInBackground( L"Rena_GungnirMagicSquareM01.X" );
+	XSkinMeshReadyInBackground( L"Rena_GungnirMagicSquareM02.X" );
+	XSkinMeshReadyInBackground( L"RGA_GungnirStigmaFire.X" );
+}
+
+/// June 3200e040: as the sniper's frame, for the bomb ( +0x948c ): the old bomb loses the camera and its HP ( June's SetNowHP binding 327573b0: an unused
+/// vslot 0x19c call, then SetNowHp( 0 ) ), its UID is forgotten; the new one is requested m_fEventTime[0].keyInputStart ( +0x8c10, EVENT_PROCESS_TIME0[1] ) ahead.
+void CX2GUUser::JuneEventProtonBombReadyFrameMove()
+{
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		const bool bIsRight = GetIsRight();
+		D3DXVECTOR3 vPos = GetPos();
+		CX2GUNPC* pOldNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventBombNpcUID );
+		if( NULL != pOldNpc )
+		{
+			pOldNpc->SetFocusCamera( false );
+			pOldNpc->SetFocusCameraForce( false );
+			pOldNpc->SetNowHp( 0.f );
+			m_iJuneEventBombNpcUID = -1;
+		}
+		const D3DXVECTOR3 vNpcPos = g_pX2Game->GetWorld()->GetLineMap()->GetFixedDistancePosition( &vPos, m_fEventTime[0].keyInputStart, bIsRight );
+		JuneEventCreateNpc( JUNE_NUI_PROTON_BOMB_EVENT, vNpcPos, bIsRight );
+	}
+
+	CommonFrameMove();
+}
+
+/// June 320212b0: as 320211d0, for the bomb: with it -> PROTON CONTROL_IDLE, without it ( state time past 5 or the game stopped ) -> PROTON CONTROL_FIRE
+void CX2GUUser::JuneEventProtonBombReadyEventProcess()
+{
+	if( static_cast<double>( m_pXSkinAnimFuture->GetNowAnimationTime() ) >= 0.6 )
+	{
+		CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventBombNpcUID );
+		if( NULL != pNpc )
+		{
+			if( true == IsMyUnit() )
+			{
+				pNpc->SetFocusCamera( true );
+				pNpc->SetFocusCameraForce( true );
+				pNpc->SetApplyCinematicUI( false );
+			}
+			StateChange( USI_EVENT_PROTON_BOMB_CONTROL_IDLE, false );
+		}
+		else if( 5.f < m_FrameDataFuture.unitCondition.fStateTime || false == JuneIsEventGamePlayable() )
+		{
+			StateChange( USI_EVENT_PROTON_BOMB_CONTROL_FIRE, false );
+		}
+	}
+
+	m_InputData.Init();
+	CommonEventProcess();
+}
+
+/// June 3200e6e0
+void CX2GUUser::JuneEventProtonBombControlIdleStateStart()
+{
+	CommonStateStart();
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventBombNpcUID );
+	if( NULL != pNpc )
+		pNpc->StateChange( "PROTON_BOMB_IDLE", true );
+}
+
+/// June 3200e740
+void CX2GUUser::JuneEventProtonBombControlIdleFrameMove()
+{
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventBombNpcUID );
+	if( NULL != pNpc )
+		JuneEventNpcFollowAim( pNpc, s_apszJuneEventProtonBombAimState );
+
+	CommonFrameMove();
+}
+
+/// June 3200e260: no bomb -> fire; from state time m_fEventTime[0].keyInputStart ( 0.3 ) one Z or X fires, at keyInputEnd ( 3 ) it fires anyway; else the arrow keys aim
+void CX2GUUser::JuneEventProtonBombControlIdleEventProcess()
+{
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventBombNpcUID );
+	const float fStateTime = m_FrameDataFuture.unitCondition.fStateTime;
+	if( NULL == pNpc )
+	{
+		StateChange( USI_EVENT_PROTON_BOMB_CONTROL_FIRE, false );
+	}
+	else if( m_fEventTime[0].keyInputStart <= fStateTime &&
+		( true == m_InputData.oneZ || true == m_InputData.oneX || false == ( fStateTime < m_fEventTime[0].keyInputEnd ) ) )
+	{
+		StateChange( USI_EVENT_PROTON_BOMB_CONTROL_FIRE, false );
+	}
+	else
+	{
+		JuneEventSetAimByKeys( pNpc );
+	}
+
+	m_InputData.Init();
+	CommonEventProcess();
+}
+
+/// June 3200e9e0: the bomb loses the camera and dies, its UID is forgotten; the attack effect set plays 800 back along the dir from the bomb ( or me ):
+/// rotation y + 180 ( qword 33438080 ) when facing left, dir y zeroed, offset = dir * -800 ( qword 33476ac8 ) added facing right, subtracted facing left
+void CX2GUUser::JuneEventProtonBombControlFireStateStart()
+{
+	CommonStateStart();
+
+	CX2GUNPC* pNpc = g_pX2Game->GetNPCUnitByUID( m_iJuneEventBombNpcUID );
+	D3DXVECTOR3 vPos = GetPos();
+	D3DXVECTOR3 vRot = GetRotateDegree();
+	D3DXVECTOR3 vDir = GetDirVector();
+	if( NULL != pNpc )
+	{
+		pNpc->SetFocusCamera( false );
+		pNpc->SetFocusCameraForce( false );
+		pNpc->StateChange( "PROTON_BOMB_DYING", true );
+		m_iJuneEventBombNpcUID = -1;
+		vPos = pNpc->GetPos();
+		vRot = pNpc->GetRotateDegree();
+		vDir = pNpc->GetDirVector();
+	}
+	if( false == GetIsRight() )
+		vRot.y = static_cast<float>( static_cast<double>( vRot.y ) + 180.0 );
+	vDir.y = 0.f;
+
+	const double dOffset = -800.0;
+	const D3DXVECTOR3 vOffset( static_cast<float>( vDir.x * dOffset ), static_cast<float>( vDir.y * dOffset ), static_cast<float>( dOffset * vDir.z ) );
+	if( true == GetIsRight() )
+		vPos += vOffset;
+	else
+		vPos -= vOffset;
+
+	JuneEventPlayEffectSet( L"EffectSet_SA_RHB_Proton_Bomb_Attack_EVENT", vPos, vRot, vDir );
+}
+
+/// June 31fcfb70: animation end -> WAIT; else the cancels of a skill state, each on the ground ( +0x7e1c ): SKILL ( + awakening, March SKILL_CANCEL_AFTER under
+/// JUNE_BUFF_AWAKE_LOCK ), WALK ( +0x8c98 ), BWALK ( +0x8c94 ), DASH ( +0x8c9c ). No ATTACK cancel.
+void CX2GUUser::JuneEventProtonBombControlFireEventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) || ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+	}
+
+	CommonEventProcess();
+}
+
+/// June 3200ed60: my unit's camera goes back, the kit latch opens
+void CX2GUUser::JuneEventProtonBombControlFireStateEnd()
+{
+	if( true == IsMyUnit() )
+		g_pX2Game->InitFocusUnit();
+	CommonStateEnd();
+	m_bJuneEventKitLatch = false;
+}
+
+/// June 31fc9ba0 ( StateInit of 0x75 )
+void CX2GUUser::JuneEventMecaDropInit()
+{
+	m_fJuneEventTimer = 0.f;
+}
+
+/// June 31fcfde0: animation end -> WAIT on the ground, else JUMP_DOWN ( 0x11 ); else 31fcfb70's cancels, then ATTACK_EX ( +0x8c88 ) with one Z / one X -> the combo states
+/// ( vslot 0x4b0 / 0x4b4 ). Every path ends by opening the kit latch ( @31fd00ef ), so it is open the whole state ( JUNE_BUGS ).
+void CX2GUUser::JuneEventMecaDropEventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT, false );
+		else
+			StateChange( USI_JUMP_DOWN, false );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if( m_fWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( m_fBWalkCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fBWalkCancelAfter && true == IsOnSomethingFuture() &&
+		( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) || ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT, false );
+	}
+	else if( m_fDashCancelAfter >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fDashCancelAfter && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_fAttackCancelAfterEx >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx && true == IsOnSomethingFuture() &&
+		true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID(), false );
+	}
+	else if( m_fAttackCancelAfterEx >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx && true == IsOnSomethingFuture() &&
+		true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID(), false );
+	}
+
+	m_bJuneEventKitLatch = false;
+	CommonEventProcess();
+}
+
+/// June 31fc9bc0 ( StateInit of 0x76 )
+void CX2GUUser::JuneEventGunDanceInit()
+{
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	XSkinMeshReadyInBackground( L"DoubleSlash_M3.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XMeshReadyInBackground( L"Gunner_CannonBallCp2.Y" );
+	XMeshReadyInBackground( L"Gunner_CanonFire03.Y" );
+	XMeshReadyInBackground( L"Gunner_FireHit02.Y" );
+	XMeshReadyInBackground( L"Gunner_FireHit02_1.Y" );
+	XMeshReadyInBackground( L"Gunner_MusketFire01.Y" );
+	TextureReadyInBackground( L"LD_Blade_Liner01.dds" );
+	TextureReadyInBackground( L"LD_RingAlpha.dds" );
+	TextureReadyInBackground( L"LD_Slicer_trace_01.dds" );
+	XSkinMeshReadyInBackground( L"NBG_Buster_Shell2.X" );
+	XSkinMeshReadyInBackground( L"RBD_Gun_Dance_MainDummy.X" );
+	XSkinMeshReadyInBackground( L"RCR_RevolverFire_P1.X" );
+	TextureReadyInBackground( L"WhiteImage.dds" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+	XSkinMeshReadyInBackground( L"elsword_SA_rageCutter_attackSphere.X" );
+	XMeshReadyInBackground( L"Gunner_FootSmoke01.Y" );
+	XMeshReadyInBackground( L"Gunner_FootSmoke02.Y" );
+	XSkinMeshReadyInBackground( L"Gunner_Projectile01.X" );
+}
+
+/// June 31fc9cf0: one shot, timer 0, Gun Dance
+void CX2GUUser::JuneEventGunDanceStateStart()
+{
+	CommonStateStart();
+	m_fJuneEventTimer		= 0.f;
+	m_cJuneEventShotCount	= 1;
+	m_bJuneEventGunDance	= true;
+}
+#endif SERV_IRUHADEV_JUNE_EVENT_STATES
+#ifdef SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
+/// June CX2Game 3230bdd0 @3230bf35-3230bf78 ( the dropped-item pick-up, after its HP / GUSI_DIE returns ): with the picker's kit latch ( +0x9490 ) open, items
+/// 100005740 / 41 / 42 / 43 ( Heavenly Combat Support Kit: Sniper / Bomber / Quantum Bomb / Random Fire ) -> StateChange( 0x6e / 0x75 / 0x72 / 0x76 ), latch closed.
+/// Not June: a state the unit never registered ( no CommonSkillState.lua ) starts nothing. June's client never drops these items ( a server did ): no drop here.
+void CX2GUUser::JuneStartEventKit( IN int iItemID_ )
+{
+	if( true == m_bJuneEventKitLatch )
+		return;
+
+	int iState = -1;
+	switch( iItemID_ )
+	{
+	case 100005740:	iState = USI_EVENT_SNIPER_INIT;		break;
+	case 100005741:	iState = USI_EVENT_MECA_DROP_INIT;	break;
+	case 100005742:	iState = USI_EVENT_PROTON_BOMB_INIT;	break;
+	case 100005743:	iState = USI_EVENT_GUN_DANCE_INIT;	break;
+	default:
+		return;
+	}
+
+	if( m_StateList.end() == m_StateList.find( iState ) )
+	{
+		CX2OfflineLog::Server( L"JUNE_FX C9h-4h kit %d picked by unit %I64d: state %d not registered, nothing starts", iItemID_, GetUnitUID(), iState );
+		return;
+	}
+
+	StateChange( iState, false );
+	m_bJuneEventKitLatch = true;
+	CX2OfflineLog::Server( L"JUNE_FX C9h-4h kit %d picked by unit %I64d -> state %d", iItemID_, GetUnitUID(), iState );
+}
+#endif SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
 void CX2GUUser::CommonEventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
@@ -32564,6 +33276,10 @@ static void JuneC3e2Log( const WCHAR* wszWhat, int iState, int iIndex, int iList
 void CX2GUUser::InitStateCommonRandom( OUT std::string &tableNameStartUTF8, OUT std::string &tableNameWinUTF8, OUT std::string &tableNameLoseUTF8 )
 {
 	const std::vector< CommonRandomState >* apList[3] = { &m_vecRandomStartState, &m_vecRandomWinState, &m_vecRandomLoseState };
+#ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
+	/// C9h-4h: June 3202b110 runs right after each class's InitStateCommon, as this does
+	JuneInitEventStates();
+#endif SERV_IRUHADEV_JUNE_EVENT_STATES
 	std::string* apTableName[3] = { &tableNameStartUTF8, &tableNameWinUTF8, &tableNameLoseUTF8 };
 	const int aiState[3] = { USI_START, USI_WIN, USI_LOSE };
 
@@ -32679,6 +33395,10 @@ void CX2GUUser::InitStateCommonRandom( OUT std::string &tableNameStartUTF8, OUT 
 {
 
 	int iRandomPercent = rand() % 100;
+#ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
+	/// C9h-4h: June 3202b110 runs right after each class's InitStateCommon, as this does
+	JuneInitEventStates();
+#endif SERV_IRUHADEV_JUNE_EVENT_STATES
 	int iAccumulatedPercent = 0;
 	BOOST_TEST_FOREACH( const CommonRandomState&, commonRandomState, m_vecRandomStartState )
 	{

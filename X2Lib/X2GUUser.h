@@ -2441,6 +2441,52 @@ public:
 		void JuneInitWaitStateChange( IN const char* pszTableName_ );
 		void JuneWaitStateChangeEventProcess();
 #endif SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
+		/// C9h-4h: June's "Heavenly Combat Support Kit" event states ( USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT ), registered for every class ( June 3202b110 ).
+		/// The two event NPCs ( June Enum NUI_NEIL_THE_SNIPER_EVENT / NUI_PROTON_BOMB_EVENT; March has no NPC_UNIT_ID for them ).
+		static const int JUNE_NUI_NEIL_THE_SNIPER_EVENT	= 4342;
+		static const int JUNE_NUI_PROTON_BOMB_EVENT		= 4343;
+		void JuneInitEventStates();
+		/// June 31fc9900 / 31fc9910 and the bomb's +0x948c: written by CX2Game::SetUserSummonedNPCInfo ( June 3230c1a0 ) when the event NPC is created
+		void JuneSetEventNpcUID( IN int iNpcUID_ ) { m_iJuneEventNpcUID = iNpcUID_; }
+		int JuneGetEventNpcUID() const { return m_iJuneEventNpcUID; }
+		void JuneSetEventBombNpcUID( IN int iNpcUID_ ) { m_iJuneEventBombNpcUID = iNpcUID_; }
+		int JuneGetEventBombNpcUID() const { return m_iJuneEventBombNpcUID; }
+		void JuneEventCreateNpc( IN int iNpcID_, IN const D3DXVECTOR3& vPos_, IN bool bIsRight_ );
+		void JuneEventSetAimByKeys( IN CX2GUNPC* pNpc_ );
+		void JuneEventNpcFollowAim( IN CX2GUNPC* pNpc_, IN const char* const* apszStateName_ );
+		void JuneEventPlayEffectSet( IN const WCHAR* pwszName_, IN const D3DXVECTOR3& vPos_, IN const D3DXVECTOR3& vRot_, IN const D3DXVECTOR3& vDir_ );
+		void JuneEventSniperInit();
+		void JuneEventSniperStateStart();
+		void JuneEventSniperReadyFrameMove();
+		void JuneEventSniperReadyEventProcess();
+		void JuneEventSniperReadyStateEnd();
+		void JuneEventSniperControlIdleFrameMove();
+		void JuneEventSniperControlIdleEventProcess();
+		void JuneEventSniperControlFireStateStart();
+		void JuneEventSniperControlFireEventProcess();
+		void JuneEventSniperEndStateStartFuture();
+		void JuneEventSniperEndStateStart();
+		void JuneEventSniperEndEventProcess();
+		void JuneEventSniperEndStateEnd();
+		void JuneEventProtonBombInit();
+		void JuneEventProtonBombReadyFrameMove();
+		void JuneEventProtonBombReadyEventProcess();
+		void JuneEventProtonBombControlIdleStateStart();
+		void JuneEventProtonBombControlIdleFrameMove();
+		void JuneEventProtonBombControlIdleEventProcess();
+		void JuneEventProtonBombControlFireStateStart();
+		void JuneEventProtonBombControlFireEventProcess();
+		void JuneEventProtonBombControlFireStateEnd();
+		void JuneEventMecaDropInit();
+		void JuneEventMecaDropEventProcess();
+		void JuneEventGunDanceInit();
+		void JuneEventGunDanceStateStart();
+#endif SERV_IRUHADEV_JUNE_EVENT_STATES
+#ifdef SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
+		/// C9h-4h: June CX2Game 3230bdd0's item switch on the picker ( items 100005740..3 -> the event states, kit latch )
+		void JuneStartEventKit( IN int iItemID_ );
+#endif SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
 		virtual bool CanRidingState();
 #ifdef CHECK_CAMERA_INFO
 		void SetIsLineMapCamera( IN bool bVal_ ) { m_bIsLineMapCamera = bVal_;}
@@ -4405,6 +4451,14 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		bool																					m_bJuneBoundingStatesReady;	/// C3d-3: the class registered USI_BOUNDING_* ( the class script carries the tables; none does yet ); the RT_BOUNDING case needs it
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
+		int						m_iJuneEventNpcUID;			/// June +0x947c: the event Neil the Sniper's NPC UID ( -1 none )
+		char					m_cJuneEventShotCount;		/// June +0x9480 ( signed byte ): sniper shots left ( SNIPER_INIT start 10, GUN_DANCE start 1 )
+		float					m_fJuneEventTimer;			/// June +0x9484: the control time, += elapsed in CONTROL_IDLE / CONTROL_FIRE
+		bool					m_bJuneEventGunDance;		/// June +0x9488: CONTROL_FIRE plays the Gun Dance effect set ( GUN_DANCE_INIT )
+		int						m_iJuneEventBombNpcUID;		/// June +0x948c: the event Proton Bomb's NPC UID ( -1 none )
+		bool					m_bJuneEventKitLatch;		/// June +0x9490: a kit is running; the pick-up starts no other ( set 3230bf78, opened by the end states )
+#endif SERV_IRUHADEV_JUNE_EVENT_STATES
 #ifdef HYPER_MODE_FIX
 		int						m_iLastStateHyperModeCount;
 #endif HYPER_MODE_FIX

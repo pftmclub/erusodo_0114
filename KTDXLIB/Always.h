@@ -6603,3 +6603,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the table ( only Ain's user states do; the user side is C3r ).
 #define SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C9h-4h: CX2GameUnit::InitSystem ( June 32286cb0 @32287856 ) loads CommonSkillState.lua into every unit's Lua state
+//              after the unit script ( users and NPCs ): the USI_EVENT_* state tables. The file is June's, adopted into datai015 ( ljconv bytecode ).
+#define SERV_IRUHADEV_JUNE_COMMON_SKILL_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C9h-4h: the "Heavenly Combat Support Kit" event states USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT ( ids reserved
+//              by C9h-4g ), registered for every class like June 3202b110, their handlers, the members +0x947c..+0x9490, and the event NPCs' UID hook in
+//              CX2Game::SetUserSummonedNPCInfo ( June 3230c1a0 ). The NPCs ( 4342 / 4343 ), their templet rows and the effect sets are June assets March
+//              lacks until the asset port: a missing NPC templet is not requested ( logged ). Log: JUNE_FX C9h-4h ( offline_server.log ).
+#define SERV_IRUHADEV_JUNE_EVENT_STATES
+#if defined(SERV_IRUHADEV_JUNE_EVENT_STATES) && !( defined(SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS) && defined(SERV_IRUHADEV_JUNE_USEFUL_VALUE) && defined(SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT) && defined(SERV_IRUHADEV_JUNE_COMMON_SKILL_STATE) && defined(SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK) )
+#error SERV_IRUHADEV_JUNE_EVENT_STATES needs RESERVED_STATE_IDS, USEFUL_VALUE, SYNC_CLASS_FLOAT, COMMON_SKILL_STATE and BUFF_AWAKE_LOCK
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C9h-4h: the event states' only entry, the dropped-item pick-up ( June CX2Game 3230bdd0 @3230bf35 ): items
+//              100005740..100005743 start the Sniper / Meca Drop / Proton Bomb / Gun Dance state on the picker while its kit latch is open. June's client
+//              never drops these items ( a server did ); no drop is added ( user, 2026-10-10 ).
+#define SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP
+#if defined(SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP) && !defined(SERV_IRUHADEV_JUNE_EVENT_STATES)
+#error SERV_IRUHADEV_JUNE_EVENT_KIT_PICKUP needs SERV_IRUHADEV_JUNE_EVENT_STATES
+#endif
+//////////////////////////////////////////////////////////////////////////

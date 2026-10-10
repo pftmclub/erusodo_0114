@@ -1,0 +1,85 @@
+source	kind	name	march
+init 31fc9920 (SNIPER_INIT)	file	Gunner_FireWave05.dds	MISSING
+init 31fc9920 (SNIPER_INIT)	file	RFY_Neil_The_Sniper_Radio.X	MISSING
+init 31fc9920 (SNIPER_INIT)	file	RFY_NeilTheSniper_telescope.Y	MISSING
+init 31fc9920 (SNIPER_INIT)	file	DummyAttackBox_50x50x50.X	present
+init 31fc9920 (SNIPER_INIT)	file	Gunner_LightGrow01.dds	MISSING
+init 31fc9920 (SNIPER_INIT)	file	LD_MagicSquare_Piece01.dds	MISSING
+init 31fc9920 (SNIPER_INIT)	file	RFY_NeilTheSniper_Crack1.X	MISSING
+init 31fc9920 (SNIPER_INIT)	file	RFY_NeilTheSniper_Crack2.X	MISSING
+init 31fc9920 (SNIPER_INIT)	file	RFY_NeilTheSniper_Crack3.Y	MISSING
+init 31fc9920 (SNIPER_INIT)	file	WhitePointSmall.dds	present
+init 31fc9ac0 (PROTON_BOMB_READY)	file	ColorBallFire.dds	present
+init 31fc9ac0 (PROTON_BOMB_READY)	file	Explosion_Sphere.dds	present
+init 31fc9ac0 (PROTON_BOMB_READY)	file	LCG_Ring01.dds	present
+init 31fc9ac0 (PROTON_BOMB_READY)	file	MagicSquareLight01_Poision.tga	present
+init 31fc9ac0 (PROTON_BOMB_READY)	file	LD_MagicSquare06.dds	MISSING
+init 31fc9ac0 (PROTON_BOMB_READY)	file	Lire_FeatherA.Y	present
+init 31fc9ac0 (PROTON_BOMB_READY)	file	Lire_Uplight01.Y	present
+init 31fc9ac0 (PROTON_BOMB_READY)	file	RGA_GungnirStigmaWait.X	MISSING
+init 31fc9ac0 (PROTON_BOMB_READY)	file	Rena_GungnirMagicSquareM01.X	MISSING
+init 31fc9ac0 (PROTON_BOMB_READY)	file	Rena_GungnirMagicSquareM02.X	MISSING
+init 31fc9ac0 (PROTON_BOMB_READY)	file	RGA_GungnirStigmaFire.X	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	ALS_SLICER_01.dds	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	DoubleSlash_M3.X	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	DummyAttackBox_50x50x50.X	present
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_CannonBallCp2.Y	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_CanonFire03.Y	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_FireHit02.Y	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_FireHit02_1.Y	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_MusketFire01.Y	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	LD_Blade_Liner01.dds	present
+init 31fc9bc0 (GUN_DANCE_INIT)	file	LD_RingAlpha.dds	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	LD_Slicer_trace_01.dds	present
+init 31fc9bc0 (GUN_DANCE_INIT)	file	NBG_Buster_Shell2.X	present
+init 31fc9bc0 (GUN_DANCE_INIT)	file	RBD_Gun_Dance_MainDummy.X	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	RCR_RevolverFire_P1.X	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	WhiteImage.dds	present
+init 31fc9bc0 (GUN_DANCE_INIT)	file	WhitePointSmall.dds	present
+init 31fc9bc0 (GUN_DANCE_INIT)	file	elsword_SA_rageCutter_attackSphere.X	present
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_FootSmoke01.Y	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_FootSmoke02.Y	MISSING
+init 31fc9bc0 (GUN_DANCE_INIT)	file	Gunner_Projectile01.X	MISSING
+CommonSkillState.lua	effectset	EffectSet_SA_RBD_Gun_Dance_Back_Step_FX	MISSING
+CommonSkillState.lua	effectset	EffectSet_SA_RBD_Gun_Dance_Back_Step_Revolver	MISSING
+CommonSkillState.lua	effectset	EffectSet_SA_RFY_Neil_The_Sniper_Start	MISSING
+CommonSkillState.lua	effectset	EffectSet_SA_RHB_Proton_Bomb_Ready	MISSING
+CommonSkillState.lua	effectset	EffectSet_SA_RMH_Meca_Drop_EVENT	MISSING
+CommonSkillState.lua	effectset	EffectSet_SA_RMH_Meca_Drop_Ready_EVENT	MISSING
+CommonSkillState.lua	file	Rose_BD_GunDance_BulletShell.ogg	MISSING
+CommonSkillState.lua	file	Rose_BD_GunDance_Fire1.ogg	MISSING
+CommonSkillState.lua	file	Rose_BD_GunDance_Fire2.ogg	MISSING
+CommonSkillState.lua	file	Rose_BD_GunDance_Fire3.ogg	MISSING
+CommonSkillState.lua	file	Rose_FR_Neil_End.ogg	MISSING
+CommonSkillState.lua	file	Rose_FR_Neil_Explosion.ogg	MISSING
+CommonSkillState.lua	file	Rose_GunShot_R01.ogg	MISSING
+CommonSkillState.lua	file	Rose_GunShot_R02.ogg	MISSING
+CommonSkillState.lua	file	Rose_GunShot_R03.ogg	MISSING
+CommonSkillState.lua	file	Rose_GunShot_R04.ogg	MISSING
+CommonSkillState.lua	file	Rose_GunShot_R05.ogg	MISSING
+CommonSkillState.lua	file	Rose_HB_ProtonBomb_Ready.ogg	MISSING
+CommonSkillState.lua	file	Rose_HB_ProtonBomb_Shot.ogg	MISSING
+CommonSkillState.lua	file	Rose_MH_Mecadrop01.ogg	MISSING
+CommonSkillState.lua	file	Rose_MH_Mecadrop02.ogg	MISSING
+SI_SA_RFY_NEIL_THE_SNIPER.lua	file	CDC_AS_ROCKON_CENTER.tga	present
+SI_SA_RFY_NEIL_THE_SNIPER.lua	file	CDC_AS_ROCKON_DUMMY.x	present
+SI_SA_RFY_NEIL_THE_SNIPER.lua	file	CDC_AS_ROCKON_ROUND1.tga	present
+SI_SA_RFY_NEIL_THE_SNIPER.lua	file	CDC_AS_ROCKON_ROUND2.tga	present
+SI_SA_RFY_NEIL_THE_SNIPER.lua	file	CDC_AS_ROCKON_ROUND3.tga	present
+SI_SA_RFY_NEIL_THE_SNIPER.lua	effectset	EffectSet_SA_RFY_Neil_The_Sniper_Scope	MISSING
+SI_SA_RFY_NEIL_THE_SNIPER.lua	file	Particle_Blur.dds	present
+SI_RHB_SA_PROTON_BOMB.lua	file	CDC_AS_ROCKON_CENTER.tga	present
+SI_RHB_SA_PROTON_BOMB.lua	file	CDC_AS_ROCKON_ROUND1.tga	present
+SI_RHB_SA_PROTON_BOMB.lua	file	CDC_AS_ROCKON_ROUND2.tga	present
+SI_RHB_SA_PROTON_BOMB.lua	file	CDC_AS_ROCKON_ROUND3.tga	present
+SI_RHB_SA_PROTON_BOMB.lua	file	Particle_Blur.dds	present
+SI_RHB_SA_PROTON_BOMB.lua	file	RHB_Proton_Bomb_NPC.x	MISSING
+pre-check	effectset	EffectSet_SA_RFY_Neil_The_Sniper_Hit_EVENT	MISSING
+pre-check	effectset	EffectSet_SA_RHB_Proton_Bomb_Attack_EVENT	MISSING
+pre-check	effectset	EffectSet_SA_RBD_Gun_Dance_EVENT	MISSING
+pre-check	effectset	EffectSet_SA_RMH_Meca_Drop_Ready_EVENT	MISSING
+pre-check	effectset	EffectSet_SA_RMH_Meca_Drop_EVENT	MISSING
+NPCTemplet	templet row	NUI_NEIL_THE_SNIPER_EVENT (4342)	MISSING
+NPCTemplet	templet row	NUI_PROTON_BOMB_EVENT (4343)	MISSING
+Enum.lua	NPC_UNIT_ID	NUI_NEIL_THE_SNIPER_EVENT	MISSING
+Enum.lua	NPC_UNIT_ID	NUI_PROTON_BOMB_EVENT	MISSING
