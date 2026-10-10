@@ -2933,6 +2933,16 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
   - Log: `JUNE_FX C3z-4 substage CreateGUNPC npc <id> team <t> ally <a> ai <type>`.
 - flagcheck (2 files) PASS. `DEPLOY OK: X2_offline.exe is 19,538,432 B, dated 2026-10-10 22:34:45, md5 ffba1cb74f1e2605f0181890c49cf55a`.
 
+### C3z-4 - play-test 6 (2026-10-10 22:37-22:41): PASSED; `_C3Z4_DEBUG` off
+
+- Ranox Gateway Normal: `substage CreateGUNPC npc 1897 team 0 ally 1 ai 4` at stages 0 and 1. The user confirmed Ignia is
+  friendly (no red minimap dot, homing arrows ignore her) and the rooms clear with her alive; sub-stage clears through stage 3.
+  ErrorLog: only `can't find 'SetMovieDescriptionData'` (C3z-4b). 0 EXCEPTION.
+- `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` commented out (OFF note in `Always.h`).
+  `DEPLOY OK: X2_offline.exe is 19,536,896 B, dated 2026-10-10 22:51:28, md5 b8896722bee85d3bcb481d6f8b1d4df4`.
+- Batch 1 is done. Not exercised in game: `PushCreateNPCReq_Lua`, `GetStoredGUUser`, `GetHostGameUnit`, `GetDyingStart` (rare
+  boss moves / fallbacks); the review reads them against June.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and

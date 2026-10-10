@@ -6804,5 +6804,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-10
 // Description: Short-lived diagnostic for the C3z-4 batch 1 bindings: the first calls of each new method per launch are
 //              logged ( offline_server.log, JUNE_FX C3z-4 ). Remove after the play-test.
-#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
+// OFF 2026-10-10: C3z-4 play-tests passed (Den of Trock caves + chief, Ash Village smiths, Gateway berserkers, Gateway Ignia ally)
+//#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
 //////////////////////////////////////////////////////////////////////////
