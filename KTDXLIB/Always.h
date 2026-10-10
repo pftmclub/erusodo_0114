@@ -6467,6 +6467,67 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-10
+// Description: June effect completion Phase C9h-4g: June's USEFUL_STRING<n> rows, read right after USEFUL_VALUE in
+//              CommonStateStartFuture 320506f0 @32056b0e ( Future, +0x8f40 ) and CommonStateStart 32057b80 @32060dda
+//              ( Now, +0x8f30 ): a vector of wide strings, one per USEFUL_STRING<i> table ( value [1], a miss gives
+//              L"" ), no row cap. Getter = June 32a78fa0 ( every caller is Ain's class code: backlog Stage 8 ).
+//              Inert on March data ( no March script carries the key ).
+#define SERV_IRUHADEV_JUNE_USEFUL_STRING
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion Phase C9h-4g: CUSTOM_OFFSET_NOT_SELECT_UNIT ( two floats, +0x8f54 / +0x8f58 ) and
+//              USE_NOT_SELECT_MOTION_DIFFERENCE ( bool +0x8f5c, a miss reads TRUE ), read after USEFUL_STRING by both
+//              parses into ONE set ( the Now parse overwrites the Future one, June-verbatim ). The only June reader is
+//              PhysicProcess 32015b30 @3201a077's dual-body branch ( Lu/Ciel, backlog Stage 8 ). Inert in March.
+#define SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion Phase C9h-4g ( user, 2026-10-10: one shift ): reserves 11 June base user state
+//              ids in June's order: USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_BACK_STEP ( 10, before USI_BOUNDING_* )
+//              and USI_WAIT_STATE_CHANGE ( after them ). Every class state id moves up by 11 ( USI_END 91 -> 102 ).
+//              data036 Enum.lua carries the same rows: the exe and data036.kom ship TOGETHER, and turning this
+//              off needs the old Enum.lua back ( kom_contents_bytecode snapshot ).
+#define SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS
+#if defined(SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS) && !defined(SERV_IRUHADEV_JUNE_USER_STATE_ID16)
+#error SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS needs SERV_IRUHADEV_JUNE_USER_STATE_ID16 ( the ids sit in its block )
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion Phase C9h-4g: June's USI_WAIT_STATE_CHANGE. Its OnEventProcess 31fc8620 ( state time
+//              above USEFUL_VALUE0[0] of the Future set -> USI_WAIT ), the registration helper the character ports
+//              call per class ( June registers it in all 12 class InitStates, checklist 7h ), and the WIN / LOSE
+//              delegate's StateChange( 0x82 ) ( June 31fcd0b0 ) pointed at it, made only when the class registered
+//              the state. No March class registers it yet, so nothing changes in play.
+#define SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
+#if defined(SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE) && !defined(SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS)
+#error SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE needs SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS ( USI_WAIT_STATE_CHANGE )
+#endif
+#if defined(SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE) && !defined(SERV_IRUHADEV_JUNE_USEFUL_VALUE)
+#error SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE needs SERV_IRUHADEV_JUNE_USEFUL_VALUE ( the Future set's row 0 )
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C9h-4g play-test lines ( short-lived; turn OFF in the C9h-4g review ): the first 12
+//              parses of USEFUL_STRING and of the NOT_SELECT keys ( row count, the two floats, the bool's default ) and
+//              every JuneInitWaitStateChange outcome. Log: "JUNE_FX C9h-4g" in offline_server.log.
+#define SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
 // Description: June effect completion C3j-1 play-test lines ( short-lived; turn OFF in the C3j-1 review ): "JUNE_FX C3j-1 ids" for
 //              the first 10 NPC scripts initialised ( down / landcrash / up and where each id came from ) and "JUNE_FX C3j-1 overwrite"
 //              once per NPC ( at most 32 ) when CommonStateStart's tail replaces a launch speed. Log: offline_server.log.

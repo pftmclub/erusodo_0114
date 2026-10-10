@@ -5013,6 +5013,56 @@ RESULT: PASS
 
 **Next:** C9h-4g (Opus 5.5 high, kickoff updated), not at the same time as C3d-2 / C3d-3.
 
+### C9h-4g - Done (2026-10-10, Opus 5.5 high; flags `SERV_IRUHADEV_JUNE_USEFUL_STRING`, `_NOT_SELECT_UNIT_OFFSET`, `_RESERVED_STATE_IDS`, `_WAIT_STATE_CHANGE` + `SERV_IRUHADEV_JUNE_C9H4G_DEBUG` (on for the play-test); log `JUNE_FX C9h-4g`; data036 Enum.lua repacked; play-test pending)
+
+Files: `X2GUUser.h/.cpp`, `Always.h`, data036 `Enum.src.lua` (folded into BOM-source `Enum.lua`). Funcmap rows `(C9h-4g)` (13), JUNE_BUGS 155, checklist 7h row, backlog Stage 8 lines.
+
+**Decoded** (details in the funcmap rows)
+- **USEFUL_STRING**: a `vector<wstring>` per parse (Future `+0x8f40`, Now `+0x8f30`): clear, then tables `USEFUL_STRING0, 1, ..` with value `[1]`. A miss assigns `L""` (the kickoff's "logs on a miss" was wrong: `3344f1f4` is an empty string). There is no row cap. The getter is `32a78fa0` ( index, bFuture ); its 15 callers are all Ain class code. A static `ParseUsefulString( table, vector )` (`31fea4d0`) is Ain-only too.
+- **CUSTOM_OFFSET_NOT_SELECT_UNIT** (2 floats `+0x8f54/58`) and **USE_NOT_SELECT_MOTION_DIFFERENCE** (bool `+0x8f5c`, a miss reads true; the key name is XOR-built on the stack, decoded positionally): both parses write ONE set (JUNE_BUGS 155). Their only reader is PhysicProcess's dual-body branch (`32015b30 @32019f9b`, Lu/Ciel).
+- **The event states 0x6e..0x76** ("Heavenly Combat Support Kit": Sniper / Bomber / Quantum Bomb / Random Fire). The base InitState part `3202b110` registers 9 states with about 25 handlers; all 12 classes call it. The tables are in June `datai015 CommonSkillState.lua`, a file March lacks. The only entry is the dropped-item pick-up `3230bdd0`: items 100005740..3 (in the staged June kim) -> `StateChange`, latch `+0x9490`. A first read of the ids as 99940204.. was a hex slip, caught before any conclusion. **Live in June, too big for this phase -> C9h-4h** (kickoff written).
+- **USI_WAIT_STATE_CHANGE** is a June *base* id (`GUSI_END + 125` = 0x82). Each class registers it with only an OnEventProcess (`31fc8620`). Its one entry is the WIN / LOSE delegate `31fcd0b0` (the only `StateChange( 0x82 )` in June).
+- Not entries: the `3220b740` sites push the same small numbers into a special-ability name table.
+
+**User decision (2026-10-10): one shift now.** Eleven ids are reserved in June's order: the 10 `USI_EVENT_*` before `USI_BOUNDING_*`, and `USI_WAIT_STATE_CHANGE` after them. June's Phoenix (PvP amusement) and Dance ids in between get no March id.
+
+**What landed**
+- USEFUL_STRING: `JuneParseUsefulString` (both parses, right after USEFUL_VALUE) and `JuneGetUsefulString( index, bFuture )`.
+- NOT_SELECT: `JuneParseNotSelectUnitOffset` (both parses, after USEFUL_STRING); ctor zeroes as June (`@320431e2`); getters for Stage 8. The PhysicProcess branch goes to backlog Stage 8.
+- Reserved ids: `USI_EVENT_SNIPER_INIT` 88 .. `USI_EVENT_GUN_DANCE_BACK_STEP` 97, `USI_BOUNDING_*` 98..100, `USI_WAIT_STATE_CHANGE` 101, `USI_END` 102 (was 91).
+  - Gate (`enumprobe.py`, = Lua): Chung's last state `CSI_A_CIP_ARTILLERY_NOVA_FIRE` 269, `ASI_DASH_COMBO_X` 135, `USI_WAIT` 13.
+  - data036 `Enum.src.lua` has the same rows (`GUSI_END + 83..97`). `kom.py compile` folded it (tier EDIT).
+  - That compile also folded 30 other T0 sidecars. They were restored to bytecode (`luasrc.py restore`), and their ledger / core rows were put back to HEAD. Only Enum is new source (core row -> `source`). `ledger --check` and `core --check` PASS.
+  - PACK OK: vs the live kom only `Enum.lua` changed.
+- WAIT_STATE_CHANGE:
+  - `JuneWaitStateChangeEventProcess` = `31fc8620`: Future state time > `USEFUL_VALUE` Future[0][0] -> `USI_WAIT`, then CommonEventProcess.
+  - `JuneInitWaitStateChange( table )`: the class-port call. A missing table registers nothing and logs once.
+  - The delegate `JuneRandomLoseEventProcess` makes June's `StateChange( 0x82 )` again, to the new id, only when the class registered it. That guard is March safety, not June.
+  - No March class registers the state, so nothing changes in play (checklist 7h row).
+
+**Hygiene** (`flagcheck <flag> --with JUNE_C9H4G_DEBUG --worktree --files Always.h X2GUUser.h X2GUUser.cpp`):
+```
+USEFUL_STRING / NOT_SELECT_UNIT_OFFSET / WAIT_STATE_CHANGE: files: 0 PASS, 0 PASS~, 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR
+  in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)
+  RESULT: PASS
+RESERVED_STATE_IDS: files: 0 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 1 ERROR   RESULT: FAIL
+```
+OTHER = the four flags share the three files. RESERVED_STATE_IDS's one ERROR is `Always.h` line 6511, WAIT_STATE_CHANGE's dependency guard
+`#if defined(..WAIT_STATE_CHANGE) && !defined(..RESERVED_STATE_IDS)`, which flagcheck cannot evaluate (the same limit C3j-1 recorded for C3i's guard): not a finding. 0 deleted lines (insert-only).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,808 B, dated 2026-10-10 07:03:04, md5 444092992fed518aa5615fdec4fe5a55, equal to X2/US_SERVICE/x2.exe (2026-10-10 07:03:00); built at mods/june-buff-port c74f63f + 3 uncommitted code file(s).` Strings in the exe: the three wide `JUNE_FX C9h-4g` formats and the three narrow keys, once each.
+**data036:** `COPY OK data036: ...\data\data036.kom  10650176 bytes, 192 entries, md5 fe54e8bdda6e4e8cbf2a449aa4ec3173` (user's yes, 2026-10-10; backup `kom_backup_tools\data036.kom.20261010_085357`). The exe and this kom go together: either alone puts every class state id 11 off between C++ and Lua.
+
+**Open for the user:** none. Next: the play-test (hand-off below), then `/x2-phase june-effect C9h-4g review`; C9h-4h after it.
+
+### C9h-4h - port: the event states (Heavenly Combat Support Kit)
+
+Scope: June's user states `USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT` (June 0x6e..0x76; March ids 88..96 reserved by C9h-4g), registered by the base
+InitState part `3202b110` and entered by the dropped-item pick-up `3230bdd0` (items 100005740..100005743). Decode the ~25 handlers, the members `+0x947c..+0x9490`,
+the NPCs (`NUI_NEIL_THE_SNIPER_EVENT` 4342, ...), June's loader of `datai015 CommonSkillState.lua` (adopt the file, no invented Lua) and how the items drop; then port.
+Run with: Opus 5.5 high. Read list: this section, "C9h-4g - Done", funcmap rows `(C9h-4g)` / `(C9h-4f)`. Done gate: each piece under its own flag with a funcmap row,
+or a row saying why not; the June quirks named in the kickoff get JUNE_BUGS rows.
+
 ### C9h-5 - Done (2026-10-08, Opus 5.5 high; no code, no flag, no build): the village-NPC effect set is one key in June's `CX2TFieldNpc` rewrite -> Elysion E1 step 6, backlog Stage 18
 
 Read-only in Ghidra. There are 23 funcmap rows tagged `Effect C9h-5`. The 44-block `OnFrameMove` diff is in `june2017_re/c9h5_fieldnpc_onframemove_diff.md`. No C9h-5b: this is not an effect-engine slice.

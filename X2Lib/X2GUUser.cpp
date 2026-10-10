@@ -1176,6 +1176,12 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	memset( m_afJuneUsefulValueFuture, 0, sizeof( m_afJuneUsefulValueFuture ) );
 	memset( m_afJuneUsefulValueNow, 0, sizeof( m_afJuneUsefulValueNow ) );
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+	/// June ctor 3203e850 @320431e2 / @32043203: both floats 0.0 and the byte 0 ( only the parse's miss gives true )
+	m_afJuneNotSelectUnitOffset[0] = 0.f;
+	m_afJuneNotSelectUnitOffset[1] = 0.f;
+	m_bJuneUseNotSelectMotionDifference = false;
+#endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	m_bJuneBoundingStatesReady = false;
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
@@ -15211,6 +15217,14 @@ void CX2GUUser::CommonStateStartFuture()
 	/// June 320506f0 @32056a15: right after the clamp, the Future set
 	JuneParseUsefulValue( m_afJuneUsefulValueFuture, m_FutureStateData.stateID, true );
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
+	/// June 320506f0 @32056b0e-32056bf2: right after the USEFUL_VALUE set
+	JuneParseUsefulString( m_vecJuneUsefulStringFuture, m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_USEFUL_STRING
+#ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+	/// June 320506f0 @32056bf2-32056edd: right after USEFUL_STRING
+	JuneParseNotSelectUnitOffset( m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 
 #ifdef LINKED_LINEMAP_JUMP_USER_TEST
 	LUA_GET_VALUE( m_LuaManager, "LINK_JUMP_TIME", m_fLinkJumpTime, 1.f );
@@ -16317,6 +16331,14 @@ void CX2GUUser::CommonStateStart()
 	/// June 32057b80 @32060cd9-32060dd5: the Now set ( June reads it after its other state keys; March has none of them in between )
 	JuneParseUsefulValue( m_afJuneUsefulValueNow, m_NowStateData.stateID, false );
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
+	/// June 32057b80 @32060dda-32060e5e: right after the USEFUL_VALUE set
+	JuneParseUsefulString( m_vecJuneUsefulStringNow, m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_USEFUL_STRING
+#ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+	/// June 32057b80 @32060e5e-32061149: right after USEFUL_STRING, into the same members the Future parse wrote
+	JuneParseNotSelectUnitOffset( m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 
 #ifdef SERV_EVE_BATTLE_SERAPH
 	LUA_GET_VALUE( m_LuaManager, "IS_NOCHANGE_SPECTRO",		m_FrameDataNow.stateParam.bNoChangSpectro,		false );
@@ -21514,6 +21536,111 @@ void CX2GUUser::JuneParseUsefulValue( float ( &afTable_ )[5][3], int iStateId_, 
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE_DEBUG
 }
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
+/// June 320506f0 @32056b0e-32056bf2 and 32057b80 @32060dda-32060e5e ( identical shape ): clear the vector ( erase begin..end ), then BeginTable( "USEFUL_STRING", i )
+/// for i = 0, 1, ...: resize( i + 1 ), value [1] as a wide string into row i ( 32feafd0; a miss assigns L"" 3344f1f4 ), EndTable. The first missing table ends the
+/// loop; unlike USEFUL_VALUE there is no row cap.
+void CX2GUUser::JuneParseUsefulString( OUT std::vector<std::wstring>& vecTable_, IN int iStateId_, IN bool bFuture_ )
+{
+	vecTable_.clear();
+
+	int iRow = 0;
+	while( m_LuaManager.BeginTable( "USEFUL_STRING", iRow ) == true )
+	{
+		vecTable_.resize( iRow + 1 );
+		LUA_GET_VALUE( m_LuaManager, 1, vecTable_[iRow], L"" );
+		iRow++;
+		m_LuaManager.EndTable();
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+	static int s_iJuneUsefulStringLogged = 0;
+	if( s_iJuneUsefulStringLogged < 12 || ( iRow > 0 && s_iJuneUsefulStringLogged < 64 ) )
+	{
+		s_iJuneUsefulStringLogged++;
+		CX2OfflineLog::Server( L"JUNE_FX C9h-4g USEFUL_STRING %s state=%d rows=%d row0=%s unit=%d",
+			( true == bFuture_ ? L"future" : L"now" ), iStateId_, iRow, ( iRow > 0 ? vecTable_[0].c_str() : L"-" ), static_cast<int>( GetUnitUID() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+}
+
+/// June 32a78fa0 ( thiscall, hidden wstring result, ( index, bool bFuture ), ret 0xc ): bFuture ? +0x8f40 : +0x8f30; size > ( unsigned ) index -> a copy of that row
+/// ( 31f54910 ), otherwise an empty string.
+std::wstring CX2GUUser::JuneGetUsefulString( IN int iIndex_, IN bool bFuture_ ) const
+{
+	const std::vector<std::wstring>& vecTable = ( true == bFuture_ ? m_vecJuneUsefulStringFuture : m_vecJuneUsefulStringNow );
+	if( static_cast<UINT>( iIndex_ ) < vecTable.size() )
+		return vecTable[iIndex_];
+	return std::wstring();
+}
+#endif SERV_IRUHADEV_JUNE_USEFUL_STRING
+#ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+/// June 320506f0 @32056bf2-32056edd and 32057b80 @32060e5e-32061149 ( identical shape, the same members ): both floats 0.0, then BeginTable( "CUSTOM_OFFSET_NOT_SELECT_UNIT" )
+/// ( 32fe9940 ): values 1 / 2 ( a miss writes 0.0 ), EndTable. Then the bool USE_NOT_SELECT_MOTION_DIFFERENCE ( 32fe9e40; the key is XOR-decrypted on the stack ):
+/// a miss writes true.
+void CX2GUUser::JuneParseNotSelectUnitOffset( IN int iStateId_, IN bool bFuture_ )
+{
+	m_afJuneNotSelectUnitOffset[0] = 0.f;
+	m_afJuneNotSelectUnitOffset[1] = 0.f;
+	if( m_LuaManager.BeginTable( "CUSTOM_OFFSET_NOT_SELECT_UNIT" ) == true )
+	{
+		LUA_GET_VALUE( m_LuaManager, 1, m_afJuneNotSelectUnitOffset[0], 0.f );
+		LUA_GET_VALUE( m_LuaManager, 2, m_afJuneNotSelectUnitOffset[1], 0.f );
+		m_LuaManager.EndTable();
+	}
+	LUA_GET_VALUE( m_LuaManager, "USE_NOT_SELECT_MOTION_DIFFERENCE", m_bJuneUseNotSelectMotionDifference, true );
+
+#ifdef SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+	static int s_iJuneNotSelectLogged = 0;
+	if( s_iJuneNotSelectLogged < 12 )
+	{
+		s_iJuneNotSelectLogged++;
+		CX2OfflineLog::Server( L"JUNE_FX C9h-4g NOT_SELECT %s state=%d offset=%g,%g motion_difference=%d unit=%d",
+			( true == bFuture_ ? L"future" : L"now" ), iStateId_, m_afJuneNotSelectUnitOffset[0], m_afJuneNotSelectUnitOffset[1],
+			static_cast<int>( m_bJuneUseNotSelectMotionDifference ), static_cast<int>( GetUnitUID() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+#ifdef SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
+/// June class InitState ( e.g. Eve 329ba9c0 @329bae2a-329bae48 ): UpdateUserUnitStateData( 0x82 = USI_WAIT_STATE_CHANGE, "<prefix>WAIT_STATE_CHANGE", data ) with only
+/// OnEventProcess = thunk 329cb720 -> 31fc8620; StateStart is empty, so CommonStateStart runs ( as in March ). Not June: a missing table registers nothing and logs once
+/// per table ( as JuneInitBoundingStates ), so JuneRandomLoseEventProcess never sends a unit into a state with no table.
+void CX2GUUser::JuneInitWaitStateChange( IN const char* pszTableName_ )
+{
+	UserUnitStateData stateData;
+	stateData.Init();
+	stateData.stateID = USI_WAIT_STATE_CHANGE;
+	const bool bTable = m_LuaManager.MakeTableReference( pszTableName_, stateData.stateID );
+
+	static std::set<std::string> s_setLogged;
+	const bool bFirstOfTable = s_setLogged.insert( pszTableName_ ).second;
+	if( false == bTable )
+	{
+		if( true == bFirstOfTable )
+			CX2OfflineLog::Server( L"JUNE_FX C9h-4g USI_WAIT_STATE_CHANGE NOT registered: the class script has no table %hs", pszTableName_ );
+		return;
+	}
+
+	stateData.OnEventProcess = SET_CB_FUNC( CX2GUUser, JuneWaitStateChangeEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+#ifdef SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+	if( true == bFirstOfTable )
+		CX2OfflineLog::Server( L"JUNE_FX C9h-4g USI_WAIT_STATE_CHANGE registered: id=%d table=%hs", static_cast<int>( USI_WAIT_STATE_CHANGE ), pszTableName_ );
+#endif SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+}
+
+/// June 31fc8620: fld USEFUL_VALUE Future[0][0] ( +0x8ef4 ), fld GetStateTime( true ) ( +0x7de8 ), fcompp, test ah 0x41, jne: when the Future state time is greater
+/// than the value ( equal, smaller or unordered stay ), StateChange( 0xd = USI_WAIT, false ); then CommonEventProcess ( jmp vslot 0x7d4 ).
+void CX2GUUser::JuneWaitStateChangeEventProcess()
+{
+	if( m_FrameDataFuture.unitCondition.fStateTime > JuneGetUsefulValueFuture( 0, 0 ) )
+		StateChange( USI_WAIT, false );
+
+	CommonEventProcess();
+}
+#endif SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
 void CX2GUUser::CommonEventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_COMMON_CANCEL
@@ -32529,6 +32656,13 @@ void CX2GUUser::JuneRebindCommonRandomStateOnStateChange( int iState )
 /// made until C9h-4g gives *_WAIT_STATE_CHANGE an id and points it here (C3e-2 review). Nothing sets the by-chat flag in March.
 void CX2GUUser::JuneRandomLoseEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
+	/// C9h-4g ( supersedes the note above ): June 31fcd0b0's StateChange( 0x82, false ) = USI_WAIT_STATE_CHANGE once the animation ends ( June byte +0x2ac ).
+	/// Not June: only when the class registered the state ( JuneInitWaitStateChange; June's vector would fall back to vec[0] ), so a class whose port has not
+	/// brought the table stays in WIN / LOSE as before.
+	if( NULL != m_pXSkinAnimFuture && true == m_pXSkinAnimFuture->IsAnimationEnd() && m_StateList.end() != m_StateList.find( USI_WAIT_STATE_CHANGE ) )
+		StateChange( USI_WAIT_STATE_CHANGE, false );
+#endif SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
 
 	CommonEventProcess();
 }

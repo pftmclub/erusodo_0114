@@ -259,6 +259,12 @@ Everything from Stages 5 and 6, plus:
 - activating the dormant Rose/Ain/Lu/Ciel code from the buff port.
 - the user-sync members only these classes drive (june-effect C3e, `june2017_re/c3e_user_sync_fields.tsv` rows B, E, F, H, I, G):
   - Lu/Ciel's dual body: the second-body position (bits `0x20000`-`0x80000`) and the active body (`0x1000000`), on `+0x8e88` / `+0x8e90` / `+0x8e91`;
+    with it PhysicProcess's not-selected-body branch (`32015b30 @32019f9b-3201a1c7`, funcmap `(C9h-4g)`), the only reader of
+    `CUSTOM_OFFSET_NOT_SELECT_UNIT` / `USE_NOT_SELECT_MOTION_DIFFERENCE` (parsed since june-effect C9h-4g: `JuneGetNotSelectUnitOffset( i )`,
+    `JuneGetUseNotSelectMotionDifference()`; June data: `Luciel_Demonio`);
+  - Ain's `USEFUL_STRING` readers: 15 class-code callers of the getter `32a78fa0` (ported as `JuneGetUsefulString( index, bFuture )`, june-effect
+    C9h-4g) and the static `ParseUsefulString( table, vector )` helper `31fea4d0` (6 Ain callers, not ported); June data: `Ain_Apostasia`,
+    `Ain_Erbluhen_Emotion`;
   - Lu/Ciel's float (`0x10000`); the class short of Ain (Disparate Force), Rose and Lu/Ciel (`0x100000`); Ain's 10-dword array (`0x20000000`);
   - their drivers of the class-skill float C3e-1 ports (`0x200000`), including Rose's Neil the Sniper aim (`3200d3f0` / `3200d900`).
 - the item-templet fields June-item-kim K0 found for them: Lu/Ciel's minor-unit item id and flag, the Extra keys 10-13,

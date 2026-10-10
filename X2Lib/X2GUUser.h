@@ -442,9 +442,29 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_USER_STATE_ID16
 		// June Enum.lua USI_BOUNDING_DOWN / _LANDCRASH / _UP ( GUSI_END + 115 / 116 / 117 ), after the event states
 		// March does not have and before USI_END. Reserved ids only: nothing registers or enters them until C3d-3.
+#ifdef SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS
+		// June Enum.lua USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_BACK_STEP ( GUSI_END + 105 .. 114 ), directly before USI_BOUNDING_* as in June.
+		// Reserved ids only (C9h-4g, user 2026-10-10: one shift with USI_WAIT_STATE_CHANGE). June's base InitState 3202b110 registers 0x6e..0x76 and
+		// the item pick-up 3230bdd0 ( items 100005740..100005743 ) enters them: phase C9h-4h. Nothing registers or enters them in March yet.
+		USI_EVENT_SNIPER_INIT,
+		USI_EVENT_SNIPER_CONTROL_IDLE,
+		USI_EVENT_SNIPER_CONTROL_FIRE,
+		USI_EVENT_SNIPER_END,
+		USI_EVENT_PROTON_BOMB_INIT,
+		USI_EVENT_PROTON_BOMB_CONTROL_IDLE,
+		USI_EVENT_PROTON_BOMB_CONTROL_FIRE,
+		USI_EVENT_MECA_DROP_INIT,
+		USI_EVENT_GUN_DANCE_INIT,
+		USI_EVENT_GUN_DANCE_BACK_STEP,
+#endif SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS
 		USI_BOUNDING_DOWN,
 		USI_BOUNDING_LANDCRASH,
 		USI_BOUNDING_UP,
+#ifdef SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS
+		// June Enum.lua USI_WAIT_STATE_CHANGE ( GUSI_END + 125 = June 0x82 ). June's AMUSEMENT_ITEM_PHOENIX_* ( + 118 .. 121 ) and DANCE_Z / _X / _WAIT
+		// ( + 122 .. 124 ) between them get no March id. Each class registers it ( JuneInitWaitStateChange, the character ports ).
+		USI_WAIT_STATE_CHANGE,
+#endif SERV_IRUHADEV_JUNE_RESERVED_STATE_IDS
 #endif SERV_IRUHADEV_JUNE_USER_STATE_ID16
 		USI_END,
 	};
@@ -2401,6 +2421,26 @@ public:
 		float JuneGetUsefulValueFuture( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afJuneUsefulValueFuture[iRow_][iColumn_] : 0.f; }
 		float JuneGetUsefulValueNow( IN int iRow_, IN int iColumn_ ) const { return ( 0 <= iRow_ && iRow_ < 5 && 0 <= iColumn_ && iColumn_ < 3 ) ? m_afJuneUsefulValueNow[iRow_][iColumn_] : 0.f; }
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
+		/// C9h-4g: June's USEFUL_STRING<n> rows ( one wide string each, value [1]; no row cap ). Future = +0x8f40 ( CommonStateStartFuture ), Now = +0x8f30 ( CommonStateStart ).
+		void JuneParseUsefulString( OUT std::vector<std::wstring>& vecTable_, IN int iStateId_, IN bool bFuture_ );
+		/// June 32a78fa0 ( every caller is Ain's class code ): a copy of row iIndex_ of the Future ( bFuture_ ) or Now set, empty when ( unsigned ) iIndex_ >= the row count
+		std::wstring JuneGetUsefulString( IN int iIndex_, IN bool bFuture_ ) const;
+#endif SERV_IRUHADEV_JUNE_USEFUL_STRING
+#ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+		/// C9h-4g: CUSTOM_OFFSET_NOT_SELECT_UNIT values 1 / 2 ( June +0x8f54 / +0x8f58 ) and USE_NOT_SELECT_MOTION_DIFFERENCE ( +0x8f5c ). June's only reader, PhysicProcess
+		/// 32015b30 @3201a077 ( dual body, Lu/Ciel: backlog Stage 8 ), scales the vector of user vslot 0x16c by value 1, takes value 2 as its y, and adds the two
+		/// bodies' position difference when the bool is set.
+		void JuneParseNotSelectUnitOffset( IN int iStateId_, IN bool bFuture_ );
+		float JuneGetNotSelectUnitOffset( IN int iIndex_ ) const { return ( 0 <= iIndex_ && iIndex_ < 2 ) ? m_afJuneNotSelectUnitOffset[iIndex_] : 0.f; }
+		bool JuneGetUseNotSelectMotionDifference() const { return m_bJuneUseNotSelectMotionDifference; }
+#endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+#ifdef SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
+		/// C9h-4g: June's USI_WAIT_STATE_CHANGE. Every June class InitState registers it with only an OnEventProcess ( 31fc8620 through thunk 329cb720 ); a character port
+		/// calls this with its class table ( e.g. "ESSI_WAIT_STATE_CHANGE" ) and sets WIN's OnEventProcess to JuneRandomLoseEventProcess ( June 320718d0 ).
+		void JuneInitWaitStateChange( IN const char* pszTableName_ );
+		void JuneWaitStateChangeEventProcess();
+#endif SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
 		virtual bool CanRidingState();
 #ifdef CHECK_CAMERA_INFO
 		void SetIsLineMapCamera( IN bool bVal_ ) { m_bIsLineMapCamera = bVal_;}
@@ -4353,6 +4393,14 @@ public:
 		float					m_afJuneUsefulValueFuture[5][3];	/// June +0x8ef4: USEFUL_VALUE0..4 of the Future state (C9h-4f)
 		float					m_afJuneUsefulValueNow[5][3];		/// June +0x8eb8: USEFUL_VALUE0..4 of the Now state (C9h-4f)
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
+#ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
+		std::vector<std::wstring>	m_vecJuneUsefulStringFuture;	/// June +0x8f40: USEFUL_STRING0.. of the Future state (C9h-4g)
+		std::vector<std::wstring>	m_vecJuneUsefulStringNow;		/// June +0x8f30: USEFUL_STRING0.. of the Now state (C9h-4g)
+#endif SERV_IRUHADEV_JUNE_USEFUL_STRING
+#ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
+		float					m_afJuneNotSelectUnitOffset[2];			/// June +0x8f54 / +0x8f58: CUSTOM_OFFSET_NOT_SELECT_UNIT values 1 / 2 (C9h-4g)
+		bool					m_bJuneUseNotSelectMotionDifference;	/// June +0x8f5c: USE_NOT_SELECT_MOTION_DIFFERENCE, a miss reads true (C9h-4g)
+#endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 		bool																					m_bJuneBoundingStatesReady;	/// C3d-3: the class registered USI_BOUNDING_* ( the class script carries the tables; none does yet ); the RT_BOUNDING case needs it
