@@ -2513,6 +2513,67 @@ where March's C++ forces it (the registries are kept merged). **Every dungeon** 
     dungeon March and June share; record each March-only consumer that blocks a row.
   - Census first, then the edit. Not at the same time as C3z-2 (both pack data036).
 
+### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
+
+**Census tool.** `june2017_re/dungeon_npc_census.py` (with `dungeon_npc_dump.lua` and `lua_registry_dump.lua`).
+- It runs all 343 dungeon scripts in kom_contents through the vendored KOG luajit, which loads `1B 4B 4C 81` bytecode as-is.
+- It walks them the way the client does: `STAGE_LIST` / `STAGE<n>` / `SUB_STAGE<n>`, `New_LoadNPCData` (`NPC_GROUP_RATE` + `NPC_GROUP<N>`, else `NPC_GROUP`, `SUB_NPC<i>`), and the `CLEAR_COND<c>.NPC_ID` lists.
+- It adds a `NUI_` token scan of each script and the summon closure through the NPCs' unit scripts.
+- It runs the registries (Enum, NPCTemplet, NPCStat, NewNPCStat, DungeonData) the same way.
+- It reproduces the emulator's Druid Forest parse: 10 / 13 / 3 entries.
+- It writes `june2017_re/dungeon_npc_census.tsv` (per name), `dungeon_npc_parity.tsv` (the gate) and `dungeon_npc_add.tsv` (empty now).
+
+**Covered scripts.** 233 of the 343: those March's DungeonData registers, plus those June registers under a dungeon id March also has. All of the latter are March-registered already, so C3z-3 adds none.
+
+**Finding: 142 June-only ids missing from March's `NPC_UNIT_ID`.** All of them read nil, so their entries never spawned and their clear conditions emptied.
+- 96 are named by the covered scripts, and the summon closure adds 46 more through their unit scripts.
+- What they are:
+  - Druid Forest's 1608-1614.
+  - Besma Lake Night's two gates (in `CLEAR_COND`).
+  - The story-stage event NPCs of 14 dungeons (1605-1646, 1726-1727).
+  - Air Ship's `AIRSHIP_SOLDIER_SLESHU` and the Below Tunnel boss.
+  - Every `_HENIR` boss in Henir Space, plus their summons (1728-2009, 10154-10167).
+  - The Elysion boss parts.
+
+**Edits.**
+- **`Enum.lua`** (BOM source, byte-level, CRLF kept): June's 142 values appended in an Iruha block.
+  - No collision with March's Lua values.
+  - No collision with the C++ `CX2UnitManager::NPC_UNIT_ID`, resolved with `cl /P` (2,023 members, implicit ones included).
+  - None of the 142 names is a C++ member.
+- **`NPCTemplet.lua`:** `luasrc.py convert` (T0 from the sidecar), then June's 142 rows appended verbatim, in June's order.
+  - By value they equal June's own `data037` bytecode (ljconv'd and executed).
+  - The 2,026 March rows are unchanged.
+  - Every `CLASS_TYPE` resolves in March's `NPC_CLASS_TYPE`, and every row has `IS_NPC` (`AddNPCTemplet_LUA` returns false otherwise).
+- **Unit scripts and meshes:** all 142 unit scripts are staged, and no `.x` they name is missing.
+- **Bookkeeping:** `luasrc.py refresh` on both files; `ledger --check` PASS, `core --check` PASS (the NPCTemplet core row is now `source`).
+
+**C++: nothing to change.**
+- `NUI_MAX_LIMIT` (10191) bounds only an item's summon NPC, and only to log it (`X2ItemManager_Preprocessing.cpp:1501`). The highest new id is 10167.
+- The templet map is keyed by value, and `FetchNPCData` casts.
+
+**Gate (`dungeon_npc_parity.tsv`).** 2,510 sub-stages: **2,130 PASS, 380 EXC, 0 FAIL.**
+- EXC: 330 "C3y: June-only dungeon", 50 "C3y: registry-less script".
+- No covered sub-stage is left with only a box or a gate.
+
+**Hand-off lines.**
+- `PACK OK data036` / `PACK OK data037` (each `~1 changed`).
+- `COPY OK data036: ... md5 920afa6ae9545708dc31c46db19bd7c7`.
+- `COPY OK data037: ... md5 42bc49305f49b1402d4b8f47c6b2ccdf`.
+- Exe unchanged.
+
+**Open, for the user.**
+1. **Drop and EXP.** `KncWX2Server/ServerResource/US/DropTable.lua` is keyed by dungeon + monster id and has no row for any of the 142; no June server exists.
+   - The emulator pays EXP and ED only on a row with `Exp > 0`, so these monsters give 0 EXP and 0 ED. The dungeon's static drop still comes.
+   - No rows were invented. A stand-in (own flag, e.g. a June monster borrowing the dungeon's old March rows) is a design call: say if you want it planned.
+2. `NUI_EVENT_GLITER_LANCE_GREAT` is 4035 in March and 4190 in June. Only the June-only `Dungeon_Event_Alchemy_Lab` uses it -> C3y. Not renumbered.
+3. The 24 `NUI_PVE_*` (Island of Erda) have no March templet; that dungeon is registry-less in March -> C3y.
+4. Ten names June's own scripts read exist in no Enum (`READY_NPC` typos) -> `JUNE_BUGS.md` #165, kept.
+5. **For Atlas / Elysion:** the Elysion ids added here (`NUI_ELSION_MAYA`, `NUI_ELYSION_BOSS_ORB` / `_SHIELD`, `NUI_ELYSION_OBJECT_HERBAON1` / `2`, the `_HENIR` parts) now exist in March's Enum and NPCTemplet. Do not add them twice.
+
+**In game.**
+- The `[EXTRA_NPC_STAT] loaded 1693 rows (skipped: N nil NPC_ID` line drops from 835 to **709**.
+- Elder Druid Forest spawns its monsters and no longer clears itself. Exact checks are in the hand-off.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
