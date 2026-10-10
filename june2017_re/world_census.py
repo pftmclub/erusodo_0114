@@ -16,7 +16,11 @@ table = ljconv.load_table(ljconv.TABLE_TSV)
 def rows(t):
     return {m.group(1): m.group(2) for m in re.finditer(r'worldName\s*=\s*"([^"]+)"\s*,\s*dataFileName\s*=\s*"([^"]+)"', t)}
 
-mwd = rows(open(os.path.join(KC, "data040_kom", "WorldData.src.lua"), encoding="utf-8", errors="replace").read())
+# WorldData.lua is BOM source since C3x (core list); before that its text was the .src.lua sidecar.
+_wd = os.path.join(KC, "data040_kom", "WorldData.lua")
+if open(_wd, "rb").read(3) != b"\xef\xbb\xbf":
+    _wd = os.path.join(KC, "data040_kom", "WorldData.src.lua")
+mwd = rows(open(_wd, encoding="utf-8-sig", errors="replace").read())
 jwd = rows(open(os.path.join(TRUNK, "june_src_fixed", "data040_kom", "WorldData.src.lua"), encoding="utf-8", errors="replace").read())
 
 staged = kom.staged_names()          # lower -> {stem: spelling}
@@ -52,7 +56,9 @@ def names_in(b):
     out = set()
     for m in lua_re.finditer(b or b""):
         t = m.group(0).decode("latin-1")
-        for i in range(0, min(4, len(t) - 4)):
+        # every suffix (C3x): a constant can glue onto the one before it ("SetBGM.X_LineMap.lua"), and a 3-char trim missed
+        # 35 line maps that way; the first (longest) known name wins
+        for i in range(0, len(t) - 4):
             c = t[i:]
             if c.lower() in june or c.lower() in staged:
                 out.add(c); break

@@ -33,3 +33,8 @@ Review C3s's commit against June (`june2017_re/funcdis.py`, `statedata_keys.py`,
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE --range <C3s commit>^..HEAD` and the same for
 `SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT`. Fix clear transcription errors under the same flag; hand design decisions back to the user.
 Next: `kickoffs/june-effect/C3v.md` and `C3w.md` exist (written by C3s).
+
+Added by C3x (2026-10-10): C3s's `npc_mesh_census.py --all-npc` closure read mesh bytes raw. 373 of its 812 June models are
+MSZIP-compressed (`xof 0303bzip0032`), so the textures they name were never seen. C3x taught the closure to inflate them
+(`fxdata.xfile_text`). Re-run `--all-npc` (it rewrites `npc_mesh_need_all.tsv`) and stage what it adds. A miss there shows as a
+white or missing texture, not a crash.

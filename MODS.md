@@ -3454,14 +3454,14 @@ Data, plus one log-only flag (`SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG`).
   `CTT_RIM_LIGHT_BLUE = 10`. World 33 is June's Benders Cave boss stage now; the user chose June parity, and the old name is an alias.
 - `WorldData.lua` (data040) is BOM source on the core list, with June's rows for every ID March knows. March keeps the three Ranox
   secret extra rows June lacks.
-- 170 June world scripts and line maps replace March's in data040 (`june2017_re/june_adopt_20261010_133232.tsv`).
+- 205 June world scripts and line maps replace March's in data040 (`june2017_re/june_adopt_20261010_133232.tsv` and `_134556.tsv`).
 - 363 June world meshes and textures are added to data026 / 028 / 029 / 031 / 032 (`june2017_re/world_asset_need.tsv`). data101
   is staged but not packed: its dir is corrupt.
 
 Revert:
 - `luasrc.py restore data040 WorldData.lua`.
 - Remove the 5 Enum.lua lines tagged `June effect C3x`, then `luasrc.py refresh data036 Enum.lua`.
-- Restore the 170 map files and 34 sidecars from `24965799\kom_backup_stage_june\20261010_133232\`, and delete the 24 new names and
+- Restore the map files and 34 sidecars from `24965799\kom_backup_stage_june\20261010_133232\` and `\20261010_134556\`, and delete the 28 new names and
   the 363 asset names (TSVs) with their manifest keys.
 - Repack, or put back the live koms from `kom_backup_tools`.
 

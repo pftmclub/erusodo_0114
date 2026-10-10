@@ -2422,7 +2422,7 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 ### C3x - Done
 
-**2026-10-10, code + data; play-test owed.** Flag `SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG` (log only). Commit: see `git log --grep "Phase C3x"`.
+**2026-10-10, code + data; play-test owed.** Flag `SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG` (log only). Commits `b3039ef` and a follow-up (35 line maps).
 
 - **Users first:** every `.lua` naming a reworked world is June bytecode (146 scripts), apart from 7 registries / map dialogs
   (Enum, EnumString, WorldData, DungeonData, 3 `DLG_Map_*`), so swapping the maps moves no March-only dungeon.
@@ -2442,6 +2442,12 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
   - 24 new, 146 replaced, 0 refused; 34 sidecars superseded. Run record: `june2017_re/june_adopt_20261010_133232.tsv`.
   - Six were Lanox March-compat edits; June's calls are bound now (`SetTriggerID`, `SetShowObject`, `SetIsForceNotCull`,
     `SetRimLightTextureIndex`, `SetCartoonRender`; the `SERV_IRUHADEV_RANOX_*` flags probe ON).
+- **The census missed 35 line maps.** Its bytecode tokenizer trimmed at most 3 characters, and some names glue onto the constant
+  before them (`SetBGM.X_LineMap.lua`). A source-text pass over every world's `SetLineMap("...")` in `june_src_fixed` found 31 that
+  differ from June and 4 that March lacks (June's `Altera_Battle_Air_Ship_Stage1-4_LineMap.lua`, named by the adopted June scripts).
+  All 35 are adopted (`june2017_re/june_adopt_20261010_134556.tsv`). `world_census.py` now tries every suffix and reads
+  WorldData.lua as source. Re-run: **378 worlds, 0 differ from June**; 4 march-only (Air Ship s6, Dragon Road 4: June dropped them,
+  only old events use them). 8 of the 205 adopted files pack to the same sizes as live, so the copy may not change them.
 - **Binding audit:** all 65 methods in the 170 June sources are bound. The only gap in the enum tables was the CTT member above.
   - Geyser stage 0's restored `TAT_ETC_PLAY_EFFECTSET` rows carry `MOTIONNAME_EFFECTSETNAME`, which March does not read.
   - An empty `EFFECT_NAME` is skipped, so the rows are inert, as Lanox kept them (Elysion's plan says the same).
@@ -2453,6 +2459,7 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
     Its 2 files (Velder Bridge Hope 3-1 `River_Wave`, `Wall01`) wait for that dir's repair.
   - BGM: `Music063_Stage.ogg` (Druid Forest 0-1) is missing from `data\music\`; June has it at `14JUN17\data\music\`.
 - **Packed:** data026 / 028 / 029 / 031 / 032 / 036 / 040, `PACK OK`.
+  - 125 sampled live entries in data026-032 decode equal to their dir files.
   - The data028-032 "changed" entries are recompression only: same raw size and algo, first pack by the tools.
   - data036 warns of 30 newer `.src.lua` sidecars that are not C3x's (present before this phase).
 - **C++:** `CX2WorldManager::CreateWorld` logs a world ID with no WorldData row (NULL return), a script that fails, and a world
@@ -2467,6 +2474,7 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
   - `WI_SANDER_SECRET_BOSS_STAGE` and the 66 June-only dungeons no registry reaches go to the new **C3y** (no owner;
     `DI_SANDER_SECRET_HELL` is June-only).
   - Valley of Abyss's June file is in no March kom; no dungeon uses it (field boss raid).
+  - C3s's `--all-npc` census never inflated MSZIP meshes (373 of 812): added to C3s's review kickoff.
 
 ## C4 - 8b, damage math
 
