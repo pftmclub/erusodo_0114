@@ -6808,7 +6808,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              logged ( offline_server.log, JUNE_FX C3z-4 ). Remove after the play-test.
 // OFF 2026-10-10: C3z-4 play-tests passed (Den of Trock caves + chief, Ash Village smiths, Gateway berserkers, Gateway Ignia ally)
 // ON 2026-10-11 for the C3z-4 review play-test ( sub-stage CreateGUNPC "ai" line: Santilus motor 1, Gateway Ignia 4 ); off after it.
-#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
+// OFF 2026-10-11: review play-test passed ( Santilus npc 1390 ai 1, Gateway npc 1897 ai 4 ).
+//#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

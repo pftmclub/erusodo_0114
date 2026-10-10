@@ -3206,7 +3206,7 @@ matches June. **Finding, fixed:**
   `CreateNPCReq_LUA ... keycode=-1 team=2 ai=0`.
 - Ranox Gateway Normal (33300): `npc 1897 team 0 ally 1 ai 4` at stages 0 and 1, unchanged. The user confirmed both checks.
 - ErrorLog: 0 C3z-4 lines, 0 EXCEPTION. The run used a peer's deploy built from `e67eff2`, so it includes the fix.
-- `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` is commented out (OFF note in `Always.h`). DEBUGOFF_DEPLOY
+- `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` is commented out (OFF note in `Always.h`). `DEPLOY OK: X2_offline.exe is 19,554,816 B, dated 2026-10-11 06:15:02, md5 ef4e77810987f7d2715a4131f47d6c52` (b41b0a1 + Always.h); the `JUNE_FX C3z-4` strings are gone from the exe.
 
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
