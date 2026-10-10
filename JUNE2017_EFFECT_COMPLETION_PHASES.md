@@ -1668,7 +1668,7 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 ## C3j-1 - port verbatim: June's NPC bounding-state fallbacks
 
-**Status: code done 2026-10-10, play-test owed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-1.md`; review `kickoffs/june-effect/C3j-1-review.md`.
+**Status: done 2026-10-10, play-test PASSED; review next. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-1.md`; review `kickoffs/june-effect/C3j-1-review.md`.
 
 ### C3j-1 - Done (2026-10-10, Opus 5.5 high)
 
@@ -1704,6 +1704,12 @@ With `KTDXLIB/Always.h` in `--files` the main flag gives an ERROR on C3i's pre-e
 
 **How to see it in game:** jtLordKnight in the Elder Village field: dash X on a soldier, and it plays its hit-up animation without rising.
 `overwrite` then shows the speed after = (0.0, 0.0). Z hits are unchanged.
+
+**Play-test PASSED 2026-10-10** (user; exe `44409299`, a peer's redeploy built on `c74f63f`; logs after the deploy).
+- **Check 1:** the soldiers drop straight to the ground on dash X, the June behaviour expected here. The user reported it as "failed" and it is not:
+  it is the spec's expected result. The `ids` lines show UP = UP_DAMAGE by fallback, e.g. `Elder_Bridge_guard_Small.lua` / `_Big.lua`: down 23, landcrash 26, up 24.
+  Five `overwrite` lines show state 24, bounding up 24 = UP_DAMAGE 24, `nowSpeed ( -1110.0, 1950.0 ) -> ( 0.0, 0.0 )`.
+- **Check 2:** the Z hits react as before. `offline_packets.log` has 0 EXCEPTION; its only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ` x2.
 
 ## C3k - port: June stopped counting fly hits
 
