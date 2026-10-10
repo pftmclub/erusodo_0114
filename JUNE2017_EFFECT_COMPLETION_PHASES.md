@@ -2514,6 +2514,7 @@ where March's C++ forces it (the registries are kept merged). **Every dungeon** 
   - Census first, then the edit. Not at the same time as C3z-2 (both pack data036).
 - **C3z-4 - Lua methods adopted June scripts call and March never binds** (found by C3z-1). Kickoff `C3z-4.md`; batch 2 / 3
   `C3z-4b.md`; the June systems behind them: C3z-4f (the summoner packet field), C3z-4t (tutorial guide), C3z-4s (SimpleDLG).
+- **C3z-7 - skipping a boss intro cinematic** (user, 2026-10-10). Kickoff `C3z-7.md`: prove June's path, then port it.
 - **C3z-5 - June's DungeonData fields March's client loader does not read** (found by C3z-3). Kickoff `C3z-5.md`.
   - June's `AddDungeonData_LUA` (`327e0f80`) reads keys March's lacks: `Min/MaxAdequateMemberCount`, `FixMaximumDifficulty`,
     `DUNGEON_CHECK_CONDITION`, `m_SuitableLevelFixValue`, `m_HardMin/MaxLevel`, `m_HardRequireItemLevel`, `m_fExtraValue`, plus
@@ -2942,6 +2943,35 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
   `DEPLOY OK: X2_offline.exe is 19,536,896 B, dated 2026-10-10 22:51:28, md5 b8896722bee85d3bcb481d6f8b1d4df4`.
 - Batch 1 is done. Not exercised in game: `PushCreateNPCReq_Lua`, `GetStoredGUUser`, `GetHostGameUnit`, `GetDyingStart` (rare
   boss moves / fallbacks); the review reads them against June.
+
+### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
+
+**Status: planned. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`. The user asked for June's boss-intro skip.
+It is not the event-scene talk skip (March has ESC at `X2EventScene.cpp:336`), not the epic quest scene skip
+(`DLG_Skip_Epic_Scene_Guide`, `UQNCM_SKIP_EPIC_QUEST`), and not the dungeon clear movie (`DLG_Dungeon_Clear_Movie`).
+
+**What a boss intro is (June data).**
+- An event NPC spawned in the boss room (`NPC_GROUP`): 26 June `EVENT_*` scripts in data037 have the shape, e.g. `EVENT_GATEWAY_BOSS`
+  (Ranox Gateway stage 3), `Event_NPC_Battle_Air_Ship` (Altera Battle Air Ship), `EVENT_FINALHALL_BOSS`, `EVENT_GAYSER_BOSS`.
+- `INIT_AI NO_BRAIN`. Its `START` state plays the cutscene animation with `FOCUS_CAMERA_AT_CURRENT_STATE`, `STOP_AT_CURRENT_STATE`,
+  a parts camera (`CT_PARTS_LOOK_DIRECT`), a cutscene sound and `SetMovieDescriptionData` subtitles (C3z-4b).
+- `WAIT_STATE` is its `DYING` state, whose start function puts the real boss in its start state (`FIRE_DEVIL_IGNIA_START`) and moves
+  the event NPC away. So "skip" most likely means: end `START` early and run `DYING`.
+
+**Leads in June (not yet proven).**
+- No June string names a boss-intro skip. `BG_ESC_SKIP` (`dlg_ui_button20.tga`) is used by `DLG_EventScene` and
+  `DLG_Dungeon_Clear_Movie` only, and `IsSkipKeyPressed` (CX2Game, `@31dc90c7`) only by tutorial / 2017 event / Elysion gate scripts.
+- State keys: `FORCE_CINEMATIC_STATE` (`327a0fa0 @327ab496`), `IS_APPLY_CINEMATIC_UI` (`32784c00 @32789ecf`).
+  Binds: `SetApplyCinematicUI` (CX2GUNPC, `31e4d4d0`), `CannotInput` (CX2DungeonGame, `327d20b0`), `PlayWorldCamera` /
+  `EndWorldCamera` (CX2Main `31d828d0` / `31d82970`, CX2Game `322cbe70`).
+- To trace:
+  - the readers of the NPC state flags `STOP_AT_CURRENT_STATE` / `FOCUS_CAMERA_AT_CURRENT_STATE` (March `X2GUNPC.cpp:5736-5741`);
+  - June's dungeon-game key reads (`DIK_ESCAPE` / space / Z) and what they change while such a state runs;
+  - June's CinematicUI (March `CX2Game::CinematicUI`, `X2Game.h:332`, `MODIFY_DUNGEON_STAGING`).
+- March: no skip of any kind for these intros (no skip reader in `X2DungeonGame.cpp` / `X2StateDungeonGame.cpp` / `X2GUNPC.cpp`).
+
+**Rules for the phase.** June's path, cited; if June has none, stop and propose a stand-in (design-missing-june-pieces), never
+build one unasked. Test only where the event NPC actually spawns (`NPC_GROUP`, not `READY_NPC`).
 
 ## C4 - 8b, damage math
 
