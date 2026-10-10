@@ -3824,6 +3824,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 		void				ApplyJuneWorldGravityRate();	/// June 32296290 ( C3n ): the world gravity rate, now, from a one-time PhysicParam backup
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+		void				RestoreJuneWorldColor();	/// June 32296be0 ( C3o ): end a CHANGE_WORLD_COLOR_DATA window, fading the world back to its origin colour
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 		virtual void		ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );
 		virtual void DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ ) {}
 		virtual void		ApplyWorldLightColor( OUT CKTDGXRenderer::RenderParam* pRenderParam_ ){}
@@ -4310,6 +4313,10 @@ protected:
 		PhysicParam										m_JuneWorldRateBackupPhysicParam;	/// June unit +0x334 ( C3n ): m_PhysicParam at the first ApplyJuneWorldGravityRate. Never refreshed, never copied back; a plain member, not a PhysicParam field, so the whole-struct copies ( C3h ) leave it alone
 		bool											m_bJuneWorldRateBackupTaken;		/// June unit +0x368: set by the first ApplyJuneWorldGravityRate, cleared only by the ctor ( June @322a5e44 )
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+		float											m_fJuneWorldColorStartTime;	/// June unit +0x244 ( C3o ): the now state's CHANGE_WORLD_COLOR_DATA START_TIME; -1 = no window ( ctor @322a2928 )
+		float											m_fJuneWorldColorEndTime;	/// June unit +0x248: its END_TIME ( -1 in the ctor )
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 
 		CX2DamageManager::DamageData					m_DamageData;		/// User 또는 NPC 스크립트에 있는 DamageData
 		

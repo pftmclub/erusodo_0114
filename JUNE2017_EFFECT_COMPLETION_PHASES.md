@@ -2100,10 +2100,67 @@ No questions for the user.
 
 ## C3o - identify, then port: June's NPC CommonStateStart tail and GAME_START_STATE
 
-**Status: ready (found by C3j, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3o.md`.
+**Status: done 2026-10-10 (see C3o - Done). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3o.md`.
 
 - **Scope:** the June-only code after March's last CommonStateStart block (`327ac9d0 @327af25b-327af612`): the state-flag `0x2000` block, `+0x8e39` from flag `0x8000`, vslot `0x3bc` / `32776e10`, the `+0x244` stores and `CHANGE_WORLD_COLOR_DATA`. Also state type `0x30 GAME_START_STATE`. The force-down block is C3f-1's (2b) and `3275a070` is C3j's.
 - **Exit:** funcmap rows `Effect C3o`; a flag per change ported; regression play-test.
+
+### C3o - Done (2026-10-10, Opus 5.5 high)
+
+**The tail mapped** (`327ac9d0 @327af25b-327af612`, funcmap rows `(C3o)`). June orders it: C3f-1's 2b block, then the `0x2000` block, the detonation carry (ported at the top), the `0x8000` store, `3275a070` (C3j), the `+0x40dc` reset (checklist 7l), the effect-set call and `CHANGE_WORLD_COLOR_DATA`.
+
+1. **Flag `0x2000` (word `+8`) = June bit `0x4d`, key `DIRECTION_STATE`** (parser `32784c00 @3278bbc7`, a miss stores false). The global `0x3372c0fc` is the `g_pX2Game` holder. The block arms June's **skip-the-start** list at game `+0xb40` (bool armed, bool sent, `vector<int>` at `+0xb44`). If the list is empty, `322d8010` resets it first. Then it sets armed and pushes NPC `+0x270` (likely `GetUID()`). ESC consumes it (`322f4c60` -> `322f11d0` / event `0x4ac`): each listed NPC goes to its WAIT_STATE (`+0x4088`). It is June-only, nothing in March has it, and **77 shipped scripts** set the key, so the whole chain goes to **C3p**. Funcmap row 1064 is corrected: the arming site is this tail and the bit is `DIRECTION_STATE`.
+2. **Flag `0x8000` = June bit `0x4f`, key `IS_APPLY_CINEMATIC_UI`** (`@3278a049`, a miss stores **true**). `+0x8e39` is March's `m_bIsApplyCinematicUI` (setter `31e4d4d0`).
+   - Readers: only the focus-camera UI hide in `UpdateUnitPointer`, dungeon `327cea70 @327cec78 / @327cecf8` and battle field `32d530a0 @32d53249`. A raw disp32 scan over `.text` confirms the list.
+   - Writers: this store, and class code at 10 sites that set a summoned NPC's focus flags (`32021256`, `32ac10ac`, `32b30048` ...; funcmap). **Ported.**
+3. **vslot `0x3bc` = `GetNowAnimationTime`** (`32755be0`). `32776e10` = `CX2GUNPC::CommonFrameMove_EffectSet`, so June plays a state's effect sets once at state start. The cursor `+0x8f18` is reset earlier (`@327adab4`, March `X2GUNPC.cpp` `m_iEffectSetToPlayProgress = 0`). **The call is ported.** June's *body* differs (CONSUME_MP gate through vslot `0xe4`, 0x3c-byte entries from June's `EFFECT_SET_LIST_FINAL` loader, flag-picked delete lists). That body depends on a loader March lacks, so loader and body are one change: **C3q**. This is a deliberate exception to "no partial June updates": the call fits March's body as it is, and porting the body alone would leave a gate nothing fills.
+4. **`+0x244 / +0x248` = CX2GameUnit START / END of `CHANGE_WORLD_COLOR_DATA`** (ctor -1 `@322a2928`).
+   - The tail sets both to -1, then reads the table from the open state table: `START_TIME` (miss 0) and `END_TIME` (miss 9999, `3346ede8`).
+   - `CommonFrameMove 327b53b0 @327b54bb-327b557d`: with START >= 0, START <= t <= END sets the world colour `D3DXCOLOR(1, 0, 0, 1)` every frame (`31e4c8f0` = `CX2World::SetWorldColor`; colour order from the x87 sequence `@327b5532-327b555e`). Outside the window, `32296be0` runs `FadeWorldColor(GetOriginColor(), 1)` and sets both times to -1.
+   - **NPC side ported** (members, restore and reader on CX2GameUnit / CX2GUNPC). It is dormant: no NPC script, March or June, has the table. The user side (Ain only) goes to **C3r**.
+   - JUNE_BUGS 156: a state without the table ends a running window with no fade back.
+5. **GAME_START_STATE (type `0x30`) -> NPC `+0x8fac`** (InitState `@3279928e`, ctor 0 `@327633df`). **No reader in June**: raw disp32 scan, the templet slot `+0x16c` and the table entry were all checked. Nothing to port; `Raid_Waiting` sets it for nothing. June's 49-entry table also has **no `LINK_JUMP_STATE`** (the string is absent from the exe). No NPC script uses it, so there is no visible change and no port.
+6. **Routed:** June's `UpdateUnitPointer` shape (`+0x8e38` gate, anim-name compares, flags `0x2000000` / `0x20000000`, the state-id jump tables) goes to **C3s**.
+
+**Code** (`X2GUNPC.h/.cpp`, `X2GameUnit.h/.cpp`, `Always.h`; touches X2GameUnit as June has the members there):
+- `SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI`: the parser reads `IS_APPLY_CINEMATIC_UI` into `FLAG_IS_APPLY_CINEMATIC_UI` after FALL_DOWN, and the tail stores it into `m_bIsApplyCinematicUI` before the bounding block. `_DEBUG` logs `JUNE_FX C3o cinematic` once per NPC that stores FALSE.
+- `SERV_IRUHADEV_JUNE_NPC_STATE_START_EFFECT_SET`: `CommonFrameMove_EffectSet( GetNowAnimationTime() )` after the bounding block.
+- `SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW`: the tail parse, the `CommonFrameMove` window after `DoDelegateProcessInCommonFrameMove`, and `CX2GameUnit::RestoreJuneWorldColor` + 2 members. The null checks on the game and world are ours.
+
+**Hygiene:** `flagcheck --worktree` before the commit (C3o's files only): `SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI --with _DEBUG, _STATE_START_EFFECT_SET, _WORLD_COLOR_WINDOW`: `X2GUNPC.cpp` PASS +69, `Always.h` DEFINE +40, 0 FAIL, 0 ERROR, RESULT PASS; `_WORLD_COLOR_WINDOW`: `X2GameUnit.cpp` PASS +19, `X2GameUnit.h` PASS +7, RESULT PASS; `X2GUNPC.h` PASS +3. 0 deleted lines, 0 non-ASCII, 0 encoding changes; the one `#endif` without a token is the house `_DEBUG` `#error` guard in `Always.h`. The first run's ERROR was `X2GUNPC.cpp` checked without `--with` (the nested `_DEBUG`). Post-commit `--range` lines: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,530,752 B, dated 2026-10-10 11:10:39, md5 bbc8eb4bef00e8df2ad3f9752b256375, equal to X2/US_SERVICE/x2.exe (2026-10-10 11:10:34); built at mods/june-buff-port 501fc0c + 8 uncommitted code file(s).` The 3 extra files are a peer's in-progress C9h-4h (`X2GUUser.h/.cpp`, `X2Game.cpp`). `JUNE_FX C3o cinematic` and `IS_APPLY_CINEMATIC_UI` (UTF-16) and `CHANGE_WORLD_COLOR_DATA` are in the deployed exe. No kom.
+
+**How to see it in game:**
+- **Cinematic UI.** The 6 scripts that set FALSE are the Mad Behemoth boss set (Henir / Sander secret, random or absent stages) and three June Rena skill NPCs, so there is no reliable route; the play-test is a regression. If one does spawn and enters a focus-camera state, the UI stays on screen, and the log has its `JUNE_FX C3o cinematic` line.
+- **Effect sets.** A monster's time-0 effect sets now start one frame earlier: nothing to see.
+- **World colour.** Dormant.
+
+## C3p - port: June's skip-the-start (ESC) system and DIRECTION_STATE
+
+**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3p.md`.
+
+- **Scope:** the whole June-only chain: parser bit `0x4d` `DIRECTION_STATE`, the NPC CommonStateStart arming block (`327ac9d0 @327af25b-327af360`), game `+0xb40` (armed, sent, NPC id list), `322d8010` / `322f4c60` / `322f11d0` / `324cf360`, event `0x4ac` (the emulator answers it if the offline party path can reach it), the CX2State `+0x1ec / +0x1f0` setter `31ef7370`.
+- **Visible:** 77 shipped NPC scripts set the key (dungeon openings). **Exit:** ESC skips an opening in game; funcmap rows `Effect C3p`.
+
+## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
+
+**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3q.md`.
+
+- **Scope:** June's `CX2GUNPC::CommonFrameMove_EffectSet` body (`32776e10`: 0x3c-byte entries, CONSUME_MP gate through vslot `0xe4`, hyper bit `0x200000`, delete lists by flags `0x8000 / 0x4000 / 0x10000 / 0x20000`) together with the `EFFECT_SET_LIST_FINAL` block of the state loader `32784c00` that fills it.
+- **Data:** 10 shipped PvP-hero NPC scripts (`PVP_HERO_*`, not the AI-party `CSM_PVP_HERO_*`); offline has no PvP, so a regression play-test unless a reachable spawn is found.
+
+## C3r - port: June's user CHANGE_WORLD_COLOR_DATA window
+
+**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3r.md`.
+
+- **Scope:** the user side of C3o's world-colour window: `CX2GUUser::CommonStateStart 32057b80 @32060286-320603b2`, the reader `3204f190 @3204fb99`, `31fd3260` and its caller `32063650 @3206cdb9-3206cdcb`. Same flag as C3o. Dormant (only Ain's class script has the table).
+
+## C3s - identify, then port: June's UpdateUnitPointer
+
+**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3s.md`.
+
+- **Scope:** June's dungeon `327cea70` and battle-field `32d530a0` focus-camera walks against March's `UpdateUnitPointer` (`+0x8e38`, anim-name compares, state flags `0x2000000` / `0x20000000`, the cinematic-UI hide by main-state id). One flag per logical change.
 ---
 
 ## C4 - 8b, damage math

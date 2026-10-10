@@ -6563,3 +6563,43 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG needs SERV_IRUHADEV_JUNE_FLY_COUNT
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3o: the NPC state key IS_APPLY_CINEMATIC_UI ( June bit 0x4f, parser 32784c00 @3278a049, default TRUE ).
+//              June's CX2GUNPC::CommonStateStart ( 327ac9d0 @327af38e ) copies it into m_bIsApplyCinematicUI ( +0x8e39 ) at every state start,
+//              so a focus-camera state with IS_APPLY_CINEMATIC_UI = FALSE keeps the game UI shown ( 6 shipped scripts: the Mad Behemoth boss
+//              set, Rena_Targeting_Gungnir, SI_RHB_SA_PROTON_BOMB, SI_SA_RFY_NEIL_THE_SNIPER ). March set the member only in the ctor.
+#define SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3o play-test line ( short-lived; turn OFF in the C3o review ): "JUNE_FX C3o cinematic" once per NPC
+//              ( at most 16 ) the first time a state start stores IS_APPLY_CINEMATIC_UI = FALSE. Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG) && !defined(SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI)
+#error SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG needs SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3o: June's NPC CommonStateStart ( 327ac9d0 @327af3c5-327af3d7 ) runs the state's effect-set list once
+//              at state start ( CommonFrameMove_EffectSet( GetNowAnimationTime() ), June 32776e10 with vslot 0x3bc ), so START_TIME 0
+//              effect sets play at state start instead of at the next CommonFrameMove.
+#define SERV_IRUHADEV_JUNE_NPC_STATE_START_EFFECT_SET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3o: the state table CHANGE_WORLD_COLOR_DATA { START_TIME, END_TIME } ( CX2GameUnit +0x244 / +0x248 ).
+//              NPC side: CommonStateStart ( 327ac9d0 @327af3dc ) reads it, CommonFrameMove ( 327b53b0 @327b54bb ) tints the world
+//              D3DXCOLOR( 1, 0, 0, 1 ) inside the animation-time window and fades it back after ( 32296be0 ). Dormant: no NPC script has
+//              the table ( only Ain's user states do; the user side is C3r ).
+#define SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+//////////////////////////////////////////////////////////////////////////

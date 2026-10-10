@@ -1070,6 +1070,9 @@ class CX2GUNPC : public CX2GameUnit
 				FLAG_STOP_SOUND_AT_STATE_END,		/// June effect completion C9h-4b: June bit 0x4e (32784c00 @3278dacf, key STOP_SOUND_AT_STATE_END); appended, June's enum does not line up with March's
 				FLAG_CUSTOM_STATE_DELETE_SOUND,		/// June bit 0x13 (@327894a7, key CUSTOM_STATE_DELETE_SOUND), consumed by CommonStateStart @327adaa7
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
+#ifdef SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
+				FLAG_IS_APPLY_CINEMATIC_UI,		/// June effect completion C3o: June bit 0x4f (32784c00 @3278a049, key IS_APPLY_CINEMATIC_UI, default TRUE); copied into m_bIsApplyCinematicUI by CommonStateStart @327af38e
+#endif SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
 				FLAG_MAX
             };
             std::bitset<FLAG_MAX>       m_bitsetFlags;

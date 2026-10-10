@@ -5501,6 +5501,12 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 
 	LUA_GET_VALUE( luaManager_, "FALL_DOWN", bTemp, true );
     NOWSTATE_SET_FLAG( FALL_DOWN, bTemp );
+#ifdef SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
+	/// June effect completion C3o. June 32784c00 @32789e7b-3278a04d: IS_APPLY_CINEMATIC_UI, a bool into flag bit 0x4f, default TRUE ( a miss stores 1
+	/// @3278a03f ). June reads it right after FALL_DOWN ( bit 0x1a ) and before FURY_MODE. CommonStateStart copies it into m_bIsApplyCinematicUI.
+	LUA_GET_VALUE( luaManager_, "IS_APPLY_CINEMATIC_UI", bTemp, true );
+    NOWSTATE_SET_FLAG( IS_APPLY_CINEMATIC_UI, bTemp );
+#endif SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
 #ifdef SERV_IRUHADEV_JUNE_NPC_FURY_MODE
 	/// June effect completion C4c. June 32784c00 @3278a088-3278a145: a bool, default false (al = 0 on a miss @3278a138),
 	/// set into the state's flag bitset. June reads it after FALL_DOWN (and its own IS_APPLY_CINEMATIC_UI), before the attack box.
@@ -17225,6 +17231,24 @@ void CX2GUNPC::CommonStateStart()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
+#ifdef SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af38e-327af3a4 ( C3o ): every state start sets m_bIsApplyCinematicUI ( +0x8e39 ) from the state's
+	/// IS_APPLY_CINEMATIC_UI flag ( bit 0x4f, TRUE when the key is absent ). March set it only in the ctor ( true ) and in Chung's artillery strike ( false,
+	/// never put back ). June's class code still writes it ( 32ac10ac and others ), and this store overrides such a write at the NPC's next state start, as in
+	/// June. Read by the focus-camera UI hide in UpdateUnitPointer ( dungeon 327cea70 @327cec78 / @327cecf8, battle field 32d530a0 @32d53249 ).
+	/// June runs it after the force-down block ( C3f-1 item 2b ) and the DIRECTION_STATE block ( C3p ), and before the bounding UP write below.
+	m_bIsApplyCinematicUI = NOWSTATE_FLAG( IS_APPLY_CINEMATIC_UI );
+#ifdef SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG
+	if ( false == m_bIsApplyCinematicUI )
+	{
+		/// JUNE_FX C3o cinematic: once per NPC unit ( at most 16 ), the first state start that stores FALSE.
+		static std::set<UidType> s_setJuneC3oCinematic;
+		if( s_setJuneC3oCinematic.size() < 16 && true == s_setJuneC3oCinematic.insert( GetUnitUID() ).second )
+			CX2OfflineLog::Server( L"JUNE_FX C3o cinematic: npc %I64d ( %s ) state %d stores IS_APPLY_CINEMATIC_UI = FALSE ( focus camera at this state %d )",
+				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int)m_NPCFrameData.syncData.nowState, (int)GetFocusCameraAtCurrentState() );
+	}
+#endif SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI_DEBUG
+#endif SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af3aa -> 3275a070 ( C3d-3; moved here by C3j ): entering DAMAGE_BOUNDING_UP launches with the stored
 	/// back speed ( +0x40f0 / +0x40f4 into nowSpeed ). June calls it near the end of the function: after the SPEED_X / SPEED_Y block ( @327add8a ) and
@@ -17250,6 +17274,30 @@ void CX2GUNPC::CommonStateStart()
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 	}
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_NPC_STATE_START_EFFECT_SET
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af3c5-327af3d7 ( C3o ): after the bounding UP write ( and the +0x40dc reset, checklist 7l ), June runs
+	/// the state's effect-set list once at state start: GetNowAnimationTime() ( NPC vslot 0x3bc = 32755be0: m_pXSkinAnim's now time, -1 without one ) into
+	/// CommonFrameMove_EffectSet ( 32776e10 ). The cursor was reset to 0 earlier in this function ( June +0x8f18 @327adab4 ), so START_TIME 0 sets play at
+	/// state start instead of at the next CommonFrameMove. June's 32776e10 body differs from March's ( the CONSUME_MP gate and its EFFECT_SET_LIST_FINAL
+	/// loader ): that is C3q.
+	CommonFrameMove_EffectSet( GetNowAnimationTime() );
+#endif SERV_IRUHADEV_JUNE_NPC_STATE_START_EFFECT_SET
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af3dc-327af5e5 ( C3o ): CHANGE_WORLD_COLOR_DATA ( 33478ee0 ), read live from the open state table.
+	/// Both times are first set to -1 ( 334380f0 ). When the state has the table: START_TIME ( a miss stores 0 ) and END_TIME ( a miss stores 9999,
+	/// 3346ede8 ); the keys are XOR-built @327af408 / @327af506. So a state without the table ends a running window without the fade back ( JUNE_BUGS 156 ).
+	/// Read by CommonFrameMove ( 327b53b0 @327b54bb ). No NPC script has the table; June's user side ( Ain ) is C3r.
+	m_fJuneWorldColorStartTime	= -1.f;
+	m_fJuneWorldColorEndTime	= -1.f;
+	if ( true == m_LuaManager.BeginTable( "CHANGE_WORLD_COLOR_DATA" ) )
+	{
+		if ( false == m_LuaManager.GetValue( "START_TIME", m_fJuneWorldColorStartTime ) )
+			m_fJuneWorldColorStartTime = 0.f;
+		if ( false == m_LuaManager.GetValue( "END_TIME", m_fJuneWorldColorEndTime ) )
+			m_fJuneWorldColorEndTime = 9999.f;
+		m_LuaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 }
 
 void CX2GUNPC::CommonFrameMoveHost()
@@ -17618,6 +17666,27 @@ void CX2GUNPC::CommonFrameMove()
 		return;
 
 	DoDelegateProcessInCommonFrameMove();
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+	/// June CX2GUNPC::CommonFrameMove 327b53b0 @327b54bb-327b557d ( C3o ), right after the delegate process ( 32275280 ): the state's CHANGE_WORLD_COLOR_DATA
+	/// window. t = m_pXSkinAnim's now time ( = GetNowAnimationTime ). Only with START >= 0: START <= t <= END sets the world colour to D3DXCOLOR( 1, 0, 0, 1 )
+	/// every frame ( 31e4c8f0 = CX2World::SetWorldColor; x87 @327b5532-327b555e: r = fld1, g = b = 1/255 x 0.0, a = the fld1 again ); t < START or t > END
+	/// fades back and ends the window ( RestoreJuneWorldColor, 32296be0 ). June does not null-check the game or the world: the checks are ours.
+	{
+		const float fJuneWorldColorTime = GetNowAnimationTime();
+		if ( 0.f <= m_fJuneWorldColorStartTime )
+		{
+			if ( m_fJuneWorldColorStartTime <= fJuneWorldColorTime && fJuneWorldColorTime <= m_fJuneWorldColorEndTime )
+			{
+				if ( NULL != g_pX2Game && NULL != g_pX2Game->GetWorld() )
+					g_pX2Game->GetWorld()->SetWorldColor( D3DXCOLOR( 1.f, 0.f, 0.f, 1.f ) );
+			}
+			else
+			{
+				RestoreJuneWorldColor();
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 
 #ifdef SUPER_ARMOR_TIME
 	float fAnimTime = -1.f;

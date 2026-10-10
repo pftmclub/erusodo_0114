@@ -262,6 +262,10 @@ m_fNoSkillTime( 0 )
 #ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 	m_bJuneWorldRateBackupTaken	= false;	// June ctor @322a5e44; ReInit ( 322a5f90 ) does not clear it
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+	m_fJuneWorldColorStartTime	= -1.f;		// June ctor 322a2700 @322a291c-322a2934 ( 334380f0 )
+	m_fJuneWorldColorEndTime	= -1.f;
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 	m_DamageReducePercent		= 0;
     m_DamageGuardPercent        = 0;
 
@@ -4246,6 +4250,21 @@ void CX2GameUnit::ApplyJuneWorldGravityRate()
 	m_PhysicParam.fMaxGSpeed	= m_JuneWorldRateBackupPhysicParam.fMaxGSpeed * fRate;
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+#ifdef SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
+// June 32296be0 ( C3o ), called by the NPC CommonFrameMove window ( 327b53b0 @327b5578 ) and by the user's ( 32063650 @3206cdcb, C3r ). Only while a window
+// is set ( START >= 0, @32296be3-32296bf3 ): fade the world back to its origin colour over 1 s ( world +0xc4..+0xd0 = +0x90..+0x9c, +0xd4 = 1.0, which is
+// CX2World::FadeWorldColor( GetOriginColor(), 1 ) ), then both times = -1. June fetches g_pX2Game and the world without a null check: the checks are ours.
+void CX2GameUnit::RestoreJuneWorldColor()
+{
+	if ( 0.f <= m_fJuneWorldColorStartTime )
+	{
+		if ( NULL != g_pX2Game && NULL != g_pX2Game->GetWorld() )
+			g_pX2Game->GetWorld()->FadeWorldColor( g_pX2Game->GetWorld()->GetOriginColor(), 1.f );
+		m_fJuneWorldColorStartTime	= -1.f;
+		m_fJuneWorldColorEndTime	= -1.f;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 /*virtual*/ void CX2GameUnit::SetSmallGage()
 {
 	wstring wstrSmallHPbar;
