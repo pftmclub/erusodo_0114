@@ -17043,6 +17043,22 @@ void CX2GUNPC::CommonStateStart()
 	/// does not guard the compare; the guard matters only for an NPC whose UP_DAMAGE is also missing ( id 0 would match nowState 0, which is never
 	/// entered, so it changes nothing ). Since C3j-1 the UP id falls back to UP_DAMAGE, so every RT_UP launch into it takes the stored back speed,
 	/// (0,0) until an RT_BOUNDING hit: June's behaviour, kept verbatim ( JUNE_BUGS 154 ).
+#ifdef SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
+	/// C3j-1 fix ( user, 2026-10-10 ): June's game launches monsters, so a piece of June that keeps the RT_UP launch speed alive is not found
+	/// yet ( phase C3j-2 traces it ). Until it is, the copy of the bounding back speed into nowSpeed is skipped and the launch keeps its speed.
+	/// The three InitState fallbacks stay as June has them. June's line ( 3275a070 @3275a094-3275a0a6 ) is in #else.
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
+	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
+	{
+		/// JUNE_FX C3j-1 fix: once per NPC unit ( at most 32 ), the first time June's write would have fired.
+		static std::set<UidType> s_setJuneC3j1Kept;
+		if( s_setJuneC3j1Kept.size() < 32 && true == s_setJuneC3j1Kept.insert( GetUnitUID() ).second )
+			CX2OfflineLog::Server( L"JUNE_FX C3j-1 fix: npc %I64d ( %s ) state %d ( bounding up %d, UP_DAMAGE %d ): nowSpeed ( %.1f, %.1f ) kept, June would write ( %.1f, %.1f )",
+				GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int)m_NPCFrameData.syncData.nowState, m_JuneBoundingUp, m_UpDamage,
+				m_PhysicParam.nowSpeed.x, m_PhysicParam.nowSpeed.y, GetJuneBoundingBackSpeed().x, GetJuneBoundingBackSpeed().y );
+	}
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
+#else SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
 	if( 0 != m_JuneBoundingUp && m_NPCFrameData.syncData.nowState == m_JuneBoundingUp )
 	{
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
@@ -17059,6 +17075,7 @@ void CX2GUNPC::CommonStateStart()
 				vJuneC3j1Before.x, vJuneC3j1Before.y, m_PhysicParam.nowSpeed.x, m_PhysicParam.nowSpeed.y );
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG
 	}
+#endif SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
 }
 

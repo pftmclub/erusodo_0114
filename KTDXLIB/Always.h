@@ -6536,3 +6536,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG needs SERV_IRUHADEV_JUNE_BOUNDING_STATE
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
+// Description: June effect completion C3j-1 fix ( user, 2026-10-10 ). June's game launches monsters, but the June code ported by C3j-1
+//              ( InitState's UP fallback to UP_DAMAGE + CommonStateStart's tail 3275a070 ) would replace every NPC RT_UP launch speed
+//              with the bounding back speed, (0,0) here. The piece of June that keeps the launch is not found yet ( phase C3j-2 ).
+//              ON: the tail's speed copy is skipped, the fallbacks stay. OFF: June's code as ported ( monsters do not rise ).
+//              Log: "JUNE_FX C3j-1 fix" in offline_server.log ( with SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG ).
+#define SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED
+#if defined(SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED) && !defined(SERV_IRUHADEV_JUNE_BOUNDING_STATE)
+#error SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED needs SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#endif
+//////////////////////////////////////////////////////////////////////////

@@ -27,6 +27,8 @@ Review C3j-1's commit against June (Ghidra read-only, `june2017_re/disasm_range.
   rewrites `m_UpDamage` / `m_CommonState.m_DownDamageAir` (the `GetStateID` copies at ~`X2GUNPC.cpp:7033/7043` are in InitState's dead
   `#else X2OPTIMIZE_NPC_NONHOST_SIMULATION`).
 - **The reworded comments** (render gate, RT_BOUNDING case, CommonStateStart tail, `Always.h` flag block) say what the code now does.
+- **The FIX flag** `SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED` (added after the user said June's game launches monsters): ON skips only
+  the tail's two nowSpeed lines; OFF compiles exactly C3j-1's block. Keep it until C3j-2 settles the missing piece.
 - **The play-test result** in the Done note: the `ids` lines' up = the NPC's UP_DAMAGE state, and the `overwrite` line's speed after = (0,0).
 - **Turn `SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG` off** (comment out the `#define`, add a dated "OFF" line to its block), then
   `tools/build.py --deploy`.

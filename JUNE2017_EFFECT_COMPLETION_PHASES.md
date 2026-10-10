@@ -1668,7 +1668,7 @@ June's key table confirms UP_DAMAGE = `0x14` (`+0x8690`). June data has 996 RT_U
 
 ## C3j-1 - port verbatim: June's NPC bounding-state fallbacks
 
-**Status: done 2026-10-10, play-test PASSED; review next. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-1.md`; review `kickoffs/june-effect/C3j-1-review.md`.
+**Status: done 2026-10-10; launch kept by a FIX flag until C3j-2 finds June's missing piece; play-test of the fix owed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3j-1.md`; review `kickoffs/june-effect/C3j-1-review.md`.
 
 ### C3j-1 - Done (2026-10-10, Opus 5.5 high)
 
@@ -1710,6 +1710,18 @@ With `KTDXLIB/Always.h` in `--files` the main flag gives an ERROR on C3i's pre-e
   it is the spec's expected result. The `ids` lines show UP = UP_DAMAGE by fallback, e.g. `Elder_Bridge_guard_Small.lua` / `_Big.lua`: down 23, landcrash 26, up 24.
   Five `overwrite` lines show state 24, bounding up 24 = UP_DAMAGE 24, `nowSpeed ( -1110.0, 1950.0 ) -> ( 0.0, 0.0 )`.
 - **Check 2:** the Z hits react as before. `offline_packets.log` has 0 EXCEPTION; its only UNHANDLED is the known `E_DISABLE_HB_CHECK_REQ` x2.
+
+**Correction and fix (2026-10-10, user):** "follow June" means play like June, and June's game launches monsters (user: "of course yes").
+The verbatim result is therefore a **port gap, not a June bug**; JUNE_BUGS 154 is marked provisional. A re-read in Ghidra this session
+confirms the pieces as ported. `3275a070 @3275a08c-3275a0a6` copies `+0x40f0/f4` into `+0x304/+0x308` with no other condition. The RT_UP
+case `@32769b72-32769bb3` writes `+0x308`, then `327590c0( +0x8690 )`. `@327af3aa` is reached unconditionally. The missing piece goes to
+new phase **C3j-2** (`kickoffs/june-effect/C3j-2.md`, four leads).
+- **New flag `SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED` (ON):** the tail's speed copy is skipped (June's block in `#else`); the fallbacks stay.
+  With `_DEBUG`, `JUNE_FX C3j-1 fix` logs once per NPC: the speed kept and what June would have written.
+- **Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_FIX_BOUNDING_UP_SPEED --worktree --files X2Lib/X2GUNPC.cpp KTDXLIB/Always.h`):
+  `1 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; `0 deleted`; `1 #else/#endif without the flag token` (its `#error` guard's `#endif`); `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,296 B, dated 2026-10-10 09:22:04, md5 3b63d3a04848b7e8d3ca95ddd18b405d, equal to X2/US_SERVICE/x2.exe (2026-10-10 09:21:59); built at mods/june-buff-port 485b929 + 2 uncommitted code file(s)`
+  (the 2 are this fix's). The `JUNE_FX C3j-1 fix` string is in the exe.
 
 ## C3k - port: June stopped counting fly hits
 
