@@ -162,6 +162,9 @@ class CX2DungeonSubStage
 #ifdef SERV_ALLY_NPC
 			bool							m_bAllyNpc;
 #endif SERV_ALLY_NPC
+#ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
+			int								m_iJuneTeam;	/// June NPCData +0x5c: the script's TEAM ( CX2Room::TEAM_NUM ), TN_MONSTER when absent
+#endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 #ifdef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 			// KNPCUnitReq::m_cMonsterGrade (June 327edb60 stores it at NPCData +0x44); 0 = normal, 1 = boss, 2 = middle boss.
 			// A char, not the X2TOOL-only MONSTER_GRADE enum. There is no constructor: every `new NPCData` site sets it.

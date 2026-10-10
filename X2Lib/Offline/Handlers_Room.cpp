@@ -1926,6 +1926,15 @@ void CX2OfflineServer::BuildStageNpcData( int iStageID, OUT std::map< int, KNPCL
 #ifdef SERV_ALLY_NPC
 			kReq.m_bAllyNpc			= pNpc->m_bAllyNpc;
 #endif SERV_ALLY_NPC
+#ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
+			// The script's TEAM ( June's parser keeps it, NPCData +0x5c ); KNPCUnitReq::Init leaves TN_MONSTER otherwise.
+			kReq.m_cTeamNum			= (char)pNpc->m_iJuneTeam;
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG )
+			if( (int)CX2Room::TN_MONSTER != pNpc->m_iJuneTeam )
+				CX2OfflineLog::Server( L"JUNE_FX C3z-4 substage npc %d team %d ally %d", (int)pNpc->m_UnitID, pNpc->m_iJuneTeam,
+					pNpc->m_bAllyNpc ? 1 : 0 );
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG
+#endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 
 #ifdef MODIFY_DUNGEON_STAGING
 			kReq.m_fShowBossNameDelayTime	= pNpc->m_fShowBossNameDelayTime;

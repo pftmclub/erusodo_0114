@@ -1639,6 +1639,10 @@ void CX2DungeonSubStage::SubStageData::FetchNPCData( KLuaManager& luaManager, CX
 #ifdef SERV_ALLY_NPC
 	LUA_GET_VALUE( luaManager, "ALLY_NPC",				pNPCData->m_bAllyNpc,		false );
 #endif SERV_ALLY_NPC
+#ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
+	// June 327eb8e0 @327ec9a9-327eca04: TEAM -> NPCData +0x5c, 2 ( TN_MONSTER ) when the key is absent
+	LUA_GET_VALUE( luaManager, "TEAM",					pNPCData->m_iJuneTeam,		(int) CX2Room::TN_MONSTER );
+#endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 
 #ifdef MODIFY_DUNGEON_STAGING
 	LUA_GET_VALUE( luaManager, "SHOW_BOSS_NAME_DELAY_TIME", pNPCData->m_fShowBossNameDelayTime,	-1.f	);
@@ -2213,6 +2217,9 @@ void CX2DungeonSubStage::SubStageData::AddNPCData( KNPCUnitReq& kNPCUnitReq )
 #ifdef SERV_ALLY_NPC
 	pNPCData->m_bAllyNpc = kNPCUnitReq.m_bAllyNpc;
 #endif SERV_ALLY_NPC
+#ifdef SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
+	pNPCData->m_iJuneTeam = (int) kNPCUnitReq.m_cTeamNum;
+#endif SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 
 #ifdef MODIFY_DUNGEON_STAGING
 	pNPCData->m_fShowBossNameDelayTime	= kNPCUnitReq.m_fShowBossNameDelayTime;

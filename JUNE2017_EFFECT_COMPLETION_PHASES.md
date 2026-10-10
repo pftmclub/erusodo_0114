@@ -2897,6 +2897,20 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
 - **Still not exercised:** `GetNowStateID_LUA` / `GetIsLastStage` (spawn of a plain berserker: Ranox Gateway stage 3),
   `PushCreateNPCReq_Lua`, `GetStoredGUUser`, `GetHostGameUnit`, `GetDyingStart`. Gateway was not played.
 
+### C3z-4 - fix: a dungeon NPC's TEAM (user, 2026-10-10: Gateway's Ignia counts as an enemy, the stage never clears)
+
+- Ranox Gateway stages 0-2 spawn `NUI_SAMETEAM_IGNIA` with `ALLY_NPC = TRUE, TEAM = TEAM_NUM.TN_RED`.
+  - June's sub-stage NPC parser `327eb8e0` reads TEAM right after ALLY_NPC (`@327ec9a9-327eca04`), into NPCData `+0x5c`, 2 when absent.
+  - March's client and server parsers never read it, and the emulator left `KNPCUnitReq::m_cTeamNum` at its default 2 (TN_MONSTER).
+    Ignia arrived as a monster, so `CC_KILL_ALL_ACTIVE_NPC` (`LiveActiveNPCNum`: TN_MONSTER, active) never reached 0.
+- Fix `SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM`:
+  - `FetchNPCData` reads TEAM (default TN_MONSTER) into `NPCData::m_iJuneTeam`, and `AddNPCData` copies it from a packet.
+  - The emulator's sub-stage spawn (`Handlers_Room.cpp`) sends it as `m_cTeamNum`.
+  - `JUNE_FX C3z-4 substage npc <id> team <t> ally <a>` is logged for every non-monster team.
+- Scope: 8 June dungeon scripts set TEAM (91 entries): the 3 Gateway difficulties (Ignia, 9) and June's PVE red / blue scripts (not
+  reachable in March). flagcheck (4 files): 3 PASS, 1 DEFINE, 0 FAIL, 0 deleted; RESULT PASS.
+  `DEPLOY OK: X2_offline.exe is 19,538,432 B, dated 2026-10-10 22:10:13, md5 d63e075e6a77d586d386429e25bc505b`.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and

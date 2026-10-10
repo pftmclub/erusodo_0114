@@ -6788,6 +6788,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-10
+// Description: June effect completion C3z-4 play-test 3: read a dungeon-script NPC's TEAM, as June's sub-stage NPC parser
+//              327eb8e0 does ( @327ec9a9-327eca04: NPCData +0x5c = TEAM, 2 = TN_MONSTER when absent ), and have the offline
+//              emulator send it as KNPCUnitReq::m_cTeamNum. March never read TEAM, so every scripted NPC arrived as a monster:
+//              Ranox Gateway's NUI_SAMETEAM_IGNIA ( ALLY_NPC = TRUE, TEAM = TN_RED ) blocked CC_KILL_ALL_ACTIVE_NPC and the
+//              stage never cleared ( user, 2026-10-10 ).
+#define SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
 // Description: Short-lived diagnostic for the C3z-4 batch 1 bindings: the first calls of each new method per launch are
 //              logged ( offline_server.log, JUNE_FX C3z-4 ). Remove after the play-test.
 #define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
