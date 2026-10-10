@@ -1844,7 +1844,7 @@ Reviews C3j-1 (`c74f63f`, fix `8c2c7c5`) and C3j-2 (`aac4b70`). **No code findin
 
 ## C3k - port: June stopped counting fly hits
 
-**Status: ready (found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
+**Status: done 2026-10-10 (see "C3k - Done"), play-test passed, reviewed 2026-10-10 (see "C3k - Review"; found by the C3d-3 review, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3k.md`.
 
 - **Scope:** June never increments `m_FlyCount` (`+0xdf8`): no write except zeroes, so the `/( m_FlyCount - 1 )` lift damping is dead in June. March still counts RT_UP / FLY / DRAG_UP.
 - **Exit:** funcmap rows `Effect C3k`; flag `SERV_IRUHADEV_JUNE_FLY_COUNT`; juggle play-test.
@@ -1892,6 +1892,54 @@ The one token-less `#endif` closes the DEBUG block's `#error` guard in Always.h 
 - **30 `JUNE_FX C3k` lines, all RT_UP (`reAct 4`).** All 30 show `fly count 0`. All 20 `super armour 0` lines have nowSpeed.y = backSpeed.y (0 mismatches), including Elder_Bridge_guard_Big hits 3, 4, 5, 7, 8, 12 and _Small hits 3, 5-8 at 1950.0. The 10 `super armour 1` lines show nowSpeed.y 0.0, as expected.
 - **Debug-counter quirk:** the per-NPC hit counter is keyed by UID, and UIDs restart from 1,000,000 per stage. So `npc 1000015` continues from a chicken to a guard. This affects only the debug counter, not the port.
 - **Clean run:** 0 EXCEPTION. The only UNHANDLED lines are the known `E_DISABLE_HB_CHECK_REQ` x5. Clean exit.
+
+**Open for the user:** none.
+
+### C3k - Review (2026-10-10, Opus 5.5 high)
+
+**Verdict: no transcription error in C3k's hunks of `e8a427b`; no code change.** Only `SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG` is turned off (commented out in Always.h, with an OFF line, as the C3j-2 review did). Checked against June with capstone (`dispsweep.py`, `funcdis.py`) and Ghidra (read-only).
+
+**1. The sweep re-run.**
+- `dispsweep df8`: 28 hits, the same as C3k's. There are 11 `esp` locals and 6 `fidiv` reads (user `31feb2fb` / `31feb432`; NPC `32769b27` / `b7b` / `bf6` / `c4e`).
+  - The 4 zero stores: `31fab59f`, `322a59c1`, `3206c7db`, `327bca82`.
+  - Also `sub esp` (`3255886e`), and the other class's `+0xdf4/+0xdf8/+0xdfc` vector: `327ca2f0`, `327cee60` / `327cef20` (reads) and `327cf18c` (its ctor `327cef70`).
+  - No other `+0xdf8` write.
+- `0xc58` / `0xc68`: no `inc` or memory-`add` on either.
+  - **x87 float ops** (in `327b53b0`, `327c9xxx`, `327ca370`, `327cef70`, `327d1d40`, `327d4670`) cannot be the int counter. The `+0xc68` pair in `327b53b0` is an NPC float member: `ebx` is the whole NPC there, and the same function writes `[ebx+0xdf8]`.
+  - **`328ba170` / `328bad50`** destroy two containers at `+0xc58` / `+0xc68` (head pointer at `+4`) of a class whose vtables are `0x334c1b34` / `+0x34`.
+  - **`3331c51c` / `3331c52a` / `3331c55b`** are that class's EH unwind funclets calling the same destructor (`32698fb0`). C3k's note called these "misdecodes"; they are unwind code, and just as unrelated.
+  - **`32d52fdf`** stores a call result and **`32d54853`** a ctor zero. Neither is an increment.
+- **DamageReacts.**
+  - NPC `327b1f30`: Ghidra's decompile has no `param_1[0x37e]` (`+0xdf8`).
+  - User `320462a0`: Ghidra's decompiler fails ("Decompilation failed"). Its Ghidra disassembly (`320462a0..3204a779`, 4,891 lines) has no `0xdf8` operand, and the capstone scan of both bodies has no `+0xdf8` operand or `lea`.
+  - Every memory `inc`/`add` in the two bodies is one of: a refcount, user `+0x8848` / `+0x884c`, NPC `+0xb18` / `+0xb1c` / `+0xb24` / `+0x8a84`, or jump-table bytes. So June has no `bForceFly` branch that writes the counter.
+  - The one neighbour hit in each DamageReact is a read of `+0xdf4` (`@32047022`, `@327b2fd0`). It is pushed with `[ebx+0x20]` into `32610980` on `g_pX2Game+0x58`: a different member, a read, not the counter.
+
+**2. The port.**
+- Both DamageReacts (`X2GUUser.cpp:8221-8251`, `X2GUNPC.cpp:9173-9203`) keep the whole `bForceFly` reset + RT_UP / RT_FLY / (BOUNDING_COMBO_TEST) / RT_DRAG_UP count block in `#else`, byte for byte. The `#ifdef` branch is a comment only.
+- Neither CommonFrameMove reset (`@3206c7db`, `@327bca82`, Buff 7b) nor any `m_FlyCount > 2` damping read is touched. They are dead code, as in June.
+
+**3. Play-test lines** (logs.py, same run as C3k's play-test, exe `bbc8eb4b`):
+- 30 `JUNE_FX C3k` lines, all `fly count 0`.
+- All 20 `super armour 0` lines have nowSpeed.y = backSpeed.y. That includes Elder_Bridge_guard_Big hits 3, 4, 5, 7, 8, 12 and _Small hits 3, 5, 6, 7, 8, all at 1950.0.
+- 0 EXCEPTION. The only UNHANDLED lines are the known `E_DISABLE_HB_CHECK_REQ` x5.
+
+**Hygiene.** `flagcheck JUNE_FLY_COUNT --range e8a427b^..HEAD --with JUNE_FLY_COUNT_DEBUG`:
+`files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 12 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`.
+- **The 12 OTHER rows.**
+  - `e8a427b` mixes C3k with the C3j-2 review, so its Always.h and X2GUNPC.cpp rows are OTHER. Read by hand:
+    - C3k's X2GUNPC.cpp hunks (`@@ 9164`, `9194`, `10103`) are insert-only.
+    - The file's 2 deleted lines are the C3j-2 review's `JUNE_BOUNDING_STATE` comment at ~4844.
+    - Always.h's `-1` is that review's `BOUNDING_STATE_DEBUG` off.
+  - The other 10 rows are peer commits: `d001ec0` (C3o: `NPC_CINEMATIC_UI`, `NPC_STATE_START_EFFECT_SET`, `WORLD_COLOR_WINDOW`) and `f07940f` (C9h-4h: `EVENT_KIT_PICKUP`, `EVENT_STATES`, `COMMON_SKILL_STATE`).
+- **This review's edit:** `flagcheck --worktree --files KTDXLIB/Always.h`: `0 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `1 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 1 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The deleted line is the `#define SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG` now commented out; the token-less `#endif` is the existing `#error` guard's (house shape).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,264 B, dated 2026-10-10 12:10:02, md5 5a7d1715515022a3a12b561334810d27, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:09:56); built at mods/june-buff-port 3209e84 + 8 uncommitted code file(s).` The 8 include peers' in-progress files (C3q / C3r / C3s work), which are built in too.
+- build.py re-made all three PCHs (`Always.h is newer`). `JUNE_FX C3k` is no longer in the deployed exe (UTF-16LE and ASCII searched: absent).
+
+**How to see it in game:** nothing new. The fly-count behaviour is unchanged (play-tested in C3k), and the `JUNE_FX C3k` lines stop.
 
 **Open for the user:** none.
 

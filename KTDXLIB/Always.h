@@ -6558,7 +6558,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June effect completion C3k play-test lines ( short-lived; turn OFF in the C3k review ): "JUNE_FX C3k" for every
 //              RT_UP / RT_FLY / RT_DRAG_UP hit on an NPC ( at most 48 lines ): per-NPC hit number, fly count, backSpeed.y and the
 //              launch speed nowSpeed.y. Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG
+//              _DEBUG OFF 2026-10-10 (C3k review: sweep re-run matches June, no +0xdf8 write but zeroes; play-test fly count 0 on all 30 lines).
+//#define SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG
 #if defined(SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG) && !defined(SERV_IRUHADEV_JUNE_FLY_COUNT)
 #error SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG needs SERV_IRUHADEV_JUNE_FLY_COUNT
 #endif
