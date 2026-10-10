@@ -570,6 +570,13 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   - the Kidday/AprilFools/Note NPC classes;
   - the dungeons' June scripts and enums;
   - every other event dungeon June has and March does not.
+- **The other event dungeons (june-effect C3y, 2026-10-11; rows in `june2017_re/c3y_unreached_dungeon_census.tsv`).** June registers
+  these and March does not; every script is staged (June bytecode), and none has a March DungeonData row:
+  `DI_EVENT_VALENTINE_DAY` 38400 (March's own script and enum), `DI_PVE_BATTLE_WORLD_ISLAND_OF_ERDA_NEW` 41130, `DI_2017_ERDA` 41131,
+  `DI_EVENT_SCHOOL` 41260, `DI_EVENT_WALLY_LAND` 41280, `DI_EVENT_ALCHEMY_LAB` 41350, `DI_ADD_CENTER` 41400,
+  `DI_EVENT_HALLOWEEN_ZOMBIE` 41410, `DI_2016_XMAS` 41430, `DI_EVENT_2017_VALENTINE` 41440, `DI_EVENT_HIGHSCHOOL` 41450,
+  `DI_EVENT_2017_FOOLSDAY` 41460, `DI_EVENT_2017_TREASURE` 41470. Their worlds and unresolved NPCs are in the C3y TSVs.
+  `DI_2017_ERDA` and `DI_ADD_CENTER` are on June's Special map (their lines in data217 `DLG_Map_Local_Special.lua` are commented out).
 
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 

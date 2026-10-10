@@ -2550,6 +2550,142 @@ The causes were measured, not guessed:
 
 User, 2026-10-10: give the old dungeons their own phases and update them to what June has. That is **C3z** below.
 
+## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
+
+**Status: done 2026-10-11 (census + plan; no C++, no flag, no build, no pack). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y.md`.
+
+- **Scope:** the dungeon scripts in kom_contents that no March `DungeonData` row reaches, plus June's `DungeonData` ids March lacks
+  (C3z-3 routed 251 here), plus `WI_SANDER_SECRET_BOSS_STAGE`. Hand each to its owner; unowned work gets a phase row.
+
+### C3y - Done
+
+**2026-10-11, census and plan only.** No C++, no flag, no build, no kom touched, so flagcheck and deploy do not apply.
+
+- **Tool:** `june2017_re/c3y_unreached_dungeon_census.py`. It runs the registries (both DungeonEnums, both `WORLD_ID` tables, both
+  DungeonData, both WorldData) in the KOG luajit through `lua_registry_dump.lua`, scans each script's `WI_` names, and re-derives the
+  script set. That set equals `dungeon_npc_parity.tsv`'s `C3y:` exceptions: no mismatch lines. It writes three files:
+  - `c3y_unreached_dungeon_census.tsv`: one row per script (ids, worlds, gaps, unresolved NPCs, origin, owner);
+  - `c3y_unreached_world_census.tsv`: one row per world they name (both enums, both WorldData rows, files, line maps);
+  - `c3y_june_only_dungeon_ids.tsv`: one row per June DungeonData id March does not register.
+- **66 -> 110 scripts.** C3x's count predates C3z-3. The re-measure gives 110: **56 registered only by June** and **54 registered by
+  nobody**. 109 of them are June's own bytecode already. Of the 251 June-only ids, 81 point at those scripts and 170 at covered
+  scripts (169 are Hero variants of existing dungeons). No June dungeon id collides with a March value.
+- **Owners** (per id; the TSVs carry the per-row owner):
+
+  | Owner | What | Ids |
+  |---|---|---|
+  | atlas A8 / A9 / A10 | AtlasDevelopment / AtlasCity / Tower N-H-E | 9 (matches `ATLAS_PORT_PHASES.md:314`) |
+  | elysion E8-E11 | SkyCrossroads / Adrian / Soless / Memory N-H-E | 12 |
+  | backlog Stage 19 | event dungeons (list in that stage) | 13 |
+  | backlog Stage 8 | `Dungeon_Tutorial_{Luciel,Rose,Ain}` | 3 |
+  | **C3y-1a** | Hamel secret (`UNUSED:DI_HAMEL_SECRET_COMMON` 33260, `DI_HAMEL_SECRET_HELL` 33261), `UNUSED:DI_RANOX_SECRET_COMMON` 41270 | 3 |
+  | **C3y-1b / 1c** | Sander secret: its 9 worlds (1b), the dungeon `DI_SANDER_SECRET_HELL` 41141 + `UNUSED:..._COMMON` 41140 (1c) | 2 |
+  | **C3y-2** | June's class tutorial dungeons, 9 March classes (41150-41290) | 9 |
+  | **C3y-3** | Bestera 1-4 + `DI_BESTERA_START` (150000-150040) | 5 |
+  | **C3y-4** | Space of Thought 1-3 + `_DUMMY` (41480-41510) | 4 |
+  | **C3y-5** | the Hero tier: 159 `*_HERO_NORMAL/HARD/EXPERT`, 30 `*_HERO_HELL`, `DI_HERO_DUMMY_COMMON/HELL` | 191 |
+
+- **54 scripts are dead in both builds** (neither DungeonData names them; a grep of March's kom_contents, `june_src_fixed` and
+  X2Lib's `.cpp` finds no other referrer): old El Forest / Besma Mine / Dragon Canyon / Nature Cave / Elder Halloween sets, Henir
+  2011 / 2013 / 2016, Ruben secret, the Velder / Hamel battle ships, 3 training scripts, `En_Time1-3`, 7 datai030 events. No row.
+- **Hero is not "unreachable in June".** The Atlas / Elysion "Out of scope" lines say so, but the source they cite
+  (`JUNE_UI_PARITY_PHASES.md` "Phase 4 findings") proves only that the *Mode Button* is unreachable. It also says June's real route
+  into Hero content "still needs its own investigation", and the user plans to port Hero later ("User decisions" item 3). So it gets
+  C3y-5 (identify first), per the unowned-branch rule.
+- **Henir Space already names the 5 missing boss worlds.** The live, covered `Dungeon_Henir_Space.lua` (June bytecode, Special map)
+  puts stage 22 on `WI_SANDER_SECRET_BOSS_STAGE` and stages 32-35 on atlas / elysion's 4. Each stage's `NEXT_STAGE` names its own
+  index, so the run order is decided elsewhere; whether a run reaches them is not proven. That is why Sander's worlds are split out
+  as C3y-1b, ahead of the dungeon.
+- **WorldData must be keyed by `worldID`.** June names `WI_EVENT_SCHOOL_EVENT_STAGE0`'s row "WI_TUTORIAL_EL_STAGE0" and the Eve
+  tutorial's "WI_TUTORIAL_EVE_STAGE0 " (trailing space). `world_census.py` (C3x) keys by name. Re-checked by id: its only other
+  miskey, `WI_VELDER_SECRET_BOSS_STAGE`, has a world script and line map byte-equal to June's, so C3x missed nothing.
+- **One world-id clash, harmless:** June's `WI_PVE_BATTLE_WORLD_ISLAND_OF_ERDA` = 573 = March's Lua `WI_END`, named only by the dead
+  `Dungeon_Pve_Battle_World_Island_of_Erda.lua`. C++ `WI_END` (752) bounds village / field worlds only (`X2State.cpp:6797` and three
+  more), not dungeon stages, so Space of Thought's 771-773 are not blocked by it.
+- **Routing notes added:** STATUS rows C3y-1a..C3y-5 + kickoffs; backlog Stage 19's "still to identify" now lists the 13 event ids;
+  the atlas / elysion blocks point at the census.
+
+**Open question for the user (one):** the 4 atlas / elysion Henir boss worlds (`WI_ATLASDEVELOPMENT_BOSSATGE`, `WI_TOWER_BOSSATGE`,
+`WI_SKYCROSSROADS_BOSSSTAGE`, `WI_ADRIAN_BOSSSTAGE`) wait for atlas, which starts after this plan. Should their world-only port
+(enum, WorldData, world + line map, assets, as C3y-1b does for Sander) move forward into june-effect so a Henir run cannot reach a
+world March lacks? Default if unanswered: they stay with atlas / elysion.
+
+## C3y-1a - port: Hamel secret dungeon rows + the Ranox secret common row
+
+**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-1a.md`.
+
+- **Scope:** March already ships `Dungeon_Hamel_Secret_{Common,Hell}.lua` (June bytecode), the 9 Hamel secret worlds (561-569) and
+  `DI_HAMEL_SECRET_HELL` 33261 in DungeonEnum, with 0 unresolved NPCs. Missing:
+  - June's 2 DungeonData rows (data035 `DungeonData.lua`, core) and `UNUSED:DI_RANOX_SECRET_COMMON` 41270's row;
+  - the map button: June's `DLG_Map_Local_Hamel_Icon_NEW.lua` (data217 in June) has `HamelSecret`; March's data034 copy omitted it in
+    UI parity Phase 3. Not on the core list yet: `core --add`, then convert (T0 from its sidecar) or adopt June's;
+  - UI assets: `HQ_LoadingDungeon_HARMEL_SECRET1/2.tga`, `DLG_UI_Dungeon_Image09.dds`, button texture keys; entry item 700015 in item.kim.
+- Check `m_eDefaultDungeonLoungeWorldID = WI_HAMEL_SECRET_STAGE_BOSS` (no such June enum name; June's world is `..._BOSS_STAGE`):
+  keep June's value verbatim (JUNE_BUGS row) unless the strict load test fails.
+
+## C3y-1b - port: Sander secret worlds (Henir Space stage 22 names the boss one)
+
+**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
+
+- **Scope:** `WI_SANDER_SECRET_STAGE0-3 / BOSS_STAGE / EXTRA_STAGE1-3 / EXTRA_BOSS_STAGE` = June 614-622, all free in March.
+  - data036 `Enum.lua` (core) + data040 `WorldData.lua` (core) rows; 9 world scripts + 9 line maps by `adopt-june`;
+  - assets: the world scripts name 130, **112 missing in March** (73 `.Y`, 33 `.x`, 6 `.ogg`); a lower bound, since MSZIP meshes
+    are not inflated yet: `npc_mesh_census.py --worlds` after staging, as C3x did. Check overlap with june-asset-port before staging.
+- Gate: the C3x CreateWorld log shows no missing row for the 9; a Henir run that reaches stage 22 loads (if it can be reached).
+
+## C3y-1c - port: the Sander secret dungeon
+
+**Status: queued (needs C3y-1b; C3y-1a sets the pattern). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-1c.md`.
+
+- **Scope:** `DI_SANDER_SECRET_HELL` 41141 into data036 `DungeonEnum.lua` (core; 41140 `_COMMON` is already in March's
+  `UNUSED_DUNGEON_ID`); June's 2 DungeonData rows (data035, core); 32 NPC ids into `Enum.lua` + `NPCTemplet.lua` (data037), as C3z-2:
+  all 32 have June templets, and their unit scripts are already staged; meshes (`npc_mesh_census.py`); stat tables.
+  DropTable is server-only, so they give 0 EXP / ED (C3z-2's open question applies).
+- Map button: June's `DLG_Map_Local_Sander_Icon_NEW.lua` has `SanderSecret` + `_Desc` + `TitleBG`, which March's data034 copy omits
+  (UI parity Phase 3). Texture keys `SANDER_SECRET_DUNGEON_NORMAL/_OVER` (`DLG_Common_Button04_NEW.tga`), `TITLE_SANDER_SECRET`
+  (`DLG_Localmap_Title_01`, June data151), `HQ_LoadingDungeon_Sander_SECRET1/2.tga`, `DLG_UI_Dungeon_Image10.dds`; entry items
+  700015 / 113277 in item.kim.
+- The emulator: C3z-6's secret-dungeon path (relative level, `DT_SECRET`); check nothing keys on a fixed list of secret ids.
+
+## C3y-2 - identify, then port: June's class tutorial dungeons
+
+**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-2.md`.
+
+- **Scope:** `Dungeon_Tutorial_{Elsword,Aisha,Lena,Raven,Eve,Chung,Ara,EL,Add}.lua` (41150-41290; Luciel / Rose / Ain are Stage 8).
+  One world each (624-632, all June-only, free in March), 5-6 `NUI_TUTORIAL_*` NPCs each, `m_NPCLevel` 1, `requireSpirit` 1.
+- **Identify first:** who sends a player into `DI_DUNGEON_TUTORIAL_<class>` in June (character creation, a server packet, the June-only
+  `CX2TutorialGuideManager`), and how it meets March's own tutorial auto-connect (fixed in MARCH_2014_MIGRATION Phase 3B) and
+  june-buff 14c's `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` (`c14c_tutorial_reads.tsv`). Stop and report the route before porting if it
+  replaces March's new-character flow.
+
+## C3y-3 - identify, then port: Bestera 1-4
+
+**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-3.md`.
+
+- **Scope:** `Dungeon_Bestera1-4.lua`; `DI_BESTERA_START` 150000 (the Besma map button, row on `Dungeon_Bestera1.lua`) and
+  `DI_BESTERA1-4` 150010-150040. Levels 35-70, `m_NPCLevel` 1, entry item 78988, `Min/MaxAdequateMemberCount` 3 / 4 (C3z-5's keys).
+  8 worlds (736-743, free), 25-29 June-only `NUI_BES_*` / `NUI_TERA_*` NPCs per script.
+- **Identify first:** June's `IsActiveDungeon` (`327da190`) has Bestera handling (UI parity "Known follow-ups"); the Besma icon's
+  Bestera control was omitted in UI parity Phase 3.
+
+## C3y-4 - port: Space of Thought 1-3
+
+**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-4.md`.
+
+- **Scope:** `Dungeon_Space_of_Thought_1-3.lua`, `DI_SPACE_OF_THOUGHT_1-3` 41480-41500 and `_DUMMY` 41510 (the Special-map id;
+  its line in data217 `DLG_Map_Local_Special.lua`, core, is commented out by UI parity Phase 3). Worlds 771-773 (free).
+  30 June-only `NUI_PVP_HERO_*` NPCs (the AI party uses `NUI_CSM_PVP_HERO_*`, a different set). Levels 40-99, `m_NPCLevel` 40.
+- `m_iLimitPlayCount` 3 on the `_DUMMY` row is a server-fed play limit: design it as June does with no server (design-missing rule).
+
+## C3y-5 - identify: June's route into Hero dungeons (read-only)
+
+**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, xhigh. Kickoff `kickoffs/june-effect/C3y-5.md`.
+
+- **Scope:** 191 June-only ids: 159 `DI_*_HERO_NORMAL/HARD/EXPERT` (100000-100522), 30 `DI_*_HERO_HELL` (110xxx),
+  `DI_HERO_DUMMY_COMMON/HELL` (120000 / 120010). 169 sit on scripts March already covers, 22 on atlas / elysion's.
+- The Mode Button is not the route (UI parity Phase 4 findings: no callers). Find the real one in Ghidra (`DL_HERO`, the hero flag
+  readers, `IsActiveDungeon` `327da190`'s hero branch, the third icon dummy), then write the port phases. No code in this phase.
+
 ## C3z - old dungeons on June's data (user, 2026-10-10)
 
 **Status: planned. Model:** Opus 5.5, high. The dungeon scripts and maps are June's since C3x; the data they stand on is still March's.
