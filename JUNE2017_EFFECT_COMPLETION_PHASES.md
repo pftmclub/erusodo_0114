@@ -5416,7 +5416,7 @@ EVENT_KIT_PICKUP:   files: 0 PASS, 0 PASS~, 0 DEFINE, 5 OTHER (other flags), 0 F
 - Strings in the exe: the 5 `JUNE_FX C9h-4h` formats, `USI_EVENT_SNIPER_READY`, `NEIL_THE_SNIPER_DYING`, `PROTON_BOMB_UP_LEFT`, `EffectSet_SA_RHB_Proton_Bomb_Attack_EVENT`.
 
 **datai015:** `PACK OK datai015` (`kom_contents\datai015_packed.kom`). Against the live kom: +1 `CommonSkillState.lua`. The other 17 "changed" entries have equal uncompressed sizes; only their zlib output differs.
-**Copy pending the user's yes.** The exe works without it: it logs `CommonSkillState.lua NOT loaded` and registers nothing.
+`COPY OK datai015: ...\data\datai015.kom  113122 bytes, 24 entries, md5 d7c0f00afc09ffb0e6831bea67d3de80` (user's yes, 2026-10-10; backup `kom_backup_tools\datai015.kom.20261010_112639`).
 
 **Open:** C3o's commit d001ec0 left funcmap row `322f11d0` with its last clause doubled ("; no March CX2Game member" x2). It is left as committed; this phase only appended rows.
 
