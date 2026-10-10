@@ -6522,7 +6522,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June effect completion C9h-4g play-test lines ( short-lived; turn OFF in the C9h-4g review ): the first 12
 //              parses of USEFUL_STRING and of the NOT_SELECT keys ( row count, the two floats, the bool's default ) and
 //              every JuneInitWaitStateChange outcome. Log: "JUNE_FX C9h-4g" in offline_server.log.
-#define SERV_IRUHADEV_JUNE_C9H4G_DEBUG
+//#define SERV_IRUHADEV_JUNE_C9H4G_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

@@ -5082,6 +5082,60 @@ OTHER = the four flags share the three files. RESERVED_STATE_IDS's one ERROR is 
 
 **Open for the user:** none. Next: `/x2-phase june-effect C9h-4g review` (Opus 5.5 high); C9h-4h after it.
 
+### C9h-4g - Review (2026-10-10, Opus 5.5 high): no code finding; `SERV_IRUHADEV_JUNE_C9H4G_DEBUG` off
+
+Checked against June in Ghidra (read-only). No transcription error, so there is no code change besides the debug flag.
+- **USEFUL_STRING** (`320506f0 @32056b0e-32056bf2`, `32057b80 @32060dda-32060e5e`):
+  - Matches. Future clears by erase( begin, end ) and Now by `31c33790`.
+  - `BeginTable( "USEFUL_STRING", i, 1 )` from 0 = March `BeginTable( name, index )` (`"%s%d"`, `KLuaManagerProxy.cpp:84`).
+  - Per row: `resize( i + 1 )`, then `GetValue( 1, &row[i], 1 )` into a wide string (stride `0x1c`). A miss assigns `L""` (`3344f1f4`, length 0), which equals the resized empty row. Then EndTable.
+  - The first miss ends the loop, with no EndTable and no cap.
+  - Getter `32a78fa0`: `bFuture ? +0x8f40 : +0x8f30`, `cmp size, index; ja` (unsigned) -> a copy, else empty = `JuneGetUsefulString`.
+- **NOT_SELECT** (`@32056bf2-32056edd`, `@32060e5e-32061149`):
+  - `fldz` into `+0x8f58` and `+0x8f54`, `BeginTable( "CUSTOM_OFFSET_NOT_SELECT_UNIT" )`, values 1 / 2 (a miss writes 0.0), EndTable.
+  - Then the bool into `+0x8f5c`; a miss writes 1.
+  - Positional decrypt re-run on both stack builds. Future (`3379d004..23`, the last three bytes stored at pushed-stack offsets) and Now (`3379d444..63`, byte order 0-28, 30, 29, 31) both give `USE_NOT_SELECT_MOTION_DIFFERENCE`.
+  - Both parses write the same three members (JUNE_BUGS 155 stands).
+- **Reserved ids:** `enumprobe.py` gives `USI_WAIT` 13, `USI_EVENT_SNIPER_INIT` 88, `_GUN_DANCE_BACK_STEP` 97, `USI_BOUNDING_DOWN` 98 / `_UP` 100, `USI_WAIT_STATE_CHANGE` 101, `USI_END` 102, Chung `CSI_A_CIP_ARTILLERY_NOVA_FIRE` 269, `ASI_DASH_COMBO_X` 135.
+  - data036 `Enum.lua` (BOM) has `GUSI_END(5) + 83..96`, and `USI_END` + 97 = 102.
+  - June `Enum` order (`+105..114`, BOUNDING `+115..117`, PHOENIX / DANCE `+118..124`, WAIT_STATE_CHANGE `+125`) is kept with the gap closed.
+- **The literal-id census, re-checked:** the shift moves nothing that keys on a literal.
+  - `X2TrainingGameUI.cpp:98/277/343` compares `GetNowStateID()` (int) with `(const char) iStateID`. June keeps the cast (`32832910 @328333a7 / @328335e8`, `MOVSX byte`).
+  - Its ids come from the 31 `Dungeon_Training_*` scripts (data035, bytecode). They use 66 names, all from the old classes' legacy *literal* Lua tables (`ELSWORD_SWORDMAN_STATE_ID`, `ARME_VIOLEMAGE_`, `LIRE_ELVENRANGER_`, `RAVEN_`; e.g. `ESSI_COMBO_X1 = 60`).
+  - Those literals do not follow the C++ enum (`ESSI_COMBO_X1` is 118 in C++ now, 104 in the original March). All 66 are 16..92: below 128, so the cast is a no-op.
+  - The literals below 88 hit base ids the shift did not move. 92 (`LESI_DASH_JUMP_COMBO_X3`) was the never-entered class base state before and is a reserved event id now.
+  - Nothing overrides those tables at runtime.
+    - Across every `kom_contents` `.lua`, the four table names appear only in data036 `Enum.lua` (`ESSI_BASE = 6`) and the training scripts.
+    - No class script or X2Lib / KTDXLIB code writes them.
+    - The old classes' C++ `*_WALK` / `_DASH` / `_JUMP_UP` exist only as comments, so they resolve to `USI_*`.
+  - So the training's match result is unchanged by C3d-2 and C9h-4g. The mismatch itself (Lua 16 vs `USI_WALK` 14) is the studio's and predates every port. C3d-1's "the training literals are small" holds, for this reason.
+  - No numeric state literal in `X2Lib` `StateChange( n )` / `GetNowStateID() == n`.
+- **WAIT_STATE_CHANGE:**
+  - `31fc8620`: `fld +0x8ef4` (Future [0][0]), `fld +0x7de8` (Future `fStateTime`), `fcompp`, `test ah, 0x41`, `jnz`. So the state changes only when time > value; equal and unordered stay. Then `StateChange( 0xd = USI_WAIT, 0 )` and `jmp` vslot `0x7d4`.
+  - Delegate `31fcd0b0`: `+0x87d0` is `m_pXSkinAnimFuture` (AnimStop order) and `+0x2ac` is its anim-end byte. June's `+0x8e90 ? +0x8e84` dual-body branch is dropped, as in C3b / C3d-3 (Stage 8).
+  - The registered-state guard is labelled as March safety in the code and the funcmap row.
+- **Debug:** `SERV_IRUHADEV_JUNE_C9H4G_DEBUG` commented out (`Always.h`, 1 line). `JuneInitWaitStateChange`'s "NOT registered" line stays on by design: once per table, only when a class port calls it.
+
+**Hygiene** (`flagcheck <flag> --with JUNE_C9H4G_DEBUG --range 4580737^..HEAD`):
+```
+USEFUL_STRING / NOT_SELECT_UNIT_OFFSET / WAIT_STATE_CHANGE: files: 0 PASS, 0 PASS~, 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR   RESULT: PASS
+RESERVED_STATE_IDS: 3 OTHER, 0 FAIL, 2 ERROR   RESULT: FAIL  (both = Always.h:6511, WAIT_STATE_CHANGE's dependency guard, in 4580737 and 8c2c7c5's range; flagcheck limit, as the Done note)
+  in each flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 encoding change(s)
+```
+
+**Worktree** (`--with JUNE_C9H4G_DEBUG --worktree --files KTDXLIB/Always.h`): USEFUL_STRING / NOT_SELECT / WAIT_STATE_CHANGE PASS (1 DEFINE).
+- RESERVED: the same guard-line ERROR.
+- The 1 deleted line in each = the debug `#define`, now commented out.
+- WAIT_STATE_CHANGE's 2 token-less `#endif`s = its dependency guards (4580737).
+- The debug flag cannot be checked by itself any more: no active `#define` is left for flagcheck's `git grep`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,510,784 B, dated 2026-10-10 09:53:16, md5 88482eeb6515b3a2512b50d1f25aa2a4, equal to X2/US_SERVICE/x2.exe (2026-10-10 09:53:11); built at mods/june-buff-port 3957194 + 1 uncommitted code file(s).`
+- PCH was re-touched for X2Lib and X2.
+- Wide strings in the deployed exe: `JUNE_FX C9h-4g USEFUL_STRING` 0, `NOT_SELECT` 0, `USI_WAIT_STATE_CHANGE registered:` 0, `NOT registered` 1 (not behind the debug flag).
+- data036 is unchanged (md5 fe54e8bd stays).
+
+**Open for the user:** none. A quick regression play-test is optional (no behaviour change; the exe only drops the `JUNE_FX C9h-4g` lines). Next: C9h-4h (`/x2-phase june-effect C9h-4h`, Opus 5.5 high).
+
 ### C9h-4h - port: the event states (Heavenly Combat Support Kit)
 
 Scope: June's user states `USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT` (June 0x6e..0x76; March ids 88..96 reserved by C9h-4g), registered by the base
