@@ -1839,6 +1839,10 @@ Reviews C3j-1 (`c74f63f`, fix `8c2c7c5`) and C3j-2 (`aac4b70`). **No code findin
 
 Flag `SERV_IRUHADEV_JUNE_FLY_COUNT` (+ short-lived `SERV_IRUHADEV_JUNE_FLY_COUNT_DEBUG`). funcmap rows `(C3k)`; the C3d-3 review row is marked ported.
 
+**Commit:** C3k's code and docs landed inside **`e8a427b`** (the C3j-2 review's commit). C3k's hunks were staged into the shared index seconds before that session ran `git commit`; nothing was lost, and the history was not rewritten.
+`flagcheck JUNE_FLY_COUNT --with JUNE_FLY_COUNT_DEBUG --range e8a427b^..e8a427b`: `1 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The 2 OTHER rows are the C3j-2 review's own lines in that commit: `BOUNDING_STATE_DEBUG` off in Always.h, and its X2GUNPC.cpp type-loop comment under `SERV_IRUHADEV_JUNE_BOUNDING_STATE`.
+
 **1. Sweep re-confirmed; June counts nothing.**
 - `dispsweep df8` gives 28 hits: 11 `esp` locals, the 6 `fidiv` reads, 4 zero stores, `sub esp`, and one other class's vector (`+0xdf4/+0xdf8/+0xdfc`).
   - The vector hits: `327ca2f0` / `327cee60` / `327cef20` compute `(end - begin) / 192`, and `327cf18c` is that class's ctor (`327cef70`) zeroing `+0xdd8..+0xdfc`. The C3d-3 review did not list `327ca2f0` / `327cf18c`.
