@@ -2513,6 +2513,66 @@ where March's C++ forces it (the registries are kept merged). **Every dungeon** 
     dungeon March and June share; record each March-only consumer that blocks a row.
   - Census first, then the edit. Not at the same time as C3z-2 (both pack data036).
 
+### C3z-1 - Done (2026-10-10, Opus 5.5 high; data only, no C++, no flag, no build; 11 koms + 17 music copied)
+
+**Gate tool:** `june2017_re/dungeon_map_parity.py`.
+- Scope: every dungeon script in kom_contents (354), its worlds (378), their world scripts and line maps (730), and every asset those
+  name, closed over June's meshes (MSZIP inflated). 10,342 assets after the port.
+- Writes `dungeon_map_parity.tsv` (the gate, 1 row per dungeon), `dungeon_map_asset.tsv` (1 row per asset) and
+  `dungeon_map_replace.tsv` (still to stage: **0**).
+
+**Tokenizer fixed in all 3 censuses** (also `world_asset_collide.py` and `npc_mesh_census.py`). Bytecode constants sit back to back,
+so a greedy match swallowed `A.Y-B.Y-C.Y` and resolved only C: 539 direct names were invisible to C3x. A trim is now taken only where
+the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Peita_Heart_Floor.tga` (in neither build) into June's
+`floor.tga`.
+
+**What changed** (staging and removal both backed up under `kom_backup_stage_june\`):
+- **Staged (`20261010_142454`): 404 June files**, 365 replaced and 39 new, 0 refused. Record: `c3z1_stage_plan.tsv`.
+  - By kom: 023: 1, 024: 75, 025: 35, 026: 57, 027: 21, 028: 85, 029: 53, 030: 17, 031: 17, 032: 18, 110: 25.
+- **Removed (`20261010_142520_c3z1_drop`; user OK 2026-10-10): 306 meshes** from data028 (142) and data029 (164).
+  - These are pieces June merged away (Besma Mine / Lake / Dragon Road; e.g. Mine s1 `bc1` rebuilt, `bc2`-`bc5` gone). June's
+    world scripts still name them and they fail to load (JUNE_BUGS #166).
+  - March's copies drew over June's rebuilt meshes. March's `CX2WorldObjectMesh::SetXMesh_LUA` logs `XEM_ERROR109` and skips the
+    draw; render and `RayHit` check the mesh, as June does. List: `c3z1_june_dropped.tsv`.
+- **Loose music: 17 BGM** in `data\music\` replaced by June's re-encodes (Hamel, Velder secret, Sander, Ruben tutorial; about half
+  the size). Backup `kom_backup_tools\loose\20261010_142700\`.
+
+**Other users** (`c3z1_users.py` -> `c3z1_users.tsv`; every .lua and inflated .x/.y in kom_contents). June wins, so these change:
+- 135 March-side files name a changed name. All but 4 are files June dropped and no dungeon world reaches: old Besma
+  Lake / Dragon Road / Mine2 / Dragon Nest world scripts and meshes, Altera Below Tunnel floors, `Altera_Battle_Air_Ship_s1-s4.lua`.
+- **Reachable: one.** `Besma_Dragon_Road_Stage4.lua` (KidDay event, a March-only world) loses 15 of its removed meshes.
+- Village/field meshes now drawn with June's textures: `Besma_Village_G01/G02.Y`, `Field_Besma_Rest_G01_Left/Right.Y`,
+  `Field_Ruben_G02_Mesh.Y`. Also `Elder_Hell_Extra_Stage1.lua`, which no dungeon reaches.
+
+**Gate** (`dungeon_map_parity.tsv`): 354 rows, 330 read 0/0. The 24 that do not all name `data101-dir`, none unnamed:
+- Velder Gate / Market / Palace Entrance / Bridge Hope / Bridge Burning / Third Dwelling / Secret, Henir Space x4, Hamel Waterway,
+  Sander Santilus Ship, and 5 Ranox dungeons with 1 shared texture each.
+- data101's kom_contents dir lacks 1,071 live entries, and 134 of its files are stubs smaller than live (`..._junk02.y`: 111 B, live
+  5,657 B), so it is never packed. Its 104 differing or missing names wait in `c3z1_data101_pending.tsv`; some only differ because
+  of the stubs. Its 799 live-only entries cannot be compared until
+  june-asset-port P0 restores the dir; that follow-up is **C3z-1b**.
+- KidDay reads `wf march-only=4`: its 2 event worlds (Air Ship s6, Dragon Road 4) are worlds June dropped.
+- `world_asset_collide.py` over all 728 world files: 89 DIFF, **all data101** (`c3z1_world_asset_collide.tsv`).
+- `npc_mesh_census.py --worlds` over the same list: 2 needed, **both data101** (`c3z1_world_asset_need.tsv`).
+- C3x's own `world_asset_*.tsv` records are kept as they were.
+
+**Packs and copies.** `PACK OK` for all 11. Every one of the 404 entries decodes equal to June's bytes.
+- The first-time packs of data024 / 025 / 027 / 030 / 110 show 570 / 360 / 415 / 507 / 1,138 extra `~changed`, all recompression:
+  the same raw size and algo, and 440 sampled entries decode equal to live. One data024 file (`Ruben_Ruin_Of_Elf_S1_alpa1.Y`) has the
+  same raw and packed size in both builds, so it does not show as `~changed`.
+- data023 still warns of 13 manifest keys with no file; they predate this phase.
+- **`COPY OK`** (user OK 2026-10-10):
+  - data023 md5 `fad26f15`, 024 `82a7debd`, 025 `93ba7838`, 026 `ce0eb4b5`, 027 `c9314c2d`;
+  - 028 `c4e98d83` (852 entries) and 029 `eae9a4c9` (1536 entries), both `--allow-removed`;
+  - 030 `c826ed4d`, 031 `318161fa`, 032 `0eccdecd`, 110 `b0bad26b`;
+  - 17 music files `COPY OK` (md5 = June's).
+- No C++ changed, so there is no flagcheck and no build; the deployed exe is unchanged.
+
+**Play-test:** the kickoff's three maps, plus Besma Mine stage 1, where the removed pieces were. Logs:
+- 0 EXCEPTION.
+- `XEM_ERROR109` lines for `Besma_besma_Mine_s1_bc2.Y` and the like are expected: June logs the same.
+- Any `XEM_ERROR109` for a name **not** in `c3z1_june_dropped.tsv` is new.
+
 ### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
 
 **Census tool.** `june2017_re/dungeon_npc_census.py` (with `dungeon_npc_dump.lua` and `lua_registry_dump.lua`).

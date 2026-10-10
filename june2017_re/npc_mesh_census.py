@@ -37,13 +37,29 @@ if WORLDS:
     tok_re = re.compile(rb"[A-Za-z0-9_\-\. ]{3,}\.(?:x|X|y|Y|dds|DDS|Dds|tga|TGA|png|PNG|bmp|BMP|jpg|JPG|ogg|OGG|Ogg|wav|WAV|Wav)(?![A-Za-z0-9_])")
 
 def resolve(tok):
-    """A bytecode string constant is preceded by its uleb length byte, which may be printable: try suffixes."""
+    """A bytecode string constant is preceded by its uleb length byte (len + 5), which may be printable; a binary .X string by a DWORD
+    length. C3z-1 (2026-10-10): a trim is taken only where that byte matches (it used to try 3 blind suffixes)."""
     t = tok.decode("latin-1")
-    for i in range(0, min(4, len(t) - 4)):
+    if t.strip().lower() in june or t.strip().lower() in march:
+        return t.strip()
+    for i in range(1, len(t) - 4):
         c = t[i:].strip()
-        if c.lower() in june or c.lower() in march:
+        if (c.lower() in june or c.lower() in march) and ord(t[i - 1]) in (len(c) + 5, len(c)):
             return c
     return None
+
+_end_re = re.compile(tok_re.pattern.split(rb"{3,}", 1)[1])
+_run_re = re.compile(rb"[A-Za-z0-9_\-\. ]+$")
+def tokens(b):
+    """C3z-1: a token ends at an extension and never reaches back past the previous one. Bytecode constants sit back to back, so the
+    greedy tok_re swallowed `A.Y-B.Y-C.Y` as one token and lost A and B."""
+    prev = 0
+    for m in _end_re.finditer(b):
+        e = m.end()
+        r = _run_re.search(b, max(prev, e - 200), e)
+        prev = e
+        if r and r.end() == e and e - r.start() > 4:
+            yield b[r.start():e]
 
 # which lua files: everything adopted today (stage backup dir lists the replaced names) plus anything else in those koms.
 # --all-npc (2026-10-10, user: copy every monster mesh): every unit script in kom_contents (a .lua naming INIT_MOTION), so June-only
@@ -82,8 +98,8 @@ need = {}            # lower name -> spelling
 need_by = collections.defaultdict(set)
 for kd, f, p in lua_files:
     d = open(p, "rb").read()
-    for m in tok_re.finditer(d):
-        n = resolve(m.group(0))
+    for tk in tokens(d):
+        n = resolve(tk)
         if not n:
             continue
         ln = n.lower()
@@ -113,8 +129,8 @@ while todo:
     b = jbytes(ln)
     if b is None:
         undecodable.append(ln); continue
-    for m in tok_re.finditer(b):
-        n = resolve(m.group(0))
+    for tk in tokens(b):
+        n = resolve(tk)
         if not n:
             continue
         cl = n.lower()
