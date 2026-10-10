@@ -2432,6 +2432,8 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,551,232 B, dated 2026-10-10 23:14:04, md5 ed368352133232b457e071dc84410437, equal to X2/US_SERVICE/x2.exe (2026-10-10 23:13:59); built at mods/june-buff-port 57beb50 + 10 uncommitted code file(s).` The uncommitted files are C3t's and a peer's C3z-6 work. `SHOW_HYPER_CUT_IN_TIME`, `m_BerserkCutIn` and `m_MinorUnitHyperCutIn_Trans` are each in the deployed exe once. No kom.
 
 **How to see it in game:** nothing, by design: no March class script sets `SHOW_HYPER_CUT_IN_TIME` and March's `UnitTemplet.lua` names no cut-in.
+Dormancy checked against what ships: a byte scan of 6,392 `.lua` (every `24965799\kom_contents\data*_kom\` file, June bytecode included, plus
+loose ones under the game `data\`; no `dev_overlay\`) finds the key 0 times.
 Regression surface: every CommonStateStart now runs the flag test and every CommonFrameMove one `IsSamef`, so awakening (`USI_HYPER_MODE`)
 should look and sound as before. No play-test owed; C3t writes no log lines.
 
