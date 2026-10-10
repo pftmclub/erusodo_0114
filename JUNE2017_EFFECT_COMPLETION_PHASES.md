@@ -2399,6 +2399,59 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 - **Scope:** the June-only state key `SHOW_HYPER_CUT_IN_TIME` (`32057b80` @32060505 -> user `+0x9280`, miss -1) and its reader (`32063650 @3206ce0a-3206ce42`, user vslot `0x838` ( time, false ) when not -1). Data: every June class script (hyper actives); none in March, so dormant until the character ports.
 
+### C3t - Done (2026-10-10, Opus 5.5 high)
+
+**Mapped** (funcmap rows `(C3t)`; Ghidra, `vtslot.py`, `xorstrings.tsv`, a raw `+0x951c` displacement scan):
+1. **Slot `0x838` = `32014fc0`** on all 12 June user classes, overridden by none. It is a hyper cut-in shown from the script. The kickoff's
+   "hyper actives" is wrong: the 17 files set the key in their **awakening** states (`ESSI_*_HYPER_MODE`, Ara's berserk ones too).
+   - When the now anim's one-shot timer passes the time (= `EventTimerOneshot`), and `GetShowCutInAndChangeWorldColor` and `GetShowActiveSkillShow`
+     are true: `SkillCutIn( name )` (March's one-argument constructor), then `ActiveSkillShow( L"Dummy1_Rhand", ..., bHyper = false, bOnlyLight )`.
+   - The name comes from the **unit templet**, not the class script: `m_HyperCutIn`, or `m_BerserkCutIn` when user `+0x951c` is set and it is not
+     empty. Then two Lu/Ciel branches (second body, `UC_LUCIEL_DEMONIO` state `0x1c2 / 0x1f6`) pick `m_MinorUnitHyperCutIn` / the `_Trans` names.
+2. **The templet keys** (June `AddUnitTemplet_LUA 3237aa40`, last five, miss `L""`). The parser's base is the map node + 0xc (`unitType` at
+   `esi+4`), so its `+0x2e0..+0x350` are the reader's `+0x2dc..+0x34c`. March's data036 `UnitTemplet.lua` has none of them.
+3. **`+0x951c`** is set in CommonStateStart `@3205e0d0`, right before `BeginTable( "SOUND_SET" )`:
+   `( GetHyperModeCount > 2 (unsigned) || vslot 0xa4 ) && vslot 0x51c`.
+   - vslot `0xa4` is June-only (base false; Chung's `32c24b90` rolls `+0x9714` against a random float). It is **not** `IsFullHyperMode` (`0x9c`).
+   - vslot `0x51c` is "now state `0x17` = `USI_HYPER_MODE`"; Ara adds `0x9b` = `ASI_BERSERK_MODE`, and Luciel overrides it too.
+4. **Routed, not ported here:**
+   - June's `GetShowActiveSkillShow` (`31fd3180`) is a different body (three option cases, a `31fcef00() == 5` case, a hide override) -> **C3t-1**.
+   - June's sound-set pick around the flag (`USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE`, a `SOUND_SET<n>_RATE` loop, a HYPER / BERSERK choice
+     that reuses vslots `0x51c / 0xa4`) differs from March's `ARA_CHARACTER_BASE` block -> **C3t-2**.
+
+**Code** (`SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME`; `X2GUUser.h/.cpp`, `X2Unit.h`, `X2UnitManager.cpp`, `Always.h`):
+- `m_fShowHyperCutInTime` (ctor -1) and its parse after C3r's `CHANGE_WORLD_COLOR_DATA` table; the reader after March's `SHOW_SKILL_CUT_IN_TIME` call.
+- `virtual ShowHyperSkillCutInByScript` (after `ShowActiveSkillCutInAndLightByScript`), with the anim / unit / templet null checks marked as ours.
+- `m_bJuneBerserkHyperCutIn` (ctor false) and its set before `SOUND_SET`; base virtuals `JuneIsBerserkByChance` (false) and `JuneIsHyperModeState`.
+- Five `UnitTemplet` members and their parse after `introMovieFIleName`.
+- The class overrides and both Lu/Ciel branches -> checklist **7t** (no second body, no unit type 10 in March: leaving them out is reach-equal).
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME --worktree --files` (C3t's 5 files): 4 PASS (`X2GUUser.cpp` +56, `X2GUUser.h` +14,
+`X2Unit.h` +10, `X2UnitManager.cpp` +9), `Always.h` OTHER (the define plus a peer's uncommitted C3z-6 defines; only C3t's block was staged). Post-commit (`--range 547670a^..HEAD`): `files: 4 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Commit `547670a`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,551,232 B, dated 2026-10-10 23:14:04, md5 ed368352133232b457e071dc84410437, equal to X2/US_SERVICE/x2.exe (2026-10-10 23:13:59); built at mods/june-buff-port 57beb50 + 10 uncommitted code file(s).` The uncommitted files are C3t's and a peer's C3z-6 work. `SHOW_HYPER_CUT_IN_TIME`, `m_BerserkCutIn` and `m_MinorUnitHyperCutIn_Trans` are each in the deployed exe once. No kom.
+
+**How to see it in game:** nothing, by design: no March class script sets `SHOW_HYPER_CUT_IN_TIME` and March's `UnitTemplet.lua` names no cut-in.
+Regression surface: every CommonStateStart now runs the flag test and every CommonFrameMove one `IsSamef`, so awakening (`USI_HYPER_MODE`)
+should look and sound as before. No play-test owed; C3t writes no log lines.
+
+No questions for the user.
+
+## C3t-1 - identify, then port: June's GetShowActiveSkillShow
+
+**Status: ready (found by C3t, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-1.md`.
+
+- **Scope:** June `CX2GUUser::GetShowActiveSkillShow 31fd3180`, which gates every skill cut-in: three option cases (March has two), a
+  `31fcef00() == 5` case, and a false override from two globals. Includes June's option values against March's `CX2GameOption` cut-in setting.
+
+## C3t-2 - identify, then port: June's state sound-set pick
+
+**Status: ready (found by C3t, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-2.md`.
+
+- **Scope:** June `32057b80 @3205dc33-@3205e4c5` and on: `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` (roll kept in `+0x6dcc`), the
+  `SOUND_SET<n>_RATE` loop, and the HYPER / BERSERK sound choice (reuses C3t's `JuneIsHyperModeState` / `JuneIsBerserkByChance`), against March's
+  `ARA_CHARACTER_BASE` block in `CX2GUUser::CommonStateStart`.
+
 ## C3u - port: June's summon-NPC socket gate
 
 **Status: ready (found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3u.md`.

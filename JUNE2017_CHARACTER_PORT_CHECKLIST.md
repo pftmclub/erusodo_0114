@@ -544,3 +544,22 @@ already live; only the readers are missing. Count per class: `june2017_re/dungeo
 | Ain | `BOSS_DROP_ITEM.AIN` and `ENDING_SPEECH<n>.AIN` (94 tables in the shared rows) | add the `AIN` branch to both loops, mapped to Ain's `UT_` |
 | Luciel | `BOSS_DROP_ITEM.LUCIEL` and `ENDING_SPEECH<n>.LUCIEL` (98 tables); the speech entries are `{ LU = STR_ID, CIEL = STR_ID }` pairs, not `{ STR_ID }` | the branch plus June's two-speaker speech read (June `327e0f80`, the `ENDING_SPEECH` block `@~1837-2001`) |
 | Rose | `BOSS_DROP_ITEM.ROSE` and `ENDING_SPEECH<n>.ROSE` (92 tables) | add the `ROSE` branch |
+
+### 7t. The hyper cut-in: data, and the class hooks that pick the berserk / Lu/Ciel names (from June effect completion C3t)
+
+Since C3t (`SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME`), `CX2GUUser::ShowHyperSkillCutInByScript` (June `32014fc0`) shows a texture at a state's
+`SHOW_HYPER_CUT_IN_TIME`. It stays dormant until a port brings all three of these:
+- **The class script:** every June class script sets the key in its awakening states (`ESSI_*_HYPER_MODE`, plus Ara's berserk ones), 17 files.
+  No March class script sets it.
+- **June's `UnitTemplet.lua`** (data036): the texture names, `m_HyperCutIn` per class (39 rows), `m_BerserkCutIn` (9),
+  `m_MinorUnitHyperCutIn` (4) and the two `_Trans` keys. March's copy has none of them, so the name is `L""`.
+- **The `HQ_Cutin_*_Transcendence` textures** those rows name.
+
+Class hooks (engine side ported, base bodies in `X2GUUser.h`; the class overrides are this list's):
+
+| Class | June | Port |
+|---|---|---|
+| Chung | unit vslot `0xa4` override `32c24b90`: `+0x9714 > GetRandomFloat( 0 )`, a berserk roll (identify `+0x9714`) | override `JuneIsBerserkByChance` |
+| Ara | user vslot `0x51c` override `32bd85f0`: now state `0x17` or `0x9b` (`ASI_BERSERK_MODE`) | override `JuneIsHyperModeState` |
+| Luciel | user vslot `0x51c` override `32b4dbe0` (state `0x17` or a Luciel state: read it at `@32b4dc12`) | override `JuneIsHyperModeState` |
+| Luciel | in `32014fc0`: with the second body (vslot `0x260`, `+0x8e90`, 7o) and a non-empty `m_MinorUnitHyperCutIn`, that name. Then, for unit type 10 / class `0x81` (`UC_LUCIEL_DEMONIO`): future state index (`320761a0`) `0x1c2` without the second body -> `m_HyperCutIn_Trans`, or `0x1f6` with it -> `m_MinorUnitHyperCutIn_Trans`, each only when not empty | add both branches after the berserk one (the comment above the function has the order) |
