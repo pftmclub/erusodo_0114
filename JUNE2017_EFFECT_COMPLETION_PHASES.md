@@ -2911,6 +2911,15 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
   reachable in March). flagcheck (4 files): 3 PASS, 1 DEFINE, 0 FAIL, 0 deleted; RESULT PASS.
   `DEPLOY OK: X2_offline.exe is 19,538,432 B, dated 2026-10-10 22:10:13, md5 d63e075e6a77d586d386429e25bc505b`.
 
+### C3z-4 - play-test 4 (2026-10-10 22:17-22:20, Ranox Gateway Normal 33300): berserker queries PASSED; Ignia team applied
+
+- `JUNE_FX C3z-4 substage npc 1897 team 0 ally 1` at stage 0's spawn: `NUI_SAMETEAM_IGNIA` now spawns on TN_RED.
+  The run went from stage 0 to `/stage 3` after 70 s, so no stage was cleared with Ignia alive (stage 0's clear condition is
+  `CC_KILL_NPC_TYPE`; stages 1 / 2 use `CC_KILL_ALL_ACTIVE_NPC`, the one Ignia blocked).
+- Stage 3 (the Ifritan room): four berserkers log `GetNowStateID_LUA march 11 -> june 11` and `GetIsLastStage 1` at spawn; the game
+  int `[0]` is set to 1 and then -1. Sub-stage clear and `EGS_END_GAME` at 22:19:55-22:20:05: the dungeon finished.
+- ErrorLog: one `can't find 'SetMovieDescriptionData'` (the boss intro subtitle, C3z-4b), nothing else. 0 EXCEPTION.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
