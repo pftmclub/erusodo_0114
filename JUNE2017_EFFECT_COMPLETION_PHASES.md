@@ -2920,6 +2920,19 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
   int `[0]` is set to 1 and then -1. Sub-stage clear and `EGS_END_GAME` at 22:19:55-22:20:05: the dungeon finished.
 - ErrorLog: one `can't find 'SetMovieDescriptionData'` (the boss intro subtitle, C3z-4b), nothing else. 0 EXCEPTION.
 
+### C3z-4 - play-test 5 (user, 2026-10-10): Ignia still an enemy (red minimap dot, homing arrows) -> the client-side create
+
+- The emulator's packet was right (team 0), but the client builds sub-stage NPCs itself in `CX2DungeonSubStage::CreateGUNPC`
+  (June `327ef570`), and March hard-coded `TN_MONSTER` / `NAT_NORMAL` there.
+- June `@327ef72d-327ef74b`: team = NPCData `+0x5c`, AI = `ALLY_NPC` (`+0x52`) ? 4 : 0.
+  - The ctor `327af620` builds type 4 exactly as type 1 (the ally AI `32f0e3d0`, owner from the caller: none here).
+  - It then stores 4 in the AI's type (`+0x38`), so the `== NAT_ALLY` user-summon tests skip it.
+- Port (same flag `SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM`, original call in `#else`):
+  - `CreateGUNPC( 0, m_iJuneTeam, uid, info, ally ? NAT_ALLY : NAT_NORMAL, NULL, scale )`, then `SetAIType( 4 )` for an ally.
+  - March's ally AI is NULL-owner safe (`RallyToAlly` returns early, `SetAllyGameUnit` ignores NULL).
+  - Log: `JUNE_FX C3z-4 substage CreateGUNPC npc <id> team <t> ally <a> ai <type>`.
+- flagcheck (2 files) PASS. `DEPLOY OK: X2_offline.exe is 19,538,432 B, dated 2026-10-10 22:34:45, md5 ffba1cb74f1e2605f0181890c49cf55a`.
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and

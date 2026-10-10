@@ -6793,6 +6793,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              emulator send it as KNPCUnitReq::m_cTeamNum. March never read TEAM, so every scripted NPC arrived as a monster:
 //              Ranox Gateway's NUI_SAMETEAM_IGNIA ( ALLY_NPC = TRUE, TEAM = TN_RED ) blocked CC_KILL_ALL_ACTIVE_NPC and the
 //              stage never cleared ( user, 2026-10-10 ).
+//              Play-test 5: the client builds sub-stage NPCs itself ( CX2DungeonSubStage::CreateGUNPC, June 327ef570 ), and March
+//              hard-coded TN_MONSTER / NAT_NORMAL there. June passes NPCData +0x5c as the team and AI type 4 for an ALLY_NPC
+//              ( @327ef72d-327ef74b ); its ctor 327af620 builds type 4 as the ally AI ( 32f0e3d0, as type 1 ) and stores 4 in
+//              the AI's type ( +0x38 ), so the "user summon" tests ( type == 1 ) skip it.
 #define SERV_IRUHADEV_JUNE_SUBSTAGE_NPC_TEAM
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
