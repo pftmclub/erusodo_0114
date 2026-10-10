@@ -1819,8 +1819,16 @@ Reviews C3j-1 (`c74f63f`, fix `8c2c7c5`) and C3j-2 (`aac4b70`). **No code findin
 - funcmap rows `327992a2-327992fd (C3j)` / `(C3j-1)` marked superseded by C3j-2.
 - `tools/flagcheck.py`: a flag with no `#define` (a `_DEBUG` turned OFF) no longer crashes `define_sites` (`git grep` exit 1 = no match).
 
-**Hygiene** (worktree; the peer's C3k edits share `X2GUNPC.cpp` / `Always.h`, so this review's lines are judged by the `--range` run below):
-`flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --worktree --files X2Lib/X2GUNPC.cpp`: `0 PASS, 1 OTHER (C3k's FLY_COUNT hunks in the same file), 0 FAIL`; `0 deleted`; `RESULT: PASS`.
+**Commit `e8a427b` also carries C3k's code.** The peer staged C3k into the shared index between this review's `--cached` check and its commit; the peer's `72705f5` records "code landed in e8a427b". History was left as is.
+
+**Hygiene** (`--range c74f63f^..e8a427b`):
+- `flagcheck SERV_IRUHADEV_JUNE_BOUNDING_STATE --files X2Lib/X2GUNPC.cpp`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`;
+  `30 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- The OTHER row is `e8a427b`'s `X2GUNPC.cpp` (+30 -2): this review's 3 comment lines plus C3k's FLY_COUNT blocks. With `--with SERV_IRUHADEV_JUNE_FLY_COUNT ..._DEBUG` it is still OTHER (FLY_COUNT), 0 FAIL, PASS.
+- Deleted lines: 3 C3j-1 + 27 C3j-2 (both Done notes), plus this review's 2 stale comment lines, all inside the main flag.
+- With `--with SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG --files X2GUNPC.cpp Always.h`: the 3 `X2GUNPC.cpp` PASS rows stand.
+  - The 6 ERROR rows are all `Always.h` at C3i's `#if defined(SERV_IRUHADEV_JUNE_NOT_UP_STATE) && !defined(...)` guard, which flagcheck cannot evaluate (not a finding, per the kickoff).
+  - The 48 deleted lines are the 30 above plus `Always.h`'s FIX block and description (C3j-2) and the commented `_DEBUG` `#define` (this review).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,808 B, dated 2026-10-10 10:43:46, md5 580feb5d11813e3a5cc9d1feb4dfb701, equal to X2/US_SERVICE/x2.exe (2026-10-10 10:43:41); built at mods/june-buff-port 198411b + 3 uncommitted code file(s).`
 - The 3 files are this review's two plus the peer's uncommitted C3k (`X2GUUser.cpp`, its `X2GUNPC.cpp` / `Always.h` hunks). The peer's 10:43 build compiled both; this review's build had nothing to relink.
@@ -1849,6 +1857,7 @@ The 2 OTHER rows are the C3j-2 review's own lines in that commit: `BOUNDING_STAT
 - Sub-object bases: CX2GameUnit's ctor `322a2700` stores vtables at `+0x190` / `+0x1a0`, so `0xc68` / `0xc58` were swept too. Every hit is unrelated: a scaled table, two other classes' stores, and misdecodes.
 - No `lea` or add-immediate of `0xdf8` anywhere.
 - Both DamageReacts (user `320462a0`, NPC `327b1f30`) were checked instruction by instruction. Every `inc`/`add` to memory is a refcount or another member, and neither function has a `+0xdf8` operand. **So June has no FORCE_FLY reset either.**
+- **June never reads `FORCE_FLY` at all.** `SetDamageDataFromLUA` stores it at DamageData `+0x445` (`32632390 @3263a0fb`, bool getter `32fe9e40`; key decoded at `@3263a088`). `dispsweep 445` finds only that store and the field-by-field DamageData copy `31e9c190` (`@31e9c544`). The other hits are immediates. With the flag on, March's only reader is gone too, and the field is write-only as in June; Elsword's setter `X2GUElsword_SwordMan.cpp:10379` stays and does nothing.
 - The NPC readers are in `32769240` (C3i's start; dispsweep's `fstart` prints `32769060`).
 
 **2. June's reset rule = CommonFrameMove only.**
@@ -1867,7 +1876,10 @@ The one token-less `#endif` closes the DEBUG block's `#error` guard in Always.h 
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,511,808 B, dated 2026-10-10 10:43:46, md5 580feb5d11813e3a5cc9d1feb4dfb701, equal to X2/US_SERVICE/x2.exe (2026-10-10 10:43:41); built at mods/june-buff-port 198411b + 3 uncommitted code file(s)` (the 3 are this phase's). The `JUNE_FX C3k` string is in the exe. No kom.
 
-**How to see it in game** (jtLordKnight, dash X on an Elder Bridge guard, Elder Village field; the C3j-2 launcher): launch the same guard 3+ times. Each launch is as high as the first. In the log, `fly count 0` is on every line and nowSpeed.y = backSpeed.y on hit 3 and later. Under March, hit 3 would be backSpeed.y / 2, then / 3.
+**How to see it in game** (jtLordKnight, dash X on an Elder Bridge guard, Elder Village field; the C3j-2 launcher): re-launch the same guard 3+ times in one juggle, before it lands and stands up. Each launch is as high as the first.
+- **Proof is the log:** `fly count 0` on every line, and nowSpeed.y = backSpeed.y on every `super armour 0` line where the guard actually rose, hit 3 and later included.
+- March would show hit 3 at backSpeed.y / 2, then / 3, but only inside one continuous juggle: an invincible or super-armour frame (e.g. a stand-up) resets the count.
+- **Expected mismatches, not failures:** `super armour 1`, a guarded hit, `NOT_UP_STATE`, and a hit that changed no state all leave nowSpeed.y unwritten.
 
 **Open for the user:** none.
 
