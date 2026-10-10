@@ -16,7 +16,7 @@ GetNowStateID_LUA	CX2Game	12	31dd9a6c	322cf9b0	port	1	SERV_IRUHADEV_JUNE_GAME_ST
 SetMovieDescriptionData	CX2GUNPC	59	31e0419c	32758730	port	2	SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION	CX2State + render	g_pMain +0x90 (now state) -> 31ef7370 stores string id +0x1ec, seconds +0x1f0; 31f179b0 draws it (font 6, (620,512)) and counts down by +0x60; callers 324bb230, 324cff10 (state render). UI port
 GetNearestSiegeModeNpcUID	CX2GUNPC	10	31df537b	327714c0	port	2	SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY	CX2GUNPC::GetNearestSiegeModeNpcUID	nearest other NPC (not dying, siege-mode byte unit[0x22a8]) by distance; returns its UID
 IsActiveMonster	CX2GUNPC	8	31e0c395	31e4d210	port	2	SERV_IRUHADEV_JUNE_NPC_ACTIVE_MONSTER	CX2GUNPC::IsActiveMonster	byte +0x872c: find June's writers first
-GetNPCUnitNumCheckTeam	CX2Game	7	31dd13bf	322d4a10	port	2	SERV_IRUHADEV_JUNE_GAME_NPC_COUNT	CX2Game::GetNPCUnitNumCheckTeam	count NPCs whose team (protected +0x278) == arg
+GetNPCUnitNumCheckTeam	CX2Game	7	31dd13bf	322d4a10	port	1	SERV_IRUHADEV_JUNE_GAME_NPC_COUNT	CX2Game::GetNPCUnitNumCheckTeam	count NPCs whose team (protected +0x278) == arg -- bound C3z-4 play-test 2 (Den of Trock summon caves gate on it)
 LiveKeyCodeNPCNumExceptDying	CX2Game	3	31ddcc68	322d09c0	port	2	SERV_IRUHADEV_JUNE_GAME_NPC_COUNT	CX2Game::LiveKeyCodeNPCNumExceptDying	TN_MONSTER, not dying, keycode match (+0xc04 ...): read fully
 Play2DSound_LUA	CX2GameUnit	7	31de3cb3	32276540	port	2	SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND	CX2GameUnit::Play2DSound_LUA	utf8 name -> 2D sound 32276220; skips DieLight.ogg when g_pMain +0x1ac == 2
 ChangeMotion_LUA	CX2GUNPC	6	31e0a329	32761cd0	port	2	SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION	CX2GUNPC::ChangeMotion_LUA	reloads the motion mesh (+0x8600), Bip01: read fully

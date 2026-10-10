@@ -3909,6 +3909,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Game>( L, "GetIsLastStage",						&CX2Game::GetIsLastStage );		// June @31dd22b0 ( 322f36e0 )
 	lua_tinker::class_def<CX2Game>( L, "GetNowStateID_LUA",						&CX2Game::GetNowStateID_LUA );	// June @31dd9a6c ( 322cf9b0 )
 #endif SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
+#ifdef SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
+	lua_tinker::class_def<CX2Game>( L, "GetNPCUnitNumCheckTeam",				&CX2Game::GetNPCUnitNumCheckTeam );	// June @31dd13bf ( 322d4a10 )
+#endif SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
 	lua_tinker::class_def<CX2Game>( L, "LiveNPCNumType_LUA",					&CX2Game::LiveNPCNumType_LUA );
 	lua_tinker::class_def<CX2Game>( L, "IsKillNPCKeyCode_LUA",					&CX2Game::IsKillNPCKeyCode_LUA );
 	lua_tinker::class_def<CX2Game>( L, "LiveKeyCodeNPCNum",						&CX2Game::LiveKeyCodeNPCNum );

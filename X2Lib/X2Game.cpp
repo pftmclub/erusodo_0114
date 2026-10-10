@@ -5946,6 +5946,32 @@ int CX2Game::GetNowStateID_LUA()
 	return iJuneState;
 }
 #endif SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
+
+#ifdef SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
+/** @function : GetNPCUnitNumCheckTeam
+	@brief : June 322d4a10 ( bound @31dd13bf ): over the NPC list ( +0x324..+0x328 ), every non-NULL NPC whose team
+			 ( protected int +0x278 ) equals the argument counts; no life, dying or activity test.
+*/
+int CX2Game::GetNPCUnitNumCheckTeam( int iTeam_ )
+{
+	int iCount = 0;
+	for ( unsigned i = 0; i < m_NPCUnitList.size(); i++ )
+	{
+		CX2GUNPC* pNPC = m_NPCUnitList[i];
+		if ( NULL != pNPC && pNPC->GetTeam() == iTeam_ )
+			++iCount;
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4 GetNPCUnitNumCheckTeam team=%d -> %d", iTeam_, iCount );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return iCount;
+}
+#endif SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
 int	CX2Game::LiveNPCNumType_LUA( CX2UnitManager::NPC_UNIT_ID unitID ) 
 {
 	int iCount = 0;

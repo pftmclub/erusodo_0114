@@ -2872,6 +2872,19 @@ The 7 method names and the `JUNE_FX C3z-4` log strings are in the exe.
   - The summon caves are in Den stage 2's second room, which was never opened.
 - Re-test: `/stage 1` in Fire Temple; Den `/stage 2` past the first room, and `/stage 3` waiting out the chief under `/invin`.
 
+### C3z-4 - play-test 2 (2026-10-10 21:12-21:21): chief summons and stores work; caves blocked by GetNPCUnitNumCheckTeam -> bound
+
+- Den of Trock stage 3 (reyaa, unit 12): the chief's `CHIEF_OF_TROCKTA_SA_B` calls `CreateNPCReq_LUA( NUI_TROCKTA_TRAP 1227 )` five
+  times (`summoner=1000089 team=2 ai=0 keycode=-1`) and HP_DRAIN calls `SetStoredGUUser( user 12 )` three times. 0 EXCEPTION.
+- Den of Trock stage 2, room 2 (user: "no summons"): every `TROCK_SUMMON_CAVE*_SUMMON_*_FRAME_MOVE` asks
+  `slot1:GetNPCUnitNumCheckTeam( team ) <= N` before its `CreateNPCReq_LUA`, so the batch-2 method stopped the summon (5 `can't find`).
+  The hand-off was wrong to expect summons there. Fix: `SERV_IRUHADEV_JUNE_GAME_NPC_COUNT` binds June `322d4a10` (@31dd13bf) now:
+  it counts every NPC in the list whose team equals the argument, with no other test.
+- Fire Temple: no berserker line, because Fire Temple names `NUI_FIRE_DEVIL_BERSERKER` only in `READY_NPC` (preload) and never
+  spawns it. The C3z-1 reach counts `READY_NPC` too. Plain berserkers and fighters spawn in **Ranox Gateway stage 3** (and Henir).
+- `flagcheck SERV_IRUHADEV_JUNE_GAME_NPC_COUNT --worktree --files` (4 files): 2 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, 0 deleted; RESULT PASS.
+  `DEPLOY OK: X2_offline.exe is 19,538,432 B, dated 2026-10-10 21:32:59, md5 5445212b23053255f72f6735753edb1c` (the method name and its log string are in the exe).
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and

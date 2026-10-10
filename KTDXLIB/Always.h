@@ -6779,6 +6779,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-10
+// Description: June effect completion C3z-4 play-test 2: June CX2Game::GetNPCUnitNumCheckTeam( team ) ( 322d4a10, bound
+//              @31dd13bf ): the number of NPCs in the NPC list whose team ( protected +0x278 ) equals the argument, no other
+//              test. The Den of Trock summon caves ( trock_summon_cave1-5, smith_* , secret_mad_trock_summon1; 7 dungeons )
+//              ask it before every summon, so unbound they never summoned ( 5 "can't find" lines, user: "no summons").
+#define SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-10
 // Description: Short-lived diagnostic for the C3z-4 batch 1 bindings: the first calls of each new method per launch are
 //              logged ( offline_server.log, JUNE_FX C3z-4 ). Remove after the play-test.
 #define SERV_IRUHADEV_JUNE_C3Z4_DEBUG

@@ -533,6 +533,9 @@ class CX2Game : public CKTDXStage
 		bool						GetIsLastStage();		// June 322f36e0
 		int							GetNowStateID_LUA();	// June 322cf9b0, in June's X2_STATE numbering
 #endif SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
+#ifdef SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
+		int							GetNPCUnitNumCheckTeam( int iTeam_ );	// June 322d4a10
+#endif SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
 		int							LiveNPCNumType_LUA( CX2UnitManager::NPC_UNIT_ID unitID );
 		bool						IsKillNPCKeyCode_LUA( int keyCode );
 		int							GetKilledKeyCodeNPCCount( int keyCode );
