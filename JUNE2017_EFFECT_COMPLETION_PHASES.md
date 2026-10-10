@@ -2338,7 +2338,7 @@ No questions for the user.
    - `+0x8750` is `m_bFocusCamera` and `+0x8d34` is `m_bFocusCameraForce`; the revert to my-unit is March's.
    - `322cef70` is `CanNotInputAndDisalbeNPCAI`.
 4. **The state-id jump tables are March's `IsInheritStateMenu`, inlined.** The 26 bytes give false for the same nine March states, plus June-only `PVE_RESULT` / `PHOTOZONE_LOBBY` / `PHOTOZONE_GAME`, and `g_pMain +0x90 -> +0x3e8` is `SetShowUI`. No change.
-5. **Battle field `32d530a0`** = March with `MODIFY_DUNGEON_STAGING` and `SERV_BATTLEFIELD_MIDDLE_BOSS` on (flagprobe: both ON). `+0x8e80` is `m_bIsMainBoss`, and the `+0x8c4` bytes 0 / 1 are `CinematicUI::m_bStart` / `m_bEnd`, so the check is `GetIsCinematicUIActive`. **New:** June returns before the base call when `GetMyUnit()` is NULL. March's only direct call (`X2BattleFieldGame.cpp`, the leave handler) runs with a my-unit, so only the virtual calls made while your unit is still loading change.
+5. **Battle field `32d530a0`** = March with `MODIFY_DUNGEON_STAGING` and `SERV_BATTLEFIELD_MIDDLE_BOSS` on (flagprobe: both ON). `+0x8e80` is `m_bIsMainBoss`, and the `+0x8c4` bytes 0 / 1 are `CinematicUI::m_bStart` / `m_bEnd`, so the check is `GetIsCinematicUIActive`. **New:** June returns before the base call when `GetMyUnit()` is NULL. March's only direct call (`X2BattleFieldGame.cpp`, the leave handler) runs with a my-unit, so only the virtual calls made while your unit is still loading change. Host setup does not depend on those calls: once your unit exists, `UpdateMyGameUnit` (`X2Game.cpp:2322`) calls `SetHostGameUnit` / `UpdateHostGameUnit` itself, and a host change calls it from `X2State.cpp`.
 6. **Routed:**
    - The base `322d5f70`: a timed second focus unit (`+0x2f0`..`+0x301`), the bool signature and the derived early returns, including `X2PVPGame.cpp`. -> **C3v**.
    - June's `ShowBossNameAtStart` `327ef160`: the forced-state boss intro, several boss names, game type 4. -> **C3w** (whole).
@@ -2353,12 +2353,12 @@ No questions for the user.
 - `_BF_FOCUS_NEEDS_MY_UNIT`: `X2BattleFieldGame.cpp` PASS +6.
 - `Always.h` OTHER: the peers' defines plus these two.
 - Both flags: RESULT PASS, 0 deleted lines in their files, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`.
-- Post-commit `--range` lines: see STATUS.
+- Post-commit `--range` lines: see STATUS (commit `752136f`).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,531,776 B, dated 2026-10-10 12:20:24, md5 79ce7ab690266b5af16669106078cd29, equal to X2/US_SERVICE/x2.exe (2026-10-10 12:20:19); built at mods/june-buff-port 085ddf9 + 8 uncommitted code file(s).` The other files are the peers' uncommitted C3q / C3r edits. No kom.
 
 **How to see it in game:** nothing new can be seen. The one script with the key is not spawned by any templet, so this is a regression play-test.
-- Dungeon openings with a focus camera (stop-at-start, boss focus) should behave as before.
+- Dungeon openings with a focus camera (stop-at-start, boss focus) should behave as before. Test with Elder Druid Forest (Normal): its boss `NUI_ANGER_FOREST_ENT` sets `FOCUS_CAMERA` and `STOP_AT_START_STATE`, which runs the restructured empty-string path.
 - A battle field should still focus your character and the field boss.
 
 ## C3v - identify, then port: June's CX2Game::UpdateUnitPointer
