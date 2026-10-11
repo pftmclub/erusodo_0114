@@ -1073,6 +1073,9 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
 				FLAG_IS_APPLY_CINEMATIC_UI,		/// June effect completion C3o: June bit 0x4f (32784c00 @3278a049, key IS_APPLY_CINEMATIC_UI, default TRUE); copied into m_bIsApplyCinematicUI by CommonStateStart @327af38e
 #endif SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+				FLAG_DIRECTION_STATE,		/// June effect completion C3p: June bit 0x4d (32784c00 @3278bbc7, key DIRECTION_STATE, default false); arms the game's skip-the-start list in CommonStateStart @327af25b
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 				FLAG_MAX
             };
             std::bitset<FLAG_MAX>       m_bitsetFlags;

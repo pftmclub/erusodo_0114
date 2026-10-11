@@ -322,6 +322,9 @@ m_bSkillSlotJustChanged(true)
 #ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
 	ZeroMemory( m_aiJuneLuaInt, sizeof( m_aiJuneLuaInt ) );	/// June CX2Game ctor 32306600 @32307f44-7a
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+	JuneSkipStartReset();	/// June CX2Game ctor 32306600 @323076e0-323076fe: the skip-the-start list ( +0xb40 ) is built and reset ( 322d8010 )
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 
 // #ifndef _SERVICE_
 // 	g_pData->GetUnitManager()->OpenNPCStatScriptFile( L"NPCStat.lua" );
@@ -4094,6 +4097,10 @@ HRESULT	CX2Game::OnFrameRender()
 			512, 300, GET_STRING(STR_ID_17274), D3DXCOLOR(1,0.6f,0,1), 	CKTDGFontManager::FS_SHELL, D3DXCOLOR(0,0,0,1), NULL, DT_CENTER );
 	}
 #endif //REFORM_UI_SKILLSLOT
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+	/// June CX2Game render 3230aa60 @3230b73f-3230b745: the skip-the-start hint ( 32305be0 ) is the last thing drawn, after the skill-guide text.
+	JuneRenderSkipStartHint();
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 	return S_OK;
 }
 
@@ -11292,6 +11299,166 @@ void CX2Game::CheckQuickSlotItemSpecialAbility( const CX2Item::ItemTemplet* pIte
 	}
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+/// effect completion C3p: June's skip-the-start ( ESC ) list, game +0xb40 ( bool armed ), +0xb41 ( bool sent ), +0xb44 ( vector of NPC UIDs ).
+/// June 322d8010: armed and sent false ( one word store ), the list cleared, then the now state's subtitle cleared ( g_pMain +0x90 ->
+/// 31ef7370( 27, -1 ) = CX2State::SetMovieDescriptionData; string 27 is empty ). Callers: the ctor, the arming ( empty list ), the end of a
+/// DIRECTION_STATE state ( 3277f9b7 ).
+void CX2Game::JuneSkipStartReset()
+{
+	m_bJuneSkipStartArmed	= false;
+	m_bJuneSkipStartSent	= false;
+	m_vecJuneSkipStartNPCUID.clear();
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+	if ( NULL != g_pMain && NULL != g_pMain->GetNowState() )
+		static_cast<CX2State*>( g_pMain->GetNowState() )->SetMovieDescriptionData( 27, -1.f );
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+}
+
+/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af274-327af360: an empty list ( +0xb44 == +0xb48 ) is reset first ( 322d8010 ), then armed = 1
+/// and the NPC's UID ( +0x270 ) is pushed ( 31f8b860 ). An NPC that enters a second DIRECTION_STATE state is pushed again, as in June.
+void CX2Game::JuneSkipStartArm( int iNPCUID_ )
+{
+	if ( true == m_vecJuneSkipStartNPCUID.empty() )
+		JuneSkipStartReset();
+
+	m_bJuneSkipStartArmed = true;
+	m_vecJuneSkipStartNPCUID.push_back( iNPCUID_ );
+#if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2GUNPC* pJuneNPC = GetNPCUnitByUID( iNPCUID_ );
+	CX2OfflineLog::Server( L"JUNE_FX C3p arm: npc %d ( %s ) state %d, list size %d",
+		iNPCUID_, NULL != pJuneNPC ? pJuneNPC->GetNPCTemplet().m_LuaFileName.c_str() : L"?", NULL != pJuneNPC ? pJuneNPC->GetNowStateID() : -1,
+		(int)m_vecJuneSkipStartNPCUID.size() );
+#endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
+}
+
+/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277f87c-3277f9b7: armed = 0 ( @3277f8e2 ); every NPC's m_bShowBossName ( +0x8ae9 ) = false ( 322d8070
+/// over the NPC list +0x324 ); my unit ( vslot 0x98 ) m_fCanNotInputTime ( +0xde8 ) = 0; then the reset ( 322d8010 ). A boss whose name banner
+/// has not shown yet ( SHOW_BOSS_NAME_DELAY_TIME ) does not show it, and the flip-on-hit and last-kill tests that read the flag change with it
+/// ( JUNE_BUGS ).
+void CX2Game::JuneSkipStartEndDirection( int iNPCUID_ )
+{
+	m_bJuneSkipStartArmed = false;
+
+	for ( int i = 0; i < (int)m_NPCUnitList.size(); ++i )
+	{
+		if ( NULL != m_NPCUnitList[i] )
+			m_NPCUnitList[i]->SetShowBossName( false );
+	}
+
+	if ( NULL != GetMyUnit() )
+		GetMyUnit()->SetCanNotInputTime_LUA( 0.f );
+
+	JuneSkipStartReset();
+#if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"JUNE_FX C3p end: npc %d left its DIRECTION_STATE state; list disarmed, %d NPC boss-name flags cleared, input unlocked",
+		iNPCUID_, (int)m_NPCUnitList.size() );
+#endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
+}
+
+/// June 322f4c60 ( only caller CX2State::HandleMsgByESC 31f1e1a0 @31f1e3a2 ): not armed, or already sent -> false ( the ESC goes on to
+/// HandleMsgByESCImp ). Otherwise sent = 1 and: a party ( g_pData +0x5c, its member list at +0x28 in 0xa0-byte entries ) of 2+ members sends
+/// June's event 0x4ac ( 31e57100 ), which the server relays and each member answers with the skip ( 324cf360, from 324dc4f2 ); solo runs the
+/// skip at once ( 322f11d0 ). Returns true either way. Offline there is never a party ( the emulator answers every party request with "no
+/// party" and the AI-party bots are NPCs ), so the party branch only logs: March has no event for it and nothing relays it.
+bool CX2Game::JuneSkipStartRequest()
+{
+#if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iJuneC3pEsc = 0;
+	if ( s_iJuneC3pEsc < 16 )
+	{
+		++s_iJuneC3pEsc;
+		CX2OfflineLog::Server( L"JUNE_FX C3p esc: armed %d sent %d list size %d", m_bJuneSkipStartArmed ? 1 : 0, m_bJuneSkipStartSent ? 1 : 0,
+			(int)m_vecJuneSkipStartNPCUID.size() );
+	}
+#endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
+	if ( false == m_bJuneSkipStartArmed || true == m_bJuneSkipStartSent )
+		return false;
+
+	m_bJuneSkipStartSent = true;
+
+	CX2PartyManager::PartyData* pParty = NULL;
+	if ( NULL != g_pData && NULL != g_pData->GetPartyManager() )
+		pParty = g_pData->GetPartyManager()->GetMyPartyData();
+	if ( NULL != pParty && pParty->m_vecPartyMemberData.size() > 1 )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"JUNE_FX C3p esc: party of %d - June sends event 0x4ac and waits for the server's relay; there is none offline, so the start is not skipped",
+			(int)pParty->m_vecPartyMemberData.size() );
+#endif SERV_IRUHADEV_OFFLINE
+		return true;
+	}
+
+	JuneSkipStart();
+	return true;
+}
+
+/// June 322f11d0: every user ( vslots 0xf0 / 0xb4 ) whose start-motion delay ( +0x92cc ) is not -1 ( |t + 1| > FLT_EPSILON, 334490f8 ) gets 0,
+/// so the next OnFrameMove runs StartMotionStateChange. Then, only while armed, each listed UID ( vslot 0xa8 GetNPCUnitByUID ) goes to its
+/// WAIT_STATE ( vslot 0x5c StateChange( +0x4088, false ) ), the list is cleared ( both bools, one word ) and the subtitle too ( 31ef7370( 27, -1 ) ).
+/// The walk is over a copy: an NPC whose DIRECTION_STATE state ends inside StateChange resets the list ( JuneSkipStartEndDirection ), and June
+/// only survives that because it holds the vector's begin / end in registers ( @322f12c7-322f12cb ).
+void CX2Game::JuneSkipStart()
+{
+	int iJuneUsers = 0;
+	for ( int i = 0; i < GetUserUnitListSize(); ++i )
+	{
+		CX2GUUser* pUser = GetUserUnit( i );
+		if ( NULL == pUser )
+			continue;
+		if ( fabs( pUser->GetStartMotionDelayTime() + 1.f ) > FLT_EPSILON )
+		{
+			pUser->SetStartMotionDelayTime( 0.f );
+			++iJuneUsers;
+		}
+	}
+
+	if ( false == m_bJuneSkipStartArmed )
+		return;
+
+	const std::vector<int> vecJuneNPCUID = m_vecJuneSkipStartNPCUID;
+	for ( UINT i = 0; i < vecJuneNPCUID.size(); ++i )
+	{
+		CX2GUNPC* pNPC = GetNPCUnitByUID( vecJuneNPCUID[i] );
+		if ( NULL == pNPC )
+			continue;
+#if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		CX2OfflineLog::Server( L"JUNE_FX C3p skip: npc %d ( %s ) state %d -> WAIT_STATE %d", vecJuneNPCUID[i],
+			pNPC->GetNPCTemplet().m_LuaFileName.c_str(), pNPC->GetNowStateID(), pNPC->GetWaitStateID() );
+#endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
+		pNPC->StateChange( pNPC->GetWaitStateID(), false );
+	}
+
+	m_bJuneSkipStartArmed	= false;
+	m_bJuneSkipStartSent	= false;
+	m_vecJuneSkipStartNPCUID.clear();
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+	if ( NULL != g_pMain && NULL != g_pMain->GetNowState() )
+		static_cast<CX2State*>( g_pMain->GetNowState() )->SetMovieDescriptionData( 27, -1.f );
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+#if defined( SERV_IRUHADEV_JUNE_SKIP_START_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"JUNE_FX C3p skip: %d user start-motion delay(s) zeroed, %d NPC(s) sent to WAIT_STATE", iJuneUsers, (int)vecJuneNPCUID.size() );
+#endif SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
+}
+
+/// June 32305be0 ( called last in CX2Game's render 3230aa60 @3230b745 ): armed only. Not sent: string 31002 "Press ESC key to end the video
+/// footage."; sent: 31003 "Waiting for party members to end the video footage." ( never seen offline: a solo ESC clears the list at once ).
+/// Font 2 ( XUF_DODUM_15_BOLD in both builds' X2_UK_FONT ), at ( 970, 740 ), white, FS_SHELL with a black outline, DT_RIGHT. June's string-ID
+/// debug prefix ( 31c31060 +0x40 ) and its extra OutTextXY argument ( passed through from the render's caller ) have no March counterpart.
+void CX2Game::JuneRenderSkipStartHint()
+{
+	if ( false == m_bJuneSkipStartArmed )
+		return;
+
+	CKTDGFontManager::CUKFont* pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( XUF_DODUM_15_BOLD );
+	if ( NULL == pFont )
+		return;
+
+	const int iJuneHintStringID = ( true == m_bJuneSkipStartSent ) ? 31003 : 31002;	/// GET_STRING does not parenthesise its argument
+	pFont->OutTextXY( 970, 740, GET_STRING( iJuneHintStringID ), D3DXCOLOR( 1, 1, 1, 1 ),
+		CKTDGFontManager::FS_SHELL, D3DXCOLOR( 0, 0, 0, 1 ), NULL, DT_RIGHT );
+}
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 #ifdef PET_ITEM_GM
 void CX2Game::UseItemPetAbility( const CX2Item::ItemTemplet* pItemTemplet, CX2GUUser* pCX2GUUser )
 {

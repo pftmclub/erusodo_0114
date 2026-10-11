@@ -2227,10 +2227,29 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 
 ## C3p - port: June's skip-the-start (ESC) system and DIRECTION_STATE
 
-**Status: ready (found by C3o, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3p.md`.
+**Status: code done 2026-10-11, play-test owed (see C3p - Done; found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3p.md`, review `kickoffs/june-effect/C3p-review.md`.
 
 - **Scope:** the whole June-only chain: parser bit `0x4d` `DIRECTION_STATE`, the NPC CommonStateStart arming block (`327ac9d0 @327af25b-327af360`), game `+0xb40` (armed, sent, NPC id list), `322d8010` / `322f4c60` / `322f11d0` / `324cf360`, event `0x4ac` (the emulator answers it if the offline party path can reach it), the CX2State `+0x1ec / +0x1f0` setter `31ef7370`.
 - **Visible:** 77 shipped NPC scripts set the key (dungeon openings). **Exit:** ESC skips an opening in game; funcmap rows `Effect C3p`.
+
+### C3p - Done (2026-10-11, Opus 5.5 high)
+
+**The chain** (11 funcmap rows `(C3p)`; flag `SERV_IRUHADEV_JUNE_SKIP_START`, play-test lines `_DEBUG` on). 81 June scripts set the key (`june_src_fixed`; the kickoff's 77 was low): openings, boss intros (`EVENT_*`, `Event_NPC_*`, START state, WAIT_STATE = `*_DYING`), tutorials, Elysion.
+1. **Arm** (CommonStateStart `@327af25b`, before C3o's cinematic store): a DIRECTION_STATE state pushes the NPC's `GetUID()` (`+0x270`; game vslot `0xa8` = `GetNPCUnitByUID` `322ccac0` compares it) and sets armed; an empty list is reset first (`322d8010`).
+2. **Hint while armed** (`32305be0`, the last call of CX2Game's render `3230aa60` = the end of March `CX2Game::OnFrameRender`): string 31002 "Press ESC key to end the video footage." (31003 "Waiting for party members..." once sent), font 2 = `XUF_DODUM_15_BOLD`, (970, 740), white, FS_SHELL, DT_RIGHT. Found by the raw `+0xb40..+0xb48` sweep; the kickoff did not know it.
+3. **ESC** (`CX2State::HandleMsgByESC` = `31f1e1a0`, vslot `0x1e8`; `0x1ec` = `HandleMsgByESCImp`): armed and not sent -> sent, then solo `322f11d0`; true skips Imp. **Skip** (`322f11d0`): every user's start-motion delay (`+0x92cc`) to 0 unless it is -1, each listed NPC `StateChange( GetWaitStateID(), false )`, list cleared. The walk is over a copy (an ending DIRECTION state resets the list inside StateChange; June survives on cached begin / end).
+4. **End of a DIRECTION_STATE state** (CommonStateEnd `@3277f863-3277f9b7`, not in the kickoff): disarm, every NPC's `m_bShowBossName` = false (`322d8070`; `+0x8ae9` proven by the `+0x8ae9 / +0x8aea / +0x8aeb` slow-motion test `@327ce3c4`), my unit's `m_fCanNotInputTime` (`+0xde8`, proven by CommonFrameMoveFuture's timer order) = 0, reset. JUNE_BUGS 176.
+5. **`31ef7370( 0x1b, -1 )` is not VK_ESCAPE**: it is `SetMovieDescriptionData( 27, -1 )`, the subtitle clear (string 27 is empty). The setter is C3z-4b's (uncommitted while C3p ran); C3p calls it in the reset and the skip under a nested `#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION`, so it compiles in when that flag does.
+6. **Party path (event `0x4ac`) not built.** The emulator never forms a party (`Handlers_Social.cpp` answers every party request "no party"; the AI-party bots are NPCs), so `m_vecPartyMemberData.size() > 1` is never true offline. The branch sets sent and logs one line. June sends and receives the same id (dispatcher `324dbc20` case `0x4ac` -> `324cf360`); the name is XOR-built.
+7. Not ported: June's other `HandleMsgByESC` gates (state `+0x210`, tutorial guide manager, chat box): they belong to June's ESC rewrite, not this chain. The extra June `OutTextXY` argument has no March parameter.
+
+**Code:** `Always.h` (flag + `#error` needing `SERV_IRUHADEV_JUNE_BUFF_START_DELAY`), `X2GUNPC.h` (`FLAG_DIRECTION_STATE`), `X2GUNPC.cpp` (parser, arm, end), `X2Game.h/.cpp` (members, ctor reset, 6 methods, render call), `X2State.cpp` (ESC hook). Peers (C3z-4b) had uncommitted edits in all six files; this commit carries only C3p's hunks.
+
+**Hygiene:** `flagcheck --worktree --files` (6 files): 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 untokened, 0 encoding changes, RESULT PASS (6 OTHER = the peer's C3z-4b hunks in the same files). Post-commit `--range`: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,570,176 B, dated 2026-10-11 15:45:42, md5 a3cf19b767317fc5cd4460e33b4e7277, equal to X2/US_SERVICE/x2.exe (2026-10-11 15:45:36); built at mods/june-buff-port 478322f + 21 uncommitted code file(s).` The others are the peer's in-progress C3z-4b. `JUNE_FX C3p arm / esc / skip / end` (UTF-16) and `DIRECTION_STATE` are in the deployed exe. The first build failed on `GET_STRING( a ? b : c )` (the macro does not parenthesise its argument); fixed with a local id. No kom.
+
+**How to see it in game:** Underground Waterway (`DI_ELDER_BELOW_PASSAGE_NORMAL` 30120), stage 3 (STAGE2, the boss room): `NUI_EVENT_NPC_BENDERS_ELDER` (NPC_GROUP, START state `DIRECTION_STATE`, WAIT = DYING) with the boss Benders Nasod (`STOP_AT_START_STATE`, `SHOW_BOSS_NAME_DELAY_TIME` 9). The hint shows bottom right during the intro; ESC ends it.
 
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 

@@ -4087,6 +4087,13 @@ bool CX2State::HandleMsgByESC()
 		}
 #endif //DIALOG_SHOW_TOGGLE
 
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+		/// June CX2State::HandleMsgByESC ( vslot 0x1e8, 31f1e1a0 @31f1e359-31f1e3ba ): with a live g_pX2Game, an armed skip-the-start list takes
+		/// the ESC ( 322f4c60 ) and HandleMsgByESCImp ( vslot 0x1ec, a tail jump in June ) is not called. The June-only gates earlier in
+		/// 31f1e1a0 ( state +0x210, the tutorial guide manager, the chat box ) belong to June's ESC handler, not to this chain.
+		if ( NULL != g_pX2Game && true == g_pX2Game->JuneSkipStartRequest() )
+			return false;
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 		return HandleMsgByESCImp();
 	}
 	//}} kimhc

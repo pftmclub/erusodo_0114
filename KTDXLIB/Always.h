@@ -6901,3 +6901,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              RenderParam that CX2GUNPC::OnFrameRender_Prepare writes through ( crash at Henir Space stage 22 ). Drop it, as June does.
 #define SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_SKIP_MISSING
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3p: June's skip-the-start ( ESC ) system. The NPC state key DIRECTION_STATE ( June bit 0x4d,
+//              parser 32784c00 @3278bbc7, a miss stores false; 81 June scripts: dungeon openings and boss intros ) arms a list on the
+//              game ( June +0xb40 / +0xb41 / +0xb44: armed, sent, NPC UIDs ) in CX2GUNPC::CommonStateStart ( 327ac9d0 @327af25b-327af360 ).
+//              While it is armed the game draws "Press ESC key to end the video footage." ( string 31002, 32305be0 ). ESC
+//              ( CX2State::HandleMsgByESC 31f1e1a0 @31f1e3a2 -> 322f4c60 -> 322f11d0 ) zeroes every user's start-motion delay ( unless
+//              -1 ) and sends each listed NPC to its WAIT_STATE. The end of a DIRECTION_STATE state ( CommonStateEnd 3277ee10
+//              @3277f863-3277f9b7 ) disarms the list and clears every NPC's m_bShowBossName and my unit's can-not-input time.
+//              June's party path ( 2+ members: event 0x4ac relayed by the server ) cannot happen offline and only logs.
+#define SERV_IRUHADEV_JUNE_SKIP_START
+#if defined(SERV_IRUHADEV_JUNE_SKIP_START) && !defined(SERV_IRUHADEV_JUNE_BUFF_START_DELAY)
+#error SERV_IRUHADEV_JUNE_SKIP_START needs SERV_IRUHADEV_JUNE_BUFF_START_DELAY ( the start-motion delay it zeroes )
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3p play-test lines ( short-lived; turn OFF in the C3p review ): "JUNE_FX C3p" arm / end / esc /
+//              skip lines. Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_SKIP_START_DEBUG) && !defined(SERV_IRUHADEV_JUNE_SKIP_START)
+#error SERV_IRUHADEV_JUNE_SKIP_START_DEBUG needs SERV_IRUHADEV_JUNE_SKIP_START
+#endif
+//////////////////////////////////////////////////////////////////////////

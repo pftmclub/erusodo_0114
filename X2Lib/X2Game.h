@@ -1122,6 +1122,15 @@ class CX2Game : public CKTDXStage
 		/// effect completion C10e: June 322cfca0( DamageData, float* damage ), called from the user and NPC DamageReact
 		void						JunePvpAmusementHalveDamage( const CX2DamageManager::DamageData* pDamageData_, float* pfDamage_ );
 #endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+		/// effect completion C3p: June's skip-the-start ( ESC ) list at game +0xb40 ( bool armed, bool sent, vector of NPC UIDs ).
+		void						JuneSkipStartReset();							/// 322d8010
+		void						JuneSkipStartArm( int iNPCUID_ );				/// CX2GUNPC::CommonStateStart @327af274-327af360
+		void						JuneSkipStartEndDirection( int iNPCUID_ );		/// CX2GUNPC::CommonStateEnd @3277f87c-3277f9b7
+		bool						JuneSkipStartRequest();							/// 322f4c60 ( ESC )
+		void						JuneSkipStart();								/// 322f11d0
+		void						JuneRenderSkipStartHint();						/// 32305be0
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		/// June buff port Phase 8: June's CX2Game +0xbae, whether left and right are both held this frame (KeyProcess, 322cfc60).
 		/// OnFrameMoveBuff's SHAKE_DECREASE trigger reads it
@@ -1966,6 +1975,11 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
 		int							m_aiJuneLuaInt[10];		/// June +0x7e0..+0x804: zeroed in the ctor 32306600 ( @32307f44-7a ), Lua only
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+		bool						m_bJuneSkipStartArmed;		/// June +0xb40
+		bool						m_bJuneSkipStartSent;		/// June +0xb41 ( set by the ESC; the party path waits on it )
+		std::vector<int>			m_vecJuneSkipStartNPCUID;	/// June +0xb44: the UIDs ( NPC +0x270 ) of the NPCs in a DIRECTION_STATE state
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 		
 #ifdef ADD_GAME_STAGE_DELETE_DAMAGEEFFECT
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE

@@ -5768,6 +5768,12 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 
 #endif //MODIFY_DUNGEON_STAGING
 
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+	/// June effect completion C3p. June 32784c00 @3278ba67-3278bbcb: DIRECTION_STATE ( XOR-built @3278ba7b ), a bool into flag bit 0x4d,
+	/// a miss stores false ( @3278bbbe ). June reads it after INVALID_LAST_TOUCH_INDEX and before FLIP_DIR_END.
+	LUA_GET_VALUE( luaManager_, "DIRECTION_STATE", bTemp, false );
+	NOWSTATE_SET_FLAG( DIRECTION_STATE, bTemp );
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 	LUA_GET_VALUE( luaManager_, "FLIP_DIR_END", bTemp, false );
     NOWSTATE_SET_FLAG( FLIP_DIR_END, bTemp );
 
@@ -17309,6 +17315,13 @@ void CX2GUNPC::CommonStateStart()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af25b-327af360 ( C3o mapped, C3p ported ): a DIRECTION_STATE state with a live g_pX2Game
+	/// arms the game's skip-the-start list ( 322d8010 resets it first when it is empty ) and adds this NPC's UID ( +0x270 = GetUID() ).
+	/// June runs it after the force-down block ( C3f-1 item 2b ) and before the cinematic-UI store below.
+	if ( true == NOWSTATE_FLAG( DIRECTION_STATE ) && NULL != g_pX2Game )
+		g_pX2Game->JuneSkipStartArm( GetUID() );
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 #ifdef SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI
 	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af38e-327af3a4 ( C3o ): every state start sets m_bIsApplyCinematicUI ( +0x8e39 ) from the state's
 	/// IS_APPLY_CINEMATIC_UI flag ( bit 0x4f, TRUE when the key is absent ). March set it only in the ctor ( true ) and in Chung's artillery strike ( false,
@@ -24889,6 +24902,13 @@ void CX2GUNPC::CommonStateEnd()
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 
 	DoCustomFunctionByBuffInCommonStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_SKIP_START
+	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277f863-3277f9b7 ( C3p ): when the ending state has DIRECTION_STATE and g_pX2Game is live, the
+	/// skip-the-start list is disarmed and reset, every NPC's m_bShowBossName is cleared and my unit's can-not-input time is zeroed. June runs it
+	/// after DoCustomFunctionByBuffInCommonStateEnd ( 322755a0 ) and before the played-sound block ( @3277f9bc ).
+	if ( true == NOWSTATE_FLAG( DIRECTION_STATE ) && NULL != g_pX2Game )
+		g_pX2Game->JuneSkipStartEndDirection( GetUID() );
+#endif SERV_IRUHADEV_JUNE_SKIP_START
 #ifdef SERV_IRUHADEV_JUNE_NPC_SOUND
 	/// June NPC CommonStateEnd 3277ee10 @3277f9cb-3277fa0e ( C9h-4b ): the played-sound list ( +0x8f74 ) is stopped only when the ending state has
 	/// STOP_SOUND_AT_STATE_END ( June bit 0x4e ), and cleared whatever the flag says. June runs this after the staging block and before FinishAndClearAllBuff.

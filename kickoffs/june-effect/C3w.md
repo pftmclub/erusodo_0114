@@ -33,3 +33,10 @@ C3s found that June's `CX2DungeonSubStage::ShowBossNameAtStart` = `327ef160` (on
 
 Data: June `Secret_Mad_Trock_Summoner` is the only script with `FORCE_CINEMATIC_STATE`, and no NPCTemplet (March or June) names it.
 Count the scripts that reach the multi-name path to decide the play-test.
+
+## Note from C3p (2026-10-11)
+
+C3p ported June's end-of-`DIRECTION_STATE` block (`CX2GUNPC::CommonStateEnd 3277ee10 @3277f863`): it clears **every** NPC's
+`m_bShowBossName` (`322d8070`, `+0x8ae9`) when an opening or boss intro ends (`SERV_IRUHADEV_JUNE_SKIP_START`, JUNE_BUGS row). So a boss whose
+delay has not run out when its room's intro NPC leaves its `DIRECTION_STATE` state never shows its banner through the `m_bShowBossName` path.
+Only the `FORCE_CINEMATIC_STATE` bypass above still shows it. Keep that in mind when you test the banner in a room with an `EVENT_*` intro NPC.
