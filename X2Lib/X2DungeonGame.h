@@ -267,7 +267,12 @@ class CX2DungeonGame : public CX2Game
 
 		
 		void					ShowClearEffect();
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+		virtual bool			UpdateUnitPointer();	/// June 327cea70
+		void					JuneUpdateUnitPointerNPCWalk();
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		virtual void			UpdateUnitPointer();
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 
 
 		void					CountTimeSubStageFrameMove( double fTime, float fElapsedTime );

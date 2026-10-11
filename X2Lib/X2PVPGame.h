@@ -151,7 +151,12 @@ class CX2PVPGame : public CX2Game
 #endif
 	protected:
 #ifdef CHUNG_SECOND_CLASS_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+		virtual bool	UpdateUnitPointer();	/// June 328ba010
+		void			JuneUpdateUnitPointerNPCWalk();
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		virtual void	UpdateUnitPointer();
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 #endif
 
 	protected:

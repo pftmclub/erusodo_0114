@@ -7145,3 +7145,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG needs SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3v: June's timed focus unit. CX2Game::SetTimerFocusUnit ( 322d63f0, vslot 0x88 ) stores the unit,
+//              time, distance and two new bools ( CanNotInput, tracking camera ) in a struct ( +0x2ec ) instead of March's m_fFocusTime
+//              and no longer moves the camera itself; CX2Game::UpdateUnitPointer ( 322d5f70 ) holds the camera on that unit every frame
+//              until the time runs out and returns bool ( true while it holds and on the frame it ends ). The dungeon ( 327cea70 ),
+//              battle field ( 32d530a0 ) and PvP ( 328ba010 ) overrides return true at once when the base does, skipping the NPC walk.
+//              One flag: the bool signature, the base and the three overrides only compile together.
+#define SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3v play-test lines ( short-lived; turn OFF in the C3v review ): "JUNE_FX C3v" arm / expire /
+//              cancel lines of the timed focus unit ( needs SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT ). Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_C3V_DEBUG
+//////////////////////////////////////////////////////////////////////////

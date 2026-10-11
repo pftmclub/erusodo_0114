@@ -1060,7 +1060,28 @@ bool CX2BattleFieldGame::Handler_EGS_JOIN_BATTLE_FIELD_NOT( KEGS_JOIN_ROOM_NOT& 
 	return Handler_EGS_JOIN_ROOM_NOT( kPacket_ );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+// June effect completion C3v: June CX2BattleFieldGame::UpdateUnitPointer 32d530a0 returns bool: 0 only on C3s's no-my-unit guard
+// ( @32d530b1 ); the base ( 322d5f70 ) true -> return 1 at once ( @32d530b7-32d530be -> @32d532b0 ), skipping the walk; else the walk
+// and return 1.
+/*virtual*/ bool CX2BattleFieldGame::UpdateUnitPointer()
+{
+#ifdef SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
+	if( NULL == GetMyUnit() )
+		return false;
+#endif SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
+	if( true == CX2Game::UpdateUnitPointer() )
+		return true;
+
+	JuneUpdateUnitPointerNPCWalk();
+	return true;
+}
+
+/// March's NPC focus walk, unchanged; the guard and the base call it started with are made by UpdateUnitPointer() above.
+void CX2BattleFieldGame::JuneUpdateUnitPointerNPCWalk()
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 /*virtual*/ void CX2BattleFieldGame::UpdateUnitPointer()
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 {
 #ifdef SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
 	// June effect completion C3s: June CX2BattleFieldGame::UpdateUnitPointer 32d530a0 @32d530a3-32d530b4 returns before the base
@@ -1068,7 +1089,11 @@ bool CX2BattleFieldGame::Handler_EGS_JOIN_BATTLE_FIELD_NOT( KEGS_JOIN_ROOM_NOT& 
 	if( NULL == GetMyUnit() )
 		return;
 #endif SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+	// C3v: the base runs in UpdateUnitPointer() before this walk.
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 	CX2Game::UpdateUnitPointer();
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 	for( int i = 0; i < (int)m_NPCUnitList.size(); i++ )
 	{
 		CX2GUNPC* pCX2GUNPC = m_NPCUnitList[i];

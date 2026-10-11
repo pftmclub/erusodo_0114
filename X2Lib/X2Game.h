@@ -441,7 +441,13 @@ class CX2Game : public CKTDXStage
 
 		virtual void				ChangeFocusUnit(CX2GameUnit* pGameUnit = NULL);	// 곧 지워질 게임 유닛 을 보내줘서 포커스 안잡히도록..
 		virtual void				ResetFocusUnit();
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+		/// June 322d63f0 ( vslot 0x88, ret 0x14 ): two more bools, stored at +0x300 / +0x301. Every June caller passes false, false except
+		/// the absolute-monster setup 3277cf10 @3277d25f ( 3.0, -1, true, true ), which is not ported.
+		virtual void				SetTimerFocusUnit( CX2GameUnit* pFocusUnit, float fFocusTime = 0.f, float fDistacne = -1.f, bool bCanNotInput = false, bool bTrackingCamera = false );
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		virtual void				SetTimerFocusUnit( CX2GameUnit* pFocusUnit, float fFocusTime = 0.f, float fDistacne = -1.f );
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 #ifdef INIT_FOCUS_UNIT
 		virtual void				InitFocusUnit();
 #endif // INIT_FOCUS_UN
@@ -1665,7 +1671,11 @@ protected:
 //#else   SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 //        void                        CheckAmIHost();
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+		virtual bool				UpdateUnitPointer();	/// June 322d5f70: true while the timed focus unit holds the camera
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		virtual void				UpdateUnitPointer();
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 		virtual void				AddUserUnit();
 
 		void						CreateDropIem();
@@ -1759,6 +1769,29 @@ protected:
 		CX2GameUnitoPtr				m_optrMyUnit;			/// 공통..으로 써도 될 듯?? 필드시스템에서는 게임시작과 동시에 자신의 GUUser를 생성할 것이라면 참조로 가지고 있거나 해도...
 		CX2GameUnitoPtr				m_optrFocusUnit;		/// 특별한 이슈가 없다면 카메라가 향하고 있어야 하는 유닛
 		float						m_fFocusTime;		/// 일정 시간동안 특정 유닛에게 카메라 포커스가 향하고 있도록 하려고 하는 것 같은데... UpdateUnitPointer이 지금 제대로 작동 하는건가...?
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+		/// June's timed focus ( +0x2ec, a small class with a vtable 0x3348a4b8; ctor 32311680, operator= 323108d0, Reset 32311720 ). Replaces
+		/// m_fFocusTime, which is left in place unused.
+		struct JuneTimerFocusUnit
+		{
+			CX2GameUnitoPtr		m_optrUnit;			/// +0x2f0 ( +0x2f4 its valid byte )
+			float				m_fTime;			/// +0x2f8, counted down by m_fElapsedTime
+			float				m_fDistance;		/// +0x2fc, -1 = the option's camera distance
+			bool				m_bCanNotInput;		/// +0x300, CanNotInputAndDisalbeNPCAI( true ) every frame it holds
+			bool				m_bTrackingCamera;	/// +0x301, NomalTrackingCamera instead of NomalDirectCamera
+
+			JuneTimerFocusUnit() : m_fTime( 0.f ), m_fDistance( -1.f ), m_bCanNotInput( false ), m_bTrackingCamera( false ) {}	/// ctor 32306600 @32306765-323067b0
+			void Reset()			/// 32311720
+			{
+				m_optrUnit.Reset();
+				m_bCanNotInput = false;
+				m_bTrackingCamera = false;
+				m_fTime = 0.f;
+				m_fDistance = -1.f;
+			}
+		};
+		JuneTimerFocusUnit			m_kJuneTimerFocusUnit;
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 
 		vector<CX2GameUnit*>		m_UnitList;			/// 유저, 몬스터 모두의 포인터를 다 가지고 있는 벡터 // 근데.. 굳이 이것을 가지고 있어야 할 이유는 없는듯...
 		vector<CX2GUUser*>			m_UserUnitList;		/// 유저들 포인터만 가지고 있는 벡터

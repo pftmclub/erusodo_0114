@@ -2436,9 +2436,50 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 ## C3v - identify, then port: June's CX2Game::UpdateUnitPointer
 
-**Status: ready (found by C3s, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3v.md`.
+**Status: done 2026-10-12, play-test owed (see C3v - Done). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3v.md`.
 
 - **Scope:** June's base `322d5f70` (a timed second focus unit `+0x2f0`..`+0x301`, CanNotInput while it holds, two camera calls, returns bool) against March `X2Game.cpp` (`m_fFocusTime` only); the bool signature and `if( base() ) return true;` in every override (dungeon, battle field after C3s's guard, `X2PVPGame.cpp` = June caller `328ba013`); the writers of the timed focus.
+
+### C3v - Done (2026-10-12, Opus 5.5 high)
+
+**Identified** (funcmap rows `(C3v)`, 13 rows):
+- **`+0x2ec` is a small struct, June's replacement for `m_fFocusTime`.** It has a vtable `0x3348a4b8` and holds a focus handle `+0x2f0`, a time `+0x2f8`, a distance `+0x2fc` (-1 means the option's distance) and two bools `+0x300` / `+0x301`. Its ctor is `32311680`, operator= `323108d0`, Reset `32311720`.
+- **The writer is June's `SetTimerFocusUnit` `322d63f0`** (vslot 0x88). It takes 5 arguments (the two bools are new) and stores them, and it no longer points the camera itself: only `OnFrameMove( 0, 0 )` is left.
+- **`322d5ef0` is `UpdateHostGameUnit`**, the same as March.
+- **The base `322d5f70` keeps the camera on the timed unit until the time runs out.** It calls `NomalDirectCamera` every frame, or `NomalTrackingCamera` when `+0x301` is set. It returns 1 while the hold lasts and on the frame it ends. When the focus moves to another unit first, it cancels and returns 0. Every path ends in `ResetFocusUnit`.
+  - March's block, by contrast, put the focus back on my unit the very next frame.
+- **The overrides:**
+  - Dungeon `327cea70`: returns 1 on every path.
+  - PvP `328ba010` (RTTI `CX2PVPGame`): returns 1 on every path.
+  - Battle field `32d530a0`: returns 0 only on C3s's no-my-unit guard.
+  - In all three, base true returns immediately and skips the NPC walk.
+- **Callers:** every June caller passes `false, false`, except the absolute-monster setup `3277cf10` (3.0 s, true, true). That setup is not ported, because the data is server-sent. So in the port the CanNotInput branch and the tracking-camera branch are unreachable.
+  - The dungeon sites are March's lines 1719 / 1724 / 1812-1817 / 1909 (800 = `0x3344cc20`, 1.5 = `0x33471a1c`).
+  - The extra sites (`CX2PVPGameAmusementItem 32d58e90`, the `32ee` / `32ef` modes) are PvP only.
+- **Not ported:**
+  - The unit's `+0x240` byte (1 while held). It has no June reader; `31e4df40` is a `CX2SquareUnit` getter.
+  - June's extra camera arguments. `NomalDirectCamera`'s 7th is never read. `NomalTrackingCamera`'s last two are unread here and only reachable through the absolute monster. March's calls are used for both.
+
+**Code** (`SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT`; one flag, because a bool override over a void base does not compile):
+- `X2Game.h/.cpp`:
+  - `JuneTimerFocusUnit m_kJuneTimerFocusUnit`. `m_fFocusTime` stays, unused.
+  - `SetTimerFocusUnit( ..., bool bCanNotInput = false, bool bTrackingCamera = false )` with June's body.
+  - `bool UpdateUnitPointer()` with June's body after `UpdateHostGameUnit`.
+- Dungeon / battle field / PvP `.h/.cpp`:
+  - `bool UpdateUnitPointer()`: the C3s guard in the battle field, then `if( base ) return true;`, then `JuneUpdateUnitPointerNPCWalk()`, then `return true`.
+  - The walk is March's body, moved verbatim. Its base call is in `#else`.
+- `SERV_IRUHADEV_JUNE_C3V_DEBUG` (short-lived): `JUNE_FX C3v arm / expire / cancel` lines in `offline_server.log`.
+- `JUNE_BUGS.md` row 182: cancel and expiry always call `CanNotInputAndDisalbeNPCAI( false )`; a time-0 arm lingers until the focus moves.
+
+**Hygiene:** `flagcheck JUNE_TIMER_FOCUS_UNIT --worktree --files` (the 8 X2Lib files + Always.h):
+- 8 PASS, 1 OTHER (Always.h, the debug flag's define). RESULT PASS.
+- 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`, 0 encoding changes.
+- `_C3V_DEBUG`: RESULT PASS, same zeros.
+- Post-commit `--range` lines: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,572,224 B, dated 2026-10-12 04:23:13, md5 73840b31d475ee7d27dc842c14d65bc4, equal to X2/US_SERVICE/x2.exe (2026-10-12 04:23:08); built at mods/june-buff-port b4fa118 + 9 uncommitted code file(s).` The 9 files are C3v's own. `JUNE_FX C3v` is in the exe (3 hits). No kom.
+
+**How to see it in game:** kill a dungeon boss as the last kill, e.g. Elder Wally's Castle (Normal). The camera should hold on the dying boss at distance 800 for 1.5 s, then return to you. The log should show `JUNE_FX C3v arm: unit type 1, time 1.50, distance 800`, then `expire`. Regression: stage openings with a focus-camera boss still lock input and show the boss.
 
 ## C3w - port: June's ShowBossNameAtStart
 

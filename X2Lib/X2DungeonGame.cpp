@@ -2463,9 +2463,26 @@ void CX2DungeonGame::TextOutTutorial_LUA( int nMsg, float fTime )
 	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+// June effect completion C3v: June CX2DungeonGame::UpdateUnitPointer 327cea70 returns bool. The base ( 322d5f70 ) true -> return 1
+// at once ( @327cea74-327cea7b -> @327ced9a ), skipping the NPC walk; every other path returns 1 too ( @327cec73, @327ced4e ).
+/*virtual*/ bool CX2DungeonGame::UpdateUnitPointer()
+{
+	if( true == CX2Game::UpdateUnitPointer() )
+		return true;
+
+	JuneUpdateUnitPointerNPCWalk();
+	return true;
+}
+
+/// March's NPC focus walk, unchanged; the base call it started with is made by UpdateUnitPointer() above.
+void CX2DungeonGame::JuneUpdateUnitPointerNPCWalk()
+{
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 /*virtual*/ void CX2DungeonGame::UpdateUnitPointer()
 {
 	CX2Game::UpdateUnitPointer();
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 	for( int i = 0; i < (int)m_NPCUnitList.size(); i++ )
 	{
 		CX2GUNPC* pCX2GUNPC = m_NPCUnitList[i];

@@ -2388,7 +2388,11 @@ void    CX2Game::UpdateHostGameUnit()
 //
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+/*virtual*/ bool CX2Game::UpdateUnitPointer()
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 /*virtual*/ void CX2Game::UpdateUnitPointer()
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 {
 	KTDXPROFILE();
 
@@ -2414,6 +2418,64 @@ void    CX2Game::UpdateHostGameUnit()
 // 	}
 // 	::LeaveCriticalSection( &m_csGameIntruder );
 
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+	// June effect completion C3v: June CX2Game::UpdateUnitPointer 322d5f70. After UpdateHostGameUnit ( 322d5ef0, = March ) June drops
+	// March's m_fFocusTime block ( which pulled the focus back to my unit on the next frame ) and runs the timed focus SetTimerFocusUnit
+	// ( 322d63f0 ) stored: the camera stays on that unit until the time runs out. Every path ends in ResetFocusUnit ( vslot 0x84 ).
+	// The unit's +0x240 byte ( 1 while held, 0 on cancel / expiry ) is not ported: no June reader ( disp32 sweep; 31e4df40 is CX2SquareUnit's ).
+	CX2GameUnit* pJuneTimerUnit = m_kJuneTimerFocusUnit.m_optrUnit.GetObservable();
+	if( NULL == pJuneTimerUnit )			// @322d5f7b-322d5f9d
+	{
+		ResetFocusUnit();
+		return false;
+	}
+
+	if( pJuneTimerUnit != m_optrFocusUnit.GetObservable() )		// @322d5fb2-322d5fcd -> @322d6207: the focus moved on, drop it
+	{
+		CanNotInputAndDisalbeNPCAI( false );	// 322cef70( 0 ), whatever m_bCanNotInput was
+		m_kJuneTimerFocusUnit.Reset();			// @322d622f-322d626b ( = 32311720, inlined )
+#ifdef SERV_IRUHADEV_JUNE_C3V_DEBUG
+		CX2OfflineLog::Server( L"JUNE_FX C3v cancel: the focus moved to another unit ( type %d ) before the time ran out",
+			( NULL != m_optrFocusUnit.GetObservable() ? (int)m_optrFocusUnit->GetGameUnitType() : -1 ) );
+#endif SERV_IRUHADEV_JUNE_C3V_DEBUG
+		ResetFocusUnit();
+		return false;
+	}
+
+	if( !( 0.f < m_kJuneTimerFocusUnit.m_fTime ) )	// @322d5fd3-322d5fe0: no time, return 0 and reset nothing ( June )
+	{
+		ResetFocusUnit();
+		return false;
+	}
+
+	m_kJuneTimerFocusUnit.m_fTime -= m_fElapsedTime;	// @322d5fe6-322d5ffa
+	if( m_kJuneTimerFocusUnit.m_fTime <= 0.f )			// @322d6000-322d6007 -> @322d6194: the time ran out
+	{
+		CanNotInputAndDisalbeNPCAI( false );
+		m_kJuneTimerFocusUnit.Reset();					// 32311720
+		if( NULL != GetMyUnit() )
+			m_optrFocusUnit = GetMyUnit();				// 31e56b80
+#ifdef SERV_IRUHADEV_JUNE_C3V_DEBUG
+		CX2OfflineLog::Server( L"JUNE_FX C3v expire: focus back to my unit ( %d )", ( NULL != GetMyUnit() ? 1 : 0 ) );
+#endif SERV_IRUHADEV_JUNE_C3V_DEBUG
+		ResetFocusUnit();
+		return true;
+	}
+
+	if( true == m_kJuneTimerFocusUnit.m_bCanNotInput )	// @322d600d-322d601b
+		CanNotInputAndDisalbeNPCAI( true );
+
+	// @322d6022-322d613d: distance -1 ( 0x33436c90 ) = the option's distance ( 32420bc0 on g_pMain +0x180 ); height 200 ( 0x33457460 ).
+	const float fJuneDistance = ( -1.f == m_kJuneTimerFocusUnit.m_fDistance ? g_pMain->GetGameOption().GetCameraDistance() : m_kJuneTimerFocusUnit.m_fDistance );
+	if( true == m_kJuneTimerFocusUnit.m_bTrackingCamera )
+		m_pCamera->NomalTrackingCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f, 0.3f, 0.f );	// 31fb3640 ( ret 0x28: June adds ( 0, 0.f ) )
+	else
+		m_pCamera->NomalDirectCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f );	// 31fb3c50 ( ret 0x1c: its 7th arg, 0.f, is never read )
+
+	ResetFocusUnit();
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 	if( m_fFocusTime > 0.0f )
 	{
 		m_fFocusTime -= m_fElapsedTime;
@@ -2426,6 +2488,7 @@ void    CX2Game::UpdateHostGameUnit()
 
 	ResetFocusUnit();
 }
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 
 void CX2Game::GameStart()
 {
@@ -4538,6 +4601,29 @@ void CX2Game::InitFocusUnit()
 }
 #endif // INIT_FOCUS_UN
 
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+// June effect completion C3v: June CX2Game::SetTimerFocusUnit 322d63f0. Sets the focus, then stores ( focus handle, time, distance,
+// bCanNotInput, bTrackingCamera ) at +0x2ec ( ctor 32311680 + operator= 323108d0 ). The camera is no longer pointed here: UpdateUnitPointer
+// does it every frame while the time lasts. Only the camera's OnFrameMove( 0, 0 ) ( vslot 1 ) is kept.
+void CX2Game::SetTimerFocusUnit( CX2GameUnit* pFocusUnit, float fFocusTime /*= 0.f*/, float fDistance /*= -1.f*/, bool bCanNotInput /*= false*/, bool bTrackingCamera /*= false*/ )
+{
+	if ( NULL == pFocusUnit )
+		return;
+
+	m_optrFocusUnit = pFocusUnit;
+	m_kJuneTimerFocusUnit.m_optrUnit = m_optrFocusUnit;
+	m_kJuneTimerFocusUnit.m_fTime = fFocusTime;
+	m_kJuneTimerFocusUnit.m_fDistance = fDistance;
+	m_kJuneTimerFocusUnit.m_bCanNotInput = bCanNotInput;
+	m_kJuneTimerFocusUnit.m_bTrackingCamera = bTrackingCamera;
+#ifdef SERV_IRUHADEV_JUNE_C3V_DEBUG
+	CX2OfflineLog::Server( L"JUNE_FX C3v arm: unit type %d, time %.2f, distance %.0f, can-not-input %d, tracking %d",
+		(int)pFocusUnit->GetGameUnitType(), fFocusTime, fDistance, ( bCanNotInput ? 1 : 0 ), ( bTrackingCamera ? 1 : 0 ) );
+#endif SERV_IRUHADEV_JUNE_C3V_DEBUG
+
+	m_pCamera->OnFrameMove( 0.0f, 0.0f );
+}
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 void CX2Game::SetTimerFocusUnit( CX2GameUnit* pFocusUnit, float fFocusTime /*= 0.f*/, float fDistance /*= -1.f*/  )
 {
 	if ( NULL == pFocusUnit )
@@ -4557,6 +4643,7 @@ void CX2Game::SetTimerFocusUnit( CX2GameUnit* pFocusUnit, float fFocusTime /*= 0
 
 	m_pCamera->OnFrameMove( 0.0f, 0.0f );
 }
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 
 D3DXVECTOR3 CX2Game::GetFocusUnitPos_LUA()
 { 

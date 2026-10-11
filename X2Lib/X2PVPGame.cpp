@@ -842,9 +842,26 @@ CX2PVPGame::PVPResultInfo::~PVPResultInfo()
 }
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
+// June effect completion C3v: June CX2PVPGame::UpdateUnitPointer 328ba010 ( RTTI .?AVCX2PVPGame@@, vtable 334c1b34 slot 0x234 ) returns
+// bool: the base ( 322d5f70 ) true -> return 1 at once, skipping the NPC walk; every other path returns 1 too.
+/*virtual*/ bool CX2PVPGame::UpdateUnitPointer()
+{
+	if( true == CX2Game::UpdateUnitPointer() )
+		return true;
+
+	JuneUpdateUnitPointerNPCWalk();
+	return true;
+}
+
+/// March's NPC focus walk, unchanged; the base call it started with is made by UpdateUnitPointer() above.
+void CX2PVPGame::JuneUpdateUnitPointerNPCWalk()
+{
+#else SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 /*virtual*/ void CX2PVPGame::UpdateUnitPointer()
 {
 	CX2Game::UpdateUnitPointer();
+#endif SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT
 	for( int i = 0; i < (int)m_NPCUnitList.size(); i++ )
 	{
 		CX2GUNPC* pCX2GUNPC = m_NPCUnitList[i];
