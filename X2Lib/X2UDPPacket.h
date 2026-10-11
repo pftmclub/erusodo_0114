@@ -262,6 +262,12 @@ struct KDYNAMIC_UNIT_USER_SYNC
 #ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 		eUnitUserSync_DataField_ClassSkillFloat = ( 1 << 21 ),	/// C3e-1: June's bit 0x200000 (32d5be30), wire position after 0x8000 and before 0x800000
 #endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#error SERV_IRUHADEV_JUNE_HIT_STOP_LISTS needs the 32-bit sync field flag of SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+		eUnitUserSync_DataField_StateSkipped = ( 1 << 22 ),	/// C3e-4: June's A, bit 0x400000 (32d5be30), 1 byte, 4th on the wire ( after stateChangeNum, packet +0x9 )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		eUnitUserSync_DataField_BuffSyncCount = ( 1 << 23 ),	/// June buff port Phase 8: June's bit for the buff-change counter (32d5be30 @32d5c0f8)
@@ -293,6 +299,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 #ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
                                                     | eUnitUserSync_DataField_ClassSkillFloat
 #endif SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+                                                    | eUnitUserSync_DataField_StateSkipped
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
                                                     | eUnitUserSync_DataField_BuffSyncCount
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
@@ -317,6 +326,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
 	UCHAR				m_ucNowAction;
 #endif SERV_IRUHADEV_JUNE_USER_ACTION_ID16
 	char				m_cStateChangeNum;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	bool				m_bStateSkipped;	/// C3e-4: June's A, bit 0x400000, packet +0x9
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 	USHORT              m_usPosX;
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -368,6 +380,9 @@ struct KDYNAMIC_UNIT_USER_SYNC
         m_ucNowState = 0;
         m_ucNowAction = 0;
         m_cStateChangeNum = 0;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+        m_bStateSkipped = false;
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
         m_usPosX = 0;
         m_fPosY = 0.f;
         m_usPosZ = 0;

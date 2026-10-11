@@ -850,6 +850,9 @@ public:
 
 			bool					bDirectChange;
 			char					stateChangeNum;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			bool					bJuneStateSkipped;	/// C3e-4: June's A ( syncData +0x06; Future +0x7e3a / Now +0x80da ), sync bit 0x400000: the direct-change replay skipped a state
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 			D3DXVECTOR3				position;
 #ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
@@ -909,6 +912,9 @@ public:
 				nowAction				= UAI_NONE;
 				bDirectChange			= false;
 				stateChangeNum			= 0;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+				bJuneStateSkipped		= false;
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 				INIT_VECTOR3( position,	0,0,0 );
 				lastTouchLineIndex		= 0;
@@ -1611,8 +1617,13 @@ public:
 
 		virtual float				GetStopTime();
 
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		virtual void				SetStopTime( float fStopTime, bool bDamageDataStop = false, CX2GameUnit* pAttacker = NULL, bool bForce = false );	/// C3e-4: June 31ffe4f0
+		virtual void				SetStop2Time( float fStopTime, bool bDamageDataStop = false, CX2GameUnit* pAttacker = NULL, bool bForce = false );	/// C3e-4: June 31ffe750
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		virtual void				SetStopTime( float fStopTime );
 		virtual void				SetStop2Time( float fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 		virtual const UnitCondition& GetUnitCondition( bool bFuture = false ) const	{ return GetFrameData(bFuture).unitCondition; }
 		virtual const StateParam&	GetStateparam( bool bFuture = false ) const	{ return GetFrameData(bFuture).stateParam; }
@@ -3368,6 +3379,15 @@ public:
 		void JuneRebindCommonRandomStateOnStateChange( int iState );							/// June 31fea640
 		void JuneRandomLoseEventProcess();														/// June 320718d0 -> 31fcd0b0
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		/// C3e-4: one per-attacker hit-stop entry ( June: 16 bytes, float + 4-byte pad + __int64 )
+		struct JuneHitStopEntry
+		{
+			float		fTime;
+			UidType		attackerUID;	/// the attacker's unit UID when it is a GUT_USER, else -1
+		};
+		void JuneTickHitStopList( std::vector< JuneHitStopEntry >& vecList, float& fStopTime, float fElapsedTime );	/// June 3206eaf0 @3206fa63-3206fd3c, once per list
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		
 		void						ProcessAcceleraterBuff( CX2SkillTree::SKILL_ID eSkillID, bool bHyperMode );	/// 엑셀레이터류 버프 시전
 		virtual	float				GetAdditionalAccelBuffTime( const CX2SkillTree::SKILL_ID eSkillID_ ) const { return 0.0f; }	/// 엑셀레이터류 버프 추가시간
@@ -4326,6 +4346,11 @@ public:
 		std::map< int, UCHAR >			m_mapJuneCommonRandomIndex;		/// C3e-2: June +0x8aac, key USI_START / USI_WIN / USI_LOSE, the index the roll picked in the matching list
 		bool							m_bJuneCommonRandomByChat;		/// C3e-2: June +0x8abc, cleared by the roll, set by the setter's chat caller
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		std::vector< JuneHitStopEntry >	m_vecJuneHitStop;			/// C3e-4: June +0x85a4, SetStopTime's list ( ticked into Future fStopTime )
+		std::vector< JuneHitStopEntry >	m_vecJuneHitStop2;			/// C3e-4: June +0x85b4, SetStop2Time's list ( ticked into Future fStop2Time )
+		KProtectedType<bool>			m_bJuneTimeStopImmuneState;	/// C3e-4: June +0x7dc4, the state key TIME_STOP_IMMUNE_STATE ( CommonStateStart 32057b80 @32060990-32060b96 )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 
 		SPECIAL_ATTACK_KEY_PRESSED m_eSpecialAttackKeyPressed;

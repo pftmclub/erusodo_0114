@@ -1192,7 +1192,7 @@ There are 9 funcmap rows `(C3e-3)`. The caller table, March to June, is `june201
 
 ## C3e-4 - port: June's per-attacker hit-stop, the stop immunities and A
 
-**Status: ready (found by C3e-3, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3e-4.md`. Flag `SERV_IRUHADEV_JUNE_HIT_STOP_LISTS`.
+**Status: code done 2026-10-12, play-test pending (found by C3e-3, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3e-4.md`. Flag `SERV_IRUHADEV_JUNE_HIT_STOP_LISTS`.
 
 - **Scope:** everything C3e-3's Done note and `c3e3_stop_time_callers.tsv` route to C3e-4:
   - the 4-argument SetStopTime / SetStop2Time on CX2GameUnit / CX2GUUser / CX2GUNPC;
@@ -1208,6 +1208,79 @@ There are 9 funcmap rows `(C3e-3)`. The caller table, March to June, is `june201
   - the player's own hit-stop as before.
 
   Write `C3e-4-review.md`.
+
+### C3e-4 - Done (2026-10-12, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_HIT_STOP_LISTS`, plus `SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG` (play-test lines; the review turns it off). Ghidra spot-checks:
+`31ffe4f0`, `31ffe750`, the tick in `3206eaf0`, `31fe6a40`, `320348c0` and `32034c00`. All matched the C3e-3 funcmap rows.
+
+1. **Signature.** CX2GameUnit's pure virtuals and the user / NPC overrides take `( float, bool bDamageDataStop = false, CX2GameUnit* pAttacker = NULL,
+   bool bForce = false )`. There are no other overrides and no Lua binding.
+2. **User.**
+   - SetStopTime / SetStop2Time push `{ t, UID or -1 }` into `m_vecJuneHitStop` / `m_vecJuneHitStop2` and no longer write fStopTime.
+   - The linemap max is kept.
+   - The early return is `IsMyUnit && TIME_STOP_IMMUNE_STATE && !bForce`; Stop2 has no force term.
+   - `TIME_STOP_IMMUNE_STATE` is read in CommonStateStart, before `DoCustomFunctionByBuffInCommonStateStart` (June `@32060990`, after the
+     `@320606a9` sound stop).
+   - **Deviation:** June keeps the bool at `+0x7dc4`, the tail of the Future StateParam. March keeps it as a standalone `KProtectedType<bool>`
+     member. Nothing copies that slot after init, so the behaviour is the same.
+3. **Tick.** `JuneTickHitStopList` runs per list in OnFrameMove's IsLocalUnit block, before the gate.
+   - Trim 1000 -> 500. Each entry counts down, clamped to 0, and is kept at 0.
+   - Erased when the attacker user's Now A is set; the stop time drops to 0 if that empties the list.
+   - Afterwards the stop time is `back()`, or the old countdown when the list is empty.
+   - Then the gate `0 < a || 0 < b`, with no decrement.
+4. **NPC.** The return test is `bDamageDataStop ? IMMUNITY_DAMAGE_DATA_STOP_TIME : IMMUNITY_TIME_STOP`. The new key is read right after March's
+   key (default false) and cleared in the ctor.
+5. **Callers.**
+   - Rows 1, 2, 6, 9 and 13 pass `true`.
+   - Row 16 passes `pNonStopUnit`.
+   - Row 17 passes `pMyUnit` to the non-self units (4 sites).
+   - Rows 4, 5, 7, 8, 11, 12, 14, 15, 18 and 19 already make June's call through the defaults, so they are unedited.
+   - Rows 3 and 10 are C3e-5's; the March condition is untouched (rows 1 and 9 have June's arguments under it). Rows 21-23 go to checklist 7p,
+     row 24 to Stage 8.
+6. **A.**
+   - Sync bit `1 << 22`, 1 byte, serialized straight after stateChangeNum; included in `All`.
+   - SyncData `bJuneStateSkipped` (Init false), the SendFrameData copy and SetData.
+   - The writer is in `StateChange( int, bool )` only, after DoFrameMoveFuture and before the push. The sub-state overload `32034c00` has no test
+     (new funcmap row `(C3e-4)`).
+   - Cleared in DoStateEndStartFuture after the stateChangeNum store.
+   - Guarded by `#error` without `JUNE_BUFF_NEW_FINALIZER` (the 32-bit flag).
+7. **JUNE_BUGS 183-190:**
+   - 183: entries never drop at 0.
+   - 184: the newest entry wins.
+   - 185: Stop2 ignores bForce.
+   - 186: CEffect::AttackResult passes false.
+   - 187: the NPC damage-data stop skips IMMUNITY_TIME_STOP.
+   - 188: A is set in one overload only.
+   - 189: remote users' lists are unbounded.
+   - 190: the Future STOP_TIME sees the previous state's immune key.
+
+**Expected in play.**
+- The player's hit-stop ends one frame earlier: the entry ticks once before the gate.
+- The 241 IMMUNITY_TIME_STOP-only monsters now hit-stop when struck and on their own melee hits.
+- Both-keys units are unchanged.
+- The A erase cannot fire offline.
+
+**Hygiene.** `flagcheck JUNE_HIT_STOP_LISTS --with JUNE_HIT_STOP_LISTS_DEBUG --worktree`:
+- `files: 8 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+- `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)`.
+  The three are the `#error` guards' bare `#endif`s in Always.h, the same pattern as C3f-1.
+- `RESULT: PASS`
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 19,575,808 B, dated 2026-10-12 05:48:11, md5 e44986c4fec29bdd4e9a34f2a74e73e1, equal to
+X2/US_SERVICE/x2.exe (2026-10-12 05:48:06)`. The strings `JUNE_FX C3e-4 npc` / `user`, `TIME_STOP_IMMUNE_STATE` and
+`IMMUNITY_DAMAGE_DATA_STOP_TIME` are in the exe.
+
+**Save.** Freils (uid 18, Chung Tactical Trooper) was given skill 6225 `SI_A_CTT_AUTOMATIC_MORTAR` (spawns `NUI_REMOTE_MORTAR`, both keys) for
+check 2. Backup: `db_backup/els_db_20261012_054505_pre_sql.sql`.
+
+**How to see it in game** (log `python tools/logs.py --grep "JUNE_FX C3e-4"`):
+- **Check 1.** Ancient Phoru (`ANCIENT_PPORU`, IMMUNITY_TIME_STOP only), `DI_RUBEN_SWAMP_NORMAL` (30090, Ruben's swamp dungeon), `/stage 2` (its NPC_GROUP, `Dungeon_Ruben_Swamp_Normal.src.lua:273`). Expect `npc SetStopTime: ANCIENT_PPORU.lua
+  ... dmgData 1 ... -> applied` and a visible hit freeze.
+- **Check 2.** Remote Mortar (both keys). Expect `... -> blocked by IMMUNITY_DAMAGE_DATA_STOP_TIME` (or `IMMUNITY_TIME_STOP` from a projectile).
+- **Check 3.** User `pushed` lines; feel unchanged; no `refused` / `tick` lines.
+
+**Open for the user:** none.
 
 ## C3e-5 - identify, then port: June's super-armor hit-stop in DamageReact
 

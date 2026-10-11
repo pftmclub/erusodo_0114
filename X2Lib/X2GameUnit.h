@@ -2427,8 +2427,15 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		const wstring&				GetHeadBoneName() const				{ return m_HeadBoneName; }
 		virtual D3DXVECTOR3			GetHeadBonePos() const				{ return D3DXVECTOR3(0,0,0); }
 
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		/// C3e-4: June's 4-argument setters ( user vslots 0x100 / 0x104, ret 0x10 ). Only DamageReact / AttackResult pass bDamageDataStop = true,
+		/// only StopOtherUnit / StopAllUnit pass an attacker, only VioletMage's binding circle forces; the defaults are every other June caller.
+		virtual void				SetStopTime( float fStopTime, bool bDamageDataStop = false, CX2GameUnit* pAttacker = NULL, bool bForce = false )		= NULL;
+		virtual void				SetStop2Time( float fStopTime, bool bDamageDataStop = false, CX2GameUnit* pAttacker = NULL, bool bForce = false )	= NULL;
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		virtual void				SetStopTime( float fStopTime )		= NULL;
 		virtual void				SetStop2Time( float fStopTime )		= NULL;
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 		virtual float				GetStopTime() = NULL;
 

@@ -15,6 +15,9 @@
 #if defined( SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #define X2GUNPC_RECEIVE_FRAME_COUNT_MAX_GAB     (70*10)
@@ -2364,6 +2367,9 @@ void CX2GUNPC::CommonConstructor()
 #ifdef IMMUNITY_TIME_STOP		
 	m_bImmunityTimeStop	= false;		//타임 스톱 면역 기능 추가
 #endif //IMMUNITY_TIME_STOP
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	m_bJuneImmunityDamageDataStopTime = false;	/// C3e-4: June ctor 32762670 @32762953 clears +0x8e82 with +0x8e81
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 #ifdef MODIFY_DUNGEON_STAGING
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -4724,6 +4730,11 @@ void CX2GUNPC::InitComponent()
 #ifdef IMMUNITY_TIME_STOP
 		LUA_GET_VALUE( m_LuaManager, "IMMUNITY_TIME_STOP",	m_bImmunityTimeStop, false	);//타임 스톱 면역 기능 추가
 #endif //IMMUNITY_TIME_STOP
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		/// June 327a0fa0 @327aa330 ( C3e-4 ): read right after IMMUNITY_TIME_STOP ( @327aa17d ). SetStopTime / SetStop2Time test it in place of
+		/// IMMUNITY_TIME_STOP when bDamageDataStop is true. 0 shipped June scripts set it alone; 77 set both keys.
+		LUA_GET_VALUE( m_LuaManager, "IMMUNITY_DAMAGE_DATA_STOP_TIME",	m_bJuneImmunityDamageDataStopTime, false	);
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR 
@@ -10328,8 +10339,14 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		if(pDamageData->reActResult != CX2DamageManager::RT_NO_DAMAGE)
 		{
 #endif DAMAGE_REACT_STOPTIME_CONDITION_FIX
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			/// June CX2GUNPC::DamageReact 327b1f30 @327b31e0 / @327b31f9 ( C3e-4 ): bDamageDataStop = true ( the super-armor branch @327b31b5 is C3e-5's )
+			SetStopTime( pDamageData->fStopTimeDef, true, NULL, false );
+			SetStop2Time( 0.0f, true, NULL, false );
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			SetStopTime( pDamageData->fStopTimeDef );
 			SetStop2Time( 0.0f );	
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			m_fCoolTime = 0.0f;
 #ifdef DAMAGE_REACT_STOPTIME_CONDITION_FIX
 		}
@@ -14496,7 +14513,11 @@ void CX2GUNPC::AttackResult()
 
 	UpNowMp( 2.0f );
 	UpNowSoul( 1.0f );
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	SetStopTime( m_DamageData.fStopTimeAtt, true, NULL, false );	/// C3e-4: June CX2GUNPC::AttackResult 3276a320 @3276a87d passes bDamageDataStop = true
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	SetStopTime( m_DamageData.fStopTimeAtt );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 	m_DamageLightTime = 0.2f;
 	SetNowForceDown( 0.f );
@@ -29904,12 +29925,45 @@ float CX2GUNPC::GetStopTime()
 
 
 
-void CX2GUNPC::SetStopTime( float fStopTime )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+/// C3e-4 play-test lines: monsters with either stop-immunity key only ( so the trash mobs do not use up the cap ), stops above 0 only
+static void JuneC3e4NpcLine( CX2GUNPC* pNpc, const wchar_t* wszWhich, float fStopTime, bool bDamageDataStop, bool bTimeStopKey, bool bDamageDataKey, bool bBlocked )
 {
+	static int s_iJuneC3e4NpcLines = 0;
+	if( s_iJuneC3e4NpcLines >= 400 || fStopTime <= 0.0f || ( false == bTimeStopKey && false == bDamageDataKey ) )
+		return;
+	++s_iJuneC3e4NpcLines;
+	CX2OfflineLog::Server( L"JUNE_FX C3e-4 npc %s: %s ( UID %I64d ) t %.3f dmgData %d keys IMMUNITY_TIME_STOP %d IMMUNITY_DAMAGE_DATA_STOP_TIME %d -> %s",
+		wszWhich, pNpc->GetNPCTemplet().m_LuaFileName.c_str(), pNpc->GetUnitUID(), fStopTime, bDamageDataStop ? 1 : 0, bTimeStopKey ? 1 : 0, bDamageDataKey ? 1 : 0,
+		false == bBlocked ? L"applied" : ( bDamageDataStop ? L"blocked by IMMUNITY_DAMAGE_DATA_STOP_TIME" : L"blocked by IMMUNITY_TIME_STOP" ) );
+}
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+void CX2GUNPC::SetStopTime( float fStopTime, bool bDamageDataStop, CX2GameUnit* pAttacker, bool bForce )
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+void CX2GUNPC::SetStopTime( float fStopTime )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	/// June CX2GUNPC::SetStopTime 32772aa0 ( C3e-4 ): bDamageDataStop picks the key, IMMUNITY_DAMAGE_DATA_STOP_TIME ( +0x8e82, June-only ) for a
+	/// damage-data stop and IMMUNITY_TIME_STOP ( +0x8e81 ) otherwise, so a damage-data stop no longer checks IMMUNITY_TIME_STOP. The NPC keeps no
+	/// lists ( it still writes its stop time directly ) and reads neither the attacker nor bForce.
+	if( true == ( bDamageDataStop ? m_bJuneImmunityDamageDataStopTime : m_bImmunityTimeStop ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		JuneC3e4NpcLine( this, L"SetStopTime", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, true );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		return;
+	}
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+	JuneC3e4NpcLine( this, L"SetStopTime", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, false );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef IMMUNITY_TIME_STOP
 	if( true == m_bImmunityTimeStop )
 		return;
 #endif //IMMUNITY_TIME_STOP
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 	m_NPCFrameData.unitCondition.fStopTime = fStopTime; 
 
@@ -29929,12 +29983,30 @@ void CX2GUNPC::SetStopTime( float fStopTime )
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+void CX2GUNPC::SetStop2Time( float fStopTime, bool bDamageDataStop, CX2GameUnit* pAttacker, bool bForce )
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 void CX2GUNPC::SetStop2Time( float fStopTime )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 {
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	/// June CX2GUNPC::SetStop2Time 32772c10 ( C3e-4 ): the same key choice as SetStopTime
+	if( true == ( bDamageDataStop ? m_bJuneImmunityDamageDataStopTime : m_bImmunityTimeStop ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		JuneC3e4NpcLine( this, L"SetStop2Time", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, true );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		return;
+	}
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+	JuneC3e4NpcLine( this, L"SetStop2Time", fStopTime, bDamageDataStop, m_bImmunityTimeStop, m_bJuneImmunityDamageDataStopTime, false );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef IMMUNITY_TIME_STOP
 	if( true == m_bImmunityTimeStop )
 		return;
 #endif //IMMUNITY_TIME_STOP
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 	m_NPCFrameData.unitCondition.fStop2Time = fStopTime; 
 

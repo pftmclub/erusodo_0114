@@ -4350,11 +4350,19 @@ void CX2Game::StopOtherUnit( CX2GameUnit* pNonStopUnit, float fStopTime, D3DXVEC
 
 
 		if( pPos == NULL || fDistance <= 0 )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			pUnit->SetStopTime( fStopTime, false, pNonStopUnit, false );	/// C3e-4: June StopOtherUnit 322d0350 @322d0416 passes the non-stop unit as the attacker
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			pUnit->SetStopTime( fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		else
 		{
 			if( GetDistance( *pPos, pUnit->GetPos() ) < fDistance )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+				pUnit->SetStopTime( fStopTime, false, pNonStopUnit, false );	/// C3e-4: June StopOtherUnit 322d0350 @322d0416
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 				pUnit->SetStopTime( fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		}		
 	}
 #ifndef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -4395,22 +4403,38 @@ void CX2Game::StopAllUnit( float fStopTime, D3DXVECTOR3* pPos, float fDistance, 
 		{
 			// 위치가 없거나, 거리가 - 또는 0이면 모두 Stop
 			if( pPos == NULL || fDistance <= 0 )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+				pUnit->SetStopTime( fStopTime, false, pMyUnit, false );	/// C3e-4: June StopAllUnit 322d0450 @322d0533: the others get pMyUnit as the attacker
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 				pUnit->SetStopTime( fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			else
 			{
 				// 위치와 거리가 있으면 거리내에 있는 유저만 타임 스탑
 				if( GetDistance( *pPos, pUnit->GetPos() ) < fDistance )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+					pUnit->SetStopTime( fStopTime, false, pMyUnit, false );	/// C3e-4: June StopAllUnit 322d0450 @322d0533
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 					pUnit->SetStopTime( fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			}
 		}
 		else
 		{
 			if( pPos == NULL || fDistance <= 0 )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+				pUnit->SetStopTime( fStopTime, false, pMyUnit, false );	/// C3e-4: June StopAllUnit 322d0450 @322d0533
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 				pUnit->SetStopTime( fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			else
 			{
 				if( GetDistance( *pPos, pUnit->GetPos() ) < fDistance )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+					pUnit->SetStopTime( fStopTime, false, pMyUnit, false );	/// C3e-4: June StopAllUnit 322d0450 @322d0533
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 					pUnit->SetStopTime( fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			}
 		}				
 	}

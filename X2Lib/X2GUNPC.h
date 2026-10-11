@@ -1919,8 +1919,13 @@ class CX2GUNPC : public CX2GameUnit
 
 		virtual float				GetStopTime();
 
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		virtual void				SetStopTime( float fStopTime, bool bDamageDataStop = false, CX2GameUnit* pAttacker = NULL, bool bForce = false );	/// C3e-4: June 32772aa0
+		virtual void				SetStop2Time( float fStopTime, bool bDamageDataStop = false, CX2GameUnit* pAttacker = NULL, bool bForce = false );	/// C3e-4: June 32772c10
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		virtual void				SetStopTime( float fStopTime );
 		virtual void				SetStop2Time( float fStopTime );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 		virtual const UnitCondition& GetUnitCondition( bool bFuture = false ) const		{ return GetNPCFrameData().unitCondition; }
 		bool				        GetUnitCondition_bHit( bool bFuture = false ) const	{ return GetNPCFrameData().unitCondition.bHit; }
@@ -4552,6 +4557,9 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef IMMUNITY_TIME_STOP		
 		bool						m_bImmunityTimeStop;		//타임 스톱 면역 기능 추가
 #endif //IMMUNITY_TIME_STOP
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		bool						m_bJuneImmunityDamageDataStopTime;	/// C3e-4: June +0x8e82, the NPC key IMMUNITY_DAMAGE_DATA_STOP_TIME ( next to m_bImmunityTimeStop +0x8e81 )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 //#ifdef FIX_NPC_SHOW_OBJECT
 //		bool						m_bShowObjectCurrentState;

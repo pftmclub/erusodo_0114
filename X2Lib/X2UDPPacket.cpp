@@ -196,6 +196,10 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
 		m_usDataFieldFlag |= eUnitUserSync_DataField_nowAction;
 	if( pPrevSync == NULL || pPrevSync->m_cStateChangeNum != m_cStateChangeNum )
 		m_usDataFieldFlag |= eUnitUserSync_DataField_stateChangeNum;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	if( pPrevSync == NULL || pPrevSync->m_bStateSkipped != m_bStateSkipped )
+		m_usDataFieldFlag |= eUnitUserSync_DataField_StateSkipped;
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	if( pPrevSync == NULL || pPrevSync->m_usPosX != m_usPosX )
 		m_usDataFieldFlag |= eUnitUserSync_DataField_PosX;
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -254,6 +258,10 @@ void    KDYNAMIC_UNIT_USER_SYNC::Serialize( BYTE*& pbyBuffer, const KDYNAMIC_UNI
         _Serialize( pbyBuffer, m_ucNowAction );
     if ( m_usDataFieldFlag & eUnitUserSync_DataField_stateChangeNum )
 	    _Serialize( pbyBuffer, m_cStateChangeNum );
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	if ( m_usDataFieldFlag & eUnitUserSync_DataField_StateSkipped )
+		_Serialize( pbyBuffer, m_bStateSkipped );	/// C3e-4: June 32d5be30, A is 4th on the wire
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
     if ( m_usDataFieldFlag & eUnitUserSync_DataField_PosX )
 	    _Serialize( pbyBuffer, m_usPosX );
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -332,6 +340,13 @@ bool    KDYNAMIC_UNIT_USER_SYNC::Deserialize( const BYTE*& pbyBuffer, const BYTE
 		if ( false == _Deserialize( pbyBuffer, pbyEnd, m_cStateChangeNum ) )
             return false;
     }
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	if( usDataFieldFlag & eUnitUserSync_DataField_StateSkipped )
+	{
+		if ( false == _Deserialize( pbyBuffer, pbyEnd, m_bStateSkipped ) )
+			return false;
+	}
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	if( usDataFieldFlag & eUnitUserSync_DataField_PosX )
     {
 		if ( false == _Deserialize( pbyBuffer, pbyEnd, m_usPosX ) )

@@ -7165,3 +7165,35 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              cancel lines of the timed focus unit ( needs SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT ). Log: offline_server.log.
 #define SERV_IRUHADEV_JUNE_C3V_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3e-4: June's per-attacker hit-stop. SetStopTime / SetStop2Time take ( float, bool bDamageDataStop,
+//              CX2GameUnit* pAttacker, bool bForce ) ( user 31ffe4f0 / 31ffe750, NPC 32772aa0 / 32772c10 ). The user no longer writes its
+//              stop times: it pushes { time, attacker UID } into two lists that OnFrameMove ( 3206eaf0 @3206fa63-3206fd7c ) ticks into the
+//              Future stop times before the stop gate, which no longer decrements. The user state key TIME_STOP_IMMUNE_STATE refuses unforced
+//              stops on my unit; the NPC refuses a damage-data stop by the new key IMMUNITY_DAMAGE_DATA_STOP_TIME and any other by
+//              IMMUNITY_TIME_STOP. Unit DamageReact / AttackResult pass bDamageDataStop = true, StopOtherUnit / StopAllUnit pass the attacker.
+//              User sync bit 0x400000 ( A: set in StateChange's direct-change replay, cleared in DoStateEndStartFuture ) erases that
+//              attacker's entries.
+#define SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#if defined(SERV_IRUHADEV_JUNE_HIT_STOP_LISTS) && !defined(IMMUNITY_TIME_STOP)
+#error SERV_IRUHADEV_JUNE_HIT_STOP_LISTS needs IMMUNITY_TIME_STOP ( CX2GUNPC::m_bImmunityTimeStop )
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3e-4 play-test lines ( short-lived; turn OFF in the C3e-4 review ): "JUNE_FX C3e-4" user stop
+//              pushed / refused, user tick A erase, NPC stop applied / blocked ( monsters with either immunity key only ).
+//              Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG) && !defined(SERV_IRUHADEV_JUNE_HIT_STOP_LISTS)
+#error SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG needs SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#endif
+#if defined(SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
+#error SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
+#endif
+//////////////////////////////////////////////////////////////////////////

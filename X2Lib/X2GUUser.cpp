@@ -9,6 +9,9 @@
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 
 
 #ifdef REDUCED_PRECOMPILED_HEADER_TEST
@@ -1201,6 +1204,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
 	m_bJuneCommonRandomByChat = false;
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	m_bJuneTimeStopImmuneState = false;	/// C3e-4: June +0x7dc4; the two hit-stop lists start empty ( June clears them only in the ctor 3203e850 / dtor 3203a620 )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 #ifdef HYPER_MODE_FIX
 	m_iLastStateHyperModeCount	= 0;
@@ -6639,6 +6645,9 @@ void CX2GUUser::DoStateEndStartFuture()
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_FutureStateData.stateID );
 		{
 			m_FrameDataFuture.syncData.stateChangeNum = m_FrameDataFuture.unitCondition.stateChangeNum ;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			m_FrameDataFuture.syncData.bJuneStateSkipped = false;	/// C3e-4: June 31fe6a40 @31fe6aab clears A right after storing the new stateChangeNum
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			if( m_FutureStateData.StateEndFuture != NULL )
 				m_FutureStateData.StateEndFuture();
 			else
@@ -7130,6 +7139,23 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 		}
 
 
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		/// June CX2GUUser::OnFrameMove 3206eaf0 @3206fa63-3206fd7c ( C3e-4 ): after the random-table reseed, each per-attacker list ticks and sets its
+		/// Future stop time ( list 1 -> fStopTime +0x7df4, list 2 -> fStop2Time +0x7df8 ); then the gate @3206fd42, which no longer decrements.
+		JuneTickHitStopList( m_vecJuneHitStop, m_FrameDataFuture.unitCondition.fStopTime, fElapsedTime );
+		JuneTickHitStopList( m_vecJuneHitStop2, m_FrameDataFuture.unitCondition.fStop2Time, fElapsedTime );
+		if( 0.0f < m_FrameDataFuture.unitCondition.fStopTime || 0.0f < m_FrameDataFuture.unitCondition.fStop2Time )
+		{
+			m_FrameDataFuture.syncData.bFrameStop = true;
+		}
+		else
+		{
+			m_FrameDataFuture.syncData.bFrameStop = false;
+
+			DoStateEndStartFuture();
+			DoFrameMoveFuture();
+		}
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		if( m_FrameDataFuture.unitCondition.fStopTime <= 0.0f && 
 			m_FrameDataFuture.unitCondition.fStop2Time <= 0.0f )
 		{
@@ -7149,6 +7175,7 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 			if( m_FrameDataFuture.unitCondition.fStop2Time < 0.0f )
 				m_FrameDataFuture.unitCondition.fStop2Time = 0.0f;
 		}
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
         if ( IsMyUnit() == true )
@@ -7994,6 +8021,12 @@ bool CX2GUUser::StateChange( int state, bool bDirectChange )
 		for( int i = 0; i < receiveSize; i++ )
 		{
 			DoFrameMoveFuture();
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			/// June StateChange( int, bool ) 320348c0 @32034b37-32034b4a ( C3e-4 ): A is set when the replay leaves the Future stateChangeNum more than
+			/// one ahead of the Now one ( signed bytes ); the pushed sync data carries it. The ( state, subState ) overload 32034c00 has no such test.
+			if( static_cast<int>( static_cast<signed char>( m_FrameDataFuture.syncData.stateChangeNum ) ) > static_cast<int>( static_cast<signed char>( m_FrameDataNow.syncData.stateChangeNum ) ) + 1 )
+				m_FrameDataFuture.syncData.bJuneStateSkipped = true;
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
             ++dwFrameMoveCount;
             m_FrameDataFuture.syncData.dwFrameMoveCount = dwFrameMoveCount;
@@ -8436,8 +8469,14 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #ifdef RAVEN_SECOND_CLASS_CHANGE
 			if( IsSuperArmor() != true && pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE && pDamageData->fStopTimeDef > 0.f )
 			{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+				/// June CX2GUUser::DamageReact 320462a0 @32046d57 / @32046d70 ( C3e-4 ): bDamageDataStop = true ( the super-armor branch @32046d2c is C3e-5's )
+				SetStopTime( pDamageData->fStopTimeDef, true, NULL, false );
+				SetStop2Time( 0.0f, true, NULL, false );
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 				SetStopTime( pDamageData->fStopTimeDef );
 				SetStop2Time( 0.0f );	
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			}
 #endif
 			return;
@@ -9468,8 +9507,14 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		if(pDamageData->reActResult != CX2DamageManager::RT_NO_DAMAGE)
 		{
 #endif DAMAGE_REACT_STOPTIME_CONDITION_FIX
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			/// June CX2GUUser::DamageReact 320462a0 @3204834a / @32048363 ( C3e-4 ): bDamageDataStop = true
+			SetStopTime( pDamageData->fStopTimeDef, true, NULL, false );
+			SetStop2Time( 0.0f, true, NULL, false );
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			SetStopTime( pDamageData->fStopTimeDef );
 			SetStop2Time( 0.0f );	
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef DAMAGE_REACT_STOPTIME_CONDITION_FIX
 		}
 #endif DAMAGE_REACT_STOPTIME_CONDITION_FIX
@@ -13838,7 +13883,11 @@ void CX2GUUser::AttackResult()
 			m_bUpMPThisFrame = true;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+		SetStopTime( m_DamageData.fStopTimeAtt, true, NULL, false );	/// C3e-4: June CX2GUUser::AttackResult 32012b50 @320137b5 passes bDamageDataStop = true
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		SetStopTime( m_DamageData.fStopTimeAtt );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef NEW_SKILL_2010_11
 		// oasis907 : ±è»óÀ± [2010.11.1] // ·é ½½·¹ÀÌ¾î - ¸¶¹ýÀúÇ× ¼ö·Ã
 		if( m_DamageData.reActResult == CX2DamageManager::RT_REVENGE || 
@@ -16435,6 +16484,17 @@ void CX2GUUser::CommonStateStart()
 	/// the state start. m_NowStateData is the new state's by now.
 	StopSoundOnSkillStateEnd( static_cast<int>( GetNowStateSkillID() ) );
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	/// June CX2GUUser::CommonStateStart 32057b80 @32060990-32060b96 ( C3e-4 ): TIME_STOP_IMMUNE_STATE ( a miss is false ), stored only when it
+	/// changed ( the protected bool +0x7dc4 ). June reads it after the skill-state-end stops ( @320606a9 ); SetStopTime / SetStop2Time read it.
+	/// No March class script has the key ( 76 June class states do; they arrive with the class ports ).
+	{
+		bool bJuneTimeStopImmune = false;
+		LUA_GET_VALUE( m_LuaManager, "TIME_STOP_IMMUNE_STATE", bJuneTimeStopImmune, false );
+		if( static_cast<bool>( m_bJuneTimeStopImmuneState ) != bJuneTimeStopImmune )
+			m_bJuneTimeStopImmuneState = bJuneTimeStopImmune;
+	}
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	DoCustomFunctionByBuffInCommonStateStart();
 	ApplyDrainHpBuff();
 
@@ -25675,6 +25735,9 @@ void CX2GUUser::SendFrameData()
                 kXPT_UNIT_USER_SYNC.m_ucNowState = pSyncData->nowState;
                 kXPT_UNIT_USER_SYNC.m_ucNowAction			= pSyncData->nowAction;
                 kXPT_UNIT_USER_SYNC.m_cStateChangeNum			= pSyncData->stateChangeNum;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+                kXPT_UNIT_USER_SYNC.m_bStateSkipped = pSyncData->bJuneStateSkipped;	/// C3e-4: A, bit 0x400000
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                 kXPT_UNIT_USER_SYNC.m_fPosY = pSyncData->position.y;
 #ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
@@ -31218,9 +31281,89 @@ float CX2GUUser::GetStopTime()
 
 }
 
-void CX2GUUser::SetStopTime( float fStopTime )
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+/// C3e-4 play-test lines: one per user stop above 0, and one per refused stop
+static void JuneC3e4UserLine( CX2GUUser* pUser, const wchar_t* wszWhich, float fStopTime, bool bDamageDataStop, CX2GameUnit* pAttacker, bool bForce, bool bRefused, int iListSize )
 {
+	static int s_iJuneC3e4UserLines = 0;
+	if( s_iJuneC3e4UserLines >= 400 || ( false == bRefused && fStopTime <= 0.0f ) )
+		return;
+	++s_iJuneC3e4UserLines;
+	CX2OfflineLog::Server( L"JUNE_FX C3e-4 user %s: unit %I64d my %d t %.3f dmgData %d attacker %I64d ( type %d ) force %d -> %s, list size %d",
+		wszWhich, pUser->GetUnitUID(), true == pUser->IsMyUnit() ? 1 : 0, fStopTime, bDamageDataStop ? 1 : 0,
+		NULL != pAttacker ? pAttacker->GetUnitUID() : (UidType)-1, NULL != pAttacker ? (int)pAttacker->GetGameUnitType() : -1, bForce ? 1 : 0,
+		bRefused ? L"refused ( TIME_STOP_IMMUNE_STATE )" : L"pushed", iListSize );
+}
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+/// June CX2GUUser::OnFrameMove 3206eaf0 @3206fa63-3206fd3c ( C3e-4 ), once per list. Above 1000 entries the newest 500 are kept ( 32314a00 ). Each
+/// entry counts down and is clamped to 0 but is NOT removed at 0. An entry whose attacker is a user ( game vslot 0xa0, by UID ) with Now A set is
+/// erased, and the stop time becomes 0 when that empties the list. Afterwards the stop time is the newest entry's ( back(), not the max ), or with
+/// no entries March's own countdown clamped to 0. The A erase cannot fire offline: NPC attackers are stored as -1.
+void CX2GUUser::JuneTickHitStopList( std::vector< JuneHitStopEntry >& vecList, float& fStopTime, float fElapsedTime )
+{
+	if( vecList.size() > 1000 )
+		vecList.erase( vecList.begin(), vecList.end() - 500 );
+
+	std::vector< JuneHitStopEntry >::iterator it = vecList.begin();
+	while( it != vecList.end() )
+	{
+		it->fTime -= fElapsedTime;
+		if( it->fTime < 0.0f )
+			it->fTime = 0.0f;
+
+		CX2GUUser* pAttacker = ( NULL != g_pX2Game ) ? g_pX2Game->GetUserUnitByUID( it->attackerUID ) : NULL;
+		if( NULL != pAttacker && false != pAttacker->m_FrameDataNow.syncData.bJuneStateSkipped )
+		{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+			CX2OfflineLog::Server( L"JUNE_FX C3e-4 user tick: unit %I64d drops the stop from user %I64d ( its Now A is set ), %d left",
+				GetUnitUID(), it->attackerUID, (int)vecList.size() - 1 );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+			it = vecList.erase( it );
+			if( true == vecList.empty() )
+				fStopTime = 0.0f;
+		}
+		else
+			++it;
+	}
+
+	if( true == vecList.empty() )
+	{
+		fStopTime -= fElapsedTime;
+		if( fStopTime < 0.0f )
+			fStopTime = 0.0f;
+	}
+	else
+		fStopTime = vecList.back().fTime;
+}
+
+void CX2GUUser::SetStopTime( float fStopTime, bool bDamageDataStop, CX2GameUnit* pAttacker, bool bForce )
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+void CX2GUUser::SetStopTime( float fStopTime )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	/// June CX2GUUser::SetStopTime 31ffe4f0 ( C3e-4 ): arg 2 is not read. My unit in a TIME_STOP_IMMUNE_STATE state refuses unless forced. No
+	/// direct write of fStopTime any more: { t, attacker UID } goes to list 1 ( +0x85a4 ), which OnFrameMove ticks into it. The linemap max stays.
+	if( true == IsMyUnit() && true == static_cast<bool>( m_bJuneTimeStopImmuneState ) && false == bForce )
+	{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		JuneC3e4UserLine( this, L"SetStopTime", fStopTime, bDamageDataStop, pAttacker, bForce, true, (int)m_vecJuneHitStop.size() );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		return;
+	}
+	{
+		JuneHitStopEntry kJuneEntry;
+		kJuneEntry.fTime		= fStopTime;
+		kJuneEntry.attackerUID	= ( NULL != pAttacker && CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() ) ? pAttacker->GetUnitUID() : -1;
+		m_vecJuneHitStop.push_back( kJuneEntry );
+	}
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+	JuneC3e4UserLine( this, L"SetStopTime", fStopTime, bDamageDataStop, pAttacker, bForce, false, (int)m_vecJuneHitStop.size() );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	m_FrameDataFuture.unitCondition.fStopTime = fStopTime; 
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 	if( NULL != g_pX2Game &&
 		NULL != g_pX2Game->GetWorld() &&
@@ -31236,9 +31379,34 @@ void CX2GUUser::SetStopTime( float fStopTime )
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+void CX2GUUser::SetStop2Time( float fStopTime, bool bDamageDataStop, CX2GameUnit* pAttacker, bool bForce )
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 void CX2GUUser::SetStop2Time( float fStopTime )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 {
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	/// June CX2GUUser::SetStop2Time 31ffe750 ( C3e-4 ): as SetStopTime, into list 2 ( +0x85b4, 3207b5d0 ), but the immune test has no bForce term
+	/// ( June ignores it here ).
+	if( true == IsMyUnit() && true == static_cast<bool>( m_bJuneTimeStopImmuneState ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		JuneC3e4UserLine( this, L"SetStop2Time", fStopTime, bDamageDataStop, pAttacker, bForce, true, (int)m_vecJuneHitStop2.size() );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+		return;
+	}
+	{
+		JuneHitStopEntry kJuneEntry;
+		kJuneEntry.fTime		= fStopTime;
+		kJuneEntry.attackerUID	= ( NULL != pAttacker && CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() ) ? pAttacker->GetUnitUID() : -1;
+		m_vecJuneHitStop2.push_back( kJuneEntry );
+	}
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+	JuneC3e4UserLine( this, L"SetStop2Time", fStopTime, bDamageDataStop, pAttacker, bForce, false, (int)m_vecJuneHitStop2.size() );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	m_FrameDataFuture.unitCondition.fStop2Time = fStopTime; 
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 	if( NULL != g_pX2Game &&
 		NULL != g_pX2Game->GetWorld() &&
@@ -37789,6 +37957,9 @@ void CX2GUUser::SyncData::SetData( const KDYNAMIC_UNIT_USER_SYNC& SyncPacket, DW
 	nowAction				= SyncPacket.m_ucNowAction;
 	bDirectChange			= SyncPacket.DecodeDirectChange();
 	stateChangeNum			= SyncPacket.m_cStateChangeNum;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+	bJuneStateSkipped		= SyncPacket.m_bStateSkipped;	/// C3e-4: A, syncData +0x06 from packet +0x9 ( bit 0x400000 )
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
