@@ -118,6 +118,11 @@ class CX2WorldObjectSkinMesh : public CX2WorldObject
 		int GetTriggerID() const { return m_iTriggerID; }
 		void SetTriggerID(int val) { m_iTriggerID = val; }
 #endif SERV_IRUHADEV_RANOX_TRIGGER_ID
+#ifdef SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT
+		// June 327f6990: hold the animation (XAS_WAIT) until a line-map trigger plays it. A mesh still loading in the background
+		// has no anim yet, so the call is a no-op and the pending PlayAnim wins, as in June.
+		void SetAnimWait() { if ( m_pXSkinAnim != NULL ) m_pXSkinAnim->Wait(); }
+#endif SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT
 
 #ifdef FOG_WORLD
         void SetFog(float xNear, float xFar, float yNear, float yFar, D3DXCOLOR color = D3DXCOLOR(0xd3, 0xe3, 0xf3, 0xff), float density = 0.0f);

@@ -6883,3 +6883,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ( DCC 1 / 2 / 8 / 9 / 10 / 12 / 13 / 14 ) are C3z-5b's.
 #define SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect C3y-1b. Binds June's CX2WorldObjectSkinMesh "SetAnimWait" ( name use 31dbffdd in binder 31d95080,
+//              body 327f6990: if ( m_pXSkinAnim ) m_pXSkinAnim->Wait(), 31d28d30 = CKTDGXSkinAnim::Wait ). June's
+//              Sander_Secret_Stage3.lua calls it on its last skin mesh; March never bound it, so the call aborted the rest of the chunk.
+#define SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT
+//////////////////////////////////////////////////////////////////////////

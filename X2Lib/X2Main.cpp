@@ -3792,6 +3792,10 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_ID
 	lua_tinker::class_def<CX2WorldObjectSkinMesh>( L, "SetTriggerID",			&CX2WorldObjectSkinMesh::SetTriggerID );
 #endif SERV_IRUHADEV_RANOX_TRIGGER_ID
+#ifdef SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT
+	// June binder 31d95080: "SetAnimWait" ( 31dbffdd ) -> 327f6990
+	lua_tinker::class_def<CX2WorldObjectSkinMesh>( L, "SetAnimWait",			&CX2WorldObjectSkinMesh::SetAnimWait );
+#endif SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT
 
 //{{ Iruha : 2026-09-23 // Ranox_AshesVillage_Stage2.lua calls SetTransition
 // but this build never bound it, aborting the script one line before it

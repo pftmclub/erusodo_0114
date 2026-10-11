@@ -2683,7 +2683,7 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
 
 ## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
 
-**Status: ready (routed by C3y, 2026-10-11; the 4 atlas / elysion boss worlds added by the user the same day). Model:** Opus 5.5,
+**Status: done 2026-10-11, play-test and review owed (routed by C3y; the 4 atlas / elysion boss worlds added by the user the same day). Model:** Opus 5.5,
 high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
 
 - **Scope:** 13 worlds, world-only (no dungeon rows, no NPCs). All June ids are free in March.
@@ -2699,6 +2699,44 @@ high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
     "additional world"). An unknown binding aborts the rest of the chunk. Port a missing binding here if it is small and world-only;
     otherwise stop and report which call needs which E-phase.
 - Gate: the C3x CreateWorld log shows no missing row for the 13; Henir Space stages 22 and 32-35 load if a run reaches them.
+
+### C3y-1b - Done
+
+**2026-10-11, Opus 5.5 high. Data + one binding.** Flag `SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT`. Review: `kickoffs/june-effect/C3y-1b-review.md`.
+
+- **Enum.lua** (data036, core source): the 13 `WORLD_ID` rows at June's values (614-622, 645, 654, 675, 710), in a `--{{ ... C3y-1b` block
+  at the end of `WORLD_ID`. Each value and name was re-checked as free in March before writing.
+  **WorldData.lua** (data040, core source): June's 13 rows verbatim, picked by `worldID` and appended in a block.
+  `luasrc.py refresh` both; `ledger --check` and `core --check` PASS.
+- **Map files:** `adopt-june data040` staged the 13 world scripts and their 13 line maps (each script's `SetLineMap` names exactly its own),
+  all 26 new, as June bytecode. Record: `june2017_re/june_adopt_20261011_103439.tsv`.
+- **Binding audit** (per class, with each binding's `#ifdef` resolved in `Always.h`): 55 receiver:method pairs and 27 enum members.
+  Every one is bound and defined except **`SetAnimWait`**, called once in all of June's Lua: `Sander_Secret_Stage3.lua:320`, on its
+  last skin mesh (X07, `WOSMPY_ONE_WAIT`), with only `SetTriggerID(0)` after it.
+  - June: binder `31d95080` name use `31dbffdd` -> `327f6990` = `if ( m_pXSkinAnim ) m_pXSkinAnim->Wait()`. `31d28d30` sets +0x2a4 = 2.
+    Its siblings `31d28d00` (1 + play type) and `31d28d40` (0) are March's `Play` / `Wait` / `Stop` (`KTDGXSkinAnim.cpp:1077-1092`).
+    Ported as an inline member next to `SetTriggerID` plus a `class_def` in `X2Main.cpp`. funcmap row `327f6990`.
+  - Purpose: X07 holds still until line-map trigger 0 (`TAT_MESH_CHANGE_ANIM`, mesh named `..._X07.x`) plays it. `GetTriggerMesh` compares
+    names upper-cased (`X2World.cpp`), so the case difference is harmless.
+  - The 4 Elysion boss-stage scripts need nothing from elysion E5 / E7.
+- **Assets:** `npc_mesh_census.py --worlds` (MSZIP inflated) found 408 June files: 154 `.y`, 40 `.x`, 196 `.dds`, 3 `.tga`, 15 `.ogg`.
+  The plan's 205 was a lower bound. List: `june2017_re/c3y1b_world_asset_need.tsv` (the script's default `world_asset_need.tsv` is C3x's
+  and was restored). A re-run after staging needs 0. No overlap: june-asset-port has not started (P0), and C3y-1a used
+  data034 / 035 / 063 / 065. `stage-june` put all 408 in as new: data135 151, data136 6, data146 6, data180 236, **data166 1**,
+  **data182 8**. The last two are new archives inside the mounted range (`X2Main.cpp:799-845`).
+- **BGM:** the worlds name 6 tracks missing from `data\music\`: `Music072_Stage`, `Music073_Boss`, `Music075_Boss`, `Music079_Boss`,
+  `LI_Boss_Elysion001`, `LI_Boss_Elysion002` (all in June's `14JUN17\data\music\`).
+- **Packed:** `PACK OK` data036 (~1 Enum.lua), data040 (+26, ~1 WorldData.lua), data135 (+151), data136 (+6), data146, data166 (new),
+  data180 (+236), data182 (new).
+  - data146 also shows ~28 `FIELD_BOSS_IRON_ELTRION_*.ogg`. That is recompression only: the raw size and algo equal live, the dir files
+    are the 2026-09-22 extract, and it is this tool's first pack of data146.
+- **Gate:** `world_census.py`: 391 worlds, 0 differ from June; all 13 `same` (26 rows added to `world_census.tsv`).
+- Hygiene: `flagcheck --worktree --files`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatches. RESULT: PASS.
+- `DEPLOY OK: X2_offline.exe is 19,555,328 B, dated 2026-10-11 10:48:05, md5 64fa2a98ba49ba5c6fc3645b1af303d2` (`SetAnimWait` is in the exe).
+- **Copies: none yet.** They wait for the user's OK (8 koms + 6 BGM files).
+- **Not provable here:** only `Dungeon_Sander_Secret_Hell` (C3y-1c) reaches Sander's 8 non-boss worlds, so `SetAnimWait` and those
+  8 worlds wait for C3y-1c's play-test. Henir Space (38100) reaches stages 22 and 32-35, but its run order is decided elsewhere,
+  so the check uses `/stage`.
 
 ## C3y-1c - port: the Sander secret dungeon
 

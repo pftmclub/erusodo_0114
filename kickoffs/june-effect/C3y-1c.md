@@ -35,3 +35,6 @@ grep Sander_Secret june2017_re/c3y_unreached_dungeon_census.tsv
 5. **Emulator:** C3z-6's secret path (relative level, `DT_SECRET`, poison) must not key on a fixed id list; check, and fix behind a
    flag if it does.
 6. **Gate:** the Sander map shows the button; a Sander Secret Hell room starts, and all stages load with monsters; 0 EXCEPTION.
+   C3y-1b (2026-10-11) shipped the 9 worlds and `SetAnimWait` (`SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT`), proven only by this play-test:
+   in `Sander_Secret_Stage3` the `SANDER_SECRET_STAGE3_X07` mesh must hold still until line-map trigger 0 plays it, and ErrorLog must
+   have no `lua error while loading Sander_Secret_*` line. Name that check in the hand-off.

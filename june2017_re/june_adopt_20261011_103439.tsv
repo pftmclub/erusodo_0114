@@ -1,0 +1,29 @@
+# adopt-june --bytecode run 2026-10-11 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+Elysion_Adrian_BossStage.lua	data040	new	data040	6626	86e73816198e181300dce7aef069fce5bfb37d50	bytecode		ljconv
+Elysion_Adrian_BossStage_LineMap.lua	data040	new	data040	2454	6becfceb9db7357b5d230c24bdf9243d77ee7654	bytecode		ljconv
+Elysion_AtlasDevelopment_BossStage.lua	data040	new	data040	9087	ca7c1cc85447502ab1cbe6f203dbce350767c584	bytecode		ljconv
+Elysion_AtlasDevelopment_BossStage_LineMap.lua	data040	new	data040	3645	2a42d80f84a6c81b5fbca05b2f71d5e657300590	bytecode		ljconv
+Elysion_SkyCrossroads_BossStage.lua	data040	new	data040	16246	3fc989ee1f9de6f176c6dd1515d5623428c03916	bytecode		ljconv
+Elysion_SkyCrossroads_BossStage_LineMap.lua	data040	new	data040	2545	b76e53c7fd0bad2ade5b1a0da4e2421096d5fdd4	bytecode		ljconv
+Elysion_Tower_BossStage.lua	data040	new	data040	6587	030ad9e88d5601d71330453f41d4876fb5d7abdc	bytecode		ljconv
+Elysion_Tower_BossStage_LineMap.lua	data040	new	data040	3637	2a9d469fb9129a3df474762b094db6e32c56028e	bytecode		ljconv
+Sander_Secret_Boss_Stage.lua	data040	new	data040	7240	0dfb13a65acdbfb1fa62fc01517007b611b78303	bytecode		ljconv
+Sander_Secret_Boss_Stage_LineMap.lua	data040	new	data040	2263	8b2ffc152de1c2b4d9e6d4b36ec20dd1cbb89921	bytecode		ljconv
+Sander_Secret_Extra_Boss_Stage.lua	data040	new	data040	7563	6fadbdcf31393738d14a20cdfa65b373270c943a	bytecode		ljconv
+Sander_Secret_Extra_Boss_Stage_LineMap.lua	data040	new	data040	2151	2fa0be934e7a72ac08b68d9f5708ff1f9c29f2d8	bytecode		ljconv
+Sander_Secret_Extra_Stage1.lua	data040	new	data040	26413	d4d0198b6dacd62959fe37128ef5d0eb4e227e32	bytecode		ljconv
+Sander_Secret_Extra_Stage1_LineMap.lua	data040	new	data040	23384	3506b2371883a043f41e2300cfe446f5a2bc12eb	bytecode		ljconv
+Sander_Secret_Extra_Stage2.lua	data040	new	data040	11917	1464fb3e3ebfc881a6a5ebafba794e899dc8d00a	bytecode		ljconv
+Sander_Secret_Extra_Stage2_LineMap.lua	data040	new	data040	10868	e9c02945d8f6d5ac0470d4a40b13b6648f371423	bytecode		ljconv
+Sander_Secret_Extra_Stage3.lua	data040	new	data040	8776	002e6588628091c636ff18ddc3b24a86d3d7fca6	bytecode		ljconv
+Sander_Secret_Extra_Stage3_LineMap.lua	data040	new	data040	8834	6d0a04511ddd3b26abecfc61cfd50d073a787ca0	bytecode		ljconv
+Sander_Secret_Stage0.lua	data040	new	data040	7267	ee3fb6e00ac66db42f91d29210b4b7a69aa92307	bytecode		ljconv
+Sander_Secret_Stage0_LineMap.lua	data040	new	data040	10562	7f5a7b3f9efd7d7e56972f1fddecfeb92985d83b	bytecode		ljconv
+Sander_Secret_Stage1.lua	data040	new	data040	26608	f162deabf5e65df9b58dbe3fa56772087910e6f1	bytecode		ljconv
+Sander_Secret_Stage1_LineMap.lua	data040	new	data040	23384	bbabbe1b5e5de2dc8b33dc87a4c4737fca68f283	bytecode		ljconv
+Sander_Secret_Stage2.lua	data040	new	data040	10386	4522368891af4cbac31d755b8b0e1e4c6c973296	bytecode		ljconv
+Sander_Secret_Stage2_LineMap.lua	data040	new	data040	10868	e9c02945d8f6d5ac0470d4a40b13b6648f371423	bytecode		ljconv
+Sander_Secret_Stage3.lua	data040	new	data040	7810	47142ca9665c4fdd7a6fa63b165dd4e71767cdb4	bytecode		ljconv
+Sander_Secret_Stage3_LineMap.lua	data040	new	data040	8837	1890279569b13b8961f8d5cebc4acbca2a251277	bytecode		ljconv
