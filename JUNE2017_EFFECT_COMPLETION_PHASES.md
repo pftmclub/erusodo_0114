@@ -3391,6 +3391,16 @@ All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The
 
 **Not play-testable here.** Elysion Sky Crossroads is not registered in March's DungeonData; that is the Atlas / Elysion plan, not started. Its Elysion scripts (laser / Maya / key objects) wait for that plan.
 
+**After the commit.** `flagcheck <flag> --range 1ca6415^..1ca6415 --with JUNE_C3Z4_DEBUG <the other 20> --files <the 21 code files>`: all 21 flags RESULT PASS. `COPY OK data036: ... md5 a4824040b031ac30bfa7eb44330bbd25`, `COPY OK data037: ... md5 4f7c52457a9d3ef6bb6cb513b792259d` (user OK, 2026-10-11).
+
+### C3z-4b - play-test 1 (2026-10-11 16:11-16:18, reyaa unit 12, exe `a3cf19b7`): partly reached
+
+- Played Hamel secret 33261, 41271, Henir Space 38100 (stages 0, 22, 32-35) and Ranox Gateway twice.
+- **Subtitle calls fire.** Gateway boss intro (event npc 1905), `offline_server.log:975-977`: `SetMovieDescriptionData npc 1905 string 33875 / 33876 / 33877`. Whether it rendered is the user's to confirm. The second Gateway run's intro was skipped (npc 1905 `KILL_SELF` about 1 s in; C3p's ESC skip), so it made no calls.
+- **ErrorLog: 0 `can't find` lines** for the whole run, Henir stage 22 (Mad Behemoth Soul: `GetUnitType` / `GetMainEffectPos`) included. 0 EXCEPTION.
+- **Not reached:** Final Hall 33320 (`ChangeMotion_LUA`, the GO_NEXT pair) and Frozen Water Hall 33180 (`SetShowAllNPCExceptMe`); both still owed.
+
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
