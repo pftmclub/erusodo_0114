@@ -3471,6 +3471,7 @@ All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The
 `DEPLOY OK: X2_offline.exe is 19,569,664 B, dated 2026-10-11 22:10:47, md5 a57a63e6de57163a99b5046a49cdc5d8, equal to X2/US_SERVICE/x2.exe (2026-10-11 22:10:42); built at mods/june-buff-port 727de03 + 2 uncommitted code file(s).` The `JUNE_FX C3z-4b` strings are gone from the exe (debug off).
 
 **Play-test (review fix):** Ranox Final Hall 33320 once more. In `offline_packets.log`, `EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` should be HANDLED (the stage 3 regeneration points advance on their own) and `EGS_REPORT_HACK_USER_NOT` should not appear anywhere.
+**Review play-test PASSED (2026-10-12 03:52-03:58, exe `a57a63e6`, run after the deploy).** Final Hall 33320 `CLEARED in 220s` (`offline_server.log:1675`). `EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` HANDLED x7 (`offline_packets.log:126-476`), each with its ACK and ALL_NOT. `REPORT_HACK` / `HACKSHIELD` lines: 0. 0 EXCEPTION; the only UNHANDLED is `E_DISABLE_HB_CHECK_REQ` x2, which this phase did not touch.
 
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
