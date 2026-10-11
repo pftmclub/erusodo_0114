@@ -2718,7 +2718,7 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
     - Cause: data034 `DLG_Map_Local_Hamel.lua` (March merged copy) left `DI_HAMEL_SECRET_HELL` out of `DungeonIDList`, so the map never built that dungeon's quest-mark static.
     - The lookup (`UdateLocalMapQuestDesc`, `X2LocalMapUI.cpp:2073`) is null-checked, so it was harmless.
     - June's file differs only by that entry. **The user chose to adopt it** (2026-10-11).
-    - `adopt-june`, sidecar to `kom_backup_stage_june\20261011_162133`, record `june_adopt_20261011_162133.tsv`, `PACK OK data034` (~1).
+    - `adopt-june`, sidecar to `kom_backup_stage_june\20261011_162133`, record `june_adopt_20261011_162133.tsv`, `PACK OK data034` (~1), `COPY OK data034 ... md5 558e9f4d5e7825cccdc118be0762134b`.
     - Copy and play-test 2 are owed: the Hamel map with no `_LocalQuest` line.
 
 ## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
