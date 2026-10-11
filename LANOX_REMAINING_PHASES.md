@@ -1650,6 +1650,7 @@ port it whole.
 - Ported under `SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM` (old Ranox path kept in `#else`). UV_ANIM_SPEED is a
   D3DXVECTOR2 userdata KLuaManager cannot read; it stays (0,0), June's default (only the 3 skipped BEHEMOTH_SOUL blocks set it).
 - Play-test owed: Distant Ruin (`NUI_LOW_FINALHALL_*_FD`) and a Fire Temple / Gateway fighter.
+- `DEPLOY OK: X2_offline.exe is 19,582,976 B, dated 2026-10-11 20:59:45, md5 588d5a6a5c111d331e45c1fc1b66f5b1` (commit `365baf9`).
 
 ---
 
