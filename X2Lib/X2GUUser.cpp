@@ -7897,6 +7897,32 @@ bool CX2GUUser::StateChange( int state, bool bDirectChange )
 #ifdef UNIT_EMOTION
 	m_ePlayedEmotion = CX2Unit::ET_NONE;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+#ifdef FIX_FORCE_DOWN_AND_DETONATION_BUG
+	/// June 320348c0 @3203492b-32034994 ( C3f ): after the riding-pet reset, the common-random re-bind and the emotion override, and BEFORE the
+	/// IsLocalUnit / HP / shock / frozen returns below ( a refused or remote change flushes too ): when the Future nowState ( low 16 bits ) is
+	/// DOWN_FRONT / DOWN_BACK / AIR_DOWN_LANDING ( virtual getters 0x114 / 0x118 / 0x490 ), the gage's UpdateFlushForceDown ( 32a33dc0 ) empties
+	/// the force-down gage and clears its flag. March flushed on ENTERING a down state ( ForceDownAndDetonationProcess ). Not AIR_DOWN_INVINCIBLE.
+	if ( NULL != m_pGageData )
+	{
+		const int iJuneC3f1Left = (int) (USHORT) m_FrameDataFuture.syncData.nowState;
+		if ( iJuneC3f1Left == GetDamageDownLandFront() || iJuneC3f1Left == GetDamageDownLandBack() || iJuneC3f1Left == GetDamageAirDownLanding() )
+		{
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			const float fJuneC3f1Gage = m_pGageData->GetNowForceDown();
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			if ( true == m_pGageData->UpdateFlushForceDown() )
+			{
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+				/// JUNE_FX C3f-1 user flush: one line per flush that applied ( the flag was set )
+				CX2OfflineLog::Server( L"JUNE_FX C3f-1 user flush: unit %I64d ( %s ) leaves state %d, gage %.1f -> 0, next state %d, local %d",
+					GetUnitUID(), GetUnit()->GetNickName(), iJuneC3f1Left, fJuneC3f1Gage, state, ( true == IsLocalUnit() ) ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			}
+		}
+	}
+#endif FIX_FORCE_DOWN_AND_DETONATION_BUG
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 
 	if( IsLocalUnit() == false )
 		return false;
@@ -12554,7 +12580,8 @@ void CX2GUUser::DamageReactStateChange( CX2DamageManager::DamageData* pDamageDat
 #ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
 		/// June effect completion C3c, 31feabd0 RT_DOWN @31feb0fa-31feb28a (after the riding super-armour buff above, @31feb13b / @31feb141, @31feb15b,
 		/// @31feb17b, @31feb1c1). June has no SetNowForceDown( 0.f ) here (March's FIX_FORCE_DOWN_INITIALIZE_BUG put it at the end of this case): the force-down
-		/// gage is cleared only by ForceDownAndDetonationProcess / its flush (JUNE_BUGS)
+		/// gage is emptied only by June's flush in StateChange 320348c0 @32034994 ( on leaving DOWN_FRONT / DOWN_BACK / AIR_DOWN_LANDING; C3f-1 ),
+		/// not here; ForceDownAndDetonationProcess 3202a9c0 only tests the flag (JUNE_BUGS)
 		if ( true == JuneIsSuperArmorAgainst( false, pDamageData ) && false == pDamageData->m_bForceBackSpeed )
 			break;
 
@@ -41982,6 +42009,28 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 	case USI_RIDING_DAMAGE_BACK:
 #endif //RIDING_SYSTEM
 		{
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+			/// June 3202a9c0 ( C3f ): bDet = UpdateDamageFlushMP ( 32a33d50 ); then the force-down flag is only TESTED ( +0xf8 ): set -> nowSpeed.y ( +0x308 ) = 0
+			/// and the four clears; not set -> the clears only when the detonation flushed. No UpdateFlushForceDown here: the flag is cleared in StateChange
+			/// on leaving the down state ( above ). The caller ( CommonStateStart ) is unchanged.
+			const bool bJuneDetonated = m_pGageData->UpdateDamageFlushMP();
+			const bool bJuneForceDown = m_pGageData->GetActivateForceDown();
+			if ( true == bJuneForceDown )
+				m_PhysicParam.nowSpeed.y = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			if ( true == bJuneForceDown )
+				/// JUNE_FX C3f-1 flag set: one line per state start that sees the flag set
+				CX2OfflineLog::Server( L"JUNE_FX C3f-1 flag set: unit %I64d ( %s ) entered state %d, gage %.1f, detonated %d",
+					GetUnitUID(), GetUnit()->GetNickName(), (int) m_NowStateData.stateID, m_pGageData->GetNowForceDown(), bJuneDetonated ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			if ( true == bJuneForceDown || true == bJuneDetonated )
+			{
+				m_vecStunPtr.clear();
+				m_vecFreezePtr.clear();
+				m_ExtraDamagePack.m_Stun.Init();
+				SetChangeGroggyState(false);
+			}
+#else SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 			bool bApplyForceDownORDetonation = false; 
 			if( true == m_pGageData->UpdateDamageFlushMP() )
 			{
@@ -42002,6 +42051,7 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 				m_ExtraDamagePack.m_Stun.Init();
 				SetChangeGroggyState(false);
 			}
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 			
 		} break;
 	default:

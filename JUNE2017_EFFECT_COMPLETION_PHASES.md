@@ -1273,13 +1273,41 @@ review `C3f-1-review.md`). User owes nothing.
 
 ## C3f-1 - port: June's force-down flush on leaving a down state (user + NPC)
 
-**Status: ready. Model:** Sonnet 5.5, high. Flag `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH` (+ `_DEBUG` for the play-test lines). Kickoff
-`kickoffs/june-effect/C3f-1.md`.
+**Status: code done 2026-10-12, play-test pending. Model:** Sonnet 5.5, high. Flag `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH` (+ `_DEBUG` for the play-test lines,
+ON). Kickoff `kickoffs/june-effect/C3f-1.md`.
 
 - **Scope:** "C3f - Done" items 1-4: the user StateChange flush and ForceDownAndDetonationProcess's test-only form; the NPC
   StateChangeForce flush, the dropped per-frame reset, and C3i's DRSC nowState guard; the C3c RT_DOWN comment; JUNE_BUGS rows.
 - **Exit:** builds, flag hygiene PASS, deployed; play-test shows the gage emptied on leaving the down state (`JUNE_FX C3f-1` lines),
   0 EXCEPTION.
+
+### C3f-1 - Done (2026-10-12, Sonnet 5.5 high; code, play-test pending)
+
+Flag `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH` (+ `_DEBUG`, default ON) in `KTDXLIB/Always.h`; items follow the kickoff.
+1. **User StateChange** (`X2GUUser.cpp`, `StateChange( int, bool )`): after the UNIT_EMOTION block, before `IsLocalUnit()`: Future nowState
+   (low 16 bits) = DOWN_FRONT / DOWN_BACK / AIR_DOWN_LANDING -> `UpdateFlushForceDown()`. Pure addition (June `320348c0 @3203492b`).
+2. **ForceDownAndDetonationProcess**: June's test-only form (`3202a9c0`): bDet = UpdateDamageFlushMP; flag set -> `nowSpeed.y = 0` + the four
+   clears; else clears only if bDet. March body in `#else`.
+2b. **NPC CommonStateStart**: three down states + gage flag -> `nowSpeed.y = 0`, placed after March's InsertBuffFactor tail and before the
+   skip-start / cinematic-UI / bounding-UP blocks (June `327ac9d0 @327af1fc`).
+3. **NPC StateChangeForce**: first statement flushes in the three down states (`327577d0`). Nested in FIX_FORCE_DOWN_AND_DETONATION_BUG (the
+   gage methods only exist under it; so are 2 and 2b).
+4. **NPC CommonFrameMove**: per-frame `SetNowForceDown( 0.f )` block in `#else`.
+5. **NPC DamageReactStateChange**: `if( <three down states> ) {} else` inserted at the top of the `FlushForceDown() == true` branch, so the
+   RIDING_MONSTER / ground / air chain that follows is the `else` body (insert-only; flag off = base).
+6. **C3c RT_DOWN comment** (`X2GUUser.cpp:12557`): the old line said the gage "is cleared only by ForceDownAndDetonationProcess / its flush";
+   it now names June's location (StateChange `320348c0 @32034994`; ForceDownAndDetonationProcess only tests the flag). Comment only, which is the
+   one deleted line flagcheck reports (OTHER = SUPER_ARMOR_CONDITION).
+7. **JUNE_BUGS** rows 178-181 (riding force-down never flushed; flag set for the whole down state; refused/remote change still flushes; NPC twin
+   of row 131). Row 131's wording still matches (it already names StateChange as the flush site). funcmap rows now say "Ported C3f-1".
+8. **Debug lines** (offline_server.log; grep `JUNE_FX C3f-1`): `user flush`, `flag set`, `npc flush`, `npc flag set`.
+
+Hygiene: `flagcheck SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH --worktree --files ... --with _DEBUG`: X2GUNPC.cpp PASS (+60), Always.h DEFINE, X2GUUser.cpp
+OTHER (+51 -1: the item 6 comment, inside SUPER_ARMOR_CONDITION); RESULT PASS, 0 non-ASCII, 0 EOL-mismatched, 0 encoding changes; the one untokened
+`#endif` is the `#error` guard.
+`DEPLOY OK: X2_offline.exe is 19,570,688 B, dated 2026-10-12 04:10:17, md5 5fac6f82805f3c5347e77f1c5fbbadff`; the four `JUNE_FX C3f-1` strings
+are in the exe.
+Open for the user: nothing. Play-test below; the review kickoff `C3f-1-review.md` already exists.
 
 ---
 

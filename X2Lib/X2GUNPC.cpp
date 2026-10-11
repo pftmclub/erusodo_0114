@@ -9117,6 +9117,32 @@ bool CX2GUNPC::StateChange_LUA( const char* stateName, bool bDirectChange )
 
 bool    CX2GUNPC::StateChangeForce( int state, bool bDirectChange )
 {
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+#ifdef FIX_FORCE_DOWN_AND_DETONATION_BUG
+	/// June CX2GUNPC::StateChangeForce 327577d0 ( C3f ), first statement ( before the bounds and cool-time tests, so a refused change flushes too ): when the
+	/// ( byte ) nowState is m_DownDamageLandFront / LandBack / m_DownDamageAir ( +0x4090 / +0x4094 / +0x4098 ), the gage's UpdateFlushForceDown ( 32a33dc0 )
+	/// empties the force-down gage and clears its flag. March has no flush here ( it emptied the gage every frame in CommonFrameMove instead ).
+	if ( m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandFront
+		|| m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandBack
+		|| m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageAir )
+	{
+		if ( NULL != GetGageData() )
+		{
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			const float fJuneC3f1Gage = GetGageData()->GetNowForceDown();
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			if ( true == GetGageData()->UpdateFlushForceDown() )
+			{
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+				/// JUNE_FX C3f-1 npc flush: one line per flush that applied ( the flag was set )
+				CX2OfflineLog::Server( L"JUNE_FX C3f-1 npc flush: npc %I64d ( %s ) leaves state %d, gage %.1f -> 0, next state %d",
+					GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int) m_NPCFrameData.syncData.nowState, fJuneC3f1Gage, state );
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+			}
+		}
+	}
+#endif FIX_FORCE_DOWN_AND_DETONATION_BUG
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 #ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 	if ( SureynaIsTarget( this ) )
 	{
@@ -13925,6 +13951,16 @@ bool CX2GUNPC::DamageReactStateChange( CX2DamageManager::DamageData* pDamageData
 		}
 		else if( FlushForceDown() == true )
 		{
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+			/// June NPC DamageReactStateChange 32769240 @3276a1a0-3276a1f3 ( C3i found, C3f-1 ported ): FlushForceDown ( 32a31e10 ) has already run and set the flag;
+			/// while nowState is DownDamageLandFront / Back / Air, June skips the whole branch ( no state change, bStateChanged untouched ). The user has no such guard.
+			if ( m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandFront
+				|| m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandBack
+				|| m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageAir )
+			{
+			}
+			else
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 #ifdef RIDING_MONSTER
 			if( GetRideState() == RS_ON_RIDING && GetRideType() == RT_RIDER ) // 라이더
 			{
@@ -17503,6 +17539,25 @@ void CX2GUNPC::CommonStateStart()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+#ifdef FIX_FORCE_DOWN_AND_DETONATION_BUG
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af1fc-327af255 ( C3f, item 2b ), right after March's tail ( 32761b40 = InsertBuffFactor ) and before the
+	/// skip-the-start, cinematic-UI and bounding-UP blocks below ( June calls 3275a070 later, @327af3aa ): when the ( byte ) nowState is DownDamageLandFront / LandBack /
+	/// DownDamageAir ( +0x4090 / +0x4094 / +0x4098 ) and the gage's force-down flag ( +0xf8 ) is set, nowSpeed.y = 0. Nothing else ( no clears, no UpdateDamageFlushMP ).
+	if ( ( m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandFront
+		|| m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandBack
+		|| m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageAir )
+		&& NULL != GetGageData() && true == GetGageData()->GetActivateForceDown() )
+	{
+		m_PhysicParam.nowSpeed.y = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+		/// JUNE_FX C3f-1 npc flag set: one line per state start that sees the flag set
+		CX2OfflineLog::Server( L"JUNE_FX C3f-1 npc flag set: npc %I64d ( %s ) entered state %d, gage %.1f",
+			GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int) m_NPCFrameData.syncData.nowState, GetGageData()->GetNowForceDown() );
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+	}
+#endif FIX_FORCE_DOWN_AND_DETONATION_BUG
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af25b-327af360 ( C3o mapped, C3p ported ): a DIRECTION_STATE state with a live g_pX2Game
 	/// arms the game's skip-the-start list ( 322d8010 resets it first when it is empty ) and adds this NPC's UID ( +0x270 = GetUID() ).
@@ -19092,6 +19147,10 @@ void CX2GUNPC::CommonFrameMove()
 
 
 	// 넘어졌을 때 강제다운 초기화
+#ifdef SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+	/// June CX2GUNPC::CommonFrameMove 327b53b0 ( C3f ): no per-frame reset. The gage is emptied by StateChangeForce's flush on leaving the down state ( with the flag set );
+	/// the only SetNowForceDown callers left are AttackResult and the unit init. March emptied it every frame while in a down-land state ( JUNE_BUGS row d ).
+#else SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 	if( m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandFront
 		|| m_NPCFrameData.syncData.nowState == (char)m_CommonState.m_DownDamageLandBack
 
@@ -19099,6 +19158,7 @@ void CX2GUNPC::CommonFrameMove()
 	{
 		SetNowForceDown( 0.f ); 
 	}
+#endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 
 	if ( m_delegateProcessReturnFromScaleChange )
 		m_delegateProcessReturnFromScaleChange();

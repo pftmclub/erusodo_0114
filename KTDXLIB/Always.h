@@ -7122,3 +7122,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              reposition. Remove after the play-test.
 //#define SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG	// off 2026-10-11: play-test PASSED (full summon flow x2, Geyser 33290 cleared)
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3f-1: June's force-down flush. The user's StateChange ( 320348c0 @3203492b-32034994 ) empties the
+//              force-down gage and clears its flag ( UpdateFlushForceDown 32a33dc0 ) when the unit LEAVES DOWN_FRONT / DOWN_BACK /
+//              AIR_DOWN_LANDING, before the local-unit and shock / frozen returns; ForceDownAndDetonationProcess ( 3202a9c0 ) only tests
+//              the flag ( + nowSpeed.y = 0 ). NPC: StateChangeForce ( 327577d0 ) flushes first, CommonStateStart ( 327ac9d0 @327af1fc )
+//              zeroes nowSpeed.y in the three down states with the flag set, March's per-frame reset in CommonFrameMove is dropped, and
+//              DamageReactStateChange skips the FlushForceDown branch in the three down states ( 32769240 @3276a1a0 ).
+#define SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3f-1 play-test lines ( short-lived; turn OFF in the C3f-1 review ): "JUNE_FX C3f-1" user flush /
+//              flag set / NPC flush lines. Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG) && !defined(SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH)
+#error SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG needs SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
+#endif
+//////////////////////////////////////////////////////////////////////////
