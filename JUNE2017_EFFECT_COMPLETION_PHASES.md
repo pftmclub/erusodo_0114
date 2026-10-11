@@ -2481,7 +2481,7 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 **How to see it in game:** kill a dungeon boss as the last kill, e.g. Elder Wally's Castle (Normal). The camera should hold on the dying boss at distance 800 for 1.5 s, then return to you. The log should show `JUNE_FX C3v arm: unit type 1, time 1.50, distance 800`, then `expire`. Regression: stage openings with a focus-camera boss still lock input and show the boss.
 
-**Play-test (2026-10-12, Elder Wally's Castle Normal, jtLordKnight):** `offline_server.log` shows one `JUNE_FX C3v arm: unit type 1, time 1.50, distance 800, can-not-input 0, tracking 0` (04:26:52.071) and one `expire: focus back to my unit ( 1 )` (04:26:55.898), with no `cancel`. The 3.8 s of real time is the 1.5 s of game time: the timer counts `m_fElapsedTime`, which the last-kill slow motion scales down, as in June. The battle-field check was skipped (the user's call: a field boss is a hassle to spawn). The only UNHANDLED packets are `E_DISABLE_HB_CHECK_REQ` x2, which predate this phase.
+**Play-test (2026-10-12, Elder Wally's Castle Normal, jtLordKnight):** `offline_server.log` shows one `JUNE_FX C3v arm: unit type 1, time 1.50, distance 800, can-not-input 0, tracking 0` (04:26:52.071) and one `expire: focus back to my unit ( 1 )` (04:26:55.898), with no `cancel`. Arm to expire took 3.8 s of real time for a 1.5 s timer that counts `m_fElapsedTime`. The likely cause is the last-kill slow motion slowing the game clock, but that is not traced; the review checks it. The battle-field check was skipped (the user's call: a field boss is a hassle to spawn). The only UNHANDLED packets are `E_DISABLE_HB_CHECK_REQ` x2, which predate this phase.
 
 ## C3w - port: June's ShowBossNameAtStart
 
