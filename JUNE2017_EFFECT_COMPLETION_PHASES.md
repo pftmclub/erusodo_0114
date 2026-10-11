@@ -2765,7 +2765,9 @@ high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
   (`327a901e`, funcmap row). The Ranox port's `ATTACH_SKIN_MESH0` kept a SubEquip with no anim. **Fix:** flag
   `SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_SKIP_MISSING` drops it and logs `JUNE_FX C3y-1b attach skin mesh ... not found` (insert-only,
   inside the Ranox block). A census of June's 3 attach-skin-mesh names finds only this one missing, used by the 3 Soul scripts. JUNE_BUGS row 171.
-  flagcheck `--worktree --files`: 1 PASS, 1 DEFINE, 0 FAIL, 0 deleted. RESULT: PASS. Deploy: pending (line below).
+  flagcheck `--worktree --files`: 1 PASS, 1 DEFINE, 0 FAIL, 0 deleted. RESULT: PASS (also `--range d015581^..d015581`).
+  `DEPLOY OK: X2_offline.exe is 19,570,176 B, dated 2026-10-11 15:45:42, md5 a3cf19b767317fc5cd4460e33b4e7277` (built at `1ca6415`;
+  the shared tree first had to wait for C3p / C3z-4b to compile).
 - **Not provable here:** only `Dungeon_Sander_Secret_Hell` (C3y-1c) reaches Sander's 8 non-boss worlds, so `SetAnimWait` and those
   8 worlds wait for C3y-1c's play-test. Henir Space (38100) reaches stages 22 and 32-35, but its run order is decided elsewhere,
   so the check uses `/stage`.
