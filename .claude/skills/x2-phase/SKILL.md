@@ -40,7 +40,7 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
    named in STATUS for the user.
 3. **Peers.** `git status --short` and `git log -3 --oneline`. Other sessions share this tree
    and branch. Never touch, stage, revert or "clean up" files you did not change.
-4. **Read only what the kickoff lists**, with
+4. **Read only what the kickoff lists** (on an Opus phase, have a subagent do the reading: see *When the phase is Opus*), with
    `python tools/docsection.py <plan doc> "<section>" "<section>" ...`.
    Never read a plan doc "in full"; if you need something unlisted, `--list` the outline and
    pull that section. Where a doc's "Starting context" describes building, deploying,
@@ -64,6 +64,43 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
 | One doc section | `python tools/docsection.py <doc> "<heading>"` | - |
 | Convert / edit / prove a March `.lua` as BOM source | `python tools/luasrc.py find/convert/restore/refresh/ledger` (`kom.py compile` folds `X.src.lua`) | x2-lua |
 | Bring a June `.lua` into March (default June's `ljconv` bytecode; `--source` + core-list row only when it must differ or be edited) | `python tools/luasrc.py adopt-june [<kom>] X.lua` / `core --check / --add` | x2-adopt-june |
+
+## When the phase is Opus: delegate the mundane work to subagents (user rule, 2026-10-11)
+
+If the kickoff / STATUS row names **Opus** (identify, review, RE first, any "Opus identifies" half), you are the
+expensive model. Keep your context for the judgment calls and hand everything mechanical to the `Agent` tool
+(`subagent_type: general-purpose`, `model: sonnet`, or `haiku` for pure lookups; `run_in_background: false` when your next
+step needs the answer, otherwise let it run). The user has authorised this for Opus phases; on a Sonnet phase do the work yourself.
+
+**Opus keeps (never delegate):**
+- Reading June's code in Ghidra and deciding what it does; line-by-line June-vs-March diffs; the review verdict.
+- Writing or approving each transcription of June logic, flag design, and anything that is a decision for the user.
+- Judging whether a subagent's finding is enough to act on.
+
+**Delegate (each is a fixed-shape job with a short written report):**
+- The kickoff's read list: `docsection.py` sections, `funcmap.tsv` greps, census / tsv lookups. Ask for a digest with
+  `file:line` / row numbers and the verbatim lines you will quote, not a retelling.
+- Locating March call sites, callers, readers, enum values, flag state (`grep` over `X2Lib`, `KTDXLIB`; `cl /P` probes).
+- Mechanical Ghidra pulls you already know the address for (dump function N, list xrefs, list a vtable): raw output to a file
+  in the scratchpad, path returned. You read the part that matters.
+- Build + deploy (`build.py --deploy`), `flagcheck.py` runs (worktree and range), `logs.py --tag` reads: report the
+  `DEPLOY OK` / `RESULT` / summary lines and anything not PASS, nothing else.
+- Bookkeeping drafts: Done-note draft (under ~60 lines), STATUS row text, next-kickoff file from the template, hand-off
+  checklist. You review and correct the draft before it is committed.
+- Large mechanical edits you have fully specified (a `bytepatch.py` spec, a table of repeated one-line insertions): hand the
+  spec, get back the `flagcheck` verdict.
+
+**Rules for every subagent prompt:**
+- Self-contained: the phase, the exact files / addresses / sections, the output shape, and "report under N lines".
+- Say what it must **not** do: no commits, no `git add`, no editing files it was not given, no launching the game, no
+  killing processes by image name, no touching peers' uncommitted files, CP949 sources only through `bytepatch.py`,
+  no new `.lua` files, no invented values (report "not found" instead).
+- Independent jobs go out in **one message in parallel** (reads, greps, a build alongside a log read).
+  Edits to the same file, and anything behind the build lock, go one at a time.
+- Trust but spot-check: before a subagent's claim decides a port (an address, an offset, "no other caller"), open the cited
+  line yourself. A report with no citation is a lead, not a fact.
+- Do not delegate what takes you one tool call, and do not spawn an agent to "think about" the task.
+- Commit and the final hand-off to the user are always yours.
 
 ## Finish (same session)
 
