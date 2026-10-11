@@ -4,6 +4,10 @@ so a missing mesh there crashes CX2GUNPC::Init (m_pMotion NULL) when the monster
 Writes june2017_re/npc_mesh_need_replaced.tsv (name, June kom, size, needed_by); feed it to `tools/kom.py stage-june`.
 Bytecode string constants carry a uleb length byte that can be printable, so each token is resolved by trying short suffixes.
     python june2017_re/npc_mesh_census.py
+# --seed LIST (2026-10-12, NPC anim collision): LIST (one mesh name per line) names June meshes that COLLIDE with a March mesh of the same name
+# whose animation set lacks the ANIM_NAMEs a June script uses (e.g. Motion_THIEF_THIN.X: March has `AttackA`, June `AttackA_Ready` / `_Fire`, so
+# the Elder bridge guard logged "NPC Motion Error"). Seeds those names (June's copy wins, june-asset rule) plus the closure of textures /
+# models they name that March lacks. Writes npc_anim_collision_need.tsv.
 """
 import os, re, sys, json, collections
 TRUNK = r"F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk"
@@ -65,6 +69,7 @@ def tokens(b):
 # --all-npc (2026-10-10, user: copy every monster mesh): every unit script in kom_contents (a .lua naming INIT_MOTION), so June-only
 # monster scripts no registry reaches yet are covered too; writes npc_mesh_need_all.tsv.
 ALL_NPC = "--all-npc" in sys.argv
+SEED = sys.argv[sys.argv.index("--seed") + 1] if "--seed" in sys.argv else None
 lua_files = []
 seenf = set()
 if WORLDS:
@@ -83,7 +88,7 @@ elif ALL_NPC:
             p = os.path.join(KC, kd, f)
             if f.lower().endswith(".lua") and not f.lower().endswith(".src.lua") and b"INIT_MOTION" in open(p, "rb").read():
                 seenf.add(p.lower()); lua_files.append((kd, f, p))
-for stamp in (() if (ALL_NPC or WORLDS) else ("20261009_135231", "20261009_141115")):
+for stamp in (() if (ALL_NPC or WORLDS or SEED) else ("20261009_135231", "20261009_141115")):
     stage = os.path.join(os.path.dirname(KC), "kom_backup_stage_june", stamp)
     for kd in os.listdir(stage):
         if not kd.endswith("_kom"):
@@ -92,7 +97,7 @@ for stamp in (() if (ALL_NPC or WORLDS) else ("20261009_135231", "20261009_14111
             p = os.path.join(KC, kd, f)
             if f.lower().endswith(".lua") and os.path.exists(p) and p.lower() not in seenf:
                 seenf.add(p.lower()); lua_files.append((kd, f, p))
-print("world scripts (--worlds):" if WORLDS else "unit scripts (--all-npc):" if ALL_NPC else "adopted lua files:", len(lua_files))
+print("seed meshes (--seed):" if SEED else "world scripts (--worlds):" if WORLDS else "unit scripts (--all-npc):" if ALL_NPC else "adopted lua files:", len(lua_files))
 
 need = {}            # lower name -> spelling
 need_by = collections.defaultdict(set)
@@ -107,6 +112,15 @@ for kd, f, p in lua_files:
             continue
         need[ln] = june[ln][0][3]["name"]
         need_by[ln].add(kd + "/" + f)
+
+if SEED:
+    for l in open(SEED, encoding="utf-8"):
+        sn = l.strip().split("	")[0]
+        if sn and sn.lower() in june:
+            need[sn.lower()] = june[sn.lower()][0][3]["name"]
+            need_by[sn.lower()].add("anim-collision")
+        elif sn:
+            print("seed not in June:", sn)
 
 # closure: textures (and nested models) inside each needed model
 def jbytes(ln):
@@ -152,7 +166,7 @@ print("june koms:", dict(by_kom))
 print("long names (>59):", long_names)
 print("undecodable:", undecodable)
 print("in several June koms:", len(multi))
-TSV = os.path.join(OUT, "world_asset_need.tsv" if WORLDS else "npc_mesh_need_all.tsv" if ALL_NPC else "npc_mesh_need_replaced.tsv")
+TSV = os.path.join(OUT, "npc_anim_collision_need.tsv" if SEED else "world_asset_need.tsv" if WORLDS else "npc_mesh_need_all.tsv" if ALL_NPC else "npc_mesh_need_replaced.tsv")
 with open(TSV, "w", encoding="utf-8", newline="\n") as fh:
     fh.write("name\tjune_kom\tsize\tneeded_by\n")
     for ln in sorted(need):
