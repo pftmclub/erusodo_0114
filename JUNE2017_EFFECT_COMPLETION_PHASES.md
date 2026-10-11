@@ -2720,6 +2720,12 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
     - June's file differs only by that entry. **The user chose to adopt it** (2026-10-11).
     - `adopt-june`, sidecar to `kom_backup_stage_june\20261011_162133`, record `june_adopt_20261011_162133.tsv`, `PACK OK data034` (~1), `COPY OK data034 ... md5 558e9f4d5e7825cccdc118be0762134b`.
     - Copy and play-test 2 are owed: the Hamel map with no `_LocalQuest` line.
+- **Play-test 2 PASSED (2026-10-11, run 16:23, after the 16:21 data034 copy; logs read).**
+  - No `Temple of Trials_LocalQuest` line, and the Hamel map works.
+  - reyaa ran Hamel Secret Hell 33261 through stages 0, 2, 1, 3 and 4, then left (no clear attempted).
+  - 0 EXCEPTION. 3 UNHANDLED (`E_DISABLE_HB_CHECK_REQ` x2, `EGS_REPORT_HACK_USER_NOT`), none this phase's.
+  - Seen, not this phase's: 1x `[EXTRA_NPC_STAT] non-finite result (statType=1 level=1 dungeon=33261)`, the open NaN hazard of `LANOX_EXTRA_NPC_STAT_PLAN.md` Phase 2. It fell back to the legacy stats.
+  - **Phase closed.**
 
 ## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
 
