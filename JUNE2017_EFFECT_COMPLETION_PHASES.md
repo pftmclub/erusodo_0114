@@ -3473,6 +3473,55 @@ All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The
 **Play-test (review fix):** Ranox Final Hall 33320 once more. In `offline_packets.log`, `EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` should be HANDLED (the stage 3 regeneration points advance on their own) and `EGS_REPORT_HACK_USER_NOT` should not appear anywhere.
 **Review play-test PASSED (2026-10-12 03:52-03:58, exe `a57a63e6`, run after the deploy).** Final Hall 33320 `CLEARED in 220s` (`offline_server.log:1675`). `EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` HANDLED x7 (`offline_packets.log:126-476`), each with its ACK and ALL_NOT. `REPORT_HACK` / `HACKSHIELD` lines: 0. 0 EXCEPTION; the only UNHANDLED is `E_DISABLE_HB_CHECK_REQ` x2, which this phase did not touch.
 
+### C3z-4f - Done (2026-10-12, Opus 5.5 high): findings only, no client reader; nothing ported
+
+**Verdict.** June's client writes the summoner field and never reads it, so it is an input to June's server only. No code changed: no
+flag `#define`, no flagcheck, no build or deploy. The kickoff's step 3 has no branch for this case, so the port (below) is the user's call.
+
+**The field (kickoff step 1).**
+- June's `KNPCUnitReq` is `#pragma pack(1)`, **0x81 bytes**. That size is the stride of every `vector<KNPCUnitReq>` loop (`32130370`,
+  `3230dcc0`, `32d53d40`) and the size of the embedded req in `320d5960`.
+- The summoner value is a dword at **+0x7d**. It is the struct's last field: `+0x7d + 4 = 0x81`.
+- The create core `322e67c0` stores its last argument there (`@322e6973` loads `[ESP+0x124]`, `@322e6995` stores it to struct +0x7d). The
+  five wrappers pass the summoner's templet unit ID (`+0x85f8[0]`); every other caller passes 0.
+- **Name: not recoverable.** The element Get `320ce400` jumps into VM-protected code (`33cb347a` -> `33854fb3`), and no reflection or
+  log string names any `KNPCUnitReq` field. If it is ever ported, the name is ours: `m_iSummonerNPCID` (summoner templet NPC ID).
+- **The 8 bytes before it** are two June-only ints. `AddNPCData 327edb60` copies `+0x75` to NPCData `+0x7c` and `+0x79` to `+0x80`. The
+  Lua stage parser `327eb8e0` fills the same two NPCData slots from the XOR'd keys `QUEST_ID_FOR_CREATE` / `QUEST_ID_FOR_DO_NOT_CREATE`
+  (`xorstrings.tsv:5402-5403`, decoded again here). Both default to 0.
+  - **No shipped script sets either key:** 0 hits across every `.lua` in `24965799\kom_contents`. The 32 stage scripts that use the
+    sibling key `SIEGE_MODE` are among those searched.
+  - The quest-gated stage-NPC create is therefore dead in June's data. It is noted here and nothing more (skip-non-important rule).
+    March lacks both keys.
+
+**Reader sweep (kickoff step 2).** Every route out of the element Get was walked. The handler-side sweep was done by a Sonnet subagent;
+the sink copy and both xref lists were spot-checked by hand.
+- `320ce400` has exactly two callers: `320d5960`, a single embedded req, and `32130370`, the vector loop. `32138b00` has exactly two
+  callers: `320e4830` and `320e4d90`.
+- Handlers, and what each reads at element `+0x7d`:
+  - `3230dcc0`, the CREATE_NOT handler: dispatch on +0x6b, then `CreateNPC 3230d2b0`. No read.
+  - `3230e190`, 0x86-byte elements: no read.
+  - `3230e3a0`, through `3230fa20` -> `320d5960`: reads the req plus the packet's +0x81 dword, not +0x7d.
+  - `324b96a0` / `324b98b0` (dispatcher `324bf402` / `324bf343`) and `324ba090` (battlefield) all reach the sinks `32d53020` -> `32d528f0`
+    and `32d53d40`.
+    - The only copy out of the element is `32d555b0`, which copies field by field into a 0x68-byte node. Its highest read is +0x71
+      (`@32d555f6`).
+    - No 0x81-byte block copy anywhere.
+  - `327edb60` (AddNPCData) and `32d539c0`: no read.
+- Every one of the five June `CreateNPC` callers takes its arguments by value, and none of them includes +0x7d.
+
+**Rows.** `june2017_re/funcmap.tsv` gains three C3z-4f rows: `322e67c0`, the +0x7d slot / `320ce400`, and the `QUEST_ID_FOR_*` NPCData
+slots.
+
+**User's choice (not done).** Port it for struct parity anyway. That is 4 small edits behind `SERV_IRUHADEV_JUNE_NPC_SUMMONER_FIELD`, which
+lives in `Always.h` and also in `ServerDefine.h` plus `SECOND_HOMES`:
+- the field and its `Init`;
+- Put / Get;
+- the five C3z-4 wrappers fill it;
+- the emulator echoes it.
+
+There would be no change in behaviour, since nothing reads it. Say the word and it becomes C3z-4f-2; otherwise the row stays closed.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
