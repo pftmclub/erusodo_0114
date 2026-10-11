@@ -47,7 +47,7 @@ def blocks_txt(t, kw):
     return out
 
 def load(base, es, de):
-    d = {"ES": blocks_es(rd(es)), "DE": blocks_de(rd(de)), "MP": {}, "MPF": {}, "PS": {}}
+    d = {"ES": blocks_es(rd(es)), "DE": blocks_de(rd(de)), "MP": {}, "MPF": {}, "PS": {}, "PSF": {}}
     for f in ("GameMajorXMeshPlayer.txt", "GameMinorXMeshPlayer.txt"):
         for k, v in blocks_txt(rd(os.path.join(base, f)), "TEMPLET").items():
             if k not in d["MP"]:
@@ -55,7 +55,8 @@ def load(base, es, de):
     for f in sorted(glob.glob(base + "/GameMajorParticle*.txt") + glob.glob(base + "/GameMinorParticle*.txt")):
         if not f.endswith("_INT.txt"):
             for k, v in blocks_txt(rd(f), "eventsequence").items():
-                d["PS"].setdefault(k, v)
+                if k not in d["PS"]:
+                    d["PS"][k] = v; d["PSF"][k] = os.path.basename(f)
     return d
 
 if not os.path.isdir(os.path.join(SCR, "data036_kom")):
@@ -120,7 +121,7 @@ with open(os.path.join(T, "june2017_re", "npc_effect_closure_missing.tsv"), "w",
 ext = re.compile(r'"([^"\n]{3,80}\.(?:x|y|dds|tga|png|bmp|jpg|ogg|wav))"', re.I)
 march_files = {n.lower() for n in kom.live_names()} | {n.lower() for n in kom.staged_names()}
 need_assets = collections.OrderedDict()
-for k in ("ES", "DE", "MP"):
+for k in ("ES", "DE", "MP", "PS"):
     for n in want[k]:
         for a in ext.findall(J[k][n]):
             if a.lower() not in march_files:
@@ -130,6 +131,37 @@ with open(os.path.join(T, "june2017_re", "npc_effect_closure_assets.tsv"), "w", 
     for a, n in need_assets.items():
         f.write("%s\t%s\n" % (a, n))
 print("assets named by the new blocks and absent from March:", len(need_assets), "| particle sequences missing (report only):", len(want["PS"]))
+
+# particle sequences (--particles): inserted into the June file's namesake; a sequence using a line key / enum March's files never use is skipped
+PARTICLES = "--particles" in sys.argv
+def psig(b):
+    s = set()
+    for line in b.split("\n")[2:-2]:
+        w = line.strip().split()
+        if not w:
+            continue
+        if w[0] in ("Initial", "Fade", "Global"):
+            s.add(w[0] + "|" + (line.split("=")[0].split()[-1] if "=" in line else ""))
+        else:
+            s.add(w[0])
+        s.update(re.findall(r"\b(?:PT|BT|D3DBLEND|D3DCMP|CP|OT)_[A-Z0-9_]+", line))
+    return s
+if PARTICLES:
+    mark = set()
+    for b in M["PS"].values():
+        mark |= psig(b)
+    bad_ps = {n for n in want["PS"] if psig(J["PS"][n]) - mark}
+    print("particle sequences missing:", len(want["PS"]), "| with a key / enum March never uses (skipped):", len(bad_ps))
+    for n in sorted(bad_ps)[:8]:
+        print("   skip", n, sorted(psig(J["PS"][n]) - mark)[:3])
+    want["PS"] = [n for n in want["PS"] if n not in bad_ps]
+    byfile = collections.defaultdict(list)
+    for n in want["PS"]:
+        byfile[J["PSF"][n]].append(n)
+    print("destination files:", {f: len(v) for f, v in sorted(byfile.items())})
+    for f in byfile:
+        if not os.path.exists(os.path.join(KC, f)):
+            sys.exit("destination missing in March: " + f)
 
 if APPLY:
     stamp = time.strftime("%Y%m%d_%H%M%S")
@@ -159,4 +191,12 @@ if APPLY:
         if names:
             put(fname, fn)
         print(fname, "+", len(names), "templets")
+    if PARTICLES:
+        for fname, names in sorted(byfile.items()):
+            def fn(b, names=names):
+                txt = "".join(J["PS"][n] for n in names).replace("\n", "\r\n").encode("utf-8")
+                i = b.rstrip(b"\r\n").rfind(b"}")
+                return b[:i] + txt + b[i:]
+            put(fname, fn)
+        print("particle sequences appended:", sum(len(v) for v in byfile.values()))
     print("APPLIED: ES +%d, DE +%d; originals in %s" % (len(want["ES"]), len(want["DE"]), bk))
