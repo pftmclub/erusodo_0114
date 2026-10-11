@@ -31,6 +31,7 @@ Review C3v's commit against June (`june2017_re/funcdis.py`, Ghidra read-only):
   `#else` side); `CHUNG_SECOND_CLASS_CHANGE` still ON for PvP.
 - **Unit `+0x240`**: the write-only verdict. Optionally sweep reads through the observer base (`[reg+0xa0]` byte after a handle
   deref) to close "not excluded".
+- The play-test logged arm -> expire 3.8 s apart for a 1.5 s timer. Confirm that the last-kill slow motion scales the `fElapsedTime` reaching `CX2Game::OnFrameMove` (`X2Game.cpp:2640`); if it doesn't, find why.
 - The play-test log: an `arm` with type 1 / 1.50 / 800 followed by `expire` on a boss last kill; no stray `cancel` every frame.
 
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT --range <C3v commit>^..HEAD` (and `_C3V_DEBUG`).
