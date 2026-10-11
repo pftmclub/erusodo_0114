@@ -2737,7 +2737,8 @@ high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
   `in this flag's files: 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the token, 0 encoding change(s)`; `RESULT: PASS`.
   The exe was built at `9a8c6c0` plus these 3 files; `9a8c6c0` and `9ef8b63` (C3y-1a) are data / docs only, so the exe matches `9c7bd65`.
 - `DEPLOY OK: X2_offline.exe is 19,555,328 B, dated 2026-10-11 10:48:05, md5 64fa2a98ba49ba5c6fc3645b1af303d2` (`SetAnimWait` is in the exe).
-- **Copies: none yet.** They wait for the user's OK (8 koms + 6 BGM files).
+- **Copied (user OK, 2026-10-11 ~10:55):** `COPY OK` data036 (md5 aaa392f1), data040 (ef1358bf), data135 (70afdc24), data136 (b147083c),
+  data146 (b6ddb3f4), data166 (new, 4582d4d8), data180 (49d1cf63), data182 (new, 0539c736). The 6 BGM files are in `data\music\`, md5 = June's.
 - **Not provable here:** only `Dungeon_Sander_Secret_Hell` (C3y-1c) reaches Sander's 8 non-boss worlds, so `SetAnimWait` and those
   8 worlds wait for C3y-1c's play-test. Henir Space (38100) reaches stages 22 and 32-35, but its run order is decided elsewhere,
   so the check uses `/stage`.
