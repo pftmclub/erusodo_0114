@@ -2227,7 +2227,7 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 
 ## C3p - port: June's skip-the-start (ESC) system and DIRECTION_STATE
 
-**Status: code done 2026-10-11, play-test owed (see C3p - Done; found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3p.md`, review `kickoffs/june-effect/C3p-review.md`.
+**Status: done 2026-10-11, play-test PASSED (see C3p - Done; found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3p.md`, review `kickoffs/june-effect/C3p-review.md`.
 
 - **Scope:** the whole June-only chain: parser bit `0x4d` `DIRECTION_STATE`, the NPC CommonStateStart arming block (`327ac9d0 @327af25b-327af360`), game `+0xb40` (armed, sent, NPC id list), `322d8010` / `322f4c60` / `322f11d0` / `324cf360`, event `0x4ac` (the emulator answers it if the offline party path can reach it), the CX2State `+0x1ec / +0x1f0` setter `31ef7370`.
 - **Visible:** 77 shipped NPC scripts set the key (dungeon openings). **Exit:** ESC skips an opening in game; funcmap rows `Effect C3p`.
@@ -2250,6 +2250,12 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,570,176 B, dated 2026-10-11 15:45:42, md5 a3cf19b767317fc5cd4460e33b4e7277, equal to X2/US_SERVICE/x2.exe (2026-10-11 15:45:36); built at mods/june-buff-port 478322f + 21 uncommitted code file(s).` The others are the peer's in-progress C3z-4b. `JUNE_FX C3p arm / esc / skip / end` (UTF-16) and `DIRECTION_STATE` are in the deployed exe. The first build failed on `GET_STRING( a ? b : c )` (the macro does not parenthesise its argument); fixed with a local id. No kom.
 
 **How to see it in game:** Underground Waterway (`DI_ELDER_BELOW_PASSAGE_NORMAL` 30120), stage 3 (STAGE2, the boss room): `NUI_EVENT_NPC_BENDERS_ELDER` (NPC_GROUP, START state `DIRECTION_STATE`, WAIT = DYING) with the boss Benders Nasod (`STOP_AT_START_STATE`, `SHOW_BOSS_NAME_DELAY_TIME` 9). The hint shows bottom right during the intro; ESC ends it.
+
+**Play-test PASSED 2026-10-11** (user, reyaa; exe `a3cf19b7`, logs after the deploy, 0 EXCEPTION, only the baseline `E_DISABLE_HB_CHECK_REQ` x2, clean shutdown). Played Sander secret and Ranox Gateway instead of Underground Waterway:
+- **ESC skip, two NPCs** (offline_server 564-574): `arm` `EVENT_SANDER_SECRET_3STAGE1_HENIR` + `EVENT_SANDER_SECRET_3STAGE2` (list 2) -> `esc: armed 1 sent 0` -> both `state 6 -> WAIT_STATE 7` -> two `end` lines.
+- **ESC skip, Gateway boss intro** (1260-1264, C3z-7's gate): `arm` `EVENT_GATEWAY_BOSS` -> ESC 0.5 s later -> `state 6 -> WAIT_STATE 7` -> `end`; the event NPC died `KILL_SELF` (its DYING state) and Ignia fought (hits on 1000014 / 16 / 17 from 16:17:54).
+- **No ESC** (973-978): Gateway intro armed at 16:16:47 and ended on its own at 16:16:57 (`end`, input unlocked); later ESC presses (`armed 0`) went to March's normal ESC menu.
+- `0 user start-motion delay(s) zeroed` in all three: these rooms have no start-motion wait (delay already -1). `80 NPC boss-name flags` is the NPC list size.
 
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 
@@ -3399,7 +3405,6 @@ All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The
 - **Subtitle calls fire.** Gateway boss intro (event npc 1905), `offline_server.log:975-977`: `SetMovieDescriptionData npc 1905 string 33875 / 33876 / 33877`. Whether it rendered is the user's to confirm. The second Gateway run's intro was skipped (npc 1905 `KILL_SELF` about 1 s in; C3p's ESC skip), so it made no calls.
 - **ErrorLog: 0 `can't find` lines** for the whole run, Henir stage 22 (Mad Behemoth Soul: `GetUnitType` / `GetMainEffectPos`) included. 0 EXCEPTION.
 - **Not reached:** Final Hall 33320 (`ChangeMotion_LUA`, the GO_NEXT pair) and Frozen Water Hall 33180 (`SetShowAllNPCExceptMe`); both still owed.
-
 
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
