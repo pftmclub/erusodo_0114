@@ -3,6 +3,9 @@
 #include ".\x2gunpc.h"
 #include ".\X2GUNPCFunc.h"
 #include ".\X2NPCAI.h"
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 #ifdef SERV_IRUHADEV_EXTRA_NPC_STAT
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_EXTRA_NPC_STAT
@@ -2036,6 +2039,13 @@ CX2GUNPC::~CX2GUNPC(void)
 		SAFE_DELETE_KTDGOBJECT( pSubEquip );
 	}
 	m_vecAttachMesh.clear();
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+	BOOST_TEST_FOREACH( CKTDXDeviceXET*, pAttachSkinXET, m_vecAttachSkinMeshXET )
+	{
+		SAFE_CLOSE( pAttachSkinXET );
+	}
+	m_vecAttachSkinMeshXET.clear();
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 
 	//m_pNPCTemplet = NULL;
     m_pNPCUnitInfo = NULL;
@@ -4590,6 +4600,63 @@ void CX2GUNPC::InitComponent()
 			++iAttachIndex;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+		// June CX2GUNPC init FUN_327a0fa0 ( 327a8dd9..327a9870 ), per ATTACH_SKIN_MESH%d block: open the skin mesh ( NULL = skip
+		// the block, 327a9020 ), put RENDERTYPE / VALUE / UV_ANIM_SPEED / UV_ANIM_ALPHA on the device mesh, open
+		// MOTION_CHANGE_TEX_XET ( "" = none, held by the unit ) and add the mesh to the unit's own anim ( no CX2SubEquip ).
+		// The anim closes the mesh with itself ( bCloseDeviceAtDestructor ). Supersedes the Ranox SubEquip path below.
+		{
+			int iSkinMeshIndex = 0;
+			while( true == m_LuaManager.BeginTable( "ATTACH_SKIN_MESH", iSkinMeshIndex ) )
+			{
+				wstring wstrSkinMeshName = L"";
+				int iSkinMeshRenderType = -1;
+				float fSkinMeshValue = 0.f;
+				bool bSkinMeshUVAlpha = true;
+				wstring wstrSkinMeshXET = L"";
+
+				LUA_GET_VALUE( m_LuaManager, "ATTACH_MESH_NAME",		wstrSkinMeshName,	L"" );
+				LUA_GET_VALUE( m_LuaManager, "SKIN_MESH_RENDERTYPE",	iSkinMeshRenderType,	-1 );
+				LUA_GET_VALUE( m_LuaManager, "VALUE",					fSkinMeshValue,		0.f );
+				LUA_GET_VALUE( m_LuaManager, "UV_ANIM_ALPHA",			bSkinMeshUVAlpha,	true );
+				LUA_GET_VALUE( m_LuaManager, "MOTION_CHANGE_TEX_XET",	wstrSkinMeshXET,	L"" );
+				// UV_ANIM_SPEED is a D3DXVECTOR2 userdata: KLuaManager cannot read it, so it stays ( 0, 0 ) = June's default.
+
+				CKTDXDeviceXSkinMesh* pSkinMesh = NULL;
+				if( false == wstrSkinMeshName.empty() && m_pXSkinAnim != NULL )
+					pSkinMesh = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( wstrSkinMeshName, L"Bip01" );
+
+				if( NULL == pSkinMesh )
+				{
+					CX2OfflineLog::Server( L"JUNE_ATTACH_SKIN skip npc=%d/%s mesh=%s not opened: block skipped, as June does ( 327a9020 )",
+						(int) GetNPCTemplet().m_nNPCUnitID, m_ScriptFileName.c_str(), wstrSkinMeshName.c_str() );
+				}
+				else
+				{
+					pSkinMesh->SetSkinMeshRenderType( iSkinMeshRenderType );
+					pSkinMesh->SetSMValue( fSkinMeshValue );
+					pSkinMesh->SetSMUVSpeed( D3DXVECTOR2( 0.f, 0.f ) );
+					pSkinMesh->SetSMUVAlpha( bSkinMeshUVAlpha );
+
+					CKTDXDeviceXET* pSkinMeshXET = NULL;
+					if( false == wstrSkinMeshXET.empty() )
+						pSkinMeshXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wstrSkinMeshXET );
+					if( pSkinMeshXET != NULL )
+						m_vecAttachSkinMeshXET.push_back( pSkinMeshXET );
+
+					m_pXSkinAnim->AddModelXSkinMesh( pSkinMesh, NULL, NULL, pSkinMeshXET, true, true );	// June 327a97d0: bAddCollision = 1
+
+					CX2OfflineLog::Server( L"JUNE_ATTACH_SKIN attach npc=%d/%s mesh=%s type=%d value=%.3f xet=%s",
+						(int) GetNPCTemplet().m_nNPCUnitID, m_ScriptFileName.c_str(), wstrSkinMeshName.c_str(),
+						iSkinMeshRenderType, fSkinMeshValue,
+						( pSkinMeshXET != NULL ) ? wstrSkinMeshXET.c_str() : L"none" );
+				}
+
+				m_LuaManager.EndTable(); // ATTACH_SKIN_MESH%d
+				++iSkinMeshIndex;
+			}
+		}
+#else
 #ifdef SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
 		// FIRE_DEVIL_*/SECRET_* fighter+berserker family also carries an ATTACH_SKIN_MESH0
 		// block -- a second, skinned whole-body shell (the missing "glow" overlay) that
@@ -4636,6 +4703,7 @@ void CX2GUNPC::InitComponent()
 			m_LuaManager.EndTable(); // ATTACH_SKIN_MESH0
 		}
 #endif SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 
 #ifdef SEASON3_MONSTER_2011_7
 		LUA_GET_VALUE( m_LuaManager, "ABSORB_MAGIC_MONSTER", m_bAbsorbMagicMonster, false );
@@ -7925,6 +7993,50 @@ void CX2GUNPC::SetNPCStat( const CX2UnitManager::NPCUnitStat& NpcStat )
 #endif SUMMONED_NPC_ADDITIONAL_STAT
 //}} megagame / 박교현 / 2010.04.30 / NPC 스탯 추가
 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+//{{ Iruha : 2026-10-11 // Geyser Sureyna softlock diagnostic: file-local helpers ( public CX2GUNPC API only ). Remove with the flag.
+static int SureynaNpcID( const CX2GUNPC* pNPC_ )
+{
+	return ( NULL == pNPC_ ) ? 0 : (int) pNPC_->GetNPCTemplet().m_nNPCUnitID;
+}
+
+static bool SureynaIsTarget( const CX2GUNPC* pNPC_ )
+{
+	const int iID = SureynaNpcID( pNPC_ );
+	return 1888 == iID || 1900 == iID;
+}
+
+static const char* SureynaStateName( const CX2GUNPC* pNPC_, int iState_ )
+{
+	const std::map<std::string,char>& mapName = pNPC_->GetInitStateData().m_mapStateNameID;
+	std::map<std::string,char>::const_iterator iter;
+	for ( iter = mapName.begin(); iter != mapName.end(); ++iter )
+	{
+		if ( (unsigned char) iter->second == (unsigned char) iState_ )
+			return iter->first.c_str();
+	}
+	return "?";
+}
+
+/// true at most once per 0.5 s for one key ( the caller folds the unit UID and a site number into it )
+static bool SureynaThrottle( int iKey_ )
+{
+	static std::map<int,double> s_mapSureynaLast;
+	const double dNow = g_pKTDXApp->GetTime();
+	std::map<int,double>::iterator iter = s_mapSureynaLast.find( iKey_ );
+	if ( iter != s_mapSureynaLast.end() && dNow - iter->second < 0.5 )
+		return false;
+	s_mapSureynaLast[ iKey_ ] = dNow;
+	return true;
+}
+
+/// the Sureyna states worth a frame-move trace: OUT_STATE and every SPECIALATTACK_A_*
+static bool SureynaIsTraceState( const char* pszState_ )
+{
+	return NULL != strstr( pszState_, "OUT_STATE" ) || NULL != strstr( pszState_, "SPECIALATTACK_A" );
+}
+//}}
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 void CX2GUNPC::DoStateEndStart()
 {
 	KTDXPROFILE();
@@ -7966,6 +8078,30 @@ void CX2GUNPC::DoStateEndStart()
 
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+	if ( SureynaIsTarget( this ) )
+	{
+		const D3DXVECTOR3& vSurPos = m_NPCFrameData.syncData.position;
+		const int iSurTo = (int) m_NPCFrameData.unitCondition.nextState;
+		CX2OfflineLog::Server( L"SUREYNA state uid=%I64d id=%d from=%hs(%d) to=%hs(%d) pos=(%.1f,%.1f,%.1f) show=%d gage=%d local=%d hp=%.0f t=%.2f",
+			(__int64) GetUnitUID(), SureynaNpcID( this ),
+			SureynaStateName( this, m_NPCFrameData.syncData.nowState ), (int) m_NPCFrameData.syncData.nowState,
+			SureynaStateName( this, iSurTo ), iSurTo,
+			vSurPos.x, vSurPos.y, vSurPos.z, GetShowObject() ? 1 : 0, ( NULL == m_pGageUI ) ? -1 : ( m_pGageUI->GetShow() ? 1 : 0 ),
+			IsLocalUnit() ? 1 : 0, GetNowHp(), (float) g_pKTDXApp->GetTime() );
+		if ( iSurTo >= 0 && iSurTo < (int) m_vecStateRuntime.size() && iSurTo < (int) GetInitStateData().m_vecStateData.size() )
+		{
+			const StateData& kSurData = GetInitStateData().m_vecStateData[ iSurTo ];
+			const StateRuntime& kSurRun = m_vecStateRuntime[ iSurTo ];
+			CX2OfflineLog::Server( L"SUREYNA funcs to=%hs start=[%hs]%d framemove=[%hs]%d end=[%hs]%d cool=%.2f elapsed=%.2f",
+				SureynaStateName( this, iSurTo ),
+				kSurData.m_strLua_StateStart.c_str(), kSurRun.m_iLua_StateStartRefID != LUA_REFNIL ? 1 : 0,
+				kSurData.m_strLua_FrameMove.c_str(), kSurRun.m_iLua_FrameMoveRefID != LUA_REFNIL ? 1 : 0,
+				kSurData.m_strLua_StateEnd.c_str(), kSurRun.m_iLua_StateEndRefID != LUA_REFNIL ? 1 : 0,
+				kSurData.m_fStateCoolTime, kSurRun.m_fStateElapsedTime );
+		}
+	}
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 	m_NPCFrameData.syncData.nowState		= m_NPCFrameData.unitCondition.nextState;
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
@@ -8420,6 +8556,20 @@ out_exit:
 HRESULT CX2GUNPC::OnFrameMove( double fTime, float fElapsedTime )
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+	/// OnFrameMove reached ( and what would stop the Lua frame move after it ): Sureyna only, in OUT_STATE / SPECIALATTACK_A_*, once per 0.5 s
+	if ( 1888 == SureynaNpcID( this ) && SureynaIsTraceState( SureynaStateName( this, m_NPCFrameData.syncData.nowState ) ) && SureynaThrottle( GetUID() * 4 + 1 ) )
+	{
+		const D3DXVECTOR3& vSurPos = m_NPCFrameData.syncData.position;
+		CX2OfflineLog::Server( L"SUREYNA OnFrameMove uid=%d state=%hs stop=%.2f/%.2f animWait=%.2f show=%d anim=%d/%.2f/%.2f timer1=%.2f pos=(%.1f,%.1f,%.1f)",
+			GetUID(), SureynaStateName( this, m_NPCFrameData.syncData.nowState ),
+			m_NPCFrameData.unitCondition.fStopTime, m_NPCFrameData.unitCondition.fStop2Time, m_fAnimWaitTime, GetShowObject() ? 1 : 0,
+			( NULL == m_pXSkinAnim ) ? -1 : (int) m_pXSkinAnim->GetState(),
+			( NULL == m_pXSkinAnim ) ? -1.f : m_pXSkinAnim->GetNowAnimationTime(),
+			( NULL == m_pXSkinAnim ) ? -1.f : m_pXSkinAnim->GetMaxAnimationTime(),
+			GetTimerElapsedTime( 1 ), vSurPos.x, vSurPos.y, vSurPos.z );
+	}
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 
 //#ifdef SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 	//필드에서 비호스트가 최초 NPC SYNC 패밋을 못 받았으면 바로 리턴한다.
@@ -8967,6 +9117,29 @@ bool CX2GUNPC::StateChange_LUA( const char* stateName, bool bDirectChange )
 
 bool    CX2GUNPC::StateChangeForce( int state, bool bDirectChange )
 {
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+	if ( SureynaIsTarget( this ) )
+	{
+		/// the verdict is re-derived from the same two checks the real body makes below ( range, then cool time )
+		const char* pszSurVerdict = "OK";
+		float fSurElapsed = -1.f, fSurCool = -1.f;
+		if ( false == ( state >= 0 && state < (int) m_vecStateRuntime.size() ) )
+			pszSurVerdict = "REFUSED state out of range";
+		else
+		{
+			fSurElapsed = m_vecStateRuntime[ state ].m_fStateElapsedTime;
+			fSurCool = GetInitStateData().m_vecStateData[ state ].m_fStateCoolTime;
+			if ( false == ( fSurElapsed >= fSurCool ) )
+				pszSurVerdict = "REFUSED cool time not elapsed";
+		}
+		/// every OK ( a real state change ) is logged; a REFUSED call can repeat every frame ( Lua FRAME_MOVE ), so those are throttled to 0.5 s per unit
+		if ( 0 == strcmp( pszSurVerdict, "OK" ) || SureynaThrottle( GetUID() * 4 + 3 ) )
+			CX2OfflineLog::Server( L"SUREYNA StateChangeForce uid=%I64d id=%d now=%hs(%d) arg=%d(%hs) direct=%d states=%d elapsed=%.2f cool=%.2f -> %hs%s",
+				(__int64) GetUnitUID(), SureynaNpcID( this ), SureynaStateName( this, m_NPCFrameData.syncData.nowState ), (int) m_NPCFrameData.syncData.nowState,
+				state, SureynaStateName( this, state ), bDirectChange ? 1 : 0, (int) m_vecStateRuntime.size(), fSurElapsed, fSurCool, pszSurVerdict,
+				( 0 == strcmp( pszSurVerdict, "OK" ) ) ? L"" : L" ( refusals throttled to one per 0.5 s )" );
+	}
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
     if ( false == ( state >= 0 && state < (int) m_vecStateRuntime.size() ) )
         return false;
@@ -16710,7 +16883,22 @@ void CX2GUNPC::CommonStateStart()
 #ifdef LEAVE_LAST_ERROR_LOG_TEST
 		LastErrorLog( GetNowStateData().m_strLua_StateStart.c_str() );
 #endif LEAVE_LAST_ERROR_LOG_TEST 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		if ( SureynaIsTarget( this ) )
+			CX2OfflineLog::Server( L"SUREYNA lua START call uid=%I64d id=%d state=%hs func=%hs",
+				(__int64) GetUnitUID(), SureynaNpcID( this ), SureynaStateName( this, m_NPCFrameData.syncData.nowState ), GetNowStateData().m_strLua_StateStart.c_str() );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 		lua_tinker::call<void>( GetFunctionLuaState(), m_LuaManager.GetLuaGeneralRef(), iLua_StateStartRefID, g_pKTDXApp, g_pX2Game, this );
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		if ( SureynaIsTarget( this ) )
+		{
+			const D3DXVECTOR3& vSurPos = m_NPCFrameData.syncData.position;
+			CX2OfflineLog::Server( L"SUREYNA lua START done uid=%I64d id=%d state=%hs pos=(%.1f,%.1f,%.1f) show=%d gage=%d next=%hs(%d) timer1=%.2f",
+				(__int64) GetUnitUID(), SureynaNpcID( this ), SureynaStateName( this, m_NPCFrameData.syncData.nowState ),
+				vSurPos.x, vSurPos.y, vSurPos.z, GetShowObject() ? 1 : 0, ( NULL == m_pGageUI ) ? -1 : ( m_pGageUI->GetShow() ? 1 : 0 ),
+				SureynaStateName( this, m_NPCFrameData.unitCondition.nextState ), (int) m_NPCFrameData.unitCondition.nextState, GetTimerElapsedTime( 1 ) );
+		}
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 	}
 
 //	if( false == GetNowStateData().m_strLua_StateStart.empty() )
@@ -20497,6 +20685,25 @@ void CX2GUNPC::CommonFrameMove()
 		LastErrorLog( GetNowStateData().m_strLua_FrameMove.c_str() );
 #endif LEAVE_LAST_ERROR_LOG_TEST
 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		/// the Lua FRAME_MOVE of a Sureyna state in the trace set, once per 0.5 s ( 1900 is not traced per frame )
+		if ( 1888 == SureynaNpcID( this ) && SureynaIsTraceState( SureynaStateName( this, m_NPCFrameData.syncData.nowState ) ) && SureynaThrottle( GetUID() * 4 + 2 ) )
+		{
+			const D3DXVECTOR3& vSurPos = m_NPCFrameData.syncData.position;
+			CX2OfflineLog::Server( L"SUREYNA lua FRAME_MOVE call uid=%d state=%hs func=%hs timer1=%.2f anim=%d/%.2f/%.2f show=%d gage=%d pos=(%.1f,%.1f,%.1f) next=%hs(%d)",
+				GetUID(), SureynaStateName( this, m_NPCFrameData.syncData.nowState ), GetNowStateData().m_strLua_FrameMove.c_str(), GetTimerElapsedTime( 1 ),
+				( NULL == m_pXSkinAnim ) ? -1 : (int) m_pXSkinAnim->GetState(),
+				( NULL == m_pXSkinAnim ) ? -1.f : m_pXSkinAnim->GetNowAnimationTime(),
+				( NULL == m_pXSkinAnim ) ? -1.f : m_pXSkinAnim->GetMaxAnimationTime(),
+				GetShowObject() ? 1 : 0, ( NULL == m_pGageUI ) ? -1 : ( m_pGageUI->GetShow() ? 1 : 0 ),
+				vSurPos.x, vSurPos.y, vSurPos.z,
+				SureynaStateName( this, m_NPCFrameData.unitCondition.nextState ), (int) m_NPCFrameData.unitCondition.nextState );
+			/// the Lua-side vars OUT_STATE_FRAME_MOVE reads: effect once timer1 > vec3.x ( then vec3.x = 9999 ), StateChangeForce( int2 ) once timer1 > int3.
+			/// timer1 > 1.7 with vec3.x still 1.7 = the Lua function aborted before that line ( see ErrorLog.txt [LUA_SRC] ); int2 <= 0 = GetStateID_LUA missed
+			CX2OfflineLog::Server( L"SUREYNA lua FRAME_MOVE vars uid=%d int2=%d(%hs) int3=%d vec3.x=%.2f timer1=%.2f",
+				GetUID(), GetInt_LUA( 2 ), SureynaStateName( this, GetInt_LUA( 2 ) ), GetInt_LUA( 3 ), GetVector_LUA( 3 ).x, GetTimerElapsedTime( 1 ) );
+		}
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 		lua_tinker::call<void>( GetFunctionLuaState(), m_LuaManager.GetLuaGeneralRef(), iLua_FrameMoveRefID, g_pKTDXApp, g_pX2Game, this );
 	}
 //	if( false == GetNowStateData().m_strLua_FrameMove.empty() )
@@ -24766,7 +24973,19 @@ void CX2GUNPC::CommonStateEnd()
 #ifdef LEAVE_LAST_ERROR_LOG_TEST
 		LastErrorLog( GetNowStateData().m_strLua_StateEnd.c_str() );
 #endif LEAVE_LAST_ERROR_LOG_TEST
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		if ( SureynaIsTarget( this ) )
+			CX2OfflineLog::Server( L"SUREYNA lua END call uid=%I64d id=%d state=%hs func=%hs timer1=%.2f",
+				(__int64) GetUnitUID(), SureynaNpcID( this ), SureynaStateName( this, m_NPCFrameData.syncData.nowState ), GetNowStateData().m_strLua_StateEnd.c_str(), GetTimerElapsedTime( 1 ) );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 		lua_tinker::call<void>( GetFunctionLuaState(), m_LuaManager.GetLuaGeneralRef(), iLua_StateEndRefID, g_pKTDXApp, g_pX2Game, this );
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		if ( SureynaIsTarget( this ) )
+			CX2OfflineLog::Server( L"SUREYNA lua END done uid=%I64d id=%d state=%hs int2=%d(%hs) int3=%d vec3.x=%.2f timer1=%.2f next=%hs(%d)",
+				(__int64) GetUnitUID(), SureynaNpcID( this ), SureynaStateName( this, m_NPCFrameData.syncData.nowState ),
+				GetInt_LUA( 2 ), SureynaStateName( this, GetInt_LUA( 2 ) ), GetInt_LUA( 3 ), GetVector_LUA( 3 ).x, GetTimerElapsedTime( 1 ),
+				SureynaStateName( this, m_NPCFrameData.unitCondition.nextState ), (int) m_NPCFrameData.unitCondition.nextState );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 	}
 
 //	if( false == GetNowStateData().m_strLua_StateEnd.empty() )
@@ -29041,6 +29260,13 @@ static void JuneCreateNPCReqFromNPC( const CX2GUNPC* pNPC_, const WCHAR* pwszWhi
 	if ( NULL == g_pX2Game || NULL == pNPC_ )
 		return;
 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+	/// every request a Sureyna ( 1888 ) makes, and every request for a 1900, not under the 30-line cap below
+	if ( 1888 == SureynaNpcID( pNPC_ ) || 1900 == unitID )
+		CX2OfflineLog::Server( L"SUREYNA NPC-side create via=%s summoner uid=%d id=%d unit=%d level=%d active=%d noDrop=%d pos=(%.1f,%.1f,%.1f) right=%d delay=%.2f key=%d team=%d ai=%d elite=%d host=%d",
+			pwszWhich_, pNPC_->GetUID(), SureynaNpcID( pNPC_ ), unitID, level, bActive ? 1 : 0, bNoDrop ? 1 : 0, vPos.x, vPos.y, vPos.z, bRight ? 1 : 0,
+			fDelayTime, iKeyCode, (int) eTeam, (int) eAIType, bElite ? 1 : 0, g_pX2Game->IsHost() ? 1 : 0 );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 #if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 	static int s_iLogged = 0;
 	if ( s_iLogged < 30 )

@@ -822,6 +822,12 @@ class CKTDGXSkinAnim : public CKTDGObject
 #endif
 
         std::vector<Alpha_SkinMesh> m_vecAlphaSkinMesh;
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+		std::vector<Alpha_SkinMesh> m_vecUVAnimSkinMesh;	// June: typed ( SMRT_UV_ANIM ) models, drawn after the alpha pass
+		float						m_fSMUVAccValue;		// June anim +0x858
+		float						m_fSMUVAccU;			// June anim +0x85c
+		float						m_fSMUVAccV;			// June anim +0x860
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 #ifdef ARA_CHARACTER_BASE
 		std::vector<RenderParam_SkinMesh> m_vecRenderParamSkinMesh;
 #endif

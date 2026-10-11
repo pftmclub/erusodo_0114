@@ -4469,6 +4469,9 @@ class CX2GUNPC : public CX2GameUnit
 
 		D3DXCOLOR	m_HyperModeColor;
 		vector<CX2SubEquip*>		m_vecAttachMesh;
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+		vector<CKTDXDeviceXET*>		m_vecAttachSkinMeshXET;	/// June: MOTION_CHANGE_TEX_XET of each ATTACH_SKIN_MESH block, closed with the unit
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 
 #ifdef SERV_PVP_NEW_SYSTEM
 		CKTDXDeviceTexture*			m_pTextureServer;	

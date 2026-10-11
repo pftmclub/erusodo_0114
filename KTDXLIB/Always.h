@@ -7097,3 +7097,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKIP_START_DEBUG needs SERV_IRUHADEV_JUNE_SKIP_START
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June 2017 ATTACH_SKIN_MESH%d shell ( Lanox FIRE_DEVIL_* / SECRET_* fighter + berserker ). June's NPC init
+//              ( FUN_327a0fa0, 327a8dd9..327a9870 ) opens the block's skin mesh ( OpenXSkinMesh 31cdef40, NULL = skip ), stores
+//              SKIN_MESH_RENDERTYPE / VALUE / UV_ANIM_SPEED / UV_ANIM_ALPHA on the DEVICE mesh ( +0x868 / +0xa30 / +0xa34 / +0xa3c ),
+//              opens MOTION_CHANGE_TEX_XET ( OpenXET 31cdf880 ) and adds the mesh to the unit's OWN CKTDGXSkinAnim ( 31d2f3f0 at
+//              327a97d0 ) as an extra model with that texture-change XET: no CX2SubEquip. CKTDGXSkinAnim draw ( 31d30380 ): a model
+//              with render type >= 0 skips the normal pass and is drawn after the alpha pass; SMRT_UV_ANIM ( 3 ) scrolls
+//              texOffsetStage0 by VALUE / UV_ANIM_SPEED accumulators and draws RT_REAL_COLOR, SRCALPHA / DESTALPHA. Supersedes
+//              SERV_IRUHADEV_RANOX_ATTACH_SKIN_MESH ( kept in the #else ). Only type 3 is implemented ( no NPC uses another ).
+#define SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: temporary diagnostic for the Geyser Sureyna softlock ( NUI_GEYSER_MULSAYRENA 1888 / minion _CALL 1900 ): SUREYNA-prefixed
+//              CX2OfflineLog::Server lines for the NPC state changes, the Lua START / FRAME_MOVE / END dispatch, StateChangeForce verdicts,
+//              the create-NPC path ( NPC-side request, CX2Game::CreateNPCReq / CreateNPC / EGS_NPC_UNIT_CREATE_NOT ) and the host misplaced-unit
+//              reposition. Remove after the play-test.
+#define SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+//////////////////////////////////////////////////////////////////////////

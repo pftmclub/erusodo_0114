@@ -182,6 +182,12 @@ CKTDXDeviceXSkinMesh::CKTDXDeviceXSkinMesh( LPDIRECT3DDEVICE9 pd3dDevice,
 	m_amxWorkingPalette = NULL;
     m_dwMaxSkinningVertices  = 0;
     m_bAlphaRender = false;
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+	m_iSkinMeshRenderType = -1;
+	m_fSMValue = 0.f;
+	m_vSMUVSpeed = D3DXVECTOR2( 0.f, 0.f );
+	m_bSMUVAlpha = true;
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 	m_bNoRenderable = false;
 #endif FACE_OFF_MONSTER_HEAD_TEST

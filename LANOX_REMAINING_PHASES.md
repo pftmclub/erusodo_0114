@@ -1638,6 +1638,19 @@ path in Ghidra (including what loads Motion_FIRE_DEVIL_FIGHTER_INCHANT.x) and
 port it whole.
 ```
 
+
+### Phase 7 - Done (2026-10-11, STATUS `lanox-fix` LX1)
+
+- June exe RE'd (Ghidra, read-only): June builds no CX2SubEquip. `327a0fa0` reads ATTACH_MESH_NAME / SKIN_MESH_RENDERTYPE /
+  VALUE / UV_ANIM_SPEED / UV_ANIM_ALPHA (on the device mesh) and MOTION_CHANGE_TEX_XET (held by the unit), then calls
+  `AddModelXSkinMesh` on the unit's own anim, so the shell shares the skeleton and follows every motion.
+- Colour ground truth (PNG means): Body_B is yellow-white, INCHANT_Body_B cyan; `Motion_FIRE_DEVIL.xet` swaps B -> INCHANT_B.
+  The old port dropped the block XET (yellow shell) and ran the shell on its own looping anim (desync).
+- SMRT_UV_ANIM = an extra pass after the alpha pass (`31d30380`): RT_REAL_COLOR, SRCALPHA/DESTALPHA, stage0.y += VALUE per frame.
+- Ported under `SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM` (old Ranox path kept in `#else`). UV_ANIM_SPEED is a
+  D3DXVECTOR2 userdata KLuaManager cannot read; it stays (0,0), June's default (only the 3 skipped BEHEMOTH_SOUL blocks set it).
+- Play-test owed: Distant Ruin (`NUI_LOW_FINALHALL_*_FD`) and a Fire Temple / Gateway fighter.
+
 ---
 
 ## Phase 8 - Burned Forest background [item 9]

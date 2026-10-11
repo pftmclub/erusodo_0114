@@ -2557,6 +2557,11 @@ void CX2Game::GameEnd()
 			if( NULL == pNPC )
 				continue;
 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+			if ( 1888 == (int) pNPC->GetNPCTemplet().m_nNPCUnitID || 1900 == (int) pNPC->GetNPCTemplet().m_nNPCUnitID )
+				CX2OfflineLog::Server( L"SUREYNA ReplaceMisplacedUnit moves NPC id=%d uid=%d from (%.1f,%.1f,%.1f) to line %d end (B key host reposition)",
+					(int) pNPC->GetNPCTemplet().m_nNPCUnitID, pNPC->GetUID(), pNPC->GetPos().x, pNPC->GetPos().y, pNPC->GetPos().z, pLineData->lineIndex );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 			pNPC->SetPositionOnLine( pLineData->endPos, pLineData->lineIndex );
 		}
 		m_setMisplacedNPC.clear();
@@ -6565,6 +6570,12 @@ CX2Game::CreateNPC( CX2UnitManager::NPC_UNIT_ID unitID, int level, bool bActive,
 	CX2GUNPC* pNPC = NULL;
 #endif SERV_CREATE_ELITE_FOR_ADMIN
 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+	if ( 1888 == (int) unitID || 1900 == (int) unitID )
+		CX2OfflineLog::Server( L"SUREYNA CreateNPC enter id=%d level=%d active=%d uid=%d pos=(%.1f,%.1f,%.1f) delay=%.2f key=%d team=%d ai=%d lastKillCheck=%d -> %s",
+			(int) unitID, level, bActive ? 1 : 0, uid, vPos.x, vPos.y, vPos.z, fDelayTime, iKeyCode, (int) eTeam, (int) eAIType, m_bLastKillCheck ? 1 : 0,
+			m_bLastKillCheck ? L"may RETURN silently ( last kill check ) unless a summon type" : ( fDelayTime <= 0.0f ? L"create now" : L"queued ( delay > 0 )" ) );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 	if( m_bLastKillCheck == true )
 	{
 #ifdef SUMMON_MONSTER_CARD_SYSTEM		//모든 적 NPC가 사망해도, 몬스터 카드는 사용할 수 있도록 설정
@@ -6617,6 +6628,10 @@ CX2Game::CreateNPC( CX2UnitManager::NPC_UNIT_ID unitID, int level, bool bActive,
 //#ifdef	X2OPTIMIZE_NPC_LUASPACE_SHARING
 		const CX2UnitManager::NPCUnitInfo*	pNPCUnitInfo = g_pData->GetUnitManager()->GetNPCUnitInfo( unitID );
 		ASSERT( pNPCUnitInfo != NULL );
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		if ( ( 1888 == (int) unitID || 1900 == (int) unitID ) && NULL == pNPCUnitInfo )
+			CX2OfflineLog::Server( L"SUREYNA CreateNPC id=%d: GetNPCUnitInfo returned NULL, nothing is created", (int) unitID );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 //#else	X2OPTIMIZE_NPC_LUASPACE_SHARING
 //		const CX2UnitManager::NPCUnitTemplet* ptemplet = g_pData->GetUnitManager()->GetNPCUnitTemplet( unitID );
 //#endif	X2OPTIMIZE_NPC_LUASPACE_SHARING
@@ -6638,6 +6653,10 @@ CX2Game::CreateNPC( CX2UnitManager::NPC_UNIT_ID unitID, int level, bool bActive,
 			if( NULL == pNPC )
 			{
 				ASSERT( "CreateNPC out of memory" );
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+				if ( 1888 == (int) unitID || 1900 == (int) unitID )
+					CX2OfflineLog::Server( L"SUREYNA CreateNPC id=%d: CreateGUNPC returned NULL, nothing is created", (int) unitID );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 #ifdef SERV_CREATE_ELITE_FOR_ADMIN
 				return NULL;
 #else SERV_CREATE_ELITE_FOR_ADMIN
@@ -6700,6 +6719,11 @@ CX2Game::CreateNPC( CX2UnitManager::NPC_UNIT_ID unitID, int level, bool bActive,
 			{
 				// 몬스터 위치를 제대로 지정할 수 없다면 지워버리자.
 				ASSERT( !"CreateNPC SetPosition error" );
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+				if ( 1888 == (int) unitID || 1900 == (int) unitID )
+					CX2OfflineLog::Server( L"SUREYNA CreateNPC id=%d uid=%d: SetPosition FAILED at (%.1f,%.1f,%.1f), the NPC is SAFE_DELETEd and never appears",
+						(int) unitID, uid, vPos.x, vPos.y, vPos.z );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 				SAFE_DELETE_KTDGOBJECT( pNPC ); 
 #ifdef SERV_CREATE_ELITE_FOR_ADMIN
 				return NULL;
@@ -6993,6 +7017,11 @@ CX2Game::CreateNPC( CX2UnitManager::NPC_UNIT_ID unitID, int level, bool bActive,
 #endif SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
 			AddUnit( (CX2GameUnit*)pNPC );
 			SetNPCUnit( index, pNPC );
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+			if ( 1888 == (int) unitID || 1900 == (int) unitID )
+				CX2OfflineLog::Server( L"SUREYNA CreateNPC OK id=%d uid=%d slot=%d pos=(%.1f,%.1f,%.1f) hp=%.0f team=%d",
+					(int) unitID, pNPC->GetUID(), index, pNPC->GetPos().x, pNPC->GetPos().y, pNPC->GetPos().z, pNPC->GetNowHp(), (int) eTeam );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 			g_pKTDXApp->GetDGManager()->AddObjectChain( pNPC );
 		}
 	}
@@ -7021,6 +7050,10 @@ CX2Game::CreateNPC( CX2UnitManager::NPC_UNIT_ID unitID, int level, bool bActive,
 #endif //SUMMON_MONSTER_CARD_SYSTEM
 
 
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		if ( 1888 == (int) unitID || 1900 == (int) unitID )
+			CX2OfflineLog::Server( L"SUREYNA CreateNPC id=%d queued in m_CreateNPCDataList ( delay=%.2f )", (int) unitID, fDelayTime );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 		m_CreateNPCDataList.push_back( pCreateNPCData );
 	}
 
@@ -7102,6 +7135,12 @@ void CX2Game::CreateNPCReq( CX2UnitManager::NPC_UNIT_ID unitID, int level, bool 
 						   )
 #endif SERV_INSERT_GLOBAL_SERVER
 {
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+	if ( 1888 == (int) unitID || 1900 == (int) unitID )
+		CX2OfflineLog::Server( L"SUREYNA CX2Game::CreateNPCReq id=%d level=%d active=%d pos=(%.1f,%.1f,%.1f) delay=%.2f key=%d team=%d host=%d gameEnd=%d -> %s",
+			(int) unitID, level, bActive ? 1 : 0, vPos.x, vPos.y, vPos.z, fDelayTime, iKeyCode, (int) eTeam, IsHost() ? 1 : 0, m_bGameEnd ? 1 : 0,
+			( false == IsHost() ) ? L"RETURN not host, no request sent" : ( true == m_bGameEnd ? L"RETURN game end, no request sent" : L"EGS_NPC_UNIT_CREATE_REQ sent" ) );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 	if( IsHost() == false )
 		return;
 
@@ -8124,6 +8163,13 @@ bool CX2Game::Handler_EGS_NPC_UNIT_CREATE_NOT( HWND hWnd, UINT uMsg, WPARAM wPar
 	for( int i = 0; i < (int)kEvent.m_vecNPCUnitAck.size(); i++ )
 	{
 		KNPCUnitNot* pKNPCUnitNot = &kEvent.m_vecNPCUnitAck[i];
+#ifdef SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+		if ( 1888 == (int) pKNPCUnitNot->m_kNPCUnitReq.m_NPCID || 1900 == (int) pKNPCUnitNot->m_kNPCUnitReq.m_NPCID )
+			CX2OfflineLog::Server( L"SUREYNA EGS_NPC_UNIT_CREATE_NOT id=%d uid=%d level=%d pos=(%.1f,%.1f,%.1f) delay=%.2f key=%d -> CreateNPC",
+				(int) pKNPCUnitNot->m_kNPCUnitReq.m_NPCID, (int) pKNPCUnitNot->m_kNPCUnitReq.m_UID, (int) pKNPCUnitNot->m_kNPCUnitReq.m_Level,
+				pKNPCUnitNot->m_kNPCUnitReq.m_vPos.x, pKNPCUnitNot->m_kNPCUnitReq.m_vPos.y, pKNPCUnitNot->m_kNPCUnitReq.m_vPos.z,
+				pKNPCUnitNot->m_kNPCUnitReq.m_fDelayTime, (int) pKNPCUnitNot->m_kNPCUnitReq.m_KeyCode );
+#endif SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
 		CreateNPC( (CX2UnitManager::NPC_UNIT_ID)pKNPCUnitNot->m_kNPCUnitReq.m_NPCID, 
 			pKNPCUnitNot->m_kNPCUnitReq.m_Level,
 			pKNPCUnitNot->m_kNPCUnitReq.m_bActive,

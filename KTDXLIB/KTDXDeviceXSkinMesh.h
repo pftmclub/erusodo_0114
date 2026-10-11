@@ -367,6 +367,17 @@ class CKTDXDeviceXSkinMesh	: public CKTDXDevice
 		
         void SetAlphaRender(bool flag) { m_bAlphaRender = flag; }
         bool GetAlphaRender() { return m_bAlphaRender; }
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+		// June device-mesh fields +0x868 / +0xa30 / +0xa34 / +0xa38 / +0xa3c ( set by the NPC's ATTACH_SKIN_MESH block )
+		void SetSkinMeshRenderType( int iValue_ ) { m_iSkinMeshRenderType = iValue_; }
+		int GetSkinMeshRenderType() const { return m_iSkinMeshRenderType; }
+		void SetSMValue( float fValue_ ) { m_fSMValue = fValue_; }
+		float GetSMValue() const { return m_fSMValue; }
+		void SetSMUVSpeed( const D3DXVECTOR2& vValue_ ) { m_vSMUVSpeed = vValue_; }
+		const D3DXVECTOR2& GetSMUVSpeed() const { return m_vSMUVSpeed; }
+		void SetSMUVAlpha( bool bValue_ ) { m_bSMUVAlpha = bValue_; }
+		bool GetSMUVAlpha() const { return m_bSMUVAlpha; }
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 #ifdef ARA_CHARACTER_BASE
 		void SetUseRenderParam( bool bValue_ ) { m_bUseRenderParam = bValue_; }
 		bool GetUseRenderParam() { return m_bUseRenderParam; }
@@ -420,6 +431,12 @@ private:
 		//DWORD								m_dwBoneNum;
         DWORD                               m_dwMaxSkinningVertices;
 		bool                                m_bAlphaRender;
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+		int									m_iSkinMeshRenderType;	// SKIN_MESH_RENDER_TYPE, -1 = none
+		float								m_fSMValue;
+		D3DXVECTOR2							m_vSMUVSpeed;
+		bool								m_bSMUVAlpha;
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 #ifdef ARA_CHARACTER_BASE
 		bool								m_bUseRenderParam;
 #endif

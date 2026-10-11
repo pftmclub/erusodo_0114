@@ -82,6 +82,12 @@ CKTDGXSkinAnim::CKTDGXSkinAnim()
 	//m_AttackDataList.reserve( 32 );
 
 	m_vecAlphaSkinMesh.reserve( 32 );
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+	m_vecUVAnimSkinMesh.reserve( 4 );
+	m_fSMUVAccValue = 0.f;
+	m_fSMUVAccU = 0.f;
+	m_fSMUVAccV = 0.f;
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 
 #ifdef ARA_CHARACTER_BASE
 	m_vecRenderParamSkinMesh.reserve( 32 );
@@ -898,6 +904,9 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 #endif
 
     m_vecAlphaSkinMesh.resize( 0 );
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+	m_vecUVAnimSkinMesh.resize( 0 );
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 
 #ifdef ARA_CHARACTER_BASE
 	m_vecRenderParamSkinMesh.resize( 0 );
@@ -920,6 +929,28 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 				continue;
 #endif FACE_OFF_MONSTER_HEAD_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+			// June 31d30380: a model whose device mesh has render type >= 0 ( not alpha-render ) skips the normal pass and is
+			// queued for the extra pass after the alpha pass. Only SMRT_UV_ANIM ( 3 ) is implemented; other types draw normally.
+			if( 3 == pXSkinMesh->GetSkinMeshRenderType() && false == pXSkinMesh->GetAlphaRender() )
+			{
+				bool bQueued = false;
+				for( int q = 0; q < (int)m_vecUVAnimSkinMesh.size(); ++q )
+				{
+					if( m_vecUVAnimSkinMesh[q].m_indexMode == i )
+					{
+						bQueued = true;
+						break;
+					}
+				}
+				if( false == bQueued )
+				{
+					Alpha_SkinMesh stUVObj = { pXSkinMesh, i };
+					m_vecUVAnimSkinMesh.push_back( stUVObj );
+				}
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 			for( int j = 0; j < (int) pXSkinMesh->GetDrawFrameNum(); j++ )
 			{			
 #ifdef SKIN_LIGHTFLOW
@@ -1054,6 +1085,44 @@ void CKTDGXSkinAnim::OnFrameRender_Draw()
 	} //if
 #endif
     
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
+	// June SMRT_UV_ANIM pass ( 31d30380 ): accumulators advance once per drawn frame, wrap to 0 past 1.0 ( negative speeds
+	// wrap at -1.0, the same texture phase ), texOffsetStage0.y += value, .x += speedX, .y += speedY.
+	for( int uvIndex = 0; uvIndex < (int)m_vecUVAnimSkinMesh.size(); ++uvIndex )
+	{
+		Alpha_SkinMesh& stUVObj = m_vecUVAnimSkinMesh[uvIndex];
+		CKTDXDeviceXSkinMesh* pUVMesh = stUVObj.m_pAlphaSkinMesh;
+		if( NULL == pUVMesh )
+			continue;
+
+		m_fSMUVAccValue += pUVMesh->GetSMValue();
+		if( m_fSMUVAccValue > 1.f || m_fSMUVAccValue < -1.f )
+			m_fSMUVAccValue = 0.f;
+		m_fSMUVAccU += pUVMesh->GetSMUVSpeed().x;
+		if( m_fSMUVAccU > 1.f || m_fSMUVAccU < -1.f )
+			m_fSMUVAccU = 0.f;
+		m_fSMUVAccV += pUVMesh->GetSMUVSpeed().y;
+		if( m_fSMUVAccV > 1.f || m_fSMUVAccV < -1.f )
+			m_fSMUVAccV = 0.f;
+
+		CKTDGXRenderer::RenderParam renderParam = m_RenderParam;
+		renderParam.texOffsetStage0.y += m_fSMUVAccValue;
+		renderParam.texOffsetStage0.x += m_fSMUVAccU;
+		renderParam.texOffsetStage0.y += m_fSMUVAccV;
+		renderParam.renderType = CKTDGXRenderer::RT_REAL_COLOR;
+		renderParam.bAlphaBlend = pUVMesh->GetSMUVAlpha();
+		renderParam.srcBlend = D3DBLEND_SRCALPHA;
+		renderParam.destBlend = D3DBLEND_DESTALPHA;
+
+		for( HRESULT hr = m_pRenderer->BeginRender( renderParam ); SUCCEEDED( hr ); hr = m_pRenderer->NextRender() )
+		{
+			for( int j = 0; j < (int) pUVMesh->GetDrawFrameNum(); j++ )
+			{
+				DrawFrame( pUVMesh->GetDrawFrame( j ), stUVObj.m_indexMode );
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM
 //	return S_OK;
 }
 
