@@ -2726,12 +2726,16 @@ high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
   **data182 8**. The last two are new archives inside the mounted range (`X2Main.cpp:799-845`).
 - **BGM:** the worlds name 6 tracks missing from `data\music\`: `Music072_Stage`, `Music073_Boss`, `Music075_Boss`, `Music079_Boss`,
   `LI_Boss_Elysion001`, `LI_Boss_Elysion002` (all in June's `14JUN17\data\music\`).
+  june-asset-port P9 (`music/`): once copied, these 6 are already present, so do not count them as missing.
 - **Packed:** `PACK OK` data036 (~1 Enum.lua), data040 (+26, ~1 WorldData.lua), data135 (+151), data136 (+6), data146, data166 (new),
   data180 (+236), data182 (new).
   - data146 also shows ~28 `FIELD_BOSS_IRON_ELTRION_*.ogg`. That is recompression only: the raw size and algo equal live, the dir files
     are the 2026-09-22 extract, and it is this tool's first pack of data146.
 - **Gate:** `world_census.py`: 391 worlds, 0 differ from June; all 13 `same` (26 rows added to `world_census.tsv`).
 - Hygiene: `flagcheck --worktree --files`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatches. RESULT: PASS.
+  After commit `9c7bd65`, `--range 9c7bd65^..9c7bd65`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the token, 0 encoding change(s)`; `RESULT: PASS`.
+  The exe was built at `9a8c6c0` plus these 3 files; `9a8c6c0` and `9ef8b63` (C3y-1a) are data / docs only, so the exe matches `9c7bd65`.
 - `DEPLOY OK: X2_offline.exe is 19,555,328 B, dated 2026-10-11 10:48:05, md5 64fa2a98ba49ba5c6fc3645b1af303d2` (`SetAnimWait` is in the exe).
 - **Copies: none yet.** They wait for the user's OK (8 koms + 6 BGM files).
 - **Not provable here:** only `Dungeon_Sander_Secret_Hell` (C3y-1c) reaches Sander's 8 non-boss worlds, so `SetAnimWait` and those
