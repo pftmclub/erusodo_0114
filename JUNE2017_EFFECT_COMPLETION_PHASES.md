@@ -2705,6 +2705,21 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
   - `[RANOXDBG] ... dungeonID=41271 pDungeonData=OK` in ErrorLog;
   - the room-start line for 33261 and `using its own level band` in `offline_server.log`;
   - 0 EXCEPTION, and no `XEM_ERROR2` / `can't find` / `attempt to index` line.
+- **Play-test 1 PASSED (2026-10-11, run 16:11, exe `1ca6415` deploy, koms of this phase live; logs read).**
+  - reyaa (Lire Grand Archer, unit 12, level 80) played it, not Freils.
+  - Ranox Secret Hell: ErrorLog shows `[RANOXDBG] control=Ranox_Secret dungeonID=41271 pDungeonData=OK`, and room 1002 (41271) started. So the file loads past both insertions.
+  - Hamel Secret Hell: room 1001 started (`dungeonID=33261 ... mode=4`).
+    - Stage 0 loaded 21 NPCs over 2 sub-stages; the emulator used the 70-99 band, base 85.
+    - Kills paid EXP / ED. The room was left after stage 0.
+  - 0 EXCEPTION. 2 UNHANDLED, both `E_DISABLE_HB_CHECK_REQ`, which is not this phase's.
+  - No `XEM_ERROR2`, `can't find` or `attempt to index` line.
+  - The Henir run (38100, stages 22 / 32-35) belongs to C3y-1b.
+  - **Gap found:** 12x `Temple of Trials_LocalQuest` control not found.
+    - Cause: data034 `DLG_Map_Local_Hamel.lua` (March merged copy) left `DI_HAMEL_SECRET_HELL` out of `DungeonIDList`, so the map never built that dungeon's quest-mark static.
+    - The lookup (`UdateLocalMapQuestDesc`, `X2LocalMapUI.cpp:2073`) is null-checked, so it was harmless.
+    - June's file differs only by that entry. **The user chose to adopt it** (2026-10-11).
+    - `adopt-june`, sidecar to `kom_backup_stage_june\20261011_162133`, record `june_adopt_20261011_162133.tsv`, `PACK OK data034` (~1).
+    - Copy and play-test 2 are owed: the Hamel map with no `_LocalQuest` line.
 
 ## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
 

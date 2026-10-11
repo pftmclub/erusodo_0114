@@ -1,0 +1,4 @@
+# adopt-june --bytecode run 2026-10-11 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+DLG_Map_Local_Hamel.lua	data034	replace	data217	1487	b0d698999df114f17f274d1675998410d706d555	bytecode		ljconv
