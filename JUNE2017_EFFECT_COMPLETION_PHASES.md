@@ -3489,8 +3489,9 @@ flag `#define`, no flagcheck, no build or deploy. The kickoff's step 3 has no br
 - **The 8 bytes before it** are two June-only ints. `AddNPCData 327edb60` copies `+0x75` to NPCData `+0x7c` and `+0x79` to `+0x80`. The
   Lua stage parser `327eb8e0` fills the same two NPCData slots from the XOR'd keys `QUEST_ID_FOR_CREATE` / `QUEST_ID_FOR_DO_NOT_CREATE`
   (`xorstrings.tsv:5402-5403`, decoded again here). Both default to 0.
-  - **No shipped script sets either key:** 0 hits across every `.lua` in `24965799\kom_contents`. The 32 stage scripts that use the
-    sibling key `SIEGE_MODE` are among those searched.
+  - **No shipped script sets either key.** There are 0 hits in two corpora: every `.lua` in June's own extract of all 258 koms
+    (`14JUN17\data\*_kom`, where 376 files carry `NPC_ID` and 32 carry `SIEGE_MODE`, so the keys would show), and every `.lua` in
+    `24965799\kom_contents`. This is a presence check; LuaJIT keeps string constants as plain bytes.
   - The quest-gated stage-NPC create is therefore dead in June's data. It is noted here and nothing more (skip-non-important rule).
     March lacks both keys.
 
