@@ -6891,3 +6891,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Sander_Secret_Stage3.lua calls it on its last skin mesh; March never bound it, so the call aborted the rest of the chunk.
 #define SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect C3y-1b play-test fix. June's NPC init opens an ATTACH_SKIN_MESH's skin mesh first
+//              ( 327a8fff-327a9013: 31cdef40 = OpenXSkinMesh( name, L"Bip01" ) ) and skips the whole block when it is NULL
+//              ( 327a901e / 327a9020 je 327a9814 ). The Ranox port's ATTACH_SKIN_MESH0 always kept the CX2SubEquip, so a missing
+//              mesh ( MAD_BEHIMOSS_SOUL_Skin.x: in neither build, named by the 3 SECRET_MAD_BEHEMOTH_SOUL* scripts ) left a NULL
+//              RenderParam that CX2GUNPC::OnFrameRender_Prepare writes through ( crash at Henir Space stage 22 ). Drop it, as June does.
+#define SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_SKIP_MISSING
+//////////////////////////////////////////////////////////////////////////

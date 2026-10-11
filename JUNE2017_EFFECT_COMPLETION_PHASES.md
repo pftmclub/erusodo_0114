@@ -2739,6 +2739,14 @@ high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
 - `DEPLOY OK: X2_offline.exe is 19,555,328 B, dated 2026-10-11 10:48:05, md5 64fa2a98ba49ba5c6fc3645b1af303d2` (`SetAnimWait` is in the exe).
 - **Copied (user OK, 2026-10-11 ~10:55):** `COPY OK` data036 (md5 aaa392f1), data040 (ef1358bf), data135 (70afdc24), data136 (b147083c),
   data146 (b6ddb3f4), data166 (new, 4582d4d8), data180 (49d1cf63), data182 (new, 0539c736). The 6 BGM files are in `data\music\`, md5 = June's.
+- **Play-test 1 (2026-10-11 10:52-10:55, reyaa): crash at `/stage 22`.** The world loaded (State.log `Stage Start : 22`, no
+  `JUNE_FX C3x` line). CrashRpt `X2_offline.xml`: AV at `0x32e6cd0a` = `CX2GUNPC::OnFrameRender_Prepare` +0x76a (X2.map), the
+  `*pSubRenderParam = *pRenderParam` copy at `X2GUNPC.cpp:25269`. The attach skin mesh is NULL because `MAD_BEHIMOSS_SOUL_Skin.x`
+  (`SECRET_MAD_BEHEMOTH_SOUL_HENIR.lua` `ATTACH_SKIN_MESH0`) is in neither build. June skips the block when `OpenXSkinMesh` fails
+  (`327a901e`, funcmap row). The Ranox port's `ATTACH_SKIN_MESH0` kept a SubEquip with no anim. **Fix:** flag
+  `SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_SKIP_MISSING` drops it and logs `JUNE_FX C3y-1b attach skin mesh ... not found` (insert-only,
+  inside the Ranox block). A census of June's 3 attach-skin-mesh names finds only this one missing, used by the 3 Soul scripts. JUNE_BUGS row 171.
+  flagcheck `--worktree --files`: 1 PASS, 1 DEFINE, 0 FAIL, 0 deleted. RESULT: PASS. Deploy: pending (line below).
 - **Not provable here:** only `Dungeon_Sander_Secret_Hell` (C3y-1c) reaches Sander's 8 non-boss worlds, so `SetAnimWait` and those
   8 worlds wait for C3y-1c's play-test. Henir Space (38100) reaches stages 22 and 32-35, but its run order is decided elsewhere,
   so the check uses `/stage`.

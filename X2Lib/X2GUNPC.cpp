@@ -4609,6 +4609,14 @@ void CX2GUNPC::InitComponent()
 				if( pRootFrame != NULL )
 				{
 					CX2SubEquip* pSubEquip = CX2SubEquip::CreateSubEquip( &pRootFrame->combineMatrix, wstrAttachSkinMeshName, true );
+#ifdef SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_SKIP_MISSING
+					// June 327a901e: no skin mesh opened -> nothing attached. A skin SubEquip without an anim has no RenderParam.
+					if( pSubEquip != NULL && pSubEquip->GetIsSkinMesh() && NULL == pSubEquip->GetRenderParam() )
+					{
+						CX2OfflineLog::Server( L"JUNE_FX C3y-1b attach skin mesh %s not found: skipped, as June does ( 327a9020 )", wstrAttachSkinMeshName.c_str() );
+						SAFE_DELETE_KTDGOBJECT( pSubEquip );
+					}
+#endif SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_SKIP_MISSING
 					if( pSubEquip != NULL )
 					{
 						m_vecAttachMesh.push_back( pSubEquip );
