@@ -158,6 +158,8 @@ dungeon_id	name	march_name	june_name	differ	march_only	june_only	june_unread_jun
 33250	DI_SANDER_BEHIMOSS_HEART_NORMAL	Heart of Behemoth	Heart of Behemoth						ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
 33251	DI_SANDER_BEHIMOSS_HEART_HARD	Heart of Behemoth	Heart of Behemoth								SAME
 33252	DI_SANDER_BEHIMOSS_HEART_EXPERT	Heart of Behemoth	Heart of Behemoth				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount				SAME
+33260	DI_HAMEL_SECRET_COMMON	Temple of Trials	Temple of Trials					m_LocalStarPosX,m_LocalStarPosY,m_bForbidEnterDungeon	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL		SAME
+33261	DI_HAMEL_SECRET_HELL	Temple of Trials	Temple of Trials				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
 33270	DI_RANOX_BURNDEDFOREST_NORMAL	Burnt Forest	Burnt Forest						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE,ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME
 33271	DI_RANOX_BURNDEDFOREST_HARD	Burnt Forest	Burnt Forest						BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
 33272	DI_RANOX_BURNDEDFOREST_EXPERT	Burnt Forest	Burnt Forest				FixMaximumDifficulty,MaxAdequateMemberCount,MinAdequateMemberCount		BOSS_DROP_ITEM.LUCIEL,BOSS_DROP_ITEM.ROSE		SAME
@@ -215,4 +217,5 @@ dungeon_id	name	march_name	june_name	differ	march_only	june_only	june_unread_jun
 39530	DI_EVENT_TREE_DAY_PEITA	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
 39540	DI_EVENT_TREE_DAY_VELDER	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
 39550	DI_EVENT_TREE_DAY_HAMEL	Tears of Ruben Forest	Tears of Ruben Forest				DUNGEON_CHECK_CONDITION	m_bSwitchingWithEventInfo			SAME
+41270	?	Grand Cavern: The Source of Demonic Energy	Grand Cavern: The Source of Demonic Energy				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY,m_bForbidEnterDungeon	ENDING_SPEECH0.LUCIEL		SAME
 41271	DI_RANOX_SECRET_HELL	Grand Cavern: The Source of Demonic Energy	Grand Cavern: The Source of Demonic Energy				m_SuitableLevelFixValue	m_LocalStarPosX,m_LocalStarPosY	ENDING_SPEECH0.AIN,ENDING_SPEECH0.LUCIEL,ENDING_SPEECH0.ROSE		SAME

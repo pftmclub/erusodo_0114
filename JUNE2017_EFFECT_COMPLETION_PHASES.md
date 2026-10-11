@@ -2614,7 +2614,7 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
 
 ## C3y-1a - port: Hamel secret dungeon rows + the Ranox secret common row
 
-**Status: ready (routed by C3y, 2026-10-11). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-1a.md`.
+**Status: done 2026-10-11, play-test owed (see "C3y-1a - Done"). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3y-1a.md`.
 
 - **Scope:** March already ships `Dungeon_Hamel_Secret_{Common,Hell}.lua` (June bytecode), the 9 Hamel secret worlds (561-569) and
   `DI_HAMEL_SECRET_HELL` 33261 in DungeonEnum, with 0 unresolved NPCs. Missing:
@@ -2624,6 +2624,53 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
   - UI assets: `HQ_LoadingDungeon_HARMEL_SECRET1/2.tga`, `DLG_UI_Dungeon_Image09.dds`, button texture keys; entry item 700015 in item.kim.
 - Check `m_eDefaultDungeonLoungeWorldID = WI_HAMEL_SECRET_STAGE_BOSS` (no such June enum name; June's world is `..._BOSS_STAGE`):
   keep June's value verbatim (JUNE_BUGS row) unless the strict load test fails.
+
+### C3y-1a - Done
+
+**2026-10-11, Opus 5.5 high. Data only: no C++, no flag, no build.** flagcheck and deploy do not apply.
+
+- **DungeonData** (data035, core BOM source; `luasrc.py refresh`; ledger and core checks PASS):
+  - June's 3 June-only rows are added verbatim from `june_src_fixed`, between `--{{ ... June effect C3y-1a ... June's row` / `--}}` markers, in June's order:
+    - 33260 `UNUSED_DUNGEON_ID.DI_HAMEL_SECRET_COMMON` and 33261 `DI_HAMEL_SECRET_HELL`, after Behimoss Heart Expert;
+    - 41270 `UNUSED_DUNGEON_ID.DI_RANOX_SECRET_COMMON`, before Ranox Secret Hell.
+  - The Ranox port Phase 9 note ("not ported, UNUSED_DUNGEON_ID does not exist") is superseded, since C3z-3 added that table. It says so in the marker.
+- **Gate:**
+  - `dungeon_registry_census.py`: 220 shared ids, **220 SAME** (217 + these 3). STR_ID missing: none.
+  - Strict test as written: `FAIL run (stopped after row 229): missing enum member WORLD_ID.WI_HAMEL_SECRET_STAGE_BOSS`.
+    - That is the test's own rule (it puts an erroring `__index` on every numeric table), not the client's.
+    - `WORLD_ID` is a plain table in `Enum.lua:1730`, and nothing in X2Lib or KTDXLIB sets a metatable on it, so the key reads nil.
+    - June ships the same name against an Enum that also lacks it.
+    - The test now takes `allow=TABLE.MEMBER` for one named, kept June name, and prints `ALLOW` when that name is read.
+    - With `allow=WORLD_ID.WI_HAMEL_SECRET_STAGE_BOSS`: **`OK 251 rows, 10 titles, 0 fail(s)`**; it was 248 before.
+- **The lounge-world name is kept verbatim (JUNE_BUGS row 170).**
+  - The lounge world becomes `WI_NONE`, as it already is for 100 of the 251 rows.
+  - Its only reader, `X2Main.cpp:5529`, runs only when the return village is a dungeon lounge.
+- **Map button: the user chose to adopt June's file (2026-10-11).**
+  - March's `DLG_Map_Local_Hamel_Icon_NEW.src.lua` was June's file minus `HamelSecret`, `SecretDungeonDesc` and `TITLE_SECRET`, and nothing else.
+  - `adopt-june` put June's ljconv bytecode (11,641 B) in data034 and moved the sidecar to `kom_backup_stage_june\20261011_103645`.
+  - Record: `june2017_re/june_adopt_20261011_103645.tsv`.
+  - This reverses the 2026-10-09 core-Lua rollback for this one file only.
+  - No C++ is needed: `UpdateDungeonButtons` / `SecretDungeonDesc` (`X2LocalMapUI.cpp:1375`, `:1418`) are keyed by the button's dungeon id and the control name `SecretDungeonDesc`, not by village.
+- **Assets** (`stage-june`, byte-exact June; backup `kom_backup_stage_june\20261011_103536`):
+  - `DLG_Localmap_Title_01.tga` / `.TET` (June data151, staged into data063, March's only copy, 77 keys) replaces Lanox Phase 2's merge.
+    - With March's art, `TITLE_HARMEL_SECRET` showed "Sander's Ordeal"; June's art reads "Temple of Trials".
+    - Forecast: all 58 keys March's scripts read are in June's TET.
+    - `Title_Holloween` is blank in June's art; the 5 village icon files read it exactly as June's do, so that is June parity.
+    - `TITLE_ERDA_ISLAND` has no reader. `TITLE_SANDER_SECRET` is now there for C3y-1c.
+  - `DLG_UI_Dungeon_Image09.dds` (data065): June's copy; same TET.
+  - Already equal to June, so not staged: `HQ_LoadingDungeon_HARMEL_SECRET1/2.tga`, the `DLG_Common_Button03/05_NEW` atlases (keys `HARMEL_SECRET_DUNGEON_NORMAL/_OVER/_LOCK`).
+- **Items:** 113277 (Luto's Secret Key), 700015 (Secret Dungeon Entry Permit) and the 9 `BOSS_DROP_ITEM` ids are all in the live item.kim.
+- **Packs and copies:**
+  - `PACK OK` data034 (~1), data035 (~1), data063 (~2), data065 (~1).
+  - `COPY OK data034 ... md5 60c59a7764eb8754433e550ed3c9ab8e`
+  - `COPY OK data035 ... md5 c719492b6e65d2fbb7b3ec05c2f96fcb`
+  - `COPY OK data063 ... md5 0ded68660adc53eaa02114f6bb791e71`
+  - `COPY OK data065 ... md5 c1d561445849e652421be6f4ccf41c45`
+- **Save:** Freils (unit 18) was given 2x 700015. Backup: `db_backup\els_db_20261011_103730_pre_additem.sql`.
+- **Play-test owed:**
+  - the Hamel map shows the secret button and title;
+  - a Hamel Secret Hell room starts and stage 0 loads;
+  - Ranox Secret Hell (registered after row 229) still resolves.
 
 ## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
 

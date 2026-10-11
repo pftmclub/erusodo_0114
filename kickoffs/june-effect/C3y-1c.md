@@ -30,6 +30,8 @@ grep Sander_Secret june2017_re/c3y_unreached_dungeon_census.tsv
    March's copy needs the user's OK first. Art: `SANDER_SECRET_DUNGEON_NORMAL/_OVER`
    (`DLG_Common_Button04_NEW.tga`), `TITLE_SANDER_SECRET` (`DLG_Localmap_Title_01`, June data151), `HQ_LoadingDungeon_Sander_SECRET1/2.tga`,
    `DLG_UI_Dungeon_Image10.dds`. Entry items 700015 / 113277 in item.kim.
+   C3y-1a (2026-10-11) already staged June's `DLG_Localmap_Title_01.tga` / `.TET` (data063, 77 keys, `TITLE_SANDER_SECRET` included),
+   and the strict test takes `allow=TABLE.MEMBER` for a June name kept verbatim (see "C3y-1a - Done").
 5. **Emulator:** C3z-6's secret path (relative level, `DT_SECRET`, poison) must not key on a fixed id list; check, and fix behind a
    flag if it does.
 6. **Gate:** the Sander map shows the button; a Sander Secret Hell room starts, and all stages load with monsters; 0 EXCEPTION.

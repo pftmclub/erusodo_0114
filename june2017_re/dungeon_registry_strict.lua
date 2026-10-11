@@ -5,14 +5,22 @@
 --   luajit dungeon_registry_strict.lua DUNGEONDATA ENUM [ENUM ...]
 -- Prints "OK <rows> <titles>" or "FAIL <message>" lines; a FAIL line per row whose dungeonID is not a number or whose
 -- EXTRA_REQUIRE_DUNGEON_ID list has a hole (AddDungeonData_LUA reads it with GetValue(i) and stops at the first nil).
+-- C3y-1a (2026-10-11): an argument "allow=TABLE.MEMBER" exempts one missing enum member (it reads nil, as in the
+-- client: Enum.lua's tables are plain Lua tables, the client sets no metatable on them) and prints "ALLOW ..." when read.
+-- Only for a June name kept verbatim with a JUNE_BUGS.md row (e.g. WORLD_ID.WI_HAMEL_SECRET_STAGE_BOSS).
 local dd = arg[1]
 local env = {}
 setmetatable(env, { __index = _G })
+local allow, files = {}, {}
 for i = 2, #arg do
-  local f = assert(loadfile(arg[i]))
+  local a = arg[i]:match("^allow=(.+)$")
+  if a then allow[a] = true else files[#files + 1] = arg[i] end
+end
+for _, path in ipairs(files) do
+  local f = assert(loadfile(path))
   setfenv(f, env)
   local ok, err = pcall(f)
-  if not ok then print("FAIL enum " .. arg[i] .. ": " .. tostring(err)); return end
+  if not ok then print("FAIL enum " .. path .. ": " .. tostring(err)); return end
 end
 -- every table of numbers is an enum: missing member -> error
 for k, t in pairs(env) do
@@ -20,7 +28,10 @@ for k, t in pairs(env) do
     local num = true
     for _, v in pairs(t) do if type(v) ~= "number" then num = false; break end end
     if num then
-      setmetatable(t, { __index = function(_, m) error("missing enum member " .. k .. "." .. tostring(m), 2) end })
+      setmetatable(t, { __index = function(_, m)
+        if allow[k .. "." .. tostring(m)] then print("ALLOW missing enum member " .. k .. "." .. tostring(m) .. " (reads nil)"); return nil end
+        error("missing enum member " .. k .. "." .. tostring(m), 2)
+      end })
     end
   end
 end
