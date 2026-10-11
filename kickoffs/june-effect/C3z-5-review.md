@@ -37,7 +37,7 @@ Review C3z-5's commit against June's binary (Ghidra, read-only):
    - the local map click;
    - MakeDungeonNameString;
    - the two DCC 11 sites.
-4. **Routing**: confirm every C3z-5b item in the table is in `kickoffs/june-effect/C3z-5b.md`.
+4. **Routing**: confirm every C3z-5b item in the table is in `kickoffs/june-dungeons/C3z-5b.md` (moved to june-dungeons 2026-10-11).
 
 Hygiene, one command per flag (each with the other four as `--with`):
 `python tools/flagcheck.py SERV_IRUHADEV_JUNE_DUNGEON_FIX_MAX_DIFFICULTY --range <C3z-5 commit>^..HEAD --with SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS SERV_IRUHADEV_JUNE_DUNGEON_SUITABLE_LEVEL SERV_IRUHADEV_JUNE_HENIR_HARD SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION`

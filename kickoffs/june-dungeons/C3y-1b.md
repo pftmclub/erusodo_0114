@@ -1,9 +1,9 @@
-# June effect completion - C3y-1b - Henir Space's 5 missing boss worlds + the other Sander secret worlds (port)
+# June dungeons - C3y-1b - Henir Space's 5 missing boss worlds + the other Sander secret worlds (port)
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3y-1b` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-dungeons C3y-1b` |
+| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch: the current working branch); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
 | Depends on | C3y; can run with C3y-1a (no shared file); not with the port halves of C3y-1c / 2 / 3 / 4 (data036 Enum.lua, data040 WorldData.lua) |
 | Flag | a `SERV_IRUHADEV_JUNE_*` flag only if C++ must change (none expected) |
 | Log tag | `JUNE_FX C3y-1b` (`python tools/logs.py --grep "JUNE_FX C3y-1b"`) |

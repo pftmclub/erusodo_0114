@@ -49,4 +49,4 @@ Review C3z-1's census, staging and removals, the 199 NPC assets of play-test 1 a
    are `CX2DungeonGame`, `CX2BattleFieldGame` and `CX2PVPGame` (no `CX2PVEGame`). The last two keep the base `true`: check that
    June's battle-field and PvP vtables also hold `330e7c10` at `0x244`.
 
-Write "C3z-1 - Review" into the plan doc, update the C3z-1 STATUS row, check `kickoffs/june-effect/C3z-1b.md`, and commit.
+Write "C3z-1 - Review" into the plan doc, update the C3z-1 STATUS row, check `kickoffs/june-dungeons/C3z-1b.md` (moved to june-dungeons 2026-10-11), and commit.
