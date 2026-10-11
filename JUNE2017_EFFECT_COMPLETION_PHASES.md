@@ -3421,6 +3421,14 @@ All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The
 - **ErrorLog: 0 `can't find` lines** for the whole run, Henir stage 22 (Mad Behemoth Soul: `GetUnitType` / `GetMainEffectPos`) included. 0 EXCEPTION.
 - **Not reached:** Final Hall 33320 (`ChangeMotion_LUA`, the GO_NEXT pair) and Frozen Water Hall 33180 (`SetShowAllNPCExceptMe`); both still owed.
 
+### C3z-4b - play-test 2 (2026-10-11 16:24-16:31, reyaa unit 12, exe `a3cf19b7`): Final Hall PASSED
+
+- **Ranox Final Hall Normal 33320**, `CLEARED in 242s` (`offline_server.log:2665`), 0 `can't find`, 0 EXCEPTION.
+- **GO_NEXT:** stage 3 regeneration points advanced on their own, `Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ -> 1` x3 (1544 / 1682 / 1817).
+- **Subtitles:** the boss intro (`EVENT_FINALHALL_BOSS` npc 1925) called `SetMovieDescriptionData` with 34176 / 34174 / 34175 (1842-1851).
+- **ChangeMotion_LUA:** `npc 1924 motion Motion_FIRE_DEVIL_SKA_Change.x mesh 1 anim 1` (2069); Ska then fought on for 63 s and died to the user (2626).
+- Still owed: Frozen Water Hall 33180 (`SetShowAllNPCExceptMe`) and the user's word that the subtitles render on screen.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
