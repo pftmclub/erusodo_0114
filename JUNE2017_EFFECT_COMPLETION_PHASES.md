@@ -2577,7 +2577,7 @@ User, 2026-10-10: give the old dungeons their own phases and update them to what
 
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
-**Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-5b) now run as the `june-dungeons` plan
+**Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan
 (`JUNE_DUNGEONS_PHASES.md`, `kickoffs/june-dungeons/`, same IDs). Their sections and Done notes below stay here as history; new Done notes go
 into `JUNE_DUNGEONS_PHASES.md`.
 

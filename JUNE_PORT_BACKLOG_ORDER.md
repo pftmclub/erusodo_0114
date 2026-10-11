@@ -62,6 +62,7 @@ The user's remaining backlog, in the order they listed it:
 | 19 | June event dungeons *(added 2026-10-08, june-effect C10d)* | - (found by june-effect C10d) | Not a backlog item but missing content: June's event dungeons (e.g. `DI_EVENT_2017_TREASURE` 41470 and `DI_EVENT_ALCHEMY_LAB` 41350) carry engine gimmicks in `DamageReact`, a `CX2Game` manager and June-only NPC classes (`CX2GUKiddayNPC`). March has none of these dungeon IDs; its highest is 41311. Nothing reaches them until the dungeons themselves are ported. |
 | 20 | Damage-number customization *(added 2026-10-09, june-effect C3e)* | - (found by june-effect C3e) | Not a backlog item but a missing system: June's damage-number skin items (Damage Custom A / B / Critical, Christmas, Nature) pick the font of the numbers a character deals, and the user sync carries the choice to other players. March has none of it. It depends on Stage 13 (the item ids) and touches no other stage's files. Numbered 20 to keep the earlier numbers stable. |
 | 21 | Photozone *(added 2026-10-09, june-effect C3e-2)* | - (found by june-effect C3e-2) | Not a backlog item but a missing game state: June's `XS_PHOTOZONE_LOBBY` (0x19) / `XS_PHOTOZONE_GAME` (0x1a), where the chat box's WIN / LOSE commands re-roll the start / win / lose motion. March has no Photozone. Numbered 21 to keep the earlier numbers stable. |
+| 22 | June dungeons and worlds *(added 2026-10-11, user: split out of june-effect)* | - (found by june-effect C3x / C3y / C3z) | Not a backlog item but missing content: the June dungeons, worlds and map entries that March lacks or has half of (Sander and Hamel secret dungeons, the five Henir Space boss worlds, class tutorial dungeons, Bestera, Space of Thought, the Hero tier, June's data101 map assets, the DungeonData readers june-effect C3z-5 routed, the Battle Field tutorial guide). Planned as `JUNE_DUNGEONS_PHASES.md`, STATUS block `june-dungeons`; phase IDs kept from june-effect. It shares the core registries with Stages 1 (Atlas / Elysion dungeons A8-A10, E8-E11) and 19 (event dungeons), so those port halves run one at a time. Numbered 22 to keep the earlier numbers stable. |
 
 **Concurrency.** At most two code sessions should run at once:
 - Stage 0's buff port, in the main Trunk;
@@ -609,6 +610,21 @@ Found by june-effect C3e-2 (funcmap rows `31ec2700 @31ec6187-31ec66db (C3e-2)`, 
 - **Still to identify:** the Photozone's lobby, scene, UI and entry path; the two command strings in June's string table.
 
 **Depends on:** C9h-4g for June's `*_WAIT_STATE_CHANGE` state (the delegate's target, state `0x82`). It touches no other stage's files.
+
+### Stage 22: June dungeons and worlds (june-dungeons, split out of june-effect 2026-10-11)
+
+june-effect's C3x / C3y / C3z phases kept finding dungeon and world content that is not effect-engine work, so on 2026-10-11 (user) the open
+ones became their own plan: `JUNE_DUNGEONS_PHASES.md`, kickoffs `kickoffs/june-dungeons/`, STATUS block `june-dungeons`, same phase IDs.
+- **Content:** Hamel secret (C3y-1a, done) and Sander secret (C3y-1b worlds, C3y-1c dungeon), the 5 Henir Space boss worlds (C3y-1b), the 9 class
+  tutorial dungeons (C3y-2, identify the entry route first), Bestera 1-4 (C3y-3), Space of Thought (C3y-4), the Hero tier (C3y-5, identify
+  June's route first; 191 ids), June's data101 map assets (C3z-1b, waits for Stage 14/15's data101 restore).
+- **Systems that serve them:** the DungeonData readers C3z-5 routed (C3z-5b) and the Battle Field tutorial guide manager (C3z-4t, scope first).
+- **Overlap with other stages:** Atlas / Elysion own their dungeons (A8-A10, E8-E11) and reuse the 4 Henir boss worlds C3y-1b ports; Stage 19 owns the
+  event dungeons. All three edit the core registries (data036 `Enum.lua` + `DungeonEnum.lua`, data035 `DungeonData.lua`, data040 `WorldData.lua`,
+  data037 `NPCTemplet.lua`): one port half at a time.
+
+**Depends on:** june-effect C3x-C3z-6 (done). Stage 14/15 for C3z-1b only.
+
 
 ## Open decisions that gate stages
 

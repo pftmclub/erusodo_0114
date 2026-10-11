@@ -1,10 +1,10 @@
-# June effect completion - C3z-4t - June's tutorial guide manager (Battle Field tutorial dungeons)
+# June dungeons - C3z-4t - June's tutorial guide manager (Battle Field tutorial dungeons)
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-4t` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
-| Depends on | C3z-4 batch 1 |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-dungeons C3z-4t` |
+| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch: the current working branch); this phase's text and the C3z-4 Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
+| Depends on | june-effect C3z-4 batch 1 (done) |
 | Flag | one `SERV_IRUHADEV_JUNE_TUTORIAL_GUIDE*` per logical change |
 | Log tag | `JUNE_FX C3z-4` |
 

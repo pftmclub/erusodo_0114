@@ -1,14 +1,14 @@
 # June dungeons - phases
 
 Created 2026-10-11 (user): the dungeon / world / map-entry ports that `june-effect` (C3y, C3z) collected are not effect-engine work,
-so they run as their own plan. Engine fixes the dungeons need (NPC/game queries, intro skip, tutorial guide manager) stay in
+so they run as their own plan. Engine fixes the dungeons need (NPC/game queries, intro skip, SimpleDLG) stay in
 `JUNE2017_EFFECT_COMPLETION_PHASES.md`.
 
 ## Context
 
 - Goal: every June dungeon and world that March lacks or has half of is playable offline, with June's rows, worlds, NPCs, meshes,
   map buttons and entry rules. Offline client only (shared-header changes flag-gated, server desync not a concern).
-- **Phase IDs were kept** (C3y-1b ... C3z-5b) so commit messages, JUNE_BUGS rows, census files and `funcmap.tsv` tags still match.
+- **Phase IDs were kept** (C3y-1b ... C3z-5b, C3z-4t) so commit messages, JUNE_BUGS rows, census files and `funcmap.tsv` tags still match.
   New phases of this plan (for example the ones C3y-5 writes) take the next free ID in the same style, for example `C3y-5a`.
 - Done phases that stay in june-effect as history: C3x (world load, 170 map files), C3y (census), C3y-1a (Hamel secret),
   C3z-1 (map assets), C3z-2 (old dungeon NPCs), C3z-3 (registry parity), C3z-5 (DungeonData keys), C3z-6 (relative level, poison).
@@ -44,6 +44,7 @@ so they run as their own plan. Engine fixes the dungeons need (NPC/game queries,
 | C3y-4 | Space of Thought 1-3 + `_DUMMY`, the Special-map line | "C3y-4 - port: Space of Thought 1-3" |
 | C3y-5 | identify June's route into the Hero tier (read-only), then write the port phases | "C3y-5 - identify: ..." |
 | C3z-1b | June's data101 map assets (Velder / Henir); waits for june-asset-port P0 | kickoff `C3z-1b.md`; "C3z-1 - Done" |
+| C3z-4t | June's `CX2TutorialGuideManager` (the 9 Battle Field tutorial dungeons via `benders_actor.lua`); scope first: report the system's size before porting | kickoff `C3z-4t.md`; "C3z-4 - Done (batch 1)" |
 | C3z-5b | the DungeonData readers C3z-5 routed (DCC bits, GetLastClearDungeonID, m_fExtraValue, June-only-row keys) | kickoff `C3z-5b.md`; "C3z-5 - Done" |
 
 Run with: Opus 5.5 high (C3y-5: xhigh). Kickoffs: `kickoffs/june-dungeons/<id>.md`. Board: `STATUS.md`, block `june-dungeons`.
@@ -51,4 +52,4 @@ Run with: Opus 5.5 high (C3y-5: xhigh). Kickoffs: `kickoffs/june-dungeons/<id>.m
 ## Order (recommendation, 2026-10-11)
 
 1. C3y-1b play-test (user) and review; 2. C3y-1c; 3. C3y-2 / 3 / 4 one at a time (identify halves can run earlier);
-4. C3z-5b best before or with them; 5. C3y-5 any time (read-only); 6. C3z-1b when P0 has restored data101.
+4. C3z-5b best before or with them; C3z-4t (scope first) pairs with C3y-2, the class tutorials; 5. C3y-5 any time (read-only); 6. C3z-1b when P0 has restored data101.
