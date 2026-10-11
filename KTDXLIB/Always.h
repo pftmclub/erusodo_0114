@@ -6809,7 +6809,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // OFF 2026-10-10: C3z-4 play-tests passed (Den of Trock caves + chief, Ash Village smiths, Gateway berserkers, Gateway Ignia ally)
 // ON 2026-10-11 for the C3z-4 review play-test ( sub-stage CreateGUNPC "ai" line: Santilus motor 1, Gateway Ignia 4 ); off after it.
 // OFF 2026-10-11: review play-test passed ( Santilus npc 1390 ai 1, Gateway npc 1897 ai 4 ).
-//#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
+// ON 2026-10-11 for the C3z-4b play-test ( first calls of each batch 2 / 3 method, JUNE_FX C3z-4b ); off after it.
+#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
@@ -6890,6 +6891,173 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              body 327f6990: if ( m_pXSkinAnim ) m_pXSkinAnim->Wait(), 31d28d30 = CKTDGXSkinAnim::Wait ). June's
 //              Sander_Secret_Stage3.lua calls it on its last skin mesh; March never bound it, so the call aborted the rest of the chunk.
 #define SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b ( june2017_re/c3z4_bind_plan.tsv batch 2 ): the NPC script subtitle. June
+//              CX2GUNPC::SetMovieDescriptionData( string ID, seconds ) ( 32758730, bound @31e0419c ) stores both on the now
+//              state ( CX2State 31ef7370: +0x1ec / +0x1f0 ), and the state draws it last in its render pass ( 31f179b0, called
+//              by CX2StateDungeonGame 324cff10 and CX2StateBattleField 324bb230 ): font XUF_HEADLINE_30_NORMAL, centred at
+//              ( 512, 620 ), white with a black shell, counting down by the state's elapsed time. 66 scripts, 59 dungeons.
+#define SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2GUNPC::GetNearestSiegeModeNpcUID ( 327714c0, bound @31df537b ): the
+//              nearest other live NPC in siege mode ( GetSiegeMode, +0x8aa0 ), from 1e6; June returns the UID's low 32 bits,
+//              0 when none ( Bunker / Elder secret bunker scripts, 10 dungeons ).
+#define SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: bind CX2GUNPC::IsActiveMonster, which March has and never bound. June
+//              31e4d210 ( @31e0c395 ) reads byte +0x872c, whose 5 writers ( ctor, CreateNPC, sub-stage CreateGUNPC, 2 battle
+//              field paths ) match March's 5 SetActiveMonster / m_bIsActiveMonster writers ( 8 dungeons ).
+#define SERV_IRUHADEV_JUNE_NPC_ACTIVE_MONSTER
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2Game::LiveKeyCodeNPCNumExceptDying( key code ) ( 322d09c0, bound
+//              @31ddcc68 ): NPCs of TN_MONSTER that are not GUSI_DIE, have HP left ( no gage data counts ) and carry the key
+//              code ( 3 dungeons ).
+#define SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2GameUnit::Play2DSound_LUA ( 32276540, bound @31de3cb3 ): June's
+//              PlaySound_LUA ( 322763c0 ) with the sound core's 3D flag off ( 32276220( name, 0, 0 ) ), same DieLight.ogg
+//              effect-option gate ( 7 dungeons ).
+#define SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2GUNPC::ChangeMotion_LUA( motion file ) ( 32761cd0, bound @31e0a329 ):
+//              closes and reopens the motion mesh, drops the anim and both collision / attack list sets, rebuilds the anim
+//              ( CreateAndSetAinmXSkinMesh, 3275c950 ), replays the now state's play type / wait / anim speed and rebuilds the
+//              after image ( 5 frames, XL_EFFECT_0, 0.797 grey ) unconditionally ( Fire Devil Ska phase change, 6 dungeons ).
+#define SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2Game::FadeOriginWorldColor_LUA( color, time ) ( 31e4dd10, bound
+//              @31ddcf0a ): the world's FadeOriginWorldColor when GetWorld() is set ( 6 dungeons ).
+#define SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2GUNPC::SetShowAllNPCExceptMe( show ) ( 32777fd0, bound @31e04600 ):
+//              every other NPC's gage UI and object show flag ( an inlined SetShowGage + SetShowObject ), 6 dungeons.
+#define SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2Game vslot 0x210 CanPassThisStage / 0x214 GetHenirLimitLevel ( vcall
+//              thunks 31e4e7f0 / 31e4e930, bound @31dd9c27 / @31dd9de3 ). Base: true / 0 ( 322cc260 / 3231f510 ). CX2DungeonGame
+//              and CX2PVEGame override both ( 327cad60 / 327c9ff0 ) with a lookup in CX2HenirData's level-limit map, which only
+//              HenirData:AddHenirLevelLimit fills and no June script calls, so June answers true / 0 there too ( 5 dungeons ).
+#define SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2Game vslot 0xbc GetLiveUserUnitRandom ( 322d8d50, no override; thunk
+//              31e4e860 bound @31dcacbd ): a random user that is not GUSI_DIE and has HP left, NULL when none ( Elysion laser
+//              scripts, 2 dungeons ).
+#define SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2Game::GetIsGoNextPacketSended_LUA / Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ
+//              ( 322f14d0 / 322f1550, bound @31dd945f / @31dd9757 ): in a dungeon game, read m_bGoNextPacketSended ( +0xc4c ) /
+//              send the sub-stage go-next request without closing the before sub-stage ( 327c9fa0( false ) ), 3 dungeons.
+#define SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2DamageEffect::CEffect::GetMainEffectPos ( 31e4c3a0, bound @31e2d024 ):
+//              the main mesh instance's position, else the effect's own ( 3 dungeons ).
+#define SERV_IRUHADEV_JUNE_EFFECT_MAIN_POS
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2GUNPC::GetNowStateName ( 3275b060, bound @31e0cb18 ): the name of the
+//              now state ( nowState, +0x8454 ) in the init state data's name map, NULL when absent ( 3 dungeons ).
+#define SERV_IRUHADEV_JUNE_NPC_STATE_NAME
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: bind CX2GUUser::GetUnitType, which March has and never bound ( June 31e4d0e0,
+//              @31e13a93: m_pUnit's templet unit type ), 3 dungeons.
+#define SERV_IRUHADEV_JUNE_USER_UNIT_TYPE
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2World::GetWorldObjectMeshByName( name ) ( 327fcc40, bound @31dbab2e ):
+//              the first static-mesh world object whose name ( the mesh file SetXMesh_LUA names it after ) matches, case
+//              insensitive; NULL when none ( Red Dragon raid, Eltrion scenes, 3 dungeons ).
+#define SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CKTDGLineMap::GetCenterPositionLineIndex( line ) ( 31c6ad50, @31bedb4c ) and
+//              SetEnableLinebyPos( enable, pos, distance, can-down only ) ( 31c6afb0, @31bee5a5 ): a line's centre ( zero for a
+//              bad index ); every line whose centre is within the distance ( and, when asked, has bCanDown ) takes the enable
+//              flag, rebuilding the line groups on each change ( 31c5c2e0 ), 8 / 3 dungeons.
+#define SERV_IRUHADEV_JUNE_LINEMAP_QUERY
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: June CX2GUNPC::SetImmuneToExtraDamage ( 31e4d000, @31e0c55e ): writes byte
+//              +0x4104, whose June readers are March's m_bImmuneToExtraDamage readers ( NOT_EXTRA_DAMAGE key ), 2 dungeons.
+#define SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: bind CX2World::SetCameraDistance ( MODIFY_FRUSTUM ), which March has and never
+//              bound. June 31e4ca10 ( @31dbad5e ) writes the four floats June's SetProjection ( 327fb590 ) also writes, as
+//              March's SetProjection does ( 1 dungeon ).
+#define SERV_IRUHADEV_JUNE_WORLD_CAMERA_DISTANCE
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b: bind CX2GUUser::GetLastTouchLineIndex. June binds the vcall thunk 31e4e960
+//              ( slot 0x12c, @31e03bcd ) on CX2GUUser too; the GUUser slot ( 3208e100: bFuture ? +0x7e54 : +0x80f4 ) is
+//              March's override ( 2 dungeons ).
+#define SERV_IRUHADEV_JUNE_USER_LAST_TOUCH_LINE
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b batch 3: June also binds GetIsRight / GetRotateDegree on CX2GameUnit ( vcall
+//              thunks 31e4eaf0 slot 0x170 / 31e4eac0 slot 0x150, @31ded26f / @31dee047 ) and SetIsRight( bIsRight, bFuture )
+//              on CX2GUUser ( 31fc8ca0, @31e156d9 ), so a CX2GameUnit* receiver ( GetFocusUnit, ... ) and a user reach them.
+#define SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-11
+// Description: June effect completion C3z-4b batch 3: June CX2DungeonGame::CannotInput( time ) ( 327d20b0, bound @31de3619 ),
+//              the body of the slide-shot one ( 325c73e0 = March CX2SlideShot::CannotInput ): my unit's can-not-input time,
+//              for the dungeon trigger scripts ( 6 dungeons ).
+#define SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

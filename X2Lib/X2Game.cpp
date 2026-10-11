@@ -5979,6 +5979,120 @@ int CX2Game::GetNPCUnitNumCheckTeam( int iTeam_ )
 	return iCount;
 }
 #endif SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
+#ifdef SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+/** @function : LiveKeyCodeNPCNumExceptDying
+	@brief : June 322d09c0 ( bound @31ddcc68 ): over the NPC list ( +0x324 ), a non-NULL NPC counts when its team ( protected
+			 +0x278 ) is TN_MONSTER ( 2 ), it is not GUSI_DIE ( vslot 0x174 != 4 ), its HP is left ( gage data +0xc04 NULL
+			 skips the test; else the HP gage +0x20 must exist and 0 < now, an unordered compare counting ) and its key code
+			 ( +0x874c ) equals the argument. GetNowHp() returns 1 without gage data, so !( now <= 0 ) is June's test.
+*/
+int CX2Game::LiveKeyCodeNPCNumExceptDying( int iKeyCode_ )
+{
+	int iCount = 0;
+	for ( unsigned i = 0; i < m_NPCUnitList.size(); i++ )
+	{
+		CX2GUNPC* pNPC = m_NPCUnitList[i];
+		if ( NULL == pNPC )
+			continue;
+		if ( CX2Room::TN_MONSTER != pNPC->GetTeam() || CX2GameUnit::GUSI_DIE == pNPC->GetGameUnitState() )
+			continue;
+		if ( pNPC->GetNowHp() <= 0.f )
+			continue;
+		if ( pNPC->GetKeyCode() == iKeyCode_ )
+			++iCount;
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b LiveKeyCodeNPCNumExceptDying keycode=%d -> %d", iKeyCode_, iCount );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return iCount;
+}
+#endif SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+
+#ifdef SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
+/** @function : FadeOriginWorldColor_LUA
+	@brief : June 31e4dd10 ( bound @31ddcf0a ): GetWorld() ( vslot 0x90 ) set -> its fade-origin colour ( +0xa0..+0xac )
+			 and time ( +0xb0 ), March's CX2World::FadeOriginWorldColor.
+*/
+void CX2Game::FadeOriginWorldColor_LUA( D3DXCOLOR color_, float fTime_ )
+{
+	if ( NULL != GetWorld() )
+		GetWorld()->FadeOriginWorldColor( color_, fTime_ );
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b FadeOriginWorldColor_LUA ( %.2f %.2f %.2f %.2f ) time %.2f world %d", color_.r, color_.g, color_.b, color_.a,
+			fTime_, NULL != GetWorld() ? 1 : 0 );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
+
+#ifdef SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+/** @function : GetLiveUserUnitRandom
+	@brief : June CX2Game vslot 0xbc ( 322d8d50; thunk 31e4e860 bound @31dcacbd ): the users ( +0x314 ) that are not GUSI_DIE
+			 and have HP left ( no gage data counts; 0 < now, an unordered compare excluded ) go into a list; rand() % size
+			 picks one, NULL when the list is empty. The lock is March's, as in LiveUserUnitNum.
+*/
+/*virtual*/ CX2GUUser* CX2Game::GetLiveUserUnitRandom()
+{
+#ifndef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+	CSLock locker( m_csGameIntruder );
+#endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+	std::vector<CX2GUUser*> vecLiveUser;
+	for ( unsigned i = 0; i < m_UserUnitList.size(); i++ )
+	{
+		CX2GUUser* pUser = m_UserUnitList[i];
+		if ( NULL == pUser || CX2GameUnit::GUSI_DIE == pUser->GetGameUnitState() )
+			continue;
+		if ( pUser->GetNowHp() > 0.f )
+			vecLiveUser.push_back( pUser );
+	}
+	CX2GUUser* pPicked = NULL;
+	if ( false == vecLiveUser.empty() )
+		pPicked = vecLiveUser[ rand() % (int) vecLiveUser.size() ];
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b GetLiveUserUnitRandom live %d -> %d", (int) vecLiveUser.size(), NULL != pPicked ? 1 : 0 );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return pPicked;
+}
+#endif SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+
+#ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+/** @function : GetIsGoNextPacketSended_LUA / Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ
+	@brief : June 322f14d0 / 322f1550 ( bound @31dd945f / @31dd9757 ): GetGameType() ( vslot 0x10c ) == GT_DUNGEON and the
+			 game's own observer ( +0x3c ) valid, else false; then the dungeon game's m_bGoNextPacketSended ( +0xc4c ) / its
+			 327c9fa0( false ): the go-next request without closing the before sub-stage.
+*/
+bool CX2Game::GetIsGoNextPacketSended_LUA()
+{
+	if ( GT_DUNGEON != GetGameType() )
+		return false;
+	return static_cast<CX2DungeonGame*>( this )->GetGoNextPacketSended();
+}
+
+bool CX2Game::Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ()
+{
+	if ( GT_DUNGEON != GetGameType() )
+		return false;
+	const bool bSent = static_cast<CX2DungeonGame*>( this )->JuneSendGoNextReq( false );
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"JUNE_FX C3z-4b Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ -> %d", bSent ? 1 : 0 );
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return bSent;
+}
+#endif SERV_IRUHADEV_JUNE_GAME_GO_NEXT
 int	CX2Game::LiveNPCNumType_LUA( CX2UnitManager::NPC_UNIT_ID unitID ) 
 {
 	int iCount = 0;

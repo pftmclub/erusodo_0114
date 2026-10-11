@@ -1926,6 +1926,42 @@ void CX2World::SetProjection( float fNear, float fFar, float fPerspective, float
 }
 #endif //MODIFY_FRUSTUM
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+/** @function : GetWorldObjectMeshByName
+	@brief : June 327fcc40 ( bound @31dbab2e ): over the world objects ( +0xe8 ), the first whose type ( +0x194 ) is 1
+			 ( OT_STATIC_MESH ) and whose name ( +0x19c, m_wstrObjectName: SetXMesh_LUA names it after the mesh file ) equals
+			 the argument, both lower-cased ( 31c20bf0 ) before the compare; NULL when none.
+*/
+CX2WorldObjectMesh* CX2World::GetWorldObjectMeshByName( const char* pszName_ )
+{
+	wstring wstrName = L"";
+	if ( NULL != pszName_ )
+		ConvertUtf8ToWCHAR( wstrName, pszName_ );
+
+	CX2WorldObjectMesh* pFound = NULL;
+	for ( unsigned i = 0; i < m_ObjectList.size(); i++ )
+	{
+		CX2WorldObject* pObject = m_ObjectList[i].get();
+		if ( NULL == pObject || CX2WorldObject::OT_STATIC_MESH != pObject->GetObjectType() )
+			continue;
+		if ( 0 == _wcsicmp( pObject->GetName(), wstrName.c_str() ) )
+		{
+			pFound = static_cast<CX2WorldObjectMesh*>( pObject );
+			break;
+		}
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b GetWorldObjectMeshByName %s -> %d", wstrName.c_str(), NULL != pFound ? 1 : 0 );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return pFound;
+}
+#endif SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+
 #ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 // June effect completion C3n: CX2World::SetGravityAndSpeedRate ( June 32800800; March's was an inline store in X2World.h ). June stores the rate
 // ( world +0x184 ), then, only in a GT_DUNGEON game ( GetGameType, vslot 0x10c, == 2: not battlefield 3, not PvE 4 ), dynamic_casts the game to

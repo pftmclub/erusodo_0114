@@ -1920,6 +1920,17 @@ public:
 			else 
 				return m_FrameDataNow.syncData.lastTouchLineIndex;
 		}
+#ifdef SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
+		/// June 31fc8ca0 ( bound on CX2GUUser @31e156d9 ): bFuture == 1 ? the future frame's bIsRight ( +0x7e56 ) : the now
+		/// frame's ( +0x80f6 ), the same split as GetLastTouchLineIndex ( 3208e100: +0x7e54 / +0x80f4 )
+		void						SetIsRight( bool bIsRight_, bool bFuture_ )
+		{
+			if( true == bFuture_ )
+				m_FrameDataFuture.syncData.bIsRight = bIsRight_;
+			else
+				m_FrameDataNow.syncData.bIsRight = bIsRight_;
+		}
+#endif SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
 
 #ifdef SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT
 		/// C3e-1: June's class-skill float slot of the user sync. Class code writes the Future copy and reads the Now copy

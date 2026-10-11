@@ -536,6 +536,24 @@ class CX2Game : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
 		int							GetNPCUnitNumCheckTeam( int iTeam_ );	// June 322d4a10
 #endif SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
+#ifdef SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+		int							LiveKeyCodeNPCNumExceptDying( int iKeyCode_ );	// June 322d09c0
+#endif SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+#ifdef SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
+		void						FadeOriginWorldColor_LUA( D3DXCOLOR color_, float fTime_ );	// June 31e4dd10
+#endif SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
+#ifdef SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+		// June CX2Game vslot 0x210 ( 322cc260: true ) / 0x214 ( 3231f510: 0 ). CX2DungeonGame ( and June's CX2PVEGame ) override both.
+		virtual bool				CanPassThisStage() { return true; }
+		virtual int					GetHenirLimitLevel() { return 0; }
+#endif SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+#ifdef SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+		virtual CX2GUUser*			GetLiveUserUnitRandom();	// June vslot 0xbc ( 322d8d50, no override )
+#endif SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+#ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+		bool						GetIsGoNextPacketSended_LUA();				// June 322f14d0
+		bool						Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ();	// June 322f1550
+#endif SERV_IRUHADEV_JUNE_GAME_GO_NEXT
 		int							LiveNPCNumType_LUA( CX2UnitManager::NPC_UNIT_ID unitID );
 		bool						IsKillNPCKeyCode_LUA( int keyCode );
 		int							GetKilledKeyCodeNPCCount( int keyCode );

@@ -3443,6 +3443,49 @@ HRESULT CKTDGLineMap::OnLostDevice()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_QUERY
+/** @function : GetCenterPositionLineIndex
+	@brief : June 31c6ad50 ( bound @31bedb4c ): a valid index with a line ( +0x190 list ) -> its centre ( 31c7b7f0: start
+			 +0x24 and end +0x30 summed, times 0.5 ), else the zero vector.
+*/
+D3DXVECTOR3 CKTDGLineMap::GetCenterPositionLineIndex( int iLineIndex_ )
+{
+	if ( iLineIndex_ >= 0 && iLineIndex_ < (int) m_LineList.size() && NULL != m_LineList[iLineIndex_] )
+	{
+		const LineData* pLineData = m_LineList[iLineIndex_];
+		return ( pLineData->startPos + pLineData->endPos ) * 0.5f;
+	}
+	return D3DXVECTOR3( 0.f, 0.f, 0.f );
+}
+
+/** @function : SetEnableLinebyPos
+	@brief : June 31c6afb0 ( bound @31bee5a5 ): for every line, distance = | pos - centre |; when distance <= the argument
+			 ( an unordered compare fails ) and, with the last argument, the line's bCanDown ( +0x18 ) is set, a bEnable ( +8 )
+			 that differs takes the argument and the line groups are rebuilt ( 31c5c2e0 = ReBuildLineGroup ) at once.
+*/
+void CKTDGLineMap::SetEnableLinebyPos( bool bEnable_, D3DXVECTOR3 vPos_, float fDistance_, bool bCheckCanDown_ )
+{
+	const int iNumLine = (int) m_LineList.size();
+	for ( int i = 0; i < iNumLine; i++ )
+	{
+		LineData* pLineData = m_LineList[i];
+		if ( NULL == pLineData )
+			continue;
+
+		const D3DXVECTOR3 vDiff = vPos_ - ( pLineData->startPos + pLineData->endPos ) * 0.5f;
+		if ( !( D3DXVec3Length( &vDiff ) <= fDistance_ ) )
+			continue;
+		if ( true == bCheckCanDown_ && true != pLineData->bCanDown )
+			continue;
+		if ( pLineData->bEnable != bEnable_ )
+		{
+			pLineData->bEnable = bEnable_;
+			ReBuildLineGroup();
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_LINEMAP_QUERY
+
 #ifdef  X2OPTIMIZE_LINEMAP_OPTIMIZE_AND_BUG_FIX
 bool    CKTDGLineMap::UpdateLineData( int iIndex, const D3DXVECTOR3& vStart, const D3DXVECTOR3& vEnd )
 {

@@ -193,6 +193,11 @@ class CX2State : public CKTDXStage
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+		/// June 31ef7370: the NPC scripts' subtitle ( CX2GUNPC::SetMovieDescriptionData ), drawn by RenderMovieDescription ( 31f179b0 )
+		void SetMovieDescriptionData( int iStringID_, float fTime_ ) { m_iJuneMovieDescStringID = iStringID_; m_fJuneMovieDescTime = fTime_; }
+		void RenderMovieDescription( bool bJuneRenderArg_ );
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 
 #ifdef BANDICAM_HIDE_RECORDING_PARTICLE
 		void ShowBandicamRecParticle( bool bShow );
@@ -921,6 +926,10 @@ class CX2State : public CKTDXStage
 
 		float			m_fTime;
 		float			m_fElapsedTime;
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+		int				m_iJuneMovieDescStringID;	/// June +0x1ec
+		float			m_fJuneMovieDescTime;		/// June +0x1f0, seconds left
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 
 		CX2Cursor*		m_pCursor;
 

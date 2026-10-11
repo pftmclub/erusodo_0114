@@ -965,6 +965,14 @@ class CX2DamageEffect
 #endif
 
 				D3DXVECTOR3		GetPos() { return m_Pos; }
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_MAIN_POS
+				/// June 31e4c3a0 ( bound @31e2d024 ): the main mesh instance ( 31f6eb30 = GetMainEffect ) ? its m_vPos ( +0x3f0 ) : m_Pos ( +0x1f4 )
+				D3DXVECTOR3		GetMainEffectPos()
+				{
+					CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = GetMainEffect();
+					return ( NULL != pMainEffect ) ? pMainEffect->GetPos() : m_Pos;
+				}
+#endif SERV_IRUHADEV_JUNE_EFFECT_MAIN_POS
 #if defined( SERV_IRUHADEV_JUNE_DAMAGE_MATH ) && defined( SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME )
 				/// June effect completion C4: June 32622780 (a DamageData method there, called from GetFinalDamage). It sits on CEffect here because
 				/// it needs the protected aim-point helper JuneGetLockOnAimPos and the effect's position.

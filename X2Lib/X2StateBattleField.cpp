@@ -197,6 +197,9 @@ CX2StateBattleField::CX2StateBattleField()
 #ifdef FIELD_BOSS_RAID // FadeInOutNotice2nd Ãß°¡
 	CX2BossRaidManager::GetInstance()->OnFrameRender();
 #endif // FIELD_BOSS_RAID
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+	RenderMovieDescription( false );	/// June CX2StateBattleField render pass 324bb230 @324bb317
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 
 	return S_OK;
 }

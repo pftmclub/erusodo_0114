@@ -1605,6 +1605,10 @@ class CKTDGLineMap : public CKTDGObject
 		int GetNumofLineMapCreatedByMonster() const { return m_iNumofLineMapCreatedByMonster; }
 		void SetNumofLineMapCreatedByMonster(int val) { m_iNumofLineMapCreatedByMonster = val; }
 #endif	LINE_MAP_CREATED_BY_MONSTER
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_QUERY
+		D3DXVECTOR3 GetCenterPositionLineIndex( int iLineIndex_ );	/// June 31c6ad50
+		void SetEnableLinebyPos( bool bEnable_, D3DXVECTOR3 vPos_, float fDistance_, bool bCheckCanDown_ );	/// June 31c6afb0
+#endif SERV_IRUHADEV_JUNE_LINEMAP_QUERY
 //}} kimhc // 2010.7.6 // 몬스터가 생성한 라인맵
 		
 #ifdef X2TOOL

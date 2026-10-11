@@ -19,6 +19,10 @@
 CX2State::CX2State(void) :
 m_fTime( 0.f ),
 m_fElapsedTime( 0.f ),
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+m_iJuneMovieDescStringID( 0 ),
+m_fJuneMovieDescTime( 0.f ),
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 m_pCursor( NULL ),
 m_bFailToConnectServer( false ),
 m_pMsgOkFailToConnectServer( NULL ),
@@ -1120,6 +1124,38 @@ HRESULT CX2State::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+/** @function : RenderMovieDescription
+	@brief : June 31f179b0, the last call of CX2StateDungeonGame's ( 324cff10 ) and CX2StateBattleField's ( 324bb230 ) render
+			 pass. While the time ( +0x1f0 ) is above 0: with the dialog manager's font 6 ( XUF_HEADLINE_30_NORMAL in June's
+			 enum ), the string ( +0x1ec, GET_STRING ) is drawn by OutTextMultiline at ( 512, 620 ) ( June's wrapper 31c3ae80
+			 scales them by the resolution; March's font scales its output itself, so 1024x768 coordinates go in ), colour white, FS_SHELL, black outline, line space 1, DT_CENTER; then, when June's
+			 render argument is 0 ( March's pass has none: false ), the time drops by the state's elapsed time ( +0x60 ) and
+			 is clamped to 0 at or below 0. June's dev path ( string manager flag +0x40: the ID printed with the text ) is
+			 not taken.
+*/
+void CX2State::RenderMovieDescription( bool bJuneRenderArg_ )
+{
+	if ( !( m_fJuneMovieDescTime > 0.f ) )
+		return;
+
+	CKTDGFontManager::CUKFont* pFont = NULL;
+	if ( NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetDialogManager() )
+		pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( XUF_HEADLINE_30_NORMAL );
+	if ( NULL != pFont )
+	{
+		pFont->OutTextMultiline( 512, 620, GET_STRING( m_iJuneMovieDescStringID ), D3DXCOLOR( 1.f, 1.f, 1.f, 1.f ),
+			CKTDGFontManager::FS_SHELL, D3DXCOLOR( 0.f, 0.f, 0.f, 1.f ), 1.f, NULL, DT_CENTER );
+	}
+
+	if ( false == bJuneRenderArg_ )
+	{
+		m_fJuneMovieDescTime -= m_fElapsedTime;
+		if ( m_fJuneMovieDescTime <= 0.f )
+			m_fJuneMovieDescTime = 0.f;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 HRESULT CX2State::OnFrameRender()
 {
 #ifdef  X2OPTIMIZE_CULLING_PARTICLE

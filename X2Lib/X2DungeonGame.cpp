@@ -3,6 +3,9 @@
 #if defined(SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
 
 
 
@@ -149,6 +152,85 @@ m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
 	return bVoting;
 }
 #endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
+#ifdef SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+/** @function : CanPassThisStage / GetHenirLimitLevel
+	@brief : June 327cad60: the lowest level over the user list ( +0x314, vslot 0x20c = GetUnitLevel ), from 999; without
+			 g_pData or a dungeon ( +0xc44 ), true. Then 328b0540 on g_pData +0x228 ( CX2HenirData; its map at +0, keyed by the
+			 dungeon ID +8 ): a found limit passes when limit <= the lowest level, a missing row when the level is >= 0.
+			 June 327c9ff0: the same map's limit, 0 without a row.
+			 Only HenirData:AddHenirLevelLimit ( 328afd80, bound in 328b0940, no C++ caller ) fills that map, and no June
+			 client script calls it ( HenirDataClient.lua holds result items only ), so June's map is empty: every dungeon
+			 takes the missing-row answer. CX2HenirData is not ported; the missing-row branch is.
+*/
+/*virtual*/ bool CX2DungeonGame::CanPassThisStage()
+{
+	int iLowestLevel = 999;
+	for ( unsigned i = 0; i < m_UserUnitList.size(); i++ )
+	{
+		CX2GUUser* pUser = m_UserUnitList[i];
+		if ( NULL != pUser && pUser->GetUnitLevel() < iLowestLevel )
+			iLowestLevel = pUser->GetUnitLevel();
+	}
+	bool bPass = true;
+	if ( NULL != g_pData && NULL != m_pDungeon )
+		bPass = ( 0 <= iLowestLevel );	/// June 328b0540, the dungeon has no row ( see above )
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b CanPassThisStage lowest level %d -> %d", iLowestLevel, bPass ? 1 : 0 );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return bPass;
+}
+
+/*virtual*/ int CX2DungeonGame::GetHenirLimitLevel()
+{
+	return 0;	/// June 327c9ff0 -> 328afd40: no row in the empty level-limit map ( see CanPassThisStage )
+}
+#endif SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+
+#ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+/** @function : JuneSendGoNextReq
+	@brief : June 327c9fa0( bool ): with a dungeon ( +0xc44 ) and a now stage ( +4 ), the go-next request ( vslot 0x280 =
+			 Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ, given the now sub-stage ), m_bGoNextPacketSended ( +0xc4c ) = true,
+			 and with the argument the before sub-stage closed ( 327f3b20 ). This is the block March's frame move and
+			 SubStageOpen run inline; June's handler takes the sub-stage, March's the before / now indices.
+*/
+bool CX2DungeonGame::JuneSendGoNextReq( bool bCloseBeforeSubStage_ )
+{
+	if ( NULL == m_pDungeon || NULL == m_pDungeon->GetNowStage() )
+		return false;
+
+	Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ( m_pDungeon->GetNowStage()->GetBeforeSubStageIndex(), m_pDungeon->GetNowStage()->GetNowSubStageIndex() );
+	m_bGoNextPacketSended = true;
+	if ( true == bCloseBeforeSubStage_ )
+		m_pDungeon->GetNowStage()->CloseBeforeSubStage();
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
+/** @function : CannotInput
+	@brief : June 327d20b0 ( bound on CX2DungeonGame @31de3619 ): g_pX2Game set and its GetMyUnit ( vslot 0x98 ) set -> that
+			 unit's can-not-input time ( +0xde8 ). The same body as June's slide-shot CannotInput ( 325c73e0 ) and March's
+			 CX2SlideShot::CannotInput.
+*/
+void CX2DungeonGame::CannotInput( float fTime_ )
+{
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+		g_pX2Game->GetMyUnit()->SetCanNotInputTime_LUA( fTime_ );
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b CannotInput %.2f", fTime_ );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
 CX2DungeonGame::~CX2DungeonGame(void)
 {
 	/*

@@ -3707,6 +3707,14 @@ void CX2Main::RegisterLuabind()
 #endif
 	lua_tinker::class_def<CX2World>( L, "SetTriggerCamera",				&CX2World::SetTriggerCamera );	
 
+//{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+	lua_tinker::class_def<CX2World>( L, "GetWorldObjectMeshByName",		&CX2World::GetWorldObjectMeshByName );	/// June 327fcc40 (bound @31dbab2e)
+#endif SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+#if defined( SERV_IRUHADEV_JUNE_WORLD_CAMERA_DISTANCE ) && defined( MODIFY_FRUSTUM )
+	lua_tinker::class_def<CX2World>( L, "SetCameraDistance",			&CX2World::SetCameraDistance );			/// June 31e4ca10 (bound @31dbad5e)
+#endif defined( SERV_IRUHADEV_JUNE_WORLD_CAMERA_DISTANCE ) && defined( MODIFY_FRUSTUM )
+//}}
 	lua_tinker::class_add<CX2WorldObject>( L, "CX2WorldObject" );
 	lua_tinker::class_inh<CX2WorldObject, CKTDGObject>( L );
 	lua_tinker::class_def<CX2WorldObject>( L, "SetName",					&CX2WorldObject::SetName );
@@ -3916,6 +3924,25 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
 	lua_tinker::class_def<CX2Game>( L, "GetNPCUnitNumCheckTeam",				&CX2Game::GetNPCUnitNumCheckTeam );	// June @31dd13bf ( 322d4a10 )
 #endif SERV_IRUHADEV_JUNE_GAME_NPC_COUNT
+//{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+	lua_tinker::class_def<CX2Game>( L, "LiveKeyCodeNPCNumExceptDying",			&CX2Game::LiveKeyCodeNPCNumExceptDying );	// June @31ddcc68 ( 322d09c0 )
+#endif SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+#ifdef SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
+	lua_tinker::class_def<CX2Game>( L, "FadeOriginWorldColor_LUA",				&CX2Game::FadeOriginWorldColor_LUA );		// June @31ddcf0a ( 31e4dd10 )
+#endif SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
+#ifdef SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+	lua_tinker::class_def<CX2Game>( L, "CanPassThisStage",						&CX2Game::CanPassThisStage );		// June @31dd9c27 ( thunk 31e4e7f0, vslot 0x210 )
+	lua_tinker::class_def<CX2Game>( L, "GetHenirLimitLevel",					&CX2Game::GetHenirLimitLevel );		// June @31dd9de3 ( thunk 31e4e930, vslot 0x214 )
+#endif SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+#ifdef SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+	lua_tinker::class_def<CX2Game>( L, "GetLiveUserUnitRandom",					&CX2Game::GetLiveUserUnitRandom );	// June @31dcacbd ( thunk 31e4e860, vslot 0xbc )
+#endif SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+#ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+	lua_tinker::class_def<CX2Game>( L, "GetIsGoNextPacketSended_LUA",			&CX2Game::GetIsGoNextPacketSended_LUA );			// June @31dd945f ( 322f14d0 )
+	lua_tinker::class_def<CX2Game>( L, "Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ",	&CX2Game::Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ );	// June @31dd9757 ( 322f1550 )
+#endif SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+//}}
 	lua_tinker::class_def<CX2Game>( L, "LiveNPCNumType_LUA",					&CX2Game::LiveNPCNumType_LUA );
 	lua_tinker::class_def<CX2Game>( L, "IsKillNPCKeyCode_LUA",					&CX2Game::IsKillNPCKeyCode_LUA );
 	lua_tinker::class_def<CX2Game>( L, "LiveKeyCodeNPCNum",						&CX2Game::LiveKeyCodeNPCNum );
@@ -4128,6 +4155,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2DungeonGame>( L, "GetTimerManyPurpose1",				&CX2DungeonGame::GetTimerManyPurpose1 );
 	lua_tinker::class_def<CX2DungeonGame>( L, "GetTimerManyPurpose2",				&CX2DungeonGame::GetTimerManyPurpose2 );
 	lua_tinker::class_def<CX2DungeonGame>( L, "SetClearEffect",						&CX2DungeonGame::SetClearEffect );
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
+	lua_tinker::class_def<CX2DungeonGame>( L, "CannotInput",						&CX2DungeonGame::CannotInput );	/// June 327d20b0 (bound @31de3619), Iruha 2026-10-11 C3z-4b
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
 
 	
 	
@@ -4137,6 +4167,15 @@ void CX2Main::RegisterLuabind()
 
 	lua_tinker::class_add<CX2GameUnit>( L, "CX2GameUnit" );
 	lua_tinker::class_def<CX2GameUnit>( L, "PlaySound_LUA",				&CX2GameUnit::PlaySound_LUA );
+//{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
+	lua_tinker::class_def<CX2GameUnit>( L, "Play2DSound_LUA",			&CX2GameUnit::Play2DSound_LUA );		/// June 32276540 (bound @31de3cb3)
+#endif SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
+#ifdef SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
+	lua_tinker::class_def<CX2GameUnit>( L, "GetIsRight",				&CX2GameUnit::GetIsRight );			/// June @31ded26f ( thunk 31e4eaf0, vslot 0x170 )
+	lua_tinker::class_def<CX2GameUnit>( L, "GetRotateDegree",			&CX2GameUnit::GetRotateDegree );		/// June @31dee047 ( thunk 31e4eac0, vslot 0x150 )
+#endif SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
+//}}
 	lua_tinker::class_def<CX2GameUnit>( L, "StopSound_LUA",				&CX2GameUnit::StopSound_LUA );
 	lua_tinker::class_def<CX2GameUnit>( L, "GetPos",					&CX2GameUnit::GetPos );
 	lua_tinker::class_def<CX2GameUnit>( L, "ClearHitUnitList_LUA",		&CX2GameUnit::ClearHitUnitList_LUA );
@@ -4676,12 +4715,46 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GUNPC>( L, "GetDyingStart",					&CX2GameUnit::GetDyingStart );		/// June 31e4ce00 (bound @31df98c5): byte +0xdac = m_bDyingStart
 #endif SERV_IRUHADEV_JUNE_NPC_GET_DYING_START
 //}}
+//{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+	lua_tinker::class_def<CX2GUNPC>( L, "SetMovieDescriptionData",		&CX2GUNPC::SetMovieDescriptionData );	/// June 32758730 (bound @31e0419c)
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+#ifdef SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY
+	lua_tinker::class_def<CX2GUNPC>( L, "GetNearestSiegeModeNpcUID",		&CX2GUNPC::GetNearestSiegeModeNpcUID );	/// June 327714c0 (bound @31df537b)
+#endif SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY
+#ifdef SERV_IRUHADEV_JUNE_NPC_ACTIVE_MONSTER
+	lua_tinker::class_def<CX2GUNPC>( L, "IsActiveMonster",				&CX2GUNPC::IsActiveMonster );			/// June 31e4d210 (bound @31e0c395): byte +0x872c = m_bIsActiveMonster
+#endif SERV_IRUHADEV_JUNE_NPC_ACTIVE_MONSTER
+#ifdef SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION
+	lua_tinker::class_def<CX2GUNPC>( L, "ChangeMotion_LUA",				&CX2GUNPC::ChangeMotion_LUA );			/// June 32761cd0 (bound @31e0a329)
+#endif SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION
+#ifdef SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS
+	lua_tinker::class_def<CX2GUNPC>( L, "SetShowAllNPCExceptMe",			&CX2GUNPC::SetShowAllNPCExceptMe );		/// June 32777fd0 (bound @31e04600)
+#endif SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS
+#ifdef SERV_IRUHADEV_JUNE_NPC_STATE_NAME
+	lua_tinker::class_def<CX2GUNPC>( L, "GetNowStateName",				&CX2GUNPC::GetNowStateName );			/// June 3275b060 (bound @31e0cb18)
+#endif SERV_IRUHADEV_JUNE_NPC_STATE_NAME
+#ifdef SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE
+	lua_tinker::class_def<CX2GUNPC>( L, "SetImmuneToExtraDamage",		&CX2GUNPC::SetImmuneToExtraDamage );	/// June 31e4d000 (bound @31e0c55e)
+#endif SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE
+//}}
 
 	lua_tinker::class_add<CX2GUUser>( L, "CX2GUUser" );
 	lua_tinker::class_inh<CX2GUUser, CX2GameUnit>( L );
 	lua_tinker::class_def<CX2GUUser>( L, "GetHyperModeUsed",			&CX2GUUser::GetHyperModeUsed );
 	lua_tinker::class_def<CX2GUUser>( L, "SetDevAddDamage",				&CX2GUUser::SetDevAddDamage );
 	lua_tinker::class_def<CX2GUUser>( L, "ForceChangeHyperMode",		&CX2GUUser::ForceChangeHyperMode );
+//{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv)
+#ifdef SERV_IRUHADEV_JUNE_USER_UNIT_TYPE
+	lua_tinker::class_def<CX2GUUser>( L, "GetUnitType",					&CX2GUUser::GetUnitType );				/// June 31e4d0e0 (bound @31e13a93)
+#endif SERV_IRUHADEV_JUNE_USER_UNIT_TYPE
+#ifdef SERV_IRUHADEV_JUNE_USER_LAST_TOUCH_LINE
+	lua_tinker::class_def<CX2GUUser>( L, "GetLastTouchLineIndex",		&CX2GUUser::GetLastTouchLineIndex );	/// June @31e03bcd ( thunk 31e4e960, vslot 0x12c = 3208e100 )
+#endif SERV_IRUHADEV_JUNE_USER_LAST_TOUCH_LINE
+#ifdef SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
+	lua_tinker::class_def<CX2GUUser>( L, "SetIsRight",					&CX2GUUser::SetIsRight );				/// June 31fc8ca0 (bound @31e156d9)
+#endif SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
+//}}
 #if defined( SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
 	lua_tinker::class_def<CX2GUUser>( L, "JuneBuffTestNewSkill_LUA",	&CX2GUUser::JuneBuffTestNewSkill_LUA );	/// June buff port Phase 6 console hook, DEBUG only
 #endif defined( SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL ) && defined( SERV_IRUHADEV_JUNE_BUFF_DEBUG )
@@ -5091,6 +5164,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "SetLockOnNPCUID",					&CX2DamageEffect::CEffect::SetLockOnNPCUID );
 	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "GetLockOnUnitUID_LUA",				&CX2DamageEffect::CEffect::GetLockOnUnitUID );
 	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "GetMainEffect",					&CX2DamageEffect::CEffect::GetMainEffect );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_MAIN_POS
+	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "GetMainEffectPos",					&CX2DamageEffect::CEffect::GetMainEffectPos );	/// June 31e4c3a0 (bound @31e2d024), Iruha 2026-10-11 C3z-4b
+#endif SERV_IRUHADEV_JUNE_EFFECT_MAIN_POS
 
 
 #ifdef SEASON3_MONSTER_2010_12

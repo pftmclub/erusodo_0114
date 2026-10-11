@@ -1178,6 +1178,9 @@ public:
 		}
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+		CX2WorldObjectMesh* GetWorldObjectMeshByName( const char* pszName_ );	/// June 327fcc40
+#endif SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
 #ifdef MODIFY_FRUSTUM
 		void SetProjection( float fNear, float fFar, float fPerspective, float fBaseDistance, float fStepDist1, float fStepDist2, float fStepDist3 );
 		float GetBaseCameraDistance() { return m_fBaseCameraDistance; }

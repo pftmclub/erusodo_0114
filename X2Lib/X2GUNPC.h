@@ -3192,6 +3192,26 @@ class CX2GUNPC : public CX2GameUnit
 		void InitStateCoolTime( const char* pszStateName_ );	/// June 3275d9d0
 #endif SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
 //}}
+//{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv batch 2)
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+		void SetMovieDescriptionData( int iStringID_, float fTime_ );	/// June 32758730: the now state's subtitle ( CX2State 31ef7370 )
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+#ifdef SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY
+		int GetNearestSiegeModeNpcUID();	/// June 327714c0: the UID's low 32 bits, 0 when none
+#endif SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY
+#ifdef SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION
+		void ChangeMotion_LUA( const char* pszMotionName_ );	/// June 32761cd0
+#endif SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION
+#ifdef SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS
+		void SetShowAllNPCExceptMe( bool bShow_ );	/// June 32777fd0
+#endif SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS
+#ifdef SERV_IRUHADEV_JUNE_NPC_STATE_NAME
+		const char* GetNowStateName();	/// June 3275b060: NULL ( nil ) when the now state has no name
+#endif SERV_IRUHADEV_JUNE_NPC_STATE_NAME
+#ifdef SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE
+		void SetImmuneToExtraDamage( bool bImmune_ ) { m_bImmuneToExtraDamage = bImmune_; }	/// June 31e4d000: byte +0x4104 = CX2GameUnit::m_bImmuneToExtraDamage
+#endif SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE
+//}}
 
 #ifdef USE_UNIT_FOG_RENDER_PARAM //JHKang
 		void SetFogNPC( float fNearX_, float fFarX_, float fNearY_, float fFarY_, float fDensity_, D3DXCOLOR fogColor_ )

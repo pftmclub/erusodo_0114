@@ -373,6 +373,21 @@ class CX2DungeonGame : public CX2Game
 		bool m_bEscape;
 #endif//ACTIVE_KOG_GAME_PERFORMANCE_CHECK
 
+#ifdef SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+	public:
+		// June CX2DungeonGame / CX2PVEGame vslot 0x210 ( 327cad60 ) / 0x214 ( 327c9ff0 )
+		virtual bool		CanPassThisStage();
+		virtual int			GetHenirLimitLevel();
+#endif SERV_IRUHADEV_JUNE_GAME_HENIR_QUERY
+#ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+	public:
+		bool				GetGoNextPacketSended() const { return m_bGoNextPacketSended; }	// June byte +0xc4c
+		bool				JuneSendGoNextReq( bool bCloseBeforeSubStage_ );					// June 327c9fa0
+#endif SERV_IRUHADEV_JUNE_GAME_GO_NEXT
+#ifdef SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
+	public:
+		void				CannotInput( float fTime_ );	// June 327d20b0
+#endif SERV_IRUHADEV_JUNE_DUNGEON_CANNOT_INPUT
 #ifdef SERV_IRUHADEV_JUNE_IS_VOTING_LUTO
 	public:
 		// June 2017 CX2DungeonGame / CX2PVEGame vslot 0x244 ( 327c94a0 )

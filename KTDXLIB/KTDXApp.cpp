@@ -2010,6 +2010,11 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 
 	//∂Û¿Œ∏ 
 	lua_tinker::class_add<CKTDGLineMap>( L, "CKTDGLineMap" );
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_QUERY
+	/// Iruha 2026-10-11, June effect completion C3z-4b
+	lua_tinker::class_def<CKTDGLineMap>( L, "GetCenterPositionLineIndex",	&CKTDGLineMap::GetCenterPositionLineIndex );	/// June 31c6ad50 (bound @31bedb4c)
+	lua_tinker::class_def<CKTDGLineMap>( L, "SetEnableLinebyPos",			&CKTDGLineMap::SetEnableLinebyPos );			/// June 31c6afb0 (bound @31bee5a5)
+#endif SERV_IRUHADEV_JUNE_LINEMAP_QUERY
 	lua_tinker::class_def<CKTDGLineMap>( L, "SetLandHeight",				&CKTDGLineMap::SetLandHeight);
 	lua_tinker::class_def<CKTDGLineMap>( L, "SetTeamStartPos",				&CKTDGLineMap::SetTeamStartPos);
 	lua_tinker::class_def<CKTDGLineMap>( L, "AddStartPos",					&CKTDGLineMap::AddStartPos);

@@ -29164,6 +29164,178 @@ void CX2GUNPC::InitStateCoolTime( const char* pszStateName_ )
 }
 #endif SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
 //}}
+//{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv batch 2)
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+/** @function : SetMovieDescriptionData
+	@brief : June 32758730 ( bound @31e0419c ): g_pMain and its now state ( +0x90 ) set -> the state's 31ef7370 ( string ID
+			 +0x1ec, seconds +0x1f0 ). The state draws and counts it down ( CX2State::RenderMovieDescription, June 31f179b0 ).
+*/
+void CX2GUNPC::SetMovieDescriptionData( int iStringID_, float fTime_ )
+{
+	if ( NULL == g_pMain || NULL == g_pMain->GetNowState() )
+		return;
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b SetMovieDescriptionData npc %d string %d time %.2f", (int) GetNPCTemplet().m_nNPCUnitID, iStringID_, fTime_ );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	static_cast<CX2State*>( g_pMain->GetNowState() )->SetMovieDescriptionData( iStringID_, fTime_ );
+}
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY
+/** @function : GetNearestSiegeModeNpcUID
+	@brief : June 327714c0 ( bound @31df537b ): over g_pX2Game's NPCs ( vslot 0xf4 / 0xb8 ), every other NPC ( UID +0x270 )
+			 that is not GUSI_DIE ( vslot 0x174 != 4 ) and is in siege mode ( byte +0x8aa0 ); the nearest by GetPos distance,
+			 from 1e6 ( 334b9e88 ), strictly closer wins. June keeps only eax of the 64-bit UID: the low 32 bits, 0 when none.
+*/
+int CX2GUNPC::GetNearestSiegeModeNpcUID()
+{
+	if ( NULL == g_pX2Game )
+		return 0;
+
+	float fNearest = 1000000.f;
+	int iNearestUID = 0;
+	const D3DXVECTOR3 vMyPos = GetPos();
+	const int iNumNPC = g_pX2Game->GetNPCUnitListSize();
+	for ( int i = 0; i < iNumNPC; i++ )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( i );
+		if ( NULL == pNPC || (int) pNPC->GetUnitUID() == (int) GetUnitUID() )
+			continue;
+		if ( CX2GameUnit::GUSI_DIE == pNPC->GetGameUnitState() || true != pNPC->GetSiegeMode() )
+			continue;
+
+		const D3DXVECTOR3 vDiff = pNPC->GetPos() - vMyPos;
+		const float fDist = D3DXVec3Length( &vDiff );
+		if ( fDist < fNearest )
+		{
+			fNearest = fDist;
+			iNearestUID = (int) pNPC->GetUnitUID();
+		}
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b GetNearestSiegeModeNpcUID npc %d -> uid %d dist %.1f", (int) GetNPCTemplet().m_nNPCUnitID, iNearestUID, fNearest );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+	return iNearestUID;
+}
+#endif SERV_IRUHADEV_JUNE_NPC_SIEGE_QUERY
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION
+/** @function : ChangeMotion_LUA
+	@brief : June 32761cd0 ( bound @31e0a329 ), in order: the motion mesh ( +0x8600 ) is closed ( 31cdd8d0 ) and reopened
+			 with "Bip01" ( 31cdef40 ); the anim ( +0x8604 ) is released ( twice in June, the second a no-op ); the two list
+			 sets ( +0x200 / +0x210, 3260ea70 = clear ) are emptied; the anim is rebuilt ( 3275c950 = CreateAndSetAinmXSkinMesh );
+			 then, with an anim, the now state's data ( 31e8a990 ) is replayed: Play( play type ) ( 31d28d00 ), the anim wait
+			 time ( +0x8ae4 ), ResetOneshotPerformed ( +0x24c = 0 ) and the anim speed ( +0x8b70, SET_ANIM_SPEED flag 4 ), and
+			 the after image ( +0x6754 ) is deleted and rebuilt: 5 frames, layer 0xe ( XL_EFFECT_0 ), colour 0.797 grey with
+			 alpha 1 ( 3346efb0 ), the new motion as its mesh. June builds it whether or not the script set USE_AFTER_IMAGE.
+*/
+void CX2GUNPC::ChangeMotion_LUA( const char* pszMotionName_ )
+{
+	if ( NULL != m_pMotion && NULL != g_pKTDXApp->GetDeviceManager() )
+		SAFE_CLOSE( m_pMotion );
+
+	wstring wstrMotion = L"";
+	if ( NULL != pszMotionName_ )
+		ConvertUtf8ToWCHAR( wstrMotion, pszMotionName_ );
+	m_pMotion = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( wstrMotion, L"Bip01" );
+
+	m_pXSkinAnim.reset();
+	m_CollisionListSet.clear();
+	m_AttackListSet.clear();
+	CreateAndSetAinmXSkinMesh();
+
+	if ( NULL != m_pXSkinAnim )
+	{
+		const StateData& nowStateData = GetNowStateData();
+		m_pXSkinAnim->Play( nowStateData.m_ePlayType );
+		m_fAnimWaitTime = nowStateData.m_fSetAnimWaitTimeValue;
+		m_pXSkinAnim->ResetOneshotPerformed();
+		if ( NOWSTATE_FLAG( SET_ANIM_SPEED ) == true )
+			m_fAnimSpeed = nowStateData.m_fSetAnimSpeedValue;
+		else
+			m_fAnimSpeed = m_fDefaultAnimSpeed;
+
+		SAFE_DELETE_KTDGOBJECT( m_pAfterImage );
+		m_pAfterImage = CKTDGXSkinAfterImage::CreateSkinAfterImage( m_pXSkinAnim.get(), 5, XL_EFFECT_0 );
+		if ( NULL != m_pAfterImage )
+		{
+			m_pAfterImage->SetAfterImageColor( D3DXCOLOR( 0.797f, 0.797f, 0.797f, 1.f ) );
+			m_pAfterImage->AddMesh( m_pMotion );
+		}
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"JUNE_FX C3z-4b ChangeMotion_LUA npc %d motion %s mesh %d anim %d", (int) GetNPCTemplet().m_nNPCUnitID,
+		wstrMotion.c_str(), NULL != m_pMotion ? 1 : 0, NULL != m_pXSkinAnim ? 1 : 0 );
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_NPC_CHANGE_MOTION
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS
+/** @function : SetShowAllNPCExceptMe
+	@brief : June 32777fd0 ( bound @31e04600 ): over g_pX2Game's NPCs, every other NPC ( UID +0x270 ): its gage UI
+			 ( +0xc08, slot 0x20 = SetShow ) and its object show flag ( +0x172, NotifyShowObjectChanged slot 0x28 when the
+			 visibility changes ): March's SetShowGage and SetShowObject.
+*/
+void CX2GUNPC::SetShowAllNPCExceptMe( bool bShow_ )
+{
+	if ( NULL == g_pX2Game )
+		return;
+
+	int iChanged = 0;
+	const int iNumNPC = g_pX2Game->GetNPCUnitListSize();
+	for ( int i = 0; i < iNumNPC; i++ )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( i );
+		if ( NULL == pNPC || (int) pNPC->GetUnitUID() == (int) GetUnitUID() )
+			continue;
+		pNPC->SetShowGage( bShow_ );
+		pNPC->SetShowObject( bShow_ );
+		++iChanged;
+	}
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 20 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b SetShowAllNPCExceptMe npc %d show %d -> %d npc(s)", (int) GetNPCTemplet().m_nNPCUnitID, bShow_ ? 1 : 0, iChanged );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_NPC_SHOW_OTHERS
+
+#ifdef SERV_IRUHADEV_JUNE_NPC_STATE_NAME
+/** @function : GetNowStateName
+	@brief : June 3275b060 ( bound @31e0cb18 ): the now state ( nowState byte, +0x8454 ) looked up by value in the init
+			 state data's name map ( templet +0x8c ), compared as unsigned bytes; its name, or NULL ( nil in Lua ).
+*/
+const char* CX2GUNPC::GetNowStateName()
+{
+	const unsigned char ucNowState = (unsigned char) m_NPCFrameData.syncData.nowState;
+#ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+	const std::map<string,char>& mapStateNameID = GetInitStateData().m_mapStateNameID;
+#else   X2OPTIMIZE_NPC_NONHOST_SIMULATION
+	const std::map<string,char>& mapStateNameID = m_StateNameIDMap;
+#endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+	std::map<string,char>::const_iterator iter;
+	for ( iter = mapStateNameID.begin(); iter != mapStateNameID.end(); ++iter )
+	{
+		if ( (unsigned char) iter->second == ucNowState )
+			return iter->first.c_str();
+	}
+	return NULL;
+}
+#endif SERV_IRUHADEV_JUNE_NPC_STATE_NAME
+//}}
 void CX2GUNPC::ResetAnimSpeed()
 {
 	if( m_pXSkinAnim != NULL )

@@ -2585,6 +2585,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		CKTDXDeviceSound*			PlaySound( const WCHAR* pName, bool b3DSound = true, bool bLoop = false );
 		void						PlaySound_LUA( const char* pName );
 		void						StopSound_LUA( const char* pName );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
+		void						Play2DSound_LUA( const char* pName );	/// June 32276540: PlaySound_LUA with the 3D flag off
+#endif SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
 		/// June 32078fd0: BeginTable( name + index ), nation-suffixed first ( g_pMain->GetNationFlag() ), plain name as the fallback
 		static bool					JuneBeginSoundPlayTable( KLuaManager& luaManager_, const char* pszName_, int iIndex_ );

@@ -3334,6 +3334,55 @@ matches June. **Finding, fixed:**
 - ErrorLog: 0 C3z-4 lines, 0 EXCEPTION. The run used a peer's deploy built from `e67eff2`, so it includes the fix.
 - `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` is commented out (OFF note in `Always.h`). `DEPLOY OK: X2_offline.exe is 19,554,816 B, dated 2026-10-11 06:15:02, md5 ef4e77810987f7d2715a4131f47d6c52` (b41b0a1 + Always.h); the `JUNE_FX C3z-4` strings are gone from the exe.
 
+### C3z-4b - Done (2026-10-11, Opus 5.5 high; 21 flags + `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` on for the play-test)
+
+**Gate.** `c3z4_class_census.py`: 45 rows -> **18**. What is left: the `system` rows (tutorial guide 3 -> C3z-4t, SimpleDLG 8 -> C3z-4s), the 6 `june-bug` rows (JUNE_BUGS #169), and `PlaySound_LUA` (untyped-gap; its receiver is bound on CX2GameUnit, the tsv's expected leftover).
+
+**Batch 2 (22 rows) + batch 3 (4 rows).** Each body is June's (addresses in the code comments and `Always.h`).
+- **Bind-only, after checking June's members against March's:**
+  - `IsActiveMonster`: June's 5 writers of +0x872c match March's 5 `m_bIsActiveMonster` writers.
+  - `SetCameraDistance`: June's SetProjection writes the same 4 floats.
+  - `GetUnitType` (GUUser).
+  - `GetLastTouchLineIndex` on GUUser (slot 0x12c = March's override).
+  - Batch 3: `GetIsRight` / `GetRotateDegree` on CX2GameUnit (vslots 0x170 / 0x150).
+- **Ported:**
+  - NPC: `GetNearestSiegeModeNpcUID`, `ChangeMotion_LUA`, `SetShowAllNPCExceptMe` (= `SetShowGage` + `SetShowObject`), `GetNowStateName`, `SetImmuneToExtraDamage` (June +0x4104 = `m_bImmuneToExtraDamage`, whose readers March has).
+  - Game: `LiveKeyCodeNPCNumExceptDying`, `FadeOriginWorldColor_LUA`, `GetLiveUserUnitRandom` (vslot 0xbc, no override), and `GetIsGoNextPacketSended_LUA` / `Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` (new `CX2DungeonGame::JuneSendGoNextReq` = June 327c9fa0).
+  - Unit / user: `Play2DSound_LUA` (June's sound core with 3D off) and, in batch 3, `SetIsRight( bIsRight, bFuture )` on GUUser.
+  - World, line map, effect: `GetWorldObjectMeshByName`, `GetCenterPositionLineIndex`, `SetEnableLinebyPos`, `CEffect::GetMainEffectPos`.
+  - Batch 3: `CX2DungeonGame::CannotInput` (= the slide-shot body).
+- **Henir:** `CanPassThisStage` / `GetHenirLimitLevel` are virtual, true / 0, with a CX2DungeonGame override (327cad60 / 327c9ff0). June's level-limit map is filled only by `HenirData:AddHenirLevelLimit`, and nothing in June's data calls it, so it always answers true / 0 (JUNE_BUGS #172). CX2HenirData is not ported.
+- **Subtitle:** `SetMovieDescriptionData` stores the string ID and seconds on the now `CX2State`. `CX2State::RenderMovieDescription` (June 31f179b0) runs last in the dungeon-game and battle-field render passes:
+  - `XUF_HEADLINE_30_NORMAL`, centred at (512, 620), white with a black shell.
+  - It counts down by the state's elapsed time.
+  - All 188 string IDs the scripts pass exist in the deployed `General.ess`.
+
+**Readings used** (for the review):
+- unit vslot 0x174 = `GetGameUnitState` (!= GUSI_DIE).
+- `+0xc04 -> +0x20` = HP gage (`GetNowHp`; no gage data counts).
+- `+0x8aa0` = `GetSiegeMode`.
+- line `+0x18` = `bCanDown`, centre = (start + end) * 0.5.
+- world object `+0x194 / +0x19c` = type / `m_wstrObjectName` (`SetXMesh_LUA` names it after the mesh file).
+- `31e8a990` = `GetNowStateData` (the state-start replay in `ChangeMotion_LUA`).
+- `LiveKeyCodeNPCNumExceptDying` is a new flag (`_GAME_KEYCODE_NPC_COUNT`) rather than the tsv's reuse of `_GAME_NPC_COUNT`, so batch 1's define stays insert-only.
+
+**Data.** The 8 summon ids from the C3z-4 note were added by the C3z-2 recipe:
+- data036 `Enum.lua`: June's values; no clash with the Lua table or the C++ `NPC_UNIT_ID` (`cl /P`, 2,023 members).
+- data037 `NPCTemplet.lua`: June's 8 rows verbatim, in June's order (JUNE_BUGS #175 for the copy-paste rows).
+- `npc_mesh_census.py --all-npc`: 0 files needed. `luasrc.py refresh` both; `ledger --check` / `core --check` PASS.
+- `PACK OK data036` (~1 changed: Enum.lua), `PACK OK data037` (~1 changed: NPCTemplet.lua). Copy owed (user OK).
+
+**Hygiene.**
+- `flagcheck <flag> --worktree --with JUNE_C3Z4_DEBUG <the other 20> --files <21 code files>`: all 21 flags RESULT PASS, 0 FAIL.
+- The only deleted line is the `C3Z4_DEBUG` toggle.
+
+`DEPLOY OK: X2_offline.exe is 19,570,176 B, dated 2026-10-11 15:45:42, md5 a3cf19b767317fc5cd4460e33b4e7277, equal to X2/US_SERVICE/x2.exe (2026-10-11 15:45:36); built at mods/june-buff-port ec2b2df + 21 uncommitted code file(s).`
+All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The link at 15:45 was C3p's session (its build break in X2Game.cpp held this deploy up); `build.py` confirmed the bytes.
+
+**JUNE_BUGS** #172 (Henir map empty), #173 (siege query keeps 32 bits of the UID), #174 (ChangeMotion always builds an after image), #175 (NPCTemplet copy-paste rows).
+
+**Not play-testable here.** Elysion Sky Crossroads is not registered in March's DungeonData; that is the Atlas / Elysion plan, not started. Its Elysion scripts (laser / Maya / key objects) wait for that plan.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).

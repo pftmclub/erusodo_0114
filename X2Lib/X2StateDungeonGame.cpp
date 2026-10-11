@@ -1345,6 +1345,9 @@ HRESULT CX2StateDungeonGame::OnFrameRender()
 
 	if ( NULL != m_pCursor )
 		m_pCursor->OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+	RenderMovieDescription( false );	/// June CX2StateDungeonGame render pass 324cff10 ( also PVE / training ) @324d02cb, after the cursor
+#endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 
 	return S_OK;
 }

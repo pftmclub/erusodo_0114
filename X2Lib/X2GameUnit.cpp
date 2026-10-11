@@ -6804,6 +6804,41 @@ void CX2GameUnit::PlaySound_LUA( const char* pName )
 	PlaySound( wName.c_str() );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
+/** @function : Play2DSound_LUA
+	@brief : June 32276540 ( bound on CX2GameUnit @31de3cb3 ): June's PlaySound_LUA ( 322763c0 ) body with the sound core
+			 32276220( name, b3DSound = 0, bLoop = 0 ) where PlaySound_LUA passes ( name, 1, 0 ). Both skip DieLight.ogg when
+			 the effect option ( g_pMain +0x1ac ) is 2 ( OL_LOW ).
+*/
+void CX2GameUnit::Play2DSound_LUA( const char* pName )
+{
+	if( NULL == pName )
+		return;
+
+#ifdef X2OPTIMIZE_NPC_DIELIGHT_SOUND_BY_GAMEOPTION
+#ifdef X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+	if( g_pMain->GetGameOption().GetOptionList().m_eEffect == CX2GameOption::OL_LOW && stricmp( pName, "DieLight.ogg" ) == 0 )
+		return;
+#else//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+	if( g_pMain->GetGameOption().GetOptionList().m_bEffect == false && stricmp( pName, "DieLight.ogg" ) == 0 )
+		return;
+#endif//X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION
+#endif//X2OPTIMIZE_NPC_DIELIGHT_SOUND_BY_GAMEOPTION
+
+	wstring wName = L"";
+	ConvertUtf8ToWCHAR( wName, pName );
+#if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iLogged = 0;
+	if ( s_iLogged < 10 )
+	{
+		++s_iLogged;
+		CX2OfflineLog::Server( L"JUNE_FX C3z-4b Play2DSound_LUA %s", wName.c_str() );
+	}
+#endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+
+	PlaySound( wName.c_str(), false );
+}
+#endif SERV_IRUHADEV_JUNE_UNIT_PLAY_2D_SOUND
 void CX2GameUnit::StopSound_LUA( const char* pName )
 {
 	if( NULL == pName )
