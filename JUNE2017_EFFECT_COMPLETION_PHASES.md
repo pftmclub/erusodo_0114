@@ -1257,7 +1257,8 @@ Flag `SERV_IRUHADEV_JUNE_HIT_STOP_LISTS`, plus `SERV_IRUHADEV_JUNE_HIT_STOP_LIST
 
 **Expected in play.**
 - The player's hit-stop ends one frame earlier: the entry ticks once before the gate.
-- The 241 IMMUNITY_TIME_STOP-only monsters now hit-stop when struck and on their own melee hits.
+- The 241 IMMUNITY_TIME_STOP-only monsters now hit-stop when struck, but only outside super armor: March's `IsSuperArmor() != true` gate stays
+  until C3e-5. They also hit-stop on their own melee hits that carry a STOP_TIME_ATT; Ancient Phoru's script sets none.
 - Both-keys units are unchanged.
 - The A erase cannot fire offline.
 
@@ -1277,7 +1278,10 @@ check 2. Backup: `db_backup/els_db_20261012_054505_pre_sql.sql`.
 **How to see it in game** (log `python tools/logs.py --grep "JUNE_FX C3e-4"`):
 - **Check 1.** Ancient Phoru (`ANCIENT_PPORU`, IMMUNITY_TIME_STOP only), `DI_RUBEN_SWAMP_NORMAL` (30090, Ruben's swamp dungeon), `/stage 2` (its NPC_GROUP, `Dungeon_Ruben_Swamp_Normal.src.lua:273`). Expect `npc SetStopTime: ANCIENT_PPORU.lua
   ... dmgData 1 ... -> applied` and a visible hit freeze.
-- **Check 2.** Remote Mortar (both keys). Expect `... -> blocked by IMMUNITY_DAMAGE_DATA_STOP_TIME` (or `IMMUNITY_TIME_STOP` from a projectile).
+- **Check 2.** Remote Mortar (both keys; shipped bytecode checked).
+  - Its own shell has `STOP_TIME_ATT = 0` (`DamageEffect.src.lua:97670`), so its attacks log nothing in either build.
+  - Only a monster striking it can show `-> blocked by IMMUNITY_DAMAGE_DATA_STOP_TIME`.
+  - No line means untested, not failed. Its visible behaviour (no stop) is March's either way.
 - **Check 3.** User `pushed` lines; feel unchanged; no `refused` / `tick` lines.
 
 **Open for the user:** none.
