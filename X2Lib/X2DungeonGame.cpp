@@ -203,6 +203,11 @@ bool CX2DungeonGame::JuneSendGoNextReq( bool bCloseBeforeSubStage_ )
 	if ( NULL == m_pDungeon || NULL == m_pDungeon->GetNowStage() )
 		return false;
 
+	/// C3z-4b review: arm March's anti-hack check first, as March's two inline senders do; without it March's handler reports
+	/// the player as a hacker. June's handler ( 327d0370 ) has no such check: it only sends 0xb4 and waits for 0xb5.
+#ifdef CHECK_SUB_STAGE_GO_NEXT
+	m_bCheckSubStageGoNext = true;
+#endif CHECK_SUB_STAGE_GO_NEXT
 	Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ( m_pDungeon->GetNowStage()->GetBeforeSubStageIndex(), m_pDungeon->GetNowStage()->GetNowSubStageIndex() );
 	m_bGoNextPacketSended = true;
 	if ( true == bCloseBeforeSubStage_ )

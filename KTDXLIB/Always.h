@@ -6810,7 +6810,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // ON 2026-10-11 for the C3z-4 review play-test ( sub-stage CreateGUNPC "ai" line: Santilus motor 1, Gateway Ignia 4 ); off after it.
 // OFF 2026-10-11: review play-test passed ( Santilus npc 1390 ai 1, Gateway npc 1897 ai 4 ).
 // ON 2026-10-11 for the C3z-4b play-test ( first calls of each batch 2 / 3 method, JUNE_FX C3z-4b ); off after it.
-#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
+// OFF 2026-10-11: C3z-4b play-test passed (Final Hall GO_NEXT x3, subtitles, Ska ChangeMotion; Frozen Water Hall); C3z-4b review.
+//#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

@@ -3441,6 +3441,37 @@ All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The
 
 **Play-test PASSED (user, 2026-10-11: "all works").** The subtitles render on screen (Gateway / Final Hall boss intros). Frozen Water Hall 33180 (`SetShowAllNPCExceptMe`) rests on the user's word: no run after 16:31 is in the logs. `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` stays on until the review, which turns it off.
 
+### C3z-4b - Review (2026-10-11, Opus 5.5 high): one fix (GO_NEXT anti-hack gate); `_C3Z4_DEBUG` off
+
+**Fix, under `SERV_IRUHADEV_JUNE_GAME_GO_NEXT`: script GO_NEXT reported the player as a hacker.**
+- `JuneSendGoNextReq` calls March's `Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ`. Under `CHECK_SUB_STAGE_GO_NEXT` (`Always.h:3226`, unconditional), that handler treats `m_bCheckSubStageGoNext == false` as a hack (`X2DungeonGame.cpp`, handler body). It then sends `EGS_REPORT_HACK_USER_NOT`, sets `hackingUserType = HUT_AGREE_HACK_USER` (which suppresses later hack reports for the session) and calls `SendHackInfo3`.
+- March's two inline senders (frame move, `SubStageOpen`) arm the flag first; the port did not.
+- June's handler (vslot 0x280 = `327d0370`, raw disassembly) has no check: it sends `0xb4` with the now stage's byte `+8`, adds the `0xb5` wait and returns 1.
+- The fix arms the flag before the call, as March's inline sites do. This is a port gap, not a June bug: no JUNE_BUGS row.
+- Play-test 2's log is overwritten, so whether the report fired cannot be shown; the code path is unconditional.
+
+**Checked and correct:**
+- **Spot-checks in Ghidra:**
+  - `ChangeMotion_LUA` (`32761cd0`, disassembly): order close / open "Bip01" / anim released twice / clear `+0x200` and `+0x210` / `3275c950` / state data `31e8a990` replay.
+    The anim speed is `flag & 4 ? +0x37c : +0x8b60`. The after image is `new 0x1d4`, `(anim, 5, 0xe)` with `XL_EFFECT_0 == 14`, grey `3346efb0`, `AddMesh(+0x8600)`, built whenever the anim exists (#174).
+  - `327c9fa0`: `+0xc44 -> +4 -> +8` into vslot 0x280, `+0xc4c = 1`, then `327f3b20` with the argument; callers `322f1550` (false) and the frame move `327d38e0`.
+  - Subtitle `31f179b0`: font id 6, (0x200, 0x26c) = (512, 620), white, style 2 = `FS_SHELL`, black outline, line space 1, `DT_CENTER`, the render arg passed through.
+    The countdown runs only when the argument is 0, clamped at `<= 0`. March's single false call per frame equals June.
+- **GO_NEXT queries:** the `static_cast<CX2DungeonGame*>` is safe because only `CX2DungeonGame` sets `GT_DUNGEON` (BattleField and PvP set their own types). June's extra game-handle check (`+0x3c`) has no March equivalent.
+- **Henir (#172):** no June `.lua` in any extracted `14JUN17` kom contains `AddHenirLevelLimit` (byte grep; control string `AddNPCTemplet` found). Its only xref is the binder `328b0940`, so the map is empty.
+- **Data:** the 8 summon ids (1833, 1834, 1851, 1852, 1968, 2013, 2097, 2121) equal June in `Enum.lua` with no clash in the `NUI_` table. The 8 `NPCTemplet.lua` rows are byte-equal to `june_src_fixed`'s, in June's order.
+- **Mapped readings** (`GUSI_DIE` = vslot 0x174, HP gage, siege `+0x8aa0`, `TN_MONSTER`, `bCanDown`, world object type / name) are taken as the Done note states. They were not re-derived, and the play-test exercised the counters without a miscount.
+
+**Hygiene.**
+- **Whole C3z-4b range:** `flagcheck <flag> --range 1ca6415^..HEAD --with JUNE_C3Z4_DEBUG <the other 20> --files <the 21 code files>`, run before the fix. All 21 flags `RESULT: PASS`, 0 FAIL, 0 ERROR.
+  - The only deleted line is the `//#define SERV_IRUHADEV_JUNE_C3Z4_DEBUG` toggle in 1ca6415.
+  - The OTHER rows are the sibling flags of this batch, plus peers' `365baf9` / `afefdb5` (`_JUNE_ATTACH_SKIN_MESH_ANIM`, `_GEYSER_SUREYNA_DEBUG`).
+- **The fix:** `flagcheck SERV_IRUHADEV_JUNE_GAME_GO_NEXT --worktree --files X2Lib/X2DungeonGame.cpp KTDXLIB/Always.h`: X2DungeonGame.cpp PASS (+5), 0 deleted. Always.h OTHER (+2 -1: this review's `_C3Z4_DEBUG` OFF toggle). `RESULT: PASS`.
+
+`DEPLOY OK: X2_offline.exe is 19,569,664 B, dated 2026-10-11 22:10:47, md5 a57a63e6de57163a99b5046a49cdc5d8, equal to X2/US_SERVICE/x2.exe (2026-10-11 22:10:42); built at mods/june-buff-port 727de03 + 2 uncommitted code file(s).` The `JUNE_FX C3z-4b` strings are gone from the exe (debug off).
+
+**Play-test (review fix):** Ranox Final Hall 33320 once more. In `offline_packets.log`, `EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` should be HANDLED (the stage 3 regeneration points advance on their own) and `EGS_REPORT_HACK_USER_NOT` should not appear anywhere.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
