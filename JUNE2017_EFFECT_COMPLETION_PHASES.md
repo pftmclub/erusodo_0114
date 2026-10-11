@@ -3435,6 +3435,8 @@ All 17 new method names and the `JUNE_FX C3z-4b` log strings are in the exe. The
 - **ChangeMotion_LUA:** `npc 1924 motion Motion_FIRE_DEVIL_SKA_Change.x mesh 1 anim 1` (2069); Ska then fought on for 63 s and died to the user (2626).
 - Still owed: Frozen Water Hall 33180 (`SetShowAllNPCExceptMe`) and the user's word that the subtitles render on screen.
 
+**Play-test PASSED (user, 2026-10-11: "all works").** The subtitles render on screen (Gateway / Final Hall boss intros). Frozen Water Hall 33180 (`SetShowAllNPCExceptMe`) rests on the user's word: no run after 16:31 is in the logs. `SERV_IRUHADEV_JUNE_C3Z4_DEBUG` stays on until the review, which turns it off.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
