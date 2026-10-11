@@ -2702,7 +2702,7 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
 
 ## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
 
-**Status: done 2026-10-11, play-test and review owed (routed by C3y; the 4 atlas / elysion boss worlds added by the user the same day). Model:** Opus 5.5,
+**Status: done 2026-10-11, play-test PASSED (2nd run), review owed (routed by C3y; the 4 atlas / elysion boss worlds added by the user the same day). Model:** Opus 5.5,
 high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
 
 - **Scope:** 13 worlds, world-only (no dungeon rows, no NPCs). All June ids are free in March.
@@ -2768,6 +2768,12 @@ high. Kickoff `kickoffs/june-effect/C3y-1b.md`.
   flagcheck `--worktree --files`: 1 PASS, 1 DEFINE, 0 FAIL, 0 deleted. RESULT: PASS (also `--range d015581^..d015581`).
   `DEPLOY OK: X2_offline.exe is 19,570,176 B, dated 2026-10-11 15:45:42, md5 a3cf19b767317fc5cd4460e33b4e7277` (built at `1ca6415`;
   the shared tree first had to wait for C3p / C3z-4b to compile).
+- **Play-test 2 PASSED (2026-10-11 16:11-16:16, reyaa, exe a3cf19b7):** State.log `Stage Start` 22 (16:13:58), 32, 33, 34, 35, each with
+  `Sub Stage Start : 0`; no crash (the only `%TEMP%\X2_offline.xml` is play-test 1's). `offline_server.log` `[16:13:59.116] JUNE_FX C3y-1b
+  attach skin mesh MAD_BEHIMOSS_SOUL_Skin.x not found: skipped, as June does`. No `JUNE_FX C3x` world / line-map line and no
+  `lua error while loading` in ErrorLog. **Routed to C3y-1c (the Behemoth soul NPC, not the worlds):** ErrorLog `OpenTexture` fails
+  `BEHEMOTHSOUL_HAND_TRACE01.DDS` / `BEHEMOTHSOUL_HAND.TGA` (June data002, absent in March), and 6 `[RANOX_EFFECT_MISSING]
+  EffectSet_BEHEMOTHSOUL_*` names (June's `EffectSet.src.lua` has 18 `EffectSet_BEHEMOTHSOUL` lines, March's 0).
 - **Not provable here:** only `Dungeon_Sander_Secret_Hell` (C3y-1c) reaches Sander's 8 non-boss worlds, so `SetAnimWait` and those
   8 worlds wait for C3y-1c's play-test. Henir Space (38100) reaches stages 22 and 32-35, but its run order is decided elsewhere,
   so the check uses `/stage`.

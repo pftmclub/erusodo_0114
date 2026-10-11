@@ -38,3 +38,7 @@ grep Sander_Secret june2017_re/c3y_unreached_dungeon_census.tsv
    C3y-1b (2026-10-11) shipped the 9 worlds and `SetAnimWait` (`SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT`), proven only by this play-test:
    in `Sander_Secret_Stage3` the `SANDER_SECRET_STAGE3_X07` mesh must hold still until line-map trigger 0 plays it, and ErrorLog must
    have no `lua error while loading Sander_Secret_*` line. Name that check in the hand-off.
+   C3y-1b play-test 2 (Henir Space stage 22, the Behemoth soul `SECRET_MAD_BEHEMOTH_SOUL_HENIR`): ErrorLog `OpenTexture` fails
+   `BEHEMOTHSOUL_HAND_TRACE01.DDS` / `BEHEMOTHSOUL_HAND.TGA` (June data002, not in March) and `[RANOX_EFFECT_MISSING]` for 6
+   `EffectSet_BEHEMOTHSOUL_*` (June `EffectSet.src.lua` has 18 lines, March 0). Port both for the Sander bosses (and their Henir copies);
+   `MAD_BEHIMOSS_SOUL_Skin.x` is in no build and stays skipped (JUNE_BUGS 171).
