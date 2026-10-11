@@ -7119,5 +7119,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CX2OfflineLog::Server lines for the NPC state changes, the Lua START / FRAME_MOVE / END dispatch, StateChangeForce verdicts,
 //              the create-NPC path ( NPC-side request, CX2Game::CreateNPCReq / CreateNPC / EGS_NPC_UNIT_CREATE_NOT ) and the host misplaced-unit
 //              reposition. Remove after the play-test.
-#define SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG
+//#define SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG	// off 2026-10-11: play-test PASSED (full summon flow x2, Geyser 33290 cleared)
 //////////////////////////////////////////////////////////////////////////
