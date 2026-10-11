@@ -2654,11 +2654,15 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
 - **Assets** (`stage-june`, byte-exact June; backup `kom_backup_stage_june\20261011_103536`):
   - `DLG_Localmap_Title_01.tga` / `.TET` (June data151, staged into data063, March's only copy, 77 keys) replaces Lanox Phase 2's merge.
     - With March's art, `TITLE_HARMEL_SECRET` showed "Sander's Ordeal"; June's art reads "Temple of Trials".
-    - Forecast: all 58 keys March's scripts read are in June's TET.
-    - `Title_Holloween` is blank in June's art; the 5 village icon files read it exactly as June's do, so that is June parity.
+    - Forecast: all 58 keys March's source scripts read are in June's TET. The bytecode-only readers were checked too:
+      the Hamel file is now June's, and `DLG_UI_Local_Peita_Icon_NEW.lua` reads only `TITLE_PEITA_01-06` and `TITLE_HENIR`.
+    - `Title_Holloween` is blank in June's art. June's own 7 village `Icon_NEW` files read it the same way, so that is June parity.
     - `TITLE_ERDA_ISLAND` has no reader. `TITLE_SANDER_SECRET` is now there for C3y-1c.
   - `DLG_UI_Dungeon_Image09.dds` (data065): June's copy; same TET.
   - Already equal to June, so not staged: `HQ_LoadingDungeon_HARMEL_SECRET1/2.tga`, the `DLG_Common_Button03/05_NEW` atlases (keys `HARMEL_SECRET_DUNGEON_NORMAL/_OVER/_LOCK`).
+- **Emulator:** nothing keys on a fixed secret-id list.
+  - The secret paths test `DT_SECRET` / `DM_SECRET_HELL` (`Handlers_Room.cpp:1952`, `:2026`, `:2232`).
+  - The only id list is Altera's extra-stage count (`:2124`).
 - **Items:** 113277 (Luto's Secret Key), 700015 (Secret Dungeon Entry Permit) and the 9 `BOSS_DROP_ITEM` ids are all in the live item.kim.
 - **Packs and copies:**
   - `PACK OK` data034 (~1), data035 (~1), data063 (~2), data065 (~1).
@@ -2667,10 +2671,15 @@ stage names a world March lacks. Atlas A8 / A10 and Elysion E8 / E9 reuse them; 
   - `COPY OK data063 ... md5 0ded68660adc53eaa02114f6bb791e71`
   - `COPY OK data065 ... md5 c1d561445849e652421be6f4ccf41c45`
 - **Save:** Freils (unit 18) was given 2x 700015. Backup: `db_backup\els_db_20261011_103730_pre_additem.sql`.
-- **Play-test owed:**
+- **Play-test owed** (Freils):
   - the Hamel map shows the secret button and title;
   - a Hamel Secret Hell room starts and stage 0 loads;
-  - Ranox Secret Hell (registered after row 229) still resolves.
+  - Ranox Secret Hell still resolves. It is registered after both insertions.
+  - `auth_level` 3 shows every button enabled, so this proves the button and the room, not the lock logic.
+- **Log lines read** (nothing writes `JUNE_FX C3y-1a`; this phase is data only):
+  - `[RANOXDBG] ... dungeonID=41271 pDungeonData=OK` in ErrorLog;
+  - the room-start line for 33261 and `using its own level band` in `offline_server.log`;
+  - 0 EXCEPTION, and no `XEM_ERROR2` / `can't find` / `attempt to index` line.
 
 ## C3y-1b - port: Henir Space's 5 missing boss worlds + the other Sander secret worlds
 
