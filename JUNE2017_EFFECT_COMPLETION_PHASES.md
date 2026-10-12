@@ -1382,7 +1382,7 @@ There are no log lines now (DEBUG off). **Open for the user:** none.
 
 ### C3e-5 - Done (2026-10-12, Opus 5.5 high)
 
-Commit: see STATUS. Flags: `SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP`, `SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER` (new: a June reorder this phase
+Commit `53cb821`. Flags: `SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP`, `SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER` (new: a June reorder this phase
 found) and `SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG` (play-test lines, which the review turns off). Funcmap rows `(C3e-5)` hold the RE.
 JUNE_BUGS 191.
 
@@ -1425,18 +1425,22 @@ Hygiene (`flagcheck JUNE_SUPER_ARMOR_HIT_STOP --with JUNE_DAMAGE_REACT_ORDER JUN
 `RESULT: PASS`.
 - The 3 tokenless `#endif`s are Always.h's `#error` guards, in the house pattern.
 - The PASS~ is the blank line before `JuneDamageReactHitStop`.
+- Post-commit `--range 53cb821^..HEAD`: the same three lines (`3 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted`, `0 encoding change(s)`; `RESULT: PASS`).
 
 Deploy: `DEPLOY OK: X2_offline.exe is 19,577,344 B, dated 2026-10-12 21:02:16, md5 312c6f7ab1fcdf94cd5adb8b5ca15a3e, equal to
 X2/US_SERVICE/x2.exe (2026-10-12 21:02:11)`. The `JUNE_FX C3e-5` format string is in the deployed exe.
 
-**Play-test hand-off** (log `python tools/logs.py --grep "JUNE_FX C3e-5"`):
-- **Check 1.** Freils (uid 18, Chung Tactical Trooper), Ranox Geyser Expert (33290), `/stage 2`. Geyser Aluminum (`GEYSER_ALUMINUM.lua`,
-  IMMUNITY_TIME_STOP only) is SUPER_ARMOR in ATTACK_A_READY / ATTACK_A / ATTACK_B_READY_DASH_END and its DOWN states.
-  - Hit it while it winds up an attack.
-  - Expect `npc GEYSER_ALUMINUM.lua ... super armor, cooldown out: reActResult 1 ... -> short stop 0.050` (0.10 / 0.15 for big / down hits) and
-    a brief freeze where March gave none.
-  - Fast multi-hits inside 0.5 s should log `cooldown 0.xxx left ... -> full stop` (JUNE_BUGS 191).
-- **Check 2 (regression, reorder).** Normal play: the player still flinches and is knocked back by monster hits, and nothing crashes.
+**Play-test hand-off** (dev console `END`, `auth_level` 3; log `python tools/logs.py --grep "JUNE_FX C3e-5"`):
+- **Check 1: NPC short stop and cooldown.**
+  - Where: Freils (uid 18, Chung Tactical Trooper), Ranox Geyser Expert (33290). Paste `/stage 2` and `/invin 0`.
+  - Do: hit Geyser Aluminum while it winds up an attack (ATTACK_A_READY / ATTACK_A / dash end) or lies down.
+  - Look for: `npc GEYSER_ALUMINUM.lua ( UID n ) super armor, cooldown out: reActResult 1|2|3 ... -> short stop 0.050|0.100|0.150` with a brief
+    freeze (March: none). Within 0.5 s of it, `cooldown 0.xxx left ... -> full stop` (JUNE_BUGS 191), and a fresh `cooldown out` line later.
+  - If not: no lines means it was never super armored when hit. Every later line with the cooldown pinned near 0.500 means the tick is not running
+    (a port gap, not row 191).
+- **Check 2: reorder regression.** Same room after `/invin 0` again (toggle off). Let the Geyser mobs hit Freils several times.
+  - Look for a normal flinch and knockback, 0 EXCEPTION, and UNHANDLED = the 2x `E_DISABLE_HB_CHECK_REQ` baseline.
+  - If there is no knockback, suspect the moved back-speed copy.
 
 ## C3f - identify: June's force-down flush in StateChange
 
