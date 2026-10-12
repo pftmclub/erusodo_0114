@@ -2438,6 +2438,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 		virtual float				GetStopTime() = NULL;
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+		/// C3e-5: June's DamageReact hit-stop, shared by CX2GUUser::DamageReact 320462a0 @32046ce3 and CX2GUNPC::DamageReact 327b1f30 @327b3163
+		void						JuneDamageReactHitStop( const CX2DamageManager::DamageData& damageData_ );
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 
 #ifdef STOP_UNIT_STOP_EFFECT_TEST
 
@@ -4313,6 +4317,11 @@ protected:
 		/// before that attacker's hit with that DIVISION_NUM may apply buff factors to this unit again.
 		std::map<JuneDivisionKey, float>				m_mapJuneDivisionWindow;
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+		/// C3e-5: June CX2GameUnit +0x68d0. Set to 0.5 by a super-armor short hit-stop, ticked down in OnFrameMove ( 3229ecc0 @3229f4ff ),
+		/// zero from the ctor ( 322a2700 @322a5169 ). No other June reader or writer ( displacement sweep ).
+		float												m_fJuneSuperArmorHitStopCoolTime;
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 		KProtectedType<int>								m_TeamNum;			/// Team 분류 넘버로, 던전에서는 보통 CX2Room::TN_RED 이다.
 //#ifdef PVP_BOSS_COMBAT_TEST
 //		int												m_TeamNumOriginal;		

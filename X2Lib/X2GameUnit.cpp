@@ -7,6 +7,9 @@
 #if defined( SERV_IRUHADEV_JUNE_NPC_FURY_MODE ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_NPC_FURY_MODE && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
 
 const double CX2GameUnit::RANDOM_SEED_RESET_TIME = 0.3;
 
@@ -315,6 +318,10 @@ m_fNoSkillTime( 0 )
 	/// C3g: June ctor 322a2700 @322a43d3-322a4408 builds +0x40f8 from fld1
 	m_fJuneLimitMaxGSpeed = 1.f;
 #endif SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+	/// C3e-5: June ctor 322a2700 @322a5169 stores 0 ( fldz @322a511e ) into +0x68d0
+	m_fJuneSuperArmorHitStopCoolTime = 0.f;
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 	m_fForceInvincibleTime		= 0.0f;
 	m_fShowInvincibleTime		= 0.0f;
 	m_fShowInvincibleSwapTime	= 0.05f;
@@ -1093,6 +1100,16 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 	OnFrameMoveBuff();	/// 버프들의 FrameMove 실행
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	CheckAndUpdateAdditionalStat();		/// 스탯이 변경되어야하는지 체크하고 업데이트
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+	/// C3e-5: June CX2GameUnit::OnFrameMove 3229ecc0 @3229f4ff-3229f532, right after CheckAndUpdateAdditionalStat ( 32290920 ), for every unit:
+	/// a running super-armor hit-stop cooldown goes down by the frame's elapsed time and is clamped at 0
+	if ( m_fJuneSuperArmorHitStopCoolTime > 0.f )
+	{
+		m_fJuneSuperArmorHitStopCoolTime -= fElapsedTime;
+		if ( m_fJuneSuperArmorHitStopCoolTime < 0.f )
+			m_fJuneSuperArmorHitStopCoolTime = 0.f;
+	}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 	// oasis907 : 김상윤 [2011.6.20] 청 2차 전직 - 아이언 팔라딘
@@ -1243,6 +1260,90 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 
 	return S_OK;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+/** @function : JuneDamageReactHitStop
+	@brief : June effect completion C3e-5. The hit-stop of CX2GUUser::DamageReact 320462a0 @32046ce3-32046d84 ( the RT_CREATE_DAMAGE_EFFECT /
+			 RT_CREATE_EFFECT_SET case ) and of CX2GUNPC::DamageReact 327b1f30 @327b3163-327b320b. The callers test their own conditions first.
+			 IsSuperArmor() ( vslot 0x264 with 0 ) and the cooldown +0x68d0 <= 0 ( fcomp + test ah,1 ): a short stop by reActResult ( jump tables
+			 3204a7bc / 3204a7cc and 327b536c / 327b537c, index reActResult - 1 ) and then the cooldown = 0.5 ( 3343777c ); a result with no table entry
+			 sets neither. Otherwise, a super-armored unit inside its cooldown included, the DamageData's own fStopTimeDef ( JUNE_BUGS 191 ).
+			 SetStop2Time( 0 ) on every path. All stops pass bDamageDataStop = true, no attacker, no force ( C3e-4 ).
+*/
+void CX2GameUnit::JuneDamageReactHitStop( const CX2DamageManager::DamageData& damageData_ )
+{
+	/// the jump tables are indexed by the enum's value: these names must keep June's numbers ( June Enum.lua RT_FLIP_SAME_DIR = 18 )
+	static_assert( CX2DamageManager::RT_SMALL_DAMAGE == 1 && CX2DamageManager::RT_FLIP_SAME_DIR == 18, "REACT_TYPE no longer matches June's numbering" );
+
+	if ( true == IsSuperArmor() && m_fJuneSuperArmorHitStopCoolTime <= 0.f )
+	{
+		float fShortStopTime = 0.f;
+		switch ( damageData_.reActResult )
+		{
+		case CX2DamageManager::RT_SMALL_DAMAGE:		// 1
+		case CX2DamageManager::RT_FLIP_SAME_DIR:		// 18
+			fShortStopTime = 0.05f;				// 33436704 ( @32046d13 )
+			break;
+
+		case CX2DamageManager::RT_DOWN:				// 3
+		case CX2DamageManager::RT_BOUNDING:			// 15
+			fShortStopTime = 0.15f;				// 33457f04 ( @32046d23 )
+			break;
+
+		case CX2DamageManager::RT_BIG_DAMAGE:		// 2
+		case CX2DamageManager::RT_UP:					// 4
+		case CX2DamageManager::RT_FLY:					// 5
+		case CX2DamageManager::RT_REVENGE:			// 6
+		case CX2DamageManager::RT_GROGGY:				// 8
+		case CX2DamageManager::RT_GUARD:				// 9
+		case CX2DamageManager::RT_GRAPPLE:			// 13
+		case CX2DamageManager::RT_DRAG_UP:			// 16
+		case CX2DamageManager::RT_REFLECT:			// 17
+			fShortStopTime = 0.1f;					// 334395e0 ( @32046d1b )
+			break;
+
+		default:	/// 0, 7, 10, 11, 12, 14 and 19 up: June jumps past SetStopTime and the cooldown store ( @32046d6b / @327b31f4 )
+			break;
+		}
+
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+		static int s_iJuneC3e5Lines = 0;
+		if ( s_iJuneC3e5Lines < 400 )
+		{
+			++s_iJuneC3e5Lines;
+			CX2OfflineLog::Server( L"JUNE_FX C3e-5 %s %s ( UID %I64d ) super armor, cooldown out: reActResult %d fStopTimeDef %.3f -> %s %.3f",
+				GUT_NPC == GetGameUnitType() ? L"npc" : L"user",
+				GUT_NPC == GetGameUnitType() ? static_cast<CX2GUNPC*>( this )->GetNPCTemplet().m_LuaFileName.c_str() : L"-",
+				GetUnitUID(), static_cast<int>( damageData_.reActResult ), damageData_.fStopTimeDef,
+				fShortStopTime > 0.f ? L"short stop" : L"no entry, no stop", fShortStopTime );
+		}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+
+		if ( fShortStopTime > 0.f )
+		{
+			SetStopTime( fShortStopTime, true, NULL, false );
+			m_fJuneSuperArmorHitStopCoolTime = 0.5f;
+		}
+	}
+	else
+	{
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+		static int s_iJuneC3e5FullLines = 0;
+		if ( true == IsSuperArmor() && s_iJuneC3e5FullLines < 400 )
+		{
+			++s_iJuneC3e5FullLines;
+			CX2OfflineLog::Server( L"JUNE_FX C3e-5 %s %s ( UID %I64d ) super armor, cooldown %.3f left: reActResult %d -> full stop %.3f",
+				GUT_NPC == GetGameUnitType() ? L"npc" : L"user",
+				GUT_NPC == GetGameUnitType() ? static_cast<CX2GUNPC*>( this )->GetNPCTemplet().m_LuaFileName.c_str() : L"-",
+				GetUnitUID(), m_fJuneSuperArmorHitStopCoolTime, static_cast<int>( damageData_.reActResult ), damageData_.fStopTimeDef );
+		}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+		SetStopTime( damageData_.fStopTimeDef, true, NULL, false );
+	}
+
+	SetStop2Time( 0.0f, true, NULL, false );
+}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 
 
 

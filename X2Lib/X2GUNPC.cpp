@@ -10333,6 +10333,15 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 	// modified by wonpok. 20090821. dummy damage에 대해서는 StopTime을 풀지 않는다.
 	//if( m_NPCFrameData.stateParam.bSuperArmor != true )
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+	/// June CX2GUNPC::DamageReact 327b1f30 @327b314f-327b3215 ( C3e-5 ): reActResult != 7 / != 0, then JuneDamageReactHitStop ( March's
+	/// IsSuperArmor() != true is gone: a super-armored NPC takes the short stop ), and m_fCoolTime ( +0x864c ) = 0 on every one of its paths
+	if( pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE && pDamageData->reActResult != CX2DamageManager::RT_NO_DAMAGE )
+	{
+		JuneDamageReactHitStop( *pDamageData );
+		m_fCoolTime = 0.0f;
+	}
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 	if( IsSuperArmor() != true && pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE )
 	{
 #ifdef DAMAGE_REACT_STOPTIME_CONDITION_FIX
@@ -10352,6 +10361,7 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		}
 #endif DAMAGE_REACT_STOPTIME_CONDITION_FIX
 	}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 	// June2017 CX2GUNPC::DamageReact 327b1f30 @327b3215-327b3230 (effect completion C3): the timer is raised to the DamageData's DAMAGE_LIGHT_TIME

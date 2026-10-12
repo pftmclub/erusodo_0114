@@ -8471,12 +8471,19 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		return;
 	}
 
+#ifndef SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
 	switch( pDamageData->reActType )
 	{
 	case CX2DamageManager::RT_CREATE_DAMAGE_EFFECT:
 	case CX2DamageManager::RT_CREATE_EFFECT_SET:
 		{
 #ifdef RAVEN_SECOND_CLASS_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+			/// June CX2GUUser::DamageReact 320462a0 @32046cbd-32046d84 ( C3e-5 ): reActResult != 7 and fStopTimeDef > 0, then JuneDamageReactHitStop
+			/// ( March's IsSuperArmor() != true is gone: a super-armored user takes June's short stop )
+			if( pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE && pDamageData->fStopTimeDef > 0.f )
+				JuneDamageReactHitStop( *pDamageData );
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 			if( IsSuperArmor() != true && pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE && pDamageData->fStopTimeDef > 0.f )
 			{
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
@@ -8488,6 +8495,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				SetStop2Time( 0.0f );	
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			}
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 #endif
 			return;
 		} break;
@@ -8528,6 +8536,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	if ( AbsorbEffectAttackProcess( pDamageData ) )
 		return;
 #endif
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
 
 // #ifdef ELSWORD_SHEATH_KNIGHT
 // 	if( pAttackerUnit != NULL ) // Valid 체크는 위에서 함
@@ -8614,6 +8623,11 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		}
 	}
 #endif ARRANGED_FLY_DAMAGE_TEST
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
+	/// June CX2GUUser::DamageReact 320462a0 @3204682c-32046836 ( C3e-5 ): the Future copy of bAttackerFront comes right after the attacker-front
+	/// test, so a CREATE_DAMAGE_EFFECT / CREATE_EFFECT_SET hit and an absorbed one update it too ( March: after the back-speed block )
+	m_FrameDataFuture.unitCondition.bAttackerFront = m_FrameDataNow.unitCondition.bAttackerFront;
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
 
 #ifdef ADD_BACKATTACK
 	bool bCriticalHit = false;
@@ -8626,6 +8640,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	}
 #endif
 
+#ifndef SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
 #ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
 	/// June CX2GUUser::DamageReact 320462a0 @32046f06-32046f27 ( C3d-3 ): the attacker's game-unit type ( attacker +0x264 ) and UID become this unit's
 	/// last attacker ( +0x40e8 / +0x40e0 ), read by USI_BOUNDING_UP's Lu/Ciel hook. June guards it like this: @32046db2 tests the attacker ( [esp+0x38] ) and
@@ -8723,6 +8738,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 
 	m_FrameDataFuture.unitCondition.bAttackerFront = m_FrameDataNow.unitCondition.bAttackerFront;
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
 
 	bool bRevenge = false;
 	bool bReflexMagic = false;	
@@ -8870,6 +8886,9 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		}
 #ifdef ARA_CHANGE_CLASS_FIRST
 		else if( true == bRevenge && false == pDamageData->bCanRevenge &&
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
+				CX2Unit::UT_ARA == GetUnitType() &&	/// June 320462a0 @32046c7c-32046c86 ( C3e-5 ): 31e4d0e0 ( m_pUnit's templet m_UnitType ) == 7, then +0x96f0
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
 				true == m_bCanAvoidance )
 		{
 			pDamageData->fStopTimeDef				= 0.f;
@@ -8877,6 +8896,156 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 		}
 #endif //ARA_CHANGE_CLASS_FIRST
 	}
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
+	/// June CX2GUUser::DamageReact 320462a0 ( C3e-5 ): after the revenge / reflect / avoidance block ( @32046a46-32046cae ) June runs, in this order,
+	/// the CREATE_DAMAGE_EFFECT / CREATE_EFFECT_SET case ( @32046cae-32046d84 ), the drain particle ( @32046d89-32046f00 ), the last-attacker store
+	/// ( @32046f06 ), AbsorbEffectAttackProcess ( 32274660 @32046f30 ) and the back-speed block ( @32046f3d ). March's own places are #ifndef'd above.
+	switch( pDamageData->reActType )
+	{
+	case CX2DamageManager::RT_CREATE_DAMAGE_EFFECT:
+	case CX2DamageManager::RT_CREATE_EFFECT_SET:
+		{
+#ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+			/// June @32046cbd-32046d84 ( C3e-5 ): reActResult != 7 and fStopTimeDef > 0, then JuneDamageReactHitStop
+			if( pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE && pDamageData->fStopTimeDef > 0.f )
+				JuneDamageReactHitStop( *pDamageData );
+#else SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+#ifdef RAVEN_SECOND_CLASS_CHANGE
+			if( IsSuperArmor() != true && pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE && pDamageData->fStopTimeDef > 0.f )
+			{
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+				SetStopTime( pDamageData->fStopTimeDef, true, NULL, false );
+				SetStop2Time( 0.0f, true, NULL, false );
+#else SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+				SetStopTime( pDamageData->fStopTimeDef );
+				SetStop2Time( 0.0f );
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			}
+#endif RAVEN_SECOND_CLASS_CHANGE
+#endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+			return;
+		} break;
+	}
+
+#ifdef SKILL_CASH_10_TEST
+	m_optrLastAttackUnit.Reset();
+
+	if( pAttackerUnit != NULL && pDamageData->m_bDrainHpParticle == true )
+	{
+		if( CX2GameUnit::GUT_USER == pAttackerUnit->GetGameUnitType() )
+		{
+			if( m_hSeqDrainParticle == INVALID_PARTICLE_SEQUENCE_HANDLE )
+			{
+				D3DXVECTOR3 pos = GetPos();
+				pos.y = pos.y + 100.0f;
+
+				m_optrLastAttackUnit = pAttackerUnit;
+
+				CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GameUnitCreateSequence_LUA( this, "DrainLight",	pos, D3DXVECTOR2(-1,-1), D3DXVECTOR2(3,-1) );
+				if( pSeq != NULL )
+				{
+					D3DXVECTOR3 pos = m_optrLastAttackUnit->GetWeaponBonePos( 0, L"TRACE_END0", 0 );
+
+					pSeq->SetLandPosition( GetLandPosition().y );
+					pSeq->SetBlackHolePosition( pos );
+					m_hSeqDrainParticle = pSeq->GetHandle();
+				}
+			}
+		}
+	}
+#endif SKILL_CASH_10_TEST
+
+#ifdef SERV_IRUHADEV_JUNE_BOUNDING_STATE
+	/// C3d-3's last-attacker store at June's place ( @32046f06 ), inside the attacker test it shares with the drain particle ( @32046db2 )
+	if ( NULL != pAttackerUnit )
+		SetJuneLastAttacker( pAttackerUnit->GetGameUnitType(), pAttackerUnit->GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+
+#ifdef SKILL_CASH_10_TEST
+	if ( AbsorbEffectAttackProcess( pDamageData ) )
+		return;
+#endif SKILL_CASH_10_TEST
+
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+	// June2017 @32046f3d-32046f5d (effect completion C3): not super armored and not a dummy damage, or FORCE_BACK_SPEED (+0x3ec)
+	if( ( IsSuperArmor() != true && pDamageData->reActType != CX2DamageManager::RT_DUMMY_DAMAGE ) || true == pDamageData->m_bForceBackSpeed )
+#else SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef NEW_SKILL_2010_11
+	if( IsSuperArmor() != true &&
+		pDamageData->reActType != CX2DamageManager::RT_DUMMY_DAMAGE)
+#else NEW_SKILL_2010_11
+	if( IsSuperArmor() != true )
+#endif NEW_SKILL_2010_11
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+	{
+		if( pDamageData->m_bWBackSpeed == true )
+		{
+			if( m_FrameDataNow.syncData.bIsRight == true )
+			{
+				m_PhysicParam.nowSpeed.x = -pDamageData->backSpeed.x;
+			}
+			else
+			{
+				m_PhysicParam.nowSpeed.x = pDamageData->backSpeed.x;
+			}
+		}
+#ifdef ARRANGED_FLY_DAMAGE_TEST
+		else if ( pDamageData->bArrangedFly == true )
+		{
+			if( bViewDamageDir == true )
+			{
+				m_PhysicParam.nowSpeed.x = pDamageData->backSpeed.x;
+			}
+			else
+			{
+				m_PhysicParam.nowSpeed.x = -pDamageData->backSpeed.x;
+			}
+		}
+#endif ARRANGED_FLY_DAMAGE_TEST
+		else
+		{
+#ifdef GRAPPLING_TEST
+			if( CX2DamageManager::RT_THROW == pDamageData->reActType )
+			{
+				if( pAttackerUnit->GetIsRight() == GetIsRight() )
+				{
+					m_PhysicParam.nowSpeed.x = pDamageData->backSpeed.x;
+				}
+				else
+				{
+					m_PhysicParam.nowSpeed.x = -pDamageData->backSpeed.x;
+				}
+			}
+			else
+#endif GRAPPLING_TEST
+			switch( pDamageData->reActType )
+			{
+#ifdef CHUNG_FIRST_CLASS_CHANGE
+			case CX2DamageManager::RT_FLIP_SAME_DIR:
+				{
+					m_PhysicParam.nowSpeed.x = -pDamageData->backSpeed.x;
+				} break;
+#endif CHUNG_FIRST_CLASS_CHANGE
+			case CX2DamageManager::RT_NO_DAMAGE:
+			case CX2DamageManager::RT_DUMMY_DAMAGE:
+				{
+				} break;
+			default:
+				{
+					if( m_FrameDataNow.unitCondition.bAttackerFront == true )
+					{
+						m_PhysicParam.nowSpeed.x = -pDamageData->backSpeed.x;
+					}
+					else
+					{
+						m_PhysicParam.nowSpeed.x = pDamageData->backSpeed.x;
+					}
+				}
+				break;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
 
 	//타격 방식에 따른 반응(사운드 등)
 	wstring wstrHitSound = L"";

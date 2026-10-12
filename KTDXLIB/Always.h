@@ -7214,3 +7214,39 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_OFFLINE_RES_STONE needs SERV_IRUHADEV_OFFLINE
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3e-5: June's CX2GUUser::DamageReact block order ( 320462a0 ). June runs the
+//              attacker-front test, the Future copy of it, the revenge / reflect detection and the revenge / reflect /
+//              avoidance block BEFORE the RT_CREATE_DAMAGE_EFFECT / RT_CREATE_EFFECT_SET hit-stop case ( @32046cae ),
+//              then the drain particle, the last-attacker store, AbsorbEffectAttackProcess and the back-speed block.
+//              March has the case, drain and absorb first and the revenge block last. Also June's Ara-only avoidance
+//              ( GetUnitType() == UT_ARA, @32046c7c ). March's order stays in #ifndef blocks.
+#define SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3e-5: June's super-armor hit-stop in user / NPC DamageReact ( 320462a0 @32046ce3,
+//              327b1f30 @327b3163 ). March's IsSuperArmor() != true condition goes; a super-armored unit whose cooldown
+//              ( CX2GameUnit +0x68d0 ) is out takes 0.05 / 0.10 / 0.15 s by reActResult and starts a 0.5 s cooldown,
+//              otherwise the DamageData's own fStopTimeDef ( JUNE_BUGS 191 ). The cooldown ticks in CX2GameUnit::OnFrameMove.
+#define SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+#if defined(SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP) && !defined(SERV_IRUHADEV_JUNE_HIT_STOP_LISTS)
+#error SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP needs SERV_IRUHADEV_JUNE_HIT_STOP_LISTS ( 4-argument SetStopTime )
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: June effect completion C3e-5 play-test lines ( short-lived; turn OFF in the C3e-5 review ): "JUNE_FX C3e-5"
+//              one line per hit-stop a super-armored unit takes or skips ( short / full in cooldown / no entry ). Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG) && !defined(SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP)
+#error SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG needs SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+#endif
+#if defined(SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
+#error SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
+#endif
+//////////////////////////////////////////////////////////////////////////

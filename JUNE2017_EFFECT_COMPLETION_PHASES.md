@@ -1380,6 +1380,64 @@ There are no log lines now (DEBUG off). **Open for the user:** none.
 - **Exit:** funcmap rows `Effect C3e-5`, then the port (no partial update), built and deployed. Play-test: a super-armored monster stops
   briefly when hit. Write `C3e-5-review.md`.
 
+### C3e-5 - Done (2026-10-12, Opus 5.5 high)
+
+Commit: see STATUS. Flags: `SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP`, `SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER` (new: a June reorder this phase
+found) and `SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG` (play-test lines, which the review turns off). Funcmap rows `(C3e-5)` hold the RE.
+JUNE_BUGS 191.
+
+1. **Conditions.**
+   - DD `+0x24` = reActType, `+0x28` = reActResult, `+0x420` = fStopTimeDef, `+0x446` / `+0x447` = bCanRevenge / bCanReflexMagic.
+   - User: inside the CREATE_DAMAGE_EFFECT / CREATE_EFFECT_SET case, reActResult != 7 and fStopTimeDef > 0.
+   - NPC: at the general site, reActResult != 7 and != 0, with no fStopTimeDef test.
+   - Then `IsSuperArmor(0) && cooldown <= 0` gives the short stop and starts the cooldown at 0.5.
+   - Otherwise the stop is fStopTimeDef. **This includes a super-armored unit inside its cooldown, so the kickoff's "no second stop within 0.5 s"
+     was wrong; JUNE_BUGS 191.**
+   - SetStop2Time( 0 ) runs on every path. The NPC then sets `m_fCoolTime` (`+0x864c`, dispsweep-confirmed) = 0, so a super-armored NPC's AI
+     cooldown is now reset by every hit.
+   - The user's general hit-stop (`@3204831e`) keeps March's `IsSuperArmor() != true`.
+2. **The "guard" `+0x96f0`** is `m_bCanAvoidance`, a CX2GUUser member written only by `X2GUAra.cpp`. It is March's own
+   `else if( bRevenge && !bCanRevenge && m_bCanAvoidance )` with June's `GetUnitType() == UT_ARA` added (`31e4d0e0`). It is not class-owned, so
+   it was ported and needs no checklist row.
+3. **Tables** (user and NPC identical, index reActResult - 1):
+   - 0.05: SMALL, FLIP_SAME_DIR.
+   - 0.15: DOWN, BOUNDING.
+   - 0.10: BIG, UP, FLY, REVENGE, GROGGY, GUARD, GRAPPLE, DRAG_UP, REFLECT.
+   - No stop and no cooldown: 0, DUMMY, SENSOR, CREATE_DAMAGE_EFFECT, CREATE_EFFECT_SET, THROW, and 19 up.
+   - March's REACT_TYPE numbering equals June's (`static_assert`).
+4. **Cooldown `+0x68d0`.** June-only (March has nothing like it). The ctor sets 0. The tick follows CheckAndUpdateAdditionalStat:
+   `if cd > 0 { cd -= dt; clamp 0 }`. There is no other June reference. Ported as `CX2GameUnit::m_fJuneSuperArmorHitStopCoolTime` plus
+   `JuneDamageReactHitStop`, which both DamageReacts call.
+5. **Reorder (`SERV_IRUHADEV_JUNE_DAMAGE_REACT_ORDER`, no partial update).**
+   - June's user DamageReact runs the attacker-front test, the Future copy, revenge detection and the revenge / reflect / avoidance block
+     *before* the CREATE_DAMAGE_EFFECT case. After the case come the drain particle, last attacker, Absorb and back speed.
+   - March's places are `#ifndef`'d, and June's copies sit after the revenge block.
+   - Effects:
+     - CREATE_DAMAGE_EFFECT / CREATE_EFFECT_SET hits can now be countered, reflected or avoided.
+     - The Future bAttackerFront is copied for those hits and for absorbed ones.
+     - The last attacker is stored before Absorb.
+6. **User short stop is by construction only.** The case sees reActResult 11 / 12 (`reActResult = reActType` upstream), and those have no entry.
+   So a super-armored user takes no stop there (March's result), the cooldown never starts, and JUNE_BUGS 191 cannot fire for the user.
+
+Hygiene (`flagcheck JUNE_SUPER_ARMOR_HIT_STOP --with JUNE_DAMAGE_REACT_ORDER JUNE_SUPER_ARMOR_HIT_STOP_DEBUG --worktree`):
+`files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`.
+- The 3 tokenless `#endif`s are Always.h's `#error` guards, in the house pattern.
+- The PASS~ is the blank line before `JuneDamageReactHitStop`.
+
+Deploy: `DEPLOY OK: X2_offline.exe is 19,577,344 B, dated 2026-10-12 21:02:16, md5 312c6f7ab1fcdf94cd5adb8b5ca15a3e, equal to
+X2/US_SERVICE/x2.exe (2026-10-12 21:02:11)`. The `JUNE_FX C3e-5` format string is in the deployed exe.
+
+**Play-test hand-off** (log `python tools/logs.py --grep "JUNE_FX C3e-5"`):
+- **Check 1.** Freils (uid 18, Chung Tactical Trooper), Ranox Geyser Expert (33290), `/stage 2`. Geyser Aluminum (`GEYSER_ALUMINUM.lua`,
+  IMMUNITY_TIME_STOP only) is SUPER_ARMOR in ATTACK_A_READY / ATTACK_A / ATTACK_B_READY_DASH_END and its DOWN states.
+  - Hit it while it winds up an attack.
+  - Expect `npc GEYSER_ALUMINUM.lua ... super armor, cooldown out: reActResult 1 ... -> short stop 0.050` (0.10 / 0.15 for big / down hits) and
+    a brief freeze where March gave none.
+  - Fast multi-hits inside 0.5 s should log `cooldown 0.xxx left ... -> full stop` (JUNE_BUGS 191).
+- **Check 2 (regression, reorder).** Normal play: the player still flinches and is knocked back by monster hits, and nothing crashes.
+
 ## C3f - identify: June's force-down flush in StateChange
 
 **Status: done 2026-10-09 (no code, no build); port -> C3f-1. Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3f.md`.
