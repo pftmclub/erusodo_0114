@@ -1506,7 +1506,7 @@ Verdict: **PASS.** No transcription error was found, so there is no code change 
    - `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
    - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)`
    - `RESULT: PASS`
-   - Post-commit range: POSTRANGE.
+   - Post-commit range: `--range 53cb821^..HEAD` (29d3e1d): `3 PASS, 1 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `1 deleted` (the commented `_DEBUG` `#define`), `0 encoding change(s)`; `RESULT: PASS`.
 7. **`_DEBUG` off** (Always.h, commented `#define`, via `bytepatch.py`). Deploy: `DEPLOY OK: X2_offline.exe is 19,576,832 B, dated 2026-10-12 21:30:25, md5 6de22f205f993f1c5f0979439fc24e2f, equal to X2/US_SERVICE/x2.exe (2026-10-12 21:30:20)`; the `JUNE_FX C3e-5` string is gone from the exe and `JUNE_FX C3f-1` is still in it. The deploy carries C3f-1, whose code and `_DEBUG`
    are in this tree, so its pending play-test still sees its lines.
 
