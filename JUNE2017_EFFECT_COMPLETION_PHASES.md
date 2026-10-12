@@ -1312,6 +1312,58 @@ check 2. Backup: `db_backup/els_db_20261012_054505_pre_sql.sql`.
 
 **Open for the user:** none.
 
+### C3e-4 - Review (2026-10-12, Opus 5.5 high; one code fix, same flag)
+
+**Verdict: correct against June except one gap, fixed** under `SERV_IRUHADEV_JUNE_HIT_STOP_LISTS` (`X2GUUser.cpp` ReInit). `_DEBUG` is off.
+
+1. **User setters `31ffe4f0` / `31ffe750`: match.** Return on `vslot 0x198 (IsMyUnit) == 1 && protected +0x7dc4 == 1 && [esp+0x24] (bForce) == 0`. Stop2 returns without
+   the bForce test. UID: NULL or `+0x264 != 0` -> `-1`, else vslot `0x54`. The 16-byte entry is pushed and fStopTime is not written. The linemap gets `max( t, lm )`.
+   **Arg 2 (`[esp+0x1c]`) is never read**; the later `[esp+0x28]` / `[esp+0x24]` are a scratch reuse of arg 4's slot.
+2. **Tick `@3206fa63-3206fd7c`: matches.**
+   - Trim: `size > 0x3e8` -> erase( begin, end - 0x1f40 ), so the newest 500 are kept.
+   - Each entry: `t - fElapsed` (`[ebp+0x10]`), and `t < 0` stores 0. An entry at 0 is kept.
+   - Erase: game vslot `0xa0` (user by UID) and `[user+0x80da]` (Now A) != 0. The iterator is not advanced, and an emptied list writes 0.
+   - Then `back()` at `[end-0x10]`, or the countdown clamped to 0 when the list is empty.
+   - Gate `0 < +0x7df4 || 0 < +0x7df8` -> `+0x7e57 = 1`. Else 0, then `31fe6a40`, then `320347d0`. No decrement.
+3. **CommonStateStart `@32060990-32060b96`: matches**, with one gap found and fixed.
+   - The xor string at `3379d464` decodes to `TIME_STOP_IMMUNE_STATE`. A miss leaves 0, and the bool is stored through the checker only when it changed.
+   - **Gap:** the Done note's "nothing copies that slot after init" missed ReInit. June's `StateParam::Init` `320820e0 @320825a9` sets the slot (`StateParam +0xb0`) to false, and
+     `FrameData::Init` `320878e0` calls it from ReInit `32022380` in every game-type branch. That is Future `0x7d14 + 0xb0 = 0x7dc4`, the slot the setters read.
+     March's standalone member was cleared only in the ctor. **Fix:** `m_bJuneTimeStopImmuneState = false` next to each of ReInit's three `m_FrameDataFuture.Init()`
+     (dungeon, battle field, default). Every June branch (types 2, 3 (two paths), 4, default) inits Future, so no June path is missing in March.
+     There is no visible effect today, because no March class script has the key.
+   - **Other access, absolute sweep** (`dispsweep 7dc4 7dc8 7dcc 8064 8068 806c`): only the two setters and CommonStateStart. `push 0x7dc4` in `3224d0f0` is a string id.
+   - **Other access, pointer-relative sweep** (`lea r,[X+0xb0]` with `[X+0xb4]` / `[X+0xb8]`): StateParam::Init, and `StateParam::operator=` `32081a30`.
+     That operator runs only Now = Future (`3204ecaf`) and Dead = Now (`320878a0` from CommonStateStart `@3205e934`).
+     The other protected hits are floats or ints on other objects (`32a33b20`, `32a34a70`, `3235eb20`, `320816d0`).
+     Nothing reads Now's `+0x8064`, and there is no Future = Now copy. Funcmap row `(C3e-4 review)`.
+4. **NPC `32772aa0` / `32772c10`: match.** `[esp+8] ? +0x8e82 : +0x8e81 == 1` -> return, then a direct `+0x8414` / `+0x8418` write (no list).
+   - `IMMUNITY_DAMAGE_DATA_STOP_TIME` (`lea +0x8e82 @327aa500`, miss -> 0) is read right after `IMMUNITY_TIME_STOP` (`@327aa28a`). The note's `@327aa330` is its string-init branch.
+   - The ctor clears both (`@32762952`).
+   - `dispsweep 8e81 8e82` finds no other access.
+5. **Callers: match `c3e3_stop_time_callers.tsv`.**
+   - Rows 1, 2, 6, 9 and 13 pass `true`. Row 16 passes `pNonStopUnit` (2 sites).
+   - Row 17: the self call (`pUnit == pMyUnit && fMyStopTime > 0`) keeps the defaults, and the 4 other sites pass `pMyUnit`.
+   - All other unit callers use the defaults: user rows 4, 5, 7 and 8, NPC rows 11, 12 and 14, CEffect row 15, and the Stop2 helpers 18 and 19.
+   - The 5 `X2GameUnit.cpp` `IsDamagedReaction` hits are effect / mesh / particle `SetStopTime`. Class rows 21-23 stay on checklist 7p (VioletMage's `bForce = true` included).
+   - No new unit caller since `d180fa9`.
+6. **A: matches.**
+   - Deserialize `32d5be30`: bit `0x400000` 1 byte to `+0x9`, between `0x4` (`+0x8`) and `0x8`. Serialize `32d5c2e0`: `[prev+9] != [this+9]`, and a NULL prev sets the bit.
+   - June's `All` is `0x7fffffff` (`322ed8dd`), which includes the bit.
+   - Writer `@32034b37-32034b4a`: `movsx [+0x7e39] > movsx [+0x80d9] + 1`, after `320347d0`, before the push.
+   - Clear `@31fe6aab`, right after the `+0x7e39` store. `SyncData::Init` (`320878e0`, `[+0x126]`) clears it too, as March's Init does.
+7. **Play-test.** The current logs are a later 19:31 run on the same exe (e44986c4). It shows 2 user `pushed` lines, 0 `refused`, 0 `tick`, 0 EXCEPTION, the baseline UNHANDLED,
+   and a clean census. The Geyser Aluminum counts (46 applied, 37 blocked, 59 pushed) come from the play-test 2 record in `0372079`, not from a fresh read.
+8. **Hygiene.** Fix (`--worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`, `--with JUNE_HIT_STOP_LISTS_DEBUG`): `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL,
+   0 ERROR`. `1 deleted line(s)` is the commented-out `#define ..._DEBUG`. `0 non-ASCII`, `0 EOL-mismatched`, `3 #else/#endif without the flag token` (the `#error` guards), `0 encoding change(s)`,
+   `RESULT: PASS`. The post-commit range is in STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,573,760 B, dated 2026-10-12 19:52:22, md5 20926ca0efbb96b84e3dcfa9f0f44e3e, equal to X2/US_SERVICE/x2.exe (2026-10-12 19:52:17);
+built at mods/june-buff-port cca7a97 + 2 uncommitted code file(s).` The exe no longer has `JUNE_FX C3e-4`; `TIME_STOP_IMMUNE_STATE` and `IMMUNITY_DAMAGE_DATA_STOP_TIME` are present.
+
+**Play-test (regression, optional):** any dungeon run with Freils (uid 18, Chung Tactical Trooper): hit-stop feels as before, a death and revive behave as before.
+There are no log lines now (DEBUG off). **Open for the user:** none.
+
 ## C3e-5 - identify, then port: June's super-armor hit-stop in DamageReact
 
 **Status: ready (found by C3e-3, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3e-5.md`. Flag

@@ -1899,6 +1899,10 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 	case CX2Game::GT_DUNGEON:
 		{
             m_FrameDataFuture.Init();
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			/// C3e-4 review: June's Future FrameData::Init ( 320878e0 -> StateParam::Init 320820e0 @320825a9 ) clears the TIME_STOP_IMMUNE_STATE slot +0x7dc4
+			m_bJuneTimeStopImmuneState = false;
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
             m_FrameDataNow.Init();
 
 			bool bInitPos = false;
@@ -1991,6 +1995,9 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 		{
 			m_FrameDataFuture.Init();
 			m_FrameDataFuture.syncData.position				= m_FrameDataNow.syncData.position;
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			m_bJuneTimeStopImmuneState = false;	/// C3e-4 review: June ReInit's Future FrameData::Init clears +0x7dc4 here too
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			m_FrameDataFuture.unitCondition.dirDegree		= m_FrameDataNow.unitCondition.dirDegree;
 			m_FrameDataFuture.unitCondition.landPosition	= m_FrameDataNow.unitCondition.landPosition;
 			m_FrameDataFuture.syncData.lastTouchLineIndex	= m_FrameDataNow.syncData.lastTouchLineIndex;
@@ -2009,6 +2016,9 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 		{
 			m_FrameDataFuture.Init();
 			m_FrameDataNow.Init();
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+			m_bJuneTimeStopImmuneState = false;	/// C3e-4 review: June ReInit's Future FrameData::Init clears +0x7dc4 here too
+#endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 
 			InitPosition( bUseTeamPos, startPosIndex );
 

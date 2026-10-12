@@ -7189,7 +7189,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June effect completion C3e-4 play-test lines ( short-lived; turn OFF in the C3e-4 review ): "JUNE_FX C3e-4" user stop
 //              pushed / refused, user tick A erase, NPC stop applied / blocked ( monsters with either immunity key only ).
 //              Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+//#define SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG	// off 2026-10-12 (C3e-4 review): play-test PASSED (Geyser Aluminum dmgData 1 -> applied)
 #if defined(SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG) && !defined(SERV_IRUHADEV_JUNE_HIT_STOP_LISTS)
 #error SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG needs SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #endif
