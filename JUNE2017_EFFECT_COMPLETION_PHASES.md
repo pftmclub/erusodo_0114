@@ -1364,6 +1364,8 @@ built at mods/june-buff-port cca7a97 + 2 uncommitted code file(s).` The exe no l
 **Play-test (regression, optional):** any dungeon run with Freils (uid 18, Chung Tactical Trooper): hit-stop feels as before, a death and revive behave as before.
 There are no log lines now (DEBUG off). **Open for the user:** none.
 
+**Regression run (2026-10-12 20:01, Freils, exe 20926ca0; logs read): PASS.** Ranox Geyser Expert (33290) was played through 3 stages with 32 monster kills. There were 0 EXCEPTION, only the 2x `E_DISABLE_HB_CHECK_REQ` UNHANDLED, and a clean exit census. No player death or revive packet was logged, so the ReInit path was not exercised in play; it rests on the code reading in item 3.
+
 ## C3e-5 - identify, then port: June's super-armor hit-stop in DamageReact
 
 **Status: ready (found by C3e-3, 2026-10-09). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3e-5.md`. Flag
