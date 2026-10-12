@@ -9,10 +9,17 @@
 
 CX2OfflineDB* CX2OfflineDB::ms_pInstance = NULL;
 
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+/*static*/ const char* CX2OfflineDB::UNIT_COLUMNS =
+	"unit_uid, user_uid, unit_class, nickname, level, exp, ed, sp, spirit, "
+	"last_pos, last_line_index, last_pos_value, cur_hp, cur_mp, hyper_gage, abil_count, "
+	"reg_date, del_date, last_date, csp, title_id, skill_note_page, resurrection_stone";
+#else // SERV_IRUHADEV_OFFLINE_RES_STONE
 /*static*/ const char* CX2OfflineDB::UNIT_COLUMNS =
 	"unit_uid, user_uid, unit_class, nickname, level, exp, ed, sp, spirit, "
 	"last_pos, last_line_index, last_pos_value, cur_hp, cur_mp, hyper_gage, abil_count, "
 	"reg_date, del_date, last_date, csp, title_id, skill_note_page";
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 
 /*static*/ const char* CX2OfflineDB::ITEM_COLUMNS =
 	"item_uid, unit_uid, category, slot, item_id, count, "
@@ -373,6 +380,26 @@ namespace
 		"  PRIMARY KEY( unit_uid, buff_id ) );"
 		;
 #endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	// v15: the resurrection-stone counter. dbo.GUnit has no such column on live (the
+	// GameServer keeps m_iNumResurrectionStone in RAM, loaded from the cash-item
+	// side), so this is the offline equivalent: one integer per character.
+	//
+	// ADD COLUMN ... DEFAULT n fills every existing row with n as well, so this one
+	// statement is both halves of "every character has 10": the characters already
+	// in the save get 10 when the rung runs, and a character created later inserts
+	// without naming the column and gets the same default. The number is printed
+	// into the SQL from DEFAULT_RESURRECTION_STONE so the enum stays the single
+	// source of truth. SQLite needs a constant default here, which a printed
+	// literal is.
+	//
+	// Runs once per save (user_version moves to 15 afterwards), so a character that
+	// has since spent its stones is never topped back up by a later launch.
+	const char* const SCHEMA_V15_FORMAT =
+		"ALTER TABLE unit ADD COLUMN resurrection_stone INTEGER NOT NULL DEFAULT %d;"
+		;
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -504,6 +531,9 @@ sqlite3_stmt* CX2OfflineDB::Prepare( const char* szSQL )
 	kOut.m_iCSP			= sqlite3_column_int( pStmt, 19 );
 	kOut.m_iTitleID		= sqlite3_column_int( pStmt, 20 );
 	kOut.m_iSkillNotePage	= sqlite3_column_int( pStmt, 21 );
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	kOut.m_iResurrectionStone	= sqlite3_column_int( pStmt, 22 );
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 }
 
 /*static*/ void CX2OfflineDB::ReadItemRow( sqlite3_stmt* pStmt, OUT KOfflineItemRow& kOut )
@@ -1037,6 +1067,22 @@ bool CX2OfflineDB::Migrate()
 		CX2OfflineLog::Server( L"DB       schema upgraded to v14 (item-granted premium buffs)" );
 	}
 #endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	if( iFrom < 15 )
+	{
+		char szSchema[160];
+		_snprintf( szSchema, 160, SCHEMA_V15_FORMAT, (int)DEFAULT_RESURRECTION_STONE );
+		szSchema[159] = '\0';
+
+		if( false == Exec( "BEGIN;" ) )			return false;
+		if( false == Exec( szSchema ) )			{ Exec( "ROLLBACK;" ); return false; }
+		if( false == Exec( "COMMIT;" ) )		return false;
+
+		CX2OfflineLog::Server( L"DB       schema upgraded to v15 (resurrection stones: %d per character)",
+			(int)DEFAULT_RESURRECTION_STONE );
+	}
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 
 	char szSetVersion[64];
 	_snprintf( szSetVersion, 64, "PRAGMA user_version = %d;", (int)SCHEMA_VERSION );
@@ -2333,6 +2379,57 @@ bool CX2OfflineDB::SaveSkillNotePage( UidType nUnitUID, int iMaxPage )
 	sqlite3_finalize( pStmt );
 	return bOK;
 }
+
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+bool CX2OfflineDB::GetResurrectionStone( UidType nUnitUID, OUT int& iOut )
+{
+	KLocker lock( m_cs );
+
+	iOut = 0;
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "SELECT resurrection_stone FROM unit WHERE unit_uid = ?1;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+
+	bool bFound = false;
+	if( SQLITE_ROW == sqlite3_step( pStmt ) )
+	{
+		iOut	= sqlite3_column_int( pStmt, 0 );
+		bFound	= true;
+	}
+
+	sqlite3_finalize( pStmt );
+	return bFound;
+}
+
+bool CX2OfflineDB::SetResurrectionStone( UidType nUnitUID, int iCount )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "UPDATE unit SET resurrection_stone = ?2 WHERE unit_uid = ?1;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iCount < 0 ? 0 : iCount );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+
+	if( false == bOK )
+		LogError( L"save resurrection stone count" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 
 bool CX2OfflineDB::SaveSkillPoint( UidType nUnitUID, int iSP, int iCSP )
 {

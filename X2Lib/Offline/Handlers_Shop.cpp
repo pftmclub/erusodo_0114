@@ -528,7 +528,13 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 
 	KEGS_BILL_GET_PURCHASED_CASH_ITEM_ACK kAck;
 	kAck.m_iOK						= NetError::ERR_BUY_CASH_ITEM_00;
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	// The client assigns this field straight onto the unit's stone count
+	// (X2CashShop.cpp:4546), so 0 here would wipe the count on every claim.
+	pDB->GetResurrectionStone( kSes.m_nSelectedUnitUID, kAck.m_iNumResurrectionStone );
+#else // SERV_IRUHADEV_OFFLINE_RES_STONE
 	kAck.m_iNumResurrectionStone	= 0;
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 #ifdef SERV_GUILD_CHANGE_NAME
 	kAck.m_iExceptionProcessItemID	= 0;
 #endif SERV_GUILD_CHANGE_NAME
@@ -988,7 +994,13 @@ bool CX2OfflineServer::Handler_EGS_GET_PURCHASED_PACKAGE_CASH_ITEM_REQ( KOffline
 
 	KEGS_GET_PURCHASED_PACKAGE_CASH_ITEM_ACK kAck;
 	kAck.m_iOK						= NetError::ERR_BUY_CASH_ITEM_00;
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	// Assigned onto the unit's count by the client (X2CashShop.cpp:4892), so it
+	// has to be the real total.
+	CX2OfflineDB::Instance()->GetResurrectionStone( kSes.m_nSelectedUnitUID, kAck.m_iNumResurrectionStone );
+#else // SERV_IRUHADEV_OFFLINE_RES_STONE
 	kAck.m_iNumResurrectionStone	= 0;
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 #ifdef SERV_GUILD_CHANGE_NAME
 	kAck.m_iExceptionProcessItemID	= 0;
 #endif SERV_GUILD_CHANGE_NAME

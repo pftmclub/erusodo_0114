@@ -761,7 +761,13 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 		// obtain one, which is the cash shop in phase 7; the dungeon-death
 		// handler already refuses resurrection (phase 4 decision 7) and will
 		// keep agreeing with this number.
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+		// unit.resurrection_stone, 10 for every character (schema v15); the dungeon
+		// revival handler consumes from the same counter.
+		kNot.m_iNumResurrectionStone		= kRow.m_iResurrectionStone;
+#else // SERV_IRUHADEV_OFFLINE_RES_STONE
 		kNot.m_iNumResurrectionStone		= 0;
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 		kNot.m_iNumAutoPaymentResStone		= 0;
 		kNot.m_wstrAutoPayResStoneLastDate	= CX2OfflineDB::FormatDate( kRow.m_tRegDate );
 

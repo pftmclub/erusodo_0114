@@ -393,6 +393,9 @@ struct KOfflineUnitRow
 	int				m_iAbilCount;		///< WSP / cannonballs / force, per unit type
 	int				m_iTitleID;			///< the worn title, KUnitInfo::m_iTitleID; 0 = none
 	int				m_iSkillNotePage;	///< skill-note pages owned (phase 22); 0 = the note is not owned yet
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	int				m_iResurrectionStone;	///< unit.resurrection_stone, the counter KEGS_SELECT_UNIT_1_NOT reports
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 	__int64			m_tRegDate;
 	__int64			m_tDelDate;
 	__int64			m_tLastDate;
@@ -420,6 +423,9 @@ struct KOfflineUnitRow
 		, m_iAbilCount( 0 )
 		, m_iTitleID( 0 )
 		, m_iSkillNotePage( 0 )
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+		, m_iResurrectionStone( 0 )
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 		, m_tRegDate( 0 )
 		, m_tDelDate( 0 )
 		, m_tLastDate( 0 )
@@ -436,11 +442,19 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+		SCHEMA_VERSION			= 15,	///< v15: unit.resurrection_stone
+
+		/// Resurrection stones every character starts with, and the figure the v15
+		/// migration gives the characters that already exist.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else // SERV_IRUHADEV_OFFLINE_RES_STONE
 #ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 		SCHEMA_VERSION			= 14,	///< v14: unit_buff (the item-granted premium buffs)
 #else // SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 		SCHEMA_VERSION			= 13,
 #endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -712,6 +726,14 @@ public:
 	bool	LoadSkillNotes( UidType nUnitUID, OUT std::map< char, int >& mapOut );
 
 	bool	SaveSkillNote( UidType nUnitUID, int iPage, int iMemoID );
+
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	/// The resurrection-stone counter (unit.resurrection_stone). Absolute, like the
+	/// client's SetResurrectionStoneNum. Get returns false for an unknown unit, and
+	/// Set clamps below at 0.
+	bool	GetResurrectionStone( UidType nUnitUID, OUT int& iOut );
+	bool	SetResurrectionStone( UidType nUnitUID, int iCount );
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 
 	/// Absolute, not incremental - KUserSkillTree::UpdateSkillNoteMaxPageNum is
 	/// an assignment, and GetExpandSkillNotePage returns the total for a level.

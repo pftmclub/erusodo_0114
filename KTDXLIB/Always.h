@@ -7197,3 +7197,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-12
+// Description: Offline resurrection stones. The count is a per-character counter in the
+//              save (unit.resurrection_stone, schema v15), not an inventory item: every
+//              character starts with DEFAULT_RESURRECTION_STONE (10) of them, the v15 migration
+//              gives every existing character the same, the login packets report the real
+//              count, and EGS_RESURRECT_TO_CONTINUE_DUNGEON_REQ consumes one and revives
+//              the unit (ACK + EGS_RESURRECT_TO_CONTINUE_DUNGEON_NOT) instead of refusing
+//              with ERR_RESURRECT_00. The shop claim / package / resurrection-cube acks
+//              carry the real total too, since the client treats that field as absolute.
+//              Files: X2Lib/Offline/X2OfflineDB.{h,cpp}, Handlers_Unit/Room/Shop/Social.cpp.
+#define SERV_IRUHADEV_OFFLINE_RES_STONE
+#if defined(SERV_IRUHADEV_OFFLINE_RES_STONE) && !defined(SERV_IRUHADEV_OFFLINE)
+#error SERV_IRUHADEV_OFFLINE_RES_STONE needs SERV_IRUHADEV_OFFLINE
+#endif
+//////////////////////////////////////////////////////////////////////////

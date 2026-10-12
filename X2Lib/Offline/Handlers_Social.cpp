@@ -3020,7 +3020,25 @@ bool CX2OfflineServer::Handler_EGS_OPEN_RANDOM_ITEM_REQ( KOfflineSession& kSes, 
 	// at X2UIInventory.cpp:9656, with ( new - old ) shown as the gain. Passing
 	// the table value straight through is right only while the character holds
 	// no stones, which is the offline case today.
+#ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
+	// The client treats this as the new TOTAL (X2UIInventory.cpp:10179, gain = new -
+	// held), so a resurrection cube adds its table value to what the character
+	// holds and the sum is saved. A cube with no stones in it sends 0, which the
+	// client ignores.
+	kAck.m_iRessurectionCount	= 0;
+	if( pData->m_iRessurectionCount > 0 )
+	{
+		CX2OfflineDB* pStoneDB = CX2OfflineDB::Instance();
+
+		int iHeld = 0;
+		pStoneDB->GetResurrectionStone( kSes.m_nSelectedUnitUID, iHeld );
+
+		if( true == pStoneDB->SetResurrectionStone( kSes.m_nSelectedUnitUID, iHeld + pData->m_iRessurectionCount ) )
+			kAck.m_iRessurectionCount = iHeld + pData->m_iRessurectionCount;
+	}
+#else // SERV_IRUHADEV_OFFLINE_RES_STONE
 	kAck.m_iRessurectionCount	= pData->m_iRessurectionCount;
+#endif SERV_IRUHADEV_OFFLINE_RES_STONE
 
 	kAck.m_iOK = NetError::NET_OK;
 
