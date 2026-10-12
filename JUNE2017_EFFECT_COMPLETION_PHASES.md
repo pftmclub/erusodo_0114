@@ -1442,6 +1442,16 @@ X2/US_SERVICE/x2.exe (2026-10-12 21:02:11)`. The `JUNE_FX C3e-5` format string i
   - Look for a normal flinch and knockback, 0 EXCEPTION, and UNHANDLED = the 2x `E_DISABLE_HB_CHECK_REQ` baseline.
   - If there is no knockback, suspect the moved back-speed copy.
 
+**Play-test (2026-10-12 21:08-21:11, Freils, Ranox Geyser Expert, exe 312c6f7a; logs read): PASSED.**
+- Log health: 0 EXCEPTION. UNHANDLED = the 2x `E_DISABLE_HB_CHECK_REQ` baseline. The census shows a clean exit.
+- **Check 1 passed:** 128 `JUNE_FX C3e-5` lines, all NPC: GEYSER_ALUMINUM 82, MULLOCK_CALL 18, MULLOCK 13, SCIENCE 13, MULMAI 2.
+  - Short stops: 51, all matching the table. reActResult 1 gave 0.050 (10); 2 / 4 / 5 gave 0.100 (35 / 1 / 5).
+  - Full stops inside the cooldown (JUNE_BUGS 191): 77.
+  - The cooldown counts down: per UID, the `left` values run 0.500 -> 0.014, and a new `cooldown out` short stop follows (e.g. UID 1000044
+    @21:11:06.229). So the NPC tick runs.
+  - reActResult 3 / 15 (0.150) did not occur, and no `no entry` lines were logged.
+- **Check 2:** nothing in the log shows a fault, and the user reported no flinch or knockback problem.
+
 ## C3f - identify: June's force-down flush in StateChange
 
 **Status: done 2026-10-09 (no code, no build); port -> C3f-1. Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3f.md`.
