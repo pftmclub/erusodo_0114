@@ -7242,7 +7242,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-12
 // Description: June effect completion C3e-5 play-test lines ( short-lived; turn OFF in the C3e-5 review ): "JUNE_FX C3e-5"
 //              one line per hit-stop a super-armored unit takes or skips ( short / full in cooldown / no entry ). Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+//#define SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG	// off 2026-10-12 (C3e-5 review): play-test PASSED (51 short stops by table, 77 full stops in cooldown)
 #if defined(SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG) && !defined(SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP)
 #error SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG needs SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 #endif

@@ -1452,6 +1452,64 @@ X2/US_SERVICE/x2.exe (2026-10-12 21:02:11)`. The `JUNE_FX C3e-5` format string i
   - reActResult 3 / 15 (0.150) did not occur, and no `no entry` lines were logged.
 - **Check 2:** nothing in the log shows a fault, and the user reported no flinch or knockback problem.
 
+### C3e-5 - Review (2026-10-12, Opus 5.5 high; PASS, no code fix, DEBUG off)
+
+Verdict: **PASS.** No transcription error was found, so there is no code change beyond `_DEBUG` off. The raw disassembly comes from
+`disasm_range.py --x87`; Ghidra was not needed.
+1. **Hit-stop.**
+   - The user's `fldz; fcomp [DD+0x420]; test ah,5; jp` falls through only when exactly C0 is set, that is `0 < fStopTimeDef`. Equal (C3)
+     and NaN (C0|C2|C3) both jump to the return, as March's `> 0.f` does.
+   - Both sides' `fldz; fcomp [+0x68d0]; test ah,1; jne` take the full path when `0 < cd` or the value is NaN. The port's `cd <= 0.f` is false for
+     NaN as well, so the two are the same.
+   - **JUNE_BUGS 191 is confirmed from the bytes:** both `IsSuperArmor(0) == false` (`je @32046d4e` / `@327b31d7`) and the cooldown running
+     (`jne`) land on the one full-stop block.
+   - SetStopTime is `push 0, push 0, push 1, float`, which is `( t, true, NULL, false )`. SetStop2Time( 0, true, NULL, false ) runs on every path
+     that gets past the entry tests.
+   - The NPC tests only `reActResult != 7` and `!= 0` (`@327b314f-327b315d`); there is no fStopTimeDef test.
+   - `m_fCoolTime` (`+0x864c`) = 0 at `@327b320d`, after SetStop2Time. The table-skip `ja 327b31f4` reaches it too, as does every other path
+     inside the test, which is the port's placement.
+2. **Tables.** All 18 byte-index entries of `3204a7cc` / `327b537c` and the 4-entry jump tables `3204a7bc` / `327b536c` were re-read; user and
+   NPC are identical. The floats are `33436704` = 0.05, `334395e0` = 0.10, `33457f04` = 0.15 and `3343777c` = 0.5. `JuneDamageReactHitStop`'s
+   cases match entry for entry. March's REACT_TYPE values 0-22 were re-read (`X2DamageManager.h:230-271`, no live `#ifdef`); they equal June's.
+3. **Cooldown.**
+   - The ctor's `fldz @322a511e` stays on the stack through two `fst` and reaches `fstp [esi+0x68d0] @322a5169`, so the member starts at 0.
+   - The tick sits after OnFrameMoveBuff `3229d620` and CheckAndUpdateAdditionalStat `32290920`. It is `fcom` / `test ah,5` (`cd > 0`), then
+     `cd -= [esp+0x140]`, then clamp at `< 0`.
+   - Frame arithmetic: 3 SEH pushes, `sub 0x114`, 4 registers and the cookie make `0x134`. So `fTime` is at `+0x138` (`fld qword @3229ecfb`) and
+     `fElapsedTime` at `+0x140`.
+   - No instruction in `3229ecc0-3229f4ff` writes `[esp+0x140]`, so June uses the raw argument, as the port does (`X2GameUnit.cpp:1092` parameter).
+4. **Order** (`320462a0 @32046783-32046fb9`). The walk:
+   - Cash-shop reject, then the attacker-front dot test, then the `bIsRight` flip, then ARRANGED_FLY (`+0x444`).
+   - Future copy (`@32046836`), then revenge / reflect detection, then the Rune Slayer roll (`@32046a46`), then the reflect-by-buff vector
+     (`+0x679c != +0x67a0`), then the old hit type kept (`@32046ac3`).
+   - The revenge / reflect / avoidance block, then the case (`@32046cae`).
+   - Then drain (`+0x8a58` reset, then attacker test `@32046db2`, `+0x4f9`, attacker GUT_USER, `+0x8830 == -1`), then the last-attacker store
+     (`@32046f06`), then Absorb, then back speed (`@32046f3d`).
+   - That is the port's flag-on order.
+   - `ADD_BACKATTACK` has no place to find: it is `#define`d nowhere in this tree, so March compiles none of its 3 blocks either (its only
+     readers are `X2GUUser.cpp:9953` / `:10078`, inside the same dead macro). June has no such computation.
+   - The copies match March's originals line for line: the case (`RAVEN_SECOND_CLASS_CHANGE`, live, now inside the flag's `#else`, so it is
+     equivalent), the drain block and the back-speed block.
+   - The copy's `GRAPPLING_TEST` RT_THROW branch is dead (`InHouseEtc.h:116` is commented out). That matches June, which has no THROW branch at
+     `@32046f91`.
+   - UT_ARA: `31e4d0e0` = `m_pUnit ? ( templet ? templet->m_UnitType : 0 ) : 0`, compared with 7. March `GetUnitType()` = `GetUnit()->GetType()`,
+     and `UT_ARA` = 7 (`X2Unit.h:29`).
+   - **Done-note item 6, restated:** after the reorder the case can also see reActResult 6, 17 or 20 from the revenge block. Every one of those
+     paths zeroes `fStopTimeDef` first (`@32046b03`, `@32046ca8`), so the `> 0` test skips them. The user's short stop is still reachable by
+     construction only.
+5. **Found (not a C3e-5 error):** June's Rune Slayer reflect check `@32046a55-32046aa0` differs from March's NEW_SKILL_2010_11 roll.
+   - With `bCanReflexMagic` set and `32d0c820()` true (skill `0x53aa` learned, skill type 5, defender buff test `3227baf0( 0x12 )`, then MP from
+     skill value `0x2b` and an effect at the unit), June zeroes DD `+0x3c` (magic damage) and skips the roll.
+   - This is class-keyed, so it goes to the character port (checklist 7j row; funcmap `(C3e-5 review)`).
+6. **Hygiene.** `flagcheck JUNE_SUPER_ARMOR_HIT_STOP --with JUNE_DAMAGE_REACT_ORDER JUNE_SUPER_ARMOR_HIT_STOP_DEBUG --range 53cb821^..HEAD`,
+   before this commit:
+   - `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+   - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)`
+   - `RESULT: PASS`
+   - Post-commit range: POSTRANGE.
+7. **`_DEBUG` off** (Always.h, commented `#define`, via `bytepatch.py`). Deploy: `DEPLOY OK: X2_offline.exe is 19,576,832 B, dated 2026-10-12 21:30:25, md5 6de22f205f993f1c5f0979439fc24e2f, equal to X2/US_SERVICE/x2.exe (2026-10-12 21:30:20)`; the `JUNE_FX C3e-5` string is gone from the exe and `JUNE_FX C3f-1` is still in it. The deploy carries C3f-1, whose code and `_DEBUG`
+   are in this tree, so its pending play-test still sees its lines.
+
 ## C3f - identify: June's force-down flush in StateChange
 
 **Status: done 2026-10-09 (no code, no build); port -> C3f-1. Model:** Opus 5.5, high, no code. Kickoff `kickoffs/june-effect/C3f.md`.
