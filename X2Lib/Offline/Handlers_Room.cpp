@@ -4673,35 +4673,44 @@ bool CX2OfflineServer::Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_REQ( KOfflineSe
 	int iStones = 0;
 	pDB->GetResurrectionStone( kSes.m_nSelectedUnitUID, iStones );
 
-	// A cash revive is what the client asks for once it holds no stone. Cash is
-	// cosmetic offline and nothing here sells a revive, so it is refused the same
-	// way as an empty counter - the client then takes its normal death path.
-	if( false == m_kRoom.m_bActive || true == kReq.m_bUseCash || iStones <= 0 )
+	// A cash revive is what the client asks for once it holds no stone (the "revive
+	// with cash?" box, X2Game.cpp:13852). On live the GameServer buys a stone
+	// product through billing, adds it to the count, the room revives, and the ACK
+	// handler spends one: the character ends where it started and the wallet is
+	// lighter. Offline the wallet is cosmetic and never deducted (see
+	// Handler_EGS_BUY_CASH_ITEM_REQ), so the same flow is a revive that leaves the
+	// stone count alone. m_bUseCash on the ACK makes the client re-ask for the
+	// balance, which Handler_EGS_CHECK_BALANCE_REQ answers.
+	const bool bCash = ( true == kReq.m_bUseCash );
+
+	if( false == m_kRoom.m_bActive || ( false == bCash && iStones <= 0 ) )
 	{
 		kAck.m_iOK						= NetError::ERR_RESURRECT_00;
 		kAck.m_iNumResurrectionStone	= iStones;
 
 		CX2OfflineLog::Server( L"GAME     refused resurrect: %s (stones=%d)",
-			( false == m_kRoom.m_bActive ) ? L"no active room" :
-			( true == kReq.m_bUseCash )    ? L"cash request, not offered offline" : L"no stone left",
-			iStones );
+			( false == m_kRoom.m_bActive ) ? L"no active room" : L"no stone left", iStones );
 
 		return Reply( kSes, EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK, kAck );
 	}
 
-	--iStones;
-
-	if( false == pDB->SetResurrectionStone( kSes.m_nSelectedUnitUID, iStones ) )
+	if( false == bCash )
 	{
-		// Not saved means not spent: refusing keeps the screen and the save agreeing.
-		kAck.m_iOK						= NetError::ERR_RESURRECT_00;
-		kAck.m_iNumResurrectionStone	= iStones + 1;
+		--iStones;
 
-		CX2OfflineLog::Server( L"GAME     refused resurrect: could not save the stone count" );
+		if( false == pDB->SetResurrectionStone( kSes.m_nSelectedUnitUID, iStones ) )
+		{
+			// Not saved means not spent: refusing keeps the screen and the save agreeing.
+			kAck.m_iOK						= NetError::ERR_RESURRECT_00;
+			kAck.m_iNumResurrectionStone	= iStones + 1;
 
-		return Reply( kSes, EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK, kAck );
+			CX2OfflineLog::Server( L"GAME     refused resurrect: could not save the stone count" );
+
+			return Reply( kSes, EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK, kAck );
+		}
 	}
 
+	kAck.m_bUseCash					= bCash;
 	kAck.m_iOK						= NetError::NET_OK;
 	kAck.m_iNumResurrectionStone	= iStones;
 
@@ -4716,8 +4725,8 @@ bool CX2OfflineServer::Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_REQ( KOfflineSe
 	kNot.m_iUsedByUnitUID	= m_kRoom.m_nUnitUID;
 	kNot.m_iStartPosIndex	= ( 0 != m_kRoom.m_kInfo.m_iBattleFieldID ) ? 0 : -1;
 
-	CX2OfflineLog::Server( L"GAME     resurrected unitUID=%I64d, %d stone(s) left",
-		(__int64)kNot.m_iUnitUID, iStones );
+	CX2OfflineLog::Server( L"GAME     resurrected unitUID=%I64d%s, %d stone(s) left",
+		(__int64)kNot.m_iUnitUID, true == bCash ? L" by cash" : L"", iStones );
 
 	return Reply( kSes, EGS_RESURRECT_TO_CONTINUE_DUNGEON_NOT, kNot );
 #else // SERV_IRUHADEV_OFFLINE_RES_STONE
