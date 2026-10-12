@@ -1276,13 +1276,30 @@ X2/US_SERVICE/x2.exe (2026-10-12 05:48:06)`. The strings `JUNE_FX C3e-4 npc` / `
 check 2. Backup: `db_backup/els_db_20261012_054505_pre_sql.sql`.
 
 **How to see it in game** (log `python tools/logs.py --grep "JUNE_FX C3e-4"`):
-- **Check 1.** Ancient Phoru (`ANCIENT_PPORU`, IMMUNITY_TIME_STOP only), `DI_RUBEN_SWAMP_NORMAL` (30090, Ruben's swamp dungeon), `/stage 2` (its NPC_GROUP, `Dungeon_Ruben_Swamp_Normal.src.lua:273`). Expect `npc SetStopTime: ANCIENT_PPORU.lua
+- **Check 1** (corrected after play-test 1). Geyser Aluminum (`NUI_GEYSER_ALUMINUM` -> `GEYSER_ALUMINUM.lua`, IMMUNITY_TIME_STOP only in the shipped
+  bytecode; WAIT / WALK / DAMAGE states have no super armor), Ranox Geyser Expert (33290), `/stage 2` (`Dungeon_Ranox_Geyser_Expert.src.lua:1169`).
+  Expect `npc SetStopTime: GEYSER_ALUMINUM.lua ... dmgData 1 ... -> applied` and a visible hit freeze.
+  - The first target was wrong. The shipped NPCTemplet binds `NUI_ANCIENT_PPORU` to `AncientPporu.lua`, which has no immunity key.
+    `ANCIENT_PPORU.lua` belongs to another NPC.
+  - The 220 IMMUNITY_TIME_STOP-only monsters by real binding were computed from the shipped `kom_contents/data037_kom/NPCTemplet.lua` plus a
+    bytecode scan. Expect `npc SetStopTime: ANCIENT_PPORU.lua
   ... dmgData 1 ... -> applied` and a visible hit freeze.
 - **Check 2.** Remote Mortar (both keys; shipped bytecode checked).
   - Its own shell has `STOP_TIME_ATT = 0` (`DamageEffect.src.lua:97670`), so its attacks log nothing in either build.
   - Only a monster striking it can show `-> blocked by IMMUNITY_DAMAGE_DATA_STOP_TIME`.
   - No line means untested, not failed. Its visible behaviour (no stop) is March's either way.
 - **Check 3.** User `pushed` lines; feel unchanged; no `refused` / `tick` lines.
+
+**Play-test 1 (2026-10-12, Freils, exe e44986c4; logs read).** 0 EXCEPTION; UNHANDLED is only the 2x `E_DISABLE_HB_CHECK_REQ` baseline; clean exit census.
+- **Check 3 passed in the log:** 23 user `pushed` lines (t 0.07 / 0.133 / 0.17 / 0.25; dmgData 1 from AttackResult / DamageReact, one dmgData 0),
+  no `refused`, no `tick`. Lists grow as JUNE_BUGS 183 says (117 entries by the end of the run).
+- **Check 1 not tested.**
+  - The Ruben swamp boss runs `AncientPporu.lua`, which has no key, so its lines were filtered out.
+  - The secret-dungeon boss `SECRET_MAGI_BOSS` (TS-only) died on its first struck hit.
+  - Its two `dmgData 0 -> blocked by IMMUNITY_TIME_STOP` lines (a StopAllUnit from the player's skill) show the NPC key read and the non-damage-data
+    branch working as June has them.
+- **Check 2 not tested:** no monster struck the mortar.
+- Re-test with Geyser Aluminum above.
 
 **Open for the user:** none.
 
