@@ -1301,6 +1301,15 @@ check 2. Backup: `db_backup/els_db_20261012_054505_pre_sql.sql`.
 - **Check 2 not tested:** no monster struck the mortar.
 - Re-test with Geyser Aluminum above.
 
+**Play-test 2 (2026-10-12, Freils, Ranox Geyser Expert stage 2, same exe; logs read): PASSED.** 0 EXCEPTION; UNHANDLED is only the 2x
+`E_DISABLE_HB_CHECK_REQ` baseline; clean exit census.
+- **Check 1 passed:** `GEYSER_ALUMINUM.lua` (keys TS 1 / DD 0) logged 46 `dmgData 1 -> applied` (t 0.067-0.35, plus a 0.10 multi-hit run). March
+  returned on IMMUNITY_TIME_STOP for every one of them.
+- It also logged 37 `dmgData 0 -> blocked by IMMUNITY_TIME_STOP`: the StopAllUnit / StopOtherUnit half / full pairs from Freils' skills, as June has
+  them.
+- **Check 3:** 59 user `pushed`, 0 `refused`, 0 `tick`.
+- **Check 2:** still untested (no monster struck the mortar). Its outcome is March's by construction: both keys block every path.
+
 **Open for the user:** none.
 
 ## C3e-5 - identify, then port: June's super-armor hit-stop in DamageReact
