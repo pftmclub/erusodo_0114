@@ -4,6 +4,8 @@ June ones, so an attack's animation plays and no hit-box (DamageEffect + mesh) i
 defines and March lacks, and (--apply) appends it verbatim (June order) to March's data036 files:
   EffectSet.lua, DamageEffect.lua   (BOM source; LF appended)         <- june_src_fixed/data036_kom/*.src.lua blocks
   GameMajorXMeshPlayer.txt / GameMinorXMeshPlayer.txt (CRLF; templets inserted before the file's last `}`)  <- June's own txt
+Buff chain (2026-10-12): BUFF_FACTOR_ID.BFI_x / BUFF_TEMPLET_ID.BTI_x in a script or block is followed through June's BuffFactor -> BuffTemplet tables to the effect sets they name
+(Mag Stone's burning-circle buff, Ignia Attack E, ...).
 Particle sequences (PS) are only reported (a particle file holds the same sequences March already has under the same names).
 Reached = a quoted string in a script / reached block that names a June block. Names built at run time ( "X" .. "_2" ) are not resolved.
 Excluded: blocks naming SKILL_ID.* (class skills: character ports), MeshPlayer templets with a key March's engine does not parse
@@ -81,6 +83,33 @@ for k in ("ES", "DE", "MP", "PS"):
         if not (k == "MP" and n in bad_mp):
             vocab[n].append(k)
 strre = re.compile(r'"([^"\n]{2,80})"')
+# Buff chain (2026-10-12; Mag Stone's burning circle): a script / damage effect names a buff by BUFF_FACTOR_ID.BFI_x or BUFF_TEMPLET_ID.BTI_x,
+# not by a quoted string, and the factor -> templet -> BBT_EFFECT_SET* chain holds the effect-set names. Follow it in June's own tables.
+bfre = re.compile(r'BUFF_FACTOR_ID\.(BFI_[A-Za-z0-9_]+)')
+btre = re.compile(r'BUFF_TEMPLET_ID\.(BTI_[A-Za-z0-9_]+)')
+def buff_blocks(fname, call, idre):
+    out = {}
+    for m in re.finditer(r'^g_pBuffTempletManager:' + call + r'\(\{\n(.*?)^\}\)\n', rd(os.path.join(SRC, "data036_kom", fname)), re.S | re.M):
+        i = idre.search(m.group(1))
+        if i:
+            out.setdefault(i.group(1), m.group(0))
+    return out
+BF = buff_blocks("BattleFieldBuffFactor.src.lua", "AddBuffFactor_LUA", re.compile(r'^\tBUFF_FACTOR_ID = BUFF_FACTOR_ID\.(BFI_[A-Za-z0-9_]+)', re.M))
+BT = buff_blocks("BattleFieldBuffTemplet.src.lua", "AddBuffTemplet_LUA", re.compile(r'^\tBUFF_TEMPLET_ID = BUFF_TEMPLET_ID\.(BTI_[A-Za-z0-9_]+)', re.M))
+print("June buff factors", len(BF), "templets", len(BT))
+def refs(src):
+    """(kind, name) nodes a block of text points at: quoted block names, plus the buff factor / templet chain."""
+    for s in set(strre.findall(src)):
+        for k in vocab.get(s, ()):
+            yield (k, s)
+    for s in set(bfre.findall(src)):
+        if s in BF:
+            yield ("BF", s)
+    for s in set(btre.findall(src)):
+        if s in BT:
+            yield ("BT", s)
+def node_src(k, n):
+    return {"BF": BF, "BT": BT}.get(k, J.get(k, {})).get(n, "")
 scripts = []
 for kd in sorted(os.listdir(SRC)):
     if kd in KOMS:
@@ -93,20 +122,19 @@ print("scripts", len(scripts))
 reached = {}
 queue = []
 for nm, t in scripts:
-    for s in set(strre.findall(t)):
-        for k in vocab.get(s, ()):
-            if (k, s) not in reached:
-                reached[(k, s)] = nm; queue.append((k, s))
+    for key in refs(t):
+        if key not in reached:
+            reached[key] = nm; queue.append(key)
 while queue:
     k, n = queue.pop()
-    src = J[k][n]
+    src = node_src(k, n)
     if "SKILL_ID." in src:
         continue
-    for s in set(strre.findall(src)):
-        for k2 in vocab.get(s, ()):
-            if (k2, s) not in reached:
-                reached[(k2, s)] = reached[(k, n)]; queue.append((k2, s))
-missing = {key: v for key, v in reached.items() if key[1] not in M[key[0]] and not (key[0] in ("ES", "DE") and "SKILL_ID." in J[key[0]][key[1]])}
+    for key in refs(src):
+        if key not in reached:
+            reached[key] = reached[(k, n)]; queue.append(key)
+missing = {key: v for key, v in reached.items() if key[0] in M and key[1] not in M[key[0]] and not (key[0] in ("ES", "DE") and "SKILL_ID." in J[key[0]][key[1]])}
+print("buff nodes reached: factors", sum(1 for k, _ in reached if k == "BF"), "templets", sum(1 for k, _ in reached if k == "BT"))
 print("missing in March:", dict(collections.Counter(k for k, _ in missing)))
 
 order = {}
