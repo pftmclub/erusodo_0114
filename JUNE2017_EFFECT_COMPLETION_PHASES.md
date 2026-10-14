@@ -4504,7 +4504,10 @@ Ghidra has no function for), against `14d8bf2`.
 flagcheck (`--files KTDXLIB/Always.h`): 1 DEFINE, 0 FAIL, 1 deleted (the define), 0 encoding changes, RESULT PASS.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,585,024 B, dated 2026-10-15 05:29:52, md5 9fee0da5383b45ebdd58de298c15b0f6, equal to X2/US_SERVICE/x2.exe (2026-10-15 05:29:48); built at mods/june-buff-port 2b44db3 + 1 uncommitted code file(s).` The 1 file is `Always.h` (this `_DEBUG` off). `JUNE_FX C3z-4s` is absent from the deployed exe; `[JUNE_SIMPLE_DLG] CreateSimpleUI failed` (OFFLINE only, not `_DEBUG`) and the 15 bind names stay.
 
-Not re-run: the hide on the dummy's death (play-test note above). With `_DEBUG` off it is a visual check only (see the hand-off).
+**Visual check (2026-10-15 05:34-05:39, reyaa, exe `9fee0da5`): PASSED.** Secret Hell 41271: stage 2 started at 05:35:51 and moved on to
+stage 3 at 05:37:43; the user saw the gauge hide when stage 2's dummy (`NUI_SECRET_SCENE_DUMMY` 2246) sequence ended. The clear came at
+05:38:58, followed by a clean exit (census present). 0 EXCEPTION; the 3 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`; no `can't find` in ErrorLog. The dummy is
+a script object, so its death writes no kill line, and with `_DEBUG` off the hide has no log line; the user's word settles it.
 No questions for the user.
 
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
