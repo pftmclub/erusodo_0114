@@ -4450,6 +4450,63 @@ All 15 bind names and the `JUNE_FX C3z-4s` strings are in the exe.
 - Not reached: the hide on the dummy's death (`SetShow_LUA 0`). Stage 2's dummy was still alive when the user left.
   That path is a script call to the same bound `SetShow_LUA`, already exercised with `true`, so it was not re-run.
 
+### C3z-4s - Review (2026-10-15, Opus 5.5 high; PASS, no code fix, DEBUG off)
+
+Verdict: **PASS.** No transcription error, so the only code change is `_DEBUG` off. Each item was read from the disassembly
+(Ghidra `disassemble_function`, or capstone over `unpacked_x2.exe` for `326b1320` / `326b1380` / `326b1a10` / `326b1a90`, which
+Ghidra has no function for), against `14d8bf2`.
+1. **`326b1400`, the six Moves.** Stack traced through every push. Bounds: minX + pos.x, pos.y + minY, maxX + pos.x, pos.y + maxY.
+   The Moves, in order:
+   - rand / colour, args `1,0,0,1,1`;
+   - home (EDI/EBX) / colour, `0,0,0,1,1`;
+   - rand / colour;
+   - home / white (`fld1`, stored ×4);
+   - rand / colour;
+   - home / white.
+
+   The Done note's "(t, false, false, 1, true)" lists only the trailing arguments; the first Move's `bDirect` is true, as ported.
+   June's `31cd35a0` takes (pos, colour, t, bDirect, autoDelete, pingPong, repeat, fadeInOut `+0x200`), the same order as March's
+   `CKTDGUIDialog::Move`.
+2. **`31d28c20`:** `a == b` -> a; else `rand() / 32767.0 (334380f8) * |b - a| + a`. Matches.
+3. **`326b1a10`:** (1, 0, 0, 1, 0.05, -3, -3, 3, 3). Constants `33436700` = 3.0, `3344b30c` = -3.0, `33436704` = 0.05.
+4. **`326b1940` / `326b2070`:** the `<= 0` hide test reads arg 4 (`[esp+0x18]` after 2 pushes); the tens test reads arg 3 (the same
+   offset after the third push, `PUSH ESI`). `2070` passes Lua (number, arg3, arg4) straight through. `326b1bb0` has no `< 1`
+   test, and its tens test reads arg 3. The control lookup `31cd3f20` is a thunk to `31cd3be0` (one lookup for every setter).
+5. **`326b2170` MoreDigit:** count `== n*10` (`sar 2`). The clamp is `ftol( pow( 10.f (3344a51c), n ) ) - 1`, signed `jg`. Places
+   run from n-1 down. Place 0 shows `rest % 10` unconditionally. Other places show `q + p*10` when `q > 0 || ( q == 0 && bShowZero
+   == 1 )`. Matches.
+6. **`326b1720` gauge cut:** June writes `+0x3c / +0x44 / +0x4c / +0x54` <- UV `+0 / +0x18 / +0x10 / +0x8`. March's `TEXTURE_UV`
+   is { leftTop, rightBottom, leftBottom, rightTop } and `VP_*` = LT 0, RT 1, LB 2, RB 3, with `uvOrgTexture` at +0x3c (two
+   `wstring`s + `pTexture` +0x38). So the mapping is LT<-leftTop, RT<-rightTop, LB<-leftBottom, RB<-rightBottom.
+   - Horizontal: RT.x = w + leftTop.x and RB.x = w + leftBottom.x.
+   - Vertical: LT.y = leftBottom.y - h and RT.y = rightBottom.y - h.
+   - Sizing: `31c933d0` = `SetSizeX( orig.x * p )` and `31c93480` = `SetSizeY( orig.y * p, 1 )`, with `originalSize` at +0x24.
+   - `326b1e40` upper-cases only after the static is found, and passes 1 (horizontal).
+   - `326b13c0`: pictures 1..5 are shown while `i <= n`.
+7. **`326b18c0` and the option tail:** `+0x10` gate, `g_pMain (3377585c) +0x278` vs `+0x11`, store, `+0x11 == 0` -> `fadd 44.0`
+   (`3348c590` double) = down for type B. The ctor stores word `0x100` at `+0x10`. `32420d30` writes `[this+0xf8]` = March
+   `m_OptionList.m_bIsSkillUITypeA` (`X2GameOption.cpp:1884`), which the port reads back through `GetIsSkillUITypeA()`. The tail
+   `@32420e74-32420ef4` runs only with a live game and `+0xba8 != 0`; it matches.
+8. **Lifetime:** `322cc520` = vslot 0 (delete), then `+0xba8 = 0`. `322def10` news only while NULL and returns the member. The loader
+   `326b2340` creates only when the handle is NULL, with now-state `g_pMain+0x90`. The dtor `326b1320` does the dialog manager
+   delete (`g_pKTDXApp+0x1fc+0x38c`, `31d05d30`) and then resets the handle: this is `SAFE_DELETE_DIALOG`. The play-test logged
+   `dialog deleted`. `326b1a90` stores 1 unconditionally (JUNE_BUGS #193 confirmed).
+9. **Skipped block** `@32420dc7-32420e6f`: `g_pData+0x6c +0xd8 == 6`, then `32430680` = `dynamic_cast` to RTTI `33734868`
+   `.?AVCX2PVPGameWinner@@`, then `32ed4720` re-lays out that class's own dialog (`+0x351/+0x352`, controls `+0x36a..+0x36e`).
+   This is PvP-only and unrelated to `+0xba8`. No STATUS row owned it, so it is routed to a **parked** row, `C3z-4s-pvp`: the
+   offline client has no PvP, so there is nothing to run it on.
+
+**Hygiene:** `flagcheck JUNE_SIMPLE_DLG --range 14d8bf2^..14d8bf2 --with JUNE_SIMPLE_DLG_DEBUG`:
+`files: 3 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The tokenless line is `Always.h`'s `#endif` after the `#error` guard.
+**DEBUG off:** `//#define SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG` with a dated reason (bytepatch, 1 line, encoding unchanged). Worktree
+flagcheck (`--files KTDXLIB/Always.h`): 1 DEFINE, 0 FAIL, 1 deleted (the define), 0 encoding changes, RESULT PASS.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,585,024 B, dated 2026-10-15 05:29:52, md5 9fee0da5383b45ebdd58de298c15b0f6, equal to X2/US_SERVICE/x2.exe (2026-10-15 05:29:48); built at mods/june-buff-port 2b44db3 + 1 uncommitted code file(s).` The 1 file is `Always.h` (this `_DEBUG` off). `JUNE_FX C3z-4s` is absent from the deployed exe; `[JUNE_SIMPLE_DLG] CreateSimpleUI failed` (OFFLINE only, not `_DEBUG`) and the 15 bind names stay.
+
+Not re-run: the hide on the dummy's death (play-test note above). With `_DEBUG` off it is a visual check only (see the hand-off).
+No questions for the user.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).

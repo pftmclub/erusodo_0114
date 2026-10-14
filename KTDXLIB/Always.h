@@ -7340,7 +7340,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Users: Ranox Secret Hell SECRET_SCENE_DUMMY.lua ( fever gauge ), Elysion Soless / Herbaon ( not yet ported ).
 #define SERV_IRUHADEV_JUNE_SIMPLE_DLG
 // SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG: "JUNE_FX C3z-4s" lines ( create / delete / each method, capped ) in offline_server.log.
-#define SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG
+//#define SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG	// off 2026-10-15 (C3z-4s review): play-test PASSED (Secret Hell 41271 stage 2: gauge, counter, red shake, fever + reset, dtor)
 #if defined(SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
 #error SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
 #endif
