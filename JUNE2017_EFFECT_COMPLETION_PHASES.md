@@ -2874,7 +2874,7 @@ No questions for the user.
 
 ## C3t-1 - identify, then port: June's GetShowActiveSkillShow
 
-**Status: done 2026-10-14, play-test owed (found by C3t, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-1.md`, review `C3t-1-review.md`.
+**Status: done 2026-10-14, play-test PASSED 2026-10-14 (found by C3t, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-1.md`, review `C3t-1-review.md`.
 
 - **Scope:** June `CX2GUUser::GetShowActiveSkillShow 31fd3180`, which gates every skill cut-in: three option cases (March has two), a
   `31fcef00() == 5` case, and a false override from two globals. Includes June's option values against March's `CX2GameOption` cut-in setting.
@@ -2918,6 +2918,10 @@ That is C3t-1 plus the peer's C3w work. `JUNE_FX C3t-1` is in the deployed exe o
 
 **How to see it in game:** cut-ins look as before. The log lines prove the mapping: with option One-self, `option 0 -> june 1`; with Hide,
 `option 2 -> june 0`, `show 0`. Every line should read `hyper 0`. The party branch shows only if an AI-party bot counts as a party member.
+
+**Play-test PASSED (2026-10-14, exe 352a3ca5, run 19:55-19:57):** reyaa (uid 12) used Aero Strafe (3014) in a dungeon under each option:
+`option 0 -> june 1 ... show 1`, `option 1 -> june 3 ... show 1`, `option 2 -> june 0 ... show 0`, all `hyper 0`, `my 1`. 0 EXCEPTION, baseline
+UNHANDLED (2x `E_DISABLE_HB_CHECK_REQ`), clean exit. No bot line appeared (the party branch was not exercised).
 
 No questions for the user.
 
