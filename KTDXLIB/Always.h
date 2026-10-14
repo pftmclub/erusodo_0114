@@ -7093,7 +7093,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-11
 // Description: June effect completion C3p play-test lines ( short-lived; turn OFF in the C3p review ): "JUNE_FX C3p" arm / end / esc /
 //              skip lines. Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_SKIP_START_DEBUG
+//#define SERV_IRUHADEV_JUNE_SKIP_START_DEBUG	// off 2026-10-15 (C3p review): play-test PASSED (Sander secret 2 NPCs, Ranox Gateway ESC + natural end; C3z-7 Altera)
 #if defined(SERV_IRUHADEV_JUNE_SKIP_START_DEBUG) && !defined(SERV_IRUHADEV_JUNE_SKIP_START)
 #error SERV_IRUHADEV_JUNE_SKIP_START_DEBUG needs SERV_IRUHADEV_JUNE_SKIP_START
 #endif

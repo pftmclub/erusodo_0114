@@ -2587,7 +2587,7 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 4. **End of a DIRECTION_STATE state** (CommonStateEnd `@3277f863-3277f9b7`, not in the kickoff): disarm, every NPC's `m_bShowBossName` = false (`322d8070`; `+0x8ae9` proven by the `+0x8ae9 / +0x8aea / +0x8aeb` slow-motion test `@327ce3c4`), my unit's `m_fCanNotInputTime` (`+0xde8`, proven by CommonFrameMoveFuture's timer order) = 0, reset. JUNE_BUGS 176.
 5. **`31ef7370( 0x1b, -1 )` is not VK_ESCAPE**: it is `SetMovieDescriptionData( 27, -1 )`, the subtitle clear (string 27 is empty). The setter is C3z-4b's (uncommitted while C3p ran); C3p calls it in the reset and the skip under a nested `#ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION`, so it compiles in when that flag does.
 6. **Party path (event `0x4ac`) not built.** The emulator never forms a party (`Handlers_Social.cpp` answers every party request "no party"; the AI-party bots are NPCs), so `m_vecPartyMemberData.size() > 1` is never true offline. The branch sets sent and logs one line. June sends and receives the same id (dispatcher `324dbc20` case `0x4ac` -> `324cf360`); the name is XOR-built.
-7. Not ported: June's other `HandleMsgByESC` gates (state `+0x210`, tutorial guide manager, chat box): they belong to June's ESC rewrite, not this chain. The extra June `OutTextXY` argument has no March parameter.
+7. Not ported: June's other `HandleMsgByESC` gates (state `+0x210`, tutorial guide manager, chat box (review: `0x33775864` is `g_pInstanceData`, March's own `DIALOG_SHOW_TOGGLE`)): they belong to June's ESC rewrite, not this chain (review: routed to C3p-2). The extra June `OutTextXY` argument has no March parameter.
 
 **Code:** `Always.h` (flag + `#error` needing `SERV_IRUHADEV_JUNE_BUFF_START_DELAY`), `X2GUNPC.h` (`FLAG_DIRECTION_STATE`), `X2GUNPC.cpp` (parser, arm, end), `X2Game.h/.cpp` (members, ctor reset, 6 methods, render call), `X2State.cpp` (ESC hook). Peers (C3z-4b) had uncommitted edits in all six files; this commit carries only C3p's hunks.
 
@@ -2602,6 +2602,57 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 - **ESC skip, Gateway boss intro** (1260-1264, C3z-7's gate): `arm` `EVENT_GATEWAY_BOSS` -> ESC 0.5 s later -> `state 6 -> WAIT_STATE 7` -> `end`; the event NPC died `KILL_SELF` (its DYING state) and Ignia fought (hits on 1000014 / 16 / 17 from 16:17:54).
 - **No ESC** (973-978): Gateway intro armed at 16:16:47 and ended on its own at 16:16:57 (`end`, input unlocked); later ESC presses (`armed 0`) went to March's normal ESC menu.
 - `0 user start-motion delay(s) zeroed` in all three: these rooms have no start-motion wait (delay already -1). `80 NPC boss-name flags` is the NPC list size.
+
+### C3p - Review (2026-10-15, Opus 5.5 high; PASS, no code fix, DEBUG off)
+
+Verdict: **PASS.** No transcription error, so the only code change is `_DEBUG` off. Read from raw disassembly (`disasm_range.py` / `funcdis.py`) of every site
+against `0179dc3`.
+1. **Parser** `@3278ba67-3278bbcb`: the key re-decoded from the XOR (`0x8d561358 / 0xbe2c6c24 / 0xded59c09 / 0xf884 / 0xa4` against the inline keys) is
+   `DIRECTION_STATE`, NUL at +15. A miss stores BL = 0 (`@3278bbbe`), then `push 0x4d` sets the bit. The read sits between bit `0x1e` and the next key: the port's
+   placement before `FLIP_DIR_END` is order-neutral (independent keys).
+2. **Arm** `@327af25b-327af360`: `[state+8] & 0x2000` = bit 77 = `0x4d`; g_pX2Game liveness; `+0xb44 == +0xb48` -> `322d8010`; `+0xb40` = 1; push `+0x270`.
+   No duplicate test (the port pushes again, as June). C3f-1's 2b block (`@327af1fc-327af255`) sits before it in March, as in June.
+3. **End** `@3277f863-3277f9b7`: after `322755a0`, before the `0x4000` sound block; disarm -> `322d8070` (NPC list `+0x324/+0x328`, `+0x8ae9` = 0) -> game vslot
+   `0x98` `+0xde8` = 0.0 (`fldz`) -> `322d8010`. March `SetShowBossName` / `SetCanNotInputTime_LUA` are plain stores.
+4. **ESC** `31f1e1a0`: `@31f1e3a2` calls `322f4c60` on game `+0xb40`; `cmp al,1; je 31f1e245` = `xor al,al; ret` (false); else `jmp [vtbl+0x1ec]`. The port's
+   `return false` before `HandleMsgByESCImp()` matches. **Correction:** `0x33775864` is `g_pInstanceData` (funcmap row 1573), not the chat box; the block
+   `@31f1e2a0-31f1e358` is March's own `DIALOG_SHOW_TOGGLE` (hidden dialogs -> `SetShow`, minimap for now-state `0xb/0xe/0xf/0x17`), which already sits before
+   the hook. June's remaining gates (now-state `+0x8c == 4` vs March's `XS_LOADING` test, the `+0x1f8` dialog tests, tutorial guide
+   `31d70b00 -> 31fbda90/31fbdb20`, state `+0x210` switch, `+0x1c8 / 32396dc0` branch, June's minimap state list vs March's) are June's ESC rewrite with no
+   STATUS owner: routed to **C3p-2** (row + kickoff). They run before the skip test in June, so with the skip armed they can still take an ESC first.
+5. **Request** `322f4c60`: `[+0]` armed, `[+1] == 1` sent; party `g_pData+0x5c`, `(+0x2c - +0x28) / 0xa0 > 1` (the `0x66666667` / `sar 6` divide); sent = 1 on
+   both paths; solo -> `322f11d0`; returns 1. Matches.
+6. **Skip** `322f11d0`: user loop first, unconditional (vslots `0xf0` / `0xb4`); `fld +0x92cc; fsub -1.0 (33436c90); fabs; fcomp FLT_EPSILON (334490f8); test
+   ah,0x41; jne` = write 0 only when `|t + 1| > eps`. Not armed -> straight to the epilogue (sent and subtitle untouched; the port's early `return` matches).
+   The walk caches begin/end (`@322f12c7/@322f12cb`); `322d8010` only moves `end` back to `begin` (no free), so June reads stale but intact UIDs: the copy is
+   equivalent. Then `mov word [ebp], 0`, erase, `31ef7370( 0x1b, -1.0 )`. `+0x4088` = `m_CommonState.m_Wait` (first member; play-test `-> WAIT_STATE 7` ->
+   `KILL_SELF`).
+7. **Hint** `32305be0`: armed only; sent 1 -> `0x791b`, sent 0 -> `0x791a`; font key 2 (`XUF_DODUM_15_BOLD`); x / y = `0x3ca` / `0x2e4` by reference;
+   `0xffffffff`, style 2 (`FS_SHELL`), `0xff000000`, NULL, format 2 (`DT_RIGHT`), -1, 1.0, 1.0 = March's `OutTextXY` defaults; the 12th argument is the June-only
+   pass-through. Render `@3230b73f-3230b745` is the last call; March's `CX2Game::OnFrameRender` has no `return` before the port's call. The hint has no log line
+   and no note records it seen: it is in this review's hand-off.
+8. **Subtitle clear**: `SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION` is live (`Always.h:6904`, committed `1ca6415`, C3z-4b play-tested), so both nested calls compile in.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SKIP_START --range 0179dc3^..0179dc3 --with SERV_IRUHADEV_JUNE_SKIP_START_DEBUG`:
+`files: 5 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS` (the 2 tokenless lines are `Always.h`'s `#endif`s after the `#error` guards). Later commits touching the flag: `1e53c76` (C3z-7, docs only).
+**DEBUG off:** `//#define SERV_IRUHADEV_JUNE_SKIP_START_DEBUG` with a dated reason (bytepatch, 1 line, encoding unchanged).
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,588,096 B, dated 2026-10-15 04:45:22, md5 287bfb5432c18cfc485514905607c4e9, equal to X2/US_SERVICE/x2.exe (2026-10-15 04:45:18); built at mods/june-buff-port 6e9ae95 + 8 uncommitted code file(s).` The others are the peer's in-progress C3z-4s (`SERV_IRUHADEV_JUNE_SIMPLE_DLG`). `JUNE_FX C3p arm / end / esc: armed / skip` are absent from the deployed exe; the OFFLINE-only party line (`JUNE_FX C3p esc: party`, not `_DEBUG`) stays by design. Worktree flagcheck (`--files KTDXLIB/Always.h`): 1 OTHER (the peer's `SIMPLE_DLG` block), 0 encoding changes, RESULT PASS; the 1 deleted line is the `_DEBUG` define.
+
+No questions for the user.
+
+## C3p-2 - identify, then port: June's CX2State::HandleMsgByESC gates
+
+Scope (routed by the C3p review, 2026-10-15): June's `CX2State::HandleMsgByESC` (`31f1e1a0`, vslot `0x1e8`) runs several gates before C3p's skip test
+(`@31f1e359`) and before the tail jump to `HandleMsgByESCImp` (vslot `0x1ec`). March's function has only the `XS_LOADING` key test and `DIALOG_SHOW_TOGGLE`.
+Map each June gate to March or to "none in March", then port the June-only ones in June's order under one flag, keeping C3p's hook where June calls
+`322f4c60`. Gates: now-state `g_pMain+0x8c == 4` (`@31f1e1a5`); `KTDXApp+0x1f8` tests `31c48870( 0x34 )` / `+0x40 -> 31d24fb0( 1 )` (`@31f1e1b5-31f1e1e6`);
+tutorial guide manager `31d70b00 -> 31fbda90 / 31fbdb20` (`@31f1e1e8-31f1e212`); state `+0x210` switch: 0 -> on, 1 / 2 -> false, else
+`31f38e90( 9 )` -> vslot `0xec` or `31f1dd70` (`@31f1e214-31f1e261`); `KTDXApp+0x1c8 -> 31c43bb0 / 32396dc0 / 3239d190` (`@31f1e262-31f1e29f`); the
+`DIALOG_SHOW_TOGGLE` twin `@31f1e2a0-31f1e358` (extra `31d03a10` test, minimap now-states `0xb / 0xe / 0xf / 0x17` vs March's list). Where June's key test
+moved (callers of vslot `0x1e8`) is part of the identify step. Gate: each gate mapped with an address, June's order kept, the C3p skip still reached
+in a dungeon intro; a gate whose subsystem March lacks is reported, not invented.
 
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 
