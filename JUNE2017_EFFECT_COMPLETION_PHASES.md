@@ -2610,6 +2610,36 @@ Nothing changes on screen in either game. Both readers run only while the NPC is
 
 **Regression play-test PASSED 2026-10-10** (user, Tree of El through auto-party, so the AI heroes loaded their EX lists through the changed loader; exe `79ce7ab6`, run after the deploy, clean exit): 0 EXCEPTION, the only UNHANDLED is the baseline `E_DISABLE_HB_CHECK_REQ` x4, and no log line names `EFFECT_SET_LIST_FINAL`, `DELETE_CONDITION` or `CONSUME_MP`.
 
+### C3q - Review (2026-10-14, Opus 5.5 high; no transcription errors, no code change, no build)
+
+Commit `d31391a` was checked line by line against June (`disasm_range.py`, raw exe reads). The code is unchanged and the exe stays `79ce7ab6`. Every kickoff item matches:
+- **Keys:** the three XOR'd keys decode to `EFFECT_NAME` (`337a9a84`), `START_TIME` (`337a9a78`) and `CONSUME_MP` (`337a9a6c`). The plain strings are `33476e64` = `EFFECT_SET_LIST_FINAL`, `33476e18` = `EFFECT_SET`, `33449104` = `%s%d` and `33476588` = `DELETE_CONDITION`. `sprintf_s( buf, 0xff, ... )` runs from n = 0 (`ebp` = 0, `@327877d4`) and again after `inc ebp` (`@32787c78`). The port's `StringCchPrintfA` into a 256-byte buffer is equivalent.
+- **Reset:** `32079980` sets the name to L"", `+0x1c` to 0, `+0x30` to -1 (`334380f0` reads -1.0), the conditions to `{ 0 }` and `+0x38` to 0, which equals the port's fresh default-ctor entry per iteration. June instead reuses one entry (`32079750` before the loop, the reset at the top of each pass). The pushed copies are the same.
+- **Miss defaults:** START_TIME miss is `fldz` (`@32787a8c`) and CONSUME_MP miss is -1 (`@32787b95`). Both getters are `32fea370` (float). The name getter `32feae90` converts with CP_UTF8 (`0xfde9`), as March's `KLuaManager::GetValue( const char*, wstring& )` does.
+- **Empty name:** `31c1c1a0` = `compare( 0, size, L"", 0 )`, zero -> `@32787caf`. That path runs EndTable (EFFECT_SETn), then `@32787cc4` EndTable (FINAL), the same as the port's `EndTable; break;` plus the outer EndTable.
+- **DELETE_CONDITION:** BeginTable, then `3221db80` (clear), then `32fea6e0( edi = 1.., &int )` pushes until a miss, then EndTable. March's EX loop uses the same getter shape (`GetValue( int, UINT& )`), so the port matches.
+- **Push:** `320840c0 @32787c5a` with no time filter (JUNE_BUGS 163 stands).
+- **EndTable balance on every path:** an EFFECT_SET0 miss -> `@32787cc4` (FINAL only); an empty name -> n + FINAL; normal -> DELETE_CONDITION (when opened), n at `@32787c8f`, and FINAL once the next BeginTable misses (`@32787cad -> @32787cc2`). The port balances the same way on all four paths.
+- **Order and sort:**
+  - The reserve `@327874c0-32787503` adds the FINAL count with the same counter `32fe9dc0` that EX uses (= March's `GetNumIndexedTables`).
+  - LIST, EX and FINAL are appended in that order (`3278775c` closes EX, `32787775` opens FINAL).
+  - `327c8b30` runs on a non-empty list only. Its insertion step compares `[+0x1c]` with `fcompp` / `test ah, 0x41` (strict <) and copies `+0x30 / +0x34 / +0x38`. March's `stable_sort` uses the implicit copy, which carries `m_fJuneConsumeMP`.
+- **Gate `@32776f10-32776f39`:**
+  - `fld [+0x30]; fcomp 0.0; test ah, 0x41; jne play`. So CONSUME_MP <= 0 or NaN plays the entry.
+  - Otherwise the gate calls `[vtbl + 0xe4]( c, 0 )`. `cmp al, 1; jne @327770b5`, and `@327770b5` = `inc [esi + 0x8f18]`. That skips the play, the four delete-list pushes and `3227a570`, which is exactly the port's `continue` in the `for` that does `++m_iEffectSetToPlayProgress`.
+  - The start-time test before the gate is March's (`0 == t || now >= t`; a NaN breaks).
+- **Dispatch:** all four vtables that hold the NPC's `IsMyUnit` `32756c10` (bases `334b8084 / 334b8504 / 334b8984 / 334ba584`) have slot `0xe4` = `3208dc70` and slot `0x204` = `32759630`.
+  - `3208dc70` calls gage slot `0x2c`. All seven gage vtables that hold `UpNowMp 322b33d0` have `0x2c` = `32a31910`, so no gage class overrides it.
+  - `32a31910`: a null MP gage or now < cost fails, otherwise `UpNowMp( -cost )` and true. That is `X2GageData.cpp:95` `CX2GageData::FlushMp` (March's NPC gage is the base class: `CX2GameUnit::CreateGageData`, not overridden by `CX2GUNPC`).
+- **Struct:** `m_fJuneConsumeMP` is -1 in all three ctors. Its only readers are the FINAL loader and the NPC player (`X2GUNPC.cpp:5586`, `:33632`), so the user player is unchanged. June's `(name, time)` ctor `320797f0` leaves `+0x34` unset, but nothing reads it; it is not ported.
+- **Rest of `32776e10`:** flag words `0x4000 / 0x8000 / 0x10000 / 0x20000 / 0x200000`, push order `+0x3eb0` (DAMAGE_REACT), `+0x3ec0` (STATE_END), `+0x3ed0` (DIE), `+0x3ef0` (CUSTOM), the `+0xc4 = 0` clear on a nonzero start, then `3227a570( handle, entry + 0x20 )`.
+  - Those are all March's.
+  - `321e1e60`'s trailing 1.0 is the June-only `fForceDownValueRate` default (funcmap `321e1e60`, Phase 4a). It belongs to March's existing call, not to C3q's diff.
+
+**Hygiene:** flagcheck `--range d31391a^..d31391a`: 2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL-mismatched, RESULT PASS. `git log -S` shows that no later commit adds or removes the flag token; `..HEAD` scans every peer commit and timed out at 580 s.
+
+**User owes nothing.** The new loop and gate stay unreachable in March (the 10 `PVP_HERO_*` scripts cannot spawn).
+
 ## C3r - port: June's user CHANGE_WORLD_COLOR_DATA window
 
 **Status: done 2026-10-10 (see "C3r - Done"; found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3r.md`, review `C3r-review.md`.
