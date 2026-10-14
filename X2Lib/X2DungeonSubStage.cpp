@@ -2,6 +2,9 @@
 #ifdef SERV_IRUHADEV_OFFLINE_NPC_GROUP_RATE
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_OFFLINE_NPC_GROUP_RATE
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
 #include ".\x2dungeonsubstage.h"
 
 
@@ -1225,6 +1228,101 @@ void CX2DungeonSubStage::DeleteAllNPCUnit( const vector<NPCData*>& vecNPCData_ )
 
 void CX2DungeonSubStage::ShowBossNameAtStart( float fElapsedTimeSubStage )
 {
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+	/// June 327ef160, whole ( only caller the sub-stage frame move 327f12c0 @327f13a5, 0.01f as March ). Differences from March:
+	/// - game type 2 or 4 ( June's GT_PVE, none in March ), and the dungeon game is reached by a type-checked cast ( 31e94080 );
+	/// - an NPC with FORCE_CINEMATIC_STATE ( +0x8f8c ) gets the boss intro exactly while its now-state ( +0x8454 ) equals
+	///   GetStateID( name ) ( 3275aaf0 ), whether or not m_bShowBossName ( +0x8ae9 ) is set and its delay ( +0x8e34 ) has passed; with a
+	///   forced state and no match the NPC is skipped, sub-boss branch included;
+	/// - each boss with a name texture ( +0x8af0 ) gets its own slot through ShowBossName( tex, n ) ( 327cc7c0 ), counted per call while
+	///   the count is <= 7; a ninth boss still gets the danger particles and sets m_bBossNameWasShown, but no name.
+	if( NULL == g_pX2Game )
+		return;
+
+	if( false == m_bBossNameWasShown && m_fElapsedTimeSubStage > fElapsedTimeSubStage )
+	{
+		const int iGameType = static_cast<int>( g_pX2Game->GetGameType() );
+		if( CX2Game::GT_DUNGEON != iGameType && 4 != iGameType )	/// 4 = June GT_PVE ( Erda Island ); March has no game type 4
+			return;
+
+		/// June 31e94080 / 31e921e0 ( dynamic cast to CX2DungeonGame, RTTI 0x3372bc38 ). June calls through without a NULL check
+		/// ( @327ef474 ); here type 2 is always a CX2DungeonGame, so the check below never changes the result.
+		CX2DungeonGame* pDungeonGame = dynamic_cast<CX2DungeonGame*>( g_pX2Game );
+		int iBossNameIndex = 0;		/// June [esp+0x18] @327ef272: per call, not per sub-stage
+
+		for( int i = 0; i < (int)g_pX2Game->GetNPCUnitListSize(); i++ )
+		{
+			CX2GUNPC* pCX2GUNPC = g_pX2Game->GetNPCUnit(i);
+			if( pCX2GUNPC == NULL )
+				continue;
+
+			const bool bForceCinematic = pCX2GUNPC->HasJuneForceCinematicState();
+
+			/// @327ef2dd-327ef315: ( m_bShowBossName && sub-stage time > delay ) || FORCE_CINEMATIC_STATE set -> the boss intro below;
+			/// otherwise the sub-boss branch ( @327ef487 ).
+			if( false == ( true == pCX2GUNPC->GetShowBossName() && m_fElapsedTimeSubStage > pCX2GUNPC->GetShowBossNameDelayTime() )
+				&& false == bForceCinematic )
+			{
+				if( true == pCX2GUNPC->GetShowSubBossName() )
+				{
+					CKTDGParticleSystem::CParticleEventSequence* pSeq =
+						g_pX2Game->GetMinorParticle()->CreateSequence( NULL,  L"BOSS_DANGER",		0, 0, 0, 1000, 1000, -1, 1, -1 );
+					if ( NULL != pSeq )
+						m_hBossDanger = pSeq->GetHandle();
+
+					pSeq = g_pX2Game->GetMinorParticle()->CreateSequence( NULL,  L"BOSS_DANGER_ADD",	0, 0, 0, 1000, 1000, -1, 1, -1 );
+
+					if ( NULL != pSeq )
+						m_hBossDangerAdd = pSeq->GetHandle();
+
+					m_bBossNameWasShown = true;
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+					CX2OfflineLog::Server( L"JUNE_FX C3w sub-boss npc %d: danger particles only", (int)pCX2GUNPC->GetNPCTemplet().m_nNPCUnitID );
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+				}
+				continue;
+			}
+
+			/// @327ef31b-327ef355: a forced state gates the intro, also when m_bShowBossName and the delay already allow it.
+			if( true == bForceCinematic
+				&& pCX2GUNPC->GetStateID( pCX2GUNPC->GetJuneForceCinematicState() ) != static_cast<int>(pCX2GUNPC->GetGameUnitState()) )
+				continue;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq =
+				g_pX2Game->GetMinorParticle()->CreateSequence( NULL,  L"BOSS_DANGER",		0, 0, 0, 1000, 1000, -1, 1, -1 );
+
+			if ( NULL != pSeq )
+				m_hBossDanger = pSeq->GetHandle();
+
+			pSeq = g_pX2Game->GetMinorParticle()->CreateSequence( NULL,  L"BOSS_DANGER_ADD",	0, 0, 0, 1000, 1000, -1, 1, -1 );
+
+			if ( NULL != pSeq )
+				m_hBossDangerAdd = pSeq->GetHandle();
+
+			/// @327ef43d-327ef481: a name texture and a free slot -> ShowBossName( tex, n ), n + 1.
+			if( 0 != pCX2GUNPC->GetBossNameTexture().length() && iBossNameIndex <= 7 )
+			{
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+				CX2OfflineLog::Server( L"JUNE_FX C3w banner %d npc %d tex %s ( forced %d, sub-stage time %.2f, delay %.2f )", iBossNameIndex,
+					(int)pCX2GUNPC->GetNPCTemplet().m_nNPCUnitID, pCX2GUNPC->GetBossNameTexture().c_str(), bForceCinematic ? 1 : 0,
+					m_fElapsedTimeSubStage, pCX2GUNPC->GetShowBossNameDelayTime() );
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+				if( NULL != pDungeonGame )
+					pDungeonGame->ShowBossName( pCX2GUNPC->GetBossNameTexture().c_str(), iBossNameIndex );
+				++iBossNameIndex;
+			}
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+			else
+			{
+				CX2OfflineLog::Server( L"JUNE_FX C3w boss npc %d: danger particles, no name ( texture length %d, slot %d )",
+					(int)pCX2GUNPC->GetNPCTemplet().m_nNPCUnitID, (int)pCX2GUNPC->GetBossNameTexture().length(), iBossNameIndex );
+			}
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+
+			m_bBossNameWasShown = true;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 	if( NULL == g_pX2Game )
 		return;
 
@@ -1280,6 +1378,7 @@ void CX2DungeonSubStage::ShowBossNameAtStart( float fElapsedTimeSubStage )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 }
 
 void CX2DungeonSubStage::ClearDungeonGame()

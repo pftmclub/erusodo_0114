@@ -7250,3 +7250,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-14
+// Description: June effect completion C3w: June's CX2DungeonSubStage::ShowBossNameAtStart ( 327ef160 ) whole. Game type 2 or June's 4
+//              ( GT_PVE, none in March ); an NPC with FORCE_CINEMATIC_STATE shows the boss intro exactly while it is in that state,
+//              bypassing m_bShowBossName and its delay; up to 8 boss names per call, each on its own particle sequence "BOSS_NAME<n>"
+//              ( CX2DungeonGame::ShowBossName( tex, n ) = June 327cc7c0 ), with one handle per slot ( June CX2DungeonGame +0xcf8..+0xd14,
+//              ctor 327cef70, Release 327d2240 ). Data: BOSS_NAME0..7 come from June's GameMinorParticle.txt ( data036 ).
+#define SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+#if defined(SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START) && !defined(SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE)
+#error SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START needs SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE ( CX2GUNPC::HasJuneForceCinematicState )
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-14
+// Description: June effect completion C3w play-test lines ( short-lived; turn OFF in the C3w review ): "JUNE_FX C3w" one line per
+//              boss-intro decision in ShowBossNameAtStart ( banner n / sub-boss / forced state not reached ). Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+//              Its lines all sit inside SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START, so without that flag it compiles to nothing.
+#if defined(SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
+#error SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
+#endif
+//////////////////////////////////////////////////////////////////////////

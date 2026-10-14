@@ -2772,9 +2772,59 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 ## C3w - port: June's ShowBossNameAtStart
 
-**Status: ready (found by C3s, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3w.md`.
+**Status: done 2026-10-14, play-test owed (see below). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3w.md`.
 
 - **Scope:** June `CX2DungeonSubStage::ShowBossNameAtStart 327ef160` whole: game type 2 or 4, the `FORCE_CINEMATIC_STATE` gate (C3s's member) that bypasses `m_bShowBossName` and its delay, several boss names through `327cc7c0` with a counter `<= 7`, the danger particles and the sub-boss branch.
+
+### C3w - Done (2026-10-14, Opus 5.5 high)
+
+**Identified** (funcmap rows `(C3w)`; raw disasm of `327ef160`, `327cc7c0`, the ctor `327cef70`, `Release` `327d2240`):
+1. **`327cc7c0` = `CX2DungeonGame::ShowBossName( const WCHAR* tex, const int& n )`.** It returns when `n` is outside 0..7. Otherwise it
+   creates the sequence `L"BOSS_NAME" + n` with March's `D3DXVECTOR3` defaults, calls `ChangeTexForce( tex )` and stores the handle in slot
+   `n` (`+0xcf8 + 4n`).
+   - March's single `m_hBossName` is an array of 8 in June. The ctor sets each slot to -1 and `Release` destroys each valid one.
+   - `+0xd18` is the next member (the wave id, `327d0870`), so June keeps no other boss-name handle.
+2. **The gate.** An NPC gets the boss intro when (`m_bShowBossName` and the delay < sub-stage time) **or** `FORCE_CINEMATIC_STATE` is set
+   (`std::string::compare` with `""` at `@327ef30e`).
+   - With a forced state, the intro also needs now-state == `GetStateID( name )`. On a mismatch the NPC is skipped, sub-boss branch included.
+   - Without the intro, the sub-boss branch is March's.
+   - Both particles, their arguments and the stores into `+0x68` / `+0x6c` match March. The one exception is June's 14th `CreateSequence`
+     argument, -1, pushed at every call. March has no such parameter.
+3. **Several names.** A per-call counter goes to `327cc7c0` while it is `<= 7`, and goes up only when a name was shown.
+   - A ninth boss, or one with no texture, still gets the danger particles and sets `m_bBossNameWasShown`.
+   - The loop never breaks (March's). Entry, `0.01f` and the caller's place are unchanged.
+4. **Game type 4** is June's `GT_PVE`: ported as a literal 4 (precedent `X2PremiumBuffManager.cpp:547`). The dungeon game comes from a
+   `dynamic_cast` as in June (`31e94080`), with a NULL check June lacks. The check is unreachable here.
+
+**Data:** March's `GameMinorParticle.txt` has only `BOSS_NAME`, and without `BOSS_NAME0..7` every boss name would vanish.
+- June's 8 blocks were inserted byte-exact (4,455 B, CRLF) right after `BOSS_NAME`, as in June's file.
+- June's `BOSS_NAME` equals March's, and its keys are March's.
+- The original is in `24965799/kom_backup_c3w/20261014_193716/`. The 10-12 full particle-file replace (`97df3a0`) is undone on disk and was
+  **not** re-run.
+- `PACK OK data036` (`~1 changed: GameMinorParticle.txt`). **The copy waits for the user.**
+
+**Census** (scratch `census.py`, June `june_src_fixed`): 14 NPC groups in 5 scripts reach the several-names path, all `STAGE3 / SUB_STAGE0`.
+- Behimoss Heart Normal / Hard / Expert, groups 0-1 (Icoos + Anu, Anu + Eris; group 2 = Waldomenation alone).
+- Karuso Village Hard / Expert (two bosses each).
+- `FORCE_CINEMATIC_STATE` is still only in `Secret_Mad_Trock_Summoner`, which no templet spawns, so the forced path cannot be seen in game.
+
+**Code** (`X2DungeonSubStage.cpp`, `X2DungeonGame.h/.cpp`, `Always.h`):
+- `SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START`: the function (March's in `#else`), the overload, the slot array with its ctor and `Release`
+  loops, and a `JUNE_FX C3w ShowBossName: particle sequence ... not found` log line when a `BOSS_NAMEn` is missing.
+  - `Always.h` `#error`s without `_FORCE_CINEMATIC_STATE`.
+- Short-lived `SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG` (**on**; off in the review): one `JUNE_FX C3w` line per banner,
+  sub-boss and nameless boss.
+
+**Hygiene:** `flagcheck --worktree --files` (the 4 files):
+- `_SHOW_BOSS_NAME_AT_START`: `X2DungeonGame.h` PASS +11, `X2DungeonGame.cpp` PASS~ +56 (one blank line before the ctor `#ifdef`),
+  `X2DungeonSubStage.cpp` OTHER (the DEBUG lines; with `--with _DEBUG`: PASS +99), `Always.h` OTHER.
+- RESULT PASS, 0 deleted, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`, 0 encoding changes.
+- Post-commit `--range`: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,578,880 B, dated 2026-10-14 19:47:41, md5 352a3ca53af47a61d5401e37bb487cc3, equal to X2/US_SERVICE/x2.exe (2026-10-14 19:47:36); built at mods/june-buff-port b69fec6 + 5 uncommitted code file(s).` The fifth file, `X2GUUser.cpp`, is a peer's uncommitted C3t-1 edit. The exe holds `JUNE_FX C3w banner` / `JUNE_FX C3w ShowBossName`. **Ship exe and data036 together:** without the new kom every boss name is missing (and logged).
+
+**How to see it in game:** the session hand-off. Behimoss Heart Normal (33250), `/stage 3`: two boss names stacked at once (or one for
+Waldomenation), sliding in about 100 px further left than March's single banner. Log tag: `JUNE_FX C3w`.
 
 ## C3t - identify, then port: June's user SHOW_HYPER_CUT_IN_TIME
 

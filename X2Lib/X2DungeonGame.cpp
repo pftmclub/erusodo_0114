@@ -6,6 +6,9 @@
 #if defined( SERV_IRUHADEV_JUNE_C3Z4_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_C3Z4_DEBUG && SERV_IRUHADEV_OFFLINE
+#if defined( SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START && SERV_IRUHADEV_OFFLINE
 
 
 
@@ -58,8 +61,12 @@ m_pMonsterIndicator( NULL ),
 #ifdef DUNGEON_TIME_OUT_FRAMEMOVE
 m_pDamageDataForDungeonTimeOut( NULL ),
 #endif DUNGEON_TIME_OUT_FRAMEMOVE
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+m_bKilledBoss( false )
+#else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 m_bKilledBoss( false ),
 m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 #ifdef SERV_DUNGEON_FORCED_EXIT_SYSTEM
 , m_iDefenceDungeonWaveID( -1 )		// 어둠의 문 서브스테이지( Wave )
 #endif //SERV_DUNGEON_FORCED_EXIT_SYSTEM
@@ -72,6 +79,12 @@ m_hBossName(INVALID_PARTICLE_SEQUENCE_HANDLE)
 {
 	// super class member init
 	m_GameType = GT_DUNGEON;
+
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+	/// June ctor 327cef70 @327cf0d6-327cf100: every boss-name slot starts invalid ( -1 ).
+	for( int i = 0; i < JUNE_BOSS_NAME_SLOT_NUM; ++i )
+		m_ahJuneBossName[i] = INVALID_PARTICLE_SEQUENCE_HANDLE;
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
 	// variable assign
 	m_pFontForTime			= g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( XUF_HEADLINE_30_NORMAL );
@@ -278,8 +291,17 @@ CX2DungeonGame::~CX2DungeonGame(void)
 		g_pData->GetPlayGuide()->DeleteInputGuideParticle();
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+	/// June CX2DungeonGame::Release 327d2240 @327d2656-327d267b: each of the 8 boss-name slots that holds a handle.
+	for( int i = 0; i < JUNE_BOSS_NAME_SLOT_NUM; ++i )
+	{
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_ahJuneBossName[i] )
+			GetMinorParticle()->DestroyInstanceHandle( m_ahJuneBossName[i] );
+	}
+#else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hBossName )
 		GetMinorParticle()->DestroyInstanceHandle(m_hBossName);
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	/// June buff port Phase 14c, CX2DungeonGame::Release 327d2240 @327d23fb -> 327d2160: when the tutorial is being left,
@@ -3148,6 +3170,39 @@ void CX2DungeonGame::SetStartRealTraining( bool val )
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+/// June 327cc7c0 ( called only by CX2DungeonSubStage::ShowBossNameAtStart 327ef160 @327ef474 ). The index is read, not changed: the
+/// caller counts. Outside 0..7 nothing happens ( @327cc7fe js / @327cc806 jg 7 ). The sequence name is L"BOSS_NAME" + the index in
+/// decimal ( 31ecbf60 swprintf, 31ecc900 operator+ ); the call is March's CreateSequence( NULL, name, D3DXVECTOR3(0,0,0) ) with its
+/// defaults ( June also pushes a 14th argument, -1, at every CreateSequence call; March's signature has no such parameter ), then
+/// ChangeTexForce( name ) ( 31cf4680 ) and the handle into slot iIndex_ ( +0xcf8 + 4 * iIndex_ ). A slot's old handle is not destroyed
+/// first, as March's single handle was not.
+void CX2DungeonGame::ShowBossName( const WCHAR* wszFileName, const int& iIndex_ )
+{
+	if( iIndex_ < 0 || iIndex_ > 7 )
+		return;
+
+	WCHAR wszIndex[16] = L"";
+	swprintf_s( wszIndex, L"%d", iIndex_ );
+	const std::wstring wstrSequenceName = std::wstring( L"BOSS_NAME" ) + wszIndex;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+	pSeq = GetMinorParticle()->CreateSequence( NULL, wstrSequenceName.c_str(), D3DXVECTOR3(0,0,0) );
+	if( pSeq != NULL )
+	{
+		pSeq->ChangeTexForce( wszFileName );
+		m_ahJuneBossName[iIndex_] = pSeq->GetHandle();
+	}
+#ifdef SERV_IRUHADEV_OFFLINE
+	else
+	{
+		// No popup in June either: the boss name is simply not shown. Log it so a data036.kom without June's BOSS_NAME0..7 is visible.
+		CX2OfflineLog::Server( L"JUNE_FX C3w ShowBossName: particle sequence %s not found ( GameMinorParticle.txt, data036.kom ); boss name %s not shown",
+			wstrSequenceName.c_str(), NULL != wszFileName ? wszFileName : L"(null)" );
+	}
+#endif SERV_IRUHADEV_OFFLINE
+}
+#else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 void CX2DungeonGame::ShowBossName( const WCHAR* wszFileName )
 {
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -3158,6 +3213,7 @@ void CX2DungeonGame::ShowBossName( const WCHAR* wszFileName )
 		m_hBossName = pSeq->GetHandle();
 	}
 }
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
 void CX2DungeonGame::ShowBossName_LUA( char* pFileName )
 {

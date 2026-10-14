@@ -206,7 +206,12 @@ class CX2DungeonGame : public CX2Game
 		void 					SetEnableRemainTime(bool val) { m_bEnableRemainTime = val; }
 
 		void					ShowBossName_LUA( char* pFileName );
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+		/// June 327cc7c0: boss name iIndex_ ( 0..7, else nothing ) on the particle sequence "BOSS_NAME<iIndex_>", handle in slot iIndex_.
+		void					ShowBossName( const WCHAR* wszFileName, const int& iIndex_ );
+#else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 		void					ShowBossName( const WCHAR* wszFileName );
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
 		
 
@@ -359,7 +364,13 @@ class CX2DungeonGame : public CX2Game
 		float						m_fDungeonNameTime;	/// m_pDLGTitle 제거용...
 #endif
 	
+#ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+		enum { JUNE_BOSS_NAME_SLOT_NUM = 8 };
+		/// June +0xcf8..+0xd14: one handle per boss-name slot ( ctor 327cef70 @327cf0d6 = -1 each; Release 327d2240 @327d2658 destroys each ).
+		CKTDGParticleSystem::CParticleEventSequenceHandle m_ahJuneBossName[JUNE_BOSS_NAME_SLOT_NUM];
+#else SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 		CKTDGParticleSystem::CParticleEventSequenceHandle m_hBossName;
+#endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
 #ifdef SERV_DUNGEON_FORCED_EXIT_SYSTEM
 		int							m_iDefenceDungeonWaveID;		// 어둠의 문 서브스테이지( Wave )
