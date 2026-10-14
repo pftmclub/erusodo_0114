@@ -135,13 +135,6 @@ __pycache__/
 /elstools/err1.txt
 /elstools/AccountQuest.lua
 
-# ---- Credentials: connection strings with real DB hosts and passwords -------
-# (the C# data managers' config files and the crash-SMS DSN). Never commit.
-app.config
-Web.config
-Settings.settings
-/KncTools/KEsdRemoteController_Server/SMS.dsn
-
 # ---- 8. Re-admitted binaries the workflow cannot run without ---------------
 # (must stay below the *.exe rule above)
 !/elstools/elstools.exe
