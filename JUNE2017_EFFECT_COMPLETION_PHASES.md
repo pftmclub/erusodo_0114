@@ -2642,6 +2642,8 @@ against `0179dc3`.
 
 No questions for the user.
 
+**Play-test PASSED 2026-10-15** (user; exe `287bfb54`, run 04:50-04:53 after the deploy, Ranox Gateway `dungeonID=33300`): the bottom-right hint was seen and ESC skipped the intro on the user's word; 0 EXCEPTION, only the baseline `E_DISABLE_HB_CHECK_REQ` x2, clean exit; 0 `JUNE_FX C3p` lines (`_DEBUG` off, as intended).
+
 ## C3p-2 - identify, then port: June's CX2State::HandleMsgByESC gates
 
 Scope (routed by the C3p review, 2026-10-15): June's `CX2State::HandleMsgByESC` (`31f1e1a0`, vslot `0x1e8`) runs several gates before C3p's skip test
