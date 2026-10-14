@@ -3094,6 +3094,7 @@ Verdict: **PASS.** No transcription error was found, so there is no code change 
 `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 6 #else/#endif without the flag token, 0 encoding change(s)`;
 `RESULT: PASS`. The 6 tokenless lines are the three bare `#else` and the `#endif`s after the `#error` guards (house precedent).
+**Post-commit** (`--range ae12ab4^..HEAD`, after `3762fdd`): `files: 2 PASS, 0 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `1 deleted line(s)` (the `_DEBUG` `#define`, now commented), `9 #else/#endif without the flag token` (the 6 above plus `Always.h`'s `#endif`s seen again in `3762fdd`), `0 encoding change(s)`; `RESULT: PASS`.
 **DEBUG off:** `//#define SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG` in `Always.h`, with a dated reason (bytepatch, 1 line, encoding unchanged).
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,578,880 B, dated 2026-10-14 21:44:00, md5 25358c27f5a0cac3b30c813b54de64c5, equal to X2/US_SERVICE/x2.exe (2026-10-14 21:43:56); built at mods/june-buff-port 7a5746e + 1 uncommitted code file(s).` The one file is `Always.h`, which also carried the C3w review's uncommitted `_DEBUG` off. `JUNE_FX C3t-2` is absent from the deployed exe; `SOUND_SET%d_RATE` and `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` are present.
 
