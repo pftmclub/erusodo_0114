@@ -3223,6 +3223,41 @@ No questions for the user. Next: `C3t-3`.
 
 No questions for the user.
 
+### C3t-3 - Review (2026-10-15, Opus 5.5 high; PASS, no code fix, DEBUG off)
+
+Verdict: **PASS.** No transcription error, so the only change is `_DEBUG` off. Read from Ghidra's disassembly of `327ac9d0` and `32768ac0`
+(read-only) and the June exe's raw bytes at `32755a00`, against `c8c42c6`'s `X2GUNPC.h/.cpp` diff.
+1. **The key.** Emulated `@327ae2a2-@327ae535` from the disassembly (both entry paths seed AL/BL/CL/DL with the same bytes as `[0x337aa5d0]`,
+   `[..5a8]`, `[..5cf]`, `[..5ce]`). The result is `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE`, 41 characters. Byte 11 (`S`) is built with a `NOT BL`
+   (`@327ae352`), not an XOR. The NUL is `[esp+0x10d]` after 3 pushes = `[esp+0x101]` = buffer `0xd8` + 41.
+2. **The roll.** `edi = [esi+0x6dcc]` (`@327ae16c`), getter `32fe9e40( key, &[esp+0x14], 1 )` (pushed 1 / `lea [esp+0x18]` after one push /
+   buffer). A miss copies AL = 0 into the bool (`@327ae53e`); a hit keeps edi only when the bool is non-zero (`@327ae549`). That is March's
+   `LUA_GET_VALUE( ..., false )` (`luaLib/KLuaManager.h:118`: default on a miss) and the port's `false ==` test. The roll is `call [vtbl+0x1c8]( 0 ); cdq;
+   idiv 100; lea edi,[edx+1]`, stored at `@327ae564` on both paths. `32755a00`'s bytes are `movzx eax, word [ecx+0x8474]; add eax,[esp+4]; push eax;
+   call 332231d0; ret 4`, which is March's `CX2GUNPC::GetRandomInt( iOffset )` (`X2GUNPC.h:2677`).
+3. **The pick.** `@327ae56a-@327ae5a8` is `edi < +0x1f8` -> set 0; `< +0x1f8 + +0x1fc` -> type 4 / flag `0x47`; `< sum of three` -> type 7 /
+   flag `0x4a`; else `@327ae5a3` type 1 / flag `0x44` (set 0). Signed strict `jl`/`jge`. That is March's 3-rate pick with its fallback, so no NPC copy of
+   C3t-2's rate loop or of JUNE_BUGS 192 is owed.
+4. **The open table.** `32768ac0 @32768c1b` calls `32fe9b20( (byte) state, 1 )` on `+0x2b4`, then vslot `0x444` only when vslot `0x19c` is true,
+   vslot `0x448`, and `32fe9a10( 1 )` when the open succeeded. March's `DoStateEndStart` (`X2GUNPC.cpp:8146-8160`) has the same shape.
+   The play-test's 25 lines all show `live rate0` = the pre-parsed rate with `found 1`, which proves it live.
+5. **Member placement.** `m_iJuneSoundSetRandomValue` on `CX2GUNPC`, zeroed in CommonConstructor. A byte scan of June's code for the `+0x6dcc`
+   displacement finds only the ctor (`322a5381`), the user CommonStateStart (`3205dba1` / `3205df1a`) and the NPC's (`327ae16c` / `327ae564`). The other
+   hits are `[esp+0x6dcc]` (`31dd82fd`) and two `jmp`s. Each unit reads only its own roll, so twin members behave the same. The reason holds.
+6. **`#else`.** `int iRand = rand()%100 + 1;` is intact in the `#else`. The non-adaptive roll (`m_usSoundSet`) is not in the diff.
+
+**Play-test:** re-read for this review (exe `a438fdb2`, run after the deploy): 25 `JUNE_FX C3t-3` lines, every pick right, 0 EXCEPTION, baseline UNHANDLED.
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SOUND_SET_PICK --range c8c42c6^..c8c42c6 --with SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG`:
+`files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The PASS~ lines are the `//{{ //}}` markers. The deleted line is the commented `_DEBUG` `#define` that C3t-3 switched on. The 3 tokenless lines are
+`Always.h`'s `#endif`s after the `#error` guards (house precedent).
+**DEBUG off:** `//#define SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG` with a dated reason (bytepatch, 1 line, encoding unchanged). Worktree flagcheck
+(`--files KTDXLIB/Always.h`): 1 DEFINE, 0 FAIL, 1 deleted (that line), 0 encoding changes, `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,577,344 B, dated 2026-10-15 04:15:57, md5 8db8dae4c2bc13c9283a76ea0e65cedf, equal to X2/US_SERVICE/x2.exe (2026-10-15 04:15:53); built at mods/june-buff-port 2e8854e + 1 uncommitted code file(s).` The one file is this review's `Always.h`. `JUNE_FX C3t-3` and `JUNE_FX C3t-2` are absent from the deployed exe; the key is present.
+
+No questions for the user.
+
 ## C3u - port: June's summon-NPC socket gate
 
 **Status: done 2026-10-14 (dormant; found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3u.md`.
