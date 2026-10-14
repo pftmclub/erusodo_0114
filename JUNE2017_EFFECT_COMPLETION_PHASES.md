@@ -4422,9 +4422,17 @@ All 15 bind names and the `JUNE_FX C3z-4s` strings are in the exe.
 - At 3 or more, the gauge shakes red. At 5 comes the fever: the world darkens, then fades back and the gauge resets to 0.
 - When the dummy dies, the gauge hides. Leaving the dungeon deletes it.
 - Log: `offline_server.log` `JUNE_FX C3z-4s ...`. ErrorLog should have no `can't find` for these names.
-- **Open (asset, not this port):** neither March's nor June's `.tet` files show the keys `MonsterFever_1..5` / `MonsterFerver`
-  to a plain grep. March has no `DLG_UI_Image_01/08.TET` in data215 at all. If the gauge frame or pips draw blank, that is the
-  texture table, not the class.
+- **Asset gap, closed here.** March's data215 had the gauge's three textures but none of their UV tables. June's
+  `DLG_UI_Image_01.TET`, `DLG_UI_Image_08.tet` and `DLG_UI_Common_Texture93_NEW.TET` hold every key the dialog names, in
+  UTF-16: `MONSTERFERVER`, `MONSTERFEVER_1..5`, `ROSE_EAGLE_RADAR00..09`. June's `.tga` are byte-identical to March's.
+  - All three staged byte-exact with `kom.py stage-june` (3 new, 0 replaced), so 3 of june-asset-port P4c's data215 adds come
+    early; P4c will find them identical.
+  - `PACK OK data215` (+3 added, 0 changed vs live). The copy to the game waits for the user.
+- Other users of the class (not yet in March): Elysion Soless, Herbaon and Suveillan (`ELYSION_S_2STAGE_SUVEILLAN.lua`).
+- Post-commit `flagcheck --range 14d8bf2^..14d8bf2 --with JUNE_SIMPLE_DLG_DEBUG`:
+  - `files: 3 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+  - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`
+  - `RESULT: PASS`
 
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
