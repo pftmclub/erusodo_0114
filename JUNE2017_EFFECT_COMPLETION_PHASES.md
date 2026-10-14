@@ -4434,7 +4434,7 @@ All 15 bind names and the `JUNE_FX C3z-4s` strings are in the exe.
   - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`
   - `RESULT: PASS`
 
-### C3z-4s - play-test (2026-10-15 04:56-05:06, reyaa unit 12, exe `287bfb54`, data215 copied): PASSED for checks 1-4
+### C3z-4s - play-test (2026-10-15 04:56-05:07, reyaa unit 12, exe `287bfb54`, data215 copied): PASSED
 
 - Ranox Secret Hell 41271, `/stage 2`; the first room cleared to stage 2's second sub-stage. A detour through stage 1 (no gauge
   there: TYPE1 scene) came first.
@@ -4446,7 +4446,9 @@ All 15 bind names and the `JUNE_FX C3z-4s` strings are in the exe.
   every 0.43 s, `skipped ( dialog moving )` in between (June's `GetIsMoving` gate).
 - **Fever at 5, then reset**: held at 5 from 05:05:28, back to 0 at 05:05:47 (fever end); a second cycle reached 4 by 05:06:00.
 - 0 EXCEPTION; the 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ` (not this phase's); no `can't find` in ErrorLog.
-- Not yet seen: the hide on the dummy's death (`SetShow_LUA 0`) and the delete on leaving (`SimpleDLG dtor`).
+- **Delete on leaving** (05:07:48): `SimpleDLG dtor ( dialog deleted )`, then a clean exit (census present).
+- Not reached: the hide on the dummy's death (`SetShow_LUA 0`). Stage 2's dummy was still alive when the user left.
+  That path is a script call to the same bound `SetShow_LUA`, already exercised with `true`, so it was not re-run.
 
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
