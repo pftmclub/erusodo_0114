@@ -38348,6 +38348,71 @@ void CX2GUUser::ProcessVPP()
 
 bool CX2GUUser::GetShowActiveSkillShow() const
 {
+#ifdef SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION
+	/// June 31fd3180 ( C3t-1 ). June's cut-in option ( g_pMain +0x274 = CX2GameOption +0xf4: OpenScriptFile 324214a0, called on g_pMain + 0x180
+	/// @3259affa, reads SKILL_CUTIN_SHOW as a raw int, default 1; the save writes "%d" ) is a bitmask: bit 0 = my cut-ins ( GFx mySkillCutScene ),
+	/// bit 1 = the party's ( teamSkillCutScene ); the GFx sync 32ede000 tests g_pMain +0x274 & 1 @32ede09d and & 2 @32ede0d1. June's Lua
+	/// SKILL_CUTIN_SHOW_STATE table ( 0 / 1 / 2 ) and its DLG_UI_Option_Etc radios are the March ones, left unused by June's GFx option page.
+	/// March keeps its enum, its three radios and its save by name, so the value is mapped by name: SCSS_ONESELF -> 1, SCSS_PARTY_MEMBER -> 3
+	/// ( my unit or a party member, March's own meaning ), SCSS_HIDE -> 0. June's 2 ( party members only, not my unit ) has no March value:
+	/// ported below, not reachable from the March UI.
+	int iJuneCutInShow = 0;
+	switch( g_pMain->GetGameOption().GetStateCutinShowState() )
+	{
+	case CX2GameOption::SCSS_ONESELF:		iJuneCutInShow = 1;	break;
+	case CX2GameOption::SCSS_PARTY_MEMBER:	iJuneCutInShow = 3;	break;
+	default:								iJuneCutInShow = 0;	break;	// SCSS_HIDE
+	}
+
+	bool bShowActiveSkillShow = false;
+	switch( iJuneCutInShow )
+	{
+	case 1:		// @31fd31da
+		if( true == IsMyUnit() )
+			bShowActiveSkillShow = true;
+		break;
+	case 2:		// @31fd31ca: not my unit, and a party member ( 32431360 )
+		if( false == IsMyUnit() && true == g_pData->GetPartyManager()->IsMyPartyMember( m_UnitUID ) )
+			bShowActiveSkillShow = true;
+		break;
+	case 3:		// @31fd319a
+		if( true == IsMyUnit() || true == g_pData->GetPartyManager()->IsMyPartyMember( m_UnitUID ) )
+			bShowActiveSkillShow = true;
+		break;
+	default:
+		break;
+	}
+
+	/// @31fd31ea: 31fcef00 == 5, i.e. the now state's skill is a hyper active. 31fcef00 needs m_pUnit ( +0x867c ), the skill tree ( g_pData +0x50 ) and
+	/// GetNowStateSkillID ( vslot 0x524 ) != 0, then maps GetSkillTemplet( id, 1 ) ( 32206450 ) through 32070510, whose 5 is SKILL_TYPE 13 =
+	/// ST_HYPER_ACTIVE_SKILL ( compared here by name; FINALITY_SKILL_SYSTEM is on ). Left out: its two GetSkillLevel calls ( 32890620 ), whose
+	/// results are discarded, and 32206450's level gate, which needs IsEnableCode( 0x911 / 0x910 ) ( no code event offline ).
+	/// A hyper active then shows for my unit or a party member whatever the option says ( SCSS_HIDE included ).
+	bool bJuneHyperActive = false;
+	if( NULL != m_pUnit && NULL != g_pData->GetSkillTree() && CX2SkillTree::SI_NONE != GetNowStateSkillID() )
+	{
+		const CX2SkillTree::SkillTemplet* pJuneSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( GetNowStateSkillID() );
+		if( NULL != pJuneSkillTemplet && CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pJuneSkillTemplet->m_eType )
+			bJuneHyperActive = true;
+	}
+	if( true == bJuneHyperActive &&
+		( true == IsMyUnit() || true == g_pData->GetPartyManager()->IsMyPartyMember( m_UnitUID ) ) )
+		bShowActiveSkillShow = true;
+
+	/// @31fd3228: June then returns false when either of two June-only systems is up. March has neither, so both are left out:
+	/// - g_pKTDXApp +0x1c8 ( the Scaleform GFx UI manager ) and 31c44710( 0xb ) ( GFx invoke "isOpenUI", UI 0xb is open ); March has no GFx (D9).
+	/// - g_pMain +0x80a: set when an entry of June's movie table ( g_pMain +0x7f8, 0xc4-byte records parsed by 31d8cb90: m_wstrMovieFileName,
+	///   m_bIntroMovie, m_eMovieCategory, m_iQuestID, ... ) starts ( 31d7a150 by quest, 31d884f0 by id ), cleared in 324d9f80. March has no
+	///   in-game movie table ( its m_bPlayIntroMovie is a one-shot server-select intro flag ); routed with the backlog's quest movies.
+#ifdef SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG
+	CX2OfflineLog::Server( L"JUNE_FX C3t-1 unit %I64d ( %s ) my %d: option %d -> june %d, now skill %d hyper %d -> show %d",
+		m_UnitUID, ( NULL != m_pUnit ) ? m_pUnit->GetNickName() : L"?", ( true == IsMyUnit() ) ? 1 : 0,
+		(int)g_pMain->GetGameOption().GetStateCutinShowState(), iJuneCutInShow, (int)GetNowStateSkillID(),
+		( true == bJuneHyperActive ) ? 1 : 0, ( true == bShowActiveSkillShow ) ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG
+
+	return bShowActiveSkillShow;
+#else SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION
 	bool bShowActiveSkillShow = false;
 	switch( g_pMain->GetGameOption().GetStateCutinShowState() )
 	{
@@ -38367,6 +38432,7 @@ bool CX2GUUser::GetShowActiveSkillShow() const
 	}
 
 	return bShowActiveSkillShow;
+#endif SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION
 }
 
 bool CX2GUUser::GetShowCutInAndChangeWorldColor()

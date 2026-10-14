@@ -564,3 +564,9 @@ Class hooks (engine side ported, base bodies in `X2GUUser.h`; the class override
 | Ara | user vslot `0x51c` override `32bd85f0`: now state `0x17` or `0x9b` (`ASI_BERSERK_MODE`) | override `JuneIsHyperModeState` |
 | Luciel | user vslot `0x51c` override `32b4dbe0` (state `0x17` or a Luciel state: read it at `@32b4dc12`) | override `JuneIsHyperModeState` |
 | Luciel | in `32014fc0`: with the second body (vslot `0x260`, `+0x8e90`, 7o) and a non-empty `m_MinorUnitHyperCutIn`, that name. Then, for unit type 10 / class `0x81` (`UC_LUCIEL_DEMONIO`): future state index (`320761a0`) `0x1c2` without the second body -> `m_HyperCutIn_Trans`, or `0x1f6` with it -> `m_MinorUnitHyperCutIn_Trans`, each only when not empty | add both branches after the berserk one (the comment above the function has the order) |
+
+**Hyper active skills (from C3t-1, `SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION`):** June's `GetShowActiveSkillShow` (`31fd3180`) shows the cut-in
+of an `ST_HYPER_ACTIVE_SKILL` state for my unit or a party member whatever the cut-in option says (Hide included). Engine side ported. It stays
+dormant until a port brings June's hyper active skill templets: March's `NewSkillTempletVer2.lua` (data036) has 521 templets and none of
+type 13 (`ST_HYPER_ACTIVE_SKILL`; only placeholder 903 "Specifc Hyper Active", type 0), and no save unit has an `SI_HA_*` skill. Play-test it
+with the first ported hyper active: option on Hide, use it -> the cut-in shows; a normal active -> none.

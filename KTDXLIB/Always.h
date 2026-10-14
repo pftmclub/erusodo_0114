@@ -7253,6 +7253,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-14
+// Description: June effect completion C3t-1: June's CX2GUUser::GetShowActiveSkillShow ( 31fd3180 ). June's cut-in option is a
+//              bitmask ( 1 mine, 2 party only, 3 mine or party ); March's enum is mapped to it by name ( ONESELF 1, PARTY_MEMBER 3,
+//              HIDE 0 ). New: a hyper active skill ( ST_HYPER_ACTIVE_SKILL ) of my unit or a party member always shows its cut-in,
+//              even with the option on Hide. June's two GFx / movie hide terms have no March system and are left out.
+#define SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-14
+// Description: June effect completion C3t-1 play-test lines ( short-lived; turn OFF in the C3t-1 review ): "JUNE_FX C3t-1"
+//              one line per GetShowActiveSkillShow call ( option, June value, now skill, hyper, result ). Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG
+//              Its lines all sit inside SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION, so without that flag it compiles to nothing.
+#if defined(SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
+#error SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-14
 // Description: June effect completion C3w: June's CX2DungeonSubStage::ShowBossNameAtStart ( 327ef160 ) whole. Game type 2 or June's 4
 //              ( GT_PVE, none in March ); an NPC with FORCE_CINEMATIC_STATE shows the boss intro exactly while it is in that state,
 //              bypassing m_bShowBossName and its delay; up to 8 boss names per call, each on its own particle sequence "BOSS_NAME<n>"
