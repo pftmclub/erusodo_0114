@@ -3178,9 +3178,27 @@ No questions for the user. Next: `C3t-3`.
 
 ## C3u - port: June's summon-NPC socket gate
 
-**Status: ready (found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3u.md`.
+**Status: done 2026-10-14 (dormant; found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3u.md`.
 
 - **Scope:** `CX2GUUser::SumSocketOption 3204f190 @3204fb89-3204fc1d`: March's summon-NPC socket push, plus June's gate: NPC ids `0x1017 / 0x1018` only in `GT_DUNGEON` (game vslot `0x10c` == 2).
+
+### C3u - Done (2026-10-14)
+
+- **Landed:** flag `SERV_IRUHADEV_JUNE_SUMMON_NPC_SOCKET_GATE` (`KTDXLIB/Always.h`) in `X2GUUser.cpp` SumSocketOption's summon-NPC push. June
+  `@3204fb89-3204fc1d`: March's test (id `+0x240` > 0; `fldz; fcomp +0x244; test ah,5; jp` = rate > 0, NaN skips), then id `0x1017` / `0x1018`
+  reaches `3210aae0` (`m_vecSummonNpcSocket` `+0x8d80`) only when `31aad500(3372c0fc)` vslot `0x10c` == 2 (March `CX2Game::GT_DUNGEON` = 2);
+  every other id is pushed unconditionally, as in March. `#else`: March's single push. The added `NULL != g_pX2Game` is March safety (June's
+  handle fetch derefs unconditionally), not a June quirk, so no JUNE_BUGS row.
+- **Ids:** June `Enum.lua` `NUI_PVE_RED_KNIGHT_BASTARD_EVENT_TITLE = 4119`, `NUI_PVE_BLUE_KNIGHT_BASTARD_EVENT_TITLE = 4120`. March's
+  `NPC_UNIT_ID` stops at 4077 (`NUI_EVENT_INT_MOON`) before `NUI_DUNGEON_NPC_END = 5000`, so the code cites the bare ids.
+- **Dormant.** Only June sockets 2000035 / 2000036 (`OptionItemData`: rate 0.1, cool time 180, DUNGEON_ONLY) name them, and only June event
+  titles 100220 "Velder Title (2 Days)" / 100230 "Hamel Title (2 Days)" carry those sockets. March ships June's `OptionItemData` (buff 16-data)
+  but its own `TitleTable`: decompiled (scratch only) it has neither socket, and neither do `PetTemplet`, `RidingPetTemplet` or `RidingPetData`;
+  item.kim: 0 items; els_db.sql: 0 item `sockets` / `random_sockets`, 0 owned titles 100220 / 100230. Live once June's `TitleTable` is adopted
+  (backlog Stage 3a); then the title's summon fires in dungeons only (not battle fields).
+- **Hygiene:** flagcheck `--worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`: 1 PASS, 1 OTHER (Always.h: peers' C3f-1 / C3t-3 `_DEBUG` lines), 0 FAIL, 0 ERROR; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 untokened, 0 encoding changes; RESULT PASS
+- **Deploy:** DEPLOY OK, exe md5 a438fdb2 (X2_offline.exe 19,578,880 B, 2026-10-14 22:26; built with the peers' uncommitted C3f-1 / C3t-3 lines)
+- **In game:** nothing to see (dormant). No review: the kickoff asks for one only when the data shows a reachable socket.
 ---
 
 ## C3x - port: June's maps for the June dungeon scripts

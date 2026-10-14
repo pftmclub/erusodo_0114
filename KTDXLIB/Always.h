@@ -7322,3 +7322,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-14
+// Description: June effect completion C3u: June CX2GUUser::SumSocketOption 3204f190 @3204fbc9-3204fc1d. A summon-NPC socket for
+//              NPC 4119 / 4120 ( June *_KNIGHT_BASTARD_EVENT_TITLE; June sockets 2000035 / 2000036 on June event titles 100220 /
+//              100230 ) is filed only in GT_DUNGEON, every other id as March. Dormant: March's TitleTable has neither title.
+#define SERV_IRUHADEV_JUNE_SUMMON_NPC_SOCKET_GATE
+//////////////////////////////////////////////////////////////////////////

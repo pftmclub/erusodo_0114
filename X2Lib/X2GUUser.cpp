@@ -3528,7 +3528,18 @@ void CX2GUUser::SumSocketOption( const vector<int>& vecSocketOption, const float
 			tSummonNpc.m_fSummonRate = kSocketData.m_fSummonNpcRate;
 			tSummonNpc.m_fSummonNpcCoolTime = kSocketData.m_fSummonNpcCoolTime;
 
+#ifdef SERV_IRUHADEV_JUNE_SUMMON_NPC_SOCKET_GATE
+			/// June CX2GUUser::SumSocketOption 3204f190 @3204fbc9-3204fc1d (effect completion C3u): a socket summoning NPC 0x1017 / 0x1018
+			/// ( June NUI_PVE_RED_KNIGHT_BASTARD_EVENT_TITLE 4119 / NUI_PVE_BLUE_KNIGHT_BASTARD_EVENT_TITLE 4120, June Enum.lua; March's
+			/// NPC_UNIT_ID has neither ) is filed only when the game type ( game vslot 0x10c ) is 2 = GT_DUNGEON; every other id as March.
+			/// June derefs its g_pX2Game handle unconditionally; the NULL test is March safety.
+			if( 4119 != kSocketData.m_iSummonNpcId && 4120 != kSocketData.m_iSummonNpcId )
+				m_vecSummonNpcSocket.push_back(tSummonNpc);
+			else if( NULL != g_pX2Game && CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() )
+				m_vecSummonNpcSocket.push_back(tSummonNpc);
+#else SERV_IRUHADEV_JUNE_SUMMON_NPC_SOCKET_GATE
 			m_vecSummonNpcSocket.push_back(tSummonNpc);
+#endif SERV_IRUHADEV_JUNE_SUMMON_NPC_SOCKET_GATE
 		}
 
 #ifdef HAMEL_SECRET_DUNGEON // ±Ë≈¬»Ø
