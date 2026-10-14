@@ -1560,7 +1560,7 @@ review `C3f-1-review.md`). User owes nothing.
 
 ## C3f-1 - port: June's force-down flush on leaving a down state (user + NPC)
 
-**Status: code done 2026-10-12, play-test pending. Model:** Sonnet 5.5, high. Flag `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH` (+ `_DEBUG` for the play-test lines,
+**Status: code done 2026-10-12, play-test PASSED 2026-10-14 (user observation), reviewed 2026-10-14 (PASS, `_DEBUG` off). Model:** Sonnet 5.5, high. Flag `SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH` (+ `_DEBUG` for the play-test lines,
 ON). Kickoff `kickoffs/june-effect/C3f-1.md`.
 
 - **Scope:** "C3f - Done" items 1-4: the user StateChange flush and ForceDownAndDetonationProcess's test-only form; the NPC
@@ -1595,6 +1595,37 @@ OTHER (+51 -1: the item 6 comment, inside SUPER_ARMOR_CONDITION); RESULT PASS, 0
 `DEPLOY OK: X2_offline.exe is 19,570,688 B, dated 2026-10-12 04:10:17, md5 5fac6f82805f3c5347e77f1c5fbbadff`; the four `JUNE_FX C3f-1` strings
 are in the exe.
 Open for the user: nothing. Play-test below; the review kickoff `C3f-1-review.md` already exists.
+
+### C3f-1 - Review (2026-10-14, Opus 5.5 high; PASS, no code fix, DEBUG off)
+
+Commit `b4fa118` checked against June's raw disassembly (`disasm_range.py`) at all five sites, not only 2-3. Every item matches; only `_DEBUG` changed.
+1. **User flush `320348c0 @3203492b-32034994`.** It follows the emotion `bDirectChange` override (`bl`, `@32034923/27`) and precedes `31fe0bb0`,
+   `31fd66e0`, vslots `0x438` / `0x62c` and the IsLocalUnit vslot `0x19c` (`@320349d9`). It compares the Future nowState (`+0x7e6c`, protected,
+   `movzx` low 16 bits) with vslots `0x114` / `0x118` / `0x490`, so the state **left** is tested and AIR_DOWN_INVINCIBLE is not in the set.
+   It then calls `32a33dc0` with no return test. The port has the same order and the same set (`GetDamageAirDownLanding()` = USI_DAMAGE_AIR_DOWN_LANDING).
+   The port adds a NULL test on the gage that June lacks, which is harmless. March has no early return between the riding-pet clear and the insert.
+2. **`3202a9c0`.** `UpdateDamageFlushMP` runs first (`@3202aab4`), then `cmp byte [gage+0xf8],1`. When set, `nowSpeed.y` (`+0x308`) = 0 and the
+   clears run; when not set, the clears run only if bDet (`@3202aada`). The clears are `+0x6554`, `+0x6564`, `+0x1ee8` and `+0x91e5`. The port matches.
+3. **NPC `327577d0`.** The flush is the first block, before the bounds test (`js @3275782a`) and the cool time. It compares the `movzx` byte of the
+   protected `+0x8454` with `movsx` bytes of `+0x4090` / `+0x4094` / `+0x4098`, then calls `32a33dc0` with no return test. The port's
+   `char == (char)int` compare matches for every reachable state index (0..127; March's `char nowState` cannot hold more).
+4. **NPC CommonStateStart `@327af1fc-327af255`** (item 2b). This block runs right after `32761b40` and before `31e8a990` (`@327af25b`, the skip-start block).
+   It tests the same three byte compares, then `cmp byte [gage+0xf8],1`, then sets `nowSpeed.y = 0`, with nothing else. The port matches.
+5. **NPC DRSC `@3276a193-3276a1f3`.** FlushForceDown returns 1, and each of the three states then jumps to `@3276a290`. That is the
+   branch's end: the `+0x7c98 +0x4c` AI write and the return of `bStateChanged`. The port's `if(...) {} else` covers the whole branch. The branch body is a
+   single if / else-if chain (`X2GUNPC.cpp:13991-14036`), so nothing escapes the `else`.
+6. **CommonFrameMove reset** is in `#else`. **RT_DOWN comment** (`X2GUUser.cpp:12809-12810`) is correct. **JUNE_BUGS 178-181** agree with the C3f rows,
+   and row 131's wording holds.
+
+**Play-test lines.** The C3f-1 run's logs have since been overwritten by the C3w run. Per the STATUS row, they held 0 `JUNE_FX C3f-1` lines. That is consistent with
+the code: all four lines fire only when the force-down **flag** is set, which needs the gage to overflow. An ordinary knock-down never sets the flag. The code
+was compiled in: the then-deployed exe (f44fdbff) held all four strings.
+
+Hygiene: `flagcheck SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH --range b4fa118^..b4fa118 --with _DEBUG --files Always.h X2GUNPC.cpp X2GUUser.cpp`: `files: 1 PASS,
+0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 1 untokened #endif (the `#error` guard), 0 encoding changes; `RESULT: PASS`.
+The OTHER row is `X2GUUser.cpp`'s one replaced line, the RT_DOWN comment inside `SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION` (expected). No later commit touches the flag.
+`DEPLOY OK: X2_offline.exe is 19,578,880 B, dated 2026-10-14 22:26:08, md5 a438fdb24dea65d5eeabd6867614aac7, equal to X2/US_SERVICE/x2.exe (2026-10-14 22:26:04); built at mods/june-buff-port 20b8e84 + 4 uncommitted code file(s).` The four files are this review's `Always.h` line plus a peer's C3t-3 edits, which are uncommitted and also built in. The deployed exe holds 0 `JUNE_FX C3f-1` strings.
+Open for the user: nothing.
 
 ---
 

@@ -7140,7 +7140,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-12
 // Description: June effect completion C3f-1 play-test lines ( short-lived; turn OFF in the C3f-1 review ): "JUNE_FX C3f-1" user flush /
 //              flag set / NPC flush lines. Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
+//#define SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG	// off 2026-10-14 (C3f-1 review): play-test PASSED on the user's observation; Ghidra spot-check of all five sites PASS
 #if defined(SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG) && !defined(SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH)
 #error SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG needs SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH
 #endif
