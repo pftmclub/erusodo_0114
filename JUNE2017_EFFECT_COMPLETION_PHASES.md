@@ -3215,6 +3215,12 @@ No questions for the user. Next: `C3t-3`.
 - Voices should sound as before.
 - The log shows rolls 1-100, `keep 0` everywhere, `live rate0` = the first rate with `found 1`, and the set type matching the roll against the rates (1 / 4 / 7 = set 0 / 1 / 2, +1 hyper, +2 berserk).
 
+**Play-test PASSED 2026-10-15** (reyaa, Karuso Village Hard 33231 `/stage 3` to the Battle Master; exe `a438fdb2`, run after the deploy, clean exit;
+0 EXCEPTION, baseline UNHANDLED `E_DISABLE_HB_CHECK_REQ` x2): 25 `JUNE_FX C3t-3` lines, all `Karuso_Battle_Master.lua`.
+- Every line: `keep 0`, `live rate0` = the pre-parsed first rate, `found 1` (the open table is the state's own), `set flag 1`.
+- 33 / 33 / 34 (states 16, 17, 18, 26, 44): 15 / 15 picks right, incl. roll 100 -> type 1 (the set-0 fallback, state 17).
+- 50 / 50 (states 22, 29): 10 / 10 right, incl. roll 49 -> 1 and roll 50 -> 4 (strict `<`). Rolls ranged 7-100.
+
 No questions for the user.
 
 ## C3u - port: June's summon-NPC socket gate
