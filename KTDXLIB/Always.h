@@ -7330,3 +7330,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              100230 ) is filed only in GT_DUNGEON, every other id as March. Dormant: March's TitleTable has neither title.
 #define SERV_IRUHADEV_JUNE_SUMMON_NPC_SOCKET_GATE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-15
+// Description: June effect completion C3z-4s: June's CX2SimpleDLG_WithLuaFunc ( 0x14 B, ctor 326b24a0 ), a script-made
+//              dialog on CX2Game ( +0xba8: CreateSimpleDLG 322def10 / DeleteSimpleDLG 322cc520 / GetSimpleDLG 31e4de40,
+//              deleted by the game dtor 323080c0 ) with its 12 Lua methods ( binder 31d95080 @31e42615..@31e43fde ), and
+//              June's re-placement of it at the end of CX2GameOption::SetIsSkillUITypeA ( 32420d30 -> 326b18c0 ).
+//              Users: Ranox Secret Hell SECRET_SCENE_DUMMY.lua ( fever gauge ), Elysion Soless / Herbaon ( not yet ported ).
+#define SERV_IRUHADEV_JUNE_SIMPLE_DLG
+// SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG: "JUNE_FX C3z-4s" lines ( create / delete / each method, capped ) in offline_server.log.
+#define SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG
+#if defined(SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
+#error SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
+#endif
+//////////////////////////////////////////////////////////////////////////

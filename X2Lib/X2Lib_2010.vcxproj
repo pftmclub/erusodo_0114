@@ -1854,6 +1854,7 @@
     <ClInclude Include="X2GameEdit.h" />
     <ClInclude Include="X2GameLoadingTip.h" />
     <ClInclude Include="X2GameOption.h" />
+    <ClInclude Include="X2SimpleDLG_WithLuaFunc.h" />
     <ClInclude Include="X2GameUnit.h" />
     <ClInclude Include="X2GameUnitTestCase.h" />
     <ClInclude Include="X2GUAra.h" />

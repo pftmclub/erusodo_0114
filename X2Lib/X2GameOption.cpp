@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2gameoption.h"
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+#include ".\X2SimpleDLG_WithLuaFunc.h"
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 
 #ifdef X2OPTIMIZE_AUTOSETUP_GAMEOPTION
 #include "KBenchmark_SUM.h"
@@ -1902,6 +1905,12 @@ void CX2GameOption::SetIsSkillUITypeA( bool bIsSkillUITypeA_, bool bShowBuffIcon
 		pGageManager->ResetOtherPlayerUIPosition();
 		pGageManager->SetShowBuffIcon( bShowBuffIcon_ );
 	}
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+	// June 32420d30, its last block ( call @32420ef4 ): with a game whose +0xba8 is set, the script-made dialog is
+	// placed again for the new skill-UI type ( 326b18c0 ).
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetSimpleDLG() )
+		g_pX2Game->GetSimpleDLG()->UpdateExternalCondition();
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 
 }
 #endif //SKILL_SLOT_UI_TYPE_B

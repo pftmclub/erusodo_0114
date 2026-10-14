@@ -36,6 +36,9 @@ namespace	_CONST_X2GAME_
 #endif	REAL_TIME_ELSWORD
 //}} kimhc // ½Ç½Ã°£ ¿¤¼Òµå Áß ½Ç½Ã°£ ED È¹µæ
 
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+class CX2SimpleDLG_WithLuaFunc;
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 class CX2Game : public CKTDXStage
 {
 	public:
@@ -535,6 +538,12 @@ class CX2Game : public CKTDXStage
 		void						SetInt_LUA( int iIndex_, int iValue_ );
 		int							GetInt_LUA( int iIndex_ );
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+		// June 322def10 / 322cc520 / 31e4de40: the script-made dialog at +0xba8 ( X2SimpleDLG_WithLuaFunc.h )
+		CX2SimpleDLG_WithLuaFunc*	CreateSimpleDLG( const char* pFileName_ );
+		void						DeleteSimpleDLG();
+		CX2SimpleDLG_WithLuaFunc*	GetSimpleDLG() { return m_pJuneSimpleDLG; }
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
 		bool						GetIsLastStage();		// June 322f36e0
 		int							GetNowStateID_LUA();	// June 322cf9b0, in June's X2_STATE numbering
@@ -2026,6 +2035,9 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
 		int							m_aiJuneLuaInt[10];		/// June +0x7e0..+0x804: zeroed in the ctor 32306600 ( @32307f44-7a ), Lua only
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+		CX2SimpleDLG_WithLuaFunc*	m_pJuneSimpleDLG;		/// June +0xba8: NULL in the ctor ( @32307743 ), deleted in the dtor ( @32308b85 )
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 		bool						m_bJuneSkipStartArmed;		/// June +0xb40
 		bool						m_bJuneSkipStartSent;		/// June +0xb41 ( set by the ESC; the party path waits on it )

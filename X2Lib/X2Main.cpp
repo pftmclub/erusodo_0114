@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\x2main.h"
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+#include ".\X2SimpleDLG_WithLuaFunc.h"
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 
 #include <ShlObj.h>
 
@@ -3913,6 +3916,14 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Game>( L, "SetInt_LUA",							&CX2Game::SetInt_LUA );
 	lua_tinker::class_def<CX2Game>( L, "GetInt_LUA",							&CX2Game::GetInt_LUA );
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+	// June binder 31d95080 @31ddd6e8 ( 322def10 ) / @31ddd879 ( 322cc520 ) / @31ddd9f5 ( 31e4de40 ), on CX2Game;
+	// the class and its 12 methods ( @31e42615..@31e43fde ) in X2SimpleDLG_WithLuaFunc.cpp
+	lua_tinker::class_def<CX2Game>( L, "CreateSimpleDLG",						&CX2Game::CreateSimpleDLG );
+	lua_tinker::class_def<CX2Game>( L, "DeleteSimpleDLG",						&CX2Game::DeleteSimpleDLG );
+	lua_tinker::class_def<CX2Game>( L, "GetSimpleDLG",							&CX2Game::GetSimpleDLG );
+	CX2SimpleDLG_WithLuaFunc::RegisterLuaBind( L );
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_GAME_HOST_GAME_UNIT
 	// June @31dd906c ( 31aa6280: the host observer +0x89c, -0x1a0 -> CX2GUUser* ) = March m_optrHostGameUnit
 	lua_tinker::class_def<CX2Game>( L, "GetHostGameUnit",						&CX2Game::GetHostGameUnit );

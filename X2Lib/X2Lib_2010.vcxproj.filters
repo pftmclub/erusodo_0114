@@ -177,6 +177,9 @@
     <ClInclude Include="X2GameOption.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="X2SimpleDLG_WithLuaFunc.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="X2GameUnit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

@@ -4373,6 +4373,57 @@ lives in `Always.h` and also in `ServerDefine.h` plus `SECOND_HOMES`:
 
 There would be no change in behaviour, since nothing reads it. Say the word and it becomes C3z-4f-2; otherwise the row stays closed.
 
+### C3z-4s - Done (2026-10-15, Opus 5.5 high; `SERV_IRUHADEV_JUNE_SIMPLE_DLG` + `_DEBUG` on)
+
+**What landed.** June's `CX2SimpleDLG_WithLuaFunc` (0x14 B: vtable, dialog handle +4/+8, number +0xc, two bools +0x10/+0x11).
+- Ported whole: ctor `326b24a0`, dtor `326b1320`, loader `326b2340`, placement `326b18c0`, and all 12 Lua methods
+  (binder `31d95080` @31e42615..@31e43fde; the bodies are `326b1380`, `326b1bb0`, `326b1d40`, `31e4d8a0`, `32e4ea40`,
+  `326b1a10`, `326b1400`, `326b1e40`, `326b1f80`, `326b2070`, `326b1a90`, `326b2170`). `GetNumber_LUA` is `32e4ea40` (`mov eax, [ecx+0xc]`).
+- Also ported: the `CX2Game` member +0xba8, with `CreateSimpleDLG` `322def10` (it returns the member on both paths, @322defbf),
+  `DeleteSimpleDLG` `322cc520` and `GetSimpleDLG` `31e4de40`. The ctor sets it NULL (@32307743) and the dtor deletes it (`323080c0` @32308b85).
+- Code: the class is in `X2Lib/X2SimpleDLG_WithLuaFunc.h` and its bodies in `X2Game.cpp`, because the PCH include cannot sit
+  inside a flag. CX2Game binds are in `X2Main.cpp`, beside `GetInt_LUA`.
+- **The hook June added.** `+0x10` / `+0x11` place the dialog for the skill-UI type. June's `g_pMain+0x278` is
+  `m_GameOption` (+0x180) + `m_bIsSkillUITypeA` (+0xf8), and `32420d30` is `CX2GameOption::SetIsSkillUITypeA`: it matches March's
+  body step for step, plus a June tail (call @32420ef4) that re-places the game's dialog. That tail goes at the end of March's
+  `SetIsSkillUITypeA`. Type B moves the dialog 44 down, type A moves it 44 up (`3348c590`).
+- **From the disassembly, not Ghidra's decompile:**
+  - `326b1940`: the `< 1` hide test reads arg 4 and the tens-zero test reads arg 3.
+  - `326b1400`: six `Move`s. The first goes to a random point in the colour (direct). The rest alternate home and a random
+    point, with the colour twice and then white. All six pass `(t, false, false, 1, true)`. The random draw is June's
+    (`31d28c20`: `rand()/32767.0 * |b-a| + a`), not March's `RandomFloat`.
+- March equivalents June calls directly:
+  - the dialog handle operators (`DIALOG_HANDLE_TEST` is ON in March, as in June);
+  - `GetIsMoving` (the same three tests);
+  - `MakeUpperCase( char* )` (`31d6e500`);
+  - `ConvertCharToWCHAR( dest, src, -1 )` (`31c335e0`).
+- The client's `LuaCommon/lua_tinker.h` binds member functions with up to 10 arguments, so the 9-float method is a plain `class_def`.
+- JUNE_BUGS #193-196, all kept verbatim:
+  - `SetUseExternalCondition_LUA` stores 1 whatever the argument;
+  - MoreDigit hides a zero between digits;
+  - the number setters show digits with no NULL check (a negative number crashes);
+  - the gauge key is upper-cased in place on the Lua string.
+- Not ported: the other June-only block in `SetIsSkillUITypeA`. With `g_pData+0x6c +0xd8 == 6`, it calls `32ed4720` on a
+  `dynamic_cast` of the game. That is another UI feature, unrelated to this dialog. Noted once.
+
+**Hygiene.** `flagcheck JUNE_SIMPLE_DLG --with JUNE_SIMPLE_DLG_DEBUG --worktree --files` (the 6 code files):
+`files: 3 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The untokened `#endif` is the `#error` guard in Always.h. `X2Lib_2010.vcxproj` (+ `.filters`) list the new header.
+
+`DEPLOY OK: X2_offline.exe is 19,588,096 B, dated 2026-10-15 04:45:22, md5 287bfb5432c18cfc485514905607c4e9, equal to X2/US_SERVICE/x2.exe (2026-10-15 04:45:18); built at mods/june-buff-port 6e9ae95 + 8 uncommitted code file(s).`
+All 15 bind names and the `JUNE_FX C3z-4s` strings are in the exe.
+
+**How to see it** (Ranox Secret Hell 41271, Hard, stage 2 = `STAGE2`, whose SUB_STAGE1 spawns `NUI_SECRET_SCENE_DUMMY`):
+- On its start state the dummy calls `CreateSimpleDLG("DLG_UI_RANOX_SECRET_FEVER_GAGE.lua")` and `SetShow_LUA(true)`.
+- Each `SECRET_MAGI_OBJECT` that finishes its start state counts +1; killing one counts -1.
+- At 3 or more, the gauge shakes red. At 5 comes the fever: the world darkens, then fades back and the gauge resets to 0.
+- When the dummy dies, the gauge hides. Leaving the dungeon deletes it.
+- Log: `offline_server.log` `JUNE_FX C3z-4s ...`. ErrorLog should have no `can't find` for these names.
+- **Open (asset, not this port):** neither March's nor June's `.tet` files show the keys `MonsterFever_1..5` / `MonsterFerver`
+  to a plain grep. March has no `DLG_UI_Image_01/08.TET` in data215 at all. If the gauge frame or pips draw blank, that is the
+  texture table, not the class.
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).

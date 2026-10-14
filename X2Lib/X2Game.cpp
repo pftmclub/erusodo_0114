@@ -6,6 +6,9 @@
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_OFFLINE
 //}}
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+#include ".\X2SimpleDLG_WithLuaFunc.h"
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 
 
 
@@ -322,6 +325,9 @@ m_bSkillSlotJustChanged(true)
 #ifdef SERV_IRUHADEV_JUNE_GAME_LUA_INT
 	ZeroMemory( m_aiJuneLuaInt, sizeof( m_aiJuneLuaInt ) );	/// June CX2Game ctor 32306600 @32307f44-7a
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+	m_pJuneSimpleDLG = NULL;	/// June CX2Game ctor 32306600 @32307743
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 	JuneSkipStartReset();	/// June CX2Game ctor 32306600 @323076e0-323076fe: the skip-the-start list ( +0xb40 ) is built and reset ( 322d8010 )
 #endif SERV_IRUHADEV_JUNE_SKIP_START
@@ -699,6 +705,9 @@ CX2Game::~CX2Game()
 	//	m_pMajorParticle->DestroyInstanceHandle( m_hSeqTech ); 
 	//}
 
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+	SAFE_DELETE( m_pJuneSimpleDLG );	/// June CX2Game dtor 323080c0 @32308b85: vslot 0 ( delete ), then +0xba8 = 0
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 	SAFE_DELETE_DIALOG( m_pDLGResurrect );
 	SAFE_DELETE_DIALOG( m_pDLGCheckResurrectByUseCash );
 	ZeroMemory( &m_ReservedPacket, sizeof(KEGS_RESURRECT_TO_CONTINUE_DUNGEON_REQ) );
@@ -6000,6 +6009,450 @@ int CX2Game::GetInt_LUA( int iIndex_ )
 	return m_aiJuneLuaInt[iIndex_];
 }
 #endif SERV_IRUHADEV_JUNE_GAME_LUA_INT
+
+#ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
+/** @function : CreateSimpleDLG
+	@brief : June 322def10: only while +0xba8 is NULL, new CX2SimpleDLG_WithLuaFunc( file widened, 31c335e0 ); returns
+			 +0xba8 either way ( @322defbf ), so a second call hands back the existing dialog.
+*/
+CX2SimpleDLG_WithLuaFunc* CX2Game::CreateSimpleDLG( const char* pFileName_ )
+{
+	if ( NULL == m_pJuneSimpleDLG )
+	{
+		wstring wstrFileName;
+		ConvertCharToWCHAR( wstrFileName, pFileName_, -1 );
+		m_pJuneSimpleDLG = new CX2SimpleDLG_WithLuaFunc( wstrFileName.c_str() );
+	}
+	return m_pJuneSimpleDLG;
+}
+
+/** June 322cc520: +0xba8 != NULL -> vslot 0 ( delete ), +0xba8 = 0 */
+void CX2Game::DeleteSimpleDLG()
+{
+	SAFE_DELETE( m_pJuneSimpleDLG );
+}
+
+// ---- CX2SimpleDLG_WithLuaFunc ( June effect C3z-4s; class in X2SimpleDLG_WithLuaFunc.h ) ----
+
+#if defined( SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#define JUNE_SIMPLE_DLG_LOG( iCap_, ... )	{ static int s_iLogged = 0; if ( s_iLogged < (iCap_) ) { ++s_iLogged; CX2OfflineLog::Server( __VA_ARGS__ ); } }
+#else // SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG && SERV_IRUHADEV_OFFLINE
+#define JUNE_SIMPLE_DLG_LOG( iCap_, ... )
+#endif // SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG && SERV_IRUHADEV_OFFLINE
+
+namespace
+{
+	/// June 31d28c20: a == b -> a; else rand() / 32767.0 ( 334380f8 ) * | b - a | + a.
+	/// ( March's RandomFloat draws rand() % 10001 / 10000 instead, so June's own draw is kept. )
+	float JuneRandomRange( float fMin_, float fMax_ )
+	{
+		if ( fMin_ == fMax_ )
+			return fMin_;
+
+		const float fRate = static_cast<float>( rand() / 32767.0 );
+		return fRate * fabs( fMax_ - fMin_ ) + fMin_;
+	}
+}
+
+/** @function : CX2SimpleDLG_WithLuaFunc
+	@brief : June ctor 326b24a0: handle NULL, number 0, +0x10 = 0x100 ( external condition off, placed for skill-UI
+			 type A ), then the dialog ( 326b2340 ).
+*/
+CX2SimpleDLG_WithLuaFunc::CX2SimpleDLG_WithLuaFunc( const WCHAR* wszFileName_ )
+{
+	m_pDLG = NULL;
+	m_iNumber = 0;
+	m_bUseExternalCondition = false;
+	m_bPlacedForSkillUITypeA = true;
+
+	CreateDLG( wszFileName_ );
+}
+
+/** @function : ~CX2SimpleDLG_WithLuaFunc
+	@brief : June dtor 326b1320: handle != NULL -> delete the dialog, handle = NULL.
+*/
+CX2SimpleDLG_WithLuaFunc::~CX2SimpleDLG_WithLuaFunc()
+{
+	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG dtor ( dialog %s )", ( m_pDLG != NULL ) ? L"deleted" : L"none" );
+	SAFE_DELETE_DIALOG( m_pDLG );
+}
+
+/** @function : CreateDLG
+	@brief : June 326b2340: only while the handle is NULL. new CKTDGUIDialog( g_pMain now-state ( +0x90 ), file ),
+			 a log line when the handle is still NULL ( June string 334b3440 "CreateSimpleUI ... FileName : %s" ),
+			 AddDlg, then the external-condition placement ( 326b18c0 ).
+*/
+void CX2SimpleDLG_WithLuaFunc::CreateDLG( const WCHAR* wszFileName_ )
+{
+	if ( m_pDLG != NULL )
+		return;
+
+	m_pDLG = new CKTDGUIDialog( g_pMain->GetNowState(), wszFileName_ );
+	if ( m_pDLG == NULL )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_SIMPLE_DLG] CreateSimpleUI failed! FileName : %s", wszFileName_ );
+#endif SERV_IRUHADEV_OFFLINE
+	}
+	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLG );
+	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG created %s", wszFileName_ );
+
+	UpdateExternalCondition();
+}
+
+/** @function : UpdateExternalCondition
+	@brief : June 326b18c0: with the external condition on, when g_pMain +0x278 ( March
+			 CX2GameOption::m_OptionList.m_bIsSkillUITypeA, written by SetIsSkillUITypeA 32420d30 ) differs from the type
+			 the dialog was placed for, the dialog moves 44 ( 3348c590 ) down for type B, up for type A.
+			 June operates on the handle without a NULL check; kept.
+*/
+void CX2SimpleDLG_WithLuaFunc::UpdateExternalCondition()
+{
+	if ( false == m_bUseExternalCondition || NULL == g_pMain )
+		return;
+
+	const bool bSkillUITypeA = g_pMain->GetGameOption().GetIsSkillUITypeA();
+	if ( m_bPlacedForSkillUITypeA == bSkillUITypeA )
+		return;
+
+	m_bPlacedForSkillUITypeA = bSkillUITypeA;
+
+	D3DXVECTOR2 vPos = m_pDLG->GetPos();
+	if ( false == m_bPlacedForSkillUITypeA )
+		vPos.y = static_cast<float>( vPos.y + 44.0 );
+	else
+		vPos.y = static_cast<float>( vPos.y - 44.0 );
+
+	m_pDLG->SetPos( vPos );
+	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SimpleDLG external condition: skill UI type %s, dialog y -> %.1f",
+		bSkillUITypeA ? L"A" : L"B", vPos.y );
+}
+
+/** June 326b1380 */
+void CX2SimpleDLG_WithLuaFunc::SetShow_LUA( bool bShow_ )
+{
+	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetShow_LUA %d ( dialog %s )", bShow_ ? 1 : 0, ( m_pDLG != NULL ) ? L"ok" : L"none" );
+	if ( m_pDLG != NULL )
+		m_pDLG->SetShow( bShow_ );
+}
+
+/// The control lookup every June setter repeats: handle == NULL -> nothing; name ( char -> wide, 31c335e0 ) ->
+/// GetControl ( 31cd3be0 ), used as a static with no type check.
+CKTDGUIStatic* CX2SimpleDLG_WithLuaFunc::GetStatic( const char* pStaticName_ )
+{
+	if ( m_pDLG == NULL )
+		return NULL;
+
+	wstring wstrStaticName;
+	ConvertCharToWCHAR( wstrStaticName, pStaticName_, -1 );
+	return static_cast<CKTDGUIStatic*>( m_pDLG->GetControl( wstrStaticName.c_str() ) );
+}
+
+/** @function : SetNumberInNumberStatic_LUA
+	@brief : June 326b1bb0. A 20-picture static ( 0-9 ones, 10-19 tens ): show it, hide every picture, clamp to 99,
+			 show the ones digit and the tens digit ( a zero tens only with bShowTensZero_ ). Any other picture count
+			 hides the static. The digit pictures are shown with no NULL check ( JUNE_BUGS: a negative number ).
+*/
+void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_LUA( const char* pStaticName_, int iNumber_, bool bShowTensZero_ )
+{
+	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
+	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_LUA %d tens0 %d ( static %s, %d pictures )",
+		iNumber_, bShowTensZero_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none", ( NULL != pStatic ) ? pStatic->GetPictureNum() : -1 );
+	if ( NULL == pStatic )
+		return;
+
+	if ( pStatic->GetPictureNum() == 20 )
+	{
+		pStatic->SetShow( true );
+		for ( int i = 0; i < 20; ++i )
+		{
+			CKTDGUIControl::CPictureData* pPicture = pStatic->GetPicture( i );
+			if ( NULL != pPicture )
+				pPicture->bShow = false;
+		}
+
+		if ( 99 < iNumber_ )
+			iNumber_ = 99;
+
+		const int iTens = iNumber_ / 10;
+		if ( iNumber_ % 10 < 10 && iTens < 10 )
+		{
+			pStatic->GetPicture( iNumber_ % 10 )->bShow = true;
+			if ( 0 < iTens || ( 0 == iTens && true == bShowTensZero_ ) )
+				pStatic->GetPicture( iTens + 10 )->bShow = true;
+		}
+	}
+	else
+	{
+		pStatic->SetShow( false );
+	}
+}
+
+/** June 326b1d40 -> 326b13c0 */
+void CX2SimpleDLG_WithLuaFunc::SetNumberInGageStatic_LUA( const char* pStaticName_, int iNumber_ )
+{
+	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
+	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInGageStatic_LUA %d ( static %s )", iNumber_, ( NULL != pStatic ) ? L"ok" : L"none" );
+	if ( NULL != pStatic )
+		SetNumberInGageStatic( pStatic, iNumber_ );
+}
+
+/// June 326b13c0: pictures 1..5 show while their index <= the number; picture 0 ( the frame ) is left alone.
+/*static*/ void CX2SimpleDLG_WithLuaFunc::SetNumberInGageStatic( CKTDGUIStatic* pStatic_, int iNumber_ )
+{
+	if ( NULL == pStatic_ )
+		return;
+
+	for ( int i = 0; i < 6; ++i )
+	{
+		CKTDGUIControl::CPictureData* pPicture = pStatic_->GetPicture( i );
+		if ( NULL != pPicture && 0 < i )
+			pPicture->bShow = ( i <= iNumber_ );
+	}
+}
+
+/** June 326b1a10: CrashAndColorChangeCustom( red 1 0 0 1, 0.05 ( 33436704 ), x / y -3 ( 3344b30c ) .. 3 ( 33436700 ) ) */
+void CX2SimpleDLG_WithLuaFunc::CrashAndColorChange_LUA()
+{
+	CrashAndColorChangeCustom_LUA( 1.f, 0.f, 0.f, 1.f, 0.05f, -3.f, -3.f, 3.f, 3.f );
+}
+
+/** @function : CrashAndColorChangeCustom_LUA
+	@brief : June 326b1400 ( the six Move calls read from the disassembly ): only while the dialog is not moving
+			 ( 31cd3380 ). Bounds = dialog position + offsets. Then a shake: random point in the colour ( direct ),
+			 home in the colour, random point, home in white, random point, home in white; every Move is
+			 ( fTime_, bAutoDelete false, bPingPong false, repeat 1, bFadeInOut true ).
+*/
+void CX2SimpleDLG_WithLuaFunc::CrashAndColorChangeCustom_LUA( float fRed_, float fGreen_, float fBlue_, float fAlpha_, float fTime_,
+	float fMinX_, float fMinY_, float fMaxX_, float fMaxY_ )
+{
+	if ( m_pDLG == NULL || true == m_pDLG->GetIsMoving() )
+	{
+		JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s CrashAndColorChange skipped ( %s )", ( m_pDLG == NULL ) ? L"no dialog" : L"dialog moving" );
+		return;
+	}
+
+	const D3DXVECTOR2 vHomePos = m_pDLG->GetPos();
+	const float fMinX = fMinX_ + m_pDLG->GetPos().x;
+	const float fMinY = m_pDLG->GetPos().y + fMinY_;
+	const float fMaxX = fMaxX_ + m_pDLG->GetPos().x;
+	const float fMaxY = m_pDLG->GetPos().y + fMaxY_;
+
+	const D3DXCOLOR colorFlash( fRed_, fGreen_, fBlue_, fAlpha_ );
+	const D3DXCOLOR colorWhite( 1.f, 1.f, 1.f, 1.f );
+
+	D3DXVECTOR2 vShakePos;
+	vShakePos.x = JuneRandomRange( fMinX, fMaxX );
+	vShakePos.y = JuneRandomRange( fMinY, fMaxY );
+	m_pDLG->Move( vShakePos, colorFlash, fTime_, true, false, false, 1, true );
+	m_pDLG->Move( vHomePos, colorFlash, fTime_, false, false, false, 1, true );
+
+	vShakePos.x = JuneRandomRange( fMinX, fMaxX );
+	vShakePos.y = JuneRandomRange( fMinY, fMaxY );
+	m_pDLG->Move( vShakePos, colorFlash, fTime_, false, false, false, 1, true );
+	m_pDLG->Move( vHomePos, colorWhite, fTime_, false, false, false, 1, true );
+
+	vShakePos.x = JuneRandomRange( fMinX, fMaxX );
+	vShakePos.y = JuneRandomRange( fMinY, fMaxY );
+	m_pDLG->Move( vShakePos, colorFlash, fTime_, false, false, false, 1, true );
+	m_pDLG->Move( vHomePos, colorWhite, fTime_, false, false, false, 1, true );
+
+	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s CrashAndColorChange colour ( %.2f %.2f %.2f %.2f ) time %.2f, home ( %.1f, %.1f )",
+		fRed_, fGreen_, fBlue_, fAlpha_, fTime_, vHomePos.x, vHomePos.y );
+}
+
+/** @function : SetPercentValueInGageStatic_LUA
+	@brief : June 326b1e40: the static, then the texture key upper-cased in place on the Lua string itself
+			 ( 31d6e500 = MakeUpperCase( char* ); JUNE_BUGS ), widened, and the horizontal gauge cut ( 326b1720, bool 1 ).
+*/
+void CX2SimpleDLG_WithLuaFunc::SetPercentValueInGageStatic_LUA( const char* pStaticName_, int iPictureIndex_, const char* pTexKey_, float fPercent_ )
+{
+	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
+	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetPercentValueInGageStatic_LUA picture %d %.3f ( static %s )",
+		iPictureIndex_, fPercent_, ( NULL != pStatic ) ? L"ok" : L"none" );
+	if ( NULL == pStatic )
+		return;
+
+	MakeUpperCase( const_cast<char*>( pTexKey_ ) );
+	wstring wstrTexKey;
+	ConvertCharToWCHAR( wstrTexKey, pTexKey_, -1 );
+	SetPercentValueInGageStatic( pStatic, iPictureIndex_, wstrTexKey, fPercent_, true );
+}
+
+/** @function : SetPercentValueInGageStatic
+	@brief : June 326b1720: picture + its texture + the key's UV rect. The four corners are set from the rect, then the
+			 right edge ( horizontal ) is pulled in to leftTop.x + width * percent ( RB from leftBottom.x ) and the picture
+			 is sized originalSize.x * percent; vertical pulls the top edge down and sizes y ( inverse ).
+*/
+/*static*/ void CX2SimpleDLG_WithLuaFunc::SetPercentValueInGageStatic( CKTDGUIStatic* pStatic_, int iPictureIndex_, const wstring& wstrTexKey_, float fPercent_, bool bHorizontal_ )
+{
+	CKTDGUIControl::CPictureData* pPicture = pStatic_->GetPicture( iPictureIndex_ );
+	if ( NULL == pPicture || NULL == pPicture->pTexture || NULL == pPicture->pTexture->pTexture )
+		return;
+
+	const CKTDXDeviceTexture::TEXTURE_UV* pTexUV = pPicture->pTexture->pTexture->GetTexUV( wstrTexKey_ );
+	if ( NULL == pTexUV )
+		return;
+
+	CKTDGUIControl::UITextureData* pTexData = pPicture->pTexture;
+	if ( true == bHorizontal_ )
+	{
+		const float fWidth = ( pTexUV->rightTop.x - pTexUV->leftTop.x ) * fPercent_;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_LEFT_TOP]		= pTexUV->leftTop;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP]	= pTexUV->rightTop;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_LEFT_BOTTOM]	= pTexUV->leftBottom;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_BOTTOM]	= pTexUV->rightBottom;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP].x		= fWidth + pTexUV->leftTop.x;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_BOTTOM].x	= fWidth + pTexUV->leftBottom.x;
+		pTexData->SetTextureUV();
+		pPicture->SetSizeX( pPicture->GetOriginalSize().x * fPercent_ );
+		return;
+	}
+
+	const float fHeight = ( pTexUV->leftBottom.y - pTexUV->leftTop.y ) * fPercent_;
+	pTexData->uvOrgTexture[CKTDGUIControl::VP_LEFT_TOP]		= pTexUV->leftTop;
+	pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP]	= pTexUV->rightTop;
+	pTexData->uvOrgTexture[CKTDGUIControl::VP_LEFT_BOTTOM]	= pTexUV->leftBottom;
+	pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_BOTTOM]	= pTexUV->rightBottom;
+	pTexData->uvOrgTexture[CKTDGUIControl::VP_LEFT_TOP].y	= pTexUV->leftBottom.y - fHeight;
+	pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP].y	= pTexUV->rightBottom.y - fHeight;
+	pTexData->SetTextureUV();
+	pPicture->SetSizeY( pPicture->GetOriginalSize().y * fPercent_, true );
+}
+
+/** June 326b1f80 */
+void CX2SimpleDLG_WithLuaFunc::SetShowStatic_LUA( const char* pStaticName_, bool bShow_ )
+{
+	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
+	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetShowStatic_LUA %d ( static %s )", bShow_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none" );
+	if ( NULL != pStatic )
+		pStatic->SetShow( bShow_ );
+}
+
+/** June 326b2070 -> 326b1940 */
+void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreParam_LUA( const char* pStaticName_, int iNumber_, bool bShowTensZero_, bool bShowWhenZero_ )
+{
+	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
+	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_MoreParam_LUA %d tens0 %d show0 %d ( static %s )",
+		iNumber_, bShowTensZero_ ? 1 : 0, bShowWhenZero_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none" );
+	if ( NULL != pStatic )
+		SetNumberInNumberStatic_MoreParam( pStatic, iNumber_, bShowTensZero_, bShowWhenZero_ );
+}
+
+/** @function : SetNumberInNumberStatic_MoreParam
+	@brief : June 326b1940 ( argument use read from the disassembly; Ghidra's decompile reads the tens test from the
+			 number ): a number below 1 without bShowWhenZero_, or not 20 pictures, hides the static. Otherwise as
+			 SetNumberInNumberStatic_LUA.
+*/
+/*static*/ void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreParam( CKTDGUIStatic* pStatic_, int iNumber_, bool bShowTensZero_, bool bShowWhenZero_ )
+{
+	if ( NULL == pStatic_ )
+		return;
+
+	if ( ( iNumber_ < 1 && false == bShowWhenZero_ ) || pStatic_->GetPictureNum() != 20 )
+	{
+		pStatic_->SetShow( false );
+		return;
+	}
+
+	pStatic_->SetShow( true );
+	for ( int i = 0; i < 20; ++i )
+	{
+		CKTDGUIControl::CPictureData* pPicture = pStatic_->GetPicture( i );
+		if ( NULL != pPicture )
+			pPicture->bShow = false;
+	}
+
+	if ( 99 < iNumber_ )
+		iNumber_ = 99;
+
+	const int iTens = iNumber_ / 10;
+	if ( iNumber_ % 10 < 10 && iTens < 10 )
+	{
+		pStatic_->GetPicture( iNumber_ % 10 )->bShow = true;
+		if ( 0 < iTens || ( 0 == iTens && true == bShowTensZero_ ) )
+			pStatic_->GetPicture( iTens + 10 )->bShow = true;
+	}
+}
+
+/** June 326b1a90: sets +0x10 to 1 whatever the argument ( JUNE_BUGS ), then places the dialog ( 326b18c0 ). */
+void CX2SimpleDLG_WithLuaFunc::SetUseExternalCondition_LUA( bool bUse_ )
+{
+	JUNE_SIMPLE_DLG_LOG( 20, L"JUNE_FX C3z-4s SetUseExternalCondition_LUA %d ( June stores 1 )", bUse_ ? 1 : 0 );
+	m_bUseExternalCondition = true;
+	UpdateExternalCondition();
+}
+
+/** @function : SetNumberInNumberStatic_MoreDigit_LUA
+	@brief : June 326b2170. A static of iDigit_ * 10 pictures ( digit place p uses pictures p*10 .. p*10+9 ): show it,
+			 hide all, clamp to 10^iDigit_ - 1 ( 32071040 pow( 10.f ( 3344a51c ), n ), 32fe25f0 ftol ), then from the top
+			 place down: a quotient above 0, or 0 with bShowZero_, is shown ( a zero between digits is hidden too without
+			 bShowZero_: JUNE_BUGS ); place 0 always shows. Any other picture count hides the static.
+*/
+void CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreDigit_LUA( const char* pStaticName_, int iNumber_, int iDigit_, bool bShowZero_ )
+{
+	CKTDGUIStatic* pStatic = GetStatic( pStaticName_ );
+	JUNE_SIMPLE_DLG_LOG( 30, L"JUNE_FX C3z-4s SetNumberInNumberStatic_MoreDigit_LUA %d digits %d zero %d ( static %s, %d pictures )",
+		iNumber_, iDigit_, bShowZero_ ? 1 : 0, ( NULL != pStatic ) ? L"ok" : L"none", ( NULL != pStatic ) ? pStatic->GetPictureNum() : -1 );
+	if ( NULL == pStatic )
+		return;
+
+	const int iPictureNum = iDigit_ * 10;
+	if ( pStatic->GetPictureNum() != iPictureNum )
+	{
+		pStatic->SetShow( false );
+		return;
+	}
+
+	pStatic->SetShow( true );
+	for ( int i = 0; i < iPictureNum; ++i )
+	{
+		CKTDGUIControl::CPictureData* pPicture = pStatic->GetPicture( i );
+		if ( NULL != pPicture )
+			pPicture->bShow = false;
+	}
+
+	const int iMax = static_cast<int>( pow( 10.f, iDigit_ ) ) - 1;
+	int iRest = iMax;
+	if ( iNumber_ <= iMax )
+		iRest = iNumber_;
+
+	for ( int iPlace = iDigit_ - 1; 0 <= iPlace; --iPlace )
+	{
+		if ( 0 == iPlace )
+		{
+			pStatic->GetPicture( iRest % 10 )->bShow = true;
+			continue;
+		}
+
+		const int iDivisor = static_cast<int>( pow( 10.f, iPlace ) );
+		const int iQuotient = iRest / iDivisor;
+		iRest = iRest % iDivisor;
+		if ( 0 < iQuotient || ( 0 == iQuotient && true == bShowZero_ ) )
+			pStatic->GetPicture( iQuotient + iPlace * 10 )->bShow = true;
+	}
+}
+
+
+/** June binder 31d95080, in June's order ( @31e42615 SetShow_LUA .. @31e43fde SetNumberInNumberStatic_MoreDigit_LUA ). */
+/*static*/ void CX2SimpleDLG_WithLuaFunc::RegisterLuaBind( lua_State* L )
+{
+	lua_tinker::class_add<CX2SimpleDLG_WithLuaFunc>( L, "CX2SimpleDLG_WithLuaFunc" );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetShow_LUA",							&CX2SimpleDLG_WithLuaFunc::SetShow_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetNumberInNumberStatic_LUA",			&CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetNumberInGageStatic_LUA",				&CX2SimpleDLG_WithLuaFunc::SetNumberInGageStatic_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetNumber_LUA",							&CX2SimpleDLG_WithLuaFunc::SetNumber_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "GetNumber_LUA",							&CX2SimpleDLG_WithLuaFunc::GetNumber_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "CrashAndColorChange_LUA",				&CX2SimpleDLG_WithLuaFunc::CrashAndColorChange_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "CrashAndColorChangeCustom_LUA",			&CX2SimpleDLG_WithLuaFunc::CrashAndColorChangeCustom_LUA );
+
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetPercentValueInGageStatic_LUA",		&CX2SimpleDLG_WithLuaFunc::SetPercentValueInGageStatic_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetShowStatic_LUA",						&CX2SimpleDLG_WithLuaFunc::SetShowStatic_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetNumberInNumberStatic_MoreParam_LUA",	&CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreParam_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetUseExternalCondition_LUA",			&CX2SimpleDLG_WithLuaFunc::SetUseExternalCondition_LUA );
+	lua_tinker::class_def<CX2SimpleDLG_WithLuaFunc>( L, "SetNumberInNumberStatic_MoreDigit_LUA",	&CX2SimpleDLG_WithLuaFunc::SetNumberInNumberStatic_MoreDigit_LUA );
+}
+#endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
 
 #ifdef SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
 /** @function : GetIsLastStage
