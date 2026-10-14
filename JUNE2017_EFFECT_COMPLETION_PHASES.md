@@ -3009,6 +3009,12 @@ Expected differences from March:
 - On a roll of 100, Ara's Z-Z-Z (`50 + 50`) and Chung's Nova charge (`100`) play no voice. March played set 0.
 - A state with a sound set now also drops the top-level `STATE_SOUND_PLAY` records. No March script has any.
 
+**Play-test PASSED 2026-10-14** (exe `03a0cae7`, run after the deploy, clean exit; 18 `JUNE_FX C3t-2` lines; 0 EXCEPTION, baseline UNHANDLED `E_DISABLE_HB_CHECK_REQ` x4):
+- Ara (LittleDevilT, then arasss in berserk) Z-Z-Z (state 119): `rate sum 50 -> set 0` / `100 -> set 1`, NORMAL unawakened; berserk set 0 -> `branch BERSERK ( full 1, remain 97.0 )`, records 2 / 0.
+  Berserk set 1 stays NORMAL (not `missing` as the hand-off guessed): `USE_BERSERK_SOUND` is a per-set key and only `SOUND_SET0` sets it, as in March.
+- NovaT (Chung, Iron Paladin) Artillery Nova (states 49 / 50, 269): NORMAL, then `branch HYPER ( remain 26.0 )` after `ForceChangeHyperMode( 1 )`.
+- Multi-set states pick right: state 52 roll 98 -> set 2 (sum 100), state 114 roll 89 -> set 1 (85 + 12). Roll 100 (JUNE_BUGS 192) did not come up. `hyper state` was 0 throughout, as expected: no tested state is `USI_HYPER_MODE`, and Ara's `ASI_BERSERK_MODE` override is checklist 7t.
+
 No questions for the user.
 
 ## C3t-3 - identify, then port: June's NPC sound-set roll
