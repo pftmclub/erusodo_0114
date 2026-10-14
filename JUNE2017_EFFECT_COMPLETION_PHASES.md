@@ -4476,7 +4476,7 @@ The user confirmed the checks, and the logs agree.
 
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
-**Status: done 2026-10-15 (no new code: C3p's chain is June's boss-intro skip; see C3z-7 - Done); Altera play-test pending. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`, review `kickoffs/june-effect/C3z-7-review.md`. The user asked for June's boss-intro skip.
+**Status: done 2026-10-15 (no new code: C3p's chain is June's boss-intro skip; see C3z-7 - Done); play-test PASSED (Gateway in C3p, Altera 2026-10-15). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`, review `kickoffs/june-effect/C3z-7-review.md`. The user asked for June's boss-intro skip.
 It is not the event-scene talk skip (March has ESC at `X2EventScene.cpp:336`), not the epic quest scene skip
 (`DLG_Skip_Epic_Scene_Guide`, `UQNCM_SKIP_EPIC_QUEST`), and not the dungeon clear movie (`DLG_Dungeon_Clear_Movie`).
 
@@ -4549,7 +4549,7 @@ clean exit).** Both runs were Battle Air Ship, dungeon key 30242 (room `30240 di
 - **No ESC** (425-428): armed at 04:06:27.401, ended on its own 13.9 s later (`end`, `KILL_SELF`), with no `skip` line. It reaches the
   same state as the skip.
 - **Not in the logs:** Raven (boss uid 1000024, id 238) took no logged hit, and neither run cleared the room. Run A left 6 s after the
-  skip, run B 3 s after the end. Whether Raven fought is the user's word (pending).
+  skip, run B 3 s after the end. **User 2026-10-15: Raven moved and fought as usual after the skip. Gate PASSED.**
 
 ## C4 - 8b, damage math
 
