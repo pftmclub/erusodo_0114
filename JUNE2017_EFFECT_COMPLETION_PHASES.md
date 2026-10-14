@@ -4470,7 +4470,7 @@ The user confirmed the checks, and the logs agree.
 
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
-**Status: planned. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`. The user asked for June's boss-intro skip.
+**Status: done 2026-10-15 (no new code: C3p's chain is June's boss-intro skip; see C3z-7 - Done); Altera play-test pending. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`, review `kickoffs/june-effect/C3z-7-review.md`. The user asked for June's boss-intro skip.
 It is not the event-scene talk skip (March has ESC at `X2EventScene.cpp:336`), not the epic quest scene skip
 (`DLG_Skip_Epic_Scene_Guide`, `UQNCM_SKIP_EPIC_QUEST`), and not the dungeon clear movie (`DLG_Dungeon_Clear_Movie`).
 
@@ -4496,6 +4496,44 @@ It is not the event-scene talk skip (March has ESC at `X2EventScene.cpp:336`), n
 
 **Rules for the phase.** June's path, cited; if June has none, stop and propose a stand-in (design-missing-june-pieces), never
 build one unasked. Test only where the event NPC actually spawns (`NPC_GROUP`, not `READY_NPC`).
+
+### C3z-7 - Done (2026-10-15, Opus 5.5 high)
+
+**Verdict: June's boss-intro skip is C3p's skip-the-start chain; there is nothing else to port.** No C++ change, no flag, no build:
+`SERV_IRUHADEV_JUNE_SKIP_START` (C3p, `0179dc3`) already covers it, and `SERV_IRUHADEV_JUNE_BOSS_INTRO_SKIP` was not defined (an empty flag
+would guard nothing). The address set is `june2017_re/c3z7_boss_intro_skip.tsv` (10 rows, all from C3p's funcmap rows plus the script keys).
+- **Input / who:** ESC only (`CX2State::HandleMsgByESC` `31f1e1a0`); C3p's raw sweep of game `+0xb40..+0xb48` found no other reader. Solo
+  skips at once (`322f4c60` -> `322f11d0`); a party would send event `0x4ac` and wait (not built: no party offline, the player is the host).
+- **What it changes:** each listed NPC goes to `StateChange( WAIT_STATE, false )`. For a boss intro WAIT_STATE is `*_DYING`, whose start
+  function starts the boss and moves the event NPC away. That is the same state the natural `SCT_MOTION_END` end goes to.
+- **What it releases:** the end-of-DIRECTION_STATE block (`3277ee10 @3277f863`) runs on both the skip and the natural end: it disarms the
+  skip, clears every NPC's `m_bShowBossName`, sets the input lock to 0 and clears the subtitle. The camera focus, the stop, the parts camera
+  and the timed `SOUND_PLAYn` are keys of the START state, so leaving START ends them; sounds already started play out, as in June. Neither
+  gate's START state sets `IS_APPLY_CINEMATIC_UI` or `FORCE_CINEMATIC_STATE`.
+- **Hint:** "Press ESC key to end the video footage." bottom right while armed (`32305be0`, C3p).
+
+**Gate scripts** (`june_src_fixed/data037_kom`):
+- `EVENT_GATEWAY_BOSS.src.lua`: `WAIT_STATE` `:66`; START `:77`, focus `:91`, stop `:92`, `DIRECTION_STATE` `:101`.
+- `Event_NPC_Battle_Air_Ship.src.lua`: `WAIT_STATE` `:55`; START `:66-149` (focus `:80`, stop `:81`, `DIRECTION_STATE` `:82`, `SCT_MOTION_END` -> DYING
+  `:145`). DYING `:178` calls `GetNPCUnitByType( NUI_RAVEN )` -> `StateChange_LUA( "RAVEN_START" )`.
+- Checked in March: both methods are bound (`X2Main.cpp:3993`, `:4438`; neither is in `c3z4_unbound.tsv`). `NUI_RAVEN` -> `NPC_Raven.lua` is
+  in STAGE3's `NPC_GROUP` (`Dungeon_Altera_Battle_Air_Ship_Normal.src.lua:833`, event NPC `:842`). `RAVEN_START` exists
+  (`NPC_Raven.src.lua:96`, `:336`); Raven's own START_STATE is `RAVEN_START_READY` (`:233`).
+- **Gateway passed** in C3p's play-test (2026-10-11, offline_server 1260-1264: `state 6 -> WAIT_STATE 7`, KILL_SELF, Ignia fought).
+- **Altera not played yet:** this phase's open gate.
+
+**Census** `june2017_re/c3z7_boss_intro_census.py` -> `.tsv` (103 rows). It reads spawns from `NPC_GROUP` only, not READY_NPC, over the
+registered dungeons (`dungeon_npc_parity.tsv`, verdict not EXC). Result: **75 dungeon scripts with a skippable intro, 36 skippable unit
+scripts**. One intro-shaped event NPC sets no DIRECTION_STATE: `EVENT_FINALHALL_BOSS2` (Ranox Final Hall Hard / Expert, STAGE2). June
+cannot skip it either, so it stays unskippable, with no stand-in (June behaviour). Altera's Hero entries (100110-100112) use the Expert
+script, so they are covered by its rows.
+
+**Deploy:** none (no code). The deployed exe `a438fdb2` (C3t-3, `20b8e84`) carries C3p with `SERV_IRUHADEV_JUNE_SKIP_START_DEBUG` on; its
+2026-10-15 03:58 run logged `JUNE_FX C3p arm / esc / skip / end` (Karuso Battle Master). C3z-7 has no tag of its own: the play-test reads
+`--grep "JUNE_FX C3p"`. C3p's own review is still open, and this verdict rests on its port.
+
+**How to see it in game:** Altera Battle Air Ship Normal (`DI_ALTERA_BATTLE_AIR_SHIP_NORMAL` 30240), STAGE3 (world `WI_ALTERA_BATTLE_AIR_SHIP_STAGE4`):
+ESC during the airship intro ends it, and Raven enters `RAVEN_START` and fights. Without ESC, the intro ends on its own the same way.
 
 ## C4 - 8b, damage math
 
