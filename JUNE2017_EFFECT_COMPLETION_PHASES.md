@@ -2782,6 +2782,8 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
   - All 62 PACK OK, each `-0 removed` against the live archive. Copy waits for the user's OK.
 - Re-test C3s in Elder Wally's Castle (Normal), whose maps are identical to June's. (The Roof's stages 1-2 are among the 137 reworked maps, see C3x.)
 
+**Regression play-test: PASSED 2026-10-15 on the user's word.** The dungeon half ran in Elder Wally's Castle (Normal) during C3v's play-test (2026-10-12, an exe carrying C3s's code). The battle-field half was skipped by the user (too long to reach, not an important mechanic); `SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT` is therefore code-reviewed only. No log was read for this verdict.
+
 ## C3v - identify, then port: June's CX2Game::UpdateUnitPointer
 
 **Status: done 2026-10-12, play-test owed (see C3v - Done). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3v.md`.
