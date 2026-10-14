@@ -2772,7 +2772,7 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 ## C3w - port: June's ShowBossNameAtStart
 
-**Status: done 2026-10-14, play-test owed (see below). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3w.md`.
+**Status: done 2026-10-14, play-test PASSED 2026-10-14; review next. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3w.md`.
 
 - **Scope:** June `CX2DungeonSubStage::ShowBossNameAtStart 327ef160` whole: game type 2 or 4, the `FORCE_CINEMATIC_STATE` gate (C3s's member) that bypasses `m_bShowBossName` and its delay, several boss names through `327cc7c0` with a counter `<= 7`, the danger particles and the sub-boss branch.
 
@@ -2825,6 +2825,11 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 **How to see it in game:** the session hand-off. Behimoss Heart Normal (33250), `/stage 3`: two boss names stacked at once (or one for
 Waldomenation), sliding in about 100 px further left than March's single banner. Log tag: `JUNE_FX C3w`.
+
+**Play-test (2026-10-14, reyaa, Karuso Village Hard 33231 `/stage 3`; `data036` copied first, `COPY OK` md5 07b97181): PASSED.**
+- `offline_server.log`: `banner 0 npc 1218 tex HQ_BOSS_NAME_KARUSO_FIGHTER_BOSS.dds` and `banner 1 npc 1216 tex HQ_BOSS_NAME_KARUSO_ASSASSIN_BOSS.dds`
+  in the same call (19:58:49.806 / .814, sub-stage time 0.01, delay -1), then `banner 0 npc 1219 tex HQ_BOSS_NAME_KARUSO.dds` (Battle Master).
+- No `ShowBossName: particle sequence ... not found` line; 0 EXCEPTION; UNHANDLED only the baseline `E_DISABLE_HB_CHECK_REQ`; clean exit.
 
 ## C3t - identify, then port: June's user SHOW_HYPER_CUT_IN_TIME
 
