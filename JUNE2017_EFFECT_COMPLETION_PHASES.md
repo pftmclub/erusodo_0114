@@ -4541,6 +4541,16 @@ script, so they are covered by its rows.
 **How to see it in game:** Altera Battle Air Ship Normal (`DI_ALTERA_BATTLE_AIR_SHIP_NORMAL` 30240), STAGE3 (world `WI_ALTERA_BATTLE_AIR_SHIP_STAGE4`):
 ESC during the airship intro ends it, and Raven enters `RAVEN_START` and fights. Without ESC, the intro ends on its own the same way.
 
+**Altera play-test (2026-10-15 04:05-04:06, reyaa unit 12, exe `a438fdb2`; logs read, 0 EXCEPTION, only the baseline `E_DISABLE_HB_CHECK_REQ` x2,
+clean exit).** Both runs were Battle Air Ship, dungeon key 30242 (room `30240 dif=2`), with `/stage 3`.
+- **ESC** (offline_server 306-312): `arm` `Event_NPC_Battle_Air_Ship.lua` state 6 at 04:06:00.093; ESC 6.0 s later, after the first subtitle
+  (3 s); `skip ... state 6 -> WAIT_STATE 7`; `end ... input unlocked`; the event NPC died `KILL_SELF` (its DYING state) in the same ms. Input
+  really came back: the player killed the three adds (1000026 / 28 / 29) 4.6 s later.
+- **No ESC** (425-428): armed at 04:06:27.401, ended on its own 13.9 s later (`end`, `KILL_SELF`), with no `skip` line. It reaches the
+  same state as the skip.
+- **Not in the logs:** Raven (boss uid 1000024, id 238) took no logged hit, and neither run cleared the room. Run A left 6 s after the
+  skip, run B 3 s after the end. Whether Raven fought is the user's word (pending).
+
 ## C4 - 8b, damage math
 
 **Status: done 2026-10-07 (see "C4 - Done" and "C4 - Review" below; Fury mode found there -> C4b/C4c). Model:** Sonnet 5, high, then an Opus review. Needs C2's `GetFinalDamage` and
