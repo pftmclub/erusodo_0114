@@ -2861,6 +2861,43 @@ Waldomenation), sliding in about 100 px further left than March's single banner.
   in the same call (19:58:49.806 / .814, sub-stage time 0.01, delay -1), then `banner 0 npc 1219 tex HQ_BOSS_NAME_KARUSO.dds` (Battle Master).
 - No `ShowBossName: particle sequence ... not found` line; 0 EXCEPTION; UNHANDLED only the baseline `E_DISABLE_HB_CHECK_REQ`; clean exit.
 
+### C3w - Review (2026-10-14, Opus 5.5 high; no transcription errors, DEBUG off, rebuilt)
+
+Commit `d0123b1` was checked against June's raw disassembly (`funcdis.py --func`, `disasm_range.py`, constants read from the exe). Every kickoff item matches, so the code is unchanged; only `_DEBUG` was turned off.
+1. **Gate `327ef160`.**
+   - Entry is `fld [+0x28]; fld arg; fcompp; test ah,5; jp return`, which continues only on arg < time. The caller's arg (`0x33437810`) reads 0.01f. The order is g_pX2Game, then `!+0x24`, then the time test, then the game type.
+   - The game type comes from vslot `0x10c`: 2 or 4, else return. March's `GAME_TYPE` is 1 / 2 / 3 with `GT_NUMS` = 4, and no game is ever given 4 (`m_GameType` is set only in the PvP / dungeon / BF ctors), so the literal 4 is dead in March as intended.
+   - NPC test `@327ef2dd`: `cmp +0x8ae9,1` and `fld time; fld delay; fcompp; jnp intro` (delay < time), else `31c40570( 0, size, "", 0 )` on `+0x8f8c`. With count 0 that is "string empty" whatever `0x3342f604` holds (it is `""`), so non-empty -> intro and empty -> sub-boss `@327ef487`.
+   - Intro: particles, then name if length (`+0x8b00`) != 0 and counter `<= 7` (unsigned `ja`), then counter++, then `+0x24 = 1`. With no name or a ninth boss, `+0x24 = 1` still follows (`@327ef558`). The loop never breaks. The port's order matches.
+   - The counter is the reused arg slot (`[esp+0x18]` at `@327ef272`), so it is reset on every call.
+2. **Forced state `@327ef31b-327ef355`.**
+   - `327d65d0` is the same empty compare, negated to a bool, so it equals `HasJuneForceCinematicState()`.
+   - The now-state is the protected byte `+0x8454` (`[+0x845c] ^ [+0x8458] ^ &+0x8454`, `movzx`), which is funcmap's nowState (C3j / C4b). It is compared with `3275aaf0` (returns `movzx` id, or 0 = `GUSI_NONE` when absent). March's `GetStateID` and `GetGameUnitState()` are both the same `char` sign-extended, so equality is the same byte compare.
+   - A mismatch -> `@327ef55c` (next NPC, no sub-boss test), which is the port's `continue`.
+3. **`327cc7c0`.**
+   - The index is checked with `js` / `jg 7`.
+   - The name is `L"BOSS_NAME"` (`0x334badf0`) + `31ecbf60( (__int64)n )`, i.e. `swprintf( 0x40, L"%I64d" )` (`0x33458d18`): decimal, so the port's `%d` gives the same text for 0..7.
+   - CreateSequence( 0, name, 0,0,0, -1.0f (`0x334380f0`), -1.0f, -1, -1, -1.0f, 1, 0.0, 0 ) plus June's 14th -1. That is March's `D3DXVECTOR3` overload defaults exactly.
+   - Then `ChangeTexForce( tex )` (`31cf4680`, first arg) and handle `+0x430` -> `+0xcf8 + 4 * [pIndex]`.
+   - The intro particles are `0x334bc0fc` BOSS_DANGER -> `+0x68` and `0x334bc0dc` BOSS_DANGER_ADD -> `+0x6c`, with ( 1000.0 (`0x33437b40`), 1000.0, -1, 1, -1.0 ) and the defaults, which equals March's call.
+4. **Slots.**
+   - The ctor writes -1 to all 8 slots twice: `@327cf0d6-327cf100` (`esi` = -1 from `@327cf009`) and `@327cf4a3-327cf4cd` (`esi` reset to -1 `@327cf399`; `ebp` unchanged). The port's one loop is equivalent.
+   - `Release @327d2656-327d267b` walks 8 slots, != -1 -> `DestroyInstanceHandle`.
+   - `dispsweep cf8 .. d14`: besides those three functions, the only hit in the dungeon-game range is `327cc3b0 @327cc690`. Its base is `[[g_pData 0x33775860]+0x68]+0x90`, not CX2DungeonGame, so no reader was missed (427 other hits are outside the range).
+5. **Data.** Current `GameMinorParticle.txt` = backup `kom_backup_c3w/20261014_193716/` + one 4,455 B insert at offset 65943 (after `BOSS_NAME`, before `HyperBallTick`). The insert is byte-identical to June's `BOSS_NAME0..7` span (June offset 69898). June's `BOSS_NAME` equals March's. CRLF, no BOM. The game dir's `data036.kom` md5 is `07b97181` (= the C3w COPY).
+6. **Hygiene.** `flagcheck --with _DEBUG --range d0123b1^..d0123b1`:
+   - `files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+   - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)` (the plain `#endif`s of `Always.h`'s two `#error` guards)
+   - `RESULT: PASS`
+   - `git log -S` finds no later commit touching the flag token.
+
+**Change:** `Always.h` `//#define SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG` (off). `flagcheck --worktree --files KTDXLIB/Always.h`: OTHER (Always.h), 0 deleted, 0 encoding changes, RESULT PASS.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,578,368 B, dated 2026-10-14 21:52:35, md5 f44fdbffb594ee78538e27db7cda5378, equal to X2/US_SERVICE/x2.exe (2026-10-14 21:52:31); built at mods/june-buff-port eaa6a16 + 1 uncommitted code file(s).`
+- The one file is this commit's `Always.h` line.
+- The deployed exe holds `JUNE_FX C3w ShowBossName` (the permanent not-found line) and no `JUNE_FX C3w banner` / `sub-boss`.
+- A first deploy (`25358c27`, the C3t-2 review's build) still held the DEBUG lines. That build compiled X2Lib's PCH while this line was being edited (PCH 21:35:19, `Always.h` 21:35:05), so msbuild saw it as current. The fix was `touch X2Lib/stdafx.cpp` and a full X2Lib rebuild.
+**How to see it in game:** nothing new. Karuso Village Hard (33231) `/stage 3` still shows both banners, and `offline_server.log` has no `JUNE_FX C3w banner` lines.
+
 ## C3t - identify, then port: June's user SHOW_HYPER_CUT_IN_TIME
 
 **Status: ready (found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t.md`.
