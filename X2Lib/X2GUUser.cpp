@@ -747,6 +747,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_fShowHyperCutInTime(-1.f)		/// June ctor @32041c22 ( the same -1 as +0x9278 @32041c16 )
 , m_bJuneBerserkHyperCutIn(false)	/// June ctor @320432a3
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+, m_iJuneSoundSetRandomValue(0)		/// June CX2GameUnit ctor 322a2700 @322a5381 ( the member lives in CX2GameUnit in June; only the user reads it here, C3t-3 adds the NPC )
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 , m_iSkillCutInSetSubIndex( 0 )
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // ±Ë≈¬»Ø
 , m_bIsLimitCrusherCharge( false )
@@ -16333,6 +16336,9 @@ void CX2GUUser::CommonStateStart()
 
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 #ifdef ARA_CHARACTER_BASE
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+	/// June 32057b80 has no fixed SOUND_SET0..2_RATE reads and no rand() here: its roll and SOUND_SET<n>_RATE pick follow usShoundSet ( C3t-2 ).
+#else
 	int iSoundRate0 = 100;
 	int iSoundRate1 = 100;
 	int iSoundRate2 = 100;
@@ -16341,12 +16347,47 @@ void CX2GUUser::CommonStateStart()
 	LUA_GET_VALUE( m_LuaManager, "SOUND_SET0_RATE", iSoundRate0, 0 );
 	LUA_GET_VALUE( m_LuaManager, "SOUND_SET1_RATE", iSoundRate1, 0 );
 	LUA_GET_VALUE( m_LuaManager, "SOUND_SET2_RATE", iSoundRate2, 0 );
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     USHORT  usShoundSet = 0;
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     USHORT&  usShoundSet = m_FrameDataNow.stateParam.m_usSoundSet;
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+	/// June CommonStateStart 32057b80 @3205db96-@3205e0c5 ( C3t-2 ). The roll is a unit member ( June CX2GameUnit +0x6dcc, read @3205dba1 ):
+	/// USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE ( June's spelling; key XOR-built @3205dc33, getter 32fe9e40, a miss = false ) keeps the previous
+	/// state's roll, else it is vslot 0x1c8( 0 ) % 100 + 1 ( 3208e0b0 = GetRandomInt: the synced random table at the frame's index; March used rand() ).
+	/// Stored either way ( @3205df1a ). Then SOUND_SET<n>_RATE for n = 0, 1, ... ( @3205df30-@3205e081: "SOUND_SET" + n + "_RATE", 32fe9fd0 ):
+	/// the rates add up and the first n whose running sum passes the roll wins; the first missing key ends the loop with n left there. There is no
+	/// fallback to set 0, so a roll past the sum ( 100 with rates summing to 100 ) opens a set the state does not have ( JUNE_BUGS 192 ).
+	bool bJuneUsePreviousSoundSetRandom = false;
+	LUA_GET_VALUE( m_LuaManager, "USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE", bJuneUsePreviousSoundSetRandom, false );
+	if ( false == bJuneUsePreviousSoundSetRandom )
+		m_iJuneSoundSetRandomValue = GetRandomInt( 0 ) % 100 + 1;
+
+	int iJuneSoundSet = 0;
+	int iJuneSoundSetRateSum = 0;
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+	bool bJuneSoundSetHasRate = false;
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+	while ( true )
+	{
+		char szJuneSoundSetRateKey[64] = "";
+		StringCchPrintfA( szJuneSoundSetRateKey, ARRAY_SIZE( szJuneSoundSetRateKey ), "SOUND_SET%d_RATE", iJuneSoundSet );
+		int iJuneSoundSetRate = 0;
+		if ( false == m_LuaManager.GetValue( szJuneSoundSetRateKey, iJuneSoundSetRate ) )
+			break;
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+		bJuneSoundSetHasRate = true;
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+		iJuneSoundSetRateSum += iJuneSoundSetRate;
+		if ( m_iJuneSoundSetRandomValue < iJuneSoundSetRateSum )
+			break;
+		++iJuneSoundSet;
+	}
+	usShoundSet = static_cast<USHORT>( iJuneSoundSet );
+#else
 	if( iRand < iSoundRate0 )
 	{
 		usShoundSet = 0;
@@ -16361,6 +16402,7 @@ void CX2GUUser::CommonStateStart()
 	}
 	else
 		usShoundSet = 0;
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 
 #ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 	/// June CommonStateStart 32057b80 @3205e0d0-3205e108 ( C3t ): after the sound-set rate pick, right before BeginTable( "SOUND_SET" ). The berserk
@@ -16369,6 +16411,97 @@ void CX2GUUser::CommonStateStart()
 	if ( ( static_cast<UINT>( GetHyperModeCount() ) > 2 || true == JuneIsBerserkByChance() ) && true == JuneIsHyperModeState() )
 		m_bJuneBerserkHyperCutIn = true;
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+	/// June @3205e10f-@3205e70a ( C3t-2 ). BeginTable( "SOUND_SET", n ) ( 31c7b980 ); when it opens, BOTH state sound lists are cleared ( +0x85c4
+	/// @3205e12b and +0x85d4 @3205e136; March cleared only the first ), so a state with a sound set drops the top-level SOUND_PLAY* / STATE_SOUND_PLAY
+	/// records C9h-4 read above. Sub-table ( @3205e426-@3205e4c5; "NORMAL" 33478f14 / "HYPER" 33478f0c / "BERSERK" 33478f04 ):
+	/// HYPER when USE_HYPER_SOUND and ( GetRemainHyperModeTime ( 31e4f890 ) > 0, or vslot 0x51c = JuneIsHyperModeState: the awakening state itself );
+	/// then BERSERK, over HYPER, when USE_BERSERK_SOUND and ( IsFullHyperMode ( vslot 0x9c ) with remaining time > 0, or C3t's berserk cut-in test:
+	/// ( GetHyperModeCount ( vslot 0xac ) > 2 unsigned, or vslot 0xa4 ) and vslot 0x51c ). Inside it: SOUND_PLAY<n> through June's nation reader
+	/// ( 32078fd0, @3205e4dc ) into m_vecSoundPlayData, then STATE_SOUND_PLAY<n> ( plain 31c7b980, @3205e5f5 ) into m_vecStateSoundPlayData; each
+	/// record is { time -1, name L"", rate 100, only-if-my-unit false } on a miss, as the top-level readers.
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+	bool bJuneSoundSetOpened = false;
+	const char* pszJuneSoundSetBranch = "-";
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+	if ( m_LuaManager.BeginTable( "SOUND_SET", usShoundSet ) == true )
+	{
+		m_vecSoundPlayData.resize( 0 );
+		m_vecStateSoundPlayData.resize( 0 );
+
+		bool bUseHyperSound = false;
+		bool bUseBerserkSound = false;
+		LUA_GET_VALUE( m_LuaManager, "USE_HYPER_SOUND", bUseHyperSound, false );
+		LUA_GET_VALUE( m_LuaManager, "USE_BERSERK_SOUND", bUseBerserkSound, false );
+
+		const char* pszState = "NORMAL";
+		if ( ( 0.f < GetRemainHyperModeTime() && true == bUseHyperSound ) || ( true == JuneIsHyperModeState() && true == bUseHyperSound ) )
+			pszState = "HYPER";
+
+		if ( ( true == IsFullHyperMode() && 0.f < GetRemainHyperModeTime() && true == bUseBerserkSound )
+			|| ( ( static_cast<UINT>( GetHyperModeCount() ) > 2 || true == JuneIsBerserkByChance() ) && true == JuneIsHyperModeState() && true == bUseBerserkSound ) )
+			pszState = "BERSERK";
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+		bJuneSoundSetOpened = true;
+		pszJuneSoundSetBranch = pszState;
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+
+		if ( m_LuaManager.BeginTable( pszState ) == true )
+		{
+			int iJuneSoundIndex = 0;
+			while ( JuneBeginSoundPlayTable( m_LuaManager, "SOUND_PLAY", iJuneSoundIndex ) == true )
+			{
+				CX2GameUnit::SoundPlayData sndPlayData;
+
+				LUA_GET_VALUE( m_LuaManager, 1, sndPlayData.m_SoundPlayTime,	-1.0f	);
+				LUA_GET_VALUE( m_LuaManager, 2, sndPlayData.m_SoundPlayName,	L""		);
+				LUA_GET_VALUE( m_LuaManager, 3, sndPlayData.m_SoundPlayRate,	100		);
+				LUA_GET_VALUE( m_LuaManager, 4, sndPlayData.m_bOnlyIfMyUnit,	false	);
+
+				m_vecSoundPlayData.push_back( sndPlayData );
+
+				++iJuneSoundIndex;
+				m_LuaManager.EndTable();	// SOUND_PLAY<n>
+			}
+
+			int iJuneStateSoundIndex = 0;
+			while ( m_LuaManager.BeginTable( "STATE_SOUND_PLAY", iJuneStateSoundIndex ) == true )
+			{
+				CX2GameUnit::SoundPlayData sndPlayData;
+
+				LUA_GET_VALUE( m_LuaManager, 1, sndPlayData.m_SoundPlayTime,	-1.0f	);
+				LUA_GET_VALUE( m_LuaManager, 2, sndPlayData.m_SoundPlayName,	L""		);
+				LUA_GET_VALUE( m_LuaManager, 3, sndPlayData.m_SoundPlayRate,	100		);
+				LUA_GET_VALUE( m_LuaManager, 4, sndPlayData.m_bOnlyIfMyUnit,	false	);
+
+				m_vecStateSoundPlayData.push_back( sndPlayData );
+
+				++iJuneStateSoundIndex;
+				m_LuaManager.EndTable();	// STATE_SOUND_PLAY<n>
+			}
+			m_LuaManager.EndTable();	// NORMAL / HYPER / BERSERK
+		}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+		else
+			pszJuneSoundSetBranch = "missing";
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+		m_LuaManager.EndTable();	// SOUND_SET
+	}
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+	{
+		static int s_iJuneC3t2Lines = 0;
+		if ( s_iJuneC3t2Lines < 400 && true == IsMyUnit() && ( true == bJuneSoundSetHasRate || true == bJuneSoundSetOpened ) )
+		{
+			++s_iJuneC3t2Lines;
+			CX2OfflineLog::Server( L"JUNE_FX C3t-2 unit %I64d ( %s ) state %d: roll %d ( %s ), rate sum %d -> set %d, table %d, branch %S ( remain %.1f, hyper state %d, full %d, count %d ), records %d / %d",
+				m_UnitUID, ( NULL != m_pUnit ) ? m_pUnit->GetNickName() : L"?", GetNowStateID(), m_iJuneSoundSetRandomValue,
+				( true == bJuneUsePreviousSoundSetRandom ) ? L"kept" : L"new", iJuneSoundSetRateSum, iJuneSoundSet, ( true == bJuneSoundSetOpened ) ? 1 : 0,
+				pszJuneSoundSetBranch, GetRemainHyperModeTime(), ( true == JuneIsHyperModeState() ) ? 1 : 0, ( true == IsFullHyperMode() ) ? 1 : 0,
+				(int)GetHyperModeCount(), (int)m_vecSoundPlayData.size(), (int)m_vecStateSoundPlayData.size() );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+#else
 	if ( m_LuaManager.BeginTable( "SOUND_SET", usShoundSet ) == true )
 	{
 		m_vecSoundPlayData.resize(0);
@@ -16406,6 +16539,7 @@ void CX2GUUser::CommonStateStart()
 		}
 		m_LuaManager.EndTable();	// SOUND_SET
 	}
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 
 #endif
 

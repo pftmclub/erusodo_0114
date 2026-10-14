@@ -570,3 +570,10 @@ of an `ST_HYPER_ACTIVE_SKILL` state for my unit or a party member whatever the c
 dormant until a port brings June's hyper active skill templets: March's `NewSkillTempletVer2.lua` (data036) has 521 templets and none of
 type 13 (`ST_HYPER_ACTIVE_SKILL`; only placeholder 903 "Specifc Hyper Active", type 0), and no save unit has an `SI_HA_*` skill. Play-test it
 with the first ported hyper active: option on Hide, use it -> the cut-in shows; a normal active -> none.
+
+**Sound sets (from C3t-2, `SERV_IRUHADEV_JUNE_SOUND_SET_PICK`):** the same three overrides above (Chung `JuneIsBerserkByChance`, Ara / Luciel
+`JuneIsHyperModeState`) also pick a state's `HYPER` / `BERSERK` sound set in `CX2GUUser::CommonStateStart`, so until they land Ara's
+`ASI_BERSERK_MODE` state picks as a plain state. The June class scripts bring the keys that only the June pick reads:
+`USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` (June's spelling; `ELESIS_KNIGHT`, 3 states), `SOUND_SET3_RATE` and up (`Add_NasodRuler`,
+`Chung_Iron_Cannon`, `ELESIS_KNIGHT`, `Eve_Nasod`, `Rose_Ranger`), and `STATE_SOUND_PLAY<n>` inside a sound set (`Add_NasodRuler`, `ELESIS_KNIGHT`).
+Engine side done; nothing to port per class beyond the overrides.

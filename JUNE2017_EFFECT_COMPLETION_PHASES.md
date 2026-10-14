@@ -2938,6 +2938,56 @@ No questions for the user.
   `SOUND_SET<n>_RATE` loop, and the HYPER / BERSERK sound choice (reuses C3t's `JuneIsHyperModeState` / `JuneIsBerserkByChance`), against March's
   `ARA_CHARACTER_BASE` block in `CX2GUUser::CommonStateStart`.
 
+### C3t-2 - Done (2026-10-14, Opus 5.5 high)
+
+**Mapped** (funcmap rows `(C3t-2)`; Ghidra disassembly of `32057b80`, `xordec2.py`, `vtslot.py`, a raw `+0x6dcc` displacement scan):
+1. **The roll** (`@3205db96-@3205df1a`): `+0x6dcc` is a **CX2GameUnit** int (ctor `322a2700 @322a5381` = 0). `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE`
+   false or missing -> vslot `0x1c8( 0 ) % 100 + 1`. Vslot `0x1c8` is `3208e0b0` on every user class: the random table at `+0x80f8` + offset,
+   which is March's `GetRandomInt` (March used `rand()`). The roll is stored back either way.
+2. **The rate loop** (`@3205df30-@3205e081`): `"SOUND_SET" + n + "_RATE"`, with the rates summed. The first n with `roll < sum` wins, and the first
+   missing key ends the loop with n left where it is. There is no fallback to set 0.
+   - June data: 1,497 states have rates summing to 100 and no spare table, so a roll of 100 plays no set sound (**JUNE_BUGS 192**).
+   - The 95 states that sum below 100 without an "else" set look like June's design, not a bug.
+3. **The table** (`@3205e10f-@3205e70a`): when `SOUND_SET<n>` opens, **both** lists are cleared (`+0x85c4` and `+0x85d4`).
+   - HYPER = `USE_HYPER_SOUND && ( remain > 0 || vslot 0x51c )`.
+   - BERSERK (wins over HYPER) = `USE_BERSERK_SOUND && ( IsFullHyperMode && remain > 0 || ( count > 2 || vslot 0xa4 ) && vslot 0x51c )`.
+   - Inside the chosen table: `SOUND_PLAY<n>` through the nation reader `32078fd0`, then `STATE_SOUND_PLAY<n>` into `+0x85d4`.
+4. **The NPC's CommonStateStart** (`327ac9d0 @327ae165-@327ae564`) has the same roll in front of March's own 3-rate pick -> routed to **C3t-3**
+   (`X2GUNPC.cpp` is outside this row). Its key is not decoded yet, and what is open on the NPC's Lua manager is not settled (see the kickoff).
+
+**Code** (`SERV_IRUHADEV_JUNE_SOUND_SET_PICK` + `_DEBUG`; `X2GUUser.h/.cpp`, `Always.h`; needs `_JUNE_HYPER_CUT_IN_TIME` and `_JUNE_UNIT_SOUND`, `#error`-guarded):
+- `m_iJuneSoundSetRandomValue` (ctor 0) is on `CX2GUUser`, following row `322a51bb`'s precedent.
+- There are three `#ifdef` islands in the `ARA_CHARACTER_BASE` block, and C3t's berserk-flag lines stay between them at June's `@3205e0d0`. March's block is intact in each `#else`.
+- **Debug:** one `JUNE_FX C3t-2` line per state start of my unit that has a rate key or opens a set (capped at 400).
+- **Census (what reaches March today; byte scan of `24965799\kom_contents`):**
+  - Not in any shipped script: `USE_PREVIOUS_...`, `SOUND_SET3_RATE` and up, `STATE_SOUND_PLAY`.
+  - `USE_BERSERK_SOUND`: Ara (16 states, e.g. `ASI_COMBO_ZZZ`) and 8 Shadow Ara / Annona NPC scripts.
+  - `USE_HYPER_SOUND`: Add, and Chung (14 states, e.g. `CSI_A_CIP_ARTILLERY_NOVA_CHARGE`, rate 100).
+  - June-only keys: checklist **7t**.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SOUND_SET_PICK --worktree --files` (3 files):
+- `X2GUUser.cpp` +134 PASS, `X2GUUser.h` +3 PASS.
+- `Always.h` OTHER (its own define block, +28).
+- 0 deleted lines and 0 encoding changes. The tok! lines are the three bare `#else` and the `#endif`s after `#error` (house precedent).
+- `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,579,392 B, dated 2026-10-14 20:26:04, md5 03a0cae7d02e700dc3e28f67f22207f1, equal to X2/US_SERVICE/x2.exe (2026-10-14 20:26:00); built at mods/june-buff-port 2ecd89c + 3 uncommitted code file(s).` The three are C3t-2's own. `JUNE_FX C3t-2`, `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` and `SOUND_SET%d_RATE` are in the deployed exe. No kom.
+
+**How to see it in game:** the hand-off below. Voices should sound as before. The log shows the roll, the set, and the branch (NORMAL / HYPER / BERSERK).
+Expected differences from March:
+- On a roll of 100, Ara's Z-Z-Z (`50 + 50`) and Chung's Nova charge (`100`) play no voice. March played set 0.
+- A state with a sound set now also drops the top-level `STATE_SOUND_PLAY` records. No March script has any.
+
+No questions for the user.
+
+## C3t-3 - identify, then port: June's NPC sound-set roll
+
+**Status: ready (found by C3t-2, 2026-10-14). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-3.md`.
+
+- **Scope:** June `327ac9d0 @327ae165-@327ae564`: the NPC's roll (`+0x6dcc`, a 41-byte key read on the Lua manager `+0x2b4`, NPC vslot `0x1c8` =
+  `32755a00`) in front of March's NPC 3-rate pick (`X2GUNPC.cpp`, `ARA_CHARACTER_BASE`), under C3t-2's flag. First settle the key and what a
+  live Lua read returns in March's `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` CommonStateStart.
+
 ## C3u - port: June's summon-NPC socket gate
 
 **Status: ready (found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3u.md`.

@@ -7294,3 +7294,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
 #endif
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-14
+// Description: June effect completion C3t-2: June's user sound-set pick in CX2GUUser::CommonStateStart ( 32057b80 @3205db96-@3205e70a ).
+//              The roll is GetRandomInt( 0 ) % 100 + 1 ( March: rand() ), kept from the previous state when the state sets
+//              USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE ( June's spelling ); SOUND_SET<n>_RATE for any n, no fallback to set 0;
+//              HYPER also in the awakening state itself and BERSERK also on the C3t berserk test; a SOUND_SET clears both state sound
+//              lists and reads SOUND_PLAY<n> ( nation reader ) and STATE_SOUND_PLAY<n> inside it. The NPC copy of the roll is C3t-3.
+#define SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+#if defined(SERV_IRUHADEV_JUNE_SOUND_SET_PICK) && !defined(SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME)
+#error SERV_IRUHADEV_JUNE_SOUND_SET_PICK needs SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( JuneIsHyperModeState, JuneIsBerserkByChance )
+#endif
+#if defined(SERV_IRUHADEV_JUNE_SOUND_SET_PICK) && !defined(SERV_IRUHADEV_JUNE_UNIT_SOUND)
+#error SERV_IRUHADEV_JUNE_SOUND_SET_PICK needs SERV_IRUHADEV_JUNE_UNIT_SOUND ( JuneBeginSoundPlayTable, m_vecStateSoundPlayData )
+#endif
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-14
+// Description: June effect completion C3t-2 play-test lines ( short-lived; turn OFF in the C3t-2 review ): "JUNE_FX C3t-2" one line per
+//              state start of my unit that has a SOUND_SET<n>_RATE key or opens a SOUND_SET ( roll new / kept, set, branch, records ).
+//              Capped at 400 lines per run. Log: offline_server.log.
+#define SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+//              Its lines all sit inside SERV_IRUHADEV_JUNE_SOUND_SET_PICK, so without that flag it compiles to nothing.
+#if defined(SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
+#error SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
+#endif
+//////////////////////////////////////////////////////////////////////////

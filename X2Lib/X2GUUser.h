@@ -4777,6 +4777,9 @@ private:
 	float m_fShowHyperCutInTime;		/// June +0x9280 ( C3t ): SHOW_HYPER_CUT_IN_TIME, -1 = none
 	bool m_bJuneBerserkHyperCutIn;		/// June +0x951c ( C3t ): this state shows m_BerserkCutIn instead of m_HyperCutIn
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+	int m_iJuneSoundSetRandomValue;		/// June CX2GameUnit +0x6dcc ( C3t-2 ): the sound-set roll, 1..100, kept across states by USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 
 #ifdef CHEAT_SELF_DAMAGE // 김태환
 	int m_iFrontDamage;		/// 자신에게 데미지를 주는 치트중 피격 방향 설정
