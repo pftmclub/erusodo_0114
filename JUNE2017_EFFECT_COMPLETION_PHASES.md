@@ -3000,6 +3000,7 @@ No questions for the user.
 - `Always.h` OTHER (its own define block, +28).
 - 0 deleted lines and 0 encoding changes. The tok! lines are the three bare `#else` and the `#endif`s after `#error` (house precedent).
 - `RESULT: PASS`.
+- Post-commit (`--range ae12ab4^..HEAD --with _DEBUG`): `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 6 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Commit `ae12ab4`.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,579,392 B, dated 2026-10-14 20:26:04, md5 03a0cae7d02e700dc3e28f67f22207f1, equal to X2/US_SERVICE/x2.exe (2026-10-14 20:26:00); built at mods/june-buff-port 2ecd89c + 3 uncommitted code file(s).` The three are C3t-2's own. `JUNE_FX C3t-2`, `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` and `SOUND_SET%d_RATE` are in the deployed exe. No kom.
 
