@@ -18,6 +18,9 @@
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #define X2GUNPC_RECEIVE_FRAME_COUNT_MAX_GAB     (70*10)
@@ -2807,6 +2810,11 @@ void CX2GUNPC::CommonConstructor()
 	m_fMultiplicationAnimSpeed				= 1.f;		/// June @32763443 (+0x8fdc)
 	m_fRoseSummonAnimSpeedRate				= 1.f;		/// June @3276346a (+0x8b6c)
 #endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
+//}}
+//{{ Iruha : 2026-10-14 // June effect completion C3t-3 (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+	m_iJuneSoundSetRandomValue				= 0;		/// June CX2GameUnit ctor 322a2700 @322a5381 (+0x6dcc)
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 //}}
 
 
@@ -16413,7 +16421,21 @@ void CX2GUNPC::CommonStateStart()
 
 #ifdef ARA_CHARACTER_BASE
     {
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+	    /// June CX2GUNPC::CommonStateStart 327ac9d0 @327ae165-@327ae564 ( C3t-3 ), where the two STOP_LOOP_SOUND branches meet. The roll is a unit
+	    /// member ( June CX2GameUnit +0x6dcc, read @327ae16c ). USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE ( June's spelling; 41-byte key XOR-built
+	    /// @327ae188-@327ae1f0, getter 32fe9e40 on the Lua manager +0x2b4 @327ae535, a miss = false ) keeps the previous state's roll, else it is
+	    /// NPC vslot 0x1c8( 0 ) % 100 + 1 ( 32755a00 = GetRandomInt: the synced random table at +0x8474; March used rand() ). Stored either way
+	    /// ( @327ae564 ). The state's own table is open here in both builds ( June 32768ac0 @32768c1b, March DoStateEndStart's BeginTableByReference ).
+	    /// The 3-rate pick below, with its fallback to set 0, is June's as it stands ( @327ae56a-@327ae5a8 ).
+	    bool bJuneUsePreviousSoundSetRandom = false;
+	    LUA_GET_VALUE( m_LuaManager, "USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE", bJuneUsePreviousSoundSetRandom, false );
+	    if ( false == bJuneUsePreviousSoundSetRandom )
+		    m_iJuneSoundSetRandomValue = GetRandomInt( 0 ) % 100 + 1;
+	    int iRand = m_iJuneSoundSetRandomValue;
+#else SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 	    int iRand = rand()%100 + 1;
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
         ESoundSetType   eSoundSetType = SOUND_SET0_NORMAL;
         int iFlagIndex = StateData::FLAG_SOUND_SET0;
 	    if( iRand < nowStateData.m_iSoundSet0Rate )
@@ -16449,6 +16471,27 @@ void CX2GUNPC::CommonStateStart()
                 m_eSoundSetType = ESoundSetType( eSoundSetType + 2 );
             }
 	    }
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+	    /// JUNE_FX C3t-3: one line per NPC state start whose StateData has a sound-set rate or that keeps the roll ( capped at 400 per run ).
+	    /// "live rate0" is SOUND_SET0_RATE read live on m_LuaManager here: equal to the pre-parsed rate0 shows the state table is the one open.
+	    {
+		    static int s_iJuneC3t3Lines = 0;
+		    const int iJuneRateSum = nowStateData.m_iSoundSet0Rate + nowStateData.m_iSoundSet1Rate + nowStateData.m_iSoundSet2Rate;
+		    if ( s_iJuneC3t3Lines < 400 && ( 0 < iJuneRateSum || true == bJuneUsePreviousSoundSetRandom ) )
+		    {
+			    ++s_iJuneC3t3Lines;
+			    int iJuneLiveRate0 = -1;
+			    const bool bJuneLiveRate0Found = m_LuaManager.GetValue( "SOUND_SET0_RATE", iJuneLiveRate0 );
+			    CX2OfflineLog::Server( L"JUNE_FX C3t-3 npc %I64d ( %s ) state %d: keep %d, roll %d, rates %d / %d / %d ( live rate0 %d, found %d ), set type %d, set flag %d",
+				    GetUnitUID(), GetNPCTemplet().m_LuaFileName.c_str(), (int) m_NPCFrameData.syncData.nowState,
+				    bJuneUsePreviousSoundSetRandom ? 1 : 0, m_iJuneSoundSetRandomValue,
+				    nowStateData.m_iSoundSet0Rate, nowStateData.m_iSoundSet1Rate, nowStateData.m_iSoundSet2Rate,
+				    iJuneLiveRate0, bJuneLiveRate0Found ? 1 : 0, (int) m_eSoundSetType, nowStateData.m_bitsetFlags.test( iFlagIndex ) ? 1 : 0 );
+		    }
+	    }
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
     }
 #endif  ARA_CHARACTER_BASE
 

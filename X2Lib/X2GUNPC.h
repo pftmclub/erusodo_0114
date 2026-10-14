@@ -4597,6 +4597,11 @@ class CX2GUNPC : public CX2GameUnit
 		CX2GameUnitoPtr				m_optrJuneStoredGUUser;	/// June +0x8d64 ( observer ): ctors 327b04a3 / 327b18a5 and CommonConstructor @32763470 clear it, dtor 327a0a83
 #endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
 //}}
+//{{ Iruha : 2026-10-14 // June effect completion C3t-3 (JUNE2017_EFFECT_COMPLETION_PHASES.md)
+#ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+		int						m_iJuneSoundSetRandomValue;	/// June CX2GameUnit +0x6dcc: the NPC's sound-set roll, 1..100, kept across states by USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE ( the user's twin: CX2GUUser, C3t-2 )
+#endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
+//}}
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR
 		bool						m_bIsRemainingNpcWhenStageCleard;	// Stage, SubStage 가 클리어 되더라도
 																		// 해당 몬스터를 남길 것인가?

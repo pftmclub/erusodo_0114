@@ -3176,6 +3176,44 @@ No questions for the user. Next: `C3t-3`.
   `32755a00`) in front of March's NPC 3-rate pick (`X2GUNPC.cpp`, `ARA_CHARACTER_BASE`), under C3t-2's flag. First settle the key and what a
   live Lua read returns in March's `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` CommonStateStart.
 
+### C3t-3 - Done (2026-10-14, Opus 5.5 high)
+
+**Settled** (Ghidra disassembly of `327ac9d0`, now its own function `327ac9d0-327af611`; funcmap rows `(C3t-3)`):
+1. **The key** is `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE`, the user's key.
+   - XOR-built at `0x337aa5a8..0x337aa5d0` (`@327ae188-@327ae1f0`) and copied to `[esp+0xd8]`.
+   - `xordec2.py` prints 40 characters; the tail is built in registers. `0x337aa5cc` = `0x4ce3e390` ^ `c6 a2 af 19` = `VALU`, `0x98 ^ 0xdd` = `E`, and the NUL at `[esp+0x10d]` (3 pushes) = buffer + 41.
+2. **The open table.** Both builds open the new state's own table on the Lua manager before CommonStateStart and close it after:
+   - June dispatcher `32768ac0 @32768c1b`: `32fe9b20` (BeginTableByReference) -> vslot `0x444` (host only) -> `0x448` (`327ac9d0`) -> `32fe9a10`.
+   - March `CX2GUNPC::DoStateEndStart`: `X2GUNPC.cpp:8150`, with the references made per state at `:7651` (the only caller of `CommonStateStart`).
+   - So a live read returns that state's key, or misses. The debug line proves it in game (`live rate0` = pre-parsed rate0).
+3. **The roll** (`@327ae165`, where the two STOP_LOOP_SOUND branches meet = March just before `#ifdef ARA_CHARACTER_BASE`):
+   - edi = `+0x6dcc`; key miss / false -> vslot `0x1c8( 0 )` (`32755a00` = March `CX2GUNPC::GetRandomInt`) `% 100 + 1`; stored `@327ae564` either way.
+   - The pick after it is March's 3 rates with the **fallback to set 0** (`@327ae58b jge -> @327ae5a3`), so no NPC copy of JUNE_BUGS 192 and no rate loop.
+4. **Census:** no NPC script sets the key (`june_src_fixed`, 7,313 files; `24965799\kom_contents` byte scan). Only `ELESIS_KNIGHT` (a user) has it, so in March every NPC state rolls fresh.
+
+**Member:** an NPC twin `CX2GUNPC::m_iJuneSoundSetRandomValue` (CommonConstructor 0), not a move to `CX2GameUnit +0x6dcc`.
+- Each unit owns its roll in both layouts, so behaviour is identical.
+- Moving it meant editing `X2GUUser.cpp` while C3u's edit there was uncommitted. Consolidating later is a pure refactor.
+
+**Code** (`SERV_IRUHADEV_JUNE_SOUND_SET_PICK`; `X2GUNPC.h/.cpp`, `Always.h`):
+- The roll replaces only `int iRand = rand()%100 + 1;` in the adaptive block (March's line in `#else`). The non-adaptive `#else` roll (`m_usSoundSet`) is not compiled and is left alone.
+- **Debug:** `_DEBUG` is back **on** (C3t-2's lines return too; turn it off in the review). It writes one `JUNE_FX C3t-3` line per NPC state start that has a rate or keeps the roll (cap 400). The line shows the roll, the rates, the live rate0 and found, the set type and the set flag.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SOUND_SET_PICK --worktree --with _DEBUG --files` (3 files):
+- `X2GUNPC.cpp` PASS~ +43, `X2GUNPC.h` PASS~ +5 (the `//{{ //}}` markers).
+- `Always.h` OTHER: +10 -2, of which mine is the one `#define` line; the rest is C3u's and C3f-1's uncommitted edits.
+- 0 deleted, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`, 0 encoding changes. `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,578,880 B, dated 2026-10-14 22:26:08, md5 a438fdb24dea65d5eeabd6867614aac7, equal to X2/US_SERVICE/x2.exe (2026-10-14 22:26:04); built at mods/june-buff-port 20b8e84 + 4 uncommitted code file(s).`
+- The link came from a peer's build, which ran with these files in the tree. `X2GUUser.cpp` is C3u's.
+- `JUNE_FX C3t-3` (wide) and the key are in the deployed exe. No kom.
+
+**How to see it in game:** Karuso Village Hard (33231), `/stage 3`, the Battle Master (ATTACK_A / B: 33 / 33 / 34) and any Suppression Boss (damage states 50 / 50).
+- Voices should sound as before.
+- The log shows rolls 1-100, `keep 0` everywhere, `live rate0` = the first rate with `found 1`, and the set type matching the roll against the rates (1 / 4 / 7 = set 0 / 1 / 2, +1 hyper, +2 berserk).
+
+No questions for the user.
+
 ## C3u - port: June's summon-NPC socket gate
 
 **Status: done 2026-10-14 (dormant; found by C3r, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3u.md`.
