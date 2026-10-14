@@ -3203,6 +3203,9 @@ No questions for the user. Next: `C3t-3`.
 - `X2GUNPC.cpp` PASS~ +43, `X2GUNPC.h` PASS~ +5 (the `//{{ //}}` markers).
 - `Always.h` OTHER: +10 -2, of which mine is the one `#define` line; the rest is C3u's and C3f-1's uncommitted edits.
 - 0 deleted, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`, 0 encoding changes. `RESULT: PASS`.
+- Post-commit (`--range c8c42c6^..c8c42c6 --with _DEBUG`): `files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. The deleted line is the commented `_DEBUG` `#define` switched back on. The 3 tokenless lines are `Always.h`'s plain `#endif`s after its `#error` guards (house precedent).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,578,880 B, dated 2026-10-14 22:26:08, md5 a438fdb24dea65d5eeabd6867614aac7, equal to X2/US_SERVICE/x2.exe (2026-10-14 22:26:04); built at mods/june-buff-port 20b8e84 + 4 uncommitted code file(s).`
 - The link came from a peer's build, which ran with these files in the tree. `X2GUUser.cpp` is C3u's.
