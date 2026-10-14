@@ -2944,41 +2944,6 @@ should look and sound as before. No play-test owed; C3t writes no log lines.
 
 No questions for the user.
 
-## C3t-1 - identify, then port: June's GetShowActiveSkillShow
-
-**Status: done 2026-10-14, play-test PASSED 2026-10-14 (found by C3t, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-1.md`, review `C3t-1-review.md`.
-
-- **Scope:** June `CX2GUUser::GetShowActiveSkillShow 31fd3180`, which gates every skill cut-in: three option cases (March has two), a
-  `31fcef00() == 5` case, and a false override from two globals. Includes June's option values against March's `CX2GameOption` cut-in setting.
-
-### C3t-1 - Done (2026-10-14, Opus 5.5 high)
-
-**Mapped** (funcmap rows `(C3t-1)`; Ghidra, `dispsweep.py`, `xorstrings.tsv`):
-1. **June's option is a bitmask, not March's enum.** `g_pMain +0x274` = `CX2GameOption +0xf4` (OpenScriptFile `324214a0` runs on `g_pMain + 0x180`
-   @3259affa): `SKILL_CUTIN_SHOW` is read as a raw int (miss 1), saved with `%d`. June's GFx option page has two checkboxes, `mySkillCutScene` and
-   `teamSkillCutScene`, synced by `32ede000` as `+0x274 & 1` / `& 2`. So 1 = mine, 2 = party only, 3 = mine or party, 0 = none. June's Lua
-   `SKILL_CUTIN_SHOW_STATE` (0 / 1 / 2) and its `DLG_UI_Option_Etc` radios are March's, unchanged and unused by June's GFx page. June's
-   `DefaultGameOptions.lua` sets 3; March loads no such file (left to the asset port).
-2. **`31fcef00`** = the now state's skill category: `m_pUnit`, skill tree, `GetNowStateSkillID` (vslot `0x524`) != 0, then
-   `GetSkillTemplet( id, 1 )` -> `32070510`. 5 = SKILL_TYPE 13 = `ST_HYPER_ACTIVE_SKILL`. Its two `GetSkillLevel` calls discard their results.
-3. **The hide override** (`@31fd3228`) has two June-only sources. `[g_pKTDXApp+0x1c8]` is the GFx UI manager; `31c44710( 0xb )` invokes
-   `"isOpenUI"`, i.e. GFx UI `0xb` is open. `g_pMain +0x80a` = "a movie is playing" in June's movie table (`+0x7f8`: `m_wstrMovieFileName`,
-   `m_eMovieCategory`, `m_iQuestID`, ...; parser `31d8cb90`, set by `31d7a150` / `31d884f0`, cleared @324dadc2). March has neither: no GFx (D9),
-   and its `m_bPlayIntroMovie` is a one-shot server-select flag.
-
-**Code** (`SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION` + `_DEBUG`; `X2GUUser.cpp` `GetShowActiveSkillShow`, `Always.h`): June's body, March's in `#else`.
-- March's enum, radios and save stay. The value is mapped by name: `SCSS_ONESELF` -> 1, `SCSS_PARTY_MEMBER` -> 3 (March's meaning),
-  `SCSS_HIDE` -> 0. June's 2 (party only) is ported but **not reachable** from March's UI.
-- June's three cases, then the hyper rule: a `ST_HYPER_ACTIVE_SKILL` state of my unit or a party member shows its cut-in whatever the option.
-  March's `GetSkillTemplet( id )` stands for `( id, 1 )`, whose level gate needs `IsEnableCode( 0x911 / 0x910 )` (no code event offline).
-- The two hide terms are left out with a comment; they are routed to the backlog's Scaleform/GFx row (`JUNE_PORT_BACKLOG_ORDER.md`).
-- `_DEBUG`: one `JUNE_FX C3t-1` line per call (unit, my, option, June value, now skill, hyper, result).
-
-**Dormant part:** March's `NewSkillTempletVer2.lua` has 521 templets and none of type 13, and no save unit has an `SI_HA_*` skill.
-The hyper rule therefore waits for the character ports (checklist 7t, new paragraph). For every value March can reach, flag-on equals March.
-
-**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`:
-`files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`. `Always.h` is OTHER because it holds the `_DEBUG` block and the peer's uncommitted
 ### C3t - Review (2026-10-14, Opus 5.5 high): no transcription errors, no code change (exe unchanged), no build, no deploy
 
 Commit `547670a` was checked against Ghidra decompiles, `disassemble_function`, `vtslot.py` and raw bytes from `unpacked_x2.exe`.
@@ -3028,6 +2993,41 @@ Both stay dormant until a June class script sets `SHOW_HYPER_CUT_IN_TIME` (check
 
 No questions for the user.
 
+## C3t-1 - identify, then port: June's GetShowActiveSkillShow
+
+**Status: done 2026-10-14, play-test PASSED 2026-10-14 (found by C3t, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-1.md`, review `C3t-1-review.md`.
+
+- **Scope:** June `CX2GUUser::GetShowActiveSkillShow 31fd3180`, which gates every skill cut-in: three option cases (March has two), a
+  `31fcef00() == 5` case, and a false override from two globals. Includes June's option values against March's `CX2GameOption` cut-in setting.
+
+### C3t-1 - Done (2026-10-14, Opus 5.5 high)
+
+**Mapped** (funcmap rows `(C3t-1)`; Ghidra, `dispsweep.py`, `xorstrings.tsv`):
+1. **June's option is a bitmask, not March's enum.** `g_pMain +0x274` = `CX2GameOption +0xf4` (OpenScriptFile `324214a0` runs on `g_pMain + 0x180`
+   @3259affa): `SKILL_CUTIN_SHOW` is read as a raw int (miss 1), saved with `%d`. June's GFx option page has two checkboxes, `mySkillCutScene` and
+   `teamSkillCutScene`, synced by `32ede000` as `+0x274 & 1` / `& 2`. So 1 = mine, 2 = party only, 3 = mine or party, 0 = none. June's Lua
+   `SKILL_CUTIN_SHOW_STATE` (0 / 1 / 2) and its `DLG_UI_Option_Etc` radios are March's, unchanged and unused by June's GFx page. June's
+   `DefaultGameOptions.lua` sets 3; March loads no such file (left to the asset port).
+2. **`31fcef00`** = the now state's skill category: `m_pUnit`, skill tree, `GetNowStateSkillID` (vslot `0x524`) != 0, then
+   `GetSkillTemplet( id, 1 )` -> `32070510`. 5 = SKILL_TYPE 13 = `ST_HYPER_ACTIVE_SKILL`. Its two `GetSkillLevel` calls discard their results.
+3. **The hide override** (`@31fd3228`) has two June-only sources. `[g_pKTDXApp+0x1c8]` is the GFx UI manager; `31c44710( 0xb )` invokes
+   `"isOpenUI"`, i.e. GFx UI `0xb` is open. `g_pMain +0x80a` = "a movie is playing" in June's movie table (`+0x7f8`: `m_wstrMovieFileName`,
+   `m_eMovieCategory`, `m_iQuestID`, ...; parser `31d8cb90`, set by `31d7a150` / `31d884f0`, cleared @324dadc2). March has neither: no GFx (D9),
+   and its `m_bPlayIntroMovie` is a one-shot server-select flag.
+
+**Code** (`SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION` + `_DEBUG`; `X2GUUser.cpp` `GetShowActiveSkillShow`, `Always.h`): June's body, March's in `#else`.
+- March's enum, radios and save stay. The value is mapped by name: `SCSS_ONESELF` -> 1, `SCSS_PARTY_MEMBER` -> 3 (March's meaning),
+  `SCSS_HIDE` -> 0. June's 2 (party only) is ported but **not reachable** from March's UI.
+- June's three cases, then the hyper rule: a `ST_HYPER_ACTIVE_SKILL` state of my unit or a party member shows its cut-in whatever the option.
+  March's `GetSkillTemplet( id )` stands for `( id, 1 )`, whose level gate needs `IsEnableCode( 0x911 / 0x910 )` (no code event offline).
+- The two hide terms are left out with a comment; they are routed to the backlog's Scaleform/GFx row (`JUNE_PORT_BACKLOG_ORDER.md`).
+- `_DEBUG`: one `JUNE_FX C3t-1` line per call (unit, my, option, June value, now skill, hyper, result).
+
+**Dormant part:** March's `NewSkillTempletVer2.lua` has 521 templets and none of type 13, and no save unit has an `SI_HA_*` skill.
+The hyper rule therefore waits for the character ports (checklist 7t, new paragraph). For every value March can reach, flag-on equals March.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`:
+`files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`. `Always.h` is OTHER because it holds the `_DEBUG` block and the peer's uncommitted
 C3w defines; only C3t-1's lines are staged. `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted
 line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Commit `5021fe4`. Post-commit
 (`--range 5021fe4^..HEAD --with SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG`): `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
