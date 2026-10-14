@@ -4434,6 +4434,20 @@ All 15 bind names and the `JUNE_FX C3z-4s` strings are in the exe.
   - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`
   - `RESULT: PASS`
 
+### C3z-4s - play-test (2026-10-15 04:56-05:06, reyaa unit 12, exe `287bfb54`, data215 copied): PASSED for checks 1-4
+
+- Ranox Secret Hell 41271, `/stage 2`; the first room cleared to stage 2's second sub-stage. A detour through stage 1 (no gauge
+  there: TYPE1 scene) came first.
+- **Created and shown** (05:05:19): `SimpleDLG created DLG_UI_RANOX_SECRET_FEVER_GAGE.lua`, `SetShow_LUA 1 ( dialog ok )`; the
+  number static has 20 pictures. `SetShow_LUA 1` logs twice: the start function runs twice and the second Create returns the
+  existing dialog (one "created" line), as in June.
+- **Counter** (05:05:23-28): 1..5, every call `( static ok )`; the user saw the gauge draw ("nice").
+- **Shake from 3** (05:05:25 on): `CrashAndColorChange colour ( 1.00 0.00 0.00 1.00 ) time 0.05, home ( 400.0, 50.0 )` about
+  every 0.43 s, `skipped ( dialog moving )` in between (June's `GetIsMoving` gate).
+- **Fever at 5, then reset**: held at 5 from 05:05:28, back to 0 at 05:05:47 (fever end); a second cycle reached 4 by 05:06:00.
+- 0 EXCEPTION; the 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ` (not this phase's); no `can't find` in ErrorLog.
+- Not yet seen: the hide on the dummy's death (`SetShow_LUA 0`) and the delete on leaving (`SimpleDLG dtor`).
+
 ### C3z-6 - Done (2026-10-10, Opus 5.5 high; 2 flags)
 
 **`SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL`**: the March server's relative monster level, in the emulator (`Handlers_Room.cpp`).
