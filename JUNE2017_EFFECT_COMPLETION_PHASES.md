@@ -2942,6 +2942,55 @@ The hyper rule therefore waits for the character ports (checklist 7t, new paragr
 
 **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`:
 `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`. `Always.h` is OTHER because it holds the `_DEBUG` block and the peer's uncommitted
+### C3t - Review (2026-10-14, Opus 5.5 high): no transcription errors, no code change (exe unchanged), no build, no deploy
+
+Commit `547670a` was checked against Ghidra decompiles, `disassemble_function`, `vtslot.py` and raw bytes from `unpacked_x2.exe`.
+1. **Templet offsets.** `3237aa40 @3237ad0a` sets `esi = node + 0xc`, `@3237ad15` stores class at `esi+8` and `@3237ad18` unitType at `esi+4`.
+   `esi` is not reassigned before `@3237fb8b`. The reader tests `templet[0] == 10` and `[1] == 0x81`, so templet = `esi + 4`.
+   - The five keys (`xorstrings.tsv`: `3237f346 / f47c / f5e2 / f7b1 / f969`) store at `esi+0x2e0 / 0x2fc / 0x318 / 0x334 / 0x350`.
+     That is reader `+0x2dc / 0x2f8 / 0x314 / 0x330 / 0x34c`. Each miss is `3344f1f4` (`L""`).
+   - `32014fc0` tests emptiness on the size field at `+0x10` of each (`+0x308 / +0x324 / +0x340 / +0x35c`). The order in `X2UnitManager.cpp` is June's.
+2. **Berserk flag `@3205e0d0-3205e108`.** The disassembly is `+0x951c = 0`, then `vslot 0xac`, `cmp eax,2` / `ja`, then `vslot 0xa4`
+   (`test al,al`), then `vslot 0x51c`, then `= 1`. That is the port.
+   - It sits after the rate pick and before `BeginTable("SOUND_SET")` (`@3205e117`), and that still holds in both C3t-2 branches.
+   - `ARA_CHARACTER_BASE` is on (`Always.h:2132`, outside any `#if`), and its block has no `#else`.
+   - `vtslot.py`: on all 12 primary vtables, `0xac` is `3208e300` (`GetHyperModeCount`). `0xa4` is `31e4c550` (`xor al,al`) except Chung's `32c24b90`.
+     `0x9c` is a separate slot (overridden by Eve, Ara, Chung, Raven), so `0xa4` is not `IsFullHyperMode`.
+   - **Count timing.** June `HyperModeStart` `31ffd490` calls `0x7c4` (`CommonStateStart`) first and does the count bookkeeping after it.
+     March `HyperModeStart` (`X2GUUser.cpp:30722`) does the same, and `HyperModeStartFuture` (`:30753`) does not touch the count.
+     So in both builds the flag sees the pre-awakening count (3 in a 3-bead awakening). March reads it through its own `GetHyperModeCount`.
+   - **`0x51c`.** The base `3208e6d0` is `( [+0x7cbc] - +0x7cec ) / 100 == 0x17`, and the state index is the state id (funcmap `3208e410`).
+     March's `USER_STATE_ID` counts `USI_HYPER_MODE` = 23 = 0x17, and June's anchors (9 START, 11 WIN, 12 LOSE, 13 WAIT) line up, so the name is exact.
+     March copies the new state into `m_NowStateData` (`:6744-6745`) before `StateStart` / `CommonStateStart` (`:6783-6786`), as June's `+0x7cbc` is read.
+3. **Reader `32014fc0`.**
+   - `param_2 > anim+0x24c && 31d28e10( t )` is March's `EventTimerOneshot` (`KTDGXSkinAnim.h:238`, `m_fAnimOneshotTimer < fTime && EventTimer( fTime )`).
+   - Then `32001380`, then `31fd3180` (now June's body via C3t-1's flag). The name starts as `m_HyperCutIn`; `+0x951c` and a non-empty `+0x2f8` select `m_BerserkCutIn`.
+   - `32078b70` is March's one-argument `SkillCutIn` (512, 512 / 256, 512).
+   - `31fde0f0( L"Dummy1_Rhand", name, size, pos, 0, bOnlyLight )`: 9 dwords, `ret 0x24`, `pos` a `D3DXVECTOR3`.
+   - The anim, `m_pUnit` and templet null checks are ours, and marked. June dereferences all three.
+   - Caller `32063650 @3206ce0a-3206ce42`: `IsSamef( -1, +0x9280 )`, then `vslot 0x838( t, 0 )`, right after `0x834` on `+0x9278`. That matches.
+   - The parse cannot go stale: March's `CommonStateStart` has no `return` before it (`:15555-16800`).
+4. **Lu/Ciel branches.** They are reach-equal.
+   - `vslot 0x260` is `3208e160` on every class (`mov al,[+0x8e90]`). That is June's minor-unit byte, copied from `CX2Unit +0xe40` (funcmap `3204e030`), and March has no counterpart.
+   - The type test is unreachable too: March's `UNIT_TYPE` ends `UT_ADD = 9, UT_END = 10`, and no `UNIT_CLASS` is 0x81. Both branches stay checklist 7t.
+5. **Routed.** C3t skipped June's `m_fLobbyRotationY` / `m_fMinorUnitLobbyRotationY` (parser `+0x2d8 / +0x2dc` = templet `+0x2d4 / +0x2d8`).
+   No row owned them, so they are now a line in `JUNE_PORT_BACKLOG_ORDER.md` Stage 9.
+
+**Hygiene.** The flag's range was run per commit (`git log -S` finds `547670a` and `ae12ab4`), not `^..HEAD`, which times out here.
+- `--range 547670a^..547670a`: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`.
+- `--range ae12ab4^..ae12ab4` (C3t-2): `files: 0 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 1 ERROR` / `0 deleted line(s)` / `RESULT: FAIL`.
+  - The ERROR is C3t-2's dependency guard, `Always.h:7306` `#if defined(...SOUND_SET_PICK) && !defined(...HYPER_CUT_IN_TIME)` / `#error`.
+    flagcheck cannot evaluate a compound `#if`, as with the earlier guards (`:5380`, the `NPC_FORCE_BACK_SPEED` one).
+  - The two OTHER rows (`X2GUUser.cpp` +134, `X2GUUser.h` +3) are `SOUND_SET_PICK`'s calls into C3t's `JuneIsHyperModeState` / `JuneIsBerserkByChance`.
+  - Consequence: C3t's flag can no longer be turned off alone. Undefine `SOUND_SET_PICK` with it, or the guard stops the build.
+
+**Not exercised in game.** C3t-2's play-test logged `hyper state 0` throughout, so neither the flag nor the `0x51c` term has run true.
+Both stay dormant until a June class script sets `SHOW_HYPER_CUT_IN_TIME` (checklist 7t).
+
+No questions for the user.
+
 C3w defines; only C3t-1's lines are staged. `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted
 line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Commit `5021fe4`. Post-commit
 (`--range 5021fe4^..HEAD --with SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG`): `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;

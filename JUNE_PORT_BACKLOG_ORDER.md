@@ -307,6 +307,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   - Check against March first: the `STATE_MENU_UI_CUSTOM_MSG` ids the rows send, and the 29 `DLG_UI_Menu_*_Event*.lua` dialogs.
   - Inert offline: nothing enables a code event, because the emulator never sends the packet.
   - Rows: funcmap `Effect C9h-2e`.
+- **June's lobby rotation keys in `UnitTemplet.lua`** (handed here by the june-effect C3t review, 2026-10-14). March has neither key.
+  - Parse: `AddUnitTemplet_LUA` `3237aa40` reads `m_fLobbyRotationY` (`@3237efaf`, stored at parser `+0x2d8` = templet `+0x2d4`) and
+    `m_fMinorUnitLobbyRotationY` (`@3237f144`, `+0x2dc` = templet `+0x2d8`). They come right after `introMovieFIleName` (`32fea370` float getter).
+  - Reader: not identified yet. It is probably the character-select / lobby model. Find the readers of templet `+0x2d4 / +0x2d8` first.
+  - The minor-unit key belongs to Lu/Ciel (Stage 8).
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
