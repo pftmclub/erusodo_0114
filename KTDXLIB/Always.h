@@ -7316,7 +7316,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June effect completion C3t-2 play-test lines ( short-lived; turn OFF in the C3t-2 review ): "JUNE_FX C3t-2" one line per
 //              state start of my unit that has a SOUND_SET<n>_RATE key or opens a SOUND_SET ( roll new / kept, set, branch, records ).
 //              Capped at 400 lines per run. Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+//#define SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG	// off 2026-10-14 (C3t-2 review): play-test PASSED (Ara Z-Z-Z NORMAL / BERSERK, Chung Nova NORMAL -> HYPER, multi-set picks)
 //              Its lines all sit inside SERV_IRUHADEV_JUNE_SOUND_SET_PICK, so without that flag it compiles to nothing.
 #if defined(SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
 #error SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )

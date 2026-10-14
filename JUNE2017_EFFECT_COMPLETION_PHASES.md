@@ -3066,6 +3066,39 @@ Expected differences from March:
 
 No questions for the user.
 
+### C3t-2 - Review (2026-10-14, Opus 5.5 high; PASS, no code fix, DEBUG off)
+
+Verdict: **PASS.** No transcription error was found, so there is no code change beyond `_DEBUG` off. Read from Ghidra's disassembly of
+`32057b80` (read-only) against `ae12ab4`'s `X2GUUser.cpp` diff.
+1. **The roll.** `+0x6dcc` is loaded into `[esp+0x34]` at `@3205dba1` and stored back at `@3205df1a` on both paths. The getter `32fe9e40` writes
+   `[esp+0x3e]` (`lea ecx,[esp+0x42]` after one push, `@3205dea8`). A miss copies AL = 0 into it (`@3205dee2`); a hit keeps the roll only when the
+   value is non-zero (`cmp [esp+0x3e],0; jnz @3205df10`). So "keep" = found and true, as the port's `false` default reads it. The roll is
+   `call [vtbl+0x1c8]( 0 ); cdq; idiv 100; inc edx`, which is the port's `GetRandomInt( 0 ) % 100 + 1`.
+2. **The rate loop.** `3207feb0( &n )` -> `3207ec00( v, buf, 9 )` writes digits back from `buf + 9` (decimal, as `%d`). The rate is zeroed each pass
+   (`mov [esp+0xb0],0` after two pushes = `[esp+0xa8]`, `@3205df3d`). Miss -> `@3205e086`, which frees the key string and falls to `@3205e0d0` with n
+   unchanged (no fallback to set 0, JUNE_BUGS 192 stands). Hit: `sum += rate; cmp roll,sum; jl` (signed, strict) breaks; else `inc n`.
+3. **The table.** `BeginTable( "SOUND_SET", movzx word n, 1 )` (the port's `USHORT`). The two clears use `[esp+0x2c]` = `+0x85c4` (stored
+   `@3205ceb8` as `[esp+0x30]` after one push) and `[esp+0x14]` = `+0x85d4` (`@3205da87`, `[esp+0x18]` after one push). Between them and
+   `@3205e12b` the only push-adjusted stack writes in that range are the index counter `@3205da44` and the roll slot `[esp+0x34]`; neither slot changes.
+   - Remain test: `fcomp 0.0; test ah,0x41; jnz` jumps when remain <= 0, so the fall-through is `remain > 0`.
+   - HYPER, then BERSERK over it, with June's short-circuit order (the `0x51c` / `0xa4` calls run in the same cases as the port's `||` / `&&`).
+   - Inside: `SOUND_PLAY` through `32078fd0` from index 0 (`xor ebx` `@3205e4e9`); **ebx is reset** before `STATE_SOUND_PLAY` (`xor ebx`
+     `@3205e5f7`), so both loops start at 0, as ported. The miss defaults are -1.0 (`334380f0`), `L""`, 100 and false.
+   - EndTable: state + SOUND_SET when the state table opens (`@3205e6f8`, `@3205e701`), only SOUND_SET when it does not (`@3205e4d6 -> @3205e701`),
+     none when SOUND_SET does not open (`@3205e125 -> @3205e70a`).
+4. **Scope.** The NPC roll stays with C3t-3 (kickoff checked; it already names the key decode and the open-table question). The member stays on
+   `CX2GUUser` until then. **`#else`:** March's three fixed rates, `rand()`, the single clear and the plain `SOUND_PLAY` loop are intact in the three islands.
+
+**Play-test:** read at C3t-2's close (`430aa37`); the log has since been overwritten by a later run with no `JUNE_FX C3t-2` lines.
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SOUND_SET_PICK --range ae12ab4^..HEAD --with SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG`:
+`files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 6 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The 6 tokenless lines are the three bare `#else` and the `#endif`s after the `#error` guards (house precedent).
+**DEBUG off:** `//#define SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG` in `Always.h`, with a dated reason (bytepatch, 1 line, encoding unchanged).
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,578,880 B, dated 2026-10-14 21:44:00, md5 25358c27f5a0cac3b30c813b54de64c5, equal to X2/US_SERVICE/x2.exe (2026-10-14 21:43:56); built at mods/june-buff-port 7a5746e + 1 uncommitted code file(s).` The one file is `Always.h`, which also carried the C3w review's uncommitted `_DEBUG` off. `JUNE_FX C3t-2` is absent from the deployed exe; `SOUND_SET%d_RATE` and `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` are present.
+
+No questions for the user. Next: `C3t-3`.
+
 ## C3t-3 - identify, then port: June's NPC sound-set roll
 
 **Status: ready (found by C3t-2, 2026-10-14). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-3.md`.
