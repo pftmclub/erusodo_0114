@@ -2908,7 +2908,10 @@ The hyper rule therefore waits for the character ports (checklist 7t, new paragr
 **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`:
 `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`. `Always.h` is OTHER because it holds the `_DEBUG` block and the peer's uncommitted
 C3w defines; only C3t-1's lines are staged. `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted
-line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Commit `5021fe4`. Post-commit
+(`--range 5021fe4^..HEAD --with SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG`): `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The `tok!` is the bare `#endif` of the `_DEBUG`-needs-`SERV_IRUHADEV_OFFLINE` guard in `Always.h` (C3e-5's shape).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,578,880 B, dated 2026-10-14 19:47:41, md5 352a3ca53af47a61d5401e37bb487cc3, equal to X2/US_SERVICE/x2.exe (2026-10-14 19:47:36); built at mods/june-buff-port b69fec6 + 5 uncommitted code file(s).`
 That is C3t-1 plus the peer's C3w work. `JUNE_FX C3t-1` is in the deployed exe once. No kom.
