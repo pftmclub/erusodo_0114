@@ -3184,7 +3184,7 @@ No questions for the user. Next: `C3t-3`.
    - `xordec2.py` prints 40 characters; the tail is built in registers. `0x337aa5cc` = `0x4ce3e390` ^ `c6 a2 af 19` = `VALU`, `0x98 ^ 0xdd` = `E`, and the NUL at `[esp+0x10d]` (3 pushes) = buffer + 41.
 2. **The open table.** Both builds open the new state's own table on the Lua manager before CommonStateStart and close it after:
    - June dispatcher `32768ac0 @32768c1b`: `32fe9b20` (BeginTableByReference) -> vslot `0x444` (host only) -> `0x448` (`327ac9d0`) -> `32fe9a10`.
-   - March `CX2GUNPC::DoStateEndStart`: `X2GUNPC.cpp:8150`, with the references made per state at `:7651` (the only caller of `CommonStateStart`).
+   - March `CX2GUNPC::DoStateEndStart`: `X2GUNPC.cpp:8150`, with the references made per state at `:7651` (the only NPC call site of `CommonStateStart`; `X2GUAdd.cpp`'s calls are the user's).
    - So a live read returns that state's key, or misses. The debug line proves it in game (`live rate0` = pre-parsed rate0).
 3. **The roll** (`@327ae165`, where the two STOP_LOOP_SOUND branches meet = March just before `#ifdef ARA_CHARACTER_BASE`):
    - edi = `+0x6dcc`; key miss / false -> vslot `0x1c8( 0 )` (`32755a00` = March `CX2GUNPC::GetRandomInt`) `% 100 + 1`; stored `@327ae564` either way.
@@ -3211,7 +3211,7 @@ No questions for the user. Next: `C3t-3`.
 - The link came from a peer's build, which ran with these files in the tree. `X2GUUser.cpp` is C3u's.
 - `JUNE_FX C3t-3` (wide) and the key are in the deployed exe. No kom.
 
-**How to see it in game:** Karuso Village Hard (33231), `/stage 3`, the Battle Master (ATTACK_A / B: 33 / 33 / 34) and any Suppression Boss (damage states 50 / 50).
+**How to see it in game:** Karuso Village Hard (33231), `/stage 3`, then play on to the end boss, the Battle Master (ATTACK_A / B: 33 / 33 / 34; the stage 3 Fighter / Assassin bosses have no rates). Any Suppression Boss met on the way logs too (damage states 50 / 50).
 - Voices should sound as before.
 - The log shows rolls 1-100, `keep 0` everywhere, `live rate0` = the first rate with `found 1`, and the set type matching the roll against the rates (1 / 4 / 7 = set 0 / 1 / 2, +1 hyper, +2 berserk).
 
