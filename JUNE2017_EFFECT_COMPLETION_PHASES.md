@@ -3791,6 +3791,39 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
 - Elder village 20000, map 20001 and Ruben 1000 loaded. There were 0 `JUNE_FX C3x` lines (no variant opened, no C3x script / line-map failure), 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (known) and 0 EXCEPTION.
 - Plain maps on a real clock, as June. C3x-1's play-test half is closed; the review is next.
 
+### C3x-1 - Review (2026-10-16, Opus 5.5 high): PASS, no code fix
+
+- **Festival cutoff and direction (Ghidra, read-only):** the third `tm` @32805b98-32805bc2 is sec 0, min 0, hour 4, mday 16, mon 2, year 116, isdst -1
+  = 2016-03-16 04:00, the same initializer as the port's `tmJuneFestivalCutoff`. @32805be2-32805bf2 compares `_time64` (high dword `JG` -> skip, `JL` -> read,
+  then low `JNC` -> skip), so `dataFileName_Festival` is read only while now < cutoff, which is the port's `<`. The first two CTimes (03-23 00:00, 04-19 23:59) are dead, as JUNE_BUGS 198 says.
+  June throws if `mktime` fails; the port falls back to the plain name, which can't happen on a valid date.
+- **What is swapped:** @32805aeb assigns `+0x20` to `+0x3c` before the gate. @32805d87 reads into a temp that defaults to L""; on a miss it assigns L"",
+  and @32805dc1 assigns the temp to `+0x20` only when it is not empty. CodeEvent @32805f69 reads into `+0x68` with default L"" whatever the clock.
+  The port's `dataFileName_Original` / festival temp / `dataFileName_CodeEvent` match.
+- **Code-event pick:** 32803d10 @32803e63-32803f13 and 32803f60 @328040eb-328041ad do the same thing: NULL `g_pInstanceData` (33775864) -> plain;
+  lower_bound 0x2e in map `+0xa18`, found and key not greater, node byte `+0x10` == 1; `+0x68` compared with L"" -> CodeEvent, else `+0x20`.
+  March `CX2InstanceData::IsEnableCode` (`X2InstanceData.h:429`) is find + `second`, so it is the same test. `SERV_CODE_EVENT` is unconditional (`ServerDefine_Global.h:146`).
+- **Coverage:** `OpenScriptFile` 327feba0 has exactly 3 June callers (32803f13, 328041ad, and 32804272, which is the additional worlds and is routed to Elysion).
+  The CX2World ctor 327fddf0 is called from those two functions and 32804810, which has no xrefs. The ctor only stores the WorldData pointer (`+0x2c`).
+  No reader of `+0x3c` turned up in the 51 functions at 32802000-32806fff (only 32806050, the WorldData destructor, which frees it) or in the ctor.
+  Readers going through `CX2World+0x2c` were not swept. The port uses the copy only for its log line.
+- **Data (Sonnet subagent, spot-checked):** 42/43 tsv assets are present at June's size and in their manifests; `Village_ADBoard.dds` (data216) is absent as planned.
+  All 30 variant scripts are in data040 as `1B 4B 4C 81` bytecode. WorldData.lua's 27 `dataFileName_Festival` + 9 `dataFileName_CodeEvent` values equal
+  `june_src_fixed` WorldData per worldID; BOM, 0 bare LF. June has 6 more keys, all on rows March lacks or routed (Elysion village ×2, Elysion rest,
+  `WI_SPA_RUBEN` / `WI_SPA_RANOX` snow, Ruben gate festival: the Done note's list). `luasrc.py ledger --check` PASS, `core --check` PASS (after `03d75e5a`).
+- **Assets are CodeEvent-only:** every one of the 42 staged assets serves an `*_XMAS.lua` (CodeEvent 46) map, which offline never loads. The festival variants
+  needed no new assets (play-test 2: light-only recolour).
+- **`.Y` spot-check** (`fxdata.xfile_text`, binary bzip `.x`): `sand_villeage_Xtree.Y` 9/9 textures resolve (data023); `Elder_Village_adboard.y` needs only `Village_ADBoard.dds` (routed);
+  `Elder_Village_G02.y` resolves 60 of 61. The missing one, `ruben_bank_close.dds`, is in no June kom (`junekom.py extract --names`): June's mesh names a texture
+  June does not ship. Kept as is, nothing staged, JUNE_BUGS 199. Only `Elder_village_XMAS.lua` loads that mesh. The census skips textures June lacks, so the tsv is not the whole reference set.
+- **Hygiene:** `flagcheck JUNE_WORLD_FESTIVAL --range e1eb05f3^..e1eb05f3`:
+  `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  The 2 unflagged `#else` lines are the plain branches of the two replaced `OpenScriptFile` calls.
+- **Observation, not fixed:** C3x's two `JUNE_FX C3x world` failure lines (`X2WorldManager.cpp` after the `OpenScriptFile` call) print `dataFileName`, not the picked script, so in a CodeEvent
+  case they would name the plain file. That is log text only and never happens offline.
+- No code change, so no build or deploy (exe stays fd280c95). Nothing owed.
+
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
 **Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan
