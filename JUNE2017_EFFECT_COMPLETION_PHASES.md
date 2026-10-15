@@ -3049,6 +3049,42 @@ Commit `752136f` checked against June (`funcdis.py`, raw `.text` / `.rdata` read
 
 **Play-test (2026-10-12, Elder Wally's Castle Normal, jtLordKnight):** `offline_server.log` shows one `JUNE_FX C3v arm: unit type 1, time 1.50, distance 800, can-not-input 0, tracking 0` (04:26:52.071) and one `expire: focus back to my unit ( 1 )` (04:26:55.898), with no `cancel`. Arm to expire took 3.8 s of real time for a 1.5 s timer that counts `m_fElapsedTime`. The likely cause is the last-kill slow motion slowing the game clock, but that is not traced; the review checks it. The user confirmed on screen that the close-up held on the boss and then returned, and that the boss-intro input lock is unchanged. The battle-field check was skipped (the user's call: a field boss is a hassle to spawn). The only UNHANDLED packets are `E_DISABLE_HB_CHECK_REQ` x2, which predate this phase.
 
+### C3v - Review (2026-10-16, Opus 5.5 high; no transcription error, two comments corrected, DEBUG off, rebuilt)
+
+Commit `84188db` was checked against June's raw disassembly (`funcdis.py --func`, constants read from the exe). The code is unchanged. Two port comments and three funcmap rows were wrong about June's camera and are corrected.
+1. **Base `322d5f70`.**
+   - No handle (null handle, null observable, or observable `0x1a0`) -> `ResetFocusUnit`, return 0. June has no dead-unit test, so funcmap's "dead unit" is reworded.
+   - Handle unit != `m_optrFocusUnit` `@322d5fcd` -> `@322d6207`: `CanNotInput( 0 )`, `+0x240 = 0`, the handle released inline, word `+0x300 = 0`, time 0, distance `-1.0f` (`0x334380f0`), then Reset, return 0. This equals `32311720`.
+   - `fldz; fcom time; test ah,5; jp` = `!( 0 < time )` (NaN included) -> Reset, return 0, nothing cleared.
+   - `time -= +0x2d0`, `fcomp 0; test ah,0x41; jne` = time <= 0 -> `@322d6194`: `CanNotInput( 0 )`, `+0x240 = 0`, `32311720`, focus = GetMyUnit when non-null, Reset, return 1.
+   - Hold: `+0x300` -> `CanNotInput( 1 )`. `fucompp` against the double -1.0 (`0x33436c90`) with `test ah,0x44; jnp` jumps on equal -> `32420bc0` (plain `ret`, no stack args). The camera args are (unit, dist, 200 (`0x33457460`), 0, 0, 0, 0) and, for tracking, (unit, dist, 200, 0, 0, 0, 0.3 (`0x3345993c`), 0, 0, 0.f). Then `+0x240 = 1`, Reset, return 1. Every `if` and return in the port matches.
+2. **Setter `322d63f0`.** The temp is built as (handle, `[esp+0x24]` time, `+0x28` distance, `+0x2c` a4, `+0x30` a5). Ctor `32311680` stores these at `+0xc` / `+0x10` / `+0x14` / `+0x15` (ret 0x18), and `323108d0` copies all five. There is no `NomalDirectCamera`, and the camera vslot 1 gets `( 0.0 double, 0.f )`. This matches the port.
+3. **Camera calls (corrected).**
+   - `31fb3c50`'s 7th arg **is read**. C3v's "overwritten `@31fb3e5e`" missed the pending `push 0 @31fb3e54`, so that write hits lookatDistance's slot. `@31fb4098` passes the 7th arg as the 10th arg of June's `CKTDGCamera::Point 31d01310`, which is a camera view roll at `+0x68` that March lacks.
+   - `UpdateCamera 31d02c70` rotates the view by it only when |roll| > FLT_EPSILON. So 0.f is the same picture as March's 6-arg call.
+   - `31fb3640`'s last two args go straight to June's 10-arg `SetTracking 31d01b70`: a byte at `+0x90` (0 = the default path) and a roll target. (0, 0.f) is neutral, so March's 8-arg call is enough. This branch is reachable only through the unported absolute monster.
+   - Roll census (43 sites, Sonnet subagent, spot-checked): every site passes 0 except the Lua camera-table dispatcher `31fb5920`. It reads the key `TILTANGLE` (XOR stack string, decoded here). No file in `june_src_fixed/` or `24965799/kom_contents/` contains `TILTANGLE`, so the roll is dormant in June's data: no phase, funcmap row `31fb5920`.
+4. **Overrides.**
+   - Dungeon `327cea70`: `mov al,1` on all three returns, and base true -> `@327ced9a`.
+   - PvP `328ba010` (Ghidra merges it with `328b9f30`; it starts after that function's `ret 8`): four `mov al,1` returns, and base true -> `@328ba168`. Its walk equals March's.
+   - Battle field `32d530a0`: `xor al,al` only on the GetMyUnit guard, otherwise 1.
+   - The diff moves every walk without touching it: only the function header lines changed, and each base call sits in `#else`. `CHUNG_SECOND_CLASS_CHANGE` is top-level in `Always.h:2499`.
+5. **Unit `+0x240`.** The sweep looked for a byte `[reg+0xa0]` within 5 instructions after a pure deref `mov reg,[reg2]`, over all of `.text`. It found 13 hits, all `std::_Tree` node bytes (`32220d30`, `32223810`) or Scaleform `MeshCache` (`3321b160`, `31ba7100`). So "not excluded" is closed: the field is write-only.
+6. **3.8 s for a 1.5 s timer: by design.** The last-kill path calls `SetTimerFocusUnit`, then `StopFrame( 80 )` and `SlowFrame( 0.2, 1.5 )` (`X2DungeonGame.cpp:1834-1907`).
+   - Stop frames skip `FrameProcess` entirely (`KTDXApp.cpp:846/885`), so the timer does not move for 80 x 1/85 s = 0.94 s.
+   - The slow window then feeds stages `m_fConstElapsedTime * 0.2` for 1.5 s real (`KTDXApp.cpp:1142`; the state passes `fElapsedTime` through, `X2StateDungeonGame.cpp:1109`), which takes 0.3 s off the timer.
+   - The remaining 1.2 s runs at normal speed.
+   - That totals 3.64 s against the 3.83 s logged. The rest (about 16 steps) is the boss-death frame's particle and sound load. June has the same `StopFrame` / `SlowFrame` order, so the duration is June's.
+7. **Log.** The play-test record (one arm 1 / 1.50 / 800, then expire, no cancel) stands. The current logs are a later run with no boss kill and no C3v lines.
+
+**Change** (`SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT`, comments only): the two camera-call comments in `X2Game.cpp` now say what June's extra args are. `Always.h` has `//#define SERV_IRUHADEV_JUNE_C3V_DEBUG` (off).
+- `flagcheck --worktree --files X2Lib/X2Game.cpp KTDXLIB/Always.h`: 1 PASS, 1 OTHER (Always.h), 0 FAIL, RESULT PASS.
+- The 2 deleted lines are this flag's own two old comment lines, replaced in place. 0 non-ASCII, 0 EOL mismatches, 0 encoding changes.
+- Post-commit range: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,585,024 B, dated 2026-10-16 04:41:57, md5 31e86e8d108bc2eb3f452b25cf307431, equal to X2/US_SERVICE/x2.exe (2026-10-16 04:41:53); built at mods/june-buff-port ed8bac95 + 2 uncommitted code file(s).` The 2 files are this review's. The exe holds 0 `JUNE_FX C3v` strings (control: `JUNE_FX C3w ShowBossName` 1).
+**How to see it in game:** nothing new. A boss last kill still holds the camera on the boss for about 3.8 s, and `offline_server.log` has no `JUNE_FX C3v` lines.
+
 ## C3w - port: June's ShowBossNameAtStart
 
 **Status: done 2026-10-14, play-test PASSED 2026-10-14; review next. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3w.md`.

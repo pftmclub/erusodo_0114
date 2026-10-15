@@ -7163,7 +7163,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-12
 // Description: June effect completion C3v play-test lines ( short-lived; turn OFF in the C3v review ): "JUNE_FX C3v" arm / expire /
 //              cancel lines of the timed focus unit ( needs SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT ). Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_C3V_DEBUG
+//#define SERV_IRUHADEV_JUNE_C3V_DEBUG	// off 2026-10-16 (C3v review): play-test PASSED (Wally's Castle boss last kill: one arm 1.50 s / 800, expire, no cancel)
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

@@ -2477,9 +2477,13 @@ void    CX2Game::UpdateHostGameUnit()
 	// @322d6022-322d613d: distance -1 ( 0x33436c90 ) = the option's distance ( 32420bc0 on g_pMain +0x180 ); height 200 ( 0x33457460 ).
 	const float fJuneDistance = ( -1.f == m_kJuneTimerFocusUnit.m_fDistance ? g_pMain->GetGameOption().GetCameraDistance() : m_kJuneTimerFocusUnit.m_fDistance );
 	if( true == m_kJuneTimerFocusUnit.m_bTrackingCamera )
-		m_pCamera->NomalTrackingCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f, 0.3f, 0.f );	// 31fb3640 ( ret 0x28: June adds ( 0, 0.f ) )
+		// 31fb3640 ( ret 0x28 ): June adds ( 0, 0.f ), forwarded to its 10-arg CKTDGCamera::SetTracking 31d01b70: a byte ( camera +0x90, 0 = the
+		// default tracking path ) and a view-roll target ( camera +0x68 ). 0 / 0.f is June's neutral value and March's camera has neither ( C3v review ).
+		m_pCamera->NomalTrackingCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f, 0.3f, 0.f );
 	else
-		m_pCamera->NomalDirectCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f );	// 31fb3c50 ( ret 0x1c: its 7th arg, 0.f, is never read )
+		// 31fb3c50 ( ret 0x1c ): its 7th arg ( 0.f here ) is June's view roll, passed as the 10th arg of CKTDGCamera::Point 31d01310 ( camera +0x68,
+		// skipped when 0 ). March's camera has no roll, so the 6-arg call is the same picture ( C3v review ).
+		m_pCamera->NomalDirectCamera( pJuneTimerUnit, fJuneDistance, 200.f, 0.f, 0.f, 0.f );
 
 	ResetFocusUnit();
 	return true;
