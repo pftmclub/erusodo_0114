@@ -3750,6 +3750,11 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
 - Save after the 2016 clock: `unit.last_date` (units 12 / 18), `unit_riding_pet.last_unsummon` (pets 5 / 17) and `unit_buff` 122 (start = end) carry 2016 stamps. All harmless, so no restore.
   The backup `db_backup/els_db_20261015_203055_pre_c3x1_before_clockback.sql` is kept.
 
+### C3x-1 - play-test 3 (2026-10-15 20:42-20:43, real clock, unit 43, exe fd280c95): PASSED, regression
+
+- Elder village 20000, map 20001 and Ruben 1000 loaded. There were 0 `JUNE_FX C3x` lines (no variant opened, no C3x script / line-map failure), 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (known) and 0 EXCEPTION.
+- Plain maps on a real clock, as June. C3x-1's play-test half is closed; the review is next.
+
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
 **Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan
