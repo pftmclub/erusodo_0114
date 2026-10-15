@@ -4533,6 +4533,37 @@ bytecode (junekom + ljconv) in the KOG luajit and diffs every `AddDungeonData` t
 - 4 UNHANDLED: 3 are `E_DISABLE_HB_CHECK_REQ` and 1 is `EGS_SKIP_CONTINUE_DUNGEON_NOT`; neither is this phase's.
 - Geyser's 0 EXP rows come from DropTable (no Ranox monster rows), not this phase.
 
+### C3z-3 - Review (2026-10-16, Opus 5.5 high): PASS; one stale count corrected (checklist 7s), no data edit
+
+No C++ in C3z-3, so no flagcheck range. Ghidra was not running; the June-side claims were checked against `unpacked_x2.exe` and the TSVs.
+- **Census** re-run: `verdicts {'SAME': 220}`, 0 March unresolved, 0 STR_ID missing, room titles equal; the tracked TSV is unchanged.
+  220, not 217: C3y-1a's 3 June-only rows (33260 / 33261 / 41270) are now shared ids. No non-SAME row.
+- **Strict load** (current Enum + DungeonEnum + StringID_def): `OK 251 rows, 10 titles, 0 fail(s)` with
+  `allow=WORLD_ID.WI_HAMEL_SECRET_STAGE_BOSS` (JUNE_BUGS row; C3y-1a). That is 248 + C3y-1a's 3. Controls: without
+  `DUNGEON_CHECK_CONDITION` it stops after row 86; without `UNUSED_DUNGEON_ID`, after row 172 (both as recorded).
+- **Loader keys**: every key in `dungeon_registry_loader_keys.txt` is read by `AddDungeonData_LUA` (now `X2DungeonManager.cpp:112-620`;
+  `ENDING_SPEECH0/1` are `BeginTable("ENDING_SPEECH", i)`). All 20 macros guarding reads are ON by a `cl /EP` probe on
+  US_SERVICE (only `X2TOOL` is off), which matches the key strings in the deployed exe. The reads that C3z-5 / C3z-6 added later are newer
+  than the txt, as expected.
+- **June loader**: `xorstrings.tsv` has 47 rows for `327e0f80` with 47 distinct guards, all `ok`. They hold 45 distinct strings
+  (`requireItemID` / `requireItemCount` are read twice). So the Done note's "54 keys" is 54 reads of 52 distinct keys.
+  `IS_HELL_MODE` is in neither the set nor any xorstrings row, and is absent from `unpacked_x2.exe` as ASCII and UTF-16. The
+  plain keys (`BOSS_DROP_ITEM`, `EXTRA_REQUIRE_DUNGEON_ID`, `AUTO_DUNGEON_ROOM_TITLE`) are present as ASCII.
+- **Edits are June's**: all 155 `C3z-3 ... June's row` blocks are equal to `june_src_fixed`'s block with the same id (CRLF both).
+  Against the T0 sidecar, every hunk sits inside a marker (the header, the 155, and C3y-1a's Hamel / Ranox blocks). DungeonEnum: the
+  `DI_END` 41120 -> 41530 row (named in the Done note) plus `UNUSED_DUNGEON_ID`. Enum: C3z-3's block plus the hunks marked C3x and
+  C3z-2. `UNUSED_DUNGEON_ID` (62), `DUNGEON_CHECK_CONDITION` (16) and June's `DI_END` equal June's ljconv'd bytecode by value.
+- **Consumers**: `IsActiveDungeon` (now `:718`) blocks only on a non-`DI_NONE` requirement. Since C3z-5 it also gates on
+  suitable level and quest. `GetNextDungeon`'s only caller is commented out (`X2StateDungeonGame.cpp:3243`). `m_bHellMode`
+  readers (`X2LocalMapUI.cpp:1492/1554/1575`) are in the `#else` of the live `SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS`, and `_Icon_Info`
+  is not in the exe. `CanGoOneSecretDungeonAtLeast` has no caller. `m_mapBossDropItem` is read only in `X2PartyUI.cpp`
+  (`UpdateBossItemList`). Lua `DI_END` is read by no kom file. C++ uses its own 41311.
+- **Routing**: the C3z-5 / C3z-6 rows and kickoffs exist and match the Done note. **Fixed:** checklist 7s said Ain 94 / Luciel 98 /
+  Rose 92, which is the count without C3y-1a's rows. The census column now gives 96 / 101 / 93, and 7s says so.
+- **Logs**: no run since the 2026-10-10 play-test touches DungeonData. The latest run (2026-10-15 20:42) has 0 EXCEPTION and no
+  DungeonData / XEM_ERROR2 line.
+- Nothing for the user to do. No pack or copy was needed.
+
 ### C3z-4 - Done (batch 1) (2026-10-10, Opus 5.5 high; 7 flags + `SERV_IRUHADEV_JUNE_C3Z4_DEBUG`)
 
 **Census, class-aware** (`june2017_re/c3z4_class_census.py`, committed `3d94334`).

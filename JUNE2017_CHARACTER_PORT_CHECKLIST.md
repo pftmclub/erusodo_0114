@@ -538,13 +538,13 @@ anything on screen (JUNE_BUGS 164; the readers need the NPC's start state), but 
 
 Since C3z-3, June's `DungeonData.lua` rows carry per-class tables March's `AddDungeonData_LUA` has no branch for
 (`X2DungeonManager.cpp:252-552` reads COMMON / ELSWORD / AISHA / RENA / RAVEN / EVE / CHUNG / ARA / ELESIS / ADD only). The data is
-already live; only the readers are missing. Count per class: `june2017_re/dungeon_registry_census.tsv`, column `june_unread_class_tables`.
+already live; only the readers are missing. Count per class: `june2017_re/dungeon_registry_census.tsv`, column `june_unread_class_tables` (220 shared rows since C3y-1a; counts re-taken in the C3z-3 review, 2026-10-16).
 
 | Class | Tables | Port |
 |---|---|---|
-| Ain | `BOSS_DROP_ITEM.AIN` and `ENDING_SPEECH<n>.AIN` (94 tables in the shared rows) | add the `AIN` branch to both loops, mapped to Ain's `UT_` |
-| Luciel | `BOSS_DROP_ITEM.LUCIEL` and `ENDING_SPEECH<n>.LUCIEL` (98 tables); the speech entries are `{ LU = STR_ID, CIEL = STR_ID }` pairs, not `{ STR_ID }` | the branch plus June's two-speaker speech read (June `327e0f80`, the `ENDING_SPEECH` block `@~1837-2001`) |
-| Rose | `BOSS_DROP_ITEM.ROSE` and `ENDING_SPEECH<n>.ROSE` (92 tables) | add the `ROSE` branch |
+| Ain | `BOSS_DROP_ITEM.AIN` and `ENDING_SPEECH<n>.AIN` (96 tables in the shared rows) | add the `AIN` branch to both loops, mapped to Ain's `UT_` |
+| Luciel | `BOSS_DROP_ITEM.LUCIEL` and `ENDING_SPEECH<n>.LUCIEL` (101 tables); the speech entries are `{ LU = STR_ID, CIEL = STR_ID }` pairs, not `{ STR_ID }` | the branch plus June's two-speaker speech read (June `327e0f80`, the `ENDING_SPEECH` block `@~1837-2001`) |
+| Rose | `BOSS_DROP_ITEM.ROSE` and `ENDING_SPEECH<n>.ROSE` (93 tables) | add the `ROSE` branch |
 
 ### 7t. The hyper cut-in: data, and the class hooks that pick the berserk / Lu/Ciel names (from June effect completion C3t)
 
