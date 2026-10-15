@@ -4204,6 +4204,16 @@ those 3 meshes logged `XEM_ERROR109` in the 2026-10-15 run (Elder secret). June 
   - Outside this phase and left as is: 9 `MOTION_*_EMOTION_BBABBABBA.X` / `DEEPBOW`, the `DAMAGEEFFECT_*.LUA` loose-file probes
     (`KEM_ERROR136`) and 22 `OpenTexture`.
 - No C++ changed, so no build was needed. The deployed exe is unchanged.
+- **COPY OK** (user OK) for all 7 at 19:37. data002 / 048 also delivered `c8ace0c8`'s 18 + 13.
+
+### C3z-1 - review play-test (2026-10-15 19:52-20:00, unit 18, exe `0ae5819a`, koms copied 19:37): PASSED
+
+- **User:** passed.
+- **Dungeons run:** Elder Secret Hell 33031, Wally Castle Roof 30110 (cleared, 80 s), Resiam 33130 (cleared, 106 s), El Tree 30000.
+- **Logs:** 0 EXCEPTION, 2 UNHANDLED (`E_DISABLE_HB_CHECK_REQ`, as before), clean exit. No `XEM_ERROR109` / `110` / `OpenXSkinMesh` line
+  names any of the 12 staged map files.
+- Other misses, outside this review and left as is: `ADE_CG001.DDS`, `BESMA_SECRET_RED02.TGA` (seen in the earlier run too), plus the
+  same emotion motions, shop icons and gunner textures.
 
 ### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
 
