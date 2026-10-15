@@ -2923,6 +2923,43 @@ which reads `[NULL+0x34]`: `m_pWorld->GetLineMap()` at `X2DungeonGame.cpp:895` w
 
 **Regression play-test: PASSED 2026-10-15 on the user's word.** The dungeon half ran in Elder Wally's Castle (Normal) during C3v's play-test (2026-10-12, an exe carrying C3s's code). The battle-field half was skipped by the user (too long to reach, not an important mechanic); `SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT` is therefore code-reviewed only. No log was read for this verdict.
 
+### C3s - Review (2026-10-15, Opus 5.5 high; no transcription errors, no code change, no build)
+
+Commit `752136f` checked against June (`funcdis.py`, raw `.text` / `.rdata` reads). Code unchanged, exe stays as deployed. Every kickoff item matches:
+- **Dungeon `327cea70` `@327ceaaf-327cebee`.** `31c40570( 0, size, "", 0 )` on `+0x8f8c` is the empty test.
+  - `+0x8e38 == 1` and empty: `CanNotInput( +0x8650 start == vslot 0x174 )`.
+  - Otherwise (`@327ceaf5`) non-empty: `CanNotInput( GetStateID 3275aaf0( str ) == nowState )`, whatever `+0x8e38` holds; empty skips.
+  - Focus: `( +0x8750 && start == now ) || NOWSTATE word0 0x20000000` reach `@327ceb9a`; there empty -> focus (`@327cec78`). Every other path reaches `@327cebb6`: non-empty -> focus (`@327cecf8`) iff the same compare; otherwise SetShowUI( true ). So the key replaces **both** focus conditions.
+  - The two focus blocks are identical (`+0x8e39` hide, focus = NPC, vslot `0x84`, return 1). The FocusCameraForce and revert tail is March's.
+  - Port: `if( stopAtStart && !force ) ... else if( force ) ...` and `true == force ? true == inForce : ( March's two )`. `==` binds tighter than `?:`, so precedence is right.
+  - **nowState**: June reads the protected byte `+0x8454` (`^+0x8458 ^+0x845c`, `movzx`). NPC vtable `334ba584` slot `0x174` = `31e51710`, which reads that same byte, `movzx`. So `GetGameUnitState()` is the right getter.
+  - `3275aaf0` returns `movzx [+0x28]`, 0 on a miss. March: `map<string,char>`, `GUSI_NONE` on a miss, and `nowState` is `char` too, so both sides extend alike. June IDs > 127 are guarded at `X2GUNPC.cpp:4853`.
+- **Battle field `32d530a0`.** `@32d530a3-32d530b4`: vslot `0x98` NULL -> `xor al, al; ret`, before the base `322d5f70` (`@32d530b7`). The walk is March with `MODIFY_DUNGEON_STAGING` + `SERV_BATTLEFIELD_MIDDLE_BOSS`:
+  - STOP_AT_CURRENT -> CanNotInput( 1 ).
+  - FOCUS_AT_CURRENT -> focus, hide, return; else ShowUI( true ).
+  - Force || ( FocusCamera && start == now ) -> focus, then `+0x8e80` and `[+0x8c4]` bytes 0 and 1 both 0 -> clear `+0x8d34`, focus = my unit, continue; else return.
+  - End: my unit, or Reset.
+  - `X2Game.h` `struct CinematicUI` (no vtable): `m_bStart` at byte 0, `m_bEnd` at byte 1. `GetIsCinematicUIActive` = both false, so byte order cannot matter.
+  - C3v's wrapper repeats the guard returning `false` (= June `al = 0`). The in-walk copy is redundant, not wrong.
+- **Parse `327a0fa0 @327ab439-327ab610`.** Key masks `0x337a9e30..e44` replay to `FORCE_CINEMATIC_STATE`.
+  - Byte 0 is `not bl`: `bl = 0xb9` on the first-run path (`@327ab457`) and `[0x337a9e30] = 0xb9` on the cached one, so `0x46 'F'` both ways. Bytes 18-20 are `dl` / `cl` / `al` ^ `27` / `2e` / `f9` = `A T E`, then NUL at `+0x865`.
+  - Getter `32feb110` sits between BUFF_GROUP_ID (`@327ab430`) and NOT_CHECK_INDICATOR (`@327ab7b4`), with no table call in between. A miss is `3322f910( "", 0 )`. The port's `LUA_GET_VALUE_UTF8( ..., "" )` after BUFF_GROUP_ID inside INIT_COMPONENT matches.
+  - Data: `june_src_fixed/data037_kom/Secret_Mad_Trock_Summoner.src.lua:81`, a state at `:99`.
+- **Jump tables.** `0x327ceda8` / `0x327cedcc` / `0x32d532bc` hold the same 26 bytes (`0 0 0 0 0 0 1 1 0 1 1 0 0 1 1 1 1 1 1 1 1 1 1 0 0 0`).
+  - Index = state - 1, and 0 keeps the UI (targets `327cecb2` / `327ced32` / `32d532ad`). So false for states 1-6, 9, 12, 13, 24-26 (row `31d6fd60`): March `X2Main.h:2148` (START_UP .. CREATE_UNIT, PVP_GAME, PVP_RESULT, DUNGEON_RESULT) plus June's PVE_RESULT and PHOTOZONE_LOBBY / _GAME.
+  - State 0 and states above 26 hide (`ja`), which is March's `default: true`.
+- **Routing.** C3s touched neither `X2PVPGame.cpp` nor the base; both landed in C3v (`84188db`, its review still owed). The boss intro landed in C3w (`d0123b1`, reviewed).
+- **Mesh census (kickoff addendum).** `npc_mesh_census.py --all-npc` re-run: 3,364 unit scripts, **needed files: 0**. Its closure (`jbytes`) inflates `bzip` / `tzip` for every model, NPC `.X` included, so C3x / C3z-1 already staged the MSZIP-hidden textures. The run blanks `npc_mesh_need_all.tsv` / `_replaced.tsv`; both were restored from git as C3s's staging record.
+
+**Hygiene:** `--range 752136f^..752136f`:
+- `_FORCE_CINEMATIC_STATE`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 untokened, 0 encoding changes; `RESULT: PASS`.
+- `_BF_FOCUS_NEEDS_MY_UNIT`: `1 PASS, 4 OTHER, 0 FAIL, 0 ERROR`; same zeros; `RESULT: PASS`.
+- Later commits (`git log -S`; `..HEAD` times out):
+  - `84188db` (C3v) for `_BF_FOCUS`: `RESULT: PASS` (9 OTHER).
+  - `d0123b1` (C3w) for `_FORCE_CINEMATIC_STATE`: **`RESULT: FAIL`, `0 FAIL, 1 ERROR`**. The ERROR is `Always.h:7282`, `#if defined(..._SHOW_BOSS_NAME_AT_START) && !defined(..._FORCE_CINEMATIC_STATE)` / `#error`, a dependency guard flagcheck cannot parse. It is not a code path. 0 deleted / non-ASCII / EOL / untokened / encoding.
+
+**User owes nothing.** The battle-field half stays code-reviewed only (its play-test was skipped, 2026-10-15). No build, no deploy, no play-test.
+
 ## C3v - identify, then port: June's CX2Game::UpdateUnitPointer
 
 **Status: done 2026-10-12, play-test owed (see C3v - Done). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3v.md`.
