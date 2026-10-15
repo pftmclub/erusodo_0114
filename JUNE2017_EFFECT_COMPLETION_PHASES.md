@@ -5103,7 +5103,7 @@ The user confirmed the checks, and the logs agree.
 
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
-**Status: done 2026-10-15 (no new code: C3p's chain is June's boss-intro skip; see C3z-7 - Done); play-test PASSED (Gateway in C3p, Altera 2026-10-15). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`, review `kickoffs/june-effect/C3z-7-review.md`. The user asked for June's boss-intro skip.
+**Status: done 2026-10-15 (no new code: C3p's chain is June's boss-intro skip; see C3z-7 - Done); play-test PASSED (Gateway in C3p, Altera 2026-10-15); review PASSED 2026-10-16 (C3z-7 - Review). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`, review `kickoffs/june-effect/C3z-7-review.md`. The user asked for June's boss-intro skip.
 It is not the event-scene talk skip (March has ESC at `X2EventScene.cpp:336`), not the epic quest scene skip
 (`DLG_Skip_Epic_Scene_Guide`, `UQNCM_SKIP_EPIC_QUEST`), and not the dungeon clear movie (`DLG_Dungeon_Clear_Movie`).
 
@@ -5177,6 +5177,46 @@ clean exit).** Both runs were Battle Air Ship, dungeon key 30242 (room `30240 di
   same state as the skip.
 - **Not in the logs:** Raven (boss uid 1000024, id 238) took no logged hit, and neither run cleared the room. Run A left 6 s after the
   skip, run B 3 s after the end. **User 2026-10-15: Raven moved and fought as usual after the skip. Gate PASSED.**
+
+### C3z-7 - Review (2026-10-16, Opus 5.5 high; PASS, no gap, no code)
+
+**Verdict: the C3z-7 verdict stands. June's boss-intro skip is C3p's chain (`SERV_IRUHADEV_JUNE_SKIP_START`), and there is nothing more to port.**
+No flag (`SERV_IRUHADEV_JUNE_BOSS_INTRO_SKIP` stays undefined), no build, no flagcheck range. The new addresses are in `june2017_re/c3z7_boss_intro_skip.tsv` (3 rows added).
+- **ESC is the only way in (Ghidra, read-only).**
+  - `CannotInput` `327d20b0` stores its argument into my unit's `+0xde8` (`m_fCanNotInputTime`), and nothing else. It locks input and touches no NPC state.
+  - `IsSkipKeyPressed`: the bind name is XOR-built at `@31dc905b` (`0x33780d84..d93`), and the bound function `31e4dd90` is `mov al,[ecx+0x790]; ret`.
+    The byte is written only by the CX2Game ctor (`@32307506`) and `325c6b50` (`@325c6e27` / `@325c6e71`, key test `31d24fb0` / `31d24260`,
+    called from `31ee9f50`). The scripts that call it are the 20 tutorial / 2017 event dungeons plus `ELYSION_M_2STAGE_GATE`. None of them is in the census, and none sets `DIRECTION_STATE`.
+  - DIRECTION_STATE readers: 68 rel32 callers of the state getter `31e8a990`. Only `@327af265` (arm) and `@3277f86d` (end) test `[state+8] & 0x2000` (bit 0x4d).
+    The third `& 0x2000` hit, `327606a0 @327606d2`, tests `[state+0]`, i.e. bit 0x0d, a different key (one caller, `@322863ba`).
+    Together with C3p's `+0xb40..+0xb48` sweep, this means no other June reader takes an event NPC out of its START state on input. Limit: an inlined flag read (no getter call) would not show up in this sweep.
+- **Release parity.** `322f11d0`, decompiled again, matches March `CX2Game::JuneSkipStart` (`X2Game.cpp:12129`) step for step:
+  - users' `+0x92cc` set to 0 unless it is -1 (eps `FLT_EPSILON` = `334490f8`);
+  - armed gate;
+  - each listed NPC sent to `StateChange( +0x4088 WAIT, 0 )`;
+  - armed and sent cleared, the list cleared;
+  - subtitle 27 / -1 cleared, only when a now-state exists.
+
+  The NPC's exit from START runs the same `CommonStateEnd` block `@3277f863` on the skip and on the natural `SCT_MOTION_END` end. That block releases the input lock (`+0xde8 = 0`), the boss name and the subtitle.
+  The skip adds only the users' start-delay zeroing, which a natural end leaves to run out on its own. So `StateChange( WAIT_STATE, false )` plus the end block is the whole job.
+  The intros that lock input themselves (`SetCanNotInputTime_LUA(12/13)`: `npc_elsword_parasite_*`, `event_npc_darknephilim`, `dark_nephilim_dp`) write the same `+0xde8` that the end block zeroes on both paths.
+  None of the 36 skippable units calls `PlayWorldCamera`, `EndWorldCamera`, `SetApplyCinematicUI` or `CannotInput`.
+- **Census.** A re-run printed `rows 103 dungeons w/ skippable 75 distinct skippable units 36`, and the `.tsv` is byte-identical to git.
+  - Spot-check 1, Altera Battle Air Ship Normal: `NPC_GROUP` at `Dungeon_Altera_Battle_Air_Ship_Normal.src.lua:829`, spawn `:842` (`:810` is READY_NPC preload only).
+    Unit `Event_NPC_Battle_Air_Ship.src.lua`: `WAIT_STATE` = `_DYING` `:55`; `DIRECTION_STATE` `:82` in START `:66`.
+  - Spot-check 2, Altera Nasod Factory Normal: `NPC_GROUP` at `Dungeon_Altera_Nasod_Factory_Normal.src.lua:94`, spawn `:96` (READY_NPC `:49`).
+    Unit `Event_NPC_Nasod_Factory.src.lua`: `WAIT_STATE` = `_DYING` `:61`; focus / stop / `DIRECTION_STATE` at `:114-116`.
+  - `EVENT_FINALHALL_BOSS2.src.lua` contains no `DIRECTION_STATE` at all. START is `:108-140` and has no focus or stop key. Its only `FOCUS_CAMERA_AT_CURRENT_STATE` is in `_MOVE` (`:160`).
+    It is unskippable in June too, so it is kept that way.
+- **Play-test read.** The 2026-10-15 04:06 Altera logs no longer exist: the game-dir logs are from the 20:42 C3x-1 run, there is no archive, and nothing in `db_backup/` matches.
+  The review therefore rests on two things:
+  - the lines quoted in the Done note above (`arm` / `skip ... state 6 -> WAIT_STATE 7` / `end ... input unlocked` / `KILL_SELF`, both runs);
+  - the user's word that Raven fought.
+
+  A replay cannot re-prove it from the logs: C3p `_DEBUG` has been off since the C3p review, so the deployed exe writes no `JUNE_FX C3p` lines.
+  Exception lines were 0 in the Done note's read.
+
+**User owes nothing.** C3z-7 is closed, and C11's review list drops to 6.
 
 ## C4 - 8b, damage math
 
