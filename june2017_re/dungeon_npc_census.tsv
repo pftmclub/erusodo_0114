@@ -63,8 +63,9 @@ NUI_ANCIENT_COACKATRIGLE	701	701	same	y	y		Ancient_Coackatrigle.lua	y		npcstat	o
 NUI_ANCIENT_CRAB	703	703	same	y	y		ANCIENT_CRAB.lua	y		npcstat	ok	dungeon	9	Dungeon_Hamel_Battle_ship.lua;Dungeon_Hamel_Break_Resiam_Expert.lua;Dungeon_Hamel_Break_Resiam_Hard.lua;Dungeon_Hamel_Break_Resiam_Normal.lua;Dungeon_Hamel_Waterway_Core_Expert.lua;Dungeon_Hamel_Waterway_Core_Hard.lua;Dungeon_Hamel_Waterway_Core_Normal.lua;Dungeon_Hamel_Waterway_Expert.lua;Dungeon_Hamel_Waterway_Hard.lua;Dungeon_Hamel_Waterway_Normal.lua
 NUI_ANCIENT_CRAB_SHIP	731	731	same	y	y		ANCIENT_CRAB.lua	y		npcstat	ok		1	Dungeon_Hamel_Battle_ship.lua
 NUI_ANCIENT_ICE_CRAB	862	862	same	y	y		ANCIENT_ICE_CRAB.lua	y		npcstat	ok	dungeon	3	Dungeon_Hamel_Frozen_Water_Temple_Expert.lua;Dungeon_Hamel_Frozen_Water_Temple_Hard.lua;Dungeon_Hamel_Frozen_Water_Temple_Normal.lua
-NUI_ANCIENT_MAGMANTA	1492	1492	same	y	y		ANCIENT_MAGMANTA.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_ANCIENT_MAGMANTA_BOSS	1505	1505	same	y	y		ANCIENT_MAGMANTA_BOSS.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_ANCIENT_MAGMANTA	1492	1492	same	y	y		ANCIENT_MAGMANTA.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_ANCIENT_MAGMANTA_BOSS	1505	1505	same	y	y		ANCIENT_MAGMANTA_BOSS.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_ANCIENT_MAGMANTA_ICE_STONE	1560	1560	same	y	y		Ancient_Magmanta_Ice_Stone.lua	y		npcstat	ok	summon:NUI_ANCIENT_MAGMANTA;summon:NUI_ANCIENT_MAGMANTA_BOSS	0	
 NUI_ANCIENT_PPORU	364	364	same	y	y	LUA_FILE_NAME,MOTION	AncientPporu.lua	y		npcstat	ok	dungeon	7	Dungeon_El_Forest_North_Expert.lua;Dungeon_El_Forest_North_Hard.lua;Dungeon_El_Forest_North_Normal.lua;Dungeon_Henir_Space_2011.lua;Dungeon_Ruben_Swamp_Expert.lua;Dungeon_Ruben_Swamp_Hard.lua;Dungeon_Ruben_Swamp_Normal.lua
 NUI_ANCIENT_PPORU_EXPERT	434	434	same	y	y		AncientPporu.lua	y		npcstat	ok	dungeon	1	Dungeon_Event_KidDay.lua
 NUI_ANCIENT_PPORU_HENIR		1782	june-only		y		ANCIENT_PPORU_HENIR.LUA	y		extra	enum		1	Dungeon_Henir_Space_2013.lua
@@ -85,7 +86,7 @@ NUI_AVALANCHE_ICE_PILLAR_BIG	833	833	same	y	y		AvalancheBigIcePillar.lua	y		npcs
 NUI_AVALANCHE_ICE_PILLAR_SMALL	834	834	same	y	y		AvalancheSmallIcePillar.lua	y		npcstat	ok	summon:NUI_AVALANCHE	0	
 NUI_AVALANCHE_STATUE	860	860	same	y	y		AvalancheStatue.lua	y		npcstat	ok	summon:NUI_AVALANCHE	0	
 NUI_BABY_HARPY	1171	1171	same	y	y	LUA_FILE_NAME	Baby_Harpy.lua	y		npcstat	ok	dungeon	3	Dungeon_Sander_Garpai_Rock_Expert.lua;Dungeon_Sander_Garpai_Rock_Hard.lua;Dungeon_Sander_Garpai_Rock_Normal.lua
-NUI_BABY_MAGMANTA	1493	1493	same	y	y		BABY_MAGMANTA.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BABY_MAGMANTA	1493	1493	same	y	y		BABY_MAGMANTA.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_BARRICADE_DEMON	476	476	same	y	y		Barricade_Demon.lua	y		npcstat	ok	dungeon	13	Dungeon_Velder_Bridge_Burning_Expert.lua;Dungeon_Velder_Bridge_Burning_Hard.lua;Dungeon_Velder_Bridge_Burning_Normal.lua;Dungeon_Velder_Bridge_Hope_Expert.lua;Dungeon_Velder_Bridge_Hope_Hard.lua;Dungeon_Velder_Bridge_Hope_Normal.lua;Dungeon_Velder_Gate_Expert.lua;Dungeon_Velder_Gate_Hard.lua;Dungeon_Velder_Gate_Normal.lua;Dungeon_Velder_Market_Expert.lua;Dungeon_Velder_Market_Hard.lua;Dungeon_Veld
 NUI_BARRIERMACHINE_FIRE	234	234	same	y	y		Barrier_CreateMachine_Fire.lua	y		npcstat	ok	dungeon	5	Dungeon_Altera_Plain_Expert.lua;Dungeon_Altera_Plain_Hard.lua;Dungeon_Altera_Plain_Normal.lua;Dungeon_Event_KidDay.lua;Dungeon_Henir_Space_2011.lua
 NUI_BARRIERMACHINE_ICE	235	235	same	y	y		Barrier_CreateMachine_Ice.lua	y		npcstat	ok	dungeon	5	Dungeon_Altera_Plain_Expert.lua;Dungeon_Altera_Plain_Hard.lua;Dungeon_Altera_Plain_Normal.lua;Dungeon_Event_KidDay.lua;Dungeon_Henir_Space_2011.lua
@@ -179,7 +180,7 @@ NUI_BES_WARRIOR1		2482	june-only		y		BES_WARRIOR.lua	y		extra	enum		2	Dungeon_Be
 NUI_BES_WARRIOR2		2485	june-only		y		BES_WARRIOR.lua	y		extra	enum		2	Dungeon_Bestera3.lua;Dungeon_Bestera4.lua
 NUI_BES_WARRIOR3		2488	june-only		y		BES_WARRIOR.lua	y		extra	enum		2	Dungeon_Bestera3.lua;Dungeon_Bestera4.lua
 NUI_BLACK_FLOWER_FRONT	837	837	same	y	y		Black_Flower_Front.lua	y		npcstat	ok	dungeon	3	Dungeon_Hamel_Cave_Of_Magmanta_Expert.lua;Dungeon_Hamel_Cave_Of_Magmanta_Hard.lua;Dungeon_Hamel_Cave_Of_Magmanta_Normal.lua
-NUI_BLACK_FLOWER_SECRET	1486	1486	same	y	y		BLACK_FLOWER_SECRET.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BLACK_FLOWER_SECRET	1486	1486	same	y	y		BLACK_FLOWER_SECRET.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_BLACK_FLOWER_TRAP	706	706	same	y	y		Black_Flower_Trap.lua	y		npcstat	ok	dungeon	6	Dungeon_Hamel_Break_Resiam_Expert.lua;Dungeon_Hamel_Break_Resiam_Hard.lua;Dungeon_Hamel_Break_Resiam_Normal.lua;Dungeon_Hamel_Cave_Of_Magmanta_Expert.lua;Dungeon_Hamel_Cave_Of_Magmanta_Hard.lua;Dungeon_Hamel_Cave_Of_Magmanta_Normal.lua;Dungeon_Hamel_Outskirts_Resiam_Expert.lua;Dungeon_Hamel_Outskirts_Resiam_Hard.lua;Dungeon_Hamel_Outskirts_Resiam_Normal.lua
 NUI_BLOODY_GLITER_ARCHER	920	920	same	y	y		Bloody_Gliter_Archer.lua	y		npcstat	ok	dungeon	2	Dungeon_Velder_Secret_Common.lua;Dungeon_Velder_Secret_Hell.lua
 NUI_BLOODY_GLITER_ARCHER_TRAP	961	961	same	y	y		Gliter_Bloody_Archer_Great_Trap.lua	y		npcstat	ok	dungeon	1	Dungeon_Velder_Secret_Common.lua
@@ -228,22 +229,24 @@ NUI_BOX_TUTORIAL	23	23	same	y	y		Box_Tutorial.lua	y		npcstat	ok	dungeon	0	Dungeo
 NUI_BOX_TUTORIAL2	24	24	same	y	y		Box_Tutorial.lua	y		npcstat	ok	dungeon	0	Dungeon_ElTutorial_Chung.lua;Dungeon_ElTutorial_Elsword.lua;Dungeon_ElTutorial_Eve.lua;Dungeon_ElTutorial_Raven.lua;Dungeon_ElTutorial_arme.lua;Dungeon_ElTutorial_lire.lua;Dungeon_Training_Arme_6.lua;Dungeon_Training_Elsword_3.lua;Dungeon_Training_Elsword_6.lua;Dungeon_Training_Raven_5.lua;Dungeon_Training_Raven_6.lua;Dungeon_Training_lire_3.lua;Dungeon_Training_lire_6.lua
 NUI_BOX_VELDER	636	636	same	y	y		Box_Velder.lua	y		npcstat	ok	dungeon	15	Dungeon_Velder_Bridge_Burning_Expert.lua;Dungeon_Velder_Bridge_Burning_Hard.lua;Dungeon_Velder_Bridge_Burning_Normal.lua;Dungeon_Velder_Gate_Expert.lua;Dungeon_Velder_Gate_Hard.lua;Dungeon_Velder_Gate_Normal.lua;Dungeon_Velder_Market_Expert.lua;Dungeon_Velder_Market_Hard.lua;Dungeon_Velder_Market_Normal.lua;Dungeon_Velder_Palace_Entrance_Expert.lua;Dungeon_Velder_Palace_Entrance_Hard.lua;Dungeon_V
 NUI_BROKEN_TOWER	712	712	same	y	y		Broken_Tower.lua	y		npcstat	ok	dungeon	3	Dungeon_Hamel_Outskirts_Resiam_Expert.lua;Dungeon_Hamel_Outskirts_Resiam_Hard.lua;Dungeon_Hamel_Outskirts_Resiam_Normal.lua
-NUI_BRUTAL_BOBOSE	1497	1497	same	y	y		BRUTAL_BOBOSE.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_BOBOSE_BOSS	1504	1504	same	y	y		BRUTAL_BOBOSE_BOSS.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_CHAGER	1489	1489	same	y	y		BRUTAL_CHAGER.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_CHARGE_BOSS	1500	1500	same	y	y		BRUTAL_CHARGE_BOSS.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_DEFENDER	1495	1495	same	y	y		BRUTAL_DEFENDER.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_DEFENDER_BOSS	1503	1503	same	y	y		BRUTAL_DEFENDER_BOSS.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_SHADOW_MASTER	1509	1509	same	y	y		BRUTAL_SHADOW_MASTER.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Common.lua
-NUI_BRUTAL_SNIPER	1496	1496	same	y	y		BRUTAL_SNIPER.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_STINGER	1485	1485	same	y	y		BRUTAL_STINGER.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_STINGER_BOSS	1502	1502	same	y	y		BRUTAL_STINGER_BOSS.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_TRICKSTER	1494	1494	same	y	y		BRUTAL_TRICKSTER.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_TRICKSTER_BOSS	1501	1501	same	y	y		BRUTAL_TRICKSTER_BOSS.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_VICTOR	1510	1510	same	y	y		BRUTAL_VICTOR.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_VOIDER	1488	1488	same	y	y		BRUTAL_VOIDER.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_WALKER	1487	1487	same	y	y		BRUTAL_WALKER.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_BRUTAL_WALKER_BOSS	1499	1499	same	y	y		BRUTAL_WALKER_BOSS.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_BOBOSE	1497	1497	same	y	y		BRUTAL_BOBOSE.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_BOBOSE_BOSS	1504	1504	same	y	y		BRUTAL_BOBOSE_BOSS.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_CHAGER	1489	1489	same	y	y		BRUTAL_CHAGER.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_CHARGE_BOSS	1500	1500	same	y	y		BRUTAL_CHARGE_BOSS.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_DEFENDER	1495	1495	same	y	y		BRUTAL_DEFENDER.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_DEFENDER_BOSS	1503	1503	same	y	y		BRUTAL_DEFENDER_BOSS.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_SHADOW_MASTER	1509	1509	same	y	y		BRUTAL_SHADOW_MASTER.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Common.lua
+NUI_BRUTAL_SNIPER	1496	1496	same	y	y		BRUTAL_SNIPER.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_STINGER	1485	1485	same	y	y		BRUTAL_STINGER.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_STINGER_BOSS	1502	1502	same	y	y		BRUTAL_STINGER_BOSS.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_TRICKSTER	1494	1494	same	y	y		BRUTAL_TRICKSTER.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_TRICKSTER_BOSS	1501	1501	same	y	y		BRUTAL_TRICKSTER_BOSS.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_TRICKSTER_TOTEM_B	1556	1556	same	y	y		Brutal_Trickster_Totem_B.lua	y		npcstat	ok	summon:NUI_BRUTAL_TRICKSTER;summon:NUI_BRUTAL_TRICKSTER_BOSS	0	
+NUI_BRUTAL_TRICKSTER_TOTEM_C	1557	1557	same	y	y		Brutal_Trickster_Totem_C.lua	y		npcstat	ok	summon:NUI_BRUTAL_TRICKSTER;summon:NUI_BRUTAL_TRICKSTER_BOSS	0	
+NUI_BRUTAL_VICTOR	1510	1510	same	y	y		BRUTAL_VICTOR.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_VOIDER	1488	1488	same	y	y		BRUTAL_VOIDER.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_WALKER	1487	1487	same	y	y		BRUTAL_WALKER.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_BRUTAL_WALKER_BOSS	1499	1499	same	y	y		BRUTAL_WALKER_BOSS.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_BUFF_DUMMY		1957	june-only		y		SECRET_BUFF_DUMMY.lua	y		extra	enum		1	Dungeon_Sander_Secret_Hell.lua
 NUI_BUGI_TROCK	1155	1155	same	y	y	LUA_FILE_NAME	Bugi_Trock.lua	y		npcstat	ok	dungeon	6	Dungeon_Sander_Dry_Sander_Expert.lua;Dungeon_Sander_Dry_Sander_Hard.lua;Dungeon_Sander_Dry_Sander_Normal.lua;Dungeon_Sander_Garpai_Rock_Expert.lua;Dungeon_Sander_Garpai_Rock_Hard.lua;Dungeon_Sander_Garpai_Rock_Normal.lua
 NUI_BUNKER	100	100	same	y	y		Bunker.lua	y		npcstat	ok	dungeon	8	Dungeon_Arcade_Elder.lua;Dungeon_Arcade_Season1.lua;Dungeon_Elder_Wally_Castle_Center_Expert.lua;Dungeon_Elder_Wally_Castle_Center_Hard.lua;Dungeon_Elder_Wally_Castle_Center_Normal.lua;Dungeon_Elder_Wally_Castle_Lab_Expert.lua;Dungeon_Elder_Wally_Castle_Lab_Hard.lua;Dungeon_Elder_Wally_Castle_Lab_Normal.lua
@@ -321,7 +324,7 @@ NUI_DARK_BUGI_TROCK_SUMMON	1427	1427	same	y	y		DARK_BUGI_TROCK_SUMMON.lua	y		npc
 NUI_DARK_CRYSTAL	1115	1115	same	y	y		Dark_Crystal.lua	y		npcstat	ok	dungeon	0	Dungeon_Henir_Space_2013.lua;Dungeon_Sander_Behimoss_Heart_Expert.lua;Dungeon_Sander_Behimoss_Heart_Hard.lua;Dungeon_Sander_Behimoss_Heart_Normal.lua
 NUI_DARK_NEPHILIM	481	481	same	y	y		dark_nephilim.lua	y		npcstat	ok	dungeon	4	Dungeon_Henir_Space_2011.lua;Dungeon_Velder_Gate_Expert.lua;Dungeon_Velder_Gate_Hard.lua;Dungeon_Velder_Gate_Normal.lua
 NUI_DARK_NEPHILIM_FAKE	657	657	same	y	y		dark_nephilim_DP.lua	y		npcstat	ok	summon:NUI_DARK_NEPHILIM	1	Dungeon_Henir_Space_2011.lua
-NUI_DARK_PRIEST	1511	1511	same	y	y		DARK_PRIEST.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_DARK_PRIEST	1511	1511	same	y	y		DARK_PRIEST.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_DARK_STEEL_TROCK	1377	1377	same	y	y		DARK_STEEL_TROCK.lua	y		npcstat	ok	dungeon	3	Dungeon_Sander_Santilus_Ship_Expert.lua;Dungeon_Sander_Santilus_Ship_Hard.lua;Dungeon_Sander_Santilus_Ship_Normal.lua
 NUI_DARK_STEEL_TROCK_SUMMON	1425	1425	same	y	y		DARK_STEEL_TROCK_SUMMON.lua	y		npcstat	ok	summon:NUI_DUMMY_SUMMONER1;summon:NUI_DUMMY_SUMMONER1_1;summon:NUI_DUMMY_SUMMONER1_2;summon:NUI_DUMMY_SUMMONER1_3	0	
 NUI_DARK_STONE_AXE_TROCK	1376	1376	same	y	y		DARK_STONE_AXE_TROCK.lua	y		npcstat	ok	dungeon	3	Dungeon_Sander_Santilus_Ship_Expert.lua;Dungeon_Sander_Santilus_Ship_Hard.lua;Dungeon_Sander_Santilus_Ship_Normal.lua
@@ -421,7 +424,7 @@ NUI_ELSION_LIBYA		2151	june-only		y		ELSION_LIBYA.lua	y		extra	enum		3	Dungeon_E
 NUI_ELSION_MAYA	2155	2155	same	y	y		ELSION_MAYA.lua	y		extra	ok	summon:NUI_ELSION_MAYA_HENIR	3	Dungeon_Elysion_Tower_Expert.lua;Dungeon_Elysion_Tower_Hard.lua;Dungeon_Elysion_Tower_Normal.lua
 NUI_ELSION_MAYA_HENIR	10161	10161	same	y	y		ELSION_MAYA_HENIR.LUA	y		extra	ok	dungeon	2	Dungeon_Henir_Space.lua;Dungeon_Henir_Space_2016.lua
 NUI_ELSION_NEWDEFENDER		2119	june-only		y		ELSION_NEWDEFENDER.lua	y		extra	enum		2	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua
-NUI_ELSION_PIMPIM		2097	june-only		y		ELSION_PIMPIM.lua	y		npcstat	enum		3	Dungeon_Elysion_AtlasDevelopment_Expert.lua;Dungeon_Elysion_AtlasDevelopment_Hard.lua;Dungeon_Elysion_AtlasDevelopment_Normal.lua
+NUI_ELSION_PIMPIM	2097	2097	same	y	y		ELSION_PIMPIM.lua	y		npcstat	ok		3	Dungeon_Elysion_AtlasDevelopment_Expert.lua;Dungeon_Elysion_AtlasDevelopment_Hard.lua;Dungeon_Elysion_AtlasDevelopment_Normal.lua
 NUI_ELSION_PLINGCHU_G		2092	june-only		y		ELSION_PLINGCHU_G.lua	y		npcstat	enum		3	Dungeon_Elysion_AtlasDevelopment_Expert.lua;Dungeon_Elysion_AtlasDevelopment_Hard.lua;Dungeon_Elysion_AtlasDevelopment_Normal.lua
 NUI_ELSION_PLINGCHU_R		2093	june-only		y		ELSION_PLINGCHU_R.lua	y		npcstat	enum		3	Dungeon_Elysion_AtlasDevelopment_Expert.lua;Dungeon_Elysion_AtlasDevelopment_Hard.lua;Dungeon_Elysion_AtlasDevelopment_Normal.lua
 NUI_ELSION_PROTO		2114	june-only		y		ELSION_PROTO.lua	y		npcstat	enum		7	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua;Dungeon_Elysion_AtlasDevelopment_Normal.lua;Dungeon_Elysion_Tower_Expert.lua;Dungeon_Elysion_Tower_Hard.lua;Dungeon_Elysion_Tower_Normal.lua
@@ -432,7 +435,7 @@ NUI_ELSION_SHILEDPIM		2096	june-only		y		ELSION_SHILEDPIM.lua	y		npcstat	enum		3
 NUI_ELSION_SILENCE		2117	june-only		y		ELSION_SILENCE.lua	y		npcstat	enum		6	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua;Dungeon_Elysion_Tower_Expert.lua;Dungeon_Elysion_Tower_Hard.lua;Dungeon_Elysion_Tower_Normal.lua
 NUI_ELSION_STAGE_SUVEILLAN		2122	june-only		y		ELSION_STAGE_SUVEILLAN.lua	y		extra	enum		3	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua
 NUI_ELSION_SUMMON1		2124	june-only		y		ELSION_SUMMON1.lua	y		extra	enum		3	Dungeon_Elysion_AtlasDevelopment_Expert.lua;Dungeon_Elysion_AtlasDevelopment_Hard.lua;Dungeon_Elysion_AtlasDevelopment_Normal.lua
-NUI_ELSION_SUMMON2		2121	june-only		y		ELSION_SUMMON2.lua	y		extra	enum		3	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua
+NUI_ELSION_SUMMON2	2121	2121	same	y	y		ELSION_SUMMON2.lua	y		extra	ok		3	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua
 NUI_ELSION_SUMMON3		2177	june-only		y		ELSION_SUMMON3.lua	y		extra	enum		3	Dungeon_Elysion_Tower_Expert.lua;Dungeon_Elysion_Tower_Hard.lua;Dungeon_Elysion_Tower_Normal.lua
 NUI_ELSION_SUMMUN_PROTO		2127	june-only		y		ELSION_PROTO.lua	y		extra	enum		0	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua;Dungeon_Elysion_AtlasDevelopment_Expert.lua;Dungeon_Elysion_AtlasDevelopment_Hard.lua;Dungeon_Elysion_AtlasDevelopment_Normal.lua
 NUI_ELSION_SUMMUN_PROVER		2128	june-only		y		ELSION_PROVER.lua	y		extra	enum		0	Dungeon_Elysion_AtlasCity_Expert.lua;Dungeon_Elysion_AtlasCity_Hard.lua;Dungeon_Elysion_AtlasCity_Normal.lua
@@ -1026,44 +1029,45 @@ NUI_HALLOWEEN_NASOD_BENDERS	1004	1004	same	y	y		Halloween_Benders_Nasword.lua	y	
 NUI_HALLOWEEN_UNOHOUND	1001	1001	same	y	y		Halloween_Unohound.lua	y		npcstat	ok		1	Dungeon_Elder_Halloween_Expert.lua
 NUI_HALLOWEEN_VICTOR	1003	1003	same	y	y		Halloween_Victor_Last.lua	y		npcstat	ok		1	Dungeon_Elder_Halloween_Expert.lua
 NUI_HALLOWEEN_WILLIAMPPORU_THIEF_FIRE	673	673	same	y	y		Halloween_WilliamPporu_Thief_Fire.lua	y		npcstat	ok		3	Dungeon_Elder_Halloween_Expert.lua;Dungeon_Elder_Halloween_Hard.lua;Dungeon_Elder_Halloween_Normal.lua
-NUI_HAMEL_SECRET_MONSTER_GROUP1	1553	1553	same	y	y		Hamel_Secret_Monster_Group1.lua	y		npcstat	ok	summon:NUI_HELLPUTT_DARK_BOSS_DP	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SECRET_MONSTER_GROUP2	1554	1554	same	y	y		Hamel_Secret_Monster_Group2.lua	y		npcstat	ok	summon:NUI_HELLPUTT_DARK_BOSS_DP	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SECRET_MONSTER_GROUP3	1555	1555	same	y	y		Hamel_Secret_Monster_Group3.lua	y		npcstat	ok	summon:NUI_HELLPUTT_DARK_BOSS_DP	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_AISHA	1520	1520	same	y	y		HAMEL_SHADOW_AISHA.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_AISHA_ELIT	1528	1528	same	y	y		HAMEL_SHADOW_AISHA_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_ARA	1524	1524	same	y	y		HAMEL_SHADOW_ARA.lua	y		npcstat	ok	summon:NUI_MAD_SHADOW_ARA	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_ARA_ELIT	1532	1532	same	y	y		HAMEL_SHADOW_ARA_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SECRET_MONSTER_GROUP1	1553	1553	same	y	y		Hamel_Secret_Monster_Group1.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SECRET_MONSTER_GROUP2	1554	1554	same	y	y		Hamel_Secret_Monster_Group2.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SECRET_MONSTER_GROUP3	1555	1555	same	y	y		Hamel_Secret_Monster_Group3.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_AISHA	1520	1520	same	y	y		HAMEL_SHADOW_AISHA.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_AISHA_ELIT	1528	1528	same	y	y		HAMEL_SHADOW_AISHA_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_ARA	1524	1524	same	y	y		HAMEL_SHADOW_ARA.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_ARA_ELIT	1532	1532	same	y	y		HAMEL_SHADOW_ARA_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_HAMEL_SHADOW_ARA_HALLOWEEN		4171	june-only		y		EVENT_HAMEL_SHADOW_ARA.lua	y		npcstat	enum		1	Dungeon_Event_Halloween_Day_INT_2014.lua
-NUI_HAMEL_SHADOW_CHUNG	1523	1523	same	y	y		HAMEL_SHADOW_CHUNG.lua	y		npcstat	ok	summon:NUI_MAD_SHADOW_CHUNG	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_CHUNG_ELIT	1531	1531	same	y	y		HAMEL_SHADOW_CHUNG_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_ELISIS	1525	1525	same	y	y		HAMEL_SHADOW_ELISIS.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_ELISIS_ELIT	1533	1533	same	y	y		HAMEL_SHADOW_ELISIS_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_ELSWORD	1518	1518	same	y	y		HAMEL_SHADOW_ELSWORD.lua	y		npcstat	ok	summon:NUI_MAD_SHADOW_ELSWORD	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_ELSWORD_ELIT	1526	1526	same	y	y		HAMEL_SHADOW_ELSWORD_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_CHUNG	1523	1523	same	y	y		HAMEL_SHADOW_CHUNG.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_CHUNG_ELIT	1531	1531	same	y	y		HAMEL_SHADOW_CHUNG_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_ELISIS	1525	1525	same	y	y		HAMEL_SHADOW_ELISIS.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_ELISIS_ELIT	1533	1533	same	y	y		HAMEL_SHADOW_ELISIS_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_ELSWORD	1518	1518	same	y	y		HAMEL_SHADOW_ELSWORD.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_ELSWORD_ELIT	1526	1526	same	y	y		HAMEL_SHADOW_ELSWORD_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_HAMEL_SHADOW_ELSWORD_HALLOWEEN		4168	june-only		y		EVENT_HAMEL_SHADOW_ELSWORD.lua	y		npcstat	enum		1	Dungeon_Event_Halloween_Day_INT_2014.lua
-NUI_HAMEL_SHADOW_EVE	1521	1521	same	y	y		HAMEL_SHADOW_EVE.lua	y		npcstat	ok	summon:NUI_MAD_SHADOW_EVE	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_EVE_ELIT	1529	1529	same	y	y		HAMEL_SHADOW_EVE_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_RAVEN	1522	1522	same	y	y		HAMEL_SHADOW_RAVEN.lua	y		npcstat	ok	summon:NUI_MAD_SHADOW_RAVEN	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_RAVEN_ELIT	1530	1530	same	y	y		HAMEL_SHADOW_RAVEN_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_EVE	1521	1521	same	y	y		HAMEL_SHADOW_EVE.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_EVE_ELIT	1529	1529	same	y	y		HAMEL_SHADOW_EVE_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_LAST	1561	1561	same	y	y		HAMEL_SHADOW_LAST.lua	y		npcstat	ok	summon:NUI_HAMEL_SUMMON_DUMMY	0	
+NUI_HAMEL_SHADOW_RAVEN	1522	1522	same	y	y		HAMEL_SHADOW_RAVEN.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_RAVEN_ELIT	1530	1530	same	y	y		HAMEL_SHADOW_RAVEN_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_HAMEL_SHADOW_RAVEN_HALLOWEEN		4170	june-only		y		EVENT_HAMEL_SHADOW_RAVEN.lua	y		npcstat	enum		1	Dungeon_Event_Halloween_Day_INT_2014.lua
-NUI_HAMEL_SHADOW_RENA	1519	1519	same	y	y		HAMEL_SHADOW_RENA.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SHADOW_RENA_ELIT	1527	1527	same	y	y		HAMEL_SHADOW_RENA_ELIT.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_RENA	1519	1519	same	y	y		HAMEL_SHADOW_RENA.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHADOW_RENA_ELIT	1527	1527	same	y	y		HAMEL_SHADOW_RENA_ELIT.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_HAMEL_SHADOW_RENA_HALLOWEEN		4169	june-only		y		EVENT_HAMEL_SHADOW_RENA.lua	y		npcstat	enum		1	Dungeon_Event_Halloween_Day_INT_2014.lua
-NUI_HAMEL_SHASHA_SUMMONER	1562	1562	same	y	y		HAMEL_SHASHA_SUMMONER.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HAMEL_SUMMON_DUMMY	1517	1517	same	y	y		HAMEL_SUMMON_DUMMY.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SHASHA_SUMMONER	1562	1562	same	y	y		HAMEL_SHASHA_SUMMONER.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HAMEL_SUMMON_DUMMY	1517	1517	same	y	y		HAMEL_SUMMON_DUMMY.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_HAPPY_HALLOWEEN_DROP_DUMMY1	3043	3043	same	y	y		HAPPY_HALLOWEEN_DROP_DUMMY.lua	y		npcstat	ok		0	Dungeon_Event_Halloween_Day.lua
 NUI_HAPPY_HALLOWEEN_DROP_DUMMY2	3044	3044	same	y	y		HAPPY_HALLOWEEN_DROP_DUMMY.lua	y		npcstat	ok		0	Dungeon_Event_Halloween_Day.lua
 NUI_HAPPY_HALLOWEEN_DROP_DUMMY3	3045	3045	same	y	y		HAPPY_HALLOWEEN_DROP_DUMMY.lua	y		npcstat	ok		0	Dungeon_Event_Halloween_Day.lua
 NUI_HAPPY_HALLOWEEN_PUPPET	3039	3039	same	y	y		HAPPY_HALLOWEEN_PUPPET.lua	y		npcstat	ok		0	Dungeon_Event_Halloween_Day.lua
 NUI_HARPY_NEST	1170	1170	same	y	y		Harpy_Nest.lua	y		npcstat	ok	dungeon	2	Dungeon_Sander_Garpai_Rock_Expert.lua;Dungeon_Sander_Garpai_Rock_Hard.lua
-NUI_HELLPUTT	10043	10043	same	y	y					none	unit-lua	summon:NUI_HELLPUTT_DARK_BOSS_HENIR	0	
-NUI_HELLPUTT_DARK_ACTOR	1512	1512	same	y	y		HELLPUTT_DARK_ACTOR.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HELLPUTT_DARK_BOSS	1534	1534	same	y	y		HELLPUTT_DARK_BOSS.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Common.lua
-NUI_HELLPUTT_DARK_BOSS_DP	1552	1552	same	y	y		HELLPUTT_DARK_BOSS_DP.lua	y		npcstat	ok	summon:NUI_HELLPUTT_DARK_BOSS_HENIR	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_HELLPUTT_DARK_BOSS_EXTRA	1546	1546	same	y	y		HELLPUTT_DARK_BOSS_EXTRA.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Hell.lua
-NUI_HELLPUTT_DARK_BOSS_HELL	1545	1545	same	y	y		HELLPUTT_DARK_BOSS_HELL.lua	y		npcstat	ok		1	Dungeon_Hamel_Secret_Hell.lua
+NUI_HELLPUTT	10043	10043	same	y	y					none	unit-lua	summon:NUI_HELLPUTT_DARK_ACTOR;summon:NUI_HELLPUTT_DARK_BOSS;summon:NUI_HELLPUTT_DARK_BOSS_EXTRA;summon:NUI_HELLPUTT_DARK_BOSS_HELL;summon:NUI_HELLPUTT_DARK_BOSS_HENIR	0	
+NUI_HELLPUTT_DARK_ACTOR	1512	1512	same	y	y		HELLPUTT_DARK_ACTOR.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HELLPUTT_DARK_BOSS	1534	1534	same	y	y		HELLPUTT_DARK_BOSS.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Common.lua
+NUI_HELLPUTT_DARK_BOSS_DP	1552	1552	same	y	y		HELLPUTT_DARK_BOSS_DP.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HELLPUTT_DARK_BOSS_EXTRA	1546	1546	same	y	y		HELLPUTT_DARK_BOSS_EXTRA.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Hell.lua
+NUI_HELLPUTT_DARK_BOSS_HELL	1545	1545	same	y	y		HELLPUTT_DARK_BOSS_HELL.lua	y		npcstat	ok	dungeon	1	Dungeon_Hamel_Secret_Hell.lua
 NUI_HELLPUTT_DARK_BOSS_HENIR	1832	1832	same	y	y		HELLPUTT_DARK_BOSS_HENIR.LUA	y		extra	ok	dungeon	3	Dungeon_Henir_Space.lua;Dungeon_Henir_Space_2013.lua;Dungeon_Henir_Space_2016.lua
-NUI_HELLPUTT_DARK_DP_STAGE0	1559	1559	same	y	y		Hellputt_Dark_Dp_Stage0.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_HELLPUTT_DARK_DP_STAGE0	1559	1559	same	y	y		Hellputt_Dark_Dp_Stage0.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_HENIR_APPLE	917	917	same	y	y		HENIR_APPLE.lua	y		npcstat	ok	dungeon	4	Dungeon_Henir_Space.lua;Dungeon_Henir_Space_2011.lua;Dungeon_Henir_Space_2013.lua;Dungeon_Henir_Space_2016.lua
 NUI_HENIR_CLEAR_GLAVE	949	949	same	y	y		Henir_Clear_Glave.lua	y		npcstat	ok	dungeon	4	Dungeon_Henir_Space.lua;Dungeon_Henir_Space_2011.lua;Dungeon_Henir_Space_2013.lua;Dungeon_Henir_Space_2016.lua
 NUI_HENIR_CODE_Q_PROTO_00	916	916	same	y	y		HENIR_CODE_Q_PROTO_00.lua	y		npcstat	ok	dungeon	4	Dungeon_Henir_Space.lua;Dungeon_Henir_Space_2011.lua;Dungeon_Henir_Space_2013.lua;Dungeon_Henir_Space_2016.lua
@@ -1125,7 +1129,7 @@ NUI_LAGUZ	694	694	same	y	y		LAGUZ.lua	y		npcstat	ok	dungeon	15	Dungeon_Hamel_Bre
 NUI_LANOS_FD_BOSS_HALLOWEEN	3032	3032	same	y	y		LANOS_FD_BOSS_HALLOWEEN.lua	y		npcstat	ok		0	Dungeon_Event_Halloween_Day.lua
 NUI_LATTICE_GATE_BELOW_PASSAGE	90	90	same	y	y		LatticeGate_BelowPassage.lua	y		npcstat	ok	dungeon	8	Dungeon_Elder_Below_Passage_Expert.lua;Dungeon_Elder_Below_Passage_Hard.lua;Dungeon_Elder_Below_Passage_Normal.lua;Dungeon_Elder_Secret_Common.lua;Dungeon_Elder_Secret_Hell.lua;Dungeon_Elder_Wally_Castle_Lab_Expert.lua;Dungeon_Elder_Wally_Castle_Lab_Hard.lua;Dungeon_Elder_Wally_Castle_Lab_Normal.lua;Dungeon_Event_KidDay.lua
 NUI_LATTICE_GATE_ELDER_SECRET	594	594	same	y	y		LatticeGate_Elder_Secret.lua	y		npcstat	ok	dungeon	2	Dungeon_Elder_Secret_Common.lua;Dungeon_Elder_Secret_Hell.lua
-NUI_LITTLE_TWINKIE_LIKER	1491	1491	same	y	y		LITTLE_TWINKIE_LIKER.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_LITTLE_TWINKIE_LIKER	1491	1491	same	y	y		LITTLE_TWINKIE_LIKER.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_LIZARDMAN_HIGH	92	92	same	y	y	LUA_FILE_NAME,MOTION	Lizardman_High.lua	y		npcstat	ok	dungeon	6	Dungeon_Besma_Dragon_Canyon_Expert.lua;Dungeon_Besma_Dragon_Canyon_Hard.lua;Dungeon_Besma_Dragon_Canyon_Normal.lua;Dungeon_Besma_Dragon_Road_Expert.lua;Dungeon_Besma_Dragon_Road_Hard.lua;Dungeon_Besma_Dragon_Road_Normal.lua;Dungeon_Event_KidDay.lua;Dungeon_Henir_Space_2011.lua
 NUI_LIZARDMAN_HIGH_COMMON	547	547	same	y	y		Lizardman_High_Common.lua	y		npcstat	ok	dungeon	2	Dungeon_Besma_Secret_Common.lua;Dungeon_Besma_Secret_Hell.lua
 NUI_LIZARDMAN_HIGH_DARK	116	116	same	y	y		Lizardman_High_Dark.lua	y		npcstat	ok	dungeon	4	Dungeon_Besma_Secret_Expert.lua;Dungeon_Besma_Secret_Hard.lua;Dungeon_Besma_Secret_Normal.lua;Dungeon_Event_KidDay.lua;Dungeon_Henir_Space_2011.lua
@@ -1415,10 +1419,10 @@ NUI_PPORU_WILLIAM_NORMAL_HENIR		1781	june-only		y		PPORU_WILLIAM_NORMAL_HENIR.LU
 NUI_PPORU_WILLIAM_THIEF	117	117	same	y	y	LUA_FILE_NAME,MOTION	WilliamPporu_Thief.lua	y		npcstat	ok	dungeon	4	Dungeon_Elder_Wally_Castle_Roof_Expert.lua;Dungeon_Elder_Wally_Castle_Roof_Hard.lua;Dungeon_Elder_Wally_Castle_Roof_Normal.lua;Dungeon_Henir_Space_2011.lua
 NUI_PPORU_WILLIAM_THIEF_ARCADE	295	295	same	y	y		WilliamPporu_Thief_Arcade.lua	y		npcstat	ok	dungeon	2	Dungeon_Arcade_Elder.lua;Dungeon_Arcade_Season1.lua
 NUI_PPORU_WILLIAM_THIEF_FIRE	118	118	same	y	y	LUA_FILE_NAME,MOTION	WilliamPporu_Thief_Fire.lua	y		npcstat	ok	dungeon	5	Dungeon_Arcade_Season1.lua;Dungeon_Elder_Wally_Castle_Roof_Expert.lua;Dungeon_Elder_Wally_Castle_Roof_Hard.lua;Dungeon_Elder_Wally_Castle_Roof_Normal.lua;Dungeon_Henir_Space_2011.lua
-NUI_PROTECT_GUARD_MAGIC	1514	1514	same	y	y		PROTECT_GUARD_MAGIC.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_PROTECT_GUARD_MAGIC_STATUE	1516	1516	same	y	y		PROTECT_GUARD_MAGIC_STATUE.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_PROTECT_GUARD_PHYSIC	1513	1513	same	y	y		PROTECT_GUARD_PHYSIC.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_PROTECT_GUARD_PHYSIC_STATUE	1515	1515	same	y	y		PROTECT_GUARD_PHYSIC_STATUE.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_PROTECT_GUARD_MAGIC	1514	1514	same	y	y		PROTECT_GUARD_MAGIC.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_PROTECT_GUARD_MAGIC_STATUE	1516	1516	same	y	y		PROTECT_GUARD_MAGIC_STATUE.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_PROTECT_GUARD_PHYSIC	1513	1513	same	y	y		PROTECT_GUARD_PHYSIC.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_PROTECT_GUARD_PHYSIC_STATUE	1515	1515	same	y	y		PROTECT_GUARD_PHYSIC_STATUE.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_PUMPKIN_BIG_BOX_1	1006	1006	same	y	y		PUMPKIN_BIG_BOX_1.lua	y		npcstat	ok		0	Dungeon_Elder_Halloween_Expert.lua;Dungeon_Elder_Halloween_Hard.lua;Dungeon_Elder_Halloween_Normal.lua
 NUI_PUMPKIN_BIG_BOX_2	1007	1007	same	y	y		PUMPKIN_BIG_BOX_2.lua	y		npcstat	ok		0	Dungeon_Elder_Halloween_Expert.lua;Dungeon_Elder_Halloween_Hard.lua;Dungeon_Elder_Halloween_Normal.lua
 NUI_PUMPKIN_BIG_BOX_3	1008	1008	same	y	y		PUMPKIN_BIG_BOX_3.lua	y		npcstat	ok		0	Dungeon_Elder_Halloween_Expert.lua;Dungeon_Elder_Halloween_Hard.lua;Dungeon_Elder_Halloween_Normal.lua
@@ -1640,6 +1644,10 @@ NUI_SHADOW_VOIDER	693	693	same	y	y		Shadow_Voider.lua	y		npcstat	ok	dungeon	3	Du
 NUI_SHADOW_WALKER	687	687	same	y	y		Shadow_Walker.lua	y		npcstat	ok	dungeon	12	Dungeon_Hamel_Break_Resiam_Expert.lua;Dungeon_Hamel_Break_Resiam_Hard.lua;Dungeon_Hamel_Break_Resiam_Normal.lua;Dungeon_Hamel_Outskirts_Resiam_Expert.lua;Dungeon_Hamel_Outskirts_Resiam_Hard.lua;Dungeon_Hamel_Outskirts_Resiam_Normal.lua;Dungeon_Hamel_Waterway_Core_Expert.lua;Dungeon_Hamel_Waterway_Core_Hard.lua;Dungeon_Hamel_Waterway_Core_Normal.lua;Dungeon_Hamel_Waterway_Expert.lua;Dungeon_Hamel_W
 NUI_SHADOW_WALKER_EVENT_WALLY_LAND		3081	june-only		y		SHADOW_WALKER_EVENT_WALLY_LAND.lua	y		extra	enum		0	Dungeon_Event_Wally_Land_Normal.lua
 NUI_SHAMAN_HARPY	1169	1169	same	y	y	LUA_FILE_NAME	Shaman_Harpy.lua	y		npcstat	ok	dungeon	3	Dungeon_Sander_Garpai_Rock_Expert.lua;Dungeon_Sander_Garpai_Rock_Hard.lua;Dungeon_Sander_Garpai_Rock_Normal.lua
+NUI_SHASHA_STAGE0	1506	1506	same	y	y		SHASHA_STAGE0.lua	y		npcstat	ok	summon:NUI_HAMEL_SHASHA_SUMMONER;summon:NUI_HELLPUTT_DARK_ACTOR	0	
+NUI_SHASHA_STAGE1	1507	1507	same	y	y		SHASHA_STAGE1.lua	y		npcstat	ok	summon:NUI_HAMEL_SHASHA_SUMMONER	0	
+NUI_SHASHA_STAGE2	1508	1508	same	y	y		SHASHA_STAGE2.lua	y		npcstat	ok	summon:NUI_HAMEL_SHASHA_SUMMONER	0	
+NUI_SHASHA_STAGE3	1563	1563	same	y	y		ShaSha_Stage3.lua	y		npcstat	ok	summon:NUI_HAMEL_SHASHA_SUMMONER	0	
 NUI_SHINEE_FD_BOSS_HALLOWEEN	3033	3033	same	y	y		SHINEE_FD_BOSS_HALLOWEEN.lua	y		npcstat	ok		0	Dungeon_Event_Halloween_Day.lua
 NUI_SHINING_TREASURE_BOX_EVENT		4308	june-only		y		Shining_Treasure_Box.lua	y		npcstat	enum		1	Dungeon_Event_Treasure_House_3.lua
 NUI_SHOCK_STICK	252	252	same	y	y	LUA_FILE_NAME,MOTION	ShockStick.lua	y		npcstat	ok	dungeon	3	Dungeon_Altera_Plain_Expert.lua;Dungeon_Altera_Plain_Hard.lua;Dungeon_Altera_Plain_Normal.lua;Dungeon_Event_KidDay.lua
@@ -1760,7 +1768,7 @@ NUI_SUMMON_SAND_HAND_HENIR	10167	10167	same	y	y		SECRET_SUMMON_SANDHAND_HENIR.LU
 NUI_TARANVASH_THE_SHINE	719	719	same	y	y		Taranvash.lua	y		npcstat	ok	dungeon	4	Dungeon_Hamel_Waterway_Expert.lua;Dungeon_Hamel_Waterway_Hard.lua;Dungeon_Hamel_Waterway_Normal.lua;Dungeon_Henir_Space_2011.lua
 NUI_TARANVASH_THE_SHINE_FAKE_A	739	739	same	y	y		Taranvash_Fake.lua	y		npcstat	ok	summon:NUI_CRYSTAL_TRAP_LEFT	0	
 NUI_TARANVASH_THE_SHINE_FAKE_B	740	740	same	y	y		Taranvash_Fake.lua	y		npcstat	ok	summon:NUI_CRYSTAL_TRAP_RIGHT	0	
-NUI_TARGETING_HELLPUTT	1544	1544	same	y	y		TARGETING_HELLPUTT.lua	y		npcstat	ok	summon:NUI_HELLPUTT_DARK_BOSS_HENIR	0	
+NUI_TARGETING_HELLPUTT	1544	1544	same	y	y		TARGETING_HELLPUTT.lua	y		npcstat	ok	summon:NUI_HELLPUTT_DARK_ACTOR;summon:NUI_HELLPUTT_DARK_BOSS;summon:NUI_HELLPUTT_DARK_BOSS_EXTRA;summon:NUI_HELLPUTT_DARK_BOSS_HELL;summon:NUI_HELLPUTT_DARK_BOSS_HENIR	0	
 NUI_TENTACLE_BIG	1402	1402	same	y	y		TENTACLE_BIG.lua	y		npcstat	ok	dungeon	3	Dungeon_Sander_Behimoss_Heart_Expert.lua;Dungeon_Sander_Behimoss_Heart_Hard.lua;Dungeon_Sander_Behimoss_Heart_Normal.lua
 NUI_TENTACLE_PILLAR_BIG	1406	1406	same	y	y		TENTACLE_PILLAR_BIG.lua	y		npcstat	ok	dungeon	3	Dungeon_Sander_Behimoss_Heart_Expert.lua;Dungeon_Sander_Behimoss_Heart_Hard.lua;Dungeon_Sander_Behimoss_Heart_Normal.lua
 NUI_TENTACLE_PILLAR_SMALL	1405	1405	same	y	y		TENTACLE_PILLAR_SMALL.lua	y		npcstat	ok	dungeon	3	Dungeon_Sander_Behimoss_Heart_Expert.lua;Dungeon_Sander_Behimoss_Heart_Hard.lua;Dungeon_Sander_Behimoss_Heart_Normal.lua
@@ -1989,8 +1997,8 @@ NUI_TUTO_BENDERS_THIEF	5082	5082	same	y	y		TUTO_BENDERS_THIEF.lua	y		npcstat	ok	
 NUI_TUTO_LOW_ACTOR	5078	5078	same	y	y		Low_Actor.lua	y		npcstat	ok	dungeon	9	Dungeon_Battle_Field_Tutorial_Add.lua;Dungeon_Battle_Field_Tutorial_Aisha.lua;Dungeon_Battle_Field_Tutorial_Ara.lua;Dungeon_Battle_Field_Tutorial_Chung.lua;Dungeon_Battle_Field_Tutorial_EL.lua;Dungeon_Battle_Field_Tutorial_Elsword.lua;Dungeon_Battle_Field_Tutorial_Eve.lua;Dungeon_Battle_Field_Tutorial_Lena.lua;Dungeon_Battle_Field_Tutorial_Raven.lua
 NUI_TUTO_TOTO_ACTOR	5080	5080	same	y	y		Toto_Actor.lua	y		npcstat	ok	dungeon	0	Dungeon_Battle_Field_Tutorial_Add.lua;Dungeon_Battle_Field_Tutorial_Aisha.lua;Dungeon_Battle_Field_Tutorial_Ara.lua;Dungeon_Battle_Field_Tutorial_Chung.lua;Dungeon_Battle_Field_Tutorial_EL.lua;Dungeon_Battle_Field_Tutorial_Elsword.lua;Dungeon_Battle_Field_Tutorial_Eve.lua;Dungeon_Battle_Field_Tutorial_Lena.lua;Dungeon_Battle_Field_Tutorial_Raven.lua
 NUI_TUTO_ZERO_EPIC_ACTOR	5081	5081	same	y	y		Zero_Epic_Actor.lua	y		npcstat	ok	dungeon	0	Dungeon_Battle_Field_Tutorial_Add.lua;Dungeon_Battle_Field_Tutorial_Aisha.lua;Dungeon_Battle_Field_Tutorial_Ara.lua;Dungeon_Battle_Field_Tutorial_Chung.lua;Dungeon_Battle_Field_Tutorial_EL.lua;Dungeon_Battle_Field_Tutorial_Elsword.lua;Dungeon_Battle_Field_Tutorial_Eve.lua;Dungeon_Battle_Field_Tutorial_Lena.lua;Dungeon_Battle_Field_Tutorial_Raven.lua
-NUI_TWINKIE_LIKER	1490	1490	same	y	y		TWINKIE_LIKER.lua	y		npcstat	ok		2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
-NUI_TWINKIE_VOIDER	1498	1498	same	y	y		TWINKIE_VOIDER.lua	y		npcstat	ok		0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_TWINKIE_LIKER	1490	1490	same	y	y		TWINKIE_LIKER.lua	y		npcstat	ok	dungeon	2	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
+NUI_TWINKIE_VOIDER	1498	1498	same	y	y		TWINKIE_VOIDER.lua	y		npcstat	ok	dungeon	0	Dungeon_Hamel_Secret_Common.lua;Dungeon_Hamel_Secret_Hell.lua
 NUI_UNDERWATER_BOSS_GATE	750	750	same	y	y		Resiam_UnderWater_Boss_Gate.lua	y		npcstat	ok	dungeon	3	Dungeon_Hamel_Break_Resiam_Expert.lua;Dungeon_Hamel_Break_Resiam_Hard.lua;Dungeon_Hamel_Break_Resiam_Normal.lua
 NUI_UNDERWATER_GATE	749	749	same	y	y		Resiam_UnderWater_Gate.lua	y		npcstat	ok	dungeon	3	Dungeon_Hamel_Break_Resiam_Expert.lua;Dungeon_Hamel_Break_Resiam_Hard.lua;Dungeon_Hamel_Break_Resiam_Normal.lua
 NUI_UNOHOUND	477	477	same	y	y	LUA_FILE_NAME,MOTION	Unohound.lua	y		npcstat	ok	dungeon	4	Dungeon_Henir_Space_2011.lua;Dungeon_Velder_Third_Dwelling_Expert.lua;Dungeon_Velder_Third_Dwelling_Hard.lua;Dungeon_Velder_Third_Dwelling_Normal.lua

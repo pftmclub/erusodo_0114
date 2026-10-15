@@ -135,16 +135,16 @@ data035	Dungeon_Altera_Plain_Recycle_Normal.lua	both	DI_ALTERA_PLAIN_RECYCLE_NOR
 data035	Dungeon_Altera_Plain_Recycle_Normal.lua	both	DI_ALTERA_PLAIN_RECYCLE_NORMAL	DI_ALTERA_PLAIN_RECYCLE_NORMAL	1	1	plain	18	18	18	18	18	0	0				PASS	
 data035	Dungeon_Altera_Plain_Recycle_Normal.lua	both	DI_ALTERA_PLAIN_RECYCLE_NORMAL	DI_ALTERA_PLAIN_RECYCLE_NORMAL	1	2	plain	21	21	21	21	21	1	1				PASS	
 data035	Dungeon_Altera_Plain_Recycle_Normal.lua	both	DI_ALTERA_PLAIN_RECYCLE_NORMAL	DI_ALTERA_PLAIN_RECYCLE_NORMAL	2	0	plain	6	6	6	6	6	1	1				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	0	0	rate	43	43	43	43	43	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	0	1	rate	50	50	50	50	50	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	1	0	rate	36	36	36	36	36	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	1	1	rate	60	60	60	60	60	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	2	0	rate	57	57	57	57	57	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	2	1	rate	54	54	54	54	54	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	2	2	rate	60	60	60	60	60	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	3	0	rate	51	51	51	51	51	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	3	1	rate	65	65	65	65	65	0	0				PASS	
-data035	Dungeon_Altera_Secret_Common.lua	both	DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	4	0	plain	2	2	2	2	2	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	0	0	rate	43	43	43	43	43	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	0	1	rate	50	50	50	50	50	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	1	0	rate	36	36	36	36	36	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	1	1	rate	60	60	60	60	60	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	2	0	rate	57	57	57	57	57	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	2	1	rate	54	54	54	54	54	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	2	2	rate	60	60	60	60	60	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	3	0	rate	51	51	51	51	51	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	3	1	rate	65	65	65	65	65	0	0				PASS	
+data035	Dungeon_Altera_Secret_Common.lua	both	UNUSED:DI_ALTERA_SECRET_COMMON	UNUSED:DI_ALTERA_SECRET_COMMON	4	0	plain	2	2	2	2	2	0	0				PASS	
 data035	Dungeon_Altera_Secret_Expert.lua	march	DI_ALTERA_SECRET_EXPERT	-	0	0	plain	12	12	12	12	12	0	0				PASS	
 data035	Dungeon_Altera_Secret_Expert.lua	march	DI_ALTERA_SECRET_EXPERT	-	0	1	plain	16	16	16	16	16	0	0				PASS	
 data035	Dungeon_Altera_Secret_Expert.lua	march	DI_ALTERA_SECRET_EXPERT	-	1	0	plain	11	11	11	11	11	0	0				PASS	
@@ -426,16 +426,16 @@ data035	Dungeon_Besma_Mine_Normal.lua	none	-	-	1	1	plain	13	13	13	13	13	1	1				P
 data035	Dungeon_Besma_Mine_Normal.lua	none	-	-	2	0	plain	13	13	13	13	13	0	0				PASS	C3y: registry-less script
 data035	Dungeon_Besma_Mine_Normal.lua	none	-	-	2	1	plain	14	14	14	14	14	1	1				PASS	C3y: registry-less script
 data035	Dungeon_Besma_Mine_Normal.lua	none	-	-	3	0	plain	6	6	6	6	6	1	1				PASS	C3y: registry-less script
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	0	0	rate	60	60	60	60	60	1	1				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	1	0	rate	51	51	51	51	51	0	0				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	1	1	rate	69	69	69	69	69	0	0				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	1	2	plain	2	2	2	2	2	1	1				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	2	0	rate	54	54	54	54	54	0	0				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	2	1	rate	54	54	54	54	54	1	1				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	3	0	rate	69	69	69	69	69	0	0				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	3	1	rate	44	44	44	44	44	0	0				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	3	2	rate	48	48	48	48	48	0	0				PASS	
-data035	Dungeon_Besma_Secret_Common.lua	both	DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	4	0	plain	2	2	2	2	2	1	1				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	0	0	rate	60	60	60	60	60	1	1				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	1	0	rate	51	51	51	51	51	0	0				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	1	1	rate	69	69	69	69	69	0	0				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	1	2	plain	2	2	2	2	2	1	1				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	2	0	rate	54	54	54	54	54	0	0				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	2	1	rate	54	54	54	54	54	1	1				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	3	0	rate	69	69	69	69	69	0	0				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	3	1	rate	44	44	44	44	44	0	0				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	3	2	rate	48	48	48	48	48	0	0				PASS	
+data035	Dungeon_Besma_Secret_Common.lua	both	UNUSED:DI_BESMA_SECRET_COMMON	UNUSED:DI_BESMA_SECRET_COMMON	4	0	plain	2	2	2	2	2	1	1				PASS	
 data035	Dungeon_Besma_Secret_Expert.lua	march	DI_BESMA_SECRET_EXPERT	-	0	0	plain	9	9	9	9	9	0	0				PASS	
 data035	Dungeon_Besma_Secret_Expert.lua	march	DI_BESMA_SECRET_EXPERT	-	0	1	plain	10	10	10	10	10	0	0				PASS	
 data035	Dungeon_Besma_Secret_Expert.lua	march	DI_BESMA_SECRET_EXPERT	-	0	2	plain	8	8	8	8	8	0	0				PASS	
@@ -649,17 +649,17 @@ data035	Dungeon_Elder_Newyear_Normal.lua	both	DI_ELDER_NEWYEAR_NORMAL	DI_ELDER_N
 data035	Dungeon_Elder_Newyear_Normal.lua	both	DI_ELDER_NEWYEAR_NORMAL	DI_ELDER_NEWYEAR_NORMAL	0	2	plain	7	7	7	7	7	0	0				PASS	
 data035	Dungeon_Elder_Newyear_Normal.lua	both	DI_ELDER_NEWYEAR_NORMAL	DI_ELDER_NEWYEAR_NORMAL	0	3	plain	2	2	2	2	2	1	1				PASS	
 data035	Dungeon_Elder_Newyear_Normal.lua	both	DI_ELDER_NEWYEAR_NORMAL	DI_ELDER_NEWYEAR_NORMAL	1	0	plain	4	4	4	4	4	1	1				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	0	0	rate	56	56	56	56	56	0	0				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	0	1	rate	57	57	57	57	57	1	1				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	1	0	rate	62	62	62	62	62	0	0				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	1	1	rate	42	42	42	42	42	0	0				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	1	2	rate	41	41	41	41	41	1	1				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	2	0	rate	52	52	52	52	52	0	0				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	2	1	rate	58	58	58	58	58	0	0				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	2	2	rate	33	33	33	33	33	1	1				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	3	0	rate	28	28	28	28	28	0	0				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	3	1	rate	30	30	30	30	30	1	1				PASS	
-data035	Dungeon_Elder_Secret_Common.lua	both	DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	4	0	plain	1	1	1	1	1	1	1				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	0	0	rate	56	56	56	56	56	0	0				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	0	1	rate	57	57	57	57	57	1	1				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	1	0	rate	62	62	62	62	62	0	0				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	1	1	rate	42	42	42	42	42	0	0				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	1	2	rate	41	41	41	41	41	1	1				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	2	0	rate	52	52	52	52	52	0	0				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	2	1	rate	58	58	58	58	58	0	0				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	2	2	rate	33	33	33	33	33	1	1				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	3	0	rate	28	28	28	28	28	0	0				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	3	1	rate	30	30	30	30	30	1	1				PASS	
+data035	Dungeon_Elder_Secret_Common.lua	both	UNUSED:DI_ELDER_SECRET_COMMON	UNUSED:DI_ELDER_SECRET_COMMON	4	0	plain	1	1	1	1	1	1	1				PASS	
 data035	Dungeon_Elder_Secret_Hell.lua	both	DI_ELDER_SECRET_HELL	DI_ELDER_SECRET_HELL	0	0	plain	17	17	17	17	17	0	0				PASS	
 data035	Dungeon_Elder_Secret_Hell.lua	both	DI_ELDER_SECRET_HELL	DI_ELDER_SECRET_HELL	0	1	plain	19	19	19	19	19	1	1				PASS	
 data035	Dungeon_Elder_Secret_Hell.lua	both	DI_ELDER_SECRET_HELL	DI_ELDER_SECRET_HELL	1	0	plain	20	20	20	20	20	1	1				PASS	
@@ -771,65 +771,65 @@ data035	Dungeon_Elysion_Adrian_Normal.lua	june	-	DI_ADRIAN_NORMAL;DI_ADRIAN_HERO
 data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	0	0	plain	11	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x5;NUI_ELSION_PROVER(enum) x2;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	0	1	plain	15	0	0	0	0	1	0	NUI_ELSION_ATLAS_GATE(clear) x1;NUI_ELSION_ATLAS_GATE(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x4;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x5;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	1	0	plain	10	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_PROVER(enum) x4	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	1	1	plain	6	0	0	0	0	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_SILENCE(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	1	1	plain	6	1	1	1	1	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_SILENCE(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	1	2	plain	7	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	2	0	plain	8	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	2	1	plain	7	0	0	0	0	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	2	2	plain	6	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_NEWDEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_STAGE_SUVEILLAN(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	2	1	plain	7	1	1	1	1	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1			EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	2	2	plain	6	1	1	1	1	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_NEWDEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_STAGE_SUVEILLAN(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	2	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Expert.lua	june	-	DI_ATLASCITY_EXPERT;DI_ATLASCITY_HERO_EXPERT;DI_ATLASCITY_HERO_HELL	3	0	plain	2	0	0	0	0	1	0	NUI_ELSION_EVENT_2ST_BOSS(enum) x1;NUI_ELSION_SUVEILLAN(clear) x1;NUI_ELSION_SUVEILLAN(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	0	0	plain	11	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x5;NUI_ELSION_PROVER(enum) x2;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	0	1	plain	15	0	0	0	0	1	0	NUI_ELSION_ATLAS_GATE(clear) x1;NUI_ELSION_ATLAS_GATE(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x4;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x5;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	1	0	plain	10	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_PROVER(enum) x4	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	1	1	plain	6	0	0	0	0	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_SILENCE(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	1	1	plain	6	1	1	1	1	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_SILENCE(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	1	2	plain	7	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	2	0	plain	8	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	2	1	plain	7	0	0	0	0	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	2	2	plain	6	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_NEWDEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_STAGE_SUVEILLAN(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	2	1	plain	7	1	1	1	1	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1			EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	2	2	plain	6	1	1	1	1	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_NEWDEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_STAGE_SUVEILLAN(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	2	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Hard.lua	june	-	DI_ATLASCITY_HARD;DI_ATLASCITY_HERO_HARD	3	0	plain	2	0	0	0	0	1	0	NUI_ELSION_EVENT_2ST_BOSS(enum) x1;NUI_ELSION_SUVEILLAN(clear) x1;NUI_ELSION_SUVEILLAN(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	0	0	plain	11	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x5;NUI_ELSION_PROVER(enum) x2;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	0	1	plain	15	0	0	0	0	1	0	NUI_ELSION_ATLAS_GATE(clear) x1;NUI_ELSION_ATLAS_GATE(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x4;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x5;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	1	0	plain	10	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_PROVER(enum) x4	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	1	1	plain	6	0	0	0	0	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_SILENCE(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	1	1	plain	6	1	1	1	1	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_SILENCE(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	1	2	plain	7	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x2	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	2	0	plain	8	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_PROTO(enum) x2;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_SILENCE(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	2	1	plain	7	0	0	0	0	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	2	2	plain	8	0	0	0	0	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x3;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1;NUI_ELSION_SUMMON2(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	2	1	plain	7	1	1	1	1	0	0	NUI_ELSION_DECEPTOR(enum) x2;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x1;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1			EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	2	2	plain	8	1	1	1	1	0	0	NUI_ELSION_CHEST(enum) x1;NUI_ELSION_DEFENDER(enum) x1;NUI_ELSION_PROTO(enum) x3;NUI_ELSION_PROVER(enum) x1;NUI_ELSION_STAGE_SUVEILLAN(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	2	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasCity_Normal.lua	june	-	DI_ATLASCITY_NORMAL;DI_ATLASCITY_HERO_NORMAL	3	0	plain	2	0	0	0	0	1	0	NUI_ELSION_EVENT_2ST_BOSS(enum) x1;NUI_ELSION_SUVEILLAN(clear) x1;NUI_ELSION_SUVEILLAN(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	0	0	plain	10	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x3;NUI_ELSION_PLINGCHU_G(enum) x4;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	0	1	plain	10	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x3	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	0	2	plain	12	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x2;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x2	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	0	1	plain	10	1	1	1	1	0	0	NUI_ELSION_BERMEVA(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x3			EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	0	2	plain	12	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x2;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x2			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	0	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	1	0	plain	13	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x3;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	1	0	plain	13	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x3;NUI_ELSION_SHILEDPIM(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	1	1	plain	12	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x3;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x3;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	1	2	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	2	0	plain	7	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PYURITA(enum) x2;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	2	0	plain	7	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_PYURITA(enum) x2;NUI_ELSION_SHILEDPIM(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	2	1	plain	2	0	0	0	0	0	0	NUI_ELSION_DEKALPYURITA(enum) x1;NUI_ELSION_SUMMON1(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	2	2	plain	1	0	0	0	0	1	0	NUI_ELSION_SUMMON1(clear) x1;NUI_ELSION_SUMMON1(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	2	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Expert.lua	june	-	DI_ATLASDEVELOPMENT_EXPERT;DI_ATLASDEVELOPMENT_HERO_EXPERT;DI_ATLASDEVELOPMENT_HERO_HELL	3	0	plain	4	2	2	2	2	1	0	NUI_ELSION_DEKAL(clear) x1;NUI_ELSION_DEKAL(enum) x1;NUI_ELSION_EVENT_1ST_BOSS(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	0	0	plain	10	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x3;NUI_ELSION_PLINGCHU_G(enum) x4;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	0	1	plain	10	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x3	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	0	2	plain	12	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x2;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x2	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	0	1	plain	10	1	1	1	1	0	0	NUI_ELSION_BERMEVA(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x3			EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	0	2	plain	12	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x2;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x2			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	0	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	1	0	plain	13	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x3;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	1	0	plain	13	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x3;NUI_ELSION_SHILEDPIM(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	1	1	plain	12	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x3;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x3;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	1	2	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	2	0	plain	7	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PYURITA(enum) x2;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	2	0	plain	7	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_PYURITA(enum) x2;NUI_ELSION_SHILEDPIM(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	2	1	plain	2	0	0	0	0	0	0	NUI_ELSION_DEKALPYURITA(enum) x1;NUI_ELSION_SUMMON1(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	2	2	plain	1	0	0	0	0	1	0	NUI_ELSION_SUMMON1(clear) x1;NUI_ELSION_SUMMON1(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	2	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Hard.lua	june	-	DI_ATLASDEVELOPMENT_HARD;DI_ATLASDEVELOPMENT_HERO_HARD	3	0	plain	4	2	2	2	2	1	0	NUI_ELSION_DEKAL(clear) x1;NUI_ELSION_DEKAL(enum) x1;NUI_ELSION_EVENT_1ST_BOSS(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	0	0	plain	10	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x3;NUI_ELSION_PLINGCHU_G(enum) x4;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	0	1	plain	10	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x3	YES		EXC	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	0	2	plain	12	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x2;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x2	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	0	1	plain	10	1	1	1	1	0	0	NUI_ELSION_BERMEVA(enum) x1;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x3			EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	0	2	plain	12	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x2;NUI_ELSION_PLINGCHU_R(enum) x2;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x2			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	0	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	1	0	plain	13	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x3;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	1	0	plain	13	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x1;NUI_ELSION_PYURITA(enum) x3;NUI_ELSION_SHILEDPIM(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	1	1	plain	12	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x3;NUI_ELSION_CHEST(enum) x1;NUI_ELSION_PLINGCHU_G(enum) x3;NUI_ELSION_PLINGCHU_R(enum) x3;NUI_ELSION_PYURITA(enum) x1;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	1	2	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	2	0	plain	7	0	0	0	0	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_PIMPIM(enum) x2;NUI_ELSION_PYURITA(enum) x2;NUI_ELSION_SHILEDPIM(enum) x1	YES		EXC	C3y: June-only dungeon
+data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	2	0	plain	7	2	2	2	2	0	0	NUI_ELSION_BERMEVA(enum) x2;NUI_ELSION_PYURITA(enum) x2;NUI_ELSION_SHILEDPIM(enum) x1			EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	2	1	plain	4	0	0	0	0	0	0	NUI_ELSION_PROTO(enum) x3;NUI_ELSION_PYURITA(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	2	2	plain	1	0	0	0	0	1	0	NUI_ELSION_SUMMON1(clear) x1;NUI_ELSION_SUMMON1(enum) x1	YES		EXC	C3y: June-only dungeon
 data035	Dungeon_Elysion_AtlasDevelopment_Normal.lua	june	-	DI_ATLASDEVELOPMENT_NORMAL;DI_ATLASDEVELOPMENT_HERO_NORMAL	2	3	-	0	0	0	0	0	0	0				PASS	C3y: June-only dungeon
@@ -1311,43 +1311,43 @@ data035	Dungeon_Hamel_Outskirts_Resiam_Normal.lua	both	DI_HAMEL_OUTSKIRTS_RESIAM
 data035	Dungeon_Hamel_Outskirts_Resiam_Normal.lua	both	DI_HAMEL_OUTSKIRTS_RESIAM_NORMAL	DI_HAMEL_OUTSKIRTS_RESIAM_NORMAL	2	1	plain	12	12	12	12	12	0	0				PASS	
 data035	Dungeon_Hamel_Outskirts_Resiam_Normal.lua	both	DI_HAMEL_OUTSKIRTS_RESIAM_NORMAL	DI_HAMEL_OUTSKIRTS_RESIAM_NORMAL	2	2	plain	10	10	10	10	10	1	1				PASS	
 data035	Dungeon_Hamel_Outskirts_Resiam_Normal.lua	both	DI_HAMEL_OUTSKIRTS_RESIAM_NORMAL	DI_HAMEL_OUTSKIRTS_RESIAM_NORMAL	3	0	plain	3	3	3	3	3	0	0				PASS	
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	0	0	rate	54	54	54	54	54	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	0	1	rate	42	42	42	42	42	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	0	2	rate	36	36	36	36	36	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	0	3	plain	4	4	4	4	4	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	1	0	rate	27	27	27	27	27	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	1	1	rate	48	48	48	48	48	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	1	2	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	1	3	rate	49	49	49	49	49	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	2	0	rate	27	27	27	27	27	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	2	1	rate	66	66	66	66	66	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	2	2	rate	33	33	33	33	33	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	2	3	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	2	4	rate	33	33	33	33	33	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	2	5	rate	57	57	57	57	57	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	3	0	rate	30	30	30	30	30	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	3	1	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Common.lua	june	-	UNUSED:DI_HAMEL_SECRET_COMMON	4	0	plain	17	17	17	17	17	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	0	0	plain	17	17	17	17	17	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	0	1	plain	4	4	4	4	4	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	1	0	plain	14	14	14	14	14	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	1	1	plain	21	21	21	21	21	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	1	2	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	2	0	plain	12	12	12	12	12	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	2	1	plain	22	22	22	22	22	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	2	2	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	3	0	plain	14	14	14	14	14	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	3	1	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	4	0	plain	17	17	17	17	17	1	1				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	5	0	plain	14	14	14	14	14	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	5	1	plain	21	21	21	21	21	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	5	2	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	6	0	plain	12	12	12	12	12	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	6	1	plain	22	22	22	22	22	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	6	2	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	7	0	plain	14	14	14	14	14	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	7	1	plain	1	1	1	1	1	0	0				PASS	C3y: June-only dungeon
-data035	Dungeon_Hamel_Secret_Hell.lua	june	-	DI_HAMEL_SECRET_HELL	8	0	plain	17	17	17	17	17	1	1				PASS	C3y: June-only dungeon
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	0	0	rate	54	54	54	54	54	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	0	1	rate	42	42	42	42	42	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	0	2	rate	36	36	36	36	36	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	0	3	plain	4	4	4	4	4	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	1	0	rate	27	27	27	27	27	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	1	1	rate	48	48	48	48	48	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	1	2	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	1	3	rate	49	49	49	49	49	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	2	0	rate	27	27	27	27	27	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	2	1	rate	66	66	66	66	66	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	2	2	rate	33	33	33	33	33	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	2	3	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	2	4	rate	33	33	33	33	33	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	2	5	rate	57	57	57	57	57	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	3	0	rate	30	30	30	30	30	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	3	1	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Common.lua	both	UNUSED:DI_HAMEL_SECRET_COMMON	UNUSED:DI_HAMEL_SECRET_COMMON	4	0	plain	17	17	17	17	17	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	0	0	plain	17	17	17	17	17	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	0	1	plain	4	4	4	4	4	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	1	0	plain	14	14	14	14	14	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	1	1	plain	21	21	21	21	21	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	1	2	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	2	0	plain	12	12	12	12	12	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	2	1	plain	22	22	22	22	22	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	2	2	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	3	0	plain	14	14	14	14	14	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	3	1	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	4	0	plain	17	17	17	17	17	1	1				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	5	0	plain	14	14	14	14	14	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	5	1	plain	21	21	21	21	21	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	5	2	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	6	0	plain	12	12	12	12	12	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	6	1	plain	22	22	22	22	22	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	6	2	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	7	0	plain	14	14	14	14	14	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	7	1	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Hamel_Secret_Hell.lua	both	DI_HAMEL_SECRET_HELL	DI_HAMEL_SECRET_HELL	8	0	plain	17	17	17	17	17	1	1				PASS	
 data035	Dungeon_Hamel_Waterway_Core_Expert.lua	both	DI_HAMEL_ANCIENT_WATERWAY_CORE_EXPERT	DI_HAMEL_ANCIENT_WATERWAY_CORE_EXPERT;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_NORMAL;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_HARD;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_EXPERT;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_HELL	0	0	plain	10	10	10	10	10	0	0				PASS	
 data035	Dungeon_Hamel_Waterway_Core_Expert.lua	both	DI_HAMEL_ANCIENT_WATERWAY_CORE_EXPERT	DI_HAMEL_ANCIENT_WATERWAY_CORE_EXPERT;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_NORMAL;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_HARD;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_EXPERT;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_HELL	0	1	plain	10	10	10	10	10	0	0				PASS	
 data035	Dungeon_Hamel_Waterway_Core_Expert.lua	both	DI_HAMEL_ANCIENT_WATERWAY_CORE_EXPERT	DI_HAMEL_ANCIENT_WATERWAY_CORE_EXPERT;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_NORMAL;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_HARD;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_EXPERT;DI_HAMEL_ANCIENT_WATERWAY_CORE_HERO_HELL	1	0	plain	16	16	16	16	16	0	0				PASS	
@@ -1880,26 +1880,26 @@ data035	Dungeon_Ranox_Geyser_Normal.lua	both	DI_RANOX_GEYSER_NORMAL	DI_RANOX_GEY
 data035	Dungeon_Ranox_Geyser_Normal.lua	both	DI_RANOX_GEYSER_NORMAL	DI_RANOX_GEYSER_NORMAL	1	2	plain	11	11	11	11	11	1	1				PASS	
 data035	Dungeon_Ranox_Geyser_Normal.lua	both	DI_RANOX_GEYSER_NORMAL	DI_RANOX_GEYSER_NORMAL	2	0	plain	13	13	13	13	13	1	1				PASS	
 data035	Dungeon_Ranox_Geyser_Normal.lua	both	DI_RANOX_GEYSER_NORMAL	DI_RANOX_GEYSER_NORMAL	3	0	plain	2	2	2	2	2	1	1				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	0	0	plain	11	11	11	11	11	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	0	1	plain	8	8	8	8	8	1	1				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	1	0	plain	27	27	27	27	27	1	1				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	1	1	plain	7	7	7	7	7	1	1				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	1	2	plain	15	15	15	15	15	1	1				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	2	0	plain	12	12	12	12	12	1	1				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	2	1	plain	11	11	11	11	11	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	3	0	plain	11	11	11	11	11	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	3	1	plain	7	7	7	7	7	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	3	2	plain	5	5	5	5	5	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	4	0	plain	3	3	3	3	3	1	1				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	5	0	plain	26	26	26	26	26	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	5	1	plain	7	7	7	7	7	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	5	2	plain	15	15	15	15	15	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	6	0	plain	12	12	12	12	12	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	6	1	plain	11	11	11	11	11	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	7	0	plain	11	11	11	11	11	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	7	1	plain	7	7	7	7	7	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	7	2	plain	5	5	5	5	5	0	0				PASS	
-data035	Dungeon_Ranox_Secret_Hell.lua	both	DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	8	0	plain	3	3	3	3	3	1	1				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	0	0	plain	11	11	11	11	11	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	0	1	plain	8	8	8	8	8	1	1				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	1	0	plain	27	27	27	27	27	1	1				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	1	1	plain	7	7	7	7	7	1	1				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	1	2	plain	15	15	15	15	15	1	1				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	2	0	plain	12	12	12	12	12	1	1				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	2	1	plain	11	11	11	11	11	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	3	0	plain	11	11	11	11	11	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	3	1	plain	7	7	7	7	7	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	3	2	plain	5	5	5	5	5	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	4	0	plain	3	3	3	3	3	1	1				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	5	0	plain	26	26	26	26	26	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	5	1	plain	7	7	7	7	7	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	5	2	plain	15	15	15	15	15	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	6	0	plain	12	12	12	12	12	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	6	1	plain	11	11	11	11	11	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	7	0	plain	11	11	11	11	11	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	7	1	plain	7	7	7	7	7	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	7	2	plain	5	5	5	5	5	0	0				PASS	
+data035	Dungeon_Ranox_Secret_Hell.lua	both	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	UNUSED:DI_RANOX_SECRET_COMMON;DI_RANOX_SECRET_HELL	8	0	plain	3	3	3	3	3	1	1				PASS	
 data035	Dungeon_Ruben_El_Tree_Normal.lua	both	DI_RUBEN_EL_TREE_NORMAL	DI_RUBEN_EL_TREE_NORMAL	0	0	plain	8	8	8	8	8	1	1				PASS	
 data035	Dungeon_Ruben_El_Tree_Normal.lua	both	DI_RUBEN_EL_TREE_NORMAL	DI_RUBEN_EL_TREE_NORMAL	1	0	plain	11	11	11	11	11	1	1				PASS	
 data035	Dungeon_Ruben_El_Tree_Normal.lua	both	DI_RUBEN_EL_TREE_NORMAL	DI_RUBEN_EL_TREE_NORMAL	2	0	plain	2	2	2	2	2	1	1				PASS	
@@ -2424,20 +2424,20 @@ data035	Dungeon_Velder_Palace_Entrance_Normal.lua	both	DI_VELDER_PALACE_ENTRANCE
 data035	Dungeon_Velder_Palace_Entrance_Normal.lua	both	DI_VELDER_PALACE_ENTRANCE_NORMAL	DI_VELDER_PALACE_ENTRANCE_NORMAL	2	0	plain	11	11	11	11	11	0	0				PASS	
 data035	Dungeon_Velder_Palace_Entrance_Normal.lua	both	DI_VELDER_PALACE_ENTRANCE_NORMAL	DI_VELDER_PALACE_ENTRANCE_NORMAL	2	1	plain	4	4	4	4	4	1	1				PASS	
 data035	Dungeon_Velder_Palace_Entrance_Normal.lua	both	DI_VELDER_PALACE_ENTRANCE_NORMAL	DI_VELDER_PALACE_ENTRANCE_NORMAL	3	0	plain	5	5	5	5	5	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	0	0	rate	16	16	16	16	16	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	0	1	plain	1	1	1	1	1	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	1	0	rate	57	57	57	57	57	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	1	1	rate	32	32	32	32	32	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	1	2	plain	6	6	6	6	6	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	2	0	rate	66	66	66	66	66	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	2	1	plain	20	20	20	20	20	1	1				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	3	0	rate	45	45	45	45	45	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	3	1	rate	42	42	42	42	42	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	3	2	plain	8	8	8	8	8	1	1				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	4	0	rate	32	32	32	32	32	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	4	1	rate	32	32	32	32	32	0	0				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	4	2	rate	14	14	14	14	14	1	1				PASS	
-data035	Dungeon_Velder_Secret_Common.lua	both	DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	5	0	plain	1	1	1	1	1	1	1				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	0	0	rate	16	16	16	16	16	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	0	1	plain	1	1	1	1	1	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	1	0	rate	57	57	57	57	57	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	1	1	rate	32	32	32	32	32	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	1	2	plain	6	6	6	6	6	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	2	0	rate	66	66	66	66	66	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	2	1	plain	20	20	20	20	20	1	1				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	3	0	rate	45	45	45	45	45	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	3	1	rate	42	42	42	42	42	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	3	2	plain	8	8	8	8	8	1	1				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	4	0	rate	32	32	32	32	32	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	4	1	rate	32	32	32	32	32	0	0				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	4	2	rate	14	14	14	14	14	1	1				PASS	
+data035	Dungeon_Velder_Secret_Common.lua	both	UNUSED:DI_VELDER_SECRET_COMMON	UNUSED:DI_VELDER_SECRET_COMMON	5	0	plain	1	1	1	1	1	1	1				PASS	
 data035	Dungeon_Velder_Secret_Hell.lua	both	DI_VELDER_SECRET_HELL	DI_VELDER_SECRET_HELL	0	0	plain	1	1	1	1	1	0	0				PASS	
 data035	Dungeon_Velder_Secret_Hell.lua	both	DI_VELDER_SECRET_HELL	DI_VELDER_SECRET_HELL	1	0	plain	8	8	8	8	8	0	0				PASS	
 data035	Dungeon_Velder_Secret_Hell.lua	both	DI_VELDER_SECRET_HELL	DI_VELDER_SECRET_HELL	2	0	plain	22	22	22	22	22	1	1				PASS	

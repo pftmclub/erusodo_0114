@@ -4390,6 +4390,49 @@ those 3 meshes logged `XEM_ERROR109` in the 2026-10-15 run (Elder secret). June 
 - **As expected:** the June monsters gave 0 EXP and 0 ED (open item 1). The boss still drops through the special-drop path.
 - The `IsVotingLuto` / `SetMovieDescriptionData` Lua errors in this run are C3z-1 / C3z-4 scope (`65ef74f`), not this phase.
 
+### C3z-2 - Review (2026-10-16, Opus 5.5 high): PASS, no finding, no edit
+
+- **Gate re-run** (`dungeon_npc_census.py`): `sub-stages: 2510 {'EXC': 380, 'PASS': 2130}`, 0 FAIL; `June-only ids the covered scripts need
+  and March's Enum lacks: 0`; `dungeon_npc_add.tsv` empty. The 380 EXC rows all name C3y (330 June-only dungeon, 50 registry-less).
+  - The regenerated `dungeon_npc_census.tsv` / `dungeon_npc_parity.tsv` are committed with this note. They differ from `9b57efd9` only
+    by later phases: covered scripts 233 -> 235 (C3z-3's DungeonData registers Hamel Secret Common / Hell), the `UNUSED:` DungeonData label
+    (C3z-3), and 8 summon-only rows plus `NUI_ELSION_PIMPIM` / `_SUMMON2` now `same` (C3z-4b). No verdict changed.
+- **Census reads what the client reads.** The dumper's walk equals the C++:
+  - `X2Dungeon.cpp:124-137` `STAGE_LIST` / `STAGE<n>` from 0. `BeginTable( name, i )` is `"%s%d"` (`KLuaManagerProxy.cpp:90`).
+  - `X2DungeonStage.cpp:555` `SUB_STAGE<n>` from 0. `READY_NPC` (`:539`) stops at the first nil (JUNE_BUGS #165).
+  - `X2DungeonSubStage.cpp`:
+    - `New_LoadNPCData` (`:2102`) takes `NPC_GROUP<N>` from 0 when an `NPC_GROUP_RATE` table exists, else plain `NPC_GROUP`.
+    - `ParseNpcGroupTable` takes `[1..]` with `SUB_NPC<i>` from 0.
+    - `CLEAR_COND<c>.NPC_ID[1..]` (`:1457`, `:1575`) is read until nil.
+  - The dumper reads `CLEAR_COND.NPC_ID` for every condition, not only `CC_KILL_NPC_TYPE`. That can add names but never hide one.
+  - Three scripts were dumped from the kom bytecode and from June's `june_src_fixed` text: Elder Secret Common (rate: 3 groups, a
+    3-way `SUB_NPC` chest per group), Henir Space (`_HENIR` bosses) and Druid Forest Normal (10 / 13 / 3, gate in `CLEAR_COND`).
+    Each pair's walk is identical (476 / 186 / 32 lines, 0 diff). No Henir or Hero script uses `NPC_GROUP_RATE`, hence the Secret one.
+- **Enum.lua** (data036): the backup `kom_backup_tools/data036.kom.20261010_142222` has rotated out (5 kept per kom).
+  - The pre-C3z-2 file was rebuilt instead, by removing the C3z-4b, C3y-1b, C3z-3 and C3z-2 blocks in reverse order. At each step the
+    sha1 equals the ledger's source sha for that commit (`8d227a29`, `c629cd0f`, `401019c8`, `18232934` = C3x).
+  - Against it, every change is an insertion inside a labelled Iruha block. The one pre-existing line touched is
+    `NUI_SI_SA_RG_RX78_LAND_RUNNER = 2175` gaining its trailing comma.
+  - BOM kept, 12,691 CRLF, 0 bare LF.
+  - The 142 values equal June's, 142 of 142, both by June's own bytecode (junekom + ljconv, `lua_registry_dump.lua enum`) and by
+    `june_src_fixed`.
+  - The current table has 2,225 names and no duplicate value.
+  - C++ `cl /P` of `X2UnitManager.cpp` (US_SERVICE defines) gives 2,023 members with implicit values resolved. None of the 142 (or
+    C3z-4b's 8) names or values is used in C++.
+  - Pre-existing, not C3z-2, left as is: C++ has `NUI_NPC_END` = `NUI_ANNE` = 10000 (Lua `NUI_NPC_END` 9999 = June). 13 Lua names
+    share a value with a differently spelled C++ name (e.g. `NUI_STEEL_TROCK_CARD` / `_CARD1` 1181).
+- **NPCTemplet.lua** (data037):
+  - Byte check: 142 of 142 C3z-2 rows (and C3z-4b's 8) are byte-equal to June's `june_src_fixed` blocks, in June's order (CRLF both sides).
+  - By value they equal June's own bytecode, 142 of 142.
+  - The first 2,026 rows equal the T0 snapshot `kom_contents_bytecode\data037_kom\NPCTemplet.lua` by value, position for position.
+  - Every appended row has `IS_NPC` (6 FALSE: the gates, Air Ship Sleshu, two Henir things), and every `CLASS_TYPE` and `NPC_ID` resolves.
+- **Bookkeeping:** `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`.
+  - JUNE_BUGS #165 is right: each of the ten names sits in a `READY_NPC` list of a covered, March-registered script and is absent
+    from both Enums (census `id_state` `neither`).
+- **Logs:** the phase's 2026-10-10 run was read at the time (above). The latest run on disk (2026-10-15 20:42) shows
+  `[EXTRA_NPC_STAT] loaded 1693 rows (skipped: 701 nil NPC_ID, ...)`. 709 - 701 = C3z-4b's 8 ids, so it agrees. 0 EXCEPTION.
+- No C++, so no flagcheck or build. No kom changed. The open payout question stays with june-dungeons C3z-2b.
+
 ### C3z-3 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data035 + data036 + data065 packed and copied)
 
 **Gate:** `june2017_re/dungeon_registry_census.py` (driver `dungeon_registry_dump.lua`) runs March's staged files and June's own
