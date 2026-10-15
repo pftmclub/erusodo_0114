@@ -5186,7 +5186,9 @@ No flag (`SERV_IRUHADEV_JUNE_BOSS_INTRO_SKIP` stays undefined), no build, no fla
   - `CannotInput` `327d20b0` stores its argument into my unit's `+0xde8` (`m_fCanNotInputTime`), and nothing else. It locks input and touches no NPC state.
   - `IsSkipKeyPressed`: the bind name is XOR-built at `@31dc905b` (`0x33780d84..d93`), and the bound function `31e4dd90` is `mov al,[ecx+0x790]; ret`.
     The byte is written only by the CX2Game ctor (`@32307506`) and `325c6b50` (`@325c6e27` / `@325c6e71`, key test `31d24fb0` / `31d24260`,
-    called from `31ee9f50`). The scripts that call it are the 20 tutorial / 2017 event dungeons plus `ELYSION_M_2STAGE_GATE`. None of them is in the census, and none sets `DIRECTION_STATE`.
+    called from `31ee9f50`). The scripts that call it are the 20 tutorial / 2017 event dungeons plus `ELYSION_M_2STAGE_GATE`.
+    Every call only advances a talk scenario (`GoNextScen` / `SetTextSpread`; e.g. `ELYSION_M_2STAGE_GATE.src.lua:228-233`, `Dungeon_ElTutorial_Elsword.src.lua:404-413`), and none drives an NPC `StateChange`.
+    March already binds it (`X2Main.cpp:3979`, `X2Game.h:944`).
   - DIRECTION_STATE readers: 68 rel32 callers of the state getter `31e8a990`. Only `@327af265` (arm) and `@3277f86d` (end) test `[state+8] & 0x2000` (bit 0x4d).
     The third `& 0x2000` hit, `327606a0 @327606d2`, tests `[state+0]`, i.e. bit 0x0d, a different key (one caller, `@322863ba`).
     Together with C3p's `+0xb40..+0xb48` sweep, this means no other June reader takes an event NPC out of its START state on input. Limit: an inlined flag read (no getter call) would not show up in this sweep.
