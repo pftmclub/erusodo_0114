@@ -3513,6 +3513,19 @@ The causes were measured, not guessed:
 
 User, 2026-10-10: give the old dungeons their own phases and update them to what June has. That is **C3z** below.
 
+### C3x - play-test 2 (2026-10-15 19:04-19:09, Freils unit 18, exe 9fee0da5): PASSED, play-test half only
+
+Play-test only. Kickoff tasks 1-6 (Enum / WorldData row diff, `adopt-june --compare`, binding audit, asset spot-check, C++ log paths) were **not** run here.
+
+- **Log:** 0 `JUNE_FX C3x` lines in ErrorLog, `offline_server.log` and `offline_packets.log` (the flag only logs failures: no world ID without a WorldData row, no failed world script, no failed line map). 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ` (known), 0 EXCEPTION.
+- **Altera Core Normal (30300, room 1002):** stage 0, then 3 and 4 (boss, 7 NPCs), cleared 19:07:36. Stages 1-2 skipped by the jump.
+- **Benders Cave Normal (30050, room 1003):** stage 0, then stage 2 (boss room, world 33, 3 NPCs), cleared.
+- **Elder Secret Hell (33031, room 1004, mode 4):** stage 0 and stage 4 loaded. The user could not finish (damage too low); user: it loaded fine, counts as passed.
+  - **Not exercised:** the extra stage 5 (`WI_ELDER_HELL_EXTRA_STAGE5`); the log says `extra loads 0`. `/stage 5` would reach it.
+- **Wally Castle Roof (30110-30112):** the 19:04 run entered 30100 (Wally Castle), not the Roof. The user reports they ran the Roof on 2026-10-14 and it worked; **on the user's word, no log** (logs are rewritten per launch).
+- Layout correctness is the user's visual verdict ("passed"); no log line can show it.
+- No code, no build, no pack.
+
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
 **Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan
