@@ -27,3 +27,5 @@ Scope the June system first (the manager, its UI, who drives it, its data files)
 Also owed (june-effect C3p-2, 2026-10-15): June's `CX2State::HandleMsgByESC` `31f1e1a0 @31f1e1e8-31f1e212` asks the manager first: a guide
 running (`31fbda90`, `[+0x14] != 0`) and `31fbdb20` (`[+0x66] != 1`) -> the ESC is eaten (return false). Port it with the manager, at the
 insertion point the C3p-2 Done note names (`python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)"`).
+While there (C3p-2 review): the comment in C3p's `SERV_IRUHADEV_JUNE_SKIP_START` block in `CX2State::HandleMsgByESC` lists "the chat box" among
+June's earlier gates; the gate is GFx `closeToTopZorder` (`31c43bb0`). Fix the comment with the bytepatch that adds the guide gate.

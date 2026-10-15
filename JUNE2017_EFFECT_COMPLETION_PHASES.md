@@ -2707,6 +2707,46 @@ June's order (tutorial guide, then `+0x210`, then `+0x1c8`). C3p's hook stays la
 kickoff, `JUNE_PORT_BACKLOG_ORDER.md` Scaleform row). Both done-gate behaviours (the skip in a `DIRECTION_STATE` intro, March's menu outside one) are unchanged by
 construction: no code. The C3p review run (exe `287bfb54`, Ranox Gateway) last showed the skip and its hint. No deploy. User owes nothing. No questions.
 
+### C3p-2 - Review (2026-10-15, Opus 5.5 high; PASS with four corrections, no code, no build)
+
+Verdict: **PASS.** `31f1e1a0` was re-read raw (`disasm_range.py 31f1e1a0 31f1e3bc`), and its order and branches match the Done note. No gate has a March home,
+so `SERV_IRUHADEV_JUNE_ESC_GATES` stays undefined: no flagcheck range, no deploy. The corrections below are also in funcmap `(C3p-2 review)`.
+
+1. **The key test is confirmed independently.** A second June caller, `31cb0d00 @31cb0d7f-31cb0da7`, loads `[g_pKTDXApp]+0x1f8`, calls `31c48870( 0x33 )`,
+   then `[+0x1f8]+0x40 -> 31d24fb0( 0x1c = DIK_RETURN )`. That is March `KTDGUIButton.cpp:147` (`GET_KEY_STATE(GA_RETURN) || ...GetKeyState( DIK_RETURN )`).
+   June 0x33 / 0x34 are adjacent, as are March `GAMEACTION_RETURN` / `GAMEACTION_ESCAPE` (`KTDIManager.h:117-118`). funcmap 778 (Buff 4b-ii) read `+0x1f8` as the
+   action table independently.
+2. **Gate 4: the writer list was incomplete; the verdict holds.** `31ef7be0` has 20 callers. `@31f25038` (UI msg 0xbfe) is an inlined store
+   (`mov [ebp+0x210], 4`), not a setter call. Writers the Done note did not list:
+   - mode 0: the state ctors `324b06e0` / `324d9f80` / `325297f0` (from the state factory `31d89xxx`), the dtors `324ad780` / `324d5670` / `32520d70`, and the
+     dungeon restore `@324cf463`;
+   - mode 1, 30.0: **`324db6b0 @324db8d7`** (dungeon dispatcher `324dbc20` case `0xbd`) and **`3252ba10 @3252bc53`** (PvP). These are June's end-of-game
+     handlers: March-era flows, the case the kickoff asked about.
+
+   Why they need no phase: `324db6b0` writes mode 1 only when `g_pData+0x148` is non-NULL, and otherwise calls `31f16530` (leave to field / village). `+0x148`
+   = March `m_pDungeonResultInfo`: the reads at `324cf68c-324cf6d4` / `31aa4023` find int `[0]` (`m_Sec`: /3600, <= 0x78), byte `[4]` (`m_bWin`) and a vector at
+   `[8]`, which is `X2DungeonGame.h:73`. PvP's twin is `+0x144` (`m_pPVPResultInfo`, likely). Mode 1 then goes to the dungeon vslot `0xd4` override
+   `324cf3d0`. After 0.1 s (`0x334395e8`), with result info: vslot `0xc8`, GFx UI 8, `SetShow( false, 2 )`. Without result info: vslot `0xf0`.
+   So mode 1 opens June's in-state result UI. That UI replaced March's `m_bGameEnd` -> `m_fGameEndWaitTime` -> `StateChangeResultReq` -> `XS_DUNGEON_RESULT`
+   (`X2StateDungeonGame.cpp:1063-1071`). March leaves the state, so the mode belongs to the result-UI port.
+
+   Gap left for that row (not a question): June eats ESC from the end packet until its result UI moves on (modes 1-2). March's ESC still reaches
+   `LastMsgByESC` during the `m_bGameEnd` wait.
+3. **Hide modes.** The callers that set a mode 2-4 match the Done note: `324c966e` (2), `324d880f` (2), `324cf508` (2), `3251d63d` (3), `324ac353` (4), and
+   `31f154eb` / `3243be8b` (2, on mode 3). One more caller: `328c3750 @328c3a27` = `SetShow( false, 5 )` (`PresentProlBlackBack`, a June presentation flow). `31d03a10`
+   tests {2,3,4} only, so ESC unhides a mode-5 hide through March's path: no change.
+   **Toggle correction:** in `31f02f50`, a current mode 2-4 gets `SetShow( false, 0 )` (`push ebx; push ebx @31f030e6`, ebx = 0 from `@31f02fb3`), i.e.
+   hide-all mode 1, not `SetShow( true )` as the Done note and funcmap 2518 said. A previous mode 2-4 is re-applied (`@31f0313d`); otherwise the toggle flips
+   hide-all. It still creates no mode 2-4.
+4. **Minimap.** `31d6fd60` gives 4 XS_LOADING, 0xb DUNGEON_GAME, 0xe VILLAGE_MAP, 0xf GUILD_AGIT_GAME, 0x17 PVE_GAME. The only `ELSWORD_NEW_BEGINNING` define is
+   commented out (`KTDXLIB/InHouse3.h:486`), so March's live branch is the `#else`, as the probe found.
+
+**Routes.** The C3z-4t row and kickoff carry gate 3 with the insertion point. The backlog Scaleform row lacked the insertion point and the mode-1 note; both
+are added. **Stale comment:** C3p's block in `X2State.cpp` (`SERV_IRUHADEV_JUNE_SKIP_START`) lists "the chat box" among June's earlier gates; that gate is
+GFx `closeToTopZorder`. It is comment-only, so it is not rebuilt here; the C3z-4t kickoff fixes it when it edits that spot.
+
+No code, no build. The deployed exe (`287bfb54`, C3p review) is unchanged for this function. User owes nothing. No questions.
+
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 
 **Status: done 2026-10-10 (see C3q - Done; found by C3o), regression play-test passed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3q.md`, review `kickoffs/june-effect/C3q-review.md`.
