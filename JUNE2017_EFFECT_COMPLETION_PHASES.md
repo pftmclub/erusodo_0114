@@ -3295,6 +3295,38 @@ UNHANDLED (2x `E_DISABLE_HB_CHECK_REQ`), clean exit. No bot line appeared (the p
 
 No questions for the user.
 
+### C3t-1 - Review (2026-10-15, Opus 5.5 high; PASS, no code fix, DEBUG off)
+
+Verdict: **PASS.** No transcription error, so the only change is `_DEBUG` off. Read from Ghidra's disassembly (read-only) of `31fd3180`, `31fcef00`,
+`32070510`, `32206450`, `31e5a860`, `324214a0 @32425861-32425871`, `3259affa` and `32ede000 @32ede042 / @32ede09d / @32ede0d1`, against `5021fe4`'s diff.
+1. **The option.** `3259afee-3259affa` passes `[0x3377585c] + 0x180` (g_pMain) to `324214a0`, which stores `SKILL_CUTIN_SHOW` at `+0xf4` (miss -> edi = 1),
+   so `g_pMain +0x274` is it. `32ede000` sets `EAX = g_pMain` and tests `+0x274` with `& 1` and `& 2`: a bitmask. The by-name map is right.
+2. **The three cases.** `31fd3180` decrements the option: 1 -> `@31fd31da` `IsMyUnit` (vslot `0x198`) `cmp al,1 / jnz` -> BL = 1; 2 -> `@31fd31ca`
+   `test al,al / jnz` skips when it is my unit, else the party test `@31fd31a8`; 3 -> `@31fd319a` my unit (`cmp al,1 / jz`) or `32431360( UID +0x270/+0x274 )`
+   on `g_pData +0x5c` (`test al,al / jz`); any other value -> no show. All three polarities match the port.
+3. **The hyper test.** `31fcef00`: `m_pUnit` (`+0x867c`), `g_pData +0x50` non-null, vslot `0x524` != 0, two `32890620( id, 0, 0, 1 )` results unused,
+   then `32206450( id, 1 )` -> `jmp 32070510`. `32070510`'s switch returns 5 only for type `0xd`. June's `Enum.lua` `ST_HYPER_ACTIVE_SKILL = 13`, and
+   March's `SKILL_TYPE` gives it the same 13 (`X2SkillTree.h:26-52`). The `== 5` result only sets BL (my unit or party), never clears it, as ported.
+4. **`( id, 1 )` vs March's `( id )`.** With arg 1, `32206450` returns NULL when the templet's first required level is > 80 (`IsEnableCode( 0x911 )`) or
+   > 70 (`0x910`) on `[0x33775864]`. `31e5a860` is a map lookup, March's `CX2InstanceData::IsEnableCode` (`X2InstanceData.h:429`). The map is filled only by
+   `EGS_UPDATE_CODE_EVENT_NOT`, and nothing in `X2Lib/Offline` sends it. So the gate never fires offline, and leaving it out is reach-equal.
+5. **The two hide terms.** `@31fd3228` checks `[0x337676e8]+0x1c8` with `31c44710( 0xb )`, then `g_pMain +0x80a == 1` -> `xor al,al`. March has no GFx (D9)
+   and no in-game movie table, so leaving them out is reach-equal. The backlog's Scaleform/GFx row names both (`JUNE_PORT_BACKLOG_ORDER.md`, "Ask" table).
+6. **`#else`.** March's two-case body is intact in the `#else` (`X2GUUser.cpp`, `GetShowActiveSkillShow`); flagcheck shows 0 deleted lines.
+
+**Play-test:** the Done note's run (exe `352a3ca5`) gave one line per option, all as expected. The current `offline_server.log` (a later run, 19:05) has
+8 `JUNE_FX C3t-1` lines, all `option 2 -> june 0 ... hyper 0 -> show 0` (Freils, uid 18), which agrees.
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION --range 5021fe45^..5021fe45 --with SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG`:
+`files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The tokenless line is `Always.h`'s `#endif` after the `#error` guard (house precedent). Later commits naming the flag (`57df383`, `7624431`)
+are docs only.
+**DEBUG off:** `Always.h` `//#define SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG` with a dated reason.
+`DEPLOY OK: X2_offline.exe is 19,585,024 B, dated 2026-10-15 19:25:50, md5 0ae5819a1a5317db503f24a194a221c3, equal to X2/US_SERVICE/x2.exe (2026-10-15 19:25:45); built at mods/june-buff-port 05a6682c + 1 uncommitted code file(s).`
+The uncommitted file is this review's `Always.h` line. The deployed exe has 0 `JUNE_FX C3t-1` strings. Nothing to play-test (the flag-on body is unchanged).
+
+No questions for the user.
+
 ## C3t-2 - identify, then port: June's state sound-set pick
 
 **Status: ready (found by C3t, 2026-10-10). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3t-2.md`.

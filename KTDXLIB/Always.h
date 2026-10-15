@@ -7264,7 +7264,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-14
 // Description: June effect completion C3t-1 play-test lines ( short-lived; turn OFF in the C3t-1 review ): "JUNE_FX C3t-1"
 //              one line per GetShowActiveSkillShow call ( option, June value, now skill, hyper, result ). Log: offline_server.log.
-#define SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG
+//#define SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG	// off 2026-10-15 (C3t-1 review): play-test PASSED (reyaa Aero Strafe: One-self 0 -> 1 show 1, Party 1 -> 3 show 1, Hide 2 -> 0 show 0, all hyper 0)
 //              Its lines all sit inside SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION, so without that flag it compiles to nothing.
 #if defined(SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG) && !defined(SERV_IRUHADEV_OFFLINE)
 #error SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
