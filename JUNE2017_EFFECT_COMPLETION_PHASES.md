@@ -2656,6 +2656,54 @@ tutorial guide manager `31d70b00 -> 31fbda90 / 31fbdb20` (`@31f1e1e8-31f1e212`);
 moved (callers of vslot `0x1e8`) is part of the identify step. Gate: each gate mapped with an address, June's order kept, the C3p skip still reached
 in a dungeon intro; a gate whose subsystem March lacks is reported, not invented.
 
+### C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)
+
+Verdict: each gate in June's `CX2State::HandleMsgByESC` `31f1e1a0` (`@31f1e1a0-31f1e358`, read raw with `disasm_range.py`, callees with
+`funcdis.py` and Ghidra read-only) is identified. Two equal March, one cannot fire in March, three sit behind June-only systems that already
+have owners. So `SERV_IRUHADEV_JUNE_ESC_GATES` stays undefined: no code, no build, no flagcheck range (the C3z-7 shape). funcmap rows `(C3p-2)`.
+March facts from a `cl /EP` probe on X2Lib `stdafx.h` (US_SERVICE): `ELSWORD_NEW_BEGINNING` OFF, `DIALOG_SHOW_TOGGLE` ON, `SERV_KEY_MAPPING_INT` ON.
+
+1. **`@31f1e1a5` now-state `[g_pMain+0x8c] == 4` -> false.** June 4 = `XS_LOADING` (`31d6fd60`). **Equal:** March's `!= XS_LOADING` test.
+2. **`@31f1e1b5-31f1e1e6` is the ESC key test.** Correction: the section and kickoff said `31f1e1a0` tests no key and called this "`+0x1f8` dialog
+   tests". `g_pKTDXApp+0x1f8` = `m_pDIManager`; `31c48870( 0x34 )` = `CKTDIManager::GetActionState` (state `+0x4d+a` set, lock `+0x84+a` clear ->
+   lock, TRUE: the `KTDIManager.cpp:182` shape); `+0x40` = keyboard, `31d24fb0( 1 )` = `GetKeyState( DIK_ESCAPE )`. **Equal:** March's
+   `SERV_KEY_MAPPING_INT` branch. Map by name, not number: June's action id is 0x34, March `GA_ESCAPE` = 42. June's keyboard adds an exclusion list
+   (`+0x1178`): engine difference, out of scope. With the test in place, no caller of vslot `0x1e8` needs hunting.
+3. **`@31f1e1e8-31f1e212` tutorial guide.** `CX2TutorialGuideManager` (`g_pMain+0x8c4`, `31d70b00`): `31fbda90` `[+0x14] != 0` (a guide is running)
+   and `31fbdb20` `[+0x66] != 1` -> ESC eaten. **None in March** -> routed to **C3z-4t** (june-dungeons), which owns the manager.
+4. **`@31f1e214-31f1e261` state `+0x210` = June's result-UI mode.** Set by `31ef7be0( mode, time )` (non-virtual; mode 3 hides the minimap, 0
+   restores it; `+0x218` = time). `+0x214` is its timer: base vslot `0xd4` `31ef7390` adds the elapsed time, called from OnFrameMove `@31f0e191` only
+   while the mode is non-zero. Writers: game-state vslot `0xd0` (mode 4; Dungeon / Training `324c8390`, PVP `3251d300`, PVE `324ac000`), the GFx
+   result callback `notifyInitialize` `32eea300` (2), PVE frame move `324b0400` (1, 30.0), UI msg `0xbfe` `@31f25038` (4; March's SUCM list ends
+   at 3031). Mode 1 or 2 -> false. Otherwise `31f38e90( 9 )` (an entry with `+0x360 == 9` in g_pMain's list `+0x694`, unnamed) -> state vslot
+   `0xec`, else `31f1dd70( !31ef7c60() )` = June's exit box (`DLG_UI_ExitPartyMsgBox.lua`, msg `0xbdb`), which the three `notifyCloseResultUI`
+   callbacks also call. **None in March:** March shows results as separate states, so the mode would always be 0 -> **Scaleform/GFx** backlog row.
+5. **`@31f1e262-31f1e29f` `g_pKTDXApp+0x1c8` = GFx UI manager.** `31c43bb0` invokes ActionScript `closeToTopZorder` (`0x33446c0c`) on the root
+   movie (`+0x98`) and returns its bool. On true: `32396dc0` = lazy singleton `CX2UIProfessionManager` (RTTI, vtable `33490a84`), `[+4]` (shown)
+   == 1 -> `3239d190( 0 )` (its SetShow); false either way. **None in March** -> **Scaleform/GFx** backlog row.
+6. **`@31f1e2a0-31f1e358` = March's own `DIALOG_SHOW_TOGGLE`, two differences.**
+   - **Extra test `31d03a10`.** Dialog manager `+0xc8` = current hide mode; `31d05af0` = `SetShow( bool, mode )` (show -> 0, hide with 0 -> 1).
+     A mode in {2,3,4} -> false without unhiding.
+   - **Equal for March.** March has only hide-all (= June mode 1). Every June origin of modes 2-4 is the result-UI flow:
+     - the game vslots `0xd4` (`324cf3d0` / `3251d460` / `324ac1f0`);
+     - the GFx retry vslot `0xe0` (`324d8600`);
+     - the ACK `0x649` handler `324c95b0`, after vslot `0xe4` -> GFx `+0x7c4`;
+     - `31f14e40` / `3243b060`, both gated on mode 3.
+
+     June's toggle `31f02f50` only restores or re-applies a mode, so modes 2-4 travel with the Scaleform row.
+   - **Minimap list.** June's `0xb / 0xe / 0xf / 0x17` = DUNGEON_GAME, VILLAGE_MAP, GUILD_AGIT_GAME, PVE_GAME (`31d6fd60`). The last two are
+     June-only states (by number they would be March's SQUARE_GAME and ARCADE_ROOM: never transcribe by number). March's live `#else`
+     {DUNGEON_GAME, VILLAGE_MAP} = June's set restricted to March's states. `SetShow( true, 0 )` = March `SetShow( true )`.
+
+Then `@31f1e359-31f1e3ba` = C3p's skip (ported, reviewed).
+
+**Insertion point for whoever ports 3-5:** in March's `CX2State::HandleMsgByESC`, inside the key-test `if`, before the `DIALOG_SHOW_TOGGLE` block, in
+June's order (tutorial guide, then `+0x210`, then `+0x1c8`). C3p's hook stays last.
+
+**Done gate:** every gate mapped with an address (above). No June-only gate was ported: none has a March home, and all are routed (C3z-4t row and
+kickoff, `JUNE_PORT_BACKLOG_ORDER.md` Scaleform row). ESC behaviour is unchanged by construction. The C3p review run (exe `287bfb54`, Ranox
+Gateway, ESC skip + hint) stands for both done-gate checks. No deploy. User owes nothing. No questions.
+
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 
 **Status: done 2026-10-10 (see C3q - Done; found by C3o), regression play-test passed. Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3q.md`, review `kickoffs/june-effect/C3q-review.md`.

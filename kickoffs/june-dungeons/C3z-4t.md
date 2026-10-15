@@ -23,3 +23,7 @@ then `CheckToNeedTutorialGuide()` (`31fbde90`: quest 11000 (`0x2af8`) done -> fa
 with 9 methods in `func_strings.tsv` `31d95080`). User 2026-10-10: this is its own row, not a stub.
 
 Scope the June system first (the manager, its UI, who drives it, its data files) and report the size to the user before porting.
+
+Also owed (june-effect C3p-2, 2026-10-15): June's `CX2State::HandleMsgByESC` `31f1e1a0 @31f1e1e8-31f1e212` asks the manager first: a guide
+running (`31fbda90`, `[+0x14] != 0`) and `31fbdb20` (`[+0x66] != 1`) -> the ESC is eaten (return false). Port it with the manager, at the
+insertion point the C3p-2 Done note names (`python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)"`).
