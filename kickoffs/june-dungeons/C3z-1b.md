@@ -20,7 +20,8 @@ head -5 june2017_re/c3z1_data101_pending.tsv
 C3z-1 brought every dungeon's map assets to June's bytes except those in data101 (Velder, Henir Space, and one shared Ranox / Hamel /
 Sander texture). data101's kom_contents dir lacked 1,071 live entries, and 134 of its files were stubs smaller than live (111 B where live has 5,657 B), so it could not
 be packed. 104 names were known to differ or be missing (`c3z1_data101_pending.tsv`; some only because their dir file is a stub), and
-799 live-only entries could not be compared.
+799 live-only entries could not be compared. The C3z-1 review (2026-10-15) fixed a tokenizer blind spot in all four censuses: the
+pending list is now **119** names (+15 Velder) and the live-only set **889**; world_asset_collide shows 104 data101 DIFF.
 C3x's 2 files (Velder Bridge Hope 3-1 `River_Wave`, `Wall01`) are already staged there.
 
 ## Task

@@ -52,18 +52,43 @@ def resolve(tok):
             return c
     return None
 
-_end_re = re.compile(tok_re.pattern.split(rb"{3,}", 1)[1])
+_end_re = re.compile(tok_re.pattern.split(rb"{3,}", 1)[1].replace(rb"(?![A-Za-z0-9_])", b""))
+_glue_re = re.compile(rb"[A-Za-z0-9_]")
 _run_re = re.compile(rb"[A-Za-z0-9_\-\. ]+$")
+def _glued(b, st, tok):
+    """C3z-1 review (2026-10-15): an extension followed by a letter or digit is a name end only where the name's length precedes it:
+    bytecode uleb(len + 5) (`..._Roof_B.Y1Elder_...`: '1' = the next name's 44 + 5), binary .X a little-endian DWORD."""
+    t = tok.decode("latin-1")
+    for i in range(len(t) - 4):
+        c = t[i:]
+        if not (c.lower() in june or c.lower() in march):
+            continue
+        if i and ord(t[i - 1]) == len(c) + 5:
+            return tok[i:]
+        at = st + i
+        if (not i and at and b[at - 1] == len(c) + 5) or (at >= 4 and int.from_bytes(b[at - 4:at], "little") == len(c)):
+            return tok[i:]
+    return None
 def tokens(b):
     """C3z-1: a token ends at an extension and never reaches back past the previous one. Bytecode constants sit back to back, so the
-    greedy tok_re swallowed `A.Y-B.Y-C.Y` as one token and lost A and B."""
+    greedy tok_re swallowed `A.Y-B.Y-C.Y` as one token and lost A and B.
+    C3z-1 review: no `(?![A-Za-z0-9_])` after the extension; it dropped every name whose next constant's length byte is printable."""
     prev = 0
     for m in _end_re.finditer(b):
         e = m.end()
+        glued = _glue_re.match(b, e) is not None
         r = _run_re.search(b, max(prev, e - 200), e)
+        if not (r and r.end() == e and e - r.start() > 4):
+            if not glued:
+                prev = e
+            continue
+        tk = b[r.start():e]
+        if glued:
+            tk = _glued(b, r.start(), tk)
+            if tk is None:
+                continue                    # `.xml`, `.yaml`, ...: not an end
         prev = e
-        if r and r.end() == e and e - r.start() > 4:
-            yield b[r.start():e]
+        yield tk
 
 # which lua files: everything adopted today (stage backup dir lists the replaced names) plus anything else in those koms.
 # --all-npc (2026-10-10, user: copy every monster mesh): every unit script in kom_contents (a .lua naming INIT_MOTION), so June-only

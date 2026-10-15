@@ -29,6 +29,11 @@ Review C3y-1b's commit against June:
    defined guard. Re-run the `SetAnimWait` search over all of `june_src_fixed` (one caller expected).
 4. **Assets.** `npc_mesh_census.py --worlds` on the 26 names reports 0 needed (it rewrites `world_asset_need.tsv`: restore it with git
    afterwards). data166 / data182 are new koms in the mounted range.
+   **Routed from the C3z-1 review (2026-10-15):** `python june2017_re/dungeon_map_parity.py` lists 3 June-only data180 textures in the
+   closure of C3y-1b's meshes, so the Elysion Adrian / Atlas Development rows (and Henir Space's `as_missing 3`) are not 0/0:
+   `elysion_adrian_column.dds`, `elysion_adrian_road01.dds` (named by `elysion_adrian_bossstage_g01_air.y`) and
+   `field_elysion_atlas_rest_bridge_a.dds` (named by `elysion_atlas_s1_g01_ground.y`). Stage them from `dungeon_map_replace.tsv`
+   (`kom.py stage-june`), pack data180, ask before `copy`; the gate is those rows at 0/0.
 
 Hygiene: `python tools/flagcheck.py JUNE_WORLD_ANIM_WAIT --range <C3y-1b commit>^..HEAD`. Paste its `files:` /
 `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every deleted line; a FAIL or ERROR is a finding.

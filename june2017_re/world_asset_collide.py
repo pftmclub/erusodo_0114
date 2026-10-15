@@ -25,7 +25,10 @@ def mb(n):
 # C3z-1 (2026-10-10): tokens end at an extension and never reach back past the previous one (bytecode constants sit back to back, so
 # a greedy match swallowed `A.Y-B.Y-C.Y` and kept only C); a trim is valid only where the byte before is the LuaJIT length (len + 5).
 # Names are looked up in every kom dir, not only data040. Direct names only; dungeon_map_parity.py closes over the meshes.
-end=re.compile(rb"\.(?:x|y|dds|tga|ogg|wav)(?![A-Za-z0-9_])",re.I)
+# C3z-1 review (2026-10-15): no lookahead after the extension. The next constant's length byte (len + 5) follows a name, and where it is a
+# letter or digit (`..._Roof_B.Y1Elder_...`) `(?![A-Za-z0-9_])` dropped the name; such a glued end needs its own length byte before it.
+end=re.compile(rb"\.(?:x|y|dds|tga|ogg|wav)",re.I)
+glue=re.compile(rb"[A-Za-z0-9_]")
 run=re.compile(rb"[A-Za-z0-9_\-\. ]+$")
 names=[l.strip() for l in open(sys.argv[1]) if l.strip()]
 need=collections.defaultdict(set)
@@ -34,15 +37,22 @@ for n in names:
     if b is None: continue
     prev=0
     for m in end.finditer(b):
-        e=m.end(); r=run.search(b,max(prev,e-200),e); prev=e
-        if not r or r.end()!=e: continue
+        e=m.end(); g=glue.match(b,e) is not None; r=run.search(b,max(prev,e-200),e)
+        if not r or r.end()!=e:
+            if not g: prev=e
+            continue
         t=b[r.start():e].decode("latin-1")
+        hit=False
         for i in range(len(t)-4):
-            c=t[i:].strip()
+            c=t[i:] if g else t[i:].strip()
             if i and ord(t[i-1])!=len(c)+5: continue
+            if g and not i and (not r.start() or b[r.start()-1]!=len(c)+5): continue
             c=c.lower()
+            if g and not (c in june or c in staged): continue
+            hit=True
             if c in june and c in staged: need[c].add(n); break
             if c in june or c in staged: break
+        if hit or not g: prev=e
 c=collections.Counter(); diffs=[]
 for n in sorted(need):
     j=jb(n); m=mb(n)

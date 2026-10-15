@@ -4141,6 +4141,70 @@ the byte before it is LuaJIT's length (`len + 5`); a blind suffix had turned `Pe
   `DEPLOY OK: X2_offline.exe is 19,532,288 B, dated 2026-10-10 15:38:16, md5 d60e4b9fbfb265962cd94a2ca7ed2a2f`; `IsVotingLuto` is still in the exe,
   and the debug string is gone.
 
+### C3z-1 - Review (2026-10-15, Opus 5.5 high): one finding fixed (a second tokenizer blind spot; 18 June files staged), `IsVotingLuto` PASS
+
+**Finding (fixed): the tokenizer still dropped names.** Every census ended an extension with `(?![A-Za-z0-9_])`. In bytecode the byte after
+a name is the next constant's length (`len + 5`); where that is a letter or digit the name vanished, with no `unresolved` entry. Proof:
+the world script `Elder_Wally_Castle_Lab_Stage1.lua` holds `..._Roof_B.Y1Elder_..._Ceiling03_B.Y1Elder_...` ('1' = 44 + 5), and exactly
+those 3 meshes logged `XEM_ERROR109` in the 2026-10-15 run (Elder secret). June ships them (data026); March had none.
+- **Fix** in all four C3z-1 tools (`dungeon_map_parity.py`, `world_asset_collide.py`, `npc_mesh_census.py`, `c3z1_users.py`): no lookahead;
+  a "glued" end is taken only where the name's own length precedes it (bytecode `len + 5`; binary .X the little-endian DWORD before it,
+  e.g. `21 00 00 00 NUI_KARUSO_FIGHTER_BOSS_Map05.tga` + float data). It finds the same 11,106 names as a no-check run, 0 lost.
+- **Effect:** +275 names. Gate over **every** world file with a June source (750): each asset literal in a build is in `names_in`; the
+  339 left are in neither build (the dropped Besma meshes and the like).
+- **Staged** (`c3z1r_stage_list.tsv` -> `c3z1r_stage_plan.tsv`, backup `kom_backup_stage_june\20261015_193548`): 18 files, 14 new + 4 replaced.
+  - Maps: 8 June-only data026 (`Elder_Wally_Castle_Roof_Stage1_{Ceiling02,Ceiling03,Roof}_B.Y`, `Elder_Below_Passage_stage3_1A_Lightalpha3-7_B.Y`).
+  - 4 DIFF: Roof Stage 2 `OuterWall01` / `Shadow01` (data027), Resiam Underwater 4 `Mesh01` (data110) and El Tree boss `Ground` (data025).
+  - June's `OuterWall01` is a rebuild: it inflates to 5,129 B against March's 99,592 B, and its 2 textures are in the closure (`same`).
+  - The users scan on the 12 finds **no March-side user**.
+  - NPC (`--all-npc` 0 -> 6): `AIN_FX_HAND_SUMMONFIGURE.x`, `AIN_FX_MAGIC_CIRCLE_02.X` (PvP-hero Dear / Leah / Vinton, data212),
+    `BEHEMOTHSOUL_Flame.dds`, `maya_RRune.tga`, `PerkisasP2_Harpoon_Fire_Rune_Before.tga` (data002), `DM_ELSION_HERBAON_02.TGA` (data048).
+    None of them is a `Motion_*` mesh.
+- **PACK OK** data002 / 025 / 026 / 027 / 048 / 110 / 212.
+  - Every count equals the staged set, with no recompression noise.
+  - Exception: data002 `+21` and data048 `+14` also carry `c8ace0c8`'s packed but uncopied 18 + 13 (NPC anim collision, 2026-10-12).
+- **After:** `to stage (kom): 3`, all Elysion data180 (C3y-1b's closure, from `9c7bd65b`; present before the fix too) -> routed to
+  `kickoffs/june-dungeons/C3y-1b-review.md`. 30 rows not 0/0: the 24 `data101-dir` rows plus 6 Elysion Adrian / Atlas Development rows.
+  - data101 pending is now 119 names (+15 Velder) and 889 live-only -> `C3z-1b.md` updated.
+  - `--all-npc` needs 0. `--worlds` needs 2 (Bridge Hope 3-1, data101). `world_asset_collide`: 104 DIFF, all data101.
+  - C3z-1's records refreshed: `c3z1_world_asset_need.tsv`, `c3z1_world_asset_collide.tsv`, `c3z1_data101_pending.tsv`. C3x's
+    `world_asset_*.tsv` were restored.
+- **Not fixed here:**
+  - `dungeon_npc_census.py` (C3z-2) has the same lookahead (`X_RE`).
+  - The fixed `npc_mesh_census.py --seed npc_anim_collision_seed.tsv` (`c8ace0c8`, no STATUS row) adds 3 June-only textures March lacks:
+    `Mesh_Arme_Event_LowBody08_npc.tga`, `Mesh_Arme_Event_UPBodyB08_npc.tga`, `Mesh_Raven_Event_UpbodyB03_npc.tga` (PvP-hero NOA / EDAN
+    meshes). The run was read-only and its TSV was restored.
+
+**The rest of the kickoff: PASS.**
+- Removals: of the 306 dropped names, 0 are in any June kom, all 306 are named by a June data040 world script, and 0 are in live
+  data028 / 029 (`kom.py status`: in sync).
+  - A users re-scan with the fix adds no March-side user. The 24 it no longer lists are meshes this phase removed.
+  - The reachable user is still only `Besma_Dragon_Road_Stage4.lua` (KidDay), from a join with `world_census.tsv`'s `used_by`.
+- Bytes: 21 of the 404, at least one per kom, decode from the live koms md5-equal to junekom's strict June decode. All 17 music files
+  md5-equal June's.
+- NPC assets: 5 rows of `c3z1_npc_stage_plan.tsv` (data002 / 012 / 033 / 165 / i027) are live at their planned sizes.
+- Tokenizer samples: Hamel Frozen Water Hall 1 (41 names; only `..._Gidung1.Y` was missing, a glued end, now found), Field Velder 1
+  (22, none missing), and `Altera_Battle_Air_Ship_s1_ground2.Y` (16, with `altera_battle_air_ship_lightcore_01.dds`).
+- **`IsVotingLuto`:**
+  - `327c94a0` is `+0xdd1 || +0xdd2 || +0xdd3`; `330e7c10` is `mov al,1; ret`; the thunk `31e4e9c0` is `jmp [eax+0x244]`, loaded at
+    `@31dda25e`.
+  - The ctor stores `ebx` (zeroed by `xor ebx,ebx` at `327cefa4`) into dword `+0xdd0` at `@327cf464`.
+  - June's vtables, enumerated by RTTI (CompleteObjectLocator -> TypeDescriptor): only `CX2DungeonGame` (`334bb094`) and `CX2PVEGame`
+    (`334c1f34`) hold `327c94a0` at `0x244`.
+  - `CX2Game` (`3348bf94`), `CX2BattleFieldGame`, `CX2PVPGame` and its 5 subclasses (Team, TeamDeath, Survival, Winner,
+    AmusementItem) and `CX2PhotoZoneGame` hold `330e7c10`.
+  - March's subclasses (`X2Lib`: DungeonGame, BattleFieldGame, PVPGame + Survival / Team / TeamDeath; `CX2SquareGame` is not a
+    `CX2Game` in either build) match: no other override is needed.
+- Hygiene, per commit (`--range c^..c`, flag + `_DEBUG`; `..HEAD` times out):
+  - `65ef74f8`: `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
+  - `b6ec0475`: `files: 0 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, 1 deleted line (the `_DEBUG` define commented out),
+    `RESULT: PASS`.
+- Logs (run 2026-10-15 19:04-19:09, exe `9fee0da5`, Elder secret + Wally Castle): 0 EXCEPTION.
+  - The only C3z-1-scope misses are the 3 `_B` meshes above, now staged.
+  - Outside this phase and left as is: 9 `MOTION_*_EMOTION_BBABBABBA.X` / `DEEPBOW`, the `DAMAGEEFFECT_*.LUA` loose-file probes
+    (`KEM_ERROR136`) and 22 `OpenTexture`.
+- No C++ changed, so no build was needed. The deployed exe is unchanged.
+
 ### C3z-2 - Done (2026-10-10, Opus 5.5 high; no C++, no flag, no build; data036 `Enum.lua` + data037 `NPCTemplet.lua` packed and copied)
 
 **Census tool.** `june2017_re/dungeon_npc_census.py` (with `dungeon_npc_dump.lua` and `lua_registry_dump.lua`).

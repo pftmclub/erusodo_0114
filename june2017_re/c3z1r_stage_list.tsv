@@ -1,0 +1,19 @@
+name	source
+elder_below_passage_stage3_1a_lightalpha3_b.y	dungeon_map_replace.tsv (june-only)
+elder_below_passage_stage3_1a_lightalpha4_b.y	dungeon_map_replace.tsv (june-only)
+elder_below_passage_stage3_1a_lightalpha5_b.y	dungeon_map_replace.tsv (june-only)
+elder_below_passage_stage3_1a_lightalpha6_b.y	dungeon_map_replace.tsv (june-only)
+elder_below_passage_stage3_1a_lightalpha7_b.y	dungeon_map_replace.tsv (june-only)
+elder_wally_castle_roof_stage1_ceiling02_b.y	dungeon_map_replace.tsv (june-only)
+elder_wally_castle_roof_stage1_ceiling03_b.y	dungeon_map_replace.tsv (june-only)
+elder_wally_castle_roof_stage1_roof_b.y	dungeon_map_replace.tsv (june-only)
+elder_wally_castle_roof_stage2_outerwall01.y	dungeon_map_replace.tsv (DIFF)
+elder_wally_castle_roof_stage2_shadow01.y	dungeon_map_replace.tsv (DIFF)
+hamel_resiam_underwater_stage4_mesh01.y	dungeon_map_replace.tsv (DIFF)
+ruben_el_tree_boss_ground.y	dungeon_map_replace.tsv (DIFF)
+AIN_FX_HAND_SUMMONFIGURE.x	npc_mesh_need_all.tsv
+AIN_FX_MAGIC_CIRCLE_02.X	npc_mesh_need_all.tsv
+BEHEMOTHSOUL_Flame.dds	npc_mesh_need_all.tsv
+DM_ELSION_HERBAON_02.TGA	npc_mesh_need_all.tsv
+maya_RRune.tga	npc_mesh_need_all.tsv
+PerkisasP2_Harpoon_Fire_Rune_Before.tga	npc_mesh_need_all.tsv

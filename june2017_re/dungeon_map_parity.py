@@ -91,16 +91,29 @@ def state_of(ln):
 
 # Tokens end at an extension; a run never reaches back past the previous extension. Bytecode constants sit back to back, so one greedy
 # regex match used to swallow `A.Y-B.Y-C.Y` whole and resolve only C (C3z-1; C3x's census had the same blind spot).
-lua_re = re.compile(rb"\.lua(?![A-Za-z0-9_])", re.I)
-asset_re = re.compile(rb"\.(?:x|y|dds|tga|png|bmp|jpg|ogg|wav|mp3)(?![A-Za-z0-9_])", re.I)
+# C3z-1 review (2026-10-15): no lookahead after the extension. The byte after a name is the next constant's length (len + 5), and when
+# that is a letter or digit (`..._Roof_B.Y1Elder_...`, next name 44 chars) a `(?![A-Za-z0-9_])` dropped the name with no trace: 275
+# names, 8 of them June-only meshes. Such a "glued" end is taken only where the byte before the name is its length (resolve's `pre`).
+lua_re = re.compile(rb"\.lua", re.I)
+asset_re = re.compile(rb"\.(?:x|y|dds|tga|png|bmp|jpg|ogg|wav|mp3)", re.I)
+glue_re = re.compile(rb"[A-Za-z0-9_]")
 run_re = re.compile(rb"[A-Za-z0-9_\-\. ]+$")
 unresolved = collections.Counter()
-def resolve(t, mesh):
+def resolve(t, mesh, pre=None):
     """A trim is valid only where the byte before the name can be its length: in LuaJIT bytecode a string constant is preceded by
     uleb128(len + 5) (BCDUMP_KGC_STR), e.g. `-` = 45 before a 40-character name; in a binary .X a DWORD length (low byte = len).
     Longest valid name first. An unchecked suffix fallback made `Peita_Heart_Floor.tga` (in neither build) June's `floor.tga`."""
     t = t.decode("latin-1")
     s = t.lstrip()
+    if pre is not None:                     # glued end: only a name whose length precedes it (pre: the byte before the run, uleb
+        # len + 5 in bytecode; in a mesh the DWORD before it, as a binary .X stores `21 00 00 00 NUI_..._Map05.tga` then float data)
+        if s == t and s.lower() in known and pre == (len(s) if mesh else len(s) + 5):
+            return s.lower()
+        for i in range(1, len(t) - 4):
+            c = t[i:]
+            if c.lower() in known and ord(t[i - 1]) in ((len(c) + 5) if not mesh else -1, len(c)):
+                return c.lower()
+        return None
     if s.lower() in known:
         return s.lower()
     for i in range(1, len(t) - 4):
@@ -111,14 +124,24 @@ def resolve(t, mesh):
     return None
 def names_in(b, rx, mesh=False):
     out, prev = set(), 0
-    for m in rx.finditer(b or b""):
+    b = b or b""
+    for m in rx.finditer(b):
         e = m.end()
+        glued = glue_re.match(b, e) is not None
         r = run_re.search(b, max(prev, e - 200), e)
+        if not (r and r.end() == e and e - r.start() > 4):
+            if not glued:
+                prev = e
+            continue
+        pre = None
+        if glued:
+            pre = (int.from_bytes(b[r.start() - 4:r.start()], "little") if r.start() >= 4 else -1) if mesh else                   (b[r.start() - 1] if r.start() else -1)
+        n = resolve(b[r.start():e], mesh, pre)
+        if glued and not n:
+            continue                        # `.xml`, `.yaml`, ...: not an end, the run goes on
         prev = e
-        if r and r.end() == e and e - r.start() > 4:
-            n = resolve(b[r.start():e], mesh)
-            if n:
-                out.add(n)
+        if n:
+            out.add(n)
     return out
 
 MODEL = (".x", ".y")

@@ -36,7 +36,10 @@ def june_bytes(ln):
         out = ljconv.transcode(out, table)[0]
     return out
 
-asset_re = re.compile(rb"\.(?:x|y|dds|tga|png|bmp|jpg|ogg|wav|mp3)(?![A-Za-z0-9_])", re.I)
+# C3z-1 review (2026-10-15): no lookahead after the extension; a glued end (next constant's length byte is a letter or digit) needs the
+# name's own length before it (bytecode len + 5, binary .X DWORD), as in dungeon_map_parity.py.
+asset_re = re.compile(rb"\.(?:x|y|dds|tga|png|bmp|jpg|ogg|wav|mp3)", re.I)
+glue_re = re.compile(rb"[A-Za-z0-9_]")
 run_re = re.compile(rb"[A-Za-z0-9_\-\. ]+$")
 def hits(b, mesh):
     """Same tokenizer as dungeon_map_parity.py: a run ends at an extension and never reaches back past the previous one; a trim is
@@ -44,11 +47,24 @@ def hits(b, mesh):
     out, prev = set(), 0
     for m in asset_re.finditer(b):
         e = m.end()
+        glued = glue_re.match(b, e) is not None
         r = run_re.search(b, max(prev, e - 200), e)
-        prev = e
         if not r or r.end() != e:
+            if not glued:
+                prev = e
             continue
         t = b[r.start():e].decode("latin-1")
+        if glued:
+            st = r.start()
+            pre = (int.from_bytes(b[st - 4:st], "little") if st >= 4 else -1) if mesh else (b[st - 1] if st else -1)
+            if t.lower() in target and pre == (len(t) if mesh else len(t) + 5):
+                out.add(t.lower()); prev = e; continue
+            for i in range(1, len(t) - 4):
+                c = t[i:]
+                if c.lower() in target and ord(t[i - 1]) in ((len(c) + 5) if not mesh else -1, len(c)):
+                    out.add(c.lower()); prev = e; break
+            continue                        # unmatched glued end: `.xml`, a non-target name; the run goes on
+        prev = e
         if t.strip().lower() in target:
             out.add(t.strip().lower()); continue
         for i in range(1, len(t) - 4):
