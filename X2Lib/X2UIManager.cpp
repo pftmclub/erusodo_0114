@@ -4252,7 +4252,7 @@ void CX2UIManager::SetShowUI(bool bVal, bool bForce/* = false*/)
 				if( CX2Dungeon::DM_HENIR_CHALLENGE == g_pData->GetDungeonRoom()->GetDungeonMode() )
 					SetShowQuickSlot(false);
 #ifdef SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION
-				// June effect C3z-5: June SetShowUI 32154820 @321549f8-32154a1a, after the Henir challenge test: a dungeon with
+				// June effect C3z-5: June SetShowUI 32154820 @32154cd9-32154d07, after the Henir challenge test: a dungeon with
 				// DCC_NOT_USE_QUICK_SLOT ( 11 ) keeps the quick slot hidden ( +0x8a = 0 ) and returns, which here is the end of
 				// the function. ( March's Halloween case above has no DungeonData row; June's Halloween row does not set 11. )
 				if( NULL != g_pData->GetDungeonRoom() && NULL != g_pData->GetDungeonManager() &&

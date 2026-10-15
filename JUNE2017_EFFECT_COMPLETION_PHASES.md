@@ -5213,6 +5213,47 @@ The user confirmed the checks, and the logs agree.
 - Henir challenge (90-99, item level 140) was the user's visual check; no log line covers it.
 - DCC 11 was not exercised (it can't be reached offline; see the Done note).
 
+### C3z-5 - Review (2026-10-16, Opus 5.5 high): PASS, no transcription error; one port comment's June range corrected
+
+Commit `da63fb29` was read against June's binary (Ghidra, read-only), site by site.
+- **Loader `327e0f80`, defaults as ported.** Min / MaxAdequate -1 (ESI = -1 @327e2517 reaches @327e26fe; explicit -1 @327e28e6);
+  FixMax false (@327e2aab writes AL = 0); m_HardRequireItemLevel -1 (EDI @327e1999); HardMin / HardMax 0 (@327e3f54 / @327e40a2);
+  m_SuitableLevelFixValue 2 (@327e4462); m_iRequireCompleteQuestID 0 (EBX @327e50b6). DCC: dword cleared with EBX = 0 (@327e37fe,
+  @327e382c) before BeginTable, GetValue from 1 until a read fails, bit set only for 0 <= N < 15 (signed JL + JNC), EndTable only
+  when BeginTable succeeded. +0xb0 is `difficulty`, +0xb7 `normalOnly` (loader @327e251f / @327e2b6c).
+- **Accessors.** All five do a find first; `32257cf0` runs only on a found key, so nothing inserts (`327d9df0` uses the node directly).
+  - `327da980`: both counts written when the row exists, true when byte +0xb4 > -1 (signed JG) = March's `0 <= iMinCount`.
+  - `327da920`: 2, or 0 for a found normal-only row. `327da9f0`: `GetMaxDifficulty(id) + (id - row[+0xb0])`, -1 -> false.
+  - `327db250( id, hero )`: arg order and both overrides as ported. `327d9df0`: range test, then `327e6d20`'s bit test.
+- **Consumers**, all equal to the port:
+  - UpdatePartyDLG: @322c3078 fixes [party+0xc] before the sum; @322c312d runs only inside the fallback (Ruben 30000, mode 0 =
+    DM_INVALID). Henir item level @322c31c6: `32931920` is `id == 38100` (= IsHenirDungeon) on the row's own ID, mode +0x30 == 2.
+  - UpdateDifficultyButton @322b679d: `31edf1e0` is my party's dungeon ID; three `SetShowEnable(0,0)` (vtable +0x78), else the
+    checked box from the argument.
+  - UpdateAdequateMemberCount: row = id + difficulty; text `min` then `L"~"` (0x33458300, read from the exe) + max when max > -1;
+    count = member vector size (stride 0xa0) when DoIHaveParty, else 1; green (0,1,0,1) when count >= min, else red.
+  - UpdateAdequateLevel @322bed84: Henir test on the party dungeon ID, non-zero difficulty argument -> +0x94 / +0x98.
+  - SelectDungeonDifficulty @322c1814: as UpdatePartyDLG's item level.
+  - Party-list join @322ca11b: `level < m_MinLevel - m_SuitableLevelFixValue` rejects.
+  - IsActiveDungeon: level then quest (`32322260` = a find in the completed-quest map, = March GetUnitCompleteQuest); `32931bc0`
+    (always active) is Bestera 150000-150050; the rest is as the port's comment says.
+  - Local map: `327db250( id, hero byte +0x44 )` at both sites. MakeDungeonNameString: the three `327da9f0` tests sit in the
+    difficulty 0 / 1 / 2 branches of June's plain-type route, after the name is streamed; a hit jumps to the return.
+  - DCC 11: ctor @324dac81-324dacb2 before the Henir test (room +0xdc, bit 0xb). SetShowUI: the test is @32154cd9-32154d07, inside
+    the GT_DUNGEON block after the Henir test; hit and miss both return.
+- **Fixed (comment only):** `X2UIManager.cpp`'s port comment cited `@321549f8-32154a1a` (the tutorial / quick-slot block above)
+  for the SetShowUI site; now `@32154cd9-32154d07`. No code changed, so no build or deploy.
+- **Routing:** every ROUTED row of `june2017_re/c3z5_key_readers.tsv` is a task item in `kickoffs/june-dungeons/C3z-5b.md`.
+- **Hygiene**, `--range da63fb29^..da63fb29`, each flag `--with` the other four, RESULT: PASS for all five:
+  - ADEQUATE_MEMBERS 3 PASS, 1 PASS~, 1 DEFINE, 3 OTHER; FIX_MAX_DIFFICULTY 4 / 1 / 1 / 2; SUITABLE_LEVEL 2 / 1 / 1 / 4;
+    HENIR_HARD 2 / 1 / 1 / 4; CHECK_CONDITION 4 / 1 / 1 / 2. 0 FAIL, 0 ERROR everywhere.
+  - In each flag's files: 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 untokened `#else` / `#endif`, 0 encoding changes.
+  - PASS~ is `X2DungeonManager.cpp` (2 blank lines outside the flag). Every OTHER row is a file of one of the other four flags
+    (or, for X2LocalMapUI.cpp, of earlier June flags too).
+  - No later commit touches any of the five flags (`git log -S`).
+  - This fix, worktree, CHECK_CONDITION `--files X2Lib/X2UIManager.cpp`: 1 PASS, RESULT: PASS. Its 1 deleted line is the old comment,
+    which C3z-5 itself added inside the flag block.
+
 ### C3z-7 - skipping a boss intro cinematic (user, 2026-10-10)
 
 **Status: done 2026-10-15 (no new code: C3p's chain is June's boss-intro skip; see C3z-7 - Done); play-test PASSED (Gateway in C3p, Altera 2026-10-15); review PASSED 2026-10-16 (C3z-7 - Review). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3z-7.md`, review `kickoffs/june-effect/C3z-7-review.md`. The user asked for June's boss-intro skip.
