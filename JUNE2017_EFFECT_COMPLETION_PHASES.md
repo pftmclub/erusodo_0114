@@ -3324,6 +3324,10 @@ are docs only.
 **DEBUG off:** `Always.h` `//#define SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG` with a dated reason.
 `DEPLOY OK: X2_offline.exe is 19,585,024 B, dated 2026-10-15 19:25:50, md5 0ae5819a1a5317db503f24a194a221c3, equal to X2/US_SERVICE/x2.exe (2026-10-15 19:25:45); built at mods/june-buff-port 05a6682c + 1 uncommitted code file(s).`
 The uncommitted file is this review's `Always.h` line. The deployed exe has 0 `JUNE_FX C3t-1` strings. Nothing to play-test (the flag-on body is unchanged).
+Item 4's "only filler" is checked: March's one `SetCodeEvent` caller is `CX2State::Handler_EGS_UPDATE_CODE_EVENT_NOT` (`X2State.cpp:12865`).
+**Post-commit** (`--range df87c082^..df87c082 --with SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG`): `files: 0 PASS, 0 PASS~ (blank/marker only), 1 DEFINE,
+0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+1 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The deleted line is the live `_DEBUG` `#define`, now commented out.
 
 No questions for the user.
 
