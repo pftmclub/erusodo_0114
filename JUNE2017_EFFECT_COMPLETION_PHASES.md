@@ -3724,8 +3724,9 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
     `Spa_Ruben_Snow` / `Spa_Ranox_Snow`, and `Ruben_Dungeon_Gate_S_Festival` (March has no `Ruben_Dungeon_Gate.lua`).
   - `PACK OK data040 / data023 / data025 / data026` (+30 / +17 / +1 / +24 vs live, nothing removed or changed).
     data023's warning about 13 manifest entries with no file was there before this phase.
+- **Bindings:** the variants call 18 methods their base scripts do not (`SetLightColor_LUA`, `SetOriginColor_LUA`, `SetUseWorldColor`, `CreateWorldLayer` + 7 layer setters, fog, scale, ...). All 18 are bound in March (by name in X2Lib / KTDXLIB).
 - **Hygiene:** `flagcheck JUNE_WORLD_FESTIVAL --worktree --files` `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
-  `0 deleted, 0 non-ASCII, 0 EOL-mismatched, 2 #else/#endif without the flag token` (the plain `#else` lines of the two replaces); RESULT: PASS.
+  `0 deleted, 0 non-ASCII, 0 EOL-mismatched, 2 #else/#endif without the flag token` (the plain `#else` lines of the two replaces); RESULT: PASS. After commit `e1eb05f3`: `--range e1eb05f3^..e1eb05f3` the same lines, RESULT: PASS; `ledger --check` / `core --check` PASS.
 - `DEPLOY OK: X2_offline.exe is 19,585,536 B, dated 2026-10-15 20:23:02, md5 fd280c95489ed2ecde9bdb07e58b9b88`; strings `JUNE_FX C3x-1 world`, `dataFileName_Festival`, `dataFileName_CodeEvent` are in the exe.
 - **How to see it in game:** on a real clock, villages and rest fields load their normal maps and no `JUNE_FX C3x-1` line appears (regression check).
   The Festival maps appear only with the Windows clock set before 2016-03-16 04:00 (optional check). CodeEvent cannot be shown offline.
