@@ -2667,8 +2667,9 @@ March facts from a `cl /EP` probe on X2Lib `stdafx.h` (US_SERVICE): `ELSWORD_NEW
 2. **`@31f1e1b5-31f1e1e6` is the ESC key test.** Correction: the section and kickoff said `31f1e1a0` tests no key and called this "`+0x1f8` dialog
    tests". `g_pKTDXApp+0x1f8` = `m_pDIManager`; `31c48870( 0x34 )` = `CKTDIManager::GetActionState` (state `+0x4d+a` set, lock `+0x84+a` clear ->
    lock, TRUE: the `KTDIManager.cpp:182` shape); `+0x40` = keyboard, `31d24fb0( 1 )` = `GetKeyState( DIK_ESCAPE )`. **Equal:** March's
-   `SERV_KEY_MAPPING_INT` branch. Map by name, not number: June's action id is 0x34, March `GA_ESCAPE` = 42. June's keyboard adds an exclusion list
-   (`+0x1178`): engine difference, out of scope. With the test in place, no caller of vslot `0x1e8` needs hunting.
+   `SERV_KEY_MAPPING_INT` branch. Map by name, not number: June's action id is 0x34, March `GA_ESCAPE` = 42. June's keyboard adds a key allow-list:
+   while `+0x1178` is set, a DIK code missing from `+0x117c..+0x1180` reads 0, so an unlisted ESC is dead in June. The setter is `31d25490`; its callers
+   include `31fc4060` / `31fc4c40` / `31fc6490`, next to the tutorial guide's `OnBeginGuideNo` `31fc5d70` (engine difference, out of scope). With the test in place, no caller of vslot `0x1e8` needs hunting.
 3. **`@31f1e1e8-31f1e212` tutorial guide.** `CX2TutorialGuideManager` (`g_pMain+0x8c4`, `31d70b00`): `31fbda90` `[+0x14] != 0` (a guide is running)
    and `31fbdb20` `[+0x66] != 1` -> ESC eaten. **None in March** -> routed to **C3z-4t** (june-dungeons), which owns the manager.
 4. **`@31f1e214-31f1e261` state `+0x210` = June's result-UI mode.** Set by `31ef7be0( mode, time )` (non-virtual; mode 3 hides the minimap, 0
@@ -2690,7 +2691,9 @@ March facts from a `cl /EP` probe on X2Lib `stdafx.h` (US_SERVICE): `ELSWORD_NEW
      - the ACK `0x649` handler `324c95b0`, after vslot `0xe4` -> GFx `+0x7c4`;
      - `31f14e40` / `3243b060`, both gated on mode 3.
 
-     June's toggle `31f02f50` only restores or re-applies a mode, so modes 2-4 travel with the Scaleform row.
+     June's toggle `31f02f50` only restores or re-applies a mode, so modes 2-4 travel with the Scaleform row. Lua cannot set one either:
+     the dialog manager's binding (`@31bf43ca`, March `KTDXApp.cpp:2167` `SetShow`) is called in `june_src_fixed` only with one argument
+     (`ELYSION_M_2STAGE_END`, `GameEditCommandList`), i.e. mode 0 -> hide-all.
    - **Minimap list.** June's `0xb / 0xe / 0xf / 0x17` = DUNGEON_GAME, VILLAGE_MAP, GUILD_AGIT_GAME, PVE_GAME (`31d6fd60`). The last two are
      June-only states (by number they would be March's SQUARE_GAME and ARCADE_ROOM: never transcribe by number). March's live `#else`
      {DUNGEON_GAME, VILLAGE_MAP} = June's set restricted to March's states. `SetShow( true, 0 )` = March `SetShow( true )`.
@@ -2701,8 +2704,8 @@ Then `@31f1e359-31f1e3ba` = C3p's skip (ported, reviewed).
 June's order (tutorial guide, then `+0x210`, then `+0x1c8`). C3p's hook stays last.
 
 **Done gate:** every gate mapped with an address (above). No June-only gate was ported: none has a March home, and all are routed (C3z-4t row and
-kickoff, `JUNE_PORT_BACKLOG_ORDER.md` Scaleform row). ESC behaviour is unchanged by construction. The C3p review run (exe `287bfb54`, Ranox
-Gateway, ESC skip + hint) stands for both done-gate checks. No deploy. User owes nothing. No questions.
+kickoff, `JUNE_PORT_BACKLOG_ORDER.md` Scaleform row). Both done-gate behaviours (the skip in a `DIRECTION_STATE` intro, March's menu outside one) are unchanged by
+construction: no code. The C3p review run (exe `287bfb54`, Ranox Gateway) last showed the skip and its hint. No deploy. User owes nothing. No questions.
 
 ## C3q - port: June's NPC effect-set list (EFFECT_SET_LIST_FINAL, CONSUME_MP)
 
