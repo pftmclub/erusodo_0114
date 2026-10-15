@@ -7345,3 +7345,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG needs SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-15
+// Description: June effect completion C3x-1: June's WorldData variants. AddWorldData_LUA ( 32805770 ) keeps the plain
+//              dataFileName, swaps in dataFileName_Festival while the clock is before 2016-03-16 04:00, and reads
+//              dataFileName_CodeEvent; CreateWorld ( 32803d10 ) opens the CodeEvent script when code event 46 is on.
+//              Offline on a real clock both stay on the plain name. One JUNE_FX C3x-1 line per variant world created.
+#define SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+//////////////////////////////////////////////////////////////////////////

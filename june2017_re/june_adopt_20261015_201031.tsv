@@ -1,0 +1,33 @@
+# adopt-june --bytecode run 2026-10-15 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+Altera_Dungeon_Gate_Festival.lua	data040	new	data040	11744	039a97dec7a88092834ee3284f1946c6eebfe4ba	bytecode		ljconv
+Altera_Village_Festival.lua	data040	new	data040	6641	0c6fb024aa0929edae6114a48075d0be871e21a3	bytecode		ljconv
+Altera_Village_XMAS.lua	data040	new	data040	7772	b79db8fca87912003e827f128ec6483e901db511	bytecode		ljconv
+Besma_Altera_Dungeon_Gate_Festival.lua	data040	new	data040	10911	b9a06fdef587c91ad91b07e30c66e361cd85c2c7	bytecode		ljconv
+Besma_Village_Festival.lua	data040	new	data040	9352	59b2c5d2cf3c77b0f71d1af022dbcbe4390698f8	bytecode		ljconv
+Besma_Village_XMAS.lua	data040	new	data040	10554	1ac909420252adaf5f035c5246651534e592a1cc	bytecode		ljconv
+Elder_Dungeon_Gate_Festival.lua	data040	new	data040	30852	008a0f970d64480b7d40261018bb2b63fe7018ce	bytecode		ljconv
+Elder_village_Festival.lua	data040	new	data040	67631	bb573c2062b664d10897a0dcb7c3ac4697d7c4fe	bytecode		ljconv
+Elder_village_XMAS.lua	data040	new	data040	11510	67589a8c4454ec4ea526cd03d4ae3749e15a8df6	bytecode		ljconv
+Field_Altera_Rest_Stage_Festival.lua	data040	new	data040	18718	836aedb5110cc63f602dfbdbb4a21e272b5820ba	bytecode		ljconv
+Field_Besma_Stage_Rest_Festival.lua	data040	new	data040	32562	566d00efdbfd624a423c748e3e203c0fd796b2dc	bytecode		ljconv
+Field_Elder_Stage_Rest_Festival.lua	data040	new	data040	38390	e5a068db0acb250021aba74369ff7e2a6ea112ab	bytecode		ljconv
+Field_Hamel_Rest_Stage_Festival.lua	data040	new	data040	36180	f270eb0aebd1ffc85a90293354ad6f6432423cb9	bytecode		ljconv
+Field_Peita_Villeage_Festival.lua	data040	new	data040	14769	31d9a1fb67fae6730d8a59865878b5117f2f39a5	bytecode		ljconv
+Field_Peita_Villeage_XMAS.lua	data040	new	data040	15857	41409a35b5a18d10239931a86a502a06c53f7d15	bytecode		ljconv
+Field_Ranox_rest_Festival.lua	data040	new	data040	13774	567a2b4990cdc536c4a4056067aad6e0d9b4ea1f	bytecode		ljconv
+Field_Sander_Rest_Stage_Festival.lua	data040	new	data040	5237	c40e247377961e8735db2dbff0221e9df6115af1	bytecode		ljconv
+Field_Velder_Rest_Stage_Festival.lua	data040	new	data040	9812	3dd95457f7b768980059a053cfdd33d75eef9c85	bytecode		ljconv
+Hamel_DG_Festival.lua	data040	new	data040	18882	eb7b484ac1a745455ec9ea53bda5ef3669e497b4	bytecode		ljconv
+Ranox_Village_Festival.lua	data040	new	data040	31312	d9fdf91c40f9fcd0dc81b8f7e7acc85ff6b621d5	bytecode		ljconv
+Ranox_Village_XMAS.lua	data040	new	data040	31492	4432071f63b8da18f19fd9c5b5362b42e9eb0d80	bytecode		ljconv
+ruben_village_Festival.lua	data040	new	data040	29452	598a819e8f022c829c01e81d670ed1e286b5cb73	bytecode		ljconv
+ruben_village_XMAS.lua	data040	new	data040	30950	0c9f1fe335c6b034963eb7e1d789219c56bccec9	bytecode		ljconv
+Velder_DG_Festival.lua	data040	new	data040	22700	f8d7282a8fcb6bd83ead3ad8071ba29e2ac73a3b	bytecode		ljconv
+Velder_village_Festival.lua	data040	new	data040	27458	c466a3aedf0a29048b2e9c828849b4c4898f3fae	bytecode		ljconv
+Velder_village_XMAS.lua	data040	new	data040	25314	e6826f0182f303b02339bb51a3bae4005cffa59f	bytecode		ljconv
+Village_Hamel_Festival.lua	data040	new	data040	55221	d8fb49a4f06bf9504095c797294350353edbcb3f	bytecode		ljconv
+Village_Hamel_XMAS.lua	data040	new	data040	56132	8b338415734b8e82a5e78db7c83c3f2112ebba8b	bytecode		ljconv
+Villeage_Sander_Festival.lua	data040	new	data040	54648	da82d7062584d66232b023e9f0b963a6107cee85	bytecode		ljconv
+Villeage_Sander_XMAS.lua	data040	new	data040	55771	e16a4492458dca9319e0ff4fb53f388c3bf9145e	bytecode		ljconv

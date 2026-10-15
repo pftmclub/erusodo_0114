@@ -3689,6 +3689,48 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
   - `git log -S SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG b3039efb..HEAD -- X2Lib KTDXLIB` is empty. The one later commit to those files (`1ca6415d`, C3z-4b) does not touch the guarded lines.
 - C3y's kickoff exists and C3y is done. New: C3x-1 (row + kickoff) for the Festival / CodeEvent variants.
 
+## C3x-1 - port: June's Festival / CodeEvent world variants
+
+### C3x-1 - Done (2026-10-15, Opus 5.5 high)
+
+- **Verdict: ported.** The kickoff says a client-side date is a port trigger, and Festival is one. CodeEvent is ported with it,
+  because both picks belong to the same two functions. On a real clock, offline, both stay on the plain `dataFileName`.
+- **June's reader:** `AddWorldData_LUA` `32805770` (xorstrings 5445-5447). New 0x84-byte WorldData:
+  `+0x20` dataFileName, `+0x3c` a copy of it (@32805aeb), `+0x58` a `dataFileName_Additional` vector, `+0x68` dataFileName_CodeEvent (@32805f69).
+- **Festival is picked by the local clock.**
+  - `_time64` is compared with a `CTime` of 2016-03-16 04:00 (@32805b98-32805bf2). Only while now is earlier is `dataFileName_Festival` read (@32805d87).
+  - When that name is not empty it replaces dataFileName (@32805dc1).
+  - Two more CTimes (2016-03-23 00:00, 2016-04-19 23:59) are built and thrown away. This is JUNE_BUGS 198 (latent, kept verbatim).
+- **CodeEvent is picked by code event 46.**
+  - `CreateWorld` `32803d10` @32803e63-32803f13 opens `+0x68` instead of `+0x20` when all three hold:
+    `g_pInstanceData` is set, its map `+0xa18` holds 46 with value true (= March `IsEnableCode`), and the name is not empty.
+  - March's `ScriptID_Code.h` calls 46 `CEI_TEAR_OF_ELWOMAN`; June's own name for it lives in a server enum.
+  - The emulator never sends `EGS_UPDATE_CODE_EVENT_NOT`, so offline it is never on.
+  - `32803f60` (June-only CreateWorld + additional worlds) makes the same pick for its main world (@328040eb-328041ad).
+  - `32804810` (uncalled) reads `+0x20` only. Rows are in `june2017_re/funcmap.tsv` `(C3x-1)`.
+- **Routed:** `dataFileName_Additional` (`+0x58`, @32805f81-32805fee; worlds opened by `32803f60` @32804248) goes to `ELYSION_PORT_PHASES.md`
+  (:197 / :646, Soless 2Phase). The one other user is `WI_FIELD_EVENTRAID_TEDDYBEAR`, an event raid.
+- **Code** (`SERV_IRUHADEV_JUNE_WORLD_FESTIVAL`, Always.h). There is no `_DEBUG` flag; the one log line fires only when a variant is opened:
+  - `X2World.h`: WorldData `dataFileName_Original`, `dataFileName_CodeEvent`.
+  - `X2WorldManager.cpp` `AddWorldData_LUA`: copy, gate and the two reads.
+  - `CreateWorld`: the pick, then both `OpenScriptFile` calls take it (March's line in `#else`, inside C3x's `JUNE_WORLD_LOAD_LOG`).
+  - The log line is `JUNE_FX C3x-1 world <id> <name>: variant script <file> ( plain <file> )`.
+- **Data:**
+  - The 30 variant scripts whose base world March has are `adopt-june` bytecode in data040 (`june_adopt_20261015_201031.tsv`).
+    All their line maps are already in March.
+  - `npc_mesh_census.py --worlds` found 43 June-only assets (`c3x1_world_asset_need.tsv`); 42 are staged in data023 (17) / 025 (1) / 026 (24).
+  - `Village_ADBoard.dds` (Elder festival ad board) is only in June's data216, a new kom number, and is left to the asset port (P2/P3).
+  - Not staged, because their base worlds are missing from March and other plans own them: Elysion village + rest (Festival, XMAS),
+    `Spa_Ruben_Snow` / `Spa_Ranox_Snow`, and `Ruben_Dungeon_Gate_S_Festival` (March has no `Ruben_Dungeon_Gate.lua`).
+  - `PACK OK data040 / data023 / data025 / data026` (+30 / +17 / +1 / +24 vs live, nothing removed or changed).
+    data023's warning about 13 manifest entries with no file was there before this phase.
+- **Hygiene:** `flagcheck JUNE_WORLD_FESTIVAL --worktree --files` `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+  `0 deleted, 0 non-ASCII, 0 EOL-mismatched, 2 #else/#endif without the flag token` (the plain `#else` lines of the two replaces); RESULT: PASS.
+- `DEPLOY OK: X2_offline.exe is 19,585,536 B, dated 2026-10-15 20:23:02, md5 fd280c95489ed2ecde9bdb07e58b9b88`; strings `JUNE_FX C3x-1 world`, `dataFileName_Festival`, `dataFileName_CodeEvent` are in the exe.
+- **How to see it in game:** on a real clock, villages and rest fields load their normal maps and no `JUNE_FX C3x-1` line appears (regression check).
+  The Festival maps appear only with the Windows clock set before 2016-03-16 04:00 (optional check). CodeEvent cannot be shown offline.
+- **Open:** none.
+
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
 **Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan

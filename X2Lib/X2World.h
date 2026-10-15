@@ -829,6 +829,10 @@ public:
 			WORLD_ID	worldID;
 			wstring		worldName;
 			wstring		dataFileName;
+#ifdef SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+			wstring		dataFileName_Original;	// June +0x3c: dataFileName as read, before the festival swap ( AddWorldData_LUA 32805770 @32805aeb )
+			wstring		dataFileName_CodeEvent;	// June +0x68: "dataFileName_CodeEvent" ( read @32805f69 ), picked by CreateWorld 32803d10 on code event 46
+#endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 		};
 
 		enum SQUARE_CAMERA_TYPE

@@ -101,13 +101,33 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 	{
 		CX2World* pCX2World = new CX2World( pWorldData, bBackgroundLoad_ );
 		ASSERT( pCX2World );
+#ifdef SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+		// June effect C3x-1: June's CreateWorld ( 32803d10 @32803e63-32803f13; same pick for the main world of 32803f60
+		// @328040eb-328041ad ) opens dataFileName_CodeEvent instead of dataFileName when g_pInstanceData is set, code event 46
+		// is on ( map +0xa18 node byte == 1, i.e. IsEnableCode; March's ScriptID_Code.h names 46 CEI_TEAR_OF_ELWOMAN ) and the
+		// name is not empty. Offline nothing sends EGS_UPDATE_CODE_EVENT_NOT, so the plain name stays.
+		const WCHAR* pJuneWorldScript = pWorldData->dataFileName.c_str();
+#ifdef SERV_CODE_EVENT
+		if ( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 46 ) && false == pWorldData->dataFileName_CodeEvent.empty() )
+			pJuneWorldScript = pWorldData->dataFileName_CodeEvent.c_str();
+#endif SERV_CODE_EVENT
+#ifdef SERV_IRUHADEV_OFFLINE
+		if ( pJuneWorldScript != pWorldData->dataFileName.c_str() || pWorldData->dataFileName != pWorldData->dataFileName_Original )
+			CX2OfflineLog::Server( L"JUNE_FX C3x-1 world %d %s: variant script %s ( plain %s )",
+				(int) worldID, pWorldData->worldName.c_str(), pJuneWorldScript, pWorldData->dataFileName_Original.c_str() );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 
 		m_pX2WorldLatestRef = pCX2World; // 가장 최근에 생성한 월드 객체에 대한 참고 포인터를 저장해 둔다.
 
 #ifdef SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 		// June effect C3x: name the world whose script failed, or that never set a line map
 		// ( m_pLineMap stays NULL, which StageLoading dereferences ).
+#ifdef SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+		const bool bJuneC3xScriptOk = pCX2World->OpenScriptFile( pJuneWorldScript, pKLuabinder );
+#else
 		const bool bJuneC3xScriptOk = pCX2World->OpenScriptFile( pWorldData->dataFileName.c_str(), pKLuabinder );
+#endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 #ifdef SERV_IRUHADEV_OFFLINE
 		if ( false == bJuneC3xScriptOk )
 			CX2OfflineLog::Server( L"JUNE_FX C3x world %d %s: script %s failed to load ( XEM_ERROR71 / lua error in ErrorLog.txt )",
@@ -117,7 +137,11 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 				(int) worldID, pWorldData->worldName.c_str(), pWorldData->dataFileName.c_str() );
 #endif SERV_IRUHADEV_OFFLINE
 #else
+#ifdef SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+		pCX2World->OpenScriptFile( pJuneWorldScript, pKLuabinder );
+#else
 		pCX2World->OpenScriptFile( pWorldData->dataFileName.c_str(), pKLuabinder );
+#endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 #endif SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG
 
 #ifdef X2OPTIMIZE_GAMEOPTION_BUGFIX
@@ -207,6 +231,27 @@ bool CX2WorldManager::AddWorldData_LUA()
 	LUA_GET_VALUE_RETURN_ENUM(	luaManager, "worldID",			pWorldData->worldID,		CX2World::WORLD_ID,	CX2World::WI_NONE,	SAFE_DELETE(pWorldData); return false; );
 	LUA_GET_VALUE_RETURN(		luaManager, "worldName",		pWorldData->worldName,		L"",										SAFE_DELETE(pWorldData); return false; );
 	LUA_GET_VALUE_RETURN(		luaManager, "dataFileName",	pWorldData->dataFileName,	L"",										SAFE_DELETE(pWorldData); return false; );
+#ifdef SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+	// June effect C3x-1: June's AddWorldData_LUA ( 32805770 ). After dataFileName it keeps a copy of the plain name ( +0x3c,
+	// @32805aeb ), then reads "dataFileName_Festival" only while the local clock is before 2016-03-16 04:00 and, when that is
+	// not empty, swaps it in as dataFileName ( @32805af0-32805dc1 ). June builds three CTimes ( 2016-03-23 00:00,
+	// 2016-04-19 23:59, 2016-03-16 04:00 ) and compares only the last ( JUNE_BUGS 198 ). Then "dataFileName_CodeEvent" ( +0x68, @32805f69 ).
+	// June also reads a "dataFileName_Additional" table here ( +0x58 vector, @32805f81-32805fee ): routed to ELYSION_PORT_PHASES.md.
+	pWorldData->dataFileName_Original = pWorldData->dataFileName;
+	{
+		struct tm tmJuneFestivalCutoff = { 0, 0, 4, 16, 2, 116, 0, 0, -1 };	// sec, min, hour, mday, mon ( March ), year - 1900, -, -, isdst -1 ( @32805b98-32805bc2 )
+		const __time64_t tJuneNow = _time64( NULL );
+		const __time64_t tJuneFestivalCutoff = _mktime64( &tmJuneFestivalCutoff );
+		if ( tJuneNow < tJuneFestivalCutoff )
+		{
+			wstring wstrJuneFestival;
+			LUA_GET_VALUE( luaManager, "dataFileName_Festival", wstrJuneFestival, L"" );
+			if ( false == wstrJuneFestival.empty() )
+				pWorldData->dataFileName = wstrJuneFestival;
+		}
+	}
+	LUA_GET_VALUE( luaManager, "dataFileName_CodeEvent", pWorldData->dataFileName_CodeEvent, L"" );
+#endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 
 	m_WorldDataList.push_back( pWorldData );
 	return true;
