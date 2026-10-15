@@ -3617,11 +3617,13 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
    - `CTT_RIM_LIGHT_BLUE = 10` equals `KTDGXRenderer.h:52` under `SERV_IRUHADEV_RANOX_RIM_LIGHT` (June's Lua says 15).
    - Latent: Lua's `CTT_END` is still 10, while C++'s is 11 with the flag on. No Lua names `CTT_END`: none in `june_src_fixed`, and in March's data034-040 only Enum itself. Nothing reads it, so no change.
 2. **WorldData.lua (data040), diffed by numeric ID, each build's names resolved through its own Enum:**
-   - Rows: March 608, June 739. 571 equal, 37 differ, 0 March-only, 130 June-only IDs.
+   - Rows: March 608 (608 unique IDs), June 751 (750 unique; 668 `WI_TUTORIAL_ROSE_STAGE0` appears twice). 571 equal, 37 differ,
+     0 March-only, 130 June-only IDs. Both sides close: 571 + 37 = 608; 608 + 130 + 12 + 1 = 751.
    - Twelve more June rows name IDs that June's own Enum lacks (`WI_EVENT_TREASURE_HOUSE_2_STAGE0-2`, `WI_TIME1-3_STAGE0-2`), so they are dead in June too.
    - The 37 differing rows:
      - **6 differ in file-name case only** (IDs 80, 133, 142, 171, 172, 176). The kom lookup upper-cases names (`KGCMassFileManager.cpp:652-773`), so they are equal.
-     - **28 village, dungeon-gate, lounge and rest-field rows:** June adds `dataFileName_Festival`, and 9 villages also add `dataFileName_CodeEvent` (`*_XMAS.lua`). No March C++ reads either key, so they are ignored. This is outside C3x's dungeon-map scope: a side gap, noted here and left as is (no owner).
+     - **28 village, dungeon-gate, lounge and rest-field rows:** June adds `dataFileName_Festival`, and 9 villages also add `dataFileName_CodeEvent` (`*_XMAS.lua`). No March C++ reads either key, so they are ignored. This is outside C3x's dungeon-map scope. It is a June-only path that no row owned, so it is routed to the new **C3x-1**
+       (identify June's reader and what picks the variant; kickoff `C3x-1.md`).
      - **3 Ranox rows (681-683):** only `worldName` differs: June has `WI_RANOX_SECRET_EXTRA_BOSS_STAGE1-3`, March `WI_RANOX_SECRET_EXTRA_STAGE1-3`. The `worldID` and file names are the same.
    - Correction to the Done note: June does have these three IDs, only under another `worldName`. They are not "March rows June lacks".
    - World 33's March row is kept as a comment (lines 311-320).
@@ -3649,7 +3651,7 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
   - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)` (the 2 are the inner `#endif SERV_IRUHADEV_OFFLINE`)
   - `RESULT: PASS`
   - `git log -S SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG b3039efb..HEAD -- X2Lib KTDXLIB` is empty. The one later commit to those files (`1ca6415d`, C3z-4b) does not touch the guarded lines.
-- C3y's kickoff exists and C3y is done. No new kickoff is needed.
+- C3y's kickoff exists and C3y is done. New: C3x-1 (row + kickoff) for the Festival / CodeEvent variants.
 
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
