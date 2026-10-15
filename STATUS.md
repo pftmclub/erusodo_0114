@@ -116,7 +116,7 @@ C3y-4, C3y-5, C3z-1b, C3z-4t, C3z-5b. Their done predecessors (C3x, C3y, C3y-1a,
 Engine rows (C3z-4f / 4s, C3z-7 and the rest) stay here.
 
 **Board re-checked against `git log` 2026-10-15:** 11 reviews had kickoffs but no row and no commit (C3r, C3s, C3t-1, C3v, C3z-7;
-dungeon history C3x, C3z-1, C3z-2, C3z-3, C3z-5, C3z-6). Each now has a row next to its phase. C3p-2 is `ready`. C11 still waits on all of them.
+dungeon history C3x, C3z-1, C3z-2, C3z-3, C3z-5, C3z-6). Each now has a row next to its phase. Later the same day C3r review and C3p-2 (no code) closed, and C3x's play-test passed. C11 waits on the rest.
 
 The plan runs "Opus identifies, Sonnet transcribes, Opus reviews". The four phases that did both
 in one session (C1, C6, C8, C10) are split here into **a** (Opus, no code) and **b** (Sonnet,
@@ -290,7 +290,7 @@ today's Sonnet 5.5.
 | C10b-2 review | **done 2026-10-09: PASS, no code findings, nothing rebuilt** (Ghidra: category `322d4d10`, user override `31fd8350`, effect-set tag `32296f30` (`g_pData +0x9c` = March `m_UIEffectSet`), both Lua binds via thunks `31e59970`/`31e59b10`, slash trace `31d39320`, buff effect-set displayer `32eb9c70` + unit lookup vslot `0xc8` = `322d80a0` all match; March render params reset per frame, no compounding). flagcheck range: 1 ERROR = the bot flag's `#error` dependency guard (precedent); over the closure `--with` the bot + FX_DEBUG flags RESULT PASS; OTHER = peer `b69d2a2`. Nothing owed | Opus 5.5 / high | C10b-2 | plan (no code) | `C10b-2-review.md` |
 | C10b-3 | handed off (D9, 2026-10-06): not run in this plan; the effect-alpha UI goes to the June UI port (`JUNE_PORT_BACKLOG_ORDER.md` Stage 9), which wires C10b-2's `GameOptions.lua` keys | - | - | - | `C10b-3.md` (kept as the UI port's brief) |
 | C10b-3 review | handed off (D9) | - | - | - | `C10b-3-review.md` |
-| C11 | blocked | Sonnet 5.5 / high | C2-C10 (C1 handed off, D7); still open 2026-10-15: C3p-2 and 11 reviews (C3r, C3s, C3t-1, C3v, C3x, C3z-1, C3z-2, C3z-3, C3z-5, C3z-6, C3z-7) | - (verification; one .dds staged) | `C11.md` |
+| C11 | blocked | Sonnet 5.5 / high | C2-C10 (C1 handed off, D7); still open 2026-10-15 (evening): 11 reviews (C3p-2, C3s, C3t-1, C3v, C3x static, C3z-1, C3z-2, C3z-3, C3z-5, C3z-6, C3z-7) | - (verification; one .dds staged) | `C11.md` |
 | C12 | blocked | Sonnet 5.5 / high | C11 | docs, MODS.md, maybe Always.h (D6) | `C12.md` |
 
 Running together: C0, C1a, C2, C6a, C6a2 and C8a/C10a touch no game code, so they can run alongside a
@@ -298,8 +298,8 @@ code session. C1a, C2, C6a, C6a2, C8a and C10a all add rows to `funcmap.tsv`, th
 after another. C3, C4, C5, C8b and C9 all edit X2DamageManager.cpp; C6b, C7 and C10b-2 edit
 X2DamageEffect.cpp: one at a time within each group (C8b's hit paths are in X2DamageManager.cpp, not
 X2DamageEffect.cpp, per C8a). C4, C4c and C10b-1 all edit `CX2GameUnit::GetFinalDamage`.
-The 11 open reviews are read-only unless they find something, so they can run alongside each other. The exception is C3t-1 review and
-C3v review: both turn a `_DEBUG` off in Always.h and rebuild, so run them one after the other. C3p-2 edits X2State.cpp.
+The open reviews are read-only unless they find something, so they can run alongside each other. The exception is C3t-1 review and
+C3v review: both turn a `_DEBUG` off in Always.h and rebuild, so run them one after the other.
 
 ## june-dungeons - June dungeons, worlds and their map / entry content
 
