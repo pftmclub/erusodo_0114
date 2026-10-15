@@ -3732,6 +3732,14 @@ This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
   The Festival maps appear only with the Windows clock set before 2016-03-16 04:00 (optional check). CodeEvent cannot be shown offline.
 - **Open:** none.
 
+### C3x-1 - play-test 1 (2026-10-15, clock 2016-03-15 20:31, Freils unit 18, exe fd280c95): plain maps -> WorldData keys added
+
+- Ruben (1000, world 494) and Elder (20000) loaded their plain maps, and there were 0 `JUNE_FX C3x-1` lines. Cause: March's `data040 WorldData.lua` never carried the variant keys
+  (an earlier port dropped them on purpose; only its comments mention `dataFileName_Festival`). The phase had assumed they were there and did not check.
+- Fix (user OK 2026-10-15): June's `dataFileName_Festival` (27) / `dataFileName_CodeEvent` (9) lines were added verbatim to the 27 rows whose variant scripts
+  are staged, each under a `-- June effect C3x-1` comment (delete those lines to restore). BOM and CRLF are kept; `luasrc.py refresh` was run; `ledger --check` / `core --check` PASS.
+  `PACK OK data040` (~1 changed: WorldData.lua); `COPY OK data040`: md5 8ee697d67da3412893fa0a65ef654d01. No C++ change.
+
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
 **Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan
