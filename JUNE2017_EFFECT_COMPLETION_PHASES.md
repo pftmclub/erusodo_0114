@@ -3563,6 +3563,54 @@ Play-test only. Kickoff tasks 1-6 (Enum / WorldData row diff, `adopt-june --comp
 - Layout correctness is the user's visual verdict ("passed"); no log line can show it.
 - No code, no build, no pack.
 
+### C3x - Review (2026-10-15, Opus 5.5 high): PASS, no code fix
+
+This is the static half: kickoff tasks 1-6, which play-test 2 did not run.
+- It was checked against today's `kom_contents`. Enum.lua was edited after C3x by C3z-2 (NPC ids) and WorldData.lua by C3y-1b.
+- `luasrc.py ledger --check` PASS (0 FAIL, 0 WARN); `core --check` PASS.
+- No code, no build, no pack, no flag change.
+
+1. **Enum.lua (data036):**
+   - `WI_ELDER_DARK_FOREST_STAGE_0 / _1 / _BOSS_STAGE` = 575 / 576 / 577 and `WI_ELDER_BENDERS_STAGE_BOSS` = 33, the same as June.
+   - The alias `WI_ELDER_BENDERS_CAVE_STAGE2_1 = 33` is kept. It is the only March-only `WORLD_ID` name.
+   - Every name both builds have carries June's value, except `WI_END`: March 573, June 779. That is March's own value, which C3x did not touch.
+   - `CTT_RIM_LIGHT_BLUE = 10` equals `KTDGXRenderer.h:52` under `SERV_IRUHADEV_RANOX_RIM_LIGHT` (June's Lua says 15).
+   - Latent: Lua's `CTT_END` is still 10, while C++'s is 11 with the flag on. No Lua names `CTT_END`: none in `june_src_fixed`, and in March's data034-040 only Enum itself. Nothing reads it, so no change.
+2. **WorldData.lua (data040), diffed by numeric ID, each build's names resolved through its own Enum:**
+   - Rows: March 608, June 739. 571 equal, 37 differ, 0 March-only, 130 June-only IDs.
+   - Twelve more June rows name IDs that June's own Enum lacks (`WI_EVENT_TREASURE_HOUSE_2_STAGE0-2`, `WI_TIME1-3_STAGE0-2`), so they are dead in June too.
+   - The 37 differing rows:
+     - **6 differ in file-name case only** (IDs 80, 133, 142, 171, 172, 176). The kom lookup upper-cases names (`KGCMassFileManager.cpp:652-773`), so they are equal.
+     - **28 village, dungeon-gate, lounge and rest-field rows:** June adds `dataFileName_Festival`, and 9 villages also add `dataFileName_CodeEvent` (`*_XMAS.lua`). No March C++ reads either key, so they are ignored. This is outside C3x's dungeon-map scope: a side gap, noted here and left as is (no owner).
+     - **3 Ranox rows (681-683):** only `worldName` differs: June has `WI_RANOX_SECRET_EXTRA_BOSS_STAGE1-3`, March `WI_RANOX_SECRET_EXTRA_STAGE1-3`. The `worldID` and file names are the same.
+   - Correction to the Done note: June does have these three IDs, only under another `worldName`. They are not "March rows June lacks".
+   - World 33's March row is kept as a comment (lines 311-320).
+   - Play-test 2's open item is closed statically. `WI_ELDER_HELL_EXTRA_STAGE5` (374) has June's row; `Elder_hell_Extra_Boss.lua` and its `Elder_Secret_Boss_Linemap.lua` are both in data040.
+3. **Adopted files:** `adopt-june --list <names> --dry-run --compare` was run against both run records, because C3x adopted 205 files, not 170:
+   - `COMPARE OK: 170 of 170 staged file(s) are byte-identical to june_adopt_20261010_133232.tsv (and in the same kom)`
+   - `COMPARE OK: 35 of 35 staged file(s) are byte-identical to june_adopt_20261010_134556.tsv (and in the same kom)`
+   - Both runs: 0 new, 0 replaced, 0 refused. The files on disk equal `ljconv(June)`.
+4. **Binding audit (all 205 June sources, receiver-aware):**
+   - 65 methods in 88 receiver/method pairs. Every one is bound on its receiver's class or an ancestor (`class_inh`), none in an `#else` or `#ifndef`. The table is in the review's scratch.
+   - The Ranox binds sit under `SERV_IRUHADEV_RANOX_RIM_LIGHT / _SHOW_OBJECT / _TRIGGER_ID / _FORCE_NOT_CULL`, all defined (Always.h:4032 / 4044 / 4058 / 4076).
+   - Five binds sit under studio flags: `WORLD_LAYER`, `FOG_WORLD`, `MODIFY_FRUSTUM`, `COLORFACTOR_FOR_EVERY_WORLDMESH`, `WORLD_TRIGGER`. Each bind's name string is in the deployed exe (9fee0da5): `CreateWorldLayer`, `SetFogWorld`, `SetProjection`, `SetOriginalColorFactor`, `AddTrigger_LUA`. So all five are compiled in.
+5. **Assets:** all 363 rows of `world_asset_need.tsv` are in their kom dirs at the recorded size. Three spot-checks, plus 2 extra, inflate cleanly with `fxdata.xfile_text` (MSZIP to binary X), and all their ~40 textures resolve in March's koms or the staged set:
+   - `data026 Druid_Forest_Stage_Boss_Alpha_01.Y`
+   - `data031 Altera_Battle_Air_Ship_s1_bg_ground1.Y` (14 textures)
+   - `data032 Altera_core_S1_G03.Y`
+6. **C++:**
+   - The three `CreateWorld` paths are: no WorldData row (logs, returns NULL as before), script failed, and no line map. The fourth path is `SetLineMap_LUA` failing.
+   - Log arguments: the `%s` arguments are `wstring` (`worldName`, `dataFileName`, `strBuf`).
+   - Return value: `OpenScriptFile` returns `bool` (`LoadAndDoMemory`), which March ignored; the flag only reads it.
+   - With the flag off, the code is March's.
+   - Play-test 2 logged 0 false positives over 5 worlds.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG --range b3039efb^..b3039efb`, not `..HEAD`, which times out over 150 commits:
+  - `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+  - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)` (the 2 are the inner `#endif SERV_IRUHADEV_OFFLINE`)
+  - `RESULT: PASS`
+  - `git log -S SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG b3039efb..HEAD -- X2Lib KTDXLIB` is empty. The one later commit to those files (`1ca6415d`, C3z-4b) does not touch the guarded lines.
+- C3y's kickoff exists and C3y is done. No new kickoff is needed.
+
 ## C3y - census: June-only dungeons no registry reaches, and the Sander secret boss world
 
 **Moved 2026-10-11 (user):** the open content ports of this census (C3y-1b, 1c, 2, 3, 4, 5, C3z-1b, C3z-4t, C3z-5b) now run as the `june-dungeons` plan
