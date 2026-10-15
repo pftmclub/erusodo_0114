@@ -358,6 +358,13 @@ public:
 		float			m_fPoisonTimeLimit;
 		bool			m_bPoisonSecretDungeon;
 		DWORD			m_dwPoisonClockTick;
+		/// C3z-6 review. KDungeonRoom::GetRemainingPlayTime adds m_fLoadingTime (DungeonRoom.h:138), so :175's play
+		/// clock leaves stage loading out. m_fPoisonLoadingSec is that total (zeroed at StartGame, :729; added to at
+		/// each sub-stage start, :2189-2190); m_bPoisonLoading / m_dwPoisonLoadingTick are its LOADING_TIMER
+		/// (Room.h:78-105), started at StartPlay (:1065-1070) and at each stage load (:3643).
+		float			m_fPoisonLoadingSec;
+		bool			m_bPoisonLoading;
+		DWORD			m_dwPoisonLoadingTick;
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 		//////////////////////////////////////////////////////////////////////////
@@ -435,6 +442,9 @@ public:
 			m_fPoisonTimeLimit		= -1.f;
 			m_bPoisonSecretDungeon	= false;
 			m_dwPoisonClockTick		= 0;
+			m_fPoisonLoadingSec		= 0.f;
+			m_bPoisonLoading		= false;
+			m_dwPoisonLoadingTick	= 0;
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 		}
 
@@ -1076,6 +1086,10 @@ private:
 	/// The first ST_EXTRA load of Altera's secret dungeon restarts the clock with the extra-stage limit
 	/// (DungeonRoom.cpp:4147-4166). Called from the stage-load handler after BuildStageNpcData.
 	void ExtraStageSecretPoison( KOfflineSession& kSes );
+	/// C3z-6 review. The room's LOADING_TIMER (Room.h:78-105): Start is a no-op while it runs; End adds the
+	/// interval to m_fPoisonLoadingSec (DungeonRoom.cpp:2189-2190) and is a no-op while it does not.
+	void SecretPoisonLoadingStart();
+	void SecretPoisonLoadingEnd();
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 	//////////////////////////////////////////////////////////////////////////

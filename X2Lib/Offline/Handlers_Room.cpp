@@ -2069,6 +2069,11 @@ void CX2OfflineServer::StartSecretPoison( KOfflineSession& kSes )
 	// KRoom::StartPlay starts the play clock the limit counts against.
 	m_kRoom.m_dwPoisonClockTick = ::GetTickCount();
 
+	// C3z-6 review. KDungeonRoom::StartPlay (DungeonRoom.cpp:1065-1070): a running loading timer is ended without
+	// being counted, then started; it runs until the first sub-stage starts.
+	m_kRoom.m_bPoisonLoading = false;
+	SecretPoisonLoadingStart();
+
 	// DungeonRoom.cpp:1072-1078: a secret dungeon with a limit shows the countdown from the start.
 	if( false == m_kRoom.m_bPoisonSecretDungeon || m_kRoom.m_fPoisonTimeLimit <= 0.0f )
 		return;
@@ -2095,16 +2100,21 @@ void CX2OfflineServer::TickSecretPoison( KOfflineSession& kSes )
 		return;
 
 	// :175 ( m_fPoisonTimeLimit + GetRemainingPlayTime() ) < GetPlayTimeLimit(): the play clock has run past the limit.
-	const float fElapsed = (float)( ::GetTickCount() - m_kRoom.m_dwPoisonClockTick ) / 1000.0f;
-	if( fElapsed <= m_kRoom.m_fPoisonTimeLimit )
+	// C3z-6 review: a dungeon room's GetRemainingPlayTime adds the loading time (DungeonRoom.h:138), so the clock is
+	// the time since play start less every finished stage load. An unfinished load is not subtracted yet (:2190
+	// adds it only when the sub-stage starts), as on the server.
+	const float fElapsed	= (float)( ::GetTickCount() - m_kRoom.m_dwPoisonClockTick ) / 1000.0f;
+	const float fPlayed		= fElapsed - m_kRoom.m_fPoisonLoadingSec;
+	if( fPlayed <= m_kRoom.m_fPoisonTimeLimit )
 		return;
 
 	// :177-182: DDT_POISON once, then -1 so it is not sent again.
 	KEGS_DUNGEON_EFFECT_TIME_OUT_NOT kNot;
 	kNot.m_cType = KEGS_DUNGEON_EFFECT_TIME_OUT_NOT::DDT_POISON;
 
-	CX2OfflineLog::Server( L"JUNE_FX C3z-6 poison on after %.0fs (limit %.0fs, dungeon %d)", fElapsed,
-		m_kRoom.m_fPoisonTimeLimit, m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel );
+	CX2OfflineLog::Server( L"JUNE_FX C3z-6 poison on after %.0fs of play (%.0fs since the clock started, %.1fs loading; limit %.0fs, dungeon %d)",
+		fPlayed, fElapsed, m_kRoom.m_fPoisonLoadingSec, m_kRoom.m_fPoisonTimeLimit,
+		m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel );
 
 	m_kRoom.m_fPoisonTimeLimit = -1.f;
 
@@ -2131,6 +2141,9 @@ void CX2OfflineServer::ExtraStageSecretPoison( KOfflineSession& kSes )
 	// :4155-4157 restart the room's play-time limit. Not mirrored on m_dwPlayStartTick: offline's limit is 19999 s
 	// (effectively none), and that tick also times the result screen. The poison clock restarts instead, which is
 	// what :4156 does to the limit test at :175.
+	// C3z-6 review: m_fPoisonLoadingSec is NOT zeroed. :4156 resets only m_fRemainingPlayTime, and GetRemainingPlayTime
+	// still adds the whole run's m_fLoadingTime (DungeonRoom.h:138), so the server's extra-stage limit is delayed by
+	// all loading so far, the loads before the reset included. Kept as the server has it.
 	m_kRoom.m_dwPoisonClockTick = ::GetTickCount();
 
 	// :4160-4164
@@ -2143,6 +2156,34 @@ void CX2OfflineServer::ExtraStageSecretPoison( KOfflineSession& kSes )
 		iDungeonIDAndDif );
 
 	Reply( kSes, EGS_DUNGEON_EFFECT_REMAINING_TIME_NOT, kNot );
+}
+
+void CX2OfflineServer::SecretPoisonLoadingStart()
+{
+	// LOADING_TIMER::Start (Room.h:83-90).
+	if( true == m_kRoom.m_bPoisonLoading )
+		return;
+
+	m_kRoom.m_bPoisonLoading		= true;
+	m_kRoom.m_dwPoisonLoadingTick	= ::GetTickCount();
+}
+
+void CX2OfflineServer::SecretPoisonLoadingEnd()
+{
+	// LOADING_TIMER::End (Room.h:91-99) and DungeonRoom.cpp:2189-2190.
+	if( false == m_kRoom.m_bPoisonLoading )
+		return;
+
+	m_kRoom.m_bPoisonLoading = false;
+
+	const float fLoad = (float)( ::GetTickCount() - m_kRoom.m_dwPoisonLoadingTick ) / 1000.0f;
+	m_kRoom.m_fPoisonLoadingSec += fLoad;
+
+	if( true == m_kRoom.m_bPoisonSecretDungeon && 0 != m_kRoom.m_dwPoisonClockTick )
+	{
+		CX2OfflineLog::Server( L"JUNE_FX C3z-6 loading %.1fs, %.1fs in all (left out of the poison clock; limit %.0fs)",
+			fLoad, m_kRoom.m_fPoisonLoadingSec, m_kRoom.m_fPoisonTimeLimit );
+	}
 }
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
@@ -2520,6 +2561,8 @@ bool CX2OfflineServer::Handler_EGS_DUNGEON_STAGE_LOAD_REQ( KOfflineSession& kSes
 #ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
 	// June effect C3z-6: Altera's first extra stage restarts the poison clock (DungeonRoom.cpp:4147-4166), sent
 	// before the stage's NOT as the server does.
+	// C3z-6 review: the stage load starts the room's loading timer (:3643).
+	SecretPoisonLoadingStart();
 	ExtraStageSecretPoison( kSes );
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
@@ -2627,6 +2670,12 @@ bool CX2OfflineServer::Handler_EGS_DUNGEON_SUB_STAGE_LOAD_COMPLETE_REQ( KOffline
 	KEGS_DUNGEON_SUB_STAGE_LOAD_COMPLETE_ACK kAck;
 	kAck.m_iOK = NetError::NET_OK;
 	Reply( kSes, EGS_DUNGEON_SUB_STAGE_LOAD_COMPLETE_ACK, kAck );
+
+#ifdef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+	// June effect C3z-6 review: everyone has loaded, so KDungeonRoom::DungeonSubStageStartProcess ends the loading
+	// timer and adds it to the time the poison clock leaves out (DungeonRoom.cpp:5670-5673, 2189-2190).
+	SecretPoisonLoadingEnd();
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 
 	KEGS_DUNGEON_SUB_STAGE_START_NOT kNot;
 	kNot.m_iSubStageID = kReq.m_iSubStageID;
