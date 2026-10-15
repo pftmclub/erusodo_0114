@@ -2825,6 +2825,41 @@ Commit `d31391a` was checked line by line against June (`disasm_range.py`, raw e
 
 No questions for the user.
 
+### C3r - Review (2026-10-15, Opus 5.5 high; no transcription errors, no code change, no build)
+
+Commit `268627e` was checked against June (`funcdis.py`, a raw rel32 / imm32 scan of `.text`, raw exe reads). The code is unchanged and the exe stays as deployed. The kickoff names `xordec2.py` for the keys, but `june2017_re/README.md` marks it superseded ("Do not use them"), so the keys come from `xordecrypt.py`'s `xorstrings.tsv`. The other kickoffs that still name it (`C3o-review`, `C3t`, `C3t-2`, `C3t-3`, `C3t-3-review`) all belong to finished phases and are left as they are. Every kickoff item matches:
+- **Parse** `32057b80` (= `CX2GUUser::CommonStateStart`, the Now one):
+  - **Keys:** `CHANGE_WORLD_COLOR` (use `3205ff6c`, a miss stores 0 into `+0x927c` `@320600ae`), `SHOW_SKILL_CUT_IN_TIME` (`32060108`; `ebx = edi + 0x9278` `@32060255`, so `@32060290` is its miss default), `START_TIME` (`320602ee`), `END_TIME` (`320603e9`), `SHOW_HYPER_CUT_IN_TIME` (`320604f4`).
+  - **Constants:** `334380f0` = -1.0 (the cut-in default, then `+0x244` / `+0x248`), the plain table name `33478ee0` = `CHANGE_WORLD_COLOR_DATA`, START miss `fldz` (`@320603b0`), END miss `3346ede8` = 9999.0 (`@3206048b`), EndTable `@32060497`.
+  - The port sits right after March's `SHOW_SKILL_CUT_IN_TIME` line in `CX2GUUser::CommonStateStart` (`X2GUUser.cpp:15566`).
+  - The table name is pushed at exactly two sites (`3206029a` user, `327af3ed` NPC, C3o), so no class override or Future parse is left over.
+- **Gate `31fd3260`:**
+  - `+0x927c == 1` returns true first.
+  - Next, `fldz; fcomp [+0x244]; test ah, 0x41; jp false`: 0 <= START goes on, while START < 0 or NaN returns false.
+  - t is `[32071d80 anim] + 0x214` = `m_fAnimCurrTime` = `GetNowAnimationTime()` (`KTDGXSkinAnim.h:138`; funcmap `31d28e10`), where `32071d80` gives `+0x8e90 ? +0x8e88 : +0x87d4` (not the Future `+0x87d0`).
+  - Then START <= t (`fcom`, `test ah, 1`) and t <= END (`fcompp`). NaN returns false on both sides. The anim NULL check is the port's own, as labelled.
+- **Caller** `32063650 @3206cdb7-3206cdcb`: true goes to `32001460`, false to `32296be0`, then the `+0x9278` / `+0x9280` cut-in reads. That is March's order.
+- **`32001460`** = March's `ChangeWorldColorByHyperMode`:
+  - It starts with the `32001380` gate.
+  - The remaining hyper time is gage `+0xc04` / `+0xe8`, XOR-folded (0 with no gage). `> 0.0` (`334350e8`, `test ah, 0x41`) gives red `( 1, 1/255 x 0, 1/255 x 0, 1 )` (`334387b0` = 1/255 as a double), else `33474d80` = 0x22 / 255 x3 with alpha 1.
+- **`32001380`:**
+  - Jump table `3200144c` = `{ 32001442, 32001442, 320013c0, 320013c0, 320013c0 }`: types 1-2 return true, 3-5 take the battle-field test, any other type returns false (March: ASSERT + false).
+  - The battle-field test is IsMyUnit (vslot `0x198`), then GetMyUnit NULL returns false (`@320013f5`), then the distance (`31c7b5c0`) < `33475a38` = 640000 (`test ah, 5; jp`).
+  - `SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD` is that test exactly.
+- **NPC state-end restore:**
+  - `3277ee10` (986 instructions) has no `ret`; its only exit is `jmp 0x32296be0` `@3277fbe0`.
+  - March's `CX2GUNPC::CommonStateEnd` has no early `return`, and `RestoreJuneWorldColor()` is its last statement.
+  - June also keeps March's mid-function fade (`@3277efc4-3277efd4`, inline FadeWorldColor), so the double fade is verbatim.
+  - Rel32 scan: `32296be0` has 3 sites (`3206cdcb` user CFM, `3277fbe0` NPC CSE, `327b5578` NPC CFM `327b53b0`); `31fd3260` has 1 (`3206cdb9`).
+- **Withdrawn `3204f190 @3204fb99`:** EBX reads `+0x240` (int, `jle`), `+0x244` / `+0x248`, then `+0x27c` and `+0x190`, while EDI is the user (`+0x89c4`, `+0x8d80`). EBX is therefore the socket templet: the summon-NPC socket, as routed to C3u.
+- **JUNE_BUGS 156 withdrawn: confirmed.** `32015250 @320156c1-3201574f` reads TRANSITION (miss 1), then on a non-NULL world fades to the origin colour (`+0x90..+0x9c` -> `+0xc4..+0xd0`, `+0xd4` = 1.0). That is March `X2GUUser.cpp:23036-23039`.
+- **Found: JUNE_BUGS 197 (latent).** `32296be0` clears START / END whenever START >= 0, and both the user and the NPC call it on every false gate. So a window with START_TIME > 0 is erased on its first frame before START and never opens. The port does the same, verbatim. All 14 June windows (Ain, `Ain_Apostasia`) use START_TIME = 0.
+- **Not a June bug:** the tint passes `32001380`'s battle-field distance gate but the restore does not, so a far user's window end still fades the world. March's own user `CommonStateEnd` fade is ungated the same way.
+
+**Hygiene:** flagcheck `SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW --range 268627e^..268627e --with SERV_IRUHADEV_JUNE_CUTIN_MY_UNIT_GUARD`: `files: 3 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `git log -S` finds no later commit that adds or removes either token (`..HEAD` times out over peer commits).
+
+**User owes nothing.** C3r's regression play-test passed on 2026-10-10; this review changes no code. There is no build, no deploy and no play-test.
+
 ## C3s - identify, then port: June's UpdateUnitPointer
 
 **Status: done 2026-10-10; regression play-test pending (found by C3o). Model:** Opus 5.5, high. Kickoff `kickoffs/june-effect/C3s.md`, review `C3s-review.md`.
