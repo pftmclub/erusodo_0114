@@ -9492,6 +9492,9 @@ TESTABLE in the ledgers (hand-off below); every other ledger row is OBSERVED (da
    (1,915 blocks would deal 0 until the character ports). Proposed: append only the June-only templets those names need
    (plus their asset closure) to the merged `EffectSet.lua` / `DamageEffect.lua` through `luasrc.py`, then do the socket save
    edit and Phase 13 factors. Not started: it repacks data036 and needs a yes.
+   **Answered 2026-10-16: the user chose full re-adoption.** Not run in C11: it replaces the core-list merged `DamageEffect.lua` / `EffectSet.lua`
+   (BOM source) with `ljconv` bytecode and retires their `.src.lua`, against `LUA_SOURCE_PHASES.md` Rule 2, so it is its own Opus phase,
+   `kickoffs/june-effect/C11a.md` (dry run: 2,843 add, 93 replace, 699 noop, 147 conflict, new dir `data222`). C11 closes after C11a's play-test.
 
 **Play-test hand-off (console).** Character: **reyaa** (unit 12, Lire Grand Archer, level 80); `settings.auth_level` is already 3
 (checked 2026-10-16). Enter **Ranox Burnt Forest, Normal** with her: first read `ErrorLog.txt` for a `BOSSRAID_ABYSS_SMOG` miss (there
