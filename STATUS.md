@@ -611,6 +611,7 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 | Phase | State | Model | Needs | Touches | Kickoff |
 |---|---|---|---|---|---|
 | stage2-plan | **done 2026-10-16**: `JUNE_ENGINE_REMAINDER_PHASES.md` + `kickoffs/june-engine/` + the `june-engine` block; measurements M1-M4 in its ledger (M5 = june-effect C11, pending); backlog facts 6/7 and Stage 2 carry dated notes; asset-port P10 now waits for R2 | Opus 5.5 / high | dep: -; runs with anything (read-only), incl. june-effect C11 | docs, `june2017_re/` census script + funcmap rows (`Engine S2`), `JUNE_PORT_BACKLOG_ORDER.md` dated notes | `stage2-plan.md` |
+| stage3-plan | **done 2026-10-17**: `JUNE_SKILL_SYSTEM_PHASES.md` + `kickoffs/skill-system-core/` + the `skill-system-core` block; user decisions: flip every class to June's skill data in Stage 3 (S3), adopt June's pointer model (S8); backlog facts 1-3 re-checked (companion tables already decompiled; C1a identified the override's callees; slot macro at `CommonPacket.h:6411`, two structs) | Opus 5.5 / high | dep: -; read-only | docs, kickoffs, `JUNE_PORT_BACKLOG_ORDER.md` dated note | (inline, backlog "Stages 3-9 (short)") |
 | stage12-plan | **ready** (start: `/x2-phase new-plan june-customize`): character customize system (`CX2CustomizeManager`, `CharCustomData.lua`) -> `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` + `kickoffs/june-customize/` | Opus 5.5 / high | dep: june-effect C9g-2 review (done); runs with anything (read-only) | docs, funcmap rows (`Customize S12`) | `stage12-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
@@ -642,6 +643,34 @@ can run now, in parallel; code phases wait for june-effect C12 and run one at a 
 | W1b | waiting (after W1; C12 done 2026-10-16) | Opus 5.5 / high (map, then port), then user play-test | W0, june-effect C12; not with W1 / W2 / atlas E5 | `KTDGLineMap.*`, `X2World.cpp`, `X2GUUser.cpp`, `X2GUNPC.cpp`, game-unit base, Always.h | `W1b.md`, review `W1b-review.md` |
 | W2 | waiting (after W1b; C12 done 2026-10-16) | Opus 5.5 / high (map, then port), then user play-test | W0, june-effect C12; not with W1 / W1b / atlas E5 | `X2DungeonGame.cpp`, `X2Game.*`, `X2World.cpp`, `KTDGLineMap.*`, Always.h | `W2.md`, review `W2-review.md` |
 | Z | waiting (all, C11) | Sonnet 5.5 / medium | every phase done or routed; june-effect C11 | plan doc, backlog, MODS.md | `Z.md` |
+
+## skill-system-core - June skill system core: templets, skill tree, numerical data, 5+5 slots, tree UI, state pointers
+
+Plan `JUNE_SKILL_SYSTEM_PHASES.md` · branch `main` · log tag `[JUNE_SKILL]` (sub-tags `LOAD`, `MIG`, `NUM`, `SLOT`, `UI`, `PTR`) ·
+flags `SERV_IRUHADEV_JUNE_SKILL_*` (+ `_DEBUG`; `SLOT_10` also in `ServerDefine.h`, `SECOND_HOMES`) · kickoffs
+`kickoffs/skill-system-core/` · backlog Stage 3 · created 2026-10-17.
+
+**User decisions (2026-10-17):** S3 flips every class to June's `NewSkillTempletVer2.lua` (2,346 templets, 3,360 tree rows, reform
+ids 21000+) and migrates every save (skills reset, SP refunded); unported March characters lose most usable skills until their ports.
+S8 adopts June's running-state pointer model. **Open:** when S3 runs relative to the Atlas play-tests (plan open question 1;
+recommendation: hold S3 until the user says so). RE / tools phases S0a, S0b, S1 can run now, in parallel.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| S0a | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `june2017_re/s0a_*.tsv`, plan doc, kickoffs S2-S4 | `S0a.md` |
+| S0b | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `june2017_re/s0b_slot_sites.tsv`, plan doc, kickoffs S5-S8 | `S0b.md` |
+| S1 | ready | Opus 5.5 / **xhigh** | - (tools only) | `june2017_re/` ljd hooks, `june_src_fixed/data036_kom/` | `S1.md` |
+| S2 | waiting (S0a) | Sonnet 5.5 / high, then user play-test | S0a; not with atlas E1/E5/E6/E7 | `X2SkillTree.*`, `X2UserSkillTree.*`, `X2Main.cpp` bindings, `X2GUUser.cpp` / DamageManager / DamageEffect `_ULTIMATE` gates, Always.h | `S2.md`, review `S2-review.md` |
+| S3 | waiting (S2; open question 1) | Opus 5.5 / high, then user play-test | S2 review | data036 skill closure, `X2StateLoading.cpp`, `X2OfflineDB.*` (v17), `X2OfflineSkill.*`, `Handlers_Skill.cpp`, `tools/createchar.py`, checklist, Always.h | `S3.md`, review `S3-review.md` |
+| S4 | waiting (S3) | Sonnet 5.5 / high | S3 | `X2DamageManager.cpp`, `X2SkillTree.*`, `MODS.md`, `JUNE_BUGS.md`, Always.h | `S4.md`, review `S4-review.md` |
+| S5 | waiting (S0b, S3) | Sonnet 5.5 / high, then user play-test | S0b, S3 | `CommonPacket.h/.cpp`, `ServerDefine.h`, `tools/flagcheck.py`, ~15 X2Lib slot files, `X2GUUser.*`, buff files, Offline (v18), Always.h | `S5.md`, review `S5-review.md` |
+| S6 | waiting (S5, june-engine U1) | Sonnet 5.5 / high, then user play-test | S5, U1; not with S7 | `X2UISkillTreeNew.*`, slot DLG data, Always.h | `S6.md`, review `S6-review.md` |
+| S7 | waiting (S3, S0b, june-engine U1) | Opus 5.5 / high, then user play-test | S3, S0b, U1; not with S6 | `X2UISkillTreeNew.*`, `X2SkillTree.cpp`, `Handlers_Skill.cpp`, tree DLG data, Always.h | `S7.md`, review `S7-review.md` |
+| S8 | waiting (S5) | Opus 5.5 / high, then user play-test | S5 | `X2GUUser.h/.cpp`, `X2GameUnit.*`, Always.h | `S8.md`, review `S8-review.md` |
+| Z | waiting (all) | Sonnet 5.5 / medium | S0a-S8 | `MODS.md`, backlog, checklist, memory, Always.h (`_DEBUG` off) | `Z.md` |
+
+Running together: S0a, S0b and S1 (read-only / tools) alongside anything. Code phases one at a time (build lock, Always.h);
+S6 and S7 never together (`X2UISkillTreeNew.*`); S2 not alongside atlas E1/E5/E6/E7 (`X2Main.cpp` binding block).
 
 ## Other plans
 

@@ -197,6 +197,28 @@ framework; the effect-engine check is pending june-effect C11 (phase Z records i
 
 **Why here:** this is the single dependency shared by every character stage, by transcendence, and by two buff types. It also closes the 0-damage blocker. The skill tree's *per-class content* is not here; it comes with each character in Stages 5, 7 and 8.
 
+*Planned 2026-10-17:* `JUNE_SKILL_SYSTEM_PHASES.md`, STATUS block `skill-system-core`. It has these phases:
+- S0a / S0b: RE;
+- S1: 3a;
+- S2: 3c loader;
+- S3: the flip;
+- S4: 3b;
+- S5 / S6: 3d;
+- S7: 3e;
+- S8: 3f;
+- Z: close-out.
+
+**User decisions, recorded in that plan.** Both of them change the sub-steps above:
+- **Per-class content is not deferred.** June's `NewSkillTempletVer2.lua` carries every class's tree: 3,360 rows, 3,237 of them
+  reform ids. It is adopted whole in S3, and every save is reset onto June's trees. Unported characters lose most usable skills
+  until their ports, so their class states are checklist rows.
+- **3f's pointer model is adopted** (S8).
+
+**Fact corrections (2026-10-17):**
+- Fact 1 holds only for `NewSkillTempletVer2(_LA)`; the companion tables are already in `june_src_fixed/`.
+- Fact 2: effect C1a already identified the override's callees (funcmap 1302-1306).
+- Fact 3: the macro is at `CommonPacket.h:6411`, and `KUserSkillPageData` carries slot arrays too.
+
 ### Stage 4: quest system (including the deferred region quests)
 
 This is the "later quest plan" that the Atlas/Elysion docs defer to.

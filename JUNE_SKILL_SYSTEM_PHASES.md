@@ -1,0 +1,382 @@
+# June skill system core: skill templets, skill tree, numerical data, 5+5 slots, tree UI, running-state pointers
+
+Backlog Stage 3 (`JUNE_PORT_BACKLOG_ORDER.md`). Plan key `skill-system-core`; STATUS block `skill-system-core`; kickoffs
+`kickoffs/skill-system-core/`. Planned 2026-10-17 (Opus 5.5 high, read-only; `/x2-phase new-plan skill-system-core`).
+
+## Context
+
+Every character stage (5, 7, 8), transcendence (6) and two buff types (BBT 98, BFT 16) sit on June's skill system. March has the
+2013 "upgrade skill system" (`NewSkillTempletVer2.lua`, 521 templets, skill IDs 100-8409, 4+4 slots). June has the skill
+reform: its `NewSkillTempletVer2.lua` is one file holding **2,346 templets and 3,360 skill-tree rows for 86 classes**. 3,237 of
+the tree rows use reform IDs (21000-32606), and only 123 use March-range IDs. 451 of the 521 shared templets changed
+(`june2017_re/c1a_skilltemplet_diff.tsv`). March's class scripts have no states for reform IDs, and no save has learned one.
+
+**User decisions (2026-10-17, this planning session):**
+1. **Flip everything in Stage 3.** June's `NewSkillTempletVer2.lua` (and its data closure) is adopted whole, and every save
+   moves to June's trees in a forward-only migration: skills reset, SP refunded by June's rule. Unported March characters
+   lose most usable skills until their own ports (Stages 5, 7). Their class-side states are character-port material.
+2. **3f: adopt June's pointer model** (running state data as pointers into the state vector, with the `31fd2af0` snapshot and
+   its four consumers) as the plan's last code phase.
+
+## Rules
+
+1. **June wins; no partial updates.** Where June changed a function March has, port June's whole function in the same pass.
+   June bugs are kept verbatim with a `JUNE_BUGS.md` row (e.g. C1a's three numerical blocks that index past their data).
+2. **Flags.** One `SERV_IRUHADEV_JUNE_SKILL_*` flag per logical change in `KTDXLIB/Always.h`, original code in `#else`,
+   `#endif FLAG`. **The slot-count flag guards `CommonPacket.h`/`.cpp`, so it is also `#define`d at the end of
+   `KncWX2Server/Common/ServerDefine.h`** and added to `SECOND_HOMES` in `tools/flagcheck.py` (CLAUDE.md, `CommonPacket.h`
+   exception). That one define reaches both projects. `X2ServerProtocol` reads `CommonPacket.h` through
+   `X2ServerProtocolLib.h:68` -> `SystemPacket.h:5` -> `CommonPacket.h:16` -> `ServerDefine.h`. `X2Lib` reads it through
+   `X2Main.h:4`, before `KTDX.h`. **Prove both with `cl /P`** (S5 gate): `june2017_re/flagprobe.py` covers X2Lib only, so S5
+   adds an X2ServerProtocol probe.
+3. **Data.** June's `.lua` arrives through `luasrc.py adopt-june` as `ljconv` bytecode (not core-list). Only a file this plan
+   must edit gets a `core --add` row and `--source`. **No new `.lua` files.** `/elstools pack`, then ask before every
+   `/x2-kom-packed copy`. **The exe, data036 and the save move together** (the K2 rule): deploy, copy and migrate in the same
+   hand-off, play-test only when all three are live, and revert all three together.
+4. **Saves.** `els_db.sql` is the user's only copy. Each migration phase takes a `db_backup/` snapshot before the migrating
+   launch, adds one rung to `CX2OfflineDB::Migrate()` above v16 (Atlas A2), and is forward-only: an exe without the flag
+   refuses the newer save, as v16 does. Keep `SetUsingPage`'s rule: page numbers in every ACK are `>= 1`, never 0
+   (`MARCH_2014_MIGRATION.md:1068-1100`).
+5. **Character material goes to the checklist** (memory `hand-char-port-material-to-char-ports`): class-script states for
+   reform IDs, 7i's slot-493 call, the per-class `IsSummonSkillByJune`-style lists. This plan ports the engine and the data
+   files that are not class scripts.
+6. **Offline only.** Shared-header changes are flag-gated and the emulator (`X2Lib/Offline/`) is the only other side. No server
+   code, and no desync questions.
+7. **Opus phases delegate** reads, greps, builds and log reads (memory `opus-phases-delegate-mundane-work`).
+8. **Never launch `X2_offline.exe`**: ask the user.
+
+Flag family `SERV_IRUHADEV_JUNE_SKILL_*` (debug: `SERV_IRUHADEV_JUNE_SKILL_DEBUG`). Log tag **`[JUNE_SKILL]`**, with a sub-tag per
+phase (`LOAD`, `MIG`, `NUM`, `SLOT`, `UI`, `PTR`): `python tools/logs.py --tag JUNE_SKILL`. Funcmap tag `Skill <phase>`.
+
+## Starting context
+
+| Need | Command |
+|---|---|
+| One section of this doc | `python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "<heading>"` |
+| June Lua (read) | `june_src_fixed/data036_kom/*.src.lua`. **`NewSkillTempletVer2` is missing until S1.** Until then use the unproven decompile `tmp/decompile_sweep/data036_kom__NewSkillTempletVer2.lua.src.lua` (6.8 MB, failed the compile round-trip; `tmp/` is scratch), and cite it as unproven |
+| June kom reader | `python tools/junekom.py list / extract` (never by hand) |
+| Bring June Lua in | `python tools/luasrc.py adopt-june data036 X.lua` (x2-adopt-june) |
+| Ghidra | `ghidra` skill (read-only for RE phases) |
+| Edit a CP949 source | `python tools/bytepatch.py show / find / apply` (x2-byte-edit) |
+| Save | `python tools/elsdb.py` (x2-db); snapshot to `db_backup/` before a migrating launch |
+| Flag probe | `python june2017_re/flagprobe.py FLAG` (X2Lib); the `cl /EP` recipe at `MARCH_2014_MIGRATION.md:634-650` |
+| Hygiene / build / logs | `flagcheck.py <FLAG> --worktree --files ...`, `build.py --deploy` (background), `logs.py --tag JUNE_SKILL` |
+
+## Investigation ledger (planning, 2026-10-17)
+
+Facts re-checked against the backlog's Stage 3 facts 1-3 (measured 2026-10-03):
+
+- **Fact 1 (templets not in `june_src_fixed/`): holds for `NewSkillTempletVer2(_LA)` only.** Their decompile is `clean/complete`
+  (`june2017_re/decompile_corpus.tsv:1634-1635`, 5,208,709 / 5,232,904 B) but fails the compile round-trip
+  (`decompile_verdicts.tsv:42457-42458`, STEP_ERROR; L3: "`slot3` global; a `}` expected"). **Corrected:** the companion tables
+  are already in `june_src_fixed/data036_kom/` (`OptionItemData(_LA)`, `PetTemplet(_LA)`, `TitleTable(_LA)`, `FieldQuest`,
+  `FieldSubQuest`, `AccountQuest`, `GuildQuest`, `ChainQuestInfo`, `Quest_Event_Scene_Info`, `TitleMission`, ...). Shipping does
+  not need the decompile: the file is off the core list, so it arrives as `ljconv` bytecode.
+- **Fact 2 (override callees unknown): corrected.** Effect C1a confirmed them: override `3263fe41` (`SetDamageDataFromLUA`, March
+  site before `EndTable`, `X2DamageManager.cpp:605`); getters `320717e0` (by index, templet `+0x17c`), `32078060` (by name);
+  clamp `320716c0`; parse `32216320 @322186f5` (funcmap 1302-1306). Rules: checklist section 1 (lines 37-93). March parses the
+  keys and logs them as unsupported (`X2DamageManager.cpp:268-275`).
+- **Fact 3 (slots): holds, with three corrections.**
+  - The `#define EQUIPPED_SKILL_SLOT_COUNT 4` is at `CommonPacket.h:6411` (not `:6387`). It is unconditional and shadows the
+    static member at `:1051`.
+  - **Two structs carry the slot arrays:** `KUnitSkillData` (`:1050-1105`, Put/Get `CommonPacket.cpp:760-818`) and
+    `KUserSkillPageData` (`:6425-6452`, `SERV_SKILL_PAGE_SYSTEM`, Put/Get `:5890-5920`). Both Put/Gets hardcode indices 0-3.
+  - About 60 uses sit across 15 X2Lib files: `X2Game.cpp` (9), `X2UISkillTree.cpp` (13), `X2UISkillTreeNew.cpp` (13),
+    `X2SkillTree.cpp` (5), `X2GUUser.*`, `X2GuEve.cpp`, `X2GageManager.cpp`, `X2Room.cpp`, `X2UserSkillTree.cpp`,
+    `X2UIGuildSkillTree.cpp`, `X2OfflineSkill.h:54-61`. The uses in `X2GUUser.h:4887-4890` are four-element state-id arrays.
+  - **The save** is `unit_skill( unit_uid, skill_id, level, slot DEFAULT -1, csp )` (`X2OfflineDB.cpp:86-91`, `:151`). `slot` is
+    0-3 for A and 4-7 for B (`X2OfflineSkill.h:46-48`). Writes go through `SetSkillSlot` (`:2358`).
+  - Skill pages and the B-slot expiry are **not stored**. The emulator sends one page (`Handlers_Unit.cpp:782-801`) and a
+    permanent B slot (`X2OfflineSkill.cpp:276-281`).
+  - The page packets (`EGS_EXPAND_SKILL_PAGE`, `EGS_DECIDE_TO_USE_THIS_SKILL_PAGE`, `EGS_GET_NEXT_SKILL_PAGE_ED`) have no
+    handler and no ignore row.
+- **June slot model** (buff Phase 6, `JUNE_BUFF_PORT_PHASES.md:783-803`):
+  - `FindEquippedSlotIndex 3288fff0` returns 0-9: five A rows at `+0x48` and five B rows at `+0x23c`, stride 100.
+  - `SlotIndexToSlotType 3214f3d0` maps 0-3 to A, 5-8 to B, and 4 and 9 to TC (no funcmap row yet).
+  - So June's "5+5" is 4 A + 1 TC and 4 B + 1 TC. March's B slots 4-7 become June's 5-8.
+- **Dormant code waiting here.**
+  - BBT 98: `SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL` (Always.h:4806). Reader `32039e00`; March's use is at `X2GUUser.cpp:25244`.
+  - BFT 16: `SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER` (Always.h:4930). `CountReservedSkillUse` is at `X2GUUser.cpp:39096-39125`.
+  - `GetEquippedSkillSlotType` (`X2UserSkillTree.cpp:1425-1445`) never returns TC (3).
+- **The forced-off `_ULTIMATE` gates** (effect C3l). They switch on with S2:
+  - `SPEED_TIME_ULTIMATE` (`SERV_IRUHADEV_JUNE_SPEED_TIME`, stub at `X2GUUser.cpp:15249-15253`);
+  - `BUFF_FACTOR_ID_ULTIMATE` (`SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID`, `31fcf3e0`);
+  - DamageEffect's `_ULTIMATE` keys (`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`).
+- **March loader.** `X2StateLoading.cpp:722` calls `ResetSkillTree( L"NewSkillTempletVer2.lua", L"SkillData.lua" )`, which runs
+  `CX2SkillTree::OpenScriptFile` (`X2SkillTree.cpp:102`). It loads `SkillData.lua`, then the templet file, then
+  `NewSkillTempletVer2Trans.lua` (`:123`, `LUA_TRANS_DEVIDE`; the file is absent from March's data036).
+  - Bindings are at `X2Main.cpp:5150-5170`: `AddSkillTemplet_LUA`, `AddSkillTreeTemplet_LUA`, `AddSkillPowerRate_LUA`,
+    `AddDefaultSkill_LUA`, `AddSealSkillInfo`, `AddSkillTempletTrans_LUA`, `AddGuildSkillTreeTemplet_LUA`.
+  - The struct is `CX2SkillTree::SkillTemplet` (`X2SkillTree.h:2005-2275`).
+  - June's file calls only `AddSkillTemplet_LUA` (2,346), `AddSkillTreeTemplet_LUA` (3,360), `AddGuildSkillTreeTemplet_LUA` (12)
+    and `OpenScriptFilePostProcess` (1). June's `SkillData.lua` holds `CalcLevelUpIncreaseSkillPoint` and `AddSealSkillInfo`
+    over reform IDs.
+- **Existing local flags in the area:**
+  - `SERV_IRUHADEV_SKILLTREE_NO_LOCK` (Always.h:3447; `X2UISkillTreeNew.cpp:408-414`, `:6355-6417`);
+  - `SERV_IRUHADEV_SKILL_SLOT_B_FREE` (Always.h:3454; four sites);
+  - `SERV_IRUHADEV_JUNE_COMMON_SKILL_STATE` (Always.h:6614).
+
+  S0b decides whether the first two survive June's tree and slot rules: both are user conveniences, not June behaviour.
+- **UI.** The slot dialog is `DLG_GAME_SKILL_SLOT_NEW.lua` (`X2UISkillTreeNew.cpp:1003`, controls `SlotA1..SlotB4`), and the tree
+  is `DLG_UI_Skill_Tree_New.lua` (`:2187`). June's slot dialog is `DLG_GAME_SKILL_SLOT_NEW_10slot` (`SlotA1..A5`/`B1..B5`).
+  The backlog's `DLG_SkillTree_*` / `DLG_Skill_Tree_Main` names are unconfirmed: S0b finds June's real ones.
+
+## Phases
+
+| Phase | What | Run with | Code | Play-test |
+|---|---|---|---|---|
+| S0a | RE: June's templet and tree loader, `SkillData`, learn / reset / SP / default-skill rules, data closure (3b, 3c) | Opus 5.5 high | no | no |
+| S0b | RE: June's slots (A/B/TC), skill pages, slot and tree UI, emulator packets (3d, 3e) | Opus 5.5 high | no | no |
+| S1 | Extract `NewSkillTempletVer2(_LA)` as checked source into `june_src_fixed/` (3a) | Opus 5.5 **xhigh** | tools | no |
+| S2 | Templet loader and `CX2SkillTree` / `CX2UserSkillTree` to June; `m_DeleteSkillIDByUpgrade`, `+0x20` map, upgrade swap, `_ULTIMATE` gates on (3c) | Sonnet 5.5 high + Opus review | yes | yes (March data) |
+| S3 | **The flip:** June's skill data closure in data036, save migration v17 (skills reset, SP refund), emulator learn / reset / init to June's rules | Opus 5.5 high + review | yes | yes |
+| S4 | Numerical skill data override (3b) | Sonnet 5.5 high + Opus review | yes | log self-check |
+| S5 | Slots 4+4 -> 5+5 (A/B/TC): shared structs, all slot users, BBT 98 / BFT 16 wired, TC locked, emulator, save migration v18 (3d) | Sonnet 5.5 high + Opus review | yes | yes |
+| S6 | Slot UI: `DLG_GAME_SKILL_SLOT_NEW_10slot` and June's slot-UI code (3d) | Sonnet 5.5 high + Opus review | yes | yes |
+| S7 | Skill tree UI and learn logic to June, plus the emulator's page packets as June has them (3e) | Opus 5.5 high + review | yes | yes |
+| S8 | Running state data: June's pointer model, `31fd2af0` snapshot, four consumers (3f) | Opus 5.5 high + review | yes | yes |
+| Z | Close-out: `MODS.md`, backlog notes, checklist hand-offs, memory | Sonnet 5.5 medium | no | no |
+
+**Model choice.**
+- **Opus for RE and new mechanisms** (S0a, S0b, S7, S8): a wrong reading there costs a whole port.
+- **Opus for S3**: it rewrites the user's only save, and it decides what a June-tree character starts with.
+- **Opus xhigh for S1**: decompiler defects in a 5 MB file, the same class of work as lua-source L5.
+- **Sonnet high for transcription from a written map** (S2, S4, S5, S6), each with a scoped Opus review: the slot change is
+  wide and a single missed site corrupts a packet silently.
+
+**Order and parallelism.**
+- **S0a, S0b and S1 can run now, in parallel.** They are read-only or tools-only.
+- **Code:** S2 -> S3 -> S4, and S3 -> S5 -> S6. S7 needs S3 and S0b, and never runs alongside S6 (both edit
+  `X2UISkillTreeNew.*`). S8 needs S5. All code phases are one at a time on `main`, because of the build lock and the shared
+  `Always.h` block.
+- **The UI phases (S6, S7) also need june-engine U1** (the UI framework port), because June's DLGs may use its methods.
+- **Relaxation of the backlog brief, recorded here.** The brief wants "Stage 2 done" before Stage 3 code. Only the UI phases
+  depend on Stage 2, so S2-S5 and S8 do not wait for it.
+- **Not alongside Atlas E1 / E5 / E6 / E7.** S2 edits `X2Main.cpp`'s binding block, which those phases also edit.
+
+## Phase S0a - Templet and tree RE
+
+**Run with:** Opus 5.5 high, read-only (Ghidra, no code, no build). **Read list:** this doc's Context, Rules and Investigation
+ledger; `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1 (lines 37-93); `JUNE2017_EFFECT_COMPLETION_PHASES.md` C3l Done and
+review (lines 2292-2408); funcmap rows tagged C1a, C3l and Buff P10 (`32216320`, `32206450`, `32890720`, `328905b0`, `32071720`,
+`31fca8e0`, `320717e0`).
+
+Map, from the binary, with June addresses (funcmap rows tagged `Skill S0a`):
+1. **`AddSkillTemplet_LUA 32216320`, every key.** For each key give: name (XOR string), type, default, store offset, March
+   equivalent or "new", and its readers. Keys for absent characters are stored and logged, never dropped. Produce
+   `june2017_re/s0a_templet_keys.tsv`. Do the same for `AddSkillTreeTemplet_LUA`, `AddGuildSkillTreeTemplet_LUA` and
+   `OpenScriptFilePostProcess`. Note what March parses that June no longer does: `AddSkillPowerRate_LUA`, `AddDefaultSkill_LUA`,
+   the Trans file.
+2. **`CX2SkillTree` and `CX2UserSkillTree`, June vs March, function by function** (no-partial rule). Cover the `+0x20` old->new
+   map (`32205c00`, insert `@322186ca`), the upgrade swap `328905b0`, `GetSkillPowerRateValue 32071720` and its `32206fb0( 0xad,
+   level )` table, and how June resolves "is this skill learned / equipped" for an upgraded skill.
+3. **Which files June's US build loads, and in what order.** Settle whether June loads `_LA`, `SkillData.lua` and a Trans file.
+   Also give the data closure: every data036 / data034 file keyed by skill ID that must flip with the templets
+   (`SkillNoteTemplet`, `SkillLevelUpSocketGroup`, `SkillCommandDescriptionData`, `SkillTypeColor`, `ComboTree`, the
+   `DamageEffect` / `EffectSet` blocks already June's, item templets that grant skills or SP). Output
+   `june2017_re/s0a_skill_data_closure.tsv`.
+4. **Learn rules for S3:** SP per level (`CalcLevelUpIncreaseSkillPoint`), the default skills a new or reset unit gets, master
+   level and row / column gating, CSP, seal and unseal over reform IDs, and skill-note items. Base this on June's own client
+   code. For server-only values, follow the memory rule `design-missing-june-pieces` (June's default where the value is absent,
+   else a labelled stand-in proposed to the user).
+5. **The migration's input:** a census of the save's learned skills per unit (`elsdb.py`), and what each March ID maps to in
+   June (same ID kept, upgraded via `+0x178`, or gone). S3 resets them anyway, but the census decides what the hand-off says.
+6. **Numerical override (S4's map):** confirm C1a's rows and write the exact transcription spec. That covers the condition,
+   the row pick by learned level, the clamp, x0.01, PVP_RATE / TECH_POINT / HIT_ADD_MP defaults, and the three past-the-end
+   blocks for `JUNE_BUGS.md`.
+
+**Done gate:** the two tsvs; funcmap rows; a Done note under ~60 lines with S2 / S3 / S4 amendments written into their kickoffs;
+and open questions for the user. Expected: SP stand-ins, if June's client has no SP table.
+
+## Phase S0b - Slots, pages and UI RE
+
+**Run with:** Opus 5.5 high, read-only. **Read list:** Investigation ledger; `JUNE_BUFF_PORT_PHASES.md` lines 783-803 and
+1279-1301 (98 reader, BFT 16 counter); `MARCH_2014_MIGRATION.md` lines 1068-1100 (`SetUsingPage`); effect C9h-6 Done
+(`JUNE2017_EFFECT_COMPLETION_PHASES.md:8163-8200`).
+
+Map:
+1. **June's `KUnitSkillData` / `KUserSkillPageData` layout.** Give the June Put/Get order (from the deserializers) and whether
+   TC slots are on the wire. Note any field June added (page counters, TC unlock state). Settle the S5 struct spec exactly.
+2. **Every June reader of slot indices:** `FindEquippedSlotIndex 3288fff0`, `SlotIndexToSlotType 3214f3d0`,
+   `GetSkillEquippedSlotIndex 32890070`, `GetSkillSlot 3288fe00`, `ResetLeftSkillCoolTime 32896600`, the gage / cooltime UI,
+   the quick keys (which key fires slot 4 / 9), `ChangeEquippedSkillState`, and the slot-type count for BFT 16. How the TC
+   slot is locked (S5 keeps it locked until Stage 6).
+3. **Skill pages in June:** do pages still exist, and how many; the page packets and their ACK fields; the expand-page cost.
+   The emulator gets handlers or ignore rows in S7.
+4. **UI:**
+   - June's slot dialog (`DLG_GAME_SKILL_SLOT_NEW_10slot`) and its code (S6).
+   - June's tree dialog names and the tree UI class, function by function against `X2UISkillTreeNew` (S7).
+   - The learn / reset / purchase windows. Census their June DLG files against March's data034 / data036
+     (`june_src_fixed/` names), and the UI framework methods they need (june-engine U0 / U1 list).
+5. **Pointer model (S8's map):** June's state vector `+0x7cec` (100-byte entries), `+0x7cb0` / `+0x7cbc`, the `31fe6a40` store,
+   every reader of Now / Future state data in `CX2GUUser` and `CX2GameUnit`, and the snapshot `31fd2af0` with its four
+   consumers. List March's by-value copies (`X2GUUser.cpp:6585`, `:6644`, `operator=` at `X2GUUser.h:1024`) and every holder of a
+   reference that could dangle when the vector reallocates.
+6. **`SKILLTREE_NO_LOCK` / `SKILL_SLOT_B_FREE`:** say what June does at each of their sites, and recommend keep (as a local
+   convenience on top of June) or retire. The user decides.
+
+**Done gate:** funcmap rows `Skill S0b`; `june2017_re/s0b_slot_sites.tsv` (every March `EQUIPPED_SKILL_SLOT_COUNT` / slot-index
+site with its June equivalent and the S5 action); S5-S8 kickoff amendments; a Done note under ~60 lines.
+
+## Phase S1 - Extract NewSkillTempletVer2
+
+**Run with:** Opus 5.5 xhigh. Tools only, no game code. **Read list:** `LUA_SOURCE_PHASES.md` L3 Done note and Phase L5;
+`RANOX_LUA_DECOMPILE_BUG.md` "Residual ljd defects".
+
+- Fix the round-trip failure for `NewSkillTempletVer2.lua` and `_LA.lua` as **tracked hooks** (like `june2017_re/ljd_fixed.py`),
+  never by editing the vendored ljd silently. Known causes: the `]]`-inside-a-long-string printer defect, and L3's "`slot3`
+  global; a `}` expected".
+- Verify with `ljd_jun2017.py --check` (and `luasrc.py check --ref june` for T1). Write the files to
+  `june_src_fixed/data036_kom/NewSkillTempletVer2(_LA).src.lua`.
+- If T1 cannot be reached, ship nothing to `june_src_fixed/`. Name the residual defect, and leave S0a / S2 on the unproven
+  decompile, cited as such.
+- Not a shipping step: the game gets June's bytecode via `adopt-june` in S3. Re-run the decompile corpus row so
+  `decompile_verdicts.tsv` records the pass.
+
+**Done gate:** `--check` pass (or the named blocker); the two `.src.lua` files; the tool change committed with its self-test.
+
+## Phase S2 - Templet loader and skill tree to June
+
+**Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TEMPLET`. Sub-tag `[JUNE_SKILL] LOAD`.
+
+- Port June's `AddSkillTemplet_LUA` whole, from S0a's tsv: every key, stored. Do the same for `AddSkillTreeTemplet_LUA`, the
+  guild tree and the post-process.
+  - Keys for absent characters and for systems not yet ported are stored and logged once per key name.
+  - `SkillTemplet` gains June's fields: `m_DeleteSkillIDByUpgrade` (`+0x178`) and the `NUMERICAL_DATA<n>` vector (`+0x17c`, for
+    S4).
+- Port June's `CX2SkillTree` / `CX2UserSkillTree` functions per S0a item 2: the `+0x20` map, the upgrade swap `328905b0`, and
+  `GetSkillPowerRateValue 32071720`.
+- Switch on the three `_ULTIMATE` gates: replace the constant-false stubs (`X2GUUser.cpp:15249-15253` and the other two flags'
+  sites) with June's test under this flag.
+- **Data stays March's in this phase.** The ported parser must load March's `NewSkillTempletVer2.lua` with no behaviour change.
+  That is the play-test: every character's tree, learned skills and damage as before; one `[JUNE_SKILL] LOAD` summary line
+  (templets, tree rows, keys seen).
+- Also prove the June file parses before S3 flips it. On a scratch load, under `SERV_IRUHADEV_JUNE_SKILL_DEBUG`, log the
+  counts June's file produces (2,346 / 3,360 / 12).
+
+**Done gate:** March data loads unchanged (log counts equal the pre-port counts); the June-file scratch counts match; flagcheck
+PASS; `DEPLOY OK`.
+
+## Phase S3 - The flip: June skill data and the save migration
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_REFORM`. Sub-tag `[JUNE_SKILL] MIG`.
+
+- **Data.** `adopt-june data036 NewSkillTempletVer2.lua SkillData.lua` and the rest of S0a's closure tsv (ljconv bytecode).
+  Adopt `_LA` only if S0a says the US build loads it. `/elstools pack data036`, ask, `/x2-kom-packed copy data036`.
+- **Loader.** Load the files in June's order (S0a item 3); the Trans file goes if June dropped it.
+- **Save migration v17** (`Migrate()` rung `iFrom < 17`, after v16):
+  - Every unit's `unit_skill` rows go. The unit gets June's default skills for its class (S0a item 4).
+  - SP is recomputed by June's rule for the unit's level, and CSP is refunded.
+  - `unit_skill_unsealed`, `unit_skill_note` and any quick-slot reference to a removed skill follow S0a's census.
+  - Log one line per unit: `[JUNE_SKILL] MIG unit <uid> L=<level> skills <n> -> <defaults>, SP <old> -> <new>`.
+  - Snapshot `db_backup/els_db_<date>_pre_S3_skill_reform.sql` (with `-wal` / `-shm`) before the migrating launch, and ask
+    the user first.
+- **Emulator.** `Handler_EGS_GET_SKILL_REQ` / `RESET` / `INIT_SKILL_TREE` to June's rules (master level, row / column, SP), still
+  echoing the request's page number (never 0). `createchar.py` / `setchar` learn June's defaults.
+- **Checklist.** Add a section listing, per March class, the reform IDs on its June tree with no state in its March class
+  script. Each one is a character-port row (rule 5).
+- **Play-test.**
+  - Every save character loads, with June's tree in the March UI.
+  - SP equals June's rule.
+  - Learning a skill whose state the class script has works (one per class from the census).
+  - A skill with no state logs once and does not crash.
+  - The `MIG` lines appear for every unit.
+
+**Done gate:** migration lines for every unit; the snapshot path recorded; `COPY OK data036`; `DEPLOY OK`; flagcheck PASS; the
+checklist section written.
+
+## Phase S4 - Numerical skill data override
+
+**Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.
+
+- Port `3263fe41`'s override at March's site before `EndTable` in `SetDamageDataFromLUA` (`X2DamageManager.cpp:605`), from
+  S0a item 6.
+  - The getters `320717e0` / `32078060` and the clamp `320716c0` go on the templet.
+  - Replace the "unsupported" log at `X2DamageManager.cpp:268-275` under the flag.
+  - The three past-the-end blocks get a `JUNE_BUGS.md` row each.
+- **Every value that changes lands in `MODS.md`.** June's damage scale differs from March's, so record both values (checklist
+  section 1).
+- **Verification is a log self-check, because no ported class script uses it yet.** Under `SERV_IRUHADEV_JUNE_SKILL_DEBUG`,
+  at load, compute the override for a fixed sample of (skill, level) pairs from `june2017_re/c1a_numerical_blocks.tsv` and log
+  them against the tsv. Also log one line per real use (throttled), ready for the pilot character.
+
+**Done gate:** self-check lines all equal the tsv; flagcheck PASS; `DEPLOY OK`.
+
+## Phase S5 - Slots 4+4 -> 5+5
+
+**Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_10`, defined in `Always.h` **and**
+`ServerDefine.h` (Rule 2; `SECOND_HOMES`). Sub-tag `[JUNE_SKILL] SLOT`.
+
+- **Shared structs to S0b item 1's spec:**
+  - the count goes to 5, in the static member and the `:6411` macro;
+  - `KUnitSkillData` and `KUserSkillPageData` Put/Get go to June's order;
+  - prove the flag with `cl /P` in X2Lib **and** X2ServerProtocol (the struct's `sizeof` must agree).
+- **Every site in S0b's `s0b_slot_sites.tsv`:**
+  - the arrays, `index > 3` slot-B tests, `X2GUUser.h:4887-4890` state arrays, `X2OfflineSkill::SLOT_COUNT_PER_SET`;
+  - June's `FindEquippedSlotIndex` and `SlotIndexToSlotType`;
+  - `GetEquippedSkillSlotType` returning TC.
+- **Wire in BBT 98 and BFT 16** (the dormant code): the 98 reader and the BFT 16 slot-type count see June's slot types.
+- **The TC slots (4, 9) exist and stay locked until Stage 6**, as June locks them.
+- **Emulator:** `ChangeSkillSlot` takes 0-9, refuses TC while locked, and keeps the B-slot rule.
+- **Save migration v18:** slot 4-7 -> 5-8. Snapshot first and ask. One `MIG` line per moved row.
+- **Play-test:** equip a skill in each of A1-A4 and B1-B4 and use it from each key; TC refuses; B slots survive a relog.
+
+**Done gate:** both `cl /P` probes show the flag; flagcheck PASS (both homes); `DEPLOY OK`; the v18 lines.
+
+## Phase S6 - Slot UI
+
+**Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI`. Sub-tag `[JUNE_SKILL] UI`.
+
+- Adopt June's `DLG_GAME_SKILL_SLOT_NEW_10slot` (and the slot images S0b lists), and port June's slot-UI code per S0b item 4:
+  the gage / cooltime per slot and the locked TC frame.
+- The exe and the kom move together.
+- **Play-test:** the 10-slot bar, cooldowns on all eight usable slots, the TC frame shown locked.
+
+## Phase S7 - Skill tree UI and learn logic
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI`. Sub-tag `[JUNE_SKILL] UI`.
+
+- June's tree dialogs and the tree UI class per S0b item 4, function by function, including the learn / reset / purchase windows
+  and the client side of learn.
+- The page packets get June's handlers or `X2OfflineIgnore` rows (S0b item 3).
+- Settle `SKILLTREE_NO_LOCK` / `SKILL_SLOT_B_FREE` as the user decided in S0b.
+- **Play-test:** open the tree, learn, level, reset and re-learn on two classes; the page UI as June has it.
+
+## Phase S8 - Running state data: June's pointer model
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.
+
+- `m_NowStateData` / `m_FutureStateData` become pointers into the state vector, with June's store `31fe6a40`.
+- Port the `31fd2af0` snapshot (user `+0x9544..+0x9568`) and its four consumers (`320347d0`, `31fe6a40`, `31fd6b80`, `3203c3a0`),
+  and the gate `31edf580` -> `322074e0`.
+- Every March reader from S0b item 5 is converted, and no reference may outlive a vector reallocation.
+- The class-side slot-493 call stays checklist 7i.
+- **Play-test:** re-equip a slot while its skill is running, at the three points C9h-6 names (null delegate, new entry's skill
+  id / hyper byte, a second re-equip). The `PTR` lines show the snapshot taken and consumed.
+
+## Phase Z - Close-out
+
+**Run with:** Sonnet 5.5 medium.
+- Write the `MODS.md` lines for every flag, with revert steps.
+- Add a dated note in `JUNE_PORT_BACKLOG_ORDER.md` (Stage 3 done, facts 1-3 corrected).
+- Make sure the checklist rows from S3 and S4 are in place.
+- Update memory.
+- Turn `SERV_IRUHADEV_JUNE_SKILL_DEBUG` off, unless a phase recorded a reason to keep it.
+
+## Open questions (planning, 2026-10-17)
+
+Decided in planning (above): flip everything in Stage 3; adopt June's pointer model; S2-S5 and S8 do not wait for Stage 2.
+
+Open for the user:
+1. **When S3 runs relative to Atlas play-tests.** After the flip, unported characters lose most usable skills. That weakens
+   any Atlas / Elysion play-test still to come (A6 onward).
+   **Recommendation:** run S0a, S0b, S1 and S2 now. Hold S3 until the user says the Atlas play-tests can run on the flipped
+   save, or until a pause in them.
+2. **Server-only skill values** S0a may find (an SP table, expand-page costs): June's default where absent, else a labelled
+   stand-in. S0a proposes each one.
+
+## Play-test hand-off (every code phase)
+
+Dev console first (auth level 3, END key). Give copy-ready commands with real values, and name the character and job from
+`els_db.sql`, with the skill name and slot. For each check: where / paste / what it does / look for / if not. The log tag is
+`[JUNE_SKILL]` plus the phase's sub-tag.
