@@ -1974,7 +1974,7 @@ Kickoff `kickoffs/atlas/A7.md` (written this phase).
   inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
   `ledger --check` PASS, `core --check` PASS (0 WARN). First build failed (`X2WorldMapUI.cpp` lacked the `X2OfflineLog.h` include; added
   under the flag + `ELYSION_DEBUG`).
-- **Pack:** `PACK OK` data034 / 036 / 065 / 215 / 217 (copy: asked in the hand-off).
+- **Pack / copy (user OK):** `PACK OK` + `COPY OK` data034 (md5 76159963) / 036 (b916aa51) / 065 (f9e0f570) / 215 (241f0f01) / 217 (dcc2cc48).
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,605,504 B, dated 2026-10-17 05:33:03, md5 45e6d1ae2569514980f48d1ed4e77db6, equal to
   X2/US_SERVICE/x2.exe (2026-10-17 05:32:57); built at main 49687519 + 7 uncommitted code file(s).` (A7's 7 files). Proof: the UTF-16LE
   literals `[ELYDBG] local map Elysion`, `[ELYDBG] world map: pin`, `[ELYDBG] VillageParsing: no Village`, `LocalMapMoveUp` are in the deployed exe.
