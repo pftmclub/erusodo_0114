@@ -1948,7 +1948,7 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
     Evidence: `june2017_re/atlas_a6_region_closure.tsv` (2,064 rows).
   - Result: 1,954 June-only files staged (1,325 named, 653 embedded, by-name duplicates merged), all new names, 0 replaced, into 21 koms:
     data002 / 012 / 013 / 023 / 057 / 070 / 081 / 094 / 096 / 104 / 151 / 178 (new) / 179 / 180 / 181 / 182 / 183 / 197 / 215 /
-    216 (new) / i027 (new). `PACK OK` x21.
+    216 (new) / i027 (new). `PACK OK` x21. **Copied (user OK):** `COPY OK` data002 ff3ea25e / 012 58429073 / 013 9c574bf2 / 023 9a49f39a / 057 778f8f78 / 070 a1156674 / 081 e4f83cfd / 094 fb376e05 / 096 03029ddf / 104 8925a22b / 151 21f0e9d6 / 178 c074a4f7 / 179 d4b0b75c / 180 127ce514 / 181 1ac96752 / 182 6c35a6c3 / 183 432c73b6 / 197 f59d097a / 215 8b6f5965 / 216 c18a277a / i027 d4289688; the 15 music files copied, md5 = June's.
   - A re-run of the closure finds 0 left to adopt. 86 names June itself does not ship (73 named, 13 embedded) stay absent.
   - 15 June music files missing from `data\music` (li_boss_elysion003-005, li_stage_elysion001-007, li_village_elysion001,
     music074_stage, music076_stage, music077_boss, music078_stage) go in with the copy.
