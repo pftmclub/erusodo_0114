@@ -1936,6 +1936,23 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
   `.src.lua` sidecars, not A6's. **Copied (user OK):** `COPY OK` data034 94490be6 / 036 8a709bcb / 037 6f9549cb / 040 c92d2288 / 046 c5921e14 / 078 4b7a51a0 / 096 0120127f / 179 5b2300ce (new) / 180 bbc42839 / 181 a07dc70f / 182 881dea8a; the 3 music files copied into `data\music`, md5 = June's.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,606,528 B, dated 2026-10-17 06:31:02, md5 c1c45191e375bed74b3e286ef606081c, equal to X2/US_SERVICE/x2.exe (2026-10-17 06:30:57); built at main adad9359 + 5 uncommitted code file(s).`
   The 5 files are A6's. Proof: `UI_Portal_Arrow` (only in A6's `#ifdef`) is in the deployed exe.
+- **Play-test 2026-10-17 (user; run 06:36-06:39 on exe c1c45191 + the 11 koms):**
+  - The crossing works: Distant Ruins 40032 -> 1008 -> Field 01 (29 monsters placed) -> Field 02 (40). No crash.
+  - Finding 1, many missing assets: ~120 `OpenTexture` lines (Elysion world props, field-monster skins) and a few `OpenXSkinMesh`.
+    The census lists only files Lua names, so textures embedded in meshes were never on a list.
+  - Finding 2, a floating "inner circle" over every portal: this is June's second portal particle `UI_Portal_Arrow`. It is drawn with no texture,
+    because March lacks `UI_Portal_Arrow.tga` (June data002), so the circle's texture shows through. The +50 offset is June's
+    (`32d51e29`, 50.0); the template is a bobbing marker, identical in both clients' `UIMajorParticle.txt`.
+- **Follow-up, region-wide asset closure (user: "safe to port all atlas/elysion assets at this point"; this is A11's / E13's work pulled forward):**
+  - Method: every asset the census names for any region line, plus the textures those meshes / xet embed, to a fixed point.
+    Evidence: `june2017_re/atlas_a6_region_closure.tsv` (2,064 rows).
+  - Result: 1,954 June-only files staged (1,325 named, 653 embedded, by-name duplicates merged), all new names, 0 replaced, into 21 koms:
+    data002 / 012 / 013 / 023 / 057 / 070 / 081 / 094 / 096 / 104 / 151 / 178 (new) / 179 / 180 / 181 / 182 / 183 / 197 / 215 /
+    216 (new) / i027 (new). `PACK OK` x21.
+  - A re-run of the closure finds 0 left to adopt. 86 names June itself does not ship (73 named, 13 embedded) stay absent.
+  - 15 June music files missing from `data\music` (li_boss_elysion003-005, li_stage_elysion001-007, li_village_elysion001,
+    music074_stage, music076_stage, music077_boss, music078_stage) go in with the copy.
+  - Not covered: particle-templet textures (the effect closure is june-effect's) and Lua (each line's phase adopts its own).
 - **How to see it in game:** the A6 STATUS row / hand-off. Lanox F04 (Distant Ruins) far-end portal -> Atlas Station. Atlas Station's
   far portal -> Field 01, landing on start pos 333. F01 L53 -> Field 02. Each return portal works. Monsters spawn with HP bars. F02's
   far end has an inert portal.
@@ -2266,6 +2283,8 @@ Done when: census --region atlas shows no missing assets or keys and the pack
 list is in the doc. Record a Done note, then commit on
 main.
 ```
+
+*(2026-10-17, atlas A6 follow-up, user: the region-wide asset closure (census-named + mesh/xet-embedded textures, both halves) is staged and packed; see "Phase A6 — Done" and `june2017_re/atlas_a6_region_closure.tsv`. A11 re-runs that closure for files later phases add, then does the pack list / live check.)*
 
 ### Phase A11 — Done
 
@@ -3022,6 +3041,8 @@ Done when: census --region elysion shows no missing assets or keys and the
 pack list is in the doc. Record a Done note, then commit
 on main.
 ```
+
+*(2026-10-17, atlas A6 follow-up, user: the region-wide asset closure (census-named + mesh/xet-embedded textures, both halves) is staged and packed; see "Phase A6 — Done" and `june2017_re/atlas_a6_region_closure.tsv`. E13 re-runs that closure for files later phases add, then does the pack list / live check.)*
 
 ### Phase E13 — Done
 
