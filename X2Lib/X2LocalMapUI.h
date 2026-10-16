@@ -60,6 +60,9 @@ private:
 	bool	m_bHeroMode;		// June +0x44, set by LMUCM_DUNGEON_MODE_SELECTED (Mode Button, Phase 4)
 	bool	m_bFirstPage;	// June +0x60, tab-strip page; only the ctor and the two arrow messages write it
 	bool	m_bLoggedNoArrows;	// once-per-session log when the dialog lua has no page arrows
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+	int		m_iLocalMapPage;	// June +0x54, the Elysion scroll page; 0 (Atlas) until atlas E4 ports the scroll
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 #endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 public:
 	void SetStage( CKTDXStage* pStage );

@@ -1941,7 +1941,45 @@ Done when: Phase A7's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 
 ### Phase A7 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` (MODS.md "Atlas/Elysion port A7"). Commit: see the A7 STATUS row.
+Kickoff `kickoffs/atlas/A7.md` (written this phase).
+
+- **Premises:** no `AddDummyInt` in the adopted files resolves to a nil *tab* id: `LMI_ELYSION` = 10009 (A3), every Atlas/Elysion `DI_*_NORMAL`,
+  `DLT_DUNGEON`, LMUCM 18000-18007 exist. The 3 nil members are the Icon file's Hero dummies (`DI_ATLASDEVELOPMENT/ATLASCITY/TOWER_HERO_NORMAL`,
+  third dummy): they read 0, no DungeonData, so the icon stays hidden in hero mode only (`X2LocalMapUI.cpp:1281` note). Winning mounts: every
+  atlas the page uses is in one kom only; `DLG_Localmap_Title_01` (data063) is byte-identical to June's (data151) and has all 9 keys.
+- **Loader facts (subagent, spot-checked):** `LocalParsing` reads `VillageData`, `BattleFieldRestData`, the two lists, `RequireUnitLevel`,
+  `RequireClearDungeonID` (never tested by the tab or world map: June neither), not `RequireCompletedQuestID` (decision 2, nothing to gate).
+  A missing `Village[id]` row = popup + `return` with the `"Village"` table left open, so every later village failed too: June's file names
+  20009 before E2 has its row. **User (2026-10-17): guard + gate** (stand-ins below).
+- **Lua (BOM source, `luasrc.py convert` T0, edited, refreshed; core rows say `edit: atlas A7`):** data034 `DLG_Map_Local` `Local[LMI_ELYSION]`,
+  `DLG_Map_World_Elios` `LocalIDList` + LMI_ELYSION (LMI_EVENT still omitted), `DLG_UI_Local_Map_NEW` June's `LocalMapRadioBtn9` + QuestGuide
+  picture verbatim (JF data217 :520-556, :761-772); data036 `MapData` June's 21 `AddLocalMapInfo` rows (Hero rows omitted with a comment; the
+  binding is a no-op offline, `X2OfflineMapData.cpp:159`) + server mirror (22 lines, LF). June's `DLG_Map_Local_Elysion`, `_Back_NEW`,
+  `_Icon_NEW` adopted as ljconv bytecode (no edits). Party picture 9 (`ELYSION` plate, LMI_RUBEN + 9) was already in March's staged
+  `DLG_UI_PARTY_LENGTH_NEW` (June UI parity). Assets: `DLG_New_Region_Elision_01.dds/.tet` (data065), `DLG_Common_Button06_NEW.TET/.tga`
+  (data215, Memory's `M_DUNGEON_*`), sizes = June's.
+- **C++ (June's code, `#else` keeps March):** `UpdateDungeonButtons` June's page filter @3293bc66-3293bd65 (dummy string "0"/"1" vs page
+  +0x54 = new `m_iLocalMapPage`, 0 until E4); `LocalMapMoveUp/Down` hidden where June runs the scroll @3293c146-3293c16a (E4); `UpdateLocalMapDLG`
+  event-code 2260 branches @3293c8d9-3293c91f / @3293c97e-3293c9b7 (inert offline).
+  **Stand-ins (user, 2026-10-17), idle once E2 / E3 land:** `VillageParsing` logs `[ELYDBG] VillageParsing: no Village[%d] row`, closes the
+  table, no popup; Cobo + warp-NPC lists skip `Village_20009` while 20009 has no village templet; the world map keeps the Elysion town pin
+  (no village templet) and Field 03 pin (no battlefield data) hidden with their locked art.
+- **Not reachable until later phases:** Atlas page icons (AD / AC / TW) stay hidden until A8-A10 add their DungeonData; titles show now.
+  `RequireClearDungeonID` is not a tab gate in June either: the tab opens at level 78.
+- **Census `--phase A7`** (the whole UI line): local-map rows left = `dlg_localmap_title_01_a.tga` (June ships none; NF_DE/ES/IT only:
+  JUNE_BUGS 206), `DLG_Elysion_LocalMap_Guide.lua` (E4), the 3 Hero members (out of scope). The rest of the UI line is other phases'.
+- **Hygiene:** flagcheck `--worktree --files <7 code files>`: `files: 6 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII
+  inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  `ledger --check` PASS, `core --check` PASS (0 WARN). First build failed (`X2WorldMapUI.cpp` lacked the `X2OfflineLog.h` include; added
+  under the flag + `ELYSION_DEBUG`).
+- **Pack:** `PACK OK` data034 / 036 / 065 / 215 / 217 (copy: asked in the hand-off).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,605,504 B, dated 2026-10-17 05:33:03, md5 45e6d1ae2569514980f48d1ed4e77db6, equal to
+  X2/US_SERVICE/x2.exe (2026-10-17 05:32:57); built at main 49687519 + 7 uncommitted code file(s).` (A7's 7 files). Proof: the UTF-16LE
+  literals `[ELYDBG] local map Elysion`, `[ELYDBG] world map: pin`, `[ELYDBG] VillageParsing: no Village`, `LocalMapMoveUp` are in the deployed exe.
+- **How to see it:** M (local map) on a level ≥ 78 character -> right arrow -> Elysion tab -> Atlas map art, Atlas titles + 3 Atlas title plates,
+  no up/down buttons; `atlas` warp now loads Atlas Station (A5's checks); Cobo lists Atlas Station, not Elysion; world map shows rest / F01 / F02
+  pins at ≥ 78, no town / F03 pin. Log: `[ELYDBG] local map Elysion`, `[ELYDBG] world map: pin 20009 / 40037 hidden`, `VillageParsing ... 20009`.
 
 ---
 

@@ -531,8 +531,22 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 #ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
 			CX2OfflineLog::Server( L"[RANOXDBG] VillageParsing BeginTable(villageID) FAILED for villageID=%d", villageID );
 #endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+			// Atlas A7 stand-in (user, 2026-10-17): June's DLG_Map_Local_Elysion names the Elysion village (20009)
+			// before atlas E2 gives it a Village[] row. Skip that village with a log line instead of the popup, and
+			// close the "Village" table first: March's return left it open, so every later village and rest area
+			// (1008 included) failed to parse too. Idle once every named village has its row.
+			{
+				WCHAR buff[256] = {0};
+				StringCchPrintf( buff, 256, L"[ELYDBG] VillageParsing: no Village[%d] row in DLG_Map_Village.lua, village skipped (a local map names it; Elysion 20009 = atlas E2)", villageID );
+				ErrorLogMsg( XEM_ERROR142, buff );
+			}
+			kLuamanager.EndTable();	// "Village"
+			return;
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 			MessageBox( g_pKTDXApp->GetHWND(), L"CX2LocationManager Village OpenScript Error", L"Error", MB_OK );
 			return;
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 		}
 
 		kLuamanager.EndTable();

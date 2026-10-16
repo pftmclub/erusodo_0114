@@ -14118,7 +14118,12 @@ void CX2UIInventory::CreateWarpDest()
 		pControl = m_pDLGWarpDestination->GetControl( L"Village_1008" );
 		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00 ); ++row; }
 		pControl = m_pDLGWarpDestination->GetControl( L"Village_20009" );
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+		// Atlas A7 stand-in (user, 2026-10-17): no Elysion row while 20009 has no village templet (atlas E2).
+		if( pControl != NULL ) { pControl->SetShow( false ); if( NULL != g_pData->GetLocationManager()->GetVillageMapTemplet( SEnum::VMI_ELYSION ) ) { AddWarpList( pControlList, row, SEnum::VMI_ELYSION ); ++row; } }
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_ELYSION ); ++row; }
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 	}
 
 	pControlList->SetIndex(0, 0);

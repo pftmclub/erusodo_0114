@@ -6338,7 +6338,13 @@ void CX2StateMenu::CreateWarpDest()
 				++row;
 			}
 			pControl = m_pDLGWarpDestination->GetControl( L"Village_20009" );
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+			// Atlas A7 stand-in (user, 2026-10-17): no Elysion row while 20009 has no village templet (atlas E2);
+			// the warp would load no world. Idle once E2 lands.
+			if( pControl != NULL ) { pControl->SetShow( false ); if( NULL != g_pData->GetLocationManager()->GetVillageMapTemplet( SEnum::VMI_ELYSION ) ) AddWarpList( pControlList, row, SEnum::VMI_ELYSION ); }
+#else SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 			if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_ELYSION ); }
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 		}
 		else
 		{

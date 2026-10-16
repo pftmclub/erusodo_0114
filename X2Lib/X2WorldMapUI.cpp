@@ -1,5 +1,10 @@
 #include "StdAfx.h"
 #include ".\x2worldmapui.h"
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 
 
 
@@ -487,6 +492,39 @@ void CX2WorldMapUI::UpdateWorldMap()
 			}
 
 
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+			// Atlas A7 stand-in (user, 2026-10-17): LMI_ELYSION has a templet now, so the level gate below would show
+			// the Elysion town and Field 03 pins (DLG_UI_World_Map_NEW.lua hides them, atlas A5). Their targets do not
+			// exist yet: 20009 has no village templet until atlas E2, Field 03 no battlefield data until atlas E3. Each
+			// stays hidden with its locked art (dummy 1 == 1) shown until it does; the test goes idle then.
+			if( ( (int) SEnum::VMI_ELYSION == pControl->GetDummyInt( 0 ) &&
+					NULL == g_pData->GetLocationManager()->GetVillageMapTemplet( SEnum::VMI_ELYSION ) ) ||
+				( (int) SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_03 == pControl->GetDummyInt( 0 ) &&
+					NULL == g_pData->GetBattleFieldManager().GetBattleFieldNameByBattleFieldId( SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_03 ) ) )
+			{
+				pControl->SetShow( false );
+				for( int j = 0; j < m_pDLGWorldMap->GetControlSize(); ++j )
+				{
+					CKTDGUIControl* pStaticControl = m_pDLGWorldMap->GetControl( j );
+					if( NULL == pStaticControl || CKTDGUIControl::UCT_STATIC != pStaticControl->GetType() )
+						continue;
+					if( pStaticControl->GetDummyInt( 0 ) != pControl->GetDummyInt( 0 ) )
+						continue;
+					pStaticControl->SetShow( 1 == pStaticControl->GetDummyInt( 1 ) );
+				}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+				static bool s_bLoggedElysionPin[2] = { false, false };
+				const int iPin = ( (int) SEnum::VMI_ELYSION == pControl->GetDummyInt( 0 ) ) ? 0 : 1;
+				if( false == s_bLoggedElysionPin[iPin] )
+				{
+					s_bLoggedElysionPin[iPin] = true;
+					CX2OfflineLog::Server( L"[ELYDBG] world map: pin %d hidden, target not built yet (%s)", pControl->GetDummyInt( 0 ),
+						( 0 == iPin ) ? L"no village templet, atlas E2" : L"no battlefield data, atlas E3" );
+				}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 #ifdef NO_SANDER_VILLIAGE
 			if( CX2LocationManager::LMI_SANDER == eLocalMapID 
 #ifdef SERV_NO_VELDER_VILLIAGE

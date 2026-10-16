@@ -3812,6 +3812,23 @@ Flag `SERV_IRUHADEV_ELYSION_PORT` (A3's). June's own functions, cited by address
   `InitWarpList` dereferences `Village_1000` / `1002`: the sidecar is in `kom_backup_stage_june\20261017_012014`). Data: restore the
   koms from `24965799\kom_backup_tools\` stamped before 2026-10-17 01:30, or delete the commented A5 blocks in the BOM sources.
 
+### Atlas/Elysion port A7: local map, Atlas half (2026-10-17)
+
+Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION`. June's own code, cited by address in each block:
+- **C++:** `CX2LocalMapUI::UpdateDungeonButtons` June's Elysion page filter (new member `m_iLocalMapPage`, June +0x54, 0 until atlas E4)
+  and the hidden `LocalMapMoveUp/Down` buttons (E4 ports the scroll); `UpdateLocalMapDLG` June's event-code 2260 branches (inert offline).
+  Stand-ins until atlas E2 / E3 (user, 2026-10-17): `CX2LocationManager::VillageParsing` skips a village with no `Village[]` row with an
+  `[ELYDBG]` ErrorLog line (no popup, table closed); the Cobo (`X2StateMenu.cpp`) and warp-NPC (`X2UIInventory.cpp`) lists skip
+  `Village_20009` while 20009 has no village templet; `CX2WorldMapUI::UpdateWorldMap` keeps the Elysion town / Field 03 pins hidden
+  while their village templet / battlefield data is missing.
+- **Lua / data (kom_contents):** BOM source edits to data034 `DLG_Map_Local` (`Local[LMI_ELYSION]`), `DLG_Map_World_Elios` (`LocalIDList`),
+  `DLG_UI_Local_Map_NEW` (June's `LocalMapRadioBtn9` + QuestGuide picture), data036 `MapData` (21 `AddLocalMapInfo` rows; also the server
+  mirror). June's `DLG_Map_Local_Elysion.lua`, `_Back_NEW.lua`, `_Icon_NEW.lua` (ljconv bytecode), `DLG_New_Region_Elision_01.dds/.tet`
+  (data065), `DLG_Common_Button06_NEW.TET/.tga` (data215).
+- **Revert:** remove the flag (the C++ falls back to March's; with the Lua still in, the loader then pops "Village OpenScript Error" for 20009,
+  so revert the data too): delete the commented A7 blocks in the four BOM sources and the 7 adopted files (all new names, nothing
+  was replaced; manifests lose their keys), then repack data034 / 036 / 065 / 215 / 217.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

@@ -7421,3 +7421,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              from X2Lib). Removable: undefine to silence them.
 #define SERV_IRUHADEV_ELYSION_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase A7), local map, Atlas half: June's Elysion page filter in
+//              UpdateDungeonButtons (page fixed at 0 until E4 ports the scroll), the scroll buttons hidden until E4, June's
+//              event-code 2260 tab branches (inert offline). Stand-ins until atlas E2 / E3 (user, 2026-10-17): a local map
+//              naming a village with no Village[] row is skipped with a log line instead of the popup, and the Elysion
+//              village (Cobo row, world-map pin) and Field 03 (world-map pin) stay hidden while their targets do not exist.
+#define SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+//////////////////////////////////////////////////////////////////////////
