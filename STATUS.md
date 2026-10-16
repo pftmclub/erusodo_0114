@@ -626,12 +626,12 @@ can run now, in parallel; code phases wait for june-effect C12 and run one at a 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| R0 | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `r0_*.tsv`, plan doc, kickoffs, checklist | `R0.md` |
+| R0 | **done 2026-10-16**: R0 map in the plan doc (map text landed in e2f2029e), `r0_renderer_contract.tsv`, funcmap `Engine R0`, R1-R6 kickoffs amended, checklist 7w; **user owes answers to plan open questions 4 (rim-light option default) and 5 (drop env box)** | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `r0_*.tsv`, plan doc, kickoffs, checklist | `R0.md` |
 | R0b | ready (better after R0) | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, plan doc, kickoffs | `R0b.md` |
 | R1 | waiting (R0, C12) | Sonnet 5.5 / high, then user play-test | R0, june-effect C12 | `KTDGXRenderer.h/.cpp`, `KTDGXMeshPlayer.cpp`, Always.h, data036 `Enum.lua` | `R1.md`, review `R1-review.md` |
 | R2 | waiting (R1) | Sonnet 5.5 / high, then user play-test | R0, R1 | `KTDGXRenderer.h/.cpp`, RenderParam readers, Always.h | `R2.md`, review `R2-review.md` |
-| R3 | waiting (R2) | Sonnet 5.5 / high (Opus if R0 left gaps) | R2 | new env-box renderer, `KTDGXRenderer.*`, Always.h | `R3.md`, review `R3-review.md` |
-| R4 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | new heat-shimmer renderer, Always.h | `R4.md`, review `R4-review.md` |
+| R3 | **on hold: R0 measured reach 0**; plan open question 5 (R0 recommends dropping) | Sonnet 5.5 / high | R2, user answer | new env-box renderer, `KTDGXRenderer.*`, Always.h | `R3.md`, review `R3-review.md` |
+| R4 | waiting (after R2); RE step first (R0: gated full-screen composite, option `+0x34` writer open) | **Opus 5.5 / high** | R0 | heat-shimmer renderer, `KTDXApp.cpp` frame render, Always.h | `R4.md`, review `R4-review.md` |
 | R5 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | unit / NPC / riding-pet render, Always.h, data036 `Enum.lua` | `R5.md`, review `R5-review.md` |
 | R6 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | `KTDGXSkinAnim.h/.cpp`, Always.h | `R6.md`, review `R6-review.md` |
 | U0 | **done 2026-10-16** (no code, no flag, no build): 33 funcmap rows `Engine U0`; census re-run identical to HEAD; ROTATION is live in June (lift from `DLL_BUILD`); US reads `KEY_GLOBAL` then `KEY_US` (nation string `CKTDXApp +0x2e8`); census missed `CMovieData:AddSubtitleData` (4-part subtitle chain + 3 datai015 `Movie_*.lua`); flags split A-D in `U1.md`; routed: A4 (`SetChangeUVPoint`, `+0xb0` reset), E1, checklist 7v (`IS_FOR_MINOR_UNIT`), PvP `m_PrivateType` not ported. **User owes one answer:** line-break layering (KTDXLIB calling X2Lib's word-wrap; recommended: a function pointer set by X2Lib) - blocks U1 group D only | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, plan doc, kickoffs, checklist 7v, Atlas A4 note | `U0.md` |

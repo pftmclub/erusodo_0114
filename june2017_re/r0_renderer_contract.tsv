@@ -1,0 +1,83 @@
+area	june	what	source / value	evidence
+renderer	+0x04	LPD3DXEFFECT	XRenderer.fx	31d3f480
+renderer	+0x08..+0x54	cartoon ramp textures [20]	slot i = string list below; loaded only if NULL	31d3f8c1-31d3fd50 (20 strings, loop 0x14 @31d3fcd1); freed 31d3c480
+renderer	+0x58	byte: shader 3.0 capable	ctor 31d3c270: D3DCAPS9.PixelShaderVersion >= 0xffff0300 (caps base esp-0x13c, field +0xcc). Caps only, no option	DISABLE_SHADER30 macro when 0 (31d3f615); gates +0x80 (32421227, 3241dd13)
+renderer	+0x59	byte: colour-grading LUT present	CKTDGEnvBoxMap writes 1 / 0 (31d0ab3a, 31d0ab6a, 31d09ffc)	read in BeginRender 31d3d3a4
+renderer	+0x5a	byte	ctor = 1 (word 0x100 at +0x59)	not traced
+renderer	+0x5b	byte: colour grading this draw	BeginRender: rim-capable cartoon case && +0x80 && +0x59 (31d3d397-31d3da1f)	OnFrameRender 31d3ee5a -> g_bIsUseColorGrading (+0x14c); when 1 binds +0x5c or +0x60 to stage 3
+renderer	+0x5c / +0x60	LUT textures (blended LUT 0 / 1)	CKTDGEnvBoxMap (31d0a843, 31d0ab1d, 31d0ab55)	BeginRender cartoon cases bind to stage 3 (31d3d368)
+renderer	+0x64	byte: env-box rim override	CKTDGEnvBoxMap (31d0a011, 31d0b0ef, 31d0b109); ctor 0	-
+renderer	+0x68/+0x6c/+0x70	env-box rim colour rgb	CKTDGEnvBoxMap 31d0b0c4-31d0b0d1 (RIM_LIGHT_COLOR)	-> g_vRimLightColor (r,g,b,1) 31d3ecd8
+renderer	+0x74	env-box rim power	31d0b0c7 (RIM_LIGHT_POWER)	-> g_fRimLightPower (+0x12c) 31d3ed25
+renderer	+0x78	env-box rim wide	31d0b0d4 (RIM_LIGHT_WIDE)	-> g_fRimLightWide (+0x130) 31d3ed57
+renderer	+0x7c	env-box rim forced	(RIM_LIGHT_FORCED)	-> g_fRimLightForced (+0x134) 31d3ed3e
+renderer	+0x80	byte: env box on	option USE_ENV_BOX (opt +0x108) && +0x58 (32421232, 3241dd1e); ctor 0	g_bIsUseEnvBoxRimLIght = (+0x80) in OnFrameRender; world reads 327fb618
+renderer	+0x81	byte: view-independent edge	option USE_VIEW_INDEPENDENT_EDGE (opt +0x101) (324211da, 3241dca3); ctor 1	-> g_bIsUseViewIndependentEdge (+0x150) in BeginRender cartoon cases (31d3d48a)
+renderer	+0x82	byte: mipmap filter cap	ctor: TextureCaps & D3DPTEXTURECAPS_MIPMAP -> SetSamplerState(0, MIPFILTER, LINEAR) else NONE	31d5ee53 reads
+renderer	+0x84	int: anisotropy in use	3242ed40 SetAnisotropy( option ANISOTROPIC_FILTER_SAMPLE ): min( value, +0x88 ), ignored if value < 1 or +0x88 == 1; ctor 1	OnResetDevice 31d3fd57: >= 2 -> MIN/MAG ANISOTROPIC + MAXANISOTROPY; KTDXApp frame 31be3aef
+renderer	+0x88	int: max anisotropy	ctor: D3DCAPS9.MaxAnisotropy if RasterCaps & ANISOTROPY (shader-3 only), else 1	-
+renderer	+0x8c	technique handles [19]	table 337299c0 (8-byte entries, name at +4)	loop 31d3f764
+renderer	+0xd8	parameter handles [33]	table 33729a58	loop 31d3f7a2 (bound 0x20 inclusive = 33)
+renderer	+0x15c/+0x15d	bInRenderGroup / bInBeginPass	as March	-
+renderer	+0x16c / +0x170	bFog / maxSkinningVertices (clamp 4)	31d3c030 = March SetRenderPassFogAndMaxSkinningVertices	-
+renderer	+0x174	current shader / technique index	-	-
+renderer	+0x17c..+0x188	current colour	-	init SetVector(g_Color, 0)
+renderer	+0x18c	byte: rim light enabled	31d3c210 Set (caller 31d90300 = CX2Main vslot 1, every frame: CX2Main +0x280 = option RIM_LIGHT); 31d3c220 Get	-
+renderer	+0x18d	byte: rim light this draw	BeginRender: cartoon case with a rim ramp && +0x18c (31d3d5a0-31d3d5bd)	g_bIsUseRimLight (+0x138) in OnFrameRender 31d3ec93
+renderer	+0x190	int: rim ramp index this draw	RenderParam +0xa0 clamped to 13..18 else 13 (31d3d4df, helper 31d3c250); reset to 13 each BeginRender	stage 2 texture
+param	15 g_mView	SetMatrix	KTDXApp +0xdc (view matrix), BeginRender 31d3dac5	every BeginRender
+param	16 g_vEyeDir	SetVector	normalize( camera lookAt +0x1cc..+0x1d4 - eye +0x1c0..+0x1c8 ), w 0; camera = KTDXApp+0x1fc	31d3db37
+param	17/18 g_iTextureOp_1/_2	SetInt	1 each BeginRender (31d3d29c, 31d3d2bf); OnFrameRender sets per stage from texture state (31d3ebb8, 31d3ec7d) or 1	-
+param	19 g_bIsUseEnvBoxRimLIght	SetBool	OnFrameRender: (+0x18d && +0x80)	31d3ecc1
+param	20-23 rim colour / power / wide / forced	SetVector / SetFloat	renderer +0x68..+0x7c, only when env box on	31d3ecd8-31d3ed6e
+param	24 g_bIsUseRimLight	SetBool	+0x18d (or false in the no-tex branch 31d3ebeb)	31d3eca0
+param	29 g_bIsUseColorGrading	SetBool	+0x5b	31d3ee64
+param	30 g_bIsUseViewIndependentEdge	SetBool	+0x81, cartoon cases	31d3d497 / 31d3d6dc / 31d3d930
+param	31/32 g_fScreenSizeX/Y	SetFloat	global 3376d9ac (8 dwords; +0x18 / +0x1c), cartoon cases	31d3d44b / 31d3d479
+param	25-28 fog colour / density / palette / shader index	as March	renumbered: March EP_g_fColor 15 .. EP_g_iShaderIndex 18 become 25-28	March KTDGXRenderer.h:56-95
+renderparam	+0x00..+0x98	as March (FOG_WORLD on)	same offsets in BeginRender	-
+renderparam	+0x9c	int: world cartoon index	used only when cartoonTexType == CTT_NORMAL: 0..3 picks NORMAL / TWOTONE / USER1 / USER2, else 0 (helper 31d3c230)	filled from CX2World +0x1a4
+renderparam	+0xa0	int: world rim ramp index	13..18 (RIM_LIGHT_WHITE..USER2), else 13	filled from CX2World +0x1a8
+renderparam	+0xa4	bool bAlphaTestEnable	moved from March +0x9c (ADD_ALPHATESTENABLE on)	BeginRender 31d3db6d -> D3DRS_ALPHATESTENABLE
+world	+0x1a4	SetCartoonTextureIndex (327fb200) / get 327fb1f0	Lua g_pWorld:SetCartoonTextureIndex; default 0 (327fded1)	-
+world	+0x1a8	SetRimLightTextureIndex (327fb220) / get 327fb210	Lua g_pWorld:SetRimLightTextureIndex; default 0 -> clamps to 13 (white)	June users: Ranox_Secret_Boss_Stage, ELTRION_MK2 Stage2 (BLUE) / Stage3 (RED), PERKISAS Stage0 (RED, bare global) / Stage1 (DARK)
+rpfill	31ff05c2	unit RenderParam fill (+0x9c/+0xa0 from world)	CX2GUUser module (by address; not virtual)	-
+rpfill	323ed743	same	CX2SquareUnit / CX2GuildAgitUnit (RTTI of fn 323ed560)	-
+rpfill	326eaa99	same	CX2PET (RTTI of fn 326ea980)	-
+rpfill	3276f3c1	same	CX2GUNPC module (by address)	-
+rpfill	32d2c416	same	CX2RidingPet (RTTI of fn 32d2c1e0)	-
+ctt-reader	326e31e0	Lua RENDER_PARAM.CARTOON_TEX_TYPE	CX2PET (RTTI of fn 326e3190)	stores the raw int
+ctt-reader	3280bd70	Lua CARTOON_TEX_TYPE (world object mesh: RENDER_TYPE, ALPHA_TEST_ENABLE, SET_SKIN_ANIM_AT_ATTACHEND_MESH)	CX2World object module (by keys)	stores the raw int
+ctt-reader	32d296a0	Lua RENDER_PARAM.CARTOON_TEX_TYPE (UNIT_EMBLEM_POSY, ENABLE_USER_COLLISION_BOX)	CX2RidingPet module (by address)	stores the raw int
+ctt-reader	31c864f0	mesh-player .txt CARTOONTEXTYPE	CTT_NORMAL -> 0, CTT_RED -> 4; anything else throws 'Invalid cartoonTexType!' (33449f5c)	= March KTDGXMeshPlayer.cpp:4709 with RED renumbered
+ramp	0 CartoonNormal.bmp	CTT_NORMAL	-	-
+ramp	1 CartoonNormal_Twotone.bmp	CTT_NORMAL_TWOTONE	June-only file	data042
+ramp	2-3 CartoonNormal_User1/2.bmp	CTT_NORMAL_USER1/2	June-only files	data042
+ramp	4 CartoonFire.BMP	CTT_RED	-	-
+ramp	5 CartoonGreen.bmp / 6 CartoonViolet.bmp / 7 CartoonCounterLight.bmp / 8 CartoonDamage.bmp / 9 CartoonInvincible.bmp / 10 CartoonPetrified.bmp / 11 CartoonSkyBlue.bmp / 12 CartoonScarlet.bmp	GREEN .. SCARLET	-	-
+ramp	13-18 CartoonRimLight_White/Red/Blue/Dark/User1/User2.bmp	CTT_RIM_LIGHT_*	June-only files	data042
+ramp	19 CartoonDamage_Raid.bmp	slot CTT_END (19)	skin-anim typed pass treats cartoonTexType 8 or 0x13 alike (31d30380); writer of 19 not found in R0 (R1 sweep)	data042
+smrt	0 REAL_COLOR	RT 0, alphaBlend 1, zWrite 1, zEnable 1, cull CCW, src SRCALPHA, dest DESTALPHA	31d30380 switch	-
+smrt	1 CARTOON_BLACK_EDGE	RT 1, alphaBlend 0, cull NONE	-	-
+smrt	2 CARTOON_BLACK_EDGE_ALPHA	RT 1, zWrite 1, zEnable 1, cull NONE, alphaBlend 1, SRCALPHA / INVSRCALPHA	-	-
+smrt	3 UV_ANIM	March has it (SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM); also sets alphaBlend from mesh +0xc8, src SRCALPHA, dest DESTALPHA	check against March port	-
+smrt	4 INVSRC_ALPHA_NOT_CULL	RT 0, fOutLineWide 0, cull NONE, alphaBlend 1, SRCALPHA / INVSRCALPHA	-	-
+smrt	5 DESTALPHA_SRCALPHA_CCW	cull CCW, fOutLineWide = const 33437810, alphaBlend 1, src DESTALPHA, dest SRCALPHA	-	-
+smrt	6 CUSTOM	no parameter change (calls 31d3c0b0 again)	-	-
+smrt	7 CARTOON_ALPHA	as 0 plus bAlphaTestEnable 1	-	-
+smrt	after switch	cartoonTexType 8 or 19: RT 1->4, 2->5, 3->6 (black/colour edge -> ADD_ variants); texOffset2.y += anim +0x214; fOutLineWide raised to DGManager +0x3c0 when that is larger	31d30380	-
+crs	reader	state key CUSTOM_RENDER_STATE = { start, end, CRS }	parser 31fce500 (generic); callers: user state loader 32057b80 -> state +0x8e68; riding pet state loader 32d2f560 copies its triple into the rider (32d350bb)	not riding-pet only
+crs	consumer	CX2GUUser render setup 31fd4460	CRS = buff override +0x8e64 if set, else the state's CRS while anim time in [start, end]; jump table 31fd470c (CRS-3)	second consumer 320643f0 (320659ff) not read in R0
+crs	3 SPECTOR_WALK	RT 0, outline a / colour a = const 334395e0, alphaBlend 1	-	-
+crs	5 INVISIBLE	RT 3 (CARTOON), outline a 0, colour a 0, alphaBlend 1	-	-
+crs	6 / 7 UNIT_FADE_WHITE(_WITHOUT_WEAPON)	RT 17 (CARTOON_FADE), alphaBlend 0, colour (1,1,1,0), outline a 0	same case; weapon split is elsewhere	-
+crs	8 UNIT_BLACK	RT 0, colour rgb = const 334387b0 * 334350e8, a 1	-	-
+crs	9 EMOTION_INVISIBLE	as 5 plus a second RenderParam's zWrite/zEnable word 0	-	-
+crs	0 / 1 / 2 / 4 / >9	default path 32275140	-	-
+envbox	CKTDGEnvBoxMap	OnResetDevice 31d0b200: two 256x16 render targets BlendedLUT0/1, entry textures, XEnvBoxRenderer.fx (techniques BlendLUTTechnique, DrawEnvBoxTechnique; params g_vWeights, g_vEtcParam, g_mMVP, g_vCurrSize, g_vColor)	entry ctor 31d0d100; Lua AddEnvBox_LUA 31d0b720 keys BOX_NAME, BOX_POSITION, BOX_ROTATION, BOX_SCALE, LUT_NUM, BLEND_LENGTH, BLEND_WEIGHT, PRIORITY, BOX_ENABLED, RIM_LIGHT_ENABLED / COLOR / WIDE / POWER / FORCED; SetLUT	-
+envbox	reach	0	only CX2World::SetEnvBoxMap (327fd080, Lua-bound) creates the map and publishes g_pEnvBoxMap (31d0c730); no June Lua calls it or g_pEnvBoxMap (census of 7,347 June .lua); only GameEdit /useEnvBox (dev)	R0 subagent census
+shimmer	owner	DGManager +0x384 (ctor 31ce5630, OnLost 31ce5680, OnReset 31ce5e90: XHeatShimmerRenderer.fx, HeatShimmerTechnique; params g_mViewProj, g_mWorldViewProj, g_fTime, g_fPerturbationScale, g_color)	begin 31ce5710 (g_fTime = KTDXApp +0x80), end 31ce5d00	PerturbationMap.png (33441e3c) June-only, data045
+shimmer	frame	KTDXApp frame render 31be3800	if SceneRenderTarget (+0x25c) exists: scene into it; if EffectRenderTarget (+0x264) exists: stages draw pass 1 (31be2d30( 1 )) into it, then the shimmer pass composites full screen (31be3c19-31be3c51)	RTs made by 31be4230, called from 31be4cf0( AA level -> +0x260 ) and 31be4d10( +0x26c, +0x26d ) in the option apply 32421110 (option +0x34 / +0x35, not a GameOptions key)
+shimmer	reach	not 0, gated	visible whenever option +0x34 is set (writer not found in R0; the low-spec preset 32428357 zeroes it) and a stage draws in pass 1	R4 starts with an Opus RE step
+option	CX2GameOption	CX2Main +0x180 (ctor 32421390 @31e464b3); data block at +4 (ctor 3242fbd0)	keys RIM_LIGHT +0x100, USE_VIEW_INDEPENDENT_EDGE +0x101, ANISOTROPIC_FILTER_SAMPLE +0x104, USE_ENV_BOX +0x108, ANTIALIASING_LEVEL +0x30 (loader 324214a0, writer 3241ef40)	data ctor defaults: rim 0, view-independent edge 1, aniso 0, env box 0; shipped data002 GameOptions.lua:40 RIM_LIGHT = FALSE
+option	UI	Scaleform option.updateGraphic 32f236a0: useRimLight, viewIndependentEdge, anisotropicFilterSampleIndex, antiAliasingItemIndex	Stage 9 owns the UI	3353ca10 is this key, not a RenderParam key

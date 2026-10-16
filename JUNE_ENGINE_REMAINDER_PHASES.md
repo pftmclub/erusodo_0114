@@ -243,7 +243,7 @@ amended in `kickoffs/june-engine/`, class-specific readers handed to the checkli
 
 ### R0 map (2026-10-16, Opus 5.5)
 
-No code, so there is no flag or build. Evidence is in `june2017_re/r0_renderer_contract.tsv`, and the funcmap rows are tagged
+No code, so there is no flag or build. The text of this map landed in peer commit `e2f2029e` (June engine U0, which staged it by accident); the evidence, funcmap rows and kickoff notes are in the R0 commit. Evidence is in `june2017_re/r0_renderer_contract.tsv`, and the funcmap rows are tagged
 `Engine R0`.
 
 1. **Renderer object** (`CKTDGXRenderer`: vtable `3344f8ec`, ctor `31d3c270`, OnResetDevice `31d3f480`).

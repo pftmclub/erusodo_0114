@@ -601,3 +601,12 @@ June's `CX2SlotItem` slot-data reader (vslot 11, `32e284b0`) reads `IS_FOR_MINOR
 (`X2SlotItem.cpp:53-65`, `LuaGetValue`). June's character-window and closet dialogs use it on Lu/Ciel's second-unit slots
 (`DLG_Magical_Closet`, `_NEW_2`, `DLG_UI_CHARACTER_NEW_2/3/4`). Only the Lu/Ciel port needs it: port the key, its member and its readers
 with that class. Under March data the key never matches (no minor unit). Funcmap row `32e284b0` (`Engine U0`).
+
+### 7w. CUSTOM_RENDER_STATE class users (from June engine R0)
+
+June reads the state key `CUSTOM_RENDER_STATE = { start, end, CRS }` with the generic parser `31fce500`, from the user state loader
+(`32057b80`) and the riding-pet state loader (`32d2f560`, which copies the triple into the rider). The user render setup `31fd4460`
+renders it (cases in `june2017_re/r0_renderer_contract.tsv`, `crs` rows). R5 ports the engine side. These class scripts carry the key
+and come with their ports: `Add_NasodRuler` (`CRS_INVISIBLE` x6, `CRS_UNIT_FADE_WHITE_WITHOUT_WEAPON` x1), `Ara_Martial_Artist`,
+`Ain_Apostasia`, `Ain_Erbluhen_Emotion`, `Luciel_Demonio`, `Rose_Ranger`, `RidingPet_Rakshasa` (all `CRS_INVISIBLE`). The `Enum` table
+itself is the row in section 152 above. Funcmap rows `31fce500`, `31fd4460` (`Engine R0`).
