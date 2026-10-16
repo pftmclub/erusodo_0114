@@ -3696,6 +3696,7 @@ Flag-off compiles the original code (the `#else` branch). Extra rules:
 | `SUMMON_NPC_SOCKET_GATE` | 6992 | 2026-10-14 | June effect completion C3u: June CX2GUUser::SumSocketOption 3204f190 @3204fbc9-3204fc1d. A summon-NPC socket for NPC 4119 / 4120 ( June *_KNIGHT_BASTARD_EVENT_TITLE; June sockets 2000035 / 2000036 on June event titles 100220 / 100230 ) is ... |  |  |
 | `SIMPLE_DLG` | 7002 | 2026-10-15 | a script-made dialog on CX2Game ( +0xba8: CreateSimpleDLG 322def10 / DeleteSimpleDLG 322cc520 / GetSimpleDLG 31e4de40, deleted by the game dtor 323080c0 ) with its 12 Lua methods ( binder 31d95080 @31e42615..@31e43fde ), and June's ... |  |  |
 | `WORLD_FESTIVAL` | 7017 | 2026-10-15 | June effect completion C3x-1: June's WorldData variants. AddWorldData_LUA ( 32805770 ) keeps the plain dataFileName, swaps in dataFileName_Festival while the clock is before 2016-03-16 04:00, and reads dataFileName_CodeEvent; CreateWorld ( ... |  |  |
+| `EL_DASHJUMP_XZ_FIREBALL` | 7393 | 2026-10-17 | Elesis SPK / SBH dash-jump X-Z (and its Z re-attack) fireball, June 32b770e0: CreateInstance of DamageEffect_Elesis_SPK/SBH_DashJump_Combo_XZ at Dummy2_Lhand, scale 1, angle z -45, MP via IsEnoughMPForAttack, instead of the x2 / z+10 effect set (June's data already carries the x2: the fireball drew at 2x, aimed up) ... |  |  |
 
 (Flag names above drop the `SERV_IRUHADEV_JUNE_` prefix; `needs` drops `SERV_IRUHADEV_`.)
 

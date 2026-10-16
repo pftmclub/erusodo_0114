@@ -7250,6 +7250,30 @@ void CX2GUEL::ESI_DASH_JUMP_COMBO_SPK_XZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( 0.2f ) == true && EventCheck( 0.2f, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_EL_DASHJUMP_XZ_FIREBALL
+		// June2017 32b770e0 (this state's FrameMove; also the _REATTACK state's): no effect set. The fireball damage
+		// effect is created directly at Dummy2_Lhand, never SetScale'd (scale 1), angle and move axis
+		// ( dirDegree.x, dirDegree.y, -45 ), land pos unitCondition.landPosition.y (+0x80c4). June baked the old
+		// effect set's x2 into its data (SPK_Fire_Ball_Damage_M01 Size 0.7 -> 1.4, passive particles 1 / 0.9 -> 2 / 1.8)
+		// and the dive into this angle (mesh Velocity (700,-800,0) Rotate 135 -> (1063,0,0)), so the March effect set
+		// drew June's data at 2x and aimed it 10 degrees up. MP: vslot 0x6f0 = IsEnoughMPForAttack (32007e90) with
+		// ( 4, bone pos, 0, (0,0,-45) ); its not-enough-MP effect replaces EffectSet_A_EL_DashJump_Combo_XZ_FAIL.
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Dummy2_Lhand" );
+		if( true == IsEnoughMPForAttack( _CONST_EL_::SPK_DASH_JUMP_XZ_MP_COST, vBonePos, 0.f, D3DXVECTOR3( 0.f, 0.f, -45.f ) ) )
+		{
+			D3DXVECTOR3 vRotateDegree = GetRotateDegree();
+			vRotateDegree.z = -45.f;
+
+			const WCHAR* pwszDamageEffectName = L"DamageEffect_Elesis_SPK_DashJump_Combo_XZ";
+#ifdef SERV_ELESIS_SECOND_CLASS_CHANGE
+			if( true == m_bIsLearnUnextinguishableFire )
+				pwszDamageEffectName = L"DamageEffect_Elesis_SBH_DashJump_Combo_XZ";
+#endif SERV_ELESIS_SECOND_CLASS_CHANGE
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, pwszDamageEffectName, GetPowerRate() * GetFireBallPowerRate(),
+				vBonePos, vRotateDegree, vRotateDegree, m_FrameDataNow.unitCondition.landPosition.y );
+		}
+#else SERV_IRUHADEV_JUNE_EL_DASHJUMP_XZ_FIREBALL
 		if(	true == FlushMp( _CONST_EL_::SPK_DASH_JUMP_XZ_MP_COST ) )
 		{
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //±èÃ¢ÇÑ
@@ -7261,6 +7285,7 @@ void CX2GUEL::ESI_DASH_JUMP_COMBO_SPK_XZ_FrameMove()
 		}
 		else
 			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_A_EL_DashJump_Combo_XZ_FAIL", this );
+#endif SERV_IRUHADEV_JUNE_EL_DASHJUMP_XZ_FIREBALL
 	}
 
 	CommonFrameMove();

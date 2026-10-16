@@ -7383,3 +7383,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              with no next-level row, the gauge is full and reads 100.0%.
 #define SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Elesis (Pyro Knight / Blazing Heart) dash-jump X-Z fireball, June2017 32b770e0: create the damage effect
+//              directly at scale 1 and angle z -45 instead of through the March effect set (scale 2, z +10). June's data
+//              already carries the x2, so the effect set drew the fireball at twice June's size, aimed upward.
+#define SERV_IRUHADEV_JUNE_EL_DASHJUMP_XZ_FIREBALL
+//////////////////////////////////////////////////////////////////////////
