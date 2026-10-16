@@ -1138,6 +1138,10 @@ class CX2GUNPC : public CX2GameUnit
             std::vector<std::wstring>   m_vecwstrEnableAttackBox;
             std::vector<std::wstring>   m_vecwstrDisableAttackBox;
             std::vector<std::wstring>   m_vecwstrEnableCollisionBox;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+            /// June state +0x404 ( 0x20-byte { bone, distance } ), the state key CAN_NOT_PASS_SPECIFIED_BONE ( 32784c00 @32796270 )
+            std::vector< std::pair<std::wstring, float> >   m_vecCanNotPassSpecifiedBone;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
             std::vector<std::wstring>   m_vecwstrDisableCollisionBox;
             std::vector<EffectSetToPlay> m_vecEffectSetToPlay;
             float                       m_fEffectSetLifeTime;
@@ -1796,6 +1800,12 @@ class CX2GUNPC : public CX2GameUnit
 		const string&					GetStateNameByStateID( int iStateID );
 
 #endif MONSTER_STATE_CHANGE_CHEAT
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+		bool						GetNotCheckIndicator() const	{ return m_bNotCheckIndicator; }	/// June +0x8fa8, read by the monster indicator 32f099f0 @32f09f05
+		/// June vslot 0x2a8 32755e70 ( CX2GameUnit's 31e4c550 returns false ): the NPC's state lists CAN_NOT_PASS_SPECIFIED_BONE
+		bool						HasCanNotPassSpecifiedBone() const	{ return false == GetNowStateData().m_vecCanNotPassSpecifiedBone.empty(); }
+		int							GetLocalDirectionToPoint( int iUserUnitIndex_, const D3DXVECTOR3& vPos_, float fHeight_ ) const;	/// June 327788b0
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 		virtual int					GetNowStateID() const;
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
         const StateData&            GetNowStateData() const
@@ -4560,6 +4570,10 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 		bool						m_bJuneImmunityDamageDataStopTime;	/// C3e-4: June +0x8e82, the NPC key IMMUNITY_DAMAGE_DATA_STOP_TIME ( next to m_bImmunityTimeStop +0x8e81 )
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+		bool						m_bNotCheckIndicator;		/// June +0x8fa8, INIT_COMPONENT NOT_CHECK_INDICATOR ( 327a0fa0 @327ab66b )
+		bool						m_bUseDefaultDieParticle;	/// June +0x8fd9, INIT_COMPONENT USE_DEFAULT_DIE_PARTICLE ( 327a0fa0 @327ac38c )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 //#ifdef FIX_NPC_SHOW_OBJECT
 //		bool						m_bShowObjectCurrentState;

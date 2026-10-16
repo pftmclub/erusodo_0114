@@ -589,6 +589,10 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   `DI_EVENT_HALLOWEEN_ZOMBIE` 41410, `DI_2016_XMAS` 41430, `DI_EVENT_2017_VALENTINE` 41440, `DI_EVENT_HIGHSCHOOL` 41450,
   `DI_EVENT_2017_FOOLSDAY` 41460, `DI_EVENT_2017_TREASURE` 41470. Their worlds and unresolved NPCs are in the C3y TSVs.
   `DI_2017_ERDA` and `DI_ADD_CENTER` are on June's Special map (their lines in data217 `DLG_Map_Local_Special.lua` are commented out).
+- **`DI_EVENT_TREASURE_HOUSE_2` (41380, atlas A4, 2026-10-17).** User `PhysicProcess` `32015b30` @32018c26-3201906c: when the player
+  *can* pass units, June still runs the push loop (team / ally rules, plus NPCs with a `CAN_NOT_PASS_SPECIFIED_BONE` state, once per
+  bone) only in this dungeon (vslot 0x1c4 == 0xa1a4), at stage index 2 (`+0xc44 +8 == 2`), behind `32530a80` / `31aadcb0`. A4 ported
+  the bone push itself (`SERV_IRUHADEV_ELYSION_SCRIPT_A`, `CX2GUUser::ProcessCanPushUnit`'s bone form); this block calls it the same way.
 
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 

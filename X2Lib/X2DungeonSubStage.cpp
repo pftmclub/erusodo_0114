@@ -5,6 +5,9 @@
 #ifdef SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START_DEBUG
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 #include ".\x2dungeonsubstage.h"
 
 
@@ -806,6 +809,14 @@ void CX2DungeonSubStage::CheckIfSubStageCleared()
 					{
 						bCleared = false;
 					}
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+					/// June 327f0c10 case 0: once the active NPCs are dead, retype the CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED lines once
+					else if( false == clearCond.m_bChangedLineTypeAfterAllActiveNPCKilled )
+					{
+						clearCond.m_bChangedLineTypeAfterAllActiveNPCKilled = true;
+						ChangeLineTypeAfterAllActiveNPCKilled();
+					}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 				} break;
 
 			case CC_PORTAL_AFTER_KILL_ALL_ACTIVE_NPC:
@@ -842,6 +853,15 @@ void CX2DungeonSubStage::CheckIfSubStageCleared()
 							}
 						}
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+						/// June 327f0c10 case 5 ( @327f1180 ): the same once-only retype, after the portal effect, before the user test
+						if( false == clearCond.m_bChangedLineTypeAfterAllActiveNPCKilled )
+						{
+							clearCond.m_bChangedLineTypeAfterAllActiveNPCKilled = true;
+							ChangeLineTypeAfterAllActiveNPCKilled();
+						}
+
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 						bool bThereIsUserUnitOnLine = false;
 						for( int i=0; i<(int) clearCond.m_vecPortalLineIndex.size(); i++ )
 						{
@@ -2688,6 +2708,63 @@ void CX2DungeonSubStage::ChangeLineTypeAfterStageClear()
 		}
 	}
 }
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+/// June 327efc90 ( Atlas A4 ), the twin of ChangeLineTypeAfterStageClear for CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED ( +0x150 ):
+/// same stage / sub-stage filter ( +0xec / +0xf0 ). June adds the Peita magic square only when the new type is LT_POTAL and the
+/// line's SHOW_PORTAL ( +0x14c ) is set; March does not parse SHOW_PORTAL yet ( june-engine W2 does, June default 1 ), so it counts as set.
+void CX2DungeonSubStage::ChangeLineTypeAfterAllActiveNPCKilled()
+{
+	int iNowStage = 0;
+	int iNowSubStage = 0;
+	CX2DungeonGame* pDungoenGame = static_cast<CX2DungeonGame*>(g_pX2Game);
+	if( NULL != pDungoenGame )
+	{
+		CX2Dungeon* pDungeon = pDungoenGame->GetDungeon() ;
+		if( NULL != pDungeon &&
+			NULL != pDungeon->GetNowStage() )
+		{
+			iNowStage = pDungeon->GetNowStageIndex();
+			iNowSubStage = GetSubStageIndex();
+		}
+	}
+
+	if( NULL == g_pX2Game ||
+		NULL == g_pX2Game->GetWorld() ||
+		NULL == g_pX2Game->GetLineMap() )
+		return;
+
+	for( int i=0; i<g_pX2Game->GetLineMap()->GetNumLineData(); ++i )
+	{
+		CKTDGLineMap::LineData* pLineData = g_pX2Game->GetLineMap()->AccessLineData( i );
+		if( NULL == pLineData ||
+			CKTDGLineMap::LT_INVALID == pLineData->m_eLineTypeAfterAllActiveNPCKilled ||
+			pLineData->m_eLineTypeAfterAllActiveNPCKilled == pLineData->lineType )
+			continue;
+
+		if( -1 != pLineData->m_iChangeAfterClearStage && iNowStage != pLineData->m_iChangeAfterClearStage )
+			continue;
+		if( -1 != pLineData->m_iChangeAfterClearSubStage && iNowSubStage != pLineData->m_iChangeAfterClearSubStage )
+			continue;
+
+		pLineData->lineType = pLineData->m_eLineTypeAfterAllActiveNPCKilled;
+
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		CX2OfflineLog::Server( L"[ELYDBG] CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED: line %d -> type %d ( stage %d sub %d )", i, (int)pLineData->lineType, iNowStage, iNowSubStage );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+
+		const bool bShowPortal = true;	/// June +0x14c ( SHOW_PORTAL ), W2's key
+		if( CKTDGLineMap::LT_POTAL == pLineData->lineType && true == bShowPortal && NULL != g_pX2Game->GetMajorParticle() )
+		{
+			CX2WorldObjectParticle* pParticle = g_pX2Game->GetWorld()->CreateObjectParticle( g_pX2Game->GetMajorParticle(), "Peita_Teleport_MagicSquare01" );
+			if( NULL != pParticle )
+			{
+				pParticle->SetParticlePos( ( pLineData->startPos + pLineData->endPos ) * 0.5f + D3DXVECTOR3(0, 3, 0 ) );
+				pParticle->SetLayer( XL_EFFECT_0 );
+			}
+		}
+	}
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 /** @function : ProcessAfterSubStageClear
 	@brief : HOST가 아닌 경우, 서브 스테이지 클리 후 처리 해야 하는 동작
 */

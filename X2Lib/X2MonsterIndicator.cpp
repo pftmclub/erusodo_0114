@@ -200,6 +200,11 @@ void CX2MonsterIndicator::OnFrameMove()
 
 			if( CX2NPCAI::NAT_NORMAL != pNPC->GetNPCAI()->GetAIType() )
 				continue;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+			/// June 32f099f0 @32f09f05 / @32f09f2a: the per-NPC filter also skips NOT_CHECK_INDICATOR NPCs and INIT_AI NO_INDICATOR
+			if( true == pNPC->GetNotCheckIndicator() || true == pNPC->GetNPCAI()->GetNoIndicator() )
+				continue;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 				
 
 			D3DXVECTOR3 center;

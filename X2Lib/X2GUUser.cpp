@@ -23750,6 +23750,11 @@ void CX2GUUser::PhysicProcess()
 				|| ( pGameUnit->GetTeam() == GetTeam() && false == pGameUnit->GetStateparam( true ).bCanPassAllyUnit ) 
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 #endif // ADD_CAN_PASS_ALLY_UNIT				
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+				/// June 32010060 ( and PhysicProcess 32015b30 @32018dbf ): an NPC whose state lists CAN_NOT_PASS_SPECIFIED_BONE
+				/// collides even when its state lets units pass ( vslot 0x2a8 32755e70 )
+				|| ( GUT_NPC == pGameUnit->GetGameUnitType() && true == static_cast<CX2GUNPC*>( pGameUnit )->HasCanNotPassSpecifiedBone() )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 				) && ( pGameUnit->GetAllyTeam() == CX2Room::TN_NONE || pGameUnit->GetAllyTeam() != static_cast<CX2Room::TEAM_NUM>(GetTeam()) ) && // 대상의 아군팀이 설정되어있지 않거나, 대상이 아군팀이 아니면
 					pGameUnit->GetGameUnitState() != GUSI_DIE &&
 					!( g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD && false == pGameUnit->DidReceiveFirstSyncPacket() ) )  /// 배틀필드에서 싱크패킷을 한번도 못받은게 아니면
@@ -23798,6 +23803,17 @@ void CX2GUUser::PhysicProcess()
                                 iDirection = 3;
                                 break;
                             }
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+                            /// June 32010060 @32010333-320103b5: with a bone list the NPC pushes once per bone ( ProcessCanPushUnit's
+                            /// bone form ) and June keeps every result ( no reset to the sync position ); without one, March's push below.
+                            if ( true == pNPC->HasCanNotPassSpecifiedBone() )
+                            {
+                                const int iNumBone = (int)pNPC->GetNowStateData().m_vecCanNotPassSpecifiedBone.size();
+                                for ( int iBone = 0; iBone < iNumBone; ++iBone )
+                                    ProcessCanPushUnit( pGameUnit, vMyUnitMinMaxY, position, iDirection, iBone );
+                            }
+                            else
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
                             if ( ProcessCanPushUnit( pGameUnit, vMyUnitMinMaxY, position, iDirection ) == false )
 //#else   X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
@@ -39591,16 +39607,52 @@ void CX2GUUser::ToggleSkillSlotAB()
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+/*FORCEINLINE*/ bool CX2GUUser::ProcessCanPushUnit( CX2GameUnit* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_, int iDirection, int iCanNotPassBoneIndex )
+#else  SERV_IRUHADEV_ELYSION_SCRIPT_A
 /*FORCEINLINE*/ bool CX2GUUser::ProcessCanPushUnit( CX2GameUnit* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_, int iDirection )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 //#else   X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 ///*FORCEINLINE*/ bool CX2GUUser::ProcessCanPushNPCUnit( CX2GUNPC* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_, int iDirection )
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 {
 	KTDXPROFILE_BEGIN("Push");	
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	/// June 31fe8ad0 @31fe8b74-31fe8cb2: with a bone index on an NPC whose state lists CAN_NOT_PASS_SPECIFIED_BONE, the other
+	/// unit becomes that bone: centre = the bone, Y span = bone.y -/+ distance, half width = my half width + distance. An index
+	/// past the list ( or no list ) returns false at once; a bone the skin does not have falls back to the unit's own box.
+	D3DXVECTOR3 vPosFutureOtherGameUnit = pGameUnit_->GetPos( true );
+	bool bUseBone = false;
+	float fBoneDistance = 0.f;
+	float fGameUnitYMin = vPosFutureOtherGameUnit.y;
+	float fGameUnitHeight = 0.f;
+	if( iCanNotPassBoneIndex >= 0 && GUT_NPC == pGameUnit_->GetGameUnitType() )
+	{
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pGameUnit_ );
+		if( false == pNPC->HasCanNotPassSpecifiedBone() ||
+			iCanNotPassBoneIndex >= (int)pNPC->GetNowStateData().m_vecCanNotPassSpecifiedBone.size() )
+			return false;
+
+		const std::wstring wstrBoneName = pNPC->GetNowStateData().m_vecCanNotPassSpecifiedBone[iCanNotPassBoneIndex].first;
+		fBoneDistance = pNPC->GetNowStateData().m_vecCanNotPassSpecifiedBone[iCanNotPassBoneIndex].second;
+		CKTDGXSkinAnimPtr pXSkinAnim = pNPC->GetXSkinAnimPtr();
+		if( NULL != pXSkinAnim && NULL != pXSkinAnim->GetCloneFrame( wstrBoneName.c_str() ) )
+		{
+			bUseBone = true;
+			vPosFutureOtherGameUnit = pNPC->GetBonePos( wstrBoneName.c_str() );
+			fGameUnitHeight = fBoneDistance + fBoneDistance;
+			fGameUnitYMin = vPosFutureOtherGameUnit.y - fBoneDistance;
+		}
+	}
+	if( false == bUseBone )
+		fGameUnitHeight = pGameUnit_->GetUnitHeight( true );
+	const float fGameUnitYMax = fGameUnitYMin + fGameUnitHeight;
+#else  SERV_IRUHADEV_ELYSION_SCRIPT_A
 	D3DXVECTOR3 vPosFutureOtherGameUnit = pGameUnit_->GetPos( true );
 	const float fGameUnitYMin = vPosFutureOtherGameUnit.y;
 	const float fGameUnitYMax = fGameUnitYMin + pGameUnit_->GetUnitHeight( true );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 	if( (fGameUnitYMin >= vMyUnitMinMaxY_.x && fGameUnitYMin <= vMyUnitMinMaxY_.y) ||
 		(fGameUnitYMax >= vMyUnitMinMaxY_.x && fGameUnitYMax <= vMyUnitMinMaxY_.y) ||
@@ -39613,6 +39665,19 @@ void CX2GUUser::ToggleSkillSlotAB()
 		    vPosFutureOtherGameUnit.y = vMyPos_.y;
 		    const float fDistanceHorizon3Sq = GetDistance3Sq( vPosFutureOtherGameUnit, vMyPos_ );
      	    float fHalfSumUnitWidth = ( GetUnitWidth( true ) + pGameUnit_->GetUnitWidth( true ) ) * 0.5f;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+			if( true == bUseBone )
+			{
+				fHalfSumUnitWidth = GetUnitWidth( true ) * 0.5f + fBoneDistance;	/// June @31fe9028
+				if( GUT_NPC == pGameUnit_->GetGameUnitType() )
+				{
+					/// June @31fe904d: the NPC's direction against the bone ( 327788b0 ) replaces iDirection unless -1
+					const int iBoneDirection = static_cast<CX2GUNPC*>( pGameUnit_ )->GetLocalDirectionToPoint( GetUnitIndex(), vPosFutureOtherGameUnit, fGameUnitHeight );
+					if( -1 != iBoneDirection )
+						iDirection = iBoneDirection;
+				}
+			}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 		
 		    if( fDistanceHorizon3Sq < fHalfSumUnitWidth * fHalfSumUnitWidth )	/// 서로 근접하여 붙어있으면
 		    {
@@ -39701,6 +39766,10 @@ void CX2GUUser::ToggleSkillSlotAB()
 		    vPosFutureOtherGameUnit.y = vMyPos_.y;
 		    const float fDistanceHorizon3Sq = GetDistance3Sq( vPosFutureOtherGameUnit, vMyPos_ );
      	    float fHalfSumUnitWidth = ( GetUnitWidth( true ) + pGameUnit_->GetUnitWidth( true ) ) * 0.5f;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+			if( true == bUseBone )
+				fHalfSumUnitWidth = GetUnitWidth( true ) * 0.5f + fBoneDistance;	/// June @31fe8d89
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 		
 		    if( fDistanceHorizon3Sq < fHalfSumUnitWidth * fHalfSumUnitWidth )	/// 서로 근접하여 붙어있으면
 		    {
@@ -39782,6 +39851,14 @@ void CX2GUUser::ToggleSkillSlotAB()
 }
 
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+/// Atlas A4: March's four-argument form is June's with no bone
+bool CX2GUUser::ProcessCanPushUnit( CX2GameUnit* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_, int iDirection )
+{
+	return ProcessCanPushUnit( pGameUnit_, vMyUnitMinMaxY_, vMyPos_, iDirection, -1 );
+}
+
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 #else   X2OPTIMIZE_NPC_NONHOST_SIMULATION
 
 /*FORCEINLINE*/ void CX2GUUser::ProcessCanPushUnit( const CX2GameUnit* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_ )

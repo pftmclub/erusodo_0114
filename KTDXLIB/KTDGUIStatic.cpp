@@ -83,6 +83,9 @@ HRESULT CKTDGUIStatic::OnFrameMove( double fTime, float fElapsedTime )
 				true == pPictureData->m_bFadeIn ||
 				true == pPictureData->m_bFadeOut ||
 #endif //BUFF_ICON_UI
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+				0 < pPictureData->m_iChangeUVState ||	/// June 31cc0950: also a picture whose UV change (+0xb0) runs
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 				0.f != pPictureData->m_VibrateData.m_fMaxTime )
 			{
 				pPictureData->OnFrameMove( fTime, fElapsedTime );

@@ -7,6 +7,9 @@ CX2NPCAI::CX2NPCAI( CX2GUNPC* pOwnerNPC, NPC_AI_TYPE eAIType )
 , m_bEnabled( true ) 
 , m_eAIType( eAIType )
 , m_pMasterNPC( pOwnerNPC )
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+, m_bNoIndicator( false )	/// June base ctor 32f2b6f0 clears +0x34
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 //, m_TargetUnitUID( -1 )
 //, m_TargetUnitType( CX2GameUnit::GUT_USER )
 , m_fElapsedTimeAfterLastTargeting( 0.f )
@@ -37,6 +40,9 @@ CX2NPCAI::~CX2NPCAI(void)
 	if( luaManager.BeginTable( "INIT_AI" ) == true )
 	{
 		LUA_GET_VALUE( luaManager, "NO_BRAIN", m_bNoBrain, false );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+		LUA_GET_VALUE( luaManager, "NO_INDICATOR", m_bNoIndicator, false );	/// June 32f2b4c0 @32f2b5e6 ( Atlas A4 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 		luaManager.EndTable();
 	}
 

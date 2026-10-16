@@ -2208,6 +2208,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetTex2",			&CKTDGUIControl::CPictureData::SetTex_LUA2 );
 	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetTex",			&CKTDGUIControl::CPictureData::SetTex_LUA );
 	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetPoint",			&CKTDGUIControl::CPictureData::SetPoint_LUA );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetChangeUVPoint",	&CKTDGUIControl::CPictureData::SetChangeUVPoint_LUA );	// June @31bf7c70 ( 31c9a7d0 ), Atlas A4
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetShow",			&CKTDGUIControl::CPictureData::SetShow );
 	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetPos",			&CKTDGUIControl::CPictureData::SetPos );
 	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetMaximizeType",	&CKTDGUIControl::CPictureData::SetMaximizeType );

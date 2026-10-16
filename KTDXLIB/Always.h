@@ -7402,3 +7402,22 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              IsVillageField's June range, and the offline Lua enum seed. Later Atlas/Elysion phases put their region switches here too.
 #define SERV_IRUHADEV_ELYSION_PORT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase A4), the Atlas-half script engine: binds GetAliveActiveNPCCount
+//              (CX2Game) and GetNationFlag (CX2Main); CPictureData::SetChangeUVPoint and June's UV-change tween; NPC keys
+//              USE_DEFAULT_DIE_PARTICLE and NOT_CHECK_INDICATOR, INIT_AI's NO_INDICATOR (the monster indicator filter);
+//              the state key CAN_NOT_PASS_SPECIFIED_BONE (user push against NPC bones); linemap key
+//              CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED (retype once the active NPCs are dead).
+#define SERV_IRUHADEV_ELYSION_SCRIPT_A
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port diagnostics: [ELYDBG] first-use lines (ErrorLog.txt from KTDXLIB, offline_server.log
+//              from X2Lib). Removable: undefine to silence them.
+#define SERV_IRUHADEV_ELYSION_DEBUG
+//////////////////////////////////////////////////////////////////////////

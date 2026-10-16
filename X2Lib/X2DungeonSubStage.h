@@ -92,10 +92,16 @@ class CX2DungeonSubStage
 			float						m_fClearTime;
 			std::vector<NextStageData>	m_vecNextStage;
 			float						m_fDelayTimeClearSubStage;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+			bool						m_bChangedLineTypeAfterAllActiveNPCKilled;	/// June clear condition +0x54: the retype below ran once
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 		public:
 			ClearCondtionData()
 			{
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+				m_bChangedLineTypeAfterAllActiveNPCKilled = false;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 				m_bEnable = true;
 				m_bChecked = false;
 				m_bCreatedPortalEffect = false;
@@ -483,6 +489,9 @@ class CX2DungeonSubStage
 #ifdef DYNAMIC_PORTAL_LINE_MAP
 		void				ChangeLineTypeAfterStageClear();
 #endif // DYNAMIC_PORTAL_LINE_MAP
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+		void				ChangeLineTypeAfterAllActiveNPCKilled();	/// June 327efc90
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 		
 	

@@ -21,6 +21,9 @@
 #ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK_DEBUG
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 
 //#ifdef  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #define X2GUNPC_RECEIVE_FRAME_COUNT_MAX_GAB     (70*10)
@@ -2373,6 +2376,10 @@ void CX2GUNPC::CommonConstructor()
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	m_bJuneImmunityDamageDataStopTime = false;	/// C3e-4: June ctor 32762670 @32762953 clears +0x8e82 with +0x8e81
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	m_bNotCheckIndicator		= false;	/// June CommonConstructor @327633bf
+	m_bUseDefaultDieParticle	= false;	/// June CommonConstructor @3276343c ( the word +0x8fd8 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 #ifdef MODIFY_DUNGEON_STAGING
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -4743,6 +4750,12 @@ void CX2GUNPC::InitComponent()
 		/// IMMUNITY_TIME_STOP when bDamageDataStop is true. 0 shipped June scripts set it alone; 77 set both keys.
 		LUA_GET_VALUE( m_LuaManager, "IMMUNITY_DAMAGE_DATA_STOP_TIME",	m_bJuneImmunityDamageDataStopTime, false	);
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+		/// June 327a0fa0, INIT_COMPONENT: NOT_CHECK_INDICATOR @327ab66b ( the monster indicator skips this NPC ),
+		/// USE_DEFAULT_DIE_PARTICLE @327ac38c ( "DieLight" once at death, CommonFrameMove_DieParticle ).
+		LUA_GET_VALUE( m_LuaManager, "NOT_CHECK_INDICATOR",		m_bNotCheckIndicator,		false );
+		LUA_GET_VALUE( m_LuaManager, "USE_DEFAULT_DIE_PARTICLE",	m_bUseDefaultDieParticle,	false );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR 
@@ -5681,6 +5694,26 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 
 
 	// attack box 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	/// June 32784c00 @32796263-32796358: CAN_NOT_PASS_SPECIFIED_BONE = { { "bone", distance }, ... }. While the NPC is in
+	/// this state the player's push ( CX2GUUser::ProcessCanPushUnit ) treats each bone as a sphere of that radius.
+	nowStateData.m_vecCanNotPassSpecifiedBone.clear();
+	if( luaManager_.BeginTable( "CAN_NOT_PASS_SPECIFIED_BONE" ) == true )
+	{
+		int iBoneIndex = 1;
+		while( luaManager_.BeginTable( iBoneIndex ) == true )
+		{
+			std::wstring wstrBoneName = L"";
+			float fDistance = 0.f;
+			luaManager_.GetValue( 1, wstrBoneName );
+			luaManager_.GetValue( 2, fDistance );
+			nowStateData.m_vecCanNotPassSpecifiedBone.push_back( std::make_pair( wstrBoneName, fDistance ) );
+			luaManager_.EndTable();
+			++iBoneIndex;
+		}
+		luaManager_.EndTable();
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
     nowStateData.m_vecwstrEnableAttackBox.resize( 0 );
 	if( luaManager_.BeginTable( "ENABLE_ATTACK_BOX" ) == true )
 	{
@@ -22176,9 +22209,79 @@ void CX2GUNPC::CommonFrameMove_Particle()
 
 
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+/// June 327788b0 ( Atlas A4 ): user iUserUnitIndex_'s direction against a point ( a CAN_NOT_PASS_SPECIFIED_BONE bone ) with the
+/// height fHeight_, the one-unit form of KNonHostReaction::PhysicProcess_UpdateRelativePos. June returns 1 / 2 already in the
+/// user's frame ( dot >= 0 -> 1 ) but 3 / 4 in the NPC's ( user above -> 3 ), and checks no team: both kept ( JUNE_BUGS ).
+/// -1 = no override.
+int CX2GUNPC::GetLocalDirectionToPoint( int iUserUnitIndex_, const D3DXVECTOR3& vPos_, float fHeight_ ) const
+{
+	if( NULL == g_pX2Game )
+		return -1;
+
+	CX2GUUser* pUser = g_pX2Game->GetUserUnit( iUserUnitIndex_ );
+	if( NULL == pUser || CX2GameUnit::GUSI_DIE == pUser->GetGameUnitState() )
+		return -1;
+
+	if( CX2Game::GT_BATTLE_FIELD == g_pX2Game->GetGameType() &&
+		false == pUser->IsMyUnit() && false == pUser->DidReceiveFirstSyncPacket() )
+		return -1;
+
+	const bool bUserCanPass = pUser->GetStateparam( true ).bCanPassUnit;
+	const D3DXVECTOR3 vUserPos = pUser->GetPos( true );
+	const float fUserYMin = vUserPos.y;
+	const float fUserYMax = fUserYMin + pUser->GetUnitHeight( true );
+	const float fMyYMin = vPos_.y;
+	const float fMyYMax = vPos_.y + fHeight_;
+	const bool bCanPass = m_NPCFrameData.stateParam.bCanPassUnit;
+
+	if( ( fUserYMin >= fMyYMin && fUserYMin <= fMyYMax ) ||
+		( fUserYMax >= fMyYMin && fUserYMax <= fMyYMax ) ||
+		( fUserYMin <= fMyYMin && fUserYMax >= fMyYMax ) )
+	{
+		D3DXVECTOR3 vDirVectorFromMeToOther = vUserPos - vPos_;
+		vDirVectorFromMeToOther.y = 0.f;
+		if( false == bCanPass && false == bUserCanPass )
+			return ( D3DXVec3Dot( &m_NPCFrameData.unitCondition.dirVector, &vDirVectorFromMeToOther ) < 0.f ) ? 2 : 1;
+	}
+	else
+	{
+		if( false == bCanPass && false == bUserCanPass )
+			return ( fMyYMax <= fUserYMin ) ? 3 : 4;
+	}
+	return -1;
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 void CX2GUNPC::CommonFrameMove_DieParticle()
 {
 	KTDXPROFILE();
+
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	/// June 3277ec60 starts with this block, the rest of the function is March's and June's alike: USE_DEFAULT_DIE_PARTICLE
+	/// spawns "DieLight" once ( handle still invalid ) when the HP is gone or the unit is in GUSI_DIE. June 32778d40: minor
+	/// particle at GetPos(), emit ( -1, -1 ), trigger ( 3, -1 ), the land Y, no sound ( the scripted *_DYING_LAND_STATE_START
+	/// helpers in X2GUNPCFunc.cpp do the same plus a sound ).
+	if( true == m_bUseDefaultDieParticle &&
+		( ( NULL != GetGageData() && GetNowHp() <= 0.f ) || GUSI_DIE == GetGameUnitState() ) &&
+		INVALID_PARTICLE_SEQUENCE_HANDLE == m_hSeqDieEffect &&
+		NULL != g_pX2Game && NULL != g_pX2Game->GetMinorParticle() )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMinorParticle()->GameUnitCreateSequence_LUA( this, "DieLight", GetPos(), D3DXVECTOR2(-1,-1), D3DXVECTOR2(3,-1) );
+		if( NULL != pSeq )
+		{
+			m_hSeqDieEffect = pSeq->GetHandle();
+			pSeq->SetLandPosition( GetLandPosition_LUA().y );
+		}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		static bool s_bLoggedFirstUse = false;
+		if( false == s_bLoggedFirstUse )
+		{
+			s_bLoggedFirstUse = true;
+			CX2OfflineLog::Server( L"[ELYDBG] USE_DEFAULT_DIE_PARTICLE first use: npc %d DieLight %s", (int)GetNPCTemplet().m_nNPCUnitID, NULL != pSeq ? L"created" : L"FAILED" );
+		}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 
 

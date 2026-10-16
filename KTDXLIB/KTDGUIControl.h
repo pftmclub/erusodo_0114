@@ -12,6 +12,9 @@
 #ifndef WHEEL_DELTA
 #define WHEEL_DELTA		120 // (not always defined)
 #endif
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+#include <functional>	/// std::tr1::function: CPictureData's UV-change end callback (June 31c95a60)
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 
 class CKTDGUIDialog;
@@ -392,6 +395,23 @@ class CKTDGUIControl : private boost::noncopyable
 				void SetPoint_LUA();
 				void SetPoint( CKTDGUIControl::UIPointData* pNewPoint );
 				void SetPoint();
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+				/// June 2017 UV-change keyframes (Atlas A4). SetChangeUVPoint 31c9a7d0 stores them, StartChangeUV 31c95150
+				/// starts a tween to the next / previous one, OnFrameMove 31c95580's tail runs it, SetPoint_LUA 31c9a700 and
+				/// the ctor 31c9a540 reset the block (31c9eea0). The June 0x44-byte record: 4 points, 8 unread floats, the time.
+				struct CHANGE_UV_POINT
+				{
+					D3DXVECTOR2	m_vUVPoint[4];		/// VP_LEFT_TOP, VP_RIGHT_TOP, VP_LEFT_BOTTOM, VP_RIGHT_BOTTOM, in texture pixels
+					D3DXVECTOR2	m_vUnused[4];		/// June zeroes these and never reads them
+					float		m_fChangeTime;		/// CHANGE_TIME: seconds to reach this record from its neighbour
+				};
+				void SetChangeUVPoint_LUA();
+				bool StartChangeUV( int iDirection, OUT int& iFromIndex, OUT int& iToIndex );	/// 1 = next record, 2 = previous
+				void SetChangeUVEndFunc( const std::tr1::function<void ( int )>& funcEnd ) { m_funcChangeUVEnd = funcEnd; }	/// June 31c95a60
+				int  GetChangeUVIndex() const { return m_iChangeUVIndex; }
+				bool IsChangingUV() const { return 0 < m_iChangeUVState; }
+				void ResetChangeUV();
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 				D3DXVECTOR2 GetSize() { return size; }
 				D3DXVECTOR2 GetOriginalPos() { return originalPos; }
@@ -540,6 +560,14 @@ class CKTDGUIControl : private boost::noncopyable
 				float							m_fFadeTime;
 				float							m_fRemainFadeTime;
 #endif //BUFF_ICON_UI
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+				int								m_iChangeUVState;		/// June +0xb0: 0 idle, else the direction StartChangeUV was given
+				int								m_iChangeUVIndex;		/// June +0xb4: the record the texture shows (or is moving to)
+				vector<CHANGE_UV_POINT>			m_vecChangeUVPoint;		/// June +0xb8
+				float							m_fChangeUVRemainTime;	/// June +0xc8
+				D3DXVECTOR2						m_vChangeUVSpeed[4];	/// June +0xcc: pixels per second per point
+				std::tr1::function<void ( int )>	m_funcChangeUVEnd;		/// June +0xf0: called once with the new index when a tween ends
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 		};
 

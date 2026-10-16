@@ -1203,6 +1203,9 @@ CKTDGUIControl::CPictureData::CPictureData()
 
 	m_fTwinkleTime			= 0.f;
 	m_EdgeEnlarge			= 0;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	ResetChangeUV();	/// June's ctor 31c9a540 ends with the UV-change reset 31c9eea0
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 }
 
 CKTDGUIControl::CPictureData::~CPictureData()
@@ -1371,8 +1374,155 @@ void CKTDGUIControl::CPictureData::OnFrameMove( double fTime, float fElapsedTime
 	KTDXPROFILE_END(); // "FadeInOut"
 
 #endif //BUFF_ICON_UI
+
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	/// June 31c95580's tail: run the tween StartChangeUV started. When it ends, the end callback gets the new index
+	/// and is dropped, then the target record is copied in; otherwise every point moves by its speed.
+	if( 0 < m_iChangeUVState && NULL != pTexture )	/// A4: June dereferences the texture unguarded
+	{
+		bool bChangeUVEnd = false;
+		m_fChangeUVRemainTime -= fElapsedTime;
+		if( m_fChangeUVRemainTime <= 0.f )
+		{
+			if( m_funcChangeUVEnd )
+			{
+				m_funcChangeUVEnd( m_iChangeUVIndex );
+				m_funcChangeUVEnd = std::tr1::function<void ( int )>();
+			}
+			bChangeUVEnd = true;
+			m_fChangeUVRemainTime = 0.f;
+			m_iChangeUVState = 0;
+		}
+
+		for( int i = 0; i < 4; ++i )
+		{
+			if( true == bChangeUVEnd )
+				pTexture->uvOrgTexture[i] = m_vecChangeUVPoint[m_iChangeUVIndex].m_vUVPoint[i];
+			else
+				pTexture->uvOrgTexture[i] += m_vChangeUVSpeed[i] * fElapsedTime;
+		}
+		pTexture->SetTextureUV();	/// June recomputes the 8 normalised UVs inside the loop (same result)
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 }
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+/// June 31c9a7d0 (bound @31bf7c70): append one UV record { LEFT_TOP, RIGHT_TOP, LEFT_BOTTOM, RIGHT_BOTTOM, CHANGE_TIME }.
+/// A missing point reads (0,0) and a missing time 0. The first call also stores the texture's current UV as record 0,
+/// with this call's CHANGE_TIME.
+void CKTDGUIControl::CPictureData::SetChangeUVPoint_LUA()
+{
+	KTDXPROFILE();
+
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	CHANGE_UV_POINT kPoint;
+	ZeroMemory( &kPoint, sizeof(kPoint) );
+#ifdef  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "LEFT_TOP",		kPoint.m_vUVPoint[CKTDGUIControl::VP_LEFT_TOP],		D3DXVECTOR2(0,0) );
+	LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "RIGHT_TOP",		kPoint.m_vUVPoint[CKTDGUIControl::VP_RIGHT_TOP],		D3DXVECTOR2(0,0) );
+	LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "LEFT_BOTTOM",		kPoint.m_vUVPoint[CKTDGUIControl::VP_LEFT_BOTTOM],	D3DXVECTOR2(0,0) );
+	LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "RIGHT_BOTTOM",	kPoint.m_vUVPoint[CKTDGUIControl::VP_RIGHT_BOTTOM],	D3DXVECTOR2(0,0) );
+#else   X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	kPoint.m_vUVPoint[CKTDGUIControl::VP_LEFT_TOP]		= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(), "LEFT_TOP" );
+	kPoint.m_vUVPoint[CKTDGUIControl::VP_RIGHT_TOP]		= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(), "RIGHT_TOP" );
+	kPoint.m_vUVPoint[CKTDGUIControl::VP_LEFT_BOTTOM]	= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(), "LEFT_BOTTOM" );
+	kPoint.m_vUVPoint[CKTDGUIControl::VP_RIGHT_BOTTOM]	= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(), "RIGHT_BOTTOM" );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	LUA_GET_VALUE( luaManager, "CHANGE_TIME", kPoint.m_fChangeTime, 0.0f );
+
+	if( true == m_vecChangeUVPoint.empty() && NULL != pTexture )	/// A4: June reads the texture unguarded
+	{
+		CHANGE_UV_POINT kOrigin;
+		ZeroMemory( &kOrigin, sizeof(kOrigin) );
+		for( int i = 0; i < 4; ++i )
+			kOrigin.m_vUVPoint[i] = pTexture->uvOrgTexture[i];
+		kOrigin.m_fChangeTime = kPoint.m_fChangeTime;
+		m_vecChangeUVPoint.push_back( kOrigin );
+	}
+	m_vecChangeUVPoint.push_back( kPoint );
+
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	static bool s_bLoggedFirstUse = false;
+	if( false == s_bLoggedFirstUse )
+	{
+		s_bLoggedFirstUse = true;
+		KLOG( "ErrorLog.txt" ) << "[ELYDBG] SetChangeUVPoint first use: " << (int)m_vecChangeUVPoint.size() << " UV records, CHANGE_TIME " << kPoint.m_fChangeTime << fileout;
+	}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+}
+
+/// June 31c95150: start a tween to the next (1) or previous (2) record. Fails while one runs, at either end of the list,
+/// with fewer than two records or with no point data. Speeds are (target - current record) / the target's CHANGE_TIME.
+bool CKTDGUIControl::CPictureData::StartChangeUV( int iDirection, OUT int& iFromIndex, OUT int& iToIndex )
+{
+	if( iDirection < 1 )
+	{
+		KLOG( "ErrorLog.txt" ) << "[ELYDBG] StartChangeUV: invalid direction " << iDirection << fileout;	/// June logs here too (3344aed0)
+		return false;
+	}
+
+	const int iCount = (int)m_vecChangeUVPoint.size();
+	if( iCount <= 1 )
+	{
+		KLOG( "ErrorLog.txt" ) << "[ELYDBG] StartChangeUV: " << iCount << " UV record(s), need 2" << fileout;	/// June logs the texture name (3344ae18)
+		return false;
+	}
+
+	if( 0 != m_iChangeUVState )
+		return false;
+
+	int iTo = -1;
+	if( 1 == iDirection )
+	{
+		iTo = m_iChangeUVIndex + 1;
+		if( iTo >= iCount )
+			return false;
+	}
+	else if( 2 == iDirection )
+	{
+		if( m_iChangeUVIndex < 1 )
+			return false;
+		iTo = m_iChangeUVIndex - 1;
+	}
+	if( iTo < 0 )	/// A4: June goes on with -1 here (a direction above 2 reads record -1); no June caller passes one
+		return false;
+
+	if( NULL == pPoint )
+		return false;	/// June: error 0x159 (31bd07b0)
+
+	m_iChangeUVState = iDirection;
+	const CHANGE_UV_POINT& kFrom	= m_vecChangeUVPoint[m_iChangeUVIndex];
+	const CHANGE_UV_POINT& kTo		= m_vecChangeUVPoint[iTo];
+	m_fChangeUVRemainTime = kTo.m_fChangeTime;
+	for( int i = 0; i < 4; ++i )
+		m_vChangeUVSpeed[i] = ( kTo.m_vUVPoint[i] - kFrom.m_vUVPoint[i] ) * ( 1.f / m_fChangeUVRemainTime );
+
+	iFromIndex = m_iChangeUVIndex;
+	iToIndex = iTo;
+	m_iChangeUVIndex = iTo;
+
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	KLOG( "ErrorLog.txt" ) << "[ELYDBG] StartChangeUV " << iFromIndex << " -> " << iToIndex << " in " << m_fChangeUVRemainTime << " s" << fileout;
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	return true;
+}
+
+/// June 31c9eea0
+void CKTDGUIControl::CPictureData::ResetChangeUV()
+{
+	m_iChangeUVState = 0;
+	m_iChangeUVIndex = 0;
+	m_vecChangeUVPoint.clear();
+	m_fChangeUVRemainTime = 0.f;
+	m_funcChangeUVEnd = std::tr1::function<void ( int )>();
+	for( int i = 0; i < 4; ++i )
+		m_vChangeUVSpeed[i] = D3DXVECTOR2( 0.f, 0.f );
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 void CKTDGUIControl::CPictureData::SetTex_LUA2( const char* pFileName )
 {
 	KTDXPROFILE();
@@ -1526,6 +1676,9 @@ void CKTDGUIControl::CPictureData::SetPoint_LUA()
 	if( pPoint->fRotDegree != 0 )
 		pPoint->Rotate( pPoint->fRotDegree );
 #endif
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	ResetChangeUV();	/// June SetPoint_LUA 31c9a700 ends with the UV-change reset 31c9eea0 (SetPoint( UIPointData* ) 31c948a0 does not)
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 }
 
 void CKTDGUIControl::CPictureData::SetPoint( CKTDGUIControl::UIPointData* pNewPoint )

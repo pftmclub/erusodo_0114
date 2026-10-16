@@ -3481,6 +3481,10 @@ public:
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 //#ifdef  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
         bool    ProcessCanPushUnit( CX2GameUnit* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_, int iDirection );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+        /// June 31fe8ad0: the push with a CAN_NOT_PASS_SPECIFIED_BONE index ( -1 = the unit's own box, March's form above )
+        bool    ProcessCanPushUnit( CX2GameUnit* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_, int iDirection, int iCanNotPassBoneIndex );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 //#else   X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 //        bool    ProcessCanPushUserUnit( CX2GUUser* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, const D3DXVECTOR2& vMyUnitMinMaxYCur_, OUT D3DXVECTOR3& vMyPos_ );
 //		bool    ProcessCanPushNPCUnit( CX2GUNPC* pGameUnit_, const D3DXVECTOR2& vMyUnitMinMaxY_, OUT D3DXVECTOR3& vMyPos_, int iDirection );

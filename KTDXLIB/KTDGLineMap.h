@@ -435,6 +435,9 @@ class CKTDGLineMap : public CKTDGObject
 			int				m_iChangeAfterClearStage;	// 클리어 이후 라인타입 변경 할 스테이지
 			int				m_iChangeAfterClearSubStage;// 크리어 이후 라인타입 변경 할 서브 스테이지
 #endif // DYNAMIC_PORTAL_LINE_MAP
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+			LINE_TYPE		m_eLineTypeAfterAllActiveNPCKilled;	/// June LineData +0x150, CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED ( 31c705c0 @31c73ab9 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP
@@ -560,6 +563,9 @@ class CKTDGLineMap : public CKTDGObject
 				m_iChangeAfterClearStage	= -1;
 				m_iChangeAfterClearSubStage = -1;
 #endif // DYNAMIC_PORTAL_LINE_MAP
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+				m_eLineTypeAfterAllActiveNPCKilled = LT_INVALID;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP

@@ -308,6 +308,10 @@ bool CKTDGLineMap::AddLine_LUA()
 	LUA_GET_VALUE( luaManager,		"CHANGE_AFTER_CLEAR_STAGE",					pLineData->m_iChangeAfterClearStage,		-1 );	
 	LUA_GET_VALUE( luaManager,		"CHANGE_AFTER_CLEAR_SUB_STAGE",				pLineData->m_iChangeAfterClearSubStage,		-1 );
 #endif // DYNAMIC_PORTAL_LINE_MAP
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	/// June 31c705c0 @31c73ab9 -> +0x150 ( -1 when absent ). CX2DungeonSubStage::ChangeLineTypeAfterAllActiveNPCKilled reads it.
+	LUA_GET_VALUE_ENUM( luaManager,	"CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED",	pLineData->m_eLineTypeAfterAllActiveNPCKilled,	LINE_TYPE,	LT_INVALID	);
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 #ifdef FIELD_BOSS_RAID
 	LUA_GET_VALUE( luaManager,		"PORTAL_WHEN_ACTIVE_RAID",					pLineData->m_bIsPortalWhenActiveRaid,		false			);

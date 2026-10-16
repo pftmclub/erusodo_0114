@@ -3360,6 +3360,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Main>( L, "DeleteFile",					&CX2Main::DeleteFile_LUA );
 #ifdef CLIENT_USE_NATION_FLAG
 	lua_tinker::class_def<CX2Main>( L, "SetNationFlag",					&CX2Main::SetNationFlag_LUA );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	lua_tinker::class_def<CX2Main>( L, "GetNationFlag",					&CX2Main::GetNationFlag );		// June @31daba8e ( 31e4e690 ), Atlas A4: DLG_Map_Local_Elysion_Icon_NEW
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 	lua_tinker::decl( L, "NF_NONE",										CX2Main::NF_NONE );
 	lua_tinker::decl( L, "NF_DE",										CX2Main::NF_DE );
@@ -3939,6 +3942,9 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
 	lua_tinker::class_def<CX2Game>( L, "LiveKeyCodeNPCNumExceptDying",			&CX2Game::LiveKeyCodeNPCNumExceptDying );	// June @31ddcc68 ( 322d09c0 )
 #endif SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	lua_tinker::class_def<CX2Game>( L, "GetAliveActiveNPCCount",				&CX2Game::GetAliveActiveNPCCount );	// June @31ddca08 ( 322d0ae0 ), Atlas A4: body = X2Game.cpp's
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 #ifdef SERV_IRUHADEV_JUNE_GAME_WORLD_FADE
 	lua_tinker::class_def<CX2Game>( L, "FadeOriginWorldColor_LUA",				&CX2Game::FadeOriginWorldColor_LUA );		// June @31ddcf0a ( 31e4dd10 )
 #endif SERV_IRUHADEV_JUNE_GAME_WORLD_FADE

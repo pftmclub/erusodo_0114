@@ -1558,7 +1558,48 @@ Done when: Phase A4's "Done when" holds. Record a Done note, then commit on main
 
 ### Phase A4 — Done
 
-*(empty)*
+*(2026-10-17, Opus 5.5 high. Flags `SERV_IRUHADEV_ELYSION_SCRIPT_A` + `SERV_IRUHADEV_ELYSION_DEBUG` (`[ELYDBG]`). 19 funcmap rows `Atlas A4`.)*
+
+- **Scope check.** Of the ledger's A4 names, C3z-4 / buff P10 had already bound `GetDyingStart`, `IsActiveMonster`,
+  `GetWorldObjectMeshByName`, `GetCenterPositionLineIndex`, `FadeOriginWorldColor_LUA`, `LiveKeyCodeNPCNumExceptDying`,
+  `SetImmuneToExtraDamage`, `SetMovieDescriptionData` and `SetCameraDistance` (`X2Main.cpp:3718`; A13 still play-tests Lanox
+  `SECRET_SCENE_DUMMY`). Buff-owned `SetMonsterBuffGroupID` is bound (`X2Main.cpp:4701`, buff Phase 10). `BUFF_GROUP_ID` is not on
+  the region census's open list. `TARGET_FRONT_ME`, `AFTER_IMAGE_DEST_ALPHA_BLEND` and `STOP_TIME_ATK` are never read by June.
+- **Landed (one flag):**
+  - **Binds:** `GetAliveActiveNPCCount` (CX2Game, `322d0ae0`, body unchanged) and `GetNationFlag` (CX2Main, `31e4e690`).
+  - **`SetChangeUVPoint`:** June's whole UV-change mechanism on `CPictureData` (`31c9a7d0` store, `31c95150` start, `31c95a60`
+    end callback (`std::tr1::function`), `31c95580` tween tail, `31c9eea0` reset from the ctor and `SetPoint_LUA`), plus the
+    `CKTDGUIStatic` frame-move gate (`31cc0950`). The only caller of start / callback is the Elysion local-map scroll (E4).
+  - **`USE_DEFAULT_DIE_PARTICLE`:** "DieLight" once at death (`3277ec60` head, `32778d40`), at the top of `CommonFrameMove_DieParticle`.
+  - **`NOT_CHECK_INDICATOR` and `INIT_AI NO_INDICATOR`:** the indicator filter drops them (`32f09f05`, `32f09f2a`). `NO_INDICATOR` is
+    June's AI `+0x34`: a new bool between the owner and the AI type (`32f2b4c0`). A1b had left it unnamed.
+  - **`CAN_NOT_PASS_SPECIFIED_BONE`:** the state list (`32784c00` @32796263), `HasCanNotPassSpecifiedBone` (vslot 0x2a8 `32755e70`),
+    the player's push loop (`32010060`: an NPC with a list collides, and pushes once per bone with the results ignored), and
+    `ProcessCanPushUnit`'s bone form (`31fe8ad0`). In the bone form the bone is the centre, Y spans bone ± distance, the half width
+    is mine ÷ 2 + distance, and the NPC's per-point direction (`327788b0`) overrides the direction in the left/right branch.
+  - **`CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED`:** line `+0x150` (`31c705c0` @31c73ab9) and the retype twin
+    `ChangeLineTypeAfterAllActiveNPCKilled` (`327efc90`). It runs once per clear condition (June `+0x54`) from
+    `CheckIfSubStageCleared` cases `CC_KILL_ALL_ACTIVE_NPC` / `CC_PORTAL_AFTER_KILL_ALL_ACTIVE_NPC` (`327f0c10`).
+- **Deviations from June** (all guards on paths June data never takes):
+  - the UV tween and the seed record skip a NULL texture (June dereferences it);
+  - `StartChangeUV` refuses a direction above 2 (June reads record -1);
+  - the twin's `SHOW_PORTAL` is a `true` constant until june-engine W2 parses the key (June default 1; note added to `kickoffs/june-engine/W2.md`).
+- **Routed / recorded:**
+  - June's `PhysicProcess` push block for `DI_EVENT_TREASURE_HOUSE_2` (41380, stage 2, `32018c26-3201906c`) goes to backlog Stage 19.
+  - JUNE_BUGS 205: `327788b0` mixes frames (1/2 player, 3/4 NPC), checks no team, and gets the player's own Y.
+  - The dual-body (Lu/Ciel) second push call (`@32018c1c`) stays with the char ports.
+- **Gate:**
+  - `region_census.py --phase A4 --region atlas`: only nothing-to-port items remain: `Elysion_Tower_Stage3.lua` (no such June file),
+    `STOP_TIME_ATK` (typo), and the `CT_*` / state-name false positives (A1b).
+  - flagcheck `--worktree`: `files: 13 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` (OTHER =
+    the A5 peer's `ELYSION_PORT` warp cases in `X2Main.cpp`); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched`;
+    `RESULT: PASS`.
+  - All 11 new literals are in the deployed exe (keys, binds, `[ELYDBG]` texts).
+  - `DEPLOY OK: X2_offline.exe is 19,601,408 B, dated 2026-10-17 01:52:55, md5 c3f55fb41963b6bd6906df3d333caa66, equal to X2/US_SERVICE/x2.exe (2026-10-17 01:52:50); built at main 09c01652 + 24 uncommitted code file(s).`
+    That build includes the A5 peer's uncommitted files.
+- **How to see it in game:** the Atlas content itself arrives in A8-A10 (and the local map in E4), so this phase's play-test uses
+  June NPC scripts that are already live in older dungeons. The hand-off in the session names the dungeon and character.
+- **Open for the user:** nothing to decide. Next: `/x2-phase atlas A4 review` (Opus 5.5 high).
 
 ---
 

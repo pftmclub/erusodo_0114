@@ -79,6 +79,9 @@ public:
 
 	CX2NPCAI::NPC_AI_TYPE GetAIType() const { return m_eAIType; }
 	void SetAIType(CX2NPCAI::NPC_AI_TYPE val) { m_eAIType = val; }
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	bool GetNoIndicator() const { return m_bNoIndicator; }	/// June AI +0x34, read by the monster indicator 32f099f0 @32f09f2a
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 
 public:
 	CX2GUNPC::STATE_CHANGE_TYPE GetPrevAIMessage() const { return m_PrevAIMessage; }
@@ -137,6 +140,9 @@ protected:
 	bool					m_bNoBrain; /// (F) AI 가 작동하지 않도록 스크립트에서 설정한다 (헬드랍, 박쥐, 스톤월, 아틸러사용 중)
 	bool					m_bEnabled;	/// (F) 스턴, 인탱글, 드라이어드, 라이드, callNearOneNpc 치트 등 NPC를 움직이지 못하게 할 때 사용
 	CX2GUNPC*				m_pMasterNPC;	/// (T, M, F)
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
+	bool					m_bNoIndicator;	/// June +0x34 ( after the owner +0x30 ), INIT_AI NO_INDICATOR ( 32f2b4c0 @32f2b5e6 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 	
 
 protected:
