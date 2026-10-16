@@ -1410,6 +1410,40 @@ Done when: Phase A3's "Done when" holds. Record a Done note, then commit on main
 - **How to see it in game:** nothing visible (enums only). With the exe and `data036.kom` deployed as a pair, a normal start must log no new enum / Lua load errors in
   `ErrorLog.txt`, and Lanox (enter the village, enter a Lanox field) must behave as before; the Cobo list is unchanged (A5 owns the Atlas Station entry).
 
+### Phase A3 — Review (2026-10-17)
+
+**Opus 5.5 high. Verdict: PASS, no transcription error, no code change** (so no build and no deploy: the deployed exe `b9ab632c` and `data036.kom` remain the pair A3 shipped).
+
+- **Values.** `atlas_a3_check.py`: `ids checked 275 (both halves resolve: YES)`, NUI client/server 2205 shared names 0 differ, 0 duplicates touching an A3 id, `A3 CHECK PASS`.
+  Hand spot-checks against `june_src_fixed/data036_kom/Enum.src.lua` / `DungeonEnum.src.lua`, the staged Lua and the C++ all agree: `NUI_ELSION_PYURITA` 2094, `NUI_ELYSION_IMPRINT_DYING` 2403
+  (both NUI headers), `WI_ELYSION_FIELD_PVPMAP` 752, `HI_YUNO` 40092, `DI_TOWER_NORMAL` 33350, plus `VMI_BATTLE_FIELD_ELYSION_REST_00` 1008, `VMI_BATTLE_FIELD_ELYSION_FIELD_04` 40038, `LMI_ELYSION` 10009.
+  Every inserted explicit block is followed by an explicit member or the enum's close, so no implicit March member was renumbered.
+- **Sentinels (Ghidra, re-read).** `32268dd0`: `LEA x-20000; CMP 0xa` / `x-30000; CMP 6` / `x-1000; CMP 8` (VILLAGE_MAP_END 20011, REST_END 1009). `31efb3a0@31efb4e8`: `CMP EAX,0x30b; JGE` (WI_END 779).
+  `322b5970@322b5a01`: `x-40000; CMP 0x2c; JA` (BATTLE_FIELD_END 40045). DI_END: `3293ab50@3293b4ad` `x-30000; CMP 0x2d0a; JA`, i.e. inclusive 41530, the same as March's
+  `iDungeonID > DI_END` skip at `X2LocalMapUI.cpp:1174`. The explicit-value rule (`#ifdef ... = N #else <original> #endif`) is right: a marker can no longer move when someone adds an id
+  above it, and every original line is reachable with the flag off. `NUI_MAX_LIMIT` implicit 10196 is fine (only a range test and a `<= 65536` static assert read it). Lua twins:
+  `WI_END` 779 (staged max WI 752) and `VMI_BATTLE_FIELD_END` 40045 (staged max field 40038).
+- **Consumer audit: the Done note's list is right but not complete.** Missed readers, none of them a problem: `SEnum::IsVillageMapID` / `IsBattleFieldID` / `IsRestFieldID`
+  (`Enum.h:572/580/588`, ranges, no client caller per A1a); the three seed rows; `XSLDungeon.cpp:848` `IsTCDungeon` `[39000, DI_END)` and `XSLFieldBossData.cpp:160` (ranges, widened by
+  the bump, but in no client `.vcxproj`: server-only, and the offline handlers spell the TC range themselves, `Handlers_Skill.cpp:175`, `Handlers_Room.cpp:3527`); `KTDXApp.cpp:2808`
+  (`DI_END` name literal with stale 30003, a name table). `DI_END` as "no dungeon": `X2UIQuest.cpp` is dead (`#ifndef SERV_EPIC_QUEST`), `X2UIQuestNew::GetSubQuestDungeonID` is dead
+  (`#else` of `REFORM_QUEST`); the one live use, `X2WorldMapUI::GetNPCQuestDesc` (`:1944-2005`), tests equality before any lookup and relies on DI_END being the top multimap key.
+  Max DI is 41310 in `DungeonEnum.h` and 41271 in the staged Lua, so 41530 cannot collide and "other" still sorts last. No marker sizes an array, loop or memset; none is saved.
+- **`IsVillageField` / seed.** Live line `eVillageID >= VMI_RUBEN && eVillageID <= 20010` (`X2LocationManager.h:518`, all three nested flags on) = June's `x-20000 <= 10`.
+  `X2OfflineLuaEnum.cpp` publishes only one region table, `VILLAGE_MAP_ID` (others: UNIT_CLASS, USE_CONDITION, PET / RIDING_PET, ITEM_TYPE / GRADE, ENCHANT, SOCKET), so A3's 3 markers
+  + 7 rows are the whole fix; NUI / WI / DI / HI / LMI are never overwritten by the seed.
+- **Staging.** `luasrc.py ledger --check`: `LEDGER CHECK PASS: 0 FAIL, 0 WARN`. No peer edit was lost: the BOM-stripped sha1 of `Enum.lua` / `DungeonEnum.lua` extracted from the
+  pre-A3 live kom (`kom_backup_tools/data036.kom.20261017_004241`) equals the pre-A3 ledger `source_sha1` (`3280d56e` / `210eea45`), and today's files equal the post-A3 rows
+  (`addf85d1` / `6e0d9ac3`); the line diff's 10 "removed" `Enum.lua` lines are the same entries re-written (comma, sentinel, updated "omitted" comment). Kom: `kom.py status data036` in sync;
+  vs the pre-A2/A3 live kom the net delta is 5 changed entries, 0 added / removed: A3's `Enum.lua`, `DungeonEnum.lua`, A2's `ExpTable.lua`, then A2's `StatTable.lua` / `NpcExpTable.lua` (`74eb6894`).
+- **Hygiene.** `flagcheck ELYSION_PORT --range 78adeb86^..HEAD --files <9 code files>`: `files: 8 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII,
+  9 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the 9 are `Enum.h` CRLF anchors in an LF region, cosmetic).
+- **Notes, nothing to fix now.** (1) The `SERV_IRUHADEV_JUNE_LOCAL_MAP_UI` block in `X2LocalMapUI.h` still says 18006-18008 are "deliberately omitted"; A3 now defines them just above.
+  The comment is stale, it is in another flag's block, and it is left alone. (2) `data036_kom/EnumString.src.lua` (2026-10-10) is the stale sidecar behind `kom.py status`'s
+  `[stale .src.lua: compile]`; there is no `Enum.src.lua` / `DungeonEnum.src.lua`, so a later `compile` cannot fold over A3's text. (3) The Done note's open items (EnumString rows,
+  20 Lua-only WIs, `march2014/` copies) stand as written; none blocks A4 / A5.
+- **User owes:** the A3 play-test as before (normal start, no new enum / Lua errors in `ErrorLog.txt`, Lanox unchanged); it can share A2's migrating launch.
+
 ---
 
 ## Phase A4 — Atlas-half script engine
