@@ -7383,22 +7383,3 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              with no next-level row, the gauge is full and reads 100.0%.
 #define SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX
 //////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-17
-// Description: Elesis (Pyro Knight / Blazing Heart) dash-jump X-Z fireball, June2017 32b770e0: create the damage effect
-//              directly at scale 1 and angle z -45 instead of through the March effect set (scale 2, z +10). June's data
-//              already carries the x2, so the effect set drew the fireball at twice June's size, aimed upward.
-#define SERV_IRUHADEV_JUNE_EL_DASHJUMP_XZ_FIREBALL
-//////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-17
-// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase A3): the region's enum mirrors in C++ -- WORLD_ID, VILLAGE_MAP_ID,
-//              LOCAL_MAP_ID, HOUSE_ID, DUNGEON_ID, NPC_UNIT_ID (client and shared server header), LMUCM 18006-18008 -- each at June's
-//              value, with June's end markers (REST_END 1009, VILLAGE_MAP_END 20011, BATTLE_FIELD_END 40045, WI_END 779, DI_END 41530),
-//              IsVillageField's June range, and the offline Lua enum seed. Later Atlas/Elysion phases put their region switches here too.
-#define SERV_IRUHADEV_ELYSION_PORT
-//////////////////////////////////////////////////////////////////////////

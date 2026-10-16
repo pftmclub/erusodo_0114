@@ -108,7 +108,8 @@ def write_header(m, jt):
         for i in range(0, top + 1, 5):
             rows.append('\t' + ' '.join('%d,' % (tab[l] if l in tab else 0) for l in range(i, min(i + 5, top + 1))))
         return '\n'.join(rows)
-    text = '''#pragma once
+    text = '''#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+#pragma once
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
@@ -130,8 +131,6 @@ def write_header(m, jt):
 //              Index = level. TOTAL(L) is the cumulative EXP that reaches level L
 //              (CX2EXPTable::GetLevel); NEED(L) = TOTAL(L) - TOTAL(L-1). Slot 0 is unused.
 //////////////////////////////////////////////////////////////////////////
-
-#ifdef SERV_IRUHADEV_LEVEL_CAP_99
 
 namespace X2OfflineCap99Exp
 {

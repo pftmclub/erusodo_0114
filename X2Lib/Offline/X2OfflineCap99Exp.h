@@ -1,3 +1,4 @@
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
 #pragma once
 
 //////////////////////////////////////////////////////////////////////////
@@ -20,8 +21,6 @@
 //              Index = level. TOTAL(L) is the cumulative EXP that reaches level L
 //              (CX2EXPTable::GetLevel); NEED(L) = TOTAL(L) - TOTAL(L-1). Slot 0 is unused.
 //////////////////////////////////////////////////////////////////////////
-
-#ifdef SERV_IRUHADEV_LEVEL_CAP_99
 
 namespace X2OfflineCap99Exp
 {
