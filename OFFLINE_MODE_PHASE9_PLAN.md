@@ -423,7 +423,7 @@ Two useful variants:
 
 The five standing facts each conversation needs, and which §1 exists to supply:
 
-1. **Branch is `mods/offline-mod-2`.** All work is client-only unless the phase
+1. **Branch is `main`.** All work is client-only unless the phase
    says otherwise; nothing here should touch `KncWX2Server/Common/`.
 2. **Every edit goes behind `SERV_IRUHADEV_OFFLINE` — the one flag already
    defined in `KTDXLIB/Always.h`. MUST NOT mint a new `SERV_IRUHADEV_OFFLINE_*`

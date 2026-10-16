@@ -36,7 +36,7 @@ Paste this at the start of any phase's conversation, before the kickoff
 prompt:
 
 ```
-This is the ProjectX2 (Elsword) client, branch mods/offline-mod-2. The client
+This is the ProjectX2 (Elsword) client, branch main. The client
 source was replaced with a March 2014 snapshot (commit dd63297), which
 overwrote every mod edit that lived inside a studio-owned file. I am
 restoring them phase by phase. Read CLAUDE.md and MARCH_2014_MIGRATION.md in

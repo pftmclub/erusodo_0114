@@ -133,7 +133,7 @@ One line opens a phase:
 
 The five standing facts, in short:
 
-1. Branch is `mods/offline-mod-2`; everything here is client-only. Nothing in
+1. Branch is `main`; everything here is client-only. Nothing in
    this batch touches `KncWX2Server/`, so the servers never need rebuilding.
 2. **Every edit is gated by `SERV_IRUHADEV_OFFLINE`**, the flag already in
    `KTDXLIB/Always.h`. Do not mint a per-phase flag — the phase-9 doc's §1

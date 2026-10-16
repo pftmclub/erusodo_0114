@@ -276,7 +276,7 @@ play-test.
 
 The standing facts, in short:
 
-1. Branch is `mods/offline-mod-2`. Everything in this batch is **client-only** —
+1. Branch is `main`. Everything in this batch is **client-only** —
    nothing touches `KncWX2Server/`, so the servers never need rebuilding.
 2. **Every edit is gated by `SERV_IRUHADEV_OFFLINE`**, the flag already in
    `KTDXLIB/Always.h`. Do not mint a per-phase flag; the phase-9 doc's §1 rule 2
