@@ -4628,6 +4628,25 @@ void CX2TFieldGame::LoadFieldImage(wstring &imgL, wstring &imgR)
 			imgR = L"HQ_LoadingDungeon_Ranox_Night_Rest2.tga";
 			break;
 #endif SERV_IRUHADEV_RANOX_PORT
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+		//{{ Iruha : 2026-10-17 // Atlas A5: the cases June 2017 LoadFieldImage (unpacked_x2.exe 0x323ad5f0) has and March
+		//   lacked, literals verbatim (art in June's data183). June's 1500 Ruben spa case omitted: no March enum.
+		case SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00:	// Atlas Station
+			imgL = L"HQ_LoadingDungeon_Atlas_Pit_Rest_01.tga";
+			imgR = L"HQ_LoadingDungeon_Atlas_Pit_Rest_02.tga";
+			break;
+		case SEnum::VMI_ELYSION:
+			imgL = L"HQ_LoadingVillage_Elision_01.tga";
+			imgR = L"HQ_LoadingVillage_Elision_02.tga";
+			break;
+#ifdef SERV_IRUHADEV_RANOX_PORT
+		case SEnum::VMI_SPA_RANOX:
+			imgL = L"HQ_LoadingSpa_Ranox_01.tga";
+			imgR = L"HQ_LoadingSpa_Ranox_02.tga";
+			break;
+#endif SERV_IRUHADEV_RANOX_PORT
+		//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 		}
 	}
 	else
@@ -4748,6 +4767,13 @@ void CX2TFieldGame::OpenFieldName()
     if ( m_pDLGFieldName != NULL )
     	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGFieldName );		
 
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	// Iruha : 2026-10-17 : Atlas A5: June 2017 OpenFieldName (0x323b1320) clears the dialog's +0x190 byte after AddDlg,
+	// i.e. SetDisableUnderWindow( false ) (funcmap 31c1bf70). June also clears a byte at this+0x3c0 first; no reader was
+	// found (caller 323b5970, LoadUI 323b0f20) and March has no matching member, so that store is not ported.
+	if ( m_pDLGFieldName != NULL )
+		m_pDLGFieldName->SetDisableUnderWindow( false );
+#endif SERV_IRUHADEV_ELYSION_PORT
 	m_fFieldNameTime = 0.f;
 	switch(g_pData->GetLocationManager()->GetCurrentVillageID())
 	{
@@ -4800,6 +4826,30 @@ void CX2TFieldGame::OpenFieldName()
 	case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00:
 		iFieldName = 26;
 		break;
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A5: the cases June 2017 OpenFieldName (0x323b1320) has and March lacked; picture
+	//   indices read from its jump tables @323b1600 / @323b1624 and equal to the SetIndex() values of June's
+	//   DLG_UI_Field_Title.lua (staged by this phase). June's dialog has no picture 16, so Elysion shows no banner (as in
+	//   June). Omitted: 1500 Ruben spa (29), no March enum. The Ranox cases were a Lanox miss (no banner there before).
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case SEnum::VMI_RANOX:
+		iFieldName = 15;
+		break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+		iFieldName = 27;
+		break;
+	case SEnum::VMI_SPA_RANOX:
+		iFieldName = 30;
+		break;
+#endif SERV_IRUHADEV_RANOX_PORT
+	case SEnum::VMI_ELYSION:
+		iFieldName = 16;
+		break;
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00:
+		iFieldName = 28;
+		break;
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	case SEnum::VMI_INVALID:
 	default:
         if ( m_pDLGFieldName != NULL )

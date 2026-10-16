@@ -6148,6 +6148,24 @@ void CX2StateMenu::AddWarpList(CKTDGUIContolList *pControlList, const int row, c
 
 void CX2StateMenu::InitWarpList()
 {
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A5: June 2017 CX2StateMenu::InitWarpList (unpacked_x2.exe 0x3245a1e0), whole function:
+	//   every Village_* control of DLG_Destination_byButton.lua hidden, each NULL-checked (June's dialog has no Village_1000 /
+	//   Village_1002; March dereferenced them unchecked and Cobo Express crashed on June's dialog). Names and order verbatim.
+	static const WCHAR* const s_apwszWarpControl[] =
+	{
+		L"Village_20000", L"Village_20001", L"Village_1000", L"Village_20002", L"Village_1001", L"Village_20003", L"Village_1002",
+		L"Village_20005", L"Village_20004", L"Village_1004", L"Village_20006", L"Village_1005", L"Village_20007", L"Village_1006",
+		L"Village_20008", L"Village_1007", L"Village_25000", L"Village_20009", L"Village_1008", L"Village_1500", L"Village_1501",
+	};
+	for( int i = 0; i < (int)( sizeof( s_apwszWarpControl ) / sizeof( s_apwszWarpControl[0] ) ); ++i )
+	{
+		CKTDGUIControl* pWarpControl = m_pDLGWarpDestination->GetControl( s_apwszWarpControl[i] );
+		if( pWarpControl != NULL )
+			pWarpControl->SetShow( false );
+	}
+	//}}
+#else SERV_IRUHADEV_ELYSION_PORT
 	CKTDGUIStatic *pControl = NULL;
 	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20000");	//VMI_RUBEN
 	pControl->SetShow(false);
@@ -6190,10 +6208,161 @@ void CX2StateMenu::InitWarpList()
 	if( pControl != NULL )
 		pControl->SetShow(false);
 #endif SERV_IRUHADEV_RANOX_PORT
+#endif SERV_IRUHADEV_ELYSION_PORT
 }
 
 void CX2StateMenu::CreateWarpDest()
 {	
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A5: June 2017 CX2StateMenu::CreateWarpDest (unpacked_x2.exe 0x324627f0), whole function.
+	//   June lists the Cobo Express rows flat: no *_AUTO_OPEN_HARD_CODE branches, one local-map level gate per region,
+	//   every Village_* control NULL-checked and the row counted only when its control exists, the list index reset last.
+	//   New rows: under LMI_ELYSION's gate, Atlas Station (1008; skipped while code event 2260 is on - inert offline - and
+	//   the row index still advances, @32463056) and the Elysion village (20009, atlas E2). Below the gate June points
+	//   m_iCurrentVillageWarpIndex past the list when the player stands in 1008 / 20009 (@324630f2); the state -> village
+	//   mapping is March's AddWarpList's (June's state numbering differs).
+	//   Omitted: June's first rows, 1500 Ruben spa (no March enum) and 1501 Ranox spa, both behind a June-only
+	//   g_pInstanceData table (+0xa1c), and 25000 guild agit (no March enum); the LMI_ELYSION quest test (templet
+	//   RequireCompletedQuestID through IsCompleteQuest 32322260): quest plan, A1a decision 2.
+	m_vecWarpListButton.clear();
+	SAFE_DELETE_DIALOG( m_pDLGWarpDestination );
+
+	if( m_pDLGWarpDestination == NULL )
+	{
+		m_pDLGWarpDestination = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_Destination_byButton.lua" );
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGWarpDestination );
+	}
+
+	if( m_pDLGWarpDestination == NULL )
+		return;
+
+	m_pDLGWarpDestination->SetPos( g_pMain->GetWindowPos( D3DXVECTOR2(300, 400), D3DXVECTOR2(75,20)) );
+	m_pDLGWarpDestination->SetShowEnable(true, true);
+
+	CKTDGUIContolList *pControlList = (CKTDGUIContolList*)m_pDLGWarpDestination->GetControl(L"WarpDestControlList");
+	if( pControlList == NULL )
+		return;
+
+	CKTDGUIControl* pControl = NULL;
+	CX2LocationManager::LocalMapTemplet* pLocalMapTemplet = NULL;
+	int row = 0;
+	InitWarpList();
+	const int iMyUnitLevel = g_pData->GetSelectUnitLevel();
+
+	pControl = m_pDLGWarpDestination->GetControl( L"Village_20000" );
+	if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_RUBEN ); ++row; }
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_ELDER );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20001" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_ELDER ); ++row; }
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_1000" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_ELDER_REST_00 ); ++row; }
+	}
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_BESMA );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20002" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BESMA ); ++row; }
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_1001" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_BESMA_REST_00 ); ++row; }
+	}
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_ALTERA_ISLAND );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20003" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_ALTERA ); ++row; }
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_1002" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_ALTERA_REST_00 ); ++row; }
+	}
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_PEITA );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20005" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_PEITA ); ++row; }
+	}
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_VELDER );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20004" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_VELDER ); ++row; }
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_1004" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_VELDER_REST_00 ); ++row; }
+	}
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_HAMEL );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20006" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_HAMEL ); ++row; }
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_1005" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_HAMEL_REST_00 ); ++row; }
+	}
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_SANDER );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20007" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_SANDER ); ++row; }
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_1006" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_SANDER_REST_00 ); ++row; }
+	}
+
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_RANOX );
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+	{
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_20008" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_RANOX ); ++row; }
+		pControl = m_pDLGWarpDestination->GetControl( L"Village_1007" );
+		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_RANOX_REST_00 ); ++row; }
+	}
+#endif SERV_IRUHADEV_RANOX_PORT
+
+	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_ELYSION );
+	if( pLocalMapTemplet != NULL )
+	{
+		if( iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+		{
+			pControl = m_pDLGWarpDestination->GetControl( L"Village_1008" );
+			if( pControl != NULL )
+			{
+				pControl->SetShow( false );
+				if( g_pInstanceData == NULL || g_pInstanceData->IsEnableCode( 2260 ) == false )	// June 0x8d4
+					AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00 );
+				++row;
+			}
+			pControl = m_pDLGWarpDestination->GetControl( L"Village_20009" );
+			if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_ELYSION ); }
+		}
+		else
+		{
+			int iCurrentVillageID = -1;
+			switch ( g_pMain->GetNowStateID() )
+			{
+			case CX2Main::XS_VILLAGE_MAP:
+			case CX2Main::XS_SQUARE_GAME:
+				iCurrentVillageID = static_cast<int>( g_pData->GetLocationManager()->GetCurrentVillageID() );
+				break;
+			case CX2Main::XS_BATTLE_FIELD:
+				iCurrentVillageID = g_pData->GetBattleFieldManager().GetReturnVillageId();
+				break;
+			default:
+				break;
+			}
+			if( iCurrentVillageID == SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00 || iCurrentVillageID == SEnum::VMI_ELYSION )
+				m_iCurrentVillageWarpIndex = row;
+		}
+	}
+
+	pControlList->SetIndex(0, 0);
+	//}}
+#else SERV_IRUHADEV_ELYSION_PORT
 	m_vecWarpListButton.clear();
 	SAFE_DELETE_DIALOG( m_pDLGWarpDestination );
 
@@ -6583,6 +6752,7 @@ void CX2StateMenu::CreateWarpDest()
 			pControlList->SetIndex(0, 0);				
 		}
 	}	
+#endif SERV_IRUHADEV_ELYSION_PORT
 }
 
 void CX2StateMenu::SetShowWarpDest(bool val)

@@ -3796,6 +3796,22 @@ June's ids at June's values, in both halves, with June's end markers. Ids come f
   1008 / 20009 / 40033 / 752 / 41311 / 10191). The Lua rows are extra names nothing reads without the flag; to remove them too, `kom.py` the
   pre-A3 `Enum.lua` / `DungeonEnum.lua` out of the live `data036.kom` as it stood on 2026-10-16.
 
+### Atlas/Elysion port A5: Atlas Station, rest area 1008 (2026-10-17)
+
+Flag `SERV_IRUHADEV_ELYSION_PORT` (A3's). June's own functions, cited by address in each block:
+- **C++:** `IsValidWarpField` (+1008, 20009, 1501), `LoadFieldImage` (+1008 / 20009 / 1501 art), `OpenFieldName` (picture 15 / 16 / 27 / 28 / 30
+  + `SetDisableUnderWindow(false)`), `GetFieldMapDlg` / `UpdateNaviMap` / `ResetCameraMatrix` / `ResetMapPosAndSize` (Elysion cases),
+  `WarpByCommand` (positions 15-18, 20), both `InitWarpList` / `CreateWarpDest` pairs (`X2StateMenu.cpp` Cobo, `X2UIInventory.cpp` warp NPC:
+  June's whole bodies, March's in `#else`), and the `atlas` chat warp (also under `SERV_IRUHADEV_CHAT_WARP_DEBUG`). 1500 / 25000 omitted (no enum).
+- **Lua / data (kom_contents):** BOM source edits to `DLG_Map_Village` (Village[1008], March key names), `DLG_Map_House` (1008 rows + `HI_YUNO`),
+  `NPCTemplet` (`NUI_YUNO`), `WorldData` (WI 637), `MapData` (AddMapData + Cobo zone 17), `DLG_UI_World_Map_NEW` (June's Elysion block over the
+  Lanox `99999` cloud). June's whole `DLG_Destination.lua`, `DLG_Destination_byButton.lua` (core row lifted), `DLG_UI_Field_Title.lua`,
+  `DLG_UI_FIELD_MAP_Elysion_Rest_NEW.lua`, `UI_YUNO.lua`, the scene scripts and 130+ assets (data013/023/040/057/096/151/180-183).
+  Server mirror `KncWX2Server/ServerResource/US/MapData.lua`: the same AddMapData + zone 17.
+- **Revert:** remove the flag (the C++ falls back to March's bodies; Cobo then needs March's `DLG_Destination_byButton.lua` back, because March's
+  `InitWarpList` dereferences `Village_1000` / `1002`: the sidecar is in `kom_backup_stage_june\20261017_012014`). Data: restore the
+  koms from `24965799\kom_backup_tools\` stamped before 2026-10-17 01:30, or delete the commented A5 blocks in the BOM sources.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

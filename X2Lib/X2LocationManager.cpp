@@ -1583,6 +1583,17 @@ bool CX2LocationManager::IsValidWarpField( int iVillageId )
 	case SEnum::VMI_RANOX:
 	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
 #endif SERV_IRUHADEV_RANOX_PORT
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A5: June 2017 IsValidWarpField (unpacked_x2.exe 0x324f1e70) is a range test:
+	//   1000-1008 except 1003, 1500-1501, 20000-20009, 25000. Every March case above is in it; added here are the
+	//   ids June has and March lacked. Omitted (no March enum): 1500 VMI_SPA_RUBEN, 25000 VMI_GUILD_AGIT.
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00:
+	case SEnum::VMI_ELYSION:
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case SEnum::VMI_SPA_RANOX:
+#endif SERV_IRUHADEV_RANOX_PORT
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 
 		return true;
 	default:

@@ -501,6 +501,50 @@ void CX2FieldMapBase::ResetCameraMatrix( int iMapID )
 #endif SERV_IRUHADEV_RANOX_PORT
 	//}}
 #endif SERV_IRUHADEV_JUNE_FIELD_MAP
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A5: the Elysion cases of June 2017 ResetCameraMatrix (unpacked_x2.exe 0x32f1fec0).
+	//   Floats read out of the binary (eye @+0x1e0, look @+0x1ec, layout proven on the Ranox rest case above): 1008
+	//   0x3353c560-570 + 0x33491cac, 20009 0x3353c46c-47c, 40035 0x3353c194-1a8, 40036/40038 0x3353c170-17c (one body
+	//   in June), 40037 0x3353c180-190 (look z = 0). Fov / aspect are the shared 35.978 deg / 2.0. June's 1500 / 25000
+	//   cases omitted: no March enum.
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00:
+		{
+			m_vEyePos	= D3DXVECTOR3( 2655.000f, 2765.000f, -6370.000f );
+			m_vLookAt	= D3DXVECTOR3( 2275.000f, 2975.000f, -2360.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_ELYSION:
+		{
+			m_vEyePos	= D3DXVECTOR3( -611.000f, 3756.000f, -17172.000f );
+			m_vLookAt	= D3DXVECTOR3( -611.000f, 3807.000f, -14268.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_01:
+		{
+			m_vEyePos	= D3DXVECTOR3( -1350.000f, 5460.000f, -10500.000f );
+			m_vLookAt	= D3DXVECTOR3( -585.000f, 5565.000f, -4585.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_02:
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_04:
+		{
+			m_vEyePos	= D3DXVECTOR3( 3070.000f, 4000.000f, -18200.000f );
+			m_vLookAt	= D3DXVECTOR3( 3000.000f, 4090.000f, -1880.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_03:
+		{
+			m_vEyePos	= D3DXVECTOR3( 7205.000f, 12835.000f, -21390.000f );
+			m_vLookAt	= D3DXVECTOR3( 7795.000f, 4900.000f, 0.000f );
+			m_fFov		= D3DXToRadian( 35.978f );
+			m_fAspect	= 2.f;
+		} break;
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	}
 
 	CalcCameraMatrix();
@@ -601,6 +645,14 @@ void CX2FieldMapBase::ResetMapPosAndSize( int iMapID )
 #endif SERV_IRUHADEV_RANOX_PORT
 	//}}
 #endif SERV_IRUHADEV_JUNE_FIELD_MAP
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	// Iruha : 2026-10-17 : Atlas A5: June 2017 ResetMapPosAndSize (0x32f1fd90) adds the Elysion village and Fields 01-03.
+	// It leaves out 1008 and 40038 (kept verbatim, JUNE_BUGS); March has no caller of this function, so this is parity only.
+	case SEnum::VMI_ELYSION:
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_01:
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_02:
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_03:
+#endif SERV_IRUHADEV_ELYSION_PORT
 		{
 			m_vMiniMapWindowPos		= D3DXVECTOR2( 0, 0 );
 			m_vMiniMapWindowSize	= D3DXVECTOR2( 1536, 768 );	/// 화면상의 크기

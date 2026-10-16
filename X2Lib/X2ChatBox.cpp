@@ -1072,6 +1072,20 @@ bool CX2ChatBox::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 				return true;
 			}
 #endif SERV_IRUHADEV_CHAT_WARP_DEBUG
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+#ifdef SERV_IRUHADEV_CHAT_WARP_DEBUG
+			// Iruha : 2026-10-17 : Atlas A5: "atlas" warps to Atlas Station (1008), the same free button warp as "lanox".
+			if( boost::iequals( wstrChatMsg, L"atlas" ) )
+			{
+				KEGS_WARP_BY_BUTTON_REQ kPacket;
+				kPacket.m_iCurrentVillageWarpIndex = SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00;
+				kPacket.m_bFreeWarp = true;
+				g_pData->GetServerProtocol()->SendPacket( EGS_WARP_BY_BUTTON_REQ, kPacket );
+				g_pMain->AddServerPacket( EGS_WARP_BY_BUTTON_ACK );
+				return true;
+			}
+#endif SERV_IRUHADEV_CHAT_WARP_DEBUG
+#endif SERV_IRUHADEV_ELYSION_PORT
 #ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
 			if( boost::iequals( wstrChatMsg, L"ranoxdbg" ) )
 			{

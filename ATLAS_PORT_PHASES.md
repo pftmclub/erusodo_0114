@@ -1636,7 +1636,45 @@ after I pack). Record a Done note (incl. the DEPLOY OK commit), then commit on m
 
 ### Phase A5 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (A3's; MODS.md "Atlas/Elysion port A5"). Commit: see STATUS A5 row.
+
+- **Premises:** June `START_POS` 400-404 = March's `VillageParsing` keys except `OtherPlaceID` / `OtherPlaceStartLineIndex` -> `BattleFieldId` /
+  `BattleFieldStartLineIndex` (`X2LocationManager.cpp:394-399`; `IsSummon` / `IsWarp` identical). June's 1008 houses: `HI_GLAVE_HOUSE`, `HI_YUNO`,
+  `HI_BILLBOARD`, `HI_POSTBOX` (+ the two quest houses, list-only). March had no `HI_YUNO` house or `NUI_YUNO` templet at all.
+- **C++ (June's whole function, March's body in `#else` where replaced):** `IsValidWarpField` 324f1e70 (+1008, 20009, 1501), `LoadFieldImage` 323ad5f0,
+  `OpenFieldName` 323b1320 (indices from its jump tables @323b1600/@323b1624 = June `DLG_UI_Field_Title` `SetIndex`; adds Ranox 15/27/30, a Lanox miss;
+  + `SetDisableUnderWindow(false)` = dialog +0x190, funcmap 31c1bf70; June's `this+0x3c0` store has no found reader: not ported), `GetFieldMapDlg` 3225e1f0,
+  `UpdateNaviMap` 3225cad0, `ResetCameraMatrix` 32f1fec0 (floats read from the binary, layout proven on the Ranox-rest case), `ResetMapPosAndSize`
+  32f1fd90 (no March caller), `WarpByCommand` 31d71000 (positions 15-18, 20), Cobo `InitWarpList`/`CreateWarpDest` 3245a1e0/324627f0 and warp-NPC
+  32166ae0/32173120 (flat lists, NULL-checked rows, code event 2260 skips 1008 but the row still advances @32463056, `m_iCurrentVillageWarpIndex` =
+  +0x410 branch, `SetIndex` last), `atlas` chat warp. Omitted with a comment: 1500 / 25000 (no enum), Cobo's 1500/1501 rows (June-only instance-data
+  gate +0xa1c), the LMI_ELYSION quest test (decision 2). June's state numbering differs: the warp-index branch uses March's `AddWarpList` mapping.
+- **Lua (BOM source, ledger refreshed):** `DLG_Map_Village` Village[1008]; `DLG_Map_House` 1008 rows (POSTBOX, BILLBOARD incl. rotation, GLAVE) + `HI_YUNO`;
+  `NPCTemplet` `NUI_YUNO`; `WorldData` WI 637 (Festival/XMAS keys verbatim, inert); `MapData` AddMapData + Cobo zone 17 (1008/F01/F02) + server mirror
+  (byte-level, 31 lines, each region's own EOL); `DLG_UI_World_Map_NEW` June's Elysion block (1842-2081) over the Lanox `99999` cloud, town / F03 pins
+  `SetShow(false)` until E2/E3. June whole files: `DLG_Destination` (ljconv), `DLG_Destination_byButton` (`--source --lifted`, T1; core row lifted),
+  `DLG_UI_Field_Title`, `DLG_UI_FIELD_MAP_Elysion_Rest_NEW`, `UI_YUNO`, the 4 scene scripts + Festival line map. 128 assets staged (61 + 67 from the
+  texture closure, `a5_closure.tsv` in the session scratchpad; 2 March files replaced by June's: `DLG_UI_Common_Texture_Fieldname_Rest_1.TET/.tga`, the
+  only atlas with `FIELD_REST_ELISION`). Not taken: `Fieldname_Village_2.TET/.tga` (differ, Ranox keys only, not A5's).
+- **Census `--phase A5`:** 93 -> 29 open, all routed: `field_rest_elysion001.ogg` is a loose June music file (copied to `data\music`, census reads koms only);
+  `LINE_NUM` = B73 false positive; `WorldData.dataFileName_XMAS` = B84 (June never reads); `DLG_Map_Village.OtherPlace*` = renamed by design, `BaseLocalStateID`
+  unread in both (March's own file has it); 23 `DLG_Map_House.*` keys (2nd mesh, talk lists, gifts, `EXTRACTION` / `TRADE` / `Trade_Talk`) are read only by
+  June's `HouseParsing`: atlas E1's port-whole (A1a). Yuno's monitor mesh and talk loop wait for E1.
+- **JUNE_BUGS** 201 (40038 opens Field 02's dialog), 202 (`ResetMapPosAndSize` skips 1008 / 40038), 203 (warp NPC never lists Elysion: June's dialog has no
+  `Village_20009`), 204 (Elysion has no title banner: no picture 16).
+- **Hygiene:** flagcheck `--worktree --files <8 code files>`: `files: 7 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (X2Main.cpp: a peer's ELYSION_SCRIPT_A hunks), 0 FAIL,
+  0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. `ledger --check` PASS, `core --check` PASS (0 WARN).
+- **Pack / copy (user OK):** `PACK OK` + `COPY OK` data013 / 023 / 034 / 036 / 037 / 039 / 040 / 057 / 096 / 151 / 180 / 181 / 182 / 183 (new) / i014
+  (datai014 md5 601196d3, data034 8833134b); `field_rest_elysion001.ogg` copied, md5 = June's.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,601,408 B, dated 2026-10-17 01:52:55, md5 c3f55fb41963b6bd6906df3d333caa66, equal to X2/US_SERVICE/x2.exe (2026-10-17 01:52:50); built at main 09c01652 + 24 uncommitted code file(s).` (a peer's build linked it after A5's edits; my run registered it). Proof: `HQ_LoadingDungeon_Atlas_Pit_Rest_01.tga`, `DLG_UI_FIELD_MAP_Elysion_Rest_NEW.lua`, `FieldMap_Navigation_Elision_R`, `Village_1501` are UTF-16LE literals in the deployed exe.
+- **Open / for the reviewer and later phases:** (1) the Cobo and warp-NPC 1008 rows sit behind `GetLocalMapTemplet( LMI_ELYSION )`, which is NULL until A7
+  stages `DLG_Map_Local_Elysion` (level 78): before A7 neither list shows Atlas Station (June's gate, not a bug). (2) Before A7 the world map has no Elysion
+  templet, so `UpdateWorldMap` leaves the Lua show state: rest/F01/F02 pins show, the ELISION cloud stays drawn; after A7 its level gate (`X2WorldMapUI.cpp:603-660`)
+  also re-shows the town / F03 pins, so A7 must keep them hidden until E2/E3 land. (3) Silent Night Shelter (1007) still has no house rows: Lanox Remaining P9.
+  (4) The Rest field-map dialog's 6 keys resolve (`ELISION_Rest_04.TET` holds 04 + 05, `_05.TET` holds 06, as June's dialog asks).
+- **How to see it in game:** the play-test hand-off in the A5 STATUS row's commit message / the session's hand-off: `atlas` in chat -> Atlas Station with
+  Glave, Yuno, billboard, postbox; Atlas Pit loading art; M key field map follows the character; world map shows the Atlas pins.
 
 ---
 

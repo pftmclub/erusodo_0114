@@ -13498,6 +13498,18 @@ void CX2Main::WarpByCommand( int iPosition )
 	case 12: iWorldID = SEnum::VMI_BATTLE_FIELD_HAMEL_REST_00;	break; // ÇÏ¸á ÈÞ½ÄÃ³
 	case 13: iWorldID = SEnum::VMI_SANDER;						break; // »÷´õ
 	case 14: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_REST_00; break; // »÷´õ ÈÞ½ÄÃ³
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A5: June 2017 WarpByCommand (unpacked_x2.exe 0x31d71000, jump table @31d710d4) adds
+	//   positions 15-20; 0-14 equal March. Omitted: 19 = 1500 VMI_SPA_RUBEN (no March enum).
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case 15: iWorldID = SEnum::VMI_RANOX;						break;
+	case 16: iWorldID = SEnum::VMI_BATTLE_FIELD_RANOX_REST_00;	break;
+	case 20: iWorldID = SEnum::VMI_SPA_RANOX;					break;
+#endif SERV_IRUHADEV_RANOX_PORT
+	case 17: iWorldID = SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00; break;
+	case 18: iWorldID = SEnum::VMI_ELYSION;						break;
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	default: iWorldID = -1;							break;
 	}
 

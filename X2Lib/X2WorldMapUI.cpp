@@ -880,6 +880,33 @@ CKTDGUIDialogType CX2WorldMapUI::GetFieldMapDlg( int iFieldID )
 			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Ranox_Rest_NEW.lua" );
 		} break;
 #endif SERV_IRUHADEV_RANOX_PORT
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A5: the Elysion cases of June 2017 GetFieldMapDlg (unpacked_x2.exe 0x3225e1f0),
+	//   dialog names verbatim. Field 04 (40038) opens Field 02's dialog in June (kept, JUNE_BUGS). June's 25000
+	//   VMI_GUILD_AGIT case omitted (no March enum). Dialogs: Rest staged by A5; 01/02 by A6, Village by E2, 03 by E3.
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Elysion_Rest_NEW.lua" );
+		} break;
+	case SEnum::VMI_ELYSION:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Elysion_Village_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_01:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Elysion_01_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_02:
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_04:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Elysion_02_NEW.lua" );
+		} break;
+	case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_03:
+		{
+			pDialog = new CKTDGUIDialog( m_pStage, L"DLG_UI_FIELD_MAP_Elysion_03_NEW.lua" );
+		} break;
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 //}}
 
 	default:
@@ -2377,6 +2404,28 @@ void CX2WorldMapUI::UpdateNaviMap( IN D3DXVECTOR2& vPos_, IN CKTDGUINavigation* 
 #endif SERV_IRUHADEV_RANOX_PORT
 			//}}
 #endif SERV_IRUHADEV_JUNE_FIELD_MAP
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+			//{{ Iruha : 2026-10-17 // Atlas A5: the Elysion cases of June 2017 UpdateNaviMap (unpacked_x2.exe 0x3225cad0),
+			//   textures and keys verbatim; 40038 shares Field 03's as in June. June's 20010 VMI_EN (shares 20009's) and
+			//   25000 VMI_GUILD_AGIT cases omitted: no March enum.
+			case SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Rest.tga", L"FieldMap_Navigation_Elision_R" );
+				break;
+			case SEnum::VMI_ELYSION:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Village_01.tga", L"TownMap_Navigation_Elision" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_01:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Field_03.tga", L"FieldMap_Navigation_Elision_01" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_02:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Field_03.tga", L"FieldMap_Navigation_Elision_02" );
+				break;
+			case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_03:
+			case SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_04:
+				pNavi_->SetBGTex( L"DLG_UI_Common_Texture_Field_04.tga", L"FieldMap_Navigation_Elision_03" );
+				break;
+			//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 
 			default:
 				break;
