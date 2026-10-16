@@ -1990,6 +1990,48 @@ Kickoff `kickoffs/atlas/A7.md` (written this phase).
   into Field 01 (40035, `FIELDNPC field 40035 is not in BattleFieldData.lua`) crashed the client: accepted until **A6** (user: no stand-in);
   reyaa's save had `last_pos 40035`, reset to 1008 / line 17 / pos 14897 (Freils' spot; backup `db_backup\els_db_20261017_054509_pre_manual.sql`).
 
+### Phase A7 — Review (2026-10-17)
+
+**Opus 5.5 high. Verdict: PASS, no code change, no build, no pack.** Reviewed commit `6b988787` against June (Ghidra, read-only).
+
+- **Page filter (June `3293b5e0` @3293bc66-3293bd65): equal.** Two `GetDummyString(0)` reads (`31c964a0`) compared with `31cb2510`
+  (returns `cmp == 0`, i.e. `==`) against "0" @33458f54 and "1" @33489510; on a match `_itow_s(this+0x54, buf, 10, 10)` and `31cda210`
+  (`cmp != 0`, i.e. `!=`) jump to the loop's continue @3293bfd4. It sits right after the custom-event test (@3293bc4c-3293bc60,
+  `JZ 3293bfd4`), as March's insertion does; the control was hidden earlier in the same loop (March :1298).
+- **Event code 2260 in `UpdateLocalMapDLG` (`3293c6f0`): equal.** @3293c8d9-3293c91f looks up 0x8d4, then the control named by
+  @334c85d0 ("Elysion"), and calls vfunc +0x78(0,0); this runs before the `-1 == dummy` test (@3293c920), as in March. @3293c97e-3293c9b7
+  comes after `SetShowEnable(1,1)` and `GetLocalMapTemplet`. Under 2260 the 0x2719 tab is disabled, and every tab jumps to @3293cde3
+  (the loop increment): no quest mark, no level gate, no tab count. March's `continue` matches. Inert offline.
+- **Scroll stand-in: right.** @3293c146-3293c16a calls `329378a0` only for 0x2719, with 1 or 2 from `this+0x54`. That function runs the
+  `Elysion_Local` move (`31c95150`, `3293dc30` with callback `3293c1e0`) and writes the new page back to +0x54. That is a real scroll, so it
+  belongs to E4. Until E4, page 0 plus both move buttons hidden is the only state that is not a dead button.
+- **Stand-ins (user, 2026-10-17).** (a) `VillageParsing`: the fail path runs with `BeginTable("Village")` open and `BeginTable(id)`
+  failed (so not pushed). The one `EndTable()` closes exactly "Village"; nothing has been allocated or inserted yet (`m_mapVillageTemplet`
+  insert at :525, inside the success branch). (b) Cobo and warp-NPC lists: `X2StateMenu` adds no `++row` in either branch (20009 is the
+  last row, as in March's `#else`), and `X2UIInventory` increments only when the row is added. `row` stays consistent. (c) World-map gate:
+  the same locked-art loop as March's `NO_SANDER_VILLIAGE` block (`dummy 1 == 1` shown, the rest hidden), placed after the templet
+  NULL test. Each half goes idle when its target exists: `GetVillageMapTemplet(20009)` (E2), and `GetBattleFieldNameByBattleFieldId`
+  (returns 0 on a miss, `X2BattleFieldManager.cpp:526`) for 40037 (E3).
+- **NULL village-templet readers (subagent sweep, spot-checked).** `m_mapVillageTemplet` is reached only through `GetVillageMapTemplet`
+  (`find`, else NULL). Every reader that can see 20009 NULL-checks the result: quest NPC maps `X2UIQuestNew.cpp:2862` /
+  `X2UIQuestReceive.cpp:2733`, TFieldGame, community, party, minimap, world-map tooltips, and the last-position fallbacks (which go to
+  Ruben). The one unchecked deref, `X2QuestManager.cpp:1233` (board quests), takes `BoardVillageID` from a switch with no Elysion case
+  (checked: :1186-1226), so it never sees 20009. **E1 / E2 note:** adding an Elysion case there needs E2's templet first.
+- **Data (subagent, spot-checked): all equal.** Btn9 (March :536-567 = JF data217 :525-556) and the QuestGuide picture (:751-761 = JF
+  :762-772) diff empty. `Local[LMI_ELYSION]` and `LocalIDList` equal June's except June's `LMI_EVENT` (still omitted). MapData has 21 rows,
+  equal to and in the same order as JF :576-598 minus `DI_HERO_DUMMY_COMMON` / `_HELL`. The server mirror has the same 21 rows. The three
+  June files are byte-equal to `ljconv(June)` (header `1B 4B 4C 81`; sha1 `25c23818` / `f3ea5b1c` / `9f6b5f74` = the adopt tsv). The four
+  atlas files equal June's in size and sha1 (junekom, byte-exact). JUNE_BUGS 206 is correct (US is none of `NF_DE/ES/IT`).
+- **Omissions, each still true.** Hero rows and dummies are out of scope. `LMI_EVENT` is absent from both registries. The guide window
+  (`DLG_Elysion_LocalMap_Guide.lua`) is E4. The quest test (June @3293cbe0, RequireCompletedQuestID 22218) is decision 2, and the loader
+  never reads the key (`X2LocationManager.cpp`: no hit).
+- **Hygiene.** `flagcheck JUNE_LOCAL_MAP_ELYSION --range 6b988787^..6b988787 --files <7 code files>`: `files: 6 PASS, 0 PASS~ (blank/marker only),
+  1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched
+  inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `LEDGER CHECK PASS: 0 FAIL, 0 WARN`;
+  `CORE CHECK PASS: 0 FAIL, 0 WARN`.
+- **Spot-checks in Ghidra (3):** both string compares (`31cb2510` / `31cda210`), the @3293cde3 continue target, and the `329378a0` scroll.
+  All agree, so no whole-phase re-check was needed. Nothing is owed by the user. A8 kickoff written (`kickoffs/atlas/A8.md`; it needs A6).
+
 ---
 
 ## Phase A8 — AtlasDevelopment line (pattern-setter)
