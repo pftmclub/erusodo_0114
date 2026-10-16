@@ -424,7 +424,7 @@ each; porting June's whole function fixes Lanox at the same time:
 `OnRClickedItem` return scroll (`X2UIInventory.cpp:6596-6608`);
 `ResetWholeMapTexture` (`X2FieldMiniMap.cpp:318-443` — one report says live,
 `LANOX_REMAINING_PHASES.md` P5 says `CX2FieldMiniMap` is dead in both builds:
-settle it); `CX2BossRaidManager::GetFieldOpenTextureName` / `GetCameraIndex`
+settle it — *A1a: dead in March, class gone from June*); `CX2BossRaidManager::GetFieldOpenTextureName` / `GetCameraIndex`
 (`X2BossRaidManager.cpp:417-430`, `617-630`; only matters if a field hosts a
 raid portal). `GetBoardStartQuestList` / `GetNPCFaceTextureKey` are quest
 UI → quest plan.
@@ -437,6 +437,9 @@ UI → quest plan.
   `OpenLocalMapDLG` `FUN_3293c440` for 0x2719, closed by LMUCM 18008), page
   filter member +0x54, event flags 0x8d4/0x8d5 (`FUN_322aa950`). March has
   comments at `X2LocalMapUI.cpp:379, 800, 818, 885, 1304, 1338, 1399`.
+  *(A1a, 2026-10-16: `322aa950` is `std::map::find`. The flags are code events
+  2260/2261 (+2262), read through `CX2InstanceData::IsEnableCode` `31e5a860`. They
+  also gate portals and the Cobo list: see the A1a summary.)*
 - **Unbound Lua names: 65** (53 from decompiled region scripts, 9 inferred
   from `ELYSION_SOLESS` bytecode, 3 registry/UI). 8 already have a C++ method
   ("(b)": binding only), 57 need new C++. Method: every string on
@@ -901,7 +904,84 @@ an "A1a reachability summary" is in the doc. Record a Done note, then commit on 
 
 ### Phase A1a — Done
 
-*(empty)*
+*(2026-10-16, Opus 5.5 xhigh. Read-only: no game code, no flag, no flagcheck, no build or deploy, no log tag.)*
+
+- **Landed:** `june2017_re/region_reach.tsv` (70 rows, columns per step 2 plus `june_id` status and notes),
+  `region_reach_hits.tsv` (the March inventory: 340 grep hits over X2Lib / KTDXLIB / X2 / X2ServerProtocol and the
+  client-compiled `KncWX2Server/Common` headers, flag-resolved live/dead/comment), the two scripts that make them
+  (`region_reach_hits.py`, `region_reach.py`), 40 `funcmap.tsv` rows (`Atlas A1a:`), 154 probed flags appended to
+  `region_census_flags.tsv`. Coverage check: `python -I june2017_re/region_reach.py` ->
+  `rows 70; inventory hits 340; covered 340; missing 0`.
+- **Premises:** every ledger file:line re-read. Stale by a few lines (the code is as described): LoadFieldImage
+  (`X2TFieldGame.cpp:4557`, Ranox cases 4616-4626), OpenFieldName (`:4736-4808`, not 4725-4797), LoadUI caller
+  (`:4645`, not 4634), the WI_END handlers (`X2State.cpp:6840`, not 6789; `X2StateServerSelect.cpp:7379`, not 7371).
+  The rest hold.
+- **Settled (step 4):** `CX2FieldMiniMap` is compiled but never constructed (`CreateFieldMiniMap` has 0 callers), and
+  June has removed the class (none of its `Minimap_*_Gate.tga` literals exist): nothing to port. June ranges:
+  `IsVillageField` 20000-20010 (includes `VMI_EN`), `IsDungeonGate` 10000-10005 and `IsDungeonLounge` 30000-30006
+  (both = March; `LOUNGE_RANOX` / `LOUNGE_ELYSION` sit outside in June too), `IsBattleFieldRest` 1000-1008. They come
+  from June's out-of-line `IsVillage` (`32268dd0`). June's C++ markers are `VILLAGE_MAP_END` 20011, `BATTLE_FIELD_END`
+  40045, `WI_END` 779 and `DI_END` 41530.
+  **No `*_END` sizes an array, container, loop or memset**, and none is saved. The only layout limit is
+  `NUI_MAX_LIMIT <= 65536` (`X2Item_Preprocessing.inl:1033`: NPC ids are WORD-packed in the item format).
+- **Found from the June side** (no March token, so the grep could not see them):
+  - **Code events 2260/2261/2262** (`IsEnableCode` `31e5a860`) gate the region's portals: Lanox F04 world 608 line 103
+    and Elysion F01 world 638 line 53. They act in `IsNearPortalLineMap` `32d53810`, `CreatePotalParticle` `32d51960`
+    and the `PhysicProcess_Portal*` pair `3201a2b0`/`3201a670`.
+  - The same events hide Atlas Station from the Cobo list (`324627f0`; the row index still increments) and hide the
+    Elysion local-map tab (`3293c6f0`). They mark Atlas / Tower dungeons "new" in `3293b5e0`.
+  - Offline has no code events, so every gate stays open. Owners: A5, A6 and E4 port them as June has them.
+- **Quest gate in both warp lists** (`324627f0`, `32173120`): the LMI_ELYSION rows also need templet `+0x70`
+  (RequireCompletedQuestID 22218) to pass `32322260`. Ported verbatim, it would hide Atlas Station and Elysion from
+  Cobo and the warp NPC forever offline. Verdict: port-whole, quest test omit-with-comment (decision 2). Added to
+  *Deferred to the quest plan*.
+- **June quirks the porting phase keeps** (a JUNE_BUGS row at the port):
+  - `ResetMapPosAndSize` `32f1fd90` has no case for 1008 or 40038 (A5).
+  - `GetFieldMapDlg` gives 40038 the `Elysion_02` dialog (E3).
+- **Lanox misses fixed by the June ports:**
+  - OpenFieldName: no Ranox case today.
+  - The return-scroll ban: `321aa5d0@321b5752` bans 20006-20009.
+  `ReLoadingVillageMap`'s loops miss Ranox too. June has no such loop and makes the dialogs on first open, so there
+  is no gap. The BossRaid textures have Ranox 0-3 in June but no Elysion: outside this plan.
+- **In-village warps (E1):** VillageParsing `324ff4b0` reads `WaitingTime` (StartPos +0x1c) and
+  `InternalPlaceStartPosID` (+0x20). The readers are `323aa170` (is-internal), `323ac300` (move + Portal.ogg) and the
+  village portal tick `3250a800`. March has neither key.
+- **Ledger corrections:** `FUN_322aa950` is `std::map::find`. The event-flag test is `31e5a860`
+  (`CX2InstanceData::IsEnableCode`). The guide window shows once per install: `checkfile.txt` is read with `"rb"` and
+  written with `"wb"` in the cwd.
+- **Open for the user:** nothing. Next: A1b (if not done), then `/x2-phase atlas A3` (kickoff `kickoffs/atlas/A3.md`).
+
+#### A1a reachability summary
+
+One row per site; the full 70 rows (every March line they cover, June evidence, notes) are in `june2017_re/region_reach.tsv`.
+`port-whole` = June's whole function under the owner's flag, June-only cases whose enum March lacks (1500 `VMI_SPA_RUBEN`,
+20010 `VMI_EN`, 25000 `VMI_GUILD_AGIT`, raid stages) omitted with a comment; `n/a` = nothing to port.
+
+| Site (March) | June | Region case in June | Verdict | Owner |
+|---|---|---|---|---|
+| `IsValidWarpField` `X2LocationManager.cpp:1561` | `324f1e70` | Y (ranges, not a case list) | port-whole | A5 (E2 checks 20009) |
+| `LoadFieldImage` `X2TFieldGame.cpp:4557` | `323ad5f0` | Y (Atlas_Pit_Rest, Elision art) | port-whole | A5 |
+| `OpenFieldName` `X2TFieldGame.cpp:4736` | `323b1320` | Y | port-whole | A5 |
+| `GetFieldMapDlg` `X2WorldMapUI.cpp:684` | `3225e1f0` | Y (40038 -> Elysion_02, quirk) | port-whole | A5; dialogs A6 / E2 / E3 |
+| `UpdateNaviMap` `X2WorldMapUI.cpp:2178` | `3225cad0` | Y | port-whole | A5 |
+| `ResetCameraMatrix` `X2FieldMapBase.cpp:120` | `32f1fec0` | Y | port-whole | A5 |
+| `ResetMapPosAndSize` `X2FieldMapBase.cpp:535` | `32f1fd90` | omitted (no 1008, no 40038: keep) | port-whole | A5 |
+| Cobo `InitWarpList` / `CreateWarpDest` `X2StateMenu.cpp:6139` / `6185` | `3245a1e0` / `324627f0` | Y (1008 hidden under event 2260) | port-whole; quest test omit-with-comment | A5 (E2: 20009) |
+| warp-NPC `InitWarpList` / `CreateWarpDest` `X2UIInventory.cpp:13931` / `13977` | `32166ae0` / `32173120` | Y | port-whole; quest test omit-with-comment | A5 (E2: 20009) |
+| return-scroll ban `X2UIInventory.cpp:6599` (`OnRClickedItem`) | `321aa5d0@321b5752` | Y (bans 20006-20009) | port-whole (ban block) | E2 |
+| `WarpByCommand` / `FieldWarpByCommand` `X2Main.cpp:13480` / `13515` | `31d71000` / `31d71130` | Y | port-whole | A5 / A6 |
+| chat warp debug `X2ChatBox.cpp:1011` | - | n/a (local debug) | add `atlas` / `elysion` | A5 / E2 |
+| `IsVillageField`, `IsBattleFieldRest`, `IsVillage` `X2LocationManager.h:488-544` | `32268dd0` | June 20000-20010, 1000-1008 | port-whole (June ranges) | A3 |
+| `IsDungeonGate` / `IsDungeonLounge` `X2LocationManager.h:508` / `516` | inline | = March | n/a | - |
+| marker consumers: `WI_END` x3 field ACKs, `VILLAGE_MAP_END` x2 couple summon, `BATTLE_FIELD_END` x5 (login, rejoin, party, char select, village portal), `NUI_MAX_LIMIT` x2, ASSERTs x4, `IsBattleField` / `SEnum::Is*ID` (no client caller) | `31efb3a0`, `325094b0`, `3256a180`, `324bdd50`, `325712b0`, `323b5970`, ... | June's own values | n/a (A3 bumps the markers; until then Elysion fields fail every test) | A3 |
+| `UpdateLocalMapDLG` / `UpdateDungeonButtons` (June copies) `X2LocalMapUI.cpp:750` / `1232` | `3293c6f0` / `3293b5e0` | Y (LMI 0x2719, events 2260/2261) | port-whole | A7 (tab, Atlas page) / E4 |
+| `CreateLocalMapDLG` `X2LocalMapUI.cpp:1140` (`DI_END`) | `3293ab50` | n/a (region DIs < 41311) | n/a | A3 (sentinel) |
+| `OpenLocalMapDLG` + page scroll + guide | `3293c440`, `329378a0`, `3293a960`, `329386b0` | Y | port-whole | E4 |
+| portal gates (no March token): `IsNearPortalLineMap` `X2BattleFieldGame.cpp:514`, `CreatePotalParticle` `:329`, `PhysicProcess_Portal*` `X2GUUser.cpp:24500` | `32d53810`, `32d51960`, `3201a2b0` / `3201a670` | Y (events 2260-2262) | port the gates (inert offline) | A6 |
+| in-village warps (no March key) | `324ff4b0`, `323aa170`, `323ac300`, `3250a800` | Y | port-whole | E1 |
+| `HouseParsing` + NPC relation | funcmap rows (Effect C9h-2e / C9h-5) | Y | port-whole | E1 |
+| `GetBoardStartQuestList` `X2QuestManager.cpp:1144` | `3232fd70` | Y (1008 -> itself) | deferred | quest plan |
+| `ReLoadingVillageMap`, `CX2FieldMiniMap`, BossRaid texture / camera, `STATE_CHANGE_FIELD_REQ` `31f12630`, `LoadUI` `323b0f20`, `OpenFieldMap` `322633c0`, `CX2PartyUI::OpenLocalMapDlg` `322b5970`, sentinels, dead and comment hits, enum defs (A3), offline seed (A3) | - | - | n/a | - (A3 for defs and the seed) |
 
 ---
 
@@ -2411,6 +2491,14 @@ checklist**:
   `+0x70`, parser `FUN_32501bb0` at `0x32502cf4`, tested via `FUN_32322260`),
   `BATTLE_FIELD_DIRECTION_INFO` / `NEED_ONGOING_QUEST_ID` (Lanox F04 row;
   March has no reader).
+- *(A1a, 2026-10-16)* `FUN_32322260` is also the quest test in both warp lists:
+  `324627f0 @32462ffd` (Cobo) and `32173120 @321738e3` (warp NPC / item) skip the
+  LMI_ELYSION rows (Atlas Station, Elysion) unless templet `+0x70` is 0 or passes it.
+  The A5 / E2 ports leave that test out with a comment (decision 2). June's bulletin
+  board village mapping (`GetBoardStartQuestList`) is `3232fd70` (called from
+  `323357c0` for NPC 0x2729); it maps 1006 -> 20007, 1007 -> 20008 and 1008 -> 1008.
+  The direction-info reader was not found in A1a's pass; it was not searched for
+  (no deeper RE, step 6).
 - Quest data: March's live `FieldQuest.lua` has no Lanox or Elysion quests.
   Chain: 22140 (Sander's last epic, present in March) → after-quest 22160
   "What happened in Lanox?" (start village 20008) → … 22209 → 22216 → 22217 →

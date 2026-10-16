@@ -1,0 +1,279 @@
+"""Atlas A1a: write june2017_re/region_reach.tsv (one row per March site / June-only site) and check coverage.
+
+    python -I region_reach_hits.py   # March inventory (grep hits, flag-resolved) -> region_reach_hits.tsv
+    python -I region_reach.py        # region_reach.tsv + check: every inventory hit is named by a row (exit 1 if not)
+
+The rows below are A1a's verdicts, written by hand; the coverage check is the mechanical part.
+"""
+import csv, os, sys
+HERE = os.path.dirname(os.path.abspath(__file__))
+OUT = os.path.join(HERE, 'region_reach.tsv')
+HITS = os.path.join(HERE, 'region_reach_hits.tsv')
+
+COLS = ['row', 'march_site', 'function', 'march_lines', 'decides', 'state', 'june_addr', 'june_id', 'june_region_case',
+        'verdict', 'owner', 'notes']
+
+# march_lines: every inventory line this row covers ("file:l1,l2" groups joined by ';'), '-' when the row has no token hit
+R = []
+def row(*a):
+    assert len(a) == len(COLS) - 1, a
+    R.append(['R%02d' % (len(R) + 1)] + list(a))
+
+# --- touch-list sites (ledger) -----------------------------------------------------------------------------------------
+row('X2Lib/X2LocationManager.cpp:1561', 'CX2LocationManager::IsValidWarpField', 'X2Lib/X2LocationManager.cpp:1570,1581,1583,1584',
+    'warp target valid? (Cobo ACK X2StateMenu.cpp:6623, warp item X2UIInventory.cpp:9470, LoadUI X2TFieldGame.cpp:4645); false = silent no-op',
+    'live', '324f1e70', 'confirmed', 'Y: ranges 1000-1008 (not 1003), 1500-1501, 20000-20009, 25000',
+    'port-whole', 'A5 (whole fn; 1008) / E2 checks 20009',
+    'June is a range test, not March case list. 1500 VMI_SPA_RUBEN and 25000 VMI_GUILD_AGIT have no March enum: omit-with-comment. 1003 (Peita rest) is excluded in June as in March')
+row('X2Lib/X2TFieldGame.cpp:4557', 'CX2TFieldGame::LoadFieldImage', 'X2Lib/X2TFieldGame.cpp:4588,4616,4622,4626',
+    'loading-screen art per location', 'live', '323ad5f0', 'confirmed',
+    'Y: 0x3f0 HQ_LoadingDungeon_Atlas_Pit_Rest_01/02.tga, 0x4e29 HQ_LoadingVillage_Elision_01/02.tga',
+    'port-whole', 'A5 (whole fn) / E2 checks 0x4e29',
+    'June also has 1500 Ruben spa (no March enum: omit-with-comment) and 1501 Ranox spa (March has VMI_SPA_RANOX). Art only in June data183 (A5 step 7)')
+row('X2Lib/X2TFieldGame.cpp:4736', 'CX2TFieldGame::OpenFieldName', 'X2Lib/X2TFieldGame.cpp:4777,4800',
+    'field-title banner picture', 'live', '323b1320', 'confirmed',
+    'Y: shows 1000-1008 (incl 1003), 1500-1501, 20000-20009; hides the rest',
+    'port-whole', 'A5 / E2 checks',
+    'Lanox miss: March has no Ranox case (falls to default = hidden); the June port fixes it. June computes the picture index differently from March hard-coded table: read whole at the port; DLG_UI_Field_Title.lua picture count must cover it')
+row('X2Lib/X2WorldMapUI.cpp:684', 'CX2WorldMapUI::GetFieldMapDlg', 'X2Lib/X2WorldMapUI.cpp:827,831,835,839,846,850,858,862,866,870,874,878',
+    'M-key field-map dialog per location (default: ASSERT, NULL)', 'live', '3225e1f0', 'confirmed',
+    'Y: 0x3f0 Elysion_Rest, 0x4e29 Elysion_Village, 40035-40037 Elysion_01..03, 40038 -> Elysion_02 dialog',
+    'port-whole', 'A5 (whole fn) / A6 F01-F02, E2 village, E3 F03-F04 check their dialog lua',
+    'June default returns NULL without ASSERT; 25000 Guild_Agit dialog (no March enum: omit-with-comment). 40038 reusing Elysion_02 is a June quirk: JUNE_BUGS row at the port (E3)')
+row('X2Lib/X2WorldMapUI.cpp:2178', 'CX2WorldMapUI::UpdateNaviMap', 'X2Lib/X2WorldMapUI.cpp:2331,2334,2337,2340,2344,2347,2359,2362,2365,2368,2371,2374',
+    'navigation thumbnail texture', 'live', '3225cad0', 'confirmed',
+    'Y: 0x3f0, 0x4e29, 0x4e2a (VMI_EN), 40035-40038, 25000 GuildMap_Agit',
+    'port-whole', 'A5',
+    'already JUNE_FIELD_MAP for Ranox (comment X2WorldMapUI.cpp:2354). 20010 VMI_EN and 25000 have no March enum: omit-with-comment')
+row('X2Lib/X2FieldMapBase.cpp:120', 'CX2FieldMapBase::ResetCameraMatrix', 'X2Lib/X2FieldMapBase.cpp:396,403,410,417,425,432,452,459,466,473,480,487',
+    'field-map camera per location', 'live', '32f1fec0', 'confirmed',
+    'Y: 0x3f0, 0x4e29, 40035-40038 (40036 and 40038 share a body), 1500/1501, 25000',
+    'port-whole', 'A5', 'JUNE_FIELD_MAP already ports the Ranox cases (comment X2FieldMapBase.cpp:443)')
+row('X2Lib/X2FieldMapBase.cpp:535', 'CX2FieldMapBase::ResetMapPosAndSize', 'X2Lib/X2FieldMapBase.cpp:581,582,583,584,586,587,594,595,596,597,598,599',
+    'field-map window pos/size', 'live', '32f1fd90', 'confirmed',
+    'omitted: June lists 1000-1007, 1500-1501, 20000-20009, 25000, 40000-40025, 40029-40032, 40035-40037; NOT 1008, NOT 40038',
+    'port-whole', 'A5',
+    'June quirk kept verbatim: Atlas Station (1008) and Field 04 (40038) keep the previous window pos/size. JUNE_BUGS row at the port (A5)')
+row('X2Lib/X2StateMenu.cpp:6185', 'CX2StateMenu::CreateWarpDest (Cobo Express, B key)', 'X2Lib/X2StateMenu.cpp:6465,6473,6479,6493,6501,6507,6516,6522,6526,6539,6543,6559,6568',
+    'Cobo Express destination rows', 'live (6465-6479 dead: SERV_SANDER_AUTO_OPEN_HARD_CODE OFF)', '324627f0 (+AddWarpList 3245c930)', 'confirmed',
+    'Y: LMI 0x2719 block @32462fcd: Village_1008 -> AddWarpList(1008) unless IsEnableCode(2260) (row index still ++), Village_20009 -> 20009',
+    'port-whole; quest test omit-with-comment (decision 2)', 'A5 (1008) / E2 (20009)',
+    'Gate = templet level (+0x18) AND (+0x70 RequireCompletedQuestID == 0 OR 32322260(quest)). The quest test would hide both rows forever offline (22218 never completes): omit-with-comment, address in Deferred-to-quest. Code event 2260 is inert offline (no server events). Dialog DLG_Destination_byButton.lua (datai014, A5 adopts June whole file). Else-branch 32463091 = switch on current state')
+row('X2Lib/X2StateMenu.cpp:6139', 'CX2StateMenu::InitWarpList', 'X2Lib/X2StateMenu.cpp:6168,6170,6176,6179',
+    'hide every Village_* control before CreateWarpDest', 'live (hits are comments)', '3245a1e0', 'confirmed',
+    'Y: hides Village_1008 / Village_20009 (and 1500/1501/25000)', 'port-whole', 'A5',
+    'March dereferences Village_1000/1002 unchecked; June whole file drops them (A5 step 5)')
+row('X2Lib/X2UIInventory.cpp:13977', 'CX2UIInventory::CreateWarpDest (warp NPC / warp item)', 'X2Lib/X2UIInventory.cpp:14133,14141,14147,14156,14161,14165,14169,14173',
+    'warp-NPC / warp-item destination rows', 'live', '32173120 (+AddWarpList 3216b030)', 'confirmed',
+    'Y: same 0x2719 block @321738b3, AddWarpList(1008), AddWarpList(20009); NO code-event 2260 test',
+    'port-whole; quest test omit-with-comment (decision 2)', 'A5 (1008) / E2 (20009)', 'dialog DLG_Destination.lua (data034, already June whole file)')
+row('X2Lib/X2UIInventory.cpp:13931', 'CX2UIInventory::InitWarpList', 'X2Lib/X2UIInventory.cpp:13960,13962,13968,13971',
+    'hide Village_* controls', 'live (hits are comments)', '32166ae0', 'confirmed', 'Y', 'port-whole', 'A5', '')
+row('X2Lib/X2UIInventory.cpp:5858', 'CX2UIInventory::OnRClickedItem (return-scroll village ban)', 'X2Lib/X2UIInventory.cpp:6599',
+    'refuse a return scroll in listed villages (STR_ID_11176)', 'live', '321aa5d0 @321b5752', 'likely',
+    'Y: item 0x1b0ff, village-20006 <= 3 -> HAMEL, SANDER, RANOX, ELYSION banned',
+    'port-whole (the ban block)', 'E2', 'Lanox miss: March bans HAMEL/SANDER only, so Lanox allows the scroll; June bans 20006-20009')
+row('X2Lib/X2ChatBox.cpp:1011', 'CX2ChatBox::UICustomEventProc (chat warp debug)', 'X2Lib/X2ChatBox.cpp:1068,1081,1082',
+    'local `lanox` debug warp (SERV_IRUHADEV_CHAT_WARP_DEBUG)', 'live', '-', 'none', 'n/a (local debug, not in June)',
+    'n/a', 'A5 adds `atlas` -> 1008, E2 adds `elysion` -> 20009', 'plan Starting context: debug warp')
+row('X2Lib/X2LocalMapUI.cpp:750', 'CX2LocalMapUI::UpdateLocalMapDLG (June copy)', 'X2Lib/X2LocalMapUI.cpp:873,1074',
+    'tab strip / page; 873 is the RANOXDBG debug line (live), 1074 the dead March copy', 'live / dead', '3293c6f0', 'likely',
+    'Y: LMI 0x2719; IsEnableCode(2260) hides the "Elysion" control and skips the 0x2719 tab body',
+    'port-whole (June copy is live; add the 0x2719 + code-event branches)', 'A7 (tab) / E4 (page + event flags)',
+    'named by X2LocalMapUI.cpp:745 comment (JUNE_LOCAL_MAP_UI). 2260 inert offline -> tab shown')
+row('X2Lib/X2LocalMapUI.cpp:1140', 'CX2LocalMapUI::CreateLocalMapDLG', 'X2Lib/X2LocalMapUI.cpp:1174',
+    'IsDungeonEnable filter over dummy ints in [DI_RUBEN_EL_TREE_NORMAL, DI_END]', 'live', '3293ab50', 'likely',
+    'n/a: June same test with its DI_END (x-30000 < 0x2d0b -> 41530)', 'n/a', 'A3 (sentinel decision)',
+    'every region DI is below March DI_END 41311 (census: no DI at/above a marker), so the region passes either way')
+row('X2Lib/X2LocalMapUI.cpp:1232', 'CX2LocalMapUI::UpdateDungeonButtons (June copy 1232-1417, March copy 1439+)', 'X2Lib/X2LocalMapUI.cpp:1236,1287,1323,1348,1443,1472,1512,1533',
+    'dungeon buttons per local map (Ranox special-cases)', 'live (1236-1348) / dead (1443-1533)', '3293b5e0', 'likely',
+    'Y: LMI 0x2719 branch; IsEnableCode(2260) marks DI 33330-33352 (Atlas lines) new-open, 2261 marks 33350-33352 (Tower)',
+    'port-whole', 'A7 (Atlas page) / E4 (page filter +0x54, event flags)',
+    'named by X2LocalMapUI.cpp:1226 comment. Event marks inert offline (no code events)')
+row('X2Lib/X2LocationManager.h:488', 'CX2LocationManager::IsVillageField', 'X2Lib/X2LocationManager.h:493,495,497,501',
+    'village range (only caller IsVillage .h:534)', 'live (495) / dead (497, 501) / comment (493)', '32268dd0 (out-of-line IsVillage) + inline 31f12739, 324bdfcc, 3250929c', 'confirmed',
+    'Y: 20000 <= x <= 20010 (includes VMI_EN)', 'port-whole (June range)', 'A3 (step 4)',
+    'March bound is VMI_RANOX 20008, so VMI_ELYSION fails IsVillage today. 20010 VMI_EN has no March enum: June literal or VMI_ELYSION bound, A3 decides (no village 20010 exists in March)')
+row('X2Lib/X2LocationManager.h:524', 'CX2LocationManager::IsBattleFieldRest', 'X2Lib/X2LocationManager.h:526',
+    'rest range 1000 <= x < VMI_BATTLE_FIELD_REST_END', 'live', '32268dd0', 'confirmed', 'Y: 1000..1008 (REST_END 1009)',
+    'n/a (marker bump)', 'A3', 'March REST_END 1008 excludes Atlas Station: A3 bumps it to 1009')
+row('X2Lib/X2LocationManager.h:546', 'CX2LocationManager::IsBattleField', 'X2Lib/X2LocationManager.h:548',
+    'battlefield range < VMI_BATTLE_FIELD_END', 'live (no client caller)', 'inline x-40000 < 0x2d (322b5970, 3293f0c0)', 'confirmed',
+    'Y: 40000..40044 (BATTLE_FIELD_END 40045)', 'n/a (marker bump)', 'A3', 'zero callers in the client')
+row('KncWX2Server/Common/Enum/Enum.h:536', 'SEnum::IsVillageMapID / IsBattleFieldID / IsRestFieldID', 'KncWX2Server/Common/Enum/Enum.h:538,546,554',
+    'shared range helpers on the three VMI markers', 'live (no client caller)', '-', 'none', 'n/a (IsVillageMapID caller is server-only XSLMapData.cpp:173)',
+    'n/a (marker bump)', 'A3', 'June C++ markers: VILLAGE_MAP_END 20011 (cmp 0x4e2b), BATTLE_FIELD_END 40045 (cmp 0x9c6d), REST_END 1009')
+row('X2Lib/X2BattleFieldGame.cpp:285', 'CX2BattleFieldGame::WorldLoading', 'X2Lib/X2BattleFieldGame.cpp:291,295',
+    'ASSERT battlefield id < VMI_BATTLE_FIELD_END and world id < WI_END', 'live (ASSERT)', '-', 'none',
+    'n/a (ASSERT compiled out of June release)', 'n/a (marker bump)', 'A3', 'Elysion fields 40035-40038 and WI 752 trip it until A3 bumps the markers')
+row('X2Lib/X2BattleFieldGame.cpp:451', 'CX2BattleFieldGame::SwapWorld', 'X2Lib/X2BattleFieldGame.cpp:454,457',
+    'same ASSERT pair', 'live (ASSERT)', '-', 'none', 'n/a (ASSERT)', 'n/a (marker bump)', 'A3', '')
+row('X2Lib/X2State.cpp:6809', 'CX2State::Handler_EGS_STATE_CHANGE_FIELD_ACK', 'X2Lib/X2State.cpp:6840',
+    'refuse world id >= WI_END', 'live', '31efb3a0', 'candidate', 'n/a: June compares 779 (cmp 0x30b)',
+    'n/a (marker bump)', 'A3', 'June WI_END 779; WI_ELYSION_FIELD_PVPMAP 752 is the only region WI at/above March WI_END 752')
+row('X2Lib/X2StateField.cpp:1261', 'CX2StateField::Handler_EGS_STATE_CHANGE_FIELD_ACK', 'X2Lib/X2StateField.cpp:1293',
+    'refuse world id >= WI_END', 'live', '325094b0', 'candidate', 'n/a: cmp 0x30b', 'n/a (marker bump)', 'A3', '')
+row('X2Lib/X2StateServerSelect.cpp:7345', 'CX2StateServerSelect::Handler_EGS_STATE_CHANGE_FIELD_ACK', 'X2Lib/X2StateServerSelect.cpp:7379',
+    'refuse world id >= WI_END', 'live', '3256a180', 'candidate', 'n/a: cmp 0x30b', 'n/a (marker bump)', 'A3', '')
+row('X2Lib/X2StateBeginning.cpp:3957', 'CX2StateBeginning::Handler_EGS_STATE_CHANGE_FIELD_ACK', 'X2Lib/X2StateBeginning.cpp:3991',
+    'refuse world id >= WI_END', 'dead (ELSWORD_NEW_BEGINNING OFF)', '-', 'none', 'n/a', 'n/a', '-', '')
+row('X2Lib/X2StateBattleField.cpp:1735', 'CX2StateBattleField::Handler_EGS_CALL_MY_LOVER_STATE_CHANGE_FIELD_NOT', 'X2Lib/X2StateBattleField.cpp:1755',
+    'couple summon: refuse village id >= VMI_VILLAGE_MAP_END', 'live', '324bdd50', 'candidate', 'n/a: June compares < 0x4e2b (20011)',
+    'n/a (marker bump)', 'A3', 'VMI_ELYSION 20009 == March VILLAGE_MAP_END: refused until A3 bumps it')
+row('X2Lib/X2StateField.cpp:2338', 'CX2StateField::Handler_EGS_CALL_MY_LOVER_STATE_CHANGE_FIELD_NOT', 'X2Lib/X2StateField.cpp:2354',
+    'same', 'live', 'compare @3250929c', 'candidate', 'n/a: cmp 0x4e2b', 'n/a (marker bump)', 'A3', '')
+row('X2Lib/X2PartyManager.cpp:2588', 'CX2PartyManager::RememberComeBackInfoBeforeInstanceGameStart', 'X2Lib/X2PartyManager.cpp:2615',
+    'is the saved map a battlefield (40000 <= id < VMI_BATTLE_FIELD_END)', 'live', 'one of the cmp 0x9c6d sites (see notes)', 'candidate',
+    'n/a: June bound 40045', 'n/a (marker bump)', 'A3',
+    'June 0x9c6d (40045) compares: 31f12cc0, 31f16530, 323b5970@323b6f74, 324351d0, 32435610, 324f0750, 324f0900, 325712b0. Pairing beyond 325712b0 not settled (not needed: the fix is the bump)')
+row('X2Lib/X2State.cpp:11753', 'CX2State::ReturnToPlaceWhereBeforeDungeonStart', 'X2Lib/X2State.cpp:11790',
+    'rejoin the saved battlefield after a dungeon / tutorial', 'live', 'one of the cmp 0x9c6d sites', 'candidate', 'n/a: 40045', 'n/a (marker bump)', 'A3',
+    'Elysion fields fail today -> player is sent to the village instead')
+row('X2Lib/X2StateServerSelect.cpp:5509', 'CX2StateServerSelect::Handler_EGS_GET_MY_INVENTORY_ACK', 'X2Lib/X2StateServerSelect.cpp:5550',
+    'login: is the saved map a battlefield', 'live', '325712b0', 'confirmed', 'n/a: 40045', 'n/a (marker bump)', 'A3',
+    'string "Invalid EGS_GET_MY_INVENTORY_ACK" @334a8520')
+row('X2Lib/X2StateServerSelect.cpp:11164', 'CX2StateServerSelect::ChangeUnitButtonInfo', 'X2Lib/X2StateServerSelect.cpp:11436',
+    'character-select location label: battlefield range', 'live', 'one of the cmp 0x9c6d sites', 'candidate', 'n/a: 40045', 'n/a (marker bump)', 'A3', '')
+row('X2Lib/X2TFieldGame.cpp:1247', 'CX2TFieldGame::OnFrameMove (portal to battlefield)', 'X2Lib/X2TFieldGame.cpp:1687',
+    'village portal: target start pos must be a battlefield', 'live', '323b5970 @323b6f74', 'likely', 'n/a: 40045 (and 25000 test)',
+    'n/a (marker bump)', 'A3', 'without the bump Elysion village -> F02/F03 portals do nothing')
+row('X2Lib/X2ItemManager_Preprocessing.cpp:474', 'CX2ItemManager::KProxy2::AddItemTemplet_LUA', 'X2Lib/X2ItemManager_Preprocessing.cpp:1501',
+    'item templet NPC id range < NUI_MAX_LIMIT', 'live', '-', 'none (June value not located)', 'n/a', 'n/a (marker bump)', 'A3',
+    'NUI 10194/10195 (Elysion trees) need NUI_MAX_LIMIT > 10195')
+row('X2Lib/X2Item_Preprocessing.inl:1033', 'file scope BOOST_STATIC_ASSERT', 'X2Lib/X2Item_Preprocessing.inl:1033',
+    'compile-time: NUI_MAX_LIMIT <= 65536 (NPC id stored as WORD)', 'live (compile time)', '-', 'none', 'n/a', 'n/a', 'A3',
+    'the only layout constraint on any end marker: NUI ids are WORD-packed in the item format')
+row('X2Lib/X2Main.cpp:13480', 'CX2Main::WarpByCommand (in-house cheat, Lua-bound)', 'X2Lib/X2Main.cpp:13499,13500',
+    'cheat position -> village id', 'live', '31d71000', 'confirmed', 'Y: positions 0..20 incl 0x3f0, 0x4e29, 1500, 1501',
+    'port-whole', 'A5 (1008) / E2 checks', 'binding WarpByCommand @31dab6e0 (xorstrings row). June numbering differs from March; 1500 has no March enum: omit-with-comment')
+row('X2Lib/X2Main.cpp:13515', 'CX2Main::FieldWarpByCommand (in-house cheat)', 'X2Lib/X2Main.cpp:13549,13550,13552,13553',
+    'cheat position -> battlefield id', 'live (BATTLE_FIELD_WARP_EDIT)', '31d71130', 'confirmed',
+    'Y: 43 positions incl 40035-40038 (+ 40028, 40040-40044 raid stages)', 'port-whole', 'A6 (F01/F02) / E3 checks',
+    'binding @31daceca. Raid-stage ids have no March enum: omit-with-comment')
+row('X2Lib/X2WorldMapUI.cpp:2465', 'CX2WorldMapUI::ReLoadingVillageMap', 'X2Lib/X2WorldMapUI.cpp:2475,2485,2492',
+    'pre-create field-map dialogs over ID loops (to SANDER_REST_00 / SANDER / SANDER_FIELD_04)', 'live (VILLAGE_MAP_FAST_RELOADING)', '-', 'none',
+    'N: no June loop (GetFieldMapDlg 3225e1f0 has one caller, OpenFieldMap 322633c0)', 'n/a', 'A5 note',
+    'loops already miss Ranox; GetFieldMapDlg creates a dialog on first open, so the region works without them. No June code to port')
+row('X2Lib/X2FieldMiniMap.cpp:318', 'CX2FieldMiniMap::ResetWholeMapTexture', 'X2Lib/X2FieldMiniMap.cpp:437',
+    'mini-map texture per village', 'compiled, dead at runtime (CreateFieldMiniMap has 0 callers)', '-', 'none',
+    'N: class absent in June (no Minimap_*_Gate.tga strings)', 'n/a', '-', 'settles the open question: dead in March, removed in June')
+row('X2Lib/X2BossRaidManager.cpp:417', 'CX2BossRaidManager::GetFieldOpenTextureName', 'X2Lib/X2BossRaidManager.cpp:425,426,427,428',
+    'raid-portal open texture per field', 'live (FIELD_BOSS_RAID)', '3269ece0', 'confirmed', 'N: Hamel 0-3, Sander 0-3, Ranox 40029-40032 only',
+    'n/a', '-', 'no Elysion raid field in June. Lanox-only gap (June has Ranox_0..3), outside this plan')
+row('X2Lib/X2BossRaidManager.cpp:617', 'CX2BossRaidManager::GetCameraIndex', 'X2Lib/X2BossRaidManager.cpp:625,626,627,628',
+    'raid-portal camera index per field', 'live', '-', 'none (not located)', 'N (no Elysion raid field, per the textures)', 'n/a', '-', '')
+row('X2Lib/X2QuestManager.cpp:1144', 'CX2QuestManager::GetBoardStartQuestList', 'X2Lib/X2QuestManager.cpp:1223,1224,1226',
+    'bulletin-board village for the current location', 'live', '3232fd70 (via 323357c0, NPC 0x2729)', 'likely',
+    'Y: 1006->20007, 1007->20008, 1008->1008 (self), villages 20001-20009', 'deferred (quest plan)', 'quest plan', 'see Deferred to the quest plan')
+row('X2Lib/X2WorldMapUI.cpp:1798', 'CX2WorldMapUI::GetNPCQuestDesc', 'X2Lib/X2WorldMapUI.cpp:1944,1956,1976,1983,2005',
+    'DI_END as a "no dungeon" sentinel', 'live', '-', 'none', 'n/a (sentinel, region-neutral)', 'n/a', '-', 'a DI_END bump keeps the sentinel consistent')
+row('X2Lib/X2WeddingManager.cpp:422', 'CX2WeddingHallManager::AddWeddingHallTemplet_LUA', 'X2Lib/X2WeddingManager.cpp:432',
+    'default WORLD_ID WI_SANDER_WEDDING', 'live', '-', 'none', 'n/a', 'n/a', '-', 'region-neutral default')
+row('KTDXLIB/KTDXApp.cpp:2721', 'CKTDXApp::InitEnumToString', 'KTDXLIB/KTDXApp.cpp:2802,2808',
+    'legacy debug enum-name literals (WI_END 6, DI_END 30003)', 'live', '-', 'none', 'n/a', 'n/a', '-', 'sizes nothing')
+row('X2Lib/X2PartyUI.cpp:2099', 'CX2PartyUI::UpdatePartyDLG (2368, dead) / CreatePartyDlg (1808 comment)', 'X2Lib/X2PartyUI.cpp:1808,2368',
+    'party local-map picture (dead LMI switch; live code uses LMI_RUBEN + N)', 'dead (2368) / comment (1808)', '-', 'none', 'n/a', 'n/a', 'A7 (step 3: picture 9)', '')
+row('X2Lib/X2UIQuest.cpp:4', 'CX2UIQuest (whole file under #ifndef SERV_EPIC_QUEST)', 'X2Lib/X2UIQuest.cpp:608,679,699,706,772,1758;X2Lib/X2UIQuest.h:118',
+    'DI_END sentinel', 'dead / comment', '-', 'none', 'n/a', 'n/a', '-', '')
+row('X2Lib/X2UIQuestNew.cpp:6090', 'CX2UIQuestNew::GetSubQuestDungeonID', 'X2Lib/X2UIQuestNew.cpp:6121,6143,6150',
+    'DI_END sentinel', 'dead (REFORM_QUEST #else)', '-', 'none', 'n/a', 'n/a', '-', '')
+row('X2Lib/X2WorldMapUI.cpp:419', 'CX2WorldMapUI::UpdateWorldMap', 'X2Lib/X2WorldMapUI.cpp:491',
+    'NO_SANDER_VILLIAGE block', 'dead (NO_SANDER_VILLIAGE OFF)', '-', 'none', 'n/a', 'n/a', '-', 'world-map pins are Lua (A5 step 6)')
+row('X2Lib/X2TFieldGame.cpp:7', 'CX2TFieldGame::CX2TFieldGame', 'X2Lib/X2TFieldGame.cpp:224',
+    'ctor village switch', 'dead', '-', 'none', 'n/a', 'n/a', '-', '')
+row('X2Lib/X2StateDungeonRoom.cpp:2452', 'CX2StateDungeonRoom::UIFrameMove', 'X2Lib/X2StateDungeonRoom.cpp:2691',
+    'commented-out loop to WI_END', 'comment', '-', 'none', 'n/a', 'n/a', '-', '')
+row('X2Lib/Offline/Handlers_Field.cpp:331', 'CX2OfflineServer::Handler_EGS_UPDATE_BATTLE_FIELD_USER_POS_NOT', 'X2Lib/Offline/Handlers_Field.cpp:331',
+    'commented-out server range test', 'comment', 'server-side (no client counterpart)', 'none', 'n/a', 'n/a', 'A3 (offline emulator mirrors the bump if it tests ranges)', '')
+row('X2Lib/X2UIInventory.cpp:14244', 'CX2UIInventory::InitSecondJobList', 'X2Lib/X2UIInventory.cpp:14275,14278',
+    'comments naming VMI_SANDER on Class_112/113 controls', 'comment', '-', 'none', 'n/a', 'n/a', '-', 'not a region site')
+
+# --- grouped non-use hits ------------------------------------------------------------------------------------------------
+row('(defs)', 'enum definitions: WORLD_ID, NPC_UNIT_ID, VILLAGE_MAP_ID, DUNGEON_ID, LOCAL_MAP_ID, HOUSE_ID', 'DEF',
+    'the enumerators and end markers themselves', 'live', '-', 'none', 'n/a', 'n/a', 'A3 (steps 1-2)', 'X2World.h, X2UnitManager.h, Enum.h, DungeonEnum.h, X2LocationManager.h')
+row('X2Lib/Offline/X2OfflineLuaEnumSeed.h:459', 'offline enum seed (published as Lua VILLAGE_MAP_ID)', 'SEED',
+    'stale copy: REST_END 1007, VILLAGE_MAP_END 20008, BATTLE_FIELD_END 40026', 'live', 'server-side (no client counterpart)', 'none', 'n/a',
+    'n/a', 'A3 (step 5)', 'clobbers the real table after it runs (ledger)')
+row('KTDXLIB/Always.h', 'flag comments naming Ranox ids', 'FLAGDEF', 'comments only', 'comment', '-', 'none', 'n/a', 'n/a', '-', '')
+
+# --- June-side sites with no March token (found by June sweeps) ----------------------------------------------------------
+row('X2Lib/X2LocationManager.h:532', 'CX2LocationManager::IsVillage', '-',
+    'IsVillageField || IsDungeonLounge || IsBattleFieldRest (callers: X2Community x4, X2MiniMapUI:540, X2PartyUI:3263)', 'live', '32268dd0', 'confirmed',
+    'Y: 20000-20010 || 30000-30006 || 1000-1008', 'port-whole (follows the helpers)', 'A3', 'June out-of-line; callers 32264170, 325ed400, 322b7c90, 325a4830, 325f18dc')
+row('X2Lib/X2LocationManager.h:508', 'CX2LocationManager::IsDungeonGate', '-', 'gate range', 'live (12 live callers)', 'inline x-10000 <= 5 (321531be, 3223e2f8, 322b5f16, ...)', 'confirmed',
+    'n/a: 10000..10005 = March (C++ GATE_HAMEL 10005)', 'n/a (unchanged)', '-',
+    'Lua (March and June) says GATE_VELDER 10005, GATE_HAMEL 10006: an old C++/Lua skew, region-neutral')
+row('X2Lib/X2LocationManager.h:516', 'CX2LocationManager::IsDungeonLounge', '-', 'lounge range', 'live (13 live callers)', 'inline x-30000 <= 6 (~20 sites, e.g. 322633ed in OpenFieldMap)', 'confirmed',
+    'omitted: 30000..30006 = March; LOUNGE_RANOX 30008 and LOUNGE_ELYSION 30009 outside in June too', 'n/a (unchanged)', '-', 'keep March bound (= June)')
+row('X2Lib/X2WorldMapUI.cpp:904', 'CX2WorldMapUI::OpenFieldMap', '-', 'no field map in a lounge', 'live', '322633c0', 'confirmed',
+    'n/a: lounge test 30000..30006', 'n/a', '-', 'only caller of GetFieldMapDlg in June')
+row('X2Lib/X2TFieldGame.cpp:4627', 'CX2TFieldGame::LoadUI', '-', 'skip the loading UI when IsValidWarpField(StateArg) is false', 'live', '323b0f20', 'confirmed',
+    'Y via 324f1e70; June also passes when current/previous village is a spa (1500-1501)', 'n/a (region reaches it through R01)', 'A5 note', 'spa exception is not region work')
+row('X2Lib/X2State.cpp:6721', 'CX2State::Handler_EGS_STATE_CHANGE_FIELD_REQ', '-', 'which village/position to request', 'live', '31f12630', 'likely',
+    'Y (implicit): June restructured by state; field state keeps the stored village when it is 20000-20010, 1000-1008 or a spa, else nearest village',
+    'n/a', 'A5 note', 'March version has no ID range, so 1008/20009 work through it unchanged; June rewrite is spa/field logic')
+row('X2Lib/X2BattleFieldGame.cpp:514', 'CX2BattleFieldGame::IsNearPortalLineMap', '-', 'portal line near the player (auto-open hard-code blocks)', 'live', '32d53810', 'likely',
+    'Y: if code event 2260: world 608 line 103 (Lanox F04 -> Atlas portal) closed unless 2262; elif 2261: world 638 (Elysion F01) line 53 closed',
+    'port the gate as June has it (inert offline)', 'A6', 'March analog is SERV_*_AUTO_OPEN_HARD_CODE (all OFF). Offline has no code events -> portals open')
+row('X2Lib/X2BattleFieldGame.cpp:329', 'CX2BattleFieldGame::CreatePotalParticle', '-', 'portal magic-square particles', 'live', '32d51960', 'likely',
+    'Y: 2260: world 637 (Atlas Station) or (608, line 103) -> m_bOpenPotalParticle(+0xcd4) = IsEnableCode(2262); 2261: (638, 53) -> 0',
+    'port the gate (inert offline)', 'A6 (A5 for world 637)', 'caller 32d54c50')
+row('X2Lib/X2GUUser.cpp:24500', 'CX2GUUser::PhysicProcess_Portal / PhysicProcess_PortalInBattleField', '-', 'teleport on portal lines', 'live', '3201a670 / 3201a2b0 (pair; which is which not settled)', 'candidate',
+    'Y: same 2260/2262 (608, 103) and 2261 (638, 53) early return before the teleport', 'port the gate (inert offline)', 'A6',
+    'reached via delegate thunks 320880a1 / 320880b1 (March X2GUUser.cpp:38724-38741)')
+row('X2Lib/X2PartyUI.cpp:1724', 'CX2PartyUI::OpenLocalMapDlg', '-', 'pick the local map for the current location', 'live', '322b5970', 'likely',
+    'n/a: June guards the field branch with x-40000 < 45 before GetReturnVillageId', 'n/a', 'A7 note',
+    'data-driven: GetLocalMapID must map 1008 and 20009 to LMI_ELYSION (DLG_Map_Village data, A5/A7)')
+row('(June only)', 'unidentified local-map helper (start positions x battlefield list)', '-', '?', '-', '3293f0c0 (caller 3293f5f0)', 'candidate',
+    'n/a: IsBattleField inline (40000..40044)', 'n/a', 'A7 identifies if needed', 'region-neutral apart from the battlefield bound')
+row('X2Lib/X2StateField.cpp:1910', 'in-village warps (CX2StateField::MoveFromVillageToBattleField and its caller)', '-',
+    'portal in a village: field, village or same-village place', 'live', '3250a800 (tick), 323aa170 (IsInternalPlace), 323ac300 (move to internal place)', 'likely',
+    'Y: InternalPlaceStartPosID (StartPos +0x20) != 0 -> warp inside the village after WaitingTime (+0x1c)',
+    'port-whole', 'E1 (step 3)', 'VillageParsing 324ff4b0 reads WaitingTime @32500ac4 / InternalPlaceStartPosID @32500be0 (xorstrings ok). March has neither key')
+row('X2Lib/X2LocationManager.cpp:545', 'CX2LocationManager::HouseParsing + NPC relation loaders', '-',
+    'DLG_Map_House keys + AddVillageNpcRelationDataBy{Village,Quest}_LUA', 'live', '324f3260; 3233b680 / 32340720; 32503150', 'confirmed',
+    'Y', 'port-whole', 'E1 (steps 1-2, 6)', 'already in funcmap (Effect C9h-2e / C9h-5 rows); not re-traced here')
+row('X2Lib/X2LocalMapUI.cpp:657', 'CX2LocalMapUI::OpenLocalMapDLG + Elysion page scroll / guide', '-',
+    'open the local map; scroll between pages; first-visit guide', 'live', '3293c440; 329378a0; 3293a960; 329386b0', 'likely',
+    'Y: OpenLocalMapDLG opens the guide for 0x2719; 329378a0 page move ("Elysion_Local", +0x54 page); 3293a960 OnFrameMove blink (LocalMapMoveUp/Down)',
+    'port-whole', 'E4 (steps 2-3)', 'guide shows once per install: fopen("checkfile.txt","rb") missing -> DLG_Elysion_LocalMap_Guide.lua, then fopen("checkfile.txt","wb") (cwd = game dir)')
+
+def lines_of(spec):
+    out = set()
+    if spec in ('-', 'DEF', 'SEED', 'FLAGDEF'):
+        return out
+    for grp in spec.split(';'):
+        f, ls = grp.rsplit(':', 1)
+        for l in ls.split(','):
+            out.add((f, int(l)))
+    return out
+
+def main():
+    with open(OUT, 'w', newline='\n', encoding='utf-8') as fh:
+        fh.write('\t'.join(COLS) + '\n')
+        for r in R:
+            fh.write('\t'.join(c.replace('\t', ' ') for c in r) + '\n')
+    covered = set()
+    for r in R:
+        covered |= lines_of(r[3])
+    hits = list(csv.DictReader(open(HITS, encoding='utf-8', errors='replace'), delimiter='\t'))
+    miss, ok = [], 0
+    for h in hits:
+        if h['kind'] == 'def':
+            ok += 1; continue
+        if h['kind'] == 'seed' or h['kind'] == 'flagdef':
+            ok += 1; continue
+        if (h['file'], int(h['line'])) in covered:
+            ok += 1
+        else:
+            miss.append(h)
+    print('rows %d; inventory hits %d; covered %d; missing %d' % (len(R), len(hits), ok, len(miss)))
+    for h in miss:
+        print('MISSING', h['file'], h['line'], h['kind'], h['state'], h['token'])
+    extra = [k for k in covered if not any(h['file'] == k[0] and int(h['line']) == k[1] for h in hits)]
+    for k in sorted(extra):
+        print('NOT-IN-INVENTORY', k)
+    return 1 if miss else 0
+
+if __name__ == '__main__':
+    sys.exit(main())

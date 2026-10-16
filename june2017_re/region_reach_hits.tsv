@@ -1,0 +1,341 @@
+file	line	group	token	kind	state	in_project	function	usage	guard_chain	code
+X2Lib/Offline/Handlers_Field.cpp	331	1	VMI_BATTLE_FIELD_END	use	comment	Y	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	// VMI_BATTLE_FIELD_END > pUnitData->m_nMapID )
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	469	1	VMI_BATTLE_FIELD_SANDER_REST_00	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_SANDER_REST_00", 1006 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	470	1	VMI_BATTLE_FIELD_REST_END	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_REST_END", 1007 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	481	1	VMI_SANDER	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_SANDER", 20007 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	482	1	VMI_VILLAGE_MAP_END	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_VILLAGE_MAP_END", 20008 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	521	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_SANDER_FIELD_01", 40022 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	522	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_SANDER_FIELD_02", 40023 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	523	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_SANDER_FIELD_03", 40024 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	524	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_SANDER_FIELD_04", 40025 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	525	1	VMI_BATTLE_FIELD_END	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_END", 40026 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	533	1	VMI_BATTLE_FIELD_RANOX_REST_00	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_RANOX_REST_00", 1007 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	535	1	VMI_RANOX	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_RANOX", 20008 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	537	1	VMI_BATTLE_FIELD_RANOX_FIELD_01	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_RANOX_FIELD_01", 40029 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	538	1	VMI_BATTLE_FIELD_RANOX_FIELD_02	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_RANOX_FIELD_02", 40030 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	539	1	VMI_BATTLE_FIELD_RANOX_FIELD_03	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_RANOX_FIELD_03", 40031 },
+X2Lib/Offline/X2OfflineLuaEnumSeed.h	540	1	VMI_BATTLE_FIELD_RANOX_FIELD_04	seed	live	-	-	-	ifdef SERV_IRUHADEV_OFFLINE=ON	{ "VMI_BATTLE_FIELD_RANOX_FIELD_04", 40032 },
+X2Lib/X2BattleFieldGame.cpp	291	1	VMI_BATTLE_FIELD_END	use	live	Y	CX2BattleFieldGame::WorldLoading	compare		ASSERT( SEnum::VMI_BATTLE_FIELD_RUBEN_FIELD_01 <= uiBattleFieldId && SEnum::VMI_BATTLE_FIELD_END > uiBattleFieldId );
+X2Lib/X2BattleFieldGame.cpp	295	1	WI_END	use	live	Y	CX2BattleFieldGame::WorldLoading	compare		ASSERT( CX2World::WI_NONE < uiWorldId && CX2World::WI_END > uiWorldId );
+X2Lib/X2BattleFieldGame.cpp	454	1	VMI_BATTLE_FIELD_END	use	live	Y	CX2BattleFieldGame::SwapWorld	compare		ASSERT( SEnum::VMI_BATTLE_FIELD_RUBEN_FIELD_01 <= uiBattleFieldId && SEnum::VMI_BATTLE_FIELD_END > uiBattleFieldId );
+X2Lib/X2BattleFieldGame.cpp	457	1	WI_END	use	live	Y	CX2BattleFieldGame::SwapWorld	compare		ASSERT( CX2World::WI_NONE < uiWorldId && CX2World::WI_END > uiWorldId );
+X2Lib/X2BossRaidManager.cpp	425	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	use	live	Y	CX2BossRaidManager::GetFieldOpenTextureName	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_01: wstrOpenTextureName_ = L"RaidField_Open_Sander_0.dds"; break;
+X2Lib/X2BossRaidManager.cpp	426	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	use	live	Y	CX2BossRaidManager::GetFieldOpenTextureName	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02: wstrOpenTextureName_ = L"RaidField_Open_Sander_1.dds"; break;
+X2Lib/X2BossRaidManager.cpp	427	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	use	live	Y	CX2BossRaidManager::GetFieldOpenTextureName	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03: wstrOpenTextureName_ = L"RaidField_Open_Sander_2.dds"; break;
+X2Lib/X2BossRaidManager.cpp	428	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2BossRaidManager::GetFieldOpenTextureName	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04: wstrOpenTextureName_ = L"RaidField_Open_Sander_3.dds"; break;
+X2Lib/X2BossRaidManager.cpp	625	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	use	live	Y	CX2BossRaidManager::GetCameraIndex	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_01: return 4; break;
+X2Lib/X2BossRaidManager.cpp	626	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	use	live	Y	CX2BossRaidManager::GetCameraIndex	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02: return 5; break;
+X2Lib/X2BossRaidManager.cpp	627	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	use	live	Y	CX2BossRaidManager::GetCameraIndex	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03: return 3; break;
+X2Lib/X2BossRaidManager.cpp	628	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2BossRaidManager::GetCameraIndex	case	ifdef FIELD_BOSS_RAID=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04: return 6; break;
+X2Lib/X2ChatBox.cpp	1068	1	VMI_RANOX	use	live	Y	CX2ChatBox::UICustomEventProc	other	ifdef SERV_IRUHADEV_CHAT_WARP_DEBUG=ON	kPacket.m_iCurrentVillageWarpIndex = SEnum::VMI_RANOX;
+X2Lib/X2ChatBox.cpp	1081	1	VMI_RANOX	use	live	Y	CX2ChatBox::UICustomEventProc	other	ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG=ON	CX2LocationManager::VillageTemplet* pTemplet = pLM->GetVillageMapTemplet( SEnum::VMI_RANOX );
+X2Lib/X2ChatBox.cpp	1082	1	VMI_RANOX	use	live	Y	CX2ChatBox::UICustomEventProc	other	ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG=ON	int worldId = pLM->GetWorldID( SEnum::VMI_RANOX );
+X2Lib/X2FieldMapBase.cpp	396	1	VMI_SANDER	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_SANDER:
+X2Lib/X2FieldMapBase.cpp	403	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_01:
+X2Lib/X2FieldMapBase.cpp	410	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02:
+X2Lib/X2FieldMapBase.cpp	417	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00: //윈드스톤 유적지
+X2Lib/X2FieldMapBase.cpp	425	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef VILLAGE_SANDER=ON > ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03: // 샌틸러스 호의 무덤
+X2Lib/X2FieldMapBase.cpp	432	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef VILLAGE_SANDER=ON > ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04: // 베히모스 크레이터
+X2Lib/X2FieldMapBase.cpp	452	1	VMI_RANOX	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_RANOX:
+X2Lib/X2FieldMapBase.cpp	459	1	VMI_BATTLE_FIELD_RANOX_FIELD_01	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+X2Lib/X2FieldMapBase.cpp	466	1	VMI_BATTLE_FIELD_RANOX_FIELD_02	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+X2Lib/X2FieldMapBase.cpp	473	1	VMI_BATTLE_FIELD_RANOX_FIELD_03	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03: // June shares this block with VMI_SPA_RUBEN / VMI_SPA_RANOX
+X2Lib/X2FieldMapBase.cpp	480	1	VMI_BATTLE_FIELD_RANOX_FIELD_04	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+X2Lib/X2FieldMapBase.cpp	487	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2FieldMapBase::ResetCameraMatrix	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+X2Lib/X2FieldMapBase.cpp	581	1	VMI_SANDER	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_SANDER:
+X2Lib/X2FieldMapBase.cpp	582	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_01:
+X2Lib/X2FieldMapBase.cpp	583	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02:
+X2Lib/X2FieldMapBase.cpp	584	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00: /// 윈드스톤 유적지
+X2Lib/X2FieldMapBase.cpp	586	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef VILLAGE_SANDER=ON > ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03: // 샌틸러스 호의 무덤
+X2Lib/X2FieldMapBase.cpp	587	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef VILLAGE_SANDER=ON > ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04: // 베히모스 크레이터
+X2Lib/X2FieldMapBase.cpp	594	1	VMI_RANOX	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_RANOX:
+X2Lib/X2FieldMapBase.cpp	595	1	VMI_BATTLE_FIELD_RANOX_FIELD_01	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+X2Lib/X2FieldMapBase.cpp	596	1	VMI_BATTLE_FIELD_RANOX_FIELD_02	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+X2Lib/X2FieldMapBase.cpp	597	1	VMI_BATTLE_FIELD_RANOX_FIELD_03	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:
+X2Lib/X2FieldMapBase.cpp	598	1	VMI_BATTLE_FIELD_RANOX_FIELD_04	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+X2Lib/X2FieldMapBase.cpp	599	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2FieldMapBase::ResetMapPosAndSize	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+X2Lib/X2FieldMiniMap.cpp	437	1	VMI_SANDER	use	live	Y	CX2FieldMiniMap::ResetWholeMapTexture	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_SANDER:
+X2Lib/X2Item_Preprocessing.inl	1033	1	NUI_MAX_LIMIT	use	live	-	-	compare	ifdef X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING=ON > ifndef X2OPTIMIZE_SCRIPT_PREPROCESSING_TOOL=OFF	BOOST_STATIC_ASSERT( CX2UnitManager::NUI_MAX_LIMIT <= (1<<(8*sizeof(WORD))) );
+X2Lib/X2ItemManager_Preprocessing.cpp	1501	1	NUI_MAX_LIMIT	use	live	Y	CX2ItemManager::KProxy2::AddItemTemplet_LUA	compare	ifdef X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING=ON > else(ifdef X2OPTIMIZE_SCRIPT_PREPROCESSING_TOOL=OFF)	if ( false == ( eNPCID >= CX2UnitManager::NPC_UNIT_ID(0) && eNPCID < CX2UnitManager::NUI_MAX_LIMIT ) )
+X2Lib/X2LocalMapUI.cpp	873	1	LMI_RANOX	use	live	Y	CX2LocalMapUI::UpdateLocalMapDLG	compare	ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI=ON > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( pControl->GetDummyInt( 0 ) == (int) CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1074	1	LMI_RANOX	use	dead	Y	CX2LocalMapUI::UpdateLocalMapDLG	compare	else(ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI=ON) > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( pControl->GetDummyInt( 0 ) == (int) CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1174	1	DI_END	use	live	Y	CX2LocalMapUI::CreateLocalMapDLG	compare	ifdef SERV_NEW_EVENT_TYPES=ON	if( iDungeonID < SEnum::DI_RUBEN_EL_TREE_NORMAL || iDungeonID > SEnum::DI_END )
+X2Lib/X2LocalMapUI.cpp	1236	1	LMI_RANOX	use	live	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1287	1	LMI_RANOX	use	live	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1323	1	LMI_RANOX	use	live	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON > ifdef SERV_INSERT_GLOBAL_SERVER=ON > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1348	1	LMI_RANOX	use	live	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1443	1	LMI_RANOX	use	dead	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	else(ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON) > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1472	1	LMI_RANOX	use	dead	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	else(ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON) > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1512	1	LMI_RANOX	use	dead	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	else(ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON) > ifdef SERV_INSERT_GLOBAL_SERVER=ON > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocalMapUI.cpp	1533	1	LMI_RANOX	use	dead	Y	CX2LocalMapUI::UpdateDungeonButtons	compare	else(ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS=ON) > ifdef SERV_IRUHADEV_RANOXDBG_DUNGEON=ON	if( eLocalMapID == CX2LocationManager::LMI_RANOX )
+X2Lib/X2LocationManager.cpp	1570	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2LocationManager::IsValidWarpField	case		case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00: /// 윈드스톤 유적지
+X2Lib/X2LocationManager.cpp	1581	1	VMI_SANDER	use	live	Y	CX2LocationManager::IsValidWarpField	case		case SEnum::VMI_SANDER:
+X2Lib/X2LocationManager.cpp	1583	1	VMI_RANOX	use	live	Y	CX2LocationManager::IsValidWarpField	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_RANOX:
+X2Lib/X2LocationManager.cpp	1584	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2LocationManager::IsValidWarpField	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+X2Lib/X2LocationManager.h	125	2	HI_SPA_SIGN_RANOX	def	live	-	-	-		HI_SPA_SIGN_RANOX = 40142,
+X2Lib/X2LocationManager.h	141	1	LMI_SANDER	def	live	-	-	-		LMI_SANDER, /// 샌더
+X2Lib/X2LocationManager.h	143	1	LMI_RANOX	def	live	-	-	-		LMI_RANOX = 10008, /// SERV_IRUHADEV_RANOX_PORT: intentional value alias of LMI_CHINA (dead code -- SERV_CHINA_ADVENTURE is never #defined; only use site X2Part
+X2Lib/X2LocationManager.h	493	1	VMI_RANOX	use	comment	-	-	-	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON	// June-only, so March's last village, VMI_RANOX, is the bound here.
+X2Lib/X2LocationManager.h	495	1	VMI_RANOX	use	live	-	CX2LocationManager::IsVillageField	compare	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_RANOX )
+X2Lib/X2LocationManager.h	497	1	VMI_SANDER	use	dead	-	CX2LocationManager::IsVillageField	compare	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > else(ifdef SERV_IRUHADEV_RANOX_PORT=ON)	if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_SANDER )
+X2Lib/X2LocationManager.h	501	1	VMI_SANDER	use	dead	-	CX2LocationManager::IsVillageField	compare	else(ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON)	if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_SANDER )
+X2Lib/X2LocationManager.h	526	1	VMI_BATTLE_FIELD_REST_END	use	live	-	CX2LocationManager::IsBattleFieldRest	compare		if ( eVillageID >= SEnum::VMI_BATTLE_FIELD_ELDER_REST_00 && eVillageID < SEnum::VMI_BATTLE_FIELD_REST_END )
+X2Lib/X2LocationManager.h	548	1	VMI_BATTLE_FIELD_END	use	live	-	CX2LocationManager::IsBattleField	compare		if ( eVillageID >= SEnum::VMI_BATTLE_FIELD_RUBEN_FIELD_01 && eVillageID < SEnum::VMI_BATTLE_FIELD_END )
+X2Lib/X2Main.cpp	13499	1	VMI_SANDER	use	live	Y	CX2Main::WarpByCommand	other		case 13: iWorldID = SEnum::VMI_SANDER; break; // 샌더
+X2Lib/X2Main.cpp	13500	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2Main::WarpByCommand	other		case 14: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_REST_00; break; // 샌더 휴식처
+X2Lib/X2Main.cpp	13549	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	use	live	Y	CX2Main::FieldWarpByCommand	other	ifdef BATTLE_FIELD_WARP_EDIT=ON	case 23: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_01; break; //샌더 바람의 사원
+X2Lib/X2Main.cpp	13550	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	use	live	Y	CX2Main::FieldWarpByCommand	other	ifdef BATTLE_FIELD_WARP_EDIT=ON	case 24: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02; break; //샌더 필드2
+X2Lib/X2Main.cpp	13552	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	use	live	Y	CX2Main::FieldWarpByCommand	other	ifdef BATTLE_FIELD_WARP_EDIT=ON > ifdef SANDER_DUNGEON_5_6=ON	case 25: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03; break; // 샌틸러스 호의 무덤
+X2Lib/X2Main.cpp	13553	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2Main::FieldWarpByCommand	other	ifdef BATTLE_FIELD_WARP_EDIT=ON > ifdef SANDER_DUNGEON_5_6=ON	case 26: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04; break; // 베히모스 크레이터
+X2Lib/X2PartyManager.cpp	2615	1	VMI_BATTLE_FIELD_END	use	live	Y	CX2PartyManager::RememberComeBackInfoBeforeInstanceGameStart	compare		SEnum::VMI_BATTLE_FIELD_END > pUnitData->m_nMapID )
+X2Lib/X2PartyUI.cpp	1808	1	LMI_RANOX	use	comment	Y	-	-	ifdef SERV_IRUHADEV_JUNE_PARTY_UI=ON	// LMI_RUBEN + N, so Lanox (LMI_RANOX) shows picture 8 of June's lua.
+X2Lib/X2PartyUI.cpp	2368	1	LMI_SANDER	use	dead	Y	CX2PartyUI::UpdatePartyDLG	case	else(ifdef SERV_IRUHADEV_JUNE_PARTY_UI=ON)	case CX2LocationManager::LMI_SANDER:
+X2Lib/X2QuestManager.cpp	1223	1	VMI_SANDER	use	live	Y	CX2QuestManager::GetBoardStartQuestList	case	ifdef SERV_EPIC_QUEST=ON	case SEnum::VMI_SANDER:
+X2Lib/X2QuestManager.cpp	1224	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2QuestManager::GetBoardStartQuestList	case	ifdef SERV_EPIC_QUEST=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00: /// 윈드스톤 유적지
+X2Lib/X2QuestManager.cpp	1226	1	VMI_SANDER	use	live	Y	CX2QuestManager::GetBoardStartQuestList	other	ifdef SERV_EPIC_QUEST=ON	BoardVillageID = SEnum::VMI_SANDER;
+X2Lib/X2State.cpp	6840	1	WI_END	use	live	Y	CX2State::Handler_EGS_STATE_CHANGE_FIELD_ACK	compare		if(eWorldId <= CX2World::WI_NONE || eWorldId >= CX2World::WI_END)
+X2Lib/X2State.cpp	11790	1	VMI_BATTLE_FIELD_END	use	live	Y	CX2State::ReturnToPlaceWhereBeforeDungeonStart	compare		SEnum::VMI_BATTLE_FIELD_END > pUnitData->m_nMapID )
+X2Lib/X2StateBattleField.cpp	1755	1	VMI_VILLAGE_MAP_END	use	live	Y	CX2StateBattleField::Handler_EGS_CALL_MY_LOVER_STATE_CHANGE_FIELD_NOT	compare	ifdef ADDED_RELATIONSHIP_SYSTEM=ON	eVillageId >= SEnum::VMI_VILLAGE_MAP_END )
+X2Lib/X2StateBeginning.cpp	3991	1	WI_END	use	dead	Y	CX2StateBeginning::Handler_EGS_STATE_CHANGE_FIELD_ACK	compare	ifdef ELSWORD_NEW_BEGINNING=OFF	if(m_iWorldId <= CX2World::WI_NONE || m_iWorldId >= CX2World::WI_END)
+X2Lib/X2StateDungeonRoom.cpp	2691	1	WI_END	use	comment	Y	-	-		//for ( int i = 1; i < CX2World::WI_END; i++ )
+X2Lib/X2StateField.cpp	1293	1	WI_END	use	live	Y	CX2StateField::Handler_EGS_STATE_CHANGE_FIELD_ACK	compare		if(m_iWorldId <= CX2World::WI_NONE || m_iWorldId >= CX2World::WI_END)
+X2Lib/X2StateField.cpp	2354	1	VMI_VILLAGE_MAP_END	use	live	Y	CX2StateField::Handler_EGS_CALL_MY_LOVER_STATE_CHANGE_FIELD_NOT	compare	ifdef ADDED_RELATIONSHIP_SYSTEM=ON	eVillageId >= SEnum::VMI_VILLAGE_MAP_END )
+X2Lib/X2StateMenu.cpp	6168	1	VMI_SANDER	use	comment	Y	-	-	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20007"); //VMI_SANDER
+X2Lib/X2StateMenu.cpp	6170	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	comment	Y	-	-	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1006"); //VMI_BATTLE_FIELD_SANDER_REST_00
+X2Lib/X2StateMenu.cpp	6176	1	VMI_RANOX	use	comment	Y	-	-	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008"); //VMI_RANOX
+X2Lib/X2StateMenu.cpp	6179	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	comment	Y	-	-	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007"); //VMI_BATTLE_FIELD_RANOX_REST_00
+X2Lib/X2StateMenu.cpp	6465	1	LMI_SANDER	use	dead	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE=OFF > ifdef VILLAGE_SANDER=ON	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_SANDER );
+X2Lib/X2StateMenu.cpp	6473	1	VMI_SANDER	use	dead	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE=OFF > ifdef VILLAGE_SANDER=ON	AddWarpList( pControlList, row, SEnum::VMI_SANDER );
+X2Lib/X2StateMenu.cpp	6479	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	dead	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE=OFF > ifdef VILLAGE_SANDER=ON	AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_SANDER_REST_00 );
+X2Lib/X2StateMenu.cpp	6493	1	LMI_SANDER	use	live	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > else(ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE=OFF) > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_SANDER );
+X2Lib/X2StateMenu.cpp	6501	1	VMI_SANDER	use	live	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > else(ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE=OFF) > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	AddWarpList( pControlList, row, SEnum::VMI_SANDER );
+X2Lib/X2StateMenu.cpp	6507	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > else(ifdef SERV_SANDER_AUTO_OPEN_HARD_CODE=OFF) > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_SANDER_REST_00 );
+X2Lib/X2StateMenu.cpp	6516	1	LMI_RANOX	use	live	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_RANOX );
+X2Lib/X2StateMenu.cpp	6522	1	VMI_RANOX	use	comment	Y	-	-	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008"); //VMI_RANOX
+X2Lib/X2StateMenu.cpp	6526	1	VMI_RANOX	use	live	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	AddWarpList( pControlList, row, SEnum::VMI_RANOX );
+X2Lib/X2StateMenu.cpp	6539	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	comment	Y	-	-	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007"); //VMI_BATTLE_FIELD_RANOX_REST_00
+X2Lib/X2StateMenu.cpp	6543	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2StateMenu::CreateWarpDest	other	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_RANOX_REST_00 );
+X2Lib/X2StateMenu.cpp	6559	1	LMI_RANOX	use	live	Y	CX2StateMenu::CreateWarpDest	string	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON > ifdef SERV_IRUHADEV_WARP_DEST_LOG=ON > ifdef SERV_IRUHADEV_OFFLINE=ON	CX2OfflineLog::Server( L"WARP Cobo Express: Ranox rows NOT listed - unit level is below the LMI_RANOX RequireUnitLevel" );
+X2Lib/X2StateMenu.cpp	6568	1	LMI_RANOX	use	live	Y	CX2StateMenu::CreateWarpDest	string	ifdef SERV_ADD_WARP_BUTTON=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON > ifdef SERV_IRUHADEV_WARP_DEST_LOG=ON > ifdef SERV_IRUHADEV_OFFLINE=ON	CX2OfflineLog::Server( L"WARP Cobo Express: Ranox rows NOT listed - GetLocalMapTemplet( LMI_RANOX ) is NULL (DLG_Map_Local.lua / DLG_Map_Local_Ranox.lua not loa
+X2Lib/X2StateServerSelect.cpp	5550	1	VMI_BATTLE_FIELD_END	use	live	Y	CX2StateServerSelect::Handler_EGS_GET_MY_INVENTORY_ACK	compare	ifndef ELSWORD_NEW_BEGINNING=OFF > ifdef PC_BANG_WORK=ON	SEnum::VMI_BATTLE_FIELD_END > pUnitData->m_nMapID )
+X2Lib/X2StateServerSelect.cpp	7379	1	WI_END	use	live	Y	CX2StateServerSelect::Handler_EGS_STATE_CHANGE_FIELD_ACK	compare	ifndef ELSWORD_NEW_BEGINNING=OFF	if(m_iWorldId <= CX2World::WI_NONE || m_iWorldId >= CX2World::WI_END)
+X2Lib/X2StateServerSelect.cpp	11436	1	VMI_BATTLE_FIELD_END	use	live	Y	CX2StateServerSelect::ChangeUnitButtonInfo	compare	ifdef REFORM_ENTRY_POINT=ON	if ( iMapID >= SEnum::VMI_BATTLE_FIELD_RUBEN_FIELD_01 && SEnum::VMI_BATTLE_FIELD_END > iMapID )
+X2Lib/X2TFieldGame.cpp	224	1	VMI_SANDER	use	dead	Y	CX2TFieldGame::CX2TFieldGame	case	ifdef XMAS_UI=OFF	case SEnum::VMI_SANDER:
+X2Lib/X2TFieldGame.cpp	1687	1	VMI_BATTLE_FIELD_END	use	live	Y	CX2TFieldGame::OnFrameMove	compare		SEnum::VMI_BATTLE_FIELD_END > uiBattleFieldIdToMove )
+X2Lib/X2TFieldGame.cpp	4588	1	VMI_SANDER	use	live	Y	CX2TFieldGame::LoadFieldImage	case		case SEnum::VMI_SANDER:
+X2Lib/X2TFieldGame.cpp	4616	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2TFieldGame::LoadFieldImage	case		case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00: /// 윈드스톤 유적지
+X2Lib/X2TFieldGame.cpp	4622	1	VMI_RANOX	use	live	Y	CX2TFieldGame::LoadFieldImage	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_RANOX:
+X2Lib/X2TFieldGame.cpp	4626	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2TFieldGame::LoadFieldImage	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00: // Silent Night Shelter
+X2Lib/X2TFieldGame.cpp	4777	1	VMI_SANDER	use	live	Y	CX2TFieldGame::OpenFieldName	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_SANDER:
+X2Lib/X2TFieldGame.cpp	4800	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2TFieldGame::OpenFieldName	case		case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00:
+X2Lib/X2UIInventory.cpp	6599	1	VMI_SANDER	use	live	Y	CX2UIInventory::OnRClickedItem	case	ifdef NEW_VILLAGE_UI=ON	case SEnum::VMI_SANDER:
+X2Lib/X2UIInventory.cpp	13960	1	VMI_SANDER	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20007"); //VMI_SANDER
+X2Lib/X2UIInventory.cpp	13962	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1006"); //VMI_BATTLE_FIELD_SANDER_REST_00
+X2Lib/X2UIInventory.cpp	13968	1	VMI_RANOX	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008"); //VMI_RANOX
+X2Lib/X2UIInventory.cpp	13971	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007"); //VMI_BATTLE_FIELD_RANOX_REST_00
+X2Lib/X2UIInventory.cpp	14133	1	LMI_SANDER	use	live	Y	CX2UIInventory::CreateWarpDest	other	ifdef FREE_WARP=ON > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_SANDER );
+X2Lib/X2UIInventory.cpp	14141	1	VMI_SANDER	use	live	Y	CX2UIInventory::CreateWarpDest	other	ifdef FREE_WARP=ON > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	AddWarpList( pControlList, row, SEnum::VMI_SANDER );
+X2Lib/X2UIInventory.cpp	14147	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2UIInventory::CreateWarpDest	other	ifdef FREE_WARP=ON > ifdef VILLAGE_SANDER=ON > ifndef NO_SANDER_VILLIAGE=OFF	AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_SANDER_REST_00 );
+X2Lib/X2UIInventory.cpp	14156	1	LMI_RANOX	use	live	Y	CX2UIInventory::CreateWarpDest	other	ifdef FREE_WARP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_RANOX );
+X2Lib/X2UIInventory.cpp	14161	1	VMI_RANOX	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_20008"); //VMI_RANOX
+X2Lib/X2UIInventory.cpp	14165	1	VMI_RANOX	use	live	Y	CX2UIInventory::CreateWarpDest	other	ifdef FREE_WARP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	AddWarpList( pControlList, row, SEnum::VMI_RANOX );
+X2Lib/X2UIInventory.cpp	14169	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	pControl = (CKTDGUIStatic*)m_pDLGWarpDestination->GetControl(L"Village_1007"); //VMI_BATTLE_FIELD_RANOX_REST_00
+X2Lib/X2UIInventory.cpp	14173	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2UIInventory::CreateWarpDest	other	ifdef FREE_WARP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_RANOX_REST_00 );
+X2Lib/X2UIInventory.cpp	14275	1	VMI_SANDER	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef SERV_UNLIMITED_SECOND_CHANGE_JOB=ON	pControl = (CKTDGUIStatic*)m_pDLGUSCJob->GetControl(L"Class_112"); //VMI_SANDER
+X2Lib/X2UIInventory.cpp	14278	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	comment	Y	-	-	ifdef FREE_WARP=ON > ifdef SERV_UNLIMITED_SECOND_CHANGE_JOB=ON	pControl = (CKTDGUIStatic*)m_pDLGUSCJob->GetControl(L"Class_113"); //VMI_BATTLE_FIELD_SANDER_REST_00
+X2Lib/X2UIQuest.cpp	608	1	DI_END	use	comment	Y	-	-	ifndef SERV_EPIC_QUEST=ON	// if(i->first == SEnum::DI_END)
+X2Lib/X2UIQuest.cpp	679	1	DI_END	use	dead	Y	CX2UIQuest::GetSubQuestDungeonID	other	ifndef SERV_EPIC_QUEST=ON	return SEnum::DI_END;
+X2Lib/X2UIQuest.cpp	699	1	DI_END	use	dead	Y	CX2UIQuest::GetSubQuestDungeonID	other	ifndef SERV_EPIC_QUEST=ON	return SEnum::DI_END;
+X2Lib/X2UIQuest.cpp	706	1	DI_END	use	dead	Y	CX2UIQuest::GetSubQuestDungeonID	other	ifndef SERV_EPIC_QUEST=ON	return SEnum::DI_END;
+X2Lib/X2UIQuest.cpp	772	1	DI_END	use	dead	Y	CX2UIQuest::UpdateQuestUI	compare	ifndef SERV_EPIC_QUEST=ON	if(Quest.m_DungeonID == SEnum::DI_END)
+X2Lib/X2UIQuest.cpp	1758	1	DI_END	use	dead	Y	CX2UIQuest::UpdateQuickQuestDLG	compare	ifndef SERV_EPIC_QUEST=ON	if(Quest.m_DungeonID == SEnum::DI_END)
+X2Lib/X2UIQuest.h	118	1	DI_END	use	comment	-	-	-	ifndef SERV_EPIC_QUEST=ON	// 서브퀘스트 ID에서 해당 퀘스트가 수행되는 던전 ID를 구한다 ( 없으면 DI_END return )
+X2Lib/X2UIQuestNew.cpp	6121	1	DI_END	use	dead	Y	CX2UIQuestNew::GetSubQuestDungeonID	other	ifdef SERV_EPIC_QUEST=ON > else(ifdef REFORM_QUEST=ON)	return SEnum::DI_END;
+X2Lib/X2UIQuestNew.cpp	6143	1	DI_END	use	dead	Y	CX2UIQuestNew::GetSubQuestDungeonID	other	ifdef SERV_EPIC_QUEST=ON > else(ifdef REFORM_QUEST=ON)	return SEnum::DI_END;
+X2Lib/X2UIQuestNew.cpp	6150	1	DI_END	use	dead	Y	CX2UIQuestNew::GetSubQuestDungeonID	other	ifdef SERV_EPIC_QUEST=ON > else(ifdef REFORM_QUEST=ON)	return SEnum::DI_END;
+X2Lib/X2UnitManager.h	2704	1	NUI_MAX_LIMIT	def	live	-	-	-		NUI_MAX_LIMIT,
+X2Lib/X2WeddingManager.cpp	432	1	WI_SANDER_WEDDING	use	live	Y	CX2WeddingHallManager::AddWeddingHallTemplet_LUA	other	ifdef ADDED_RELATIONSHIP_SYSTEM=ON	LUA_GET_VALUE_ENUM( luaManager, "WORLD_ID", pWeddingHallTemplet->m_eWorldID, CX2World::WORLD_ID, CX2World::WI_SANDER_WEDDING);
+X2Lib/X2World.h	674	1	WI_VILLAGE_SANDER	def	live	-	-	-		WI_VILLAGE_SANDER, // 샌더마을
+X2Lib/X2World.h	712	1	WI_SANDER_DRY_SANDER_STAGE0	def	live	-	-	-		WI_SANDER_DRY_SANDER_STAGE0,
+X2Lib/X2World.h	713	1	WI_SANDER_DRY_SANDER_STAGE1	def	live	-	-	-		WI_SANDER_DRY_SANDER_STAGE1,
+X2Lib/X2World.h	714	1	WI_SANDER_DRY_SANDER_STAGE1_1	def	live	-	-	-		WI_SANDER_DRY_SANDER_STAGE1_1,
+X2Lib/X2World.h	715	1	WI_SANDER_DRY_SANDER_STAGE2	def	live	-	-	-		WI_SANDER_DRY_SANDER_STAGE2,
+X2Lib/X2World.h	716	1	WI_SANDER_DRY_SANDER_B0SS_STAGE	def	live	-	-	-		WI_SANDER_DRY_SANDER_B0SS_STAGE,
+X2Lib/X2World.h	719	1	WI_SANDER_GARPAI_ROCK_STAGE0	def	live	-	-	-		WI_SANDER_GARPAI_ROCK_STAGE0,
+X2Lib/X2World.h	720	1	WI_SANDER_GARPAI_ROCK_STAGE1	def	live	-	-	-		WI_SANDER_GARPAI_ROCK_STAGE1,
+X2Lib/X2World.h	721	1	WI_SANDER_GARPAI_ROCK_STAGE1_1	def	live	-	-	-		WI_SANDER_GARPAI_ROCK_STAGE1_1,
+X2Lib/X2World.h	722	1	WI_SANDER_GARPAI_ROCK_STAGE2	def	live	-	-	-		WI_SANDER_GARPAI_ROCK_STAGE2,
+X2Lib/X2World.h	723	1	WI_SANDER_GARPAI_ROCK_STAGE3	def	live	-	-	-		WI_SANDER_GARPAI_ROCK_STAGE3,
+X2Lib/X2World.h	724	1	WI_SANDER_GARPAI_ROCK_BOSS_STAGE	def	live	-	-	-		WI_SANDER_GARPAI_ROCK_BOSS_STAGE,
+X2Lib/X2World.h	726	1	WI_BATTLE_FIELD_SANDER_FIELD_00	def	live	-	-	-		WI_BATTLE_FIELD_SANDER_FIELD_00, //샌더 필드 1
+X2Lib/X2World.h	727	1	WI_BATTLE_FIELD_SANDER_FIELD_01	def	live	-	-	-		WI_BATTLE_FIELD_SANDER_FIELD_01, //샌더 필드 2
+X2Lib/X2World.h	728	1	WI_BATTLE_FIELD_SANDER_FIELD_02	def	live	-	-	-		WI_BATTLE_FIELD_SANDER_FIELD_02, //샌더 필드 3
+X2Lib/X2World.h	729	1	WI_BATTLE_FIELD_SANDER_FIELD_03	def	live	-	-	-		WI_BATTLE_FIELD_SANDER_FIELD_03, //샌더 필드 4
+X2Lib/X2World.h	730	1	WI_BATTLE_FIELD_SANDER_FIELD_REST_00	def	live	-	-	-		WI_BATTLE_FIELD_SANDER_FIELD_REST_00,//샌더 휴식처
+X2Lib/X2World.h	733	1	WI_SANDER_DEN_OF_TROCK_STAGE0	def	live	-	-	-		WI_SANDER_DEN_OF_TROCK_STAGE0,
+X2Lib/X2World.h	734	1	WI_SANDER_DEN_OF_TROCK_STAGE1	def	live	-	-	-		WI_SANDER_DEN_OF_TROCK_STAGE1,
+X2Lib/X2World.h	735	1	WI_SANDER_DEN_OF_TROCK_STAGE2_1	def	live	-	-	-		WI_SANDER_DEN_OF_TROCK_STAGE2_1,
+X2Lib/X2World.h	736	1	WI_SANDER_DEN_OF_TROCK_STAGE2	def	live	-	-	-		WI_SANDER_DEN_OF_TROCK_STAGE2,
+X2Lib/X2World.h	737	1	WI_SANDER_DEN_OF_TROCK_STAGE3	def	live	-	-	-		WI_SANDER_DEN_OF_TROCK_STAGE3,
+X2Lib/X2World.h	738	1	WI_SANDER_DEN_OF_TROCK_BOSS_STAGE	def	live	-	-	-		WI_SANDER_DEN_OF_TROCK_BOSS_STAGE,
+X2Lib/X2World.h	741	1	WI_SANDER_KARUSO_VILLAGE_STAGE0	def	live	-	-	-		WI_SANDER_KARUSO_VILLAGE_STAGE0,
+X2Lib/X2World.h	742	1	WI_SANDER_KARUSO_VILLAGE_STAGE1	def	live	-	-	-		WI_SANDER_KARUSO_VILLAGE_STAGE1,
+X2Lib/X2World.h	743	1	WI_SANDER_KARUSO_VILLAGE_STAGE2	def	live	-	-	-		WI_SANDER_KARUSO_VILLAGE_STAGE2,
+X2Lib/X2World.h	744	1	WI_SANDER_KARUSO_VILLAGE_BOSS_STAGE	def	live	-	-	-		WI_SANDER_KARUSO_VILLAGE_BOSS_STAGE,
+X2Lib/X2World.h	749	1	WI_SANDER_GARPAI_ROCK_PVPMAP	def	live	-	-	-		WI_SANDER_GARPAI_ROCK_PVPMAP = 546,
+X2Lib/X2World.h	750	1	WI_SANDER_VILLIAGE_PVPMAP	def	live	-	-	-		WI_SANDER_VILLIAGE_PVPMAP = 547, WI_RUBEN_WEDDING = 548, WI_SANDER_WEDDING = 549,
+X2Lib/X2World.h	750	1	WI_SANDER_WEDDING	def	live	-	-	-		WI_SANDER_VILLIAGE_PVPMAP = 547, WI_RUBEN_WEDDING = 548, WI_SANDER_WEDDING = 549,
+X2Lib/X2World.h	753	1	WI_SANDER_SANTILUS_SHIP_STAGE0	def	live	-	-	-		WI_SANDER_SANTILUS_SHIP_STAGE0 = 550,
+X2Lib/X2World.h	754	1	WI_SANDER_SANTILUS_SHIP_STAGE1	def	live	-	-	-		WI_SANDER_SANTILUS_SHIP_STAGE1,
+X2Lib/X2World.h	755	1	WI_SANDER_SANTILUS_SHIP_STAGE2	def	live	-	-	-		WI_SANDER_SANTILUS_SHIP_STAGE2,
+X2Lib/X2World.h	756	1	WI_SANDER_SANTILUS_SHIP_STAGE3	def	live	-	-	-		WI_SANDER_SANTILUS_SHIP_STAGE3,
+X2Lib/X2World.h	757	1	WI_SANDER_SANTILUS_SHIP_BOSS_STAGE	def	live	-	-	-		WI_SANDER_SANTILUS_SHIP_BOSS_STAGE,
+X2Lib/X2World.h	761	1	WI_SANDER_BEHIMOSS_HEART_STAGE0	def	live	-	-	-		WI_SANDER_BEHIMOSS_HEART_STAGE0,
+X2Lib/X2World.h	762	1	WI_SANDER_BEHIMOSS_HEART_STAGE1	def	live	-	-	-		WI_SANDER_BEHIMOSS_HEART_STAGE1,
+X2Lib/X2World.h	763	1	WI_SANDER_BEHIMOSS_HEART_STAGE2	def	live	-	-	-		WI_SANDER_BEHIMOSS_HEART_STAGE2,
+X2Lib/X2World.h	764	1	WI_SANDER_BEHIMOSS_HEART_STAGE3	def	live	-	-	-		WI_SANDER_BEHIMOSS_HEART_STAGE3,
+X2Lib/X2World.h	765	1	WI_SANDER_BEHIMOSS_HEART_BOSS_STAGE	def	live	-	-	-		WI_SANDER_BEHIMOSS_HEART_BOSS_STAGE,
+X2Lib/X2World.h	779	1	WI_VILLAGE_RANOX	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_VILLAGE_RANOX = 582,
+X2Lib/X2World.h	780	1	WI_RANOX_BURNDEDFOREST_STAGE0	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_BURNDEDFOREST_STAGE0 = 583,
+X2Lib/X2World.h	781	1	WI_RANOX_BURNDEDFOREST_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_BURNDEDFOREST_STAGE1 = 584,
+X2Lib/X2World.h	782	1	WI_RANOX_BURNDEDFOREST_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_BURNDEDFOREST_STAGE2 = 585,
+X2Lib/X2World.h	783	1	WI_RANOX_BURNDEDFOREST_STAGEBOSS	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_BURNDEDFOREST_STAGEBOSS = 586,
+X2Lib/X2World.h	784	1	WI_RANOX_ASHESVILLAGE_STAGE0	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_ASHESVILLAGE_STAGE0 = 587,
+X2Lib/X2World.h	785	1	WI_RANOX_ASHESVILLAGE_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_ASHESVILLAGE_STAGE1 = 588,
+X2Lib/X2World.h	786	1	WI_RANOX_ASHESVILLAGE_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_ASHESVILLAGE_STAGE2 = 589,
+X2Lib/X2World.h	787	1	WI_RANOX_ASHESVILLAGE_STAGE3	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_ASHESVILLAGE_STAGE3 = 590,
+X2Lib/X2World.h	788	1	WI_RANOX_ASHESVILLAGE_STAGEBOSS	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_ASHESVILLAGE_STAGEBOSS = 591,
+X2Lib/X2World.h	789	1	WI_BATTLE_FIELD_RANOX_FIELD_00	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_BATTLE_FIELD_RANOX_FIELD_00 = 592,
+X2Lib/X2World.h	790	1	WI_RANOX_GEYSER_STAGE0	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GEYSER_STAGE0 = 593,
+X2Lib/X2World.h	791	1	WI_RANOX_GEYSER_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GEYSER_STAGE1 = 594,
+X2Lib/X2World.h	792	1	WI_RANOX_GEYSER_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GEYSER_STAGE2 = 595,
+X2Lib/X2World.h	793	1	WI_RANOX_GEYSER_STAGEBOSS	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GEYSER_STAGEBOSS = 596,
+X2Lib/X2World.h	794	1	WI_RANOX_GATEWAY_STAGE0	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GATEWAY_STAGE0 = 597,
+X2Lib/X2World.h	795	1	WI_RANOX_GATEWAY_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GATEWAY_STAGE1 = 598,
+X2Lib/X2World.h	796	1	WI_RANOX_GATEWAY_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GATEWAY_STAGE2 = 599,
+X2Lib/X2World.h	797	1	WI_RANOX_GATEWAY_STAGEBOSS	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GATEWAY_STAGEBOSS = 600,
+X2Lib/X2World.h	798	1	WI_RANOX_FIRETEMPLE_STAGE0	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FIRETEMPLE_STAGE0 = 601,
+X2Lib/X2World.h	799	1	WI_RANOX_FIRETEMPLE_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FIRETEMPLE_STAGE1 = 602,
+X2Lib/X2World.h	800	1	WI_RANOX_FIRETEMPLE_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FIRETEMPLE_STAGE2 = 603,
+X2Lib/X2World.h	801	1	WI_RANOX_FIRETEMPLE_STAGEBOSS	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FIRETEMPLE_STAGEBOSS = 604,
+X2Lib/X2World.h	802	1	WI_BATTLE_FIELD_RANOX_FIELD_01	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_BATTLE_FIELD_RANOX_FIELD_01 = 605,
+X2Lib/X2World.h	803	1	WI_BATTLE_FIELD_RANOX_FIELD_REST_00	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_BATTLE_FIELD_RANOX_FIELD_REST_00 = 606,
+X2Lib/X2World.h	804	1	WI_BATTLE_FIELD_RANOX_FIELD_02	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_BATTLE_FIELD_RANOX_FIELD_02 = 607,
+X2Lib/X2World.h	805	1	WI_BATTLE_FIELD_RANOX_FIELD_03	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_BATTLE_FIELD_RANOX_FIELD_03 = 608,
+X2Lib/X2World.h	806	1	WI_RANOX_FINALHALL_STAGE0	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FINALHALL_STAGE0 = 609,
+X2Lib/X2World.h	807	1	WI_RANOX_FINALHALL_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FINALHALL_STAGE1 = 610,
+X2Lib/X2World.h	808	1	WI_RANOX_FINALHALL_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FINALHALL_STAGE2 = 611,
+X2Lib/X2World.h	809	1	WI_RANOX_FINALHALL_STAGE3	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FINALHALL_STAGE3 = 612,
+X2Lib/X2World.h	810	1	WI_RANOX_FINALHALL_STAGEBOSS	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_FINALHALL_STAGEBOSS = 613,
+X2Lib/X2World.h	811	1	WI_RANOX_SECRET_STAGE0	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_STAGE0 = 676,
+X2Lib/X2World.h	812	1	WI_RANOX_SECRET_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_STAGE1 = 677,
+X2Lib/X2World.h	813	1	WI_RANOX_SECRET_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_STAGE2 = 678,
+X2Lib/X2World.h	814	1	WI_RANOX_SECRET_STAGE3	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_STAGE3 = 679,
+X2Lib/X2World.h	815	1	WI_RANOX_SECRET_BOSS_STAGE	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_BOSS_STAGE = 680,
+X2Lib/X2World.h	816	1	WI_RANOX_SECRET_EXTRA_STAGE1	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_EXTRA_STAGE1 = 681,
+X2Lib/X2World.h	817	1	WI_RANOX_SECRET_EXTRA_STAGE2	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_EXTRA_STAGE2 = 682,
+X2Lib/X2World.h	818	1	WI_RANOX_SECRET_EXTRA_STAGE3	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_EXTRA_STAGE3 = 683,
+X2Lib/X2World.h	819	1	WI_RANOX_SECRET_EXTRA_BOSS_STAGE	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_SECRET_EXTRA_BOSS_STAGE = 684,
+X2Lib/X2World.h	820	1	WI_SPA_RANOX	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_SPA_RANOX = 726,
+X2Lib/X2World.h	821	1	WI_RANOX_GATEWAY_PVPMAP	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	WI_RANOX_GATEWAY_PVPMAP = 751,
+X2Lib/X2World.h	824	1	WI_END	def	live	-	-	-		WI_END,
+X2Lib/X2WorldMapUI.cpp	491	1	LMI_SANDER	use	dead	Y	CX2WorldMapUI::UpdateWorldMap	compare	ifdef NO_SANDER_VILLIAGE=OFF	if( CX2LocationManager::LMI_SANDER == eLocalMapID
+X2Lib/X2WorldMapUI.cpp	827	1	VMI_SANDER	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_SANDER:
+X2Lib/X2WorldMapUI.cpp	831	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_01:
+X2Lib/X2WorldMapUI.cpp	835	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02:
+X2Lib/X2WorldMapUI.cpp	839	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef VILLAGE_SANDER=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00:
+X2Lib/X2WorldMapUI.cpp	846	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03:
+X2Lib/X2WorldMapUI.cpp	850	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04:
+X2Lib/X2WorldMapUI.cpp	858	1	VMI_RANOX	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_RANOX:
+X2Lib/X2WorldMapUI.cpp	862	1	VMI_BATTLE_FIELD_RANOX_FIELD_01	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+X2Lib/X2WorldMapUI.cpp	866	1	VMI_BATTLE_FIELD_RANOX_FIELD_02	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+X2Lib/X2WorldMapUI.cpp	870	1	VMI_BATTLE_FIELD_RANOX_FIELD_03	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:
+X2Lib/X2WorldMapUI.cpp	874	1	VMI_BATTLE_FIELD_RANOX_FIELD_04	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+X2Lib/X2WorldMapUI.cpp	878	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2WorldMapUI::GetFieldMapDlg	case	ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+X2Lib/X2WorldMapUI.cpp	1944	1	DI_END	use	live	Y	CX2WorldMapUI::GetNPCQuestDesc	other	ifdef REFORM_QUEST=ON	DungeonID = SEnum::DI_END;
+X2Lib/X2WorldMapUI.cpp	1956	1	DI_END	use	live	Y	CX2WorldMapUI::GetNPCQuestDesc	other		DungeonID = SEnum::DI_END;
+X2Lib/X2WorldMapUI.cpp	1976	1	DI_END	use	live	Y	CX2WorldMapUI::GetNPCQuestDesc	other		DungeonID = SEnum::DI_END;
+X2Lib/X2WorldMapUI.cpp	1983	1	DI_END	use	live	Y	CX2WorldMapUI::GetNPCQuestDesc	other		DungeonID = SEnum::DI_END;
+X2Lib/X2WorldMapUI.cpp	2005	1	DI_END	use	live	Y	CX2WorldMapUI::GetNPCQuestDesc	compare		if(CurrentDID == SEnum::DI_END)
+X2Lib/X2WorldMapUI.cpp	2331	1	VMI_SANDER	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case		case SEnum::VMI_SANDER:
+X2Lib/X2WorldMapUI.cpp	2334	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case		case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_01:
+X2Lib/X2WorldMapUI.cpp	2337	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case		case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02:
+X2Lib/X2WorldMapUI.cpp	2340	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case		case SEnum::VMI_BATTLE_FIELD_SANDER_REST_00:
+X2Lib/X2WorldMapUI.cpp	2344	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03:
+X2Lib/X2WorldMapUI.cpp	2347	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SANDER_DUNGEON_5_6=ON	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04:
+X2Lib/X2WorldMapUI.cpp	2359	1	VMI_RANOX	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_RANOX:
+X2Lib/X2WorldMapUI.cpp	2362	1	VMI_BATTLE_FIELD_RANOX_FIELD_01	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:
+X2Lib/X2WorldMapUI.cpp	2365	1	VMI_BATTLE_FIELD_RANOX_FIELD_02	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:
+X2Lib/X2WorldMapUI.cpp	2368	1	VMI_BATTLE_FIELD_RANOX_FIELD_03	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:
+X2Lib/X2WorldMapUI.cpp	2371	1	VMI_BATTLE_FIELD_RANOX_FIELD_04	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:
+X2Lib/X2WorldMapUI.cpp	2374	1	VMI_BATTLE_FIELD_RANOX_REST_00	use	live	Y	CX2WorldMapUI::UpdateNaviMap	case	ifdef SERV_IRUHADEV_JUNE_FIELD_MAP=ON > ifdef SERV_IRUHADEV_RANOX_PORT=ON	case SEnum::VMI_BATTLE_FIELD_RANOX_REST_00:
+X2Lib/X2WorldMapUI.cpp	2475	1	VMI_BATTLE_FIELD_SANDER_REST_00	use	live	Y	CX2WorldMapUI::ReLoadingVillageMap	loop-bound	ifdef VILLAGE_MAP_FAST_RELOADING=ON	for( int iVillageID = SEnum::VMI_BATTLE_FIELD_ELDER_REST_00; iVillageID <= SEnum::VMI_BATTLE_FIELD_SANDER_REST_00; ++iVillageID )
+X2Lib/X2WorldMapUI.cpp	2485	1	VMI_SANDER	use	live	Y	CX2WorldMapUI::ReLoadingVillageMap	loop-bound	ifdef VILLAGE_MAP_FAST_RELOADING=ON	for( int iVillageID = SEnum::VMI_RUBEN; iVillageID <= SEnum::VMI_SANDER; ++iVillageID )
+X2Lib/X2WorldMapUI.cpp	2492	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	use	live	Y	CX2WorldMapUI::ReLoadingVillageMap	loop-bound	ifdef VILLAGE_MAP_FAST_RELOADING=ON	for( int iVillageID = SEnum::VMI_BATTLE_FIELD_RUBEN_FIELD_01; iVillageID <= SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04; ++iVillageID )
+KTDXLIB/Always.h	4109	1	VMI_RANOX	flagdef	comment	-	-	-		// to VMI_RANOX for debugging the Ranox port without playing through to it.
+KTDXLIB/Always.h	4612	1	VMI_RANOX	flagdef	comment	-	-	-		// VMI_RANOX, VMI_BATTLE_FIELD_RANOX_FIELD_01..04,
+KTDXLIB/Always.h	4612	1	VMI_BATTLE_FIELD_RANOX_FIELD_01	flagdef	comment	-	-	-		// VMI_RANOX, VMI_BATTLE_FIELD_RANOX_FIELD_01..04,
+KTDXLIB/Always.h	4613	1	VMI_BATTLE_FIELD_RANOX_REST_00	flagdef	comment	-	-	-		// VMI_BATTLE_FIELD_RANOX_REST_00 and VMI_SPA_RANOX. Every
+KTDXLIB/Always.h	4625	1	VMI_SANDER	flagdef	comment	-	-	-		// VMI_SANDER, so VMI_RANOX was not a village.
+KTDXLIB/Always.h	4625	1	VMI_RANOX	flagdef	comment	-	-	-		// VMI_SANDER, so VMI_RANOX was not a village.
+KTDXLIB/Always.h	4660	1	LMI_RANOX	flagdef	comment	-	-	-		// row is not listed (LMI_RANOX templet NULL, level gate, or the
+KTDXLIB/KTDXApp.cpp	2802	1	WI_END	use	live	Y	CKTDXApp::InitEnumToString	string		SetEnumToString( L"WORLD_ID", 6, L"WI_END" );
+KTDXLIB/KTDXApp.cpp	2808	1	DI_END	use	live	Y	CKTDXApp::InitEnumToString	string		SetEnumToString( L"DUNGEON_ID", 30003, L"DI_END" );
+KncWX2Server/Common/Enum/DungeonEnum.h	308	2	DI_SANDER_DRY_SANDER_NORMAL	def	live	-	-	-		DI_SANDER_DRY_SANDER_NORMAL = 33200,
+KncWX2Server/Common/Enum/DungeonEnum.h	309	2	DI_SANDER_DRY_SANDER_HARD	def	live	-	-	-		DI_SANDER_DRY_SANDER_HARD = 33201,
+KncWX2Server/Common/Enum/DungeonEnum.h	310	2	DI_SANDER_DRY_SANDER_EXPERT	def	live	-	-	-		DI_SANDER_DRY_SANDER_EXPERT = 33202,
+KncWX2Server/Common/Enum/DungeonEnum.h	313	2	DI_SANDER_GARPAI_ROCK_NORMAL	def	live	-	-	-		DI_SANDER_GARPAI_ROCK_NORMAL = 33210,
+KncWX2Server/Common/Enum/DungeonEnum.h	314	2	DI_SANDER_GARPAI_ROCK_HARD	def	live	-	-	-		DI_SANDER_GARPAI_ROCK_HARD = 33211,
+KncWX2Server/Common/Enum/DungeonEnum.h	315	2	DI_SANDER_GARPAI_ROCK_EXPERT	def	live	-	-	-		DI_SANDER_GARPAI_ROCK_EXPERT = 33212,
+KncWX2Server/Common/Enum/DungeonEnum.h	318	2	DI_SANDER_DEN_OF_TROCK_NORMAL	def	live	-	-	-		DI_SANDER_DEN_OF_TROCK_NORMAL = 33220,
+KncWX2Server/Common/Enum/DungeonEnum.h	319	2	DI_SANDER_DEN_OF_TROCK_HARD	def	live	-	-	-		DI_SANDER_DEN_OF_TROCK_HARD = 33221,
+KncWX2Server/Common/Enum/DungeonEnum.h	320	2	DI_SANDER_DEN_OF_TROCK_EXPERT	def	live	-	-	-		DI_SANDER_DEN_OF_TROCK_EXPERT = 33222,
+KncWX2Server/Common/Enum/DungeonEnum.h	323	2	DI_SANDER_KARUSO_VILLAGE_NORMAL	def	live	-	-	-		DI_SANDER_KARUSO_VILLAGE_NORMAL = 33230,
+KncWX2Server/Common/Enum/DungeonEnum.h	324	2	DI_SANDER_KARUSO_VILLAGE_HARD	def	live	-	-	-		DI_SANDER_KARUSO_VILLAGE_HARD = 33231,
+KncWX2Server/Common/Enum/DungeonEnum.h	325	2	DI_SANDER_KARUSO_VILLAGE_EXPERT	def	live	-	-	-		DI_SANDER_KARUSO_VILLAGE_EXPERT = 33232,
+KncWX2Server/Common/Enum/DungeonEnum.h	330	2	DI_SANDER_SANTILUS_SHIP_NORMAL	def	live	-	-	-		DI_SANDER_SANTILUS_SHIP_NORMAL = 33240,
+KncWX2Server/Common/Enum/DungeonEnum.h	331	2	DI_SANDER_SANTILUS_SHIP_HARD	def	live	-	-	-		DI_SANDER_SANTILUS_SHIP_HARD = 33241,
+KncWX2Server/Common/Enum/DungeonEnum.h	332	2	DI_SANDER_SANTILUS_SHIP_EXPERT	def	live	-	-	-		DI_SANDER_SANTILUS_SHIP_EXPERT = 33242,
+KncWX2Server/Common/Enum/DungeonEnum.h	335	2	DI_SANDER_BEHIMOSS_HEART_NORMAL	def	live	-	-	-		DI_SANDER_BEHIMOSS_HEART_NORMAL = 33250,
+KncWX2Server/Common/Enum/DungeonEnum.h	336	2	DI_SANDER_BEHIMOSS_HEART_HARD	def	live	-	-	-		DI_SANDER_BEHIMOSS_HEART_HARD = 33251,
+KncWX2Server/Common/Enum/DungeonEnum.h	337	2	DI_SANDER_BEHIMOSS_HEART_EXPERT	def	live	-	-	-		DI_SANDER_BEHIMOSS_HEART_EXPERT = 33252,
+KncWX2Server/Common/Enum/DungeonEnum.h	491	2	DI_RANOX_BURNDEDFOREST_NORMAL	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_BURNDEDFOREST_NORMAL = 33270,
+KncWX2Server/Common/Enum/DungeonEnum.h	492	2	DI_RANOX_BURNDEDFOREST_HARD	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_BURNDEDFOREST_HARD = 33271,
+KncWX2Server/Common/Enum/DungeonEnum.h	493	2	DI_RANOX_BURNDEDFOREST_EXPERT	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_BURNDEDFOREST_EXPERT = 33272,
+KncWX2Server/Common/Enum/DungeonEnum.h	494	2	DI_RANOX_ASHESVILLAGE_NORMAL	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_ASHESVILLAGE_NORMAL = 33280,
+KncWX2Server/Common/Enum/DungeonEnum.h	495	2	DI_RANOX_ASHESVILLAGE_HARD	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_ASHESVILLAGE_HARD = 33281,
+KncWX2Server/Common/Enum/DungeonEnum.h	496	2	DI_RANOX_ASHESVILLAGE_EXPERT	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_ASHESVILLAGE_EXPERT = 33282,
+KncWX2Server/Common/Enum/DungeonEnum.h	497	2	DI_RANOX_GEYSER_NORMAL	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_GEYSER_NORMAL = 33290,
+KncWX2Server/Common/Enum/DungeonEnum.h	498	2	DI_RANOX_GEYSER_HARD	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_GEYSER_HARD = 33291,
+KncWX2Server/Common/Enum/DungeonEnum.h	499	2	DI_RANOX_GEYSER_EXPERT	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_GEYSER_EXPERT = 33292,
+KncWX2Server/Common/Enum/DungeonEnum.h	500	2	DI_RANOX_GATEWAY_NORMAL	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_GATEWAY_NORMAL = 33300,
+KncWX2Server/Common/Enum/DungeonEnum.h	501	2	DI_RANOX_GATEWAY_HARD	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_GATEWAY_HARD = 33301,
+KncWX2Server/Common/Enum/DungeonEnum.h	502	2	DI_RANOX_GATEWAY_EXPERT	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_GATEWAY_EXPERT = 33302,
+KncWX2Server/Common/Enum/DungeonEnum.h	503	2	DI_RANOX_FIRETEMPLE_NORMAL	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_FIRETEMPLE_NORMAL = 33310,
+KncWX2Server/Common/Enum/DungeonEnum.h	504	2	DI_RANOX_FIRETEMPLE_HARD	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_FIRETEMPLE_HARD = 33311,
+KncWX2Server/Common/Enum/DungeonEnum.h	505	2	DI_RANOX_FIRETEMPLE_EXPERT	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_FIRETEMPLE_EXPERT = 33312,
+KncWX2Server/Common/Enum/DungeonEnum.h	506	2	DI_RANOX_FINALHALL_NORMAL	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_FINALHALL_NORMAL = 33320,
+KncWX2Server/Common/Enum/DungeonEnum.h	507	2	DI_RANOX_FINALHALL_HARD	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_FINALHALL_HARD = 33321,
+KncWX2Server/Common/Enum/DungeonEnum.h	508	2	DI_RANOX_FINALHALL_EXPERT	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_FINALHALL_EXPERT = 33322,
+KncWX2Server/Common/Enum/DungeonEnum.h	509	2	DI_RANOX_SECRET_HELL	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	DI_RANOX_SECRET_HELL = 41271,
+KncWX2Server/Common/Enum/DungeonEnum.h	512	1	DI_END	def	live	-	-	-		DI_END = 41311,
+KncWX2Server/Common/Enum/Enum.h	208	1	VMI_BATTLE_FIELD_SANDER_REST_00	def	live	-	-	-		VMI_BATTLE_FIELD_SANDER_REST_00 = 1006, /// 윈드스톤 유적지
+KncWX2Server/Common/Enum/Enum.h	213	1	VMI_BATTLE_FIELD_RANOX_REST_00	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	VMI_BATTLE_FIELD_RANOX_REST_00 = 1007,
+KncWX2Server/Common/Enum/Enum.h	217	1	VMI_BATTLE_FIELD_REST_END	def	live	-	-	-		VMI_BATTLE_FIELD_REST_END,
+KncWX2Server/Common/Enum/Enum.h	242	1	VMI_SANDER	def	live	-	-	-		VMI_SANDER,
+KncWX2Server/Common/Enum/Enum.h	247	1	VMI_RANOX	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	VMI_RANOX = 20008,
+KncWX2Server/Common/Enum/Enum.h	251	1	VMI_VILLAGE_MAP_END	def	live	-	-	-		VMI_VILLAGE_MAP_END,
+KncWX2Server/Common/Enum/Enum.h	304	1	VMI_BATTLE_FIELD_SANDER_FIELD_01	def	live	-	-	-		VMI_BATTLE_FIELD_SANDER_FIELD_01 = 40022, // 바람의 사원
+KncWX2Server/Common/Enum/Enum.h	305	1	VMI_BATTLE_FIELD_SANDER_FIELD_02	def	live	-	-	-		VMI_BATTLE_FIELD_SANDER_FIELD_02 = 40023, // 샌더2
+KncWX2Server/Common/Enum/Enum.h	306	1	VMI_BATTLE_FIELD_SANDER_FIELD_03	def	live	-	-	-		VMI_BATTLE_FIELD_SANDER_FIELD_03 = 40024, // 샌더3
+KncWX2Server/Common/Enum/Enum.h	307	1	VMI_BATTLE_FIELD_SANDER_FIELD_04	def	live	-	-	-		VMI_BATTLE_FIELD_SANDER_FIELD_04 = 40025, // 샌더4
+KncWX2Server/Common/Enum/Enum.h	315	1	VMI_BATTLE_FIELD_RANOX_FIELD_01	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	VMI_BATTLE_FIELD_RANOX_FIELD_01 = 40029,
+KncWX2Server/Common/Enum/Enum.h	316	1	VMI_BATTLE_FIELD_RANOX_FIELD_02	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	VMI_BATTLE_FIELD_RANOX_FIELD_02 = 40030,
+KncWX2Server/Common/Enum/Enum.h	317	1	VMI_BATTLE_FIELD_RANOX_FIELD_03	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	VMI_BATTLE_FIELD_RANOX_FIELD_03 = 40031,
+KncWX2Server/Common/Enum/Enum.h	318	1	VMI_BATTLE_FIELD_RANOX_FIELD_04	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	VMI_BATTLE_FIELD_RANOX_FIELD_04 = 40032,
+KncWX2Server/Common/Enum/Enum.h	322	1	VMI_BATTLE_FIELD_END	def	live	-	-	-		VMI_BATTLE_FIELD_END,
+KncWX2Server/Common/Enum/Enum.h	372	1	LMI_SANDER	def	live	-	-	-		LMI_SANDER = 10007,
+KncWX2Server/Common/Enum/Enum.h	377	1	LMI_RANOX	def	live	-	-	-	ifdef SERV_IRUHADEV_RANOX_PORT=ON	LMI_RANOX = 10008,
+KncWX2Server/Common/Enum/Enum.h	538	1	VMI_VILLAGE_MAP_END	use	live	-	IsVillageMapID	compare		if( VMI_RUBEN <= iFieldMapID && iFieldMapID < VMI_VILLAGE_MAP_END )
+KncWX2Server/Common/Enum/Enum.h	546	1	VMI_BATTLE_FIELD_END	use	live	-	IsBattleFieldID	compare		if( VMI_BATTLE_FIELD_RUBEN_FIELD_01 <= iBattleFieldID && iBattleFieldID < VMI_BATTLE_FIELD_END )
+KncWX2Server/Common/Enum/Enum.h	554	1	VMI_BATTLE_FIELD_REST_END	use	live	-	IsRestFieldID	compare		if( VMI_BATTLE_FIELD_ELDER_REST_00 <= iBattleFieldID && iBattleFieldID < VMI_BATTLE_FIELD_REST_END )
