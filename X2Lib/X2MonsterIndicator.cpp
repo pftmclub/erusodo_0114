@@ -1,4 +1,7 @@
 #include "StdAfx.h"
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 #include ".\x2monsterindicator.h"
 
 
@@ -202,6 +205,18 @@ void CX2MonsterIndicator::OnFrameMove()
 				continue;
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
 			/// June 32f099f0 @32f09f05 / @32f09f2a: the per-NPC filter also skips NOT_CHECK_INDICATOR NPCs and INIT_AI NO_INDICATOR
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			if( true == pNPC->GetNotCheckIndicator() || true == pNPC->GetNPCAI()->GetNoIndicator() )
+			{
+				static bool s_bLoggedIndicatorSkip = false;
+				if( false == s_bLoggedIndicatorSkip )
+				{
+					s_bLoggedIndicatorSkip = true;
+					CX2OfflineLog::Server( L"[ELYDBG] indicator first skip: npc %d ( NOT_CHECK_INDICATOR %d, NO_INDICATOR %d )",
+						(int)pNPC->GetNPCTemplet().m_nNPCUnitID, (int)pNPC->GetNotCheckIndicator(), (int)pNPC->GetNPCAI()->GetNoIndicator() );
+				}
+			}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 			if( true == pNPC->GetNotCheckIndicator() || true == pNPC->GetNPCAI()->GetNoIndicator() )
 				continue;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A

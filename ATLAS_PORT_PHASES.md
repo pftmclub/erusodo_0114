@@ -1598,6 +1598,9 @@ Done when: Phase A4's "Done when" holds. Record a Done note, then commit on main
   - `DEPLOY OK: X2_offline.exe is 19,601,408 B, dated 2026-10-17 01:52:55, md5 c3f55fb41963b6bd6906df3d333caa66, equal to X2/US_SERVICE/x2.exe (2026-10-17 01:52:50); built at main 09c01652 + 24 uncommitted code file(s).`
     That build includes the A5 peer's uncommitted files.
   - Commit `d726302f`; `flagcheck --range d726302f^..d726302f`: `files: 14 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+  - Follow-up commit: `[ELYDBG]` first-use lines for the bone list (load, push, contact) and the indicator skip
+    (flagcheck `--worktree` on the 3 files: `3 PASS ... RESULT: PASS`). Redeployed:
+    `DEPLOY OK: X2_offline.exe is 19,602,944 B, dated 2026-10-17 02:03:41, md5 5ea0b3a234c5896ed8d12c5989013f7b, equal to X2/US_SERVICE/x2.exe (2026-10-17 02:03:36); built at main ac236b47 + 3 uncommitted code file(s).`
 - **How to see it in game:** the Atlas content itself arrives in A8-A10 (and the local map in E4), so this phase's play-test uses
   June NPC scripts that are already live in older dungeons. The hand-off in the session names the dungeon and character.
 - **Open for the user:** nothing to decide. Next: `/x2-phase atlas A4 review` (Opus 5.5 high).

@@ -12,6 +12,9 @@
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS_DEBUG
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 
 
 #ifdef REDUCED_PRECOMPILED_HEADER_TEST
@@ -39644,6 +39647,15 @@ void CX2GUUser::ToggleSkillSlotAB()
 			fGameUnitHeight = fBoneDistance + fBoneDistance;
 			fGameUnitYMin = vPosFutureOtherGameUnit.y - fBoneDistance;
 		}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		static bool s_bLoggedBonePush = false;
+		if( false == s_bLoggedBonePush )
+		{
+			s_bLoggedBonePush = true;
+			CX2OfflineLog::Server( L"[ELYDBG] CAN_NOT_PASS_SPECIFIED_BONE first bone push: npc %d bone %s distance %.1f frame %s dir %d",
+				(int)pNPC->GetNPCTemplet().m_nNPCUnitID, wstrBoneName.c_str(), fBoneDistance, true == bUseBone ? L"found" : L"MISSING", iDirection );
+		}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 	}
 	if( false == bUseBone )
 		fGameUnitHeight = pGameUnit_->GetUnitHeight( true );
@@ -39669,6 +39681,17 @@ void CX2GUUser::ToggleSkillSlotAB()
 			if( true == bUseBone )
 			{
 				fHalfSumUnitWidth = GetUnitWidth( true ) * 0.5f + fBoneDistance;	/// June @31fe9028
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+				if( fDistanceHorizon3Sq < fHalfSumUnitWidth * fHalfSumUnitWidth )
+				{
+					static bool s_bLoggedBoneTouch = false;
+					if( false == s_bLoggedBoneTouch )
+					{
+						s_bLoggedBoneTouch = true;
+						CX2OfflineLog::Server( L"[ELYDBG] CAN_NOT_PASS_SPECIFIED_BONE first bone contact: dir %d, distance %.1f < radius %.1f", iDirection, sqrt( fDistanceHorizon3Sq ), fHalfSumUnitWidth );
+					}
+				}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 				if( GUT_NPC == pGameUnit_->GetGameUnitType() )
 				{
 					/// June @31fe904d: the NPC's direction against the bone ( 327788b0 ) replaces iDirection unless -1
@@ -39769,6 +39792,17 @@ void CX2GUUser::ToggleSkillSlotAB()
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
 			if( true == bUseBone )
 				fHalfSumUnitWidth = GetUnitWidth( true ) * 0.5f + fBoneDistance;	/// June @31fe8d89
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			if( true == bUseBone && fDistanceHorizon3Sq < fHalfSumUnitWidth * fHalfSumUnitWidth )
+			{
+				static bool s_bLoggedBoneTouch = false;
+				if( false == s_bLoggedBoneTouch )
+				{
+					s_bLoggedBoneTouch = true;
+					CX2OfflineLog::Server( L"[ELYDBG] CAN_NOT_PASS_SPECIFIED_BONE first bone contact: dir %d, distance %.1f < radius %.1f", iDirection, sqrt( fDistanceHorizon3Sq ), fHalfSumUnitWidth );
+				}
+			}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
 		
 		    if( fDistanceHorizon3Sq < fHalfSumUnitWidth * fHalfSumUnitWidth )	/// 서로 근접하여 붙어있으면

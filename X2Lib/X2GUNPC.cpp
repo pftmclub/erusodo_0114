@@ -5708,6 +5708,14 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 			luaManager_.GetValue( 1, wstrBoneName );
 			luaManager_.GetValue( 2, fDistance );
 			nowStateData.m_vecCanNotPassSpecifiedBone.push_back( std::make_pair( wstrBoneName, fDistance ) );
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			static bool s_bLoggedBoneLoad = false;
+			if( false == s_bLoggedBoneLoad )
+			{
+				s_bLoggedBoneLoad = true;
+				CX2OfflineLog::Server( L"[ELYDBG] CAN_NOT_PASS_SPECIFIED_BONE first load: bone %s distance %.1f", wstrBoneName.c_str(), fDistance );
+			}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 			luaManager_.EndTable();
 			++iBoneIndex;
 		}
