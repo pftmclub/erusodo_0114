@@ -63,6 +63,7 @@ The user's remaining backlog, in the order they listed it:
 | 20 | Damage-number customization *(added 2026-10-09, june-effect C3e)* | - (found by june-effect C3e) | Not a backlog item but a missing system: June's damage-number skin items (Damage Custom A / B / Critical, Christmas, Nature) pick the font of the numbers a character deals, and the user sync carries the choice to other players. March has none of it. It depends on Stage 13 (the item ids) and touches no other stage's files. Numbered 20 to keep the earlier numbers stable. |
 | 21 | Photozone *(added 2026-10-09, june-effect C3e-2)* | - (found by june-effect C3e-2) | Not a backlog item but a missing game state: June's `XS_PHOTOZONE_LOBBY` (0x19) / `XS_PHOTOZONE_GAME` (0x1a), where the chat box's WIN / LOSE commands re-roll the start / win / lose motion. March has no Photozone. Numbered 21 to keep the earlier numbers stable. |
 | 22 | June dungeons and worlds *(added 2026-10-11, user: split out of june-effect)* | - (found by june-effect C3x / C3y / C3z) | Not a backlog item but missing content: the June dungeons, worlds and map entries that March lacks or has half of (Sander and Hamel secret dungeons, the five Henir Space boss worlds, class tutorial dungeons, Bestera, Space of Thought, the Hero tier, June's data101 map assets, the DungeonData readers june-effect C3z-5 routed, the Battle Field tutorial guide). Planned as `JUNE_DUNGEONS_PHASES.md`, STATUS block `june-dungeons`; phase IDs kept from june-effect. It shares the core registries with Stages 1 (Atlas / Elysion dungeons A8-A10, E8-E11) and 19 (event dungeons), so those port halves run one at a time. Numbered 22 to keep the earlier numbers stable. |
+| 23 | Offline field rewards stand-in *(added 2026-10-17, user: atlas A6)* | - (found by atlas A6) | Not a backlog item but missing server data: the server `DropTable.lua` / `StaticDropTable.lua` stop at Sander (40025), so Lanox (40029-40032) and Elysion (40035-40038) field kills grant no EXP, ED or items offline. No June server exists, so the rewards are a labelled stand-in (own flag, proposed first, [[design-missing-june-pieces]]). It touches only the offline emulator and server Lua, so it can run alongside any stage. Numbered 23 to keep the earlier numbers stable. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -666,6 +667,20 @@ ones became their own plan: `JUNE_DUNGEONS_PHASES.md`, kickoffs `kickoffs/june-d
 
 **Depends on:** june-effect C3x-C3z-6 (done). Stage 14/15 for C3z-1b only.
 
+
+### Stage 23: offline field rewards stand-in (atlas A6, 2026-10-17)
+
+Found by atlas A6 (Done note "Drops"): every F01 / F02 kill logs `GAME -> NOTE monster N has no reward row for key 4003x ... grants nothing`
+(`Handlers_Room.cpp:3312`). The emulator pays EXP / ED / items only from `DropTable.lua` (`AddBattleFieldNpcDropInfo`, keyed `BattleFieldID`,
+wildcard key 0) and `StaticDropTable.lua` (`AddBattleFieldStaticDropInfo`), read by `X2OfflineDropTable.cpp:415` / `:529`. Both server files
+(`KncWX2Server/ServerResource/US/`) carry battlefield rows 40000-40025 only. Lanox (40029-40032) and the Elysion fields (40035-40038) have none.
+- **Scope:** design and implement a stand-in for the missing field rows, both regions, behind its own `SERV_IRUHADEV_` flag, labelled in the log.
+  Candidate sources to weigh: June client data that names drops (item templets, `DROP = TRUE` per spawn), A2's `NpcExpTable` 81-99, the
+  pattern of the last real region (Sander 40022-40025 rows, by level), and the Lanox / Elysion dungeons' own rows if the server files have them.
+- **Rules:** never invent silently; the user picks the design before code (memory `design-missing-june-pieces`); server Lua is the user's to pack
+  if the stand-in lives in `DropTable.lua` / `StaticDropTable.lua` (CLAUDE.md server-Lua rule).
+
+**Depends on:** atlas A6 (done). Touches `X2Lib/Offline/` and server Lua only; runs alongside any stage.
 
 ## Open decisions that gate stages
 

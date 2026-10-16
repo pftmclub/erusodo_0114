@@ -1924,7 +1924,7 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
   - 13 `assets.absent`: June ships none.
   - 5 `keys.registry`: read by the emulator / server; `MIDDLE_BOSS_BONUS_ITEM_COUNT` is unread in March's own rows too.
   - 84 `keys.file`: `LINE_NUM` = B73, and `CT_*` / `CF_*` / `TARGET_FRONT_ME` are Lua-side names in June's own unit scripts.
-- **Drops: open, for the user.** The server `DropTable` / `StaticDropTable` stop at 40025 (no Lanox, no Elysion rows), so F01 / F02 kills
+- **Drops: routed to backlog Stage 23 (user, 2026-10-17; brief `kickoffs/june-backlog/stage23-plan.md`).** The server `DropTable` / `StaticDropTable` stop at 40025 (no Lanox, no Elysion rows), so F01 / F02 kills
   log `no reward row ... grants nothing` (no EXP, ED or items), as Lanox fields do today.
 - **Hygiene:**
   - `flagcheck ELYSION_PORT --worktree --files <5 code files>`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`.
