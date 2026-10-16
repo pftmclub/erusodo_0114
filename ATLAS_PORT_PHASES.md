@@ -1356,7 +1356,9 @@ Compiling the pre-A2 sources reproduces the staged bytecode byte-identical. `COP
 **Decision applied (user, 2026-10-17: "follow your recommendation"):** `pick_rate` now returns the middle of the feasible intercepts.
 `cap99_gen.py all --write`: proof 1 still residual 0 over 250 curves, **proof 2 190/190, max |diff| 0**, rerun unchanged. `StatTable.lua`: 76 generated rows
 (levels 81-99, 29 classes) change 83 values, every one +1 (AtkPhysic 37, DefMagic 34, AtkMagic 12, HP 0); classes 110/111 untouched; BOM, CRLF
-and no EOF newline kept. Not yet in the game: `KncWX2Server/ServerResource/US/StatTable.lua` needs compiling + packing into `data036.kom` (server Lua).
+and no EOF newline kept. Compiled + packed + copied by Claude at the user's request: `elstools compile-batch -v mar-2014`, calibrated first
+(the previous source compiles byte-identical to the staged bytecode, md5 2c34f23c); new bytecode md5 c5c6f027. `PACK OK data036` (~1 vs live:
+`StatTable.lua`); `COPY OK data036: ... 12981329 bytes, 239 entries, md5 2ed1a1e6a9a78873975ffc163bafdcbf` (backup `kom_backup_tools\data036.kom.20261017_011135`).
 
 **User decision (no rush):** switch StatTable 81-99 of the 48 extrapolated classes to the midpoint intercept? Yes = regenerate, compile, pack
 data036, copy (asked first). No = keep the shipped rows. Play-test owed: none (the fix sits on an unreachable path); the next normal session
