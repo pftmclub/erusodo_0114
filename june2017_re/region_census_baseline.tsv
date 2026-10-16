@@ -6,6 +6,6 @@ HI	12	12	match	23 region houses, 11 already in March (shared), 12 missing
 DI	21	21	match	22 Hero rows kept apart (out of scope)
 NUI	203	203	match	region 219 incl. the 16 NUIs March already had = 195 missing now + 8 adopted since + 16 old; village quest houses add NUI_STORY_QUEST,NUI_TRANSCEND_QUEST
 collisions	0	0	match	value collisions only; 9 missing IDs sit at/above a C++ end marker
-unbound_names	65	31	DIFFERS	26 from source + 5 inferred from bytecode strings
-effect_sets	393	410	DIFFERS	410 referenced, 0 missing from the staged EffectSet.lua (June templets 8141, March 8242)
-assets_to_adopt	2071	1792	DIFFERS	2728 refs: 772 in March, 1792 June-only, 154 June itself lacks
+unbound_names	65	32	DIFFERS	26 from source + 6 inferred from bytecode strings
+effect_sets	393	416	DIFFERS	416 referenced, 0 missing from the staged EffectSet.lua (June templets 8141, March 8242)
+assets_to_adopt	2071	1808	DIFFERS	2679 refs: 797 in March, 1808 June-only, 74 June itself lacks

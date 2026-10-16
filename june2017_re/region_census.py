@@ -28,7 +28,9 @@ What the exit metric measures, per region half and per line (the Done gates of e
 
 Two numbers per category (advisor note, A0): the region set (what June defines; reproduces the 2026-10-03 ledger) and
 what is missing NOW (the ledger moved after june-effect C3y/C3z/C12 and june-dungeons C3y-1b merged parts of June into March).
-June Lua is read from june_src_fixed/ only.  ELYSION_SOLESS.lua is not there: it is scanned as bytes, labelled E0-owned.
+June Lua is read from june_src_fixed/ only.  ELYSION_SOLESS.lua is not there: its string constants are read exactly from June's
+bytecode (ljconv + tools/ljbc.py; A0 review), labelled E0-owned.  TABLE.MEMBER compiles to two separate constants there, so
+those rows are inferred (members.missing.bytecode).
 """
 import argparse, collections, csv, io, json, os, re, struct, subprocess, sys
 
@@ -393,7 +395,7 @@ def nui_closure(R, J):
                 for m in NUI_RE.findall(src_text(lf)):
                     if m not in seen:
                         seen.add(m); queue.append(m)
-        for n in seen:
+        for n in sorted(seen):                       # sorted: set order follows the per-run string hash (A0 review)
             if n in J['NPC_UNIT_ID']:
                 R.nui.setdefault(n, dict(id=J['NPC_UNIT_ID'][n], lines=set()))['lines'].add(line)
     R.unit_files = unit_files
@@ -868,12 +870,12 @@ def check_bindings(files, bound, lit):
     uni = method_universe()
     already = set(uses)
     for e in bytecode_only:
-        b = june_bytes(e['name'])
-        if b is None:
+        consts = bytecode_consts(e['name'])
+        if consts is None:
             items.append(Item('bind.nosource', jl(e['lines']), e['name'], 'INFO',
                               'named by June data but June ships no such file (ledger: Tower S3 -> missing file); nothing to port'))
             continue
-        for m in sorted(set(x.decode('latin-1') for x in re.findall(rb'[A-Za-z_][A-Za-z0-9_]{3,}', b))):
+        for m in sorted({c for c in consts if re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{3,}', c)}):
             if m in uni and m not in bound and m not in LUA_STD and m not in already and m not in deflua:
                 n_byte += 1
                 already.add(m)
@@ -895,15 +897,44 @@ def ess_text():
     return out
 
 
+_CONSTS = {}
+
+
+def bytecode_consts(name):
+    """Every string constant of June's bytecode for `name` (kgc strings + table-template string keys / values), exact: ljconv
+    to 0x81, then tools/ljbc.py.  A printable-run scan glues neighbours (a constant of >= 27 chars has a printable length byte,
+    0x20 = space, 0x2E = '.'), which hid 11 June-only SOLESS assets and every name after a glue (A0 review).  None if June ships
+    no such file; the run scan only if the dump does not parse (printed)."""
+    low = name.lower()
+    if low not in _CONSTS:
+        b = june_bytes(name)
+        out = None
+        if b:
+            try:
+                import ljbc, luasrc
+                m, table = luasrc.ljconv_mod()
+                d = ljbc.parse(m.transcode(b, table)[0])
+                out = []
+                for pt in d.protos:
+                    for k in pt.kgc:
+                        if k[0] == 'str':
+                            out.append(k[1])
+                        elif k[0] == 'tab':
+                            out.extend(x[1] for x in k[2] if x[0] == 's')
+                            out.extend(x[1] for kv in k[3] for x in kv if x[0] == 's')
+            except Exception as ex:
+                print('NOTE: %s bytecode does not parse (%s); falling back to printable runs (names may glue)' % (name, ex))
+                out = re.findall(rb'[ -~]{3,120}', b)
+            out = [s.decode('latin-1') for s in out]
+        _CONSTS[low] = out
+    return _CONSTS[low]
+
+
 def bytecode_text(e):
-    """Files june_src_fixed lacks (ELYSION_SOLESS.lua, Elysion_Tower_Stage3.lua): the printable runs of June's own bytecode, each
-    wrapped in quotes so the string / asset / effect-set regexes see them like source literals.  Labelled E0-owned in reports."""
+    """Files june_src_fixed lacks (ELYSION_SOLESS.lua, Elysion_Tower_Stage3.lua): each string constant of June's own bytecode on
+    its own line, quoted, so the string / asset / effect-set regexes see them like source literals.  Labelled E0-owned in reports."""
     if 'btext' not in e:
-        b = june_bytes(e['name'])
-        # a constant's length byte is often printable and glues onto the name ("(EffectSet_..."): emit the run and the run minus
-        # its first byte (bytecode-name-scan-lookahead-trap, C3z-1 review)
-        runs = re.findall(rb'[ -~]{3,120}', b) if b else []
-        e['btext'] = '\n'.join('"%s"\n"%s"' % (r.decode('latin-1'), r[1:].decode('latin-1')) for r in runs)
+        e['btext'] = '\n'.join('"%s"' % s for s in (bytecode_consts(e['name']) or ()))
     return e['btext']
 
 
@@ -967,6 +998,17 @@ def check_members(files, rows, J, M, region_ids):
             if tb in june_t:
                 users[(tb, mb)][0].update(lines)
                 users[(tb, mb)][1].add(src)
+    # bytecode-only files: T.M is two constants (GGET T, TGETS M), so infer the pair when both are constants (E0 confirms)
+    inferred = set()
+    for low, e in files.items():
+        if e['text'] is None:
+            cs = set(bytecode_consts(e['name']) or ())
+            for tb in cs & set(june_t):
+                for mb in june_t[tb] & cs:
+                    if (tb, mb) not in users:
+                        inferred.add((tb, mb))
+                    users[(tb, mb)][0].update(e['lines'])
+                    users[(tb, mb)][1].add(e['name'])
     march_t = {}
     for tb in sorted({t for t, _ in users}):
         d = {}
@@ -982,6 +1024,10 @@ def check_members(files, rows, J, M, region_ids):
             continue                                  # already a check_ids row
         if mb in june_t[tb]:
             miss += 1
+            if (tb, mb) in inferred:
+                items.append(Item('members.missing.bytecode', jl(lines), '%s.%s' % (tb, mb), 'OPEN',
+                                  'June resolves it, March nil; inferred from %s bytecode constants (E0 confirms)' % ','.join(sorted(srcs))[:60]))
+                continue
             items.append(Item('members.missing', jl(lines), '%s.%s' % (tb, mb), 'OPEN', 'June resolves it, March nil; used by %s' % ','.join(sorted(srcs))[:80]))
         else:
             jnil += 1
@@ -1083,8 +1129,6 @@ def check_assets(files, rows):
     in_june = lambda n: n in ST.june or n in ST.loose_june or n in ST.jsrc
     items, c = [], collections.Counter()
     for low, (lines, from_src) in sorted(refs.items()):
-        if not from_src and not (in_march(low) or in_june(low)) and (in_march(low[1:]) or in_june(low[1:])):
-            continue                                  # bytecode length byte glued onto the name (bytecode_text emits both variants)
         if in_march(low):
             c['in_march'] += 1
         elif low in ST.june:
@@ -1100,7 +1144,7 @@ def check_assets(files, rows):
         else:
             c['june_lacks'] += 1
             items.append(Item('assets.absent', jl(lines), low, 'INFO',
-                              'June names it but ships no such file (June fails the same way)' + ('' if from_src else '; or a bytecode string artefact')))
+                              'June names it but ships no such file (June fails the same way)' + ('' if from_src else ' (from bytecode constants)')))
     return items, dict(refs=len(refs), **c)
 
 

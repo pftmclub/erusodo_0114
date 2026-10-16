@@ -489,7 +489,7 @@ E0's `ELYSION_SOLESS` decompile-check (`elstools decompile-batch` + `ljd_jun2017
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| A0 | **done 2026-10-16** (census v1 `june2017_re/region_census.py` + baseline in the plan doc; ledger corrected: WI 41 -> 40, NUI split (total 203 holds); effect-set premise false since C11a; no game code, no build). Owed: the light Opus review | Sonnet 5.5 / high | - | `june2017_re/region_census.py`, plan doc (no game code) | `A0.md`; review `A0-review.md` (Opus 5.5 / high, light) |
+| A0 | **done 2026-10-16** (census v1 `june2017_re/region_census.py` + baseline in the plan doc; ledger corrected: WI 41 -> 40, NUI split (total 203 holds); effect-set premise false since C11a; no game code, no build). **Reviewed 2026-10-16 (Opus): method holds**; fixed the SOLESS bytecode glue (exact constants via ljconv + ljbc: +16 assets.adopt, -80 artefact rows, unbound 31 -> 32, effect sets 416 / 0 missing); 3 FP + 4 FN spot-checks pass; A1a / A1b ready. Nothing owed | Sonnet 5.5 / high | - | `june2017_re/region_census.py`, plan doc (no game code) | `A0.md`; review `A0-review.md` (Opus 5.5 / high, light) |
 | A1a | **ready** (A0 done): RE + C++ reachability map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 | read-only (Ghidra), plan doc | `A1a.md` |
 | A1b | **ready** (A0 done; parallel with A1a): script-engine map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 (parallel with A1a) | read-only (Ghidra), plan doc | `A1b.md` |
 | A2 | **blocked**: level cap 99 + EXP migration | Opus 5.5 / high | A0, **MARCH_2014_MIGRATION Phase 7** (its board says "not started"; verify) | C++ + data + offline DB | written on first use |
