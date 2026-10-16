@@ -1636,7 +1636,7 @@ after I pack). Record a Done note (incl. the DEPLOY OK commit), then commit on m
 
 ### Phase A5 — Done
 
-**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (A3's; MODS.md "Atlas/Elysion port A5"). Commit: see STATUS A5 row.
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (A3's; MODS.md "Atlas/Elysion port A5"). Commit: `f5951bbc`. After commit, `flagcheck --range f5951bbc^..f5951bbc --files <8 code files>`: `files: 8 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, same in-flag line, `RESULT: PASS`.
 
 - **Premises:** June `START_POS` 400-404 = March's `VillageParsing` keys except `OtherPlaceID` / `OtherPlaceStartLineIndex` -> `BattleFieldId` /
   `BattleFieldStartLineIndex` (`X2LocationManager.cpp:394-399`; `IsSummon` / `IsWarp` identical). June's 1008 houses: `HI_GLAVE_HOUSE`, `HI_YUNO`,
