@@ -1981,6 +1981,14 @@ Kickoff `kickoffs/atlas/A7.md` (written this phase).
 - **How to see it:** M (local map) on a level ≥ 78 character -> right arrow -> Elysion tab -> Atlas map art, Atlas titles + 3 Atlas title plates,
   no up/down buttons; `atlas` warp now loads Atlas Station (A5's checks); Cobo lists Atlas Station, not Elysion; world map shows rest / F01 / F02
   pins at ≥ 78, no town / F03 pin. Log: `[ELYDBG] local map Elysion`, `[ELYDBG] world map: pin 20009 / 40037 hidden`, `VillageParsing ... 20009`.
+- **Play-test 2026-10-17 (user; run 05:35-05:41 on exe 45e6d1ae + the 5 koms):** all three `[ELYDBG]` lines fired (local map page 0,
+  world-map pins 20009 / 40037 hidden, `VillageParsing: no Village[20009]` in ErrorLog); `atlas` and both Cobo warps into 1008 loaded
+  (State.log `XS_VILLAGE_MAP` 05:36:14 / 05:37:25, from 40029 and 40032). Findings, routed (user):
+  (1) "warp from Distant Ruins (40032) hangs" = the walk-in portal at the field's end, which March's `BattleFieldData` lacks: **A6** (the
+  crossing). (2) Atlas Station's board is the regular one: June swaps mesh + UI per village through `DLG_Map_House_NPC_RelationData.lua`,
+  which March has no loader for: **E1, run next** (kickoff `E1.md` carries the rows and missing files). (3) Atlas Station's far-end portal
+  into Field 01 (40035, `FIELDNPC field 40035 is not in BattleFieldData.lua`) crashed the client: accepted until **A6** (user: no stand-in);
+  reyaa's save had `last_pos 40035`, reset to 1008 / line 17 / pos 14897 (Freils' spot; backup `db_backup\els_db_20261017_054509_pre_manual.sql`).
 
 ---
 
