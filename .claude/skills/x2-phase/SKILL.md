@@ -137,3 +137,6 @@ A new phased plan follows this shape so it works with the loop above:
   sections to read; they never say "read in full" and never repeat build/deploy instructions.
 - A block in `STATUS.md` with one row per phase (State, Model/effort, Depends, Touches, Kickoff).
 - One log tag and one flag family, named in the STATUS block.
+- **Every plan runs through `/x2-phase` (user, 2026-10-16)**, planning sessions included: a kickoff's
+  Start line is always "type `/x2-phase <plan-key> <phase>`", never "paste ...", and every kickoff
+  file has a STATUS row (backlog stage planning sessions live in the `june-backlog` block).
