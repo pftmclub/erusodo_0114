@@ -1604,6 +1604,13 @@ Done when: Phase A4's "Done when" holds. Record a Done note, then commit on main
 - **How to see it in game:** the Atlas content itself arrives in A8-A10 (and the local map in E4), so this phase's play-test uses
   June NPC scripts that are already live in older dungeons. The hand-off in the session names the dungeon and character.
 - **Open for the user:** nothing to decide. Next: `/x2-phase atlas A4 review` (Opus 5.5 high).
+- **Play-test PASSED 2026-10-17** (run 03:28 on exe md5 5ea0b3a2; `logs.py --tag ELYDBG`):
+  - Besma Mine 2 (`NUI_NASOD_RAIL` 127): `first load: bone Bip01_L_Finger0Nub distance 100.0`, then
+    `first bone push: npc 127 ... frame found dir 3`.
+  - `first bone contact` came from both branches: dir 4 at 47.2 < 135.0, and dir 1 at 116.8 < 135.0. 135 is half the player's
+    width plus 100.
+  - Lanox Secret Hell: `indicator first skip: npc 2246` (`NUI_SECRET_SCENE_DUMMY`, `NOT_CHECK_INDICATOR 1`).
+  - The run's 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are outside this phase.
 
 ---
 
