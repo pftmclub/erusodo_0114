@@ -424,9 +424,10 @@ The per-item port spec is in `kickoffs/june-engine/U1.md`, which is the source o
   - `m_PrivateType` (PvP map list, `3253a900`) is PvP only and not ported, because the offline client has no PvP.
   - The `STR_ID_*` names stay with the Stage 9 sweep (M4).
 - **Flag split for U1:** `SERV_IRUHADEV_JUNE_UI_FRAMEWORK`, `_JUNE_UI_NATION_KEYS`, `_JUNE_UI_LINE_BREAK`, `_JUNE_UI_MOVIE_SUBTITLE`.
-- **Open question for the user (blocks only `_LINE_BREAK`):** June calls the word-wrap helpers (`31d43ef0` / `31d42bc0` = March
-  X2Lib `CWordLineHandler`) from KTDGUI. In March, KTDXLIB cannot call X2Lib. The recommendation is a function pointer in KTDXLIB,
-  set by X2Lib in the CX2Main ctor; the alternative is to move the helpers into KTDXLIB.
+- **Line-break layering, decided 2026-10-16 (user: follow June).** June keeps one copy of the word-wrap helpers (`31d43ef0` /
+  `31d42bc0` = March X2Lib `CWordLineHandler`), and it is in the **engine** (`31d42bc0`-`31d45f20`, between `CKTDXDeviceSound` and
+  `CKTDXDevice`). Engine UI code and about 20 X2Lib callers call that one copy. U1 group D moves the two helpers into KTDXLIB, where
+  March's versions need only `g_pKTDXApp`, and makes X2Lib forward to them.
 
 ## Phase U1 - UI framework port
 
