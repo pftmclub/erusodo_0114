@@ -1289,8 +1289,9 @@ This is the rebuild after the review-advisor fix: with no next ExpTable row, the
 md5 bdbef077… (it also carried the A3 session's `Enum.lua` / `DungeonEnum.lua`).
 All four `[CAP99]` literals are in the deployed exe.
 
-**Owed by the user:** pack the two server Lua files; say yes to `/x2-kom-packed copy data036`; then the migrating launch
-(asked, not run). Review: `/x2-phase atlas A2 review` (Opus 5.5 high).
+**Server Lua packed by Claude at the user's request (2026-10-17):** `elstools compile-batch -v mar-2014`, calibrated first.
+Compiling the pre-A2 sources reproduces the staged bytecode byte-identical. `COPY OK data036` md5 4b9090828ff6…
+(`StatTable` / `NpcExpTable` changed). **Owed by the user:** the migrating launch (yes given) + play-test. Review: `/x2-phase atlas A2 review` (Opus 5.5 high).
 
 ---
 
