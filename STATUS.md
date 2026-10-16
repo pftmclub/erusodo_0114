@@ -612,6 +612,7 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 |---|---|---|---|---|---|
 | stage2-plan | **done 2026-10-16**: `JUNE_ENGINE_REMAINDER_PHASES.md` + `kickoffs/june-engine/` + the `june-engine` block; measurements M1-M4 in its ledger (M5 = june-effect C11, pending); backlog facts 6/7 and Stage 2 carry dated notes; asset-port P10 now waits for R2 | Opus 5.5 / high | dep: -; runs with anything (read-only), incl. june-effect C11 | docs, `june2017_re/` census script + funcmap rows (`Engine S2`), `JUNE_PORT_BACKLOG_ORDER.md` dated notes | `stage2-plan.md` |
 | stage3-plan | **done 2026-10-17**: `JUNE_SKILL_SYSTEM_PHASES.md` + `kickoffs/skill-system-core/` + the `skill-system-core` block; user decisions: flip every class to June's skill data in Stage 3 (S3), adopt June's pointer model (S8); backlog facts 1-3 re-checked (companion tables already decompiled; C1a identified the override's callees; slot macro at `CommonPacket.h:6411`, two structs) | Opus 5.5 / high | dep: -; read-only | docs, kickoffs, `JUNE_PORT_BACKLOG_ORDER.md` dated note | (inline, backlog "Stages 3-9 (short)") |
+| stage4-plan | **waiting** (start: `/x2-phase new-plan quest-system`): needs Stage 1 closed (atlas A13 + E15), skill-system-core S1, june-gfx G0. First session 2026-10-17 stopped at those preconditions and split the Scaleform runtime out as `june-gfx`; both brief decisions answered (guild quests parse-and-log; GFx runtime = june-gfx) | Opus 5.5 / high | dep: atlas E15, skill S1, june-gfx G0 | docs, kickoffs | `stage4-plan.md` |
 | stage12-plan | **ready** (start: `/x2-phase new-plan june-customize`): character customize system (`CX2CustomizeManager`, `CharCustomData.lua`) -> `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` + `kickoffs/june-customize/` | Opus 5.5 / high | dep: june-effect C9g-2 review (done); runs with anything (read-only) | docs, funcmap rows (`Customize S12`) | `stage12-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
@@ -671,6 +672,29 @@ recommendation: hold S3 until the user says so). RE / tools phases S0a, S0b, S1 
 
 Running together: S0a, S0b and S1 (read-only / tools) alongside anything. Code phases one at a time (build lock, Always.h);
 S6 and S7 never together (`X2UISkillTreeNew.*`); S2 not alongside atlas E1/E5/E6/E7 (`X2Main.cpp` binding block).
+
+## june-gfx - June Scaleform GFx runtime: manager, root movie, event scenes, talk cut-ins
+
+Plan `JUNE_GFX_RUNTIME_PHASES.md` · branch `main` · log tag `[JUNE_GFX]` (sub-tags `RUNTIME`, `MGR`, `SCENE`, `CUTIN`, `GATE`) ·
+flags `SERV_IRUHADEV_JUNE_GFX_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-gfx/` · split out of backlog Stage 4 · created 2026-10-17.
+
+**User decisions (2026-10-17):** Scaleform runtime as its own plan, now; scope = event scenes + talk cut-ins (`main.gfx` loaded as
+their host, no root-UI screen ported: Stage 9); guild quests parse-and-log (for quest-system). SDK: user-supplied GFx 4.2.22 in
+`Libs/ExternalLib/Scaleform` (June = 4.0.15; VC10 `/MD` Win32 D3D9, AS2 + AS3 libs; nothing else needed). Today only a debug hook
+reaches the scenes (439/493 are Rose, 21 Ain; Elysion 22329-22340 need quest-system).
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| G0 | ready | Opus 5.5 / high | - (read-only) | `june2017_re/g0_gfx_map.tsv`, `funcmap.tsv`, plan doc, kickoffs G1-G5 | `G0.md` |
+| G1 | ready (better after G0 item 1) | Sonnet 5.5 / high, then regression play-test | -; not with june-engine U1 (`KTDXApp.cpp`) | `KTDXApp.cpp`, `KTDXLIB_2010.vcxproj`, `X2_2010.vcxproj`, Always.h | `G1.md` |
+| GA | ready (koms); `.swf` part after G0 item 4 | Sonnet 5.5 / high | - | `kom_contents` data194 / data152 / data036 (+ manifests), scene `.swf` | `GA.md` |
+| G2 | waiting (G0, G1, GA) | Opus 5.5 / high, then user play-test | G0, G1, GA; not with june-engine U1 | new `KTDGGFXManager.*` (KTDXLIB), `KTDXApp.cpp`, Always.h | `G2.md`, review `G2-review.md` |
+| G3 | waiting (G2 review) | Sonnet 5.5 / high, then user play-test | G2 review | new `X2GFXEventScene.*`, `X2Data.*`, Lua bindings, G0's G3 readers, Always.h | `G3.md`, review `G3-review.md` |
+| G4 | waiting (G2 review) | Sonnet 5.5 / high, then user play-test | G2 review; one code phase at a time | `31d76b40`'s March class, Always.h | `G4.md`, review `G4-review.md` |
+| G5 | waiting (G2 review) | Sonnet 5.5 / high, then user play-test | G2 review; one code phase at a time | `X2GUUser.cpp` (cut-in term), `X2State.cpp` (ESC), Always.h | `G5.md`, review `G5-review.md` |
+| Z | waiting (all) | Sonnet 5.5 / medium | G1-G5 | `MODS.md`, backlog, memory, Always.h (`_DEBUG` off) | `Z.md` |
+
+Running together: G0, G1 and GA now (read-only / code / data). G2 after all three; G3, G4, G5 one at a time after the G2 review.
 
 ## Other plans
 
