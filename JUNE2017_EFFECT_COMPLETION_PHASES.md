@@ -9531,6 +9531,14 @@ lines come from `UIEffectSet.lua`, not `EffectSet.lua`), so `g_pX2Game:GetEffect
 `DE_SOUND` stays off (`SERV_IRUHADEV_JUNE_DAMAGEEFFECT_SOUND_DEBUG`, observed 2026-10-08). Optional (TRIAL_LOAD item 1): the 178 changed
 particles, `june2017_re/particle_override_census.tsv` (verdict `differ`). Log tag: `JUNE_FX`.
 
+**Play-test result (2026-10-16 20:29-20:30, logs read, exe 87fb2565, user: "passed").** A 1-minute Quick Start dungeon with Rena skills
+(Perfect Storm, Small Humming, Guided Arrow memo), not the console table. 0 EXCEPTION; 2 UNHANDLED, both `E_DISABLE_HB_CHECK_REQ`.
+- `BOSSRAID_ABYSS_SMOG`: **closed.** The Fire_forest world loaded (`State.log`) and `ErrorLog.txt` has no `BOSSRAID_ABYSS_SMOG` line.
+- Console table: **0 of 14 lines ran** (no `DDE_TEMPLET`, `CE_LOOP`, `CE_FRAME`, `CE_LOCKON`, `ES_UPDATE`, `ES_DELETE` line). Those rows stay "not reached on this route".
+- Seen in passing, existing flags: `ES_CREATE` (Rena Perfect Storm, Small Humming, babyfig/mag-stone sets), `ES_UPDATE`/`ES_DELETE`, `CE_TEMPLET`, `HIT`.
+- **Side finding, not chased:** `JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in GUIDED_ARROW_MEMO / HUMMING_WIND_MEMO: effect-alpha option absent`
+  (7 lines). The damage-effect side still logs the option as absent although C10b-2 built the engine; the label is probably stale (`X2DamageEffect.cpp` ~2260).
+
 **Kickoff prompt:**
 ```
 June2017 effect completion C11 (verification). Read JUNE2017_EFFECT_COMPLETION_PHASES.md (C11),
