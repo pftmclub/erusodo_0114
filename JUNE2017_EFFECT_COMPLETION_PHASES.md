@@ -9612,6 +9612,20 @@ the 147 `conflict` files the 2026-10-12 closure had staged, and data036's two ha
 | `jES:PlayEffectSet_LUA("EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE", jU)` | `JUNE_FX ES_UPDATE ... SYNC_SHOW_BY_CREATE_UNIT` (only on a show change) | best effort |
 | re-run C11's 14 lines | the same 6 tags as 2026-10-16 | a tag lost = regression, report |
 
+**Play-test result (2026-10-16 21:16-21:19, reyaa, exe 87fb2565, run after the kom copy, logs read).** 0 EXCEPTION; 2 UNHANDLED =
+`E_DISABLE_HB_CHECK_REQ`; 0 `RANOX_EFFECT_MISSING`; clean exit.
+1. Clean start: **passed.** No effect-file load error (only the old `TutorSystem.lua` line). `ES_LOAD EffectSet.lua loaded=1 templets=8242`
+   (June's set; the merged file had 4,451). Templets from `_Character` (Chain_Viper) and `_ETC` (Hero aura) were created, so those files load.
+2. TOUCH_LAND: **passed.** `TOUCH_LAND_GATE entries=1 gravity.y=-1500.0 velocityBefore.y=-857.3 velocity.y=703.0`, then
+   `TOUCH_LAND DamageEffect_A_RMH_KS_83_Grenade_Landing` (offline_server.log:212, :217), three bounces. C7's open exit leg 3 is met.
+3. DIE_CREATE_NPC: **not reached.** `AddMeca` was created (:266) but no die-branch line followed.
+4. DIE_CHECK_CONDITION: **passed** (parse): `DDE_CONDITION DamageEffect_SA_RCR_Chain_Viper_Projectile AND_OPERATION0 type=0 ... isOver=1` (:273).
+   Bonus: the same projectile gave `CE_LOCKON ... STEER_FORWARD list=2 speed=3000` (:286), a C11 row that was not reached before.
+5. Aura: **passed.** ErrorLog:946 `[JUNE_BUFF] IS_AURA_BUFF parsed (first seen in DAMAGE_DATA)`, :947 `aura hit on user 12`.
+6. SYNC_SHOW_BY_CREATE_UNIT: **not reached** at runtime (no show change). The set played (`alpha set=EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE`, :290)
+   and its load line carries the key (ErrorLog:96 `ES_TEMPLET ... SYNC_SHOW_BY_CREATE_UNIT=1`).
+7. C11's 14 lines: **not run** this session (no Trap_Fire_Big / Mecavolt / HernaOrb line); the review can ask for them.
+
 ---
 
 ## C12 - Close (old Phase 12)
