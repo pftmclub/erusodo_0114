@@ -450,7 +450,7 @@ the ports.
 | P7 | waiting (P6) | Sonnet 5.5 / high, then user play-test | P6 | koms on `p7_wave.tsv` | `P7.md` |
 | P8 | waiting (P7) | Sonnet 5.5 / high, then user play-test | P7 | koms on `p8_wave.tsv` | `P8.md` |
 | P9 | waiting (P0; independent of the kom waves) | Sonnet 5.5 / high, then user play-test | P0 | game dir `music/`, `movie/`, `eventscene/` | `P9.md` |
-| P10 | waiting (P4a) | Sonnet 5.5 / high, then user play-test | P4a | `kom_contents/data041_kom` (`XRenderer.fx`), game dir data041 | `P10.md` |
+| P10 | waiting (P4a; and june-engine R2 review, 2026-10-16) | Sonnet 5.5 / high, then user play-test | P4a, june-engine R2 review | `kom_contents/data041_kom` (`XRenderer.fx`), game dir data041 | `P10.md` |
 | P11 | conditional (P2/P4 measurements) | Opus 5.5 / high | P2 | `X2/X2_2010.vcxproj` (user approval first) | `P11.md` |
 | P12 | waiting (P3, P4a-c, P6-P10) | Sonnet 5.5 / medium | all | census, STATUS, backlog | `P12.md` |
 
@@ -609,8 +609,35 @@ Branch `mods/june-buff-port` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row i
 
 | Phase | State | Model | Needs | Touches | Kickoff |
 |---|---|---|---|---|---|
-| stage2-plan | **ready** (start: `/x2-phase new-plan june-engine`): engine remainder and measurements (shaders, 7 missing render types, models, UI framework census; effect check = june-effect C11) -> `JUNE_ENGINE_REMAINDER_PHASES.md` + `kickoffs/june-engine/` | Opus 5.5 / high | dep: -; runs with anything (read-only), incl. june-effect C11 | docs, `june2017_re/` census script + funcmap rows (`Engine S2`), `JUNE_PORT_BACKLOG_ORDER.md` dated notes | `stage2-plan.md` |
+| stage2-plan | **done 2026-10-16**: `JUNE_ENGINE_REMAINDER_PHASES.md` + `kickoffs/june-engine/` + the `june-engine` block; measurements M1-M4 in its ledger (M5 = june-effect C11, pending); backlog facts 6/7 and Stage 2 carry dated notes; asset-port P10 now waits for R2 | Opus 5.5 / high | dep: -; runs with anything (read-only), incl. june-effect C11 | docs, `june2017_re/` census script + funcmap rows (`Engine S2`), `JUNE_PORT_BACKLOG_ORDER.md` dated notes | `stage2-plan.md` |
 | stage12-plan | **ready** (start: `/x2-phase new-plan june-customize`): character customize system (`CX2CustomizeManager`, `CharCustomData.lua`) -> `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` + `kickoffs/june-customize/` | Opus 5.5 / high | dep: june-effect C9g-2 review (done); runs with anything (read-only) | docs, funcmap rows (`Customize S12`) | `stage12-plan.md` |
+
+## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
+
+Plan `JUNE_ENGINE_REMAINDER_PHASES.md` · branch: the current working branch · log tag `[JUNE_ENGINE]` (sub-tags `CTT`, `FX`, `ENVBOX`,
+`SHIMMER`, `CRS`, `SMRT`, `UI`, `WORLD`) · flags `SERV_IRUHADEV_JUNE_RENDER_*` / `_JUNE_UI_*` / `_JUNE_WORLD_*` · kickoffs
+`kickoffs/june-engine/` · backlog Stage 2 · created 2026-10-16.
+
+**The scope.** June's `RENDER_TYPE` equals March's; the gap is the renderer contract (`CARTOON_TEX_TYPE` renumbered, 14 new
+`XRenderer.fx` parameters + compile macros, two June-only renderers, `CUSTOM_RENDER_STATE`, 6 unimplemented `SMRT_*` cases), a small
+UI-framework gap (no new control type) and June's world-event timeline. Models: no new base model (M3). RE phases are read-only and
+can run now, in parallel; code phases wait for june-effect C12 and run one at a time (shared renderer files and the build).
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| R0 | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `r0_*.tsv`, plan doc, kickoffs, checklist | `R0.md` |
+| R0b | ready (better after R0) | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, plan doc, kickoffs | `R0b.md` |
+| R1 | waiting (R0, C12) | Sonnet 5.5 / high, then user play-test | R0, june-effect C12 | `KTDGXRenderer.h/.cpp`, `KTDGXMeshPlayer.cpp`, Always.h, data036 `Enum.lua` | `R1.md`, review `R1-review.md` |
+| R2 | waiting (R1) | Sonnet 5.5 / high, then user play-test | R0, R1 | `KTDGXRenderer.h/.cpp`, RenderParam readers, Always.h | `R2.md`, review `R2-review.md` |
+| R3 | waiting (R2) | Sonnet 5.5 / high (Opus if R0 left gaps) | R2 | new env-box renderer, `KTDGXRenderer.*`, Always.h | `R3.md`, review `R3-review.md` |
+| R4 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | new heat-shimmer renderer, Always.h | `R4.md`, review `R4-review.md` |
+| R5 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | unit / NPC / riding-pet render, Always.h, data036 `Enum.lua` | `R5.md`, review `R5-review.md` |
+| R6 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | `KTDGXSkinAnim.h/.cpp`, Always.h | `R6.md`, review `R6-review.md` |
+| U0 | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `ui_dlg_census.tsv`, plan doc, kickoffs | `U0.md` |
+| U1 | waiting (U0, C12) | Sonnet 5.5 / high, then user play-test | U0, june-effect C12; not with Atlas A4 (`KTDXApp.cpp`) | `KTDXApp.cpp`, `KTDGUI*.cpp`, Always.h | `U1.md`, review `U1-review.md` |
+| W0 | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, plan doc, kickoffs | `W0.md` |
+| W1 | conditional (W0, C12) | Sonnet 5.5 / high, then user play-test | W0, june-effect C12 | `X2World.*`, Always.h | `W1.md`, review `W1-review.md` |
+| Z | waiting (all, C11) | Sonnet 5.5 / medium | every phase done or routed; june-effect C11 | plan doc, backlog, MODS.md | `Z.md` |
 
 ## Other plans
 

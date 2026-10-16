@@ -111,11 +111,13 @@ These were measured on 2026-10-03. Re-verify any of them before building on it.
    - a few `UC_150..183` entries that appear only as numbers.
 
    **The "new base model" claim is not verified.** Stage 2 measures it.
+   - *Measured 2026-10-16 (Stage 2 planning, `JUNE_ENGINE_REMAINDER_PHASES.md` M3):* **no new base model** for any of the 9 March characters. Motion file names, frame counts and bone parent maps are unchanged; June adds animation sets (e.g. Elsword 235 -> 300) and new job motion files (Ara 2, Elesis 2, Add 4). Lu/Ciel, Rose and Ain are June-only in every bucket. Stages 5 and 7 need no skeleton work; Stage 8 is data plus new unit types.
 7. **Shaders.**
    - June's `.fx` files (`XRenderer.fx`, `GCSkin.fx`, `RenderState.fx`, `XPostEffect.fx`, …) are in `data041_kom`, which is not in `june_src_fixed/` (`JUNE_KOM_CONTENT_GUIDE.md:69`).
    - Seven June `RENDER_TYPE`s are missing from `KTDXLIB/KTDGXRenderer.h`: `RT_CARTOON_ALPHA`, `RT_CARTOON_BLACK_EDGE_ALPHA`, `RT_CUSTOM`, `RT_DESTALPHA_SRCALPHA_CCW`, `RT_INVSRC_ALPHA_NOT_CULL`, `RT_UV_ANIM`, `RT_NONE`. About 25 June files use them.
    - The June-only `CUSTOM_RENDER_STATE` enum table truncates June's Add and Ara scripts on March's `Enum.lua` (checklist).
    - Swapping in June's `.fx` is a pure data change **only if** March's C++ sets the same effect parameters and techniques. That has to be checked, not assumed.
+   - *Corrected 2026-10-16 (Stage 2 planning, `JUNE_ENGINE_REMAINDER_PHASES.md` M1/M2):* the seven names are not `RENDER_TYPE`s. They are `SKIN_MESH_RENDER_TYPE.SMRT_*`, already in March's `Enum.lua`; March implements only `SMRT_UV_ANIM` (phase R6 ports the rest). June's `RENDER_TYPE` equals March's (19). The real gaps: `CARTOON_TEX_TYPE` renumbered (19 ramps), 14 new `XRenderer.fx` parameters plus compile macros March never passes, two June-only renderers (`XEnvBoxRenderer.fx`, `XHeatShimmerRenderer.fx`), and `CUSTOM_RENDER_STATE`. So `.fx` adoption is **not** a pure data change: asset-port P10 waits for phase R2.
 8. **Level cap.** March uses `LIMIT_MAX_LEVEL 70` (`X2Lib/X2Define.h:18`) and `CX2OfflineStatTable::MAX_LEVEL 80`. Stage 1's A2 takes it to 99, so no separate progression stage is needed.
 
 ---
@@ -160,6 +162,12 @@ The last is the tail of `Handler_EGS_UPDATE_CODE_EVENT_NOT` (`31f00970`). On `mo
 ### Stage 2: engine remainder and measurements
 
 The planning session writes `JUNE_ENGINE_REMAINDER_PHASES.md` (full kickoff below).
+
+*Planned 2026-10-16:* `JUNE_ENGINE_REMAINDER_PHASES.md`, STATUS block `june-engine`, phases R0-R6 (renderer), U0-U1 (UI framework),
+W0-W1 (world timeline), Z. The measurements are its ledger. Corrections to the lists below: the "7 missing RENDER_TYPEs" are
+`SKIN_MESH_RENDER_TYPE` cases (fact 7); the UI framework gap is small (no new control type; 15 methods and 21 keys in 30 / 21 of
+1,519 June UI scripts), and the 2,107 `STR_ID_*` / enum-table misses June DLGs show are Lua data for the owning ports, not
+framework; the effect-engine check is pending june-effect C11 (phase Z records it).
 
 **Build:**
 - the 7 missing `RENDER_TYPE`s in `KTDGXRenderer`, plus `CUSTOM_RENDER_STATE`;

@@ -1,0 +1,47 @@
+name	table	kom	file	count	owner_guess	march_status
+CTT_NORMAL	CARTOON_TEX_TYPE	data036_kom	BattleFieldBuffFactor.src.lua	2	BattleField buff data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_NORMAL	CARTOON_TEX_TYPE	data036_kom	BattleFieldBuffTemplet.src.lua	31	BattleField buff data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_NORMAL	CARTOON_TEX_TYPE	data036_kom	BattleFieldBuffTemplet_INT.src.lua	1	BattleField buff data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_NORMAL	CARTOON_TEX_TYPE	data036_kom	RenderDivisionItemTemplet.src.lua	30	avatar render-division data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_NORMAL	CARTOON_TEX_TYPE	data036_kom	RenderDivisionMeshFile.src.lua	1	avatar render-division data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_NORMAL	CARTOON_TEX_TYPE	data037_kom	PET_ANCIENT_PPORU_HALLOW_SPRITE.src.lua	1	pet	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_PETRIFIED	CARTOON_TEX_TYPE	data036_kom	BattleFieldBuffTemplet.src.lua	2	BattleField buff data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_RED	CARTOON_TEX_TYPE	data036_kom	BattleFieldBuffTemplet.src.lua	24	BattleField buff data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_RIM_LIGHT_BLUE	CARTOON_TEX_TYPE	data040_kom	Ranox_Secret_Boss_Stage.src.lua	1	world/boss stage	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_RIM_LIGHT_BLUE	CARTOON_TEX_TYPE	data040_kom	WI_Boss_Raid_ELTRION_MK2_Stage2.src.lua	1	world/boss stage	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CTT_RIM_LIGHT_DARK	CARTOON_TEX_TYPE	data040_kom	WI_Boss_Raid_PERKISAS_Stage1.src.lua	1	world/boss stage	missing in March Enum.lua
+CTT_RIM_LIGHT_RED	CARTOON_TEX_TYPE	data040_kom	WI_Boss_Raid_ELTRION_MK2_Stage3.src.lua	1	world/boss stage	missing in March Enum.lua
+CTT_SCARLET	CARTOON_TEX_TYPE	data036_kom	BattleFieldBuffTemplet.src.lua	3	BattleField buff data	present in March Enum.lua (value differs from June except CTT_NORMAL=0)
+CRS_INVISIBLE	CUSTOM_RENDER_STATE	data036_kom	Add_NasodRuler.src.lua	6	character:Add	table missing in March Enum.lua
+CRS_INVISIBLE	CUSTOM_RENDER_STATE	data036_kom	Ain_Apostasia.src.lua	1	character:Ain	table missing in March Enum.lua
+CRS_INVISIBLE	CUSTOM_RENDER_STATE	data036_kom	Ain_Erbluhen_Emotion.src.lua	1	character:Ain	table missing in March Enum.lua
+CRS_INVISIBLE	CUSTOM_RENDER_STATE	data036_kom	Ara_Martial_Artist.src.lua	1	character:Ara	table missing in March Enum.lua
+CRS_INVISIBLE	CUSTOM_RENDER_STATE	data036_kom	Luciel_Demonio.src.lua	3	character:Luciel	table missing in March Enum.lua
+CRS_INVISIBLE	CUSTOM_RENDER_STATE	data036_kom	Rose_Ranger.src.lua	1	character:Rose	table missing in March Enum.lua
+CRS_INVISIBLE	CUSTOM_RENDER_STATE	data037_kom	RidingPet_Rakshasa.src.lua	1	riding pet	table missing in March Enum.lua
+CRS_UNIT_FADE_WHITE_WITHOUT_WEAPON	CUSTOM_RENDER_STATE	data036_kom	Add_NasodRuler.src.lua	1	character:Add	table missing in March Enum.lua
+SMRT_CARTOON_BLACK_EDGE_ALPHA	RENDER_TYPE	data036_kom	BattleFieldBuffTemplet.src.lua	1	BattleField buff data	not a RENDER_TYPE member in June either (June nil)
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	CSM_FIRE_DEVIL_BERSERKER_CARD.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	CSM_FIRE_DEVIL_FIGHTER_CARD.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_BERSERKER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_BERSERKER_FIRETEMPLE.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_BERSERKER_HENIR.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_BERSERKER_INCHANT.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_FIGHTER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_FIGHTER_FIRETEMPLE.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_FIGHTER_HENIR.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	FIRE_DEVIL_FIGHTER_INCHANT.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	LOW_FINALHALL_BERSERKER_FD.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	LOW_FINALHALL_FIGHTER_FD.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	LOW_MOUNT_BERSERKER_FD.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	LOW_MOUNT_FIGHTER_FD.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_BERSERKER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_CRUEL_BERSERKER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_CRUEL_FIGHTER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_FIGHTER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_MAD_BEHEMOTH_SOUL.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_MAD_BEHEMOTH_SOUL_EXTRA.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_MAD_BEHEMOTH_SOUL_HENIR.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_SUMMON_BERSERKER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	SECRET_SUMMON_FIGHTER.src.lua	1	NPC/unit script	present in March Enum.lua
+SMRT_UV_ANIM	SKIN_MESH_RENDER_TYPE	data037_kom	Tutorial_Elesis_davil_fighter.src.lua	1	NPC/unit script	present in March Enum.lua

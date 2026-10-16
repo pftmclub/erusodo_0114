@@ -308,6 +308,10 @@ Run `copy-loose`, with backups:
 - **Revert:** if the screen breaks, revert data041 from its backup (the one revert this plan allows without asking, because a broken
   renderer blocks every other play-test), then open a Ghidra phase.
 - **Already shipped:** the June-only `.fx` files and the `Cartoon*.bmp` ramps go in P4, inert.
+- **Waits for june-engine R2** *(2026-10-16, Stage 2 planning)*: June compiles `XRenderer.fx` with `D3DXMACRO`s and sets 14 parameters
+  March does not, so the pre-check above passes and the result is still not June's render. P10 copies after R2's review
+  (`JUNE_ENGINE_REMAINDER_PHASES.md` M1). Also: June ships 3 June-only `.fx` (`XEnvBoxRenderer`, `XHeatShimmerRenderer`,
+  `XRenderer_X2TOOL`, all data041), which the 2026-10-08 census did not count; P0's census should show them (P4a, inert).
 
 ## Phase P11 - LargeAddressAware (conditional)
 

@@ -1,0 +1,114 @@
+file	kind	name	in_march	in_june	note
+XRenderer.fx	param	g_bIsUseRimLight	-	bool|init== false	JUNE-ONLY
+XRenderer.fx	param	g_mView	-	float4x4|sem=VIEW	JUNE-ONLY
+XRenderer.fx	param	g_vEyeDir	-	float4	JUNE-ONLY
+XRenderer.fx	param	textureSampler3	-	sampler|MinFilter = LINEAR; MagFilter = LINEAR;	JUNE-ONLY
+XRenderer.fx	technique	COLOR_WIREFRAME	-	yes	JUNE-ONLY
+XRenderer.fx	pass	COLOR_WIREFRAME/p0	-	yes	JUNE-ONLY
+XRenderer.fx	state	ADD_CARTOON/p0/PixelShader	-	compile ps_3_0 PixelCartoon_Add()	JUNE-ONLY
+XRenderer.fx	state	ADD_CARTOON/p0/VertexShader	( vsArrayCartoon11[ g_iShaderIndex ] )	( vsArrayCartoon30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	ADD_CARTOON_BLACK_EDGE/p0/PixelShader	-	compile ps_3_0 PixelCartoon_Add()	JUNE-ONLY
+XRenderer.fx	state	ADD_CARTOON_BLACK_EDGE/p0/VertexShader	( vsArrayCartoon11[ g_iShaderIndex ] )	( vsArrayCartoon30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	ADD_CARTOON_BLACK_EDGE/p1/PixelShader	-	compile ps_3_0 PixelBlackEdge()	JUNE-ONLY
+XRenderer.fx	state	ADD_CARTOON_BLACK_EDGE/p1/VertexShader	( vsArrayBlackEdge11[ g_iShaderIndex ] )	( vsArrayBlackEdge30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	ADD_CARTOON_COLOR_EDGE/p0/PixelShader	-	compile ps_3_0 PixelCartoon_Add()	JUNE-ONLY
+XRenderer.fx	state	ADD_CARTOON_COLOR_EDGE/p0/VertexShader	( vsArrayCartoon11[ g_iShaderIndex ] )	( vsArrayCartoon30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	ADD_CARTOON_COLOR_EDGE/p1/PixelShader	-	compile ps_3_0 PixelColorEdge()	JUNE-ONLY
+XRenderer.fx	state	ADD_CARTOON_COLOR_EDGE/p1/VertexShader	( vsArrayColorEdge11[ g_iShaderIndex ] )	( vsArrayColorEdge30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	BLACK_EDGE/p0/PixelShader	-	compile ps_3_0 PixelBlackEdge()	JUNE-ONLY
+XRenderer.fx	state	BLACK_EDGE/p0/VertexShader	( vsArrayBlackEdge11[ g_iShaderIndex ] )	( vsArrayBlackEdge30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	CARTOON/p0/PixelShader	-	compile ps_3_0 PixelCartoon()	JUNE-ONLY
+XRenderer.fx	state	CARTOON/p0/VertexShader	( vsArrayCartoon11[ g_iShaderIndex ] )	( vsArrayCartoon30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	CARTOON_BLACK_EDGE/p0/PixelShader	-	compile ps_3_0 PixelCartoon()	JUNE-ONLY
+XRenderer.fx	state	CARTOON_BLACK_EDGE/p0/VertexShader	( vsArrayCartoon11[ g_iShaderIndex ] )	( vsArrayCartoon30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	CARTOON_BLACK_EDGE/p1/PixelShader	-	compile ps_3_0 PixelBlackEdge()	JUNE-ONLY
+XRenderer.fx	state	CARTOON_BLACK_EDGE/p1/VertexShader	( vsArrayBlackEdge11[ g_iShaderIndex ] )	( vsArrayBlackEdge30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	CARTOON_COLOR_EDGE/p0/PixelShader	-	compile ps_3_0 PixelCartoon()	JUNE-ONLY
+XRenderer.fx	state	CARTOON_COLOR_EDGE/p0/VertexShader	( vsArrayCartoon11[ g_iShaderIndex ] )	( vsArrayCartoon30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	CARTOON_COLOR_EDGE/p1/PixelShader	-	compile ps_3_0 PixelColorEdge()	JUNE-ONLY
+XRenderer.fx	state	CARTOON_COLOR_EDGE/p1/VertexShader	( vsArrayColorEdge11[ g_iShaderIndex ] )	( vsArrayColorEdge30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	COLOR_EDGE/p0/PixelShader	-	compile ps_3_0 PixelColorEdge()	JUNE-ONLY
+XRenderer.fx	state	COLOR_EDGE/p0/VertexShader	( vsArrayColorEdge11[ g_iShaderIndex ] )	( vsArrayColorEdge30[ g_iShaderIndex ] )	CHANGED
+XRenderer.fx	state	COLOR_WIREFRAME/p0/AlphaArg1[0]	-	Diffuse	JUNE-ONLY
+XRenderer.fx	state	COLOR_WIREFRAME/p0/AlphaOp[0]	-	SelectArg1	JUNE-ONLY
+XRenderer.fx	state	COLOR_WIREFRAME/p0/ColorArg1[0]	-	Diffuse	JUNE-ONLY
+XRenderer.fx	state	COLOR_WIREFRAME/p0/ColorOp[0]	-	SelectArg1	JUNE-ONLY
+XRenderer.fx	state	COLOR_WIREFRAME/p0/FILLMODE	-	WIREFRAME	JUNE-ONLY
+XRenderer.fx	state	COLOR_WIREFRAME/p0/PixelShader	-	compile ps_3_0 PixelColorWireframe()	JUNE-ONLY
+XRenderer.fx	state	COLOR_WIREFRAME/p0/VertexShader	-	compile vs_3_0 VertColorWireframe()	JUNE-ONLY
+XRenderer.fx	state	REAL_COLOR/p0/PixelShader	-	compile ps_3_0 PixelRealColor()	JUNE-ONLY
+XRenderer.fx	state	REAL_COLOR/p0/VertexShader	( vsArrayRealColor11[ g_iShaderIndex ] )	(vsArrayRealColor30[g_iShaderIndex])	CHANGED
+XRenderer.fx	func	ApplyRimLight	-	float3 ApplyRimLight(in float3 vCol, in float2 inTex2_)	JUNE-ONLY
+XRenderer.fx	func	VS_Skin	VS_SKIN_OUTPUT VS_Skin( const VS_SKIN_INPUT vInput, int iNumBones )	-	MARCH-ONLY
+XRenderer.fx	func	VertColorWireframe	-	VS_COLOR_EDGE_OUTPUT_NONFOG VertColorWireframe( VS_INPUT i )	JUNE-ONLY
+XRenderer.fx	func	_GetTex2	-	float2 _GetTex2(in float2 inTex2_, in float4 vNor, in float4 vWPos)	JUNE-ONLY
+XRenderer.fx	func	_VS_Skin	-	VS_SKIN_OUTPUT _VS_Skin( const VS_SKIN_INPUT vInput, int iNumBones )	JUNE-ONLY
+XRenderer.fx	define	X2APP_STANDARD_RIM_LIGHT	-	yes	JUNE-ONLY
+XRenderer.fx	define	X2HAT_SHADER_RIM_LIGHT	-	yes	JUNE-ONLY
+XRenderer.fx	struct	VS_INPUT	float4 Pos : POSITION; float3 BlendWeights : BLENDWEIGHT; float4 BlendIndices : BLENDINDICES; float3 Normal : NORMAL; float3 Tex0 : TEXCOORD0;	float4 Pos : POSITION; float3 BlendWeights : BLENDWEIGHT; float4 BlendIndices : BLENDINDICES; float3 Nor : NORMAL; float3 Tex0 : TEXCOORD0;	CHANGED
+XEnvBoxRenderer.fx	param	g_mMVP	-	float4x4|sem=WORLDVIEWPROJECTION	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	g_mMVPInv	-	float4x4	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	g_vColor	-	float4	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	g_vCurrSize	-	float4	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	g_vEtcParam	-	float4	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	g_vWeights	-	float4	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	textureSampler0	-	sampler|MinFilter = POINT; MagFilter = POINT;	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	textureSampler1	-	sampler|MinFilter = POINT; MagFilter = POINT;	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	textureSampler2	-	sampler|MinFilter = POINT; MagFilter = POINT;	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	param	textureSampler3	-	sampler|MinFilter = POINT; MagFilter = POINT;	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	technique	BlendLUTTechnique	-	yes	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	technique	DrawEnvBoxTechnique	-	yes	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	pass	BlendLUTTechnique/p0	-	yes	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	pass	DrawEnvBoxTechnique/p0	-	yes	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	BlendLUTTechnique/p0/ALPHABLENDENABLE	-	false	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	BlendLUTTechnique/p0/ALPHATESTENABLE	-	false	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	BlendLUTTechnique/p0/CULLMODE	-	NONE	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	BlendLUTTechnique/p0/PixelShader	-	compile ps_3_0 MainPS()	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	BlendLUTTechnique/p0/VertexShader	-	compile vs_3_0 MainVS()	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	BlendLUTTechnique/p0/ZENABLE	-	false	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	BlendLUTTechnique/p0/ZWRITEENABLE	-	false	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	DrawEnvBoxTechnique/p0/ALPHABLENDENABLE	-	false	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	DrawEnvBoxTechnique/p0/ALPHATESTENABLE	-	false	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	DrawEnvBoxTechnique/p0/CULLMODE	-	NONE	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	DrawEnvBoxTechnique/p0/PixelShader	-	compile ps_3_0 MainBoxPS()	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	DrawEnvBoxTechnique/p0/VertexShader	-	compile vs_3_0 MainBoxVS()	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	DrawEnvBoxTechnique/p0/ZENABLE	-	true	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	state	DrawEnvBoxTechnique/p0/ZWRITEENABLE	-	true	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	func	MainBoxPS	-	float4 MainBoxPS(VS_OUTPUT IN) : COLOR	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	func	MainBoxVS	-	VS_OUTPUT MainBoxVS(VS_INPUT i)	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	func	MainPS	-	float4 MainPS( VS_OUTPUT IN ) : COLOR	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	func	MainVS	-	VS_OUTPUT MainVS(VS_INPUT i)	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	struct	VS_INPUT	-	float4 Pos : POSITION; float2 Tex0 : TEXCOORD0;	JUNE-ONLY (whole file June-only)
+XEnvBoxRenderer.fx	struct	VS_OUTPUT	-	float4 Pos : POSITION; float2 Tex0 : TEXCOORD0;	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	param	g_color	-	float4|init== float4( 1, 1, 1, 1 )	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	param	g_fPerturbationScale	-	float|init== 1.f	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	param	g_fTime	-	float	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	param	g_mViewProj	-	float4x4|sem=VIEWPROJECTION	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	param	g_mWorldViewProj	-	float4x4|sem=WORLDVIEWPROJECTION	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	technique	HeatShimmerTechnique	-	yes	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	pass	HeatShimmerTechnique/p0	-	yes	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/AlphaArg1[0]	-	Texture	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/AlphaArg2[0]	-	Diffuse	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/AlphaOp[0]	-	Modulate	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/AlphaOp[1]	-	Disable	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/AlphaOp[2]	-	Disable	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/ColorArg1[0]	-	Texture	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/ColorArg2[0]	-	Diffuse	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/ColorOp[0]	-	Modulate	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/ColorOp[1]	-	Disable	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/ColorOp[2]	-	Disable	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/PixelShader	-	compile ps_2_0 MainPS()	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	state	HeatShimmerTechnique/p0/VertexShader	-	compile vs_2_0 MainVS()	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	func	MainPS	-	float4 MainPS( VS_OUTPUT i ) : COLOR	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	func	MainVS	-	VS_OUTPUT MainVS( VS_INPUT i )	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	func	random	-	float random( float2 p )	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	define	UNPACK	-	(a) ((a*2.0f)-1.0f)	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	struct	VS_INPUT	-	float4 Pos : POSITION; float2 Tex0 : TEXCOORD0;	JUNE-ONLY (whole file June-only)
+XHeatShimmerRenderer.fx	struct	VS_OUTPUT	-	float4 Pos : POSITION; float4 Diffuse : COLOR; float2 Tex0 : TEXCOORD0; float2 Tex1 : TEXCOORD1;	JUNE-ONLY (whole file June-only)
+XRenderer_X2TOOL.fx(vs March XRenderer.fx)	param	g_bIsUseRimLight	-	bool|init== false	JUNE-ONLY (X2TOOL variant)
+XRenderer_X2TOOL.fx(vs March XRenderer.fx)	param	g_mView	-	float4x4|sem=VIEW	JUNE-ONLY (X2TOOL variant)
+XRenderer_X2TOOL.fx(vs March XRenderer.fx)	param	g_vEyeDir	-	float4	JUNE-ONLY (X2TOOL variant)
+XRenderer_X2TOOL.fx(vs March XRenderer.fx)	func	VS_Skin	VS_SKIN_OUTPUT VS_Skin( const VS_SKIN_INPUT vInput, int iNumBones )	-	MARCH-ONLY (X2TOOL variant)
+XRenderer_X2TOOL.fx(vs March XRenderer.fx)	func	_GetTex2	-	float2 _GetTex2( in float2 inTex2_, in float4 vNor_ )	JUNE-ONLY (X2TOOL variant)
+XRenderer_X2TOOL.fx(vs March XRenderer.fx)	func	_VS_Skin	-	VS_SKIN_OUTPUT _VS_Skin( const VS_SKIN_INPUT vInput, int iNumBones )	JUNE-ONLY (X2TOOL variant)
+XRenderer_X2TOOL.fx(vs March XRenderer.fx)	define	X2HAT_SHADER_RIM_LIGHT	-	yes	JUNE-ONLY (X2TOOL variant)

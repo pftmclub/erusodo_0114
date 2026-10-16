@@ -1,0 +1,367 @@
+character	file	ext	role	march_size	june_size	status	detail
+Elsword	Motion_Elsword_Field.x	x	base_motion	254736	438919	differs	size; KSM frames 68->68 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_Common.x	x	base_motion	1105450	5582553	differs	size; KSM frames 68->68 anim_sets(raw) 16->37 unique_names 16->37 (+21 new names, -0 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_SK.x	x	base_motion	1554613	3188777	differs	size; KSM frames 68->68 anim_sets(raw) 15->27 unique_names 15->27 (+12 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_IS.x	x	base_motion	1196728	2131234	differs	size; KSM frames 68->68 anim_sets(raw) 13->16 unique_names 13->16 (+4 new names, -1 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_Lobby.x	x	base_motion	1516000	2059583	differs	size; KSM frames 68->68 anim_sets(raw) 15->15 unique_names 15->15 (+0 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_MK.x	x	base_motion	2081117	2432817	differs	size; KSM frames 68->68 anim_sets(raw) 18->23 unique_names 18->23 (+5 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 21/67 (max delta 0.286)
+Elsword	Motion_Elsword.x	x	base_motion	4111742	5766274	differs	size; KSM frames 68->68 anim_sets(raw) 90->96 unique_names 90->96 (+6 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_RS.x	x	base_motion	1725447	2524633	differs	size; KSM frames 68->68 anim_sets(raw) 13->21 unique_names 13->20 (+7 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 21/67 (max delta 0.968)
+Elsword	Motion_Elsword_TK.x	x	base_motion	1885689	2843578	differs	size; KSM frames 68->68 anim_sets(raw) 25->26 unique_names 24->25 (+1 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_LK.x	x	base_motion	1541848	2775423	differs	size; KSM frames 68->68 anim_sets(raw) 15->22 unique_names 15->22 (+7 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Motion_Elsword_Emotion.x	x	base_motion	689913	1418961	differs	size; KSM frames 68->68 anim_sets(raw) 9->10 unique_names 9->10 (+1 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/67 (max delta 0.000)
+Elsword	Mesh_ElSword_Basic_Hair_Sorted.x	x	base_mesh	56731	16094	differs	size; not KSM (head xof  -> xof ); mesh X decode txt>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names DIFFER m-only=['elsword_basic_hair.tga'] j-only=['mesh_elsword_cash_hair.tga']; geometry change unverified
+Elsword	Mesh_ElSword_Basic_Face_Sorted.x	x	base_mesh	10959	12791	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_ElSword_Basic_Face_Sorted.XET	xet	base_mesh	4024	18996	differs	size; not KSM (head XET  -> XET )
+Elsword	Mesh_ElSword_Basic_UpBody_Sorted.x	x	base_mesh	9945	9233	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_ElSword_Basic_LowBody_Sorted.x	x	base_mesh	7779	7779	same	md5 verified
+Elsword	Mesh_ElSword_Basic_Hand_Sorted.x	x	base_mesh	13224	12888	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_ElSword_Basic_Foot_Sorted.x	x	base_mesh	8036	8036	same	md5 verified
+Elsword	Mesh_Elsword_Basic_Weapon.X	x	base_mesh	2410	2410	same	md5 verified
+Elsword	Mesh_Elsword_Knight_Base_Hair_Sorted.X	x	base_mesh	70268	21043	differs	size; not KSM (head xof  -> xof ); mesh X decode txt>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names DIFFER m-only=['elsword_hair.tga'] j-only=['mesh_elsword_knight_cash_hair.tga']; geometry change unverified
+Elsword	Mesh_Elsword_MagicKnight_Base_Hair_Sorted.X	x	base_mesh	81750	45109	differs	size; not KSM (head xof  -> xof ); mesh X decode txt>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names DIFFER m-only=['elsword_hair.tga'] j-only=['elsword_basic_hair.tga', 'mesh_elsword_magicknight_cash_hair.tga']; geometry change unverified
+Elsword	Mesh_Elsword_ELK_Base_Hair_Sorted.X	x	base_mesh	18071	22717	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 55 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_Elsword_ERS_Base_Hair_Sorted.X	x	base_mesh	19595	19409	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_Elsword_ELK_Basic_Face_Sorted.x	x	base_mesh	10963	12791	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_Elsword_ELK_Basic_Face_Sorted.XET	xet	base_mesh	3854	15668	differs	size; not KSM (head XET  -> XET )
+Elsword	Mesh_Elsword_ERS_Basic_Face_Sorted.x	x	base_mesh	10963	12791	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 53 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_Elsword_ERS_Basic_Face_Sorted.XET	xet	base_mesh	4068	15618	differs	size; not KSM (head XET  -> XET )
+Elsword	Mesh_Elsword_EIS_Basic_Face_Sorted.x	x	base_mesh	11030	12791	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 54 vs 53 (common 53) texture names equal; geometry change unverified
+Elsword	Mesh_Elsword_EIS_Basic_Face_Sorted.XET	xet	base_mesh	4154	15780	differs	size; not KSM (head XET  -> XET )
+Elsword	Mesh_Elsword_TK_Base_Hair_Sorted.X	x	base_mesh	19328	21917	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 54 vs 54 (common 54) texture names equal; geometry change unverified
+Elsword	Mesh_Elsword_EIS_Base_Hair_Sorted.X	x	base_mesh	23221	23221	same	md5 verified
+Elsword	Motion_Elsword_Buff_NPC.X	x	base_motion	425434	425434	same	md5 verified
+Elsword	Mesh_ElSword_Basic_Hair_A.xet	xet	base_mesh	144	152	differs	size; not KSM (head XET  -> XET )
+Elsword	Mesh_ElSword_Basic_Hair_B.xet	xet	base_mesh	144	152	differs	size; not KSM (head XET  -> XET )
+Elsword	Mesh_ElSword_Basic_Hair_C.xet	xet	base_mesh	144	152	differs	size; not KSM (head XET  -> XET )
+Elsword	Motion_Elsword_Emotion_APINK.X	x	base_motion	785186	785186	same	md5 verified
+Elsword	Motion_Elsword_Emotion_APINK_LOVE.X	x	base_motion	259303	259303	same	md5 verified
+Elsword	Motion_Elsword_Emotion_BIGBANG.X	x	base_motion	849612	849612	same	md5 verified
+Elsword	Motion_Elsword_Emotion_CRAYONPOP_Sorted.X	x	base_motion	598467	598467	same	md5 verified
+Elsword	Motion_Elsword_Emotion_DeepBow.X	x	base_motion	359847	359847	same	md5 verified
+Elsword	Motion_Elsword_SwordMan.x	x	base_motion	11143875	11143875	same	md5 verified
+Elsword	Mesh_Elsword_Basic_Weapon.XMesh_Elsword_Basic_Weapon.X	x	base_mesh		2892	june_only	
+Aisha	Motion_Arme_BM.x	x	base_motion	2009215	2966301	differs	size; KSM frames 75->75 anim_sets(raw) 23->28 unique_names 23->27 (+4 new names, -0 dropped names) mesh_frames 11->11; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_HM.x	x	base_motion	1675220	2788996	differs	size; KSM frames 76->76 anim_sets(raw) 15->26 unique_names 15->26 (+11 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_DW.x	x	base_motion	1792867	3145404	differs	size; KSM frames 76->76 anim_sets(raw) 13->20 unique_names 13->20 (+7 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_DM.x	x	base_motion	1505385	2292934	differs	size; KSM frames 76->76 anim_sets(raw) 18->21 unique_names 18->21 (+3 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_VP.x	x	base_motion	1576895	2870210	differs	size; KSM frames 76->76 anim_sets(raw) 11->19 unique_names 11->19 (+8 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_Field.x	x	base_motion	232673	371832	differs	size; KSM frames 76->76 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_Emotion.x	x	base_motion	1253531	1803707	differs	size; KSM frames 76->76 anim_sets(raw) 10->10 unique_names 10->10 (+0 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme.x	x	base_motion	3442962	5285943	differs	size; KSM frames 76->76 anim_sets(raw) 66->74 unique_names 66->74 (+8 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_Lobby.x	x	base_motion	1597467	1597467	same	md5 verified; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_EM.x	x	base_motion	1625101	2738878	differs	size; KSM frames 76->76 anim_sets(raw) 15->17 unique_names 15->17 (+5 new names, -3 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/75 (max delta 0.000)
+Aisha	Motion_Arme_Common.x	x	base_motion	2005409	6148830	differs	size; KSM frames 76->76 anim_sets(raw) 16->37 unique_names 16->37 (+21 new names, -0 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 34/75 (max delta 9.276)
+Aisha	Mesh_Arme_Basic_Hair_Sorted.x	x	base_mesh	20818	23386	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Mesh_Arme_Basic_Face_Sorted.x	x	base_mesh	10244	16371	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Mesh_Arme_Basic_Face_Sorted.XET	xet	base_mesh	5604	21476	differs	size; not KSM (head XET  -> XET )
+Aisha	Mesh_Arme_Basic_UpBody_Sorted.x	x	base_mesh	11580	11580	same	md5 verified
+Aisha	Mesh_Arme_Basic_LowBody_Sorted.x	x	base_mesh	8623	8623	same	md5 verified
+Aisha	Mesh_Arme_Basic_Hand_Sorted.x	x	base_mesh	13734	13734	same	md5 verified
+Aisha	Mesh_Arme_Basic_Foot_Sorted.x	x	base_mesh	9256	9256	same	md5 verified
+Aisha	Mesh_Arme_Basic_Weapon_Wand.X	x	base_mesh	4217	4217	same	md5 verified
+Aisha	MESH_ARME_HM_CASH_HAIR_Sorted.X	x	base_mesh	14108	22760	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	MESH_ARME_DM_CASH_HAIR_Sorted.X	x	base_mesh	19410	27208	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Mesh_Arme_AEM_Base_Hair_Sorted.X	x	base_mesh	16215	20551	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Mesh_Arme_AVP_Base_Hair_Sorted.X	x	base_mesh	21823	21823	same	md5 verified
+Aisha	Mesh_Arme_EM_Basic_Face_Sorted.X	x	base_mesh	10247	16373	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Mesh_Arme_EM_Basic_Face_Sorted.XET	xet	base_mesh	4566	18024	differs	size; not KSM (head XET  -> XET )
+Aisha	Mesh_Arme_VP_Basic_Face_Sorted.X	x	base_mesh	10247	16373	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Mesh_Arme_VP_Basic_Face_Sorted.XET	xet	base_mesh	4700	18060	differs	size; not KSM (head XET  -> XET )
+Aisha	Mesh_Arme_BM_Base_Hair_Sorted.X	x	base_mesh	23991	28116	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Mesh_Arme_ADW_Base_Hair_Sorted.X	x	base_mesh	23618	27269	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 61 vs 61 (common 61) texture names equal; geometry change unverified
+Aisha	Motion_Aisha_Buff_NPC.X	x	base_motion	426559	426559	same	md5 verified
+Aisha	Mesh_Arme_Basic_Hair_A.xet	xet	base_mesh	132	132	same	md5 verified
+Aisha	Mesh_Arme_Basic_Hair_B.xet	xet	base_mesh	132	132	same	md5 verified
+Aisha	Mesh_Arme_Basic_Hair_C.xet	xet	base_mesh	132	132	same	md5 verified
+Aisha	Motion_Arme_Emotion_APINK.X	x	base_motion	937093	937093	same	md5 verified
+Aisha	Motion_Arme_Emotion_APINK_LOVE.X	x	base_motion	272847	272847	same	md5 verified
+Aisha	Motion_Arme_Emotion_BIGBANG.X	x	base_motion	1020541	1020541	same	md5 verified
+Aisha	Motion_Arme_Emotion_CRAYONPOP_Sorted.X	x	base_motion	682288	682288	same	md5 verified
+Aisha	Motion_Arme_Emotion_DeepBow.X	x	base_motion	412712	412712	same	md5 verified
+Rena	Motion_Lire_Emotion.x	x	base_motion	1421187	2084827	differs	size; KSM frames 84->84 anim_sets(raw) 11->11 unique_names 11->11 (+0 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_RTR.x	x	base_motion	2089125	2966118	differs	size; KSM frames 84->84 anim_sets(raw) 22->24 unique_names 22->24 (+3 new names, -1 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_WS.x	x	base_motion	1685411	2739968	differs	size; KSM frames 84->84 anim_sets(raw) 23->27 unique_names 23->27 (+11 new names, -7 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire.x	x	base_motion	4407064	6614767	differs	size; KSM frames 84->84 anim_sets(raw) 83->85 unique_names 83->85 (+7 new names, -5 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_Lobby.x	x	base_motion	1808566	2766827	differs	size; KSM frames 84->84 anim_sets(raw) 15->15 unique_names 15->15 (+0 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_SR.x	x	base_motion	1767579	3135823	differs	size; KSM frames 84->84 anim_sets(raw) 17->24 unique_names 17->24 (+8 new names, -1 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_NW.x	x	base_motion	1819993	3733100	differs	size; KSM frames 84->84 anim_sets(raw) 20->34 unique_names 20->34 (+14 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_Field.x	x	base_motion	293357	479426	differs	size; KSM frames 84->84 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_Common.x	x	base_motion	1316379	6457469	differs	size; KSM frames 84->84 anim_sets(raw) 16->37 unique_names 16->37 (+21 new names, -0 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_GA.x	x	base_motion	1636694	2757337	differs	size; KSM frames 84->84 anim_sets(raw) 18->22 unique_names 18->22 (+9 new names, -5 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Motion_Lire_CR.x	x	base_motion	2142125	3246145	differs	size; KSM frames 84->84 anim_sets(raw) 20->27 unique_names 20->27 (+7 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Rena	Mesh_Lire_Basic_Hair_Sorted.x	x	base_mesh	25260	25260	same	md5 verified
+Rena	Mesh_Lire_Basic_Face_Sorted.x	x	base_mesh	54397	54397	same	md5 verified
+Rena	Mesh_Lire_Basic_Face_Sorted.XET	xet	base_mesh	4668	19370	differs	size; not KSM (head XET  -> XET )
+Rena	Mesh_Lire_Basic_UpBody_Sorted.x	x	base_mesh	12798	12798	same	md5 verified
+Rena	Mesh_Lire_Basic_LowBody_Sorted.x	x	base_mesh	11716	11716	same	md5 verified
+Rena	Mesh_Lire_Basic_Hand_Sorted.x	x	base_mesh	13710	13710	same	md5 verified
+Rena	Mesh_Lire_Basic_Foot_Sorted.x	x	base_mesh	73429	73429	same	md5 verified
+Rena	Mesh_Lire_Basic_Weapon_Long_Bow.X	x	base_mesh	2898	2898	same	md5 verified
+Rena	Mesh_Lire_CR_Cash_Hair_Sorted.X	x	base_mesh	83539	31217	differs	size; not KSM (head xof  -> xof ); mesh X decode txt>bzip: SkinWeights-style bone names 68 vs 68 (common 68) texture names equal; geometry change unverified
+Rena	Mesh_Lire_SR_Cash_Hair_Sorted.X	x	base_mesh	100266	37288	differs	size; not KSM (head xof  -> xof ); mesh X decode txt>bzip: SkinWeights-style bone names 68 vs 68 (common 68) texture names equal; geometry change unverified
+Rena	Mesh_Lire_LWS_Base_Hair_Sorted.X	x	base_mesh	20383	20383	same	md5 verified
+Rena	Mesh_Lire_LGA_Base_Hair_Sorted.X	x	base_mesh	19173	19173	same	md5 verified
+Rena	Mesh_Lire_LNW_Basic_Face_Sorted.X	x	base_mesh	9632	9632	same	md5 verified
+Rena	Mesh_Lire_LNW_Basic_Face_Sorted.XET	xet	base_mesh	4260	16752	differs	size; not KSM (head XET  -> XET )
+Rena	Mesh_Lire_TR_Base_Hair_Sorted.X	x	base_mesh	25926	25926	same	md5 verified
+Rena	Mesh_Lire_LNW_Base_Hair_Sorted.X	x	base_mesh	19761	18774	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 68 vs 68 (common 68) texture names equal; geometry change unverified
+Rena	Motion_Rena_Buff_NPC.X	x	base_motion	426414	426414	same	md5 verified
+Rena	Mesh_Lire_Basic_Hair_A.xet	xet	base_mesh	132	132	same	md5 verified
+Rena	Mesh_Lire_Basic_Hair_B.xet	xet	base_mesh	132	132	same	md5 verified
+Rena	Mesh_Lire_Basic_Hair_C.xet	xet	base_mesh	132	132	same	md5 verified
+Rena	Motion_Lire_Emotion_APINK.X	x	base_motion	838328	838328	same	md5 verified
+Rena	Motion_Lire_Emotion_APINK_LOVE.X	x	base_motion	303800	303800	same	md5 verified
+Rena	Motion_Lire_Emotion_BIGBANG.X	x	base_motion	1040608	1040608	same	md5 verified
+Rena	Motion_Lire_Emotion_CRAYONPOP_Sorted.X	x	base_motion	711985	711985	same	md5 verified
+Rena	Motion_Lire_Emotion_DeepBow.X	x	base_motion	433647	433647	same	md5 verified
+Rena	Motion_Lire_Stand_LobbyWait.x	x	base_motion	577434	577434	same	md5 verified
+Raven	Motion_Raven_VC.x	x	base_motion	2043055	3637421	differs	size; KSM frames 75->75 anim_sets(raw) 23->29 unique_names 23->29 (+6 new names, -0 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven.x	x	base_motion	3824962	5941865	differs	size; KSM frames 75->75 anim_sets(raw) 76->86 unique_names 76->86 (+10 new names, -0 dropped names) mesh_frames 10->15; bone_parent_map identical; mesh_container_frames differ; named_frame_pose changed in 3/74 (max delta 0.342)
+Raven	Motion_Raven_OT.x	x	base_motion	1919264	3151017	differs	size; KSM frames 75->75 anim_sets(raw) 22->28 unique_names 22->28 (+10 new names, -4 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven_ST.x	x	base_motion	1648914	3020456	differs	size; KSM frames 75->75 anim_sets(raw) 19->29 unique_names 19->29 (+10 new names, -0 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven_WT.x	x	base_motion	1952491	3114727	differs	size; KSM frames 75->75 anim_sets(raw) 38->43 unique_names 38->43 (+5 new names, -0 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven_Lobby.x	x	base_motion	1663672	2323744	differs	size; KSM frames 75->75 anim_sets(raw) 15->15 unique_names 15->15 (+0 new names, -0 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven_Field.x	x	base_motion	267057	404748	differs	size; KSM frames 75->75 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven_Emotion.x	x	base_motion	1303471	1835267	differs	size; KSM frames 75->75 anim_sets(raw) 10->10 unique_names 10->10 (+0 new names, -0 dropped names) mesh_frames 10->15; bone_parent_map identical; mesh_container_frames differ; named_frame_pose changed in 29/74 (max delta 11.726)
+Raven	Motion_Raven_Common.x	x	base_motion	1195784	5807808	differs	size; KSM frames 75->75 anim_sets(raw) 16->37 unique_names 16->37 (+21 new names, -0 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven_RF.x	x	base_motion	1698603	3519311	differs	size; KSM frames 75->75 anim_sets(raw) 19->29 unique_names 19->29 (+10 new names, -0 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Motion_Raven_BM.x	x	base_motion	1524698	2565406	differs	size; KSM frames 75->75 anim_sets(raw) 21->26 unique_names 21->26 (+5 new names, -0 dropped names) mesh_frames 10->10; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/74 (max delta 0.000)
+Raven	Mesh_Raven_Cash_Hair_Sorted.x	x	base_mesh	13680	36548	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 56 vs 56 (common 56) texture names equal; geometry change unverified
+Raven	Mesh_Raven_Cash_Face_Sorted.x	x	base_mesh	9568	13834	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 56 vs 56 (common 56) texture names equal; geometry change unverified
+Raven	Mesh_Raven_Cash_Face_Sorted.XET	xet	base_mesh	3664	18274	differs	size; not KSM (head XET  -> XET )
+Raven	Mesh_Raven_Basic_UpBody_Sorted.x	x	base_mesh	11996	12040	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 56 vs 56 (common 56) texture names equal; geometry change unverified
+Raven	Mesh_Raven_Basic_LowBody_Sorted.x	x	base_mesh	11677	11677	same	md5 verified
+Raven	Mesh_Raven_Basic_Right_Hand_Sorted.x	x	base_mesh	10854	10854	same	md5 verified
+Raven	Mesh_Raven_Basic_Foot_Sorted.x	x	base_mesh	7580	7580	same	md5 verified
+Raven	Mesh_Raven_Base_Weapon_Sorted.x	x	base_mesh	4275	4275	same	md5 verified
+Raven	Mesh_Raven_RBM_Base_Hair_Sorted.X	x	base_mesh	15195	23301	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 56 vs 56 (common 56) texture names equal; geometry change unverified
+Raven	Mesh_Raven_RRF_Base_Hair_Sorted.X	x	base_mesh	15353	15361	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 56 vs 56 (common 56) texture names equal; geometry change unverified
+Raven	Mesh_Raven_WT_Base_Hair_Sorted.X	x	base_mesh	22735	22735	same	md5 verified
+Raven	Mesh_Raven_RVC_Base_Hair_Sorted.X	x	base_mesh	24775	24775	same	md5 verified
+Raven	Mesh_Raven_OT_Cash_Hair_Sorted.X	x	base_mesh	15169	38121	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 56 vs 56 (common 56) texture names equal; geometry change unverified
+Raven	Mesh_Raven_ST_Cash_Hair_Sorted.X	x	base_mesh	20272	26711	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 56 vs 56 (common 56) texture names equal; geometry change unverified
+Raven	Motion_Raven_Boss.x	x	base_motion	4287798	4287798	same	md5 verified
+Raven	Motion_Raven_Buff_NPC.X	x	base_motion	425977	425977	same	md5 verified
+Raven	Motion_Raven_Emotion_APINK.X	x	base_motion	839623	839623	same	md5 verified
+Raven	Motion_Raven_Emotion_APINK_LOVE.X	x	base_motion	324989	324989	same	md5 verified
+Raven	Motion_Raven_Emotion_BIGBANG.X	x	base_motion	1018445	1018445	same	md5 verified
+Raven	Motion_Raven_Emotion_CRAYONPOP_Sorted.X	x	base_motion	611529	611529	same	md5 verified
+Raven	Motion_Raven_Emotion_DeepBow.X	x	base_motion	423613	423613	same	md5 verified
+Raven	Motion_Raven_RageMode_Nasod.x	x	base_motion	37132	37132	same	md5 verified
+Eve	Motion_EVE_Lobby.x	x	base_motion	1822129	1822735	differs	size; KSM frames 77->77 anim_sets(raw) 14->14 unique_names 14->14 (+0 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_Emotion.x	x	base_motion	961642	1270526	differs	size; KSM frames 77->77 anim_sets(raw) 9->9 unique_names 9->9 (+0 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_Field.x	x	base_motion	441322	449459	differs	size; KSM frames 77->77 anim_sets(raw) 14->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_NS.x	x	base_motion	2016900	3326557	differs	size; KSM frames 77->77 anim_sets(raw) 17->25 unique_names 17->25 (+9 new names, -1 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_PR.x	x	base_motion	1836432	2621401	differs	size; KSM frames 77->77 anim_sets(raw) 17->19 unique_names 17->19 (+2 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_BS.x	x	base_motion	1691814	2636906	differs	size; KSM frames 77->77 anim_sets(raw) 18->21 unique_names 18->21 (+4 new names, -1 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE.x	x	base_motion	4315889	6102656	differs	size; KSM frames 77->77 anim_sets(raw) 79->84 unique_names 79->84 (+5 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_Common.x	x	base_motion	1578032	6062982	differs	size; KSM frames 77->77 anim_sets(raw) 16->37 unique_names 16->37 (+22 new names, -1 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000); live game kom already holds a different file (size 6062982)
+Eve	Motion_EVE_EP.x	x	base_motion	1371947	2690935	differs	size; KSM frames 77->77 anim_sets(raw) 14->22 unique_names 14->22 (+8 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_AT.x	x	base_motion	1652348	2260878	differs	size; KSM frames 77->77 anim_sets(raw) 15->18 unique_names 15->18 (+3 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Motion_EVE_EG.x	x	base_motion	1907285	2641577	differs	size; KSM frames 77->77 anim_sets(raw) 16->18 unique_names 16->18 (+2 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/76 (max delta 0.000)
+Eve	Mesh_Eve_Cash_Hair_Sorted.X	x	base_mesh	16351	19850	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 62 vs 62 (common 62) texture names DIFFER m-only=['mesh_eve_cash_hair.tga'] j-only=['eve_cash_hair.tga']; geometry change unverified
+Eve	Mesh_Eve_Cash_Face_Sorted.X	x	base_mesh	10447	16933	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 62 vs 62 (common 62) texture names equal; geometry change unverified
+Eve	Mesh_Eve_Cash_Face_Sorted.XET	xet	base_mesh	4362	19044	differs	size; not KSM (head XET  -> XET )
+Eve	Mesh_Eve_Basic_UpBody_Sorted.X	x	base_mesh	11915	11915	same	md5 verified
+Eve	Mesh_Eve_Basic_LowBody_Sorted.X	x	base_mesh	9395	9395	same	md5 verified
+Eve	Mesh_Eve_Basic_Hand_Sorted.X	x	base_mesh	12987	12987	same	md5 verified
+Eve	Mesh_Eve_Basic_Foot_Sorted.X	x	base_mesh	10888	10888	same	md5 verified
+Eve	Mesh_Eve_Basic_Weapon_Sorted_A.X	x	base_mesh	5047	5047	same	md5 verified
+Eve	Mesh_Eve_Basic_Weapon_Sorted_B.X	x	base_mesh	5053	5053	same	md5 verified
+Eve	Mesh_Eve_ENS_Base_Hair_Sorted.X	x	base_mesh	25327	33425	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 62 vs 62 (common 62) texture names DIFFER m-only=['mesh_eve_ns_base_hair.tga'] j-only=['mesh_eve_ns_cash_hair.tga', 'mesh_eve_ns_cash_haira.tga']; geometry change unverified
+Eve	Mesh_Eve_EEP_Base_Hair_Sorted.X	x	base_mesh	20443	32010	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 62 vs 62 (common 62) texture names DIFFER m-only=[] j-only=['mesh_eve_eep_base_hair01.tga']; geometry change unverified
+Eve	Mesh_Eve_ET_Cash_Hair_Sorted.X	x	base_mesh	28305	28305	same	md5 verified
+Eve	Mesh_Eve_EBS_Base_Hair_Sorted.X	x	base_mesh	25054	25054	same	md5 verified
+Eve	Mesh_Eve_EG_Cash_Hair_Sorted.X	x	base_mesh	19596	38844	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 62 vs 62 (common 62) texture names equal; geometry change unverified
+Eve	Mesh_Eve_AT_Cash_Hair_Sorted.X	x	base_mesh	18973	23442	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 62 vs 62 (common 62) texture names equal; geometry change unverified
+Eve	Motion_Eve_Buff_NPC.X	x	base_motion	426516	426516	same	md5 verified
+Eve	Motion_EVE_Emotion_APINK.X	x	base_motion	785814	785814	same	md5 verified
+Eve	Motion_EVE_Emotion_APINK_LOVE.X	x	base_motion	313114	313114	same	md5 verified
+Eve	Motion_EVE_Emotion_BIGBANG.X	x	base_motion	986181	986181	same	md5 verified
+Eve	Motion_Eve_Emotion_CRAYONPOP_Sorted.X	x	base_motion	699973	699973	same	md5 verified
+Eve	Motion_Eve_Emotion_DeepBow.X	x	base_motion	458669	458669	same	md5 verified
+Chung	Motion_CHUNG_Emotion.x	x	base_motion	814107	1130155	differs	size; KSM frames 72->72 anim_sets(raw) 9->9 unique_names 9->9 (+0 new names, -0 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_CTT.x	x	base_motion	1655598	2878158	differs	size; KSM frames 72->72 anim_sets(raw) 19->26 unique_names 19->26 (+7 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG.x	x	base_motion	4173402	5927830	differs	size; KSM frames 72->72 anim_sets(raw) 99->103 unique_names 99->103 (+4 new names, -0 dropped names) mesh_frames 7->12; bone_parent_map identical; mesh_container_frames differ; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_CDC.x	x	base_motion	1632684	2817639	differs	size; KSM frames 72->72 anim_sets(raw) 16->20 unique_names 16->20 (+4 new names, -0 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_CSG.x	x	base_motion	1685496	2894234	differs	size; KSM frames 72->72 anim_sets(raw) 27->37 unique_names 27->37 (+10 new names, -0 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_Field.x	x	base_motion	241172	423793	differs	size; KSM frames 72->72 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_CIP.x	x	base_motion	1674097	2526389	differs	size; KSM frames 72->72 anim_sets(raw) 22->24 unique_names 20->22 (+4 new names, -2 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_CFG.x	x	base_motion	1817203	3171606	differs	size; KSM frames 72->72 anim_sets(raw) 30->40 unique_names 30->40 (+11 new names, -1 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_Common.x	x	base_motion	1120364	5817217	differs	size; KSM frames 72->72 anim_sets(raw) 16->37 unique_names 16->37 (+21 new names, -0 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_Lobby.x	x	base_motion	920996	1246184	differs	size; KSM frames 72->72 anim_sets(raw) 11->11 unique_names 11->11 (+0 new names, -0 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/71 (max delta 0.000)
+Chung	Motion_CHUNG_CHG.x	x	base_motion	2266865	3122550	differs	size; KSM frames 73->73 anim_sets(raw) 32->33 unique_names 32->33 (+1 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/73 (max delta 0.000)
+Chung	Mesh_Chung_Basic_Hair_Sorted.X	x	base_mesh	15021	15021	same	md5 verified
+Chung	Mesh_Chung_Basic_Face_Sorted.X	x	base_mesh	9471	15264	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 57 vs 57 (common 57) texture names equal; geometry change unverified
+Chung	Mesh_Chung_Basic_Face_Sorted.XET	xet	base_mesh	7484	21602	differs	size; not KSM (head XET  -> XET )
+Chung	Mesh_Chung_Basic_UpBody_Sorted.X	x	base_mesh	11541	11541	same	md5 verified
+Chung	Mesh_Chung_Basic_LowBody_Sorted.X	x	base_mesh	7785	7785	same	md5 verified
+Chung	Mesh_Chung_Basic_Hand_Sorted.X	x	base_mesh	13007	13007	same	md5 verified
+Chung	Mesh_Chung_Basic_Foot_Sorted.X	x	base_mesh	11886	11886	same	md5 verified
+Chung	Mesh_Chung_Basic_Weapon_Sorted.X	x	base_mesh	6578	6578	same	md5 verified
+Chung	Mesh_Chung_CFG_Basic_Hair_Sorted.X	x	base_mesh	19962	19962	same	md5 verified
+Chung	Mesh_Chung_CSG_Basic_Hair_Sorted.X	x	base_mesh	19689	19380	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 57 vs 57 (common 57) texture names equal; geometry change unverified
+Chung	Mesh_Chung_CIP_Basic_Hair_Sorted.X	x	base_mesh	21910	21910	same	md5 verified
+Chung	Mesh_Chung_CDC_Basic_Hair_Sorted.X	x	base_mesh	20945	20951	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 57 vs 57 (common 57) texture names equal; geometry change unverified
+Chung	Mesh_Chung_CSHG_Basic_Hair_Sorted.X	x	base_mesh	21667	21667	same	md5 verified
+Chung	Mesh_Chung_CTT_Base_Hair_Sorted.X	x	base_mesh	20224	20224	same	md5 verified
+Chung	Motion_Chung_Buff_NPC.X	x	base_motion	426425	426425	same	md5 verified
+Chung	Motion_CHUNG_Emotion_APINK.X	x	base_motion	873764	873764	same	md5 verified
+Chung	Motion_CHUNG_Emotion_APINK_LOVE.X	x	base_motion	300589	300589	same	md5 verified
+Chung	Motion_CHUNG_Emotion_BIGBANG.X	x	base_motion	910494	910494	same	md5 verified
+Chung	Motion_Chung_Emotion_CRAYONPOP_Sorted.X	x	base_motion	612282	612282	same	md5 verified
+Chung	Motion_Chung_Emotion_DeepBow.X	x	base_motion	351657	351657	same	md5 verified
+Ara	Motion_Ara_LH.x	x	base_motion	1858731	3044189	differs	size; KSM frames 80->80 anim_sets(raw) 26->33 unique_names 26->33 (+7 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Ara	Motion_ARA.x	x	base_motion	4920232	6761825	differs	size; KSM frames 80->80 anim_sets(raw) 92->95 unique_names 92->95 (+3 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Ara	Motion_ARA_Common.x	x	base_motion	1175834	6054910	differs	size; KSM frames 80->80 anim_sets(raw) 12->38 unique_names 12->38 (+27 new names, -1 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 33/79 (max delta 3.423); live game kom already holds a different file (size 6054910)
+Ara	Motion_ARA_Lobby.x	x	base_motion	883056	1466552	differs	size; KSM frames 80->80 anim_sets(raw) 8->10 unique_names 8->10 (+3 new names, -1 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000); live game kom already holds a different file (size 1466552)
+Ara	Motion_ARA_Emotion.x	x	base_motion	1106392	1509224	differs	size; KSM frames 80->80 anim_sets(raw) 9->9 unique_names 9->9 (+0 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Ara	Motion_Ara_SD.x	x	base_motion	2129503	3557126	differs	size; KSM frames 80->80 anim_sets(raw) 22->29 unique_names 22->29 (+10 new names, -3 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Ara	Motion_Ara_LD.x	x	base_motion	2263878	3162196	differs	size; KSM frames 80->80 anim_sets(raw) 26->31 unique_names 26->31 (+7 new names, -2 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Ara	Motion_ARA_Field.x	x	base_motion	266669	432272	differs	size; KSM frames 80->80 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Ara	Motion_Ara_YR.x	x	base_motion	1699345	2834570	differs	size; KSM frames 80->80 anim_sets(raw) 21->27 unique_names 21->27 (+6 new names, -0 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Ara	Mesh_Ara_Basic_Hair_Sorted.X	x	base_mesh	27554	27581	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 64 vs 64 (common 64) texture names equal; geometry change unverified
+Ara	Mesh_Ara_Basic_Face_Sorted.X	x	base_mesh	12718	15918	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 64 vs 64 (common 64) texture names equal; geometry change unverified
+Ara	Mesh_Ara_Basic_Face_Sorted.XET	xet	base_mesh	6686	23512	differs	size; not KSM (head XET  -> XET )
+Ara	Mesh_Ara_Basic_UpBody_Sorted.X	x	base_mesh	15177	15177	same	md5 verified
+Ara	Mesh_Ara_Basic_LowBody_Sorted.X	x	base_mesh	10201	10201	same	md5 verified
+Ara	Mesh_Ara_Basic_Hand_Sorted.X	x	base_mesh	13260	13260	same	md5 verified
+Ara	Mesh_Ara_Basic_Foot_Sorted.X	x	base_mesh	13903	13903	same	md5 verified
+Ara	Mesh_Ara_Basic_Weapon_Sorted.X	x	base_mesh	2948	2948	same	md5 verified
+Ara	Mesh_Ara_LH_Base_Hair_Sorted.X	x	base_mesh	24800	24800	same	md5 verified
+Ara	Mesh_Ara_ASD_Base_Hair_Sorted.X	x	base_mesh	24967	24656	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 64 vs 64 (common 64) texture names equal; geometry change unverified
+Ara	Mesh_Ara_LD_Base_Hair_Sorted.X	x	base_mesh	24531	24531	same	md5 verified
+Ara	Mesh_Ara_AYR_Base_Hair_Sorted.X	x	base_mesh	23357	23357	same	md5 verified
+Ara	Mesh_Ara_ALS_Basic_Hair_Sorted.X	x	base_mesh		35220	june_only	
+Ara	Mesh_Ara_ALS_Basic_Face_Sorted.X	x	base_mesh		15618	june_only	
+Ara	Mesh_Ara_ALS_Face_Sorted.XET	xet	base_mesh		18396	june_only	
+Ara	Mesh_Ara_AA_Basic_Hair_Sorted.X	x	base_mesh		24472	june_only	
+Ara	Mesh_Ara_AA_Basic_Face_Sorted.X	x	base_mesh		15617	june_only	
+Ara	Mesh_Ara_AA_Face_Sorted.XET	xet	base_mesh		18824	june_only	
+Ara	Motion_Ara_Emotion_CRAYONPOP_Sorted.X	x	base_motion	851209	851209	same	md5 verified
+Ara	Motion_Ara_Emotion_DeepBow.X	x	base_motion	549986	549986	same	md5 verified
+Ara	Mesh_Ara_AA_Basic_Face_Berserk_Sorted.X	x	base_mesh		14149	june_only	
+Ara	Mesh_Ara_ALS_Basic_Face_Berserk_Sorted.X	x	base_mesh		11000	june_only	
+Elesis	Motion_EL_BH.x	x	base_motion	2066156	3083072	differs	size; KSM frames 80->80 anim_sets(raw) 26->25 unique_names 26->25 (+4 new names, -5 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Elesis	Motion_EL_Field.x	x	base_motion	331299	513486	differs	size; KSM frames 80->80 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 8->8; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Elesis	Motion_EL.x	x	base_motion	3894111	5596017	differs	size; KSM frames 80->79 anim_sets(raw) 79->83 unique_names 79->83 (+8 new names, -4 dropped names) mesh_frames 7->11; bone_parent_map identical; mesh_container_frames differ; named_frame_pose changed in 0/79 (max delta 0.000)
+Elesis	Motion_EL_Lobby.x	x	base_motion	1717027	2007749	differs	size; KSM frames 80->80 anim_sets(raw) 10->12 unique_names 10->12 (+4 new names, -2 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 25/79 (max delta 2.980); live game kom already holds a different file (size 2007749)
+Elesis	Motion_EL_Emotion.x	x	base_motion	1031012	1874391	differs	size; March is text/bzip X, June KSM: AnimationSet names 9->9 (+0 -0) added=[] removed=[]
+Elesis	Motion_EL_SK.x	x	base_motion	1440530	2213295	differs	size; KSM frames 80->80 anim_sets(raw) 17->25 unique_names 17->25 (+10 new names, -2 dropped names) mesh_frames 7->7; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/79 (max delta 0.000)
+Elesis	Motion_EL_Common.x	x	base_motion	1418490	6111095	differs	size; KSM frames 80->80 anim_sets(raw) 12->37 unique_names 12->37 (+25 new names, -0 dropped names) mesh_frames 2->2; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 22/79 (max delta 0.323)
+Elesis	Motion_EL_PK.x	x	base_motion	1163011	2344871	differs	size; March is text/bzip X, June KSM: AnimationSet names 16->23 (+8 -1) added=['SI_A_SPK_AVATAR_OF_THE_FIRE', 'SI_A_SPK_FIREWORKS', 'SI_SA_SPK_SCALDIC_SWORD', 'SPK_Combo_XZ', 'SPK_Combo_XZZ', 'SPK_Combo_XZZZ', 'SPK_DashJumpComboZX_Loop', 'SPK_DashJumpComboZX_Start'] removed=['SI_SA_SPK_ETERNAL_FIRE']
+Elesis	MOTION_EL_GM.x	x	base_motion	2454581	3400722	differs	size; KSM frames 80->80 anim_sets(raw) 30->37 unique_names 30->37 (+12 new names, -5 dropped names) mesh_frames 12->12; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 10/79 (max delta 0.017)
+Elesis	Mesh_EL_Basic_Hair_Sorted.X	x	base_mesh	19035	19035	same	md5 verified
+Elesis	Mesh_EL_Basic_Face_Sorted.X	x	base_mesh	10136	10136	same	md5 verified
+Elesis	Mesh_EL_Basic_Face_Sorted.XET	xet	base_mesh	8386	25040	differs	size; not KSM (head XET  -> XET )
+Elesis	Mesh_EL_Basic_UpBody_Sorted.X	x	base_mesh	13974	14376	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 64 vs 64 (common 64) texture names equal; geometry change unverified
+Elesis	Mesh_EL_Basic_LowBody_Sorted.X	x	base_mesh	10031	10031	same	md5 verified
+Elesis	Mesh_EL_Basic_Hand_Sorted.X	x	base_mesh	13333	13333	same	md5 verified
+Elesis	Mesh_EL_Basic_Foot_Sorted.X	x	base_mesh	13513	13513	same	md5 verified
+Elesis	Mesh_EL_Basic_Weapon_Sorted.X	x	base_mesh	3725	3725	same	md5 verified
+Elesis	Mesh_EL_SSK_Base_Hair_Sorted.X	x	base_mesh	26035	26035	same	md5 verified
+Elesis	Mesh_EL_SPK_Base_Hair_Sorted.X	x	base_mesh	22932	22932	same	md5 verified
+Elesis	Mesh_EL_SGM_Base_Hair_Sorted.X	x	base_mesh	21707	21707	same	md5 verified
+Elesis	Mesh_EL_SBH_Base_Hair_Sorted.X	x	base_mesh	26607	26607	same	md5 verified
+Elesis	Mesh_EL_SDK_Basic_Hair_Sorted.X	x	base_mesh		30394	june_only	
+Elesis	Mesh_EL_SCA_Basic_Hair_Sorted.X	x	base_mesh		26723	june_only	
+Elesis	Mesh_EL_SCA_Basic_Face_Sorted.x	x	base_mesh		10138	june_only	
+Elesis	Mesh_EL_SCA_Basic_Face_Sorted.xet	xet	base_mesh		18922	june_only	
+Elesis	Motion_El_Extractor_Earth.x	x	base_motion	52410	52410	same	md5 verified
+Elesis	Motion_El_Extractor_Fire.x	x	base_motion	52409	52409	same	md5 verified
+Elesis	Motion_El_Extractor_Ice.x	x	base_motion	52408	52408	same	md5 verified
+Elesis	Motion_El_Extractor_NormalA.X	x	base_motion	17818	17818	same	md5 verified
+Elesis	Motion_El_Extractor_Nova.x	x	base_motion	52405	52405	same	md5 verified
+Elesis	Motion_El_Power_Plant.x	x	base_motion	191392	191392	same	md5 verified
+Add	Motion_ADD_Field.x	x	base_motion	357428	543328	differs	size; KSM frames 83->83 anim_sets(raw) 7->9 unique_names 7->9 (+2 new names, -0 dropped names) mesh_frames 11->11; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Add	Motion_ADD_LP.x	x	base_motion	2342749	3991028	differs	size; KSM frames 83->83 anim_sets(raw) 24->33 unique_names 24->33 (+11 new names, -2 dropped names) mesh_frames 11->11; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Add	Motion_Add_Emotion.x	x	base_motion	1262034	1674368	differs	size; KSM frames 83->83 anim_sets(raw) 9->9 unique_names 9->9 (+0 new names, -0 dropped names) mesh_frames 11->11; bone_parent_map DIFFERS(2); mesh_container_frames differ; named_frame_pose changed in 6/82 (max delta 2.666)
+Add	Motion_Add_Common.x	x	base_motion	1352432	7419673	differs	size; KSM frames 83->83 anim_sets(raw) 8->37 unique_names 8->37 (+29 new names, -0 dropped names) mesh_frames 1->1; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Add	Motion_ADD_Lobby.x	x	base_motion	855581	1156641	differs	size; KSM frames 83->83 anim_sets(raw) 6->10 unique_names 6->10 (+4 new names, -0 dropped names) mesh_frames 11->11; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Add	Motion_ADD.x	x	base_motion	5075246	12086417	differs	size; KSM frames 83->83 anim_sets(raw) 90->188 unique_names 90->99 (+9 new names, -0 dropped names) mesh_frames 11->11; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 0/83 (max delta 0.000)
+Add	Motion_ADD_PT.x	x	base_motion	2915640	3415546	differs	size; KSM frames 83->83 anim_sets(raw) 31->35 unique_names 31->35 (+9 new names, -5 dropped names) mesh_frames 11->11; bone_parent_map identical; mesh_container_frames identical; named_frame_pose changed in 36/83 (max delta 0.192)
+Add	Mesh_ADD_Basic_Hair_Sorted.X	x	base_mesh	27691	27691	same	md5 verified
+Add	Mesh_ADD_Basic_Face_Sorted.X	x	base_mesh	10351	10351	same	md5 verified
+Add	Mesh_ADD_Basic_Face_Sorted.XET	xet	base_mesh	12444	30980	differs	size; not KSM (head XET  -> XET )
+Add	Mesh_ADD_Basic_Upbody_Sorted.X	x	base_mesh	14081	14081	same	md5 verified
+Add	Mesh_ADD_Basic_Lowbody_Sorted.X	x	base_mesh	9809	10677	differs	size; not KSM (head xof  -> xof ); mesh X decode bzip>bzip: SkinWeights-style bone names 57 vs 57 (common 57) texture names equal; geometry change unverified
+Add	Mesh_ADD_Basic_Hand_Sorted.X	x	base_mesh	15441	15441	same	md5 verified
+Add	Mesh_ADD_Basic_Foot_Sorted.X	x	base_mesh	14009	14009	same	md5 verified
+Add	Mesh_ADD_Basic_Weapon_Sorted.X	x	base_mesh	5716	5716	same	md5 verified
+Add	Mesh_ADD_APT_Base_Hair_Sorted.X	x	base_mesh	22088	22088	same	md5 verified
+Add	Mesh_ADD_ALP_Base_Hair_Sorted.X	x	base_mesh	22795	22795	same	md5 verified
+Add	Mesh_ADD_AMM_Base_Hair_Sorted.X	x	base_mesh		27293	june_only	
+Add	Mesh_ADD_AAT_Base_Hair_Sorted.X	x	base_mesh		17970	june_only	
+Add	Mesh_ADD_ATT_Basic_Hair_Sorted.X	x	base_mesh		21450	june_only	
+Add	Mesh_ADD_ADE_Basic_Hair_Sorted.X	x	base_mesh		28055	june_only	
+Add	Motion_Add_Emotion_DeepBow.X	x	base_motion	499919	499919	same	md5 verified
+Add	Mesh_ADD_Basic_Berserk_Face_Sorted.X	x	base_mesh		8704	june_only	
+Add	Mesh_ADD_Basic_Berserk_Face_Sorted.XET	xet	base_mesh		23400	june_only	
+Lu/Ciel	Mesh_Lu_Basic_Hair_Sorted.X	x	base_mesh		28039	june_only	
+Lu/Ciel	Mesh_Lu_Basic_Face_Sorted.X	x	base_mesh		17373	june_only	
+Lu/Ciel	Mesh_Lu_Basic_Face_Sorted.XET	xet	base_mesh		27554	june_only	
+Lu/Ciel	Mesh_Lu_Basic_Upbody_Sorted.X	x	base_mesh		16235	june_only	
+Lu/Ciel	Mesh_Lu_Basic_Lowbody_Sorted.X	x	base_mesh		12371	june_only	
+Lu/Ciel	Mesh_Lu_Basic_Hand_Sorted.X	x	base_mesh		12109	june_only	
+Lu/Ciel	Mesh_Lu_Basic_foot_Sorted.X	x	base_mesh		17539	june_only	
+Lu/Ciel	Mesh_Lu_Basic_Weapon_Sorted.X	x	base_mesh		52560	june_only	
+Lu/Ciel	Mesh_Lu_LDB_Cash_Hair_Sorted.X	x	base_mesh		36179	june_only	
+Lu/Ciel	Mesh_Lu_LDB_Basic_Face_Sorted.X	x	base_mesh		17371	june_only	
+Lu/Ciel	Mesh_Lu_LLC_Cash_Hair_Sorted.X	x	base_mesh		36443	june_only	
+Lu/Ciel	Mesh_Lu_LCN_Cash_Hair_Sorted.x	x	base_mesh		52392	june_only	
+Lu/Ciel	Mesh_Lu_LCN_Basic_Face_Sorted.X	x	base_mesh		15836	june_only	
+Lu/Ciel	Mesh_Lu_LCN_Basic_Face_Sorted.XET	xet	base_mesh		20684	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Face_Sorted.X	x	base_mesh		14488	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Face_Sorted.XET	xet	base_mesh		22120	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Foot_Sorted.X	x	base_mesh		14344	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Hair_Sorted.X	x	base_mesh		28597	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Hand_Sorted.X	x	base_mesh		14832	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Lowbody_Sorted.X	x	base_mesh		9670	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Upbody_Sorted.X	x	base_mesh		13825	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Weapon_A_Sorted.X	x	base_mesh		14271	june_only	
+Lu/Ciel	Mesh_Ciel_Basic_Weapon_B_Sorted.X	x	base_mesh		14218	june_only	
+Lu/Ciel	Mesh_Ciel_LDN_Basic_Face_Sorted.X	x	base_mesh		14528	june_only	
+Rose	Mesh_Rose_Basic_Hair_Sorted.X	x	base_mesh		31994	june_only	
+Rose	Mesh_Rose_Basic_Face_Sorted.X	x	base_mesh		16781	june_only	
+Rose	Mesh_Rose_Basic_Face_Sorted.XET	xet	base_mesh		37774	june_only	
+Rose	Mesh_Rose_Basic_Upbody_Sorted.X	x	base_mesh		17641	june_only	
+Rose	Mesh_Rose_Basic_Lowbody_Sorted.X	x	base_mesh		11383	june_only	
+Rose	Mesh_Rose_Basic_Hand_Sorted.X	x	base_mesh		13763	june_only	
+Rose	Mesh_Rose_Basic_Foot_Sorted.X	x	base_mesh		16398	june_only	
+Rose	Mesh_Rose_R_Ed_Weapon10_Sorted.X	x	base_mesh		6480	june_only	
+Rose	Mesh_Rose_A_Ed_Weapon10_Sorted.X	x	base_mesh		6648	june_only	
+Rose	Mesh_Rose_M_Ed_Weapon10_Sorted.X	x	base_mesh		6519	june_only	
+Rose	Mesh_Rose_H_Ed_Weapon10_Sorted.X	x	base_mesh		4806	june_only	
+Rose	Mesh_Rose_RBD_Cash_Hair_Sorted.x	x	base_mesh		27420	june_only	
+Rose	Mesh_Rose_RCR_Cash_Hair_Sorted.x	x	base_mesh		15281	june_only	
+Rose	Mesh_Rose_RCR_Basic_Face_Sorted.X	x	base_mesh		14747	june_only	
+Rose	Mesh_Rose_RCR_Basic_Face_Sorted.XET	xet	base_mesh		30692	june_only	
+Rose	Mesh_Rose_RHB_Cash_Hair_Sorted.X	x	base_mesh		36975	june_only	
+Rose	Mesh_Rose_RST_Cash_Hair_Sorted.X	x	base_mesh		56809	june_only	
+Rose	Mesh_Rose_RST_Basic_Face_Sorted.X	x	base_mesh		16737	june_only	
+Rose	Mesh_Rose_RST_Basic_Face_Sorted.XET	xet	base_mesh		26948	june_only	
+Rose	Mesh_Rose_RVK_Cash_Hair_Sorted.x	x	base_mesh		25513	june_only	
+Rose	Mesh_Rose_RFY_Cash_Hair_Sorted.X	x	base_mesh		35016	june_only	
+Rose	Mesh_Rose_ROM_Cash_Hair_Sorted.X	x	base_mesh		39115	june_only	
+Rose	Mesh_Rose_RMH_Cash_Hair_Sorted.X	x	base_mesh		50089	june_only	
+Ain	Mesh_Ain_ALE_Cash_Hair_Sorted.x	x	base_mesh		212414	june_only	
+Ain	Mesh_Ain_AAH_Cash_Hair_Sorted.x	x	base_mesh		28502	june_only	
+Ain	Mesh_Ain_AAH_Basic_Face_Sorted.X	x	base_mesh		15478	june_only	
+Ain	Mesh_Ain_AAH_Basic_Face_Sorted.XET	xet	base_mesh		24800	june_only	
+Ain	Mesh_Ain_Basic_Hair_Sorted.X	x	base_mesh		33728	june_only	
+Ain	Mesh_Ain_Basic_Face_Sorted.X	x	base_mesh		15415	june_only	
+Ain	Mesh_Ain_Basic_Face_Sorted.XET	xet	base_mesh		37638	june_only	
+Ain	Mesh_Ain_Basic_Upbody_Sorted.X	x	base_mesh		18573	june_only	
+Ain	Mesh_Ain_Basic_Lowbody_Sorted.X	x	base_mesh		14018	june_only	
+Ain	Mesh_Ain_Basic_Hand_Sorted.X	x	base_mesh		16676	june_only	
+Ain	Mesh_Ain_Basic_Foot_Sorted.X	x	base_mesh		17771	june_only	
+Ain	Mesh_Ain_Basic_Weapon_Sorted.x	x	base_mesh		20450	june_only	
+Ain	Mesh_Ain_ALA_Cash_Hair_Sorted.x	x	base_mesh		28877	june_only	
+Ain	Mesh_Ain_AEE_Cash_Hair_Sorted.x	x	base_mesh		174389	june_only	
+Ain	Mesh_Ain_ALW_Cash_Hair_Sorted.x	x	base_mesh		56106	june_only	
+Ain	Mesh_Ain_AAP_Cash_Hair_Sorted.x	x	base_mesh		56834	june_only	
+Ain	Mesh_Ain_AAP_Basic_Face_Sorted.x	x	base_mesh		15416	june_only	
+Ain	Mesh_Ain_AAP_Basic_Face_Sorted.XET	xet	base_mesh		23570	june_only	
+Ain	Mesh_Ain_AEE_Basic_Face_Sorted.XET	xet	base_mesh		25308	june_only	
+Ain	Ain_Eid_Core_Basic.y	y	base_mesh		929	june_only	
