@@ -1048,13 +1048,16 @@ note, then commit on main.
 
 *(2026-10-17, Opus 5.5 xhigh. Read-only: no game code, no flag, no flagcheck, no build or deploy, no log tag.)*
 
-- **Landed:** `june2017_re/region_engine.tsv` (90 rows: every census `bind.*` / `keys.*` / `members.*` row, the
-  SOLESS byte-context names, and the names bound since the ledger), 27 `funcmap.tsv` rows (`Atlas A1b:`), the table below.
-  Verdicts: 31 transcription-ready, 25 Opus-only, 21 done, the rest owned elsewhere or nothing to port.
+- **Landed:** `june2017_re/region_engine.tsv` (92 rows: every census `bind.*` / `keys.*` / `members.*` row, the
+  SOLESS byte-context names, the ledger's DungeonData keys and the names bound since the ledger), 30 `funcmap.tsv` rows
+  (`Atlas A1b:`), the table below. Verdicts: 29 transcription-ready, 27 Opus-only, 21 done, the rest owned elsewhere or
+  nothing to port. Phase order holds: no E-owned row is called from an Atlas-line file (`StartFadeOutCustomColor`'s `UI`
+  tag is the dead `ELYSION_M_2STAGE_GATE.lua`, which the census tags by name only).
 - **Premises.** Every ledger "(b)" holds: `GetAliveActiveNPCCount`, `AnimStop`, `GetUnitIndex` and `SetShowInvincible`
   exist on June's class or its March base, and their bodies match June (binding only). `GetDyingStart`, `IsActiveMonster`
   and `SetCameraDistance` were bound by june-effect C3z-4. Receivers are typed per call site (c3z4 `type_calls`): every
-  name lands on June's registering class. `SetShowHpSmallGage` needs both the NPC and the user binding.
+  typed site lands on June's registering class (the untyped counts are in the TSV; `IsSceneEnded`'s 20 all go through
+  `GetSlideShot()`). `SetShowHpSmallGage` needs both the NPC and the user binding.
   Spot-checked in Ghidra: `IsActiveMonster` (byte +0x872c), `GetDyingStart` (+0xdac), `GetStoredGUUser` (+0x8d64).
 - **Census corrections.**
   - `bind.unbound.bytecode` lists 5 SOLESS names. Byte context (`TGETS` after `MOV A+1, B`, via ljconv + ljbc) gives
@@ -1093,7 +1096,7 @@ One row per name or group; addresses, layouts, stores and every read site are in
 |---|---|---|---|
 | `GetAliveActiveNPCCount` (CX2Game) | `322d0ae0` | ready: bind, body = `X2Game.cpp:6758` | A4 |
 | `GetNationFlag` (CX2Main) | `31e4e690` | ready: bind `X2Main.h:1577` | A4 |
-| `NOT_CHECK_INDICATOR` (NPC +0x8fa8) | `327a0fa0`, reader `32f099f0` | ready: port the indicator filter (`X2MonsterIndicator.cpp:190`) | A4 |
+| `NOT_CHECK_INDICATOR` (NPC +0x8fa8) | `327a0fa0`, reader `32f099f0` | Opus (June's filter = `X2MonsterIndicator.cpp:190-202` plus this key and an unnamed AI byte +0x34) | A4 |
 | `SetChangeUVPoint` (CPictureData) | `31c9a7d0` | Opus (U0 left it a candidate) | A4 |
 | `USE_DEFAULT_DIE_PARTICLE` (NPC +0x8fd9) | `327a0fa0`, `3277ec60`, `32778d40` | Opus ("DieLight" once at death) | A4 |
 | `CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED` (line +0x150) | `31c705c0` | Opus (reader not found) | A4 |
@@ -1110,7 +1113,7 @@ One row per name or group; addresses, layouts, stores and every read site are in
 | `AddEffectSetDeleteCondition_LUA` | `3227a670` | ready (June's 5-case switch) | E7 |
 | `FindRandomSelectUserUnitsFromRange_LUA`, `GetFindedRandomSelectUserUnits_LUA`, `GetRandomSelectUserUnitFromRange`, `GetUserIndexByUserUID` | `322dd990`, `322d0030`, `322dc3c0`, `322cfc00` | ready | E7 |
 | `IsSceneEnded` (CX2SlideShot +0x88) | `325c4a50` | ready (new read-and-clear flag) | E7 |
-| `SetShowHpSmallGage` (NPC +0x8fb9, user +0x9528) | `31e4d870`, `31e4d150`, render `32e5d580` | ready | E7 |
+| `SetShowHpSmallGage` (NPC +0x8fb9, user +0x9528) | `31e4d870`, `31e4d150`, reader `32e5d580` | Opus (which March draw function holds the skip) | E7 |
 | `SetParticleSize`, `SetShowWorld`, `PlayWorldAllSound` | `31e4f3f0`, `322cc040`, `322cc060` | ready | E7 |
 | `Clear/Get/SetStoredNPC` (observer +0x8d6c), `Get/SetBlackHoleData_Speed/_Range` | `31e57990`.., `31e4c480`.. | ready | E7 |
 | `CAN_PASS_UNIT_AT_FIRST_FRAME` (NPC +0x8fd8) | `327a0fa0`, Init `3277c030` | ready | E7 |
@@ -1124,6 +1127,7 @@ One row per name or group; addresses, layouts, stores and every read site are in
 | `AddSubtitleData`; `MOTIONNAME_EFFECTSETNAME`; `DI_*_HERO_NORMAL` | | owned elsewhere | june-engine U1; W1; june-dungeons C3y-5 |
 | `LOCAL_MAP_UI_CUSTOM_MSG` 18006-18008; `WI_GUILD_AGIT`, `WI_SPA_RUBEN` | June Enum | ready | A3 (+E4) |
 | `DLG_Map_House` / `DLG_Map_Village` keys; `BattleFieldData` keys; `DungeonData.LU/CIEL`; DROP keys | | mapped by A1a; server-read; char ports; emulator | E1 / A5; A6b; checklist; offline |
+| ledger DungeonData keys: March reads 4; `additionalTicket` / `m_bForbidEnterDungeon` sit only on Hero rows; `Elysion_Tower_Stage3.lua` (`bind.nosource`) | `327e0f80` | nothing here | C3y-5; A10 (none) |
 
 ---
 
