@@ -20,6 +20,9 @@ OUT = os.path.join(HERE, 'c11_reach.tsv')
 KOM = os.environ.get('X2_KOM_CONTENTS', r'F:\elsword stuff\elsword_2014\els_2014\237311\24965799\kom_contents')
 
 DEPLOY_FILES = (('data036_kom', 'DamageEffect.lua', 'DE'), ('datai015_kom', 'DamageEffect_INT.lua', 'DE'),
+                # C11a: June's split damage-effect files ship beside DamageEffect.lua since the re-adoption
+                ('data036_kom', 'DamageEffect_Character.lua', 'DE'), ('data036_kom', 'DamageEffect_Dungeon.lua', 'DE'),
+                ('data036_kom', 'DamageEffect_ETC.lua', 'DE'),
                 ('data036_kom', 'EffectSet.lua', 'ES'), ('data036_kom', 'UIEffectSet.lua', 'ES'),
                 ('datai015_kom', 'EffectSet_INT.lua', 'ES'))
 BOM = b'\xef\xbb\xbf'

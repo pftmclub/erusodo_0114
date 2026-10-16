@@ -577,3 +577,20 @@ with the first ported hyper active: option on Hide, use it -> the cut-in shows; 
 `USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE` (June's spelling; `ELESIS_KNIGHT`, 3 states), `SOUND_SET3_RATE` and up (`Add_NasodRuler`,
 `Chung_Iron_Cannon`, `ELESIS_KNIGHT`, `Eve_Nasod`, `Rose_Ranger`), and `STATE_SOUND_PLAY<n>` inside a sound set (`Add_NasodRuler`, `ELESIS_KNIGHT`).
 Engine side done; nothing to port per class beyond the overrides.
+
+### 7u. March-only effect templets the June re-adoption dropped (from June effect completion C11a)
+
+C11a (2026-10-16, user: full June re-adoption, route b) replaced data036 `DamageEffect.lua` / `EffectSet.lua` with June's own files. The merged
+March copies held 50 damage effects and 37 effect sets June's files do not have; the full list is `june2017_re/c11a_march_only_templets.tsv`.
+30 of them are still named by **March class code**, so those skills now play without that effect (no crash: every C++ site NULL-checks
+`CreateInstance` or discards the result, and a missing effect set logs `[RANOX_EFFECT_MISSING]`). The port of each class replaces the March
+caller with June's, which does not name them; until then they are a visible gap, not a bug to patch here.
+| class | C++ sites (`X2Lib/`) | class Lua (data036, March bytecode) |
+|---|---|---|
+| Raven | `X2GURaven.cpp`: `RAVEN_SEVEN_BURST_1/2_HYPER`, `RAVEN_MAXIMUM_CANNON_HYPER`, `_FLY_HYPER`, `RAVEN_OVER_TAKER_GUARDIAN_STRIKE[_HYPER]`, `RAVEN_OVER_TAKER_XX_FRONT_X`, `EffectSet_RAVEN_VJAVELIN` | `RAVEN_FIGHTER.lua`: `DamageEffect_RRF_ExplosiveHand_Impact`, `EffectSet_RAVEN_OVER_TAKER_GUARDIAN_STRIKE`, `..._HYPER_MEMO`, `EffectSet_RAVEN_VJAVELIN_LAND`, `Effectset_A_RWT_FLAME_SWORD_MEMO` |
+| Elsword | `X2GUElsword_SwordMan.cpp`: `LORD_KNIGHT_SAND_STORM`, `EffectSet_ELSWORD_DOUBLE_SLASH_HYPER` | - |
+| Rena | `X2GULire_ElvenRanger.cpp`: `DamageEffect_LGA_Arc_Shot`, `DamageEffect_Cryotron_Bolt_GUIDED_ARROW` | `Lire_ElvenRanger.lua`: `Effectset_Rena_DiveKickBombingA/B`, `..._B_Memo` |
+| Aisha | `X2GUArme_VioletMage.cpp`: `EffectSet_Aisha_DeathField_FirstImpact`, `EffectSet_Aisha_DeathFieldBomb` | `Arme_VioletMage.lua`: `EffectSet_AHM_Blaze_Step_Damage_MEMO`, `EffectSet_Aisha_Blaze_step_MEMO` |
+| Chung | `X2GUChung.cpp`: `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell`, `EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT`; `X2BuffTemplet.cpp`: `CHUNG_BIGBANGSTREAM_MEMO` | `Chung_Iron_Cannon.lua`: `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` |
+| Eve | `X2GuEve.cpp`: `EVE_EP_DASH_COMBO_Z` | - |
+Not a class: `BOMB` (`X2GUNPCFunc.cpp`, an NPC function, and June's `Bunker.lua`) has no owner; noted in the C11a Done note.

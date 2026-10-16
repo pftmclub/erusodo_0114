@@ -3101,130 +3101,130 @@ formats are tokenizers, not Lua, and their keywords are **plaintext** in the Jun
 
 | Scope | Key | Status | June | March | June uses | March uses | Runtime / system |
 |---|---|---|---|---|---|---|---|
-| `MP.event` | `ANINAME` | implemented | `31c85378` | `KTDGXMeshPlayer.cpp:1211` | 7636 | 4137 |  |
-| `MP.event` | `ANISPEED` | implemented | `31c853e6` | `KTDGXMeshPlayer.cpp:1212` | 790 | 330 |  |
+| `MP.event` | `ANINAME` | implemented | `31c85378` | `KTDGXMeshPlayer.cpp:1211` | 7636 | 7596 |  |
+| `MP.event` | `ANISPEED` | implemented | `31c853e6` | `KTDGXMeshPlayer.cpp:1212` | 790 | 786 |  |
 | `MP.event` | `BLACKHOLETIME` | implemented | `31c856ab` | `KTDGXMeshPlayer.cpp:1226` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.event` | `COLOR` | implemented | `31c8548f` | `KTDGXMeshPlayer.cpp:1214` | 12187 | 7042 |  |
-| `MP.event` | `CRASH` | implemented | `31c856e0` | `KTDGXMeshPlayer.cpp:1227` | 32 | 2 |  |
-| `MP.event` | `DIRSPEED` | implemented | `31c85676` | `KTDGXMeshPlayer.cpp:1225` | 1167 | 355 |  |
+| `MP.event` | `COLOR` | implemented | `31c8548f` | `KTDGXMeshPlayer.cpp:1214` | 12187 | 12118 |  |
+| `MP.event` | `CRASH` | implemented | `31c856e0` | `KTDGXMeshPlayer.cpp:1227` | 32 | 32 |  |
+| `MP.event` | `DIRSPEED` | implemented | `31c85676` | `KTDGXMeshPlayer.cpp:1225` | 1167 | 1156 |  |
 | `MP.event` | `LIGHTFLOWIMPACT` | implemented | `31c8574a` | `KTDGXMeshPlayer.cpp:1229` | 1 | 1 |  |
 | `MP.event` | `LIGHTFLOWPOINT` | implemented | `31c8577f` | `KTDGXMeshPlayer.cpp:1230` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.event` | `OUTLINECOLOR` | implemented | `31c854cc` | `KTDGXMeshPlayer.cpp:1215` | 507 | 51 |  |
+| `MP.event` | `OUTLINECOLOR` | implemented | `31c854cc` | `KTDGXMeshPlayer.cpp:1215` | 507 | 507 |  |
 | `MP.event` | `POSITION` | implemented | `31c85538` | `KTDGXMeshPlayer.cpp:1218` | 3 | 3 |  |
-| `MP.event` | `RENDER_TYPE` | implemented | `31c857db` | `KTDGXMeshPlayer.cpp:1232` | 678 | 157 |  |
-| `MP.event` | `RESETCRASH` | implemented | `31c85715` | `KTDGXMeshPlayer.cpp:1228` | 1 | 0 |  |
-| `MP.event` | `ROTATE` | implemented | `31c85641` | `KTDGXMeshPlayer.cpp:1224` | 2857 | 1297 |  |
-| `MP.event` | `SIZE` | implemented | `31c85503` | `KTDGXMeshPlayer.cpp:1216` | 8243 | 4464 |  |
-| `MP.event` | `SLASHTRACE` | implemented | `31c8543c` | `KTDGXMeshPlayer.cpp:1213` | 777 | 347 |  |
+| `MP.event` | `RENDER_TYPE` | implemented | `31c857db` | `KTDGXMeshPlayer.cpp:1232` | 678 | 677 |  |
+| `MP.event` | `RESETCRASH` | implemented | `31c85715` | `KTDGXMeshPlayer.cpp:1228` | 1 | 1 |  |
+| `MP.event` | `ROTATE` | implemented | `31c85641` | `KTDGXMeshPlayer.cpp:1224` | 2857 | 2842 |  |
+| `MP.event` | `SIZE` | implemented | `31c85503` | `KTDGXMeshPlayer.cpp:1216` | 8243 | 8202 |  |
+| `MP.event` | `SLASHTRACE` | implemented | `31c8543c` | `KTDGXMeshPlayer.cpp:1213` | 777 | 777 |  |
 | `MP.event` | `SOUND` | implemented | `31c857ad` | `KTDGXMeshPlayer.cpp:1231` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.event` | `TEX0UV` | implemented | `31c855a2` | `KTDGXMeshPlayer.cpp:1221` | 111 | 54 |  |
-| `MP.event` | `TEX1UV` | implemented | `31c855d7` | `KTDGXMeshPlayer.cpp:1222` | 15 | 11 |  |
+| `MP.event` | `TEX0UV` | implemented | `31c855a2` | `KTDGXMeshPlayer.cpp:1221` | 111 | 111 |  |
+| `MP.event` | `TEX1UV` | implemented | `31c855d7` | `KTDGXMeshPlayer.cpp:1222` | 15 | 15 |  |
 | `MP.event` | `TEX2UV` | implemented | `31c8560c` | `KTDGXMeshPlayer.cpp:1223` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.event` | `VELOCITY` | implemented | `31c8556d` | `KTDGXMeshPlayer.cpp:1220` | 3272 | 1825 |  |
+| `MP.event` | `VELOCITY` | implemented | `31c8556d` | `KTDGXMeshPlayer.cpp:1220` | 3272 | 3252 |  |
 | `MP.templet` | `POSTEFFECT` | unsupported | `31c8b951` | `KTDGXMeshPlayer.cpp:1040` | 0 | 0 | binary-only (no June data uses it); absent: June's post-effect render pass (DG manager 31cd7810 mode 1, fed by vtable slot 11: mesh 31c83500, particle 31cef710); March's KTDGManager has none, CKTDGPostEffect is ADD_POSTEFFECT-only; stored; `JUNE_FX unsupported POSTEFFECT` in ErrorLog.txt when TRUE |
-| `MP.templet` | `ALPHABLEND` | implemented | `31c8ba36` | `KTDGXMeshPlayer.cpp:1049` | 25 | 0 | ctor `SetAlphaObject( bAlphaBlend )` (31c8d140 @31c8d2f6) and `bAlphaBlend` in all three render params (@31c8dcbd, OnFrameMove @31c88cc4, Draw @31c83cf9), default TRUE (31c907e0 @31c90b5a) |
-| `MP.templet` | `ALPHATEST` | implemented | `31c8ba19` | `KTDGXMeshPlayer.cpp:1036` | 93 | 1 |  |
-| `MP.templet` | `ANIPACKAGE` | implemented | `31c8bba0` | `KTDGXMeshPlayer.cpp:1074` | 9 | 1 |  |
-| `MP.templet` | `APPLYUNITSCALE` | implemented | `31c8b9fc` | `KTDGXMeshPlayer.cpp:1029` | 266 | 51 |  |
-| `MP.templet` | `BILLBOARDTYPE` | implemented | `31c8b874` | `KTDGXMeshPlayer.cpp:1000` | 7379 | 3904 |  |
+| `MP.templet` | `ALPHABLEND` | implemented | `31c8ba36` | `KTDGXMeshPlayer.cpp:1049` | 25 | 25 | ctor `SetAlphaObject( bAlphaBlend )` (31c8d140 @31c8d2f6) and `bAlphaBlend` in all three render params (@31c8dcbd, OnFrameMove @31c88cc4, Draw @31c83cf9), default TRUE (31c907e0 @31c90b5a) |
+| `MP.templet` | `ALPHATEST` | implemented | `31c8ba19` | `KTDGXMeshPlayer.cpp:1036` | 93 | 93 |  |
+| `MP.templet` | `ANIPACKAGE` | implemented | `31c8bba0` | `KTDGXMeshPlayer.cpp:1074` | 9 | 9 |  |
+| `MP.templet` | `APPLYUNITSCALE` | implemented | `31c8b9fc` | `KTDGXMeshPlayer.cpp:1029` | 266 | 266 |  |
+| `MP.templet` | `BILLBOARDTYPE` | implemented | `31c8b874` | `KTDGXMeshPlayer.cpp:1000` | 7379 | 7343 |  |
 | `MP.templet` | `BLACKHOLEPOS` | implemented | `31c8b700` | `KTDGXMeshPlayer.cpp:963` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.templet` | `CARTOONTEXTYPE` | implemented | `31c8b2af` | `KTDGXMeshPlayer.cpp:893` | 4 | 10 |  |
-| `MP.templet` | `CHANGETEXXET` | implemented | `31c8bb5d` | `KTDGXMeshPlayer.cpp:1072` | 165 | 97 |  |
-| `MP.templet` | `CRASHLAND` | implemented | `31c8b9df` | `KTDGXMeshPlayer.cpp:1027` | 398 | 220 |  |
-| `MP.templet` | `CULLMODE` | implemented | `31c8b344` | `KTDGXMeshPlayer.cpp:911` | 228 | 76 |  |
-| `MP.templet` | `DESTBLENDMODE` | implemented | `31c8b7e5` | `KTDGXMeshPlayer.cpp:982` | 7408 | 4013 |  |
+| `MP.templet` | `CARTOONTEXTYPE` | implemented | `31c8b2af` | `KTDGXMeshPlayer.cpp:893` | 4 | 4 |  |
+| `MP.templet` | `CHANGETEXXET` | implemented | `31c8bb5d` | `KTDGXMeshPlayer.cpp:1072` | 165 | 161 |  |
+| `MP.templet` | `CRASHLAND` | implemented | `31c8b9df` | `KTDGXMeshPlayer.cpp:1027` | 398 | 387 |  |
+| `MP.templet` | `CULLMODE` | implemented | `31c8b344` | `KTDGXMeshPlayer.cpp:911` | 228 | 228 |  |
+| `MP.templet` | `DESTBLENDMODE` | implemented | `31c8b7e5` | `KTDGXMeshPlayer.cpp:982` | 7408 | 7369 |  |
 | `MP.templet` | `DIELIFETIME` | implemented | `31c8b458` | `KTDGXMeshPlayer.cpp:933` | 0 | 0 | binary-only (no June data uses it) |
 | `MP.templet` | `DIEPLAYCOUNT` | implemented | `31c8b42e` | `KTDGXMeshPlayer.cpp:932` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.templet` | `DIETYPE` | implemented | `31c8b0f9` | `KTDGXMeshPlayer.cpp:839` | 12 | 5 |  |
-| `MP.templet` | `DRAWCOUNT` | implemented | `31c8b4c4` | `KTDGXMeshPlayer.cpp:936` | 2834 | 1365 |  |
-| `MP.templet` | `ELASTICCOEFF` | implemented | `31c8b539` | `KTDGXMeshPlayer.cpp:939` | 747 | 286 |  |
-| `MP.templet` | `ELASTICCOEFF_X` | implemented | `31c8b55f` | `KTDGXMeshPlayer.cpp:940` | 271 | 143 |  |
-| `MP.templet` | `FORCELAYER` | implemented | `31c8b9a8` | `KTDGXMeshPlayer.cpp:1025` | 198 | 34 |  |
-| `MP.templet` | `GRAVITY` | implemented | `31c8b6b6` | `KTDGXMeshPlayer.cpp:962` | 241 | 177 |  |
+| `MP.templet` | `DIETYPE` | implemented | `31c8b0f9` | `KTDGXMeshPlayer.cpp:839` | 12 | 12 |  |
+| `MP.templet` | `DRAWCOUNT` | implemented | `31c8b4c4` | `KTDGXMeshPlayer.cpp:936` | 2834 | 2828 |  |
+| `MP.templet` | `ELASTICCOEFF` | implemented | `31c8b539` | `KTDGXMeshPlayer.cpp:939` | 747 | 748 |  |
+| `MP.templet` | `ELASTICCOEFF_X` | implemented | `31c8b55f` | `KTDGXMeshPlayer.cpp:940` | 271 | 272 |  |
+| `MP.templet` | `FORCELAYER` | implemented | `31c8b9a8` | `KTDGXMeshPlayer.cpp:1025` | 198 | 198 |  |
+| `MP.templet` | `GRAVITY` | implemented | `31c8b6b6` | `KTDGXMeshPlayer.cpp:962` | 241 | 230 |  |
 | `MP.templet` | `LANDPOS` | implemented | `31c8b4f4` | `KTDGXMeshPlayer.cpp:937` | 0 | 0 | binary-only (no June data uses it) |
-| `MP.templet` | `LAYER` | implemented | `31c8b51a` | `KTDGXMeshPlayer.cpp:938` | 7412 | 4017 |  |
-| `MP.templet` | `LIFETIME` | implemented | `31c8b40e` | `KTDGXMeshPlayer.cpp:931` | 5721 | 2484 |  |
-| `MP.templet` | `LIFETYPE` | implemented | `31c8b0df` | `KTDGXMeshPlayer.cpp:838` | 7412 | 4020 |  |
+| `MP.templet` | `LAYER` | implemented | `31c8b51a` | `KTDGXMeshPlayer.cpp:938` | 7412 | 7373 |  |
+| `MP.templet` | `LIFETIME` | implemented | `31c8b40e` | `KTDGXMeshPlayer.cpp:931` | 5721 | 5694 |  |
+| `MP.templet` | `LIFETYPE` | implemented | `31c8b0df` | `KTDGXMeshPlayer.cpp:838` | 7412 | 7373 |  |
 | `MP.templet` | `LIGHTFLOWWIDE` | implemented | `31c8b49e` | `KTDGXMeshPlayer.cpp:935` | 1 | 1 |  |
-| `MP.templet` | `LIGHTPOS` | implemented | `31c8b66c` | `KTDGXMeshPlayer.cpp:961` | 548 | 333 |  |
-| `MP.templet` | `MESHNAME` | implemented | `31c8bb31` | `KTDGXMeshPlayer.cpp:1071` | 7411 | 4020 |  |
-| `MP.templet` | `MESHTYPE` | implemented | `31c8b188` | `KTDGXMeshPlayer.cpp:857` | 7412 | 4020 |  |
-| `MP.templet` | `MULTITEXXET` | implemented | `31c8bb71` | `KTDGXMeshPlayer.cpp:1073` | 5 | 2 |  |
-| `MP.templet` | `NOT_CHECK_LAND_TIME` | implemented | `31c8b5c9` | `KTDGXMeshPlayer.cpp:943` | 375 | 164 |  |
-| `MP.templet` | `OUTLINEWIDE` | implemented | `31c8b478` | `KTDGXMeshPlayer.cpp:934` | 521 | 321 |  |
-| `MP.templet` | `PLAYCOUNT` | implemented | `31c8b3e4` | `KTDGXMeshPlayer.cpp:930` | 2625 | 1794 |  |
-| `MP.templet` | `RENDERTYPE` | implemented | `31c8b21a` | `KTDGXMeshPlayer.cpp:875` | 1002 | 470 |  |
-| `MP.templet` | `SET_LAND_HEIGHT_ON_START` | implemented | `31c8b98b` | `KTDGXMeshPlayer.cpp:1023` | 42 | 11 |  |
-| `MP.templet` | `SLASH_TRACE_CURVE_TYPE` | implemented | `31c8b5a7` | `KTDGXMeshPlayer.cpp:942` | 194 | 56 |  |
-| `MP.templet` | `SLASH_TRACE_NOT_CULL` | implemented | `31c8ba53` | `KTDGXMeshPlayer.cpp:1050` | 14 | 0 | `SetIsForceNotCull` on both slash traces after AddObjectChain (31c8d140 @31c8df76, @31c8e09c); June tests it in the sort loop 31ceb5f0 @31ceb6b7 |
-| `MP.templet` | `SLASH_TRACE_TEXTURE` | implemented | `31c8bbcf` | `KTDGXMeshPlayer.cpp:1075` | 465 | 83 |  |
-| `MP.templet` | `SLASH_TRACE_TYPE` | implemented | `31c8b585` | `KTDGXMeshPlayer.cpp:941` | 397 | 120 |  |
-| `MP.templet` | `SOURCEBLENDMODE` | implemented | `31c8b7c8` | `KTDGXMeshPlayer.cpp:981` | 7408 | 4013 |  |
-| `MP.templet` | `USEDIEEVENT` | implemented | `31c8b8fd` | `KTDGXMeshPlayer.cpp:1018` | 26 | 75 |  |
-| `MP.templet` | `USELAND` | implemented | `31c8b96e` | `KTDGXMeshPlayer.cpp:1021` | 266 | 141 |  |
-| `MP.templet` | `USESLASHTRACE` | implemented | `31c8b9c2` | `KTDGXMeshPlayer.cpp:1026` | 577 | 206 |  |
+| `MP.templet` | `LIGHTPOS` | implemented | `31c8b66c` | `KTDGXMeshPlayer.cpp:961` | 548 | 543 |  |
+| `MP.templet` | `MESHNAME` | implemented | `31c8bb31` | `KTDGXMeshPlayer.cpp:1071` | 7411 | 7372 |  |
+| `MP.templet` | `MESHTYPE` | implemented | `31c8b188` | `KTDGXMeshPlayer.cpp:857` | 7412 | 7373 |  |
+| `MP.templet` | `MULTITEXXET` | implemented | `31c8bb71` | `KTDGXMeshPlayer.cpp:1073` | 5 | 5 |  |
+| `MP.templet` | `NOT_CHECK_LAND_TIME` | implemented | `31c8b5c9` | `KTDGXMeshPlayer.cpp:943` | 375 | 364 |  |
+| `MP.templet` | `OUTLINEWIDE` | implemented | `31c8b478` | `KTDGXMeshPlayer.cpp:934` | 521 | 517 |  |
+| `MP.templet` | `PLAYCOUNT` | implemented | `31c8b3e4` | `KTDGXMeshPlayer.cpp:930` | 2625 | 2613 |  |
+| `MP.templet` | `RENDERTYPE` | implemented | `31c8b21a` | `KTDGXMeshPlayer.cpp:875` | 1002 | 994 |  |
+| `MP.templet` | `SET_LAND_HEIGHT_ON_START` | implemented | `31c8b98b` | `KTDGXMeshPlayer.cpp:1023` | 42 | 42 |  |
+| `MP.templet` | `SLASH_TRACE_CURVE_TYPE` | implemented | `31c8b5a7` | `KTDGXMeshPlayer.cpp:942` | 194 | 194 |  |
+| `MP.templet` | `SLASH_TRACE_NOT_CULL` | implemented | `31c8ba53` | `KTDGXMeshPlayer.cpp:1050` | 14 | 14 | `SetIsForceNotCull` on both slash traces after AddObjectChain (31c8d140 @31c8df76, @31c8e09c); June tests it in the sort loop 31ceb5f0 @31ceb6b7 |
+| `MP.templet` | `SLASH_TRACE_TEXTURE` | implemented | `31c8bbcf` | `KTDGXMeshPlayer.cpp:1075` | 465 | 465 |  |
+| `MP.templet` | `SLASH_TRACE_TYPE` | implemented | `31c8b585` | `KTDGXMeshPlayer.cpp:941` | 397 | 397 |  |
+| `MP.templet` | `SOURCEBLENDMODE` | implemented | `31c8b7c8` | `KTDGXMeshPlayer.cpp:981` | 7408 | 7369 |  |
+| `MP.templet` | `USEDIEEVENT` | implemented | `31c8b8fd` | `KTDGXMeshPlayer.cpp:1018` | 26 | 24 |  |
+| `MP.templet` | `USELAND` | implemented | `31c8b96e` | `KTDGXMeshPlayer.cpp:1021` | 266 | 264 |  |
+| `MP.templet` | `USESLASHTRACE` | implemented | `31c8b9c2` | `KTDGXMeshPlayer.cpp:1026` | 577 | 576 |  |
 | `MP.templet` | `WIREFRAME` | implemented | `31c8ba70` | `KTDGXMeshPlayer.cpp:1051` | 0 | 0 | binary-only (no June data uses it); Draw sets D3DFILL_WIREFRAME around both mesh paths and restores the previous fill mode (31c839c0 @31c839ed, @31c83d4b) |
-| `MP.templet` | `ZENABLE` | implemented | `31c8b917` | `KTDGXMeshPlayer.cpp:1019` | 3770 | 2165 |  |
-| `MP.templet` | `ZWRITEENABLE` | implemented | `31c8b934` | `KTDGXMeshPlayer.cpp:1020` | 1886 | 908 |  |
+| `MP.templet` | `ZENABLE` | implemented | `31c8b917` | `KTDGXMeshPlayer.cpp:1019` | 3770 | 3748 |  |
+| `MP.templet` | `ZWRITEENABLE` | implemented | `31c8b934` | `KTDGXMeshPlayer.cpp:1020` | 1886 | 1871 |  |
 | `MP.templet` | `USEMESHBILLBOARD` | march-only | - | `KTDGXMeshPlayer.cpp:1032` | 0 | 0 |  |
 | `PS.event` | `BLACKHOLETIME` | implemented | `31cf20bb` | `KTDGParticleSystem.cpp:1707` | 61 | 61 |  |
-| `PS.event` | `COLOR` | implemented | `31cf1fc1` | `KTDGParticleSystem.cpp:1702` | 85859 | 86077 |  |
-| `PS.event` | `CRASH` | implemented | `31cf211b` | `KTDGParticleSystem.cpp:1709` | 574 | 556 |  |
-| `PS.event` | `DIRSPEED` | implemented | `31cf208b` | `KTDGParticleSystem.cpp:1706` | 1608 | 1727 |  |
-| `PS.event` | `EVENTTIMER` | implemented | `31cf1f72` | `KTDGParticleSystem.cpp:1701` | 291 | 288 |  |
-| `PS.event` | `POSITION` | implemented | `31cf202b` | `KTDGParticleSystem.cpp:1704` | 1516 | 1511 |  |
-| `PS.event` | `RESETCRASH` | implemented | `31cf20eb` | `KTDGParticleSystem.cpp:1708` | 161 | 169 |  |
-| `PS.event` | `ROTATE` | implemented | `31cf205b` | `KTDGParticleSystem.cpp:1705` | 26497 | 26919 |  |
-| `PS.event` | `SCALE` | implemented | `31cf1f23` | `KTDGParticleSystem.cpp:1700` | 8509 | 8493 |  |
-| `PS.event` | `SIZE` | implemented | `31cf1ea8` | `KTDGParticleSystem.cpp:1699` | 61648 | 61777 |  |
-| `PS.event` | `STRETCH` | implemented | `31cf21fa` | `KTDGParticleSystem.cpp:1715` | 973 | 931 |  |
-| `PS.event` | `TEX0UV` | implemented | `31cf217b` | `KTDGParticleSystem.cpp:1711` | 1536 | 1561 |  |
+| `PS.event` | `COLOR` | implemented | `31cf1fc1` | `KTDGParticleSystem.cpp:1702` | 85859 | 85370 |  |
+| `PS.event` | `CRASH` | implemented | `31cf211b` | `KTDGParticleSystem.cpp:1709` | 574 | 574 |  |
+| `PS.event` | `DIRSPEED` | implemented | `31cf208b` | `KTDGParticleSystem.cpp:1706` | 1608 | 1609 |  |
+| `PS.event` | `EVENTTIMER` | implemented | `31cf1f72` | `KTDGParticleSystem.cpp:1701` | 291 | 289 |  |
+| `PS.event` | `POSITION` | implemented | `31cf202b` | `KTDGParticleSystem.cpp:1704` | 1516 | 1515 |  |
+| `PS.event` | `RESETCRASH` | implemented | `31cf20eb` | `KTDGParticleSystem.cpp:1708` | 161 | 161 |  |
+| `PS.event` | `ROTATE` | implemented | `31cf205b` | `KTDGParticleSystem.cpp:1705` | 26497 | 26288 |  |
+| `PS.event` | `SCALE` | implemented | `31cf1f23` | `KTDGParticleSystem.cpp:1700` | 8509 | 8379 |  |
+| `PS.event` | `SIZE` | implemented | `31cf1ea8` | `KTDGParticleSystem.cpp:1699` | 61648 | 61232 |  |
+| `PS.event` | `STRETCH` | implemented | `31cf21fa` | `KTDGParticleSystem.cpp:1715` | 973 | 973 |  |
+| `PS.event` | `TEX0UV` | implemented | `31cf217b` | `KTDGParticleSystem.cpp:1711` | 1536 | 1536 |  |
 | `PS.event` | `TEX1UV` | implemented | `31cf21a8` | `KTDGParticleSystem.cpp:1712` | 0 | 0 | binary-only (no June data uses it) |
 | `PS.event` | `TEX2UV` | implemented | `31cf21d1` | `KTDGParticleSystem.cpp:1713` | 4 | 4 |  |
-| `PS.event` | `TEXTURE` | implemented | `31cf214b` | `KTDGParticleSystem.cpp:1710` | 21348 | 21382 |  |
-| `PS.event` | `VELOCITY` | implemented | `31cf1ff9` | `KTDGParticleSystem.cpp:1703` | 16875 | 16901 |  |
+| `PS.event` | `TEXTURE` | implemented | `31cf214b` | `KTDGParticleSystem.cpp:1710` | 21348 | 21195 |  |
+| `PS.event` | `VELOCITY` | implemented | `31cf1ff9` | `KTDGParticleSystem.cpp:1703` | 16875 | 16728 |  |
 | `PS.sequence` | `POSTEFFECT` | unsupported | `31cfafef` | `KTDGParticleSystem.cpp:1554` | 0 | 0 | binary-only (no June data uses it); absent: June's post-effect render pass (DG manager 31cd7810 mode 1, fed by vtable slot 11: mesh 31c83500, particle 31cef710); March's KTDGManager has none, CKTDGPostEffect is ADD_POSTEFFECT-only; stored; `JUNE_FX unsupported POSTEFFECT` in ErrorLog.txt when TRUE |
-| `PS.sequence` | `ADDROTATEREL` | implemented | `31cfaba5` | `KTDGParticleSystem.cpp:1418` | 166 | 166 |  |
+| `PS.sequence` | `ADDROTATEREL` | implemented | `31cfaba5` | `KTDGParticleSystem.cpp:1418` | 166 | 165 |  |
 | `PS.sequence` | `ALPHATEST` | implemented | `31cfb0bf` | `KTDGParticleSystem.cpp:1549` | 23 | 23 |  |
 | `PS.sequence` | `ANINAME` | implemented | `31cfb25b` | `KTDGParticleSystem.cpp:1588` | 0 | 0 | binary-only (no June data uses it) |
 | `PS.sequence` | `ANIXET` | implemented | `31cfb22e` | `KTDGParticleSystem.cpp:1587` | 26 | 26 |  |
-| `PS.sequence` | `APPLYUNITSCALE` | implemented | `31cfb0a5` | `KTDGParticleSystem.cpp:1546` | 527 | 544 |  |
-| `PS.sequence` | `BILLBOARDTYPE` | implemented | `31cfaf3a` | `KTDGParticleSystem.cpp:1521` | 29884 | 29954 |  |
+| `PS.sequence` | `APPLYUNITSCALE` | implemented | `31cfb0a5` | `KTDGParticleSystem.cpp:1546` | 527 | 521 |  |
+| `PS.sequence` | `BILLBOARDTYPE` | implemented | `31cfaf3a` | `KTDGParticleSystem.cpp:1521` | 29884 | 29653 |  |
 | `PS.sequence` | `BLACKHOLEPOS` | implemented | `31cfab11` | `KTDGParticleSystem.cpp:1416` | 10 | 10 |  |
-| `PS.sequence` | `CHANGETEXXET` | implemented | `31cfb1d4` | `KTDGParticleSystem.cpp:1585` | 1332 | 1273 |  |
-| `PS.sequence` | `CULLMODE` | implemented | `31cfad6f` | `KTDGParticleSystem.cpp:1466` | 269 | 286 |  |
-| `PS.sequence` | `DESTBLENDMODE` | implemented | `31cfacda` | `KTDGParticleSystem.cpp:1447` | 30083 | 30158 |  |
-| `PS.sequence` | `DRAWCOUNT` | implemented | `31cfa8f9` | `KTDGParticleSystem.cpp:1378` | 10138 | 10338 |  |
-| `PS.sequence` | `EMITRADIUS` | implemented | `31cfaabd` | `KTDGParticleSystem.cpp:1413` | 12427 | 12232 |  |
+| `PS.sequence` | `CHANGETEXXET` | implemented | `31cfb1d4` | `KTDGParticleSystem.cpp:1585` | 1332 | 1268 |  |
+| `PS.sequence` | `CULLMODE` | implemented | `31cfad6f` | `KTDGParticleSystem.cpp:1466` | 269 | 269 |  |
+| `PS.sequence` | `DESTBLENDMODE` | implemented | `31cfacda` | `KTDGParticleSystem.cpp:1447` | 30083 | 29849 |  |
+| `PS.sequence` | `DRAWCOUNT` | implemented | `31cfa8f9` | `KTDGParticleSystem.cpp:1378` | 10138 | 10050 |  |
+| `PS.sequence` | `EMITRADIUS` | implemented | `31cfaabd` | `KTDGParticleSystem.cpp:1413` | 12427 | 12246 |  |
 | `PS.sequence` | `EMITRADIUSMIN` | implemented | `31cfaad9` | `KTDGParticleSystem.cpp:1414` | 4 | 4 |  |
-| `PS.sequence` | `EMITRATE` | implemented | `31cfa839` | `KTDGParticleSystem.cpp:1373` | 28320 | 28460 |  |
-| `PS.sequence` | `FINALPARTICLELIST` | implemented | `31cfb2b5` | `KTDGParticleSystem.cpp:1590` | 239 | 241 |  |
+| `PS.sequence` | `EMITRATE` | implemented | `31cfa839` | `KTDGParticleSystem.cpp:1373` | 28320 | 28156 |  |
+| `PS.sequence` | `FINALPARTICLELIST` | implemented | `31cfb2b5` | `KTDGParticleSystem.cpp:1590` | 239 | 239 |  |
 | `PS.sequence` | `FORCELAYER` | implemented | `31cfb08b` | `KTDGParticleSystem.cpp:1544` | 14 | 14 |  |
-| `PS.sequence` | `GRAVITY` | implemented | `31cfaaf5` | `KTDGParticleSystem.cpp:1415` | 5235 | 5194 |  |
-| `PS.sequence` | `LANDPOS` | implemented | `31cfa91d` | `KTDGParticleSystem.cpp:1379` | 413 | 427 |  |
-| `PS.sequence` | `LAYER` | implemented | `31cfa942` | `KTDGParticleSystem.cpp:1380` | 30083 | 30158 |  |
-| `PS.sequence` | `LIFETIME` | implemented | `31cfa85c` | `KTDGParticleSystem.cpp:1374` | 30058 | 30133 |  |
-| `PS.sequence` | `LIGHTPOS` | implemented | `31cfab5d` | `KTDGParticleSystem.cpp:1417` | 248 | 243 |  |
-| `PS.sequence` | `MESH` | implemented | `31cfb17a` | `KTDGParticleSystem.cpp:1583` | 10674 | 10729 |  |
-| `PS.sequence` | `MESHRENDERTYPE` | implemented | `31cfaea2` | `KTDGParticleSystem.cpp:1503` | 953 | 820 |  |
+| `PS.sequence` | `GRAVITY` | implemented | `31cfaaf5` | `KTDGParticleSystem.cpp:1415` | 5235 | 5119 |  |
+| `PS.sequence` | `LANDPOS` | implemented | `31cfa91d` | `KTDGParticleSystem.cpp:1379` | 413 | 397 |  |
+| `PS.sequence` | `LAYER` | implemented | `31cfa942` | `KTDGParticleSystem.cpp:1380` | 30083 | 29849 |  |
+| `PS.sequence` | `LIFETIME` | implemented | `31cfa85c` | `KTDGParticleSystem.cpp:1374` | 30058 | 29824 |  |
+| `PS.sequence` | `LIGHTPOS` | implemented | `31cfab5d` | `KTDGParticleSystem.cpp:1417` | 248 | 247 |  |
+| `PS.sequence` | `MESH` | implemented | `31cfb17a` | `KTDGParticleSystem.cpp:1583` | 10674 | 10585 |  |
+| `PS.sequence` | `MESHRENDERTYPE` | implemented | `31cfaea2` | `KTDGParticleSystem.cpp:1503` | 953 | 822 |  |
 | `PS.sequence` | `MULTITEXXET` | implemented | `31cfb201` | `KTDGParticleSystem.cpp:1586` | 1 | 1 |  |
-| `PS.sequence` | `NUMPARTICLES` | implemented | `31cfa87f` | `KTDGParticleSystem.cpp:1375` | 30061 | 30136 |  |
-| `PS.sequence` | `PARTICLETYPE` | implemented | `31cfae04` | `KTDGParticleSystem.cpp:1485` | 30083 | 30158 |  |
-| `PS.sequence` | `RESOLUTIONCONVERT` | implemented | `31cfb057` | `KTDGParticleSystem.cpp:1543` | 1612 | 1596 |  |
+| `PS.sequence` | `NUMPARTICLES` | implemented | `31cfa87f` | `KTDGParticleSystem.cpp:1375` | 30061 | 29827 |  |
+| `PS.sequence` | `PARTICLETYPE` | implemented | `31cfae04` | `KTDGParticleSystem.cpp:1485` | 30083 | 29849 |  |
+| `PS.sequence` | `RESOLUTIONCONVERT` | implemented | `31cfb057` | `KTDGParticleSystem.cpp:1543` | 1612 | 1607 |  |
 | `PS.sequence` | `SCREWROTATESPEED` | implemented | `31cfa980` | `KTDGParticleSystem.cpp:1382` | 1 | 1 |  |
 | `PS.sequence` | `SCREWVALUE` | implemented | `31cfa961` | `KTDGParticleSystem.cpp:1381` | 1 | 1 |  |
 | `PS.sequence` | `SKINMESH` | implemented | `31cfb1a7` | `KTDGParticleSystem.cpp:1584` | 0 | 0 | binary-only (no June data uses it) |
-| `PS.sequence` | `SOURCEBLENDMODE` | implemented | `31cfacc0` | `KTDGParticleSystem.cpp:1446` | 30083 | 30158 |  |
-| `PS.sequence` | `SPHERICAL_EMITAZIMUTH` | implemented | `31cfa9c2` | `KTDGParticleSystem.cpp:1385` | 47 | 43 |  |
-| `PS.sequence` | `SPHERICAL_EMITPOLAR` | implemented | `31cfa9fb` | `KTDGParticleSystem.cpp:1386` | 47 | 43 |  |
-| `PS.sequence` | `SPHERICAL_EMITRADIUS` | implemented | `31cfa99f` | `KTDGParticleSystem.cpp:1384` | 47 | 43 |  |
+| `PS.sequence` | `SOURCEBLENDMODE` | implemented | `31cfacc0` | `KTDGParticleSystem.cpp:1446` | 30083 | 29849 |  |
+| `PS.sequence` | `SPHERICAL_EMITAZIMUTH` | implemented | `31cfa9c2` | `KTDGParticleSystem.cpp:1385` | 47 | 47 |  |
+| `PS.sequence` | `SPHERICAL_EMITPOLAR` | implemented | `31cfa9fb` | `KTDGParticleSystem.cpp:1386` | 47 | 47 |  |
+| `PS.sequence` | `SPHERICAL_EMITRADIUS` | implemented | `31cfa99f` | `KTDGParticleSystem.cpp:1384` | 47 | 47 |  |
 | `PS.sequence` | `SPHERICAL_EMITROTATION` | implemented | `31cfabed` | `KTDGParticleSystem.cpp:1420` | 0 | 0 | binary-only (no June data uses it) |
 | `PS.sequence` | `TEXTURE` | implemented | `31cf29bd` | `KTDGParticleSystem.cpp:5958` | 0 | 0 | binary-only (no June data uses it) |
-| `PS.sequence` | `TRACE` | implemented | `31cfb009` | `KTDGParticleSystem.cpp:1540` | 12840 | 12660 |  |
-| `PS.sequence` | `TRACEPARTICLELIST` | implemented | `31cfb288` | `KTDGParticleSystem.cpp:1589` | 5827 | 5215 |  |
-| `PS.sequence` | `TRIGGERCOUNT` | implemented | `31cfa89e` | `KTDGParticleSystem.cpp:1376` | 11472 | 11020 |  |
-| `PS.sequence` | `TRIGGERTIME` | implemented | `31cfa8cc` | `KTDGParticleSystem.cpp:1377` | 11443 | 12224 |  |
-| `PS.sequence` | `USELAND` | implemented | `31cfafd5` | `KTDGParticleSystem.cpp:1539` | 2124 | 2220 |  |
+| `PS.sequence` | `TRACE` | implemented | `31cfb009` | `KTDGParticleSystem.cpp:1540` | 12840 | 12678 |  |
+| `PS.sequence` | `TRACEPARTICLELIST` | implemented | `31cfb288` | `KTDGParticleSystem.cpp:1589` | 5827 | 5823 |  |
+| `PS.sequence` | `TRIGGERCOUNT` | implemented | `31cfa89e` | `KTDGParticleSystem.cpp:1376` | 11472 | 11472 |  |
+| `PS.sequence` | `TRIGGERTIME` | implemented | `31cfa8cc` | `KTDGParticleSystem.cpp:1377` | 11443 | 11342 |  |
+| `PS.sequence` | `USELAND` | implemented | `31cfafd5` | `KTDGParticleSystem.cpp:1539` | 2124 | 2127 |  |
 | `PS.sequence` | `WIREFRAME` | implemented | `31cfb071` | `KTDGParticleSystem.cpp:1563` | 44 | 44 | sequence Draw sets D3DFILL_WIREFRAME around every particle type and restores the previous fill mode (31cf7500 @31cf757c, @31cf77dc); default false (31cf78a0 @31cf7c7c), copied by the clone (31cf8af0 @31cf8fef) |
-| `PS.sequence` | `ZENABLE` | implemented | `31cfb023` | `KTDGParticleSystem.cpp:1541` | 8466 | 8546 |  |
-| `PS.sequence` | `ZWRITEENABLE` | implemented | `31cfb03d` | `KTDGParticleSystem.cpp:1542` | 16491 | 16353 |  |
+| `PS.sequence` | `ZENABLE` | implemented | `31cfb023` | `KTDGParticleSystem.cpp:1541` | 8466 | 8371 |  |
+| `PS.sequence` | `ZWRITEENABLE` | implemented | `31cfb03d` | `KTDGParticleSystem.cpp:1542` | 16491 | 16390 |  |

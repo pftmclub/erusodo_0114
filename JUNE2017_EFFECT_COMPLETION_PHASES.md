@@ -9561,6 +9561,53 @@ console steps for me; or prove no June data reaches it. ASK before launching. Af
 logs and record every result in C11 here. Fix BOSSRAID_ABYSS_SMOG via kom_contents staging.
 ```
 
+### C11a - Done (2026-10-16)
+
+**Decision (user, 2026-10-16): route (b), June's own `ljconv` bytecode wholesale.** Asked once, with these numbers (Opus, 3 checks first):
+- *Post-rollback edits:* every 2026-10-11/12 edit to the merged files (`365baf91`, `eede7178`, `5173c0a5`, `65bb864d`) appended whole June
+  templets verbatim (611 DE, 1,318 ES; 0 March blocks changed). Nothing of ours is lost.
+- *What June lacks:* the merged files held 50 DE + 37 ES March-only templets (`june2017_re/c11a_march_only_templets.tsv`, identifier-bounded
+  consumer scan): 30 named by March class code (checklist **7u**), 21 only by June's own scripts (`JUNE_BUGS.md` **200**), 36 by nothing.
+- *Crash risk:* none. `CreateInstance` returns NULL silently (`X2DamageEffect.cpp:1247-1249`), `PlayEffectSet` returns
+  `INVALID_EFFECTSET_HANDLE` and logs `[RANOX_EFFECT_MISSING]` (`X2EffectSet.cpp:3328-3337`); every March C++ site NULL-checks or discards
+  (sites in 7u; the TRIAL_LOAD static verdict and its 2026-10-03 play agree). Routes (a)/(c) were not needed: no port must edit these files.
+
+**What landed (data only, no flag, no exe change).**
+- Backup first: `24965799\kom_contents_backup_c11a_20261016\` (the 93 files the apply replaced, incl. the merged BOM `DamageEffect.lua` /
+  `EffectSet.lua`, 53 manifests, `UIEffectSet.src.lua.moved`). `stage_june_fx.py`'s own backup skips names it already holds (2026-10-03).
+- `luasrc.py restore data036 DamageEffect.lua EffectSet.lua` (ledger rows `restored`, core rows `bytecode`), then `stage_june_fx.py --apply`
+  (2,843 add, 91 replace, 147 conflict skipped = files staged unpacked by the 2026-10-12 closure or `march2014/update/data002`). The two merged
+  names came back `conflict` (restore had changed them), so their ljconv output was copied by hand from `assets_cache/june_b/`. All 12 effect
+  `.lua` sha1-match the ljconv cache, header `1B 4B 4C 81`; `UIEffectSet.src.lua` moved out so `compile` cannot fold March back.
+- Tool gap: `core --set ... --why` keeps the old reason text, so both core rows read "...; restored 2026-10-16". The reason is this note.
+- `kom.py pack` 53 koms: **53 PACK OK** (pre-existing warnings only: data023 13 manifest names with no file, data036 26 stale sidecars).
+  `kom.py copy` (user yes): **53 COPY OK**; `COPY OK data036 ... md5 31d144bd5dc69ee83f771f2aa3382fcd`, `datai015 ... md5 ed32b4b3`,
+  `data222` (new) `... md5 713837ed`. The packs also ship the 2026-10-12 NPC-effect-closure files (`5173c0a5`, "copy pending").
+- Gates: `luasrc.py core --check` **PASS**, `ledger --check` **PASS**, `census.py --final` all PASS (1913 of 7948 handed off, D7).
+- `c11_reach.py` now also reads `DamageEffect_Character/_Dungeon/_ETC.lua`. June-used keys with no deployed templet: **200 -> 1**
+  (`POS_RELATIVE_TO_UNIT` in `ES.EFFECT`, `june-ignores`). TOUCH_LAND, DIE_CHECK_CONDITION, DIE_CREATE_NPC, SYNC_SHOW_BY_CREATE_UNIT,
+  IS_AURA_BUFF, BFT_AURA, MESH_TRIGGER_DATA[_LIST] and NEXT_ULTIMATE all have deployed templets now. Socket names: all 35 effect sets
+  `OptionItemData.lua` names are deployed, plus the hero-dungeon aura set / damage effect / mesh.
+- No build: no code changed (`c11_reach.py` is a tool), so the deployed exe is unchanged.
+
+**Known cost, accepted by the user:** March skills whose templets now carry June's numerical data deal 0 until the character ports, and the
+30 March-consumed names play nothing (e.g. reyaa's Grand Archer `DamageEffect_LGA_Arc_Shot`).
+
+**Side gaps, noted once:** `BOMB` (`X2GUNPCFunc.cpp`) has no owner. The socket end-to-end rows still need a save edit,
+june-buff Phase 13's factors and `_JUNE_BUFF_DEBUG` re-enabled (C11 kickoff); not in this play-test. Cash emotion mesh triggers are
+UI-manager sets (`UIEffectSet.lua`): only their load-time `ES_EFFECT ... MESH_TRIGGER_DATA` line can show them, and it may fall in the mount window.
+
+**Play-test hand-off (reyaa, Lire Grand Archer 80; Ranox Burnt Forest, Normal; C11's setup lines `jU` / `jES` / `jC`, `/CM "RAGE_BABYFIG" 2 70`, `/ai false`):**
+| line | look for (`python tools/logs.py --grep "<text>"`) | if not |
+|---|---|---|
+| clean start, enter the dungeon | no new `ErrorLog.txt` load error naming `DamageEffect*` / `EffectSet*` / `UIEffectSet*`; `RANOX_EFFECT_MISSING` lines are expected | a load error = stop, report |
+| `jC("DamageEffect_A_RMH_KS_83_Grenade")` | `TOUCH_LAND` (spawn line) and, if it bounces, `TOUCH_LAND_GATE` | not reached |
+| `jC("DamageEffect_A_RMH_All_Bomb_Ultimate_AddMeca")`, wait for it to end | `DIE_CREATE_NPC npcId=` | not reached |
+| `jC("DamageEffect_SA_RCR_Chain_Viper_Projectile")` | `JUNE_FX DDE_CONDITION` (parse proof) | not reached |
+| `jC("DamageEffect_Hero_Dungeon_Aura_Buff")` | `[JUNE_BUFF] IS_AURA_BUFF parsed` (ErrorLog, once) | not reached |
+| `jES:PlayEffectSet_LUA("EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE", jU)` | `JUNE_FX ES_UPDATE ... SYNC_SHOW_BY_CREATE_UNIT` (only on a show change) | best effort |
+| re-run C11's 14 lines | the same 6 tags as 2026-10-16 | a tag lost = regression, report |
+
 ---
 
 ## C12 - Close (old Phase 12)

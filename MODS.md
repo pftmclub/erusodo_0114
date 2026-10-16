@@ -3467,6 +3467,25 @@ Revert:
   the 363 asset names (TSVs) with their manifest keys.
 - Repack, or put back the live koms from `kom_backup_tools`.
 
+### June effect Lua re-adopted in full (june-effect C11a, 2026-10-16)
+
+Data only, no flag. The user chose full June re-adoption (route b).
+- data036 `DamageEffect.lua`, `EffectSet.lua`, `DamageSound.lua`, `UIEffectSet.lua` and datai015 `DamageEffect_INT.lua`, `EffectSet_INT.lua`,
+  `UIEffectSet_INT.lua` are June's own bytecode through `ljconv`, and data036 gains `DamageEffect_Character/_Dungeon/_ETC.lua`
+  (`june2017_re/stage_june_fx.py --apply`, plan `june2017_re/stage_plan.tsv`). The two merged BOM sources left the core list
+  (`luasrc.py restore`, then June's files over them; core rows `bytecode`, ledger rows `restored`).
+- 2,840 June closure assets added (new archive data222) and 86 replaced across 53 koms, all packed and copied (`COPY OK`, data036 md5 31d144bd).
+  The packs also carry the 2026-10-12 NPC-effect-closure files that were packed but never copied (`5173c0a5`).
+- The merged copies' 87 March-only templets are gone (`june2017_re/c11a_march_only_templets.tsv`; checklist 7u, JUNE_BUGS 200);
+  1,913 June blocks deal 0 until the character ports (D1/D7).
+
+Revert:
+- Copy everything in `24965799\kom_contents_backup_c11a_20261016\` back into `kom_contents\`: the 93 replaced files (incl. the merged BOM
+  `DamageEffect.lua` / `EffectSet.lua`), the 53 manifests, and `UIEffectSet.src.lua.moved` back as `data036_kom\UIEffectSet.src.lua`. Delete
+  the 2,843 `add` rows of `june2017_re/stage_plan.tsv` from the dirs, and `data036_kom\{DamageEffect,EffectSet}.src.lua` if present.
+  Do not use `stage_june_fx.py --revert`: its backup is the 2026-10-03 one, older than the 2026-10-11/12 merged edits.
+- Put the two ledger rows back to `live` and the core rows to `source` (`luasrc.py ledger --check` / `core --check` say what is off), repack, copy.
+
 ## Reverting to stock
 
 Comment out every `#define` listed in the *Defined in* column and rebuild.

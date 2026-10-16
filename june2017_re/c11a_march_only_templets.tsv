@@ -1,0 +1,90 @@
+# C11a 2026-10-16: templets the merged March data036 DamageEffect.lua / EffectSet.lua held that June's files do not; dropped by the full June re-adoption.
+# consumers = identifier-bounded hits in kom_contents *.lua (as staged), X2Lib *.cpp/.h, and June's effect sources (june2017_re/june_lua/*.src.lua). A missing name is NULL / INVALID_EFFECTSET_HANDLE at every C++ site (no crash).
+family	name	class	consumers
+DE	AISHA_SUMMON_BAT_BITE	june-consumer only (JUNE_BUGS 200)	data037_kom/Aisha_PigBat.lua;EffectSet.src.lua
+DE	AISHA_SUMMON_BAT_FIRST_BITE	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	ANCIENT_PPORU_BREATH	june-consumer only (JUNE_BUGS 200)	data037_kom/AncientPporu.lua;datai016_kom/EVENT_DEMON_BERTHE.lua
+DE	BOMB_EXPLOSION	june-consumer only (JUNE_BUGS 200)	DamageEffect.src.lua
+DE	DAMAGE_EFFECT_A_AYR_WOLF_CLAW_ATTACK	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DAMAGE_EFFECT_A_AYR_WOLF_CLAW_ATTACK_FINISH	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DAMAGE_EFFECT_HA_LWS_Spiral_Stike_Down_Kick	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DAMAGE_EFFECT_INFERNAL_BRADE_1st_MEMO	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DAMAGE_EFFECT_INFERNAL_BRADE_2nd_MEMO	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DAMAGE_EFFECT_INFERNAL_BRADE_3rd_MEMO	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DAMAGE_EFFECT_LGA_CRYOTRON_BOLT_HIT	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DAMAGE_EFFECT_MAGIC_TENTACLE_MAGIC_ATTACK	june-consumer only (JUNE_BUGS 200)	data037_kom/MAGIC_TENTACLE.lua;data037_kom/MAGIC_TENTACLE_SUMMON.lua;data037_kom/MAGIC_TENTACLE_SUMMON_BIG.lua;data037_kom/MAGIC_TENTACLE_SUMMON_BIG_HENIR.LUA
+DE	DamageEffect_Riding_Ice_Hameling_AttackX	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DamageEffect_Riding_Ice_Hameling_AttackZ	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DamageEffect_Riding_Ice_Hameling_Attack_JumpZ	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DamageEffect_SA_AHD_ENERGY_WAVE_PROJECTILE_END	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DamageEffect_SBH_Fire_Works_Shrapnel	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	DamageEffect_Thousands_Blossoms_Flower	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua
+DE	EffectSet_SA_ALD_HELL_OF_TORNADO_DAMAGE_START	june-consumer only (JUNE_BUGS 200)	EffectSet.src.lua;EffectSet_Description.src.lua
+ES	EffectSet_PVP_BOT_EEP_DashAttackZ	june-consumer only (JUNE_BUGS 200)	datai016_kom/DUNGEON_NPC_APPLE.lua;datai016_kom/EVENT_PVP_HERO_APPLE.lua;datai016_kom/PVP_HERO_APPLE_SHADOW.lua;datai016_kom/PVP_SECRET_APPLE.lua
+ES	Effectset_SA_SPK_SWORDFIRE_ALL	june-consumer only (JUNE_BUGS 200)	data036_kom/EffectSet_Description.lua
+DE	BOMB	march-consumer (checklist 7u)	data037_kom/Bunker.lua;X2GUNPCFunc.cpp
+DE	CHUNG_BIGBANGSTREAM_MEMO	march-consumer (checklist 7u)	X2BuffTemplet.cpp
+DE	DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell	march-consumer (checklist 7u)	X2GUChung.cpp
+DE	DamageEffect_Cryotron_Bolt_GUIDED_ARROW	march-consumer (checklist 7u)	X2GULire_ElvenRanger.cpp
+DE	DamageEffect_LGA_Arc_Shot	march-consumer (checklist 7u)	X2GULire_ElvenRanger.cpp
+DE	DamageEffect_RRF_ExplosiveHand_Impact	march-consumer (checklist 7u)	data036_kom/RAVEN_FIGHTER.lua;data037_kom/ANU.lua;data037_kom/ANU_BOSS.lua;data037_kom/ANU_FD.lua
+DE	EVE_EP_DASH_COMBO_Z	march-consumer (checklist 7u)	X2GuEve.cpp
+DE	LORD_KNIGHT_SAND_STORM	march-consumer (checklist 7u)	X2GUElsword_SwordMan.cpp
+DE	RAVEN_MAXIMUM_CANNON_FLY_HYPER	march-consumer (checklist 7u)	X2GURaven.cpp
+DE	RAVEN_MAXIMUM_CANNON_HYPER	march-consumer (checklist 7u)	X2GURaven.cpp
+DE	RAVEN_OVER_TAKER_GUARDIAN_STRIKE	march-consumer (checklist 7u)	X2GURaven.cpp
+DE	RAVEN_OVER_TAKER_GUARDIAN_STRIKE_HYPER	march-consumer (checklist 7u)	X2GURaven.cpp
+DE	RAVEN_OVER_TAKER_XX_FRONT_X	march-consumer (checklist 7u)	X2GURaven.cpp
+DE	RAVEN_SEVEN_BURST_1_HYPER	march-consumer (checklist 7u)	X2GURaven.cpp
+DE	RAVEN_SEVEN_BURST_2_HYPER	march-consumer (checklist 7u)	X2GURaven.cpp
+ES	EffectSet_AHM_Blaze_Step_Damage_MEMO	march-consumer (checklist 7u)	data036_kom/Arme_VioletMage.lua
+ES	EffectSet_Aisha_Blaze_step_MEMO	march-consumer (checklist 7u)	data036_kom/Arme_VioletMage.lua
+ES	EffectSet_Aisha_DeathFieldBomb	march-consumer (checklist 7u)	X2GUArme_VioletMage.cpp
+ES	EffectSet_Aisha_DeathField_FirstImpact	march-consumer (checklist 7u)	X2GUArme_VioletMage.cpp
+ES	EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT	march-consumer (checklist 7u)	X2GUChung.cpp
+ES	EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE	march-consumer (checklist 7u)	data036_kom/Chung_Iron_Cannon.lua
+ES	EffectSet_ELSWORD_DOUBLE_SLASH_HYPER	march-consumer (checklist 7u)	X2GUElsword_SwordMan.cpp
+ES	EffectSet_RAVEN_OVER_TAKER_GUARDIAN_STRIKE	march-consumer (checklist 7u)	data036_kom/RAVEN_FIGHTER.lua
+ES	EffectSet_RAVEN_OVER_TAKER_GUARDIAN_STRIKE_HYPER_MEMO	march-consumer (checklist 7u)	data036_kom/RAVEN_FIGHTER.lua
+ES	EffectSet_RAVEN_VJAVELIN	march-consumer (checklist 7u)	datai016_kom/DUNGEON_NPC_BALAK.lua;datai016_kom/PVP_HERO_BALAK_SHADOW.lua;datai016_kom/PVP_SECRET_BALAK.lua;X2GURaven.cpp
+ES	EffectSet_RAVEN_VJAVELIN_LAND	march-consumer (checklist 7u)	data036_kom/RAVEN_FIGHTER.lua;datai016_kom/DUNGEON_NPC_BALAK.lua;datai016_kom/PVP_HERO_BALAK_SHADOW.lua;datai016_kom/PVP_SECRET_BALAK.lua
+ES	Effectset_A_RWT_FLAME_SWORD_MEMO	march-consumer (checklist 7u)	data036_kom/RAVEN_FIGHTER.lua
+ES	Effectset_Rena_DiveKickBombingA	march-consumer (checklist 7u)	data036_kom/Lire_ElvenRanger.lua
+ES	Effectset_Rena_DiveKickBombingB	march-consumer (checklist 7u)	data036_kom/Lire_ElvenRanger.lua
+ES	Effectset_Rena_DiveKickBombingB_Memo	march-consumer (checklist 7u)	data036_kom/Lire_ElvenRanger.lua
+DE	CHUNG_BIGBANGSTREAM_EXPLOSION_MEMO	no consumer	
+DE	DAMAGE_EFFECT_CSI_SI_A_CFG_LEAP_ATTACK_READY_DUMMY_ATTACK	no consumer	
+DE	DAMAGE_EFFECT_FIREBALL_ZX	no consumer	
+DE	DamageEffect_Elesis_A_SBH_Fire_Works_Explosion_Small	no consumer	
+DE	DamageEffect_Heavens_Fist_Sweeper	no consumer	
+DE	DamageEffect_Heavens_Fist_Sweeper_MEMO	no consumer	
+DE	DamageEffect_SBH_Fire_Works_Dying_Shrapnel	no consumer	
+DE	DamageEffect_SBH_Fire_Works_Hit_Shrapnel	no consumer	
+DE	DamageEffect_SI_SA_AN_Energy_Boom_Projectile_Stone	no consumer	
+DE	EVE_EP_ELECTRONIC_FIELD_HYPER	no consumer	
+DE	EVE_EP_ELECTRONIC_FIELD_NO_DAMAGE_HYPER	no consumer	
+DE	PPORU_WILLIAM_CUTE_MAGIC_ATTACK_A	no consumer	
+DE	RAVEN_VALKYRIESJAVELIN	no consumer	
+DE	RAVEN_VALKYRIESJAVELIN_EXPLOSION	no consumer	
+DE	SPIRAL_BLAST_FIRST_HYPER_MEMO	no consumer	
+DE	THIEF_THIN_TOTO_MAGIC_ATTACK_A	no consumer	
+ES	EffectSet_ADD_TUTORIAL_P01	no consumer	
+ES	EffectSet_ADD_TUTORIAL_P02	no consumer	
+ES	EffectSet_ADD_TUTORIAL_P03	no consumer	
+ES	EffectSet_ADD_TUTORIAL_P04	no consumer	
+ES	EffectSet_ADD_TUTORIAL_P05	no consumer	
+ES	EffectSet_ADD_TUTORIAL_P06	no consumer	
+ES	EffectSet_CSI_CSG_COMBO_DASH_JUMP_X	no consumer	
+ES	EffectSet_CSI_CSG_COMBO_DASH_JUMP_XX	no consumer	
+ES	EffectSet_CSI_CSG_COMBO_DASH_JUMP_XX_LANDING	no consumer	
+ES	EffectSet_CSI_CSG_COMBO_DASH_XX	no consumer	
+ES	EffectSet_CSI_CSG_COMBO_XFRONTX_PULL_SUBWEAPON	no consumer	
+ES	EffectSet_DAMAGE_EFFECT_KARIS_JIN_ATTACK_A_COMBO2	no consumer	
+ES	EffectSet_ENS_Assualt_Spear	no consumer	
+ES	EffectSet_RAVEN_OVER_TAKER_GUARDIAN_STRIKE_HYPER	no consumer	
+ES	EffectSet_RAVEN_OVER_TAKER_GUARDIAN_STRIKE_MEMO	no consumer	
+ES	EffectSet_SI_SA_AN_NEUTRON_BOMB_All	no consumer	
+ES	Effectset_PVE_Hamel_Win	no consumer	
+ES	Effectset_PVE_Velder_Win	no consumer	
+ES	Effectset_SA_SPK_SWORDFIRE_PROJECTILE_TEST	no consumer	
+ES	explosion_Test	no consumer	
