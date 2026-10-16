@@ -1278,6 +1278,10 @@ kills-per-level table), then commit on main.
    - `flagcheck SERV_IRUHADEV_LEVEL_CAP_99 --worktree`: 4 PASS, 3 PASS~, 2 OTHER (Always.h, X2StateMenu = the gauge
      flag), 0 FAIL, 0 deleted, RESULT PASS.
    - Gauge flag: 1 PASS, 1 OTHER, RESULT PASS.
+   - Commits `6690e5cf` + fixup `c42c8efc`. The fixup returns two peer `Always.h` blocks, swept in by a whole-file add, to
+     uncommitted, and wraps the generated header wholly in its flag. Net `flagcheck --base 6690e5cf^ --at HEAD`: CAP_99
+     5 PASS + 3 PASS~, 0 FAIL, 0 deleted; gauge 1 PASS. RESULT PASS for both. The per-commit `--range` shows the header
+     FAIL and its fix.
 
 `DEPLOY OK: X2_offline.exe is 19,589,120 B, dated 2026-10-17 00:28:20, md5 91be27bdf658746e71af7e9cd9d6684b, equal to X2/US_SERVICE/x2.exe (2026-10-17 00:28:14); built at main 43af9b4f + 19 uncommitted code file(s).`
 All four `[CAP99]` literals are in the deployed exe.
