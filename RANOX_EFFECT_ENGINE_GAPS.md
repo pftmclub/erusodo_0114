@@ -14,6 +14,13 @@ Nothing below blocks Phase A. Every gap listed here degrades to a parser default
 disclosed visual approximation; none of them causes a Lua load failure or a missing
 damage number for content this port ships.
 
+> **Status (june-effect C12, 2026-10-16): historical, and closed.** This inventory was written before the June2017
+> binary was readable (§6 was wrong, see there). The June2017 effect engine was then rebuilt from that binary
+> (`JUNE2017_EFFECT_REBUILD_PLAN.md`, `JUNE2017_EFFECT_COMPLETION_PHASES.md`, `june2017_re/`). §1 and §2 each carry
+> a **Closed by** note, §4 was revisited against June's code, §6 is rewritten. Where this file and a
+> later document disagree, the later one wins. The flag list and revert steps are in `MODS.md`
+> ("June flag index").
+
 ## 1. Damage-effect keys with no parse site (5, across 2 blocks)
 
 Across all 92 recovered `DamageEffect` blocks and all 196 recovered `EffectSet` blocks,
@@ -31,6 +38,17 @@ implemented in this build.
 
 Two blocks affected total, both degrading to whatever the surrounding parser default is
 for an unread field (position/lifetime nuance only) rather than failing to load.
+
+**Closed by (C12, 2026-10-16), per key** (status from `june2017_re/census.tsv`):
+
+| Key | Closed by |
+|---|---|
+| `LOOP_ADD_POS_X` / `_Y` | Phase 7c (`CREATE_DAMAGE_EFFECT` loop), census `implemented`; observed on June data 2026-10-16 (C11 console: `Trap_Fire_Big` `DDE_TEMPLET LOOP_ADD_POS=(200,0,0)` + 24 `CE_LOOP` lines). `MODS.md` "Phase 7c" |
+| `SET_DIE_WHEN_MASTER_EFFECT_DIE` | Phase 7c (die-with-master), census `implemented`; same C11 observation (`dieWithMaster=1`) |
+| `NUMERICAL_DATA_INDEX`, `APPLIED_SKILL_ID` | **Handed off**, not built here (user D7, 2026-10-06): June's override needs the reform skill ids (21000-32605) no March character learns. Census `handed-off`, receiver `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1 |
+
+The 5 keys became the whole census (978 keys) after the binary was readable; it is `june2017_re/census.py`
+(`--final` is the completion gate).
 
 **This number was 11 in an earlier draft, and the correction matters as a method note.**
 The first pass searched for each candidate key as a *quoted string literal* in
@@ -68,6 +86,18 @@ That comment block also already noted that neither `SOUND_PLAY_EX` nor
 themselves) had any C++ parse site — Phase C above closes that gap for
 `SKIN_MESH_RENDERTYPE` specifically; `SOUND_PLAY_EX` remains unparsed and unneeded by
 anything Ranox ships.
+
+**Closed by (C12, 2026-10-16):**
+
+| Table | Closed by |
+|---|---|
+| `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` | built, C10b-2 (`SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`; the option window is handed to the June UI port, D9) |
+| `DAMAGE_EFFECT_DIE_CONDITION_TYPE` | Phase 7c die-condition runtime; June data uses it once, observed in the deployed data in the C11a play-test (`DIE_CHECK_CONDITION` parse) |
+| `HP_RATE_DAMAGE_TYPE` | built, C10b-1 (`SERV_IRUHADEV_JUNE_HP_RATE_DAMAGE`), play-tested 2026-10-07 |
+| `NOT_TARGET_PRE_LOCK_ON_TARGET_TYPE` | Phase 6b / 7b (`NOT_TARGET_PRE_LOCK_ON_TARGET`, `MODS.md`) |
+| `ROSE_WEAPON_ATTACK_TYPE` | **handed off** to the Rose character port (checklist section 3); parsed and logged meanwhile |
+
+The enum tables themselves arrived in Phase 11 (`MODS.md`: the tables and 936 members, "June2017 effect engine: enum data").
 
 ## 3. Enum members June defines and March does not (413 across 12 tables)
 
@@ -140,6 +170,24 @@ the scroll. Do not spend further guesswork tuning the single-pass approximation;
 render pass on `CX2SubEquip` (mirroring `CX2Eqip`'s `m_EnchantRenderParam` duplication) is
 the correct fix but is new engine surface, not a Ranox-scoped change.
 
+**Revisited against June's code (C12, 2026-10-16): the inference above was wrong in its mechanism.** Lanox
+`LANOX_REMAINING_PHASES.md` Phase 7 (`365baf91`, 2026-10-11) read June's NPC init (`FUN_327a0fa0`,
+`327a8dd9..327a9870`) and ported it under `SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_ANIM`, which supersedes the Phase C flag
+(kept in the `#else`). What June actually does, replacing each inference:
+- The shell is **not** a `CX2SubEquip`. June opens the skin mesh (`OpenXSkinMesh` `31cdef40`, NULL = skip the whole block),
+  opens the block's `MOTION_CHANGE_TEX_XET`, and adds the mesh to the **unit's own `CKTDGXSkinAnim`** as an extra model
+  (`31d2f3f0` at `327a97d0`). No root-frame anchor, no sub-equip render param.
+- **`VALUE = 0.01` is read**: it is stored on the device mesh (`+0xa30`, with `UV_ANIM_SPEED` and `UV_ANIM_ALPHA`) and is the
+  UV scroll value of `SMRT_UV_ANIM` (3). The "nothing reads it" statement above is wrong.
+- `SMRT_UV_ANIM` draws in `CKTDGXSkinAnim`'s draw (`31d30380`): a model with render type >= 0 skips the normal pass and is
+  drawn **after the alpha pass**, scrolling `texOffsetStage0` by VALUE / the speed accumulators, `RT_REAL_COLOR`, SRCALPHA /
+  DESTALPHA. So it is an overlay pass, not a replacement of the body's shading (the "one real limitation" paragraph is moot).
+- Only type 3 is implemented; no NPC uses another. Two June quirks are kept verbatim: `JUNE_BUGS.md` 171 (a mesh June never
+  shipped, `MAD_BEHIMOSS_SOUL_Skin.x`, skips the block; flag `SERV_IRUHADEV_JUNE_ATTACH_SKIN_MESH_SKIP_MISSING`) and 177 (the
+  shell is lost after an anim rebuild).
+The follow-up this section asked for ("revisit if Phase 3 or 4 reached it, otherwise open one") is therefore done, by Lanox
+Phase 7, not by the effect plan. No ATTACH_SKIN_MESH item remains open here.
+
 ## 5. Data that exists in neither client
 
 Not RE targets — no amount of binary analysis on June2017's `x2.exe` produces these, since
@@ -159,14 +207,27 @@ someone later mistaking a missing-asset problem (nothing to reverse-engineer, no
 implement, just absent) for a missing-engine-feature problem (something a binary dump could
 theoretically recover).
 
-## 6. Constraint on RE-ing the June2017 client: `x2.exe` is packed
+## 6. Reverse-engineering the June2017 client: use the unpacked binary (rewritten C12, 2026-10-16)
 
-**Read this before spending time on string-anchor analysis of the June2017 executable.**
-Re-verified directly against `14JUN17/data/x2.exe` (17,876,512 bytes) this session, not just
-carried from an earlier claim: its PE has 6 sections, of which the first and fourth have no
-name at all and two more are `rhwpapaz` and `cadidffj` — not a plausible compiler/linker
-output, and consistent with Themida/WinLicense packing. A byte-level scan of the full file,
-in both ASCII and UTF-16LE, finds **zero** hits for:
+**The original §6 ("`x2.exe` is packed, string-anchor analysis does not work") is superseded. What was true then and what is
+true now:**
+
+- **The shipped `14JUN17/data/x2.exe` (17,876,512 bytes) is still packed** (unnamed sections, `rhwpapaz`, `cadidffj`;
+  consistent with Themida/WinLicense). Scanning it for key names still finds nothing, and that observation stands.
+- **An unpacked dump exists and is the file to read:** `14JUN17/data/unpacked_x2.exe` (43,801,600 bytes, SHA-256
+  `f2376a72...62af1`, image base `0x31aa0000`), loaded in the Ghidra project `F:\elsword stuff\els_jun_2017_RE\els_jun_2017.gpr`.
+  Every June address quoted in this repo (`FUN_321ee600`, `327a0fa0`, ...) is a virtual address in that image. Drive it with
+  the `ghidra` skill.
+- **The keys are not absent; they are encrypted.** Lua key literals and `lua_tinker` bind names are XOR-encrypted at compile
+  time, one string at a time, and decrypted by an inline loop where they are used. A search of the string table can never prove
+  a key is absent. They decrypt mechanically: `june2017_re/xorstrings.tsv` holds the decrypted table, and a key name is
+  cross-checked against the decompiled June Lua (the prototype decryptors drop the last character).
+- **Method notes that cost time to learn** (tooling in `june2017_re/README.md`): `CEffect`'s only virtual is its destructor,
+  so its runtime methods are reached through the call graph, not the vtable; `SetDamageData` is shared by every damage source,
+  so a semantic change there moves every damage number; the function map is `june2017_re/funcmap.tsv`; the census is
+  `june2017_re/census.py`.
+
+What the original §6 said, kept for the record. The full-file scan of the **packed** exe, in ASCII and UTF-16LE, found **zero** hits for:
 
 - Every key name in §1 above (`LOOP_ADD_POS_X`, `NUMERICAL_DATA_INDEX`, `SET_DIE_WHEN_MASTER_EFFECT_DIE`, `APPLIED_SKILL_ID`)
 - Control strings that must be present in an unpacked build (`POSITION_TYPE`,
@@ -180,6 +241,9 @@ Recovering any of §1's parse sites, §4's `VALUE = 0.01` meaning, or a ground-t
 process with a rebuilt import address table first — a separate, larger undertaking than
 anything in this document. Recorded here so it's known going in, not discovered after
 picking this list back up.
+
+**Update (C12):** that undertaking was done (the `unpacked_x2.exe` above), and it recovered every item this paragraph
+names: §1's parse sites (Phases 2-8), §4's `VALUE = 0.01` and the `ATTACH_SKIN_MESH` render path (Lanox Phase 7).
 
 ## Verification
 

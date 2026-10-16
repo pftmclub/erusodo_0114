@@ -410,6 +410,14 @@ Nearly every change since ~2009 sits behind a named `#define`, and there is no b
 
 When adding a flag, follow the local pattern: new `#define` at the end of the owning file, commented with author / date / description, and make sure it is defined for *every* project that compiles code guarded by it. For our own client changes the owning file is always `KTDXLIB/Always.h` and the name always starts with `SERV_IRUHADEV_` — see the rule at the top of this file.
 
+### June 2017 effect engine
+
+The March client's effect engine (`CX2EffectSet`, `CX2DamageEffect::CEffect`, `SetDamageData` and the hit path) was rebuilt to June 2017's, and the live
+data is June's own effect files. The plan is **complete** (2026-10-16): `JUNE2017_EFFECT_COMPLETION_PHASES.md` (its *Definition of complete* and "C12 - Done" are the
+record), history in `JUNE2017_EFFECT_REBUILD_PLAN.md`. The June client is readable: `unpacked_x2.exe` in Ghidra, with `june2017_re/` holding the function map
+(`funcmap.tsv`), the key census (`census.py --final` is the gate) and the XOR-string table. `MODS.md` "June flag index" lists every `SERV_IRUHADEV_JUNE_*` flag with its
+revert steps. `JUNE_BUGS.md` lists June quirks kept verbatim.
+
 ### Offline mode
 
 `SERV_IRUHADEV_OFFLINE` makes the client playable with **no servers running**: an in-process emulator answers the packets the five servers used to, and all player state persists to a local SQLite file, `els_db.sql`, in the game directory. It is client-only — it touches nothing under `KncWX2Server/Common/`, so the servers never need rebuilding for it.

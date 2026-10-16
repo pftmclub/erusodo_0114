@@ -9702,23 +9702,23 @@ C11a's play-test already saw it (Chain_Viper, :286 of that run). Expected side l
 
 ## C12 - Close (old Phase 12)
 
-**Status: not started. Model:** Sonnet 5, high. This is the rebuild plan's Phase 12 list, plus:
+**Status: done 2026-10-16 (see "C12 - Done" below). Model:** Sonnet 5.5, high. This is the rebuild plan's Phase 12 list, plus:
 - rewrite the rebuild plan's Status summary to "complete", pointing here;
-- remove `SERV_IRUHADEV_JUNE_FX_DEBUG` per D6;
+- decide `SERV_IRUHADEV_JUNE_FX_DEBUG` per D6 (user 2026-10-16: keep);
 - update memory.
 
 **Exit:** every item of the Definition of complete is checked off below.
 
 | item | evidence | done |
 |---|---|---|
-| 1 damage parity | census check | |
-| 2 to-implement | census | |
-| 3 binary-only consumed | census check | |
-| 4 unsupported resolved | C0 table + census | |
-| 5 runtime paths | C6, C7, C8 exits | |
-| 6 branches observed | C11 | |
-| 7 unopened files | C9 | |
-| 8 docs | this phase | |
+| 1 damage parity | `census.py --final` 2026-10-16: numerical skill data PASS as **handed off** (1,913 of 7,948 June `DAMAGE_DATA*` blocks; D7, receiver `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1: those blocks deal 0 until the character ports); HP-rate damage PASS, 0 blocks (built, C10b-1) | yes (numerical line = handed off, see D7) |
+| 2 to-implement | `census.py --final`: 0 `to-implement` rows (651 implemented, 305 june-ignores) | yes |
+| 3 binary-only consumed | `census.py --final`: 4 `binary-only` rows, every one with a cited March parse site, 0 owed | yes |
+| 4 unsupported resolved | C0 decision table D1-D10 + `census.py --final`: 5 `unsupported` rows each built (flag defined and tested) or handed off, 10 `handed-off` with a named receiver, 3 `declined` | yes |
+| 5 runtime paths | C8b + review (2026-10-09): `EffectToUnit` (Phase 9), `UnitToUnit`, `UnitToEffect`, `MeshToUnit`, `CollisionDataToUnit` on June's pair math; `SetDamageExceptionProcess` base, user and NPC layers compared and ported, the per-class bodies handed off (D8, checklist 7b); C6b + C7 (2026-10-07): spawner tail and touch-land runtime | yes (per-class bodies = D8 hand-off) |
+| 6 branches observed | C11 ledgers (143 rows, `june2017_re/c11_branch_ledger_*.tsv`; the verdicts predate C11a): 38 OBSERVED, 57 UNREACHABLE-ON-MARCH, 21 TESTABLE, 6 CARRIED, 8 RUNTIME-ONLY, 13 UNSURE. After C11a's re-adoption the play-tests reached `TOUCH_LAND`, `DIE_CHECK_CONDITION`, the aura hit, `STEER_FORWARD` and 6 console-table tags (3 more on the re-run), 0 `EXCEPTION`. **Not reached, carried (user, 2026-10-16: close with the residue):** `DIE_CREATE_NPC`, `SYNC_SHOW_BY_CREATE_UNIT` runtime, socket/aura end-to-end, Cash emotion mesh triggers, and 5 console-table lines (`ONLY_RELATIONSHIP`, `CREATE_LOCKON_COPY`, `REVERSE_Y`, `DELETE_SHAKE_COUNT`, `BONE_TRACE_TARGET_MESH self_traces_no_mesh`; `STEER_FORWARD` was seen in C11a's play-test) | yes, with carried residue |
+| 7 unopened files | `Elsword_DamageData.lua` loaded (C9, 107 rows, play-tested 2026-10-07); `UnitViewerEffectSetTable.lua` (C9c-1, C9c-2b); `EffectSet_Description.lua`: C9 declined the C++ half (March reads it only under `EFFECT_TOOL`), and C12 adopts June's file as data (`COPY OK`, data036 md5 deb87a3a) | yes (declined for the C++, data adopted) |
+| 8 docs | rebuild plan Status summary "complete"; `RANOX_EFFECT_ENGINE_GAPS.md` §1, §2, §4 closed, §6 rewritten; `RANOX_EFFECT_RUNTIME_UNKNOWNS.md` §4 confirmed; `MODS.md` June flag index (180 flags, 30 off); memory updated; D6 decided (keep `FX_DEBUG` on); CLAUDE.md pointer added (user OK) | yes |
 
 **Kickoff prompt:**
 ```
@@ -9728,3 +9728,43 @@ with evidence, rewrite the rebuild plan's Status summary to 'complete', ask me b
 SERV_IRUHADEV_JUNE_FX_DEBUG and before adding the CLAUDE.md pointer, update memory. Commit with
 my OK.
 ```
+
+
+### C12 - Done (2026-10-16, Sonnet 5.5 high)
+
+**The june-effect plan is complete.** No game code changed, so there is no flag, no `flagcheck`, no build and no deploy line for this
+phase (the kickoff allowed an `Always.h` edit only if D6 said remove the diagnostic; the user chose to keep it).
+
+What landed:
+- **Census gate:** `python june2017_re/census.py --final` run 2026-10-16: **0 FAIL**, `census.tsv` and the matrix unchanged.
+  to-implement 0, unsupported 5, binary-only 4, handed-off 10, declined 3, implemented 651, june-ignores 305.
+- **D6 (user, 2026-10-16): keep `SERV_IRUHADEV_JUNE_FX_DEBUG` on.** It guards about 325 `JUNE_FX` sites in 12 files that later plans read.
+- **`EffectSet_Description.lua` (C11a review follow-up):** `luasrc.py adopt-june data036 EffectSet_Description.lua` (bytecode, 25,370 B),
+  `kom.py pack data036` (`PACK OK`, exactly 1 entry changed vs the live kom), `kom.py copy data036` after the user's yes
+  (`COPY OK data036 ... md5 deb87a3a`). Tool-only data: March's C++ opens no file of that name, so no behaviour change.
+  Backups: `kom_backup_stage_june\20261016_215227\`, `kom_backup_tools\data036.kom.20261016_215439`. Revert in `MODS.md`.
+- **Docs:** `RANOX_EFFECT_ENGINE_GAPS.md` (status banner; §1 and §2 closed per key and table; §4 revisited against June's code: the
+  `ATTACH_SKIN_MESH` shell is an extra model on the unit's own `CKTDGXSkinAnim`, `VALUE` is the UV scroll value, closed by Lanox
+  Phase 7 `365baf91`; §6 rewritten: the dump is `unpacked_x2.exe`, the keys are XOR-encrypted not absent);
+  `RANOX_EFFECT_RUNTIME_UNKNOWNS.md` §4 (all eight items carry an `Answered` block, confirmed); rebuild plan Status summary
+  rewritten to "complete"; `MODS.md` gains the **June flag index** (180 live flags with line, date, change, dependency guards; the
+  30 off flags listed) and the `EffectSet_Description` section. 121 of the 180 flags had no `MODS.md` entry before.
+- **CLAUDE.md** pointer (user OK) and **memory** updated.
+
+Checklist (Definition of complete):
+
+(filled in the table at the top of this section, one row per item, each with its evidence.)
+
+Decisions recorded: D6 keep (above); item 6 closes with carried residue (user, 2026-10-16); CLAUDE.md pointer yes; kom copy yes.
+Open for no one in this plan: the carried branches ride with their owners (socket end-to-end with the buff port's Phase 13 factors,
+Cash emotion with a June cosmetics port). One cosmetic note from C11, not chased: `JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION ...
+effect-alpha option absent` in `X2DamageEffect.cpp` (~2260) is a stale label (the option is built, C10b-2).
+
+**Still owed by the user from other phases (not part of this plan's definition, listed so "complete" hides nothing):** the C3z-6 review's
+play-test (Altera Secret Hell, `JUNE_FX C3z-6 loading` lines; poison-clock fix `441e21d7`).
+
+**Next plan** (`JUNE_PORT_BACKLOG_ORDER.md`): Stage 1, Atlas + Elysion (`ATLAS_PORT_PHASES.md`, `/x2-phase atlas A0`, Sonnet 5.5 high).
+Order caveat: A0 runs `git switch -c mods/elysion-port` from this tip on a clean tree, and from then on code sessions commit onto that
+branch, so run the Stage 2 `june-engine` code phases (R1, U1, W1; also unblocked now, STATUS rows updated) **before A0**, or accept that
+they land on `mods/elysion-port`. Still gating later Atlas phases: March migration Phase 7 (save migration) before A2, and the ExtraNPCStat P5
+go/no-go (`JUNE_PORT_BACKLOG_ORDER.md`, "Stage 0 items").

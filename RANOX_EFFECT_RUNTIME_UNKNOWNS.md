@@ -120,6 +120,11 @@ Extracted mesh archives live at
 
 ## 4. Open unknowns
 
+> **Closed (june-effect C12, 2026-10-16): all eight items below carry an answer.**
+> 4.1 was answered in Phase 10 (2026-09-29); 4.2-4.8 in Phase 9 (2026-09-29). Checked item by item: each
+> has an `Answered` block, and none is still marked open. The June2017 engine rebuild
+> (`JUNE2017_EFFECT_COMPLETION_PHASES.md`) is complete; this section is history.
+
 Ordered by expected payoff. Each names the exact anchor and the exact question, so
 none of them needs re-deriving.
 

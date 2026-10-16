@@ -49,99 +49,69 @@ and they decrypt mechanically. So the June engine can now be read rather than gu
 
 ---
 
-## Status summary (2026-10-03): adopted and live, with engine follow-ups open
+## Status summary (2026-10-16): complete
 
-> **Correction, 2026-10-04: adoption has a live damage regression.** 1,915 `DAMAGE_DATA*` blocks in
-> June's effect files take their damage only from June's numerical skill table, which this build
-> lacks. In March they deal **0 damage**. 492 of them did damage in the retired merged copy. The
-> "none blocks" claim below was wrong.
->
-> **The remaining work to completion is now `JUNE2017_EFFECT_COMPLETION_PHASES.md`**, phases C0-C12.
-> C1 (numerical skill data) is first. That document's *Definition of complete* replaces the open
-> follow-ups list below.
+> **This plan is complete as of 2026-10-16 (june-effect C12).** The remaining work was done in
+> `JUNE2017_EFFECT_COMPLETION_PHASES.md` (C0-C12); that document's *Definition of complete*, with its C12 checklist and
+> evidence, is the record. The phase sections below are history, each with its own evidence.
+> (Earlier statuses: "adopted and live, with follow-ups open", 2026-10-03; corrected 2026-10-04 for the live damage regression.)
 
-**This is the section to read first.** The phase sections below are the history, each with its
-own evidence.
+**What "complete" means here.** The live client runs June's own effect files on an engine that reads them the way
+June's does:
+- `EffectSet`, `UIEffectSet`, `EffectSet_INT`, `UIEffectSet_INT`, `EffectSet_Description`;
+- `DamageEffect` and `DamageEffect_Character`/`_Dungeon`/`_ETC`/`_INT`, `DamageSound`;
+- `Elsword_DamageData` and `UnitViewerEffectSetTable`;
+- every June particle and mesh-player `.txt`, and the assets they reach (C11a, 2026-10-16: the full June set, 2,843
+  added and 91 replaced files; the Ranox-merged copies are retired).
 
-**The end goal is met for effects.** The live client runs June's own effect files:
-- `EffectSet`, `UIEffectSet`, `EffectSet_INT`, `UIEffectSet_INT`;
-- `DamageEffect` and `DamageEffect_Character`/`_Dungeon`/`_ETC`/`_INT`;
-- `DamageSound`;
-- every June particle and mesh-player `.txt`;
-- the 3,681 assets they reach.
+The census (`python june2017_re/census.py --final`, run 2026-10-16) is **all PASS, 0 FAIL**:
 
-The Ranox-merged March copies are retired (commit `6174c71`). The trial on the live client passed:
-- every file loads to its last templet;
-- the counts match June's data to the entry;
-- the deferred Phase 2 log checks fire;
-- every name June dropped is missing, not crashing.
+| status | rows |
+|---|---|
+| `to-implement` | 0 |
+| `implemented` | 651 |
+| `june-ignores` (June reads the key and does nothing) | 305 |
+| `handed-off` (receiver named) | 10 |
+| `declined` | 3 |
+| `unsupported` (each built, handed off or declined) | 5 |
+| `binary-only` (each with a March parse site) | 4 |
 
-Evidence and the adoption punch list are in `JUNE2017_TRIAL_LOAD.md`.
+| phase | scope | final status |
+|---|---|---|
+| 0 | RE tooling, function map | done 2026-09-24 (`funcmap.tsv`) |
+| 1 | key census, gap matrix | done 2026-09-25 (`census.py`) |
+| 2-4b | EffectSet parser and runtime | done 2026-09-26; deferred checks observed on June data |
+| 5-7e | CEffect ctor keys, sub-loaders, DamageEffect runtime | done 2026-09-26 to 29 |
+| 8a-8c | SetDamageData | done; 8b's open keys closed by C3-C5 |
+| 9 | collision and hit path | done: all five hit paths on June's collision (C8b, 2026-10-09); per-class `SetDamageExceptionProcess` bodies handed off (D8) |
+| 10 / 10b | `.txt` keys, adoption audits | done 2026-09-29 / 09-25 |
+| 10c | spawner tail, touch-land | done: C6b, C7 (2026-10-07) |
+| 11 | enums, trial load, adoption | done 2026-10-03; re-done in full by C11a (2026-10-16) |
+| 12 | docs and memory | **done 2026-10-16 (C12)** |
 
-**What "complete" does and does not cover.** The port is complete as an *adoption*: June's data
-loads and runs on the March engine, with no load error and no crash. It is *not yet* full engine
-parity. The census (`python june2017_re/census.py --summary`, 2026-10-03) still reports:
-- 46 keys `to-implement`: 31 in Phase 8b, 15 `unassigned`;
-- 14 `unsupported`;
-- 17 `binary-only`.
+**Flags this plan added.** 180 `SERV_IRUHADEV_JUNE_*` flags are live in `KTDXLIB/Always.h` (the effect plan, the buff port, the
+dungeon and world ports share the family). The list with each flag's line, what it changes, its dependency guards and the
+revert steps is in `MODS.md`, "June flag index". `SERV_IRUHADEV_JUNE_FX_DEBUG` (the diagnostic) stays on (user, 2026-10-16).
 
-On June's data, each of those keys is parsed and gets its default, logged where plan rule 5
-applies. It does not get June's behaviour. The open items are listed below so that "done" means
-something definite.
-
-| phase | scope | status | verified by |
-|---|---|---|---|
-| 0 | RE tooling, function map | done 2026-09-24 | `funcmap.tsv`, controls |
-| 1 | key census, gap matrix | done 2026-09-25 | `census.py` (all checks PASS) |
-| 2 | EffectSet parser, templet level | done 2026-09-25 | play-test; deferred `ES_TEMPLET` lines fired on June data 2026-10-03 |
-| 3 | EffectSet parser, per effect | done 2026-09-26 | play-test |
-| 4a | EffectSet runtime: creation | done 2026-09-26 (stage 3's `GROUP_NAME` branch is untestable: no data uses it) | play-test |
-| 4b | EffectSet runtime: delete, update, camera shake | done 2026-09-26 | play-test (Perfect Storm / Hamelling `ES_UPDATE`+`ES_DELETE`) |
-| 5 | CEffect constructor keys | done 2026-09-26 | play-test |
-| 6a / 6b | sub-loaders | done 2026-09-26 / 27 | census; dev-console T1 |
-| 7a | DamageEffect runtime: OnFrameMove | done 2026-09-27 | play-test |
-| 7b | lock-on runtime | done 2026-09-27 | play-test. The `LOT_UID_VECTOR` re-target (T2) was **never observed** |
-| 7c | `LOOP_*`, die-with-master | done | dev-console T1. Die conditions not observed |
-| 7d | DamageReact, AttackResult | done 2026-09-28 | play-test, T3, T4 |
-| 7e | `HIT_EFFECT_SET`, `DIE_CREATE_NPC` | done 2026-09-29 | built. **Touch-land moved to 10c** |
-| 8a | SetDamageData, June semantics | done 2026-09-29 | play-test |
-| 8b | SetDamageData, new keys | **partial**: 5 keys done; 31 `to-implement` + 13 `binary-only` open | T4 regression |
-| 8c | absent systems, enum handoff | done 2026-09-29 | T5 |
-| 9 | collision and hit path | **collision half done** (`EffectToUnit` only); the `SetDamageExceptionProcess` half is not ported | T6 |
-| 10 | KTDGXMeshPlayer / particle `.txt` keys | done 2026-09-29 | T7 |
-| 10b | adoption audits | done 2026-09-25 | closure, name contract, ljconv route |
-| 10c | spawner post-create tail, touch-land runtime | **not started** (identification only, no code) | - |
-| 11 | enums, trial load, adoption | **done 2026-10-03** | `JUNE2017_TRIAL_LOAD.md` |
-| 12 | docs and memory | **not done** | - |
-
-**Flags this plan added** (all in `KTDXLIB/Always.h`, all on; revert steps in `MODS.md`):
-- `SERV_IRUHADEV_JUNE_EFFECTSET_PARSE`, `_EFFECTSET_RUNTIME`;
-- `SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE`, `_DAMAGEEFFECT_RUNTIME`;
-- `SERV_IRUHADEV_JUNE_DAMAGEDATA`, `_COLLISION`;
-- `SERV_IRUHADEV_JUNE_MESHPLAYER`, `_PARTICLE`;
-- `SERV_IRUHADEV_JUNE_LOADER_GAPS`, `_HITTYPE_EXTEND`;
-- `SERV_IRUHADEV_JUNE_FX_DEBUG`, diagnostics only; Phase 12 asks before removing it.
-
-**Open follow-ups, by owner** (superseded by `JUNE2017_EFFECT_COMPLETION_PHASES.md`). Each one leaves a June key on its
-default, or an effect missing. Numerical skill data does more: it zeroes damage. See the correction above.
-
-| # | item | owner | where it is specified |
-|---|---|---|---|
-| 1 | Phase 8b: 31 `DE.DAMAGE_DATA` keys + 13 binary-only (e.g. `TRACE_NEAREST_BONE`, which needs identification first) | this plan | Phase 8b section, grouping |
-| 2 | Phase 10c: spawner post-create tail (`31f8fdb0`, `31f649d0`, `31f64c00`, `31f65e40`, `31f65f90`), then the touch-land runtime | this plan | Phase 10c section |
-| 3 | Phase 9 second half: `SetDamageExceptionProcess` (8 per-class overrides to compare; the `AT_COMMAND` MP-gain multiplier); switch `UnitToUnit` collision as well | this plan | Phase 9 section, `MODS.md` |
-| 4 | 15 `unassigned` keys (nested `BUFF_FACTOR`, `Elsword_DamageData.lua`, `DamageSound`) | buff port / no owner yet | matrix, *Open questions* |
-| 5 | June buff factors the March build lacks (`BFI 512`, `653`, `1129` requested at run time) | buff port (Phase 13) | `JUNE_BUFF_PORT_PHASES.md` |
-| 6 | 14 effect names whose character or NPC scripts June changed (Raven Guardian Strike, Rena Dive Kick Bombing, ...) | character ports | `JUNE2017_TRIAL_LOAD.md`, `JUNE2017_CHARACTER_PORT_CHECKLIST.md` |
-| 7 | `BOSSRAID_ABYSS_SMOG.DDS` missing (June has it; the referencing file is not found) | this plan, cosmetic | `JUNE2017_TRIAL_LOAD.md` |
-| 8 | Never observed in play: the 7b UID-vector re-target, 7c die conditions, the touch-land gate | this plan | dev-console pass |
-| 9 | Phase 12: `RANOX_EFFECT_ENGINE_GAPS.md` §6, `MODS.md` audit, CLAUDE.md pointer (ask first), memory | this plan | Phase 12 section |
+**What is not in this plan, and who has it** (census `handed-off`, or the C0 decision table):
+- **Numerical skill data and applied skill ID** (1,913 June damage blocks deal 0 until then): the character ports,
+  `JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1 (D7). Per-class `SetDamageExceptionProcess` bodies: checklist 7b (D8).
+- **Natural force, Rose weapon type, combination point:** Rena, Rose and Lu/Ciel ports (D3, D5; checklist section 3).
+- **Nested `BUFF_FACTOR` rows and the June buff factors effects request:** the buff port (`JUNE_BUFF_PORT_PHASES.md`).
+- **The effect-alpha option window:** the UI sweep (backlog Stage 9, D9); the engine and `GameOptions.lua` keys are built (C10b-2).
+- **Branches not reached in play** (carried, not failures; no `EXCEPTION` was ever logged): `DIE_CREATE_NPC` and
+  `SYNC_SHOW_BY_CREATE_UNIT` runtime, socket/aura end-to-end (needs the buff port's Phase 13 factors and a save edit), the Cash
+  emotion mesh triggers (`EMOTION_TYPE` ends at 15), and 5 console-table lines (`ONLY_RELATIONSHIP`, `CREATE_LOCKON_COPY`, `REVERSE_Y`,
+  `DELETE_SHAKE_COUNT`, `self_traces_no_mesh`). Ledgers: `june2017_re/c11_*`.
 
 **Working on effects from here on.**
-- June's effect files have no editable source in the repo. `june_src_fixed/` is for reading only:
-  recompiling a decompile lost templets in Phase 10b.
-- Put a local addition in a separate file, not in June's.
-- Rebuild or re-stage with `june2017_re/stage_june_fx.py` (`--revert` undoes it).
+- June's effect files have no editable source in the repo. `june_src_fixed/` is for reading only.
+  Recompiling a decompile lost templets in Phase 10b.
+- Put a local addition in a separate file, not in June's (user rule 2026-10-09: no new `.lua` files unless it is server Lua).
+- The June files are stored as June's `ljconv` bytecode; `luasrc.py adopt-june` brings one in, `luasrc.py restore` undoes a
+  conversion. `june2017_re/stage_june_fx.py --revert` is stale (its backup predates the C11a re-adoption); see `MODS.md`
+  "June effect Lua re-adopted in full" for the revert.
+- The June binary is read from `unpacked_x2.exe` in Ghidra (`RANOX_EFFECT_ENGINE_GAPS.md` §6).
 
 ---
 
@@ -4052,6 +4022,12 @@ Ask before launching the client, every time.
 ---
 
 ## Phase 12 — Docs and memory
+
+> **Done 2026-10-16 (june-effect C12):** see `JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C12 - Done". The `FX_DEBUG` decision and the
+> CLAUDE.md pointer were both answered by the user (keep; yes).
+
+> **Done 2026-10-16 (june-effect C12):** see `JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C12 - Done". The `FX_DEBUG` decision and the
+> CLAUDE.md pointer were both answered by the user (keep; yes).
 
 **Paste with:** Starting context + this section.
 
