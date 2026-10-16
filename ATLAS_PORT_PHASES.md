@@ -1786,6 +1786,44 @@ after I pack). Record a Done note (incl. the DEPLOY OK commit), then commit on m
 - **How to see it in game:** the play-test hand-off in the A5 STATUS row's commit message / the session's hand-off: `atlas` in chat -> Atlas Station with
   Glave, Yuno, billboard, postbox; Atlas Pit loading art; M key field map follows the character; world map shows the Atlas pins.
 
+### Phase A5 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS: no transcription error with an effect, no code change, no build** (deployed exe stays c3f55fb4 or a later peer
+build carrying `f5951bbc`). Ghidra + capstone over `unpacked_x2.exe`, read-only; floats and jump tables read straight from the file.
+
+- **Cobo `CreateWarpDest` 324627f0:** LMI pushes 0x2711-0x2719 against March's `LMI_*` (10001 ELDER ... 10008 RANOX, 10009 ELYSION),
+  every row's control name and village id, `inc esi` only inside the control-non-NULL branch; 1008 row: code event `0x8d4` (2260)
+  through `g_pInstanceData` (NULL -> add), `inc esi` @32463056 outside the add; 20009 row has no `inc` (port: none). Dialog
+  `DLG_Destination_byButton.lua` @32462911, `GetWindowPos( (300,400), (75,20) )` (floats 33471308 / 3344f348 / 33457df0 / 33438a8c),
+  `SetIndex` last. Omitted rows still true: 1500 / 1501 behind the `+0xa1c` instance-data map (no March table), 25000 (ungated, before
+  Ruben; no enum), the quest test `+0x70` -> 32322260 (decision 2).
+- **Warp-index branch @32463091:** June's state switch 0xe / 0x10 -> location `+0x64`, 0xf -> `+0xb4`, 0x15 -> 324826f0( -1 ). By funcmap
+  `31d6fd60` June 0xf is the new `XS_GUILD_AGIT_GAME` (shifts the rest), so 0xe / 0x10 / 0x15 = March `XS_VILLAGE_MAP` / `XS_SQUARE_GAME`
+  / `XS_BATTLE_FIELD`, and June's own `AddWarpList` 3245c930 uses the same switch: A5's mapping onto March's `AddWarpList` is right, the
+  guild-agit case has no March state.
+- **Warp-NPC `CreateWarpDest` 32173120:** `DLG_Destination.lua`; order 1500 (ungated, omitted) / 1501 under 0x2718 / 25000 (omitted) /
+  20000 / the 8 regions / ELYSION (level + quest test only, no code event, no index branch) = the port. One cosmetic difference: June
+  does not `inc` after the 20009 row (@32173950); the port's `++row` there is never read again. Left as is (no behaviour, no rebuild).
+- **`InitWarpList` x2:** Cobo 3245a1e0 = 21 names, all NULL-checked, port's order; warp-NPC 32166ae0 = the 14 March names unchecked,
+  then 20008, 1007, 20009, 1008, 25000, 1500, 1501 checked = the port (`i < 14`).
+- **Values:** `ResetCameraMatrix` all six cases re-read through the jump tables @32f20cfc (1008 -> 32f200b5) / @32f20d44 (40035 ->
+  32f20beb, 40036 = 40038 -> 32f20c65, 40037 -> 32f20c2a) and the store tail @32f20ca2: eye / look exactly as ported, fov 0x3353c16c =
+  0.627935 = `D3DXToRadian( 35.978 )`, aspect 2.0. `OpenFieldName` tables @323b1600 / @323b1624: 1007 27, 1008 28, 20008 15, 20009 16,
+  1501 30 (`0x1e`), 1500 29 (omitted). `WarpByCommand` table @31d710d4: 15 20008, 16 1007, 17 1008, 18 20009, 19 1500, 20 1501; tail
+  (skip in SQUARE_GAME, set state arg, field-change req) = March's.
+- **`this+0x3c0` omission:** byte sweep (`dispsweep.py 3c0`): in June's field game only two writers (`= 1` @323baf0e / @323bb75a in setup
+  323bad00) and OpenFieldName's clear; no byte reader anywhere. Write-only in June: not porting it holds.
+- **Data (subagent diff, spot-read):** Village[1008] = June 4367-4423 apart from the two key renames (rows 401 / 403); the 3 house rows +
+  `HI_YUNO` + `NUI_YUNO` + WI 637 verbatim; MapData row + Cobo zone 17 = June, server mirror 31 inserted / 0 deleted lines, each block in
+  its neighbours' EOL (AddMapData LF, Cobo CRLF); world map = June 1842-2081 plus one 7-line hunk (comment, 4 `SetShow(false)` on the
+  ELYSION_TOWN / FIELD_BATTLE_03 button + static, blank), `99999` gone, cloud keyed to 1008 as in June.
+- **Hygiene:** `flagcheck ELYSION_PORT --range f5951bbc^..f5951bbc --files <8 code files>`: `files: 8 PASS, 0 PASS~, 0 DEFINE, 0 OTHER,
+  0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+  0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (X2Main.cpp's one hunk is this flag's, RANOX_PORT nested).
+  `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`.
+- **Kickoffs:** `A6.md` written by this review; `A7.md` exists (peer) and keeps the town / F03 pins hidden until E2 / E3. A5's play-test
+  checks re-run with A7's (1008 has no village templet before it).
+
 ---
 
 ## Phase A6 — Lanox→Atlas crossing + Fields 01/02
