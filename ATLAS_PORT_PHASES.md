@@ -1725,6 +1725,13 @@ after I pack). Record a Done note (incl. the DEPLOY OK commit), then commit on m
   templet, so `UpdateWorldMap` leaves the Lua show state: rest/F01/F02 pins show, the ELISION cloud stays drawn; after A7 its level gate (`X2WorldMapUI.cpp:603-660`)
   also re-shows the town / F03 pins, so A7 must keep them hidden until E2/E3 land. (3) Silent Night Shelter (1007) still has no house rows: Lanox Remaining P9.
   (4) The Rest field-map dialog's 6 keys resolve (`ELISION_Rest_04.TET` holds 04 + 05, `_05.TET` holds 06, as June's dialog asks).
+- **Play-test 2026-10-17 (user): `atlas` does nothing visible; root cause found, fix is A7 (user's choice).** The warp reaches the emulator
+  (`WARP button warp 20001 -> 1008`, `entering mapID=1008`) and the client's current village becomes 1008 (M shows the Atlas map), but the
+  field state loads no world (`loaded` 21 ms later at the old line/pos). `CX2StateField::Handler_EGS_STATE_CHANGE_FIELD_ACK` skips
+  `new CX2TFieldGame` when `GetWorldID( 1008 )` is invalid (`X2StateField.cpp:1293`), and 1008 has no village templet: `VillageParsing`
+  runs only from `LocalParsing` for the `VillageData` / `BattleFieldRestData` ids a registered local map names (`X2LocationManager.cpp:227-327`).
+  March's `DLG_Map_Local.lua` has no `LMI_ELYSION`; June's `DLG_Map_Local_Elysion.lua` (`BattleFieldRestData = 1008`) is A7 steps 1-2.
+  A5's checks (warp, NPCs, art, M map, world map, Cobo) re-run with A7's play-test.
 - **How to see it in game:** the play-test hand-off in the A5 STATUS row's commit message / the session's hand-off: `atlas` in chat -> Atlas Station with
   Glave, Yuno, billboard, postbox; Atlas Pit loading art; M key field map follows the character; world map shows the Atlas pins.
 
