@@ -10,13 +10,13 @@ type `/x2-phase <plan> <phase>` (or `... review`). `/x2-phase status` answers "w
 
 **Running two sessions at once** is fine when (a) neither depends on the other, (b) at most one
 of them edits code, or their "Touches" do not share a file, and (c) both commit with explicit
-paths. Builds queue through one lock (all worktrees share it). Read-only steps (RE, reviews
+paths. Builds queue through one lock. Read-only steps (RE, reviews
 that find nothing, planning) can always run alongside.
 
-**Worktrees and the game dir (2026-10-08, june-item-kim K2 `f1549a6`):** the live `data036.kom` ships June's 228-byte `item.kim`.
-An exe deployed from a worktree (e.g. `Trunk_elysion`) whose `Always.h` lacks `SERV_IRUHADEV_JUNE_ITEM_KIM` and
-`SERV_IRUHADEV_KIM_LAYOUT_CHECK` reads it at 188 bytes per record **silently** (wrong items everywhere, no error). Merge K2 into a
-worktree before deploying from it.
+**Branches and the game dir (2026-10-08, june-item-kim K2 `f1549a6`):** the live `data036.kom` ships June's 228-byte `item.kim`.
+An exe deployed from a branch whose `Always.h` lacks `SERV_IRUHADEV_JUNE_ITEM_KIM` and `SERV_IRUHADEV_KIM_LAYOUT_CHECK` reads it at
+188 bytes per record **silently** (wrong items everywhere, no error). Cut new branches from a tip that has K2 (e.g. `mods/elysion-port`
+from `mods/june-buff-port`), and merge K2 into any older branch before deploying from it.
 
 States: `done` · `review` (done, review pending) · `play-test` (waiting on the user) ·
 `ready` (can start) · `queued` (could start, but the user ordered another plan first) ·
@@ -458,30 +458,36 @@ Running together:
 - The kom waves (P2-P4, P6-P8, P10) run one at a time, because each ends in a copy and a play-test.
 - Do not pack a kom while another session has uncommitted changes in its `kom_contents` dir (data036 above all).
 
-## atlas - Atlas port (Atlas Station, Fields 01-02, AtlasDevelopment / AtlasCity / Tower)
+## atlas - Atlas/Elysion port, one plan (Atlas Station, Fields 01-03, village 20009, AtlasDevelopment / AtlasCity / Tower / SkyCrossroads / Adrian / Soless / Memory)
 
-Plan `ATLAS_PORT_PHASES.md` · branch `mods/elysion-port`, worktree `../Trunk_elysion` (both created by A0) · log tag `[ELYDBG]` ·
-flags: the plan's "Flags" table (`LEVEL_CAP_99`, `ELYSION_PORT`, `ELYSION_SCRIPT_A`, ...) · kickoffs `kickoffs/atlas/` · backlog
-Stage 1 · planned 2026-10-03, rows added 2026-10-08 (the plan predates STATUS and was never started: every Done note is empty).
+Plan `ATLAS_PORT_PHASES.md` (single plan since 2026-10-16, user: the former `ELYSION_PORT_PHASES.md` is its E sections, that file
+is a pointer; phase IDs A0-A13 / A6b / E0-E15 unchanged) · branch `mods/elysion-port` in the main Trunk, created by A0, no worktree
+(user, 2026-10-16) · log tag `[ELYDBG]` · flags: the plan's "Flags" table (`LEVEL_CAP_99`, `ELYSION_PORT`, `ELYSION_SCRIPT_A/B`,
+`ELYSION_VILLAGE`, `JUNE_MOVABLE_LINE`, `JUNE_SIMPLE_DLG`, ...) · kickoffs `kickoffs/atlas/` (A and E phases) · backlog Stage 1 ·
+planned 2026-10-03, rows added 2026-10-08 (the plan predates STATUS and was never started: every Done note is empty). Quests are
+deferred to backlog Stage 4.
 **Order (user, 2026-10-08): the june-effect plan is completed before this one starts.**
+
+**Branch rules (from A0 on):** every phase works in the main Trunk with `mods/elysion-port` checked out, and commits this plan's rows
+on that branch in the phase's own commit. Any other plan's session run in this Trunk meanwhile commits onto the same branch. Switch
+branches only on a clean tree. At each phase start, merge `mods/june-buff-port` into the branch if it has moved.
 
 **Superseded by `LUA_SOURCE_PHASES.md` (L7, 2026-10-09):** the plan doc's "Lua compile/stage" block (`elstools compile-batch`, "compiled `1B 4B 4C 81`"), its
 "Lanox lessons" compiled-Lua gate and A5's `DLG_Destination` line keep the old wording and are frozen. Use instead: `luasrc.py adopt-june` (June's file, default = `ljconv` bytecode),
 `adopt-june --source` after a `core --add` row when the phase must edit it (A5 owns the `DLG_Destination_byButton` row, A3/A7 the `DLG_Map_*` rows), `luasrc.py convert` for a March file,
 then `/elstools pack` (the pack gate replaces the compiled-header check). No hand compile or decompile.
+E0's `ELYSION_SOLESS` decompile-check (`elstools decompile-batch` + `ljd_jun2017.py --check`) becomes
+`luasrc.py adopt-june ELYSION_SOLESS.lua` (June's `ljconv` bytecode; `--source` only if the port must edit it, after a `core --add` row).
 
-This doc owns the groundwork both halves share (worktree, census, RE maps, level cap, enums); `elysion` below assumes it.
 **june-effect C3y (2026-10-11):** the A8-A10 / E8-E11 dungeons' ids, worlds (enum / WorldData / files) and unresolved NPCs are rows of
 `june2017_re/c3y_unreached_dungeon_census.tsv` / `c3y_unreached_world_census.tsv`. Their Hero rows go to june-dungeons C3y-5, not "out of scope"
 (only the Mode Button is unreachable in June). Henir Space stages 32-35 already name the 4 boss worlds (`WI_ATLASDEVELOPMENT_BOSSATGE`,
 `WI_TOWER_BOSSATGE`, `WI_SKYCROSSROADS_BOSSSTAGE`, `WI_ADRIAN_BOSSSTAGE`); **user, 2026-10-11: june-dungeons C3y-1b ports those 4 worlds**
 (enum, WorldData, world + line map, assets). A8 / A10 / E8 / E9 reuse them and do not port them again.
-Phases from A1 on run inside the worktree; update these rows in the main Trunk with a path-limited commit. Before deploying from
-the worktree, check that it carries every exe-side change the live koms need ("Worktrees and the game dir" above).
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| A0 | **queued** (user 2026-10-08: june-effect is finished first; A0 itself has no blocker): create worktree `../Trunk_elysion` on `mods/elysion-port` from the committed `mods/june-buff-port` tip (has K2), make it build (junctions / copies, `build.py` without `--deploy`), `june2017_re/region_census.py` v1 + baseline vs the ledger | Sonnet 5.5 / high | - | new worktree, `june2017_re/region_census.py`, plan doc (no game code) | `A0.md`; light Opus 5.5 review, kickoff written by the phase |
+| A0 | **queued** (user 2026-10-08: june-effect is finished first; A0 itself has no blocker): in the main Trunk, on a clean tree only (stop and ask otherwise), create branch `mods/elysion-port` from the committed `mods/june-buff-port` tip (has K2) with `git switch -c`; `june2017_re/region_census.py` v1 + baseline vs the ledger | Sonnet 5.5 / high | - | new branch, `june2017_re/region_census.py`, plan doc (no game code) | `A0.md`; light Opus 5.5 review, kickoff written by the phase |
 | A1a | queued: RE + C++ reachability map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 | read-only (Ghidra), plan doc | written on first use |
 | A1b | queued: script-engine map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 (parallel with A1a) | read-only (Ghidra), plan doc | written on first use |
 | A2 | **blocked**: level cap 99 + EXP migration | Opus 5.5 / high | A0, **MARCH_2014_MIGRATION Phase 7** (its board says "not started"; verify) | C++ + data + offline DB | written on first use |
@@ -497,21 +503,6 @@ the worktree, check that it carries every exe-side change the live koms need ("W
 | A11 | queued: asset closure + pack list | Sonnet 5.5 / high, review Opus 5.5 | A5-A10 | data | written on first use |
 | A12 | queued: build, deploy, hand-off | Sonnet 5.5 / medium | A11 | build | written on first use |
 | A13 | queued: play-test sweep + close-out | Opus 5.5 / high | A12 | verify + root-cause | written on first use |
-
-Running together: A1a and A1b are independent (two sessions); A5 and A7 are independent of each other and of A4. A0 only reads
-the main Trunk, so it can run alongside any june-* session.
-
-## elysion - Elysion port (village 20009, Field 03, SkyCrossroads / Adrian / Soless / Memory)
-
-Plan `ELYSION_PORT_PHASES.md` · same branch and worktree as `atlas` · log tag `[ELYDBG]` · flags: the Atlas doc's "Flags" table
-(`ELYSION_VILLAGE`, `JUNE_MOVABLE_LINE`, `JUNE_SIMPLE_DLG`, ...) · kickoffs `kickoffs/elysion/` · backlog Stage 1 · planned
-2026-10-03, rows added 2026-10-08. Quests are deferred to backlog Stage 4.
-
-**Superseded by `LUA_SOURCE_PHASES.md` (L7, 2026-10-09):** E0's `ELYSION_SOLESS` decompile-check (`elstools decompile-batch` + `ljd_jun2017.py --check`) becomes
-`luasrc.py adopt-june ELYSION_SOLESS.lua` (June's `ljconv` bytecode; `--source` only if Elysion must edit it, after a `core --add` row). The Atlas rule above applies to every staging/compile line.
-
-| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
-|---|---|---|---|---|---|
 | E0 | queued: preconditions, census, `ELYSION_SOLESS` decompile | Sonnet 5.5 / medium | Atlas A0-A4 (incl. A2), A7 | tooling | written on first use |
 | E1 | queued: village engine: NPC relation system (all three entry points, incl. the code-event tail: step 5, from june-effect C9h-2e), `DLG_Map_House` keys, in-village warps, June's whole `CX2TFieldNpc` incl. the village-NPC effect set (step 6, from june-effect C9h-5; merge after C9h-3a) | Opus 5.5 / high | E0 (+ A1a map) | C++ (new mechanisms) | written on first use |
 | E2 | queued: Elysion village 20009 | Opus 5.5 / high | E1, Atlas A5, A6 | data + C++ switches | written on first use |
@@ -529,8 +520,10 @@ Plan `ELYSION_PORT_PHASES.md` · same branch and worktree as `atlas` · log tag 
 | E14 | queued: build, deploy, hand-off | Sonnet 5.5 / medium | E13 | build | written on first use |
 | E15 | queued: play-test sweep + close-out (whole region) | Opus 5.5 / high | E14 | verify + root-cause | written on first use |
 
-Running together: E1, E5, E6 and E7 are independent, each in its own extra worktree off `mods/elysion-port`, merged back
-E7 -> E5 -> E6 -> E1 (the plan's "Model, effort, review").
+Running together: A1a and A1b are independent and read-only (two sessions); A5 and A7 are independent of each other and of A4.
+E1, E5, E6 and E7 are independent in content but share `X2Main.cpp`'s binding block and the `Always.h` block, so on the one branch
+they run one at a time, in the order E7 -> E5 -> E6 -> E1 (the plan's "Model, effort, review"). Read-only steps (RE, planning) can
+run alongside anything.
 
 ## lua-source - core client Lua as proven plaintext source, the rest as June's bytecode
 
@@ -617,7 +610,6 @@ phase section (kickoffs/TEMPLATE.md) on first use and shows it before starting.
 | Plan | Doc | State (2026-10-04, from the doc's headings; verify before starting) |
 |---|---|---|
 | backlog | `JUNE_PORT_BACKLOG_ORDER.md` | The order of everything below: stage 0 (close open loops, incl. this buff port) -> 1 Atlas/Elysion -> 2 engine remainder -> 3 skill core -> ... -> 9 UI; 10 emotion system; 11 division item templets (added by june-effect C9f); 12 character customize system (added by june-effect C9g); 13 June `item.kim` adoption (planned as `june-item-kim` above, a prerequisite of 11 and 12); 14 byte-exact June asset extraction (planned as `june-asset-extract` above); 15 every remaining June non-lua asset (planned as `june-asset-port` above); 16 June item-side systems (added by june-item-kim K0); 17 pet and riding-pet remainder (added by june-effect C9h: the pet variant byte and June's 8 pets / riding pets); 18 NPC friendship system (added by june-effect C9h-5, gated on code event 2215). |
-| atlas | `ATLAS_PORT_PHASES.md` | Not started (the Done-note headings through A13 are empty). Rows: the `atlas` block above (2026-10-08). Note (june-effect C3z-2, 2026-10-10): March's Enum.lua / NPCTemplet.lua already carry June's Elysion Henir ids and `NUI_ELSION_MAYA`, `NUI_ELYSION_BOSS_ORB` / `_SHIELD`, `NUI_ELYSION_OBJECT_HERBAON1` / `2` (list: `june2017_re/dungeon_npc_census.tsv`); do not add them twice. |
-| elysion | `ELYSION_PORT_PHASES.md` | Not started (the Done-note headings through E15 are empty). Rows: the `elysion` block above (2026-10-08). |
+| atlas | `ATLAS_PORT_PHASES.md` (Atlas + Elysion, one plan since 2026-10-16) | Not started (the Done-note headings through A13 and E15 are empty). Rows: the `atlas` block above (2026-10-08). Note (june-effect C3z-2, 2026-10-10): March's Enum.lua / NPCTemplet.lua already carry June's Elysion Henir ids and `NUI_ELSION_MAYA`, `NUI_ELYSION_BOSS_ORB` / `_SHIELD`, `NUI_ELYSION_OBJECT_HERBAON1` / `2` (list: `june2017_re/dungeon_npc_census.tsv`); do not add them twice. |
 | lanox | `LANOX_REMAINING_PHASES.md` + `JUNE_UI_PARITY_PHASES.md` | 12 items in phases 0-11; check the doc for which have landed. **Superseded by `LUA_SOURCE_PHASES.md` (L7, 2026-10-09)** for Lua: the docs' "compile every `.lua` with `elstools compile-batch`" rule is frozen; use `luasrc.py adopt-june` / `convert` and the pack gate. |
 | char-port | `JUNE2017_CHARACTER_PORT_CHECKLIST.md` | Checklist, not phased; buff phases append to section 7. |

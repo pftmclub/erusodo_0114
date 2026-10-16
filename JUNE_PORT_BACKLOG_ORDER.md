@@ -2,7 +2,7 @@
 
 > Written 2026-10-03 on `mods/june-buff-port`. This file sets the **order** of the remaining June-parity backlog and says why. It does not plan any one stage in detail.
 >
-> Each stage gets its own phase doc, written by a planning session started from that stage's kickoff prompt (bottom of this file). Stage 1 already has its docs: `ATLAS_PORT_PHASES.md` and `ELYSION_PORT_PHASES.md`, commit `24de3d3`. The next stage to plan is Stage 2, and its kickoff is written out in full. The rest are short, and each one asks the planning session to re-check this file's assumptions first.
+> Each stage gets its own phase doc, written by a planning session started from that stage's kickoff prompt (bottom of this file). Stage 1 already has its doc: `ATLAS_PORT_PHASES.md` (written as two docs in commit `24de3d3`; `ELYSION_PORT_PHASES.md` was merged into it on 2026-10-16 and is now a pointer). The next stage to plan is Stage 2, and its kickoff is written out in full. The rest are short, and each one asks the planning session to re-check this file's assumptions first.
 
 ## Context
 
@@ -26,8 +26,8 @@ The user's remaining backlog, in the order they listed it:
   - Those changes go behind `SERV_IRUHADEV_` flags, and only the offline emulator (`X2Lib/Offline/`) is kept in step.
   - The real servers will desync with the ported client. That is accepted, so no stage writes matching server code. VS2003 is not installed here anyway.
   - The shared headers stay VS2003/C++98-clean, per `CLAUDE.md`.
-- **Atlas/Elysion is already planned** (2026-10-03, a parallel session: `ATLAS_PORT_PHASES.md` A0–A13 and `ELYSION_PORT_PHASES.md` E0–E15). That session recorded these decisions:
-  - Work happens in its own worktree, `../Trunk_elysion` on `mods/elysion-port`.
+- **Atlas/Elysion is already planned** (2026-10-03, a parallel session; one plan since 2026-10-16: `ATLAS_PORT_PHASES.md` A0–A13 and E0–E15). That session recorded these decisions:
+  - Work happens on branch `mods/elysion-port` in the main Trunk, with no worktree (user, 2026-10-16).
   - **Quests are deferred to a later quest plan**, together with the Lanox quests and possibly a Scaleform runtime. June's quest keys go in verbatim and inert.
   - **The level cap goes to 99** (A2). The user authorised invented `StatTable`/`NpcExpTable` rows 81–99, for those two tables only.
   - **June's `ExpTable.lua` is adopted whole**, so existing saves get a one-way EXP migration.
@@ -42,7 +42,7 @@ The user's remaining backlog, in the order they listed it:
 | # | Stage | Backlog items covered | Why it sits here |
 |---|---|---|---|
 | 0 | Close the open loops | 4 (effects, buffs) | Nothing new stacks on a half-updated engine ([[no-partial-june-updates]]). Each open item is mapped below to the stage it actually gates. |
-| 1 | Atlas + Elysion *(already planned)* | 1, plus the level cap | Planned, and the user's current priority. It is content on the engine as it stands, with quests deliberately split out. It runs in its own worktree alongside Stage 0's buff work, and it raises the level cap that transcendence assumes. |
+| 1 | Atlas + Elysion *(already planned)* | 1, plus the level cap | Planned, and the user's current priority. It is content on the engine as it stands, with quests deliberately split out. It runs on its own branch, `mods/elysion-port`, in the main Trunk, and it raises the level cap that transcendence assumes. |
 | 2 | Engine remainder and measurements | 4 (shaders, render types) | June character effects need the missing render types and June's `.fx` contract. The measurements (models, UI widgets, effect check) size every later stage. |
 | 3 | Skill system core | 5 (engine half), 7 | Every character, transcendence and the dormant buff types BBT 98/BFT 16 sit on it. This stage removes the "June character attacks do 0 damage" blocker. |
 | 4 | Quest system | 8, plus the quests deferred from Lanox and Atlas/Elysion | Transcendence's class change is a quest type (`QT_CHANGE_TRANSCENDENTAL_CLASS`), and two regions' worth of inert quest keys wait on this engine. One quest engine serves all of them. |
@@ -64,9 +64,9 @@ The user's remaining backlog, in the order they listed it:
 | 21 | Photozone *(added 2026-10-09, june-effect C3e-2)* | - (found by june-effect C3e-2) | Not a backlog item but a missing game state: June's `XS_PHOTOZONE_LOBBY` (0x19) / `XS_PHOTOZONE_GAME` (0x1a), where the chat box's WIN / LOSE commands re-roll the start / win / lose motion. March has no Photozone. Numbered 21 to keep the earlier numbers stable. |
 | 22 | June dungeons and worlds *(added 2026-10-11, user: split out of june-effect)* | - (found by june-effect C3x / C3y / C3z) | Not a backlog item but missing content: the June dungeons, worlds and map entries that March lacks or has half of (Sander and Hamel secret dungeons, the five Henir Space boss worlds, class tutorial dungeons, Bestera, Space of Thought, the Hero tier, June's data101 map assets, the DungeonData readers june-effect C3z-5 routed, the Battle Field tutorial guide). Planned as `JUNE_DUNGEONS_PHASES.md`, STATUS block `june-dungeons`; phase IDs kept from june-effect. It shares the core registries with Stages 1 (Atlas / Elysion dungeons A8-A10, E8-E11) and 19 (event dungeons), so those port halves run one at a time. Numbered 22 to keep the earlier numbers stable. |
 
-**Concurrency.** At most two code sessions should run at once:
-- Stage 0's buff port, in the main Trunk;
-- Stage 1, in `Trunk_elysion`.
+**Concurrency.** There is one working tree, so code sessions follow the branch that is checked out:
+- Stage 0's buff port, on `mods/june-buff-port`;
+- Stage 1, on `mods/elysion-port`, in the same Trunk (no worktree, user 2026-10-16). While it is checked out, any code session commits onto it; switch branches only on a clean tree.
 
 Planning sessions are read-only, and can run any time. Stage 2 *planning* can start now. Stage 2 *code* waits for the buff port to finish in the main Trunk, because both touch `KTDXLIB/Always.h` and shared engine files, and a third concurrent branch multiplies merge work.
 
@@ -138,7 +138,7 @@ No new plan doc. Every item already has one, with kickoff prompts. What this sta
 
 ### Stage 1: Atlas + Elysion (already planned)
 
-Start from `ATLAS_PORT_PHASES.md`'s Phase A0 kickoff. That doc owns the shared groundwork (worktree, census, RE maps, level cap, enums); `ELYSION_PORT_PHASES.md` assumes it.
+Start from `ATLAS_PORT_PHASES.md`'s Phase A0 kickoff. It is one plan for both halves: the A phases own the shared groundwork (branch, census, RE maps, level cap, enums) and the Atlas half, the E phases the Elysion half.
 
 **Why it is first among the new stages:**
 - The user has already decided on it and planned it.
@@ -680,7 +680,7 @@ ORDER  BY UnitClass;
 
 ### Stage 1, Atlas + Elysion
 
-Use `ATLAS_PORT_PHASES.md`'s **Phase A0 kickoff**. It is already written, and creates the worktree.
+Use `ATLAS_PORT_PHASES.md`'s **Phase A0 kickoff** (`kickoffs/atlas/A0.md`). It is already written, and creates the branch `mods/elysion-port`.
 
 ### Stage 2 planning (full), Opus 5.5 high
 
@@ -692,8 +692,8 @@ rules), then CLAUDE.md, JUNE_KOM_CONTENT_GUIDE.md, JUNE2017_EFFECT_REBUILD_PLAN.
 (status board + Phases 10-12), JUNE2017_CHARACTER_PORT_CHECKLIST.md,
 ATLAS_PORT_PHASES.md's investigation ledger (do not redo its census), and
 RANOX_PORT_PLAN.md's render-pass notes (grep CTT_RIM_LIGHT_BLUE / ".fx"). Ask which
-branch/worktree to plan on: the main Trunk is the buff port's, Trunk_elysion is
-Atlas/Elysion's. Never launch X2_offline.exe without asking first. This session
+branch to plan on: mods/june-buff-port is the buff port's, mods/elysion-port is
+Atlas/Elysion's (both in the main Trunk). Never launch X2_offline.exe without asking first. This session
 plans and measures; it changes no C++.
 
 Goal: write JUNE_ENGINE_REMAINDER_PHASES.md in the repo root, in the same shape as
@@ -756,7 +756,7 @@ preceded by a db_backup/ snapshot). Never launch X2_offline.exe without asking.
 ```
 Plan backlog Stage 4 (quest system, including the quests deferred from Lanox,
 Atlas and Elysion). Read JUNE_PORT_BACKLOG_ORDER.md (Stage 4, Standing rules, open
-decisions), ATLAS_PORT_PHASES.md and ELYSION_PORT_PHASES.md (decision 2 "quests out
+decisions), ATLAS_PORT_PHASES.md (the Atlas/Elysion plan, A and E phases; decision 2 "quests out
 of plan" and every Done note's quest hand-off), X2Lib/X2QuestManager.h/.cpp,
 X2Lib/Offline's quest module, JUNE_UI_PARITY_PHASES.md's
 IsActiveDungeon/RequireCompletedQuestID follow-up, and the June quest tables
