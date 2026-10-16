@@ -1960,6 +1960,7 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
     textures, so the file was never staged; the A6 note claiming it was staged was wrong.
   - Fix: staged June's `UI_Portal_Arrow.tga` (data002, 65,580 B, a yellow down arrow). `PACK OK`; `COPY OK data002` md5 ac37a114
     (under the user's copy OK for the region koms).
+  - **Play-test PASSED 2026-10-17 (user):** the June arrow shows over the portals, and the textures are fixed.
 - **How to see it in game:** the A6 STATUS row / hand-off. Lanox F04 (Distant Ruins) far-end portal -> Atlas Station. Atlas Station's
   far portal -> Field 01, landing on start pos 333. F01 L53 -> Field 02. Each return portal works. Monsters spawn with HP bars. F02's
   far end has an inert portal.
