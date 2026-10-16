@@ -214,7 +214,14 @@ namespace SEnum
 #endif SERV_IRUHADEV_RANOX_PORT
 	//}}
 
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- rest field
+		VMI_BATTLE_FIELD_ELYSION_REST_00 = 1008,
+		VMI_BATTLE_FIELD_REST_END = 1009,	// June 32268dd0 (A1a marker table)
+	//}}
+#else SERV_IRUHADEV_ELYSION_PORT
 		VMI_BATTLE_FIELD_REST_END,
+#endif SERV_IRUHADEV_ELYSION_PORT
 		//////////////////////////////////////////////////////////////////////////
 
 		//{{ QUEST °³Æí - ±è¹Î¼º
@@ -248,7 +255,14 @@ namespace SEnum
 #endif SERV_IRUHADEV_RANOX_PORT
 	//}}
 
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- village
+		VMI_ELYSION = 20009,
+		VMI_VILLAGE_MAP_END = 20011,	// June has VMI_EN = 20010 before it; March has no VMI_EN
+	//}}
+#else SERV_IRUHADEV_ELYSION_PORT
 		VMI_VILLAGE_MAP_END,
+#endif SERV_IRUHADEV_ELYSION_PORT
 		//////////////////////////////////////////////////////////////////////////
 
 		//////////////////////////////////////////////////////////////////////////
@@ -269,6 +283,11 @@ namespace SEnum
 		VMI_DUNGEON_LOUNGE_PEITA,
 		VMI_DUNGEON_LOUNGE_VELDER,
 		VMI_DUNGEON_LOUNGE_HAMEL,
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- dungeon lounge
+		VMI_DUNGEON_LOUNGE_ELYSION = 30009,
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID (dungeon lounge) values,
 	//             verbatim from march2014/data036/Enum.lua (zero collisions
 	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.
@@ -319,7 +338,17 @@ namespace SEnum
 #endif SERV_IRUHADEV_RANOX_PORT
 	//}}
 
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- battle field
+		VMI_BATTLE_FIELD_ELYSION_FIELD_01 = 40035,
+		VMI_BATTLE_FIELD_ELYSION_FIELD_02 = 40036,
+		VMI_BATTLE_FIELD_ELYSION_FIELD_03 = 40037,
+		VMI_BATTLE_FIELD_ELYSION_FIELD_04 = 40038,
+		VMI_BATTLE_FIELD_END = 40045,	// June 325712b0 etc.; 40033-40044 are June boss-raid ids March lacks
+	//}}
+#else SERV_IRUHADEV_ELYSION_PORT
 		VMI_BATTLE_FIELD_END,
+#endif SERV_IRUHADEV_ELYSION_PORT
 		//////////////////////////////////////////////////////////////////////////
 	};
 
@@ -370,6 +399,11 @@ namespace SEnum
 		LMI_VELDER					= 10005,
 		LMI_HAMEL					= 10006,
 		LMI_SANDER					= 10007,
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- LOCAL_MAP_ID
+		LMI_ELYSION = 10009,
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new LOCAL_MAP_ID values,
 	//             verbatim from march2014/data036/Enum.lua (zero collisions
 	//             confirmed against this file's own pre-Ranox values). See RANOX_PORT_PLAN.md.

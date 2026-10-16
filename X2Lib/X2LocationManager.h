@@ -110,6 +110,22 @@ class CX2LocationManager
 			HI_EVENT_LIRE_NIGHT_WATCHER	=   40063, //--ALWAYS_EVENT_LIRE_NIGHT_WATCHER_NPC
 			HI_EVENT_ADAMS_UI_SHOP	= 40064, // --ALWAYS_EVENT_ADAMS_UI_SHOP
 			HI_EVENT_DIMENSION_WITCH = 40065, //EVENT_NPC_STANDING_VILLAGE
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+			//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- HOUSE_ID
+			HI_YUNO = 40092,
+			HI_BERNARD = 40131,
+			HI_DURANDA = 40132,
+			HI_THEODOR = 40133,
+			HI_HUGO = 40134,
+			HI_BIRD_QUEST_00 = 40135,
+			HI_BIRD_QUEST_01 = 40136,
+			HI_BIRD_QUEST_02 = 40137,
+			HI_BIRD_QUEST_03 = 40138,
+			HI_BIRD_QUEST_04 = 40139,
+			HI_ELYSION_RED_TREE = 40145,
+			HI_ELYSION_BLUE_TREE = 40146,
+			//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 			//{{ Iruha : 2026-09-19 // Ranox port Phase 28 -- HOUSE_ID mirror of
 			// march2014/data036/Enum.lua's own Phase 28 addition. Explicit values,
 			// not positional continuation, matching the Lua side exactly. See
@@ -140,6 +156,11 @@ class CX2LocationManager
 			LMI_HAMEL,			/// 하멜
 			LMI_SANDER,			/// 샌더
 			LMI_CHINA,			/// 중국이벤트 천조
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+			//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- LOCAL_MAP_ID
+			LMI_ELYSION = 10009,
+			//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 			LMI_RANOX = 10008,	/// SERV_IRUHADEV_RANOX_PORT: intentional value alias of LMI_CHINA (dead code -- SERV_CHINA_ADVENTURE is never #defined; only use site X2PartyUI.cpp:1940)
 #ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 			LMI_SPECIAL = 10011,	/// June2017 Special map, carrying Henir (JUNE_UI_PARITY_PHASES.md Phase 3); June's 10009/10010 (Elysion/Event) are June-only content
@@ -492,7 +513,13 @@ class CX2LocationManager
 			//   (6 IsVillage sites in unpacked_x2.exe); 20009 VMI_ELYSION and 20010 are
 			//   June-only, so March's last village, VMI_RANOX, is the bound here.
 #ifdef SERV_IRUHADEV_RANOX_PORT
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+			//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- IsVillageField: June 32268dd0 inlines VMI_RUBEN..20010 (VMI_ELYSION 20009 and VMI_EN 20010; March has no VMI_EN)
+			if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= 20010 )
+			//}}
+#else SERV_IRUHADEV_ELYSION_PORT
 			if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_RANOX )
+#endif SERV_IRUHADEV_ELYSION_PORT
 #else SERV_IRUHADEV_RANOX_PORT
 			if ( eVillageID >= SEnum::VMI_RUBEN && eVillageID <= SEnum::VMI_SANDER )
 #endif SERV_IRUHADEV_RANOX_PORT

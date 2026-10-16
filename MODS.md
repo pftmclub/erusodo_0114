@@ -27,6 +27,8 @@ column.
 | `SERV_IRUHADEV_MP_REGEN_BOOST` | 2026-09-04 | `KTDXLIB/Always.h:2538` (rate constant in `X2Lib/X2Define.h:1802`) | `X2Lib/X2GUUser.cpp:1829`, `X2Lib/X2GUUser.cpp:3654`, `X2Lib/X2GUUser.cpp:3726`, `X2Lib/X2GageManager.cpp:50` | -- |
 | `SERV_IRUHADEV_AIPARTY_PERSIST` | 2026-09-06 | `KTDXLIB/Always.h:2560` (nested under `SERV_IRUHADEV_OFFLINE`) | `X2Lib/X2Game.h:660-675`, `X2Lib/X2Game.cpp:197-199`, `X2Lib/X2Game.cpp:4958-4999`, `X2Lib/X2Game.cpp:7234` (`GetOfflinePartyBotPos`), `X2Lib/X2Game.cpp:7306` (`IsOfflinePartyBotUID`), `X2Lib/X2Game.cpp:7347` (`RepositionOfflinePartyBots`), `X2Lib/X2DungeonGame.cpp:685-707`, `X2Lib/X2DungeonGame.cpp:878-885` | -- |
 | `SERV_IRUHADEV_LEVEL_CAP_80` | 2026-09-08 | `KTDXLIB/Always.h:2638` (redefines the studio's `USE_MAXLEVEL_LIMIT_VAL` from `KTDXLIB/OnlyGlobal/Always_US.h:75`) | `X2Lib/X2Game.h:34` and `X2Lib/X2UIPersonalShopBoard.h:12` pick it up by macro expansion; compile-time check in `X2Lib/Offline/Handlers_Room.cpp:2711` | -- |
+| `SERV_IRUHADEV_LEVEL_CAP_99` | 2026-10-16 | `KTDXLIB/Always.h` (end; redefines `USE_MAXLEVEL_LIMIT_VAL` after the CAP_80 block) | `X2Lib/Offline/Handlers_Room.cpp` (typedef check, level-up no-row guard), `X2OfflineStatTable.h/.cpp`, `X2OfflineDropTable.h/.cpp`, `X2OfflineDB.h/.cpp` (schema v16), `X2Lib/Offline/X2OfflineCap99Exp.h` | -- |
+| `SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX` | 2026-10-16 | `KTDXLIB/Always.h` (end) | `X2Lib/X2StateMenu.cpp` (`UpdateExpGageBar`) | -- |
 | `SERV_IRUHADEV_OFFLINE_FETCH_AURA_ALWAYS` | 2026-09-08 | `KTDXLIB/Always.h:2672` (nested under `SERV_IRUHADEV_OFFLINE`) | `X2Lib/Offline/Handlers_Social.cpp:1541` (the force, in `MakePetInfo`), `:1574` (`IsPetPastCrystalStage`), `:1620` (the per-pet log line), `X2Lib/Offline/Handlers_Inventory.cpp:872` (item 500720 refused), `X2Lib/Offline/X2OfflineServer.h:490` | -- |
 | `SERV_IRUHADEV_FIX_CHAR_SELECT_DELETE_BUTTON` | 2026-09-11 | `KTDXLIB/Always.h:3684` | `X2Lib/X2StateServerSelect.cpp:11097-11103` (`CreateUnitButtonNew`) | -- |
 | `SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU` | 2026-09-11, amended 2026-09-16 (twice) | `KTDXLIB/Always.h:3728` (nested under `SERV_UNIT_WAIT_DELETE`) | `X2Lib/X2StateServerSelect.cpp:1407` (down-state reset), `:2210`, `:3203`, `:3319`, `:3434` (immediate confirm on select), `:11196`, `:11234`, `:11303`; the first 2026-09-16 amendment also touches `X2Lib/Offline/X2OfflineDB.h:401-419,512`, `X2Lib/Offline/X2OfflineDB.cpp:1119-1145,1272-1285`, `X2Lib/Offline/Handlers_Unit.cpp:420-425,552-556` | -- |
@@ -507,6 +509,26 @@ studio's `#define` is warning about. Offline has no `GameSysVal` and never sends
 Client-only; no server rebuild. Nothing under `KncWX2Server/Common/` is touched.
 Reverting is safe for a character at or below 67; a character already past it
 keeps its stored level and EXP, but the EXP bar clamps and further gains stop.
+
+### Level cap 99 (Atlas Phase A2)
+
+**Defined in** `KTDXLIB/Always.h` -- `SERV_IRUHADEV_LEVEL_CAP_99`, after the CAP_80 block above (which stays).
+Full record: `ATLAS_PORT_PHASES.md` "Phase A2 — Done". It goes together with three data changes:
+- data036 `ExpTable.lua` is June's, levels 1-100 (`luasrc.py adopt-june`);
+- `KncWX2Server/ServerResource/US/StatTable.lua` and `NpcExpTable.lua` gain rows 81-99 (`june2017_re/cap99_gen.py`);
+- the save moves onto June's EXP curve once (`CX2OfflineDB` schema v16, `[CAP99] migrated unit` lines).
+
+`SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX` (separate flag): the menu EXP gauge reads a full 100.0% at the cap instead of
+the 0 / 0 NaN that printed "-1.$%".
+
+**Reverting is not just undefining the flag.**
+- The save is at schema v16 with June-curve EXP. An exe without the flag refuses it ("save is schema v16").
+- Revert all of these together:
+  - restore `db_backup/els_db_20261017_000918_pre_pre_A2_cap99_exp_migration.sql`, which loses play since the migration;
+  - put March's ExpTable back (the backup under `kom_backup_stage_june/20261017_001003`, then pack + copy data036);
+  - undefine the flag.
+- The StatTable/NpcExpTable rows 81-99 are harmless under 80: the loaders drop them.
+- `tools/createchar.py` reads `tools/data/june_exptable.tsv`. Point it back at `march_exptable.tsv`.
 
 ### Character deletion: restore-only pending-delete flow
 
@@ -3754,6 +3776,25 @@ the servers never need rebuilding for any of them. Two caveats:
   have done nothing. If in doubt, prove it rather than assume it -- put a
   `#pragma message` inside the `#ifdef` at the call site, rebuild that one
   project, and read the compiler output.
+
+### Atlas/Elysion port A3: region enums, Lua + C++ (2026-10-17)
+
+Flag `SERV_IRUHADEV_ELYSION_PORT` (`KTDXLIB/Always.h`; later Atlas/Elysion phases put their region switches under it too).
+June's ids at June's values, in both halves, with June's end markers. Ids come from `june2017_re/atlas_a3_ids.tsv`;
+`june2017_re/atlas_a3_gen.py` wrote the Lua rows and the bytepatch spec, `june2017_re/atlas_a3_check.py` is the Lua == C++ gate.
+
+- **C++** (each block `#ifdef SERV_IRUHADEV_ELYSION_PORT`, explicit `= N`, before its sentinel): `X2World.h` `WORLD_ID` (+38, `WI_END` 779),
+  `KncWX2Server/Common/Enum/Enum.h` `VILLAGE_MAP_ID` (+7; `REST_END` 1009, `VILLAGE_MAP_END` 20011, `BATTLE_FIELD_END` 40045) and
+  `LOCAL_MAP_ID` (`LMI_ELYSION`), `DungeonEnum.h` (+21, `DI_END` 41530), `X2LocationManager.h` `HOUSE_ID` (+12) / `LOCAL_MAP_ID` and
+  `IsVillageField` (June 20000-20010), `X2UnitManager.h` + `XSLUnitManager.h` `NPC_UNIT_ID` (+193; `NUI_MAX_LIMIT` implicit = 10196),
+  `X2LocalMapUI.h` LMUCM 18006-18008, `X2OfflineLuaEnumSeed.h` (3 markers + 7 rows). The sentinels keep their original line in `#else`.
+- **Lua** (staged `data036_kom/Enum.lua`, `DungeonEnum.lua`; BOM source, ledger refreshed): the same ids, plus `TAT_LINE_CHANGE_MOVABLE_DATA` 8,
+  tables `LINE_MOVE_TYPE`, `DRAMATIC_MESSAGE_TYPE`, `VILLAGENPC_RELATIONDATA_TYPE` (June's values; their C++ comes with E5 / E6 / E1),
+  `WI_END` 779, `VMI_BATTLE_FIELD_END` 40045. Needs `data036.kom` repacked and deployed together with the exe.
+- **Not added** (quest plan, user 2026-10-16): `NUI_STORY_QUEST` 10142, `NUI_TRANSCEND_QUEST` 10153. `VMI_EN` 20010 has no March enum (June's range includes it).
+- **Revert:** remove the `SERV_IRUHADEV_ELYSION_PORT` `#define` from `Always.h` (every block above is dead, the markers return to
+  1008 / 20009 / 40033 / 752 / 41311 / 10191). The Lua rows are extra names nothing reads without the flag; to remove them too, `kom.py` the
+  pre-A3 `Enum.lua` / `DungeonEnum.lua` out of the live `data036.kom` as it stood on 2026-10-16.
 
 ## Known deviations to clean up
 

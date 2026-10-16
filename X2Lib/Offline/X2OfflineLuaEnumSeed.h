@@ -467,7 +467,11 @@ namespace X2OfflineLuaEnumSeed
 		{ "VMI_BATTLE_FIELD_VELDER_REST_00",         1004 },
 		{ "VMI_BATTLE_FIELD_HAMEL_REST_00",          1005 },
 		{ "VMI_BATTLE_FIELD_SANDER_REST_00",         1006 },
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+		{ "VMI_BATTLE_FIELD_REST_END",                1009 },	// June marker (A3); was 1007
+#else SERV_IRUHADEV_ELYSION_PORT
 		{ "VMI_BATTLE_FIELD_REST_END",               1007 },
+#endif SERV_IRUHADEV_ELYSION_PORT
 
 		{ "VMI_TUTORIAL",                            2000 },
 
@@ -479,7 +483,11 @@ namespace X2OfflineLuaEnumSeed
 		{ "VMI_PEITA",                                20005 },
 		{ "VMI_HAMEL",                                20006 },
 		{ "VMI_SANDER",                               20007 },
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+		{ "VMI_VILLAGE_MAP_END",                     20011 },	// June marker (A3); was 20008
+#else SERV_IRUHADEV_ELYSION_PORT
 		{ "VMI_VILLAGE_MAP_END",                      20008 },
+#endif SERV_IRUHADEV_ELYSION_PORT
 
 		{ "VMI_DUNGEON_GATE_RUBEN",                   10000 },
 		{ "VMI_DUNGEON_GATE_ELDER",                   10001 },
@@ -522,7 +530,11 @@ namespace X2OfflineLuaEnumSeed
 		{ "VMI_BATTLE_FIELD_SANDER_FIELD_02",         40023 },
 		{ "VMI_BATTLE_FIELD_SANDER_FIELD_03",         40024 },
 		{ "VMI_BATTLE_FIELD_SANDER_FIELD_04",         40025 },
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+		{ "VMI_BATTLE_FIELD_END",                    40045 },	// June marker (A3); was 40026
+#else SERV_IRUHADEV_ELYSION_PORT
 		{ "VMI_BATTLE_FIELD_END",                     40026 },
+#endif SERV_IRUHADEV_ELYSION_PORT
 
 	//{{ Iruha : 2026-09-19 // Ranox/Lanox port -- new VILLAGE_MAP_ID rows, verbatim
 	//             from KncWX2Server/Common/Enum/Enum.h's own Ranox additions (not
@@ -538,6 +550,17 @@ namespace X2OfflineLuaEnumSeed
 		{ "VMI_BATTLE_FIELD_RANOX_FIELD_02",         40030 },
 		{ "VMI_BATTLE_FIELD_RANOX_FIELD_03",         40031 },
 		{ "VMI_BATTLE_FIELD_RANOX_FIELD_04",         40032 },
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- Atlas Station, Elysion village, lounge and Fields 01-04 (SEnum::VILLAGE_MAP_ID, Enum.h)
+		{ "VMI_BATTLE_FIELD_ELYSION_REST_00", 1008 },
+		{ "VMI_ELYSION", 20009 },
+		{ "VMI_DUNGEON_LOUNGE_ELYSION", 30009 },
+		{ "VMI_BATTLE_FIELD_ELYSION_FIELD_01", 40035 },
+		{ "VMI_BATTLE_FIELD_ELYSION_FIELD_02", 40036 },
+		{ "VMI_BATTLE_FIELD_ELYSION_FIELD_03", 40037 },
+		{ "VMI_BATTLE_FIELD_ELYSION_FIELD_04", 40038 },
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	//}}
 	};
 

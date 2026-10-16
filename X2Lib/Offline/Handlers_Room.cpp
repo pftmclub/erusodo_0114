@@ -4266,11 +4266,14 @@ int CX2OfflineServer::ApplyDungeonReward( UidType nUnitUID, int iAddEXP, int iAd
 			{
 				s_bLogged = true;
 				CX2OfflineLog::Server( L"[CAP99] ERROR ExpTable.lua has no row for level %d (cap %d) - data036.kom"
-					L" still carries March's ExpTable; copy the packed data036.kom. EXP held at level %d.",
-					iLevel + 1, iMaxLevel, iLevel );
+					L" still carries March's ExpTable; copy the packed data036.kom. No EXP is awarded until then.",
+					iLevel + 1, iMaxLevel );
 			}
 
-			iEXP = g_pData->GetEXPTable()->GetEXPData( iLevel ).m_nTotalExp;
+			// Keep the stored EXP untouched. The save is already on June's ExpTable
+			// (schema v16 ran at Open), so pinning to this table's TOTAL would write
+			// March's figure (866,438,000 at 80) into a June save.
+			iEXP = kRow.m_iEXP;
 		}
 		else if( iLevel >= iMaxLevel )
 		{

@@ -13,6 +13,13 @@ public:
 		LMUCM_CLOSE_WINDOW,
 		LMUCM_DUNGEON_MOUSE_OVER,
 		LMUCM_DUNGEON_MOUSE_OUT,
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase A3 -- LMUCM 18006-18008, June values (the Elysion page scroll + guide window); explicit, never positional
+		LMUCM_LOCAL_MAP_MOVE_UP = 18006,
+		LMUCM_LOCAL_MAP_MOVE_DOWN = 18007,
+		LMUCM_CLOSE_GUIDE_WINDOW = 18008,
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 #ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 		// June2017 UI parity (JUNE_UI_PARITY_PHASES.md Phase 1). Values are June's own
 		// (Phase 0 findings). 18006-18008 (LMUCM_LOCAL_MAP_MOVE_UP/DOWN,

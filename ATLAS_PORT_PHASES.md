@@ -1283,7 +1283,10 @@ kills-per-level table), then commit on main.
      5 PASS + 3 PASS~, 0 FAIL, 0 deleted; gauge 1 PASS. RESULT PASS for both. The per-commit `--range` shows the header
      FAIL and its fix.
 
-`DEPLOY OK: X2_offline.exe is 19,589,120 B, dated 2026-10-17 00:28:20, md5 91be27bdf658746e71af7e9cd9d6684b, equal to X2/US_SERVICE/x2.exe (2026-10-17 00:28:14); built at main 43af9b4f + 19 uncommitted code file(s).`
+`DEPLOY OK: X2_offline.exe is 19,589,632 B, dated 2026-10-17 00:46:44, md5 b9ab632c51355ed0013c40fd1aff55f9, equal to X2/US_SERVICE/x2.exe (2026-10-17 00:46:39); built at main 5b5d3bf2 + 10 uncommitted code file(s).`
+This is the rebuild after the review-advisor fix: with no next ExpTable row, the level-up guard now keeps the stored EXP
+(no award) instead of pinning to the mounted table's TOTAL. Pinning would have written March's 866,438,000 into a June save. `COPY OK data036`
+md5 bdbef077… (it also carried the A3 session's `Enum.lua` / `DungeonEnum.lua`).
 All four `[CAP99]` literals are in the deployed exe.
 
 **Owed by the user:** pack the two server Lua files; say yes to `/x2-kom-packed copy data036`; then the migrating launch
@@ -1357,7 +1360,47 @@ Done when: Phase A3's "Done when" holds. Record a Done note, then commit on main
 
 ### Phase A3 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (`Always.h`; MODS.md "Atlas/Elysion port A3"). Commit: see `git log -S SERV_IRUHADEV_ELYSION_PORT`.
+
+- **Landed:** 275 ids at June's value in both halves (`june2017_re/atlas_a3_ids.tsv` = the census `ids.missing` rows, minus the quest plan's `NUI_STORY_QUEST` /
+  `NUI_TRANSCEND_QUEST` (user, 2026-10-16), plus `WI_GUILD_AGIT` 623 / `WI_SPA_RUBEN` 725 (A1b row B91)): WI 38, VMI 7, LMI 1, HI 12, DI 21, NUI 193, LMUCM 18006-18008.
+  Lua: staged `data036_kom/Enum.lua` + `DungeonEnum.lua` (BOM source, ledger `refresh`ed, `ledger --check` PASS) also got `TAT_LINE_CHANGE_MOVABLE_DATA` 8, the tables
+  `LINE_MOVE_TYPE` / `DRAMATIC_MESSAGE_TYPE` / `VILLAGENPC_RELATIONDATA_TYPE` (June's values; their C++ is E5 / E6 / E1) and the Lanox "omitted" comments updated.
+  C++ (`#ifdef` blocks, explicit `= N`, before the sentinel): `X2World.h`, `Enum.h` (VMI, LMI), `DungeonEnum.h`, `X2UnitManager.h` + `XSLUnitManager.h` (NUI),
+  `X2LocationManager.h` (HOUSE, LMI, `IsVillageField`), `X2LocalMapUI.h`, `X2OfflineLuaEnumSeed.h`. Written by `june2017_re/atlas_a3_gen.py` (bytepatch spec + Lua rows).
+- **Sentinel rule (one rule, both sides):** June's value, explicit, original line kept in `#else`: C++ `VMI_BATTLE_FIELD_REST_END` 1009, `VMI_VILLAGE_MAP_END` 20011,
+  `VMI_BATTLE_FIELD_END` 40045, `WI_END` 779, `DI_END` 41530; Lua `WI_END` 779, `VMI_BATTLE_FIELD_END` 40045 (`DI_END` was already 41530, C3z-3). `NUI_MAX_LIMIT` stays
+  implicit (last member 10195, so 10196; limit 65536 asserted at `X2Item_Preprocessing.inl:1033`). Premise re-read in Ghidra: `32268dd0` = `x-20000 < 11`, `x-30000 < 7`,
+  `x-1000 < 9`; `31efb3a0` `< 0x30b`; `322b5970` `x-40000 < 0x2d`.
+- **Step 4:** `IsVillageField` = 20000-20010 (the literal 20010: VMI_ELYSION 20009 and June's `VMI_EN`, which March has no enum for), nested in the existing `JUNE_FIELD_MAP` /
+  `RANOX_PORT` blocks. `IsBattleFieldRest` follows `REST_END`; `IsDungeonGate` / `IsDungeonLounge` already equal June (untouched).
+- **Consumer audit** (each is a range test or an ASSERT; no marker sizes an array, loop or memset, none is saved): REST_END `X2LocationManager.h:553`; VILLAGE_MAP_END
+  `X2StateBattleField.cpp:1755`, `X2StateField.cpp:2354`; BATTLE_FIELD_END `X2LocationManager.h:575`, `X2BattleFieldGame.cpp:291/454` (ASSERT), `X2PartyManager.cpp:2615`,
+  `X2State.cpp:11790`, `X2StateServerSelect.cpp:5550/11436`, `X2TFieldGame.cpp:1687`; WI_END `X2State.cpp:6840`, `X2StateField.cpp:1293`, `X2StateServerSelect.cpp:7379`,
+  `X2StateBeginning.cpp:3991`, `X2BattleFieldGame.cpp:295/457` (ASSERT), Lua `EnumString.lua` (`ENUM_ID = WORLD_ID.WI_END`, 779 is no other WI); DI_END `X2LocalMapUI.cpp:1174`
+  (range) and the "no dungeon" return value in `X2UIQuest.cpp`, `X2UIQuestNew.cpp`, `X2WorldMapUI.cpp` (41530 is above every DI in either enum); NUI_MAX_LIMIT
+  `X2ItemManager_Preprocessing.cpp:1501` (range), `X2Item_Preprocessing.inl:1033`. Comments only: `Handlers_Field.cpp:331`, `X2StateDungeonRoom.cpp:2691`; stale and untouched:
+  `KTDXApp.cpp:2802` (`SetEnumToString( L"WORLD_ID", 6, ... )`).
+- **Seed (step 5):** `X2OfflineLuaEnumSeed.h` markers 1007 -> 1009, 20008 -> 20011, 40026 -> 40045 (originals in `#else`) plus the 7 Elysion rows.
+- **Gates:**
+  - `python -I june2017_re/region_census.py --phase A3` (probes on): WI / VMI / LMI / HI / DI missing 0; NUI missing 2 = the two quest-plan NUIs; "0 missing IDs sit at/above a
+    C++ end marker"; markers read 1009 / 20011 / 40045 / 779 / 10196 / 41530. Open items in scope 7 (was 323): those 2 + 2 `lists.hole` (their houses) + 2 `members.june_nil` (June nil too).
+  - `python -I june2017_re/atlas_a3_check.py`: `ids checked 275 (both halves resolve: YES)`, sentinels as above, client / server NUI enums 2205 shared names 0 differ, 0 duplicate
+    values touching an A3 id, `A3 CHECK PASS`. It reads the C++ through the preprocessor flag state, so it also shows `ELYSION_PORT` reaches `Enum.h` / `XSLUnitManager.h`
+    with `Always.h` alone (same as `RANOX_PORT`; no second define in `ServerDefine.h`).
+  - A6b cheap check (June `BattleFieldData.src.lua` against the new Enum): 28 unresolved names before, 18 after. The 10 cleared are the Elysion ones; the 18 left are
+    `VMI/WI_BOSS_RAID_PERKISAS*`, `*_ELTRION_MK2*`, `*_FIELD_EVENTRAID_TEDDYBEAR` (boss-raid ids outside this region: A6b / the boss-raid owner).
+  - flagcheck `--worktree --files` (before commit): `files: 8 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (Always.h, peers' blocks beside mine), 0 FAIL, 0 ERROR`;
+    `0 deleted line(s), 0 non-ASCII, 9 EOL-mismatched inserted line(s) (Enum.h: CRLF anchors in an LF region), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,589,632 B, dated 2026-10-17 00:46:44, md5 b9ab632c51355ed0013c40fd1aff55f9, equal to X2/US_SERVICE/x2.exe (2026-10-17 00:46:39); built at main 5b5d3bf2 + 10 uncommitted code file(s).`
+  Every A3 header (last edit 00:27:28) predates `X2Lib.lib` / `x2.exe` (00:46), so the exe contains the A3 blocks; enums leave no string to grep.
+- **Pack:** `python tools/kom.py pack data036` -> `PACK OK`; vs the live kom 3 changed: `Enum.lua`, `DungeonEnum.lua` and `ExpTable.lua` (A2's, already staged). Not copied: ask first.
+  Enum and exe ship together. The 26 `X.src.lua newer than X.lua` warnings predate A3.
+- **Open / for the reviewer:** (1) `EnumString.lua` (debug id -> name map) has no rows for the new ids; June's does, a later adoption phase owns it. (2) 20 Lua-only `WORLD_ID`
+  names (Sander secret, boss worlds 6xx) have no C++ name (C3y-1b chose Lua-only); A3 added C++ names only for its own ids. (3) The Lua edit is in `kom_contents` (not in git); the
+  `march2014/data036/Enum*.src.lua` copies are older than C3z-3 and were left alone. (4) 275 = 272 ids (38 + 7 + 1 + 12 + 21 + 193) + 3 LMUCM.
+- **How to see it in game:** nothing visible (enums only). With the exe and `data036.kom` deployed as a pair, a normal start must log no new enum / Lua load errors in
+  `ErrorLog.txt`, and Lanox (enter the village, enter a Lanox field) must behave as before; the Cobo list is unchanged (A5 owns the Atlas Station entry).
 
 ---
 
