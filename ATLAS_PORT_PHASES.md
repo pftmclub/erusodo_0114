@@ -1351,6 +1351,7 @@ Compiling the pre-A2 sources reproduces the staged bytecode byte-identical. `COP
      `git log -S` for either flag over `78adeb86..HEAD` finds nothing.
    - This fix: `flagcheck --worktree --files X2Lib/Offline/Handlers_Room.cpp`: 1 PASS, RESULT PASS.
      `DEPLOY OK: X2_offline.exe is 19,589,632 B, dated 2026-10-17 01:05:30, md5 c90c5a0d9ad774b093dc7c83fa1f58c9, equal to X2/US_SERVICE/x2.exe (2026-10-17 01:04:15); built at main a017242c + 1 uncommitted code file(s).`
+     Review commit `720b68ef`; `flagcheck SERV_IRUHADEV_LEVEL_CAP_99 --range 720b68ef^..720b68ef`: `files: 1 PASS, 0 PASS~, 0 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
 
 **User decision (no rush):** switch StatTable 81-99 of the 48 extrapolated classes to the midpoint intercept? Yes = regenerate, compile, pack
 data036, copy (asked first). No = keep the shipped rows. Play-test owed: none (the fix sits on an unreachable path); the next normal session
