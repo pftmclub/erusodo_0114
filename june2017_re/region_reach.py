@@ -79,8 +79,10 @@ row('X2Lib/X2ChatBox.cpp:1011', 'CX2ChatBox::UICustomEventProc (chat warp debug)
 row('X2Lib/X2LocalMapUI.cpp:750', 'CX2LocalMapUI::UpdateLocalMapDLG (June copy)', 'X2Lib/X2LocalMapUI.cpp:873,1074',
     'tab strip / page; 873 is the RANOXDBG debug line (live), 1074 the dead March copy', 'live / dead', '3293c6f0', 'likely',
     'Y: LMI 0x2719; IsEnableCode(2260) hides the "Elysion" control and skips the 0x2719 tab body',
-    'port-whole (June copy is live; add the 0x2719 + code-event branches)', 'A7 (tab) / E4 (page + event flags)',
-    'named by X2LocalMapUI.cpp:745 comment (JUNE_LOCAL_MAP_UI). 2260 inert offline -> tab shown')
+    'port-whole (June copy is live; add the 0x2719 + code-event branches); quest test omit-with-comment (decision 2)', 'A7 (tab) / E4 (page + event flags)',
+    'named by X2LocalMapUI.cpp:745 comment (JUNE_LOCAL_MAP_UI). 2260 inert offline -> tab shown. '
+    '@3293cbe0-3293cc06: templet +0x70 (RequireCompletedQuestID 22218) > 0 and !IsCompleteQuest (32322260) -> the tab control is '
+    'disabled (vfunc +0x78(0,0)): ported verbatim it would lock the Elysion tab forever offline, so leave the test out with a comment')
 row('X2Lib/X2LocalMapUI.cpp:1140', 'CX2LocalMapUI::CreateLocalMapDLG', 'X2Lib/X2LocalMapUI.cpp:1174',
     'IsDungeonEnable filter over dummy ints in [DI_RUBEN_EL_TREE_NORMAL, DI_END]', 'live', '3293ab50', 'likely',
     'n/a: June same test with its DI_END (x-30000 < 0x2d0b -> 41530)', 'n/a', 'A3 (sentinel decision)',
@@ -178,7 +180,9 @@ row('X2Lib/X2UIQuest.cpp:4', 'CX2UIQuest (whole file under #ifndef SERV_EPIC_QUE
 row('X2Lib/X2UIQuestNew.cpp:6090', 'CX2UIQuestNew::GetSubQuestDungeonID', 'X2Lib/X2UIQuestNew.cpp:6121,6143,6150',
     'DI_END sentinel', 'dead (REFORM_QUEST #else)', '-', 'none', 'n/a', 'n/a', '-', '')
 row('X2Lib/X2WorldMapUI.cpp:419', 'CX2WorldMapUI::UpdateWorldMap', 'X2Lib/X2WorldMapUI.cpp:491',
-    'NO_SANDER_VILLIAGE block', 'dead (NO_SANDER_VILLIAGE OFF)', '-', 'none', 'n/a', 'n/a', '-', 'world-map pins are Lua (A5 step 6)')
+    'NO_SANDER_VILLIAGE block', 'dead (NO_SANDER_VILLIAGE OFF)', '-', 'none', 'n/a', 'n/a', '-',
+    'world-map pins are Lua (A5 step 6). June world-map code 3225d340 (@3225d734) and 3225d970 (@3225dc93) also test local-map '
+    'templet +0x70 through 32322260: if a phase ports either, it leaves that quest test out (decision 2)')
 row('X2Lib/X2TFieldGame.cpp:7', 'CX2TFieldGame::CX2TFieldGame', 'X2Lib/X2TFieldGame.cpp:224',
     'ctor village switch', 'dead', '-', 'none', 'n/a', 'n/a', '-', '')
 row('X2Lib/X2StateDungeonRoom.cpp:2452', 'CX2StateDungeonRoom::UIFrameMove', 'X2Lib/X2StateDungeonRoom.cpp:2691',

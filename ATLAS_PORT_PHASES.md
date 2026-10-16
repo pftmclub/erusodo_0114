@@ -931,10 +931,15 @@ an "A1a reachability summary" is in the doc. Record a Done note, then commit on 
   - The same events hide Atlas Station from the Cobo list (`324627f0`; the row index still increments) and hide the
     Elysion local-map tab (`3293c6f0`). They mark Atlas / Tower dungeons "new" in `3293b5e0`.
   - Offline has no code events, so every gate stays open. Owners: A5, A6 and E4 port them as June has them.
-- **Quest gate in both warp lists** (`324627f0`, `32173120`): the LMI_ELYSION rows also need templet `+0x70`
-  (RequireCompletedQuestID 22218) to pass `32322260`. Ported verbatim, it would hide Atlas Station and Elysion from
-  Cobo and the warp NPC forever offline. Verdict: port-whole, quest test omit-with-comment (decision 2). Added to
-  *Deferred to the quest plan*.
+    Checked: `SetCodeEvent` is called only from `Handler_EGS_UPDATE_CODE_EVENT_NOT` (`X2State.cpp:12876`, `:12879`),
+    and `grep -rl CODE_EVENT X2Lib/Offline` finds nothing that sends it.
+- **Quest gates** (`32322260` = IsCompleteQuest, 17 callers):
+  - Both warp lists (`324627f0`, `32173120`) list the LMI_ELYSION rows only if templet `+0x70`
+    (RequireCompletedQuestID 22218) passes `32322260`.
+  - The local-map tab does the same (`3293c6f0 @3293cbe0`).
+  - Ported verbatim, the gates would hide Atlas Station and Elysion from Cobo and the warp NPC, and lock the Elysion
+    tab, forever offline. Verdict: port-whole, quest test omit-with-comment (decision 2).
+  - Every reader is listed in *Deferred to the quest plan*.
 - **June quirks the porting phase keeps** (a JUNE_BUGS row at the port):
   - `ResetMapPosAndSize` `32f1fd90` has no case for 1008 or 40038 (A5).
   - `GetFieldMapDlg` gives 40038 the `Elysion_02` dialog (E3).
@@ -974,7 +979,7 @@ One row per site; the full 70 rows (every March line they cover, June evidence, 
 | `IsVillageField`, `IsBattleFieldRest`, `IsVillage` `X2LocationManager.h:488-544` | `32268dd0` | June 20000-20010, 1000-1008 | port-whole (June ranges) | A3 |
 | `IsDungeonGate` / `IsDungeonLounge` `X2LocationManager.h:508` / `516` | inline | = March | n/a | - |
 | marker consumers: `WI_END` x3 field ACKs, `VILLAGE_MAP_END` x2 couple summon, `BATTLE_FIELD_END` x5 (login, rejoin, party, char select, village portal), `NUI_MAX_LIMIT` x2, ASSERTs x4, `IsBattleField` / `SEnum::Is*ID` (no client caller) | `31efb3a0`, `325094b0`, `3256a180`, `324bdd50`, `325712b0`, `323b5970`, ... | June's own values | n/a (A3 bumps the markers; until then Elysion fields fail every test) | A3 |
-| `UpdateLocalMapDLG` / `UpdateDungeonButtons` (June copies) `X2LocalMapUI.cpp:750` / `1232` | `3293c6f0` / `3293b5e0` | Y (LMI 0x2719, events 2260/2261) | port-whole | A7 (tab, Atlas page) / E4 |
+| `UpdateLocalMapDLG` / `UpdateDungeonButtons` (June copies) `X2LocalMapUI.cpp:750` / `1232` | `3293c6f0` / `3293b5e0` | Y (LMI 0x2719, events 2260/2261; the tab also tests RequireCompletedQuestID @3293cbe0) | port-whole; quest test omit-with-comment (A7) | A7 (tab, Atlas page) / E4 |
 | `CreateLocalMapDLG` `X2LocalMapUI.cpp:1140` (`DI_END`) | `3293ab50` | n/a (region DIs < 41311) | n/a | A3 (sentinel) |
 | `OpenLocalMapDLG` + page scroll + guide | `3293c440`, `329378a0`, `3293a960`, `329386b0` | Y | port-whole | E4 |
 | portal gates (no March token): `IsNearPortalLineMap` `X2BattleFieldGame.cpp:514`, `CreatePotalParticle` `:329`, `PhysicProcess_Portal*` `X2GUUser.cpp:24500` | `32d53810`, `32d51960`, `3201a2b0` / `3201a670` | Y (events 2260-2262) | port the gates (inert offline) | A6 |
@@ -2491,10 +2496,20 @@ checklist**:
   `+0x70`, parser `FUN_32501bb0` at `0x32502cf4`, tested via `FUN_32322260`),
   `BATTLE_FIELD_DIRECTION_INFO` / `NEED_ONGOING_QUEST_ID` (Lanox F04 row;
   March has no reader).
-- *(A1a, 2026-10-16)* `FUN_32322260` is also the quest test in both warp lists:
-  `324627f0 @32462ffd` (Cobo) and `32173120 @321738e3` (warp NPC / item) skip the
-  LMI_ELYSION rows (Atlas Station, Elysion) unless templet `+0x70` is 0 or passes it.
-  The A5 / E2 ports leave that test out with a comment (decision 2). June's bulletin
+- *(A1a, 2026-10-16)* `FUN_32322260` is June's IsCompleteQuest (a map find on
+  the quest manager; 17 callers). It reads the inert keys at these sites. Any port
+  that adopts one of these functions leaves the test out with a comment (decision 2):
+  - Local-map templet `+0x70`, read at five sites:
+    - Cobo `324627f0 @32462fec` and warp NPC / item `32173120 @321738d2`, which skip
+      the LMI_ELYSION rows (Atlas Station, Elysion); owners A5 / E2;
+    - the local-map tab `3293c6f0 @3293cbe0`, which disables the tab; owner A7;
+    - the world map `3225d340 @3225d734` and `3225d970 @3225dc93`; not ported by any
+      phase today;
+    - the dungeon-enable helper `327da190 @327da2d9`.
+  - The DungeonData `+0x1cc` quest key (`m_iRequireCompleteQuestID`) is read at
+    `327da190 @327da28b`.
+
+  June's bulletin
   board village mapping (`GetBoardStartQuestList`) is `3232fd70` (called from
   `323357c0` for NPC 0x2729); it maps 1006 -> 20007, 1007 -> 20008 and 1008 -> 1008.
   The direction-info reader was not found in A1a's pass; it was not searched for
