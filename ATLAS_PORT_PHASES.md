@@ -1046,7 +1046,84 @@ note, then commit on main.
 
 ### Phase A1b — Done
 
-*(empty)*
+*(2026-10-17, Opus 5.5 xhigh. Read-only: no game code, no flag, no flagcheck, no build or deploy, no log tag.)*
+
+- **Landed:** `june2017_re/region_engine.tsv` (90 rows: every census `bind.*` / `keys.*` / `members.*` row, the
+  SOLESS byte-context names, and the names bound since the ledger), 27 `funcmap.tsv` rows (`Atlas A1b:`), the table below.
+  Verdicts: 31 transcription-ready, 25 Opus-only, 21 done, the rest owned elsewhere or nothing to port.
+- **Premises.** Every ledger "(b)" holds: `GetAliveActiveNPCCount`, `AnimStop`, `GetUnitIndex` and `SetShowInvincible`
+  exist on June's class or its March base, and their bodies match June (binding only). `GetDyingStart`, `IsActiveMonster`
+  and `SetCameraDistance` were bound by june-effect C3z-4. Receivers are typed per call site (c3z4 `type_calls`): every
+  name lands on June's registering class. `SetShowHpSmallGage` needs both the NPC and the user binding.
+  Spot-checked in Ghidra: `IsActiveMonster` (byte +0x872c), `GetDyingStart` (+0xdac), `GetStoredGUUser` (+0x8d64).
+- **Census corrections.**
+  - `bind.unbound.bytecode` lists 5 SOLESS names. Byte context (`TGETS` after `MOV A+1, B`, via ljconv + ljbc) gives
+    29 unbound calls, 23 of them SOLESS-only. The census drops a name unless some June source calls it.
+  - The 413 `unit:` keys are mostly `CT_*` / `CF_*` state-callback names and state names. Those are strings looked up by
+    name, so they are false positives, like `BBT_*` / `BFT_*` (inline buff-factor tables), `LINE_NUM` (March linemaps
+    have it too, and neither client reads it) and `ENDING_SPEECH0` (March reads `BeginTable( "ENDING_SPEECH", i )`).
+  - `FindRandomSelectUserUnitsFromRange_LUA` and `GetNearestUnitInSpecificRange_IncludeSameTeam_LUA` are CX2Game methods.
+    `c3z4_binder_sites.py` labels them "RenderParam"; their `class_def` pushes CX2Game's class name 33777790.
+- **Found.**
+  - E6's SimpleDLG half is already in (june-effect C3z-4s: `CX2SimpleDLG_WithLuaFunc`, `X2Game.cpp:6444`). E6 is left
+    with dramatic messages and the gauge dialogs.
+  - `SetPosion` is not bound in June. No binder string decodes to it and the binary has no such text, so the call is a
+    Lua error in June too: E10 does not bind it, a JUNE_BUGS row instead.
+  - Six keys are June data typos June never reads (`STOP_TIME_ATK`, `ANIM_SPPED`, `SHAW`, `LLOW_DIR_CHANGE`,
+    `CAINVINCIBLE`, linemap `CANDOWN`). `TARGET_FRONT_ME`, `AFTER_IMAGE_DEST_ALPHA_BLEND` and `dataFileName_XMAS` are
+    absent from the binary. Keep all of them verbatim, with a JUNE_BUGS row from the stager.
+  - `DungeonData.LU` / `.CIEL` are ENDING_SPEECH tables for June's Lu / Ciel. They go to the char-port checklist.
+  - The DROP keys are server-side (`XSLDungeonSubStage.cpp:80`).
+  - `Add/SetStateCoolTime_LUA` take an **int** (`fild`), so a fractional value truncates in June.
+  - `SetSyncDummyValue_Host` sends a new P2P packet (0x1d). Whether its receive side comes along offline is E7's call.
+- **Step 3:** `TAT_LINE_CHANGE_MOVABLE_DATA` = 8 in June `Enum.src.lua:1983` and in `AddTrigger_LUA`'s line case 8.
+  March's C++ enum stops at `TAT_LINE_CHANGE_TYPE` = 7 (`KTDGLineMap.h:112`). `JUNE_LINEMAP_TRIGGER` renumbered only
+  the etc. enum, and `Enum.lua:1648-1658` has 0..7 plus a comment for 8. The numbering agrees and 8 is free (E5).
+- **Step 4, for E0:** SOLESS's unbound calls by byte context are the 23 `SL` / SOLESS rows of the TSV, plus `SetShowWorld`
+  (the census missed it). The ledger's string-only pair `PlayAdditionalWorldAllSound` / `SetShowAdditionalWorld` is
+  byte-confirmed. `luasrc.py decompile` timed out at 900 s on the file: give E0 a longer `--timeout`.
+- **Open for the user:** nothing. Next: `/x2-phase atlas A3` (kickoff `kickoffs/atlas/A3.md`), then A4 reads the A4 rows.
+
+#### A1b engine map
+
+One row per name or group; addresses, layouts, stores and every read site are in `june2017_re/region_engine.tsv`.
+"ready" = transcription-ready (the JUNE_BUFF bar); "Opus" = Opus-only.
+
+| Name / key (June class) | June | Verdict | Owner |
+|---|---|---|---|
+| `GetAliveActiveNPCCount` (CX2Game) | `322d0ae0` | ready: bind, body = `X2Game.cpp:6758` | A4 |
+| `GetNationFlag` (CX2Main) | `31e4e690` | ready: bind `X2Main.h:1577` | A4 |
+| `NOT_CHECK_INDICATOR` (NPC +0x8fa8) | `327a0fa0`, reader `32f099f0` | ready: port the indicator filter (`X2MonsterIndicator.cpp:190`) | A4 |
+| `SetChangeUVPoint` (CPictureData) | `31c9a7d0` | Opus (U0 left it a candidate) | A4 |
+| `USE_DEFAULT_DIE_PARTICLE` (NPC +0x8fd9) | `327a0fa0`, `3277ec60`, `32778d40` | Opus ("DieLight" once at death) | A4 |
+| `CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED` (line +0x150) | `31c705c0` | Opus (reader not found) | A4 |
+| `CAN_NOT_PASS_SPECIFIED_BONE` (state) | `32784c00` | Opus | A4 |
+| `TARGET_FRONT_ME`, `AFTER_IMAGE_DEST_ALPHA_BLEND` | - | nothing (June never reads them) | A4 |
+| `AddMovableLineData_LUA` + `DIRECT_MOVE_DATA`, `TARGET_MESH_NAME`, `FOLLOWER_LINE_ID`, `STOP`, `USE_ABSOLUTE_COORDINATE` | `31c75470`, `328004a0` case 8 | Opus | E5 |
+| `CAMERA_LAND_HEIGHT` (line +0x158) | `31c705c0` | Opus | E5 |
+| `GetLineTypeByLineID_LUA` (CX2Game) | `322d0800` | ready | E5 |
+| `LINE_MOVE_TYPE`, `TAT_LINE_CHANGE_MOVABLE_DATA` = 8 | Enum `:17823`, `:1983` | ready (A3 Lua tables) | E5 |
+| `DRAMATIC_MESSAGE0-4` + 17 subkeys, `DRAMATIC_MESSAGE_TYPE` | `322e9e00`, `Playing_Dramatic_Message_LUA` | Opus | E6 |
+| SimpleDLG (`Create/Get/DeleteSimpleDLG`, 12 dialog methods) | `322def10`.. | done (C3z-4s) | E6 data only |
+| `AnimStop`, `AnimResume`, `GetUnitIndex`, `SetShowInvincible`, `GetUnitID` | `32757b10`, `32758810`, `31aa4d30`, `3208dd40`, `31e4d890` | ready (bind or one-line getter) | E7 |
+| `SetStateCoolTime_LUA`, `AddStateCoolTime_LUA` | `3275eb70`, `3275ebc0` | ready (`m_vecStateRuntime[id].m_fStateElapsedTime`) | E7 |
+| `AddEffectSetDeleteCondition_LUA` | `3227a670` | ready (June's 5-case switch) | E7 |
+| `FindRandomSelectUserUnitsFromRange_LUA`, `GetFindedRandomSelectUserUnits_LUA`, `GetRandomSelectUserUnitFromRange`, `GetUserIndexByUserUID` | `322dd990`, `322d0030`, `322dc3c0`, `322cfc00` | ready | E7 |
+| `IsSceneEnded` (CX2SlideShot +0x88) | `325c4a50` | ready (new read-and-clear flag) | E7 |
+| `SetShowHpSmallGage` (NPC +0x8fb9, user +0x9528) | `31e4d870`, `31e4d150`, render `32e5d580` | ready | E7 |
+| `SetParticleSize`, `SetShowWorld`, `PlayWorldAllSound` | `31e4f3f0`, `322cc040`, `322cc060` | ready | E7 |
+| `Clear/Get/SetStoredNPC` (observer +0x8d6c), `Get/SetBlackHoleData_Speed/_Range` | `31e57990`.., `31e4c480`.. | ready | E7 |
+| `CAN_PASS_UNIT_AT_FIRST_FRAME` (NPC +0x8fd8) | `327a0fa0`, Init `3277c030` | ready | E7 |
+| `StartAlphaFade`, `StartFadeIn/OutCustomColor`, `Get/SetSyncDummyValue(_Host)`, `GetNearestUnitInSpecificRange_LUA` (+`_IncludeSameTeam`) | `3275a240`, `31ce6270`, `32778ea0`, `322d55b0` | Opus | E7 |
+| `SetThornsInfo`, `*SimpleTimerCount`, `VectorUidType_*`, `StopEffectSetSilent_LUA` | `3226e350`, `32299890`, `3275d090`.., `321db020` | Opus | E7 |
+| Additional world (`dataFileName_Additional`, `SetShowAdditionalWorld`, `PlayAdditionalWorldAllSound`) | `32805770`, `322cf8f0`, `322cf930` | Opus | E7 |
+| `SHOW_GAGE`, `INVINCIBLE_ATTACK_TYPE` (state), `HEIGHT_CHECK_RANGE` (AI) | `32784c00`, `32efdb50` | Opus | E7 |
+| `SetPosion`; `LT_INVALID`, `NUI_ELYSION_S_CIRCLE_CTR` | - | keep verbatim (June errors / nil too) | E10 |
+| typo keys (6, see TSV) | - | keep verbatim | stagers A8-A9, E8, E10, E11 |
+| 21 names bound since the ledger (C3z-4 / C3z-4s / buff P10) | see TSV | done, class verified | - |
+| `AddSubtitleData`; `MOTIONNAME_EFFECTSETNAME`; `DI_*_HERO_NORMAL` | | owned elsewhere | june-engine U1; W1; june-dungeons C3y-5 |
+| `LOCAL_MAP_UI_CUSTOM_MSG` 18006-18008; `WI_GUILD_AGIT`, `WI_SPA_RUBEN` | June Enum | ready | A3 (+E4) |
+| `DLG_Map_House` / `DLG_Map_Village` keys; `BattleFieldData` keys; `DungeonData.LU/CIEL`; DROP keys | | mapped by A1a; server-read; char ports; emulator | E1 / A5; A6b; checklist; offline |
 
 ---
 
