@@ -1360,7 +1360,7 @@ Done when: Phase A3's "Done when" holds. Record a Done note, then commit on main
 
 ### Phase A3 — Done
 
-**2026-10-17, Sonnet 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (`Always.h`; MODS.md "Atlas/Elysion port A3"). Commit: see `git log -S SERV_IRUHADEV_ELYSION_PORT`.
+**2026-10-17, Sonnet 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (`Always.h`; MODS.md "Atlas/Elysion port A3"). Commit: `78adeb86` (a peer's A2 commit swept my staged A3 files in; the content is all A3, nothing lost).
 
 - **Landed:** 275 ids at June's value in both halves (`june2017_re/atlas_a3_ids.tsv` = the census `ids.missing` rows, minus the quest plan's `NUI_STORY_QUEST` /
   `NUI_TRANSCEND_QUEST` (user, 2026-10-16), plus `WI_GUILD_AGIT` 623 / `WI_SPA_RUBEN` 725 (A1b row B91)): WI 38, VMI 7, LMI 1, HI 12, DI 21, NUI 193, LMUCM 18006-18008.
@@ -1392,10 +1392,11 @@ Done when: Phase A3's "Done when" holds. Record a Done note, then commit on main
     `VMI/WI_BOSS_RAID_PERKISAS*`, `*_ELTRION_MK2*`, `*_FIELD_EVENTRAID_TEDDYBEAR` (boss-raid ids outside this region: A6b / the boss-raid owner).
   - flagcheck `--worktree --files` (before commit): `files: 8 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (Always.h, peers' blocks beside mine), 0 FAIL, 0 ERROR`;
     `0 deleted line(s), 0 non-ASCII, 9 EOL-mismatched inserted line(s) (Enum.h: CRLF anchors in an LF region), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - After commit, `--range 78adeb86^..78adeb86 --files <the 9 code files>`: `files: 8 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; same in-flag line; `RESULT: PASS`.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,589,632 B, dated 2026-10-17 00:46:44, md5 b9ab632c51355ed0013c40fd1aff55f9, equal to X2/US_SERVICE/x2.exe (2026-10-17 00:46:39); built at main 5b5d3bf2 + 10 uncommitted code file(s).`
   Every A3 header (last edit 00:27:28) predates `X2Lib.lib` / `x2.exe` (00:46), so the exe contains the A3 blocks; enums leave no string to grep.
-- **Pack:** `python tools/kom.py pack data036` -> `PACK OK`; vs the live kom 3 changed: `Enum.lua`, `DungeonEnum.lua` and `ExpTable.lua` (A2's, already staged). Not copied: ask first.
-  Enum and exe ship together. The 26 `X.src.lua newer than X.lua` warnings predate A3.
+- **Pack:** `python tools/kom.py pack data036` -> `PACK OK`; vs the live kom 3 changed: `Enum.lua`, `DungeonEnum.lua` and `ExpTable.lua` (A2's, already staged). The A2 session then copied this exact `data036_packed.kom` into the game dir (`kom.py status data036`: in sync, 0 changed vs live), so the exe and
+  the kom are already a deployed pair. The 26 `X.src.lua newer than X.lua` warnings predate A3.
 - **Open / for the reviewer:** (1) `EnumString.lua` (debug id -> name map) has no rows for the new ids; June's does, a later adoption phase owns it. (2) 20 Lua-only `WORLD_ID`
   names (Sander secret, boss worlds 6xx) have no C++ name (C3y-1b chose Lua-only); A3 added C++ names only for its own ids. (3) The Lua edit is in `kom_contents` (not in git); the
   `march2014/data036/Enum*.src.lua` copies are older than C3z-3 and were left alone. (4) 275 = 272 ids (38 + 7 + 1 + 12 + 21 + 193) + 3 LMUCM.
