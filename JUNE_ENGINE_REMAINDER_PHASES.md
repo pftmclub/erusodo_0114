@@ -255,7 +255,13 @@ here (R7+) or an owner. **Done gate:** every function of the list has a verdict 
 - `Enum.lua` (data036, core list): June's `CARTOON_TEX_TYPE` table verbatim (fixes the `CTT_END` 10 / 11 mismatch); pack, ask,
   copy.
 - Mesh-player `.txt` reader to June's accepted names (R0 item 4).
-- Needs the 10 ramps from asset P4a. Until they are copied, a missing ramp logs once per name (degrade, no popup).
+- **Needs the 10 June-only ramps live** (data042: `_Twotone`, `_User1/2`, `RimLight_*` x6, `Damage_Raid`). Without them the Ranox
+  secret boss loses the rim light it has today through the stand-in. They come either from asset P4a or from a small data042
+  pull-forward (open question 3). A ramp still missing at load logs once per name (degrade, no popup).
+- **The exe and data036 move together** (as the K2 `item.kim` rule): with the flag off, June's `Enum.lua` values (RED 4 ..
+  SCARLET 12, BLUE 15) index March's 10/11-slot ramp array; with the flag on, March's old `Enum.lua` maps RED (1) to TWOTONE.
+  Deploy the exe and copy data036 in the same hand-off, play-test only when both are live, and revert both together (the
+  `MODS.md` line names the flag **and** `Enum.lua`).
 - **Play-test:** a Ranox secret boss (rim light blue), a petrified / invincible unit, a cartoon NPC: colours as before.
 
 ## Phase R2 - XRenderer contract
@@ -343,6 +349,13 @@ None blocks a phase today. Decided by planning, recorded here:
    `XRenderer.fx` before R2 renders a configuration June never shipped (no environment box, edge or mipmap paths, rim light off).
 2. **The 7 "missing render types" are dropped as a work item.** They are `SKIN_MESH_RENDER_TYPE` (R6 ports the 6 unimplemented
    cases); backlog fact 7 carries a dated correction.
+
+Open for the user:
+
+3. **R1's ramps.** R1 needs the 10 June-only `Cartoon*.bmp` from June's data042, which asset-port P4a ships several waves later.
+   Either pull just those 10 forward as a small data042 stage (through `kom.py stage-june`, pack, ask before copy) when R1 runs,
+   or hold R1 until P4a is live. **Recommendation: pull forward**: 10 inert files, no consumer until R1, and it keeps the
+   renderer chain (R1 -> R2 -> asset P10) off the asset waves' timeline.
 
 Deferred to R0 (each comes back to the user with a recommendation):
 - what `+0x58` is; if it is a June graphics option, its option UI goes to Stage 9 and R2 picks the default June ships;
