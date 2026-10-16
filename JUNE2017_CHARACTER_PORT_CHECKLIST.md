@@ -594,6 +594,13 @@ caller with June's, which does not name them; until then they are a visible gap,
 | Chung | `X2GUChung.cpp`: `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell`, `EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT`; `X2BuffTemplet.cpp`: `CHUNG_BIGBANGSTREAM_MEMO` | `Chung_Iron_Cannon.lua`: `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` |
 | Eve | `X2GuEve.cpp`: `EVE_EP_DASH_COMBO_Z` | - |
 Not a class: `BOMB` (`X2GUNPCFunc.cpp`, an NPC function, and June's `Bunker.lua`) has no owner; noted in the C11a Done note.
+Two notes from the C11a review (2026-10-16):
+- Rena: `DamageEffect_Cryotron_Bolt_GUIDED_ARROW` is a June case rename, not a loss. June defines `DamageEffect_Cryotron_Bolt_Guided_Arrow`
+  (`june2017_re/june_lua/DamageEffect.src.lua:28956`); March's `X2GULire_ElvenRanger.cpp:23238` asks for the all-caps key and the Lua table
+  lookup is case-sensitive. The Rena port takes June's caller and its spelling.
+- Chung: `X2BuffTemplet.cpp:1695-1706`. On the 20% memo-26 roll the `else` skips `HAND_GRENADE_0`, and the missing memo templet returns
+  NULL, so the function returns (guarded; `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE` is unconditional, `KTDX.h:328`). With memo 26 equipped, one
+  grenade in five now fires nothing until the Chung port.
 
 ### 7v. Lu/Ciel minor-unit slot key (from June engine U0)
 

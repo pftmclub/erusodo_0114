@@ -9626,6 +9626,58 @@ the 147 `conflict` files the 2026-10-12 closure had staged, and data036's two ha
    and its load line carries the key (ErrorLog:96 `ES_TEMPLET ... SYNC_SHOW_BY_CREATE_UNIT=1`).
 7. C11's 14 lines: **not run** this session (no Trap_Fire_Big / Mecavolt / HernaOrb line); the review can ask for them.
 
+### C11a - Review (2026-10-16, Opus 5.5)
+
+**Verdict: C11a is correct against the user's decision (route b). Two doc fixes, two 7u notes, no data or code change.**
+1. **Bytes: PASS.** All 12 LUA10 effect `.lua` (`stage_june_fx.py:47`, the Done note's "12") sha1-match `assets_cache/june_b/<name>` (flat dir),
+   header `1B 4B 4C 81`, no `X.src.lua` beside any (data036: `DamageEffect` b563c402, `_Character` 824c466c, `_Dungeon` 49cb5e53, `_ETC` b64d2582,
+   `EffectSet` ac512a3b, `DamageSound` 439f975b, `UIEffectSet` 0c586263, `Elsword_DamageData` 47a59082, `UnitViewerEffectSetTable` 12fecba4;
+   datai015: `DamageEffect_INT` 902eaaef, `EffectSet_INT` 2a6fe9e4, `UIEffectSet_INT` ed6afee0). data036's 26 other sidecars are the
+   pre-existing non-effect ones (`[stale .src.lua]` in `kom.py status`, warned since before C11a). datai015 has none.
+   *Outside LUA10:* `EffectSet_Description.lua` is still March's (d9b33d04, June dda249d1). March C++ opens no file of that name;
+   `AddEffectSet_Description` (`X2EffectSet.cpp:5820`) only fills the effect tool's description map. Not a C11a gap; under the June-wins rule it
+   is a follow-up (`luasrc.py adopt-june data036 EffectSet_Description.lua`, bytecode), recorded on the C11a STATUS row.
+2. **Koms: PASS.** `kom.py status data036 datai015`: both `in sync`, `copy` would change `+0 -0 ~0`.
+3. **87-name table: PASS.** Identifier-bounded scan of all 87 over June's `DamageEffect*` / `EffectSet*` / `UIEffectSet*` `.src.lua`
+   (`june_lua/` and `june_src_fixed/`, identical hits): 85 have no definition. The other two are not real finds:
+   - `EffectSet_SA_ALD_HELL_OF_TORNADO_DAMAGE_START`: June has an effect set of that name (`EffectSet.src.lua:51388`). Its `_FX` set asks for it
+     as `ET_DAMAGE_EFFECT` (:51769-51770), and no June damage effect has that name, so it is a real June gap. Class `june-consumer` is right;
+     a clause was added to JUNE_BUGS 200.
+   - `DamageEffect_Cryotron_Bolt_GUIDED_ARROW`: June spells it `..._Guided_Arrow` (`DamageEffect.src.lua:28956`). The lookup is a Lua table key
+     (`BeginTable`, case-sensitive), so March's `X2GULire_ElvenRanger.cpp:23238` misses it. A Rena-port note was added to 7u.
+   The 16 other June hits are references only (`DAMAGE_EFFECT_NAME` / nested `NAME`), and every one is classed `june-consumer`.
+   Backup defining lines checked: `BOMB` DE:52763, `DamageEffect_LGA_Arc_Shot` DE:14374, `AISHA_SUMMON_BAT_BITE` DE:78924,
+   `EffectSet_RAVEN_VJAVELIN` ES:813, `EffectSet_ADD_TUTORIAL_P01` ES:128715. JUNE_BUGS 200 named `DamageEffect_RRF_ExplosiveHand_Impact` among
+   its 21, but it is counted in 7u's 30 because March's `RAVEN_FIGHTER.lua` names it too; the row now says so.
+   Call sites, all crash-safe:
+   - `LGA_Arc_Shot` (`X2GULire_ElvenRanger.cpp:21974`, 5 sites): NULL-checked.
+   - `RAVEN_MAXIMUM_CANNON_HYPER` (`X2GURaven.cpp:9166`): result discarded.
+   - `EffectSet_Aisha_DeathFieldBomb` (`X2GUArme_VioletMage.cpp:15663/15771`): `INVALID_EFFECTSET_HANDLE` check, then an instance check.
+   - `BOMB` (`X2GUNPCFunc.cpp:2711/2759`): result discarded.
+   - `CHUNG_BIGBANGSTREAM_MEMO` (`X2BuffTemplet.cpp:1697`): guarded return; `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE` is unconditional at
+     `KTDX.h:328`. On the 20% memo-26 roll the `else` also skips `HAND_GRENADE_0`, so that grenade fires nothing. Added to 7u.
+4. **Revert: works after one fix.**
+   - The backup holds all 93 replaced files (91 `replace` rows plus the 2 merged sources), `UIEffectSet.src.lua.moved`, and a byte-identical
+     `UIEffectSet.src.lua` (harmless).
+   - It holds **52** manifests, not 53: `data222` is a new archive with nothing to back up.
+   - MODS's revert now says 52 and adds deleting `kom_contents\data222_kom\` and the game dir's `data222.kom` by hand.
+   - The counts agree once Lua is separated: MODS's 2,840 / 86 are non-Lua assets, and with 3 / 5 Lua rows they make the Done note's 2,843 / 91.
+   - Plan: 149 `conflict` = the Done note's 147 plus the two merged names. 5 random `add` rows: dst sha1 = src sha1.
+   - Gates: `core --check` PASS (DamageEffect/EffectSet rows `bytecode`), `ledger --check` PASS (rows `restored`).
+5. **Play-test record: PASS** (above). DIE_CREATE_NPC and SYNC_SHOW_BY_CREATE_UNIT stay **not reached**.
+   C11's 14 console lines were not re-run after the swap. All 14 templets are defined in June's files and none is among the 87, so the re-run
+   should give the same 6 tags. It is this review's play-test (hand-off below), and C11 closes on that log read.
+
+**Hand-off (reyaa, Lire Grand Archer 80; Ranox Burnt Forest, Normal):** exactly C11's console table (C11 progress note, "Play-test hand-off (console)"):
+setup `jU` / `jES` / `jC`, `/CM "RAGE_BABYFIG" 2 70`, `/ai false`, then the 14 lines. Expected, as on 2026-10-16:
+- `DDE_TEMPLET` + `CE_LOOP` (Trap_Fire_Big)
+- `CE_LOCKON ... Y_DIR_INIT` and `DAMAGE_DATA_CHANGE_TIME` (Ranox Magi D)
+- `DAMAGE_DATA_KEY apply` (Mecavolt)
+- `CE_LOCKON ... INIT_TARGET` (SingPang)
+- `FOLLOW_LINE_GRAVITY` (HernaOrb)
+- `ES_UPDATE ... FOLLOW_UNIT_ROTATION` (MagneticForce)
+A lost tag is a regression. A newly seen tag is a gain.
+
 ---
 
 ## C12 - Close (old Phase 12)

@@ -3481,8 +3481,10 @@ Data only, no flag. The user chose full June re-adoption (route b).
 
 Revert:
 - Copy everything in `24965799\kom_contents_backup_c11a_20261016\` back into `kom_contents\`: the 93 replaced files (incl. the merged BOM
-  `DamageEffect.lua` / `EffectSet.lua`), the 53 manifests, and `UIEffectSet.src.lua.moved` back as `data036_kom\UIEffectSet.src.lua`. Delete
+  `DamageEffect.lua` / `EffectSet.lua`), the 52 manifests, and `UIEffectSet.src.lua.moved` back as `data036_kom\UIEffectSet.src.lua`. Delete
   the 2,843 `add` rows of `june2017_re/stage_plan.tsv` from the dirs, and `data036_kom\{DamageEffect,EffectSet}.src.lua` if present.
+  `data222` is a new archive (no manifest to restore): delete `kom_contents\data222_kom\` and the game dir's `data\data222.kom` by hand
+  (a repack/copy does not remove it). (C11a review, 2026-10-16.)
   Do not use `stage_june_fx.py --revert`: its backup is the 2026-10-03 one, older than the 2026-10-11/12 merged edits.
 - Put the two ledger rows back to `live` and the core rows to `source` (`luasrc.py ledger --check` / `core --check` say what is off), repack, copy.
 
