@@ -68,7 +68,7 @@ June's `data041` has 7 `.fx` (`junekom.py list data041`); March's live and stage
 |---|---|---|
 | `GCSkin.fx`, `RenderState.fx`, `XPostEffect.fx` | same bytes | none / `KTDGGrayScale.cpp:16` / `KTDGPostEffect.cpp:147` |
 | `XRenderer.fx` | differs: June 65,196 B, March 42,468 B, +697 / -137 lines | `KTDGXRenderer.cpp:1193`, `D3DXCreateEffect` with `pDefines = NULL` (`:1202`, `:1215`) |
-| `XEnvBoxRenderer.fx`, `XHeatShimmerRenderer.fx` | **June-only** (contradicts the 2026-10-08 asset census, which counted no June-only `.fx`) | none in March. June: `XEnvBoxRenderer.fx` string `3344dad0`; `XHeatShimmerRenderer.fx` loader `31d0b200` |
+| `XEnvBoxRenderer.fx`, `XHeatShimmerRenderer.fx` | **June-only** (contradicts the 2026-10-08 asset census, which counted no June-only `.fx`) | none in March. June: `XEnvBoxRenderer.fx` string `3344dad0`; `XHeatShimmerRenderer.fx` loader `31d0b200` (**R0: `31d0b200` loads `XEnvBoxRenderer.fx`; the heat shimmer loader is `31ce5e90`**) |
 | `XRenderer_X2TOOL.fx` | June-only, tool build | none in either client |
 
 **June's `XRenderer.fx` contract** (June C++ handle init `31d3f480`, confirmed in disassembly):
@@ -83,7 +83,8 @@ June's `data041` has 7 `.fx` (`junekom.py list data041`); March's live and stage
   `g_fRimLightForced` 23, `g_bIsUseRimLight` 24, `g_bIsUseColorGrading` 29, `g_bIsUseViewIndependentEdge` 30,
   `g_fScreenSizeX/Y` 31-32. March sets none of them (no lookup or setter in KTDXLIB / X2Lib / X2). Every name March looks up
   (`KTDGXRenderer.cpp:25-43`, `:70-96`) exists in June's file with the same type.
-- `RenderParam` gains a rim-light member (Lua key string `useRimLight`, `3353ca10`).
+- `RenderParam` gains a rim-light member (Lua key string `useRimLight`, `3353ca10`). **R0 correction (2026-10-16):** `useRimLight` is
+  a Scaleform option-UI key; `RenderParam` gains two world-filled ints instead (R0 map item 3).
 
 ### M2 - render enums
 
@@ -240,6 +241,66 @@ Map, with addresses, everything the R1-R6 transcriptions need:
 **Done gate:** a section "R0 map" per item (short; tables to `june2017_re/r0_*.tsv`), every R1-R6 kickoff checked against it and
 amended in `kickoffs/june-engine/`, class-specific readers handed to the checklist.
 
+### R0 map (2026-10-16, Opus 5.5)
+
+No code, so there is no flag or build. Evidence is in `june2017_re/r0_renderer_contract.tsv`, and the funcmap rows are tagged
+`Engine R0`.
+
+1. **Renderer object** (`CKTDGXRenderer`: vtable `3344f8ec`, ctor `31d3c270`, OnResetDevice `31d3f480`).
+   - Members: ramps `+0x08` [20], `+0x58`..`+0x88` new, techniques `+0x8c` [19], parameter handles `+0xd8` [33], then March's tail
+     at `+0x15c`. The new rim and grading members are `+0x18c` / `+0x18d` / `+0x190`.
+   - **`+0x58` comes from device caps only, not an option:** `PixelShaderVersion >= 3.0`. Its UI does not go to Stage 9.
+   - `+0x84` / `+0x88` hold the anisotropy in use and the cap; `+0x82` is the mipmap cap.
+   - `+0x80` (env box) is set from `USE_ENV_BOX && +0x58`; `+0x81` (view-independent edge) from `USE_VIEW_INDEPENDENT_EDGE`.
+     Both are written by the option apply `32421110`.
+2. **Setters** (`BeginRender` `31d3cf80`, `OnFrameRender` `31d3e7d0`, ret 0x28):
+   - `g_mView` is set from the camera view and `g_vEyeDir` from camera look-at minus eye; `g_iTextureOp_1/2` = 1, or per texture stage.
+   - Screen size comes from a device global, and the view-independent edge from `+0x81` (cartoon cases only).
+   - Rim: `g_bIsUseRimLight` = `+0x18d` = (cartoon case with a ramp) && **`+0x18c`**. `CX2Main` vslot 1 (`31d90300`) copies the
+     `RIM_LIGHT` option into it every frame (`CX2Main +0x280` = `CX2GameOption +0x100`; the option object is at `CX2Main +0x180`).
+   - When the env box is on, rim colour, power, wide and forced come from the env box (`+0x68..+0x7c`) and `g_bIsUseEnvBoxRimLIght` = 1.
+     Otherwise the rim ramp `+0x190` goes to stage 2.
+   - `g_bIsUseColorGrading` = `+0x5b` (needs an env-box LUT).
+   - **`EFFECT_PARAMETER` is renumbered, not appended:** March's 15-18 (`g_fColor` .. `g_iShaderIndex`) become June's 25-28.
+3. **`RenderParam`** gains two ints before `bAlphaTestEnable`, which moves from `+0x9c` to `+0xa4` (+8 bytes):
+   - `+0x9c` is the world cartoon index, used only when `cartoonTexType == CTT_NORMAL` (0..3 = NORMAL / TWOTONE / USER1 / USER2).
+   - `+0xa0` is the world rim ramp, clamped to 13..18 with 13 (white) as the fallback.
+   - **No Lua key fills them.** Five per-frame fills copy `CX2World +0x1a4 / +0x1a8`: user, square / agit unit, pet, NPC and riding pet
+     (tsv `rpfill`). The world values come from Lua `SetCartoonTextureIndex` / `SetRimLightTextureIndex` and default to 0, so the rim
+     ramp falls back to white.
+   - **Correction to the ledger: `useRimLight` (`3353ca10`) is a Scaleform option-UI key,** not a `RenderParam` member.
+4. **Ramps.**
+   - June loads 20 ramps in June's enum order, plus `CartoonDamage_Raid.bmp` at slot 19 (= `CTT_END`). The skin-anim pass treats
+     cartoon type 19 like `CTT_DAMAGE` (ADD_ render types). No writer of 19 was found in R0; R1's sweep looks for one.
+   - The `.txt` `CARTOONTEXTYPE` reader (`31c864f0`) still accepts only `CTT_NORMAL` / `CTT_RED`, with RED = 4.
+   - Raw-int CTT stores: the pet, riding-pet and world-object Lua readers (tsv `ctt-reader`).
+5. **SMRT** (`31d30380`): all 8 cases are in the tsv (`smrt`). R6 ports 0-2 and 4-7; case 3 is March's existing port, re-checked
+   against the tsv (`alphaBlend` from mesh `+0xc8`).
+6. **CRS.**
+   - The reader is the generic state key `CUSTOM_RENDER_STATE = { start, end, CRS }` (`31fce500`). It is called from the user state
+     loader (`32057b80`) and the riding-pet state loader (`32d2f560`), which copies its triple into the rider. **It is not a riding-pet
+     reader.**
+   - The consumer is the user render setup `31fd4460`: buff override `+0x8e64`, else the state's CRS inside its time window. It
+     renders cases 3 and 5-9; 0-2, 4 and >9 take the default path `32275140`. A second consumer `320643f0` is left to R5.
+   - There is no NPC reader. Class users go to checklist 7w.
+7. **June-only renderers.**
+   - **Env box** (`CKTDGEnvBoxMap`, OnResetDevice `31d0b200`, *not* heat shimmer): **reach 0.** Only Lua `g_pWorld:SetEnvBoxMap`
+     creates it, and none of June's 7,347 `.lua` call it or `g_pEnvBoxMap`. With it, colour grading is unreachable too. Open question 5.
+   - **Heat shimmer** (`DGManager +0x384`, OnResetDevice `31ce5e90`): a full-screen composite in `CKTDXApp`'s frame render
+     (`31be3800`). Stages draw a second pass into `EffectRenderTarget`, which is distorted through June-only
+     `PerturbationMap.png` (data045). **Reach is not 0:** it runs whenever the scene render targets exist. They are gated by option
+     `+0x34`, whose writer R0 did not find. R4 starts with an Opus RE step (R4 kickoff), not a user question.
+   - **Options:** June defaults are `RIM_LIGHT` off (data002 `GameOptions.lua:40`), view-independent edge on, anisotropy 0 (stays 1),
+     env box off. March has none of these keys. Open question 4.
+8. **Planning rows:**
+   - `31d3f480` is confirmed (`+0x58` settled).
+   - `31d0b200` is **corrected** (env box; heat shimmer is `31ce5e90`).
+   - `31c86270` is **corrected** (it is `ProcessRenderType`, `KTDGXMeshPlayer.cpp:4661`, not a static name table).
+   - `337299c0` and `33729a58` stand. The world rows are W0's.
+
+Kickoffs amended: R1 (stores, slot 19, `.txt` RED = 4), R2 (no Lua key, renumbered enum, `RenderParam` +8, option chain), R3 (reach 0,
+waits on question 5), R4 (Opus RE first), R5 (generic reader, rider copy, cases), R6 (tsv cases).
+
 ## Phase R0b - Render and skin-mesh sweep
 
 **Run with:** Opus 5.5 high. No code.
@@ -293,7 +354,8 @@ Depends on R2. `XEnvBoxRenderer.fx` techniques `BlendLUTTechnique`, `DrawEnvBoxT
 ## Phase R4 - Heat shimmer
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER`. Port the owner of
-`31d0b200` (`HeatShimmerTechnique`) and its callers, per R0. Reach rule as R3.
+`31d0b200` (`HeatShimmerTechnique`) and its callers, per R0. Reach rule as R3. **R0: the owner is `DGManager +0x384`
+(OnResetDevice `31ce5e90`); `31d0b200` is the env box. Reach is gated, not 0: see R0 map item 7 and the R4 kickoff.**
 
 ## Phase R5 - CUSTOM_RENDER_STATE
 
@@ -348,8 +410,9 @@ The per-item port spec is in `kickoffs/june-engine/U1.md`, which is the source o
 - **Missed by the census:** `CMovieData:AddSubtitleData` is used by three datai015 `Movie_*.lua` scripts, outside the DLG corpus.
   `SetMovieSubtitleIndex` is one piece of a four-part chain: index map -> per-frame subtitle update `31cc07b0` -> `AddSubtitleData`
   -> the movie script loader `31c9b970`, which sets `g_pMovieData`. March's movie code is live (`REFORM_ENTRY_POINT` and
-  `MOVIE_TEST_BASE` on, `cl /P`). The three scripts and their `.avi` files are not in March: U1 adopts the scripts, and the movies
-  belong to june-asset-port.
+  `MOVIE_TEST_BASE` on, `cl /P`). The three scripts and their `.avi` files are not in March: U1 adopts the scripts, and the movies are
+  loose files that june-asset-port P9 copies. June's movie open (`31c9c250`) loads `<movie>.lua` for every movie and only logs
+  when the script is missing.
 - **A diff of June's KTDX binder against March's `class_def`** found four more June-only UI bindings with no June Lua caller:
   `SetBlockPostEffect`, `SetBlockStringPostEffect`, `SetForceShowDescriptionGuide` and `CPictureData:SetFlicker`. They are not
   ported.
@@ -485,6 +548,27 @@ Deferred to R0 (each comes back to the user with a recommendation):
 - what `+0x58` is; if it is a June graphics option, its option UI goes to Stage 9 and R2 picks the default June ships;
 - whether the environment box (R3) and heat shimmer (R4) have any reach in June or March data; with none, recommend porting them
   anyway behind their flags (June parity, memory `plan-unowned-june-branches-without-asking`), or dropping, for the user to pick.
+
+Answered by R0 (2026-10-16). `+0x58` is device caps only. Heat shimmer has reach (R4 does an RE step first). Two questions remain
+for the user:
+
+4. **Rim light needs a June graphics option, and June ships it off.**
+   - In June, rim light draws only when `RIM_LIGHT = TRUE` in `GameOptions.lua`. The default is `FALSE` (data002), and the June
+     option dialog has a toggle for it.
+   - March has neither the key nor the UI. So R1/R2 with June's code verbatim *remove* the Ranox rim light that the stand-in shows
+     today.
+   - With the option on, June's world default (rim index 0, clamped to 13) puts a white rim on every cartoon unit in every world.
+   - **Recommendation:** port June's four option keys (`RIM_LIGHT`, `USE_VIEW_INDEPENDENT_EDGE`, `ANISOTROPIC_FILTER_SAMPLE`,
+     `USE_ENV_BOX`) into March's option load and save in R2, with June's defaults. The user sets `RIM_LIGHT = TRUE` in the game
+     dir's `GameOptions.lua` to play-test, and Stage 9 adds the toggle.
+   - The alternative is a labelled default-on stand-in flag until Stage 9.
+5. **Environment box and colour grading have no reach.**
+   - Nothing in June's data creates an env box: no Lua calls `SetEnvBoxMap` or `g_pEnvBoxMap`. The only other trigger is the dev
+     command `/useEnvBox`.
+   - **Recommendation: drop R3's `CKTDGEnvBoxMap` / `XEnvBoxRenderer.fx` port.** R2 still ports the renderer side verbatim, so
+     `+0x80` / `+0x59` stay false and the env-box rim and grading branches stay off, as they are in June. A port could not be
+     play-tested.
+   - The alternative is to port it behind `SERV_IRUHADEV_JUNE_RENDER_ENVBOX` for parity, untestable.
 
 ## Play-test hand-off (every code phase)
 
