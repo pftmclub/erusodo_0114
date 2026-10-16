@@ -594,3 +594,10 @@ caller with June's, which does not name them; until then they are a visible gap,
 | Chung | `X2GUChung.cpp`: `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell`, `EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT`; `X2BuffTemplet.cpp`: `CHUNG_BIGBANGSTREAM_MEMO` | `Chung_Iron_Cannon.lua`: `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` |
 | Eve | `X2GuEve.cpp`: `EVE_EP_DASH_COMBO_Z` | - |
 Not a class: `BOMB` (`X2GUNPCFunc.cpp`, an NPC function, and June's `Bunker.lua`) has no owner; noted in the C11a Done note.
+
+### 7v. Lu/Ciel minor-unit slot key (from June engine U0)
+
+June's `CX2SlotItem` slot-data reader (vslot 11, `32e284b0`) reads `IS_FOR_MINOR_UNIT` (bool, @`32e2870a`) next to March's slot keys
+(`X2SlotItem.cpp:53-65`, `LuaGetValue`). June's character-window and closet dialogs use it on Lu/Ciel's second-unit slots
+(`DLG_Magical_Closet`, `_NEW_2`, `DLG_UI_CHARACTER_NEW_2/3/4`). Only the Lu/Ciel port needs it: port the key, its member and its readers
+with that class. Under March data the key never matches (no minor unit). Funcmap row `32e284b0` (`Engine U0`).

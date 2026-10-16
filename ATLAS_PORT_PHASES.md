@@ -1278,6 +1278,10 @@ Done when: Phase A6's "Done when" holds. Record a Done note (deployed branch), t
 4. Bindings: `GetNationFlag` (+ the `NF_*` globals already exist,
    `X2Main.cpp:3345`) and `SetChangeUVPoint`, under
    `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION`.
+   *(june-engine U0, 2026-10-16)* June's `SetChangeUVPoint` is `31c9a7d0`
+   (bound @`31bf7c70`). It owns a `CPictureData +0xb0` block (a vector plus a
+   functor) that June's `SetPoint_LUA` (`31c9a700`) resets at its end
+   (`31c9eea0`). Whichever of A4 / june-engine U1 lands second adds that reset.
 5. TET atlases: `DLG_Localmap_Title_01` (Atlas title + `Title_Elision_01..03`;
    merge vs adopt per the corrected rule — `LANOX_REMAINING_PHASES.md` P2
    history), `_01_A` only if a nation branch reaches it under US (it doesn't:

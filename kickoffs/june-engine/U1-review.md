@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-engine U1 review` |
 | Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch: the current working branch) |
 | Depends on | Phase U1 done (its Done note and commits) |
-| Flag | `SERV_IRUHADEV_JUNE_UI_FRAMEWORK` (U0 may split it) |
+| Flags | `SERV_IRUHADEV_JUNE_UI_FRAMEWORK`, `_JUNE_UI_NATION_KEYS`, `_JUNE_UI_MOVIE_SUBTITLE`, `_JUNE_UI_LINE_BREAK` (U0 split; spec per item in `U1.md`) |
 | Log tag | `[JUNE_ENGINE] UI` |
 
 ## Read first

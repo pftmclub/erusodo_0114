@@ -319,6 +319,52 @@ equivalent if any. Settle `ROTATION` (live in June's client, or `DLL_BUILD` ther
 reads for `POS_<CC>` / `FONT_INDEX_<CC>` (US = `NF_US`, memory of C9h-4's nation reader). Re-run `ui_dlg_census.py` against the live
 tree and record the gap list. **Done gate:** every gap has an address and a one-line port spec in U1's kickoff, or is routed.
 
+### U0 Done (2026-10-16, Opus 5.5)
+
+No code, so there is no flag, build or flagcheck. 33 funcmap rows `Engine U0` (`june2017_re/funcmap.tsv`). The census re-run
+(`ui_dlg_census.py`) wrote a `ui_dlg_census.tsv` identical to HEAD: same 37 june-only-unbound rows, same 13 type-aware misses as M4.
+The per-item port spec is in `kickoffs/june-engine/U1.md`, which is the source of truth for U1.
+
+- **ROTATION is live in June's client.** `SetPointData_` (`31c97ce0`) reads it into `UIPointData +0x44`, and both `SetPoint` overloads
+  (`31c9a700`, `31c948a0`) rotate about the centre when it is non-zero (`31c9de90` = March `Rotate( center, deg )`). March has the
+  member, reader and rotate only under `DLL_BUILD`, which `cl /P` shows is off in US_SERVICE (`RESIZE_TEXTURE` on, so June's layout =
+  March's plus `fRotDegree`). U1 lifts only those three pieces, not `DLL_BUILD`.
+- **The nation suffix June's US build reads is `US`, and `_GLOBAL` always.**
+  - `CKTDXApp +0x2e8` is a string, `"NONE"` from the ctor. The CX2Main ctor sets it once from `m_dwNationFlag`, after the config
+    script (June: `Config_US_Service.lua` -> `SetNationFlag(NF_US)` -> `0x400` -> `"US"`).
+  - Three helpers read `KEY_GLOBAL` then `KEY_<nation>` after the plain key, with the later read winning: int `31c9e2d0`, vector
+    `31c9ec20`, float `31c9e1f0`. Their callers are FONT_INDEX, POS, LEFT_TOP, RIGHT_BOTTOM, RIGHT_TOP, LEFT_BOTTOM, ADD_SIZE_X/Y.
+  - `AddDummyInt_Flag` and `SetFont_Flag` take a table and read the `GLOBAL` key, then the nation-name key.
+  - The writer/reader set is closed: one writer (`31e4af22`) and five readers. `POS_BR`, `LEFT_TOP_DE` and the other non-US keys
+    are read by the same code but never match under US.
+- **Gaps that need more than a binding** (members, consumers and defaults are in the funcmap rows):
+  - `SetChangeFocusByKeyMsg` gates March's own Tab/arrow chain (`KTDGUIDialog.cpp:670-702`); the default is on.
+  - `SetCaretOffSet` shifts the IME caret.
+  - `SetGroupOffset` is only read by a dialog method `31cd2af0`. That method's one caller is X2Lib `32dca200`, the synthesis UI,
+    which stays with that UI's port.
+  - The combo OnItem messages are fired by the hover loop.
+  - `SetScrollBarOffsetPos` feeds the scrollbar's `SetOffsetPos` and its mouse coordinates.
+  - `LINE_BREAK_*` wraps the string at load and re-wraps it when X2Lib sets the pending byte.
+- **Missed by the census:** `CMovieData:AddSubtitleData` is used by three datai015 `Movie_*.lua` scripts, outside the DLG corpus.
+  `SetMovieSubtitleIndex` is one piece of a four-part chain: index map -> per-frame subtitle update `31cc07b0` -> `AddSubtitleData`
+  -> the movie script loader `31c9b970`, which sets `g_pMovieData`. March's movie code is live (`REFORM_ENTRY_POINT` and
+  `MOVIE_TEST_BASE` on, `cl /P`). The three scripts and their `.avi` files are not in March: U1 adopts the scripts, and the movies
+  belong to june-asset-port.
+- **A diff of June's KTDX binder against March's `class_def`** found four more June-only UI bindings with no June Lua caller:
+  `SetBlockPostEffect`, `SetBlockStringPostEffect`, `SetForceShowDescriptionGuide` and `CPictureData:SetFlicker`. They are not
+  ported.
+- **Routed:**
+  - `GetNationFlag` and `SetChangeUVPoint` (`31c9a7d0`) go to Atlas A4, which also owns the `CPictureData +0xb0` reset that June's
+    `SetPoint_LUA` does; this is noted in A4.
+  - `AddVillageNpcRelationData*` goes to Elysion E1.
+  - `IS_FOR_MINOR_UNIT` (`CX2SlotItem` vslot 11, `32e284b0`) is Lu/Ciel material: checklist 7v.
+  - `m_PrivateType` (PvP map list, `3253a900`) is PvP only and not ported, because the offline client has no PvP.
+  - The `STR_ID_*` names stay with the Stage 9 sweep (M4).
+- **Flag split for U1:** `SERV_IRUHADEV_JUNE_UI_FRAMEWORK`, `_JUNE_UI_NATION_KEYS`, `_JUNE_UI_LINE_BREAK`, `_JUNE_UI_MOVIE_SUBTITLE`.
+- **Open question for the user (blocks only `_LINE_BREAK`):** June calls the word-wrap helpers (`31d43ef0` / `31d42bc0` = March
+  X2Lib `CWordLineHandler`) from KTDGUI. In March, KTDXLIB cannot call X2Lib. The recommendation is a function pointer in KTDXLIB,
+  set by X2Lib in the CX2Main ctor; the alternative is to move the helpers into KTDXLIB.
+
 ## Phase U1 - UI framework port
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_UI_FRAMEWORK` (U0 may split it: e.g. a separate flag
