@@ -9595,7 +9595,11 @@ logs and record every result in C11 here. Fix BOSSRAID_ABYSS_SMOG via kom_conten
 
 **Side gaps, noted once:** `BOMB` (`X2GUNPCFunc.cpp`) has no owner. The socket end-to-end rows still need a save edit,
 june-buff Phase 13's factors and `_JUNE_BUFF_DEBUG` re-enabled (C11 kickoff); not in this play-test. Cash emotion mesh triggers are
-UI-manager sets (`UIEffectSet.lua`): only their load-time `ES_EFFECT ... MESH_TRIGGER_DATA` line can show them, and it may fall in the mount window.
+UI-manager sets (`UIEffectSet.lua`) and are **unreachable at runtime**: `SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET` logs nothing and is inert
+because March's `EMOTION_TYPE` ends at 15; the data is deployed, nothing plays it.
+**What the 53 packs carried beyond the plan** (old live kom from `kom_backup_tools` vs new, `elstools inspect`): compression-size-only
+changes (same file size; data050 120, data069 787, data129 113, data141 89, datai017 38, datai001 26: the 2026-09-22 extract repacked),
+the 147 `conflict` files the 2026-10-12 closure had staged, and data036's two hand-copied files. Every size change is a plan row; no other `.lua` changed.
 
 **Play-test hand-off (reyaa, Lire Grand Archer 80; Ranox Burnt Forest, Normal; C11's setup lines `jU` / `jES` / `jC`, `/CM "RAGE_BABYFIG" 2 70`, `/ai false`):**
 | line | look for (`python tools/logs.py --grep "<text>"`) | if not |
