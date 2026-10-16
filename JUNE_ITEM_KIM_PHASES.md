@@ -384,7 +384,7 @@ load proposed unless the K4 working-set line says otherwise. K2 logs the working
 5. **Accessors and consumers** for the fields K0 routed to "port in K2".
 6. **Data.**
    - Back up the staged March kim as `item.kim.march_patched` in the session scratchpad and next to `march_data\data036\`.
-   - `kom_contents\data036_kom\` is shared staging with the Atlas/Elysion worktree (`ATLAS_PORT_PHASES.md` "Shared-staging merge
+   - `kom_contents\data036_kom\` is shared staging with the Atlas/Elysion branch (`ATLAS_PORT_PHASES.md` "Shared-staging merge
      rule"). Neither port stages `item.kim`, so the file is this plan's alone. Pack data036 only when no other session is packing it,
      and diff the staged directory against the live kom first so you don't ship someone's half-staged files.
    - Copy June's `item.kim` into `kom_contents\data036_kom\`. Keep the manifest entry `"item.kim": "2"`. Do not add `item_LA.kim`.
@@ -459,7 +459,7 @@ no layout mismatch, no new UNHANDLED/EXCEPTION. Equipped top shows defence; the 
 bought from the cash shop, equipped in the face slot, renders.
 
 **Open.** None for the user. Deploy order matters: exe and the 26 koms go together (a K2 exe refuses March's kim and then crashes;
-an exe without the flags misreads June's kim silently, e.g. a `Trunk_elysion` deploy whose `Always.h` predates K2).
+an exe without the flags misreads June's kim silently, e.g. a deploy from a branch whose `Always.h` predates K2).
 
 ## Phase K2 review
 

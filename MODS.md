@@ -3325,7 +3325,7 @@ June's per-class attach variants `321e3730` / `321e3830` and the class callers a
 - **`SERV_IRUHADEV_KIM_LAYOUT_CHECK`** (independent, stays on): `DoMemoryNotEncrypt` reads the file's record stride from the data and
   refuses a file that does not match the compiled struct, with a `[JUNE_KIM] layout mismatch` line in ErrorLog.txt. The refusal falls to
   the Lua path, which has no `Item.lua`, so the client then crashes at the first item lookup: the line names the cause. **An exe built
-  without both flags (e.g. a worktree whose `Always.h` predates K2) reads June's kim at 188 B per record silently. Keep worktrees in step.**
+  without both flags (e.g. a branch whose `Always.h` predates K2) reads June's kim at 188 B per record silently. Keep branches in step.**
 - **`SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP`** (decision D2, a stand-in, not June): eqip 26 -> 17 and 27 -> 18 so the Mini-me items and
   earrings keep equipping. Backlog Stage 16 ports June's two slots and removes it.
 - **Assets (decision D1).** 501 June files that June items name and March lacked, staged into the same-numbered `kom_contents/dataNNN_kom/`

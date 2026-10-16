@@ -504,7 +504,7 @@ June raises none of them. Functions rewritten whole in this part (NowMp `SetFact
 - **Freeze: 6 templets.** `WATER_HOLD`, `FROZEN`, `SHADOW_KNOT`, `SHOCK` and `SLESHU_ONE_SLASH` have `IS_DOWN = TRUE`; `BIND` has `IS_DOWN = FALSE`. A unit that dies while frozen now holds its last frame (`XAP_ONE_WAIT`) instead of looping. A live user resumes the play type it had, not `XAP_LOOP`.
 - **CanPass: 1 templet,** `BTI_NPC_ALCHEMYST_SECRET_BOSS_TRANSFORM_SCALE`. Its pass-through flag is now restored at finish, where March left it until the next state change.
 - **NowMp: no reach.** 28 templets, 5 of them PERCENT: `MANA_BURN_REL` (limit 0), `DARK_POISON`, `RELATION_SHIP_SKILL`, `MAGIC_POINT_IMMEDIATELY_CHANGE_ONCE`, `IMMEDIATELY_CHANGE_HP_MP` (limit 1). The stack count only increments when `ACCUMULATION_LIMIT > 1` (`X2BuffTemplet.cpp:218`, unconditional, no Phase 4a variant), so the removed ADJUST branch, which needs a stack count, is never reached on March data.
-- **ChangeStat `GetValue`: only units above level 90.** That is above March's cap, but it matters for the Atlas/Elysion cap-99 worktree.
+- **ChangeStat `GetValue`: only units above level 90.** That is above March's cap, but it matters for the Atlas/Elysion cap-99 branch.
 - **HyperMode store: 2 templets** (`BTI_HYPER_MODE`, `BTI_FORMATION_MODE`). Nothing in March reads the value.
 - **ConsumeMpRate (not ported): 1 templet,** `BTI_DEBUFF_CHANGE_CONSUME_MP_RATE` (PERCENT), the Teleport debuff.
 

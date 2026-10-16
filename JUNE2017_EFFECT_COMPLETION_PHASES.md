@@ -3852,7 +3852,7 @@ into `JUNE_DUNGEONS_PHASES.md`.
 
   | Owner | What | Ids |
   |---|---|---|
-  | atlas A8 / A9 / A10 | AtlasDevelopment / AtlasCity / Tower N-H-E | 9 (matches `ATLAS_PORT_PHASES.md:314`) |
+  | atlas A8 / A9 / A10 | AtlasDevelopment / AtlasCity / Tower N-H-E | 9 (matches `ATLAS_PORT_PHASES.md:372`) |
   | elysion E8-E11 | SkyCrossroads / Adrian / Soless / Memory N-H-E | 12 |
   | backlog Stage 19 | event dungeons (list in that stage) | 13 |
   | backlog Stage 8 | `Dungeon_Tutorial_{Luciel,Rose,Ain}` | 3 |
@@ -7710,7 +7710,7 @@ There are 17 funcmap rows tagged `Effect C9h-2e`. The `32344880` row corrects C9
 - **Where the rows come from:** `g_pQuestManager:AddVillageNpcRelationDataByQuest_LUA` (`3233b680`) and `...ByVillage_LUA` (`32340720`), in `data034` `DLG_Map_House_NPC_RelationData.lua`.
   - ByQuest has 36 rows: 3 change, 6 not-show (likely the second 0x14-byte shape at `+0xbc`), and 27 code-event rows, all event 2308 with quest 0.
   - ByVillage has 11 rows.
-- **March has none of this.** It is the NPC relation system that **Elysion E1** already plans to port whole; that plan has not started and has no worktree yet.
+- **March has none of this.** It is the NPC relation system that **Elysion E1** already plans to port whole; that plan has not started and has no branch yet.
 - E1 needs three entry points, not one:
   - village NPC creation `323ba5f0`;
   - the per-quest refresh `32340630`, called from quest-UI handlers `323e15e0`, `323e1710` and `323e57e0`;
