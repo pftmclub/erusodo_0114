@@ -24633,6 +24633,26 @@ void CX2GUUser::PhysicProcess_PortalInBattleField( CKTDGLineMap* pLineMap )
 								
 								ClearRecieveSyncData();
 								
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+								//{{ Iruha : 2026-10-17 // Atlas A6: June PhysicProcess_PortalInBattleField 3201a670 code-event
+								//   gate (inert offline): with 2260 on, Lanox F04 (WI 608) line 103 plays no teleport unless 2262
+								//   is on; else with 2261 on, Elysion F01 (WI 638) line 53 plays none. The dungeon twin
+								//   PhysicProcess_Portal (June 3201a2b0) has the same gate plus W2's portal-line changes: june-engine W2.
+								if( NULL != g_pX2Game && NULL != g_pX2Game->GetWorld() && NULL != g_pInstanceData )
+								{
+									const int iWorldID = ( NULL != g_pX2Game->GetWorld()->GetWorldData() ) ? g_pX2Game->GetWorld()->GetWorldData()->worldID : 0;
+									if( true == g_pInstanceData->IsEnableCode( 2260 ) )
+									{
+										if( CX2World::WI_BATTLE_FIELD_RANOX_FIELD_03 == iWorldID && 103 == pLineData->lineIndex &&
+											false == g_pInstanceData->IsEnableCode( 2262 ) )
+											return;
+									}
+									else if( true == g_pInstanceData->IsEnableCode( 2261 ) &&
+										CX2World::WI_BATTLE_FIELD_ELYSION_FIELD_01 == iWorldID && 53 == pLineData->lineIndex )
+										return;
+								}
+								//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 								pLineData = pLineMap->GetLineData( pLineData->m_iTeleportLineIndex );
 								if( NULL != pLineData )
 								{

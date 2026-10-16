@@ -1385,6 +1385,16 @@ bool CX2OfflineServer::Handler_EGS_JOIN_BATTLE_FIELD_REQ( KOfflineSession& kSes,
 	kAck.m_kBattleFieldJoinInfo.m_iBattleFieldID	= kReq.m_kBattleFieldJoinInfo.m_iBattleFieldID;
 	kAck.m_kBattleFieldJoinInfo.m_iStartPosIndex	= kReq.m_kBattleFieldJoinInfo.m_iStartPosIndex;
 	kAck.m_kBattleFieldJoinInfo.m_bMoveForMyParty	= false;
+#ifdef SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS
+	//{{ Iruha : 2026-10-17 // Atlas A6: echo the request's start-position mode, as the live servers do (they copy the
+	//   whole KBattleFieldJoinInfo back: GSUserBattleField.cpp:466, BattleFieldRoom.cpp:1065). The 2-arg REQ (village
+	//   exit, field portal; X2State.cpp:11339) sends m_bNowBattleFieldPositionInfoStartPosition = true, meaning
+	//   m_iStartPosIndex is an AddStartPos key. Initialize() above left it false, so the client read the key as a LINE
+	//   index (X2GUUser.cpp:1666, X2BattleFieldGame.cpp:1470): Field 01's key 333 names no line on its 163-line map.
+	kAck.m_kBattleFieldJoinInfo.m_bNowBattleFieldPositionInfoStartPosition	= kReq.m_kBattleFieldJoinInfo.m_bNowBattleFieldPositionInfoStartPosition;
+	kAck.m_kBattleFieldJoinInfo.m_usBattleFieldPositionValue				= kReq.m_kBattleFieldJoinInfo.m_usBattleFieldPositionValue;
+	//}}
+#endif SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS
 
 	// A battlefield is ALREADY PLAYING when you join it, and both of these have
 	// to say so.

@@ -13570,6 +13570,22 @@ void CX2Main::FieldWarpByCommand( int iPosition )
 	case 25: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03;		break; // 샌틸러스 호의 무덤
 	case 26: iWorldID = SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04;		break; // 베히모스 크레이터
 #endif //SANDER_DUNGEON_5_6
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A6: June 2017 FieldWarpByCommand (unpacked_x2.exe 0x31d71130, jump table @31d71550,
+	//   43 positions): 1-26 equal March (June has 25 / 26 unconditionally; SANDER_DUNGEON_5_6 is on here). Omitted: 31 =
+	//   40028 and 36 / 37 / 39 / 40 / 41 = 40040-40044 (June boss-raid stages, no March enum, sent through June's raid
+	//   path); 32-34 fall to June's default (0) as here. 42 / 43 (Fields 03 / 04) wait for atlas E3: they have no
+	//   BattleFieldData row yet, and a field without one loads no world.
+#ifdef SERV_IRUHADEV_RANOX_PORT
+	case 27: iWorldID = SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01;		break;
+	case 28: iWorldID = SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02;		break;
+	case 29: iWorldID = SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03;		break;
+	case 30: iWorldID = SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04;		break;
+#endif SERV_IRUHADEV_RANOX_PORT
+	case 35: iWorldID = SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_01;	break;
+	case 38: iWorldID = SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_02;	break;
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	default: iWorldID = SEnum::VMI_INVALID;								break;
 	}
 

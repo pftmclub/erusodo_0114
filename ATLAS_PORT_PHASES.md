@@ -1878,7 +1878,67 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 
 ### Phase A6 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Flags `SERV_IRUHADEV_ELYSION_PORT` (A3's) + new `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS`. Commit: see STATUS A6 row. MODS.md "Atlas/Elysion port A6".
+
+- **Premises:**
+  - The portal is the F04 row (`VMI_BATTLE_FIELD_RANOX_FIELD_04` = 40032, `Field_Ranox_Stage3_LineMap` / `Ranox_Field_03`, WI 608): line 103
+    is `LT_POTAL` (June linemap = March sidecar).
+  - Atlas Station 401 -> 109 and 403 -> 333 name `AddStartPos` keys, not lines.
+  - NPC readiness: all 30 field NUIs were already in March's Enum, unit scripts (data037, ljconv), `NewNPCStat` and meshes
+    (`npc_mesh_census --all-npc` 0 missing). Only `NPCTemplet` rows were absent.
+- **Crash root cause (A7 play-test):** with no 40035 row, `GetWorldIdByBattleFieldId` returned 0, the world was NULL, and
+  `IsNearPortalLineMap` dereferenced `GetLineMap()` (`X2BattleFieldGame.cpp:529`). The rows fix the trigger; June's own NULL return
+  (`32d53810`) is ported too.
+- **Join-ACK start-position quirk** (the real site is `Handlers_Room.cpp:1384-1387`, not :1278 / :1365):
+  - The emulator zeroed `m_bNowBattleFieldPositionInfoStartPosition`, so the client read start-pos key 333 as a line index on Field 01's
+    163-line map, and the player was never placed.
+  - The fix echoes the request, as `GSUserBattleField.cpp:466` does, under `OFFLINE_BF_JOIN_START_POS`. It changes landing on every
+    field (the key's spot, not a line's).
+- **C++ (`ELYSION_PORT`, June addresses in each block):**
+  - The 2260-2262 code-event gates (inert offline) in `IsNearPortalLineMap` `32d53810`, `CreatePotalParticle` `32d51be0` (Ghidra's
+    `32d51960` carve is wrong) and `PhysicProcess_PortalInBattleField` `3201a670`.
+  - `CreatePotalParticle` also gets June's second particle, `UI_Portal_Arrow` (`g_pData+0x7c`, +50), and a `SHOW_PORTAL` constant
+    (W2 parses the key).
+  - `FieldWarpByCommand` `31d71130` (jump table @31d71550): 27-30 Ranox, 35 / 38 F01 / F02.
+  - Omitted with a comment: 31 (40028), 36 / 37 / 39-41 (raid stages, no enum), 42 / 43 (E3: no rows yet).
+  - The dungeon twin `PhysicProcess_Portal` `3201a2b0` carries W2-type portal-line changes, routed to `kickoffs/june-engine/W2.md`.
+- **Lua (BOM source, ledger refreshed, `ledger --check` / `core --check` PASS):**
+  - data036 `BattleFieldData` (converted T0): June's F04 portal 103 -> 1008 pos 400, `BATTLE_FIELD_DIRECTION_INFO` verbatim with a
+    `-- quest plan:` comment, and F01 / F02 rows verbatim. F02's `L142 -> VMI_ELYSION` 500 is commented out until E2; its line keeps
+    the particle but does nothing (`CBattleFieldPortalMovingInfoPtr is NULL!` in State.log).
+  - data037 `NPCTemplet`: 26 rows (16 `F_*`, 5 `F_HERNA_*`, 2 `F_BOSS_*`, 2 chests, `HERNA_SHIELD`; June ranges in the block header).
+  - data040 `WorldData` 638 / 639.
+  - data034 `DLG_UI_FIELD_MAP_Ranox_04_NEW` (converted T0): June's text (right button to 1008, left `AddDummyInt`).
+- **June files (ljconv):** `Field_Elysion_Stage0` / `stage1` + line maps (data040), `Elysion_Field_01/02` (data036),
+  `DLG_UI_FIELD_MAP_Elysion_01/02_NEW` (data034). Record: `june2017_re/june_adopt_20261017_060423.tsv`.
+- **Assets:**
+  - 338 census FLD assets were staged by `stage-june`: data046 1, 078 1, 096 7, 179 2 (new kom), 180 134, 181 17, 182 176. All are new
+    names; nothing was replaced.
+  - A texture closure over the 151 staged meshes / xet names 258 textures. **Not yet checked against March; A11 owns the closure.**
+  - 3 loose music files (`field_elysion001/002.ogg`, `li_field_elysion001.ogg`) go to `data\music` with the copy.
+  - The F03 / PvP-field assets that share the FLD tag rode along; their Lua stays with E3 / E12.
+- **Census `--line FLD`:** 483 -> 119 open, all routed:
+  - 4 `npc.ready`: non-F `NEWDEFENDER` -> A9, `HIGHTTEM` -> A10, `EVENT_00/01` -> quest plan (decision 2).
+  - 5 unstaged + 5 Lua adopts: F03 -> E3, PvP field -> E12.
+  - 3 music files are loose, and the census reads koms only.
+  - 13 `assets.absent`: June ships none.
+  - 5 `keys.registry`: read by the emulator / server; `MIDDLE_BOSS_BONUS_ITEM_COUNT` is unread in March's own rows too.
+  - 84 `keys.file`: `LINE_NUM` = B73, and `CT_*` / `CF_*` / `TARGET_FRONT_ME` are Lua-side names in June's own unit scripts.
+- **Drops: open, for the user.** The server `DropTable` / `StaticDropTable` stop at 40025 (no Lanox, no Elysion rows), so F01 / F02 kills
+  log `no reward row ... grants nothing` (no EXP, ED or items), as Lanox fields do today.
+- **Hygiene:**
+  - `flagcheck ELYSION_PORT --worktree --files <5 code files>`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`.
+    The 2 OTHER are Always.h's and Handlers_Room.cpp's `OFFLINE_BF_JOIN_START_POS` hunks.
+  - `OFFLINE_BF_JOIN_START_POS`: `1 PASS, 1 DEFINE, 3 OTHER, 0 FAIL`.
+  - Both: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
+    0 encoding change(s)`, `RESULT: PASS`.
+- **Pack:** `PACK OK` data034 / 036 / 037 / 040 / 046 / 078 / 096 / 179 / 180 / 181 / 182. The data036 pack warns about 24 older
+  `.src.lua` sidecars, not A6's. Copy waits for the user's OK.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,606,528 B, dated 2026-10-17 06:31:02, md5 c1c45191e375bed74b3e286ef606081c, equal to X2/US_SERVICE/x2.exe (2026-10-17 06:30:57); built at main adad9359 + 5 uncommitted code file(s).`
+  The 5 files are A6's. Proof: `UI_Portal_Arrow` (only in A6's `#ifdef`) is in the deployed exe.
+- **How to see it in game:** the A6 STATUS row / hand-off. Lanox F04 (Distant Ruins) far-end portal -> Atlas Station. Atlas Station's
+  far portal -> Field 01, landing on start pos 333. F01 L53 -> Field 02. Each return portal works. Monsters spawn with HP bars. F02's
+  far end has an inert portal.
 
 ---
 

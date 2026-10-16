@@ -3829,6 +3829,38 @@ Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION`. June's own code, cited by address i
   so revert the data too): delete the commented A7 blocks in the four BOM sources and the 7 adopted files (all new names, nothing
   was replaced; manifests lose their keys), then repack data034 / 036 / 065 / 215 / 217.
 
+### Atlas/Elysion port A6: Lanox -> Atlas crossing + Fields 01/02 (2026-10-17)
+
+Flags `SERV_IRUHADEV_ELYSION_PORT` (A3's) and `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS` (new). June's own code, cited by address in each block:
+- **C++ (`ELYSION_PORT`):**
+  - `CX2BattleFieldGame::IsNearPortalLineMap` (June `32d53810`): the NULL world / line-map return, which cured the Field 01 crash; plus
+    the code-event 2260-2262 gate.
+  - `CreatePotalParticle` (`32d51be0`): the gate, a `SHOW_PORTAL` constant until june-engine W2, and June's second particle
+    `UI_Portal_Arrow`.
+  - `CX2GUUser::PhysicProcess_PortalInBattleField` (`3201a670`): the gate.
+  - `CX2Main::FieldWarpByCommand` (`31d71130`): positions 27-30 (Ranox) and 35 / 38 (Fields 01 / 02).
+
+  The gates are inert offline (no code events).
+- **C++ (`OFFLINE_BF_JOIN_START_POS`):** the emulator's `EGS_JOIN_BATTLE_FIELD_ACK` echoes the request's start-position mode, as the live
+  servers do. A village exit or portal now lands on its `AddStartPos` key, for every field, not on a line of that number.
+- **Lua / data (kom_contents):**
+  - BOM source edits:
+    - data036 `BattleFieldData`: Lanox F04 portal 103 -> 1008, June's `BATTLE_FIELD_DIRECTION_INFO` (inert), and the F01 / F02 rows,
+      with F02's village exit commented out until E2.
+    - data037 `NPCTemplet`: 26 Elysion field-monster rows.
+    - data040 `WorldData`: WI 638 / 639.
+    - data034 `DLG_UI_FIELD_MAP_Ranox_04_NEW`: June's right button.
+  - June's own files (ljconv): `Field_Elysion_Stage0` / `stage1` + line maps, `Elysion_Field_01/02`,
+    `DLG_UI_FIELD_MAP_Elysion_01/02_NEW`.
+  - 338 June assets (data046 / 078 / 096 / 179 (new) / 180-182).
+  - 3 loose music files copied into `data\music`.
+- **Revert:**
+  - Remove either flag. The emulator then sends the old zeroed join info; the client falls back to March's portal functions. With the
+    data still in, Fields 01 / 02 still load.
+  - Data: delete the commented A6 blocks in the four BOM sources and the adopted files (all new names; record
+    `june2017_re/june_adopt_20261017_060423.tsv`, asset backups under `kom_backup_stage_june\20261017_060810`), then repack the
+    11 koms.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

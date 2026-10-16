@@ -339,6 +339,36 @@ void CX2BattleFieldGame::CreatePotalParticle()
 			if( NULL != pLineData &&
 				CKTDGLineMap::LT_POTAL == pLineData->lineType )
 			{
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+				//{{ Iruha : 2026-10-17 // Atlas A6: June CreatePotalParticle 32d51be0. SHOW_PORTAL (line +0x14c, June
+				//   default 1) is a true constant until june-engine W2 parses the key. Then June's code-event gate
+				//   (@32d51c73): with 2260 on, Atlas Station (WI 637) and Lanox F04's line 103 (WI 608) get no particle and
+				//   the open flag follows 2262; with 2261 on, Elysion F01's line 53 (WI 638) is closed. Inert offline:
+				//   nothing sends EGS_UPDATE_CODE_EVENT_NOT.
+				const bool bShowPortal = true;
+				if( false == bShowPortal )
+					continue;
+				if( NULL != g_pInstanceData )
+				{
+					const int iWorldID = m_pWorld->GetWorldData()->worldID;
+					if( true == g_pInstanceData->IsEnableCode( 2260 ) )
+					{
+						if( CX2World::WI_BATTLE_FIELD_ELYSION_FIELD_REST_00 == iWorldID ||
+							( CX2World::WI_BATTLE_FIELD_RANOX_FIELD_03 == iWorldID && 103 == pLineData->lineIndex ) )
+						{
+							m_bOpenPotalParticle = g_pInstanceData->IsEnableCode( 2262 );
+							continue;
+						}
+					}
+					else if( true == g_pInstanceData->IsEnableCode( 2261 ) &&
+						CX2World::WI_BATTLE_FIELD_ELYSION_FIELD_01 == iWorldID && 53 == pLineData->lineIndex )
+					{
+						m_bOpenPotalParticle = false;
+						continue;
+					}
+				}
+				//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 #ifdef SERV_ALTERA_AUTO_OPEN_HARD_CODE
 				IF_EVENT_ENABLED( CEI_ALTERA_AUTO_OPEN_HARD_CODE )
 				{
@@ -420,6 +450,20 @@ void CX2BattleFieldGame::CreatePotalParticle()
 					pParticle->SetParticlePos( ( pLineData->startPos + pLineData->endPos ) * 0.5f + D3DXVECTOR3(0, 3, 0 ) );
 					pParticle->SetLayer( XL_EFFECT_0 );
 				}
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+				//{{ Iruha : 2026-10-17 // Atlas A6: June CreatePotalParticle @32d51d9f adds a second particle per portal
+				//   line: UI_Portal_Arrow from the UI major particle system (g_pData +0x7c), 50 above the line's middle.
+				if( NULL != g_pData )
+				{
+					CX2WorldObjectParticle* pArrow = m_pWorld->CreateObjectParticle( g_pData->GetUIMajorParticle(), "UI_Portal_Arrow" );
+					if( NULL != pArrow )
+					{
+						pArrow->SetParticlePos( ( pLineData->startPos + pLineData->endPos ) * 0.5f + D3DXVECTOR3(0, 50, 0 ) );
+						pArrow->SetLayer( XL_EFFECT_0 );
+					}
+				}
+				//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 			}
 		}
 	}
@@ -526,6 +570,14 @@ bool CX2BattleFieldGame::IsNearPortalLineMap()
 		return false;
 
 	const int iLastTouchedLineMapIndex = GetMyUnit()->GetLastTouchLineIndex( true );
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+	//{{ Iruha : 2026-10-17 // Atlas A6: June IsNearPortalLineMap 32d53810 returns false when the game has no world or
+	//   line map. March dereferenced GetLineMap() unchecked, which crashed a field whose BattleFieldData row was
+	//   missing (A7 play-test, Field 01 = 40035, world 0).
+	if( NULL == GetWorld() || NULL == GetLineMap() )
+		return false;
+	//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 	const CKTDGLineMap::LineData* pLastTouchedLineData = GetLineMap()->GetLineData( iLastTouchedLineMapIndex );
 
 	ASSERT( pLastTouchedLineData );
@@ -621,6 +673,25 @@ bool CX2BattleFieldGame::IsNearPortalLineMap()
 #endif // SERV_COMMON_AUTO_OPEN_HARD_CODE
 
 		// Portal LineMap 이면 true 리턴
+#ifdef SERV_IRUHADEV_ELYSION_PORT
+		//{{ Iruha : 2026-10-17 // Atlas A6: June IsNearPortalLineMap 32d53810 code-event gate (inert offline): with
+		//   2260 on, Lanox F04's portal line 103 (WI 608) opens only when 2262 is on; else with 2261 on, Elysion F01's
+		//   portal line 53 (WI 638) is closed.
+		if( NULL != g_pInstanceData )
+		{
+			const int iWorldID = m_pWorld->GetWorldData()->worldID;
+			if( true == g_pInstanceData->IsEnableCode( 2260 ) )
+			{
+				if( CX2World::WI_BATTLE_FIELD_RANOX_FIELD_03 == iWorldID &&
+					CKTDGLineMap::LT_POTAL == pLastTouchedLineData->lineType && 103 == pLastTouchedLineData->lineIndex )
+					return g_pInstanceData->IsEnableCode( 2262 );
+			}
+			else if( true == g_pInstanceData->IsEnableCode( 2261 ) && CX2World::WI_BATTLE_FIELD_ELYSION_FIELD_01 == iWorldID &&
+				CKTDGLineMap::LT_POTAL == pLastTouchedLineData->lineType && 53 == pLastTouchedLineData->lineIndex )
+				return false;
+		}
+		//}}
+#endif SERV_IRUHADEV_ELYSION_PORT
 		switch ( pLastTouchedLineData->lineType )
 		{
 #ifdef FIELD_BOSS_RAID

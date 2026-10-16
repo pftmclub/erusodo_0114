@@ -7432,3 +7432,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              village (Cobo row, world-map pin) and Field 03 (world-map pin) stay hidden while their targets do not exist.
 #define SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase A6), offline emulator: the battlefield join ACK echoes the
+//              request's start-position mode (m_bNowBattleFieldPositionInfoStartPosition, m_usBattleFieldPositionValue) as the
+//              live servers do, so a village exit or field portal places the player at its AddStartPos key instead of
+//              reading the key as a line index (Atlas Station 403 -> Field 01 start pos 333 on a 163-line map).
+#define SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS
+//////////////////////////////////////////////////////////////////////////
