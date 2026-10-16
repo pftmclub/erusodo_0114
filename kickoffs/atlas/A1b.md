@@ -24,6 +24,6 @@ Phase A1b's steps 1-4: for each unbound Lua name, every unread unit-script / lin
 
 **Premises to verify first:** the ledger's "(b)" claims (name match only so far).
 
-**The list to work from is the census, not the ledger's 65 (A0, 2026-10-16):** `python june2017_re/region_census.py --phase E7 --limit 0` and `--line AD`, rows `bind.*` and `keys.*`. 32 names are still unbound (about 30 were bound by june-effect C3z-4); the unit keys March reads now (`BUFF_GROUP_ID`, `SOUND_PLAY_*`, `IMMUNITY_DAMAGE_DATA_STOP_TIME`, `SUPER_ARMOR_FRONT`) drop out. `members.missing` lists `LINE_MOVE_TYPE.*` / `DRAMATIC_MESSAGE_TYPE.*`.
+**The list to work from is the census, not the ledger's 65 (A0, 2026-10-16):** `python june2017_re/region_census.py --phase E7 --limit 0` and `--line AD`, rows `bind.*` and `keys.*`. 31 names are still unbound (about 30 were bound by june-effect C3z-4); the unit keys March reads now (`BUFF_GROUP_ID`, `SOUND_PLAY_*`, `IMMUNITY_DAMAGE_DATA_STOP_TIME`, `SUPER_ARMOR_FRONT`) drop out. `members.missing` lists `LINE_MOVE_TYPE.*` / `DRAMATIC_MESSAGE_TYPE.*`.
 
 **Done when:** every name and key has an owner and a readiness verdict, the map is in the plan doc, a Done note is written (under ~60 lines). Commit on `main` with explicit pathspecs; update the A1b row in `STATUS.md`.

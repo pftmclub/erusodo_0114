@@ -1,11 +1,11 @@
 metric	ledger_2026_10_03	census	verdict	note
-WI	41	40	DIFFERS	ledger table rows sum to 40 (shared 7 + AD 4 + AC 4 + TW 5 + SC 4 + AR 5 + SL 6 + ME 5); '41' was an addition slip, 757 is deferred. 4 boss worlds (645 654 675 710) were adopted since by june-dungeons C3y-1b (7b23b392)
-VMI	7	7	match	reproduces
-LMI	1	1	match	reproduces
-HI	12	12	match	reproduces: the 12 houses with no March HOUSE_ID (11 shared houses already existed)
-DI	21	21	match	reproduces (Hero rows kept apart: 22)
-NUI	203	201	DIFFERS	ledger '201 region NPCs + EVENT_00/01 = 203' counted EVENT_00/01 twice: the 201 already contains 2139/2140. per-line tallies match Appendix A/B (AD 11, AR 34, ME 30, SL 43+2 shared, FLD 25 = 23+2). 8 adopted since by june-effect C3z-2 (b5f2265c)
-collisions	0	0	match	reproduces for ID values; 9 missing IDs sit at/above the C++ end markers (A3 bumps them, ledger section 'March C++ end markers')
-unbound_names	65	32	DIFFERS	10-03 count was 65; june-effect C3z-4 bound ~30 of the names the ledger lists (GetStoredGUUser, GetCenterPositionLineIndex, ...); census = 27 from sources + 5 inferred from bytecode strings (ELYSION_SOLESS, Elysion_Tower_Stage3 are not in june_src_fixed)
-effect_sets	393	410	DIFFERS	premise 'staged EffectSet.lua has 0 Elysion entries' is FALSE now: c13f8115 (C11a full June effect re-adoption) staged June's 8141 templets, so all referenced sets are present (missing: 0). Referenced count 410 vs ledger 393: the ledger method is not recorded
-assets_to_adopt	2071	1773	DIFFERS	ledger '>= 2,071' was a lower bound taken before June asset adoption: 767 of 2728 refs are in March now (ledger: 249); census refs 2728 vs ledger 2,383 (the census file set adds 56 name-matched dialogs)
+WI	41	40	DIFFERS	region 40 = 36 missing now + 4 adopted since (the boss worlds: june-dungeons C3y-1b); WINNER_ADRIAN 757 is outside the region
+VMI	7	7	match	
+LMI	1	1	match	
+HI	12	12	match	23 region houses, 11 already in March (shared), 12 missing
+DI	21	21	match	22 Hero rows kept apart (out of scope)
+NUI	203	203	match	region 219 incl. the 16 NUIs March already had = 195 missing now + 8 adopted since + 16 old; village quest houses add NUI_STORY_QUEST,NUI_TRANSCEND_QUEST
+collisions	0	0	match	value collisions only; 9 missing IDs sit at/above a C++ end marker
+unbound_names	65	31	DIFFERS	26 from source + 5 inferred from bytecode strings
+effect_sets	393	410	DIFFERS	410 referenced, 0 missing from the staged EffectSet.lua (June templets 8141, March 8242)
+assets_to_adopt	2071	1792	DIFFERS	2728 refs: 772 in March, 1792 June-only, 154 June itself lacks

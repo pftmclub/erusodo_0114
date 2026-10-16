@@ -168,6 +168,14 @@ class Stores(object):
         self.staged = kom.staged_names()       # lower -> {kom stem: real name}
         self._live = None
         self._june = None
+        # loose (non-kom) files: June's data\music, movie, eventscene and March's game-dir copies
+        self.loose_june, self.loose_march = {}, {}
+        root = os.path.dirname(os.path.dirname(KC))
+        for dst, base in ((self.loose_june, os.path.join(root, '14JUN17', 'data')), (self.loose_march, os.path.join(root, '24965799', 'data'))):
+            for sub in ('music', 'movie', 'eventscene'):
+                for r, _, fs in os.walk(os.path.join(base, sub)):
+                    for f in fs:
+                        dst.setdefault(f.lower(), os.path.join(r, f))
 
     @property
     def live(self):
@@ -345,6 +353,15 @@ def derive(J):
     return R
 
 
+def src_text(name):
+    """June source text of a Lua file; for the few files june_src_fixed lacks (ELYSION_SOLESS.lua, the Soless boss script) the
+    printable runs of June's own bytecode, so NUI / effect / asset names inside still count."""
+    t = ST.jtext(name)
+    if t is not None:
+        return t
+    return bytecode_text(dict(name=name)) if name else ''
+
+
 def npc_lua_map():
     """June NPCTemplet: NUI name -> unit script name."""
     out = {}
@@ -362,7 +379,7 @@ def nui_closure(R, J):
     for line in list(R.roots) + [l for l in R.direct_nui if l not in R.roots]:
         seen, queue = set(), []
         for fn in R.roots.get(line, []):
-            for n in NUI_RE.findall(ST.jtext(fn) or ''):
+            for n in NUI_RE.findall(src_text(fn)):
                 if n not in seen:
                     seen.add(n); queue.append(n)
         for n in R.direct_nui.get(line, ()):
@@ -373,7 +390,7 @@ def nui_closure(R, J):
             lf = lua_of.get(n, '')
             if lf:
                 unit_files[lf.lower()].add(line)
-                for m in NUI_RE.findall(ST.jtext(lf) or ''):
+                for m in NUI_RE.findall(src_text(lf)):
                     if m not in seen:
                         seen.add(m); queue.append(m)
         for n in seen:
@@ -481,7 +498,8 @@ def row_texts(R):
 # ----------------------------------------------------------------------------------------------------------------------
 
 FLAGS_CACHE = os.path.join(HERE, 'region_census_flags.tsv')
-CPP_DIRS = ('X2Lib', 'KTDXLIB', 'X2')
+CPP_DIRS = ('X2Lib', 'KTDXLIB', 'X2')                   # what the offline exe compiles
+SERVER_DIRS = ('KncWX2Server/Common',)                    # XSL*.cpp parsers: NOT in the client build, only a hint who reads a key
 
 
 _PROBED = set()
@@ -541,10 +559,10 @@ def cpp_markers(probe=True):
     return out
 
 
-def cpp_literals():
+def cpp_literals(dirs=None):
     """Every quoted identifier-like string in X2Lib / KTDXLIB / X2 sources (key literals, binding names)."""
     lit = set()
-    for d in CPP_DIRS:
+    for d in (dirs or CPP_DIRS):
         for root, _, fs in os.walk(os.path.join(TRUNK, d)):
             for f in fs:
                 if f.endswith(('.cpp', '.h', '.inl')):
@@ -553,7 +571,7 @@ def cpp_literals():
     return lit
 
 
-BIND_RE = re.compile(r'lua_tinker\s*::\s*(?:class_def|def|decl|set|class_mem)\s*(?:<[^>;]*>)?\s*\(\s*L\s*,\s*"([A-Za-z_][A-Za-z0-9_]*)"')
+BIND_RE = re.compile(r'lua_tinker\s*::\s*(?:class_def|def|decl|set|class_mem)\s*(?:<[^>;]*>)?\s*\(\s*[A-Za-z_]\w*\s*,\s*"([A-Za-z_][A-Za-z0-9_]*)"')   # first arg is L, pLuaState, ...
 # GetStoredGUUser was the ledger's unbound control; june-effect C3z-4 bound it (X2Main.cpp:4719), so the unbound control is now
 # AddMovableLineData_LUA (E5 owns it)
 BIND_CONTROLS = {'SetFlag_LUA': True, 'SetForceInvincible': True, 'GetStoredGUUser': True, 'AddMovableLineData_LUA': False}
@@ -726,7 +744,7 @@ def table_keys(tab, out):
     return out
 
 
-def check_keys(R, files, rows, lit):
+def check_keys(R, files, rows, lit, lit_srv=()):
     """Registry key-name diff and file-key diff: key names the region's June data uses that no C++ literal spells."""
     items, stats = [], {}
     # registry rows
@@ -756,6 +774,8 @@ def check_keys(R, files, rows, lit):
             continue
         unread += 1
         hint = (' (March reads %s)' % KEY_RENAMES[k]) if k in KEY_RENAMES else ''
+        if k in lit_srv or BC.lit_supported(k, lit_srv):
+            hint += ' (read only by server code KncWX2Server/Common: the offline emulator or an omit-with-comment must cover it)'
         items.append(Item('keys.registry', jl(lines), '%s.%s' % (reg, k), 'OPEN', 'no C++ literal spells it' + hint))
     stats['registry_unread'] = unread
     # per-file keys
@@ -1048,26 +1068,36 @@ def check_items(R):
 
 
 def check_assets(files, rows):
-    refs = collections.defaultdict(set)
+    """Every asset file name the region's June data quotes.  March has it / June has it (adopt) / June itself lacks it (INFO)."""
+    bytecode_names = {e['name'] for e in files.values() if not e['text']}
+    refs = collections.defaultdict(lambda: [set(), False])      # name -> [lines, seen in real source]
     for lines, src, text in all_texts(files, rows):
         for m in set(ASSET_RE.findall(text)):
-            refs[m.strip().lower()].update(lines)
+            r = refs[m.strip().lower()]
+            r[0].update(lines)
+            r[1] = r[1] or src not in bytecode_names
+    in_march = lambda n: n in ST.staged or n in ST.live or n in ST.loose_march
+    in_june = lambda n: n in ST.june or n in ST.loose_june or n in ST.jsrc
     items, c = [], collections.Counter()
-    known = lambda n: n in ST.staged or n in ST.live or n in ST.june or n in ST.jsrc
-    for low, lines in sorted(refs.items()):
-        if not known(low) and known(low[1:]):
+    for low, (lines, from_src) in sorted(refs.items()):
+        if not from_src and not (in_march(low) or in_june(low)) and (in_march(low[1:]) or in_june(low[1:])):
             continue                                  # bytecode length byte glued onto the name (bytecode_text emits both variants)
-        if low in ST.staged or low in ST.live:
+        if in_march(low):
             c['in_march'] += 1
         elif low in ST.june:
             c['june_only'] += 1
-            items.append(Item('assets.adopt', jl(lines), low, 'OPEN', 'June only, %d B' % ST.june[low][2].get('size', ST.june[low][2].get('usize', 0))))
+            items.append(Item('assets.adopt', jl(lines), low, 'OPEN', 'June kom, %d B' % ST.june[low][2].get('size', ST.june[low][2].get('usize', 0))))
+        elif low in ST.loose_june:
+            c['june_only'] += 1
+            items.append(Item('assets.adopt', jl(lines), low, 'OPEN', 'June loose file, %d B (%s)' % (
+                os.path.getsize(ST.loose_june[low]), os.path.basename(os.path.dirname(ST.loose_june[low])))))
         elif low in ST.jsrc:
             c['june_lua_source_only'] += 1
-            items.append(Item('assets.adopt', jl(lines), low, 'OPEN', 'June Lua (june_src_fixed only), no June kom entry decoded'))
+            items.append(Item('assets.adopt', jl(lines), low, 'OPEN', 'June Lua (june_src_fixed only)'))
         else:
-            c['not_found'] += 1
-            items.append(Item('assets.notfound', jl(lines), low, 'OPEN', 'in neither June kom index nor March'))
+            c['june_lacks'] += 1
+            items.append(Item('assets.absent', jl(lines), low, 'INFO',
+                              'June names it but ships no such file (June fails the same way)' + ('' if from_src else '; or a bytecode string artefact')))
     return items, dict(refs=len(refs), **c)
 
 
@@ -1087,9 +1117,13 @@ def check_koms(files, live_sizes=False):
         if not holders:
             c['unstaged'] += 1
             tag = 'staged-nowhere' + ('; live ' + ','.join(sorted(livek)) if livek else '')
+            state = 'OPEN'
             if e['text'] is None:
-                tag += '; not in june_src_fixed'
-            items.append(Item('koms.unstaged', jl(lines), name, 'OPEN', tag))
+                if june_bytes(name) is None:
+                    state, tag = 'INFO', 'June names it but ships no such file (nothing to stage)'
+                else:
+                    tag += '; not in june_src_fixed (June kom copy exists)'
+            items.append(Item('koms.unstaged', jl(lines), name, state, tag))
             continue
         c['staged'] += 1
         for stem, real in sorted(holders.items()):
@@ -1196,13 +1230,14 @@ def main():
     rows = row_texts(R)
     markers = cpp_markers(probe)
     lit = cpp_literals()
+    lit_srv = cpp_literals(SERVER_DIRS)
     bound, controls_ok, nbfiles = cpp_bound_names(probe)
     ess = ess_text()
 
     results = collections.OrderedDict()
     stats = collections.OrderedDict()
     for name, fn in (('ids', lambda: check_ids(R, J, M, markers)), ('npc', lambda: check_npc(R, M)),
-                     ('keys', lambda: check_keys(R, files, rows, lit)), ('bindings', lambda: check_bindings(files, bound, lit)),
+                     ('keys', lambda: check_keys(R, files, rows, lit, lit_srv)), ('bindings', lambda: check_bindings(files, bound, lit)),
                      ('strings', lambda: check_strings(files, rows, ess)),
                      ('members', lambda: check_members(files, rows, J, M, {t: set(r) for t, r in
                                                                            (('WORLD_ID', R.wi), ('VILLAGE_MAP_ID', R.vmi), ('LOCAL_MAP_ID', R.lmi),
@@ -1260,23 +1295,21 @@ def main():
     base['assets_to_adopt'] = stats['assets'].get('june_only', 0) + stats['assets'].get('june_lua_source_only', 0)
 
     BASE_NOTES = {
-        'WI': "ledger table rows sum to 40 (shared 7 + AD 4 + AC 4 + TW 5 + SC 4 + AR 5 + SL 6 + ME 5); '41' was an addition slip, 757 is deferred. "
-              "4 boss worlds (645 654 675 710) were adopted since by june-dungeons C3y-1b (7b23b392)",
-        'NUI': "ledger '201 region NPCs + EVENT_00/01 = 203' counted EVENT_00/01 twice: the 201 already contains 2139/2140. "
-               "per-line tallies match Appendix A/B (AD 11, AR 34, ME 30, SL 43+2 shared, FLD 25 = 23+2). 8 adopted since by june-effect C3z-2 (b5f2265c)",
-        'HI': 'reproduces: the 12 houses with no March HOUSE_ID (11 shared houses already existed)',
-        'VMI': 'reproduces', 'LMI': 'reproduces', 'DI': 'reproduces (Hero rows kept apart: %d)' % len(R.di_hero),
-        'collisions': "reproduces for ID values; 9 missing IDs sit at/above the C++ end markers (A3 bumps them, ledger section 'March C++ end markers')",
-        'unbound_names': "10-03 count was 65; june-effect C3z-4 bound ~30 of the names the ledger lists (GetStoredGUUser, GetCenterPositionLineIndex, ...); "
-                         "census = %d from sources + %d inferred from bytecode strings (ELYSION_SOLESS, Elysion_Tower_Stage3 are not in june_src_fixed)" % (
-                             stats['bindings']['unbound_from_source'], stats['bindings']['unbound_inferred_bytecode']),
-        'effect_sets': "premise 'staged EffectSet.lua has 0 Elysion entries' is FALSE now: c13f8115 (C11a full June effect re-adoption) staged June's "
-                       "%d templets, so all referenced sets are present (missing: %d). Referenced count %d vs ledger 393: the ledger method is not recorded" % (
-                           stats['effects']['june_templets'], stats['effects']['missing'], stats['effects']['referenced']),
-        'assets_to_adopt': "ledger '>= 2,071' was a lower bound taken before June asset adoption: %d of %d refs are in March now (ledger: 249); "
-                           "census refs %d vs ledger 2,383 (the census file set adds %d name-matched dialogs)" % (
-                               stats['assets']['in_march'], stats['assets']['refs'], stats['assets']['refs'],
-                               stats['file_set']['by_via'].get('name', 0))}
+        'WI': 'region %d = %d missing now + %d adopted since (the boss worlds: june-dungeons C3y-1b); WINNER_ADRIAN 757 is outside the region' % (
+            ids['WI']['region'], ids['WI']['missing'], adopted['WI']),
+        'NUI': 'region %d incl. the %d NUIs March already had = %d missing now + %d adopted since + %d old; village quest houses add %s' % (
+            ids['NUI']['region'], len(OLD_NUI), ids['NUI']['missing'], adopted['NUI'], len(OLD_NUI),
+            ','.join(n for n in ('NUI_STORY_QUEST', 'NUI_TRANSCEND_QUEST') if n in R.nui) or 'none'),
+        'HI': '%d region houses, %d already in March (shared), %d missing' % (ids['HI']['region'], ids['HI']['present'], ids['HI']['missing']),
+        'DI': '%d Hero rows kept apart (out of scope)' % len(R.di_hero),
+        'collisions': 'value collisions only; %d missing IDs sit at/above a C++ end marker' % stats['ids']['cpp_marker_hits'],
+        'unbound_names': '%d from source + %d inferred from bytecode strings' % (stats['bindings']['unbound_from_source'],
+                                                                                 stats['bindings']['unbound_inferred_bytecode']),
+        'effect_sets': '%d referenced, %d missing from the staged EffectSet.lua (June templets %d, March %d)' % (
+            stats['effects']['referenced'], stats['effects']['missing'], stats['effects']['june_templets'], stats['effects']['march_templets']),
+        'assets_to_adopt': '%d refs: %d in March, %d June-only, %d June itself lacks' % (
+            stats['assets']['refs'], stats['assets'].get('in_march', 0), stats['assets'].get('june_only', 0) + stats['assets'].get('june_lua_source_only', 0),
+            stats['assets'].get('june_lacks', 0))}
     base_rows = [(k, LEDGER[k], base[k], 'match' if base[k] == LEDGER[k] else 'DIFFERS', BASE_NOTES.get(k, '')) for k in LEDGER]
     stats['baseline'] = [list(r) for r in base_rows]
     out = io.StringIO()

@@ -364,7 +364,7 @@ Path roots: **JF** = `Trunk/june_src_fixed/`, **JR** = `14JUN17/data/`,
 | `LOCAL_MAP_ID` | 1 | `LMI_ELYSION` 10009 (free in `X2LocationManager.h:141-145`) |
 | `HOUSE_ID` | 12 | `HI_YUNO` 40092, `BERNARD`/`DURANDA`/`THEODOR`/`HUGO` 40131–40134, `BIRD_QUEST_00..04` 40135–40139, `ELYSION_RED/BLUE_TREE` 40145–40146 |
 | `DUNGEON_ID` | 21 | AD 33330–2, AC 33340–2, TW 33350–2, SC 33870–2, AR 33880–2, SL 33890–2, ME 33900–2 (Hero rows out of scope) |
-| `NPC_UNIT_ID` | 201 *(A0 correction: was 203; `NUI_ELSION_EVENT_00/01` (2139/2140) are inside the 201, the 203 counted them twice)* | 201 region NPCs incl. `NUI_ELSION_EVENT_00/01`. Full per-line lists: Appendix A |
+| `NPC_UNIT_ID` | 203 *(A0: the total reproduces; the split was wrong)* | 201 region NPCs incl. `NUI_ELSION_EVENT_00/01` (2139/2140), which are inside Appendix A/B's 201 values, **plus** `NUI_STORY_QUEST` 10142 and `NUI_TRANSCEND_QUEST` 10153 (village quest-house NPCs of `HI_STORY_QUEST` / `HI_TRANSCEND_QUEST`; in neither appendix; A3 adds them or defers them with the quest plan). Full per-line lists: Appendix A |
 
 - 16 NUIs the region uses already exist in March (Lanox/common:
   `NUI_ADAMS`, `ARIEL`, `BILLBOARD`, `CAMILLA`, `GLAVE`, `LURIEL`, `MU`,
@@ -442,7 +442,7 @@ UI → quest plan.
   ("(b)": binding only), 57 need new C++. Method: every string on
   `lua_tinker`/`class_def` lines in X2Lib/KTDXLIB/X2 (1716 names), calibrated
   (`SetFlag_LUA`, `SetForceInvincible` bound; `GetStoredGUUser` unbound).
-  *(A0, 2026-10-16: 32 are still unbound by the census below; june-effect C3z-4 bound ~30 of the listed names, `GetStoredGUUser` among them (`X2Main.cpp:4719`). The calibration control is now `AddMovableLineData_LUA`.)*
+  *(A0, 2026-10-16: 31 are still unbound by the census below; june-effect C3z-4 bound ~30 of the listed names, `GetStoredGUUser` among them (`X2Main.cpp:4719`). The calibration control is now `AddMovableLineData_LUA`.)*
   **Name match only; the receiver class was not verified** — A1b does that.
   - **Atlas half (A4):** `GetCenterPositionLineIndex`,
     `GetDyingStart`(b), `GetWorldObjectMeshByName`, `SetMovieDescriptionData`
@@ -500,7 +500,7 @@ UI → quest plan.
   data096 90, data002 78, data104 77, data057 29, music 23, data013 21, …
   This is a **lower bound** — mesh-internal textures and particle textures
   were not followed (Lanox's Burned Forest smog miss).
-  *(A0, 2026-10-16: census refs 2,728; 767 already in March by name (June asset adoption since), 1,773 June-only still to adopt, 188 found nowhere (glued bytecode length bytes inflate this; `assets.notfound` rows are to be read, not trusted blindly).)*
+  *(A0, 2026-10-16: census refs 2,728; 772 already in March by name (June asset adoption since), 1,792 June-only still to adopt (June kom or loose `music` / `movie` / `eventscene`), 154 names June itself ships no file for (INFO rows `assets.absent`).)*
 - **393 effect-set templets** are referenced; the staged
   `march2014/data036/EffectSet.src.lua` and `MK/data036_kom/EffectSet.lua` both
   contain **0** Elysion entries. Damage-effect children not measured.
@@ -785,27 +785,27 @@ with this plan's STATUS rows in the same commit.
 *(Sonnet 5.5; tooling only: no game code, so no `SERV_IRUHADEV_` flag, no flagcheck, no build or deploy, no log tag.)*
 
 - **Branch:** `main` in the main Trunk (user, 2026-10-16); no branch or worktree made. `ATLAS_PORT_PHASES.md` is the single plan on `main`; `ELYSION_PORT_PHASES.md` is its pointer.
-- **Census:** `june2017_re/region_census.py` v1 (about 1 minute; `--region`, `--line`, `--phase`, `--live`, `--json`, `--tsv`, `--no-probe`).
-  Output: `june2017_re/region_census.tsv` (one row per open item), `region_census_baseline.tsv` (ledger vs census with cause), `region_census_flags.tsv` (probed C++ flag cache).
-  It derives the region **from June's own files** (DungeonData rows `Dungeon_Elysion_*`, DLG_Map_Village rows, BattleFieldData F01-F03 + the Lanox F04 direction row, DLG_Map_House, WorldData, the NUI closure through unit scripts) and reports two numbers per category: the **region set** and what March is **missing now**.
-  Checks: ids + collisions (three ways + C++ end markers), NPC readiness, registry/file key diff, bindings (lua_tinker names, flag-resolved), STR_ID, TABLE.MEMBER, ID-list nil holes, effect sets, item ids (item.kim), assets, kom header / manifest / mount, `--live` sizes. Not in v1: C++ switch reachability (A1a), receiver classes (A1b), mesh-internal textures (A11).
+- **Census:** `june2017_re/region_census.py` v1 (30-60 s; `--region`, `--line`, `--phase`, `--live`, `--json`, `--tsv`, `--no-probe`).
+  Output: `june2017_re/region_census.tsv` (one row per item; OPEN = a gap a phase closes, INFO = June itself lacks it / nil in June), `region_census_baseline.tsv` (ledger vs census), `region_census_flags.tsv` (probed C++ flag cache).
+  The region is **derived from June's own files**: `Dungeon_Elysion_*` rows of DungeonData, the Elysion rows of DLG_Map_Village / BattleFieldData (F01-F03 + the Lanox F04 direction row) / DLG_Map_House / WorldData, and the NUI closure through unit scripts (bytecode strings for `ELYSION_SOLESS`). Every category has two numbers: the **region set** and **missing now**.
+  Checks: ids + collisions (March names, incoming twins, relocations, C++ end markers), NPC readiness, registry and file key diff, bindings (lua_tinker names, flag-resolved, calibrated), STR_ID, TABLE.MEMBER, ID-list nil holes, effect sets, item ids (item.kim), assets, kom header / manifest / mount, `--live` sizes. Not in v1: C++ switch reachability (A1a), receiver classes (A1b), mesh-internal textures (A11).
 - **Baseline vs the 2026-10-03 ledger** (census = missing now + adopted into March since):
 
 | Item | Ledger | Census | Verdict |
 |---|---|---|---|
-| WI | 41 | 40 | ledger slip: its own rows sum to 40. 4 boss worlds adopted since (june-dungeons C3y-1b) |
+| WI | 41 | 40 | ledger slip: its own listed ranges are exactly the 40 census values (checked by value). 4 boss worlds adopted since (june-dungeons C3y-1b) |
 | VMI / LMI / HI / DI | 7 / 1 / 12 / 21 | 7 / 1 / 12 / 21 | reproduces |
-| NUI | 203 | 201 | ledger counted `ELSION_EVENT_00/01` twice. Per-line tallies equal Appendix A/B (AD 11, AR 34, ME 30, SL 43+2, FLD 25). 8 adopted since (C3z-2) |
+| NUI | 203 | 203 | total reproduces, **split corrected**: Appendix A/B list 201 values (incl. EVENT_00/01), the census adds `NUI_STORY_QUEST` 10142 + `NUI_TRANSCEND_QUEST` 10153 from the village houses. Value-diff against the appendices: nothing missing either way. 8 adopted since (C3z-2) |
 | ID value collisions | 0 | 0 | reproduces. Separately 9 missing IDs sit at/above a C++ end marker (A3 bumps them) |
-| Unbound Lua names | 65 | 32 (27 + 5 from SOLESS bytecode) | ~30 bound by june-effect C3z-4 since |
-| Effect sets | 393 | 410 referenced, 0 missing | **premise false**: staged `EffectSet.lua` now carries June's full set (C11a) |
-| Assets to adopt | >= 2,071 | 1,773 of 2,728 refs | 767 already in March (ledger 249), June asset adoption since |
+| Unbound Lua names | 65 | 31 (26 + 5 from SOLESS bytecode) | ~30 bound by june-effect C3z-4 since; calibration control is now `AddMovableLineData_LUA` |
+| Effect sets | 393 | 410 referenced, 0 missing | **premise false**: staged `EffectSet.lua` carries June's full set since C11a (`c13f8115`) |
+| Assets to adopt | >= 2,071 | 1,792 of 2,728 refs | 772 already in March (ledger 249); 154 names June itself does not ship |
 
-  The registry key diff reproduces the ledger's named keys exactly (`OtherPlaceID`, `OtherPlaceStartLineIndex`, `NPCMeshName2nd`, `AlphaBlend2ndMesh`, `AlwaysShow`, `bOnlyClickable`, `WAIT01_MOTION_NAME`, `bApplyAlphaTest`, `FRAGMENT_EXCHANGE`, `TalkLoopAniNpc`), and the unit-key list (`USE_DEFAULT_DIE_PARTICLE` 85 scripts, `DRAMATIC_MESSAGE0-4` 13). `IMMUNITY_DAMAGE_DATA_STOP_TIME`, `SOUND_PLAY_*`, `BUFF_GROUP_ID`, `SUPER_ARMOR_FRONT` now have C++ literals (ported since).
-- **Ledger corrected in place:** WI 41 -> 40, NUI 203 -> 201, and four dated notes (unbound names, assets, effect sets, calibration control).
-- **Open at A0 close (the census rows each phase gates on):** ids missing 270 rows, NPC not ready 193, ID lists with nil holes 36 (the unlock chain + local map), TABLE.MEMBER missing 13 (`LINE_MOVE_TYPE`, `DRAMATIC_MESSAGE_TYPE`, Hero DIs), registry keys unread 46, assets 1,773, unstaged region files 104 (staged 249, all live-equal by `--live`).
-- **Findings for later phases:** `Elysion_Tower_Stage3.lua` is named by June's WorldData but June ships no file (nothing to port); `ELYSION_SOLESS.lua` is the only unit script absent from `june_src_fixed` (E0); `LINE_TYPE.LT_INVALID` and `NUI_ELYSION_S_CIRCLE_CTR` are nil in June too (JUNE_BUGS rows at the port); June's decompiled `EffectSet.src.lua` does not run under luajit (line 3 `uv0(...)`), so tools read it as text.
-- **Review:** `kickoffs/atlas/A0-review.md` (Opus 5.5, light: spot-check 3 items each way).
+  The key diff reproduces the ledger's named keys (`OtherPlaceID`, `OtherPlaceStartLineIndex`, `NPCMeshName2nd`, `AlphaBlend2ndMesh`, `AlwaysShow`, `bOnlyClickable`, `WAIT01_MOTION_NAME`, `bApplyAlphaTest`, `FRAGMENT_EXCHANGE`, `TalkLoopAniNpc`), `USE_DEFAULT_DIE_PARTICLE` in 85 scripts and `DRAMATIC_MESSAGE0-4` in 13. `IMMUNITY_DAMAGE_DATA_STOP_TIME`, `SOUND_PLAY_*`, `BUFF_GROUP_ID`, `SUPER_ARMOR_FRONT` now have C++ literals (ported since). BattleFieldData keys are read only by server code (`XSLBattleField.cpp`, not in the client build): the census marks them.
+- **Ledger corrected in place:** WI 41 -> 40, the NUI split, and dated notes on unbound names, assets, effect sets.
+- **Open at A0 close:** ids missing 272 rows (incl. 2 sentinels), NPC not ready 195, ID lists with nil holes 36 (unlock chain + local map), TABLE.MEMBER missing 13 (`LINE_MOVE_TYPE`, `DRAMATIC_MESSAGE_TYPE`, Hero DIs), registry keys 46, assets 1,792, unstaged region files 103 (staged 249, all live-equal by `--live`).
+- **Findings for later phases:** `Elysion_Tower_Stage3.lua` is named by WorldData but June ships no file; `ELYSION_SOLESS.lua` is the only unit script absent from `june_src_fixed` (E0); `LINE_TYPE.LT_INVALID` and `NUI_ELYSION_S_CIRCLE_CTR` are nil in June too (JUNE_BUGS rows at the port); June's decompiled `EffectSet.src.lua` does not run under luajit (line 3), tools read it as text.
+- **Review:** `kickoffs/atlas/A0-review.md` (Opus 5.5, light: 3 spot-checks each way).
 
 ---
 
