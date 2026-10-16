@@ -4274,6 +4274,11 @@ int CX2OfflineServer::ApplyDungeonReward( UidType nUnitUID, int iAddEXP, int iAd
 			// (schema v16 ran at Open), so pinning to this table's TOTAL would write
 			// March's figure (866,438,000 at 80) into a June save.
 			iEXP = kRow.m_iEXP;
+
+			// The level too (A2 review): the loop above may already have climbed to
+			// the table's last row, and a level with no EXP behind it would still
+			// grant its SP and send the level-up below.
+			iLevel = kRow.m_iLevel;
 		}
 		else if( iLevel >= iMaxLevel )
 		{

@@ -1245,7 +1245,7 @@ kills-per-level table), then commit on main.
    - **Proof 1:** max residual **0** over all 250 curves (4000 rows). Shapes: 143 one line over 1-80; 100 with level 1 on
      its own (the studio's tutorial adjustment); 12 split at L22 (a float tie of the 9.9 curve).
    - **Proof 2** (independent): extrapolation vs the studio's own commented-out rows 81-99 of classes 110/111 matches
-     **188/190** values; AtkMagic L92 is 1 low (a float tie the 1-80 rows cannot pin).
+     **188/190** values; AtkMagic L92 is 1 low (a float tie the 1-80 rows cannot pin; review: the lowest-intercept choice, see "Phase A2 — Review").
    - Classes 110/111 therefore ship the studio rows (uncommented copies, labelled); the other 48 ship the extrapolation
      (`-- CAP99 generated`). ReserveMemory raised to 99 on 49 lines, each `-- CAP99: was 80`.
    - BOM, CRLF and no EOF newline are preserved. `--write` is idempotent (rerun: "unchanged").
@@ -1298,6 +1298,63 @@ Compiling the pre-A2 sources reproduces the staged bytecode byte-identical. `COP
 - Load lines: `[CAP99] StatTable rows 81-99 present for 50 of 50 classes` and `NpcExpTable rows 81-99: 19 of 19`.
 - Gauge: user-confirmed at L80 and L99, both checks passed.
 - The migration launch's own `[CAP99] migrated unit` lines were overwritten by the next launch (logs are per launch). Review: `/x2-phase atlas A2 review` (Opus 5.5 high).
+
+### Phase A2 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS, with one code fix (the no-row guard also resets the level) and one decision for the user (the StatTable intercept).**
+
+1. **Generator.** `cap99_gen.py all`: proof 1 max residual 0 over 250 curves (4000 rows), proof 2 188/190, NPC strictly increasing, RESULT PASS.
+   `all --write`: 4 × `WRITE unchanged`, `git status` empty. Classes 110/111: 38 rows × 5 values equal the studio's commented rows, and those
+   38 comment lines are still there byte for byte. StatTable: BOM, 5182 CRLF / 0 lone LF, no EOF newline (as before A2). NpcExpTable: BOM, CRLF,
+   ends in CRLF (as before); rows 81-99 tab-separated like 1-80. 49 `ReserveMemory` at 99 (class 8 never had one).
+   - **AtkMagic L92 is not a float tie; it is the intercept choice.** `pick_rate` returns `alo` (`cap99_gen.py:221`), the lowest intercept that
+     fits; there one level sits exactly on an integer, so an extrapolated value just under the next integer floors 1 low. Class 110 AtkMagic:
+     r = 8.549, rows 2-80 allow a ∈ [295.491, 295.510); 295.491 gives 1081.999 at L92, the studio's 1082 needs a ≥ 295.492. The interval's
+     midpoint reproduces 1-80 exactly and the studio rows 190/190, and would move 85 of the 4750 shipped values (48 of 250 curves) by +1
+     (HP +0.5), never more. Thin evidence (110 and 111 share one AtkMagic curve: one curve at one level separates the methods), and the rows are
+     packed and play-tested, so nothing was regenerated. **User decision**, below.
+2. **Migration formula.** The convention holds: `CX2EXPTable::GetLevel` (`X2EXPTable.cpp:60-80`) = first row with EXP < TOTAL, minus 1, and June's
+   100 rows satisfy NEED_EXP = TOTAL(L) − TOTAL(L−1). `X2OfflineCap99Exp.h` equals `march_exptable.tsv` (80) and `june_exptable.tsv` (100) row
+   for row; the June tsv equals `june_src_fixed` `ExpTable`. Progress is clamped to [0, M.NEED − 1], so new < J.TOTAL(L+1) and the level holds.
+   L80 skips the L+1 term (new = J.TOTAL(80)). The product is `__int64`, and integer division of non-negatives floors. L > 80 is left alone with a WARNING.
+   - The `[CAP99] migrated unit` lines are gone: the next launch rewrote the log. Substitute: the formula replayed from
+     `db_backup/els_db_20261017_000918_pre_pre_A2_cap99_exp_migration.sql` (v15) against the live save (v16) gives **24/27 exact**.
+     - eresisu (21), L77: replica 56,384,285, now +162 from play.
+     - weevwe (22): L2 at the replica's 1430 in `els_db_20261017_005341_pre_setchar.sql`, then the L99 setchar.
+     - reyaa (12): already L85 at exactly J.TOTAL(85) = 104,400,900 in that 00:53 backup. Only 5 boxes (111064-66) left its bag. Nothing but
+       the level-up scroll (tops up to TOTAL(L+1)) and setchar lands on an exact TOTAL, so its migrated value cannot be checked from what is left.
+   - Not fixed: the rung commits before `PRAGMA user_version = 16` is written, the same shape as every rung. A crash between the two would
+     rerun it, and units would keep their level but lose their in-level progress. Low; house pattern.
+3. **80-bounds.** `g_iMaxLevel` = 99 (`Always.h:7369-7374`, after LEVEL_CAP_80's block at 3621), proven by the typedef at `Handlers_Room.cpp:4207`.
+   `MAX_LEVEL` / `MAX_NPC_LEVEL` are 99 under the flag. `MARCH_MAX_LEVEL` 80 is the migration table's size. Every other reader uses `g_iMaxLevel` or
+   `GetMaxLevel()`. No hard 80 is left in client code. The server-only 80s (`GameSysVal.cpp:776`, `KStatisticsLocalLog.h:11`) are untouched,
+   and `X2Define.h:18 LIMIT_MAX_LEVEL` is dead.
+   - Out of scope, confirmed: `X2BuffBehaviorTemplet.cpp:1338` is June's own 90 clamp inside `JUNE_BUFF_BEHAVIOR_PARITY`.
+     `X2UISkillNote.cpp:62` sits in `#ifndef REFORM_SKILL_NOTE_UI` (defined, `Always.h:526`), so it is not compiled. The `<= 80` tiers in
+     `X2UIInventory` / `X2UIShop` are item levels, with a 90 tier above them.
+   - Gauge: both branches are right. The bar is full at the cap or with no next row, else it reads NEED(L+1). At L99 June's row 100 exists,
+     so the `g_iMaxLevel` test is the one that fires.
+   - **Fixed: the no-row guard.** When the loop had already climbed to the table's last row, the guard reset EXP but kept the raised level, so
+     SP and the level-up went out with no EXP behind them (against its own "No EXP is awarded" line). It now resets the level too
+     (`Handlers_Room.cpp` +5, same flag). Unreachable with June's table (row 100 > cap 99); it matters only on a stale data036.
+4. **Hygiene.**
+   - Per commit: `6690e5cf` FAIL (the header's `#pragma once` outside the flag).
+   - `c42c8efc` FAIL seen alone: that is the fix (flag-off goes from `#pragma once` to empty). Its 19 deleted `Always.h` lines are two peer
+     blocks returned to uncommitted.
+   - `78adeb86` PASS. Its 3 deleted lines are inside the flag (the old log text and the pin). A2's guard change was committed inside A3's
+     commit `78adeb86`.
+   - The gauge flag's range FAILs are the same header, which never names that flag. `X2StateMenu.cpp` is PASS.
+   - Net `flagcheck SERV_IRUHADEV_LEVEL_CAP_99 --base 6690e5cf^ --at 78adeb86`:
+     `files: 5 PASS, 3 PASS~ (blank/marker only), 0 DEFINE, 11 OTHER (other flags), 0 FAIL, 0 ERROR`;
+     `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+     `RESULT: PASS`. The OTHER rows are `Always.h`, A3's `ELYSION_PORT` headers, `X2GUEL.cpp` (`EL_DASHJUMP`) and `X2StateMenu.cpp` (the gauge flag).
+     `git log -S` for either flag over `78adeb86..HEAD` finds nothing.
+   - This fix: `flagcheck --worktree --files X2Lib/Offline/Handlers_Room.cpp`: 1 PASS, RESULT PASS.
+     `DEPLOY OK: X2_offline.exe is 19,589,632 B, dated 2026-10-17 01:05:30, md5 c90c5a0d9ad774b093dc7c83fa1f58c9, equal to X2/US_SERVICE/x2.exe (2026-10-17 01:04:15); built at main a017242c + 1 uncommitted code file(s).`
+
+**User decision (no rush):** switch StatTable 81-99 of the 48 extrapolated classes to the midpoint intercept? Yes = regenerate, compile, pack
+data036, copy (asked first). No = keep the shipped rows. Play-test owed: none (the fix sits on an unreachable path); the next normal session
+is the smoke check.
 
 ---
 
