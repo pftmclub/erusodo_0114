@@ -1953,6 +1953,13 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
   - 15 June music files missing from `data\music` (li_boss_elysion003-005, li_stage_elysion001-007, li_village_elysion001,
     music074_stage, music076_stage, music077_boss, music078_stage) go in with the copy.
   - Not covered: particle-templet textures (the effect closure is june-effect's) and Lua (each line's phase adopts its own).
+- **Re-test 2026-10-17 (user, run 06:49):**
+  - Textures fixed. The run logs 18 missing files, none of them region assets: Stage 10 emotion motions, `HQ_*` logos,
+    `ELYSION_FIELD_ROAD10.DDS` (June lacks it), and a few that predate A6.
+  - The floating pink circle was still there: `UI_PORTAL_ARROW.TGA` still failed (ErrorLog 06:49:06). The closure skips particle-only
+    textures, so the file was never staged; the A6 note claiming it was staged was wrong.
+  - Fix: staged June's `UI_Portal_Arrow.tga` (data002, 65,580 B, a yellow down arrow). `PACK OK`; `COPY OK data002` md5 ac37a114
+    (under the user's copy OK for the region koms).
 - **How to see it in game:** the A6 STATUS row / hand-off. Lanox F04 (Distant Ruins) far-end portal -> Atlas Station. Atlas Station's
   far portal -> Field 01, landing on start pos 333. F01 L53 -> Field 02. Each return portal works. Monsters spawn with HP bars. F02's
   far end has an inert portal.
