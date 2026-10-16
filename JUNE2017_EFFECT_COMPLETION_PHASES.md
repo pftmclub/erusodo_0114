@@ -9539,6 +9539,19 @@ particles, `june2017_re/particle_override_census.tsv` (verdict `differ`). Log ta
 - **Side finding, not chased:** `JUNE_FX unsupported APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION in GUIDED_ARROW_MEMO / HUMMING_WIND_MEMO: effect-alpha option absent`
   (7 lines). The damage-effect side still logs the option as absent although C10b-2 built the engine; the label is probably stale (`X2DamageEffect.cpp` ~2260).
 
+**Console table result (2026-10-16 20:33-20:36, reyaa, Burnt Forest, exe 87fb2565, logs read).** 0 EXCEPTION; 2 UNHANDLED = `E_DISABLE_HB_CHECK_REQ`; clean exit; no new `ErrorLog.txt` smog line.
+Seen (6 of the 14 lines gave their tag):
+- `Trap_Fire_Big`: `DDE_TEMPLET` (LOOP_ADD_POS=(200,0,0), SET_DIE_WHEN_MASTER_EFFECT_DIE=1) + 24 `CE_LOOP` lines (re-confirms T1; spawn=0/5 and 0/7 with addPos +200 / -200, dieWithMaster=1).
+- `Ranox_Secret_Boss_Magi_Attack_D_Projectile`: `LOD_TEMPLET` + `CE_LOCKON ... Y_DIR_INIT dir=(-3.3,-0.3,0.2)`; its `CE_FRAME ... DAMAGE_DATA_CHANGE_TIME global index=0 time=3.500` also gave the change-time tag.
+- `Mecavolt_MX_StartLighting`: `DAMAGE_DATA_KEY apply name=... skill=31607`.
+- `Elysion_SingPang_Attack_B_Projectile_1`: `CE_LOCKON ... INIT_TARGET seed=5 -> uid=1000007`.
+- `Elsion_HernaOrb_AttackB_Projectile`: `CE_FRAME ... FOLLOW_LINE_GRAVITY nearest line=2` (distance 0.3 -> 43.2 -> 88.7 over 2 s).
+- `EffectSet_A_ROM_G_EX_MagneticForce`: 32 `ES_UPDATE ... FOLLOW_UNIT_ROTATION mesh_rotate(321e1691)`.
+Not reached on this route (stay open, not failures): `STEER_FORWARD`, `ONLY_RELATIONSHIP`, `CREATE_LOCKON_COPY`, `ES_UPDATE ... SOUND`, `ES_UPDATE ... REVERSE_Y`,
+`ES_DELETE ... DELETE_SHAKE_COUNT`, `BONE_TRACE_TARGET_MESH self_traces_no_mesh`, and the `DAMAGE_EFFECT_KELAINO_SP_ATTACK_CYCLONE` change-time line. `Quake_Buster` and
+`ROSEBUSH_TRAP_ATTACH` logged `ES_CREATE` only; `Erda_Mid_Heal_Buff` and `AN_Combo_X` logged nothing. Side note: `CE_TEMPLET` shows `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION=2` on the Ranox and
+Elsion templets, so that key is live in the deployed data.
+
 **Kickoff prompt:**
 ```
 June2017 effect completion C11 (verification). Read JUNE2017_EFFECT_COMPLETION_PHASES.md (C11),
