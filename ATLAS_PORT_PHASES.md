@@ -1245,7 +1245,7 @@ kills-per-level table), then commit on main.
    - **Proof 1:** max residual **0** over all 250 curves (4000 rows). Shapes: 143 one line over 1-80; 100 with level 1 on
      its own (the studio's tutorial adjustment); 12 split at L22 (a float tie of the 9.9 curve).
    - **Proof 2** (independent): extrapolation vs the studio's own commented-out rows 81-99 of classes 110/111 matches
-     **188/190** values; AtkMagic L92 is 1 low (a float tie the 1-80 rows cannot pin; review: the lowest-intercept choice, see "Phase A2 — Review").
+     **188/190** values; AtkMagic L92 is 1 low (a float tie the 1-80 rows cannot pin; review: the lowest-intercept choice, see "Phase A2 — Review"; midpoint since then, 190/190).
    - Classes 110/111 therefore ship the studio rows (uncommented copies, labelled); the other 48 ship the extrapolation
      (`-- CAP99 generated`). ReserveMemory raised to 99 on 49 lines, each `-- CAP99: was 80`.
    - BOM, CRLF and no EOF newline are preserved. `--write` is idempotent (rerun: "unchanged").
@@ -1352,6 +1352,11 @@ Compiling the pre-A2 sources reproduces the staged bytecode byte-identical. `COP
    - This fix: `flagcheck --worktree --files X2Lib/Offline/Handlers_Room.cpp`: 1 PASS, RESULT PASS.
      `DEPLOY OK: X2_offline.exe is 19,589,632 B, dated 2026-10-17 01:05:30, md5 c90c5a0d9ad774b093dc7c83fa1f58c9, equal to X2/US_SERVICE/x2.exe (2026-10-17 01:04:15); built at main a017242c + 1 uncommitted code file(s).`
      Review commit `720b68ef`; `flagcheck SERV_IRUHADEV_LEVEL_CAP_99 --range 720b68ef^..720b68ef`: `files: 1 PASS, 0 PASS~, 0 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
+
+**Decision applied (user, 2026-10-17: "follow your recommendation"):** `pick_rate` now returns the middle of the feasible intercepts.
+`cap99_gen.py all --write`: proof 1 still residual 0 over 250 curves, **proof 2 190/190, max |diff| 0**, rerun unchanged. `StatTable.lua`: 76 generated rows
+(levels 81-99, 29 classes) change 83 values, every one +1 (AtkPhysic 37, DefMagic 34, AtkMagic 12, HP 0); classes 110/111 untouched; BOM, CRLF
+and no EOF newline kept. Not yet in the game: `KncWX2Server/ServerResource/US/StatTable.lua` needs compiling + packing into `data036.kom` (server Lua).
 
 **User decision (no rush):** switch StatTable 81-99 of the 48 extrapolated classes to the midpoint intercept? Yes = regenerate, compile, pack
 data036, copy (asked first). No = keep the shipped rows. Play-test owed: none (the fix sits on an unreachable path); the next normal session

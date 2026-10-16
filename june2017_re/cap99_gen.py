@@ -218,7 +218,10 @@ def pick_rate(pts):
             r = F(n, q)
             alo, ahi = offset_range(pts, r)
             if alo < ahi:
-                return r, alo
+                # The middle of the feasible intercepts, not alo (A2 review, user 2026-10-17): at alo one
+                # level sits exactly on an integer, so an extrapolated value just under the next integer
+                # floors 1 low (class 110/111 AtkMagic L92 vs the studio rows). Rows 1-80 are unchanged.
+                return r, (alo + ahi) / 2
             n += 1
     return None
 
