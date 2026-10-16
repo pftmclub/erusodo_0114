@@ -626,11 +626,11 @@ can run now, in parallel; code phases wait for june-effect C12 and run one at a 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| R0 | **done 2026-10-16**: R0 map in the plan doc (map text landed in e2f2029e), `r0_renderer_contract.tsv`, funcmap `Engine R0`, R1-R6 kickoffs amended, checklist 7w; **user owes answers to plan open questions 4 (rim-light option default) and 5 (drop env box)** | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `r0_*.tsv`, plan doc, kickoffs, checklist | `R0.md` |
+| R0 | **done 2026-10-16**: R0 map in the plan doc (map text landed in e2f2029e), `r0_renderer_contract.tsv`, funcmap `Engine R0`, R1-R6 kickoffs amended, checklist 7w; open questions 4 and 5 answered by the user: follow June (rim option off by default; env box ported, inactive) | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `r0_*.tsv`, plan doc, kickoffs, checklist | `R0.md` |
 | R0b | ready (better after R0) | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, plan doc, kickoffs | `R0b.md` |
 | R1 | waiting (R0, C12) | Sonnet 5.5 / high, then user play-test | R0, june-effect C12 | `KTDGXRenderer.h/.cpp`, `KTDGXMeshPlayer.cpp`, Always.h, data036 `Enum.lua` | `R1.md`, review `R1-review.md` |
 | R2 | waiting (R1) | Sonnet 5.5 / high, then user play-test | R0, R1 | `KTDGXRenderer.h/.cpp`, RenderParam readers, Always.h | `R2.md`, review `R2-review.md` |
-| R3 | **on hold: R0 measured reach 0**; plan open question 5 (R0 recommends dropping) | Sonnet 5.5 / high | R2, user answer | new env-box renderer, `KTDGXRenderer.*`, Always.h | `R3.md`, review `R3-review.md` |
+| R3 | waiting (R2); user: follow June, port the env box whole, inactive (R0 reach 0) | Sonnet 5.5 / high | R2 | new env-box renderer, `KTDGXRenderer.*`, `X2World.*`, Always.h | `R3.md`, review `R3-review.md` |
 | R4 | waiting (after R2); RE step first (R0: gated full-screen composite, option `+0x34` writer open) | **Opus 5.5 / high** | R0 | heat-shimmer renderer, `KTDXApp.cpp` frame render, Always.h | `R4.md`, review `R4-review.md` |
 | R5 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | unit / NPC / riding-pet render, Always.h, data036 `Enum.lua` | `R5.md`, review `R5-review.md` |
 | R6 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | `KTDGXSkinAnim.h/.cpp`, Always.h | `R6.md`, review `R6-review.md` |

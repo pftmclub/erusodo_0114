@@ -563,6 +563,8 @@ for the user:
      `USE_ENV_BOX`) into March's option load and save in R2, with June's defaults. The user sets `RIM_LIGHT = TRUE` in the game
      dir's `GameOptions.lua` to play-test, and Stage 9 adds the toggle.
    - The alternative is a labelled default-on stand-in flag until Stage 9.
+   - **Answered (user, 2026-10-16): follow June.** R2 ports the four option keys with June's defaults (`RIM_LIGHT` off); no
+     default-on stand-in. Rim light shows only with `RIM_LIGHT = TRUE` in the game dir's `GameOptions.lua`; Stage 9 adds the toggle.
 5. **Environment box and colour grading have no reach.**
    - Nothing in June's data creates an env box: no Lua calls `SetEnvBoxMap` or `g_pEnvBoxMap`. The only other trigger is the dev
      command `/useEnvBox`.
@@ -570,6 +572,9 @@ for the user:
      `+0x80` / `+0x59` stay false and the env-box rim and grading branches stay off, as they are in June. A port could not be
      play-tested.
    - The alternative is to port it behind `SERV_IRUHADEV_JUNE_RENDER_ENVBOX` for parity, untestable.
+   - **Answered (user, 2026-10-16): follow June.** June ships the env box engine, so R3 ports it whole behind
+     `SERV_IRUHADEV_JUNE_RENDER_ENVBOX`, inactive as in June (no data creates a box). Its check is a build plus a log line, not a
+     visual play-test.
 
 ## Play-test hand-off (every code phase)
 
