@@ -16,7 +16,7 @@ the build commands and is the other document a fresh session should read.
 | 4 | Offline gameplay call sites | **DONE** (`76fcf9a`) |
 | 5 | AI party | built + deployed 2026-09-14, play-test pending |
 | 6 | The QoL flags | built + deployed 2026-09-15, play-test pending |
-| 7 | Content, save migration, full verification | not started |
+| 7 | Content, save migration, full verification | **DONE** (user confirmed 2026-10-16; the board had not been updated). Evidence: the old save's units 12 / 18 / 19 (`22191271\data\els_db.sql`) live on in `24965799\data\els_db.sql` with the same UIDs and later progress, and data036 has carried the server-side Lua through many packs since. Unblocks Atlas A2 |
 | 8 | Documentation closeout | not started |
 
 Phase 3B sits between 3 and 4 and is numbered with a letter, not a renumber,
