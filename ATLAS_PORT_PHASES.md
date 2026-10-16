@@ -1291,7 +1291,13 @@ All four `[CAP99]` literals are in the deployed exe.
 
 **Server Lua packed by Claude at the user's request (2026-10-17):** `elstools compile-batch -v mar-2014`, calibrated first.
 Compiling the pre-A2 sources reproduces the staged bytecode byte-identical. `COPY OK data036` md5 4b9090828ff6…
-(`StatTable` / `NpcExpTable` changed). **Owed by the user:** the migrating launch (yes given) + play-test. Review: `/x2-phase atlas A2 review` (Opus 5.5 high).
+(`StatTable` / `NpcExpTable` changed).
+**Play-test PASSED (user, 2026-10-17).**
+- The save is at schema v16, and 24 of 27 units hold exactly the EXP the replica computed from the backup. The other 3 moved after
+  the migration: reyaa 80 -> 85 at exactly June TOTAL(85); unit 21 +162 from play; weevwe is the L99 `setchar`.
+- Load lines: `[CAP99] StatTable rows 81-99 present for 50 of 50 classes` and `NpcExpTable rows 81-99: 19 of 19`.
+- Gauge: user-confirmed at L80 and L99, both checks passed.
+- The migration launch's own `[CAP99] migrated unit` lines were overwritten by the next launch (logs are per launch). Review: `/x2-phase atlas A2 review` (Opus 5.5 high).
 
 ---
 
