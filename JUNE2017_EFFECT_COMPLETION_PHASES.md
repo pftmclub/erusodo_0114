@@ -5151,6 +5151,73 @@ offline, and no stat-revision phase is planned.
   - the poison timeout itself (12 min);
   - the extra-stage poison restart.
 
+### C3z-6 - Review (2026-10-16, Opus 5.5 high): one transcription error fixed (poison clock left loading in); verdicts stand, one count corrected
+
+Commit `6a065659` was read against the March server tree, line by line.
+- **Relative level: equal to the server.**
+  - `RelativeMonsterLevelForStage` = `DungeonRoom.cpp:3656-3712`: min then max clamp for DT_SECRET, then +5 in DM_SECRET_HELL
+    (+5 + extra level on ST_EXTRA), nothing clamped after. The defence test switches on `m_iDungeonID`, the ID without
+    difficulty (= `IsDefenceDungeon( GetDungeonID() )`); the client's `CASE_DEFENCE_DUNGEON` (`X2Dungeon.h:12-15`) lists the
+    server's 3 IDs (`XSLDungeon.h:8-11`). Applied only to a relative dungeon, as `XSLDungeon.cpp:374-381`.
+  - The extra-stage count rises only for DT_SECRET + DM_SECRET_HELL + ST_EXTRA (`:3664`, `:3681`, `:3684-3687`).
+    `BuildStageNpcData` has one caller, the stage-load handler, so it counts once per load.
+  - `OnDungeonStartGame` = `:756-852`: Henir challenge = 1 is the `#else` of `SERV_HENIR_RENEWAL_2013` (`//#define`,
+    `ServerDefine.h:4156`; not in `ServerDefine_US.h` / `_Global.h`). The average is `RoomUserManager.cpp:6309-6352`
+    (skip > 5 below the highest, integer division, 0 for no member).
+  - Client DT / DM / ST values equal the server's. `<= 0` fallback: server `GetLimitsLevel()` = 70 (`GameSysValTable.lua:16`),
+    port `g_iMaxLevel` = 80 (`SERV_IRUHADEV_LEVEL_CAP_80`); the player always counts at level >= 1, so it cannot fire. Left.
+- **`SecretDungeonData.lua` loader: equal to the shipped shape** (`X2OfflineBattleField.cpp:128-170`).
+  - The missing-file path returns before the bind. Every path after `decl( "g_pDungeonManager", this )` reaches the
+    hand-back to `g_pData->GetDungeonManager()`, the object `X2DungeonManager.cpp:53` declares.
+  - A negative level is refused and the old value kept (`XSLDungeonManager.cpp:701-712`).
+  - The missing-file line names the file, the value 2 and `SecretDungeonData.lua:6` (= `SetSecretDungeonExtraStageNpcLevel( 2 )`).
+    The file is still not in `kom_contents/data036_kom/`, so the fallback 2 runs.
+- **Poison: one transcription error, fixed (same flag).**
+  - `:175` tests `m_fPoisonTimeLimit + GetRemainingPlayTime() < GetPlayTimeLimit()`. A dungeon room overrides
+    `GetRemainingPlayTime` to add `m_fLoadingTime` (`DungeonRoom.h:138`), so the server's poison clock leaves out every stage
+    load. `TickSecretPoison` used the raw wall clock, so the poison came early by the summed loading time.
+  - **Fix:** the room's `LOADING_TIMER` (`Room.h:78-105`), mirrored:
+    - started at play start (`:1065-1070`, a running timer ended uncounted) and at each stage load (`:3643`);
+    - ended and added up at the sub-stage start (`Handler_EGS_DUNGEON_SUB_STAGE_LOAD_COMPLETE_REQ` =
+      `DungeonSubStageStartProcess`, `:5670-5673`, `:2189-2190`);
+    - zeroed at start (`:729`, via `ClearPlayRun`).
+    - The test is now `elapsed - loading > limit`. A load still running is not subtracted, as on the server.
+  - **Kept as the server has it:** Altera's extra-stage reset (`:4156`) resets only `m_fRemainingPlayTime`, so the whole run's
+    loading time, including loads before the reset, still delays the 900 s limit. The port does not zero the total there.
+  - The server steps `m_fRemainingPlayTime` every 5 s (`Room.cpp:25`, `:545`); offline tests on the 3 s beat. Not mirrored.
+  - Start, extra stage and the -1 latch otherwise equal `:758`, `:771`, `:1072-1078`, `:177-182` and `:4147-4166`. The
+    `IsAlteraDungeon` narrowing to the 2 secret IDs holds (`XSLDungeon.cpp:949-979`). The list's other IDs are normal or event
+    dungeons; `DI_ELDER_HALLOWEEN_NORMAL` sits under `SERV_HALLOWEEN_DUNGEON`, which is off (`ServerDefine.h:2976`), and has
+    no registry row.
+  - **The recorded deviation is acceptable.** Not moving `m_dwPlayStartTick` at `:4156` is right. The server's result time is
+    `GetTotalPlayTime()` (`:426`, `:1321`), which `SetRemainingPlayTime` never touches, so the reset never moved the result
+    clock live either.
+- **Verdict-only keys: all stand.** Corrections to the Done note's evidence:
+  - `DCC_EVENT_DUNGEON`: March's `IsEventDungeon` (`XSLDungeon.cpp:1103-1148`) has **16** live IDs, not 13. The three
+    `DI_ELDER_HALLOWEEN_*` sit under `SERV_SECRET_DUNGEON_EVENT` (live, `ServerDefine.h:558`), and the function asks the Lua
+    `m_bEventDungeon` first (`SERV_DUNGEON_OPTION_IN_LUA`, `ServerDefine_Global.h:757`). June's 13 DCC rows are March's list
+    without Halloween, not "exactly" it. No code effect: neither consumer (spirit, stat revision) is mirrored.
+  - `m_bSwitchingWithEventInfo`: the gate also runs at `GSUserParty.cpp:1362`. All four callers use the accessor
+    `IsSwitchingWithEventInfo` under `SERV_NEW_EVENT_TYPES` (live, `ServerDefine_Global.h:137`). The user skipped the gate.
+  - `requireLevel` (`XSLDungeonManager.cpp:107`, commented out; no other reader), `m_bForbidEnterDungeon` / `m_bArcadeMode`
+    (0 hits in `KncWX2Server/`), and `DCC_*` (0 hits): as the Done note says.
+
+**Hygiene, `6a065659`:**
+- `RELATIVE_NPC_LEVEL --with SECRET_POISON`, all files: 2 PASS~, 1 DEFINE, 2 OTHER, **1 ERROR**; RESULT: FAIL. The ERROR is
+  `X2Dungeon.h:184`'s pre-existing `#if defined(X2TOOL) || ...` (unevaluable; the file holds only POISON lines). With `--files`
+  on its 4 files: 2 PASS~, 1 DEFINE, 1 OTHER (`Handlers_Field.cpp`, POISON), 0 FAIL, 0 ERROR; RESULT: PASS.
+- `SECRET_POISON --with RELATIVE_NPC_LEVEL`: 2 PASS, 3 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR; RESULT: PASS.
+- Both: 0 deleted lines, 0 non-ASCII, 0 untokened `#else` / `#endif`, 0 encoding changes. No later commit touches either flag.
+
+**Hygiene, the fix:** `441e21d7`, `SECRET_POISON --with RELATIVE_NPC_LEVEL --range 441e21d7^..441e21d7`: 1 PASS, 1 PASS~, 0 OTHER, 0 FAIL,
+0 ERROR; RESULT: PASS. The 4 deleted lines are `TickSecretPoison`'s own test and log line (inside the flag, replaced), so the
+flag-off build is unchanged. 0 non-ASCII, 0 EOL mismatches, 0 encoding changes (both files ASCII, LF).
+
+`DEPLOY OK: X2_offline.exe is 19,585,536 B, dated 2026-10-16 05:31:16, md5 87fb25658e1d2b924c07706689c647b5, equal to X2/US_SERVICE/x2.exe (2026-10-16 05:31:12); built at mods/june-buff-port 9309ded6 + 2 uncommitted code file(s).`
+(the 2 files are this fix; `JUNE_FX C3z-6 loading` is in the exe)
+**How to see it:** Altera Secret Hell (unit 18): one `JUNE_FX C3z-6 loading` line per stage load; the timeout (12 min,
+optional) logs played = elapsed - loading.
+
 ### C3z-5 - Done (2026-10-11, Opus 5.5 high; 5 flags)
 
 **Gate:** every key has a ported reader or a routing row, per key in `june2017_re/c3z5_key_readers.tsv` (June offset,
