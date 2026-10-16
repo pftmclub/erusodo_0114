@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-asset-port P1 review` |
-| Plan doc | `JUNE_ASSET_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_ASSET_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase P1 done (its Done note and commits) |
 | Flag | `SERV_IRUHADEV_KOM_MOUNT_DEBUG` |
 | Log tag | `[KOM_MOUNT]` |

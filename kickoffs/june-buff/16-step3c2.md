@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3c2` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 16-step3c (the split was the user's, 2026-10-07: 156 and Fever come second) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_EDT` for 156 (it extends `CX2GameUnit::JuneProcessSocketExtraDamage`); Fever is its own logical change: `SERV_IRUHADEV_JUNE_SOCKET_FEVER` |
 | Log tag | `[JUNE_BUFF]` |

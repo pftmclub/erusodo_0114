@@ -1,6 +1,6 @@
 # Offline monster grade: the offline server ranks monsters like the real servers
 
-Plan key `offline-grade` · branch `mods/june-buff-port` · flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`
+Plan key `offline-grade` · branch `main` · flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE`
 (`KTDXLIB/Always.h`; `_DEBUG` only for short-lived per-hit lines) · log tag `[OFFLINE_GRADE]`
 (`offline_server.log` via `CX2OfflineLog::Server`) · kickoffs `kickoffs/offline-grade/` ·
 board: the `offline-grade` block in `STATUS.md`. Created 2026-10-06.

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase dev-overlay O5-review` |
-| Plan doc | `DEV_OVERLAY_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `DEV_OVERLAY_PHASES.md` (branch `main`) |
 | Depends on | O5 |
 | Flag | none |
 | Log tag | `[DEV_OVERLAY]` (`python tools/logs.py --tag DEV_OVERLAY`; before O2, read `data\dev_overlay.log` directly) |

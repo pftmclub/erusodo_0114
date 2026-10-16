@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase lua-source L2 review` |
-| Plan doc | `LUA_SOURCE_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `LUA_SOURCE_PHASES.md` (branch `main`) |
 | Depends on | Phase L2 done (its Done note and commits) |
 | Flag | none |
 | Log tag | `[LUA_SRC]` |

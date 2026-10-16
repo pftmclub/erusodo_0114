@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 10b review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 10b done (its Done note and commit, see STATUS.md) |
 | Flag | `SERV_IRUHADEV_JUNE_BUFF_AURA_PARTY`, `_AURA_REACT`, `_GUILD_REVERSE` (+ Phase 10's `_DAMAGEDATA_KEY`, whose comments and two log strings 10b rewrote) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

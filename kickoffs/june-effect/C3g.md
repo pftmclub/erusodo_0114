@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3g` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3d-3 (found there). **Not with** a phase that edits `CX2GUUser::CommonStateStartFuture` / `CX2GameUnit::PhysicProcess` |
 | Flag | new `SERV_IRUHADEV_JUNE_LIMIT_MAX_G_SPEED` |
 | Log tag | `JUNE_FX C3g` |

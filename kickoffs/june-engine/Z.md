@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase june-engine Z` |
-| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch `main`) |
 | Depends on | every other phase done or routed; june-effect C11 |
 | Flag | none |
 | Log tag | `[JUNE_ENGINE]` (`python tools/logs.py --tag JUNE_ENGINE`) |

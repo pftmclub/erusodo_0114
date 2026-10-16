@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3o review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3o done (its Done note and commit) and its play-test |
 | Flag | `SERV_IRUHADEV_JUNE_NPC_CINEMATIC_UI` (+ `_DEBUG`), `SERV_IRUHADEV_JUNE_NPC_STATE_START_EFFECT_SET`, `SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW` |
 | Log tag | `JUNE_FX C3o` (`python tools/logs.py --grep "JUNE_FX C3o"`) |

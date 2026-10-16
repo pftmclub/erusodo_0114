@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3b7` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 16-step3b5 (done: loader, slot pass and reader `GetSkillAdditionalPowerRateJune`); 16-step3b6 and its review done (review `b7dce8b` touched `EraseDebuffAndAddMP` in X2GUUser.cpp) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (same flag; `_DEBUG` for first-apply lines) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

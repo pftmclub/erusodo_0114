@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-dungeons C3y-1b review` |
-| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch: the current working branch); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
+| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch `main`); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
 | Depends on | C3y-1b done (its Done note and commit) and its play-test (Henir Space stages 22 / 32-35) |
 | Flag | `SERV_IRUHADEV_JUNE_WORLD_ANIM_WAIT` |
 | Log tag | `JUNE_FX C3x` (`python tools/logs.py --grep "JUNE_FX C3x"`; C3y-1b adds no log line of its own) |

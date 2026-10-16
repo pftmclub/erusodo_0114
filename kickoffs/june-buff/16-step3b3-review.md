@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3b3 review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 16-step3b3 done (`fed40d3`, `23ea90a`, `576b635`) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_PARITY` |
 | Log tag | `[JUNE_BUFF]` |

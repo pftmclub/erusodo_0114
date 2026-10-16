@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3y-1a` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3y |
 | Flag | none expected (data only); a `SERV_IRUHADEV_JUNE_*` flag only if C++ must change |
 | Log tag | `JUNE_FX C3y-1a` (`python tools/logs.py --grep "JUNE_FX C3y-1a"`) |

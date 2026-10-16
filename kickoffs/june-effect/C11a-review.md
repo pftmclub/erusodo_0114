@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C11a review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C11a done (its Done note and commit), and the user's C11a play-test read |
 | Flag | none (data phase) |
 | Log tag | `[JUNE_FX]` (`python tools/logs.py --grep "JUNE_FX <subtag>"`) |

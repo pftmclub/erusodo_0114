@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C6c` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C6a2 (done 2026-10-07), C6b (both edit the same `OnFrameMove_CreateEffect` block; run after it). Never run alongside june-buff 16-step3b5 (both edit `X2GUUser.cpp`) |
 | Flag | `SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST`, `SERV_IRUHADEV_JUNE_FIX_EFFECTSET_BUFF_NULL` (JUNE_BUGS 60 fix) (+ `SERV_IRUHADEV_JUNE_FX_DEBUG` for the log line) |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |

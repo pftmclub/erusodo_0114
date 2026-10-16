@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 15-step2` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase 15 step 1 (done, read-only RE) |
 | Flag | SERV_IRUHADEV_JUNE_ENCHANT_PARITY |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

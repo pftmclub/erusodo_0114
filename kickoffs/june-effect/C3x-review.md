@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3x review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3x done (its Done note and commit) and its play-test |
 | Flag | `SERV_IRUHADEV_JUNE_WORLD_LOAD_LOG` |
 | Log tag | `JUNE_FX C3x` (`python tools/logs.py --grep "JUNE_FX C3x"`; JUNE_FX lines are unbracketed) |

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3f` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3c (done). Its port phase must not run with another phase that edits `CX2GUUser::StateChange` / `CommonStateStart` (C9h-4f, C3d-2) |
 | Flag | none (no code); the port phase gets its own flag |
 | Log tag | - |

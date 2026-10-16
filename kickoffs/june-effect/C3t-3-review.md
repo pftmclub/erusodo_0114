@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3t-3 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3t-3 done (its Done note and commit) and its play-test read ('check logs') |
 | Flag | `SERV_IRUHADEV_JUNE_SOUND_SET_PICK` (+ `_DEBUG`, turned back ON by C3t-3: turn it OFF here) |
 | Log tag | `JUNE_FX C3t-3` (`python tools/logs.py --grep "JUNE_FX C3t-3"`) |

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-1 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3z-1 done (its Done note and commit); best after the user's play-test |
 | Flag | `SERV_IRUHADEV_JUNE_IS_VOTING_LUTO` (play-test 2; `_DEBUG` is off) |
 | Log tag | none new; mesh misses are `XEM_ERROR109` / `OpenXSkinMesh` lines in `ErrorLog.txt` |

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-asset-extract X4 review` |
-| Plan doc | `JUNE_ASSET_EXTRACT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_ASSET_EXTRACT_PHASES.md` (branch `main`) |
 | Depends on | Phase X4 done (its Done note and commit) |
 | Flag | `SERV_IRUHADEV_KOM_LONG_NAMES` |
 | Log tag | `[KOM_LONG]` (`python tools/logs.py --tag KOM_LONG`; the line is written to `ErrorLog.txt` by KLOG) |

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 15 review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 15 step 2 (`835b5ef`, `5d8f827`, `6d304a1`) and step 2b (its commit is in the 2b Done note); the 2b play-test, if the user has run it |
 | Flag | `SERV_IRUHADEV_JUNE_ENCHANT_PARITY` (debug lines: `SERV_IRUHADEV_JUNE_BUFF_DEBUG`) |
 | Log tag | `[JUNE_BUFF]` |

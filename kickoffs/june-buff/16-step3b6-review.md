@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3b6 review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 16-step3b6 done (see its STATUS row for the commit); never in parallel with 16-step3b7 (X2GUUser.cpp) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_PARITY` (`_DEBUG` for the fire / skip lines) |
 | Log tag | `[JUNE_BUFF]` |

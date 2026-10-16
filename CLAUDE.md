@@ -8,6 +8,10 @@ Full source for **Elsword (internal codename "ProjectX2")** by KOG Studios — t
 
 **This file documents the US live build only.** The tree carries ~50 configurations for other regions and environments (EU, CN, TW/HK, JP, KR, ID, TH, BR, PH × internal/test/open-test/service). Ignore them unless explicitly asked; they change which publisher, billing, auth, and anti-cheat stack compiles in, and cross-referencing them is how you end up debugging the wrong code path.
 
+## Rule: one branch, `main` (user, 2026-10-16)
+
+All work happens on `main` in this Trunk, for every plan, phase and review. Do not create a branch or a worktree, do not `git switch` or `git checkout` another branch, and merge nothing. Other sessions share this tree and this branch, so commit with explicit pathspecs. The old `mods/*` and `feat/*` branches are history. Never build or deploy from them: they lack june-item-kim K2 and silently misread the live `item.kim`. Older plan text that names a `mods/*` branch for future work means `main`.
+
 ## Workflow automation: use `tools/` and the `x2-*` skills, not hand-typed commands
 
 Added 2026-10-04. Every repeated step of the phase loop is a script. A session that types msbuild, writes a throwaway byte-patch or unifdef script, or reads a plan doc "in full" is doing by hand what these already do and have been validated to do. See `tools/README.md`.
@@ -445,7 +449,7 @@ Two invariants worth knowing before changing anything in here:
 
 ### Deploying the offline client
 
-**This branch exists to build and run the offline client.** A change is not finished when it compiles; it is finished when the exe in the game directory has it and the logs show it working. The whole loop is two commands (see *Workflow automation* at the top):
+**This repo's `main` branch exists to build and run the offline client.** A change is not finished when it compiles; it is finished when the exe in the game directory has it and the logs show it working. The whole loop is two commands (see *Workflow automation* at the top):
 
 ```sh
 python tools/build.py --deploy             # build all four projects in order, deploy, verify (run in background)

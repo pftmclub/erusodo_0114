@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-asset-port P5 review` |
-| Plan doc | `JUNE_ASSET_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_ASSET_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase P5 done (its Done note and commits) |
 | Flag | none |
 | Log tag | none |

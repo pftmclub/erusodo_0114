@@ -1,6 +1,6 @@
 # Lua source: core client Lua as proven plaintext source, the rest as June's bytecode
 
-Plan key `lua-source` · branch `mods/june-buff-port` · log tag `[LUA_SRC]` · flag `SERV_IRUHADEV_LUA_SOURCE` (+ `_DEBUG`, L6 only) ·
+Plan key `lua-source` · branch `main` · log tag `[LUA_SRC]` · flag `SERV_IRUHADEV_LUA_SOURCE` (+ `_DEBUG`, L6 only) ·
 kickoffs `kickoffs/lua-source/` · skills `x2-lua`, `x2-adopt-june` (built here) · created 2026-10-09.
 
 ## Context

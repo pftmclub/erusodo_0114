@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-4 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3z-4 batch 1 done (and ideally play-tested) |
 | Flags | `SERV_IRUHADEV_JUNE_NPC_CREATE_NPC_REQ`, `_NPC_STORED_GUUSER`, `_GAME_LUA_INT`, `_NPC_INIT_STATE_COOL_TIME`, `_GAME_HOST_GAME_UNIT`, `_NPC_GET_DYING_START`, `_GAME_STAGE_QUERY`, `_GAME_NPC_COUNT`, `_SUBSTAGE_NPC_TEAM` (`_C3Z4_DEBUG` off) |
 | Log tag | `JUNE_FX C3z-4` |

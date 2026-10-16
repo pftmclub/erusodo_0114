@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 7d review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 7d done (its Done note and commit) |
 | Flag | `SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM` (requires `_AWAKE_LOCK`) (+ `JUNE_BUFF_DEBUG` for the arm lines) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

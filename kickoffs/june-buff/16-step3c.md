@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3c` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 16-step3b (socket readers) and june-effect **C5** (it owns `X2DamageManager.cpp` / `X2DamageEffect.cpp`); read C6a/C6b's state for effect-set spawning |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_PARITY` for enum/loader routing; one new flag per handler family only if it is logically separate (e.g. `SERV_IRUHADEV_JUNE_SOCKET_EDT`) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

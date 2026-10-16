@@ -22,7 +22,7 @@ visibly if the file isn't there yet; don't stop and wait.
 ## Starting context (paste this with any phase)
 
 - Repo root: `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
-- Branch: `mods/lanox-port`
+- Branch: `main`
 - Game directory (deploy target, logs, save):
   `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data`
 - Client build (default `US_SERVICE`, see `CLAUDE.md` *Toolchains*):
@@ -456,7 +456,7 @@ Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially the "Starting context" block, the
 "Investigation ledger" section (do not re-derive the 9 disproved hypotheses
 or re-litigate the already-proven root causes there), and "Phase 1". Branch:
-mods/lanox-port. Do NOT consult NEW_VILLAGE_PLAN.md,
+main. Do NOT consult NEW_VILLAGE_PLAN.md,
 NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the mods/lanox-offline branch.
 
 Fix philosophy: stay as close to the original/studio code as possible -- no
@@ -533,7 +533,7 @@ buttons; talk to Ignia — has its intended buttons.
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
-ledger", and "Phase 2". Branch: mods/lanox-port. Do NOT consult
+ledger", and "Phase 2". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -609,7 +609,7 @@ real, purchasable stock.
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
-ledger", and "Phase 3". Branch: mods/lanox-port. Do NOT consult
+ledger", and "Phase 3". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -830,7 +830,7 @@ shows a Lanox tab alongside Sander's.
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
-ledger", and "Phase 4". Branch: mods/lanox-port. Do NOT consult
+ledger", and "Phase 4". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -1040,7 +1040,7 @@ log line above.
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
 ledger" (Phase 5 has its own table of 5 additional dead hypotheses -- do not
-redo any of those either), and "Phase 5". Branch: mods/lanox-port. Do NOT
+redo any of those either), and "Phase 5". Branch: main. Do NOT
 consult NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -1139,7 +1139,7 @@ Silent Night Shelter from Lanox town and back, for a sane, non-zero cost.
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
-ledger", and "Phase 6". Branch: mods/lanox-port. Do NOT consult
+ledger", and "Phase 6". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -1489,7 +1489,7 @@ packed/tested.**
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
-ledger", and "Phase 7". Branch: mods/lanox-port. Do NOT consult
+ledger", and "Phase 7". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -1598,7 +1598,7 @@ the game, not just Lanox's.
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
-ledger", and "Phase 8". Branch: mods/lanox-port. Do NOT consult
+ledger", and "Phase 8". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -1688,7 +1688,7 @@ its start.
 ```
 Continuing the Lanox/Ranox defect fixes. Read LANOX_DEFECT_PHASES.md in the
 repo root in full -- especially "Starting context", the "Investigation
-ledger", and "Phase 9". Branch: mods/lanox-port. Do NOT consult
+ledger", and "Phase 9". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch.
 
@@ -1798,7 +1798,7 @@ June's own Secret-dungeon classifier (`FUN_32931950`) agrees with March's
 Continuing the Lanox/Ranox defect fixes. This defect (phase clears with
 mobs alive) is tracked entirely in LANOX_EXTRA_NPC_STAT_PLAN.md, not here --
 read that file's "Starting context" and whichever phase's Status line says
-it's not done yet, and continue from there. Branch: mods/lanox-port.
+it's not done yet, and continue from there. Branch: main.
 ```
 
 ---

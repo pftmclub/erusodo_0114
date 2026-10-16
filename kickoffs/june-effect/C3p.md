@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3p` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3o (found there). **Not with** a phase that edits the end of `CX2GUNPC::CommonStateStart` (C3f-1 item 2b) |
 | Flag | `SERV_IRUHADEV_JUNE_SKIP_START` (+ `_DEBUG` for the play-test lines) |
 | Log tag | `JUNE_FX C3p` |

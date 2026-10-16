@@ -39,7 +39,8 @@ Verify against `git log --oneline -15` before claiming a phase is done; STATUS c
    tell the user in one line and ask whether to continue. Effort cannot be checked; it is
    named in STATUS for the user.
 3. **Peers.** `git status --short` and `git log -3 --oneline`. Other sessions share this tree
-   and branch. Never touch, stage, revert or "clean up" files you did not change.
+   and its one branch, `main` (user, 2026-10-16): never create, switch to or merge a branch or a
+   worktree, and a new plan's kickoffs say "branch `main`". Never touch, stage, revert or "clean up" files you did not change.
 4. **Read only what the kickoff lists** (on an Opus phase, have a subagent do the reading: see *When the phase is Opus*), with
    `python tools/docsection.py <plan doc> "<section>" "<section>" ...`.
    Never read a plan doc "in full"; if you need something unlisted, `--list` the outline and

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3x` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | none (found by the C3s play-tests, 2026-10-10) |
 | Flag | a `SERV_IRUHADEV_JUNE_*` flag only if C++ has to change (expected: step 5 only) |
 | Log tag | `JUNE_FX C3x` |

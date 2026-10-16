@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3c2 review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 16-step3c2 done (see its STATUS row for the commit) |
 | Flags | `SERV_IRUHADEV_JUNE_SOCKET_EDT` for 156 (now also `#error`s without `_JUNE_BUFF_BEHAVIOR_PARITY` / `_JUNE_BUFF_ENUM`); `SERV_IRUHADEV_JUNE_SOCKET_FEVER` for HMET_FEVER (needs `_SOCKET_PARITY`) |
 | Log tag | `[JUNE_BUFF]` |

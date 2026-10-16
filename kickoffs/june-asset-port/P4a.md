@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase june-asset-port P4a` |
-| Plan doc | `JUNE_ASSET_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_ASSET_PORT_PHASES.md` (branch `main`) |
 | Depends on | P3 |
 | Flag | none (P1's `SERV_IRUHADEV_KOM_MOUNT_DEBUG` must be on in the deployed exe) |
 | Log tag | `[KOM_MOUNT]` (`python tools/logs.py --tag KOM_MOUNT`; KEM_ERROR lines in `ErrorLog.txt`, duplicate names in `existfileinfo.txt`) |

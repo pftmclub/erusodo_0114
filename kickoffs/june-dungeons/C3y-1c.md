@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-dungeons C3y-1c` |
-| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch: the current working branch); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
+| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch `main`); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
 | Depends on | C3y-1b, C3y-1a; one at a time with the port halves of C3y-2 / 3 / 4 (same core registry files) |
 | Flag | a `SERV_IRUHADEV_JUNE_*` flag only if C++ must change |
 | Log tag | `JUNE_FX C3y-1c` (`python tools/logs.py --grep "JUNE_FX C3y-1c"`) |

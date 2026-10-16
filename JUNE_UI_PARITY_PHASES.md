@@ -87,7 +87,7 @@ Steps:
 **Kickoff prompt**:
 ```
 Read JUNE_UI_PARITY_PHASES.md in the repo root in full, and the "Starting
-context" block of LANOX_REMAINING_PHASES.md. Branch: mods/lanox-port.
+context" block of LANOX_REMAINING_PHASES.md. Branch: main.
 
 Your task is READ-ONLY. Survey June 2017's Local Map and Party UI in Ghidra
 (ghidra skill, unpacked_x2.exe; loaders are FUN_3293ab50, FUN_32938450 ->
@@ -116,7 +116,7 @@ Rebuild, and confirm that the existing March dialogs still load.
 ```
 Read JUNE_UI_PARITY_PHASES.md (all, especially "Phase 0 findings" and
 "Phase 1") and LANOX_REMAINING_PHASES.md "Starting context". Branch:
-mods/lanox-port. Never launch X2_offline.exe without asking first.
+main. Never launch X2_offline.exe without asking first.
 Your task: add the custom messages / enums the June Local Map and Party
 dialogs need that March lacks, at June's numeric values from Phase 0, in the
 C++ enum AND the Lua enum (three-layer rule, LANOX_TROUBLESHOOTING.md). Do
@@ -149,7 +149,7 @@ Verify:
 ```
 Read JUNE_UI_PARITY_PHASES.md (all, especially "Phase 0 findings" and
 "Phase 2") and LANOX_REMAINING_PHASES.md "Starting context". Branch:
-mods/lanox-port. Never launch X2_offline.exe without asking first.
+main. Never launch X2_offline.exe without asking first.
 Your task: adopt June's DLG_UI_Local_Map_new.lua (the live copy per Phase 0).
 Drop the June-only LMI_ELYSION/EVENT/SPECIAL/EN controls with comments.
 Stage the DLG_UI_Button21 atlas, and port June's tab/arrow-paging C++ in
@@ -205,7 +205,7 @@ fix is lost.
 ```
 Read JUNE_UI_PARITY_PHASES.md (all, especially "Phase 0 findings" and
 "Phase 3"), LANOX_REMAINING_PHASES.md "Starting context" and its Phase 2.
-Branch: mods/lanox-port. Never launch X2_offline.exe without asking first.
+Branch: main. Never launch X2_offline.exe without asking first.
 Your task: port June's local-map dungeon progress display (names, progress
 bars, clear stars), which June draws without *_Icon_Info_NEW files. Decide,
 and tell me before implementing, whether March villages move to June's
@@ -230,7 +230,7 @@ button.
 ```
 Read JUNE_UI_PARITY_PHASES.md (all, especially "Phase 0 findings" and
 "Phase 4") and LANOX_REMAINING_PHASES.md "Starting context". Branch:
-mods/lanox-port. Never launch X2_offline.exe without asking first.
+main. Never launch X2_offline.exe without asking first.
 Your task: port June's Local Map Mode Button (DLG_UI_Local_Map_Mode_Button.lua,
 loaded by FUN_32938380, called from FUN_32938450). First report what it
 toggles and whether that mode depends on content March lacks. Ask me before
@@ -264,7 +264,7 @@ dungeon picture from LANOX_REMAINING Phase 1 still renders.
 ```
 Read JUNE_UI_PARITY_PHASES.md (all, especially "Phase 0 findings" and
 "Phase 5") and LANOX_REMAINING_PHASES.md "Starting context". Branch:
-mods/lanox-port. Never launch X2_offline.exe without asking first.
+main. Never launch X2_offline.exe without asking first.
 Your task: adopt June's party UI. June loads
 DLG_UI_PARTY_BOTTON_NEW_20161103.lua (FUN_322c3d80) where March loads
 DLG_UI_PARTY_BOTTON_NEW.lua (X2PartyUI.cpp:3433), and

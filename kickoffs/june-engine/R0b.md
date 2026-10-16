@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-engine R0b` |
-| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch `main`) |
 | Depends on | - (read-only; runs now; better after R0 so it can exclude R0's functions) |
 | Flag | none (no code) |
 | Log tag | `[JUNE_ENGINE]` (`python tools/logs.py --tag JUNE_ENGINE`) |

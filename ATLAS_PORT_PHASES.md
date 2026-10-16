@@ -8,8 +8,9 @@
 > `ELYSION_PORT_PHASES.md` mean this doc's E sections and Elysion-half ledger;
 > that file is now a pointer here.
 >
-> **No worktree (user, 2026-10-16).** Phase A0 creates branch
-> `mods/elysion-port` in the main Trunk, and every phase works there. Start with
+> **One branch: `main` (user, 2026-10-16).** Every phase works and commits on
+> `main` in the main Trunk. No branch or worktree is created and nothing is
+> merged (this replaces the earlier `mods/elysion-port` plan). Start with
 > Phase A0's kickoff (`kickoffs/atlas/A0.md`).
 
 ## Context
@@ -92,9 +93,8 @@ Atlas page). Texture atlases are always written **"TET atlas"**, because
    - **Quest-driven NPC swaps** (Yuno → Hyper Yuno → Nono) are ported as
      *mechanism* (E1) but stay dormant until quest data exists. The Elysion
      clear movie (quest 22336) is deferred.
-3. **Branch** `mods/elysion-port` off the committed `mods/june-buff-port`
-   tip, created **in the main Trunk** by A0. **No worktree** (user,
-   2026-10-16): the plan works on the new branch in the same tree. Phases
+3. **Branch: `main`** (user, 2026-10-16). The plan works on `main` in the
+   main Trunk, like every other plan: no new branch, no worktree. Phases
    needing June buff types are marked blocked on the named buff phase.
 4. **Level cap 99 in this port** (A2). The user **explicitly authorises
    inventing StatTable rows 81–99** — this overrides CLAUDE.md's no-invented-
@@ -152,7 +152,7 @@ Atlas page). Texture atlases are always written **"TET atlas"**, because
 
 | Phase | Item | Depends on | Kind | Model | Effort | Review |
 |---|---|---|---|---|---|---|
-| A0 | Branch, docs, `region_census.py` v1 | – | tooling | Sonnet 5.5 | high | light (Opus 5.5) |
+| A0 | Docs, `region_census.py` v1 | – | tooling | Sonnet 5.5 | high | light (Opus 5.5) |
 | A1a | RE + C++ reachability map (both halves) | A0 | Ghidra + C++ read-only | Opus 5.5 | **xhigh** | none (self-check vs census) |
 | A1b | Script-engine map (both halves) | A0 | Ghidra read-only | Opus 5.5 | **xhigh** | none |
 | A2 | Level cap 99 + EXP migration | A0, **MARCH_2014_MIGRATION Phase 7** | C++ + data + offline DB | Opus 5.5 | high | required |
@@ -221,20 +221,14 @@ selection*; condensed:
 
 ## Starting context (paste with any phase)
 
-- **Branch** (all edits, builds and commits): **`mods/elysion-port`**, checked
-  out in the main Trunk
+- **Branch** (all edits, builds and commits): **`main`**, in the main Trunk
   `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
-  (created in A0).
-  - Every session in this Trunk works on whatever branch is checked out. A
-    session of another plan started while this branch is checked out commits
-    onto it.
-  - Switch branches only on a clean tree: never `git switch`, checkout or
-    stash while another session has uncommitted changes. Ask first.
-  - At each phase start, if `mods/june-buff-port` has moved, merge it into this
-    branch (`git merge mods/june-buff-port`). Do not merge the other way before
-    the plan closes.
-  - This plan's `STATUS.md` rows are committed on this branch, in the phase's
-    own commit (x2-phase *Finish*).
+  (user, 2026-10-16: one branch for every plan).
+  - Create no branch and no worktree, and never `git switch`, checkout or
+    stash. Other plans' sessions share this tree and commit onto `main` too,
+    so commit with explicit pathspecs.
+  - This plan's `STATUS.md` rows are committed on `main`, in the phase's own
+    commit (x2-phase *Finish*).
 - **Read-only shared inputs** (in the Trunk): `june_src_fixed\`,
   `elstools\elstools.exe`, `june2017_re/`.
 - **Game directory** (deploy target, logs, save):
@@ -286,9 +280,9 @@ selection*; condensed:
   handles the PCH, and checks the deploy. Prove new code compiled in by
   finding a UTF-16LE literal that exists only inside the new `#ifdef` in
   `X2/US_SERVICE/x2.exe` — exit code 0 is not proof.
-- **Deploy:** `build.py` deploys as `$DATA/X2_offline.exe`. **Record in the
-  phase's Done note that the deployed exe is the `mods/elysion-port` build** —
-  a build from any other branch deploys to the same name, last deploy wins.
+- **Deploy:** `build.py` deploys as `$DATA/X2_offline.exe`. **Record the
+  `DEPLOY OK` line (it names the commit built) in the phase's Done note** —
+  every session deploys to the same name, last deploy wins.
   **Ask before every launch.**
 - **Logs:** load time → `ErrorLog.txt`, `OpenScriptFile.log`; runtime →
   `offline_server.log` (`CX2OfflineLog::Server`) and `offline_packets.log`.
@@ -732,17 +726,13 @@ region).
 
 ---
 
-## Phase A0 — Branch, docs, census v1
+## Phase A0 — Docs, census v1
 
 **Steps**
-1. **Branch, in the main Trunk** (user 2026-10-16). `git status` must be
-   clean, and no other session may have uncommitted work. If it is
-   not, **stop and ask**. Never stash, add or commit another session's files.
-   Then cut the branch from the **committed** tip:
-   `git switch -c mods/elysion-port mods/june-buff-port`.
-   That tip carries june-item-kim K2 (`f1549a6`), so this branch's exe reads
-   the live `data036` `item.kim` correctly (STATUS "Branches and the game dir").
-2. Confirm this doc is on the branch. It is the single plan;
+1. **No branch** (user 2026-10-16). Work on `main` in the main Trunk; it
+   carries june-item-kim K2 (`f1549a6`), so its exe reads the live `data036`
+   `item.kim` correctly. Never stash, add or commit another session's files.
+2. Confirm this doc is on `main`. It is the single plan;
    `ELYSION_PORT_PHASES.md` is only a pointer to it.
 3. Write `june2017_re/region_census.py` (see *Exit metric*), reusing what
    exists: `june2017_re/assets.py` (asset walk), `buff_census.py` (flag
@@ -772,11 +762,8 @@ any subagent the same.
 
 Effort: high.
 
-Your task (Phase A0): in the main Trunk, check that git status
-is clean and that no other session has uncommitted work -- if not, stop and
-ask; never stash or commit someone else's files. Create branch
-mods/elysion-port from the committed mods/june-buff-port tip
-(git switch -c mods/elysion-port mods/june-buff-port). Then write
+Your task (Phase A0): work on main in the main Trunk (no new branch,
+user 2026-10-16); never stash or commit someone else's files. Write
 june2017_re/region_census.py (v1 = the cheap checks listed in Phase A0,
 reusing assets.py / buff_census.py / flagprobe.py) and record its baseline in
 the doc.
@@ -784,9 +771,9 @@ the doc.
 Premises to verify first: that the ledger's ID counts and the 0-collision
 claim reproduce; that the staged EffectSet.lua really has no Elysion entries.
 
-Done when: mods/elysion-port is checked out with this doc on it; census
+Done when: this doc is on main; census
 baseline recorded and matching the ledger (or the ledger corrected in place).
-Record a "Phase A0 -- Done (date)" note, then commit on mods/elysion-port,
+Record a "Phase A0 -- Done (date)" note, then commit on main,
 with this plan's STATUS rows in the same commit.
 ```
 
@@ -830,7 +817,7 @@ summary" table in this doc (one row per site, verdict + owner).
 sessions (Atlas-owned sites / Elysion-owned sites) writing the same TSV.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- especially "Starting
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- especially "Starting
 context", the ledger's "C++ sites" and "June-only engine" sections, and
 "Phase A1a". Use the ghidra skill on unpacked_x2.exe; do not mutate the Ghidra
 project without asking. Never launch X2_offline.exe without asking. Do NOT
@@ -851,7 +838,7 @@ consumers size arrays.
 Premises to verify first: every file:line in the ledger's touch-list table.
 
 Done when: region_reach.tsv covers every grep hit; funcmap.tsv rows added;
-an "A1a reachability summary" is in the doc. Record a Done note, then commit on mods/elysion-port.
+an "A1a reachability summary" is in the doc. Record a Done note, then commit on main.
 ```
 
 ### Phase A1a — Done
@@ -891,7 +878,7 @@ this doc. **Every name gets an owner** — no orphans.
 Atlas names + shared keys, A1b-2 Elysion names).
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- especially "Starting
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- especially "Starting
 context", the ledger's "June-only engine" section and "Phase A1b". Also read
 JUNE_BUFF_PORT_PHASES.md "Model selection" for the transcription-ready bar.
 Use the ghidra skill; do not mutate the project without asking. Never launch
@@ -911,7 +898,7 @@ Premises to verify first: the ledger's (b) "method already exists" claims
 (name match only so far).
 
 Done when: every name/key has an owner and a readiness verdict. Record a Done
-note, then commit on mods/elysion-port.
+note, then commit on main.
 ```
 
 ### Phase A1b — Done
@@ -975,7 +962,7 @@ has been asked before the migrating launch.
 proof, migration formula against both tables, every 80-bound site.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- "User decisions" 4-5,
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- "User decisions" 4-5,
 "Starting context", the ledger's "Level cap" section and "Phase A2". Never
 launch X2_offline.exe without asking -- and this phase's build migrates the
 save, so back up els_db.sql first and ask before that launch. Never delete
@@ -996,7 +983,7 @@ and values; that X2OfflineStatTable/X2OfflineDropTable load these files the
 way the ledger says.
 
 Done when: Phase A2's "Done when" holds. Record a Done note (incl. the
-kills-per-level table), then commit on mods/elysion-port.
+kills-per-level table), then commit on main.
 ```
 
 ### Phase A2 — Done
@@ -1047,7 +1034,7 @@ equality both sides, sentinel consumers, seed, merge against the buff
 branch's `Enum.lua`.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- "Starting context"
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- "Starting context"
 (especially the shared-staging merge rule), the ledger's "IDs" and "end
 markers" sections, the A1a/A1b summaries, and "Phase A3". Never launch
 X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
@@ -1066,7 +1053,7 @@ then compile and stage the Lua merged against the buff branch's copy.
 Premises to verify first: 0 collisions (re-run the census); June's own
 sentinel values; that the buff branch hasn't added rows in the same ranges.
 
-Done when: Phase A3's "Done when" holds. Record a Done note, then commit on mods/elysion-port.
+Done when: Phase A3's "Done when" holds. Record a Done note, then commit on main.
 ```
 
 ### Phase A3 — Done
@@ -1101,7 +1088,7 @@ fixes the Lanox `SECRET_SCENE_DUMMY` call (note it for A13's play-test).
 transcription-ready, stopping on anything else). Required review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- "Starting context", the
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- "Starting context", the
 ledger's "June-only engine" section, the A1b engine map, and "Phase A4". Use
 the ghidra skill to confirm each June body before porting. Never launch
 X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
@@ -1117,7 +1104,7 @@ record whether they are already there.
 
 Premises to verify first: each name's receiver class and argument types (A1b).
 
-Done when: Phase A4's "Done when" holds. Record a Done note, then commit on mods/elysion-port.
+Done when: Phase A4's "Done when" holds. Record a Done note, then commit on main.
 ```
 
 ### Phase A4 — Done
@@ -1174,7 +1161,7 @@ the character.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- "Starting context", the
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- "Starting context", the
 ledger's "Topology", "Gates", "C++ sites" and "Lanox-side omissions" sections,
 the A1a summary, and "Phase A5". Also read LANOX_TROUBLESHOOTING.md's
 symptom table. Never launch X2_offline.exe without asking. Do NOT consult
@@ -1195,7 +1182,7 @@ Premises to verify first: June's START_POS semantics for 400-404 against
 March's VillageParsing; which shared houses June places in 1008.
 
 Done when: Phase A5's "Done when" holds (pack list handed over; live-kom check
-after I pack). Record a Done note (incl. which branch's exe is deployed), then commit on mods/elysion-port.
+after I pack). Record a Done note (incl. the DEPLOY OK commit), then commit on main.
 ```
 
 ### Phase A5 — Done
@@ -1234,7 +1221,7 @@ F01 ↔ F02; monsters spawn with HP and drop; F02 has no dead exit.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- "Starting context", the
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- "Starting context", the
 ledger's "Topology" and "Lanox-side omissions" sections, the buff-dependency
 and unknown-item rules, and "Phase A6". Never launch X2_offline.exe without
 asking. Do NOT consult NEW_VILLAGE_*.md or mods/lanox-offline.
@@ -1251,7 +1238,7 @@ effects); leave F02's village exit omitted with a comment.
 Premises to verify first: which Lanox row and linemap line really carry the
 portal (the June names are offset by one); NPC readiness of every field NUI.
 
-Done when: Phase A6's "Done when" holds. Record a Done note (deployed branch), then commit on mods/elysion-port.
+Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), then commit on main.
 ```
 
 ### Phase A6 — Done
@@ -1296,7 +1283,7 @@ stars and images; buttons honour the unlock chain.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- "Starting context", the
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- "Starting context", the
 ledger's "Gates", "June-only engine" and "Assets" sections, and "Phase A7".
 Also read JUNE_UI_PARITY_PHASES.md "Phase 0 findings" (function map, nil-
 member hazard) and its Phase 2/3 results. Never launch X2_offline.exe without
@@ -1314,7 +1301,7 @@ and stage the title/dungeon-image TET atlases.
 Premises to verify first: that no AddDummyInt in the adopted files resolves to
 a nil enum member (dead-tab hazard); the winning mount of every TET atlas.
 
-Done when: Phase A7's "Done when" holds. Record a Done note (deployed branch), then commit on mods/elysion-port.
+Done when: Phase A7's "Done when" holds. Record a Done note (DEPLOY OK commit), then commit on main.
 ```
 
 ### Phase A7 — Done
@@ -1353,7 +1340,7 @@ pays out, AtlasCity's button unlocks.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full -- "Starting context", the
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full -- "Starting context", the
 ledger, "Lanox lessons -> gates", the buff-dependency and unknown-item rules,
 Appendix A (AD NUIs) and "Phase A8". Also read RANOX_PORT_PLAN.md Phase 3/4
 findings (the Lanox line pattern) and JUNE2017_CHARACTER_PORT_CHECKLIST.md's
@@ -1371,8 +1358,8 @@ Premises to verify first: NPC readiness and buff census for every AD NUI;
 that every effect name the line uses exists after the merge.
 
 Done when: Phase A8's "Done when" holds and the checklist is in the doc.
-Record a Done note (deployed branch), then commit on
-mods/elysion-port.
+Record a Done note (DEPLOY OK commit), then commit on
+main.
 ```
 
 ### Per-line checklist
@@ -1396,7 +1383,7 @@ shows zero open engine gaps; otherwise Opus 5.5, high. Required review (Opus
 5.5).
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) -- "Starting context", the
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) -- "Starting context", the
 "Per-line checklist", Appendix A (AC NUIs) and "Phase A9". Never launch
 X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
 mods/lanox-offline.
@@ -1407,7 +1394,7 @@ stop on it and log it for an Opus pass -- do not guess.
 Your task (Phase A9): port the AtlasCity line by the Per-line checklist.
 
 Done when: census --line AC is clean, staged with manifests, pack list handed
-over (live-kom check after I pack). Record a Done note (deployed branch), then commit on mods/elysion-port.
+over (live-kom check after I pack). Record a Done note (DEPLOY OK commit), then commit on main.
 ```
 
 ### Phase A9 — Done
@@ -1435,7 +1422,7 @@ shows zero open engine gaps; otherwise Opus 5.5, high. Required review (Opus
 5.5).
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) -- "Starting context", the
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) -- "Starting context", the
 "Per-line checklist", the buff-dependency rule, Appendix A (TW NUIs) and
 "Phase A10". Check JUNE_BUFF_PORT_PHASES.md for Phase 10's status first.
 Never launch X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
@@ -1448,8 +1435,8 @@ Your task (Phase A10): port the Tower line by the Per-line checklist,
 transcribing June's WI_TOWER_STAGE3 bug verbatim with a log line.
 
 Done when: census --line TW is clean, staged with manifests, pack list handed
-over. Record a Done note (deployed branch), then commit on
-mods/elysion-port.
+over. Record a Done note (DEPLOY OK commit), then commit on
+main.
 ```
 
 ### Phase A10 — Done
@@ -1479,7 +1466,7 @@ list in the doc and handed over.
 staged set, manifests and census output.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) -- "Starting context", the ledger's
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) -- "Starting context", the ledger's
 "Assets" section, "Lanox lessons -> gates" and "Phase A11". Also read
 LANOX_REMAINING_PHASES.md Phase 0 (the TET census and mesh-internal texture
 method). Never launch X2_offline.exe without asking. Do NOT consult
@@ -1493,7 +1480,7 @@ resolve mount order, and produce one consolidated pack list.
 
 Done when: census --region atlas shows no missing assets or keys and the pack
 list is in the doc. Record a Done note, then commit on
-mods/elysion-port.
+main.
 ```
 
 ### Phase A11 — Done
@@ -1513,19 +1500,19 @@ launch.
 **Run with:** Sonnet 5.5, medium effort. No review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) -- "Starting context", "Phase A12"
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) -- "Starting context", "Phase A12"
 and "Verification". Never launch X2_offline.exe without asking. Do NOT consult
 NEW_VILLAGE_*.md or mods/lanox-offline.
 
 Effort: medium.
 
 Your task (Phase A12): build all four projects as US_SERVICE with tools/build.py --deploy (PCH touched), prove every Atlas-port flag's literal is in x2.exe,
-deploy as X2_offline.exe (check size/mtime; record that it is the
-mods/elysion-port build), and hand me the consolidated pack list and the
+deploy as X2_offline.exe (check size/mtime; record the DEPLOY OK
+commit), and hand me the consolidated pack list and the
 Atlas reachability checklist.
 
 Done when: deployed and handed off. Record a Done note,
-then commit on mods/elysion-port.
+then commit on main.
 ```
 
 ### Phase A12 — Done
@@ -1546,7 +1533,7 @@ reasoning further; scope log checks to the phase's own lines). Then:
 **Run with:** Opus 5.5, high effort. No review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in full, plus LANOX_TROUBLESHOOTING.md.
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in full, plus LANOX_TROUBLESHOOTING.md.
 Never launch X2_offline.exe without asking. Do NOT consult
 NEW_VILLAGE_*.md or mods/lanox-offline.
 
@@ -1560,7 +1547,7 @@ Then close out: MODS.md entries for every flag, troubleshooting rows, and the
 
 Done when: every checklist item passes or is recorded with a cause and
 owner. Record a Done note, then commit on
-mods/elysion-port.
+main.
 ```
 
 ### Phase A13 — Done
@@ -1589,7 +1576,7 @@ mods/elysion-port.
 **Run with:** Sonnet 5.5, medium effort. No review.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger's "Elysion half" sections and "Phase E0". Never
 launch X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
 mods/lanox-offline; tell subagents the same.
@@ -1602,7 +1589,7 @@ june2017_re/ljd_jun2017.py --check into june2017_re/june_lua/; confirm its
 string-only engine names and register any new one in region_engine.tsv; record
 the region_census.py --region elysion baseline.
 
-Done when: decompile passes --check; baseline recorded. Record a Done note, then commit on mods/elysion-port.
+Done when: decompile passes --check; baseline recorded. Record a Done note, then commit on main.
 ```
 
 ### Phase E0 — Done
@@ -1641,7 +1628,7 @@ Done when: decompile passes --check; baseline recorded. Record a Done note, then
    - the per-quest refresh `32340630` (from three quest-UI handlers);
    - the code-event refresh `32344880`, called from
      `Handler_EGS_UPDATE_CODE_EVENT_NOT`'s `SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`
-     block on `mods/june-buff-port`.
+     block on `main`.
 
    The TFieldGame side is `323b7ff0` (replace), `323a9ed0` (remove) and
    `323b8970` (restore).
@@ -1674,8 +1661,8 @@ Done when: decompile passes --check; baseline recorded. Record a Done note, then
      `GetEffectPositionByBoneName @321dd9dc`, the create-time anim gate
      `@321eebf3` (no `GetUnitRotation` branch), with the NPC's bone helpers
      `321f2c10` / `321f2c70`. These sit in the same switch cases as C9h-3a's
-     `+0xd8` riding-pet branches (`X2EffectSet.cpp`): merge
-     `mods/june-buff-port` after C9h-3a lands before porting them.
+     `+0xd8` riding-pet branches (`X2EffectSet.cpp`): wait
+     for C9h-3a to land on `main` before porting them.
    - **Friendship branches** (gated `IsEnableCode( 2215 )`, never on
      offline): port the gate and the calls as June has them; the manager
      `32696fa0` and the sequencer `325c9e70` belong to backlog **Stage 18**.
@@ -1709,7 +1696,7 @@ june-effect C9h-5, 2026-10-08)*.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger's "Elysion half: village" section, the
 A1a/A1b maps, and "Phase E1". Use the ghidra skill for June's bodies. Never
 launch X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
@@ -1725,7 +1712,7 @@ until the quest plan), the new DLG_Map_House keys, and in-village warps
 Premises to verify first: where June loads DLG_Map_House_NPC_RelationData.lua;
 that no existing March village file uses any of the new keys.
 
-Done when: Phase E1's "Done when" holds. Record a Done note (deployed branch), then commit on mods/elysion-port.
+Done when: Phase E1's "Done when" holds. Record a Done note (DEPLOY OK commit), then commit on main.
 ```
 
 ### Phase E1 — Done
@@ -1765,7 +1752,7 @@ shop sells; NPC UI dialogs open.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger (both halves), Atlas "Phase A5" (the same
 checklist) and "Phase E2". Also read LANOX_TROUBLESHOOTING.md's symptom table
 and LANOX_DEFECT_PHASES.md Bug A (shared-house rows). Never launch
@@ -1784,7 +1771,7 @@ Field 02's village exit.
 Premises to verify first: every HouseIDList element resolves; June's
 START_POS 500-517 semantics against March's VillageParsing.
 
-Done when: Phase E2's "Done when" holds. Record a Done note (deployed branch), then commit on mods/elysion-port.
+Done when: Phase E2's "Done when" holds. Record a Done note (DEPLOY OK commit), then commit on main.
 ```
 
 ### Phase E2 — Done
@@ -1804,7 +1791,7 @@ June (no row, scene or dialog) and leave it at that.
 Opus on any engine gap the A1b map doesn't settle.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", Atlas "Phase A6" and "Phase E3". Never
 launch X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
 mods/lanox-offline.
@@ -1817,7 +1804,7 @@ confirm Field 04 is enum-only.
 
 Done when: census --line FLD (F03) is clean, staged with manifests, pack list
 handed over. Record a Done note, then commit on
-mods/elysion-port.
+main.
 ```
 
 ### Phase E3 — Done
@@ -1851,7 +1838,7 @@ buttons honour the chain.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger's "Elysion half: local map" section,
 Atlas "Phase A7" and its Done note, JUNE_UI_PARITY_PHASES.md "Function map:
 CX2LocalMapUI", and "Phase E4". Use the ghidra skill. Never launch
@@ -1868,7 +1855,7 @@ dungeon images.
 
 Premises to verify first: the LMUCM C++ values equal the Lua values A3 added.
 
-Done when: Phase E4's "Done when" holds. Record a Done note (deployed branch), then commit on mods/elysion-port.
+Done when: Phase E4's "Done when" holds. Record a Done note (DEPLOY OK commit), then commit on main.
 ```
 
 ### Phase E4 — Done
@@ -1902,7 +1889,7 @@ linemaps parse without `[ELYDBG] unsupported` lines.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger's "Elysion half: engine gaps" section, the A1b engine map
 rows owned by E5, and "Phase E5". Use the ghidra skill. Never launch
 X2_offline.exe without asking. Do NOT consult NEW_VILLAGE_*.md or
@@ -1916,7 +1903,7 @@ Lua table), linemap keys and parser, per-frame movement incl. carried units
 and attached meshes, AddMovableLineData_LUA, TAT_LINE_CHANGE_MOVABLE_DATA,
 GetLineTypeByLineID_LUA, and June's P2P sync for it.
 
-Done when: Phase E5's "Done when" holds. Record a Done note, then commit on mods/elysion-port.
+Done when: Phase E5's "Done when" holds. Record a Done note, then commit on main.
 ```
 
 ### Phase E5 — Done
@@ -1947,7 +1934,7 @@ first-use `[ELYDBG]` literals in the exe; gauge dialogs and atlases staged.
 **Run with:** Opus 5.5, high effort. Required review.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger's "Elysion half: engine gaps" section, the A1b rows owned
 by E6, and "Phase E6". Use the ghidra skill. Never launch X2_offline.exe
 without asking. Do NOT consult NEW_VILLAGE_*.md or mods/lanox-offline.
@@ -1960,7 +1947,7 @@ SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE) whole, with June addresses cited; stage
 the three Soless/Memory gauge dialogs and their TET atlases; note whether
 Lanox's deferred SimpleDLG uses now work.
 
-Done when: Phase E6's "Done when" holds. Record a Done note, then commit on mods/elysion-port.
+Done when: Phase E6's "Done when" holds. Record a Done note, then commit on main.
 ```
 
 ### Phase E6 — Done
@@ -1985,7 +1972,7 @@ literals in the exe.
 transcription-ready, stopping on anything else). Required review.
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger's "Elysion half: engine gaps" section, the A1b rows owned
 by E7, Atlas "Phase A4" and its Done note, and "Phase E7". Use the ghidra
 skill. Never launch X2_offline.exe without asking. Do NOT consult
@@ -1998,7 +1985,7 @@ SERV_IRUHADEV_ELYSION_SCRIPT_B (receiver class verified, June address cited,
 reusing A4's), plus the additional-world support (dataFileName_Additional,
 SetShowAdditionalWorld, PlayAdditionalWorldAllSound).
 
-Done when: Phase E7's "Done when" holds. Record a Done note, then commit on mods/elysion-port.
+Done when: Phase E7's "Done when" holds. Record a Done note, then commit on main.
 ```
 
 ### Phase E7 — Done
@@ -2036,7 +2023,7 @@ work, clear pays out and unlocks the next line.
 **Run with:** Opus 5.5, high effort (first line of the half). Required review (Opus 5.5).
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger (both halves), Atlas's "Per-line checklist",
 the buff-dependency and unknown-item rules, Appendix B (SkyCrossroads NUIs) and the
 "SkyCrossroads" row of "Phases E8-E11". Never launch X2_offline.exe without
@@ -2055,8 +2042,8 @@ Add any Elysion-specific notes the checklist lacks to it.
 
 Done when: census --line SC is clean, staged with manifests, pack
 list handed over (live-kom check after I pack). Record a "Phase E8 -- Done
-(date)" note (deployed branch), then commit on
-mods/elysion-port.
+(date)" note (DEPLOY OK commit), then commit on
+main.
 ```
 
 #### Phase E8 — Done
@@ -2068,7 +2055,7 @@ mods/elysion-port.
 **Run with:** Sonnet 5.5, high effort **if** `region_census.py --line AR` shows zero open engine gaps; otherwise Opus 5.5, high. Required review (Opus 5.5).
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger (both halves), Atlas's "Per-line checklist",
 the buff-dependency and unknown-item rules, Appendix B (Adrian NUIs) and the
 "Adrian" row of "Phases E8-E11". Never launch X2_offline.exe without
@@ -2085,8 +2072,8 @@ lowercase), the laser/emperor objects, SetCameraDistance and SetParticleSize
 
 Done when: census --line AR is clean, staged with manifests, pack
 list handed over (live-kom check after I pack). Record a "Phase E9 -- Done
-(date)" note (deployed branch), then commit on
-mods/elysion-port.
+(date)" note (DEPLOY OK commit), then commit on
+main.
 ```
 
 #### Phase E9 — Done
@@ -2098,7 +2085,7 @@ mods/elysion-port.
 **Run with:** Opus 5.5, high effort. Required review (Opus 5.5).
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger (both halves), Atlas's "Per-line checklist",
 the buff-dependency and unknown-item rules, Appendix B (Soless NUIs) and the
 "Soless" row of "Phases E8-E11". Read the Soless boss from
@@ -2121,8 +2108,8 @@ SECRET_SUMMON_MAG_NOM, SECRET_MAGI_OBJECT, SECRET_LAVA_DUMMY.
 
 Done when: census --line SL is clean (hidden stage and phase 2 included), staged with manifests, pack
 list handed over (live-kom check after I pack). Record a "Phase E10 -- Done
-(date)" note (deployed branch), then commit on
-mods/elysion-port.
+(date)" note (DEPLOY OK commit), then commit on
+main.
 ```
 
 #### Phase E10 — Done
@@ -2134,7 +2121,7 @@ mods/elysion-port.
 **Run with:** Opus 5.5, high effort. Required review (Opus 5.5). **Blocked on JUNE_BUFF Phase 10.**
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", the ledger (both halves), Atlas's "Per-line checklist",
 the buff-dependency and unknown-item rules, Appendix B (Memory NUIs) and the
 "Memory" row of "Phases E8-E11". FIRST check JUNE_BUFF_PORT_PHASES.md: if Phase 10
@@ -2154,8 +2141,8 @@ messages.
 
 Done when: census --line ME is clean, staged with manifests, pack
 list handed over (live-kom check after I pack). Record a "Phase E11 -- Done
-(date)" note (deployed branch), then commit on
-mods/elysion-port.
+(date)" note (DEPLOY OK commit), then commit on
+main.
 ```
 
 #### Phase E11 — Done
@@ -2175,7 +2162,7 @@ out.
 **Run with:** Sonnet 5.5, high effort. Required review (Opus 5.5).
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", RANOX_PORT_PLAN.md Phase 11 findings, and
 "Phase E12". Never launch X2_offline.exe without asking. Do NOT consult
 NEW_VILLAGE_*.md or mods/lanox-offline.
@@ -2185,7 +2172,7 @@ Effort: high.
 Your task (Phase E12): port the Elysion field PvP map (WI 752,
 MAP_SELECT_ELISION) the way Lanox Phase 11 ported GateWay.
 
-Done when: staged with manifests, pack list handed over. Record a Done note, then commit on mods/elysion-port.
+Done when: staged with manifests, pack list handed over. Record a Done note, then commit on main.
 ```
 
 ### Phase E12 — Done
@@ -2202,7 +2189,7 @@ textures, TET keys, truncation, mount order); one consolidated pack list.
 **Run with:** Sonnet 5.5, high effort. Required review (Opus 5.5).
 
 ```
-Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) --
+Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md (branch main) --
 "Starting context", Atlas "Phase A11" and "Phase E13". Never
 launch X2_offline.exe without asking. Do NOT consult
 NEW_VILLAGE_*.md or mods/lanox-offline.
@@ -2214,7 +2201,7 @@ did for its half and produce one consolidated pack list.
 
 Done when: census --region elysion shows no missing assets or keys and the
 pack list is in the doc. Record a Done note, then commit
-on mods/elysion-port.
+on main.
 ```
 
 ### Phase E13 — Done
@@ -2231,7 +2218,7 @@ Same as Atlas A12, plus the Elysion reachability checklist.
 
 ```
 Continuing the Atlas/Elysion port, Elysion half. Read ATLAS_PORT_PHASES.md
-(branch mods/elysion-port) -- "Starting context", "Phase E14" and
+(branch main) -- "Starting context", "Phase E14" and
 "Verification (end to end, Elysion half)". Never launch X2_offline.exe
 without asking. Do NOT consult
 NEW_VILLAGE_*.md or mods/lanox-offline.
@@ -2239,12 +2226,12 @@ NEW_VILLAGE_*.md or mods/lanox-offline.
 Effort: medium.
 
 Your task (Phase E14): build all four projects as US_SERVICE with tools/build.py --deploy (PCH touched), prove every Elysion-port flag's literal is in x2.exe,
-deploy as X2_offline.exe (size/mtime checked; record that it is the
-mods/elysion-port build), and hand me the pack list and the Elysion
+deploy as X2_offline.exe (size/mtime checked; record the DEPLOY OK
+commit), and hand me the pack list and the Elysion
 reachability checklist.
 
 Done when: deployed and handed off. Record a Done note,
-then commit on mods/elysion-port.
+then commit on main.
 ```
 
 ### Phase E14 — Done
@@ -2262,7 +2249,7 @@ troubleshooting rows; complete *Deferred to the quest plan*.
 **Run with:** Opus 5.5, high effort. No review.
 
 ```
-Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch mods/elysion-port) in
+Continuing the Atlas/Elysion port. Read ATLAS_PORT_PHASES.md (branch main) in
 full, plus LANOX_TROUBLESHOOTING.md. Never launch X2_offline.exe without
 asking. Do NOT consult NEW_VILLAGE_*.md or mods/lanox-offline.
 
@@ -2275,7 +2262,7 @@ the whole region: MODS.md entries for every flag, troubleshooting rows, and
 the "Deferred to the quest plan" section.
 
 Done when: every checklist item passes or is recorded with a cause and owner.
-Record a Done note, then commit on mods/elysion-port.
+Record a Done note, then commit on main.
 ```
 
 ### Phase E15 — Done

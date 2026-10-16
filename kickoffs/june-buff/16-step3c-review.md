@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16-step3c review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 16-step3c done (see its STATUS row for the commit) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_EDT` (needs `_SOCKET_PARITY`); the three `X2BuffTemplet.cpp` compares are under `SERV_IRUHADEV_JUNE_DAMAGEDATA` |
 | Log tag | `[JUNE_BUFF]` |

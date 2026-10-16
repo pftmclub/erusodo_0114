@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 7e review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 7e done (its Done note and commits `f20a31c`, `726607a`) |
 | Flag | `SERV_IRUHADEV_JUNE_BUFF_START_DELAY`, `SERV_IRUHADEV_JUNE_BUFF_RIDING_KEY_WAIT`, and 7e's changes under `SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM` (+ `JUNE_BUFF_DEBUG`) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

@@ -1,6 +1,6 @@
 # June asset extraction: June's non-lua assets, byte-exact, in March koms
 
-Plan key `june-asset-extract` · branch `mods/june-buff-port` · flag `SERV_IRUHADEV_KOM_LONG_NAMES` · log tag `[KOM_LONG]` ·
+Plan key `june-asset-extract` · branch `main` · flag `SERV_IRUHADEV_KOM_LONG_NAMES` · log tag `[KOM_LONG]` ·
 kickoffs `kickoffs/june-asset-extract/` · backlog Stage 14 · created 2026-10-07.
 
 ## Context

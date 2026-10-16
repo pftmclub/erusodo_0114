@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-4s review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3z-4s done (its Done note and commit); best after its play-test |
 | Flag | `SERV_IRUHADEV_JUNE_SIMPLE_DLG` (+ `SERV_IRUHADEV_JUNE_SIMPLE_DLG_DEBUG`) |
 | Log tag | `JUNE_FX C3z-4s` (`offline_server.log`) |

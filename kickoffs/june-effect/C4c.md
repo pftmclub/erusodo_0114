@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C4c` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C4b (done 2026-10-07; its findings are below) |
 | Flag | `SERV_IRUHADEV_JUNE_NPC_FURY_MODE` (Fury: items 1-3 and the Fury branch of item 4) and `SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED` (June's NPC anim-speed rework: items 4-5 without the Fury branch, which sits under both flags), both new in `KTDXLIB/Always.h`; diagnostics behind the shared `SERV_IRUHADEV_JUNE_FX_DEBUG` |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3o` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3j (found there). **Not with** a phase that edits the end of `CX2GUNPC::CommonStateStart` (C3f-1 item 2b, C3j-1) |
 | Flag | one new `SERV_IRUHADEV_JUNE_*` per logical change found (name them after what they turn out to be) |
 | Log tag | `JUNE_FX C3o` |

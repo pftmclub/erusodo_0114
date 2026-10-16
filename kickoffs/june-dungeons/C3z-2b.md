@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-dungeons C3z-2b` |
-| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch: the current working branch); C3z-2's Done note still sits in `JUNE2017_EFFECT_COMPLETION_PHASES.md` |
+| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch `main`); C3z-2's Done note still sits in `JUNE2017_EFFECT_COMPLETION_PHASES.md` |
 | Depends on | C3z-2 (its 142 `NPC_UNIT_ID` values and `NPCTemplet.lua` rows) |
 | Flag | none expected (data / server-Lua work); name one `SERV_IRUHADEV_JUNE_*` only if loader code changes |
 | Log tag | `JUNE_FX C3z-2b` |

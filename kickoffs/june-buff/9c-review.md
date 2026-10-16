@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 9c review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase 9c done (its Done note and commits) |
 | Flag | `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION`, `SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE` (also in `ServerDefine.h`) and `SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE` (+ `_DEBUG`) |
 | Log tag | `[JUNE_BUFF]` |

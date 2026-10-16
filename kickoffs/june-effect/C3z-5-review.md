@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-5 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3z-5 done (its Done note and commit) and its play-test |
 | Flag | `SERV_IRUHADEV_JUNE_DUNGEON_ADEQUATE_MEMBERS`, `_JUNE_DUNGEON_FIX_MAX_DIFFICULTY`, `_JUNE_DUNGEON_SUITABLE_LEVEL`, `_JUNE_HENIR_HARD`, `_JUNE_DUNGEON_CHECK_CONDITION` |
 | Log tag | `JUNE_FX C3z-5` (unbracketed: `logs.py --grep "JUNE_FX C3z-5"`) |

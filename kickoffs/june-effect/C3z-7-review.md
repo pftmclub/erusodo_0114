@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-7 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3z-7 done (no code, verdict + census) and its Altera play-test; best after the C3p review (C3z-7 rests on C3p's port) |
 | Flag | none of its own: `SERV_IRUHADEV_JUNE_SKIP_START` (C3p) carries the skip |
 | Log tag | `JUNE_FX C3p` (`python tools/logs.py --grep "JUNE_FX C3p"`). The C3p review turned `_DEBUG` off 2026-10-15: only the Altera run on exe `a438fdb2` has these lines; a new run writes none |

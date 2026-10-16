@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C9e` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C9d (done 2026-10-07), and **C9c-2b committed** (its viewer player `32959640` and its edits to `X2UnitViewerUI.cpp`) |
 | Flag | new `SERV_IRUHADEV_JUNE_EMOTION_EFFECT_SET` |
 | Log tag | `JUNE_FX` (no new log line is needed: the path is inert) |

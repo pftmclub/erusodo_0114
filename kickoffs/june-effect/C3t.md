@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3t` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3r (found there). Not with a phase editing the user CommonStateStart key block or the CommonFrameMove cut-in lines |
 | Flag | `SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME` |
 | Log tag | `JUNE_FX C3t` |

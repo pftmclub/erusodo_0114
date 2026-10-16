@@ -13,10 +13,10 @@ of them edits code, or their "Touches" do not share a file, and (c) both commit 
 paths. Builds queue through one lock. Read-only steps (RE, reviews
 that find nothing, planning) can always run alongside.
 
-**Branches and the game dir (2026-10-08, june-item-kim K2 `f1549a6`):** the live `data036.kom` ships June's 228-byte `item.kim`.
-An exe deployed from a branch whose `Always.h` lacks `SERV_IRUHADEV_JUNE_ITEM_KIM` and `SERV_IRUHADEV_KIM_LAYOUT_CHECK` reads it at
-188 bytes per record **silently** (wrong items everywhere, no error). Cut new branches from a tip that has K2 (e.g. `mods/elysion-port`
-from `mods/june-buff-port`), and merge K2 into any older branch before deploying from it.
+**One branch: `main` (user, 2026-10-16).** Every plan, phase and review works and commits on `main` in this Trunk. Create no new
+branch and no worktree, and merge nothing. The old `mods/*` branches are history. **Never deploy from them** (june-item-kim K2 `f1549a6`):
+the live `data036.kom` ships June's 228-byte `item.kim`, and an exe whose `Always.h` lacks `SERV_IRUHADEV_JUNE_ITEM_KIM` and
+`SERV_IRUHADEV_KIM_LAYOUT_CHECK` reads it at 188 bytes per record **silently** (wrong items everywhere, no error). `main` has K2.
 
 States: `done` · `review` (done, review pending) · `play-test` (waiting on the user) ·
 `ready` (can start) · `queued` (could start, but the user ordered another plan first) ·
@@ -26,7 +26,7 @@ States: `done` · `review` (done, review pending) · `play-test` (waiting on the
 
 ## june-buff - June 2017 buff/debuff port
 
-Plan `JUNE_BUFF_PORT_PHASES.md` · branch `mods/june-buff-port` · log tag `[JUNE_BUFF]` ·
+Plan `JUNE_BUFF_PORT_PHASES.md` · branch `main` · log tag `[JUNE_BUFF]` ·
 flags `SERV_IRUHADEV_JUNE_BUFF_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-buff/`
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
@@ -333,7 +333,7 @@ identify halves of C3y-2 / 3 and all of C3y-5 are read-only and run alongside an
 
 ## offline-grade - offline monster grade (real-server ranking)
 
-Plan `OFFLINE_MONSTER_GRADE_PHASES.md` · branch `mods/june-buff-port` · log tag `[OFFLINE_GRADE]`
+Plan `OFFLINE_MONSTER_GRADE_PHASES.md` · branch `main` · log tag `[OFFLINE_GRADE]`
 (offline_server.log) · flag `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` (the one flag; `_DEBUG` only for
 short-lived lines) · kickoffs `kickoffs/offline-grade/` · created 2026-10-06 (user: "the proper
 way"; socket test follows June, rewards ported in their own phase).
@@ -365,7 +365,7 @@ loader bug Phase 2 fixes (the middle boss probably never spawns offline).
 
 ## june-item-kim - June item.kim adoption
 
-Plan `JUNE_ITEM_KIM_PHASES.md` · branch `mods/june-buff-port` · log tag `[JUNE_KIM]` · flags
+Plan `JUNE_ITEM_KIM_PHASES.md` · branch `main` · log tag `[JUNE_KIM]` · flags
 `SERV_IRUHADEV_JUNE_ITEM_KIM` (record layout) + `SERV_IRUHADEV_KIM_LAYOUT_CHECK` (structural check) · kickoffs
 `kickoffs/june-item-kim/` · backlog Stage 13 · created 2026-10-07.
 
@@ -389,7 +389,7 @@ while another session is packing data036: `kom_contents/data036_kom/` is shared 
 
 ## costume-shop - every June costume in the offline cash shop
 
-Plan `COSTUME_SHOP_PHASES.md` · branch `mods/june-buff-port` · log tag `[COSTUME_SHOP]` · flag `SERV_IRUHADEV_COSTUME_SHOP` · kickoffs
+Plan `COSTUME_SHOP_PHASES.md` · branch `main` · log tag `[COSTUME_SHOP]` · flag `SERV_IRUHADEV_COSTUME_SHOP` · kickoffs
 `kickoffs/costume-shop/` · created 2026-10-08 (user request after june-item-kim K4).
 
 All 39,582 fashion items of June's kim (every part, every character) into `cash_product` at price 1 (user: "1KC per costume, like right
@@ -402,7 +402,7 @@ now"); a load-time file check offers only the ones whose files exist, so the res
 
 ## june-asset-extract - June non-lua assets, byte-exact, in March koms
 
-Plan `JUNE_ASSET_EXTRACT_PHASES.md` · branch `mods/june-buff-port` · log tag `[KOM_LONG]` · flag
+Plan `JUNE_ASSET_EXTRACT_PHASES.md` · branch `main` · log tag `[KOM_LONG]` · flag
 `SERV_IRUHADEV_KOM_LONG_NAMES` · kickoffs `kickoffs/june-asset-extract/` · backlog Stage 14 · created 2026-10-07.
 
 **The answer.** June's non-lua/kim asset formats load in March unchanged. What breaks is the extraction: elstools cuts 18,571 June
@@ -426,7 +426,7 @@ X2/X5 touch shared staging; do not run X5 while another session is packing the s
 
 ## june-asset-port - every remaining June non-lua asset in the March client
 
-Plan `JUNE_ASSET_PORT_PHASES.md` · branch `mods/june-buff-port` · log tag `[KOM_MOUNT]` · flag `SERV_IRUHADEV_KOM_MOUNT_DEBUG` (P1,
+Plan `JUNE_ASSET_PORT_PHASES.md` · branch `main` · log tag `[KOM_MOUNT]` · flag `SERV_IRUHADEV_KOM_MOUNT_DEBUG` (P1,
 short-lived) · kickoffs `kickoffs/june-asset-port/` · backlog Stage 15 · created 2026-10-08.
 
 **The scope.** 117,562 June-only files (10.5 GB raw) are added: 33,819 into 66 kom numbers March has no archive for, 83,692 into
@@ -463,16 +463,16 @@ Running together:
 ## atlas - Atlas/Elysion port, one plan (Atlas Station, Fields 01-03, village 20009, AtlasDevelopment / AtlasCity / Tower / SkyCrossroads / Adrian / Soless / Memory)
 
 Plan `ATLAS_PORT_PHASES.md` (single plan since 2026-10-16, user: the former `ELYSION_PORT_PHASES.md` is its E sections, that file
-is a pointer; phase IDs A0-A13 / A6b / E0-E15 unchanged) · branch `mods/elysion-port` in the main Trunk, created by A0, no worktree
-(user, 2026-10-16) · log tag `[ELYDBG]` · flags: the plan's "Flags" table (`LEVEL_CAP_99`, `ELYSION_PORT`, `ELYSION_SCRIPT_A/B`,
+is a pointer; phase IDs A0-A13 / A6b / E0-E15 unchanged) · branch `main` (user, 2026-10-16: one branch,
+no worktree) · log tag `[ELYDBG]` · flags: the plan's "Flags" table (`LEVEL_CAP_99`, `ELYSION_PORT`, `ELYSION_SCRIPT_A/B`,
 `ELYSION_VILLAGE`, `JUNE_MOVABLE_LINE`, `JUNE_SIMPLE_DLG`, ...) · kickoffs `kickoffs/atlas/` (A and E phases) · backlog Stage 1 ·
 planned 2026-10-03, rows added 2026-10-08 (the plan predates STATUS and was never started: every Done note is empty). Quests are
 deferred to backlog Stage 4.
 **Order (user, 2026-10-08): the june-effect plan is completed before this one starts.**
 
-**Branch rules (from A0 on):** every phase works in the main Trunk with `mods/elysion-port` checked out, and commits this plan's rows
-on that branch in the phase's own commit. Any other plan's session run in this Trunk meanwhile commits onto the same branch. Switch
-branches only on a clean tree. At each phase start, merge `mods/june-buff-port` into the branch if it has moved.
+**Branch (user, 2026-10-16):** every phase works on `main` in the main Trunk, like every other plan, and commits this plan's rows
+in the phase's own commit. No branch is created and nothing is merged. (Until 2026-10-16 the plan said A0 cut `mods/elysion-port`;
+that is cancelled.)
 
 **Superseded by `LUA_SOURCE_PHASES.md` (L7, 2026-10-09):** the plan doc's "Lua compile/stage" block (`elstools compile-batch`, "compiled `1B 4B 4C 81`"), its
 "Lanox lessons" compiled-Lua gate and A5's `DLG_Destination` line keep the old wording and are frozen. Use instead: `luasrc.py adopt-june` (June's file, default = `ljconv` bytecode),
@@ -489,7 +489,7 @@ E0's `ELYSION_SOLESS` decompile-check (`elstools decompile-batch` + `ljd_jun2017
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| A0 | **ready** (june-effect finished 2026-10-16, user order of 2026-10-08 met; A0 itself has no blocker): in the main Trunk, on a clean tree only (stop and ask otherwise), create branch `mods/elysion-port` from the committed `mods/june-buff-port` tip (has K2) with `git switch -c`; `june2017_re/region_census.py` v1 + baseline vs the ledger | Sonnet 5.5 / high | - | new branch, `june2017_re/region_census.py`, plan doc (no game code) | `A0.md`; light Opus 5.5 review, kickoff written by the phase |
+| A0 | **ready** (june-effect finished 2026-10-16, user order of 2026-10-08 met; A0 itself has no blocker): on `main` (no branch, user 2026-10-16); `june2017_re/region_census.py` v1 + baseline vs the ledger | Sonnet 5.5 / high | - | `june2017_re/region_census.py`, plan doc (no game code) | `A0.md`; light Opus 5.5 review, kickoff written by the phase |
 | A1a | queued: RE + C++ reachability map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 | read-only (Ghidra), plan doc | written on first use |
 | A1b | queued: script-engine map, both halves (read-only) | Opus 5.5 / **xhigh** | A0 (parallel with A1a) | read-only (Ghidra), plan doc | written on first use |
 | A2 | **blocked**: level cap 99 + EXP migration | Opus 5.5 / high | A0, **MARCH_2014_MIGRATION Phase 7** (its board says "not started"; verify) | C++ + data + offline DB | written on first use |
@@ -529,7 +529,7 @@ run alongside anything.
 
 ## lua-source - core client Lua as proven plaintext source, the rest as June's bytecode
 
-Plan `LUA_SOURCE_PHASES.md` · branch `mods/june-buff-port` · log tag `[LUA_SRC]` · flag `SERV_IRUHADEV_LUA_SOURCE` (+ `_DEBUG`, L6
+Plan `LUA_SOURCE_PHASES.md` · branch `main` · log tag `[LUA_SRC]` · flag `SERV_IRUHADEV_LUA_SOURCE` (+ `_DEBUG`, L6
 only) · kickoffs `kickoffs/lua-source/` · skills `x2-lua`, `x2-adopt-june` (built here) · created 2026-10-09 (user request).
 
 **The point.** The engine already loads XOR-encrypted BOM plaintext Lua next to bytecode (binder gate `LuaCommon/KLuabinder.h:24-61`,
@@ -565,7 +565,7 @@ Running together:
 
 ## dev-overlay - loose Lua for development, pack at plan close-out and release
 
-Plan `DEV_OVERLAY_PHASES.md` · branch `mods/june-buff-port` · log tag `[DEV_OVERLAY]` (`data\dev_overlay.log`) · flag
+Plan `DEV_OVERLAY_PHASES.md` · branch `main` · log tag `[DEV_OVERLAY]` (`data\dev_overlay.log`) · flag
 `SERV_IRUHADEV_DEV_OVERLAY` · kickoffs `kickoffs/dev-overlay/` · tool `tools/overlay.py` + skill `x2-overlay` (built here) ·
 created 2026-10-09 (user request) · **`.lua` only** (user, 2026-10-09). Non-Lua assets keep the usual kom flow.
 
@@ -595,7 +595,7 @@ Running together:
 
 ## lanox-fix - Lanox mob fixes (user request 2026-10-11)
 
-Branch `mods/june-buff-port` · plan: this block + `LANOX_REMAINING_PHASES.md` Phase 7 (Done note) · investigated and implemented by Sonnet 5.5 subagents (user's choice), reviewed by the main session.
+Branch `main` · plan: this block + `LANOX_REMAINING_PHASES.md` Phase 7 (Done note) · investigated and implemented by Sonnet 5.5 subagents (user's choice), reviewed by the main session.
 
 | Phase | State | Model | Needs | Touches | Kickoff |
 |---|---|---|---|---|---|
@@ -606,7 +606,7 @@ Branch `mods/june-buff-port` · plan: this block + `LANOX_REMAINING_PHASES.md` P
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 
-Branch `mods/june-buff-port` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
+Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
 
 | Phase | State | Model | Needs | Touches | Kickoff |
 |---|---|---|---|---|---|
@@ -615,7 +615,7 @@ Branch `mods/june-buff-port` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row i
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
 
-Plan `JUNE_ENGINE_REMAINDER_PHASES.md` · branch: the current working branch · log tag `[JUNE_ENGINE]` (sub-tags `CTT`, `FX`, `ENVBOX`,
+Plan `JUNE_ENGINE_REMAINDER_PHASES.md` · branch `main` · log tag `[JUNE_ENGINE]` (sub-tags `CTT`, `FX`, `ENVBOX`,
 `SHIMMER`, `CRS`, `SMRT`, `UI`, `WORLD`) · flags `SERV_IRUHADEV_JUNE_RENDER_*` / `_JUNE_UI_*` / `_JUNE_WORLD_*` · kickoffs
 `kickoffs/june-engine/` · backlog Stage 2 · created 2026-10-16.
 

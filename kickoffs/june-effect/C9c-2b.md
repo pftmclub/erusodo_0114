@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C9c-2b` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C9c-1 (its table lookup and load) and C9c-2a (done 2026-10-07) |
 | Flag | new `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER` (needs C9c-1's `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_TABLE`) |
 | Log tag | `JUNE_FX` in ErrorLog.txt (the C9c lines are unbracketed: read them with `grep JUNE_FX ErrorLog.txt`, as C9c-1 found) |

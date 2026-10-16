@@ -27,7 +27,7 @@ The user's remaining backlog, in the order they listed it:
   - The real servers will desync with the ported client. That is accepted, so no stage writes matching server code. VS2003 is not installed here anyway.
   - The shared headers stay VS2003/C++98-clean, per `CLAUDE.md`.
 - **Atlas/Elysion is already planned** (2026-10-03, a parallel session; one plan since 2026-10-16: `ATLAS_PORT_PHASES.md` A0–A13 and E0–E15). That session recorded these decisions:
-  - Work happens on branch `mods/elysion-port` in the main Trunk, with no worktree (user, 2026-10-16).
+  - Work happens on `main` in the main Trunk, with no new branch and no worktree (user, 2026-10-16: one branch for every stage).
   - **Quests are deferred to a later quest plan**, together with the Lanox quests and possibly a Scaleform runtime. June's quest keys go in verbatim and inert.
   - **The level cap goes to 99** (A2). The user authorised invented `StatTable`/`NpcExpTable` rows 81–99, for those two tables only.
   - **June's `ExpTable.lua` is adopted whole**, so existing saves get a one-way EXP migration.
@@ -42,7 +42,7 @@ The user's remaining backlog, in the order they listed it:
 | # | Stage | Backlog items covered | Why it sits here |
 |---|---|---|---|
 | 0 | Close the open loops | 4 (effects, buffs) | Nothing new stacks on a half-updated engine ([[no-partial-june-updates]]). Each open item is mapped below to the stage it actually gates. |
-| 1 | Atlas + Elysion *(already planned)* | 1, plus the level cap | Planned, and the user's current priority. It is content on the engine as it stands, with quests deliberately split out. It runs on its own branch, `mods/elysion-port`, in the main Trunk, and it raises the level cap that transcendence assumes. |
+| 1 | Atlas + Elysion *(already planned)* | 1, plus the level cap | Planned, and the user's current priority. It is content on the engine as it stands, with quests deliberately split out. It runs on `main`, like every stage, and it raises the level cap that transcendence assumes. |
 | 2 | Engine remainder and measurements | 4 (shaders, render types) | June character effects need the missing render types and June's `.fx` contract. The measurements (models, UI widgets, effect check) size every later stage. |
 | 3 | Skill system core | 5 (engine half), 7 | Every character, transcendence and the dormant buff types BBT 98/BFT 16 sit on it. This stage removes the "June character attacks do 0 damage" blocker. |
 | 4 | Quest system | 8, plus the quests deferred from Lanox and Atlas/Elysion | Transcendence's class change is a quest type (`QT_CHANGE_TRANSCENDENTAL_CLASS`), and two regions' worth of inert quest keys wait on this engine. One quest engine serves all of them. |
@@ -64,11 +64,9 @@ The user's remaining backlog, in the order they listed it:
 | 21 | Photozone *(added 2026-10-09, june-effect C3e-2)* | - (found by june-effect C3e-2) | Not a backlog item but a missing game state: June's `XS_PHOTOZONE_LOBBY` (0x19) / `XS_PHOTOZONE_GAME` (0x1a), where the chat box's WIN / LOSE commands re-roll the start / win / lose motion. March has no Photozone. Numbered 21 to keep the earlier numbers stable. |
 | 22 | June dungeons and worlds *(added 2026-10-11, user: split out of june-effect)* | - (found by june-effect C3x / C3y / C3z) | Not a backlog item but missing content: the June dungeons, worlds and map entries that March lacks or has half of (Sander and Hamel secret dungeons, the five Henir Space boss worlds, class tutorial dungeons, Bestera, Space of Thought, the Hero tier, June's data101 map assets, the DungeonData readers june-effect C3z-5 routed, the Battle Field tutorial guide). Planned as `JUNE_DUNGEONS_PHASES.md`, STATUS block `june-dungeons`; phase IDs kept from june-effect. It shares the core registries with Stages 1 (Atlas / Elysion dungeons A8-A10, E8-E11) and 19 (event dungeons), so those port halves run one at a time. Numbered 22 to keep the earlier numbers stable. |
 
-**Concurrency.** There is one working tree, so code sessions follow the branch that is checked out:
-- Stage 0's buff port, on `mods/june-buff-port`;
-- Stage 1, on `mods/elysion-port`, in the same Trunk (no worktree, user 2026-10-16). While it is checked out, any code session commits onto it; switch branches only on a clean tree.
+**Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
-Planning sessions are read-only, and can run any time. Stage 2 *planning* can start now. Stage 2 *code* waits for the buff port to finish in the main Trunk, because both touch `KTDXLIB/Always.h` and shared engine files, and a third concurrent branch multiplies merge work.
+Planning sessions are read-only, and can run any time. Stage 2 *planning* can start now. Stage 2 *code* waits for the buff port to finish in the main Trunk, because both touch `KTDXLIB/Always.h` and shared engine files.
 
 **Merging.** Stage 1's branch is merged back before Stage 4 starts, because Stage 4 activates the quest keys that Stage 1 left inert.
 
@@ -155,9 +153,9 @@ Start from `ATLAS_PORT_PHASES.md`'s Phase A0 kickoff. It is one plan for both ha
 - the per-quest refresh `32340630`, called from three quest-UI handlers;
 - the code-event refresh `32344880`.
 
-The last is the tail of `Handler_EGS_UPDATE_CODE_EVENT_NOT` (`31f00970`). On `mods/june-buff-port` that handler's flag-on block (`SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`, C9h-2d) already copies June's map and two sets but does not make the call. Add the call there, behind E1's own flag; whichever branch merges second wires it. Rows: funcmap `Effect C9h-2e`.
+The last is the tail of `Handler_EGS_UPDATE_CODE_EVENT_NOT` (`31f00970`). On `main` that handler's flag-on block (`SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP`, C9h-2d) already copies June's map and two sets but does not make the call. Add the call there, behind E1's own flag; whichever branch merges second wires it. Rows: funcmap `Effect C9h-2e`.
 
-**Handed in by june-effect C9h-5 (2026-10-08):** E1 step 6. June's `CX2TFieldNpc` is a rewrite. Its `OnFrameMove` has 44 blocks, and the house loader reads 56 keys March lacks. It includes the village-NPC effect set (`EFFECT_SET_NAME`, used only by the three Elysion houses) and its `+0xe0` engine branches, which sit next to C9h-3a's. Merge `mods/june-buff-port` after C9h-3a lands, before E1 ports them. The friendship branches go to Stage 18. Rows: funcmap `Effect C9h-5`.
+**Handed in by june-effect C9h-5 (2026-10-08):** E1 step 6. June's `CX2TFieldNpc` is a rewrite. Its `OnFrameMove` has 44 blocks, and the house loader reads 56 keys March lacks. It includes the village-NPC effect set (`EFFECT_SET_NAME`, used only by the three Elysion houses) and its `+0xe0` engine branches, which sit next to C9h-3a's. Wait for C9h-3a to land on `main` before E1 ports them. The friendship branches go to Stage 18. Rows: funcmap `Effect C9h-5`.
 
 ### Stage 2: engine remainder and measurements
 
@@ -688,7 +686,7 @@ ORDER  BY UnitClass;
 
 ### Stage 1, Atlas + Elysion
 
-Use `ATLAS_PORT_PHASES.md`'s **Phase A0 kickoff** (`kickoffs/atlas/A0.md`). It is already written, and creates the branch `mods/elysion-port`.
+Use `ATLAS_PORT_PHASES.md`'s **Phase A0 kickoff** (`kickoffs/atlas/A0.md`). It is already written. It creates no branch: the work is on `main`.
 
 ### Stage 2 planning (full), Opus 5.5 high
 
@@ -699,9 +697,8 @@ concurrency note, "Facts behind the order", Stage 0's gate table, Stage 2, Stand
 rules), then CLAUDE.md, JUNE_KOM_CONTENT_GUIDE.md, JUNE2017_EFFECT_REBUILD_PLAN.md
 (status board + Phases 10-12), JUNE2017_CHARACTER_PORT_CHECKLIST.md,
 ATLAS_PORT_PHASES.md's investigation ledger (do not redo its census), and
-RANOX_PORT_PLAN.md's render-pass notes (grep CTT_RIM_LIGHT_BLUE / ".fx"). Ask which
-branch to plan on: mods/june-buff-port is the buff port's, mods/elysion-port is
-Atlas/Elysion's (both in the main Trunk). Never launch X2_offline.exe without asking first. This session
+RANOX_PORT_PLAN.md's render-pass notes (grep CTT_RIM_LIGHT_BLUE / ".fx"). Work on
+main (the only branch, user 2026-10-16). Never launch X2_offline.exe without asking first. This session
 plans and measures; it changes no C++.
 
 Goal: write JUNE_ENGINE_REMAINDER_PHASES.md in the repo root, in the same shape as
@@ -768,7 +765,7 @@ decisions), ATLAS_PORT_PHASES.md (the Atlas/Elysion plan, A and E phases; decisi
 of plan" and every Done note's quest hand-off), X2Lib/X2QuestManager.h/.cpp,
 X2Lib/Offline's quest module, JUNE_UI_PARITY_PHASES.md's
 IsActiveDungeon/RequireCompletedQuestID follow-up, and the June quest tables
-extracted in Stage 3a. Precondition: mods/elysion-port merged. First ask the user
+extracted in Stage 3a. Precondition: Stage 1 (Atlas/Elysion) closed on main. First ask the user
 the guild-quest and Scaleform/GFx decisions. Output: JUNE_QUEST_SYSTEM_PHASES.md
 (engine: loader keys, new QT/QR/SQT types, chain/group quests, NPC relation quest
 side, quest UI, offline completion for every new sub-quest type; content: Lanox /

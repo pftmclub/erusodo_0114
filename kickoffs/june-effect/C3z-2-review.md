@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-2 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3z-2 done (its Done note and commit); best after the user's Druid Forest play-test |
 | Flag | none (C3z-2 changed no C++) |
 | Log tag | `JUNE_FX C3z-2` (offline_server.log `GAME +NPC` / `stage N loading` lines; ErrorLog `[EXTRA_NPC_STAT] loaded`) |

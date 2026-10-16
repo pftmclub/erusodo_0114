@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3p-2 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3p-2 done (no code: a six-gate map, routed items) |
 | Flag | none landed: `SERV_IRUHADEV_JUNE_ESC_GATES` stays undefined unless the review finds a gate with a March home |
 | Log tag | `JUNE_FX C3p-2` (only if the review ports something) |

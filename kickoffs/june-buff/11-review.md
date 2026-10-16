@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 11 review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 11 done (its Done note and commits, see STATUS.md) |
 | Flag | `SERV_IRUHADEV_JUNE_BUFF_PREMIUM` (client), `SERV_IRUHADEV_OFFLINE_ITEM_BUFF` (emulator), `SERV_IRUHADEV_JUNE_BUFF_NOT_USE_IN` (stand-in), `SERV_IRUHADEV_OFFLINE_VILLAGE_BUFF` (village Rest buff 122, user request) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`); emulator lines are `BUFF     ` in `offline_server.log` (`--grep "BUFF     "`) |

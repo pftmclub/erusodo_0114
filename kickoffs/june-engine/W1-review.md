@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-engine W1 review` |
-| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch `main`) |
 | Depends on | Phase W1 done (its Done note and commits) |
 | Flag | `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID`, `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET`, `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND` |
 | Log tag | `[JUNE_ENGINE] WORLD` |

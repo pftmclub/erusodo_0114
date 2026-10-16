@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 15-step2b` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | 15 step 2 chunks A-C (`835b5ef`, `5d8f827`, and the chunk C/B2 commit named in the step 2 Done note) |
 | Flag | `SERV_IRUHADEV_JUNE_ENCHANT_PARITY` |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

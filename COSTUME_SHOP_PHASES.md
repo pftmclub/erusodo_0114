@@ -1,6 +1,6 @@
 # Costume shop: every June costume in the offline cash shop
 
-Created 2026-10-08 (user request, after june-item-kim K4). Branch `mods/june-buff-port`. Flag `SERV_IRUHADEV_COSTUME_SHOP`. Log tag `[COSTUME_SHOP]`.
+Created 2026-10-08 (user request, after june-item-kim K4). Branch `main`. Flag `SERV_IRUHADEV_COSTUME_SHOP`. Log tag `[COSTUME_SHOP]`.
 
 ## Context
 

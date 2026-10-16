@@ -1,6 +1,6 @@
 # June item.kim adoption: March loads June 2017's item.kim
 
-Plan key `june-item-kim` · branch `mods/june-buff-port` · flags `SERV_IRUHADEV_JUNE_ITEM_KIM` (the record layout) and
+Plan key `june-item-kim` · branch `main` · flags `SERV_IRUHADEV_JUNE_ITEM_KIM` (the record layout) and
 `SERV_IRUHADEV_KIM_LAYOUT_CHECK` (the structural check), both in `KTDXLIB/Always.h` · log tag `[JUNE_KIM]` (ErrorLog.txt) ·
 kickoffs `kickoffs/june-item-kim/` · board: the `june-item-kim` block in `STATUS.md` · backlog Stage 13 in
 `JUNE_PORT_BACKLOG_ORDER.md`. Created 2026-10-07.

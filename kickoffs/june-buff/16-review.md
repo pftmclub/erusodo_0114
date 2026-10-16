@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 16 review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase 16 steps 2-4 part 1 (commit in STATUS) |
 | Flag | `SERV_IRUHADEV_JUNE_SOCKET_PARITY`, 92 under `_NEW_STAT`, `SERV_IRUHADEV_JUNE_ATTACK_RANGE_DESIGN` |
 | Log tag | `[JUNE_BUFF]` |

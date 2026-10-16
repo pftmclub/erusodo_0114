@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3s review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3s done (its Done note and commit) and its regression play-test |
 | Flag | `SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE`, `SERV_IRUHADEV_JUNE_BF_FOCUS_NEEDS_MY_UNIT` |
 | Log tag | none (no new log lines; `python tools/logs.py` for the EXCEPTION / UNHANDLED summary) |

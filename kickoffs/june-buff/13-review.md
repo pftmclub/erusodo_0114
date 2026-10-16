@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 13 review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase 13 done (its Done note and commits); the plan requires this review **before** the user copies `data036_packed.kom` into the game (the packed kom exists, the copy is the user's go) |
 | Flags | `SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF` (turned on by 13) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

@@ -76,7 +76,7 @@ Rules:
 ## Starting context (paste this with any phase)
 
 - **Repo root:** `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
-- **Branch:** `mods/lanox-port`
+- **Branch:** `main`
 - **Game directory** (deploy target, logs, save): `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data`
 - **March kom staging** (the user's): `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\kom_contents\dataNNN_kom\`
 - **June2017 reference client** (read only, never modify): `F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data\dataNNN_kom\`
@@ -593,7 +593,7 @@ today's value") for items 1–5. The call-site table is written into this sectio
 ```
 Continuing the Lanox ExtraNPCStat port. Read LANOX_EXTRA_NPC_STAT_PLAN.md
 ("Starting context", "Investigation ledger", "Phase 0") and
-.claude/skills/ghidra/SKILL.md. Branch: mods/lanox-port. Do not re-derive anything
+.claude/skills/ghidra/SKILL.md. Branch: main. Do not re-derive anything
 in the ledger.
 
 Your task (Ghidra, read-only, no code): settle Phase 0's five items in June's x2.exe
@@ -747,7 +747,7 @@ phase.
 ```
 Continuing the Lanox ExtraNPCStat port. Read LANOX_EXTRA_NPC_STAT_PLAN.md
 ("Starting context", "Investigation ledger", "Phase 1") and june2017_re/README.md
-("Phase 10b"). Branch: mods/lanox-port. Do not re-derive anything in the ledger.
+("Phase 10b"). Branch: main. Do not re-derive anything in the ledger.
 
 Your task (data only, no C++): convert June's data036 NewNPCStat.lua and
 NewNPCStatFormula.lua to mar-2014 with june2017_re/ljconv.py. Pass the 14 june_lua/
@@ -1044,7 +1044,7 @@ seen it.
 **Kickoff prompt**:
 ```
 Continuing the Lanox ExtraNPCStat port. Read LANOX_EXTRA_NPC_STAT_PLAN.md
-("Starting context", "Investigation ledger", "Phase 2"). Branch: mods/lanox-port.
+("Starting context", "Investigation ledger", "Phase 2"). Branch: main.
 Do not re-derive anything in the ledger.
 
 Your task (analysis only, change no game files): for the 772 NPCs whose legacy stat row
@@ -1263,7 +1263,7 @@ per NPC ID per game:
 **Kickoff prompt**:
 ```
 Continuing the Lanox ExtraNPCStat port. Read LANOX_EXTRA_NPC_STAT_PLAN.md
-("Starting context", "Investigation ledger", "Phase 3"). Branch: mods/lanox-port.
+("Starting context", "Investigation ledger", "Phase 3"). Branch: main.
 Do not re-derive anything in the ledger. Phase 1 is done. Where Phase 0 has a verdict
 in the ledger, apply it; where it doesn't, use the interim value the plan documents.
 
@@ -1436,7 +1436,7 @@ the **772** NPCs with a legacy row use formula stats too, exactly as June does.
 **Kickoff prompt**:
 ```
 Continuing the Lanox ExtraNPCStat port. Read LANOX_EXTRA_NPC_STAT_PLAN.md
-("Starting context", "Investigation ledger", "Phase 4"). Branch: mods/lanox-port.
+("Starting context", "Investigation ledger", "Phase 4"). Branch: main.
 Do not re-derive anything in the ledger. Phases 0-3 are done.
 
 Your task: implement SERV_IRUHADEV_EXTRA_NPC_STAT_PARITY exactly as Phase 4 specifies:
@@ -1658,7 +1658,7 @@ parity decision is recorded.
 ```
 Continuing the Lanox ExtraNPCStat port. Read LANOX_EXTRA_NPC_STAT_PLAN.md
 ("Starting context", "Investigation ledger", "Phase 5", and Phase 2's summary).
-Branch: mods/lanox-port. Phases 0-4 are done and deployed.
+Branch: main. Phases 0-4 are done and deployed.
 
 Your task: run Phase 5's checklist with me. I play; you read offline_server.log
 ([XSTAT], [NPC_ZERO_HP], KILL_SELF, stage loading) after each session and tell me what
@@ -1724,7 +1724,7 @@ user's request, logged in three places (this Status line, Phase 5's Status line,
 **Kickoff prompt**:
 ```
 Continuing the Lanox ExtraNPCStat port. Read LANOX_EXTRA_NPC_STAT_PLAN.md
-("Starting context", "Phase 6", and every phase's Status). Branch: mods/lanox-port.
+("Starting context", "Phase 6", and every phase's Status). Branch: main.
 
 Your task: close out the port. Update LANOX_DEFECT_PHASES.md (new entry pointing here;
 supersede Phase 7d's "Geyser _FD unsourceable" / "35 remain" notes, since the source is

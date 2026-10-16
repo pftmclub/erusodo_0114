@@ -84,7 +84,7 @@ preceded by a **Run with:** line; the table below repeats it.
 ## Starting context (paste this with any phase)
 
 - Repo root: `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
-- Branch: `mods/lanox-port`
+- Branch: `main`
 - Game directory (deploy target, logs, save):
   `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data`
 - Client build (default `US_SERVICE`, see `CLAUDE.md` *Toolchains*):
@@ -531,7 +531,7 @@ changes.
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger",
-and "Phase 0". Branch: mods/lanox-port. Do NOT consult NEW_VILLAGE_PLAN.md,
+and "Phase 0". Branch: main. Do NOT consult NEW_VILLAGE_PLAN.md,
 NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the mods/lanox-offline branch.
 
 Your task is READ-ONLY: build the TET-key census described in Phase 0.
@@ -895,7 +895,7 @@ Verification:
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger",
-"Phase 0 findings" (if present) and "Phase 1". Branch: mods/lanox-port. Do NOT
+"Phase 0 findings" (if present) and "Phase 1". Branch: main. Do NOT
 consult NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch. Never launch X2_offline.exe without asking first.
 
@@ -980,7 +980,7 @@ plate, and the Map_Title_Ranox header renders. Sander is unchanged.
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger",
-"Phase 0 findings" and "Phase 2". Branch: mods/lanox-port. Do NOT consult
+"Phase 0 findings" and "Phase 2". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch. Never launch X2_offline.exe without asking first.
 
@@ -1123,7 +1123,7 @@ This phase covers only the loose ends:
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md "Starting
 context" and "Phase 3", and LANOX_DEFECT_PHASES.md "Phase 4". Branch:
-mods/lanox-port. Your task: clean march2014/update/data056/_manifest.json of
+main. Your task: clean march2014/update/data056/_manifest.json of
 the DLG_UI_Button20_NEW entries whose files are not on disk (keep the house
 format: CRLF, 2-space indent, no trailing newline), and mark
 LANOX_DEFECT_PHASES Phase 4's atlas merge as superseded by
@@ -1192,7 +1192,7 @@ Verification:
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger",
-"Phase 0 findings" and "Phase 4". Branch: mods/lanox-port. Do NOT consult
+"Phase 0 findings" and "Phase 4". Branch: main. Do NOT consult
 NEW_VILLAGE_PLAN.md, NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the
 mods/lanox-offline branch. Never launch X2_offline.exe without asking first.
 
@@ -1364,7 +1364,7 @@ area, press M.
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger" and
-"Phase 5". Branch: mods/lanox-port. Do NOT consult NEW_VILLAGE_PLAN.md,
+"Phase 5". Branch: main. Do NOT consult NEW_VILLAGE_PLAN.md,
 NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the mods/lanox-offline branch. Never
 launch X2_offline.exe without asking first.
 
@@ -1556,7 +1556,7 @@ Verification:
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger" and
 "Phase 6", plus RANOX_PORT_PLAN.md "Phase 9" and its findings. Branch:
-mods/lanox-port. Never launch X2_offline.exe without asking first.
+main. Never launch X2_offline.exe without asking first.
 
 Your task: hide the Lanox secret dungeon (Secret Hell, DI_RANOX_SECRET_HELL =
 41271), which the March client never officially supported. INVESTIGATE
@@ -1620,7 +1620,7 @@ variants are unchanged or improved, never regressed.
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger" and
 "Phase 7", plus RANOX_EFFECT_ENGINE_GAPS.md's ATTACH_SKIN_MESH section.
-Branch: mods/lanox-port. Never launch X2_offline.exe without asking first.
+Branch: main. Never launch X2_offline.exe without asking first.
 
 Your task: in Distant Ruin (VMI_BATTLE_FIELD_RANOX_FIELD_04), Twilight Demon
 Fighter/Berserker (NUI_LOW_FINALHALL_*_FD) look yellow; I recall blue. All
@@ -1705,7 +1705,7 @@ and the other Ranox dungeons are unchanged.
 ```
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger" and
-"Phase 8". Branch: mods/lanox-port. Never launch X2_offline.exe without
+"Phase 8". Branch: main. Never launch X2_offline.exe without
 asking first.
 
 Your task: finish the Burned Forest background fix
@@ -1785,7 +1785,7 @@ Verification:
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger"
 (Item 10) and "Phase 9" -- and LANOX_DEFECT_PHASES.md's bug A (the same fix
-for the village). Branch: mods/lanox-port. Do NOT consult NEW_VILLAGE_PLAN.md,
+for the village). Branch: main. Do NOT consult NEW_VILLAGE_PLAN.md,
 NEW_VILLAGE_RANOX_IDENTIFIERS.md, or the mods/lanox-offline branch. Never
 launch X2_offline.exe without asking first.
 
@@ -1890,7 +1890,7 @@ Verification:
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Investigation ledger"
 (Item 11) and "Phase 10" -- and RANOX_PORT_PLAN.md's "Phase 14" section
-(executed 2026-09-19). Branch: mods/lanox-port. Never launch X2_offline.exe
+(executed 2026-09-19). Branch: main. Never launch X2_offline.exe
 without asking first.
 
 Your task: fix the Fire Temple (Collapsing Temple of Fire) stage 2 collapse.
@@ -2155,7 +2155,7 @@ record):**
 Continuing the Lanox/Ranox port. Read LANOX_REMAINING_PHASES.md in the repo
 root in full -- especially "Starting context", the "Fix philosophy" section's
 2026-10-01 asset-conflict-priority rule, the "Investigation ledger", and
-"Phase 11". Branch: mods/lanox-port. Never launch X2_offline.exe without
+"Phase 11". Branch: main. Never launch X2_offline.exe without
 asking first.
 
 Your task: fix the missing Ranox boss face icon in the boss HP bar. 22 Ranox

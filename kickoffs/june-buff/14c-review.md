@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 14c review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase 14c done (its Done note and commit; play-test of the tutorial checks passed) |
 | Flag | `SERV_IRUHADEV_JUNE_TUTORIAL_MODE` (+ the emulator's `SERV_IRUHADEV_OFFLINE_FIRST_SELECT`) |
 | Log tag | `[JUNE_BUFF]` (`python tools/logs.py --tag JUNE_BUFF`) |

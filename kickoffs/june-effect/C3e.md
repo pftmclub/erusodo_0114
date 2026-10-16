@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3e` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | - (found by C3d-1). Run it after C3d-2 if it proposes a port: same `X2UDPPacket.h/.cpp` |
 | Flag | none (no code); a port phase, if any, gets its own flag |
 | Log tag | - |

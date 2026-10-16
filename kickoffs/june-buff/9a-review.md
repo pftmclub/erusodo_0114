@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 9a review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase 9a done (`b8bc0a1` code; docs `87c3a3a`, `9d70f0c`, `860804c`, `dd7a7f9`) |
 | Flag | `SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION` |
 | Log tag | `[JUNE_BUFF]` |

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3z-3 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3z-3 done (its Done note and commit); best after the user's play-test |
 | Flag | none (C3z-3 changed no C++) |
 | Log tag | `JUNE_FX C3z-3` (no new log lines: ErrorLog `OpenScriptFile` / `XEM_ERROR2` for `DungeonData.lua`, offline_server.log `GAME` lines) |

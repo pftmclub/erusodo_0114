@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-dungeons C3z-1b` |
-| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch: the current working branch); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
+| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch `main`); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
 | Depends on | june-asset-port **P0** (its data101 restore: `kom.py pack data101` = `+0/-0/~0` against live) and C3z-1 |
 | Flag | none expected (data only) |
 | Log tag | none new; mesh misses are `XEM_ERROR109` / `OpenXSkinMesh` lines in `ErrorLog.txt` |

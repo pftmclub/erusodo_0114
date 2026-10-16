@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3n` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3m; **not at the same time as C3j or C3k** (same NPC CommonStateStart code) |
 | Flag | `SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY`, `SERV_IRUHADEV_JUNE_WORLD_RATE_TRIM` |
 | Log tag | `JUNE_FX C3n` (`python tools/logs.py --grep "JUNE_FX C3n"`) |

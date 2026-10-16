@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C8c` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C8b (the `0x780` hook, the layers); **C5** (DamageData `ATTACK_TRIGGER_TYPE` `+0x53c` and the `ADDITIONAL_ATTACK_TRIGGER_TYPE` reader `32610fb0`); **D8** answered (decides the Rena/Aisha re-keyed blocks) |
 | Flag | `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` (C8b's) |
 | Log tag | `[JUNE_FX]` |

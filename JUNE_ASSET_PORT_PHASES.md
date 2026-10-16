@@ -1,6 +1,6 @@
 # June asset port: every remaining June non-lua asset in the March client
 
-Plan key `june-asset-port` · branch `mods/june-buff-port` · log tag `[KOM_MOUNT]` · flag family `SERV_IRUHADEV_KOM_MOUNT_*` ·
+Plan key `june-asset-port` · branch `main` · log tag `[KOM_MOUNT]` · flag family `SERV_IRUHADEV_KOM_MOUNT_*` ·
 kickoffs `kickoffs/june-asset-port/` · backlog Stage 15 · created 2026-10-08.
 
 ## Context

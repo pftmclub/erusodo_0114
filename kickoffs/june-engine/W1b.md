@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-engine W1b` |
-| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch `main`) |
 | Depends on | W0 (done 2026-10-16); june-effect C12 (code gate). Not alongside W1, W2 or atlas E5 (same files) |
 | Flag | `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE` |
 | Log tag | `[JUNE_ENGINE] WORLD` (`python tools/logs.py --tag JUNE_ENGINE`) |

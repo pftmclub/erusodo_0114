@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-dungeons C3z-5b` |
-| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch: the current working branch); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
+| Plan doc | `JUNE_DUNGEONS_PHASES.md` (branch `main`); this phase's text and the earlier Done notes still sit in `JUNE2017_EFFECT_COMPLETION_PHASES.md`, which the commands below read; write the new Done note into `JUNE_DUNGEONS_PHASES.md` |
 | Depends on | C3z-5 (its loader, accessors and `SERV_IRUHADEV_JUNE_DUNGEON_CHECK_CONDITION`); best before or with C3y, which makes the June-only rows live |
 | Flag | one `SERV_IRUHADEV_JUNE_*` per family (e.g. `..._DCC_RIDING_PET`, `..._DCC_EVENT_DUNGEON`, `..._DUNGEON_ADDITIONAL_TICKET`, `..._LAST_CLEAR_DUNGEON`) |
 | Log tag | `JUNE_FX C3z-5b` |

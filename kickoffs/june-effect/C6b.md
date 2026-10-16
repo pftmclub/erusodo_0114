@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-effect C6b` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C6a (done 2026-10-06), C6a2 (done 2026-10-07: added the EffectSet stamps below, moved the buff list to C6c), C5 (`31f64c00` needs C5's `ADDITIONAL_ATTACK_TRIGGER_TYPE` list member) |
 | Flag | `SERV_IRUHADEV_JUNE_SPAWN_INHERIT` |
 | Log tag | `[JUNE_FX]` in ErrorLog.txt (`python tools/logs.py --tag JUNE_FX`) |

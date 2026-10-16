@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-buff 11b review` |
-| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_BUFF_PORT_PHASES.md` (branch `main`) |
 | Depends on | Phase 11b done (its Done note and commit) |
 | Flags | `SERV_IRUHADEV_JUNE_BUFF_STORE_BUFF` (commented out: user, 2026-10-05), `_REPAIR_DISCOUNT`, `_DURATION_TIME` |
 | Log tag | `[JUNE_BUFF]` (no new lines in 11b; the emulator's `BUFF     activated buff` lines mark the test buffs) |

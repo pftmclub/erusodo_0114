@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase june-item-kim K2 review` |
-| Plan doc | `JUNE_ITEM_KIM_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `JUNE_ITEM_KIM_PHASES.md` (branch `main`) |
 | Depends on | K2 done (its Done note and commit) |
 | Flag | `SERV_IRUHADEV_JUNE_ITEM_KIM`, `SERV_IRUHADEV_KIM_LAYOUT_CHECK`, `SERV_IRUHADEV_JUNE_KIM_MINIME_REMAP` |
 | Log tag | `[JUNE_KIM]` (`python tools/logs.py --tag JUNE_KIM`) |

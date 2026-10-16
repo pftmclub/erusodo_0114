@@ -79,7 +79,7 @@ Rules carried over:
 
 - **Repo root:** `F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk`
   (called `<Trunk>` below).
-- **Branch:** `mods/lanox-port`.
+- **Branch:** `main`.
 - **June2017 reference client:** `F:\elsword stuff\elsword_2014\els_2014\237311\14JUN17\data\`.
   - Scripts sit in `dataNNN_kom\` / `dataiNNN_kom\` folders, next to their `.kom` archives.
   - **Never write into `14JUN17\`.** Copy files out first.
@@ -506,7 +506,7 @@ depending on `.std.luac` siblings.
 Starting the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md at the repo
 root ("Starting context", "Investigation ledger", "Phase 0"), then RANOX_LUA_DECOMPILE_BUG.md,
 june2017_re/README.md's "June LuaJIT opcode table" and "Phase 10b" sections, and
-june2017_re/ljconv.py and ljd_jun2017.py. Branch: mods/lanox-port.
+june2017_re/ljconv.py and ljd_jun2017.py. Branch: main.
 
 Your task is Phase 0: build june2017_re/corpus_run.py (resumable per-file runner: timeout,
 faulthandler, kill by PID only, --resume); inventory every June .lua under
@@ -687,7 +687,7 @@ suite for Phase 4 that can't be confused by mock noise.
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
 context", "Investigation ledger", "Phase 0 result", "Phase 1") and RANOX_LUA_DECOMPILE_BUG.md.
-Branch: mods/lanox-port.
+Branch: main.
 
 Your task is Phase 1: build june2017_re/ljd_oracle/, an engine-free oracle. Write small Lua
 cases covering the Kenta shape, elseif chains, a read-after-branch-merge, the stored-then-
@@ -989,7 +989,7 @@ deterministic, recorded conditions.
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
 context", "Investigation ledger", "Phase 0 result", "Phase 1 result", "Phase 2a"), and
-june2017_re/fxdump.lua as the stub-harness precedent. Branch: mods/lanox-port.
+june2017_re/fxdump.lua as the stub-harness precedent. Branch: main.
 
 Your task is Phase 2a: build june2017_re/ljdiff/ (ljdiff.lua runtime + ljdiff.py
 orchestrator) per the phase's Design: original (ljconv mar-2014) vs round trip (corrected
@@ -1315,7 +1315,7 @@ noise check is clean.
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
 context", "Investigation ledger", "Phase 1 result", "Phase 2a" Design, "Phase 2b") and
-MODS.md's "Dryad Kenta (Burned Forest boss)" entry. Branch: mods/lanox-port.
+MODS.md's "Dryad Kenta (Burned Forest boss)" entry. Branch: main.
 
 Your task is Phase 2b: add a diff mode to june2017_re/ljdiff/ljdiff.py that classifies
 divergences (dropped-assignment / other-ljd / clobber / unreached / static-only) with
@@ -1498,7 +1498,7 @@ matters, using the minimal repro from Phase 1.
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
 context", "Investigation ledger" incl. the calibration table and the three slotworks leads,
 "Phase 1 result", "Phase 3"), then elstools/vendor/ljd/main.py:355-450 and
-elstools/vendor/ljd/ljd/ast/slotworks.py. Branch: mods/lanox-port.
+elstools/vendor/ljd/ljd/ast/slotworks.py. Branch: main.
 
 Your task is Phase 3, identification only: copy ljd into <Trunk>/tmp/, instrument every
 elimination decision (incl. skipped id==-1 refs), and find the exact path that drops the
@@ -1608,7 +1608,7 @@ resolved.
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
 context", "Investigation ledger" incl. calibration table, "Phase 3 result", "Phase 4") and
-RANOX_LUA_DECOMPILE_BUG.md's "Root cause" section. Branch: mods/lanox-port.
+RANOX_LUA_DECOMPILE_BUG.md's "Root cause" section. Branch: main.
 
 Your task is Phase 4: implement the Phase 3 fix as june2017_re/ljd_fixed.py (monkey-patch,
 refuses to install if vendored slotworks.py's SHA-256 changed), add an opt-in --fixed to
@@ -1964,7 +1964,7 @@ revised 6a–6c split.
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
 context", "Investigation ledger", "Phase 4 result", "Phase 5") and RANOX_LUA_DECOMPILE_BUG.md.
-Branch: mods/lanox-port.
+Branch: main.
 
 Your task is Phase 5: map every march2014/**/*.src.lua to its June original, and run
 corpus_run.py + ljdiff on each: June vs FIXED round trip (must show zero dropped-assignment
@@ -2227,7 +2227,7 @@ fixed, and every intentional port edit is kept.
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
 context", "Investigation ledger", "Phase 5 result" incl. the local-slotN decision, "Phase
-6a-6c") and MODS.md's Dryad Kenta entry as the worked example. Branch: mods/lanox-port.
+6a-6c") and MODS.md's Dryad Kenta entry as the worked example. Branch: main.
 
 Your task is Phase 6<x>: repair <file list> using decompile_verdicts.tsv. Three-way compare
 per flagged function (June trace / fixed decompile / port file): fix bugs with the minimal
@@ -2272,7 +2272,7 @@ monster/boss ports draw from.
 **Kickoff prompt**:
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
-context", "Phase 0 result", "Phase 4 result", "Phase 7"). Branch: mods/lanox-port.
+context", "Phase 0 result", "Phase 4 result", "Phase 7"). Branch: main.
 
 Your task is Phase 7: sweep every June data037_kom .lua with corpus_run.py + ljdiff (June vs
 FIXED round trip), in the background with --resume, writing fixed decompiles to
@@ -2374,7 +2374,7 @@ tables (`data040_kom` line maps, `data034_kom`, `datai*`).
 **Kickoff prompt**:
 ```
 Continuing the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
-context", "Phase 7 result", "Phase 8"). Branch: mods/lanox-port.
+context", "Phase 7 result", "Phase 8"). Branch: main.
 
 Your task is Phase 8: run the Phase 7 pipeline over every remaining June folder, writing to
 <Trunk>/june_src_fixed/<dir>/. Use the main-chunk-only fast path for files that define no
@@ -2514,7 +2514,7 @@ grown to 41,809 `scope=corpus` rows (covering the full 7,328-file corpus) plus P
 **Kickoff prompt**:
 ```
 Closing out the Ranox Lua decompile fix. Read RANOX_LUA_DECOMPILE_FIX_PLAN.md ("Starting
-context", every "Phase N result", "Phase 9"). Branch: mods/lanox-port.
+context", every "Phase N result", "Phase 9"). Branch: main.
 
 Your task is Phase 9: make ljd_jun2017.py/regen.sh use the fixed hook by default (keep
 --unfixed), add a --check that runs ljdiff and fails on dropped-assignment/clobber; rewrite

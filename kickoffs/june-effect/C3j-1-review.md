@@ -6,7 +6,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3j-1 review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3j-1 done (its Done note and commit) and its play-test read |
 | Flag | `SERV_IRUHADEV_JUNE_BOUNDING_STATE` (+ `SERV_IRUHADEV_JUNE_BOUNDING_STATE_DEBUG`, turn it OFF here) |
 | Log tag | `JUNE_FX C3j-1` (offline_server.log; `logs.py --grep "JUNE_FX C3j-1"`) |

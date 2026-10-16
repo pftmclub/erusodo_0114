@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3q review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3q done (its Done note and commit) and its regression play-test |
 | Flag | `SERV_IRUHADEV_JUNE_NPC_EFFECT_SET_LIST` |
 | Log tag | none (no reachable data, no `_DEBUG` flag; see the Done note) |

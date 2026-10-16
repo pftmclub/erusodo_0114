@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3i` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3d-3 review (it reads the key into `CX2GUNPC::m_bJuneNotUpState` under `SERV_IRUHADEV_JUNE_BOUNDING_STATE` and tests it in the RT_BOUNDING case only) |
 | Flag | new `SERV_IRUHADEV_JUNE_NOT_UP_STATE` (`#error` without `SERV_IRUHADEV_JUNE_BOUNDING_STATE`, which owns the member and the key read) |
 | Log tag | `JUNE_FX C3i` |

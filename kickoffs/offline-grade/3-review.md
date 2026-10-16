@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase offline-grade 3 review` |
-| Plan doc | `OFFLINE_MONSTER_GRADE_PHASES.md` (branch `mods/june-buff-port`) |
+| Plan doc | `OFFLINE_MONSTER_GRADE_PHASES.md` (branch `main`) |
 | Depends on | Phase 3 done (its Done note and commits) |
 | Flag | `SERV_IRUHADEV_OFFLINE_MONSTER_GRADE` |
 | Log tag | `[OFFLINE_GRADE]` |

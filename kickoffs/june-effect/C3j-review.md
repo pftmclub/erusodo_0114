@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3j review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3j done (its Done note and commit) |
 | Flag | `SERV_IRUHADEV_JUNE_BOUNDING_STATE` |
 | Log tag | `JUNE_FX C3j` (no lines: the code is dormant) |

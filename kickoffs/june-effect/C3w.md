@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3w` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3s (the `FORCE_CINEMATIC_STATE` member and parse exist under `SERV_IRUHADEV_JUNE_FORCE_CINEMATIC_STATE`) |
 | Flag | one `SERV_IRUHADEV_JUNE_*` per logical change found |
 | Log tag | `JUNE_FX C3w` |

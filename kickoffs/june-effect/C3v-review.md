@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-effect C3v review` |
-| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch: the current working branch) |
+| Plan doc | `JUNE2017_EFFECT_COMPLETION_PHASES.md` (branch `main`) |
 | Depends on | C3v done (its Done note and commit) and its play-test |
 | Flag | `SERV_IRUHADEV_JUNE_TIMER_FOCUS_UNIT` (+ short-lived `SERV_IRUHADEV_JUNE_C3V_DEBUG`, turn it OFF in this review) |
 | Log tag | `python tools/logs.py --grep "JUNE_FX C3v"` |
