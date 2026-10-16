@@ -1933,7 +1933,7 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
   - Both: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
     0 encoding change(s)`, `RESULT: PASS`.
 - **Pack:** `PACK OK` data034 / 036 / 037 / 040 / 046 / 078 / 096 / 179 / 180 / 181 / 182. The data036 pack warns about 24 older
-  `.src.lua` sidecars, not A6's. Copy waits for the user's OK.
+  `.src.lua` sidecars, not A6's. **Copied (user OK):** `COPY OK` data034 94490be6 / 036 8a709bcb / 037 6f9549cb / 040 c92d2288 / 046 c5921e14 / 078 4b7a51a0 / 096 0120127f / 179 5b2300ce (new) / 180 bbc42839 / 181 a07dc70f / 182 881dea8a; the 3 music files copied into `data\music`, md5 = June's.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,606,528 B, dated 2026-10-17 06:31:02, md5 c1c45191e375bed74b3e286ef606081c, equal to X2/US_SERVICE/x2.exe (2026-10-17 06:30:57); built at main adad9359 + 5 uncommitted code file(s).`
   The 5 files are A6's. Proof: `UI_Portal_Arrow` (only in A6's `#ifdef`) is in the deployed exe.
 - **How to see it in game:** the A6 STATUS row / hand-off. Lanox F04 (Distant Ruins) far-end portal -> Atlas Station. Atlas Station's
