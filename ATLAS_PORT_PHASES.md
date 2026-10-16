@@ -637,6 +637,8 @@ right-button block → 1008, A6); `data034/DLG_Map_House.src.lua:4196-4197`,
   March's `AddWorldData_LUA` reads only 3 keys (`X2WorldManager.cpp:170-184`).
   Adrian keys: `DIRECT_MOVE_DATA`, `TARGET_MESH_NAME`;
   `MOTIONNAME_EFFECTSETNAME` (Lanox kept it inert — keep consistent).
+  *(2026-10-16, june-engine W0: no longer inert by plan. june-engine W1 ports the key and June's mesh-anchored
+  play engine-side; E9 only stages the Adrian data. `TAT_LINE_CHANGE_MOVABLE_DATA` stays E5's.)*
 - **Buff-owned:** `GetBuffAccumulationCountNow` (`ELYSION_M_SOLESS` = Memory
   boss; possibly `ELYSION_SOLESS`) → **JUNE_BUFF Phase 10**.
   `SOLESS_TITLE_INVINCIBLE` (BBT 101 + a custom-function class) is a **title

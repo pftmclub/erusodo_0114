@@ -170,6 +170,11 @@ type.** Unknown table keys are ignored silently (`LUA_GET_VALUE` with defaults);
 reached: 0x58-byte rows -> `327fc8c0`, 0x38 -> `328004a0`, 0x3c -> `32800e10`. Per C9h-7: type 1 sound (device auto-release),
 type 3 world `+0x18c/+0x190`, types 4-8 game / unit actions. Loader, Lua keys and March-data reach: not mapped (W0).
 
+**Correction (W0, 2026-10-16): this is not a June-only system.** It is March's own line-map trigger runtime (`WORLD_TRIGGER`, live):
+`32801580` = `CX2World::DoTriggerFrameMove`, the three handlers = `DoTriggerMesh` / `DoTriggerLine` / `DoTriggerEtc`, world `+0x34`
+= the line map, `+0x294` / `+0x2a4` = `LINEMAP_TRIGGER::m_vecNowTrigger` / `m_vecTriggerSeg`, loader `CKTDGLineMap::AddTrigger_LUA`
+`31c77e20`. Type 3 is the trigger camera, not a world colour. The gap is a delta, see *Phase W0 -- Done*.
+
 ### Asset routing (june-asset-port owns the copies)
 
 | Data | June kom | Plan phase |
@@ -194,6 +199,8 @@ type 3 world `+0x18c/+0x190`, types 4-8 game / unit actions. Loader, Lua keys an
 | U1 | UI framework port | Sonnet 5.5 high + review | yes | yes |
 | W0 | World-event timeline RE: loader, data, reach | Opus 5.5 high | no | no |
 | W1 | World-event timeline port (conditional on W0) | Sonnet 5.5 high + review | yes | yes |
+| W1b | `AUTO_DISABLE_LINE`: map the physics fallback, then port (added by W0) | Opus 5.5 high + review | yes | yes |
+| W2 | Portal-line markers: `PVE_PotalGate`, `SHOW_PORTAL`, `LINE_PORTAL_TYPE` (added by W0) | Opus 5.5 high + review | yes | yes |
 | Z | Close-out: M5 from C11, backlog, MODS.md | Sonnet 5.5 medium | no | no |
 
 **Model choice.** The RE phases (R0, R0b, U0, W0) decide what June does from the binary and settle new mechanisms: Opus, where a
@@ -204,7 +211,8 @@ environment box fully.
 **Order.** R0, R0b, U0 and W0 can run now, in parallel (read-only). Code: R1 -> R2 -> R3 / R4 / R5 / R6 (R3 needs R2; the others
 need only R0 and touch different files, but run one at a time: they share `KTDGXRenderer.*` / `KTDGXSkinAnim.*` and the build).
 U1 runs after U0, independent of the R chain apart from the build lock and `KTDXApp.cpp` (also touched by Atlas A4: check STATUS
-Touches). W1 after W0.
+Touches). W1 after W0. W1, W1b and W2 (added by W0) share `X2World.cpp` / `KTDGLineMap.*`: one at a time, and none alongside
+atlas E5.
 
 ## Phase R0 - Renderer contract RE
 
@@ -326,10 +334,80 @@ The loader of world `+0x34`'s tracks (who fills `+0x2a4` / `+0x294`), the Lua ke
 records and every type's action, and the reach: which June worlds carry tracks and which of those March has (worlds that June
 dungeon ports will add count; name them). **Done gate:** W1's kickoff written, or W1 marked "not needed" with the data search.
 
+## Phase W0 -- Done
+
+**2026-10-16, Opus 5.5 high, no code / flag / build.** Funcmap: 14 rows `Engine W0` (`june2017_re/funcmap.tsv`, from `32801580 (W0)`),
+which correct rows 2123 and 2538-2541. Census: `june2017_re/w0_trigger_census.py` -> `w0_trigger_census.tsv` (47 June linemaps).
+
+- **Not a new system.** The "timeline" is March's `WORLD_TRIGGER` line-map trigger runtime (correction under the ledger paragraph).
+  June's tick equals March's `DoTriggerFrameMove`. The mesh and etc calls pass the segment's `TRIGGER_ID` in addition. Activation
+  (`SetActiveTrigger_LUA`, `TRIGGER_ID` / `TRIGGER_ON_LINE` lines) is already ported. `327edc70` is the sub-stage `TRIGGER_LIST`
+  loader and equals March.
+- **Loader `AddTrigger_LUA` `31c77e20`.** Every key is decoded (funcmap row `31c77e20`). It is March's, apart from `AUTO_DISABLE_LINE`,
+  line case 8 (`STOP`, `DIRECT_MOVE_DATA`) and etc case 7's `MOTIONNAME_EFFECTSETNAME`. Ranox's `EFFECT_NAME` / `EFFECT_POS_*` are
+  not June keys.
+- **Handlers.** Mesh 1-3, line 1-6, etc 3/4/5/6/8 equal March (after Lanox P10). The June deltas and their owners:
+
+| Delta (June address) | March today | Owner |
+|---|---|---|
+| `GetTriggerMesh` `327fc680` accepts only meshes whose `SetTriggerID` (`+0x368`) is < 0 or == the firing trigger's id | name match only; Ranox stores the id, unread | **W1** |
+| etc 7 `PLAY_EFFECTSET` `328012b5-32801484`: mesh token + effect-set token, played at the mesh by the first user | Ranox invention: `EFFECT_NAME` at my unit | **W1** |
+| etc 1 sound `32800e82-32800edb`: `OpenSound` + `Play` + auto-release on the channel (`31cdd4e0`) | `OpenSound` + `Play`, never released | **W1** |
+| `AUTO_DISABLE_LINE` (line tail `328005b9-328007c0`, `31c6b8e0`, unit `+0x3e48`, user and NPC physics) | ignored | **W1b** (Opus: the physics fallback is not fully mapped) |
+| line 7 retype to `LT_POTAL` -> `322e5820` PotalGate particles; the same function drives June's `StageLoad` portal markers (`327cd4cf-327cd80c`), plus `SHOW_PORTAL` / `LINE_PORTAL_TYPE` | `PORTAL_LINEMAP_TEST` marker (`X2DungeonGame.cpp:893-919`), keys unread | **W2** (one system: no partial update) |
+| line 8 `TAT_LINE_CHANGE_MOVABLE_DATA` | none | **atlas E5** (`SERV_IRUHADEV_JUNE_MOVABLE_LINE`); not with W1 |
+
+- **Reach** (from the census). 97 triggers in 47 June linemaps.
+  - All 31 linemaps March has are staged as June bytecode, so the rows above are live and ignored today:
+    - `Ranox_FireTemple_StageBoss` has `AUTO_DISABLE_LINE` x2.
+    - `Ranox_Geyser_stage0` has `PLAY_EFFECTSET` x2.
+    - `Ranox_Secret_Stage2` has an `LT_POTAL` retype x1.
+    - Geyser and Sander Secret call `SetTriggerID`.
+  - The 16 absent linemaps:
+    - **Atlas / Elysion own 14** (A8 AtlasDevelopment, A10 Tower, E8 SkyCrossroads, E9 Adrian, E10 Soless). These phases stage data
+      only; this plan owns the engine side, apart from E5's movable lines.
+    - **Erda** (`LINE_PORTAL_TYPE` and retypes) belongs to backlog Stage 19.
+    - **`HAMEL_GREAT_SEAWAY_PVPMAP`** is PvP, so the offline client cannot reach it.
+- **Data present.** `PVE_PotalGate1-5` and `_Close01/02` are in staged data036 `GameMajorParticle36.txt`. `EffectSet_STEELPUMP_Move_FX`
+  and `Effectset_ELYSION_ADRIAN_EVENT3` are in staged `EffectSet.lua`.
+- **Flags.** `SERV_IRUHADEV_JUNE_WORLD_EVENT` is split into one flag per change (W1: `_JUNE_WORLD_TRIGGER_MESH_ID`, `_EFFECTSET`, `_SOUND`;
+  W1b: `_AUTO_DISABLE`; W2: `_JUNE_WORLD_PORTAL_GATE`).
+- **Open questions for the user:** none. Atlas line `ATLAS_PORT_PHASES.md:639` ("keep `MOTIONNAME_EFFECTSETNAME` inert") now carries a
+  dated note pointing to W1.
+
 ## Phase W1 - World-event timeline port
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_EVENT`. Conditional on W0. The type-1 sound uses
 the device auto-release that june-effect C9h-7 settled.
+
+*Scope set by W0 (2026-10-16):* three flags in place of `_JUNE_WORLD_EVENT`, each transcribed from its funcmap row (`Engine W0`):
+1. `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID`: `GetTriggerMesh( name, iTriggerId )` with June's id filter. `DoTriggerFrameMove` passes
+   the segment's `m_iTriggerId` to `DoTriggerMesh` / `DoTriggerEtc`.
+2. `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET`: `MOTIONNAME_EFFECTSETNAME` read (etc case 7) and the mesh-anchored play. Ranox's
+   `EFFECT_NAME` / `EFFECT_POS_*` read and play stay in `#else`.
+3. `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND`: etc case 1 registers June's auto-release on the device's channel. Needs
+   `SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE` (`#error` guard). The FMOD callback in `KTDXDeviceManager.cpp` is a file-static today: expose a
+   public `JuneRegisterAutoRelease( FMOD_CHANNEL* )` (June `31cdd4e0`) under the new flag.
+
+## Phase W1b - AUTO_DISABLE_LINE
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE`. Map first:
+the second-candidate selection in `CX2GUUser::PhysicProcess` `@320195be-32019a10` and the NPC fallback `@32782deb-32782ea4`. Then
+port, from the funcmap rows: the `LineData` fields (`+0x128` flag, `+0x12c` user UIDs, `+0x13c` NPC UIDs), the parse, the line tail,
+`31c6b8e0`, the unit `+0x3e48` bookkeeping and both physics gates. Test case: `Ranox_FireTemple_StageBoss`, lines 3 and 4.
+
+## Phase W2 - Portal-line markers
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:
+- `322e5820` and the game `+0x7bc` handle list. Map its lifecycle, `322f5d70` / `32306600`.
+- June's `StageLoad` portal block, which replaces `PORTAL_LINEMAP_TEST`'s `Peita_Teleport_MagicSquare01` in every dungeon (a visible
+  change).
+- The `SHOW_PORTAL` / `LINE_PORTAL_TYPE` / `PORTAL_KEEPER` parse in `AddLine_LUA` `31c705c0`. Map type 3's keys and every reader of
+  the open conditions.
+- `DoTriggerLine` case 7's call.
+
+If the keeper consumers turn out to be Erda-only gameplay, route them to backlog Stage 19 with a dated note. Test case:
+`Ranox_Secret_Stage2` (retype) and any dungeon's portal line.
 
 ## Phase Z - Close-out
 

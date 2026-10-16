@@ -620,7 +620,8 @@ Plan `JUNE_ENGINE_REMAINDER_PHASES.md` · branch: the current working branch · 
 
 **The scope.** June's `RENDER_TYPE` equals March's; the gap is the renderer contract (`CARTOON_TEX_TYPE` renumbered, 14 new
 `XRenderer.fx` parameters + compile macros, two June-only renderers, `CUSTOM_RENDER_STATE`, 6 unimplemented `SMRT_*` cases), a small
-UI-framework gap (no new control type) and June's world-event timeline. Models: no new base model (M3). RE phases are read-only and
+UI-framework gap (no new control type) and June's world-event timeline (W0, 2026-10-16: March's own `WORLD_TRIGGER` line-map
+triggers plus five June deltas, see W1 / W1b / W2). Models: no new base model (M3). RE phases are read-only and
 can run now, in parallel; code phases wait for june-effect C12 and run one at a time (shared renderer files and the build).
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
@@ -635,8 +636,10 @@ can run now, in parallel; code phases wait for june-effect C12 and run one at a 
 | R6 | waiting (R0, after R2) | Sonnet 5.5 / high | R0 | `KTDGXSkinAnim.h/.cpp`, Always.h | `R6.md`, review `R6-review.md` |
 | U0 | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `ui_dlg_census.tsv`, plan doc, kickoffs | `U0.md` |
 | U1 | waiting (U0, C12) | Sonnet 5.5 / high, then user play-test | U0, june-effect C12; not with Atlas A4 (`KTDXApp.cpp`) | `KTDXApp.cpp`, `KTDGUI*.cpp`, Always.h | `U1.md`, review `U1-review.md` |
-| W0 | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, plan doc, kickoffs | `W0.md` |
-| W1 | conditional (W0, C12) | Sonnet 5.5 / high, then user play-test | W0, june-effect C12 | `X2World.*`, Always.h | `W1.md`, review `W1-review.md` |
+| W0 | **done 2026-10-16** (no code, no flag, no build): the "timeline" is March's `WORLD_TRIGGER` line-map trigger runtime (`AddTrigger_LUA` `31c77e20`, `DoTrigger*`); 14 funcmap rows `Engine W0` (correct rows 2123, 2538-2541); census `june2017_re/w0_trigger_census.tsv` (47 June linemaps, all 31 March has are live June bytecode); deltas routed: W1 (mesh trigger-id filter, mesh-anchored `PLAY_EFFECTSET`, sound auto-release), W1b (`AUTO_DISABLE_LINE`), W2 (PotalGate markers + `SHOW_PORTAL` / `LINE_PORTAL_TYPE`), atlas E5 (`MOVABLE_DATA`). User owes nothing | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, plan doc, kickoffs | `W0.md` |
+| W1 | waiting (C12) | Sonnet 5.5 / high, then user play-test | W0, june-effect C12; not with W1b / W2 / atlas E5 | `X2World.*`, `KTDGLineMap.*`, `KTDXDeviceManager.*`, Always.h | `W1.md`, review `W1-review.md` |
+| W1b | waiting (C12; after W1) | Opus 5.5 / high (map, then port), then user play-test | W0, june-effect C12; not with W1 / W2 / atlas E5 | `KTDGLineMap.*`, `X2World.cpp`, `X2GUUser.cpp`, `X2GUNPC.cpp`, game-unit base, Always.h | `W1b.md`, review `W1b-review.md` |
+| W2 | waiting (C12; after W1b) | Opus 5.5 / high (map, then port), then user play-test | W0, june-effect C12; not with W1 / W1b / atlas E5 | `X2DungeonGame.cpp`, `X2Game.*`, `X2World.cpp`, `KTDGLineMap.*`, Always.h | `W2.md`, review `W2-review.md` |
 | Z | waiting (all, C11) | Sonnet 5.5 / medium | every phase done or routed; june-effect C11 | plan doc, backlog, MODS.md | `Z.md` |
 
 ## Other plans
