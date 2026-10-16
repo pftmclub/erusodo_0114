@@ -9678,6 +9678,26 @@ setup `jU` / `jES` / `jC`, `/CM "RAGE_BABYFIG" 2 70`, `/ai false`, then the 14 l
 - `ES_UPDATE ... FOLLOW_UNIT_ROTATION` (MagneticForce)
 A lost tag is a regression. A newly seen tag is a gain.
 
+**Console re-run result (2026-10-16 21:36-21:39, reyaa, Burnt Forest, exe 87fb2565, logs read): no regression. C11 is closed.**
+0 EXCEPTION; 2 UNHANDLED = `E_DISABLE_HB_CHECK_REQ`; 0 `RANOX_EFFECT_MISSING`; clean exit (census present).
+All 6 tags from 2026-10-16 are back (`offline_server.log`):
+- `DDE_TEMPLET` Trap_Fire_Big :205 + 57 `CE_LOOP`
+- `Y_DIR_INIT` Magi D :275
+- `DAMAGE_DATA_KEY apply ... skill=31607` :344
+- `INIT_TARGET seed=5 -> uid=1000006` :374
+- `FOLLOW_LINE_GRAVITY nearest line=2` :399
+- `FOLLOW_UNIT_ROTATION` MagneticForce :551
+Newly seen on June's data:
+- `CE_FRAME DAMAGE_EFFECT_KELAINO_SP_ATTACK_CYCLONE DAMAGE_DATA_CHANGE_TIME anim index=0 time=0.500` :262 (the anim change-time path)
+- `ES_UPDATE EffectSet_Erda_Mid_Heal_Buff - SOUND%d Erda_Mid_Heal_BUFF_01.ogg` :412
+- `BONE_TRACE_TARGET_MESH registered_index=0(damage)` on `EffectSet_Quake_Buster` :421
+- Quake_Buster's impacts also gave `DDE_TEMPLET` / `SPAWN_INHERIT` lines.
+Still **not reached**: `ONLY_RELATIONSHIP`, `CREATE_LOCKON_COPY` (Dread Chase spawned only its NUMERICAL-index children), `REVERSE_Y`,
+`DELETE_SHAKE_COUNT` (ROSEBUSH ran its change-time frames, no shake delete), `BONE_TRACE_TARGET_MESH self_traces_no_mesh`
+(`AN_Combo_X` logged nothing, as before). `STEER_FORWARD` did not fire on Blaze_Wing_Sub (it found a target, `TARGET_LIST_INSERT`), but
+C11a's play-test already saw it (Chain_Viper, :286 of that run). Expected side lines: `unsupported NUMERICAL_DATA_INDEX` (D7) and
+`APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (option absent).
+
 ---
 
 ## C12 - Close (old Phase 12)
