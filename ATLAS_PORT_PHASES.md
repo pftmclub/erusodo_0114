@@ -1878,7 +1878,7 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 
 ### Phase A6 — Done
 
-**2026-10-17, Opus 5.5 high.** Flags `SERV_IRUHADEV_ELYSION_PORT` (A3's) + new `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS`. Commit: see STATUS A6 row. MODS.md "Atlas/Elysion port A6".
+**2026-10-17, Opus 5.5 high.** Flags `SERV_IRUHADEV_ELYSION_PORT` (A3's) + new `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS`. Commit: `27454383`. After commit, `flagcheck --range 27454383^..27454383 --files <5 code files>`: ELYSION_PORT `3 PASS, 2 OTHER, 0 FAIL, 0 ERROR`, OFFLINE_BF_JOIN_START_POS `1 PASS, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, both `RESULT: PASS`, same in-flag line as below. MODS.md "Atlas/Elysion port A6".
 
 - **Premises:**
   - The portal is the F04 row (`VMI_BATTLE_FIELD_RANOX_FIELD_04` = 40032, `Field_Ranox_Stage3_LineMap` / `Ranox_Field_03`, WI 608): line 103
