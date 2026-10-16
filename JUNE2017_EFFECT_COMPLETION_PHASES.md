@@ -9441,26 +9441,88 @@ files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserte
 
 ## C11 - Verification on June data
 
-**Status: not started. Model:** Sonnet 5, high. A dev-console pass in the same shape as the rebuild
+**Status: in progress (2026-10-16, Sonnet 5.5 high): static half done, console play-test owed, socket/aura rows
+blocked on a user decision (below).** A dev-console pass in the same shape as the rebuild
 plan's T0-T7, against the live June data.
 
-Observe in a `JUNE_FX` line, or prove unreachable with a data search:
-- 7b's `LOT_UID_VECTOR` re-target (`UID_VECTOR_RETARGET`/`SEED_PICK`);
-- 7c's die conditions;
-- 4a/4b stage 2-3 keys on June data (`SYNC_SHOW_BY_CREATE_UNIT` playback, `SOUND%d`, mesh
-  triggers, `TRACE_MATRIX_IN_FIELD`);
-- Phase 3's `ES_EFFECT`;
-- 7e's `HIT_EFFECT_SET`/`DIE_CREATE_NPC`;
-- the 6a/6b binary-only rows (`DAMAGE_DATA_NEXT_ULTIMATE%d`, `AT_RAID_FIELD`, `HIT_EFFECT_SET%d`);
-- every key C1-C10 added.
+### C11 - Progress note (2026-10-16)
 
-Also:
-- fix `BOSSRAID_ABYSS_SMOG.DDS`: find the referencing file, then stage June's
-  `BossRaid_Abyss_smog.dds`/`_smog2.dds`;
-- a visual sample of the 178 changed particles.
+**What landed (no game code, no flag, no build):**
+- `june2017_re/c11_reach.py` -> `c11_reach.tsv` (978 census keys): per key, how many June templets use it, and how many
+  of them sit in the DEPLOYED effect files *with that key inside the templet block* (source files; the three bytecode files
+  `UIEffectSet`, `EffectSet_INT`, `DamageEffect_INT` give only a name+key text match, column `deployed_bytecode_maybe`).
+- `c11_branch_ledger_de.tsv` (80 rows) and `_es.tsv` (63 rows): every runtime `JUNE_FX` tag of `X2DamageEffect.cpp`,
+  `X2DamageManager.cpp`, `X2EffectSet.cpp`, `KTDGXMeshPlayer.cpp`, `KTDGParticleSystem.cpp`, with flag, trigger, census key,
+  past observation (doc + date) and `verdict_c11`. Drafted by Sonnet subagents; the "deployed" numbers in their
+  `deployed_june_templets` column are NAME-level and wrong in places - trust the last three columns (key-level, from c11_reach).
+- `census.py --final`: **all PASS.** It failed on one row before: the `DE.DIE_CHECK_CONDITION` copy of
+  `APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION` (owner C10) had no cited parse site, although C10b-2 ported June's single
+  top-level read (`X2DamageEffect.cpp:1753`, June `31f7aab0@31f7bff3`). Added to `HAND_PARSE_SITES` in
+  `census_completion.py`. The regenerated `census.tsv` / matrix are otherwise line-number drift.
 
-**Exit:** each row has a log line or a written proof of unreachability, and `census.py` passes
-every check, including C0's new ones.
+**Key finding: the deployed data is not June's full set.** `data036 DamageEffect.lua` holds 3,825 templets (June: 8,982;
+the other ~5,100 are June character/dungeon skills) and `EffectSet.lua` is March's file merged; many "June" keys therefore
+exist only in June's copy. Of the 632 DE/ES rows the census marks `implemented`: 417 have a deployed source templet using the
+key, 15 only a bytecode match, 134 are used by June but by no deployed templet, 66 by no June data at all.
+
+| C11 row | verdict | evidence |
+|---|---|---|
+| 7b `LOT_UID_VECTOR` re-target | OBSERVED 2026-10-03 | rebuild plan T2 fifth run: 5 `UID_VECTOR_RETARGET` + `SEED_PICK` pairs |
+| 7c die conditions (`DIE_CHECK_CONDITION`) | UNREACHABLE | one June user, Rose's `DamageEffect_SA_RCR_Chain_Viper_Projectile`; deployed 0 |
+| 4a/4b `SYNC_SHOW_BY_CREATE_UNIT` | UNREACHABLE | June's only user `EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE` is deployed but WITHOUT the key (June copy: `june_src_fixed/data036_kom/EffectSet.src.lua:44400`) |
+| 4a/4b mesh triggers (`MESH_TRIGGER_DATA[_LIST]`) | UNREACHABLE | all 17 users are June-only Cash emotion sets (`EffectSet_Cash21..42*_Common_Emotion*`), none deployed |
+| 4a/4b `SOUND%d`, `TRACE_MATRIX_IN_FIELD` | load-time OBSERVED; runtime in hand-off | `ErrorLog.txt` 2026-10-15: 4 `ES_LOAD`, 12 `ES_TEMPLET`, 21 `ES_EFFECT` (incl. `Cash_AC_Lowbody_Set7_*  TRACE_MATRIX_IN_FIELD=1`), 10 `ES_SOUND` |
+| Phase 3 `ES_EFFECT` | OBSERVED (load) | same lines |
+| 7e `DIE_CREATE_NPC%d` | UNREACHABLE | 3 June users (`..._All_Bomb_Ultimate_AddMeca`, `..._Meca_Drop_Drop`, `..._Summon_Land_Runner`), deployed 0 |
+| 7e / 6b `HIT_EFFECT_SET%d`, `AT_RAID_FIELD` | UNREACHABLE | 0 hits in all 22 `june_src_fixed/` dirs |
+| 6a `DAMAGE_DATA_NEXT_ULTIMATE%d` (chain key) | UNREACHABLE | 0 users; the un-numbered `DAMAGE_DATA_NEXT_ULTIMATE` has 4 June users, 0 deployed |
+| C7 carry: `TOUCH_LAND` | UNREACHABLE | only user `DamageEffect_A_RMH_KS_83_Grenade` (Rose) is not deployed |
+| C7 carry: `CREATE_LOCKON_COPY` | TESTABLE (best effort) | two deployed parents: `DAMAGE_EFFECT_CSI_SI_SA_CHUNG_DREAD_CHASE_{BIG,FLY}_MEMO` (Chung) |
+| buff-port rows: 32 socket effect sets + aura set | **BLOCKED** | 34 of June's socket effect-set names (e.g. `EffectSet_Socket_Poison_Burst`, `EffectSet_SIEE_Flame_Ground`) and `EffectSet_Hero_Dungeon_Aura_Buff` / `DamageEffect_Hero_Dungeon_Aura_Buff` are not deployed (they are June-only) |
+| `BOSSRAID_ABYSS_SMOG.DDS` | FIXED earlier, proof owed | referencing files: 11 meshes in data154 (`Fire_forest_{S1_Apha_smog01-04,s2_AP_smoke,s2_AP_smoke02,stage0_AP_Cloud01-03,stageBoss_AP_Clo01-02}.Y`); they name only `BossRaid_Abyss_smog.dds`, nothing names `_smog2` (33,841 meshes + .xet scanned), so `_smog2` is not staged. `kom_contents/data023_kom/BossRaid_Abyss_smog.dds` is June's 87,508 B (valid DDS header), `kom.py status data023` = in sync with the live kom. The old miss is gone from the current ErrorLog; the user's Burned Forest entry closes it |
+
+**Not run here, left to the owner:** the 178-particle visual sample (needs the user's eyes); the `JUNE_FX` rows listed as
+TESTABLE in the ledgers (hand-off below); every other ledger row is OBSERVED (dated), UNREACHABLE (data search) or CARRIED.
+
+**Open (decisions for the user):**
+1. Socket/aura end-to-end needs the 34 sets + aura templets, i.e. a partial June re-adoption. Full re-adoption stays rolled back
+   (1,915 blocks would deal 0 until the character ports). Proposed: append only the June-only templets those names need
+   (plus their asset closure) to the merged `EffectSet.lua` / `DamageEffect.lua` through `luasrc.py`, then do the socket save
+   edit and Phase 13 factors. Not started: it repacks data036 and needs a yes.
+
+**Play-test hand-off (console, auth level 3; `SERV_IRUHADEV_JUNE_FX_DEBUG` is on in the deployed build).** Re-run the 3 setup lines
+after every stage change. Enter any dungeon; `/CM "RAGE_BABYFIG" 2 70`, `/ai false`, stand about a screen away facing them.
+```
+jU = g_pX2Game:GetMyUnit()
+jES = g_pX2Game:GetEffectSet()
+function jC(n) local g = g_pX2Game local u = g:GetMyUnit() return g:GetDamageEffect():CreateInstance_LUA(u, n, u:GetPos(false), u:GetLandPosition_LUA(false).y) end
+```
+Damage effects (one line each, then `grep -a "JUNE_FX" offline_server.log | tail`; every templet below is a deployed one that uses the key):
+| line | expect |
+|---|---|
+| `jC("DAMAGE_EFFECT_Trap_Fire_Big")` | `DDE_TEMPLET` + `CE_LOOP` (re-confirms T1, whose lines were not kept) |
+| `jC("DAMAGE_EFFECT_KELAINO_SP_ATTACK_CYCLONE")` | `CE_FRAME ... DAMAGE_DATA_CHANGE_TIME` |
+| `jC("DamageEffect_Ranox_Secret_Boss_Magi_Attack_D_Projectile")` | `CE_LOCKON ... Y_DIR_INIT` |
+| `jC("DamageEffect_SBH_Blaze_Wing_Sub")` | `CE_LOCKON ... STEER_FORWARD` |
+| `jC("RELATIONSHIP_SKILL_LV1")` (touch a monster) | `CE_HIT ... ONLY_RELATIONSHIP` |
+| `jC("DamageEffect_HA_ROM_Mecavolt_MX_StartLighting")` | `DAMAGE_DATA_KEY apply` |
+| `jC("DAMAGE_EFFECT_CSI_SI_SA_CHUNG_DREAD_CHASE_FLY_MEMO")` | `CE_HIT ... CREATE_LOCKON_COPY` (best effort: needs the parent to have hit) |
+| `jC("DamageEffect_Elysion_SingPang_Attack_B_Projectile_1")` | `CE_LOCKON ... INIT_TARGET` (Elysion assets may be missing; the line is what counts) |
+| `jC("DamageEffect_Elsion_HernaOrb_AttackB_Projectile")` | `CE_FRAME ... FOLLOW_LINE_GRAVITY` (near a floor line) |
+
+Effect sets (`jES:PlayEffectSet_LUA("NAME", jU)`):
+| NAME | expect (`ES_*` lines) |
+|---|---|
+| `EffectSet_Erda_Mid_Heal_Buff` | `ES_UPDATE ... SOUND` |
+| `EffectSet_Quake_Buster` | `ES_UPDATE ... REVERSE_Y` |
+| `EffectSet_A_ROM_G_EX_MagneticForce` | `ES_UPDATE ... FOLLOW_UNIT_ROTATION` |
+| `EffectSet_ROSEBUSH_TRAP_ATTACH` | `ES_DELETE ... DELETE_SHAKE_COUNT` (best effort) |
+| `EffectSet_Cash_AC_Lowbody_Set7_1P` | `ES_CREATE ... TRACE_MATRIX_IN_FIELD` |
+| `EffectSet_AN_Combo_X` | `ES_CREATE ... BONE_TRACE_TARGET_MESH self_traces_no_mesh` |
+
+Plus: enter Ranox Burned Forest and confirm `ErrorLog.txt` has no `BOSSRAID_ABYSS_SMOG` line. Optional (TRIAL_LOAD item 1): the 178
+changed particles, `june2017_re/particle_override_census.tsv` (verdict `differ`). Log tag: `JUNE_FX` (`python tools/logs.py --grep "JUNE_FX <tag>"`).
+After the run, a line that did not appear is recorded as "not reached on this route", not as a failure, unless an `EXCEPTION` shows.
 
 **Kickoff prompt:**
 ```

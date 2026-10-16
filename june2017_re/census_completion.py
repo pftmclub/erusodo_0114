@@ -157,6 +157,10 @@ HAND_PARSE_SITES = {
                                     'X2DamageEffect.cpp ctor chain loop (StringCchPrintfA bDamageDataNextIsUltimate)'),
     'AT_RAID_FIELD': ('X2DamageEffect.cpp', '"AT_RAID_FIELD"', 'X2DamageEffect.cpp LoadLockOnData (m_fLockOnRangeFromOwnerAtRaidField)'),
     'HIT_EFFECT_SET%d': ('X2DamageEffect.cpp', '"HIT_EFFECT_SET"', 'X2DamageEffect.cpp LoadHitEffectSet (BeginTable "HIT_EFFECT_SET", index)'),
+    # C11: the DIE_CHECK_CONDITION-rooted copy of the key. June reads it once, at the CEffect top level (31f7aab0@31f7bff3,
+    # the same address as the DE.top row); C10b-2 ported that read.
+    'APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION': ('X2DamageEffect.cpp', '"APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION"',
+                                               'X2DamageEffect.cpp CEffect ctor (PLUA_GET_VALUE m_iApplyEffectAlphaConditionByOption, C10b-2)'),
 }
 
 
