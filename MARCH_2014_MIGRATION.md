@@ -1,5 +1,10 @@
 # Migrating the offline mod onto the March 2014 client
 
+**CLOSED 2026-10-16 (user).** The offline client builds, deploys and runs on the
+March client every day, and the pre-March save was carried forward. The board
+below is final, and nothing here is owed. Keep the file as history and for its
+technique sections ("The two traps", "The verification gate", "Corrections ledger").
+
 Status board, per-phase execution plan, and technique reference for the
 migration begun 2026-09-09. **Read this before touching any studio file.**
 Every phase below is startable in a fresh conversation - see *Starting a
@@ -12,12 +17,12 @@ the build commands and is the other document a fresh session should read.
 | 1 | Flag definitions and tuning constants | **DONE** 2026-09-09 |
 | 2 | Offline build wiring + the socket seam | **DONE** (`0b84beb`) |
 | 3 | Emulator standup + client revivals | **DONE** (`9814abe`) |
-| 3B | The entry-point character-select handshake | **DONE** (`2cf764a`); a tutorial auto-connect bug found and fixed 2026-09-15, built + deployed, play-test pending - see the "Auto-connect after character creation" note below |
+| 3B | The entry-point character-select handshake | **DONE** (`2cf764a`); a tutorial auto-connect bug found and fixed 2026-09-15 - see the "Auto-connect after character creation" note below. Closed 2026-10-16: no play-test result was ever recorded here |
 | 4 | Offline gameplay call sites | **DONE** (`76fcf9a`) |
-| 5 | AI party | built + deployed 2026-09-14, play-test pending |
-| 6 | The QoL flags | built + deployed 2026-09-15, play-test pending |
+| 5 | AI party | built + deployed 2026-09-14. Closed 2026-10-16: no play-test result was ever recorded here |
+| 6 | The QoL flags | built + deployed 2026-09-15. Closed 2026-10-16: no play-test result was ever recorded here |
 | 7 | Content, save migration, full verification | **DONE** (user confirmed 2026-10-16; the board had not been updated). Evidence: the old save's units 12 / 18 / 19 (`22191271\data\els_db.sql`) live on in `24965799\data\els_db.sql` with the same UIDs and later progress, and data036 has carried the server-side Lua through many packs since. Unblocks Atlas A2 |
-| 8 | Documentation closeout | not started |
+| 8 | Documentation closeout | **Closed without running** (user, 2026-10-16). At close, only `CLAUDE.md`'s three migration-status lines were updated. Not done: regenerating MODS.md's whole flag table, removing `X2Project_Servers_2010.sln`, and marking `VS2003_to_VS2010_Port_Guide.md` historical. CLAUDE.md already calls the guide history |
 
 Phase 3B sits between 3 and 4 and is numbered with a letter, not a renumber,
 because `CLAUDE.md` already cites "Phase 7 of `MARCH_2014_MIGRATION.md`" for
