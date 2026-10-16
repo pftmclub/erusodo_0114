@@ -1612,6 +1612,57 @@ Done when: Phase A4's "Done when" holds. Record a Done note, then commit on main
   - Lanox Secret Hell: `indicator first skip: npc 2246` (`NUI_SECRET_SCENE_DUMMY`, `NOT_CHECK_INDICATOR 1`).
   - The run's 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are outside this phase.
 
+### Phase A4 — Review (2026-10-17)
+
+**Opus 5.5 high. Verdict: PASS. No logic error. One comment citation fixed** (`X2DungeonSubStage.cpp:857` said `@327f1180`; June's case-5 call is
+`@327f0fcd`, per xrefs to `327efc90`). The fix is comment-only, so there was no rebuild: the deployed exe `5ea0b3a2` is still A4's.
+All five areas were re-read in Ghidra (decompile, plus the disassembly where the decompile drops stack arguments):
+
+- **Bone push.**
+  - `31fe8ad0` prologue: a negative index or a non-NPC (`+0x264 != 1`) takes the unit's own box. No list (vslot `0x2a8`) or an index past
+    `(+0x408 - +0x404) >> 5` goes `31fe8c7f -> 31fe93bf XOR AL,AL`, which returns false.
+  - No clone frame: own height, with the centre still `GetPos(true)`.
+  - With a frame: centre `GetBonePos` (vslot `0x84`), height `d + d`, Y min `bone.y - d`.
+  - Both branches set the half width to `GetUnitWidth(true) * 0.5 + d`.
+  - `327788b0` is called only in the dir 1/2 branch, with the point's Y already set to the user's Y.
+  - The rest of that branch tests `dir == 2` / else, as March's does, so an override to 3 / 4 takes the dir-1 arm in both builds.
+- **`327788b0`, x87 re-traced by hand.**
+  - Y overlap is the same three inclusive tests as A4.
+  - In the overlap case it returns `dot(+0x8430, user - point; y * 0.0) < 0 ? 2 : 1`. Otherwise it returns `myMax <= userMin ? 3 : 4`.
+  - The result is -1 unless both the NPC (`+0x8344`, decrypted) and the user (`stateparam`) cannot pass.
+  - The guards come first: user NULL, user `GUSI_DIE`, and a battle field where the user is not mine and has no first sync. All match A4 and JUNE_BUGS 205.
+- **`32010060`.** The collide test is June's two team terms `|| vslot 0x2a8`, so A4's `GUT_NPC && Has...` is the same (`CX2GameUnit`'s slot returns false).
+  Each bone gets `31fe8ad0(..., i)` with the result ignored. Without a list it is one call with -1, and a false result resets to the sync position, as in March.
+- **UV change.**
+  - Key names (XOR-decoded) map `LEFT_TOP` / `RIGHT_TOP` / `LEFT_BOTTOM` / `RIGHT_BOTTOM` to record slots 0-3, which are March's `VP_*` 0-3.
+    `CHANGE_TIME` is at `+0x40`.
+  - Seed: when the vector is empty, `pTexture->uvOrgTexture[0..3]` (`+0x3c`) is pushed with this call's time.
+  - `31c95150`: checks run in A4's order. Speed is `(to - from) * (1 / to.time)`. It returns the old and new index and stores the new one.
+  - `31c95580` tail: if `time - dt <= 0` (`FCOMP` against `FLDZ`), it calls the functor with `&index` (`+0xb4`), drops it, sets the time to 0 on
+    both paths, clears the state, and snaps the record. Otherwise every point moves by `speed * dt`. The recompute equals `UITextureData::SetTextureUV()`.
+  - `31c9eea0` matches `ResetChangeUV`.
+  - The guards are unreachable from June:
+    - all four callers of `329378a0` pass a direction of 1 or 2: `3293c16a` `page ? 1 : 2`, `32937a06` constant 2, `3293d83e` 1, `3293d86f` 2;
+    - June dereferences the texture unguarded at both NULL-texture sites, so shipped June data never reaches them without a texture.
+  - The live `LUA_GET_USER_DEFINED_TYPE_VALUE` branch (`X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING`, `KTDX.h:390`) defaults a missing point to (0,0).
+- **Die particle.**
+  - `3277ec60`: `(gage && (no hp || hp <= 0)) || state 4) && +0x8fd9`.
+  - `32778d40`: runs only when handle `+0x8990 == -1`. It creates `DieLight` at `GetPos(false)`. The pushes are emit (-1,-1) and trigger (3,-1); the
+    constants read from the exe are 3.0 and -1.0.
+  - The handle goes to `+0x8990` (`m_hSeqDieEffect`, the field the rest of the function uses). The land Y comes from vslot `0x134` (`GetLandPos`, the same field as `GetLandPosition_LUA`). No sound.
+- **Indicator.** `32f09f05` `cmp [esi+0x8fa8],1; je skip`, then AI NULL, then AI type (`+0x38`) != 0, then `32f09f2a` `cmp [eax+0x34],1; je skip`.
+  All four skip, so A4 testing after March's AI-type check is equivalent. The `INIT_AI` key at `+0x34` decodes to `NO_INDICATOR`.
+- **Line retype.**
+  - `327efc90`: skips `+0x150 == -1` and a type that already matches. Filters on `+0xec` / `+0xf0` against the stage / sub-stage.
+  - When the new type is 2 and `+0x14c == 1`, it places `Peita_Teleport_MagicSquare01` at `(start + end) * 0.5 + (0, 3.0, 0)`, layer `0xe` = `XL_EFFECT_0`.
+  - Hooks: case 0 calls it after `LiveActiveNPCNum == 0` once (`+0x54`) at `@327f0d81`.
+    Case 5 does so at `@327f0fcd`, after the portal-effect block (every path through that block lands on `327f0fc1`), before the portal-line user test. A4 places both the same way.
+- **Hygiene.** `flagcheck ELYSION_SCRIPT_A --range d726302f^..HEAD --with ELYSION_DEBUG`: `files: 17 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  The two PASS~ are one blank line each, outside the flag (`KTDGUIControl.cpp`, `X2GUNPC.cpp`). The review fix: `--worktree --files X2Lib/X2DungeonSubStage.cpp`: `1 PASS ... RESULT: PASS`.
+  Its 1 deleted line is the old comment text, inside A4's own flag block.
+- **Not re-read:** `31cc0950` (one-line static gate), `32784c00` loader layout, `32755e70`. Their funcmap rows are cited, and the play-test exercised them.
+
 ---
 
 ## Phase A5 — Atlas Station (rest area 1008)

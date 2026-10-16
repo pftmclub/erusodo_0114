@@ -854,7 +854,7 @@ void CX2DungeonSubStage::CheckIfSubStageCleared()
 						}
 
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
-						/// June 327f0c10 case 5 ( @327f1180 ): the same once-only retype, after the portal effect, before the user test
+						/// June 327f0c10 case 5 ( @327f0fcd ): the same once-only retype, after the portal effect, before the user test
 						if( false == clearCond.m_bChangedLineTypeAfterAllActiveNPCKilled )
 						{
 							clearCond.m_bChangedLineTypeAfterAllActiveNPCKilled = true;
