@@ -4202,6 +4202,11 @@ void CX2OfflineServer::PushUnitInfoUpdate( KOfflineSession& kSes, UidType nUnitU
 	Reply( kSes, EGS_UPDATE_UNIT_INFO_NOT, kUpdate );
 }
 
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+// Same proof for the Atlas A2 cap: the 99 redefinition at the end of Always.h
+// comes after the LEVEL_CAP_80 one and must be the one X2Game.h sees.
+typedef char SERV_IRUHADEV_LEVEL_CAP_99_reached[ ( 99 == _CONST_X2GAME_::g_iMaxLevel ) ? 1 : -1 ];
+#else SERV_IRUHADEV_LEVEL_CAP_99
 //{{ Iruha : 2026-09-08 // SERV_IRUHADEV_LEVEL_CAP_80
 #ifdef SERV_IRUHADEV_LEVEL_CAP_80
 // Compile-time proof that the USE_MAXLEVEL_LIMIT_VAL redefinition at the end of
@@ -4211,6 +4216,7 @@ void CX2OfflineServer::PushUnitInfoUpdate( KOfflineSession& kSes, UidType nUnitU
 typedef char SERV_IRUHADEV_LEVEL_CAP_80_reached[ ( 80 == _CONST_X2GAME_::g_iMaxLevel ) ? 1 : -1 ];
 #endif SERV_IRUHADEV_LEVEL_CAP_80
 //}}
+#endif SERV_IRUHADEV_LEVEL_CAP_99
 
 int CX2OfflineServer::ApplyDungeonReward( UidType nUnitUID, int iAddEXP, int iAddED,
 										 OUT int* piOldLevel /*= NULL*/ )
@@ -4240,6 +4246,38 @@ int CX2OfflineServer::ApplyDungeonReward( UidType nUnitUID, int iAddEXP, int iAd
 	{
 		const int iMaxLevel = (int)_CONST_X2GAME_::g_iMaxLevel;
 
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+		// CX2EXPTable::GetEXPData hands back a zeroed row for a level it has no
+		// row for, and "iEXP >= 0" is always true - so a cap-99 exe over March's
+		// ExpTable.lua (rows 1-80: data036.kom not copied yet) would climb a
+		// character straight to 99 on its first kill, and the pin below would
+		// then write EXP 0. The table's own last row is the cap in that case.
+		while( iLevel < iMaxLevel &&
+			   g_pData->GetEXPTable()->GetEXPData( iLevel + 1 ).m_nTotalExp > 0 &&
+			   iEXP >= g_pData->GetEXPTable()->GetEXPData( iLevel + 1 ).m_nTotalExp )
+		{
+			++iLevel;
+		}
+
+		if( iLevel < iMaxLevel && g_pData->GetEXPTable()->GetEXPData( iLevel + 1 ).m_nTotalExp <= 0 )
+		{
+			static bool s_bLogged = false;
+			if( false == s_bLogged )
+			{
+				s_bLogged = true;
+				CX2OfflineLog::Server( L"[CAP99] ERROR ExpTable.lua has no row for level %d (cap %d) - data036.kom"
+					L" still carries March's ExpTable; copy the packed data036.kom. EXP held at level %d.",
+					iLevel + 1, iMaxLevel, iLevel );
+			}
+
+			iEXP = g_pData->GetEXPTable()->GetEXPData( iLevel ).m_nTotalExp;
+		}
+		else if( iLevel >= iMaxLevel )
+		{
+			// At the cap the EXP bar stops rather than wrapping, as below.
+			iEXP = g_pData->GetEXPTable()->GetEXPData( iMaxLevel ).m_nTotalExp;
+		}
+#else SERV_IRUHADEV_LEVEL_CAP_99
 		while( iLevel < iMaxLevel &&
 			   iEXP >= g_pData->GetEXPTable()->GetEXPData( iLevel + 1 ).m_nTotalExp )
 		{
@@ -4250,6 +4288,7 @@ int CX2OfflineServer::ApplyDungeonReward( UidType nUnitUID, int iAddEXP, int iAd
 		// KGSUser does too (its reward is zeroed once GetLimitsLevel is hit).
 		if( iLevel >= iMaxLevel )
 			iEXP = g_pData->GetEXPTable()->GetEXPData( iMaxLevel ).m_nTotalExp;
+#endif SERV_IRUHADEV_LEVEL_CAP_99
 	}
 
 	CX2OfflineDB::Instance()->SaveProgress( nUnitUID, iLevel, iEXP, iED );

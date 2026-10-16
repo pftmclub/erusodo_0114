@@ -179,6 +179,35 @@ void CX2OfflineStatTable::EnsureLoaded()
 
 	CX2OfflineLog::Server( L"STAT     '%s' loaded: %u class(es), %d row(s)",
 		SCRIPT_NAME, (unsigned int)m_mapStat.size(), m_iRowsLoaded );
+
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+	// Rows 81-99 are this port's (cap99_gen.py). A class without them clamps to
+	// its level-80 row in GetUnitStat, so stats would simply stop growing - name it.
+	int iFull = 0;
+	std::wstring wstrMissing;
+	std::map< int, std::map< int, KStat > >::const_iterator mit;
+	for( mit = m_mapStat.begin(); mit != m_mapStat.end(); ++mit )
+	{
+		int iHave = 0;
+		for( int iLv = 81; iLv <= (int)MAX_LEVEL; ++iLv )
+			iHave += ( mit->second.find( iLv ) != mit->second.end() ) ? 1 : 0;
+
+		if( iHave == (int)MAX_LEVEL - 80 )
+		{
+			++iFull;
+		}
+		else
+		{
+			WCHAR wszBuf[32];
+			StringCchPrintfW( wszBuf, 32, L" %d(%d)", mit->first, iHave );
+			wstrMissing += wszBuf;
+		}
+	}
+
+	CX2OfflineLog::Server( L"[CAP99] StatTable rows 81-%d present for %d of %u classes%s%s",
+		(int)MAX_LEVEL, iFull, (unsigned int)m_mapStat.size(),
+		wstrMissing.empty() ? L"" : L"; missing for class(rows):", wstrMissing.c_str() );
+#endif SERV_IRUHADEV_LEVEL_CAP_99
 }
 
 //////////////////////////////////////////////////////////////////////////

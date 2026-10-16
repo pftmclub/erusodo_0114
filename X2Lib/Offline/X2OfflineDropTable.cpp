@@ -251,6 +251,22 @@ void CX2OfflineDropTable::EnsureLoaded()
 			L"DROP     WARNING no NPC exp table - a dungeon run will award almost no EXP." );
 	}
 
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+	{
+		// Rows 81-99 are this port's (cap99_gen.py). Without them GetNpcExp clamps
+		// a level 81+ monster to the level-80 row (4203), which is not zero but
+		// is not the curve either - say which.
+		int iHigh = 0;
+		for( int iLv = 81; iLv <= (int)MAX_NPC_LEVEL; ++iLv )
+			iHigh += ( m_mapNpcExp.find( iLv ) != m_mapNpcExp.end() ) ? 1 : 0;
+
+		CX2OfflineLog::Server( L"[CAP99] NpcExpTable rows 81-%d: %d of %d present%s",
+			(int)MAX_NPC_LEVEL, iHigh, (int)MAX_NPC_LEVEL - 80,
+			( iHigh == (int)MAX_NPC_LEVEL - 80 ) ? L"" :
+			L" - pack KncWX2Server/ServerResource/US/NpcExpTable.lua (A2 rows) into data036.kom" );
+	}
+#endif SERV_IRUHADEV_LEVEL_CAP_99
+
 	// Degrade visibly. This is the one that answers ISSUES.md #17: "Aqua"
 	// (item 99811) is in a static row for nearly every dungeon in the game and
 	// appears in exactly four AddToGroup lines in the whole of DropTable.lua,

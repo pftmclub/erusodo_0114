@@ -7355,3 +7355,50 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Offline on a real clock both stay on the plain name. One JUNE_FX C3x-1 line per variant world created.
 #define SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-16
+// Description: Atlas Phase A2 - level cap 80 -> 99. Redefines USE_MAXLEVEL_LIMIT_VAL once more, after the
+//              SERV_IRUHADEV_LEVEL_CAP_80 block (which stays: undefine this flag and the cap is 80 again).
+//              Needs June's data036 ExpTable.lua (rows 1-100) and StatTable / NpcExpTable rows 81-99
+//              (june2017_re/cap99_gen.py). CX2OfflineStatTable / CX2OfflineDropTable read to 99, the offline
+//              level-up never climbs past the ExpTable's last row, and CX2OfflineDB schema v16 moves every unit's
+//              EXP from March's ExpTable onto June's ONCE (one-way; revert = restore the db_backup copy).
+//              Log tag [CAP99].
+#define SERV_IRUHADEV_LEVEL_CAP_99
+
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+#	undef  USE_MAXLEVEL_LIMIT_VAL
+#	define USE_MAXLEVEL_LIMIT_VAL const int g_iMaxLevel = 99;
+#endif SERV_IRUHADEV_LEVEL_CAP_99
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-16
+// Description: The menu EXP gauge (CX2StateMenu::UpdateExpGageBar) divides the progress by the next level's NEED_EXP.
+//              At the cap there is no next row, 0 / 0 is NaN, the bar stretches and the tooltip prints "-1.$%" - the
+//              same shape as the old zero m_iSpiritMax stamina gauge (OFFLINE_MODE_PLAN.md lesson 16). At the cap, or
+//              with no next-level row, the gauge is full and reads 100.0%.
+#define SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Elesis (Pyro Knight / Blazing Heart) dash-jump X-Z fireball, June2017 32b770e0: create the damage effect
+//              directly at scale 1 and angle z -45 instead of through the March effect set (scale 2, z +10). June's data
+//              already carries the x2, so the effect set drew the fireball at twice June's size, aimed upward.
+#define SERV_IRUHADEV_JUNE_EL_DASHJUMP_XZ_FIREBALL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase A3): the region's enum mirrors in C++ -- WORLD_ID, VILLAGE_MAP_ID,
+//              LOCAL_MAP_ID, HOUSE_ID, DUNGEON_ID, NPC_UNIT_ID (client and shared server header), LMUCM 18006-18008 -- each at June's
+//              value, with June's end markers (REST_END 1009, VILLAGE_MAP_END 20011, BATTLE_FIELD_END 40045, WI_END 779, DI_END 41530),
+//              IsVillageField's June range, and the offline Lua enum seed. Later Atlas/Elysion phases put their region switches here too.
+#define SERV_IRUHADEV_ELYSION_PORT
+//////////////////////////////////////////////////////////////////////////

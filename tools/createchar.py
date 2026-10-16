@@ -4,8 +4,8 @@
     python tools/createchar.py <nickname> <class> <level> [--sp N] [--ed N] [--dry-run]
 
 <class> is a UNIT_CLASS id (120) or a name fragment (grand_master, blazing, uc_elesis_knight).
-Mirrors CX2OfflineDB::CreateUnit (X2OfflineDB.cpp:1199) plus the level-N exp from the March
-ExpTable (tools/data/march_exptable.tsv): one unit row and the default inventory_size rows.
+Mirrors CX2OfflineDB::CreateUnit (X2OfflineDB.cpp:1199) plus the level-N exp from the June
+ExpTable (tools/data/june_exptable.tsv; data036 runs June's since Atlas A2, cap 99): one unit row and the default inventory_size rows.
 It does NOT seed skills, hotkeys, gear or the promotion costume - the real create path does
 (X2OfflineServer: BuildCreateUnitAck), this does not. Learn skills / equip in game.
 
@@ -64,10 +64,12 @@ def resolve_class(arg):
 
 
 def exp_for(level):
-    with open(os.path.join(HERE, 'data', 'march_exptable.tsv')) as f:
+    # June's ExpTable since Atlas A2 (data036 carries it; the save was migrated onto it, schema v16).
+    # march_exptable.tsv stays as the migration's source record.
+    with open(os.path.join(HERE, 'data', 'june_exptable.tsv')) as f:
         table = dict(tuple(map(int, l.split())) for l in f if l.strip() and not l.startswith('#'))
-    if level not in table:
-        die('level %d is outside the March ExpTable (1-%d)' % (level, max(table)))
+    if level not in table or level > 99:
+        die('level %d is outside 1-99 (cap 99, June ExpTable)' % level)
     return table[level]
 
 

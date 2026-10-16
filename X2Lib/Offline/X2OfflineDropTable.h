@@ -66,8 +66,13 @@ class CX2OfflineDropTable
 public:
 	enum
 	{
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+		/// Atlas A2: NpcExpTable.lua carries rows 81-99 (june2017_re/cap99_gen.py).
+		MAX_NPC_LEVEL = 99,
+#else SERV_IRUHADEV_LEVEL_CAP_99
 		/// NpcExpTable.lua runs to level 80, like StatTable.lua.
 		MAX_NPC_LEVEL = 80,
+#endif SERV_IRUHADEV_LEVEL_CAP_99
 	};
 
 public:

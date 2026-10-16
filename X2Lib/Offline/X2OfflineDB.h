@@ -442,6 +442,12 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+		SCHEMA_VERSION			= 16,	///< v16: unit.exp moved from March's ExpTable to June's (Atlas A2)
+
+		/// As in the v15 branch below, which this one replaces wholesale.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else SERV_IRUHADEV_LEVEL_CAP_99
 #ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
 		SCHEMA_VERSION			= 15,	///< v15: unit.resurrection_stone
 
@@ -455,6 +461,7 @@ public:
 		SCHEMA_VERSION			= 13,
 #endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 #endif SERV_IRUHADEV_OFFLINE_RES_STONE
+#endif SERV_IRUHADEV_LEVEL_CAP_99
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -870,6 +877,11 @@ private:
 
 	bool	Exec( const char* szSQL );
 	bool	Migrate();
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+	/// The v16 rung: every unit's EXP moved from March's ExpTable onto June's, keeping
+	/// its level and its fraction of progress through it. One-way. See the .cpp.
+	bool	MigrateExpToJuneTable();
+#endif SERV_IRUHADEV_LEVEL_CAP_99
 	int		ReadSchemaVersion();
 	void	LogError( const wchar_t* szWhat );
 

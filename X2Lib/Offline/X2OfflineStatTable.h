@@ -58,8 +58,14 @@ class CX2OfflineStatTable
 public:
 	enum
 	{
+#ifdef SERV_IRUHADEV_LEVEL_CAP_99
+		/// Atlas A2: StatTable.lua carries rows 81-99 for every class
+		/// (june2017_re/cap99_gen.py; classes 110/111 are the studio's own rows).
+		MAX_LEVEL = 99,
+#else SERV_IRUHADEV_LEVEL_CAP_99
 		/// Every class in StatTable.lua reserves 80 levels.
 		MAX_LEVEL = 80,
+#endif SERV_IRUHADEV_LEVEL_CAP_99
 	};
 
 public:

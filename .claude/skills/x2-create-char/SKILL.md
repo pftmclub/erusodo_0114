@@ -18,8 +18,9 @@ and the script prints it. If the user gave something that is clearly a uid, ask 
   `blazing`, `uc_elesis_knight`). An ambiguous fragment lists the candidates and stops. Ids:
   basics 1-9, 1st jobs 10-32, 2nd jobs 100-122 (Elesis: 8 Knight, 29 Saber, 30 Pyro,
   120 Grand Master, 121 Blazing Heart). Table is `CLASSES` in the script (from `X2Lib/X2Unit.h`).
-- `<level>` is 1-80. Exp is that level's `TOTAL_EXP` from the **March** ExpTable
-  (`tools/data/march_exptable.tsv`, decompiled from data036's `ExpTable.lua`; June's table differs).
+- `<level>` is 1-99. Exp is that level's `TOTAL_EXP` from the **June** ExpTable
+  (`tools/data/june_exptable.tsv`; data036 ships June's `ExpTable.lua` since Atlas A2, and the save was
+  migrated onto it at schema v16). `march_exptable.tsv` is kept only as the migration's source record.
 - SP/ED default to `1`/`0` at level 1, else `600`/`1000000`; override with `--sp` / `--ed`.
 
 What it does (mirrors `CX2OfflineDB::CreateUnit`): one `unit` row on the first account, plus the

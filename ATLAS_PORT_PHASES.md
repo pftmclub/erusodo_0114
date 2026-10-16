@@ -494,6 +494,16 @@ UI → quest plan.
   1,011,151,800. March TOTAL(80) = 986,793,900 — **above June's level 99**, so
   existing saves must be migrated. Packet `m_iEXP` is `int`
   (`CommonPacket.h:1381`); June's values fit.
+- **Corrected by A2 (2026-10-16)**, the bullets above kept as written:
+  - March TOTAL(80) is **866,438,000** (shipped bytecode, T0 decompile =
+    `tools/data/march_exptable.tsv`). 986,793,900 is the Jan-2014 studio
+    source's figure. Still below June's TOTAL(99), so the migration stays.
+  - StatTable: 4000 live rows (50 classes × 80) plus 38 commented-out
+    (classes 110/111, levels 81-99). Class 8 has no `ReserveMemory` line.
+  - The typedef is `Handlers_Room.cpp:4211`, not 3052. `m_iEXP` is
+    `CommonPacket.h:1405`.
+  - Without rows 81+, `GetNpcExp` clamps a level 81+ monster to the level-80
+    row (4203), so it does not award 0.
 
 ### Assets
 
@@ -1212,7 +1222,68 @@ kills-per-level table), then commit on main.
 
 ### Phase A2 — Done
 
-*(empty)*
+**2026-10-16, Opus 5.5.** Flags `SERV_IRUHADEV_LEVEL_CAP_99` (`LEVEL_CAP_80` block kept, so flag-off = 80) and
+`SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX` (the user's "-1.$%" request, see 6). Ledger corrections are under "Level cap".
+
+1. **80-bounds** (sweep: X2Lib incl. Offline, KTDXLIB, X2, X2ServerProtocol, Common). The four real bounds are now 99:
+   - the cap (`Always.h`, end);
+   - the typedef check (`Handlers_Room.cpp`, cap-99 twin in front of it; the build passing proves 99 reached `X2Game.h`);
+   - `CX2OfflineStatTable::MAX_LEVEL`;
+   - `CX2OfflineDropTable::MAX_NPC_LEVEL`.
+
+   Everything else reads `g_iMaxLevel` or the ExpTable: ApplyDungeonReward, the level-up scroll, `CX2InstanceData`,
+   `X2Game.cpp:9388`, the personal shop. Kept on purpose, being neither 80-bounds nor in scope:
+   `X2BuffBehaviorTemplet.cpp:1339` (unit level clamped at 90 in a buff formula), `X2UISkillNote.cpp:62` (20..70
+   list), the item-level stone tiers. Server-only 80s (`GameSysVal.cpp:776`, `KStatisticsLocalLog.h`) are untouched.
+   New guard: the level-up loop stops at the ExpTable's last row and logs `[CAP99] ERROR` once. A cap-99 exe over
+   March's ExpTable would otherwise climb a unit to 99 on one kill and pin EXP 0.
+2. **ExpTable**: June's whole, `luasrc.py adopt-june ExpTable.lua` (ljconv bytecode; record
+   `june2017_re/june_adopt_20261017_001004.tsv`). `PACK OK data036` (~1 changed vs live: `ExpTable.lua`).
+   **Not copied yet.**
+3. **StatTable 81-99** (`june2017_re/cap99_gen.py stat`). The model is `floor(a + r·L)` per class × stat, greedy segments
+   from 80 down, r = the shortest decimal that fits (HP fitted doubled; class 115 keeps its truncated whole-number HP).
+   - **Proof 1:** max residual **0** over all 250 curves (4000 rows). Shapes: 143 one line over 1-80; 100 with level 1 on
+     its own (the studio's tutorial adjustment); 12 split at L22 (a float tie of the 9.9 curve).
+   - **Proof 2** (independent): extrapolation vs the studio's own commented-out rows 81-99 of classes 110/111 matches
+     **188/190** values; AtkMagic L92 is 1 low (a float tie the 1-80 rows cannot pin).
+   - Classes 110/111 therefore ship the studio rows (uncommented copies, labelled); the other 48 ship the extrapolation
+     (`-- CAP99 generated`). ReserveMemory raised to 99 on 49 lines, each `-- CAP99: was 80`.
+   - BOM, CRLF and no EOF newline are preserved. `--write` is idempotent (rerun: "unchanged").
+4. **NpcExpTable 81-99** (`cap99_gen.py npc`). k(L) = kills of own-level mobs from L to L+1 = J.NEED(L+1) / npc(L),
+   least-squares over 70-80 (k = −1328.41 + 32.123·L), npc(L) = round(J.NEED(L+1) / k(L)). Strictly increasing 1-99.
+   L90 doubles (11,810 → 23,013) because June's NEED(91) doubles. Raw table, before the offline EXP boost:
+
+   | L | old (March ExpTable + npc) | new (June ExpTable + npc) |
+   |---|---|---|
+   | 50 | 2940.6 | 521.7 |
+   | 70 | 12047.0 | 934.2 |
+   | 80 | n/a (cap) | 1270.8 |
+   | 90 | n/a | 1562.7 |
+
+5. **Server Lua for the user to pack** (XOR + data036, manual): `KncWX2Server/ServerResource/US/StatTable.lua`,
+   `KncWX2Server/ServerResource/US/NpcExpTable.lua`. The degrade paths are unchanged. At load, `[CAP99] StatTable rows
+   81-99 present for N of 50 classes` and `[CAP99] NpcExpTable rows 81-99: N of 19` name what is missing.
+6. **EXP save migration**: schema **v16** (`CX2OfflineDB::MigrateExpToJuneTable`), constants in `X2OfflineCap99Exp.h`
+   (`cap99_gen.py exp --header`). The DB opens before `LoadEXPTable`, and March's table is gone after adoption.
+   - Formula: TOTAL(L) reaches L, NEED(L) = TOTAL(L) − TOTAL(L−1), f = (old − M.TOTAL(L)) / M.NEED(L+1) clamped [0, 1),
+     new = J.TOTAL(L) + ⌊f·J.NEED(L+1)⌋ in `__int64`. L80: f = 0, so new = J.TOTAL(80) = 70,016,100.
+   - The rung needs v14 + v15 (`#error`). One `[CAP99] migrated unit <uid> L=<L> exp <old> -> <new>` per unit, then a summary.
+   - A Python replica on the live save keeps all 27 units on their level. Examples: L80 866,438,000 → 70,016,100;
+     L72 unit 18 → 39,172,196; L70 → ~33.72M.
+   - **Backup** `db_backup/els_db_20261017_000918_pre_pre_A2_cap99_exp_migration.sql`.
+   - `tools/createchar.py` / `elsdb.py setchar` now take EXP from `tools/data/june_exptable.tsv`, levels 1-99.
+   - Gauge fix: `UpdateExpGageBar` divided by the next level's NEED, and at the cap that row is missing, so 0/0 = NaN
+     prints "-1.$%". At the cap, or with no next row, the bar is full and reads 100.0%.
+7. **Hygiene**:
+   - `flagcheck SERV_IRUHADEV_LEVEL_CAP_99 --worktree`: 4 PASS, 3 PASS~, 2 OTHER (Always.h, X2StateMenu = the gauge
+     flag), 0 FAIL, 0 deleted, RESULT PASS.
+   - Gauge flag: 1 PASS, 1 OTHER, RESULT PASS.
+
+`DEPLOY OK: X2_offline.exe is 19,589,120 B, dated 2026-10-17 00:28:20, md5 91be27bdf658746e71af7e9cd9d6684b, equal to X2/US_SERVICE/x2.exe (2026-10-17 00:28:14); built at main 43af9b4f + 19 uncommitted code file(s).`
+All four `[CAP99]` literals are in the deployed exe.
+
+**Owed by the user:** pack the two server Lua files; say yes to `/x2-kom-packed copy data036`; then the migrating launch
+(asked, not run). Review: `/x2-phase atlas A2 review` (Opus 5.5 high).
 
 ---
 

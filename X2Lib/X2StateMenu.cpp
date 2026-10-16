@@ -3742,7 +3742,17 @@ void CX2StateMenu::UpdateExpGageBar()
 	float nowBaseExp		= 0;
 
 	nowBaseExp		= static_cast< float >( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_NowBaseLevelEXP );
+#ifdef SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX
+	{
+		const int iNextNeedExp = g_pData->GetEXPTable()->GetEXPData( iOrgLevel + 1 ).m_nNeedExp;
+		if( iOrgLevel >= (int)_CONST_X2GAME_::g_iMaxLevel || iNextNeedExp <= 0 )
+			fTotalExpRate = 1.f;	// max level: a full bar, not 0 / 0
+		else
+			fTotalExpRate = ( nowExp - nowBaseExp ) / iNextNeedExp;
+	}
+#else SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX
 	fTotalExpRate	= ( nowExp - nowBaseExp ) / g_pData->GetEXPTable()->GetEXPData( iOrgLevel + 1 ).m_nNeedExp;
+#endif SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX
 
 	if( fTotalExpRate > 1.f )
 	{

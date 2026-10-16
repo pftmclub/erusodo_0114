@@ -368,7 +368,7 @@ def cmd_setchar(a):
     sets = {}
     if a.level is not None:
         sets['level'] = a.level
-        sets['exp'] = a.exp if a.exp is not None else createchar.exp_for(a.level)  # March TOTAL_EXP, as addchar
+        sets['exp'] = a.exp if a.exp is not None else createchar.exp_for(a.level)  # June TOTAL_EXP (Atlas A2), as addchar
     elif a.exp is not None:
         sets['exp'] = a.exp
     for f in ('ed', 'sp'):
