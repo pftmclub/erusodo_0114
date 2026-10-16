@@ -1941,7 +1941,8 @@ Done when: Phase A7's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 
 ### Phase A7 — Done
 
-**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` (MODS.md "Atlas/Elysion port A7"). Commit: see the A7 STATUS row.
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` (MODS.md "Atlas/Elysion port A7"). Commit: `6b988787`. After commit, `flagcheck --range 6b988787^..6b988787 --files <7 code files>`: `files: 6 PASS, 0 PASS~, 1 DEFINE,
+0 OTHER, 0 FAIL, 0 ERROR`, same in-flag line, `RESULT: PASS`.
 Kickoff `kickoffs/atlas/A7.md` (written this phase).
 
 - **Premises:** no `AddDummyInt` in the adopted files resolves to a nil *tab* id: `LMI_ELYSION` = 10009 (A3), every Atlas/Elysion `DI_*_NORMAL`,
