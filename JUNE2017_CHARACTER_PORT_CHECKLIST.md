@@ -609,4 +609,4 @@ June reads the state key `CUSTOM_RENDER_STATE = { start, end, CRS }` with the ge
 renders it (cases in `june2017_re/r0_renderer_contract.tsv`, `crs` rows). R5 ports the engine side. These class scripts carry the key
 and come with their ports: `Add_NasodRuler` (`CRS_INVISIBLE` x6, `CRS_UNIT_FADE_WHITE_WITHOUT_WEAPON` x1), `Ara_Martial_Artist`,
 `Ain_Apostasia`, `Ain_Erbluhen_Emotion`, `Luciel_Demonio`, `Rose_Ranger`, `RidingPet_Rakshasa` (all `CRS_INVISIBLE`). The `Enum` table
-itself is the row in section 152 above. Funcmap rows `31fce500`, `31fd4460` (`Engine R0`).
+itself is the `CUSTOM_RENDER_STATE` row at line 152. Funcmap rows `31fce500`, `31fd4460` (`Engine R0`).

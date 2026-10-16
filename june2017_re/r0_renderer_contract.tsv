@@ -39,8 +39,8 @@ renderparam	+0x00..+0x98	as March (FOG_WORLD on)	same offsets in BeginRender	-
 renderparam	+0x9c	int: world cartoon index	used only when cartoonTexType == CTT_NORMAL: 0..3 picks NORMAL / TWOTONE / USER1 / USER2, else 0 (helper 31d3c230)	filled from CX2World +0x1a4
 renderparam	+0xa0	int: world rim ramp index	13..18 (RIM_LIGHT_WHITE..USER2), else 13	filled from CX2World +0x1a8
 renderparam	+0xa4	bool bAlphaTestEnable	moved from March +0x9c (ADD_ALPHATESTENABLE on)	BeginRender 31d3db6d -> D3DRS_ALPHATESTENABLE
-world	+0x1a4	SetCartoonTextureIndex (327fb200) / get 327fb1f0	Lua g_pWorld:SetCartoonTextureIndex; default 0 (327fded1)	-
-world	+0x1a8	SetRimLightTextureIndex (327fb220) / get 327fb210	Lua g_pWorld:SetRimLightTextureIndex; default 0 -> clamps to 13 (white)	June users: Ranox_Secret_Boss_Stage, ELTRION_MK2 Stage2 (BLUE) / Stage3 (RED), PERKISAS Stage0 (RED, bare global) / Stage1 (DARK)
+world	+0x1a4	SetCartoonTextureIndex (327fb200) / get 327fb1f0	Lua g_pWorld:SetCartoonTextureIndex; default 0 (candidate: 327fded1 stores ecx after xor @327fddfe; owner not proven, 3281f9c0 also writes these offsets)	-
+world	+0x1a8	SetRimLightTextureIndex (327fb220) / get 327fb210	Lua g_pWorld:SetRimLightTextureIndex; default 0 (candidate, as +0x1a4) -> clamps to 13 (white); any value outside 14..18 gives white	June users: Ranox_Secret_Boss_Stage, ELTRION_MK2 Stage2 (BLUE) / Stage3 (RED), PERKISAS Stage0 (RED, bare global) / Stage1 (DARK)
 rpfill	31ff05c2	unit RenderParam fill (+0x9c/+0xa0 from world)	CX2GUUser module (by address; not virtual)	-
 rpfill	323ed743	same	CX2SquareUnit / CX2GuildAgitUnit (RTTI of fn 323ed560)	-
 rpfill	326eaa99	same	CX2PET (RTTI of fn 326ea980)	-

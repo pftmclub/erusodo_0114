@@ -266,7 +266,7 @@ No code, so there is no flag or build. The text of this map landed in peer commi
    - `+0x9c` is the world cartoon index, used only when `cartoonTexType == CTT_NORMAL` (0..3 = NORMAL / TWOTONE / USER1 / USER2).
    - `+0xa0` is the world rim ramp, clamped to 13..18 with 13 (white) as the fallback.
    - **No Lua key fills them.** Five per-frame fills copy `CX2World +0x1a4 / +0x1a8`: user, square / agit unit, pet, NPC and riding pet
-     (tsv `rpfill`). The world values come from Lua `SetCartoonTextureIndex` / `SetRimLightTextureIndex` and default to 0, so the rim
+     (tsv `rpfill`; pet, square / agit unit and riding pet by RTTI, user and NPC by address only). The world values come from Lua `SetCartoonTextureIndex` / `SetRimLightTextureIndex` and default to 0 (candidate), so the rim
      ramp falls back to white.
    - **Correction to the ledger: `useRimLight` (`3353ca10`) is a Scaleform option-UI key,** not a `RenderParam` member.
 4. **Ramps.**
