@@ -2318,7 +2318,42 @@ Done when: decompile passes --check; baseline recorded. Record a Done note, then
 
 ### Phase E0 — Done
 
-*(empty)*
+*(2026-10-17, Sonnet 5.5 medium. Tooling and read-only: no game code, no flag, no flagcheck, no build or deploy, no log tag.)*
+
+- **Preconditions hold.** A0-A4 (incl. A2, cap 99) and A7 are done with their reviews; A5 is done (its play-test needed A7, which landed);
+  A6 is still queued, and E2 needs it. JUNE_BUFF Phase 10 is done (STATUS rows A10 / E11 say so); E10 / E11 can rely on it.
+- **The decompile gate is NOT met, and cannot be with this tool.** `luasrc.py decompile` (ljd via `ljd_fixed.py`) on June's
+  `ELYSION_SOLESS.lua` (105,101 B) ran 29 min with a 3300 s timeout and the `ljd` child reached **19 GB** resident (of 32 GB, 2.5 GB free);
+  I killed it by PID. This is the same failure A1b and the Lua-source plan recorded as "ljd timed out after 900 s", so a longer
+  timeout does not help: the time is a memory blow-up. No `june2017_re/june_lua/ELYSION_SOLESS.src.lua` exists and none is claimed.
+  The census therefore keeps reading the file as exact bytecode constants (A0 review), and `region_census.py` is unchanged.
+- **What E0 needed from the decompile, confirmed from the bytecode instead** (`ljconv` to 0x81, `tools/ljbc.py list`, 8,886 lines):
+  each of the 8 string-only names is a real method call: a `TGETS` of the name right after `MOV A+1, B` and a `CALL` on that slot, in
+  every occurrence. `PlayAdditionalWorldAllSound` 1, `SetShowAdditionalWorld` 1, `SetNumberInGageStatic_LUA` 2 (first arg
+  `g_pStatic_ElysionSolessAwakenGage`), `SetNumberInNumberStatic_MoreParam_LUA` 8 (`g_pStatic_AwakenRemainTime`),
+  `SetUseExternalCondition_LUA` 1, `AddStateCoolTime_LUA` 10 and `SetStateCoolTime_LUA` 5 (state `ELYSION_SOLESS_COMBO_ATTACK_Z`),
+  `GetBuffAccumulationCountNow` 1 (followed by `GGET BUFF_TEMPLET_ID`, so SOLESS does call it: the buff P10 binding is needed).
+- **No new engine name.** The 105 method-style calls in SOLESS, filtered to the C++ / Lua method universe and to names no
+  `lua_tinker` line binds today, give 12: `AddEffectSetDeleteCondition_LUA`, `AddStateCoolTime_LUA`, `ClearStoredNPC`,
+  `GetNearestUnitInSpecificRange_LUA`, `GetSyncDummyValue`, `PlayAdditionalWorldAllSound`, `PlayWorldAllSound`,
+  `SetShowAdditionalWorld`, `SetShowInvincible`, `SetShowWorld`, `SetStateCoolTime_LUA`, `SetSyncDummyValue_Host`. All 12 already have
+  a row in `region_engine.tsv` (owners E7; the Opus-only ones are listed there), so the TSV is unchanged. (A1b's 29 counted names that
+  were bound afterwards by C3z-4 / C3z-4s / buff P10; the string-only gauge names are among them.)
+- **`--region elysion` baseline** (`region_census.py --region elysion --no-probe`, tree at `bdfc0614`): 353 region files, 1,273 open of 1,317
+  items. Sets all present except 2 quest NUIs (`NUI_STORY_QUEST`, `NUI_TRANSCEND_QUEST`: quest plan). Open per line:
+
+  | Line | Open | assets.adopt | keys.file | npc.ready | koms.unstaged | bind.unbound (+.bytecode) | other |
+  |---|---|---|---|---|---|---|---|
+  | VIL (village) | 97 | 69 | - | 11 | 2 | - | ids.missing 2, keys.registry 11, lists.hole 2 |
+  | SC (SkyCrossroads) | 130 | 89 | 22 | 13 | 6 | - | - |
+  | AR (Adrian) | 237 | 124 | 72 | 32 | 8 | 1 | - |
+  | SL (Soless) | 431 | 287 | 72 | 45 | 13 | 8 + 6 | - |
+  | ME (Memory) | 378 | 252 | 78 | 30 | 10 | 8 | - |
+
+  Totals match the text report (assets 2,679 refs: 872 in March, 1,733 June-only, 74 June itself lacks; effect sets 416 / 0 missing;
+  strings 0 undefined). `members.june_nil` INFO rows: `LINE_TYPE.LT_INVALID`, `NPC_UNIT_ID.NUI_ELYSION_S_CIRCLE_CTR` (keep verbatim).
+- **Open for the user:** nothing. E10 reads SOLESS through `python tools/ljbc.py list` on the `ljconv` output (every call and constant
+  resolves); it does not need a source copy. Next: `/x2-phase atlas E1` (Opus 5.5 high; kickoff `kickoffs/atlas/E1.md`).
 
 ---
 

@@ -505,7 +505,7 @@ E0's `ELYSION_SOLESS` decompile-check (`elstools decompile-batch` + `ljd_jun2017
 | A11 | queued: asset closure + pack list | Sonnet 5.5 / high, review Opus 5.5 | A5-A10 | data | written on first use |
 | A12 | queued: build, deploy, hand-off | Sonnet 5.5 / medium | A11 | build | written on first use |
 | A13 | queued: play-test sweep + close-out | Opus 5.5 / high | A12 | verify + root-cause | written on first use |
-| E0 | queued: preconditions, census, `ELYSION_SOLESS` decompile | Sonnet 5.5 / medium | Atlas A0-A4 (incl. A2), A7 | tooling | written on first use |
+| E0 | **done 2026-10-17** (tooling, no game code, no build): decompile gate not met - ljd on `ELYSION_SOLESS.lua` reaches 19 GB (killed), no source copy; confirmed from the bytecode instead (`ljbc list`): all 8 string-only names are real calls, no new engine name (12 unbound calls, all in `region_engine.tsv`); `--region elysion` baseline per line in the plan's E0 Done note. Nothing owed | Sonnet 5.5 / medium | Atlas A0-A4 (incl. A2), A7 | tooling | written on first use |
 | E1 | **next after E0 (user, 2026-10-17, A7 play-test: Atlas Station needs June's own board / postbox via the NPC relation system)**: village engine: NPC relation system (all three entry points, incl. the code-event tail: step 5, from june-effect C9h-2e), `DLG_Map_House` keys, in-village warps, June's whole `CX2TFieldNpc` incl. the village-NPC effect set (step 6, from june-effect C9h-5; merge after C9h-3a) | Opus 5.5 / high | E0 (+ A1a map) | C++ (new mechanisms) | `E1.md` |
 | E2 | queued: Elysion village 20009 | Opus 5.5 / high | E1, Atlas A5, A6 | data + C++ switches | written on first use |
 | E3 | queued: Field 03 (+ Field 04 enum check) | Sonnet 5.5 / high, review Opus 5.5 | E2 | data | written on first use |
