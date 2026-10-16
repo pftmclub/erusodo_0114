@@ -606,6 +606,7 @@ PREFIX_TABLE = {'HI_': 'HOUSE_ID', 'DI_': 'DUNGEON_ID', 'VMI_': 'VILLAGE_MAP_ID'
 OLD_NUI = ['NUI_ADAMS', 'NUI_ARIEL', 'NUI_BILLBOARD', 'NUI_CAMILLA', 'NUI_GLAVE', 'NUI_LURIEL', 'NUI_MU', 'NUI_FIRETEMPLE_GATE',
            'NUI_FIRE_DEVIL_BERSERKER', 'NUI_FIRE_DEVIL_FIGHTER_FIRETEMPLE', 'NUI_MOUNT_FIREBIRD_FIRETEMPLE', 'NUI_SECRET_MAG_NOM',
            'NUI_SECRET_MAG_CHARGER', 'NUI_SECRET_SUMMON_MAG_NOM', 'NUI_SECRET_MAGI_OBJECT', 'NUI_SECRET_LAVA_DUMMY']   # ledger: "16 NUIs the region uses already exist in March"
+QUEST_DEFERRED = {'NUI_STORY_QUEST', 'NUI_TRANSCEND_QUEST'}      # village quest-house NPCs: quest plan, not an Atlas/Elysion gap
 KEY_RENAMES = {'OtherPlaceID': 'BattleFieldId', 'OtherPlaceStartLineIndex': 'BattleFieldStartLineIndex'}  # ledger "Key rename" hint
 
 
@@ -724,7 +725,9 @@ def check_npc(R, M):
             gaps.append('script:%s' % lf)
         if n in j_stat and n not in m_stat:
             gaps.append('stat')
-        if gaps:
+        if gaps and n in QUEST_DEFERRED:
+            items.append(Item('npc.ready', lines, n, 'INFO', 'deferred to the quest plan (user 2026-10-16); missing ' + ','.join(gaps)))
+        elif gaps:
             items.append(Item('npc.ready', lines, n, 'OPEN', 'missing ' + ','.join(gaps)))
         else:
             ready += 1

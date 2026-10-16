@@ -76,397 +76,397 @@ elysion	SL	ids.missing	DI_SOLESS_EXPERT=33892	OPEN	DUNGEON_ID
 elysion	ME	ids.missing	DI_MEMORY_NORMAL=33900	OPEN	DUNGEON_ID
 elysion	ME	ids.missing	DI_MEMORY_HARD=33901	OPEN	DUNGEON_ID
 elysion	ME	ids.missing	DI_MEMORY_EXPERT=33902	OPEN	DUNGEON_ID
-atlas	AD	ids.missing	NUI_ELSION_DEKALPYURITA=2098	OPEN	NPC_UNIT_ID
-atlas	AD	ids.missing	NUI_ELSION_EVENT_1ST_BOSS=2125	OPEN	NPC_UNIT_ID
+shared	AD+AC+TW	ids.missing	NUI_ELSION_PROTO=2114	OPEN	NPC_UNIT_ID
+atlas	AD	ids.missing	NUI_ELSION_BERMEVA=2095	OPEN	NPC_UNIT_ID
+atlas	AD	ids.missing	NUI_ELSION_SUMMON1=2124	OPEN	NPC_UNIT_ID
+shared	FLD+AD+AC+TW	ids.missing	NUI_ELSION_CHEST=2176	OPEN	NPC_UNIT_ID
 atlas	AD	ids.missing	NUI_ELSION_SHILEDPIM=2096	OPEN	NPC_UNIT_ID
 atlas	AD	ids.missing	NUI_ELSION_DEKAL=2099	OPEN	NPC_UNIT_ID
-atlas	AD	ids.missing	NUI_ELSION_PYURITA=2094	OPEN	NPC_UNIT_ID
-shared	FLD+AD+AC+TW	ids.missing	NUI_ELSION_CHEST=2176	OPEN	NPC_UNIT_ID
-shared	AD+AC+TW	ids.missing	NUI_ELSION_PROTO=2114	OPEN	NPC_UNIT_ID
-atlas	AD	ids.missing	NUI_ELSION_PLINGCHU_G=2092	OPEN	NPC_UNIT_ID
-atlas	AD	ids.missing	NUI_ELSION_SUMMON1=2124	OPEN	NPC_UNIT_ID
-atlas	AD	ids.missing	NUI_ELSION_BERMEVA=2095	OPEN	NPC_UNIT_ID
 atlas	AD	ids.missing	NUI_ELSION_PLINGCHU_R=2093	OPEN	NPC_UNIT_ID
+atlas	AD	ids.missing	NUI_ELSION_EVENT_1ST_BOSS=2125	OPEN	NPC_UNIT_ID
+atlas	AD	ids.missing	NUI_ELSION_DEKALPYURITA=2098	OPEN	NPC_UNIT_ID
+atlas	AD	ids.missing	NUI_ELSION_PLINGCHU_G=2092	OPEN	NPC_UNIT_ID
+atlas	AD	ids.missing	NUI_ELSION_PYURITA=2094	OPEN	NPC_UNIT_ID
 shared	AD+AC+TW	ids.missing	NUI_ELSION_SUMMUN_PROTO=2127	OPEN	NPC_UNIT_ID
-shared	AC+TW	ids.missing	NUI_ELSION_SUMMUN_PROVER=2128	OPEN	NPC_UNIT_ID
-atlas	AC	ids.missing	NUI_ELSION_ATLAS_GATE=2169	OPEN	NPC_UNIT_ID
-shared	AC+TW	ids.missing	NUI_ELSION_SILENCE=2117	OPEN	NPC_UNIT_ID
-atlas	AC	ids.missing	NUI_ELSION_DEFENDER=2116	OPEN	NPC_UNIT_ID
-atlas	AC	ids.missing	NUI_ELSION_SUVEILLAN=2120	OPEN	NPC_UNIT_ID
-shared	AC+TW	ids.missing	NUI_ELSION_DECEPTOR=2118	OPEN	NPC_UNIT_ID
-atlas	AC	ids.missing	NUI_ELSION_STAGE_SUVEILLAN=2122	OPEN	NPC_UNIT_ID
-shared	FLD+AC	ids.missing	NUI_ELSION_NEWDEFENDER=2119	OPEN	NPC_UNIT_ID
 shared	AC+TW	ids.missing	NUI_ELSION_PROVER=2115	OPEN	NPC_UNIT_ID
+shared	AC+TW	ids.missing	NUI_ELSION_SUMMUN_PROVER=2128	OPEN	NPC_UNIT_ID
+atlas	AC	ids.missing	NUI_ELSION_SUVEILLAN=2120	OPEN	NPC_UNIT_ID
+shared	AC+TW	ids.missing	NUI_ELSION_SILENCE=2117	OPEN	NPC_UNIT_ID
+shared	AC+TW	ids.missing	NUI_ELSION_DECEPTOR=2118	OPEN	NPC_UNIT_ID
+atlas	AC	ids.missing	NUI_ELSION_ATLAS_GATE=2169	OPEN	NPC_UNIT_ID
+shared	FLD+AC	ids.missing	NUI_ELSION_NEWDEFENDER=2119	OPEN	NPC_UNIT_ID
+atlas	AC	ids.missing	NUI_ELSION_STAGE_SUVEILLAN=2122	OPEN	NPC_UNIT_ID
+atlas	AC	ids.missing	NUI_ELSION_DEFENDER=2116	OPEN	NPC_UNIT_ID
 atlas	AC	ids.missing	NUI_ELSION_EVENT_2ST_BOSS=2123	OPEN	NPC_UNIT_ID
-atlas	TW	ids.missing	NUI_ELSION_PUTER=2152	OPEN	NPC_UNIT_ID
-shared	FLD+TW	ids.missing	NUI_ELSION_HIGHTTEM=2153	OPEN	NPC_UNIT_ID
-atlas	TW	ids.missing	NUI_ELSION_TEMPLAR=2150	OPEN	NPC_UNIT_ID
-atlas	TW	ids.missing	NUI_ELSION_DISION=2154	OPEN	NPC_UNIT_ID
-atlas	TW	ids.missing	NUI_ELSION_EVENT_3ST_BOSS=2156	OPEN	NPC_UNIT_ID
-atlas	TW	ids.missing	NUI_ELSION_EVENT_YUNO=2157	OPEN	NPC_UNIT_ID
-atlas	TW	ids.missing	NUI_ELSION_SUMMON3=2177	OPEN	NPC_UNIT_ID
 atlas	TW	ids.missing	NUI_ELSION_LIBYA=2151	OPEN	NPC_UNIT_ID
+atlas	TW	ids.missing	NUI_ELSION_DISION=2154	OPEN	NPC_UNIT_ID
+atlas	TW	ids.missing	NUI_ELSION_TEMPLAR=2150	OPEN	NPC_UNIT_ID
+atlas	TW	ids.missing	NUI_ELSION_PUTER=2152	OPEN	NPC_UNIT_ID
 atlas	TW	ids.missing	NUI_ELSION_TOWER_GATE=2170	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_HERNA_LANCE=2262	OPEN	NPC_UNIT_ID
+atlas	TW	ids.missing	NUI_ELSION_EVENT_YUNO=2157	OPEN	NPC_UNIT_ID
+atlas	TW	ids.missing	NUI_ELSION_EVENT_3ST_BOSS=2156	OPEN	NPC_UNIT_ID
+shared	FLD+TW	ids.missing	NUI_ELSION_HIGHTTEM=2153	OPEN	NPC_UNIT_ID
+atlas	TW	ids.missing	NUI_ELSION_SUMMON3=2177	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_SKYCROSS_BOSS_EVENT=2298	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_MOVE_OBJECT=2268	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_DUMMY_TITLE=2333	OPEN	NPC_UNIT_ID
 elysion	SC	ids.missing	NUI_ELYSION_HERNA_FEAR=2263	OPEN	NPC_UNIT_ID
 shared	SC+AR	ids.missing	NUI_ELYSION_WALL_DUMMY1=2331	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_SKYCROSS_BOSS_EVENT=2298	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_FAKE_OBJECT=2267	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_HERNA_ORB=2260	OPEN	NPC_UNIT_ID
-shared	FLD+SC+AR+SL	ids.missing	NUI_ELYSION_NEW_CHEST=2332	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_KEYOBJECT_TRIGGER=2295	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_WATERCANNON_OBJECT=2296	OPEN	NPC_UNIT_ID
-shared	FLD+SC	ids.missing	NUI_ELYSION_HERNA_SHIELD=2259	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_MOVE_OBJECT=2268	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_HERNA_BOW=2261	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_SKY_DUMMY=2323	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_DUMMY_TITLE=2333	OPEN	NPC_UNIT_ID
-elysion	SC	ids.missing	NUI_ELYSION_SKYCROSS_EVENT0=2297	OPEN	NPC_UNIT_ID
 elysion	SC	ids.missing	NUI_ELYSION_KEYOBJECT=2266	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_GAUGE_OBJECT=2312	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_3STAGE_LASER_C=2309	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_STAIRS_DUMMY=2314	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_EMPEROR_LANCE=2302	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_WATERCANNON_OBJECT=2296	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_SKY_DUMMY=2323	OPEN	NPC_UNIT_ID
+shared	FLD+SC	ids.missing	NUI_ELYSION_HERNA_SHIELD=2259	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_FAKE_OBJECT=2267	OPEN	NPC_UNIT_ID
+shared	FLD+SC+AR+SL	ids.missing	NUI_ELYSION_NEW_CHEST=2332	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_HERNA_LANCE=2262	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_HERNA_ORB=2260	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_KEYOBJECT_TRIGGER=2295	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_SKYCROSS_EVENT0=2297	OPEN	NPC_UNIT_ID
+elysion	SC	ids.missing	NUI_ELYSION_HERNA_BOW=2261	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_BOMB_PANG=2273	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_R_V_LASER=2281	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_DAMAGE_OBJECT=2311	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_DAMAGE_OBJECT_STAGE2_SUB_STAGE2=2335	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_DUMMY_HERBAON=2277	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_NEW_DEKAL=2275	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_3STAGE_LASER_C=2309	OPEN	NPC_UNIT_ID
+shared	AR+SL	ids.missing	NUI_ELYSION_EMPEROR_SHIELD=2299	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_ADRIAN_GATE=2315	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_WALL_DAMAGE=2310	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_STAIRS_DUMMY=2314	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_EMPEROR_BOW=2301	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_2STAGE_LASER_A=2304	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_HAMMER_PANG=2271	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_GAUGR_DUMMY=2313	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_ADRIAN_BOSS_EVENT=2318	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_2STAGE_LASER_C=2306	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_ADRIAN_EVENT1=2316	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_EMPEROR_BOW=2301	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_3STAGE_LASER_A=2307	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_R_V_LASER=2281	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_L_V_LASER=2279	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_2STAGE_LASER_B=2305	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_L_H_LASER=2278	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_BOMB_PANG=2273	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_PUPANG=2274	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_L_V_LASER=2279	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_R_H_LASER=2280	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_SING_PANG=2272	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_BOSS_HERBAON=2276	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_3STAGE_BACK=2328	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_ADRIAN_EVENT3=2324	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_2STAGE_LASER_A=2304	OPEN	NPC_UNIT_ID
-shared	AR+SL	ids.missing	NUI_ELYSION_EMPEROR_SHIELD=2299	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_DUMMY_HERBAON=2277	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_GAUGE_OBJECT=2312	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_WALL_DUMMY0=2330	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_3STAGE_LASER_B=2308	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_HAMMER_PANG=2271	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_ADRIAN_GATE=2315	OPEN	NPC_UNIT_ID
-shared	AR+SL	ids.missing	NUI_ELYSION_EMPEROR_ORB=2300	OPEN	NPC_UNIT_ID
-elysion	AR	ids.missing	NUI_ELYSION_WALL_DAMAGE=2310	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_BOSS_HERBAON=2276	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_R_H_LASER=2280	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_PUPANG=2274	OPEN	NPC_UNIT_ID
 elysion	AR	ids.missing	NUI_ELYSION_ADRIAN_EVENT2=2317	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_SHIELD=2349	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_COMMAND_BOSS=2380	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_SOLESS_EVENT1=2364	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_IMPRINT_SHIELD=2356	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_2STAGE_HERBAON=2383	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_SOLESS_DRAMATIC=2404	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_LASER1=2370	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_3STAGE_OBJECT=2382	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_CIRCLE_OBJECT=2375	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_SING_PANG=2272	OPEN	NPC_UNIT_ID
+shared	AR+SL	ids.missing	NUI_ELYSION_EMPEROR_ORB=2300	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_NEW_DEKAL=2275	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_3STAGE_LASER_A=2307	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_3STAGE_LASER_B=2308	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_ADRIAN_EVENT1=2316	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_3STAGE_BACK=2328	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_DAMAGE_OBJECT_STAGE2_SUB_STAGE2=2335	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_EMPEROR_LANCE=2302	OPEN	NPC_UNIT_ID
+elysion	AR	ids.missing	NUI_ELYSION_2STAGE_LASER_C=2306	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_HIDE_STAGE_B=2389	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_DYING=2403	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_CIRCLE_CTRL=2376	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_2STAGE_SUVEILLAN=2385	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_SKILL_BOSS=2381	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_BOW=2351	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_1STAGE_END=2391	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_2STAGE_END=2402	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_S_SPHERE=2362	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_GATE=2390	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_COMMANDER=2360	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_DIA=2361	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_SKILL_3STAGE=2379	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_SOLESS_DUMMY=2368	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_LASER4=2373	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_ORB=2350	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_3STAGE_END=2386	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_IMPRINT_ORB=2357	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_COMMAND_3STAGE=2378	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_SOLESS_EVENT1_A=2365	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_DISION_OBJECT=2384	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_LANCE=2352	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_DIA=2354	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_2STAGE_END=2402	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_BOSS_LINE_A=2387	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_HIDE_STAGE_A=2388	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_SHIELD=2349	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_2STAGE_SUVEILLAN=2385	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_3STAGE_END=2386	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_COMMAND_BOSS=2380	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_START=2392	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_LANCE=2352	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_CIRCLE_CTRL=2376	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_SOLESS_EVENT1_A=2365	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_COMMANDER=2353	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_IMPRINT_BOW=2358	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_LASER1=2370	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_IMPRINT_ORB=2357	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_BOW=2351	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_2STAGE_HERBAON=2383	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_DISION_OBJECT=2384	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_IMPRINT_SHIELD=2356	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_MAYA=2369	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_SOLESS=2363	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_SPHERE=2355	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_COMMANDER=2353	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_WALL_OBJECT=2377	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_LASER3=2372	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_START=2392	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_MAYA=2369	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_BOSS_LINE_A=2387	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_DAMAGE_OBJECT=2374	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_COMMANDER=2360	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_WALL_OBJECT=2377	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_S_0STAGE_LASER2=2371	OPEN	NPC_UNIT_ID
-elysion	SL	ids.missing	NUI_ELYSION_S_IMPRINT_BOW=2358	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_3STAGE_OBJECT=2382	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_SKILL_3STAGE=2379	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_DYING=2403	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_SOLESS_DUMMY=2368	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_DIA=2361	OPEN	NPC_UNIT_ID
 elysion	SL	ids.missing	NUI_ELYSION_S_IMPRINT_LANCE=2359	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_4=2415	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_SWORD_SUMMON=2429	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_2STAGE_SUMMON=2427	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_1STAGE_START_1=2434	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_LANCE=2406	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_0STAGE_START=2419	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_1STAGE_START=2421	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_MAGE=2408	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_3=2414	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_EL_DEF=2424	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_5=2416	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_SKILL_BOSS=2381	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_DIA=2354	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_DAMAGE_OBJECT=2374	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_1STAGE_END=2391	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_COMMAND_3STAGE=2378	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_SOLESS_EVENT1=2364	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_S_CIRCLE_OBJECT=2375	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_SOLESS_DRAMATIC=2404	OPEN	NPC_UNIT_ID
+elysion	SL	ids.missing	NUI_ELYSION_IMPRINT_ORB=2350	OPEN	NPC_UNIT_ID
 elysion	ME	ids.missing	NUI_ELYSION_M_0STAGE_GATE=2420	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_2STAGE_END=2435	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_KNIGHT=2405	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_EL_MAGE=2411	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_3STAGE_END=2436	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_MAGE_SUMMON=2431	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_EL_LANCE=2410	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_3STAGE_START=2423	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_BOSS_EVENT=2418	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_0STAGE_GATE_3=2433	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_SWORD=2407	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_EL_KNIGHT=2409	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_1STAGE_GATE=2422	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_SOLESS=2417	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_KNIGHT_SUMMON=2428	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_1=2412	OPEN	NPC_UNIT_ID
-elysion	ME	ids.missing	NUI_ELYSION_M_S_LANCE_SUMMON=2430	OPEN	NPC_UNIT_ID
 elysion	ME	ids.missing	NUI_ELYSION_M_0STAGE_GATE_2=2432	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_5=2416	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_2STAGE_END=2435	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_SOLESS=2417	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_1=2412	OPEN	NPC_UNIT_ID
 elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_2=2413	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_EVENT_00=2139	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_PLINGCHU_R=2130	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_PLINGCHU_G=2129	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_PYURITA=2131	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_DEFENDER=2160	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELYSION_F_BOSS_ORB=2347	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_FEAR=2346	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_HIGHTTEM=2165	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_PROTO=2158	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELYSION_F_BOSS_SHIELD=2348	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_DEKALPYURITA=2135	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_LIBYA=2163	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_KNIGHT_SUMMON=2428	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_LANCE_SUMMON=2430	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_MAGE_SUMMON=2431	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_SWORD=2407	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_1STAGE_START_1=2434	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_BOSS_EVENT=2418	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_EL_LANCE=2410	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_0STAGE_GATE_3=2433	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_1STAGE_START=2421	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_EL_DEF=2424	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_EL_MAGE=2411	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_1STAGE_GATE=2422	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_2STAGE_SUMMON=2427	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_KNIGHT=2405	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_3=2414	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_MEMORY_4=2415	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_0STAGE_START=2419	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_EL_KNIGHT=2409	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_MAGE=2408	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_LANCE=2406	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_3STAGE_START=2423	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_3STAGE_END=2436	OPEN	NPC_UNIT_ID
+elysion	ME	ids.missing	NUI_ELYSION_M_S_SWORD_SUMMON=2429	OPEN	NPC_UNIT_ID
 shared	FLD	ids.missing	NUI_ELSION_F_TEMPLAR=2173	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_PIMPIM=2134	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_ORB=2343	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_EVENT_01=2140	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_BOW=2344	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_DECEPTOR=2161	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_PUTER=2164	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_NEWDEFENDER=2162	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_PROVER=2159	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_SHIELD=2342	OPEN	NPC_UNIT_ID
 shared	FLD	ids.missing	NUI_ELSION_F_BERMEVA=2132	OPEN	NPC_UNIT_ID
-shared	FLD	ids.missing	NUI_ELSION_F_SHILEDPIM=2133	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_LIBYA=2163	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELYSION_F_BOSS_SHIELD=2348	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_HIGHTTEM=2165	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_PYURITA=2131	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_NEWDEFENDER=2162	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_DEKALPYURITA=2135	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_PROVER=2159	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_PLINGCHU_G=2129	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_BOW=2344	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_DEFENDER=2160	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_PUTER=2164	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_DECEPTOR=2161	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_PROTO=2158	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_PIMPIM=2134	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_PLINGCHU_R=2130	OPEN	NPC_UNIT_ID
 shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_LANCE=2345	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_EVENT_00=2139	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELYSION_F_BOSS_ORB=2347	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_EVENT_01=2140	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELSION_F_SHILEDPIM=2133	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_ORB=2343	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_SHIELD=2342	OPEN	NPC_UNIT_ID
+shared	FLD	ids.missing	NUI_ELYSION_F_HERNA_FEAR=2346	OPEN	NPC_UNIT_ID
+elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD1=10149	OPEN	NPC_UNIT_ID
 elysion	VIL	ids.missing	NUI_TRANSCEND_QUEST=10153	OPEN	NPC_UNIT_ID
 elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD3=10151	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD0=10148	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_THEODOR=10145	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_BERNARD=10143	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD1=10149	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_HUGO=10146	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_STORY_QUEST=10142	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_ELYSION_RED_TREE=10194	OPEN	NPC_UNIT_ID; MARKER: C++ marker NUI_MAX_LIMIT=10191 <= value
-elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD4=10152	OPEN	NPC_UNIT_ID
-elysion	VIL	ids.missing	NUI_ELYSION_BLUE_TREE=10195	OPEN	NPC_UNIT_ID; MARKER: C++ marker NUI_MAX_LIMIT=10191 <= value
 elysion	VIL	ids.missing	NUI_DURANDA=10144	OPEN	NPC_UNIT_ID
+elysion	VIL	ids.missing	NUI_BERNARD=10143	OPEN	NPC_UNIT_ID
+elysion	VIL	ids.missing	NUI_ELYSION_RED_TREE=10194	OPEN	NPC_UNIT_ID; MARKER: C++ marker NUI_MAX_LIMIT=10191 <= value
+elysion	VIL	ids.missing	NUI_HUGO=10146	OPEN	NPC_UNIT_ID
+elysion	VIL	ids.missing	NUI_THEODOR=10145	OPEN	NPC_UNIT_ID
+elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD0=10148	OPEN	NPC_UNIT_ID
+elysion	VIL	ids.missing	NUI_STORY_QUEST=10142	OPEN	NPC_UNIT_ID
 elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD2=10150	OPEN	NPC_UNIT_ID
+elysion	VIL	ids.missing	NUI_ELYSION_BLUE_TREE=10195	OPEN	NPC_UNIT_ID; MARKER: C++ marker NUI_MAX_LIMIT=10191 <= value
+elysion	VIL	ids.missing	NUI_ELYSION_QUEST_BIRD4=10152	OPEN	NPC_UNIT_ID
 atlas	REST	ids.missing	NUI_YUNO=10078	OPEN	NPC_UNIT_ID
 shared	UI	ids.sentinel	WI_END	OPEN	Lua sentinel March 573, June 779
 shared	UI	ids.sentinel	VMI_BATTLE_FIELD_END	OPEN	Lua sentinel March 40028, June 40045
-atlas	AD	npc.ready	NUI_ELSION_DEKALPYURITA	OPEN	missing enum,NPCTemplet
-atlas	AD	npc.ready	NUI_ELSION_EVENT_1ST_BOSS	OPEN	missing enum,NPCTemplet
+shared	AD+AC+TW	npc.ready	NUI_ELSION_PROTO	OPEN	missing enum,NPCTemplet
+atlas	AD	npc.ready	NUI_ELSION_BERMEVA	OPEN	missing enum,NPCTemplet
+atlas	AD	npc.ready	NUI_ELSION_SUMMON1	OPEN	missing enum,NPCTemplet
+shared	FLD+AD+AC+TW	npc.ready	NUI_ELSION_CHEST	OPEN	missing enum,NPCTemplet
 atlas	AD	npc.ready	NUI_ELSION_SHILEDPIM	OPEN	missing enum,NPCTemplet
 atlas	AD	npc.ready	NUI_ELSION_DEKAL	OPEN	missing enum,NPCTemplet
-atlas	AD	npc.ready	NUI_ELSION_PYURITA	OPEN	missing enum,NPCTemplet
-shared	FLD+AD+AC+TW	npc.ready	NUI_ELSION_CHEST	OPEN	missing enum,NPCTemplet
-shared	AD+AC+TW	npc.ready	NUI_ELSION_PROTO	OPEN	missing enum,NPCTemplet
-atlas	AD	npc.ready	NUI_ELSION_PLINGCHU_G	OPEN	missing enum,NPCTemplet
-atlas	AD	npc.ready	NUI_ELSION_SUMMON1	OPEN	missing enum,NPCTemplet
-atlas	AD	npc.ready	NUI_ELSION_BERMEVA	OPEN	missing enum,NPCTemplet
 atlas	AD	npc.ready	NUI_ELSION_PLINGCHU_R	OPEN	missing enum,NPCTemplet
+atlas	AD	npc.ready	NUI_ELSION_EVENT_1ST_BOSS	OPEN	missing enum,NPCTemplet
+atlas	AD	npc.ready	NUI_ELSION_DEKALPYURITA	OPEN	missing enum,NPCTemplet
+atlas	AD	npc.ready	NUI_ELSION_PLINGCHU_G	OPEN	missing enum,NPCTemplet
+atlas	AD	npc.ready	NUI_ELSION_PYURITA	OPEN	missing enum,NPCTemplet
 shared	AD+AC+TW	npc.ready	NUI_ELSION_SUMMUN_PROTO	OPEN	missing enum,NPCTemplet
-shared	AC+TW	npc.ready	NUI_ELSION_SUMMUN_PROVER	OPEN	missing enum,NPCTemplet
-atlas	AC	npc.ready	NUI_ELSION_ATLAS_GATE	OPEN	missing enum,NPCTemplet
-shared	AC+TW	npc.ready	NUI_ELSION_SILENCE	OPEN	missing enum,NPCTemplet
-atlas	AC	npc.ready	NUI_ELSION_DEFENDER	OPEN	missing enum,NPCTemplet
-atlas	AC	npc.ready	NUI_ELSION_SUVEILLAN	OPEN	missing enum,NPCTemplet
-shared	AC+TW	npc.ready	NUI_ELSION_DECEPTOR	OPEN	missing enum,NPCTemplet
-atlas	AC	npc.ready	NUI_ELSION_STAGE_SUVEILLAN	OPEN	missing enum,NPCTemplet
-shared	FLD+AC	npc.ready	NUI_ELSION_NEWDEFENDER	OPEN	missing enum,NPCTemplet
 shared	AC+TW	npc.ready	NUI_ELSION_PROVER	OPEN	missing enum,NPCTemplet
+shared	AC+TW	npc.ready	NUI_ELSION_SUMMUN_PROVER	OPEN	missing enum,NPCTemplet
+atlas	AC	npc.ready	NUI_ELSION_SUVEILLAN	OPEN	missing enum,NPCTemplet
+shared	AC+TW	npc.ready	NUI_ELSION_SILENCE	OPEN	missing enum,NPCTemplet
+shared	AC+TW	npc.ready	NUI_ELSION_DECEPTOR	OPEN	missing enum,NPCTemplet
+atlas	AC	npc.ready	NUI_ELSION_ATLAS_GATE	OPEN	missing enum,NPCTemplet
+shared	FLD+AC	npc.ready	NUI_ELSION_NEWDEFENDER	OPEN	missing enum,NPCTemplet
+atlas	AC	npc.ready	NUI_ELSION_STAGE_SUVEILLAN	OPEN	missing enum,NPCTemplet
+atlas	AC	npc.ready	NUI_ELSION_DEFENDER	OPEN	missing enum,NPCTemplet
 atlas	AC	npc.ready	NUI_ELSION_EVENT_2ST_BOSS	OPEN	missing enum,NPCTemplet
-atlas	TW	npc.ready	NUI_ELSION_PUTER	OPEN	missing enum,NPCTemplet
-shared	FLD+TW	npc.ready	NUI_ELSION_HIGHTTEM	OPEN	missing enum,NPCTemplet
-atlas	TW	npc.ready	NUI_ELSION_TEMPLAR	OPEN	missing enum,NPCTemplet
-atlas	TW	npc.ready	NUI_ELSION_DISION	OPEN	missing enum,NPCTemplet
-atlas	TW	npc.ready	NUI_ELSION_EVENT_3ST_BOSS	OPEN	missing enum,NPCTemplet
-atlas	TW	npc.ready	NUI_ELSION_EVENT_YUNO	OPEN	missing enum,NPCTemplet
-atlas	TW	npc.ready	NUI_ELSION_SUMMON3	OPEN	missing enum,NPCTemplet
 atlas	TW	npc.ready	NUI_ELSION_LIBYA	OPEN	missing enum,NPCTemplet
+atlas	TW	npc.ready	NUI_ELSION_DISION	OPEN	missing enum,NPCTemplet
+atlas	TW	npc.ready	NUI_ELSION_TEMPLAR	OPEN	missing enum,NPCTemplet
+atlas	TW	npc.ready	NUI_ELSION_PUTER	OPEN	missing enum,NPCTemplet
 atlas	TW	npc.ready	NUI_ELSION_TOWER_GATE	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_HERNA_LANCE	OPEN	missing enum,NPCTemplet
+atlas	TW	npc.ready	NUI_ELSION_EVENT_YUNO	OPEN	missing enum,NPCTemplet
+atlas	TW	npc.ready	NUI_ELSION_EVENT_3ST_BOSS	OPEN	missing enum,NPCTemplet
+shared	FLD+TW	npc.ready	NUI_ELSION_HIGHTTEM	OPEN	missing enum,NPCTemplet
+atlas	TW	npc.ready	NUI_ELSION_SUMMON3	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_SKYCROSS_BOSS_EVENT	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_MOVE_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_DUMMY_TITLE	OPEN	missing enum,NPCTemplet
 elysion	SC	npc.ready	NUI_ELYSION_HERNA_FEAR	OPEN	missing enum,NPCTemplet
 shared	SC+AR	npc.ready	NUI_ELYSION_WALL_DUMMY1	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_SKYCROSS_BOSS_EVENT	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_FAKE_OBJECT	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_HERNA_ORB	OPEN	missing enum,NPCTemplet
-shared	FLD+SC+AR+SL	npc.ready	NUI_ELYSION_NEW_CHEST	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_KEYOBJECT_TRIGGER	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_WATERCANNON_OBJECT	OPEN	missing enum,NPCTemplet
-shared	FLD+SC	npc.ready	NUI_ELYSION_HERNA_SHIELD	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_MOVE_OBJECT	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_HERNA_BOW	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_SKY_DUMMY	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_DUMMY_TITLE	OPEN	missing enum,NPCTemplet
-elysion	SC	npc.ready	NUI_ELYSION_SKYCROSS_EVENT0	OPEN	missing enum,NPCTemplet
 elysion	SC	npc.ready	NUI_ELYSION_KEYOBJECT	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_GAUGE_OBJECT	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_3STAGE_LASER_C	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_STAIRS_DUMMY	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_EMPEROR_LANCE	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_WATERCANNON_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_SKY_DUMMY	OPEN	missing enum,NPCTemplet
+shared	FLD+SC	npc.ready	NUI_ELYSION_HERNA_SHIELD	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_FAKE_OBJECT	OPEN	missing enum,NPCTemplet
+shared	FLD+SC+AR+SL	npc.ready	NUI_ELYSION_NEW_CHEST	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_HERNA_LANCE	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_HERNA_ORB	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_KEYOBJECT_TRIGGER	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_SKYCROSS_EVENT0	OPEN	missing enum,NPCTemplet
+elysion	SC	npc.ready	NUI_ELYSION_HERNA_BOW	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_BOMB_PANG	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_R_V_LASER	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_DAMAGE_OBJECT	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_DAMAGE_OBJECT_STAGE2_SUB_STAGE2	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_DUMMY_HERBAON	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_NEW_DEKAL	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_3STAGE_LASER_C	OPEN	missing enum,NPCTemplet
+shared	AR+SL	npc.ready	NUI_ELYSION_EMPEROR_SHIELD	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_ADRIAN_GATE	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_WALL_DAMAGE	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_STAIRS_DUMMY	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_EMPEROR_BOW	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_2STAGE_LASER_A	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_HAMMER_PANG	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_GAUGR_DUMMY	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_ADRIAN_BOSS_EVENT	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_2STAGE_LASER_C	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_ADRIAN_EVENT1	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_EMPEROR_BOW	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_3STAGE_LASER_A	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_R_V_LASER	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_L_V_LASER	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_2STAGE_LASER_B	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_L_H_LASER	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_BOMB_PANG	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_PUPANG	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_L_V_LASER	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_R_H_LASER	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_SING_PANG	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_BOSS_HERBAON	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_3STAGE_BACK	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_ADRIAN_EVENT3	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_2STAGE_LASER_A	OPEN	missing enum,NPCTemplet
-shared	AR+SL	npc.ready	NUI_ELYSION_EMPEROR_SHIELD	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_DUMMY_HERBAON	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_GAUGE_OBJECT	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_WALL_DUMMY0	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_3STAGE_LASER_B	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_HAMMER_PANG	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_ADRIAN_GATE	OPEN	missing enum,NPCTemplet
-shared	AR+SL	npc.ready	NUI_ELYSION_EMPEROR_ORB	OPEN	missing enum,NPCTemplet
-elysion	AR	npc.ready	NUI_ELYSION_WALL_DAMAGE	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_BOSS_HERBAON	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_R_H_LASER	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_PUPANG	OPEN	missing enum,NPCTemplet
 elysion	AR	npc.ready	NUI_ELYSION_ADRIAN_EVENT2	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_SHIELD	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_COMMAND_BOSS	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_SOLESS_EVENT1	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_IMPRINT_SHIELD	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_2STAGE_HERBAON	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_SOLESS_DRAMATIC	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_LASER1	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_3STAGE_OBJECT	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_CIRCLE_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_SING_PANG	OPEN	missing enum,NPCTemplet
+shared	AR+SL	npc.ready	NUI_ELYSION_EMPEROR_ORB	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_NEW_DEKAL	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_3STAGE_LASER_A	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_3STAGE_LASER_B	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_ADRIAN_EVENT1	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_3STAGE_BACK	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_DAMAGE_OBJECT_STAGE2_SUB_STAGE2	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_EMPEROR_LANCE	OPEN	missing enum,NPCTemplet
+elysion	AR	npc.ready	NUI_ELYSION_2STAGE_LASER_C	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_HIDE_STAGE_B	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_DYING	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_CIRCLE_CTRL	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_2STAGE_SUVEILLAN	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_SKILL_BOSS	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_BOW	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_1STAGE_END	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_2STAGE_END	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_S_SPHERE	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_GATE	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_COMMANDER	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_DIA	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_SKILL_3STAGE	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_SOLESS_DUMMY	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_LASER4	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_ORB	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_3STAGE_END	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_IMPRINT_ORB	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_COMMAND_3STAGE	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_SOLESS_EVENT1_A	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_DISION_OBJECT	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_LANCE	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_DIA	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_2STAGE_END	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_BOSS_LINE_A	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_HIDE_STAGE_A	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_SHIELD	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_2STAGE_SUVEILLAN	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_3STAGE_END	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_COMMAND_BOSS	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_START	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_LANCE	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_CIRCLE_CTRL	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_SOLESS_EVENT1_A	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_COMMANDER	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_IMPRINT_BOW	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_LASER1	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_IMPRINT_ORB	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_BOW	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_2STAGE_HERBAON	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_DISION_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_IMPRINT_SHIELD	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_MAYA	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_SOLESS	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_SPHERE	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_COMMANDER	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_WALL_OBJECT	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_LASER3	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_START	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_MAYA	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_BOSS_LINE_A	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_DAMAGE_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_COMMANDER	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_WALL_OBJECT	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_S_0STAGE_LASER2	OPEN	missing enum,NPCTemplet
-elysion	SL	npc.ready	NUI_ELYSION_S_IMPRINT_BOW	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_3STAGE_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_SKILL_3STAGE	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_DYING	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_SOLESS_DUMMY	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_DIA	OPEN	missing enum,NPCTemplet
 elysion	SL	npc.ready	NUI_ELYSION_S_IMPRINT_LANCE	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_4	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_SWORD_SUMMON	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_2STAGE_SUMMON	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_1STAGE_START_1	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_LANCE	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_0STAGE_START	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_1STAGE_START	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_MAGE	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_3	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_EL_DEF	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_5	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_SKILL_BOSS	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_DIA	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_DAMAGE_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_1STAGE_END	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_COMMAND_3STAGE	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_SOLESS_EVENT1	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_S_CIRCLE_OBJECT	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_SOLESS_DRAMATIC	OPEN	missing enum,NPCTemplet
+elysion	SL	npc.ready	NUI_ELYSION_IMPRINT_ORB	OPEN	missing enum,NPCTemplet
 elysion	ME	npc.ready	NUI_ELYSION_M_0STAGE_GATE	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_2STAGE_END	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_KNIGHT	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_EL_MAGE	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_3STAGE_END	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_MAGE_SUMMON	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_EL_LANCE	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_3STAGE_START	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_BOSS_EVENT	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_0STAGE_GATE_3	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_SWORD	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_EL_KNIGHT	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_1STAGE_GATE	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_SOLESS	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_KNIGHT_SUMMON	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_1	OPEN	missing enum,NPCTemplet
-elysion	ME	npc.ready	NUI_ELYSION_M_S_LANCE_SUMMON	OPEN	missing enum,NPCTemplet
 elysion	ME	npc.ready	NUI_ELYSION_M_0STAGE_GATE_2	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_5	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_2STAGE_END	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_SOLESS	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_1	OPEN	missing enum,NPCTemplet
 elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_2	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_EVENT_00	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_PLINGCHU_R	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_PLINGCHU_G	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_PYURITA	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_DEFENDER	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELYSION_F_BOSS_ORB	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_FEAR	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_HIGHTTEM	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_PROTO	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELYSION_F_BOSS_SHIELD	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_DEKALPYURITA	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_LIBYA	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_KNIGHT_SUMMON	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_LANCE_SUMMON	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_MAGE_SUMMON	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_SWORD	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_1STAGE_START_1	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_BOSS_EVENT	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_EL_LANCE	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_0STAGE_GATE_3	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_1STAGE_START	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_EL_DEF	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_EL_MAGE	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_1STAGE_GATE	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_2STAGE_SUMMON	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_KNIGHT	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_3	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_MEMORY_4	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_0STAGE_START	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_EL_KNIGHT	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_MAGE	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_LANCE	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_3STAGE_START	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_3STAGE_END	OPEN	missing enum,NPCTemplet
+elysion	ME	npc.ready	NUI_ELYSION_M_S_SWORD_SUMMON	OPEN	missing enum,NPCTemplet
 shared	FLD	npc.ready	NUI_ELSION_F_TEMPLAR	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_PIMPIM	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_ORB	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_EVENT_01	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_BOW	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_DECEPTOR	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_PUTER	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_NEWDEFENDER	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_PROVER	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_SHIELD	OPEN	missing enum,NPCTemplet
 shared	FLD	npc.ready	NUI_ELSION_F_BERMEVA	OPEN	missing enum,NPCTemplet
-shared	FLD	npc.ready	NUI_ELSION_F_SHILEDPIM	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_LIBYA	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELYSION_F_BOSS_SHIELD	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_HIGHTTEM	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_PYURITA	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_NEWDEFENDER	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_DEKALPYURITA	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_PROVER	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_PLINGCHU_G	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_BOW	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_DEFENDER	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_PUTER	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_DECEPTOR	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_PROTO	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_PIMPIM	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_PLINGCHU_R	OPEN	missing enum,NPCTemplet
 shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_LANCE	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_TRANSCEND_QUEST	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD3	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD0	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_THEODOR	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_BERNARD	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_EVENT_00	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELYSION_F_BOSS_ORB	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_EVENT_01	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELSION_F_SHILEDPIM	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_ORB	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_SHIELD	OPEN	missing enum,NPCTemplet
+shared	FLD	npc.ready	NUI_ELYSION_F_HERNA_FEAR	OPEN	missing enum,NPCTemplet
 elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD1	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_HUGO	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_STORY_QUEST	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_ELYSION_RED_TREE	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD4	OPEN	missing enum,NPCTemplet
-elysion	VIL	npc.ready	NUI_ELYSION_BLUE_TREE	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_TRANSCEND_QUEST	INFO	deferred to the quest plan (user 2026-10-16); missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD3	OPEN	missing enum,NPCTemplet
 elysion	VIL	npc.ready	NUI_DURANDA	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_BERNARD	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_ELYSION_RED_TREE	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_HUGO	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_THEODOR	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD0	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_STORY_QUEST	INFO	deferred to the quest plan (user 2026-10-16); missing enum,NPCTemplet
 elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD2	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_ELYSION_BLUE_TREE	OPEN	missing enum,NPCTemplet
+elysion	VIL	npc.ready	NUI_ELYSION_QUEST_BIRD4	OPEN	missing enum,NPCTemplet
 atlas	REST	npc.ready	NUI_YUNO	OPEN	missing enum,NPCTemplet
 shared	FLD	keys.registry	BattleFieldData.ENTER_VILLAGE_MAP_ID	OPEN	no C++ literal spells it (read only by server code KncWX2Server/Common: the offline emulator or an omit-with-comment must cover it)
 shared	FLD	keys.registry	BattleFieldData.LINE_MAP_FILE_NAME	OPEN	no C++ literal spells it (read only by server code KncWX2Server/Common: the offline emulator or an omit-with-comment must cover it)

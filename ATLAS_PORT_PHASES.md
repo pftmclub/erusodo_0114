@@ -364,7 +364,7 @@ Path roots: **JF** = `Trunk/june_src_fixed/`, **JR** = `14JUN17/data/`,
 | `LOCAL_MAP_ID` | 1 | `LMI_ELYSION` 10009 (free in `X2LocationManager.h:141-145`) |
 | `HOUSE_ID` | 12 | `HI_YUNO` 40092, `BERNARD`/`DURANDA`/`THEODOR`/`HUGO` 40131–40134, `BIRD_QUEST_00..04` 40135–40139, `ELYSION_RED/BLUE_TREE` 40145–40146 |
 | `DUNGEON_ID` | 21 | AD 33330–2, AC 33340–2, TW 33350–2, SC 33870–2, AR 33880–2, SL 33890–2, ME 33900–2 (Hero rows out of scope) |
-| `NPC_UNIT_ID` | 203 *(A0: the total reproduces; the split was wrong)* | 201 region NPCs incl. `NUI_ELSION_EVENT_00/01` (2139/2140), which are inside Appendix A/B's 201 values, **plus** `NUI_STORY_QUEST` 10142 and `NUI_TRANSCEND_QUEST` 10153 (village quest-house NPCs of `HI_STORY_QUEST` / `HI_TRANSCEND_QUEST`; in neither appendix; A3 adds them or defers them with the quest plan). Full per-line lists: Appendix A |
+| `NPC_UNIT_ID` | 203 *(A0: the total reproduces; the split was wrong)* | 201 region NPCs incl. `NUI_ELSION_EVENT_00/01` (2139/2140), which are inside Appendix A/B's 201 values, **plus** `NUI_STORY_QUEST` 10142 and `NUI_TRANSCEND_QUEST` 10153 (village quest-house NPCs of `HI_STORY_QUEST` / `HI_TRANSCEND_QUEST`; in neither appendix; **deferred to the quest plan**, user 2026-10-16, see *Deferred to the quest plan*). Full per-line lists: Appendix A |
 
 - 16 NUIs the region uses already exist in March (Lanox/common:
   `NUI_ADAMS`, `ARIEL`, `BILLBOARD`, `CAMILLA`, `GLAVE`, `LURIEL`, `MU`,
@@ -795,7 +795,7 @@ with this plan's STATUS rows in the same commit.
 |---|---|---|---|
 | WI | 41 | 40 | ledger slip: its own listed ranges are exactly the 40 census values (checked by value). 4 boss worlds adopted since (june-dungeons C3y-1b) |
 | VMI / LMI / HI / DI | 7 / 1 / 12 / 21 | 7 / 1 / 12 / 21 | reproduces |
-| NUI | 203 | 203 | total reproduces, **split corrected**: Appendix A/B list 201 values (incl. EVENT_00/01), the census adds `NUI_STORY_QUEST` 10142 + `NUI_TRANSCEND_QUEST` 10153 from the village houses. Value-diff against the appendices: nothing missing either way. 8 adopted since (C3z-2) |
+| NUI | 203 | 203 | total reproduces, **split corrected**: Appendix A/B list 201 values (incl. EVENT_00/01), the census adds `NUI_STORY_QUEST` 10142 + `NUI_TRANSCEND_QUEST` 10153 from the village houses (deferred to the quest plan, user 2026-10-16; INFO rows). Value-diff against the appendices: nothing missing either way. 8 adopted since (C3z-2) |
 | ID value collisions | 0 | 0 | reproduces. Separately 9 missing IDs sit at/above a C++ end marker (A3 bumps them) |
 | Unbound Lua names | 65 | 31 (26 + 5 from SOLESS bytecode) | ~30 bound by june-effect C3z-4 since; calibration control is now `AddMovableLineData_LUA` |
 | Effect sets | 393 | 410 referenced, 0 missing | **premise false**: staged `EffectSet.lua` carries June's full set since C11a (`c13f8115`) |
@@ -2402,6 +2402,12 @@ checklist**:
   (`X2UIQuestNew.cpp:4126`).
 - Old saves (user's answer): mark Lanox epic chain 22160–22217 complete for
   units that cleared `DI_RANOX_FINALHALL_NORMAL`; backup + ask.
+- Village quest-house NPCs (user, 2026-10-16, A0): `NUI_STORY_QUEST` 10142 and
+  `NUI_TRANSCEND_QUEST` 10153, used by `HI_STORY_QUEST` / `HI_TRANSCEND_QUEST`
+  in the `VMI_ELYSION` and Atlas Station house lists. They are in neither
+  Appendix A nor B; A3 does **not** add them and E2 leaves those two houses'
+  NPC rows out with a comment. The census still lists them (`npc.ready`, line
+  VIL/REST) as quest-plan items, not Atlas/Elysion gaps.
 
 ## Critical files
 
