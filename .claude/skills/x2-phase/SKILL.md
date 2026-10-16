@@ -137,6 +137,10 @@ A new phased plan follows this shape so it works with the loop above:
   sections to read; they never say "read in full" and never repeat build/deploy instructions.
 - A block in `STATUS.md` with one row per phase (State, Model/effort, Depends, Touches, Kickoff).
 - One log tag and one flag family, named in the STATUS block.
-- **Every plan runs through `/x2-phase` (user, 2026-10-16)**, planning sessions included: a kickoff's
-  Start line is always "type `/x2-phase <plan-key> <phase>`", never "paste ...", and every kickoff
-  file has a STATUS row (backlog stage planning sessions live in the `june-backlog` block).
+- **Every plan runs through `/x2-phase` (user, 2026-10-16).** A phase of an existing plan starts with
+  `/x2-phase <plan-key> <phase>`; a planning session (a plan that has no phases yet) starts with
+  `/x2-phase new-plan <plan-key>`. A kickoff's Start line names one of the two, never "paste ...".
+- **Planning brief.** On `new-plan <plan-key>`, first look for a brief that names that key in its
+  Output row (backlog stages: `kickoffs/june-backlog/<stage>-plan.md`, listed in STATUS.md's
+  `june-backlog` block). If one exists, its read list and task are the session's scope; then write
+  the plan in the shape above, mark the brief's STATUS row done, and commit.

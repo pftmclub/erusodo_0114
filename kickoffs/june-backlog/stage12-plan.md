@@ -2,7 +2,8 @@
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-backlog stage12-plan` |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase new-plan june-customize` |
+| Output | plan key `june-customize` (`kickoffs/june-customize/`, a `june-customize` STATUS block) |
 | Plan doc | `JUNE_PORT_BACKLOG_ORDER.md` (Stage 12), output `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` (new) |
 | Depends on | june-effect C9g-2 review (done); planning can start before Stages 10 / 2 / 13 finish, phases that need them say so |
 | Flag | one family per phase, e.g. `SERV_IRUHADEV_JUNE_CUSTOMIZE_*` (none in this planning session: no code) |

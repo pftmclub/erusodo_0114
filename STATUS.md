@@ -602,14 +602,14 @@ Branch `mods/june-buff-port` · plan: this block + `LANOX_REMAINING_PHASES.md` P
 | LX3 Sureyna | **done 2026-10-11, play-test PASSED, no code fix needed** (Geyser 33290 cleared in 154 s; `SUREYNA` lines walk the full flow twice, at 60 % and 30 % HP: A_READY -> OUT_STATE -> A_2 (5 x CALL 1900 created) -> A_3 -> A_4 -> OUT_STATE -> A_5 chair -> WAIT). The softlock went with LX2's data (her missing damage effects / particles / `SpecialAttackA_Fire_2/_3`); the pre-fix run was never logged, so the exact failing step is unknown. `SERV_IRUHADEV_GEYSER_SUREYNA_DEBUG` off, exe `3e0053ae` deployed; `LX3-fix.md` not needed | Sonnet 5.5 | play-test | X2GUNPC, X2Game (debug only) | - |
 | LX4 Mag Stone buff | **done 2026-10-12, play-test PASSED** (user: burning circle shows on the Mag Stone Attack B buff; data036 copied 19:39, no C++, no flag): `BFI_BUFF_MAG_STONE_ATTACK_B` -> `BTI_` -> `EffectSet_NUI_MAG_STONE_Attack_B_Fire` was missing in March, and the closure tool never followed buff chains. `june2017_re/npc_effect_closure.py` now follows BFI/BTI; appended verbatim from June: EffectSet +27, DamageEffect +3, GameMajorXMeshPlayer +3 (also closes Ignia Attack E; commit `65bb864`). Left: Erda_Mid_Heal_BUFF_01.ogg, Emoticon_State_Abnormality_Fear (not Lanox). | Sonnet 5.5 | LX2 | data | - |
 
-## june-backlog - backlog stage planning sessions (`JUNE_PORT_BACKLOG_ORDER.md`)
+## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 
-Branch `mods/june-buff-port` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; start every row with `/x2-phase june-backlog <phase>`.
+Branch `mods/june-buff-port` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
 
 | Phase | State | Model | Needs | Touches | Kickoff |
 |---|---|---|---|---|---|
-| stage2-plan | **ready**: engine remainder and measurements (shaders, 7 missing render types, models, UI framework census; effect check = june-effect C11) -> `JUNE_ENGINE_REMAINDER_PHASES.md` + `kickoffs/june-engine/` | Opus 5.5 / high | dep: -; runs with anything (read-only), incl. june-effect C11 | docs, `june2017_re/` census script + funcmap rows (`Engine S2`), `JUNE_PORT_BACKLOG_ORDER.md` dated notes | `stage2-plan.md` |
-| stage12-plan | **ready**: character customize system (`CX2CustomizeManager`, `CharCustomData.lua`) -> `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` + `kickoffs/june-customize/` | Opus 5.5 / high | dep: june-effect C9g-2 review (done); runs with anything (read-only) | docs, funcmap rows (`Customize S12`) | `stage12-plan.md` |
+| stage2-plan | **ready** (start: `/x2-phase new-plan june-engine`): engine remainder and measurements (shaders, 7 missing render types, models, UI framework census; effect check = june-effect C11) -> `JUNE_ENGINE_REMAINDER_PHASES.md` + `kickoffs/june-engine/` | Opus 5.5 / high | dep: -; runs with anything (read-only), incl. june-effect C11 | docs, `june2017_re/` census script + funcmap rows (`Engine S2`), `JUNE_PORT_BACKLOG_ORDER.md` dated notes | `stage2-plan.md` |
+| stage12-plan | **ready** (start: `/x2-phase new-plan june-customize`): character customize system (`CX2CustomizeManager`, `CharCustomData.lua`) -> `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` + `kickoffs/june-customize/` | Opus 5.5 / high | dep: june-effect C9g-2 review (done); runs with anything (read-only) | docs, funcmap rows (`Customize S12`) | `stage12-plan.md` |
 
 ## Other plans
 

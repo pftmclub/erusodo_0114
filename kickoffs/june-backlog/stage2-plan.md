@@ -2,7 +2,8 @@
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-backlog stage2-plan` |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase new-plan june-engine` |
+| Output | plan key `june-engine` (`kickoffs/june-engine/`, a `june-engine` STATUS block) |
 | Plan doc | `JUNE_PORT_BACKLOG_ORDER.md` (Stage 2), output `JUNE_ENGINE_REMAINDER_PHASES.md` (new) |
 | Branch | main Trunk, current branch (`mods/june-buff-port`); docs and RE only, so no branch question needs asking |
 | Depends on | nothing (backlog concurrency note: planning is read-only and runs any time); its code phases run after june-effect C12 |
