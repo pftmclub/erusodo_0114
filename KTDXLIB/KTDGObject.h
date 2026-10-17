@@ -359,6 +359,15 @@ class CKTDGObject
 		void			SetIsForceNotCull( bool bForceNotCull ) { m_bForceNotCull = bForceNotCull; }
 		bool			GetIsForceNotCull() const { return m_bForceNotCull; }
 #endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
+		// June +0x14c: alpha-group tie-break key ( comparator 31cebc00 ); June writes it only for particle sequences ( their handle )
+		void			SetJuneSortKey( int iKey_ ) { m_iJuneSortKey = iKey_; }
+		int				GetJuneSortKey() const { return m_iJuneSortKey; }
+#endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+		// June +0x18c: the frustum plane the last test culled on, -1 when visible ( written by IsInFrustum; no reader mapped )
+		int				GetJuneCulledPlane() const { return m_iJuneCulledPlane; }
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
         bool            IsCulled() const { return ( m_pManagerObject != NULL ) ? m_pManagerObject->IsCulled() : m_bCulled; }
         //{{ seojt: 2008.10.23
         //double          GetLastAccessTime() const { return m_dwLastAccessTime; }
@@ -452,6 +461,12 @@ class CKTDGObject
 #ifdef SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
         bool            m_bForceNotCull;			// Ranox port -- forces IsInFrustum() to always report visible
 #endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
+        int             m_iJuneSortKey;				// June +0x14c ( ctor 31d28a20: 0 )
+#endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+        int             m_iJuneCulledPlane;			// June +0x18c ( ctor 31d28a20: -1 )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
         //{{ seojt: 2008.10.23
         //double          m_dwLastAccessTime;
         //}} seojt
@@ -471,6 +486,36 @@ class CKTDGObject
 
 #ifdef X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
 	public:
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+		// June base vslot 0x34 ( 31c829e0 ): a third float, added to the scaled radius when it is not 0 ( both DG callers pass
+		// 0.0f ); no force-not-cull test, the DG sort tests +0x17c before calling ( 31ceb6b7 ); the plane loop keeps the culling
+		// plane at +0x18c.
+		__forceinline virtual bool IsInFrustum( const D3DXVECTOR3& kEye, const CKTDGFrustum& kFrustum, float fAddRadius_ = 0.f )
+		{
+			if( GetShowObject() == false )
+				return false;
+
+			D3DXVECTOR3 center;
+			GetTransformCenter( &center );
+			SetDistanceToCamera( GetDistance( kEye, center ) );
+
+			if ( GetBoundingRadius() <= 0 )
+				return true;
+
+			float fRadius = GetScaledBoundingRadius();
+			if ( fAddRadius_ != 0.f )
+				fRadius += fAddRadius_;
+
+			m_iJuneCulledPlane = kFrustum.CheckSphereCulledPlane( center, fRadius );
+			if ( m_iJuneCulledPlane != -1 )
+			{
+				SetIsCulled( true );
+				return false;
+			}
+			SetIsCulled( false );
+			return true;
+		}
+#else SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 		__forceinline virtual bool IsInFrustum( const D3DXVECTOR3& kEye, const CKTDGFrustum& kFrustum )
 		{
 			if( GetShowObject() == false )
@@ -506,6 +551,7 @@ class CKTDGObject
 			}
 			return true;
 		}
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 #endif//X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
 
 };

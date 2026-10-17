@@ -128,6 +128,90 @@ static const CKTDGStateManager::KState akRSICKTDGUIDialog[] =
 };
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+// June 33728270 ( DG +0x40 ): the texture block with SRCBLEND / DESTBLEND 1 / 1, which is D3DBLEND_ZERO ( kept as June has it;
+// JUNE_BUGS.md ). Read only in render pass 1 ( R4 ).
+static const CKTDGStateManager::KState akRSICKTDXDeviceTextureAdd[] =
+{
+	KRenderState( D3DRS_ALPHATESTENABLE,	TRUE ),
+	KRenderState( D3DRS_ALPHAFUNC,			D3DCMP_NOTEQUAL ),
+	KRenderState( D3DRS_ALPHAREF,			0 ),
+
+	KRenderState( D3DRS_ALPHABLENDENABLE,	TRUE ),
+	KRenderState( D3DRS_SRCBLEND,			D3DBLEND_ZERO ),
+	KRenderState( D3DRS_DESTBLEND,			D3DBLEND_ZERO ),
+
+	KRenderState( D3DRS_ZENABLE,			FALSE ),
+	KRenderState( D3DRS_ZWRITEENABLE,		FALSE ),
+	KRenderState( D3DRS_CULLMODE,			D3DCULL_CW ),
+
+	KTextureStageState( 0, D3DTSS_ALPHAOP,		D3DTOP_MODULATE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG1,	D3DTA_DIFFUSE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG2,	D3DTA_TEXTURE ),
+};
+
+// June 337284e0 ( DG +0x68 ): March's dialog sampler pushes ( KTDGUIDialog.cpp / KTDGUISlot.cpp ) followed by March's
+// akRSICKTDGUIDialog, in that order, as one block.
+static const CKTDGStateManager::KState akRSICKTDGUIDialogJune[] =
+{
+	KSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
+
+	KSamplerState( 0, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
+	KSamplerState( 0, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
+	KSamplerState( 1, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
+	KSamplerState( 1, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
+
+	KRenderState( D3DRS_ALPHABLENDENABLE, TRUE ),
+	KRenderState( D3DRS_ALPHATESTENABLE, FALSE ),
+	KRenderState( D3DRS_ZENABLE, FALSE ),
+	KRenderState( D3DRS_ZWRITEENABLE, FALSE ),
+
+	KTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_MODULATE ),
+	KTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE ),
+	KTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE ),
+
+	KTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE ),
+};
+
+// June 33728620 ( DG +0x70 ): the dialog block for render pass 1 ( R4 ); SRCBLEND / DESTBLEND 1 / 1 = D3DBLEND_ZERO as above.
+static const CKTDGStateManager::KState akRSICKTDGUIDialogAdd[] =
+{
+	KSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MINFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR ),
+	KSamplerState( 1, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR ),
+
+	KSamplerState( 0, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
+	KSamplerState( 0, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
+	KSamplerState( 1, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR ),
+	KSamplerState( 1, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR ),
+
+	KRenderState( D3DRS_ALPHABLENDENABLE, TRUE ),
+	KRenderState( D3DRS_ALPHATESTENABLE, TRUE ),
+	KRenderState( D3DRS_ALPHAFUNC, D3DCMP_NOTEQUAL ),
+	KRenderState( D3DRS_ALPHAREF, 0 ),
+	KRenderState( D3DRS_ZENABLE, FALSE ),
+	KRenderState( D3DRS_ZWRITEENABLE, FALSE ),
+	KRenderState( D3DRS_SRCBLEND, D3DBLEND_ZERO ),
+	KRenderState( D3DRS_DESTBLEND, D3DBLEND_ZERO ),
+
+	KTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_SELECTARG2 ),
+	KTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE ),
+
+	KTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE ),
+	KTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE ),
+};
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 // Normal
 /*static*/
 static const CKTDGStateManager::KState akRSICKTDXDeviceLayer0[] =
@@ -326,6 +410,12 @@ CKTDGManager::CKTDGManager( HWND hWnd, LPDIRECT3DDEVICE9 pd3dDevice )
 #ifdef OVER_UI_ALPHA_RENDER_FIX
 	m_OverUIAlphaChain.reserve( 512 );
 #endif OVER_UI_ALPHA_RENDER_FIX
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+	m_OverUIAlphaChainOver500.reserve( 512 );
+	for ( int iChain = 0; iChain < 4; ++iChain )
+		m_auJuneChainSizeLogged[iChain] = 0;
+	m_fJuneChainLogTime = -1.0;
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 
 	m_bFading						= false;
 	m_bFadeOut						= true;
@@ -408,7 +498,14 @@ void CKTDGManager::BuildRenderStateID()
 	m_RSICKTDGTexturedSlashTrace = akRSICKTDGTexturedSlashTrace;
 	m_RSICKTDGLineMap = akRSICKTDGLineMap;
 	m_RSICKTDGPlanShadow = akRSICKTDGPlanShadow;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+	// June 31ce6310: 14 blocks ( +0x38 .. +0xa0 ); the dialog block carries the sampler states, two additive blocks are new
+	m_RSICKTDXDeviceTextureAdd = akRSICKTDXDeviceTextureAdd;
+	m_RSICKTDGUIDialog = akRSICKTDGUIDialogJune;
+	m_RSICKTDGUIDialogAdd = akRSICKTDGUIDialogAdd;
+#else SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 	m_RSICKTDGUIDialog = akRSICKTDGUIDialog;
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 
 
     // Normal
@@ -553,9 +650,14 @@ void    CKTDGManager::_RenderObjectRenderHintVector( const CKTDGManager::KObject
                             stateID = CKTDGStateManager::KStateID();
                         }//if
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HINT_NO_GROUP
+                        // June 31ce6eb0 @31ce7265-31ce7662: one pass over the batch, each object through the per-object path
+                        {
+#else SERV_IRUHADEV_JUNE_RENDER_HINT_NO_GROUP
                         for( hr = m_pXRenderer->BeginRenderGroup( kRenderHint.m_eRenderType ); SUCCEEDED( hr );
                             hr = m_pXRenderer->NextRenderGroup() )
                         {
+#endif SERV_IRUHADEV_JUNE_RENDER_HINT_NO_GROUP
                             for( iIndex2 = iStart; iIndex2 < iIndex; iIndex2++ )
                             {
                                 const KObjectRenderHint& prev = vecIn_[ iIndex2 ];
@@ -657,9 +759,14 @@ void    CKTDGManager::_RenderObjectRenderHintVector( const CKTDGManager::KObject
                     stateID = CKTDGStateManager::KStateID();
                 }//if
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HINT_NO_GROUP
+                // June 31ce6eb0 @31ce7c97-31ce808f: one pass over the batch, each object through the per-object path
+                {
+#else SERV_IRUHADEV_JUNE_RENDER_HINT_NO_GROUP
                 for( hr = m_pXRenderer->BeginRenderGroup( kRenderHint.m_eRenderType ); SUCCEEDED( hr );
                     hr = m_pXRenderer->NextRenderGroup() )
                 {
+#endif SERV_IRUHADEV_JUNE_RENDER_HINT_NO_GROUP
                     for( iIndex2 = iStart; iIndex2 < iIndex; iIndex2++ )
                     {
                         const KObjectRenderHint& prev = vecIn_[ iIndex2 ];
@@ -809,6 +916,38 @@ void CKTDGManager::ObjectChainAlphaRender()
 
 void CKTDGManager::FrontUIRender()
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+	// June 31ce94a0, pass 0 ( pass 1 is R4's ): dialogs of layers 0..3, the fade, over-UI, alpha over-UI < 500, dialogs of layers
+	// 4..500, alpha over-UI >= 500. While the dialog manager's flagged-only mode ( +0x110 ) is on, neither dialog band is drawn.
+    KD3DBEGIN()
+		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+			m_pDialogManager->OnFrameRender( true, 0, 3 );
+    KD3DEND()
+
+	if( m_fFadeAlpha > 0.0f )
+	{
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		m_colorJuneFade.a = m_fFadeAlpha;
+		if( m_pTextureFadeInOut != NULL )
+			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, m_colorJuneFade );
+#else SERV_IRUHADEV_ELYSION_SCRIPT_B
+		D3DXCOLOR color = 0xffffffff;
+		color.a = m_fFadeAlpha;
+		if( m_pTextureFadeInOut != NULL )
+			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, color );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
+	}
+
+    _RenderObjectRenderHintVector( m_OverUIChain );
+	_RenderObjectRenderHintVector( m_OverUIAlphaChain );
+
+    KD3DBEGIN()
+		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+			m_pDialogManager->OnFrameRender( true, 4, 500 );
+    KD3DEND()
+
+	_RenderObjectRenderHintVector( m_OverUIAlphaChainOver500 );
+#else SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 	//전경 UI그리기
 //{{ robobeg : 2008-10-13
     KD3DBEGIN()
@@ -838,6 +977,7 @@ void CKTDGManager::FrontUIRender()
 #endif OVER_UI_ALPHA_RENDER_FIX
 
 //}} robobeg : 2008-10-13
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 }
 
 #ifdef FILDE_ONLY_CHARACTER
@@ -864,7 +1004,11 @@ HRESULT CKTDGManager::OnResetDevice()
 {
 	////CKTDXThread::CLocker locker( m_csRenderObjectChainLock );
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
+	// June 31ce98c0 has no state-manager restore: CKTDXApp::OnResetDevice does it ( 31be656e ), before the stages reset
+#else SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 	CKTDGStateManager::RestoreDeviceObjects( 0, D3DDEVTYPE_HAL );
+#endif SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 //{{ robobeg : 2008-10-13
     CKTDGStateManager::SetStates( akStates );
 //}} robobeg : 2008-10-13
@@ -911,7 +1055,11 @@ HRESULT CKTDGManager::OnLostDevice()
 //{{ robobeg : 2008-10-13
 	//CKTDGStateManager::EndStateBlock( m_BaseRenderStateID );
 //}} robobeg : 2008-10-13
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
+	// June 31ce97e0 has no state-manager invalidate: CKTDXApp::OnLostDevice does it ( 31be6728 ), after every stage
+#else SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 	CKTDGStateManager::InvalidateDeviceObjects();
+#endif SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 
 //{{ robobeg : 2008-10-13
 	//for( int i = 0; i < (int)m_RenderObjectChain.size(); i++ )
@@ -1141,9 +1289,19 @@ struct CKTDGObjectAlphaSort : public std::binary_function< CKTDGManager::KObject
 {
    bool operator()( const CKTDGManager::KObjectRenderHint& _Left, const CKTDGManager::KObjectRenderHint& _Right ) const
    {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
+       // June 31cebc00: March's order, then on equal layer and distance the lower obj +0x14c first ( @31cebcb2-31cebcd3 )
+       return   _Left.m_pObject->GetLayer() < _Right.m_pObject->GetLayer()
+           || _Left.m_pObject->GetLayer() == _Right.m_pObject->GetLayer()
+              && _Left.m_pObject->GetDistanceToCamera() > _Right.m_pObject->GetDistanceToCamera()
+           || _Left.m_pObject->GetLayer() == _Right.m_pObject->GetLayer()
+              && _Left.m_pObject->GetDistanceToCamera() == _Right.m_pObject->GetDistanceToCamera()
+              && _Left.m_pObject->GetJuneSortKey() < _Right.m_pObject->GetJuneSortKey();
+#else SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
        return   _Left.m_pObject->GetLayer() < _Right.m_pObject->GetLayer()
            || _Left.m_pObject->GetLayer() == _Right.m_pObject->GetLayer()
               && _Left.m_pObject->GetDistanceToCamera() > _Right.m_pObject->GetDistanceToCamera();
+#endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
    };
 };//struct CKTDGObjectAlphaSort
 
@@ -1162,6 +1320,9 @@ void CKTDGManager::ObjectChainSort()
 #ifdef OVER_UI_ALPHA_RENDER_FIX
 	m_OverUIAlphaChain.resize( 0 );
 #endif OVER_UI_ALPHA_RENDER_FIX
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+	m_OverUIAlphaChainOver500.resize( 0 );
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
     m_InnerUIChain.resize( 0 );
 
     //m_NonAlphaObjectChain.resize( 0 );
@@ -1185,11 +1346,21 @@ void CKTDGManager::ObjectChainSort()
 
 #ifndef WORLD_TOOL
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+        // June 31ceb6b7: a not-cull object ( +0x17c ) skips the frustum virtual, show test included; the rest call it with 0.0f
+        if ( object->GetIsForceNotCull() == false
+            && object->IsInFrustum( GetCamera().GetEye(), m_kFrustum, 0.f ) == false )
+        {
+            ++m_nCull;
+            continue;
+        }
+#else SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
         if ( IsInFrustum( object ) == false )
         {
             ++m_nCull;
             continue;
         }
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 #else
 		// 09.03.02 김태완 : 월드툴일 때 오브젝트와 카메라까지의 거리를 계산해 주기 위해서.
 		// 월드툴이 아닐 때는 IsInFrustum에서 처리되는 코드.
@@ -1221,7 +1392,15 @@ void CKTDGManager::ObjectChainSort()
 			}
 			else
 			{
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+				// June 31ceb760-31ceb79e: split at layer 500 ( +0x15c below, +0x16c from 500 up )
+				if ( object->GetLayer() < 500 )
+					m_OverUIAlphaChain.push_back( kObjectRenderHint );
+				else
+					m_OverUIAlphaChainOver500.push_back( kObjectRenderHint );
+#else SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 				m_OverUIAlphaChain.push_back( kObjectRenderHint );
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 			}
 #else
 			m_OverUIChain.push_back( kObjectRenderHint );
@@ -1257,6 +1436,9 @@ void CKTDGManager::ObjectChainSort()
 #ifdef OVER_UI_ALPHA_RENDER_FIX
 	std::sort( m_OverUIAlphaChain.begin(), m_OverUIAlphaChain.end(), CKTDGObjectUISort() );
 #endif OVER_UI_ALPHA_RENDER_FIX
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+	std::sort( m_OverUIAlphaChainOver500.begin(), m_OverUIAlphaChainOver500.end(), CKTDGObjectUISort() );
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
     std::sort( m_InnerUIChain.begin(), m_InnerUIChain.end(), CKTDGObjectUISort() );
 
     for( int iLayer = 0; iLayer<m_ciNumLayerGroups; ++iLayer)
@@ -1264,6 +1446,26 @@ void CKTDGManager::ObjectChainSort()
         std::sort( m_NonAlphaGroup[iLayer].m_layerObject.begin(), m_NonAlphaGroup[iLayer].m_layerObject.end(), CKTDGObjectNonAlphaSort() );
         std::sort( m_AlphaGroup[iLayer].m_layerObject.begin(), m_AlphaGroup[iLayer].m_layerObject.end(), CKTDGObjectAlphaSort() );
     }//for
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+	// Phase R8 gate: one line when a chain size changes, at most once a second
+	{
+		const UINT auSize[4] = { m_InnerUIChain.size(), m_OverUIChain.size(), m_OverUIAlphaChain.size(), m_OverUIAlphaChainOver500.size() };
+		bool bChanged = false;
+		for ( int iChain = 0; iChain < 4; ++iChain )
+		{
+			if ( auSize[iChain] != m_auJuneChainSizeLogged[iChain] )
+				bChanged = true;
+		}
+		if ( bChanged == true && ( m_fJuneChainLogTime < 0.0 || g_NowTime - m_fJuneChainLogTime >= 1.0 ) )
+		{
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] DG chains inner " << auSize[0] << " over " << auSize[1]
+				<< " alpha<500 " << auSize[2] << " alpha>=500 " << auSize[3] << " culled " << m_nCull << fileout;
+			for ( int iChain = 0; iChain < 4; ++iChain )
+				m_auJuneChainSizeLogged[iChain] = auSize[iChain];
+			m_fJuneChainLogTime = g_NowTime;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
     //}
 //#endif
 }
@@ -2019,7 +2221,12 @@ bool CKTDGManager::IsInFrustum( CKTDGObject* object )
 		return false;
 
 #ifdef X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+	// June 31ce6c90: the frustum virtual with a third argument of 0.0f
+	return object->IsInFrustum( GetCamera().GetEye(), m_kFrustum, 0.f );
+#else SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 	return object->IsInFrustum( GetCamera().GetEye(), m_kFrustum );
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 #else//X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
 	if( object->GetShowObject() == false )
 		return false;

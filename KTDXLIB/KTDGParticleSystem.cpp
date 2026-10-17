@@ -739,6 +739,10 @@ CKTDGParticleSystem::CParticleEventSequence* CKTDGParticleSystem::CreateSequence
 #endif  X2OPTIMIZE_HANDLE_VALIDITY_CHECK
     } while ( handle == INVALID_PARTICLE_SEQUENCE_HANDLE );
     retval->SetHandle( handle );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
+    // June 31cf90f0 @31cf929b-31cf92a1: the new handle goes to the sequence's handle ( +0x430 ) and to its alpha-sort key ( +0x14c )
+    retval->SetJuneSortKey( (int) dwHandle );
+#endif SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
 #else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 	retval->SetHandle( s_iNextParticleEventSequenceHandle );
 	++s_iNextParticleEventSequenceHandle;

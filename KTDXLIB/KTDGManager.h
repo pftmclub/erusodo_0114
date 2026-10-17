@@ -118,6 +118,11 @@ class CKTDGManager : public CKTDXStage
 		CKTDGStateManager::KStateID GetRSICKTDGPlanShadow()		{ return m_RSICKTDGPlanShadow;		}
 		CKTDGStateManager::KStateID GetRSICKTDGUIDialog()		{ return m_RSICKTDGUIDialog;		}
         CKTDGStateManager::KStateID GetRSICKTDXDeviceLayer(int inx)	{ return m_RSICKTDXDeviceLayer[inx];		}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+		// June +0x40 / +0x70: the additive blocks, picked by the texture and dialog draws in render pass 1 (R4)
+		CKTDGStateManager::KStateID GetRSICKTDXDeviceTextureAdditive()	{ return m_RSICKTDXDeviceTextureAdd;	}
+		CKTDGStateManager::KStateID GetRSICKTDGUIDialogAdditive()		{ return m_RSICKTDGUIDialogAdd;		}
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 
 		void ClearScreen( int num = 1, D3DXCOLOR color = 0xffffffff ){ SetClearScreenColor( color ); m_ClearScreen = num; }
 		int	 GetClearScreen(){ return m_ClearScreen; }
@@ -323,6 +328,10 @@ class CKTDGManager : public CKTDXStage
 		CKTDGStateManager::KStateID m_RSICKTDGPlanShadow;
 		CKTDGStateManager::KStateID m_RSICKTDGUIDialog;
         CKTDGStateManager::KStateID m_RSICKTDXDeviceLayer[6];
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+		CKTDGStateManager::KStateID m_RSICKTDXDeviceTextureAdd;		// June +0x40
+		CKTDGStateManager::KStateID m_RSICKTDGUIDialogAdd;			// June +0x70
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 		
 		int							m_ClearScreen;
 		D3DXCOLOR					m_ClearScreenColor;
@@ -345,6 +354,12 @@ class CKTDGManager : public CKTDXStage
 		KObjectRenderHintVector		m_OverUIChain;
 #ifdef OVER_UI_ALPHA_RENDER_FIX
 		KObjectRenderHintVector		m_OverUIAlphaChain;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+		// June +0x15c holds alpha over-UI objects of layer < 500 (m_OverUIAlphaChain above), +0x16c those of layer >= 500
+		KObjectRenderHintVector		m_OverUIAlphaChainOver500;
+		UINT						m_auJuneChainSizeLogged[4];	// inner, over, alpha < 500, alpha >= 500 ( "[JUNE_ENGINE] DG" log )
+		double						m_fJuneChainLogTime;
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 #endif OVER_UI_ALPHA_RENDER_FIX
 
 		//CKTDGCamera*				m_pCamera;

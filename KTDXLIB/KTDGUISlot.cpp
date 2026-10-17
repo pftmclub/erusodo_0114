@@ -477,6 +477,9 @@ HRESULT	CKTDGUISlot::RenderDragSlot()
 {
 	KD3DBEGIN()
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+	// June RenderDragSlot 31ccfee0 pushes one block ( DG +0x68 ) that starts with these ten sampler states
+#else SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 	CKTDGStateManager::PushSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
 	CKTDGStateManager::PushSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
 	CKTDGStateManager::PushSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR );
@@ -488,6 +491,7 @@ HRESULT	CKTDGUISlot::RenderDragSlot()
 	CKTDGStateManager::PushSamplerState( 0, D3DSAMP_ADDRESSV,  D3DTADDRESS_MIRROR   );
 	CKTDGStateManager::PushSamplerState( 1, D3DSAMP_ADDRESSU,  D3DTADDRESS_MIRROR   );
 	CKTDGStateManager::PushSamplerState( 1, D3DSAMP_ADDRESSV,  D3DTADDRESS_MIRROR   );
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 
 	CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialog() );
 

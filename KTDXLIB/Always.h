@@ -7545,3 +7545,91 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              June's 15 (CartoonRimLight_Blue.bmp). The exe and data036 Enum.lua (CARTOON_TEX_TYPE table) move together: revert both.
 #define SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R8 item 1. CKTDGManager render-state blocks to June's 14 (BuildRenderStateID 31ce6310,
+//              tables 337281b0..33728a70): adds the additive texture block (+0x40, 33728270) and the additive dialog block (+0x70,
+//              33728620), both read only in render pass 1 (R4); March's UIDialog block becomes June's 20-state dialog block (+0x68,
+//              337284e0) = March's 10 sampler pushes + its 10 states in the same order, so the dialog render and RenderDragSlot
+//              push one block instead of 10 pushes + the block (pass 0 draws the same states).
+#define SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R8 item 3 (dialog side). CKTDGUIDialogManager::OnFrameRender as June has it (2-arg 31d053f0,
+//              layer-band 31d05700): a layer-band overload ( bFront, iMinLayer, iMaxLayer ) for FrontUIRender, June's "flagged dialogs
+//              only" mode (manager +0x110, dialog +0x1e0; default off, set only by June-only game code), the dialog block pushed around
+//              the guide-control loop, no LOG_LOAD_DLG_SCRIPT overlay. June's render-pass argument stays with R4. Needs DG_STATES.
+#define SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R8 items 2-3. CKTDGManager render lists to June's (ObjectChainSort 31ceb5f0,
+//              FrontUIRender 31ce94a0 pass 0): a third over-UI chain, alpha over-UI objects split at layer 500 (+0x15c < 500,
+//              +0x16c >= 500); FrontUIRender draws dialogs of layers 0..3, the fade, over-UI, alpha over-UI < 500, dialogs 4..500,
+//              then alpha over-UI >= 500. One "[JUNE_ENGINE] DG" line per chain-size change, at most once a second.
+//              Needs JUNE_UI_DIALOG_BANDS and OVER_UI_ALPHA_RENDER_FIX.
+#define SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R8 item 2. CKTDGObject frustum test as June has it (base vslot 0x34, 31c829e0): a third
+//              argument added to the scaled radius when non-zero (both DG callers pass 0.0f), the culling plane index kept at
+//              obj +0x18c (-1 = visible), no force-not-cull test inside; ObjectChainSort skips the test for not-cull objects
+//              before it (31ceb6b7), so a not-cull object no longer goes through the show test there. Needs RANOX_FORCE_NOT_CULL.
+#define SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R8 item 2. Alpha-group sort tie-break (comparator 31cebc00): same layer and same
+//              distance -> lower CKTDGObject +0x14c first. June writes that key only for particle sequences, as the sequence
+//              handle (CKTDGParticleSystem::CreateSequence 31cf92a1); every other object keeps 0.
+#define SERV_IRUHADEV_JUNE_RENDER_ALPHA_SORT_KEY
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R8 item 4. CKTDGManager::_RenderObjectRenderHintVector (31ce6eb0) without March's
+//              BeginRenderGroup / NextRenderGroup loop around multi-object mesh batches: each object of a batch draws once through
+//              the per-object path (its own technique, RenderParam states and effect Begin), as single objects already did.
+#define SERV_IRUHADEV_JUNE_RENDER_HINT_NO_GROUP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R8 item 5. CKTDGStateManager::RestoreDeviceObjects / InvalidateDeviceObjects move from
+//              CKTDGManager's reset / lost handlers (31ce98c0 / 31ce97e0) to CKTDXApp's (31be6510 @31be656e, before SetViewport,
+//              with the DXUT device settings' adapter and device type; 31be66b0 @31be6728, after every stage).
+#define SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
+//////////////////////////////////////////////////////////////////////////
+
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#ifndef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#error SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS needs SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+#ifndef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#error SERV_IRUHADEV_JUNE_RENDER_DG_LISTS needs SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#ifndef OVER_UI_ALPHA_RENDER_FIX
+#error SERV_IRUHADEV_JUNE_RENDER_DG_LISTS needs OVER_UI_ALPHA_RENDER_FIX
+#endif OVER_UI_ALPHA_RENDER_FIX
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+#ifndef SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+#error SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST needs SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+#endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST

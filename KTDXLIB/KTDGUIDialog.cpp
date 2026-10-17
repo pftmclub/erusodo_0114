@@ -20,6 +20,9 @@ CKTDGUIDialog::CKTDGUIDialog( CKTDXStage* pStage, const WCHAR* wstrScriptFileNam
 	m_Color	= D3DXCOLOR(0xffffffff);
 
 	m_iLayer		= iLayer;
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+	m_bJuneDrawInFlaggedMode = false;	// June dialog +0x1e0 ( ctor 31cd9230 @31cd972f )
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 	m_pStage		= pStage;
 	m_bModal		= true;
@@ -444,6 +447,9 @@ HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */ )
 	
     KD3DBEGIN()
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+	    // June 31cd7810 pushes one block ( DG +0x68 ) that starts with these ten sampler states
+#else SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 	    CKTDGStateManager::PushSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
 	    CKTDGStateManager::PushSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
 	    CKTDGStateManager::PushSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR );
@@ -455,6 +461,7 @@ HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */ )
 	    CKTDGStateManager::PushSamplerState( 0, D3DSAMP_ADDRESSV,  D3DTADDRESS_MIRROR   );
 	    CKTDGStateManager::PushSamplerState( 1, D3DSAMP_ADDRESSU,  D3DTADDRESS_MIRROR   );
 	    CKTDGStateManager::PushSamplerState( 1, D3DSAMP_ADDRESSV,  D3DTADDRESS_MIRROR   );
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 
         CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialog() );
 

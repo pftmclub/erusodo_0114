@@ -61,6 +61,14 @@ class CKTDGUIDialogManager : public CKTDXStage
 
 		virtual	HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual	HRESULT OnFrameRender( bool bFront = false );
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+		// June 31d05700 ( vslot 0x38 ): only dialogs whose layer is in [ iMinLayer_, iMaxLayer_ ] ( CKTDGManager::FrontUIRender )
+		virtual	HRESULT OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_ );
+		// June +0x110: only dialogs flagged +0x1e0 are drawn ( 31d0556a / 31d0587b ); FrontUIRender then draws no band. Written only by
+		// June-only game code ( 31f1e108, 3223dfea, 3243d15f, ... ), not ported: false here
+		bool	GetJuneFlaggedDialogsOnly() const { return m_bJuneFlaggedDialogsOnly; }
+		void	SetJuneFlaggedDialogsOnly( bool bOnly_ ) { m_bJuneFlaggedDialogsOnly = bOnly_; }
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 		virtual HRESULT OnFrameRenderTopModal();
 
@@ -158,4 +166,8 @@ private:
 #ifdef DIALOG_SHOW_TOGGLE
 		bool m_bCanHide;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+		bool m_bJuneFlaggedDialogsOnly;
+		HRESULT _OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_ );
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 };

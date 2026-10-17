@@ -1438,6 +1438,14 @@ HRESULT CKTDXApp::OnResetDevice( const D3DSURFACE_DESC* pBackBufferSurfaceDesc )
 {
 	if ( m_pDeviceManager != NULL )
 		m_pDeviceManager->BeginFullSync();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
+	// June 31be6510 @31be6530-31be656e: the state manager is restored here, before SetViewport and the stages, with the DXUT
+	// device settings' adapter and device type ( March's CKTDGManager passed 0 and D3DDEVTYPE_HAL )
+	{
+		DXUTDeviceSettings kDeviceSettings = DXUTGetDeviceSettings();
+		CKTDGStateManager::RestoreDeviceObjects( kDeviceSettings.AdapterOrdinal, kDeviceSettings.DeviceType );
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 
 	SetViewport( 0, 0, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 
 		0.f, 1.f );
@@ -1475,6 +1483,11 @@ HRESULT CKTDXApp::OnLostDevice()
 
 	if ( m_pDeviceManager != NULL )
 		m_pDeviceManager->EndFullSync();
+
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
+	// June 31be66b0 @31be6728: the state manager is invalidated after every stage's OnLostDevice
+	CKTDGStateManager::InvalidateDeviceObjects();
+#endif SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 
 	SkipFrame();
 

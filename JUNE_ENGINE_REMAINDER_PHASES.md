@@ -504,6 +504,49 @@ Added by R0b. It covers the pass-0 half of June's `CKTDGManager`; pass 1 stays w
 - The not-cull order, the alpha tie-break `+0x14c` and the third frustum argument.
 - `CKTDGStateManager` Restore / Invalidate moved out of the DG reset.
 
+### Phase R8 -- Done
+
+**2026-10-17, Opus 5.5.** All five items mapped and ported for render pass 0. The flag was split into seven, all defined in
+`Always.h` with `#error` dependency guards. Evidence is 17 funcmap rows tagged `Engine R8`; the state tables were decoded from the binary.
+
+| Flag | What landed (June) |
+|---|---|
+| `JUNE_RENDER_DG_STATES` | 14 blocks (`31ce6310`). The dialog block (+0x68) = March's 10 sampler pushes + `akRSICKTDGUIDialog`, same order, so the dialog render and `RenderDragSlot` push one block. Two additive blocks (+0x40 / +0x70) and their getters; only pass 1 reads them. |
+| `JUNE_UI_DIALOG_BANDS` | Dialog manager render as `31d053f0` / `31d05700`. Adds a layer-band overload, the flagged-only mode (+0x110 / dialog +0x1e0, default off) and the dialog block around the guide-control loop. The `LOG_LOAD_DLG_SCRIPT` overlay is gone. |
+| `JUNE_RENDER_DG_LISTS` | A third over-UI chain, with alpha over-UI split at layer 500. `FrontUIRender` pass 0 draws: dialogs 0..3, fade, over-UI, alpha < 500, dialogs 4..500, alpha >= 500. One throttled `[JUNE_ENGINE] DG chains` line. |
+| `JUNE_RENDER_FRUSTUM_TEST` | `CKTDGObject::IsInFrustum( eye, frustum, fAddRadius = 0 )` as `31c829e0`. It keeps the culling plane at +0x18c and no longer tests not-cull; the sort tests not-cull first. `CX2WorldObjectMesh`'s override takes the same signature (R13). |
+| `JUNE_RENDER_ALPHA_SORT_KEY` | Alpha-sort tie-break on +0x14c, with the particle `CreateSequence` writing its handle there (`31cf92a1`). |
+| `JUNE_RENDER_HINT_NO_GROUP` | Batches draw once, each object through the per-object path (no `BeginRenderGroup`). Batched meshes now push their own RenderParam states, as single ones did. |
+| `JUNE_RENDER_STATE_RESET` | State-manager Restore / Invalidate move into `CKTDXApp::OnResetDevice` / `OnLostDevice` (`31be656e` / `31be6728`), with the DXUT adapter and device type. |
+
+**Corrections to R0b:** the additive blocks blend `ZERO` / `ZERO` (value 1), not `ONE` (JUNE_BUGS 251). The +0x68 / +0x70 choice and the
+texture draws' new last bool are the **render pass**, so their users are R4's pass 1. `31cd7810` is `CKTDGUIDialog::OnFrameRender( bForce, pass )`,
+not a DG pass render.
+
+**Hygiene** (`flagcheck --worktree --files <14 files>`): RESULT PASS for all seven flags. Every other row is OTHER, from the sibling R8 flags.
+PASS~ = one blank line each in `KTDXApp.cpp` / `KTDGUIDialogManager.cpp`. 0 deleted lines, 0 non-ASCII, 0 EOL mismatches.
+Range check after commit: DEPLOY_LINE_RANGE
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,764,736 B, dated 2026-10-17 20:08:37, md5 9ff6fb3c54e07a6426464c9ff5b00e92` (built at main 82adc267 + this phase's 14 files).
+
+**Routed:**
+- **R4 (pass 1):** the pass argument through the dialog manager / dialog / controls / textures, the additive blocks' users, the rest of
+  `31cd7810` (pass-1 control filter +0x241, +0xc5 skip; not compared line by line), and `31be4230` / `31be2ef0` (render-target create / release
+  in the app reset / lost). R4 kickoff amended.
+- **june-gfx:** the GFx reset / lost in the app handlers (`31c43e60` / `31c43440`).
+- **New R13:** `CX2WorldObjectMesh` June render. There is no frustum override (vtable `334bc484`), and Prepare `327f9020` is rebuilt.
+- **Not ported, no owner:** the June-only writers of +0x110 / +0x1e0, and the non-zero third-argument callers `31fcf0f0` / `31fcf380`
+  (funcmap rows list the addresses). Hide modes 2-5 stay Effect C3p-2's routed rows.
+
+**Quirks kept** (JUNE_BUGS 251-253): the additive blocks blend `ZERO` / `ZERO`. The two band calls each draw the hidden-UI list, the guide
+descriptions and the dragged slot, so those draw twice per frame. Not-cull objects skip the show test and the distance update in the sort. Front dialogs above layer 500 are never drawn (the Lua event scene's object layers at 502, as in June; 253).
+
+**How to see it in game** (any character, e.g. Freils, Chung Tactical Trooper, uid 18):
+1. Enter any dungeon. During the stage-start fade, pop-ups and option windows (layers 4..500) sit above the black, and the in-game HUD fades in under it.
+2. ErrorLog.txt gets `[JUNE_ENGINE] DG chains inner .. over .. alpha<500 .. alpha>=500 .. culled ..` lines as the chains change.
+3. Regressions to look for: no missing or black UI, the skill-tree drag icon still shows, and Alt+Tab or a resolution change keeps textures (state reset).
+Review kickoff: `kickoffs/june-engine/R8-review.md`.
+
 ## Phase R9 - Render small deltas
 
 **Run with:** Sonnet 5.5 high, then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_SMALL_DELTAS` (split if
@@ -586,6 +629,19 @@ Added by R10; rows with owner R12 in `june2017_re/r10_skinanim_sweep.tsv`. After
 - **Port** the ownership model whole: the R12 rows, `CleanAnimStructure( mesh, xet )` and the dtor.
 - **`AddModelXSkinMesh`:** `( file, line )` and the KEM 433 log.
 - **`31d2f250` and its two `CX2GUUser` calls:** port per June once the map shows how June's motion collision meets March's lists.
+
+## Phase R13 - World object mesh render
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH`.
+Added by R8 (an unowned June branch). Not alongside R8's review or W1 / W1b / W2 (`X2World*`).
+- **June has no `CX2WorldObjectMesh::IsInFrustum` override.** Vtable `334bc484` (RTTI COL `3361b658`) has the base `31c829e0` at slot 0x34.
+  March's subset culling (`X2WorldObjectMesh.h:120`, `m_vecDrawSubset`) must be checked against June's draw: does June cull subsets somewhere else?
+- **Prepare `327f9020`** (slot 8) is rebuilt:
+  - a distance fade (+0x1ec / +0x1f0 against +0x148);
+  - the layer forced to 0xff, with the old one kept at +0x324;
+  - a vslot 0x44 test with DG +0x1c0 / +0x1cc.
+- Map the class whole (ctor, Prepare, Draw, the Lua keys feeding the new members), then port it as June has it. Since R8 the override takes
+  `fAddRadius_`; R13 decides whether it stays.
 
 ## Phase U0 - UI framework RE
 

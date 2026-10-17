@@ -117,7 +117,13 @@ class CX2WorldObjectMesh : public CX2WorldObject
 
 #ifdef X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
 	public:
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+		// Same signature as the June base test so this override still applies; June's world mesh has no override ( vtable 334bc484
+		// slot 0x34 = base 31c829e0 ) and a rebuilt Prepare ( 327f9020 ): that port is Phase R13, which also decides fAddRadius_ here.
+		__forceinline virtual bool IsInFrustum( const D3DXVECTOR3& kEye, const CKTDGFrustum& kFrustum, float fAddRadius_ = 0.f )
+#else SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 		__forceinline virtual bool IsInFrustum( const D3DXVECTOR3& kEye, const CKTDGFrustum& kFrustum )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 		{
 			if( GetShowObject() == false )
 				return false;

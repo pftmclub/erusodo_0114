@@ -39,6 +39,9 @@ CKTDGUIDialogManager::CKTDGUIDialogManager(void)
 #ifdef DIALOG_SHOW_TOGGLE
 	m_bCanHide = false;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+	m_bJuneFlaggedDialogsOnly = false;	// June +0x110 ( ctor 31d067e0 @31d06a5b )
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 }
 
 CKTDGUIDialogManager::~CKTDGUIDialogManager(void)
@@ -890,6 +893,10 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 
 HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront )
 {
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+	// June 31d053f0 ( vslot 0x30 ): no layer band
+	return _OnFrameRenderJune( bFront, false, 0, 0 );
+#else SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 
 	KTDXPROFILE();
@@ -994,7 +1001,110 @@ HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront )
 #endif
 
 	return S_OK;
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 }
+
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_ )
+{
+	return _OnFrameRenderJune( bFront, true, iMinLayer_, iMaxLayer_ );
+}
+
+// June 31d053f0 / 31d05700 in render pass 0 ( the pass argument is R4's ). Differences from March's OnFrameRender above: the
+// layer band, the flagged-only mode ( +0x110 / dialog +0x1e0 ), the dialog block pushed around the guide-control loop, no
+// LOG_LOAD_DLG_SCRIPT overlay. Kept as June has it ( JUNE_BUGS.md ): the hidden-UI list, the guide controls and the drag slot
+// ignore the band, so FrontUIRender's two band calls draw each of them twice.
+HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_ )
+{
+	KTDXPROFILE();
+
+#ifdef DIALOG_SHOW_TOGGLE
+	// June: m_bCanHide ( +0xbc ) && !m_bShow ( +0x34 ) -> only the current hide mode's dialog list ( +0xd4 ), then return. Mode 1
+	// ( hide all ) is March's list below; June's modes 2-5 are Effect C3p-2's routed rows.
+	if( GetHideDialog() == true )
+	{
+		CKTDGUIDialogType pDialog = GetDialog( L"DLG_ChatBox_EditBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender();
+
+		pDialog = GetDialog( L"DLG_MsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender();
+
+		pDialog = GetDialog( L"DLG_OKMsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender();
+
+		pDialog = GetDialog( L"OkAndCancelMsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender();
+
+		return S_OK;
+	}
+#endif //DIALOG_SHOW_TOGGLE
+
+	if ( m_bShow == false )
+		return S_OK;
+
+    unsigned uSize = m_vecIterator.size();
+
+    m_vecIterator.push_back( m_listDialog.begin() );
+
+    while( m_vecIterator.back() != m_listDialog.end() )
+    {
+        CKTDGUIDialogType pDialog = *m_vecIterator.back();
+        ASSERT( pDialog != NULL );
+        m_vecIterator.back()++;
+        if ( pDialog->GetFront() != bFront )
+            continue;
+
+		if ( m_bJuneFlaggedDialogsOnly == true )
+		{
+			// June @31d0587b: flagged dialogs only, and no band
+			if ( pDialog->GetJuneDrawInFlaggedMode() == true && pDialog->GetShow() )
+				pDialog->OnFrameRender();
+		}
+		else if ( pDialog->GetShow()
+			&& ( bLayerBand_ == false || ( iMinLayer_ <= pDialog->GetLayer() && pDialog->GetLayer() <= iMaxLayer_ ) ) )
+		{
+			pDialog->OnFrameRender();
+		}
+    }//while
+
+	// June @31d0591b-31d059d6: the guide controls of every shown dialog of this side, under the dialog block
+    KD3DBEGIN()
+		CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialog() );
+
+		m_vecIterator.back() = m_listDialog.begin();
+
+		while( m_vecIterator.back() != m_listDialog.end() )
+		{
+			CKTDGUIDialogType pDialog = *m_vecIterator.back();
+			ASSERT( pDialog != NULL );
+			m_vecIterator.back()++;
+			if ( pDialog->GetFront() != bFront )
+				continue;
+			if ( pDialog->GetShow() && pDialog->GetGuideControl() != NULL )
+			{
+				pDialog->GetGuideControl()->OnFrameRender();
+			}
+		}//while
+    KD3DEND()
+
+    m_vecIterator.pop_back();
+
+    ASSERT( uSize == m_vecIterator.size() );
+
+#ifdef NEW_SKILL_TREE_UI
+	if(CKTDGUISlot::s_pDragSlot != NULL && bFront)
+	{
+		CKTDGUISlot::s_pDragSlot->RenderDragSlot();
+	}
+#endif
+
+	return S_OK;
+}
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 HRESULT CKTDGUIDialogManager::OnFrameRenderTopModal()
 {

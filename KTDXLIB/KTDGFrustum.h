@@ -54,6 +54,18 @@ class CKTDGFrustum
 			}
             return true;
 		}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+		// June 31c829e0 inlines this loop and keeps the index of the first plane the sphere is behind ( -1 = not culled )
+		__forceinline int CheckSphereCulledPlane( const D3DXVECTOR3& vCenter, float Radius ) const
+		{
+			for( int i = 0; i < 6; i++ )
+			{
+				if( D3DXPlaneDotCoord( &m_Planes[i], &vCenter ) < -Radius)
+					return i;
+			}
+			return -1;
+		}
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 
 		__forceinline bool CheckSphere( float XCenter, float YCenter, float ZCenter, float Radius, float& fNeedDistance ) const
 		{

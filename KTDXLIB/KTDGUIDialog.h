@@ -242,6 +242,11 @@ class CKTDGUIDialog
 		bool			GetIsSuccessInitOpenScript() { return m_bSuccessInitOpenScript; }
 
 		int				GetLayer() { return m_iLayer; }
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+		// June dialog +0x1e0: drawn while the dialog manager's flagged-only mode is on; set by June-only game code ( not ported )
+		bool			GetJuneDrawInFlaggedMode() const { return m_bJuneDrawInFlaggedMode; }
+		void			SetJuneDrawInFlaggedMode( bool bDraw_ ) { m_bJuneDrawInFlaggedMode = bDraw_; }
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 		void			SetLayer( int iLayer );
 
 		void 			SetID(int id) { m_ID = id; } 
@@ -523,6 +528,9 @@ private:
 
 		bool						m_bFront;
 		int							m_iLayer;
+#ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+		bool						m_bJuneDrawInFlaggedMode;
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 
 #ifdef DIALOG_CRITICAL_SECTION
