@@ -3625,7 +3625,7 @@ A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 
   loaded line 119 = pos 516); 0 EXCEPTION, 2 UNHANDLED = `E_DISABLE_HB_CHECK_REQ` (pre-existing); no `PortalMovingInfoPtr is NULL`. The world-map pin hidden
   line never fired (pin shown).
   **Found:** 4 `OpenTexture` misses during the F03 load: `ELYSION_HERNA_SHIELD_WEAPON.TGA` (June ships it; the A6 closure staged only `_A`) -> staged June's
-  copy (data181, 65,580 B), `PACK OK data181`, copy waits for the user's OK; `FIELD_ELYSION_VILLEAGE_AP_TREE02.DDS` (embedded in `Field_Elysion_Stage2_G02.y`, June lacks
+  copy (data181, 65,580 B), `PACK OK data181`, `COPY OK data181` md5 a499680e (user OK); `FIELD_ELYSION_VILLEAGE_AP_TREE02.DDS` (embedded in `Field_Elysion_Stage2_G02.y`, June lacks
   it too: June's own miss, kept), `LIRE_01_SPINNINGKICK02_AS.TGA` and `PARTICLE_BLUR_GA.TGA` (June lacks both; Lire skill particles, not F03's).
 - **How to see it in game:** after the copy, the hand-off below (`elysion` warp, walk to the village's far portal at START_POS 517 -> F03 -> back via
   F03's start portal (L0) to the village; F03 pin on the world map).
