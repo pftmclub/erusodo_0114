@@ -2209,11 +2209,81 @@ main.
 
 ### Per-line checklist
 
-*(written by Phase A8)*
+*(written by Phase A8, 2026-10-17; A9 / A10 / E8-E11 follow it. Opus phases hand steps 1-3 and 8 to Sonnet subagents.)*
+
+1. **Gate first.** `python -I june2017_re/region_census.py --line <XX> --limit 0 --no-probe` (10 min). The rows that need work are
+   `koms.unstaged`, `assets.adopt`, `npc.ready`, `items`, `effects`, `bind.*`. The rest is usually already routed (step 9).
+2. **Inventory, in staging (`kom_contents`), not git.** Per file: the June kom + size, and the March staged dir + header (`1B 4B 4C 81` =
+   ljconv'd June, `EF BB BF` = BOM source) + manifest. Since C3y / C3z most unit scripts, dungeon scripts and boss worlds are
+   **already staged**. A8 found only Stage0-2 + 3 line maps missing. Check the three registries for the line's rows:
+   `data035 DungeonData`, `data037 NPCTemplet` (not data036), `data040 WorldData`. All three are core-list BOM source.
+3. **June-only `.lua`:** `python tools/luasrc.py adopt-june <june kom> X.lua ...` (ljconv bytecode, no edit). Dry-run first. It writes
+   `june2017_re/june_adopt_<stamp>.tsv`; commit that file.
+4. **Registry rows, verbatim from `june_src_fixed`.** Append each block as `--{{ Iruha : <date> // SERV_IRUHADEV_ELYSION_PORT (atlas
+   <phase>): ...` with June line ranges and a `-- To restore: delete this block.` line, then `--}}`. CRLF, BOM kept. A scripted append
+   that asserts the first and last lines of each June slice is the safe way (A8: `a8_edit.py` shape).
+   - **`DungeonData`:** comment out `m_iRequireCompleteQuestID` with `-- quest plan:`. `IsActiveDungeon` (`X2DungeonManager.cpp:750`)
+     would otherwise lock the dungeon forever offline. Keep everything else verbatim, including Ciel / Lu / Ain / Rose keys and
+     `EXTRA_REQUIRE_DUNGEON_ID`. Name the omitted Hero rows (C3y-5) and their June ranges in the header.
+   - **`NPCTemplet`:** add only the rows that are missing. Check that each row's `MOTION` mesh is staged
+     (`ls kom_contents/*/Motion_X.[xX]`).
+   - **`WorldData`:** every `WI_*` the dungeon's stages name. The boss world is often already in (C3y-1b).
+   - Then run `luasrc.py refresh <kom> <file>` per file, and append `; edit: atlas <phase> ...` to the file's `why` in
+     `tools/data/lua_core_list.tsv`. `core --check` and `ledger --check` must PASS.
+5. **NPC readiness:** `Enum` (A3 did all of them), `NPCTemplet` (step 4), and stats. `NewNPCStat` (data036) carries every
+   Elysion NUI; `NPCStat` (data037) carries only some, exactly as June. The meshes: the A6 region closure staged them.
+   `npc_mesh_census.py` has no read-only mode (it rewrites its tracked TSVs), so check meshes by name instead.
+6. **Boss face:** `BOSS_GAGE_FACE_TEX` + `_PIECE` in the boss scripts (`X2GUNPC.cpp:4424-4436`). The pieces are UTF-16LE names
+   inside the TET (`data215 DLG_BossState_02.TET` holds the Elysion faces).
+7. **Effects, buffs, sounds** over the unit, dungeon and stage scripts:
+   - effect-set, damage-effect and particle names, one level into the effect sets;
+   - names built at runtime (`..`);
+   - `BFI_` / `BTI_` / `BGI_` names against `Enum.lua` and the buff templets;
+   - `.ogg` names.
+
+   A8 found nothing missing. The June effect pipeline (C11a, full `EffectSet`) already covers the region.
+8. **Offline:**
+   - **Clear:** a clear is recorded with no per-id code (`unit_dungeon`, key = DungeonID + difficulty, `Handlers_Room.cpp:4447`).
+     The next dungeon unlocks through its `EXTRA_REQUIRE_DUNGEON_ID`.
+   - **Kill EXP / ED / drops:** these need a server `DropTable.lua` row. There are none past 33xxx Lanox or Elysion, so a kill grants
+     nothing and logs `no reward row`. That gap belongs to backlog **Stage 23** (field-rewards); do not invent rows here.
+   - `BOSS_DROP_ITEM` feeds only the party UI list.
+9. **What stays open, routed.**
+   - `keys.file` `CT_*` / `CF_*` / state names are Lua-internal condition tables (`X2GUNPC.cpp:6443`, `BeginTable(name)`).
+   - `TARGET_FRONT_ME`, `AFTER_IMAGE_DEST_ALPHA_BLEND` and `ANIM_SPPED` are never read by June (A1b).
+   - `LINE_NUM` = B73.
+   - `REWARD_RATE`, `NPC_REWARD_RATE` and `DROP_TIMES` are server-only (A1b :1087).
+   - `keys.registry` `ENDING_SPEECH0` / `LU` / `CIEL` (A1b :1077-1088).
+   - `assets.absent` = June ships no such file either.
+10. **Pack, ask, hand off.** Run `kom.py pack` for each touched kom. Ask before each `copy`. A data-only line needs no build.
 
 ### Phase A8 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Data only: no C++, no flag change, no build. Census `--line AD`: 73 open rows before, 50 after,
+and those 50 are only the routed classes of checklist step 9 (5 `assets.absent`, 42 `keys.file`, 3 `keys.registry`).
+
+- **Premises held.** AD's 13 NUIs (+ CHEST and the three reused Lanox NUIs) are all in `Enum`, all 12 scripts staged (ljconv, Oct 9),
+  `NewNPCStat` has all 13 (`NPCStat` 7, = June), all 10 `Motion_*` meshes in data181. Buff census: 2 names (`BFI_BUFF_DEKAL_DEFENCE_SHIELD`
+  665, `BGI_JUST_BUFF` 4), both in `Enum.lua` (:11227, :11720) with templets; no block. Effects: 35 effect sets, 11 damage effects,
+  80 particles (one level into the sets) all present, 0 runtime-built names. Sounds: 3 `.ogg` June ships none of; `Music074/075` loose
+  in `data\music`. Boss faces: Dekal `NUI_Science_Dekal`, Dekal Pyurita `NUI_ELSION_DEKALPYURITA` in `data215 DLG_BossState_02.TET`.
+  Lanox NUIs `FIRE_DEVIL_BERSERKER` / `_FIGHTER_FIRETEMPLE` / `MOUNT_FIREBIRD_FIRETEMPLE`: NPCTemplet, stats, scripts already live (census ready).
+- **Staged:** `adopt-june data040` Stage0-2 + their 3 line maps (ljconv; `june2017_re/june_adopt_20261017_071905.tsv`). BOM source:
+  `data035 DungeonData` June :29932-30178 (Normal / Hard / Expert; quest key 22218 commented as `-- quest plan:`; 4 Hero rows named and
+  omitted), `data037 NPCTemplet` 11 rows (PIMPIM / EVENT_DISION were already in), `data040 WorldData` WI 642-644 (BOSSATGE came with C3y-1b).
+  Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: asked of the user (hand-off).
+- **Offline:** clears record into `unit_dungeon` as 33330 / 33331 / 33332 with no code change; AtlasCity's rows name
+  `DI_ATLASDEVELOPMENT_NORMAL` in `EXTRA_REQUIRE_DUNGEON_ID`, so A9's rows unlock on an AD Normal clear. **Kills pay nothing**: the server
+  `DropTable` has no 3333x / NUI 2092-2127 rows (Lanox dungeons 33300 / 33310 neither), so EXP, ED and drops are 0 with a `no reward row`
+  log line, and the 30 % clear bonus is 30 % of 0. NpcExpTable 80-82 is ready (A2). The fix belongs to backlog Stage 23 (field-rewards, now
+  dungeons too); nothing invented here.
+- **Local map:** AD's icon on page "0" turns live once its `DungeonData` exists (A7's filter). `IsActiveDungeon`: level 80+, no
+  required dungeon (June gives AD none: the region gate is `RequireClearDungeonID = DI_RANOX_FINALHALL_NORMAL`).
+- **How to see it (after the copy):** a level-80+ character, M -> Elysion tab -> AD icon enabled -> enter Normal; Stage0, 1, 2 and the
+  boss stage load; monsters have HP and attack effects; Dekal's gauge shows his face; on clear, AtlasCity's icon (once A9 adds its rows) unlocks.
+  ErrorLog must show no `DungeonData` / `NPCTemplet` / `WorldData` load errors.
+- **Open:** kill rewards (Stage 23). Play-test is batched into A13 (plan rule); the user may try it now.
 
 ---
 
