@@ -2681,7 +2681,31 @@ then commit on main.
 
 ### Phase A12 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 medium. No code change, no new flag.** Build and deploy of everything the A1-A11 commits and E1a/E1b hold.
+
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,670,016 B, dated 2026-10-17 08:52:20, md5 caae215304cb6b04358752e595c6fced, equal to X2/US_SERVICE/x2.exe (2026-10-17 08:52:15); built at main 4c9cf74e + 1 uncommitted code file(s).`
+  `build.py`: X2ServerProtocol / KTDXLIB ok, X2Lib ok in 525 s (211 warning lines), X2 ok in 96 s; PCH touched first (`X2Lib/stdafx.cpp`, then `X2/Common/dxstdafx.cpp`).
+  - **What is in the exe beyond HEAD:** the one uncommitted file is a peer's `X2Lib/X2TFieldNpc.cpp` (E1b review: `InitQuestMark`
+    NpcTalkParticle, `GetHouseType`; flag `ELYSION_VILLAGE`), edited 08:46 and compiled 08:49, so it is linked in. The build header also listed
+    `KTDXLIB/Always.h` + `X2Lib/X2StateMenu.cpp` (`SERV_IRUHADEV_HIDE_ELESIS_EVENT_BUTTON`, not an Atlas flag); both files were reverted on disk at
+    08:42:17, before `X2StateMenu.obj` (08:48) was built, and the exe has no `ElesisEventButton` literal, so that flag is out.
+- **Flag literals in `X2/US_SERVICE/x2.exe`** (UTF-16LE, ASCII where the source is a `KLOG` narrow string; each sits only inside its flag's `#ifdef`):
+
+| Flag | Literal | Hits |
+|---|---|---|
+| `ELYSION_PORT` | `Village_1501` (A5 `InitWarpList`) | 3 |
+| `ELYSION_SCRIPT_A` | `CAN_NOT_PASS_SPECIFIED_BONE first load`; `SetChangeUVPoint first use` (KTDXLIB, ASCII) | 1; 1 |
+| `ELYSION_DEBUG` | `[ELYDBG] indicator first skip` | 1 |
+| `JUNE_LOCAL_MAP_ELYSION` | `[ELYDBG] local map Elysion`; `[ELYDBG] VillageParsing: no Village` | 1; 1 |
+| `ELYSION_VILLAGE` | `HouseParsing June keys`; `VillageNpcRelation: loaded` | 1; 1 |
+| `LEVEL_CAP_99` | `[CAP99] migrated unit`; `[CAP99] EXP migration done` | 1; 1 |
+
+  - **`OFFLINE_BF_JOIN_START_POS` has no literal** (its block is two assignments, no string). Not provable from the exe; its proof is behavioural
+    (Atlas Station -> Field 01 lands at the start position, not 'Field 01 key 333 on a 163-line map'). `EXP_GAUGE_MAX_LEVEL_FIX` likewise has none (arithmetic only).
+- **Staged files live:** `python -I june2017_re/atlas_a11_closure.py` prints `PACKLIST archives owing a pack/copy: 0, files 0` and `region_census.py --region atlas --live`
+  `live {"same": 287}`. Nothing is owed to pack.
+- **Hand-off:** the Atlas reachability checklist ("Verification", 11 items) is in the reply, with `reyaa` (unit 12, Lire Grand Archer, lv 85, AD/AC/TW prerequisites cleared) as the character.
+  Kickoff `kickoffs/atlas/A13.md` written (Opus 5.5 high, root-cause + close-out).
 
 ---
 
