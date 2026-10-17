@@ -2272,7 +2272,7 @@ and those 50 are only the routed classes of checklist step 9 (5 `assets.absent`,
   `data035 DungeonData` June :29932-30178 (Normal / Hard / Expert; quest key 22218 commented as `-- quest plan:`; 4 Hero rows named and
   omitted), `data037 NPCTemplet` 11 rows (PIMPIM / EVENT_DISION were already in), `data040 WorldData` WI 642-644 (BOSSATGE came with C3y-1b).
   Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
-- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: asked of the user (hand-off).
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy (user OK): `COPY OK` data035 (md5 a613a865) / data037 (a8b97091) / data040 (0a989b6c).
 - **Offline:** clears record into `unit_dungeon` as 33330 / 33331 / 33332 with no code change; AtlasCity's rows name
   `DI_ATLASDEVELOPMENT_NORMAL` in `EXTRA_REQUIRE_DUNGEON_ID`, so A9's rows unlock on an AD Normal clear. **Kills pay nothing**: the server
   `DropTable` has no 3333x / NUI 2092-2127 rows (Lanox dungeons 33300 / 33310 neither), so EXP, ED and drops are 0 with a `no reward row`
