@@ -643,6 +643,8 @@ in the same file. DG_LISTS and HINT_NO_GROUP have no file of their own: their li
 **Build:** not deployed. Both `build.py --deploy` runs (20:38, 20:41) failed in `KTDXApp.cpp` on a peer's unfinished U1 edits
 (`SetGroupOffset`, combo-box setters), the block R11 also hit. The fix is committed and ships with the next successful build from `main`.
 It needs no play-test of its own, since March never opens the fifth dialog.
+**Deployed** 2026-10-17 21:19:47 by a peer's `build.py --deploy` of `main` 129bae3e (contains 3d4e2d43): `X2_offline.exe` md5 94b8520e;
+the string `DLG_Exit_Party_MsgBox` is in the exe.
 **Routed:** the hide-mode lists go to june-gfx G0 (kickoff amended): the `+0xd0` map, the presets in `32597410`, and the readers OnFrameMove
 `31d06100` and `31d05b80`, which also read `+0xd4`. Also the Lua-scene layer gap above. Funcmap rows tagged `Engine R8 review`.
 
