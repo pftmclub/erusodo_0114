@@ -958,7 +958,11 @@ Character: `reyaa` (Lire, Grand Archer, Lv 85, uid 12). Dev console (END key, au
    `FinalHall` has no `PLAY_SOUND` rows, only camera shake, so it is not a sound check.
 3. **Regression.** Any older dungeon with mesh triggers (Hamel Frozen Water Hall stage 3 statue, `Trigger_Hammel_Statue.ogg`): the statue still animates, no `mesh-id reject` for it (its meshes carry no id).
 
-Next: `/x2-phase june-engine W1 review` on Opus 5.5 / high after the play-test passes.
+**Play-test PASSED (user, 2026-10-17; logs read).** 0 EXCEPTION, UNHANDLED = the 2x `E_DISABLE_HB_CHECK_REQ` baseline, clean exit. Geyser trigger 1 played the
+effect set twice at the steel pump (10940,650,-6303, then 11450,510,-500 after the move), and `mesh-id reject: trigger 2 mesh MOTION_GEYSER_PUMP.X carries trigger id 0`
+was logged. Only pumps listed before the accepted one can be rejected, because `GetTriggerMesh` returns at the first accepted mesh.
+
+Next: `/x2-phase june-engine W1 review` on Opus 5.5 / high.
 
 ## Phase W1b - AUTO_DISABLE_LINE
 
