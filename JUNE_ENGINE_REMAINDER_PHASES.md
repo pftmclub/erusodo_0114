@@ -444,6 +444,43 @@ Redeploy: `DEPLOY OK: X2_offline.exe is 19,760,640 B, dated 2026-10-17 19:43:39,
    `WI_RANOX_SECRET_BOSS_STAGE`). Look for: a blue tint on units as today. If it is a different blue or washed out, report it (see the stand-in note).
    If a model goes white / wrong in 2: that is `Enum.lua` and the exe out of step (check data036 md5 `a7376f93...`).
 
+### Phase R1 -- Review
+
+**2026-10-17, Opus 5.5. Verdict: PASS, no transcription error.** Reviewed `02ddf7b3` + `05317e97` against R0 item 4, R0b's dtor row and June.
+
+- **Enum:** all 20 values equal June's `Enum.src.lua` `CARTOON_TEX_TYPE` (`june_src_fixed/data036_kom`). The staged data036 `Enum.lua` table
+  equals it too: BOM kept, plus one comment line.
+- **Ghidra spot-checks (3/3 pass):**
+  - **Ramp order.** `OnResetDevice` `31d3f480` builds a 20-entry wstring array in slot order at `31d3f8c1-31d3fcb3`, from `3344fc5c`
+    (`CartoonNormal.bmp`, length 0x11) to `3344f900` (`CartoonDamage_Raid.bmp`, length 0x16). The order equals R1's `s_apwszCartoonTex`
+    name for name, including the `CartoonFire.BMP` case.
+  - **Load loop.** The loop `31d3fcce-31d3fd50` walks 0x14 slots from `this+8` and loads only a NULL slot (device manager `31cded10`), as
+    R1 does.
+  - **Dtor.** `31d3c480` closes 0x14 slots through `31cdd8d0`. R1's ctor and dtor loops are `0..CTT_END` inclusive (R0b note covered).
+  - **`.txt` reader.** `31c864f0` accepts `CTT_NORMAL`, and `CTT_RED` (= 4), else `Invalid cartoonTexType` (`33449f5c`). March's
+    `KTDGXMeshPlayer.cpp:4713` maps the same two names to the enum symbols, which are now June's values.
+- **Read sites:** `m_pCartoonTexList` is read only in `BeginRender`'s 3 cartoon sites (`KTDGXRenderer.cpp:476/518/558`) and in the load loop.
+  The override is range-checked, and the `CTT_END` sentinel is never used as an index: the `CTT_END !=` guard sits at all three sites.
+  The `#else` paths are March's code (+ Ranox), untouched.
+- **Raw-int sweep (independent):**
+  - Every C++ store uses a `CTT_*` symbol. The Lua-fed casts (`X2BuffDisplayerTemplet.cpp:157/215/301`, `X2GUNPC.cpp:4350`,
+    `X2Pet.cpp:1966`, `X2RidingPet.cpp:689`, the `RenderParam.cartoonTexType` binding `KTDXApp.cpp:1889`) are unchecked in March and stay
+    so. They are only safe because the data uses names.
+  - A scan of all 6,537 `.lua` in `kom_contents` found 11 files with a cartoon key: the BattleField buff templets / factor (+ `_INT`),
+    `RenderDivisionItemTemplet`, `PET_ANCIENT_PPORU_HALLOW_SPRITE`, `Ranox_Secret_Boss_Stage` and `Enum`. Every one uses
+    `CARTOON_TEX_TYPE.CTT_*` names; no file passes a bare number.
+- **Play-test (log):** the 19:45 run on the fixed exe (`0f3a1445`) logged `[JUNE_ENGINE] CTT ramps loaded 20/20 (CTT_END 19, RIM_LIGHT_BLUE 15)`
+  with no `ramp ... missing`. It entered 41271 and reached the stage-4 boss (NPC 2241). Checks 1-3 had no failure report.
+- **Fixed (doc only):** the `Always.h` flag description still said the stand-in uses `CartoonRimLight_Blue.bmp`. It now names the
+  `CTT_SKYBLUE` mapping (comment only, so no rebuild; the deployed exe is unaffected).
+- **Routed to R2** (kickoff amended): R2's `SetRimLightTextureIndex` port must bypass R1's `SetRimLightTexType` mapping
+  (`RIM_LIGHT_BLUE -> SKYBLUE`, 13-18 -> disabled, `KTDGXRenderer.h:238-246`) under R2's flag, and bind the real rim ramp in stage 2.
+
+Hygiene (range `02ddf7b3^..05317e97`): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
+0 encoding change(s)` / `RESULT: PASS`. The review's comment fix (`--worktree --files KTDXLIB/Always.h`): `1 DEFINE` / `1 deleted line(s)`
+(the replaced comment line inside the flag's own define block) / `RESULT: PASS`. No later commit touches the flag.
+
 ## Phase R2 - XRenderer contract
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT`. Sub-tag

@@ -7542,7 +7542,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              inserted after NORMAL, RED moves 1 -> 4 ... SCARLET 9 -> 12, six RIM_LIGHT_* ramps 13-18, CTT_END 19. The ramp array grows to
 //              20 slots (CTT_END + 1) and loads June's 20 files in June's order (slot 19 = CartoonDamage_Raid.bmp, June 31d3f8c1-31d3fd50);
 //              a missing ramp logs once per name ("[JUNE_ENGINE] CTT"). The Ranox rim-light stand-in keeps working: its CTT_RIM_LIGHT_BLUE is
-//              June's 15 (CartoonRimLight_Blue.bmp). The exe and data036 Enum.lua (CARTOON_TEX_TYPE table) move together: revert both.
+//              June's 15, which SetRimLightTexType maps to the CTT_SKYBLUE ramp until R2 (June's CartoonRimLight_*.bmp are stage-2 rim overlays,
+//              black as a cel ramp; R1 play-test 1). The exe and data036 Enum.lua (CARTOON_TEX_TYPE table) move together: revert both.
 #define SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 //////////////////////////////////////////////////////////////////////////
 
