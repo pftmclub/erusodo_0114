@@ -1392,6 +1392,23 @@ If no `marked` line appears: the boss never reached the FIRE state, or the trigg
 
 Next: `/x2-phase june-engine W1b review` on Opus 5.5 / high.
 
+### Phase W1b -- Review
+
+**2026-10-17, Opus 5.5 high: PASS, 0 findings.** No code change, no rebuild. Commit reviewed: `b8653b47`. `git log -S` finds no later commit that touches the flag.
+
+Ghidra re-read (disassembly, read-only), all five sites:
+- **`31c6b8e0`, the three returns.** An invalid index (`JS` / `JGE`) or an unmarked line (`+0x128 != 1`) returns `AL = 1`. A listed UID is erased (`31c7d1e0` user / `325f3d20` NPC) and returns 1. Anything else returns 0, an empty list included. The user list compares 8 bytes, the NPC list compares the UID's low dword. The port matches.
+- **`DoTriggerLine` tail `328005b9-328007c0`.** The order is `+0x25 == 1`, linemap non-NULL, `+0x128 = 1`. Each user / NPC is seeded with vtable `+0x12c( 0 )` (`GetLastTouchLineIndex( false )`) and placed at vtable `+0x138( 0 )` (`GetPos( false )`). `31c7bb00` is called with radius `33441b9c` = 30.0 = `LINE_RADIUS`, its bool is 0 for users and 1 for NPCs (W1c), and the result is compared with `LineData +0`. Users push the 8-byte UID, NPCs the low dword. The port matches. Its extra `g_pX2Game` NULL test and the log line are harmless.
+- **User gate `@32019901-320199dc`, entry snapshot `@32015bb2-32015c1b`.** The entry line is `movzx` from `+0x7e54` and the entry land comes from `+0x7e20..28`. A listed unit is matched on the full 64-bit UID. An unlisted unit gets `x / z = positionOrg` (`esp+0x50 / 0x58`), `y = max( y, entryLand.y )`, `landPosition = entryLand` and line = entry. The port matches.
+- **NPC gate `@32782d64-32782ede`.** The listed test compares the `int` entry, sign-extended with `CDQ`, against the full UID. The port's `(UidType)` cast is that. An unlisted NPC gets line = `+0x6860`, `x / z = positionOrg`, the `NOT_USE_LAND_CONNECT` (`& 0x20`) clamp against the entry land, then the wall-trap reset (`InitData +1`, `+0x843c`, `speed.y < 0`). After that `+0x3e48 = line` on both paths, and the release (UID 8 bytes, bUser 0) runs with its result ignored. `X2OPTIMIZE_NPC_NONHOST_SIMULATION`, which guards the port's line store, is defined (`KTDX.h:281`), so June's unconditional store is equal.
+- **User bookkeeping `@3206bba4-3206bd03`.** It runs only with a world and a linemap, and reads the Now land line (`+0x80f4`). If `+0x3e48 > -1` and differs from the Future line `+0x7e54`, it calls release, and a true result sets `+0x3e48 = -1`. A marked land line then stores `+0x3e48 = +0x7e54`. The port matches, and JUNE_BUGS 264 records the mix.
+
+`LineData` is `new`ed and deleted, never `memset` or `memcpy`d. `Init` clears the flag and both lists, and the vectors' own copy constructor and destructor stand for June's `31c7e4b0` / `31c7d800`. There is no `#else` because the change is insert-only, so March's code is untouched.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE --range b8653b47^..b8653b47`: `files: 7 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`. It reports 0 deleted lines, 0 non-ASCII inserted lines, 0 EOL mismatches and 0 encoding changes.
+
+**Owes:** nothing. W2's kickoff now notes the tail's position in `DoTriggerLine`. Next: W2 or W1c (they share `KTDGLineMap.*`, so one at a time).
+
 ## Phase W1c - GetLandPosition monster-road bool
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD` (proposed). Added by W1b (an unowned June
