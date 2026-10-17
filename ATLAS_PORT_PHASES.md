@@ -4284,7 +4284,8 @@ reviewed (STATUS). Census `--line SC`: 68 open rows before, 42 after, all routed
   FAKE_OBJECT heals it, sends it to `_DYING` (or `_DYING_NOT_ALARM` if KEYOBJECT's flag 5 is set) and zeroes every DUMMY_TITLE's HP
   (`ELYSION_FAKE_OBJECT.lua:255-280`). All methods it calls are bound (census `bind` clear). Whatever title June gave for the dummy is server-side.
 - **June bug kept verbatim (JUNE_BUGS #239):** the water cannon's Ready state says `CAINVINCIBLE`; June and March read `INVINCIBLE`, so it is not invincible.
-- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: owed (ask first); `--live` check after it.
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy (user OK 2026-10-17): `COPY OK` data035 (md5 81e30818) / data037 (5e1a8b6d) /
+  data040 (8f4e46e7). Census `--line SC --live`: `live {"same": 313}`, the same 42 routed rows.
 - **Offline:** Tower Normal clear (33350) unlocks SC via `EXTRA_REQUIRE_DUNGEON_ID`; a clear records 33870 / 33871 / 33872 with no code; Adrian's
   rows (E9) name `DI_SKYCROSSROADS_NORMAL`. Kills pay nothing (no server `DropTable` rows; backlog Stage 23).
 - **How to see it (after the copy):** a level-83+ character that has cleared Tower Normal: M -> Elysion tab -> SkyCrossroads icon enabled -> enter
