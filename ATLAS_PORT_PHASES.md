@@ -4912,6 +4912,7 @@ then commit on main.
   `ELYSION_ATTACK_TYPE_STANDIN` (date + phase from the Done notes, files from `git grep -l`); all 11 Elysion-port flags now have a row.
 - **Staged files live:** `atlas_e13_closure.py` prints `PACKLIST archives owing a pack/copy: 0, files 0`; `atlas_e13_sweep.py` 0 `STAGED-NOT-LIVE` (66 `BAD` rows = the
   E13 noise: `absent-june-too` registry names + the 5 `MISSING-june-has`, none Elysion); `region_census.py --region elysion --live` `live {"same": 346}`. Nothing owed to pack.
+- **Play-test waived (user, 2026-10-17):** every Elysion phase was play-tested in its own phase, so the batched checklist is not run; E15 may start.
 - **Hand-off:** the Elysion reachability checklist (10 items) is in the reply, with `reyaa` (unit 12, Lire Grand Archer, lv 85; SkyCrossroads / Adrian / Soless / Memory Normal
   already cleared, Hard / Expert not) as the character. Kickoff `kickoffs/atlas/E15.md` written (Opus 5.5 high).
 
