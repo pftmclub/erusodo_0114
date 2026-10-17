@@ -1,0 +1,11 @@
+# adopt-june --bytecode run 2026-10-17 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+Elysion_AtlasCity_BossStage.lua	data040	new	data040	13425	bd17aee875ee77f74674326c7b2947f05e6b8f1f	bytecode		ljconv
+Elysion_AtlasCity_BossStage_LineMap.lua	data040	new	data040	2109	6d6447d7502850d22c42b5cda96fbe9528753460	bytecode		ljconv
+Elysion_AtlasCity_Stage0.lua	data040	new	data040	22176	2123d28ac6ba3934fd456fe67b23bf79a06d3241	bytecode		ljconv
+Elysion_AtlasCity_Stage0_LineMap.lua	data040	new	data040	11348	45dc1c89f92b28a90f008855981f29d44eea1996	bytecode		ljconv
+Elysion_AtlasCity_Stage1.lua	data040	new	data040	17407	e68e568512965de42b46733a4f63bbfbae0a9b45	bytecode		ljconv
+Elysion_AtlasCity_Stage1_LineMap.lua	data040	new	data040	15195	52780fb4598970164495b566cff03985ad5b65fb	bytecode		ljconv
+Elysion_AtlasCity_Stage2.lua	data040	new	data040	16463	e2b058e3bea7714a16883d1d68eb5e2e62548b4d	bytecode		ljconv
+Elysion_AtlasCity_Stage2_LineMap.lua	data040	new	data040	13256	9e4ed0d75c4107dc6c9926d8f555b5bacf8b3991	bytecode		ljconv

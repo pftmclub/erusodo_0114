@@ -2315,7 +2315,30 @@ over (live-kom check after I pack). Record a Done note (DEPLOY OK commit), then 
 
 ### Phase A9 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 high.** Data only: no C++, no flag change, no build. Census `--line AC`: 60 open rows before, 34 after (the census's own count; its rows below), and
+those rows are only the routed classes of checklist step 9 (6 `assets.absent`, 31 `keys.file`, 3 `keys.registry`).
+Zero engine gaps, as the kickoff's model rule required.
+
+- **Premises held.** All 10 missing NUIs are in `Enum`; scripts for all of them (+ `SUMMON2`) staged (ljconv, Oct 9); `NewNPCStat` complete.
+  Meshes in data181 (`Motion_ELSION_PROVER / DEFENDER / SILENCE / DECEPTOR / NEWDEFENDER / SUVEILLAN`, `Motion_EVENT_ELSION_2ST_BOSS`,
+  `Motion_Elysion_ATLASDEVELOPMENT_Gate`). Effects: 416 sets referenced, 0 missing; items 45 referenced, 0 missing. Boss faces:
+  `NUI_ELSION_SUVEILLAN` and `NUI_ELSION_NEWDEFENDER` are in `data215 DLG_BossState_02.TET` (UTF-16LE hit). The reused `NUI_FIRETEMPLE_GATE`
+  was already live (not re-ported).
+- **Staged (`adopt-june data040`, ljconv):** Stage0-2 + BossStage and their 4 line maps (`june2017_re/june_adopt_20261017_074049.tsv`,
+  manifest `"2"`). BOM source, appended verbatim as `atlas A9` blocks (script: scratchpad `a9_edit.py`, asserts the first / last line of
+  each June slice and no existing duplicate): `data035 DungeonData` June :30516-30788 (Normal / Hard / Expert; June has no quest key on AC;
+  Hero rows omitted and named: `HERO_NORMAL :30789-30939`, `HARD :30940-30961`, `EXPERT :30962-31119`, `HELL :38136-38285`),
+  `data037 NPCTemplet` 10 rows (ranges in the block header; `SUMMON2` / `PROTO` were already in), `data040 WorldData` WI AtlasCity
+  Stage0 / 1 / 2 / BOSSATGE (June :3225-3244). Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`,
+  `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. **Copy not done: user asked** (see hand-off).
+- **Offline:** AC rows carry `EXTRA_REQUIRE_DUNGEON_ID = DI_ATLASDEVELOPMENT_NORMAL`, so an AD Normal clear (recorded as 33330) unlocks them;
+  a clear of AC records 33340 / 33341 / 33342 with no code. Kills pay nothing (no server `DropTable` rows, backlog Stage 23); nothing invented.
+- **How to see it (after the copy):** a level-81+ character that has cleared AtlasDevelopment Normal: M -> Elysion tab -> AC icon enabled
+  -> enter Normal; Stage0, 1, 2 and the boss stage load; Suveillan's gauge shows his face. ErrorLog must show no `DungeonData` /
+  `NPCTemplet` / `WorldData` load errors.
+- **Open:** kill rewards (Stage 23). Review kickoff: `kickoffs/atlas/A9-review.md`.
+
 
 ---
 
