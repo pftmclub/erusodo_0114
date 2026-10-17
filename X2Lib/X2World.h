@@ -961,6 +961,11 @@ public:
 		int					GetRimLightTextureIndex() const { return m_iRimLightTextureIndex; }	/// June 327fb210 (the setter 327fb220 is SetRimLightTextureIndex above)
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+		void				SetEnvBoxMap( const char* pFileName );				/// June 327fd080, Lua g_pWorld:SetEnvBoxMap( "File.lua" )
+		void				JuneRenderEnvBox( const D3DXVECTOR3* pvPos );		/// June 327fb5f0 @327fb675-327fb689 ( the env box part of the world render )
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+
 		void				FadeOriginWorldColor( D3DXCOLOR color, float fTime )
 		{
 			m_FadeOriginColor = color;	
@@ -1304,6 +1309,9 @@ public:
 		wstring						m_BGMName;
 
 		D3DXVECTOR3					m_LightPos;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+		CKTDGEnvBoxMap*				m_pEnvBoxMap;			/// June +0x40, made by SetEnvBoxMap
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 		int							m_iCartoonTextureIndex;	/// June +0x1a4, default 0 ( CTT_NORMAL ramp )
 		int							m_iRimLightTextureIndex;	/// June +0x1a8, default 0 ( falls back to the white rim ramp )

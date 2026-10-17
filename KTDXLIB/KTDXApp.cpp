@@ -2018,6 +2018,13 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 #endif    
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+	/// June engine remainder R3: June 31be67a0 binds CKTDGEnvBoxMap ( @31bee72c ) with AddEnvBox_LUA ( 31d0b720, @31bee866 ) and SetLUT ( 31d0a0e0, @31bee989 ).
+	/// The map itself is made by g_pWorld:SetEnvBoxMap; no June script calls it ( R0 census ).
+	lua_tinker::class_add<CKTDGEnvBoxMap>( L, "CKTDGEnvBoxMap" );
+	lua_tinker::class_def<CKTDGEnvBoxMap>( L, "AddEnvBox_LUA",	&CKTDGEnvBoxMap::AddEnvBox_LUA );
+	lua_tinker::class_def<CKTDGEnvBoxMap>( L, "SetLUT",			&CKTDGEnvBoxMap::SetLUT );
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 	lua_tinker::class_add<CKTDGLensFlare>( L, "CKTDGLensFlare" );
 	lua_tinker::class_inh<CKTDGLensFlare, CKTDGObject>(L);
 	lua_tinker::class_def<CKTDGLensFlare>( L, "SetLightPosition",			&CKTDGLensFlare::SetLightPosition );

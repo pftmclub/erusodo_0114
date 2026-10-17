@@ -10,6 +10,9 @@
 #include "KTDGXSkinAnim.h"
 #include "KTDGParticleSystem.h"
 #include "KTDGLineMap.h"
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+#include "KTDGEnvBoxMap.h"
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #include "KTDGGlow.h"
 #include "KTDGSkyDome.h"
 #include "KTDGXSkinAfterImage.h"

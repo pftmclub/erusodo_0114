@@ -318,6 +318,28 @@ public:
 		void    SetEnvBoxEnable( bool bInEnvBox_ ) { m_bEnvBox = ( m_bShader30 && bInEnvBox_ ); }
 		void    SetAnisotropy( int iInSamples_ );
 		bool    IsShader30() const { return m_bShader30; }
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+		/// June R3: what CKTDGEnvBoxMap::Render ( 31d0a410 ) writes. Lut: +0x59 present, +0x5c / +0x60 the LUT texture ( one of them is NULL ). Rim: +0x64 override
+		/// flag and, unless bFlagOnly, +0x68 .. +0x7c ( colour, power, wide, forced ). The world reads the +0x80 switch ( 327fb61e ).
+		bool    IsEnvBoxEnable() const { return m_bEnvBox; }
+		void    JuneSetEnvBoxLut( bool bPresent, CKTDXDeviceBaseTexture* pLut0, CKTDXDeviceBaseTexture* pLut1 )
+		{
+			m_bGradingLutPresent = bPresent;
+			m_apGradingLut[0] = pLut0;
+			m_apGradingLut[1] = pLut1;
+		}
+		void    JuneSetEnvBoxRim( bool bOverride, const D3DXVECTOR3& vColor, float fPower, float fWide, float fForced, bool bFlagOnly )
+		{
+			m_bEnvBoxRimOverride = bOverride;
+			if( false == bFlagOnly )
+			{
+				m_vEnvBoxRimColor = vColor;
+				m_fEnvBoxRimPower = fPower;
+				m_fEnvBoxRimWide = fWide;
+				m_fEnvBoxRimForced = fForced;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 #ifdef X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
 		HRESULT OnFrameRender( const RenderParam& InRenderParam_, const D3DXMATRIX& mInWorld_, CKTDXDeviceXMesh& pXMesh, 
@@ -418,6 +440,9 @@ public:
         float                       m_fEnvBoxRimWide;           /// [+0x78]
         float                       m_fEnvBoxRimForced;         /// [+0x7c]
         bool                        m_bEnvBox;                  /// [+0x80] option USE_ENV_BOX && m_bShader30
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+        bool                        m_bEnvBoxRimOverride;       /// [+0x64] CKTDGEnvBoxMap writes it; June has no reader
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
         bool                        m_bViewIndependentEdge;     /// [+0x81] option USE_VIEW_INDEPENDENT_EDGE, ctor 1
         bool                        m_bMipmapCap;               /// [+0x82] TextureCaps MIPMAP (shader 3 devices only)
         int                         m_iAnisotropy;              /// [+0x84] anisotropy in use, ctor 1

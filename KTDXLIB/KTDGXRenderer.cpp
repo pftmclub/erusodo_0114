@@ -205,6 +205,9 @@ CKTDGXRenderer::CKTDGXRenderer( LPDIRECT3DDEVICE9 pd3dDevice )
         m_bGradingThisDraw = false;
         m_apGradingLut[0] = NULL;
         m_apGradingLut[1] = NULL;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+        m_bEnvBoxRimOverride = false;
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
         m_vEnvBoxRimColor = D3DXVECTOR3( 0, 0, 0 );
         m_fEnvBoxRimPower = 0.0f;
         m_fEnvBoxRimWide = 0.0f;

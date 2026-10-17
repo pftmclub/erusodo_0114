@@ -7859,3 +7859,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R3. June's CKTDGEnvBoxMap ported whole (KTDXLIB/KTDGEnvBoxMap.*, June vtable 3344da84, ctor
+//              31d09b30, OnResetDevice 31d0b200, AddEnvBox_LUA 31d0b720, SetLUT 31d0a0e0, LoadScript 31d0c730, Render 31d0a410): the Lua
+//              class CKTDGEnvBoxMap (AddEnvBox_LUA, SetLUT), g_pWorld:SetEnvBoxMap (327fd080), the per-frame blend of the colour-grading
+//              LUTs and rim-light values into the renderer (CKTDGXRenderer +0x59 .. +0x7c), the world's reset / lost / destroy hooks.
+//              Inactive as in June: no June script calls SetEnvBoxMap (R0 census), the option USE_ENV_BOX is off by default, and
+//              XEnvBoxRenderer.fx ships with asset-port P4a. Log tag [JUNE_ENGINE] ENVBOX.
+#define SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+#ifndef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#error SERV_IRUHADEV_JUNE_RENDER_ENVBOX needs SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT (the renderer members it writes)
+#endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+//////////////////////////////////////////////////////////////////////////

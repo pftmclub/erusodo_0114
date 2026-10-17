@@ -62,6 +62,9 @@ CX2World::CX2World( WorldData* pWorldData, const bool bBackgroundLoad_ /*= false
 	m_iCartoonTextureIndex = 0;
 	m_iRimLightTextureIndex = 0;
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+	m_pEnvBoxMap = NULL;
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 	m_LightColor			= 0xffffffff;		
 	m_FadeLightColor		= 0xffffffff;	
 	m_fFadeLightTime		= 0.f;
@@ -144,6 +147,9 @@ CX2World::~CX2World(void)
 
 	SAFE_DELETE_KTDGOBJECT( m_pLineMap );
 	SAFE_DELETE_KTDGOBJECT( m_pLineMapFuture );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+	SAFE_DELETE_KTDGOBJECT( m_pEnvBoxMap );		/// June dtor 32803a60 releases the map ( +0x40 )
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 
 #ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
 	/// Iruha 2026-09-19: the override is renderer-global (CKTDGXRenderer outlives any one CX2World), so
@@ -392,6 +398,10 @@ HRESULT CX2World::OnFrameRender()
 
 HRESULT CX2World::OnResetDevice()
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+	if( NULL != m_pEnvBoxMap )
+		m_pEnvBoxMap->OnResetDevice();		/// June OnResetDevice 327fb6b0 @327fb6e7
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 	if( NULL != m_pLineMap )
 		m_pLineMap->OnResetDevice();
 	
@@ -423,6 +433,10 @@ HRESULT CX2World::OnResetDevice()
 
 HRESULT CX2World::OnLostDevice()
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+	if( NULL != m_pEnvBoxMap )
+		m_pEnvBoxMap->OnLostDevice();		/// June OnLostDevice 327fb800
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 	if( NULL != m_pLineMap )
 		m_pLineMap->OnLostDevice();
 
@@ -475,6 +489,66 @@ void CX2World::SetCartoonTextureIndex( int iCartoonTexIndex )
 }
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+/// June 327fd080: g_pWorld:SetEnvBoxMap( "File.lua" ) drops the old map, makes a new one and loads the script ( which calls g_pEnvBoxMap:SetLUT / AddEnvBox_LUA ).
+/// The Lua global g_pEnvBoxMap keeps pointing at a deleted map when this is called again, as in June.
+void CX2World::SetEnvBoxMap( const char* pFileName )
+{
+	SAFE_DELETE_KTDGOBJECT( m_pEnvBoxMap );
+
+	wstring wstrFileName;
+	if( NULL != pFileName )
+		ConvertUtf8ToWCHAR( wstrFileName, pFileName );
+
+	m_pEnvBoxMap = CKTDGEnvBoxMap::CreateEnvBoxMap();
+	if( NULL != m_pEnvBoxMap )
+		m_pEnvBoxMap->LoadScript( wstrFileName );
+}
+
+/// June 327fb5f0 @327fb61e-327fb689: the world render gives the env box map the camera unit's position when the renderer's env box switch ( +0x80, option
+/// USE_ENV_BOX ) is on and a unit exists. The two calls of 31cda140 around it only reach the map's empty draw slot, so they are not ported.
+/// The first call logs, once, that the hook is alive and that the Lua binding is in place ( the bind runs during the kom mount, whose ErrorLog lines are lost ).
+void CX2World::JuneRenderEnvBox( const D3DXVECTOR3* pvPos )
+{
+	static bool s_bLoggedHook = false;
+	if( false == s_bLoggedHook )
+	{
+		s_bLoggedHook = true;
+		lua_State* L = g_pKTDXApp->GetLuaBinder()->GetLuaState();
+		int iClass = 0, iAdd = 0, iSetLut = 0, iWorld = 0;
+		lua_getglobal( L, "CKTDGEnvBoxMap" );
+		if( lua_istable( L, -1 ) )
+		{
+			iClass = 1;
+			lua_getfield( L, -1, "AddEnvBox_LUA" );
+			iAdd = lua_isfunction( L, -1 ) ? 1 : 0;
+			lua_pop( L, 1 );
+			lua_getfield( L, -1, "SetLUT" );
+			iSetLut = lua_isfunction( L, -1 ) ? 1 : 0;
+			lua_pop( L, 1 );
+		}
+		lua_pop( L, 1 );
+		lua_getglobal( L, "CX2World" );
+		if( lua_istable( L, -1 ) )
+		{
+			lua_getfield( L, -1, "SetEnvBoxMap" );
+			iWorld = lua_isfunction( L, -1 ) ? 1 : 0;
+			lua_pop( L, 1 );
+		}
+		lua_pop( L, 1 );
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] ENVBOX hook alive: Lua class CKTDGEnvBoxMap bound " << iClass << ", AddEnvBox_LUA " << iAdd << ", SetLUT " << iSetLut
+			<< ", g_pWorld:SetEnvBoxMap " << iWorld << ", renderer env box switch " << (int) g_pKTDXApp->GetDGManager()->GetXRenderer()->IsEnvBoxEnable()
+			<< ", map in this world " << ( NULL != m_pEnvBoxMap ? 1 : 0 ) << fileout;
+	}
+
+	if( NULL == m_pEnvBoxMap || NULL == pvPos )
+		return;
+	if( false == g_pKTDXApp->GetDGManager()->GetXRenderer()->IsEnvBoxEnable() )
+		return;
+
+	m_pEnvBoxMap->Render( *pvPos );
+}
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 void CX2World::SetMapDetail( CX2GameOption::OptionLevel optionLevel )
 {
 	for( int i = 0; i < (int)m_SkyDomeList.size(); i++ )

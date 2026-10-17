@@ -3731,6 +3731,9 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 	lua_tinker::class_def<CX2World>( L, "SetCartoonTextureIndex",	&CX2World::SetCartoonTextureIndex );	/// June 327fb200 (no June script calls it; SetRimLightTextureIndex above is June 327fb220)
 #endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+	lua_tinker::class_def<CX2World>( L, "SetEnvBoxMap",				&CX2World::SetEnvBoxMap );	/// June 327fd080 ( bound @31db7aeb )
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 	lua_tinker::class_def<CX2World>( L, "GetRenderLineMap",				&CX2World::GetRenderLineMap );
 	lua_tinker::class_def<CX2World>( L, "SetRenderLineMap",				&CX2World::SetRenderLineMap );
 #ifdef FOG_WORLD

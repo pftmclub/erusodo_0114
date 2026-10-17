@@ -3881,6 +3881,10 @@ HRESULT	CX2Game::OnFrameRender()
 		{
 			m_pWorld->OnFrameRender();
 		}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+		if( m_pWorld != NULL )
+			m_pWorld->JuneRenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June CX2Game::OnFrameRender 322d7260 @322d7294-322d72a1: world slot 2 gets the game's unit ( vslot 0x98 )
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		// Atlas E7: June 322d7260 @322d72a4-322d72e5: after the main world, each additional world whose +0x1ac is 1, then the chain sort
 		for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
@@ -3889,6 +3893,14 @@ HRESULT	CX2Game::OnFrameRender()
 			if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
 				pJuneWorld->OnFrameRender();
 		}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+		for ( UINT iJuneEnvWorld = 0; iJuneEnvWorld < m_vecJuneAdditionalWorld.size(); iJuneEnvWorld++ )
+		{
+			CX2World* pJuneEnvWorld = m_vecJuneAdditionalWorld[iJuneEnvWorld];
+			if ( NULL != pJuneEnvWorld && true == pJuneEnvWorld->GetJuneShowWorld() )
+				pJuneEnvWorld->JuneRenderEnvBox( NULL != GetMyUnit() ? &GetMyUnit()->GetPos() : NULL );		/// June 322d72c9-322d72e0, the same call for each additional world
+		}
+#endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		g_pKTDXApp->GetDGManager()->ObjectChainSort();

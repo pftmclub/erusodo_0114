@@ -586,6 +586,36 @@ OnResetDevice macros, `SetAnisotropy`), June `BeginRender` read from capstone (`
 Depends on R2. `XEnvBoxRenderer.fx` techniques `BlendLUTTechnique`, `DrawEnvBoxTechnique`; the rim-light env-box parameters in
 `XRenderer.fx`. Port the owner R0 maps, its data and option. If R0 measured no reach, the row asks the user first.
 
+### Phase R3 -- Done
+
+**2026-10-17, Sonnet 5.5.** One flag, `SERV_IRUHADEV_JUNE_RENDER_ENVBOX` (`Always.h`, `#error` guard on `JUNE_RENDER_SHADER_CONTRACT`). User answer 2026-10-16: follow June, port the env box whole,
+inactive. Evidence: `june2017_re/funcmap.tsv` rows `(R3)` (15), read from the Ghidra decompile and, for every number and sign, from the capstone disassembly.
+
+- **`CKTDGEnvBoxMap`** (new `KTDXLIB/KTDGEnvBoxMap.h/.cpp`, a `CKTDGObject`, added to `KTDXLIB_2010.vcxproj`; header reached through `KTDGManager.h`). Port of ctor / dtor, the 4-vertex
+  quad (`31d09900`), `OnResetDevice` (two 256x16 `@CKTDGEnvBoxMap@BlendedLUT0@/1@` targets, LUT textures reopened, `XEnvBoxRenderer.fx`, techniques / params), `OnLostDevice`,
+  `LoadScript` (Lua global `g_pEnvBoxMap`, then reset + sort by priority / id), `SetLUT`, `AddEnvBox_LUA` (the 14 keys, defaults, matrix = YawPitchRoll * Translation), the box
+  distance (`31d09130`, axis signs checked against the x87 code) and `Render` (`31d0a410`): boxes in range, LUT stacking until the weight is used up, ping-pong blend passes
+  (first pass up to 4 LUTs, then 3 + the previous target), rim blend. Begin / End effect follow `31d094c0` / `31d097c0` (state manager, `Begin( 7 )`, `BeginPass( technique )`).
+- **Renderer** (`KTDGXRenderer.h/.cpp`): `JuneSetEnvBoxLut` / `JuneSetEnvBoxRim` write the R2 members (`+0x59`, `+0x5c/+0x60`, `+0x68..+0x7c`) plus the new `[+0x64]` flag (June has no reader);
+  `IsEnvBoxEnable()` = `[+0x80]`.
+- **Lua / world:** `CKTDGEnvBoxMap` bound in `KTDXApp.cpp` (`AddEnvBox_LUA`, `SetLUT`, `31be67a0`); `CX2World::SetEnvBoxMap` (`327fd080`, bound in `X2Main.cpp`), `m_pEnvBoxMap`
+  (June `+0x40`) with reset / lost / destroy hooks, and `JuneRenderEnvBox` called from `CX2Game::OnFrameRender` after the main world and each additional world with the
+  camera unit's position (June `322d7260`; the world render gives it `GetMyUnit()->GetPos()`).
+- **Not ported (no behaviour):** the two `31cda140` calls around the env box in `327fb5f0` only reach the map's empty draw slot; `327fc450` (an empty-name map), `31d09c70` and
+  `31d0a270` (entry setters) have no caller in June; the dev command `/useEnvBox` stays with the dev console.
+- **Deviations (guards, not June):** a missing `XEnvBoxRenderer.fx` (asset-port P4a ships it) logs KEM 49 and one `[JUNE_ENGINE] ENVBOX` line, then the map stays inactive (June would crash
+  in `BeginEffect`); a LUT texture that fails to reopen is skipped; the blend target is cleared with `BeginRender( false )` + `Clear( 0xff000000 )` (June's 4-argument `BeginRender`).
+- **June quirks kept:** JUNE_BUGS 268 (`g_pEnvBoxMap` global never cleared), 269 (blended rim power starts at 0), 270 (`BLEND_WEIGHT` forced to 0 / 1 by `BLEND_LENGTH`; missing vectors zeroed).
+
+**Hygiene** (`--worktree --files`): RESULT PASS for all own files except `KTDGEnvBoxMap.cpp`, whose `#include "StdAfx.h"` sits outside the flag (PCH requirement, as U1's `KTDXWordWrap.cpp`);
+`Always.h` OTHER = a peer's uncommitted blocks. 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 encoding changes. Range check: in the commit message.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,841,536 B, dated 2026-10-17 22:39:22, md5 ea4a74b48006d7eacdc02768fa36fe9c, equal to X2/US_SERVICE/x2.exe (2026-10-17 22:39:17); built at main cc6a579d + 18 uncommitted code file(s).`
+(a peer's build compiled my files; the exe holds `ENVBOX hook alive`, `AddEnvBox_LUA`, `SetEnvBoxMap`, `g_pEnvBoxMap`, `@CKTDGEnvBoxMap@BlendedLUT0@` and `XEnvBoxRenderer.fx`).
+
+**How to see it** (log tag `[JUNE_ENGINE] ENVBOX`, ErrorLog.txt; no visual check exists, as in June nothing creates an env box): enter any dungeon or village; the first world render writes
+`[JUNE_ENGINE] ENVBOX hook alive: Lua class CKTDGEnvBoxMap bound 1, AddEnvBox_LUA 1, SetLUT 1, g_pWorld:SetEnvBoxMap 1, renderer env box switch 0, map in this world 0`.
+Switch 0 is the `USE_ENV_BOX = FALSE` default. **Open:** none for the user; asset-port P4a ships `XEnvBoxRenderer.fx`.
+
 ## Phase R4 - Heat shimmer
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER`. Port the owner of
