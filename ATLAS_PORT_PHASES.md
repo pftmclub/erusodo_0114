@@ -3519,7 +3519,7 @@ turns them on. The four A7 stand-ins that wait for a 20009 templet (`X2LocationM
   **Same class, user report:** no `[Z] Use` at Camilla in Ranox (June scene, Ranox row has no per-row join area): June's `JoinArea = 500` on
   `HI_CAMILLA_PVP_HOUSE` (June :1779, March 400), `COPY OK data034` md5 a8b04f7e (user OK). A sweep of every house finds three more
   March-vs-June JoinArea differences, all in March-scene villages with no report: HI_GRAIL 600/500, HI_HOFMANN_HOUSE 500/700,
-  HI_RICHANG_HOUSE 700/600 (March/June); left as is. User owes: a look at Luriel (Elysion) and Camilla (Ranox).
+  HI_RICHANG_HOUSE 700/600 (March/June); left as is. Re-test PASSED 2026-10-17 (user): `[Z] Use` shows on both. Nothing owed but the review.
 
 ---
 
