@@ -4399,8 +4399,14 @@ void CX2SkillTree::AddSkillPowerRate_LUA()
 
 	LUA_GET_VALUE_ENUM( luaManager,	"m_eID", eSkillPowerRateType, SKILL_POWER_RATE_TYPE, SPRT_NONE );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+	/// June 32209d80: fill flag 0 ( XOR EBX,EBX @32209e53, pushed @32209e8c ), no padding to 30; 32207430 then copies only a 30-entry row
+	if( true == luaManager.BeginTable( "m_Value" ) )
+		SetSkillVlaue( luaManager, vecPoewrRate, false );
+#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	if( true == luaManager.BeginTable( "m_Value" ) )
 		SetSkillVlaue( luaManager, vecPoewrRate );
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	if ( SPRT_NONE != eSkillPowerRateType && true != vecPoewrRate.empty() )		/// 정보가 파싱 되었을 때만, 추가 한다.
 		m_mapSkillPowerRateType.insert( make_pair( eSkillPowerRateType, vecPoewrRate ) );
@@ -4953,7 +4959,8 @@ bool CX2SkillTree::SkillTemplet::JuneGetNumericalAbilityValue( SKILL_ABILITY_TYP
 	return true;
 }
 
-/// June 32206fb0 ( type, level, &out, bPvp ): the numerical block first, else the +0x164 map (0 past the end). False when neither has the type.
+/// June 32206fb0 ( type, level, &out, bPvp ): the numerical block first, else the +0x164 map. False, fOut_ untouched, when neither has the type
+/// or the level is past the map's table ( @322070a6-322070e3; S2 review fix: it returned true with 0 there ).
 bool CX2SkillTree::SkillTemplet::JuneTryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const
 {
 	if( true == JuneGetNumericalAbilityValue( eType_, iLevel_, bPvp_, fOut_ ) )
@@ -4964,7 +4971,10 @@ bool CX2SkillTree::SkillTemplet::JuneTryGetSkillAbilityValue( SKILL_ABILITY_TYPE
 		return false;
 
 	const int iIndex = iLevel_ - 1;
-	fOut_ = ( 0 <= iIndex && static_cast<int>( it->second.size() ) > iIndex ) ? it->second[iIndex] : 0.f;
+	if( 0 > iIndex || static_cast<int>( it->second.size() ) <= iIndex )
+		return false;
+
+	fOut_ = it->second[iIndex];
 	return true;
 }
 

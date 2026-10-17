@@ -4065,6 +4065,8 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` (+ short-lived `SERV_IRUHADEV_JUNE_SKILL
   (`32206e50` / `32206fb0`, `JuneTryGetSkillAbilityValue`, the 3-argument overload carries the PvP flag).
 - **The three `_ULTIMATE` gates are live** (they were constant false): `SPEED_TIME_ULTIMATE` (`CommonStateStartFuture`), `BUFF_FACTOR_ID_ULTIMATE` (`ParsingBuffFactorID`),
   and the DamageEffect `_ULTIMATE` keys (`m_bUseUltimateDamageData`). They stay off until a templet with `m_DeleteSkillIDByUpgrade` exists, i.e. until S3.
+- **S2 review fixes (same flag):** `JuneTryGetSkillAbilityValue` returns false past the end of an SA table, as June `32206fb0` does, so an upgraded skill's power rate falls back
+  to `m_vecPowerRate`; `AddSkillPowerRate_LUA` reads `m_Value` without padding (June `32209d80`; every row in both data sets has 30 entries).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` (and `_DEBUG`) in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, save or kom changes.
 
 ## Known deviations to clean up

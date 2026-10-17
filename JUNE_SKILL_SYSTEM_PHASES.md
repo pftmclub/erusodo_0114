@@ -431,6 +431,40 @@ No kom, data or save change. Revert and the full list of changes: `MODS.md` "Jun
   - June's file through June's parser: `templets=2346 guild_rows=12 upgrade_map=615 numerical_blocks=3859 extra_icons=19` (S0a: 615 upgrade rows, 19 extra-icon tables: equal). **`tree_rows=2697`, not 3360, and that is the S0a blocker, not a loader fault:** June writes the tree class as `UNIT_CLASS.UC_*`, 31 of its 86 class names are absent from March's core `Enum.lua`, they read nil -> `UC_NONE`, and 1,316 rows collapse onto 663 duplicate (class, skill) keys. Counting the file with unknown names mapped to one class gives exactly 2,697. S3 (amendment 2) adds the names to `Enum.lua`; the S3 gate re-runs this count and must read 3,360.
   - June-file short arrays (cool time / MP / required level): 1,386 / 1,259 / 1,634 with 1-29 entries: June's no-padding rule is live for them after S3 (S2 review checks which callers pass a level above the array).
 
+### Phase S2 -- Review (2026-10-18, Opus 5.5 high)
+
+**Verdict: S2 passes with two transcription fixes and one S3 amendment.** Commits reviewed: `c91ce6c6`, `28c47773`.
+A Sonnet subagent checked the 260 rows of `s0a_templet_keys.tsv` key by key; Opus read every finding and spot-checked six functions in Ghidra.
+- **Hygiene, per commit (`--range c^..c --with SERV_IRUHADEV_JUNE_SKILL_DEBUG`).**
+  - `c91ce6c6`: `files: 9 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - `28c47773`: `files: 1 PASS, 0 FAIL, 0 ERROR`; `2 deleted line(s)`, both inside `JuneCompareTrees` (`_DEBUG`, this flag's own block: the byte `memcmp` of the stat vector, replaced by a value compare); `RESULT: PASS`.
+- **Keys.** 257 of 260 rows match.
+  - The templet parser matches on all 239 rows (name, getter, default, store, no-fill flags).
+  - The SA table matches on all 202 rows: id, key and order, with 12 -> 13 kept and `C_ASSERT`s at 142/173/202/203.
+  - Read order: `m_eType` is read before `m_eID` and the duplicate test. That only sets a byte on a templet that is then deleted, so there is no effect.
+  - The three mismatches: (1) the tree row's `m_iPrecedingSkill`, a documented superset that S3 removes; (2) **power-rate `m_Value` padded**, fixed below; (3) `AddSkillTypeColor`, which belongs to S7 (amendment 9).
+  - "Logged once per key name": every June key is parsed and stored, so no key is left unported to log. Nothing is owed.
+- **Ghidra spot-checks.** Five match the port:
+  - CEffect ctor gate `@31f7b3b0-31f7b81f`: unit type 0 = the user, 1 = `32759f00` master, other types skip; APPLIED_SKILL_ID, else _NOT_AFFECT_MEMO; `31fcf3e0`.
+  - NUMERICAL_DATA rows `@32218ac1-32218b8a`: one row per `m_Value` entry; pvp 1.0, tech and hit 0 when empty; side arrays clamp to their last entry.
+  - Row pick `320716c0`; `GetSkillPowerRateValue 32071720`; SPEED_TIME gate `31fe3aaf` (`31fca8e0( state skill, 1 ) +0x178`).
+  - Swap `328905b0`.
+  - Post-process `32206050` and power-rate copy `32207430`: March's shape, so the Done note's "stays as in March" holds.
+- **Fix 1 (`X2SkillTree.cpp` `JuneTryGetSkillAbilityValue`).** June `32206fb0` returns **false** with the output untouched when the SA table exists but the level is past its end (`@322070a6-322070e3`). The port returned true with 0.
+  - Only `GetSkillPowerRateValue` sees the difference: an upgraded skill with a short SA 173 table now falls back to `m_vecPowerRate`, as June does. `GetSkillAbilityValue` still gives 0.
+  - No effect on March data, where no templet has `+0x178`.
+- **Fix 2 (`AddSkillPowerRate_LUA`).** June `32209d80` reads `m_Value` with fill flag 0 (`XOR EBX,EBX @32209e53`, pushed `@32209e8c`). The port kept March's padding; it now has `#ifdef` June / `#else` March.
+  - All six June rows and all five March rows have 30 entries, so nothing changes in play. The S2 Done note's "identical" was wrong on this point.
+- **S3 amendment 9 (`kickoffs/skill-system-core/S3.md`): June's `GetSkillLevel 32890620` differs beyond the swap.**
+  - Guild skills read map `+0x28`: bonus total, cap 30, plus a `31d717d0` zero test.
+  - Every other skill reads the acquired map `+0x4a8`: the stored level byte (0 -> 1), with no bonus, no `bBasic`, no page and no cap.
+  - S0a's TU row and the buff 4b-i row described only the guild half.
+  - On March data this would remove +skill-level bonuses, so it moves with the flip. On June data it is what keeps the 1-entry cool-time and MP arrays from reading 0 at bonus levels.
+- **Short arrays (amendment 1).** The three getters (cool time, MP, required level) have about 90 call lines: class code, the tree UI and `X2UserSkillTree`.
+  - All of them pass a level from `GetSkillLevel`. Past the end both builds read 0, so June's no-padding rule is safe only together with amendment 9.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,873,280 B, dated 2026-10-18 06:34:55, md5 6e1b71e8bdb7cbe25ec57d44d4c11aa3, equal to X2/US_SERVICE/x2.exe (2026-10-18 06:34:50); built at main 68e3302f + 6 uncommitted code file(s).` A peer's build compiled this tree first; `X2SkillTree.obj` (06:31) is newer than the last fix (06:16).
+- **Play-test:** none owed. Neither fix changes March data (no upgraded templet; every power-rate row has 30 entries). The S2 play-test result stands.
+
 ## Phase S3 - The flip: June skill data and the save migration
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_REFORM`. Sub-tag `[JUNE_SKILL] MIG`.
