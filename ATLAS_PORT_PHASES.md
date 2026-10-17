@@ -4291,6 +4291,11 @@ reviewed (STATUS). Census `--line SC`: 68 open rows before, 42 after, all routed
 - **How to see it (after the copy):** a level-83+ character that has cleared Tower Normal: M -> Elysion tab -> SkyCrossroads icon enabled -> enter
   Normal; Stage0, 1, 2 and the boss stage load; Herna monsters fight; the key object / fake object gates open the line map; the boss orb / shield
   gauges show their faces. ErrorLog must show no `DungeonData` / `NPCTemplet` / `WorldData` load errors.
+- **Play-test PASSED 2026-10-17 (user); logs read (run 14:47-14:52, exe md5 3abf2519, koms after the copy):** reyaa (Grand Archer 85) entered from the
+  local map, `dungeonID=33870` room, `KEYOBJECT` (2266) `bossGauge=1` on stage 1, `BOSS_ORB` (2264) and `BOSS_SHIELD` (2265) `bossGauge=1` on stage 3,
+  `dungeonID=33870 CLEARED in 240s: 78 kill(s)` (+0 exp / +0 ED, `no reward row` per kill, as designed; Stage 23). 0 EXCEPTION; UNHANDLED only the two
+  known `E_DISABLE_HB_CHECK_REQ`. No `DungeonData` / `NPCTemplet` / `WorldData` load error and no missing mesh or texture. ErrorLog noise, none from E8:
+  `result : 47` on `SONIC_ARROW` / `ARROW.OGG` (the archer's own sounds), the `DLG_UI_LOCAL_MAP` statics (JUNE_BUGS 228, as A9 / A10), one `JUNE_FX HERO_ANIM` rows=0 line.
 
 ### Phase E9 — Adrian
 
