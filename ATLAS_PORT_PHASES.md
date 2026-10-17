@@ -2611,6 +2611,46 @@ main.
 - **Hygiene:** no code changed, so `flagcheck` / `build.py` do not apply. `luasrc.py ledger --check` is untouched (no Lua staged).
 - **Routed, not open:** 80 absent names and 6 extension mismatches above (June's own); the 27 collisions (June asset port).
 
+### Phase A11 — Review
+
+**2026-10-17, Opus 5.5 high. PASS; no repack, no copy. One census-method gap fixed in the script (no asset was missing because of it).**
+
+- **The 28 TETs.** Each staged file is byte-equal to June's strict decode (`junekom.decode`), has manifest `"0"` and sits in exactly one archive. Each is
+  listed by `elstools inspect` in the live kom at the same size. Live md5 = packed md5 = the `COPY OK` values (data057 d50ad827, data151 0f6dcdfb,
+  data215 8f87f3c1). Hand spot-checks read the UTF-16LE key in each TET:
+  - `BattleFieldData.lua` (data036, BOM source): `FIELD_NAME_ELISION_1` is in `Fieldname_8.TET`.
+  - `DLG_Map_House.lua` (data034): `HI_YUNO` is `NPCTextureKey = "NUI_YUNO"` + `NPCTextureName = "DLG_Common_New_Texture76.tga"`. The key is in `Texture76.TET`.
+  - `DungeonData` rows: `SOLESS` / `MEMORY` are in `Dungeon_Image12.TET`.
+  - `elsion_dekal.lua` (June bytecode): its constant is `NUI_Science_Dekal`, and the TET stores `NUI_SCIENCE_DEKAL`. Upper-casing is faithful:
+    `CKTDXDeviceTexture::GetTexUV` (`KTDXDeviceTexture.cpp:433`) does a raw `find`, but the GUI `SetTex` path upper-cases first (`KTDGUIControl.cpp:733`,
+    `KTDGUIStatic.cpp:1074`), and the boss face goes `CX2BossGageUI::SetBossGageTexture` -> `SetTex_LUA`.
+- **Census method.** Checked over the same region texts (`RC.all_texts`):
+  - No `.tga`/`.dds` literal followed by a key on the same line escapes the call regex.
+  - Every `SetTex*` / `IconAni` call carries a literal texture. The non-literal ones are `SetUseTex(2, false)` and `ChangeTexForce_LUA("PC_n.dds")`, a whole
+    particle file with no key; `pc_1..5.dds` are in the closure, live in data049.
+  - There is no `NPCAniTex` / `MOTION_*_TEX_XET` use and no runtime-built asset name (`..` concatenation or `string.format`) in the region.
+  - **Gap:** one more Name/Key field pair exists. `DLG_Map_Local_Elysion.lua` has `TEX_NAME = "DLG_New_Dungeon_Image5.dds"` / `PIECE_NAME =
+    "Local_Image_Besma_Village"`. It resolves: data065 TET has `LOCAL_IMAGE_BESMA_VILLAGE`. `('TEX_NAME', 'PIECE_NAME')` is added to `tet_pairs`.
+  - Re-run: `atlas_a11_tet.tsv` has 134 pairs = 130 OK + the same 2 `KEY-MISSING` + 2 `NOTET`; `PACKLIST ... 0`; `MOUNT ... 0`.
+  - `atlas_a11_closure.tsv` re-ran identical except the `frm` column, which is set-order dependent, so it was kept as committed.
+- **Closure end to end.** Each walk takes the June source's `ASSET_RE` literals, expands every mesh / XET (bzip `.x`/`.y` included) and looks each name up in the live koms:
+  - `elsion_maya` (texture / mesh preload tables): 80 roots, 97 names, 16 of 17 meshes bzip, all live.
+  - `elsion_highttem`: 48 names, all live.
+  - `Elysion_Tower_stage0` (`WI_TOWER_STAGE0`): 73 names. All are live except `music078_stage.ogg`, which is the loose `data\music` copy.
+- **June defects.** Both checks are against June's own kom index, so neither is a decode problem.
+  - #214: no entry in any of June's 258 koms has `localmap_title_01_a` in its name. June has only `DLG_Localmap_Title_01/02` (data151) and `_INT_01` (datai021).
+  - #215: June's `DLG_BossState_02.TET` decodes to its index size (6,256 B), md5 11c00b39 = March's. Of its 75 keys, none is a `SPHERE` key.
+- **27 size differences.** All 27 are dated 2026-09-22 (the March extract) in `kom_contents`. None of them is in `kom_backup_stage_june`, nor in any other
+  `kom_backup_*` / `kom_contents_backup_*`. They are March originals that were never replaced.
+- **Server Lua.** The live data036 holds `StatTable.lua` 436,432 B, `NpcExpTable.lua` 2,445 B and `ExpTable.lua` 5,925 B, all `1B 4B 4C 81`, plus the client
+  `MapData.lua` 32,324 B (BOM). Each has manifest `"2"` and equals the staged copy; data036 live md5 = packed md5. The 08:33 run logs
+  `STAT 'StatTable.lua' loaded: 50 class(es), 4950 row(s)` and `[CAP99] StatTable rows 81-99 present for 50 of 50 classes`.
+- **Hygiene.** Census `--region atlas --no-probe --live` shows only the routed classes: `assets.absent` 2, `bind.nosource` 1, `keys.file` 62, `keys.registry` 1,
+  `koms.unstaged` 1. It also shows `live {"same": 287}`. No code changed, so flagcheck / build do not apply. `kickoffs/atlas/A12.md` checked: it is current.
+- **Noted, not owned here:**
+  - March has `DLG_Localmap_Title_02.tga` but not June's `.TET`. Only `DLG_Map_Local_Event/Special_Icon_NEW` use it, outside the region.
+  - The 08:33 run warns `STAT no rows for class=122 / 32` (pre-existing).
+
 ---
 
 ## Phase A12 — Build, deploy, hand-off

@@ -81,6 +81,7 @@ minimap_bank.dds	MINIMAP_BANK	OK	data047		UI	Y	DLG_UI_FIELD_MAP_Elysion_Village_
 minimap_arena.dds	MINIMAP_ARENA	OK	data047		UI	Y	DLG_UI_FIELD_MAP_Elysion_Village_NEW.lua
 minimap_shop_alche.dds	MINIMAP_SHOP_ALCHE	OK	data047		UI	Y	DLG_UI_FIELD_MAP_Elysion_Village_NEW.lua
 minimap_shop_weapon.dds	MINIMAP_SHOP_WEAPON	OK	data047		UI	Y	DLG_UI_FIELD_MAP_Elysion_Village_NEW.lua
+dlg_new_dungeon_image5.dds	LOCAL_IMAGE_BESMA_VILLAGE	OK	data065		UI	Y	DLG_Map_Local_Elysion.lua
 dlg_localmap_title_01.tga	MAP_TITLE_ATLAS	OK	data063		UI	Y	DLG_Map_Local_Elysion_Icon_NEW.lua
 dlg_localmap_title_01.tga	MAP_TITLE_ELYSION	OK	data063		UI	Y	DLG_Map_Local_Elysion_Icon_NEW.lua
 dlg_common_button04_new.tga	ELISION_1_N	OK	data063		UI	Y	DLG_Map_Local_Elysion_Icon_NEW.lua

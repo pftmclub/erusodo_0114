@@ -96,7 +96,8 @@ def tet_pairs(files, rows):
     out = []
     call = re.compile(r'\w+\(\s*(?:[A-Za-z_][\w\.]*\s*,\s*)?["\']([^"\']+\.(?:tga|dds))["\']\s*,\s*["\']([^"\']+)["\']', re.I)
     fields = [('BOSS_GAGE_FACE_TEX', 'BOSS_GAGE_FACE_TEX_PIECE'), ('m_TextureName', 'm_PieceName'),
-              ('BATTLE_FIELD_TEXTURE_NAME', 'BATTLE_FIELD_TEXTURE_KEY'), ('NPCTextureName', 'NPCTextureKey')]
+              ('BATTLE_FIELD_TEXTURE_NAME', 'BATTLE_FIELD_TEXTURE_KEY'), ('NPCTextureName', 'NPCTextureKey'),
+              ('TEX_NAME', 'PIECE_NAME')]
     for lines, src, text in RC.all_texts(files, rows):
         for m in call.finditer(text):
             out.append((m.group(1), m.group(2), src, lines))
