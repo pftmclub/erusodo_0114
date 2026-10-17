@@ -3652,7 +3652,7 @@ A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 
   `FieldMap_Navigation_Elision_03`). June ships both files in data057 (TET 214 B, key `FIELDMAP_NAVIGATION_ELISION_03`; tga 1,048,620 B); the
   region census and the A11 TET closure read Lua / asset names, not C++ literals, so neither saw it. Sweep of every texture literal added to
   X2Lib / KTDXLIB since 2026-10-16 (13 names): this was the only one missing. `kom.py stage-june` (2 new, manifest 0), `PACK OK data057`
-  (+2 entries vs live). Copy pending (user OK).
+  (+2 entries vs live). `COPY OK data057` md5 e5c6c6ad (user OK).
 - **Census** (`region_census --region elysion --line FLD --live`): 303 staged, `live same 303`, 0 open.
 - **Play-test (log, run 11:16-11:19 on exe ad0dc512):** 20009 -> START_POS 517 (`Portal: start pos 517 -> place 40037 internal 0 wait 3.00`) ->
   battlefield 40037, 35 monsters placed, fights + respawns, 14 `no reward row` lines (expected, Stage 23); back via `MoveToOtherPlace ... 20009
