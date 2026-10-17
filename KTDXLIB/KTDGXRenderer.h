@@ -235,6 +235,15 @@ public:
 			/// Iruha 2026-09-19: bounds-check here, not just at the BeginRender consumption sites -- eInType_ ultimately
 			/// comes from a Lua int (CX2World::SetRimLightTextureIndex), so it can't be trusted to already be in range.
 			m_eRimLightOverrideTexType = ( eInType_ >= CARTOON_TEX_TYPE(0) && eInType_ < CTT_END ) ? eInType_ : CTT_END;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+			/// R1 play-test 1 (2026-10-17): June's CartoonRimLight_*.bmp are 256x8 additive rim overlays (black except the far edge), not 16x1 cel ramps,
+			/// so binding one in the cel stage turns units black. Until R2 binds the rim ramp in stage 2 the June way, the Ranox stand-in keeps the
+			/// tint it had before R1 (CartoonSkyBlue.bmp) for CTT_RIM_LIGHT_BLUE, and the other rim types stay disabled as they were (out of range).
+			if( CTT_RIM_LIGHT_BLUE == m_eRimLightOverrideTexType )
+				m_eRimLightOverrideTexType = CTT_SKYBLUE;
+			else if( m_eRimLightOverrideTexType >= CTT_RIM_LIGHT_WHITE && m_eRimLightOverrideTexType < CTT_END )
+				m_eRimLightOverrideTexType = CTT_END;
+#endif SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 		}
 		CARTOON_TEX_TYPE GetRimLightTexType() const { return m_eRimLightOverrideTexType; }
 #endif SERV_IRUHADEV_RANOX_RIM_LIGHT

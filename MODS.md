@@ -304,7 +304,7 @@ What each one does:
   authored.
 - **`SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX`** (june-engine R1, 2026-10-17) -- puts the C++ `CARTOON_TEX_TYPE` on June's numbering (RED 1 -> 4 ..
   SCARLET 9 -> 12, six `CTT_RIM_LIGHT_*` 13-18, `CTT_END` 19) and loads June's 20 ramps. With the flag on, the Ranox stand-in above uses June's
-  `CTT_RIM_LIGHT_BLUE = 15` / `CartoonRimLight_Blue.bmp` (not `CartoonSkyBlue.bmp`) until R2 binds the rim ramp the June way.
+  `CTT_RIM_LIGHT_BLUE = 15`, mapped back to the `CartoonSkyBlue.bmp` ramp (the rim maps are overlays, black as a cel ramp) until R2 binds the rim ramp the June way.
   **Revert both together:** comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; and restore data036 `Enum.lua`'s
   `CARTOON_TEX_TYPE` table (`kom_backup_tools\data036.kom.20261017_192311` holds the pre-R1 archive; `/x2-kom-packed copy data036` from a
   repacked kom). data042's 10 added ramps are inert with the flag off. Flag on + old `Enum.lua`, or flag off + new `Enum.lua`, mis-indexes ramps.

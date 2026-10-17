@@ -409,9 +409,8 @@ of the list plus the June-only functions found; columns verdict / owner / eviden
 - **Renderer** (`KTDGXRenderer.cpp`): ctor / dtor loop all 20 slots (R0b's dtor note). `OnResetDevice` loads June's 20 ramps in June's order
   (`31d3f8c1-31d3fd50`, slot 19 = `CartoonDamage_Raid.bmp`) with the original loading in `#else`. A missing ramp logs once per name:
   `[JUNE_ENGINE] CTT ramp <i> missing: <file>`; one summary line `[JUNE_ENGINE] CTT ramps loaded N/20 (CTT_END 19, RIM_LIGHT_BLUE 15)` (ErrorLog.txt).
-- **Ranox stand-in:** untouched code; with the flag its `CTT_RIM_LIGHT_BLUE` is June's 15, so `BeginRender`'s CTT_NORMAL substitution now binds
-  `CartoonRimLight_Blue.bmp` (256x8 rim map) in cel stage 1 where it used `CartoonSkyBlue.bmp` (16x1). Wanted by the plan; R2 binds the rim ramp
-  in stage 2 the June way. If the tint looks wrong in check 3, that is the reason, not a transcription error.
+- **Ranox stand-in:** `CTT_RIM_LIGHT_BLUE` is June's 15, but the rim map cannot be a cel ramp (see Play-test 1), so the stand-in is mapped to the
+  `CTT_SKYBLUE` ramp until R2.
 - **Sweep (raw-int CTT uses): none needing a fix.** Every C++ store is a `CTT_*` symbol (units, NPC, pet, riding pet, world object, buff
   displayer, particle, eqip, unit viewer) or a Lua `CARTOON_TEX_TYPE.<name>` through `LUA_GET_VALUE_ENUM` / `static_cast`, so they follow the enum and
   `Enum.lua`. `X2World::SetRimLightTextureIndex` casts the Lua int, valid 0..18 (19 = disabled sentinel, as before). June's 120 `.lua`
@@ -426,6 +425,11 @@ Hygiene: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other f
 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
 Deploy: `DEPLOY OK: X2_offline.exe is 19,760,640 B, dated 2026-10-17 19:24:04, md5 08737e3d17e9a597dc927df175864325, equal to X2/US_SERVICE/x2.exe (2026-10-17 19:23:58); built at main 7ccddf89 + 3 uncommitted code file(s).` The
 three new literals (`CartoonRimLight_Blue.bmp`, `CartoonDamage_Raid.bmp`, the two `[JUNE_ENGINE] CTT` strings) are in the exe.
+
+**Play-test 1 (2026-10-17): check 3 FAILED, units and boss black.** Cause: June's `CartoonRimLight_*.bmp` are 256x8 additive rim overlays (black except the
+far edge), not cel ramps; binding one in cel stage 1 multiplies units to black. Fix (same flag, `SetRimLightTexType` in `KTDGXRenderer.h`): the Ranox stand-in maps
+`CTT_RIM_LIGHT_BLUE` to `CTT_SKYBLUE` (its pre-R1 tint), other rim types stay disabled as before R1. R2 binds the rim ramp in stage 2 and removes this mapping.
+Redeploy: `DEPLOY OK: X2_offline.exe is 19,760,640 B, dated 2026-10-17 19:43:39, md5 0f3a14452992575ffd46e3d4c68773e2, equal to X2/US_SERVICE/x2.exe (2026-10-17 19:43:33); built at main 02ddf7b3 + 1 uncommitted code file(s).` Re-test check 3 only.
 
 **Play-test (user, Freils uid 18, Chung Tactical Trooper; tag `[JUNE_ENGINE] CTT`):** all three checks need exe + data036 + data042 live (they are).
 1. *Start-up.* Launch `start_offline.bat`, reach character select, quit. Look for `[JUNE_ENGINE] CTT ramps loaded 20/20` in ErrorLog.txt and no `ramp ... missing`.
