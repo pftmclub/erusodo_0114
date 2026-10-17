@@ -1303,6 +1303,8 @@ Freils 361 +10, Iivue 579 +0, ravbe 735 +0): reyaa's Grendized Alterasia Type-B 
 until P4a (March: 11Gang). `python tools/logs.py --grep "JUNE_ENGINE] EQSKIN"`: `EQSKIN stage2 InitAttatchAnim item <id> level <n> tex <name> loaded`
 (`MISSING` for 13Gang). Skin equipment and awakening look as before (no division-item groups loaded yet).
 
+**Play-test 2026-10-18: PASSED** (user: all checks normal, awakening via `SetHyperModeCount( 3 )`). Log (exe md5 3f645dcc, main 21783037, contains R14): 40 `EQSKIN stage2` lines, ErrorLog.txt 821-1074: reyaa item 111870 +7 `Gate_Protect_G01.tga loaded` (821), Freils 111199 +9 `11Gang_Protect.tga loaded` (895), Iivue 116934 +11 `11Gang_Protect.tga loaded` (927), ravbe 131644 +13 `13Gang_Protect.tga MISSING` (979, as expected until P4a); each fashion weapon's ChangeEnchantLevel line matches (133441, 41200, 229990, 131649); 0 EXCEPTION.
+
 ## Phase R14b - Attach-anim equipment init (June rework)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM` (an RE pass
