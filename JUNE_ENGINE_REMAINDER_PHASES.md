@@ -1768,6 +1768,48 @@ has no such block. Map `32ef68b0` whole against March, then port it whole (rule 
   them as March does. If June guards, port the whole function (rule 1). If not, June's game showed this too: add a JUNE_BUGS row and ask the
   user (memory `keep-june-bugs-verbatim-without-asking`: a verbatim result the June game never showed is a port gap).
 
+### Phase W1e -- Done
+
+**2026-10-18, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK` (`Always.h`; renamed from the proposed `_FAR_LINK`: June's rule is
+about the link's type, not its length) plus the short-lived `_DEBUG`. Commit: `git log -S SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK`. Funcmap rows `(W1e)`.
+
+**Map: June guards; it does not follow blindly, and it rebuilds nothing.** `AddLine_LUA` (`31c705c0`) reads `BEFORE_LINE` / `NEXT_LINE` as given
+(+0x1c / +0x20, default -1). The gate is in `CanDown` (`31c6c310`, `ret 0x2c`), read from the disassembly (`[EBP+0x28]` = `bIsMonster`). Every place
+March switches to a link, June adds `lineType == 7` (`LT_MONSTER_ROAD`) `&& bIsMonster`:
+- the loop, linked line's type: higher / start `@31c6cbad-31c6cbdb`, higher / end `@31c6e5ee-31c6e620`, lower / start `@31c6f60d-31c6f624`, lower / end
+  `@31c6f6b7-31c6f6d5`. Refused = March's own else (`@31c6e597` / `@31c6f53c`: line i only while `touch` is false; `@31c6f652` / `@31c6f6ff`: line i, pointL2);
+- the no-hit fallback, the **entry** line's own type (`@31c6f7dc`, `@31c6f82a`), behind a bounds test (`@31c6f756` signed, `@31c6f763` unsigned);
+  a NULL entry line returns false (`@31c6f77d`);
+- one more guard: the hit test is skipped without `g_pKTDXApp +0x1c0` (`@31c6c57d`) = `m_pCollision` (ctor `31c17ed0`: viewport zeroed, `new(0x1c)`, device manager, March's order).
+The rest is March's: switch on `lineType - 1` (wall skipped; unit road / jump-up skipped for monsters), the bounding-box precheck, `GetDistance3Sq`
+(`31c7b5c0`) against `0.0001`, March's quirk of `startPos` for a lower-branch next follow, `pos.y < 0` -> false.
+So for a user, June never takes a link in `CanDown`. Elysion line 130 is `LT_NORMAL`, so line 2 keeps the landing: the warp was March's alone.
+- **Walk follower:** June's `IsOnLineConnect` (inlined in the user line helper `32010440`) = March's (any enabled link that is not a
+  monster road, no distance test). It runs only after `CanDown` fails, under `bLandConnect`; unchanged.
+- **Routed to new W1f** (an unowned June branch): the `DROPPABLE_MONSTER_ROAD` line key (`+0xa4`, `@31c716be`; only June's 2017 Valentine
+  maps) with `CanDown`'s 12th argument, and June's separate out line index (`param_8`); both need the 342-site caller map. `32010440 @3201104a`
+  passes March's shape (same index pointer twice, four zeros).
+
+**Port** (`KTDGLineMap.cpp`, insert-only, `#else` = March): the 6 gates, the fallback bounds / NULL test, the collision skip. `_DEBUG`:
+`JuneCanDownLinkLog` before the 4 loop sites.
+
+**Hygiene** (`flagcheck --worktree --files KTDXLIB/KTDGLineMap.cpp --with ..._DEBUG`): 1 PASS (+93), 0 deleted, 0 non-ASCII, 0 EOL-mismatched,
+0 `#else`/`#endif` without token, 0 encoding change; RESULT PASS. Range: RANGE_PENDING.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,872,256 B, dated 2026-10-18 03:21:50, md5 ce79dccff14191fdfb02268e1cd90a81, equal to X2/US_SERVICE/x2.exe (2026-10-18 03:21:45); built at main 60eac05c + 29 uncommitted code file(s).` (A peer's build linked the exe with W1e's files in it; `WORLD far link ` found once in the deployed exe.)
+
+**Play-test hand-off:** see STATUS / the hand-off in this phase's session. Log: `python tools/logs.py --grep "WORLD far link"`.
+
+## Phase W1f - CanDown's June signature and its callers
+
+**Run with:** Opus 5.5 high (map, then port), then a user play-test only if a March map has a droppable monster road. Flag
+`SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE` (proposed). Added by W1e (an unowned June branch). Not alongside W2 or another session editing `KTDGLineMap.*`.
+- **`DROPPABLE_MONSTER_ROAD`:** June `AddLine_LUA` `31c705c0 @31c716be` -> `LineData +0xa4` (bool, default false). `CanDown`'s monster-road case
+  (`@31c6c491-31c6c4ae`) tests the line for a monster, or when `+0xa4` and the 12th argument (`[EBP+0x30]`) are both set. Only the five
+  `2017_Valentine_Stage*_Linemap` files use it.
+- **Out line index:** June reads the entry index from `param_7` (`[EBP+0x1c]`) and writes the result to `param_8` (`[EBP+0x20]`, `@31c6f86c`).
+- **Callers:** 342 June sites; table them (`june2017_re/w1f_candown_callers.tsv`), port the ones that differ from March's shape.
+
 ## Phase W2 - Portal-line markers
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:

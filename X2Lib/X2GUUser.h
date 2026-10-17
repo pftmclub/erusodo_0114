@@ -2604,13 +2604,7 @@ public:
 
 
 		float GetStatAtkRateOfSummoned() const { return m_SkillRelatedData.m_fStatAtkRateOfSummoned; }
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-		const CX2SkillTree::SkillTemplet* GetEquippedActiveSkillTemplet( CX2SkillTree::SKILL_ID eSkillID, bool bUpgradeSwap_ = false ) const;     /// June 31fca8e0: arg 2 is the upgrade swap
-		bool IsEquippedSkillUpgraded( CX2SkillTree::SKILL_ID eSkillID ) const;      /// June 32071e70: is the equipped version of the skill an upgraded one
-		bool IsUpgradedSkillLearned( CX2SkillTree::SKILL_ID eSkillID ) const;       /// June 31fcf3e0: the skill-memo gate of every _ULTIMATE read
-#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 		const CX2SkillTree::SkillTemplet* GetEquippedActiveSkillTemplet( CX2SkillTree::SKILL_ID eSkillID ) const;
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 #ifdef SERV_SKILL_NOTE
 		bool GetEqippedSkillMemo(CX2SkillTree::SKILL_MEMO_ID eMemoId) const;

@@ -4992,23 +4992,7 @@ void CX2DamageManager::ParsingBuffFactorID( KLuaManager& luaManager_, DamageData
 	const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// 322cc1a0 IsPvpOrPve: March has no GT_PVE
 
 	/// 1. the _ULTIMATE gate (31fcf3e0): the skill-memo map is absent here, see the brief
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	/// Phase S2: June 32630d60-32630e0a. A user attacker, or an NPC's master user ( GetOwnerGameUnit 32759f00 ), asks 31fcf3e0( APPLIED_SKILL_ID )
-	bool bUltimate = false;
-	if ( NULL != pAttacker )
-	{
-		CX2GUUser* pUltimateUser = NULL;
-		if ( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
-			pUltimateUser = static_cast<CX2GUUser*>( pAttacker );
-		else if ( CX2GameUnit::GUT_NPC == pAttacker->GetGameUnitType() )
-			pUltimateUser = static_cast<CX2GUNPC*>( pAttacker )->GetOwnerGameUnit();
-
-		if ( NULL != pUltimateUser )
-			bUltimate = pUltimateUser->IsUpgradedSkillLearned( static_cast<CX2SkillTree::SKILL_ID>( pDamageData_->m_iAppliedSkillID ) );
-	}
-#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	const bool bUltimate = false;
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	/// 2. APPLY_LEARNED_SKILL_BUFF_FACTOR_ID
 	bool bFound = false;

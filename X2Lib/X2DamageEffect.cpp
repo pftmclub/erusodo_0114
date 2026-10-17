@@ -1646,25 +1646,6 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 		m_iAppliedSkillID = 0;
 		m_iAppliedSkillIDNotAffectMemo = 0;
 	}
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	// Phase S2, June FUN_31f7aab0 @31f7b3f3-31f7b81f: the owner is the user itself ( unit type 0 ) or an NPC's master user ( 32759f00 );
-	// the id is APPLIED_SKILL_ID, else APPLIED_SKILL_ID_NOT_AFFECT_MEMO; the gate is 31fcf3e0( id ) on that user.
-	{
-		CX2GameUnit* pJuneOwnerUnit = GetOwnerUnit();
-		CX2GUUser* pJuneUltimateUser = NULL;
-		if( NULL != pJuneOwnerUnit )
-		{
-			if( CX2GameUnit::GUT_USER == pJuneOwnerUnit->GetGameUnitType() )
-				pJuneUltimateUser = static_cast<CX2GUUser*>( pJuneOwnerUnit );
-			else if( CX2GameUnit::GUT_NPC == pJuneOwnerUnit->GetGameUnitType() )
-				pJuneUltimateUser = static_cast<CX2GUNPC*>( pJuneOwnerUnit )->GetOwnerGameUnit();
-		}
-
-		const int iJuneAppliedSkillID = 0 != m_iAppliedSkillID ? m_iAppliedSkillID : m_iAppliedSkillIDNotAffectMemo;
-		if( NULL != pJuneUltimateUser && 0 != iJuneAppliedSkillID )
-			m_bUseUltimateDamageData = pJuneUltimateUser->IsUpgradedSkillLearned( static_cast<CX2SkillTree::SKILL_ID>( iJuneAppliedSkillID ) );
-	}
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_IRUHADEV_OFFLINE
 	// Code review fix: this needs CX2OfflineLog, which only exists under SERV_IRUHADEV_OFFLINE.
 	if( 0 != m_iAppliedSkillID || 0 != m_iAppliedSkillIDNotAffectMemo )

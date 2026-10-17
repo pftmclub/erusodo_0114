@@ -6378,19 +6378,8 @@ void CX2GUUser::SetEquippedSkillLevelCommon( const CX2Unit::UnitData& kUnitData_
 }
 
 
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-const CX2SkillTree::SkillTemplet* CX2GUUser::GetEquippedActiveSkillTemplet( CX2SkillTree::SKILL_ID eSkillID, bool bUpgradeSwap_ ) const
-#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 const CX2SkillTree::SkillTemplet* CX2GUUser::GetEquippedActiveSkillTemplet( CX2SkillTree::SKILL_ID eSkillID ) const
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 {
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	/// June 31fca8e0: no CX2Unit -> 0; arg 2 -> the upgrade swap 328905b0 on the id first
-	if( NULL == GetUnit() )
-		return NULL;
-	if( true == bUpgradeSwap_ )
-		eSkillID = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( eSkillID );
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
 
 	bool bSlotB = false;
@@ -6424,24 +6413,6 @@ const CX2SkillTree::SkillTemplet* CX2GUUser::GetEquippedActiveSkillTemplet( CX2S
 	return pSkillTemplet;
 }
 
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-/// June 32071e70: GetEquippedActiveSkillTemplet( id, swap ) non-null with +0x178 != 0
-bool CX2GUUser::IsEquippedSkillUpgraded( CX2SkillTree::SKILL_ID eSkillID ) const
-{
-	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID, true );
-	return NULL != pSkillTemplet && 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade;
-}
-
-/// June 31fcf3e0: no CX2Unit or no skill tree -> false; the id through the upgrade swap 328905b0, then GetSkillTemplet( result ) +0x178 != 0
-bool CX2GUUser::IsUpgradedSkillLearned( CX2SkillTree::SKILL_ID eSkillID ) const
-{
-	if( NULL == GetUnit() || NULL == g_pData || NULL == g_pData->GetSkillTree() )
-		return false;
-
-	const CX2SkillTree::SKILL_ID eSwapped = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( eSkillID );
-	return g_pData->GetSkillTree()->IsUpgradedSkill( eSwapped );
-}
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_SKILL_NOTE
 bool CX2GUUser::GetEqippedSkillMemo(CX2SkillTree::SKILL_MEMO_ID eMemoId) const
 {	
@@ -15314,13 +15285,7 @@ void CX2GUUser::CommonStateStartFuture()
 	/// SPEED_TIME when that gate is off or ULTIMATE has no entry. March's templets have no m_DeleteSkillIDByUpgrade and no 328905b0 swap,
 	/// so the gate is off, like the other _ULTIMATE gates ( SERV_IRUHADEV_JUNE_BUFF_FACTOR_ID, SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE );
 	/// backlog Stage 3c. The MINOR_UNIT_SPEED_TIME(_ULTIMATE) twins are Lu/Ciel's ( checklist 7o ) and are not read.
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	/// Phase S2: June's gate ( 31fe3a60 ): the equipped version ( upgrade swap ) of the Future state's skill is an upgraded skill
-	const CX2SkillTree::SkillTemplet* pJuneSpeedSkillTemplet = GetEquippedActiveSkillTemplet( GetFutureStateSkillID(), true );
-	const bool bJuneSpeedTimeUltimate = NULL != pJuneSpeedSkillTemplet && 0 != pJuneSpeedSkillTemplet->m_iDeleteSkillIDByUpgrade;
-#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	const bool bJuneSpeedTimeUltimate = false;	/// = templet && templet->m_DeleteSkillIDByUpgrade != 0 ( field absent in March )
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	if ( false == bJuneSpeedTimeUltimate || false == JuneParseSpeedTimeList( m_LuaManager, "SPEED_TIME_ULTIMATE", m_vecSpeedFactor ) )
 		JuneParseSpeedTimeList( m_LuaManager, "SPEED_TIME", m_vecSpeedFactor );
 #else SERV_IRUHADEV_JUNE_SPEED_TIME

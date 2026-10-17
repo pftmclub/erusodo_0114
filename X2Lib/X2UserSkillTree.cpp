@@ -583,15 +583,11 @@ void CX2UserSkillTree::SetUnsealedSkill( const std::vector<short>& vecUnsealedSk
 	@param[in]	스킬 ID, 추가된 스킬 효과( 캐시 포인트, 소켓, 버프 ) 적용 여부
 	@return		스킬 레벨
 */
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-int CX2UserSkillTree::GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBaslcLevel /*= false*/, USHORT usPageNumber_ /*= 0*/, bool bUpgradeSwap_ /*= false*/ ) const
-#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SKILL_PAGE_SYSTEM //JHKang
 int CX2UserSkillTree::GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBaslcLevel /*= false*/, USHORT usPageNumber_ /*= 0*/ ) const
 #else //SKILL_PAGE_SYSTEM
 int CX2UserSkillTree::GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBaslcLevel /*= false*/ ) const
 #endif //SKILL_PAGE_SYSTEM
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 {
 	KTDXPROFILE();
 
@@ -616,11 +612,6 @@ int CX2UserSkillTree::GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBasl
 	}
 	//}} oasis907 : 김상윤 //// 2009-11-16 //// 
 #endif GUILD_SKILL
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	/// June 328906d7: a base id resolves to its "[Enhanced]" skill once that one is learned
-	if( true == bUpgradeSwap_ )
-		eSkillID = GetUpgradeSwappedSkillID( eSkillID );
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	#ifdef SKILL_PAGE_SYSTEM //JHKang
 	if( m_vecSkillDataMap.empty() == true )
@@ -666,17 +657,9 @@ int CX2UserSkillTree::GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBasl
 	@param[in]	스킬 ID
 	@return		스킬 템플릿
 */
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-const CX2SkillTree::SkillTemplet* CX2UserSkillTree::GetUserSkillTemplet( CX2SkillTree::SKILL_ID eSkillID, bool bUpgradeSwap_ ) const
-#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 const CX2SkillTree::SkillTemplet* CX2UserSkillTree::GetUserSkillTemplet( CX2SkillTree::SKILL_ID eSkillID) const
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 {
 	KTDXPROFILE();
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	if( true == bUpgradeSwap_ )
-		eSkillID = GetUpgradeSwappedSkillID( eSkillID );    /// June 3289073b
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	//// passive skill 에만 사용해야 한다. active skill은 getequippedactiveskill()함수를 써야함
 	//ASSERT( NULL == g_pData->GetSkillTree()->GetSkillTemplet( eSkillID, 1 ) ||
@@ -716,30 +699,6 @@ const CX2SkillTree::SkillTemplet* CX2UserSkillTree::GetUserSkillTemplet( CX2Skil
 }
 //}} oasis907 : 김상윤 //// 2009-11-18 ////
 
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-/** @function	GetUpgradeSwappedSkillID
-	@brief		June 328905b0: the acquired map ( the current page ) empty -> the id; otherwise the "[Enhanced]" skill of the id ( SkillTree
-				upgrade map 32205c00 ), kept when that skill is acquired, else the id
-*/
-CX2SkillTree::SKILL_ID CX2UserSkillTree::GetUpgradeSwappedSkillID( CX2SkillTree::SKILL_ID eSkillID ) const
-{
-	if( true == m_vecSkillDataMap.empty() || m_usUsingPage >= m_vecSkillDataMap.size() )
-		return eSkillID;
-
-	const SkillDataMap& mapAcquired = m_vecSkillDataMap[ m_usUsingPage ];
-	if( true == mapAcquired.empty() )
-		return eSkillID;
-
-	int iUpgraded = static_cast<int>( eSkillID );
-	if( NULL != g_pData && NULL != g_pData->GetSkillTree() )
-		iUpgraded = g_pData->GetSkillTree()->GetUpgradedSkillID( static_cast<int>( eSkillID ) );
-
-	if( 0 < iUpgraded && mapAcquired.end() != mapAcquired.find( static_cast<CX2SkillTree::SKILL_ID>( iUpgraded ) ) )
-		return static_cast<CX2SkillTree::SKILL_ID>( iUpgraded );
-
-	return eSkillID;
-}
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef GUILD_SKILL
 //{{ oasis907 : 김상윤 //// 2009-11-18 ////
 /** @function	GetSkillLevel

@@ -401,31 +401,6 @@ is `m_eID = 7004`, "Dragon Stance 4: Moonlight Slash", `...XX↓X[X]]` printed a
 **Done gate:** March data loads unchanged (log counts equal the pre-port counts); the June-file scratch counts match; flagcheck
 PASS; `DEPLOY OK`.
 
-**Done note (2026-10-18, Sonnet 5.5 high): S2 built + deployed, play-test pending.** Flag `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` (+ short-lived `_DEBUG`), tag `[JUNE_SKILL] LOAD`.
-No kom, data or save change. Revert and the full list of changes: `MODS.md` "June skill templet loader". Funcmap: 7 rows `(S2)`.
-- **Loader.** `AddSkillTemplet_LUA` returns `AddSkillTemplet_JuneLUA()` (March's body stays as dead code, reachable only by the debug compare). Every amendment-1 point is in:
-  no padding (fill 0), empty SA table not inserted, `IN_HOUSE_TEST_ONLY` drop, duplicate keeps the first and returns true, `m_ExtraIconInfo<n>`, `m_DeleteSkillIDByUpgrade` + upgrade map,
-  `NUMERICAL_DATA<n>` (rows `{value, pvp, tech, hit_add_mp}`, side arrays clamped), SA 143-202 (60 enumerators, `SA_END` = 203, `C_ASSERT`s pin 142/173/202/203), `SPRT_HYPER_CLASS` = 5.
-  The SA tables run from a table copied from `s0a_templet_keys.tsv`; `SA_TEAM_ATK_MAGIC_REL` -> 13 kept (JUNE_BUGS 272).
-- **Two deliberate supersets of June (flagged here, S3 removes them with the data flip).** (1) `AddSkillTreeTemplet_LUA` keeps reading `m_iPrecedingSkill`: June dropped the read, but June's data
-  has it on 0 unit rows (no-op on June data) while March's data would lose every prerequisite. (2) `AddSealSkillInfo` reads `m_iItemIDList` and falls back to the scalar `m_iItemID`.
-  The amendment-8 "exactly four points" therefore holds for the templet parser; these two are the only other places March data meets a June rule.
-- **Already identical to March, no change:** guild tree parser, `AddSkillPowerRate_LUA` / `SetSkillPowerRate` (30-entry rule), `AddDefaultSkill_LUA`, OpenScriptFile's load order (no Trans file: `LUA_TRANS_DEVIDE` is off).
-  Lua `OpenScriptFilePostProcess` is bound to a no-op; `IsMyClassSkillID_LUA` and `GetMaxLimitedSkillLevel_LUA` were already bound.
-- **Lookups and gates.** `GetUpgradedSkillID` (32205c00), `GetUpgradeSwappedSkillID` (328905b0, current page's acquired map) with a trailing `bUpgradeSwap_` (default false) on `GetSkillLevel`,
-  `GetUserSkillTemplet`, `CX2GUUser::GetEquippedActiveSkillTemplet`; `IsEquippedSkillUpgraded` (32071e70), `IsUpgradedSkillLearned` (31fcf3e0); `GetSkillPowerRateValue` reads SA 173 for an upgraded skill;
-  `GetSkillAbilityValue` is numerical-first (+ a 3-argument overload with the PvP flag). Gates: `SPEED_TIME_ULTIMATE`, `ParsingBuffFactorID`, DamageEffect ctor (owner user or NPC master, id = `APPLIED_SKILL_ID` else `_NOT_AFFECT_MEMO`).
-  The other ~35 June callers of the swap are class / UI / gage code (S5, S7, character ports) and keep the default.
-- **Debug (`_DEBUG`).** After the real load: (A) March's file through March's own parser into a throw-away tree, compared field by field with the real (June-parser) tree; (B) June's `june_src_fixed/.../NewSkillTempletVer2.src.lua`
-  read from disk into another throw-away tree. Plus per-skill `pad` lines at load and `reach` lines when play reads a level past a short array.
-- **Hygiene (`flagcheck --worktree --files` on the 9 code files):** `files: 9 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
-- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,872,256 B, dated 2026-10-18 03:21:50, md5 ce79dccff14191fdfb02268e1cd90a81, equal to X2/US_SERVICE/x2.exe (2026-10-18 03:21:45); built at main 60eac05c + 29 uncommitted code file(s).`
-  (another session's build compiled this tree first; the exe holds the `[JUNE_SKILL] LOAD` strings.)
-- **How to see it:** `python tools/logs.py --grep "JUNE_SKILL"` after a launch to the character screen or any town. Expected, in `offline_server.log`: `LOAD templets=521 ...`, `LOAD rules: ...`, `LOAD pad id=...` lines,
-  `LOAD cmp march-parser vs june-parser ... unexpected=0`, `LOAD cmp tree rows N / N ( row diffs 0 )`, `LOAD june-file templets=2346 tree_rows=3360 guild_rows=12`.
-- **Gate for the review:** `unexpected=0`; the `pad` / `reach` lines decide whether March data needs the "June's rule applied to March data" wording (amendment 8). Checks that need a class skill in play are unchanged paths (no templet has `+0x178`), so one dungeon run is enough.
-- **Open for the review:** the exact June order of the `AddSkillTemplet` scalar keys relative to the upgrade-map insert is by tsv, not by the binary; the CEffect-ctor gate's owner rule was read from the disassembly (`@31f7b3f3-31f7b81f`).
-
 ## Phase S3 - The flip: June skill data and the save migration
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_REFORM`. Sub-tag `[JUNE_SKILL] MIG`.

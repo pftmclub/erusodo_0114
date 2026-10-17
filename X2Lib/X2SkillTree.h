@@ -1728,70 +1728,6 @@ public:
 		SA_PROJECTILE_CURVE_SPEED_REL,			/// 커브 스피드를 조절 해주는 배율
 		SA_DP_GAIN_REL,							/// DP 획득량 배율
 		SA_DP_USE_REL,							/// DP 소모량 배율
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-		/// June SA ids 143-202 ( june2017_re/s0a_templet_keys.tsv ); SA_END is June's name table size ( 203 )
-		SA_MP_CONSUMPTION,							/// June 143
-		SA_PROJECTILE_RANGE_REL_2,							/// June 144
-		SA_OVERHEAT_HP_PVP,							/// June 145
-		SA_DECREASE_REL_2,							/// June 146
-		SA_WAY_OF_SWORD_POINT_MULTIPLIER,							/// June 147
-		SA_COOLTIME_1,							/// June 148
-		SA_COOLTIME_2,							/// June 149
-		SA_COOLTIME_3,							/// June 150
-		SA_MP_GAIN_ON_HIT_REL_2,							/// June 151
-		SA_MP_GAIN_ON_HIT_REL_3,							/// June 152
-		SA_USE_DP_REL_AT_FORMATION_MODE,							/// June 153
-		SA_RECOVERY_VALUE_REL,							/// June 154
-		SA_ADD_MP_VALUE_ABS,							/// June 155
-		SA_ADD_DP_VALUE_ABS,							/// June 156
-		SA_SCOPE_ABS_PVP,							/// June 157
-		SA_SCOPE_ABS_Y,							/// June 158
-		SA_SCOPE_ABS_Z,							/// June 159
-		SA_MP_REGENERATION_ABS_PVP,							/// June 160
-		SA_ATK_PHYSIC_REL_PVP,							/// June 161
-		SA_ATK_MAGIC_REL_PVP,							/// June 162
-		SA_DEF_PHYSIC_REL_PVP,							/// June 163
-		SA_DEF_MAGIC_REL_PVP,							/// June 164
-		SA_TEAM_ATK_PHYSIC_REL_PVP,							/// June 165
-		SA_TEAM_ATK_MAGIC_REL_PVP,							/// June 166
-		SA_TEAM_DEF_PHYSIC_REL_PVP,							/// June 167
-		SA_TEAM_DEF_MAGIC_REL_PVP,							/// June 168
-		SA_TIME_ABS,							/// June 169
-		SA_SOUL_ABS,							/// June 170
-		SA_MAX_HP_REL_PVP,							/// June 171
-		SA_RECOVER_MP_ABS_2,							/// June 172
-		SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE,							/// June 173
-		SA_MAX_INCREASE_MOVEMENT_BY_MANA,							/// June 174
-		SA_MIN_INCREASE_MOVEMENT_BY_MANA,							/// June 175
-		SA_CHAIN_SKILL_ANI_SPEED_REL,							/// June 176
-		SA_HIT_COUNT_1,							/// June 177
-		SA_HIT_COUNT_2,							/// June 178
-		SA_HIT_COUNT_3,							/// June 179
-		SA_FORCE_DOWN_GAIN_REL,							/// June 180
-		SA_MUTATION_CONSUME_MAX_COUNT,							/// June 181
-		SA_DAMAGED_REL_PVP,							/// June 182
-		SA_ECP_REL,							/// June 183
-		SA_SUMMON_ALL_STAT_REL,							/// June 184
-		SA_ADD_LEARN_SKILL_LIST_1,							/// June 185
-		SA_ADD_LEARN_SKILL_LIST_2,							/// June 186
-		SA_ADD_LEARN_SKILL_LIST_3,							/// June 187
-		SA_FP_CANCEL_SKILL,							/// June 188
-		SA_ATK_PHYSIC_INCREASE_BY_ADDITIONALATTACK,							/// June 189
-		SA_NOT_EQUIP_WITH_SKILLID_SAME_TIME,							/// June 190
-		SA_FP_UP_ABS,							/// June 191
-		SA_FP_DOWN_ABS,							/// June 192
-		SA_EFFECTIVE_VALUE_REL,							/// June 193
-		SA_CRITICAL_REL,							/// June 194
-		SA_CRITICAL_DAMAGE_REL,							/// June 195
-		SA_MAXIMIZE_REL,							/// June 196
-		SA_DEGREE_X,							/// June 197
-		SA_DEGREE_Y,							/// June 198
-		SA_DEGREE_Z,							/// June 199
-		SA_DEGREE_MAX,							/// June 200
-		SA_DFG_GAIN_REL,							/// June 201
-		SA_DFG_CONSUME_REL,							/// June 202
-		SA_END,
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 		// XSLSkillTree.h에도 추가해주세요~
 	};																		
 																			
@@ -2061,9 +1997,6 @@ public:
 		SPRT_SECOND_CLASS,			/// 2차전직
 		SPRT_SECOND_CLASS2,			/// 2차전직2 (후반 스킬) 
 		SPRT_HYPER_SKILL,			/// 각성기
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-		SPRT_HYPER_CLASS,           /// June 5: the hyper-class power-rate row
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 		SPRT_END,
 	};
 
@@ -2128,31 +2061,6 @@ public:
 		SKILL_POWER_RATE_TYPE		m_eJunePowerRateType;	/// June templet +0x174 m_ePowerRate (32216320 @32217cbb). March reads the
 															/// key but keeps it only under SKILL_LEVEL_UP_BY_POWER_RATE_TYPE (off here)
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-		/// June 32216320 NUMERICAL_DATA<n> element ( 0x48 B in a vector at templet +0x17c ); rows are 16 B { value, pvp rate, tech point, hit add mp }
-		struct JuneNumericalRow
-		{
-			float   m_fValue;
-			float   m_fPvpRate;
-			float   m_fTechPoint;
-			float   m_fHitAddMP;
-		};
-		struct JuneNumericalData
-		{
-			wstring                     m_wstrName;         /// m_wstrName ( an SA_* name for the ability lookup )
-			wstring                     m_wstrParamType;    /// m_ParamType, default L"i" ( unused by the damage override )
-			vector<JuneNumericalRow>    m_vecRow;
-		};
-		int                                 m_iDeleteSkillIDByUpgrade;  /// June +0x178 m_DeleteSkillIDByUpgrade: the base skill this one replaces once learned
-		vector<JuneNumericalData>           m_vecJuneNumericalData;     /// June +0x17c
-		vector< std::pair<wstring, wstring> >   m_vecExtraIconInfo;     /// June +0x88: ( m_wstrTextureName, m_wstrTexturePieceName ) of m_ExtraIconInfo<n>
-
-		static void JuneGetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ );     /// 320716c0
-		const JuneNumericalData* JuneFindNumericalData( const WCHAR* pwszName_ ) const;                                 /// 3221e930
-		bool JuneGetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;
-		bool JuneTryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;     /// 32206fb0
-		float GetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_ ) const;                         /// 32206e50
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013
 
@@ -2164,10 +2072,6 @@ public:
 			const int iIndex = iLevel - 1;
 			if ( 0 <= iIndex && static_cast<int>( m_vecRequireCharacterLevel.size() ) > iIndex )
 				return m_vecRequireCharacterLevel[iIndex]; 
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			if ( false == m_vecRequireCharacterLevel.empty() )
-				CX2SkillTree::JuneLogShortArrayReach( static_cast<int>( m_eID ), 2, iLevel, static_cast<int>( m_vecRequireCharacterLevel.size() ) );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 			return 0;
 		}
@@ -2191,15 +2095,6 @@ public:
 		*/
 		const float GetSkillPowerRateValue( int iLevel ) const
 		{
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-			/// June 32071720: an upgraded skill ( m_DeleteSkillIDByUpgrade != 0 ) takes its power rate from SA 0xad first
-			if ( 0 != m_iDeleteSkillIDByUpgrade )
-			{
-				float fUltimatePowerRate = 0.f;
-				if ( true == JuneTryGetSkillAbilityValue( SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE, iLevel, false, fUltimatePowerRate ) )
-					return fUltimatePowerRate;
-			}
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 			const int iIndex = iLevel - 1;
 			if ( 0 <= iIndex && static_cast<int>( m_vecPowerRate.size() ) > iIndex )
 				return m_vecPowerRate[iIndex];
@@ -2236,10 +2131,6 @@ public:
 			const int iIndex = iLevel - 1;
 			if ( 0 <= iIndex && static_cast<int>( m_vecMPConsumption.size() ) > iIndex )
 				return m_vecMPConsumption[iIndex];
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			if ( false == m_vecMPConsumption.empty() )
-				CX2SkillTree::JuneLogShortArrayReach( static_cast<int>( m_eID ), 1, iLevel, static_cast<int>( m_vecMPConsumption.size() ) );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 			return 0.f;
 		}
@@ -2252,10 +2143,6 @@ public:
 			const int iIndex = iLevel - 1;
 			if ( 0 <= iIndex && static_cast<int>( m_vecSkillCoolTime.size() ) > iIndex )
 				return m_vecSkillCoolTime[iIndex];
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			if ( false == m_vecSkillCoolTime.empty() )
-				CX2SkillTree::JuneLogShortArrayReach( static_cast<int>( m_eID ), 0, iLevel, static_cast<int>( m_vecSkillCoolTime.size() ) );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 			return 0.f;
 		}
@@ -2265,14 +2152,6 @@ public:
 		*/
 		float GetSkillAbilityValue( CX2SkillTree::SKILL_ABILITY_TYPE eType, int iLevel ) const 
 		{
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-			/// June 32206e50: a NUMERICAL_DATA block named after the ability wins over the +0x164 map
-			{
-				float fNumerical = 0.f;
-				if ( true == JuneGetNumericalAbilityValue( eType, iLevel, false, fNumerical ) )
-					return fNumerical;
-			}
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 			//ASSERT( false == m_mapSkillAbility.empty() );
 			
 			std::map< CX2SkillTree::SKILL_ABILITY_TYPE, vector<float> >::const_iterator it = m_mapSkillAbility.find( eType );
@@ -2381,9 +2260,6 @@ public:
 	#ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		,m_eJunePowerRateType(SPRT_NONE)
 	#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
-	#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-		,m_iDeleteSkillIDByUpgrade( 0 )
-	#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 		{
 			m_vecBuffFactorPtr.clear();
 			m_mapSkillAbility.clear();
@@ -2539,22 +2415,6 @@ public:
 
 	// oasis907 : 김상윤 [2009.11.25] // 본섭 파싱 위해 이동
 	bool AddGuildSkillTreeTemplet_LUA(); //{{ oasis907 : 김상윤 //// 2009-11-12 //// 
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	bool    AddSkillTemplet_JuneLUA();                                  /// June 32216320
-	void    OpenScriptFilePostProcessLua() {}                           /// June binds the Lua name OpenScriptFilePostProcess to a bare RET ( 31f3f070 )
-	int     GetUpgradedSkillID( int iSkillID_ ) const;                  /// June 32205c00: the "[Enhanced]" skill of a base skill, or -1
-	bool    IsUpgradedSkill( SKILL_ID eSkillID_ ) const;                /// June 32206d00
-	SKILL_ID GetUpgradeBaseSkillID( SKILL_ID eSkillID_ ) const;         /// June 32207210
-	static const WCHAR* GetSkillAbilityName( int iType_ );              /// June g_SkillAbilityName
-	static void JuneLogShortArrayReach( int iSkillID_, int iKind_, int iLevel_, int iSize_ );
-	void    JuneSetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_TYPE eSkillAbility_, SkillTemplet* pSkillTemplet_, const char* pszKey_ );   /// 3220b740
-	void    JuneLogShortArray( int iSkillID_, int iKind_, int iSize_ );
-	void    JuneLogLoadSummary();
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	void    JuneScratchLoad( const WCHAR* pFileName_, const WCHAR* pSkillDataFileName_ );
-	void    JuneCompareTrees( CX2SkillTree& marchTree_ );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	int GetMaxSkillLevel( int iUnitClass, SKILL_ID eSkillID );
 
@@ -2803,30 +2663,4 @@ private:
 #ifdef SERV_SUB_QUEST_LEARN_NEW_SKILL
 	vector<int>	m_vecNowLearnSkill;
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-	struct JuneLoadStats
-	{
-		int     m_iNumericalBlock;
-		int     m_iExtraIcon;
-		int     m_iEmptySASkipped;
-		int     m_iDuplicate;
-		int     m_iInHouseDropped;
-		int     m_iShortCoolTime;
-		int     m_iShortMP;
-		int     m_iShortReqLevel;
-		std::set<std::string>   m_setKeysSeen;
-
-		JuneLoadStats()
-			: m_iNumericalBlock( 0 ), m_iExtraIcon( 0 ), m_iEmptySASkipped( 0 ), m_iDuplicate( 0 ), m_iInHouseDropped( 0 )
-			, m_iShortCoolTime( 0 ), m_iShortMP( 0 ), m_iShortReqLevel( 0 )
-		{}
-	};
-
-	std::map<int, int>  m_mapUpgradeSkill;      /// June CX2SkillTree +0x20: base skill id -> "[Enhanced]" skill id ( filled by m_DeleteSkillIDByUpgrade )
-	JuneLoadStats       m_JuneLoadStats;
-	bool                m_bJuneScratch;         /// a throw-away debug tree: no buff factor parse
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	bool                m_bJuneMarchParser;     /// debug: this tree runs March's AddSkillTemplet_LUA body
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 }; // class CX2SkillTree
