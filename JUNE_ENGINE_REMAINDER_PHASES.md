@@ -200,6 +200,8 @@ type 3 world `+0x18c/+0x190`, types 4-8 game / unit actions. Loader, Lua keys an
 | R8 | DG manager render lists: state blocks, over-UI chains, front-UI dialog bands, batching, state-manager reset (added by R0b) | Opus 5.5 high (map, then port) + review | yes | yes |
 | R9 | Render small deltas: particle RT_ADD_*, effect alpha (RHW, skin), `+0x1ac`, outline clamp, state-manager lost device, skin-mesh loads (added by R0b) | Sonnet 5.5 high + Opus review | yes | yes |
 | R10 | Skin-anim playback sweep: the non-render `CKTDGXSkinAnim` functions (added by R0b) | Opus 5.5 high | no | no |
+| R11 | Skin-anim playback and anim-set bookkeeping: play type 3, transition bytes, `+0x294` backup map, mixed-motion list, bone refresh (added by R10) | Sonnet 5.5 high + Opus review | yes | yes |
+| R12 | Skin-anim device ownership: June's reference counting of meshes and XETs, and its callers (added by R10) | Opus 5.5 high (map, then port) + review | yes | yes |
 | U0 | UI framework RE: June's implementation of each U1 gap | Opus 5.5 high | no | no |
 | U1 | UI framework port | Sonnet 5.5 high + review | yes | yes |
 | W0 | World-event timeline RE: loader, data, reach | Opus 5.5 high | no | no |
@@ -215,6 +217,9 @@ environment box fully.
 
 **Order (R0b, 2026-10-17).** R7 and R9 come after R2 (`KTDGXRenderer.cpp`); R8 not alongside R4 (`KTDGManager.*`) or U1 (dialog
 manager); R6 after R2 as before; R10 is read-only and runs now.
+
+**Order (R10, 2026-10-17).** R11 and R12 edit `KTDGXSkinAnim.*`: one at a time, never alongside R6. R12 comes after R11 (both
+change `CleanAnimStructure` and `SetAnimXSkinMesh`).
 
 **Order.** R0, R0b, U0 and W0 can run now, in parallel (read-only). Code: R1 -> R2 -> R3 / R4 / R5 / R6 (R3 needs R2; the others
 need only R0 and touch different files, but run one at a time: they share `KTDGXRenderer.*` / `KTDGXSkinAnim.*` and the build).
@@ -515,6 +520,72 @@ independent). Added by R0b. The items are all mapped in the sweep:
 **Run with:** Opus 5.5 high. No code. Added by R0b: the non-render `CKTDGXSkinAnim` functions (`OnFrameMove` `31d2bd80`, `ChangeAnim`
 with a June 4th play type, transition bytes `+0x854` / `+0x855`, `CleanAnimStructure` with `std::map +0x294`, the dtor), function by
 function as R0b. Funcmap rows `Engine R10`. **Done gate:** every function has a verdict row.
+
+### Phase R10 -- Done
+
+**2026-10-17, Opus 5.5.** No code, no flag, no build. Evidence: `june2017_re/r10_skinanim_sweep.tsv` (39 rows, owner and June
+addresses per row) and 38 funcmap rows `Engine R10`. Verdicts: 26 differ, 10 same, 1 mapped earlier, 1 dead in March
+(`CopyModelFrameStructure`), 1 tool-only (`GetAnimNameList`). March's flags were settled with a `/Zs` probe on KTDXLIB `US_SERVICE`:
+all 16 skin-anim macros are ON (incl. `JIGGLEBONE_TEST`, `ANIMATIONCONTROLLER_FIX`, `FIX_SKIN_ANIM_ONE_WAIT_BUG`, `SEPARATION_MOTION`,
+`MODIFY_AFTER_IMAGE`, `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE`).
+
+**Same:** `Reset`, `BuildCloneFrameStructure` / `List`, `LinkCollisionDataFrame`, `PreLoad`, `Stop`, both `UpdateAnimationFrame`
+recursions (`31d36bd0`, jiggle `31d361c0`, constants checked), `CopyFrame` (`3322a390`, after-image), `IsInModelXSkinMesh` (dead in both).
+
+**June layout (for R11 / R12):** `+0x190` anim mesh, `+0x194` anim XET; `+0x198` / `+0x1a8` / `+0x1b8` / `+0x1c8` / `+0x1d8` model mesh /
+ani XET / ani data / multi-tex / tex-change lists (AddModel push order); `+0x1f0` / `+0x1fc` collision / attack; `+0x254` anim-set vector;
+`+0x264` / `+0x274` / `+0x284` name / index / clone-frame maps; `+0x294` backup map; `+0x2a4` state; `+0x2a8` play type; `+0x84c` jiggle unit
+anim; `+0x850` apply move bone; `+0x852` process flag; `+0x854` / `+0x855` transition bytes; `+0x864` mixed motion names.
+
+**Differences -> R11 (new, playback and anim-set bookkeeping):**
+- Play type 3 (no Lua name, no literal caller) and the transition bytes in `OnFrameMove` and the three `ChangeAnim`s.
+- `ChangeAnim( int )` bounds check; `ChangeAnim( name )` finds without inserting.
+- Lua `SetTransition` (world object) writes June's anim `+0x854`. The local binding of 2026-09-23 (`SERV_IRUHADEV_RANOX_WORLD_METHODS`,
+  `X2Main.cpp:3831`) points it at March's own object member instead; `Ranox_AshesVillage_Stage2.lua` calls it.
+- The `+0x294` backup map (`ResetAnimSet`) and `CleanAnimStructure`'s anim-set release check (KEM 436).
+- `MixAnim`'s mixed-name list `+0x864`. Nothing clears it, so a re-mix after a second `SetAnimXSkinMesh` is skipped (June quirk, keep).
+- `SetAnimXSkinMesh` logs KEM 434 for a mesh without an animation controller; `BuildCloneFrame` gains a NULL guard.
+- `31d29950` refreshes bones without advancing time. Its chain is unported: `CEffect` main-effect scale `31f6fca0` -> `CXMeshInstance` `31c83520`.
+
+**Differences -> R12 (new, device ownership):**
+- June's skin anim holds a device reference on everything it stores:
+  - `AddModelXSkinMesh` AddRefs, unless `bCloseDeviceAtDestructor`; `m_vecAddedSkinMesh` is gone. `AddAnimXSkinMesh` AddRefs too.
+  - `Remove` / `Clear` / `CleanAnimStructure` close.
+  - `CleanAnimStructure( mesh, xet )` swaps the anim mesh and anim XET; the dtor is `CleanAnimStructure( NULL, NULL )`. This resolves R0b's "unsure" dtor.
+- `SetAnimXET` and the four `Replace*XET` take references. Two of them are no-ops in March (they assign a local copy); June fixes both.
+- `ReplaceMultiTexXET( int )` returns void, so `X2Eqip.cpp:2784` / `2822` must stop closing the old XET.
+- `ClearModelXSkinMeshList` also deletes the collision data.
+- `AddModelXSkinMesh` gains `( file, line )` and logs KEM 433 when the frame counts differ.
+- `31d2f250` adds a mesh's collision data only; `CX2GUUser`'s motion init calls it twice, and March has no such call. R12's map decides how it meets March's lists.
+
+**KEM ids:** June adds 433 (AddModel), 434 (`SetAnimXSkinMesh`), 435 (the draw `@31d304ab`, R6) and 436 (`CleanAnimStructure`). March's
+enum ends at 432 (`KTDXErrorDefine.h`); R11 adds the four as one block.
+**Not swept (outside this kickoff):** the header inlines `SetPlaySpeed`, `SetAnimationTime`, the `Predict_*` / `IntervalTimer` timers.
+**Open for the user:** none. Every difference has an owner, and both new phases follow June.
+
+## Phase R11 - Skin-anim playback and anim-set bookkeeping
+
+**Run with:** Sonnet 5.5 high, then an Opus review and a user play-test. Added by R10; every item is mapped in
+`june2017_re/r10_skinanim_sweep.tsv` (owner R11). Flags: `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK` (items 1-2),
+`SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS` (items 3-5), `SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH` (item 6). Not alongside R6 or R12.
+1. **Playback:** the transition bytes `+0x854` (ctor 1) and `+0x855`, play type 3 in `OnFrameMove`, and the three `ChangeAnim`s whole.
+2. **`SetTransition`:** bind the Lua name to June's setter `327f69d0` (anim `+0x854`). First read June's world-object frame move to see
+   what its own `ChangeAnim` calls pass, and port both halves.
+3. **Anim sets:** the `+0x294` backup map, the `CleanAnimStructure` release check and its two log lines, the KEM 433-436 enum block.
+4. **Mixed motions:** the `MixAnim` name list `+0x864`, kept never-cleared, with a `JUNE_BUGS.md` row.
+5. **Small:** the `SetAnimXSkinMesh` KEM 434 log and the `BuildCloneFrame` NULL guard.
+6. **Bone refresh:** `31d29950`, `CXMeshInstance` `31c83520` and the call in the `CEffect` main-effect scale (`31f6fca0` `@31f6fd70`).
+
+## Phase R12 - Skin-anim device ownership
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS`.
+Added by R10; rows with owner R12 in `june2017_re/r10_skinanim_sweep.tsv`. After R11; not alongside R6.
+- **Map first:** each March caller of `AddModelXSkinMesh` (the `bCloseDeviceAtDestructor` cases), `RemoveModelXSkinMesh`,
+  `ReplaceMultiTexXET( int )`, `SetAnimXSkinMesh` and `ClearModelXSkinMeshList`, against June's call site. The goal: no reference
+  closed twice and none leaked. Also March's device AddRef (`+0x48` is a plain int in March; `JuneCloseDeviceByPointer` is ported, Effect C9h-7a).
+- **Port** the ownership model whole: the R12 rows, `CleanAnimStructure( mesh, xet )` and the dtor.
+- **`AddModelXSkinMesh`:** `( file, line )` and the KEM 433 log.
+- **`31d2f250` and its two `CX2GUUser` calls:** port per June once the map shows how June's motion collision meets March's lists.
 
 ## Phase U0 - UI framework RE
 
