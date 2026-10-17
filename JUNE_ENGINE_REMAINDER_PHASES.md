@@ -396,6 +396,45 @@ of the list plus the June-only functions found; columns verdict / owner / eviden
   `MODS.md` line names the flag **and** `Enum.lua`).
 - **Play-test:** a Ranox secret boss (rim light blue), a petrified / invincible unit, a cartoon NPC: colours as before.
 
+### Phase R1 -- Done
+
+**2026-10-17, Sonnet 5.5.** Flag `SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX` (`Always.h:7546`). Code is one commit; data is outside the repo (kom_contents).
+
+- **Open question 3 (ramps): recommendation taken, pull forward.** The user had not answered; the 10 June-only `Cartoon*.bmp` were staged with
+  `kom.py stage-june` (June bytes, `data042_kom`, manifest `0`), packed and copied. The pack also shows 11 `~ changed` data042 files
+  (`CartoonFire.BMP` .. `UIEdge.tga`): they were already staged from 2026-09-22 and are byte-identical to June's, so the copy only makes live
+  match staged. `kom_backup_tools\data042.kom.20261017_192312` holds the old archive.
+- **Header** (`KTDGXRenderer.h`): June's enum (`NORMAL` 0, `TWOTONE` 1, `USER1/2` 2-3, `RED` 4 .. `SCARLET` 12, `RIM_LIGHT_WHITE/RED/BLUE/DARK/USER1/USER2` 13-18,
+  `CTT_END` 19), explicit values. The Ranox member is in the `#else` enum only. `m_pCartoonTexList` is `[CTT_END + 1]` (20).
+- **Renderer** (`KTDGXRenderer.cpp`): ctor / dtor loop all 20 slots (R0b's dtor note). `OnResetDevice` loads June's 20 ramps in June's order
+  (`31d3f8c1-31d3fd50`, slot 19 = `CartoonDamage_Raid.bmp`) with the original loading in `#else`. A missing ramp logs once per name:
+  `[JUNE_ENGINE] CTT ramp <i> missing: <file>`; one summary line `[JUNE_ENGINE] CTT ramps loaded N/20 (CTT_END 19, RIM_LIGHT_BLUE 15)` (ErrorLog.txt).
+- **Ranox stand-in:** untouched code; with the flag its `CTT_RIM_LIGHT_BLUE` is June's 15, so `BeginRender`'s CTT_NORMAL substitution now binds
+  `CartoonRimLight_Blue.bmp` (256x8 rim map) in cel stage 1 where it used `CartoonSkyBlue.bmp` (16x1). Wanted by the plan; R2 binds the rim ramp
+  in stage 2 the June way. If the tint looks wrong in check 3, that is the reason, not a transcription error.
+- **Sweep (raw-int CTT uses): none needing a fix.** Every C++ store is a `CTT_*` symbol (units, NPC, pet, riding pet, world object, buff
+  displayer, particle, eqip, unit viewer) or a Lua `CARTOON_TEX_TYPE.<name>` through `LUA_GET_VALUE_ENUM` / `static_cast`, so they follow the enum and
+  `Enum.lua`. `X2World::SetRimLightTextureIndex` casts the Lua int, valid 0..18 (19 = disabled sentinel, as before). June's 120 `.lua`
+  uses are all names (no raw ints, no `CTT_END`, no writer of 19), so slot 19 stays loaded and unreached. `X2UICouponBox` `CTT_*` and
+  `CSI_CTT_*` skills are unrelated.
+- **`.txt` reader (`KTDGXMeshPlayer.cpp:4709`): no change.** It maps `CTT_NORMAL` / `CTT_RED` to the enum symbols, which are June's 0 and 4 now. Nothing else accepted, as June.
+- **`Enum.lua`** (data036, core list): `CARTOON_TEX_TYPE` = June's table verbatim plus one comment line; `luasrc.py refresh` + `ledger --check` PASS.
+  Packed and copied (`kom_backup_tools\data036.kom.20261017_192311`); only `Enum.lua` changed vs live.
+- `MODS.md`: row + paragraph (revert: flag **and** `Enum.lua` together). No JUNE_BUGS row (nothing kept from June that is a bug).
+
+Hygiene: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s),
+0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+Deploy: `DEPLOY OK: X2_offline.exe is 19,760,640 B, dated 2026-10-17 19:24:04, md5 08737e3d17e9a597dc927df175864325, equal to X2/US_SERVICE/x2.exe (2026-10-17 19:23:58); built at main 7ccddf89 + 3 uncommitted code file(s).` The
+three new literals (`CartoonRimLight_Blue.bmp`, `CartoonDamage_Raid.bmp`, the two `[JUNE_ENGINE] CTT` strings) are in the exe.
+
+**Play-test (user, Freils uid 18, Chung Tactical Trooper; tag `[JUNE_ENGINE] CTT`):** all three checks need exe + data036 + data042 live (they are).
+1. *Start-up.* Launch `start_offline.bat`, reach character select, quit. Look for `[JUNE_ENGINE] CTT ramps loaded 20/20` in ErrorLog.txt and no `ramp ... missing`.
+2. *Colours as before.* Ranox Geyser Expert (33290), console `/stage 2`, `/invin 0`: let a monster hit Freils (red damage flash), watch a petrified
+   or invincible unit if one appears, and look at a cartoon NPC. Look for: same tints as the last regression run, no white or black models.
+3. *Ranox Secret Hell boss rim light.* Enter Ranox Secret Hell (41271), console `/stage 4` (the boss stage = the last stage; check the log for world
+   `WI_RANOX_SECRET_BOSS_STAGE`). Look for: a blue tint on units as today. If it is a different blue or washed out, report it (see the stand-in note).
+   If a model goes white / wrong in 2: that is `Enum.lua` and the exe out of step (check data036 md5 `a7376f93...`).
+
 ## Phase R2 - XRenderer contract
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT`. Sub-tag

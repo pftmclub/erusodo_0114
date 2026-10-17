@@ -41,6 +41,7 @@ column.
 | `SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END` | 2026-10-17 (Atlas E10 play-test 1; JUNE_BUGS 230) | `KTDXLIB/Always.h` (end) | `KTDXLIB/KTDGLineMap.cpp` (two `m_vLastMove` zeroing blocks; port gap on `JUNE_MOVABLE_LINE`) | -- |
 | `SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE` | 2026-10-17 (Atlas E10 play-test 2) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUNPC.h/.cpp` (`GetInvincibleByAttackType`, state-start append; two call sites nested in `JUNE_BUFF_NEW_FLAG`) | -- |
 | `SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN` | 2026-10-17 (Atlas E10 play-test 2; user chose it) | `KTDXLIB/Always.h` (end) | `X2Lib/X2GUNPC.h` (stand-in, not June: a user's untagged `AT_NORMAL` hit counts as `AT_COMMAND`; inside `ELYSION_INVINCIBLE_ATTACK_TYPE`) | -- |
+| `SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX` | 2026-10-17 (june-engine R1; **exe and data036 `Enum.lua` move together**, ramps in data042) | `KTDXLIB/Always.h` (end) | `KTDXLIB/KTDGXRenderer.h` (June `CARTOON_TEX_TYPE` enum, `m_pCartoonTexList[CTT_END + 1]`), `KTDGXRenderer.cpp` (ctor/dtor loops, 20-ramp load + `[JUNE_ENGINE] CTT` log lines); data: data036 `Enum.lua` `CARTOON_TEX_TYPE` table = June's, data042 +10 June ramps | -- |
 | `SERV_IRUHADEV_OFFLINE_FETCH_AURA_ALWAYS` | 2026-09-08 | `KTDXLIB/Always.h:2672` (nested under `SERV_IRUHADEV_OFFLINE`) | `X2Lib/Offline/Handlers_Social.cpp:1541` (the force, in `MakePetInfo`), `:1574` (`IsPetPastCrystalStage`), `:1620` (the per-pet log line), `X2Lib/Offline/Handlers_Inventory.cpp:872` (item 500720 refused), `X2Lib/Offline/X2OfflineServer.h:490` | -- |
 | `SERV_IRUHADEV_FIX_CHAR_SELECT_DELETE_BUTTON` | 2026-09-11 | `KTDXLIB/Always.h:3684` | `X2Lib/X2StateServerSelect.cpp:11097-11103` (`CreateUnitButtonNew`) | -- |
 | `SERV_IRUHADEV_PENDING_DELETE_UNIT_MENU` | 2026-09-11, amended 2026-09-16 (twice) | `KTDXLIB/Always.h:3728` (nested under `SERV_UNIT_WAIT_DELETE`) | `X2Lib/X2StateServerSelect.cpp:1407` (down-state reset), `:2210`, `:3203`, `:3319`, `:3434` (immediate confirm on select), `:11196`, `:11234`, `:11303`; the first 2026-09-16 amendment also touches `X2Lib/Offline/X2OfflineDB.h:401-419,512`, `X2Lib/Offline/X2OfflineDB.cpp:1119-1145,1272-1285`, `X2Lib/Offline/Handlers_Unit.cpp:420-425,552-556` | -- |
@@ -301,6 +302,12 @@ What each one does:
   already-shipped `CartoonSkyBlue.bmp` texture, so the tint looks identical
   to the existing `CTT_SKYBLUE` skill-state tint until a dedicated asset is
   authored.
+- **`SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX`** (june-engine R1, 2026-10-17) -- puts the C++ `CARTOON_TEX_TYPE` on June's numbering (RED 1 -> 4 ..
+  SCARLET 9 -> 12, six `CTT_RIM_LIGHT_*` 13-18, `CTT_END` 19) and loads June's 20 ramps. With the flag on, the Ranox stand-in above uses June's
+  `CTT_RIM_LIGHT_BLUE = 15` / `CartoonRimLight_Blue.bmp` (not `CartoonSkyBlue.bmp`) until R2 binds the rim ramp the June way.
+  **Revert both together:** comment out the `#define`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; and restore data036 `Enum.lua`'s
+  `CARTOON_TEX_TYPE` table (`kom_backup_tools\data036.kom.20261017_192311` holds the pre-R1 archive; `/x2-kom-packed copy data036` from a
+  repacked kom). data042's 10 added ramps are inert with the flag off. Flag on + old `Enum.lua`, or flag off + new `Enum.lua`, mis-indexes ramps.
 
 ### Offline fetch aura on every pet
 

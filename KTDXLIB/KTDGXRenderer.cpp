@@ -110,10 +110,17 @@ CKTDGXRenderer::CKTDGXRenderer( LPDIRECT3DDEVICE9 pd3dDevice )
 {
 	m_pEffect		= NULL;
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+	for( int i = 0; i <= CTT_END; i++ )	/// June: CTT_END + 1 ramp slots
+	{
+		m_pCartoonTexList[i] = NULL;
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 	for( int i = 0; i < CTT_END; i++ )
 	{
 		m_pCartoonTexList[i] = NULL;
 	}
+#endif SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 
 #ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
 	m_eRimLightOverrideTexType = CTT_END;	/// Iruha 2026-09-19: Ranox port Phase 15. CTT_END = disabled.
@@ -146,10 +153,17 @@ CKTDGXRenderer::~CKTDGXRenderer(void)
 {
 	SAFE_RELEASE( m_pEffect );
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+	for( int i = 0; i <= CTT_END; i++ )	/// June: CTT_END + 1 ramp slots
+	{
+		SAFE_CLOSE( m_pCartoonTexList[i] );
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 	for( int i = 0; i < CTT_END; i++ )
 	{
 		SAFE_CLOSE( m_pCartoonTexList[i] );
 	}
+#endif SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 }
 
 /** @function : SetColor
@@ -1260,6 +1274,46 @@ HRESULT CKTDGXRenderer::OnResetDevice()
 #endif//X2OPTIMIZE_SETSHADERCONSTANT
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+	{
+		/// June 31d3f8c1-31d3fd50 (r0_renderer_contract.tsv, ramp rows): 20 ramps loaded in June's enum order, each only if still NULL. Slot 19
+		/// (CTT_END) is CartoonDamage_Raid.bmp; R0 found no writer of 19 and R1's sweep found none either (June's Lua has no raw ints), so it
+		/// stays loaded verbatim. A file that is not in any mounted kom logs once per name (degrade, no popup).
+		static const WCHAR* const s_apwszCartoonTex[CTT_END + 1] =
+		{
+			L"CartoonNormal.bmp", L"CartoonNormal_Twotone.bmp", L"CartoonNormal_User1.bmp", L"CartoonNormal_User2.bmp",
+			L"CartoonFire.BMP", L"CartoonGreen.bmp", L"CartoonViolet.bmp", L"CartoonCounterLight.bmp",
+			L"CartoonDamage.bmp", L"CartoonInvincible.bmp", L"CartoonPetrified.bmp", L"CartoonSkyBlue.bmp",
+			L"CartoonScarlet.bmp", L"CartoonRimLight_White.bmp", L"CartoonRimLight_Red.bmp", L"CartoonRimLight_Blue.bmp",
+			L"CartoonRimLight_Dark.bmp", L"CartoonRimLight_User1.bmp", L"CartoonRimLight_User2.bmp", L"CartoonDamage_Raid.bmp",
+		};
+		static bool s_abMissingLogged[CTT_END + 1] = { false };
+		static bool s_bSummaryLogged = false;
+		int iLoaded = 0;
+		for( int i = 0; i <= CTT_END; i++ )
+		{
+			if( m_pCartoonTexList[i] == NULL )
+			{
+				m_pCartoonTexList[i] = g_pKTDXApp->GetDeviceManager()->OpenTexture( s_apwszCartoonTex[i] );
+				if( m_pCartoonTexList[i] == NULL && false == s_abMissingLogged[i] )
+				{
+					s_abMissingLogged[i] = true;
+					std::string strName;
+					ConvertWCHARToChar( strName, s_apwszCartoonTex[i] );
+					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] CTT ramp " << i << " missing: " << strName.c_str() << " (kom not copied yet?)" << fileout;
+				}
+			}
+			if( m_pCartoonTexList[i] != NULL )
+				++iLoaded;
+		}
+		if( false == s_bSummaryLogged )
+		{
+			s_bSummaryLogged = true;
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] CTT ramps loaded " << iLoaded << "/" << ( CTT_END + 1 ) << " (CTT_END " << (int) CTT_END
+				<< ", RIM_LIGHT_BLUE " << (int) CTT_RIM_LIGHT_BLUE << ")" << fileout;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 	if( m_pCartoonTexList[CTT_NORMAL] == NULL )
 	{
 		m_pCartoonTexList[CTT_NORMAL] = g_pKTDXApp->GetDeviceManager()->OpenTexture( L"CartoonNormal.bmp" );
@@ -1311,6 +1365,7 @@ HRESULT CKTDGXRenderer::OnResetDevice()
 		m_pCartoonTexList[CTT_RIM_LIGHT_BLUE] = g_pKTDXApp->GetDeviceManager()->OpenTexture( L"CartoonSkyBlue.bmp" );
 	}
 #endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+#endif SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 
 
 	return m_pEffect->OnResetDevice(); 

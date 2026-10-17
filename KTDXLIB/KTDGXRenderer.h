@@ -36,6 +36,33 @@ public:
             RT_END,
 		};
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+		/// June R0 map item 4 (june2017_re/r0_renderer_contract.tsv, ramp rows; June Enum.src.lua CARTOON_TEX_TYPE): June's numbering, which the
+		/// data036 Enum.lua table now carries too. Slot 19 (= CTT_END) is CartoonDamage_Raid.bmp, so the ramp array has CTT_END + 1 slots.
+		enum CARTOON_TEX_TYPE
+		{
+			CTT_NORMAL = 0,				/// CartoonNormal.bmp
+			CTT_NORMAL_TWOTONE = 1,		/// CartoonNormal_Twotone.bmp
+			CTT_NORMAL_USER1 = 2,		/// CartoonNormal_User1.bmp
+			CTT_NORMAL_USER2 = 3,		/// CartoonNormal_User2.bmp
+			CTT_RED = 4,				/// CartoonFire.BMP
+			CTT_GREEN = 5,				/// CartoonGreen.bmp
+			CTT_VIOLET = 6,				/// CartoonViolet.bmp
+			CTT_NORMAL_COUNTER = 7,		/// CartoonCounterLight.bmp
+			CTT_DAMAGE = 8,				/// CartoonDamage.bmp
+			CTT_INVINCIBLE = 9,			/// CartoonInvincible.bmp
+			CTT_PETRIFIED = 10,			/// CartoonPetrified.bmp
+			CTT_SKYBLUE = 11,			/// CartoonSkyBlue.bmp
+			CTT_SCARLET = 12,			/// CartoonScarlet.bmp
+			CTT_RIM_LIGHT_WHITE = 13,	/// CartoonRimLight_White.bmp
+			CTT_RIM_LIGHT_RED = 14,		/// CartoonRimLight_Red.bmp
+			CTT_RIM_LIGHT_BLUE = 15,	/// CartoonRimLight_Blue.bmp
+			CTT_RIM_LIGHT_DARK = 16,	/// CartoonRimLight_Dark.bmp
+			CTT_RIM_LIGHT_USER1 = 17,	/// CartoonRimLight_User1.bmp
+			CTT_RIM_LIGHT_USER2 = 18,	/// CartoonRimLight_User2.bmp
+			CTT_END = 19,				/// not a type; the ramp at this slot is CartoonDamage_Raid.bmp
+		};
+#else SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 		enum CARTOON_TEX_TYPE
 		{
 			CTT_NORMAL = 0,			/// CartoonNormal.bmp
@@ -53,6 +80,7 @@ public:
 #endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 			CTT_END,
 		};
+#endif SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 
         enum EFFECT_PARAMETER
         {
@@ -258,7 +286,11 @@ public:
 
 		LPD3DXEFFECT				m_pEffect;
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+		CKTDXDeviceTexture*			m_pCartoonTexList[CTT_END + 1];	/// June: 20 ramps, slot CTT_END = CartoonDamage_Raid.bmp
+#else SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 		CKTDXDeviceTexture*			m_pCartoonTexList[CTT_END]; 
+#endif SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
 
 #ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
 		CARTOON_TEX_TYPE			m_eRimLightOverrideTexType;	/// Iruha 2026-09-19: Ranox port Phase 15. CTT_END = disabled (sentinel); substituted for CTT_NORMAL in BeginRender's 3 cartoon-tex sites.

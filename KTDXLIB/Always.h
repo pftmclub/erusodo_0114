@@ -7534,3 +7534,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              class scripts carry June's tags (JUNE2017_CHARACTER_PORT_CHECKLIST.md).
 #define SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R1. CARTOON_TEX_TYPE to June's numbering (KTDGXRenderer.h): NORMAL_TWOTONE / NORMAL_USER1 / NORMAL_USER2
+//              inserted after NORMAL, RED moves 1 -> 4 ... SCARLET 9 -> 12, six RIM_LIGHT_* ramps 13-18, CTT_END 19. The ramp array grows to
+//              20 slots (CTT_END + 1) and loads June's 20 files in June's order (slot 19 = CartoonDamage_Raid.bmp, June 31d3f8c1-31d3fd50);
+//              a missing ramp logs once per name ("[JUNE_ENGINE] CTT"). The Ranox rim-light stand-in keeps working: its CTT_RIM_LIGHT_BLUE is
+//              June's 15 (CartoonRimLight_Blue.bmp). The exe and data036 Enum.lua (CARTOON_TEX_TYPE table) move together: revert both.
+#define SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+//////////////////////////////////////////////////////////////////////////
