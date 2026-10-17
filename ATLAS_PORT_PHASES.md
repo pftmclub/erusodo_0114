@@ -3510,6 +3510,12 @@ turns them on. The four A7 stand-ins that wait for a 20009 templet (`X2LocationM
 - **Open, routed (no question):** March has no Ranox shop row (June's ShopItem has one; its `NUI_SAYRENA_EVENT` blocks a straight copy): a
   pre-existing Ranox-port gap, noted, not E2's. June's other shared-house changes (talk lists, EVENT2/3, JoinArea) wait for the friendship system and village scenes.
 - **How to see it in game:** the hand-off below (`elysion` warp, every house / NPC, in-village warps, F02 round trip, Cobo, shop, NPC dialogs).
+- **Play-test 2026-10-17 (user + log, exe 23083f50):** village loads (`VillageParsing June keys: village 20009 internalPlaceRows 6`), every NPC built;
+  in-village warps 502/506/508/510/512 moved (`InternalPlace:` lines; 504 not walked); F02 round trip (501 -> 40036 line 248, back to 20009 after 5 s);
+  Cobo warp Ranox -> 20009; town pin shown (only 40037 hidden); shops list, dialogs open, Ranox Adams at June's spot by the spa door (user); 0 EXCEPTION.
+  **Found:** no `[Z] Use` at Luriel in Elysion: her row has no per-row join area and stands raised (y 4102), so March's house JoinArea 500 was
+  out of reach. **Fix:** June's `JoinArea = 700` on `HI_PRIVATE_BANK` (June :4001; also June's value in every village), `PACK OK` + `COPY OK data034`
+  md5 076e1b78 (user OK). User owes: one look at Luriel in Elysion.
 
 ---
 
