@@ -2708,7 +2708,7 @@ The data half of E1 (split above). Nothing consumes the new data yet, so March v
   The two refresh functions (`32340630`, `32344880`) call the TFieldGame side, so they are written and parked in
   `june2017_re/e1_relation_runtime.md` for E1c.
 - **Data:** June's `DLG_Map_House_NPC_RelationData.lua` adopted as ljconv bytecode into data034 (`june_adopt_20261017_065231.tsv`),
-  `PACK OK data034` (+1 added, nothing else changed vs live).
+  `PACK OK data034` (+1 added, nothing else changed vs live), `COPY OK data034` md5 5f0e61bba11992e4dbe95d5bc038108f (user OK).
 - **JUNE_BUGS 207** (the relation row's RenderOption has no ctor in June; the port uses the templet defaults, not verbatim because
   uninitialised memory has no June value) and **208** (replace copies TalkLoop into TalkWait too; E1c ports it verbatim).
 
