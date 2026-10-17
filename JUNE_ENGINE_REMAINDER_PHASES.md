@@ -964,6 +964,37 @@ was logged. Only pumps listed before the accepted one can be rejected, because `
 
 Next: `/x2-phase june-engine W1 review` on Opus 5.5 / high.
 
+### Phase W1 -- Review
+
+**2026-10-17, Opus 5.5 high. Verdict: PASS, no findings, no code change, no build.** Reviewed `5ab2a08b` (the only commit for the three flags; no later
+commit touches `X2World.*`, `KTDGLineMap.cpp` or `KTDXDeviceManager.*`). Ghidra re-read, read-only: `327fc680`, `32800e10` (cases 1 and 7, prologue),
+`31cdd4e0`, `32802ae0`, `31c19d90`.
+
+| Item | June | Port | |
+|---|---|---|---|
+| Id filter | `327fc680`: type (+0x194) == 2 AND ( +0x368 < 0 OR +0x368 == arg 2 ), then the upper-case name compare | `GetTriggerID() >= 0 && != iTriggerId` -> skip, before the name compare; March's unset id is -1 (`X2WorldObjectSkinMesh.cpp:50`) | ok |
+| Segment id passed | `32800e5b`: arg 2 (esp+0x2b0) -> esp+0x1c, pushed to `327fc680` @32801352 | `DoTriggerMesh` / `DoTriggerEtc( trigger, triggerSeg.m_iTriggerId )` | ok |
+| Case-7 split | find( L" " 3344ff0c, 0 ) @32801314, -1 -> out; token 1 = substr( 0, i ) -> `GetTriggerMesh`; token 2 = substr( i + 1, -1 ) -> effect name | same; checks reordered (no side effects) | ok |
+| User | size vslot 0xf0 once, `GetUserUnit` vslot 0xb4 until non-NULL | same loop (size re-read per pass: no behavioural difference) | ok |
+| `PlayEffectSet` args @328013d6-32801461 | ( token2, user, 0, 0, -1, -1, scale (1,1,1) by value, 1, &pos, &GetRotateDegree() (vslot 0x150, returns a reference), &(0,0,0), 1.0 ) | same order against March's `X2EffectSet.h:1048`; trailing 1.0 = `fForceDownValueRate`, absent in March (settled by june-effect) | ok |
+| Mesh position | `32802ae0`: +0xc == 0 -> own +0x10 matrix, else the root of the +0xc chain (`31c19d90`); reads +0x110..+0x118 | `CX2WorldObject::GetPos()` = `GetMatrix().GetPos()`, and `CKTDGObject::GetMatrix()` recurses through `m_pManagerObject` to the root (`KTDGObject.h:159`) | ok |
+| Sound | `OpenSound( name, 10, 0, -1.f )`, `Play( 0, 0 )`, `31cdd4e0( device +0x60 )`; `31cdd4e0` = channel != 0 -> SetCallback( channel, `31cdcca0` ) | March's OpenSound + Play kept; `JuneRegisterAutoRelease( channel )` (NULL -> -1, else the FMOD result); `PlaySound` routes through it | ok |
+| Key | `MOTIONNAME_EFFECTSETNAME` (`31c77e20` @31c7b041) | `KTDGLineMap.cpp` case `TAT_ETC_PLAY_EFFECTSET` | ok |
+| `#else` | | every hunk insert-only (0 deleted lines); March / Ranox code sits unchanged in `#else`; the reject log is ours (diagnostic, only on a name match) | ok |
+
+**Hygiene** (`flagcheck <flag> --range 5ab2a08b^..5ab2a08b`; a `..HEAD` range times out, and `git log 5ab2a08b..HEAD` on the six files is empty):
+- `_MESH_ID`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` / `RESULT: PASS`
+- `_EFFECTSET`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` / `RESULT: PASS`
+- `_SOUND`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR` / `RESULT: PASS`
+- OTHER rows: `Always.h` holds the three defines and their `#error` guards; `X2World.cpp` carries all three flags, so each run lists it as the other two's;
+  `KTDGLineMap.cpp`, `KTDXDeviceManager.*` and `X2World.h` belong to one flag each. 0 deleted lines, 0 encoding changes. The 12 EOL-mismatched lines in
+  `X2World.h` take their LF anchors' ending (that file mixes LF and CRLF), as the Done note says.
+
+**Open questions:** none. Not checked in Ghidra: June's skin-mesh ctor value for +0x368. The play-test settles it: the Geyser steel pump has no
+`SetTriggerID` and trigger 1 found it, so the unset value is < 0 in March as June's data needs.
+
+Next: `/x2-phase june-engine W1b` on Opus 5.5 / high (kickoff `kickoffs/june-engine/W1b.md` checked; W1 no longer blocks it).
+
 ## Phase W1b - AUTO_DISABLE_LINE
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE`. Map first:
