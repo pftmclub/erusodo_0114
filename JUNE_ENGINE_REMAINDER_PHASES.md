@@ -1509,6 +1509,12 @@ and the skip goes after the wall test. 10 call sites `#ifdef` / `#else` with the
 roads at lines 14, 15, 65, 68 (June bytecode, live since E10). Expect `[JUNE_ENGINE] WORLD monster-road skip: line N would land y ...` (at most 12) when
 the player is over one. The player never stands on a monster road, and monsters still use them (they walk and land as before).
 
+**Play-test PASSED (user, 2026-10-18; logs read).** Run on the W1c deploy (md5 2455a22f). 0 EXCEPTION; UNHANDLED = the 2x `E_DISABLE_HB_CHECK_REQ`
+baseline; clean exit. Soless (33890): the 12 capped `monster-road skip` lines, all at 02:26:07 in the hidden stage (`Elysion_Soless_Stage1_Hide_LineMap`,
+line 65 = `LT_MONSTER_ROAD` at x 9885, z 2975-3455). The player was about 1,500 above it, and its land y fell 10 per frame (it rides a moving platform; lines 34 / 35
+carry 2 followers each). User: monsters and the player's own landing behave normally. Ranox Fire Temple boss retest (W1b's site, now `false`):
+`line 3 marked, users listed 1`, `line 4 marked, users listed 0`, then `release: line 3 user 12` 3 s later, as in W1b's pass.
+
 ## Phase W1d - Pet re-seat on the master's road type
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT` (proposed). Added by W1c (an unowned
