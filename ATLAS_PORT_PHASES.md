@@ -3720,7 +3720,7 @@ Done when: Phase E4's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 ### Phase E4 — Done
 
 **2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` (A7's; log lines behind `SERV_IRUHADEV_ELYSION_DEBUG`; MODS.md
-"Atlas/Elysion port E4"). June rows: end of `june2017_re/funcmap.tsv` (`Atlas E4`). Commit: `Atlas Phase E4: ...` (this phase's first commit).
+"Atlas/Elysion port E4"). June rows: end of `june2017_re/funcmap.tsv` (`Atlas E4`). Commit: `cccffdb2`.
 
 - **Premise:** LMUCM 18006 / 18007 / 18008 in the staged data036 `Enum.lua` (:7443-7445, A3) = `X2LocalMapUI.h:18-20`.
 - **Scroll (June 329378a0 -> `ScrollLocalMap`):** only 0x2719; +0x48 = id; `Elysion_Local` picture 0 -> A4's `StartChangeUV( dir, from, to )`;
@@ -3750,7 +3750,7 @@ Done when: Phase E4's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 - **Hygiene:** flagcheck `--worktree --with ELYSION_DEBUG --files X2LocalMapUI.cpp X2LocalMapUI.h Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
   `19 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
   `RESULT: PASS`. The 19 deleted lines are A7's own flagged lines: two stale "until atlas E4" comments and A7's 17-line hidden-buttons tail.
-  POST_COMMIT_HYGIENE
+  After commit, `--range cccffdb2^..cccffdb2` (same files): `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, same in-flag line, `RESULT: PASS`.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,705,856 B, dated 2026-10-17 12:04:18, md5 4294a0c35e2165e363ed15b65d4c7871, equal to X2/US_SERVICE/x2.exe (2026-10-17 12:04:13); built at main 369d7a1b + 3 uncommitted code file(s).` (E4's 3 files). Proof: the UTF-16LE literals `[ELYDBG] local map Elysion: scroll direction`, `[ELYDBG] local map Elysion guide: checkfile.txt absent`, `DLG_Elysion_LocalMap_Guide.lua` are in the deployed exe; A7's `move buttons %s/%s hidden` is gone. `COPY` of data034 pending (user OK).
 - **Expected until E8-E11:** page 1's dungeon buttons stay hidden (no DungeonData for SkyCrossroads / Adrian / Soless / Memory), but its
   title plates and the four star strips (STAR4-7, all pictures as the lua sets them) show. June never shows that state; it ends when E8-E11 add
