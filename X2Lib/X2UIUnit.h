@@ -85,6 +85,11 @@ class CX2UIUnit : public CKTDGObject
 
 
 		void Init();
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June 32ee37a0 (id unused): true when a cached unit must be rebuilt for this file-name request.
+		bool IsFileNameChanged( int iUnitID, const wstring& wstrFileName ) const;
+		void SetFileNameOverride( bool bVal ) { m_bFileNameOverride = bVal; }
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 		virtual HRESULT		OnFrameMove( double fTime, float fElapsedTime );
 //{{ robobeg : 2008-10-28
@@ -166,6 +171,9 @@ class CX2UIUnit : public CKTDGObject
 		CX2TalkBoxManager*				m_pTalkBoxMgr;
 
 		bool							m_bCameIn;
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		bool							m_bFileNameOverride;	// June +0x35c: built from a file-name override (m_ScriptFileName = June +0x190)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 
 		vector< string >				m_vecNextStateID;		

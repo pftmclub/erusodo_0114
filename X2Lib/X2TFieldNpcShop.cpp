@@ -1467,6 +1467,49 @@ void CX2TFieldNpcShop::SetShopType(NPC_SHOP_BUTTON_TYPE eType, bool bShow)
 #endif //SERV_NEW_ITEM_SYSTEM_2013_05
 }
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June 32ecd610, the 4-argument form CX2TFieldNpc::CreateFieldNpc calls ( type, bShow, bDisable, bEnable ).
+// - The June-only button types have no March control: logged and dropped (user 2026-10-17). March's SetShopType would treat an
+//   unknown type as NSBT_NONE and hide every button.
+// - bDisable == true (greyed button, tooltip STR 0x8870 / 0x885d) and bDisable == false && bEnable == true (re-enabled look) are
+//   reached in June only from HI_MU in the guild base (CreateFieldNpc block 13), which March lacks; with both false June's
+//   switch does exactly March's 2-argument body, so that is what runs here.
+void CX2TFieldNpcShop::SetShopType( NPC_SHOP_BUTTON_TYPE eType, bool bShow, bool bDisable, bool bEnable )
+{
+	if( eType >= NSBT_JUNE_HENIR_EQUIP_UPGRADE && eType <= NSBT_JUNE_EXTRACTION )
+	{
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		WCHAR buff[256] = {0};
+		StringCchPrintf( buff, 256, L"[ELYDBG] NpcShop: npc %d house %d June-only button %d (show %d) has no March UI, not shown",
+			m_iNpcID, m_iHouseID, static_cast<int>( eType ), bShow ? 1 : 0 );
+		ErrorLogMsg( XEM_ERROR142, buff );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+		return;
+	}
+
+	SetShopType( eType, bShow );
+}
+
+// June 32ec8d40: show / hide the friendship score controls (NPC_FRIEND_SCORE and _Num both needed, _LEVEL optional).
+// March's NPC dialog has none of them, so this finds nothing until a June dialog is ported (backlog Stage 18).
+void CX2TFieldNpcShop::SetShowFriendshipScore( bool bShow )
+{
+	if( m_pDlgMessage == NULL )
+		return;
+
+	CKTDGUIControl* pScore		= m_pDlgMessage->GetControl( L"NPC_FRIEND_SCORE" );
+	CKTDGUIControl* pScoreNum	= ( NULL != pScore ) ? m_pDlgMessage->GetControl( L"NPC_FRIEND_SCORE_Num" ) : NULL;
+	if( NULL == pScore || NULL == pScoreNum )
+		return;
+
+	pScore->SetShowEnable( bShow, bShow );
+	pScoreNum->SetShowEnable( bShow, bShow );
+
+	CKTDGUIControl* pScoreLevel = m_pDlgMessage->GetControl( L"NPC_FRIEND_SCORE_LEVEL" );
+	if( NULL != pScoreLevel )
+		pScoreLevel->SetShowEnable( bShow, bShow );
+}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpcShop::SetShow(bool val)
 {
 	m_bShowNpcShop = val;

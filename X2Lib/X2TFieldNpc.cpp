@@ -146,9 +146,41 @@ m_bRanking( false )
 	m_bTraining = false;
 	
 	//g_pKTDXApp->SkipFrame();	
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	// June ctor 325d13e0: the June-only members (June offsets in X2TFieldNpc.h).
+	m_hEffectSet			= INVALID_EFFECTSET_HANDLE;			// +0x190 = -1
+	m_bInConversation		= false;							// +0x1a6
+	m_pXSkinAnim2nd			= NULL;								// +0x1c4
+	m_pMesh2nd				= NULL;								// +0x1c8
+	m_pAniXET2nd			= NULL;								// +0x1cc
+	m_wstrUIFileName		= L"";								// +0x1d0
+	m_pMultiTexXET			= NULL;								// +0x1ec
+	m_fMultiTexTime			= 0.f;								// +0x1f0
+	m_iFriendshipTalkLine	= 0;								// +0x5a4
+	ZeroMemory( m_abyFriendshipFlag, sizeof( m_abyFriendshipFlag ) );	// +0x5a8
+	m_fJoinAnimSpeed		= 1.f;								// +0x5d8
+	m_fWaitAnimSpeed		= 1.f;								// +0x5dc
+	m_fByeAnimSpeed			= 1.f;								// +0x5e0
+	m_bHenirEquipUpgrade	= false;							// +0x5fd..+0x60a zeroed
+	m_bGuildAgitService		= false;
+	m_bMuShopDisable		= false;
+	m_bMuExchangeDisable	= false;
+	m_bMuMakeDisable		= false;
+	m_bGuildEnter			= false;
+	m_bExtraction			= false;
+	m_bTrade				= false;
+	m_bPhotoZone			= false;
+	m_bFragmentExchange		= false;
+	m_bRockScissorsPaper	= false;
+	m_bOldEnchant			= false;
+	m_bOldAdvancedEnchant	= false;
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 }//CX2TFieldNpc::CX2TFieldNpc()
 
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June dtor 325cd7c0: in the Atlas E1b block at the end of this file.
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 CX2TFieldNpc::~CX2TFieldNpc(void)
 {
     ASSERT( ::GetCurrentThreadId() == g_pKTDXApp->GetMainThreadID() );
@@ -184,6 +216,7 @@ CX2TFieldNpc::~CX2TFieldNpc(void)
 #endif // ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_NEAR // 마을 NPC 에 일정 거리 이상 가까워지면 n초 간격으로 사운드를 출력하는 기능 추가
 
 }//CX2TFieldNpc::~CX2TFieldNpc()
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 CKTDGParticleSystem* CX2TFieldNpc::GetUiParticle()
 {
@@ -210,6 +243,11 @@ void CX2TFieldNpc::InitParticle()
 	m_hNpcDoQuest			= GetUiParticle()->CreateSequenceHandle( NULL,  L"NpcDoQuest", 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 	m_hNpcCompleteQuest1	= GetUiParticle()->CreateSequenceHandle( NULL,  L"NpcCompleteQuest1", 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 	m_hNpcCompleteQuest2	= GetUiParticle()->CreateSequenceHandle( NULL,  L"NpcCompleteQuest2", 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	// June InitParticle 325c84b0 creates two more (@325c876f, @325c87ca), then hides all nine.
+	m_hNpcTalkParticle		= GetUiParticle()->CreateSequenceHandle( NULL,  L"NpcTalkParticle", 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
+	m_hNpcHighLight			= GetUiParticle()->CreateSequenceHandle( NULL,  L"acce_highLight_P01", 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	
 	CKTDGParticleSystem::CParticleEventSequence* pSeqPortal	= GetUiParticle()->GetInstanceSequence( m_hNpcInArea );
 	if( pSeqPortal != NULL )
@@ -269,8 +307,25 @@ void CX2TFieldNpc::InitParticle()
 		pSeqPortal->CreateNewParticle( D3DXVECTOR3(0.0f,0.0f,0.0f) );
 		pSeqPortal->SetShowObject(false);
 	}
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	pSeqPortal	= GetUiParticle()->GetInstanceSequence( m_hNpcTalkParticle );
+	if( pSeqPortal != NULL )
+	{
+		pSeqPortal->CreateNewParticle( D3DXVECTOR3(0.0f,0.0f,0.0f) );
+		pSeqPortal->SetShowObject(false);
+	}
+	pSeqPortal	= GetUiParticle()->GetInstanceSequence( m_hNpcHighLight );
+	if( pSeqPortal != NULL )
+	{
+		pSeqPortal->CreateNewParticle( D3DXVECTOR3(0.0f,0.0f,0.0f) );
+		pSeqPortal->SetShowObject(false);
+	}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 }
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June ResetNpc 325c8ce0 and SetShowField 325c9130: in the Atlas E1b block at the end of this file.
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::ResetNpc()
 {
 	m_bTalk = false;
@@ -319,6 +374,7 @@ void CX2TFieldNpc::SetShowField(bool val)
 		m_pDlgNpcMessage->SetShow(false);
 }
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::GetQuestInfo()
 {
 	// 퀘스트 마크 처리
@@ -1043,6 +1099,9 @@ HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 
 	if(m_bTalk == true )
 	{
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		TalkStep();		// June outlines this block (325ccf60)
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 		if(m_bEventNpc == false)
 		{
 #ifdef EVENT_NPC_IN_VILLAGE
@@ -1144,11 +1203,15 @@ HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef SERV_EPIC_QUEST
 		g_pData->GetUIManager()->GetUIQuestNew()->SetTalkingQuestNPC(true, (CX2UnitManager::NPC_UNIT_ID)m_iNpcIndex);
 #endif SERV_EPIC_QUEST
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	}
 
 	// NPC를 떠날 때
 	if(m_bBye == true )
 	{
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		ByeStep();		// June outlines this block (325ca2f0)
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 		if(m_bEventNpc == false)
 		{
 #ifdef EVENT_NPC_IN_VILLAGE
@@ -1314,6 +1377,7 @@ HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 			} break;
 		}
 #endif //QUEST_GUIDE
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	}
 
 #ifdef TALK_BOX_VILLAGE_NPC
@@ -1595,6 +1659,9 @@ HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 }
 
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June OnFrameRender_Draw 325d1040 (vtable 334acc6c +0xc): in the Atlas E1b block at the end of this file.
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::OnFrameRender_Draw()
 {
 
@@ -1688,6 +1755,7 @@ void CX2TFieldNpc::OnFrameRender_Draw()
 //#endif NEW_VILLAGE_FIELD_NPC_BACKGROUND_LOADING_TEST
 }
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 bool CX2TFieldNpc::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	
@@ -1737,6 +1805,10 @@ HRESULT	CX2TFieldNpc::OnLostDevice()
 // #endif NEW_VILLAGE_FIELD_NPC_BACKGROUND_LOADING_TEST
 
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June CreateFieldNpc 325ca980, SetShowObject 325c9000, GetShowObject 325c8210, RenderName 325ccb40:
+// in the Atlas E1b block at the end of this file.
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTemplet *pHouseTemplate)
 {	
     ASSERT( pWorld != NULL );
@@ -2265,6 +2337,7 @@ void CX2TFieldNpc::RenderName()
 	}
 }
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 bool CX2TFieldNpc::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	if(m_pDlgNpcMessage != NULL)
@@ -2411,6 +2484,9 @@ void CX2TFieldNpc::ChangeType(CX2TFieldNpcShop::NPC_SHOP_BUTTON_TYPE eType)
 	m_pDlgNpcMessage->SetShopType(eType, true);
 }
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June SetCanTalkNpc 325c8250: in the Atlas E1b block at the end of this file.
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::SetCanTalkNpc(bool val, bool bForce )
 {
 	KTDXPROFILE();
@@ -2484,6 +2560,7 @@ void CX2TFieldNpc::SetCanTalkNpc(bool val, bool bForce )
 	return;
 }
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::ResetNpcType()
 {
 	if( NULL == m_pDlgNpcMessage )
@@ -2600,6 +2677,9 @@ void CX2TFieldNpc::ResetNpcType()
 }
 
 #ifdef NPC_SOUND
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June NpcPlaySound 325c9c00: in the Atlas E1b block at the end of this file.
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::NpcPlaySound(wstring &wstrSoundName)
 {
 	g_pKTDXApp->GetDeviceManager()->StopSound( m_wstrPlaySoundName.c_str() );
@@ -2627,4 +2707,1106 @@ void CX2TFieldNpc::NpcPlaySound(wstring &wstrSoundName)
 		m_wstrPlaySoundName = wstrSoundName;
 	}
 }
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #endif
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+//////////////////////////////////////////////////////////////////////////
+// Atlas/Elysion port Phase E1b (Iruha, 2026-10-17): June 2017's CX2TFieldNpc, everything but OnFrameMove (E1c).
+// Whole June functions, June addresses cited; RE in june2017_re/e1_createfieldnpc_diff.md and e1_talkbye_diff.md.
+// June-only systems March lacks are kept as June's call sites with a comment naming the owner:
+// - the NPC friendship manager (32696fa0, code event 2215): backlog Stage 18 wires the calls;
+// - the guild base (June state XS_GUILD_AGIT_GAME, agit-bank UI 0x1a, HI_MU gating): March has no guild base;
+// - the Alarm_Button dialog on g_pMain +0x1058 (326662c0): no March counterpart.
+//////////////////////////////////////////////////////////////////////////
+
+// June dtor 325cd7c0.
+CX2TFieldNpc::~CX2TFieldNpc(void)
+{
+    ASSERT( ::GetCurrentThreadId() == g_pKTDXApp->GetMainThreadID() );
+
+	ByeStep();												// @325cd7fb: returns at once unless the NPC is in a conversation
+
+	m_pFontForUnitName = NULL;
+
+	SAFE_DELETE_KTDGOBJECT( m_pXSkinAnim );
+	SAFE_CLOSE( m_pMesh );
+	SAFE_CLOSE( m_pAniXET );
+	SAFE_DELETE_KTDGOBJECT( m_pXSkinAnim2nd );				// @325cd86d
+	SAFE_CLOSE( m_pMesh2nd );
+	SAFE_CLOSE( m_pAniXET2nd );
+
+	SAFE_DELETE_KTDGOBJECT( m_pUnitShadow );
+
+	g_pData->GetUIUnitManager()->ClearAllUIUnit();			// @325cd8f3
+
+	SAFE_DELETE( m_pDlgNpcMessage );
+
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcInArea );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcEvent );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcNewQuest1 );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcNewQuest2 );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcDoQuest );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcCompleteQuest1 );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcCompleteQuest2 );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcTalkParticle );
+	GetUiParticle()->DestroyInstanceHandle( m_hNpcHighLight );
+
+#ifdef ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_NEAR
+	if ( NULL != m_pNearPlaySound )
+	{
+		m_pNearPlaySound->Stop();
+		SAFE_CLOSE ( m_pNearPlaySound );
+	}
+#endif // ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_NEAR
+
+	SAFE_CLOSE( m_pMultiTexXET );							// @325cda15
+
+	// @325cda3b: StopEffectSet( &+0x190, 0 ) on g_pData +0x9c (the UI effect set); March's immediate stop, as every ported caller.
+	if( NULL != g_pData && NULL != g_pData->GetUIEffectSet() )
+		g_pData->GetUIEffectSet()->StopEffectSet( m_hEffectSet );
+}//CX2TFieldNpc::~CX2TFieldNpc()
+
+// June ResetNpc 325c8ce0.
+void CX2TFieldNpc::ResetNpc()
+{
+	m_bInArea = false;
+	m_bTalk = false;										// dword +0x1a2: m_bTalk, m_bBye, m_bJoinNpc, m_bOpenQuestReceive
+	m_bBye	= false;
+	m_bJoinNpc = false;
+	m_bOpenQuestReceive = false;
+	if(m_pUINPC != NULL)
+		m_pUINPC->SetShowObject( false );
+	if(m_pDlgNpcMessage != NULL)
+		m_pDlgNpcMessage->SetShow(false);
+	m_iFriendshipTalkLine = 0;								// +0x5a4 / +0x5a8
+	ZeroMemory( m_abyFriendshipFlag, sizeof( m_abyFriendshipFlag ) );
+}
+
+// June SetShowField 325c9130: uses its argument (March always hid), plus the +0x230 particle.
+void CX2TFieldNpc::SetShowField(bool val)
+{
+	SetShowObject( val );
+
+	CKTDGParticleSystem::CParticleEventSequenceHandle ahSeq[] = { m_hNpcInArea, m_hNpcEvent, m_hNpcNewQuest1, m_hNpcNewQuest2,
+		m_hNpcDoQuest, m_hNpcCompleteQuest1, m_hNpcCompleteQuest2, m_hNpcTalkParticle };	// +0x214..+0x230
+	for( int i = 0; i < ARRAYSIZE( ahSeq ); ++i )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = GetUiParticle()->GetInstanceSequence( ahSeq[i] );
+		if( pSeq != NULL )
+			pSeq->SetShowObject( val );
+	}
+
+	if(m_pUINPC != NULL)
+		m_pUINPC->SetShowObject( val );
+	if(m_pDlgNpcMessage != NULL)
+		m_pDlgNpcMessage->SetShow( val );
+}
+
+// June 325ca920: "disable NPC" (callers: the relation side's remove 323a9ed0 and AddFieldNpc 323b0980, E1c).
+void CX2TFieldNpc::DisableNpc()
+{
+	if( true == m_bJoinNpc )
+		ByeStep();
+	SetShowField( false );
+	m_bEnable = false;
+}
+
+// June SetEnable 325ca950 (March: m_bEnable = val only; March never calls it).
+void CX2TFieldNpc::SetEnable( bool val )
+{
+	if( true == m_bJoinNpc )
+		ByeStep();
+	SetShowField( val );
+	m_bEnable = val;
+	ResetNpc();
+}
+
+// June 325c95e0: CUSTOM_NPC_LOACION picks a position among the rows of the field game's world (random if several).
+void CX2TFieldNpc::SetCustomNpcLocation()
+{
+	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || NULL == m_pHouseTemplet )
+		return;
+
+	const CX2World::WorldData* pWorldData = g_pTFieldGame->GetWorld()->GetWorldData();
+	int iWorldID = ( NULL != pWorldData ) ? (int)pWorldData->worldID : 0;
+
+	std::vector< UINT > vecMatch;
+	for( UINT i = 0; i < m_pHouseTemplet->m_vecCustomNpcPos.size(); ++i )
+	{
+		if( iWorldID == (int)m_pHouseTemplet->m_vecCustomNpcPos[i].m_eWorldID )
+			vecMatch.push_back( i );
+	}
+
+	if( vecMatch.size() >= 2 )
+	{
+		UINT uiPick = vecMatch[ rand() % vecMatch.size() ];
+		m_vPos = m_pHouseTemplet->m_vecCustomNpcPos[ uiPick ].m_vNpcPos;
+		m_vRot = m_pHouseTemplet->m_vecCustomNpcPos[ uiPick ].m_vNpcRot;
+	}
+	else if( vecMatch.size() == 1 )
+	{
+		m_vPos = m_pHouseTemplet->m_vecCustomNpcPos[ vecMatch[0] ].m_vNpcPos;
+		m_vRot = m_pHouseTemplet->m_vecCustomNpcPos[ vecMatch[0] ].m_vNpcRot;
+	}
+	else
+	{
+		m_vPos = m_pHouseTemplet->m_NPCMeshPos;			// rotation stays as it was
+	}
+
+	if( NULL != m_pXSkinAnim )
+		m_pXSkinAnim->GetMatrix().Move( m_vPos );
+}
+
+// June 325ca0b0 (MESSAGE) / 325ca1b0 (MOTION): a Talk_Change_Condition row with STATE == iState and a non-empty text replaces
+// the text when the player's QUEST_ID is in progress and its first unfinished sub-quest is "talk to this NPC". The last match
+// wins. SUB_QUEST_ID (+0xc) is not read by June.
+void CX2TFieldNpc::ApplyQuestConditionMessage( int iState, wstring& wstrMessage )
+{
+	if( NULL == m_pHouseTemplet || NULL == g_pData->GetQuestManager() )
+		return;
+
+	for( UINT i = 0; i < m_pHouseTemplet->m_vecTalkChangeCondition.size(); ++i )
+	{
+		const CX2LocationManager::HouseTemplet::TalkChangeCondition& kRow = m_pHouseTemplet->m_vecTalkChangeCondition[i];
+		if( kRow.m_iState != iState || kRow.m_wstrMessage.empty() || kRow.m_iType != 0 )
+			continue;
+
+		CX2QuestManager::QuestInst* pQuestInst = g_pData->GetQuestManager()->GetUnitQuest( kRow.m_iQuestID );	// 32322380
+		if( NULL == pQuestInst )
+			continue;
+
+		UINT uiSub = 0;
+		for( ; uiSub < pQuestInst->m_vecSubQuestInst.size(); ++uiSub )
+		{
+			if( false == pQuestInst->m_vecSubQuestInst[uiSub].m_bIsSuccess )		// June reads byte +6 of the 8-byte entry
+				break;
+		}
+		if( uiSub >= pQuestInst->m_vecSubQuestInst.size() )
+			continue;
+
+		const CX2QuestManager::SubQuestTemplet* pSub =
+			g_pData->GetQuestManager()->GetSubQuestTemplet( pQuestInst->m_vecSubQuestInst[uiSub].m_iID );	// 32322350
+		if( NULL != pSub && CX2QuestManager::SQT_NPC_TALK == pSub->m_eClearType &&
+			m_iNpcIndex == (int)pSub->m_ClearCondition.m_eTalkNPCID )
+			wstrMessage = kRow.m_wstrMessage;
+	}
+}
+
+void CX2TFieldNpc::ApplyQuestConditionMotion( int iState, wstring& wstrMotion )
+{
+	if( NULL == m_pHouseTemplet || NULL == g_pData->GetQuestManager() )
+		return;
+
+	for( UINT i = 0; i < m_pHouseTemplet->m_vecTalkChangeCondition.size(); ++i )
+	{
+		const CX2LocationManager::HouseTemplet::TalkChangeCondition& kRow = m_pHouseTemplet->m_vecTalkChangeCondition[i];
+		if( kRow.m_iState != iState || kRow.m_wstrMotion.empty() || kRow.m_iType != 0 )
+			continue;
+
+		CX2QuestManager::QuestInst* pQuestInst = g_pData->GetQuestManager()->GetUnitQuest( kRow.m_iQuestID );
+		if( NULL == pQuestInst )
+			continue;
+
+		UINT uiSub = 0;
+		for( ; uiSub < pQuestInst->m_vecSubQuestInst.size(); ++uiSub )
+		{
+			if( false == pQuestInst->m_vecSubQuestInst[uiSub].m_bIsSuccess )
+				break;
+		}
+		if( uiSub >= pQuestInst->m_vecSubQuestInst.size() )
+			continue;
+
+		const CX2QuestManager::SubQuestTemplet* pSub =
+			g_pData->GetQuestManager()->GetSubQuestTemplet( pQuestInst->m_vecSubQuestInst[uiSub].m_iID );
+		if( NULL != pSub && CX2QuestManager::SQT_NPC_TALK == pSub->m_eClearType &&
+			m_iNpcIndex == (int)pSub->m_ClearCondition.m_eTalkNPCID )
+			wstrMotion = kRow.m_wstrMotion;
+	}
+}
+
+// The motion block shared by the talk step (A2, 325ccfb3: TALK, state 0, JoinAnimSpeed) and the bye step (B2, 325ca337: BYE,
+// state 2, ByeAnimSpeed): the map name, the quest MOTION override, static meshes fall back to NORMAL when the anim is missing.
+void CX2TFieldNpc::PlayTalkOrByeMotion( int iMotionKey, int iState, float fAnimSpeed )
+{
+	wstring wstrMotion = m_mapMotionName[ iMotionKey ];
+	ApplyQuestConditionMotion( iState, wstrMotion );
+
+	CKTDGXSkinAnim* apSkin[2] = { m_pXSkinAnim, m_pXSkinAnim2nd };
+	for( int i = 0; i < 2; ++i )
+	{
+		if( 1 == i && NULL == apSkin[i] )
+			break;												// skin 1 is not tested (OnFrameMove returns earlier without it)
+
+		if( true == m_bStaticMesh )
+		{
+			if( false == apSkin[i]->ChangeAnim( wstrMotion.c_str(), true, 0.f ) )
+				apSkin[i]->ChangeAnim( m_mapMotionName[ JNMK_NORMAL ].c_str(), true, 0.f );
+		}
+		else
+		{
+			apSkin[i]->ChangeAnim( wstrMotion.c_str(), true, 0.f );
+		}
+		apSkin[i]->SetPlaySpeed( fAnimSpeed );
+		apSkin[i]->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+	}
+	m_bPlay = true;
+}
+
+// June talk step 325ccf60 (March OnFrameMove's m_bTalk block).
+void CX2TFieldNpc::TalkStep()
+{
+	m_bInConversation = true;									// A1, every NPC
+
+	if( false == m_bEventNpc )									// A2
+		PlayTalkOrByeMotion( JNMK_TALK, 0, m_fJoinAnimSpeed );
+
+	m_bTalk = false;											// A3
+	m_fJoinNpcTime = 0.f;
+	m_bJoinNpc = true;
+	m_iFriendshipTalkLine = 0;
+	ZeroMemory( m_abyFriendshipFlag, sizeof( m_abyFriendshipFlag ) );
+
+	g_pData->GetUIManager()->SetShowUI(false, true);			// A4
+#ifdef SERV_PVP_NEW_SYSTEM
+	g_pMain->GetPartyUI()->OpenPartyMenu( false );
+#endif
+	g_pMain->GetPartyUI()->OpenPartyDLG( false );
+	// @325cd1fd: 326662c0( g_pMain +0x1058, false ) hides June's Alarm_Button; March has no such dialog.
+
+	if( m_pUINPC == NULL )										// A5
+	{
+		if(m_bStaticMesh == false)
+			m_pUINPC = g_pData->GetUIUnitManager()->GetUIUnit( m_iNpcIndex, m_wstrUIFileName );	// 32806b30
+		else
+			m_pUINPC = NULL;
+
+		if( NULL != m_pUINPC )
+		{
+			m_pUINPC->SetAlphaObject(true);
+			m_pUINPC->SetShowObject( false );
+			g_pKTDXApp->GetDGManager()->AddObjectChain( m_pUINPC );
+		}
+	}
+
+	if(m_pDlgNpcMessage != NULL)								// A6
+	{
+		if( static_cast<CX2UnitManager::NPC_UNIT_ID>( m_iNpcIndex ) == CX2UnitManager::NUI_BILLBOARD )
+		{
+			wstring wstrRemainTime = GET_STRING( STR_ID_28380 );
+			wstring wstrAgencyShopExpirationDate = g_pInstanceData->GetAgencyShopExpirationDate();
+			if( wstrAgencyShopExpirationDate.empty() == false )
+			{
+				CTime	tCurrentTime	= CTime::GetCurrentTime();
+				CTime	cAgencyTime;
+				KncUtil::ConvertStringToCTime( wstrAgencyShopExpirationDate, cAgencyTime );
+				if( tCurrentTime < cAgencyTime )
+				{
+					if ( NULL != g_pMain && g_pMain->GetNowState() )
+						wstrRemainTime = static_cast<CX2State*>( g_pMain->GetNowState() )->GetExpirationDataDesc( g_pInstanceData->GetAgencyShopType(), wstrAgencyShopExpirationDate );
+				}
+			}
+			m_pDlgNpcMessage->SetNpcMessageWithEtc( m_strWaitTalk, wstrRemainTime );
+		}
+		else
+		{
+			wstring wstrWaitTalk = m_strWaitTalk;
+			ApplyQuestConditionMessage( 0, wstrWaitTalk );		// 325ca0b0( 0, ... )
+			m_pDlgNpcMessage->SetNpcMessage( wstrWaitTalk );
+		}
+
+		// A7 @325cd5b6: friendship gauge, gated on code event 2215 (never enabled offline). Found: 32eccf60( dlg, score ) from the
+		// friendship manager (32696fa0 / 321cd500( house )); backlog Stage 18 owns the manager and wires that call here.
+		// Not found or gate off: 32ec8d40( dlg, false ).
+		m_pDlgNpcMessage->SetShowFriendshipScore( false );
+	}
+
+	if( true == m_bStaticMesh )									// A8
+	{
+		// @325cd63b: house 40082 (HI_AGIT_BANK) opens June UI 0x1a (agit bank); March has neither the house nor the UI.
+#ifdef NPC_SOUND
+		if( NULL != m_pHouseTemplet && false == m_pHouseTemplet->m_vecNPCJoinTalkSound.empty() )
+		{
+			wstring wstrSoundName = m_pHouseTemplet->m_vecNPCJoinTalkSound[ rand() % m_pHouseTemplet->m_vecNPCJoinTalkSound.size() ];
+			NpcPlaySound( wstrSoundName );
+		}
+#endif NPC_SOUND
+	}
+
+	g_pKTDXApp->GetDeviceManager()->PlaySound( L"Camera_ZoomIn.ogg", false, false );	// A9
+#ifdef SERV_EPIC_QUEST
+	g_pData->GetUIManager()->GetUIQuestNew()->SetTalkingQuestNPC(true, (CX2UnitManager::NPC_UNIT_ID)m_iNpcIndex);
+#endif SERV_EPIC_QUEST
+}
+
+// June bye step 325ca2f0 (March OnFrameMove's m_bBye block; also called by the dtor, 325ca920 and 325ca950).
+void CX2TFieldNpc::ByeStep()
+{
+	if( false == m_bInConversation )							// B1 @325ca325 (JUNE_BUGS: a pending m_bBye is not cleared then)
+		return;
+	m_bInConversation = false;
+
+	if( false == m_bEventNpc )									// B2
+		PlayTalkOrByeMotion( JNMK_BYE, 2, m_fByeAnimSpeed );
+
+	m_bBye = false;												// B3
+	m_bJoinNpc = false;
+	m_iFriendshipTalkLine = 0;
+	ZeroMemory( m_abyFriendshipFlag, sizeof( m_abyFriendshipFlag ) );
+
+#ifdef NPC_SOUND													// B4
+	if( m_pHouseTemplet != NULL && false == m_pHouseTemplet->m_vecNPCByeTalkSound.empty() )
+	{
+		wstring wstrSoundName = m_pHouseTemplet->m_vecNPCByeTalkSound[ rand() % m_pHouseTemplet->m_vecNPCByeTalkSound.size() ];
+		NpcPlaySound( wstrSoundName );
+	}
+#endif NPC_SOUND
+
+	if( m_pUINPC != NULL )										// B5: only this NPC id's unit (32806800), not ClearAllUIUnit
+	{
+		g_pData->GetUIUnitManager()->ClearUIUnit( m_iNpcIndex );
+		m_pUINPC = NULL;
+	}
+
+    if ( g_pTFieldGame->GetNpcShadow() != NULL )				// B6
+	    g_pTFieldGame->GetNpcShadow()->CloseShadow();
+    if ( g_pTFieldGame->GetTalkBoxManager() != NULL )
+	    g_pTFieldGame->GetTalkBoxManager()->SetShowTalk(true);
+
+#ifdef SERV_PVP_NEW_SYSTEM										// B7
+	g_pMain->GetPartyUI()->OpenPartyMenu( true );
+#endif
+	// @325ca621: 326662c0( g_pMain +0x1058, true ) shows June's Alarm_Button; March has no such dialog.
+
+	if( g_pData->GetPartyManager()->GetMyPartyData()->GetPartyMemberCount() >= 2 )	// B8
+	{
+		g_pMain->GetPartyUI()->OpenPartyFeverDLG( true );
+		g_pMain->GetPartyUI()->UpdatePartyFeverDLG();
+	}
+
+	g_pData->GetUIManager()->SetShowUI(true);					// B9
+	g_pMain->GetPartyUI()->UpdatePartyMenu();					// 322c5980 = June's UpdatePartyMenu (March's body runs here)
+
+#ifdef SERV_INSERT_GLOBAL_SERVER									// B10
+	if( g_pData->GetWorldMissionManager()->IsActiveDefenceDungeon() == true )
+		g_pData->GetWorldMissionManager()->GetUIWorldMission()->SetShowTimeDlg( true );
+#endif SERV_INSERT_GLOBAL_SERVER
+#ifdef SERV_GLOBAL_MISSION_MANAGER
+	if( g_pData->GetGlobalMissionManager()->CheckShowGlobalMissionUI() == true )
+		g_pData->GetGlobalMissionManager()->GetUIGlobalMission()->SetShowGlobalMissionDlg( true );
+#endif SERV_GLOBAL_MISSION_MANAGER
+#ifdef ADDED_RELATIONSHIP_SYSTEM
+	if ( NULL != g_pData->GetRelationshipEffectManager() )
+		g_pData->GetRelationshipEffectManager()->SetShowRelationshipAttachEffect(CX2RelationshipEffectManager::REST_SHOW_ALL);
+#endif // ADDED_RELATIONSHIP_SYSTEM
+
+	g_pChatBox->SetChatBoxLayerUp(false);						// B11
+	g_pChatBox->OpenChatWindow();
+	g_pChatBox->CloseChatWindowButton();
+	g_pChatBox->HideChatEditBox();
+	if( NULL != g_pData->GetMessenger() )
+		g_pData->GetMessenger()->SetHideWindow(false);
+
+	if( m_NpcHouseID == CX2LocationManager::HI_POSTBOX )		// B12
+	{
+		if(g_pMain->GetPostBox() != NULL)
+			g_pMain->GetPostBox()->SetDialogShow(false);
+	}
+	// @325ca78a: static house 40082 (HI_AGIT_BANK) closes June UI 0x1a; March has neither.
+
+	if(m_pDlgNpcMessage != NULL)								// B13
+		m_pDlgNpcMessage->SetShow(false);
+
+#ifdef	REAL_TIME_ELSWORD										// B14 (June UI id 0x1c)
+	if ( g_pData->GetUIManager()->GetUITempInventory() != NULL &&
+		g_pData->GetUIManager()->GetUITempInventory()->GetNumberOfItem() > 0 )
+			g_pData->GetUIManager()->ToggleUI( CX2UIManager::UI_TEMP_INVENTORY, true );
+#endif	REAL_TIME_ELSWORD
+
+	g_pKTDXApp->GetDeviceManager()->PlaySound( L"Camera_ZoomOut.ogg", false, false );	// B15
+#ifdef SERV_EPIC_QUEST
+	g_pData->GetUIManager()->GetUIQuestNew()->SetTalkingQuestNPC(false);
+#endif SERV_EPIC_QUEST
+#ifdef QUEST_GUIDE												// B16
+	switch ( g_pMain->GetNowStateID() )
+	{
+	case CX2Main::XS_VILLAGE_MAP:
+		{
+			if( NULL != g_pTFieldGame && NULL != g_pTFieldGame->GetNpcIndicator() )
+				g_pTFieldGame->GetNpcIndicator()->SetShow(true);
+		} break;
+	case CX2Main::XS_BATTLE_FIELD:
+		{
+			if( NULL != g_pX2Game && NULL != static_cast<CX2BattleFieldGame*>(g_pX2Game)->GetNpcIndicator() )
+				static_cast<CX2BattleFieldGame*>(g_pX2Game)->GetNpcIndicator()->SetShow(true);
+		} break;
+	}
+#endif //QUEST_GUIDE
+}
+
+// June OnFrameRender_Draw 325d1040 (vtable 334acc6c +0xc): second skin, AlphaBlend / bApplyAlphaTest / RenderOption, name at 2700.
+void CX2TFieldNpc::OnFrameRender_Draw()
+{
+	if( false == m_bEnable )
+		return;
+    if ( m_pWorld == NULL )
+        return;
+
+	if( m_pXSkinAnim != NULL && GetShowObject() == true )
+	{
+		CKTDGXRenderer::RenderParam* pRenderParam = m_pXSkinAnim->GetRenderParam();
+		pRenderParam->bZEnable			= true;
+		pRenderParam->renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		pRenderParam->lightPos			= m_pWorld->GetLightPos();
+		pRenderParam->fOutLineWide		= 1.2f;					// 3344ce94
+		pRenderParam->color				= D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+		pRenderParam->bAlphaBlend		= false;
+		if( m_bPickNpc == true && m_bJoinNpc == false )
+		{
+			pRenderParam->renderType	= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+			pRenderParam->outLineColor	= D3DXCOLOR( 1.f / 15.f, 1.f, 1.f / 15.f, 1.f );	// 0x3347117c = 0xff11ff11
+		}
+
+		if( true == m_pHouseTemplet->m_bApplyAlphaTest )		// @325d113b
+		{
+			pRenderParam->bAlphaTestEnable	= true;
+			pRenderParam->cullMode			= D3DCULL_NONE;
+		}
+		else
+		{
+			if( true == m_pHouseTemplet->m_bAlphaBlend1stMesh )	// @325d1151
+			{
+				pRenderParam->bAlphaBlend	= true;
+				pRenderParam->srcBlend		= D3DBLEND_SRCALPHA;
+				pRenderParam->destBlend		= D3DBLEND_INVSRCALPHA;
+				pRenderParam->cullMode		= D3DCULL_NONE;
+				pRenderParam->fOutLineWide	= m_pHouseTemplet->m_fOutlineWidthMesh;
+			}
+			const SJuneVillageNpcRenderOption& kOption = m_pHouseTemplet->m_RenderOption;	// @325d118b
+			if( true == kOption.m_bUseRenderOption )
+			{
+				pRenderParam->bAlphaBlend	= kOption.m_bUseAlphaBlend;
+				pRenderParam->srcBlend		= (D3DBLEND)kOption.m_iSrcBlend;
+				pRenderParam->destBlend		= (D3DBLEND)kOption.m_iDestBlend;
+				switch( (int)kOption.m_vMultiTexSpeed.x )		// _ftol2: the texture stage
+				{
+				case 0:
+					pRenderParam->texOffsetStage0.x += kOption.m_vMultiTexSpeed.y * m_fMultiTexTime;
+					pRenderParam->texOffsetStage0.y += kOption.m_vMultiTexSpeed.z * m_fMultiTexTime;
+					break;
+				case 1:
+					pRenderParam->texOffsetStage1.x += kOption.m_vMultiTexSpeed.y * m_fMultiTexTime;
+					pRenderParam->texOffsetStage1.y += kOption.m_vMultiTexSpeed.z * m_fMultiTexTime;
+					break;
+				case 2:
+					pRenderParam->texOffsetStage2.x += kOption.m_vMultiTexSpeed.y * m_fMultiTexTime;
+					pRenderParam->texOffsetStage2.y += kOption.m_vMultiTexSpeed.z * m_fMultiTexTime;
+					break;
+				}
+				pRenderParam->color			= kOption.m_Color;
+			}
+		}
+
+		m_pXSkinAnim->OnFrameRender();
+
+		if( GetDistanceToCamera() <= 2700.f || 40147 == m_NpcHouseID )	// 334acd70; 40147 = June HI_SPA_PPORU (no March house)
+			RenderName();
+	}
+
+	if( m_pXSkinAnim2nd != NULL && GetShowObject() == true )	// @325d12b1
+	{
+		CKTDGXRenderer::RenderParam* pRenderParam = m_pXSkinAnim2nd->GetRenderParam();
+		pRenderParam->bZEnable			= true;
+		pRenderParam->renderType		= CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		pRenderParam->lightPos			= m_pWorld->GetLightPos();
+		pRenderParam->fOutLineWide		= 1.2f;
+		pRenderParam->color				= D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+		pRenderParam->bAlphaBlend		= false;
+		if( true == m_pHouseTemplet->m_bAlphaBlend2ndMesh )
+		{
+			pRenderParam->bAlphaBlend	= true;
+			pRenderParam->srcBlend		= D3DBLEND_SRCALPHA;
+			pRenderParam->destBlend		= D3DBLEND_INVSRCALPHA;
+			pRenderParam->cullMode		= D3DCULL_NONE;
+		}
+		if( true == m_pHouseTemplet->m_bNoEdge2ndMesh )
+			pRenderParam->renderType	= CKTDGXRenderer::RT_CARTOON;
+		if( m_bPickNpc == true && m_bJoinNpc == false )
+		{
+			pRenderParam->renderType	= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+			pRenderParam->outLineColor	= D3DXCOLOR( 1.f / 15.f, 1.f, 1.f / 15.f, 1.f );
+		}
+		m_pXSkinAnim2nd->OnFrameRender();
+	}
+}
+
+// June CreateFieldNpc 325ca980 (june2017_re/e1_createfieldnpc_diff.md, blocks 1-24).
+void CX2TFieldNpc::CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTemplet *pHouseTemplate, std::wstring wstrNpcName)
+{
+	// 2: members
+	m_pWorld = pWorld;
+	m_pHouseTemplet = pHouseTemplate;
+	m_eHouseType = pHouseTemplate->m_Type;
+	m_NpcHouseID = (int)pHouseTemplate->m_ID;
+	m_bTalk		= false;
+	m_bBye		= false;
+	m_vRot		= pHouseTemplate->m_NPCMeshRot;
+	m_vScale	= pHouseTemplate->m_NPCMeshScal;
+	m_iFriendshipTalkLine = 0;
+	ZeroMemory( m_abyFriendshipFlag, sizeof( m_abyFriendshipFlag ) );
+
+	// 3-6 and 23 (325caa53-325caf0e, 325cc7b2-325cc8a5): June backs up ten templet fields, asks the friendship manager
+	// (32696fa0 -> 326821d0( house, row, completed-quest set of g_pData +0x68 +0xd0 )) for an override row, writes a found row's
+	// texture / mesh / talk strings / TALK_BOX into the templet for this function and restores them at the end. Backlog Stage 18
+	// owns the manager and wires that call here; without it no row is ever found, so nothing is overridden.
+
+	// 7: position, join area, anim speeds, static list
+#ifdef LOCAL_NPC_JOIN_AREA
+	bool bUseLocalJoinArea = false;
+#endif LOCAL_NPC_JOIN_AREA
+	if( pHouseTemplate->m_vecCommonPos.empty() )
+	{
+		if( pHouseTemplate->m_vecCustomNpcPos.empty() )
+			m_vPos = pHouseTemplate->m_NPCMeshPos;
+		else
+			SetCustomNpcLocation();								// 325c95e0
+	}
+	else if( NULL != pWorld )									// June adds the NULL guard (pos left as it was)
+	{
+		int iWorldID = ( NULL != pWorld->GetWorldData() ) ? (int)pWorld->GetWorldData()->worldID : 0;
+		for(UINT i=0; i<pHouseTemplate->m_vecCommonPos.size(); ++i)
+		{
+			if( iWorldID == (int)pHouseTemplate->m_vecCommonPos[i].m_eWorldID )
+			{
+				m_vPos = pHouseTemplate->m_vecCommonPos[i].m_vNpcPos;
+				m_vRot = pHouseTemplate->m_vecCommonPos[i].m_vNpcRot;
+#ifdef LOCAL_NPC_JOIN_AREA
+				if(pHouseTemplate->m_vecCommonPos[i].m_fLocalJoinArea > 0.f)
+				{
+					bUseLocalJoinArea = true;
+					m_NPCJoinArea = (int)pHouseTemplate->m_vecCommonPos[i].m_fLocalJoinArea;
+				}
+#endif LOCAL_NPC_JOIN_AREA
+				break;
+			}
+		}
+	}
+#ifdef LOCAL_NPC_JOIN_AREA
+	if(bUseLocalJoinArea == false)
+#endif LOCAL_NPC_JOIN_AREA
+		m_NPCJoinArea = pHouseTemplate->m_NPCJoinArea;
+
+	m_fJoinAnimSpeed	= pHouseTemplate->m_fJoinAnimSpeed;		// @325caf95
+	m_fWaitAnimSpeed	= pHouseTemplate->m_fWaitAnimSpeed;
+	m_fByeAnimSpeed		= pHouseTemplate->m_fByeAnimSpeed;
+
+	switch( (int)pHouseTemplate->m_ID )							// jump table 325cc940 / 325cc948
+	{
+	case CX2LocationManager::HI_POSTBOX:
+	case CX2LocationManager::HI_CHRISTMAS_TREE:
+	case 40082:													// June HI_AGIT_BANK (no March house)
+	case CX2LocationManager::HI_GUILD_MARK:
+	case CX2LocationManager::HI_STORY_QUEST:
+	case CX2LocationManager::HI_TRANSCEND_QUEST:
+		m_bStaticMesh = true;
+		break;
+	}
+
+	// 8-10: meshes
+    m_bLoaded = false;
+	const WCHAR* pwszPivot = ( false == m_bStaticMesh ) ? L"Npc_Pivot" : L"Bip01";
+	if ( true == m_bBackgroundLoad )
+    {
+		m_pMesh = g_pKTDXApp->GetDeviceManager()->OpenXSkinMeshInBackground( pHouseTemplate->m_NPCMeshName.c_str(), CKTDXDeviceManager::PRIORITY_HIGH, pwszPivot );
+		if( false == pHouseTemplate->m_wstrNPCMeshName2nd.empty() )		// June's device open returns NULL for an empty name
+			m_pMesh2nd = g_pKTDXApp->GetDeviceManager()->OpenXSkinMeshInBackground( pHouseTemplate->m_wstrNPCMeshName2nd.c_str(), CKTDXDeviceManager::PRIORITY_HIGH, pwszPivot );
+
+	    if( m_pMesh != NULL )
+	    {
+            CKTDGXSkinAnim::DeleteKTDGObject( m_pXSkinAnim );
+		    m_pXSkinAnim = NULL;
+            m_pAniXET = g_pKTDXApp->GetDeviceManager()->OpenXETInBackground( pHouseTemplate->m_NPCAniTex.c_str(), CKTDXDeviceManager::PRIORITY_HIGH );
+			if( false == pHouseTemplate->m_RenderOption.m_wstrMultiTex.empty() )
+				m_pMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXETInBackground( pHouseTemplate->m_RenderOption.m_wstrMultiTex.c_str(), CKTDXDeviceManager::PRIORITY_HIGH );	// @325cb354
+		    SetCenter( m_vPos );
+	    }
+		if( m_pMesh2nd != NULL )
+		{
+            CKTDGXSkinAnim::DeleteKTDGObject( m_pXSkinAnim2nd );
+		    m_pXSkinAnim2nd = NULL;
+			if( false == pHouseTemplate->m_wstrNPCAniTex2nd.empty() )
+				m_pAniXET2nd = g_pKTDXApp->GetDeviceManager()->OpenXETInBackground( pHouseTemplate->m_wstrNPCAniTex2nd.c_str(), CKTDXDeviceManager::PRIORITY_HIGH );
+		}
+    }
+    else
+    {
+		m_pMesh = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( pHouseTemplate->m_NPCMeshName.c_str(), pwszPivot );
+		if( false == pHouseTemplate->m_wstrNPCMeshName2nd.empty() )
+			m_pMesh2nd = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( pHouseTemplate->m_wstrNPCMeshName2nd.c_str(), pwszPivot );
+
+	    if( m_pMesh != NULL )
+	    {
+            CKTDGXSkinAnim::DeleteKTDGObject( m_pXSkinAnim );
+		    m_pXSkinAnim = CKTDGXSkinAnim::CreateSkinAnim();
+		    if( m_pXSkinAnim != NULL )
+		    {
+			    m_pAniXET = g_pKTDXApp->GetDeviceManager()->OpenXET( pHouseTemplate->m_NPCAniTex.c_str() );
+			    m_pXSkinAnim->SetApplyMotionOffset( false );
+			    m_pXSkinAnim->SetAnimXSkinMesh( m_pMesh, m_pAniXET );
+			    m_pXSkinAnim->AddModelXSkinMesh( m_pMesh, m_pAniXET );	// the foreground path uses no MultiTex (+0x1ec stays NULL)
+			    m_pXSkinAnim->SetShowObject(false);
+			    m_pXSkinAnim->GetMatrix().Move( m_vPos );
+			    m_pXSkinAnim->GetMatrix().RotateDegree( m_vRot );
+			    m_pXSkinAnim->GetMatrix().Scale( m_vScale );
+		    }
+
+			if( m_pMesh2nd != NULL )								// 10c, inside the mesh-1 gate
+			{
+				CKTDGXSkinAnim::DeleteKTDGObject( m_pXSkinAnim2nd );
+				m_pXSkinAnim2nd = CKTDGXSkinAnim::CreateSkinAnim();
+				if( m_pXSkinAnim2nd != NULL )
+				{
+					if( false == pHouseTemplate->m_wstrNPCAniTex2nd.empty() )
+						m_pAniXET2nd = g_pKTDXApp->GetDeviceManager()->OpenXET( pHouseTemplate->m_wstrNPCAniTex2nd.c_str() );
+					m_pXSkinAnim2nd->SetApplyMotionOffset( false );
+					m_pXSkinAnim2nd->SetAnimXSkinMesh( m_pMesh2nd, m_pAniXET2nd );
+					m_pXSkinAnim2nd->AddModelXSkinMesh( m_pMesh2nd, m_pAniXET2nd );
+					m_pXSkinAnim2nd->SetShowObject(false);
+					m_pXSkinAnim2nd->GetMatrix().Move( m_vPos );
+					m_pXSkinAnim2nd->GetMatrix().RotateDegree( m_vRot );
+					m_pXSkinAnim2nd->GetMatrix().Scale( m_vScale );
+				}
+			}
+
+		    SetCenter( m_vPos );
+		    float fRadius = m_pMesh->GetBoundingRadius() * m_vScale.y;
+		    SetBoundingRadius( fRadius );
+            m_bLoaded = true;
+	    }
+    }
+
+	// 11: NPC id and name (June adds the name override)
+#ifdef SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
+	if(m_bStaticMesh == false && pHouseTemplate->m_NPCList.empty() == false)
+	{
+		m_iNpcIndex = pHouseTemplate->m_NPCList[0];
+		if( false == wstrNpcName.empty() )
+		{
+			m_strNpcName = wstrNpcName;
+		}
+		else
+		{
+			const CX2UnitManager::NPCUnitTemplet* pNpcTemplet =
+				g_pData->GetUnitManager()->GetNPCUnitTemplet( (CX2UnitManager::NPC_UNIT_ID)m_iNpcIndex );
+			if( pNpcTemplet != NULL )
+			{
+				m_strNpcName = pNpcTemplet->m_Name;
+			}
+			else
+			{
+				m_strNpcName = L"";
+				std::wstringstream strstm;
+				strstm << L"[RANOXDBG] house " << (int)pHouseTemplate->m_ID << L" NPC " << m_iNpcIndex << L" has no NPCTemplet row";
+				ErrorLogMsg( 0, strstm.str().c_str() );
+			}
+		}
+	}
+	else
+	{
+		m_iNpcIndex = -1;
+		m_strNpcName = L"";
+		if( m_bStaticMesh == false )
+		{
+			std::wstringstream strstm;
+			strstm << L"[RANOXDBG] house " << (int)pHouseTemplate->m_ID << L" has an empty NPC_ID_LIST - unnamed NPC";
+			ErrorLogMsg( 0, strstm.str().c_str() );
+		}
+	}
+#else SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
+	if(m_bStaticMesh == false)
+	{
+		m_iNpcIndex = pHouseTemplate->m_NPCList[0];
+		if( false == wstrNpcName.empty() )
+		{
+			m_strNpcName = wstrNpcName;
+		}
+		else
+		{
+			const CX2UnitManager::NPCUnitTemplet* pNpcTemplet =
+				g_pData->GetUnitManager()->GetNPCUnitTemplet( (CX2UnitManager::NPC_UNIT_ID)m_iNpcIndex );
+			if( pNpcTemplet != NULL )
+				m_strNpcName = pNpcTemplet->m_Name;
+		}
+	}
+	else
+	{
+		m_iNpcIndex = -1;
+		m_strNpcName = L"";
+	}
+#endif SERV_IRUHADEV_FIELDNPC_EMPTY_NPCLIST_GUARD
+
+	// 12: flags (June drops March's web-event and synthesis flags; REPAIR is not read)
+	m_bEventNpc		= pHouseTemplate->m_bEventNpc;
+	m_bPvpNpc		= pHouseTemplate->m_bPvpNpc;
+	m_bMakingNpc	= pHouseTemplate->m_bMakingNpc;
+	m_bTraining		= pHouseTemplate->m_bTraining;
+	m_bFreeTraining	= pHouseTemplate->m_bFreeTraining;
+	m_bEnchant		= pHouseTemplate->m_bEnchant;
+	m_bAttribute	= pHouseTemplate->m_bAttribute;
+#ifdef GUILD_BOARD
+	m_bGuild		= pHouseTemplate->m_bGuild;
+#endif GUILD_BOARD
+	m_bRanking		= pHouseTemplate->m_bRanking;
+#ifdef	ITEM_EXCHANGE_SHOP
+	m_bExchange		= pHouseTemplate->m_bExchange;
+#endif	ITEM_EXCHANGE_SHOP
+#ifdef PRIVATE_BANK
+	m_bPrivateBank	= pHouseTemplate->m_bPrivateBank;
+#endif PRIVATE_BANK
+#ifdef DEF_TRADE_BOARD
+	m_bPersonalShop	= pHouseTemplate->m_bPersonalShop;
+#endif DEF_TRADE_BOARD
+#ifdef SERV_PSHOP_AGENCY
+	m_bAgencyTraderRegister = pHouseTemplate->m_bAgencyTraderRegister;
+	m_bAgencyTraderReceive = pHouseTemplate->m_bAgencyTraderReceive;
+#endif
+#ifdef	ADD_HOUSE_ID_TO_MANUFACTURE
+	m_bShopNpc = pHouseTemplate->m_bSell;
+#else
+	m_bShopNpc = ( pHouseTemplate->m_ShopCategoryTypeList.size() > 0 );
+#endif	ADD_HOUSE_ID_TO_MANUFACTURE
+#ifdef NPC_EVENT_BUTTON
+	m_bEvent1 = pHouseTemplate->m_bEvent1;
+	m_bEvent2 = pHouseTemplate->m_bEvent2;
+	m_bEvent3 = pHouseTemplate->m_bEvent3;
+	m_bEvent4 = pHouseTemplate->m_bEvent4;
+#endif NPC_EVENT_BUTTON
+	m_bPhotoZone			= pHouseTemplate->m_bPhotoZone;
+	m_bFragmentExchange		= pHouseTemplate->m_bFragmentExchange;
+	m_bRockScissorsPaper	= pHouseTemplate->m_bRockScissorsPaperNpc;
+	m_bOldEnchant			= pHouseTemplate->m_bOldEnchant;
+	m_bOldAdvancedEnchant	= pHouseTemplate->m_bOldAdvancedEnchant;
+#ifdef SERV_NEW_ITEM_SYSTEM_2013_05
+	m_bExchangeNewItem		= pHouseTemplate->m_bExchangeNewItem;
+#endif // SERV_NEW_ITEM_SYSTEM_2013_05
+	m_bHenirEquipUpgrade	= pHouseTemplate->m_bHenirEquipUpgrade;
+	m_bGuildAgitService		= pHouseTemplate->m_bGuildAgitService;
+
+	// 13 (325cbc0c): HI_MU in June's guild base (g_pMain state 0xf = XS_GUILD_AGIT_GAME, my guild info set) reads entry 0 of the
+	// guild info's map (+0x90): absent -> shop off; 0 -> exchange + make off; 1 -> none. March has no guild base state, so the
+	// three m_bMu*Disable flags keep the ctor's false and the 4-argument SetShopType below behaves as March's.
+
+	// 14
+	m_bGuildEnter	= pHouseTemplate->m_bGuildEnter;
+	m_bExtraction	= pHouseTemplate->m_bExtraction;
+	m_bTrade		= pHouseTemplate->m_bTrade;
+
+	// 15: motion map (always assigned, even when the templet name is empty)
+	m_mapMotionName[ JNMK_WAIT01 ]		= pHouseTemplate->m_wstrWait01MotionName;
+	m_mapMotionName[ JNMK_WAIT02 ]		= pHouseTemplate->m_wstrWait02MotionName;
+	m_mapMotionName[ JNMK_WAIT03 ]		= pHouseTemplate->m_wstrWait03MotionName;
+	m_mapMotionName[ JNMK_TALK ]		= pHouseTemplate->m_wstrTalkMotionName;
+	m_mapMotionName[ JNMK_TALKLOOP ]	= pHouseTemplate->m_wstrTalkLoopMotionName;
+	m_mapMotionName[ JNMK_TALKWAIT ]	= pHouseTemplate->m_wstrTalkWaitMotionName;
+	m_mapMotionName[ JNMK_BYE ]			= pHouseTemplate->m_wstrByeMotionName;
+	m_mapMotionName[ JNMK_NORMAL ]		= pHouseTemplate->m_wstrNormalMotionName;
+
+	// 16: custom motion queue
+	m_vecCustomMotion.clear();
+	m_vecCustomMotion = pHouseTemplate->m_vecCustomMotionName;
+
+	// 17: the NPC dialog
+	if(m_pDlgNpcMessage != NULL && m_bStaticMesh == false)
+	{
+		m_pDlgNpcMessage->CreateHouseNPCName(pHouseTemplate);
+		m_strHouseName = pHouseTemplate->m_HouseName;
+		m_pDlgNpcMessage->SetNpcId(m_iNpcIndex, m_strHouseName);
+
+		// 17b: June's 4-argument SetShopType( type, true, disable, false ) in June's order
+		if( m_bPvpNpc )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PVP, true, false, false );
+		if( m_bShopNpc )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_SHOP, true, m_bMuShopDisable, false );
+		if( m_bMakingNpc )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_MAKE, true, m_bMuMakeDisable, false );
+		if( m_bTraining )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_TRAINING, true, false, false );
+		if( m_bFreeTraining )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_FREETRAIN, true, false, false );
+		if( m_bEnchant )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_ENCHANT, true, false, false );
+		if( m_bAttribute )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_ATTRIBUTE, true, false, false );
+#ifdef GUILD_BOARD
+		if( m_bGuild )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_GUILD, true, false, false );
+#endif GUILD_BOARD
+		if( m_bRanking )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_RANKING, true, false, false );
+#ifdef	ITEM_EXCHANGE_SHOP
+		if( m_bExchange )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXCHANGE, true, m_bMuExchangeDisable, false );
+#endif	ITEM_EXCHANGE_SHOP
+#ifdef PRIVATE_BANK
+		if( m_bPrivateBank )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PRIVATE_BANK, true, false, false );
+#endif PRIVATE_BANK
+#ifdef DEF_TRADE_BOARD
+		if( m_bPersonalShop )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PERSONAL_SHOP, true, false, false );
+#endif DEF_TRADE_BOARD
+#ifdef SERV_PSHOP_AGENCY
+		if( m_bAgencyTraderRegister )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_AGENCY_TRADER_REGISTER, true, false, false );
+		if( m_bAgencyTraderReceive )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_AGENCY_TRADER_RECEIVE, true, false, false );
+#endif
+#ifdef NPC_EVENT_BUTTON
+		if( m_bEvent1 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT1, true, false, false );
+		if( m_bEvent2 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT2, true, false, false );
+		if( m_bEvent3 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT3, true, false, false );
+		if( m_bEvent4 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT4, true, false, false );
+#endif NPC_EVENT_BUTTON
+#ifdef SERV_NEW_ITEM_SYSTEM_2013_05
+		if( m_bExchangeNewItem )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXCHANGE_NEW_ITEM, true, false, false );
+#endif // SERV_NEW_ITEM_SYSTEM_2013_05
+		if( m_bHenirEquipUpgrade )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, true, false, false );
+		if( m_bPhotoZone )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_PHOTOZONE, true, false, false );
+		if( m_bFragmentExchange )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_FRAGMENT_EXCHANGE, true, false, false );
+		if( m_bRockScissorsPaper )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_ROCKSCISSORSPAPER, true, false, false );
+		if( m_bOldEnchant )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ENCHANT, true, false, false );
+		if( m_bOldAdvancedEnchant )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ADVANCED_ENCHANT, true, false, false );
+
+		// @325cc17c: code event 2204 off -> for eight NPCs, if 2204 is on, hide the Henir equip upgrade button. As decoded the inner
+		// call needs the value the outer test skipped on, so it never runs (JUNE_BUGS); ported as June has it.
+		if( false == ( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 2204 ) ) )
+		{
+			switch( m_iNpcIndex )
+			{
+			case 10004:	// NUI_ECHO
+			case 10009:	// NUI_CHACHABUK
+			case 10015:	// NUI_AMOS
+			case 10020:	// NUI_ALLEGRO
+			case 10028:	// NUI_GRAIL
+			case 10041:	// NUI_DENKA
+			case 10057:	// NUI_VAPOR
+			case 10069:	// NUI_FACEOFF
+				if( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 2204 ) )
+					m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, false, true, false );
+				break;
+			}
+		}
+
+		if( m_bGuildAgitService )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_AGIT_SERVICE, true, false, false );
+		if( m_bGuildEnter )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_ENTER, true, false, false );
+		if( m_bExtraction )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_EXTRACTION, true, false, false );
+		if( m_bTrade )				m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_TRADE, true, false, false );
+
+		// 17c: talk strings
+		m_strWaitTalk		= pHouseTemplate->m_strWaitTalk;
+		m_strMakeTalk		= pHouseTemplate->m_strMakeTalk;
+		m_strShopTalk		= pHouseTemplate->m_strShopTalk;
+		m_strPvpTalk		= pHouseTemplate->m_strPvpTalk;
+		m_strQuestTalk		= pHouseTemplate->m_strQuestTalk;
+		m_strByeTalk		= pHouseTemplate->m_strByeTalk;
+		m_strRankingTalk	= pHouseTemplate->m_strRankingTalk;
+		m_strExchangeTalk	= pHouseTemplate->m_strExchangeTalk;
+#ifdef PRIVATE_BANK
+		m_strPrivateBankTalk	= pHouseTemplate->m_strPrivateBank;
+#endif PRIVATE_BANK
+
+		// 17d: NPC_TALK_LIST<n> (inserted; an existing key is kept)
+		for( std::map< int, CX2LocationManager::HouseTemplet::NpcTalkList >::const_iterator it = pHouseTemplate->m_mapNpcTalkList.begin();
+			it != pHouseTemplate->m_mapNpcTalkList.end(); ++it )
+			m_mapNpcTalkList.insert( *it );
+
+		// 17e
+		m_strEveryDayRewardTalk	= pHouseTemplate->m_strEveryDayRewardTalk;
+		m_strGiftUITalk			= pHouseTemplate->m_strGiftUITalk;
+		m_strRejectGiftTalk		= pHouseTemplate->m_strRejectGiftTalk;
+		m_strAfterTalk			= pHouseTemplate->m_strAfterTalk;
+		m_strUpgradeTalk		= pHouseTemplate->m_strUpgradeTalk;
+		m_strServiceTalk		= pHouseTemplate->m_strServiceTalk;
+		m_strTradeTalk			= pHouseTemplate->m_strTradeTalk;
+#ifdef GUILD_BOARD
+		m_strGuildADTalk = pHouseTemplate->m_strGuildADTalk;
+#endif GUILD_BOARD
+#ifdef DEF_TRADE_BOARD
+		m_strPersonalShopTalk = pHouseTemplate->m_strPersonalShopTalk;
+#endif DEF_TRADE_BOARD
+#ifdef SERV_PSHOP_AGENCY
+		m_strRegisterTalk = pHouseTemplate->m_strRegisterTalk;
+		m_strReceiveTalk = pHouseTemplate->m_strReceiveTalk;
+#endif
+#ifdef SERV_NEW_ITEM_SYSTEM_2013_05
+		m_strExchangeNewItemTalk = pHouseTemplate->m_strExchangeNewItemTalk;
+#endif //SERV_NEW_ITEM_SYSTEM_2013_05
+		m_pDlgNpcMessage->SetKeyEvent();
+	}
+
+	// 18: shadow, except the billboard, HI_YUNO and 40147 (June HI_SPA_PPORU, no March house)
+	if ( m_NpcHouseID != CX2LocationManager::HI_BILLBOARD && m_NpcHouseID != CX2LocationManager::HI_YUNO && m_NpcHouseID != 40147 )
+	{
+		m_pUnitShadow = CKTDGPlanShadow::CreatePlanShadow( 200 );
+        if ( m_pUnitShadow != NULL )
+        {
+		    m_pUnitShadow->SetLayer( XL_EFFECT_0 );
+		    m_pUnitShadow->SetShadowTexture( L"shadow.dds" );
+		    m_pUnitShadow->UpdatePosition(m_vPos, m_vPos, m_vRot);
+		    g_pKTDXApp->GetDGManager()->AddObjectChain( m_pUnitShadow );
+        }
+	}
+
+	// 19
+#ifdef	CHRISTMAS_TREE
+	SetCanTalkNpc( pHouseTemplate->m_bCanTalkNpc, false );
+#endif	CHRISTMAS_TREE
+	GetQuestInfo();
+
+	// 20
+#ifdef TALK_BOX_VILLAGE_NPC
+	for ( std::vector<wstring>::iterator itr = pHouseTemplate->m_vecNPCTalkBox.begin(); itr != pHouseTemplate->m_vecNPCTalkBox.end(); ++itr )
+		m_vecNPCTalkBox.push_back( *itr );
+#endif
+
+	// 21
+#ifdef ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_NEAR
+	if ( L"" != pHouseTemplate->m_wstrNearSoundFileName && NULL != g_pKTDXApp->GetDeviceManager() )
+	{
+		m_bIsPlayNearSound = true;
+		m_wstrNearSoundFileName = pHouseTemplate->m_wstrNearSoundFileName;
+		m_fPlayNowNearSoundCoolTime = m_fPlayMaxNearSoundCoolTime = pHouseTemplate->m_fPlayNearSoundCoolTime;
+		m_fPlayNearSoundDistance = pHouseTemplate->m_fPlayNearSoundDistance;
+	}
+#endif // ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_NEAR
+
+	// 22: the UI file override, unconditional
+	m_wstrUIFileName = pHouseTemplate->m_wstrUIFileName;
+}
+
+// June SetShowObject 325c9000: both skins.
+void CX2TFieldNpc::SetShowObject(bool val)
+{
+	if(m_pXSkinAnim != NULL)
+		m_pXSkinAnim->SetShowObject(val);
+	if(m_pXSkinAnim2nd != NULL)
+		m_pXSkinAnim2nd->SetShowObject(val);
+    m_bReservedShowObject = val;
+}
+
+// June GetShowObject 325c8210: skin 1 only, as March.
+bool CX2TFieldNpc::GetShowObject()
+{
+	if( m_pXSkinAnim != NULL)
+		return m_pXSkinAnim->GetShowObject();
+	return m_bReservedShowObject;
+}
+
+// June RenderName 325ccb40.
+void CX2TFieldNpc::RenderName()
+{
+#ifdef DIALOG_SHOW_TOGGLE
+	if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
+		return;
+#endif
+
+	if ( g_pTFieldGame == NULL || GetShowObject() == false )
+		return;
+
+	if( m_bStaticMesh == false )
+	{
+		D3DXVECTOR3 vFontPos = m_vPos;
+		vFontPos.y -= 15.f;
+		if( m_NpcHouseID == CX2LocationManager::HI_SPA_SIGN_RANOX )		// @325ccbfe
+			vFontPos.x -= 150.f;
+		if ( g_pTFieldGame->GetFontForUnitName() == NULL )
+			return;
+		g_pTFieldGame->GetFontForUnitName()->OutProjectionText( vFontPos, m_strNpcName.c_str(), 0xffffaa77,
+			CKTDGFontManager::FS_SHELL, 0xff000000, NULL, DT_CENTER );
+		if ( m_NpcHouseID == CX2LocationManager::HI_BILLBOARD )
+			return;
+		vFontPos.y -= 25.f;
+		g_pTFieldGame->GetFontForUnitName()->OutProjectionText( vFontPos, m_strHouseName.c_str(), 0xff20B7ff,
+			CKTDGFontManager::FS_SHELL, 0xff000000, NULL, DT_CENTER );
+	}
+	else
+	{
+		D3DXVECTOR3 vFontPos = m_vPos;
+		vFontPos.y -= 15.f;
+		if ( m_NpcHouseID == CX2LocationManager::HI_POSTBOX )
+		{
+			if ( g_pTFieldGame->GetFontForUnitName() != NULL )
+				g_pTFieldGame->GetFontForUnitName()->OutProjectionText( vFontPos, GET_STRING( STR_ID_754 ), 0xffffaa77,
+					CKTDGFontManager::FS_SHELL, 0xff000000, NULL, DT_CENTER );
+		}
+		else if ( m_NpcHouseID == 40082 )			// June HI_AGIT_BANK: label STR 34403 (0x8663); no March house
+		{
+			if ( g_pTFieldGame->GetFontForUnitName() != NULL )
+				g_pTFieldGame->GetFontForUnitName()->OutProjectionText( vFontPos, GET_STRING( 34403 ), 0xffffaa77,
+					CKTDGFontManager::FS_SHELL, 0xff000000, NULL, DT_CENTER );
+		}
+	}
+}
+
+// June SetCanTalkNpc 325c8250.
+void CX2TFieldNpc::SetCanTalkNpc(bool val, bool bForce )
+{
+	KTDXPROFILE();
+
+	if( bForce == false && m_bCanTalkNpc == val)
+		return;
+
+	switch( m_NpcHouseID )							// June adds three houses to March's Christmas tree
+	{
+	case CX2LocationManager::HI_CHRISTMAS_TREE:
+	case CX2LocationManager::HI_GUILD_MARK:
+	case 40141:										// June HI_SPA_SIGN_RUBEN (no March house)
+	case CX2LocationManager::HI_SPA_SIGN_RANOX:
+		m_bCanTalkNpc = val;
+		m_bReservedCanTalkNpc = ( bForce == false );
+		return;
+	}
+
+	if(val == true)
+	{
+        if ( m_pXSkinAnim != NULL )
+        {
+		    m_pXSkinAnim->ChangeAnim( L"Active", true );
+		    m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		    m_bPlay = true;
+        }
+        if ( m_pXSkinAnim2nd != NULL )
+        {
+		    m_pXSkinAnim2nd->ChangeAnim( L"Active", true );
+		    m_pXSkinAnim2nd->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		    m_bPlay = true;
+        }
+	}
+	else
+	{
+		CKTDGUIDialogType pDialog = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetDialog(L"OkAndCancelMsgBox");
+		if(pDialog != NULL && pDialog->GetShow() == true)
+			return;
+
+        if ( m_pXSkinAnim != NULL && true == m_pXSkinAnim->ChangeAnim( L"DeActive", true ) )	// June plays only when the anim exists
+        {
+		    m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		    m_bPlay = true;
+        }
+        if ( m_pXSkinAnim2nd != NULL && true == m_pXSkinAnim2nd->ChangeAnim( L"DeActive", true ) )
+        {
+		    m_pXSkinAnim2nd->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		    m_bPlay = true;
+        }
+
+		if(g_pData != NULL && g_pData->GetUIManager() != NULL && m_bJoinNpc == true )
+		{
+			g_pData->GetUIManager()->CloseAll();		// June has no profile-manager CloseAll here
+			m_bBye = true;
+		}
+	}
+
+	m_bCanTalkNpc = val;
+	m_bReservedCanTalkNpc = ( bForce == false );
+}
+
+#ifdef NPC_SOUND
+// June NpcPlaySound 325c9c00: no 3D branch (as March under ONLY_NORMAL_SOUND_BY_NPC); the device's id is kept.
+void CX2TFieldNpc::NpcPlaySound(wstring &wstrSoundName)
+{
+	g_pKTDXApp->GetDeviceManager()->StopSound( m_wstrPlaySoundName.c_str() );
+	if( wstrSoundName.empty() == false )
+	{
+		CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( wstrSoundName.c_str(), false, false );
+		if( NULL != pSound )
+			wstrSoundName = pSound->GetDeviceID();				// @325c9c5a: the argument itself takes the device id
+		m_wstrPlaySoundName = wstrSoundName;
+	}
+}
+#endif NPC_SOUND
+#endif SERV_IRUHADEV_ELYSION_VILLAGE

@@ -55,7 +55,12 @@ class CX2TFieldNpc : public CKTDGObject
 		virtual HRESULT				OnResetDevice();
 		virtual HRESULT				OnLostDevice();
 		
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June 325ca980 takes a name override by value (the relation side passes one; L"" = the NPC templet's name).
+		void						CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTemplet *pHouseTemplate, std::wstring wstrNpcName = L"");
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 		void						CreateFieldNpc(CX2World *pWorld, CX2LocationManager::HouseTemplet *pHouseTemplate);
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		CKTDGFontManager::CUKFont*	GetFontForUnitName() { return m_pFontForUnitName; }				
 
 		void						SetShowObject(bool val);
@@ -102,7 +107,15 @@ class CX2TFieldNpc : public CKTDGObject
 // #endif NEW_VILLAGE_FIELD_NPC_BACKGROUND_LOADING_TEST
 
 		bool GetEnable() const { return m_bEnable; }
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		void SetEnable( bool val );						// June 325ca950: bye if joined, SetShowField( val ), m_bEnable, ResetNpc
+		void DisableNpc();								// June 325ca920: bye if joined, SetShowField( false ), m_bEnable = false
+		void TalkStep();								// June 325ccf60 (outlined from March's OnFrameMove talk block)
+		void ByeStep();									// June 325ca2f0 (outlined from March's OnFrameMove bye block)
+		bool GetInConversation() const { return m_bInConversation; }
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 		void SetEnable(bool val) { m_bEnable = val; }
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 		void InitQuestMark();
 		void GetQuestInfo();
@@ -129,6 +142,24 @@ class CX2TFieldNpc : public CKTDGObject
 	private:
 		bool Handler_EGS_TALK_WITH_NPC_REQ( CX2UnitManager::NPC_UNIT_ID questNPCID );
 		bool Handler_EGS_TALK_WITH_NPC_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June motion-map keys (CreateFieldNpc 325ca980 block 15: the templet's *_MOTION_NAME -> NPC +0x1f4).
+		enum JUNE_NPC_MOTION_KEY
+		{
+			JNMK_NORMAL		= 0,
+			JNMK_WAIT01		= 1,
+			JNMK_WAIT02		= 2,
+			JNMK_WAIT03		= 3,
+			JNMK_TALK		= 4,
+			JNMK_TALKWAIT	= 5,
+			JNMK_BYE		= 6,
+			JNMK_TALKLOOP	= 10,
+		};
+		void SetCustomNpcLocation();										// June 325c95e0 (CUSTOM_NPC_LOACION chooser)
+		void ApplyQuestConditionMessage( int iState, wstring& wstrMessage );	// June 325ca0b0 (Talk_Change_Condition MESSAGE)
+		void ApplyQuestConditionMotion( int iState, wstring& wstrMotion );	// June 325ca1b0 (Talk_Change_Condition MOTION)
+		void PlayTalkOrByeMotion( int iMotionKey, int iState, float fAnimSpeed );	// the shared body of 325ccf60 A2 / 325ca2f0 B2
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 #ifdef NPC_SOUND
 		void NpcPlaySound(wstring &wstrSoundName);
@@ -266,6 +297,34 @@ class CX2TFieldNpc : public CKTDGObject
 		CKTDXDeviceSound* m_pNearPlaySound;		// 사운드 포인터
 #endif // ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_CLOSE // 마을 NPC 에 일정 거리 이상 가까워지면 n초 간격으로 사운드를 출력하는 기능 추가
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June CX2TFieldNpc members (ctor 325d13e0; June offsets).
+		CX2EffectSet::Handle				m_hEffectSet;				// +0x190 village-NPC effect set: ctor -1, E1c plays it, the dtor stops it
+		bool								m_bInConversation;			// +0x1a6 set by the talk step, the bye step returns unless it is set
+		CKTDGXSkinAnim*						m_pXSkinAnim2nd;			// +0x1c4 second skin (NPCMeshName2nd)
+		CKTDXDeviceXSkinMesh*				m_pMesh2nd;					// +0x1c8
+		CKTDXDeviceXET*						m_pAniXET2nd;				// +0x1cc NPCAniTex2nd
+		wstring								m_wstrUIFileName;			// +0x1d0 copy of templet +0x120 (relation Change_UIFileName)
+		CKTDXDeviceXET*						m_pMultiTexXET;				// +0x1ec RenderOption MultiTex (background load only)
+		float								m_fMultiTexTime;			// +0x1f0 ctor 0; scales MultiTexSpeed in OnFrameRender_Draw (325d1040)
+		std::map< int, wstring >			m_mapMotionName;			// +0x1f4 JUNE_NPC_MOTION_KEY -> motion name
+		vector< CX2LocationManager::HouseTemplet::CustomMotion >	m_vecCustomMotion;	// +0x204 CUSTOM_MOTION_NAME queue (E1c plays it)
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hNpcTalkParticle;		// +0x230 NpcTalkParticle
+		CKTDGParticleSystem::CParticleEventSequenceHandle 	m_hNpcHighLight;		// +0x234 acce_highLight_P01
+		wstring								m_strUpgradeTalk;			// +0x4b4 Upgrade_Talk
+		wstring								m_strServiceTalk;			// +0x4d0 Service_Talk
+		wstring								m_strTradeTalk;				// +0x4ec Trade_Talk
+		std::map< int, CX2LocationManager::HouseTemplet::NpcTalkList >	m_mapNpcTalkList;	// +0x524 NPC_TALK_LIST<n>
+		wstring								m_strAfterTalk;				// +0x534 NPC_COMMON_TALK.After_Talk
+		wstring								m_strEveryDayRewardTalk;	// +0x550
+		wstring								m_strRejectGiftTalk;		// +0x56c
+		wstring								m_strGiftUITalk;			// +0x588
+		int									m_iFriendshipTalkLine;		// +0x5a4 friendship talk sequencer line (backlog Stage 18)
+		BYTE								m_abyFriendshipFlag[4];		// +0x5a8..+0x5ab its latches (cleared as one dword)
+		float								m_fJoinAnimSpeed;			// +0x5d8 templet JoinAnimSpeed (ctor 1.0)
+		float								m_fWaitAnimSpeed;			// +0x5dc templet WaitAnimSpeed (ctor 1.0)
+		float								m_fByeAnimSpeed;			// +0x5e0 templet ByeAnimSpeed (ctor 1.0)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	public:
 
         bool                            m_bBackgroundLoad;
@@ -338,6 +397,22 @@ class CX2TFieldNpc : public CKTDGObject
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 		bool							m_bExchangeNewItem;
 #endif // SERV_NEW_ITEM_SYSTEM_2013_05
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June-only shop flags (CreateFieldNpc 325ca980 blocks 12-14). The buttons have no March UI: registered, never shown (user 2026-10-17).
+		bool							m_bHenirEquipUpgrade;		// +0x5fe HENIR_EQUIP_UPGRADE
+		bool							m_bGuildAgitService;		// +0x5ff GUILD_AGIT_SERVICE
+		bool							m_bMuShopDisable;			// +0x600 HI_MU guild-base gating (June state XS_GUILD_AGIT_GAME only)
+		bool							m_bMuExchangeDisable;		// +0x601
+		bool							m_bMuMakeDisable;			// +0x602
+		bool							m_bGuildEnter;				// +0x603 GUILD_ENTER
+		bool							m_bExtraction;				// +0x604 EXTRACTION
+		bool							m_bTrade;					// +0x605 TRADE
+		bool							m_bPhotoZone;				// +0x606 PHOTOZONE
+		bool							m_bFragmentExchange;		// +0x607 FRAGMENT_EXCHANGE
+		bool							m_bRockScissorsPaper;		// +0x608 ROCKSCISSORSPAPER
+		bool							m_bOldEnchant;				// +0x609 OLD_ENCHANT
+		bool							m_bOldAdvancedEnchant;		// +0x60a OLD_ADVANCED_ENCHANT
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 		
 };

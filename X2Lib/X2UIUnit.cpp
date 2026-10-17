@@ -32,8 +32,22 @@ CX2UIUnit::CX2UIUnit( const wstring& fileName )
 	
 	m_bCameIn			= false;
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	m_bFileNameOverride	= false;		// June ctor 32ee7ab0 @32ee7d08
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	Init();
 }
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+
+// June 32ee37a0: an override-built unit is reused only for the identical name (case-sensitive); a templet-built one is rebuilt
+// for any non-empty name, even the templet's own (JUNE_BUGS).
+bool CX2UIUnit::IsFileNameChanged( int /*iUnitID*/, const wstring& wstrFileName ) const
+{
+	if( true == m_bFileNameOverride )
+		return ( wstrFileName != m_ScriptFileName );
+	return ( false == wstrFileName.empty() );
+}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 CX2UIUnit::~CX2UIUnit(void)
 {

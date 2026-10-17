@@ -2990,6 +2990,68 @@ of `324f3260`, `3233b680`, `32340720`, `32340320`, `323446c0`, `32340060`, `323c
 
 E1b's kickoff now reads this section too.
 
+### Phase E1b — Done
+
+2026-10-17, Opus 5.5 high. Flag `SERV_IRUHADEV_ELYSION_VILLAGE`, `[ELYDBG]` behind `SERV_IRUHADEV_ELYSION_DEBUG`. June's `CX2TFieldNpc` whole except
+`OnFrameMove`; the June bodies sit in one flagged block at the end of `X2TFieldNpc.cpp`, each March original kept in `#else`.
+
+**What landed** (June addresses; RE in `june2017_re/e1_createfieldnpc_diff.md` / `e1_talkbye_diff.md`)
+- ctor `325d13e0` members, dtor `325cd7c0` (bye step first, skin / mesh / xet 2, MultiTex xet, 9 particle handles, UI effect-set
+  stop of +0x190), InitParticle `325c84b0` (+ `NpcTalkParticle`, `acce_highLight_P01`).
+- `CreateFieldNpc( world, templet, name )` `325ca980` whole: CUSTOM_NPC_LOACION `325c95e0`, 6-id static list, second skin / mesh /
+  xet, MultiTex (background path only), name override, June flag set, motion map, CUSTOM_MOTION_NAME queue, 4-arg SetShopType in
+  June's order, the 2204 block, NPC_TALK_LIST map, June talk strings, 3-id shadow gate, UI file name copy.
+- Talk step `325ccf60` / bye step `325ca2f0` (March's OnFrameMove blocks call them), 325ca920 `DisableNpc`, `SetEnable`
+  `325ca950`, `SetShowField` `325c9130`, `SetShowObject` `325c9000`, `GetShowObject` `325c8210`, `ResetNpc` `325c8ce0`,
+  `SetCanTalkNpc` `325c8250`, `ApplyQuestCondition{Message,Motion}` `325ca0b0` / `325ca1b0`, `NpcPlaySound` `325c9c00`.
+- **OnFrameRender_Draw** `325d1040` (it is vtable `334acc6c` +0xc, so it has no direct caller): skin 2, AlphaBlend1st/2ndMesh,
+  NoEdge2ndMesh, bApplyAlphaTest, RenderOption (blend, colour, MultiTex UV speed x `+0x1f0`), name drawn up to 2700 (March 2300).
+- **RenderName** `325ccb40` (not in the kickoff list, found June-changed): Ranox spa sign x-150, agit-bank label STR 34403.
+- `CX2UIUnitManager::GetUIUnit( id, file )` `32806b30`, `CreateUIUnit( id, file )` `32806910`, `ClearUIUnit( id )` `32806800`,
+  `CX2UIUnit::IsFileNameChanged` `32ee37a0` + the +0x35c override flag; the 1-arg forms forward with L"" (June's other callers).
+- `CX2TFieldNpcShop`: 4-arg `SetShopType` (`32ecd610`), `SetShowFriendshipScore` (`32ec8d40`), 10 June-only `NSBT_JUNE_*` ids.
+- JUNE_BUGS 210-213 (bye guard, the unreachable 2204 call, UI-unit rebuild, CUSTOM_NPC_LOACION world).
+
+**Decisions and dormant June branches**
+- **June-only buttons (user, 2026-10-17: register, don't show).** Live houses set HENIR_EQUIP_UPGRADE (Steel, Faceoff, Syota,
+  Edan event NPC) and GUILD_ENTER + GUILD_AGIT_SERVICE (Mu). March's SetShopType would hide every button for an unknown type, so
+  the 4-arg form drops them with an `[ELYDBG] NpcShop: ... has no March UI` line. A later phase can port June's NPC dialog.
+- **Guild base** (`g_pData +0x2ec` = CX2GuildManager, June state 0xf = `XS_GUILD_AGIT_GAME`): the HI_MU menu gating, the
+  agit-bank UI 0x1a and its label are June call sites only. March has no guild base, so they never fire.
+- **Friendship** (code event 2215): the override lookup and the score gauge are call-site comments for backlog Stage 18.
+- **Alarm_Button** (`326662c0` on g_pMain +0x1058): no March dialog; noted at both call sites.
+- Bye calls `UpdatePartyMenu()` as June does; June's body (322c5980) is a rewrite. March's body runs here.
+
+**June behaviour changes in March villages**
+- Talk / bye motions come from the motion map, so the names are now `Talk` / `Bye`. Static NPCs try `Talk` / `Bye` first, then
+  fall back to `Normal`. March used `normal`, and the name match is case-sensitive.
+- Speeds are JoinAnimSpeed / ByeAnimSpeed.
+- Static NPCs play a JoinTalk sound on talk.
+- Bye clears only this NPC's UI unit.
+- The static list adds GUILD_MARK / STORY_QUEST / TRANSCEND_QUEST (+40082).
+- No shadow under HI_YUNO.
+- Names are drawn to 2700.
+- June drops March's synthesis / web-event / wedding buttons.
+- SetCanTalkNpc treats GUILD_MARK / SPA_SIGN_RANOX like the tree.
+- DeActive plays only if the mesh has it.
+- `SetShowField` honours its argument.
+
+**For E1c:** `NpcTalkParticle` is absent from live `UIMajorParticle.txt` (June has it in `UIMajorParticle_INT.txt`). OnFrameMove
+sets `+0x1f0`, so read it there. The June ctor members E1b did not name are +0x1a8 = 1, +0x238 (word), +0x42a (byte) and +0x508
+(wstring); OnFrameMove is where they get names.
+
+**Hygiene:** `flagcheck --worktree --files <8 code files>`: `files: 7 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (PASS~ = `X2UIUnitManager.cpp`, one blank line). No compiler warning from the changed files.
+
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,669,504 B, dated 2026-10-17 08:27:35, md5 c84251e6b4babc375851c625288038e3, equal to
+X2/US_SERVICE/x2.exe (2026-10-17 08:27:30); built at main 1ddd6644 + 8 uncommitted code file(s). New literals in the exe: `NpcTalkParticle`,
+`acce_highLight_P01`, the `[ELYDBG] NpcShop` format, `NPC_FRIEND_SCORE_LEVEL`.
+
+**How to see it in game:** see the play-test hand-off (talk to and leave a village NPC, the postbox, the billboard; `[ELYDBG]
+NpcShop` lines for Steel / Faceoff / Mu).
+
+**Open for the user:** none blocking. Two items have no owner yet: the guild-base gating, and June's NPC-dialog buttons (above).
+
 
 ---
 
