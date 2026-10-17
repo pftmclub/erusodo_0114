@@ -3300,6 +3300,12 @@ one `[ELYDBG] Portal: start pos N -> place M internal 0 wait 3.00` line.
 **For E2:** Elysion's `START_POS` rows carry `WaitingTime` / `InternalPlaceStartPosID` and use March's `BattleFieldId` names. The internal move then logs
 `[ELYDBG] InternalPlace: start pos 502 -> 503 ...`, and the village load logs `[ELYDBG] VillageParsing June keys: village 20009 internalPlaceRows 6 ...`.
 
+**Play-test 2026-10-17: PASSED (user).** The run (10:16-10:20) used the deployed exe (md5 d095fe3a).
+- Ranox: `[ELYDBG] Portal: start pos 142 -> place 40025 internal 0 wait 3.00` at 10:17:45, then `EGS_JOIN_BATTLE_FIELD_REQ` at 10:17:48.8.
+- Atlas Station: `start pos 403 -> place 40035` at 10:18:24, then the join at 10:18:27.7. Both moves waited 3.0 s, as June's default.
+- No line names start pos 146: Ranox's spa entrance is no longer a portal.
+- 0 EXCEPTION. The UNHANDLED `E_DISABLE_HB_CHECK_REQ` / `EGS_RENEWAL_LETTER_REQ` are not this phase's.
+
 ## Phase E2 — Elysion village (20009)
 
 **Steps** — same checklist as Atlas A5, for the village:
