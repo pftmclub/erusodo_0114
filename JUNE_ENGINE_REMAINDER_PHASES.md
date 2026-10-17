@@ -759,6 +759,10 @@ before the flag (the accepted PCH pattern, as R3 / U1). The OTHER rows are the s
 **How to see it in game:** ErrorLog.txt gets a `[JUNE_ENGINE] SHIMMER ... is not in any kom yet` line at each device reset (the first may be too early for ErrorLog; a resolution change makes another). UI, dialog
 3D models (character info, cash shop), the skill-tree drag icon and the over-UI particles look as before.
 
+**Play-test 2026-10-18: PASSED** (user + log; exe md5 3f645dcc = main 21783037, which contains f12afc69): ErrorLog has the
+`[JUNE_ENGINE] SHIMMER ... is not in any kom yet` line twice (lines 625 and 628, at the two start-up device resets); 0 EXCEPTION, clean exit.
+User owes nothing for R4a; next `/x2-phase june-engine R4a review` on Opus 5.5 / high.
+
 ## Phase R4b - Frame render, render targets, anti-aliasing option
 
 **Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_FRAME`. Depends on R4a. Port the
