@@ -4462,7 +4462,7 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
 - **Code:** `X2DungeonStage.cpp` `LoadReadyNPC`: after the loop, probe the next 8 indices; on a hit log `[ELYDBG] READY_NPC: world <id> entry <n> is not an NPC id ...`.
   No behaviour change. flagcheck `--worktree --files X2Lib/X2DungeonStage.cpp`: `files: 1 PASS ... 0 FAIL, 0 ERROR`, `0 deleted line(s) ... 0 encoding change(s)`, `RESULT: PASS`.
   `DEPLOY OK: X2_offline.exe is 19,759,616 B, dated 2026-10-17 15:12:58, md5 9e7072a53ababc6a323912c21d0e5cdf` (string present in the exe).
-- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: owed (asks the user).
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy (user OK 2026-10-17): `COPY OK` data035 (1456f08a) / data037 (e490042f) / data040 (9826cece); census `--line SL --live`: `live {"same": 334}`.
 - **Offline:** Adrian Normal clear (33880) unlocks Soless (33890 / 33891 / 33892, `m_MinLevel` 87, so level 85+ passes under `JUNE_DUNGEON_SUITABLE_LEVEL`).
   A clear records with no code; kills pay nothing (Stage 23). Memory (E11) names `DI_SOLESS_NORMAL`.
 - **How to see it (after the copy):** a level-85+ character that has cleared Adrian Normal: M -> Elysion tab -> Soless -> Normal. Stage0 (moving platforms, E5
