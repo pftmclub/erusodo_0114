@@ -2461,7 +2461,31 @@ main.
 
 ### Phase A10 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 high.** Data only: no C++, no flag change, no build. Census `--line TW`: 60 open rows before, 41 after, and those are only the
+routed classes of checklist step 9 (6 `assets.absent`, 1 `bind.nosource` + 1 `koms.unstaged` = `Elysion_Tower_Stage3.lua`, which June ships nowhere,
+30 `keys.file`, 3 `keys.registry`). Zero engine gaps, as the kickoff's model rule required; JUNE_BUFF Phase 10 was already done (no buff `bind.*` row).
+
+- **Premises held.** All Tower NUIs are in `Enum`; scripts staged (ljconv); `Motion_*` meshes in data181 (SUMMON3 has no `MOTION`, as in June);
+  `Dungeon_Elysion_Tower_Normal / Hard / Expert.lua` in data035, `HQ_LoadingDungeon_Maya_Pit_01 / _02.tga` in data183. Effects 416 sets, 0 missing; items 0 missing.
+  Boss faces: `NUI_ELSION_MAYA` and `NUI_ELSION_HIGHTTEM` name `BOSS_GAGE_FACE_TEX_PIECE` and are in `data215 DLG_BossState_02.TET` (UTF-16LE hit);
+  TEMPLAR / LIBYA / PUTER / DISION name no face piece.
+- **Staged (`adopt-june data040`, ljconv, manifest `"2"`):** Stage0-2, their 3 line maps and `Elysion_Tower_stage_Camera.lua` (7 new;
+  `june2017_re/june_adopt_20261017_075106.tsv`). `BossStage` + its line map were already in (C3y-1b).
+- **BOM source, appended verbatim as `atlas A10` blocks** (scratchpad `a10_edit.py`, asserts the first / last line of each June slice):
+  `data035 DungeonData` June :31120-31362 (Normal / Hard / Expert; June has no quest key on Tower; Hero rows omitted and named in the header:
+  `HERO_NORMAL :31363-31513`, `HARD :31514-31535`, `EXPERT :31536-31724`, `HELL :38286-38435`, still C3y-5's), `data037 NPCTemplet` 9 rows (TEMPLAR, LIBYA, PUTER,
+  HIGHTTEM, DISION, EVENT_3ST_BOSS, EVENT_YUNO, TOWER_GATE, SUMMON3; ranges in the block header; MAYA and the AC-shared PROVER / SILENCE / DECEPTOR /
+  SUMMUN_PROVER / PROTO rows were already here), `data040 WorldData` WI_TOWER_STAGE0-3 (June :3245-3264; `WI_TOWER_BOSSATGE` was in).
+  Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
+- **June bug kept verbatim (JUNE_BUGS #209):** `WI_TOWER_STAGE3` -> `Elysion_Tower_Stage3.lua`, a file June ships in no kom. Latent: none of the three
+  `Dungeon_Elysion_Tower_*` scripts names `WI_TOWER_STAGE3`. The row is in `WorldData` with a comment; no file invented.
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: asked, not yet done (see STATUS).
+- **Offline:** Tower's rows carry `EXTRA_REQUIRE_DUNGEON_ID = DI_ATLASCITY_NORMAL`, so an AC Normal clear (33340) unlocks them; a Tower clear records as
+  33350 / 33351 / 33352 (`DungeonEnum.h:520-522`) with no code. **Kills pay nothing** (no server `DropTable` rows; backlog Stage 23); nothing invented.
+- **How to see it (after the copy):** a level-80+ character that has cleared AtlasCity Normal: M -> Elysion tab -> Tower icon enabled -> enter
+  Normal; Stage0, 1, 2 and the boss stage load; Maya's gauge shows her face; the loading screen is Maya Pit. ErrorLog must show no `DungeonData` /
+  `NPCTemplet` / `WorldData` load errors.
+- **Open:** kill rewards (Stage 23). Review kickoff: `kickoffs/atlas/A10-review.md`.
 
 ---
 
