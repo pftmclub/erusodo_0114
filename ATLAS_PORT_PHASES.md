@@ -4603,7 +4603,7 @@ main.
 - **JUNE_BUGS 245:** `LLOW_DIR_CHANGE = TRUE` in `ELYSION_M_SOLESS_ATTACK_2_2`; June `32784c00` reads `ALLOW_DIR_CHANGE` (@32784d93), false on a miss
   (@32784eb3). `SHAW = FALSE` (`M_2STAGE_END` / `M_3STAGE_END` dying states) has no June string and its Soless twin has no such key: intent unknowable,
   stays a step-9 row.
-- **Packs:** `PACK OK data035` (0d203e93) / `PACK OK data037` (1eaf477c) / `PACK OK data040` (3b5d8f06). Copy: asked at hand-off.
+- **Packs:** `PACK OK data035` (0d203e93) / `PACK OK data037` (1eaf477c) / `PACK OK data040` (3b5d8f06). `COPY OK` data035 (0d203e93) / data037 (1eaf477c) / data040 (3b5d8f06) (user OK).
 - **How to see it:** Elysion local map shows Memory after a Soless Normal clear; enter 33900 / 33901 / 33902; Stage0 (memories 1-2), Stage1
   (timed 3 s gate sub-stage), Stage2 (summons), Stage3, BossStage (OF_SUN gauge, dramatic boxes); clear -> result screen.
 
