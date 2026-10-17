@@ -966,7 +966,8 @@ ours writes the file and stdout per call. The SKREF line carries the total.
 textures by level 7 / 9 / 11 / 13) and the unmapped `32963eb0` -> new **R14**.
 
 Hygiene (`flagcheck --worktree --files` on the 6 code files, per flag): RESULT PASS x3; 0 FAIL, 0 ERROR, 0 deleted, 0 non-ASCII, 0 EOL-mismatched
-inserted lines; every OTHER row is one of this phase's three flags. Build: `DEPLOY OK: X2_offline.exe is 19,841,536 B, dated 2026-10-17 22:39:22,
+inserted lines; every OTHER row is one of this phase's three flags. Commit `7ba525ce`; `--range 7ba525ce^..7ba525ce`: REFS 0 PASS / 7 OTHER,
+REFS_DEBUG 1 PASS / 6 OTHER, MOTION_COLLISION 2 PASS / 5 OTHER, each 0 FAIL / 0 ERROR / 0 deleted, RESULT PASS x3. Build: `DEPLOY OK: X2_offline.exe is 19,841,536 B, dated 2026-10-17 22:39:22,
 md5 ea4a74b48006d7eacdc02768fa36fe9c` (built at `cc6a579d` + uncommitted peer files; SKREF and KEM 433 strings checked in the exe).
 
 **How to see it:** `python tools/logs.py --grep "JUNE_ENGINE] SKREF"`.
