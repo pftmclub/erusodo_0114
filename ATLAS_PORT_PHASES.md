@@ -3616,7 +3616,7 @@ A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 
   `RESULT: PASS`.
 - **Pack:** `PACK OK` data034 / data036 / data040. `kom.py status` diff vs live is only E3's: data034 +`DLG_UI_FIELD_MAP_Elysion_03_NEW.lua`, ~`DLG_Map_House.lua`, ~`DLG_Map_Village.lua`,
   ~`DLG_UI_World_Map_NEW.lua`; data036 +`Elysion_Field_03.lua`, ~`BattleFieldData.lua`; data040 +`Field_Elysion_Stage2.lua`, +`Field_Elysion_Stage2_LineMap.lua`,
-  ~`WorldData.lua`. **`/x2-kom-packed copy` of the 3 koms is waiting for the user's OK.**
+  ~`WorldData.lua`. **`COPY OK` (user OK):** data034 66bd7d74, data036 64bce5e6, data040 564291c5.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,699,712 B, dated 2026-10-17 11:13:06, md5 ad0dc512668182592721c21b9efd8275, equal to X2/US_SERVICE/x2.exe
   (2026-10-17 11:13:01); built at main 300a6848 + 1 uncommitted code file(s).` (`case 42` has no string literal; the build rc=0 is the proof.)
 - **How to see it in game:** after the copy, the hand-off below (`elysion` warp, walk to the village's far portal at START_POS 517 -> F03 -> back via
