@@ -4297,6 +4297,50 @@ reviewed (STATUS). Census `--line SC`: 68 open rows before, 42 after, all routed
   known `E_DISABLE_HB_CHECK_REQ`. No `DungeonData` / `NPCTemplet` / `WorldData` load error and no missing mesh or texture. ErrorLog noise, none from E8:
   `result : 47` on `SONIC_ARROW` / `ARROW.OGG` (the archer's own sounds), the `DLG_UI_LOCAL_MAP` statics (JUNE_BUGS 228, as A9 / A10), one `JUNE_FX HERO_ANIM` rows=0 line.
 
+### Phase E8 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS, no fix, no repack, no copy.** Data-only phase: no C++, no flag, no build (no `DEPLOY OK`: nothing to deploy). The registry
+diffs were re-run after the peer's E9 commit `8e687931` appended to the same three files; the E8 blocks are unchanged.
+
+- **Registry rows verbatim (comment / blank lines dropped; strict and whitespace-normalised agree, 0 diffs each):** `data035 DungeonData.lua:17564-17812`
+  = June :32268-32508 (241 lines; `DI_SKYCROSSROADS_NORMAL` / `HARD` / `EXPERT` at June :32280 / :32439 / :32480; no quest key in June or March);
+  `data037 NPCTemplet.lua:20268-20435` = the 18 June ranges in its header (161 lines); `data040 WorldData.lua:3305-3323` = June :3270-3284 (15 lines).
+  Every new `dungeonID` / `NPC_ID` / `worldID` is defined once per file; no other SkyCrossroads row exists (`WI_SKYCROSSROADS_BOSSSTAGE` :3196 is C3y-1b's).
+  The file's only duplicate `NPC_ID`s (`NUI_RANOX_BURNDEDFOREST_GATE`, `NUI_RANOX_ASHESVILLAGE_GATE`) predate E8.
+- **Hero omission:** the four header ranges are exactly `DI_SKYCROSSROADS_HERO_NORMAL` (:32524) / `HERO_HARD` (:32686) / `HERO_EXPERT` (:32729) /
+  `HERO_HELL` (:38449). June's other SkyCrossroads mentions (:32903, :33059, :33097) are later dungeons' `EXTRA_REQUIRE_DUNGEON_ID`. Still C3y-5's.
+- **Row choice:** the Emperor SHIELD / ORB / BOW / LANCE are named by June's Adrian N/H/E (all four) and Soless N/H/E (ORB, SHIELD), by no SC script. The
+  left-out four (`EMPEROR_FEAR` 2303, `SET_ELYSION_HERNA_BOW` 2321, `SET_ELYSION_EMPEROR_BOW` 2322, `HERNA_LANCE_CARD` 2326 in June's Enum) are in no
+  dungeon script of SC / AR / SL / ME in June or March, and March's `Enum.lua` defines none of them (Emperor 2299-2302 at :4745-4748). These are the census's 2
+  missing NUIs, as designed.
+- **Unlock chain:** `DI_TOWER_NORMAL` = 33350, SC = 33870 / 33871 / 33872 (`DungeonEnum.lua:321-326`). All three rows carry `EXTRA_REQUIRE_DUNGEON_ID =
+  { DI_TOWER_NORMAL }`, `m_MinLevel` 83, and no `m_RequireDungeonID` (June: Hard and Expert do not need SC Normal). `IsActiveDungeon`
+  (`X2DungeonManager.cpp:718-794`): the extra-require loop is at :732-739, and under `JUNE_DUNGEON_SUITABLE_LEVEL` the level gate is MinLevel - 2 (:743-757),
+  so level 81+ passes, not 83+; `m_MaxLevel` is not checked.
+- **Adopted files:** the six data040 files (Stage0-2 + LineMaps) match `shipped_sha1` in `june_adopt_20261017_143715.tsv`, start `1B 4B 4C 81`, manifest `"2"`.
+- **JUNE_BUGS #239 confirmed in the exe.** `32784c00` @3278f50c pushes plaintext `"INVINCIBLE"` (33478fc0) into `BeginTable 32fe9940`, then reads floats
+  1-4 into StateData +0x360..+0x36c. No June string, plain (Ghidra) or XOR (`xorstrings.tsv`), contains `CAINVINCIBLE`. March reads the same key
+  (`X2GUNPC.cpp:6402`, :15870).
+- **DUMMY_TITLE / FAKE_OBJECT:** `ELYSION_FAKE_OBJECT.src.lua:255-280` is as the Done note says. Each of June's `Dungeon_Elysion_SkyCrossroads_{Normal,Hard,Expert}` places
+  `NUI_ELYSION_DUMMY_TITLE` twice: :569 (`START_POS {11}`) and :890 (`{22}`), both `ACTIVE = FALSE`. The lines are byte-identical across the three difficulties.
+- **Premises (spot-checks):** BOSS_ORB 2264 / KEYOBJECT 2266 / HERNA_ORB 2260 match June's Enum. Each has a NewNPCStat row and a staged unit script, and its
+  `MOTION_FILE_NAME` mesh is in data181. The three boss faces are in `data215 DLG_BossState_02.TET` (UTF-16LE, once each). Four effect names are present as exact
+  constants (`EffectSet_Elsion_HernaFear_Ready`, `_EMPEROR_Wing`, `_Key_Object_Wait`, `DamageEffect_Elsion_HernaBow_Attack_C_Projectile`). The census shows
+  effects 416 / 416 and items 0 missing. `SKYCROSS_EVENT0`'s `MOTION` is the NPCTemplet's `m_wstrMotionName` (`X2UnitManager.cpp:968`), which has no loader use.
+  The script's own mesh, `Motion_SKYCROSS_DUMMY.X`, is staged.
+- **Two Done-note counts are off by wording, not content.** The buffs are **6 distinct ids**, not 8: `BFI_INVINCIBLE_BY_HERNA_SHIELD` 834,
+  `_BY_BOSS_SHIELD` 835, `BFI_BUFF_DEFENCE_STEP1/2_BOSS_SHIELD` 838 / 839, `BTI_INVINCIBLE_BY_BOSS_SHIELD` and `BTI_SIMPLE_BUFF_FINAL_DEFENCE_MULTIPLIER`, all
+  in March's `Enum.lua`. `BFI_BUFF_DEFENCE` is the print string. The census header's "42 open" excludes the 7 `assets.absent` rows: 49 routed rows are listed
+  (7 + 39 + 3). The Done note is left as written.
+- **Routed, not open:** 7 `assets.absent` (June ships none of these `.ogg`s); 39 `keys.file`: `NPC_REWARD_RATE` / `REWARD_RATE` (21), linemap `LINE_NUM` (35),
+  `ANIM_SPPED` (the two Lanox SECRET_ scripts), `CAINVINCIBLE`, and the CT_ / state keys. 3 `keys.registry`: `CIEL`, `ENDING_SPEECH0`, `LU`. Nothing else is open.
+- **Checklist step 11** is accurate and covers what E9-E11 need: bytecode stat files, no Hero scripts, Henir / F_ NUIs, the left-out-NUI rule, the key-typo
+  rule, and assets the census `refs` decide.
+- **Hygiene:** `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`; census `--line SC` shows only the routed classes; `--live`
+  shows `live {"same": 313}`.
+- **E9:** a peer already ran it (`8e687931`, Sonnet, as the kickoff rule says: `--line AR` showed no engine-gap class, only data rows), so its kickoff
+  and review kickoff exist.
+
 ### Phase E9 — Adrian
 
 **Run with:** Sonnet 5.5, high effort **if** `region_census.py --line AR` shows zero open engine gaps; otherwise Opus 5.5, high. Required review (Opus 5.5).
