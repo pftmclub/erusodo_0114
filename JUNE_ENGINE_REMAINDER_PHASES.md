@@ -577,7 +577,7 @@ OnResetDevice macros, `SetAnisotropy`), June `BeginRender` read from capstone (`
   - `git log -S SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT 80757b8f..HEAD`: nothing.
 - **Bookkeeping (U1 review note):** R2's JUNE_BUGS row 256 (weapon takes no world rim ramp) collided with U1's 256-261; renumbered to **266** (262-265 are
   held by a W1b peer), in `JUNE_BUGS.md`, the Done note above and the `KTDGXRenderer.cpp` log-cap comment (comment only, no rebuild).
-- **Still owed by the user:** the visual verdict of the rim (blue body rim in Ranox Secret Hell, see the hand-off). The log already shows 33/33 handles and ramp 15.
+- **Rim play-test PASSED (user, 2026-10-17):** the blue body rim shows in Ranox Secret Hell `/stage 4` (log: 33/33 handles, world rim 15 -> ramp 15). R2 is closed.
 - **Next:** asset P10's copy step was done here (data041 carries June's `XRenderer.fx`). P10 is now verification only (kickoff note added). R3 / R7 / R9 are unblocked.
 
 ## Phase R3 - Environment box and colour grading
