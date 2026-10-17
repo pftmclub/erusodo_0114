@@ -720,7 +720,7 @@ enum ends at 432 (`KTDXErrorDefine.h`); R11 adds the four as one block.
 
 ### Phase R11 -- Done
 
-**2026-10-17, Sonnet 5.5. Code committed; NOT built or deployed (blocked by a peer's unfinished edits, see Build).** Flags `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK`
+**2026-10-17, Sonnet 5.5. Code committed (`b0412386`). None of my own `build.py --deploy` runs succeeded, but the live exe already contains the code (see Build).** Flags `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK`
 (items 1-2), `..._SKIN_ANIM_SETS` (3-5), `..._SKIN_BONE_REFRESH` (6), all in `Always.h` after the R8 block. Evidence: `june2017_re/r10_skinanim_sweep.tsv` rows owner R11.
 
 - **Playback** (`KTDGXSkinAnim.h/.cpp`): members `m_bJuneLoopTransition` (+0x854) and `m_bJuneLastTransition` (+0x855), both true in the ctor (dword `0x01010000`
@@ -753,11 +753,7 @@ Hygiene (`flagcheck --worktree --files <my 8 files>`, per flag): PLAYBACK `files
 every flag `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
 The OTHER rows are my own other two flags in the same files, and `Always.h` (which also holds a peer's uncommitted U1 defines; only my three blocks are committed).
 
-**Build: BLOCKED, no `DEPLOY OK`.** `build.py --deploy` fails in KTDXLIB three times (log `.build/logs/20261017-203714/KTDXLIB.log`) only in a peer's unfinished
-june-engine U1 work: `KTDXApp.cpp` (20 errors: `SetChangeFocusByKeyMsg`, `AddSubtitleData`, `SetCaretOffSet`, ... not yet in the UI control headers) and the untracked
-`KTDXWordWrap.cpp` (9). No error is in an R11 file: `KTDGXSkinAnim.cpp` and `KTDGXMeshPlayer.cpp` compiled clean in that run. **Not yet compiled:** `X2DamageEffect.cpp`,
-`X2WorldObjectSkinMesh.h` users (X2Lib builds after KTDXLIB), the link. Next session: `python tools/build.py --deploy` once the U1 session's tree compiles (no R11 change
-needed unless it reports an error in an R11 file), then read the play-test below.
+**Build: live exe contains R11, built by another session.** My own `build.py --deploy` runs failed in KTDXLIB, only in a peer's unfinished U1 edits (`KTDXApp.cpp`, untracked `KTDXWordWrap.cpp`). The W1 session's deploy (`5ab2a08b`, `DEPLOY OK` md5 `8ffc762a`, `X2_offline.exe` 19,778,560 B, 2026-10-17 20:35:54, equal to `X2/US_SERVICE/x2.exe`) built the shared working tree after my edits were applied, so it carries them. Checked in the deployed exe (checked 2026-10-17): all five `[JUNE_ENGINE] SKANIM` literals (`bone refresh`, `MixAnim remembers`, `loop restart without transition`, `play type 3`, `ResetAnimSet backup`) and the UTF-16 `Release Failed crash1` text are present, so KTDXLIB and X2Lib compiled and linked with the R11 code. That exe was built before the R11 commit and from a tree that also held other sessions' uncommitted changes, so it is not a clean build of `b0412386`; a later `build.py --deploy` of a compiling tree replaces it with one. The play-test below can run on the current exe.
 
 **Play-test hand-off (after the deploy; user, Freils uid 18, Chung Tactical Trooper; tag `[JUNE_ENGINE] SKANIM`):**
 1. *Ranox Ashes Village stage 2 cave loop.* Enter Ranox Ashes Village Expert (33282), console `/stage 2`, `/invin 0`; stay about a minute. Look for: the cave
