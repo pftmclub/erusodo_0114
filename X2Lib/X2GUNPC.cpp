@@ -5761,12 +5761,15 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 	nowStateData.m_vecJuneInvincibleAttackType.clear();
 	if( luaManager_.BeginTable( "INVINCIBLE_ATTACK_TYPE" ) == true )
 	{
+		/// June @3278f63c-3278f6a4: entry i ( from 1 ) is a table, its [1] the type; a missing or -1 value is skipped.
+		/// ( E10 fix: E7 read plain ints, so the { { AT_x }, ... } lists the scripts write came out empty. )
 		int iJuneIndex = 1;
-		int iJuneAttackType = -1;
-		while( luaManager_.GetValue( iJuneIndex, iJuneAttackType ) == true )
+		while( luaManager_.BeginTable( iJuneIndex ) == true )
 		{
-			if ( -1 != iJuneAttackType )
+			int iJuneAttackType = -1;
+			if ( luaManager_.GetValue( 1, iJuneAttackType ) == true && -1 != iJuneAttackType )
 				nowStateData.m_vecJuneInvincibleAttackType.push_back( iJuneAttackType );
+			luaManager_.EndTable();
 			iJuneIndex++;
 		}
 		luaManager_.EndTable();

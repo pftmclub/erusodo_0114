@@ -4532,6 +4532,11 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   `Lily.tga` (data181), named inside meshes, which the census `refs` do not follow. `stage-june`; `PACK OK data016`, `PACK OK data181`; `COPY OK` data016 (08941788) / data181 (98e04709) (user OK).
   (4) **Phase 2 not seen:** no `[ELYDBG] SetShowAdditionalWorld` line before the boss died (16:09:43). The boss's frame-move (proto 60) calls
   `DarkSoles_CheckPhaseChange_OnFrameMove` (proto 93: game Int(9) == 0, NPC Flag(2) false, NowHP < MaxHP x 0.3). Not traced yet: play-test 3 watches it.
+- **Play-test 3 (2026-10-17, 16:34-16:44):** seals still took both attack types: E7's `INVINCIBLE_ATTACK_TYPE` parser read plain ints, June's
+  (@3278f63c-3278f6a4) opens each entry as a sub-table and reads its [1], so every list was empty. Fixed under `SERV_IRUHADEV_ELYSION_SCRIPT_B`
+  (stand-in kept, user). Funcmap row 1011 corrected (DD+8 = attackType). `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 16:48:51,
+  md5 4c86e089c563a414d4f6bcd74b10530e`. **Phase 2 PASSED** (`[ELYDBG] SetShowAdditionalWorld 0 1` at 16:42:45, `/monhpR`), **result screen no crash**
+  (cleared 16:44:17, no CrashRpt bundle). Open: repeated deaths after revive in phase 2 (below).
 
 ### Phase E11 — Memory
 
