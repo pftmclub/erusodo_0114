@@ -764,6 +764,8 @@ The OTHER rows are my own other two flags in the same files, and `Always.h` (whi
 3. *MixAnim / class change.* Start a dungeon, then change class with the dev console (auth level 3, END key) or open the character viewer; look for
    `SKANIM MixAnim remembers <name>` and, on a repeat, `MixAnim skipped, already mixed` (June behaviour, JUNE_BUGS 254). Also grep ErrorLog.txt for `Release Failed`: none expected.
 
+**Play-test (user, 2026-10-17): all 3 checks passed; logs read.** Run on the W1-deployed exe (md5 `8ffc762a`, run 21:06-21:10), ErrorLog.txt: `SKANIM ResetAnimSet backup map 3 / 16 / 31 sets`; `MixAnim remembers MOTION_LIRE_LOBBY.X ( 1 mixed )`, `MOTION_LIRE_FIELD.X`, `MOTION_LIRE_EMOTION.X ( 2 mixed )`; `SKANIM bone refresh` x3 (21:06:55-56, the Add dash-jump XX bullet); `SKANIM loop restart without transition` x3 (21:07:13, :25, :36, Ashes Village stage 2 cave). No `Release Failed` / KEM 434 / 436 / `BuildCloneFrame NULL guard` lines. Not exercised, as expected: play type 3 (no caller in June's data), `MixAnim skipped, already mixed`.
+
 ## Phase R12 - Skin-anim device ownership
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS`.
