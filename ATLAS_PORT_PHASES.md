@@ -2228,8 +2228,9 @@ main.
    - **Self-check (A8 review):** diff each appended block, comment lines dropped, against the June slices; the only allowed difference is
      the commented quest key. Grep the whole file for each new `dungeonID` / `NPC_ID` / `worldID` and expect exactly one hit. (NPCTemplet already
      carries two pre-existing duplicates, `NUI_RANOX_BURNDEDFOREST_GATE` / `NUI_RANOX_ASHESVILLAGE_GATE`; they are not a line's to fix.)
-   - **`NPCTemplet`:** add only the rows that are missing. Check that each row's `MOTION` mesh is staged
-     (`ls kom_contents/*/Motion_X.[xX]`).
+   - **`NPCTemplet`:** add only the rows that are missing. Check that the mesh each row's unit script names in `MOTION_FILE_NAME`
+     is staged (`ls kom_contents/*/Motion_X.[xX]`). The row's own `MOTION` key is read only for a dev sheet (`X2UnitManager.cpp:968` / `:1592`),
+     and June's can name a file no kom has (A9 review: `EVENT_2ST_BOSS`); keep it verbatim.
    - **`WorldData`:** every `WI_*` the dungeon's stages name. The boss world is often already in (C3y-1b).
    - Then run `luasrc.py refresh <kom> <file>` per file, and append `; edit: atlas <phase> ...` to the file's `why` in
      `tools/data/lua_core_list.tsv`. `core --check` and `ledger --check` must PASS.
@@ -2254,7 +2255,7 @@ main.
    - `BOSS_DROP_ITEM` feeds only the party UI list.
 9. **What stays open, routed.**
    - `keys.file` `CT_*` / `CF_*` / state names are Lua-internal condition tables (`X2GUNPC.cpp:6443`, `BeginTable(name)`).
-   - `TARGET_FRONT_ME`, `AFTER_IMAGE_DEST_ALPHA_BLEND` and `ANIM_SPPED` are never read by June (A1b).
+   - `TARGET_FRONT_ME`, `AFTER_IMAGE_DEST_ALPHA_BLEND`, `ANIM_SPPED` and `STOP_TIME_ATK` are never read by June (A1b).
    - `LINE_NUM` = B73.
    - `REWARD_RATE`, `NPC_REWARD_RATE`, `DROP_TIMES` and `CREATED_NPC_DROP_TIMES` are server-only (A1b :1087).
    - `keys.registry` `ENDING_SPEECH0` / `LU` / `CIEL` (A1b :1077-1088).
@@ -2383,6 +2384,41 @@ Zero engine gaps, as the kickoff's model rule required.
   `Sonic_Arrow.ogg` / `Arrow.ogg` log the same, so it is the existing 3D-position update on a finished channel, not a missing file) and
   `<dungeon name> <- control not found: DLG_UI_LOCAL_MAP` (`X2LocalMapUI.cpp:1324`, the event-disabled star static; NULL-checked, same for Burnt Forest etc.).
 - **Open:** kill rewards (Stage 23). Review kickoff: `kickoffs/atlas/A9-review.md`.
+
+### Phase A9 — Review
+
+**2026-10-17, Opus 5.5 high. PASS; no transcription error, no repack, no copy.** Doc-only fixes: checklist steps 4 and 9.
+
+- **Registry rows verbatim** (comment lines dropped, each line rstripped):
+  - `DungeonData.lua:17032-17312` vs June :30516-30788: 273 lines each, **0 diff**. The block has no quest key, matching June.
+  - `NPCTemplet.lua:19991-20084` vs the 10 ranges in its header: 90 lines each, **0 diff**.
+  - `WorldData.lua:3240-3262` vs June :3225-3244: **0 diff**.
+  - Every new `dungeonID` / `NPC_ID` / `worldID` occurs exactly once in its file, and BOM and CRLF are intact in all three files.
+- **Hero omission.** The four header ranges are June's `DI_ATLASCITY_HERO_NORMAL` / `HARD` / `EXPERT` / `HELL` rows. C3y-5 still owns them and is `ready`.
+- **Unlock chain.** All three AC rows carry `EXTRA_REQUIRE_DUNGEON_ID = { DI_ATLASDEVELOPMENT_NORMAL }` (= 33330, DungeonEnum :315) and
+  `m_MinLevel = 81`. `IsActiveDungeon` tests `m_vecExtraRequireDungeonID` and then `m_MinLevel - m_iSuitableLevelFixValue` (`X2DungeonManager.cpp:732-756`).
+  June's event-key gate on 33330-33352 (2260 / 2261) is the one already routed in the A1b map (inert offline). The play-test cleared 33340.
+- **Adopted files.** All 8 data040 files equal the sha1s in `june_adopt_20261017_074049.tsv`. Each starts with `1B 4B 4C 81` and has manifest `"2"`.
+  An `adopt-june --dry-run --compare` re-derive reports `COMPARE OK: 8 of 8 ... byte-identical`.
+- **Premises.**
+  - All 10 NPCTemplet rows (2115-2120, 2122, 2123, 2128, 2169) have an Enum line (:4681-4717), a `1B4B4C81` script in data037 and a NewNPCStat row.
+    The mesh each unit script's `MOTION_FILE_NAME` names is present in data181.
+  - June's `EVENT_2ST_BOSS` row says `MOTION = Motion_ELSION_EVENT_2ST_BOSS`, which no kom has; its script loads `Motion_EVENT_ELSION_2ST_BOSS.x`,
+    which is staged. This is harmless: March only parses the row's `MOTION` (`X2UnitManager.cpp:968`) for the dev sheet (`:1592`), and the loaded
+    mesh is the script's `MOTION_FILE_NAME` (`X2GUNPC.cpp:3264`). The row is June-verbatim, so it is not a JUNE_BUGS row either. Checklist step 4 now
+    says to check the script's mesh, not the row's.
+  - Boss faces: `NUI_ELSION_SUVEILLAN` (offset 4192) and `NUI_ELSION_NEWDEFENDER` (4144) are exact matches in `data215 DLG_BossState_02.TET`.
+    Their scripts name `DLG_BossState_02.tga`, which is present.
+  - Buffs: none of the 9 AC unit scripts names a `BFI_` / `BTI_` / `BGI_` id, so there is nothing to bind.
+  - Effects: all 17 `EffectSet_Suveillan_*` names are constants in data036 `EffectSet.lua`, and the 6 `DamageEffect_Suveillan_*` names they
+    reference are in `DamageEffect.lua`. Suveillan's two `.ogg` files are in data182.
+- **Hygiene.** `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`.
+  - Census `--line AC`: every open row is in a step-9 class: 6 `assets.absent`, 31 `keys.file`, 3 `keys.registry`. The header says 34 for those 40
+    rows, the same counting quirk A8's review saw (50 / 55); it was not traced.
+  - The 6 absent assets are not in any June kom (`junekom.py extract`: `not found 6`).
+  - `keys.file` holds the 4 dungeon reward keys, `LINE_NUM`, 25 `CT_` / `CF_` names and `STOP_TIME_ATK`, which A1b (:1085) lists as a June typo
+    June never reads. Step 9 now names it.
+  - `--live`: `live {"same": 280}`, so the copied koms match the staged files.
 
 
 ---
