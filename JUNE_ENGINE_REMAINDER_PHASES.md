@@ -1944,6 +1944,11 @@ So for a user, June never takes a link in `CanDown`. Elysion line 130 is `LT_NOR
 
 **Play-test hand-off:** see STATUS / the hand-off in this phase's session. Log: `python tools/logs.py --grep "WORLD far link"`.
 
+**Play-test PASSED (user, 2026-10-18; logs read).** Run on the deploy of `main 21783037` (md5 3f645dcc, carries W1e). ErrorLog: one
+`[JUNE_ENGINE] WORLD far link refused: map Elysion_villeage_LineMap.lua line 2 before 130 type 0 gap 11704.5 (unit)` (06:08:15): the landing that
+used to warp stayed on line 2. Only the pads the user stepped on fired (506 -> 507, 508 -> 509); no pad 512. 0 EXCEPTION; UNHANDLED = the 2x
+`E_DISABLE_HB_CHECK_REQ` baseline.
+
 ## Phase W1f - CanDown's June signature and its callers
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test only if a March map has a droppable monster road. Flag
