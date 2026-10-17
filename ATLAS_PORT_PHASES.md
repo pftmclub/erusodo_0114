@@ -4529,7 +4529,7 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   delete and the old clear line; INVINCIBLE: 2 plain `#else`, the June-buff nesting). Commit `1077e562`.
   `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 16:32:16, md5 9ae31fc0b120419f71812cdb2fc8d24f`.
   (3) Two June textures the boss stage opens were unstaged (ErrorLog `OpenTexture` at 16:07:56): `Motion_SOLESS_Page1_Mask.tga` (data016),
-  `Lily.tga` (data181), named inside meshes, which the census `refs` do not follow. `stage-june`; `PACK OK data016`, `PACK OK data181`; copy asked.
+  `Lily.tga` (data181), named inside meshes, which the census `refs` do not follow. `stage-june`; `PACK OK data016`, `PACK OK data181`; `COPY OK` data016 (08941788) / data181 (98e04709) (user OK).
   (4) **Phase 2 not seen:** no `[ELYDBG] SetShowAdditionalWorld` line before the boss died (16:09:43). The boss's frame-move (proto 60) calls
   `DarkSoles_CheckPhaseChange_OnFrameMove` (proto 93: game Int(9) == 0, NPC Flag(2) false, NowHP < MaxHP x 0.3). Not traced yet: play-test 3 watches it.
 
