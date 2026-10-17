@@ -3515,7 +3515,11 @@ turns them on. The four A7 stand-ins that wait for a 20009 templet (`X2LocationM
   Cobo warp Ranox -> 20009; town pin shown (only 40037 hidden); shops list, dialogs open, Ranox Adams at June's spot by the spa door (user); 0 EXCEPTION.
   **Found:** no `[Z] Use` at Luriel in Elysion: her row has no per-row join area and stands raised (y 4102), so March's house JoinArea 500 was
   out of reach. **Fix:** June's `JoinArea = 700` on `HI_PRIVATE_BANK` (June :4001; also June's value in every village), `PACK OK` + `COPY OK data034`
-  md5 076e1b78 (user OK). User owes: one look at Luriel in Elysion.
+  md5 076e1b78 (user OK).
+  **Same class, user report:** no `[Z] Use` at Camilla in Ranox (June scene, Ranox row has no per-row join area): June's `JoinArea = 500` on
+  `HI_CAMILLA_PVP_HOUSE` (June :1779, March 400), `COPY OK data034` md5 a8b04f7e (user OK). A sweep of every house finds three more
+  March-vs-June JoinArea differences, all in March-scene villages with no report: HI_GRAIL 600/500, HI_HOFMANN_HOUSE 500/700,
+  HI_RICHANG_HOUSE 700/600 (March/June); left as is. User owes: a look at Luriel (Elysion) and Camilla (Ranox).
 
 ---
 
