@@ -3098,6 +3098,45 @@ NpcShop` lines for Steel / Faceoff / Mu).
 button per load. Relation and HouseParsing lines as in E1a; 0 EXCEPTION. The 3 UNHANDLED packets (`E_DISABLE_HB_CHECK_REQ`, `EGS_RENEWAL_LETTER_REQ`)
 are not this phase's.
 
+### Phase E1b — Review (2026-10-17)
+
+Opus 5.5 high. **Verdict: PASS on everything E1b ported; three June functions it missed are now ported under the same flag** (no design question).
+
+**Hygiene of 741ba60f** (`flagcheck --range 741ba60f^..741ba60f --with SERV_IRUHADEV_ELYSION_DEBUG`): `files: 7 PASS, 1 PASS~ (blank/marker only), 0 DEFINE,
+0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif
+without the flag token, 0 encoding change(s)`; `RESULT: PASS`. No OTHER rows, no deleted lines; PASS~ is `X2UIUnitManager.cpp`'s one blank line.
+
+**Spot-checks in raw disassembly (all match the code)**
+- `325ca0b0`: row +4 == state, MESSAGE (+0x10) non-empty, row +0 (TYPE) == 0, QUEST_ID +8 -> 32322380, first 8-byte sub-quest with byte +6 == 0 -> 32322350,
+  clear type +0x20 == 1, talk NPC +0x60 == +0x24c, last match wins. **Byte +6 is March's `m_bIsSuccess`:** June's `SubQuestInst::IsComplete` `323225e0` returns
+  byte +6 for non-collection types (types 3/4: +6 == 1 or the inventory count), March's `IsComplete` returns `m_bIsSuccess`. June's entry has one more byte before it.
+- `325d1040`: the RenderParam offsets equal March's struct (+0 renderType, +8 lightPos, +0x14 fOutLineWide, +0x18 outLineColor, +0x28 colour, +0x4c/+0x54/+0x5c
+  stage 0-2, +0x64 bAlphaBlend, +0x66 bZEnable, +0x68 cullMode, +0x6c/+0x70 blends); +0xa4 is past March's FOG_WORLD block, so June's struct grew by 8 bytes there
+  (named bAlphaTestEnable by the D3DCULL_NONE pairing). T+0x190 == 1 skips AlphaBlend1st and the RenderOption (`jmp 325d127f`); stage = ftol(T+0x5cc), offsets +=
+  T+0x5d0/0x5d4 x this+0x1f0; name gate 2700 (334acd70) or house 0x9cd3; skin 2: T+0x11d blend, T+0x11e renderType 3 (RT_CARTOON), then pick.
+- `325c8250`: houses 0x9c64 / 0x9c93 / 0x9ccd / 0x9cce = March HI_CHRISTMAS_TREE / HI_GUILD_MARK (= 40083) / 40141 / HI_SPA_SIGN_RANOX (= 40142); DeActive
+  plays only when ChangeAnim returns 1 (`325c837f`); CloseAll + m_bBye only when m_bJoinNpc. HI_YUNO = 40092, HI_STORY_QUEST = 40130, HI_TRANSCEND_QUEST = 40140 (explicit
+  in the March enum).
+- `325cc17c-325cc219` re-read: CreateFieldNpc's 2204 inner call does re-test the code (`325cc202`), JUNE_BUGS 211 stands.
+
+**Not diffed by the phase:** `GetQuestInfo` `325c81a0` same (GetNewQuest( npc, 3 counters, level ) + GetCompleteTalkQuest); `ChangeType` `325c8130` same (NONE then
+type, 4-arg with 0/0); `UICustomEventProc` is a forwarder (no June body to diff). June changed three, and E1b had left March's bodies:
+- **`ResetNpcType` `325c9800`**: CreateFieldNpc's button list again, all `( type, true, false, false )`, June's own order (June-only buttons after the 2204 block), no
+  wedding / web-event / synthesis (March's still re-added them after a menu reset), and the 2204 block in its reachable form (JUNE_BUGS 211 widened).
+- **`GetHouseType` `325c8030`**: March's compiled exclusion list (cl /P: 40029, 40017, 40038, 40045, 40047, 40048, 40050) is June's first seven; June adds 4309,
+  4346, 4254, 4255 (no March house) and house 40147 -> NT_NO_RENDER_EVENT. Same result for every March house.
+- **`InitQuestMark` `325c8d60`**: also hides +0x230 (NpcTalkParticle).
+- Also seen: `325c8430` is a June-only guild-base setter for the HI_MU flags (state 0xf), out of reach, as the Done note says for the gating.
+
+**Fix hygiene** (`flagcheck --worktree --files X2Lib/X2TFieldNpc.cpp`): `files: 1 PASS, ... 0 FAIL`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched
+inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (+135 lines, insert-only).
+
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,670,016 B, dated 2026-10-17 08:52:20, md5 caae215304cb6b04358752e595c6fced, equal to X2/US_SERVICE/x2.exe (2026-10-17 08:52:15); built at main 4c9cf74e + 1 uncommitted code file (X2TFieldNpc.cpp; a peer's queued build compiled it, X2TFieldNpc.obj 08:49:37 is newer than the edit 08:46:39).
+
+**How to see it in game:** nothing new to see. `ResetNpcType`'s only March caller is the novice guide (`CX2TFieldGame::ResetNpcType( HI_ARIEL_EVENT_HOUSE )`),
+`GetHouseType` returns the same type for every March house, and the talk particle is already hidden by InitParticle. A village load and an NPC talk on the new exe are the
+regression check. Nothing owed by the user beyond that.
+
 
 ---
 

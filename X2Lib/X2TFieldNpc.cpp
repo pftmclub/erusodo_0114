@@ -412,6 +412,12 @@ void CX2TFieldNpc::InitQuestMark()
 	pSeq = GetUiParticle()->GetInstanceSequence( m_hNpcCompleteQuest2 );		
 	if(pSeq != NULL)
 		pSeq->SetShowObject(false);
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	// June InitQuestMark 325c8d60 also hides +0x230 (NpcTalkParticle) (E1b review).
+	pSeq = GetUiParticle()->GetInstanceSequence( m_hNpcTalkParticle );
+	if(pSeq != NULL)
+		pSeq->SetShowObject(false);
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 }
 
 HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
@@ -2373,6 +2379,55 @@ bool CX2TFieldNpc::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 }
 
 CX2TFieldNpc::NPCTYPE CX2TFieldNpc::GetHouseType()
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June GetHouseType 325c8030 (E1b review): March's compiled list is June's first seven ids (40029 .. 40050); June adds four
+// more ids (no March house has them) and house 40147 (June HI_SPA_PPORU, no March house) -> NT_NO_RENDER_EVENT.
+{
+	switch(m_eHouseType)										// jump table 325c810c, HT 1..9
+	{
+	case CX2LocationManager::HT_NPC_HOUSE:
+		{
+			if(m_bPvpNpc)
+				return NT_PVP;
+			if(m_bMakingNpc &&
+				m_NpcHouseID != CX2LocationManager::HI_GLAVE_HOUSE &&
+				m_NpcHouseID != CX2LocationManager::HI_ARIEL_EVENT_HOUSE &&
+				m_NpcHouseID != CX2LocationManager::HI_EVENT_FAIRY_GUARDIAN &&
+				m_NpcHouseID != CX2LocationManager::HI_MANDRASSIL &&
+				m_NpcHouseID != CX2LocationManager::HI_LUTO &&
+				m_NpcHouseID != CX2LocationManager::HI_DAO &&
+				m_NpcHouseID != CX2LocationManager::HI_APINK_ARCHANGEL &&
+				m_NpcHouseID != 4309 &&								// 0x10d5, June-only ids
+				m_NpcHouseID != 4346 &&								// 0x10fa
+				m_NpcHouseID != 4254 &&								// 0x109e
+				m_NpcHouseID != 4255 )								// 0x109f
+				return NT_ALCHEMIST;
+			if(m_bTraining || m_bFreeTraining)
+				return NT_TRAINNING;
+			if( 40147 == m_NpcHouseID )								// @325c80cc
+				return NT_NO_RENDER_EVENT;
+		}
+		return NT_NORMAL;
+	case CX2LocationManager::HT_EQUIP_SHOP:
+		return NT_EQUIP;
+	case CX2LocationManager::HT_ACCESSORY_SHOP:
+		return NT_ACCESSORY;
+	case CX2LocationManager::HT_TRAINNING_CENTER:
+		return NT_TRAINNING;
+	case CX2LocationManager::HT_ALCHEMIST_HOUSE:
+		return NT_ALCHEMIST;
+	case CX2LocationManager::HT_POSTBOX:
+		return NT_POSTBOX;
+	case CX2LocationManager::HT_BILLBOARD:
+		return NT_RANKING;
+	case CX2LocationManager::HT_PRIVATE_BANK:
+		return NT_PRIVATE_BANK;
+	case CX2LocationManager::HT_EVENT:
+		return NT_NO_RENDER_EVENT;
+	}
+	return NT_NORMAL;
+}
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 {
 	switch(m_eHouseType)
 	{
@@ -2441,6 +2496,7 @@ CX2TFieldNpc::NPCTYPE CX2TFieldNpc::GetHouseType()
 	return NT_NORMAL;
 }
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 bool CX2TFieldNpc::Handler_EGS_TALK_WITH_NPC_REQ( CX2UnitManager::NPC_UNIT_ID questNPCID )
 {
 	KEGS_TALK_WITH_NPC_REQ kPacket;
@@ -2561,6 +2617,9 @@ void CX2TFieldNpc::SetCanTalkNpc(bool val, bool bForce )
 }
 
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June ResetNpcType 325c9800: in the Atlas E1b block at the end of this file (E1b review).
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldNpc::ResetNpcType()
 {
 	if( NULL == m_pDlgNpcMessage )
@@ -2676,6 +2735,7 @@ void CX2TFieldNpc::ResetNpcType()
 	}
 }
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #ifdef NPC_SOUND
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 // June NpcPlaySound 325c9c00: in the Atlas E1b block at the end of this file.
@@ -3795,6 +3855,81 @@ void CX2TFieldNpc::SetCanTalkNpc(bool val, bool bForce )
 	m_bReservedCanTalkNpc = ( bForce == false );
 }
 
+// June ResetNpcType 325c9800 (added by the E1b review): CreateFieldNpc's button list again through the 4-argument SetShopType,
+// every call ( type, true, false, false ), so HI_MU's guild-base gating is not reapplied. June drops March's wedding / web-event /
+// synthesis buttons here too. The code-event 2204 block is the reachable form (@325c9a4e): 2204 off -> the eight NPCs hide the
+// Henir equip upgrade button (CreateFieldNpc's twin re-tests the code and never runs, JUNE_BUGS).
+void CX2TFieldNpc::ResetNpcType()
+{
+	if( NULL == m_pDlgNpcMessage )
+		return;
+
+	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_NONE, true, false, false );
+	if( true == m_bStaticMesh )									// @325c9826
+		return;
+
+	if( m_bPvpNpc )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PVP, true, false, false );
+	if( m_bShopNpc )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_SHOP, true, false, false );
+	if( m_bMakingNpc )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_MAKE, true, false, false );
+	if( m_bTraining )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_TRAINING, true, false, false );
+	if( m_bFreeTraining )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_FREETRAIN, true, false, false );
+	if( m_bEnchant )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_ENCHANT, true, false, false );
+	if( m_bAttribute )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_ATTRIBUTE, true, false, false );
+#ifdef GUILD_BOARD
+	if( m_bGuild )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_GUILD, true, false, false );
+#endif GUILD_BOARD
+	if( m_bRanking )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_RANKING, true, false, false );
+#ifdef	ITEM_EXCHANGE_SHOP
+	if( m_bExchange )		m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXCHANGE, true, false, false );
+#endif	ITEM_EXCHANGE_SHOP
+#ifdef PRIVATE_BANK
+	if( m_bPrivateBank )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PRIVATE_BANK, true, false, false );
+#endif PRIVATE_BANK
+#ifdef DEF_TRADE_BOARD
+	if( m_bPersonalShop )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_PERSONAL_SHOP, true, false, false );
+#endif DEF_TRADE_BOARD
+#ifdef SERV_PSHOP_AGENCY
+	if( m_bAgencyTraderRegister )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_AGENCY_TRADER_REGISTER, true, false, false );
+	if( m_bAgencyTraderReceive )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_AGENCY_TRADER_RECEIVE, true, false, false );
+#endif
+#ifdef NPC_EVENT_BUTTON
+	if( m_bEvent1 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT1, true, false, false );
+	if( m_bEvent2 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT2, true, false, false );
+	if( m_bEvent3 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT3, true, false, false );
+	if( m_bEvent4 )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EVENT4, true, false, false );
+#endif NPC_EVENT_BUTTON
+#ifdef SERV_NEW_ITEM_SYSTEM_2013_05
+	if( m_bExchangeNewItem )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_EXCHANGE_NEW_ITEM, true, false, false );
+#endif // SERV_NEW_ITEM_SYSTEM_2013_05
+	if( m_bHenirEquipUpgrade )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, true, false, false );
+
+	if( false == ( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 2204 ) ) )	// @325c9a4e
+	{
+		switch( m_iNpcIndex )									// jump table 325c9ba8 / 325c9bb0
+		{
+		case 10004:	// NUI_ECHO
+		case 10009:	// NUI_CHACHABUK
+		case 10015:	// NUI_AMOS
+		case 10020:	// NUI_ALLEGRO
+		case 10028:	// NUI_GRAIL
+		case 10041:	// NUI_DENKA
+		case 10057:	// NUI_VAPOR
+		case 10069:	// NUI_FACEOFF
+			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_HENIR_EQUIP_UPGRADE, false, true, false );	// @325c9ab2
+			break;
+		}
+	}
+
+	if( m_bGuildAgitService )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_AGIT_SERVICE, true, false, false );
+	if( m_bGuildEnter )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_GUILD_ENTER, true, false, false );
+	if( m_bExtraction )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_EXTRACTION, true, false, false );
+	if( m_bTrade )				m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_TRADE, true, false, false );
+	if( m_bPhotoZone )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_PHOTOZONE, true, false, false );
+	if( m_bFragmentExchange )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_FRAGMENT_EXCHANGE, true, false, false );
+	if( m_bRockScissorsPaper )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_ROCKSCISSORSPAPER, true, false, false );
+	if( m_bOldEnchant )			m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ENCHANT, true, false, false );
+	if( m_bOldAdvancedEnchant )	m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_JUNE_OLD_ADVANCED_ENCHANT, true, false, false );
+}
 #ifdef NPC_SOUND
 // June NpcPlaySound 325c9c00: no 3D branch (as March under ONLY_NORMAL_SOUND_BY_NPC); the device's id is kept.
 void CX2TFieldNpc::NpcPlaySound(wstring &wstrSoundName)

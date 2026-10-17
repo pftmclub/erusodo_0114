@@ -12,7 +12,7 @@
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh
-python tools/docsection.py ATLAS_PORT_PHASES.md "Starting context" "Phase E1 — Village engine" "Phase E1 — Split (user, 2026-10-17)" "Phase E1a — Done" "Phase E1b — Done"
+python tools/docsection.py ATLAS_PORT_PHASES.md "Starting context" "Phase E1 — Village engine" "Phase E1 — Split (user, 2026-10-17)" "Phase E1a — Done" "Phase E1b — Done" "Phase E1b — Review (2026-10-17)"
 cat june2017_re/e1_relation_runtime.md         # lookups, TFieldGame functions, the parked refresh code
 cat june2017_re/c9h5_fieldnpc_onframemove_diff.md
 grep -a "Effect C9h-5" june2017_re/funcmap.tsv
