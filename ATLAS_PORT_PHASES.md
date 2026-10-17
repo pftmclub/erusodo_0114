@@ -3666,6 +3666,9 @@ A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 
   `DLG_Map_House` notes are labelled "atlas E2" though E3 wrote them.
 - **How to see the fix:** after `COPY OK data057`, stand in F03 and open the map: the navigation panel shows F03's picture, and ErrorLog has no
   `DLG_UI_COMMON_TEXTURE_FIELD_04` line.
+- **Re-test log (run 11:31-11:32 on exe ad0dc512 + data057 e5c6c6ad):** 517 -> 40037, 35 monsters, 0 EXCEPTION; no `FIELD_04` and no
+  `ELYSION_HERNA_SHIELD_WEAPON` miss (data181 fix confirmed); remaining misses = the E3 Done note's June-own / non-F03 set. The run has no
+  map-open line (the earlier run's `Elysion Tower <- ... DLG_UI_LOCAL_MAP` line is absent), so the navi picture rests on the user's look.
 
 ---
 
