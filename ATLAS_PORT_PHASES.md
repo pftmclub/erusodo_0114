@@ -4446,7 +4446,8 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   AWAKEN_GAGE" holds only for text sources) and HERBAON gauge (`ELYSION_S_2STAGE_HERBAON`), both dialogs staged in data034 by E6; dramatic messages
   (`ELYSION_SOLESS_DRAMATIC`, E6); phase 2 = `DarkSoles_DoPhaseChange_InMiddle`: `SetShowWorld(false)` + `SetShowAdditionalWorld(0, true)`, the world being
   WI_SOLESS_BOSSSTAGE's `dataFileName_Additional` (E7 reader `X2WorldManager.cpp:304`). Endings: `CF_ELYSION_SOLESS_DYING_TRUE/BAD_ENDING` on NPC flag 3.
-  Hidden stage: STAGE1 SUB_STAGE1 kills `HIDE_STAGE_A` -> `CT_STAGE 1`, `HIDE_STAGE_B` -> `CT_STAGE 5` (`WI_SOLESS_STAGE1_HIDE`).
+  Hidden stage: when STAGE0's gate `S_0STAGE_GATE` dies it reads game int 0 (+1 each time `S_0STAGE_LASER2/3` hits the player: their `ATTACKED_FUNC`, called from
+  `SetAttackedUnit`): > 0 kills `HIDE_STAGE_A` -> `CT_STAGE 1`, 0 kills `HIDE_STAGE_B` -> `CT_STAGE 5` (`WI_SOLESS_STAGE1_HIDE`). No laser hit = hidden stage; no server value.
 - **Premises held.** All 45 rows: unit script staged (data037, ljconv), `MOTION_FILE_NAME` meshes staged (data181 / data008), Enum value = June's, `NewNPCStat` has
   them and `NPCStat` has none (= June). Boss faces `NUI_SOLESS`, `NUI_HERBAON`, `NUI_COPY.S` in `data215 DLG_BossState_02.TET`. Buffs (`BFI/BTI_*DARK_SOLES*`,
   `BFI_HOLD_BY_SOLESS`, `BTI_DEBUFF_SHOCK_ELYSION_6`, ...) all in `Enum.lua`. Effects 416 / 416, items 0 missing.
@@ -4466,7 +4467,7 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
 - **Offline:** Adrian Normal clear (33880) unlocks Soless (33890 / 33891 / 33892, `m_MinLevel` 87, so level 85+ passes under `JUNE_DUNGEON_SUITABLE_LEVEL`).
   A clear records with no code; kills pay nothing (Stage 23). Memory (E11) names `DI_SOLESS_NORMAL`.
 - **How to see it (after the copy):** a level-85+ character that has cleared Adrian Normal: M -> Elysion tab -> Soless -> Normal. Stage0 (moving platforms, E5
-  review's two checks), Stage1 (kill `HIDE_STAGE_B` for the hidden stage), Stage2 (Herbaon gauge), Stage3, boss: AWAKEN gauge, phase-2 world swap, dramatic
+  review's two checks; take no laser 2 / 3 hit for the hidden stage), Stage1 or the hidden stage, Stage2 (Herbaon gauge), Stage3, boss: AWAKEN gauge, phase-2 world swap, dramatic
   boxes, true / bad ending. `offline_server.log` shows `[ELYDBG] READY_NPC: world 712 entry 10` when the stage data loads.
 
 ### Phase E11 — Memory
