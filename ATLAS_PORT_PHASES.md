@@ -2479,7 +2479,7 @@ routed classes of checklist step 9 (6 `assets.absent`, 1 `bind.nosource` + 1 `ko
   Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
 - **June bug kept verbatim (JUNE_BUGS #209):** `WI_TOWER_STAGE3` -> `Elysion_Tower_Stage3.lua`, a file June ships in no kom. Latent: none of the three
   `Dungeon_Elysion_Tower_*` scripts names `WI_TOWER_STAGE3`. The row is in `WorldData` with a comment; no file invented.
-- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: asked, not yet done (see STATUS).
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy (user OK 2026-10-17): `COPY OK` data035 (md5 a8703d01) / data037 (e97be63a) / data040 (8376d0ca).
 - **Offline:** Tower's rows carry `EXTRA_REQUIRE_DUNGEON_ID = DI_ATLASCITY_NORMAL`, so an AC Normal clear (33340) unlocks them; a Tower clear records as
   33350 / 33351 / 33352 (`DungeonEnum.h:520-522`) with no code. **Kills pay nothing** (no server `DropTable` rows; backlog Stage 23); nothing invented.
 - **How to see it (after the copy):** a level-80+ character that has cleared AtlasCity Normal: M -> Elysion tab -> Tower icon enabled -> enter
