@@ -858,6 +858,11 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 			// June: WeeklyMark picture hidden here and shown below for weekly/event dungeons
 			// (FUN_327d9d50/FUN_327da190). June-only system; the static is not in this lua.
 
+#ifdef SERV_IRUHADEV_LOCALMAP_GM_PAGING
+			// GM used to `continue` here, skipping the page split and the tab count: all region tabs stacked
+			// on one spot and neither arrow ever showed. Now GM only skips the level gate; paging runs as normal.
+			bool bIsGM = false;
+#endif SERV_IRUHADEV_LOCALMAP_GM_PAGING
 			// GM and above see every tab; June keeps this, without paging.
 			if( NULL != g_pData->GetMyUser() &&
 				g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR )
@@ -886,8 +891,14 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 					}
 				}
 #endif //QUEST_GUIDE
+#ifdef SERV_IRUHADEV_LOCALMAP_GM_PAGING
+				bIsGM = true;
+				bShowRadioButton = false;	// GM quest mark already handled above
+			}
+#else SERV_IRUHADEV_LOCALMAP_GM_PAGING
 				continue;
 			}
+#endif SERV_IRUHADEV_LOCALMAP_GM_PAGING
 
 			if( NULL == pLocalMapTemplet )
 				continue;
@@ -903,7 +914,11 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 #endif SERV_IRUHADEV_RANOXDBG_DUNGEON
 
 			// June: the level gate (identical to March's FIX_LOCALMAP_OPEN_CONDITION branch).
+#ifdef SERV_IRUHADEV_LOCALMAP_GM_PAGING
+			if( false == bIsGM && g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel )
+#else SERV_IRUHADEV_LOCALMAP_GM_PAGING
 			if( g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel )
+#endif SERV_IRUHADEV_LOCALMAP_GM_PAGING
 			{
 				pControl->SetShowEnable( false, false );
 				bShowRadioButton = false;

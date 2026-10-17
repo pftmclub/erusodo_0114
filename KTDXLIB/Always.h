@@ -7453,3 +7453,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              reading the key as a line index (Atlas Station 403 -> Field 01 start pos 333 on a 163-line map).
 #define SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Local map UI, auth level >= OPERATOR (dev mode): GM tabs go through the June page split and tab
+//              count too, so the region tabs no longer stack and the left/right arrows show.
+#define SERV_IRUHADEV_LOCALMAP_GM_PAGING
+//////////////////////////////////////////////////////////////////////////
