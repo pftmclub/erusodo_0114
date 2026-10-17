@@ -971,6 +971,42 @@ June's 8 sites (FONT_INDEX, POS, LEFT_TOP, RIGHT_BOTTOM x2, RIGHT_TOP, LEFT_BOTT
 that default-on `SetChangeFocusByKeyMsg` changes nothing. (b) Live exercisers: `DLG_Map_Local_*_Icon_NEW` read `*_GLOBAL` / `*_US` keys (B), the movies (C), every X2Lib text wrap (D).
 (c) The done gate "a June DLG from each group opens in game" is **not met by live content**: it needs a June DLG calling the new methods, and the owning UI port brings it. The play-test checks the groups that have a live exerciser plus the log lines.
 
+### Phase U1 -- Review (2026-10-17, Opus 5.5)
+
+**Verdict: PASS, no code fix, no rebuild.** Reviewed `915bb24b` + `3d26d68f` (and `bad3ace2`, `c8a50144`, both docs only) against U0, `U1.md` and the 17 `Engine U1` funcmap rows. The live exe (`9e41b0aa`, R2's later redeploy `65ae9c0e`) already holds all of U1.
+
+- **Ghidra spot-checks (3/3 match):**
+  - `31cbff90` = `CKTDXWordWrap::GetStrByLineBreak`. It matches statement for statement: the `+3` / `+8` versus `+2` / `+7` skip when `iLastCutPoint == i`, the `"
+"` / `"-
+"` split on `iNowLineWidth < nowTextLen`, and the break check after an insertion (no check after a token skip).
+  - `31c9a310` = `GetSubtitle`. The three-way compare and its result match: `BL` is 0 for no rows (output untouched), 0 with output `""` for a miss, 1 for text. The caller `31cc07b0` wraps with `( text, 0x302, UIStringData +0 = fontIndex, 0 )` only on true, as ported.
+  - `31cc1660` = combo `HandleMouse`. The scroll bar gets `pt - ( +0x460, +0x464 )`. The hover loop sends Out (only when the old focus differs, is `>= 0` and the message is set), then Over (always), and Out again after the loop. All are `0x467` = March's `SendInternelEvent( KM_UI_CONTROL_CUSTOM_EVENT )`.
+- **Also re-read in June:**
+  - Focus gate `31cd8a6e`: `KEYUP`, focus not NULL, `[focus+0x244] == 1`, then Tab / arrows. This is the port's gate.
+  - Caret shift `31cb9670`: it is **unconditional**. The too-long `JLE` lands on the shift at `31cb9807`, so the port's spot after the `if` is right, and March's `s_ptCompString` store (`:2766`) picks up the new top, as in June. The `0 < lineCount` guard only skips June's divide-by-zero fault (JUNE_BUGS 257).
+  - `AddSubtitleData` `31c9da10`: `-1` gives an empty text, and `STR_ID_EMPTY` is `-1` (`StringID_def1.h:7`).
+  - Nation switch: the names match funcmap `31e46300 @31e4ae03` (June's `DEV` has no March `NF_` and is not used under US).
+- **Checked in the diff:**
+  - Binding names and targets for all 9 June methods.
+  - Defaults: focus-by-key true, combo -1 / -1 / 0 / 0, caret 0, group offset 0, line-break 0 / 0 / false, subtitle 0 / 0.
+  - The 8 nation-key sites, each placed after its plain read.
+  - ROTATION, in `#ifndef DLL_BUILD` twins; `DLL_BUILD` itself is untouched.
+  - The seven `RewrapPending` sites. The slot site is in `OnFrameRender`; the hunk header reads `LButtonMouseUp`, which is git's heuristic.
+  - `X2Lib/WordWrap.cpp` is insertion only, and both `#else` bodies are March's bytes.
+- **Hygiene** (`--range 915bb24b^..915bb24b`; nothing after `3d26d68f` touches these flags, `git log -S` is empty):
+  - FRAMEWORK: `files: 3 PASS, 18 OTHER, 1 FAIL`.
+  - NATION_KEYS: `2 PASS, 19 OTHER, 1 FAIL`.
+  - MOVIE_SUBTITLE: `1 PASS, 20 OTHER, 1 FAIL`.
+  - LINE_BREAK: `5 PASS, 16 OTHER, 1 FAIL`.
+  - DEBUG: `0 PASS, 21 OTHER, 1 FAIL`. DEBUG `--range 3d26d68f^..3d26d68f`: `files: 6 PASS, 0 OTHER, 0 FAIL`, `RESULT: PASS`.
+  - Every `in this flag's files:` line: 0 deleted, 0 non-ASCII, 0 EOL, 0 encoding.
+  - The only FAIL row is `KTDXLIB/KTDXWordWrap.cpp` line 1, `#include "StdAfx.h"`. The new file needs the PCH include first, and the rest of the file is inside the flag. It is accepted as U1 said.
+  - OTHER = the same U1 files seen through another U1 flag.
+  - The DEBUG run counts one `#else` without the token. It is the plain `#else` of the `JUNE_UI_NATION_HIT` macro (`KTDGUIControl.cpp:99`), debug-only, and goes away when `_JUNE_UI_DEBUG` is removed.
+- **Done-gate decision (review).** Census `GAP LIST june-only-unbound: 0`, the exe strings and the play-test (B: `LEFT_TOP_GLOBAL` / `_US` hits; C: `Movie_Title` 5 rows; D: every X2Lib wrap) are enough. Group A has no live caller, and its code matches June (spot-check 3 plus the focus gate). A June DLG is **not** adopted just to test it. The UI port that brings `DLG_Mail_Shop_Popup_Send` / `DLG_Magical_Closet_ComboBox` (or the skill-tree UIs S6/S7) exercises A in its own play-test.
+- **Bookkeeping clash (not U1's).** R2's later commit `80757b8f` added a second `JUNE_BUGS.md` row **256** (weapon rim ramp) after U1's 256-261. `JUNE_BUGS.md` has a peer's uncommitted edits, so it is not touched here. The R2 review kickoff now says to renumber R2's row.
+- **Still open:** `SERV_IRUHADEV_JUNE_UI_DEBUG` is short-lived. Turn it off at plan close-out (Z) or when a UI port no longer needs the lines.
+
 ## Phase W0 - World-event timeline RE
 
 **Run with:** Opus 5.5 high. No code. Funcmap rows `Engine W0`.

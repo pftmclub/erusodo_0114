@@ -26,3 +26,8 @@ Hygiene is one command: `python tools/flagcheck.py <the phase's flag> --range <f
 Spot-check 2-3 items in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear transcription errors under the same
 flag (then `tools/build.py --deploy`); hand design decisions to the user. Write "Phase R2 -- Review" into the plan doc, update the
 STATUS row, check the next phase's kickoff, and commit.
+
+## Bookkeeping (from the U1 review, 2026-10-17)
+
+R2's `80757b8f` added `JUNE_BUGS.md` row **256** (weapon takes no world rim ramp), but U1 already used 256-261. Renumber R2's row to
+the next free number, and fix the citations in R2's Done note and the commit text you write.
