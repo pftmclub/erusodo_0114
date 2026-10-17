@@ -2567,7 +2567,49 @@ main.
 
 ### Phase A11 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 high. Data only: no C++, no flag, no build, no deploy (A12 owns those).** Script: `june2017_re/atlas_a11_closure.py`
+(read-only; writes `atlas_a11_closure.tsv`, `atlas_a11_tet.tsv`, `atlas_a11_sizes.tsv`, `atlas_a11_packlist.tsv`). Census run: `region_census.py
+--region atlas --limit 0 --no-probe --live`.
+
+- **Gate:** `--region atlas` shows 0 `assets.adopt` (the 49 June-only names in the region-wide stats are all Elysion Lua, E-phase), 2 `assets.absent`
+  (June ships none), `live {"same": 287}`, no `live.size` row. The only open rows are the routed classes (`keys.file` 62, `keys.registry` 1,
+  `bind.nosource` 1, `koms.unstaged` 1: Elysion_Tower_Stage3.lua, JUNE_BUGS #209).
+- **1. Closure** (both halves, as A6): 3,880 names (2,201 an Atlas line quotes) = census-named files + the textures / sub-meshes that 1,280
+  meshes and XETs embed (staged copy, else June's strict decode). Result: 3,794 in March (staged = live), 6 extension mismatches (the mesh names
+  `.tga`, March has the same stem as `.dds`: `elysion_cross_ap_whalefx`, `elysion_villeage_column`, `elysion_villeage_wing`, `pet_fox_ghostattacka_spark`,
+  `veritable_pandemonium_t02`; `elysion_damage_object_2` the other way; June ships the same files, so June fails the same way) and 80 names June
+  ships no file for (6 of them are meshes, so their textures cannot be read: `elsion_deceptor_ma_a_{attack_dummy,wing_a,wing_b}.x`,
+  `elysion_s_maya_weapon_circle.y`, `motion_m_2stage_gate.x`, `motion_npc_elsion_hugo.xet`). Nothing is missing that June has. Rows: `atlas_a11_closure.tsv`.
+  Particle-templet textures stay with june-effect (as in A6).
+- **2. TET-key census:** 133 distinct (texture, key) pairs from `SetTex` / `SetNormalTex` / `SetOverTex` / `SetDownTex` / `SetDisableTex` / `IconAni` calls and the
+  `m_TextureName`/`m_PieceName`, `BATTLE_FIELD_TEXTURE_NAME`/`_KEY`, `BOSS_GAGE_FACE_TEX`/`_PIECE`, `NPCTextureName`/`NPCTextureKey` pairs of every region file
+  and registry row, looked up (upper-cased) in the winning-mount TET. First run: 79 OK, 52 `NOTET`, 2 `KEY-MISSING`.
+  - **Real gap found: 28 `.TET` atlas companions were missing in March** although the `.tga`/`.dds` they index were there (the census names the picture,
+    never the TET). They gated: `FIELD_NAME_ELISION_1/2/3` + `FIELD_NAME_RANOX_4` (`DLG_UI_Common_Texture_Fieldname_7/8/9`, A6's BattleFieldData), Atlas Station
+    `NUI_YUNO` + 4 more faces (`DLG_Common_New_Texture76`, DLG_Map_House), `DLG_UI_Dungeon_Image12` (Soless / Memory DungeonData), and the Elysion map /
+    gauge dialogs (`DLG_UI_FIELD_MAP_ELISION_01..03_*` x 15, `DLG_UI_Town_ELISION_Map01..05`, `DLG_UI_Image_02/04/05`). A second sweep over every closure
+    texture whose June stem has a `.tet` that March lacks found the same 28, nothing more.
+  - **Staged and packed** (June's exact bytes, 28 new names, 0 replaced, manifest `"0"`): `kom.py stage-june` -> data057 25, data151 2 (`DLG_Common_New_Texture76`,
+    `DLG_UI_Dungeon_Image12`), data215 1 (`DLG_UI_Image_05`). `PACK OK` x3. **Copied (user OK):** `COPY OK` data057 d50ad827 (913 entries), data151 0f6dcdfb (11), data215 8f87f3c1 (17).
+    These fix the field-name banners of Fields 01-03, the Ranox F04 banner, the Atlas Station Yuno face and the Soless / Memory dungeon icons; the Elysion
+    dialogs they also cover are adopted by E4.
+  - **After the copy:** 133 pairs = 129 OK + 2 `KEY-MISSING` + 2 `NOTET`; 114 of them Atlas-quoted = 112 OK + the 2 `NOTET`. The 4 left are June's own defects (JUNE_BUGS #214, #215):
+    `DLG_Localmap_Title_01_A.tga` (`SOLESS`, `TITLE_MEMORY`) exists in no June kom; `NUI_ELYSION_SPHERE` / `NUI_ELYSION_S_SPHERE` are in neither June's nor March's
+    (byte-identical, md5 11c00b39) `DLG_BossState_02.TET`. Kept verbatim.
+- **3. Size check:** 3,770 staged names also in June's index. All 3,743 June-origin files equal June's index size (stage-june decodes strictly, so no algo-2 truncation
+  reaches the tree). 27 differ, all **March's own older copies** that were in the live koms before this port (none in A6's closure, none touched by A11):
+  `data013` camilla / ariel / ruriel / mu / adamas faces and `motion_npc_all_*` meshes, `village_postbox.x`, `data023 rest_adboard.dds`, `data024
+  ruben_build_typo.dds`, `data026 elder_village_sign_bank.dds`. They are June-vs-March collisions for the June asset port (P-phases), not for this port; list in `atlas_a11_sizes.tsv`.
+- **4. Mount order:** no closure name lives in two archives (staged or live), so no winner is contested. The TET winners are the single copy named in `atlas_a11_tet.tsv`.
+  Region files sit in 80 archives (data180 1,723, data002 188, data181 359, data182 422, data197 216, data013 110, data104 100, data096 89, ... `atlas_a11_closure.tsv` column `win`);
+  24 loose music / movie files live in `data\music`.
+- **5. Consolidated pack list:** nothing is owed. `atlas_a11_packlist.tsv` (staged region files absent from or different in the live kom) is empty after the three copies above.
+  - Server-side Lua for `data036.kom` (user packs by hand): `StatTable.lua` and `NpcExpTable.lua` are in the live data036 (sizes 436,432 / 2,445 = the staged BOM-free bytecode; latest run logs
+    `[CAP99] StatTable rows 81-99 present for 50 of 50 classes`). The client `MapData.lua` (32,324 B) is live too; `KncWX2Server/ServerResource/US/MapData.lua` (35,094 B, the server's own
+    mirror) is not read by the offline client and is not a pack item.
+  - New archives in the whole Atlas run: data179, data178, data216, datai027 (A6 closure, all copied); A11 adds none.
+- **Hygiene:** no code changed, so `flagcheck` / `build.py` do not apply. `luasrc.py ledger --check` is untouched (no Lua staged).
+- **Routed, not open:** 80 absent names and 6 extension mismatches above (June's own); the 27 collisions (June asset port).
 
 ---
 
