@@ -3719,7 +3719,44 @@ Done when: Phase E4's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 
 ### Phase E4 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` (A7's; log lines behind `SERV_IRUHADEV_ELYSION_DEBUG`; MODS.md
+"Atlas/Elysion port E4"). June rows: end of `june2017_re/funcmap.tsv` (`Atlas E4`). Commit: `Atlas Phase E4: ...` (this phase's first commit).
+
+- **Premise:** LMUCM 18006 / 18007 / 18008 in the staged data036 `Enum.lua` (:7443-7445, A3) = `X2LocalMapUI.h:18-20`.
+- **Scroll (June 329378a0 -> `ScrollLocalMap`):** only 0x2719; +0x48 = id; `Elysion_Local` picture 0 -> A4's `StartChangeUV( dir, from, to )`;
+  on success `HideLocalMapPageControls` (329366a0: dummy string "0".."9" -> `SetShowEnable(0,0)`, plus every hero-recruit control), the end
+  callback `OnLocalMapScrollEnd` (3293c1e0: shows the controls whose dummy string = the new page, then `UpdateDungeonButtons`,
+  `UpdateHeroRecruitButton`), and +0x54 = `to` at the start. Callers as June: 18006 (1) / 18007 (2) with the button's dummy int; the
+  `UpdateDungeonButtons` tail @3293c146 (page ? 1 : 2, a re-sync that the list's end refuses) replaces A7's hidden buttons; `ClearLocalMapDLGs`
+  (329379d0) scrolls back (2) before deleting and ends with `m_bFirstPage = true` (+0x60, June's whole function).
+- **Blink (3293a960 -> `OnFrameMove`):** the move button under the mouse (+0xc1 = `m_bMouseOver`, proven by the dialog's OnMouseMove
+  @31cd2457) is solid; otherwise both blink, alpha 0.3..1.0 at 1/s (3345993c = 0.3f). June's tail `3293a2e0` is the LMI_SPECIAL ERDA timer
+  (June-only event content): not ported.
+- **Guide (329386b0 -> `OpenElysionLocalMapGuide`, from `OpenLocalMapDLG` for 0x2719):** `fopen("checkfile.txt","rb")`; missing -> new
+  `DLG_Elysion_LocalMap_Guide.lua` (stage, 0.07f, layer 0) + `AddDlg`, then create the file. 18008 deletes it (`31be4210(0x472)`: all 453
+  callers pass 0x472 = June's XGM_DELETE_DIALOG; `CheckDlg` stands in for the handle test); the dtor (32937e10) deletes it too.
+  JUNE_BUGS 229 (once per install).
+- **Code events 0x8d4 / 0x8d5 (3293b5e0 @3293b8c0 and @3293baac -> `HideDungeonByElysionCodeEvent`):** `IsEnableCode(2260)` closes dungeons
+  33330-33352, else `IsEnableCode(2261)` closes 33350-33352: button, stars and quest desc off, and the Elysion title set's pictures 0/1 (2260)
+  and 2 hidden. A7's comment had the sense backwards (hidden while the code is ON). Code events never fire offline: inert.
+- **Assets:** June's `DLG_Elysion_LocalMap_Guide.lua` adopted (ljconv bytecode, data034, `june_adopt_20261017_115410.tsv`). Every texture /
+  TET key the four Elysion local-map luas use is staged (`DLG_Localmap_Title_01` 9 keys, `DLG_UI_Image_01` `BT_LOCALMAP_UP/DOWN` +
+  `LocalMap_MovePopup`, `DLG_UI_Button03_A`, `Button00/04/05/06_NEW`, `Region_ELISION`, HeroMode filter); `Image12` is in data151 (A-phase).
+  No texture literal was added to C++, so no `stage-june --dry-run` list. `PACK OK data034` (vs live: +1 `DLG_Elysion_LocalMap_Guide.lua`).
+- **`Elysion Tower <- control not found` (E3 review):** June's own miss. June's Icon lua has star statics only for the Elysion-page dungeons
+  (`STR_ID_40226/40227/42846/43399`); AD / AC / Tower have none, so `UpdateDungeonClearStars` misses their names: JUNE_BUGS 228.
+- **Census `--phase E4`:** guide row cleared; local-map rows left = `dlg_localmap_title_01_a.tga` (JUNE_BUGS 206) and the 3 Hero members (out of
+  scope). The other UI rows are E7 / E10 / E11 / backlog events (Soless gauges, XMAS / Festival, `Movie_Elysion_Clear`, absent June sounds).
+- **Hygiene:** flagcheck `--worktree --with ELYSION_DEBUG --files X2LocalMapUI.cpp X2LocalMapUI.h Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+  `19 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. The 19 deleted lines are A7's own flagged lines: two stale "until atlas E4" comments and A7's 17-line hidden-buttons tail.
+  POST_COMMIT_HYGIENE
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,705,856 B, dated 2026-10-17 12:04:18, md5 4294a0c35e2165e363ed15b65d4c7871, equal to X2/US_SERVICE/x2.exe (2026-10-17 12:04:13); built at main 369d7a1b + 3 uncommitted code file(s).` (E4's 3 files). Proof: the UTF-16LE literals `[ELYDBG] local map Elysion: scroll direction`, `[ELYDBG] local map Elysion guide: checkfile.txt absent`, `DLG_Elysion_LocalMap_Guide.lua` are in the deployed exe; A7's `move buttons %s/%s hidden` is gone. `COPY` of data034 pending (user OK).
+- **Expected until E8-E11:** page 1's dungeon buttons stay hidden (no DungeonData for SkyCrossroads / Adrian / Soless / Memory), but its
+  title plates and the four star strips (STAR4-7, all pictures as the lua sets them) show. June never shows that state; it ends when E8-E11 add
+  the DungeonData. Question for the user in the hand-off.
+- **How to see it:** M on reyaa (Grand Archer, 85) -> right arrow -> Elysion tab: guide pops up (first time), Up button blinks; Up slides the
+  map to the Elysion page, Down slides back. Log: `[ELYDBG] local map Elysion guide: ...`, `scroll direction`, `scroll ended, page`.
 
 ---
 

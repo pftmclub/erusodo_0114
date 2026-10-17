@@ -5,6 +5,9 @@
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+#include <boost/bind.hpp>
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 
 
 
@@ -28,7 +31,11 @@ m_pDlgHeroRecruit(NULL)
 , m_bFirstPage(true)		// June ctor: the tab strip starts on page 1
 , m_bLoggedNoArrows(false)
 #ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+, m_eScrollLocalMapID( CX2LocationManager::LMI_INVALID )	// June ctor: +0x48 = 0
+, m_fMoveButtonAlpha( 0.f )
+, m_bMoveButtonAlphaUp( true )
 , m_iLocalMapPage(0)
+, m_pDLGElysionGuide( NULL )
 #endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 #endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 {
@@ -71,11 +78,56 @@ m_pDlgHeroRecruit(NULL)
 {
 	ClearLocalMapDLGs();
 	SAFE_DELETE_DIALOG(m_pDlgHeroRecruit);
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+	// June's dtor (32937e10) also deletes the guide window (+0x58) while its handle is valid.
+	if( NULL != m_pDLGElysionGuide && true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGElysionGuide ) )
+		SAFE_DELETE_DIALOG( m_pDLGElysionGuide );
+	m_pDLGElysionGuide = NULL;
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 }
 
 
 /*virtual*/ void CX2LocalMapUI::OnFrameMove( double fTime, float fElapsedTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+	// June2017 CX2LocalMapUI::OnFrameMove (FUN_3293a960): on the Elysion map the move button under the mouse is drawn
+	// solid; while neither is, both blink (alpha 0.3 .. 1.0, one unit per second). June then runs FUN_3293a2e0, the
+	// LMI_SPECIAL ERDA entry timer (June-only event content, no March map): not ported.
+	CKTDGUIDialogType pDialog = GetLocalMapDLG( CX2LocationManager::LMI_ELYSION );
+	if( NULL != pDialog )
+	{
+		CKTDGUIControl* pMoveUp = pDialog->GetControl( L"LocalMapMoveUp" );
+		CKTDGUIControl* pMoveDown = pDialog->GetControl( L"LocalMapMoveDown" );
+		if( NULL != pMoveUp && NULL != pMoveDown )
+		{
+			if( true == pMoveUp->GetMouseOver() )	// June: control +0xc1 = m_bMouseOver (dialog OnMouseMove @31cd2457)
+			{
+				pMoveUp->SetColor( D3DXCOLOR( 1.f, 1.f, 1.f, 1.f ) );
+			}
+			else if( true == pMoveDown->GetMouseOver() )
+			{
+				pMoveDown->SetColor( D3DXCOLOR( 1.f, 1.f, 1.f, 1.f ) );
+			}
+			else
+			{
+				if( true == m_bMoveButtonAlphaUp )
+				{
+					m_fMoveButtonAlpha += fElapsedTime;
+					if( 1.f < m_fMoveButtonAlpha )
+						m_bMoveButtonAlphaUp = false;
+				}
+				else
+				{
+					m_fMoveButtonAlpha -= fElapsedTime;
+					if( m_fMoveButtonAlpha < 0.3f )		// June 3345993c = 0.3f
+						m_bMoveButtonAlphaUp = true;
+				}
+				pMoveUp->SetColor( D3DXCOLOR( 1.f, 1.f, 1.f, m_fMoveButtonAlpha ) );
+				pMoveDown->SetColor( D3DXCOLOR( 1.f, 1.f, 1.f, m_fMoveButtonAlpha ) );
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 
 }
 
@@ -386,6 +438,37 @@ m_pDlgHeroRecruit(NULL)
 		} break;
 
 	// June2017 cases (FUN_3293d280). 18006-18008 are Elysion-only and not ported.
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+	// atlas E4 ports 18006-18008: the Elysion page scroll (FUN_329378a0 with 1 / 2) and the guide window's close.
+	case LMUCM_LOCAL_MAP_MOVE_UP:
+		{
+			CKTDGUIControl* pControl = (CKTDGUIControl*) lParam;
+			if( NULL != pControl )
+				ScrollLocalMap( (CX2LocationManager::LOCAL_MAP_ID) pControl->GetDummyInt( 0 ), 1 );
+			return true;
+		} break;
+
+	case LMUCM_LOCAL_MAP_MOVE_DOWN:
+		{
+			CKTDGUIControl* pControl = (CKTDGUIControl*) lParam;
+			if( NULL != pControl )
+				ScrollLocalMap( (CX2LocationManager::LOCAL_MAP_ID) pControl->GetDummyInt( 0 ), 2 );
+			return true;
+		} break;
+
+	case LMUCM_CLOSE_GUIDE_WINDOW:
+		{
+			// June: 31be4210( 0x472, +0x58 ) while the handle is valid; 0x472 is the dialog-delete message (all 453 callers
+			// pass it). June's handle goes invalid with the dialog; March's pointer is cleared here instead.
+			if( NULL != m_pDLGElysionGuide && true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGElysionGuide ) )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGElysionGuide, NULL, false );
+			m_pDLGElysionGuide = NULL;
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			CX2OfflineLog::Server( L"[ELYDBG] local map Elysion guide: closed (LMUCM_CLOSE_GUIDE_WINDOW)" );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+			return true;
+		} break;
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 	case LMUCM_DUNGEON_MODE_SELECTED:
 		{
 			// Sent only by DLG_UI_Local_Map_Mode_Button.lua (Phase 4, not loaded yet).
@@ -723,6 +806,11 @@ void CX2LocalMapUI::OpenLocalMapDLG( bool bOpen, CX2LocationManager::LOCAL_MAP_I
 
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->ChangeSequence( m_pDlgHeroRecruit, true );
 		m_pDlgHeroRecruit->SetShowEnable(true, true);
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+		// June OpenLocalMapDLG (FUN_3293c440) ends by opening the Elysion guide window for LMI_ELYSION (FUN_329386b0).
+		if( CX2LocationManager::LMI_ELYSION == eLocalMapID )
+			OpenElysionLocalMapGuide();
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 	}
 }
 
@@ -735,11 +823,20 @@ void CX2LocalMapUI::ClearLocalMapDLGs()
 	map< CX2LocationManager::LOCAL_MAP_ID, CKTDGUIDialogType >::iterator it;
 	for( it = m_mapLocalDLG.begin(); it != m_mapLocalDLG.end(); it++ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+		// June ClearLocalMapDLGs (FUN_329379d0): the Elysion map is first scrolled back (direction 2), which puts
+		// m_iLocalMapPage back to 0 when it was on page 1.
+		if( CX2LocationManager::LMI_ELYSION == it->first )
+			ScrollLocalMap( it->first, 2 );
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 		SAFE_DELETE_DIALOG( it->second );
 	}
 	m_mapLocalDLG.clear();
 
 	m_bShowLocalMap = false;
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+	m_bFirstPage = true;	// June 329379d0 ends with +0x60 = 1: the tab strip goes back to page 1
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 }
 
 // 던전 클리어 정보 기타 등등을 설정
@@ -1347,12 +1444,22 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 			}
 			// June then hides Elysion's title pictures for the Atlas/Tower dungeons (33330-33352)
 			// under event flags 0x8d4/0x8d5: June-only content, not ported.
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+			// atlas E4 ports it (June @3293b8c0-3293ba66): see HideDungeonByElysionCodeEvent. Either way the loop goes on.
+			HideDungeonByElysionCodeEvent( pDialog, eLocalMapID, pControl, eDungeonID );
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 			continue;
 		}
 #endif SERV_NEW_EVENT_TYPES
 
 		// June: an enabled Atlas/Tower dungeon (Elysion) is still hidden while event flag 0x8d4/0x8d5
 		// is off. June-only content, not ported.
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+		// atlas E4 ports it (June @3293baac-3293bbe8). The sense is the other way round: the dungeon is hidden while
+		// code event 2260 / 2261 is ON (a server kill switch). Code events never fire offline, so this stays inert.
+		if( true == HideDungeonByElysionCodeEvent( pDialog, eLocalMapID, pControl, eDungeonID ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 
 #ifdef SERV_INSERT_GLOBAL_SERVER
 		if( NULL != g_pData->GetDungeonManager() && true == g_pData->GetDungeonManager()->IsDefenceDungeon( eDungeonID ) )
@@ -1384,7 +1491,7 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 #ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 		// June @3293bc66-3293bd65: a first dummy string of "0" or "1" puts the control on that page; on the
 		// other page it is left hidden (it was hidden above). The page is m_iLocalMapPage (June +0x54),
-		// 0 = Atlas until atlas E4 ports the scroll that changes it (FUN_329378a0).
+		// 0 = Atlas, 1 = Elysion; ScrollLocalMap (June FUN_329378a0, atlas E4) changes it.
 		{
 			const std::wstring wstrPage = pControl->GetDummyString( 0 );
 			if( 0 == wstrPage.compare( L"0" ) || 0 == wstrPage.compare( L"1" ) )
@@ -1462,33 +1569,205 @@ void CX2LocalMapUI::UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLoca
 	// those two maps) and scrolls the Elysion map. Both are June-only systems; the badge statics
 	// are not in this build's luas.
 #ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
-	// June @3293c146-3293c16a: on the Elysion map June now runs the page scroll (FUN_329378a0), which also drives the
-	// LocalMapMoveUp / LocalMapMoveDown buttons of DLG_Map_Local_Elysion_Back_NEW.lua. That is atlas E4: until
-	// then the page stays 0 (Atlas) and both buttons stay hidden, so the Lua's shown "up" button is not a dead button.
+	// June @3293c146-3293c16a: on the Elysion map June re-syncs the scroll picture with the page: direction 2 on page 0,
+	// 1 on page 1 (NEG / SBB / ADD 2). A picture already on that page refuses the move (StartChangeUV at the list's
+	// end), so this only moves a picture that lags m_iLocalMapPage. The move buttons are the Lua's (Up "0" shown,
+	// Down "1" hidden) and ScrollLocalMap's to show or hide.
 	if( CX2LocationManager::LMI_ELYSION == eLocalMapID )
-	{
-		CKTDGUIControl* pMoveUp = pDialog->GetControl( L"LocalMapMoveUp" );
-		CKTDGUIControl* pMoveDown = pDialog->GetControl( L"LocalMapMoveDown" );
-		if( NULL != pMoveUp )
-			pMoveUp->SetShowEnable( false, false );
-		if( NULL != pMoveDown )
-			pMoveDown->SetShowEnable( false, false );
-#ifdef SERV_IRUHADEV_ELYSION_DEBUG
-		static bool s_bLoggedElysionPage = false;
-		if( false == s_bLoggedElysionPage )
-		{
-			s_bLoggedElysionPage = true;
-			CX2OfflineLog::Server( L"[ELYDBG] local map Elysion: page %d, move buttons %s/%s hidden (scroll = atlas E4)",
-				m_iLocalMapPage, ( NULL == pMoveUp ) ? L"none" : L"up", ( NULL == pMoveDown ) ? L"none" : L"down" );
-		}
-#endif SERV_IRUHADEV_ELYSION_DEBUG
-	}
+		ScrollLocalMap( eLocalMapID, ( 0 != m_iLocalMapPage ) ? 1 : 2 );
 #endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 
 	g_pData->GetMyUser()->GetSelectUnit()->ClearNewlyOpenedDungeonAtLocalMap();
 }
 //}} Iruha : 2026-10-01
 
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase E4: June2017's Elysion local-map page scroll and guide window
+// June 329378a0. Only the Elysion map scrolls: its "Elysion_Local" picture 0 holds two UV records (the texture's own
+// and DLG_Map_Local_Elysion_Back_NEW.lua's SetChangeUVPoint), and StartChangeUV (Atlas A4) tweens between them.
+void CX2LocalMapUI::ScrollLocalMap( CX2LocationManager::LOCAL_MAP_ID eLocalMapID, int iDirection )
+{
+	if( CX2LocationManager::LMI_ELYSION != eLocalMapID )
+		return;
+
+	m_eScrollLocalMapID = eLocalMapID;	// June writes +0x48 before any other test
+
+	CKTDGUIDialogType pDialog = GetLocalMapDLG( eLocalMapID );
+	if( NULL == pDialog )
+		return;
+
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( pDialog->GetControl( L"Elysion_Local" ) );
+	if( NULL == pStatic )
+		return;
+
+	CKTDGUIControl::CPictureData* pPicture = pStatic->GetPicture( 0 );
+	if( NULL == pPicture )
+		return;
+
+	int iFromIndex = -1;
+	int iToIndex = -1;
+	if( true == pPicture->StartChangeUV( iDirection, iFromIndex, iToIndex ) )
+	{
+		HideLocalMapPageControls();
+		pPicture->SetChangeUVEndFunc( boost::bind( &CX2LocalMapUI::OnLocalMapScrollEnd, this, _1 ) );
+		m_iLocalMapPage = iToIndex;		// June: the page changes when the move starts, not when it ends
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		CX2OfflineLog::Server( L"[ELYDBG] local map Elysion: scroll direction %d, page %d -> %d", iDirection, iFromIndex, iToIndex );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	}
+}
+
+// June 329366a0: while the map moves, every control of the map whose first dummy string is "0" .. "9" (a page's
+// titles, buttons, stars, move buttons) is hidden, and so is every hero-recruit button.
+void CX2LocalMapUI::HideLocalMapPageControls()
+{
+	CKTDGUIDialogType pDialog = GetLocalMapDLG( m_eScrollLocalMapID );
+	if( NULL == pDialog )
+		return;
+
+	const WCHAR* aPageName[10] = { L"0", L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9" };	// June 33458f54 .. 3348ac4c
+	for( int i = 0; i < pDialog->GetControlSize(); ++i )
+	{
+		CKTDGUIControl* pControl = pDialog->GetControl( i );
+		if( NULL == pControl )
+			continue;
+
+		for( int iPage = 0; iPage < 10; ++iPage )
+		{
+			if( 0 == pControl->GetDummyString( 0 ).compare( aPageName[iPage] ) )
+				pControl->SetShowEnable( false, false );
+		}
+	}
+
+	if( NULL != m_pDlgHeroRecruit )
+	{
+		vector<CKTDGUIControl*>::iterator it = m_pDlgHeroRecruit->GetControlList().begin();
+		for( ; it != m_pDlgHeroRecruit->GetControlList().end(); ++it )
+			(*it)->SetShowEnable( false, false );
+	}
+}
+
+// June 3293c1e0, called once by the UV tween when it ends: show the new page's controls, then let
+// UpdateDungeonButtons hide the dungeons that are not open and UpdateHeroRecruitButton restore its buttons.
+void CX2LocalMapUI::OnLocalMapScrollEnd( int iPage )
+{
+	CKTDGUIDialogType pDialog = GetLocalMapDLG( m_eScrollLocalMapID );
+	if( NULL == pDialog )
+		return;
+
+	// June formats "bad index, 0~10 expected" (334c83f8) for a page outside 0..10, drops the string and goes on.
+	if( iPage < 0 || 10 < iPage )
+	{
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		CX2OfflineLog::Server( L"[ELYDBG] local map Elysion: scroll ended on page %d, outside 0..10 (June goes on)", iPage );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	}
+
+	WCHAR wszPage[10] = {0};
+	_itow_s( iPage, wszPage, 10, 10 );
+
+	int iShown = 0;
+	for( int i = 0; i < pDialog->GetControlSize(); ++i )
+	{
+		CKTDGUIControl* pControl = pDialog->GetControl( i );
+		if( NULL == pControl )
+			continue;
+
+		if( 0 == pControl->GetDummyString( 0 ).compare( wszPage ) )
+		{
+			pControl->SetShowEnable( true, true );
+			++iShown;
+		}
+	}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	CX2OfflineLog::Server( L"[ELYDBG] local map Elysion: scroll ended, page %d, %d control(s) shown", iPage, iShown );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+
+	UpdateDungeonButtons( m_eScrollLocalMapID );
+	UpdateHeroRecruitButton();
+}
+
+// June 329386b0: the guide window opens only while "checkfile.txt" (in the working directory, i.e. the game data
+// directory) does not exist; June then creates that file, so the guide shows once per install (JUNE_BUGS 229).
+void CX2LocalMapUI::OpenElysionLocalMapGuide()
+{
+	FILE* pFile = fopen( "checkfile.txt", "rb" );	// June 334c8154 / 334552c0
+	if( NULL == pFile )
+	{
+		m_pDLGElysionGuide = new CKTDGUIDialog( m_pStage, L"DLG_Elysion_LocalMap_Guide.lua", 0.07f, 0 );	// June: layer 0, the lua sets XDL_POP_UP
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGElysionGuide );
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		CX2OfflineLog::Server( L"[ELYDBG] local map Elysion guide: checkfile.txt absent, guide opened" );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+
+		pFile = fopen( "checkfile.txt", "wb" );	// June 3346aadc
+		if( NULL == pFile )
+		{
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			CX2OfflineLog::Server( L"[ELYDBG] local map Elysion guide: checkfile.txt could not be created (June returns)" );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+			return;
+		}
+	}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	else
+	{
+		CX2OfflineLog::Server( L"[ELYDBG] local map Elysion guide: checkfile.txt present, guide not shown" );
+	}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	fclose( pFile );
+}
+
+// June 3293b5e0, the same block at @3293b8c0 (dungeon not enabled) and @3293baac (enabled). Code event 2260 (0x8d4)
+// closes the Atlas dungeons 33330-33352, else 2261 (0x8d5) the Tower 33350-33352: the button, its stars and quest
+// desc are hidden, and so are the Elysion page's title plates (the "Elysion_title set" static, named in Korean in
+// DLG_Map_Local_Elysion_Icon_NEW.lua: picture 0 SkyCrossroads, 1 Adrian under
+// 2260; 2 Soless always). Returns true when it hid the dungeon. g_pInstanceData is June's 33775864.
+bool CX2LocalMapUI::HideDungeonByElysionCodeEvent( CKTDGUIDialogType pDialog, CX2LocationManager::LOCAL_MAP_ID eLocalMapID,
+	CKTDGUIControl* pControl, SEnum::DUNGEON_ID eDungeonID )
+{
+	if( NULL == pDialog || NULL == pControl )
+		return false;
+
+	bool bAtlasClosed = false;
+	bool bTowerClosed = false;
+	if( NULL != g_pInstanceData )
+	{
+		if( true == g_pInstanceData->IsEnableCode( 2260 ) )
+			bAtlasClosed = ( (unsigned int)( (int)eDungeonID - 33330 ) <= 22 );
+		else if( true == g_pInstanceData->IsEnableCode( 2261 ) )
+			bTowerClosed = ( (unsigned int)( (int)eDungeonID - 33350 ) <= 2 );
+	}
+
+	if( false == bAtlasClosed && false == bTowerClosed )
+		return false;
+
+	pControl->SetShowEnable( false, false );
+	UpdateDungeonClearStars( eLocalMapID, eDungeonID, false );
+#ifdef SERV_EPIC_QUEST
+	UdateLocalMapQuestDesc( eLocalMapID, eDungeonID, false );
+#endif SERV_EPIC_QUEST
+
+	CKTDGUIStatic* pStaticTitle = static_cast<CKTDGUIStatic*>( pDialog->GetControl( L"\xC5D8\xB9AC\xC2DC\xC628_\xD0C0\xC774\xD2C0 \xBAA8\xC74C" ) );	// June 334c83ac
+	if( NULL != pStaticTitle )
+	{
+		if( true == bAtlasClosed )
+		{
+			if( NULL != pStaticTitle->GetPicture( 0 ) )
+				pStaticTitle->GetPicture( 0 )->SetShow( false );
+			if( NULL != pStaticTitle->GetPicture( 1 ) )
+				pStaticTitle->GetPicture( 1 )->SetShow( false );
+		}
+		if( NULL != pStaticTitle->GetPicture( 2 ) )
+			pStaticTitle->GetPicture( 2 )->SetShow( false );
+	}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	CX2OfflineLog::Server( L"[ELYDBG] local map Elysion: dungeon %d hidden by code event %d", (int)eDungeonID, ( true == bAtlasClosed ) ? 2260 : 2261 );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	return true;
+}
+//}} Iruha : 2026-10-17
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 //{{ Iruha : 2026-10-01 // June UI parity Phase 3: June2017 CX2LocalMapUI::SecretDungeonDesc
 // (FUN_32939aa0), called by UpdateDungeonButtons for each shown dungeon control.
 void CX2LocalMapUI::SecretDungeonDesc( const CX2Dungeon::DungeonData* pDungeonData_, CKTDGUIControl* pControl_ )

@@ -61,7 +61,11 @@ private:
 	bool	m_bFirstPage;	// June +0x60, tab-strip page; only the ctor and the two arrow messages write it
 	bool	m_bLoggedNoArrows;	// once-per-session log when the dialog lua has no page arrows
 #ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
-	int		m_iLocalMapPage;	// June +0x54, the Elysion scroll page; 0 (Atlas) until atlas E4 ports the scroll
+	CX2LocationManager::LOCAL_MAP_ID	m_eScrollLocalMapID;	// June +0x48: the map ScrollLocalMap last ran on (LMI_ELYSION only)
+	float	m_fMoveButtonAlpha;		// June +0x4c: alpha of the blinking move buttons (OnFrameMove)
+	bool	m_bMoveButtonAlphaUp;	// June +0x50: blink direction (ctor: true)
+	int		m_iLocalMapPage;	// June +0x54, the Elysion scroll page (0 Atlas, 1 Elysion), written by ScrollLocalMap
+	CKTDGUIDialogType	m_pDLGElysionGuide;	// June +0x58: DLG_Elysion_LocalMap_Guide.lua, closed by LMUCM_CLOSE_GUIDE_WINDOW
 #endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 #endif SERV_IRUHADEV_JUNE_LOCAL_MAP_UI
 public:
@@ -76,6 +80,15 @@ public:
 	void UpdateHeroRecruitButton();
 
 	void UpdateDungeonButtons( CX2LocationManager::LOCAL_MAP_ID eLocalMapID );
+#ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
+	// June2017 Elysion local-map page scroll and guide window (ATLAS_PORT_PHASES.md Phase E4).
+	void ScrollLocalMap( CX2LocationManager::LOCAL_MAP_ID eLocalMapID, int iDirection );	// June 329378a0: 1 = next page (up), 2 = previous (down)
+	void HideLocalMapPageControls();	// June 329366a0
+	void OnLocalMapScrollEnd( int iPage );	// June 3293c1e0, the UV tween's end callback
+	void OpenElysionLocalMapGuide();	// June 329386b0
+	bool HideDungeonByElysionCodeEvent( CKTDGUIDialogType pDialog, CX2LocationManager::LOCAL_MAP_ID eLocalMapID,
+		CKTDGUIControl* pControl, SEnum::DUNGEON_ID eDungeonID );	// June 3293b5e0 @3293b8c0 / @3293baac (inlined twice there)
+#endif SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 #ifdef SERV_IRUHADEV_JUNE_LOCAL_MAP_ICONS
 	// June2017 (FUN_32939aa0, JUNE_UI_PARITY_PHASES.md Phase 3): a secret dungeon's button
 	// and its SecretDungeonDesc lock button, by whether the dungeon is open.

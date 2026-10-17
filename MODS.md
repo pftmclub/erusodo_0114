@@ -32,7 +32,7 @@ column.
 | `SERV_IRUHADEV_ELYSION_PORT` | 2026-10-17 (Atlas A3, extended A5 / A6) | `KTDXLIB/Always.h` (end) | `X2World.h`, `X2LocationManager.h/.cpp`, `X2LocalMapUI.h`, `X2UnitManager.h`, `X2Main.cpp`, `X2StateMenu.cpp`, `X2UIInventory.cpp`, `X2ChatBox.cpp`, `X2FieldMapBase.cpp`, `X2GUUser.cpp`, `X2BattleFieldGame.cpp`, `X2TFieldGame.cpp`, `X2WorldMapUI.cpp`, `Offline/X2OfflineLuaEnumSeed.h`; shared headers `KncWX2Server/Common/Enum/Enum.h`, `Enum/DungeonEnum.h`, `X2Data/XSLUnitManager.h` (client-side only, offline rule) | -- |
 | `SERV_IRUHADEV_ELYSION_SCRIPT_A` | 2026-10-17 (Atlas A4) | `KTDXLIB/Always.h` (end) | `X2DungeonSubStage.h/.cpp`, `X2GUNPC.h/.cpp`, `X2GUUser.h/.cpp`, `X2Main.cpp`, `X2MonsterIndicator.cpp`, `X2NPCAI.h/.cpp`; `KTDXLIB/KTDGLineMap.h/.cpp`, `KTDGUIControl.h/.cpp`, `KTDGUIStatic.cpp`, `KTDXApp.cpp` | -- |
 | `SERV_IRUHADEV_ELYSION_DEBUG` | 2026-10-17 (Atlas A4; A13 adds the `SetCameraDistance` wrapper) | `KTDXLIB/Always.h` (end) | `[ELYDBG]` lines in `X2DungeonSubStage.cpp`, `X2GUNPC.cpp`, `X2GUUser.cpp`, `X2LocalMapUI.cpp`, `X2LocationManager.cpp`, `X2MonsterIndicator.cpp`, `X2QuestManager.cpp`, `X2TFieldNpcShop.cpp`, `X2WorldMapUI.cpp`, `X2World.h/.cpp`, `X2Main.cpp`, `KTDXLIB/KTDGUIControl.cpp`. Diagnostic only: undefine to silence | -- |
-| `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` | 2026-10-17 (Atlas A7) | `KTDXLIB/Always.h` (end) | `X2LocalMapUI.h/.cpp`, `X2LocationManager.cpp`, `X2StateMenu.cpp`, `X2UIInventory.cpp`, `X2WorldMapUI.cpp` | -- |
+| `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` | 2026-10-17 (Atlas A7, E4) | `KTDXLIB/Always.h` (end) | `X2LocalMapUI.h/.cpp`, `X2LocationManager.cpp`, `X2StateMenu.cpp`, `X2UIInventory.cpp`, `X2WorldMapUI.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS` (offline emulator) | 2026-10-17 (Atlas A6) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/Handlers_Room.cpp` (`EGS_JOIN_BATTLE_FIELD` ACK) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_ELYSION_VILLAGE` | 2026-10-17 (Atlas E1a, extended E1b; E1c / E1d continue) | `KTDXLIB/Always.h` (end) | `X2LocationManager.h/.cpp`, `X2Main.cpp`, `X2QuestManager.h/.cpp`, `X2StateLoading.cpp`, `X2TFieldNpc.h/.cpp`, `X2TFieldNpcShop.h/.cpp`, `X2UIUnit.h/.cpp`, `X2UIUnitManager.h/.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FETCH_AURA_ALWAYS` | 2026-09-08 | `KTDXLIB/Always.h:2672` (nested under `SERV_IRUHADEV_OFFLINE`) | `X2Lib/Offline/Handlers_Social.cpp:1541` (the force, in `MakePetInfo`), `:1574` (`IsPetPastCrystalStage`), `:1620` (the per-pet log line), `X2Lib/Offline/Handlers_Inventory.cpp:872` (item 500720 refused), `X2Lib/Offline/X2OfflineServer.h:490` | -- |
@@ -3834,6 +3834,19 @@ Flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION`. June's own code, cited by address i
 - **Revert:** remove the flag (the C++ falls back to March's; with the Lua still in, the loader then pops "Village OpenScript Error" for 20009,
   so revert the data too): delete the commented A7 blocks in the four BOM sources and the 7 adopted files (all new names, nothing
   was replaced; manifests lose their keys), then repack data034 / 036 / 065 / 215 / 217.
+
+### Atlas/Elysion port E4: local map, Elysion page (2026-10-17)
+
+Same flag, `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` (log lines behind `SERV_IRUHADEV_ELYSION_DEBUG`). June's own code, cited by address in each block:
+- **C++ (`X2LocalMapUI.h/.cpp`):** the page scroll `ScrollLocalMap` (June 329378a0: `Elysion_Local` picture 0, A4's `StartChangeUV`, page written at the
+  start), `HideLocalMapPageControls` (329366a0), the tween's end callback `OnLocalMapScrollEnd` (3293c1e0), LMUCM 18006 / 18007 / 18008 cases,
+  `OnFrameMove`'s blinking move buttons (3293a960), the guide window `OpenElysionLocalMapGuide` (329386b0, once per install via `checkfile.txt`)
+  from `OpenLocalMapDLG`, the guide in the dtor, `ClearLocalMapDLGs`' scroll reset and `m_bFirstPage = true` (329379d0), the code-event 2260 / 2261
+  dungeon gates (`HideDungeonByElysionCodeEvent`, 3293b5e0 twice, inert offline), and `UpdateDungeonButtons`' tail re-sync (replaces A7's hidden
+  buttons). Members June +0x48 / +0x4c / +0x50 / +0x58.
+- **Lua (kom_contents):** June's `DLG_Elysion_LocalMap_Guide.lua` (data034, ljconv bytecode, new name). Its textures were already staged.
+- **Revert:** remove the flag (it also takes A7 out), or keep A7 by restoring A7's tail block from commit `6b988787`; delete
+  `DLG_Elysion_LocalMap_Guide.lua` from data034 (and its manifest key) and repack data034. `data\checkfile.txt` is June's marker file and can be deleted.
 
 ### Atlas/Elysion port A6: Lanox -> Atlas crossing + Fields 01/02 (2026-10-17)
 

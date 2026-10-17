@@ -7430,6 +7430,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              event-code 2260 tab branches (inert offline). Stand-ins until atlas E2 / E3 (user, 2026-10-17): a local map
 //              naming a village with no Village[] row is skipped with a log line instead of the popup, and the Elysion
 //              village (Cobo row, world-map pin) and Field 03 (world-map pin) stay hidden while their targets do not exist.
+//              Atlas E4 (2026-10-17): the Elysion page scroll (LMUCM 18006 / 18007: ScrollLocalMap, the UV tween's end
+//              callback, OnFrameMove's blinking move buttons, the scroll reset in ClearLocalMapDLGs), the guide window
+//              (DLG_Elysion_LocalMap_Guide.lua, once per install through checkfile.txt; LMUCM 18008 closes it) and the
+//              code-event 2260 / 2261 dungeon gates in UpdateDungeonButtons (inert offline).
 #define SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION
 //////////////////////////////////////////////////////////////////////////
 
