@@ -111,7 +111,66 @@ class CKTDGLineMap : public CKTDGObject
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 			TAT_LINE_CHANGE_TYPE = 7,
 #endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+			TAT_LINE_CHANGE_MOVABLE_DATA = 8,	/// June AddTrigger_LUA 31c77e20 line case 8 ( STOP, DIRECT_MOVE_DATA ), CX2World::DoTriggerLine 328004a0 case 8
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 		};
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		/// June 2017 moving platforms ( Atlas/Elysion port Phase E5 ). Values = June Enum.lua LINE_MOVE_TYPE ( data036 Enum.lua since A3 )
+		enum LINE_MOVE_TYPE
+		{
+			LMT_NONE		= 0,
+			LMT_TARGET_MESH	= 1,	/// the line follows a bone of a world skin mesh ( CX2World 32801ab0 )
+			LMT_PATROL		= 2,	/// DIRECT_MOVE_DATA rows { dx, dy, dz, seconds }, moved one after the other ( 31c6fbb0 )
+			LMT_SPIN		= 3,	/// DIRECT_MOVE_DATA rows { pivot x, y, z, seconds per turn }: the line circles the pivot ( 31c6fbb0 )
+		};
+
+		/// June's per-line record ( 0xb0 bytes: ctor 31c7f2b0, dtor 31c7edc0 ), kept by line id in m_mapJuneMovableLineData ( June +0x2d4 )
+		struct MovableLineData
+		{
+			int						m_iMoveType;				/// +0x00 MOVE_TYPE ( LINE_MOVE_TYPE )
+			bool					m_bLoop;					/// +0x04 LOOP, default true
+			bool					m_bStop;					/// +0x05 STOP, default false
+			bool					m_bIsRight;					/// +0x06 IS_RIGHT ( LMT_SPIN ), default true: the spin sign
+			wstring					m_wstrTargetMeshName;		/// +0x08 TARGET_MESH_NAME: the world mesh file that moves with the line ( LMT_TARGET_MESH: that the line follows )
+			wstring					m_wstrTargetBoneName;		/// +0x24 TARGET_BONE_NAME ( LMT_TARGET_MESH )
+			vector<D3DXVECTOR4>		m_vecDirectMoveData;		/// +0x40 DIRECT_MOVE_DATA
+			vector<D3DXVECTOR4>		m_vecSpinAxis;				/// +0x50 LMT_SPIN: per row the rotation axis and the IS_RIGHT sign ( 31c751b0 )
+			bool					m_bUseAbsoluteCoordinate;	/// +0x60 USE_ABSOLUTE_COORDINATE, default false: true = the mesh sits on the line centre
+			D3DXVECTOR3				m_vMovedPos;				/// +0x64 LMT_PATROL: moved so far in this row; LMT_SPIN: the line centre ( both sent in P2P 0x1c )
+			D3DXVECTOR3				m_vLastMove;				/// +0x70 this frame's move: CanDown carries a unit by it, the mesh follows by it
+			UINT					m_uiNowIndex;				/// +0x7c row index; UINT_MAX = finished ( LOOP false )
+			float					m_fNowTime;					/// +0x80 seconds in this row
+			vector<int>				m_vecFollowerLineID;		/// +0x84 FOLLOWER_LINE_ID
+			bool					m_bInitPos;					/// +0x94 June sets it on a copy only ( 32801ab0 ), so it is never true in the map
+			D3DXVECTOR3				m_vStartLineCenter;			/// +0x98 the line centre at AddMovableLineData_LUA ( no June reader found )
+			D3DXVECTOR3				m_vInitPos;					/// +0xa4 written on that copy with m_bInitPos
+
+			MovableLineData()
+				: m_iMoveType( LMT_NONE )
+				, m_bLoop( true )
+				, m_bStop( false )
+				, m_bIsRight( true )
+				, m_bUseAbsoluteCoordinate( false )
+				, m_bInitPos( false )
+				, m_vStartLineCenter( 0.f, 0.f, 0.f )
+				, m_vInitPos( 0.f, 0.f, 0.f )
+			{
+				Reset();
+			}
+			/// June 31c7f170 ( the ctor ends in it; a trigger's new DIRECT_MOVE_DATA calls it too )
+			void Reset()
+			{
+				m_vecDirectMoveData.clear();
+				m_vecSpinAxis.clear();
+				m_fNowTime		= 0.f;
+				m_uiNowIndex	= 0;
+				m_vMovedPos		= D3DXVECTOR3( 0.f, 0.f, 0.f );
+				m_vLastMove		= D3DXVECTOR3( 0.f, 0.f, 0.f );
+			}
+		};
+		typedef std::map< int, MovableLineData > MovableLineDataMap;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 		enum TRIGGER_ETC_ACTION_TYPE
 		{
 			TAT_ETC_NONE = 0,
@@ -188,6 +247,9 @@ class CKTDGLineMap : public CKTDGObject
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 			LINE_TYPE		m_iChangeLineType;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+			vector<D3DXVECTOR4>	m_vecDirectMoveData;	/// June +0x28: TAT_LINE_CHANGE_MOVABLE_DATA's DIRECT_MOVE_DATA ( its STOP goes into m_bEnable, June's +0xc byte )
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 			TRIGGER_DATA_LINE()
 			{
@@ -438,6 +500,10 @@ class CKTDGLineMap : public CKTDGObject
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
 			LINE_TYPE		m_eLineTypeAfterAllActiveNPCKilled;	/// June LineData +0x150, CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED ( 31c705c0 @31c73ab9 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+			bool			m_bJuneMovable;				/// June LineData +0x155: set by AddMovableLineData_LUA on the line and its followers; UpdateLineVB( true ) redraws it, the NPC hit stop reads it
+			int				m_iJuneCameraLandHeight;	/// June LineData +0x158, CAMERA_LAND_HEIGHT ( 31c705c0 @31c74080, -1 when absent ); CX2Game 322cfe20 gives it to the camera
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP
@@ -566,6 +632,10 @@ class CKTDGLineMap : public CKTDGObject
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
 				m_eLineTypeAfterAllActiveNPCKilled = LT_INVALID;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+				m_bJuneMovable = false;
+				m_iJuneCameraLandHeight = -1;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP
@@ -2129,6 +2199,23 @@ class CKTDGLineMap : public CKTDGObject
 		bool AddTrigger_LUA();	
 		CKTDGLineMap::LINEMAP_TRIGGER* GetLineMapTrigger() { return &m_LineMapTrigger; }
 #endif
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		/// June 2017 moving platforms ( Atlas/Elysion port Phase E5; the June address is on each definition )
+		bool AddMovableLineData_LUA();
+		void SetMovableLineStop( int iLineIndex_, bool bStop_, bool bFollower_ );
+		void SetMovableLineDirectMoveData( int iLineIndex_, const vector<D3DXVECTOR4>& vecDirectMoveData_ );
+		MovableLineData* GetMovableLineData( int iLineIndex_ );
+		bool GetMovableLineDataByMeshName( const wstring& wstrMeshName_, OUT MovableLineData& kData_, OUT int& iLineIndex_ );
+		bool GetTargetMeshMovableLineData( const wstring& wstrMeshName_, OUT MovableLineDataMap& mapData_ );
+		bool SyncMovableLine( int iLineIndex_, UINT uiNowIndex_, float fNowTime_, const D3DXVECTOR3& vPos_, OUT wstring& wstrMeshName_ );
+		void MoveLineCenterTo( int iLineIndex_, const D3DXVECTOR3& vPos_, OUT D3DXVECTOR3& vMove_ );
+		int GetCameraLandHeight( int iLineIndex_ );
+		const MovableLineDataMap& GetMovableLineDataMap() const { return m_mapJuneMovableLineData; }
+		void BuildMovableLineSpinAxis( int iLineIndex_, MovableLineData& kData_ );
+		void MoveLine( int iLineIndex_, const D3DXVECTOR3& vMove_ );
+		void FrameMoveMovableLine( float fElapsedTime_ );
+		static D3DXVECTOR3 GetLineCenter( const LineData* pLineData_ );
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 
 // 기가 프로미넌스를 위한 위치 잡는 기능
@@ -2304,6 +2391,11 @@ class CKTDGLineMap : public CKTDGObject
 #endif
 
 		LPD3DXLINE		m_pLine;
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		MovableLineDataMap	m_mapJuneMovableLineData;	/// June +0x2d4
+		bool				m_bJuneMovableLineMoved;	/// June +0x2e4: a line moved this frame, OnFrameMove redraws the moving lines
+		wstring				m_wstrJuneLineMapFileName;	/// June +0x2b8, the file name AddMovableLineData_LUA's errors print
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 #ifdef SHOW_LINEMAP_FILE_NAME
 		wstring m_wstrLineFullName;

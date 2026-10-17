@@ -47,6 +47,9 @@ CX2World::CX2World( WorldData* pWorldData, const bool bBackgroundLoad_ /*= false
 	m_pWorldData	= pWorldData;
 
 	m_bRenderLineMap = false;
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	m_fJuneMovableLineSyncTime = 0.f;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	m_LodPercent = 100;
 
 
@@ -268,6 +271,12 @@ HRESULT CX2World::OnFrameMove( double fTime, float fElapsedTime )
 			m_LightColor += remainColor * fElapsedTime;
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	/// June 32802140: the line map's OnFrameMove ( vslot 1, 31c70580: the movable lines ) after the colour fades, before the sky domes.
+	/// March never ticked the line map ( its OnFrameMove only refreshed the vertices in the tools ).
+	if ( NULL != m_pLineMap )
+		m_pLineMap->OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 
 
@@ -317,6 +326,16 @@ HRESULT CX2World::OnFrameMove( double fTime, float fElapsedTime )
 #endif
 			}
 		}		
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		/// June 32802140 @32802785-3280283c: every object, shown or not, once the line map has records ( +0x2dc, the map's size )
+		if ( NULL != m_pLineMap && false == m_pLineMap->GetMovableLineDataMap().empty() )
+		{
+			if ( CX2WorldObject::OT_SKIN_MESH == pCX2WorldObject->GetObjectType() )
+				FrameMoveMovableLineSkinMesh( static_cast<CX2WorldObjectSkinMesh*>( pCX2WorldObject.get() ) );
+			else if ( CX2WorldObject::OT_STATIC_MESH == pCX2WorldObject->GetObjectType() )
+				FrameMoveMovableLineMesh( static_cast<CX2WorldObjectMesh*>( pCX2WorldObject.get() ) );
+		}
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 	}
 
@@ -348,6 +367,9 @@ HRESULT CX2World::OnFrameMove( double fTime, float fElapsedTime )
     KTDXPROFILE_END();
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	SendMovableLineSync( fElapsedTime );	/// June 32802140 @328029c3, after the object and layer loops
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	return S_OK;
 }
 
@@ -1685,6 +1707,16 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 		}
 		break;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	case CKTDGLineMap::TAT_LINE_CHANGE_MOVABLE_DATA:
+		{
+			/// June 328004a0 case 8: STOP ( the +0xc byte ) to the line and its followers ( 31c6fb50 ), then the new rows if any ( 31c75410 )
+			GetLineMap()->SetMovableLineStop( triggerLine.m_iTriggerLineIndex, triggerLine.m_bEnable, false );
+			if ( false == triggerLine.m_vecDirectMoveData.empty() )
+				GetLineMap()->SetMovableLineDirectMoveData( triggerLine.m_iTriggerLineIndex, triggerLine.m_vecDirectMoveData );
+		}
+		break;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	default:
 		break;
 	}
@@ -1965,6 +1997,190 @@ CX2WorldObjectMesh* CX2World::GetWorldObjectMeshByName( const char* pszName_ )
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+#ifndef SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+#error SERV_IRUHADEV_JUNE_MOVABLE_LINE calls GetWorldObjectMeshByName ( June 327fcc40 ), defined under SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+#endif SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+/** June 327fca00: GetWorldObjectMeshByName's twin for OT_SKIN_MESH ( type 2 ), comparing the skin mesh file name
+	( +0x1f8, m_XSkinMeshName ), both lower-cased ( 31c20bf0 ); NULL when none */
+CX2WorldObjectSkinMesh* CX2World::GetWorldObjectSkinMeshByName( const char* pszName_ )
+{
+	wstring wstrName = L"";
+	if ( NULL != pszName_ )
+		ConvertUtf8ToWCHAR( wstrName, pszName_ );
+
+	for ( unsigned i = 0; i < m_ObjectList.size(); i++ )
+	{
+		CX2WorldObject* pObject = m_ObjectList[i].get();
+		if ( NULL == pObject || CX2WorldObject::OT_SKIN_MESH != pObject->GetObjectType() )
+			continue;
+		CX2WorldObjectSkinMesh* pSkinMesh = static_cast<CX2WorldObjectSkinMesh*>( pObject );
+		if ( 0 == _wcsicmp( pSkinMesh->GetXSkinMeshName().c_str(), wstrName.c_str() ) )
+			return pSkinMesh;
+	}
+	return NULL;
+}
+
+/** June 32801ab0 ( from OnFrameMove for OT_SKIN_MESH while the line map has records ), matched on the mesh file ( +0x1f8 ).
+	1) every LMT_TARGET_MESH record on it ( 31c76a00 ) that is not stopped: its line centre goes to the bone ( TARGET_BONE_NAME on the
+	   motion mesh, +0x220: 327f69f0 = FindFrame( name )->combineMatrix._41-_43 at +0xc0, ( 0, 0, 0 ) when absent ), and the record keeps
+	   that move and the anim time ( +0x218 -> +0x214; only P2P 0x1c reads it, and guests drop type 1 ).
+	2) the LMT_PATROL / LMT_SPIN record on it ( 31c74fe0, a copy ), not stopped: the mesh goes onto the line centre
+	   ( USE_ABSOLUTE_COORDINATE ) or moves by the line's last move. */
+void CX2World::FrameMoveMovableLineSkinMesh( CX2WorldObjectSkinMesh* pSkinMesh_ )
+{
+	CKTDGLineMap* pLineMap = m_pLineMap;
+	if ( NULL == pLineMap || NULL == pSkinMesh_ )
+		return;
+	const wstring wstrMeshName = pSkinMesh_->GetXSkinMeshName();
+
+	CKTDGLineMap::MovableLineDataMap mapTargetMesh;
+	if ( true == pLineMap->GetTargetMeshMovableLineData( wstrMeshName, mapTargetMesh ) )
+	{
+		for ( CKTDGLineMap::MovableLineDataMap::iterator it = mapTargetMesh.begin(); it != mapTargetMesh.end(); ++it )
+		{
+			if ( true == it->second.m_bStop )
+				continue;
+
+			D3DXVECTOR3 vBonePos( 0.f, 0.f, 0.f );
+			CKTDXDeviceXSkinMesh* pMotionMesh = pSkinMesh_->GetXSkinMotionMesh();
+			if ( NULL != pMotionMesh )
+			{
+				std::string strBoneName;
+				ConvertWCHARToChar( strBoneName, it->second.m_wstrTargetBoneName );
+				const CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = pMotionMesh->FindFrame( strBoneName.c_str() );
+				if ( NULL != pFrame )
+					vBonePos = D3DXVECTOR3( pFrame->combineMatrix._41, pFrame->combineMatrix._42, pFrame->combineMatrix._43 );
+			}
+
+			D3DXVECTOR3 vMove( 0.f, 0.f, 0.f );
+			pLineMap->MoveLineCenterTo( it->first, vBonePos, vMove );
+			CKTDGLineMap::MovableLineData* pData = pLineMap->GetMovableLineData( it->first );
+			if ( NULL != pData )
+			{
+				pData->m_vLastMove = vMove;
+				if ( NULL != pSkinMesh_->GetJuneXSkinAnim() )	/// June reads +0x218 -> +0x214 with no NULL test
+					pData->m_fNowTime = pSkinMesh_->GetJuneXSkinAnim()->GetNowAnimationTime();
+			}
+		}
+	}
+
+	CKTDGLineMap::MovableLineData kData;
+	int iLineIndex = -1;
+	if ( false == pLineMap->GetMovableLineDataByMeshName( wstrMeshName, kData, iLineIndex ) || true == kData.m_bStop )
+		return;
+
+	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
+	if ( true == kData.m_bUseAbsoluteCoordinate )
+	{
+		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLineIndex );
+		if ( NULL == pLineData )
+			return;
+		vPos = CKTDGLineMap::GetLineCenter( pLineData );
+	}
+	else
+	{
+		if ( false == kData.m_bInitPos )	/// June @32801dc5: on the copy, so every frame ( dead in effect )
+		{
+			kData.m_vInitPos = pSkinMesh_->GetPos();
+			kData.m_bInitPos = true;
+		}
+		vPos = pSkinMesh_->GetPos() + kData.m_vLastMove;
+	}
+	pSkinMesh_->SetPos( vPos );	/// June 321f5270
+}
+
+/** June 327fe640 ( OT_STATIC_MESH ): part 2 of the skin mesh one on the mesh file ( +0x1f8, m_XMeshName ), and June does not
+	test STOP here: a stopped or finished line's mesh keeps moving by the line's last move ( JUNE_BUGS ) */
+void CX2World::FrameMoveMovableLineMesh( CX2WorldObjectMesh* pMesh_ )
+{
+	CKTDGLineMap* pLineMap = m_pLineMap;
+	if ( NULL == pLineMap || NULL == pMesh_ )
+		return;
+
+	CKTDGLineMap::MovableLineData kData;
+	int iLineIndex = -1;
+	if ( false == pLineMap->GetMovableLineDataByMeshName( pMesh_->GetXMeshName(), kData, iLineIndex ) )
+		return;
+
+	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
+	if ( true == kData.m_bUseAbsoluteCoordinate )
+	{
+		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLineIndex );
+		if ( NULL == pLineData )
+			return;
+		vPos = CKTDGLineMap::GetLineCenter( pLineData );
+	}
+	else
+	{
+		vPos = pMesh_->GetPos() + kData.m_vLastMove;
+	}
+	pMesh_->SetPos( vPos );	/// June 321f5270
+}
+
+/** June 328018c0 ( the end of OnFrameMove ): the host, once its 1 s timer ( +0x1b0 ) is up, broadcasts one P2P 0x1c per record:
+	LMT_TARGET_MESH sends line, type and time ( June leaves the rest of its stack packet unset; zeroed here, guests drop type 1 ),
+	LMT_PATROL / LMT_SPIN add the row and m_vMovedPos */
+void CX2World::SendMovableLineSync( float fElapsedTime_ )
+{
+	if ( NULL == g_pX2Game || false == g_pX2Game->IsHost() )
+		return;
+
+	m_fJuneMovableLineSyncTime += fElapsedTime_;
+	if ( m_fJuneMovableLineSyncTime < 1.f )
+		return;
+	m_fJuneMovableLineSyncTime = 0.f;
+
+	if ( NULL == m_pLineMap || NULL == g_pData->GetGameUDP() )
+		return;
+
+	const CKTDGLineMap::MovableLineDataMap mapData = m_pLineMap->GetMovableLineDataMap();	/// June copies the map ( 32803a80 )
+	for ( CKTDGLineMap::MovableLineDataMap::const_iterator it = mapData.begin(); it != mapData.end(); ++it )
+	{
+		const CKTDGLineMap::MovableLineData& kData = it->second;
+		KXPT_MOVABLE_LINE_SYNC kPacket;
+		ZeroMemory( &kPacket, sizeof(kPacket) );
+		kPacket.m_usLineIndex	= static_cast<USHORT>( it->first );
+		kPacket.m_cMoveType		= static_cast<char>( kData.m_iMoveType );
+		kPacket.m_fNowTime		= kData.m_fNowTime;
+		if ( CKTDGLineMap::LMT_PATROL == kData.m_iMoveType || CKTDGLineMap::LMT_SPIN == kData.m_iMoveType )
+		{
+			kPacket.m_byNowIndex	= static_cast<BYTE>( kData.m_uiNowIndex );
+			kPacket.m_vMovedPos		= kData.m_vMovedPos;
+		}
+		else if ( CKTDGLineMap::LMT_TARGET_MESH != kData.m_iMoveType )
+			continue;
+		g_pData->GetGameUDP()->BroadCast( XPT_MOVABLE_LINE_SYNC, &kPacket, sizeof(kPacket) );	/// June 33223fb0( 0x1c, &packet, 0x14 )
+	}
+}
+
+/** June 32801fb0 ( CX2Game's P2P case 0x1c ): LMT_PATROL / LMT_SPIN only; the line takes the host's phase ( 31c6ffc0 ), then the
+	mesh on it ( skin mesh first, 327fca00, else static, 327fcc40 ) runs its follow once more ( an extra move on that frame, June ) */
+void CX2World::ReceiveMovableLineSync( const KXPT_MOVABLE_LINE_SYNC* pkSync_ )
+{
+	if ( NULL == pkSync_ || 1 == pkSync_->m_cMoveType || static_cast<BYTE>( pkSync_->m_cMoveType - 2 ) > 1 )
+		return;
+	if ( NULL == m_pLineMap )
+		return;
+
+	wstring wstrMeshName = L"";
+	m_pLineMap->SyncMovableLine( pkSync_->m_usLineIndex, pkSync_->m_byNowIndex, pkSync_->m_fNowTime, pkSync_->m_vMovedPos, wstrMeshName );
+	if ( true == wstrMeshName.empty() )
+		return;
+
+	std::string strMeshName;
+	ConvertWCHARToChar( strMeshName, wstrMeshName );	/// June 31ecc840 ( wide -> narrow ); mesh file names are ASCII
+	CX2WorldObjectSkinMesh* pSkinMesh = GetWorldObjectSkinMeshByName( strMeshName.c_str() );
+	if ( NULL != pSkinMesh )
+	{
+		FrameMoveMovableLineSkinMesh( pSkinMesh );
+		return;
+	}
+	CX2WorldObjectMesh* pMesh = GetWorldObjectMeshByName( strMeshName.c_str() );
+	if ( NULL != pMesh )
+		FrameMoveMovableLineMesh( pMesh );
+}
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
 // June effect completion C3n: CX2World::SetGravityAndSpeedRate ( June 32800800; March's was an inline store in X2World.h ). June stores the rate
 // ( world +0x184 ), then, only in a GT_DUNGEON game ( GetGameType, vslot 0x10c, == 2: not battlefield 3, not PvE 4 ), dynamic_casts the game to

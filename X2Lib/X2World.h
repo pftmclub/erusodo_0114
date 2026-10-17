@@ -1229,6 +1229,14 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
 		CX2WorldObjectMesh* GetWorldObjectMeshByName( const char* pszName_ );	/// June 327fcc40
 #endif SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		/// Atlas E5, June's moving platforms on the world side ( the June address is on each definition )
+		CX2WorldObjectSkinMesh* GetWorldObjectSkinMeshByName( const char* pszName_ );	/// June 327fca00
+		void FrameMoveMovableLineSkinMesh( CX2WorldObjectSkinMesh* pSkinMesh_ );		/// June 32801ab0
+		void FrameMoveMovableLineMesh( CX2WorldObjectMesh* pMesh_ );					/// June 327fe640
+		void SendMovableLineSync( float fElapsedTime_ );								/// June 328018c0
+		void ReceiveMovableLineSync( const struct KXPT_MOVABLE_LINE_SYNC* pkSync_ );	/// June 32801fb0
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef MODIFY_FRUSTUM
 		void SetProjection( float fNear, float fFar, float fPerspective, float fBaseDistance, float fStepDist1, float fStepDist2, float fStepDist3 );
 		float GetBaseCameraDistance() { return m_fBaseCameraDistance; }
@@ -1314,6 +1322,9 @@ public:
 
         bool                        m_bDistanceColor;
         vector<CX2WorldObject*>     m_vecSyncObject;
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		float						m_fJuneMovableLineSyncTime;	/// June CX2World +0x1b0: the host's 1 s P2P 0x1c timer ( 328018c0 )
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 		KLuabinder*					m_pKLuabinder;
 

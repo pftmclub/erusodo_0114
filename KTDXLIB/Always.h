@@ -7478,3 +7478,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              SERV_IRUHADEV_JUNE_SIMPLE_DLG ( C3z-4s ).
 #define SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase E5), June 2017 moving platforms whole: LINE_MOVE_TYPE,
+//              AddMovableLineData_LUA ( 31c75470 ) and its per-line record, the line map's per-frame mover ( OnFrameMove
+//              31c70580 -> 31c6fbb0: LMT_PATROL rows, LMT_SPIN around a pivot ), units carried by CanDown ( 31c6c310 head ),
+//              the world mesh / bone follow ( CX2World 32801ab0 / 327fe640 ), TAT_LINE_CHANGE_MOVABLE_DATA ( trigger case 8 ),
+//              GetLineTypeByLineID_LUA ( 322d0800 ), CAMERA_LAND_HEIGHT ( 322cfe20 ), the NPC hit-stop ride ( 3277dfd0 )
+//              and June's P2P sync: the host broadcasts message 0x1c once a second ( 328018c0 ), guests snap to it ( 32801fb0 ).
+#define SERV_IRUHADEV_JUNE_MOVABLE_LINE
+//////////////////////////////////////////////////////////////////////////

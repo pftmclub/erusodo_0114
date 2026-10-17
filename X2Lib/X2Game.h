@@ -465,6 +465,10 @@ class CX2Game : public CKTDXStage
 #ifdef X2TOOL
 		void						SetWorld(CX2World* pWorld)	{ m_pWorld = pWorld; }
 #endif
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		int							GetLineTypeByLineID_LUA( int iLineIndex_ );	// June 322d0800 ( bound @31dcaa7b ), Atlas E5
+		void						JuneUpdateCameraLandHeight();				// June 322cfe20, Atlas E5
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 		virtual CX2World*			GetWorld()					{ return m_pWorld; }
 		virtual CX2Camera*			GetX2Camera()				{ return m_pCamera; }
 		CX2DamageEffect*	        GetDamageEffect()			{ return m_pDamageEffect; }

@@ -46,6 +46,9 @@ enum X2_PACKET_TYPE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	XPT_BUFF_INFO_REQ,		/// June buff port Phase 8: June's P2P message 0x1b (27, right after the wedding-hall sync): "send me your buff list", UidType
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	XPT_MOVABLE_LINE_SYNC,	/// Atlas E5: June's P2P message 0x1c (28, after 0x1b): the host's movable-line phase, KXPT_MOVABLE_LINE_SYNC ( 20 bytes )
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 };
 
 
@@ -1527,6 +1530,17 @@ struct  KDYNAMIC_UNIT_NPC_MINISYNC
 //	};
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+/// Atlas E5: June P2P 0x1c, built by CX2World 328018c0 ( the host, once a second, one per movable line ) and read by 32801fb0
+struct KXPT_MOVABLE_LINE_SYNC
+{
+	USHORT			m_usLineIndex;		/// +0x00 line id ( read movzx word @3280203e )
+	char			m_cMoveType;		/// +0x02 LINE_MOVE_TYPE; a guest takes 2 and 3 only
+	BYTE			m_byNowIndex;		/// +0x03 row index ( a finished patrol's UINT_MAX goes out as 255 )
+	D3DXVECTOR3		m_vMovedPos;		/// +0x04 CKTDGLineMap::MovableLineData::m_vMovedPos
+	float			m_fNowTime;			/// +0x10 CKTDGLineMap::MovableLineData::m_fNowTime
+};
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 //#ifdef SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 #pragma pack( pop )
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK

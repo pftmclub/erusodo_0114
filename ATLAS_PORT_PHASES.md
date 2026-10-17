@@ -3847,7 +3847,40 @@ Done when: Phase E5's "Done when" holds. Record a Done note, then commit on main
 
 ### Phase E5 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_MOVABLE_LINE` (log line behind `SERV_IRUHADEV_ELYSION_DEBUG`). June rows: `june2017_re/funcmap.tsv`
+`(E5)` (31 rows, every address below). Commit: `@COMMIT@`. No Lua, no pack: A3 already put `LINE_MOVE_TYPE` and `TAT_LINE_CHANGE_MOVABLE_DATA = 8` in data036 `Enum.lua`.
+
+- **Line map (`KTDGLineMap.h/.cpp`):** June's 0xb0 record `MovableLineData` (ctor 31c7f2b0, Reset 31c7f170) in a `map<line, record>` (+0x2d4);
+  `AddMovableLineData_LUA` 31c75470 whole (keys, defaults, silent vs logged misses, the empty-name test, follower copies with both names emptied
+  by 31c7e560, map insert = no overwrite; June's errors go to ErrorLog as `[MOVABLE_LINE]` in ASCII); `OnFrameMove` 31c70580 -> movers 31c6fbb0
+  (patrol rows with the overshoot dropped; spin = 360 / seconds * sign deg/s about the axis 31c751b0 builds) and the moving-line vertex refresh
+  (`UpdateLineVB( true )` also redraws a `+0x155` line, 31c5bf70 both loops); `MoveLine` 31c6b1f0, `MoveLineCenterTo` 31c6b0b0, stop 31c6fb50,
+  new rows 31c75410, lookups 31c7dd00 / 31c74fe0 / 31c76a00, guest sync 31c6ffc0; `CAMERA_LAND_HEIGHT` (+0x158, -1) and its getter 31c6b580;
+  `CanDown` head 31c6c310: a `CAN_DOWN = FALSE` line carries the unit by its record's last move, and (June order) that test now runs before the
+  radius drop, for every map. Trigger case 8 parse (@31c79c4d: STOP into `m_bEnable`, rows). The D3DX calls (RotationAxis / RotationY /
+  Vec3TransformCoord) were named from June's `d3dx9_43.dll` exports. 31c6f9b0 has no caller: not ported.
+- **World (`X2World`):** June ticks the line map from `CX2World::OnFrameMove` (32802140), which March never did; per world object, shown or not,
+  skin meshes follow (32801ab0: LMT_TARGET_MESH lines go to a motion-mesh bone, then the mesh follows its PATROL/SPIN line) and static meshes
+  (327fe640, no STOP test); `DoTriggerLine` case 8 (328004a0); `GetWorldObjectSkinMeshByName` (327fca00). Matching is on the mesh file name
+  (+0x1f8 = `m_XMeshName` / `m_XSkinMeshName`).
+- **P2P sync (June's own):** the host broadcasts message 0x1c (28, `XPT_MOVABLE_LINE_SYNC`, 20 bytes) once a second per record (328018c0); a
+  guest snaps its phase (32801fb0 -> 31c6ffc0) and re-runs the mesh follow. `CX2Game` case 0x1c (@322edf99) with a `C_ASSERT` on 28 / 0x14.
+  Offline there are no guests: the host path runs and sends to nobody.
+- **Game / NPC:** `GetLineTypeByLineID_LUA` 322d0800 (bound on CX2Game), the camera land height per line 322cfe20 at the end of `OnFrameMove`
+  (after E6's `ProcessDramaticMessage`, June order), the NPC hit stop on a moving line (3277dfd0: `m_fAnimWaitTime = 0.1`, full `DoFrameMove`).
+  New flagged accessor `CX2WorldObjectSkinMesh::GetJuneXSkinAnim` (March's `GetXSkinAnim` is tool-only).
+- **JUNE_BUGS 230-233:** stale last move after a stop / end (static mesh and CanDown keep using it; E10's play-test looks at Soless Stage0
+  line 34), the guest sync faults (endless row walk at 255, extra follow, unset type-1 bytes), Soless Stage3's `CANDOWN` typo, LMT_TARGET_MESH on
+  the bind-pose frame.
+- **Data audit (script, june_src_fixed):** the 14 `AddMovableLineData_LUA` records and 5 trigger-case-8 entries in Adrian Stage2 and Soless
+  Stage0 / 1 / 1_Hide (and 3 `CAMERA_LAND_HEIGHT` lines) use only keys the port reads; those line maps load in E9 / E10.
+- **Census `--phase E5`:** no movable-line row left (`CANDOWN` = JUNE_BUGS 232; `SetPosion` is E7's). `region_census.py`'s bind calibration
+  flipped: `AddMovableLineData_LUA` is now a bound control, a sentinel the unbound one.
+- **Hygiene:** flagcheck `--worktree --with ELYSION_DEBUG --files` (the 12 code files): `files: 4 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the OTHER rows are E6 / E7's uncommitted hunks in the shared files; the commit holds HEAD + E5's hunks only, built by re-applying the bytepatch specs to HEAD copies). Post-commit range: @RANGE@
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,758,592 B, dated 2026-10-17 13:41:13, md5 e6b48a065ee977f3ed681de722b4dfdd, equal to X2/US_SERVICE/x2.exe (2026-10-17 13:41:06); built at main a67e3869 + 33 uncommitted code file(s).` (the link came from E7's 13:41 tree build, which held all 12 E5 files; mine found nothing to relink). The exe holds `[ELYDBG] movable line `, `[MOVABLE_LINE] `, `LMT_SPIN DIRECT_MOVE_DATA is 0!!!`, `CAMERA_LAND_HEIGHT`, `GetLineTypeByLineID_LUA` and `AddMovableLineData_LUA` (3x).
+- **How to see it:** nothing new on a March map: platforms appear with E9 (Adrian) / E10 (Soless), where `[ELYDBG] movable line <id> type ...`
+  lines go to ErrorLog.txt at stage load. Regression to watch now: on a March map, standing on a `CAN_DOWN = FALSE` line and dashing / jumping
+  down; the camera floor in any dungeon.
 
 ---
 

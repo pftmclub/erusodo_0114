@@ -8944,7 +8944,25 @@ HRESULT CX2GUNPC::OnFrameMove( double fTime, float fElapsedTime )
 			m_NPCFrameData.unitCondition.fStop2Time = 0.0f;
 
 #ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		/// June 3277dfd0 @3277e75b-3277e7d9: an NPC in hit stop on a movable line ( its sync line, +0x8470, LineData +0x155 ) still runs
+		/// the whole frame move, so the platform carries it, with its animation held for 0.1 s ( m_fAnimWaitTime +0x8ae4 = 0x334395e0 ).
+		/// June has no world / line-map NULL test here.
+		{
+			const CKTDGLineMap::LineData* pSyncLine = NULL;
+			if ( NULL != g_pX2Game && NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() )
+				pSyncLine = g_pX2Game->GetWorld()->GetLineMap()->GetLineData( m_NPCFrameData.syncData.lastTouchLineIndex );
+			if ( NULL != pSyncLine && true == pSyncLine->m_bJuneMovable )
+			{
+				m_fAnimWaitTime = 0.1f;
+				DoFrameMove( false );
+			}
+			else
+				DoFrameMove( true );
+		}
+#else SERV_IRUHADEV_JUNE_MOVABLE_LINE
         DoFrameMove( true );
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
 	}
 

@@ -33,6 +33,7 @@ column.
 | `SERV_IRUHADEV_ELYSION_SCRIPT_A` | 2026-10-17 (Atlas A4) | `KTDXLIB/Always.h` (end) | `X2DungeonSubStage.h/.cpp`, `X2GUNPC.h/.cpp`, `X2GUUser.h/.cpp`, `X2Main.cpp`, `X2MonsterIndicator.cpp`, `X2NPCAI.h/.cpp`; `KTDXLIB/KTDGLineMap.h/.cpp`, `KTDGUIControl.h/.cpp`, `KTDGUIStatic.cpp`, `KTDXApp.cpp` | -- |
 | `SERV_IRUHADEV_ELYSION_DEBUG` | 2026-10-17 (Atlas A4; A13 adds the `SetCameraDistance` wrapper) | `KTDXLIB/Always.h` (end) | `[ELYDBG]` lines in `X2DungeonSubStage.cpp`, `X2GUNPC.cpp`, `X2GUUser.cpp`, `X2LocalMapUI.cpp`, `X2LocationManager.cpp`, `X2MonsterIndicator.cpp`, `X2QuestManager.cpp`, `X2TFieldNpcShop.cpp`, `X2WorldMapUI.cpp`, `X2World.h/.cpp`, `X2Main.cpp`, `KTDXLIB/KTDGUIControl.cpp`. Diagnostic only: undefine to silence | -- |
 | `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` | 2026-10-17 (Atlas A7, E4) | `KTDXLIB/Always.h` (end) | `X2LocalMapUI.h/.cpp`, `X2LocationManager.cpp`, `X2StateMenu.cpp`, `X2UIInventory.cpp`, `X2WorldMapUI.cpp` | -- |
+| `SERV_IRUHADEV_JUNE_MOVABLE_LINE` | 2026-10-17 (Atlas E5) | `KTDXLIB/Always.h` (end) | `KTDGLineMap.h/.cpp`, `KTDXApp.cpp`, `X2World.h/.cpp`, `X2Game.h/.cpp`, `X2Main.cpp`, `X2UDPPacket.h`, `X2GUNPC.cpp`, `X2WorldObjectSkinMesh.h` | -- |
 | `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS` (offline emulator) | 2026-10-17 (Atlas A6) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/Handlers_Room.cpp` (`EGS_JOIN_BATTLE_FIELD` ACK) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_ELYSION_VILLAGE` | 2026-10-17 (Atlas E1a, extended E1b; E1c / E1d continue) | `KTDXLIB/Always.h` (end) | `X2LocationManager.h/.cpp`, `X2Main.cpp`, `X2QuestManager.h/.cpp`, `X2StateLoading.cpp`, `X2TFieldNpc.h/.cpp`, `X2TFieldNpcShop.h/.cpp`, `X2UIUnit.h/.cpp`, `X2UIUnitManager.h/.cpp` | -- |
 | `SERV_IRUHADEV_OFFLINE_FETCH_AURA_ALWAYS` | 2026-09-08 | `KTDXLIB/Always.h:2672` (nested under `SERV_IRUHADEV_OFFLINE`) | `X2Lib/Offline/Handlers_Social.cpp:1541` (the force, in `MakePetInfo`), `:1574` (`IsPetPastCrystalStage`), `:1620` (the per-pet log line), `X2Lib/Offline/Handlers_Inventory.cpp:872` (item 500720 refused), `X2Lib/Offline/X2OfflineServer.h:490` | -- |
@@ -3847,6 +3848,18 @@ Same flag, `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` (log lines behind `SERV_IRUHAD
 - **Lua (kom_contents):** June's `DLG_Elysion_LocalMap_Guide.lua` (data034, ljconv bytecode, new name). Its textures were already staged.
 - **Revert:** remove the flag (it also takes A7 out), or keep A7 by restoring A7's tail block from commit `6b988787`; delete
   `DLG_Elysion_LocalMap_Guide.lua` from data034 (and its manifest key) and repack data034. `data\checkfile.txt` is June's marker file and can be deleted.
+
+### Atlas/Elysion port E5: moving platforms (2026-10-17)
+
+Flag `SERV_IRUHADEV_JUNE_MOVABLE_LINE` (the `[ELYDBG] movable line` line behind `SERV_IRUHADEV_ELYSION_DEBUG`). June's own code, cited by address in each block:
+- **C++ (`KTDGLineMap.h/.cpp`, `KTDXApp.cpp`):** `LINE_MOVE_TYPE`, `TAT_LINE_CHANGE_MOVABLE_DATA = 8`, the `MovableLineData` record and map,
+  `AddMovableLineData_LUA` (bound), the movers in `OnFrameMove`, the moving-line vertex refresh in `UpdateLineVB`, `CAMERA_LAND_HEIGHT`, trigger case 8
+  parse, and `CanDown`'s June head (carry by the last move; the `CAN_DOWN = FALSE` test now runs before the radius drop on every map).
+- **C++ (`X2World`, `X2Game`, `X2Main.cpp`, `X2UDPPacket.h`, `X2GUNPC.cpp`, `X2WorldObjectSkinMesh.h`):** the world ticks the line map, meshes follow
+  their line, `DoTriggerLine` case 8, P2P message 28 `XPT_MOVABLE_LINE_SYNC` (host broadcast once a second, guest snap), `GetLineTypeByLineID_LUA`,
+  the per-line camera land height at the end of `CX2Game::OnFrameMove`, the NPC hit-stop ride.
+- **Lua / koms:** none (A3 staged the enums).
+- **Revert:** remove the flag. Nothing else depends on it until E9 / E10 stage the Adrian / Soless line maps, which then load without platforms.
 
 ### Atlas/Elysion port A6: Lanox -> Atlas crossing + Fields 01/02 (2026-10-17)
 

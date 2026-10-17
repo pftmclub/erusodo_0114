@@ -1261,6 +1261,18 @@ bool CX2Game::P2PPacketHandler( CKTDNUDP::RecvData* pRecvData )
 		}
 		return true;
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	case XPT_MOVABLE_LINE_SYNC:
+		{
+			/// Atlas E5, June's P2P handler ( 322ed9c0, case 0x1c @322edf99 ): 20 bytes, for the world ( 32801fb0 ); no world = false
+			C_ASSERT( 28 == XPT_MOVABLE_LINE_SYNC );
+			C_ASSERT( 0x14 == sizeof(KXPT_MOVABLE_LINE_SYNC) );
+			if ( pRecvData->m_Size != sizeof(KXPT_MOVABLE_LINE_SYNC) || NULL == GetWorld() )
+				return false;
+			GetWorld()->ReceiveMovableLineSync( reinterpret_cast<const KXPT_MOVABLE_LINE_SYNC*>( pRecvData->m_pRecvBuffer ) );
+		}
+		return true;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
     case XPT_UDP_PACKET_PACK:
         {
             if ( pRecvData->m_Size < sizeof(XPT_UDP_PACKET_PACK_PREFIX) + sizeof(WORD) )
@@ -3835,6 +3847,9 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 	ProcessDramaticMessage( fElapsedTime );		/// June CX2Game::OnFrameMove 32308c20 @3230aa21, the last call before the return
 #endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	JuneUpdateCameraLandHeight();	/// June 322cfe20, the last call of OnFrameMove ( @3230aa28 )
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	return S_OK;
 }
 
@@ -6775,6 +6790,38 @@ int CX2Game::LiveKeyCodeNPCNumFreeTeam( int keyCode )
 
 #endif //SERV_NEW_DEFENCE_DUNGEON
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+/** June 322d0800 ( bound @31dcaa7b ): a line's LINE_TYPE ( LineData +4 ), -1 with no world, line map or line */
+int CX2Game::GetLineTypeByLineID_LUA( int iLineIndex_ )
+{
+	if ( NULL == GetWorld() || NULL == GetWorld()->GetLineMap() )
+		return -1;
+	const CKTDGLineMap::LineData* pLineData = GetWorld()->GetLineMap()->GetLineData( iLineIndex_ );
+	if ( NULL == pLineData )
+		return -1;
+	return pLineData->lineType;
+}
+
+/** June 322cfe20 ( the end of OnFrameMove ): with a world, a line map, the DG manager ( g_pKTDXApp +0x1fc ) and my unit, the camera's
+	land height ( +0x3c, m_fLand ) follows my unit's line: its CAMERA_LAND_HEIGHT, else the line map's land height ( +0x1b4 ) */
+void CX2Game::JuneUpdateCameraLandHeight()
+{
+	if ( NULL == GetWorld() || NULL == GetWorld()->GetLineMap() || NULL == g_pKTDXApp->GetDGManager() || NULL == GetMyUnit() || NULL == m_pCamera )
+		return;
+
+	CKTDGLineMap* pLineMap = GetWorld()->GetLineMap();
+	const int iCameraLandHeight = pLineMap->GetCameraLandHeight( GetMyUnit()->GetLastTouchLineIndex( false ) );
+	if ( iCameraLandHeight < 0 )
+	{
+		if ( m_pCamera->GetLandHeight() != pLineMap->GetLandHeight() )
+			m_pCamera->SetLandHeight( pLineMap->GetLandHeight() );
+	}
+	else if ( m_pCamera->GetLandHeight() != static_cast<float>( iCameraLandHeight ) )
+	{
+		m_pCamera->SetLandHeight( static_cast<float>( iCameraLandHeight ) );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 int CX2Game::GetAliveActiveNPCCount()
 {
 	int iCount = 0;

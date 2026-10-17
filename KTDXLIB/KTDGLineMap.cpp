@@ -1,5 +1,35 @@
 #include "StdAfx.h"
 #include ".\ktdglinemap.h"
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+/// June's DIRECT_MOVE_DATA reader, inlined in AddMovableLineData_LUA ( 31c75470 ) and AddTrigger_LUA ( @31c79cb9 ): the open table's
+/// rows 1, 2, ... until one is missing, each row's fields 1-4 ( 0 when missing )
+static void JuneReadDirectMoveData( KLuaManager& luaManager_, vector<D3DXVECTOR4>& vecDirectMoveData_ )
+{
+	D3DXVECTOR4 vRow( 0.f, 0.f, 0.f, 0.f );
+	for ( int iRow = 1; true == luaManager_.BeginTable( iRow ); ++iRow )
+	{
+		if ( false == luaManager_.GetValue( 1, vRow.x ) )
+			vRow.x = 0.f;
+		if ( false == luaManager_.GetValue( 2, vRow.y ) )
+			vRow.y = 0.f;
+		if ( false == luaManager_.GetValue( 3, vRow.z ) )
+			vRow.z = 0.f;
+		if ( false == luaManager_.GetValue( 4, vRow.w ) )
+			vRow.w = 0.f;
+		vecDirectMoveData_.push_back( vRow );
+		luaManager_.EndTable();
+	}
+}
+
+/// June logs its AddMovableLineData_LUA errors ( wide format strings 33449310 .. 33449500 ); here in ASCII, to ErrorLog.txt
+static void JuneMovableLineError( const char* pszWhat_, const wstring& wstrFileName_, const wstring& wstrDetail_ )
+{
+	std::string strFile, strDetail;
+	ConvertWCHARToChar( strFile, wstrFileName_ );
+	ConvertWCHARToChar( strDetail, wstrDetail_ );
+	KLOG( "ErrorLog.txt" ) << "[MOVABLE_LINE] " << pszWhat_ << " LineMap : " << strFile.c_str() << " " << strDetail.c_str() << fileout;
+}
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 
 CKTDGLineMap::CKTDGLineMap() 
@@ -13,6 +43,9 @@ CKTDGLineMap::CKTDGLineMap()
 {
 	m_pLineMapVB	= NULL;
 	m_pKLuabinder	= NULL;
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	m_bJuneMovableLineMoved = false;	/// June ctor 31c77a00
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 	m_LineList.reserve( 64 );
 #ifdef  X2OPTIMIZE_LINEMAP_OPTIMIZE_AND_BUG_FIX
@@ -109,6 +142,9 @@ CKTDGLineMap::~CKTDGLineMap(void)
 
 bool CKTDGLineMap::LoadLineMap( wstring pFileName )
 {
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	m_wstrJuneLineMapFileName = pFileName;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef SHOW_LINEMAP_FILE_NAME
 	WCHAR wszFullPath[MAX_PATH] = L"";
 	wcscpy( wszFullPath, pFileName.c_str() );
@@ -312,6 +348,11 @@ bool CKTDGLineMap::AddLine_LUA()
 	/// June 31c705c0 @31c73ab9 -> +0x150 ( -1 when absent ). CX2DungeonSubStage::ChangeLineTypeAfterAllActiveNPCKilled reads it.
 	LUA_GET_VALUE_ENUM( luaManager,	"CHANGE_LINE_TYPE_AFTER_ALL_ACTIVE_NPC_KILLED",	pLineData->m_eLineTypeAfterAllActiveNPCKilled,	LINE_TYPE,	LT_INVALID	);
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	/// June 31c705c0 @31c74080: int into +0x158, -1 when absent
+	if ( false == luaManager.GetValue( "CAMERA_LAND_HEIGHT", pLineData->m_iJuneCameraLandHeight ) )
+		pLineData->m_iJuneCameraLandHeight = -1;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 #ifdef FIELD_BOSS_RAID
 	LUA_GET_VALUE( luaManager,		"PORTAL_WHEN_ACTIVE_RAID",					pLineData->m_bIsPortalWhenActiveRaid,		false			);
@@ -639,6 +680,16 @@ CKTDGLineMap::LineAnimData* CKTDGLineMap::GetLineAnimData( int iLineAnimDataInde
 	UpdateLineVB();
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	/// June 31c70580: the movers ( 31c6fbb0 ), then the moving lines' vertices once a line moved ( 31c5bf70( true ), +0x2e4 )
+	FrameMoveMovableLine( fElapsedTime );
+	if ( true == m_bJuneMovableLineMoved )
+	{
+		UpdateLineVB( true );
+		m_bJuneMovableLineMoved = false;
+	}
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
+
 	return S_OK;
 }
 
@@ -824,9 +875,17 @@ bool CKTDGLineMap::UpdateLineVB( bool bOnlyAnimLine /*= false*/ )
 		{
 			const LineData* pLineData = m_LineList[i];
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+			/// June 31c5bf70 @31c5c069: a movable line ( +0x155 ) is redrawn with the animated ones
+			if( true == bOnlyAnimLine &&
+				NULL == pLineData->m_pLineAnimData &&
+				false == pLineData->m_bJuneMovable )
+				continue;
+#else SERV_IRUHADEV_JUNE_MOVABLE_LINE
 			if( true == bOnlyAnimLine &&
 				NULL == pLineData->m_pLineAnimData )
 				continue;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 			pVertices[(i*2)].pos		= pLineData->startPos;
 			pVertices[(i*2)+1].pos		= pLineData->endPos;
@@ -962,9 +1021,17 @@ bool CKTDGLineMap::UpdateLineVB( bool bOnlyAnimLine /*= false*/ )
 		{
 			const LineData* pLineData = m_WallList[i];
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+			/// June 31c5bf70 @31c5c153: the wall loop has the same test
+			if( true == bOnlyAnimLine &&
+				NULL == pLineData->m_pLineAnimData &&
+				false == pLineData->m_bJuneMovable )
+				continue;
+#else SERV_IRUHADEV_JUNE_MOVABLE_LINE
 			if( true == bOnlyAnimLine &&
 				NULL == pLineData->m_pLineAnimData )
 				continue;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 			pVertices[nLineVertexCount+(i*2)].pos		= pLineData->startPos;
 			pVertices[nLineVertexCount+(i*2)+1].pos		= pLineData->endPos;
@@ -1111,6 +1178,30 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 {
 	KTDXPROFILE();
 	
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	/// June 31c6c310 head, before the radius drop: on a line that cannot be gone down, stay; a movable line ( 31c7dd00 ) carries the
+	/// unit by its last move ( +0x70 ). June bounds-tests the index and the out pointer, and returns the position before the drop.
+	if( true == bOnLine && NULL != pLineIndex && static_cast<UINT>( *pLineIndex ) < static_cast<UINT>( m_LineList.size() ) )
+	{
+		const LineData* pLine = m_LineList[*pLineIndex];
+		if( NULL != pLine && false == pLine->bCanDown )
+		{
+			const MovableLineData* pMovableLineData = GetMovableLineData( *pLineIndex );
+			if( NULL != pOutPos )
+			{
+				if( NULL == pMovableLineData )
+					*pOutPos = pos;
+				else
+					*pOutPos = pos + pMovableLineData->m_vLastMove;
+			}
+			return false;
+		}
+	}
+
+	if( bDownRadius == true )
+		pos.y -= fRadius + 1.0f;
+
+#else SERV_IRUHADEV_JUNE_MOVABLE_LINE
 	if( bDownRadius == true )
 		pos.y -= fRadius + 1.0f;
 
@@ -1126,6 +1217,7 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 	D3DXVECTOR3 zeroPos( pos.x, 0.0f, pos.z );
 
@@ -2713,6 +2805,20 @@ bool CKTDGLineMap::AddTrigger_LUA()
 				}
 				break;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+			case TAT_LINE_CHANGE_MOVABLE_DATA:
+				{
+					/// June 31c77e20 @31c79c4d: STOP ( default false ) into the +0xc byte = m_bEnable, then the DIRECT_MOVE_DATA rows ( no table = none )
+					if ( false == luaManager.GetValue( "STOP", triggerDataLine.m_bEnable ) )
+						triggerDataLine.m_bEnable = false;
+					if ( true == luaManager.BeginTable( "DIRECT_MOVE_DATA" ) )
+					{
+						JuneReadDirectMoveData( luaManager, triggerDataLine.m_vecDirectMoveData );
+						luaManager.EndTable();
+					}
+				}
+				break;
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 			default:
 				break;
 			}
@@ -2829,6 +2935,389 @@ bool CKTDGLineMap::AddTrigger_LUA()
 
 
 //////////////////////////////////////////////////////////////////////////
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+//////////////////////////////////////////////////////////////////////////
+// June 2017 moving platforms ( Atlas/Elysion port Phase E5 ). Each body is the June function named on it.
+
+/** June 31c7b7f0: the line centre. June takes the lower-y end and the other end and halves their sum, = ( start + end ) / 2 */
+/*static*/ D3DXVECTOR3 CKTDGLineMap::GetLineCenter( const LineData* pLineData_ )
+{
+	return ( pLineData_->startPos + pLineData_->endPos ) * 0.5f;
+}
+
+/** June 31c6b1f0: both ends move by vMove_, the line is rebuilt ( MakeLine = 31c5bc70 ) and +0x2e4 marks the vertices dirty */
+void CKTDGLineMap::MoveLine( int iLineIndex_, const D3DXVECTOR3& vMove_ )
+{
+	LineData* pLineData = AccessLineData( iLineIndex_ );
+	if ( NULL == pLineData )
+		return;
+
+	pLineData->startPos += vMove_;
+	pLineData->endPos += vMove_;
+	MakeLine( pLineData );
+	m_bJuneMovableLineMoved = true;
+}
+
+/** June 31c6b0b0: moves the line so that its centre is vPos_; vMove_ gets the move ( left as it was for a missing line ) */
+void CKTDGLineMap::MoveLineCenterTo( int iLineIndex_, const D3DXVECTOR3& vPos_, OUT D3DXVECTOR3& vMove_ )
+{
+	LineData* pLineData = AccessLineData( iLineIndex_ );
+	if ( NULL == pLineData )
+		return;
+
+	const D3DXVECTOR3 vMove = vPos_ - ( pLineData->endPos + pLineData->startPos ) * 0.5f;
+	pLineData->startPos += vMove;
+	pLineData->endPos += vMove;
+	MakeLine( pLineData );
+	m_bJuneMovableLineMoved = true;
+	vMove_ = vMove;
+}
+
+/** June 31c6b580: a line's CAMERA_LAND_HEIGHT, -1 for a missing line */
+int CKTDGLineMap::GetCameraLandHeight( int iLineIndex_ )
+{
+	const LineData* pLineData = GetLineData( iLineIndex_ );
+	if ( NULL == pLineData )
+		return -1;
+
+	return pLineData->m_iJuneCameraLandHeight;
+}
+
+/** June 31c751b0: LMT_SPIN only. Per DIRECT_MOVE_DATA row: the yaw of ( line centre - pivot ) ( 31c19930, the y of GetDirVecToDegree ),
+	the axis = ( 0, 0, 1 ) turned about Y by that yaw ( left ( 0, 0, 1 ) for a yaw of 0 ), w = IS_RIGHT ? 1 : -1. Appends, never clears. */
+void CKTDGLineMap::BuildMovableLineSpinAxis( int iLineIndex_, MovableLineData& kData_ )
+{
+	if ( LMT_SPIN != kData_.m_iMoveType )
+		return;
+	const LineData* pLineData = GetLineData( iLineIndex_ );
+	if ( NULL == pLineData )
+		return;
+
+	for ( UINT i = 0; i < kData_.m_vecDirectMoveData.size(); ++i )
+	{
+		const D3DXVECTOR4& vRow = kData_.m_vecDirectMoveData[i];
+		const D3DXVECTOR3 vDegree = GetDirVecToDegree( GetLineCenter( pLineData ) - D3DXVECTOR3( vRow.x, vRow.y, vRow.z ) );
+
+		D3DXVECTOR3 vAxis( 0.f, 0.f, 1.f );
+		if ( fabs( vDegree.y - 0.f ) > FLT_EPSILON )	/// June @31c752ca: | y - 0.0 | against 1.1920929e-07
+		{
+			const float fRadian = static_cast<float>( vDegree.y * 0.017453292384743690 );
+			D3DXMATRIX matRotation;
+			D3DXMatrixRotationY( &matRotation, fRadian );
+			const D3DXVECTOR3 vZ( 0.f, 0.f, 1.f );
+			D3DXVec3TransformCoord( &vAxis, &vZ, &matRotation );
+		}
+		kData_.m_vecSpinAxis.push_back( D3DXVECTOR4( vAxis.x, vAxis.y, vAxis.z, ( true == kData_.m_bIsRight ) ? 1.f : -1.f ) );
+	}
+}
+
+/** June 31c75470 ( bound @31beea64 ), keys @31c75573-31c76785. false wherever June returns without adding a record. */
+bool CKTDGLineMap::AddMovableLineData_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	MovableLineData kData;
+	const UINT uiNumLine = static_cast<UINT>( m_LineList.size() );
+
+	int iLineIndex = -1;
+	if ( false == luaManager.GetValue( "LINE_ID", iLineIndex ) || static_cast<UINT>( iLineIndex ) >= uiNumLine )
+	{
+		JuneMovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"" );	/// June 33449500
+		return false;
+	}
+
+	if ( true == luaManager.BeginTable( "FOLLOWER_LINE_ID" ) )
+	{
+		int iFollowerLineIndex = -1;
+		for ( int iValue = 1; true == luaManager.GetValue( iValue, iFollowerLineIndex ); ++iValue )
+		{
+			if ( static_cast<UINT>( iFollowerLineIndex ) >= uiNumLine )
+			{
+				JuneMovableLineError( "AddMovableLineData_LUA error!! LINE_ID invalid!", m_wstrJuneLineMapFileName, L"(FOLLOWER_LINE_ID)" );	/// June: the same 33449500
+				return false;
+			}
+			kData.m_vecFollowerLineID.push_back( iFollowerLineIndex );
+		}
+		luaManager.EndTable();
+	}
+
+	if ( false == luaManager.GetValue( "MOVE_TYPE", kData.m_iMoveType ) )
+		return false;	/// June: no MOVE_TYPE, nothing added and nothing logged
+	if ( false == luaManager.GetValue( "LOOP", kData.m_bLoop ) )
+		kData.m_bLoop = true;
+	if ( false == luaManager.GetValue( "STOP", kData.m_bStop ) )
+		kData.m_bStop = false;
+
+	switch ( kData.m_iMoveType )
+	{
+	case LMT_TARGET_MESH:
+		{
+			/// June @31c7660a / @31c76785: both keys must exist ( else nothing is added, no log ), and both be set or both be empty ( 31c7d460 / 31c7cfb0 )
+			if ( false == luaManager.GetValue( "TARGET_MESH_NAME", kData.m_wstrTargetMeshName ) )
+				return false;
+			if ( false == luaManager.GetValue( "TARGET_BONE_NAME", kData.m_wstrTargetBoneName ) )
+				return false;
+			if ( kData.m_wstrTargetMeshName.empty() != kData.m_wstrTargetBoneName.empty() )
+			{
+				JuneMovableLineError( "LineMap info wrong!! only one of TARGET_MESH_NAME, TARGET_BONE_NAME is set.", m_wstrJuneLineMapFileName,
+					L"TARGET_MESH_NAME : " + kData.m_wstrTargetMeshName + L" / TARGET_BONE_NAME : " + kData.m_wstrTargetBoneName );	/// June 33449310
+				return false;
+			}
+		} break;
+
+	case LMT_PATROL:
+	case LMT_SPIN:
+		{
+			/// June @31c7615e ( LMT_PATROL ) / @31c75a8e ( LMT_SPIN, with IS_RIGHT @31c75de9 ): DIRECT_MOVE_DATA is required
+			if ( false == luaManager.GetValue( "TARGET_MESH_NAME", kData.m_wstrTargetMeshName ) )
+				kData.m_wstrTargetMeshName = L"";
+			if ( false == luaManager.GetValue( "USE_ABSOLUTE_COORDINATE", kData.m_bUseAbsoluteCoordinate ) )
+				kData.m_bUseAbsoluteCoordinate = false;
+			if ( LMT_SPIN == kData.m_iMoveType && false == luaManager.GetValue( "IS_RIGHT", kData.m_bIsRight ) )
+				kData.m_bIsRight = true;
+			if ( false == luaManager.BeginTable( "DIRECT_MOVE_DATA" ) )
+			{
+				JuneMovableLineError( ( LMT_SPIN == kData.m_iMoveType ) ? "LMT_SPIN DIRECT_MOVE_DATA is 0!!!" : "LMT_PATROL DIRECT_MOVE_DATA is 0!!!",
+					m_wstrJuneLineMapFileName, L"" );	/// June 33449470 / 33449400
+				return false;
+			}
+			JuneReadDirectMoveData( luaManager, kData.m_vecDirectMoveData );
+			luaManager.EndTable();
+		} break;
+
+	default:
+		return false;	/// June @31c75655: any other MOVE_TYPE adds nothing and logs nothing
+	}
+
+	LineData* pLineData = m_LineList[ iLineIndex ];
+	BuildMovableLineSpinAxis( iLineIndex, kData );
+	pLineData->m_bJuneMovable = true;
+	kData.m_vStartLineCenter = GetLineCenter( pLineData );
+	m_mapJuneMovableLineData.insert( std::make_pair( iLineIndex, kData ) );	/// June 31c807e0 = map insert: a second record for a line is dropped
+
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	{
+		std::string strFile, strMesh;
+		ConvertWCHARToChar( strFile, m_wstrJuneLineMapFileName );
+		ConvertWCHARToChar( strMesh, kData.m_wstrTargetMeshName );
+		KLOG( "ErrorLog.txt" ) << "[ELYDBG] movable line " << iLineIndex << " type " << kData.m_iMoveType << " rows " << (int)kData.m_vecDirectMoveData.size()
+			<< " followers " << (int)kData.m_vecFollowerLineID.size() << " loop " << (int)kData.m_bLoop << " stop " << (int)kData.m_bStop
+			<< " mesh " << strMesh.c_str() << " in " << strFile.c_str() << fileout;
+	}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+
+	/// June 31c7e560: the followers' copies get both names emptied, so only the key line drives a mesh
+	kData.m_wstrTargetBoneName = L"";
+	kData.m_wstrTargetMeshName = L"";
+	for ( UINT i = 0; i < kData.m_vecFollowerLineID.size(); ++i )
+	{
+		const int iFollowerLineIndex = kData.m_vecFollowerLineID[i];
+		m_mapJuneMovableLineData.insert( std::make_pair( iFollowerLineIndex, kData ) );
+		m_LineList[ iFollowerLineIndex ]->m_bJuneMovable = true;
+	}
+
+	return true;
+}
+
+/** June 31c6fb50: STOP on a line's record; a key line ( bFollower_ false ) passes it to its followers */
+void CKTDGLineMap::SetMovableLineStop( int iLineIndex_, bool bStop_, bool bFollower_ )
+{
+	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapJuneMovableLineData.end() )
+		return;
+
+	it->second.m_bStop = bStop_;
+	if ( false == bFollower_ )
+	{
+		const vector<int>& vecFollowerLineID = it->second.m_vecFollowerLineID;
+		for ( UINT i = 0; i < vecFollowerLineID.size(); ++i )
+			SetMovableLineStop( vecFollowerLineID[i], bStop_, true );
+	}
+}
+
+/** June 31c75410: a trigger's new DIRECT_MOVE_DATA ( the key line's record only ): Reset ( 31c7f170 ), copy, rebuild the spin axes */
+void CKTDGLineMap::SetMovableLineDirectMoveData( int iLineIndex_, const vector<D3DXVECTOR4>& vecDirectMoveData_ )
+{
+	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapJuneMovableLineData.end() )
+		return;
+
+	it->second.Reset();
+	it->second.m_vecDirectMoveData = vecDirectMoveData_;
+	BuildMovableLineSpinAxis( iLineIndex_, it->second );
+}
+
+/** June 31c7dd00 */
+CKTDGLineMap::MovableLineData* CKTDGLineMap::GetMovableLineData( int iLineIndex_ )
+{
+	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapJuneMovableLineData.end() )
+		return NULL;
+
+	return &it->second;
+}
+
+/** June 31c74fe0: the LMT_PATROL / LMT_SPIN record whose TARGET_MESH_NAME is the mesh ( no case ), copied out with its line.
+	June logs every further match ( 334491e0 ) and keeps the first. */
+bool CKTDGLineMap::GetMovableLineDataByMeshName( const wstring& wstrMeshName_, OUT MovableLineData& kData_, OUT int& iLineIndex_ )
+{
+	bool bFound = false;
+	for ( MovableLineDataMap::iterator it = m_mapJuneMovableLineData.begin(); it != m_mapJuneMovableLineData.end(); ++it )
+	{
+		if ( it->second.m_iMoveType <= LMT_TARGET_MESH )
+			continue;
+		if ( 0 != _wcsicmp( it->second.m_wstrTargetMeshName.c_str(), wstrMeshName_.c_str() ) )
+			continue;
+
+		if ( true == bFound )
+		{
+			JuneMovableLineError( "DIRECT MOVE TYPE line map Target Mesh name is set twice!! A mesh may follow one line only, fix it.",
+				m_wstrJuneLineMapFileName, L"Mesh Name : " + wstrMeshName_ );	/// June 334491e0 in 33449198
+			continue;
+		}
+		iLineIndex_ = it->first;
+		kData_ = it->second;
+		bFound = true;
+	}
+	return bFound;
+}
+
+/** June 31c76a00: every LMT_TARGET_MESH record whose TARGET_MESH_NAME is the mesh ( no case ), by line */
+bool CKTDGLineMap::GetTargetMeshMovableLineData( const wstring& wstrMeshName_, OUT MovableLineDataMap& mapData_ )
+{
+	bool bFound = false;
+	for ( MovableLineDataMap::iterator it = m_mapJuneMovableLineData.begin(); it != m_mapJuneMovableLineData.end(); ++it )
+	{
+		if ( LMT_TARGET_MESH != it->second.m_iMoveType )
+			continue;
+		if ( 0 != _wcsicmp( it->second.m_wstrTargetMeshName.c_str(), wstrMeshName_.c_str() ) )
+			continue;
+
+		mapData_.insert( std::make_pair( it->first, it->second ) );
+		bFound = true;
+	}
+	return bFound;
+}
+
+/** June 31c6ffc0: a guest takes the host's phase ( P2P 0x1c, CX2World 32801fb0 ). wstrMeshName_ gets the record's mesh.
+	LMT_PATROL: undo this row's part, add whole rows up to the host's row, then the host's part of it. LMT_SPIN: put the centre on the
+	host's. June returns true for a line with no record. June bug, kept: the row walk wraps to 0 even with LOOP false, so a host row
+	past the end ( 255, a finished patrol ) never ends the walk ( JUNE_BUGS; no guests offline ). */
+bool CKTDGLineMap::SyncMovableLine( int iLineIndex_, UINT uiNowIndex_, float fNowTime_, const D3DXVECTOR3& vPos_, OUT wstring& wstrMeshName_ )
+{
+	MovableLineDataMap::iterator it = m_mapJuneMovableLineData.find( iLineIndex_ );
+	if ( it == m_mapJuneMovableLineData.end() )
+		return true;
+
+	MovableLineData& kData = it->second;
+	wstrMeshName_ = kData.m_wstrTargetMeshName;
+	const UINT uiNumRow = static_cast<UINT>( kData.m_vecDirectMoveData.size() );
+
+	if ( LMT_PATROL == kData.m_iMoveType )
+	{
+		if ( kData.m_uiNowIndex < uiNumRow )
+		{
+			D3DXVECTOR3 vMove = -kData.m_vMovedPos;
+			kData.m_vMovedPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
+			kData.m_fNowTime = fNowTime_;
+			while ( kData.m_uiNowIndex != uiNowIndex_ )
+			{
+				const D3DXVECTOR4& vRow = kData.m_vecDirectMoveData[ kData.m_uiNowIndex ];
+				vMove += D3DXVECTOR3( vRow.x, vRow.y, vRow.z );
+				kData.m_uiNowIndex = ( kData.m_uiNowIndex + 1 < uiNumRow ) ? kData.m_uiNowIndex + 1 : 0;
+			}
+			vMove += vPos_;
+			kData.m_vMovedPos = vPos_;
+			kData.m_vLastMove = vMove;
+			MoveLine( iLineIndex_, vMove );
+			return true;
+		}
+	}
+	else if ( LMT_SPIN == kData.m_iMoveType )
+	{
+		const LineData* pLineData = GetLineData( iLineIndex_ );
+		if ( kData.m_uiNowIndex < uiNumRow && kData.m_uiNowIndex < static_cast<UINT>( kData.m_vecSpinAxis.size() ) && NULL != pLineData )
+		{
+			const D3DXVECTOR3 vMove = vPos_ - GetLineCenter( pLineData );
+			MoveLine( iLineIndex_, vMove );
+			kData.m_fNowTime = fNowTime_;
+			kData.m_vMovedPos = vPos_;
+			kData.m_vLastMove = vMove;
+			return true;
+		}
+	}
+	return false;
+}
+
+/** June 31c6fbb0 ( from OnFrameMove 31c70580 ), every record in line order.
+	LMT_PATROL: within a row the line moves row * ( elapsed / seconds ); when the row's time is up it moves the rest of the row and
+	goes to the next ( LOOP false: UINT_MAX, finished ), the overshoot time is dropped. LMT_SPIN: the line centre turns about the
+	row's axis around the pivot by 360 / seconds * sign degrees a second; the row never changes. STOP freezes a record, and a
+	finished or frozen record keeps its last m_vLastMove ( June: the mesh and CanDown go on using it, JUNE_BUGS ). */
+void CKTDGLineMap::FrameMoveMovableLine( float fElapsedTime_ )
+{
+	for ( MovableLineDataMap::iterator it = m_mapJuneMovableLineData.begin(); it != m_mapJuneMovableLineData.end(); ++it )
+	{
+		const int iLineIndex = it->first;
+		MovableLineData& kData = it->second;
+		const UINT uiNumRow = static_cast<UINT>( kData.m_vecDirectMoveData.size() );
+
+		if ( LMT_PATROL == kData.m_iMoveType )
+		{
+			if ( kData.m_uiNowIndex >= uiNumRow || true == kData.m_bStop )
+				continue;
+
+			kData.m_fNowTime += fElapsedTime_;
+			const D3DXVECTOR4& vRow = kData.m_vecDirectMoveData[ kData.m_uiNowIndex ];
+			D3DXVECTOR3 vMove;
+			if ( vRow.w > kData.m_fNowTime )
+			{
+				vMove = D3DXVECTOR3( vRow.x / vRow.w * fElapsedTime_, vRow.y / vRow.w * fElapsedTime_, vRow.z / vRow.w * fElapsedTime_ );
+				kData.m_vMovedPos += vMove;
+			}
+			else
+			{
+				vMove = D3DXVECTOR3( vRow.x, vRow.y, vRow.z ) - kData.m_vMovedPos;	/// June 31c7ba10
+				++kData.m_uiNowIndex;
+				if ( kData.m_uiNowIndex >= uiNumRow )
+					kData.m_uiNowIndex = ( true == kData.m_bLoop ) ? 0 : UINT_MAX;
+				kData.m_fNowTime = 0.f;
+				kData.m_vMovedPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
+			}
+			MoveLine( iLineIndex, vMove );
+			kData.m_vLastMove = vMove;
+		}
+		else if ( LMT_SPIN == kData.m_iMoveType )
+		{
+			const LineData* pLineData = GetLineData( iLineIndex );
+			if ( kData.m_uiNowIndex >= uiNumRow || kData.m_uiNowIndex >= static_cast<UINT>( kData.m_vecSpinAxis.size() ) ||
+				NULL == pLineData || true == kData.m_bStop )
+				continue;
+
+			kData.m_fNowTime += fElapsedTime_;
+			const D3DXVECTOR4& vRow = kData.m_vecDirectMoveData[ kData.m_uiNowIndex ];
+			const D3DXVECTOR4& vAxis = kData.m_vecSpinAxis[ kData.m_uiNowIndex ];
+			const D3DXVECTOR3 vRelative = GetLineCenter( pLineData ) - D3DXVECTOR3( vRow.x, vRow.y, vRow.z );
+
+			float fAngle = static_cast<float>( 360.0 / vRow.w * vAxis.w * fElapsedTime_ );	/// June @31c6fd15-31c6fd3d
+			fAngle = static_cast<float>( fAngle * 0.017453292384743690 );
+			D3DXMATRIX matRotation;
+			const D3DXVECTOR3 vAxis3( vAxis.x, vAxis.y, vAxis.z );
+			D3DXMatrixRotationAxis( &matRotation, &vAxis3, fAngle );
+			D3DXVECTOR3 vTurned;
+			D3DXVec3TransformCoord( &vTurned, &vRelative, &matRotation );
+
+			const D3DXVECTOR3 vMove = vTurned - vRelative;
+			MoveLine( iLineIndex, vMove );
+			kData.m_vLastMove = vMove;
+			kData.m_vMovedPos = GetLineCenter( pLineData );
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 CKTDGLineMap::LineAnimData::LineAnimData( LINE_ANIM_TYPE eAnimType )
 : m_eAnimType( eAnimType )
 , m_bEnabled( true )

@@ -3955,6 +3955,9 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
 	lua_tinker::class_def<CX2Game>( L, "LiveKeyCodeNPCNumExceptDying",			&CX2Game::LiveKeyCodeNPCNumExceptDying );	// June @31ddcc68 ( 322d09c0 )
 #endif SERV_IRUHADEV_JUNE_GAME_KEYCODE_NPC_COUNT
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	lua_tinker::class_def<CX2Game>( L, "GetLineTypeByLineID_LUA",		&CX2Game::GetLineTypeByLineID_LUA );	// June @31dcaa7b ( 322d0800 ), Atlas E5
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_A
 	lua_tinker::class_def<CX2Game>( L, "GetAliveActiveNPCCount",				&CX2Game::GetAliveActiveNPCCount );	// June @31ddca08 ( 322d0ae0 ), Atlas A4: body = X2Game.cpp's
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A

@@ -2041,6 +2041,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 #ifdef WORLD_TRIGGER
 	lua_tinker::class_def<CKTDGLineMap>( L, "AddTrigger_LUA",					&CKTDGLineMap::AddTrigger_LUA);	
 #endif
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+	lua_tinker::class_def<CKTDGLineMap>( L, "AddMovableLineData_LUA",			&CKTDGLineMap::AddMovableLineData_LUA );	// June 31c75470 ( bound @31beea64 ), Atlas E5
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 
 #ifdef NEW_HENIR_TEST
 	lua_tinker::class_def<CKTDGLineMap>( L, "GetStartLineIndex",				&CKTDGLineMap::GetStartLineIndex);

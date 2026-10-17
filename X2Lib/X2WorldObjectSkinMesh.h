@@ -80,6 +80,9 @@ class CX2WorldObjectSkinMesh : public CX2WorldObject
 		void ChangePlayAnim_LUA( wstring playName, WORLD_OBJECT_SKIN_MESH_PLAY_TYPE playType );
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
+		CKTDGXSkinAnim*	GetJuneXSkinAnim() { return m_pXSkinAnim; }	/// Atlas E5: June reads +0x218 in 32801ab0 ( GetXSkinAnim is tool-only here )
+#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
 #if defined(WORLD_TOOL) || defined(X2TOOL)
 		CKTDGXSkinAnim *GetXSkinAnim() { return m_pXSkinAnim; }
 		void SetPlayType(int iPlayType) { m_PlayType = (WORLD_OBJECT_SKIN_MESH_PLAY_TYPE)iPlayType; }

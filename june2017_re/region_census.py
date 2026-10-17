@@ -574,9 +574,11 @@ def cpp_literals(dirs=None):
 
 
 BIND_RE = re.compile(r'lua_tinker\s*::\s*(?:class_def|def|decl|set|class_mem)\s*(?:<[^>;]*>)?\s*\(\s*[A-Za-z_]\w*\s*,\s*"([A-Za-z_][A-Za-z0-9_]*)"')   # first arg is L, pLuaState, ...
-# GetStoredGUUser was the ledger's unbound control; june-effect C3z-4 bound it (X2Main.cpp:4719), so the unbound control is now
-# AddMovableLineData_LUA (E5 owns it)
-BIND_CONTROLS = {'SetFlag_LUA': True, 'SetForceInvincible': True, 'GetStoredGUUser': True, 'AddMovableLineData_LUA': False}
+# GetStoredGUUser was the ledger's unbound control; june-effect C3z-4 bound it (X2Main.cpp:4719), then AddMovableLineData_LUA was,
+# until atlas E5 bound it (KTDXApp.cpp). Every real region name is owned by a phase that binds it, so the unbound control is now a
+# sentinel no code spells (it proves the scan does not call everything bound).
+BIND_CONTROLS = {'SetFlag_LUA': True, 'SetForceInvincible': True, 'GetStoredGUUser': True, 'AddMovableLineData_LUA': True,
+                 'CENSUS_UNBOUND_SENTINEL_LUA': False}
 
 
 def cpp_bound_names(probe=True):
@@ -1365,7 +1367,7 @@ def main():
                                                                                     a.line and 'line=' + a.line, a.phase and 'phase=' + a.phase])) or 'all')
     W('region files: %(files)d  by route %(by_via)s' % stats['file_set'])
     W('C++ end markers (US_SERVICE flag state): ' + ', '.join('%s=%s' % kv for kv in markers.items()))
-    W('lua_tinker names bound: %d from %d files; calibration %s (SetFlag_LUA, SetForceInvincible, GetStoredGUUser bound; AddMovableLineData_LUA not)' % (
+    W('lua_tinker names bound: %d from %d files; calibration %s (SetFlag_LUA, SetForceInvincible, GetStoredGUUser, AddMovableLineData_LUA bound; a sentinel not)' % (
         len(bound), nbfiles, 'OK' if controls_ok else 'FAILED'))
     W()
     W('-- Region sets (June) vs March now')
