@@ -1556,6 +1556,7 @@ Its own slots are Prepare, RayHit, OnFrameMove, Draw, Reset / Lost and the dtor;
 - The skin-mesh `.cpp` rows are OTHER (the three flags nest); the header is PASS for `_DEBUG`.
 - `Always.h`'s `-1` is a peer's deleted blank line (W1e block), not this phase's.
 - 0 deleted lines, 0 non-ASCII lines, 0 EOL mismatches, 0 encoding changes.
+- Range check after the commit: `--range 29e57897^..29e57897`, RESULT PASS for all three flags (0 FAIL / ERROR, 0 deleted lines).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,873,280 B, dated 2026-10-18 06:34:55, md5 6e1b71e8bdb7cbe25ec57d44d4c11aa3` (built at main 68e3302f + peers' uncommitted files; both WSKIN strings found in the deployed exe).
 
