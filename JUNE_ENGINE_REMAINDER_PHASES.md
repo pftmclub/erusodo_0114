@@ -946,7 +946,7 @@ So June culls world meshes only as whole objects, through the base test, and the
 - `X2WorldObjectMesh.cpp` and `KTDGCamera.cpp` are PASS; the two headers are PASS~ (one blank line each).
 - The other rows are OTHER, from the sibling R13 flags or `Always.h`.
 - 0 deleted lines, 0 non-ASCII lines, 0 EOL mismatches.
-- Range check after the commit: RANGE_PENDING.
+- Range check after the commit: `--range 3312700d^..3312700d`, RESULT PASS for all three flags (0 FAIL / ERROR, 0 deleted lines).
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,816,448 B, dated 2026-10-17 22:29:20, md5 f0f46ed7dd266cfe32e847564cdc31a0` (built at main 3f478e9d + peers' uncommitted files; both WMESH strings found in the deployed exe).
 
