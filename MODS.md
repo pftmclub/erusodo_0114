@@ -31,11 +31,11 @@ column.
 | `SERV_IRUHADEV_EXP_GAUGE_MAX_LEVEL_FIX` | 2026-10-16 | `KTDXLIB/Always.h` (end) | `X2Lib/X2StateMenu.cpp` (`UpdateExpGageBar`) | -- |
 | `SERV_IRUHADEV_ELYSION_PORT` | 2026-10-17 (Atlas A3, extended A5 / A6) | `KTDXLIB/Always.h` (end) | `X2World.h`, `X2LocationManager.h/.cpp`, `X2LocalMapUI.h`, `X2UnitManager.h`, `X2Main.cpp`, `X2StateMenu.cpp`, `X2UIInventory.cpp`, `X2ChatBox.cpp`, `X2FieldMapBase.cpp`, `X2GUUser.cpp`, `X2BattleFieldGame.cpp`, `X2TFieldGame.cpp`, `X2WorldMapUI.cpp`, `Offline/X2OfflineLuaEnumSeed.h`; shared headers `KncWX2Server/Common/Enum/Enum.h`, `Enum/DungeonEnum.h`, `X2Data/XSLUnitManager.h` (client-side only, offline rule) | -- |
 | `SERV_IRUHADEV_ELYSION_SCRIPT_A` | 2026-10-17 (Atlas A4) | `KTDXLIB/Always.h` (end) | `X2DungeonSubStage.h/.cpp`, `X2GUNPC.h/.cpp`, `X2GUUser.h/.cpp`, `X2Main.cpp`, `X2MonsterIndicator.cpp`, `X2NPCAI.h/.cpp`; `KTDXLIB/KTDGLineMap.h/.cpp`, `KTDGUIControl.h/.cpp`, `KTDGUIStatic.cpp`, `KTDXApp.cpp` | -- |
-| `SERV_IRUHADEV_ELYSION_DEBUG` | 2026-10-17 (Atlas A4; A13 adds the `SetCameraDistance` wrapper) | `KTDXLIB/Always.h` (end) | `[ELYDBG]` lines in `X2DungeonSubStage.cpp`, `X2GUNPC.cpp`, `X2GUUser.cpp`, `X2LocalMapUI.cpp`, `X2LocationManager.cpp`, `X2MonsterIndicator.cpp`, `X2QuestManager.cpp`, `X2TFieldNpcShop.cpp`, `X2WorldMapUI.cpp`, `X2World.h/.cpp`, `X2Main.cpp`, `KTDXLIB/KTDGUIControl.cpp`. Diagnostic only: undefine to silence | -- |
+| `SERV_IRUHADEV_ELYSION_DEBUG` | 2026-10-17 (Atlas A4; A13 adds the `SetCameraDistance` wrapper) | `KTDXLIB/Always.h` (end) | `[ELYDBG]` lines in `X2DungeonStage.cpp`, `X2DungeonSubStage.cpp`, `X2GUNPC.cpp`, `X2GUUser.cpp`, `X2Game.cpp`, `X2GameUnit.cpp`, `X2LocalMapUI.cpp`, `X2LocationManager.cpp`, `X2MonsterIndicator.cpp`, `X2QuestManager.cpp`, `X2TFieldGame.cpp`, `X2TFieldNpc.cpp`, `X2TFieldNpcShop.cpp`, `X2TalkBoxManagerImp.cpp`, `X2WorldManager.cpp`, `X2WorldMapUI.cpp`, `X2World.h/.cpp`, `X2Main.cpp`, `KTDXLIB/KTDGLineMap.cpp`, `KTDXLIB/KTDGUIControl.cpp`. Left on at the region close-out (E15, as A13 did). Diagnostic only: undefine to silence | -- |
 | `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION` | 2026-10-17 (Atlas A7, E4) | `KTDXLIB/Always.h` (end) | `X2LocalMapUI.h/.cpp`, `X2LocationManager.cpp`, `X2StateMenu.cpp`, `X2UIInventory.cpp`, `X2WorldMapUI.cpp` | -- |
 | `SERV_IRUHADEV_JUNE_MOVABLE_LINE` | 2026-10-17 (Atlas E5) | `KTDXLIB/Always.h` (end) | `KTDGLineMap.h/.cpp`, `KTDXApp.cpp`, `X2World.h/.cpp`, `X2Game.h/.cpp`, `X2Main.cpp`, `X2UDPPacket.h`, `X2GUNPC.cpp`, `X2WorldObjectSkinMesh.h` | -- |
 | `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS` (offline emulator) | 2026-10-17 (Atlas A6) | `KTDXLIB/Always.h` (end) | `X2Lib/Offline/Handlers_Room.cpp` (`EGS_JOIN_BATTLE_FIELD` ACK) | `SERV_IRUHADEV_OFFLINE` |
-| `SERV_IRUHADEV_ELYSION_VILLAGE` | 2026-10-17 (Atlas E1a, extended E1b; E1c / E1d continue) | `KTDXLIB/Always.h` (end) | `X2LocationManager.h/.cpp`, `X2Main.cpp`, `X2QuestManager.h/.cpp`, `X2StateLoading.cpp`, `X2TFieldNpc.h/.cpp`, `X2TFieldNpcShop.h/.cpp`, `X2UIUnit.h/.cpp`, `X2UIUnitManager.h/.cpp` | -- |
+| `SERV_IRUHADEV_ELYSION_VILLAGE` | 2026-10-17 (Atlas E1a, extended E1b, E1c, E1d) | `KTDXLIB/Always.h` (end) | `X2EffectSet.h/.cpp`, `X2LocationManager.h/.cpp`, `X2Main.cpp`, `X2QuestManager.h/.cpp`, `X2State.cpp`, `X2StateField.h/.cpp`, `X2StateLoading.cpp`, `X2TFieldGame.h/.cpp`, `X2TFieldNpc.h/.cpp`, `X2TFieldNpcShop.h/.cpp`, `X2UIQuestNew.cpp`, `X2UIUnit.h/.cpp`, `X2UIUnitManager.h/.cpp` | -- |
 | `SERV_IRUHADEV_ELYSION_SCRIPT_B` | 2026-10-17 (Atlas E7; E10 play-test 2 moved the additional-world clear) | `KTDXLIB/Always.h` (end) | `KTDGManager.h/.cpp`, `KTDSMP3Play.h`, `X2BattleFieldGame.cpp`, `X2DamageEffect.h`, `X2DungeonGame.cpp`, `X2EffectSet.h/.cpp`, `X2GUNPC.h/.cpp`, `X2GUNPCAI.h/.cpp`, `X2GUUser.h/.cpp`, `X2GageUI.cpp`, `X2Game.h/.cpp`, `X2GameUnit.h/.cpp`, `X2Main.cpp`, `X2SlideShot.h/.cpp`, `X2World.h/.cpp`, `X2WorldManager.h/.cpp`, `X2WorldObjectParticle.h` | -- |
 | `SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE` | 2026-10-17 (Atlas E6) | `KTDXLIB/Always.h` (end) | `X2GUNPC.h/.cpp`, `X2Game.h/.cpp`, `X2Main.cpp`, `X2TalkBoxManager.h/.cpp`, `X2TalkBoxManagerImp.h/.cpp` | -- |
 | `SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END` | 2026-10-17 (Atlas E10 play-test 1; JUNE_BUGS 230) | `KTDXLIB/Always.h` (end) | `KTDXLIB/KTDGLineMap.cpp` (two `m_vLastMove` zeroing blocks; port gap on `JUNE_MOVABLE_LINE`) | -- |
@@ -3929,9 +3929,9 @@ Data only, no flag and no C++. June's own files are ljconv bytecode; registry ro
 - **Revert:** delete the phase's commented blocks in the BOM sources (`DungeonData`, `NPCTemplet`, `WorldData`) and the adopted files named in each
   phase's `june_adopt_*.tsv` record, then repack the koms the Done note lists. Each phase's Done note in `ATLAS_PORT_PHASES.md` lists them.
 
-### Atlas/Elysion port E1a-E1b: village engine, data + NPC side (2026-10-17, in progress)
+### Atlas/Elysion port E1a-E1d: village engine (2026-10-17)
 
-Flag `SERV_IRUHADEV_ELYSION_VILLAGE`. E1c (relation runtime) and E1d continue under the same flag; E15 closes this entry.
+Flag `SERV_IRUHADEV_ELYSION_VILLAGE` (`[ELYDBG]` lines behind `SERV_IRUHADEV_ELYSION_DEBUG`). Closed by E15.
 - **E1a:** June's whole `HouseParsing` (`324f3260`; ~50 June-only house keys + 6 sub-tables into new `HouseTemplet` members), and the
   village NPC relation data in `CX2QuestManager` (loaders `3233b680` / `32340720`, lookups, `VILLAGENPC_RELATIONDATA_TYPE`, loaded from
   `X2StateLoading.cpp` as June does). Data: June's `DLG_Map_House_NPC_RelationData.lua` (data034, ljconv). JUNE_BUGS 207, 208.
@@ -3941,7 +3941,80 @@ Flag `SERV_IRUHADEV_ELYSION_VILLAGE`. E1c (relation runtime) and E1d continue un
   `[ELYDBG] NpcShop` line). The June bodies are in one flagged block at the end of `X2TFieldNpc.cpp`, March's in `#else`. JUNE_BUGS 210-213.
   Visible in March villages: talk / bye motions `Talk` / `Bye` with a `Normal` fallback, JoinTalk sound, names drawn to 2700, March's
   synthesis / web-event / wedding buttons gone (June dropped them).
-- **Revert:** undefine the flag. March's house parser and field-NPC bodies return; the relation `.lua` stays in data034, unread.
+- **E1c (commit `8ee92c45`):** June's village NPC creation `323ba5f0` (ByQuest, then ByVillage relation lookup), `AddFieldNpc( templet, name )`
+  `323b0980`, replace `323b7ff0`, remove `323a9ed0`, restore `323b8970`; the `CX2TFieldGame` NPC loop (`323b5970`: AlwaysShow, effect-set show,
+  quest info once a second); both refresh entry points (code event `32344880`, quest complete `32340630`, called from `X2UIQuestNew.cpp`'s
+  quest-complete ACKs); `CX2TFieldNpc::OnFrameMove` `325cdfa0` whole; `PlayEffectSet( name, CX2TFieldNpc* )` `321e26d0`. Data: June's postbox /
+  billboard meshes and textures (data013) and `UI_NPC_BILLBOARD_ELYSION` / `UI_BILLBOARD_ELYSION` / `UI_NPC_BILLBOARD_SPA` (data039, record
+  `june2017_re/june_adopt_20261017_092513.tsv`). JUNE_BUGS 218-225.
+- **E1d (commit `292ff32e`):** June's `VillageParsing` `324ff4b0` whole (`CameraModifyDistanceByPortal`, `SPA_INFO`, `START_POS` `IsGuildAgitEnter` /
+  `WaitingTime` / `InternalPlaceStartPosID` / `IsSpaEnter` / `IsSpaOut`), the TFieldGame portal block, `MoveToOtherPlace` `3250a800`,
+  `MoveToInternalPlace` `323ac300`, `IsInternalPlace` `323aa170`, timer `323aa1b0`, `GetVecLinkedPos` `324f2ff0`. Visible in March villages: Lanox's
+  spa entrance (row 146) is no longer a portal (June; spa = backlog Stage 24). JUNE_BUGS 216-217.
+- **Revert:** undefine the flag. March's house parser, field-NPC bodies, village NPC creation and `VillageParsing` return; the relation `.lua` and
+  the E1c data stay in their koms, unread (delete them per the record and repack data013 / data034 / data039 for a full revert).
+
+### Atlas/Elysion port E2-E3: Elysion village 20009 + Field 03 (2026-10-17)
+
+Flag `SERV_IRUHADEV_ELYSION_PORT` (A3's). Nearly all data:
+- **C++:** the `elysion` chat warp (`X2ChatBox.cpp`, also under `SERV_IRUHADEV_CHAT_WARP_DEBUG`); `CX2Main::FieldWarpByCommand` `case 42` ->
+  `VMI_BATTLE_FIELD_ELYSION_FIELD_03` (June's table @`31d71550`, commit `22d66551`). `case 43` (Field 04) is left out: June has F04 as an enum only.
+- **Lua (BOM source, core list, blocks marked `atlas E2` / `atlas E3`, copied from June):** `DLG_Map_Village` `Village[VMI_ELYSION]` (6 in-village
+  warp pairs, 517 -> F03), `DLG_Map_House` (11 houses, Elysion rows in 7 shared houses, June's whole `HI_ADAMS_HOUSE`: Lanox's Adams moves and
+  loses make / attribute / shop, as June; `HI_PRIVATE_BANK` JoinArea 700, `HI_CAMILLA_PVP_HOUSE` 500), `NPCTemplet` 11 rows, `WorldData` 636 / 640,
+  `MapData` 20009 + Cobo zone 18 (+ server mirror `ServerResource/US/MapData.lua`), `BattleFieldData` F02 exit -> 500 and the F03 entry,
+  `DLG_UI_World_Map_NEW` (town + F03 pins shown), `ShopItem` (converted T0 + June's `VMI_ELYSION` block).
+- **June's own files (ljconv):** village scene + line map, F03 scene + line map, `Elysion_Field_03`, both field-map dialogs, 12 NPC dialogs
+  (records `june_adopt_20261017_103941.tsv`, `_111022.tsv`); loading images, textures, `DLG_UI_Common_Texture_Field_04` (data057).
+  JUNE_BUGS 226, 227 (the world map opens at the top-left, as June's does).
+- **Revert:** undefine the flag (with A3's enums it takes the whole region out); for the data, delete the `atlas E2` / `atlas E3` blocks and the
+  adopted files named in the records, then repack data002 / 013 / 034 / 036 / 037 / 039 / 040 / 057 / 181 / 183.
+
+### Atlas/Elysion port E6: dramatic messages (2026-10-17)
+
+Flag `SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE` (`[ELYDBG] dramatic message:` behind `ELYSION_DEBUG`). SimpleDLG gauges were already ported by
+june-effect C3z-4s (`SERV_IRUHADEV_JUNE_SIMPLE_DLG`); E6 only staged the three Soless / Memory gauge dialogs (data034, ljconv).
+- **C++:** loader `322e9e00` (from `CX2GUNPC::CommonStateStart`), remove `322e61c0` / `322e6270` (CommonStateEnd / NPC dtor), player `32306110`, Lua
+  `Playing_Dramatic_Message_LUA`, the second talk-box manager `TBMT_DRAMATIC_MESSAGE` = `CX2TalkBoxManagerImpDramaticMessage` (Push `32f218c0`,
+  `SetBalloonTip`, `LineBreak`), drawn after the fade; portrait particle / slide-up / spread. The review made Push run the US global line breaker
+  (`CLIENT_GLOBAL_LINEBREAK`, max 200), as June US does; June's own `LineBreak` stays in `#else`. RE in `june2017_re/e6_dramatic_re.md`; JUNE_BUGS 237-238.
+- **Revert:** undefine the flag. Soless / Memory NPCs then skip their dramatic boxes; nothing else uses it.
+
+### Atlas/Elysion port E7: Elysion-half script engine (2026-10-17)
+
+Flag `SERV_IRUHADEV_ELYSION_SCRIPT_B` (commit `0cc43f29`; 25 `funcmap.tsv` rows tagged `Atlas E7`, all 39 E7 rows of `region_engine.tsv`):
+- **Additional world:** WorldData `dataFileName_Additional` (`32805770`), hidden worlds created after the stage world, moved / drawn while shown,
+  `SetShowWorld` / `SetShowAdditionalWorld` / `PlayWorldAllSound` / `PlayAdditionalWorldAllSound`, June `StopBGM`. Freed in `CX2Game::Release` before
+  the camera, as June `323080c0` does (E10 play-test 2 fix: freeing it after the camera crashed the result screen).
+- **Game / unit queries and effects:** random users in range, nearest unit `322d55b0`, user index; colour fades (`CKTDGManager`; a white flash uses
+  June's `HQ_WhiteBack.dds` quad), thorns + HP text (HP test only when +0x75e0 is 1, review fix), simple timer, small-gage hide, sync dummy (host
+  only), `StartAlphaFade`, stored NPC, state cool time, `VectorUidType`, `IsSceneEnded`, `SetParticleSize`, BlackHole accessors, `StopEffectSetSilent`.
+- **Keys:** `CAN_PASS_UNIT_AT_FIRST_FRAME`, `SHOW_GAGE`, `INVINCIBLE_ATTACK_TYPE` (each entry a sub-table, `[1]` read, E10 play-test 3 fix),
+  `HEIGHT_CHECK_RANGE`. JUNE_BUGS 234-236.
+- **Revert:** undefine the flag, only together with the Elysion dungeon data (E8-E11): their NPC scripts call these methods and stop at the nil.
+
+### Atlas/Elysion port E8-E13: SkyCrossroads, Adrian, Soless, Memory, PvP map, asset closure (2026-10-17)
+
+Mostly data. June's own files are ljconv bytecode; registry rows in BOM sources are June's verbatim, marked `atlas E8` ... `atlas E12`.
+- **E8-E11 (data035 `DungeonData` N/H/E rows, data037 `NPCTemplet`, data040 `WorldData` + stage / line-map / NPC scripts):** SkyCrossroads 33870-72,
+  Adrian 33880-82, Soless 33890-92 (+ hidden stage, phase-2 additional world), Memory 33900-02; the unlock chain is Normal-keyed (Tower -> SC -> AR
+  -> SL -> ME), no quest key in June. Hero rows omitted (june-dungeons C3y-5). Records `june_adopt_20261017_143715` / `_145520` / `_150655` /
+  `_172712.tsv`; mesh-internal textures staged after the E10 / E11 play-tests (data002 / 016 / 050 / 181). JUNE_BUGS 239-247.
+- **E10 C++ (port gaps found by its play-tests):**
+  - `SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END` (`KTDGLineMap.cpp`, commit `30b389d6`): a moving platform's last move is zeroed when it stops, so
+    the player no longer sinks after the ride (June's code keeps it, June's game does not show it; JUNE_BUGS 230 fixed).
+  - `SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE` (`X2GUNPC.h/.cpp`, commit `1077e562`): June's state-start list (`327ad91e`, slot 95 `3275bbf0`) makes
+    the Stage3 seals take only their attack type. JUNE_BUGS 246.
+  - `SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN` (`X2GUNPC.h`, inside the flag above): **not June**, user's choice. March's class combos are untagged
+    `AT_NORMAL`, June tags them `AT_COMMAND`, so a user's untagged hit counts as `AT_COMMAND`. Remove it with the class ports (checklist 7x).
+  - `ELYSION_DEBUG`: the `LoadReadyNPC` hole log (`X2DungeonStage.cpp`).
+- **E12:** PvP map `PVP_Elysion_Field` + line map (data040), June's `PVP_Map_List` (data036) and `DLG_PVP_Map_List` (data034), `WorldData` 752,
+  `DLG_New_PVP_Image09` / `_TITLE` TETs. Load-only (no PvP offline). June's `m_PrivateType` map filter is parked as E12b. JUNE_BUGS 248.
+- **E13:** 46 + 5 June files that the relation and list data name (data013 / 039 / 065 / 096 / 181 / 215); scripts `june2017_re/atlas_e13_closure.py`,
+  `atlas_e13_sweep.py`. JUNE_BUGS 249-250.
+- **Revert:** undefine `ELYSION_ATTACK_TYPE_STANDIN` alone to restore June's strict rule (the white seal then breaks only to tagged hits);
+  `ELYSION_INVINCIBLE_ATTACK_TYPE` / `ELYSION_MOVABLE_LINE_END` each alone bring back the bug they fixed. For the data, delete the phase blocks and
+  the files named in each `june_adopt_*.tsv` record, then repack the koms each Done note in `ATLAS_PORT_PHASES.md` lists.
 
 ## Known deviations to clean up
 

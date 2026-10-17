@@ -4945,7 +4945,42 @@ Record a Done note, then commit on main.
 
 ### Phase E15 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high. Docs only: no code, no flag, no build, no pack.** The batched play-test was waived (user, 2026-10-17): every
+Elysion phase was play-tested in its own phase, so no new results were pasted. No item failed, so no `[ELYDBG]` diagnostic was needed.
+
+**Checklist (evidence: the phases' own play-tests and reviews):**
+
+| # | Item | Verdict |
+|---|---|---|
+| 1 | F02 <-> village, `elysion` warp renders | PASS (E2 play-test: F02 round trip, village scene / music / loading image) |
+| 2 | Houses / NPCs / house keys / in-village warps / dialogs / shop | PASS (E1a-E1d, E2: 5 in-village warps after `WaitingTime`, shops, dialogs). Luriel / Camilla talk range fixed in E2 (June's JoinArea). Story / Transcend houses have no NPC: **quest plan** |
+| 3 | Village -> F03 -> back | Spawn / fight / return PASS (E3 log: 35 monsters, 517 -> F03 -> 516). **Drops = 0: owner backlog Stage 23** (no server DropTable rows past 40025) |
+| 4 | Cobo / warp NPC / pins / M-key map | Cobo zone 18 PASS (E2), town pin (E2) and F03 pin (E3) PASS, F03 navi panel confirmed (E3). The warp-NPC / inventory list's 20009 row is the A7 stand-in passing through as its `#else` (E2 review); the list itself proven for 1008 (A13 check 2); no separate 20009 sighting recorded, covered by the waiver |
+| 5 | Local map scroll / page filter / guide | PASS (E4: 6 scroll round trips, page 1 = 11 controls, page 0 = 6, guide once). Bare star strips on page 1 ended with E8-E11's rows; AD / AC / TW have no stars = JUNE_BUGS 228 |
+| 6 | SC -> AR -> SL -> ME unlock, N/H/E, every stage | Normal entered and cleared for all four (E8 33870, E9 33880, E10 33890 incl. hidden stage + phase 2, E11 33900). Unlock chain and H/E rows checked row by row against June in the E8-E11 reviews; H/E entry not played, covered by the waiver. **Hero rows: owner june-dungeons C3y-5** (June has none for SL / ME) |
+| 7 | Platforms carry the player, sync with party / bot | Carry PASS (E9: 5 movable lines; E10 sink fixed, `ELYSION_MOVABLE_LINE_END`). **Sync: unreachable offline**: the P2P `XPT_MOVABLE_LINE_SYNC` host path sends to no guest (E5), and AI-party bots are local units. June's guest-side faults are JUNE_BUGS 231. No owner (no multiplayer offline) |
+| 8 | AWAKEN / HERBAON / OF_SUN gauges, dramatic messages | Dialogs staged and bound (E6); OF_SUN created (E11 log, digit miss = JUNE_BUGS 247); E10 / E11 play-tests passed with these checks in their hand-offs, but no note records a sighting of AWAKEN / HERBAON or a dramatic box. **PASS on the user's word (waiver)**. Proof if ever doubted: `python tools/logs.py --grep "[ELYDBG] dramatic message"` after a Soless run |
+| 9 | Clears pay out (83-99), next line unlocks | Unlock PASS (each next line entered after its clear). **Clear EXP / ED / drops = 0: owner backlog Stage 23**. StatTable / NpcExpTable 81-99 present (A12) |
+| 10 | UNHANDLED / EXCEPTION / KEM_ERROR | PASS: 0 EXCEPTION in every E-phase's passing play-test; UNHANDLED only `E_DISABLE_HB_CHECK_REQ` and other non-region packets |
+
+**Other open items, each with its owner:** E12b (June's `m_PrivateType` PvP map filter, parked, unreachable offline); june-engine W1
+(`MOTIONNAME_EFFECTSETNAME`; not on Adrian, JUNE_BUGS 244); the class ports (checklist 7x) remove `ELYSION_ATTACK_TYPE_STANDIN` and take the
+thorns callers (E7); june-asset-port P6-P8 (4 TET pairs + 5 non-Elysion names from E13); backlog Stage 24 (spa), Stage 18 (friendship);
+census step-9 classes (`keys.file` / `keys.registry` / `assets.absent`, 242 open at E13) are June-internal, server-only or June-absent and
+stay open by rule. Kept as June: `NPC Motion Error` lines (user), F04 enum-only, the world map opening top-left (JUNE_BUGS 227).
+
+**Close-out:**
+- `MODS.md`: all 13 Atlas / Elysion flags (`LEVEL_CAP_99`, `ELYSION_PORT`, `_SCRIPT_A`, `_SCRIPT_B`, `_VILLAGE`, `_DEBUG`, `_MOVABLE_LINE_END`,
+  `_INVINCIBLE_ATTACK_TYPE`, `_ATTACK_TYPE_STANDIN`, `JUNE_LOCAL_MAP_ELYSION`, `JUNE_MOVABLE_LINE`, `JUNE_DRAMATIC_MESSAGE` and
+  `OFFLINE_BF_JOIN_START_POS`) have a table row and a detail section. New sections: E2-E3, E6, E7, E8-E13; E1a-E1b closed as E1a-E1d;
+  the `ELYSION_VILLAGE` and `ELYSION_DEBUG` rows' file lists completed from `git grep -l`. `JUNE_SIMPLE_DLG` is june-effect C3z-4s's.
+- `LANOX_TROUBLESHOOTING.md` "Atlas/Elysion" table: 10 Elysion rows (platform sink, result-screen crash, seals, black flash, talk range,
+  mesh-internal textures, NPC Motion Error, console `/stage`, ljd blow-up, census blind spots).
+- *Deferred to the quest plan*: the E15 bullets (no Elysion quest gate, dormant relation runtime + its entry points, quest-button rule,
+  Story / Transcend houses, clear movie, local-map code events). The section is complete.
+- `SERV_IRUHADEV_ELYSION_DEBUG` stays on, as A13 left it: one `#define` silences every `[ELYDBG]` line.
+
+**The Atlas / Elysion plan is complete.** Backlog Stage 1 is closed. The quest-system plan (`stage4-plan`) still waits on skill S1 and june-gfx G0.
 
 ---
 
@@ -5022,7 +5057,7 @@ checklist**:
 
 ## Deferred to the quest plan
 
-(Filled in further by A1a, A13 and E15.) Already measured:
+(Filled in by A1a, A13 and E15; complete as of E15, 2026-10-17.) Already measured:
 
 - June keys kept verbatim and inert: `REQUIRE_COMPLETE_QUEST_ID` 22218 /
   `REQUIRE_COMPLETE_SUB_QUEST_ID` 22268 (`MapData:343-370`),
@@ -5096,6 +5131,24 @@ checklist**:
   - **Rewards are not quest-owned.** Kill and clear EXP / ED / drops in Atlas fields and
     dungeons are 0 because the server DropTable has no rows past 40025 (backlog Stage 23),
     not because of any quest gate.
+- *(E15, 2026-10-17: what the Elysion half learned)*
+  - **No quest gate in the Elysion dungeons.** June's SkyCrossroads / Adrian / Soless / Memory `DungeonData` rows carry no
+    quest key (E8-E11), so the line opens on level + `EXTRA_REQUIRE_DUNGEON_ID` alone (Tower -> SC -> AR -> SL -> ME, Normal-keyed).
+    Only AD Normal's 22218 key (A13 bullet above) is quest-owned in the whole region.
+  - **The relation runtime is in place and dormant.** E1c ported June's NPC creation with the ByQuest -> ByVillage lookup
+    (`323ba5f0`) and both refresh entry points: `RefreshVillageNpcRelationDataByQuest` (`32340630`) runs after `RemoveUnitQuest`
+    in the quest-complete ACKs (`X2UIQuestNew.cpp`), and the code-event refresh (`32344880`) covers the 27 code-event rows
+    (event 2308), which never fire offline. June's third caller handles a June-only packet (`323e15e0`, event 0x27d) and is not
+    ported. Once the region's quests exist, completing one should change the Atlas Station / Elysion NPCs without more C++.
+  - **Quest button rule.** The village NPC quest mark shows only for new normal quests (JUNE_BUGS 221). Quest info refreshes once a
+    second (E1c loop).
+  - **Story / Transcend houses.** `HI_STORY_QUEST` (40130) and `HI_TRANSCEND_QUEST` (40140) are in the Elysion and Atlas Station
+    house lists and load with an empty `NPC_ID_LIST` (E2). The census routes `NUI_STORY_QUEST` / `NUI_TRANSCEND_QUEST` (`lists.hole` 2,
+    `ids.missing` 2, `npc.ready` 2) to this plan.
+  - **Clear movie.** `Movie_Elysion_Clear` (quest 22336) is in the E13 `koms.unstaged` list: nothing in the port reads it. It
+    arrives with `DungeonClearMovieTemplet.lua` (bullet above).
+  - **Local-map code events.** June's 0x8d4 / 0x8d5 code events close dungeons 33330-33352 (incl. "quest desc off") on the Elysion
+    page (E4); inert offline, like the 2260-2262 portal gates (A6).
 
 ## Critical files
 
