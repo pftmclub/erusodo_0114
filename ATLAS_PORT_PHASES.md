@@ -4161,6 +4161,44 @@ Done when: Phase E7's "Done when" holds. Record a Done note, then commit on main
 - **Open for the user:** nothing to decide. Next: `/x2-phase atlas E7 review` (Opus 5.5 high).
 - **Play-test 2026-10-17 PASSED** (run 13:48 on exe e6b48a06; console on jtLordKnight in Besma Mine 2): countdown 5 -> 0 over the head (`[ELYDBG] StartSimpleTimerCount unit 25 time 5.00 count 5`), thorns (`[ELYDBG] thorns: unit 25 reflects 1427.8 ... to 1000000`, red HP text), monsters faded out / in (`[ELYDBG] StartAlphaFade npc 1000000 ( 111 ) time 2.00 in 0 hide 1`, 10 NPCs), small HP bars hidden / shown, world hide / show and music off / on; 0 EXCEPTION. **One miss, fixed:** the white flash drew black. June's fade quad is `HQ_WhiteBack.dds` (31ce9860 @31ce9a28 -> +0x3a0), not March's black `FadeInOut.dds`; now loaded behind the same flag (already in March data048, byte-equal to June; plain fades pass black, so they look as before). `DEPLOY OK: X2_offline.exe is 19,758,592 B, dated 2026-10-17 14:00:28, md5 f9eb73294bc2507ecab2ca5cd28a35bb, equal to X2/US_SERVICE/x2.exe (2026-10-17 14:00:22); built at main 4de3172a + 1 uncommitted code file(s).` (`HQ_WhiteBack.dds` in the exe). Re-test 2026-10-17: white flash confirmed (user).
 
+### Phase E7 — Review (2026-10-17)
+
+**Opus 5.5. Verdict: PASS + one fix** (thorns' HP-test gate was inverted; fixed under the same flag).
+
+Re-read in June's raw disassembly (Ghidra + `funcdis.py` / `disasm_range.py`; constants read from the exe):
+- **Additional world:** `AddWorldData_LUA` @32805f81-32805fee (BeginTable after CodeEvent, values 1..n until the first miss, push to +0x58);
+  32803f60's second half: `new CX2World( data, arg6 )`, `OpenScriptFile( name, arg5 )`, 327fbeb0( g_pMain +0x1a8 ), then
+  SetShowObject / PlayEffectBGM / Play3DEffectBGM( 0 ), push_back. Caller args: dungeon 327cd1b0 (binder 0, bg 0), battle field
+  32d52fa0 and swap 32d54ae0 (0, 1; the swap clears first @32d54b07). The +0x1ac gate on reset / lost (322d7320 / 322d73b0), `SetShowWorld`
+  322cc040, `PlayWorldAllSound` 322cc060, the index forms 322cf8f0 / 322cf930 (index < size, world non-NULL), `StopBGM` 327fdb80 (name
+  cleared to L"" before Stop). All match.
+- **CX2Game queries:** 322dd990 (HP > 0 with no gage = 1, `<=` range, unsigned `rand() % size` erase while size > count), 322d0030,
+  322dc3c0 (signed `cdq / idiv`, only when n > 1), 322cfc00 (index counts empty slots, 0xffff). Nearest core 322d55b0, argument order from the
+  wrapper pushes: (unit, type, front, min, max, centre, same-team); 322d7060 passes 1 and is bound to `_IncludeSameTeam_LUA` (ref @31dd32e4),
+  322d7090 passes 0 and is bound to `_LUA` (@31dd3615). Best starts at max (@322d55c2), team / ally team, class 0 / 100 (NCT_BASIC / THING_GATE),
+  front test 32293b80 vs vslot 0x170, compares `d < best`, `min <= d`, `d <= max`. All match.
+- **Fades:** 31ce6270 / 31ce62c0 (+0x390 word 1 / 0x101), the draw 31ce94a0 overwrites the colour alpha (@31ce9583) and draws 1024 x 768;
+  322cff70 passes (0, 0, 0, 1); the white quad is `HQ_WhiteBack.dds` (string 3344ca90, loaded @31ce9a28). Match.
+- **Units:** 3227a670 (jump table 3227a724 = 5 cases, 5 = user with skill id > 0); HP text @3229f11f-3229f4e6 (0.2 s at 334411a8, sum > 1 green
+  "HP +", < 0 red, 0..1 nothing, +50 y); the simple timer (time > 0, "Mine_Countdown" with March's CreateSequence defaults, tick when
+  `count - 1 >= time`, sound only when non-empty); state cool time (fild int, `=` / `+=`); stored NPC; VectorUidType (PopValue -1 absent / 0 on
+  error); small gage 32e5d580 = DrawHpGage (GetAlpha, DrawFace 32e5bc40, HP +0x20); sync dummy (host UID == my UID, value differs);
+  StartAlphaFade 3275a240 / 3275a320 (rate -1.0 / time, end branch `rate >= 0` restores the blend, else alpha 0 and the optional hide);
+  CAN_PASS_UNIT_AT_FIRST_FRAME stored at +0x8fd8 (@327ac314) = the byte Init compares (@3277c26f); HEIGHT_CHECK_RANGE @32f073c1-32f07410
+  (> 0, `fild` range < distance skips); IsSceneEnded 325c4a50 / 325c4a70; SetParticleSize 31e4f3f0 (+0x3f8 scale); BlackHole +0xa0c / +0xa10 =
+  DRAGGING_SPEED / RANGE (@31f638fd / @31f63a15); StopEffectSetSilent 321db020 -> 321e3ee0 @321e3f61 -> 321e3a80 @321e3ad7 -> 321e2a30
+  @321e2af2. All match. The deviations the Done note lists hold.
+- **JUNE_BUGS 234-236** are right; census `--phase E7 --region elysion` (probe): bind.unbound = `SetPosion` (E10) only, no E7 key open.
+
+**Fix: thorns tested the defender's HP the wrong way round.** 32278150 runs the "my HP >= damage" test only when +0x75e0 == 1
+(`cmp byte [ecx+0x75e0],1 / jnz` @3227815d skips it otherwise); 3226e370 (class code) is the only writer. E7 ran the test when the byte
+was 0, so every thorns unit missed reflecting a hit bigger than its HP. Now `m_bJuneThornsCheckHp` (renamed) gates it as June does
+(`X2GameUnit.cpp` JuneProcessThorns, `X2GameUnit.h`). funcmap row 32278150 corrected. flagcheck `--worktree` (2 files): `2 PASS`, `RESULT: PASS`
+(6 deleted lines = E7's own inserted lines replaced; still insert-only vs the pre-E7 base). `DEPLOY OK: X2_offline.exe is 19,759,104 B, dated 2026-10-17 14:32:19, md5 3abf25191e5118f20ea1df5f41242ca1, equal to X2/US_SERVICE/x2.exe (2026-10-17 14:32:14); built at main b06f994c + 2 uncommitted code file(s).`
+
+**In game:** thorns reflect even on a hit that takes the unit below 0 HP (before: no reflect, no red text). Seen with the E7 console test
+when the monster's hit is larger than the player's HP.
+
 ---
 
 ## Phases E8–E11 — the four dungeon lines

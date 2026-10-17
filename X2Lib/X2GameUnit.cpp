@@ -325,7 +325,7 @@ m_fNoSkillTime( 0 )
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 	m_bJuneThorns				= false;
 	m_fJuneThornsRate			= 0.f;
-	m_bJuneThornsIgnoreHp		= false;
+	m_bJuneThornsCheckHp		= false;
 	m_fJuneHpChangeTextTime		= 0.f;
 	m_hJuneSimpleTimer			= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_fJuneSimpleTimerTime		= 0.f;
@@ -19408,8 +19408,9 @@ void CX2GameUnit::AddEffectSetDeleteCondition_LUA( CX2EffectSet::Handle hEffectS
 	@brief : Atlas E7, June 32278150 ( this = the unit hit, RET 8 ), called by both DamageReacts ( user 320462a0 @3204a383, NPC 327b1f30
 			 @327b4c9b ) with the attacker and the hit's final damage:
 			 - no attacker: nothing;
-			 - unless +0x75e0 is set, my HP ( gage +0x20; no gage counts as 1.0, a gage without HP data as 0.0 ) must not be below the
-			   damage ( fcomp st(2), test ah,5 / jnp @3227819c-322781a7 );
+			 - only when +0x75e0 is 1 ( cmp byte +0x75e0,1 / jnz @3227815d-3227816a skips the test otherwise ), my HP ( gage +0x20;
+			   no gage counts as 1.0, a gage without HP data as 0.0 ) must not be below the damage ( fcomp st(2), test ah,5 / jnp
+			   @3227819c-322781a7 );
 			 - thorns ( +0x75d8 ) on, and the attacker's force-invincible time ( protected +0xdbc ) not above 0;
 			 - the attacker gets JuneUpNowHpWithText( -( damage * rate +0x75dc ) ) ( 322780b0 ).
 */
@@ -19417,7 +19418,7 @@ void CX2GameUnit::JuneProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ )
 {
 	if ( NULL == pAttacker_ )
 		return;
-	if ( true != m_bJuneThornsIgnoreHp )
+	if ( true == m_bJuneThornsCheckHp )	// Atlas E7 review: June tests the HP only when +0x75e0 is 1 ( @3227815d )
 	{
 		const float fMyHp = ( NULL == GetGageData() ) ? 1.f : GetGageData()->GetNowHp();
 		if ( fMyHp < fDamage_ )

@@ -4335,11 +4335,11 @@ protected:
 		float												m_fJuneSuperArmorHitStopCoolTime;
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		/// Atlas E7: June +0x75d8 / +0x75dc / +0x75e0 ( SetThornsInfo 3226e350 writes the first two; the third, "skip the HP test", is set only by
+		/// Atlas E7: June +0x75d8 / +0x75dc / +0x75e0 ( SetThornsInfo 3226e350 writes the first two; the third, "test my HP first", is set only by
 		/// class code 3226e370 <- 32a67a20, checklist ); zero in the ctor ( 322a2700 @322a5622-322a5636 )
 		bool											m_bJuneThorns;
 		float											m_fJuneThornsRate;
-		bool											m_bJuneThornsIgnoreHp;
+		bool											m_bJuneThornsCheckHp;
 		/// Atlas E7: June +0x68bc / +0x68c0, the queued HP changes 322780b0 adds ( shown as HP +n / HP -n every 0.2 s )
 		float											m_fJuneHpChangeTextTime;
 		std::vector<float>								m_vecJuneHpChangeText;
