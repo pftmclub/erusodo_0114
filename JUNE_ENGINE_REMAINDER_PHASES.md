@@ -1143,7 +1143,7 @@ Hygiene (`flagcheck --range 7ba525ce^..2bb92772`):
 
 Build: `DEPLOY OK: X2_offline.exe is 19,810,304 B, dated 2026-10-18 02:39:54, md5 94e0af9e07b7fd621128d5ee1f729e26` (built at `55f0542e` + this fix + peer files `X2TFieldNpc.h` / `JUNE_FIELD_NPC_HEAD_BONE`; `SKREF dead anims` gone from the exe, 0 hits).
 
-**User owes:** the re-check from R12's play-test (kicks hit again with MOTION_COLLISION off), plus one NPC with an attach mesh (below). Next: R12b, R14.
+**Play-test 2026-10-18: PASSED** (user: all behave normally; exe md5 `94e0af9e`, clean exit). Lire's kicks hit; Lanox Fire Temple Expert: 24 `JUNE_ATTACH_SKIN attach` lines (20 Fire Devil Fighter, 4 Berserker), shells and fighting normal, no crash on leaving; 0 EXCEPTION, KEM 432 / 433 0, no SKREF lines (debug off as intended). User owes nothing. Next: R12b, R14.
 
 ## Phase R12b - Motion collision source (trace)
 
