@@ -3504,7 +3504,7 @@ turns them on. The four A7 stand-ins that wait for a 20009 templet (`X2LocationM
 - **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_PORT --worktree --with SERV_IRUHADEV_CHAT_WARP_DEBUG --files X2Lib/X2ChatBox.cpp`: `files: 1 PASS, 0 PASS~,
   0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag
   token, 0 encoding change(s)`; `RESULT: PASS`. `ledger --check` PASS, `core --check` PASS.
-- **Pack:** `PACK OK` data002 / 013 / 034 / 036 / 037 / 039 / 040 / 183; each diff vs live is only E2's entries. Copy waits for the user's OK.
+- **Pack:** `PACK OK` data002 / 013 / 034 / 036 / 037 / 039 / 040 / 183; each diff vs live is only E2's entries. `COPY OK` all 8 (user OK): data034 md5 29266814, data036 1d65782a, data037 40de79e7, data039 84fbf888, data040 23e9aadb, data183 eefa8a32, data002 91daecb6, data013 4eaa8140.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,699,712 B, dated 2026-10-17 10:44:16, md5 23083f5020277448521cb93066309abd, equal to X2/US_SERVICE/x2.exe
   (2026-10-17 10:44:10); built at main 72491252 + 1 uncommitted code file(s).` `L"elysion"` is in the deployed exe.
 - **Open, routed (no question):** March has no Ranox shop row (June's ShopItem has one; its `NUI_SAYRENA_EVENT` blocks a straight copy): a
