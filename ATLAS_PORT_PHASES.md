@@ -3619,6 +3619,14 @@ A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 
   ~`WorldData.lua`. **`COPY OK` (user OK):** data034 66bd7d74, data036 64bce5e6, data040 564291c5.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,699,712 B, dated 2026-10-17 11:13:06, md5 ad0dc512668182592721c21b9efd8275, equal to X2/US_SERVICE/x2.exe
   (2026-10-17 11:13:01); built at main 300a6848 + 1 uncommitted code file(s).` (`case 42` has no string literal; the build rc=0 is the proof.)
+- **Play-test 2026-10-17 (log, run 11:16-11:19 on exe ad0dc512 + the 3 koms; no user report on the pin yet):** village 20009 -> `battlefield 40037 room 1001`
+  -> `Elysion_Field_03.lua: 9 group(s), level 88, max 35 monster(s)`, 35 placed (UIDs 1000000..34), Herna monsters fight with June effect sets (`JUNE_FX` lines),
+  kills respawn (5 / 4 / 1 / 1 ...), kills log `no reward row ... grants nothing` (expected, Stage 23); return to 20009 at 11:19:22 (`EGS_STATE_CHANGE_FIELD`,
+  loaded line 119 = pos 516); 0 EXCEPTION, 2 UNHANDLED = `E_DISABLE_HB_CHECK_REQ` (pre-existing); no `PortalMovingInfoPtr is NULL`. The world-map pin hidden
+  line never fired (pin shown).
+  **Found:** 4 `OpenTexture` misses during the F03 load: `ELYSION_HERNA_SHIELD_WEAPON.TGA` (June ships it; the A6 closure staged only `_A`) -> staged June's
+  copy (data181, 65,580 B), `PACK OK data181`, copy waits for the user's OK; `FIELD_ELYSION_VILLEAGE_AP_TREE02.DDS` (embedded in `Field_Elysion_Stage2_G02.y`, June lacks
+  it too: June's own miss, kept), `LIRE_01_SPINNINGKICK02_AS.TGA` and `PARTICLE_BLUR_GA.TGA` (June lacks both; Lire skill particles, not F03's).
 - **How to see it in game:** after the copy, the hand-off below (`elysion` warp, walk to the village's far portal at START_POS 517 -> F03 -> back via
   F03's start portal (L0) to the village; F03 pin on the world map).
 
