@@ -40223,7 +40223,6 @@ corpus		data036_kom	Peita_Field_01.lua	<main>	clean	pass											rt_main=pass;
 corpus		data036_kom	Peita_Field_02.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	PetInteractionData.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	PetPreView.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
-corpus		data036_kom	PetTemplet.lua	<main>	other-ljd	other-ljd											rt_main=other-ljd; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	PetTemplet_LA.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	PhotoZone_Map_List.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	ProfessionTemplet.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
@@ -42454,8 +42453,6 @@ corpus		data036_kom	EventScene.lua	<main>	other-ljd	reorder											rt_main=re
 corpus		data036_kom	FieldQuest.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	FieldQuest_LA.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	ManufactureItem.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
-corpus		data036_kom	NewSkillTempletVer2.lua	-	STEP_ERROR												"0 0 0 0 0 compile-batch failed on F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk\tmp\ljdiff_data036_kom__NewSkillTempletVer2.lua.src.lua (rc 1): {""type"":""result"",""op"":""compile-batch"",""ok"":0,""failed"":1,""skipped"":0,""cancelled"":fals"
-corpus		data036_kom	NewSkillTempletVer2_LA.lua	-	STEP_ERROR												"0 0 0 0 0 compile-batch failed on F:\elsword stuff\elsword_2014\els_2014\ElswordFiles\ready_and_built\ProjectX2_SVN\ProjectX2_SVN\source\EU_CN_US\Trunk\tmp\ljdiff_data036_kom__NewSkillTempletVer2_LA.lua.src.lua (rc 1): {""type"":""result"",""op"":""compile-batch"",""ok"":0,""failed"":1,""skipped"":0,""cancelled"":f"
 corpus		data036_kom	OptionItemData.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	OptionItemData_LA.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
 corpus		data036_kom	SetItem_LA.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
@@ -42474,3 +42471,6 @@ corpus		data036_kom	DamageEffect.lua	Get_GunnerBulletDamage_MusketProjectile	upv
 corpus		data036_kom	DamageEffect.lua	Get_GunnerBulletDamage_RevolverProjectile	upvalue	upvalue	32	upvalue=32	32	1	1	0	0			seed 1 upvalue[upvalue,other-ljd] ev0: GREAD FALSE	
 corpus		data036_kom	DamageEffect.lua	<main>	other-ljd	upvalue											rt_main=upvalue; main_values differ=59 only_orig=767 only_side=0(of 6456)
 corpus		data036_kom	EffectSet.lua	<main>	other-ljd (deepcopy, exempt)	dropped-assignment											rt_main=dropped-assignment; main_values differ=0 only_orig=1 only_side=0(of 1)
+corpus		data036_kom	NewSkillTempletVer2.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
+corpus		data036_kom	NewSkillTempletVer2_LA.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)
+corpus		data036_kom	PetTemplet.lua	<main>	clean	pass											rt_main=pass; main_values differ=0 only_orig=0 only_side=0(of 0)

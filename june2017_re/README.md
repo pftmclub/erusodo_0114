@@ -764,6 +764,11 @@ Committed. These are small, or are the record of what was found:
   for its opcode fix. See "June LuaJIT opcode table".
 - `ljd_fixed.py`, `ljd_slotworks_fix.py`, `ljd_slotworks.patch`: the ljd dropped-assignment
   fix, as a run-time hook and as an unapplied patch. See "ljd dropped-assignment fix".
+- `ljd_writer_fix.py`: the ljd printer fix for multi-line strings (a `]]` or trailing `]` in the
+  value gets a `[=[ ... ]=]` level; a value with `\r` gets ljd's quoted form). `ljd_fixed.install_fix()`
+  installs it after the slotworks fix, with its own SHA-256 check on `writer.py`; `python
+  ljd_writer_fix.py --selftest` round-trips the edge cases through luajit. Added 2026-10-17 for
+  `NewSkillTempletVer2(_LA).lua` (`JUNE_SKILL_SYSTEM_PHASES.md` Phase S1).
 - `corpus_run.py`, `decompile_worker.py`, `truncation_census.py`, `build_decompile_corpus.py`
   → `decompile_corpus.tsv`; `ljconv_table.tsv`; `ljdiff/`; `ljd_oracle/`;
   `decompile_verdicts.tsv`; `phase5_*.py`/`phase7_*.py`/`phase8_*.py` and their `.tsv`s: the

@@ -694,7 +694,8 @@ core list; those ship as June's bytecode and need none. `NewSkillTempletVer2` (d
 
 Fix as tracked hooks, like `june2017_re/ljd_fixed.py`, never by silently editing the vendored tree:
 - parens around an IIFE;
-- a long-bracket level that does not collide with the string's content;
+- a long-bracket level that does not collide with the string's content (**done 2026-10-17** in skill-system-core S1:
+  `june2017_re/ljd_writer_fix.py`, installed by `ljd_fixed.install_fix()`; it also prints a value with `\r` quoted);
 - deepcopy-hoist;
 - TIMEOUT / MemoryError on big tables.
 

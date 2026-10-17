@@ -667,7 +667,7 @@ recommendation: hold S3 until the user says so). RE / tools phases S0a, S0b, S1 
 |---|---|---|---|---|---|
 | S0a | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `june2017_re/s0a_*.tsv`, plan doc, kickoffs S2-S4 | `S0a.md` |
 | S0b | ready | Opus 5.5 / high | - (read-only) | `funcmap.tsv`, `june2017_re/s0b_slot_sites.tsv`, plan doc, kickoffs S5-S8 | `S0b.md` |
-| S1 | ready | Opus 5.5 / **xhigh** | - (tools only) | `june2017_re/` ljd hooks, `june_src_fixed/data036_kom/` | `S1.md` |
+| S1 | **done 2026-10-17**: one defect (ljd's long-bracket printer), fixed as the hook `june2017_re/ljd_writer_fix.py` (installed by `ljd_fixed.install_fix()`, selftest PASS); `NewSkillTempletVer2(_LA)` `--check` clean + T1, now in `june_src_fixed/data036_kom/`, corpus rows `clean`; side find `PetTemplet.src.lua` (silent `\r` loss) regenerated, T1. User owes nothing | Opus 5.5 / **xhigh** | - (tools only) | `june2017_re/` ljd hooks, `june_src_fixed/data036_kom/` | `S1.md` |
 | S2 | waiting (S0a) | Sonnet 5.5 / high, then user play-test | S0a; not with atlas E1/E5/E6/E7 | `X2SkillTree.*`, `X2UserSkillTree.*`, `X2Main.cpp` bindings, `X2GUUser.cpp` / DamageManager / DamageEffect `_ULTIMATE` gates, Always.h | `S2.md`, review `S2-review.md` |
 | S3 | waiting (S2; open question 1) | Opus 5.5 / high, then user play-test | S2 review | data036 skill closure, `X2StateLoading.cpp`, `X2OfflineDB.*` (v17), `X2OfflineSkill.*`, `Handlers_Skill.cpp`, `tools/createchar.py`, checklist, Always.h | `S3.md`, review `S3-review.md` |
 | S4 | waiting (S3) | Sonnet 5.5 / high | S3 | `X2DamageManager.cpp`, `X2SkillTree.*`, `MODS.md`, `JUNE_BUGS.md`, Always.h | `S4.md`, review `S4-review.md` |

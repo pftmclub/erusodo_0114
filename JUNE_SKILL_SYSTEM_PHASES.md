@@ -53,7 +53,7 @@ phase (`LOAD`, `MIG`, `NUM`, `SLOT`, `UI`, `PTR`): `python tools/logs.py --tag J
 | Need | Command |
 |---|---|
 | One section of this doc | `python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "<heading>"` |
-| June Lua (read) | `june_src_fixed/data036_kom/*.src.lua`. **`NewSkillTempletVer2` is missing until S1.** Until then use the unproven decompile `tmp/decompile_sweep/data036_kom__NewSkillTempletVer2.lua.src.lua` (6.8 MB, failed the compile round-trip; `tmp/` is scratch), and cite it as unproven |
+| June Lua (read) | `june_src_fixed/data036_kom/*.src.lua`. **`NewSkillTempletVer2(_LA).src.lua` are there since S1 (2026-10-17), proven** (`--check` clean, T1). The old `tmp/decompile_sweep/` copy is obsolete: it does not compile |
 | June kom reader | `python tools/junekom.py list / extract` (never by hand) |
 | Bring June Lua in | `python tools/luasrc.py adopt-june data036 X.lua` (x2-adopt-june) |
 | Ghidra | `ghidra` skill (read-only for RE phases) |
@@ -234,6 +234,50 @@ site with its June equivalent and the S5 action); S5-S8 kickoff amendments; a Do
   `decompile_verdicts.tsv` records the pass.
 
 **Done gate:** `--check` pass (or the named blocker); the two `.src.lua` files; the tool change committed with its self-test.
+
+**Done note (2026-10-17, Opus 5.5 xhigh): S1 done.** Tools only: no flag, no build, no deploy, no kom pack or copy, no save.
+
+**One defect, not two.** Both files fail only on ljd's long-bracket printer. L3's "`slot3` global" message belongs to
+`DamageEffect_Dungeon` (IIFE parens, still open). The failure was 12 skill descriptions per file ending in combo notation; the first
+is `m_eID = 7004`, "Dragon Stance 4: Moonlight Slash", `...XX↓X[X]]` printed as `[[...[X]]]`.
+
+**The fix: `june2017_re/ljd_writer_fix.py` (new).**
+- It is a run-time hook on `ljd.lua.writer.Visitor.visit_constant`. It refuses unless `writer.py` has SHA-256 `001f3364...`, which
+  both vendored copies have. The vendored ljd is not edited.
+- `ljd_fixed.install_fix()` installs it after the slotworks fix, so every fixed-ljd caller gets it (`ljd_jun2017.py`,
+  `ljdiff --fixed`, `luasrc.py decompile` / `adopt-june --source`). The summary line ends in `writer fix active (...)`;
+  `--unfixed` stays plain ljd.
+- It changes only strings plain ljd gets wrong: `]]` inside or `]` at the end gets the lowest `[=*[` level that does not collide;
+  a value with a `\r` gets ljd's own quoted form. A long string folds `\r` to `\n`, so this third case was a silent value change.
+- `python june2017_re/ljd_writer_fix.py --selftest`: **PASS**, 13 cases through luajit. The 5 cases plain ljd already got right print
+  the same bytes; the 8 it got wrong are repaired, and each one is proven to fail under plain ljd.
+
+**Results** (June bytes from `tools/junekom.py`; sizes = the manifest sizes; T1 = `luasrc.py check --ref june`):
+
+| file | `--check` (32 seeds) | T1 | leveled / requoted | corpus row | `june_src_fixed` sha1 |
+|---|---|---|---|---|---|
+| `NewSkillTempletVer2.lua` | clean | T1, 145,088 ins | 12 / 0 | `STEP_ERROR` -> `clean` | `353dd76d` (6,818,275 B) |
+| `NewSkillTempletVer2_LA.lua` | clean | T1, 145,088 ins | 12 / 0 | `STEP_ERROR` -> `clean` | `43c22e55` (6,836,680 B) |
+| `PetTemplet.lua` (side find) | - | T1, 13,246 ins (old copy: FAIL, 19 diffs) | 0 / 129 | `other-ljd` -> `clean` | `239f47a3` (603,909 B) |
+
+- **What the fix changed.** In both templet files the only lines that differ from the pre-fix decompile are the opening and closing
+  lines of the 12 re-levelled strings (24 lines).
+- **Text format.** The files are plain ljd text, the format every `june_src_fixed/` file has. Phase 8's `corpus_run.py` +
+  `phase8_worker.py --fast` wrote them. They are byte-identical to `ljd_jun2017.py`'s output.
+- **Table order.** 2,358 tables store their pairs in another order; T1 ignores that by rule. `luasrc.py decompile` adds the
+  layout repair, which brings this to 0, if a later phase ever needs the file as source.
+- **Corpus rows.** `decompile_verdicts.tsv` rows are re-run with `phase8_aggregate.py`: 3 replaced, 42,472 kept, "Phase 4 fix holds".
+- **PetTemplet backup.** The old `PetTemplet.src.lua` is backed up at `.build/s1/backup_june_src_fixed/`. A scan of all 7,313
+  `june_src_fixed/` files found no other CR inside a long string.
+- **Regression checks.** `luasrc.py selftest` PASS 517/517, `ledger --check` PASS, `core --check` PASS.
+- **Docs updated.** `RANOX_LUA_DECOMPILE_BUG.md` Phase 8 section, `LUA_SOURCE_PHASES.md` L5 (its long-bracket item is done), and
+  `june2017_re/README.md`.
+
+**Not done (out of scope):**
+- No patch was applied to either vendored ljd, so `elstools.exe decompile-batch` still prints the old way.
+- No ledger or core row was added: `NewSkillTempletVer2` is off the core list, and S3 ships June's bytecode through `adopt-june`.
+
+**For S0a / S2:** read `june_src_fixed/data036_kom/NewSkillTempletVer2.src.lua`. It is proven; `tmp/decompile_sweep/` is not.
 
 ## Phase S2 - Templet loader and skill tree to June
 

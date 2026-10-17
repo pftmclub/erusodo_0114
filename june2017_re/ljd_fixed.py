@@ -28,6 +28,12 @@ Phase 9; `--unfixed` opts out).
 LJD_FIX_LOG=<file> appends one line per vetoed inline (and per exempt one) to
 <file>: the caller, the function, the slot, the kept assignment and the read
 that needed it.
+
+Since JUNE_SKILL_SYSTEM_PHASES.md Phase S1 (2026-10-17), install_fix() also
+installs the printer fix in ljd_writer_fix.py (long-bracket strings that close
+on their own content: "]]" inside, a trailing "]", or a CR byte), with its own
+SHA-256 check on writer.py. The summary line then ends in
+"; writer fix active (...)". Self-test: python ljd_writer_fix.py --selftest.
 """
 import ast as pyast
 import difflib
@@ -76,6 +82,16 @@ def _patched_sha():
 
 
 def install_fix():
+    """Install the slotworks fix (below) and the writer fix (ljd_writer_fix.py, Phase S1); return slotworks."""
+    sw = _install_slotworks()
+    if HERE not in [os.path.normpath(os.path.abspath(p)) for p in sys.path]:
+        sys.path.insert(0, HERE)
+    import ljd_writer_fix
+    ljd_writer_fix.install()
+    return sw
+
+
+def _install_slotworks():
     """Install the fix into ljd.ast.slotworks (once per process) and return the module.
     Refuses (SystemExit) unless the vendored slotworks.py is EITHER the exact file the
     fix was written against (installs the run-time hook) OR the exact file
@@ -109,7 +125,7 @@ def stats_line():
     return ('slotworks fix active (%s): vetoed=%d exempt=%d andor=%d checked=%d unlocated=%d stale_target=%d'
             ' unknown_node=%d'
             % (SLOTWORKS_SHA256[:8], s['vetoed'], s['exempt'], s['andor'], s['checked'], s['unlocated'],
-               s['stale_target'], s['unknown_node']))
+               s['stale_target'], s['unknown_node'])) + '; ' + sys.modules['ljd_writer_fix'].stats_line()
 
 
 # ---------------------------------------------------------------- the patch

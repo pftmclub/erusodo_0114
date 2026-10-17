@@ -616,6 +616,25 @@ if and when a file needing either shape is ported, the fix is in ljd's printer (
 parens around a called function literal; pick a `]=*]` bracket level that doesn't collide with
 the string's own content), not in the slotworks elimination fix this plan already made.
 
+**Long-bracket class fixed 2026-10-17** (`JUNE_SKILL_SYSTEM_PHASES.md` Phase S1). The fix is
+`june2017_re/ljd_writer_fix.py`, a run-time hook that `ljd_fixed.install_fix()` installs. It
+checks `writer.py`'s SHA-256 and has a `--selftest`. Two rules:
+- A value with `]]` in it, or one that ends in `]`, gets the lowest `[=*[` level that does not
+  collide with it.
+- A value with a `\r` is printed in ljd's quoted form. A long string folds `\r`, `\r\n` and
+  `\n\r` to `\n`, so a `\r` cannot survive inside one. This is a third, silent variant: no
+  syntax error, just a different value.
+
+Results:
+- `NewSkillTempletVer2(_LA).lua` (12 re-levelled strings each) now pass `ljd_jun2017.py --check`
+  and T1.
+- `data036_kom/PetTemplet.lua` had the silent variant: 129 CRLF line breaks inside Japanese pet
+  descriptions. Its corpus row was `other-ljd` and is now `clean`. No other `june_src_fixed/`
+  file had it.
+- All three corpus rows are re-run in `decompile_verdicts.tsv`.
+
+The IIFE-parens class (`DamageEffect_Dungeon.lua`, `Rose_StormTrooper.lua`) is still open.
+
 **Corpus-wide totals (all 7,328 files, Phase 7 + Phase 8 combined):**
 
 | | Count |
