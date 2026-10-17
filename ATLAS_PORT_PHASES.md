@@ -3254,6 +3254,55 @@ No compiler warning from the changed files. X2TFieldGame.cpp / .h and X2Location
 
 **Play-test 2026-10-17: PASSED (user).** Run 10:16 on the deployed exe (md5 d095fe3a) with data013 / data039 copied. ErrorLog: on both Atlas Station visits (10:16:22, 10:18:09) `house 40028 rebuilt (quest -1, village 1008) mesh 'NPC_EL_BILLBOARD.x' ui 'UI_NPC_BILLBOARD_ELYSION.lua'` and `house 40021 rebuilt ... mesh 'EL_postbox.x'`, each followed by `-> changed NPC`; no load failure for the new meshes / textures / UI Lua. User: June's postbox and board shown, the board opens the Elysion board window; March village NPCs, talk marks, shop and bye normal. 0 EXCEPTION (3 UNHANDLED are the usual heartbeat / letter packets).
 
+### Phase E1c — Review (2026-10-17)
+
+Opus 5.5 high, against raw capstone disassembly (`funcdis.py --func`, `disasm_range.py`; Ghidra was not running). **Verdict: PASS, no code
+change, no build.** Commit `8ee92c45` reviewed.
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_ELYSION_VILLAGE --range 8ee92c45^..8ee92c45 --with SERV_IRUHADEV_ELYSION_DEBUG`):
+`files: 11 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. No OTHER rows, no deleted lines.
+
+**Re-read in the binary, all equal to the port**
+- **323ba5f0**: ByQuest then ByVillage on -1 (village id = location manager +0x64 @323ba701); result 0 replaces (only when a row came
+  back), 1 builds nothing, any other value is forced to -1 (@323ba71e) and takes the plain path, so result 2 shows the plain NPC. Gates:
+  the three event houses are a find in the instance data's code-event map (`322aa950`, absent or byte +0x10 = 0 = off), skipped
+  only with instance data present; 40090 needs mgr +0x5d; the spa signs need code 31, shown when instance data is null. No quest manager
+  (+0x4c null) goes straight to the plain path.
+- **323b0980**: world id from world +0x2c -> [0]; a NULL world or an empty COMMON list counts as found; CUSTOM non-empty also builds;
+  layer 10, AddObjectChain, `325c9000( 0 )`; the spa-manager tail (+0x624) is the noted March gap.
+- **323b7ff0**: every row -> templet offset re-matched (mesh / anitex x2, the 3 bools, UI file, texture name / key, house name, both
+  sound vectors, 6 talks, 3 waits, TALK, `+0x280` into both `+0x53c` and `+0x504` (JUNE_BUGS 208), BYE, NORMAL); AlphaBlend2nd parses
+  `+0x84` (ebp still `+0x84` @323b8204, JUNE_BUGS 218); rot / scale "any part non-zero", rot also into every COMMON row `+0x10`;
+  RenderOption copied unconditionally (bytes, src / dest, colour, speed, MultiTex string @323b8864); effect set only when non-empty; name
+  `+0xf4`; push into TFG `+0x444`.
+- **323a9ed0** (every NPC of the house -> `325ca920`) and **323b8970** (type 0 rows -> replace with a fresh `32347110` row carrying
+  only the house, erased; small rows with `+0xc` == 1 -> the last NPC of the house `325ca950( 1 )`, else AddFieldNpc( templet, L"" ), erased).
+- **NPC loop @323b70cb-323b7475**: +0x1a1 cleared first, `!+0x5fa` skips the NPC and its OnFrameMove, AlwaysShow or distance <= 2500.0
+  (constant 0x3344911c read from the exe), effect set shown / hidden on `inst +0xdc`, `1.0 < timer` -> `325c81a0` + `+0x239`, hidden dialog
+  -> not in area, join area `dist <= +0x5e4`, timer zeroed after the loop. March's loop did nothing else: its only other code is the
+  A-Pink sub-volume block, and `APINK_NPC` is commented out in Always.h.
+- **Entry points**: 31f00970 @31f00a61 calls 32344880 right after the two sets; 323e57e0 @323e5903 and 323e1710 @323e1864 call
+  32340630 right after `RemoveUnitQuest( q, 1 )`.
+- **325cdfa0**: block 14 (40021 / 40082, all-zero pos, `!+0x5fc`, 40143-40146 jump to block 19; hidden or not-shown jumps to 20);
+  block 18 `SETG` and `SetShopType( 1, b, 0, 0 )`, gated on `+0x5a8 == 0`; block 20, all three timer branches' jump tables
+  (325d0e8c / 0f14 / 0f9c) send exactly 40021 / 40028 / 40082 / 40145 / 40146 to `One_Use_Up` and the rest to `Npc_Talk_UP`, the reset
+  at `1 < t`; block 37's table 325d1024 / 325d1034 (id 1 -> talk box, 2 / 3 / 10 -> map, 11 -> queue or `325ca920`, 4-9 -> map[1]),
+  event NPC Wait01 / Active_Wait01, skin 2 for ids 1-3 / 10 only; block 38 `HasAnim( map[5] ) == 1 && JoinNpc` -> Play 0, else map[0]
+  Play 2, both skins; block 42 `+0x1a6 && T+0x42c` -> 10, rand%9 0 / 1 toggles, queue -> 11, missing anim with an empty queue -> 1.
+- **Effect set**: 321e26d0 writes only `+0xe0` and mode 2; the readers @321dd1a3 (bone `+0x40` or NPC `+0x5b4`), @321dd9dc
+  (`321f2c70`, found byte), @321dc8af (skin `+0x1b8` frame `+0x90`, else NULL), @321eebf3 (skin anim time `+0x214` vs start + delay, no
+  skin falls through) each return without SetEffectSetOffset, as ported.
+
+**Settled: premium buff manager +0x5d = `m_bComeBackUser`.** 326c7a10 is June's handler of event 0x724 (dispatch 326c9bb0): on a true
+packet in state 5 it sets +0x5d = 1 and builds two dialogs, on false it clears +0x5d / +0x68 / +0x69. That is March's
+`Handler_EGS_COME_BACK_USER_NOT` (server-select state, the Return_User popups), and 323bbcb9 gates the comeback chat on the same
+byte. The PC-bang flag is +5, set by 326c8c70 (event 0x53b). `IsComeBackUser()` stands; E1a's "PC bang" note was wrong.
+
+Compared with the diff file only, not re-read in the binary: blocks 2-13, 22-36 (message paths, ApplyQuestConditionMessage states
+0-8, the UI id renumbering) and 43; the port follows the diff file there, and every block that was re-read matched it. User owes nothing; `kickoffs/atlas/E2.md` was already written by a peer session.
+
 ### Phase E1d — Done
 
 2026-10-17, Opus 5.5 high. Flag `SERV_IRUHADEV_ELYSION_VILLAGE`, `[ELYDBG]` lines behind `SERV_IRUHADEV_ELYSION_DEBUG`. June's in-village warps: the
