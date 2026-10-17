@@ -4325,7 +4325,28 @@ main.
 
 #### Phase E9 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 high.** Data only: no C++, no flag change, no build (no `DEPLOY OK`: nothing to deploy). E5, E7, E8 confirmed done.
+Census `--line AR`: 129 open rows before, 83 after, all routed checklist step-9 classes (13 `assets.absent`, 80 `keys.file`, 3 `keys.registry`);
+`assets.adopt` 8 -> 0, `koms.unstaged` 8 -> 0, `npc.ready` 30 -> 0. No engine gap, no Opus pass owed.
+
+- **Premises held.** All 30 missing NPCTemplet rows have a staged unit script and every `MOTION_FILE_NAME` mesh is staged (`Dummy_Ani_Wait.X`,
+  `Motion_BOSSSATGE_LASER.x`, `Motion_ADRIAN_*` ...). Boss faces: `NUI_HERBAON` / `NUI_NEW_DEKAL` in `data215 DLG_BossState_02.TET`. Buffs
+  (`BFI_HOLD_BY_HERBAON`, `BGI_JUST_BUFF`, `BTI_HIT_COUNT_ATTACK`, `BTI_HOLD_WITH_STICK_SHAKE`) all in `Enum.lua`. Effects / items: census 0 missing.
+  `NUI_SECRET_MAG_NOM` (Lanox) already in NPCTemplet. The `*_HENIR` rows were already in.
+- **Staged:** `adopt-june data040` Elysion_Adrian_Stage0-3 + 4 line maps (ljconv; `Stage2_linemap` lower-case as June; `june2017_re/june_adopt_20261017_145520.tsv`).
+  BOM source, appended verbatim as `atlas E9` blocks (scratchpad `e9_edit.py`, E8 shape; slice-boundary asserts before the append, each new id once afterwards):
+  `data035 DungeonData` June :32888-33119 (Normal / Hard / Expert; no quest key; Hero rows named and omitted: `HERO_NORMAL :33355-33518`, `HARD :33519-33564`,
+  `EXPERT :33565-33739`, `HELL :38599-38761`), `data037 NPCTemplet` 30 rows (lasers, wall / damage / gauge / stairs objects, Adrian events + gate, 3STAGE_BACK,
+  Pang family, NEW_DEKAL, BOSS_HERBAON + DUMMY_HERBAON, L/R H/V lasers; ranges in the block header), `data040 WorldData` WI_ADRIAN_STAGE0-3 (June :3380-3399;
+  `WI_ADRIAN_BOSSSTAGE` was in since C3y-1b). Core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
+- **Routed, not E9's:** `MOTIONNAME_EFFECTSETNAME` in `Elysion_Adrian_Stage1_LineMap.lua` is june-engine W1 (STATUS `W1` ready): that one trigger does nothing
+  until W1 lands (March has no reader). `AFTER_IMAGE_DEST_ALPHA_BLEND`, `CT_*`, `LINE_NUM`, `REWARD_RATE` as checklist step 9. No new JUNE_BUGS row.
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: asked, see the hand-off (not copied yet).
+- **Offline:** SkyCrossroads Normal clear (33870, E8) unlocks Adrian via `EXTRA_REQUIRE_DUNGEON_ID`. A clear records Adrian's keys with no code; kills pay
+  nothing (no server `DropTable` rows; backlog Stage 23).
+- **How to see it (after the copy):** a level-84+ character that has cleared SkyCrossroads Normal: M -> Elysion tab -> Adrian icon enabled -> enter Normal;
+  Stage0-3 and the boss stage load; the moving platforms in Stage2 carry the player (E5); laser / gauge objects fire; the Herbaon / New Dekal boss gauge shows its face.
+  ErrorLog must show no `DungeonData` / `NPCTemplet` / `WorldData` load error and no missing mesh.
 
 ### Phase E10 — Soless
 
