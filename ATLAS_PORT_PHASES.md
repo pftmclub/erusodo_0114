@@ -3630,6 +3630,43 @@ A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 
 - **How to see it in game:** after the copy, the hand-off below (`elysion` warp, walk to the village's far portal at START_POS 517 -> F03 -> back via
   F03's start portal (L0) to the village; F03 pin on the world map).
 
+### Phase E3 — Review (2026-10-17)
+
+**Opus 5.5 high. Verdict: PASS + one missed June asset staged (data only; no code change, no build).** The deployed exe ad0dc512 stays.
+
+- **Verbatim (comments / whitespace / CRLF / BOM stripped, scripted, both sides):** `BattleFieldData` F03 (staged :2136-2185) = June :2158-2206,
+  49 lines, 0 differences (pos 516, STR_ID 40812-40814, groups 200 / 210). `WorldData` WI 640 (staged :3232-3236) = June :3200-3204.
+  `Village[VMI_ELYSION]` (staged :4176-4337) = June :991-1152 except the 4 expected `OtherPlace*` -> `BattleField*` key renames (501 and 517);
+  517's keys are live. `DLG_UI_World_Map_NEW`: the Elysion blocks equal June's (16 differing hunks, all March-only regions); no active
+  `SetShow(false)` left. `DLG_Map_House`: pre-E3 file recovered from `kom_backup_tools/data034.kom.20261017_111539` (sha1 = the old ledger row);
+  the diff is 2 added comment lines, comment-stripped text identical.
+- **June files:** the 4 ljconv files match `june_adopt_20261017_111022.tsv` (size, sha1, `1B 4B 4C 81`).
+- **Field 04:** every `ELYSION_FIELD_04` hit in `june_src_fixed` is `Enum.src.lua` (:2371 WI 641, :6922 VMI 40038, :18027 BFI). Enum-only, confirmed.
+- **C++ `case 42`** vs June's raw bytes (`disasm_range.py`; Ghidra has no function object at 31d71130, only the table): `dec eax; cmp eax,0x2a;
+  jmp [eax*4+31d71550]`; entry 42 -> 31d7150a `mov esi,0x9c65` (40037) on the plain join path (`push 1; push esi; call 31f06350`), the shape
+  of 35 (0x9c63) and 38 (0x9c64). Equal. Entry 43 -> 31d71522 `0x9c66` (40038): June does send a join for F04; March keeps A6's omission (no row,
+  so no world; both end in a join that loads nothing). The A7 stand-in (`X2WorldMapUI.cpp:495`) passes through: `GetBattleFieldNameByBattleFieldId`
+  returns the row's name now that 40037 has one, and the run's `[ELYDBG]` hidden-pin line never fired.
+- **Missed June asset (fixed):** the run logged `OpenTexture` miss `DLG_UI_COMMON_TEXTURE_FIELD_04.TGA` at 11:17:38, right after the map opened in F03.
+  Reader: A5's June `UpdateNaviMap` case (`X2WorldMapUI.cpp:2463`, F03 / F04 -> `DLG_UI_Common_Texture_Field_04.tga`, key
+  `FieldMap_Navigation_Elision_03`). June ships both files in data057 (TET 214 B, key `FIELDMAP_NAVIGATION_ELISION_03`; tga 1,048,620 B); the
+  region census and the A11 TET closure read Lua / asset names, not C++ literals, so neither saw it. Sweep of every texture literal added to
+  X2Lib / KTDXLIB since 2026-10-16 (13 names): this was the only one missing. `kom.py stage-june` (2 new, manifest 0), `PACK OK data057`
+  (+2 entries vs live). Copy pending (user OK).
+- **Census** (`region_census --region elysion --line FLD --live`): 303 staged, `live same 303`, 0 open.
+- **Play-test (log, run 11:16-11:19 on exe ad0dc512):** 20009 -> START_POS 517 (`Portal: start pos 517 -> place 40037 internal 0 wait 3.00`) ->
+  battlefield 40037, 35 monsters placed, fights + respawns, 14 `no reward row` lines (expected, Stage 23); back via `MoveToOtherPlace ... 20009
+  positionIndexToMove=516`; 0 EXCEPTION, 2 UNHANDLED (`E_DISABLE_HB_CHECK_REQ`, pre-existing); no `PortalMovingInfoPtr is NULL`. Other texture
+  misses are pre-existing / June's own (E3 Done note) or not F03's (shop HQ items, Besma, intro). `Elysion Tower` missing in `DLG_UI_LOCAL_MAP` ->
+  E4's page work.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_PORT --range 22d6655^..22d6655 --files X2Lib/X2Main.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER,
+  0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
+  0 encoding change(s)`; `RESULT: PASS`.
+- **Cosmetic, left as is (a repack + copy for comments only):** `DLG_Map_Village.lua:4175` still says 517 is commented until E3; the two
+  `DLG_Map_House` notes are labelled "atlas E2" though E3 wrote them.
+- **How to see the fix:** after `COPY OK data057`, stand in F03 and open the map: the navigation panel shows F03's picture, and ErrorLog has no
+  `DLG_UI_COMMON_TEXTURE_FIELD_04` line.
+
 ---
 
 ## Phase E4 — Local map, Elysion page
