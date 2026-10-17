@@ -1,0 +1,7 @@
+# adopt-june --bytecode run 2026-10-17 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+DLG_UI_FIELD_MAP_Elysion_03_NEW.lua	data034	new	data034	2827	cba85af19856af171db4e9fbfce0e32200eb5547	bytecode		ljconv
+Elysion_Field_03.lua	data036	new	data036	6475	ade89f03187879bd0b4dcb1aa9a1b7c18fb13d38	bytecode		ljconv
+Field_Elysion_Stage2.lua	data040	new	data040	14622	55349c63d0ca3149deef86e76d51fedc7b59b498	bytecode		ljconv
+Field_Elysion_Stage2_LineMap.lua	data040	new	data040	76035	be3aa634108fed05f40b4b8506110ec4870fffdc	bytecode		ljconv

@@ -13593,6 +13593,9 @@ void CX2Main::FieldWarpByCommand( int iPosition )
 #endif SERV_IRUHADEV_RANOX_PORT
 	case 35: iWorldID = SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_01;	break;
 	case 38: iWorldID = SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_02;	break;
+	// Atlas E3 (2026-10-17): 42 = Field 03 (40037, jump table @31d71550) now that BattleFieldData has its row. 43 = Field 04
+	// (40038) stays omitted: June ships no BattleFieldData row, scene or dialog for it (enum only), so a join would load no world.
+	case 42: iWorldID = SEnum::VMI_BATTLE_FIELD_ELYSION_FIELD_03;	break;
 	//}}
 #endif SERV_IRUHADEV_ELYSION_PORT
 	default: iWorldID = SEnum::VMI_INVALID;								break;

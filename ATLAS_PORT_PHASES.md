@@ -3589,7 +3589,38 @@ main.
 
 ### Phase E3 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (C++: one `case`; the data blocks carry the same label). Almost all data: the
+region C++ for 40037 (field map, camera, navi, `LoadFieldImage`, warp lists) was A3 / A5 / A7's, and the F03 monsters, meshes and textures were
+A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 F03 NUIs).
+
+- **June files (ljconv, `june2017_re/june_adopt_20261017_111022.tsv`):** `Field_Elysion_Stage2.lua` + `_LineMap.lua` (data040), `Elysion_Field_03.lua`
+  (data036), `DLG_UI_FIELD_MAP_Elysion_03_NEW.lua` (data034). All 4 new names, 0 replaced.
+- **Core-list Lua (BOM source, edited with byte-exact CRLF, `luasrc.py refresh` done, `ledger --check` PASS, `core --check` PASS):**
+  `BattleFieldData` (data036): June's F03 entry verbatim (:2158-2206: `Field_Elysion_Stage2_LineMap.lua`, `Elysion_Field_03.lua`, L0 -> `VMI_ELYSION`
+  pos 516, `RAID_FIELD_PORTAL_POSITION_INDEX = 1`, levels 85 / 88). `WorldData` (data040): WI 640 (June :3200-3204).
+  `DLG_Map_Village` (data034): START_POS 517's two keys uncommented (E2's leftover; values = June's). `DLG_UI_World_Map_NEW` (data034): the two F03
+  `SetShow(false)` lines commented out (E2's leftover), so the F03 pin shows and the A7 stand-in at `X2WorldMapUI.cpp:495` passes through on its own.
+  `DLG_Map_House` (data034): comment text only, one added line after each stale note (HI_GUILD_MARK, HI_MU) saying the Elysion row is back (E2 review's item).
+- **C++ (`ELYSION_PORT`):** `CX2Main::FieldWarpByCommand` (`X2Main.cpp:13596`): `case 42` -> `VMI_BATTLE_FIELD_ELYSION_FIELD_03` (June table @31d71550). 43 (F04)
+  stays omitted (below).
+- **Cobo zone 18** already lists F03 (client `MapData.lua` and the server mirror `ServerResource/US/MapData.lua:724`): verified, unchanged.
+- **Field 04 (40038 / WI 641): enum-only in June, confirmed.** The only hits in `june_src_fixed` are `Enum.src.lua` (`WI_..._FIELD_04` 641,
+  `VMI_..._FIELD_04` 40038, `BFI_..._FIELD_04`): no `BattleFieldData` row, no `WorldData` row, no scene, no dialog. Left as is.
+- **Census:** `region_census --region elysion --line FLD`: 0 open, and no F03 file is left in `assets.adopt` (`in_march` 2558 -> 2561, `koms.staged` 299 -> 303).
+  The census scope does not list F03 rows separately; the check was the 4 files in the staged set plus the NUI readiness (8 of 8 have an `NPCTemplet`
+  row and an Enum value).
+- **Drops:** unchanged from A6 (backlog Stage 23, `kickoffs/june-backlog/stage23-plan.md`): the server `DropTable` stops at 40025, so F03 kills log
+  `no reward row ... grants nothing`.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_PORT --worktree --files X2Lib/X2Main.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`.
+- **Pack:** `PACK OK` data034 / data036 / data040. `kom.py status` diff vs live is only E3's: data034 +`DLG_UI_FIELD_MAP_Elysion_03_NEW.lua`, ~`DLG_Map_House.lua`, ~`DLG_Map_Village.lua`,
+  ~`DLG_UI_World_Map_NEW.lua`; data036 +`Elysion_Field_03.lua`, ~`BattleFieldData.lua`; data040 +`Field_Elysion_Stage2.lua`, +`Field_Elysion_Stage2_LineMap.lua`,
+  ~`WorldData.lua`. **`/x2-kom-packed copy` of the 3 koms is waiting for the user's OK.**
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,699,712 B, dated 2026-10-17 11:13:06, md5 ad0dc512668182592721c21b9efd8275, equal to X2/US_SERVICE/x2.exe
+  (2026-10-17 11:13:01); built at main 300a6848 + 1 uncommitted code file(s).` (`case 42` has no string literal; the build rc=0 is the proof.)
+- **How to see it in game:** after the copy, the hand-off below (`elysion` warp, walk to the village's far portal at START_POS 517 -> F03 -> back via
+  F03's start portal (L0) to the village; F03 pin on the world map).
 
 ---
 
