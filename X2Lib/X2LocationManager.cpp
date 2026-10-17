@@ -368,6 +368,45 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 				kLuamanager.EndTable();
 			}			
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June VillageParsing 324ff4b0 reads two village keys March does not, after CAMERA
+			//   and before START_POS: CameraModifyDistanceByPortal (miss 3000 @324ffa18, March's literal in the portal camera test) and the
+			//   SPA_INFO table (@324ffa22: rows of Type, miss -1, and a LineIdx list; a row is kept even without LineIdx).
+			float fCameraModifyDistanceByPortal = 3000.f;
+			LUA_GET_VALUE( kLuamanager, "CameraModifyDistanceByPortal", fCameraModifyDistanceByPortal, 3000.f );
+
+			std::vector<CX2LocationManager::SpaInfo> vecSpaInfo;
+			if( kLuamanager.BeginTable( "SPA_INFO" ) == true )
+			{
+				int iSpaIndex = 1;
+				while( kLuamanager.BeginTable( iSpaIndex ) == true )
+				{
+					CX2LocationManager::SpaInfo kSpaInfo;
+					LUA_GET_VALUE( kLuamanager, "Type", kSpaInfo.m_iType, -1 );
+
+					if( kLuamanager.BeginTable( "LineIdx" ) == true )
+					{
+						int iLineTableIndex = 1;
+						int iLineIdx = -1;
+						while( kLuamanager.GetValue( iLineTableIndex, iLineIdx ) == true )
+						{
+							kSpaInfo.m_vecLineIdx.push_back( iLineIdx );
+							++iLineTableIndex;
+						}
+						kLuamanager.EndTable();	// LineIdx
+					}
+
+					vecSpaInfo.push_back( kSpaInfo );
+					kLuamanager.EndTable();	// iSpaIndex
+					++iSpaIndex;
+				}
+				kLuamanager.EndTable();	// SPA_INFO
+			}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			int iJuneInternalPlaceRows = 0;
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+			//}}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 			if( kLuamanager.BeginTable( "START_POS" ) == true )
 			{
 				int index = 1;
@@ -394,9 +433,25 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 					LUA_GET_VALUE( kLuamanager, "IsSummon",	pStartPosInfo->m_bIsSummon , false );
 					LUA_GET_VALUE( kLuamanager, "IsWarp",		pStartPosInfo->m_bIsWarp , false );
 					LUA_GET_VALUE( kLuamanager, "IsRight",		pStartPosInfo->m_bIsRight, true );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+					// June @3250046d-32500758, in June's order after IsRight
+					LUA_GET_VALUE( kLuamanager, "IsGuildAgitEnter",	pStartPosInfo->m_bIsGuildAgitEnter, false );
+					LUA_GET_VALUE( kLuamanager, "IsSpaEnter",		pStartPosInfo->m_bIsSpaEnter, false );
+					LUA_GET_VALUE( kLuamanager, "IsSpaOut",			pStartPosInfo->m_bIsSpaOut, false );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 					LUA_GET_VALUE( kLuamanager, "BattleFieldId",	pStartPosInfo->m_uiBattleFieldId , false );
 					LUA_GET_VALUE( kLuamanager, "BattleFieldStartLineIndex",		pStartPosInfo->m_usBattleFieldStartLineIndex , false );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+					// June @32500ac4 / @32500be0, after June's OtherPlaceID / OtherPlaceStartLineIndex (= the two keys above under March's
+					// names, Atlas A5's choice for this file)
+					LUA_GET_VALUE( kLuamanager, "WaitingTime",				pStartPosInfo->m_fWaitingTime, 3.f );
+					LUA_GET_VALUE( kLuamanager, "InternalPlaceStartPosID",	pStartPosInfo->m_usInternalPlaceStartPosID, 0 );
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+					if( 0 != pStartPosInfo->m_usInternalPlaceStartPosID )
+						++iJuneInternalPlaceRows;
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 					
 					// 현재 포지션과 연결된 포지션을 설정한다.
 // 					if( kLuamanager.BeginTable( "LinkPos" ) == true )
@@ -425,7 +480,13 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 					kLuamanager.EndTable();
 					index++;
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+					// June @32500d94-32500dbb: when the StartPosId is already in the map the new row is freed (March leaked it)
+					if( false == m_mapVillageMap.insert( std::make_pair( startPosId, pStartPosInfo ) ).second )
+						SAFE_DELETE( pStartPosInfo );
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 					m_mapVillageMap.insert( std::make_pair( startPosId, pStartPosInfo ) );							
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 				}
 
 #ifdef QUEST_GUIDE
@@ -500,6 +561,19 @@ void CX2LocationManager::VillageParsing( KLuaManager& kLuamanager, const int vil
 			pVillageTemplet->m_fEyeHeight		= fEyeHeight;
 
 			pVillageTemplet->m_mapDungeonLoungeUserStartPos = mapDungeonLoungeUserStartPos;
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			pVillageTemplet->m_fCameraModifyDistanceByPortal	= fCameraModifyDistanceByPortal;	// June templet +0x58
+			pVillageTemplet->m_vecSpaInfo						= vecSpaInfo;						// June templet +0x70 (@325019a6)
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			if( 0 < iJuneInternalPlaceRows || false == vecSpaInfo.empty() || 3000.f != fCameraModifyDistanceByPortal )
+			{
+				WCHAR buff[256] = {0};
+				StringCchPrintf( buff, 256, L"[ELYDBG] VillageParsing June keys: village %d internalPlaceRows %d spaInfo %d cameraByPortal %.0f",
+					villageID, iJuneInternalPlaceRows, (int)vecSpaInfo.size(), fCameraModifyDistanceByPortal );
+				ErrorLogMsg( XEM_ERROR142, buff );
+			}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
             int iIndex;
 			LUA_GET_VALUE( kLuamanager, "NAME", iIndex,	STR_ID_EMPTY );
@@ -1631,12 +1705,28 @@ void CX2LocationManager::GetVecLinkedPos(std::vector<int>& vStart)
 	for(mit = m_mapVillageMap.begin(); mit != m_mapVillageMap.end(); ++mit)
 	{
 		pVillageStartPos = mit->second;
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June GetVecLinkedPos 324f2ff0: also no guild base entrance (+0x1a), spa entrance
+		//   (+0x22) or spa exit (+0x23) row (June lists those apart: 324f2c20 / 324f2ca0 / 324f2d30, read by June's guild base and spa only),
+		//   and with code event 2319 on, no portal to 40037 (a June boss-raid field, no March enum).
+		if( pVillageStartPos->m_VillageID == m_eCurrentVillage &&
+			false == pVillageStartPos->m_bIsMarket &&
+			false == pVillageStartPos->m_bIsGuildAgitEnter &&
+			false == pVillageStartPos->m_bIsSpaEnter &&
+			false == pVillageStartPos->m_bIsSpaOut &&
+			false == pVillageStartPos->m_bIsSummon &&
+			false == pVillageStartPos->m_bIsWarp &&
+			( NULL == g_pInstanceData || true != g_pInstanceData->IsEnableCode( 2319 ) || 40037 != pVillageStartPos->m_uiBattleFieldId ) )
+			vStart.push_back(mit->first);
+		//}}
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 		if( pVillageStartPos->m_VillageID == m_eCurrentVillage && 
 			/*pVillageStartPos->m_vecLinkStartPos.size() > 0 &&			*/
 			pVillageStartPos->m_bIsMarket == false &&
 			pVillageStartPos->m_bIsSummon == false &&
 			pVillageStartPos->m_bIsWarp	== false )
 			vStart.push_back(mit->first);
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	}	
 }
 

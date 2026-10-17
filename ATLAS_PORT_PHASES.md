@@ -3197,6 +3197,60 @@ regression check. Nothing owed by the user beyond that.
 
 ---
 
+### Phase E1d — Done
+
+2026-10-17, Opus 5.5 high. Flag `SERV_IRUHADEV_ELYSION_VILLAGE`, `[ELYDBG]` lines behind `SERV_IRUHADEV_ELYSION_DEBUG`. June's in-village warps: the
+parser keys and the runtime, all as whole June functions. RE is in funcmap rows `Atlas E1d` (13 new, 4 confirmed).
+
+**What landed**
+- **`VillageParsing` `324ff4b0`, diffed whole.** It reads seven key names March does not; all are now parsed with June's defaults:
+  - `CameraModifyDistanceByPortal` (templet +0x58, miss 3000 = March's literal) and `SPA_INFO` (Type, miss -1, + LineIdx list; templet +0x70);
+  - in `START_POS` (June's row is 0x24 bytes): `IsGuildAgitEnter` +0x1a, `WaitingTime` +0x1c (miss 3.0),
+    `InternalPlaceStartPosID` +0x20 (short, miss 0), `IsSpaEnter` +0x22, `IsSpaOut` +0x23.
+  - A duplicate StartPosId now frees the new row (@32500dbb; March leaked it).
+  - June's `OtherPlaceID` / `OtherPlaceStartLineIndex` stay read under March's names `BattleFieldId` / `BattleFieldStartLineIndex`
+    (A5's choice for this core-list file). E2 transcribes Elysion's rows the same way.
+  - June's `NAME` branch (@3250167d, a string-manager flag) is the same key, so it is not ported.
+- **Runtime, June's version:**
+  - TFieldGame `OnFrameMove`'s portal block (`323b5970` @323b6d1d-323b6fd5). It replaces March's `X2TFieldGame.cpp` 1622-1696:
+    - the target id resets to -1 every frame, and `IsNearPortalToBattleField()` is now `id != -1`; June has no bool;
+    - the camera range is the village's `CameraModifyDistanceByPortal`, with no portal camera for an internal place or inside a spa (1500 / 1501);
+    - a start position within 100 leading to a battle field, 25000, a village / lounge / rest area or an internal place becomes the target;
+    - the target's `WaitingTime` becomes the portal timer (`323aa1b0`).
+  - `CX2StateField::MoveToOtherPlace` `3250a800` whole:
+    - an internal place goes to `MoveToInternalPlace` `323ac300` (SetVillage, the unit's position, Portal.ogg);
+    - a village / lounge / rest target sends `EGS_STATE_CHANGE_FIELD_REQ` (skipped while its ACK is awaited);
+    - anything else joins the battle field, as before.
+  - `IsInternalPlace` `323aa170`. The TFieldGame ctor sets the id to -1 and the camera range from the templet.
+  - `SetNearPortalToBattleField( false )` clears the id the way June's two StateField ACK handlers do (`323aa1b0( -1, 3.0 )`).
+- **`GetVecLinkedPos` `324f2ff0`:** June also drops guild-base-entrance, spa-entrance and spa-exit rows, and with code 2319 drops portals to 40037. June's three side lists
+  (`324f2c20` / `324f2ca0` / `324f2d30`) feed the guild base and spa only and are not ported. Neither system exists in March.
+- JUNE_BUGS 216 (the in-village move passes the target StartPosId as SetVillage's line index) and 217 (ctor leaves +0x358 unset without a templet; the port uses 0).
+
+**Census (live `data034 DLG_Map_Village.lua` vs June's):** March carries none of `WaitingTime`, `InternalPlaceStartPosID`,
+`CameraModifyDistanceByPortal`, `SPA_INFO`, `IsGuildAgitEnter`, `IsSpaOut`. It has one `IsSpaEnter` row (Ranox, StartPosId 146, `OtherPlaceID =
+VMI_SPA_RANOX`), and every one of its 37 portal targets is a battle field. June uses the warp keys only in Elysion (20009): six internal pairs
+500-513, `WaitingTime 1.5`. **No reachable data uses the in-village warp yet. E2's `Village[VMI_ELYSION]` rows bring it.** No
+`VillageParsing` key owned by E1 is left unread.
+
+**June behaviour changes in March villages:**
+- Ranox's spa-entrance row (146) is no longer a portal. In March it drew a portal gate and tilted the camera but led nowhere (no BattleFieldId).
+- Every village portal now runs June's block. Results are the same for March's battle-field portals: same 100 / 2000 / 3000 ranges and a 3.0 s wait.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_VILLAGE --worktree --with SERV_IRUHADEV_ELYSION_DEBUG --files <6 code files>` right after the edit: `files: 5 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+(PASS~ = one blank line before the helpers in `X2TFieldGame.cpp`). E1c ran alongside, under the same flag and in the same TFieldGame / LocationManager files. The commit carries only E1d's hunks (HEAD + the E1d byte patch).
+
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,699,712 B, dated 2026-10-17 09:36:53, md5 d095fe3a0be8795c9ab25525a18978f8, equal to X2/US_SERVICE/x2.exe
+(2026-10-17 09:36:42); built at main f9c2b2a1 + 16 uncommitted code file(s). A peer's queued build compiled the edits: the `.obj` files are 09:32-09:34, after the 09:12-09:15 edits, and E1c's WIP is in too. The exe holds the new
+literals: `CameraModifyDistanceByPortal`, `InternalPlaceStartPosID`, `WaitingTime`, `IsSpaOut`, `IsGuildAgitEnter`, `SPA_INFO`, `LineIdx`, and the three `[ELYDBG]` formats.
+
+**How to see it in game:** the play-test hand-off: a portal walk in a March village, Atlas Station's portals, Ranox's spa entrance. Each set target logs
+one `[ELYDBG] Portal: start pos N -> place M internal 0 wait 3.00` line.
+
+**For E2:** Elysion's `START_POS` rows carry `WaitingTime` / `InternalPlaceStartPosID` and use March's `BattleFieldId` names. The internal move then logs
+`[ELYDBG] InternalPlace: start pos 502 -> 503 ...`, and the village load logs `[ELYDBG] VillageParsing June keys: village 20009 internalPlaceRows 6 ...`.
+
 ## Phase E2 — Elysion village (20009)
 
 **Steps** — same checklist as Atlas A5, for the village:

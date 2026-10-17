@@ -130,8 +130,13 @@ CX2TFieldGame::CX2TFieldGame( CX2World::WORLD_ID worldID, SquareData* pSquareDat
 	m_bAddMyUnit			= false;
 	m_bForceSync			= true;
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	m_iVillageStartPosIdToBattleField	= -1;	// June ctor @323bae3e
+	m_fCameraModifyDistanceByPortal		= 0.f;	// June leaves +0x358 unset without a village templet (JUNE_BUGS 217)
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 	SetVillageStartPosIdToBattleField( SEnum::VMI_INVALID );
 	SetNearPortalToBattleField( false );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	
 	m_iLastPos				= 0;
 	m_bJoinNpc				= false;
@@ -165,6 +170,9 @@ CX2TFieldGame::CX2TFieldGame( CX2World::WORLD_ID worldID, SquareData* pSquareDat
 	    m_fCameraDistance		= pVillage->m_fCameraDistance;
 	    m_fLookAtHeight			= pVillage->m_fLookAtHeight;
 	    m_fEyeHeight			= pVillage->m_fEyeHeight;
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	    m_fCameraModifyDistanceByPortal	= pVillage->m_fCameraModifyDistanceByPortal;	// June @323bb20d
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
     }//if
 
     /** @NOTE:
@@ -1620,6 +1628,81 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 	
 
 	// Æ÷Å»Ã³¸®	
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June's portal block, CX2TFieldGame::OnFrameMove 323b5970 @323b6d1d-323b6fd5.
+	//   The id goes back to -1 every frame (the village state's portal timer back to 3.0). A start position within 100 sets it again,
+	//   with its WaitingTime as the timer, when it leads to a battle field, the guild base (25000), a village / lounge / rest area, or
+	//   another place of this village (InternalPlaceStartPosID). No portal camera for an internal place or inside a spa (1500 / 1501),
+	//   and the camera range is the village's CameraModifyDistanceByPortal (March: 3000).
+	bool bPotalCamera = false;
+
+	SetVillageStartPosIdToBattleField( -1, 3.f );
+
+	UINT uiPortalIndex = 0;
+	for( UINT iLinkedPos = 0; iLinkedPos < m_vecLinkedPos.size(); ++iLinkedPos )
+	{
+		const int iStartPosId = m_vecLinkedPos[iLinkedPos];
+		// June reads the row with no NULL test below (@323b6eb4); m_vecLinkedPos comes from the same map (GetVecLinkedPos)
+		const CX2LocationManager::VillageStartPos* pStartPos = g_pData->GetLocationManager()->GetVillageStartPos( iStartPosId );
+		const D3DXVECTOR3 vLinkPos = ( NULL != pStartPos ) ? pStartPos->m_StartPos : D3DXVECTOR3( 0.f, 0.f, 0.f );
+		const float fDistance = GetDistance( m_pMyUnit->GetPos(), vLinkPos );
+
+		if( fDistance <= 2000.0f )
+			SetShowPortalGate( false == m_bJoinNpc, uiPortalIndex++, vLinkPos );
+
+		if( false == m_bJoinNpc )
+		{
+			float fCDistance = GetVillageCameraDistance();
+
+			const int iCurrentVillage = g_pData->GetLocationManager()->GetCurrentVillageID();
+			if( fDistance <= m_fCameraModifyDistanceByPortal && 0 == pStartPos->m_usInternalPlaceStartPosID &&
+				false == ( 1500 <= iCurrentVillage && iCurrentVillage <= 1501 ) )
+			{
+				float fAng = ( 5000.f / fDistance ) + 10.f;
+				bPotalCamera = true;
+
+				if( fAng >= 30.f )
+					fAng = 30.f;
+
+				if( fDistance <= 1000.f )
+					fCDistance = 1000.f;
+
+				if ( m_pCamera != NULL )
+					m_pCamera->FieldCamera( m_pMyUnit.get(), fCDistance, GetVillageCameraLookAtHeight(), GetVillageCameraEyeHeight(), fAng );
+			}
+
+			if( fDistance <= 100.0f )
+			{
+				const int iPlaceId = static_cast<int>( g_pData->GetLocationManager()->GetBattleFieldId( iStartPosId ) );	// 324f20a0
+				// June's inline ranges: 40000-40044, 25000 (guild base, no March enum), 20000-20010, 30000-30006, 1000-1008
+				if( ( SEnum::VMI_BATTLE_FIELD_RUBEN_FIELD_01 <= iPlaceId && iPlaceId < SEnum::VMI_BATTLE_FIELD_END ) ||
+					25000 == iPlaceId ||
+					0 != pStartPos->m_usInternalPlaceStartPosID ||
+					( 20000 <= iPlaceId && iPlaceId <= 20010 ) ||
+					( 30000 <= iPlaceId && iPlaceId <= 30006 ) ||
+					( 1000 <= iPlaceId && iPlaceId <= 1008 ) )
+				{
+					SetVillageStartPosIdToBattleField( iStartPosId, pStartPos->m_fWaitingTime );
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+					{
+						static int s_iLastLoggedStartPosId = -1;
+						if( s_iLastLoggedStartPosId != iStartPosId )
+						{
+							s_iLastLoggedStartPosId = iStartPosId;
+							WCHAR buff[256] = {0};
+							StringCchPrintf( buff, 256, L"[ELYDBG] Portal: start pos %d -> place %d internal %d wait %.2f",
+								iStartPosId, iPlaceId, (int)pStartPos->m_usInternalPlaceStartPosID, pStartPos->m_fWaitingTime );
+							ErrorLogMsg( XEM_ERROR142, buff );
+						}
+					}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+					break;
+				}
+			}
+		}
+	}
+	//}}
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 	bool bPotalCamera = false;
 
 	SetNearPortalToBattleField( false );
@@ -1695,6 +1778,7 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 		}
 	}
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	// 2ÃÊ¸¶´Ù Ä³¸¯ÅÍ ½ÌÅ©¸¦ ¸ÂÃá´Ù.
 	m_fStateSyncTime += fElapsedTime;
 	if(m_fStateSyncTime >= 2.0f)
@@ -6626,3 +6710,57 @@ bool CX2TFieldGame::Handler_EGS_EVENT_PROPOSE_RESULT_ACCEPTOR_NOT( HWND hWnd, UI
 	return true;
 }
 #endif SERV_RELATIONSHIP_EVENT_INT
+
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June's in-village warp helpers (June has no March counterpart for the last two)
+
+// June 323aa1b0: a new start position id also sets the village state's portal timer (June state 0xe = XS_VILLAGE_MAP, +0x90 -> +0x488)
+void CX2TFieldGame::SetVillageStartPosIdToBattleField( const int iStartPosId_, const float fWaitingTime_ )
+{
+	if( m_iVillageStartPosIdToBattleField != iStartPosId_ )
+	{
+		m_iVillageStartPosIdToBattleField = iStartPosId_;
+		if( CX2Main::XS_VILLAGE_MAP == g_pMain->GetNowStateID() && NULL != g_pMain->GetNowState() )
+			static_cast<CX2StateField*>( g_pMain->GetNowState() )->SetWaitingPortalTime( fWaitingTime_ );
+	}
+}
+
+// June 323aa170: does this start position lead to another place of the same village
+bool CX2TFieldGame::IsInternalPlace( const int iStartPosId_ ) const
+{
+	const CX2LocationManager::VillageStartPos* pStartPos = g_pData->GetLocationManager()->GetVillageStartPos( iStartPosId_ );
+	if( NULL == pStartPos )
+	{
+		StateLog( L"DLG_Map_Village.lua isepi wrong!" );
+		return false;
+	}
+	return 0 != pStartPos->m_usInternalPlaceStartPosID;
+}
+
+// June 323ac300: the target row's position (0,0,0 when it is missing, 324f1fd0), SetVillage with the target id as the line index
+// (JUNE_BUGS 216), the unit's sync position written directly (+0x3c8), Portal.ogg
+bool CX2TFieldGame::MoveToInternalPlace( const int iStartPosId_ )
+{
+	const CX2LocationManager::VillageStartPos* pStartPos = g_pData->GetLocationManager()->GetVillageStartPos( iStartPosId_ );
+	if( NULL == pStartPos )
+	{
+		StateLog( L"DLG_Map_Village.lua isepi wrong!" );
+		return false;
+	}
+
+	const D3DXVECTOR3 vPos = g_pData->GetLocationManager()->GetStartPosLoc( pStartPos->m_usInternalPlaceStartPosID );
+	g_pData->GetLocationManager()->SetVillage( pStartPos->m_VillageID, vPos, pStartPos->m_usInternalPlaceStartPosID );
+	m_pMyUnit->SetPos( vPos );
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	{
+		WCHAR buff[256] = {0};
+		StringCchPrintf( buff, 256, L"[ELYDBG] InternalPlace: start pos %d -> %d village %d pos (%.0f, %.0f, %.0f)",
+			iStartPosId_, (int)pStartPos->m_usInternalPlaceStartPosID, (int)pStartPos->m_VillageID, vPos.x, vPos.y, vPos.z );
+		ErrorLogMsg( XEM_ERROR142, buff );
+	}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	g_pKTDXApp->GetDeviceManager()->PlaySound( L"Portal.ogg", false, false );
+	return true;
+}
+//}}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE

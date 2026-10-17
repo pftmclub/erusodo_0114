@@ -92,6 +92,10 @@ public:
 
 	void JoinSector( KFieldUserInfo *pKFieldUserInfo);
 	void LeaveSector( UidType iUnitUID );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	// June 323aa1b0 writes this state's portal timer (+0x488) when the field game's portal start position changes
+	void SetWaitingPortalTime( const float fWaitingTime_ ) { m_TimerWaitingPortal.SetTargetTime( fWaitingTime_ ); }
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 
 	bool Handler_EGS_STATE_CHANGE_FIELD_REQ();

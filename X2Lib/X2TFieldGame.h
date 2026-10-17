@@ -377,9 +377,22 @@ class CX2TFieldGame
 		int GetVillageStartPosIdToBattleField()	const { return m_iVillageStartPosIdToBattleField; }
 		void SetVillageStartPosIdToBattleField( int iFieldIdToMove_ ) { m_iVillageStartPosIdToBattleField = iFieldIdToMove_; }
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June keeps no "near portal" bool: the test is the start position id (@323b64d6,
+		//   ctor -1 @323bae41), and both StateField ACK handlers clear it with the 2-arg setter 323aa1b0 ( -1, 3.0 ) (@325093fe, @32509c8a).
+		void SetVillageStartPosIdToBattleField( const int iStartPosId_, const float fWaitingTime_ );	// June 323aa1b0
+		bool IsInternalPlace( const int iStartPosId_ ) const;		// June 323aa170
+		bool MoveToInternalPlace( const int iStartPosId_ );			// June 323ac300
+
+		bool IsNearPortalToBattleField() const { return -1 != m_iVillageStartPosIdToBattleField; }
+		void SetNearPortalToBattleField( const bool bNearPortalToBattleField_ ) {
+			if ( false == bNearPortalToBattleField_ ) SetVillageStartPosIdToBattleField( -1, 3.f ); }
+		//}}
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 		bool IsNearPortalToBattleField() const { return m_bNearPortalToBattleField; }
 		void SetNearPortalToBattleField( const bool bNearPortalToBattleField_ ) { 
 			m_bNearPortalToBattleField = bNearPortalToBattleField_; }
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		
 		void AddFieldNpc();			
 //#ifdef MODIFY_PORTAL_GATE
@@ -638,6 +651,9 @@ class CX2TFieldGame
 		float						m_fLookAtHeight;		/// dlg_map_village.lua에 설정된 각 마을마다 설정된 카메라 값
 		float						m_fEyeHeight;			/// dlg_map_village.lua에 설정된 각 마을마다 설정된 카메라 값
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		float						m_fCameraModifyDistanceByPortal;	/// June +0x358: the village's CameraModifyDistanceByPortal (ctor @323bb210)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		//{{ seojt // 2009-1-14, 22:35
 		std::vector<CX2TFieldNpcPtr>    m_vecFieldNpc;		/// npc들 객체
 		//}} seojt // 2009-1-14, 22:35

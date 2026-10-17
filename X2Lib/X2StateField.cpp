@@ -2099,6 +2099,69 @@ bool CX2StateField::MoveToOtherPlace( float fElapsedTime )
 bool CX2StateField::MoveToOtherPlace()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 {
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June CX2StateField::MoveToOtherPlace 3250a800 whole. An internal place moves the
+	//   player inside the village (323ac300). A village / lounge / rest area goes there with STATE_CHANGE_FIELD_REQ (skipped, with the
+	//   sound, while an ACK is awaited). Anything else joins the battle field, as March.
+	if( -1 == g_pTFieldGame->GetVillageStartPosIdToBattleField() )
+	{
+		m_TimerWaitingPortal.ResetSumOfElapsedTime();
+		return false;
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_TimerWaitingPortal.OnFrameMove( fElapsedTime );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_TimerWaitingPortal.OnFrameMove();
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( false == m_TimerWaitingPortal.CheckAndResetElapsedTime() )
+		return false;
+
+	const int iStartPosId = g_pTFieldGame->GetVillageStartPosIdToBattleField();
+	if( true == g_pTFieldGame->IsInternalPlace( iStartPosId ) )
+		return g_pTFieldGame->MoveToInternalPlace( iStartPosId );
+
+	const CX2LocationManager::VillageStartPos* pStartPos = g_pData->GetLocationManager()->GetVillageStartPos( iStartPosId );
+	if( NULL == pStartPos )
+	{
+		StateLog( L"DLG_Map_Village.lua isepi wrong!" );
+	}
+	else
+	{
+		bool bMoving = true;
+		const int iPlaceId = static_cast<int>( pStartPos->m_uiBattleFieldId );
+		if( ( 20000 <= iPlaceId && iPlaceId <= 20010 ) || ( 30000 <= iPlaceId && iPlaceId <= 30006 ) || ( 1000 <= iPlaceId && iPlaceId <= 1008 ) )
+		{
+			if( true == g_pMain->IsWaitingServerPacket( EGS_STATE_CHANGE_FIELD_ACK ) )
+			{
+				bMoving = false;	// June: goto 3250a9bb, straight to the sound
+			}
+			else
+			{
+				KEGS_STATE_CHANGE_FIELD_REQ kPacket;
+				kPacket.m_iMapID = iPlaceId;
+
+				const D3DXVECTOR3 vStartPos = g_pData->GetLocationManager()->GetStartPosLoc( pStartPos->m_usBattleFieldStartLineIndex );
+				g_pData->GetLocationManager()->SetVillage( static_cast<SEnum::VILLAGE_MAP_ID>( iPlaceId ), vStartPos, 0 );
+				g_pData->GetLocationManager()->SetVillageIsRight( g_pData->GetLocationManager()->GetIsRight( pStartPos->m_usBattleFieldStartLineIndex ) );
+
+				g_pData->GetServerProtocol()->SendPacket( EGS_STATE_CHANGE_FIELD_REQ, kPacket );
+				g_pMain->AddServerPacket( EGS_STATE_CHANGE_FIELD_ACK, 3.f );
+			}
+		}
+		else
+		{
+			Handler_EGS_JOIN_BATTLE_FIELD_REQ( pStartPos->m_uiBattleFieldId, pStartPos->m_usBattleFieldStartLineIndex );
+		}
+
+		if( true == bMoving )
+			SetNowMovingToBattleField( true );
+	}
+
+	g_pKTDXApp->GetDeviceManager()->PlaySound( L"Portal.ogg", false, false );
+	return true;
+	//}}
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 	if( true == g_pTFieldGame->IsNearPortalToBattleField() )
 	{
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -2122,6 +2185,7 @@ bool CX2StateField::MoveToOtherPlace()
 	}
 
 	return false;
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 }
 
 void CX2StateField::DrawMovingSmallBar()

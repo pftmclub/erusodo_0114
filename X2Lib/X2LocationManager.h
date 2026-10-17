@@ -441,6 +441,18 @@ class CX2LocationManager
 			vector<D3DXVECTOR3> m_vecStartPos;
 		};
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- one SPA_INFO row of June's VillageParsing 324ff4b0 (@324ffa22-324ffcc7):
+		//   Type (SPA_BUFF_TYPE, miss -1 @324ffb29) and the LineIdx list (@324ffb32). Read by June's spa system only (no March reader).
+		struct SpaInfo
+		{
+			int					m_iType;
+			std::vector<int>	m_vecLineIdx;
+
+			SpaInfo() : m_iType( -1 ) {}
+		};
+		//}}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		struct VillageTemplet
 		{
 			wstring							m_Name;
@@ -454,6 +466,12 @@ class CX2LocationManager
 
 			bool							m_bIsDungeonResultField; // 던전결과방 필드인지
 			std::map<CX2World::WORLD_ID, DungeonLoungeUserStartPos > m_mapDungeonLoungeUserStartPos;
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June VillageTemplet +0x58 / +0x70 (VillageParsing 324ff4b0)
+			float							m_fCameraModifyDistanceByPortal;	/// portal camera range, miss 3000 (@324ffa18); TFieldGame +0x358
+			std::vector<SpaInfo>			m_vecSpaInfo;						/// SPA_INFO (@325019a6)
+			//}}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		};
 
 		struct LocalMapTemplet
@@ -508,6 +526,15 @@ class CX2LocationManager
 			bool				m_bIsSummon;	/// 다른 곳에서 부터 이동 했을 때 캐릭터가 있을 위치
 			bool				m_bIsWarp;		/// Warp 치트, 마을이동 등을 사용했을때 캐릭터가 있을 위치
 			bool				m_bIsRight;		/// 캐릭터 좌/우 바라보는 방향
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			//{{ Iruha : 2026-10-17 // Atlas/Elysion E1d -- June's START_POS row is 0x24 bytes (VillageParsing 324ff4b0); June offsets
+			bool				m_bIsGuildAgitEnter;			/// +0x1a, miss false (@3250058c): guild base entrance, not a portal
+			float				m_fWaitingTime;					/// +0x1c, miss 3.0 (@32500b7b): portal wait before the move
+			USHORT				m_usInternalPlaceStartPosID;	/// +0x20, miss 0 (@32500d70): != 0 = moves to that StartPosId of the same village
+			bool				m_bIsSpaEnter;					/// +0x22, miss false (@32500687): spa entrance, not a portal
+			bool				m_bIsSpaOut;					/// +0x23, miss false (@3250075a): spa exit, not a portal
+			//}}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 			
 			
 		};
