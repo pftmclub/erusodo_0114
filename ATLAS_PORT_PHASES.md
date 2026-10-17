@@ -1967,6 +1967,42 @@ Done when: Phase A6's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 
 ---
 
+### Phase A6 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS: no transcription error, no code change, no build, no pack** (deployed exe stays c1c45191 or a later peer build
+carrying `27454383`). Ghidra + `funcdis.py` over `unpacked_x2.exe`, read-only; floats, strings and the jump table read from the file.
+
+- **`IsNearPortalLineMap` 32d53810:** June returns false on no world / no line map (`+0x90`, `+0x34`); port's guard is equivalent.
+  Gate: `g_pInstanceData` (33775864) set -> 2260 (0x8d4): WI 608 (0x260) + LT_POTAL + line 0x67 returns 2262; else 2261 (0x8d5):
+  WI 638 (0x27e) + LT_POTAL + line 0x35 returns false; it sits before the line-type switch. Port equal.
+- **`CreatePotalParticle` 32d51be0** (capstone, Ghidra's 32d51960 carve skipped): `SHOW_PORTAL` byte `+0x14c` == 1 else skip (port: constant
+  true until W2). 2260: WI 637 (0x27d) **any line**, or WI 608 + line 103, -> `+0xcd4` = (2262 on), `continue`; 2261: WI 638 + line 53
+  -> `+0xcd4` = 0, `continue`; 2260 on with no match falls through (no 2261 test). First particle `Peita_Teleport_MagicSquare01`
+  +3.0; the second, `UI_Portal_Arrow` (33527694) from `g_pData+0x7c`, +50.0 (33449120), is made even when the first fails; both
+  layer 0xe = `XL_EFFECT_0`. Port equal.
+- **`PhysicProcess_PortalInBattleField` 3201a670:** gate after the timer and the `+0x21e8` sync clear, line index only (no type test),
+  `return` before the teleport. Port equal. Which-is-which holds: 3201a670 is the battlefield twin (teleport only); 3201a2b0 carries
+  the same gate inside the dungeon-game path, routed with W2's changes (`kickoffs/june-engine/W2.md:51`). Agreed.
+- **`FieldWarpByCommand` 31d71130, table @31d71550 (43 entries):** 1-26 = 40000-40025 as March; 27-30 = 40029-40032; 31 = 40028
+  (omitted); 32-34 default; 35 = 40035; 36 / 37 / 39-41 = 40040-40044 through the raid path (`+0x1160` = 5-8; omitted); 38 = 40036;
+  42 / 43 = 40037 / 40038 (E3). Port equal; `SERV_IRUHADEV_RANOX_PORT` is on (Always.h:3899).
+- **Join ACK:** the live servers copy the whole `KBattleFieldJoinInfo` (`GSUserBattleField.cpp:466`, `BattleFieldRoom.cpp:1065`), so the
+  echo is what they did. The 3-arg custom-position REQ sends `false` (`X2State.cpp:11296`) and gets it back; the 2-arg REQ sends
+  `true` (`:11339`). March / Lanox fields now land on their start-pos keys, as live did; the A6 / A7 play-tests crossed them.
+- **Data** (subagent token compare against `june_src_fixed`, comments stripped): Lanox F04 block = June :1599 (portal 103 -> 1008
+  pos 400, DIRECTION_INFO verbatim, `-- quest plan:` comment); F01 = June; F02 = June minus only the L142 -> `VMI_ELYSION` 500 portal,
+  kept in a comment; 26 / 26 NPCTemplet rows value-identical at their cited ranges; WorldData 638 / 639 = June; Ranox_04 dialog = June
+  plus one 2-line comment; the 8 adopted files are `1B 4B 4C 81` at the recorded sizes, none on the core list.
+- **Comment-only nits, left as is** (fixing them costs a data036 repack and copy): `BATTLE_FIELD_DIRECTION_INFO` cited June :1641,
+  starts at :1642; the F02 portal comment cites June :2122-2127, the portal is at :2125-2130.
+- **Hygiene:** `flagcheck ELYSION_PORT --range 27454383^..27454383 --files <5 code files>`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 2 OTHER
+  (other flags), 0 FAIL, 0 ERROR`; `OFFLINE_BF_JOIN_START_POS`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  both `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif
+  without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`.
+- **Open for the user:** nothing. Next kickoffs already exist (A7 done; A8 and E1 written).
+
+---
+
 ## Phase A7 — Local map, Atlas half
 
 **Steps**
