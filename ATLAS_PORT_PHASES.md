@@ -4699,7 +4699,8 @@ Done when: staged with manifests, pack list handed over. Record a Done note, the
   `rain-blend.tga` staged; LineMap uses only `LT_NORMAL` / `LT_JUMP_UP_REL` (36 lines, no `LT_FIRE_GROUND`, so no Lanox-style substitution);
   `STR_ID_44262/44263/13601` exist in `General.ess` (also settles Lanox's open `STR_ID_4426x` risk: both resolve).
 - **Left out on purpose:** `WINNER_Adrian_PVPMAP` (757, tournament), as the plan says.
-- **Packed:** `PACK OK` data034 / data036 / data040 / data065 / data215. **Copy: asked, not done** (`/x2-kom-packed copy` per kom, user OK first).
+- **Packed and copied:** `PACK OK` + `COPY OK` data034 / data036 / data040 / data065 / data215 (user OK, 17:49).
+- **Load-only check PASSED** (user chose it; log run 17:52 after the copy): clean exit, 0 EXCEPTION, no error naming WorldData, PVP_Map_List, DLG_PVP_Map_List, Image09 or Image_TITLE. The PvP lobby opened, but the two map-list scripts and world 752 never ran (no PvP room offline), so how they render is unverified; the review rests on byte comparisons.
 - **How to see it:** PvP lobby -> create a PvP room -> map window: the Ranox and Elysion entries with art and names; pick Elysion and start.
   The offline emulator has no PvP session (see memory "Offline client has no PvP"): if the room cannot be created, the only check is a clean load:
   `python tools/logs.py --grep "WorldData|PVP_Map_List|PVP_Elysion|DLG_PVP_Map_List"` shows no error. Say which happened.
