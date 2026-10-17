@@ -1232,7 +1232,7 @@ So June culls world meshes only as whole objects, through the base test, and the
   `NPC_Yuno_GearAxisroot`, Hugo (house 40134, `Motion_NPC_Elsion_Hugo.x`) `Cylinder01`, Parasite `Parasite_Body`, `NUI_MANA_EATER.x`
   `Bip01_Head`, the MAG_NOM mount `Head`, else `Bip01_HeadNub`. March knew only the billboard and `Bip01_HeadNub`, which Hugo's mesh lacks, so his
   mark sat at the world origin. This corrects Effect C9h-5's "same" verdict for block 41 (`june2017_re/c9h5_fieldnpc_onframemove_diff.md`).
-  `DEPLOY OK: X2_offline.exe is 19,810,304 B, dated 2026-10-18 02:39:54, md5 94e0af9e07b7fd621128d5ee1f729e26` (the three June bone / mesh names found in the exe). Play-test owed: Hugo shows the `[Z]` mark over his head.
+  `DEPLOY OK: X2_offline.exe is 19,810,304 B, dated 2026-10-18 02:39:54, md5 94e0af9e07b7fd621128d5ee1f729e26` (the three June bone / mesh names found in the exe). **Play-test 2026-10-18: PASSED** (user: Hugo's `[Z]` mark shows).
 - **Stray tree warp: routed to new W1e.** The log shows pad 512 firing (02:29:05) and then 512 -> 513 (02:29:09), although 512 sits on the
   far-right stub (line 130), reachable only through pad 510, which never fired. Elysion's line map gives line 2 (the back walkway, -2789..-2398)
   `BEFORE_LINE = 130`, a line 11,705 units away. March's `CanDown` switches to `beforeLine` when a landing hits a line's exact start
