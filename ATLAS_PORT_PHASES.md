@@ -3881,6 +3881,9 @@ Done when: Phase E5's "Done when" holds. Record a Done note, then commit on main
 - **How to see it:** nothing new on a March map: platforms appear with E9 (Adrian) / E10 (Soless), where `[ELYDBG] movable line <id> type ...`
   lines go to ErrorLog.txt at stage load. Regression to watch now: on a March map, standing on a `CAN_DOWN = FALSE` line and dashing / jumping
   down; the camera floor in any dungeon.
+- **Play-test 2026-10-17 (user: all normal; run 13:48-13:56 on exe e6b48a06): regression PASSED.** 5 dungeon stage loads and 3 battle-field
+  joins; 0 EXCEPTION, UNHANDLED only the known `E_DISABLE_HB_CHECK_REQ` x3, no `[MOVABLE_LINE]` line (no March map calls the new key), clean exit.
+  Platforms themselves come with E9 / E10. Nothing owed but the review.
 
 ---
 
