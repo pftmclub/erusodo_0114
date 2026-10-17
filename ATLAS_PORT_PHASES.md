@@ -2283,7 +2283,8 @@ and those 50 are only the routed classes of checklist step 9 (5 `assets.absent`,
 - **How to see it (after the copy):** a level-80+ character, M -> Elysion tab -> AD icon enabled -> enter Normal; Stage0, 1, 2 and the
   boss stage load; monsters have HP and attack effects; Dekal's gauge shows his face; on clear, AtlasCity's icon (once A9 adds its rows) unlocks.
   ErrorLog must show no `DungeonData` / `NPCTemplet` / `WorldData` load errors.
-- **Open:** kill rewards (Stage 23). Play-test is batched into A13 (plan rule); the user may try it now.
+- **Play-test PASSED 2026-10-17 (user):** AD entered from the local map and played through on the copied koms.
+- **Open:** kill rewards (Stage 23).
 
 ---
 
