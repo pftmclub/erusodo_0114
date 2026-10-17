@@ -3052,6 +3052,12 @@ NpcShop` lines for Steel / Faceoff / Mu).
 
 **Open for the user:** none blocking. Two items have no owner yet: the guild-base gating, and June's NPC-dialog buttons (above).
 
+**Play-test 2026-10-17: PASSED (user, "good job").** Run after the deploy (08:33), two village loads, clean exit. ErrorLog `[ELYDBG] NpcShop`: button 29
+(HENIR_EQUIP_UPGRADE) on houses 40075 / 40076 / 40077 (Steel / Faceoff / Syota) and 40090 (Edan event, npc -1: its empty NPC_ID_LIST,
+`[RANOXDBG]` guard as before); 30 + 37 (GUILD_AGIT_SERVICE, GUILD_ENTER) on Mu 40046. These are the live houses the phase listed, one line per
+button per load. Relation and HouseParsing lines as in E1a; 0 EXCEPTION. The 3 UNHANDLED packets (`E_DISABLE_HB_CHECK_REQ`, `EGS_RENEWAL_LETTER_REQ`)
+are not this phase's.
+
 
 ---
 
