@@ -1309,6 +1309,53 @@ until P4a (March: 11Gang). `python tools/logs.py --grep "JUNE_ENGINE] EQSKIN"`: 
 
 **Play-test 2026-10-18: PASSED** (user: all checks normal, awakening via `SetHyperModeCount( 3 )`). Log (exe md5 3f645dcc, main 21783037, contains R14): 40 `EQSKIN stage2` lines, ErrorLog.txt 821-1074: reyaa item 111870 +7 `Gate_Protect_G01.tga loaded` (821), Freils 111199 +9 `11Gang_Protect.tga loaded` (895), Iivue 116934 +11 `11Gang_Protect.tga loaded` (927), ravbe 131644 +13 `13Gang_Protect.tga MISSING` (979, as expected until P4a); each fashion weapon's ChangeEnchantLevel line matches (133441, 41200, 229990, 131649); 0 EXCEPTION.
 
+### Phase R14 -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no code change.** Nothing was rebuilt; the deployed exe (md5 3f645dcc, play-tested) already carries R14.
+All five functions were re-read whole in Ghidra (read-only), so this is more than the 2-3 spot-checks the kickoff asks for. None failed.
+
+- **`_UpdateSkin()` `3295ae20`**: the bool is templet (+0x198) non-NULL && `32809f40` on g_pData +0x34 (disasm @3295ae3a) for 6, 0x31, 0x36, 7
+  in that order, with templet[0] = item id. `32809f40` and `IsDivisionItem` `32807db0` read the same map (+0x230, end +0x234) and then the
+  set, so March's `IsDivisionItem( type, id )` is the right call. The other two OR terms are comments only.
+  - Hyper branch: attachment 1 removes models 0..first NULL (all-models) or model i; attachment 2 skips; otherwise the add at line 0xe3d
+    ( hyper i, +0x81c, **+0x808**, +0x814 ), then attachment = 2.
+  - Normal branch (attachment != 1): 2 removes hyper i; all-models adds models i..first NULL (0xe6d), otherwise model i (0xe82), each with
+    ( +0x80c, +0x808, +0x804 ); then attachment = ( model i != NULL ).
+  - Not shown / not skin: attachment 1 removes (all-models: 0..first NULL), 2 removes hyper i; attachment = 0.
+  - The port matches line for line.
+- **InitSkin `32963eb0`**: calls `3295ffd0` first, then the models (LoadEquip 32851d60, OpenXSkinMesh with `L"Bip01"`). With +0x1c5, for each
+  non-NULL hyper model (+0x5c4): close the old +0x564 anim, new 0x874 / 31d32040, SetAnimXSkinMesh( mesh, +0x81c, 0 ), AddModelXSkinMesh(
+  mesh, +0x81c, +0x818, +0x814, 0, 0, 0xf45 ), ChangeAnim( +0x85c, 0, 0 ), Play 0, +0x31c = 1. Then XEM 0x276d when model[0] (and hyper[0])
+  is NULL, else `_UpdateSkin()`. ChangeEnchantLevel's hyper loop walks the same +0x564 array, which confirms it is `m_pHyperXSkinAnim`.
+  Matches.
+- **`3295ffd0`**: four OpenXET( name, 0 ) calls, unconditional: +0x824 -> +0x804, +0x840 -> +0x80c, +0x878 -> +0x814, +0x894 -> +0x81c.
+  The weapon test is `templet == NULL || +0xd5 == 0x19 || +0xd5 == 2` (EP_AC_WEAPON = 25 and EP_WEAPON_HAND = 2, `X2Unit_PreHeader.h`).
+  Then OpenXET( name, 1 ): `MULTI_TEX_%s_%dl` from +0x644 -> +0x808, and `MULTI_TEX_HYPER_%s_%dl` from +0x724 (`m_ModelNameHyper[0]`) ->
+  +0x814 @32960287 (JUNE_BUGS 275). Matches.
+- **Texture chain, six sites** (`3295ffd0` normal and hyper, `3295dfa0` normal @3295e10c and hyper, `3295f250` normal and hyper):
+  >= 13 13Gang, 9..12 11Gang (the `< 0xb && < 9` test), 7..8 G01, each `31d40160( "*.*", tex, 7 )`.
+  - Below 7: stage 2 is deleted, with a NULL test, at both `3295ffd0` sites, at `3295dfa0` normal, and at both `3295f250` sites (in its own
+    `< 7` branch = March's else). The `3295dfa0` hyper site does nothing. The port does the same at each site.
+  - The set path has no NULL test in June either (the multi-tex XET is opened with create = 1).
+- **Collision argument**: each new add (the three in `_UpdateSkin()`, the hyper skin-anim add in InitSkin) passes `false, false` (= June's
+  0, 0) under `JUNE_RENDER_MOTION_COLLISION`, and the defaults (`false, true` = March) while that flag is off (it is off today, Always.h `//#define`).
+- **Routed terms** are comments only (custom-render vector, Lu/Ciel, frame vectors, mesh +0xa40). Each has an owner:
+  JUNE_PORT_BACKLOG_ORDER.md Stage 11 (the R14 bullet), checklist 7z, and `kickoffs/june-engine/R14b.md` (the rest of `3295dfa0`;
+  checked, it needs no change). JUNE_BUGS 275-277 were checked against the same addresses and are correct.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_EQIP_SKIN --range a5aeb19b^..a5aeb19b`:
+`files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 11 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. `git log -SSERV_IRUHADEV_JUNE_EQIP_SKIN a5aeb19b..HEAD` lists nothing.
+- X2Eqip.cpp PASS~: one blank line after the helper block.
+- The OTHER rows come from a5aeb19b being committed from a stale snapshot (see a40bb330). It restored S2's `JUNE_SKILL_TEMPLET` / `_DEBUG`
+  (Always.h +21, X2DamageEffect, X2DamageManager, X2GUUser.h/.cpp, X2Main, X2SkillTree.h/.cpp, X2UserSkillTree.h/.cpp).
+- It also dropped W1e: Always.h -17 (the `JUNE_LINEMAP_CANDOWN_LINK` define and its `_DEBUG` block) and KTDGLineMap.cpp -93. a40bb330
+  restored both; all 17 deleted Always.h lines are in HEAD.
+- Always.h's other +17 lines are this flag's block (with the `#error` on `JUNE_EQUIP_EFFECT_SET`, which is defined).
+
+No open questions. Next: R14b.
+
 ## Phase R14b - Attach-anim equipment init (June rework)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM` (an RE pass
