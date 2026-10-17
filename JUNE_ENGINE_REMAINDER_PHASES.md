@@ -1238,6 +1238,50 @@ So June culls world meshes only as whole objects, through the base test, and the
   `BEFORE_LINE = 130`, a line 11,705 units away. March's `CanDown` switches to `beforeLine` when a landing hits a line's exact start
   (`KTDGLineMap.cpp:1355`, `:1421`), so landing on the line 1 / 2 joint puts the unit on line 130.
 
+### Phase R13 -- Review
+
+**2026-10-18, Opus 5.5. PASS, no transcription error.** The only code change is that `_WORLD_MESH_DEBUG` is off, since the play-test passed.
+
+**Prepare `327f9020`** (capstone, every branch):
+- **Distance gates.** `jp` after `fcom 0, +0x1ec` skips when the hide distance is <= 0. `jnp` after `fcompp` goes NORENDER when `+0x148 > hide`.
+  The near test (`test ah, 0x41` / `je`) goes NORENDER when `+0x148 < near`. The load gate follows (`+0x198` LOD -> `+0x239` / `+0x234`, else `+0x238` / `+0x230`).
+- **Hide test.** It is gated on `+0x2f0 == 1 && +0x2f2 == 1` only (`@327f90b7`, `@327f90c9`). `fDist` is the `fldz` stored at `@327f90d9`, so it starts at 0.
+  The call passes DG `+0x1c0` / `+0x1cc`, which are the embedded camera's eye `+0x44` / at `+0x50` (camera = DG `+0x17c`), i.e. `GetCamera().GetEye()` / `GetLookAt()`.
+- **Hidden branch.** `+0x324` is saved only when it is -1 (`@327f912e`). `+0x164 = 0xff` is a plain store, as is March's `SetLayer`.
+  `0.3f < alpha` -> `alpha -= dt * 4.0`, else `alpha = 0.3`, and NORENDER when `+0x2f1 == 1`.
+- **Visible branch** (also reached from the gate). `alpha += dt * 4.0`, capped at `+0x278 * +0x1d4` when `cap < alpha`. The restore of `+0x324` happens only here.
+- **Alpha object.** `canHide && hide` sets `+0x144 = 1` and the camera `+0x319` (when DG is non-NULL). Otherwise `alpha >= cap` -> `+0x2a8`, else 1. All of this matches the port line for line.
+- **Members.** June's `SetCanHide` thunk `31e4c650` (registered at `31dbcfec`, xorstring `31dbcf6c`) writes `+0x2f0` and `+0x2f2`.
+  So `+0x2f2` is `m_bAnyCamera` and `+0x2f1` is `m_bNotRenderWhenHidden`, which matches March's declaration order (`X2WorldObjectMesh.h:109-111`).
+
+**Slot 0x48 is dead (JUNE_BUGS 267 stands).** I searched three ways, not with R13's frustum-adjacency filter:
+- **Literal references.** The only 4-byte literal of `327fa210` anywhere in the image is the vtable slot `334bc4cc`, and there is no `E8` / `E9` to it.
+- **Vtables.** Every vtable with the base frustum test `31c829e0` at slot 0x34 was listed. The world-object family (`334bc37c`, `334bc3cc`, `334bc4dc`) ends at slot 0x40, and only `334bc484` has slots 0x44 / 0x48.
+  So a caller would need a static `CX2WorldObjectMesh*`; March has no such caller.
+- **Virtual calls.** All 145 slot-0x48 virtual calls in June's code were checked; none is in the world-object code (`327f6xxx-327fbxxx`) or in `CX2World::` (`327fb2xx-3280xxxx`).
+  The 5 sites with a DG / eye-looking operand are `IDirect3DDevice9` slot 18 (`31ce6ae8`, `31ce9f1d`, `31cea468`) or a one-argument call on a state member `+0x488` (`324e35c4`, `3253240c`).
+
+**`UpdateCamera` = `31d02e50`.** It starts after int3 padding at `31d02e4f`, and the `+0x19d = 0` at `@31d02e75` is its first store, before the `+0x90` test.
+However, June's `UpdateCamera` also differs from March's in ways R13 left out. These are the `+0x90` / `+0x94` path, the roll `+0x68` tracked by `+0x84`, and the roll multiplied in after `LookAtLH`.
+Its 10-argument `SetTracking` `31d01b70` differs too: the C3v review rows 2479-2480 recorded them as "not ported (engine camera, outside C3v)", and no phase owned them.
+By the no-partial-updates rule the function has to go to June whole. That takes June's 11 `SetTracking` callers mapped against March's 17 (`X2Camera.cpp`), so it is a phase, not a review fix: **new R13c**.
+
+**Layout.** `KTDGCamera.h` is included only by `KTDGManager.h` (from `KTDX.h:1348`, after `Always.h` at `:190`) and by `KTDGCamera.cpp` after `stdafx.h`, so `CKTDGCamera` has one size in every TU.
+
+**Hygiene** (`flagcheck --range 3312700d^..3312700d`, one run per flag):
+- `JUNE_RENDER_WORLD_MESH`: files 1 PASS, 1 PASS~, 3 OTHER, 0 FAIL, 0 ERROR; 0 deleted, 0 non-ASCII, 0 EOL mismatches; RESULT: PASS.
+- `JUNE_RENDER_CAMERA_MESH_HIDDEN`: files 1 PASS, 1 PASS~, 3 OTHER, 0 FAIL, 0 ERROR; 0 deleted, 0 non-ASCII, 0 EOL mismatches; RESULT: PASS.
+- `JUNE_RENDER_WORLD_MESH_DEBUG`: files 0 PASS, 5 OTHER, 0 FAIL, 0 ERROR; RESULT: PASS.
+- The OTHER rows are `Always.h` plus the sibling R13 flag's files; `_DEBUG` lives wholly inside `WORLD_MESH` blocks, so all of its rows are OTHER.
+
+**Review change:** `//#define SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG` (`Always.h`). Its code stays, for R13b / R13c to re-enable if needed.
+`DEPLOY OK: X2_offline.exe is 19,872,256 B, dated 2026-10-18 03:21:50, md5 ce79dccff14191fdfb02268e1cd90a81 (built at main 60eac05c + peers' uncommitted files; the WMESH string is absent from the exe)`
+
+**Kickoffs:**
+- R13b is still right after R13; it gained one line: name the skin mesh's `+0x2f1` from its own `SetCanHide` binder (the mesh's writes `+0x2f0` / `+0x2f2`).
+- R5 still owns the flag's reader.
+- New `R13c.md` / `R13c-review.md`.
+
 ## Phase R13b - World skin-mesh render (Prepare)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH`.
@@ -1247,6 +1291,25 @@ Added by R13 (an unowned June branch). After R13; not alongside R12 if R12's map
   - the hide test on `+0x2f0 && +0x2f1` through vslot 0x40, with the eye and lookAt passed by value;
   - the 0.3 / 4.0 fade and camera `+0x19d = 1` (`@327f7098`; R13's `JUNE_RENDER_CAMERA_MESH_HIDDEN` setter); no layer swap.
 - Map the class's vtable whole (as R13 did for `334bc484`), then port what differs. Funcmap row `327f6e40 (R13)`.
+
+## Phase R13c - Camera tracking and roll (UpdateCamera whole)
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK`.
+Added by the R13 review, because R13 edited `CKTDGCamera::UpdateCamera` (`31d02e50`) but ported only the mesh-hidden reset. Not alongside a session editing `X2Camera.*` or `KTDGCamera.*`.
+What June changed in the engine camera, from the C3v review rows 2479-2480 and the R13 row for `31d02e50`:
+- **`UpdateCamera` `31d02e50..31d0321b`.**
+  - A bool `+0x90` (written by `SetTracking`'s 9th argument) takes a June-only path that uses `+0x94` (`@31d02e6d`).
+  - A view roll `+0x68` is tracked by the rate `+0x84 * dt` (`@31d02fbc`).
+  - After `D3DXMatrixLookAtLH` (`@31d030f9`), when `|+0x68| > FLT_EPSILON`, a rotation of `+0x68` is multiplied in (thunks `33086abc`, `33086a26`).
+- **`SetTracking` `31d01b70`** takes 10 arguments (`ret 0x28`).
+  - It adds a 7th channel: `+0x84 = ( roll target - +0x68 ) / Time`.
+  - The 9th argument goes to `+0x90`.
+  - The threshold is `Time > 0.001` (`0x33431564`), against March's `> 0`, and `m_fTrackTime` is set to 0 when it fails.
+  - When `g_pKTDXApp +0x2d4 == 1`, `at.x` / `at.y` are copied into `to.x` / `to.y`.
+- **The point-like setter `31d01640`** also applies the roll after its `LookAtLH` (`@31d016c5`). `Init` `31d01460` sets `+0x68 = 0`.
+- **Map `CKTDGCamera` whole** against March's `KTDGCamera.h/.cpp`: the ctor `31d03220`, the setters, and the shake / impact helpers `31d01d50` / `31d02c70`. Port what differs.
+- **Callers.** June has 11 direct calls to `31d01b70`; March has 17 `SetTracking` calls in `X2Camera.cpp`. Map each June caller's roll and `+0x90` arguments onto March's sites, and give the March-only sites June's defaults.
+  Some of those callers were moved by C3v (`NomalTrackingCamera` `31fb3640`, 10 args); keep C3v's flags as they are.
 
 ## Phase U0 - UI framework RE
 

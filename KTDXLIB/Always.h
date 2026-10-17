@@ -7900,7 +7900,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-17
 // Description: June engine remainder, Phase R13 (short-lived). [JUNE_ENGINE] WMESH lines in ErrorLog.txt: one when the June
 //              world-mesh render first runs, then per mesh its first hide and its first layer restore.
-#define SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+//#define SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG	// off 2026-10-18 (R13 review): play-test passed (render-on line, hide + restore for all 4 Elysion can-hide meshes, layer 5 -> 255 -> 5)
 #ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 #error SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
