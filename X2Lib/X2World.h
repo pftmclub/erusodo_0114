@@ -1240,6 +1240,9 @@ public:
 			m_fCameraDistanceStep[1] = fStepDist2;
 			m_fCameraDistanceStep[2] = fStepDist3;
 		}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		void SetCameraDistance_ELYDBG( float fBaseDist, float fStepDist1, float fStepDist2, float fStepDist3 );	/// Atlas A13 diagnostic: logs, then SetCameraDistance
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 #endif
 
 #if defined(WORLD_TOOL) || defined(X2TOOL)

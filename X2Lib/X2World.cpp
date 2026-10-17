@@ -9,6 +9,9 @@
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 
 
 #ifdef KHELP_SYSTEM_TEST // 2008-10-23
@@ -1997,4 +2000,14 @@ void CX2World::SetGravityAndSpeedRate( float val )
 #endif SERV_IRUHADEV_OFFLINE
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_RATE_APPLY
+
+#if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( MODIFY_FRUSTUM )
+//{{ Iruha : 2026-10-17 // Atlas A13: proves the Lua SetCameraDistance call (Lanox SECRET_SCENE_DUMMY_SUMMON_TYPE3_STATE_START) reaches C++
+void CX2World::SetCameraDistance_ELYDBG( float fBaseDist, float fStepDist1, float fStepDist2, float fStepDist3 )
+{
+	CX2OfflineLog::Server( L"[ELYDBG] SetCameraDistance call: base %.1f -> %.1f, steps %.1f %.1f %.1f", m_fBaseCameraDistance, fBaseDist, fStepDist1, fStepDist2, fStepDist3 );
+	SetCameraDistance( fBaseDist, fStepDist1, fStepDist2, fStepDist3 );
+}
+//}}
+#endif defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( MODIFY_FRUSTUM )
 

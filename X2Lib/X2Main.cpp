@@ -3723,7 +3723,11 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2World>( L, "GetWorldObjectMeshByName",		&CX2World::GetWorldObjectMeshByName );	/// June 327fcc40 (bound @31dbab2e)
 #endif SERV_IRUHADEV_JUNE_WORLD_MESH_BY_NAME
 #if defined( SERV_IRUHADEV_JUNE_WORLD_CAMERA_DISTANCE ) && defined( MODIFY_FRUSTUM )
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	lua_tinker::class_def<CX2World>( L, "SetCameraDistance",			&CX2World::SetCameraDistance_ELYDBG );	/// Atlas A13 diagnostic wrapper
+#else
 	lua_tinker::class_def<CX2World>( L, "SetCameraDistance",			&CX2World::SetCameraDistance );			/// June 31e4ca10 (bound @31dbad5e)
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 #endif defined( SERV_IRUHADEV_JUNE_WORLD_CAMERA_DISTANCE ) && defined( MODIFY_FRUSTUM )
 //}}
 	lua_tinker::class_add<CX2WorldObject>( L, "CX2WorldObject" );

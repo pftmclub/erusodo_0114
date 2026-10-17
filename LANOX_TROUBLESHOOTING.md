@@ -64,6 +64,20 @@ of failure, not a one-off — expect it to recur as more of Lanox gets exercised
 | The minimap/location state says you're somewhere but the 3D scene doesn't render | Packed `.lua` is plaintext instead of compiled bytecode (see the standing rule above) — data-table loads go through a not-encrypted fallback and still work; direct scene/world reads don't | Header-sweep every `.lua` this feature touches for the `1B 4B 4C 81` magic |
 | A new C++ code path (flag-gated) seems to have no effect after a rebuild | The PCH silently discarded the header edit | `touch X2Lib/stdafx.cpp` before rebuilding, and if still no effect, grep the `.obj`/`.exe` for a literal that only exists inside the new `#ifdef` block — exit code 0 is not proof the code compiled in |
 
+### Atlas/Elysion (2026-10-17, atlas A13)
+
+Classes found while porting Atlas Station, Fields 01/02 and the AD / AC / TW dungeons (`ATLAS_PORT_PHASES.md` Done notes A5-A13).
+
+| Symptom | Root cause | Where to look |
+|---|---|---|
+| Kills in a new field or dungeon pay `+0 exp, +0 ED`; the log has `NOTE monster N has no reward row for key K, and none on the wildcard key either` | The offline reward lookup (`X2OfflineDropTable.cpp` `GetNpcReward`) needs a server `DropTable.lua` row for (field or dungeon, monster) **before** it reads `NpcExpTable`. The server DropTable stops at BattleFieldID 40025 and has no Lanox / Elysion `AddMonsterDropInfo` rows. It is not a level-difference rule and not the EXP table | Backlog Stage 23 (`kickoffs/june-backlog/stage23-plan.md`). Do not invent rows |
+| After a village exit or portal into a field, the player lands in the wrong place or is never placed | The emulator's `EGS_JOIN_BATTLE_FIELD_ACK` zeroed `m_bNowBattleFieldPositionInfoStartPosition`, so the client read an `AddStartPos` key (Atlas Station 403 -> 333) as a **line index** on a 163-line map | `SERV_IRUHADEV_OFFLINE_BF_JOIN_START_POS` (`Handlers_Room.cpp`). The `ROOM ... (startPos=N)` log line prints the raw request value, so it proves nothing either way. The proof is where the player lands |
+| `atlas` / Cobo warp into a new rest area completes, but no world loads | The rest area has no village templet until its `LOCAL_MAP_ID` (here `LMI_ELYSION`) is registered in `DLG_Map_Local.lua`; the Cobo and warp-NPC rows also hide behind it | atlas A5 -> A7. Register the local map in the same pass as the warp |
+| Entering a new field crashes at once | `CX2BattleFieldGame::IsNearPortalLineMap` dereferenced a NULL world / line map during the first frames | June's NULL return (`32d53810`), under `SERV_IRUHADEV_ELYSION_PORT` (A6) |
+| A portal shows its particle but walking into it does nothing; `State.log` has `CBattleFieldPortalMovingInfoPtr is NULL!` | The field's portal row is commented out on purpose because its destination is not built yet (Field 02 -> `VMI_ELYSION` until atlas E2) | `BattleFieldData.lua`, the phase's commented block |
+| A June NPC script stops partway through a state with no visible error; March has the C++ method | The method exists in C++ but was never bound to Lua (`SetCameraDistance` in `X2World.h`, called by Lanox `SECRET_SCENE_DUMMY`), so the Lua call fails at that line | The bind list in `X2Main.cpp`. After binding, prove the call with a first-call `[ELYDBG]` line, not by watching the screen |
+| A one-shot line (`[CAP99] migrated unit`) never shows in the logs | Logs are rewritten on every launch; the line only exists in the launch that ran the migration | Prove the migration from the save (`tools/elsdb.py`), not from the log |
+
 ---
 
 ## Reachability checklist

@@ -2740,7 +2740,40 @@ main.
 
 ### Phase A13 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** No fix needed: no checklist item failed on a port defect. One short-lived diagnostic was added (`SERV_IRUHADEV_ELYSION_DEBUG`):
+`CX2World::SetCameraDistance_ELYDBG` is bound as Lua `SetCameraDistance` (`X2World.h/.cpp`, `X2Main.cpp`; the plain binding stays in `#else`), because
+nothing had ever logged that Lanox `SECRET_SCENE_DUMMY_SUMMON_TYPE3_STATE_START` (Secret Hell 41271, stage 2) reaches C++.
+
+**Checklist (evidence: the A12 run 08:55-09:00 on exe caae2153, plus the earlier phases' play-tests):**
+
+| # | Item | Verdict |
+|---|---|---|
+| 1 | CAP99 migration | PASS (A2: schema v16, 24 of 27 units exact, reyaa 80 -> 85). The `migrated unit` line exists only in the migrating launch's logs |
+| 2 | `atlas` warp renders | PASS (A7 re-test; A12 run: Cobo `20000 -> 1008` 08:56:20) |
+| 3 | Lanox <-> Atlas Station | PASS. Forward: A6. Return: A12 run, 1008 pos 401 -> 40032 `startPos=109` (08:57:33). The checklist's "Lanox Field 03" is Enum `RANOX_FIELD_04` 40032 (Lanox names are offset by one) |
+| 4 | Fields 01 / 02 | Spawn, HP and death PASS (A12 run: 40035 29 placed, 40036 entered, lv 80 / 84 kills). Landing on key 333 is correct (it is an `AddStartPos` key; the map has 163 lines). **Kill EXP / ED / drops = 0: owner backlog Stage 23** (no server DropTable rows past 40025; `GetNpcReward` returns before `NpcExpTable`). **F02 dead exit: owner atlas E2** (row commented on purpose) |
+| 5 | Cobo / warp NPC | Cobo PASS (A7, A12 run). Warp-NPC listing: no recorded evidence -> A13 play-test check 2 |
+| 6 | World map / M-key | Pins log as designed (20009 / 40037 hidden until E2 / E3). Visual: A13 play-test check 3 |
+| 7 | Local map | PASS (A7; AD / AC / TW entered from it in A8-A10). The Final Hall gate is not a June gate (A7). Page scroll: owner atlas E4 |
+| 8 | AD -> AC -> TW | Stages and bosses PASS (A8; AC 33340 and TW 33350 cleared with `bossGauge=1`, A9 / A10). Unlock chain checked row-by-row (A9 / A10 reviews). **Clear EXP / drops = 0: owner Stage 23.** Hero rows: owner june-dungeons C3y-5 |
+| 9 | 80s levels / stats | StatTable 81-99 present for 50 of 50 classes, NpcExpTable 81-99 present (A12 run); reyaa 85 on June's curve (A2). Levelling by region kills waits on Stage 23 |
+| 10 | Lanox `SECRET_SCENE_DUMMY` | Bound since june-effect C3z-4b; not yet proven. **A13 play-test check 1** (the `[ELYDBG] SetCameraDistance call` line) |
+| 11 | UNHANDLED / EXCEPTION / KEM_ERROR | PASS (A12 run: 0 EXCEPTION; UNHANDLED only `E_DISABLE_HB_CHECK_REQ` x2 + `EGS_SUPPORT_MATERIAL_EVENT_TIME_REQ`, both outside the region) |
+
+**Close-out:** MODS.md has Applied-mods rows for the six Atlas flags that lacked one, plus sections A4, A8-A11 and E1a-E1b (in progress, E15 closes it).
+`LANOX_TROUBLESHOOTING.md` has a new "Atlas/Elysion" table (7 classes). *Deferred to the quest plan* has the A13 bullets.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_DEBUG --worktree --files X2Lib/X2World.h X2Lib/X2World.cpp X2Lib/X2Main.cpp`: `files: 2 PASS, 1 PASS~
+(blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched
+inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The PASS~ is one blank separator line before the
+new `X2World.cpp` block; the bare `#else` is the house style.
+
+**Deploy: not yet.** `build.py --deploy` at 09:09 stopped with `BUILD FAILED (X2Lib). Nothing was deployed.`. Every error is in a peer's
+uncommitted atlas E1c/E1d work (`X2TFieldGame.cpp`: `m_vecJuneRelationHouseTemplet`, `m_fCameraModifyDistanceByPortal` not declared yet),
+none in A13's three files. The diagnostic ships with the next successful build of `main`, either the E1d session's own deploy or an A13
+rebuild. Before the play-test, check that the deployed exe has the UTF-16 literal `[ELYDBG] SetCameraDistance call`.
+
+**After the play-test:** record checks 1-3 here. The wrapper lives only under `ELYSION_DEBUG`; undefining that flag removes it along with every other `[ELYDBG]` line.
 
 ---
 
@@ -3845,6 +3878,24 @@ checklist**:
   Appendix A nor B; A3 does **not** add them and E2 leaves those two houses'
   NPC rows out with a comment. The census still lists them (`npc.ready`, line
   VIL/REST) as quest-plan items, not Atlas/Elysion gaps.
+- *(A13, 2026-10-17: what the Atlas half learned)*
+  - **Commented quest key.** AD Normal's `m_iRequireCompleteQuestID = 22218` is commented
+    in data035 `DungeonData` as `-- quest plan:` (Hard / Expert carry no key). AD, AC
+    and TW therefore open on level + `EXTRA_REQUIRE_DUNGEON_ID` alone (AD -> AC 33340 -> TW).
+    The quest plan uncomments the key once 22218 can be completed offline.
+  - **No quest gate on the local-map tab.** The Elysion tab opens at level 78: A7 found
+    `RequireClearDungeonID` is not a tab gate in June, and the quest test (`@3293cbe0`) is
+    left out by decision 2. Adopting the quest test closes the tab until 22218.
+  - **Relation data waits on quest state.** E1a's `DLG_Map_House_NPC_RelationData.lua`
+    rows are keyed by quest id (ByQuest `VRT_NOT_SHOW` / `VRT_CHANGE`), so the E1c runtime
+    can only change Atlas Station / Elysion NPCs once the region's quests exist and can be
+    completed offline (March's `FieldQuest.lua` has none, see above).
+  - **E1b static list.** It already carries `HI_STORY_QUEST` / `HI_TRANSCEND_QUEST`
+    (+40082, June's list), but their NPCs are not added (A0 decision above), so the houses
+    stay empty until the quest plan adds the two NUIs.
+  - **Rewards are not quest-owned.** Kill and clear EXP / ED / drops in Atlas fields and
+    dungeons are 0 because the server DropTable has no rows past 40025 (backlog Stage 23),
+    not because of any quest gate.
 
 ## Critical files
 
