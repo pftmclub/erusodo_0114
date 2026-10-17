@@ -2848,7 +2848,7 @@ of `324f3260`, `3233b680`, `32340720`, `32340320`, `323446c0`, `32340060`, `323c
   `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
   `RESULT: PASS`. No OTHER rows, no deleted lines. The two PASS~ files (`X2LocationManager.h`, `X2QuestManager.cpp`) differ by one blank line
   outside the flag; DEFINE = `Always.h`.
-- **Still open for the user (unchanged):** JUNE_BUGS 207's choice (templet defaults instead of uninitialised values).
+- **JUNE_BUGS 207, user decision 2026-10-17 ("follow what June offers"): kept as ported.** June leaves the block uninitialised, so it offers no value. Its own defaults (`323bf7e0`) are the only June-defined ones, and June's data sets `RenderOption` explicitly where a look matters (even `UseRenderOption = FALSE`, :832). Row 207 has the reasoning.
 
 E1b's kickoff now reads this section too.
 
