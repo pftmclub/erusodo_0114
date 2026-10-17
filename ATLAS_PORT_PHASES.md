@@ -4654,6 +4654,30 @@ main.
 - **How to see it:** Elysion local map shows Memory after a Soless Normal clear; enter 33900 / 33901 / 33902; Stage0 (memories 1-2), Stage1
   (timed 3 s gate sub-stage), Stage2 (summons), Stage3, BossStage (OF_SUN gauge, dramatic boxes); clear -> result screen.
 
+### Phase E11 — Review (2026-10-17)
+
+**PASS, no fix** (Opus 5.5 high; review only, no C++, no build, no pack).
+- **Registries, verbatim:** the three `atlas E11` bodies diff 0 lines against June (`\r` / trailing blanks only normalised): `DungeonData` 263 lines = June
+  :33740-34002, `NPCTemplet` 270 lines = June :21523-21702 + :21721-21810 (whole `AddNPCTemplet` rows), `WorldData` 25 lines = June :3438-3462.
+  June :21703-21720 holds `NUI_TARGETING_CHUNG_HEAVY_FIELD` and `NUI_SA_ROM_ARMORED_TEMPEST`, no Memory row. Every new `dungeonID` (3), `NPC_ID` (30) and
+  `worldID` (5) is defined exactly once in its March file.
+- **Unlock:** all three rows `m_MinLevel = 87`, `EXTRA_REQUIRE_DUNGEON_ID = { DI_SOLESS_NORMAL }`, as June.
+- **Left out:** `2STAGE_GATE` / `M_HARNIE` / `M_SOLESS2` are named only by their own scripts in `june_src_fixed` (the one other hit is the texture
+  `DM_HARNIE.tga`); no NUI form anywhere; `Motion_M_2STAGE_GATE.x` is absent from kom_contents and named only by `ELYSION_M_2STAGE_GATE.lua`.
+- **Adopted:** the 10 data040 Memory files equal the `ljconv` sha1s in `june_adopt_20261017_172712.tsv`; manifest `"2"` each.
+- **Boss:** `IsReadyBreakAttack` (:3553) is called from `CF_ELYSION_M_SOLESS_BREAK_READY` (:3006) and `ELYSION_M_SOLESS_COMMON_FRAME_FUNC` (:3464),
+  both in Soless; `CF_ELYSION_M_MEMORY_BREAK_READY` (MEMORY_1/2 :1314) is referenced by nothing in June, so load order stays moot. :3456 / :3658 as the
+  Done note says. `CC_TIME` is in `Dungeon_Elysion_Memory_{Normal,Hard,Expert}` :498-505 (`CLEAR_TIME = 3`); March parses it at `X2DungeonSubStage.cpp:1608`
+  and clears on `m_fClearTime <= m_fElapsedTimeSubStage` at :957. Bindings spot-check: `GetBuffAccumulationCountNow` (`X2Main.cpp:4361`), `CreateSimpleDLG`
+  (`X2Main.cpp:3940`) with `SetNumberInNumberStatic_MoreParam_LUA` / `SetPercentValueInGageStatic_LUA` (`X2Game.cpp:6533` / `:6531`), `GetFarthestUserUnitPos_LUA`
+  (`X2Main.cpp:4075`).
+- **JUNE_BUGS 245:** re-read in June asm: `32784c00` decodes string 337a9c54 at @32784d93 (XOR gives `ALLOW_...`); on a lookup miss @32784eb3 stores 0.
+  March reads the same key with default false (`X2GUNPC.cpp:15475`), so the behaviour matches. `SHAW` (`M_2STAGE_END` :139, `M_3STAGE_END` :140,
+  `M_2STAGE_GATE` :184) is in neither `xorstrings.tsv` nor `func_strings.tsv`, so it stays a step-9 `keys.file` row.
+- **Hygiene:** `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`; census `--line ME` 84 open (3 `assets.absent`, 81 `keys.file`, 3 `keys.registry`;
+  no `bind.*` / `npc.ready` / `koms.unstaged`); `--live` `live {"same": 346}`; `kom.py status` data035 / 037 / 040 / 002 / 050 / 181 in sync with the game dir.
+- **Play-test:** play-test 2 PASSED (Done note) covers entry, the stages, the gauge, the slideshot and the result screen; no further run owed.
+
 ---
 
 ## Phase E12 — Elysion field PvP map (optional)
