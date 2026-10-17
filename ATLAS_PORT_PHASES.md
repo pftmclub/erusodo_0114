@@ -4034,7 +4034,8 @@ Checked against June in Ghidra (decompile + asm, constants read from the raw exe
 - Fix (`--worktree --files X2Lib/X2TalkBoxManagerImp.cpp`): `files: 1 PASS`, `RESULT: PASS`.
   - The 2 deleted lines are E6's own comment lines inside the flag, rewritten.
   - The 3 bare tokens are the new `#else` and the `CLIENT_GLOBAL_*` `#endif`s.
-- `BUILD OK` x2.exe 19,759,104 B 14:05:41. **Deploy owed:** `DEPLOY REFUSED` because the game was running; run `build.py --deploy-only`.
+- `DEPLOY OK: X2_offline.exe is 19,759,104 B, dated 2026-10-17 14:07:58, md5 c53bba6a4f3e08c0840a2ad83c85948b, equal to X2/US_SERVICE/x2.exe (2026-10-17 14:05:41)` (deploy-only after the user closed the game).
+- Post-commit flagcheck `--range 5a7bce71^..5a7bce71`: `files: 1 PASS`, `RESULT: PASS`.
 
 **How to see it:** unchanged. There is nothing to see until E10 / E11 register a dramatic NPC. The fix touches only the TBMT 3 manager, so
 ordinary speech bubbles are byte-for-byte what the E6 regression play-test passed.
