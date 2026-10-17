@@ -21,6 +21,9 @@ class CX2PET;
 
 #ifdef RIDING_SYSTEM
 class CX2RidingPet;
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+class CX2TFieldNpc;
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
 typedef boost::intrusive_ptr<CX2RidingPet> CX2RidingPetPtr;
 #else   X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
@@ -871,6 +874,11 @@ public:
 		// +0xe0 beside it is the field NPC's (CX2TFieldNpc, C9h-5), not this one.
 		CX2RidingPetPtr					m_pRidingPetHolder;
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June2017 EffectSetInstance +0xe0 (Atlas E1c): the village NPC a set played through PlayEffectSet( name, CX2TFieldNpc* ) (321e26d0)
+		// follows; mode ESM_FIELD. A raw pointer (no ref), null in the ctor; the NPC's dtor stops the set (325cd7c0).
+		CX2TFieldNpc*					m_pFieldNpcHolder;
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 		// June2017 EffectSetInstance +0x55 / +0x58: a trigger's EFFECT_SET_TOGGLE_VISIBILITY_TIMER (FUN_321dfc40
 		// @ 321dff89-321dff96), counted down by OnFrameMove_UpdateEffect (FUN_321e0080 @ 321e0105-321e0140).
@@ -1025,6 +1033,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
 	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2RidingPetPtr pRidingPet );	// June 321e2790, on the UI effect set
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2TFieldNpc* pFieldNpc );	// June 321e26d0, the village NPC's EFFECT_SET_NAME (Atlas E1c)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	CX2EffectSet::Handle PlayEffectSet( const wstring& wstrEffectSetName, CX2GameUnit* pGameUnit, CX2GameUnit* pTraceTargetGameUnit = NULL, 
 		bool bHyper = false, float fPowerRate = -1.f, float fLifeTime = -1.f, D3DXVECTOR3 vScale = D3DXVECTOR3( 1, 1, 1 ), 
 		bool bCustomPosition = false, const D3DXVECTOR3& vPosition = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vRotationDegree = D3DXVECTOR3( 0, 0, 0 ), const D3DXVECTOR3& vDirVector = D3DXVECTOR3( 0, 0, 0 ) );

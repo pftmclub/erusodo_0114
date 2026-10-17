@@ -113,6 +113,12 @@ class CX2TFieldNpc : public CKTDGObject
 		void TalkStep();								// June 325ccf60 (outlined from March's OnFrameMove talk block)
 		void ByeStep();									// June 325ca2f0 (outlined from March's OnFrameMove bye block)
 		bool GetInConversation() const { return m_bInConversation; }
+		// Atlas E1c
+		CX2EffectSet::Handle GetEffectSetHandle() const { return m_hEffectSet; }		// +0x190 (the field game's NPC loop shows / hides it, 323b7263)
+		void SetCheckCompletableQuest( bool val ) { m_bCheckCompletableQuest = val; }	// +0x239 (written by that loop, 323b72fa / 323b7303)
+		CKTDGXSkinAnim* GetXSkinAnim() const { return m_pXSkinAnim; }					// +0x1b8
+		D3DXVECTOR3 JuneGetBonePos( const WCHAR* wszBoneName );						// June 321f2c10 (the effect set's bone helpers)
+		bool JuneGetBonePos( const WCHAR* wszBoneName, D3DXVECTOR3& vPos );			// June 321f2c70
 #else SERV_IRUHADEV_ELYSION_VILLAGE
 		void SetEnable(bool val) { m_bEnable = val; }
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
@@ -324,6 +330,9 @@ class CX2TFieldNpc : public CKTDGObject
 		float								m_fJoinAnimSpeed;			// +0x5d8 templet JoinAnimSpeed (ctor 1.0)
 		float								m_fWaitAnimSpeed;			// +0x5dc templet WaitAnimSpeed (ctor 1.0)
 		float								m_fByeAnimSpeed;			// +0x5e0 templet ByeAnimSpeed (ctor 1.0)
+		bool								m_bQuestButtonOn;			// +0x238 OnFrameMove block 18: the quest button's state this frame (Atlas E1c)
+		bool								m_bCheckCompletableQuest;	// +0x239 OnFrameMove block 15 gate, set by the field game's NPC loop
+		bool								m_bShowAgitBank;			// +0x42a house 40082's agit-bank UI latch (June-only UI, block 24)
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 	public:
 

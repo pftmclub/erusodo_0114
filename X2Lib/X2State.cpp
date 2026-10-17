@@ -12875,6 +12875,11 @@ bool CX2State::Handler_EGS_UPDATE_CODE_EVENT_NOT( HWND hWnd, UINT uMsg, WPARAM w
 		// ends with 32344880() and a state virtual at +0x100, which are routed (STATUS C9h-2e), not ported here.
 		g_pInstanceData->SetCodeEvent( kEvent.m_mapEnableCodeEnum );
 		g_pInstanceData->JuneSetCodeEventSets( kEvent.m_setJuneCodeEventA, kEvent.m_setJuneCodeEventB );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June 31f00970 @31f00a61 (Atlas E1c): the village NPC relation refresh after the code events changed.
+		if( NULL != g_pData && NULL != g_pData->GetQuestManager() )
+			g_pData->GetQuestManager()->RefreshVillageNpcRelationDataByCodeEvent();
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #else
 		g_pInstanceData->SetCodeEvent( kEvent.m_mapEnableCodeEnum );
 

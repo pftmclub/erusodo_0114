@@ -765,6 +765,8 @@ class CX2QuestManager
 		int		GetVillageNpcRelationDataByVillage( int iVillageID_, int iHouseID_, VillageNpcRelationResult& kResult_ );
 		int		GetVillageNpcRelationDataByQuestID( int iQuestID_, VillageNpcRelationResult& kResult_ );
 		void	ClearAppliedVillageNpcRelationData();
+		void	RefreshVillageNpcRelationDataByQuest( int iQuestID_ );		// June 32340630 (Atlas E1c)
+		void	RefreshVillageNpcRelationDataByCodeEvent();					// June 32344880 (Atlas E1c)
 		VillageNpcRelationResult&	GetAppliedVillageNpcRelationData() { return m_kAppliedVillageNpcRelation; }
 		int		GetVillageNpcRelationDataCount() const { return static_cast<int>( m_kVillageNpcRelation.m_vecRelationData.size() + m_kVillageNpcRelation.m_vecNotShowData.size() ); }
 	private:

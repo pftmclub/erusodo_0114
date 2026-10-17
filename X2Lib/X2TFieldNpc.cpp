@@ -174,6 +174,10 @@ m_bRanking( false )
 	m_bRockScissorsPaper	= false;
 	m_bOldEnchant			= false;
 	m_bOldAdvancedEnchant	= false;
+	m_iMotionId				= 1;								// +0x1a8 = 1 (June's motion ids start at 1; E1c)
+	m_bQuestButtonOn		= false;							// +0x238 (word: +0x238 / +0x239)
+	m_bCheckCompletableQuest = false;
+	m_bShowAgitBank			= false;							// +0x42a
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 }//CX2TFieldNpc::CX2TFieldNpc()
 
@@ -420,6 +424,9 @@ void CX2TFieldNpc::InitQuestMark()
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 }
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June OnFrameMove 325cdfa0: in the Atlas E1c part of the block at the end of this file.
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 {	
 	m_fJoinNpcTime += fElapsedTime;
@@ -1665,6 +1672,7 @@ HRESULT	CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
 }
 
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 // June OnFrameRender_Draw 325d1040 (vtable 334acc6c +0xc): in the Atlas E1b block at the end of this file.
 #else SERV_IRUHADEV_ELYSION_VILLAGE
@@ -3944,4 +3952,877 @@ void CX2TFieldNpc::NpcPlaySound(wstring &wstrSoundName)
 	}
 }
 #endif NPC_SOUND
+
+//////////////////////////////////////////////////////////////////////////
+// Atlas/Elysion port Phase E1c (Iruha, 2026-10-17): June 2017's CX2TFieldNpc::OnFrameMove and the effect-set bone helpers.
+// Block numbers are june2017_re/c9h5_fieldnpc_onframemove_diff.md's. June-only systems March lacks keep June's call sites as
+// comments naming the owner, as in E1b: the friendship manager (code event 2215, backlog Stage 18), the agit-bank UI
+// (house 40082, guild base), June's UIs 9 / 0xa / 0xb (Upgrade / Service / Trade talk) and the gift cursor (0x1a).
+//////////////////////////////////////////////////////////////////////////
+
+// June 321f2c10: a bone of the main skin (+0x1b8), (0,0,0) without the skin or the frame.
+D3DXVECTOR3 CX2TFieldNpc::JuneGetBonePos( const WCHAR* wszBoneName )
+{
+	D3DXVECTOR3 vPos( 0.f, 0.f, 0.f );
+	if( NULL == m_pXSkinAnim )
+		return vPos;
+	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame( wszBoneName );	// 31d38a20
+	if( NULL != pFrame )
+		vPos = D3DXVECTOR3( pFrame->combineMatrix._41, pFrame->combineMatrix._42, pFrame->combineMatrix._43 );	// frame +0xc0..+0xc8
+	return vPos;
+}
+
+// June 321f2c70: the same, false on a miss.
+bool CX2TFieldNpc::JuneGetBonePos( const WCHAR* wszBoneName, D3DXVECTOR3& vPos )
+{
+	vPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
+	if( NULL == m_pXSkinAnim )
+		return false;
+	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame( wszBoneName );
+	if( NULL == pFrame )
+		return false;
+	vPos = D3DXVECTOR3( pFrame->combineMatrix._41, pFrame->combineMatrix._42, pFrame->combineMatrix._43 );
+	return true;
+}
+
+// June OnFrameMove 325cdfa0 (vtable 334acc6c +4), whole.
+HRESULT CX2TFieldNpc::OnFrameMove( double fTime, float fElapsedTime )
+{
+	m_fMultiTexTime = fElapsedTime;												// 1: +0x1f0, this frame's time (OnFrameRender_Draw scales MultiTexSpeed by it)
+	m_fJoinNpcTime += fElapsedTime;
+	m_fNpcMarkTime += fElapsedTime;
+
+	// 2-7: both skins are built once the main mesh / xet and the second mesh / xet are all loaded; a FAILED part closes its pair and
+	// deletes its skin without nulling it (as March for the main skin).
+	if ( m_bLoaded == false && m_pMesh != NULL )
+	{
+		const CKTDXDevice::EDeviceState eState		= m_pMesh->GetDeviceState();
+		const CKTDXDevice::EDeviceState eState2		= ( NULL != m_pAniXET ) ? m_pAniXET->GetDeviceState() : CKTDXDevice::DEVICE_STATE_LOADED;
+		const CKTDXDevice::EDeviceState eState3		= ( NULL != m_pMesh2nd ) ? m_pMesh2nd->GetDeviceState() : CKTDXDevice::DEVICE_STATE_LOADED;
+		const CKTDXDevice::EDeviceState eState4		= ( NULL != m_pAniXET2nd ) ? m_pAniXET2nd->GetDeviceState() : CKTDXDevice::DEVICE_STATE_LOADED;
+		if ( eState == CKTDXDevice::DEVICE_STATE_LOADED && eState2 == CKTDXDevice::DEVICE_STATE_LOADED &&
+			eState3 == CKTDXDevice::DEVICE_STATE_LOADED && eState4 == CKTDXDevice::DEVICE_STATE_LOADED )
+		{
+			SAFE_DELETE_KTDGOBJECT( m_pXSkinAnim );								// 3
+			m_pXSkinAnim = CKTDGXSkinAnim::CreateSkinAnim();
+			if ( m_pXSkinAnim != NULL )
+			{
+				m_pXSkinAnim->SetApplyMotionOffset( false );
+				m_pXSkinAnim->SetAnimXSkinMesh( m_pMesh, m_pAniXET );
+				m_pXSkinAnim->AddModelXSkinMesh( m_pMesh, m_pAniXET, m_pMultiTexXET, NULL, false, true );	// multiTex = +0x1ec
+				m_pXSkinAnim->SetShowObject( m_bReservedShowObject );
+				m_pXSkinAnim->GetMatrix().Move( m_vPos );
+				m_pXSkinAnim->GetMatrix().RotateDegree( m_vRot );
+				m_pXSkinAnim->GetMatrix().Scale( m_vScale );
+
+				// 4 (@325ce1d9): the village-NPC effect set, played once per mesh load on the UI effect set (g_pData +0x9c); the old
+				// handle is not stopped first (JUNE_BUGS) and only the dtor stops it.
+				if( NULL != m_pHouseTemplet && false == m_pHouseTemplet->m_wstrEffectSetName.empty() && NULL != g_pData->GetUIEffectSet() )
+				{
+					CX2EffectSet::Handle hEffectSet = g_pData->GetUIEffectSet()->PlayEffectSet( m_pHouseTemplet->m_wstrEffectSetName, this );	// 321e26d0
+					if( INVALID_EFFECTSET_HANDLE != hEffectSet )
+					{
+						m_hEffectSet = hEffectSet;
+						CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( m_hEffectSet );	// 321d97c0
+						if( NULL != pEffectSetInstance )
+							pEffectSetInstance->SetShowObject( true );					// 321de4f0
+					}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+					WCHAR buff[256] = {0};
+					StringCchPrintf( buff, 256, L"[ELYDBG] NpcEffectSet: house %d '%s' -> handle %s", m_NpcHouseID,
+						m_pHouseTemplet->m_wstrEffectSetName.c_str(), ( INVALID_EFFECTSET_HANDLE != hEffectSet ) ? L"played" : L"INVALID (no templet?)" );
+					ErrorLogMsg( XEM_ERROR142, buff );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+				}
+			}//if
+
+			if( NULL != m_pMesh2nd )												// 5: the second skin, no MultiTex
+			{
+				SAFE_DELETE_KTDGOBJECT( m_pXSkinAnim2nd );
+				m_pXSkinAnim2nd = CKTDGXSkinAnim::CreateSkinAnim();
+				if( NULL != m_pXSkinAnim2nd )
+				{
+					m_pXSkinAnim2nd->SetApplyMotionOffset( false );
+					m_pXSkinAnim2nd->SetAnimXSkinMesh( m_pMesh2nd, m_pAniXET2nd );
+					m_pXSkinAnim2nd->AddModelXSkinMesh( m_pMesh2nd, m_pAniXET2nd, NULL, NULL, false, true );
+					m_pXSkinAnim2nd->SetShowObject( m_bReservedShowObject );
+					m_pXSkinAnim2nd->GetMatrix().Move( m_vPos );
+					m_pXSkinAnim2nd->GetMatrix().RotateDegree( m_vRot );
+					m_pXSkinAnim2nd->GetMatrix().Scale( m_vScale );
+				}
+			}
+
+			float fRadius = m_pMesh->GetBoundingRadius() * m_vScale.y;			// 6
+			SetBoundingRadius( fRadius );
+			m_bLoaded = true;
+			if ( m_bReservedCanTalkNpc == true )
+				SetCanTalkNpc( m_bCanTalkNpc, true );
+		}
+		else
+		{
+			if ( eState == CKTDXDevice::DEVICE_STATE_FAILED || eState2 == CKTDXDevice::DEVICE_STATE_FAILED )	// 7
+			{
+				SAFE_CLOSE( m_pMesh );
+				SAFE_CLOSE( m_pAniXET );
+				CKTDGXSkinAnim::DeleteKTDGObject( m_pXSkinAnim );
+			}
+			if ( eState3 == CKTDXDevice::DEVICE_STATE_FAILED || eState4 == CKTDXDevice::DEVICE_STATE_FAILED )
+			{
+				SAFE_CLOSE( m_pMesh2nd );
+				SAFE_CLOSE( m_pAniXET2nd );
+				CKTDGXSkinAnim::DeleteKTDGObject( m_pXSkinAnim2nd );
+			}
+		}
+	}
+
+	if( m_pXSkinAnim == NULL || ( NULL != m_pMesh2nd && NULL == m_pXSkinAnim2nd ) || false == m_bEnable )	// 8
+		return S_OK;
+
+	if(m_pHouseTemplet != NULL && m_pHouseTemplet->m_bEventNpc == true)			// 9 (as March)
+	{
+		__time64_t t0 = g_pData->GetServerCurrentTime();
+		struct tm   ktm;
+		struct tm* ptm = &ktm;
+		bool bOK = _localtime64_s( ptm, &t0 ) == 0;
+		if ( bOK == true )
+		{
+			unsigned long fNowSecond = (unsigned long)((float)ptm->tm_hour * 3600.f + (float)ptm->tm_min * 60.f + (float)ptm->tm_sec);
+			if( m_pHouseTemplet->m_fStartMonth <= ptm->tm_mon+1 &&
+				m_pHouseTemplet->m_fStartDay <= ptm->tm_mday &&
+				m_pHouseTemplet->m_fStartHour <= ptm->tm_hour )
+			{
+				unsigned long ulActiveStep = (unsigned long)((m_pHouseTemplet->m_fActiveMin * 60.f) + (m_pHouseTemplet->m_fWaitMin * 60.f));
+				unsigned long ulChunkTime = fNowSecond % ulActiveStep;
+				if(ulChunkTime < (unsigned long)(m_pHouseTemplet->m_fActiveMin * 60.f))
+					SetCanTalkNpc(true);
+				else
+					SetCanTalkNpc(false);
+			}
+		}
+	}
+
+	D3DXVECTOR3 vInAreaPos = m_vBasePos;										// 10
+	vInAreaPos.y += 70.f;
+	D3DXVECTOR2 finalPos = g_pKTDXApp->GetProj3DPos( vInAreaPos );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqQuest = NULL;
+	CKTDGParticleSystem::CParticleEventSequence* pSeqEvent = NULL;
+	CKTDGParticleSystem::CParticleEventSequence* pSeqNpcInArea	= GetUiParticle()->GetInstanceSequence( m_hNpcInArea );
+	if ( pSeqNpcInArea != NULL )
+	{
+		if(m_NpcHouseID == CX2LocationManager::HI_POSTBOX)
+			pSeqNpcInArea->SetPosition( D3DXVECTOR3( finalPos.x, finalPos.y - 40.f, 0 ) );
+		else
+			pSeqNpcInArea->SetPosition( D3DXVECTOR3( finalPos.x, finalPos.y - 37.f, 0 ) );
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqTalkParticle = GetUiParticle()->GetInstanceSequence( m_hNpcTalkParticle );	// 11
+	if( NULL != pSeqTalkParticle )
+		pSeqTalkParticle->SetPosition( D3DXVECTOR3( finalPos.x - 60.f, finalPos.y + 20.f, 0 ) );
+
+	InitQuestMark();															// 12
+
+	if( CX2LocationManager::HI_EVENT_BLESS_OF_SOLACE == m_NpcHouseID )			// 13
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeqHighLight = GetUiParticle()->GetInstanceSequence( m_hNpcHighLight );
+		if( NULL != pSeqHighLight )
+		{
+			pSeqHighLight->SetPosition( m_vPos );
+			pSeqHighLight->ChangeSizeForce( D3DXVECTOR3( 3.f, 3.f, 1.f ) );		// thunk -> 31cfe2e0: every live particle's size (likely)
+			pSeqHighLight->SetShowObject( true );
+		}
+	}
+
+	if( GetShowObject() == true && g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == false )	// 14
+	{
+		if( m_NpcHouseID != CX2LocationManager::HI_POSTBOX && m_NpcHouseID != CX2LocationManager::HI_AGIT_BANK &&
+			( 0.f != m_vPos.x || 0.f != m_vPos.y || 0.f != m_vPos.z ) && true == m_bCanTalkNpc &&
+			3 < static_cast<unsigned int>( m_NpcHouseID - CX2LocationManager::HI_SPA_INNER_NPC_RUBEN ) )		// not 40143..40146
+		{
+			// 15: the completable-quest query runs on the frames the field game refreshed quest info; its result is not used (JUNE_BUGS).
+			if( true == m_bCheckCompletableQuest && NULL != m_pHouseTemplet && false == m_pHouseTemplet->m_NPCList.empty() )
+			{
+				vector<int> vecCompletableQuestID;
+				g_pData->GetQuestManager()->GetCompletableQuest( static_cast<CX2UnitManager::NPC_UNIT_ID>( m_pHouseTemplet->m_NPCList[0] ), vecCompletableQuestID );
+			}
+
+			if( m_nCompleteQuestNormal > 0 )										// 16
+				pSeqQuest = GetUiParticle()->GetInstanceSequence( m_hNpcCompleteQuest1 );
+			else if( m_nCompleteQuestRepeat > 0 )
+				pSeqQuest = GetUiParticle()->GetInstanceSequence( m_hNpcCompleteQuest2 );
+			else if( m_nFairLvQuest > 0 )
+				pSeqQuest = GetUiParticle()->GetInstanceSequence( m_hNpcNewQuest1 );
+			else if( m_nNewQuestRepeat > 0 )
+				pSeqQuest = GetUiParticle()->GetInstanceSequence( m_hNpcNewQuest2 );
+			else if( m_nDoQuest > 0 )
+				pSeqQuest = GetUiParticle()->GetInstanceSequence( m_hNpcDoQuest );
+			if( pSeqQuest != NULL )
+			{
+				pSeqQuest->SetPosition( D3DXVECTOR3( finalPos.x + 60.f, finalPos.y + 30.f, 0 ) );
+				pSeqQuest->SetShowObject( true );
+			}
+
+			if( m_nEventQuest > 0 )													// 17
+			{
+				pSeqEvent = GetUiParticle()->GetInstanceSequence( m_hNpcEvent );
+				if ( pSeqEvent != NULL )
+				{
+					pSeqEvent->SetPosition( D3DXVECTOR3( finalPos.x - 50.f, finalPos.y + 20.f, 0 ) );
+					pSeqEvent->SetShowObject( true );
+				}
+			}
+
+			// 18 (@325cebcd SETG): only a new normal quest raises the quest button; +0x5a8 (friendship talk) holds it.
+			const bool bQuest = ( m_nNewQuestNormal > 0 );
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_QUEST_RECEIVE ) == false &&
+				NULL != m_pDlgNpcMessage && 0 == m_abyFriendshipFlag[0] )
+			{
+				const bool bQuestButton = m_pDlgNpcMessage->GetShopType( CX2TFieldNpcShop::NSBT_QUEST );
+				if( true == bQuest && false == bQuestButton )
+				{
+					m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_QUEST, true, false, false );
+					m_pDlgNpcMessage->SetKeyEvent();
+				}
+				else if( false == bQuest && true == bQuestButton )
+				{
+					m_pDlgNpcMessage->SetShopType( CX2TFieldNpcShop::NSBT_QUEST, false, false, false );
+					m_pDlgNpcMessage->SetKeyEvent();
+				}
+			}
+			m_bQuestButtonOn = bQuest;
+		}
+
+		// 19: the friendship mark on +0x230 needs code event 2215 and June's friendship manager (32696fa0 / 321cd500, backlog Stage 18);
+		// without them June hides it. Found: position (x - 50, y + 20), Npc_Talk.dds or, at the max score (325d1d70), Npc_FriendShip_Max.dds.
+		if( NULL != pSeqTalkParticle )
+		{
+			if( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 2215 ) )
+			{
+				// Stage 18 wires the manager lookup here; with no manager the house is "not found".
+			}
+			pSeqTalkParticle->SetShowObject( false );
+		}
+	}
+
+	if( m_bInArea == true && GetShowObject() == true )							// 20
+	{
+		if( m_bJoinNpc == true )
+		{
+			if ( pSeqNpcInArea != NULL )
+				pSeqNpcInArea->SetShowObject( false );
+			if( pSeqQuest != NULL )
+				pSeqQuest->SetShowObject( false );
+			if( pSeqEvent != NULL )
+				pSeqEvent->SetShowObject( false );
+			if( pSeqTalkParticle != NULL )
+				pSeqTalkParticle->SetShowObject( false );
+		}
+		else if( false == m_pHouseTemplet->m_bOnlyClickable &&						// 323bddf0
+			( m_bEventNpc == false || ( m_bEventNpc == true && m_bCanTalkNpc == true ) ) )
+		{
+			// June's timer still runs, but every branch sets the Up texture: the talk mark no longer blinks (JUNE_BUGS).
+			if( 0.5f < m_fNpcMarkTime && 1.f < m_fNpcMarkTime )
+				m_fNpcMarkTime = 0.f;
+			if ( pSeqNpcInArea != NULL )
+			{
+				if( m_NpcHouseID == CX2LocationManager::HI_POSTBOX || m_NpcHouseID == CX2LocationManager::HI_BILLBOARD ||
+					m_NpcHouseID == CX2LocationManager::HI_AGIT_BANK || m_NpcHouseID == CX2LocationManager::HI_ELYSION_RED_TREE ||
+					m_NpcHouseID == CX2LocationManager::HI_ELYSION_BLUE_TREE )
+					pSeqNpcInArea->ChangeTexForce( L"One_Use_Up.dds" );
+				else
+					pSeqNpcInArea->ChangeTexForce( L"Npc_Talk_UP.dds" );
+
+				pSeqNpcInArea->SetShowObject( true == m_bCanTalkNpc );
+			}
+			if( pSeqQuest != NULL )
+				pSeqQuest->SetShowObject( true );
+			if( pSeqEvent != NULL )
+				pSeqEvent->SetShowObject( true );
+			if( CX2LocationManager::HI_SPA_PPORU == m_NpcHouseID && pSeqNpcInArea != NULL )
+				pSeqNpcInArea->SetShowObject( false );
+		}
+		else if ( pSeqNpcInArea != NULL )
+		{
+			pSeqNpcInArea->SetShowObject( true == m_bCanTalkNpc && false == m_pHouseTemplet->m_bOnlyClickable );
+		}
+	}
+	else																		// 21
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq	= GetUiParticle()->GetInstanceSequence( m_hNpcInArea );
+		if ( pSeq != NULL )
+			pSeq->SetShowObject(false);
+	}
+
+	if( m_bJoinNpc == true )
+	{
+		if( m_fJoinNpcTime > 1.2f )												// 22
+		{
+			if( true == m_bInConversation && m_pUINPC != NULL && m_pUINPC->GetShowObject() == false )
+			{
+				m_pUINPC->SetShowObject( true );
+				m_pUINPC->SetLayer( XL_LENS_FLARE );
+				m_pUINPC->StateChange( m_pUINPC->GetWaitStateID() );				// 32ee3860
+
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					m_pDlgNpcMessage->SetShow( true );
+					if( static_cast<CX2UnitManager::NPC_UNIT_ID>( m_iNpcIndex ) == CX2UnitManager::NUI_BILLBOARD )
+					{
+						wstring wstrRemainTime = GET_STRING( STR_ID_28380 );
+						wstring wstrAgencyShopExpirationDate = g_pInstanceData->GetAgencyShopExpirationDate();
+						if( wstrAgencyShopExpirationDate.empty() == false )
+						{
+							CTime	tCurrentTime	= CTime::GetCurrentTime();
+							CTime	cAgencyTime;
+							KncUtil::ConvertStringToCTime( wstrAgencyShopExpirationDate, cAgencyTime );
+							if( tCurrentTime < cAgencyTime )
+							{
+								if ( NULL != g_pMain && g_pMain->GetNowState() )
+									wstrRemainTime = static_cast<CX2State*>( g_pMain->GetNowState() )->GetExpirationDataDesc( g_pInstanceData->GetAgencyShopType(), wstrAgencyShopExpirationDate );
+							}
+						}
+						m_pDlgNpcMessage->SetNpcMessageWithEtc( m_strWaitTalk, wstrRemainTime );
+					}
+					else
+					{
+						wstring wstrWaitTalk = m_strWaitTalk;
+						ApplyQuestConditionMessage( 0, wstrWaitTalk );					// 325ca0b0( 0, ... )
+						m_pDlgNpcMessage->SetNpcMessage( wstrWaitTalk );
+					}
+					m_pDlgNpcMessage->SetKeyEvent();
+				}
+
+				m_bOpenedShop = false;
+#ifdef NPC_SOUND
+				if( m_pHouseTemplet != NULL && false == m_pHouseTemplet->m_vecNPCJoinTalkSound.empty() )
+				{
+					wstring wstrSoundName = m_pHouseTemplet->m_vecNPCJoinTalkSound[ rand() % m_pHouseTemplet->m_vecNPCJoinTalkSound.size() ];
+					NpcPlaySound( wstrSoundName );
+				}
+#endif NPC_SOUND
+				Handler_EGS_TALK_WITH_NPC_REQ( (CX2UnitManager::NPC_UNIT_ID)m_iNpcIndex );	// 325ca2b0
+			}
+
+			if( m_NpcHouseID == CX2LocationManager::HI_POSTBOX )					// 23 (as March)
+			{
+				if(g_pMain->GetPostBox()->GetDialogShow() == false && m_bShowPost == false)
+				{
+					g_pMain->GetPostBox()->SetDialogShow(true);
+					m_bShowPost = true;
+				}
+				else if(g_pMain->GetPostBox()->GetDialogShow() == false && m_bShowPost == true)
+				{
+					m_bBye = true;
+					m_bShowPost = false;
+				}
+				else if(g_pMain->GetPostBox()->GetDialogShow() == true && m_bShowPost == false)
+				{
+					m_bShowPost = true;
+				}
+
+				if( g_pMain->GetPostBox()->GetOpendSendWindow() == true &&
+					g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_INVEN ) == true )
+				{
+					m_bShowPost = true;
+				}
+				else if( g_pMain->GetPostBox()->GetOpendSendWindow() == false &&
+					g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_INVEN ) == true )
+				{
+					g_pMain->GetPostBox()->SetDialogShow(false);
+					g_pData->GetUIManager()->CloseAllNPCDlg();
+					m_bBye = true;
+					m_bShowPost = false;
+				}
+
+				if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_PERSONAL_TRADE ) == true ||
+					g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_CHARINFO ) == true ||
+					g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_QUEST_NEW ) == true ||
+					g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_QUEST ) == true ||
+					g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_PARTY ) == true )
+				{
+					if(g_pMain->GetPostBox()->GetShow() == true)
+					{
+						g_pMain->GetPostBox()->SetDialogShow(false);
+						g_pData->GetUIManager()->CloseAllNPCDlg();
+						m_bBye = true;
+						m_bShowPost = false;
+					}
+				}
+			}
+			// 24 (@325cf873): house 40082 (HI_AGIT_BANK) runs the same latch as the postbox on June's agit-bank UI (UIManager +0x5c,
+			// 3214f1b0 / 32150800) with +0x42a (m_bShowAgitBank); March has neither the house's data nor the UI (guild base).
+		}
+
+		if( true == m_bInConversation && m_pUINPC != NULL && m_pUINPC->GetShowObject() == true )	// 25
+		{
+			bool bOpendShop = false;
+
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_SHOP ) == true )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					wstring wstrTalk = m_strShopTalk;
+					ApplyQuestConditionMessage( 3, wstrTalk );
+					m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+				}
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_MANUFACTURE ) == true )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					wstring wstrTalk = m_strMakeTalk;
+					ApplyQuestConditionMessage( 4, wstrTalk );
+					m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+				}
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_PRIVATE_BANK ) == true )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					wstring wstrTalk = m_strPrivateBankTalk;
+					ApplyQuestConditionMessage( 5, wstrTalk );
+					m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+				}
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_ITEM_EXCHANGE_SHOP ) == true )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					wstring wstrTalk = m_strExchangeTalk;
+					ApplyQuestConditionMessage( 6, wstrTalk );
+					m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+				}
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_GUILD_BOARD ) == true )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					wstring wstrTalk = m_strGuildADTalk;
+					ApplyQuestConditionMessage( 7, wstrTalk );
+					m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+				}
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_PERSONAL_SHOP_BOARD ) == true )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					wstring wstrTalk = m_strPersonalShopTalk;
+					ApplyQuestConditionMessage( 8, wstrTalk );
+					m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+				}
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_PERSONAL_SHOP ) == true )
+			{
+				CX2UIPersonalShop *pPersonalShop = g_pData->GetUIManager()->GetUIPersonalShop();	// 3214efa0
+				if( pPersonalShop != NULL )
+				{
+					switch( pPersonalShop->GetPersonalShopState() )
+					{
+					case CX2UIPersonalShop::XPSS_AGENCY_WAIT:
+					case CX2UIPersonalShop::XPSS_AGENCY_SELL:
+						m_pDlgNpcMessage->SetNpcMessage( m_strRegisterTalk );			// no dlg test, as March
+						m_bOpenedShop = true;
+						bOpendShop = true;
+						break;
+					case CX2UIPersonalShop::XPSS_AGENCY_TAKE:
+						m_pDlgNpcMessage->SetNpcMessage( m_strReceiveTalk );
+						m_bOpenedShop = true;
+						bOpendShop = true;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_RANKING_INFO ) == true )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+					m_pDlgNpcMessage->SetNpcMessage( m_strRankingTalk );
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_QUEST_RECEIVE ) == true ||
+				g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_QUEST_NEW ) == true )
+			{
+				if( m_bOpenQuestReceive == false )
+				{
+					m_bOpenQuestReceive = true;
+					if ( m_pDlgNpcMessage != NULL )
+					{
+						wstring wstrTalk = m_strQuestTalk;
+						ApplyQuestConditionMessage( 1, wstrTalk );
+						m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+					}
+				}
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			else
+			{
+				m_bOpenQuestReceive = false;
+			}
+
+			CX2Cursor* pCursor = static_cast< CX2State* >( g_pMain->GetNowState() )->GetCursor();	// 26
+			if( NULL != pCursor )
+			{
+				if( CX2Cursor::XCS_EXCHANGE_NEW_ITEM == pCursor->GetCurorState() )
+				{
+					if( NULL != m_pDlgNpcMessage )
+						m_pDlgNpcMessage->SetNpcMessage( m_strExchangeNewItemTalk );
+				}
+				// @325cff16: June's gift cursor (state 0x1a) shows Gift_UI_Talk while the friendship manager's +0x4a4 is set and latches
+				// +0x5ab; leaving the cursor restores the wait talk (backlog Stage 18, no March cursor state or manager).
+			}
+
+			if( 1 == m_abyFriendshipFlag[0] )										// 27: +0x5a8 holds the dialog open
+			{
+				m_bOpenedShop = true;
+				bOpendShop = true;
+			}
+			if( m_bOpenedShop == true && bOpendShop == false && 0 == m_abyFriendshipFlag[0] )
+			{
+				if ( m_pDlgNpcMessage != NULL )
+				{
+					m_pDlgNpcMessage->SetHouseName( m_strHouseName );
+					if( static_cast<CX2UnitManager::NPC_UNIT_ID>( m_iNpcIndex ) == CX2UnitManager::NUI_BILLBOARD )
+					{
+						wstring wstrRemainTime = GET_STRING( STR_ID_28380 );
+						wstring wstrAgencyShopExpirationDate = g_pInstanceData->GetAgencyShopExpirationDate();
+						if( wstrAgencyShopExpirationDate.empty() == false )
+						{
+							CTime	tCurrentTime	= CTime::GetCurrentTime();
+							CTime	cAgencyTime;
+							KncUtil::ConvertStringToCTime( wstrAgencyShopExpirationDate, cAgencyTime );
+							if( tCurrentTime < cAgencyTime )
+							{
+								if ( NULL != g_pMain && g_pMain->GetNowState() )
+									wstrRemainTime = static_cast<CX2State*>( g_pMain->GetNowState() )->GetExpirationDataDesc( g_pInstanceData->GetAgencyShopType(), wstrAgencyShopExpirationDate );
+							}
+						}
+						m_pDlgNpcMessage->SetNpcMessageWithEtc( m_strByeTalk, wstrRemainTime );
+					}
+					else
+					{
+						wstring wstrTalk = m_strByeTalk;
+						ApplyQuestConditionMessage( 2, wstrTalk );
+						m_pDlgNpcMessage->SetNpcMessage( wstrTalk );
+					}
+				}
+				m_bOpenedShop = false;
+			}
+			// 28 (@325d0204): June's UIs 9 / 0xb / 0xa show Upgrade_Talk / Service_Talk / Trade_Talk (+0x4b4 / +0x4d0 / +0x4ec) and set
+			// m_bOpenedShop; March has none of those UIs (registered-not-shown buttons, E1b).
+		}
+
+		switch ( g_pMain->GetNowStateID() )											// 29 (June states 14-15 / 21, as March)
+		{
+		case CX2Main::XS_VILLAGE_MAP:
+			{
+				if( NULL != g_pTFieldGame && NULL != g_pTFieldGame->GetNpcIndicator() )
+					g_pTFieldGame->GetNpcIndicator()->SetShow(false);
+			} break;
+		case CX2Main::XS_BATTLE_FIELD:
+			{
+				if( NULL != g_pX2Game && NULL != static_cast<CX2BattleFieldGame*>(g_pX2Game)->GetNpcIndicator() )
+					static_cast<CX2BattleFieldGame*>(g_pX2Game)->GetNpcIndicator()->SetShow(false);
+			} break;
+		}
+	}
+
+	if( m_bTalk == true )														// 30
+		TalkStep();
+	if( m_bBye == true )														// 31
+		ByeStep();
+	// 32: +0x5a8 runs June's friendship multi-line talk (325c9e70, backlog Stage 18); March never sets it.
+	if( 1 == m_abyFriendshipFlag[2] )											// 33: +0x5aa
+	{
+		if( NULL != m_pDlgNpcMessage )
+			m_pDlgNpcMessage->SetNpcMessage( m_strRejectGiftTalk );				// +0x56c
+		m_abyFriendshipFlag[2] = 0;
+	}
+
+	if ( false == m_bEnableNPCTalkBox )											// 34
+	{
+		m_fElapsedTimeAfterDisableNPCTalkBox += fElapsedTime;
+		if( m_fElapsedTimeAfterDisableNPCTalkBox > 10.f )
+		{
+			m_bEnableNPCTalkBox = true;
+			m_fElapsedTimeAfterDisableNPCTalkBox = 0.f;
+		}
+	}
+
+	if( true == m_bInConversation && m_pUINPC != NULL )							// 35
+		m_pUINPC->OnFrameMove( fTime, fElapsedTime );
+
+	if( m_bJoinNpc == true && m_bStaticMesh == false && m_pDlgNpcMessage != NULL )	// 36
+		m_pDlgNpcMessage->OnFrameMove( fTime, fElapsedTime );
+
+	if( m_bPlay == false && m_bStaticMesh == false )							// 37
+	{
+		m_pXSkinAnim->SetPlaySpeed( m_fWaitAnimSpeed );
+		if( m_bEventNpc == false )
+		{
+			switch( m_iMotionId )
+			{
+			case 1:
+				m_pXSkinAnim->ChangeAnim( m_mapMotionName[ m_iMotionId ].c_str(), true, 0.f );
+				m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+				if ( m_vecNPCTalkBox.size() > 0 && true == m_bEnableNPCTalkBox && GetDistanceToCamera() < 3800 )
+				{
+					if ( NULL != g_pTFieldGame && NULL != g_pTFieldGame->GetTalkBoxManager() )
+					{
+						CX2TalkBoxManagerImp::TalkBox talkBox;
+						talkBox.m_OwnerUnitUID		= m_NpcHouseID;
+						talkBox.m_GameUnitType		= CX2GameUnit::GUT_NPC;
+						talkBox.m_bExtraVariable	= true;
+						talkBox.m_bTraceUnit		= true;
+						talkBox.m_TalkBoxType		= CX2TalkBoxManagerImp::TBT_FROM_DOWN_RIGHT;
+						talkBox.m_wstrTalkContent	= m_vecNPCTalkBox[m_sTalkNum];
+						g_pTFieldGame->GetTalkBoxManager()->Push( talkBox );
+					}
+					++m_sTalkNum;
+					m_bEnableNPCTalkBox = false;
+					if ( m_sTalkNum > (int) m_vecNPCTalkBox.size() - 1 )
+						m_sTalkNum = 0;
+				}
+				break;
+			case 2:
+			case 3:
+			case 10:
+				m_pXSkinAnim->ChangeAnim( m_mapMotionName[ m_iMotionId ].c_str(), true, 0.f );
+				m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+				break;
+			case 11:																// the CUSTOM_MOTION_NAME queue (+0x204)
+				{
+					UINT uiEntry = 0;
+					for( ; uiEntry < m_vecCustomMotion.size(); ++uiEntry )
+					{
+						if( false == m_vecCustomMotion[uiEntry].m_bPlayed )
+							break;
+					}
+					if( uiEntry >= m_vecCustomMotion.size() )
+					{
+						DisableNpc();												// 325ca920: every queued motion played
+					}
+					else
+					{
+						m_pXSkinAnim->ChangeAnim( m_vecCustomMotion[uiEntry].m_wstrMotionName.c_str(), true, 0.f );
+						m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+						m_vecCustomMotion[uiEntry].m_bPlayed = true;
+					}
+				}
+				break;
+			default:
+				m_pXSkinAnim->ChangeAnim( m_mapMotionName[ 1 ].c_str(), true, 0.f );
+				m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+				break;
+			}
+		}
+		else
+		{
+			m_pXSkinAnim->ChangeAnim( ( m_bCanTalkNpc == false ) ? L"Wait01" : L"Active_Wait01", true, 0.f );
+			m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		}
+
+		if( NULL != m_pXSkinAnim2nd )											// skin 2: ids 1-3 and 10 by id, every other id Wait01 (JUNE_BUGS)
+		{
+			m_pXSkinAnim2nd->SetPlaySpeed( m_fWaitAnimSpeed );
+			if( m_bEventNpc == false )
+			{
+				if( ( 0 < m_iMotionId && m_iMotionId <= 3 ) || 10 == m_iMotionId )
+					m_pXSkinAnim2nd->ChangeAnim( m_mapMotionName[ m_iMotionId ].c_str(), true, 0.f );
+				else
+					m_pXSkinAnim2nd->ChangeAnim( m_mapMotionName[ 1 ].c_str(), true, 0.f );
+			}
+			else
+			{
+				m_pXSkinAnim2nd->ChangeAnim( ( m_bCanTalkNpc == false ) ? L"Wait01" : L"Active_Wait01", true, 0.f );
+			}
+			m_pXSkinAnim2nd->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+		}
+
+		m_bPlay = true;
+	}
+	else if( m_bPlay == false && m_bStaticMesh == true )						// 38: TalkWait while joined if the mesh has it, else Normal
+	{
+		CKTDGXSkinAnim* apSkin[2] = { m_pXSkinAnim, m_pXSkinAnim2nd };
+		for( int i = 0; i < 2; ++i )
+		{
+			if( NULL == apSkin[i] )
+				continue;
+			apSkin[i]->SetPlaySpeed( m_fWaitAnimSpeed );
+			if( true == apSkin[i]->JuneIsAnimSetExist( m_mapMotionName[ JNMK_TALKWAIT ].c_str() ) && true == m_bJoinNpc )	// 31d34110
+			{
+				apSkin[i]->ChangeAnim( m_mapMotionName[ JNMK_TALKWAIT ].c_str(), true, 0.f );
+				apSkin[i]->Play( CKTDGXSkinAnim::XAP_LOOP );
+			}
+			else
+			{
+				apSkin[i]->ChangeAnim( m_mapMotionName[ JNMK_NORMAL ].c_str(), true, 0.f );
+				apSkin[i]->Play( CKTDGXSkinAnim::XAP_ONE_WAIT );
+			}
+		}
+	}
+
+	if ( m_bJoinNpc == false && m_bStaticMesh == true &&						// 39 (as March)
+		m_vecNPCTalkBox.size() > 0 && true == m_bEnableNPCTalkBox &&
+		GetDistanceToCamera() < 3800 )
+	{
+		if( NULL != g_pTFieldGame && NULL != g_pTFieldGame->GetTalkBoxManager() )
+		{
+			CX2TalkBoxManagerImp::TalkBox talkBox;
+			talkBox.m_OwnerUnitUID		= m_NpcHouseID;
+			talkBox.m_GameUnitType		= CX2GameUnit::GUT_NPC;
+			talkBox.m_bExtraVariable	= true;
+			talkBox.m_bTraceUnit		= true;
+			talkBox.m_TalkBoxType		= CX2TalkBoxManagerImp::TBT_FROM_DOWN_RIGHT;
+			talkBox.m_wstrTalkContent	= m_vecNPCTalkBox[m_sTalkNum];
+			g_pTFieldGame->GetTalkBoxManager()->Push( talkBox );
+		}
+		++m_sTalkNum;
+		m_bEnableNPCTalkBox = false;
+		if ( m_sTalkNum > (int) m_vecNPCTalkBox.size() - 1 )
+			m_sTalkNum = 0;
+	}
+
+	m_pXSkinAnim->OnFrameMove( fTime, fElapsedTime );							// 40
+	if( NULL != m_pXSkinAnim2nd )
+		m_pXSkinAnim2nd->OnFrameMove( fTime, fElapsedTime );
+
+	if( m_bFirstAnim == true )													// 41
+	{
+		m_bFirstAnim = false;
+		if( m_bStaticMesh == false )
+		{
+			m_vBasePos = GetHeadBonePos();
+		}
+		else
+		{
+			m_vBasePos = GetPos();
+			m_vBasePos.y += 210.f;
+		}
+	}
+
+	if( m_bPlay == true && m_pXSkinAnim->IsAnimationEnd() == true && m_bStaticMesh == false )	// 42
+	{
+		m_bPlay = false;
+		if( m_bEventNpc == false )
+		{
+			if( true == m_bInConversation && NULL != m_pHouseTemplet && true == m_pHouseTemplet->m_bTalkLoopAniNpc )
+			{
+				m_iMotionId = JNMK_TALKLOOP;
+			}
+			else
+			{
+				const int iRand = rand() % 9;
+				if( 0 == iRand )
+					m_iMotionId = ( m_iMotionId == 2 ) ? 1 : 2;
+				else if( 1 == iRand )
+					m_iMotionId = ( m_iMotionId == 3 ) ? 1 : 3;
+				else
+					m_iMotionId = 1;
+			}
+		}
+		else
+		{
+			m_iMotionId = 1;
+		}
+
+		if( false == m_vecCustomMotion.empty() )
+			m_iMotionId = 11;
+		if( false == m_pXSkinAnim->JuneIsAnimSetExist( m_mapMotionName[ m_iMotionId ].c_str() ) && true == m_vecCustomMotion.empty() )
+			m_iMotionId = 1;
+	}
+
+#if defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ ) || defined( _OPEN_TEST_2_ )
+	// 44: March's in-house head scale; June's service exe compiles it out (build config, not a June change), kept here.
+	if( m_pXSkinAnim != NULL && g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_DEV && g_pInstanceData->GetFrameScale() == true)
+	{
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame(L"Bip01_Head");
+		if(pFrame != NULL && pFrame->m_bScale == false)
+		{
+			D3DXVECTOR3 vScale = D3DXVECTOR3(1.5f, 1.5f, 1.5f);
+			SetFrameScale(&vScale, false, pFrame);
+		}
+	}
+	else if( m_pXSkinAnim != NULL && g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_DEV && g_pInstanceData->GetFrameScale() == false)
+	{
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = m_pXSkinAnim->GetCloneFrame(L"Bip01_Head");
+		if(pFrame != NULL && pFrame->m_bScale == true)
+		{
+			SetFrameScaleRestore(pFrame);
+		}
+	}
+#endif
+
+	if ( true == m_bIsPlayNearSound )											// 43 (as March)
+	{
+		m_fPlayNowNearSoundCoolTime += fElapsedTime;
+		if ( NULL != g_pTFieldGame->GetMyUnit() )
+		{
+			float fDistance3Sq = GetDistance3Sq( GetPos(), g_pTFieldGame->GetMyUnit()->GetPos() );
+			if ( fDistance3Sq < m_fPlayNearSoundDistance * m_fPlayNearSoundDistance )
+			{
+				if ( m_fPlayNowNearSoundCoolTime >= m_fPlayMaxNearSoundCoolTime )
+				{
+					m_fPlayNowNearSoundCoolTime = 0;
+					if ( NULL != m_pNearPlaySound && true == m_pNearPlaySound->IsPlaying() )
+					{
+						;
+					}
+					else
+					{
+#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+						m_pNearPlaySound = g_pKTDXApp->GetDeviceManager()->PlaySound( m_wstrNearSoundFileName.c_str(), false, false, false );
+#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+						m_pNearPlaySound = g_pKTDXApp->GetDeviceManager()->PlaySound( m_wstrNearSoundFileName.c_str(), false, false );
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+						if( m_pNearPlaySound != NULL )
+						{
+							m_pNearPlaySound->Set3DPosition( GetPos() );
+							m_pNearPlaySound->SetMax3DDistance( 3000.f );
+						}
+					}
+				}
+
+				if ( NULL != m_pNearPlaySound && m_pNearPlaySound->IsPlaying() )
+				{
+					if ( true == g_pKTDXApp->GetDSManager()->GetSoundMute() )
+					{
+						g_pKTDXApp->GetDeviceManager()->StopSound( m_wstrNearSoundFileName.c_str() );
+					}
+					else
+					{
+						const float MAGIC_BOUND = 3000.f;
+						float fVolume = MAGIC_BOUND + g_pKTDXApp->GetDSManager()->GetSoundVolume();
+						fVolume = (float) ( ( (int)fVolume ) % (int)MAGIC_BOUND );
+						fVolume /= MAGIC_BOUND;
+						m_pNearPlaySound->SetVolume( fVolume );
+					}
+				}
+			}
+			else
+			{
+				if ( NULL != m_pNearPlaySound )
+				{
+					g_pKTDXApp->GetDeviceManager()->StopSound( m_wstrNearSoundFileName.c_str() );
+				}
+			}
+		}
+	}
+
+	return S_OK;
+}
 #endif SERV_IRUHADEV_ELYSION_VILLAGE

@@ -421,6 +421,76 @@ void CX2QuestManager::ClearAppliedVillageNpcRelationData()
 	m_kAppliedVillageNpcRelation.m_vecNotShowData.clear();
 }
 
+/// June 32340630 (Atlas E1c), run by the quest UI right after a completed quest is removed (QUEST_COMPLETE_ACK 323e57e0 @323e5903,
+/// ALL_COMPLETED_QUEST_COMPLETE_ACK 323e1710 @323e1864; June's third caller 323e15e0 @323e1635 handles a June-only packet March has
+/// no event for). 0 rebuilds the house's NPC from the row, 1 hides it.
+void CX2QuestManager::RefreshVillageNpcRelationDataByQuest( int iQuestID_ )
+{
+	if ( NULL == g_pTFieldGame )
+		return;
+
+	VillageNpcRelationResult kResult;
+	const int iResult = GetVillageNpcRelationDataByQuestID( iQuestID_, kResult );
+	if ( 0 == iResult )
+	{
+		if ( false == kResult.m_vecRelationData.empty() )
+			g_pTFieldGame->ReplaceVillageNpc( kResult.m_vecRelationData[0] );
+	}
+	else if ( 1 == iResult )
+	{
+		if ( false == kResult.m_vecNotShowData.empty() )
+			g_pTFieldGame->RemoveVillageNpc( kResult.m_vecNotShowData[0].m_iTargetHouseID );
+	}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	WCHAR buff[256] = {0};
+	StringCchPrintf( buff, 256, L"[ELYDBG] VillageNpcRelation: quest %d completed -> result %d", iQuestID_, iResult );
+	ErrorLogMsg( XEM_ERROR142, buff );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+}
+
+/// June 32344880 (Atlas E1c), run at the end of Handler_EGS_UPDATE_CODE_EVENT_NOT (31f00970 @31f00a61): every house of the current
+/// village is looked up again (ByQuest, then ByVillage on -1); 0 rebuilds, 1 hides, 2 restores what was applied for that house.
+void CX2QuestManager::RefreshVillageNpcRelationDataByCodeEvent()
+{
+	if ( NULL == g_pTFieldGame || NULL == g_pData || NULL == g_pData->GetLocationManager() )
+		return;
+
+	SEnum::VILLAGE_MAP_ID eVillageID;
+	D3DXVECTOR3 vPos;
+	g_pData->GetLocationManager()->GetVillage( eVillageID, vPos );												// 324f1e10
+	CX2LocationManager::VillageTemplet* pVillageTemplet = g_pData->GetLocationManager()->GetVillageMapTemplet( eVillageID );	// 324f23a0
+	if ( NULL == pVillageTemplet )
+		return;
+
+	for ( UINT i = 0; i < pVillageTemplet->m_HouseList.size(); ++i )
+	{
+		if ( NULL == g_pData->GetQuestManager() )
+			continue;
+
+		const int iHouseID = static_cast<int>( pVillageTemplet->m_HouseList[i] );
+		VillageNpcRelationResult kResult;
+		int iResult = GetVillageNpcRelationDataByQuest( iHouseID, kResult );
+		if ( -1 == iResult )
+			iResult = GetVillageNpcRelationDataByVillage( static_cast<int>( eVillageID ), iHouseID, kResult );
+
+		if ( 0 == iResult )
+		{
+			if ( false == kResult.m_vecRelationData.empty() )
+				g_pTFieldGame->ReplaceVillageNpc( kResult.m_vecRelationData[0] );
+		}
+		else if ( 1 == iResult )
+		{
+			if ( false == kResult.m_vecNotShowData.empty() )
+				g_pTFieldGame->RemoveVillageNpc( kResult.m_vecNotShowData[0].m_iTargetHouseID );
+		}
+		else if ( 2 == iResult && ( false == m_kAppliedVillageNpcRelation.m_vecRelationData.empty()
+			|| false == m_kAppliedVillageNpcRelation.m_vecNotShowData.empty() ) )
+		{
+			g_pTFieldGame->RestoreVillageNpc( iHouseID, m_kAppliedVillageNpcRelation );
+		}
+	}
+}
+
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 

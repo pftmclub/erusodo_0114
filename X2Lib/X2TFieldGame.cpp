@@ -20,6 +20,10 @@ CX2TFieldGame::CX2TFieldGame( CX2World::WORLD_ID worldID, SquareData* pSquareDat
 #endif	KTDGDEVICEFONT_SIMULATE_DIRECTX_FONT		
 , m_pTalkBoxManager( NULL )
 , m_vecFieldNpc()
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+, m_vecJuneRelationHouseTemplet()
+, m_fJuneNpcQuestInfoTime( 0.f )
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 , m_pSubAniXSkinAnim( NULL )
 , m_pSubAniMesh( NULL )	
 , m_pSubSound( NULL )
@@ -596,6 +600,12 @@ g_pData->GetUIManager()->DestoryUITempInventory();
 		//CX2TFieldNpc::DeleteKTDGObject( pNpcNode );
 	}
 	m_vecFieldNpc.clear();
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	// June dtor 323b8ba0 @323b92a1-323b9311: the relation templet copies (+0x444) go after the NPC list (@323b8e3e) is released.
+	for( UINT i = 0; i < m_vecJuneRelationHouseTemplet.size(); ++i )
+		SAFE_DELETE( m_vecJuneRelationHouseTemplet[i] );
+	m_vecJuneRelationHouseTemplet.clear();
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 	SAFE_DELETE( m_pWorld );
 	SAFE_DELETE( m_pCamera );
@@ -1914,6 +1924,91 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 	// ¸¶À» npc
 	if(m_bShowMarketList == false)
 	{
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// June CX2TFieldGame::OnFrameMove 323b5970 @323b70cb-323b7475 (Atlas E1c): the field-NPC loop.
+		// - a disabled NPC (+0x5fa) is skipped whole, OnFrameMove included (@323b7199);
+		// - AlwaysShow (templet +0x5a0) shows an NPC at any distance (@323b7245);
+		// - the village-NPC effect set (+0x190) follows the NPC's show state (@323b7263 / @323b73a0);
+		// - quest info is refreshed once a second (+0x458), and +0x239 tells OnFrameMove it was (@323b72e4);
+		// - June's spa manager (TFG +0x624, built only in villages 1500 / 1501 by 32ec76e0, house 40147 HI_SPA_PPORU, @323b7131 /
+		//   @323b72b3) and the guild-mark / spa-sign UI flags (TFG +0x354 / +0x460, @323b7324-323b735d) have no March system: the
+		//   pointer is null and both flags stay false here, so those branches never run.
+		bool bFindJoinNpc = false;
+		m_fJuneNpcQuestInfoTime += fElapsedTime;
+		for(unsigned int i=0; i<m_vecFieldNpc.size(); ++i)
+		{
+			CX2TFieldNpcPtr pNpcNode = m_vecFieldNpc[i];
+			if( pNpcNode == NULL )
+				continue;
+
+			pNpcNode->SetInArea(false);
+
+			if( false == pNpcNode->GetEnable() )
+				continue;
+
+			// June reads the unit's position (TFG +8 -> +0x3c8) before its null test (@323b71ae / @323b722e); guarded here (JUNE_BUGS).
+			float fNpcDistance = 0.f;
+			if( m_pMyUnit != NULL )
+				fNpcDistance = GetDistance( m_pMyUnit->GetPos(), pNpcNode->m_vPos );
+
+			if( m_pMyUnit != NULL &&
+				( ( NULL != pNpcNode->GetHouseTemplet() && true == pNpcNode->GetHouseTemplet()->m_bAlwaysShow ) || fNpcDistance <= 2500.f ) )
+			{
+				if( INVALID_EFFECTSET_HANDLE != pNpcNode->GetEffectSetHandle() && NULL != g_pData->GetUIEffectSet() )
+				{
+					CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( pNpcNode->GetEffectSetHandle() );
+					if( NULL != pEffectSetInstance && false == pEffectSetInstance->m_bShowObject )
+						pEffectSetInstance->SetShowObject( true );
+				}
+				pNpcNode->SetShowObject(true);
+
+				if( 1.f < m_fJuneNpcQuestInfoTime )
+				{
+					pNpcNode->GetQuestInfo();
+					pNpcNode->SetCheckCompletableQuest( true );
+				}
+				else
+				{
+					pNpcNode->SetCheckCompletableQuest( false );
+				}
+
+				if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == false )
+				{
+					if( fNpcDistance <= pNpcNode->m_NPCJoinArea )
+					{
+						pNpcNode->SetInArea(true);
+					}
+					else if( pNpcNode->GetInArea() == true && pNpcNode->GetNpcJoin() == true )
+					{
+						pNpcNode->SetInArea(false);
+					}
+				}
+				else
+				{
+					pNpcNode->SetInArea(false);
+				}
+			}
+			else
+			{
+				if( INVALID_EFFECTSET_HANDLE != pNpcNode->GetEffectSetHandle() && NULL != g_pData->GetUIEffectSet() )
+				{
+					CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pData->GetUIEffectSet()->GetEffectSetInstance( pNpcNode->GetEffectSetHandle() );
+					if( NULL != pEffectSetInstance && true == pEffectSetInstance->m_bShowObject )
+						pEffectSetInstance->SetShowObject( false );
+				}
+				pNpcNode->SetShowObject(false);
+			}
+
+			if(pNpcNode->GetInArea() == false)
+				pNpcNode->ResetNpc();
+			else
+				bFindJoinNpc = true;
+
+			pNpcNode->OnFrameMove( fTime, fElapsedTime );
+		}
+		if( 1.f < m_fJuneNpcQuestInfoTime )
+			m_fJuneNpcQuestInfoTime = 0.f;
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 		bool bFindJoinNpc = false;
 		for(unsigned int i=0; i<m_vecFieldNpc.size(); ++i)
 		{
@@ -2006,6 +2101,7 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 			}			
 		}	
 
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		if(bFindJoinNpc == false)
 		{
             if ( m_pNpcShadow != NULL )
@@ -3208,6 +3304,273 @@ bool CX2TFieldGame::ConnectTR()
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+// June 323ba5f0 (Atlas E1c): village NPC creation. With the quest manager up, each house of the current village is looked up in the
+// relation data first (ByQuest 32340320, then ByVillage 323446c0 on -1): 0 builds the changed NPC (ReplaceVillageNpc), 1 builds
+// nothing (VRT_NOT_SHOW), anything else takes the plain path. The plain path skips the event houses while their code event is off,
+// house 40090 unless the player is a comeback user, and the spa signs without code event 31.
+// March's two event gates (HI_EVENT_BENDERS, HI_APINK_ARCHANGEL) and the A-Pink music are compiled out of this build (flags off).
+void CX2TFieldGame::AddFieldNpc()
+{
+	if( NULL == g_pData || NULL == g_pData->GetLocationManager() )
+		return;
+
+	SEnum::VILLAGE_MAP_ID villageId;
+	D3DXVECTOR3 vPos;
+	g_pData->GetLocationManager()->GetVillage( villageId, vPos );												// 324f1e10
+	CX2LocationManager::VillageTemplet* pVillageTemplate = g_pData->GetLocationManager()->GetVillageMapTemplet( villageId );	// 324f23a0
+	if( NULL == pVillageTemplate )
+		return;
+
+	if( NULL != g_pData->GetQuestManager() )
+		g_pData->GetQuestManager()->ClearAppliedVillageNpcRelationData();										// 323c21e0
+
+	for( UINT i = 0; i < pVillageTemplate->m_HouseList.size(); ++i )
+	{
+		const int iHouseID = static_cast<int>( pVillageTemplate->m_HouseList[i] );
+
+		if( NULL != g_pData->GetQuestManager() )
+		{
+			CX2QuestManager::VillageNpcRelationResult kResult;
+			int iResult = g_pData->GetQuestManager()->GetVillageNpcRelationDataByQuest( iHouseID, kResult );
+			if( -1 == iResult )		// the village id is the location manager's own (+0x64, @323ba705)
+				iResult = g_pData->GetQuestManager()->GetVillageNpcRelationDataByVillage( static_cast<int>( g_pData->GetLocationManager()->GetCurrentVillageID() ), iHouseID, kResult );
+
+			if( 0 == iResult )
+			{
+				if( false == kResult.m_vecRelationData.empty() )
+					ReplaceVillageNpc( kResult.m_vecRelationData[0] );
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+				WCHAR buff[256] = {0};
+				StringCchPrintf( buff, 256, L"[ELYDBG] VillageNpcRelation: village %d house %d -> changed NPC", (int)villageId, iHouseID );
+				ErrorLogMsg( XEM_ERROR142, buff );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+				continue;
+			}
+			if( 1 == iResult )
+			{
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+				WCHAR buff[256] = {0};
+				StringCchPrintf( buff, 256, L"[ELYDBG] VillageNpcRelation: village %d house %d -> not shown", (int)villageId, iHouseID );
+				ErrorLogMsg( XEM_ERROR142, buff );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+				continue;
+			}
+		}
+
+		CX2LocationManager::HouseTemplet* pHouseTemplate = g_pData->GetLocationManager()->GetHouseTemplet( static_cast<CX2LocationManager::HOUSE_ID>( iHouseID ) );	// 324f23e0
+		if( NULL == pHouseTemplate )
+			continue;		// June reads the house id through the result unchecked (@323ba86c); guarded here (JUNE_BUGS)
+
+		// @323ba7a0-323ba86c: code events 2013 / 2081 / 2186 gate houses 40091 / 40129 / 40089 (skipped while off).
+		if( NULL != g_pInstanceData )
+		{
+			if( false == g_pInstanceData->IsEnableCode( 2013 ) && CX2LocationManager::HI_EVENT_DOLL == pHouseTemplate->m_ID )
+				continue;
+			if( false == g_pInstanceData->IsEnableCode( 2081 ) && CX2LocationManager::HI_EVENT_BLESS_OF_SOLACE == pHouseTemplate->m_ID )
+				continue;
+			if( false == g_pInstanceData->IsEnableCode( 2186 ) && CX2LocationManager::HI_EVENT_GUILD_EDAN_ROOM == pHouseTemplate->m_ID )
+				continue;
+		}
+
+		// @323ba86c: house 40090 needs the premium buff manager's +0x5d (g_pData +0x334) = m_bComeBackUser (buff port Phase 11 review:
+		// the same byte gates the comeback chat 323bbcb9).
+		if( NULL != g_pData->GetPremiumBuffManager() && false == g_pData->GetPremiumBuffManager()->IsComeBackUser() &&
+			CX2LocationManager::HI_EVENT_GUILD_EDAN_VILAGE == pHouseTemplate->m_ID )
+			continue;
+
+		// @323ba88d: the spa signs (40141 / 40142) need code event 31.
+		if( ( CX2LocationManager::HI_SPA_SIGN_RUBEN == pHouseTemplate->m_ID || CX2LocationManager::HI_SPA_SIGN_RANOX == pHouseTemplate->m_ID ) &&
+			NULL != g_pInstanceData && false == g_pInstanceData->IsEnableCode( 31 ) )
+			continue;
+
+		AddFieldNpc( pHouseTemplate, L"" );
+	}
+}
+
+// June 323b0980: one NPC for a templet, if the field's world is one of its COMMON_NPC_LOCATION worlds or it has CUSTOM_NPC_LOACION rows.
+// June has no ASSERT for a missing position. In a spa village (TFG +0x624) house 40147 is disabled at once (@323b0ab8); March has no
+// spa manager.
+void CX2TFieldGame::AddFieldNpc( CX2LocationManager::HouseTemplet* pHouseTemplate, std::wstring wstrNpcName )
+{
+	if( NULL == pHouseTemplate )
+		return;
+
+	bool bFindNpcPos = true;
+	if( NULL != GetWorld() )
+	{
+		CX2World::WORLD_ID eWorldID = ( NULL != GetWorld()->GetWorldData() ) ? GetWorld()->GetWorldData()->worldID : (CX2World::WORLD_ID) 0;
+		if( false == pHouseTemplate->m_vecCommonPos.empty() )
+		{
+			bFindNpcPos = false;
+			for( UINT i = 0; i < pHouseTemplate->m_vecCommonPos.size(); ++i )
+			{
+				if( eWorldID == pHouseTemplate->m_vecCommonPos[i].m_eWorldID )
+				{
+					bFindNpcPos = true;
+					break;
+				}
+			}
+		}
+	}
+
+	if( false == pHouseTemplate->m_vecCustomNpcPos.empty() || true == bFindNpcPos )
+	{
+		CX2TFieldNpcPtr npcNode = CX2TFieldNpc::CreateTFieldNPC( true );								// 323bdef0
+		if( npcNode != NULL )
+		{
+			npcNode->CreateFieldNpc( GetWorld(), pHouseTemplate, wstrNpcName );							// 325ca980
+			m_vecFieldNpc.push_back( npcNode );
+			npcNode->SetLayer( XL_SKY_WORLD_OBJECT_2 );												// +0x164 = 10
+			g_pKTDXApp->GetDGManager()->AddObjectChain( npcNode.get() );
+			npcNode->SetShowObject( false );
+		}
+	}
+}
+
+// June 323b7ff0: the house's NPC is disabled, a copy of its templet takes the row's changes (strings only when not empty) and a new NPC
+// is built from it under the row's name. The copy is kept in +0x444 for the field's lifetime. June bugs kept verbatim (JUNE_BUGS):
+// AlphaBlend2ndMesh is parsed from the row's AlphaBlend1stMesh string (@323b8204 pushes +0x84), and TalkLoop is copied into both
+// TALKWAIT and TALKLOOP (@323b8659); the RenderOption block is copied whole, MultiTex included.
+void CX2TFieldGame::ReplaceVillageNpc( const CX2QuestManager::VillageNpcRelationData& kData )
+{
+	RemoveVillageNpc( kData.m_iTargetHouseID );
+
+	CX2LocationManager::HouseTemplet* pOrigin = g_pData->GetLocationManager()->GetHouseTemplet( static_cast<CX2LocationManager::HOUSE_ID>( kData.m_iTargetHouseID ) );
+	if( NULL == pOrigin )
+		return;		// June copies from the lookup unchecked (323c2aa0 @323b8081); guarded here (JUNE_BUGS)
+
+	CX2LocationManager::HouseTemplet* pHouseTemplet = new CX2LocationManager::HouseTemplet( *pOrigin );	// 323c3cf0 + 323c2aa0
+
+	if( false == kData.m_wstrNPCMeshName.empty() )		pHouseTemplet->m_NPCMeshName			= kData.m_wstrNPCMeshName;
+	if( false == kData.m_wstrNPCAniTex.empty() )		pHouseTemplet->m_NPCAniTex				= kData.m_wstrNPCAniTex;
+	if( false == kData.m_wstrNPCMeshName2nd.empty() )	pHouseTemplet->m_wstrNPCMeshName2nd		= kData.m_wstrNPCMeshName2nd;
+	if( false == kData.m_wstrNPCAniTex2nd.empty() )		pHouseTemplet->m_wstrNPCAniTex2nd		= kData.m_wstrNPCAniTex2nd;
+	if( false == kData.m_wstrAlphaBlend1stMesh.empty() )
+	{
+		wstring wstrValue = kData.m_wstrAlphaBlend1stMesh;
+		MakeUpperCase( wstrValue );																		// 31c20bf0
+		if( 0 == wstrValue.compare( L"TRUE" ) )			pHouseTemplet->m_bAlphaBlend1stMesh = true;
+		else if( 0 == wstrValue.compare( L"FALSE" ) )	pHouseTemplet->m_bAlphaBlend1stMesh = false;
+	}
+	if( false == kData.m_wstrAlphaBlend2ndMesh.empty() )
+	{
+		wstring wstrValue = kData.m_wstrAlphaBlend1stMesh;		// sic: June parses the 1st mesh's string here
+		MakeUpperCase( wstrValue );
+		if( 0 == wstrValue.compare( L"TRUE" ) )			pHouseTemplet->m_bAlphaBlend2ndMesh = true;
+		else if( 0 == wstrValue.compare( L"FALSE" ) )	pHouseTemplet->m_bAlphaBlend2ndMesh = false;
+	}
+	if( false == kData.m_wstrNoEdge2ndMesh.empty() )
+	{
+		wstring wstrValue = kData.m_wstrNoEdge2ndMesh;
+		MakeUpperCase( wstrValue );
+		if( 0 == wstrValue.compare( L"TRUE" ) )			pHouseTemplet->m_bNoEdge2ndMesh = true;
+		else if( 0 == wstrValue.compare( L"FALSE" ) )	pHouseTemplet->m_bNoEdge2ndMesh = false;
+	}
+	if( false == kData.m_wstrUIFileName.empty() )		pHouseTemplet->m_wstrUIFileName			= kData.m_wstrUIFileName;
+	if( false == kData.m_wstrNPCTextureName.empty() )	pHouseTemplet->m_NPCTextureName			= kData.m_wstrNPCTextureName;
+	if( false == kData.m_wstrNPCTextureKey.empty() )	pHouseTemplet->m_NPCTextureKey			= kData.m_wstrNPCTextureKey;
+	if( false == kData.m_wstrHouseName.empty() )		pHouseTemplet->m_HouseName				= kData.m_wstrHouseName;
+	if( false == kData.m_vecNPCJoinTalk.empty() )		pHouseTemplet->m_vecNPCJoinTalkSound	= kData.m_vecNPCJoinTalk;
+	if( false == kData.m_vecNPCByeTalk.empty() )		pHouseTemplet->m_vecNPCByeTalkSound		= kData.m_vecNPCByeTalk;
+	if( false == kData.m_wstrWaitTalk.empty() )			pHouseTemplet->m_strWaitTalk			= kData.m_wstrWaitTalk;
+	if( false == kData.m_wstrMakeTalk.empty() )			pHouseTemplet->m_strMakeTalk			= kData.m_wstrMakeTalk;
+	if( false == kData.m_wstrShopTalk.empty() )			pHouseTemplet->m_strShopTalk			= kData.m_wstrShopTalk;
+	if( false == kData.m_wstrQuestTalk.empty() )		pHouseTemplet->m_strQuestTalk			= kData.m_wstrQuestTalk;
+	if( false == kData.m_wstrByeTalk.empty() )			pHouseTemplet->m_strByeTalk				= kData.m_wstrByeTalk;
+	if( false == kData.m_wstrExchangeTalk.empty() )		pHouseTemplet->m_strExchangeTalk		= kData.m_wstrExchangeTalk;
+	if( false == kData.m_wstrWait01MotionName.empty() )	pHouseTemplet->m_wstrWait01MotionName	= kData.m_wstrWait01MotionName;
+	if( false == kData.m_wstrWait02MotionName.empty() )	pHouseTemplet->m_wstrWait02MotionName	= kData.m_wstrWait02MotionName;
+	if( false == kData.m_wstrWait03MotionName.empty() )	pHouseTemplet->m_wstrWait03MotionName	= kData.m_wstrWait03MotionName;
+	if( false == kData.m_wstrTalkMotionName.empty() )	pHouseTemplet->m_wstrTalkMotionName		= kData.m_wstrTalkMotionName;
+	if( false == kData.m_wstrTalkLoopMotionName.empty() )	pHouseTemplet->m_wstrTalkWaitMotionName	= kData.m_wstrTalkLoopMotionName;	// sic (JUNE_BUGS 208)
+	if( false == kData.m_wstrTalkLoopMotionName.empty() )	pHouseTemplet->m_wstrTalkLoopMotionName	= kData.m_wstrTalkLoopMotionName;
+	if( false == kData.m_wstrByeMotionName.empty() )	pHouseTemplet->m_wstrByeMotionName		= kData.m_wstrByeMotionName;
+	if( false == kData.m_wstrNormalMotionName.empty() )	pHouseTemplet->m_wstrNormalMotionName	= kData.m_wstrNormalMotionName;
+
+	// @323b86e6: a rotation with any non-zero part replaces the templet's and every COMMON_NPC_LOCATION row's rotation.
+	if( 0.f != kData.m_vNPCMeshRot.x || 0.f != kData.m_vNPCMeshRot.y || 0.f != kData.m_vNPCMeshRot.z )
+	{
+		pHouseTemplet->m_NPCMeshRot = kData.m_vNPCMeshRot;
+		for( UINT i = 0; i < pHouseTemplet->m_vecCommonPos.size(); ++i )
+			pHouseTemplet->m_vecCommonPos[i].m_vNpcRot = kData.m_vNPCMeshRot;
+	}
+	// @323b8776: a scale with any non-zero part replaces the templet's.
+	if( 0.f != kData.m_vNPCMeshScale.x || 0.f != kData.m_vNPCMeshScale.y || 0.f != kData.m_vNPCMeshScale.z )
+		pHouseTemplet->m_NPCMeshScal = kData.m_vNPCMeshScale;
+
+	pHouseTemplet->m_RenderOption = kData.m_RenderOption;												// @323b87cf-323b8864, unconditional
+	if( false == kData.m_wstrEffectSetName.empty() )	pHouseTemplet->m_wstrEffectSetName		= kData.m_wstrEffectSetName;
+
+	AddFieldNpc( pHouseTemplet, kData.m_wstrName );
+	m_vecJuneRelationHouseTemplet.push_back( pHouseTemplet );
+
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	WCHAR buff[512] = {0};
+	StringCchPrintf( buff, 512, L"[ELYDBG] VillageNpcRelation: house %d rebuilt (quest %d, village %d) mesh '%s' ui '%s' effect '%s'",
+		kData.m_iTargetHouseID, kData.m_iQuestID, kData.m_iVillageID, pHouseTemplet->m_NPCMeshName.c_str(),
+		pHouseTemplet->m_wstrUIFileName.c_str(), pHouseTemplet->m_wstrEffectSetName.c_str() );
+	ErrorLogMsg( XEM_ERROR142, buff );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+}
+
+// June 323a9ed0: every NPC of the house is disabled (325ca920); it stays in the list.
+void CX2TFieldGame::RemoveVillageNpc( int iHouseID )
+{
+	for( UINT i = 0; i < m_vecFieldNpc.size(); ++i )
+	{
+		CX2TFieldNpcPtr pNpcNode = m_vecFieldNpc[i];
+		if( NULL != pNpcNode && iHouseID == pNpcNode->m_NpcHouseID )
+			pNpcNode->DisableNpc();
+	}
+}
+
+// June 323b8970: undo what the relation data applied to a house. A changed NPC (VRT_CHANGE row) is rebuilt from an empty row, i.e. the
+// plain templet; a hidden one (state 1 row) is shown again (SetEnable( true ), or built if the house has no NPC yet). Each handled row
+// leaves the applied list.
+void CX2TFieldGame::RestoreVillageNpc( int iHouseID, CX2QuestManager::VillageNpcRelationResult& kApplied )
+{
+	std::vector<CX2QuestManager::VillageNpcRelationData>::iterator itRow = kApplied.m_vecRelationData.begin();
+	while( itRow != kApplied.m_vecRelationData.end() )
+	{
+		if( iHouseID == itRow->m_iTargetHouseID && CX2QuestManager::VRT_CHANGE == itRow->m_eType )
+		{
+			CX2QuestManager::VillageNpcRelationData kEmpty;													// 32347110
+			kEmpty.m_iTargetHouseID = iHouseID;
+			ReplaceVillageNpc( kEmpty );
+			itRow = kApplied.m_vecRelationData.erase( itRow );
+		}
+		else
+			++itRow;
+	}
+
+	std::vector<CX2QuestManager::VillageNpcNotShowData>::iterator itHide = kApplied.m_vecNotShowData.begin();
+	while( itHide != kApplied.m_vecNotShowData.end() )
+	{
+		if( iHouseID == itHide->m_iTargetHouseID && 1 == itHide->m_iState )
+		{
+			CX2TFieldNpc* pFound = NULL;																	// the last NPC of the house
+			for( UINT i = 0; i < m_vecFieldNpc.size(); ++i )
+			{
+				if( NULL != m_vecFieldNpc[i] && iHouseID == m_vecFieldNpc[i]->m_NpcHouseID )
+					pFound = m_vecFieldNpc[i].get();
+			}
+
+			if( NULL != pFound )
+				pFound->SetEnable( true );																	// 325ca950
+			else
+			{
+				CX2LocationManager::HouseTemplet* pHouseTemplet = g_pData->GetLocationManager()->GetHouseTemplet( static_cast<CX2LocationManager::HOUSE_ID>( iHouseID ) );
+				if( NULL != pHouseTemplet )
+					AddFieldNpc( pHouseTemplet, L"" );
+			}
+			itHide = kApplied.m_vecNotShowData.erase( itHide );
+		}
+		else
+			++itHide;
+	}
+}
+#else SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2TFieldGame::AddFieldNpc()
 {	
 	if(g_pData == NULL)
@@ -3318,6 +3681,7 @@ void CX2TFieldGame::AddFieldNpc()
 	}
 
 }
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 //#ifdef MODIFY_PORTAL_GATE
 void CX2TFieldGame::CreatePortalGate()
 {	

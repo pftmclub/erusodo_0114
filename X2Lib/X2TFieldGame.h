@@ -395,6 +395,13 @@ class CX2TFieldGame
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 		
 		void AddFieldNpc();			
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		// Atlas E1c: June's village NPC relation side (the AddFieldNpc() above is June's 323ba5f0 under this flag).
+		void AddFieldNpc( CX2LocationManager::HouseTemplet* pHouseTemplet, std::wstring wstrNpcName );					// June 323b0980
+		void ReplaceVillageNpc( const CX2QuestManager::VillageNpcRelationData& kData );								// June 323b7ff0
+		void RemoveVillageNpc( int iHouseID );																		// June 323a9ed0
+		void RestoreVillageNpc( int iHouseID, CX2QuestManager::VillageNpcRelationResult& kApplied );				// June 323b8970
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 //#ifdef MODIFY_PORTAL_GATE
 		void CreatePortalGate();
 		void SetShowPortalGate(bool bShow, UINT uiPortalIndex, D3DXVECTOR3 vPos = D3DXVECTOR3(0.f, 0.f, 0.f));
@@ -656,6 +663,10 @@ class CX2TFieldGame
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 		//{{ seojt // 2009-1-14, 22:35
 		std::vector<CX2TFieldNpcPtr>    m_vecFieldNpc;		/// npc들 객체
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		std::vector<CX2LocationManager::HouseTemplet*>	m_vecJuneRelationHouseTemplet;	// June TFG +0x444: the templet copies ReplaceVillageNpc builds; freed by the dtor
+		float							m_fJuneNpcQuestInfoTime;		// June TFG +0x458: the NPC loop refreshes quest info once it passes 1 s
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		//}} seojt // 2009-1-14, 22:35
 
 		bool						m_bLoadComplete;		/// 로딩을 완료 했는지 여부...

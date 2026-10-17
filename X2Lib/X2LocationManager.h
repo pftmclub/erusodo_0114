@@ -126,6 +126,18 @@ class CX2LocationManager
 			HI_ELYSION_BLUE_TREE = 40146,
 			//}}
 #endif SERV_IRUHADEV_ELYSION_PORT
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			//{{ Iruha : 2026-10-17 // Atlas/Elysion port Phase E1c -- the houses June's C++ compares against
+			// (June Enum.lua values): village NPC creation 323ba5f0, OnFrameMove 325cdfa0, GetHouseType 325c8030.
+			HI_AGIT_BANK = 40082,
+			HI_EVENT_GUILD_EDAN_ROOM = 40089,
+			HI_EVENT_DOLL = 40091,
+			HI_SPA_SIGN_RUBEN = 40141,
+			HI_SPA_INNER_NPC_RUBEN = 40143,
+			HI_SPA_INNER_NPC_RANOX = 40144,
+			HI_SPA_PPORU = 40147,
+			//}}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 			//{{ Iruha : 2026-09-19 // Ranox port Phase 28 -- HOUSE_ID mirror of
 			// march2014/data036/Enum.lua's own Phase 28 addition. Explicit values,
 			// not positional continuation, matching the Lua side exactly. See

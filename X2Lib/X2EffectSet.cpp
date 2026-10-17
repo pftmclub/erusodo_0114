@@ -923,6 +923,15 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 								continue;
 						}
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+						// June2017 OnFrameMove_CreateEffect 321ee600 @321eebef-321eec36 (Atlas E1c): a set played on a village NPC (+0xe0) with a
+						// skin (+0x1b8) waits for that skin's anim time (+0x214), as the riding pet above; without a skin June falls through.
+						else if ( NULL != pEffectSetInstance->m_pFieldNpcHolder && NULL != pEffectSetInstance->m_pFieldNpcHolder->GetXSkinAnim() )
+						{
+							if( pEffectSetInstance->m_pFieldNpcHolder->GetXSkinAnim()->GetNowAnimationTime() < pEffectData->m_fStartAnimTime + pEffectSetInstance->m_fDelayTime )
+								continue;
+						}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 						else
 						{
 							if( 
@@ -3633,6 +3642,29 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 	return pEffectSetInstance->m_hHandle;
 }
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+/** @function : PlayEffectSet( name, CX2TFieldNpc* )
+	@brief : June2017 321e26d0 (Atlas E1c; thiscall on g_pData +0x9c, the UI effect set, hidden out handle; only caller CX2TFieldNpc::OnFrameMove
+			 @325ce21f). A null templet (321da420) or a null NPC answers an invalid handle. The instance is made with every owner null
+			 (_CreateEffectSetInstance 321e1bf0), then only the holder (+0xe0 = +0x38 dwords, a raw pointer) and m_eMode = ESM_FIELD (2) are
+			 written: no hyper / power rate / life time writes, unlike the riding pet's form.
+*/
+CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetName, CX2TFieldNpc* pFieldNpc )
+{
+	EffectSetData* pEffectSetData = GetEffectSetTemplet( wstrEffectSetName );
+	if( NULL == pEffectSetData || NULL == pFieldNpc )
+		return INVALID_EFFECTSET_HANDLE;
+
+	CKTDGXSkinAnimPtr tempPtr;
+	EffectSetInstance* pEffectSetInstance = _CreateEffectSetInstance( pEffectSetData, tempPtr, NULL, NULL, CX2SquareUnitPtr(), NULL );
+	if( NULL == pEffectSetInstance )
+		return INVALID_EFFECTSET_HANDLE;
+
+	pEffectSetInstance->m_pFieldNpcHolder = pFieldNpc;
+	pEffectSetInstance->m_eMode = ESM_FIELD;
+	return pEffectSetInstance->m_hHandle;
+}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 void CX2EffectSet::StopEffectSet( CX2EffectSet::Handle& hHandle )
 {
 	if( INVALID_EFFECTSET_HANDLE == hHandle )
@@ -4862,6 +4894,9 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 	m_bToggleVisibilityPending = false;
 	m_fToggleVisibilityTimer = 0.f;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	m_pFieldNpcHolder = NULL;			// +0xe0 (Atlas E1c)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 	// June2017 FUN_321df230 (instance ctor), effect completion C6b: +0x1b8 starts at 0 (@321df510, not -1) and +0x15c at -1 (@321df4a9).
 	m_iDamageEffectIndex	= 0;
@@ -5148,6 +5183,19 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPosition( EffectData* pEff
 				return vPos;
 			}
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			// June2017 GetEffectPosition 321dcd30 @321dd1a3-321dd204 (Atlas E1c), the next else of mode 2: a village NPC holder (+0xe0) gives
+			// the BONE_NAME bone of its main skin (321f2c10; (0,0,0) without the skin or the bone), else its position (npc +0x5b4). Straight to
+			// the return (@321dd531): no SetEffectSetOffset, no land position.
+			else if( NULL != m_pFieldNpcHolder )
+			{
+				if( false == pEffectData->m_PositionBoneName.empty() )
+					vPos = m_pFieldNpcHolder->JuneGetBonePos( pEffectData->m_PositionBoneName.c_str() );
+				else
+					vPos = m_pFieldNpcHolder->m_vPos;
+				return vPos;
+			}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 			
 		} break;
 
@@ -5570,6 +5618,17 @@ const D3DXMATRIX* CX2EffectSet::EffectSetInstance::GetCombineMatrix( const Effec
 		return ( NULL != pJuneFrame ) ? &pJuneFrame->combineMatrix : NULL;
 	}
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_UI_FX
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	// @ 321dc8af-321dc8e2 (Atlas E1c): the village NPC holder (+0xe0) with a main skin (+0x1b8) gives the combine matrix of its BONE_NAME
+	// frame; no skin or no frame gives no matrix.
+	if( NULL != m_pFieldNpcHolder )
+	{
+		if( NULL == m_pFieldNpcHolder->GetXSkinAnim() )
+			return NULL;
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pNpcFrame = m_pFieldNpcHolder->GetXSkinAnim()->GetCloneFrame( pEffectData->m_PositionBoneName.c_str() );
+		return ( NULL != pNpcFrame ) ? &pNpcFrame->combineMatrix : NULL;
+	}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 	// @ 321dc81f-321dc8c1: two more holders (a riding pet, +0xd8, and +0xe0) that March's instance does not have
 	return NULL;
 }
@@ -6706,6 +6765,16 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectPositionByBoneName( IN Eff
 				return vPos;
 			}
 #endif SERV_IRUHADEV_JUNE_PET_VIEWER_FX
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			// June2017 321dd590 @321dd9dc-321dda29 (Atlas E1c): the village NPC holder (+0xe0): the caller's bone on its main skin
+			// (321f2c70, found or not); June's empty-name fallback (npc +0x5b4) is unreachable here (an empty name returned at the top).
+			// Straight to the return (@321ddd58): no SetEffectSetOffset.
+			else if( NULL != m_pFieldNpcHolder )
+			{
+				bBoneFound_ = m_pFieldNpcHolder->JuneGetBonePos( pwszBoneName, vPos );
+				return vPos;
+			}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		} break;
 
 #ifdef SERV_PET_SYSTEM

@@ -1476,6 +1476,9 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 		if( g_pMain->IsValidPacket( kEvent.m_iOK ) == true )
 		{
 			g_pData->GetQuestManager()->RemoveUnitQuest( kEvent.m_kCompleteQuestInfo.m_iQuestID, true );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			g_pData->GetQuestManager()->RefreshVillageNpcRelationDataByQuest( kEvent.m_kCompleteQuestInfo.m_iQuestID );	// June 323e57e0 @323e5903 (Atlas E1c)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 			g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_kUpdateUnitInfo.m_kUnitInfo );
 			g_pData->GetMyUser()->GetSelectUnit()->AccessInventory().UpdateInventorySlotList( kEvent.m_kUpdateUnitInfo.m_vecKInventorySlotInfo );
@@ -1616,6 +1619,9 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 		if( g_pMain->IsValidPacket( kEvent.m_iOK ) == true )
 		{
 			g_pData->GetQuestManager()->RemoveUnitQuest( kEvent.m_iQuestID, true );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			g_pData->GetQuestManager()->RefreshVillageNpcRelationDataByQuest( kEvent.m_iQuestID );	// June 323e57e0 @323e5903 (Atlas E1c)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 			g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_kUpdateUnitInfo.m_kUnitInfo );
 			g_pData->GetMyUser()->GetSelectUnit()->AccessInventory().UpdateInventorySlotList( kEvent.m_kUpdateUnitInfo.m_vecKInventorySlotInfo );
@@ -2022,6 +2028,9 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 			for( unsigned int i=0 ; i < kEvent.m_vecQuestCompleteAck.size(); ++i )
 			{
 				g_pData->GetQuestManager()->RemoveUnitQuest( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID, true );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				g_pData->GetQuestManager()->RefreshVillageNpcRelationDataByQuest( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID );	// June 323e1710 @323e1864 (Atlas E1c)
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 				g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_vecQuestCompleteAck[i].m_kUpdateUnitInfo.m_kUnitInfo );
 				g_pData->GetMyUser()->GetSelectUnit()->AccessInventory().UpdateInventorySlotList( kEvent.m_vecQuestCompleteAck[i].m_kUpdateUnitInfo.m_vecKInventorySlotInfo );

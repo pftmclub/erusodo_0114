@@ -3197,6 +3197,55 @@ regression check. Nothing owed by the user beyond that.
 
 ---
 
+### Phase E1c — Done
+
+2026-10-17, Opus 5.5 high. Flag `SERV_IRUHADEV_ELYSION_VILLAGE`, `[ELYDBG]` behind `SERV_IRUHADEV_ELYSION_DEBUG`. Whole June functions, March bodies in `#else`.
+The relation data E1a loaded now reaches the village: Atlas Station's postbox and billboard become June's Elysion meshes and board UI.
+
+**What landed** (June addresses)
+- **TFieldGame** (`X2TFieldGame.*`): village NPC creation `323ba5f0` (replaces March's `AddFieldNpc()`: ByQuest then ByVillage lookup,
+  0 = changed NPC, 1 = not shown, else plain path with June's gates: code events 2013 / 2081 / 2186 for houses 40091 / 40129 / 40089,
+  house 40090 only for a comeback user, spa signs 40141 / 40142 need code event 31), `AddFieldNpc( templet, name )` `323b0980`,
+  replace `323b7ff0` (templet copy kept in TFG +0x444, freed in the dtor as June @323b92a1), remove `323a9ed0`, restore `323b8970`;
+  June's NPC loop of OnFrameMove `323b5970` @323b70cb-323b7475 (disabled NPCs skipped, AlwaysShow, effect-set show / hide,
+  quest info once a second and +0x239). The 7 house ids June compares (40082 / 40089 / 40091 / 40141 / 40143 / 40144 / 40147) in `HOUSE_ID`.
+- **Entry points**: `RefreshVillageNpcRelationDataByCodeEvent` `32344880` after the code-event sets (`X2State.cpp`, 31f00970 @31f00a61);
+  `RefreshVillageNpcRelationDataByQuest` `32340630` after `RemoveUnitQuest( q, true )` in QUEST_COMPLETE_ACK (both SERV_DAILY_QUEST forms)
+  and ALL_COMPLETED_QUEST_COMPLETE_ACK (`X2UIQuestNew.cpp`). June's third caller handles a June-only packet.
+- **CX2TFieldNpc::OnFrameMove** `325cdfa0` whole (44 blocks, `c9h5_fieldnpc_onframemove_diff.md`): both skins load together, MultiTex xet
+  on skin 1, the talk particle / 40129 highlight, June's quest-mark exclusions, the motion map (ids 1-3, 10 TALKLOOP, 11 the
+  CUSTOM_MOTION_NAME queue, June ctor motion id 1), static TalkWait / Normal, QuestMsgOverride on every NPC message (states 0-8),
+  `m_bInConversation` gates. The friendship mark / sequencer / gift cursor (Stage 18), the agit-bank latch and June's UIs 9 / 0xa / 0xb
+  are June call sites only (comments).
+- **Village-NPC effect set**: `EFFECT_SET_NAME` played after skin 1 is built (@325ce1d9) on the UI effect set; `PlayEffectSet( name,
+  CX2TFieldNpc* )` `321e26d0` and its readers in `X2EffectSet.cpp` (instance +0xe0 `m_pFieldNpcHolder`): GetEffectPosition @321dd1a3,
+  GetEffectPositionByBoneName @321dd9dc, GetCombineMatrix @321dc8af, create-time anim gate @321eebf3; NPC bone helpers 321f2c10 / 321f2c70.
+- **Assets** (`kom.py stage-june`, `adopt-june` = June bytecode): data013 `EL_postbox.X`, `NPC_EL_BILLBOARD.X`, `Motion_Npc_EL_Billboard.x`,
+  `Motion_NPC_SPA_BILLBOARD.x` + 4 textures (`Elysion_Tower_postbox01.tga`, `Field_Atlas_rest_board*.tga` x3); data039
+  `UI_NPC_BILLBOARD_ELYSION.lua`, `UI_BILLBOARD_ELYSION.lua`, `UI_NPC_BILLBOARD_SPA.lua` (`june_adopt_20261017_092513.tsv`).
+  `PACK OK data013` (+8) / `PACK OK data039` (+3), nothing else changed vs live; `COPY OK data013` md5 036e1a19, `COPY OK data039` md5 d5fcc06e (user OK).
+- **VMI_SPA_RANOX row settled**: June wins; the spa village's billboard becomes June's `Motion_NPC_SPA_BILLBOARD.x` + `UI_NPC_BILLBOARD_SPA.lua`
+  (both now staged). JUNE_BUGS 218-225.
+
+**June behaviour changes in March villages** (from code, kept)
+- Quest button only for new normal quests (JUNE_BUGS 221); talk mark no longer blinks (223); quest info refreshed once a second, not every frame.
+- Postbox / billboard / Elysion trees use the One_Use mark; NPCs at (0,0,0), non-talkable NPCs and 40082 / 40143-40146 get no quest mark.
+- Static NPCs play TalkWait while joined when the mesh has it (else Normal); idle motion speed is WaitAnimSpeed.
+- House 40090 (Edan guild event NPC, a live March house) now shows only for a comeback user; E1a's "PC bang" reading of byte +0x5d was a guess,
+  the buff port's Phase 11 review cites it as `m_bComeBackUser` (review to confirm).
+- March's HI_EVENT_BENDERS / HI_APINK_ARCHANGEL gates and A-Pink music in AddFieldNpc are compiled out of this build (flags off), nothing lost.
+
+**Not applicable / noted**: the effect instance's raw +0xe0 pointer cannot outlive the NPC here, E1b's dtor stops the set at once
+(March's StopEffectSet), so no JUNE_BUGS row for a queued stop. Block 44 (in-house head scale) kept: June's service exe compiles it out.
+
+**Hygiene** (`flagcheck --worktree --files <11 code files>`, before commit): `files: 10 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+No compiler warning from the changed files. X2TFieldGame.cpp / .h and X2LocationManager.h also carry peer E1d's uncommitted hunks (same flag); this commit stages E1c's hunks only.
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,699,712 B, dated 2026-10-17 09:36:53, md5 d095fe3a0be8795c9ab25525a18978f8, equal to X2/US_SERVICE/x2.exe
+(2026-10-17 09:36:42); built at main f9c2b2a1 + 16 uncommitted code file(s) (E1c + peer E1d WIP). Literals in the exe: `[ELYDBG] NpcEffectSet`,
+`[ELYDBG] VillageNpcRelation: village %d house %d -> changed NPC`, `rebuilt (quest %d`, `completed -> result %d`.
+**How to see it in game:** see the play-test hand-off.
+
 ### Phase E1d — Done
 
 2026-10-17, Opus 5.5 high. Flag `SERV_IRUHADEV_ELYSION_VILLAGE`, `[ELYDBG]` lines behind `SERV_IRUHADEV_ELYSION_DEBUG`. June's in-village warps: the
