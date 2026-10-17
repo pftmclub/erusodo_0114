@@ -526,7 +526,8 @@ OnResetDevice macros, `SetAnisotropy`), June `BeginRender` read from capstone (`
 2. Ranox Secret Hell (41271), `/stage 4`: units look as after R1 (no black models); `[JUNE_ENGINE] FX world indices: cartoon 0, rim 15 -> ramp 15` proves the world -> unit chain.
 3. After asset P10 copies June's fx: set `RIM_LIGHT = TRUE` in the game dir `GameOptions.lua`, repeat 2: blue rim on units (`FX rim draw` line).
 
-**Open:** R2 review (Opus), then tell the user asset-port P10 can copy June's `XRenderer.fx`.
+**Pulled forward (user, 2026-10-17):** June's `XRenderer.fx` (+ the three already-staged June `.fx`: GCSkin, RenderState, XPostEffect) staged with `kom.py stage-june`, packed and copied: `COPY OK data041 ... 13112 bytes, 4 entries, md5 027c8a0104c6c4faa8f25a358a87d6e9` (backup `kom_backup_tools\data041.kom.20261017_213340`); `RIM_LIGHT = TRUE` added to the game dir `GameOptions.lua` (backup `GameOptions.lua.bak_pre_rimlight`). So log line 1 should now read `handles 33/33, rim shader 1`, and the rim check is live. Revert: copy the backup kom over `data041.kom`.
+**Open:** R2 review (Opus); asset P10's copy of `XRenderer.fx` is done by this.
 
 ## Phase R3 - Environment box and colour grading
 
