@@ -3668,7 +3668,7 @@ A6's region closure (`NPCTemplet` rows, unit scripts and `NewNPCStat` for all 8 
   `DLG_UI_COMMON_TEXTURE_FIELD_04` line.
 - **Re-test log (run 11:31-11:32 on exe ad0dc512 + data057 e5c6c6ad):** 517 -> 40037, 35 monsters, 0 EXCEPTION; no `FIELD_04` and no
   `ELYSION_HERNA_SHIELD_WEAPON` miss (data181 fix confirmed); remaining misses = the E3 Done note's June-own / non-F03 set. The run has no
-  map-open line (the earlier run's `Elysion Tower <- ... DLG_UI_LOCAL_MAP` line is absent), so the navi picture rests on the user's look.
+  map-open line (the earlier run's `Elysion Tower <- ... DLG_UI_LOCAL_MAP` line is absent), so the navi picture rests on the user's look: **confirmed by the user 2026-10-17** (F03 picture shown). Nothing owed.
 
 ---
 
