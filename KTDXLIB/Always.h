@@ -7501,3 +7501,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              PlayAdditionalWorldAllSound (Soless phase 2), June's StopBGM name clear and the custom-colour fades.
 #define SERV_IRUHADEV_ELYSION_SCRIPT_B
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase E10 play-test), port-gap fix on SERV_IRUHADEV_JUNE_MOVABLE_LINE:
+//              a moving-line record that is finished (LOOP-false patrol past its last row) or stopped has no move, so its
+//              m_vLastMove is zeroed. June's code (31c6fbb0 skips the record and keeps +0x70; 32801ab0 / 327fe640 add +0x70 to
+//              the mesh every frame) drifts Soless Stage0's X02 platform through the floor after the ride; June's game stops
+//              it there (user, 2026-10-17). JUNE_BUGS 230. Undefine to get June's code back.
+#define SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END
+//////////////////////////////////////////////////////////////////////////

@@ -3267,6 +3267,11 @@ void CKTDGLineMap::FrameMoveMovableLine( float fElapsedTime_ )
 
 		if ( LMT_PATROL == kData.m_iMoveType )
 		{
+#ifdef SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END
+			/// Atlas E10: a finished or stopped patrol has no move (June keeps the last frame's, JUNE_BUGS 230)
+			if ( kData.m_uiNowIndex >= uiNumRow || true == kData.m_bStop )
+				kData.m_vLastMove = D3DXVECTOR3( 0.f, 0.f, 0.f );
+#endif SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END
 			if ( kData.m_uiNowIndex >= uiNumRow || true == kData.m_bStop )
 				continue;
 
@@ -3293,6 +3298,12 @@ void CKTDGLineMap::FrameMoveMovableLine( float fElapsedTime_ )
 		else if ( LMT_SPIN == kData.m_iMoveType )
 		{
 			const LineData* pLineData = GetLineData( iLineIndex );
+#ifdef SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END
+			/// Atlas E10: likewise for a spin that is not turning this frame
+			if ( kData.m_uiNowIndex >= uiNumRow || kData.m_uiNowIndex >= static_cast<UINT>( kData.m_vecSpinAxis.size() ) ||
+				NULL == pLineData || true == kData.m_bStop )
+				kData.m_vLastMove = D3DXVECTOR3( 0.f, 0.f, 0.f );
+#endif SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END
 			if ( kData.m_uiNowIndex >= uiNumRow || kData.m_uiNowIndex >= static_cast<UINT>( kData.m_vecSpinAxis.size() ) ||
 				NULL == pLineData || true == kData.m_bStop )
 				continue;

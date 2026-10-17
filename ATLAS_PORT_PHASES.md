@@ -4503,6 +4503,15 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
 - **How to see it (after the copy):** a level-85+ character that has cleared Adrian Normal: M -> Elysion tab -> Soless -> Normal. Stage0 (moving platforms, E5
   review's two checks; take no laser 2 / 3 hit for the hidden stage), Stage1 or the hidden stage, Stage2 (Herbaon gauge), Stage3, boss: AWAKEN gauge, phase-2 world swap, dramatic
   boxes, true / bad ending. `offline_server.log` shows `[ELYDBG] READY_NPC: world 712 entry 10` when the stage data loads.
+- **Play-test 1 (2026-10-17, reyaa, run 15:26-15:30, exe 9e7072a5): two findings.** (1) **Platform sank through the floor after the ride** (user): JUNE_BUGS 230
+  as predicted. June's code read again (`31c70580` -> `31c6fbb0`, `32801ab0`, `31c74fe0`, `32802140`): no reset of the record's last move anywhere, but June's game
+  stops the platform (user), so it is a port gap, not a kept bug: new flag `SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END` zeroes `m_vLastMove` of a finished / stopped
+  record (`KTDGLineMap.cpp` FrameMoveMovableLine, insert-only; flagcheck `--worktree` PASS, 0 deleted, 0 encoding change). JUNE_BUGS 230 verdict -> fixed.
+  `DEPLOY OK: X2_offline.exe is 19,759,616 B, dated 2026-10-17 15:48:01, md5 b45748efc13c0a7494aefe06426d1b13`.
+  (2) **Stuck in Stage0's gate room:** stage 0 was loaded twice (15:26:44, 15:27:18). The second load was a `GoStage` (the only path that sends
+  `EGS_DUNGEON_STAGE_LOAD_REQ` with no sub-stage clear; no Soless script calls it, so the END console's `/stage`), and it left the first load's NPCs alive:
+  two gates, two `HIDE_STAGE_B`. Both gates' dying function killed the first `HIDE_STAGE_B` (1000068), the second (1000145) lived, so `CC_KILL_NPC_TYPE` never
+  cleared. A console restart of the current stage duplicates its NPCs: pre-existing, not E10's; restart the dungeon instead. 0 EXCEPTION; `READY_NPC` log as designed.
 
 ### Phase E11 — Memory
 
