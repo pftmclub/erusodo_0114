@@ -4823,6 +4823,44 @@ on main.
 
 ---
 
+### Phase E13 — Review
+
+**2026-10-17, Opus 5.5 high. PASS + two fixes (data only, no code): the sweep's `.lua`-reference blind spot hid 3 June UI scripts E1a's relation data names, and E12's
+adopted PvP list names 2 keys March's `DLG_New_PVP_Image05.TET` lacks.** Corrections to the Done note: data013 holds **10** of the 46 (the note's 9 + 2 + 25 + 7 + 2 = 45).
+
+- **The 46 staged files:** 46/46 equal June's strict decode (`junekom.decode`), manifest `"0"`, one archive, listed by `elstools inspect` in the live kom at the staged size.
+  Live md5 = packed md5 = the `COPY OK` values (data013 caf8ee84, data065 e31dbc70, data096 a2cf0c63, data181 2fef4b1d, data215 6238322c). UTF-16LE keys read:
+  `MAP_SELECT_IMAGE__RESIAM_TRIANGLE` (Image08.TET, 4th of 4 strings), `MAP_SELECT_IMAGE_WINNER_ADRIAN` (Image10.TET).
+- **Sweep coverage:** every `.lua` the 13 E-phase adopt runs (`june_adopt_*.tsv`, E1a-E12) and the ledger's one `atlas E2` row staged is region-owned or among the sweep's 31; none
+  is older than the mtime cut. Bytecode files: staged = `ljconv(June)` for all 13 with a June copy, constants equal. BOM source: `ASSET_RE` hits = all asset literals in 15 of 16;
+  the one miss is `Motion_TenTacle_Big&&Small01.x` (`&` outside the class; `NPCTemplet`), which is March's own (March's original bytecode, mesh from the 09-22 extract), staged and live.
+  Its one texture `BIG.dds` is absent in March and June alike.
+- **Blind spot 1, `.lua` references** (the sweep's extension filter has no `.lua`): 6 June scripts named by swept files had no March copy.
+  - **Fixed:** `UI_NONO.lua`, `UI_HYPER_YUNO.lua`, `UI_NPC_RECORD_EVENT_160401.lua` (`Change_UIFileName` in E1a's `DLG_Map_House_NPC_RelationData`): `adopt-june data039`
+    (ljconv, `june_adopt_20261017_182643.tsv`), 3 new, manifest `"2"`. Their meshes `UI_NPC_NONO_Wait.X` / `UI_NPC_HYPER_YUNO_Wait.X` / `UI_NPC_RECORD_EVENT_160401.X`
+    and 6 textures were already live (data014). Dormant like E13's relation-data meshes (E1b's June call sites).
+  - Left: `Elysion_Village_Festival` / `_XMAS` (the known `assets.adopt` 2, seasonal), `Field_BossRaid_Valley_Of_Abyss.lua` (`WorldData` C3x row, not Elysion). 33 more named
+    scripts are absent in June too (summon / test rows, `Elysion_Tower_Stage3` = JUNE_BUGS #209).
+- **Blind spot 2, TET key pairs in the swept files** (not censused by E13): 454 pairs, 437 OK, 17 not.
+  - **Fixed:** `DLG_PVP_Map_List` (E12, June's list) names `MAP_SELECT_IMAGE_WINNER_ASHS` / `_RED_DRAGON` in `DLG_New_PVP_Image05`. March's TET has 2 keys, June's 4 (a strict superset),
+    and the `.dds` differs too, so June's pair is staged (`stage-june`, 2 replaced, backup `kom_backup_stage_june/20261017_182647`). PvP room only (latent offline).
+  - Routed to the june-asset-port collision waves (P6-P8; each texture *and* TET differ from June's, so the fix is the pair): `DLG_Common_New_Texture75` (7 March house keys),
+    `DLG_UI_Common_Texture_Fieldname_Village_2` (`VILLAGE_RANOX`), `_Fieldname_6` (`FIELD_NAME_RANOX_1`), `DLG_UI_NPC_Face01` (June adds 17 keys, not `MOON_RABBIT`).
+  - June-same (key in neither TET): `NPC_EVENT_SANTA`, `NPC_ANGKOR`, 3 `TitleTextureKey` titles, `MOON_RABBIT` (June stores `MOONRABBIT`). All March content.
+  - No `.txt` (particle / effect) file is named by any swept file, so no embedded `.ogg` is missed.
+- **Routed classes:** the 5 `MISSING-june-has` are pre-port. `HI_EVENT_GUILD_EDAN_VILAGE`, `HI_EVENT_BLESS_OF_SOLACE`, `motion_npc_event_edan` and `dlg_int_button03` are in March's
+  original `DLG_Map_House` bytecode (`kom_contents_bytecode/data034_kom`), `nui_mul_mai_event` in March's original `NPCTemplet` / `Enum`. The 7 `koms.unstaged` are as listed.
+  Not all `absent-june-too` rows are registry noise. Three name Elysion NPCs, and all three are June-same: Hugo's XET (#226), plus new JUNE_BUGS **249** (`NUI_YUNO` `MOTION =
+  "UI_NPC_YUNO.x"`) and **250** (Theodor's XET frame `NPC_TEODORR.TGA`).
+- **Packed / copied (user OK):** `PACK OK` data039 / data065; `COPY OK` data039 f91e816d (95 entries), data065 1e1ab59e (112).
+- **Gates after the fix:** `region_census.py --region elysion --limit 0 --no-probe --live`: 242 open (routed only), `live {"same": 346}`, `koms {"staged": 346, "unstaged": 7}`;
+  `atlas_e13_closure.py`: 3,880 names, TET 134 = 130 OK + 2 KEY-MISSING + 2 NOTET, MOUNT 0, `PACKLIST ... 0`; sweep: 34 files, 3,326 names, 0 `STAGED-NOT-LIVE`, the same 5
+  non-Elysion `MISSING-june-has`; `luasrc.py ledger --check` / `core --check` PASS. No code changed, so flagcheck / build do not apply.
+- **E14 kickoff corrected:** it listed 7 Elysion flags, and `Always.h` defines 11 (`ELYSION_SCRIPT_A`, `_MOVABLE_LINE_END`, `_INVINCIBLE_ATTACK_TYPE`, `_ATTACK_TYPE_STANDIN` added).
+  `MODS.md`'s flag table has no row for 5 of them; E14 adds the rows.
+
+---
+
 ## Phase E14 — Build, deploy, hand-off
 
 Same as Atlas A12, plus the Elysion reachability checklist.
