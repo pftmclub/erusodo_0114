@@ -933,6 +933,60 @@ Added by R10; rows with owner R12 in `june2017_re/r10_skinanim_sweep.tsv`. After
 - **`AddModelXSkinMesh`:** `( file, line )` and the KEM 433 log.
 - **`31d2f250` and its two `CX2GUUser` calls:** port per June once the map shows how June's motion collision meets March's lists.
 
+### Phase R12 -- Done
+
+**2026-10-17, Opus 5.5.** Flags `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS`, `_REFS_DEBUG` (short-lived) and
+`SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION`. Map: `june2017_re/r12_skinanim_ref_sites.tsv` (156 March sites paired with June's 113; 5 callers
+change, 27 not compiled, 0 unsure); 10 funcmap rows `(R12)`.
+
+**Device AddRef** = March's `CKTDXDevice::RefDevice()` (June `31d4d2f0`, InterlockedIncrement on `+0x48`); close = `JuneCloseDeviceByPointer`
+(C9h-7a). Both wrapped as `CKTDGXSkinAnim::JuneRefDevice` / `JuneCloseDevice` (the close behind June's device-manager NULL test).
+
+**Ported (REFS):** `AddModelXSkinMesh` refs the mesh unless `bCloseDeviceAtDestructor`, and every XET, takes `( const WCHAR* file, int line )`
+(June's 50 callers pass `__FILEW__`, so wide; March's callers keep the defaults) and logs KEM 433; `m_vecAddedSkinMesh` is gone. `AddAnimXSkinMesh`
+(NULL test + ref), `RemoveModelXSkinMesh` and `ClearModelXSkinMeshList` (closes, plus collision delete) close; `CleanAnimStructure( mesh, xet )`
+closes the four lists after R11's anim-set block and swaps the anim mesh / XET; `SetAnimXSkinMesh` calls it, the dtor passes `NULL, NULL`.
+`SetAnimXET` and the four `Replace*XET` as June (`ReplaceAniXET` / `ReplaceMultiTexXET( from, to )` were no-ops in March). `ReplaceMultiTexXET( int )`
+returns void; `X2Eqip.cpp:2784` / `2822` stop closing the old XET (June `3295f336` / `3295f485`).
+
+**Balance:** every other site balances unchanged. The anim's refs are its own; callers keep closing what they opened. The one June
+`bCloseDeviceAtDestructor = 1` site (`Weapon::LoadDataForNPC`) matches March. Our NPC attach port (`X2GUNPC.cpp:4694`, June `327a97d0` passes 0)
+keeps 1: same net count. The map's pre-existing leaks (weapon XET, viewer XET shadowing, VioletMage transform XETs) are March's and June's; not touched.
+
+**Item 4 (MOTION_COLLISION):** March's skin parts each carry the full skeleton with `COLLISION_SPHERE1_Face` / `2_Upbody` / `3_Lowbody` and
+`ATTACK_SPHERE1_Rfoot` / `2_Lfoot` (checked in `Mesh_Elsword_Basic_LowBody_Sorted.X`, `..._Elite_Upbody_30000`), so every part added its own
+copy. June adds the motion's once (`31fe5860 @31fe5c25` -> `JuneAddCollisionData`, = `31d2f250`), and `_UpdateSkin()` (`3295ae20`) and
+`CKTDGXSkinAfterImage::AddMesh` (`3322a41e`) pass `bAddCollisionData = 0`. Ported all three. June's second call (`@31fe63a5`) is the unit-type-10
+motion pair: character-port material (no March counterpart).
+
+**Deviation (logging only):** KEM 433 reaches ErrorLog.txt for the first 20 mismatches. June's service build buffers ErrorLogMsg in memory;
+ours writes the file and stdout per call. The SKREF line carries the total.
+
+**Routed:** June's `_UpdateSkin()` / `_UpdateSkin( int )` / `ChangeEnchantLevel` reworks (multi-tex XET at add time, a third add, enchant
+textures by level 7 / 9 / 11 / 13) and the unmapped `32963eb0` -> new **R14**.
+
+Hygiene (`flagcheck --worktree --files` on the 6 code files, per flag): RESULT PASS x3; 0 FAIL, 0 ERROR, 0 deleted, 0 non-ASCII, 0 EOL-mismatched
+inserted lines; every OTHER row is one of this phase's three flags. Build: `DEPLOY OK: X2_offline.exe is 19,841,536 B, dated 2026-10-17 22:39:22,
+md5 ea4a74b48006d7eacdc02768fa36fe9c` (built at `cc6a579d` + uncommitted peer files; SKREF and KEM 433 strings checked in the exe).
+
+**How to see it:** `python tools/logs.py --grep "JUNE_ENGINE] SKREF"`.
+- `SKREF motion collision Motion_... collision 3 attack 2` once per user unit.
+- `SKREF dead anims N refs R closes C unbalanced 0 ... devices D` at most once per 2 s. Unbalanced should stay 0. D after a return to the
+  village should match the first village visit's figure (no growth).
+- Equipment, enchant glow and after-images look as before. Monsters still hit you, and you still hit them with kicks.
+
+## Phase R14 - Equipment skin and enchant rework
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_SKIN` (an RE pass
+may split it). Added by R12 (an unowned June branch). After R12; not alongside another session editing `X2Eqip.cpp`.
+- **`CX2Eqip::_UpdateSkin()` `3295ae20`**: three `AddModelXSkinMesh` calls (March two), the multi-tex XET (`+0x808`) passed at add time where
+  March passes NULL, `bAddCollisionData = 0` (R12 already ports that value under `JUNE_RENDER_MOTION_COLLISION`).
+- **`_UpdateSkin( int )` `3295bdf0`** and the unmapped **`32963eb0`** (X2Eqip line `0xf45`, `L"Bip01"`): compare whole.
+- **`ChangeEnchantLevel` `3295f250`**: level < 7 deletes stage 2; else `13Gang_Protect.tga` (>= 13), `11Gang_Protect.tga` (9-12),
+  `Gate_Protect_G01.tga` (< 9) via `31d40160`, against March's `ENCHANT_WEAPON_EFFECT_LEVEL_*` / `ADD_UPGRADE_WEAPON_PARTICLE` choice. R12 ported
+  only the `ReplaceMultiTexXET` ownership. The textures are June assets (check they are in the March koms; if not, route to june-asset-port).
+- Funcmap rows `3295ae20 / 3295bdf0 / 32963eb0 / 3295f250 (R12)`.
+
 ## Phase R13 - World object mesh render
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH`.

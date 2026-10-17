@@ -73,7 +73,11 @@ void CKTDGXSkinAfterImage::AddMesh( CKTDXDeviceXSkinMesh* pMesh )
 {
 	for( int i = 0 ; i < m_AfterImageNum; i++ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+		m_AfterImageList[i].pAnim->AddModelXSkinMesh( pMesh, NULL, NULL, NULL, false, false );	// June2017 3322a41e: bAddCollisionData = 0
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 		m_AfterImageList[i].pAnim->AddModelXSkinMesh( pMesh );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 	}
 }
 

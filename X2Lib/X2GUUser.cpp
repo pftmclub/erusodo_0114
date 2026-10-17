@@ -4865,6 +4865,20 @@ void CX2GUUser::InitMotion()
 
 		m_pXSkinAnimFuture->SetAnimXSkinMesh( m_pMotionFuture );
 		m_pXSkinAnim->SetAnimXSkinMesh( m_pMotion );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+		// June2017 31fe5860 @31fe5c25: the motion's own collision / attack data on m_pXSkinAnim ( not the future anim ); the equipment
+		// skin meshes are added without collision data ( June 3295ae20 ). June's second call ( @31fe63a5 ) is the unit type 10 motion pair.
+		m_pXSkinAnim->JuneAddCollisionData( m_pMotion );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+		if( NULL != m_pMotion )
+		{
+			std::string strJuneMotion;
+			ConvertWCHARToChar( strJuneMotion, m_pMotion->GetDeviceID().c_str() );
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKREF motion collision " << strJuneMotion.c_str() << " collision " << (int)m_pXSkinAnim->GetCollisionDataList().size()
+				<< " attack " << (int)m_pXSkinAnim->GetAttackDataList().size() << fileout;
+		}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 
 #ifdef SEPARATION_MOTION
 		std::vector<wstring> vecMotion;		

@@ -2038,7 +2038,11 @@ void CX2Eqip::_UpdateSkin()
 #ifdef  X2OPTIMIZE_X2EQIP_CRASH_BUG_FIX
                     if ( m_pUnitXSkinAnim != NULL )
 #endif  X2OPTIMIZE_X2EQIP_CRASH_BUG_FIX
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+					m_pUnitXSkinAnim->AddModelXSkinMesh( m_pHyperXSkinModel[i], m_pHyperAniXET, NULL, m_pHyperTexChangeXET, false, false );	// June2017 3295ae20: bAddCollisionData = 0, the motion carries the unit's collision
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 					m_pUnitXSkinAnim->AddModelXSkinMesh( m_pHyperXSkinModel[i], m_pHyperAniXET, NULL, m_pHyperTexChangeXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 					m_iXSkinModelAttachment = 2;
 #ifdef HEAVY_LOG_TEST
 					debugWPrintf( L"ADD HYPER SKIN : %s", m_pHyperXSkinModel[i]->GetDeviceID().c_str() );
@@ -2064,7 +2068,11 @@ void CX2Eqip::_UpdateSkin()
 #ifdef  X2OPTIMIZE_X2EQIP_CRASH_BUG_FIX
                     if ( m_pUnitXSkinAnim != NULL )
 #endif  X2OPTIMIZE_X2EQIP_CRASH_BUG_FIX
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+					m_pUnitXSkinAnim->AddModelXSkinMesh( m_pNormalXSkinModel[i], m_pNormalAniXET, NULL, m_pNormalTexChangeXET, false, false );	// June2017 3295ae20: bAddCollisionData = 0, the motion carries the unit's collision
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 					m_pUnitXSkinAnim->AddModelXSkinMesh( m_pNormalXSkinModel[i], m_pNormalAniXET, NULL, m_pNormalTexChangeXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 					if( NULL != m_pNormalXSkinModel[i] )
 						m_iXSkinModelAttachment = 1;
 					else
@@ -2781,8 +2789,12 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 					WCHAR wszText[256];
 					StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"MULTI_TEX_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
 					m_pNormalMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszText, true );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+					m_pNormalXSkinAnim[i]->ReplaceMultiTexXET( 0, m_pNormalMultiTexXET );	// June2017 3295f336: void, the skin anim closes the old XET
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 					CKTDXDeviceXET* pOldXET = m_pNormalXSkinAnim[i]->ReplaceMultiTexXET( 0, m_pNormalMultiTexXET );
 					SAFE_CLOSE( pOldXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 				}
 			}
 		}
@@ -2819,8 +2831,12 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 						WCHAR wszText[256];
 						StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"MULTI_TEX_HYPER_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
 						m_pHyperMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszText, true );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+						m_pHyperXSkinAnim[i]->ReplaceMultiTexXET( 0, m_pHyperMultiTexXET );	// June2017 3295f485: void, the skin anim closes the old XET
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 						CKTDXDeviceXET* pOldXET = m_pHyperXSkinAnim[i]->ReplaceMultiTexXET( 0, m_pHyperMultiTexXET );
 						SAFE_CLOSE( pOldXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 					}
 				}
 			}

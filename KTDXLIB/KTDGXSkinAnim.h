@@ -109,7 +109,11 @@ class CKTDGXSkinAnim : public CKTDGObject
 
 		void ReplaceAniXET( CKTDXDeviceXET* pModelAniXETFrom, CKTDXDeviceXET* pModelAniXETTo );
 		void ReplaceMultiTexXET( CKTDXDeviceXET* pModelMultiTexXETFrom, CKTDXDeviceXET* pModelMultiTexXETTo );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+		void ReplaceMultiTexXET( int iIndex, CKTDXDeviceXET* pModelMultiTexXETTo );	// June2017 31d2b280: returns void, the skin anim closes the old XET itself
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 		CKTDXDeviceXET* ReplaceMultiTexXET( int iIndex, CKTDXDeviceXET* pModelMultiTexXETTo );
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 		
 		void ReplaceChangeXET( CKTDXDeviceXET* pModelTexChangeXETFrom, CKTDXDeviceXET* pModelTexChangeXETTo );
 		void ReplaceChangeXET( int iIndex, CKTDXDeviceXET* pModelTexChangeXETTo );
@@ -119,10 +123,16 @@ class CKTDGXSkinAnim : public CKTDGObject
 			CKTDXDeviceXET* pModelMultiTexXET = NULL, CKTDXDeviceXET* pModelTexChangeXET = NULL,
 			bool bCloseDeviceAtDestructor = false
 			, bool bAddCollisionData = true 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+			, const WCHAR* pwszFile = NULL, int iLine = 0	// June2017 31d2f3f0: June's callers pass __FILEW__ / __LINE__ for the KEM 433 log
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 			);
 
 		void AddAnimXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh );	// 툴잡없을 위한 애니메이션 메쉬 삽입함수
 		void RemoveModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+		void JuneAddCollisionData( CKTDXDeviceXSkinMesh* pModelXSkinMesh );	// June2017 31d2f250: the mesh's collision / attack data only, no list push
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 		bool IsInModelXSkinMesh( CKTDXDeviceXSkinMesh* pModelXSkinMesh );
 		__forceinline void CopyCloneFrameStructure( CKTDXDeviceXSkinMesh::MultiAnimFrame* pSrcCloneFrame )
 		{
@@ -393,7 +403,13 @@ class CKTDGXSkinAnim : public CKTDGObject
 #endif // MODIFY_AFTER_IMAGE
 	
 	private:
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+		void CleanAnimStructure( CKTDXDeviceXSkinMesh* pNewAnimXSkinMesh, CKTDXDeviceXET* pNewAnimAniXET );	// June2017 31d2f9a0: also swaps the anim mesh / XET
+		void JuneRefDevice( CKTDXDevice* pDevice );		// June2017 31d4d2f0: InterlockedIncrement( device +0x48 ) = March's RefDevice
+		void JuneCloseDevice( CKTDXDevice* pDevice );	// June2017 31cdd8d0 ( JuneCloseDeviceByPointer ) behind June's device-manager NULL test
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 		void CleanAnimStructure();
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 		void BuildCloneFrame( CKTDXDeviceXSkinMesh::MultiAnimFrame* pCloneFrame, CKTDXDeviceXSkinMesh::MultiAnimFrame* pSrcFrame );
 		void BuildCloneFrameList( CKTDXDeviceXSkinMesh::MultiAnimFrame* pCloneFrame );
 
@@ -845,7 +861,14 @@ class CKTDGXSkinAnim : public CKTDGObject
 		static bool									m_sbTestUpdateAnimation;
 
 
+#ifndef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 		std::vector<CKTDXDeviceXSkinMesh*>		m_vecAddedSkinMesh;
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+		int		m_iJuneRefAdds;		// SKREF: RefDevice calls this skin anim made
+		int		m_iJuneRefOwned;	// SKREF: bCloseDeviceAtDestructor meshes stored without a reference ( the list owns the caller's )
+		int		m_iJuneRefCloses;	// SKREF: closes this skin anim made
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 
 #ifdef JIGGLEBONE_TEST
 		bool	m_bJiggleMesh;

@@ -7824,6 +7824,52 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-17
+// Description: June engine remainder, Phase R12. Skin-anim device ownership as June has it: CKTDGXSkinAnim holds a device
+//              reference (31d4d2f0 = RefDevice) on everything it stores and closes it (31cdd8d0 = JuneCloseDeviceByPointer).
+//              AddModelXSkinMesh (31d2f3f0) references the mesh unless bCloseDeviceAtDestructor and every XET, gains (file, line)
+//              and the KEM 433 frame-count log (first 20 to ErrorLog.txt); m_vecAddedSkinMesh is gone. AddAnimXSkinMesh references
+//              too; RemoveModelXSkinMesh (31d2b2f0), ClearModelXSkinMeshList (31d2ba80, also deletes the collision data) and
+//              CleanAnimStructure( mesh, xet ) (31d2f9a0, swaps the anim mesh / XET; SetAnimXSkinMesh calls it, the destructor
+//              passes NULL, NULL) close. SetAnimXET and the four Replace*XET reference and close (31d28f80..31d29170, 31d2b280);
+//              ReplaceMultiTexXET( int ) returns void, so CX2Eqip::ChangeEnchantLevel stops closing the old XET (3295f250).
+#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+#ifndef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+#error SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS needs SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS (KEM_ERROR433 and R11's CleanAnimStructure)
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+#ifndef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#error SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE (CKTDXDeviceManager::JuneCloseDeviceByPointer)
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R12, short-lived. "[JUNE_ENGINE] SKREF" lines: per dead skin anim, references taken
+//              vs closed (session totals at most once per 2 s, the first 10 unbalanced anims by name), the KEM 433 total, the
+//              live device count, and the user motion's collision counts after JuneAddCollisionData. Remove after the review.
+#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+#error SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R12 item 4. June's unit collision comes from the motion: CX2GUUser's motion init adds
+//              the motion's collision / attack data to m_pXSkinAnim (31fe5860 @31fe5c25 -> 31d2f250, JuneAddCollisionData), and
+//              the equipment skin meshes CX2Eqip::_UpdateSkin() adds to the unit (3295ae20) and CKTDGXSkinAfterImage::AddMesh
+//              (3322a41e) pass bAddCollisionData = 0. March added every skin part's copy of the same spheres instead.
+#define SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
 // Description: June engine remainder, Phase R13. CX2WorldObjectMesh render path as June has it (vtable 334bc484). Prepare (327f9020):
 //              March's distance and load gates; the can-hide RayHit test runs only for m_bAnyCamera meshes (no g_pX2Game /
 //              CS_NORMAL test, so villages too); a hidden mesh is drawn at layer 0xff with its own layer kept (+0x324, -1 = none)

@@ -240,6 +240,13 @@ class CKTDXDeviceManager :
 			return true;
 		}
 //#endif NEW_VILLAGE_UNIT_BACKGROUND_LOADING_TEST
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+		int				JuneGetDeviceCount()	// SKREF ( R12 gate ): the live device count
+		{
+			CSLock locker( m_DeviceLock );
+			return (int)m_DeviceMap.size();
+		}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 
 
 
