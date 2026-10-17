@@ -4791,7 +4791,35 @@ on main.
 
 ### Phase E13 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 high. Data only: no C++, no flag, no build, no deploy (E14 owns those).** Scripts: `june2017_re/atlas_e13_closure.py` (A11's script, outputs
+`atlas_e13_*.tsv`, "atlas" column = an Elysion line quotes it) and the new `june2017_re/atlas_e13_sweep.py` (read-only). Census: `region_census.py --region elysion --limit 0 --no-probe --live`.
+
+- **Gate:** `--region elysion` open items 242 = routed classes only: `assets.absent` 40 (June ships none), `keys.file` 235 (one list, no `keys.registry`), `lists.hole` 2 +
+  `ids.missing` 2 + `npc.ready` 2 (NUI_STORY_QUEST / NUI_TRANSCEND_QUEST: quest plan), `members.june_nil` 2 (JUNE_BUGS 240 / 242), `bind.unbound` 1 (`SetPosion`, JUNE_BUGS 241),
+  `assets.adopt` 2 (`elysion_village_festival.lua` / `_xmas.lua`: seasonal scenes, left out in E2). `live {"same": 346}`, no `live.size` row; `koms {"staged": 346, "unstaged": 7}`
+  (the 7 = `Elysion_Tower_Stage3` (JUNE_BUGS #209), the 5 seasonal village scenes `Elysion_Village_Festival` / `_XMAS` / `_XMAS_2` / `Field_Elysion_rest_XMAS` / `_2` (E2: out of scope) and `Movie_Elysion_Clear` (quest 22336, deferred to the quest plan); none has a consumer in the port).
+- **1-4. Closure / TET / sizes / mount** (A11's script, both halves): it derives its file set from June, so it reproduces A11's numbers exactly: 3,880 names (2,407 an Elysion line
+  quotes), 3,794 in March, 6 extension mismatches + 80 names June ships no file for (6 meshes, textures unreadable), 134 TET pairs = 130 OK + 2 `KEY-MISSING` + 2 `NOTET` (the
+  JUNE_BUGS #214 / #215 four), 27 size differences = March's own older copies, mount `>1 archive: 0`, `PACKLIST 0`. Nothing here changed since A11.
+- **The gap: files the E-phases adopted outside the region set.** The census file set (dungeon / unit / world / linemap / field scripts) does not own registries, the PvP map lists or
+  the relation data, so the closure never read them. `atlas_e13_sweep.py` takes every `.lua` in `kom_contents` modified on/after 2026-10-17 that the region set does not own (31: Enum,
+  DungeonData, WorldData, NPCTemplet, DLG_Map_*, DLG_PVP_Map_List, PVP_Map_List, DLG_Map_House_NPC_RelationData, the NPC dialogs ...), reads names from text or `ljconv` bytecode constants,
+  expands mesh / XET textures and looks each up: 3,318 names. Result:
+  - **E12:** `DLG_PVP_Map_List` names `DLG_New_PVP_Image08.dds` (`MAP_SELECT_IMAGE__Resiam_Triangle`) and `DLG_New_PVP_Image10.dds` (`MAP_SELECT_IMAGE_WINNER_Adrian`), and the
+    `.TET` for each; March had none of the four. Both keys are in June's TETs (checked).
+  - **E1a:** `DLG_Map_House_NPC_RelationData.lua` names 25 NPC voice `.ogg` (ariel2 / camilla2 / ruriel2 / herjuno_elysion / nono_elysion), 4 NPC meshes (`Motion_NPC_NONO`,
+    `Motion_NPC_STEEL_AND_STEING`, `Motion_NPC_HYPER_YUNO` + xet, `Motion_NonoMonitor` + xet) and their 11 embedded textures (hyper-Yuno faces, Yuno holograms). The relation runtime
+    only reads them from June call sites that nothing shows yet (E1b), so they are dormant, but the file that names them is adopted, so they are staged (no partial June updates).
+  - **Staged and packed** (`kom.py stage-june`, June's exact bytes, 46 new, 0 replaced, manifest `"0"`): data013 9, data065 2, data096 25, data181 7, data215 2.
+    `PACK OK` x5. **Copied (user OK):** `COPY OK` data013 caf8ee84 (389 entries), data065 e31dbc70 (112), data096 a2cf0c63 (487), data181 2fef4b1d (372), data215 6238322c (20).
+  - After the copy the sweep shows 0 `STAGED-NOT-LIVE` and 5 `MISSING-june-has`, none an Elysion row: `dlg_int_button03.tga` + `motion_npc_event_edan.x`
+    (`HI_EVENT_GUILD_EDAN_VILAGE` / `HI_EVENT_BLESS_OF_SOLACE`, March houses) and `nui_mul_mai_04.tga` / `mesh_ara_content_upbody10(_a).tga` (`nui_mul_mai_event.x`, a March event NPC): the
+    June asset port's. The `absent-june-too` rows are registry noise (NPCTemplet names no kom has, in both builds).
+- **5. Pack list:** nothing is owed after the five copies (`atlas_e13_packlist.tsv` empty; `kom.py status`: 0 need a pack, 0 need a copy). New archives in the whole Elysion run: none.
+  Server-side Lua for `data036.kom` is the A11 list (StatTable / NpcExpTable / ExpTable live; the server's `MapData.lua` mirror is not a pack item).
+- **Hygiene:** no code changed, so `flagcheck` / `build.py` do not apply. `luasrc.py ledger --check` PASS, `core --check` PASS (no Lua staged).
+- **Routed, not open:** the 40 June-less names, the 6 extension mismatches, the 27 March-copy size differences (June asset port), the 5 non-Elysion names above.
+- **Review kickoff** `kickoffs/atlas/E13-review.md` and E14's `kickoffs/atlas/E14.md` written.
 
 ---
 
