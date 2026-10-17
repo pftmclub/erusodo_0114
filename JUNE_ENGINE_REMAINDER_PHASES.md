@@ -525,7 +525,7 @@ not a DG pass render.
 
 **Hygiene** (`flagcheck --worktree --files <14 files>`): RESULT PASS for all seven flags. Every other row is OTHER, from the sibling R8 flags.
 PASS~ = one blank line each in `KTDXApp.cpp` / `KTDGUIDialogManager.cpp`. 0 deleted lines, 0 non-ASCII, 0 EOL mismatches.
-Range check after commit: DEPLOY_LINE_RANGE
+Range check after commit (`--range b1f197ca^..b1f197ca`): RESULT PASS for all seven flags, with 0 FAIL / ERROR.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,764,736 B, dated 2026-10-17 20:08:37, md5 9ff6fb3c54e07a6426464c9ff5b00e92` (built at main 82adc267 + this phase's 14 files).
 
