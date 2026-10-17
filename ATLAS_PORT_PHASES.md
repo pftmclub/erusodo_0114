@@ -4385,7 +4385,7 @@ Census `--line AR`: 129 open rows before, 83 after, all routed checklist step-9 
   `WI_ADRIAN_BOSSSTAGE` was in since C3y-1b). Core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
 - **Routed, not E9's:** `MOTIONNAME_EFFECTSETNAME` in `Elysion_Adrian_Stage1_LineMap.lua` is june-engine W1 (STATUS `W1` ready): that one trigger does nothing
   until W1 lands (March has no reader). `AFTER_IMAGE_DEST_ALPHA_BLEND`, `CT_*`, `LINE_NUM`, `REWARD_RATE` as checklist step 9. No new JUNE_BUGS row.
-- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: asked, see the hand-off (not copied yet).
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy (user OK 2026-10-17): `COPY OK` data035 (ae183f2d) / data037 (03ee2201) / data040 (ea44f3e3); census `--line AR --live`: `live {"same": 321}`.
 - **Offline:** SkyCrossroads Normal clear (33870, E8) unlocks Adrian via `EXTRA_REQUIRE_DUNGEON_ID`. A clear records Adrian's keys with no code; kills pay
   nothing (no server `DropTable` rows; backlog Stage 23).
 - **How to see it (after the copy):** a level-84+ character that has cleared SkyCrossroads Normal: M -> Elysion tab -> Adrian icon enabled -> enter Normal;
