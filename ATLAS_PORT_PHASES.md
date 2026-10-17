@@ -3763,6 +3763,44 @@ Done when: Phase E4's "Done when" holds. Record a Done note (DEPLOY OK commit), 
   0 EXCEPTION, UNHANDLED only the two known `E_DISABLE_HB_CHECK_REQ`, no miss on the guide / move buttons / `Elysion_Local`. The blink (no log line)
   confirmed by the user: works. Nothing owed but the review.
 
+### Phase E4 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS with one transcription fix** (same flag `SERV_IRUHADEV_JUNE_LOCAL_MAP_ELYSION`). Read in Ghidra (read-only)
+plus the raw bytes of `unpacked_x2.exe` for every string / float constant.
+
+- **Scroll 329378a0:** pushes @3293795d-32937965 = (`*dir`, &local `[orig+8]` = from, &arg-1 slot `[orig+0x1c]` = to), both preset -1 ->
+  A4's `StartChangeUV( dir, from, to )`; +0x48 = 0x2719 right after the id test; success: 329366a0, end func = 3293c1e0 bound to ESI
+  (`this`), 31c95a60, then `+0x54 = [orig+0x1c]` (to). Order and operands = the port. Tail @3293c146: `NEG / SBB / ADD 2` on +0x54 ->
+  page ? 1 : 2, with the loop's map id (EBP) = port. Handlers 18006 / 18007 (3293d81d / 3293d84e): `GetDummyInt( 0 )` (31c947d0), 1 / 2 = port.
+- **329366a0 / 3293c1e0:** strings at 33458f54 .. 3348ac4c read from the exe = "0".."9"; vslot 0x78 with (EBP=0, 0) on a match and on every
+  control of +0x34 (hero recruit; ctor and dtor agree); end callback: `_itow_s( page, 10 )`, (1, 1), the 0..10 test formats 334c83f8 and
+  falls through, then `UpdateDungeonButtons( [EDI+0x48] )`, `32939530` (UpdateHeroRecruitButton). = port.
+- **OnFrameMove 3293a960:** Up +0xc1 -> Up solid only; else Down +0xc1 -> Down solid only; else blink both via vslot 0x84; `1.0 <` up-test,
+  `< 3345993c` (= 0.3f from the exe) down-test. Ctor 32937fa0: +0x4c = `FLDZ`, +0x48 = 0, +0x50 = 1, +0x54 = 0, +0x60 = 1 = port's inits.
+- **Guide 329386b0:** `fopen( 334c8154 "checkfile.txt", 334552c0 "rb" )`; new dialog (0x204 B) with ( +0x10 stage, 334c8114
+  `DLG_Elysion_LocalMap_Guide.lua`, 3344b78c = 0.07f, 0 ) -> +0x58 -> AddDlg 31d04390; then "wb" (3346aadc), no fclose on failure = port.
+  ClearLocalMapDLGs 329379d0: 0x2719 -> 329378a0( id, 2 ) before the delete, +0x28 = 0, +0x60 = 1 = port.
+- **Code-event gates:** both blocks: 2260 on -> only `dungeon - 0x8232 <= 0x16` (2261 is not tested), else 2261 -> `- 0x8246 <= 2`; title
+  static 334c83ac = `엘리시온_타이틀 모음` (= the port's `\x` escapes); pictures 0 / 1 only under 2260, 2 always (`+8 = 0`). Not-enabled block
+  (@3293b8c0): every path ends at 3293bfd4 (the loop's `inc`), = the port's `continue`.
+  **FIX:** the enabled block (@3293baac) skips the dungeon (`jmp 3293bfd4` @3293bbcf) only when the title static exists; with no static
+  (@3293bb7f `je 3293bbd4` -> `jmp 3293bbee`) June goes on with the open-dungeon code. The port returned true either way. Now
+  `HideDungeonByElysionCodeEvent` returns false (with an `[ELYDBG] ... no title static (June goes on)` line) when the static is missing.
+  Inert offline (code events never fire, and the static is in the Icon lua), so no play-test.
+- **Data:** staged `data034_kom/DLG_Elysion_LocalMap_Guide.lua` 1466 B, sha1 7be757dd.. = the adopt tsv's `ljconv(June)`, header
+  `1B 4B 4C 81`. Its textures: `DLG_UI_Image_01` (`LocalMap_MovePopup`, data215) and `DLG_UI_Button03_A` (`CHECK_NORMAL / OVER`, datai020),
+  keys present in the TETs; `STR_ID_40385` defined (`StringID_def` :40387). Census `--phase E4` local-map rows: `dlg_localmap_title_01_a.tga`
+  (206) + `DI_ATLASCITY / ATLASDEVELOPMENT / TOWER_HERO_NORMAL` only, as the Done note says.
+- **JUNE_BUGS 228 / 229:** right as written (Icon lua star statics only for the 4 Elysion-page dungeons; guide gate = one generic file).
+- **Play-test (log):** the guide opened once (12:08:15) and closed (12:08:18); `present, guide not shown` x6 (the Done note says five);
+  scroll 6 x dir 1 / 5 x dir 2; page-1 ends 11 controls, page-0 ends 6; 0 EXCEPTION. Blink confirmed by the user.
+- **Hygiene:** E4 commit `--range cccffdb2^..cccffdb2 --with ELYSION_DEBUG` (3 files): `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`,
+  `19 deleted line(s)` (A7's own flagged lines: two "until atlas E4" comments + the 17-line hidden-buttons tail), `RESULT: PASS`.
+  Fix `--worktree --files X2LocalMapUI.cpp`: `files: 1 PASS ... 0 FAIL`, `1 deleted line(s)` (E4's own "Returns true" comment line), `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,705,856 B, dated 2026-10-17 12:19:58, md5 794e68d7ca3ab86b4d1339849b5ac71f, equal to X2/US_SERVICE/x2.exe (2026-10-17 12:19:50); built at main 8b2d57a7 + 1 uncommitted code file(s).`
+  The fix's UTF-16LE literal `no title static (June goes on)` is in the deployed exe. No kom change. Nothing owed. Next: E5 (kickoff
+  `kickoffs/atlas/E5.md` already exists).
+
 ---
 
 ## Phase E5 — Moving platforms

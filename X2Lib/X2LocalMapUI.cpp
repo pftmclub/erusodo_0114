@@ -1722,7 +1722,8 @@ void CX2LocalMapUI::OpenElysionLocalMapGuide()
 // closes the Atlas dungeons 33330-33352, else 2261 (0x8d5) the Tower 33350-33352: the button, its stars and quest
 // desc are hidden, and so are the Elysion page's title plates (the "Elysion_title set" static, named in Korean in
 // DLG_Map_Local_Elysion_Icon_NEW.lua: picture 0 SkyCrossroads, 1 Adrian under
-// 2260; 2 Soless always). Returns true when it hid the dungeon. g_pInstanceData is June's 33775864.
+// 2260; 2 Soless always). Returns true when the caller skips the dungeon: it was hidden and the title static exists
+// (E4 review: without the static June's enabled path goes on, see below). g_pInstanceData is June's 33775864.
 bool CX2LocalMapUI::HideDungeonByElysionCodeEvent( CKTDGUIDialogType pDialog, CX2LocationManager::LOCAL_MAP_ID eLocalMapID,
 	CKTDGUIControl* pControl, SEnum::DUNGEON_ID eDungeonID )
 {
@@ -1749,6 +1750,16 @@ bool CX2LocalMapUI::HideDungeonByElysionCodeEvent( CKTDGUIDialogType pDialog, CX
 #endif SERV_EPIC_QUEST
 
 	CKTDGUIStatic* pStaticTitle = static_cast<CKTDGUIStatic*>( pDialog->GetControl( L"\xC5D8\xB9AC\xC2DC\xC628_\xD0C0\xC774\xD2C0 \xBAA8\xC74C" ) );	// June 334c83ac
+	// June @3293bb7f: with no title static the enabled path (@3293baac) does not skip the dungeon; it jumps to 3293bbee
+	// and goes on with the open-dungeon code. The not-enabled caller (@3293b9e3) continues either way.
+	if( NULL == pStaticTitle )
+	{
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		CX2OfflineLog::Server( L"[ELYDBG] local map Elysion: dungeon %d hidden by code event %d, no title static (June goes on)",
+			(int)eDungeonID, ( true == bAtlasClosed ) ? 2260 : 2261 );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+		return false;
+	}
 	if( NULL != pStaticTitle )
 	{
 		if( true == bAtlasClosed )
