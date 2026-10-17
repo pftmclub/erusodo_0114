@@ -4434,7 +4434,40 @@ main.
 
 #### Phase E10 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Data, plus one diagnostic in C++ (`SERV_IRUHADEV_ELYSION_DEBUG`). E5, E6, E7, E9 confirmed done (E9 play-test passed, `641c8d2a`).
+Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absent`, 77 `keys.file`, 3 `keys.registry`, plus 3 JUNE_BUGS rows (below);
+`assets.adopt` 13 -> 0, `koms.unstaged` (SL) 13 -> 0, `npc.ready` 45 -> 0. No engine gap.
+
+- **Boss: no decompile.** `june2017_re/june_lua/ELYSION_SOLESS.src.lua` never existed (E0's ljd run ran out of memory); read with `tools/ljbc.py list` on the staged
+  `data037 ELYSION_SOLESS.lua` (ljconv, 105,101 B, since 2026-10-09). All 105 methods it calls are bound in March; the ~79 other globals are its own functions.
+  `GetBuffAccumulationCountNow` (`BTI_DEBUFF_DARK_SOLES_ATTACK` count > 3, per player) is bound (`X2Main.cpp:4361`, `JUNE_BUFF_BINDING`, buff Phase 10 done): no block.
+  The kickoff file now names `ljbc.py` (this note's correction; the plan's inline prompt is frozen).
+- **Engine hooks the line uses, all in place:** AWAKEN gauge (`CreateSimpleDLG("DLG_UI_ELYSION_SOLESS_AWAKEN_GAGE.lua")` in the boss, so E6's "nothing loads
+  AWAKEN_GAGE" holds only for text sources) and HERBAON gauge (`ELYSION_S_2STAGE_HERBAON`), both dialogs staged in data034 by E6; dramatic messages
+  (`ELYSION_SOLESS_DRAMATIC`, E6); phase 2 = `DarkSoles_DoPhaseChange_InMiddle`: `SetShowWorld(false)` + `SetShowAdditionalWorld(0, true)`, the world being
+  WI_SOLESS_BOSSSTAGE's `dataFileName_Additional` (E7 reader `X2WorldManager.cpp:304`). Endings: `CF_ELYSION_SOLESS_DYING_TRUE/BAD_ENDING` on NPC flag 3.
+  Hidden stage: STAGE1 SUB_STAGE1 kills `HIDE_STAGE_A` -> `CT_STAGE 1`, `HIDE_STAGE_B` -> `CT_STAGE 5` (`WI_SOLESS_STAGE1_HIDE`).
+- **Premises held.** All 45 rows: unit script staged (data037, ljconv), `MOTION_FILE_NAME` meshes staged (data181 / data008), Enum value = June's, `NewNPCStat` has
+  them and `NPCStat` has none (= June). Boss faces `NUI_SOLESS`, `NUI_HERBAON`, `NUI_COPY.S` in `data215 DLG_BossState_02.TET`. Buffs (`BFI/BTI_*DARK_SOLES*`,
+  `BFI_HOLD_BY_SOLESS`, `BTI_DEBUFF_SHOCK_ELYSION_6`, ...) all in `Enum.lua`. Effects 416 / 416, items 0 missing.
+  `ELYSION_S_MAYA_Weapon_Circle.y` is `assets.absent` (June ships none).
+- **Staged:** `adopt-june data040` the 13 Soless Stage0-3 / Stage1_Hide / BossStage / BossStage_2Phase + line maps (ljconv; `june2017_re/june_adopt_20261017_150655.tsv`).
+  BOM source, appended verbatim as `atlas E10` blocks (scratchpad `e10_edit.py`: slice-boundary asserts, then each new id exactly once):
+  `data035 DungeonData` June :33120-33354 (N / H / E; no quest key; June has **no** Soless Hero rows), `data037 NPCTemplet` 45 rows (June :21019-21171,
+  :21190-21414, :21496-21522; per-row ranges in the header; `SOLESS_EVENT2` / `_A` left out: no March NUI, no June spawn), `data040 WorldData`
+  WI_SOLESS_STAGE0-3, STAGE1_HIDE, BOSSSTAGE (June :3405-3437). Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
+- **June bugs kept verbatim:** JUNE_BUGS 240 (`NUI_ELYSION_S_CIRCLE_CTR` in STAGE1 `READY_NPC`: nil, June's reader `327f3c40` stops there like March's, so 5 later
+  entries are not preloaded), 241 (`SetPosion` on the spheres: bound in neither; Lua error, sphere not repositioned), 242 (`LINE_TYPE.LT_INVALID` nil, test never
+  true), 243 (sphere faces absent from June's TET, byte-identical to ours). `CANDOWN` is 232 (E5).
+- **Code:** `X2DungeonStage.cpp` `LoadReadyNPC`: after the loop, probe the next 8 indices; on a hit log `[ELYDBG] READY_NPC: world <id> entry <n> is not an NPC id ...`.
+  No behaviour change. flagcheck `--worktree --files X2Lib/X2DungeonStage.cpp`: `files: 1 PASS ... 0 FAIL, 0 ERROR`, `0 deleted line(s) ... 0 encoding change(s)`, `RESULT: PASS`.
+  `DEPLOY OK: X2_offline.exe is 19,759,616 B, dated 2026-10-17 15:12:58, md5 9e7072a53ababc6a323912c21d0e5cdf` (string present in the exe).
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: owed (asks the user).
+- **Offline:** Adrian Normal clear (33880) unlocks Soless (33890 / 33891 / 33892, `m_MinLevel` 87, so level 85+ passes under `JUNE_DUNGEON_SUITABLE_LEVEL`).
+  A clear records with no code; kills pay nothing (Stage 23). Memory (E11) names `DI_SOLESS_NORMAL`.
+- **How to see it (after the copy):** a level-85+ character that has cleared Adrian Normal: M -> Elysion tab -> Soless -> Normal. Stage0 (moving platforms, E5
+  review's two checks), Stage1 (kill `HIDE_STAGE_B` for the hidden stage), Stage2 (Herbaon gauge), Stage3, boss: AWAKEN gauge, phase-2 world swap, dramatic
+  boxes, true / bad ending. `offline_server.log` shows `[ELYDBG] READY_NPC: world 712 entry 10` when the stage data loads.
 
 ### Phase E11 — Memory
 

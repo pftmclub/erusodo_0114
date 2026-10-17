@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include ".\x2dungeonstage.h"
 #include <set>
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 
 
 CX2DungeonStage::CX2DungeonStage( StageData* pStageData )
@@ -545,6 +548,20 @@ void CX2DungeonStage::StageData::LoadReadyNPC( KLuaManager& luaManager )
 			m_ReadyNPCList.push_back( (CX2UnitManager::NPC_UNIT_ID)nNPCUnitID );
 			index++;
 		}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		// Atlas E10: June's READY_NPC reader 327f3c40 also stops at the first entry that is not a number, so a nil inside the list
+		// (Soless STAGE1's NUI_ELYSION_S_CIRCLE_CTR typo, JUNE_BUGS 240) drops every entry after it. Kept as June; log the hole.
+		for( int iProbe = index + 1; iProbe <= index + 8; ++iProbe )
+		{
+			int nAfterHole = 0;
+			if( luaManager.GetValue( iProbe, nAfterHole ) == true )
+			{
+				CX2OfflineLog::Server( L"[ELYDBG] READY_NPC: world %d entry %d is not an NPC id; %d loaded, entry %d (npc %d) and later dropped, as June",
+					(int) m_WorldID, index, index - 1, iProbe, nAfterHole );
+				break;
+			}
+		}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
 		luaManager.EndTable();
 	}
 }

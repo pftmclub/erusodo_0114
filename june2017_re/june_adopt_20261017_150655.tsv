@@ -1,0 +1,16 @@
+# adopt-june --bytecode run 2026-10-17 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+Elysion_Soless_BossStage.lua	data040	new	data040	9395	c0392dfd8a37403e9a0fa70bdafb41fd8830ebe8	bytecode		ljconv
+Elysion_Soless_BossStage_2Phase.lua	data040	new	data040	9421	51709e0b4aacbd7911586ce8acb8140079d6e044	bytecode		ljconv
+Elysion_Soless_BossStage_LineMap.lua	data040	new	data040	3117	7e026e682dbead45798eb7e0e679a0e5ac545e26	bytecode		ljconv
+Elysion_Soless_Stage0.lua	data040	new	data040	12209	d6e573a7f5fbbe15b91998fa9f151df425c6885c	bytecode		ljconv
+Elysion_Soless_Stage0_LineMap.lua	data040	new	data040	24061	742c427cfe1fe398b6df68f39308d4efe187b21f	bytecode		ljconv
+Elysion_Soless_Stage1.lua	data040	new	data040	17392	d23ebe32e0729c24f48fe094267abafdcff3cb85	bytecode		ljconv
+Elysion_Soless_Stage1_Hide.lua	data040	new	data040	13633	45438d3435f8ee0fef42200a6f35b188bce5ff88	bytecode		ljconv
+Elysion_Soless_Stage1_Hide_LineMap.lua	data040	new	data040	20929	80b9d224fbf57deb33e7f6fa5b4ea284d74f17ed	bytecode		ljconv
+Elysion_Soless_Stage1_LineMap.lua	data040	new	data040	20759	9113c005ac9a9309dab45db8b4e1736d55fd33ac	bytecode		ljconv
+Elysion_Soless_Stage2.lua	data040	new	data040	10606	effdef485e91b2432145ac098cde05f6c0926557	bytecode		ljconv
+Elysion_Soless_Stage2_LineMap.lua	data040	new	data040	29527	6992c970debb11811a001fad5dc89577826770b4	bytecode		ljconv
+Elysion_Soless_Stage3.lua	data040	new	data040	9623	a1836a21556192bc598b25d898ff83f36185653e	bytecode		ljconv
+Elysion_Soless_Stage3_LineMap.lua	data040	new	data040	13175	e87de143369143c5dd111ad37c25b4ac2701ae20	bytecode		ljconv
