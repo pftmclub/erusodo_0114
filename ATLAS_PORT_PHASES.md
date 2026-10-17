@@ -3556,8 +3556,7 @@ turns them on. The four A7 stand-ins that wait for a 20009 templet (`X2LocationM
 - **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_PORT --range da93f852^..da93f852 --with SERV_IRUHADEV_CHAT_WARP_DEBUG --files X2Lib/X2ChatBox.cpp`:
   `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched inserted, 0 #else/#endif
   without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
-- **Open for the user (optional):** centring the world map on the character's pin would be a deviation from June: its own
-  `SERV_IRUHADEV_JUNE_FIX_WORLD_MAP_CENTER` flag, with June's (0,0) in `#else`. Say if you want it; nothing else is owed. Next: `/x2-phase atlas E3`.
+- **Centring the world map on the pin: declined (user, 2026-10-17: it would differ from June).** Nothing owed. Next: `/x2-phase atlas E3`.
 
 ---
 
