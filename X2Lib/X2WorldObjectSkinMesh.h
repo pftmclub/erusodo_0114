@@ -202,6 +202,9 @@ class CX2WorldObjectSkinMesh : public CX2WorldObject
 
 		bool							m_bCanHide;
 		bool							m_bAnyCamera;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+		bool							m_bJuneWSkinLoggedHide;	// R13b debug: this mesh's first hide: line was written
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
 		CKTDGMatrix::BILLBOARD_TYPE		m_BillboardType;
 
 		D3DXVECTOR2						m_Tex0UVSpeed;

@@ -8048,3 +8048,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_PARTICLE
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R13b. CX2WorldObjectSkinMesh::OnFrameRender_Prepare as June 327f6e40 (vtable 334bc3cc
+//              slot 8): the can-hide test runs only for m_bAnyCamera meshes, with no g_pX2Game / CS_NORMAL test (so villages hide
+//              too), and a hidden skin mesh raises the camera's world-mesh-hidden flag (@327f7098, R13's SetWorldMeshHidden).
+//              The fade, the gates and the render-param copy are March's; unlike the world mesh there is no layer swap.
+#define SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
+#ifndef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+#error SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH needs SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R13b. CX2WorldObjectSkinMesh::RayHit as June 327f6a70 (vtable 334bc3cc slot 0x40), which
+//              inlines June's LineToSphere (the change Effect C8a found in the damage manager): closest point on the eye-lookAt
+//              segment clamped to its ends, hit when its distance is < radius + 1, impact halfway from the centre to that point.
+//              March tests the unclamped projection on the ray. Only this class's RayHit is switched; KTDXCollision is March's.
+#define SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_RAYHIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R13b, short-lived. One [JUNE_ENGINE] WSKIN "render on" line, then each skin mesh's
+//              first hide: line (name, alpha) in ErrorLog.txt. Turn off at the R13b review.
+#define SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+//////////////////////////////////////////////////////////////////////////

@@ -1529,6 +1529,42 @@ Added by R13 (an unowned June branch). After R13; not alongside R12 if R12's map
   - the 0.3 / 4.0 fade and camera `+0x19d = 1` (`@327f7098`; R13's `JUNE_RENDER_CAMERA_MESH_HIDDEN` setter); no layer swap.
 - Map the class's vtable whole (as R13 did for `334bc484`), then port what differs. Funcmap row `327f6e40 (R13)`.
 
+### Phase R13b -- Done
+
+**2026-10-18, Opus 5.5.** The skin mesh's vtable `334bc3cc` (RTTI `.?AVCX2WorldObjectSkinMesh@@`, 17 slots) is mapped whole, in 6 funcmap rows tagged `(R13b)`.
+Its own slots are Prepare, RayHit, OnFrameMove, Draw, Reset / Lost and the dtor; the other 9 are the base's or folded with the mesh's.
+
+**The map.**
+- **`SetCanHide`** is thunk `31e4c6a0` (binder `31d95080`, name `@31dbea96` in the skin-mesh block). It writes `+0x2f0` = `m_bCanHide` and `+0x2f1` =
+  `m_bAnyCamera`, as March's header. The class has no `m_bNotRenderWhenHidden`, so the R13 review's doubt is settled: June's gate is `canHide && anyCamera`.
+- **Prepare `327f6e40` differs in two places only:** the hide test drops March's `g_pX2Game` / `CS_NORMAL` test and needs `m_bAnyCamera`, and a hidden
+  skin mesh sets the camera's world-mesh-hidden flag (`@327f7098`). Gates, fade (0.3f / 4.0), render-param copy and alpha-object rules are March's. No layer swap.
+- **RayHit `327f6a70` differs:** it inlines June's `LineToSphere`, the change Effect C8a found in the damage manager. The point tested is the closest point on
+  the eye-lookAt segment, clamped to its ends; a hit needs `dist < radius + 1` (strict); the impact is halfway from the centre. March projects onto the
+  unclamped ray. Only this class's RayHit is switched; `KTDXCollision.h` stays March's (C8a's scope).
+- **The rest is March's**: OnFrameMove `327f83a0` branch for branch (play-type jump table `327f8cf8`, `Play` values = `XAP_*`, IsHost culling), Draw,
+  Reset / Lost, ctor / dtor. The only June-only member store is `+0x368 = -1` (`m_iTriggerID`, already ported by W0). OnFrameMove's `AddModelXSkinMesh`
+  passes June's `__FILEW__` / 151; R12 added those parameters for the KEM 433 log text and no March caller passes them, so this caller doesn't either.
+
+| Flag | What landed (June) |
+|---|---|
+| `JUNE_RENDER_WORLD_SKIN_MESH` | Prepare's hide test as `327f6e40`: only `m_bAnyCamera` skin meshes hide, in villages too; a `SetCanHide(true, false)` skin mesh never hides (261 such in June's world Lua, 18 are any-camera). A hidden one sets `SetWorldMeshHidden( true )` (R13's setter; `#error` without `JUNE_RENDER_CAMERA_MESH_HIDDEN`). |
+| `JUNE_RENDER_WORLD_SKIN_MESH_RAYHIT` | RayHit as `327f6a70` (clamped segment, strict `< r + 1`, halfway impact, `-1` miss). |
+| `JUNE_RENDER_WORLD_SKIN_MESH_DEBUG` | Short-lived. One `[JUNE_ENGINE] WSKIN June world skin-mesh render on` line, then each skin mesh's first `WSKIN hide:` line (name, alpha). |
+
+**Hygiene** (`flagcheck --worktree --files` the 3 code files): RESULT PASS for all three flags.
+- The skin-mesh `.cpp` rows are OTHER (the three flags nest); the header is PASS for `_DEBUG`.
+- `Always.h`'s `-1` is a peer's deleted blank line (W1e block), not this phase's.
+- 0 deleted lines, 0 non-ASCII lines, 0 EOL mismatches, 0 encoding changes.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,873,280 B, dated 2026-10-18 06:34:55, md5 6e1b71e8bdb7cbe25ec57d44d4c11aa3` (built at main 68e3302f + peers' uncommitted files; both WSKIN strings found in the deployed exe).
+
+**How to see it in game** (Freils, Chung Tactical Trooper, uid 18):
+1. Besma Village: the horse (`BESMA_VILLAGE_HORSE.X`, world position 1300, 0, 1000) is a `SetCanHide(true, true)` skin mesh. Walk so it is between
+   the camera and Freils: it fades to about 30% and back once you walk out. March never faded a skin mesh in a village.
+2. ErrorLog.txt: one `[JUNE_ENGINE] WSKIN June world skin-mesh render on` line, and `WSKIN hide: BESMA_VILLAGE_HORSE.X alpha ...` when it first fades.
+3. Any dungeon: animated world objects play, show and cull as before.
+
 ## Phase R13c - Camera tracking and roll (UpdateCamera whole)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK`.

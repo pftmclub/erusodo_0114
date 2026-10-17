@@ -70,6 +70,9 @@ CX2WorldObjectSkinMesh::CX2WorldObjectSkinMesh( bool bBackgroundLoad_ )
 
 	m_PlayType	= WOSMPY_ONE_WAIT;
 	m_bAnyCamera = false;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+	m_bJuneWSkinLoggedHide = false;
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
 
 }//CX2WorldObjectSkinMesh::CX2WorldObjectSkinMesh()
 
@@ -429,6 +432,42 @@ RENDER_HINT   CX2WorldObjectSkinMesh::OnFrameRender_Prepare()
 
 
 	//반투명 체크(시야가림) - 중요한 연산이 아니므로 Render에서 처리한다
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
+	// June 327f6e40 ( vtable 334bc3cc slot 8 ) @327f6f18-327f6fc0. The load, show and distance gates above are March's. The can-hide
+	// test runs only for m_bAnyCamera ( +0x2f1 ) meshes, with no g_pX2Game / CS_NORMAL test, so it also runs in villages; a
+	// SetCanHide( true, false ) skin mesh never hides. RayHit is vslot 0x40 with the eye / lookAt by value and no hit distance.
+	// The fade is March's ( 0.3f 3345993c; June's 4.0 double 33437838 gives the same float, a product by 4 is exact ).
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+	static bool s_bJuneWSkinLoggedOn = false;
+	if( s_bJuneWSkinLoggedOn == false )
+	{
+		s_bJuneWSkinLoggedOn = true;
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WSKIN June world skin-mesh render on: any-camera hide only, camera mesh-hidden flag, June RayHit" << fileout;
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+	bool bHide = false;
+	if( m_bCanHide == true && m_bAnyCamera == true )
+	{
+		if( RayHit( g_pKTDXApp->GetDGManager()->GetCamera().GetEye(), g_pKTDXApp->GetDGManager()->GetCamera().GetLookAt() ) == true )
+		{
+			bHide = true;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+			if( m_bJuneWSkinLoggedHide == false )
+			{
+				m_bJuneWSkinLoggedHide = true;
+				std::string strName;
+				ConvertWCHARToChar( strName, m_XSkinMeshName.c_str() );
+				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WSKIN hide: " << strName.c_str() << " alpha " << m_fNowAlpha << fileout;
+			}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+
+			if( m_fNowAlpha > 0.3f )
+				m_fNowAlpha -= 4.0f * m_fElapsedTime;
+			else
+				m_fNowAlpha = 0.3f;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
 	bool bHide = false;
 	if( m_bCanHide == true )
 	{
@@ -450,6 +489,7 @@ RENDER_HINT   CX2WorldObjectSkinMesh::OnFrameRender_Prepare()
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
 
 	//레이가 히트하지 않으면
 	if( bHide == false )
@@ -474,6 +514,10 @@ RENDER_HINT   CX2WorldObjectSkinMesh::OnFrameRender_Prepare()
 	{
 		SetAlphaObject( true );
 		pRenderParam->bAlphaBlend = true;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
+		if( NULL != g_pKTDXApp->GetDGManager() )
+			g_pKTDXApp->GetDGManager()->GetCamera().SetWorldMeshHidden( true );	// June 327f7088-327f7098
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH
 	}
 	else
 	{
@@ -1020,6 +1064,51 @@ void CX2WorldObjectSkinMesh::SetChangeTexXET_LUA( const char* pFileName )
 
 bool CX2WorldObjectSkinMesh::RayHit( D3DXVECTOR3 rayStart, D3DXVECTOR3 rayEnd, float* pHitDistance )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_RAYHIT
+	// June 327f6a70 ( vtable 334bc3cc slot 0x40 ) inlines June's LineToSphere, the change Effect C8a found in the damage manager.
+	// The centre ( GetMatrix().GetMatrix(), TransformCoord ) and GetBoundingRadius() are March's, lineRadius 1.0 ( 334355b0 ).
+	// The point tested is the closest point on rayStart-rayEnd, clamped to its ends ( a projection <= 0 gives the start, one at or
+	// past the squared length the end ); a hit is distance < radius + 1, strict; the collision point is halfway from the centre
+	// to that point ( 0.5, 3342ebc8 ) and the hit distance its length from rayStart; a miss writes -1 ( 334380f0 ). March tests
+	// the unclamped projection on the ray, rejects a centre behind rayStart, and also hits at distance == radius + 1.
+	bool bResult = false;
+
+	D3DXVECTOR3 vCenter;
+	D3DXMATRIX matTransform = GetMatrix().GetMatrix();
+	D3DXVec3TransformCoord( &vCenter, &GetCenter(), &matTransform );
+
+	const D3DXVECTOR3 vSegment	= rayEnd - rayStart;
+	const D3DXVECTOR3 vToCenter	= vCenter - rayStart;
+	const float fProjection		= D3DXVec3Dot( &vToCenter, &vSegment );
+	D3DXVECTOR3 vClosest		= rayStart;
+	if( fProjection > 0.f )
+	{
+		const float fLengthSq = D3DXVec3Dot( &vSegment, &vSegment );
+		if( fLengthSq > fProjection )
+			vClosest = rayStart + vSegment * ( fProjection / fLengthSq );
+		else
+			vClosest = rayEnd;
+	}
+
+	D3DXVECTOR3 vToClosest	= vClosest - vCenter;
+	const float fDistance	= D3DXVec3Length( &vToClosest );
+	const float fHitRadius	= GetBoundingRadius() + 1.f;
+	if( fDistance < fHitRadius )
+	{
+		bResult = true;
+		D3DXVec3Normalize( &vToClosest, &vToClosest );
+		if( NULL != pHitDistance )
+		{
+			D3DXVECTOR3 vCollisionPoint = vCenter + vToClosest * ( fDistance * 0.5f );
+			vCollisionPoint -= rayStart;
+			*pHitDistance = D3DXVec3Length( &vCollisionPoint );
+		}
+	}
+	else if( NULL != pHitDistance )
+	{
+		*pHitDistance = -1.f;
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_RAYHIT
 	bool bResult = false;
 
 
@@ -1046,6 +1135,7 @@ bool CX2WorldObjectSkinMesh::RayHit( D3DXVECTOR3 rayStart, D3DXVECTOR3 rayEnd, f
 			*pHitDistance = -1.f;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_RAYHIT
 
 	return bResult;
 }
