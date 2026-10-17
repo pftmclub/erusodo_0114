@@ -7490,3 +7490,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              and June's P2P sync: the host broadcasts message 0x1c once a second ( 328018c0 ), guests snap to it ( 32801fb0 ).
 #define SERV_IRUHADEV_JUNE_MOVABLE_LINE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase E7), the Elysion-half script bindings A1b gave E7
+//              (june2017_re/region_engine.tsv rows B04-B38, B65, B67, B68, B70, B85), June address cited per body,
+//              plus June's additional world: WorldData dataFileName_Additional, the hidden second world(s) a stage
+//              creates after its main world, SetShowWorld / SetShowAdditionalWorld / PlayWorldAllSound /
+//              PlayAdditionalWorldAllSound (Soless phase 2), June's StopBGM name clear and the custom-colour fades.
+#define SERV_IRUHADEV_ELYSION_SCRIPT_B
+//////////////////////////////////////////////////////////////////////////

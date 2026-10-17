@@ -322,6 +322,16 @@ m_fNoSkillTime( 0 )
 	/// C3e-5: June ctor 322a2700 @322a5169 stores 0 ( fldz @322a511e ) into +0x68d0
 	m_fJuneSuperArmorHitStopCoolTime = 0.f;
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_bJuneThorns				= false;
+	m_fJuneThornsRate			= 0.f;
+	m_bJuneThornsIgnoreHp		= false;
+	m_fJuneHpChangeTextTime		= 0.f;
+	m_hJuneSimpleTimer			= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_fJuneSimpleTimerTime		= 0.f;
+	m_iJuneSimpleTimerCount		= -1;
+	m_vJuneSimpleTimerOffset	= D3DXVECTOR3( 0.f, 0.f, 0.f );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	m_fForceInvincibleTime		= 0.0f;
 	m_fShowInvincibleTime		= 0.0f;
 	m_fShowInvincibleSwapTime	= 0.05f;
@@ -1093,6 +1103,9 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 {
 	m_fTime			= (float)fTime;
 	m_fElapsedTime	= fElapsedTime;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	JuneFrameMoveHpChangeText();	/// Atlas E7: June 3229ecc0 runs it before OnFrameMoveBuff ( 3229d620 @3229f4f3 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     OnFrameMoveBuff( fElapsedTime );	/// πˆ«¡µÈ¿« FrameMove Ω««‡
@@ -1110,6 +1123,9 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 			m_fJuneSuperArmorHitStopCoolTime = 0.f;
 	}
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	JuneFrameMoveSimpleTimer();	/// Atlas E7: June 3229ecc0 @3229fabc ( later in the same function; the timer reads only its own fields )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef CHUNG_SECOND_CLASS_CHANGE
 	// oasis907 : ±ËªÛ¿± [2011.6.20] √ª 2¬˜ ¿¸¡˜ - æ∆¿Ãæ ∆»∂ÛµÚ
@@ -19345,6 +19361,218 @@ void CX2GameUnit::AddEffectSetDeleteCondition( CX2EffectSet::Handle hEffectSetHa
 		}
 	}
 }
+
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+/** @function : AddEffectSetDeleteCondition_LUA
+	@brief : Atlas E7, June 3227a670 ( RET 8; bound @31ded427 ): one condition, jump table 3227a724 on condition - 1 ( 0..4 ):
+			 1 DAMAGE_REACT +0x3eb0, 2 STATE_END +0x3ec0, 3 DIE +0x3ed0, 4 CUSTOM_STATE +0x3ef0 ( push the handle, 32a2dec0 ),
+			 5 SKILL_STATE_END: a user ( +0x264 == 0 ) whose GetNowStateSkillID ( vslot 0x524 ) is above 0 -> { handle, skill id }
+			 on +0x3f00 ( 3207b4c0 ); anything else nothing. Unlike the list form ( 3227a570 ) it does not push +0x3e90.
+*/
+void CX2GameUnit::AddEffectSetDeleteCondition_LUA( CX2EffectSet::Handle hEffectSetHandle_, int iDeleteCondition_ )
+{
+	switch ( iDeleteCondition_ )
+	{
+	case DCES_DAMAGE_REACT:
+		m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSetHandle_ );
+		break;
+	case DCES_STATE_END:
+		m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSetHandle_ );
+		break;
+	case DCES_DIE:
+		m_vecEffectSetToDeleteOnDie.push_back( hEffectSetHandle_ );
+		break;
+	case DCES_CUSTOM_STATE:
+#ifdef DELETE_EFFECTSET_ON_CUSTOM_STATE
+		m_vecEffectSetToDeleteOnCustomState.push_back( hEffectSetHandle_ );
+#endif // DELETE_EFFECTSET_ON_CUSTOM_STATE
+		break;
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	case DCES_SKILL_STATE_END:
+		if ( GUT_USER == GetGameUnitType() )
+		{
+			const int iNowStateSkillID = static_cast<int>( static_cast<CX2GUUser*>( this )->GetNowStateSkillID() );
+			if ( 0 < iNowStateSkillID )
+				m_vecJuneEffectSetToDeleteOnSkillStateEnd.push_back( std::make_pair( hEffectSetHandle_, iNowStateSkillID ) );
+		}
+		break;
+#endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
+	default:
+		break;
+	}
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
+
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+/** @function : JuneProcessThorns
+	@brief : Atlas E7, June 32278150 ( this = the unit hit, RET 8 ), called by both DamageReacts ( user 320462a0 @3204a383, NPC 327b1f30
+			 @327b4c9b ) with the attacker and the hit's final damage:
+			 - no attacker: nothing;
+			 - unless +0x75e0 is set, my HP ( gage +0x20; no gage counts as 1.0, a gage without HP data as 0.0 ) must not be below the
+			   damage ( fcomp st(2), test ah,5 / jnp @3227819c-322781a7 );
+			 - thorns ( +0x75d8 ) on, and the attacker's force-invincible time ( protected +0xdbc ) not above 0;
+			 - the attacker gets JuneUpNowHpWithText( -( damage * rate +0x75dc ) ) ( 322780b0 ).
+*/
+void CX2GameUnit::JuneProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ )
+{
+	if ( NULL == pAttacker_ )
+		return;
+	if ( true != m_bJuneThornsIgnoreHp )
+	{
+		const float fMyHp = ( NULL == GetGageData() ) ? 1.f : GetGageData()->GetNowHp();
+		if ( fMyHp < fDamage_ )
+			return;
+	}
+	if ( true != m_bJuneThorns )
+		return;
+	if ( 0.f < pAttacker_->GetForceInvincible() )
+		return;
+#if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iJuneThornsLogged = 0;
+	if ( s_iJuneThornsLogged < 5 )
+	{
+		++s_iJuneThornsLogged;
+		CX2OfflineLog::Server( L"[ELYDBG] thorns: unit %I64d reflects %.1f ( damage %.1f x %.2f ) to %I64d", GetUnitUID(),
+			fDamage_ * m_fJuneThornsRate, fDamage_, m_fJuneThornsRate, pAttacker_->GetUnitUID() );
+	}
+#endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
+	pAttacker_->JuneUpNowHpWithText( -( fDamage_ * m_fJuneThornsRate ) );
+}
+
+/** June 322780b0 ( RET 4 ): UpNowHp( fDelta_, 0 ) ( vslot 0xec ), then fDelta_ + 0.005 ( 33438ad8 ) onto +0x68c0 ( 31fac820 push_back ) */
+void CX2GameUnit::JuneUpNowHpWithText( float fDelta_ )
+{
+	UpNowHp( fDelta_, 0.f );
+	m_vecJuneHpChangeText.push_back( fDelta_ + 0.005f );
+}
+
+/** June 3229ecc0 @3229f11f-3229f4e6, the +0x68c0 half: while changes are queued, the timer +0x68bc runs ( += elapsed +0x2b0 ); from 0.2
+	( 334411a8 ) on it restarts at 0, the queue is summed and emptied, and a sum above 1 shows L"HP +" (int)sum in PicCharGreen
+	( g_pData +0x15c ), a sum below 0 L"HP -" (int)-sum in PicCharRed ( +0x154 ), at GetPos( false ) + ( 0, 50, 0 ) ( 33449120 ) with
+	GetDirVector ( vslot 0x16c ), AT_CENTER. June first runs the same for a second queue ( +0x68ac, timer +0x68a8 ) and, when that one
+	showed text this frame, only restarts this timer ( cl, @3229f166 ); that queue is not ported ( no March writer ), so this one never waits. */
+void CX2GameUnit::JuneFrameMoveHpChangeText()
+{
+	if ( true == m_vecJuneHpChangeText.empty() )
+		return;
+	m_fJuneHpChangeTextTime += m_fElapsedTime;
+	if ( m_fJuneHpChangeTextTime < 0.2f )
+		return;
+	m_fJuneHpChangeTextTime = 0.f;
+
+	float fSum = 0.f;
+	for ( UINT i = 0; i < m_vecJuneHpChangeText.size(); i++ )
+		fSum += m_vecJuneHpChangeText[i];
+	m_vecJuneHpChangeText.clear();
+
+	D3DXVECTOR3 vPos = GetPos( false );
+	vPos.y += 50.f;
+	if ( fSum > 1.f )
+	{
+		std::wstringstream wstrmText;
+		wstrmText << L"HP +" << static_cast<int>( fSum );
+		if ( NULL != g_pData->GetPicCharGreen() )
+			g_pData->GetPicCharGreen()->DrawText( wstrmText.str().c_str(), vPos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+	}
+	else if ( fSum < 0.f )
+	{
+		std::wstringstream wstrmText;
+		wstrmText << L"HP -" << static_cast<int>( -fSum );
+		if ( NULL != g_pData->GetPicCharRed() )
+			g_pData->GetPicCharRed()->DrawText( wstrmText.str().c_str(), vPos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+	}
+}
+
+/** June 32296400 ( unit, seq, count; RET 8 ): a live sequence gets the count's digit texture, PC_1.dds .. PC_9.dds for 1..9 and PC_0.dds
+	for anything else ( jump table 322964f0, ChangeTexForce 31cf4680 ) */
+static void ElysionSetSimpleTimerTexture( CKTDGParticleSystem::CParticleEventSequence* pSeq_, int iCount_ )
+{
+	if ( NULL == pSeq_ )
+		return;
+	static const WCHAR* s_apszDigit[] = { L"PC_0.dds", L"PC_1.dds", L"PC_2.dds", L"PC_3.dds", L"PC_4.dds", L"PC_5.dds", L"PC_6.dds", L"PC_7.dds", L"PC_8.dds", L"PC_9.dds" };
+	pSeq_->ChangeTexForce( ( 1 <= iCount_ && iCount_ <= 9 ) ? s_apszDigit[iCount_] : s_apszDigit[0] );
+}
+
+/** @function : StartSimpleTimerCount
+	@brief : Atlas E7, June 32299890 ( time, offset x / y / z, sound; RET 0x14 ): time -> +0x75f8, count = (int) time -> +0x75fc, the sound
+			 ( ANSI, 31c335e0 ) -> +0x7600, the offset -> +0x761c. With time above 0: a live "Mine_Countdown" sequence ( +0x75f4 ) only
+			 gets the count's texture ( 32296520 ); else the old handle is destroyed and "Mine_Countdown" is created in the major
+			 particle system at GetPos + offset ( 31cf90f0, March's defaults ). A failed create sets time 0, count -1, sound L"",
+			 handle -1; else handle = the sequence's ( +0x430 ) and the texture is set ( 32296400 ).
+*/
+void CX2GameUnit::StartSimpleTimerCount( float fTime_, float fOffsetX_, float fOffsetY_, float fOffsetZ_, const char* pszSoundName_ )
+{
+	m_fJuneSimpleTimerTime = fTime_;
+	m_iJuneSimpleTimerCount = static_cast<int>( fTime_ );
+	m_wstrJuneSimpleTimerSound = L"";
+	if ( NULL != pszSoundName_ )
+		ConvertCharToWCHAR( m_wstrJuneSimpleTimerSound, pszSoundName_ );
+	m_vJuneSimpleTimerOffset = D3DXVECTOR3( fOffsetX_, fOffsetY_, fOffsetZ_ );
+#if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"[ELYDBG] StartSimpleTimerCount unit %I64d time %.2f count %d sound %s", GetUnitUID(), fTime_,
+		m_iJuneSimpleTimerCount, m_wstrJuneSimpleTimerSound.c_str() );
+#endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
+
+	if ( false == ( 0.f < m_fJuneSimpleTimerTime ) || NULL == g_pX2Game || NULL == g_pX2Game->GetMajorParticle() )
+		return;
+	CKTDGParticleSystem* pParticle = g_pX2Game->GetMajorParticle();
+	if ( true == pParticle->IsLiveInstanceHandle( m_hJuneSimpleTimer ) )
+	{
+		ElysionSetSimpleTimerTexture( pParticle->GetInstanceSequence( m_hJuneSimpleTimer ), m_iJuneSimpleTimerCount );
+		return;
+	}
+	pParticle->DestroyInstanceHandle( m_hJuneSimpleTimer );
+	const D3DXVECTOR3 vPos = GetPos( false ) + m_vJuneSimpleTimerOffset;
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = pParticle->CreateSequence( (CKTDGObject*) this, L"Mine_Countdown", vPos );
+	if ( NULL == pSeq )
+	{
+		m_fJuneSimpleTimerTime = 0.f;
+		m_iJuneSimpleTimerCount = -1;
+		m_wstrJuneSimpleTimerSound = L"";
+		m_hJuneSimpleTimer = INVALID_PARTICLE_SEQUENCE_HANDLE;
+		return;
+	}
+	m_hJuneSimpleTimer = pSeq->GetHandle();
+	ElysionSetSimpleTimerTexture( pSeq, m_iJuneSimpleTimerCount );
+}
+
+/** June 322963a0: time 0, count -1, sound L"", then the major particle system destroys the handle +0x75f4 */
+void CX2GameUnit::StopAndDeleteSimpleTimerCount()
+{
+	m_fJuneSimpleTimerTime = 0.f;
+	m_iJuneSimpleTimerCount = -1;
+	m_wstrJuneSimpleTimerSound = L"";
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMajorParticle() )
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hJuneSimpleTimer );
+}
+
+/** June 32299af0 ( from 3229ecc0 ): count above -1 -> time -= elapsed; once time has fallen to count - 1 or below ( fild, fcompp
+	@32299b32 ), count = max( count - 1, 0 ), the digit texture follows ( 32296520 ) and a non-empty sound plays ( 32276220( sound, true,
+	false ) ). Then a live sequence follows GetPos + offset ( SetPosition 31cf1a40( pos, false, false ) ). It never stops by itself. */
+void CX2GameUnit::JuneFrameMoveSimpleTimer()
+{
+	if ( m_iJuneSimpleTimerCount <= -1 )
+		return;
+	m_fJuneSimpleTimerTime -= m_fElapsedTime;
+	CKTDGParticleSystem* pParticle = ( NULL != g_pX2Game ) ? g_pX2Game->GetMajorParticle() : NULL;
+	if ( false == ( (float) ( m_iJuneSimpleTimerCount - 1 ) < m_fJuneSimpleTimerTime ) )
+	{
+		m_iJuneSimpleTimerCount = m_iJuneSimpleTimerCount - 1;
+		if ( m_iJuneSimpleTimerCount <= 0 )
+			m_iJuneSimpleTimerCount = 0;
+		if ( NULL != pParticle )
+			ElysionSetSimpleTimerTexture( pParticle->GetInstanceSequence( m_hJuneSimpleTimer ), m_iJuneSimpleTimerCount );
+		if ( false == m_wstrJuneSimpleTimerSound.empty() )
+			PlaySound( m_wstrJuneSimpleTimerSound.c_str(), true, false );
+	}
+	if ( NULL != pParticle && true == pParticle->IsLiveInstanceHandle( m_hJuneSimpleTimer ) )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = pParticle->GetInstanceSequence( m_hJuneSimpleTimer );
+		if ( NULL != pSeq )
+			pSeq->SetPosition( GetPos( false ) + m_vJuneSimpleTimerOffset, false, false );
+	}
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #endif //MODIFY_EFFECT_SET_DELETE 
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±Ë≈¬»Ø

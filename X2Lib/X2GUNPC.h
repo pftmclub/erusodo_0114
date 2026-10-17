@@ -1142,6 +1142,13 @@ class CX2GUNPC : public CX2GameUnit
             /// June state +0x404 ( 0x20-byte { bone, distance } ), the state key CAN_NOT_PASS_SPECIFIED_BONE ( 32784c00 @32796270 )
             std::vector< std::pair<std::wstring, float> >   m_vecCanNotPassSpecifiedBone;
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+            /// Atlas E7: state keys June parses and never reads ( no reader in the exe, Atlas E7 sweep ): SHOW_GAGE ( bitset 0x51 given / 0x52 value,
+            /// 32784c00 @3278a5e3-3278a5fc ) and INVINCIBLE_ATTACK_TYPE ( vector<int> +0x434, -1 entries skipped, @3278f62c-3278f689 )
+            bool                        m_bJuneShowGageGiven;
+            bool                        m_bJuneShowGage;
+            std::vector<int>            m_vecJuneInvincibleAttackType;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
             std::vector<std::wstring>   m_vecwstrDisableCollisionBox;
             std::vector<EffectSetToPlay> m_vecEffectSetToPlay;
             float                       m_fEffectSetLifeTime;
@@ -3206,6 +3213,25 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
 		void InitStateCoolTime( const char* pszStateName_ );	/// June 3275d9d0
 #endif SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		// Atlas E7 ( ATLAS_PORT_PHASES.md; june2017_re/region_engine.tsv B09, B13, B14, B31-B33, B37 )
+		int GetUnitID() { return (int) GetNPCTemplet().m_nNPCUnitID; }		/// June 31e4d890: templet ( +0x85f8 ) +0
+		void SetStateCoolTime_LUA( const char* pszStateName_, int iValue_ );	/// June 3275eb70
+		void AddStateCoolTime_LUA( const char* pszStateName_, int iValue_ );	/// June 3275ebc0
+		CX2GUNPC* GetStoredNPC();					/// June 327596a0
+		void SetStoredNPC( CX2GameUnit* pUnit_ );	/// June 31e579c0
+		void ClearStoredNPC();						/// June 31e57990
+		bool VectorUidType_Pushback_LUA( int iSlot_, UidType iValue_ );	/// June 3275d090
+		void VectorUidType_Clear_LUA( int iSlot_ );						/// June 3275bd10
+		bool VectorUidType_Find_LUA( int iSlot_, UidType iValue_ );		/// June 3275bdf0
+		UidType VectorUidType_PopValue_LUA( int iSlot_, UidType iValue_ );	/// June 3275bef0
+		void SetShowHpSmallGage( bool bShow_ ) { m_bJuneShowHpSmallGage = bShow_; }	/// June 31e4d870 ( +0x8fb9 )
+		bool GetShowHpSmallGage() const { return m_bJuneShowHpSmallGage; }
+		int GetSyncDummyValue() { return m_iJuneSyncDummyValue; }		/// June 31e4d880 ( +0x9064 )
+		void SetSyncDummyValue_Host( int iValue_ );						/// June 32778ea0
+		void StartAlphaFade( float fTime_, bool bFadeIn_, bool bHideAtEnd_ );	/// June 3275a240
+		void JuneFrameMoveAlphaFade();									/// June 3275a320
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 //}}
 //{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv batch 2)
 #ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
@@ -4610,6 +4636,18 @@ class CX2GUNPC : public CX2GameUnit
 #endif SERV_IRUHADEV_JUNE_NPC_ANIM_SPEED
 //}}
 //{{ Iruha : 2026-10-10 // June effect completion C3z-4 batch 1
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		CX2GameUnitoPtr				m_optrJuneStoredNPC;	/// Atlas E7: June +0x8d6c ( observer, beside the stored user +0x8d64 )
+		std::vector<UidType>		m_avecJuneUidType[10];	/// Atlas E7: June +0x88a0, ten vector<UidType> ( 0x10 each; ctors 3279fb60 / 327af620 / 327b0a20 )
+		bool						m_bJuneShowHpSmallGage;		/// Atlas E7: June +0x8fb9 ( CommonConstructor @327633f9 = 1 )
+		int							m_iJuneSyncDummyValue;		/// Atlas E7: June +0x9064 ( ctors @327b09fa / @327b1cef = 0 )
+		bool						m_bJuneAlphaFade;			/// Atlas E7: June +0x9068 ( fading )
+		bool						m_bJuneAlphaFadeOldBlend;	/// Atlas E7: June +0x9069 ( m_RenderParam.bAlphaBlend before the fade )
+		bool						m_bJuneAlphaFadeHideAtEnd;	/// Atlas E7: June +0x906a
+		float						m_fJuneAlphaFadeTime;		/// Atlas E7: June +0x906c
+		float						m_fJuneAlphaFadeRate;		/// Atlas E7: June +0x9070
+		bool						m_bJuneCanPassUnitAtFirstFrame;	/// Atlas E7: June +0x8fd8, NPC key CAN_PASS_UNIT_AT_FIRST_FRAME ( 327a0fa0 @327ac14c )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
 		CX2GameUnitoPtr				m_optrJuneStoredGUUser;	/// June +0x8d64 ( observer ): ctors 327b04a3 / 327b18a5 and CommonConstructor @32763470 clear it, dtor 327a0a83
 #endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER

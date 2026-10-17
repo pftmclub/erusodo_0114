@@ -963,6 +963,13 @@ class CX2DamageEffect
 #ifdef SERV_SKILL_NOTE
 				BlackHoleData*  GetBlackHoleData() { return &m_BlackHoleData; }
 #endif
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+				/// Atlas E7: June 31e4c480 / 31e4c490 / 31e4c4a0 / 31e4c4b0, the DRAGGING speed / range ( +0xa0c / +0xa10 )
+				float	GetBlackHoleData_Speed() { return m_BlackHoleData.m_fDraggingSpeed; }
+				void	SetBlackHoleData_Speed( float fSpeed_ ) { m_BlackHoleData.m_fDraggingSpeed = fSpeed_; }
+				float	GetBlackHoleData_Range() { return m_BlackHoleData.m_fDraggingRange; }
+				void	SetBlackHoleData_Range( float fRange_ ) { m_BlackHoleData.m_fDraggingRange = fRange_; }
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 				D3DXVECTOR3		GetPos() { return m_Pos; }
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_MAIN_POS

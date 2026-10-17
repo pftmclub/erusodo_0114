@@ -3917,6 +3917,12 @@ public:
 		/// Ara ( 32bd85f0: or 0x9b = ASI_BERSERK_MODE ) and Luciel ( 32b4dbe0 ) override it ( checklist 7t ).
 		virtual bool JuneIsHyperModeState() const { return USI_HYPER_MODE == GetNowStateID(); }
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	public:	// Atlas E7: this part of the class is protected; the setter is bound to Lua and read by CX2SmallGageUI
+		void SetShowHpSmallGage( bool bShow_ ) { m_bJuneShowHpSmallGage = bShow_; }	/// Atlas E7: June 31e4d150 ( +0x9528 )
+		bool GetShowHpSmallGage() const { return m_bJuneShowHpSmallGage; }
+	protected:
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		//}} Protected Function End
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
@@ -4781,6 +4787,9 @@ private:
 	float m_fShowHyperCutInTime;		/// June +0x9280 ( C3t ): SHOW_HYPER_CUT_IN_TIME, -1 = none
 	bool m_bJuneBerserkHyperCutIn;		/// June +0x951c ( C3t ): this state shows m_BerserkCutIn instead of m_HyperCutIn
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	bool m_bJuneShowHpSmallGage;		/// Atlas E7: June +0x9528 ( 0 = the small HP gage is not drawn, 32e5d580 @32e5d67f )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 	int m_iJuneSoundSetRandomValue;		/// June CX2GameUnit +0x6dcc ( C3t-2 ): the sound-set roll, 1..100, kept across states by USE_PREVIOUS_STATE_SOUNT_SET_RANDOM_VALUE
 #endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK

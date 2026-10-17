@@ -45,6 +45,9 @@ CX2World::CX2World( WorldData* pWorldData, const bool bBackgroundLoad_ /*= false
 , m_bFirstLineMapFrameMove( true )
 {
 	m_pWorldData	= pWorldData;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_bJuneShowWorld = true;	// June ctor 327fddf0 @327fdec8
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	m_bRenderLineMap = false;
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
@@ -664,6 +667,11 @@ void CX2World::StopBGM()
 {
 	if( g_pKTDXApp->GetDSManager()->GetInit() == false || g_pKTDXApp->GetDSManager()->GetMP3Play() == NULL )
 		return;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June 327fdb80 empties the player's playing name first ( @327fdbe4-327fdc0b ), so a later PlayBGM of the
+	// same file is not skipped by the DUNGEONSTAGE_CONTINUOUS_BGM name test; then Stop ( 31d5ffa0 ).
+	g_pKTDXApp->GetDSManager()->GetMP3Play()->ClearPlayingFileName();
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	g_pKTDXApp->GetDSManager()->GetMP3Play()->Stop();
 }//CX2World::StopBGM()
 
@@ -859,6 +867,9 @@ void CX2World::SetShowObject( bool bShow )
 			pObject->SetShowObject( bShow );
 	}
 #endif
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_bJuneShowWorld = bShow;	// June 327fba60: the four loops above = March, then +0x1ac = bShow
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
 
 #ifdef X2TOOL

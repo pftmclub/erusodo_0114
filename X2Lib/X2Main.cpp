@@ -3147,6 +3147,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2SlideShot>( L, "ScenStart_LUA",					&CX2SlideShot::ScenStart_LUA);
 	lua_tinker::class_def<CX2SlideShot>( L, "ScenWait",							&CX2SlideShot::ScenWait);
 	lua_tinker::class_def<CX2SlideShot>( L, "ScenEnd",							&CX2SlideShot::ScenEnd);
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	lua_tinker::class_def<CX2SlideShot>( L, "IsSceneEnded",						&CX2SlideShot::IsSceneEnded );	// Atlas E7: June @31d98bb8 ( 325c4a50 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	lua_tinker::class_def<CX2SlideShot>( L, "GoNextScen",						&CX2SlideShot::GoNextScen);
 	lua_tinker::class_def<CX2SlideShot>( L, "GetNowTime",						&CX2SlideShot::GetNowTime);
 	lua_tinker::class_def<CX2SlideShot>( L, "EventTimer",						&CX2SlideShot::EventTimer);
@@ -3843,6 +3846,9 @@ void CX2Main::RegisterLuabind()
 
 	lua_tinker::class_add<CX2WorldObjectParticle>( L, "CX2WorldObjectParticle" );
 	lua_tinker::class_inh<CX2WorldObjectParticle, CX2WorldObject>( L );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	lua_tinker::class_def<CX2WorldObjectParticle>( L, "SetParticleSize",		&CX2WorldObjectParticle::SetParticleSize );	// Atlas E7: June @31dc1c65 ( 31e4f3f0 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	lua_tinker::class_def<CX2WorldObjectParticle>( L, "SetCanHide",				&CX2WorldObjectParticle::SetCanHide );
 	lua_tinker::class_def<CX2WorldObjectParticle>( L, "SetParticlePos",			&CX2WorldObjectParticle::SetParticlePos );
 	lua_tinker::class_def<CX2WorldObjectParticle>( L, "SetEmitMinMax",			&CX2WorldObjectParticle::SetEmitMinMax );
@@ -3971,6 +3977,21 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
 	lua_tinker::class_def<CX2Game>( L, "GetLiveUserUnitRandom",					&CX2Game::GetLiveUserUnitRandom );	// June @31dcacbd ( thunk 31e4e860, vslot 0xbc )
 #endif SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7 ( region_engine.tsv B15-B20, B24-B30 ): receivers verified as CX2Game ( class_def 31e79d60 / 31e7a1c0 push 33777790 )
+	lua_tinker::class_def<CX2Game>( L, "SetShowWorld",							&CX2Game::SetShowWorld );					// June @31dd5ae9 ( 322cc040 )
+	lua_tinker::class_def<CX2Game>( L, "PlayWorldAllSound",						&CX2Game::PlayWorldAllSound );				// June @31dd5e8c ( 322cc060 )
+	lua_tinker::class_def<CX2Game>( L, "SetShowAdditionalWorld",				&CX2Game::SetShowAdditionalWorld );			// June @31dd5c7c ( 322cf8f0 )
+	lua_tinker::class_def<CX2Game>( L, "PlayAdditionalWorldAllSound",			&CX2Game::PlayAdditionalWorldAllSound );	// June @31dd6092 ( 322cf930 )
+	lua_tinker::class_def<CX2Game>( L, "FindRandomSelectUserUnitsFromRange_LUA",	&CX2Game::FindRandomSelectUserUnitsFromRange_LUA );	// June @31dd6c3c ( 322dd990 )
+	lua_tinker::class_def<CX2Game>( L, "GetFindedRandomSelectUserUnits_LUA",	&CX2Game::GetFindedRandomSelectUserUnits_LUA );	// June @31dd68db ( 322d0030 )
+	lua_tinker::class_def<CX2Game>( L, "GetRandomSelectUserUnitFromRange",		&CX2Game::GetRandomSelectUserUnitFromRange );	// June @31dd65ae ( 322dc3c0 )
+	lua_tinker::class_def<CX2Game>( L, "GetUserIndexByUserUID",					&CX2Game::GetUserIndexByUserUID );			// June @31dca84c ( 322cfc00 )
+	lua_tinker::class_def<CX2Game>( L, "GetNearestUnitInSpecificRange_LUA",		&CX2Game::GetNearestUnitInSpecificRange_LUA );	// June @31dd3425 ( 322d7090 )
+	lua_tinker::class_def<CX2Game>( L, "GetNearestUnitInSpecificRange_IncludeSameTeam_LUA",	&CX2Game::GetNearestUnitInSpecificRange_IncludeSameTeam_LUA );	// June @31dd2ff4 ( 322d7060 )
+	lua_tinker::class_def<CX2Game>( L, "StartFadeInCustomColor",				&CX2Game::StartFadeInCustomColor );			// June @31dde2e8 ( 322cfef0 )
+	lua_tinker::class_def<CX2Game>( L, "StartFadeOutCustomColor",				&CX2Game::StartFadeOutCustomColor );		// June @31dde525 ( 322cff30 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
 	lua_tinker::class_def<CX2Game>( L, "GetIsGoNextPacketSended_LUA",			&CX2Game::GetIsGoNextPacketSended_LUA );			// June @31dd945f ( 322f14d0 )
 	lua_tinker::class_def<CX2Game>( L, "Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ",	&CX2Game::Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ );	// June @31dd9757 ( 322f1550 )
@@ -4340,6 +4361,16 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GameUnit>( L, "GetBuffAccumulationCountNow",	&CX2GameUnit::GetBuffAccumulationCountNow );	/// June 3227bbc0 (bound @31debfe3)
 #endif SERV_IRUHADEV_JUNE_BUFF_BINDING
 //}}
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7 ( region_engine.tsv B04, B07, B08 ): receivers verified as CX2GameUnit
+	lua_tinker::class_def<CX2GameUnit>( L, "AddEffectSetDeleteCondition_LUA",	&CX2GameUnit::AddEffectSetDeleteCondition_LUA );	/// June 3227a670 (bound @31ded427)
+	lua_tinker::class_def<CX2GameUnit>( L, "GetUnitIndex",					&CX2GameUnit::GetUnitIndex );		/// June 31aa4d30 (bound @31dedeea): +0x268
+	lua_tinker::class_def<CX2GameUnit>( L, "SetShowInvincible",				&CX2GameUnit::SetShowInvincible );	/// June 31e4ea40 -> vslot 0x120 3208dd40 (bound @31dec95d)
+	lua_tinker::class_def<CX2GameUnit>( L, "SetThornsInfo",					&CX2GameUnit::SetThornsInfo );		/// June 3226e350 (bound @31ded6ad)
+	lua_tinker::class_def<CX2GameUnit>( L, "StartSimpleTimerCount",			&CX2GameUnit::StartSimpleTimerCount );	/// June 32299890 (bound @31ded97d)
+	lua_tinker::class_def<CX2GameUnit>( L, "GetSimpleTimerCount",			&CX2GameUnit::GetSimpleTimerCount );	/// June 3226e3c0 (bound @31dedb6c)
+	lua_tinker::class_def<CX2GameUnit>( L, "StopAndDeleteSimpleTimerCount",	&CX2GameUnit::StopAndDeleteSimpleTimerCount );	/// June 322963a0 (bound @31dede62)
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	//{{ GUNPC Start
 	lua_tinker::class_add<CX2GUNPC>( L, "CX2GUNPC" );
@@ -4770,6 +4801,25 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE
 	lua_tinker::class_def<CX2GUNPC>( L, "SetImmuneToExtraDamage",		&CX2GUNPC::SetImmuneToExtraDamage );	/// June 31e4d000 (bound @31e0c55e)
 #endif SERV_IRUHADEV_JUNE_NPC_IMMUNE_EXTRA_DAMAGE
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7 ( region_engine.tsv B05, B06, B09, B13, B14, B31-B33, B37 ): receivers verified as CX2GUNPC
+	lua_tinker::class_def<CX2GUNPC>( L, "AnimStop",						&CX2GUNPC::AnimStop );			/// June 31e4e950 -> NPC vslot 0x398 32757b10 (bound @31e0d861)
+	lua_tinker::class_def<CX2GUNPC>( L, "AnimResume",						&CX2GUNPC::AnimPlay );			/// June 32758810 (bound @31e0d962) = AnimPlay 32757b40's body
+	lua_tinker::class_def<CX2GUNPC>( L, "GetUnitID",						&CX2GUNPC::GetUnitID );			/// June 31e4d890 (bound @31e0da7c)
+	lua_tinker::class_def<CX2GUNPC>( L, "SetStateCoolTime_LUA",			&CX2GUNPC::SetStateCoolTime_LUA );	/// June 3275eb70 (bound @31e0dbcf)
+	lua_tinker::class_def<CX2GUNPC>( L, "AddStateCoolTime_LUA",			&CX2GUNPC::AddStateCoolTime_LUA );	/// June 3275ebc0 (bound @31e0ddda)
+	lua_tinker::class_def<CX2GUNPC>( L, "GetStoredNPC",					&CX2GUNPC::GetStoredNPC );		/// June 327596a0 (bound @31e0815f)
+	lua_tinker::class_def<CX2GUNPC>( L, "SetStoredNPC",					&CX2GUNPC::SetStoredNPC );		/// June 31e579c0 (bound @31e0842a)
+	lua_tinker::class_def<CX2GUNPC>( L, "ClearStoredNPC",					&CX2GUNPC::ClearStoredNPC );		/// June 31e57990 (bound @31e082bc)
+	lua_tinker::class_def<CX2GUNPC>( L, "VectorUidType_Pushback_LUA",		&CX2GUNPC::VectorUidType_Pushback_LUA );	/// June 3275d090
+	lua_tinker::class_def<CX2GUNPC>( L, "VectorUidType_Clear_LUA",		&CX2GUNPC::VectorUidType_Clear_LUA );		/// June 3275bd10
+	lua_tinker::class_def<CX2GUNPC>( L, "VectorUidType_Find_LUA",			&CX2GUNPC::VectorUidType_Find_LUA );		/// June 3275bdf0
+	lua_tinker::class_def<CX2GUNPC>( L, "VectorUidType_PopValue_LUA",		&CX2GUNPC::VectorUidType_PopValue_LUA );	/// June 3275bef0
+	lua_tinker::class_def<CX2GUNPC>( L, "SetShowHpSmallGage",				&CX2GUNPC::SetShowHpSmallGage );	/// June 31e4d870 (bound @31e0bf0f)
+	lua_tinker::class_def<CX2GUNPC>( L, "GetSyncDummyValue",				&CX2GUNPC::GetSyncDummyValue );		/// June 31e4d880 (bound @31e0d0bc)
+	lua_tinker::class_def<CX2GUNPC>( L, "SetSyncDummyValue_Host",			&CX2GUNPC::SetSyncDummyValue_Host );	/// June 32778ea0 (bound @31e0cea7)
+	lua_tinker::class_def<CX2GUNPC>( L, "StartAlphaFade",					&CX2GUNPC::StartAlphaFade );			/// June 3275a240 (bound @31e0d3b8)
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 //}}
 
 	lua_tinker::class_add<CX2GUUser>( L, "CX2GUUser" );
@@ -4777,6 +4827,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GUUser>( L, "GetHyperModeUsed",			&CX2GUUser::GetHyperModeUsed );
 	lua_tinker::class_def<CX2GUUser>( L, "SetDevAddDamage",				&CX2GUUser::SetDevAddDamage );
 	lua_tinker::class_def<CX2GUUser>( L, "ForceChangeHyperMode",		&CX2GUUser::ForceChangeHyperMode );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	lua_tinker::class_def<CX2GUUser>( L, "SetShowHpSmallGage",			&CX2GUUser::SetShowHpSmallGage );	/// Atlas E7: June 31e4d150 (bound @31e14d42)
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 //{{ Iruha : 2026-10-11 // June effect completion C3z-4b (june2017_re/c3z4_bind_plan.tsv)
 #ifdef SERV_IRUHADEV_JUNE_USER_UNIT_TYPE
 	lua_tinker::class_def<CX2GUUser>( L, "GetUnitType",					&CX2GUUser::GetUnitType );				/// June 31e4d0e0 (bound @31e13a93)
@@ -4907,6 +4960,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2EffectSet>( L, "PlayEffectSetWithCustomPos_LUA",	&CX2EffectSet::PlayEffectSetWithCustomPos_LUA );
 	lua_tinker::class_def<CX2EffectSet>( L, "StopEffectSet_LUA",				&CX2EffectSet::StopEffectSet_LUA );
 #endif SERV_SECRET_HELL
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	lua_tinker::class_def<CX2EffectSet>( L, "StopEffectSetSilent_LUA",			&CX2EffectSet::StopEffectSetSilent_LUA );	// Atlas E7: June @31e179aa ( 321db020 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef CREATEINSTANCE_WITH_LIFETIME_IN_LUA
 	lua_tinker::class_def<CX2EffectSet>( L, "PlayEffectSetWithLifetime_LUA",	&CX2EffectSet::PlayEffectSetWithLifetime_LUA );
 	lua_tinker::class_def<CX2EffectSet>( L, "PlayEffectSetWithLifetimePos_LUA",	&CX2EffectSet::PlayEffectSetWithLifetimePos_LUA );
@@ -5194,6 +5250,13 @@ void CX2Main::RegisterLuabind()
 
 
 	lua_tinker::class_add<CX2DamageEffect::CEffect>( L, "CEffect" );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7 ( region_engine.tsv B34 ): June 31e4c480 / 31e4c490 / 31e4c4a0 / 31e4c4b0 on CEffect
+	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "GetBlackHoleData_Speed",	&CX2DamageEffect::CEffect::GetBlackHoleData_Speed );
+	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "SetBlackHoleData_Speed",	&CX2DamageEffect::CEffect::SetBlackHoleData_Speed );
+	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "GetBlackHoleData_Range",	&CX2DamageEffect::CEffect::GetBlackHoleData_Range );
+	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "SetBlackHoleData_Range",	&CX2DamageEffect::CEffect::SetBlackHoleData_Range );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "SetLockOnNPCUID",					&CX2DamageEffect::CEffect::SetLockOnNPCUID );
 	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "GetLockOnUnitUID_LUA",				&CX2DamageEffect::CEffect::GetLockOnUnitUID );
 	lua_tinker::class_def<CX2DamageEffect::CEffect>( L, "GetMainEffect",					&CX2DamageEffect::CEffect::GetMainEffect );

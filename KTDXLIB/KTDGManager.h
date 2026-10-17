@@ -254,6 +254,12 @@ class CKTDGManager : public CKTDXStage
 		bool						GetIsFading() { return m_bFading; }
 		void 						StartFadeIn( float fTime = 0.5f );
 		void 						StartFadeOut( float fTime = 0.5f );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		// Atlas E7: June's fades take a colour ( 31ce6270 in / 31ce62c0 out, stored at +0x3a4 ); June's plain fades pass
+		// ( 0, 0, 0, 1 ) ( CX2Game 322cff70 ), so the plain March functions above set that colour too.
+		void 						StartFadeInCustomColor( float fTime, D3DXCOLOR colorFade_ );
+		void 						StartFadeOutCustomColor( float fTime, D3DXCOLOR colorFade_ );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		UINT						GetRenderObjectChainSize() { return m_RenderObjectChain.size(); }
 #ifdef CONVERSION_VS
@@ -358,6 +364,9 @@ class CKTDGManager : public CKTDXStage
 		float						m_fTimeFade;
 		float						m_fFadeAlpha;
 		CKTDXDeviceTexture*			m_pTextureFadeInOut;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		D3DXCOLOR					m_colorJuneFade;		// June +0x3a4: the fade colour; its alpha is overwritten by m_fFadeAlpha when drawn ( 31ce94a0 @31ce9583 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		float						m_fMaxTimeFadeIn;		// fadein 되는 시간
 		float						m_fMaxTimeFadeOut;		// fadeout 되는 시간

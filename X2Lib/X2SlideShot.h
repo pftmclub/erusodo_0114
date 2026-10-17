@@ -12,6 +12,11 @@ class CX2SlideShot
 		void		ScenStart_LUA( char* pScenName, int scenNum );
 		void		ScenWait();
 		void		ScenEnd();
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		/// Atlas E7: June 325c4a50: true once after a scene end ( +0x88, set by 325c7140 @325c7162 ), clearing it; else false
+		bool		IsSceneEnded() { if ( true == m_bJuneSceneEnded ) { m_bJuneSceneEnded = false; return true; } return false; }
+		void		ResetJuneSceneEnded() { m_bJuneSceneEnded = false; }	/// June 325c4a70 ( tutorial-exit release 327d2160 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		void		GoNextScen();
 		void		AddText_LUA( bool bNameLeft, int NameID, int TextID, float fFullTime = 0.0f, char* pColor = "#C000000" );
@@ -71,6 +76,9 @@ class CX2SlideShot
 		
 		
 		bool		m_bNowPresent;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		bool		m_bJuneSceneEnded;	/// Atlas E7: June +0x88
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		bool		m_TextBoxShow;
 		int			m_NowScenNum;
 		string		m_ScenName;

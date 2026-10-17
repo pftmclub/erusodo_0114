@@ -333,6 +333,9 @@ CKTDGManager::CKTDGManager( HWND hWnd, LPDIRECT3DDEVICE9 pd3dDevice )
 	m_fTimeFadeMax					= 0.0f;
 	m_fFadeAlpha					= 0.0f;
 	m_pTextureFadeInOut				= NULL;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_colorJuneFade					= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 
 	m_fCaptureDelay					= 3.0f;
@@ -816,10 +819,17 @@ void CKTDGManager::FrontUIRender()
 	// fade in, out effect
 	if( m_fFadeAlpha > 0.0f )
 	{
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		// Atlas E7: June 31ce94a0 @31ce956a-31ce9727: the stored colour with its alpha set to the fade alpha, drawn on FadeInOut.dds
+		m_colorJuneFade.a = m_fFadeAlpha;
+		if( m_pTextureFadeInOut != NULL )
+			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, m_colorJuneFade );
+#else SERV_IRUHADEV_ELYSION_SCRIPT_B
 		D3DXCOLOR color = 0xffffffff;
 		color.a = m_fFadeAlpha;
 		if( m_pTextureFadeInOut != NULL )
 			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, color );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	}
 
     _RenderObjectRenderHintVector( m_OverUIChain );
@@ -1262,6 +1272,9 @@ void CKTDGManager::StartFadeIn( float fTime )
 	m_fTimeFadeMax		= fTime;
 	m_fTimeFade			= fTime;
 	m_fFadeAlpha		= 1.0f;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_colorJuneFade		= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );	// June: plain fades pass ( 0, 0, 0, 1 ) ( 322cff70 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
 
 void CKTDGManager::StartFadeOut( float fTime )
@@ -1269,9 +1282,36 @@ void CKTDGManager::StartFadeOut( float fTime )
 	m_bFading			= true;
 	m_bFadeOut			= true;
 	m_fTimeFadeMax		= fTime;
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_colorJuneFade		= D3DXCOLOR( 0.f, 0.f, 0.f, 1.f );	// June: plain fades pass ( 0, 0, 0, 1 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	m_fTimeFade			= 0.0f;
 	m_fFadeAlpha		= 0.0f;
 }
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+// Atlas E7: June CKTDGManager 31ce6270: time into +0x394 / +0x398, colour into +0x3a4..+0x3b0, alpha +0x39c = 1, word +0x390 = 1
+// ( fading on, fade-out off ) = March's StartFadeIn plus the colour.
+void CKTDGManager::StartFadeInCustomColor( float fTime, D3DXCOLOR colorFade_ )
+{
+	m_bFading			= true;
+	m_bFadeOut			= false;
+	m_fTimeFadeMax		= fTime;
+	m_fTimeFade			= fTime;
+	m_fFadeAlpha		= 1.0f;
+	m_colorJuneFade		= colorFade_;
+}
+
+// Atlas E7: June CKTDGManager 31ce62c0: time into +0x394, +0x398 = 0, +0x39c = 0, colour, word +0x390 = 0x0101 ( fading, fade-out ).
+void CKTDGManager::StartFadeOutCustomColor( float fTime, D3DXCOLOR colorFade_ )
+{
+	m_bFading			= true;
+	m_bFadeOut			= true;
+	m_fTimeFadeMax		= fTime;
+	m_fTimeFade			= 0.0f;
+	m_fFadeAlpha		= 0.0f;
+	m_colorJuneFade		= colorFade_;
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 //{{ kimhc // 2010.9.8 // 홈페이지 개편에서 아바타 이미지 표현으로 사용될 캐릭터 이미지 캡쳐 기능 테스트
 #ifdef	AVATAR_IMAGE_TEST

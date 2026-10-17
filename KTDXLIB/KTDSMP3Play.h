@@ -24,6 +24,10 @@ public:
 #ifdef DUNGEONSTAGE_CONTINUOUS_BGM	
 	wstring GetPlayingFileName() { return m_FileName; }
 #endif DUNGEONSTAGE_CONTINUOUS_BGM
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June CX2World::StopBGM ( 327fdb80 @327fdc0b ) empties the player's file name ( +0, 31f54910 with L"" ) before Stop.
+	void ClearPlayingFileName() { m_FileName = L""; }
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 private:
 	wstring			m_FileName;

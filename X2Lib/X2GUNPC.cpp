@@ -2388,6 +2388,16 @@ void CX2GUNPC::CommonConstructor()
 	m_bNotCheckIndicator		= false;	/// June CommonConstructor @327633bf
 	m_bUseDefaultDieParticle	= false;	/// June CommonConstructor @3276343c ( the word +0x8fd8 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_bJuneCanPassUnitAtFirstFrame	= false;	/// Atlas E7: the other byte of June's word +0x8fd8 ( @3276343d )
+	m_bJuneShowHpSmallGage			= true;		/// Atlas E7: June CommonConstructor @327633f9
+	m_iJuneSyncDummyValue			= 0;		/// Atlas E7: June ctors @327b09fa / @327b1cef
+	m_bJuneAlphaFade				= false;	/// Atlas E7: June CommonConstructor @32763451-3276345e
+	m_bJuneAlphaFadeOldBlend		= false;
+	m_bJuneAlphaFadeHideAtEnd		= false;
+	m_fJuneAlphaFadeTime			= 0.f;
+	m_fJuneAlphaFadeRate			= 0.f;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef MODIFY_DUNGEON_STAGING
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -2910,6 +2920,11 @@ void CX2GUNPC::Init( bool bUseTeamPos, int startPosIndex )
 
 	InitAdditionalBasicStatValue();
 	InitAdditionalStatOptionValue();
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	/// Atlas E7: June Init 3277c030 @3277c253-3277c2be, last: the can-pass flag ( protected +0x8344 ) takes CAN_PASS_UNIT_AT_FIRST_FRAME when they differ
+	if ( m_NPCFrameData.stateParam.bCanPassUnit != m_bJuneCanPassUnitAtFirstFrame )
+		m_NPCFrameData.stateParam.bCanPassUnit = m_bJuneCanPassUnitAtFirstFrame;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 }
 
 #ifdef INDEPENDENT_ANIMATION_TIME
@@ -4767,6 +4782,10 @@ void CX2GUNPC::InitComponent()
 		LUA_GET_VALUE( m_LuaManager, "NOT_CHECK_INDICATOR",		m_bNotCheckIndicator,		false );
 		LUA_GET_VALUE( m_LuaManager, "USE_DEFAULT_DIE_PARTICLE",	m_bUseDefaultDieParticle,	false );
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		/// Atlas E7: June 327a0fa0 @327ac14c-327ac32e: CAN_PASS_UNIT_AT_FIRST_FRAME ( default false ), applied once at the end of Init ( 3277c25f )
+		LUA_GET_VALUE( m_LuaManager, "CAN_PASS_UNIT_AT_FIRST_FRAME",	m_bJuneCanPassUnitAtFirstFrame,	false );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 
 #ifdef ADDED_NPC_REMAINING_WHEN_SUBSTAGE_CLEAR 
@@ -5734,6 +5753,25 @@ void    CX2GUNPC::LoadStateData( StateData& nowStateData, InitData& OutInit_, KL
 	}
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_A
     nowStateData.m_vecwstrEnableAttackBox.resize( 0 );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	/// Atlas E7: June 32784c00 @3278a537-3278a5fc ( SHOW_GAGE ) and @3278f62c-3278f689 ( INVINCIBLE_ATTACK_TYPE ); stored as June stores them, read by nothing
+	nowStateData.m_bJuneShowGageGiven = luaManager_.GetValue( "SHOW_GAGE", nowStateData.m_bJuneShowGage, false );
+	if ( false == nowStateData.m_bJuneShowGageGiven )
+		nowStateData.m_bJuneShowGage = false;
+	nowStateData.m_vecJuneInvincibleAttackType.clear();
+	if( luaManager_.BeginTable( "INVINCIBLE_ATTACK_TYPE" ) == true )
+	{
+		int iJuneIndex = 1;
+		int iJuneAttackType = -1;
+		while( luaManager_.GetValue( iJuneIndex, iJuneAttackType ) == true )
+		{
+			if ( -1 != iJuneAttackType )
+				nowStateData.m_vecJuneInvincibleAttackType.push_back( iJuneAttackType );
+			iJuneIndex++;
+		}
+		luaManager_.EndTable();
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	if( luaManager_.BeginTable( "ENABLE_ATTACK_BOX" ) == true )
 	{
 		index = 1;
@@ -8883,6 +8921,9 @@ HRESULT CX2GUNPC::OnFrameMove( double fTime, float fElapsedTime )
 		if ( NULL != m_pXSkinAnim )
 			m_pXSkinAnim->GetMatrix().Scale(m_vFinalScale);
 	}
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	JuneFrameMoveAlphaFade();	/// Atlas E7: June OnFrameMove 3277dfd0 @3277e60f, after the scale fade
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	if(m_bUnitFade == true)
 	{		
@@ -11234,6 +11275,9 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 
 			if( pAttackerUnit != NULL )
 			{
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+				JuneProcessThorns( pAttackerUnit, fFinalDamage );	/// Atlas E7: June 327b1f30 @327b4c9b, first thing for a known attacker
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 				if( pAttackerUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
 				{
 #ifndef X2OPTIMIZE_UNITTYPE_BUG_FIX
@@ -29651,6 +29695,178 @@ void CX2GUNPC::SetStoredGUUser( CX2GUUser* pGUUser_ )
 	m_optrJuneStoredGUUser = pGUUser_;
 }
 #endif SERV_IRUHADEV_JUNE_NPC_STORED_GUUSER
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+/** Atlas E7, June 3275eb70 ( RET 8 ): id = GetStateID( name ) ( 3207adf0 ); 0 <= id < runtime count ( +0x7c9c, 0x24 rows ) ->
+	runtime[id].elapsed = (float) iValue_ ( fild: an int ). The NULL test is InitStateCoolTime's ( June leaves a nil name to 3207adf0 ). */
+void CX2GUNPC::SetStateCoolTime_LUA( const char* pszStateName_, int iValue_ )
+{
+	if ( NULL == pszStateName_ )
+		return;
+	const int iStateID = GetStateID( pszStateName_ );
+	if ( iStateID < 0 || iStateID >= (int) m_vecStateRuntime.size() )
+		return;
+	m_vecStateRuntime[iStateID].m_fStateElapsedTime = (float) iValue_;
+}
+
+/** Atlas E7, June 3275ebc0: as SetStateCoolTime_LUA, but elapsed += (float) iValue_ ( fild, fadd @3275ec02 ) */
+void CX2GUNPC::AddStateCoolTime_LUA( const char* pszStateName_, int iValue_ )
+{
+	if ( NULL == pszStateName_ )
+		return;
+	const int iStateID = GetStateID( pszStateName_ );
+	if ( iStateID < 0 || iStateID >= (int) m_vecStateRuntime.size() )
+		return;
+	m_vecStateRuntime[iStateID].m_fStateElapsedTime += (float) iValue_;
+}
+
+/** Atlas E7, June 327596a0: the observer at +0x8d6c, when it still points at a unit of type GUT_NPC ( +0x264 == 1 ); else NULL */
+CX2GUNPC* CX2GUNPC::GetStoredNPC()
+{
+	if ( null == m_optrJuneStoredNPC )
+		return NULL;
+	CX2GameUnit* pUnit = m_optrJuneStoredNPC.GetObservable();
+	if ( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+		return NULL;
+	return static_cast<CX2GUNPC*>( pUnit );
+}
+
+/** Atlas E7, June 31e579c0: a non-NULL unit of type GUT_NPC replaces the observer ( 31e56b80 ); anything else leaves it */
+void CX2GUNPC::SetStoredNPC( CX2GameUnit* pUnit_ )
+{
+	if ( NULL == pUnit_ || CX2GameUnit::GUT_NPC != pUnit_->GetGameUnitType() )
+		return;
+	m_optrJuneStoredNPC = pUnit_;
+}
+
+/** Atlas E7, June 31e57990: releases the observer ( +0x8d6c = 0, +0x8d70 = 0, refcount down ) */
+void CX2GUNPC::ClearStoredNPC()
+{
+	m_optrJuneStoredNPC.Reset();
+}
+
+/** Atlas E7, June 3275d090 / 3275bd10 / 3275bdf0 / 3275bef0: ten vector<UidType> at +0x88a0 ( +0x10 each ). June's slot test
+	is `slot < 0 && slot > 9` ( @3275d0b8-3275d0bf ), which never holds, so June never rejects a slot ( its error path only formats
+	a string, 320771d0, and returns 0 ): JUNE_BUGS. The 0..9 test below is a guard on a path June data never takes ( June would read or
+	write past the ten vectors ); it returns what June's error path returns. */
+bool CX2GUNPC::VectorUidType_Pushback_LUA( int iSlot_, UidType iValue_ )
+{
+	if ( iSlot_ < 0 || iSlot_ > 9 )
+		return false;
+	if ( true == VectorUidType_Find_LUA( iSlot_, iValue_ ) )		/// @3275d147: an existing value is not added again
+		return false;
+	m_avecJuneUidType[iSlot_].push_back( iValue_ );
+	return true;
+}
+
+void CX2GUNPC::VectorUidType_Clear_LUA( int iSlot_ )
+{
+	if ( iSlot_ < 0 || iSlot_ > 9 )
+		return;
+	m_avecJuneUidType[iSlot_].clear();
+}
+
+bool CX2GUNPC::VectorUidType_Find_LUA( int iSlot_, UidType iValue_ )
+{
+	if ( iSlot_ < 0 || iSlot_ > 9 )
+		return false;
+	return m_avecJuneUidType[iSlot_].end() != std::find( m_avecJuneUidType[iSlot_].begin(), m_avecJuneUidType[iSlot_].end(), iValue_ );
+}
+
+/** June 3275bef0: the first equal value is erased and returned; -1 when absent ( an empty slot too ); 0 on June's error path */
+UidType CX2GUNPC::VectorUidType_PopValue_LUA( int iSlot_, UidType iValue_ )
+{
+	if ( iSlot_ < 0 || iSlot_ > 9 )
+		return 0;
+	std::vector<UidType>::iterator vit = std::find( m_avecJuneUidType[iSlot_].begin(), m_avecJuneUidType[iSlot_].end(), iValue_ );
+	if ( m_avecJuneUidType[iSlot_].end() == vit )
+		return -1;
+	const UidType iFound = *vit;
+	m_avecJuneUidType[iSlot_].erase( vit );
+	return iFound;
+}
+
+/** Atlas E7, June 32778ea0: only on the host ( June: my UID == the UDP host UID ) and when the value differs: +0x9064 = value, then
+	327587d0 sends P2P packet 0x1d { NPC UID, value } so the peers ( receive 32778f50 @32778fd1 ) store it too. Offline the player is
+	the only peer and always the host, so the store is all that happens; the packet is not ported ( no one would receive it ). */
+void CX2GUNPC::SetSyncDummyValue_Host( int iValue_ )
+{
+	if ( NULL == g_pX2Game || false == g_pX2Game->IsHost() )
+		return;
+	if ( m_iJuneSyncDummyValue == iValue_ )
+		return;
+	m_iJuneSyncDummyValue = iValue_;
+}
+
+/** @function : StartAlphaFade
+	@brief : Atlas E7, June 3275a240 ( time, fade in, hide at the end; RET 0xc ):
+			 - fade in: rate = 1 / time; SetShowObject( true ); not already fading -> alpha ( m_RenderParam.color.a, +0xc44 ) = 0;
+			 - fade out: rate = -1.0 ( 33436c90 ) / time; not already fading -> alpha = 1;
+			 - then time ( +0x906c ), fading ( +0x9068 ), the old m_RenderParam.bAlphaBlend ( +0xc74 -> +0x9069 ), hide at the end ( +0x906a ),
+			   and bAlphaBlend, the origin render param's bAlphaBlend ( +0x6658 ) and SetAlphaObject ( +0x144 ) all set to true.
+*/
+void CX2GUNPC::StartAlphaFade( float fTime_, bool bFadeIn_, bool bHideAtEnd_ )
+{
+	if ( true == bFadeIn_ )
+	{
+		m_fJuneAlphaFadeRate = 1.f / fTime_;
+		SetShowObject( true );
+		if ( false == m_bJuneAlphaFade )
+			m_RenderParam.color.a = 0.f;
+	}
+	else
+	{
+		m_fJuneAlphaFadeRate = -1.f / fTime_;
+		if ( false == m_bJuneAlphaFade )
+			m_RenderParam.color.a = 1.f;
+	}
+	m_fJuneAlphaFadeTime = fTime_;
+	m_bJuneAlphaFade = true;
+	m_bJuneAlphaFadeOldBlend = m_RenderParam.bAlphaBlend;
+	m_bJuneAlphaFadeHideAtEnd = bHideAtEnd_;
+	m_RenderParam.bAlphaBlend = true;
+	m_stOriginBuffRenderParam.m_bAlphaBlend = true;
+	SetAlphaObject( true );
+#if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iJuneAlphaFadeLogged = 0;
+	if ( s_iJuneAlphaFadeLogged < 10 )
+	{
+		++s_iJuneAlphaFadeLogged;
+		CX2OfflineLog::Server( L"[ELYDBG] StartAlphaFade npc %d ( %d ) time %.2f in %d hide %d", GetUID(), (int) GetNPCTemplet().m_nNPCUnitID,
+			fTime_, bFadeIn_ ? 1 : 0, bHideAtEnd_ ? 1 : 0 );
+	}
+#endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+
+/** June 3275a320 ( from OnFrameMove 3277dfd0 ): while fading, time -= elapsed; above 0 -> alpha += rate * elapsed. At the end
+	( fldz, fcom rate, test ah,0x41 / jp @3275a373-3275a380 ): a rate of 0 or above ( a fade in ) puts bAlphaBlend, the origin
+	bAlphaBlend and the alpha object back to the old bAlphaBlend ( +0x9069 ) and leaves the alpha; a negative rate ( a fade out ) sets
+	alpha 0 and, with hide at the end, SetShowObject( false ). Both end with fading off and rate 0. */
+void CX2GUNPC::JuneFrameMoveAlphaFade()
+{
+	if ( true != m_bJuneAlphaFade )
+		return;
+	m_fJuneAlphaFadeTime -= m_fElapsedTime;
+	if ( 0.f < m_fJuneAlphaFadeTime )
+	{
+		m_RenderParam.color.a += m_fJuneAlphaFadeRate * m_fElapsedTime;
+		return;
+	}
+	if ( 0.f <= m_fJuneAlphaFadeRate )
+	{
+		m_RenderParam.bAlphaBlend = m_bJuneAlphaFadeOldBlend;
+		m_stOriginBuffRenderParam.m_bAlphaBlend = m_bJuneAlphaFadeOldBlend;
+		SetAlphaObject( m_bJuneAlphaFadeOldBlend );
+		m_fJuneAlphaFadeRate = 0.f;
+		m_bJuneAlphaFade = false;
+		return;
+	}
+	m_RenderParam.color.a = 0.f;
+	if ( true == m_bJuneAlphaFadeHideAtEnd )
+		SetShowObject( false );
+	m_bJuneAlphaFade = false;
+	m_fJuneAlphaFadeRate = 0.f;
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef SERV_IRUHADEV_JUNE_NPC_INIT_STATE_COOL_TIME
 /** @function : InitStateCoolTime

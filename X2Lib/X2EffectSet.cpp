@@ -4626,8 +4626,14 @@ CX2EffectSet::EffectInstance::~EffectInstance()
 				NULL != g_pX2Game->GetDamageEffect() )
 			{
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+                // Atlas E7: June 321e2a30 @321e2af2-321e2b00 passes the instance's +0x1c as bSilently ( no die damage effect )
+                if ( m_hDamageEffect != INVALID_DAMAGE_EFFECT_HANDLE )
+                    g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageEffect, m_bJuneDestroySilently );
+#else SERV_IRUHADEV_ELYSION_SCRIPT_B
                 if ( m_hDamageEffect != INVALID_DAMAGE_EFFECT_HANDLE )
                     g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hDamageEffect );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 				if( NULL != m_pDamageEffect )
 					g_pX2Game->GetDamageEffect()->DestroyInstance( m_pDamageEffect );
@@ -4759,6 +4765,14 @@ CX2EffectSet::EffectSetInstance::~EffectSetInstance()
 	s_HandleManager.ReleaseHandle( m_hHandle );
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June 321e3a80 @321e3acf-321e3ad7: each instance gets the set's +0x1b0 at +0x1c right before it is deleted
+	BOOST_TEST_FOREACH( EffectInstance*, pJuneEffectInstance, m_vecpEffectInstance )
+	{
+		if ( NULL != pJuneEffectInstance )
+			pJuneEffectInstance->m_bJuneDestroySilently = m_bJuneStopSilently;
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	BOOST_TEST_FOREACH( EffectInstance*, pEffectInstance, m_vecpEffectInstance )
 	{
 		SAFE_DELETE( pEffectInstance );
@@ -4838,6 +4852,9 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 , m_vBoneTraceTargetMeshScale( 1.f, 1.f, 1.f )
 #endif //FIX_EFFECT_SCALE_BY_UNIT_SCALE
 {
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	m_bJuneStopSilently = false;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 //	if( NULL == pEffectSetData )
 //		return;
 
@@ -5774,6 +5791,24 @@ void CX2EffectSet::StopEffectSet_LUA( CX2EffectSet::Handle hHandle )
 	StopEffectSet( hHandle );
 }
 #endif SERV_SECRET_HELL
+
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+/** @function : StopEffectSetSilent_LUA
+	@brief : Atlas E7, June 321db020 ( RET 4; bound @31e179aa ): h != -1 -> push { h, true } on the stop queue +0x30 ( 32116c20 );
+			 DeleteEffect 321e4020 drains it into StopEffectSet( h, true ) 321e3ee0, which stores the bool at the set's +0x1b0 before
+			 the dtor ( @321e3f61 ), so the set's damage effects die without their die effect. March stops at once ( StopEffectSet has
+			 never been deferred here ), so this marks the set and stops it now instead of on the next DeleteEffect.
+*/
+void CX2EffectSet::StopEffectSetSilent_LUA( CX2EffectSet::Handle hHandle )
+{
+	if ( INVALID_EFFECTSET_HANDLE == hHandle )
+		return;
+	EffectSetInstance* pEffectSetInstance = GetEffectSetInstance( hHandle );
+	if ( NULL != pEffectSetInstance )
+		pEffectSetInstance->m_bJuneStopSilently = true;
+	StopEffectSet( hHandle );
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 //}} kimhc // 2010.4.19 // 비밀던전 작업
 
 

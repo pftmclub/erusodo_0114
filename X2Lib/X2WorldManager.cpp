@@ -152,6 +152,52 @@ CX2World* CX2WorldManager::CreateWorld( const CX2World::WORLD_ID worldID, KLuabi
 	}
 }//CX2WorldManager::CreateWorld()
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+/** @function : CreateJuneAdditionalWorlds
+	@brief : Atlas E7, the second half of June's 32803f60 ( callers 327cd1b0 dungeon stage load, 32d52fa0 / 32d54ae0 battle field ).
+			 After the main world ( = CreateWorld above ), one more CX2World per WorldData dataFileName_Additional name
+			 ( +0x58, @32804248-328042a6 ): new CX2World( same WorldData, bBackgroundLoad ), OpenScriptFile( name, pKLuabinder ),
+			 the map detail ( 327fbeb0 with g_pMain +0x1a8 ), then hidden and silent: SetShowObject( false ) 327fba60,
+			 PlayEffectBGM( false ) 327fb2a0, Play3DEffectBGM( false ) 327fb320, push_back into the caller's vector.
+			 Not the latest-world reference ( June writes +0x2c for the main world only ).
+*/
+void CX2WorldManager::CreateJuneAdditionalWorlds( const CX2World::WORLD_ID worldID, std::vector<CX2World*>& vecAdditionalWorld_, KLuabinder* pKLuabinder /*= NULL*/, const bool bBackgroundLoad_ /*= false*/ )
+{
+	CX2World::WorldData* pWorldData = NULL;
+	{
+		CSLock locker( m_csWorldManager );
+		for( UINT i = 0; i < m_WorldDataList.size(); i++ )
+		{
+			if( worldID == m_WorldDataList[i]->worldID )
+			{
+				pWorldData = m_WorldDataList[i];
+				break;
+			}
+		}
+	}
+	if ( NULL == pWorldData )
+		return;
+
+	for ( UINT i = 0; i < pWorldData->dataFileName_Additional.size(); i++ )
+	{
+		CX2World* pAdditionalWorld = new CX2World( pWorldData, bBackgroundLoad_ );
+		const bool bOk = pAdditionalWorld->OpenScriptFile( pWorldData->dataFileName_Additional[i].c_str(), pKLuabinder );
+#ifdef X2OPTIMIZE_GAMEOPTION_BUGFIX
+		pAdditionalWorld->SetMapDetail( g_pMain->GetGameOption().GetOptionList().m_MapDetail );
+#endif//X2OPTIMIZE_GAMEOPTION_BUGFIX
+		pAdditionalWorld->SetShowObject( false );
+		pAdditionalWorld->PlayEffectBGM( false );
+		pAdditionalWorld->Play3DEffectBGM( false );
+		vecAdditionalWorld_.push_back( pAdditionalWorld );
+#if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		CX2OfflineLog::Server( L"[ELYDBG] additional world %d: world %d %s script %s %s, slot %d ( hidden )",
+			(int) i, (int) worldID, pWorldData->worldName.c_str(), pWorldData->dataFileName_Additional[i].c_str(),
+			bOk ? L"loaded" : L"FAILED", (int) vecAdditionalWorld_.size() - 1 );
+#endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
+	}
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
+
 bool CX2WorldManager::OpenScriptFile( const WCHAR* pFileName )
 {
     ASSERT( pFileName );
@@ -252,6 +298,21 @@ bool CX2WorldManager::AddWorldData_LUA()
 	}
 	LUA_GET_VALUE( luaManager, "dataFileName_CodeEvent", pWorldData->dataFileName_CodeEvent, L"" );
 #endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June 32805770 @32805f81-32805fee, after dataFileName_CodeEvent: the "dataFileName_Additional" table, values 1..n
+	// until the first missing one ( 32feafd0 ), each pushed into +0x58 ( 31aad250 ).
+	if( true == luaManager.BeginTable( "dataFileName_Additional" ) )
+	{
+		int iAdditionalIndex = 1;
+		wstring wstrAdditional;
+		while( true == luaManager.GetValue( iAdditionalIndex, wstrAdditional ) )
+		{
+			pWorldData->dataFileName_Additional.push_back( wstrAdditional );
+			iAdditionalIndex++;
+		}
+		luaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	m_WorldDataList.push_back( pWorldData );
 	return true;

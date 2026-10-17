@@ -724,6 +724,9 @@ CX2Game::~CX2Game()
 
 	SAFE_DELETE( m_pWorld );
 	SAFE_DELETE( m_pCamera );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	ClearJuneAdditionalWorld();	// Atlas E7: June Release 323080c0 @323083ff, right after the main world's delete
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	SAFE_DELETE( m_pDamageEffect );
 
 	GetEffectSet()->StopEffectSetAll();
@@ -3397,6 +3400,16 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 		{
 			m_pWorld->OnFrameMove( fTime, fElapsedTime );
 		}
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		// Atlas E7: June OnFrameMove 32308c20 @32309b77-32309bb0: each additional world whose +0x1ac is 1 moves too. June runs this
+		// later in the same function (after g_pData +0x328's frame move); the worlds are independent of what lies in between.
+		for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+		{
+			CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
+			if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+				pJuneWorld->OnFrameMove( fTime, fElapsedTime );
+		}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		CX2GUUser* pMyGUUser = GetMyUnit();
 		if ( NULL != pMyGUUser )
@@ -3865,6 +3878,15 @@ HRESULT	CX2Game::OnFrameRender()
 		{
 			m_pWorld->OnFrameRender();
 		}
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		// Atlas E7: June 322d7260 @322d72a4-322d72e5: after the main world, each additional world whose +0x1ac is 1, then the chain sort
+		for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+		{
+			CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
+			if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+				pJuneWorld->OnFrameRender();
+		}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		g_pKTDXApp->GetDGManager()->ObjectChainSort();
 
@@ -4332,6 +4354,15 @@ HRESULT	CX2Game::OnResetDevice()
 
 	if( m_pWorld != NULL )
 		m_pWorld->OnResetDevice();
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June 322d7320: the additional worlds whose +0x1ac is 1 only (a hidden one is skipped, as in June)
+	for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+	{
+		CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
+		if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+			pJuneWorld->OnResetDevice();
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
  	//if( m_pMajorParticle != NULL )
  	//	m_pMajorParticle->OnResetDevice();
@@ -4358,6 +4389,15 @@ HRESULT	CX2Game::OnLostDevice()
 
 	if( m_pWorld != NULL )
 		m_pWorld->OnLostDevice();
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June 322d73b0: the additional worlds whose +0x1ac is 1 only
+	for ( UINT iJuneWorld = 0; iJuneWorld < m_vecJuneAdditionalWorld.size(); iJuneWorld++ )
+	{
+		CX2World* pJuneWorld = m_vecJuneAdditionalWorld[iJuneWorld];
+		if ( NULL != pJuneWorld && true == pJuneWorld->GetJuneShowWorld() )
+			pJuneWorld->OnLostDevice();
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
  	//if( m_pMajorParticle != NULL )
  	//	m_pMajorParticle->OnLostDevice();
@@ -6676,6 +6716,261 @@ void CX2Game::FadeOriginWorldColor_LUA( D3DXCOLOR color_, float fTime_ )
 	return pPicked;
 }
 #endif SERV_IRUHADEV_JUNE_GAME_RANDOM_USER
+
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+/** Atlas E7: June's unit centre ( unit vslot 0x2c8 ): a user's GetPos( false ) plus half its height ( CX2GUUser 31fc9380 ), every
+	other unit's GetPos( false ) ( 322b5530 ). Same as X2BuffTemplet.cpp's JuneGetUnitCenterPos ( static there ). */
+static D3DXVECTOR3 ElysionGetUnitCenterPos( const CX2GameUnit* pUnit_ )
+{
+	D3DXVECTOR3 vPos = pUnit_->GetPos( false );
+	if ( CX2GameUnit::GUT_USER == pUnit_->GetGameUnitType() )
+		vPos.y += pUnit_->GetUnitHeight( false ) * 0.5f;
+	return vPos;
+}
+
+/** Atlas E7: June 32293b80 ( CX2GameUnit, pos by value ): true without a line map; false when the unit's last touched line
+	( GetLastTouchLineIndex( true ) ) has no data; else whether pos lies ahead along that line ( dot of the normalised way
+	there and the line's dirVector > 0 ). Same as X2BuffTemplet.cpp's JuneIsPosAlongLastTouchLine ( static there ). */
+static bool ElysionIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const D3DXVECTOR3& vPos_ )
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetLineMap() )
+		return true;
+
+	const CKTDGLineMap::LineData* pLineData = g_pX2Game->GetLineMap()->GetLineData( pUnit_->GetLastTouchLineIndex( true ) );
+	if ( NULL == pLineData )
+		return false;
+
+	D3DXVECTOR3 vToPos = vPos_ - pUnit_->GetPos( false );
+	D3DXVec3Normalize( &vToPos, &vToPos );
+	D3DXVECTOR3 vLineDir = pLineData->dirVector;
+	D3DXVec3Normalize( &vLineDir, &vLineDir );
+	return 0.0f < D3DXVec3Dot( &vToPos, &vLineDir );
+}
+
+/** June 322cc040: m_pWorld -> SetShowObject( bShow ) ( 327fba60, which also sets the world's +0x1ac ) */
+void CX2Game::SetShowWorld( bool bShow_ )
+{
+	if ( NULL != m_pWorld )
+		m_pWorld->SetShowObject( bShow_ );
+}
+
+/** June 322cc060: m_pWorld: bPlay ? PlayBGM ( 327fc950 ) : StopBGM ( 327fdb80 ), then PlayEffectBGM ( 327fb2a0 ) and
+	Play3DEffectBGM ( 327fb320 ) with bPlay */
+void CX2Game::PlayWorldAllSound( bool bPlay_ )
+{
+	if ( NULL == m_pWorld )
+		return;
+	if ( true == bPlay_ )
+		m_pWorld->PlayBGM();
+	else
+		m_pWorld->StopBGM();
+	m_pWorld->PlayEffectBGM( bPlay_ );
+	m_pWorld->Play3DEffectBGM( bPlay_ );
+}
+
+/** June 322cf8f0: index below the +0x3a0 vector's size and a world there -> SetShowObject( bShow ) */
+void CX2Game::SetShowAdditionalWorld( UINT uiIndex_, bool bShow_ )
+{
+#if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"[ELYDBG] SetShowAdditionalWorld %u %d ( %d world(s) )", uiIndex_, bShow_ ? 1 : 0, (int) m_vecJuneAdditionalWorld.size() );
+#endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
+	if ( uiIndex_ < m_vecJuneAdditionalWorld.size() && NULL != m_vecJuneAdditionalWorld[uiIndex_] )
+		m_vecJuneAdditionalWorld[uiIndex_]->SetShowObject( bShow_ );
+}
+
+/** June 322cf930: PlayWorldAllSound's body on the +0x3a0 vector's world at the index */
+void CX2Game::PlayAdditionalWorldAllSound( UINT uiIndex_, bool bPlay_ )
+{
+#if defined( SERV_IRUHADEV_ELYSION_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"[ELYDBG] PlayAdditionalWorldAllSound %u %d ( %d world(s) )", uiIndex_, bPlay_ ? 1 : 0, (int) m_vecJuneAdditionalWorld.size() );
+#endif // SERV_IRUHADEV_ELYSION_DEBUG && SERV_IRUHADEV_OFFLINE
+	if ( uiIndex_ >= m_vecJuneAdditionalWorld.size() )
+		return;
+	CX2World* pWorld = m_vecJuneAdditionalWorld[uiIndex_];
+	if ( NULL == pWorld )
+		return;
+	if ( true == bPlay_ )
+		pWorld->PlayBGM();
+	else
+		pWorld->StopBGM();
+	pWorld->PlayEffectBGM( bPlay_ );
+	pWorld->Play3DEffectBGM( bPlay_ );
+}
+
+/** June 322d7f90: delete each world of the +0x3a0 vector ( vslot 0 with 1 ), then empty it */
+void CX2Game::ClearJuneAdditionalWorld()
+{
+	for ( UINT i = 0; i < m_vecJuneAdditionalWorld.size(); i++ )
+	{
+		SAFE_DELETE( m_vecJuneAdditionalWorld[i] );
+	}
+	m_vecJuneAdditionalWorld.clear();
+}
+
+/** June 322dd990: empties +0xbc0, adds each user with HP above 0 ( no gage data counts as alive ) whose GetPos( false ) lies
+	within fRange_ of vPos_ ( <= ), then while more than uiCount_ remain erases a rand() % size entry; returns the size. */
+int CX2Game::FindRandomSelectUserUnitsFromRange_LUA( float fRange_, D3DXVECTOR3 vPos_, UINT uiCount_ )
+{
+	m_vecJuneFindedRandomSelectUserUnits.clear();
+	for ( UINT i = 0; i < m_UserUnitList.size(); i++ )
+	{
+		CX2GUUser* pUser = m_UserUnitList[i];
+		if ( NULL == pUser || false == ( pUser->GetNowHp() > 0.f ) )
+			continue;
+		if ( GetDistance( pUser->GetPos( false ), vPos_ ) <= fRange_ )
+			m_vecJuneFindedRandomSelectUserUnits.push_back( pUser );
+	}
+	while ( uiCount_ < m_vecJuneFindedRandomSelectUserUnits.size() )
+	{
+		const UINT uiErase = (UINT) rand() % (UINT) m_vecJuneFindedRandomSelectUserUnits.size();
+		m_vecJuneFindedRandomSelectUserUnits.erase( m_vecJuneFindedRandomSelectUserUnits.begin() + uiErase );
+	}
+	return (int) m_vecJuneFindedRandomSelectUserUnits.size();
+}
+
+/** June 322d0030: +0xbc0[ uiIndex_ ], NULL past the end */
+CX2GUUser* CX2Game::GetFindedRandomSelectUserUnits_LUA( UINT uiIndex_ )
+{
+	if ( uiIndex_ < m_vecJuneFindedRandomSelectUserUnits.size() )
+		return m_vecJuneFindedRandomSelectUserUnits[uiIndex_];
+	return NULL;
+}
+
+/** June 322dc3c0: the same user filter into a local list; n > 1 ? iRand_ % n ( signed ) : 0, NULL when empty */
+CX2GUUser* CX2Game::GetRandomSelectUserUnitFromRange( float fRange_, D3DXVECTOR3 vPos_, int iRand_ )
+{
+	std::vector<CX2GUUser*> vecUser;
+	for ( UINT i = 0; i < m_UserUnitList.size(); i++ )
+	{
+		CX2GUUser* pUser = m_UserUnitList[i];
+		if ( NULL == pUser || false == ( pUser->GetNowHp() > 0.f ) )
+			continue;
+		if ( GetDistance( pUser->GetPos( false ), vPos_ ) <= fRange_ )
+			vecUser.push_back( pUser );
+	}
+	const int iCount = (int) vecUser.size();
+	if ( 0 < iCount )
+	{
+		const int iIndex = ( 1 < iCount ) ? iRand_ % iCount : 0;
+		if ( iIndex < iCount )
+			return vecUser[iIndex];
+	}
+	return NULL;
+}
+
+/** June 322cfc00: the index in the user list ( empty slots counted ) of the user whose CX2Unit ( +0x867c ) UID is iUserUID_,
+	else 0xffff */
+UINT CX2Game::GetUserIndexByUserUID( UidType iUserUID_ )
+{
+	for ( UINT i = 0; i < m_UserUnitList.size(); i++ )
+	{
+		CX2GUUser* pUser = m_UserUnitList[i];
+		if ( NULL != pUser && NULL != pUser->GetUnit() && iUserUID_ == pUser->GetUnit()->GetUID() )
+			return i;
+	}
+	return 0xffff;
+}
+
+/** June 322d7090 / 322d7060: the core 322d55b0 with bIncludeSameTeam 0 / 1 */
+CX2GameUnit* CX2Game::GetNearestUnitInSpecificRange_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ )
+{
+	return GetNearestUnitInSpecificRangeJune( pUnit_, iUnitType_, bFrontOnly_, fMinRange_, fMaxRange_, bCenterPos_, false );
+}
+
+CX2GameUnit* CX2Game::GetNearestUnitInSpecificRange_IncludeSameTeam_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ )
+{
+	return GetNearestUnitInSpecificRangeJune( pUnit_, iUnitType_, bFrontOnly_, fMinRange_, fMaxRange_, bCenterPos_, true );
+}
+
+/** June 322d55b0 ( RET 0x1c, read from the disassembly ), March's ADDITIONAL_MEMO GetNearestUnit grown:
+	- no unit: GetMyUnit ( game vslot 0x98 ), NULL if none.
+	- my position: bCenterPos_ ? centre ( vslot 0x2c8 ) : GetPos( false ); my team = GetTeam ( +0x278 ), GetAllyTeam ( +0x284 ) when negative.
+	- every unit of m_UnitList ( +0x304 ): skip my team unless bIncludeSameTeam_; skip no HP ( gage present and not 0 < hp );
+	  skip a negative team; skip my own UID ( vslot 0x54 ); skip GetInvincible ( vslot 0x180 ).
+	- an NPC ( +0x264 == 1 ): skip when iUnitType_ == 0, or its class ( templet +4 ) is neither NCT_BASIC nor NCT_THING_GATE;
+	  June then skips the NPC whose templet ID equals that of the unit held by the raid object at g_pMain +0x115c
+	  ( 31d70d80 / 3266cb90 / 31e56700 ): that object does not exist in March ( as in X2DamageEffect.cpp's C3 port ), so no skip.
+	  A user: skip when iUnitType_ == 1.
+	- bFrontOnly_: skip unless "ahead along my last line" ( 32293b80 ) equals GetIsRight ( vslot 0x170 ).
+	- distance d ( 31c7b560 ) between the two positions: kept when d < best, fMinRange_ <= d and d <= fMaxRange_; best starts at
+	  fMaxRange_ ( @322d55c2 -> [esp+0x1c] ).
+*/
+CX2GameUnit* CX2Game::GetNearestUnitInSpecificRangeJune( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_, bool bIncludeSameTeam_ )
+{
+	CX2GameUnit* pMyUnit = pUnit_;
+	if ( NULL == pMyUnit )
+	{
+		if ( NULL == GetMyUnit() )
+			return NULL;
+		pMyUnit = GetMyUnit();
+	}
+
+	const D3DXVECTOR3 vMyPos = ( true == bCenterPos_ ) ? ElysionGetUnitCenterPos( pMyUnit ) : pMyUnit->GetPos( false );
+	int iMyTeam = pMyUnit->GetTeam();
+#ifdef SERV_TRAPPING_RANGER_TEST
+	if ( iMyTeam < 0 )
+		iMyTeam = pMyUnit->GetAllyTeam();
+#endif SERV_TRAPPING_RANGER_TEST
+
+	float fBestDistance = fMaxRange_;
+	CX2GameUnit* pNearestUnit = NULL;
+	for ( UINT i = 0; i < m_UnitList.size(); i++ )
+	{
+		CX2GameUnit* pUnit = m_UnitList[i];
+		if ( NULL == pUnit )
+			continue;
+		if ( pUnit->GetTeam() == iMyTeam && false == bIncludeSameTeam_ )
+			continue;
+		if ( NULL != pUnit->GetGageData() && false == ( 0.f < pUnit->GetNowHp() ) )
+			continue;
+		if ( pUnit->GetTeam() < 0 )
+			continue;
+		if ( pUnit->GetUnitUID() == pMyUnit->GetUnitUID() )
+			continue;
+		if ( true == pUnit->GetInvincible() )
+			continue;
+
+		if ( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() )
+		{
+			if ( 0 == iUnitType_ )
+				continue;
+			CX2GUNPC* pNpc = static_cast<CX2GUNPC*>( pUnit );
+			if ( CX2UnitManager::NCT_BASIC != pNpc->GetNPCTemplet().m_ClassType &&
+				 CX2UnitManager::NCT_THING_GATE != pNpc->GetNPCTemplet().m_ClassType )
+				continue;
+		}
+		else if ( 1 == iUnitType_ )
+		{
+			continue;
+		}
+
+		const D3DXVECTOR3 vPos = ( true == bCenterPos_ ) ? ElysionGetUnitCenterPos( pUnit ) : pUnit->GetPos( false );
+		if ( true == bFrontOnly_ && ElysionIsPosAlongLastTouchLine( pMyUnit, vPos ) != pMyUnit->GetIsRight() )
+			continue;
+
+		const float fDistance = GetDistance( vMyPos, vPos );
+		if ( fDistance < fBestDistance && fMinRange_ <= fDistance && fDistance <= fMaxRange_ )
+		{
+			fBestDistance = fDistance;
+			pNearestUnit = pUnit;
+		}
+	}
+	return pNearestUnit;
+}
+
+/** June 322cfef0 / 322cff30: g_pKTDXApp's CKTDGManager ( +0x1fc ), when there is one, -> 31ce6270 / 31ce62c0( time, colour ) */
+void CX2Game::StartFadeInCustomColor( float fTime_, D3DXCOLOR color_ )
+{
+	if ( NULL != g_pKTDXApp->GetDGManager() )
+		g_pKTDXApp->GetDGManager()->StartFadeInCustomColor( fTime_, color_ );
+}
+
+void CX2Game::StartFadeOutCustomColor( float fTime_, D3DXCOLOR color_ )
+{
+	if ( NULL != g_pKTDXApp->GetDGManager() )
+		g_pKTDXApp->GetDGManager()->StartFadeOutCustomColor( fTime_, color_ );
+}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef SERV_IRUHADEV_JUNE_GAME_GO_NEXT
 /** @function : GetIsGoNextPacketSended_LUA / Send_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ

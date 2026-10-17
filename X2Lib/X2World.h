@@ -877,6 +877,9 @@ public:
 			wstring		dataFileName_Original;	// June +0x3c: dataFileName as read, before the festival swap ( AddWorldData_LUA 32805770 @32805aeb )
 			wstring		dataFileName_CodeEvent;	// June +0x68: "dataFileName_CodeEvent" ( read @32805f69 ), picked by CreateWorld 32803d10 on code event 46
 #endif SERV_IRUHADEV_JUNE_WORLD_FESTIVAL
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+			vector<wstring>	dataFileName_Additional;	// June +0x58: "dataFileName_Additional" table ( AddWorldData_LUA 32805770 @32805f81-32805fee ), one hidden extra world each
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		};
 
 		enum SQUARE_CAMERA_TYPE
@@ -990,6 +993,9 @@ public:
 		bool				RayCheck( D3DXVECTOR3 rayStart, D3DXVECTOR3 rayEnd );
 		
 		void				SetShowObject( bool bShow );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		bool				GetJuneShowWorld() const { return m_bJuneShowWorld; }
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef X2TOOL
 		void				SetShowObjectByTool( bool bShow );
 #endif
@@ -1356,6 +1362,11 @@ public:
 		float m_fCameraDistanceStep[3];
 #endif
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		/// Atlas E7: June CX2World +0x1ac. 1 from the ctor ( 327fddf0 @327fdec8 ), written by SetShowObject ( 327fba60 ); CX2Game moves,
+		/// draws and resets an additional world only while it is 1 ( 32309b8d, 322d72c0, 322d7320, 322d73b0 ).
+		bool m_bJuneShowWorld;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #if defined(WORLD_TOOL) || defined(X2TOOL)
 		wstring m_wstrWorldName;
 		wstring m_wstrWorldCamera;

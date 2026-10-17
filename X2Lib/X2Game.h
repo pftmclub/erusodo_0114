@@ -633,6 +633,23 @@ class CX2Game : public CKTDXStage
 #endif //SERV_NEW_DEFENCE_DUNGEON
 
 		int							GetAliveActiveNPCCount();
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		// Atlas E7 ( ATLAS_PORT_PHASES.md; june2017_re/region_engine.tsv B15-B20, B24-B30, B85 )
+		void						SetShowWorld( bool bShow_ );								// June 322cc040
+		void						PlayWorldAllSound( bool bPlay_ );							// June 322cc060
+		void						SetShowAdditionalWorld( UINT uiIndex_, bool bShow_ );		// June 322cf8f0
+		void						PlayAdditionalWorldAllSound( UINT uiIndex_, bool bPlay_ );	// June 322cf930
+		void						ClearJuneAdditionalWorld();									// June 322d7f90
+		int							FindRandomSelectUserUnitsFromRange_LUA( float fRange_, D3DXVECTOR3 vPos_, UINT uiCount_ );	// June 322dd990
+		CX2GUUser*					GetFindedRandomSelectUserUnits_LUA( UINT uiIndex_ );		// June 322d0030
+		CX2GUUser*					GetRandomSelectUserUnitFromRange( float fRange_, D3DXVECTOR3 vPos_, int iRand_ );	// June 322dc3c0
+		UINT						GetUserIndexByUserUID( UidType iUserUID_ );					// June 322cfc00
+		CX2GameUnit*				GetNearestUnitInSpecificRange_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ );	// June 322d7090
+		CX2GameUnit*				GetNearestUnitInSpecificRange_IncludeSameTeam_LUA( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_ );	// June 322d7060
+		CX2GameUnit*				GetNearestUnitInSpecificRangeJune( CX2GameUnit* pUnit_, int iUnitType_, bool bFrontOnly_, float fMinRange_, float fMaxRange_, bool bCenterPos_, bool bIncludeSameTeam_ );	// June 322d55b0
+		void						StartFadeInCustomColor( float fTime_, D3DXCOLOR color_ );	// June 322cfef0
+		void						StartFadeOutCustomColor( float fTime_, D3DXCOLOR color_ );	// June 322cff30
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef SERV_INSERT_GLOBAL_SERVER
 		int							GetEliteNPCUnitNum(); // oasis907 : ±ËªÛ¿± [2011.4.19]
@@ -2096,6 +2113,10 @@ protected:
 		CX2TalkBoxManager*				m_pDramaticTalkBoxMgr;							/// June +0x48c ( TBMT_DRAMATIC_MESSAGE, ctor @32307a51 )
 		std::vector<DramaticMessage>	m_vecDramaticMessage[DMT_END];					/// June +0x8d8, one vector per TYPE
 #endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		std::vector<CX2World*>		m_vecJuneAdditionalWorld;	/// June +0x3a0: the stage world's dataFileName_Additional worlds ( 32803f60 ), freed by 322d7f90
+		std::vector<CX2GUUser*>		m_vecJuneFindedRandomSelectUserUnits;	/// June +0xbc0: FindRandomSelectUserUnitsFromRange_LUA's result
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 		bool						m_bJuneSkipStartArmed;		/// June +0xb40
 		bool						m_bJuneSkipStartSent;		/// June +0xb41 ( set by the ESC; the party path waits on it )

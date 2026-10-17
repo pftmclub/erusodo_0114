@@ -540,6 +540,16 @@ void CX2SmallGageUI::DrawSmallGage()
 
 void CX2SmallGageUI::DrawHpGage( const D3DXVECTOR3& vOut_ )
 {
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	/// Atlas E7: June 32e5d580 @32e5d5d6-32e5d686: an NPC owner with +0x8fb9 == 0 or a user owner with +0x9528 == 0 draws no HP gage
+	if ( null != m_optrGameUnit )
+	{
+		if ( CX2GameUnit::GUT_NPC == m_optrGameUnit->GetGameUnitType() && false == static_cast<CX2GUNPC*>( m_optrGameUnit.GetObservable() )->GetShowHpSmallGage() )
+			return;
+		if ( CX2GameUnit::GUT_USER == m_optrGameUnit->GetGameUnitType() && false == static_cast<CX2GUUser*>( m_optrGameUnit.GetObservable() )->GetShowHpSmallGage() )
+			return;
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	CKTDGStateManager::SetTexture( 0, NULL );
 
 	DrawFace( vOut_.x, vOut_.y, 50.0f, 7.0f, D3DCOLOR_ARGB( static_cast<int>( GetAlpha() ), 0, 0, 0 ) );		// 검은색 게이지

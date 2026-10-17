@@ -247,6 +247,18 @@ public: // tool-only
 		return m_pParticleSystem->GetInstanceSequence( m_hParticleEventSequence );
 	}	
 	CKTDGParticleSystem::CParticleEventSequenceHandle GetHandle() const { return m_hParticleEventSequence; }
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	/// Atlas E7: June 31e4f3f0 ( RET 4, vector by pointer ): a particle system ( +0x1f8 ) and a handle ( +0x1fc != -1 ) -> the live
+	/// sequence ( 31cefdd0 ) gets the vector as its scale factor ( +0x3f8..+0x400 = SetScaleFactor )
+	void SetParticleSize( D3DXVECTOR3 vSize_ )
+	{
+		if ( NULL == m_pParticleSystem || INVALID_PARTICLE_SEQUENCE_HANDLE == m_hParticleEventSequence )
+			return;
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = m_pParticleSystem->GetInstanceSequence( m_hParticleEventSequence );
+		if ( NULL != pSeq )
+			pSeq->SetScaleFactor( vSize_ );
+	}
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 protected:
 	CKTDGParticleSystem*								m_pParticleSystem;
 	CKTDGParticleSystem::CParticleEventSequenceHandle	m_hParticleEventSequence;

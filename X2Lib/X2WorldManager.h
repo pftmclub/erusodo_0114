@@ -46,6 +46,9 @@ class CX2WorldManager
 		CX2World* CreateWorld( wstring wstrWorldName, KLuabinder* pKLuabinder = NULL );
 #endif
 		CX2World* CreateWorld( const CX2World::WORLD_ID worldID, KLuabinder* pKLuabinder = NULL, const bool bBackgroundLoad_ = false );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		void CreateJuneAdditionalWorlds( const CX2World::WORLD_ID worldID, std::vector<CX2World*>& vecAdditionalWorld_, KLuabinder* pKLuabinder = NULL, const bool bBackgroundLoad_ = false );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		bool OpenScriptFile( const WCHAR* pFileName );
 
         //{{ seojt // 2008-10-22, 10:23

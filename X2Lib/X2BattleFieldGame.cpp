@@ -296,6 +296,10 @@ CX2BattleFieldGame::CX2BattleFieldGame()
 	SetWorldId( uiWorldId );
 
 	m_pWorld = g_pData->GetWorldManager()->CreateWorld( static_cast<CX2World::WORLD_ID>( uiWorldId ), NULL, true );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June 32d52fa0 @32d52ff7: 32803f60( +0x39c, +0x3a0, world, 0, 0, 1 ) (no clear first)
+	g_pData->GetWorldManager()->CreateJuneAdditionalWorlds( static_cast<CX2World::WORLD_ID>( uiWorldId ), m_vecJuneAdditionalWorld, NULL, true );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	CreatePotalParticle();
 	OpenBattleFieldName();
@@ -504,7 +508,13 @@ void CX2BattleFieldGame::SwapWorld()
 	//if ( GetWorldId() != uiWorldId )
 	{
 		SetWorldId( uiWorldId );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		ClearJuneAdditionalWorld();	// Atlas E7: June 32d54ae0 @32d54b07 ( 322d7f90 ) before 32803f60
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		CX2World* pNewWorld = g_pData->GetWorldManager()->CreateWorld( static_cast<CX2World::WORLD_ID>( uiWorldId ), NULL, true );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		g_pData->GetWorldManager()->CreateJuneAdditionalWorlds( static_cast<CX2World::WORLD_ID>( uiWorldId ), m_vecJuneAdditionalWorld, NULL, true );	// June @32d54b30
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		std::swap( m_pWorld, pNewWorld );
 

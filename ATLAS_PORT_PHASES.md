@@ -4022,7 +4022,43 @@ Done when: Phase E7's "Done when" holds. Record a Done note, then commit on main
 
 ### Phase E7 — Done
 
-*(empty)*
+*(2026-10-17, Opus 5.5 high. Flag `SERV_IRUHADEV_ELYSION_SCRIPT_B` (+ `ELYSION_DEBUG` for `[ELYDBG]`). 25 funcmap rows `Atlas E7`. All 39
+`region_engine.tsv` rows owned by E7 ported; none was already in March except the bodies of `AnimStop` / `AnimPlay` / `GetUnitIndex` /
+`SetShowInvincible`, which only needed binding.)*
+
+- **Additional world (B85, B27-B30):** WorldData `dataFileName_Additional` (32805770 @32805f81, after CodeEvent); `CreateJuneAdditionalWorlds`
+  = 32803f60's second half (one hidden, silent CX2World per name, same WorldData); called after the main world by `CX2DungeonGame` stage load
+  (327cd1b0), `CX2BattleFieldGame::WorldLoading` (32d52fa0) and `SwapWorld` (32d54ae0, cleared first); freed in `CX2Game::Release` (323080c0);
+  shown worlds move (@32309b77), draw (322d7260), reset / lose the device (322d7320 / 322d73b0, shown only). `CX2World` gets June's +0x1ac
+  (`SetShowObject` writes it, 1 from the ctor) and June's `StopBGM` (playing name cleared first). Binds `SetShowWorld`, `PlayWorldAllSound`,
+  `SetShowAdditionalWorld`, `PlayAdditionalWorldAllSound`.
+- **CX2Game (B15-B20, B24, B25):** `FindRandomSelectUserUnitsFromRange_LUA` / `GetFindedRandomSelectUserUnits_LUA` / `GetRandomSelectUserUnitFromRange`
+  / `GetUserIndexByUserUID`; `GetNearestUnitInSpecificRange(_IncludeSameTeam)_LUA` on June's core 322d55b0 (read from the disassembly; the decompile
+  mixes the arguments); `StartFadeIn/OutCustomColor` with June's colour fades in `CKTDGManager` (31ce6270 / 31ce62c0; plain fades now pass black).
+- **Units (B04, B07, B08, B35, B36):** `AddEffectSetDeleteCondition_LUA`; thorns (`SetThornsInfo`, 32278150 in both DamageReacts, 322780b0 and its
+  "HP +n / HP -n" text every 0.2 s); simple timer (`Start` / `Get` / `StopAndDeleteSimpleTimerCount`, "Mine_Countdown" + PC_0..9.dds, per frame).
+- **NPC (B05, B06, B09, B12-B14, B21-B23, B31-B33, B37, B65, B67, B68, B70):** `AnimStop`, `AnimResume` (= AnimPlay), `GetUnitID`, Set/AddStateCoolTime,
+  stored NPC trio, `VectorUidType_*`, `SetShowHpSmallGage` (NPC and user; `DrawHpGage` gate), `Get/SetSyncDummyValue_Host`, `StartAlphaFade` + its
+  frame update, `CAN_PASS_UNIT_AT_FIRST_FRAME`, `SHOW_GAGE` / `INVINCIBLE_ATTACK_TYPE` (stored, June reads neither), `HEIGHT_CHECK_RANGE` (fly AI).
+- **Other (B11, B26, B34, B38):** `IsSceneEnded`, `SetParticleSize`, the four BlackHole accessors, `StopEffectSetSilent_LUA` (silent flag reaches
+  `DestroyInstanceHandle( h, bSilently )`).
+- **Deviations (paths June data never takes, or no March counterpart):**
+  - `StopEffectSetSilent_LUA` stops at once (March's `StopEffectSet` has never used June's deferred queue).
+  - `VectorUidType_*` reject slots outside 0..9 (June's test can never fire and would run past the ten vectors).
+  - `SetSyncDummyValue_Host` stores only; June's P2P packet 0x1d has no receiver offline.
+  - The nearest-unit core skips June's raid-object test (g_pMain +0x115c does not exist in March, as in the C3 port).
+  - The HP text has no second queue gate (June's +0x68ac queue has no March writer).
+  - The additional-world frame move runs right after the main world's (June runs it later in the same frame).
+- **Routed:** class code that sets the third thorns byte (3226e370 from 32a67a20) and the other 322780b0 callers (32a6f196, 32aa9d51, 32ac2d38,
+  32b6ff0e, 32bb2cc5) -> character-port checklist. The NPC DamageReact's own 322780b0 call (@327b3485) is not E7's.
+- **JUNE_BUGS** 234-236 (additional worlds pile up across dungeon stages; hidden additional worlds skip device reset / lost; VectorUidType slot test).
+- **Gate:**
+  - census `--phase E7 --region elysion`: with the flag probe, only `SetPosion` (E10, B40: a June typo, nil in June too) is left in bind.unbound; the 6 bytecode-inferred names, `CAN_PASS_UNIT_AT_FIRST_FRAME`, `HEIGHT_CHECK_RANGE` and `INVINCIBLE_ATTACK_TYPE` are gone (`SHOW_GAGE` was never listed).
+  - flagcheck `--worktree` (E7 files): `files: 18 PASS, 3 PASS~ (blank/marker only), 0 DEFINE, 7 OTHER (other flags: E5 / E6 peers, since committed), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched`; `RESULT: PASS` (the one `#else` without token fixed after).
+  - `DEPLOY OK: X2_offline.exe is 19,758,592 B, dated 2026-10-17 13:41:13, md5 e6b48a065ee977f3ed681de722b4dfdd, equal to X2/US_SERVICE/x2.exe (2026-10-17 13:41:06); built at main a67e3869 + 33 uncommitted code file(s).` (the E5 peer's files, since committed as 15c08485, were in it); every E7 bind / key name, `Mine_Countdown` and the five `[ELYDBG]` texts are in the exe.
+- **How to see it in game:** the Soless boss world row (with its additional world) and most callers arrive with E9-E11, so this phase's
+  play-test checks what already-live scripts reach (hand-off in the session). `[ELYDBG]` first-use lines name each mechanism.
+- **Open for the user:** nothing to decide. Next: `/x2-phase atlas E7 review` (Opus 5.5 high).
 
 ---
 

@@ -750,6 +750,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_fShowHyperCutInTime(-1.f)		/// June ctor @32041c22 ( the same -1 as +0x9278 @32041c16 )
 , m_bJuneBerserkHyperCutIn(false)	/// June ctor @320432a3
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+, m_bJuneShowHpSmallGage(true)		/// Atlas E7: June ctor 3203e850 @320432af ( +0x9528 = 1 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_SOUND_SET_PICK
 , m_iJuneSoundSetRandomValue(0)		/// June CX2GameUnit ctor 322a2700 @322a5381 ( the member lives in CX2GameUnit in June; only the user reads it here, C3t-3 adds the NPC )
 #endif SERV_IRUHADEV_JUNE_SOUND_SET_PICK
@@ -10951,6 +10954,9 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			
 			if ( IsMyUnit() )
 				CX2GageManager::GetInstance()->CrashMyStateGageUI( D3DXVECTOR2( -7, -7 ), D3DXVECTOR2( 7, 7 ), D3DXCOLOR( 1, 0, 0, 1) );
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+			JuneProcessThorns( pAttackerUnit, fFinalDamage );	/// Atlas E7: June 320462a0 @3204a383, right after the gage crash
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 			
 		}
 

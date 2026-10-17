@@ -2455,6 +2455,18 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		float GetShowInvincible() { return m_fShowInvincibleTime; }
 		virtual void				SetForceInvincible( float fTime ){ m_fForceInvincibleTime = fTime; }
 		virtual void				SetShowInvincible( float fTime ){ m_fShowInvincibleTime = fTime; }
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		void AddEffectSetDeleteCondition_LUA( CX2EffectSet::Handle hEffectSetHandle_, int iDeleteCondition_ );	/// Atlas E7: June 3227a670
+		/// Atlas E7 ( region_engine.tsv B35, B36 )
+		void SetThornsInfo( bool bThorns_, float fThornsRate_ ) { m_bJuneThorns = bThorns_; m_fJuneThornsRate = fThornsRate_; }	/// June 3226e350
+		void JuneProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ );	/// June 32278150 ( both DamageReacts )
+		void JuneUpNowHpWithText( float fDelta_ );		/// June 322780b0
+		void JuneFrameMoveHpChangeText();				/// June 3229ecc0 @3229f11f-3229f4e6
+		void StartSimpleTimerCount( float fTime_, float fOffsetX_, float fOffsetY_, float fOffsetZ_, const char* pszSoundName_ );	/// June 32299890
+		int GetSimpleTimerCount() { return m_iJuneSimpleTimerCount; }	/// June 3226e3c0
+		void StopAndDeleteSimpleTimerCount();			/// June 322963a0
+		void JuneFrameMoveSimpleTimer();				/// June 32299af0
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		virtual const UnitCondition& GetUnitCondition( bool bFuture = false ) const	= NULL;
 		virtual const StateParam&	GetStateparam( bool bFuture = false ) const	= NULL;
@@ -4322,6 +4334,22 @@ protected:
 		/// zero from the ctor ( 322a2700 @322a5169 ). No other June reader or writer ( displacement sweep ).
 		float												m_fJuneSuperArmorHitStopCoolTime;
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		/// Atlas E7: June +0x75d8 / +0x75dc / +0x75e0 ( SetThornsInfo 3226e350 writes the first two; the third, "skip the HP test", is set only by
+		/// class code 3226e370 <- 32a67a20, checklist ); zero in the ctor ( 322a2700 @322a5622-322a5636 )
+		bool											m_bJuneThorns;
+		float											m_fJuneThornsRate;
+		bool											m_bJuneThornsIgnoreHp;
+		/// Atlas E7: June +0x68bc / +0x68c0, the queued HP changes 322780b0 adds ( shown as HP +n / HP -n every 0.2 s )
+		float											m_fJuneHpChangeTextTime;
+		std::vector<float>								m_vecJuneHpChangeText;
+		/// Atlas E7: June +0x75f4 handle, +0x75f8 time, +0x75fc count ( -1 off ), +0x7600 sound, +0x761c offset ( ctor @322a5e57-322a5e74: -1, 0, -1, L"" )
+		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hJuneSimpleTimer;
+		float											m_fJuneSimpleTimerTime;
+		int												m_iJuneSimpleTimerCount;
+		std::wstring									m_wstrJuneSimpleTimerSound;
+		D3DXVECTOR3										m_vJuneSimpleTimerOffset;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		KProtectedType<int>								m_TeamNum;			/// Team 분류 넘버로, 던전에서는 보통 CX2Room::TN_RED 이다.
 //#ifdef PVP_BOSS_COMBAT_TEST
 //		int												m_TeamNumOriginal;		

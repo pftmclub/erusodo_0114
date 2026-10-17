@@ -303,6 +303,11 @@ CX2DungeonGame::~CX2DungeonGame(void)
 		GetMinorParticle()->DestroyInstanceHandle(m_hBossName);
 #endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
+#if defined( SERV_IRUHADEV_ELYSION_SCRIPT_B ) && defined( SERV_IRUHADEV_JUNE_TUTORIAL_MODE )
+	/// Atlas E7: the same June 327d2160 clears the slide shot's scene-ended byte ( 325c4a70 @327d2187 ) before the key restore
+	if( NULL != g_pMain && true == g_pMain->GetIsExitingTutorial() && NULL != g_pData && NULL != g_pData->GetSlideShot() )
+		g_pData->GetSlideShot()->ResetJuneSceneEnded();
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	/// June buff port Phase 14c, CX2DungeonGame::Release 327d2240 @327d23fb -> 327d2160: when the tutorial is being left,
 	/// restore the keys the tutorial replaced (31f5d4a0) and clear the latch. 327d2160's other calls drive June-only
@@ -870,6 +875,12 @@ void CX2DungeonGame::StageLoading( int stageNum )
 #else
 		m_pWorld = g_pData->GetWorldManager()->CreateWorld(	pStageData->m_WorldID );
 #endif
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		// Atlas E7: June 327cd1b0 @327cd470 calls 32803f60( this +0x39c, this +0x3a0, ... ): the main world, then the stage
+		// world's dataFileName_Additional worlds into CX2Game +0x3a0. June never empties that list on a stage change (only
+		// Release 323080c0 and the battle field swap 32d54ae0 do): JUNE_BUGS.
+		g_pData->GetWorldManager()->CreateJuneAdditionalWorlds( pStageData->m_WorldID, m_vecJuneAdditionalWorld );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 #ifdef DEEP_WATER_DUNGEON_TEST
 		BOOST_TEST_FOREACH( CX2GUUser*, pUser, m_UserUnitList )

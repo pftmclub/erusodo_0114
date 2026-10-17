@@ -264,6 +264,9 @@ void CX2GUNPCAI::LoadAIDataFromLUA( KLuaManager& luaManager )
 			LUA_GET_VALUE( luaManager, "FLY_MOVE_INTERVAL",		m_pMainAIData->flymovedata.fFlyMoveInterval,		0 );			
 
 			LUA_GET_VALUE( luaManager, "UNDERWATER_MODE",		m_pMainAIData->flymovedata.bUnderWaterMode,		false );			
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+			LUA_GET_VALUE( luaManager, "HEIGHT_CHECK_RANGE",	m_pMainAIData->flymovedata.iJuneHeightCheckRange,	0 );	/// Atlas E7: June @32f01e98, after UNDERWATER_MODE
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 			luaManager.EndTable();
 		}
 #endif	
@@ -396,6 +399,9 @@ void CX2GUNPCAI::LoadAIDataFromLUA( KLuaManager& luaManager )
 			LUA_GET_VALUE( luaManager, "FLY_MOVE_INTERVAL",		m_pSubAIData->flymovedata.fFlyMoveInterval,		0 );			
 
 			LUA_GET_VALUE( luaManager, "UNDERWATER_MODE",		m_pSubAIData->flymovedata.bUnderWaterMode,		false );			
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+			LUA_GET_VALUE( luaManager, "HEIGHT_CHECK_RANGE",	m_pSubAIData->flymovedata.iJuneHeightCheckRange,	0 );	/// Atlas E7: June @32f0631a ( INIT_SUB_AI )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 			luaManager.EndTable();
 		}
@@ -1915,6 +1921,13 @@ SEND_AI_MESSAGE:
 			CX2GUUser *pUser = g_pX2Game->GetUserUnit(i);
 			if(pUser != NULL && pUser->GetNowHp() > 0.f )
 			{
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+				/// Atlas E7: June 32f06860 @32f073c1-32f07410: with HEIGHT_CHECK_RANGE above 0, a user farther than that from the NPC
+				/// ( 31e4cf00 = GetDistanceFrom ) is left out of the fly up / down height test
+				if ( NULL != m_pAIData && 0 < m_pAIData->flymovedata.iJuneHeightCheckRange && NULL != m_pMasterNPC &&
+					 (float) m_pAIData->flymovedata.iJuneHeightCheckRange < m_pMasterNPC->GetDistanceFrom( pUser->GetPos() ) )
+					continue;
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 				float fHeightDist = m_vPosition.y - pUser->GetPos().y;
 
 				if(fHeightDist > fHeightHigh)

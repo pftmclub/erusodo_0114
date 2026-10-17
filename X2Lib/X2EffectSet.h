@@ -665,6 +665,9 @@ public:
 		std::wstring										m_wstrGroupChildBoneName;
 		D3DXVECTOR3											m_vGroupChildOffset;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		bool												m_bJuneDestroySilently;	/// Atlas E7: June EffectInstance +0x1c, copied from the set's +0x1b0 in its dtor ( 321e3a80 @321e3ad7 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 		EffectInstance() :
 		m_bAlive( true ),
@@ -681,6 +684,9 @@ public:
 		, m_bGroupChild( false )
 		, m_vGroupChildOffset( 0.f, 0.f, 0.f )
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		, m_bJuneDestroySilently( false )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 		{
 		}
 
@@ -900,6 +906,9 @@ public:
 		std::vector<SoundPlayData>		m_vecSoundPlayData;
 		std::vector<CKTDXDeviceSound*>	m_vecpPlayingSound;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+		bool							m_bJuneStopSilently;	/// Atlas E7: June EffectSetInstance +0x1b0 ( set by StopEffectSet( h, true ) 321e3ee0 @321e3f61 )
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	private:
 		EffectSetInstance() {}; // do not use
@@ -1065,6 +1074,9 @@ public:
 #endif VELDER_BOSS_5	
 	void StopEffectSet_LUA( CX2EffectSet::Handle hHandle );
 #endif SERV_SECRET_HELL
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	void StopEffectSetSilent_LUA( CX2EffectSet::Handle hHandle );	/// Atlas E7: June 321db020
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 	//}} kimhc // 2010.4.19 // 비밀던전 작업
 
 	//{{ JHKang / 강정훈 / 2011/01/19 / 이펙트를 가지고 있는 대상(NPC)과 이펙트가 따라다닐 대상(User)를 나누어 사용 시
