@@ -1499,7 +1499,7 @@ bool-taking wrappers for `unsigned char*` / `unsigned short*` (the latter under 
 and the skip goes after the wall test. 10 call sites `#ifdef` / `#else` with the original call kept.
 
 **Hygiene** (`flagcheck --worktree --files`, 9 files): 8 PASS, 1 OTHER (`Always.h`: at the time, the peer's uncommitted R12 line, since committed);
-0 deleted lines, 0 non-ASCII inserted, 0 EOL-mismatched, 0 `#else`/`#endif` without token, 0 encoding change. Range: @@RANGE@@
+0 deleted lines, 0 non-ASCII inserted, 0 EOL-mismatched, 0 `#else`/`#endif` without token, 0 encoding change. Range: `2d9ad701^..2d9ad701`: `files: 8 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,811,840 B, dated 2026-10-17 23:17:49, md5 2455a22f44376fee754466a090095c80, equal to X2/US_SERVICE/x2.exe (2026-10-17 23:17:44); built at main 2bb92772 + 10 uncommitted code file(s).` (Second build after touching the six X2Lib files: a peer's build had compiled them mid-edit.)
 `KTDGEnvBoxMap.cpp` (peer R3/R12, uncommitted) is built in, not committed here. No kom changed.
