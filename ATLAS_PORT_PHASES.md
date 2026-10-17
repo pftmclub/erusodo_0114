@@ -2734,6 +2734,8 @@ L"DLG_Map_House_NPC_RelationData.lua", L"Talkloop").
 rows naming a house or village March lacks drop out), plus `[ELYDBG] HouseParsing June keys: house ...` lines for the houses that
 carry June keys. No `[ELYSION] ... did not load` line should appear.
 
+**Play-test 2026-10-17: PASSED (user).** ErrorLog: `[ELYDBG] VillageNpcRelation: loaded 40 change row(s), 6 not-show row(s)` (June has 41 change rows; the dropped one names a village March lacks, likely the ByVillage `VMI_SPA_RUBEN` row), `[ELYDBG] HouseParsing June keys: house 40092 mesh2 'Motion_YunoMonitor.X' ... talkLoop 1`; no `[ELYSION]` load failure, 0 EXCEPTION.
+
 **Open for the user:** JUNE_BUGS 207's choice (templet defaults for a row's missing RenderOption) is a deviation from "verbatim"; say
 if you want it otherwise.
 
