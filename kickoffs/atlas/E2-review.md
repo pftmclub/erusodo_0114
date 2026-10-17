@@ -31,6 +31,16 @@ E2 is almost all data. Review it against June's files (`june_src_fixed/`), the s
 - **C++:** the chat-warp hunk, and that the four A7 stand-ins (`X2LocationManager.cpp:603`, `X2StateMenu.cpp:6340`, `X2UIInventory.cpp:14120`,
   `X2WorldMapUI.cpp:495`) behave as June once 20009 has a templet.
 
+- **User report (E2 play-test, 2026-10-17): world map opens scrolled to the top-left.** M, then Esc, opens the world map with its view
+  at the top-left corner; the user has to drag to find their character pin. Expected: the view starts centred on (or near) the
+  character's pin. Investigate June first: find where June's world map (`X2WorldMapUI`, June's open / `UpdateWorldMap` path, A5's
+  Elysion block in `DLG_UI_World_Map_NEW.lua`) sets its initial scroll / offset, and whether it centres on the current village's pin.
+  If June centres and March does not, port June's code (whole function, same flag family, March in `#else`); if June also opens
+  top-left, it is a June quirk: a `JUNE_BUGS.md` row, no change. Check whether the widened map (the Elysion block made it larger
+  than March's) is what pushed the pin off-screen. Hand-off: open M -> Esc in Elysion, Atlas Station and a March village.
+- **Also from the play-test (already fixed in E2, re-check only):** Luriel (Elysion) and Camilla (Ranox) had no `[Z] Use`; June's
+  house JoinArea (700 / 500) fixed both. Three other March-vs-June JoinArea differences are noted in the Done note and left as is.
+
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_ELYSION_PORT --range <E2 commit>^..<E2 commit> --with SERV_IRUHADEV_CHAT_WARP_DEBUG --files X2Lib/X2ChatBox.cpp`.
 Fix clear transcription errors under the same flag (then repack / `build.py --deploy`); hand design decisions back to the user. Write
 "Phase E2 — Review" into the plan doc, update the E2 STATUS row, write `kickoffs/atlas/E3.md` if missing, and commit.
