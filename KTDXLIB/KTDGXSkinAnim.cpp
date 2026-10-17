@@ -1349,7 +1349,7 @@ bool CKTDGXSkinAnim::ChangeAnim( int index, bool transition, float fStartTime )
 
 	retval = ChangeAnim( pAS, transition, fStartTime );
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
-	m_bJuneLastTransition = transition;		// June2017 31d33fd0 @31d340d4
+	m_bJuneLastTransition = transition;		// June2017 31d2b5e0 @31d2b6b1
 #endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 
 	return retval;

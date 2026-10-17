@@ -804,6 +804,42 @@ The OTHER rows are my own other two flags in the same files, and `Always.h` (whi
 
 **Play-test (user, 2026-10-17): all 3 checks passed; logs read.** Run on the W1-deployed exe (md5 `8ffc762a`, run 21:06-21:10), ErrorLog.txt: `SKANIM ResetAnimSet backup map 3 / 16 / 31 sets`; `MixAnim remembers MOTION_LIRE_LOBBY.X ( 1 mixed )`, `MOTION_LIRE_FIELD.X`, `MOTION_LIRE_EMOTION.X ( 2 mixed )`; `SKANIM bone refresh` x3 (21:06:55-56, the Add dash-jump XX bullet); `SKANIM loop restart without transition` x3 (21:07:13, :25, :36, Ashes Village stage 2 cave). No `Release Failed` / KEM 434 / 436 / `BuildCloneFrame NULL guard` lines. Not exercised, as expected: play type 3 (no caller in June's data), `MixAnim skipped, already mixed`.
 
+### Phase R11 -- Review
+
+**2026-10-17, Opus 5.5. PASS: no behaviour finding. One comment citation fixed (no rebuild: comment only, binary unchanged).** Read against June's own code
+(Ghidra decompile + disasm of every function below; `disasm_range.py` for `31d2bd80`'s switch, `327f69d0` and `327f8840..327f8be0`).
+
+| Item | June | Verdict |
+|---|---|---|
+| OnFrameMove play types | jump table `31d2ed54`: 0 `31d2d566`, 1 `31d2d5b3`, 2 `31d2d5f2`, 3 `31d2d631`. LOOP: `+0x2ac` = 1, `ChangeAnim( +0x224, +0x854, 0.0f )`, `+++0x248`; type 3 the same with `+0x855`; ONE / ONE_WAIT set state 0 / 2 and count 1 | match |
+| Ctor | `31d322d7` `mov [esi+0x852], 0x01010000` (+0x854 = +0x855 = 1); `31d322e1` `+0x864` init | match |
+| `ChangeAnim( int )` `31d2b5e0` | `cmp ebx, size; jl` (signed) else false; NULL set -> false; `+0x224` = index; `ChangeAnim( pAS )`; `+0x855` = transition @`31d2b6b1` | match; the comment cited `31d33fd0 @31d340d4` (the name version), now `31d2b5e0 @31d2b6b1` |
+| `ChangeAnim( name )` `31d33fd0` | `31d39100` find; 0 -> return; name, index loop, `ChangeAnim( pAS )`, `+0x855` @`31d340d4` after the call | match (March writes before the call; `31d29340` writes the same value @`31d296fc`, nothing reads it between) |
+| `CleanAnimStructure` `31d2f9a0` | `ptr & 0x80000001` is MSVC's signed `% 2 == 0`, i.e. `(ptr & 1) == 0`; unsigned `< 0xff`; 0 skipped silently; crash1: KEM `0x1b4` (436), slot 0, `+0x294` find -> Release + 0; odd: KEM 436, slot 0, no Release; `+0x294` cleared after the three name maps | match (June clears `+0x294` after the vector resize, March before it: no difference) |
+| `ResetAnimSet` `31d31c10` | `31d06e90` on `+0x294` @`31d31c5c` first; insert `(i, pAS)` only when `GetAnimationSet` >= 0 | match; June inserts **before** the name / index maps (@`31d31dbb`), the Done note says after: independent maps, no difference |
+| `MixAnim` `31d34140` | find of mesh `+8` (device id) @`31d34175` before the `+0x84c` and `+0x244` checks -> true; `push_back` @`31d34297` after the register loop and the mixer's Release | match |
+| `SetAnimXSkinMesh` / `BuildCloneFrame` | NULL -> false, no log; mesh `+0x84c` == 0 -> KEM `0x1b2` (434) then false. `31d319a1-31d319ab` NULL clone / source -> end | match |
+| Bone refresh `31d29950` | `+0x190` / `+0x324` NULL -> false; `+0x31c` (DXMatrix) branch; billboard `+0x320`; inlined walk, no AdvanceTime | match |
+| `31c83520` | `+0x3c0` NULL -> nothing; X `((+0x510 * +0x504) * SBU.x) * +0x4ec`, Y / Z `(SBU * (+0x514 * +0x508)) * +0x4f0 / +0x4f4`; `Scale` only if anim `+0xc` (manager) == 0; refresh either way | match: March's `m_vSize` / `m_vManualSize` / `m_vScale` sit at +0 / +0x18 / +0x24, as `+0x4ec` / `+0x504` / `+0x510` |
+| `31f6fca0` | writes `+0x510..+0x518`, then `31c83520` | match |
+| `SetTransition` `327f69d0` | `if( [ecx+0x218] ) [eax+0x854] = arg` | match. All six world-object `ChangeAnim( name )` calls (`327f887b`, `892f`, `89d0`, `8a8b`, `8aeb`, `8bdc`) push `byte [esi+0x21c]` |
+
+Ghidra spot-checks (read-only): `327f69d0`, `31d2b5e0`, the jump table `31d2ed54`: all three as the Done note says.
+
+Not findings, noted: `JuneRefreshScale` multiplies `m_vManualSize` on top of a `m_vSize` that March's own frame move has already multiplied in place
+(`KTDGXMeshPlayer.cpp:2073`); June's `31c83520` reads the same two fields, so this is verbatim. The crash1 / odd log guards a NULL anim mesh that June
+dereferences: log text only.
+
+Hygiene (`flagcheck --range b0412386^..b0412386`):
+- PLAYBACK `files: 1 PASS, 0 PASS~, 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`
+- SETS `files: 1 PASS, 0 PASS~, 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR` / same zero line / `RESULT: PASS`
+- BONE_REFRESH `files: 3 PASS, 0 PASS~, 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` / same zero line / `RESULT: PASS`
+- Every OTHER row is one of R11's other two flags in a shared file, or `Always.h`. `git log -S SERV_IRUHADEV_JUNE_RENDER_SKIN b0412386..HEAD`: nothing.
+- The review fix (`--worktree --files KTDXLIB/KTDGXSkinAnim.cpp`, PLAYBACK): `1 PASS`, `1 deleted line(s)` = the comment line replaced inside the flag's own block, `RESULT: PASS`.
+
+Build: no rebuild for a comment. The live exe (R8 review's deploy, md5 `94b8520e`) was built from `main` at `129bae3e` and carries R11 code from a clean tree, so the
+Done note's "not a clean build" caveat no longer applies. The user owes nothing. R12's kickoff now lists R11's final state.
+
 ## Phase R12 - Skin-anim device ownership
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS`.
