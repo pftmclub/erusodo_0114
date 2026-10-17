@@ -7934,13 +7934,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              which is March's old behaviour; the June call sites that pass false (users, 16 sites) pass it explicitly.
 //              Caller table: june2017_re/w1c_land_position_callers.tsv. Log tag [JUNE_ENGINE] WORLD.
 #define SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
-// Short-lived: log the first 12 user land queries that skipped a monster road line they would have hit. Remove after the W1c play-test.
-#define SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
-#ifndef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
-#error SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG needs SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
-#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
-#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

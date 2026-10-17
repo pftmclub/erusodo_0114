@@ -1652,6 +1652,39 @@ line 65 = `LT_MONSTER_ROAD` at x 9885, z 2975-3455). The player was about 1,500 
 carry 2 followers each). User: monsters and the player's own landing behave normally. Ranox Fire Temple boss retest (W1b's site, now `false`):
 `line 3 marked, users listed 1`, `line 4 marked, users listed 0`, then `release: line 3 user 12` 3 s later, as in W1b's pass.
 
+### Phase W1c -- Review
+
+**2026-10-18, Opus 5.5 high: PASS, 0 findings.** Commit reviewed: `2d9ad701` (the only code commit; `e9b8e601` / `b3d29353` are notes). The play-test
+passed, so the short-lived `_DEBUG` flag is removed (its `#define` + `#error` guard in `Always.h`, its 13-line block in `KTDGLineMap.cpp`).
+
+Ghidra re-read (disassembly, read-only):
+- **Core `31c7bb00`.** Args: hidden ret `+8`, pos `+0xc..+0x14`, bool `+0x18`, radius `+0x1c`, `pLineIndex` `+0x20` (`ret 0x1c`). Filter order
+  `@31c7bbab-bbca`: `bEnable` (`+8`), `LT_WALL` (`+4 == 1`), then `+4 == 7` with `byte [EBP+0x18] == 0` -> next line, then the height test `@31c7bbd0`.
+  March's enum gives `LT_WALL = 1`, `LT_MONSTER_ROAD = 7`. The port's skip sits in the same place. Hit test `@31c7c904-c99b`: `|dx|+|dy|+|dz|` vs `r`,
+  a miss when `r <= sum`, i.e. March's `LineToLine` `true_intersection` (`KTDXCollision.h:1765`), then the higher-`y` test and `line = i`.
+  First fallback `@31c7cd4b-ce60`: only when `line == -1`; `*pLineIndex` taken, `0 <= idx < n` and non-NULL entry, start kept when `dStart <= dEnd`
+  (March: end only when `dStart > dEnd`). An out-of-range index stays as it is and skips the second pass in both. Second pass `@31c7ce6e-cf84`:
+  enabled lines, strict `<` on start then end, index only (`ret` unchanged), as March. Index written back `@31c7cf97`.
+- **`false` sites.** `32010440 @32010ff8` (`FSTP [ESP]` radius, `PUSH 0`, pos, ret), one call for March's PhysicProcess start / end;
+  `323eef70 @323f0491` (`PUSH 0`), in the `X2SquareUnit.cpp` module, decompiled: start `beforeLine (+0x1c) == -2` / end `nextLine (+0x20) == -2`
+  merged into the one call, `CanDown` otherwise, which is March's `X2SquareUnit.cpp:2976-3010`; `32d2db50 @32d2dca1` (`PUSH 0`, radius `33441b9c`,
+  `bIsRight` stored to `+0x388` and `iLineIndex = -1` just before), which is March's `CX2RidingPet::SetPos`. All three pass `false`.
+- **Overloads.** The only 4-arg candidates take `bool` second, and March has no 4-arg call, so no March call changed overload. Every 3-arg March call
+  (`int*`, `unsigned char*`, `unsigned short*`) reaches the 4-arg body with `true` through its old wrapper. The 12 edited calls pass `false` with
+  `int*` / `unsigned short*` (`LAND_CHECK`'s `lastTouchLineIndex`, `JUNE_LINE_INDEX16` on) / `(int*) NULL`, exact matches. `GetLandPosition_LUA` keeps true.
+- **Medium rows.** The Eve merged pairs and the 30 path-finder rows all pass `true` (`june_bMonster` 1 on every row), so site order cannot change a bool.
+- **Coverage.** Every March `CKTDGLineMap::GetLandPosition` call is in the caller table except `CX2Game::GetOfflinePartyBotPos` (`X2Game.cpp:8599`), our
+  AI-party bot placement; the bots are NPCs, so March's `true` is the NPC value. The rest of the 135 grep lines are unit `GetLandPosition()` getters.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD --range 2d9ad701^..2d9ad701 --with ..._DEBUG`: `files: 8 PASS, 0 PASS~ (blank/marker only),
+1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Debug removal, `--worktree --files KTDGLineMap.cpp Always.h`: `KTDGLineMap.cpp`
+PASS (-13), `Always.h` OTHER (a peer's uncommitted R12 `SKIN_ANIM_REFS_DEBUG` line; not in this commit); the 7 + 13 deleted lines are the `_DEBUG` block, `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,804,672 B, dated 2026-10-18 03:02:17, md5 7777696ad6668295a3608d1e5f1e9125, equal to X2/US_SERVICE/x2.exe (2026-10-18 03:02:12); built at main 3d6c7922 + 13 uncommitted code file(s).` (The 13 include peers' uncommitted files; only `Always.h` / `KTDGLineMap.cpp` are this review's.)
+
+**Owes:** nothing (no play-test: the removed block only logged). Next: W1d or W2 (W2 shares `KTDGLineMap.*` with nothing open now).
+
 ## Phase W1d - Pet re-seat on the master's road type
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT` (proposed). Added by W1c (an unowned
