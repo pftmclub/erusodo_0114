@@ -188,6 +188,47 @@ Map, from the binary, with June addresses (funcmap rows tagged `Skill S0a`):
 **Done gate:** the two tsvs; funcmap rows; a Done note under ~60 lines with S2 / S3 / S4 amendments written into their kickoffs;
 and open questions for the user. Expected: SP stand-ins, if June's client has no SP table.
 
+**Done note (2026-10-17, Opus 5.5 high): S0a done.** Read-only: no flag, no build, no deploy, no pack, no save write.
+Sonnet subagents did the March `cl /P` key list, the save census, the closure survey and the TU decompile map; the parsers, the
+override and every row below were read in the binary by Opus. Data counts were taken from the unproven decompile and re-checked on
+S1's proven `june_src_fixed/data036_kom/NewSkillTempletVer2.src.lua` (2,346 / 3,360 / 12 / 1).
+- **Item 1.** `june2017_re/s0a_templet_keys.tsv`, 260 rows: the templet parser (37 keys + 202 SA tables), tree, guild tree,
+  power rate, default skill, seal, type colour, post-process. June's SA 1-142 equal March's; 143-202 are new.
+  - Behaviour changes for S2: no 30-entry padding (cool time, MP, required level); empty SA table not inserted;
+    `IN_HOUSE_TEST_ONLY` drops the templet; tree rows lose `m_iPrecedingSkill`; seal takes `m_iItemIDList`.
+  - The Lua `OpenScriptFilePostProcess` is a bare `RET` (`31f3f070`).
+  - `GetSkillAbilityValue 32206e50` reads a `NUMERICAL_DATA` block named after the SA type first (1,056 blocks).
+- **Item 2.** `june2017_re/s0a_skilltree_tu_map.tsv`, 415 rows (Sonnet candidate map, `confidence` column; the rows S2 needs
+  were checked here).
+  - Upgrade swap `328905b0`: a base id resolves to its "[Enhanced]" skill once that one is learned. It is applied inside
+    `GetSkillLevel` and `GetUserSkillTemplet`.
+  - June's CX2SkillTree has no GET_SKILL / RESET_SKILL_REQ handler: the learn path is S7's (candidate).
+- **Item 3.** `june2017_re/s0a_skill_data_closure.tsv`, 35 rows. US order: `SkillData.lua`, `NewSkillTempletVer2.lua`
+  (`_LA` only for argv `Axeso5`, `@3259033f`), then `CommandIconData.lua` (S7). No Trans file. S3 flips SkillData + the templet
+  file; `SkillCommandDescriptionData` / `SkillTypeColor` / `ComboTree` / `CommandIconData` go to S7; `SkillNoteTemplet` to the
+  new **S3b**.
+  - **Blocker for S3:** March's core `Enum.lua` lacks `SPRT_HYPER_CLASS` (223 templets), 9 `BUFF_FACTOR_ID` names and
+    39 `UNIT_CLASS` names. Under ljconv they read nil and default silently (S3 amendment 2).
+- **Item 4.**
+  - **SP needs no stand-in:** `GetCalcInitSkillPoint 32205790` and `CalcLevelUpIncreaseSkillPoint` are identical in both builds.
+  - June data: 3,267 of 3,360 tree rows cost 0 SP, 3,039 have master level 1, and 1,389 "[Enhanced]" rows need level 71-98.
+  - June has **no default skills**: `AddDefaultSkill_LUA` is called 0 times (March 52).
+- **Item 5.** Census: 113 learned skills, kept 0 / upgraded 0 / gone 113, because no saved id is on a June tree row. 31 unsealed
+  rows and 3 note rows are March ids and go too. Per unit (uid class: rows): 12 103: 20, 18 117: 15, 19 109: 8, 20 8: 2,
+  21 30: 13, 22 5: 2, 23 107: 6, 24 119: 9, 25 100: 7, 26 101: 8, 27 109: 5, 28 105: 4, 29 120: 7, 30 121: 2, 31 114: 3,
+  42 111: 1, 43 110: 1; units 32-41: none.
+- **Item 6.** C1a re-read at `3263fe41-32640054`: confirmed. The transcription spec, the three past-the-end blocks and the
+  self-check are in S4's amendments.
+- Funcmap: 26 rows tagged `Skill S0a`. Kickoffs `S2.md`, `S3.md`, `S4.md` carry "S0a amendments"; `S3b.md` is new.
+
+**Open questions for the user** (each has a labelled stand-in in S3's amendments):
+1. **Default skills.** June's client defines none. **Recommended:** the migration and `createchar` grant every free (0 SP,
+   master 1, unsealed, non-upgrade) tree skill at or below the unit's level, under its own flag `..._REFORM_AUTOLEARN`.
+   The June default is to grant nothing.
+2. **Upgrade.** Does learning an "[Enhanced]" skill remove its base? **Recommended:** keep the base. June's swap works either
+   way; S7 settles it from June's learn UI.
+3. **Unseals.** March unseals do not carry over. **Recommended:** none are carried; units unseal again with June's items.
+
 ## Phase S0b - Slots, pages and UI RE
 
 **Run with:** Opus 5.5 high, read-only. **Read list:** Investigation ledger; `JUNE_BUFF_PORT_PHASES.md` lines 783-803 and

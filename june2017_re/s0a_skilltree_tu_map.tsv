@@ -1,0 +1,416 @@
+june_va	size	tu	march_candidate	confidence	evidence	diff_hint
+32071720	96	SkillTree	CX2SkillTree::SkillTemplet::GetSkillPowerRateValue	high	known (outside TU); templet +0x178 non-zero -> ability table 0xad lookup first, else vector +0x140[level-1], else 0	June checks the upgrade table (0xad) before the plain power-rate vector; March reads the vector only
+322040c0	224	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+322041a0	272	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+322042b0	1056	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+322046d0	48	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32204700	256	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32204800	896	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32204b80	416	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32204d20	224	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32204e00	304	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32204f30	304	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32205060	144	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+322050f0	128	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32205170	336	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+322052c0	192	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32205380	192	SkillTree	template helper	low	template helper: vector/sort instantiation (element stride 0x44/0x70)	n/a
+32205440	208	SkillTree	CX2SkillTree::GetAccelCoreParticleName	high	switch id -> BuffAttackCore/BuffMagickCore/ShieldBuffCore/BuffSpeed_Core/BuffCritical_Core/BuffAddAtk_Core/BuffElDefence_Core	June has more accel ids (0x56ba-0x56cf)
+32205510	32	SkillTree	none in March (type predicate)	low	skill type in {7,14,15,16} -> 1	June-only
+32205530	96	SkillTree	CX2SkillTree::IsUnitTypeDefaultSkill	high	id predicate (0x898,0x89d,0x4b0,0x4b5,0x1068,0x106e,0x1450,0x1457,...) used by CanIInitSkillTree 32890ca0 exactly as March	id set differs (June class defaults)
+32205590	16	SkillTree	none in March (is hyper-class power-rate)	high	templet +0x174 (m_ePowerRate) == 5	June SPRT_HYPER_CLASS absent from March enum
+322055a0	32	SkillTree	none in March (id exclusion predicate)	low	id != 0x56b8 and id != 0x56c8	June-only
+322055c0	16	SkillTree	none in March (accessor +0xb4)	low	lea eax,[ecx+0xb4]	member address accessor
+322055d0	64	SkillTree	none in March (skill id -> 10)	low	ids 0x755c-0x755e,0x7562-0x7564 -> 10	June-only
+32205610	288	SkillTree	none in March (index -> string id)	low	0..3 -> 0x8aaf,0x8ab1,0x8ab0,0x8ab2	June-only
+32205730	96	SkillTree	CX2SkillTree::Handler_EGS_GET_GUILD_SKILL_ACK	med	event 0x29d (March 659 + 10); DeleteServerPacket + IsValid then printf of result only	June body is a stub; March is 22 lines of work
+32205790	224	SkillTree	CX2SkillTree::GetCalcInitSkillPoint	high	lua_tinker call "CalcLevelUpIncreaseSkillPoint" for levels 2..n, summed	same
+32205870	288	SkillTree	none in March (combo type string -> enum)	med	strcmp NORMAL_COMBO/DASH_COMBO/JUMP_COMBO/DASH_JUMP_COMBO	June-only
+32205990	144	SkillTree	CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_NOT	high	deserialize 3221c870; game state +0x8c==8 (PVP room); 31ed18b0 slot lookup; 328963e0 SetSkillSlotInfo(slot,skill)	same shape
+32205a20	144	SkillTree	CX2SkillTree::Handler_EGS_GET_NEXT_SKILL_PAGE_ED_ACK	high	event 0x477 (March 1131 + 12); packet 3221d170; UI skill-tree update 3214f050/328dd1f0	same shape
+32205ab0	64	SkillTree	none in March (skill type by id)	high	known; finder 3221d5e0 -> node+0x14 (templet.m_eType)	June-only free helper
+32205af0	64	SkillTree	none in March (skill type == 3 by id)	low	finds templet by id; returns node->+0x170 == 3; callers 328e9160, 31fcec40	June-only
+32205b30	80	SkillTree	CX2SkillTree::GetSkillTreeTemplet (class map +0x50)	med	class->skill->node+0x10; callers 322112d0, 328915c0 (reads +4 tier), 32890a50 (+0xc preceding,+0x10 following), 32891b90	the map UserSkillTree uses; see 32205b80
+32205b80	80	SkillTree	CX2SkillTree::GetSkillTreeTemplet (class map +0x10)	med	find class in this+0x10 then skill (3221d8f0) -> node+0x10; callers 32207330, 328dce14, 328e9160, 328926f0	June keeps two class maps (+0x10 written by AddSkillTreeTemplet_LUA, +0x50 used by UserSkillTree); open question
+32205bd0	48	SkillTree	CX2SkillTree::GetSkillTreeTempletMap	med	find class in this+0x10, else first element, return node+0x10	same fallback as March ASSERT path
+32205c00	64	SkillTree	none in March (skill upgrade/memo redirect lookup)	high	known; map this+0x20 find(skill) -> value else -1	June-only
+32205c40	80	SkillTree	CX2SkillTree::GetGuildSkillTreeTemplet	med	class,skill in this+0x60 -> node+0x10; callers 32890a50 guild branch, 328918d7	same
+32205c90	96	SkillTree	CX2SkillTree::GetMaxSkillLevel	med	class,skill in this+0x50 -> first dword of templet (m_iMaxSkillLevel); callers 32897240, 328908f0	no dev-auth MAX_LIMITED_SKILL_LEVEL shortcut
+32205cf0	144	SkillTree	CX2SkillTree::GetMaxGuildSkillLevel	med	same on this+0x60	same
+32205d80	64	SkillTree	CX2SkillTree::GetGuildSkillTreeTempletMap	med	find class in this+0x60; node+0x10 else this+0x80	default member map instead of ASSERT
+32205dc0	528	SkillTree	CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_REQ (enqueue-only variant)	med	same slot-B group checks (5-8 need 32890ee0(0), 9 needs 32890ee0(1)); dedups pending queue; pushes 3221d830; callers 328ded60, 328e18d0 (UI)	no timing check
+32205f40	136	SkillTree	CX2SkillTree::IsMyClassSkillID	high	known _LUA; class from unit+0xaf0->+4; find in map this+0x10 then skill (3221d8f0)	same
+32205fd0	48	SkillTree	CX2SkillTree::GetUnsealSkillItemRequireClass	low	item id lookup in this+0x70 -> dword node+0x10; caller 3222a840 (cash shop)	same
+32206000	80	SkillTree	none in March (redirect-map equal)	low	b -> map +0x20 lookup compared with a; sibling of 322074e0	June-only
+32206050	1024	SkillTree	CX2SkillTree::OpenScriptFilePostProcess	high	zeroes following skill ([8]) on every tree templet, then rebuilds following links from preceding skill; called from OpenScriptFile	one pass over the class map; guild pass not seen here
+32206450	176	SkillTree	CX2SkillTree::GetSkillTemplet	high	known; map find 3221d5e0 -> node+0x10	June takes (id, level=1) and returns the embedded templet; March GetSkillTemplet(id) single arg
+32206500	320	SkillTree	CX2SkillTree::Handler_EGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_ACK	high	event 0x393 (March 904 + 11); packet 3221c900; yellow #CFFFF00 chat log 31ea8780	same shape
+32206640	48	SkillTree	CX2SkillTree::GetSkillLevelTextureName	high	returns L"DLG_UI_Common_Texture_NewSkill_01.tga" (37 chars)	same
+32206670	256	SkillTree	CX2SkillTree::isDefaultSkill	high	unit class (+0x38) -> default-skill map (this+0x40) vector; id in vector; used by RESET_SKILL_ACK	same
+32206770	320	SkillTree	none in March (June admin ack 0x4a3)	med	event 0x4a3; packet 3221d320; yellow #CFFFF00 chat log like 32206500	June-only admin pair
+322068b0	1104	SkillTree	none in March (checksum fold over templet fields)	low	ushort rotate-xor fold over struct fields +0..+0x4c; recursive	June-only
+32206d00	48	SkillTree	none in March (has upgrade target)	high	known; GetSkillTemplet(id,1)->+0x178 != 0	June-only
+32206d30	288	SkillTree	none in March (collect skill ids of a tier from class set)	low	class skill list filtered by power-rate type and tier (param/5)*5; callers 323ae5c9, 32474a7f, 32534b1b	June-only
+32206e50	352	SkillTree	CX2SkillTree::SkillTemplet::GetSkillAbilityValue (float return)	med	templet this; ability name table at 0x3379e6b0+type*0x1c; NUMERICAL_DATA override 3221e930; else per-ability vector [level-1]	June adds NUMERICAL_DATA override and a 4th bool (pvp rate)
+32206fb0	352	SkillTree	CX2SkillTree::SkillTemplet::GetSkillAbilityValue (out-param form)	med	identical to 32206e50 but writes float* param_4	June-only overload
+32207110	128	SkillTree	none in March (command icon name lookup)	med	map this+0xc8 find(id) -> two wstrings	June-only (CommandIconData)
+32207190	128	SkillTree	none in March (command icon name lookup 2)	med	same map, second string pair	June-only
+32207210	48	SkillTree	none in March (skill id -> upgrade target id)	high	known; GetSkillTemplet(id,1)->+0x178 else id	June-only
+32207240	240	SkillTree	CX2SkillTree::GetSkillLevelTextureKey	high	swprintf L"LV.%d"	same
+32207330	256	SkillTree	none in March (class-membership check over list)	low	for each id of list in map +0x70 test 32205b80; callers 321abd20, 32233d29	June-only
+32207430	176	SkillTree	CX2SkillTree::SetSkillPowerRate	high	finds type in power-rate map (this+0x30), copies vector (31e6ecd0), size==0x1e check then assign 32853ff0; called from AddSkillTemplet @32217cb1	same 30-entry check
+322074e0	128	SkillTree	none in March (IsSameSkill)	med	known; a==b or redirect-map equal	June-only
+32207560	208	SkillTree	none in March (skill type -> background texture)	med	5->SKILL_BG_ACTIVE_BUFF; 6,0xc->SKILL_BG_ACTIVE; 7,0xd-0x10->SKILL_BG_ACTIVE_SPECIAL; else SKILL_BG_PASSIVE	June-only UI helper
+32207630	816	SkillTree	none in March (build command-icon UI string)	low	uses 32207110 + string concat; callers 328e4bd0, 328e5290, 32712e50	June-only
+32207960	1136	SkillTree	CX2SkillTree::SetSkillStat	med	keys m_AtkMagic,m_AtkPhysic,m_BaseHP,m_DefMagic,m_DefPhysic into Stat vector (float arrays 3221eba0)	same keys
+32207dd0	1552	SkillTree	none in March (encrypted script loader helper)	med	KOM_GetMemberFile + 20-byte XOR key table	June engine-side loader helper in the SkillTree TU
+322083e0	3984	SkillTree	CX2SkillTree::OpenScriptFile	high	known; lua_tinker g_pSkillTree + CommandIconData.lua; calls 32206050 at 322092f9	June loads extra data lua; no LUA_TRANS_DEVIDE branch
+32209370	2576	SkillTree	none in March (SkillTypeColor.lua loader)	high	loads SkillTypeColor.lua into g_pSkillToolTipManager	June-only
+32209d80	496	SkillTree	CX2SkillTree::AddSkillPowerRate_LUA	high	known; m_eID + m_Value vector	same shape
+32209f70	608	SkillTree	CX2SkillTree::AddDefaultSkill_LUA	high	known; table[1]=class, rest default skill ids	same shape
+3220a1d0	384	SkillTree	none in March (erase from nested map)	low	map +0x14 walk/erase; caller 3271a950	June-only
+3220a350	1520	SkillTree	CX2SkillTree::AddSealSkillInfo_LUA	high	known; keys m_SkillID,m_iItemIDList,m_eUnitClassType	same keys
+3220a940	1024	SkillTree	CX2SkillTree::Handler_EGS_GET_GUILD_SKILL_NOT	med	event 0x29e; packet 3221ce10; guild SP/CSP at tree +0x244/+0x250; 32897240 SetSkillLevelAndCSP; GetSkillTemplet	guild SP block +0x244 (second SP set); shorter than March 147 lines
+3220ad40	1152	SkillTree	CX2SkillTree::Handler_EGS_RESET_GUILD_SKILL_NOT	med	event 0x2a1; packet 3221cf30; SP/CSP +0x244/+0x250; 32890840 GetSkillLevelAndCSP; 32897240 set	same shape
+3220b1c0	640	SkillTree	CX2SkillTree::Handler_EGS_EXPIRE_GUILD_CASH_SKILL_POINT_NOT	med	event 0x2a5; packet 3221d0e0; writes tree+0x8d8=0; 32897110 SetAcquiredGuildSkill(vector); SP/CSP +0x244	same shape
+3220b440	768	SkillTree	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK (page-apply step)	low	only caller 31f1fd90; (page,sp,csp,KUserSkillPageData*) sets page +0x4b8/+0x4b4, SP/CSP, loops 32897240, 32895ee0 SetEquippedSkill	June splits the apply step into a free helper
+3220b740	592	SkillTree	CX2SkillTree::SetSkillAbilityMap	med	called 7+ times from AddSkillTemplet_LUA with ability ids; GetValue loop -> vector<float> -> map insert 322589d0	per-ability float vector keyed by ability id
+3220b990	352	SkillTree	none in March (insert templet into per-type list)	low	map find, dedup by id, insert; caller 3220d2b0	June-only
+3220baf0	704	SkillTree	none in March (AddSkillTypeColor)	high	known; keys COLOR, SKILL_TYPE	June-only skill-type colour table
+3220bdb0	5056	SkillTree	none in March (SkillCommandDescriptionData.lua loader)	high	keys DESCRIPTION_STRING_ID, COMMAND_DATA, COMMAND_DATA_MINOR, MAJOR_COMBO, SKILL_DATA, SKILL_ID, TRANSCENDENTAL_SKILL_DATA	June-only
+3220d170	320	SkillTree	CX2SkillTree::Handler_EGS_RESET_GUILD_SKILL_ACK	med	event 0x2a0 (March 662 + 10); DeleteServerPacket; inventory vector 0xa7 -> 3286d590	inventory refresh only
+3220d2b0	544	SkillTree	none in March (per-type skill list builder)	low	builds lists via 3220b990; caller 31d885e0	June-only
+3220d4d0	2752	SkillTree	none in March (ComboTree.lua loader)	high	loads ComboTree.lua, INDEX_%d keys	June-only
+3220df90	112	SkillTree	CX2SkillTree::Hander_EGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_REQ	high	5 int args (y,m,d,h,min); SendPacket thunk 32223e20 id 0x392; AddServerPacket 0x393	same shape
+3220e000	128	SkillTree	CX2SkillTree::Handler_EGS_INIT_SKILL_TREE_REQ	high	UidType arg (2 dwords) + using page+1; SendPacket thunk 32223ef0 id 0x125; AddServerPacket 0x126	same shape
+3220e080	704	SkillTree	CX2SkillTree::On_EGS_EXPIRE_CASH_SKILL_POINT_NOT	high	8 flattened params = KEGS_EXPIRE_CASH_SKILL_POINT_NOT by value (unit uid, vectors); uid match +0x28/+0x2c; page loop via 32897540; callers 322118f0 and 31d87e80	same shape
+3220e340	112	SkillTree	none in March (June admin REQ 0x4a2)	med	5 int args; SendPacket thunk 32224300 id 0x4a2; AddServerPacket 0x4a3	June-only admin REQ
+3220e3b0	576	SkillTree	CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_REQ (timing + queue front)	high	clock() - instance+0x14c threshold (IsElapsedPacketTiming); slot-B group check 32890ee0; pushes (slot,skill) via 3221d830; callers CX2UISkillTree 328dfab0/328db990/328e18d0 and 3220f740	June queues the request instead of dropping it; slot-B groups 5-8 / 9 need enable checks
+3220e5f0	288	SkillTree	CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_REQ (send half)	high	IsWaitingServerPacket(0x11f) -> return 0; SendPacket thunk 32223c80 id 0x11e (slot,skill); AddServerPacket 0x11f; sets tree+0x90	June splits the handler: this is the send half; timing check + queue are in 3220e3b0
+3220e710	832	SkillTree	CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_ACK	high	DeleteServerPacket(0x11f) 31d71ed0; IsValid 31d91680; clears tree+0x90 (m_bSkillSlotChanging); 328963e0 SetSkillSlotInfo; UI refresh; string "Static_Install_Skill"	no SERV_SKILL_SLOT_CHANGE_PACKET_INTEGRATE second slot; June adds class hook 32ce1770 / static-install UI call; March sets 0.5s input lock and ChangeEquippedSkillState
+3220ea50	992	SkillTree	CX2SkillTree::Handler_EGS_INIT_SKILL_TREE_ACK	high	DeleteServerPacket(0x126); inventory vector stride 0xa7 -> 3286d590; protected SP/CSP at unit tree +0x204/+0x210; using page +0x4b4=page-1; 32895c40 Reset; 328979f0 SetDefaultSkill	default skills only through SetDefaultSkill(page); March live branch identical, its per-class switch is dead #else
+3220ee30	816	SkillTree	CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT	high	event 0x12d; vector<short> -> 32891b40 AddSkillUnsealed each; 328924c0 adds to acquired; 328905b0 memo swap for UI	June also adds unsealed skills to the acquired map and picks memo-swapped id for the UI
+3220f160	336	SkillTree	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ	high	ushort page; IsWaitingServerPacket(0x47b); SendPacket thunk 32224230 id 0x47a; AddServerPacket 0x47b; extra gate: unit+0x939c>0 and 0x20c()>10	June adds an in-combat gate
+3220f2b0	1168	SkillTree	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK	high	event 0x47b; page +0x4b4=page-1,+0x4b8=page; 32896130 SetEquippedSkill(vec,vec); 32892050 clear acquired; 32892410 merge	same shape
+3220f740	96	SkillTree	CX2SkillTree::UnequipRelationSkill	med	finds skill 900 (SI_ETC_WS_COMMON_LOVE) in slot A then B (idx+5) via 32890070; 3220e3b0(slot,0) = unequip; 6 callers	slot-B index +5 here (March: plain B index)
+3220f7a0	304	SkillTree	template helper	low	unclassified small function	n/a
+3220f8d0	3312	SkillTree	none in March (combo-tree / command icon entry parser)	med	keys m_ComboTreeIcon,m_IconTetName,m_IconTextureName,m_OutLineTetName,m_ToolTipOutLineColor,m_ToolTipString	June-only
+322105c0	176	SkillTree	none in March	high	per-frame pump: pops one (slot,skill) from the 3220e3b0 queue and calls 3220e5f0; only caller 31ee9f50	new in June: deferred skill-slot-change queue
+32210670	1536	SkillTree	CX2SkillTree::AddSkillTreeTemplet_LUA	high	known; keys m_eUnitClass,m_iSkillID,m_iMasterLevel,m_iRowIndex,m_iColumnIndex,m_iPrecedingSkill; GetSkillTemplet(id,1); inserts into map this+0x10	same keys as March live branch
+32210c70	1632	SkillTree	CX2SkillTree::AddGuildSkillTreeTemplet_LUA	high	known; inserts into map this+0x60	same shape
+322112d0	1568	SkillTree	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	high	DeleteServerPacket(0x128); isDefaultSkill 32206670 || 0<GetSkillLevel(following skill) -> SetSkillLevelAndCSP(id,1) else 0 (32897240) = March :2254; inventory update 3286d590; SP/CSP; page	same logic; June adds explicit error popups (str 0x6214)
+322118f0	1840	SkillTree	CX2SkillTree::Handler_EGS_EXPIRE_CASH_SKILL_POINT_NOT	high	event 0x12a; game-state switch (9,0xb,0xc,0xd,0x17,0x18,0x1a); calls 3220e080 (On_EGS_EXPIRE_CASH_SKILL_POINT_NOT); popup 0xa7f	same shape
+32212020	2288	SkillTree	CX2SkillTree::Handler_EGS_UPDATE_CASH_SKILL_POINT_NOT	high	event 0x129; unit uid check +0x28/+0x2c; cash-skill-point item id chain (0x2080b,0x3fe583e,...,0x3b074,0x3b07e,0x55d4d6b); popups 0x266c	item-id list differs; same structure
+32212910	1088	SkillTree	CX2SkillTree::Handler_EGS_EXPAND_SKILL_SLOT_NOT	high	event 0x12b; default end date L"2000-01-01 00:00:00"; 32892a00 SetSkillSlotBExpirationState+EndDate; popup 0x12d5	slot-B state is keyed (map tree+0x430) in June, a scalar member in March
+32212d50	1872	SkillTree	CX2SkillTree::Handler_EGS_EXPIRE_SKILL_SLOT_NOT	high	event 0x12c; state check 32890ea0; 32892f10 x5 = SetSkillSlot(i,...) clears 5 B-slot rows; class hook 322dd0f0	5 slot-B rows instead of 4
+322134a0	1952	SkillTree	CX2SkillTree::Handler_EGS_SKILL_SLOT_CHANGE_ITEM_NOT	high	event 0x300 (March 757 + 11); default end date 2000-01-01; 32890ea0 state; 32892a00 set; popup 0x12d5	same shape
+32213c40	656	SkillTree	CX2SkillTree::Handler_EGS_GET_GUILD_SKILL_REQ	med	skill id arg; SendPacket 0x29c (thunk 32223fc0); AddServerPacket 0x29d; else popup 0x12c1	June gates it behind 32407250(3) with popup
+32213ed0	592	SkillTree	CX2SkillTree::Handler_EGS_RESET_GUILD_SKILL_REQ	med	IsWaitingServerPacket(0x2a0); SendPacket thunk 32224090; popup 0x12c1	same shape
+32214120	608	SkillTree	CX2SkillTree::Handler_EGS_INIT_GUILD_SKILL_TREE_REQ	med	UidType arg; SendPacket 0x2a2 (thunk 32224160); AddServerPacket 0x2a3; guard unit+0x988==1	same shape
+32214380	784	SkillTree	CX2SkillTree::Handler_EGS_INIT_GUILD_SKILL_TREE_ACK	med	event 0x2a3; DeleteServerPacket(0x2a3); inventory update 3286d590	inventory refresh only
+32214690	848	SkillTree	CX2SkillTree::Handler_EGS_INIT_GUILD_SKILL_TREE_NOT	med	event 0x2a4; packet 3221d050; SP/CSP +0x244/+0x250; 328983b0 Reset(guild); 32897110 SetAcquiredGuildSkill	same shape
+322149e0	640	SkillTree	CX2SkillTree::Handler_EGS_EXPAND_SKILL_PAGE_REQ	high	IsWaitingServerPacket(0x479); ED check (tree+0xa8 protected < 1000 -> popup 0x7121); SendPacket 0x478; AddServerPacket 0x479	same shape
+32214c60	864	SkillTree	CX2SkillTree::Handler_EGS_EXPAND_SKILL_PAGE_ACK	high	event 0x479 (March 1133 + 12); sets opened-page count tree+0x4b6; UI update; popup 0x72ca	same shape
+32214fc0	3776	SkillTree	none in March (desc numeric formatter, wostringstream)	low	wostringstream formatter over 16-byte rows; caller 32215e80	June-only
+32215e80	720	SkillTree	CX2SkillTree::SkillTemplet::GetSkillEffectiveDescExpand	med	templet; walks NUMERICAL_DATA rows (level-1 clamped), formats desc through 32214fc0	June generic NUMERICAL_DATA substitution replaces March #BALANCE_PATCH_20131107 SI_SA_ABM_ENERGY_SPURT special case
+32216150	464	SkillTree	CX2SkillTree::UIServerEventProc	high	switch on 22 event ids 0x11f,0x120,0x126,0x128-0x12d,0x29d,0x29e,0x2a0,0x2a1,0x2a3-0x2a5,0x300,0x393,0x477,0x479,0x47b,0x4a3; tail-calls the handlers below; June id = March ordinal +9 (skill block) .. +12 (page block)	no GET_SKILL_ACK case, no EGS_ADMIN_CHEAT case; adds page packets 0x477/0x479/0x47b and June-only admin ack 0x4a3
+32216320	18736	SkillTree	CX2SkillTree::AddSkillTemplet_LUA	high	known; 18736 B; NUMERICAL_DATA%d, m_DeleteSkillIDByUpgrade(+0x178), m_ePowerRate(+0x174), SA_ADD_LEARN_SKILL_LIST_*	June adds NUMERICAL_DATA rows, upgrade redirect, hyper power-rate type 5, learn-skill lists; March function is ~650 source lines
+3221ac50	864	SkillTree	CX2SkillTree::~CX2SkillTree	high	dtor: walks and frees nodes of the ctor maps	March dtor SAFE_DELETEs templet pointers; June destroys values in place
+3221afb0	4976	SkillTree	CX2SkillTree::CX2SkillTree	high	ctor: 12 map heads allocated (+4 node 0x1a0 = SkillTemplet stored by value, +0x14,+0x24,+0x34,+0x44,+0x54,+0x64,+0x74,+0x84,+0x98,+0xb8,+0xc8)	June skill map holds templets BY VALUE (March map<SKILL_ID,SkillTemplet*>); extra maps: class set +0x10, upgrade redirect +0x20
+3221c320	32	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 32)	n/a
+3221c340	32	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 32)	n/a
+3221c360	32	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 32)	n/a
+3221c380	32	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 32)	n/a
+3221c3a0	96	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 96)	n/a
+3221c400	96	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 96)	n/a
+3221c460	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+3221c4e0	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+3221c560	32	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 32)	n/a
+3221c580	80	SkillTree	template helper	low	template helper: tree node erase	n/a
+3221c5d0	96	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 96)	n/a
+3221c630	96	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 96)	n/a
+3221c690	96	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 96)	n/a
+3221c6f0	96	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 96)	n/a
+3221c750	96	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 96)	n/a
+3221c7b0	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+3221c7e0	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_CHANGE_SKILL_SLOT_ACK>	n/a
+3221c870	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_CHANGE_SKILL_SLOT_NOT>	n/a
+3221c900	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_ACK>	n/a
+3221c990	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_RESET_SKILL_ACK>	n/a
+3221ca20	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_INIT_SKILL_TREE_ACK>	n/a
+3221cab0	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_EXPIRE_CASH_SKILL_POINT_NOT>	n/a
+3221cb40	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_UPDATE_CASH_SKILL_POINT_NOT>	n/a
+3221cbd0	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_EXPAND_SKILL_SLOT_NOT>	n/a
+3221cc60	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_EXPIRE_SKILL_SLOT_NOT>	n/a
+3221ccf0	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_SKILL_SLOT_CHANGE_ITEM_NOT>	n/a
+3221cd80	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_UNSEAL_SKILL_NOT>	n/a
+3221ce10	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_GET_GUILD_SKILL_NOT>	n/a
+3221cea0	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_RESET_GUILD_SKILL_ACK>	n/a
+3221cf30	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_RESET_GUILD_SKILL_NOT>	n/a
+3221cfc0	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_INIT_GUILD_SKILL_ACK>	n/a
+3221d050	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_INIT_GUILD_SKILL_NOT>	n/a
+3221d0e0	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_EXPIRE_GUILD_CASH_SKILL_POINT_NOT>	n/a
+3221d170	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_GET_NEXT_SKILL_PAGE_ED_ACK>	n/a
+3221d200	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_EXPAND_SKILL_PAGE_ACK>	n/a
+3221d290	144	SkillTree	template helper	low	template helper: DeSerialize<KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK>	n/a
+3221d320	144	SkillTree	template helper	low	template helper: DeSerialize<June admin ack 0x4a3 packet>	n/a
+3221d3b0	560	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 560)	n/a
+3221d5e0	112	SkillTree	template helper	low	template helper: map<SKILL_ID,SkillTemplet> find (used by GetSkillTemplet 32206450)	n/a
+3221d650	64	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 64)	n/a
+3221d690	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+3221d6c0	64	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 64)	n/a
+3221d700	160	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 160)	n/a
+3221d7a0	144	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 144)	n/a
+3221d830	192	SkillTree	template helper	low	template helper: deque/vector push of (slot,skill) pair (change-slot queue)	n/a
+3221d8f0	112	SkillTree	template helper	low	template helper: set/map<int> find (inner skill lookup)	n/a
+3221d960	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+3221d9d0	80	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 80)	n/a
+3221da20	352	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 352)	n/a
+3221db80	64	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 64)	n/a
+3221dbc0	176	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 176)	n/a
+3221dc70	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+3221dd50	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+3221de30	384	SkillTree	CX2SkillTree::SetSkillVlaue<int>	med	int vector variant (32dfd2d0 grow, 31f8b860 push)	same
+3221dfb0	144	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 144)	n/a
+3221e040	240	SkillTree	template helper	low	template helper: Put<KEGS_CHANGE_SKILL_SLOT_REQ (0x11e)> serializer	n/a
+3221e130	240	SkillTree	template helper	low	template helper: Put<unreferenced REQ thunk (no callers)> serializer	n/a
+3221e220	240	SkillTree	template helper	low	template helper: Put<KEGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_REQ (0x392)> serializer	n/a
+3221e310	240	SkillTree	template helper	low	template helper: Put<KEGS_INIT_SKILL_TREE_REQ (0x125)> serializer	n/a
+3221e400	240	SkillTree	template helper	low	template helper: Put<KEGS_GET_GUILD_SKILL_REQ (0x29c)> serializer	n/a
+3221e4f0	240	SkillTree	template helper	low	template helper: Put<KEGS_RESET_GUILD_SKILL_REQ (0x29f)> serializer	n/a
+3221e5e0	240	SkillTree	template helper	low	template helper: Put<KEGS_INIT_GUILD_SKILL_TREE_REQ (0x2a2)> serializer	n/a
+3221e6d0	240	SkillTree	template helper	low	template helper: Put<KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ (0x47a)> serializer	n/a
+3221e7c0	240	SkillTree	template helper	low	template helper: Put<June admin REQ 0x4a2> serializer	n/a
+3221e8b0	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+3221e930	176	SkillTree	none in March (templet NUMERICAL_DATA row by name)	med	walks vector at templet+0x17c..0x180 stride 0x48, wstring compare 31c1c1a0, returns 4 floats via 320716c0	June-only
+3221e9e0	256	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 256)	n/a
+3221eae0	192	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 192)	n/a
+3221eba0	384	SkillTree	CX2SkillTree::SetSkillVlaue<float>	high	GetValue loop; autofill to 30 entries (31fac820 repeat last)	same autofill to MAX_LIMITED_SKILL_LEVEL
+3221ed20	176	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 176)	n/a
+3221edd0	144	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 144)	n/a
+3221ee60	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+3221eee0	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+3221ef60	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+3221f040	192	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 192)	n/a
+3221f100	144	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 144)	n/a
+3221f190	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+3221f1c0	64	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 64)	n/a
+3221f200	160	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 160)	n/a
+3221f2a0	256	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 256)	n/a
+3221f3a0	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+3221f3d0	144	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 144)	n/a
+3221f460	176	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 176)	n/a
+3221f510	160	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 160)	n/a
+3221f5b0	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+3221f690	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+3221f760	176	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 176)	n/a
+3221f810	160	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 160)	n/a
+3221f8b0	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+3221f920	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+3221f990	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+3221f9c0	144	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 144)	n/a
+3221fa50	80	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 80)	n/a
+3221faa0	240	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 240)	n/a
+3221fb90	288	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 288)	n/a
+3221fcb0	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+3221fd90	240	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 240)	n/a
+3221fe80	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+3221ff00	288	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 288)	n/a
+32220020	176	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 176)	n/a
+322200d0	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+322201a0	256	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 256)	n/a
+322202a0	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+32220320	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+32220350	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+32220420	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+322204f0	192	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 192)	n/a
+322205b0	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+32220630	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+322206b0	304	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 304)	n/a
+322207e0	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+32220810	656	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 656)	n/a
+32220aa0	656	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 656)	n/a
+32220d30	608	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 608)	n/a
+32220f90	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for KEGS_CHANGE_SKILL_SLOT_REQ (0x11e)	n/a
+322212e0	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for unreferenced REQ thunk (no callers)	n/a
+32221630	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for KEGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_REQ (0x392)	n/a
+32221980	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for KEGS_INIT_SKILL_TREE_REQ (0x125)	n/a
+32221cd0	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for KEGS_GET_GUILD_SKILL_REQ (0x29c)	n/a
+32222020	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for KEGS_RESET_GUILD_SKILL_REQ (0x29f)	n/a
+32222370	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for KEGS_INIT_GUILD_SKILL_TREE_REQ (0x2a2)	n/a
+322226c0	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ (0x47a)	n/a
+32222a10	848	SkillTree	template helper	low	template helper: list<T> send-buffer node builder for June admin REQ 0x4a2	n/a
+32222d60	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+32222e40	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+32222f20	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+32222fa0	240	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 240)	n/a
+32223090	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+32223100	240	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 240)	n/a
+322231f0	192	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 192)	n/a
+322232b0	688	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 688)	n/a
+32223560	688	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 688)	n/a
+32223810	736	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 736)	n/a
+32223af0	160	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 160)	n/a
+32223b90	160	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 160)	n/a
+32223c30	80	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 80)	n/a
+32223c80	208	SkillTree	template helper	low	template helper: SendPacket thunk for KEGS_CHANGE_SKILL_SLOT_REQ (0x11e)	n/a
+32223d50	208	SkillTree	template helper	low	template helper: SendPacket thunk for unreferenced REQ thunk (no callers)	n/a
+32223e20	208	SkillTree	template helper	low	template helper: SendPacket thunk for KEGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_REQ (0x392)	n/a
+32223ef0	208	SkillTree	template helper	low	template helper: SendPacket thunk for KEGS_INIT_SKILL_TREE_REQ (0x125)	n/a
+32223fc0	208	SkillTree	template helper	low	template helper: SendPacket thunk for KEGS_GET_GUILD_SKILL_REQ (0x29c)	n/a
+32224090	208	SkillTree	template helper	low	template helper: SendPacket thunk for KEGS_RESET_GUILD_SKILL_REQ (0x29f)	n/a
+32224160	208	SkillTree	template helper	low	template helper: SendPacket thunk for KEGS_INIT_GUILD_SKILL_TREE_REQ (0x2a2)	n/a
+32224230	208	SkillTree	template helper	low	template helper: SendPacket thunk for KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ (0x47a)	n/a
+32224300	208	SkillTree	template helper	low	template helper: SendPacket thunk for June admin REQ 0x4a2	n/a
+322243d0	240	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 240)	n/a
+322244c0	304	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 304)	n/a
+322245f0	304	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 304)	n/a
+32224720	192	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 192)	n/a
+322247e0	320	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 320)	n/a
+32224920	352	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 352)	n/a
+32224a80	352	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 352)	n/a
+32224be0	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+32224c50	288	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 288)	n/a
+32224d70	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+32224e40	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+32224f10	288	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 288)	n/a
+32225030	64	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 64)	n/a
+32225070	384	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 384)	n/a
+322251f0	384	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 384)	n/a
+32225370	128	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 128)	n/a
+322253f0	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+322254d0	192	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 192)	n/a
+32225590	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+32225600	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+32225670	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+322256e0	64	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 64)	n/a
+32225720	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+322257f0	1040	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 1040)	n/a
+32225c00	656	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 656)	n/a
+32225e90	1056	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 1056)	n/a
+322262b0	608	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 608)	n/a
+32226510	224	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 224)	n/a
+322265f0	80	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 80)	n/a
+32226640	736	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 736)	n/a
+32226920	240	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 240)	n/a
+32226a10	208	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 208)	n/a
+32226ae0	112	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 112)	n/a
+32226b50	80	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 80)	n/a
+32226ba0	48	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 48)	n/a
+32226bd0	16	SkillTree	template helper	low	template helper: STL map/vector/set instantiation (size 16)	n/a
+3288fe00	48	UserSkillTree	CX2UserSkillTree::GetSkillSlot(int,bool)	high	known; 0<=idx<5 -> this+0x23c / +0x48 + idx*100, else 0	5 rows per bar (March 4); no unified-index fold (March folds idx>=4 into slot B)
+3288fe30	96	UserSkillTree	CX2UserSkillTree::GetSlotIndexAndSlotB	high	static: idx>4 -> slotB=true, idx-=5	split at 5 (March 4)
+3288fe90	80	UserSkillTree	CX2UserSkillTree::GetCBConsumption	med	row field +0x3c (A at 0x84, B at 0x278), protected short	same
+3288fee0	80	UserSkillTree	CX2UserSkillTree::GetFPConsumption	med	row field +0x48 (A 0x90, B 0x284)	same
+3288ff30	80	UserSkillTree	CX2UserSkillTree::GetFPGainCount	med	row field +0x54 (A 0x9c, B 0x290)	same
+3288ff80	112	UserSkillTree	CX2UserSkillTree::GetSkillSlot(SKILL_ID)	high	scans 5 A rows then 5 B rows for id; returns row ptr	5 rows
+3288fff0	128	UserSkillTree	CX2UserSkillTree::GetEquippedSkillSlotType	high	known; scans 5 A rows then 5 B rows for id, returns row ptr and *out = unified idx (A 0-4, B 5-9); March ported it as 1/2/0 type (X2UserSkillTree.cpp:1430)	June exposes row pointer + unified index 0-9; March keeps the A/B type result; scan order A then B per index i
+32890070	208	UserSkillTree	CX2UserSkillTree::GetSkillEquippedSlotIndex	high	known; bSlotB 0 -> ids at +0x50 stride 100, 1 -> +0x244; -1 if absent	5 rows
+32890140	240	UserSkillTree	CX2UserSkillTree::GetSkillIDByEquipSlotID	high	switch of state ids 0x32-0x45 (2 per slot) -> row id; A rows idx*100+0x48, B rows 0x23c,0x2a0,0x304,0x368,0x3cc	5 slot pairs (March 4)
+32890230	192	UserSkillTree	CX2UserSkillTree::GetSkillStat	high	returns 13-dword Stat (hidden ret ptr); walks acquired map of current page; skill type in 1..4 (templet+4); 328989f0 stat-by-level; 32368910 add	same; page map instead of single map
+328902f0	208	UserSkillTree	CX2UserSkillTree::GetGuildSkillStat	high	Stat accumulation over guild acquired map (this+0x2c); grade check against unit +0xe9; types 9..10	same
+328903c0	304	UserSkillTree	CX2UserSkillTree::CalcUsedSPointAndCSPoint	high	sums templet +0x108/+0x10c SP cost per level, skips skill 900, subtracts CSP; out ints	per-level SP cost array moved into the templet (+0x108/+0x10c); skill 900 excluded
+328904f0	192	UserSkillTree	CX2UserSkillTree::CalcUsedGuildSPointAndCSPoint	high	sums guild map level - csp / csp	same
+328905b0	112	UserSkillTree	none in March (upgrade/memo skill swap)	high	known; if acquired non-empty and SkillTree map +0x20 maps id -> replacement that is acquired, return it else id	June-only; most June entry points take a bool to call it
+32890620	256	UserSkillTree	CX2UserSkillTree::GetSkillLevel	high	known; (id, bBasic, ?, memo flag); templet guild flag -> guild map else acquired map; sum level+buff+socket; cap 30	June adds 4th arg memo swap; cap 0x1e (30); guild path inside same function (March has separate GetSkillLevel(id,grade))
+32890720	192	UserSkillTree	CX2UserSkillTree::GetUserSkillTemplet(SKILL_ID)	high	known; id<1 ->0; arg 1 -> memo swap; acquired find 322aa950 -> GetSkillTemplet(id,1)	June adds memo-swap bool
+328907e0	96	UserSkillTree	CX2UserSkillTree::GetUserSkillTemplet(SKILL_ID,int guildGrade)	high	grade vs unit +0xe9; guild map find 32e8a9e0 -> GetSkillTemplet	same
+32890840	176	UserSkillTree	CX2UserSkillTree::GetSkillLevelAndCSP	high	templet guild flag; finds in page map or guild map; out level (+0x10) and csp (+0x1c)	same
+328908f0	272	UserSkillTree	CX2UserSkillTree::IsMaxSkillLevel	high	GetMaxSkillLevel (32205c90/32205cf0 with tree+0x440/+0x444 class) <= level	same
+32890a00	48	UserSkillTree	CX2UserSkillTree::IsSkillUnsealed	high	find in set this+0x38 (head +0x3c)	same
+32890a30	32	UserSkillTree	CX2UserSkillTree::DoIHaveThisSkill	med	GetSkillLevel(id,0,0,1) > 0	no "now learning" branch (March checks UI GetNowLearnSkill + map skill info)
+32890a50	592	UserSkillTree	CX2UserSkillTree::CanILearnThisSkill	high	SP>0 (bCheckSP), not max, born-sealed (+0x4c) needs IsSkillUnsealed, tier sum*5 <= used SP (328903c0), preceding skill level; unit and guild branches	single function covers both; uses GetSkillLevel memo arg
+32890ca0	144	UserSkillTree	CX2UserSkillTree::CanIInitSkillTree	high	any acquired skill not IsUnitTypeDefaultSkill (32205530) or level>1 -> true	same
+32890d30	368	UserSkillTree	CX2UserSkillTree::CanIInitGuildSkillTree	high	same over guild map this+0x2c	same
+32890ea0	64	UserSkillTree	CX2UserSkillTree::GetSkillSlotBExpirationState	med	map tree+0x430 find(key) -> state	June keys slot-B state by group id (0/1); March has one scalar
+32890ee0	176	UserSkillTree	CX2UserSkillTree::GetEnabledSkillSlotB	med	map find(key) -> state-1 < 2 -> enabled	takes a group key; March GetEnabledSkillSlotB() has no arg
+32890f90	192	UserSkillTree	none in March (multimap contains (key,value))	low	multimap tree+0x45c equal_range scan for value; callers 32892410	June-only (+0x45c table)
+32891050	208	UserSkillTree	none in March (multimap erase by key/value)	low	equal_range erase	June-only
+32891120	160	UserSkillTree	CX2UserSkillTree::GetIncreaseSkillLevel	high	returns entry +0x28 + +0x34 protected ints (by buff + by socket) from page/guild map	same
+328911c0	224	UserSkillTree	CX2UserSkillTree::GetIncreaseGainSoulRateByHit	high	skill 0x1fb templet; ability 0x39 (SA_SOUL_GAIN_ON_HIT_REL) via 32206e50; 1+rate	same
+328912a0	448	UserSkillTree	CX2UserSkillTree::GetIncreaseGainSoulRateByDamage	high	skill 0x1fa; ability 0x3a (SA_SOUL_GAIN_GET_HIT_REL)	same
+32891460	80	UserSkillTree	none in March (GetSkillCoolTimeLeft)	med	(id, memoSwap) -> row field +0x24 protected float, default 1.0	June-only getter
+328914b0	80	UserSkillTree	none in March (acquired-map membership with memo swap)	med	find 322aa950 in acquired map +0x4ac	June-only
+32891500	96	UserSkillTree	none in March (erase skill replaced by upgrade from acquired map)	med	templet+0x178 -> erase from acquired map via 32505590	June-only
+32891560	96	UserSkillTree	CX2UserSkillTree::SetUnsealedSkill	high	clears set (3260ea70) then inserts each short id (322a9500/32345580)	same
+328915c0	720	UserSkillTree	CX2UserSkillTree::CalcCumulativeUsedSPointOnEachTier	high	max tier over acquired, per-tier cumulative SP into vector	same
+32891890	688	UserSkillTree	CX2UserSkillTree::CalcCumulativeUsedGuildSPointOnEachTier	high	guild map version	same
+32891b40	80	UserSkillTree	CX2UserSkillTree::AddSkillUnsealed	high	insert into set +0x3c if absent	same
+32891b90	640	UserSkillTree	CX2UserSkillTree::CanIResetThisSkill	high	default-skill level>1 check, level>0, tier requirement via per-tier SP vector (328915c0), following skill level	same checks; 640 B vs 123 lines
+32891e10	432	UserSkillTree	none in March (multimap values for key)	low	key = 32207210(id); collects >0 values into vector; callers 328e5c12, 328e63de, 32358480	June-only
+32891fc0	144	UserSkillTree	none in March (has any multimap value)	low	wrapper: 32891e10 non-empty; callers 3235b070, 3235b750	June-only
+32892050	16	UserSkillTree	none in March (clear acquired map thunk)	low	tail-call std::map clear 31d06e90 on tree+0x4a8	June-only helper
+32892060	112	UserSkillTree	none in March (skill allow/deny list check)	low	mode tree+0x488 (0 deny,1 allow) over vector tree+0x48c..0x490	June-only
+328920d0	256	UserSkillTree	none in March (list empty slot indices)	low	vector of slot indexes whose id==0 for A or B; 3214f3d0(i)!=3 gate; caller 328db990 (UI)	March finds one empty slot via GetSkillEquippedSlotIndex(SI_NONE)
+328921d0	160	UserSkillTree	CX2UserSkillTree::GetSkillSlotBEndDateString	med	map tree+0x430 find(key) -> wstring, default L""	keyed
+32892270	96	UserSkillTree	none in March (is skill in cool-time ignore list)	med	scan vector tree+0x468..0x46c	June-only (RSCT lists)
+328922d0	32	UserSkillTree	none in March (set skill allow/deny mode + list)	low	tree+0x488=mode; vector assign 32853ff0; callers 32aacb90, 32aacf00	June-only
+328922f0	128	UserSkillTree	CX2UserSkillTree::IsResetCoolTimeTarget	high	known (RSCT target filter); force list tree+0x478, ignore list +0x468, types 12/13	same
+32892370	112	UserSkillTree	none in March (set level of acquired entry or insert)	low	7-byte KSkillData (id,level); find else 32891500 + insert 32898c80	inner of SetAcquiredSkill loop
+328923e0	48	UserSkillTree	none in March (multimap insert thunk)	low	31ef1410 insert	June-only
+32892410	176	UserSkillTree	none in March (merge multimap into tree+0x45c)	low	for each (k,v) not present (32890f90) insert; callers 3220f2b0, 32360090	June-only
+328924c0	208	UserSkillTree	CX2UserSkillTree::SetAcquiredSkill (vector<KSkillData> path of ConstructSkillTreeNotMyUnit)	low	per entry: acquired find; update level (+0x10) or erase superseded (+0x178) then insert 32898c80	March builds the same map inside ConstructSkillTreeNotMyUnit / SetAcquiredSkill
+32892590	112	UserSkillTree	none in March (add skill from SA_ADD_LEARN_SKILL ability)	low	GetSkillAbilityValue(type,level) -> skill id (>0, templet exists) -> push 7-byte entry	June-only (SA_ADD_LEARN_SKILL_LIST_n)
+32892600	240	UserSkillTree	none in March (filter vector to skills not yet acquired)	low	push 7-byte entries whose (memo-swapped) id is absent	June-only
+328926f0	752	UserSkillTree	none in March (expand learn-skill lists 0xb9-0xbb)	low	uses 32205b80 class check, abilities 0xb9/0xba/0xbb; callers 32360090, 31ed4c80, 3235eb20	June-only
+328929e0	32	UserSkillTree	none in March (clear acquired + add vector)	low	thunk 31d06e90 then 328924c0; many callers (31effad0 ...)	June-only wrapper
+32892a00	368	UserSkillTree	CX2UserSkillTree::SetSkillSlotBExpirationState + SetSkillSlotBEndDateString	med	(key,state,endDate wstring): inserts default "2000-01-01 00:00:00" row or updates state and string in map tree+0x430	one keyed setter
+32892b70	176	UserSkillTree	CX2UserSkillTree::SetEquippedSkillLevelPlusBySlotIndex	high	(levelPlus, idx, bSlotB) writes row +0x18 (A 0x60, B 0x254)	5 rows
+32892c20	272	UserSkillTree	CX2UserSkillTree::SetEquippedSkillLevelPlus	high	two int[5] arrays -> row +0x18 of all A then B rows	5 entries (March 4)
+32892d30	160	UserSkillTree	CX2UserSkillTree::SetCBConsumption	high	(idx,bSlotB,ushort) row +0x3c	same
+32892dd0	160	UserSkillTree	CX2UserSkillTree::SetFPConsumption	high	(idx,bSlotB,ushort) row +0x48	same
+32892e70	160	UserSkillTree	CX2UserSkillTree::SetFPGainCount	high	(idx,bSlotB,ushort) row +0x54	same
+32892f10	1360	UserSkillTree	CX2UserSkillTree::SetSkillSlot	high	(idx,id,mp,cb,fp,bSlotB) writes id,level0,levelPlus0,coolTime0,mp,cb,fp	same args; 5 rows
+32893460	176	UserSkillTree	CX2UserSkillTree::SetMpConsumption	high	(idx,bSlotB,float) row +0x30	same
+32893510	368	UserSkillTree	CX2UserSkillTree::ExpireGuildCashSkillPoint	high	guild map: level = level - csp ; csp = 0	same
+32893680	512	UserSkillTree	none in March (add delta to all slot cool times)	low	(float delta) clamp >=0 each of 10 rows then GageManager SetMySkillCoolTimeList 32489230(i / i+5)	June-only; no callers found
+32893880	1408	UserSkillTree	CX2UserSkillTree::SetSkillCoolTimeLeft	high	(id,float,memoSwap): rows with id -> cool time; decrease-rate scaling 3234cc10 (SERV_BALANCE_FINALITY_SKILL_EVENT); gage update 32489230	extra bool memo-swap arg; gage index i / i+5 (March i / i+4)
+32893e00	928	UserSkillTree	CX2UserSkillTree::ReduceLeftSkillCoolTimeByRateJune	high	known (Buff Phase 16 step 3c)	ported
+328941a0	752	UserSkillTree	none in March (reset cool time by condition list)	low	(mode 1 ids/2 types/3 game state, vector) zero matching rows, gage update; caller 3297a800	June-only
+32894490	1008	UserSkillTree	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	med	(bool includeType12_13): zero all rows except types 12/13, skip game state 0x12, gage update	June adds the bool; March excludes hyper/relationship unconditionally
+32894880	59	UserSkillTree	CX2UserSkillTree::ApplyResetCoolTime (head part)	high	known RSCT apply; Ghidra splits it at 328948bb	ported
+328948bb	917	UserSkillTree	CX2UserSkillTree::ApplyResetCoolTime (tail part)	high	continuation of 32894880 (switch changeType)	ported
+32894c50	256	UserSkillTree	CX2UserSkillTree::UpdateEquippedSkillLevelFromAcqureidMap	high	(id, idx, bSlotB): row level (+0xc) = acquired level byte; returns it	same
+32894d50	240	UserSkillTree	CX2UserSkillTree::InitSkillCoolTimeFromGageManager	high	vector<float> -> row +0x24 of A/B rows	5 rows
+32894e40	1360	UserSkillTree	none in March (all-slot cool time change by delta/rate)	low	(float, bool rateMode): per row memo-swapped templet, types 12/13 skipped, allow list 32892060, ignore list 32892270; callers: class skill code 329ac4a0, 329e2b90, 32a4db80, 32a4f660, 32aacb90	June-only class helper
+32895390	2224	UserSkillTree	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType (older June variant)	low	(type switch, float, bool, bool): per row apply by type, force list, ignore list; callers 32a4c320, 32a760d0	June keeps three cool-time modifiers; March merges into one
+32895c40	224	UserSkillTree	CX2UserSkillTree::Reset(4 args)	high	(tree, equipped, unsealed, slotB): clears 10 rows (3289c380 x10), current page map, unsealed set, slot-B state	same
+32895d20	448	UserSkillTree	CX2UserSkillTree::SetEquippedSkill(idx,bSlotB,KSkillData)	high	row id (+0) and level (+0xc) from 7-byte KSkillData	same
+32895ee0	592	UserSkillTree	CX2UserSkillTree::SetEquippedSkill(KSkillData[],KSkillData[])	high	5 A + 5 B rows from two arrays of 7-byte entries	5 entries
+32896130	688	UserSkillTree	none in March (SetEquippedSkill from two vectors)	med	rows from vector<KSkillData> x2 (bounds /7); callers 3220f2b0, 32574a80	vector overload
+328963e0	544	UserSkillTree	CX2UserSkillTree::SetSkillSlotInfo	high	(slotId 0-9, skill): fills row via 32892f10 with level from GetSkillLevel, MP via 32071780, CB/FP from templet +0xc/+0x10; guild slots 5-9 branch	5+5 slots; June SetSkillSlot path computes MP through 32071780
+32896600	592	UserSkillTree	CX2UserSkillTree::ResetLeftSkillCoolTimeByBuff / ResetLeftSkillCoolTimeBySkillType	high	known 7-arg; filter 328922f0, apply 32894880	ported as ByBuff (7 args)
+32896850	224	UserSkillTree	CX2UserSkillTree::GetSkillCoolTimeSpeedByBuff	high	known; unit->31fd8bc0(type from 32205ab0)	ported (Buff Phase 1c)
+32896930	832	UserSkillTree	CX2UserSkillTree::OnFrameMove	high	known; 5+5 rows left -= 32896850*dt, gage update	5 rows (March 4)
+32896c70	1184	UserSkillTree	none in March (equip conflict check, ability 0xbe)	low	compares rows via GetSkillAbilityValue(0xbe); error popup 0x9b55	June-only
+32897110	304	UserSkillTree	CX2UserSkillTree::SetAcquiredGuildSkill	high	clears guild map this+0x2c then inserts (id,level) 4-byte entries via 3289c880	same
+32897240	768	UserSkillTree	CX2UserSkillTree::SetSkillLevelAndCSP	high	(id, level, csp, page): guild flag -> guild map; GetMaxSkillLevel check; insert/update/erase entry; protected writes	same args
+32897540	1200	UserSkillTree	CX2UserSkillTree::SetAcquiredSkill (per-page map)	med	(?, std::map<int,..>*): clears current page map then SetSkillLevelAndCSP for each; then re-syncs equipped rows	June passes a map per page; March takes vector<KUserSkillPageData>
+328979f0	384	UserSkillTree	CX2UserSkillTree::SetDefaultSkill	high	(usingPage, bCanPassIfChecked): default-skill map of unit class -> SetSkillLevelAndCSP(id,1,0,page) unless owned	same
+32897b70	1456	UserSkillTree	CX2UserSkillTree::CX2UserSkillTree	high	ctor: vtable 334c1128; 2 maps; two arrays of 5 rows x100 B (_eh_vector_constructor 100,5)	rows 5+5; extra members (+0x430 map, +0x45c multimap, vectors +0x468/+0x478/+0x48c)
+32898120	656	UserSkillTree	CX2UserSkillTree::~CX2UserSkillTree	high	dtor: destroys maps/vectors/row arrays	same
+328983b0	368	UserSkillTree	CX2UserSkillTree::Reset(5 args)	high	(tree, guildTree, equipped, unsealed, slotB)	same
+32898520	80	UserSkillTree	CX2UserSkillTree::ConstructGuildSkillTreeNotMyUnit	med	Reset(false,true,..) then SetSkillLevelAndCSP for each 7-byte entry	same
+32898570	832	UserSkillTree	CX2UserSkillTree::AddSkillPage	low	rebuilds page vector of 0x10-byte map holders up to opened page count (+0x22); no callers	unreferenced
+328988b0	224	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32898990	96	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+328989f0	112	UserSkillTree	CX2SkillTree::SkillTemplet::GetSkillStatValue	high	templet; stat vector +0x110, stride 0x34, index level-1; 13-dword zeroed out struct	same (inline member placed in this TU)
+32898a60	336	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32898bb0	32	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32898bd0	80	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32898c20	96	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32898c80	128	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32898d00	592	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32898f50	624	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+328991c0	96	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899220	64	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899260	256	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899360	208	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899430	352	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899590	288	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+328996b0	624	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899920	256	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899a20	112	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899a90	128	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+32899b10	1840	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
+3289a240	1984	UserSkillTree	template helper	low	STL/KProtectedType instantiation (map/vector/rb-tree helper) after the CX2UserSkillTree code	n/a
