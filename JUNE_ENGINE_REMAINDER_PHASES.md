@@ -2077,6 +2077,12 @@ here: the peers' `KTDGLineMap.cpp`, `X2SkillTree.cpp`, `X2WorldObjectSkinMesh.*`
 `OTHER_ROAD_UP`. With a pet summoned, stand on line 17 at a staircase foot and press Up (`X2TFieldGame.cpp:1528`; the warp is `SetPos` at
 `:1542`). Expect `[JUNE_ENGINE] WORLD pet re-seat: pet line 17 type 0, master line 10 type 9 -> line N type 9 at ...` (N one of the stair lines 7-14; at most 20 lines) and
 the pet appearing on the stair. Press Down to go back, and the reverse line (`type 9 ... type 0`) follows.
+**Play-test PASSED (log, 2026-10-18).** The run used the W1d deploy (md5 6e1b71e8). 0 EXCEPTION; UNHANDLED = the 2x `E_DISABLE_HB_CHECK_REQ`
+baseline; clean exit. Elder village, left staircase (x -304), reyaa's pet Chioo, 4 re-seat lines, both directions:
+`pet line 16 type 0, master line 13 type 9 -> line 13 type 9 at -304,1051.56,1105.83` (stair foot),
+`pet line 10 type 9, master line 5 type 0 -> line 5 type 0 at -304,1812,2470` (top road),
+then the same pair again via stair line 10 (`master line 35 type 9`, a different other-road line than the pet's target: June's compare is by
+type only). The logged indices are the engine's; they differ from the hand-off's `june_src_fixed` numbering (17 / 7-14).
 
 ## Phase W1e - Line links to a far line (Elysion line 2 `BEFORE_LINE = 130`)
 
