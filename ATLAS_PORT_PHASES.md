@@ -4649,6 +4649,8 @@ main.
   (`Buff_El_Defence`) nor `PARTICLE_BLUR_GA.tga`. `stage-june` 10 files; `PACK OK` data002 / data050 / data181; `COPY OK` data002 (7822f3c3) / data050 (cf1e59bb) / data181 (c17ce0ab) (user OK). The slideshot itself runs June's
   `PF_STAGE0_SUB0_SHOT0` from `M_2STAGE_END` (the per-frame `m_SceneName` line is the studio's `SERV_CATCH_HACKUSER_INFO` log).
   Sun-gauge digit misses = JUNE_BUGS 247 (June's OF_SUN dialog has no number statics), kept.
+- **Play-test 2 (2026-10-17, reyaa, 17:44-17:48): PASSED** (user: all worked; soldiers textured, slideshot images shown). Log: none of the 10 staged
+  files misses any more, cleared to the result screen, 0 EXCEPTION; the remaining `OpenTexture` misses are outside the line (shop icons, Lire, logo) or June-absent.
 - **How to see it:** Elysion local map shows Memory after a Soless Normal clear; enter 33900 / 33901 / 33902; Stage0 (memories 1-2), Stage1
   (timed 3 s gate sub-stage), Stage2 (summons), Stage3, BossStage (OF_SUN gauge, dramatic boxes); clear -> result screen.
 
