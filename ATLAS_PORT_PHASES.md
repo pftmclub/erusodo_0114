@@ -4887,7 +4887,33 @@ then commit on main.
 
 ### Phase E14 — Done
 
-*(empty)*
+**2026-10-17, Sonnet 5.5 medium. No code change, no new flag.** Build and deploy of everything through the E13 review (`10bdd438`).
+
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 18:37:26, md5 67818b9b931ca469c10b02222f7d8565, equal to X2/US_SERVICE/x2.exe (2026-10-17 18:37:19); built at main 10bdd438.`
+  0 uncommitted code files in the build header. `build.py`: X2ServerProtocol / KTDXLIB ok, X2Lib ok in 569 s (211 warning lines), X2 ok in 20 s; `X2Lib/stdafx.cpp` touched first.
+- **Flag literals in `X2/US_SERVICE/x2.exe`** (UTF-16LE, ASCII where the source is a `KLOG` / `BeginTable` narrow string; hit counts):
+
+| Flag | Literal | Hits |
+|---|---|---|
+| `ELYSION_PORT` | `Village_1501` | 3 |
+| `ELYSION_SCRIPT_A` | `CAN_NOT_PASS_SPECIFIED_BONE first load`; `SetChangeUVPoint first use` (ASCII) | 1; 1 |
+| `ELYSION_SCRIPT_B` | `dataFileName_Additional` (ASCII); `SHOW_GAGE` (ASCII); `[ELYDBG] additional world` | 1; 1; 1 |
+| `ELYSION_VILLAGE` | `HouseParsing June keys`; `VillageNpcRelation: loaded` | 1; 1 |
+| `ELYSION_DEBUG` | `[ELYDBG] indicator first skip` | 1 |
+| `JUNE_LOCAL_MAP_ELYSION` | `[ELYDBG] local map Elysion`; `[ELYDBG] VillageParsing: no Village` | 9; 1 |
+| `JUNE_MOVABLE_LINE` | `CAMERA_LAND_HEIGHT` (ASCII); `[ELYDBG] movable line` (ASCII) | 1; 1 |
+| `JUNE_DRAMATIC_MESSAGE` | `[ELYDBG] dramatic message: show npc`; `DramaticMessageImage_Left` | 1; 1 |
+
+  - **No string in the block (3 flags), behavioural proof instead:** `ELYSION_MOVABLE_LINE_END` (two `m_vLastMove` zeroing blocks in `KTDGLineMap.cpp`),
+    `ELYSION_INVINCIBLE_ATTACK_TYPE` (`GetInvincibleByAttackType`, state-start append; its parser key `INVINCIBLE_ATTACK_TYPE` is `ELYSION_SCRIPT_B`'s, ASCII hit above)
+    and `ELYSION_ATTACK_TYPE_STANDIN`. All three were committed in E10 (`30b389d6`, `1077e562`) and are in HEAD, which this exe is built from; their play-test
+    proof is the E10 Done note (platform no longer sinks; Stage3 seals take only their attack type, result screen no crash).
+- **`MODS.md`:** flag-table rows added for `ELYSION_SCRIPT_B`, `JUNE_DRAMATIC_MESSAGE`, `ELYSION_MOVABLE_LINE_END`, `ELYSION_INVINCIBLE_ATTACK_TYPE`,
+  `ELYSION_ATTACK_TYPE_STANDIN` (date + phase from the Done notes, files from `git grep -l`); all 11 Elysion-port flags now have a row.
+- **Staged files live:** `atlas_e13_closure.py` prints `PACKLIST archives owing a pack/copy: 0, files 0`; `atlas_e13_sweep.py` 0 `STAGED-NOT-LIVE` (66 `BAD` rows = the
+  E13 noise: `absent-june-too` registry names + the 5 `MISSING-june-has`, none Elysion); `region_census.py --region elysion --live` `live {"same": 346}`. Nothing owed to pack.
+- **Hand-off:** the Elysion reachability checklist (10 items) is in the reply, with `reyaa` (unit 12, Lire Grand Archer, lv 85; SkyCrossroads / Adrian / Soless / Memory Normal
+  already cleared, Hard / Expert not) as the character. Kickoff `kickoffs/atlas/E15.md` written (Opus 5.5 high).
 
 ---
 
