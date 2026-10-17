@@ -193,7 +193,11 @@ type 3 world `+0x18c/+0x190`, types 4-8 game / unit actions. Loader, Lua keys an
 | R1 | `CARTOON_TEX_TYPE` to June's numbering, 19 ramps + `Damage_Raid` | Sonnet 5.5 high + review | yes | yes |
 | R2 | `XRenderer.fx` loader macros, the 14 new parameters, rim light in `RenderParam` | Sonnet 5.5 high + review | yes | yes |
 | R3 | Environment box / colour grading (`XEnvBoxRenderer.fx`) | Sonnet 5.5 high + review (Opus if R0 leaves gaps) | yes | yes |
-| R4 | Heat shimmer (`XHeatShimmerRenderer.fx`) | Sonnet 5.5 high + review | yes | yes |
+| R4 | Heat shimmer RE (2026-10-18: RE only; the shimmer is dead in June, the port moved to R4a-R4d) | Opus 5.5 high | no | no |
+| R4a | Pass-1 layer (object post-effect slots, DG pass-1 lists, dialog render pass) + heat-shimmer object (added by R4) | Opus 5.5 high + review | yes | yes |
+| R4b | Frame render `31be3800`, stage slots, render targets (MSAA), `ANTIALIASING_LEVEL` (added by R4) | Opus 5.5 high + review | yes | yes |
+| R4c | State render split: `CX2State` + the March state classes into June's three pass slots (added by R4) | Opus 5.5 high + review | yes | yes |
+| R4d | Game render split: `CX2Game` + the March game classes (added by R4) | Opus 5.5 high + review | yes | yes |
 | R5 | `CUSTOM_RENDER_STATE`: table, reader, render | Sonnet 5.5 high + review | yes | yes |
 | R6 | `SKIN_MESH_RENDER_TYPE` 1, 2, 4-7, and (R0b) June's whole skin-anim draw | Opus 5.5 high (map, then port) + review | yes | yes |
 | R7 | Hookable textures: per-mesh hook id, device-manager table, `HookableTextureData.lua` (added by R0b) | Opus 5.5 high (map, then port) + review | yes | yes |
@@ -220,6 +224,10 @@ manager); R6 after R2 as before; R10 is read-only and runs now.
 
 **Order (R10, 2026-10-17).** R11 and R12 edit `KTDGXSkinAnim.*`: one at a time, never alongside R6. R12 comes after R11 (both
 change `CleanAnimStructure` and `SetAnimXSkinMesh`).
+
+**Order (R4, 2026-10-18).** R4a -> R4b -> R4c -> R4d, one at a time. R4a edits `KTDGManager.*` and the dialog manager (not alongside R8-style
+work or U1); R4b edits `KTDXApp.cpp` (check U1 / Atlas Touches), the render-target class and `X2GameOption.*`; R4c / R4d edit the `X2State*` /
+`X2Game*` render functions.
 
 **Order.** R0, R0b, U0 and W0 can run now, in parallel (read-only). Code: R1 -> R2 -> R3 / R4 / R5 / R6 (R3 needs R2; the others
 need only R0 and touch different files, but run one at a time: they share `KTDGXRenderer.*` / `KTDGXSkinAnim.*` and the build).
@@ -659,6 +667,88 @@ A peer's build compiled the fix (edit 22:56, `KTDGEnvBoxMap.obj` 23:06, `KTDXLIB
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER`. Port the owner of
 `31d0b200` (`HeatShimmerTechnique`) and its callers, per R0. Reach rule as R3. **R0: the owner is `DGManager +0x384`
 (OnResetDevice `31ce5e90`); `31d0b200` is the env box. Reach is gated, not 0: see R0 map item 7 and the R4 kickoff.**
+
+### Phase R4 -- Done (RE only, 2026-10-18, Opus 5.5)
+
+No code, no flag, no build. R4's RE step changed its scope, so the port moves to four new phases (R4a-R4d below; the user picked "port all,
+inactive" on 2026-10-18). Evidence: `june2017_re/r4_frame_stage_sweep.tsv` (47 rows), funcmap rows tagged `Engine R4`.
+
+**RE item 1: the shimmer cannot run in June.** Option `+0x34` / `+0x35` (scene / effect render target) is 0 in the option-data ctor
+(`3242fbd0` @3242fcb4, block at option `+4`), is never read from Lua (loader `324214a0`) or saved (`3241ef40`), is zeroed again by the low-spec
+preset (@32428357), and its only setter `3241cd20` has no caller (no call, jump or pointer in the image). The first `Apply( true )`
+(`3259bb20` -> `32421110` -> `31be4d10`) therefore leaves KTDXApp `+0x26c` = 0, `31be4230` never makes `EffectRenderTarget`, and
+`31be3800`'s pass 1 and shimmer composite never run. Reach = 0, as the env box (open question 5).
+
+**What else `31be3800` holds** (reachable in June, so it is ported for real):
+- `ANTIALIASING_LEVEL` (option `+0x30`, June default 0 in data002 `GameOptions.lua` and data036 `DefaultGameOptions.lua`): with a level
+  above 0 the scene draws into a multisampled `SceneRenderTarget` and is stretched to the back buffer (`31cdb5c0`). March has no AA option.
+- The stage pass split. `CKTDXStage` gains `0xc( pass )` alpha, `0x10( pass )` front UI, `0x14` render-all (`31d28530`), `0x18`
+  after-frame. The frame runs `0x8`, then `0xc( 0 )`, then `0x10( 0 )` over the stage chain, with `MAXANISOTROPY` = the renderer's value only
+  around `0x8` and `D3DRS_MULTISAMPLEANTIALIAS` off around `0x10`. June overrides the three slots in all 38 render classes (RTTI, tsv). In
+  March they are one `OnFrameRender` each: 21 classes override it, 7 inherit, and 12 June classes are not in March at all.
+- June's render-target class carries a multisample surface plus a 4-argument `BeginRender` (`31cdb3c0` / `31cdb550` / `31cdb5c0` /
+  `31cdf310`).
+- `PerturbationMap.png` is opened at app init (`31be4510`, data045, asset port).
+
+**RE item 2** (what pass 1 draws): R0b / R8 already mapped it. The new facts are the per-class slot functions (tsv `state` / `game` rows),
+and that `CX2Game` is not a stage in June: each state calls its game's three slots.
+**RE item 3:** `g_fPerturbationScale` and `g_color` are never set by June's C++ (the `.fx` defaults apply). `g_fTime` = app time and
+`g_mViewProj` = KTDXApp `+0x15c` (`31ce5710`).
+
+**Open, routed to the port phases:**
+- KTDXApp `+0x290` (`31ce5400( 0 )` at frame end) is unnamed. R4b names it against March's `CKTDXApp` members.
+- `g_pMain +0x444`, a second text manager drawn by `CX2State`'s `0x18`, is R4c's.
+- `31d28530` (render-all) has no caller found. R4b ports it as the base slot.
+- GFx (`31c43b20`, `31c456e0`) belongs to june-gfx.
+- The 12 June-only classes take the split when their own plans port them.
+
+**User owes:** nothing for R4. Next: `/x2-phase june-engine R4a` on Opus 5.5 / high.
+
+## Phase R4a - Pass-1 layer and heat-shimmer object
+
+**Run with:** Opus 5.5 high, then an Opus review, then a user play-test (nothing should change). Flags `SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER`
+(object) and `SERV_IRUHADEV_JUNE_RENDER_PASS1` (pass argument and post-effect lists). Port, from the tsv rows `shimmer` and `pass1`:
+- the heat-shimmer object at DG `+0x384`: ctor, reset, lost, begin, end and dtor. A missing `XHeatShimmerRenderer.fx` logs and stays inactive, as R3.
+- `CKTDGObject` vslots `0x10` / `0x2c` with the mesh / particle overrides.
+- DG `31ce80c0`, `31ce9470`, FrontUIRender pass 1, `31cda1a0`.
+- the dialog manager's pass argument, and the dialog render `31cd7810` whole (R8's amendment), plus the guide control and `RenderDragSlot`.
+
+Every March caller passes pass 0, so nothing in game changes. Gate: build, and one `[JUNE_ENGINE] SHIMMER` line at device reset
+(effect loaded or missing).
+
+## Phase R4b - Frame render, render targets, anti-aliasing option
+
+**Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_FRAME`. Depends on R4a. Port the
+tsv `frame` and `option` rows:
+- `31be3800` whole, the four stage loops, and the `CKTDXStage` slots `0xc` / `0x10` / `0x14` / `0x18` (base bodies as June's: empty, render-all).
+- the render-target lifecycle (`31be4230`, `31be2ef0`, `31be4cf0`, `31be4d10`), `31be4510` and `31be34c0`.
+- the render-target class's multisample surface and 4-argument `BeginRender`.
+- the DG `BeginRender` split.
+- `ANTIALIASING_LEVEL` load / save / apply, option `+0x34` / `+0x35` (default 0, the low-spec zero, the caller-less setter).
+- a `JUNE_BUGS.md` row: the RT-pair setter has no caller, so the shimmer is dead.
+
+Until R4c a March class still draws everything in `0x8`, which is March's order. Play-test: the game looks unchanged; then
+`ANTIALIASING_LEVEL = 2` in the game dir's `GameOptions.lua` gives smoothed edges, with a `[JUNE_ENGINE] FRAME` line naming the level and the targets.
+
+## Phase R4c - State render split
+
+**Run with:** Opus 5.5 high (transcribe each June slot), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT`.
+Depends on R4b. Split `CX2State` and every March state class in the tsv `state` rows into June's `0x8` / `0xc( pass )` / `0x10( pass )`
+(and `CX2State`'s `0x18`).
+- Each slot is transcribed from June: dialog handles, pass arguments, gates.
+- Earlier ports inside the March bodies move with their code.
+- In-house extras (`FIRST_SCREEN_TEST`) stay guarded in `0x10`.
+- `CX2TFieldGame`, `CX2SquareGame` and `CX2WeddingGame` (plain classes) split with their states.
+- Until R4d each state calls its game's March `OnFrameRender` from `0x8`.
+
+Play-test: login, server select, village, dungeon and PvP rooms, a dungeon, the square, and loading screens look and behave as before.
+
+## Phase R4d - Game render split
+
+**Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_GAME_SPLIT`. Depends on R4c. Split
+`CX2Game` (`322d7260` / `322cc8f0` / `3230aa60`) and the five March game classes in the tsv `game` rows, transcribing each `0x10` UI slot from
+June. The `CX2Game::OnFrameRender` June blocks (env box, Elysion script B, dramatic message, skip-start) move into the matching slot. Play-test:
+dungeon, PvP and battlefield HUDs as before.
 
 ## Phase R5 - CUSTOM_RENDER_STATE
 
