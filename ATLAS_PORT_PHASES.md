@@ -2261,6 +2261,16 @@ main.
    - `keys.registry` `ENDING_SPEECH0` / `LU` / `CIEL` (A1b :1077-1088).
    - `assets.absent` = June ships no such file either.
 10. **Pack, ask, hand off.** Run `kom.py pack` for each touched kom. Ask before each `copy`. A data-only line needs no build.
+11. **Elysion-half notes (E8, 2026-10-17).**
+    - The staged `NewNPCStat.lua` (data036) and `NPCStat.lua` (data037) are bytecode: check a NUI by its length-prefixed constant, not a text grep.
+    - June ships no Hero dungeon scripts: its Hero `DungeonData` rows reuse the Normal / Hard / Expert scripts, so omitting the rows leaves no file behind.
+    - `*_HENIR` unit scripts and the `F_*` rows are Henir / field NUIs (C3y-1b, A6), not the line's.
+    - A NUI June names in `NPCTemplet` but no June script spawns and March's `Enum` lacks (SC: `EMPEROR_FEAR`, `SET_ELYSION_*_BOW`,
+      `HERNA_LANCE_CARD`) is left out with a comment. Rows shared with a later line may come with the first line that names the family
+      (E8 added the Emperor SHIELD / ORB / BOW / LANCE rows for E9 / E10).
+    - A June key typo that changes behaviour (`CAINVINCIBLE`, `CANDOWN`) gets a JUNE_BUGS row; one that changes nothing stays a step-9 row.
+    - June-only assets that carry the line's name but that no script references (SC: 19, e.g. `Herna_Boss_ORB_AttackC_Fire01.ogg`) are
+      not the line's to stage; the census `refs` decide.
 
 ### Phase A8 — Done
 
@@ -4255,7 +4265,31 @@ main.
 
 #### Phase E8 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Data only: no C++, no flag change, no build (no `DEPLOY OK`: nothing to deploy). E2, E4, E7 confirmed done and
+reviewed (STATUS). Census `--line SC`: 68 open rows before, 42 after, all routed checklist step-9 classes (7 `assets.absent`, 39 `keys.file`,
+3 `keys.registry`); `assets.adopt` 6 -> 0, `koms.unstaged` 6 -> 0, `npc.ready` 14 -> 0. No engine gap, no Opus pass owed.
+
+- **Premises held.** Every SC NUI is in `Enum` (A3) with June's value; the 3 dungeon scripts, all 36 unit scripts (incl. `ELYSION_WATERCANNON_OBJECT.LUA`,
+  upper-case in June and March) and BossStage + its line map were already staged (ljconv). `NewNPCStat` has every SC NUI, `NPCStat` none (= June).
+  Every `MOTION_FILE_NAME` mesh is staged (data181; `Dummy_Ani_Wait.X` data008). Boss faces: `NUI_ELYSION_BOSS_ORB` / `BOSS_SHIELD` / `KEYOBJECT`
+  in `data215 DLG_BossState_02.TET` (exact). Effects 416 / 416 present, items 0 missing (boss drops 30552-30591 in the June kim). Buffs: all 8 ids in
+  `Enum.lua` (`BFI_BUFF_DEFENCE` is only a `print` string). Row assets: `HQ_LoadingDungeon_SkyCrossroads_Pit_01/02.tga` (data183), `DLG_UI_Dungeon_Image11.dds` (datai022).
+- **Staged:** `adopt-june data040` Stage0-2 + their 3 line maps (ljconv; `june2017_re/june_adopt_20261017_143715.tsv`). BOM source, appended
+  verbatim as `atlas E8` blocks (scratchpad `e8_edit.py`, A10 shape; self-check: each block minus comments == the June slices, every new id once):
+  `data035 DungeonData` June :32268-32508 (Normal / Hard / Expert; no quest key in June; Hero rows named and omitted: `HERO_NORMAL :32509-32670`,
+  `HARD :32671-32714`, `EXPERT :32715-32887`, `HELL :38436-38598`), `data037 NPCTemplet` 18 rows (the 14 SC rows + Emperor SHIELD / ORB / BOW / LANCE,
+  which only Adrian / Soless spawn; ranges in the block header; `EMPEROR_FEAR` / `SET_*_BOW` / `HERNA_LANCE_CARD` left out: no March NUI, no June spawn),
+  `data040 WorldData` WI_SKYCROSSROADS_STAGE0-2 (June :3270-3284). Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`, `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
+- **`ELYSION_DUMMY_TITLE` / `FAKE_OBJECT`:** data only. Two DUMMY_TITLEs per difficulty (`ACTIVE = FALSE`, start pos 11 and 22); the first hit on
+  FAKE_OBJECT heals it, sends it to `_DYING` (or `_DYING_NOT_ALARM` if KEYOBJECT's flag 5 is set) and zeroes every DUMMY_TITLE's HP
+  (`ELYSION_FAKE_OBJECT.lua:255-280`). All methods it calls are bound (census `bind` clear). Whatever title June gave for the dummy is server-side.
+- **June bug kept verbatim (JUNE_BUGS #239):** the water cannon's Ready state says `CAINVINCIBLE`; June and March read `INVINCIBLE`, so it is not invincible.
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy: owed (ask first); `--live` check after it.
+- **Offline:** Tower Normal clear (33350) unlocks SC via `EXTRA_REQUIRE_DUNGEON_ID`; a clear records 33870 / 33871 / 33872 with no code; Adrian's
+  rows (E9) name `DI_SKYCROSSROADS_NORMAL`. Kills pay nothing (no server `DropTable` rows; backlog Stage 23).
+- **How to see it (after the copy):** a level-83+ character that has cleared Tower Normal: M -> Elysion tab -> SkyCrossroads icon enabled -> enter
+  Normal; Stage0, 1, 2 and the boss stage load; Herna monsters fight; the key object / fake object gates open the line map; the boss orb / shield
+  gauges show their faces. ErrorLog must show no `DungeonData` / `NPCTemplet` / `WorldData` load errors.
 
 ### Phase E9 — Adrian
 
