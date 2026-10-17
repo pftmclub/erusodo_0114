@@ -1847,7 +1847,7 @@ So for a user, June never takes a link in `CanDown`. Elysion line 130 is `LT_NOR
 `JuneCanDownLinkLog` before the 4 loop sites.
 
 **Hygiene** (`flagcheck --worktree --files KTDXLIB/KTDGLineMap.cpp --with ..._DEBUG`): 1 PASS (+93), 0 deleted, 0 non-ASCII, 0 EOL-mismatched,
-0 `#else`/`#endif` without token, 0 encoding change; RESULT PASS. Range: RANGE_PENDING.
+0 `#else`/`#endif` without token, 0 encoding change; RESULT PASS. Range (`--base 4c3719c8^ --files KTDGLineMap.cpp Always.h`, the final tree): `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (Always.h: other flags), 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`. Commits: `4c3719c8` (its tree was built before S2's `c91ce6c6` landed, so it undid S2; R14's `a5aeb19b` then carried S2 back and dropped W1e), `a40bb330` (restores W1e). Net HEAD: W1e and S2 complete.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,872,256 B, dated 2026-10-18 03:21:50, md5 ce79dccff14191fdfb02268e1cd90a81, equal to X2/US_SERVICE/x2.exe (2026-10-18 03:21:45); built at main 60eac05c + 29 uncommitted code file(s).` (A peer's build linked the exe with W1e's files in it; `WORLD far link ` found once in the deployed exe.)
 
