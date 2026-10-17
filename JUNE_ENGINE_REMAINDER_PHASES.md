@@ -1214,6 +1214,41 @@ so Lire's kicks never hit. June's game hits, so this is a port gap, not a June q
 - **Port** what makes June's motion yield the spheres, then turn MOTION_COLLISION back on. Gate: `SKREF motion collision MOTION_LIRE_COMMON.X
   collision 3 attack 2` (or June's real counts), and the user's kicks hit.
 
+### Phase R12b -- Trace 1 (open)
+
+**2026-10-18, Opus 5.5 high. No code, nothing built.** Result: June's own code plus June's own data give a June user unit **no** body or
+kick spheres. That cannot be true of the live game, so the route June really uses is still unfound and nothing was ported. User
+(2026-10-18): trace again on Opus 5.5 **xhigh**; `kickoffs/june-engine/R12b.md` rewritten for trace 2. Kicks hit today because
+`SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION` stays OFF (March: every skin part adds its own spheres).
+
+Proven (each item checked in Ghidra or by a raw byte scan of `unpacked_x2.exe`):
+1. **Files.** `Motion_Lire_Common.x` is KSM v0x200 in March (data033, 1,316,379 B) and June (data201, 6,457,469 B). Both carry
+   `COLLISION_SPHERE1_Face` / `2_Upbody` / `3_Lowbody` and `ATTACK_SPHERE1_Rfoot` / `2_Lfoot` with stored radius 0 (KSMFrame +0x44), no mesh
+   container and no child. June's own Elsword / Arme / Raven / Eve / Chung / Ara / EL / Add `_Common` motions (data199-207) are the same. In March's
+   koms, 73 KSM motions carry collision frames with every radius 0 (every user `_Common` and emotion motion), while 1,344 KSM files store a radius
+   above 0 (NPC motions). The parts (`Mesh_Lire_Basic_*_Sorted.X`, March and June) are D3DX (`xof 0303bzip` / `txt`) with sphere geometry.
+2. **Loader `31d4f8b0` = March.** Its six collision copies (3 buffer sources x KSM / D3DX) match March. KSM reads the stored radius (frame +0xd0
+   from KSMFrame +0x44 @31d503b6) and drops 0 (fld / fldz / fucompp / test ah,0x44 / jp) for SPHERE, LINE and ATTACK_*; GUARD computes when 0.
+   D3DX calls D3DXFrameCalculateBoundingSphere. Nothing else writes a mesh's lists (+0x8b8 / +0x8c4): a byte scan finds only the ctor, the dtor
+   and the `_Load` swap (31d5892d / 31d58adf).
+3. **Copy into a skin anim: a closed set.** Raw call scans match Ghidra's xrefs: LinkCollisionDataFrame `31d2ed70` (6), CollisionData ctor
+   `31d379d0` (42: the loader + VioletMage skill code `32cd*`), assign `31d38950` (6). Only three functions copy: AddModelXSkinMesh `31d2f3f0`
+   (param 7 = bAddCollisionData), AddAnimXSkinMesh `31d2f720` (0 callers) and JuneAddCollisionData `31d2f250` (InitMotion only). Neither
+   function's address is stored anywhere in the exe (no indirect calls), there is no `jmp` tail call to either, and the KEM 433 strings have
+   one use each (no inlined copy).
+   All 51 direct AddModelXSkinMesh calls: `june2017_re/r12b_addmodel_calls.tsv` (file / line / bClose / bAdd; Ghidra lists 49 and misses
+   32989843 `X2GuEve.cpp` and 326f3c37 `X2Pet.cpp`). Every X2Eqip add into the unit anim (+0x1c0) passes 0. The bAdd = 1 sites are the NPC
+   weapon, attach-anim items (3295dfa0), riding pet, sub-equip, UI / viewer, field and square units, Rose's cannon (31fd9970 / 31fd9af0), Eve
+   (32989843) and Lire's ChargeSoul (32c85d50, its own anim +0x9630). None adds a user's body part with 1.
+4. **Consumers.** June's `CX2GUUser::UpdateEquipCollisionData( vector& )` = `31fd8c00`. It is March's loop over UT_ATTACH_ANIM (+0x1c8 == 2)
+   normal / hyper anims, then the unit anim's +0x1f0 / +0x1fc into the sets +0x200 / +0x210. June adds a riding-pet branch: the pet anim's
+   collision list (+0x238), and the unit's own collision list is skipped when pet +0x478 != 1. UnitToUnit `32625000` -> `32611970` takes the
+   defender's +0x200 set. So June's hit spheres do come from the unit anim's lists.
+5. **InitMotion `31fe5860`** opens templet +0x178 (`m_CommonMotion`) twice with `"Bip01"` through OpenXSkinMesh `31cdef40` (plain cache or
+   load), then calls JuneAddCollisionData( +0x87cc ) on +0x87d4. With radius 0 everywhere, that adds nothing.
+
+Leads for trace 2 are in the kickoff. Rows tagged `(R12b)` in `june2017_re/funcmap.tsv`.
+
 ## Phase R14 - Equipment skin and enchant rework
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_SKIN` (an RE pass
