@@ -955,6 +955,12 @@ public:
 		void				SetRimLightTextureIndex( int nCartoonTexIndex );	/// Iruha 2026-09-19: Ranox port Phase 15. g_pWorld:SetRimLightTextureIndex(CARTOON_TEX_TYPE.CTT_RIM_LIGHT_BLUE) call site in Ranox_Secret_Boss_Stage.lua.
 #endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+		void				SetCartoonTextureIndex( int iCartoonTexIndex );	/// June 327fb200 -> +0x1a4 (R0 map item 3)
+		int					GetCartoonTextureIndex() const { return m_iCartoonTextureIndex; }	/// June 327fb1f0
+		int					GetRimLightTextureIndex() const { return m_iRimLightTextureIndex; }	/// June 327fb210 (the setter 327fb220 is SetRimLightTextureIndex above)
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+
 		void				FadeOriginWorldColor( D3DXCOLOR color, float fTime )
 		{
 			m_FadeOriginColor = color;	
@@ -1298,6 +1304,10 @@ public:
 		wstring						m_BGMName;
 
 		D3DXVECTOR3					m_LightPos;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+		int							m_iCartoonTextureIndex;	/// June +0x1a4, default 0 ( CTT_NORMAL ramp )
+		int							m_iRimLightTextureIndex;	/// June +0x1a8, default 0 ( falls back to the white rim ramp )
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 		D3DXCOLOR					m_LightColor;			// 캐릭터 색상에 적용되는 color
 		D3DXCOLOR					m_FadeLightColor;		
 		float						m_fFadeLightTime;

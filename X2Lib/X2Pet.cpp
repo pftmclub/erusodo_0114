@@ -1568,6 +1568,14 @@ RENDER_HINT CX2PET::OnFrameRender_Prepare()
 
 	if( pWorld != NULL )
 		pRenderParam->lightPos	= pWorld->GetLightPos();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+	if( pWorld != NULL )
+	{
+		/// June 326eaa99 (R0 map, rpfill row)
+		pRenderParam->iWorldCartoonTexIndex		= pWorld->GetCartoonTextureIndex();
+		pRenderParam->iWorldRimLightTexIndex	= pWorld->GetRimLightTextureIndex();
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 
 #if 0
 	// 라이트값 제거 (의도적으로 보이는데 뭤때문에 넣었는지 기억안남...)

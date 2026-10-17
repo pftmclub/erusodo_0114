@@ -493,6 +493,41 @@ Hygiene (range `02ddf7b3^..05317e97`): `files: 3 PASS, 0 PASS~ (blank/marker onl
 - **Gate for asset P10:** after R2 is reviewed, P10 copies June's file.
 - **Play-test:** after P10, a village, a dungeon and character select (P10's own list), plus one rim-lit unit.
 
+### Phase R2 -- Done
+
+**2026-10-17, Sonnet 5.5.** Three flags (all in `Always.h`, `#error` guards): `JUNE_RENDER_SHADER_CONTRACT` (renderer), `JUNE_RENDER_RIM_OPTION` (option chain),
+`JUNE_RENDER_WORLD_CARTOON` (world indices + unit fills). Evidence: `june2017_re/funcmap.tsv` rows `Engine R2` (BeginRender case map, DrawFrame tail,
+OnResetDevice macros, `SetAnisotropy`), June `BeginRender` read from capstone (`31d3cf80` is not a Ghidra function).
+
+- **Parameters:** `EFFECT_PARAMETER` is June's 33 (15-24 inserted, March 15-18 -> 25-28) with June's names; setters `_JuneSet*` skip a NULL handle, so March's
+  `XRenderer.fx` still runs. Static check: June's `XRenderer.fx` (data041) contains all 33 names and 19 techniques.
+- **Effect creation:** four `D3DXMACRO`s (DISABLE_SHADER30 only without shader 3, ENVIRONMENT_BOX, VIEW_INDEPENDENT_EDGE = "2.0", MIPMAP). Ctor reads caps:
+  `+0x58` shader 3 (caps only), `+0x88` max anisotropy, `+0x82` mipmap -> stage 0 MIPFILTER. `SetAnisotropy` (`3242ed40`) and the OnResetDevice sampler block ported.
+- **BeginRender:** reset rim ramp to 13 and `g_iTextureOp_1/2` = 1; black / color edge cases set screen size + view-independent edge; ramp pick (CTT_NORMAL takes the world
+  index 0..3) to stage 1, world rim ramp (13..18, else 13) to stage 2 (only when the loaded fx has `g_bIsUseRimLight`); rim this draw = ramp bound && `RIM_LIGHT`
+  (cartoon case never rims); grading flag; `g_mView`, `g_vEyeDir`, `g_fEye` also without fog. R1's rim mapping is bypassed, its stage-1 substitution gone.
+- **DrawFrame** (skin meshes only, R0b): `_JuneSetUpperStages` = stage 1/2 texture ops, rim ramp (COLOROP ADD, ADDRESSU CLAMP pushed) or env-box rim values, grading LUT.
+- **RenderParam** +2 ints (`bAlphaTestEnable` moves); five fills copy `CX2World` (user, NPC, pet, riding pet, square / agit unit). `CX2World::SetCartoonTextureIndex` new,
+  `SetRimLightTextureIndex` stores on the world (Ranox renderer-wide stand-in superseded).
+- **Options:** `RIM_LIGHT` (off), `USE_VIEW_INDEPENDENT_EDGE` (on), `ANISOTROPIC_FILTER_SAMPLE` (0), `USE_ENV_BOX` (off): load, save, `ApplyAllOption`; `CX2Main::OnFrameMove` copies
+  `RIM_LIGHT` into the renderer first thing each frame. UI stays with Stage 9.
+- **Env box (R3):** state members and the DrawFrame env branch exist, nothing writes them (reach 0).
+- **Deviations from June:** the color-edge and cartoon cases index the ramp list unchecked in June; guarded here (a missing ramp is skipped). `+0x5a` / `+0x65` (untraced bytes) not ported.
+  R0's "SetAnisotropy is ignored" was wrong: below 1 sample it resets the filters to LINEAR (funcmap row). `COLOR_WIREFRAME` not added.
+- **June quirk kept:** JUNE_BUGS 255 (`g_bIsUseRimLight` only written by the skin-mesh draw).
+
+**Hygiene** (`--worktree --files`): `JUNE_RENDER_SHADER_CONTRACT` RESULT PASS (2 PASS~, 0 deleted, 0 non-ASCII, 0 EOL mismatch). The two other flags: all own rows PASS / PASS~, `X2Main.cpp` OTHER
+(sibling flag + a peer's U1 flag in the same file); the shared `Always.h` row is only a peer's uncommitted U1 blocks. Range check recorded in the commit message.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,804,672 B, dated 2026-10-17 21:19:47, md5 94b8520e61305072a3134e8d67237848, equal to X2/US_SERVICE/x2.exe (2026-10-17 21:19:31); built at main 129bae3e + 34 uncommitted code file(s).`
+(includes a peer's uncommitted U1 files). The `[JUNE_ENGINE] FX` strings and the four option keys are in the exe.
+
+**How to see it** (log tag `[JUNE_ENGINE] FX`, ErrorLog.txt; March `XRenderer.fx` is still live, so no rim can show yet):
+1. Start the game to character select: `[JUNE_ENGINE] FX loaded: shader3 1, ... handles 19/33, rim shader 0, missing: g_mView ...` (33/33 once June's fx is in data041).
+2. Ranox Secret Hell (41271), `/stage 4`: units look as after R1 (no black models); `[JUNE_ENGINE] FX world indices: cartoon 0, rim 15 -> ramp 15` proves the world -> unit chain.
+3. After asset P10 copies June's fx: set `RIM_LIGHT = TRUE` in the game dir `GameOptions.lua`, repeat 2: blue rim on units (`FX rim draw` line).
+
+**Open:** R2 review (Opus), then tell the user asset-port P10 can copy June's `XRenderer.fx`.
+
 ## Phase R3 - Environment box and colour grading
 
 **Run with:** Sonnet 5.5 high (Opus 5.5 high if R0 leaves gaps), then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_ENVBOX`.

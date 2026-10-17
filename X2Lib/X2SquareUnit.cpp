@@ -1884,6 +1884,30 @@ HRESULT	CX2SquareUnit::OnFrameMove( double fTime, float fElapsedTime )
 				NULL != g_pTFieldGame &&
 				g_pTFieldGame->GetWorld() != NULL )
 			    pRenderParam->lightPos	= g_pTFieldGame->GetWorld()->GetLightPos();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+			{
+				/// June 323ed743 (R0 map, rpfill row; CX2SquareUnit / CX2GuildAgitUnit): the same three worlds the light position comes from
+				CX2World* pJuneWorld = NULL;
+				if( m_bTFieldUnit == false )
+				{
+					if( NULL != g_pSquareGame && NULL != g_pSquareGame->GetWorld() )
+						pJuneWorld = g_pSquareGame->GetWorld();
+#ifdef ADDED_RELATIONSHIP_SYSTEM
+					else if( NULL != g_pWeddingGame && NULL != g_pWeddingGame->GetWorld() )
+						pJuneWorld = g_pWeddingGame->GetWorld();
+#endif //ADDED_RELATIONSHIP_SYSTEM
+				}
+				else if( NULL != g_pTFieldGame )
+				{
+					pJuneWorld = g_pTFieldGame->GetWorld();
+				}
+				if( NULL != pJuneWorld )
+				{
+					pRenderParam->iWorldCartoonTexIndex		= pJuneWorld->GetCartoonTextureIndex();
+					pRenderParam->iWorldRimLightTexIndex	= pJuneWorld->GetRimLightTextureIndex();
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 
 			RENDER_HINT renderHint = m_pXSkinAnim->OnFrameRender_Prepare();
 

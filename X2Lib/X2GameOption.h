@@ -129,6 +129,13 @@ class CX2GameOption
 			bool			m_bVerticalSync;	/// 수직 동기화
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+			/// June CX2GameOption data block (R0 map, option row): RIM_LIGHT +0x100, USE_VIEW_INDEPENDENT_EDGE +0x101, ANISOTROPIC_FILTER_SAMPLE +0x104, USE_ENV_BOX +0x108.
+			bool			m_bRimLight;					/// key RIM_LIGHT, June default off
+			bool			m_bUseViewIndependentEdge;		/// key USE_VIEW_INDEPENDENT_EDGE, June default on
+			int				m_iAnisotropicFilterSample;		/// key ANISOTROPIC_FILTER_SAMPLE, June default 0
+			bool			m_bUseEnvBox;					/// key USE_ENV_BOX, June default off
+#endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 #ifdef RULE_AGREEMENT
 			bool			m_bRuleAgree;
 #ifdef NEW_RULE_AGREEMENT
@@ -268,6 +275,12 @@ class CX2GameOption
 				m_bFlashEffect			= false;
 				m_bVerticalSync			= false;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+				m_bRimLight						= false;
+				m_bUseViewIndependentEdge		= true;
+				m_iAnisotropicFilterSample		= 0;
+				m_bUseEnvBox					= false;
+#endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 #ifdef RULE_AGREEMENT
 				m_bRuleAgree	= false;
 #ifdef NEW_RULE_AGREEMENT

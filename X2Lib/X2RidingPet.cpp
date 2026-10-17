@@ -270,6 +270,14 @@ CX2RidingPet::~CX2RidingPet(void)
 
 	if ( NULL != pWorld )
 		pRenderParam->lightPos = pWorld->GetLightPos();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+	if ( NULL != pWorld )
+	{
+		/// June 32d2c416 (R0 map, rpfill row)
+		pRenderParam->iWorldCartoonTexIndex		= pWorld->GetCartoonTextureIndex();
+		pRenderParam->iWorldRimLightTexIndex	= pWorld->GetRimLightTextureIndex();
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 
 	pRenderParam->color = m_cColor;
 

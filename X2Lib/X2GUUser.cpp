@@ -7558,6 +7558,14 @@ RENDER_HINT CX2GUUser::CommonRender_Prepare()
 	{
 		pRenderParam->lightPos = g_pX2Game->GetWorld()->GetLightPos();
 	}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+	if( g_pX2Game->GetWorld() != NULL )
+	{
+		/// June 31ff05c2 (R0 map, rpfill row): the world's cartoon / rim ramp indices are copied into the unit's RenderParam every frame
+		pRenderParam->iWorldCartoonTexIndex		= g_pX2Game->GetWorld()->GetCartoonTextureIndex();
+		pRenderParam->iWorldRimLightTexIndex	= g_pX2Game->GetWorld()->GetRimLightTextureIndex();
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //±Ë√¢«—
 	if( false == m_bSetCustomRenderParam )

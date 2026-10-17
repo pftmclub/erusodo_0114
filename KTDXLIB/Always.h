@@ -7708,3 +7708,47 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (scale from +0x504..+0x518, then the refresh) and its call in the CEffect main-effect scale (31f6fca0 @31f6fd70).
 #define SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R2 (renderer contract; june2017_re/r0_renderer_contract.tsv). CKTDGXRenderer: June's 33-entry EFFECT_PARAMETER
+//              table (15-24 inserted, March's 15-18 become 25-28) with setters that skip a handle the loaded XRenderer.fx lacks, the four D3DXCreateEffect
+//              macros and the device caps (+0x58 shader 3, +0x82 mipmap, +0x84 / +0x88 anisotropy), RenderParam + iWorldCartoonTexIndex / iWorldRimLightTexIndex
+//              (bAlphaTestEnable moves +0x9c -> +0xa4), BeginRender's cartoon ramp pick + rim ramp in stage 2 + g_mView / g_vEyeDir / screen size / view-independent
+//              edge, and DrawFrame's texture ops, rim and colour-grading state. Runs with March's XRenderer.fx too (the 14 new handles are NULL there).
+//              It supersedes R1's SetRimLightTexType SkyBlue stand-in (JUNE_RENDER_CARTOON_TEX): the world's rim index reaches June's stage-2 rim ramp path and
+//              the mapping is bypassed. Log lines: "[JUNE_ENGINE] FX".
+#define SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#ifndef SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+#error SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT needs SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX (June's CARTOON_TEX_TYPE numbering, CTT_RIM_LIGHT_WHITE)
+#endif SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R2. The option chain: CX2GameOption keys RIM_LIGHT / USE_VIEW_INDEPENDENT_EDGE / ANISOTROPIC_FILTER_SAMPLE /
+//              USE_ENV_BOX (read in the load, written in the save, June's defaults: rim off, edge on, anisotropy 0, env box off), the apply into the renderer
+//              (June 32421110) and CX2Main::OnFrameMove copying RIM_LIGHT into the renderer every frame (June 31d90300). The rim light needs June's
+//              XRenderer.fx and RIM_LIGHT = TRUE in GameOptions.lua.
+#define SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+#ifndef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#error SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION needs SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT (the renderer switches it sets)
+#endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R2. The world's cartoon / rim ramp indices: CX2World::SetCartoonTextureIndex (June 327fb200) and
+//              SetRimLightTextureIndex (June 327fb220, supersedes the Ranox renderer-wide stand-in) store them on the world (+0x1a4 / +0x1a8, default 0), and the
+//              five per-frame RenderParam fills (user, NPC, pet, riding pet, square / agit unit) copy them into the unit's RenderParam.
+#define SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+#ifndef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#error SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON needs SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT (RenderParam's two new members)
+#endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#ifndef SERV_IRUHADEV_RANOX_RIM_LIGHT
+#error SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON needs SERV_IRUHADEV_RANOX_RIM_LIGHT (it replaces that flag's SetRimLightTextureIndex body)
+#endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+//////////////////////////////////////////////////////////////////////////

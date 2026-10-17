@@ -58,6 +58,10 @@ CX2World::CX2World( WorldData* pWorldData, const bool bBackgroundLoad_ /*= false
 
 
 	INIT_VECTOR3( m_LightPos, 0.0f, 0.0f, 0.0f );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+	m_iCartoonTextureIndex = 0;
+	m_iRimLightTextureIndex = 0;
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 	m_LightColor			= 0xffffffff;		
 	m_FadeLightColor		= 0xffffffff;	
 	m_fFadeLightTime		= 0.f;
@@ -454,9 +458,22 @@ HRESULT CX2World::OnLostDevice()
 /// since the effect is global to every cel-shaded unit currently on screen, not just this world.
 void CX2World::SetRimLightTextureIndex( int nCartoonTexIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+	m_iRimLightTextureIndex = nCartoonTexIndex;	/// June 327fb220: the raw Lua int is stored on the world (+0x1a8); units copy it into RenderParam and BeginRender clamps it to 13..18
+#else SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 	g_pKTDXApp->GetDGManager()->GetXRenderer()->SetRimLightTexType( (CKTDGXRenderer::CARTOON_TEX_TYPE)nCartoonTexIndex );
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 }
 #endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+/// June 327fb200: g_pWorld:SetCartoonTextureIndex( n ) stores the raw int on the world (+0x1a4). Units copy it into RenderParam::iWorldCartoonTexIndex; only
+/// CTT_NORMAL units use it (0..3 = NORMAL / TWOTONE / USER1 / USER2, anything else 0). No June script calls it.
+void CX2World::SetCartoonTextureIndex( int iCartoonTexIndex )
+{
+	m_iCartoonTextureIndex = iCartoonTexIndex;
+}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 
 void CX2World::SetMapDetail( CX2GameOption::OptionLevel optionLevel )
 {

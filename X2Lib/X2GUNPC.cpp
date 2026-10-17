@@ -25665,6 +25665,14 @@ RENDER_HINT CX2GUNPC::OnFrameRender_Prepare()
 	{
 		pRenderParam->lightPos = g_pX2Game->GetWorld()->GetLightPos();
 	}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+	if( g_pX2Game->GetWorld() != NULL )
+	{
+		/// June 3276f3c1 (R0 map, rpfill row): same copy as the user's
+		pRenderParam->iWorldCartoonTexIndex		= g_pX2Game->GetWorld()->GetCartoonTextureIndex();
+		pRenderParam->iWorldRimLightTexIndex	= g_pX2Game->GetWorld()->GetRimLightTextureIndex();
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 	ApplyRenderParam( pRenderParam );
 
 	if( GetDistanceToCamera() > 700.0f )

@@ -2278,6 +2278,11 @@ std::wstring CX2Main::GetWstrBasicConfigFile()
 
 HRESULT CX2Main::OnFrameMove( double fTime, float fElapsedTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+	/// June CX2Main vslot 1 31d90300 @31d90365-31d9036f: the first thing every frame copies the RIM_LIGHT option into the renderer (SetRimLight, 31d3c210).
+	if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetXRenderer() )
+		g_pKTDXApp->GetDGManager()->GetXRenderer()->SetRimLight( m_GameOption.GetOptionList().m_bRimLight );
+#endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 #ifndef X2TOOL
 
 #if defined( SERV_HACKING_TOOL_LIST )
@@ -3695,6 +3700,9 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_RANOX_RIM_LIGHT
 	lua_tinker::class_def<CX2World>( L, "SetRimLightTextureIndex",	&CX2World::SetRimLightTextureIndex );
 #endif SERV_IRUHADEV_RANOX_RIM_LIGHT
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
+	lua_tinker::class_def<CX2World>( L, "SetCartoonTextureIndex",	&CX2World::SetCartoonTextureIndex );	/// June 327fb200 (no June script calls it; SetRimLightTextureIndex above is June 327fb220)
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON
 	lua_tinker::class_def<CX2World>( L, "GetRenderLineMap",				&CX2World::GetRenderLineMap );
 	lua_tinker::class_def<CX2World>( L, "SetRenderLineMap",				&CX2World::SetRenderLineMap );
 #ifdef FOG_WORLD

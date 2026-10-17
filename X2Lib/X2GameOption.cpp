@@ -882,6 +882,14 @@ bool CX2GameOption::OpenScriptFile()
 		m_OptionList.m_bJoyEnable = true;
 #endif KEY_MAPPING_INT_IN_KEYBOARD_SETTING
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+		/// June loader 324214a0 (R0 map, option row): the four renderer switches, with June's defaults.
+		LUA_GET_VALUE( luaManager, "RIM_LIGHT",						m_OptionList.m_bRimLight,					false );
+		LUA_GET_VALUE( luaManager, "USE_VIEW_INDEPENDENT_EDGE",		m_OptionList.m_bUseViewIndependentEdge,		true );
+		LUA_GET_VALUE( luaManager, "ANISOTROPIC_FILTER_SAMPLE",		m_OptionList.m_iAnisotropicFilterSample,	0 );
+		LUA_GET_VALUE( luaManager, "USE_ENV_BOX",					m_OptionList.m_bUseEnvBox,					false );
+#endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+
 #ifdef VERTICAL_SYNC_OPTION
 		LUA_GET_VALUE( luaManager, "VERTICALSYNC",					m_OptionList.m_bVerticalSync,		false );
 #endif
@@ -1310,6 +1318,13 @@ bool CX2GameOption::SaveScriptFile()
 	fwprintf( file, L"\tCAMERA_ZOOM_LEVEL		= %d, \n", m_OptionList.m_iZoomLevel );
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+	/// June writer 3241ef40 (R0 map, option row): the same four keys, so the saved file keeps them.
+	fwprintf( file, L"\tRIM_LIGHT\t\t\t= %s, \n", ( true == m_OptionList.m_bRimLight ) ? L"TRUE" : L"FALSE" );
+	fwprintf( file, L"\tUSE_VIEW_INDEPENDENT_EDGE\t= %s, \n", ( true == m_OptionList.m_bUseViewIndependentEdge ) ? L"TRUE" : L"FALSE" );
+	fwprintf( file, L"\tANISOTROPIC_FILTER_SAMPLE\t= %d, \n", m_OptionList.m_iAnisotropicFilterSample );
+	fwprintf( file, L"\tUSE_ENV_BOX\t\t\t= %s, \n", ( true == m_OptionList.m_bUseEnvBox ) ? L"TRUE" : L"FALSE" );
+#endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 #ifdef VERTICAL_SYNC_OPTION
 	if ( true == m_OptionList.m_bVerticalSync )
 		fwprintf( file, L"\tVERTICALSYNC			= TRUE, \n" );
@@ -1433,6 +1448,19 @@ bool CX2GameOption::SaveScriptFile()
 
 void CX2GameOption::ApplyAllOption( bool bForce /*= false*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+	{
+		/// June option apply 32421110 @32421175-32421230: renderer +0x81 = USE_VIEW_INDEPENDENT_EDGE, SetAnisotropy( ANISOTROPIC_FILTER_SAMPLE ),
+		/// +0x80 = USE_ENV_BOX && the renderer's shader-3 cap. RIM_LIGHT is not applied here: CX2Main::OnFrameMove copies it into the renderer every frame.
+		if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetXRenderer() )
+		{
+			CKTDGXRenderer* pJuneXRenderer = g_pKTDXApp->GetDGManager()->GetXRenderer();
+			pJuneXRenderer->SetViewIndependentEdge( m_OptionList.m_bUseViewIndependentEdge );
+			pJuneXRenderer->SetAnisotropy( m_OptionList.m_iAnisotropicFilterSample );
+			pJuneXRenderer->SetEnvBoxEnable( m_OptionList.m_bUseEnvBox );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 #ifdef VERTICAL_SYNC_OPTION
 	SetVerticalSync( m_OptionList.m_bVerticalSync );
 #endif
