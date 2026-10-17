@@ -1,0 +1,122 @@
+june_va	march_symbol	status	evidence
+328d98e0	none in March: decrement of new-skill mark counter this+0x150 (clamp 0)	june-only	called only by UICustomEventProc case 29014 (SKILLTREESLOT_MOUSEIN) after clearing slotdata+0x10; counter recomputed by 328da100
+328d9ac0	CX2EquippedSkillSlotData::CX2EquippedSkillSlotData(int,bool) analog: slot data type 5 ctor (vt 334c2eac)	june-only	sets m_eSlotDataType=5, [3]=0, [4]=index, byte[5]=flag; March has only types 1 (tree) and 2 (equipped); UpdateUI = 328e0f10; ctor called from 322deb80
+328d9b00	slot data type 6 ctor (vt 334c2eb8), no March counterpart	june-only	sets type=6, [4]=[5]=-1; UpdateUI = 328da050; called 3x from 3200f380
+328d9b60	CX2UISkillTreeNew::OnMouseWheel	changed	HIWORD(wParam) sum at this+0xf8, +-0x78 (WHEEL_DELTA) loop; March scrolls only SkillTreeControlList then UpdateAtMoveScrollBar; June picks SkillTreeControlList or CommandControlList by tab (this+4) and has no UpdateAtMoveScrollBar; called from MsgProc 328ea4e0
+328d9c30	CX2UISkillTreeNew::SetLayer	match	guards dialog (this+0xb4/0xb8), ChangeLayer(dlg,layer) then ChangeSequence(dlg,0); caller 3214f990 (UIManager)
+328d9cc0	none in March: show/hide control index helper	june-only	if this[2] then Control(idx)->visible = flag; only caller 328dda50 (memo popup builder)
+328d9cf0	CX2UISkillTreeNew::ProcessEquipSlotRMouseUp	changed	plays Skill_UnEquip.ogg and calls 3220e3b0(slot,0) = CHANGE_SKILL_SLOT unequip; March also tested DoIHaveThisSkill; called from UICustomEventProc case 29010
+328d9d60	CX2UISkillTreeNew::SetOffsetPosEtcSkillSlotUI	changed	controls LOCK and Button_Buy_Guide_Slot (+ offset); March sets vOffsetPos y=-200 for type B; June uses constants 334c2f..; called from SetSkillUIType 328e1680
+328d9ea0	CX2UISkillTreeNew::ProcessEquipSlotDropped	changed	plays Skill_Equip.ogg; slotdata type 1 (tree slot) -> 32896c70 check then 3220e3b0(slot,skill) = CHANGE_SKILL_SLOT; type 2 (equip slot) swap; called from UICustomEventProc case 29009
+328d9fb0	none in March: tab select (Skill_Tab / Command_Tab radio)	june-only	sets this+4 = (arg!=1), toggles radios Skill_Tab and Command_Tab; caller 324c3873 (state menu)
+328da050	slot data type 6 UpdateUI (vt 334c2eb8)	june-only	vtable slot0; resolves texture from skill (32206450,32890620) then SetTex; no March counterpart
+328da100	none in March: recount of marked (new) skill slots	june-only	this+0x150 = number of m_mapSkillSlotUISet slotdata with type 1 and flag +0x10 set; called from SetShow(false) 328ea6d0
+328da200	none in March: id->index lookup in table this+0x90..0x94	june-only	linear scan of 8-byte pairs, key = FUN_31edf010() (unit class); used by tooltip builder 328de9a0
+328da290	none in March: id->3 floats lookup	june-only	map find via 328eded0, copies +0x80..+0x88; used by 328de9a0
+328da2e0	none in March: mark vector of skills as new	june-only	for ids in a vector: finds slotdata in map this+0x140, type 1 and flag +0x10==0 -> set +0x10=1,+4=1, this+0x150++; caller 31f08290 (new skill acquired)
+328da3c0	none in March: show/hide command tab elements by group	june-only	iterates vector this+0x18..0x1c of {group,ctrl}; group 2 always shown, else by arg; caller 328e89f0
+328da440	CX2UISkillTreeNew::GetEquippedSlot	changed	dialog this+0x10c/0x110, "SlotA"/"SlotB" + (idx+1); 10 slots (idx<5 -> A, else B) instead of 8; callers dfab0/e0290/da900
+328da5b0	CX2UISkillTreeNew::GetEquippedSlotData	changed	same name build, GetControl then slot->+0x3c4 data; 10 slots; used by SwapSkillSlotTypeA/B and da900
+328da730	CX2UISkillTreeNew::UpdateSkillEquipedSlotUI (partial: mark equipped slot data dirty by skill id)	candidate	loops 10 slots, slotdata->+0xc == skill -> +4 = 1 (m_bDataUpdated); March UpdateSkillEquipedSlotUI also sets lock/guide (that part is 328dfab0)
+328da900	CX2UISkillTreeNew::InitEquippedSkillSlotData	changed	loops 10 (5 A + 5 B); new CX2EquippedSkillSlotData (vt 334c2ea0, type 2, index, bSlotB) per SlotA/B; March 8 slots; called from InitSkillTreeUI 328ed890
+328dab10	CX2UISkillTreeNew::SetOffsetPosSkillSLotStatic (+SetOffsetStatic inlined)	changed	same Static_Skill_Cool_Time(_Fade)(_B), Static_SKILL_SLOT_A/B, Static_EL_SKILL_B/R(_B) offsets; NEW Static_RoseGlow(_B) and LOCK_SLOT_A_TC/B_TC (only when 33775864 map entry 0xb is set)
+328daed0	CX2UISkillTreeNew::SwapSkillSlotTypeB	changed	offsets -200/-150 (334c3030..) as March TypeB; 10 slots, i<5; adds LOCK_SLOT_*_TC and Button_Buy_Guide_Slot_*_TC repositioning; this+0x115 = m_bSkillSlotSwap
+328db100	CX2UISkillTreeNew::SwapSkillSlotTypeA	changed	offsets +-47 (March +-51); 10 slots; adds *_TC controls; this+0x115
+328db2d0	CX2UISkillTreeNew::CreateSlotUIPreset	changed	loads DLG_UI_Skill_Icon_New2015.lua; g_pSlot_SkillTree%d, g_pStatic_SkillBackGround%d, g_pStaticSkill_Lock%d as March; NEW g_pStatic_SkillTypeBackGround%d, g_pButton_LeftMemoDesc%d, g_pStatic_LeftMemoState%d, Right equivalents; no Learn/Init/Master/NoLearn/StringInfo controls
+328db7a0	none in March: per-class (Luciel) portrait texture key helper	june-only	switch on class 0x7f/0x80/0x81, DLG_UI_Common_Texture103_NEW + TR_D_LORD_2 / TR_N_OBLESSE_1 / TR_D_EMONIO_2, pairs with LUCIEL_* keys; called from 328dcba0
+328db990	none in March: auto-equip a vector of skills into free slots	june-only	Skill_Equip.ogg, 3220e3b0(slot,skill) for each; 3 external callers (323ae130,32473f70,325346e0)
+328dbcd0	CX2SkillTreeSlotData::ShowSlotPicture	changed	NoAlphaImage.dds, HQ_ImpossibleEqip.tga, DLG_UI_Common_Texture02 lock, DLG_Common_New_Texture26 Skill_Mount/acquire_Skill, DLG_UI_Common_Texture_NewSkill_01 AbleChoice as March; adds DLG_UI_Common_Texture09 Glow; called from UpdateUI 328dcd50
+328dc260	CX2UISkillTreeNew::GetSkillUnSealedDesc	match	STR 0x62d8 (25304) item name wrapped in "#CFF0000..#CX"; same SealSkillItem lookup role; caller ShowSkillDesc 328e9160
+328dc4b0	CX2UISkillTreeNew::ShowUIDesc	match	(bShow, wstring, pos, TBT, colors) -> talkbox manager this+0x104; 12 callers incl. UICustomEventProc
+328dc680	CX2UISkillTreeNew::SetDivisionLine / CreateSkillTreePortrait (replaced)	changed	creates per-tier level rows in SkillTreeControlList: "Lv_%d", BG_LV, LINE, Help_String (DLG_UI_Common_Texture_NewSkill_0); replaces March HorizonLine1/2 + portrait boxes; caller CreateSkillTree 328eaa50
+328dcae0	none in March: hide memo popup (left=1/right=0) buttons	june-only	hides popup dialog and controls 0..2, resets ids +0x270/+0x274 = -1; callers dda50
+328dcba0	CX2UISkillTreeNew::SetUnitClassImageAndName (class portrait part)	changed	control SkillTree_Character, texture picked by unit class (0x26,0x7f,0x81 flip); March 660-line per-class switch is data-driven here; caller 328e8e90
+328dcd50	CX2SkillTreeSlotData::UpdateUI (slot data type 1, vt 334c2e94)	changed	vtable slot0; gates on 33775860 tree/skill; reads templet+4 type 0xc etc., builds slot tex, calls ShowSlotPicture 328dbcd0; March version used GetNowLearnSkill/GetNowInitSkill (absent here)
+328dd1f0	CX2UISkillTreeNew::BuySkillPageDialog	match	this+0x12c = ED, dialog at this+0x124/0x128, message ids 0x716d (29037) and OK 0x717f (BUY_CONFIRM) / cancel 0x7180 (BUY_CANCEL)
+328dd570	CX2UISkillTreeNew::UpdateSkillCoolTime	changed	10 slots (A 5 + B 5), per-slot Static_Skill_Cool_Time(_Fade)(_B) colour + remaining seconds via 3288fe00/32893880; March 8 slots; caller 324708c0 (per-frame)
+328dda50	none in March: memo (memorize) tooltip/popup builder	june-only	builds popup for left/right memo skill, STR 0x8b1f, message ids 0x7194/0x7195 (BUTTON_MEMO_SELECT_MOUSE_OVER/OUT); uses 328d9cc0, 328dcae0
+328ddf60	CX2UISkillTreeNew::UpdateSkillTree()	changed	iterates m_mapSkillSlotUISet (this+0x140), sets slotdata+4 (m_bDataUpdated)=1 and refreshes memo popups 328dda50(1),(0); same role as March
+328ddff0	CX2UISkillTreeNew::UpdateSkillTree(SKILL_ID)	changed	map find (32e551d0) then slotdata+4=1 and 328dda50 for both memo sides
+328de040	CX2UISkillTreeNew::CreateSkillTree (worker)	changed	SkillTreeControlList, CreateSlotUIPreset per skill (328db2d0), new CX2SkillTreeSlotData (vt 334c2e94 type 1); also fetches Skill_Page1-3/Add_Skill_Page_ED/Add_Skill_Page_Cash into vector this+0xe8; driver is 328eaa50
+328de9a0	none in March: command tooltip button builder	june-only	SpecialButtonToopTip, Bg_Command_Overlay, DLG_Common_New_Texture03 invisible; message ids 0x718f/0x7190 (TOOLTIP_COMMAND_MOUSE_OVER/OUT); uses 328da200/328da290
+328ded30	none in March: thin wrapper over 3207b770	june-only	2-arg forwarder
+328ded60	none in March: memo desc button toggles for a skill	june-only	g_pButton_LeftMemoDesc%d / g_pButton_RightMemoDesc%d visible per skill id, uses 328ddff0 and 32890070; caller 328df480
+328df060	none in March: description text post-process (line count, dialog height)	june-only	counts lines in Control(0) text, strips "#C..#CX" newline artefacts, shrinks dialog y; callers 328e42d0/328e73f0/328e8cd0
+328df480	none in March: for each id in vector call 328ded60	june-only	loop over vector of short (7-byte stride artefact); needs 33775860+0x50
+328df4c0	none in March: Lua table loader (INDEX_%d tables)	june-only	reads table by name and INDEX_%d rows into vector<int>; called 8x by layout loader 328e7ba0
+328df840	none in March: Add/Aisha memorize-class gate helper	june-only	reads unit +0x867c -> userskilltree +0xaf0 == 2 then virtual 0x714; helper for 328e0460
+328df930	none in March: Rose/special slot reset helper	june-only	calls 32ce1770 on current unit; called by 328e0f10
+328dfab0	CX2UISkillTreeNew::UpdateSkillEquipedSlotUI	changed	already in funcmap: LOCK / Button_Buy_Guide_Slot (+_A_TC,_B_TC), SkillHotKeyEx, Static_Skill_Cool_Time*, Static_EL_SKILL_*, NEW Static_RoseGlow(_B); locks slot via 32890ee0/32890ea0 (transcendence slot 4/9)
+328e0290	none in March: Install / G-Core skill slot visibility	june-only	toggles Static_Install_Skill/Static_GCore_Skill per slot (this+0x115), via 328da440; called from SwapSkillSlot wrapper 328e0ff0
+328e0460	CX2EquippedSkillSlotData::ShowSlotPicture	changed	HQ_ImpossibleEqip.tga, NoAlphaImage.dds, DLG_UI_Common_Texture63_NEW AISHA_MEMORIZE_SIGN (new); called from UpdateUI 328e18d0 / 328e1830
+328e0aa0	none in March: skill-id -> icon texture override table	june-only	hard coded DLG_SKILL_*_tga keys (SI_HA_AMM_APOCALYPSE_01, SI_A_LNW_DELAYED_FIRE_ACTIVE ...); called from 328e18d0
+328e0f10	slot data type 5 UpdateUI (vt 334c2eac)	june-only	vtable slot0; unit class check FUN_31edf010()==2 then slot tex; else 328df930
+328e0ff0	CX2UISkillTreeNew::SwapSkillSlot	changed	this+0x116 (m_bIsSkillUITypeA) == 1 -> SwapSkillSlotTypeA (db100) else TypeB (daed0), then Static_GCore_Skill / Static_Install_Skill refresh 328e0290 for classes 9/0xb; March only dispatches
+328e1170	CX2UISkillTreeNew::UpdateSkillSlotString	changed	hotkey texts for 5 slots via keypad (33775 7ec); this+0x116==0 clears, else GAMEACTION strings; March used SkillHotKey/SkillHotKeyEx 4+4; called from ctor 328e76a0 and SetSkillUIType
+328e1680	CX2UISkillTreeNew::SetSkillUIType	changed	this+0x116 = type; g_pStatic_Slot_Guide visibility; dialog pos constants -619 (March -619 y or -599 wide bar) and -257 (March -297 x); calls SetOffsetPosEtc (9d60), UpdateSkillSlotString (1170), SwapSkillSlot (0ff0)
+328e1830	CX2EquippedSkillSlotData helper (hide slot picture / clear tex)	candidate	DLG_Common_New_Texture03 invisible; called by 328e18d0 only
+328e18d0	CX2EquippedSkillSlotData::UpdateUI (slot data type 2, vt 334c2ea0)	changed	vtable slot0; 33775860+0x2cc state==3 branch, slot tex from skill (32206450) or invisible; uses ShowSlotPicture 328e0460, tex override 328e0aa0
+328e2090	CX2UISkillTreeNew::~CX2UISkillTreeNew (body)	changed	sets vtable 334c37fc, frees dialogs (31d41c20), clears map this+0x13c (ee060), sub-structs (ee0b0, ee430); March SAFE_DELETE_DIALOG x6; deleting wrapper 328ee660
+328e2590	CX2UISkillTreeNew::OpenDLGSkillUnsealed (new-skill acquired popup)	candidate	loads DLG_Skill_Acquisition.lua into dialog this+0xcc/0xd0, args (skill id, name); updated by 328e8b10; March OpenDLGSkillUnsealed(bool)
+328e2900	CX2UISkillTreeNew::GetSkillSubDesc	changed	1899 lines, STR 25070 and 29866 as March, many more STR 0x9e81..0x9e89 (40577-40585) branches and flags 0x1000..0xc000 (June skill type/target texts)
+328e42d0	none in March: Major skill panel builder	june-only	SkillTree_MajorSkill, SkillTree_Back_Black, MajorSkillBack%d, MajorSkillButton%d, Skill_Description; uses 328df060; called from 328e8e90
+328e4bd0	none in March: tier level-row builder	june-only	BG_LV rows (DLG_UI_Common_Texture_NewSkill_0), builds tooltip rows via 328de9a0; called by layout loader 328e7ba0
+328e5290	none in March: Major command panel builder	june-only	MajorCommandBack%d, BG_COMMAND, MajorCommand%d; called from 328e8820
+328e5ae0	CX2UISkillTreeNew::GetSkillTitleDesc	changed	"%s.%d #CFF0000%s#CX", STR 0x1e9 (489, same as March STR_ID_489); June adds memorized-skill name branch via 32891e10
+328e5e60	CX2UISkillTreeNew::GetSkillEffectiveDesc	changed	STR 25071,25072,25173 as March; plus 0x61ef,0x6255,0x8db9; helper 328ee280, calls 328ee680 tail
+328e6550	CX2UISkillTreeNew::ProcessSkillTreeSlotRMouseUp	changed	level 0 popup STR 0x8aef (March STR 25347); equips via Skill_Equip.ogg + 3220e3b0 (CHANGE_SKILL_SLOT) for types 5,6,7,0xc..0x10; March handled ST_ACTIVE/BUFF/SPECIAL/HYPER; no slot-B expand test
+328e6970	CX2UISkillTreeNew::UpdateSkillPageUI	changed	Skill_Page1-3, Add_Skill_Page_ED, Add_Skill_Page_Cash, STR 29367 as March; adds 0xffff/0x72b7 event page state; called by UpdateUI 328e7b70, SetShow, tab change
+328e6cd0	none in March: command description (video) popup	june-only	loads DLG_UI_Command_Desc_Video.lua (CommandDesc), called from SetShow(false)/MsgProc/UICustomEventProc cases 29071-29074
+328e73f0	none in March: command description text setter	june-only	Command_Description control text; uses 328df060
+328e76a0	CX2UISkillTreeNew::CX2UISkillTreeNew (ctor)	changed	vtable 334c37fc, loads DLG_GAME_SKILL_SLOT_NEW_10slot.lua (334c39d0); March loads DLG_GAME_SKILL_SLOT_NEW.lua; calls UpdateSkillSlotString 328e1170; caller 32150380 (UIManager)
+328e7b70	CX2UISkillTreeNew::UpdateUI	changed	UpdateUI(bEquipped, bSkillTree, bSkillPage): dfab0 / ddf60 / 6970; no SP argument (March bSP -> UpdateSPInfo); 31 callers
+328e7ba0	none in March: skill tree layout data loader	june-only	1095 lines; calls Lua table loader 328df4c0 (8 tables) and 328e4bd0 per tier; called from CreateSkillTree 328eaa50 and 328ee3f0
+328e8820	none in March: command tab panel builder	june-only	Command_Back_Black, SkillTree_MajorCommand; calls 328e73f0, 328e5290, 328ded30
+328e89f0	none in March: tab visibility switch (skill list vs command list)	june-only	SkillTreeControlList / CommandControlList shown by this+4==0; on skill tab runs ddf60 and 6970; on command tab 328da3c0
+328e8b10	CX2UISkillTreeNew::UpdateDLGSkillUnsealed	match	g_pStaticSkill_Acquisition_Slot and Static_Skill_Name, dialog this+0xcc/0xd0
+328e8cd0	none in March: Command_Description refresh	june-only	Command_Description text via 328df060 and 328e89f0
+328e8e90	CX2UISkillTreeNew::CreateSkillTreePortrait	changed	SkillTree_Character, class check unit +0xaf0 == 10, calls 328dcba0 portrait, 328ee430 reset, 328e42d0 (major skills), 328e8820 (command); March created Portrait boxes with DLG_UI_Skill_Tree_Portrait.lua
+328e9160	CX2UISkillTreeNew::ShowSkillDesc	changed	DLG_UI_Skill_Desc_Video.lua (SkillDesc), always video variant (March only under MOVIE_TEST); 14 callers; uses GetSkillTitleDesc 5ae0, GetSkillSubDesc 2900, GetSkillUnSealedDesc c260, tail 328ee680
+328e9b30	none in March: memo (left/right) select popup builder	june-only	STR 0x8b20,0x8b21,0x8b22,0x8b9a; message ids 0x718b/0x718c (SELECT_SKILL_ACTIVE_MEMO / DEACTIVE_MEMO); called from UICustomEventProc cases 29065/29066
+328ea4e0	CX2UISkillTreeNew::MsgProc	changed	mouse msgs 0x200-0x20c; blocks if a modal dialog is in front; on wheel 0x20a calls OnMouseWheel 328d9b60; clears this+0x114 (m_bShowEquipSkillGuide) and hides ShowSkillDesc on mouse-drag over slot state 3
+328ea6d0	CX2UISkillTreeNew::SetShow	changed	this+0xa8 = show; off: hides command desc 6cd0, ShowSkillDesc(false), ShowUIDesc(false), this+0x114=0, SetSkillUIType(game option) 1680, SelectPage(using+1); on: dfab0/ddf60/6970/1680(true)/89f0
+328eaa50	CX2UISkillTreeNew::CreateSkillTree	changed	driver (unit class, class type): de040 slots, e7ba0 layout, e8e90 portrait/major/command, dc680 level rows, then clear this+0x94 map, ee430; March did all in one function incl. m_mapSkillPosition
+328eab00	CX2UISkillTreeNew::UICustomEventProc	changed	switch(wParam-29000) range 0..79 via byte table 328ed834 + jump table 328ed788; 42 distinct targets; see STUCM list
+328ed890	CX2UISkillTreeNew::InitSkillTreeUI	changed	resets this+0x115, clears map this+0x13c and vectors, DLG_UI_Skill_Tree_New2015.lua (334c3b88 at 328ed9c0), then CreateSkillTree eaa50, InitEquippedSkillSlotData da900, 89f0 tab, 6970 page
+328edb50	STL/helper: 11-field struct copy-construct	june-only	member-wise assign (STL template instance), caller 328e9160
+328edbc0	STL/helper: red-black tree rotate	june-only	std::_Tree rotate instance, 6 refs
+328edc20	STL/helper: vector<T12> size	june-only	(this+0x194-this+0x190)/12; caller UICustomEventProc case 29071
+328edc40	STL/helper: std::_Tree iterator increment	june-only	33 callers
+328edca0	STL/helper: std::_Tree insert/erase fixup	june-only	9 callers
+328eded0	STL/helper: std::map find (key int)	june-only	called by 328da200/328da290
+328edf40	STL/helper: map<int,...> iterate/erase helper	june-only	called from CreateSkillTree worker 328de040
+328ee060	STL/helper: clear map this+0x13c (m_mapSkillSlotUISet)	june-only	called from InitSkillTreeUI, dtor, ctor
+328ee0b0	STL/helper: generic container destroy (100 callers)	june-only	one per container type
+328ee160	STL/helper: vector range erase/copy	june-only	caller 328ee430
+328ee1b0	STL/helper: vector destroy	june-only	no callers recorded
+328ee220	STL/helper: container clear	june-only	caller 328ee3f0
+328ee280	none in March: effective-desc template lookup	june-only	vector of 0x1c-byte wstring at this+0xc0 indexed by level-1, falls back to empty; called 4x by GetSkillEffectiveDesc 328e5e60
+328ee3f0	STL/helper: vector clear for layout data	june-only	calls 328e7ba0 data; 4 callers
+328ee430	none in March: layout cache reset struct (-1 init)	june-only	sets indices to -1 and clears 4 vectors; callers eaa50, 8e90, dtor
+328ee510	STL/helper: tree node alloc	june-only	recursive helper
+328ee5d0	STL/helper: tree destroy	june-only	caller ctor 328e76a0
+328ee660	CX2UISkillTreeNew::scalar deleting destructor (vtable slot 0)	match	calls 328e2090, then operator delete if flag&1; vtable 334c37fc[0]
+328ee680	CX2UISkillTreeNew::ShowSkillDesc (tail: tooltip size and HorizonLine)	candidate	g_pStatic_HorizonLine, resizes tooltip dialog after text set; calls 328e5e60; single caller 328e9160; March did this inside ShowSkillDesc 3883
+-	CX2UISkillTreeNew::SetPosition	march-only	no June function moves the tree dialog (SetPos); only SetLayer 328d9c30 uses the dialog pointer
+-	CX2UISkillTreeNew::OnFrameMove	march-only	vtable 334c37fc has only the dtor; no per-frame hook in the class (cool time comes from caller 324708c0 -> 328dd570)
+-	CX2UISkillTreeNew::UpdateBlind	march-only	no g_pStaticBlind in the class string range (334c2ec0..334c3b78); strings g_pStaticBlind at 334c7070 belong to another TU
+-	CX2UISkillTreeNew::UpdateSPInfo	march-only	no g_pStaticSPBox / Button_Notice_Notice_SP anywhere in the June exe; UpdateUI lost its SP argument (328e7b70)
+-	CX2UISkillTreeNew::OpenSkillUnsealInformDLG	march-only	DLG_Skill_Purchase_Window.lua string (334c7514) is outside the class range
+-	CX2UISkillTreeNew::DrawElswordWSSDesc	march-only	ELSWORD_WAY_OF_SWORD ItemDesc dialog not referenced by the class; cases 29033/29034 absent from the switch
+-	CX2UISkillTreeNew::SetSelectSkillSlotPosition	march-only	2-way-choice (left/right) skill layout replaced by memo select (328ded60, 328e9b30)
+-	CX2UISkillTreeNew::UpdateAtMoveScrollBar	march-only	HorizonLine1/2 do not exist in June; case 29019 (CONTROLLIST_SCROLL) is a no-op target 328eaf5e
+-	CX2UISkillTreeNew::SetLearnSkillInfo	march-only	no skill-point learn flow: STUCM_BUTTON_SKILL_LEVEL_PLUS and friends are absent from the June switch
+-	CX2UISkillTreeNew::SetBlindSelectSkill	march-only	no blind / choice-darkening code; no g_pStaticBlind
+-	CX2UISkillTreeNew::GetAnotherSelectSkillID	march-only	no m_mapSkillPosition in the June class
+-	CX2UISkillTreeNew::GetSkillLevelInSkillWimdow	march-only	June reads CX2UserSkillTree::GetSkillLevel (32890620) directly, no learn-preview level
+-	CX2UISkillTreeNew::GetPrecedingSkillDesc	march-only	STR 25114 (preceding skill) not referenced in the class
+-	CX2UISkillTreeNew::SetSkillSlotButton	march-only	no learn/upgrade/init buttons in DLG_UI_Skill_Icon_New2015.lua
+-	CX2UISkillTreeNew::IsLearnBeforeSelectSkill	march-only	no tier logic in the class
+-	CX2UISkillTreeNew::GetNotLearnTierIndex	march-only	no tier logic in the class
+-	CX2UISkillTreeNew::GetNotEnoughLevelTierIndex	march-only	no tier logic in the class (level rows 328dc680 are display only)
+-	CX2EquippedSkillSlotData::GetSlotID	march-only	not found; June slot data (vt 334c2ea0) has no such member, index read from slotdata+0x10 directly

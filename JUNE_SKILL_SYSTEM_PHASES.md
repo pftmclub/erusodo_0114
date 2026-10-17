@@ -259,6 +259,65 @@ Map:
 **Done gate:** funcmap rows `Skill S0b`; `june2017_re/s0b_slot_sites.tsv` (every March `EQUIPPED_SKILL_SLOT_COUNT` / slot-index
 site with its June equivalent and the S5 action); S5-S8 kickoff amendments; a Done note under ~60 lines.
 
+### S0b - Done (2026-10-17, Opus 5.5 high; read-only: no code, no flag, no build)
+
+There are 21 funcmap rows tagged `Skill S0b`. New files in `june2017_re/`:
+- `s0b_slot_sites.tsv`: 2,357 March sites, with `june_equivalent` / `phase` / `action` columns. 1,303 are S5, 336 are S6,
+  and 717 are checklist rows (per-class `SAKP_`, state tables and slot-493 code).
+- `s0b_ui_funcmap.tsv`: 121 rows for the June tree UI.
+- `s0b_skill_dlg_census.md`.
+- `s0b_state_ptr_sweep.tsv`: 790 hits.
+- `s0b_march_state_ptr_map.md`.
+
+The kickoffs `S5.md`-`S8.md` each carry an "S0b amendments" section.
+
+- **Item 1 (wire).**
+  - **`KSkillData` is 7 bytes in June** (`320ef0e0`): id, level, and a June-only 4-byte int with no mapped reader.
+  - **`KUnitSkillData`** (`320e3670`, 200 B) has `A[5]` and `B[5]`, so the TC slots are on the wire. June dropped the
+    B end-date / expiry fields for a `vector<{key, state, date}>`, then kept passive, guild passive, note and the two page
+    bytes, and added a June-only struct (`320dc980`).
+  - **`KUserSkillPageData`** (`320dc120`) has `A[5]`, `B[5]`, SP, CSP and the skill vector.
+  - The exact spec is in S5's amendments.
+- **Item 2 (readers).**
+  - Index split `3288fe30`: B is 5-9.
+  - State ids `0x32-0x45` are 10 (normal, hyper) pairs (`32890140`).
+  - The slot ACK `31ed4c80` -> `32895d20` + `ChangeEquippedSkillState 31fd84c0` (4-arg `31fd8ff0`). Bar re-bind
+    `31fcd660`. Gage `i + 5`.
+  - Keys: pressed slot `31fcadd0`. Slot 4 = `GAMEACTION_SKILL5` (F), 9 = `SKILL_EX5` (T). June's enum inserts both, so
+    every later action id shifts.
+  - BFT 16 counts keys 0-3 (any, A, B, TC) through `3214f3d0`.
+  - **TC lock.** Slot 4 needs `CX2Unit +0x3c` (transcendence), which March lacks, so it stays locked until Stage 6. Slot 9
+    needs slot-state key 1, and B 5-8 need key 0 (map `+0x434`, `32892a00` / `32890ee0`: state 1 or 2 usable).
+- **Item 3 (pages).**
+  - June keeps 3 pages (SP/CSP `USHORT[3]` at tree `+0x4a8` / `+0x4ae`).
+  - Decide: REQ `3220f160` (`0x47a` / `0x47b`). The ACK handler is `31f1fd90`, and its ACK carries a whole `KUnitInfo`
+    (March's does not). Expand is by ED or cash. The cost is server-sent, so there is no client table.
+- **Item 4 (UI).**
+  - June's only tree class is **`CX2UISkillTreeNew2015`** (`328d98e0`-`328ee680`, 103 functions: 6 match, 40 changed,
+    53 June-only, 18 March-only).
+  - Its dialogs are `DLG_UI_Skill_Tree_New2015` + `DLG_UI_Skill_Icon_New2015`, and the slot dialog is
+    `DLG_GAME_SKILL_SLOT_NEW_10slot` (the 4+4 file is not loaded).
+  - **The June tree sends no learn and no reset REQ.** The learn / upgrade / init cases are gone. The memo select sends
+    `0x554` / `0x556`. This agrees with S0a item 2 ("no GET_SKILL / RESET_SKILL handler"); S7 finds the learn path first.
+  - All 100 widget methods the June skill DLGs use are bound in March. What is missing is **enum members** in the merged
+    `Enum.lua` (`PVE_GAME_UI_CUSTOM_MSG`, `UI_TOOLTIP_TYPE`, June `STUCM_*` / `SMUCM_*`), so S6 may not need june-engine U1.
+- **Item 5 (pointers).**
+  - March's `m_StateList` is a `std::map` (node based, no erase), so the "dangling after a vector reallocation" risk does
+    not exist in March.
+  - The real hazards are the 7 `m_fPowerRate *=` sites, which would compound, and `Init()` on a running entry during
+    re-equip.
+  - The copies are now at `X2GUUser.cpp:6697` / `:6761` (the ledger's 6585 / 6644 have moved).
+  - June readers: about 50 user / game-unit functions and about 318 class functions (sweep tsv).
+- **Item 6 (user, 2026-10-17).**
+  - `SKILL_SLOT_B_FREE` is **kept via the emulator**: it sends key 0 = permanent, and S5 retires the 4 client sites.
+  - `SKILLTREE_NO_LOCK` **retires with S7**: June has no two-choice blind (`SetBlindSelectSkill` and its tier logic are
+    March-only), so the June tree has nothing to unlock.
+- **Open for later phases.**
+  - The meaning of `KSkillData +3`.
+  - The `KUnitInfo +0x30c` map and `320dc980`'s consumer.
+  - June's event-id names for `0x554` / `0x556` / `0x735`.
+  - Whether `GAMEACTION` renumbering touches the emulator's stored key map (S5).
+
 ## Phase S1 - Extract NewSkillTempletVer2
 
 **Run with:** Opus 5.5 xhigh. Tools only, no game code. **Read list:** `LUA_SOURCE_PHASES.md` L3 Done note and Phase L5;
