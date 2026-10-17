@@ -3760,8 +3760,8 @@ Done when: Phase E4's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 - **Play-test 2026-10-17 (user; run 12:07-12:09 on exe 4294a0c3 + data034 cdb289c0): PASSED by log.** Guide `checkfile.txt absent, guide opened`
   12:08:15, `closed (LMUCM_CLOSE_GUIDE_WINDOW)` 12:08:18, five later opens `present, guide not shown`; six round trips (`StartChangeUV 0 -> 1` /
   `1 -> 0` in 0.7 s); page 1 shows 11 controls (title, 4 buttons, title set, STAR4-7, Down), page 0 shows 6 (title, AD / AC / Tower, title set, Up);
-  0 EXCEPTION, UNHANDLED only the two known `E_DISABLE_HB_CHECK_REQ`, no miss on the guide / move buttons / `Elysion_Local`. The blink is visual
-  only (no log line). Nothing owed but the review.
+  0 EXCEPTION, UNHANDLED only the two known `E_DISABLE_HB_CHECK_REQ`, no miss on the guide / move buttons / `Elysion_Local`. The blink (no log line)
+  confirmed by the user: works. Nothing owed but the review.
 
 ---
 
