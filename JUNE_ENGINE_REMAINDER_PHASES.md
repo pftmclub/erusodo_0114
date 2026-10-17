@@ -1099,6 +1099,7 @@ So June culls world meshes only as whole objects, through the base test, and the
 2. ErrorLog.txt has one `[JUNE_ENGINE] WMESH June world-mesh render on` line. Each building that hides also writes one `WMESH hide:`
    line (`layer N -> 255`) and one `WMESH show:` line (`layer restored to N`).
 3. Any dungeon or field: no world mesh vanishes up close or at the screen edge. Whole-object culling only drops meshes wholly off screen.
+**Play-test 2026-10-18: PASSED** (user: both checks fine; exe md5 `2455a22f`, a later `main` deploy at `2bb92772` that carries R13). ErrorLog: one `WMESH ... render on` line, and hide + restore for all four Elysion meshes (`canhide`, `02`, `04`, `03`; layer 5 -> 255 -> 5). The field visited was F03 (40037, `Field_Elysion_Stage2`, no can-hide mesh), with no pop-in. 0 EXCEPTION; the only UNHANDLED were the 3x `E_DISABLE_HB_CHECK_REQ` baseline.
 
 ## Phase R13b - World skin-mesh render (Prepare)
 
