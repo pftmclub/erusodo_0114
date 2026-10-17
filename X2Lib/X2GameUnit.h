@@ -5306,6 +5306,9 @@ protected:
 #ifdef SERV_DROP_FOR_FINISHER_ONLY
 		UidType										m_iFinisherUID;
 #endif SERV_DROP_FOR_FINISHER_ONLY
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+		int											m_iJuneAutoDisableLine;	/// June game unit +0x3e48: the auto-disabled line I was let onto, -1 = none
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 };
 
 IMPLEMENT_INTRUSIVE_PTR( CX2GameUnit::DamageEffectGroupData );

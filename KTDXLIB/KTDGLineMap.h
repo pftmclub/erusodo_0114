@@ -250,6 +250,9 @@ class CKTDGLineMap : public CKTDGObject
 #ifdef SERV_IRUHADEV_JUNE_MOVABLE_LINE
 			vector<D3DXVECTOR4>	m_vecDirectMoveData;	/// June +0x28: TAT_LINE_CHANGE_MOVABLE_DATA's DIRECT_MOVE_DATA ( its STOP goes into m_bEnable, June's +0xc byte )
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+			bool			m_bJuneAutoDisableLine;	/// June +0x25: AUTO_DISABLE_LINE, read for every line row ( 31c77e20 @31c790a3 ); DoTriggerLine's tail marks the line
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 
 			TRIGGER_DATA_LINE()
 			{
@@ -264,6 +267,9 @@ class CKTDGLineMap : public CKTDGObject
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
 				m_iChangeLineType		= LT_NORMAL;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_LINE_CHANGE_TYPE
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+				m_bJuneAutoDisableLine	= false;
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 			}
 		};
 		struct TRIGGER_DATA_ETC
@@ -504,6 +510,11 @@ class CKTDGLineMap : public CKTDGObject
 			bool			m_bJuneMovable;				/// June LineData +0x155: set by AddMovableLineData_LUA on the line and its followers; UpdateLineVB( true ) redraws it, the NPC hit stop reads it
 			int				m_iJuneCameraLandHeight;	/// June LineData +0x158, CAMERA_LAND_HEIGHT ( 31c705c0 @31c74080, -1 when absent ); CX2Game 322cfe20 gives it to the camera
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+			bool			m_bJuneAutoDisable;				/// June LineData +0x128: set by a line trigger row with AUTO_DISABLE_LINE ( DoTriggerLine 328004a0 @328005d7 )
+			vector<__int64>	m_vecJuneAutoDisableUserUID;	/// June +0x12c: users standing on the line when it was marked; only they may land on it
+			vector<int>		m_vecJuneAutoDisableNPCUID;		/// June +0x13c: the same for NPCs ( 4-byte UIDs )
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP
@@ -636,6 +647,12 @@ class CKTDGLineMap : public CKTDGObject
 				m_bJuneMovable = false;
 				m_iJuneCameraLandHeight = -1;
 #endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+				/// June LineData init 31c7da50 @31c7dc57-31c7dcc8: flag 0, both lists emptied ( copy and destroy are the vectors' own, as June's 31c7e4b0 / 31c7d800 )
+				m_bJuneAutoDisable = false;
+				m_vecJuneAutoDisableUserUID.clear();
+				m_vecJuneAutoDisableNPCUID.clear();
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP
@@ -1271,6 +1288,11 @@ class CKTDGLineMap : public CKTDGObject
         }
 
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+		/// June 31c6b8e0: a unit left auto-disabled line iLine. true when the line is invalid or not marked, or when the UID was listed ( it is erased );
+		/// false when the line is marked and the UID is not listed. bUser picks the 8-byte user list, else the NPC list ( the UID's low dword ).
+		bool JuneAutoDisableRelease( int iLine, __int64 uid, bool bUser );
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 		__forceinline const int GetNumLineData() { return (int)m_LineList.size(); }
 		__forceinline const float GetLandHeight() { return m_fLandHeight; }		
 #ifdef NEW_VILLAGE_RENDERING_TEST

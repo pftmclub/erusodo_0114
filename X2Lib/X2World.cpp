@@ -1786,6 +1786,42 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 	default:
 		break;
 	}
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+	/// June DoTriggerLine tail 328005b9-328007c0, after every action: AUTO_DISABLE_LINE marks the line ( +0x128 = 1 ) and lists every user / NPC whose
+	/// land line is this line ( 31c7bb00 from GetPos( false ), radius 30, seeded with GetLastTouchLineIndex( false ); compared with LineData +0, lineIndex ).
+	/// June's 31c7bb00 takes one more bool ( false for users, true for NPCs: LT_MONSTER_ROAD lines count only for NPCs ); March's GetLandPosition has none.
+	if ( true == triggerLine.m_bJuneAutoDisableLine && NULL != GetLineMap() && NULL != g_pX2Game )
+	{
+		pLineData->m_bJuneAutoDisable = true;
+
+		for ( int i = 0; i < g_pX2Game->GetUserUnitListSize(); ++i )
+		{
+			CX2GUUser* pUser = g_pX2Game->GetUserUnit( i );
+			if ( NULL == pUser )
+				continue;
+
+			int iLandLine = pUser->GetLastTouchLineIndex( false );
+			GetLineMap()->GetLandPosition( pUser->GetPos( false ), LINE_RADIUS, &iLandLine );
+			if ( pLineData->lineIndex == iLandLine )
+				pLineData->m_vecJuneAutoDisableUserUID.push_back( pUser->GetUnitUID() );
+		}
+
+		for ( int i = 0; i < g_pX2Game->GetNPCUnitListSize(); ++i )
+		{
+			CX2GUNPC* pNPC = g_pX2Game->GetNPCUnit( i );
+			if ( NULL == pNPC )
+				continue;
+
+			int iLandLine = pNPC->GetLastTouchLineIndex( false );
+			GetLineMap()->GetLandPosition( pNPC->GetPos( false ), LINE_RADIUS, &iLandLine );
+			if ( pLineData->lineIndex == iLandLine )
+				pLineData->m_vecJuneAutoDisableNPCUID.push_back( (int)pNPC->GetUnitUID() );
+		}
+
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD auto-disable: line " << triggerLine.m_iTriggerLineIndex << " marked, users listed "
+			<< (int)pLineData->m_vecJuneAutoDisableUserUID.size() << ", npcs listed " << (int)pLineData->m_vecJuneAutoDisableNPCUID.size() << fileout;
+	}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 }
 
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID

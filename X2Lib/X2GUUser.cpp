@@ -1745,6 +1745,9 @@ void CX2GUUser::Init( bool bUseTeamPos, int startPosIndex )
 	}
 #endif //WORLD_TOOL
 	
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+	m_iJuneAutoDisableLine = -1;	/// June user Init 3204ea20 @3204ef71
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 	m_bWaitingForRebirthAfterBungee = false;
 
 #ifdef PORTAL_LINEMAP_TEST
@@ -19729,6 +19732,25 @@ void CX2GUUser::CommonFrameMove()
 	m_FrameDataNow.unitCondition.landPosition = g_pX2Game->GetWorld()->GetLineMap()->GetLandPosition( m_FrameDataNow.syncData.position, 
 		LINE_RADIUS, 
 		&m_FrameDataNow.syncData.lastTouchLineIndex );
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+	/// June 32063650 @3206bba4-3206bd03: auto-disable bookkeeping. The line read is the land line just found ( Now, +0x80f4 ); the index compared and stored is
+	/// the physics one ( Future, +0x7e54 ), June's mix ( JUNE_BUGS ). Leaving the remembered line releases my UID; a marked land line is remembered.
+	if ( NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() )
+	{
+		CKTDGLineMap* pJuneLineMap = g_pX2Game->GetWorld()->GetLineMap();
+		const CKTDGLineMap::LineData* pJuneLandLine = pJuneLineMap->GetLineData( m_FrameDataNow.syncData.lastTouchLineIndex );
+		if ( NULL != pJuneLandLine )
+		{
+			if ( m_iJuneAutoDisableLine > -1 && m_iJuneAutoDisableLine != (int)m_FrameDataFuture.syncData.lastTouchLineIndex )
+			{
+				if ( true == pJuneLineMap->JuneAutoDisableRelease( m_iJuneAutoDisableLine, GetUnitUID(), true ) )
+					m_iJuneAutoDisableLine = -1;
+			}
+			if ( true == pJuneLandLine->m_bJuneAutoDisable )
+				m_iJuneAutoDisableLine = (int)m_FrameDataFuture.syncData.lastTouchLineIndex;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 
 
 	if( fabs( m_FrameDataNow.syncData.position.y - m_FrameDataNow.unitCondition.landPosition.y ) < LINE_RADIUS )
@@ -23269,6 +23291,11 @@ void CX2GUUser::PhysicProcess()
 	//현재 정보 받아오기
 	positionOrg = position = m_FrameDataFuture.syncData.position;
 	angleDegree	= m_FrameDataFuture.unitCondition.dirDegree;
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+	/// June 32015b30 @32015bb2-32015c1b: the frame's entry line and land position ( +0x7e54 / +0x7e20, read before any re-land below ), for the auto-disable gate
+	const int			iJuneEntryLineIndex		= m_FrameDataFuture.syncData.lastTouchLineIndex;
+	const D3DXVECTOR3	vJuneEntryLandPosition	= m_FrameDataFuture.unitCondition.landPosition;
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 	
 
 	if( g_pX2Game == NULL || g_pX2Game->GetWorld() == NULL )
@@ -24206,6 +24233,35 @@ void CX2GUUser::PhysicProcess()
 	{
 		lastTouchLineIndex = pLineMap->GetNearestLine( position, &landPosition );
 	}
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+	/// June 32015b30 @32019901-320199dc ( after the nearest-line choice, before the two stores below ): a line marked by AUTO_DISABLE_LINE takes only the
+	/// users listed on it. Anyone else keeps this frame's x / z ( positionOrg ), is lifted to the entry land height and stays on the entry line.
+	{
+		const CKTDGLineMap::LineData* pJuneAutoLine = pLineMap->GetLineData( lastTouchLineIndex );
+		if ( NULL != pJuneAutoLine && true == pJuneAutoLine->m_bJuneAutoDisable )
+		{
+			bool bJuneListed = false;
+			for ( UINT i = 0; i < pJuneAutoLine->m_vecJuneAutoDisableUserUID.size(); ++i )
+			{
+				if ( pJuneAutoLine->m_vecJuneAutoDisableUserUID[i] == GetUnitUID() )
+				{
+					bJuneListed = true;
+					break;
+				}
+			}
+
+			if ( false == bJuneListed )
+			{
+				position.x = positionOrg.x;
+				position.z = positionOrg.z;
+				if ( position.y < vJuneEntryLandPosition.y )
+					position.y = vJuneEntryLandPosition.y;
+				landPosition		= vJuneEntryLandPosition;
+				lastTouchLineIndex	= iJuneEntryLineIndex;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 
 
 	m_FrameDataFuture.syncData.lastTouchLineIndex	= lastTouchLineIndex;

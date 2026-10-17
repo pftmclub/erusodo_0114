@@ -1203,6 +1203,57 @@ the second-candidate selection in `CX2GUUser::PhysicProcess` `@320195be-32019a10
 port, from the funcmap rows: the `LineData` fields (`+0x128` flag, `+0x12c` user UIDs, `+0x13c` NPC UIDs), the parse, the line tail,
 `31c6b8e0`, the unit `+0x3e48` bookkeeping and both physics gates. Test case: `Ranox_FireTemple_StageBoss`, lines 3 and 4.
 
+### Phase W1b -- Done
+
+**2026-10-17, Opus 5.5 high.** One flag, `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE` (`Always.h`, `#error` without `WORLD_TRIGGER`). Insert-only: June adds
+behaviour March never had, so there is no `#else`. Commit: `git log -S SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE`. Funcmap tag `Engine W1b`
+(rows `32015b30 @320195be`, `3277fbf0 @32782d70` raised to `confirmed`; `32063650 @3206bc6c` annotated; new `31c7bb00`, `31c7da50`, `3204ea20`).
+
+**Map (the two W0 candidates).**
+- **User** `@32019901-320199dc`: there is no second candidate inside the loop. `@320195d5-320198fa` is `GetNearestLine` inlined (March `X2GUUser.cpp:24205-24208`). The gate runs on both paths, also when the current line was kept. "esp+0x7c / esp+0x98..0xa0" is the frame's **entry** line and land position (`+0x7e54` / `+0x7e20`, read at `32015bb2-32015c1b` before any re-land, never written again). Unlisted unit: `position.x/z = positionOrg`, `position.y = max( y, entryLand.y )`, `landPosition = entryLand`, line = entry line.
+- **NPC** `@32782deb-32782ea4`: March's `CanDown == false` branch (`X2GUNPC.cpp:27245-27268`) with the entry land position: line = `m_iPositionBackup_LineIndex` (`+0x6860`), x/z = `positionOrg` (`GetPositionBackup`), `NOT_USE_LAND_CONNECT` height clamp, then the `X2OPTIMIZE_WALL_TRAP_BUG_FIX` speed reset (`+0x85fc` = `m_pInitData`, `+0x843c` = `bFootOnLine`, `+0x308` / `+0x314` = `nowSpeed.y` / `fDownAccel`). It sits at the end of the walking branch; the `AI_FLY` branch jumps past it (`@32781f19-32781f42`).
+
+| Piece | June | March site |
+|---|---|---|
+| `TRIGGER_DATA_LINE::m_bJuneAutoDisableLine` + `AUTO_DISABLE_LINE` read, every line row | `+0x25`, `31c77e20 @31c790a3` | `KTDGLineMap.h`, `AddTrigger_LUA` after `LINE_ID` |
+| `LineData` flag, `vector<__int64>` user / `vector<int>` NPC UIDs; `Init` clears them | `+0x128 / +0x12c / +0x13c`, `31c7da50 @31c7dc57-dcc8` (ctor `31c7e4b0`, dtor `31c7d800` = the vectors' own) | `LineData`, `Init()` |
+| `JuneAutoDisableRelease( line, uid, bUser )` | `31c6b8e0`: invalid / unmarked -> true; listed -> erase, true; else false (NPC: low dword) | `KTDGLineMap.cpp` before `CanDown` |
+| `DoTriggerLine` tail, after every action | `328005b9-328007c0` | `X2World.cpp`, after the switch |
+| `CX2GameUnit::m_iJuneAutoDisableLine` | `+0x3e48`; -1 in user `Init` `3204ea20 @3204ef71` | ctor -1 (stand-in, JUNE_BUGS 263) + `CX2GUUser::Init` after the riding block |
+| User bookkeeping | `@3206bba4-3206bd03`, after LAND_CHECK | `CommonFrameMove` after `X2GUUser.cpp:19731` |
+| User gate (+ entry snapshot after `positionOrg = position = ...`) | `@32019901-320199dc` | `PhysicProcess` before the two stores at `:24211` |
+| NPC gate + bookkeeping (+ entry land snapshot) | `@32782d64-32782ede` | `PhysicProcess` before `X2GUNPC.cpp:27277`'s brace |
+
+- **Deviation, routed:** June's `31c7bb00` (`GetLandPosition`) takes a bool that lets `LT_MONSTER_ROAD` lines count (users false, NPCs true). March's has no
+  bool and no skip, so the tail uses March's `GetLandPosition( pos, LINE_RADIUS, &line )`. This matters only for a unit over a monster road. It is a June delta
+  to a March function with many callers: new phase **W1c** (`kickoffs/june-engine/W1c.md`, STATUS row).
+- **JUNE_BUGS 262-265:** the NPC ignores the release result and keeps `+0x3e48`; the NPC `+0x3e48` is never initialised (port: -1); the user mixes the Now
+  land line with the Future index; the lists grow on each fire of a looping trigger.
+
+**Hygiene** (`flagcheck --worktree --files`, 8 files): 7 PASS, 1 DEFINE, 0 FAIL; 0 deleted lines, 0 non-ASCII inserted lines, 0 EOL-mismatched lines,
+0 `#else`/`#endif` without token, 0 encoding change. Range check: see the commit's follow-up line below.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,809,280 B, dated 2026-10-17 22:10:14, md5 acbb882777d398c1676cb09e5335c772, equal to X2/US_SERVICE/x2.exe (2026-10-17 22:10:09); built at main 82dd3ce4 + 12 uncommitted code file(s).`
+The 4 code files that are not mine are peer R13's (`KTDGCamera.*`, `X2WorldObjectMesh.*`, its `Always.h` block), built in, not committed here. No kom changed.
+
+**Play-test hand-off.** Log tag `JUNE_ENGINE` (`python tools/logs.py --grep "WORLD auto-disable"`). The line map is June bytecode, already staged.
+Ranox Fire Temple Normal (`DI_RANOX_FIRETEMPLE_NORMAL` 33310, level 75+), stage 3 = `WI_RANOX_FIRETEMPLE_STAGEBOSS`. Boss `NUI_FIRE_DEVIL_CHAIN_IPLITAN`:
+under 60 % HP it enters `ATTACK_B_EVENT_FIRE` and fires trigger 1. Trigger 1 drops the side platforms (lines 0 and 2), then enables the bungee lines 3 / 4 under
+them (785 units lower) with `AUTO_DISABLE_LINE`. Line 1 (centre) is never touched.
+1. **Marking.** Stand on the left or right platform when the boss fires. Look for two `[JUNE_ENGINE] WORLD auto-disable: line 3 marked, users listed N, npcs listed M`
+   lines (line 3 and line 4). You (and AI-party bots, which are NPCs) standing over a side platform count. You fall onto the bungee line as June does.
+2. **Nobody else lands.** Stand on the centre line 1 when it fires (listed 0 on both lines), then walk off its edge towards a side: you cannot drop onto line
+   3 / 4. You stay held at the edge of line 1 (the gate keeps you on your entry line).
+3. **Release.** As a listed unit, leave line 3 (the bungee teleports you away, or jump off). Look for `[JUNE_ENGINE] WORLD auto-disable release: line 3 user <uid>`
+   (and `npc <uid>` for listed bots/monsters). Afterwards you cannot land on line 3 again.
+If no `marked` line appears: the boss never reached the FIRE state, or the trigger did not fire; send me the `WORLD` lines.
+
+## Phase W1c - GetLandPosition monster-road bool
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD` (proposed). Added by W1b (an unowned June
+branch): June's `CKTDGLineMap::GetLandPosition` `31c7bb00` takes a bool before the radius that lets `LT_MONSTER_ROAD` lines count; March's has neither. Map the
+whole function and every caller's bool, then port it whole (rule 1). Not alongside W2 or atlas E5 (`KTDGLineMap.*`).
+
 ## Phase W2 - Portal-line markers
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:

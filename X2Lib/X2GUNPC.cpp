@@ -26157,6 +26157,9 @@ void CX2GUNPC::PhysicProcess()
 
 	//현재 정보 받아오기
 	positionOrg = position = m_NPCFrameData.syncData.position;
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+	const D3DXVECTOR3 vJuneEntryLandPosition = m_NPCFrameData.unitCondition.landPosition;	/// June 3277fbf0 @3277fc73-3277fcb9 ( +0x8440 ): the auto-disable fallback's land position
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 	//angleDegree	= m_NPCFrameData.unitCondition.dirDegree;
 
 	CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
@@ -27274,6 +27277,58 @@ void CX2GUNPC::PhysicProcess()
 				}
 			}
 		}
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+		/// June 3277fbf0 @32782d64-32782ede, the end of the walking branch ( the AI_FLY branch jumps past it, @32781f19-32781f42 ): a line marked by
+		/// AUTO_DISABLE_LINE takes only the NPCs listed on it ( +0x13c, low-dword UIDs ). Anyone else gets the CanDown == false treatment above with the
+		/// entry land position. Then +0x3e48 = the land line; leaving it calls the release ( 31c6b8e0 ), return value ignored ( JUNE_BUGS ).
+		{
+			const CKTDGLineMap::LineData* pJuneAutoLine = pLineMap->GetLineData( lastTouchLineIndex );
+			if ( NULL != pJuneAutoLine && true == pJuneAutoLine->m_bJuneAutoDisable )
+			{
+				bool bJuneListed = false;
+				for ( UINT i = 0; i < pJuneAutoLine->m_vecJuneAutoDisableNPCUID.size(); ++i )
+				{
+					if ( (UidType)pJuneAutoLine->m_vecJuneAutoDisableNPCUID[i] == GetUnitUID() )
+					{
+						bJuneListed = true;
+						break;
+					}
+				}
+
+				if ( false == bJuneListed )
+				{
+#ifdef  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+					lastTouchLineIndex = m_iPositionBackup_LineIndex;
+#endif  X2OPTIMIZE_NPC_NONHOST_SIMULATION
+					position.x = positionOrg.x;
+					position.z = positionOrg.z;
+					landPosition = vJuneEntryLandPosition;
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+					if ( NOWSTATE_FLAG( NOT_USE_LAND_CONNECT ) == false )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+					if( m_NPCFrameData.stateParam.bNotUseLandConnect == false )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+					{
+						if( position.y < landPosition.y )
+							position.y = landPosition.y;
+					}
+#ifdef  X2OPTIMIZE_WALL_TRAP_BUG_FIX
+					if ( m_pInitData != NULL && m_pInitData->m_bHeuristicSimulation == true
+						&& m_NPCFrameData.unitCondition.bFootOnLine == true
+						&& m_PhysicParam.nowSpeed.y < 0.f )
+					{
+						m_PhysicParam.nowSpeed.y = 0.0f;
+						m_PhysicParam.fDownAccel = 0.0f;
+					}
+#endif  X2OPTIMIZE_WALL_TRAP_BUG_FIX
+				}
+				m_iJuneAutoDisableLine = lastTouchLineIndex;
+			}
+
+			if ( m_iJuneAutoDisableLine > -1 && m_iJuneAutoDisableLine != lastTouchLineIndex )
+				pLineMap->JuneAutoDisableRelease( m_iJuneAutoDisableLine, GetUnitUID(), false );	/// return value ignored, +0x3e48 kept
+		}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 	}
 
 

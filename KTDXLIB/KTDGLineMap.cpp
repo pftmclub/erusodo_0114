@@ -1174,6 +1174,42 @@ D3DXVECTOR3 CKTDGLineMap::GetLandPosition( D3DXVECTOR3 pos, float fRadius, int* 
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+/// June 31c6b8e0 ( thiscall, ret 0x10 ). Callers: CX2GUUser::CommonFrameMove @3206bcda ( uses the result ), CX2GUNPC::PhysicProcess @32782ed9 ( ignores it )
+bool CKTDGLineMap::JuneAutoDisableRelease( int iLine, __int64 uid, bool bUser )
+{
+	LineData* pLineData = AccessLineData( iLine );
+	if ( NULL == pLineData || true != pLineData->m_bJuneAutoDisable )
+		return true;
+
+	if ( true == bUser )
+	{
+		for ( vector<__int64>::iterator it = pLineData->m_vecJuneAutoDisableUserUID.begin(); it != pLineData->m_vecJuneAutoDisableUserUID.end(); ++it )
+		{
+			if ( *it == uid )
+			{
+				pLineData->m_vecJuneAutoDisableUserUID.erase( it );	/// June 31c7d1e0
+				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD auto-disable release: line " << iLine << " user " << uid << fileout;
+				return true;
+			}
+		}
+	}
+	else
+	{
+		const int iUID = (int)uid;	/// June compares the low dword only
+		for ( vector<int>::iterator it = pLineData->m_vecJuneAutoDisableNPCUID.begin(); it != pLineData->m_vecJuneAutoDisableNPCUID.end(); ++it )
+		{
+			if ( *it == iUID )
+			{
+				pLineData->m_vecJuneAutoDisableNPCUID.erase( it );	/// June 325f3d20
+				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD auto-disable release: line " << iLine << " npc " << iUID << fileout;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos, int* pLineIndex, bool bDownRadius, bool bIsMonster, bool bOnLine )
 {
 	KTDXPROFILE();
@@ -2762,6 +2798,9 @@ bool CKTDGLineMap::AddTrigger_LUA()
 			LUA_GET_VALUE_ENUM( luaManager, "TRIGGER_ACTION",	triggerDataLine.m_iLineTriggerAction,	TRIGGER_LINE_ACTION_TYPE, TAT_LINE_NONE	);
 			LUA_GET_VALUE(		luaManager,	"DELAY_TIME",		triggerDataLine.m_fTriggerTime,			0 );
 			LUA_GET_VALUE(		luaManager,	"LINE_ID",			triggerDataLine.m_iTriggerLineIndex,	-1 );
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+			LUA_GET_VALUE(		luaManager,	"AUTO_DISABLE_LINE",	triggerDataLine.m_bJuneAutoDisableLine,	false );	/// June 31c77e20 @31c790a3: every line row, before the action switch
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 			
 			switch( triggerDataLine.m_iLineTriggerAction )
 			{

@@ -7804,3 +7804,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_RENDER_WORLD_CARTOON needs SERV_IRUHADEV_RANOX_RIM_LIGHT (it replaces that flag's SetRimLightTextureIndex body)
 #endif SERV_IRUHADEV_RANOX_RIM_LIGHT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase W1b. Line-map trigger AUTO_DISABLE_LINE: a line row with it (June 31c77e20 @31c790a3, TRIGGER_DATA_LINE +0x25)
+//              marks its line (LineData +0x128) and lists the users (+0x12c, __int64) and NPCs (+0x13c, int) standing on it (DoTriggerLine tail 328005b9-328007c0).
+//              Only listed units may land on a marked line: CX2GUUser::PhysicProcess (32015b30 @32019901-320199dc) and CX2GUNPC::PhysicProcess
+//              (3277fbf0 @32782d64-32782ede) send anyone else back to the frame's entry line. The unit remembers the marked line (game unit +0x3e48, -1)
+//              and leaving it releases its UID (CKTDGLineMap 31c6b8e0; user CommonFrameMove @3206bc6c-3206bd03). Log: [JUNE_ENGINE] WORLD auto-disable.
+#define SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+#ifndef WORLD_TRIGGER
+#error SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE needs WORLD_TRIGGER (TRIGGER_DATA_LINE and CX2World::DoTriggerLine)
+#endif WORLD_TRIGGER
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+//////////////////////////////////////////////////////////////////////////

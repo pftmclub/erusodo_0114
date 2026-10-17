@@ -633,6 +633,9 @@ m_fNoSkillTime( 0 )
 #ifdef SERV_DROP_FOR_FINISHER_ONLY
 	m_iFinisherUID = 0;
 #endif SERV_DROP_FOR_FINISHER_ONLY
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+	m_iJuneAutoDisableLine = -1;	/// June sets -1 only in the user Init ( 3204ea20 @3204ef71 ); the NPC's +0x3e48 has no store before use ( JUNE_BUGS )
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 }
 
 CX2GameUnit::~CX2GameUnit(void)
