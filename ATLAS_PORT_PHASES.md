@@ -4391,6 +4391,14 @@ Census `--line AR`: 129 open rows before, 83 after, all routed checklist step-9 
 - **How to see it (after the copy):** a level-84+ character that has cleared SkyCrossroads Normal: M -> Elysion tab -> Adrian icon enabled -> enter Normal;
   Stage0-3 and the boss stage load; the moving platforms in Stage2 carry the player (E5); laser / gauge objects fire; the Herbaon / New Dekal boss gauge shows its face.
   ErrorLog must show no `DungeonData` / `NPCTemplet` / `WorldData` load error and no missing mesh.
+- **Play-test 2026-10-17 (user + log, run 15:03-15:08, exe md5 3abf2519, koms after the copy):** reyaa (lv 85) entered `dungeonID=33880`, Stage2 moving platforms
+  loaded (`[ELYDBG] movable line` x5, `Elysion_Adrian_Stage2_LineMap.lua`), boss gauges on stage 1 (npc 2275) and 4 (npc 2276), `CLEARED in 279s: 107 kill(s)`, 0 EXCEPTION,
+  no `DungeonData` / `NPCTemplet` / `WorldData` load error, no missing mesh. ErrorLog: `Elysion_Adrian_AP_Shield02.TGA` (named inside `Motion_ADRIAN_EVENT3_A.x`, no copy in
+  any kom; June's data) and `Elysion_Adrian_center02.TGA` (the `.dds` is in data180), `ELYSION_GAUGE_OBJECT_Bubble.ogg` (assets.absent). **User saw "NPC Motion Error"
+  chat lines (BOMB_PANG `DamageAirUp`, Herbaon):** `june2017_re/npc_anim_census.py` over all 151 `ELYSION_*` unit scripts: 58 name an `ANIM_NAME` their mesh lacks, every one of
+  those meshes is byte-identical to June's (e.g. `Motion_ELYSION_BOMB_PANG.x` lacks `DamageAirUp` / `JumpUp`, `Motion_BOSS_HERBAON.x` lacks `Dash` / `DashEnd`), 0 are fixed by
+  a June copy; table `june2017_re/elysion_npc_anim_gaps.tsv`. June's own `CommonStateStart` (327ac9d0 @~3277b4xx: `FUN_31d33fd0` false -> "NPC Motion Error. LuaFileName ..." log)
+  does the same; the state just keeps the previous pose. March only adds the yellow `_IN_HOUSE_` chat line (`X2GUNPC.cpp:16071`). Open for the user: hide that chat line or leave it.
 
 ### Phase E10 — Soless
 

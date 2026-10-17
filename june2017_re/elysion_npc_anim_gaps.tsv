@@ -1,0 +1,59 @@
+script	mesh	march_copies	missing_in_march	missing_in_june_too	verdict
+ELYSION_BOMB_PANG	Motion_ELYSION_BOMB_PANG.x	1	missing_in_march=['DamageAirUp', 'JumpUp']	still_missing_in_june=['DamageAirUp', 'JumpUp']	PARTIAL
+ELYSION_BOSS_HERBAON	Motion_BOSS_HERBAON.x	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_BOSS_HERBAON_HENIR	Motion_BOSS_HERBAON.x	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_BOSS_ORB	Motion_BOSS_ORB.x	1	missing_in_march=['JumpLanding']	still_missing_in_june=['JumpLanding']	PARTIAL
+ELYSION_BOSS_ORB_HENIR	Motion_BOSS_ORB.x	1	missing_in_march=['JumpLanding']	still_missing_in_june=['JumpLanding']	PARTIAL
+ELYSION_BOSS_SHIELD	Motion_BOSS_SHIELD.X	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_BOSS_SHIELD_HENIR	Motion_BOSS_SHIELD.X	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_DIA	Motion_DIA.x	1	missing_in_march=['DamageDownLanding', 'DamageSmallBack', 'DamageSmallFront']	still_missing_in_june=['DamageDownLanding', 'DamageSmallBack', 'DamageSmallFront']	PARTIAL
+ELYSION_DUMMY_HERBAON	Dummy_Ani_Wait_Bounding.X	1	missing_in_march=['Damage', 'Dying']	still_missing_in_june=['Damage', 'Dying']	PARTIAL
+ELYSION_DUMMY_HERBAON_HENIR	Dummy_Ani_Wait_Bounding.X	1	missing_in_march=['Damage', 'Dying']	still_missing_in_june=['Damage', 'Dying']	PARTIAL
+ELYSION_EMPEROR_FEAR	Motion_HERNA_FEAR.x	1	missing_in_march=['DamageDownLanding']	still_missing_in_june=['DamageDownLanding']	PARTIAL
+ELYSION_EMPEROR_LANCE	Motion_EMPEROR_LANCE.x	1	missing_in_march=['DamageAirDownFall']	still_missing_in_june=['DamageAirDownFall']	PARTIAL
+ELYSION_EMPEROR_SHIELD	Motion_EMPEROR_SHIELD.x	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_F_BOSS_ORB	Motion_BOSS_ORB.x	1	missing_in_march=['JumpLanding']	still_missing_in_june=['JumpLanding']	PARTIAL
+ELYSION_F_BOSS_SHIELD	Motion_BOSS_SHIELD.X	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_F_HERNA_FEAR	Motion_HERNA_FEAR.x	1	missing_in_march=['DamageDownLanding']	still_missing_in_june=['DamageDownLanding']	PARTIAL
+ELYSION_F_HERNA_LANCE	Motion_HERNA_LANCE.X	1	missing_in_march=['DamageAirDownFall']	still_missing_in_june=['DamageAirDownFall']	PARTIAL
+ELYSION_F_HERNA_SHIELD	Motion_HERNA_SHIELD.X	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_HAMMER_PANG	Motion_ELYSION_HAMMER_PANG.x	1	missing_in_march=['BM_RollingBack_Start']	still_missing_in_june=['BM_RollingBack_Start']	PARTIAL
+ELYSION_HERNA_FEAR	Motion_HERNA_FEAR.x	1	missing_in_march=['DamageDownLanding']	still_missing_in_june=['DamageDownLanding']	PARTIAL
+ELYSION_HERNA_LANCE	Motion_HERNA_LANCE.X	1	missing_in_march=['DamageAirDownFall']	still_missing_in_june=['DamageAirDownFall']	PARTIAL
+ELYSION_HERNA_SHIELD	Motion_HERNA_SHIELD.X	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_IMPRINT_LANCE	Motion_IMPRINT_LANCE.x	1	missing_in_march=['DamageAirDownFall']	still_missing_in_june=['DamageAirDownFall']	PARTIAL
+ELYSION_IMPRINT_SHIELD	Motion_IMPRINT_SHIELD.x	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_L_H_LASER	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_L_H_LASER_HENIR	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_L_V_LASER	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_L_V_LASER_HENIR	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_M_0STAGE_GATE_2	Dummy_Ani_Wait.x	1	missing_in_march=['Dying', 'Start']	still_missing_in_june=['Dying', 'Start']	PARTIAL
+ELYSION_M_0STAGE_GATE_3	Dummy_Ani_Wait.x	1	missing_in_march=['Dying', 'Start']	still_missing_in_june=['Dying', 'Start']	PARTIAL
+ELYSION_M_2STAGE_GATE	Motion_M_2STAGE_GATE.x	0	missing_in_march=['Broken', 'Damage', 'Wait']	still_missing_in_june=None	NO-JUNE-MESH
+ELYSION_M_EL_KNIGHT	Motion_M_EL_KNIGHT.x	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_M_EL_LANCE	Motion_M_EL_LANCE.x	1	missing_in_march=['DamageAirFlyBack', 'DamageAirFlyFront']	still_missing_in_june=['DamageAirFlyBack', 'DamageAirFlyFront']	PARTIAL
+ELYSION_M_EL_MAGE	Motion_M_EL_MAGE.x	1	missing_in_march=['DamageAirFlyBack', 'DamageAirFlyFront']	still_missing_in_june=['DamageAirFlyBack', 'DamageAirFlyFront']	PARTIAL
+ELYSION_M_HARNIE	Dummy_Ani_Wait.x	1	missing_in_march=['Dying', 'Start']	still_missing_in_june=['Dying', 'Start']	PARTIAL
+ELYSION_M_MEMORY_3	Dummy_Ani_Wait.x	1	missing_in_march=['Dying', 'Start']	still_missing_in_june=['Dying', 'Start']	PARTIAL
+ELYSION_M_MEMORY_4	Dummy_Ani_Wait.x	1	missing_in_march=['Dying', 'Start']	still_missing_in_june=['Dying', 'Start']	PARTIAL
+ELYSION_M_MEMORY_5	Dummy_Ani_Wait.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_M_SOLESS	Motion_M_SOLESS.x	1	missing_in_march=['Attack_B_End', 'Attack_B_Fire', 'Attack_B_Ready', 'Attack_B_Start', 'Mana_Break_Damage', 'NONE']	still_missing_in_june=['Attack_B_End', 'Attack_B_Fire', 'Attack_B_Ready', 'Attack_B_Start', 'Mana_Break_Damage', 'NONE']	PARTIAL
+ELYSION_M_S_KNIGHT	Motion_M_S_KNIGHT.x	1	missing_in_march=['DashEnd']	still_missing_in_june=['DashEnd']	PARTIAL
+ELYSION_M_S_KNIGHT_SUMMON	Motion_M_S_KNIGHT.x	1	missing_in_march=['DashEnd']	still_missing_in_june=['DashEnd']	PARTIAL
+ELYSION_M_S_LANCE	Motion_M_S_LANCE.x	1	missing_in_march=['DamageAirFlyFront']	still_missing_in_june=['DamageAirFlyFront']	PARTIAL
+ELYSION_M_S_LANCE_SUMMON	Motion_M_S_LANCE.x	1	missing_in_march=['DamageAirFlyFront']	still_missing_in_june=['DamageAirFlyFront']	PARTIAL
+ELYSION_M_S_MAGE	Motion_M_S_MAGE.x	1	missing_in_march=['DamageAirDown', 'DamageAirFlyBack', 'DamageAirFlyFront']	still_missing_in_june=['DamageAirDown', 'DamageAirFlyBack', 'DamageAirFlyFront']	PARTIAL
+ELYSION_M_S_MAGE_SUMMON	Motion_M_S_MAGE.x	1	missing_in_march=['DamageAirDown', 'DamageAirFlyBack', 'DamageAirFlyFront']	still_missing_in_june=['DamageAirDown', 'DamageAirFlyBack', 'DamageAirFlyFront']	PARTIAL
+ELYSION_R_H_LASER	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_R_H_LASER_HENIR	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_R_V_LASER	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_R_V_LASER_HENIR	Motion_BOSSSATGE_LASER.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_SPHERE	Motion_SPHERE.x	1	missing_in_march=['Damage']	still_missing_in_june=['Damage']	PARTIAL
+ELYSION_S_0STAGE_FLOOR	DummyAttackBox_300x50x50.X	1	missing_in_march=['Normal']	still_missing_in_june=['Normal']	PARTIAL
+ELYSION_S_2STAGE_HERBAON	Motion_S_2Stage_HERBAON.x	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_S_3STAGE_OBJECT	Dummy_Ani_Wait.X	1	missing_in_march=['Dying']	still_missing_in_june=['Dying']	PARTIAL
+ELYSION_S_DIA	Motion_DIA.x	1	missing_in_march=['DamageDownLanding', 'DamageSmallBack', 'DamageSmallFront']	still_missing_in_june=['DamageDownLanding', 'DamageSmallBack', 'DamageSmallFront']	PARTIAL
+ELYSION_S_IMPRINT_LANCE	Motion_IMPRINT_LANCE.x	1	missing_in_march=['DamageAirDownFall']	still_missing_in_june=['DamageAirDownFall']	PARTIAL
+ELYSION_S_IMPRINT_SHIELD	Motion_IMPRINT_SHIELD.x	1	missing_in_march=['Dash', 'DashEnd']	still_missing_in_june=['Dash', 'DashEnd']	PARTIAL
+ELYSION_S_MAYA	Motion_S_MAYA.x	1	missing_in_march=['Escape']	still_missing_in_june=['Escape']	PARTIAL
+ELYSION_S_SPHERE	Motion_SPHERE.x	1	missing_in_march=['Damage']	still_missing_in_june=['Damage']	PARTIAL
