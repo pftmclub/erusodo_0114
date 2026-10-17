@@ -1386,6 +1386,12 @@ them (785 units lower) with `AUTO_DISABLE_LINE`. Line 1 (centre) is never touche
    (and `npc <uid>` for listed bots/monsters). Afterwards you cannot land on line 3 again.
 If no `marked` line appears: the boss never reached the FIRE state, or the trigger did not fire; send me the `WORLD` lines.
 
+**Play-test PASSED (user, 2026-10-17; logs read).** Run on a later deploy (`cc6a579d`, md5 ea4a74b4, contains `b8653b47`). 0 EXCEPTION, UNHANDLED = the 2x
+`E_DISABLE_HB_CHECK_REQ` baseline. Run 1 (side platform): `line 3 marked, users listed 1, npcs listed 0`, `line 4 marked, users listed 0`, then 3 s later
+`release: line 3 user 12`. Run 2 (centre platform): lines 3 and 4 marked with 0 listed, and the user could not drop onto them.
+
+Next: `/x2-phase june-engine W1b review` on Opus 5.5 / high.
+
 ## Phase W1c - GetLandPosition monster-road bool
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD` (proposed). Added by W1b (an unowned June
