@@ -38,16 +38,15 @@ namespace
 		return bOk;
 	}
 
+	/// June 32fe9e40 ( KLuaManager::GetValue( bool ) ): numbers only ( lua_isnumber 32fe4d70 ), value = ftol ( 32fe25f0, truncation ) != 0.
+	/// A Lua boolean true / false is not a number, so the key counts as missing and the default stays ( scripts use the numeric TRUE / FALSE ).
+	/// R3 review: the port first also took booleans and compared the double with 0.0; corrected to June.
 	bool JuneGetBool( lua_State* L, int iTable, const char* pKey, bool& bOut )
 	{
 		lua_getfield( L, iTable, pKey );
-		bool bOk = true;
-		if( lua_isboolean( L, -1 ) )
-			bOut = ( 0 != lua_toboolean( L, -1 ) );
-		else if( lua_isnumber( L, -1 ) )
-			bOut = ( 0.0 != lua_tonumber( L, -1 ) );
-		else
-			bOk = false;
+		const bool bOk = ( 0 != lua_isnumber( L, -1 ) );
+		if( bOk )
+			bOut = ( 0 != (int) lua_tonumber( L, -1 ) );
 		lua_pop( L, 1 );
 		return bOk;
 	}

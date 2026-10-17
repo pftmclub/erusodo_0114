@@ -617,6 +617,43 @@ Range (`--range 92f0ea8f^..92f0ea8f`): `files: 8 PASS, 1 PASS~ (blank/marker onl
 `[JUNE_ENGINE] ENVBOX hook alive: Lua class CKTDGEnvBoxMap bound 1, AddEnvBox_LUA 1, SetLUT 1, g_pWorld:SetEnvBoxMap 1, renderer env box switch 0, map in this world 0`.
 Switch 0 is the `USE_ENV_BOX = FALSE` default. **Open:** none for the user; asset-port P4a ships `XEnvBoxRenderer.fx`.
 
+### Phase R3 -- Review
+
+**2026-10-17, Opus 5.5. Verdict: PASS with one transcription fix** (no design question for the user). Reviewed `92f0ea8f` + `08f9741e` against
+the 15 `(R3)` funcmap rows and June's code in Ghidra (read-only).
+
+**Ghidra spot-checks (all four read line by line against the port):**
+- `Render` 31d0a410: in-range test (enabled, `( 1 - d / length ) * weight`, `d >= 0 && w > 0`); LUT and rim stacking last-first while the
+  remaining weight `> 0.01`; the blend test `count != 1 || w0 < 1`; chunks 4 then 3, weights `w[n - done - 1 - i]`, `g_vEtcParam = ( done, chunk, 0, 0 )`,
+  target ping-pong from 0, previous target on stage 3, `SetFVF 0x102` / stride 0x14 / strip of 2, `EndRender` even when `BeginEffect` fails;
+  renderer writes `+0x5c / +0x60 / +0x59` (single LUT: texture in `+0x5c`; blended: target in `+0x60`), rim `+0x68..+0x7c` in the order colour,
+  power, wide, forced, `+0x64`; blended rim seeds colour / wide / forced from the first box, power from 0 (JUNE_BUGS 269). **Match.**
+- `AddEnvBox_LUA` 31d0b720: KLuaManager on the table ( `32fead40( L, 1, 0 )` ), the 14 keys with their defaults and box offsets, missing
+  position / rotation / scale zeroed, `LUT_NUM` range check, id = size - 1, the weight tail and the 0.001 floor (JUNE_BUGS 270); vectors are
+  `lua_isuserdata` + `lua_tinker::read<D3DXVECTOR3>` (31c7e850 -> 32fe4de0 / 31c20c40), as the port. **One mismatch, fixed (below).**
+- `GetBoxDistance` 31d09130: axes `( -m11, m12, m13 ) ( m21, -m22, m23 ) ( m31, m32, -m33 )` against the matrix offsets `+0x44..+0x6c`, the
+  `-( 2 s + d )` fold, max-or-0, -1 for a bad or disabled box. **Match.**
+- World / game hook 327fb5f0, 322d7260: `GS_PLAY`, main world then each `+0x1ac` world, unit = `GetMyUnit` (vslot 0x98 = 3231f550), renderer
+  `+0x80` gate, `+0x40` map null check. June's first `31cda140` call is the line map (`+0x13c` / `+0x34`) = March's `CX2World::OnFrameRender`, the second
+  is the map's empty draw (`+0x13d`). Per additional world June does line map then env box per world; the port runs every world's line map first, then
+  every env box. The last world still writes the renderer last, so the final state is the same. **Match.**
+
+**Fix (same flag):** `JuneGetBool` took a Lua boolean and compared the double with 0.0. June's getter 32fe9e40 (KNCSDK `KLuaManager::GetValue( bool )`)
+takes numbers only (`lua_isnumber` 32fe4d70) and uses `ftol( v ) != 0` (32fe25f0, `CVTTSD2SI`). So `BOX_ENABLED = false` written as a Lua boolean keeps the
+default `true`, and `0.5` reads as false. Now as June. No data creates a box, so nothing changes in game.
+
+**Also checked:** `#else` paths: every call site is insert-only (no March line replaced). The renderer setters touch only R2's members plus `+0x64`. The dtor
+clears `+0x59 / +0x5c / +0x60 / +0x64` and leaves the rim colours. World reset / lost call the map first (327fb6b0 / 327fb800). The `BeginRender( false )` +
+`Clear( 0xff000000 )` deviation = June's `BeginRender( 1, 1, 0, 0xff000000 )` (both clear target + Z to opaque black).
+
+**Hygiene:** `--range 92f0ea8f^..08f9741e`: `files: 8 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 1 FAIL, 0 ERROR` /
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` /
+`RESULT: FAIL`. The one FAIL is `KTDGEnvBoxMap.cpp`'s PCH `#include "StdAfx.h"` outside the flag, accepted as U1's `KTDXWordWrap.cpp`. Fix (`--worktree
+--files KTDXLIB/KTDGEnvBoxMap.cpp`): `1 PASS` / `RESULT: PASS`. Its 7 deleted lines are the old body of `JuneGetBool`, inside the flag's own new file.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,811,840 B, dated 2026-10-17 23:16:42, md5 42d6430006064e9adeef5e46c61c233b, equal to X2/US_SERVICE/x2.exe (2026-10-17 23:16:37); built at main 830818ab + 10 uncommitted code file(s).`
+A peer's build compiled the fix (edit 22:56, `KTDGEnvBoxMap.obj` 23:06, `KTDXLIB.lib` 23:06, exe 23:16); mine had nothing to relink.
+**User owes:** nothing (the env box stays inactive, as in June; R3's `ENVBOX hook alive` log line remains the only check). Next: `/x2-phase june-engine R4`.
+
 ## Phase R4 - Heat shimmer
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER`. Port the owner of
