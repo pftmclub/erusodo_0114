@@ -608,7 +608,8 @@ inactive. Evidence: `june2017_re/funcmap.tsv` rows `(R3)` (15), read from the Gh
 - **June quirks kept:** JUNE_BUGS 268 (`g_pEnvBoxMap` global never cleared), 269 (blended rim power starts at 0), 270 (`BLEND_WEIGHT` forced to 0 / 1 by `BLEND_LENGTH`; missing vectors zeroed).
 
 **Hygiene** (`--worktree --files`): RESULT PASS for all own files except `KTDGEnvBoxMap.cpp`, whose `#include "StdAfx.h"` sits outside the flag (PCH requirement, as U1's `KTDXWordWrap.cpp`);
-`Always.h` OTHER = a peer's uncommitted blocks. 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 encoding changes. Range check: in the commit message.
+`Always.h` OTHER = a peer's uncommitted blocks. 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 encoding changes.
+Range (`--range 92f0ea8f^..92f0ea8f`): `files: 8 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 1 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: FAIL` (the one FAIL is `KTDGEnvBoxMap.cpp`'s PCH `#include "StdAfx.h"`, accepted).
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,841,536 B, dated 2026-10-17 22:39:22, md5 ea4a74b48006d7eacdc02768fa36fe9c, equal to X2/US_SERVICE/x2.exe (2026-10-17 22:39:17); built at main cc6a579d + 18 uncommitted code file(s).`
 (a peer's build compiled my files; the exe holds `ENVBOX hook alive`, `AddEnvBox_LUA`, `SetEnvBoxMap`, `g_pEnvBoxMap`, `@CKTDGEnvBoxMap@BlendedLUT0@` and `XEnvBoxRenderer.fx`).
 
