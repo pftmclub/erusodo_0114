@@ -106,6 +106,9 @@ CKTDGUIDialog::CKTDGUIDialog( CKTDXStage* pStage, const WCHAR* wstrScriptFileNam
     m_pUnitViewer = NULL;
 
 	m_bDisableUnderWindow = false;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+	m_pJuneSecondUnitViewer = NULL;		// June ctor @31cd9616
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 	m_bIsOverControl = false;
 
 	m_bMouseOverShowDlg = false;
@@ -416,6 +419,179 @@ HRESULT	CKTDGUIDialog::OnFrameMove( double fTime, float fElapsedTime )
 //}
 //}} robobeg : 2009-01-07
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+// June 31cd7810, ported whole ( R8 had only swapped its state block ). Differences from March's function below:
+// - no DIALOG_SHOW_TOGGLE early return. While the UI is hidden the dialog manager's hide-mode list picks the dialogs ( R8 ), and each
+//   of them now draws ( March drew only DLG_ChatBox_EditBox of that list );
+// - the pass ( 0 = March's frame; 1 = the post-effect pass, whose caller is R4b ): pass 1 pushes the DG +0x70 block, draws only the
+//   controls set with SetBlockPostEffect ( +0x241 ), skips OnFrameRenderEnd and draws the 3D objects through OnFrameRenderPostEffect;
+// - the hidden-control-name test ( @31cd7aa9-31cd7b6e ): while the UI is hidden, a control whose name is in the current hide mode's
+//   control-name set ( dialog manager +0xf0, copied by 31aad1b0, looked up by 31cda5b0 ) is not drawn. March has no such set, and
+//   June's mode-1 preset ( 32597410 @3259b25e-3259b331 ) fills only the dialog-name set, so every control draws, here and in June;
+// - D3DRS_MULTISAMPLEANTIALIAS pushed on around the 3D part ( @31cd7c51-31cd7cab, popped @31cd8822-31cd8856 );
+// - June's second unit viewer ( +0x164 ) drawn after the first;
+// - no LOG_LOAD_DLG_SCRIPT overlay.
+// The controls' own pass argument ( control vslot 8 ( pass ) @31cd7b6c / @31cd7b9a ) is R4e's: the controls draw as in March.
+HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */, int iRenderPass_ /* = 0 */ )
+{
+	KTDXPROFILE();
+
+	if( m_bShow == false && bForceDraw == false )
+		return S_OK;
+
+	if( GetTimeForSelfDelete() > 0.f )
+	{
+		if( m_TimerToSelfDelete.elapsed() > GetTimeForSelfDelete() )
+		{
+			return false;
+		}
+	}
+
+    KD3DBEGIN()
+
+		// June @31cd78e1: the DG +0x70 block in pass 1, else +0x68
+		if( 1 == iRenderPass_ )
+			CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialogAdditive() );
+		else
+			CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialog() );
+
+	    for ( int i = 0; i < (int)m_ControlsList.size(); i++ )
+	    {
+		    CKTDGUIControl* pControl = m_ControlsList[i];
+			// June @31cd7a80-31cd7aa3: a control, not taken out of the list ( +0xc5 ), and in pass 1 only SetBlockPostEffect ones
+			if( pControl == NULL )
+				continue;
+#ifdef NEW_SKILL_TREE_UI
+			if( pControl->GetOutOfControlList() == true )
+				continue;
+#endif NEW_SKILL_TREE_UI
+			if( 0 != iRenderPass_ && pControl->GetBlockPostEffect() == false )
+				continue;
+
+			pControl->OnFrameRender();
+	    }
+
+		if( 0 == iRenderPass_ )		// June @31cd7bc5: pass 0 only
+		{
+			for ( int i = 0; i < (int)m_ControlsList.size(); i++ )
+			{
+				CKTDGUIControl* pControl = m_ControlsList[i];
+#ifdef NEW_SKILL_TREE_UI
+				if( pControl->GetOutOfControlList() == false )
+					pControl->OnFrameRenderEnd();
+#else NEW_SKILL_TREE_UI
+				pControl->OnFrameRenderEnd();
+#endif NEW_SKILL_TREE_UI
+			}
+		}
+
+    KD3DEND()
+
+	if( ( m_bHasUnit == true && m_pUnitViewer != NULL )
+#ifdef PARTICLE_RENDER_BY_DIALOG
+		|| ( true == m_bHasParticle && false == m_ParticleList.empty() )
+#endif PARTICLE_RENDER_BY_DIALOG
+		)
+	{
+		const int iMultiSampleStackTop = CKTDGStateManager::GetStackTop();
+		CKTDGStateManager::PushRenderState( D3DRS_MULTISAMPLEANTIALIAS, TRUE );
+
+		KD3DBEGIN()
+			if( m_bHasUnit == true && m_pUnitViewer != NULL )
+			{
+				// The dialog's 3D model, drawn with reset matrices as March does ( world identity, view from ( 0, 0, -1300 ), ortho )
+				D3DXMATRIX matWorld, matView, matProj;
+
+				g_pKTDXApp->GetDevice()->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+
+				bool bOriginalProjcetionMode = g_pKTDXApp->GetDGManager()->GetPerspective();
+				D3DXMATRIX matIden;
+				D3DXMatrixIdentity( &matIden );
+
+				g_pKTDXApp->GetDevice()->GetTransform( D3DTS_WORLD, &matWorld );
+				g_pKTDXApp->GetDevice()->GetTransform( D3DTS_VIEW, &matView );
+				g_pKTDXApp->GetDevice()->GetTransform( D3DTS_PROJECTION, &matProj );
+
+				g_pKTDXApp->SetWorldTransform( &matIden );
+
+				D3DXMATRIX ViewMatrix;
+				D3DXMatrixLookAtLH( &ViewMatrix, &D3DXVECTOR3(0,0,-1300), &D3DXVECTOR3(0,0,0), &D3DXVECTOR3(0,1.f,0) );
+				g_pKTDXApp->SetViewTransform( &ViewMatrix );
+
+				g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), false );	// Ortho
+
+				CKTDGStateManager::PushStates( m_pUnitViewer->GetRenderStateID() );
+				if( 1 == iRenderPass_ )
+					m_pUnitViewer->OnFrameRenderPostEffect();		// June @31cd8040 ( 31cda1a0 )
+				else
+					m_pUnitViewer->OnFrameRender();					// June @31cd8047 ( 31cda140 )
+
+				// June @31cd804c-31cd81e4
+				if( m_pJuneSecondUnitViewer != NULL )
+				{
+					CKTDGStateManager::PushStates( m_pJuneSecondUnitViewer->GetRenderStateID() );
+					if( 1 == iRenderPass_ )
+						m_pJuneSecondUnitViewer->OnFrameRenderPostEffect();
+					else
+						m_pJuneSecondUnitViewer->OnFrameRender();
+				}
+
+				g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), bOriginalProjcetionMode );
+				g_pKTDXApp->SetProjectionTransform( &matProj );
+				g_pKTDXApp->SetWorldTransform( &matWorld );
+				g_pKTDXApp->SetViewTransform( &matView );
+			}
+		KD3DEND()
+
+#ifdef PARTICLE_RENDER_BY_DIALOG
+		KD3DBEGIN()
+			if( true == m_bHasParticle && false == m_ParticleList.empty() )
+			{
+				// The dialog's particles, drawn with the same reset matrices
+				D3DXMATRIX matWorld, matView, matProj;
+
+				g_pKTDXApp->GetDevice()->Clear(0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 0, 0, 0), 1.0f, 0);
+
+				bool bOriginalProjcetionMode = g_pKTDXApp->GetDGManager()->GetPerspective();
+				D3DXMATRIX matIden;
+				D3DXMatrixIdentity( &matIden );
+
+				g_pKTDXApp->GetDevice()->GetTransform( D3DTS_WORLD, &matWorld );
+				g_pKTDXApp->GetDevice()->GetTransform( D3DTS_VIEW, &matView );
+				g_pKTDXApp->GetDevice()->GetTransform( D3DTS_PROJECTION, &matProj );
+
+				g_pKTDXApp->SetWorldTransform( &matIden );
+
+				D3DXMATRIX ViewMatrix;
+				D3DXMatrixLookAtLH( &ViewMatrix, &D3DXVECTOR3(0,0,-1300), &D3DXVECTOR3(0,0,0), &D3DXVECTOR3(0,1.f,0) );
+				g_pKTDXApp->SetViewTransform( &ViewMatrix );
+
+				g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), false );	// Ortho
+
+				vector<CKTDGObject*>::iterator it = m_ParticleList.begin();
+				for( ; it != m_ParticleList.end(); ++it )
+				{
+					CKTDGStateManager::PushStates( (*it)->GetRenderStateID() );
+					if( 1 == iRenderPass_ )
+						(*it)->OnFrameRenderPostEffect();		// June: 31cda1a0 inlined ( @31cd86da-31cd86e7 )
+					else
+						(*it)->OnFrameRender();					// June: 31cda140 inlined
+				}
+
+				g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), bOriginalProjcetionMode );
+				g_pKTDXApp->SetProjectionTransform( &matProj );
+				g_pKTDXApp->SetWorldTransform( &matWorld );
+				g_pKTDXApp->SetViewTransform( &matView );
+			}
+		KD3DEND()
+#endif PARTICLE_RENDER_BY_DIALOG
+
+		CKTDGStateManager::PopStates( iMultiSampleStackTop );
+	}
+
+	return S_OK;
+}
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */ )
 {
 	KTDXPROFILE();
@@ -607,6 +783,7 @@ HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */ )
 
 	return S_OK;
 }
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 #ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 // June 31cd2af0: the first radio button of group iGroupID with group offset iGroupOffset is enabled / disabled (disabled also unchecks it,

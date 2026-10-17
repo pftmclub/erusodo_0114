@@ -2222,6 +2222,10 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 #ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 	lua_tinker::class_def<CKTDGUIControl>( L, "SetChangeFocusByKeyMsg",			&CKTDGUIControl::SetChangeFocusByKeyMsg );	// June @31bf7164 ( 31c1a740 )
 #endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+	lua_tinker::class_def<CKTDGUIControl>( L, "SetBlockPostEffect",				&CKTDGUIControl::SetBlockPostEffect );		// June @31bf694a ( 31c1a720 )
+	lua_tinker::class_def<CKTDGUIControl>( L, "SetBlockStringPostEffect",		&CKTDGUIControl::SetBlockStringPostEffect );	// June @31bf6b44 ( 31c1a730 )
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 #ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 	lua_tinker::class_def<CKTDGUIControl>( L, "AddDummyInt_Flag",				&CKTDGUIControl::AddDummyInt_Flag_LUA );	// June @31bf5a7e ( 31c95b40 )
 #endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS

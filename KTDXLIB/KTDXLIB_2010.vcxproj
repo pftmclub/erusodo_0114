@@ -1959,6 +1959,7 @@
     <ClCompile Include="KTDGUIStatic.cpp" />
     <ClCompile Include="KTDXWordWrap.cpp" />
     <ClCompile Include="KTDGEnvBoxMap.cpp" />
+    <ClCompile Include="KTDGHeatShimmer.cpp" />
     <ClCompile Include="KTDGUIUniBuffer.cpp" />
     <ClCompile Include="KTDGXMeshPlayer.cpp" />
     <ClCompile Include="KTDGXRenderer.cpp" />
@@ -2218,6 +2219,7 @@
     <ClInclude Include="KTDGUIStatic.h" />
     <ClInclude Include="KTDXWordWrap.h" />
     <ClInclude Include="KTDGEnvBoxMap.h" />
+    <ClInclude Include="KTDGHeatShimmer.h" />
     <CustomBuildStep Include="KTDGUIUniBuffer.h" />
     <ClInclude Include="KTDGXMeshPlayer.h" />
     <ClInclude Include="KTDGXRenderer.h" />

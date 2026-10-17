@@ -13,6 +13,9 @@
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 #include "KTDGEnvBoxMap.h"
 #endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+#include "KTDGHeatShimmer.h"
+#endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 #include "KTDGGlow.h"
 #include "KTDGSkyDome.h"
 #include "KTDGXSkinAfterImage.h"
@@ -145,8 +148,15 @@ class CKTDGManager : public CKTDXStage
 		void ObjectChainSort();
 		void ObjectChainNonAlphaRender();
 		void ObjectChainAlphaRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		void ObjectChainAlphaRenderPass1();						// June 31ce9470
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 		void BackUIRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		void FrontUIRender( int iRenderPass_ = 0 );				// June 31ce94a0 ( pass )
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		void FrontUIRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 #ifdef FILDE_ONLY_CHARACTER
 		void NonAlphaLayerRender( int iLayer );
@@ -256,6 +266,9 @@ class CKTDGManager : public CKTDXStage
 		CKTDGXRenderer*				GetXRenderer(){ return m_pXRenderer; }
 		CKTDGFontManager*			GetFontManager(){ return m_pFontManager; }
 		CKTDGUIDialogManager*		GetDialogManager(){ return m_pDialogManager; }
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+		CKTDGHeatShimmer*			GetJuneHeatShimmer(){ return m_pJuneHeatShimmer; }
+#endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 		//CKTDGGrayScale*				GetGrayScale(){ return m_pGrayScale; }
 
 
@@ -316,6 +329,9 @@ class CKTDGManager : public CKTDXStage
     private:
 
         void                        _RenderObjectRenderHintVector( const KObjectRenderHintVector& vecInObject_, bool bInLayerExclusive_ = false );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		void						_RenderObjectRenderHintVectorPass1( const KObjectRenderHintVector& vecInObject_, bool bInLayerExclusive_ = false );	// June 31ce80c0
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 	public:
 		const static int				LIMIT_DISTANCE = 800;
@@ -374,6 +390,9 @@ class CKTDGManager : public CKTDXStage
 		CKTDGXRenderer*				m_pXRenderer;
 		CKTDGFontManager*			m_pFontManager;
 		CKTDGUIDialogManager*		m_pDialogManager;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+		CKTDGHeatShimmer*			m_pJuneHeatShimmer;		// June +0x384
+#endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 		//CKTDGGrayScale*				m_pGrayScale;
 
 		bool						m_bFading;

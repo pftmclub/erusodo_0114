@@ -32,6 +32,10 @@ CKTDGUIControl::CKTDGUIControl()
 #ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 	m_bChangeFocusByKeyMsg = true;		// June control ctor 31c9b090 @31c9b327
 #endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+	m_bBlockPostEffect			= false;	// June @31c9b2e6 ( word +0x240 = 0 )
+	m_bBlockStringPostEffect	= false;	// June @31c9b321
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 	
 
 	m_kMaximizeOffset.x = 0;

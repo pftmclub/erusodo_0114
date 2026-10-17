@@ -60,10 +60,20 @@ class CKTDGUIDialogManager : public CKTDXStage
 
 
 		virtual	HRESULT OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		// June 31d053f0 ( vslot 0x30 ): ( bFront, pass ); pass 0 is March's frame, pass 1 the post-effect pass ( R4b )
+		virtual	HRESULT OnFrameRender( bool bFront = false, int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		virtual	HRESULT OnFrameRender( bool bFront = false );
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 		// June 31d05700 ( vslot 0x38 ): only dialogs whose layer is in [ iMinLayer_, iMaxLayer_ ] ( CKTDGManager::FrontUIRender )
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		// June's order is ( bFront, pass, iMinLayer_, iMaxLayer_ ); the pass goes last here so the three-argument calls keep their meaning
+		virtual	HRESULT OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_, int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		virtual	HRESULT OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 		// June +0x110: only dialogs flagged +0x1e0 are drawn ( 31d0556a / 31d0587b ); FrontUIRender then draws no band. Written only by
 		// June-only game code ( 31f1e108, 3223dfea, 3243d15f, ... ), not ported: false here
 		bool	GetJuneFlaggedDialogsOnly() const { return m_bJuneFlaggedDialogsOnly; }
@@ -168,6 +178,10 @@ private:
 #endif
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 		bool m_bJuneFlaggedDialogsOnly;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		HRESULT _OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_, int iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		HRESULT _OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 #endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 };

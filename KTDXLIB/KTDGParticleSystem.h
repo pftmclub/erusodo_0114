@@ -1266,6 +1266,11 @@ class CKTDGParticleSystem
 				//virtual HRESULT OnFrameRender();
                 virtual RENDER_HINT OnFrameRender_Prepare();
                 virtual void            OnFrameRender_Draw();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+				// June 31ceefa0 ( vslot 0x10 ): tail jump to the normal draw; 31cef710 ( vslot 0x2c ): +0x144 == 1 && +0x31d ( m_bPostEffect )
+				virtual void	OnFrameRender_PostEffectDraw() { OnFrameRender_Draw(); }
+				virtual bool	IsPostEffect() { return IsAlphaObject() && m_bPostEffect; }
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 //}} robobeg : 2008-10-28
 

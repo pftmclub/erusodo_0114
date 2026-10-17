@@ -716,6 +716,49 @@ and that `CX2Game` is not a stage in June: each state calls its game's three slo
 Every March caller passes pass 0, so nothing in game changes. Gate: build, and one `[JUNE_ENGINE] SHIMMER` line at device reset
 (effect loaded or missing).
 
+### Phase R4a -- Done
+
+**2026-10-18, Opus 5.5 high.** Flags `SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER` and `SERV_IRUHADEV_JUNE_RENDER_PASS1` (`Always.h`; PASS1 `#error`s
+without `JUNE_RENDER_DG_LISTS`, `JUNE_UI_DIALOG_BANDS`, `JUNE_RENDER_DG_STATES`, `JUNE_MESHPLAYER`, `JUNE_PARTICLE`). Commit: `git log -S
+SERV_IRUHADEV_JUNE_RENDER_PASS1`. 15 funcmap rows `(R4a)`; JUNE_BUGS 273-274.
+
+**Heat shimmer** (new `KTDGHeatShimmer.h/.cpp`): ctor / dtor, reset, lost, begin, end, commit transcribed. The DG manager creates it after the
+renderer, deletes it, and resets and loses it at June's position (after the renderer, before the fonts). A missing `XHeatShimmerRenderer.fx`
+logs `KEM_ERROR49` plus one `[JUNE_ENGINE] SHIMMER` line and stays inactive; nothing calls BeginEffect (R4b's frame would).
+
+**Pass 1** (every March caller passes 0):
+- `CKTDGObject` gets `OnFrameRender_PostEffectDraw` (vslot 0x10, base empty `31f3f070`) and `IsPostEffect` (0x2c, base false `31e4c550`), plus
+  the inline helper `OnFrameRenderPostEffect` (`31cda1a0`). Mesh and particle overrides: draw, and `alpha && bPostEffect`.
+- DG: `_RenderObjectRenderHintVectorPass1` (`31ce80c0` = March's batched loop + the post-effect skip), `ObjectChainAlphaRenderPass1`
+  (`31ce9470`), `FrontUIRender( pass )` pass 1 (`31ce94a0`). The two pass-0 band calls now carry the pass.
+- Dialog manager: both renders take the pass and give it to every dialog render; the guide block is DG `+0x70` in pass 1; the drag slot takes
+  it. June's order is (bFront, pass, min, max); March keeps (bFront, min, max, pass), so its three-argument calls are unchanged.
+- `CKTDGUIDialog::OnFrameRender( bForce, pass )` (`31cd7810`) **ported whole**; the March function is the `#else`.
+- `RenderDragSlot( pass )` (`31ccfee0`): June's drag test before the state push.
+- Control members `SetBlockPostEffect` / `SetBlockStringPostEffect` (`+0x241` / `+0x242`) with their Lua bindings (`KTDXApp.cpp`).
+- June's second dialog unit viewer `+0x164` (setter `31cd20c0`, June-only callers): NULL in March.
+
+**Two pass-0 changes come with the whole-function port** (June wins):
+1. The dialog render has no DIALOG_SHOW_TOGGLE early return. While the UI is hidden, the manager's hide list (R8) draws its message boxes, which
+   now show; March showed only `DLG_ChatBox_EditBox`.
+2. The `LOG_LOAD_DLG_SCRIPT` overlay (in-house, LCtrl) is gone.
+
+The `D3DRS_MULTISAMPLEANTIALIAS = TRUE` push is D3D's default, so nothing changes visually. The hidden-control-name test (`@31cd7aa9`) is a
+comment only. Its set (manager `+0xf0`) does not exist in March, and June's mode-1 preset fills only the dialog-name set.
+
+**Routed to new R4e:** the controls' own pass argument (control vslot 8 ( pass ) in every control class, `+0x242` string gate), and
+`CX2UnitViewerUI`'s vslot 0x10 / 0x2c overrides (`31f97960` / `31fae370`).
+
+**Hygiene** (`flagcheck --worktree --files` on the 17 code files): PASS1 `files: 12 PASS, 4 OTHER, 1 FAIL`; HEAT_SHIMMER `1 PASS, 15 OTHER,
+1 FAIL`; 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 encoding changes in both. The FAIL is `KTDGHeatShimmer.cpp`'s `#include "StdAfx.h"`
+before the flag (the accepted PCH pattern, as R3 / U1). The OTHER rows are the sibling flag. Always.h's `-1` is a peer's uncommitted line.
+
+`DEPLOY OK: X2_offline.exe is 19,872,256 B, dated 2026-10-18 03:33:13, md5 24cb4c156c99b7e3175e604571bf3397, equal to X2/US_SERVICE/x2.exe
+(2026-10-18 03:33:08); built at main 0c6d6a15 + 18 uncommitted code file(s).` (strings `[JUNE_ENGINE] SHIMMER`, `SetBlockStringPostEffect` in the exe).
+
+**How to see it in game:** ErrorLog.txt gets a `[JUNE_ENGINE] SHIMMER ... is not in any kom yet` line at each device reset (the first may be too early for ErrorLog; a resolution change makes another). UI, dialog
+3D models (character info, cash shop), the skill-tree drag icon and the over-UI particles look as before.
+
 ## Phase R4b - Frame render, render targets, anti-aliasing option
 
 **Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_FRAME`. Depends on R4a. Port the
@@ -749,6 +792,19 @@ Play-test: login, server select, village, dungeon and PvP rooms, a dungeon, the 
 `CX2Game` (`322d7260` / `322cc8f0` / `3230aa60`) and the five March game classes in the tsv `game` rows, transcribing each `0x10` UI slot from
 June. The `CX2Game::OnFrameRender` June blocks (env box, Elysion script B, dramatic message, skip-start) move into the matching slot. Play-test:
 dungeon, PvP and battlefield HUDs as before.
+
+## Phase R4e - UI control pass argument and the other post-effect overrides
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_UI_CONTROL_PASS` (proposed).
+Added by R4a (2026-10-18). Depends on R4a; it can run before or after R4b-R4d (pass 1 has no caller until R4b).
+- June's control render is `vslot 8 ( pass )` in every control class (button `31ca37f0`, radio `31cab2b0`, slot `31cb1ef0`, static `31cbec10`,
+  IME edit `31cb9ff0`, ...). The pass reaches the texture / vertex draws, and strings draw in a pass other than 0 only with `+0x242`
+  (`SetBlockStringPostEffect`, R4a's member). Map each class, then port whole, plus the two call sites R4a marked (dialog render
+  `@31cd7b6c / @31cd7b9a`, guide control `@31d05695`).
+- The other June overrides of `CKTDGObject` vslots `0x10` / `0x2c` (`CX2UnitViewerUI` `31f97960` / `31fae370`, and any other vtable that
+  overrides them).
+
+Every March caller passes 0, so nothing in game changes. Gate: build + deploy; UI unchanged.
 
 ## Phase R5 - CUSTOM_RENDER_STATE
 

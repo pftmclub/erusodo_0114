@@ -891,11 +891,19 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront, int iRenderPass_ )
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront )
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 {
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 	// June 31d053f0 ( vslot 0x30 ): no layer band
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+	return _OnFrameRenderJune( bFront, false, 0, 0, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 	return _OnFrameRenderJune( bFront, false, 0, 0 );
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 #else SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 
 
@@ -1005,16 +1013,28 @@ HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront )
 }
 
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_, int iRenderPass_ )
+{
+	return _OnFrameRenderJune( bFront, true, iMinLayer_, iMaxLayer_, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 HRESULT CKTDGUIDialogManager::OnFrameRender( bool bFront, int iMinLayer_, int iMaxLayer_ )
 {
 	return _OnFrameRenderJune( bFront, true, iMinLayer_, iMaxLayer_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 }
 
 // June 31d053f0 / 31d05700 in render pass 0 ( the pass argument is R4's ). Differences from March's OnFrameRender above: the
 // layer band, the flagged-only mode ( +0x110 / dialog +0x1e0 ), the dialog block pushed around the guide-control loop, no
 // LOG_LOAD_DLG_SCRIPT overlay. Kept as June has it ( JUNE_BUGS.md ): the hidden-UI list, the guide controls and the drag slot
 // ignore the band, so FrontUIRender's two band calls draw each of them twice.
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+// R4a: every dialog render gets ( false, pass ) ( June @31d054dc, @31d055bb ), the guide-control block is the DG +0x70 block in pass 1
+// ( @31d055ee ), the drag slot gets the pass ( @31d056d1 )
+HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_, int iRenderPass_ )
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_, int iMinLayer_, int iMaxLayer_ )
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 {
 	KTDXPROFILE();
 
@@ -1024,6 +1044,27 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 	// is June's dialog render's own ( 31cd7810 ). June's modes 2-5 are Effect C3p-2's routed rows.
 	if( GetHideDialog() == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		CKTDGUIDialogType pDialog = GetDialog( L"DLG_ChatBox_EditBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender( false, iRenderPass_ );
+
+		pDialog = GetDialog( L"DLG_MsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender( false, iRenderPass_ );
+
+		pDialog = GetDialog( L"DLG_OKMsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender( false, iRenderPass_ );
+
+		pDialog = GetDialog( L"OkAndCancelMsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender( false, iRenderPass_ );
+		// R8 review: June's fifth mode-1 name ( 334a9fb4; the June-only DLG_UI_ExitPartyMsgBox.lua, which March never opens )
+		pDialog = GetDialog( L"DLG_Exit_Party_MsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender( false, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		CKTDGUIDialogType pDialog = GetDialog( L"DLG_ChatBox_EditBox" );
 		if( pDialog != NULL && pDialog->GetShow() )
 			pDialog->OnFrameRender();
@@ -1043,6 +1084,7 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 		pDialog = GetDialog( L"DLG_Exit_Party_MsgBox" );
 		if( pDialog != NULL && pDialog->GetShow() )
 			pDialog->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 		return S_OK;
 	}
@@ -1067,18 +1109,34 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 		{
 			// June @31d0587b: flagged dialogs only, and no band
 			if ( pDialog->GetJuneDrawInFlaggedMode() == true && pDialog->GetShow() )
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+				pDialog->OnFrameRender( false, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 				pDialog->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 		}
 		else if ( pDialog->GetShow()
 			&& ( bLayerBand_ == false || ( iMinLayer_ <= pDialog->GetLayer() && pDialog->GetLayer() <= iMaxLayer_ ) ) )
 		{
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+			pDialog->OnFrameRender( false, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 			pDialog->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 		}
     }//while
 
 	// June @31d0591b-31d059d6: the guide controls of every shown dialog of this side, under the dialog block
     KD3DBEGIN()
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		// June @31d055ee: the DG +0x70 block in pass 1, else +0x68. The guide control's own pass argument ( vslot 8 ( pass ) @31d05695 ) is R4e's
+		if ( 1 == iRenderPass_ )
+			CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialogAdditive() );
+		else
+			CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialog() );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialog() );
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 		m_vecIterator.back() = m_listDialog.begin();
 
@@ -1103,7 +1161,11 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 #ifdef NEW_SKILL_TREE_UI
 	if(CKTDGUISlot::s_pDragSlot != NULL && bFront)
 	{
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		CKTDGUISlot::s_pDragSlot->RenderDragSlot( iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		CKTDGUISlot::s_pDragSlot->RenderDragSlot();
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 	}
 #endif
 

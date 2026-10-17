@@ -142,6 +142,25 @@ class CKTDGObject
                 SetInstantShow( false );
             }//if.. else..
         }//OnFrameRender()
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		// June vslot 0x10: the render-pass-1 ( post-effect ) draw. The base is empty ( 31f3f070 ); mesh 31c82d30 and particle 31ceefa0 draw
+		virtual void	OnFrameRender_PostEffectDraw() {}
+		// June vslot 0x2c: is this object drawn in render pass 1? The base says no ( 31e4c550 ); mesh 31c83500, particle 31cef710
+		virtual bool	IsPostEffect() { return false; }
+		// June 31cda1a0, the pass-1 twin of OnFrameRender above ( 31cda140 ): shown, not NORENDER and a post-effect object
+		void	OnFrameRenderPostEffect()
+		{
+			if ( GetShowObject() && OnFrameRender_Prepare().m_eHint != RENDER_HINT::NORENDER && IsPostEffect() )
+			{
+				SetInstantShow( true );
+				OnFrameRender_PostEffectDraw();
+			}
+			else
+			{
+				SetInstantShow( false );
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 //}} robobeg : 2008-10-28
 
         virtual HRESULT OnResetDevice(){ return S_OK; }

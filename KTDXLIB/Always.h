@@ -8010,3 +8010,41 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
 #endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R4a. June's heat-shimmer object (CKTDGManager +0x384; ctor 31ce5630, reset 31ce5e90, lost
+//              31ce5680, begin 31ce5710, end 31ce5d00, commit 31ce56a0), made, reset, lost and deleted by the DG manager as June does.
+//              It loads XHeatShimmerRenderer.fx at the first device reset; until asset-port P4a ships the file it logs one
+//              [JUNE_ENGINE] SHIMMER line and stays inactive. Nothing begins it, as in June (R4 RE item 1). New KTDGHeatShimmer.h/.cpp.
+#define SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R4a. June's render-pass argument (0 = March's frame, 1 = the post-effect pass): CKTDGObject
+//              vslots 0x10 / 0x2c with the mesh / particle overrides and the draw-if-post-effect helper 31cda1a0, the DG pass-1 hint loop
+//              31ce80c0, the alpha pass-1 twin 31ce9470, FrontUIRender( pass ) 31ce94a0, the dialog-manager renders 31d053f0 / 31d05700,
+//              the dialog render 31cd7810 ported whole, RenderDragSlot( pass ) 31ccfee0, the control flags SetBlockPostEffect /
+//              SetBlockStringPostEffect (+0x241 / +0x242). Every March caller passes 0; pass 1's caller is R4b.
+#define SERV_IRUHADEV_JUNE_RENDER_PASS1
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+#ifndef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+#error SERV_IRUHADEV_JUNE_RENDER_PASS1 needs SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
+#ifndef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#error SERV_IRUHADEV_JUNE_RENDER_PASS1 needs SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#ifndef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#error SERV_IRUHADEV_JUNE_RENDER_PASS1 needs SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#ifndef SERV_IRUHADEV_JUNE_MESHPLAYER
+#error SERV_IRUHADEV_JUNE_RENDER_PASS1 needs SERV_IRUHADEV_JUNE_MESHPLAYER
+#endif SERV_IRUHADEV_JUNE_MESHPLAYER
+#ifndef SERV_IRUHADEV_JUNE_PARTICLE
+#error SERV_IRUHADEV_JUNE_RENDER_PASS1 needs SERV_IRUHADEV_JUNE_PARTICLE
+#endif SERV_IRUHADEV_JUNE_PARTICLE
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
+//////////////////////////////////////////////////////////////////////////

@@ -476,6 +476,47 @@ void CKTDGUISlot::LButtonMouseUp()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+// June 31ccfee0: the drag test comes first ( @31ccfefd-31ccff22 ), then the DG +0x70 block in pass 1 ( else +0x68 ) and the dragged
+// vertex. March pushes the block before the test; nothing is drawn outside the test, so the two look the same
+HRESULT	CKTDGUISlot::RenderDragSlot( int iRenderPass_ )
+{
+	if( m_eControlState == SCS_ONDRAG && m_bHasFocus == true && m_pNormalPoint != NULL && m_pNormalPoint->pUITextureData != NULL )
+	{
+		KD3DBEGIN()
+
+		if( 1 == iRenderPass_ )
+			CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialogAdditive() );
+		else
+			CKTDGStateManager::PushStates( g_pKTDXApp->GetDGManager()->GetRSICKTDGUIDialog() );
+
+		D3DXVECTOR2 vMousePos;
+		vMousePos.x = (float)g_pKTDXApp->GetDIManager()->GetMouse()->GetXPos();
+		vMousePos.y = (float)g_pKTDXApp->GetDIManager()->GetMouse()->GetYPos();
+		vMousePos = g_pKTDXApp->MouseConvertByResolution( vMousePos );
+
+		float halfwidth = (m_pDraggingPoint->rightTopPoint.x - m_pDraggingPoint->leftTopPoint.x) * 0.5f ;
+		float halfheight = ( m_pDraggingPoint->leftBottomPoint.y - m_pDraggingPoint->leftTopPoint.y) * 0.5f;
+
+		m_pDraggingPoint->leftTopPoint = vMousePos + D3DXVECTOR2(-halfwidth, -halfheight);
+		m_pDraggingPoint->rightTopPoint = vMousePos + D3DXVECTOR2(halfwidth, -halfheight);
+		m_pDraggingPoint->leftBottomPoint = vMousePos + D3DXVECTOR2(-halfwidth, halfheight);
+		m_pDraggingPoint->rightBottomPoint = vMousePos + D3DXVECTOR2(halfwidth, halfheight);
+
+		UpdateDraggingVertex( m_DragVertex[CKTDGUIControl::VP_LEFT_TOP],
+			m_DragVertex[CKTDGUIControl::VP_RIGHT_TOP],
+			m_DragVertex[CKTDGUIControl::VP_LEFT_BOTTOM],
+			m_DragVertex[CKTDGUIControl::VP_RIGHT_BOTTOM],
+			*m_pDraggingPoint );
+
+		RenderVertex( m_DragVertex, *m_pDraggingPoint );		// June 31c95050( ..., 1 ): March's default renderCount
+
+		KD3DEND()
+	}
+
+	return S_OK;
+}
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 HRESULT	CKTDGUISlot::RenderDragSlot()
 {
 	KD3DBEGIN()
@@ -530,6 +571,7 @@ HRESULT	CKTDGUISlot::RenderDragSlot()
 	return S_OK;
 
 }
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 
 

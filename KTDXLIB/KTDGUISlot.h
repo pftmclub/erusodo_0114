@@ -71,7 +71,11 @@ public:
 	virtual HRESULT OnFrameRender();
 	virtual	HRESULT	OnFrameRenderEnd();
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+	HRESULT	RenderDragSlot( int iRenderPass_ = 0 );		// June 31ccfee0 ( pass )
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 	HRESULT	CKTDGUISlot::RenderDragSlot();
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 	virtual bool    HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam );
 	//virtual bool    MsgProc( UINT uMsg, WPARAM wParam, LPARAM lParam );

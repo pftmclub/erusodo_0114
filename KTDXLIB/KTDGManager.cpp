@@ -396,6 +396,9 @@ CKTDGManager::CKTDGManager( HWND hWnd, LPDIRECT3DDEVICE9 pd3dDevice )
 	//m_pGlow					= new CKTDGGlow( g_pKTDXApp->GetDevice() );
 	//m_pMotionBlur			= new CKTDGMotionBlur( g_pKTDXApp->GetDevice() );
 	m_pXRenderer			= new CKTDGXRenderer( g_pKTDXApp->GetDevice() );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+	m_pJuneHeatShimmer		= new CKTDGHeatShimmer( g_pKTDXApp->GetDevice() );	// June 31cead50 @31ceb0c2-31ceb108: after the renderer ( +0x380 ), before the fonts ( +0x388 )
+#endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 	m_pFontManager			= new CKTDGFontManager( g_pKTDXApp->GetDevice() );
 	//m_pGrayScale			= new CKTDGGrayScale();
 
@@ -467,6 +470,9 @@ CKTDGManager::~CKTDGManager(void)
 	//SAFE_DELETE( m_pGlow );
 	//SAFE_DELETE( m_pMotionBlur );
 	SAFE_DELETE( m_pXRenderer );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+	SAFE_DELETE( m_pJuneHeatShimmer );		// June 31ce5660 + delete @31ceb37c: after the renderer, before the fonts
+#endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 	SAFE_DELETE( m_pFontManager );
 	SAFE_CLOSE( m_pTextureFadeInOut );
 
@@ -807,6 +813,158 @@ void    CKTDGManager::_RenderObjectRenderHintVector( const CKTDGManager::KObject
 }//CKTDGManager::_RenderObjectRenderHintVector()
 //}} robobeg : 2008-10-13
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+// June 31ce80c0: the render-pass-1 hint loop. It is March's loop above as it was before R8 ( batches keep BeginRenderGroup,
+// @31ce857e / @31ce8fe4 ), plus one test: an object that is not a post-effect object ( vslot 0x2c, @31ce815c-31ce8165 ) is skipped.
+// The draw is still OnFrameRender_Draw ( vslot 0xc ). Kept as June ( JUNE_BUGS ): a skipped entry does not advance iIndex ( the jump
+// @31ce8165 passes the increment @31ce8c00, like March's NULL entry ), so after one, a batch's vecIn_[ iStart .. iIndex ) is off.
+void CKTDGManager::_RenderObjectRenderHintVectorPass1( const CKTDGManager::KObjectRenderHintVector& vecIn_, bool bInLayerExclusive_ )
+{
+    RENDER_HINT		kRenderHint;
+    int				iRenderHintLayer = 0;
+
+    HRESULT hr;
+    int iStart = 0;
+    int iIndex = 0;
+    int iCount = 0;
+    int iIndex2;
+
+    KD3DBEGIN()
+
+        CKTDGStateManager::KStateID stateID;
+        int     iStackTop = CKTDGStateManager::GetStackTop();
+
+        BOOST_TEST_FOREACH( const KObjectRenderHint&, kObjectRenderHint, vecIn_ )
+        {
+			if( kObjectRenderHint.m_pObject == NULL )
+			{
+				ErrorLogMsg( KEM_ERROR422, "RenderHint pObject Is NULL" );		// June @31ce8152
+				continue;
+			}
+			if( kObjectRenderHint.m_pObject->IsPostEffect() == false )
+				continue;
+
+            if ( iCount > 0
+                && ( !kRenderHint.IsSameCategory( kObjectRenderHint.m_kRenderHint ) || bInLayerExclusive_ && iRenderHintLayer != kObjectRenderHint.m_pObject->GetLayer() ) )
+            {
+                if ( iCount == 1 )
+                {
+                    const KObjectRenderHint& prev = vecIn_[ iStart ];
+                    if( prev.m_pObject->GetRenderStateID() != stateID )
+                    {
+                        CKTDGStateManager::PopStates( iStackTop );
+                        stateID = prev.m_pObject->GetRenderStateID();
+                        CKTDGStateManager::PushStates( stateID );
+                    }//if
+                    m_pXRenderer->SetRenderPassFogAndMaxSkinningVertices( prev.m_kRenderHint.m_bFog, prev.m_kRenderHint.m_uMaxSkinningVertices );
+                    prev.m_pObject->OnFrameRender_Draw();
+                }
+                else
+                {
+                    if ( stateID != CKTDGStateManager::KStateID() )
+                    {
+                        CKTDGStateManager::PopStates( iStackTop );
+                        stateID = CKTDGStateManager::KStateID();
+                    }//if
+
+                    for( hr = m_pXRenderer->BeginRenderGroup( kRenderHint.m_eRenderType ); SUCCEEDED( hr );
+                        hr = m_pXRenderer->NextRenderGroup() )
+                    {
+                        for( iIndex2 = iStart; iIndex2 < iIndex; iIndex2++ )
+                        {
+                            const KObjectRenderHint& prev = vecIn_[ iIndex2 ];
+                            if( prev.m_pObject->GetRenderStateID() != stateID )
+                            {
+                                CKTDGStateManager::PopStates( iStackTop );
+                                stateID = prev.m_pObject->GetRenderStateID();
+                                CKTDGStateManager::PushStates( stateID );
+                            }//if
+                            m_pXRenderer->SetRenderPassFogAndMaxSkinningVertices( prev.m_kRenderHint.m_bFog, prev.m_kRenderHint.m_uMaxSkinningVertices );
+                            prev.m_pObject->OnFrameRender_Draw();
+                        }//for
+                    }//for
+
+                    stateID = CKTDGStateManager::KStateID();
+                }//if.. else..
+                iCount = 0;
+            }//if
+            if ( kObjectRenderHint.m_kRenderHint.m_eHint == RENDER_HINT::XMESH
+                || kObjectRenderHint.m_kRenderHint.m_eHint == RENDER_HINT::XSKINMESH )
+            {
+                if ( iCount == 0 )
+                {
+                    kRenderHint = kObjectRenderHint.m_kRenderHint;
+                    iRenderHintLayer = kObjectRenderHint.m_pObject->GetLayer();
+                    iCount = 1;
+                    iStart = iIndex;
+                }
+                else
+                {
+                    iCount++;
+                }//if.. else..
+            }
+            else
+            {
+                if( kObjectRenderHint.m_pObject->GetRenderStateID() != stateID )
+                {
+                    CKTDGStateManager::PopStates( iStackTop );
+                    stateID = kObjectRenderHint.m_pObject->GetRenderStateID();
+                    CKTDGStateManager::PushStates( stateID );
+                }//if
+                kObjectRenderHint.m_pObject->OnFrameRender_Draw();
+            }//if.. else..
+
+            iIndex++;
+        }//BOOST_TEST_FOREACH()
+
+        if ( iCount > 0 )
+        {
+            if ( iCount == 1 )
+            {
+                const KObjectRenderHint& prev = vecIn_[ iStart ];
+                if( prev.m_pObject->GetRenderStateID() != stateID )
+                {
+                    CKTDGStateManager::PopStates( iStackTop );
+                    stateID = prev.m_pObject->GetRenderStateID();
+                    CKTDGStateManager::PushStates( stateID );
+                }//if
+                m_pXRenderer->SetRenderPassFogAndMaxSkinningVertices( prev.m_kRenderHint.m_bFog, prev.m_kRenderHint.m_uMaxSkinningVertices );
+                prev.m_pObject->OnFrameRender_Draw();
+            }
+            else
+            {
+                if ( stateID != CKTDGStateManager::KStateID() )
+                {
+                    CKTDGStateManager::PopStates( iStackTop );
+                    stateID = CKTDGStateManager::KStateID();
+                }//if
+
+                for( hr = m_pXRenderer->BeginRenderGroup( kRenderHint.m_eRenderType ); SUCCEEDED( hr );
+                    hr = m_pXRenderer->NextRenderGroup() )
+                {
+                    for( iIndex2 = iStart; iIndex2 < iIndex; iIndex2++ )
+                    {
+                        const KObjectRenderHint& prev = vecIn_[ iIndex2 ];
+                        if( prev.m_pObject->GetRenderStateID() != stateID )
+                        {
+                            CKTDGStateManager::PopStates( iStackTop );
+                            stateID = prev.m_pObject->GetRenderStateID();
+                            CKTDGStateManager::PushStates( stateID );
+                        }//if
+                        m_pXRenderer->SetRenderPassFogAndMaxSkinningVertices( prev.m_kRenderHint.m_bFog, prev.m_kRenderHint.m_uMaxSkinningVertices );
+                        prev.m_pObject->OnFrameRender_Draw();
+                    }//for
+                }//for
+
+                stateID = CKTDGStateManager::KStateID();
+            }//if.. else..
+            iCount = 0;
+        }//if
+
+    KD3DEND()
+}
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
+
 
 
 void CKTDGManager::BackUIRender()
@@ -914,15 +1072,48 @@ void CKTDGManager::ObjectChainAlphaRender()
     }//for
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+// June 31ce9470: the pass-1 twin of ObjectChainAlphaRender, every alpha layer group, layer-exclusive ( no screen-shot modes in June )
+void CKTDGManager::ObjectChainAlphaRenderPass1()
+{
+    for( int iLayer = 0; iLayer < m_ciNumLayerGroups; ++iLayer )
+    {
+        _RenderObjectRenderHintVectorPass1( m_AlphaGroup[iLayer].m_layerObject, true );
+    }//for
+}
+
+void CKTDGManager::FrontUIRender( int iRenderPass_ )
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 void CKTDGManager::FrontUIRender()
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 {
 #ifdef SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
 	// June 31ce94a0, pass 0 ( pass 1 is R4's ): dialogs of layers 0..3, the fade, over-UI, alpha over-UI < 500, dialogs of layers
 	// 4..500, alpha over-UI >= 500. While the dialog manager's flagged-only mode ( +0x110 ) is on, neither dialog band is drawn.
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+	// June 31ce94a0 @31ce94d4: pass 1 draws the front dialogs through the plain dialog-manager render ( vslot 0x30 ( 1, 1 ), no band )
+	// and both alpha over-UI chains through the pass-1 hint loop ( 31ce80c0, not layer-exclusive ); no fade, no plain over-UI chain
+	if ( 1 == iRenderPass_ )
+	{
+	    KD3DBEGIN()
+			if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+				m_pDialogManager->OnFrameRender( true, 1 );
+	    KD3DEND()
+		_RenderObjectRenderHintVectorPass1( m_OverUIAlphaChain );
+		_RenderObjectRenderHintVectorPass1( m_OverUIAlphaChainOver500 );
+		return;
+	}
+
+    KD3DBEGIN()
+		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+			m_pDialogManager->OnFrameRender( true, 0, 3, iRenderPass_ );		// June vslot 0x38 ( 1, pass, 0, 3 )
+    KD3DEND()
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
     KD3DBEGIN()
 		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
 			m_pDialogManager->OnFrameRender( true, 0, 3 );
     KD3DEND()
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 	if( m_fFadeAlpha > 0.0f )
 	{
@@ -941,10 +1132,17 @@ void CKTDGManager::FrontUIRender()
     _RenderObjectRenderHintVector( m_OverUIChain );
 	_RenderObjectRenderHintVector( m_OverUIAlphaChain );
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+    KD3DBEGIN()
+		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
+			m_pDialogManager->OnFrameRender( true, 4, 500, iRenderPass_ );		// June vslot 0x38 ( 1, pass, 4, 500 )
+    KD3DEND()
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
     KD3DBEGIN()
 		if ( m_pDialogManager->GetJuneFlaggedDialogsOnly() == false )
 			m_pDialogManager->OnFrameRender( true, 4, 500 );
     KD3DEND()
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 	_RenderObjectRenderHintVector( m_OverUIAlphaChainOver500 );
 #else SERV_IRUHADEV_JUNE_RENDER_DG_LISTS
@@ -1027,6 +1225,10 @@ HRESULT CKTDGManager::OnResetDevice()
 //}} robobeg : 2008-10-13
 	if ( m_pXRenderer )
 		m_pXRenderer->OnResetDevice();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+	if ( m_pJuneHeatShimmer != NULL )
+		m_pJuneHeatShimmer->OnResetDevice();		// June 31ce98c0 @31ce99d8: after the renderer, before the fonts; the result is not checked
+#endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 
 	if ( m_pFontManager != NULL )
 		m_pFontManager->OnResetDevice();
@@ -1079,6 +1281,10 @@ HRESULT CKTDGManager::OnLostDevice()
 		m_pDialogManager->OnLostDevice();
 	if ( m_pXRenderer != NULL )
 		m_pXRenderer->OnLostDevice();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
+	if ( m_pJuneHeatShimmer != NULL )
+		m_pJuneHeatShimmer->OnLostDevice();		// June 31ce97e0 @31ce9832: after the renderer, before the fonts
+#endif SERV_IRUHADEV_JUNE_RENDER_HEAT_SHIMMER
 	if ( m_pFontManager != NULL )
 		m_pFontManager->OnLostDevice();
 	//m_pGrayScale->OnLostDevice();

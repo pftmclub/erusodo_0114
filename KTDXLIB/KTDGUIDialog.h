@@ -70,7 +70,11 @@ class CKTDGUIDialog
 		bool	OpenScriptFile( const WCHAR* pFilename );
 
 		HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		HRESULT	OnFrameRender( bool bForceDraw = false, int iRenderPass_ = 0 );		// June 31cd7810 ( bForceDraw, pass )
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
 		HRESULT	OnFrameRender( bool bForceDraw = false );
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 		HRESULT	OnResetDevice();
 		HRESULT	OnLostDevice();
 		bool	MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -330,6 +334,11 @@ class CKTDGUIDialog
         void SetHasSlot(bool val) { m_bHasSlot = val; }
 		bool GetHasUnit() { return m_bHasUnit; }
 		void SetHasUnit(CKTDGObject *pUnit);
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		// June 31cd20c0: a second unit viewer ( +0x164 ), drawn right after the first ( 31cd7810 @31cd804c ). Only June-only UI sets it
+		// ( callers 328f74e0, 328f3550 ), so it stays NULL until those are ported
+		void SetJuneSecondUnitViewer( CKTDGObject* pUnit_ ) { m_pJuneSecondUnitViewer = pUnit_; }
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 		void ScaleControls( float fx, float fy );
 		void MoveControls( float fx, float fy );
@@ -516,6 +525,9 @@ class CKTDGUIDialog
 		CKTDGObject*                m_pUnitViewer; 
 		bool						m_bHasUnit;
 		int							m_CustomMsgRMouseUp;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		CKTDGObject*				m_pJuneSecondUnitViewer;	// June +0x164 ( not owned, like m_pUnitViewer )
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 #ifdef PARTICLE_RENDER_BY_DIALOG
 		//다이얼로그가 파티클의 레어이를 관리 하도록 다이얼로그 내부에서 OnFrameRender 처리

@@ -1173,6 +1173,11 @@ public:
                 virtual RENDER_HINT   OnFrameRender_Prepare();
                 virtual void              OnFrameRender_Draw();
 //}} robobeg : 2008-10-24
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+				// June 31c82d30 ( vslot 0x10 ): tail jump to the normal draw; 31c83500 ( vslot 0x2c ): +0x144 == 1 && +0x2fe ( m_TempletData.bPostEffect )
+				virtual void	OnFrameRender_PostEffectDraw() { OnFrameRender_Draw(); }
+				virtual bool	IsPostEffect() { return IsAlphaObject() && m_TempletData.bPostEffect; }
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 				void SetDelayTime( float fDelayTime ){ m_fDelayTime = fDelayTime; }
 				float GetDelayTime(){ return m_fDelayTime; }

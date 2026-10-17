@@ -914,6 +914,14 @@ class CKTDGUIControl : private boost::noncopyable
 		bool GetOutOfControlList(){ return m_bOutofList; }
 		void SetOutOfControlList( bool bOut ){ m_bOutofList = bOut; }
 #endif
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		// June +0x241 / +0x242 ( false in the control ctor @31c9b2e6 / @31c9b321; Lua SetBlockPostEffect 31c1a720, SetBlockStringPostEffect
+		// 31c1a730 ): the control is drawn in render pass 1 ( dialog render 31cd7810 @31cd7a9c ) / its strings are ( the control renders, R4e )
+		void SetBlockPostEffect( bool bBlock_ ) { m_bBlockPostEffect = bBlock_; }
+		bool GetBlockPostEffect() const { return m_bBlockPostEffect; }
+		void SetBlockStringPostEffect( bool bBlock_ ) { m_bBlockStringPostEffect = bBlock_; }
+		bool GetBlockStringPostEffect() const { return m_bBlockStringPostEffect; }
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 
 		virtual void SetShowEnable( bool bShow, bool bEnable )	{ SetShow( bShow ); SetEnable( bEnable ); }
 
@@ -1090,4 +1098,8 @@ class CKTDGUIControl : private boost::noncopyable
 #ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 		bool	m_bChangeFocusByKeyMsg;		/// June CKTDGUIControl +0x244: Tab / arrow keys may move the focus away from this control
 #endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+		bool	m_bBlockPostEffect;			/// June CKTDGUIControl +0x241
+		bool	m_bBlockStringPostEffect;	/// June CKTDGUIControl +0x242
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 };
