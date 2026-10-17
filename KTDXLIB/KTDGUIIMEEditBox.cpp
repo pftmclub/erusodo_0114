@@ -2751,7 +2751,9 @@ void CKTDGUIIMEEditBox::RenderComposition( IDirect3DDevice9* pd3dDevice, float f
 			{
 				static int s_iLogCompOffset = 0;
 				if ( ++s_iLogCompOffset <= 10 )
+				{
 					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI CARETOFFSET composition shift " << iCaretOffset << " px (offset " << m_fCaretOffSet << ", lines " << iLineCount << ")" << fileout;
+				}
 			}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 		}
@@ -3176,7 +3178,9 @@ HRESULT CKTDGUIIMEEditBox::OnFrameRender()
 					{
 						static int s_iLogCaretOffset = 0;
 						if ( ++s_iLogCaretOffset <= 10 )
+						{
 							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI CARETOFFSET caret shift " << iCaretOffset << " px (offset " << m_fCaretOffSet << ", lines " << iLineCount << ")" << fileout;
+						}
 					}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 				}

@@ -156,7 +156,9 @@ void CKTDGUIStatic::UpdateMovieSubtitle()
 				{
 					static int s_iLogSubtitle = 0;
 					if ( ++s_iLogSubtitle <= 40 )
+					{
 						KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI MOVIE subtitle changes: " << (int)wstrWrapped.size() << " chars (movie " << it->first << " -> string " << it->second << ")" << fileout;
+					}
 				}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 				pStringData->msg = wstrWrapped;

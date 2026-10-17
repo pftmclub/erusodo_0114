@@ -715,7 +715,9 @@ bool CKTDGUIDialog::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 				{
 					static int s_iLogFocusChain = 0;
 					if ( ++s_iLogFocusChain <= 10 )
+					{
 						KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI FOCUSCHAIN skipped for key " << (int)wParam << " (SetChangeFocusByKeyMsg false)" << fileout;
+					}
 				}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK

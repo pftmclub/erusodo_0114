@@ -911,7 +911,9 @@ bool CKTDGUIComboBox::HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lP
 #ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
 							static int s_iLogComboOver = 0;
 							if ( ++s_iLogComboOver <= 10 )
+							{
 								KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI COMBO mouse over item " << i << " msg " << m_CustomMsgMouseOverOnItem << fileout;
+							}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 						}
 #endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK

@@ -134,7 +134,9 @@ std::wstring CKTDXWordWrap::GetStrByLineBreak( const WCHAR* pOrgStr, int width, 
 #ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
 	static int s_iLogPlain = 0;
 	if ( ++s_iLogPlain <= 6 )
+	{
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI WRAP plain width " << width << " font " << fontIndex << " chars " << (int)lstrlenW( pOrgStr ) << " -> " << (int)tempText.size() << fileout;
+	}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 	return tempText;
 }
@@ -250,7 +252,9 @@ std::wstring CKTDXWordWrap::GetStrByLineBreakColor( const WCHAR* pOrgStr, int wi
 #ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
 	static int s_iLogColor = 0;
 	if ( ++s_iLogColor <= 6 )
+	{
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI WRAP color width " << width << " font " << fontIndex << " chars " << (int)lstrlenW( pOrgStr ) << " -> " << (int)tempText.size() << fileout;
+	}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 	return tempText;
 }

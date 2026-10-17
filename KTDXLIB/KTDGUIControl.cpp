@@ -82,7 +82,9 @@ static void LogNationKeyHit( const std::string& strKey )
 {
 	static std::set<std::string> s_setLogged;
 	if ( s_setLogged.size() < 60 && s_setLogged.insert( strKey ).second == true )
+	{
 		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI NATIONKEY hit " << strKey.c_str() << " nation=" << g_pKTDXApp->GetNationName().c_str() << fileout;
+	}
 }
 static void LogNationNameOnce()
 {
@@ -998,7 +1000,9 @@ CKTDGUIControl::UIStringData* CKTDGUIControl::SetStringData_()
 #ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
 		static int s_iLogLineBreak = 0;
 		if ( ++s_iLogLineBreak <= 12 )
+		{
 			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI LINEBREAK length " << pStringData->iLineBreakLength << " type " << pStringData->iLineBreakType << " font " << pStringData->fontIndex << " chars " << (int)pStringData->msg.size() << " -> " << (int)wstrWrapped.size() << fileout;
+		}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 		pStringData->msg = wstrWrapped;
 	}
@@ -1820,7 +1824,9 @@ void CKTDGUIControl::CPictureData::SetPoint_LUA()
 	{
 		static int s_iLogRotation = 0;
 		if ( ++s_iLogRotation <= 10 )
+		{
 			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI ROTATION " << pPoint->fRotDegree << " deg (SetPoint_LUA)" << fileout;
+		}
 	}
 #endif SERV_IRUHADEV_JUNE_UI_DEBUG
 #endif DLL_BUILD
