@@ -64,7 +64,6 @@ The user's remaining backlog, in the order they listed it:
 | 21 | Photozone *(added 2026-10-09, june-effect C3e-2)* | - (found by june-effect C3e-2) | Not a backlog item but a missing game state: June's `XS_PHOTOZONE_LOBBY` (0x19) / `XS_PHOTOZONE_GAME` (0x1a), where the chat box's WIN / LOSE commands re-roll the start / win / lose motion. March has no Photozone. Numbered 21 to keep the earlier numbers stable. |
 | 22 | June dungeons and worlds *(added 2026-10-11, user: split out of june-effect)* | - (found by june-effect C3x / C3y / C3z) | Not a backlog item but missing content: the June dungeons, worlds and map entries that March lacks or has half of (Sander and Hamel secret dungeons, the five Henir Space boss worlds, class tutorial dungeons, Bestera, Space of Thought, the Hero tier, June's data101 map assets, the DungeonData readers june-effect C3z-5 routed, the Battle Field tutorial guide). Planned as `JUNE_DUNGEONS_PHASES.md`, STATUS block `june-dungeons`; phase IDs kept from june-effect. It shares the core registries with Stages 1 (Atlas / Elysion dungeons A8-A10, E8-E11) and 19 (event dungeons), so those port halves run one at a time. Numbered 22 to keep the earlier numbers stable. |
 | 23 | Offline field rewards stand-in *(added 2026-10-17, user: atlas A6)* | - (found by atlas A6) | Not a backlog item but missing server data: the server `DropTable.lua` / `StaticDropTable.lua` stop at Sander (40025), so Lanox (40029-40032) and Elysion (40035-40038) field kills grant no EXP, ED or items offline. No June server exists, so the rewards are a labelled stand-in (own flag, proposed first, [[design-missing-june-pieces]]). It touches only the offline emulator and server Lua, so it can run alongside any stage. Numbered 23 to keep the earlier numbers stable. |
-| 25 | June fonts and text rendering *(added 2026-10-17, user)* | - (the user: March's text looks un-anti-aliased; use June's fonts) | Not a backlog item but a visible gap: March installs one FreeType face (`Gulim.ttc`) and ships 3 font files in `datai022`; June ships 26 in `data196`. Which faces June installs for the US build, and how it rasterizes them, is unmeasured. It touches the font manager, `X2Main` and one font kom, so it can run alongside Stages 2-8 (not alongside a session in `KTDGFontManager.*` / `KTDGFreeTypeFont.*`). Stage 20's damage-number fonts are separate. Numbered 25 to keep the earlier numbers stable. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -705,34 +704,6 @@ walking up to the door does nothing (user, E1d play-test: "just the door").
 
 **Depends on:** atlas E1d (done). Touches `X2TFieldGame.*`, `X2LocationManager.*`, `DLG_Map_Village.lua`, `X2Lib/Offline/`; not alongside
 another session in `X2TFieldGame.*`.
-
-### Stage 25: June fonts and text rendering (user, 2026-10-17)
-
-The user's report: March's UI text looks like it has no anti-aliasing, and they want June's fonts. The "no anti-aliasing" part is
-their impression, not a measurement, so the stage proves the cause before it changes anything.
-
-What March does today (read 2026-10-17):
-- **One FreeType face.** `USE_FREE_TYPE` is on (`KTDXLIB/Always.h:504`, `FT_DEFAULT_FONTNAME "GULIM"`). `CX2Main` installs
-  `Gulim.ttc` only (`X2Lib/X2Main.cpp:1538`; `2002LKOG.ttf` is commented out at `:1539`). `InstallFont` is also Lua-bound
-  (`X2Main.cpp:3361`, `KTDXApp.cpp:2063`), so a config script may install more: check before assuming.
-- **Rasterizing.** `KTDGFreeTypeFont.cpp:397-438` loads glyphs with `FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP` and renders
-  `FT_RENDER_MODE_NORMAL` (8-bit grey, so anti-aliased in principle). Whatever looks jagged may come later: the glyph-to-texture
-  copy, alpha thresholding, texture filtering or point sampling, the hinting, or a GDI path (`KTDGDeviceFont*.cpp` picks
-  `ANTIALIASED_QUALITY` / `CLEARTYPE_QUALITY` per case) rather than FreeType.
-- **Font files.** March `datai022` holds `gulim.ttc`, `tahoma.ttf`, `blambotprol.ttf`. June `data196` holds 26 (`junekom.py list
-  data196`), among them `2002LKOG.ttf`, `NanumBarunGothicBold.ttf`, `H2HDRM.TTF`, `tahoma.ttf` + `tahomabd.ttf`, `gulim.ttc`, the
-  KozGoPro / meiryo / msgothic / CJK set and `blambotprol.ttf`.
-
-Scope:
-- **Identify in Ghidra** June's `InstallFont` calls and font-manager setup for the US build: which faces, which default name,
-  the sub-face / Korean-face choice, the glyph load / render flags, and the glyph-texture upload and sampler state. Compare with
-  March's same functions ([[no-partial-june-updates]]: a changed function is ported whole).
-- **Adopt June's font files** at the same names ([[june-asset-wins-over-march-at-same-filename]]), byte-exact through
-  `tools/junekom.py` ([[june-assets-byte-exact-no-edits]]), into the kom June's code reads them from, plus the June-only faces it installs.
-- **Port June's font code** behind its own `SERV_IRUHADEV_` flag, with March's in `#else`.
-- **Before/after screenshots** from the user decide whether the anti-aliasing complaint is fixed; if June renders the same way, say so.
-
-**Depends on:** nothing in code. Stage 14's extractor (`tools/junekom.py`) for the files. Planning is read-only and can start now.
 
 ## Open decisions that gate stages
 

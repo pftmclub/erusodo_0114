@@ -4581,7 +4581,31 @@ main.
 
 #### Phase E11 — Done
 
-*(empty)*
+**2026-10-17 (data only, no C++, no build; Opus 5.5 high).** Kickoff `kickoffs/atlas/E11.md` written on first use.
+- **Gate:** census `--line ME` 134 -> 84 open, all routed step-9 classes: 3 `assets.absent` (`elysion_m_el_def_*.ogg`, June ships none),
+  81 `keys.file` (`CT_*` condition tables, `LINE_NUM`, the server-only reward keys, `LLOW_DIR_CHANGE` = JUNE_BUGS 245, `SHAW` below), 3 `keys.registry`.
+  `npc.ready` 30 -> 0, `koms.unstaged` 10 -> 0; no `bind.*` row (every engine call the Memory scripts make is bound).
+- **Adopted:** `adopt-june data040` the 10 world files (Stage0-3, BossStage + line maps; ljconv bytecode, manifest "2",
+  `june2017_re/june_adopt_20261017_172712.tsv`). The 33 `ELYSION_M_*` unit scripts and the 3 dungeon scripts were already staged (C3y / C3z).
+- **Registries, verbatim** (`atlas E11` blocks, scripted with first / last-line asserts, CRLF, BOM kept): `DungeonData` June :33740-34002
+  (DI_MEMORY_NORMAL / HARD / EXPERT 33900-33902; no quest key and no Hero rows in June; `EXTRA_REQUIRE_DUNGEON_ID = DI_SOLESS_NORMAL`),
+  `NPCTemplet` 30 rows (June :21523-21702 + :21721-21810), `WorldData` WI_MEMORY_STAGE0-3 / BOSSSTAGE (June :3438-3462). Each new id greps
+  exactly once. `refresh` x3, core-list `why` appended; `core --check` PASS, `ledger --check` PASS.
+- **Left out (as June):** `ELYSION_M_2STAGE_GATE` / `M_HARNIE` / `M_SOLESS2` scripts have no NUI and no June row; `Motion_M_2STAGE_GATE.x` is unstaged
+  and only that script names it.
+- **Boss `ELYSION_M_SOLESS`** (decompile in `june_src_fixed`): `GetBuffAccumulationCountNow( BTI_DEBUFF_DARK_SOLES_ATTACK ) >= 3` (:3456, buff Phase 10,
+  bound); `OF_SUN` gauge = `CreateSimpleDLG( "DLG_UI_ELYSION_SOLESS_OF_SUN_GAGE.lua" )` (:3658, staged in data034 by E6). `IsReadyBreakAttack` (:3553)
+  is a global only `M_SOLESS` defines; `MEMORY_1/2` wrap it in `CF_ELYSION_M_MEMORY_BREAK_READY` (:1314) but no state of theirs references that CF,
+  so the Stage0 memories never call it and load order does not matter. Shared globals across Memory scripts (`TableCopy`, `_CreateEffect*`,
+  `g_iHiddenStageCondition` with Soless) are June's, verbatim. `CC_TIME` (Stage1 SUB_STAGE2, `CLEAR_TIME = 3`) is March's own clear condition
+  (`X2DungeonSubStage.cpp:1608`). Boss faces `NUI_MEMORY` / `NUI_M_SOLESS` are in `data215 DLG_BossState_02.TET`. Buffs: all 5 BFI / BTI ids
+  in Enum and the staged buff tables.
+- **JUNE_BUGS 245:** `LLOW_DIR_CHANGE = TRUE` in `ELYSION_M_SOLESS_ATTACK_2_2`; June `32784c00` reads `ALLOW_DIR_CHANGE` (@32784d93), false on a miss
+  (@32784eb3). `SHAW = FALSE` (`M_2STAGE_END` / `M_3STAGE_END` dying states) has no June string and its Soless twin has no such key: intent unknowable,
+  stays a step-9 row.
+- **Packs:** `PACK OK data035` (0d203e93) / `PACK OK data037` (1eaf477c) / `PACK OK data040` (3b5d8f06). Copy: asked at hand-off.
+- **How to see it:** Elysion local map shows Memory after a Soless Normal clear; enter 33900 / 33901 / 33902; Stage0 (memories 1-2), Stage1
+  (timed 3 s gate sub-stage), Stage2 (summons), Stage3, BossStage (OF_SUN gauge, dramatic boxes); clear -> result screen.
 
 ---
 

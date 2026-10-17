@@ -1,0 +1,13 @@
+# adopt-june --bytecode run 2026-10-17 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+Elysion_Memory_BossStage.lua	data040	new	data040	6743	b380e469be833662d1a6b19887784d0f20fd3057	bytecode		ljconv
+Elysion_Memory_BossStage_LineMap.lua	data040	new	data040	5138	18d51cc2cd58c8f3f2c758f3d0acd48fcae04528	bytecode		ljconv
+Elysion_Memory_Stage0.lua	data040	new	data040	6744	a10f30c766539a90e6737f7f5a13b29e70cd4ea7	bytecode		ljconv
+Elysion_Memory_Stage0_LineMap.lua	data040	new	data040	7359	e9b434ed9c2ef3e59f6f5b6f45a9fdba1fbe1c74	bytecode		ljconv
+Elysion_Memory_Stage1.lua	data040	new	data040	20838	064254d1c3c8c3ddf622de9835c023776b7cf06d	bytecode		ljconv
+Elysion_Memory_Stage1_LineMap.lua	data040	new	data040	11047	0abaf4d2c19bc1df91dbeef19ee770fe18d4919c	bytecode		ljconv
+Elysion_Memory_Stage2.lua	data040	new	data040	14079	014523d1348df8ebd994ea73740bf8376546be7f	bytecode		ljconv
+Elysion_Memory_Stage2_LineMap.lua	data040	new	data040	6563	4ab0b01a16ff67898c935eb9e5147f2d389a824b	bytecode		ljconv
+Elysion_Memory_Stage3.lua	data040	new	data040	9757	b1e48560c4e531b89fc064d01a1f415528a89e1c	bytecode		ljconv
+Elysion_Memory_Stage3_LineMap.lua	data040	new	data040	14869	e1309f9e970be06d864b2ebc5445cb43047b8263	bytecode		ljconv
