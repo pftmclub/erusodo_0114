@@ -195,7 +195,11 @@ type 3 world `+0x18c/+0x190`, types 4-8 game / unit actions. Loader, Lua keys an
 | R3 | Environment box / colour grading (`XEnvBoxRenderer.fx`) | Sonnet 5.5 high + review (Opus if R0 leaves gaps) | yes | yes |
 | R4 | Heat shimmer (`XHeatShimmerRenderer.fx`) | Sonnet 5.5 high + review | yes | yes |
 | R5 | `CUSTOM_RENDER_STATE`: table, reader, render | Sonnet 5.5 high + review | yes | yes |
-| R6 | `SKIN_MESH_RENDER_TYPE` 1, 2, 4-7 | Sonnet 5.5 high + review | yes | yes |
+| R6 | `SKIN_MESH_RENDER_TYPE` 1, 2, 4-7, and (R0b) June's whole skin-anim draw | Opus 5.5 high (map, then port) + review | yes | yes |
+| R7 | Hookable textures: per-mesh hook id, device-manager table, `HookableTextureData.lua` (added by R0b) | Opus 5.5 high (map, then port) + review | yes | yes |
+| R8 | DG manager render lists: state blocks, over-UI chains, front-UI dialog bands, batching, state-manager reset (added by R0b) | Opus 5.5 high (map, then port) + review | yes | yes |
+| R9 | Render small deltas: particle RT_ADD_*, effect alpha (RHW, skin), `+0x1ac`, outline clamp, state-manager lost device, skin-mesh loads (added by R0b) | Sonnet 5.5 high + Opus review | yes | yes |
+| R10 | Skin-anim playback sweep: the non-render `CKTDGXSkinAnim` functions (added by R0b) | Opus 5.5 high | no | no |
 | U0 | UI framework RE: June's implementation of each U1 gap | Opus 5.5 high | no | no |
 | U1 | UI framework port | Sonnet 5.5 high + review | yes | yes |
 | W0 | World-event timeline RE: loader, data, reach | Opus 5.5 high | no | no |
@@ -208,6 +212,9 @@ type 3 world `+0x18c/+0x190`, types 4-8 game / unit actions. Loader, Lua keys an
 wrong reading costs a whole port. The code phases transcribe a written map: Sonnet high, each with a scoped Opus review because the
 renderer fails visibly but subtly (a wrong blend or ramp index looks "almost right"). R3 moves to Opus if R0 cannot map the
 environment box fully.
+
+**Order (R0b, 2026-10-17).** R7 and R9 come after R2 (`KTDGXRenderer.cpp`); R8 not alongside R4 (`KTDGManager.*`) or U1 (dialog
+manager); R6 after R2 as before; R10 is read-only and runs now.
 
 **Order.** R0, R0b, U0 and W0 can run now, in parallel (read-only). Code: R1 -> R2 -> R3 / R4 / R5 / R6 (R3 needs R2; the others
 need only R0 and touch different files, but run one at a time: they share `KTDGXRenderer.*` / `KTDGXSkinAnim.*` and the build).
@@ -311,6 +318,62 @@ render, `CKTDGParticleSystem` render, `CKTDGPostEffect`, `CKTDGGrayScale` and th
 and earlier june-effect phases already mapped (funcmap `Effect *` rows). Each difference gets a funcmap row and either a new phase
 here (R7+) or an owner. **Done gate:** every function of the list has a verdict row (same / differs -> phase / owner).
 
+### Phase R0b -- Done
+
+**2026-10-17, Opus 5.5.** No code, no flag, no build. Evidence: `june2017_re/r0b_render_sweep.tsv` (139 rows, one per March function
+of the list plus the June-only functions found; columns verdict / owner / evidence with June addresses) and 88 funcmap rows tagged
+`Engine R0b`. Verdicts: 56 same, 37 dead or tool-only in both, 10 already mapped (R0 / Effect), 35 differ, 1 unsure (R10).
+
+**Corrections.**
+- **`31d3e7d0` is `CKTDGXRenderer::DrawFrame`, not the XMesh `OnFrameRender`.** Its ret is 0x28, its callers are skin-anim only, and it makes 6 `_SetNowTexture` calls.
+  - The XMesh `OnFrameRender` is `31d3ca70` and equals March's.
+  - So every R0 "OnFrameRender" setter applies to skin meshes only. R2 is amended.
+- **`31cf16b0` is the particle skin-mesh draw; the mesh draw is `31cf10c0`** (jump table `31cf781c`). Both funcmap rows are rewritten in place.
+  - C10b-2's mesh-draw port is right, but its comment cites the wrong address (R9).
+
+**Same / dead.**
+- **Renderer:** `SetColor`, `_CommitChanges`, `Begin` / `NextRenderGroup`, `NextRender` and the XMesh `OnFrameRender` match March.
+- **Particles and mesh player:** `Prepare` of both, the billboard and render-type parsers, and particle-system reset / lost (`S_OK` in both) match March.
+- **Skin mesh:** the KSM / D3DX parse matches March (`ReadKSM`, `Optimize`, `Convert`, frame lists, collision prefixes, hierarchy).
+- **Skin anim:** `Prepare` and the light-flow setters match March.
+- **DG manager:** `Begin` / `EndRender`, the non-alpha render, `Add` / `Remove`, `MapLayerGroup`, the UI / non-alpha sorts and `IsInFrustum( obj, float& )` match March.
+- **Dead in both:** `CKTDGPostEffect` (`ADD_POSTEFFECT` off; it compiles empty) and `CKTDGGrayScale` (no caller in March, absent in June) are dead in both, as are `_RenderBoundingSphere` and the layer renders. The serializers are tool-only.
+
+**Differences and owners** (details and addresses in the sweep):
+- **R2:** `DrawFrame` setters (above); `RenderParam` ctor `31c8f020` confirms the +8 layout.
+- **R4 (pass 1 / heat shimmer):**
+  - `CKTDXStage` gains pass virtuals `0xc` / `0x10` / `0x14` / `0x18`; KTDXApp `31be3800` runs pass 0, then pass 1 into the effect target.
+  - `CKTDGObject` gains vslot `0x10` (post-effect draw) and vslot `0x2c` (is post-effect). The particle predicate reads March's already-parsed `m_bPostEffect`.
+  - DG helpers `31ce80c0` / `31ce9470` / `31cda1a0`, `FrontUIRender` pass 1, and the shimmer in the ctor / dtor / reset.
+  - Vslots `0x20` / `0x24` (Set/GetScaleByUnit made virtual) have no override, so there is no behaviour change. R4 kickoff amended.
+- **R6 (now Opus):** June rebuilt the whole skin-anim draw `31d30380`:
+  - the per-mesh RenderParam pass `31d2f000` (mesh `+0xa2c` / `+0x980`) replaces the fixed `ARA_CHARACTER_BASE` pass;
+  - the lists are de-duplicated by name;
+  - meshes are hidden by `+0x851` / `+0x8d0`;
+  - 0x114-byte frames carry a visible byte at `+0xf8`;
+  - mesh `+0xa30` defaults to 0.01f.
+  R6 kickoff amended.
+- **R7 (new): hookable textures.** `_SetNowTexture` has a 10th argument, the skin-mesh hook id `+0xa40`, which `DrawFrame` passes. It drives a device-manager table filled by June-only `HookableTextureData.lua` (data036, 4,599 rows: per-job and cash-item face swaps). March has none of it.
+- **R8 (new): DG render lists.**
+  - The state blocks go from 12 to 14 (additive texture, two sampler-carrying dialog blocks; March's UIDialog block is gone).
+  - The over-UI chains go from 2 to 3 (split at layer 500).
+  - `FrontUIRender` draws dialogs in two bands (0..3, then 4..500 above the fade). This finishes Atlas E7's partial port.
+  - The main hint loop no longer batches with `BeginRenderGroup`.
+  - The not-cull test moved before the show test; an alpha-sort tie-break and a 3rd frustum argument are added.
+  - `CKTDGStateManager` Restore / Invalidate moved out of the DG reset.
+- **R9 (new): small deltas.**
+  - Particle `RT_ADD_*` names.
+  - Effect alpha in the RHW and skin-mesh particle draws (a C10b-2 gap).
+  - Sequence alpha `+0x1ac` (ctor 1.0, no writer found).
+  - Outline clamp `31cfe050`.
+  - The renderer `OnLostDevice` no longer resets the effect state manager; June's manager is a `CKTDXStage` with its own handler (`31d184f0`).
+  - The XET name rule and close-by-pointer in the skin-mesh load / unload.
+- **R10 (new, RE):** skin-anim playback (a 4th play type, transition bytes, `std::map +0x294`, dtor). Outside this sweep's render list.
+- **R1:** the dtor closes 20 ramps; the note is in the R1 review kickoff.
+- **Deferred June-loader plan:** `_Load`'s buffer acquisition (file reads + XOR / zlib, three sources) differs. Its parse is March's. March reads the June meshes repacked, so there is nothing to port now.
+
+**Open for the user:** none. Every difference has an owner and every new phase follows June. The R7 / R8 play-tests need the user later.
+
 ## Phase R1 - CARTOON_TEX_TYPE to June
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RENDER_CARTOON_TEX`. Sub-tag `[JUNE_ENGINE] CTT`.
@@ -369,8 +432,46 @@ Depends on R2. `XEnvBoxRenderer.fx` techniques `BlendLUTTechnique`, `DrawEnvBoxT
 
 ## Phase R6 - SKIN_MESH_RENDER_TYPE
 
-**Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE`. June's cases 1, 2, 4-7
-(R0 item 5) in `KTDGXSkinAnim`'s typed pass, next to the existing UV_ANIM case.
+**Run with:** Opus 5.5 high (R0b: map the whole draw, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKIN_MESH_RENDER_TYPE`. June's cases 1, 2, 4-7
+(R0 item 5) in `KTDGXSkinAnim`'s typed pass, next to the existing UV_ANIM case. **R0b:** June rebuilt the whole
+`OnFrameRender_Draw` (`31d30380` + `31d2f000`); port all of it (kickoff amendments).
+
+## Phase R7 - Hookable textures
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_HOOKABLE_TEXTURE`.
+Added by R0b.
+- **The system:** `_SetNowTexture` (`31d3e530`) takes the skin-mesh hook id `+0xa40` (passed by `DrawFrame` `@31d3ea6d`) and swaps a texture through the
+  device-manager table filled by `AddHookableTextureBaseData` / `AddHookableTextureChangeData`.
+- **The data:** June-only `HookableTextureData.lua` (data036), with per-job faces (ids 44, 45, 69, ...) and cash faces (41806, ...).
+- **Map first:** the table, the id writers and the loader.
+
+## Phase R8 - DG manager render lists
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_DG_LISTS`.
+Added by R0b. It covers the pass-0 half of June's `CKTDGManager`; pass 1 stays with R4.
+- 14 render-state blocks.
+- Three over-UI chains, with the 500-layer split.
+- `FrontUIRender`'s two dialog bands.
+- The main hint loop without group batching.
+- The not-cull order, the alpha tie-break `+0x14c` and the third frustum argument.
+- `CKTDGStateManager` Restore / Invalidate moved out of the DG reset.
+
+## Phase R9 - Render small deltas
+
+**Run with:** Sonnet 5.5 high, then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_SMALL_DELTAS` (split if
+independent). Added by R0b. The items are all mapped in the sweep:
+- particle `RT_ADD_*` names;
+- effect alpha in the RHW and skin-mesh particle draws;
+- sequence `+0x1ac`;
+- outline clamp `31cfe050` (map particle system `+0xdc` first);
+- effect state manager lost device (`31d184f0`);
+- skin-mesh XET name rule and close-by-pointer.
+
+## Phase R10 - Skin-anim playback sweep
+
+**Run with:** Opus 5.5 high. No code. Added by R0b: the non-render `CKTDGXSkinAnim` functions (`OnFrameMove` `31d2bd80`, `ChangeAnim`
+with a June 4th play type, transition bytes `+0x854` / `+0x855`, `CleanAnimStructure` with `std::map +0x294`, the dtor), function by
+function as R0b. Funcmap rows `Engine R10`. **Done gate:** every function has a verdict row.
 
 ## Phase U0 - UI framework RE
 

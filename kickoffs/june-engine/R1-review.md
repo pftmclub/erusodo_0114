@@ -26,3 +26,9 @@ Hygiene is one command: `python tools/flagcheck.py <the phase's flag> --range <f
 Spot-check 2-3 items in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear transcription errors under the same
 flag (then `tools/build.py --deploy`); hand design decisions to the user. Write "Phase R1 -- Review" into the plan doc, update the
 STATUS row, check the next phase's kickoff, and commit.
+
+## R0b note (2026-10-17)
+
+The June renderer dtor (`31d3fea0` -> `31d3c480`) closes all 20 ramp slots (19 + `CartoonDamage_Raid` at slot 19) through the
+device manager (`31cdd8d0`). Check that R1's `m_pCartoonTexList` size and the dtor loop cover slot 19 (sweep
+`june2017_re/r0b_render_sweep.tsv`, row `~CKTDGXRenderer`).
