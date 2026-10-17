@@ -146,17 +146,19 @@ def main():
     def add(low, how, frm, lines):
         r = rows_out.setdefault(low, dict(name=low, how=how, frm=frm, atlas='N', lines=set()))
         r['lines'] |= set(lines)
+        if frm < r['frm']:
+            r['frm'] = frm      # first referrer = alphabetically smallest, so reruns give the same file
         if r['how'] == 'embedded' and how == 'census':
             r['how'] = 'census'
         if set(lines) & ATLAS_LINES:
             r['atlas'] = 'Y'
         return r
 
-    for low, lines in refs.items():
+    for low, lines in sorted(refs.items()):
         if ext(low) == '.lua':
             continue
         add(low, 'census', ','.join(sorted(lines)), lines)
-    queue = [low for low in list(rows_out) if ext(low) in MESH_EXT]
+    queue = sorted(low for low in rows_out if ext(low) in MESH_EXT)
     seen = set(queue)
     expanded = {}
     while queue:
