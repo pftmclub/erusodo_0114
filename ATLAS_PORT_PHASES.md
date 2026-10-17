@@ -3885,6 +3885,51 @@ Done when: Phase E5's "Done when" holds. Record a Done note, then commit on main
   joins; 0 EXCEPTION, UNHANDLED only the known `E_DISABLE_HB_CHECK_REQ` x3, no `[MOVABLE_LINE]` line (no March map calls the new key), clean exit.
   Platforms themselves come with E9 / E10. Nothing owed but the review.
 
+### Phase E5 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS, no code change** (flag `SERV_IRUHADEV_JUNE_MOVABLE_LINE`). Read in Ghidra (read-only), raw disassembly per
+funcmap `(E5)` row, `disasm_range.py` where Ghidra has no function (322ed9c0, 31c77e20), float constants read from `unpacked_x2.exe`.
+
+- **Record / Reset / ctor (31c7f2b0, 31c7f170):** word +4 = 0x0001 (LOOP 1, STOP 0), +6 IS_RIGHT 1, +0x60 / +0x94 = 0, +0x98 / +0xa4 = 0, then
+  Reset: both row vectors cleared, +0x7c = 0, +0x80 = 0, +0x64..+0x78 = 0 (moved **and** last move). = port's struct, offsets and `Reset()`.
+- **AddMovableLineData_LUA 31c75470:** LINE_ID (uint `<` count, else 33449500), FOLLOWER_LINE_ID (each `<` count, else the same message,
+  table left open = port), MOVE_TYPE (missing or not 1-3 = silent return), LOOP def 1, STOP def 0. Type 1: TARGET_MESH_NAME / TARGET_BONE_NAME
+  missing = silent; d460 / cfb0 branches give "error iff exactly one is empty" (symmetric, either way round) -> 33449310. Type 2: mesh (def ""),
+  USE_ABSOLUTE_COORDINATE (def 0), DIRECT_MOVE_DATA required (33449400); type 3 adds IS_RIGHT (def 1) before the rows (33449470); rows: the
+  4-float row is zeroed once before the loop, a missing field = 0. Then 31c751b0, +0x155 = 1, centre -> +0x98, insert, 31c7e560, followers
+  inserted with +0x155 = 1. = port, key order included.
+- **Movers 31c6fbb0** (args `double fTime, float dt`): patrol `w > time` (`TEST AH,0x41 / JP`), partial `row / w * dt`, end = 31c7ba10 (row -
+  moved, 0 past the end), LOOP false -> `DEC / NEG / SBB` = UINT_MAX, time / moved = 0. Spin: `360.0 / w * axis.w * dt` stored as float
+  @31c6fd2f, `* 0.01745329238474369` stored as float @31c6fd3d; 33086a92 = RotationAxis( mat, axis, angle ), 33086a3e = TransformCoord(
+  out, relative, mat ); move = turned - relative; +0x64 = the new centre. 31c751b0: yaw = 31c19930(centre - pivot).y (March GetDirVecToDegree,
+  same shape), `|y - 0.0| > 1.1920929e-07`, RotationY( yaw * deg2rad ), TransformCoord( axis, (0,0,1), mat ), w = 1 / -1. Constants from the
+  exe: 360.0, 0.01745329238474369, 0.0, FLT_EPSILON, -1.0, 1.0, 0.1f. All = port.
+- **CanDown head 31c6c310:** the carry test (@31c6c31c-31c6c3e5) returns before the `bDownRadius` drop (@31c6c3e8). The head is only reached
+  with bOnLine 1, which June's PhysicProcess never passes (user @32019f76 pushes 0; NPC @32781e95 / @32782ca9 push 0): it runs from the
+  down-press sites (March's 4-arg calls, bOnLine default true), whose land position is used only on true. So no June path compensates, and the
+  June order changes only the out position on a refused down press. The Done note's "carries the unit every frame" overstates it (JUNE_BUGS 230
+  reworded). June's CanDown also has two extra args (+0x20, +0x30): funcmap row 157, not E5's.
+- **World:** 32802140 ticks the line map (vslot 1) after the fades, then per object of +0xe8, shown or not, while +0x2dc != 0: type 2 ->
+  32801ab0, type 1 -> 327fe640; 328018c0 after the layer loop. 32801ab0 / 327fe640 / 327f69f0 / 327fca00 / 328018c0 / 32801fb0 = port, incl.
+  +0x218 anim / +0x220 motion mesh (March member order), `combineMatrix._41` = frame +0xc0 (D3DXFRAME 0x50 + baseMatrix 0x40 + 0x30), host
+  test (+0x2c0/+0x2c4 non-zero and = +0x2b8/+0x2bc), 1.0 s timer, 0x14-byte packet {word line, type, index, moved, time}, receive filter 2-3.
+  March's line map OnFrameMove is empty outside the tools, so the new call adds only June's body.
+- **Game / NPC:** case 0x1c (@322edf99: size 0x14, world vslot 0x90, else 322ee05e = false); 322d0800 (+4, -1); 322cfe20 (`CMP -1 / JLE`, camera
+  +0x3b0 +0x3c, line map +0x1b4; every March camera land write is the line map's height, so nothing is overwritten). NPC @3277e791: byte
+  +0x8470 = `syncData.lastTouchLineIndex` (UCHAR), +0x155 == 1 -> +0x8ae4 = 0.1f; +0x8ae4 = `m_fAnimWaitTime` (CommonFrameMove 327b53b0
+  @327b61f3-327b62bb is March's wait / elapsed block); `X2OPTIMIZE_NPC_NONHOST_SIMULATION` is on (KTDX.h:281). The port's world / camera NULL
+  tests are additions where June would crash.
+- **JUNE_BUGS 230-233:** 231-233 right as written. 230 is June's code (the only `+0x70` reset is Reset, on a trigger's new rows), so a June bug,
+  not a port gap; row reworded and given its E10 check (below).
+- **Data audit (re-run, subagent):** 14 records (Adrian Stage2 5, Soless Stage0 1, Stage1 4, Stage1_Hide 4), 5 case-8 triggers, 3
+  `CAMERA_LAND_HEIGHT` lines; every key read; MOVE_TYPE only 2 / 3; Stage3 has no movable data, only the `CANDOWN` typo (232).
+- **Hygiene:** `--range 15c08485^..15c08485 --with ELYSION_DEBUG`: `files: 10 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags),
+  0 FAIL, 0 ERROR`, `RESULT: PASS` (same as the Done note). Only later commit touching the flag: E7 `0cc43f29`, context lines only. No build:
+  nothing changed in code.
+- **E10's play-test must look at** (Soless Stage0, trigger 3 starts line 34): (1) the X02 skin mesh after the 7 s ride ends: June's code keeps
+  moving it by the last frame's remainder; (2) whether a unit standing on lines 34-39 rides along at all: June has no carry outside CanDown,
+  so riding depends on PhysicProcess's ordinary line snap; if the player is left behind, trace June 32015b30's line follow before calling it a gap.
+
 ---
 
 ## Phase E6 — SimpleDLG gauges + dramatic messages
