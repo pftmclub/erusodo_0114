@@ -763,6 +763,46 @@ before the flag (the accepted PCH pattern, as R3 / U1). The OTHER rows are the s
 `[JUNE_ENGINE] SHIMMER ... is not in any kom yet` line twice (lines 625 and 628, at the two start-up device resets); 0 EXCEPTION, clean exit.
 User owes nothing for R4a; next `/x2-phase june-engine R4a review` on Opus 5.5 / high.
 
+### Phase R4a -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS. No findings, no code change, no rebuild** (the play-tested exe 3f645dcc stays deployed).
+
+**Hygiene** (`flagcheck --range f12afc69^..f12afc69`, the phase's one commit):
+- HEAT_SHIMMER `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 15 OTHER (other flags), 1 FAIL, 0 ERROR` / `RESULT: FAIL`
+- PASS1 `files: 12 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 4 OTHER (other flags), 1 FAIL, 0 ERROR` / `RESULT: FAIL`
+- Both: 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 encoding changes. The FAIL is `KTDGHeatShimmer.cpp`'s `#include "StdAfx.h"`
+  before the flag (the accepted PCH pattern, as R3 / U1). OTHER = the `Always.h` block and the sibling flag's files.
+  `KTDXLIB_2010.vcxproj` (+2, the two new files) is outside flagcheck.
+
+**Ghidra spot-checks (read-only), all match the port:**
+- `31ce5e90` shimmer reset: no-op once the effect exists; the data-pointer test; `KEM_ERROR49` (0x31) / `KEM_ERROR50` (0x32); `D3DXCreateEffect`
+  flags `0x20800`; then the state manager (`0x11c`, app `+0x20c`), GetTechniqueByName, the 5 params (stride 8), SetTechnique, OnResetDevice.
+  The function returns nothing that its caller reads, so the port's HRESULTs are unobservable.
+- `31ce94a0` FrontUIRender: pass 1 = flagged-only gate, dialog manager `0x30( 1, 1 )`, `31ce80c0` on `+0x15c` / `+0x16c` (not
+  layer-exclusive). Pass 0 = band `( 0, 3 )`, fade, `+0x14c` / `+0x15c`, band `( 4, 500 )`, `+0x16c`.
+- `31cd7810` dialog render: show / self-delete returns; `+0x70` / `+0x68` block by pass; control loop NULL, `+0xc5`, pass 1 only `+0x241`;
+  the end loop in pass 0 only (no NULL test, as March); the 3D gate is unit-or-particles, with `0xa1` (MSAA) = 1 pushed around it; second viewer
+  `+0x164` after the first; particles go through the inlined `31cda140` / `31cda1a0`. No hide test, no LCtrl overlay.
+- `31cda1a0` / `31cda140`: GetShowObject (`31fae370` through `+0xc`), Prepare != NORENDER (-1), [vslot 0x2c], `+0x173` = 1, then vslot 0x10 / 0xc.
+  `31fae370` is also `CX2UnitViewerUI`'s vslot 0x2c (folded body, funcmap row `(R4a)`; routed to R4e).
+- `31ce80c0`: the NULL entry logs 422 (0x1a6) and skips; a non-post-effect entry jumps to `@31ce8c08`, past the index increment (JUNE_BUGS 274);
+  BeginRenderGroup / NextRenderGroup (`31d3c640` / `31d3c740`) kept; four fog sets (`31d3c030`).
+
+**Against March:**
+- Every `#else` is March's code plus the earlier June flags (DG_STATES, DIALOG_BANDS). The dialog render's `#else` keeps `DIALOG_SHOW_TOGGLE`
+  (`Always.h:3270`) and `LOG_LOAD_DLG_SCRIPT` (`InHouse5.h:668`), both defined, so the Done note's two pass-0 changes are real, and both come from June.
+- The overloads resolve every March call as before: the dialog manager's `( bool, int = 0 )` / `( bool, int, int, int = 0 )` and the dialog's
+  `( bool = false, int = 0 )`. No March class overrides the new virtuals by name (the other `IsPostEffect` are script-token members,
+  `KTDGXMeshPlayer.h:211`, `KTDGParticleSystem.h:185`).
+- RenderDragSlot: only the order of the test and the push changed, and nothing is drawn outside the test.
+- MSAA: only the dialog render pushes `D3DRS_MULTISAMPLEANTIALIAS`, nothing in March sets it FALSE, and the back buffer is not multisampled, so it is a no-op.
+
+**For R4b** (its kickoff now has a note): pass 1's entry points are `FrontUIRender( 1 )`, `ObjectChainAlphaRenderPass1()` and
+`GetJuneHeatShimmer()->BeginEffect / EndEffect`. JUNE_BUGS 274 makes a pass-1 batch read the wrong range (and a NULL entry before it could be
+dereferenced), which is harmless only while pass 1 stays dead, as June's option does.
+
+**User owes:** nothing. Next: `/x2-phase june-engine R4b` on Opus 5.5 / high.
+
 ## Phase R4b - Frame render, render targets, anti-aliasing option
 
 **Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_FRAME`. Depends on R4a. Port the

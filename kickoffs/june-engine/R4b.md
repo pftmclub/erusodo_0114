@@ -17,6 +17,12 @@ python tools/docsection.py JUNE_ENGINE_REMAINDER_PHASES.md "Rules" "Starting con
 
 Then the sweep rows named below (`june2017_re/r4_frame_stage_sweep.tsv`) and the funcmap rows tagged `(R4)`.
 
+## From the R4a review (2026-10-18)
+
+- Pass 1's entry points are in: `CKTDGManager::FrontUIRender( 1 )`, `ObjectChainAlphaRenderPass1()`, `GetJuneHeatShimmer()->BeginEffect( 0, pWorld )` / `EndEffect()`.
+- JUNE_BUGS 274: the pass-1 hint loop (`31ce80c0`) does not advance its index past a skipped entry, so a pass-1 batch reads the wrong range. This is
+  harmless only while pass 1 stays dead (option `+0x34` 0, setter `3241cd20` caller-less). Keep it dead, as June does.
+
 ## Task
 
 Do "Phase R4b". The rows to port are `june2017_re/r4_frame_stage_sweep.tsv` areas `frame` and `option`, and the funcmap rows tagged
