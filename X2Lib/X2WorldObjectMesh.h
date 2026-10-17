@@ -117,6 +117,12 @@ class CX2WorldObjectMesh : public CX2WorldObject
 
 #ifdef X2OPTIMIZE_CULLING_WORLDOBJECTMESH_SUBSET
 	public:
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+		// June keeps this two-argument test ( vtable 334bc484 slot 0x48, 327fa210, body = March's below ). Since the base test took
+		// a third argument ( slot 0x34, 31c829e0 ) it overrides nothing, and no June code calls slot 0x48: world meshes are culled as
+		// whole objects by the base test and m_vecDrawSubset stays empty, so every subset is drawn ( JUNE_BUGS 267 ).
+		__forceinline virtual bool IsInFrustum( const D3DXVECTOR3& kEye, const CKTDGFrustum& kFrustum )
+#else SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 #ifdef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 		// Same signature as the June base test so this override still applies; June's world mesh has no override ( vtable 334bc484
 		// slot 0x34 = base 31c829e0 ) and a rebuilt Prepare ( 327f9020 ): that port is Phase R13, which also decides fAddRadius_ here.
@@ -124,6 +130,7 @@ class CX2WorldObjectMesh : public CX2WorldObject
 #else SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
 		__forceinline virtual bool IsInFrustum( const D3DXVECTOR3& kEye, const CKTDGFrustum& kFrustum )
 #endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 		{
 			if( GetShowObject() == false )
 				return false;
@@ -198,5 +205,14 @@ class CX2WorldObjectMesh : public CX2WorldObject
 	private:
 		CKTDXDeviceXMesh* m_pkBoundingSphere;
 #endif//X2OPTIMIZE_RENDER_BOUNDING_SPHERE_TEST
+
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+	private:
+		int		m_iJuneSavedLayer;		// June +0x324 ( ctor 327fa190 = -1 ): own layer kept while a hidden mesh is drawn at layer 0xff
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+		bool	m_bJuneWMeshLoggedHide;	// one [JUNE_ENGINE] WMESH line per mesh for its first hide and its first layer restore
+		bool	m_bJuneWMeshLoggedShow;
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 
 };

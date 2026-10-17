@@ -915,6 +915,58 @@ Added by R8 (an unowned June branch). Not alongside R8's review or W1 / W1b / W2
 - Map the class whole (ctor, Prepare, Draw, the Lua keys feeding the new members), then port it as June has it. Since R8 the override takes
   `fAddRadius_`; R13 decides whether it stays.
 
+### Phase R13 -- Done
+
+**2026-10-17, Opus 5.5.** Every slot of vtable `334bc484` was mapped and is in 9 funcmap rows tagged `(R13)`. Three flags are in `Always.h`.
+
+**The map.** The members R8 called new are March's own:
+- `+0x1ec` / `+0x1f0` are the base `m_fHideDistance` / `m_fHideNearDistance`.
+- `+0x2ec..+0x2f4` are `m_fNowAlpha`, `m_bCanHide`, `m_bNotRenderWhenHidden`, `m_bAnyCamera` and `m_BillboardType`.
+- No Lua key is new; `SetCanHide` and the others are March's keys.
+- "vslot 0x44" is `RayHit( eye, lookAt, &dist, matrix )`, the hide test, not a cull.
+- The only June-only member is `+0x324`, the saved layer (ctor `@327fa190` = -1).
+- Draw, OnFrameMove, SetLOD, both RayHits and the ctor match March.
+
+**Subset culling (item 2).** June still has `m_vecDrawSubset` (`+0x310`) and Draw still passes it. June's subset cull is March's two-argument
+`IsInFrustum`, now at slot 0x48 (`327fa210`). Once the base took a third float it overrides nothing, and a `.text` scan finds no caller.
+So June culls world meshes only as whole objects, through the base test, and the empty vector draws every subset (JUNE_BUGS 267, kept).
+**`fAddRadius_` (item 3):** the R8 three-argument override is dropped. The class declares June's non-overriding two-argument test.
+
+| Flag | What landed (June) |
+|---|---|
+| `JUNE_RENDER_WORLD_MESH` | Prepare as `327f9020`. The can-hide test runs only for `m_bAnyCamera` meshes. March's `g_pX2Game` / `CS_NORMAL` gate is gone, so villages hide too, and a `(true, false)` mesh never hides. A hidden mesh is drawn at layer 0xff; its own layer is kept in `m_iJuneSavedLayer` and restored once it is visible. The fade constants are June's 0.3f / 4.0. Also the two-argument `IsInFrustum` above. |
+| `JUNE_RENDER_CAMERA_MESH_HIDDEN` | `CKTDGCamera` `+0x19d` (DG `+0x319`) is cleared at the top of `UpdateCamera` (`31d02e50 @31d02e75`; this corrects the C3v row's `31d02c70` label) and set by a hidden mesh (`@327f921b`). |
+| `JUNE_RENDER_WORLD_MESH_DEBUG` | Short-lived. One `[JUNE_ENGINE] WMESH ... render on` line, then per mesh its first `hide:` and first `show:` line. |
+
+**Routed:**
+- The flag's only reader is the user unit (`31ff03d0 @31ff0e4f`, user `+0x160`) -> **R5** (kickoff amended).
+- `CX2WorldObjectSkinMesh::OnFrameRender_Prepare` `327f6e40` also differs and also sets the flag -> **new R13b**.
+
+**Hygiene** (`flagcheck --worktree --files` the 5 code files): RESULT PASS for all three flags.
+- `X2WorldObjectMesh.cpp` and `KTDGCamera.cpp` are PASS; the two headers are PASS~ (one blank line each).
+- The other rows are OTHER, from the sibling R13 flags or `Always.h`.
+- 0 deleted lines, 0 non-ASCII lines, 0 EOL mismatches.
+- Range check after the commit: RANGE_PENDING.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,816,448 B, dated 2026-10-17 22:29:20, md5 f0f46ed7dd266cfe32e847564cdc31a0` (built at main 3f478e9d + peers' uncommitted files; both WMESH strings found in the deployed exe).
+
+**How to see it in game** (Freils, Chung Tactical Trooper, uid 18):
+1. Elysion village: walk so that one of the four `Elysion_villeage_canhide*.Y` buildings is between the camera and Freils. It fades to about 30%,
+   and Freils stays visible through it; walk out and it fades back. March never faded these in a village.
+2. ErrorLog.txt has one `[JUNE_ENGINE] WMESH June world-mesh render on` line. Each building that hides also writes one `WMESH hide:`
+   line (`layer N -> 255`) and one `WMESH show:` line (`layer restored to N`).
+3. Any dungeon or field: no world mesh vanishes up close or at the screen edge. Whole-object culling only drops meshes wholly off screen.
+
+## Phase R13b - World skin-mesh render (Prepare)
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH`.
+Added by R13 (an unowned June branch). After R13; not alongside R12 if R12's map reaches `X2WorldObjectSkinMesh.*`.
+- **`CX2WorldObjectSkinMesh::OnFrameRender_Prepare` `327f6e40`** differs from March:
+  - an anim visibility gate (`+0x354` / `+0x355`, the `+0x228..+0x22c` list, anim `+0x173 = 0`);
+  - the hide test on `+0x2f0 && +0x2f1` through vslot 0x40, with the eye and lookAt passed by value;
+  - the 0.3 / 4.0 fade and camera `+0x19d = 1` (`@327f7098`; R13's `JUNE_RENDER_CAMERA_MESH_HIDDEN` setter); no layer swap.
+- Map the class's vtable whole (as R13 did for `334bc484`), then port what differs. Funcmap row `327f6e40 (R13)`.
+
 ## Phase U0 - UI framework RE
 
 **Run with:** Opus 5.5 high. No code. Funcmap rows `Engine U0`.

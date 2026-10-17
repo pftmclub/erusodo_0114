@@ -60,6 +60,9 @@ CKTDGCamera::CKTDGCamera( LPDIRECT3DDEVICE9 pd3dDevice )
 	m_fSmoothCameraCreshMaxGap	= 0.f;		/// 부드러운 카메라 크래시 강도
 	m_bEnableSmoothCameraCresh	= false;	/// 부드러운 카메라 크래시 적용 여부
 #endif TOGETHER_FESTIVAL_2012_AUTUMN
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+	m_bJuneWorldMeshHidden = false;	// June ctor 31d03383 ( word +0x19c = 0 )
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
 }
 
 CKTDGCamera::~CKTDGCamera()
@@ -182,6 +185,9 @@ void CKTDGCamera::UpVecRel( float XAdd, float YAdd, float ZAdd )
 
 void CKTDGCamera::UpdateCamera( float fElapsedTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+	m_bJuneWorldMeshHidden = false;	// June 31d02e75: cleared every update, before the tracking
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
 	if( IsSamef( m_fTrackTime, 0.f ) == false && IsSamef( m_fTrackAtTime, 0.f ) == true )
 	{
 		MoveRel( m_Track.x * fElapsedTime, 

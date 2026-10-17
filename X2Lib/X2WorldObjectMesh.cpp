@@ -23,6 +23,13 @@ CX2WorldObjectMesh::CX2WorldObjectMesh( bool bBackgroundLoad_ )
 	m_bNotRenderWhenHidden = false;
 	m_bAnyCamera		= false;
 	m_fNowAlpha			= 1.0f;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+	m_iJuneSavedLayer	= -1;	// June ctor 327fa190
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+	m_bJuneWMeshLoggedHide = false;
+	m_bJuneWMeshLoggedShow = false;
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 	
 	m_BillboardType		= CKTDGMatrix::BT_NONE;		
 
@@ -135,6 +142,111 @@ HRESULT CX2WorldObjectMesh::OnFrameMove( double fTime, float fElapsedTime )
 RENDER_HINT   CX2WorldObjectMesh::OnFrameRender_Prepare() 
 { 
     //__super::SetLastAccessTime( g_NowTime );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+	// June 327f9020 ( vtable 334bc484 slot 8 ). The distance and load gates are March's. The can-hide test runs only for
+	// m_bAnyCamera meshes, with no g_pX2Game / CS_NORMAL test ( so it also runs in villages ); a hidden mesh is drawn at layer
+	// 0xff with its own layer kept in m_iJuneSavedLayer ( +0x324 ) until it is no longer hidden, and it raises the camera's
+	// mesh-hidden flag ( camera +0x19d, cleared by UpdateCamera ). The fade constants are June's 0.3f ( 3345993c ) and 4.0 ( 33437838 ).
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+	static bool s_bJuneWMeshLoggedOn = false;
+	if( s_bJuneWMeshLoggedOn == false )
+	{
+		s_bJuneWMeshLoggedOn = true;
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH June world-mesh render on: base frustum test, no subset culling, any-camera hide only" << fileout;
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+	if( m_fHideDistance > 0.f && GetDistanceToCamera() > m_fHideDistance )
+		return RENDER_HINT_NORENDER;
+	if( m_fHideNearDistance > 0.f && GetDistanceToCamera() < m_fHideNearDistance )
+		return RENDER_HINT_NORENDER;
+
+	if( m_bLOD == true )
+	{
+		if ( !IsValidLODMesh() ) return RENDER_HINT_NORENDER;
+	}
+	else
+	{
+		if ( !IsValidMesh() ) return RENDER_HINT_NORENDER;
+	}//if.. else..
+
+	bool bHide = false;
+
+	if( m_bCanHide == true && m_bAnyCamera == true )
+	{
+		float fDist = 0.f;
+		if( RayHit( g_pKTDXApp->GetDGManager()->GetCamera().GetEye(), g_pKTDXApp->GetDGManager()->GetCamera().GetLookAt(),
+			&fDist, GetMatrix().GetMatrix( GetBillboardType() ) ) == true )
+		{
+			bHide = true;
+
+			if( m_iJuneSavedLayer == -1 )
+			{
+				m_iJuneSavedLayer = GetLayer();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+				if( m_bJuneWMeshLoggedHide == false )
+				{
+					m_bJuneWMeshLoggedHide = true;
+					std::string strName;
+					ConvertWCHARToChar( strName, m_XMeshName.c_str() );
+					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH hide: " << strName.c_str() << " layer " << m_iJuneSavedLayer << " -> 255, alpha "
+						<< m_fNowAlpha << ", not-render-when-hidden " << ( m_bNotRenderWhenHidden ? 1 : 0 ) << fileout;
+				}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+			}
+			SetLayer( 0xff );
+
+			if( m_fNowAlpha > 0.3f )
+				m_fNowAlpha = (float)( m_fNowAlpha - m_fElapsedTime * 4.0 );
+			else
+			{
+				m_fNowAlpha = 0.3f;
+				if( true == m_bNotRenderWhenHidden )
+					return RENDER_HINT_NORENDER;
+			}
+		}
+	}
+
+	if( bHide == false )
+	{
+		m_fNowAlpha = (float)( m_fElapsedTime * 4.0 + m_fNowAlpha );
+
+		if( m_fNowAlpha > m_RenderParam.color.a * m_coColor.a )
+			m_fNowAlpha = m_RenderParam.color.a * m_coColor.a;
+
+		if( m_iJuneSavedLayer != -1 )
+		{
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+			if( m_bJuneWMeshLoggedShow == false )
+			{
+				m_bJuneWMeshLoggedShow = true;
+				std::string strName;
+				ConvertWCHARToChar( strName, m_XMeshName.c_str() );
+				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WMESH show: " << strName.c_str() << " layer restored to " << m_iJuneSavedLayer << fileout;
+			}
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+			SetLayer( m_iJuneSavedLayer );
+			m_iJuneSavedLayer = -1;
+		}
+	}
+
+	if( m_bCanHide == true && bHide == true )
+	{
+		SetAlphaObject( true );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+		if( NULL != g_pKTDXApp->GetDGManager() )
+			g_pKTDXApp->GetDGManager()->GetCamera().SetWorldMeshHidden( true );	// June 327f9205-327f921b
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+	}
+	else
+	{
+		if( m_fNowAlpha >= m_RenderParam.color.a * m_coColor.a )
+			SetAlphaObject( m_RenderParam.bAlphaBlend );
+		else
+			SetAlphaObject( true );
+	}
+
+	return RENDER_HINT_XMESH( m_RenderParam.renderType, m_RenderParam.bFog && m_RenderParam.bFogShow );
+#else SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 	
 	//{{ 09.03.02 김태완 : 지정된 거리 이상 멀어지면 안 보이게 하기
 	if(m_fHideDistance > 0.f)
@@ -244,6 +356,7 @@ RENDER_HINT   CX2WorldObjectMesh::OnFrameRender_Prepare()
 #endif//X2OPTIMIZE_RENDER_BOUNDING_SPHERE_TEST
 
     return RENDER_HINT_XMESH( m_RenderParam.renderType, m_RenderParam.bFog && m_RenderParam.bFogShow );
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
 }
 
 

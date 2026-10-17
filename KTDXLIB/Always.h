@@ -7820,3 +7820,42 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif WORLD_TRIGGER
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R13. CX2WorldObjectMesh render path as June has it (vtable 334bc484). Prepare (327f9020):
+//              March's distance and load gates; the can-hide RayHit test runs only for m_bAnyCamera meshes (no g_pX2Game /
+//              CS_NORMAL test, so villages too); a hidden mesh is drawn at layer 0xff with its own layer kept (+0x324, -1 = none)
+//              and restored once it is visible again. June's two-argument IsInFrustum (slot 0x48, 327fa210) no longer overrides
+//              the three-argument base test and nothing calls it, so world meshes cull as whole objects and draw every subset
+//              (JUNE_BUGS 267). Draw, OnFrameMove, SetLOD and the ctor otherwise match March.
+#define SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+#ifndef SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+#error SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH needs SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST (without it the two-argument test still overrides)
+#endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R13. CKTDGCamera mesh-hidden flag (camera +0x19d): cleared at the top of UpdateCamera
+//              (31d02e50 @31d02e75), set when a can-hide world mesh hides (327f921b; the skin-mesh twin 327f7098 is Phase R13b).
+//              Its reader, the user-unit render (31ff03d0 @31ff0e49), is Phase R5's.
+#define SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R13 (short-lived). [JUNE_ENGINE] WMESH lines in ErrorLog.txt: one when the June
+//              world-mesh render first runs, then per mesh its first hide and its first layer restore.
+#define SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+#error SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH
+#endif SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG
+//////////////////////////////////////////////////////////////////////////

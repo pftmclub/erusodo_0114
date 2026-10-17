@@ -284,6 +284,16 @@ class CKTDGCamera
 		RandomCameraShakeData m_RandomCameraShakeData;
 		UpSideDownCameraData m_UpSideDownCameraData;
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+	public:
+		// June camera +0x19d: a can-hide world mesh is hidden this frame. Cleared at the top of UpdateCamera ( 31d02e50 @31d02e75 ),
+		// set by the world-mesh Prepares ( 327f921b, skin 327f7098 ), read by the user-unit render ( 31ff03d0 @31ff0e49, Phase R5 ).
+		void	SetWorldMeshHidden( bool bHidden ) { m_bJuneWorldMeshHidden = bHidden; }
+		bool	GetWorldMeshHidden() const { return m_bJuneWorldMeshHidden; }
+	private:
+		bool	m_bJuneWorldMeshHidden;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+
 #ifdef TOGETHER_FESTIVAL_2012_AUTUMN
 		float m_fSmoothCameraCreshMaxTime;		/// 부드러운 카메라 크래시에 적용되는 시간
 		float m_fSmoothCameraCreshMaxGap;		/// 부드러운 카메라 크래시 강도
