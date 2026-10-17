@@ -7446,10 +7446,6 @@ bool CX2Game::RebirthUserUnit( UidType unitUID, int startPosIndex )
 	pCX2GUUser->ReInit( false, startPosIndex );
 
 	pCX2GUUser->SetForceInvincible( 5.0f );
-#ifdef SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
-	CX2OfflineLog::Server( L"[ELYDBG] revive-dbg rebirth: unit %I64d hp %.0f / %.0f",
-		pCX2GUUser->GetUnitUID(), pCX2GUUser->GetNowHp(), pCX2GUUser->GetMaxHp() );
-#endif SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
 	pCX2GUUser->SetShowInvincible( 5.0f );
 	pCX2GUUser->StateChange( pCX2GUUser->GetStartIntrudeStateID(), true );
 

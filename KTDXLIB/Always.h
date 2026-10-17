@@ -7534,13 +7534,3 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              class scripts carry June's tags (JUNE2017_CHARACTER_PORT_CHECKLIST.md).
 #define SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN
 //////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-17
-// Description: TEMPORARY diagnostic (Atlas E10 play-test 3): players die 2-3 s after each revive in Soless phase 2, inside the
-//              5 s revive invincibility, with no killer. Logs [ELYDBG] lines to offline_server.log: every per-second buff HP
-//              tick that lowers a user's HP (value, HP before / after) and the user's HP right after a revive. Remove the
-//              define (and its blocks) once the cause is known.
-#define SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
-//////////////////////////////////////////////////////////////////////////

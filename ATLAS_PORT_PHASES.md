@@ -4544,6 +4544,11 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   1 s during the true-ending window) re-applies to dead users too, but with `ACCUMULATION_LIMIT = 1` it does not compound (10% of the receiver's mixed
   attack per s). Diagnostic `SERV_IRUHADEV_ELYSION_REVIVE_DEBUG` (temporary): `[ELYDBG] revive-dbg` lines for every per-second buff HP tick that lowers a
   user's HP and the HP after each revive. `DEPLOY OK: X2_offline.exe is 19,760,640 B, dated 2026-10-17 17:02:46, md5 b9295cef6e77272ae6f893e047369aee`.
+- **Play-test 4 (2026-10-17, 17:04-17:10, exe b9295cef): PASSED.** Stage3 seals work (user: white by combos, black by skills; stand-in on). Phase 2
+  again (17:07:47). Revive restores full HP (`revive-dbg rebirth: hp 165009 / 165009`); the phase-2 fire ticks -742 a second (0.45% HP), so it cannot
+  cause the play-test-3 deaths; this run's two deaths had the boss as killer. The repeated after-revive deaths did not reproduce: closed as an
+  unexplained edge case (user, 2026-10-17). Diagnostic removed (files restored to their bytes before `c3f460c6`, 33 lines);
+  `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 17:21:12, md5 d73b1838804aeeb79fdc67ab35d0dfae`.
 
 ### Phase E11 — Memory
 

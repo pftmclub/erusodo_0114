@@ -31,6 +31,11 @@ Review E10 against June:
 - **JUNE_BUGS 240-243:** 240 against June `327f3c40` (stops at the first miss); 241 `SetPosion` truly unbound in June (`region_engine.tsv` B40); 242, 243.
 - **Code:** `X2DungeonStage.cpp` `LoadReadyNPC` probe: no behaviour change, flag hygiene
   (`python tools/flagcheck.py SERV_IRUHADEV_ELYSION_DEBUG --range <E10 commit>^..<E10 commit> --files X2Lib/X2DungeonStage.cpp`).
+- **Play-test fixes (commits `30b389d6`..`48f5194e`, see the Done note's play-test 1-4 bullets):**
+  `SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END` (a port-gap fix, not June: June's 31c6fbb0 / 32801ab0 read as drifting, the user saw June stop; JUNE_BUGS 230);
+  `CX2Game::Release` order under `ELYSION_SCRIPT_B` (June 323080c0 @323083e5-32308416); `SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE` (state start
+  327ad91e-327ad957, slot 95 3275bbf0, both DamageReact sites) and E7's parser fix (@3278f63c-3278f6a4); the user-chosen stand-in
+  `SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN` (checklist 7x); JUNE_BUGS 244. Range hygiene per flag with `flagcheck.py <FLAG> --range 30b389d6^..48f5194e`.
 - **Play-test (if run):** the E5 review's two Stage0 checks (X02 skin mesh after the 7 s ride; does a unit on lines 34-39 ride along), the hidden stage,
   the AWAKEN / HERBAON gauges, phase 2, dramatic boxes, the ending.
 
