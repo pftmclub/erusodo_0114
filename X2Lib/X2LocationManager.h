@@ -357,6 +357,82 @@ class CX2LocationManager
 			float	m_fPlayNearSoundCoolTime;		// 사운드 출력 재사용 시간
 			float	m_fPlayNearSoundDistance;		// 사운드 출력 조건 ( 거리 )
 #endif // ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_CLOSE // 마을 NPC 에 일정 거리 이상 가까워지면 n초 간격으로 사운드를 출력하는 기능 추가
+
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			// Atlas E1a: the keys June's HouseParsing (324f3260) reads and March's does not. June templet offsets in the
+			// comments; defaults are June's miss stores (atlas E1a Done note / june2017_re/e1_houseparsing_diff.md).
+			// Consumers: the NPC side is atlas E1b, the relation runtime atlas E1c.
+			struct NpcTalkList									// NPC_TALK_LIST<n> (June temp 0x9c, ctor 32505e20)
+			{
+				vector<wstring>	m_vecMainTalk;					// +0x0  Main_Talk (string ids, stored as text)
+				wstring			m_strReceiveLikeGiftTalk;		// +0x10 Receive_Like_Gift_Talk
+				wstring			m_strReceiveDisLikeGiftTalk;	// +0x2c Receive_DisLike_Gift_Talk
+				wstring			m_strReceiveNormalGiftTalk;		// +0x48 Receive_Normal_Gift_Talk
+				wstring			m_strReceiveCashGiftTalk;		// +0x64 Receive_Cash_Gift_Talk
+				wstring			m_strLevelUpTalk;				// +0x80 Level_Up_Talk
+			};
+			struct TalkChangeCondition							// Talk_Change_Condition row (June 0x48)
+			{
+				int				m_iType;						// +0x0  TYPE (default 1; only TYPE 0 rows are kept)
+				int				m_iState;						// +0x4  STATE (0)
+				int				m_iQuestID;						// +0x8  QUEST_ID (0)
+				int				m_iSubQuestID;					// +0xc  SUB_QUEST_ID (0)
+				wstring			m_wstrMessage;					// +0x10 MESSAGE (string id -> text)
+				wstring			m_wstrMotion;					// +0x2c MOTION
+			};
+			struct CustomMotion									// CUSTOM_MOTION_NAME element (June 0x20, ctor 32505a00)
+			{
+				wstring			m_wstrMotionName;				// +0x0
+				bool			m_bPlayed;						// +0x1c, false at load
+			};
+
+			wstring			m_wstrNPCMeshName2nd;				// +0xe4  NPCMeshName2nd
+			wstring			m_wstrNPCAniTex2nd;					// +0x100 NPCAniTex2nd
+			bool			m_bAlphaBlend1stMesh;				// +0x11c AlphaBlend1stMesh (false)
+			bool			m_bAlphaBlend2ndMesh;				// +0x11d AlphaBlend2ndMesh (false)
+			bool			m_bNoEdge2ndMesh;					// +0x11e NoEdge2ndMesh (false)
+			wstring			m_wstrUIFileName;					// +0x120 no key: L""; a relation row's Change_UIFileName sets it
+			float			m_fJoinAnimSpeed;					// +0x180 JoinAnimSpeed (1.0)
+			float			m_fWaitAnimSpeed;					// +0x184 WaitAnimSpeed (1.0)
+			float			m_fByeAnimSpeed;					// +0x188 ByeAnimSpeed (1.0)
+			float			m_fOutlineWidthMesh;				// +0x18c OutlineWidthMesh (1.2)
+			bool			m_bApplyAlphaTest;					// +0x190 bApplyAlphaTest (false)
+			bool			m_bOldEnchant;						// +0x1a9 OLD_ENCHANT
+			bool			m_bOldAdvancedEnchant;				// +0x1aa OLD_ADVANCED_ENCHANT
+			vector< CommonNpcPos >	m_vecCustomNpcPos;			// +0x234 CUSTOM_NPC_LOACION (sic, June's key)
+			wstring			m_strUpgradeTalk;					// +0x3cc Upgrade_Talk
+			bool			m_bHenirEquipUpgrade;				// +0x3e8 HENIR_EQUIP_UPGRADE
+			wstring			m_strServiceTalk;					// +0x3ec Service_Talk
+			bool			m_bGuildAgitService;				// +0x408 GUILD_AGIT_SERVICE
+			bool			m_bGuildEnter;						// +0x409 GUILD_ENTER
+			bool			m_bExtraction;						// +0x40a EXTRACTION
+			wstring			m_strTradeTalk;						// +0x40c Trade_Talk
+			bool			m_bTrade;							// +0x428 TRADE
+			bool			m_bPhotoZone;						// +0x429 PHOTOZONE
+			bool			m_bFragmentExchange;				// +0x42a FRAGMENT_EXCHANGE
+			bool			m_bRockScissorsPaperNpc;			// +0x42b ROCKSCISSORSPAPER_NPC
+			bool			m_bTalkLoopAniNpc;					// +0x42c TalkLoopAniNpc
+			std::map< int, NpcTalkList >	m_mapNpcTalkList;	// +0x430 NPC_TALK_LIST0.. (key n)
+			wstring			m_strAfterTalk;						// +0x440 NPC_COMMON_TALK.After_Talk
+			wstring			m_strEveryDayRewardTalk;			// +0x45c NPC_COMMON_TALK.Every_Day_Reward_Talk
+			wstring			m_strRejectGiftTalk;				// +0x478 NPC_COMMON_TALK.Reject_Gift_Talk
+			wstring			m_strGiftUITalk;					// +0x494 NPC_COMMON_TALK.Gift_UI_Talk
+			wstring			m_wstrWait01MotionName;				// +0x4b0 WAIT01_MOTION_NAME (L"Wait01")
+			wstring			m_wstrWait02MotionName;				// +0x4cc WAIT02_MOTION_NAME (L"Wait02")
+			wstring			m_wstrWait03MotionName;				// +0x4e8 WAIT03_MOTION_NAME (L"Wait03")
+			wstring			m_wstrTalkLoopMotionName;			// +0x504 TALKLOOP_MOTION_NAME (L"Talkloop")
+			wstring			m_wstrTalkMotionName;				// +0x520 TALK_MOTION_NAME (L"Talk")
+			wstring			m_wstrTalkWaitMotionName;			// +0x53c TALKWAIT_MOTION_NAME (L"TalkWait")
+			wstring			m_wstrByeMotionName;				// +0x558 BYE_MOTION_NAME (L"Bye")
+			wstring			m_wstrNormalMotionName;				// +0x574 NORMAL_MOTION_NAME (L"Normal")
+			vector< TalkChangeCondition >	m_vecTalkChangeCondition;	// +0x590 Talk_Change_Condition
+			bool			m_bAlwaysShow;						// +0x5a0 AlwaysShow
+			bool			m_bOnlyClickable;					// +0x5a1 bOnlyClickable
+			SJuneVillageNpcRenderOption	m_RenderOption;			// +0x5a4 RenderOption (the ctor defaults land without the table)
+			wstring			m_wstrEffectSetName;				// +0x5e8 EFFECT_SET_NAME
+			bool			m_bMovingNPC;						// +0x604 bMovingNPC
+			vector< CustomMotion >	m_vecCustomMotionName;		// +0x608 CUSTOM_MOTION_NAME
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 		};
 
 

@@ -2597,9 +2597,75 @@ that no existing March village file uses any of the new keys.
 Done when: Phase E1's "Done when" holds. Record a Done note (DEPLOY OK commit), then commit on main.
 ```
 
-### Phase E1 — Done
+### Phase E1 — Split (user, 2026-10-17)
 
-*(empty)*
+E1 as worded is one port of four classes' June versions, not one. E1 measured it: June's `HouseParsing` reads ~120 keys (6 sub-tables
+March has never seen), June's `CX2TFieldNpc` rewrite reaches into `CX2TFieldNpcShop` (4-argument `SetShopType`, 13 June-only button
+ids), `CX2UIUnit` / `CX2UIUnitManager` (the UI file override), the friendship manager (Stage 18) and the agit-bank / Alarm UIs, and
+the relation system's TFieldGame side calls those June NPC functions directly. The user split it into four phases, each porting
+whole June functions (AskUserQuestion, 2026-10-17, twice: first E1a/b/c, then "4 phases, data first"):
+
+| Phase | Scope | Kickoff |
+|---|---|---|
+| E1a | June HouseTemplet + whole `HouseParsing`; the relation loaders, lookups and applied lists on `CX2QuestManager`; `VILLAGENPC_RELATIONDATA_TYPE`; bindings; loading `DLG_Map_House_NPC_RelationData.lua`; data staged. Proven by log lines; no in-game change | `E1.md` (this phase) |
+| E1b | `CX2TFieldNpc` whole except `OnFrameMove`, plus the NpcShop / UIUnit deltas it calls | `E1b.md` |
+| E1c | TFieldGame relation side (323ba5f0 / 323b0980 / 323b7ff0 / 323a9ed0 / 323b8970), the entry points (code event, quest complete), `OnFrameMove` whole + the village-NPC effect set, the assets. Atlas Station's board and postbox change here | `E1c.md` |
+| E1d | In-village warps (step 3) | `E1d.md` |
+
+RE carried forward: `june2017_re/e1_houseparsing_diff.md`, `e1_createfieldnpc_diff.md`, `e1_talkbye_diff.md`, `e1_relation_runtime.md`
+(the last one also holds the two refresh functions E1a wrote and parked for E1c).
+
+### Phase E1a — Done
+
+2026-10-17, Opus 5.5 high. Flag `SERV_IRUHADEV_ELYSION_VILLAGE` (`KTDXLIB/Always.h`), `[ELYDBG]` lines behind `SERV_IRUHADEV_ELYSION_DEBUG`.
+The data half of E1 (split above). Nothing consumes the new data yet, so March villages are unchanged by design.
+
+**What landed**
+- **HouseParsing whole** (`324f3260`, raw disassembly; Ghidra cannot decompile it): the ~50 June-only keys in June's order with June's
+  miss defaults, into new `HouseTemplet` members (June offsets in the header comments). These are the second mesh / alpha / no-edge,
+  anim speeds, OutlineWidthMesh 1.2, bApplyAlphaTest, OLD_ENCHANT x2, PHOTOZONE, FRAGMENT_EXCHANGE, ROCKSCISSORSPAPER, the
+  Upgrade / Service / Trade talks, HENIR_EQUIP_UPGRADE, GUILD_AGIT_SERVICE, GUILD_ENTER, EXTRACTION, TRADE, TalkLoopAniNpc,
+  the 8 motion names (defaults `Wait01` .. `Talkloop` .. `Normal`), AlwaysShow, bOnlyClickable, bMovingNPC and EFFECT_SET_NAME.
+  There are six sub-tables: `CUSTOM_NPC_LOACION` (June's spelling), `NPC_TALK_LIST<n>` (Main_Talk + 5 gift / level talks),
+  `NPC_COMMON_TALK`, `Talk_Change_Condition` (only TYPE 0 rows kept, as June), `CUSTOM_MOTION_NAME`, and `RenderOption` (defaults
+  copied even without the table). No March key that the US build compiles is dropped. Evidence: `june2017_re/e1_houseparsing_diff.md`.
+- **Relation system, data side** (`CX2QuestManager`):
+  - the loaders `3233b680` (ByQuest: VRT_NOT_SHOW -> 0x14 rows, VRT_CHANGE -> full rows) and `32340720` (ByVillage);
+  - the three lookups `32340320` / `323446c0` / `32340060`;
+  - the applied lists (June qm +0xcc / +0xdc), their clear `323c21e0`, and `VILLAGENPC_RELATIONDATA_TYPE` (-1 / 0 / 1 = A3's Lua);
+  - the bindings (June 31d95080 @31daf889 / @31dafc2c), and `DLG_Map_House_NPC_RelationData.lua` loaded where June does (`3258c470
+    @3259174c`, right after PVPData / PVEData, `X2StateLoading.cpp`).
+  The two refresh functions (`32340630`, `32344880`) call the TFieldGame side, so they are written and parked in
+  `june2017_re/e1_relation_runtime.md` for E1c.
+- **Data:** June's `DLG_Map_House_NPC_RelationData.lua` adopted as ljconv bytecode into data034 (`june_adopt_20261017_065231.tsv`),
+  `PACK OK data034` (+1 added, nothing else changed vs live).
+- **JUNE_BUGS 207** (the relation row's RenderOption has no ctor in June; the port uses the templet defaults, not verbatim because
+  uninitialised memory has no June value) and **208** (replace copies TalkLoop into TalkWait too; E1c ports it verbatim).
+
+**Found on the way (for E1b / E1c, in `june2017_re/e1_*.md`):**
+- June's CreateFieldNpc takes a name override (`325cba44`).
+- The UI file runs templet +0x120 -> NPC +0x1d0 -> `GetUIUnit( id, file )` (`325cc7a0`, `32806b30`).
+- The bye step returns at once unless +0x1a6 is set (`325ca325`).
+- PremiumBuffManager +0x5d = PC bang (`326c7a95`).
+- June's third quest-complete caller (`323e15e0`, event 0x27d) handles a June-only packet.
+
+**Hygiene:** `flagcheck --worktree`: 7 files, 4 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 FAIL; 0 deleted lines, 0 non-ASCII
+inserted, 0 encoding changes; RESULT: PASS. Census `--line VIL`: no `DLG_Map_House` key unread (the 4 `NPC_TALK_LIST<n>` hits are
+the census's literal matcher; the port builds the name as June does, "%s%d"); the `DLG_Map_Village` keys left are E1d / A5's.
+
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,656,704 B, dated 2026-10-17 07:13:34, md5 53cf41f886ec75a0bbac4e7b0cdc1f95, equal to
+X2/US_SERVICE/x2.exe (2026-10-17 07:13:29); built at main 9a622f01 + 7 uncommitted code file(s). The new literals are in the exe
+(`CUSTOM_NPC_LOACION`, `AddVillageNpcRelationDataBy{Quest,Village}_LUA`, `Talk_Change_Condition`, `NPC_TALK_LIST`,
+L"DLG_Map_House_NPC_RelationData.lua", L"Talkloop").
+
+**How to see it in game:** after data034 is copied, start the game and reach any village. ErrorLog.txt then shows one
+`[ELYDBG] VillageNpcRelation: loaded N change row(s), M not-show row(s)` line (June's file has 41 VRT_CHANGE + 6 VRT_NOT_SHOW rows;
+rows naming a house or village March lacks drop out), plus `[ELYDBG] HouseParsing June keys: house ...` lines for the houses that
+carry June keys. No `[ELYSION] ... did not load` line should appear.
+
+**Open for the user:** JUNE_BUGS 207's choice (templet defaults for a row's missing RenderOption) is a deviation from "verbatim"; say
+if you want it otherwise.
+
 
 ---
 

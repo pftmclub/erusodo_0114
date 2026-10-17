@@ -49,6 +49,380 @@ bool CX2QuestManager::OpenScriptFile( const WCHAR* pFileName )
 	return g_pKTDXApp->LoadLuaTinker( pFileName );
 }
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+//////////////////////////////////////////////////////////////////////////
+// Atlas E1a: June 2017's village NPC relation system (DLG_Map_House_NPC_RelationData.lua, data034, loaded by June's startup
+// script loader 3258c470 @3259174c). The rows say which house NPC a village (ByVillage) or a completed quest (ByQuest) rebuilds
+// from a changed copy of its templet (VRT_CHANGE) or hides (VRT_NOT_SHOW). The 27 rows gated on code event 2308 stay dormant
+// offline (no code event is ever enabled); the other ByQuest rows follow the quest manager as June does and wait for the quests
+// to be completed (the Elysion quests belong to the quest plan).
+//////////////////////////////////////////////////////////////////////////
+
+/// June's code-event gate, repeated in every lookup: ungated (-1), or the instance data's code-event map says the event is on.
+bool CX2QuestManager::IsVillageNpcRelationGateOn( int iCodeEvent_ ) const
+{
+	if ( -1 == iCodeEvent_ )
+		return true;
+	return ( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( iCodeEvent_ ) );
+}
+
+/// The change keys both June loaders read after their identifying keys (3233c4f0.. / 32340e74..), in June's order. A missing
+/// string key is L""; a missing string id is -1 (GET_STRING gives L""); Rot / Scale stay 0 without their table.
+void CX2QuestManager::LoadVillageNpcRelationChangeData( KLuaManager& luaManager, VillageNpcRelationData& kData_ )
+{
+	LUA_GET_VALUE( luaManager, "Change_NPCMeshName",		kData_.m_wstrNPCMeshName,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_NPCAniTex",			kData_.m_wstrNPCAniTex,			L"" );
+	LUA_GET_VALUE( luaManager, "Change_NPCMeshName2nd",		kData_.m_wstrNPCMeshName2nd,	L"" );
+	LUA_GET_VALUE( luaManager, "Change_NPCAniTex2nd",		kData_.m_wstrNPCAniTex2nd,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_AlphaBlend1stMesh",	kData_.m_wstrAlphaBlend1stMesh,	L"" );
+	LUA_GET_VALUE( luaManager, "Change_AlphaBlend2ndMesh",	kData_.m_wstrAlphaBlend2ndMesh,	L"" );
+	LUA_GET_VALUE( luaManager, "Change_NoEdge2ndMesh",		kData_.m_wstrNoEdge2ndMesh,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_UIFileName",			kData_.m_wstrUIFileName,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_NPCTextureName",		kData_.m_wstrNPCTextureName,	L"" );
+	LUA_GET_VALUE( luaManager, "Change_NPCTextureKey",		kData_.m_wstrNPCTextureKey,		L"" );
+
+	int iStringID = -1;
+	LUA_GET_VALUE( luaManager, "Change_Name",			iStringID, -1 );	kData_.m_wstrName			= GET_STRING( iStringID );
+	LUA_GET_VALUE( luaManager, "Change_HouseName",		iStringID, -1 );	kData_.m_wstrHouseName		= GET_STRING( iStringID );
+	LUA_GET_VALUE( luaManager, "Change_Wait_Talk",		iStringID, -1 );	kData_.m_wstrWaitTalk		= GET_STRING( iStringID );
+	LUA_GET_VALUE( luaManager, "Change_Shop_Talk",		iStringID, -1 );	kData_.m_wstrShopTalk		= GET_STRING( iStringID );
+	LUA_GET_VALUE( luaManager, "Change_Make_Talk",		iStringID, -1 );	kData_.m_wstrMakeTalk		= GET_STRING( iStringID );
+	LUA_GET_VALUE( luaManager, "Change_Quest_Talk",		iStringID, -1 );	kData_.m_wstrQuestTalk		= GET_STRING( iStringID );
+	LUA_GET_VALUE( luaManager, "Change_Bye_Talk",		iStringID, -1 );	kData_.m_wstrByeTalk		= GET_STRING( iStringID );
+	LUA_GET_VALUE( luaManager, "Change_Exchange_Talk",	iStringID, -1 );	kData_.m_wstrExchangeTalk	= GET_STRING( iStringID );
+
+	if ( true == luaManager.BeginTable( "Change_NPCJoinTalk" ) )
+	{
+		int iIndex = 1;
+		std::wstring wstrTalk = L"";
+		while ( true == luaManager.GetValue( iIndex, wstrTalk ) )
+		{
+			kData_.m_vecNPCJoinTalk.push_back( wstrTalk );
+			++iIndex;
+		}
+		luaManager.EndTable();
+	}
+	if ( true == luaManager.BeginTable( "Change_NPCByeTalk" ) )
+	{
+		int iIndex = 1;
+		std::wstring wstrTalk = L"";
+		while ( true == luaManager.GetValue( iIndex, wstrTalk ) )
+		{
+			kData_.m_vecNPCByeTalk.push_back( wstrTalk );
+			++iIndex;
+		}
+		luaManager.EndTable();
+	}
+
+	LUA_GET_VALUE( luaManager, "Change_Wait01MotionName",	kData_.m_wstrWait01MotionName,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_Wait02MotionName",	kData_.m_wstrWait02MotionName,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_Wait03MotionName",	kData_.m_wstrWait03MotionName,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_TalkLoopMotionName",	kData_.m_wstrTalkLoopMotionName,	L"" );
+	LUA_GET_VALUE( luaManager, "Change_TalkMotionName",		kData_.m_wstrTalkMotionName,		L"" );
+	LUA_GET_VALUE( luaManager, "Change_TalkWaitMotionName",	kData_.m_wstrTalkWaitMotionName,	L"" );
+	LUA_GET_VALUE( luaManager, "Change_ByeMotionName",		kData_.m_wstrByeMotionName,			L"" );
+	LUA_GET_VALUE( luaManager, "Change_NormalMotionName",	kData_.m_wstrNormalMotionName,		L"" );
+
+	if ( true == luaManager.BeginTable( "Change_NPCMeshRot" ) )
+	{
+		LUA_GET_VALUE( luaManager, 1, kData_.m_vNPCMeshRot.x, 0.f );
+		LUA_GET_VALUE( luaManager, 2, kData_.m_vNPCMeshRot.y, 0.f );
+		LUA_GET_VALUE( luaManager, 3, kData_.m_vNPCMeshRot.z, 0.f );
+		luaManager.EndTable();
+	}
+	if ( true == luaManager.BeginTable( "Change_NPCMeshScale" ) )
+	{
+		LUA_GET_VALUE( luaManager, 1, kData_.m_vNPCMeshScale.x, 0.f );
+		LUA_GET_VALUE( luaManager, 2, kData_.m_vNPCMeshScale.y, 0.f );
+		LUA_GET_VALUE( luaManager, 3, kData_.m_vNPCMeshScale.z, 0.f );
+		luaManager.EndTable();
+	}
+
+	/// June @32343e91: the block is read into a local and copied into the row (32345bb0) only inside the table branch
+	if ( true == luaManager.BeginTable( "RenderOption" ) )
+	{
+		SJuneVillageNpcRenderOption kRenderOption;
+		LUA_GET_VALUE( luaManager, "UseRenderOption",	kRenderOption.m_bUseRenderOption,	false );
+		LUA_GET_VALUE( luaManager, "UseAlphaBlend",		kRenderOption.m_bUseAlphaBlend,		false );
+		LUA_GET_VALUE( luaManager, "MultiTex",			kRenderOption.m_wstrMultiTex,		L"" );
+		if ( true == luaManager.BeginTable( "MultiTexSpeed" ) )
+		{
+			LUA_GET_VALUE( luaManager, 1, kRenderOption.m_vMultiTexSpeed.x, 0.f );
+			LUA_GET_VALUE( luaManager, 2, kRenderOption.m_vMultiTexSpeed.y, 0.f );
+			LUA_GET_VALUE( luaManager, 3, kRenderOption.m_vMultiTexSpeed.z, 0.f );
+			luaManager.EndTable();
+		}
+		LUA_GET_VALUE( luaManager, "SrcBlend",	kRenderOption.m_iSrcBlend,	5 );
+		LUA_GET_VALUE( luaManager, "DestBlend",	kRenderOption.m_iDestBlend,	6 );
+		if ( false == luaManager.GetUserDefinedTypeValue( "Color", kRenderOption.m_Color ) )
+			kRenderOption.m_Color = D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+		kData_.m_RenderOption = kRenderOption;
+		luaManager.EndTable();
+	}
+
+	LUA_GET_VALUE( luaManager, "EFFECT_SET_NAME", kData_.m_wstrEffectSetName, L"" );
+}
+
+/// June 3258c470 @3259174c loads DLG_Map_House_NPC_RelationData.lua inline, right after PVPData.lua / PVEData.lua (mass file
+/// LoadDataFile, then DoMemory). Its rows call g_pQuestManager, which OpenScriptFile has published by then. Degrade: without
+/// the file no row exists and every house keeps its own NPC.
+void CX2QuestManager::LoadVillageNpcRelationData()
+{
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pQuestManager", this );
+	if ( false == g_pKTDXApp->LoadLuaTinker( L"DLG_Map_House_NPC_RelationData.lua" ) )
+	{
+		ErrorLogMsg( XEM_ERROR142, L"[ELYSION] DLG_Map_House_NPC_RelationData.lua did not load: no village NPC relation rows, every house keeps its own NPC. Stage June's file into data034.kom (atlas E1a)." );
+	}
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	WCHAR buff[256] = {0};
+	StringCchPrintf( buff, 256, L"[ELYDBG] VillageNpcRelation: loaded %d change row(s), %d not-show row(s)",
+		static_cast<int>( m_kVillageNpcRelation.m_vecRelationData.size() ), static_cast<int>( m_kVillageNpcRelation.m_vecNotShowData.size() ) );
+	ErrorLogMsg( XEM_ERROR142, buff );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+}
+/// June 3233b680 (binding 31d95080 @31daf889). VRT_NOT_SHOW: a 0x14 row into +0xbc when QUEST_ID and the house are both read
+/// and >= 0. VRT_CHANGE: a full row into +0xac when QUEST_ID and the house are both >= 0. Any other type stores nothing.
+void CX2QuestManager::AddVillageNpcRelationDataByQuest_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	int iType = 0;
+	if ( false == luaManager.GetValue( "VillageNpc_RelationData_Type", iType ) || VRT_NONE == iType )
+		return;
+
+	if ( VRT_NOT_SHOW == iType )
+	{
+		VillageNpcNotShowData kNotShow;
+		kNotShow.m_iState = 1;		/// June @3233b97c
+		LUA_GET_VALUE( luaManager, "m_iUseCodeEventTriger", kNotShow.m_iUseCodeEventTrigger, -1 );
+		if ( true == luaManager.GetValue( "QUEST_ID", kNotShow.m_iQuestID ) && 0 <= kNotShow.m_iQuestID )
+		{
+			LUA_GET_VALUE( luaManager, "APPLY_FORCE", kNotShow.m_bApplyForce, false );
+			if ( true == luaManager.GetValue( "TARGET_NPC_HOUSE_ID", kNotShow.m_iTargetHouseID ) && 0 <= kNotShow.m_iTargetHouseID )
+				m_kVillageNpcRelation.m_vecNotShowData.push_back( kNotShow );
+		}
+	}
+	else if ( VRT_CHANGE == iType )
+	{
+		VillageNpcRelationData kData;
+		kData.m_eType = VRT_CHANGE;
+		LUA_GET_VALUE( luaManager, "m_iUseCodeEventTriger", kData.m_iUseCodeEventTrigger, -1 );
+		LUA_GET_VALUE( luaManager, "QUEST_ID", kData.m_iQuestID, -1 );
+		if ( 0 <= kData.m_iQuestID )
+		{
+			LUA_GET_VALUE( luaManager, "APPLY_FORCE", kData.m_bApplyForce, false );
+			LUA_GET_VALUE( luaManager, "TARGET_NPC_HOUSE_ID", kData.m_iTargetHouseID, -1 );
+			if ( 0 <= kData.m_iTargetHouseID )
+			{
+				LoadVillageNpcRelationChangeData( luaManager, kData );
+				m_kVillageNpcRelation.m_vecRelationData.push_back( kData );
+			}
+		}
+	}
+}
+
+/// June 32340720 (binding @31dafc2c). VRT_CHANGE only; VILLAGE_ID and the house must both be >= 0. No QUEST_ID (stays -1),
+/// no APPLY_FORCE.
+void CX2QuestManager::AddVillageNpcRelationDataByVillage_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	int iType = 0;
+	if ( false == luaManager.GetValue( "VillageNpc_RelationData_Type", iType ) || VRT_CHANGE != iType )
+		return;
+
+	VillageNpcRelationData kData;
+	kData.m_eType = VRT_CHANGE;
+	LUA_GET_VALUE( luaManager, "m_iUseCodeEventTriger", kData.m_iUseCodeEventTrigger, -1 );
+	LUA_GET_VALUE( luaManager, "VILLAGE_ID", kData.m_iVillageID, -1 );
+	if ( 0 <= kData.m_iVillageID )
+	{
+		LUA_GET_VALUE( luaManager, "TARGET_NPC_HOUSE_ID", kData.m_iTargetHouseID, -1 );
+		if ( 0 <= kData.m_iTargetHouseID )
+		{
+			LoadVillageNpcRelationChangeData( luaManager, kData );
+			m_kVillageNpcRelation.m_vecRelationData.push_back( kData );
+		}
+	}
+}
+
+/// June 32340320: the house's ByQuest result. Rows (ByVillage rows included, their quest is -1) count when APPLY_FORCE is set
+/// or their quest is completed; the highest quest wins: 0 when its gate is on, 2 when it is off but something is applied.
+/// The VRT_NOT_SHOW rows then compete against the best row's quest (not against each other): 1, or 2 as above.
+/// 0 / 1 push the winner into kResult_ and into the applied lists. Returns -1 when nothing matched.
+int CX2QuestManager::GetVillageNpcRelationDataByQuest( int iHouseID_, VillageNpcRelationResult& kResult_ )
+{
+	int iResult = -1;
+	VillageNpcRelationData kBest;
+	for ( std::vector<VillageNpcRelationData>::const_iterator vit = m_kVillageNpcRelation.m_vecRelationData.begin();
+		vit != m_kVillageNpcRelation.m_vecRelationData.end(); ++vit )
+	{
+		const bool bGateOn = IsVillageNpcRelationGateOn( vit->m_iUseCodeEventTrigger );
+		if ( vit->m_iTargetHouseID != iHouseID_ )
+			continue;
+		if ( true != vit->m_bApplyForce && m_mapCompleteQuest.end() == m_mapCompleteQuest.find( vit->m_iQuestID ) )
+			continue;
+		if ( kBest.m_iQuestID < vit->m_iQuestID )
+		{
+			if ( true == bGateOn )
+			{
+				kBest = *vit;
+				iResult = 0;
+			}
+			else if ( false == m_kAppliedVillageNpcRelation.m_vecRelationData.empty() )
+			{
+				kBest = *vit;
+				iResult = 2;
+			}
+		}
+	}
+
+	VillageNpcNotShowData kNotShow;
+	kNotShow.m_bApplyForce = false;
+	for ( std::vector<VillageNpcNotShowData>::const_iterator vit = m_kVillageNpcRelation.m_vecNotShowData.begin();
+		vit != m_kVillageNpcRelation.m_vecNotShowData.end(); ++vit )
+	{
+		const bool bGateOn = IsVillageNpcRelationGateOn( vit->m_iUseCodeEventTrigger );
+		if ( vit->m_iTargetHouseID != iHouseID_ )
+			continue;
+		if ( true != vit->m_bApplyForce && m_mapCompleteQuest.end() == m_mapCompleteQuest.find( vit->m_iQuestID ) )
+			continue;
+		if ( kBest.m_iQuestID < vit->m_iQuestID )
+		{
+			if ( true == bGateOn )
+				iResult = 1;
+			else if ( false == m_kAppliedVillageNpcRelation.m_vecNotShowData.empty() )
+				iResult = 2;
+			else
+				continue;
+			kNotShow = *vit;
+		}
+	}
+
+	if ( 0 == iResult )
+	{
+		kResult_.m_vecRelationData.push_back( kBest );
+		m_kAppliedVillageNpcRelation.m_vecRelationData.push_back( kBest );
+	}
+	else if ( 1 == iResult )
+	{
+		kResult_.m_vecNotShowData.push_back( kNotShow );
+		m_kAppliedVillageNpcRelation.m_vecNotShowData.push_back( kNotShow );
+	}
+	return iResult;
+}
+
+/// June 323446c0: the house's row for this village (+0x80); the last matching row wins (0 gate on, 2 gate off with something
+/// applied). Only 0 pushes.
+int CX2QuestManager::GetVillageNpcRelationDataByVillage( int iVillageID_, int iHouseID_, VillageNpcRelationResult& kResult_ )
+{
+	int iResult = -1;
+	VillageNpcRelationData kBest;
+	for ( std::vector<VillageNpcRelationData>::const_iterator vit = m_kVillageNpcRelation.m_vecRelationData.begin();
+		vit != m_kVillageNpcRelation.m_vecRelationData.end(); ++vit )
+	{
+		const bool bGateOn = IsVillageNpcRelationGateOn( vit->m_iUseCodeEventTrigger );
+		if ( vit->m_iTargetHouseID != iHouseID_ || vit->m_iVillageID != iVillageID_ )
+			continue;
+		if ( true == bGateOn )
+		{
+			kBest = *vit;
+			iResult = 0;
+		}
+		else if ( false == m_kAppliedVillageNpcRelation.m_vecRelationData.empty() )
+		{
+			kBest = *vit;
+			iResult = 2;
+		}
+	}
+
+	if ( 0 == iResult )
+	{
+		kResult_.m_vecRelationData.push_back( kBest );
+		m_kAppliedVillageNpcRelation.m_vecRelationData.push_back( kBest );
+	}
+	return iResult;
+}
+
+/// June 32340060: only for a completed quest. The first row naming the quest (no house test, no APPLY_FORCE) gives 0 / 2,
+/// then the first VRT_NOT_SHOW row naming it gives 1 / 2 (it overrides the row's result). 0 / 1 push as above.
+int CX2QuestManager::GetVillageNpcRelationDataByQuestID( int iQuestID_, VillageNpcRelationResult& kResult_ )
+{
+	int iResult = -1;
+	if ( m_mapCompleteQuest.end() == m_mapCompleteQuest.find( iQuestID_ ) )
+		return iResult;
+
+	VillageNpcRelationData kRow;
+	for ( std::vector<VillageNpcRelationData>::const_iterator vit = m_kVillageNpcRelation.m_vecRelationData.begin();
+		vit != m_kVillageNpcRelation.m_vecRelationData.end(); ++vit )
+	{
+		const bool bGateOn = IsVillageNpcRelationGateOn( vit->m_iUseCodeEventTrigger );
+		if ( vit->m_iQuestID == iQuestID_ )
+		{
+			if ( true == bGateOn )
+			{
+				kRow = *vit;
+				iResult = 0;
+			}
+			else if ( false == m_kAppliedVillageNpcRelation.m_vecRelationData.empty() )
+			{
+				kRow = *vit;
+				iResult = 2;
+			}
+			break;
+		}
+	}
+
+	VillageNpcNotShowData kNotShow;
+	kNotShow.m_bApplyForce = false;
+	for ( std::vector<VillageNpcNotShowData>::const_iterator vit = m_kVillageNpcRelation.m_vecNotShowData.begin();
+		vit != m_kVillageNpcRelation.m_vecNotShowData.end(); ++vit )
+	{
+		const bool bGateOn = IsVillageNpcRelationGateOn( vit->m_iUseCodeEventTrigger );
+		if ( vit->m_iQuestID == iQuestID_ )
+		{
+			if ( true == bGateOn )
+			{
+				kNotShow = *vit;
+				iResult = 1;
+			}
+			else if ( false == m_kAppliedVillageNpcRelation.m_vecNotShowData.empty() )
+			{
+				kNotShow = *vit;
+				iResult = 2;
+			}
+			break;
+		}
+	}
+
+	if ( 0 == iResult )
+	{
+		kResult_.m_vecRelationData.push_back( kRow );
+		m_kAppliedVillageNpcRelation.m_vecRelationData.push_back( kRow );
+	}
+	else if ( 1 == iResult )
+	{
+		kResult_.m_vecNotShowData.push_back( kNotShow );
+		m_kAppliedVillageNpcRelation.m_vecNotShowData.push_back( kNotShow );
+	}
+	return iResult;
+}
+
+/// June 323c21e0: run first by the village NPC creation (CX2TFieldGame 323ba5f0)
+void CX2QuestManager::ClearAppliedVillageNpcRelationData()
+{
+	m_kAppliedVillageNpcRelation.m_vecRelationData.clear();
+	m_kAppliedVillageNpcRelation.m_vecNotShowData.clear();
+}
+
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
+
 
 bool CX2QuestManager::AddQuestTemplet_LUA()
 {

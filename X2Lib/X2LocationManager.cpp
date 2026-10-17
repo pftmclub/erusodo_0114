@@ -617,6 +617,16 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 				LUA_GET_VALUE( kLuamanager, "NPCMeshName", npcMeshName, L"" );
 				wstring			npcAniTex;
 				LUA_GET_VALUE( kLuamanager, "NPCAniTex", npcAniTex, L"" );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				// Atlas E1a, June 324f47c2 .. 324f4d6e: second mesh and the mesh render switches
+				wstring wstrNPCMeshName2nd, wstrNPCAniTex2nd;
+				LUA_GET_VALUE( kLuamanager, "NPCMeshName2nd", wstrNPCMeshName2nd, L"" );
+				LUA_GET_VALUE( kLuamanager, "NPCAniTex2nd", wstrNPCAniTex2nd, L"" );
+				bool bAlphaBlend1stMesh = false, bAlphaBlend2ndMesh = false, bNoEdge2ndMesh = false;
+				LUA_GET_VALUE( kLuamanager, "AlphaBlend1stMesh", bAlphaBlend1stMesh, false );
+				LUA_GET_VALUE( kLuamanager, "AlphaBlend2ndMesh", bAlphaBlend2ndMesh, false );
+				LUA_GET_VALUE( kLuamanager, "NoEdge2ndMesh", bNoEdge2ndMesh, false );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 															
 				vector<wstring> vecNpcJoinTalk;
 				if( kLuamanager.BeginTable( "NPCJoinTalk" ) == true )
@@ -669,6 +679,13 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 					LUA_GET_VALUE( kLuamanager, 3, npcMeshScale.z, 1.0f );
 					kLuamanager.EndTable();
 				}
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				// Atlas E1a, June 324f517b .. 324f53e7
+				float fJoinAnimSpeed = 1.f, fWaitAnimSpeed = 1.f, fByeAnimSpeed = 1.f;
+				LUA_GET_VALUE( kLuamanager, "JoinAnimSpeed", fJoinAnimSpeed, 1.f );
+				LUA_GET_VALUE( kLuamanager, "WaitAnimSpeed", fWaitAnimSpeed, 1.f );
+				LUA_GET_VALUE( kLuamanager, "ByeAnimSpeed", fByeAnimSpeed, 1.f );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 				
 				int joinArea;
 				LUA_GET_VALUE( kLuamanager, "JoinArea", joinArea, 500 );
@@ -726,6 +743,11 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 				LUA_GET_VALUE( kLuamanager, "ATTRIBUTE",	bAttribute, false );
 				LUA_GET_VALUE( kLuamanager, "REPAIR_NPC",	bRepair, false );
 				LUA_GET_VALUE( kLuamanager, "SELL_NPC",	bSell, false );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				bool bOldEnchant = false, bOldAdvancedEnchant = false;	// Atlas E1a, June 324f5ffd / 324f61b0
+				LUA_GET_VALUE( kLuamanager, "OLD_ENCHANT", bOldEnchant, false );
+				LUA_GET_VALUE( kLuamanager, "OLD_ADVANCED_ENCHANT", bOldAdvancedEnchant, false );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 #ifdef GUILD_BOARD
 				LUA_GET_VALUE( kLuamanager, "GUILD",		bGuild, false ); // oasis907 : 김상윤 [2009.11.24] // 길드 게시판
@@ -765,6 +787,12 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 				LUA_GET_VALUE( kLuamanager, "EVENT2", bEvent2, false );
 				LUA_GET_VALUE( kLuamanager, "EVENT3", bEvent3, false );
 				LUA_GET_VALUE( kLuamanager, "EVENT4", bEvent4, false );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				bool bPhotoZone = false, bFragmentExchange = false, bRockScissorsPaperNpc = false;	// Atlas E1a, June 324f6dac .. 324f70f4
+				LUA_GET_VALUE( kLuamanager, "PHOTOZONE", bPhotoZone, false );
+				LUA_GET_VALUE( kLuamanager, "FRAGMENT_EXCHANGE", bFragmentExchange, false );
+				LUA_GET_VALUE( kLuamanager, "ROCKSCISSORSPAPER_NPC", bRockScissorsPaperNpc, false );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #endif NPC_EVENT_BUTTON
 				// 이벤트NPC 설정
 				bool bEventNpc;
@@ -811,6 +839,32 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 				}
 
 				vector< CX2UnitManager::NPC_UNIT_ID > vecNPCID;		
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				// Atlas E1a, June 324f7493: CUSTOM_NPC_LOACION (June's spelling), entries laid out as COMMON_NPC_LOCATION's
+				vector<CommonNpcPos> vecCustomNpcPos;
+				if( kLuamanager.BeginTable( "CUSTOM_NPC_LOACION" ) == true )
+				{
+					int index = 1;
+					while( kLuamanager.BeginTable( index ) == true )
+					{
+						CommonNpcPos npcPos;
+						LUA_GET_VALUE_ENUM( kLuamanager, 1, npcPos.m_eWorldID, CX2World::WORLD_ID, CX2World::WI_NONE );
+						LUA_GET_VALUE( kLuamanager, 2, npcPos.m_vNpcPos.x, 0.f );
+						LUA_GET_VALUE( kLuamanager, 3, npcPos.m_vNpcPos.y, 0.f );
+						LUA_GET_VALUE( kLuamanager, 4, npcPos.m_vNpcPos.z, 0.f );
+						LUA_GET_VALUE( kLuamanager, 5, npcPos.m_vNpcRot.x, 0.f );
+						LUA_GET_VALUE( kLuamanager, 6, npcPos.m_vNpcRot.y, 0.f );
+						LUA_GET_VALUE( kLuamanager, 7, npcPos.m_vNpcRot.z, 0.f );
+#ifdef LOCAL_NPC_JOIN_AREA
+						LUA_GET_VALUE( kLuamanager, 8, npcPos.m_fLocalJoinArea, 0.f );
+#endif LOCAL_NPC_JOIN_AREA
+						vecCustomNpcPos.push_back( npcPos );
+						kLuamanager.EndTable();
+						++index;
+					}
+					kLuamanager.EndTable();
+				}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 				if( kLuamanager.BeginTable( "NPC_ID_LIST" ) == true )
 				{
 					int tableIndex = 1;
@@ -938,6 +992,64 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 				wstrExchangeNewItem = GET_STRING( iStringIndex );				
 #endif // SERV_NEW_ITEM_SYSTEM_2013_05
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				// Atlas E1a, June 324f980f .. 324fbb9d: the three June-only talks, two render values, the NPC_TALK_LIST<n> tables
+				// and NPC_COMMON_TALK (each string id -1 -> L"")
+				wstring wstrUpgradeTalk, wstrServiceTalk, wstrTradeTalk;
+				LUA_GET_VALUE( kLuamanager, "Upgrade_Talk", iStringIndex, STR_ID_EMPTY );
+				wstrUpgradeTalk = GET_STRING( iStringIndex );
+				LUA_GET_VALUE( kLuamanager, "Service_Talk", iStringIndex, STR_ID_EMPTY );
+				wstrServiceTalk = GET_STRING( iStringIndex );
+				LUA_GET_VALUE( kLuamanager, "Trade_Talk", iStringIndex, STR_ID_EMPTY );
+				wstrTradeTalk = GET_STRING( iStringIndex );
+				float fOutlineWidthMesh = 1.2f;
+				LUA_GET_VALUE( kLuamanager, "OutlineWidthMesh", fOutlineWidthMesh, 1.2f );
+				bool bApplyAlphaTest = false;
+				LUA_GET_VALUE( kLuamanager, "bApplyAlphaTest", bApplyAlphaTest, false );
+
+				std::map< int, CX2LocationManager::HouseTemplet::NpcTalkList > mapNpcTalkList;
+				for ( int iTalkList = 0; kLuamanager.BeginTable( "NPC_TALK_LIST", iTalkList ) == true; ++iTalkList )
+				{
+					CX2LocationManager::HouseTemplet::NpcTalkList kTalkList;
+					if( kLuamanager.BeginTable( "Main_Talk" ) == true )
+					{
+						int iMainTalkIndex = 1;
+						int iMainTalkID = STR_ID_EMPTY;
+						while( kLuamanager.GetValue( iMainTalkIndex, iMainTalkID ) == true )
+						{
+							kTalkList.m_vecMainTalk.push_back( GET_STRING( iMainTalkID ) );
+							++iMainTalkIndex;
+						}
+						kLuamanager.EndTable();
+					}
+					LUA_GET_VALUE( kLuamanager, "Receive_Like_Gift_Talk", iStringIndex, STR_ID_EMPTY );
+					kTalkList.m_strReceiveLikeGiftTalk = GET_STRING( iStringIndex );
+					LUA_GET_VALUE( kLuamanager, "Receive_DisLike_Gift_Talk", iStringIndex, STR_ID_EMPTY );
+					kTalkList.m_strReceiveDisLikeGiftTalk = GET_STRING( iStringIndex );
+					LUA_GET_VALUE( kLuamanager, "Receive_Normal_Gift_Talk", iStringIndex, STR_ID_EMPTY );
+					kTalkList.m_strReceiveNormalGiftTalk = GET_STRING( iStringIndex );
+					LUA_GET_VALUE( kLuamanager, "Receive_Cash_Gift_Talk", iStringIndex, STR_ID_EMPTY );
+					kTalkList.m_strReceiveCashGiftTalk = GET_STRING( iStringIndex );
+					LUA_GET_VALUE( kLuamanager, "Level_Up_Talk", iStringIndex, STR_ID_EMPTY );
+					kTalkList.m_strLevelUpTalk = GET_STRING( iStringIndex );
+					kLuamanager.EndTable();	// NPC_TALK_LIST<n>
+					mapNpcTalkList.insert( std::make_pair( iTalkList, kTalkList ) );
+				}
+
+				wstring wstrAfterTalk, wstrEveryDayRewardTalk, wstrRejectGiftTalk, wstrGiftUITalk;
+				if( kLuamanager.BeginTable( "NPC_COMMON_TALK" ) == true )
+				{
+					LUA_GET_VALUE( kLuamanager, "Every_Day_Reward_Talk", iStringIndex, STR_ID_EMPTY );
+					wstrEveryDayRewardTalk = GET_STRING( iStringIndex );
+					LUA_GET_VALUE( kLuamanager, "After_Talk", iStringIndex, STR_ID_EMPTY );
+					wstrAfterTalk = GET_STRING( iStringIndex );
+					LUA_GET_VALUE( kLuamanager, "Reject_Gift_Talk", iStringIndex, STR_ID_EMPTY );
+					wstrRejectGiftTalk = GET_STRING( iStringIndex );
+					LUA_GET_VALUE( kLuamanager, "Gift_UI_Talk", iStringIndex, STR_ID_EMPTY );
+					wstrGiftUITalk = GET_STRING( iStringIndex );
+					kLuamanager.EndTable();
+				}
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 				CX2LocationManager::HouseTemplet* pHouseTemplet = new CX2LocationManager::HouseTemplet();
 				pHouseTemplet->m_ID = (HOUSE_ID)houseID;
 				pHouseTemplet->m_Type = (HOUSE_TYPE)houseType;
@@ -1116,6 +1228,137 @@ void CX2LocationManager::HouseParsing( KLuaManager& kLuamanager, const vector< H
 #endif // ADD_PLAY_MUSIC_WHEN_VILLAGE_NPC_CLOSE // 마을 NPC 에 일정 거리 이상 가까워지면 n초 간격으로 사운드를 출력하는 기능 추가
 
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+				// Atlas E1a: the June-only values read above (June's copy section 324fbbcc .. 324fc122) ...
+				pHouseTemplet->m_wstrNPCMeshName2nd		= wstrNPCMeshName2nd;
+				pHouseTemplet->m_wstrNPCAniTex2nd		= wstrNPCAniTex2nd;
+				pHouseTemplet->m_bAlphaBlend1stMesh		= bAlphaBlend1stMesh;
+				pHouseTemplet->m_bAlphaBlend2ndMesh		= bAlphaBlend2ndMesh;
+				pHouseTemplet->m_bNoEdge2ndMesh			= bNoEdge2ndMesh;
+				pHouseTemplet->m_wstrUIFileName			= L"";		// June @324fbd1a
+				pHouseTemplet->m_fJoinAnimSpeed			= fJoinAnimSpeed;
+				pHouseTemplet->m_fWaitAnimSpeed			= fWaitAnimSpeed;
+				pHouseTemplet->m_fByeAnimSpeed			= fByeAnimSpeed;
+				pHouseTemplet->m_fOutlineWidthMesh		= fOutlineWidthMesh;
+				pHouseTemplet->m_bApplyAlphaTest		= bApplyAlphaTest;
+				pHouseTemplet->m_bOldEnchant			= bOldEnchant;
+				pHouseTemplet->m_bOldAdvancedEnchant	= bOldAdvancedEnchant;
+				pHouseTemplet->m_bPhotoZone				= bPhotoZone;
+				pHouseTemplet->m_bFragmentExchange		= bFragmentExchange;
+				pHouseTemplet->m_bRockScissorsPaperNpc	= bRockScissorsPaperNpc;
+				pHouseTemplet->m_vecCustomNpcPos		= vecCustomNpcPos;
+				pHouseTemplet->m_strUpgradeTalk			= wstrUpgradeTalk;
+				pHouseTemplet->m_strServiceTalk			= wstrServiceTalk;
+				pHouseTemplet->m_strTradeTalk			= wstrTradeTalk;
+				pHouseTemplet->m_mapNpcTalkList			= mapNpcTalkList;
+				pHouseTemplet->m_strAfterTalk			= wstrAfterTalk;
+				pHouseTemplet->m_strEveryDayRewardTalk	= wstrEveryDayRewardTalk;
+				pHouseTemplet->m_strRejectGiftTalk		= wstrRejectGiftTalk;
+				pHouseTemplet->m_strGiftUITalk			= wstrGiftUITalk;
+
+				// ... and the keys June reads straight into the templet after NPCNearSound (324fc642 .. 324fecbd)
+				LUA_GET_VALUE( kLuamanager, "HENIR_EQUIP_UPGRADE",	pHouseTemplet->m_bHenirEquipUpgrade,	false );
+				LUA_GET_VALUE( kLuamanager, "GUILD_AGIT_SERVICE",	pHouseTemplet->m_bGuildAgitService,		false );
+				LUA_GET_VALUE( kLuamanager, "GUILD_ENTER",			pHouseTemplet->m_bGuildEnter,			false );
+				LUA_GET_VALUE( kLuamanager, "EXTRACTION",			pHouseTemplet->m_bExtraction,			false );
+				LUA_GET_VALUE( kLuamanager, "TRADE",				pHouseTemplet->m_bTrade,				false );
+				LUA_GET_VALUE( kLuamanager, "TalkLoopAniNpc",		pHouseTemplet->m_bTalkLoopAniNpc,		false );
+				LUA_GET_VALUE( kLuamanager, "WAIT01_MOTION_NAME",	pHouseTemplet->m_wstrWait01MotionName,		L"Wait01" );
+				LUA_GET_VALUE( kLuamanager, "WAIT02_MOTION_NAME",	pHouseTemplet->m_wstrWait02MotionName,		L"Wait02" );
+				LUA_GET_VALUE( kLuamanager, "WAIT03_MOTION_NAME",	pHouseTemplet->m_wstrWait03MotionName,		L"Wait03" );
+				LUA_GET_VALUE( kLuamanager, "TALKLOOP_MOTION_NAME",	pHouseTemplet->m_wstrTalkLoopMotionName,	L"Talkloop" );
+				LUA_GET_VALUE( kLuamanager, "TALK_MOTION_NAME",		pHouseTemplet->m_wstrTalkMotionName,		L"Talk" );
+				LUA_GET_VALUE( kLuamanager, "TALKWAIT_MOTION_NAME",	pHouseTemplet->m_wstrTalkWaitMotionName,	L"TalkWait" );
+				LUA_GET_VALUE( kLuamanager, "BYE_MOTION_NAME",		pHouseTemplet->m_wstrByeMotionName,			L"Bye" );
+				LUA_GET_VALUE( kLuamanager, "NORMAL_MOTION_NAME",	pHouseTemplet->m_wstrNormalMotionName,		L"Normal" );
+
+				pHouseTemplet->m_vecTalkChangeCondition.clear();
+				if( kLuamanager.BeginTable( "Talk_Change_Condition" ) == true )
+				{
+					int index = 1;
+					while( kLuamanager.BeginTable( index ) == true )
+					{
+						CX2LocationManager::HouseTemplet::TalkChangeCondition kCondition;
+						LUA_GET_VALUE( kLuamanager, "TYPE",		kCondition.m_iType,		1 );
+						LUA_GET_VALUE( kLuamanager, "STATE",	kCondition.m_iState,	0 );
+						if( 0 == kCondition.m_iType )	// June @324fdaa9: any other TYPE (a missing one included) drops the row
+						{
+							LUA_GET_VALUE( kLuamanager, "QUEST_ID",		kCondition.m_iQuestID,		0 );
+							LUA_GET_VALUE( kLuamanager, "SUB_QUEST_ID",	kCondition.m_iSubQuestID,	0 );
+							LUA_GET_VALUE( kLuamanager, "MESSAGE",		iStringIndex,				STR_ID_EMPTY );
+							kCondition.m_wstrMessage = GET_STRING( iStringIndex );
+							LUA_GET_VALUE( kLuamanager, "MOTION",		kCondition.m_wstrMotion,	L"" );
+							pHouseTemplet->m_vecTalkChangeCondition.push_back( kCondition );
+						}
+						kLuamanager.EndTable();
+						++index;
+					}
+					kLuamanager.EndTable();
+				}
+
+				LUA_GET_VALUE( kLuamanager, "AlwaysShow",		pHouseTemplet->m_bAlwaysShow,		false );
+				LUA_GET_VALUE( kLuamanager, "bOnlyClickable",	pHouseTemplet->m_bOnlyClickable,	false );
+
+				pHouseTemplet->m_vecCustomMotionName.clear();	// June @324fe32a assigns the (maybe empty) list either way
+				if( kLuamanager.BeginTable( "CUSTOM_MOTION_NAME" ) == true )
+				{
+					int index = 1;
+					wstring wstrMotionName = L"";
+					while( kLuamanager.GetValue( index, wstrMotionName ) == true )
+					{
+						CX2LocationManager::HouseTemplet::CustomMotion kMotion;
+						kMotion.m_wstrMotionName = wstrMotionName;
+						kMotion.m_bPlayed = false;
+						pHouseTemplet->m_vecCustomMotionName.push_back( kMotion );
+						++index;
+					}
+					kLuamanager.EndTable();
+				}
+
+				LUA_GET_VALUE( kLuamanager, "bMovingNPC", pHouseTemplet->m_bMovingNPC, false );
+
+				// June 324fe434: the block is built with its defaults first and copied on both paths, so a house without the
+				// table gets UseRenderOption off, Src 5 / Dest 6, colour 1
+				{
+					SJuneVillageNpcRenderOption kRenderOption;
+					if( kLuamanager.BeginTable( "RenderOption" ) == true )
+					{
+						LUA_GET_VALUE( kLuamanager, "UseRenderOption",	kRenderOption.m_bUseRenderOption,	false );
+						LUA_GET_VALUE( kLuamanager, "UseAlphaBlend",	kRenderOption.m_bUseAlphaBlend,		false );
+						LUA_GET_VALUE( kLuamanager, "MultiTex",			kRenderOption.m_wstrMultiTex,		L"" );
+						if( kLuamanager.BeginTable( "MultiTexSpeed" ) == true )
+						{
+							LUA_GET_VALUE( kLuamanager, 1, kRenderOption.m_vMultiTexSpeed.x, 0.f );
+							LUA_GET_VALUE( kLuamanager, 2, kRenderOption.m_vMultiTexSpeed.y, 0.f );
+							LUA_GET_VALUE( kLuamanager, 3, kRenderOption.m_vMultiTexSpeed.z, 0.f );
+							kLuamanager.EndTable();
+						}
+						LUA_GET_VALUE( kLuamanager, "SrcBlend",		kRenderOption.m_iSrcBlend,	5 );
+						LUA_GET_VALUE( kLuamanager, "DestBlend",	kRenderOption.m_iDestBlend,	6 );
+						if( false == kLuamanager.GetUserDefinedTypeValue( "Color", kRenderOption.m_Color ) )
+							kRenderOption.m_Color = D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+						kLuamanager.EndTable();
+					}
+					pHouseTemplet->m_RenderOption = kRenderOption;
+				}
+
+				LUA_GET_VALUE( kLuamanager, "EFFECT_SET_NAME", pHouseTemplet->m_wstrEffectSetName, L"" );
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+				if( false == pHouseTemplet->m_wstrNPCMeshName2nd.empty() || false == pHouseTemplet->m_wstrEffectSetName.empty()
+					|| false == pHouseTemplet->m_vecCustomNpcPos.empty() || false == pHouseTemplet->m_mapNpcTalkList.empty()
+					|| false == pHouseTemplet->m_vecCustomMotionName.empty() || true == pHouseTemplet->m_bOnlyClickable
+					|| true == pHouseTemplet->m_bAlwaysShow || true == pHouseTemplet->m_bFragmentExchange || true == pHouseTemplet->m_bTalkLoopAniNpc )
+				{
+					WCHAR buff[512] = {0};
+					StringCchPrintf( buff, 512, L"[ELYDBG] HouseParsing June keys: house %d mesh2 '%s' effectset '%s' customPos %d talkLists %d customMotions %d onlyClickable %d alwaysShow %d fragment %d talkLoop %d",
+						houseID, pHouseTemplet->m_wstrNPCMeshName2nd.c_str(), pHouseTemplet->m_wstrEffectSetName.c_str(),
+						static_cast<int>( pHouseTemplet->m_vecCustomNpcPos.size() ), static_cast<int>( pHouseTemplet->m_mapNpcTalkList.size() ),
+						static_cast<int>( pHouseTemplet->m_vecCustomMotionName.size() ), (int)pHouseTemplet->m_bOnlyClickable,
+						(int)pHouseTemplet->m_bAlwaysShow, (int)pHouseTemplet->m_bFragmentExchange, (int)pHouseTemplet->m_bTalkLoopAniNpc );
+					ErrorLogMsg( XEM_ERROR142, buff );
+				}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 				m_mapHouseTemplet.insert( std::make_pair( (CX2LocationManager::HOUSE_ID)houseID, pHouseTemplet ) );
 
 				kLuamanager.EndTable();

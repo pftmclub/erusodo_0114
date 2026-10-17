@@ -3510,6 +3510,11 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_add<CX2QuestManager>( L, "CX2QuestManager" );
 	lua_tinker::class_def<CX2QuestManager>( L, "AddQuestTemplet_LUA",			&CX2QuestManager::AddQuestTemplet_LUA );
 	lua_tinker::class_def<CX2QuestManager>( L, "AddSubQuestTemplet_LUA",		&CX2QuestManager::AddSubQuestTemplet_LUA );
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+	/// June binding strings 31d95080 @31daf889 / @31dafc2c (atlas E1a)
+	lua_tinker::class_def<CX2QuestManager>( L, "AddVillageNpcRelationDataByQuest_LUA",		&CX2QuestManager::AddVillageNpcRelationDataByQuest_LUA );
+	lua_tinker::class_def<CX2QuestManager>( L, "AddVillageNpcRelationDataByVillage_LUA",	&CX2QuestManager::AddVillageNpcRelationDataByVillage_LUA );
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 #ifdef SERV_ACCOUNT_MISSION_SYSTEM
 	//오현빈//2012-12-17// 계정 공용 퀘스트를 일반 퀘스트와 분리 하게 위해 추가한 인터페이스
 						// 현재는 완전히 같기 때문에 AddQuestTemplet_LUA 그냥 쓰지만, 추후 계정 공용 퀘스트만의 독립 변수가 추가되면 변경 필요합니다.

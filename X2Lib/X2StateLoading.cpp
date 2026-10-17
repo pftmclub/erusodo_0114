@@ -753,6 +753,10 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			g_pData->LoadJuneRankReferData();	/// June 3258c470 @3259092e / @32591022, after the event-scene scripts
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+			if ( NULL != g_pData->GetQuestManager() )
+				g_pData->GetQuestManager()->LoadVillageNpcRelationData();	/// June 3258c470 @3259174c, right after PVPData / PVEData
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 			// slide shot
 			g_pData->ResetSlideShot();

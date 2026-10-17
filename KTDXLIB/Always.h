@@ -7436,6 +7436,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase E1a), village engine, data half: June's house templet keys
+//              (HouseParsing whole: second mesh, render option, motion names, talk-change rows, new services and talks),
+//              June's village NPC relation system data (DLG_Map_House_NPC_RelationData.lua: the ByQuest / ByVillage
+//              loaders, the three lookups and the applied lists on CX2QuestManager, VILLAGENPC_RELATIONDATA_TYPE). Nothing
+//              consumes the new data yet: the NPC side is atlas E1b, the relation runtime and entry points atlas E1c.
+#define SERV_IRUHADEV_ELYSION_VILLAGE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
 // Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase A6), offline emulator: the battlefield join ACK echoes the
 //              request's start-position mode (m_bNowBattleFieldPositionInfoStartPosition, m_usBattleFieldPositionValue) as the
 //              live servers do, so a village exit or field portal places the player at its AddStartPos key instead of

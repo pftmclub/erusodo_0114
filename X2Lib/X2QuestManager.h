@@ -3,6 +3,28 @@
 
 #include <set>
 
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+/// Atlas E1a. June 2017's RenderOption block, shared by the house templet (+0x5a4, HouseParsing 324f3260's "RenderOption"
+/// table) and the village NPC relation row (+0x328, AddVillageNpcRelationDataBy*_LUA). June copies it whole (32345bb0).
+/// The defaults are the templet's (June 323bf7e0): no render option, SrcBlend 5, DestBlend 6, no MultiTex, speed 0, colour 1.
+/// June's relation row has no constructor for this block (32347110 builds only the MultiTex string), so a row with no
+/// RenderOption table carries stack garbage into the templet; here the row gets these defaults (JUNE_BUGS).
+struct SJuneVillageNpcRenderOption
+{
+	bool			m_bUseRenderOption;		/// +0x0  UseRenderOption
+	bool			m_bUseAlphaBlend;		/// +0x1  UseAlphaBlend
+	int				m_iSrcBlend;			/// +0x4  SrcBlend
+	int				m_iDestBlend;			/// +0x8  DestBlend
+	std::wstring	m_wstrMultiTex;			/// +0xc  MultiTex
+	D3DXVECTOR3		m_vMultiTexSpeed;		/// +0x28 MultiTexSpeed { 1, 2, 3 }
+	D3DXCOLOR		m_Color;				/// +0x34 Color (a D3DXCOLOR userdata)
+
+	SJuneVillageNpcRenderOption()
+		: m_bUseRenderOption( false ), m_bUseAlphaBlend( false ), m_iSrcBlend( 5 ), m_iDestBlend( 6 ),
+		m_vMultiTexSpeed( 0.f, 0.f, 0.f ), m_Color( 1.f, 1.f, 1.f, 1.f )
+	{}
+};
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 class CX2QuestManager
 {
 	public:
@@ -656,6 +678,100 @@ class CX2QuestManager
 #ifdef DAY_OF_THE_WEEK_QUEST
 		bool	AddAccountQuestDate_LUA();
 #endif //DAY_OF_THE_WEEK_QUEST
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		/// Atlas E1a. June's village NPC relation system (DLG_Map_House_NPC_RelationData.lua, data034): per village or per
+		/// completed quest, a house's NPC is rebuilt from a modified copy of its templet (VRT_CHANGE) or hidden (VRT_NOT_SHOW).
+		/// VILLAGENPC_RELATIONDATA_TYPE at June's Enum.lua values (atlas A3).
+		enum VILLAGENPC_RELATIONDATA_TYPE
+		{
+			VRT_NONE		= -1,
+			VRT_CHANGE		= 0,
+			VRT_NOT_SHOW	= 1,
+		};
+
+		/// June's 0x388 relation row (ctor 32347110, copy 32348040, dtor 323463c0); June offsets in the comments.
+		/// Change strings are applied only when not empty (June 323b7ff0).
+		struct VillageNpcRelationData
+		{
+			int				m_iQuestID;						/// +0x0   QUEST_ID (-1)
+			int				m_iTargetHouseID;				/// +0x4   TARGET_NPC_HOUSE_ID (-1)
+			int				m_eType;						/// +0x8   VillageNpc_RelationData_Type (-1; the loaders store VRT_CHANGE)
+			int				m_iUseCodeEventTrigger;			/// +0xc   m_iUseCodeEventTriger (-1 = ungated)
+			std::wstring	m_wstrNPCMeshName;				/// +0x10  Change_NPCMeshName
+			std::wstring	m_wstrNPCAniTex;				/// +0x2c  Change_NPCAniTex
+			std::wstring	m_wstrNPCMeshName2nd;			/// +0x48  Change_NPCMeshName2nd
+			std::wstring	m_wstrNPCAniTex2nd;				/// +0x64  Change_NPCAniTex2nd
+			int				m_iVillageID;					/// +0x80  VILLAGE_ID (-1)
+			std::wstring	m_wstrAlphaBlend1stMesh;		/// +0x84  Change_AlphaBlend1stMesh ("TRUE" / "FALSE")
+			std::wstring	m_wstrAlphaBlend2ndMesh;		/// +0xa0  Change_AlphaBlend2ndMesh
+			std::wstring	m_wstrNoEdge2ndMesh;			/// +0xbc  Change_NoEdge2ndMesh
+			std::wstring	m_wstrUIFileName;				/// +0xd8  Change_UIFileName
+			std::wstring	m_wstrName;						/// +0xf4  Change_Name (string id -> text; the NPC name passed to AddFieldNpc)
+			std::wstring	m_wstrHouseName;				/// +0x110 Change_HouseName (string id -> text)
+			std::wstring	m_wstrNPCTextureName;			/// +0x12c Change_NPCTextureName
+			std::wstring	m_wstrNPCTextureKey;			/// +0x148 Change_NPCTextureKey
+			std::vector<std::wstring>	m_vecNPCJoinTalk;	/// +0x164 Change_NPCJoinTalk
+			std::vector<std::wstring>	m_vecNPCByeTalk;	/// +0x174 Change_NPCByeTalk
+			std::wstring	m_wstrWaitTalk;					/// +0x184 Change_Wait_Talk (string id -> text)
+			std::wstring	m_wstrMakeTalk;					/// +0x1a0 Change_Make_Talk
+			std::wstring	m_wstrShopTalk;					/// +0x1bc Change_Shop_Talk
+			std::wstring	m_wstrQuestTalk;				/// +0x1d8 Change_Quest_Talk
+			std::wstring	m_wstrByeTalk;					/// +0x1f4 Change_Bye_Talk
+			std::wstring	m_wstrExchangeTalk;				/// +0x210 Change_Exchange_Talk
+			std::wstring	m_wstrWait01MotionName;			/// +0x22c Change_Wait01MotionName
+			std::wstring	m_wstrWait02MotionName;			/// +0x248 Change_Wait02MotionName
+			std::wstring	m_wstrWait03MotionName;			/// +0x264 Change_Wait03MotionName
+			std::wstring	m_wstrTalkLoopMotionName;		/// +0x280 Change_TalkLoopMotionName
+			std::wstring	m_wstrTalkMotionName;			/// +0x29c Change_TalkMotionName
+			std::wstring	m_wstrTalkWaitMotionName;		/// +0x2b8 Change_TalkWaitMotionName (read, never applied: JUNE_BUGS)
+			std::wstring	m_wstrByeMotionName;			/// +0x2d4 Change_ByeMotionName
+			std::wstring	m_wstrNormalMotionName;			/// +0x2f0 Change_NormalMotionName
+			D3DXVECTOR3		m_vNPCMeshRot;					/// +0x30c Change_NPCMeshRot (0 = keep)
+			D3DXVECTOR3		m_vNPCMeshScale;				/// +0x318 Change_NPCMeshScale (0 = keep)
+			bool			m_bApplyForce;					/// +0x324 APPLY_FORCE (ByQuest only)
+			SJuneVillageNpcRenderOption	m_RenderOption;		/// +0x328 RenderOption
+			std::wstring	m_wstrEffectSetName;			/// +0x36c EFFECT_SET_NAME
+
+			VillageNpcRelationData()
+				: m_iQuestID( -1 ), m_iTargetHouseID( -1 ), m_eType( VRT_NONE ), m_iUseCodeEventTrigger( -1 ), m_iVillageID( -1 ),
+				m_vNPCMeshRot( 0.f, 0.f, 0.f ), m_vNPCMeshScale( 0.f, 0.f, 0.f ), m_bApplyForce( false )
+			{}
+		};
+
+		/// June's 0x14 VRT_NOT_SHOW row (qm +0xbc; AddVillageNpcRelationDataByQuest_LUA @3233bf04)
+		struct VillageNpcNotShowData
+		{
+			int		m_iQuestID;					/// +0x0  QUEST_ID
+			int		m_iTargetHouseID;			/// +0x4  TARGET_NPC_HOUSE_ID
+			int		m_iUseCodeEventTrigger;		/// +0x8  m_iUseCodeEventTriger (-1)
+			int		m_iState;					/// +0xc  1 (set by the loader @3233b97c; the restore 323b8970 re-shows only these)
+			bool	m_bApplyForce;				/// +0x10 APPLY_FORCE
+
+			VillageNpcNotShowData() : m_iQuestID( -1 ), m_iTargetHouseID( -1 ), m_iUseCodeEventTrigger( -1 ), m_iState( -1 ), m_bApplyForce( false ) {}
+		};
+
+		/// June keeps both row kinds side by side: the loaded data (qm +0xac / +0xbc), the applied ones (+0xcc / +0xdc) and the
+		/// lookups' out parameter all have this shape.
+		struct VillageNpcRelationResult
+		{
+			std::vector<VillageNpcRelationData>	m_vecRelationData;
+			std::vector<VillageNpcNotShowData>	m_vecNotShowData;
+		};
+
+		void	LoadVillageNpcRelationData();
+		void	AddVillageNpcRelationDataByQuest_LUA();
+		void	AddVillageNpcRelationDataByVillage_LUA();
+		int		GetVillageNpcRelationDataByQuest( int iHouseID_, VillageNpcRelationResult& kResult_ );
+		int		GetVillageNpcRelationDataByVillage( int iVillageID_, int iHouseID_, VillageNpcRelationResult& kResult_ );
+		int		GetVillageNpcRelationDataByQuestID( int iQuestID_, VillageNpcRelationResult& kResult_ );
+		void	ClearAppliedVillageNpcRelationData();
+		VillageNpcRelationResult&	GetAppliedVillageNpcRelationData() { return m_kAppliedVillageNpcRelation; }
+		int		GetVillageNpcRelationDataCount() const { return static_cast<int>( m_kVillageNpcRelation.m_vecRelationData.size() + m_kVillageNpcRelation.m_vecNotShowData.size() ); }
+	private:
+		bool	IsVillageNpcRelationGateOn( int iCodeEvent_ ) const;
+		void	LoadVillageNpcRelationChangeData( KLuaManager& luaManager, VillageNpcRelationData& kData_ );
+	public:
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 		void	ClearUnitQuest();
 
@@ -774,6 +890,10 @@ class CX2QuestManager
 
 		map<int,QuestInst*>					m_mapUnitQuest;
 		map<int,int>						m_mapCompleteQuest;
+#ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+		VillageNpcRelationResult			m_kVillageNpcRelation;			/// June qm +0xac (rows) / +0xbc (VRT_NOT_SHOW rows)
+		VillageNpcRelationResult			m_kAppliedVillageNpcRelation;	/// June qm +0xcc / +0xdc: what the village currently shows
+#endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 		map< CX2Unit::UNIT_CLASS, ChangeJobQuest > m_mapChangeJobQuest;
 
