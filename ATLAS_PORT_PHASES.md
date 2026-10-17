@@ -3521,6 +3521,44 @@ turns them on. The four A7 stand-ins that wait for a 20009 templet (`X2LocationM
   March-vs-June JoinArea differences, all in March-scene villages with no report: HI_GRAIL 600/500, HI_HOFMANN_HOUSE 500/700,
   HI_RICHANG_HOUSE 700/600 (March/June); left as is. Re-test PASSED 2026-10-17 (user): `[Z] Use` shows on both. Nothing owed but the review.
 
+### Phase E2 — Review (2026-10-17)
+
+**Opus 5.5 high. Verdict: PASS, no code change, no pack, no build** (the deployed exe 23083f50 and the 8 live koms stay as they are).
+
+- **Verbatim (parsed table trees, comments / whitespace / trailing commas dropped, both sides):** Village[VMI_ELYSION] (March :4176 vs
+  June :991) differs only by the two `OtherPlace*` renames on 501 and 517's two commented keys (their values are June's: F03, line 1);
+  the 11 new houses, `HI_ADAMS_HOUSE` (March :151 / June :319) and the Elysion row in the 7 shared houses are identical. June has
+  19 houses with a `WI_VILLAGE_ELYSION` row, and March has all 19 (none missed, none extra). JoinArea: PRIVATE_BANK 700, CAMILLA_PVP 500 = June.
+  NPCTemplet 11 rows (March :20172-20258), WorldData 636, MapData 20009, Cobo zone 18 (20009 and F03, client = server mirror
+  `ServerResource/US/MapData.lua:359` / `:596`), BattleFieldData F02 (whole entry; L142 -> VMI_ELYSION 500) and ShopItem's
+  VMI_ELYSION block are identical to June. World map: the Elysion block = June's except the two F03 `SetShow(false)` lines (E3's).
+- **Decisions re-tested, all stand.** Adams: only Ranox (`DLG_Map_Village.lua:875`) and Elysion (`:4199`) list `HI_ADAMS_HOUSE`, and
+  Ranox has no March scene, so June's whole block is the only fit. Shared houses keep March's rows for March-scene villages. ShopItem:
+  `AddShopItemList_LUA` inserts `pItemIDList` into `m_ShopItemList` before the `SALE_ITEM_NPC` loop. LFail01 falls through to LFail, which
+  deletes that same list, so a nil `NPC_ID` (NUI_SAYRENA_EVENT etc.) leaves a dangling pointer in the map: June's whole file is still
+  refused. 517 stays commented until E3.
+- **Reachability:** HouseIDList 21/21 in staged `Enum.lua` and `X2LocationManager.h`. `region_census --phase E2 --live`: staged = live
+  (299 files), 0 id collisions, 0 missing effect sets / items / strings, open = the Done note's 14 routed items exactly. The 15 rows of
+  `june_adopt_20261017_103941.tsv` are byte-exact (sha1 + size + `1B 4C 4A 81` / `1B 4B 4C 81` header); the 4 assets are staged; the md5 of each
+  live kom = its `_packed.kom` (data034 a8b04f7e, the JoinArea copy). `ledger --check` / `core --check` PASS.
+- **C++:** the chat-warp hunk is the `atlas` warp's pattern with `VMI_ELYSION`. The four A7 stand-ins with a 20009 templet:
+  `X2LocationManager.cpp:603` only fires on a failed `BeginTable` (idle); `X2StateMenu.cpp:6340` / `X2UIInventory.cpp:14120` add the
+  Elysion row exactly as their `#else`; `X2WorldMapUI.cpp:495` lets the town pin through and still hides F03 (until E3).
+- **User report, world map opens at the top-left: June does the same, kept (JUNE_BUGS 227).** June `OpenWorldMap` 322630a0
+  `@322632d4` does `m_pDLGWorldMap->SetPos( (0,0) )` (`31cd2060`) on every open, as March `X2WorldMapUI.cpp:398` does. June's M handler
+  (31f118c0 @31f11dc2-31f11de8: OpenWorldMap(1), UpdateWorldMap 3225d340, OpenFieldMap(1, id), UpdateFieldMap 3225d970) and the
+  field-map Esc (`WMUCM_FIELD_RIGHT_CLICK`, event proc 32263750 @322637d3) match March's line for line. UpdateWorldMap 3225d340 never
+  positions the dialog; it only places pins (button SetOffsetPos / SetShow) and calls UpdateNaviMap. The map is not wider: `SetSize(1800, 1200)` and the
+  drag range are the same in both files. At (0,0) a 1024x768 view shows Ruben..Velder; Hamel (y 851), Sander (741, 1004), Ranox (1197, 970),
+  Atlas Station (1454, 615) and Elysion (1515, 374) start off-screen in June too. The navigation thumbnail is June's way there.
+- **Stale comments (no data effect):** `DLG_Map_House.lua:4382` (HI_GUILD_MARK) and `:5135` (HI_MU) still say the Elysion row is omitted.
+  E3 repacks data034 anyway, so it rewords them (kickoff).
+- **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_PORT --range da93f852^..da93f852 --with SERV_IRUHADEV_CHAT_WARP_DEBUG --files X2Lib/X2ChatBox.cpp`:
+  `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched inserted, 0 #else/#endif
+  without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- **Open for the user (optional):** centring the world map on the character's pin would be a deviation from June: its own
+  `SERV_IRUHADEV_JUNE_FIX_WORLD_MAP_CENTER` flag, with June's (0,0) in `#else`. Say if you want it; nothing else is owed. Next: `/x2-phase atlas E3`.
+
 ---
 
 ## Phase E3 — Field 03 (+ Field 04 check)
