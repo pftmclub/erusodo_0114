@@ -2773,7 +2773,13 @@ uncommitted atlas E1c/E1d work (`X2TFieldGame.cpp`: `m_vecJuneRelationHouseTempl
 none in A13's three files. The diagnostic ships with the next successful build of `main`, either the E1d session's own deploy or an A13
 rebuild. Before the play-test, check that the deployed exe has the UTF-16 literal `[ELYDBG] SetCameraDistance call`.
 
-**After the play-test:** record checks 1-3 here. The wrapper lives only under `ELYSION_DEBUG`; undefining that flag removes it along with every other `[ELYDBG]` line.
+**Play-test PASSED 2026-10-17** (run 10:16-10:21, reyaa, exe md5 d095fe3a = the E1c/E1d deploy of `main` f9c2b2a1 + peers, so it carries the A13 wrapper; 0 EXCEPTION, UNHANDLED only `E_DISABLE_HB_CHECK_REQ` x2 + `EGS_RENEWAL_LETTER_REQ`, outside the region):
+- **Check 1 (item 10):** `[10:20:38.364] [ELYDBG] SetCameraDistance call: base 0.0 -> 1000.0, steps 0.0 0.0 0.0`, 20 ms after `indicator first skip: npc 2246` in Secret Hell 41271 (`dungeonID=41271`). The Lanox call reaches C++. Item 10 PASS.
+- **Check 2 (item 5):** `WARP pass 215660 -> map 1008` at 10:18:07, from Lanox village 20008 via the inventory warp list (`X2UIInventory`). Item 5 PASS.
+- **Check 3 (item 6):** visual, on the user's word. This run logged no world-map line; the A12 run logged the hidden 20009 / 40037 pins as designed.
+- Also in the run: Atlas 403 -> Field 01 `startPos=333`, Field 01 -> Field 02 `startPos=1`.
+
+**Atlas half closed:** every checklist item passes or has an owner (Stage 23 rewards, atlas E2 F02 exit, E4 page scroll, C3y-5 Hero rows). The wrapper lives only under `ELYSION_DEBUG`; undefining that flag removes it along with every other `[ELYDBG]` line.
 
 ---
 
@@ -3245,6 +3251,8 @@ No compiler warning from the changed files. X2TFieldGame.cpp / .h and X2Location
 (2026-10-17 09:36:42); built at main f9c2b2a1 + 16 uncommitted code file(s) (E1c + peer E1d WIP). Literals in the exe: `[ELYDBG] NpcEffectSet`,
 `[ELYDBG] VillageNpcRelation: village %d house %d -> changed NPC`, `rebuilt (quest %d`, `completed -> result %d`.
 **How to see it in game:** see the play-test hand-off.
+
+**Play-test 2026-10-17: PASSED (user).** Run 10:16 on the deployed exe (md5 d095fe3a) with data013 / data039 copied. ErrorLog: on both Atlas Station visits (10:16:22, 10:18:09) `house 40028 rebuilt (quest -1, village 1008) mesh 'NPC_EL_BILLBOARD.x' ui 'UI_NPC_BILLBOARD_ELYSION.lua'` and `house 40021 rebuilt ... mesh 'EL_postbox.x'`, each followed by `-> changed NPC`; no load failure for the new meshes / textures / UI Lua. User: June's postbox and board shown, the board opens the Elysion board window; March village NPCs, talk marks, shop and bye normal. 0 EXCEPTION (3 UNHANDLED are the usual heartbeat / letter packets).
 
 ### Phase E1d — Done
 
