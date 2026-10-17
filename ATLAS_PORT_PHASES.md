@@ -2762,6 +2762,51 @@ carry June keys. No `[ELYSION] ... did not load` line should appear.
 **Open for the user:** JUNE_BUGS 207's choice (templet defaults for a row's missing RenderOption) is a deviation from "verbatim"; say
 if you want it otherwise.
 
+### Phase E1a — Review (2026-10-17)
+
+**Opus 5.5 high. Verdict: PASS, no code change, no build, no pack.** Reviewed commit `9dbe7530` against June (Ghidra, read-only; dumps
+of `324f3260`, `3233b680`, `32340720`, `32340320`, `323446c0`, `32340060`, `323c21e0`, `32347110` and `3258c470 @3259174c`).
+
+- **Relation loader ByQuest (`3233b680`): equal.** Type read @3233b93c; miss or -1 returns; 0 -> VRT_CHANGE @3233bf0e, 1 -> VRT_NOT_SHOW,
+  anything else returns (@3233b958-3233b961). NOT_SHOW row: quest / house / code -1, force 0, state +0xc = 1 (@3233b96c-3233b97c);
+  code event miss -1 (@3233bb45); QUEST_ID miss or < 0 and house miss or < 0 return (@3233bc1e-3233bc29, @3233bee8-3233bef3); push
+  into qm +0xbc @3233bf04. CHANGE row (base `[esp+0x94]`): type +8 = 0, code +0xc (-1), QUEST_ID +0 and house +4 each `>= 0`-gated,
+  APPLY_FORCE +0x324 (false). The change keys (xorstrings rows 3233c4f0..3233fecd, the same set as the port's
+  `LoadVillageNpcRelationChangeData`) land on the header's offsets: every motion name checked by stack slot (Wait01 +0x22c .. TalkLoop
+  +0x280, Talk +0x29c, TalkWait +0x2b8, Bye +0x2d4, Normal +0x2f0), UIFileName +0xd8, JoinTalk vector +0x164, Rot +0x30c / Scale
+  +0x318 (0.0 per missing index, untouched without the table), EFFECT_SET_NAME +0x36c, push into +0xac @32340006.
+- **RenderOption in the loaders: equal, plus a JUNE_BUGS 207 widening.** The block is read into a local `[esp+0x50]` only when the
+  table opens (@3233f753) and copied by `32345bb0` into row +0x328 @3233fe63. The local has no ctor (only the MultiTex string is built,
+  @3233f75b). Every key has a miss default (bools 0 via `xor bl,bl`, Src 5 @3233fc44, Dest 6 @3233fd4b, colour 1 @3233fe01) **except
+  `MultiTexSpeed`**, which stays uninitialised when its subtable is missing. The port gives 0 there. Row 207 now says so too (same
+  principle: uninitialised memory has no June value). June's data sets it in its only RenderOption row.
+- **Relation loader ByVillage (`32340720`): equal.** Type must be 0 (@323409d1-323409e9; 1 and -1 return); code +0xc (-1), VILLAGE_ID
+  +0x80 and house +4 each miss/`< 0` -> return (@32340c92, @32340e19); same change-key block; push @3234465f. No QUEST_ID, no APPLY_FORCE.
+- **Lookups: equal.** `32340320` (ByQuest): gate = code -1, or `g_pInstanceData` code map entry with byte +0x10 == 1 (= March
+  `IsEnableCode`); house match; skip unless +0x324 == 1 or the quest is in qm +0x34; `best.quest < row.quest` -> gate on: r=0, else
+  applied +0xcc non-empty: r=2. Smalls compare against the best **row's** quest; gate on r=1, else +0xdc non-empty r=2, else skip
+  without recording; r==0 pushes the row to out and +0xcc, r==1 the small to out and +0xdc (@323405ac-323405dc); returns ESI.
+  `323446c0` (village = arg1, house = arg2, +0x80 test): last match wins, no quest test, only r==0 pushes. `32340060`: completed-quest
+  test first; first row with +0 == quest breaks either way; then first small breaks and overrides r. All as ported.
+- **HouseParsing spot-checks (raw disassembly): pass.** OutlineWidthMesh miss -> `fld [0x334a1080]` (1.2f) @324f9ef1, copied to
+  +0x18c @324fbd26 (bApplyAlphaTest +0x190 @324fbd38). Talk_Change_Condition TYPE miss -> 1 @324fd9d1, STATE `sbb` 0 @324fda92, row
+  dropped unless TYPE == 0 @324fdaa9. RenderOption ctor `323bf7e0` @324fe434 **before** the table, miss jumps to the copy @324feb58
+  (both paths copy). The port matches all three. `BeginTable( "NPC_TALK_LIST", n )` resolves to `LuaCommon/KLuaManager.h:596`
+  ("%s%d"), as June's `31c7b980`.
+- **Load point and bindings: equal.** `X2StateLoading.cpp:756` runs right after `LoadJuneRankReferData` (PVPData / PVEData), as
+  June's `@3259174c`. Both `class_def`s use June's names.
+- **The dropped row (play-test, 40 of 41 change rows): settled.** It is June's ByVillage `HI_BILLBOARD` / `VMI_SPA_RUBEN` row:
+  March's `Enum.lua` has no `VMI_SPA_RUBEN`, so `VILLAGE_ID` is nil -> -1 -> no push. Every other row's house and village resolve.
+  C9h-2e's `VMI_SPA_RANOX` ByVillage row (`HI_BILLBOARD`) loads. Whether it shows is E1c's (the lookup has no caller until then).
+- **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_VILLAGE --range 9dbe7530^..9dbe7530 --with SERV_IRUHADEV_ELYSION_DEBUG`:
+  `files: 4 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. No OTHER rows, no deleted lines. The two PASS~ files (`X2LocationManager.h`, `X2QuestManager.cpp`) differ by one blank line
+  outside the flag; DEFINE = `Always.h`.
+- **Still open for the user (unchanged):** JUNE_BUGS 207's choice (templet defaults instead of uninitialised values).
+
+E1b's kickoff now reads this section too.
+
 
 ---
 

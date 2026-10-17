@@ -12,7 +12,7 @@
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh
-python tools/docsection.py ATLAS_PORT_PHASES.md "Starting context" "Phase E1 — Village engine" "Phase E1 — Split (user, 2026-10-17)" "Phase E1a — Done"
+python tools/docsection.py ATLAS_PORT_PHASES.md "Starting context" "Phase E1 — Village engine" "Phase E1 — Split (user, 2026-10-17)" "Phase E1a — Done" "Phase E1a — Review (2026-10-17)"
 cat june2017_re/e1_createfieldnpc_diff.md      # June CreateFieldNpc 325ca980, 24 blocks
 cat june2017_re/e1_talkbye_diff.md             # talk 325ccf60, bye 325ca2f0, helpers, UIUnitManager
 python tools/docsection.py june2017_re/e1_relation_runtime.md "June HouseTemplet (0x618) offsets -> key"
