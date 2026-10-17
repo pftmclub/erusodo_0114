@@ -7849,7 +7849,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June engine remainder, Phase R12, short-lived. "[JUNE_ENGINE] SKREF" lines: per dead skin anim, references taken
 //              vs closed (session totals at most once per 2 s, the first 10 unbalanced anims by name), the KEM 433 total, the
 //              live device count, and the user motion's collision counts after JuneAddCollisionData. Remove after the review.
-//#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG	// off 2026-10-18 (R12 review): balance proven (unbalanced 0 over 8,354 + 6,756 dead anims in two runs, kem433 0, no village device growth)
+#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 #error SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
@@ -7941,4 +7941,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG needs SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 #endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 #endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: Field-NPC mark anchor bone as June has it (CX2TFieldNpc::GetHeadBonePos, June 325d1ac0): billboard NPC_Pivit + 300,
+//              Yuno (Motion_NPC_NONO.X) NPC_Yuno_GearAxisroot, Elysion Hugo Cylinder01, Parasite Parasite_Body, NUI_MANA_EATER Bip01_Head,
+//              MAG_NOM mount Head, else Bip01_HeadNub. Fixes Hugo's missing [Z] mark (it was drawn at the world origin). Found during
+//              june-engine R13's play-test; corrects Effect C9h-5's "same" verdict for block 41.
+#define SERV_IRUHADEV_JUNE_FIELD_NPC_HEAD_BONE
 //////////////////////////////////////////////////////////////////////////

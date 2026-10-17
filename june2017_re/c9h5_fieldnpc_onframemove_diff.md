@@ -78,7 +78,7 @@ Conventions. VAs come from a raw capstone pass (`onfm_raw.asm`). Ghidra's listin
 38. **325d07bb-325d0945** static mesh: SetPlaySpeed(+0x5dc). If `31d34110` HasAnim(map[5]) && JoinNpc -> map[5] Play(0 LOOP), else map[0] Play(2), then the same for skin 2. March 1413-1417 (`Normal`). **changed.** m_bPlay is still never set (March quirk kept).
 39. **325d0945-325d0aa6** static-mesh talk box (`323151a0` ctor, `32e90410` Push, `32310930` dtor, distance +0x148 < 3800). March 1419-1449. **same.**
 40. **325d0aa6-325d0af4** skin OnFrameMove (vtable+4). March 1451. **changed: +0x1c4 too.**
-41. **325d0af4-325d0b6b** m_bFirstAnim: `325d1ac0` GetHeadBonePos, or m_vPos+210. March 1453-1465. **same.**
+41. **325d0af4-325d0b6b** m_bFirstAnim: `325d1ac0` GetHeadBonePos, or m_vPos+210. March 1453-1465. **same.** **Corrected 2026-10-18 (R13 play-test):** the call is the same but `325d1ac0` differs: it picks the bone per NPC (Hugo `Cylinder01`, Yuno, Parasite, Mana Eater, MAG_NOM); ported as `SERV_IRUHADEV_JUNE_FIELD_NPC_HEAD_BONE`.
 42. **325d0b6b-325d0c55** anim end (+0x2ac) && !static (March 1467-1500), **changed**.
     - Event NPC: 1. Otherwise: if **+0x1a6 && T+0x42c** (`TalkLoopAniNpc`) -> 10; else rand%9: 0 -> 2<->1, 1 -> 3<->1, else 1 (the March table shifted +1).
     - Non-empty +0x204 -> 11. If !HasAnim(map[id]) && queue empty -> 1.

@@ -1110,41 +1110,6 @@ collision 0 attack 0` (x3). March's motion yields no collision data, so MOTION_C
 (why June's motion carries the spheres: June's mesh loader `31d4f8b0` vs March's `bInValidRadius_` radius test, and which `MOTION_*.X` ships)
 is the new **R12b**. Redeploy: ``DEPLOY OK: X2_offline.exe is 19,811,840 B, dated 2026-10-17 23:15:59, md5 e03a4e99268e8e20125a6cd731fdf5c2` (built at `830818ab` + uncommitted peer files; `SKREF dead anims` in the exe, `SKREF motion collision` gone)`.
 
-### Phase R12 -- Review
-
-**2026-10-18, Opus 5.5. PASS on the skin-anim code; 1 caller finding fixed (`X2GUNPC.cpp` attach block), `_REFS_DEBUG` turned off.** Read against June's
-code (Ghidra decompile; `disasm_range.py` for the uncarved `31d28f80..31d291d4` and the NPC call site `327a8dd9..327a9880`).
-
-| Item | June | Verdict |
-|---|---|---|
-| `AddModelXSkinMesh` `31d2f3f0` | NULL mesh -> return; `+0x850 != +0x328` -> KEM `0x1b1` with `3344f350` / `3344f3a8` (file != NULL), args anim frame, mesh frame, name; ref mesh if `!bClose`, then each non-NULL ani / multi-tex / tex-change XET; 5 pushes (ani data NULL) | match (texts byte-equal) |
-| `CleanAnimStructure` `31d2f9a0` | after the anim-set / `+0x294` block: close each non-NULL `+0x198` / `+0x1a8` / `+0x1c8` / `+0x1d8` (not `+0x1b8` ani data), 5 resizes, collision / attack delete, `+0x244` Release, then swap `+400` / `+0x194`: ref new, close old if device manager | match |
-| `SetAnimXSkinMesh` / dtor | `31d32750` stores through Clean before `GetCloneAC`; dtor `31d31500` calls `31d2f9a0( 0, 0 )` | match |
-| `RemoveModelXSkinMesh` `31d2b2f0` | same collision erases; mesh erased then closed; each XET slot closed + nulled before its erase; ani data erased only | match (June erases the mesh slot without March's bound test; the index comes from that list's own loop) |
-| `ClearModelXSkinMeshList` `31d2ba80` | close the 4 lists, clear 5, delete collision / attack | match |
-| `SetAnimXET` `31d28f80`, `ReplaceAniXET` `31d28fd0`, `ReplaceMultiTexXET` `31d29070` / `31d2b280`, `ReplaceChangeXET` `31d290f0` / `31d29170` | `from == slot && slot != to`; ref new, close old (device-manager test), store; ani version nulls `+0x1b8[i]` when in range; `( int )` ignores the index, empty list -> ref + push | match, every instruction |
-| `X2Eqip` `ChangeEnchantLevel` | runs only when the member XET is NULL, so slot 0 held NULL; the anim's ref on the new XET is closed by Clean, the member's own by the dtor (`X2Eqip.cpp:364` / `368`) | balanced |
-| `X2GUNPC.cpp:4694` (ours, `JUNE_ATTACH_SKIN_MESH_ANIM`) | `327a97d0` pushes `bClose 0`, `bAddCollision 1`, XET in the tex-change slot; the mesh from `31cdef40` (its find `31cdccd0` / add `31cde970` both take a reference) lives in a local only (@`327a901a`), and `RemoveModelXSkinMesh` has no NPC caller | **finding:** R12 said "same net count"; it is not. June leaks the open's reference, ours closed it. Fixed under REFS: `false` as June, `true` in `#else`; **JUNE_BUGS 271** |
-| MOTION_COLLISION (OFF) | `31d2f250`: `+0x8b8` / `+0x8c4` loops, new `0x9c`, copy, link, KEM 432, push to `+0x1f0` / `+0x1fc`, no list push, no ref | transcription matches; flag-off is March (the X2GUUser / X2Eqip / AfterImage hunks are all inside `#ifdef`) |
-
-KEM 433's 20-line cap is the logging deviation the Done note names; the SKREF total carried the count (0 in both runs).
-
-**Logs.** R12 run: `unbalanced 0` over 8,354 dead anims, village devices 1066-1075 on each return. A second run (W1c exe `2455a22f`, carries R12, game
-still open at the read): `unbalanced 0` over 6,756 dead anims (13,831 refs = closes), `kem433 0`, `KEM_ERROR433` 0; device count rises and falls
-with scene changes (745..1338), no monotonic growth. Balance proven: `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG` is now commented out (R12b
-defines it again for its own gate). The 4694 fix keeps the SKREF balance (the extra reference is the open's, outside the anim).
-
-Hygiene (`flagcheck --range 7ba525ce^..2bb92772`):
-- REFS `files: 0 PASS, 0 PASS~, 0 DEFINE, 8 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`
-- REFS_DEBUG `files: 1 PASS, 0 PASS~, 0 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR` / same zero line / `RESULT: PASS`
-- MOTION_COLLISION `files: 2 PASS, 0 PASS~, 1 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` / `1 deleted line(s)` = the `#define` that 2bb92772 commented out / `RESULT: FAIL` only for "not #defined anywhere": the intended OFF state, not a hygiene fault.
-- Every OTHER row is one of R12's three flags in a shared file (`KTDGXSkinAnim.*`, `X2Eqip.cpp`, `X2GUUser.cpp`, `KTDXDeviceManager.h`, `KTDGXSkinAfterImage.cpp`, `Always.h`). The one later commit on these files (`2d9ad701`, W1c) is another flag.
-- The review fix (`--worktree --files X2Lib/X2GUNPC.cpp KTDXLIB/Always.h`): REFS `1 PASS, 1 OTHER` (Always.h), 0 deleted, `RESULT: PASS`; REFS_DEBUG `RESULT: FAIL` for "not #defined" only (now off on purpose), 0 deleted.
-
-Build: `DEPLOY OK: X2_offline.exe is 19,810,304 B, dated 2026-10-18 02:39:54, md5 94e0af9e07b7fd621128d5ee1f729e26` (built at `55f0542e` + this fix + peer files `X2TFieldNpc.h` / `JUNE_FIELD_NPC_HEAD_BONE`; `SKREF dead anims` gone from the exe, 0 hits).
-
-**User owes:** the re-check from R12's play-test (kicks hit again with MOTION_COLLISION off), plus one NPC with an attach mesh (below). Next: R12b, R14.
-
 ## Phase R12b - Motion collision source (trace)
 
 **Run with:** Opus 5.5 high (trace, then port), then a user play-test. Flags: R12's `SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION` (off) and
@@ -1225,6 +1190,18 @@ So June culls world meshes only as whole objects, through the base test, and the
    line (`layer N -> 255`) and one `WMESH show:` line (`layer restored to N`).
 3. Any dungeon or field: no world mesh vanishes up close or at the screen edge. Whole-object culling only drops meshes wholly off screen.
 **Play-test 2026-10-18: PASSED** (user: both checks fine; exe md5 `2455a22f`, a later `main` deploy at `2bb92772` that carries R13). ErrorLog: one `WMESH ... render on` line, and hide + restore for all four Elysion meshes (`canhide`, `02`, `04`, `03`; layer 5 -> 255 -> 5). The field visited was F03 (40037, `Field_Elysion_Stage2`, no can-hide mesh), with no pop-in. 0 EXCEPTION; the only UNHANDLED were the 3x `E_DISABLE_HB_CHECK_REQ` baseline.
+
+**Play-test follow-ups (2026-10-18; neither is R13's code):**
+- **Elysion Hugo shows no `[Z]` mark: fixed** (flag `SERV_IRUHADEV_JUNE_FIELD_NPC_HEAD_BONE`, `X2TFieldNpc.h`). The in-area / quest marks are
+  anchored on `GetHeadBonePos`, and June's (`325d1ac0`) picks the bone per NPC: billboard `NPC_Pivit` + 300, Yuno (`Motion_NPC_NONO.X`)
+  `NPC_Yuno_GearAxisroot`, Hugo (house 40134, `Motion_NPC_Elsion_Hugo.x`) `Cylinder01`, Parasite `Parasite_Body`, `NUI_MANA_EATER.x`
+  `Bip01_Head`, the MAG_NOM mount `Head`, else `Bip01_HeadNub`. March knew only the billboard and `Bip01_HeadNub`, which Hugo's mesh lacks, so his
+  mark sat at the world origin. This corrects Effect C9h-5's "same" verdict for block 41 (`june2017_re/c9h5_fieldnpc_onframemove_diff.md`).
+  `DEPLOY OK: X2_offline.exe is 19,810,304 B, dated 2026-10-18 02:39:54, md5 94e0af9e07b7fd621128d5ee1f729e26` (the three June bone / mesh names found in the exe). Play-test owed: Hugo shows the `[Z]` mark over his head.
+- **Stray tree warp: routed to new W1e.** The log shows pad 512 firing (02:29:05) and then 512 -> 513 (02:29:09), although 512 sits on the
+  far-right stub (line 130), reachable only through pad 510, which never fired. Elysion's line map gives line 2 (the back walkway, -2789..-2398)
+  `BEFORE_LINE = 130`, a line 11,705 units away. March's `CanDown` switches to `beforeLine` when a landing hits a line's exact start
+  (`KTDGLineMap.cpp:1355`, `:1421`), so landing on the line 1 / 2 joint puts the unit on line 130.
 
 ## Phase R13b - World skin-mesh render (Prepare)
 
@@ -1646,6 +1623,19 @@ carry 2 followers each). User: monsters and the player's own landing behave norm
 June branch): June's `CX2PETAI::Moving` (`32ef68b0`, block around `@32ef6a95`) re-seats a pet onto the nearest other line (`31c688c0`, then
 `CX2PET::SetPosition` `326eb090`) when, in a field or square game, its line type differs from its master's. March's `Moving` (`X2PetAI.cpp:400`)
 has no such block. Map `32ef68b0` whole against March, then port it whole (rule 1).
+
+## Phase W1e - Line links to a far line (Elysion line 2 `BEFORE_LINE = 130`)
+
+**Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_LINEMAP_FAR_LINK` (proposed). Added by R13's play-test
+(an unowned June branch). Not alongside W2 or another session editing `KTDGLineMap.*`.
+- **Symptom (play-test 2026-10-18):** in the Elysion village, landing near the red-tree pad (506) on the back walkway moves the unit to the far-right
+  stub (line 130), where pad 512 fires after 1.5 s and drops it at 513 (the blue-tree side).
+- **Data:** June's own `Elysion_villeage_LineMap.lua` gives line 2 `BEFORE_LINE = 130`; its real neighbour, line 1, ends at its start (-2789). It is
+  the only far link in the map (a gap scan of all 131 lines; line 130 also has `NEXT_LINE = 130`).
+- **Engine:** March's `CanDown` (`KTDGLineMap.cpp:1238`) follows `beforeLine` with no distance test (`:1355`, `:1421`, `:1475`). June's `CanDown`
+  is `31c6c310` (more arguments; about 1,500 decompiled lines). Find out whether June validates a link, rebuilds links at load, or follows
+  them as March does. If June guards, port the whole function (rule 1). If not, June's game showed this too: add a JUNE_BUGS row and ask the
+  user (memory `keep-june-bugs-verbatim-without-asking`: a verbatim result the June game never showed is a port gap).
 
 ## Phase W2 - Portal-line markers
 

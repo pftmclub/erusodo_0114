@@ -70,6 +70,45 @@ class CX2TFieldNpc : public CKTDGObject
 
 		CKTDGParticleSystem*		GetUiParticle();
 		D3DXVECTOR3					GetPos() { return m_vPos; }
+#ifdef SERV_IRUHADEV_JUNE_FIELD_NPC_HEAD_BONE
+		// June 325d1ac0: the anchor of the [Z] in-area mark and the quest marks ( m_vBasePos, taken on the first anim frame ) is a bone
+		// picked per NPC. March knew only the billboard and Bip01_HeadNub, so a mesh without that bone ( Elysion Hugo: Cylinder01 only )
+		// put its marks at the world origin, off screen. Mesh names are exact, case-sensitive compares of the house's NPCMeshName.
+		D3DXVECTOR3					GetHeadBonePos()
+		{
+			if( m_pHouseTemplet != NULL )
+			{
+				if( m_pHouseTemplet->m_ID == CX2LocationManager::HI_BILLBOARD )		// 0x9c5c: NPC_Pivit + 300 ( double 334577c8 )
+				{
+					D3DXVECTOR3 vPos = m_pXSkinAnim->GetCloneFramePosition( L"NPC_Pivit" );
+					vPos.y += 300.f;
+					return vPos;
+				}
+				if( m_pHouseTemplet->m_ID == CX2LocationManager::HI_YUNO					// 0x9c9c
+					&& m_pHouseTemplet->m_NPCMeshName == L"Motion_NPC_NONO.X" )
+					return m_pXSkinAnim->GetCloneFramePosition( L"NPC_Yuno_GearAxisroot" );
+				if( m_pHouseTemplet->m_ID == CX2LocationManager::HI_HUGO					// 0x9cc6
+					&& m_pHouseTemplet->m_NPCMeshName == L"Motion_NPC_Elsion_Hugo.x" )
+					return m_pXSkinAnim->GetCloneFramePosition( L"Cylinder01" );
+			}
+
+			if( NULL == m_pXSkinAnim )
+				return D3DXVECTOR3( 0, 0, 0 );
+
+			// June reads the templet here without a NULL test; the test below only keeps a templet-less NPC on Bip01_HeadNub.
+			const WCHAR* pwszBone = L"Bip01_HeadNub";
+			if( m_pHouseTemplet != NULL )
+			{
+				if( m_pHouseTemplet->m_NPCMeshName == L"Motion_Parasite.x" )
+					pwszBone = L"Parasite_Body";
+				else if( m_pHouseTemplet->m_NPCMeshName == L"NUI_MANA_EATER.x" )
+					pwszBone = L"Bip01_Head";
+				else if( m_pHouseTemplet->m_NPCMeshName == L"Motion_MOUNT_MAG_NOM.x" )
+					pwszBone = L"Head";
+			}
+			return m_pXSkinAnim->GetCloneFramePosition( pwszBone );
+		}
+#else SERV_IRUHADEV_JUNE_FIELD_NPC_HEAD_BONE
 		D3DXVECTOR3					GetHeadBonePos() 
 		{
 			if(m_pHouseTemplet != NULL && m_pHouseTemplet->m_ID == CX2LocationManager::HI_BILLBOARD)
@@ -85,6 +124,7 @@ class CX2TFieldNpc : public CKTDGObject
 			return D3DXVECTOR3(0, 0, 0 );
 		}
 
+#endif SERV_IRUHADEV_JUNE_FIELD_NPC_HEAD_BONE
 		CX2LocationManager::HouseTemplet *GetHouseTemplet() { return m_pHouseTemplet; }
 		CX2TFieldNpcShop*			GetNpcShop() { return m_pDlgNpcMessage; }
 		void						SetNpcTalk(bool val) { m_bTalk = val; }		
