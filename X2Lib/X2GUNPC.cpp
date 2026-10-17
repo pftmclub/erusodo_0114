@@ -4691,7 +4691,14 @@ void CX2GUNPC::InitComponent()
 					if( pSkinMeshXET != NULL )
 						m_vecAttachSkinMeshXET.push_back( pSkinMeshXET );
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+					// June 327a97d0 passes bCloseDeviceAtDestructor 0: the anim takes its own mesh reference ( 31d2f3f0 ) and closes it,
+					// while the reference this open took ( 31cdef40 -> 31cdccd0 / 31cde970 ) is never closed: June keeps the mesh in a
+					// local only (@327a901a) and no NPC path removes it. One reference per attach block leaks (JUNE_BUGS 271, verbatim).
+					m_pXSkinAnim->AddModelXSkinMesh( pSkinMesh, NULL, NULL, pSkinMeshXET, false, true );	// June 327a97d0: bClose 0, bAddCollision 1
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 					m_pXSkinAnim->AddModelXSkinMesh( pSkinMesh, NULL, NULL, pSkinMeshXET, true, true );	// June 327a97d0: bAddCollision = 1
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 
 					CX2OfflineLog::Server( L"JUNE_ATTACH_SKIN attach npc=%d/%s mesh=%s type=%d value=%.3f xet=%s",
 						(int) GetNPCTemplet().m_nNPCUnitID, m_ScriptFileName.c_str(), wstrSkinMeshName.c_str(),
