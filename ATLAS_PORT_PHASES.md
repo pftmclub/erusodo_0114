@@ -3364,6 +3364,58 @@ one `[ELYDBG] Portal: start pos N -> place M internal 0 wait 3.00` line.
 - No line names start pos 146: Ranox's spa entrance is no longer a portal.
 - 0 EXCEPTION. The UNHANDLED `E_DISABLE_HB_CHECK_REQ` / `EGS_RENEWAL_LETTER_REQ` are not this phase's.
 
+### Phase E1d — Review (2026-10-17)
+
+Opus 5.5 high, against Ghidra's raw disassembly plus `disasm_range.py` and byte scans of `unpacked_x2.exe`. **Verdict: PASS, no code
+change, no build.** Commit `292ff32e` reviewed.
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_ELYSION_VILLAGE --range 292ff32e^..292ff32e --with SERV_IRUHADEV_ELYSION_DEBUG`):
+`files: 5 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. No OTHER rows, no deleted lines. PASS~ is the blank line before the helpers at the end of `X2TFieldGame.cpp`.
+
+**Re-read in the binary, all equal to the port**
+- **VillageParsing `324ff4b0`:**
+  - `CameraModifyDistanceByPortal` misses to `[0x3344f34c]` = 3000.0.
+  - In `SPA_INFO`, `Type` misses to -1 and `LineIdx` indexes from 1 (element default -1). The row's push_back (`32506720`) sits outside the `LineIdx` test, so a row without `LineIdx` is kept.
+  - The `START_POS` row is `new(0x24)`:
+    - bools `+0x16 / +0x17 / +0x18 / +0x19 / +0x1a / +0x22 / +0x23` miss to 0, except +0x19 (IsRight), which misses to 1;
+    - `+0x10` (int) and `+0x14` (ushort) miss to 0;
+    - `WaitingTime` +0x1c misses to `[0x33436700]` = 3.0;
+    - `InternalPlaceStartPosID` +0x20 (ushort) misses to 0.
+  - A failed map insert (`.second` false) frees the row. Every new field is written on every row (`LUA_GET_VALUE` assigns the default on a miss, `KLuaManager.h:30`), so the two structs' missing constructors do not matter.
+  - The `NAME` branch is display-only. It reads the id (miss -1); if the string manager's +0x40 debug flag is set it formats the name with its id, and otherwise it uses the plain string.
+  - The bool after `NAME` (templet +0x5c) is March's `IS_DUNGEON_RESULT_FIELD`.
+- **Portal block `323b5970` @323b6cd2-323b6ffd:**
+  - The -1 reset is inlined. EBX is -1 on both paths into `323b6cd2`, since the path from `323b6ccb` uses EBX as the -1 refcount decrement and the EH state.
+  - Every constant was read from the image: gate 2000.0 (`<=`, `TEST AH,0x41 / JP`); camera `dist <= +0x358` (`TEST AH,1`), `+0x20 == 0`, village `-1500 > 1` unsigned; `5000/d + 10`, capped at 30.0; `<= 1000` gives 1000.0.
+  - `FieldCamera( unit, dist, +0x360 lookat, +0x364 eye, ang, 0.4 )` matches March's 6th default (0.4).
+  - Within 100.0 (`324f20a0`): `40000 <= id < 40045` (= March `VMI_BATTLE_FIELD_END` under `SERV_IRUHADEV_ELYSION_PORT`), 25000, `+0x20 != 0`, 20000-20010, 30000-30006, 1000-1008.
+  - On a match the row's +0x1c goes to the inlined setter, and the loop exits (`JMP 323b7003`).
+- **`MoveToOtherPlace` `3250a800`:**
+  - With id -1 it zeroes the sum (+0x48c) and returns 0.
+  - The timer continues only when `sum >= target`, then resets the sum to 0, which is `CheckAndResetElapsedTime`.
+  - Internal place: returns `323ac300`'s AL.
+  - A NULL row logs, plays the sound and returns 1.
+  - Village / lounge / rest with an ACK (0x220) awaited: skips +0x22f, plays the sound.
+  - Otherwise: `SetVillage( id, GetStartPosLoc( +0x14 ), 0 )`, `GetIsRight( +0x14 )` to location manager +0x98, and `SendPacket( 0x21f, {id, false}, 1, 0 )`. That matches March's defaults (`bLogging = true, bCompress = false`; `m_bUseWarpItem` ctor false). Then `AddServerPacket( 0x220, 3.0 )`.
+  - The battle-field path calls `31f06350( id, +0x14 )`. Both move paths set +0x22f = 1.
+  - `Portal.ogg` is played with `( 0, 0, 1 )`, which is March's `PlaySound` 4th default.
+- **`323aa170` / `323ac300` / `323aa1b0`:** all equal to the port.
+  - `323ac300`: the +0x3c8 write = `CX2SquareUnit::SetPos`, which only sets `m_SyncData.m_Pos`.
+  - `323aa1b0`: writes state +0x488 = `m_TimerWaitingPortal.m_fTargetTime` only.
+  - Ctor: `+0x2f0 = -1`, `+0x358` from templet +0x58.
+- **`GetVecLinkedPos` `324f2ff0`:** as funcmap records it. The six flags were re-read.
+- **Readers of the old bool:**
+  - A byte scan for calls to `323aa1b0` finds four. Two are the StateField ACKs `32509400` / `32509c8c`. The other two, `31f2a64c` and `31f29fea`, are June's twins of `CX2State::Handler_EGS_JOIN_BATTLE_FIELD_ACK` and `..._CALL_MY_LOVER_JOIN_BATTLE_FIELD_NOT`: `XGM_STATE_CHANGE( 0x15 )`, then `if( g_pTFieldGame ) 323aa1b0( -1, 3.0 )`. Ghidra lists neither because no function is defined there. So all four March `SetNearPortalToBattleField( false )` sites are June's.
+  - June's skill-note reader (`3292ed2a`, `X2UISkillNote.cpp:544`'s twin) tests `+0x2f0 != -1`, the same as the port's `IsNearPortalToBattleField()`.
+  - The market block (`X2TFieldGame.cpp:1604`) reads the same getter.
+
+**One comment is wrong, and the code is unchanged.** `X2LocationManager.cpp`'s `GetVecLinkedPos` comment calls 40037 "a June boss-raid field, no March enum".
+Under `SERV_IRUHADEV_ELYSION_PORT` it is `VMI_BATTLE_FIELD_ELYSION_FIELD_03` (A3). The code compares the literal, so it behaves the same. Fix the comment when E2 next edits that file.
+
+**Nothing owed.** The play-test passed 2026-10-17. Next: `/x2-phase atlas E2` (its dependencies E1c, A5 and A6 are done).
+
 ## Phase E2 — Elysion village (20009)
 
 **Steps** — same checklist as Atlas A5, for the village:

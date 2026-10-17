@@ -2714,3 +2714,6 @@ g_pMain +0x7f8 / +0x808..+0x80a (C3t-1)	none in March: June movie table on CX2Ma
 324f1fd0	CX2LocationManager::GetStartPosLoc	confirmed	Atlas E1d: StartPos +0..+8, (0,0,0) when missing
 324f1dc0	CX2LocationManager::SetVillage	confirmed	Atlas E1d: old = current (+0x68/+0x6c..+0x74), current village +0x64, pos +0x78, line index +0x84
 324f1e50	CX2LocationManager::RestoreVillage	confirmed	Atlas E1d: +0x64 = +0x68, pos = old pos
+31f2a410 @31f2a632	CX2State::Handler_EGS_JOIN_BATTLE_FIELD_ACK (June twin)	confirmed	Atlas E1d review: after XGM_STATE_CHANGE(0x15) if g_pTFieldGame -> 323aa1b0( -1, 3.0 ) @31f2a64c (ACK id 0x36a @31f2a478); no Ghidra function, so not in xrefs_to
+31f29fd0	CX2State::Handler_EGS_CALL_MY_LOVER_JOIN_BATTLE_FIELD_NOT (June twin, call site)	likely	Atlas E1d review: same shape as the ACK, 323aa1b0( -1, 3.0 ) @31f29fea; the only other raw caller of 323aa1b0
+3292ed10	CX2UISkillNote::Handler_EGS_REG_SKILL_NOTE_MEMO_REQ (June twin)	likely	Atlas E1d review: returns early when g_pTFieldGame +0x2f0 != -1 @3292ed2a (= IsNearPortalToBattleField, X2UISkillNote.cpp:544); sends 0x2d7, ACK 0x2d8
