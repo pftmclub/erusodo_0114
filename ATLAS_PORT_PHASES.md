@@ -4515,6 +4515,23 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   Why the user restarted (user): a laser hit in the air put reyaa on floor 2 before floor 1 was clear. June's data allows it: floor 2's walkway, line 48
   (y 10455), is never disabled (trigger 2 disables only the connectors 46/47/73/74/76 and 59/60/72/75; triggers 1 / 0 re-enable them), and line 48 has
   no `CAN_DOWN = FALSE` (March default true, `KTDGLineMap.cpp:257`), so the down key drops back to floor 1. Not a port gap. 0 EXCEPTION; `READY_NPC` log as designed.
+- **Play-test 2 (2026-10-17, reyaa, 16:01-16:10, exe b45748ef):** cleared 33890 in 467 s via the hidden stage (stages 0, 5, 2, 3, 4), 0 EXCEPTION. Findings:
+  (1) **Crash entering the result screen** (CrashRpt `X2_99E7.tmp`, `tools/mdscan.py`): `CX2Camera::EndWorldCamera` this = NULL <- `~CX2World` (additional world)
+  <- `ClearJuneAdditionalWorld` <- `CX2Game::Release`. E7 cleared the additional worlds after `SAFE_DELETE( m_pCamera )`; June 323080c0 deletes world (+0x39c),
+  clears (322d7f90 @323083ff), then camera (+0x3b0 @32308404). Fixed under `SERV_IRUHADEV_ELYSION_SCRIPT_B` (`X2Game.cpp` Release order).
+  (2) **Stage3 seals took both attack types.** E7 parsed `INVINCIBLE_ATTACK_TYPE` but noted "June reads neither"; June does: NPC state start
+  327ad91e-327ad957 push_backs StateData +0x434 into NPC +0x83f0 (never cleared, JUNE_BUGS 244), and slot 95 3275bbf0 (`GetInvincible( DamageData* )`;
+  funcmap row 1011 misread DD+8 as an attacker UID: it is `attackType`) tests it at both NPC DamageReact invincible sites. Ported:
+  `SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE` (`X2GUNPC.h` `GetInvincibleByAttackType` + list, `X2GUNPC.cpp` :9821 / :11459 sites, state start).
+  June tags combos `AT_COMMAND` in its class scripts; March's are untagged (`AT_NORMAL`, both parsers' default, June 32632d46-32632d5e), so the white
+  seal would be unbreakable: **stand-in (user chose it)** `SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN` counts a user's `AT_NORMAL` hit as `AT_COMMAND`
+  for this test only; checklist 7x removes it with the class ports. flagcheck `--worktree`: all three PASS (SCRIPT_B: 2 deleted = the moved camera
+  delete and the old clear line; INVINCIBLE: 2 plain `#else`, the June-buff nesting). Commit `1077e562`.
+  `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 16:32:16, md5 9ae31fc0b120419f71812cdb2fc8d24f`.
+  (3) Two June textures the boss stage opens were unstaged (ErrorLog `OpenTexture` at 16:07:56): `Motion_SOLESS_Page1_Mask.tga` (data016),
+  `Lily.tga` (data181), named inside meshes, which the census `refs` do not follow. `stage-june`; `PACK OK data016`, `PACK OK data181`; copy asked.
+  (4) **Phase 2 not seen:** no `[ELYDBG] SetShowAdditionalWorld` line before the boss died (16:09:43). The boss's frame-move (proto 60) calls
+  `DarkSoles_CheckPhaseChange_OnFrameMove` (proto 93: game Int(9) == 0, NPC Flag(2) false, NowHP < MaxHP x 0.3). Not traced yet: play-test 3 watches it.
 
 ### Phase E11 — Memory
 
