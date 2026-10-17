@@ -8081,3 +8081,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              first hide: line (name, alpha) in ErrorLog.txt. Turn off at the R13b review.
 #define SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase W1d. June's CX2PETAI::Moving (32ef68b0 @32ef69b2-32ef6b08) re-seats a pet in a field or
+//              square game: when the pet's line type differs from its master's last-touch line type and GetNearOtherLine (radius
+//              200) finds an LT_OTHER_ROAD / LT_NORMAL line from the pet's land position, CX2PET::SetPosition puts the pet there.
+//              The rest of June's Moving is March's. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase W1d, short-lived. "[JUNE_ENGINE] WORLD pet re-seat:" lines in ErrorLog.txt, the first
+//              20 re-seats (pet / master / found line and type, the new position). Remove at the W1d review.
+#define SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
+#error SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG needs SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
+#endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
+#endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
+//////////////////////////////////////////////////////////////////////////

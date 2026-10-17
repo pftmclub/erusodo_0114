@@ -2029,6 +2029,55 @@ June branch): June's `CX2PETAI::Moving` (`32ef68b0`, block around `@32ef6a95`) r
 `CX2PET::SetPosition` `326eb090`) when, in a field or square game, its line type differs from its master's. March's `Moving` (`X2PetAI.cpp:400`)
 has no such block. Map `32ef68b0` whole against March, then port it whole (rule 1).
 
+### Phase W1d -- Done
+
+**2026-10-18, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT` (`Always.h`), plus the short-lived `_DEBUG` (the first 20 re-seats
+logged; remove in the review once the play-test passed). Commit: `git log -S SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT`. Funcmap rows `(W1d)`:
+`32ef68b0`, `326eb090`, `31c688c0`, `323a8dd0 / 323a4dd0`. JUNE_BUGS 278.
+
+**Map.** June's `CX2PETAI::Moving` `32ef68b0` (`ret 4`) was read whole against March's (`X2PetAI.cpp:400`). There is one delta, the block at
+`@32ef69b2-32ef6b08`. It runs every frame, after the final-dest copies and before the random jump, and only in a field or square game:
+- The master is `GetSquareUnitByUID( m_MasterUid )` (`+0xd8/+0xdc`; `323a8dd0` on `g_pTFieldGame`, otherwise `323a4dd0` on `g_pSquareGame`).
+- The pet's line is `m_iLastTouchLineIndex` (`+0x3c`); the master's is the square unit's byte `m_SyncData.m_LastTouchLineIndex` (`+0x3d4`).
+  Both are bounds-checked to `LineData*` or NULL.
+- The **pet's own** position (`m_pPet +0x42c` = `m_petSyncData.position`, not the master's as the kickoff said) is landed (`31c7bb00`,
+  `bMonster` true, radius 30 `@33441b9c` = `LINE_RADIUS`, no index).
+- `GetNearOtherLine( land, &out, +0x3c, &idx = -1, 200 @33457460 )` is called. If it returns true and the pet line's type (`LineData +4`) differs
+  from the master line's, the pet is re-seated with `326eb090` = `CX2PET::SetPosition( out, m_bIsRight +0x40 )`.
+
+The rest of `32ef68b0` is March's, checked branch by branch:
+- the line-map pick;
+- the random jump (`+0xc0`, AI data `+0x60..+0x70`, `RandomFloat( 0, 100 )` `@334355b8`, `100 -` double `@3342f360`);
+- the fly / walk path-finder calls with March's argument lists (`32f298f0` / `32f287e0`; fly only when not fleeing and `m_bNowStateFly`);
+- `m_bIsTargetFront`;
+- the move-state switch (`+0x84`, the `IsSpeedTime` gate `326e2f50` on the walk-only DIR_CHANGE);
+- the fly interval (`+0xd0` / `+0x88`) and the walk / dash interval (`+0xc4` / `+0x54`, `moveSplitRange` / `runGap` squared);
+- the send (`PushAIMessage` `326e2df0`).
+
+The callees equal March's. `31c688c0` = `GetNearOtherLine` (`KTDGLineMap.cpp:2733`): false for an out-of-range or NULL last line, skips
+disabled lines and `LT_WALL`, takes `OTHER_ROAD` from `NORMAL` with `GetNearest` inlined (999999 sentinel `@33449110`, the start + dir / end - dir
+fallback) and `NORMAL` from `OTHER_ROAD`. `326eb090` = `X2Pet.cpp:3129`: `GetLandPosition( pos, true, 30, &idx )`, then the inlined `IsOnLine`,
+then the stores.
+
+**Port.** `X2PetAI.cpp`: the block after `bool bAIIsRight = false;`, insert-only. The 3-arg `GetLandPosition( pos, LINE_RADIUS, (int*) NULL )` is
+used (W1c: it forwards `true`, June's value), so the block does not depend on W1c's flag. June's two quirks are kept, as JUNE_BUGS 278:
+- the found line's type is never compared to the master's;
+- a master line index out of range is read through NULL.
+
+**Hygiene** (`flagcheck --worktree --files X2Lib/X2PetAI.cpp KTDXLIB/Always.h`): X2PetAI.cpp PASS~ (+45, 1 blank line outside the flag);
+Always.h OTHER (peers' uncommitted W1e-review / R13b lines, not in this commit); 0 deleted lines, 0 non-ASCII, 0 EOL-mismatched, 0 encoding
+change; `RESULT: PASS`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,873,280 B, dated 2026-10-18 06:34:55, md5 6e1b71e8bdb7cbe25ec57d44d4c11aa3, equal to X2/US_SERVICE/x2.exe (2026-10-18 06:34:50); built at main 68e3302f + 6 uncommitted code file(s).`
+A peer's build (the same tree) compiled this phase's files. `grep -a "WORLD pet re-seat"` on the deployed exe = 1. Built in but not committed
+here: the peers' `KTDGLineMap.cpp`, `X2SkillTree.cpp`, `X2WorldObjectSkinMesh.*`. No kom changed.
+
+**Play-test hand-off.** Elder village (`WI_VILLAGE_ELDER`, `Linemap_Elder_village.lua`, data040, June bytecode). It has two staircases of
+`LT_OTHER_ROAD`, lines 7-10 at x -304 and lines 11-14 at x 314. The bottom entry is `LT_NORMAL` line 17 (z 1027); line 10 / 14 carry
+`OTHER_ROAD_UP`. With a pet summoned, stand on line 17 at a staircase foot and press Up (`X2TFieldGame.cpp:1528`; the warp is `SetPos` at
+`:1542`). Expect `[JUNE_ENGINE] WORLD pet re-seat: pet line 17 type 0, master line 10 type 9 -> line N type 9 at ...` (N one of the stair lines 7-14; at most 20 lines) and
+the pet appearing on the stair. Press Down to go back, and the reverse line (`type 9 ... type 0`) follows.
+
 ## Phase W1e - Line links to a far line (Elysion line 2 `BEFORE_LINE = 130`)
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_LINEMAP_FAR_LINK` (proposed). Added by R13's play-test

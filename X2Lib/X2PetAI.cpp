@@ -429,6 +429,51 @@ void CX2PETAI::Moving( float fElapsedTime )
 	D3DXVECTOR3 vFinalDest	= m_vFinalDest;
 	bool bAIIsRight = false;
 
+#ifdef SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
+	/// June CX2PETAI::Moving 32ef68b0 @32ef69b2-32ef6b08: in a field or square game the master ( m_MasterUid +0xd8 ) is looked up
+	/// ( 323a8dd0 / 323a4dd0 = GetSquareUnitByUID ). The pet's own position ( m_pPet->GetPos(), +0x42c ) is landed ( 31c7bb00, bMonster
+	/// true, radius 30 = LINE_RADIUS @33441b9c ), then GetNearOtherLine ( 31c688c0, radius 200 @33457460 ) from the pet's line; when it
+	/// finds a line and the pet's line type differs from the master's last-touch line type, the pet is re-seated there ( 326eb090
+	/// CX2PET::SetPosition, m_bIsRight ). Every frame, before the random jump. June bugs kept: the found line's type is never compared to
+	/// the master's, and a master line index out of range is dereferenced as NULL ( JUNE_BUGS 278 )
+	if( g_pTFieldGame != NULL || g_pSquareGame != NULL )
+	{
+		CX2SquareUnit* pJuneMaster = NULL;
+		if( g_pTFieldGame != NULL )
+			pJuneMaster = g_pTFieldGame->GetSquareUnitByUID( m_MasterUid );
+		else
+			pJuneMaster = g_pSquareGame->GetSquareUnitByUID( m_MasterUid );
+
+		if( NULL != pJuneMaster )
+		{
+			const CKTDGLineMap::LineData* pJunePetLine		= pLineMap->GetLineData( m_iLastTouchLineIndex );
+			const CKTDGLineMap::LineData* pJuneMasterLine	= pLineMap->GetLineData( pJuneMaster->GetLastTouchLineIndex() );
+			/// June's 4-arg GetLandPosition with bMonster true; March's 3-arg form forwards true
+			const D3DXVECTOR3 vJuneLandPos = pLineMap->GetLandPosition( m_pPet->GetPos(), LINE_RADIUS, (int*) NULL );
+			D3DXVECTOR3 vJuneOutPos( 0.f, 0.f, 0.f );
+			int iJuneOutLineIndex = -1;
+			/// GetNearOtherLine returns false for a pet line that is out of range or NULL, so pJunePetLine is set here
+			if( true == pLineMap->GetNearOtherLine( vJuneLandPos, vJuneOutPos, m_iLastTouchLineIndex, iJuneOutLineIndex, 200.f )
+				&& pJunePetLine->lineType != pJuneMasterLine->lineType )
+			{
+#ifdef SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
+				static int s_iJunePetReseatLogCount = 0;
+				if( s_iJunePetReseatLogCount < 20 )
+				{
+					++s_iJunePetReseatLogCount;
+					const CKTDGLineMap::LineData* pJuneOutLine = pLineMap->GetLineData( iJuneOutLineIndex );
+					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD pet re-seat: pet line " << m_iLastTouchLineIndex << " type " << (int)pJunePetLine->lineType
+						<< ", master line " << pJuneMaster->GetLastTouchLineIndex() << " type " << (int)pJuneMasterLine->lineType
+						<< " -> line " << iJuneOutLineIndex << " type " << ( ( NULL != pJuneOutLine ) ? (int)pJuneOutLine->lineType : -1 )
+						<< " at " << vJuneOutPos.x << "," << vJuneOutPos.y << "," << vJuneOutPos.z << fileout;
+				}
+#endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
+				m_pPet->SetPosition( vJuneOutPos, m_bIsRight );
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
+
 
 	bool bStayOnCurrLineGroup = false;	
 	D3DXVECTOR3 vDist = D3DXVECTOR3( 0.f, 0.f, 0.f );
