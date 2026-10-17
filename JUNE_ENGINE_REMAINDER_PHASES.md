@@ -582,6 +582,8 @@ descriptions and the dragged slot, so those draw twice per frame. Not-cull objec
 1. Enter any dungeon. During the stage-start fade, pop-ups and option windows (layers 4..500) sit above the black, and the in-game HUD fades in under it.
 2. ErrorLog.txt gets `[JUNE_ENGINE] DG chains inner .. over .. alpha<500 .. alpha>=500 .. culled ..` lines as the chains change.
 3. Regressions to look for: no missing or black UI, the skill-tree drag icon still shows, and Alt+Tab or a resolution change keeps textures (state reset).
+**Play-test 2026-10-17: PASSED.** The user reports the UI looks and behaves normally. ErrorLog.txt has 27 `[JUNE_ENGINE] DG chains` lines
+(village `over 7`; dungeon `over 9`, alpha < 500 at 0-4, culled 56-100), and the alpha >= 500 chain stayed at 0, so it was not exercised.
 Review kickoff: `kickoffs/june-engine/R8-review.md`.
 
 ## Phase R9 - Render small deltas
