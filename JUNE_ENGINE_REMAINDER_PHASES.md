@@ -1327,6 +1327,7 @@ By the no-partial-updates rule the function has to go to June whole. That takes 
 - The OTHER rows are `Always.h` plus the sibling R13 flag's files; `_DEBUG` lives wholly inside `WORLD_MESH` blocks, so all of its rows are OTHER.
 
 **Review change:** `//#define SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH_DEBUG` (`Always.h`). Its code stays, for R13b / R13c to re-enable if needed.
+Range check after the commit (`--range a8e59e12^..a8e59e12`, `_WORLD_MESH_DEBUG`): files 1 DEFINE (+1 -1, the `#define` only), 0 FAIL row, 0 ERROR; RESULT: FAIL only because the flag is now defined nowhere and its old `#define` line counts as deleted. R12's review `918a4ef9` gets the same verdict for `_REFS_DEBUG`, so this is expected.
 `DEPLOY OK: X2_offline.exe is 19,872,256 B, dated 2026-10-18 03:21:50, md5 ce79dccff14191fdfb02268e1cd90a81 (built at main 60eac05c + peers' uncommitted files; the WMESH string is absent from the exe)`
 
 **Kickoffs:**
