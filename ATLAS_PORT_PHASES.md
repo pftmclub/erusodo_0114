@@ -4730,6 +4730,38 @@ Done when: staged with manifests, pack list handed over. Record a Done note, the
   `python tools/logs.py --grep "WorldData|PVP_Map_List|PVP_Elysion|DLG_PVP_Map_List"` shows no error. Say which happened.
 - **Open for E13:** re-run the closure over the PvP scene (done by hand here, not by the script).
 
+### Phase E12 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS on the data: every byte comparison holds. No code change, no build, no pack.** One latent port gap in the PvP room window is routed to E12b, and one June quirk is logged as JUNE_BUGS 248.
+
+- **WorldData** (`data040_kom/WorldData.lua:3414-3426`): `cat -A`-identical to June `WorldData.src.lua:3699-3704` (tab, LF), plus only the `--{{ }}` wrapper and comments.
+  `worldID = WORLD_ID.WI_ELYSION_FIELD_PVPMAP` appears exactly once, and `Enum.lua:2412` gives it 752.
+- **Adopted = ljconv(June), re-derived independently** (junekom extract + `ljconv.transcode`): all four files have sha1 and size equal to their adopt record, with header `1B 4B 4C 81`
+  (PVP_Elysion_Field 7322224e, _LineMap 2000643b, PVP_Map_List 779a59aa, DLG_PVP_Map_List db70f595 from June data217). The kom_contents manifests carry `"2"` for each `.lua` and `"0"` for each `.TET`.
+- **TETs = June bytes:** Image09 is 344 B (sha1 46bda44e, 4 keys including `MAP_SELECT_ELISION` and `MAP_SELECT_RANOX`), and Image_TITLE is 2048 B (sha1 0315021a, June data151, 22 keys). All 16 March keys are kept and 6 are added.
+- **Superseded PVP_Map_List:** only the 4 expected differences: the `m_MapSize` 13600/13601 swap on TREE_OF_LIGHT_TOP and SUMMER_2008_PVP, the Ranox comment block, and the Elysion row. The 15 earlier rows keep their order, and the Ranox row is identical.
+- **Superseded DLG_PVP_Map_List** (March's bytecode, decompiled, `luasrc.py check` T1 against the backup): March registered 14 rows. June keeps all 14 with the same
+  keys, textures and STR_IDs, except SANDER_GARPAI_ROCK and SANDER_VILLIAGE, which go from `m_bNew` TRUE to FALSE (June's). June then adds Ranox and Elysion (both `m_bNew` TRUE), plus 7 `m_PrivateType` rows: PGT_WINNER x3 and PGT_AMUSEMENT_ITEM x4.
+- **Consumers:**
+  - `CX2PartyUI::LoadPvpMap` (`X2PartyUI.cpp:4048-4085`) walks `PVP_MAP_LIST` by index and stops at the first nil. June's file has 16 rows with no gap. The loader reads `m_WorldID`, `m_MapName`, `m_MapSize`, `m_MapDesc`, `m_MapTexName` and `m_MapTexKeyName`, all optional, and the Elysion row has all six.
+    The kickoff's `m_bHot` / `m_bNew` / `m_MapNameTexKeyName` are read only by `AddMapInfo_LUA` (`X2StatePVPRoom.cpp:4678-4690`).
+  - `SetTex( tex, key )` upper-cases the key (`KTDGUIControl.cpp:733`), and the TET loader upper-cases its keys (`KTDXDeviceTET_Preprocessing.cpp:191`) before an exact `wcscmp` binary search. So `MAP_SELECT_ELISION` / `_RANOX` match.
+- **Scene / linemap:** 16 enum tokens are present in the right tables, 44 methods are bound (`X2Main.cpp:3672-3859`, `KTDXApp.cpp:1857-2022`), and the four `g_pRenderParam` members are `class_mem`. There is no `LT_FIRE_GROUND` or `LT_JUMP_DOWN`.
+  All 27 assets are staged (24 meshes in data180), and music is `data/music/field_elysion001.ogg`. Of the 34 embedded textures, 33 are staged. The missing one, `field_elysion_villeage_ap_tree02.dds`, is `ABSENT` in June too, so nothing is owed.
+  The closure's region set (`region_census.file_set`, 'FLD' line: PVPMAP / FIELD keys) covers WI_ELYSION_FIELD_PVPMAP, so E13's own closure run includes it. No separate re-run is needed.
+- **Strings** (`data/general.ess`, row = ID): 44260 "Lanox Lava", 44261 its description, 44262 "Judge's Heart", 44263 its description, 13601 "Medium". The Lanox `STR_ID_4426x` risk is closed.
+- **Hygiene:** `ledger --check` PASS (26 rows, 0 FAIL / 0 WARN) and `core --check` PASS (24 rows). No ledger or core row names PVP_Map_List, so no stale "source" claim survives the bytecode replacement.
+- **Finding 1, latent port gap, routed to E12b:** June's `AddMapInfo_LUA` (funcmap `3253a900`) reads `m_PrivateType` first (int, miss -1). March's (`:4648`) does not, and was "not ported, no PvP offline". E12 changes that premise:
+  - March's `Enum.lua` has neither `PGT_WINNER` / `PGT_AMUSEMENT_ITEM` nor the 4 world IDs WI_WINNER_ASHS / _RED_DRAGON / _ADRIAN and WI_HAMEL_GREAT_SEAWAY. Those fields evaluate to nil, and the rows register with `m_WorldID` 0.
+  - With the `m_bNew` hoist (`:4695-4708`) the 14 tiles (`PVP_MAP_SHOW_LIST`, `X2Define.h:182`) would read: Ranox, Elysion, Hamel (world 0), Adrian (world 0), then March's first 10 maps.
+  - Bridge of Hope, Winter, Garpai and Sander fall off the window, and `GetAllRandomMap` (`:4738`) can pick world 0.
+  - June never shows this, so it is a port gap, not a June bug. It cannot be reached offline (no PvP room), so it is parked as E12b: port June's `m_PrivateType` read and the June code that filters by it, under its own flag.
+- **Finding 2, June quirk:** `PVP_Elysion_Field` asks `g_pMinorParticle` for `BG_Elysion_Big_2` (June :488), which is defined only in the Major files. June's own `GameMinorParticle.txt` / `UIMinorParticle.txt` lack it (sha1 010424360495 / d2b6af1cb52d, which equal the staged files).
+  `CX2World::CreateObjectParticle` (`X2World.cpp:1199`) always returns an object, so nothing crashes; the second background glow just never shows. Logged as JUNE_BUGS 248, verbatim.
+- **Nits, left as is:**
+  - `WorldData.lua:3108-3112` (the Ranox Phase 11 comment) still says Elysion's PvP map "is not ported". The E12 block says it supersedes that.
+  - `kom_contents/data040_kom/_manifest.json` is LF-only (the other four are CRLF). The packer reads it as JSON and PACK OK held, and its origin predates every backup, so it is not E12's to fix.
+
 ---
 
 ## Phase E13 — Asset closure + pack list (Elysion half)
