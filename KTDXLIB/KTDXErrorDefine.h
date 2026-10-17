@@ -454,6 +454,15 @@ enum KTDX_ERROR_MSG
 
 	KEM_ERROR432,	// ¿ÀÇöºó // 2013-09-13 // CollisionData ¿À·ù
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	// June2017 skin anim: 433 AddModelXSkinMesh frame count mismatch ( R12 ), 434 SetAnimXSkinMesh mesh without an animation
+	// controller, 435 the skin draw @31d304ab ( R6 ), 436 CleanAnimStructure bad anim set pointer
+	KEM_ERROR433,
+	KEM_ERROR434,
+	KEM_ERROR435,
+	KEM_ERROR436,
+
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	KEM_BASE_ERROR_MSG = 10000,
 };
 

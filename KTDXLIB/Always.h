@@ -7680,3 +7680,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST needs SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 #endif SERV_IRUHADEV_RANOX_FORCE_NOT_CULL
 #endif SERV_IRUHADEV_JUNE_RENDER_FRUSTUM_TEST
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R11 items 1-2. Skin-anim playback: the loop-restart transition byte (anim +0x854,
+//              default 1) and the last-ChangeAnim transition byte (+0x855), play type 3 in OnFrameMove (31d2bd80, no Lua name),
+//              the ChangeAnim( int ) bounds check, ChangeAnim( name ) finding without inserting, and Lua world-object
+//              "SetTransition" writing anim +0x854 (327f69d0) instead of the object's own m_bTransition.
+#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R11 items 3-5. Anim-set bookkeeping: the +0x294 backup map filled by ResetAnimSet
+//              (31d31c10), CleanAnimStructure's per-set release check and KEM 436 (31d2f9a0), KEM_ERROR433..436, MixAnim's
+//              never-cleared mixed-name list +0x864 (31d34140), the SetAnimXSkinMesh KEM 434 log (31d32750) and the
+//              BuildCloneFrame NULL guard (31d31950).
+#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase R11 item 6. Bone refresh without AdvanceTime (31d29950), CXMeshInstance 31c83520
+//              (scale from +0x504..+0x518, then the refresh) and its call in the CEffect main-effect scale (31f6fca0 @31f6fd70).
+#define SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
+//////////////////////////////////////////////////////////////////////////

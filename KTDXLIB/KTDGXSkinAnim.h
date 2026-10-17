@@ -24,6 +24,9 @@ class CKTDGXSkinAnim : public CKTDGObject
 			XAP_LOOP = 0,
 			XAP_ONE,
 			XAP_ONE_WAIT,
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+			XAP_JUNE_LOOP_LAST_TRANSITION,	// June2017 31d2bd80 play type 3 (no Lua name): loop restart with the last ChangeAnim's transition (+0x855)
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		};
 
         struct Alpha_SkinMesh
@@ -95,6 +98,13 @@ class CKTDGXSkinAnim : public CKTDGObject
 		bool MixAnim( CKTDXDeviceXSkinMesh* pAnimXSkinMesh, bool bSimple = false );
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+		// June2017 CX2WorldObjectSkinMesh::SetTransition 327f69d0: writes anim +0x854, the transition of the XAP_LOOP restart in OnFrameMove
+		void JuneSetLoopTransition( bool bTransition ){ m_bJuneLoopTransition = bTransition; }
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
+		bool JuneRefreshBones();	// June2017 31d29950: refresh the bone matrices without advancing the animation
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 		CKTDXDeviceXSkinMesh* GetAnimXSkinMesh(){ return m_pAnimXSkinMesh; }
 
 		void ReplaceAniXET( CKTDXDeviceXET* pModelAniXETFrom, CKTDXDeviceXET* pModelAniXETTo );
@@ -845,6 +855,14 @@ class CKTDGXSkinAnim : public CKTDGObject
 #endif
 
 		bool	m_bApplyMoveBone;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+		bool	m_bJuneLoopTransition;	// June anim +0x854 ( default 1 ): XAP_LOOP restart transition, written by SetTransition 327f69d0
+		bool	m_bJuneLastTransition;	// June anim +0x855 ( default 1 ): the last ChangeAnim's transition, read by play type 3
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+		std::map<int, LPD3DXANIMATIONSET>	m_mapJuneAnimSetBackup;	// June anim +0x294: m_vAnimSetList by index ( ResetAnimSet ), no AddRef
+		std::vector<std::wstring>			m_vecJuneMixedMotion;	// June anim +0x864: names of the motion meshes MixAnim has mixed, never cleared
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 		bool			m_bHideNoRenderable;
 #endif FACE_OFF_MONSTER_HEAD_TEST

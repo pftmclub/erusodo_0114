@@ -88,7 +88,13 @@ class CX2WorldObjectSkinMesh : public CX2WorldObject
 		void SetPlayType(int iPlayType) { m_PlayType = (WORLD_OBJECT_SKIN_MESH_PLAY_TYPE)iPlayType; }
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+		// June2017 327f69d0: Lua "SetTransition" writes the skin anim's loop-restart transition ( anim +0x854 ), not this object's
+		// m_bTransition ( +0x21c, which its own ChangeAnim calls keep passing ); no anim yet: nothing
+		void SetTransition_LUA( bool btransition ){ if( m_pXSkinAnim != NULL ) m_pXSkinAnim->JuneSetLoopTransition( btransition ); }
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		void SetTransition_LUA( bool btransition ){ m_bTransition = btransition; }
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 		void SetAnimAniXET_LUA( const char* pFileName );
 		void SetXSkinMotion_LUA( const char* pFileName );
 

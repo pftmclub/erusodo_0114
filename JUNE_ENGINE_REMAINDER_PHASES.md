@@ -658,6 +658,56 @@ enum ends at 432 (`KTDXErrorDefine.h`); R11 adds the four as one block.
 5. **Small:** the `SetAnimXSkinMesh` KEM 434 log and the `BuildCloneFrame` NULL guard.
 6. **Bone refresh:** `31d29950`, `CXMeshInstance` `31c83520` and the call in the `CEffect` main-effect scale (`31f6fca0` `@31f6fd70`).
 
+### Phase R11 -- Done
+
+**2026-10-17, Sonnet 5.5. Code committed; NOT built or deployed (blocked by a peer's unfinished edits, see Build).** Flags `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK`
+(items 1-2), `..._SKIN_ANIM_SETS` (3-5), `..._SKIN_BONE_REFRESH` (6), all in `Always.h` after the R8 block. Evidence: `june2017_re/r10_skinanim_sweep.tsv` rows owner R11.
+
+- **Playback** (`KTDGXSkinAnim.h/.cpp`): members `m_bJuneLoopTransition` (+0x854) and `m_bJuneLastTransition` (+0x855), both true in the ctor (dword `0x01010000`
+  at +0x852). `OnFrameMove` (`31d2bd80`, read raw: no Ghidra function): XAP_LOOP restarts with `ChangeAnim( idx, +0x854, 0.0f )`; play type 3 (C++ name only,
+  `XAP_JUNE_LOOP_LAST_TRANSITION`, nothing added to `Enum.lua`) restarts the same way with +0x855. `ChangeAnim( int )`: signed `index < size` check, else false
+  (`31d2b5e0`). `ChangeAnim( name )`: `m_mAnimSetList.find`, no insert (`31d33fd0` -> `31d39100`). The +0x855 write is in `ChangeAnim( pAS )` (`31d29340 @31d296fc`)
+  and, as June does, in the two callers. In the name version the March anchor line carries a trailing tab, so that write sits before the `ChangeAnim( pAS )` call; the
+  value is the same and `ChangeAnim( pAS )` writes it last.
+- **`SetTransition`:** June's world-object frame move (`327f887b..327f8bdc`) passes the object's own `+0x21c` to all six `ChangeAnim( name )` calls, as March's already
+  does; only the Lua setter differs. `CX2WorldObjectSkinMesh::SetTransition_LUA` now writes the skin anim's +0x854 (`327f69d0`; no anim: nothing). The binding
+  (`X2Main.cpp:3831`) is unchanged, so the March `m_bTransition` write is gone with the flag on. Its only Lua user: `Ranox_AshesVillage_Stage2.lua:50`, the
+  **cave** mesh `ASHS_VILLAGE_S2_CAVE.X` (the cart at :63 does not call it).
+- **Anim sets** (`31d31c10`, `31d2f9a0`): `m_mapJuneAnimSetBackup` (+0x294) cleared first in `ResetAnimSet`, filled `(i, pAS)` after the name/index maps, cleared with
+  the three name maps. `CleanAnimStructure`: even pointer >= 0xff Release; even and < 0xff non-zero -> KEM 436 `...Release Failed crash1 index = N Ani = <mesh> addr = <hex>`,
+  slot NULL, Release of the backup copy; odd -> KEM 436 `...Release Failed index = N Ani = <mesh>`, no Release. Device closes and the two args stay with R12.
+  `KEM_ERROR433..436` as one block after 432 (flag SKIN_ANIM_SETS; 433 / 435 are used by R12 / R6).
+- **Mix / small:** `MixAnim` (`31d34140`): `std::find` of the motion mesh's device id in `m_vecJuneMixedMotion` (+0x864) first -> true; `push_back` after the new
+  controller's sets are registered; never cleared -> **JUNE_BUGS row 254**. `SetAnimXSkinMesh`: `ErrorLog( KEM_ERROR434 )` for a mesh without a controller
+  (`31d32783`). `BuildCloneFrame`: NULL clone/source returns (`31d319a1-31d319ab`).
+- **Bone refresh:** `CKTDGXSkinAnim::JuneRefreshBones` = `31d29950` (false without anim mesh or clone root; matrix or DXMatrix branch; the same inlined
+  `UpdateAnimationFrame` walk as `UpdateAnimationFrameStructure`, no AdvanceTime). `CXMeshInstance::JuneRefreshScale` = `31c83520`: scale = `m_vScale * m_vManualSize
+  * ScaleByUnit * m_vSize` per axis in June's multiplication order, applied to the skin anim's matrix **only when it has no manager object** (June skips the Scale
+  otherwise), then the refresh. Called from `CEffect::SetMainEffectScale` right after `SetScale` (`31f6fca0 @31f6fd70`); the March site that ports it.
+- **Logs** (`ErrorLog.txt`, each site capped at 3 lines): `[JUNE_ENGINE] SKANIM loop restart without transition`, `play type 3 restart, transition N`,
+  `ResetAnimSet backup map N sets`, `MixAnim remembers <name> ( N mixed )`, `MixAnim skipped, already mixed: <name>`, `bone refresh`, plus uncapped `clean crash1` /
+  `clean odd pointer` and the `BuildCloneFrame NULL guard` / `SetAnimXSkinMesh mesh without an animation controller` lines.
+- Also `MODS.md` (3 rows), `JUNE_BUGS.md` row 254.
+
+Hygiene (`flagcheck --worktree --files <my 8 files>`, per flag): PLAYBACK `files: 1 PASS, 7 OTHER`, SETS `1 PASS, 7 OTHER`, BONE_REFRESH `3 PASS, 5 OTHER`;
+every flag `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+The OTHER rows are my own other two flags in the same files, and `Always.h` (which also holds a peer's uncommitted U1 defines; only my three blocks are committed).
+
+**Build: BLOCKED, no `DEPLOY OK`.** `build.py --deploy` fails in KTDXLIB three times (log `.build/logs/20261017-203714/KTDXLIB.log`) only in a peer's unfinished
+june-engine U1 work: `KTDXApp.cpp` (20 errors: `SetChangeFocusByKeyMsg`, `AddSubtitleData`, `SetCaretOffSet`, ... not yet in the UI control headers) and the untracked
+`KTDXWordWrap.cpp` (9). No error is in an R11 file: `KTDGXSkinAnim.cpp` and `KTDGXMeshPlayer.cpp` compiled clean in that run. **Not yet compiled:** `X2DamageEffect.cpp`,
+`X2WorldObjectSkinMesh.h` users (X2Lib builds after KTDXLIB), the link. Next session: `python tools/build.py --deploy` once the U1 session's tree compiles (no R11 change
+needed unless it reports an error in an R11 file), then read the play-test below.
+
+**Play-test hand-off (after the deploy; user, Freils uid 18, Chung Tactical Trooper; tag `[JUNE_ENGINE] SKANIM`):**
+1. *Ranox Ashes Village stage 2 cave loop.* Enter Ranox Ashes Village Expert (33282), console `/stage 2`, `/invin 0`; stay about a minute. Look for: the cave
+   scenery keeps animating without a visible pop; `[JUNE_ENGINE] SKANIM loop restart without transition` in ErrorLog.txt (fires when the cave's "Normal" anim wraps; if
+   the anim is long it may need waiting). If the cave jumps or freezes at the wrap: report, the setter is `SetTransition_LUA`.
+2. *Main-effect scale change.* Any effect whose damage-effect scale changes while it plays (a giant-unit skill or a `SetScale`d mesh effect); look for
+   `[JUNE_ENGINE] SKANIM bone refresh` and an effect mesh that resizes at once without one frame at the old size. If no skill is known, skip and say so.
+3. *MixAnim / class change.* Start a dungeon, then change class with the dev console (auth level 3, END key) or open the character viewer; look for
+   `SKANIM MixAnim remembers <name>` and, on a repeat, `MixAnim skipped, already mixed` (June behaviour, JUNE_BUGS 254). Also grep ErrorLog.txt for `Release Failed`: none expected.
+
 ## Phase R12 - Skin-anim device ownership
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS`.

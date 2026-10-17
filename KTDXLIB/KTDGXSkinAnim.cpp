@@ -118,6 +118,11 @@ CKTDGXSkinAnim::CKTDGXSkinAnim()
 #endif
 
 	m_bApplyMoveBone = true;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+	// June2017 ctor 31d32040: the dword 0x01010000 at +0x852 leaves +0x854 and +0x855 at 1
+	m_bJuneLoopTransition = true;
+	m_bJuneLastTransition = true;
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 
 #ifdef FACE_OFF_MONSTER_HEAD_TEST
 	m_bHideNoRenderable = false;
@@ -148,14 +153,68 @@ void CKTDGXSkinAnim::PreLoad()
 
 void CKTDGXSkinAnim::CleanAnimStructure()
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	// June2017 31d2f9a0: the per-set release check. An odd pointer cannot be a live COM object: KEM 436 and drop the slot, no
+	// Release. A small non-zero pointer ( below 0xff ): KEM 436 "crash1", drop the slot and Release the copy ResetAnimSet kept
+	// in the +0x294 map. Anything else is released as before.
+	for( int i = 0; i < (int)m_vAnimSetList.size(); i++ )
+	{
+		const UINT_PTR uAnimSet = (UINT_PTR)m_vAnimSetList[i];
+		if( 0 == ( uAnimSet & 1 ) )
+		{
+			if( uAnimSet < 0xff )
+			{
+				if( 0 != uAnimSet )
+				{
+					std::string strAniName;
+					if( NULL != m_pAnimXSkinMesh )
+						ConvertWCHARToChar( strAniName, m_pAnimXSkinMesh->GetDeviceID() );
+					WCHAR wszLog[ MAX_PATH ] = {0,};
+					StringCchPrintfW( wszLog, MAX_PATH, L"m_vAnimSetList Release Failed crash1 index = %d Ani = %S addr = %x", i, strAniName.c_str(), (unsigned int)uAnimSet );
+					ErrorLogMsg( KEM_ERROR436, wszLog );
+					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM clean crash1 index " << i << " addr " << (unsigned int)uAnimSet << fileout;
+
+					m_vAnimSetList[i] = NULL;
+					std::map<int, LPD3DXANIMATIONSET>::iterator itBackup = m_mapJuneAnimSetBackup.find( i );
+					if( itBackup != m_mapJuneAnimSetBackup.end() && NULL != itBackup->second )
+					{
+						itBackup->second->Release();
+						itBackup->second = NULL;
+					}
+				}
+			}
+			else
+			{
+				m_vAnimSetList[i]->Release();
+				m_vAnimSetList[i] = NULL;
+			}
+		}
+		else
+		{
+			std::string strAniName;
+			if( NULL != m_pAnimXSkinMesh )
+				ConvertWCHARToChar( strAniName, m_pAnimXSkinMesh->GetDeviceID() );
+			WCHAR wszLog[ MAX_PATH ] = {0,};
+			StringCchPrintfW( wszLog, MAX_PATH, L"m_vAnimSetList Release Failed index = %d Ani = %S", i, strAniName.c_str() );
+			ErrorLogMsg( KEM_ERROR436, wszLog );
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM clean odd pointer index " << i << fileout;
+
+			m_vAnimSetList[i] = NULL;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	for( int i = 0; i < (int)m_vAnimSetList.size(); i++ )
 	{
 		SAFE_RELEASE( m_vAnimSetList[i] );		
 	}
 	
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	m_mAnimSetList.clear();
 	m_mIndexByName.clear();		
 	m_mCloneFrameMap.clear();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	m_mapJuneAnimSetBackup.clear();	// June2017 31d2f9a0: the +0x294 map goes with the three name maps
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 
 
 
@@ -213,6 +272,19 @@ void CKTDGXSkinAnim::BuildCloneFrame( CKTDXDeviceXSkinMesh::MultiAnimFrame* pClo
 {
 	KTDXPROFILE();
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	// June2017 31d31950: a NULL clone or source frame ends the build ( March dereferences both )
+	if( NULL == pCloneFrame || NULL == pSrcFrame )
+	{
+		static int s_iJuneLogNullFrame = 0;
+		if( s_iJuneLogNullFrame < 3 )
+		{
+			++s_iJuneLogNullFrame;
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM BuildCloneFrame NULL guard" << fileout;
+		}
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	if( pSrcFrame->Name )
 	{		
 		if( 0 == strlen( pSrcFrame->Name ) )
@@ -319,6 +391,14 @@ bool CKTDGXSkinAnim::SetAnimXSkinMesh( CKTDXDeviceXSkinMesh* pAnimXSkinMesh, CKT
 	if ( NULL == pAnimXSkinMesh )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	// June2017 31d32750 @31d32783: a mesh without an animation controller logs KEM 434 before the false ( March is silent )
+	if( pAnimXSkinMesh->GetIsOnlyModelData() == true )
+	{
+		ErrorLog( KEM_ERROR434 );
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM SetAnimXSkinMesh mesh without an animation controller" << fileout;
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	if( pAnimXSkinMesh->GetIsOnlyModelData() == true )
 		return false;
 
@@ -372,6 +452,22 @@ bool CKTDGXSkinAnim::MixAnim( CKTDXDeviceXSkinMesh* pAnimXSkinMesh, bool bSimple
 	//}
 	//}} jseop
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	// June2017 31d34140 @31d34175: a motion mesh whose name is already in the +0x864 list is not mixed again ( true ). Nothing
+	// clears the list, so after a second SetAnimXSkinMesh the same motion is skipped too ( JUNE_BUGS.md ).
+	if( std::find( m_vecJuneMixedMotion.begin(), m_vecJuneMixedMotion.end(), pAnimXSkinMesh->GetDeviceID() ) != m_vecJuneMixedMotion.end() )
+	{
+		static int s_iJuneLogMixSkip = 0;
+		if( s_iJuneLogMixSkip < 3 )
+		{
+			++s_iJuneLogMixSkip;
+			std::string strMixName;
+			ConvertWCHARToChar( strMixName, pAnimXSkinMesh->GetDeviceID() );
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM MixAnim skipped, already mixed: " << strMixName.c_str() << fileout;
+		}
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	if( pAnimXSkinMesh->GetIsOnlyModelData() == true )
 		return false;
 
@@ -412,6 +508,20 @@ bool CKTDGXSkinAnim::MixAnim( CKTDXDeviceXSkinMesh* pAnimXSkinMesh, bool bSimple
 	}
 	
 	SAFE_RELEASE( pAnimMixerNew );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	// June2017 31d34140 @31d34297: the name is remembered once the sets are registered
+	m_vecJuneMixedMotion.push_back( pAnimXSkinMesh->GetDeviceID() );
+	{
+		static int s_iJuneLogMixAdd = 0;
+		if( s_iJuneLogMixAdd < 3 )
+		{
+			++s_iJuneLogMixAdd;
+			std::string strMixName;
+			ConvertWCHARToChar( strMixName, pAnimXSkinMesh->GetDeviceID() );
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM MixAnim remembers " << strMixName.c_str() << " ( " << (int)m_vecJuneMixedMotion.size() << " mixed )" << fileout;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 
 	//CleanAnimStructure();
 	for( int i = 0; i < (int)m_vAnimSetList.size(); i++ )
@@ -785,11 +895,44 @@ HRESULT CKTDGXSkinAnim::OnFrameMove( double fTime, float fElapsedTime )
 				if( m_fAnimCurrTime > m_fAnimMaxTime - m_fTransitionTime )
 				{
 					m_bAnimEnd = true;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+					// June2017 31d2bd80 @31d2d585: the restart uses anim +0x854 ( March: the default, true )
+					if( false == m_bJuneLoopTransition )
+					{
+						static int s_iJuneLogLoopOff = 0;
+						if( s_iJuneLogLoopOff < 3 )
+						{
+							++s_iJuneLogLoopOff;
+							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM loop restart without transition" << fileout;
+						}
+					}
+					ChangeAnim( m_NowAnimIndex, m_bJuneLoopTransition, 0.0f );
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 					ChangeAnim( m_NowAnimIndex );
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 					m_NowPlayCount++;
 				}
 				break;
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+			case XAP_JUNE_LOOP_LAST_TRANSITION:
+				// June2017 31d2bd80 @31d2d631-31d2d650: the loop restart with the last ChangeAnim's transition ( +0x855 )
+				if( m_fAnimCurrTime > m_fAnimMaxTime - m_fTransitionTime )
+				{
+					m_bAnimEnd = true;
+					ChangeAnim( m_NowAnimIndex, m_bJuneLastTransition, 0.0f );
+					m_NowPlayCount++;
+					{
+						static int s_iJuneLogPlayType3 = 0;
+						if( s_iJuneLogPlayType3 < 3 )
+						{
+							++s_iJuneLogPlayType3;
+							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM play type 3 restart, transition " << (int)m_bJuneLastTransition << fileout;
+						}
+					}
+				}
+				break;
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 			case XAP_ONE:
 				if( m_fAnimCurrTime > m_fAnimMaxTime - m_fTransitionTime )
 				{
@@ -1187,6 +1330,11 @@ bool CKTDGXSkinAnim::ChangeAnim( int index, bool transition, float fStartTime )
 	KTDXPROFILE();
 	bool retval;
 	LPD3DXANIMATIONSET pAS;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+	// June2017 31d2b5e0: the index is checked against the anim set vector ( signed, as June ), March indexes unchecked
+	if( !( index < (int)m_vAnimSetList.size() ) )
+		return false;
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 	pAS = GetAnimSet(index);
 	if( pAS == NULL )
 	{
@@ -1200,6 +1348,9 @@ bool CKTDGXSkinAnim::ChangeAnim( int index, bool transition, float fStartTime )
 	m_NowAnimIndex = index;
 
 	retval = ChangeAnim( pAS, transition, fStartTime );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+	m_bJuneLastTransition = transition;		// June2017 31d33fd0 @31d340d4
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 
 	return retval;
 }
@@ -1211,13 +1362,24 @@ bool CKTDGXSkinAnim::ChangeAnim( const WCHAR* name, bool transition, float fStar
 	LPD3DXANIMATIONSET pAS;
 	wstring tempName = name;
 	//MakeUpperCase( tempName );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+	// June2017 31d33fd0: 31d39100 finds without inserting ( March's GetAnimSet( name ) is operator[] and leaves a NULL entry behind )
+	{
+		std::map<wstring, LPD3DXANIMATIONSET>::iterator itJuneAnimSet = m_mAnimSetList.find( tempName );
+		pAS = ( itJuneAnimSet != m_mAnimSetList.end() ) ? itJuneAnimSet->second : NULL;
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 	pAS = GetAnimSet(tempName.c_str());
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 	if( pAS == NULL )
 	{
 		return false;
 	}
 
 	m_NowAnimName = tempName;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+	m_bJuneLastTransition = transition;		// June2017 31d33fd0 @31d340d4 ( ChangeAnim( pAS ) below writes the same value )
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 	for( int i = 0; i < (int)m_vAnimSetList.size(); i++ )
 	{
 		if( pAS == m_vAnimSetList[i] )
@@ -1351,6 +1513,9 @@ bool CKTDGXSkinAnim::ChangeAnim( LPD3DXANIMATIONSET pAS, bool transition, float 
 	m_fTransitionTime = max( m_fTransitionTime, 0.03f );
 #endif // FIX_SKIN_ANIM_ONE_WAIT_BUG
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
+	m_bJuneLastTransition = transition;		// June2017 31d29340 @31d296fc
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_PLAYBACK
 	m_NowTrack = m_NewTrack;
 
 	return true;
@@ -1376,6 +1541,9 @@ CKTDXDeviceXSkinMesh::MultiAnimFrame* CKTDGXSkinAnim::GetCloneFrame( const WCHAR
 
 void CKTDGXSkinAnim::ResetAnimSet()
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	m_mapJuneAnimSetBackup.clear();		// June2017 31d31c10 @31d31c5c
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	HRESULT hr;
 	LPD3DXANIMATIONSET pAS;
 
@@ -1402,8 +1570,22 @@ void CKTDGXSkinAnim::ResetAnimSet()
 		{
 			m_mIndexByName.insert( std::make_pair( wszAnimName, i ) );
 		}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+		// June2017 31d31c10 @31d31dbb-31d31dcc: ( index, anim set ) into the +0x294 backup map, no AddRef
+		m_mapJuneAnimSetBackup.insert( std::make_pair( i, pAS ) );
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
+	{
+		static int s_iJuneLogBackup = 0;
+		if( s_iJuneLogBackup < 3 )
+		{
+			++s_iJuneLogBackup;
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM ResetAnimSet backup map " << (int)m_mapJuneAnimSetBackup.size() << " sets" << fileout;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_SETS
 	m_NowTrack				= 0;
 	m_NewTrack				= 1;
 
@@ -1416,6 +1598,35 @@ void CKTDGXSkinAnim::ResetAnimSet()
 	m_fAnimMaxTime			= 0.0f;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
+// June2017 31d29950: the UpdateAnimationFrameStructure frame walk without the AdvanceTime / track read. False without the anim
+// mesh ( +0x190 ) or the clone root ( +0x324 ). Only caller: CXMeshInstance 31c83520, after a main-effect scale change.
+bool CKTDGXSkinAnim::JuneRefreshBones()
+{
+	if( NULL == m_pAnimXSkinMesh )
+		return false;
+	if( NULL == m_pCloneFrameRoot )
+		return false;
+
+	if( m_bUseDXMatrix == false )
+	{
+		D3DXMATRIX temp = GetMatrix().GetMatrix( m_BillBoardType );
+		UpdateAnimationFrame( m_pAnimXSkinMesh->GetFrameRoot(), &temp, m_pCloneFrameRoot );
+	}
+	else
+	{
+		UpdateAnimationFrame( m_pAnimXSkinMesh->GetFrameRoot(), &m_DXMatrix, m_pCloneFrameRoot );
+	}
+
+	static int s_iJuneLogRefresh = 0;
+	if( s_iJuneLogRefresh < 3 )
+	{
+		++s_iJuneLogRefresh;
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] SKANIM bone refresh" << fileout;
+	}
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 bool CKTDGXSkinAnim::EventTimer( float fTime )
 {
 	if( m_fAnimBeforeTime < fTime

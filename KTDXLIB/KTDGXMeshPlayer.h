@@ -1300,6 +1300,9 @@ public:
 //				}
 //#endif GIANT_UNIT_GIANT_EFFECT_TEST
 				
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
+				void JuneRefreshScale();	/// June2017 CXMeshInstance 31c83520: re-apply the skin matrix scale, then refresh the bones ( 31d29950 )
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 				void SetGravity(const D3DXVECTOR3& val) { m_Gravity = val; }
 
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION

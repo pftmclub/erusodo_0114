@@ -1742,6 +1742,31 @@ void CKTDGXMeshPlayer::CXMeshInstance::SetEffectAlphaCondition( BYTE byEffectAlp
 		m_pSlashTraceTip->SetEffectAlphaCondition( byEffectAlphaCondition );
 }
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
+/// June2017 31c83520: with a skin anim ( +0x3c0 ): the scale OnFrameMove would apply ( size * manual size * scale * scale-by-unit,
+/// in June's multiplication order ) goes to the anim's own matrix, only when that matrix has no manager object ( June skips the
+/// Scale otherwise ), then the bones are refreshed ( 31d29950 ) either way. Caller: CEffect main-effect scale ( 31f6fca0 ).
+void CKTDGXMeshPlayer::CXMeshInstance::JuneRefreshScale()
+{
+	if( NULL == m_pXSkinAnim )
+		return;
+
+#ifdef GIANT_UNIT_GIANT_EFFECT_TEST
+	const float fScaleX = ( m_vScale.x * m_vManualSize.x ) * GetScaleByUnit().x * m_vSize.x;
+	const float fScaleY = GetScaleByUnit().y * ( m_vScale.y * m_vManualSize.y ) * m_vSize.y;
+	const float fScaleZ = GetScaleByUnit().z * ( m_vScale.z * m_vManualSize.z ) * m_vSize.z;
+#else GIANT_UNIT_GIANT_EFFECT_TEST
+	const float fScaleX = ( m_vScale.x * m_vManualSize.x ) * m_vSize.x;
+	const float fScaleY = ( m_vScale.y * m_vManualSize.y ) * m_vSize.y;
+	const float fScaleZ = ( m_vScale.z * m_vManualSize.z ) * m_vSize.z;
+#endif GIANT_UNIT_GIANT_EFFECT_TEST
+
+	if( NULL == m_pXSkinAnim->GetManagerObject() )
+		m_pXSkinAnim->GetMatrix().Scale( D3DXVECTOR3( fScaleX, fScaleY, fScaleZ ) );
+
+	m_pXSkinAnim->JuneRefreshBones();
+}
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 HRESULT CKTDGXMeshPlayer::CXMeshInstance::OnFrameMove( double fTime, float fElapsedTime )
 {
 	m_fElapsedTime		= fElapsedTime;

@@ -5997,6 +5997,10 @@ bool CX2DamageEffect::CEffect::SetMainEffectScale( float fX, float fY, float fZ 
 		if( pMeshInst != NULL )
 		{
 			pMeshInst->SetScale( fX, fY, fZ );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
+			// June2017 31f6fca0 @31f6fd70: the new scale reaches the skin matrix and the bones at once
+			pMeshInst->JuneRefreshScale();
+#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_BONE_REFRESH
 			return true;
 		}
 	}
