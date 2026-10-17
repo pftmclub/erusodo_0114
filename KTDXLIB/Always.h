@@ -7849,7 +7849,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June engine remainder, Phase R12, short-lived. "[JUNE_ENGINE] SKREF" lines: per dead skin anim, references taken
 //              vs closed (session totals at most once per 2 s, the first 10 unbalanced anims by name), the KEM 433 total, the
 //              live device count, and the user motion's collision counts after JuneAddCollisionData. Remove after the review.
-#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
+//#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG	// off 2026-10-18 (R12 review): balance proven (unbalanced 0 over 8,354 + 6,756 dead anims in two runs, kem433 0, no village device growth)
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 #error SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
