@@ -4646,7 +4646,7 @@ main.
   do not follow: mesh-internal `NUI_ELYSION_M_EL_KNIGHT_Head.tga` / `M_EL_LANCE_Body.tga` / `M_S_MAGE_Body.tga` (data181) and particle-internal
   `HQ_Elysion_Memory_2Stage_End_SlideShot_1-3.DDS` / `3Stage_End_SlideShot_1-3.DDS` (data050, UIMajorParticle). Sweep of all 146 Memory meshes and
   64 Memory particle sequences added `Soless_SlashTrace_Texture.dds` (data002, `soless_swordFall_01`); June ships neither `Aura_El_Defence_Accel.dds`
-  (`Buff_El_Defence`) nor `PARTICLE_BLUR_GA.tga`. `stage-june` 10 files; `PACK OK` data002 / data050 / data181. The slideshot itself runs June's
+  (`Buff_El_Defence`) nor `PARTICLE_BLUR_GA.tga`. `stage-june` 10 files; `PACK OK` data002 / data050 / data181; `COPY OK` data002 (7822f3c3) / data050 (cf1e59bb) / data181 (c17ce0ab) (user OK). The slideshot itself runs June's
   `PF_STAGE0_SUB0_SHOT0` from `M_2STAGE_END` (the per-frame `m_SceneName` line is the studio's `SERV_CATCH_HACKUSER_INFO` log).
   Sun-gauge digit misses = JUNE_BUGS 247 (June's OF_SUN dialog has no number statics), kept.
 - **How to see it:** Elysion local map shows Memory after a Soless Normal clear; enter 33900 / 33901 / 33902; Stage0 (memories 1-2), Stage1
