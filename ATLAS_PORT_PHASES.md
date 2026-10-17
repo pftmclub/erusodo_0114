@@ -2485,6 +2485,11 @@ routed classes of checklist step 9 (6 `assets.absent`, 1 `bind.nosource` + 1 `ko
 - **How to see it (after the copy):** a level-80+ character that has cleared AtlasCity Normal: M -> Elysion tab -> Tower icon enabled -> enter
   Normal; Stage0, 1, 2 and the boss stage load; Maya's gauge shows her face; the loading screen is Maya Pit. ErrorLog must show no `DungeonData` /
   `NPCTemplet` / `WorldData` load errors.
+- **Play-test PASSED 2026-10-17 (user); logs read (run after the copy):** two runs, both from the local map: key 33352 (Expert) with `npc=2153` (Highttem, stage 1)
+  `bossGauge=1` and `dungeon=33352 stage=3 npc=2155` (Maya) `bossGauge=1`, then `dungeonID=33350 CLEARED in 269s: 87 kill(s)` (+0 exp / +0 ED, `no reward row`
+  NOTE per kill, as designed; Stage 23). 0 EXCEPTION; UNHANDLED only the two known `E_DISABLE_HB_CHECK_REQ`. No `DungeonData` / `NPCTemplet` / `WorldData` load
+  errors. ErrorLog noise on the line, all routed: `OpenTexture ADE_PS02.TGA` (census `assets.absent`, June fails the same way). Not from A10: `result : 47` on
+  `Sonic_Arrow` / `Arrow` / `HitFire` / `Fire2` `.ogg`, the `<control> not found: DLG_UI_LOCAL_MAP` statics (as A9), and textures of other systems.
 - **Open:** kill rewards (Stage 23). Review kickoff: `kickoffs/atlas/A10-review.md`.
 
 ---
