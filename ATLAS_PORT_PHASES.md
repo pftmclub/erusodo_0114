@@ -2492,6 +2492,37 @@ routed classes of checklist step 9 (6 `assets.absent`, 1 `bind.nosource` + 1 `ko
   `Sonic_Arrow` / `Arrow` / `HitFire` / `Fire2` `.ogg`, the `<control> not found: DLG_UI_LOCAL_MAP` statics (as A9), and textures of other systems.
 - **Open:** kill rewards (Stage 23). Review kickoff: `kickoffs/atlas/A10-review.md`.
 
+### Phase A10 — Review
+
+**2026-10-17, Opus 5.5 high. PASS; no transcription error, no repack, no copy, no doc fix.**
+
+- **Registry rows verbatim** (comment lines dropped, each line rstripped):
+  - `DungeonData.lua:17313-` vs June :31120-31362: 243 lines each, **0 diff**. June's slice is bounded by `})` at :31119 and the Hero Normal row at :31363.
+    No quest key on Tower, in June or here.
+  - `NPCTemplet.lua:20085-` vs the 9 header ranges: 80 lines each, **0 diff**. Each range sits between a `})` and the next `AddNPCTemplet({`.
+  - `WorldData.lua:3263-` vs June :3245-3264: 20 lines, **0 diff**.
+  - Every new `dungeonID` / `NPC_ID` / `worldID` occurs exactly once. BOM present, CRLF only (0 bare LF) in all three files.
+- **Coverage.** Every NUI the three June `Dungeon_Elysion_Tower_*` scripts name has exactly one March NPCTemplet row (15 NUIs incl. `CHEST` and the
+  AC-shared rows). Every world they name has one WorldData row: STAGE0-2 + `BOSSATGE`.
+- **Hero omission.** June's `DI_TOWER_*` rows are at :31132 / :31296 / :31337 (ported) and Hero :31378 / :31527 / :31548 / :38299. Their row spans are
+  :31363-31513, :31514-31535, :31536-31724 and :38286-38435, the same as the header. C3y-5 still owns them.
+- **Unlock chain.** All three rows carry `EXTRA_REQUIRE_DUNGEON_ID = { DI_ATLASCITY_NORMAL }` (= 33340, `DungeonEnum.h:517`) and `m_MinLevel = 82`, with no
+  `m_SuitableLevelFixValue` and no quest key. `IsActiveDungeon` (`X2DungeonManager.cpp:735-756`) therefore admits level 80+ after an AC Normal clear. The play-test
+  entered from the local map.
+- **Adopted files.** All 7 data040 files start with `1B 4B 4C 81`, have manifest `"2"` and match the sha1s in `june_adopt_20261017_075106.tsv`.
+  `adopt-june --dry-run --compare` (nothing written) re-derived them from June: `COMPARE OK: 7 of 7 ... byte-identical`.
+- **June bug #209.** No Tower dungeon script names `WI_TOWER_STAGE3` or `Stage3`. The only June hits are `Enum`, `WorldData` and Stage2's world, which
+  loads `ELYSION_TOWER_STAGE3_X0*.X` meshes. Those are assets, not the world file, and the census finds them. The row is correctly latent.
+  `WorldData`'s `Elysion_Tower_Stage0.lua` vs the staged `Elysion_Tower_stage0.lua` is June's own case. The play-test loaded those stages, so the lookup is
+  case-blind.
+- **Premises (spot-check).** TEMPLAR / PUTER / SUMMON3 / MAYA / HIGHTTEM are in `Enum` and `NewNPCStat`. TEMPLAR / PUTER / LIBYA / HIGHTTEM have their scripts
+  in data037, and their `MOTION_FILE_NAME` meshes are in data181. `NUI_ELSION_MAYA` / `NUI_ELSION_HIGHTTEM` are UTF-16LE hits in `data215 DLG_BossState_02.TET`.
+  The census shows effects 416 / 0 missing, items 0 missing and no buff `bind.*` row.
+- **Hygiene.** `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`.
+  - Census `--line TW --live`: 41 rows, all routed by step 9: 6 `assets.absent`, 1 `bind.nosource` + 1 `koms.unstaged` (both `Elysion_Tower_Stage3.lua`),
+    30 `keys.file`, 3 `keys.registry`. The header's "33" is the counting quirk the A8 / A9 reviews saw.
+  - `live {"same": 287}`: the copied koms match the staged files.
+
 ---
 
 ## Phase A11 — Asset closure + consolidated pack list (Atlas half)
