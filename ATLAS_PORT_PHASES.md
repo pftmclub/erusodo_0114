@@ -2331,7 +2331,7 @@ Zero engine gaps, as the kickoff's model rule required.
   `data037 NPCTemplet` 10 rows (ranges in the block header; `SUMMON2` / `PROTO` were already in), `data040 WorldData` WI AtlasCity
   Stage0 / 1 / 2 / BOSSATGE (June :3225-3244). Refreshed, core-list `why` updated; `CORE CHECK PASS: 0 FAIL, 0 WARN`,
   `LEDGER CHECK PASS: 0 FAIL, 0 WARN`.
-- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. **Copy not done: user asked** (see hand-off).
+- **Pack:** `PACK OK data035`, `PACK OK data037`, `PACK OK data040`. Copy (user OK 2026-10-17): `COPY OK` data035 (md5 8d33fef1) / data037 (9b2926fd) / data040 (80c0b288).
 - **Offline:** AC rows carry `EXTRA_REQUIRE_DUNGEON_ID = DI_ATLASDEVELOPMENT_NORMAL`, so an AD Normal clear (recorded as 33330) unlocks them;
   a clear of AC records 33340 / 33341 / 33342 with no code. Kills pay nothing (no server `DropTable` rows, backlog Stage 23); nothing invented.
 - **How to see it (after the copy):** a level-81+ character that has cleared AtlasDevelopment Normal: M -> Elysion tab -> AC icon enabled
