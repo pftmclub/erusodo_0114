@@ -7955,17 +7955,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              followed any enabled link. Fixes the Elysion village warp (line 2 BEFORE_LINE = 130, 11,705 apart; pad 512 then fired).
 //              Also June's fallback bounds / NULL entry-line test and the NULL-collision skip. Signature extras -> W1f. Revert: undefine.
 #define SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-// Short-lived: "[JUNE_ENGINE] WORLD far link refused / followed" for the first 16 landings that meet a link whose ends are more than
-// 1 apart. Remove after the W1e play-test (W1e review).
-#define SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-#ifndef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-#error SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG needs SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-#ifndef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-#error SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG needs SERV_IRUHADEV_JUNE_MOVABLE_LINE (the line map's file name)
-#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

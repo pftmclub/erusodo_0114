@@ -1222,36 +1222,6 @@ bool CKTDGLineMap::JuneAutoDisableRelease( int iLine, __int64 uid, bool bUser )
 	return false;
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-/// Short-lived (June engine W1e): CanDown met iLine_'s before / next link at a landing on that end. One line per new ( line, end ) pair
-/// whose ends are more than 1 apart, at most 16: "refused" = March followed it, June's monster-road gate does not; "followed" = June follows it too
-static void JuneCanDownLinkLog( const wstring& wstrMap_, const vector<CKTDGLineMap::LineData*>& vecLine_, int iLine_, bool bBefore_, bool bIsMonster_ )
-{
-	static int s_iJuneLinkLogCount = 0;
-	static int s_iJuneLinkLogLast = -1;
-	if( s_iJuneLinkLogCount >= 16 || iLine_ < 0 || iLine_ >= (int)vecLine_.size() || NULL == vecLine_[iLine_] )
-		return;
-	const CKTDGLineMap::LineData* pLine = vecLine_[iLine_];
-	const int iLinked = ( true == bBefore_ ) ? pLine->beforeLine : pLine->nextLine;
-	if( iLinked < 0 || iLinked >= (int)vecLine_.size() || NULL == vecLine_[iLinked] || false == vecLine_[iLinked]->bEnable )
-		return;
-	const CKTDGLineMap::LineData* pLinked = vecLine_[iLinked];
-	const float fGap = ( true == bBefore_ ) ? GetDistance( pLine->startPos, pLinked->endPos ) : GetDistance( pLine->endPos, pLinked->startPos );
-	if( fGap <= 1.0f )
-		return;
-	const int iKey = iLine_ * 2 + ( ( true == bBefore_ ) ? 0 : 1 );
-	if( iKey == s_iJuneLinkLogLast )
-		return;
-	s_iJuneLinkLogLast = iKey;
-	++s_iJuneLinkLogCount;
-	const bool bFollowed = ( CKTDGLineMap::LT_MONSTER_ROAD == pLinked->lineType && true == bIsMonster_ );
-	std::string strMap;
-	ConvertWCHARToChar( strMap, wstrMap_ );
-	KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD far link " << ( bFollowed ? "followed" : "refused" ) << ": map " << strMap.c_str() << " line " << iLine_
-		<< ( ( true == bBefore_ ) ? " before " : " next " ) << iLinked << " type " << (int)pLinked->lineType << " gap " << fGap
-		<< ( ( true == bIsMonster_ ) ? " (monster)" : " (unit)" ) << fileout;
-}
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
 bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos, int* pLineIndex, bool bDownRadius, bool bIsMonster, bool bOnLine )
 {
 	KTDXPROFILE();
@@ -1374,9 +1344,6 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 			{
 				if( GetDistance3Sq( pointL2, vStartPos ) < 0.0001f )
 				{
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-					JuneCanDownLinkLog( m_wstrJuneLineMapFileName, m_LineList, i, true, bIsMonster );
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
 					/// June @31c6cbad-31c6cbdb: the before line is followed only by a monster, onto an enabled monster road;
 					/// otherwise the landing stays on this line ( @31c6e597, March's else )
@@ -1406,9 +1373,6 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 				}
 				else if( GetDistance3Sq( pointL2, vEndPos ) < 0.0001f )
 				{
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-					JuneCanDownLinkLog( m_wstrJuneLineMapFileName, m_LineList, i, false, bIsMonster );
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
 					/// June @31c6e5ee-31c6e620: the same gate on the next line ( refused: @31c6f53c, March's else )
 					if( pLine->nextLine > -1 &&
@@ -1464,9 +1428,6 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 						else if( pLineData->beforeLine > -1 )
 						{
 							const LineData* pBeforeLine = m_LineList[ pLineData->beforeLine ];
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-							JuneCanDownLinkLog( m_wstrJuneLineMapFileName, m_LineList, line, true, bIsMonster );
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
 							/// June @31c6f60d-31c6f624: the same gate on the best line's before line ( refused: @31c6f652, line = i )
 							if( NULL != pBeforeLine && true == pBeforeLine->bEnable && LT_MONSTER_ROAD == pBeforeLine->lineType && true == bIsMonster )
@@ -1494,9 +1455,6 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 						else if( pLineData->nextLine > -1)
 						{
 							const LineData* pNextLine = m_LineList[ pLineData->nextLine ];
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-							JuneCanDownLinkLog( m_wstrJuneLineMapFileName, m_LineList, line, false, bIsMonster );
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
 							/// June @31c6f6b7-31c6f6d5: the same gate on the best line's next line ( refused: @31c6f6ff, line = i )
 							if( NULL != pNextLine && true == pNextLine->bEnable && LT_MONSTER_ROAD == pNextLine->lineType && true == bIsMonster )

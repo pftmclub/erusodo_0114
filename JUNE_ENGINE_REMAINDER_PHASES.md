@@ -2128,6 +2128,37 @@ So for a user, June never takes a link in `CanDown`. Elysion line 130 is `LT_NOR
 used to warp stayed on line 2. Only the pads the user stepped on fired (506 -> 507, 508 -> 509); no pad 512. 0 EXCEPTION; UNHANDLED = the 2x
 `E_DISABLE_HB_CHECK_REQ` baseline.
 
+### Phase W1e -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no transcription error.** Re-read in Ghidra (`31c6c310`, disassembly + decompile):
+- **Loop gates.** Higher / start `@31c6cbad`: `[EDX+0x1c] > -1`, linked `+0x8` (bEnable) `== 1`, linked `+0x4` (lineType) `== 7`, `[EBP+0x28]`
+  (bIsMonster) `== 1`, every miss -> `@31c6e597` = `if !touch { retVal = pointL2; line = i }` then `touch = 1` (`@31c6e5ba`). Higher / end
+  `@31c6e5f2-31c6e620`: the same on `+0x20`, miss -> `@31c6f53c` (same else). Lower / start `@31c6f60d-31c6f624` and lower / end `@31c6f6be-31c6f6d5`
+  add the NULL test; miss -> `@31c6f652` / `@31c6f6ff` (-> `@31c6f5e7`): `line = i`, `retVal = pointL2`. Follow = March's (`+0x30` endPos for
+  before, `+0x24` startPos for next). `LT_MONSTER_ROAD` is 7 in March's enum (`KTDGLineMap.h`: NORMAL 0 .. BUNGEE 6, MONSTER_ROAD 7). Port = all four.
+- **Fallback** `@31c6f747`: NULL index pointer -> `@31c6f87c`, `JS` (negative) / unsigned `JBE` (>= size) -> `@31c6f87c` (the `pos.y < 0` tail, then
+  `return touch` = false), NULL entry line `@31c6f77d` -> `@31c6c3dd` (`XOR AL,AL`, pOutPos untouched). `dist2 <= dist1` -> next (`TEST AH,0x41`),
+  `link > 0`, `dist < fRadius`, then the **entry** line's `+0x4 == 7` and bIsMonster (`@31c6f7dc` / `@31c6f82a`). Port = this.
+- **Collision skip** `@31c6c577-31c6c584`: `[0x337676e8]` (g_pKTDXApp) `+0x1c0 == 0` -> `@31c6f722` = `i++` (a `continue`). Port = this.
+- **Unchanged body = March's:** switch on `lineType - 1` (8-entry table `31c6f898`; type 1 wall skipped; 4 / 5 / 8 skipped for a monster; 7 needs
+  bIsMonster, its `+0xa4` / arg-12 escape is W1f's); bounding-box precheck; lower branch's `line` range test -> `return false` (`@31c6f578` / `@31c6f804`)
+  and NULL best line -> `touch = 1` (`@31c6e56b`); `-1` / `< -1` link cases (`@31c6f5cf` / `@31c6e5ba`); `0.0001` (`33449190`) tests; `pos.y < 0`
+  -> false (`@31c6f87c`).
+
+**Hygiene** (kickoff command + `--files KTDXLIB/KTDGLineMap.cpp KTDXLIB/Always.h`, range `4c3719c8^..a40bb330`):
+`files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 93 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The 2 OTHER rows: `4c3719c` Always.h (-21 = S2's lines its stale tree undid) and `a5aeb19` Always.h (R14's own block, S2 carried
+back, W1e's define dropped). The 93 deleted lines are `a5aeb19` dropping W1e's `KTDGLineMap.cpp` block, re-added whole by `a40bb33`.
+Net `4c3719c8^..HEAD` on both files: 0 deleted lines.
+
+**`_DEBUG` removed** (play-test passed): the `#define`, its two `#error` guards and comment (Always.h, 11 lines), and `JuneCanDownLinkLog`
+plus its 4 call blocks (`KTDGLineMap.cpp`, 42 lines). `flagcheck --worktree --files KTDXLIB/KTDGLineMap.cpp --with ..._DEBUG`: 1 PASS (-42),
+0 FAIL, RESULT PASS; no `CANDOWN_LINK_DEBUG` left in `KTDXLIB` / `X2Lib` / `X2`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,873,280 B, dated 2026-10-18 06:34:55, md5 6e1b71e8bdb7cbe25ec57d44d4c11aa3, equal to X2/US_SERVICE/x2.exe (2026-10-18 06:34:50); built at main 68e3302f + 6 uncommitted code file(s).` (A peer's build linked the edit; `WORLD far link` is found 0 times in the deployed exe.)
+
+No open question. W1f (`kickoffs/june-engine/W1f.md`, checked) owns the signature extras.
+
 ## Phase W1f - CanDown's June signature and its callers
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test only if a March map has a droppable monster road. Flag
