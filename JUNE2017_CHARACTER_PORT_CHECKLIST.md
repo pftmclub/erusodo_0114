@@ -635,3 +635,10 @@ a call March lacks in Add's `ANSI_A_AN_PHASE_SHIFT_BLINK_StateStart` (`32a176c0`
 `X2GUAdd.cpp:8224` sets it unlanded) and in an Elesis anim-event NPC create (`32b7a0a0` @`32b7a354`, `true`, NPC `0x663` / `0x7b3`). Ain
 (`32a69467` `false` then `32a6989f` `true`), Rose and Luciel (all `true`) come with their classes. Lu/Ciel's minor-body block in
 `CX2GUUser::PhysicProcess` (`@320194bb`, `false`) belongs with 7o.
+
+### 7z. Lu/Ciel skin equipment attaches every model (from June engine R14)
+
+June's `CX2Eqip::_UpdateSkin()` (`3295ae20` @`3295aed0`-`3295aef9`) attaches every model of a skin item, not only the first, when the owner unit's type is
+10 (`UT_LU_CIEL`), the eqip's ctor flag (+0x15d4, the bool the model-name selector `32867880` takes with the unit type; ctor `32961280` @`3296148d`) is clear,
+and the item has a second model (+0x5a8). R14 ported the function with this term as a comment only (`X2Eqip.cpp`, `SERV_IRUHADEV_JUNE_EQIP_SKIN`): the
+Lu/Ciel port adds the ctor flag and the term. Related: 7v (minor-unit slot key), 7o (minor-unit physics).

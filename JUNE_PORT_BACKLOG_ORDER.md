@@ -391,6 +391,8 @@ that an unowned June system gets its own stage. What it covers:
 - **The consumers:** every `IsDivisionItem` (`32807db0`) caller, e.g. the `DITT_LOOP_ANIM_ITEM_ID` (72) block in GUUser's equip loop
   (`@32065c9f`, `3295c960`). The renderer and equip consumers are not mapped yet; mapping them is this stage's first, read-only phase.
 
+- **R14 (june-engine, 2026-10-18) consumers waiting on this stage:** `CX2Eqip::_UpdateSkin()` `3295ae20` attaches every model when `IsDivisionItem` group 6 / 0x31 / 0x36 / 7 holds the item (ported; the groups' parser `32814170` is this stage's) or the eqip's custom-render vector (+0x92c, item manager `32810450`, maps +0x240 / +0x250 = `DITT_CUSTOM_RENDER`) has 2+ entries (not ported); `InitSkin` `32963eb0` sets per-item frame vectors (item manager `32812f40`, map +0x370 -> frame +0x108 / +0xfc via `329656d0`) and the mesh item id (device manager map +0x260 `31cdcc70` -> mesh +0xa40) (not ported). Each is a comment at its site (`X2Eqip.cpp`, `SERV_IRUHADEV_JUNE_EQIP_SKIN`).
+
 **Already ported:** the CEPE slice (type 81), by june-effect C9f-2: the binding, the dispatcher shell, parser `32814da0`, the two maps and
 the three play sites. This stage adds parsers and consumers to that shell; it does not re-bind.
 

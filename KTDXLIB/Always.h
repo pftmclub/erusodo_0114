@@ -7949,21 +7949,42 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
-// Description: June engine remainder, Phase W1e (JUNE_ENGINE_REMAINDER_PHASES.md). June's CKTDGLineMap::CanDown ( 31c6c310 ) follows a
-//              line's BEFORE_LINE / NEXT_LINE at a landing on its exact start / end only when the caller is a monster and the linked line is
-//              an enabled LT_MONSTER_ROAD (4 sites), and in the no-hit fallback only when the entry line itself is one (2 sites); March
-//              followed any enabled link. Fixes the Elysion village warp (line 2 BEFORE_LINE = 130, 11,705 apart; pad 512 then fired).
-//              Also June's fallback bounds / NULL entry-line test and the NULL-collision skip. Signature extras -> W1f. Revert: undefine.
-#define SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-// Short-lived: "[JUNE_ENGINE] WORLD far link refused / followed" for the first 16 landings that meet a link whose ends are more than
-// 1 apart. Remove after the W1e play-test (W1e review).
-#define SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
-#ifndef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-#error SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG needs SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK
-#ifndef SERV_IRUHADEV_JUNE_MOVABLE_LINE
-#error SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG needs SERV_IRUHADEV_JUNE_MOVABLE_LINE (the line map's file name)
-#endif SERV_IRUHADEV_JUNE_MOVABLE_LINE
-#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_LINK_DEBUG
+// Description: June skill system core, Phase S2 (JUNE_SKILL_SYSTEM_PHASES.md "Phase S2"). June's skill templet loader (AddSkillTemplet_LUA
+//              32216320: no padding of cool time / MP / required level, empty SA tables not inserted, IN_HOUSE_TEST_ONLY drop, duplicate id
+//              kept first, NUMERICAL_DATA<n>, m_ExtraIconInfo<n>, m_DeleteSkillIDByUpgrade, SA 143-202, SPRT_HYPER_CLASS), the upgrade map
+//              (32205c00), the swap (CX2UserSkillTree 328905b0), GetSkillPowerRateValue 32071720, the numerical-first ability lookup
+//              (32206e50 / 32206fb0), AddSealSkillInfo's m_iItemIDList, and the three _ULTIMATE gates (SPEED_TIME, BUFF_FACTOR_ID, DamageEffect).
+//              The data stays March's until S3. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system core, Phase S2, short-lived debug. "[JUNE_SKILL] LOAD" lines: padding differences, runtime reads past a
+//              short array, a scratch load of March's file through March's parser (compared with the real June-parser tree) and of June's
+//              own NewSkillTempletVer2.src.lua (2,346 / 3,360 / 12). Remove after the S2 review.
+#define SERV_IRUHADEV_JUNE_SKILL_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R14. CX2Eqip skin and enchant path as June2017: InitSkin 32963eb0 (with its XET open
+//              3295ffd0: the four XETs always, a weapon's multi-tex XETs, one skin anim per hyper model), _UpdateSkin() 3295ae20 (every
+//              model of a division-item group 6 / 0x31 / 0x36 / 7 item attaches; the normal multi-tex XET passed at add time), and the
+//              enchant glow by level at every site (also ChangeEnchantLevel 3295f250, InitAttatchAnim 3295dfa0): >= 13 13Gang_Protect.tga,
+//              9..12 11Gang_Protect.tga, 7..8 Gate_Protect_G01.tga (March: >= 11 11Gang, 7..10 G01). _UpdateSkin( int ) 3295bdf0 = March.
+//              Log tag [JUNE_ENGINE] EQSKIN. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_EQIP_SKIN
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+#ifndef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#error SERV_IRUHADEV_JUNE_EQIP_SKIN needs SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET (CX2ItemManager::IsDivisionItem)
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 //////////////////////////////////////////////////////////////////////////

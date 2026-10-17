@@ -1834,6 +1834,42 @@ void CX2Eqip::ChangeNormalMode()
     _UpdateSkin();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+// June2017 enchant glow: the stage-2 texture of the multi-tex XET by enchant level. Every June site runs the same chain:
+// ChangeEnchantLevel 3295f250, the skin XET open 3295ffd0 (InitSkin 32963eb0), the attach-anim init 3295dfa0.
+//   >= 13 "13Gang_Protect.tga", 9..12 "11Gang_Protect.tga" (June tests < 11, then < 9), 7..8 "Gate_Protect_G01.tga", < 7 none.
+// March (ENCHANT_WEAPON_EFFECT_LEVEL_1 / _2 = 7 / 11, ADD_UPGRADE_WEAPON_PARTICLE on): 7..10 G01, >= 11 11Gang.
+static const char* JuneEnchantStage2Texture( int iEnchantLevel )
+{
+	if( iEnchantLevel >= 13 )
+		return "13Gang_Protect.tga";	// 334c9b14; a June-only asset (June data045), june-asset-port P4a brings it
+	if( iEnchantLevel >= 9 )
+		return "11Gang_Protect.tga";	// 334c9ae4
+	if( iEnchantLevel >= 7 )
+		return "Gate_Protect_G01.tga";	// 334c9af8
+	return NULL;
+}
+
+// 31d40160( "*.*" 334c9b10, texture, 7 = D3DTOP_ADD ) at every June site. One "[JUNE_ENGINE] EQSKIN" line per choice: the first 60
+// per run, then every 100th; "MISSING" = the texture did not open (no glow).
+static void JuneSetEnchantStage2( CKTDXDeviceXET* pXET, int iEnchantLevel, const char* pSite, int iItemID )
+{
+	const char* pTexture = JuneEnchantStage2Texture( iEnchantLevel );
+	if( NULL == pTexture )
+		return;
+	pXET->SetMultiTexStage2( "*.*", pTexture, D3DTOP_ADD );
+
+	static int s_iJuneEqSkinLines = 0;
+	++s_iJuneEqSkinLines;
+	if( s_iJuneEqSkinLines <= 60 || 0 == s_iJuneEqSkinLines % 100 )
+	{
+		const CKTDXDeviceXET::MultiTexureData* pStage2 = pXET->GetMultiTex( 2 );
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] EQSKIN stage2 " << pSite << " item " << iItemID << " level " << iEnchantLevel << " tex " << pTexture
+			<< ( ( NULL != pStage2 && NULL != pStage2->pTexture ) ? " loaded" : " MISSING" ) << " line " << s_iJuneEqSkinLines << fileout;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
+
 
 
 
@@ -1996,6 +2032,99 @@ void CX2Eqip::_UpdateSkin()
 
 #endif HEAVY_LOG_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+	// June2017 CX2Eqip::_UpdateSkin() 3295ae20. Every model attaches (not only the first) when the item is in division-item group
+	// 6, 0x31, 0x36 or 7 (32809f40 = IsDivisionItem on g_pData's item manager +0x230; those groups' parser is Stage 11, so today the
+	// sets are empty and this reads false). June ORs two more terms that March has no data for (routed, R14 Done note):
+	//   - the eqip's custom-render vector (+0x92c, 0xac each, filled by the item manager 32810450 = DITT_CUSTOM_RENDER) holds 2+ entries: Stage 11;
+	//   - owner unit type 10 (UT_LU_CIEL), the ctor flag +0x15d4 clear and m_pNormalXSkinModel[1] set: character port (checklist).
+	// All three adds pass the NORMAL multi-tex XET (+0x808), the hyper add too (JUNE_BUGS.md), and bAddCollisionData 0 (MOTION_COLLISION).
+	bool bJuneAllModels = false;
+	if( NULL != m_pItemTemplet
+		&& ( true == g_pData->GetItemManager()->IsDivisionItem( 6, m_pItemTemplet->GetItemID() )
+		|| true == g_pData->GetItemManager()->IsDivisionItem( 0x31, m_pItemTemplet->GetItemID() )
+		|| true == g_pData->GetItemManager()->IsDivisionItem( 0x36, m_pItemTemplet->GetItemID() )
+		|| true == g_pData->GetItemManager()->IsDivisionItem( 7, m_pItemTemplet->GetItemID() ) ) )
+		bJuneAllModels = true;
+
+	for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
+	{
+		if( m_EqipType == CX2Item::UT_SKIN && GetShowObject() )
+		{
+			if( m_bHyperMode && m_bCanHyperMode )
+			{
+				if( 1 == m_iXSkinModelAttachment )
+				{
+					if( m_pUnitXSkinAnim != NULL )
+					{
+						if( true == bJuneAllModels )
+						{
+							for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM && NULL != m_pNormalXSkinModel[j]; j++ )
+								m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pNormalXSkinModel[j] );
+						}
+						else
+							m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pNormalXSkinModel[i] );
+					}
+				}
+				else if( 2 == m_iXSkinModelAttachment )
+					continue;
+
+				if( m_pUnitXSkinAnim != NULL )	// line 0xe3d @3295afc8
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+					m_pUnitXSkinAnim->AddModelXSkinMesh( m_pHyperXSkinModel[i], m_pHyperAniXET, m_pNormalMultiTexXET, m_pHyperTexChangeXET, false, false );
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+					m_pUnitXSkinAnim->AddModelXSkinMesh( m_pHyperXSkinModel[i], m_pHyperAniXET, m_pNormalMultiTexXET, m_pHyperTexChangeXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+				m_iXSkinModelAttachment = 2;
+			}
+			else if( 1 != m_iXSkinModelAttachment )
+			{
+				if( 2 == m_iXSkinModelAttachment && m_pUnitXSkinAnim != NULL )
+					m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pHyperXSkinModel[i] );
+
+				if( m_pUnitXSkinAnim != NULL )
+				{
+					if( true == bJuneAllModels )
+					{
+						// line 0xe6d @3295b051: from model i up to the first empty slot
+						for( int j = i; j < CX2Item::MAX_MODEL_COUNT_A_ITEM && NULL != m_pNormalXSkinModel[j]; j++ )
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+							m_pUnitXSkinAnim->AddModelXSkinMesh( m_pNormalXSkinModel[j], m_pNormalAniXET, m_pNormalMultiTexXET, m_pNormalTexChangeXET, false, false );
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+							m_pUnitXSkinAnim->AddModelXSkinMesh( m_pNormalXSkinModel[j], m_pNormalAniXET, m_pNormalMultiTexXET, m_pNormalTexChangeXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+					}
+					else	// line 0xe82 @3295b097
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+						m_pUnitXSkinAnim->AddModelXSkinMesh( m_pNormalXSkinModel[i], m_pNormalAniXET, m_pNormalMultiTexXET, m_pNormalTexChangeXET, false, false );
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+						m_pUnitXSkinAnim->AddModelXSkinMesh( m_pNormalXSkinModel[i], m_pNormalAniXET, m_pNormalMultiTexXET, m_pNormalTexChangeXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+				}
+				m_iXSkinModelAttachment = ( NULL != m_pNormalXSkinModel[i] ) ? 1 : 0;
+			}
+		}
+		else
+		{
+			if( 1 == m_iXSkinModelAttachment )
+			{
+				if( m_pUnitXSkinAnim != NULL )
+				{
+					if( true == bJuneAllModels )
+					{
+						for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM && NULL != m_pNormalXSkinModel[j]; j++ )
+							m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pNormalXSkinModel[j] );
+					}
+					else
+						m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pNormalXSkinModel[i] );
+				}
+			}
+			else if( 2 == m_iXSkinModelAttachment && m_pUnitXSkinAnim != NULL )
+				m_pUnitXSkinAnim->RemoveModelXSkinMesh( m_pHyperXSkinModel[i] );
+			m_iXSkinModelAttachment = 0;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_EQIP_SKIN
 	for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
 	{
 		if ( m_EqipType != CX2Item::UT_SKIN || !GetShowObject() )
@@ -2092,6 +2221,7 @@ void CX2Eqip::_UpdateSkin()
 			}
 		}//if.. else..
 	}// for
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 
 
 
@@ -2153,6 +2283,74 @@ void CX2Eqip::InitSkin()
 //     }
 //     else
     {
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+		// June2017 CX2Eqip::InitSkin 32963eb0 (X2Eqip.cpp line 0xf45): the XETs first (3295ffd0, called at the top), then the models, then
+		// one skin anim per hyper model. The error block and _UpdateSkin() below are shared with March's code (June logs XEM 0x276d = 93).
+		// 3295ffd0: the four XETs, always (March opens the hyper pair only when m_bCanHyperMode; an empty name opens nothing in both).
+		m_pNormalTexChangeXET	= g_pKTDXApp->GetDeviceManager()->OpenXET( m_ChangeTexName );
+		m_pNormalAniXET			= g_pKTDXApp->GetDeviceManager()->OpenXET( m_AniXETName );
+		m_pHyperTexChangeXET	= g_pKTDXApp->GetDeviceManager()->OpenXET( m_ChangeTexNameHyper );
+		m_pHyperAniXET			= g_pKTDXApp->GetDeviceManager()->OpenXET( m_AniXETNameHyper );
+		// Then, with no item templet or for a weapon (templet +0xd5 = EP_WEAPON_HAND 2 / EP_AC_WEAPON 0x19), the enchant multi-tex XETs.
+		if( NULL == m_pItemTemplet || CX2Unit::EP_WEAPON_HAND == m_pItemTemplet->GetEqipPosition() || CX2Unit::EP_AC_WEAPON == m_pItemTemplet->GetEqipPosition() )
+		{
+			WCHAR wszJuneMultiTexName[256] = L"";
+			StringCchPrintfW( wszJuneMultiTexName, ARRAY_SIZE(wszJuneMultiTexName), L"MULTI_TEX_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
+			m_pNormalMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszJuneMultiTexName, true );
+			if( NULL == JuneEnchantStage2Texture( m_EnchantLevel ) )
+			{
+				if( NULL != m_pNormalMultiTexXET )
+					m_pNormalMultiTexXET->DeleteMultiTexStage2();
+			}
+			else
+				JuneSetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "InitSkin", m_ItemID );
+
+			// The hyper name takes m_ModelNameHyper[0] (+0x724), and June stores the XET in m_pHyperTexChangeXET (+0x814 @32960287), over the
+			// tex-change XET opened above (its reference is never closed), not in m_pHyperMultiTexXET (+0x818): JUNE_BUGS.md.
+			StringCchPrintfW( wszJuneMultiTexName, ARRAY_SIZE(wszJuneMultiTexName), L"MULTI_TEX_HYPER_%s_%dl", m_ModelNameHyper[0].c_str(), m_ItemUID );
+			m_pHyperTexChangeXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszJuneMultiTexName, true );
+			if( NULL == JuneEnchantStage2Texture( m_EnchantLevel ) )
+			{
+				if( NULL != m_pHyperTexChangeXET )
+					m_pHyperTexChangeXET->DeleteMultiTexStage2();
+			}
+			else
+				JuneSetEnchantStage2( m_pHyperTexChangeXET, m_EnchantLevel, "InitSkinHyper", m_ItemID );
+		}
+
+		// Routed (R14 Done note), both keyed by the item templet's id: when the device manager's item map (+0x260, 31cdcc70) holds the id,
+		// June stores it in each mesh (+0xa40); and when g_pData's item manager has a frame list for the id (32812f40, map +0x370), each
+		// named frame (329656d0) gets two vectors (+0x108 and +0xfc; the hyper models only the first). Stage 11 owns both.
+		for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
+		{
+			g_pMain->GetMemoryHolder()->LoadEquip( m_ModelName[i].c_str() );	// 32851d60 on g_pMain +0x510
+			m_pNormalXSkinModel[i]	= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( m_ModelName[i] );	// 31cdef40( name, L"Bip01" ) = March's default
+		}
+
+		if( m_bCanHyperMode == true )
+		{
+			for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
+			{
+				g_pMain->GetMemoryHolder()->LoadEquip( m_ModelNameHyper[i].c_str() );
+				m_pHyperXSkinModel[i]	= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( m_ModelNameHyper[i] );
+				if( NULL == m_pHyperXSkinModel[i] )
+					continue;
+
+				// The eqip's own hyper skin anim (+0x564), as the attach-anim init builds one; March's skin path had none.
+				SAFE_DELETE_KTDGOBJECT( m_pHyperXSkinAnim[i] );
+				m_pHyperXSkinAnim[i] = CKTDGXSkinAnim::CreateSkinAnim();
+				m_pHyperXSkinAnim[i]->SetAnimXSkinMesh( m_pHyperXSkinModel[i], m_pHyperAniXET );	// 31d32750( mesh, xet, 0 )
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+				m_pHyperXSkinAnim[i]->AddModelXSkinMesh( m_pHyperXSkinModel[i], m_pHyperAniXET, m_pHyperMultiTexXET, m_pHyperTexChangeXET, false, false );	// @329643b5
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+				m_pHyperXSkinAnim[i]->AddModelXSkinMesh( m_pHyperXSkinModel[i], m_pHyperAniXET, m_pHyperMultiTexXET, m_pHyperTexChangeXET );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+				m_pHyperXSkinAnim[i]->ChangeAnim( m_AniName.c_str(), false );	// 31d33fd0( +0x85c = m_AniName, 0, 0.f ): the NORMAL name (JUNE_BUGS.md)
+				m_pHyperXSkinAnim[i]->Play( CKTDGXSkinAnim::XAP_LOOP );		// 31d28d00( 0 )
+				m_pHyperXSkinAnim[i]->UseDXMatrix( true );					// +0x31c = 1
+			}
+		}
+#else SERV_IRUHADEV_JUNE_EQIP_SKIN
 	    for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
 	    {
 		    g_pMain->GetMemoryHolder()->LoadEquip( m_ModelName[i].c_str() );		// fix!! 이 부분 필요한가?
@@ -2175,6 +2373,7 @@ void CX2Eqip::InitSkin()
 		    m_pHyperTexChangeXET	= g_pKTDXApp->GetDeviceManager()->OpenXET( m_ChangeTexNameHyper );
 		    m_pHyperAniXET			= g_pKTDXApp->GetDeviceManager()->OpenXET( m_AniXETNameHyper );
 	    }//if
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 
 	    if ( m_pNormalXSkinModel[0] == NULL )
 	    {
@@ -2269,6 +2468,17 @@ void CX2Eqip::InitAttatchAnim()
 	StringCchPrintfW( wszMultiTexName, ARRAY_SIZE(wszMultiTexName), L"MULTI_TEX_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
 
 	m_pNormalMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszMultiTexName, true );
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+	// June2017 3295dfa0 @3295e10c-3295e15c: below 7 stage 2 is deleted, else the June texture by level. The rest of June's
+	// attach-anim init (minor-unit model, UT_ADD index remap, appearance templet, jiggle) is R14b.
+	if( NULL == JuneEnchantStage2Texture( m_EnchantLevel ) )
+	{
+		if( m_pNormalMultiTexXET != NULL )
+			m_pNormalMultiTexXET->DeleteMultiTexStage2();
+	}
+	else
+		JuneSetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "InitAttatchAnim", m_ItemID );
+#else SERV_IRUHADEV_JUNE_EQIP_SKIN
 	if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_1 )
 	{		
 		if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_2 )
@@ -2286,6 +2496,7 @@ void CX2Eqip::InitAttatchAnim()
 		if( m_pNormalMultiTexXET != NULL )
 			m_pNormalMultiTexXET->DeleteMultiTexStage2();
 	}
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 
 		//background!!!
 //     if ( g_pKTDXApp->GetDeviceManager()->IsEnableThreadLoading() )
@@ -2382,6 +2593,11 @@ void CX2Eqip::InitAttatchAnim()
 		    StringCchPrintfW( wszMultiTexName, ARRAY_SIZE(wszMultiTexName), L"MULTI_TEX_HYPER_%s_%dl", m_ModelName[0].c_str(), m_ItemUID );
 
 		    m_pHyperMultiTexXET = g_pKTDXApp->GetDeviceManager()->OpenXET( wszMultiTexName, true );
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+		    // June2017 3295dfa0 @3295e79c-3295e7ca: from level 7 the June texture by level; below 7 nothing (as March).
+		    if( NULL != JuneEnchantStage2Texture( m_EnchantLevel ) )
+			    JuneSetEnchantStage2( m_pHyperMultiTexXET, m_EnchantLevel, "InitAttatchAnimHyper", m_ItemID );
+#else SERV_IRUHADEV_JUNE_EQIP_SKIN
 		    if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_1 )
 		    {			
 			    if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_2 )
@@ -2393,6 +2609,7 @@ void CX2Eqip::InitAttatchAnim()
 			    else
 				    m_pHyperMultiTexXET->SetMultiTexStage2( "*.*", "Gate_Protect_G01.tga", D3DTOP_ADD );			
 		    }//if
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 
 
 
@@ -2799,6 +3016,11 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 			}
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+		// June2017 3295f250 @3295f348-3295f399: the June texture by level (this branch is level >= 7).
+		if( NULL != m_pNormalMultiTexXET )
+			JuneSetEnchantStage2( m_pNormalMultiTexXET, m_EnchantLevel, "ChangeEnchantLevel", m_ItemID );
+#else SERV_IRUHADEV_JUNE_EQIP_SKIN
 		if( NULL != m_pNormalMultiTexXET )
 		{
 			if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_2 )
@@ -2810,6 +3032,7 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 			else
 				m_pNormalMultiTexXET->SetMultiTexStage2( "*.*", "Gate_Protect_G01.tga", D3DTOP_ADD );	
 		}	
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 	}
 	else
 	{
@@ -2841,6 +3064,11 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 				}
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_EQIP_SKIN
+			// June2017 3295f250 @3295f497-3295f4e8: the same choice for the hyper XET.
+			if( NULL != m_pHyperMultiTexXET )
+				JuneSetEnchantStage2( m_pHyperMultiTexXET, m_EnchantLevel, "ChangeEnchantLevelHyper", m_ItemID );
+#else SERV_IRUHADEV_JUNE_EQIP_SKIN
 			if( NULL != m_pHyperMultiTexXET )
 			{
 				if( m_EnchantLevel >= ENCHANT_WEAPON_EFFECT_LEVEL_2 )
@@ -2852,6 +3080,7 @@ void CX2Eqip::ChangeEnchantLevel( int level )
 				else
 					m_pHyperMultiTexXET->SetMultiTexStage2( "*.*", "Gate_Protect_G01.tga", D3DTOP_ADD );	
 			}	
+#endif SERV_IRUHADEV_JUNE_EQIP_SKIN
 		}
 		else
 		{
