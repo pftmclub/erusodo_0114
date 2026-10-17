@@ -809,7 +809,7 @@ HRESULT CKTDGXRenderer::BeginRender(  const CKTDGXRenderer::RenderParam& InRende
         if( true == m_bRimLightThisDraw )
         {
             static int s_iLoggedRimRamp = -1;
-            static int s_iRimLogCount = 0;	/// a unit and its weapon alternate between two ramps every frame (JUNE_BUGS 256): only the first lines are logged
+            static int s_iRimLogCount = 0;	/// a unit and its weapon alternate between two ramps every frame (JUNE_BUGS 266): only the first lines are logged
             if( s_iLoggedRimRamp != m_iRimRampIndex && s_iRimLogCount < 12 )
             {
                 ++s_iRimLogCount;

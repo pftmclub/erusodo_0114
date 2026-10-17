@@ -527,8 +527,58 @@ OnResetDevice macros, `SetAnisotropy`), June `BeginRender` read from capstone (`
 3. After asset P10 copies June's fx: set `RIM_LIGHT = TRUE` in the game dir `GameOptions.lua`, repeat 2: blue rim on units (`FX rim draw` line).
 
 **Pulled forward (user, 2026-10-17):** June's `XRenderer.fx` (+ the three already-staged June `.fx`: GCSkin, RenderState, XPostEffect) staged with `kom.py stage-june`, packed and copied: `COPY OK data041 ... 13112 bytes, 4 entries, md5 027c8a0104c6c4faa8f25a358a87d6e9` (backup `kom_backup_tools\data041.kom.20261017_213340`); `RIM_LIGHT = TRUE` added to the game dir `GameOptions.lua` (backup `GameOptions.lua.bak_pre_rimlight`). So log line 1 should now read `handles 33/33, rim shader 1`, and the rim check is live. Revert: copy the backup kom over `data041.kom`.
-**Play-test log read (user run 21:35-21:40):** `FX loaded: shader3 1, mipmap cap 1, aniso max 16, handles 33/33, rim shader 1`; `FX world indices: cartoon 0, rim 15 -> ramp 15` in Ranox Secret Hell; no renderer errors. Rim draws alternate ramp 15 (body) / 13 (weapon): June's weapon copies the owner's member RenderParam, which carries no world index (JUNE_BUGS 256, kept). The rim-draw log was uncapped (5,721 lines); now 12 lines. Redeploy: `DEPLOY OK: X2_offline.exe is 19,804,672 B, dated 2026-10-17 21:42:12, md5 65ae9c0e5f50e969a89499143973fd17, equal to X2/US_SERVICE/x2.exe (2026-10-17 21:42:06); built at main 3d26d68f + 1 uncommitted code file(s).` Visual verdict from the user still owed.
+**Play-test log read (user run 21:35-21:40):** `FX loaded: shader3 1, mipmap cap 1, aniso max 16, handles 33/33, rim shader 1`; `FX world indices: cartoon 0, rim 15 -> ramp 15` in Ranox Secret Hell; no renderer errors. Rim draws alternate ramp 15 (body) / 13 (weapon): June's weapon copies the owner's member RenderParam, which carries no world index (JUNE_BUGS 266, renumbered from 256 by the R2 review, kept). The rim-draw log was uncapped (5,721 lines); now 12 lines. Redeploy: `DEPLOY OK: X2_offline.exe is 19,804,672 B, dated 2026-10-17 21:42:12, md5 65ae9c0e5f50e969a89499143973fd17, equal to X2/US_SERVICE/x2.exe (2026-10-17 21:42:06); built at main 3d26d68f + 1 uncommitted code file(s).` Visual verdict from the user still owed.
 **Open:** R2 review (Opus); asset P10's copy of `XRenderer.fx` is done by this.
+
+### Phase R2 -- Review
+
+**2026-10-17, Opus 5.5. Verdict: PASS, no code change, no rebuild** (live exe stays md5 `65ae9c0e`). Commits `c46a281b`, `8330ecc7`, `80757b8f`.
+
+- **Enum / table:** `EFFECT_PARAMETER` and `s_akEffectParameterName` = June's 33 in June's order. Each handle offset the June code uses maps to the same index
+  (`+0xd8` base: `+0x108` g_bFog 12, `+0x110` g_fEye 14, `+0x114` g_mView 15, `+0x118` g_vEyeDir 16, `+0x11c/+0x120` texture ops 17/18, `+0x124..+0x138` 19-24,
+  `+0x14c` grading 29, `+0x150` edge 30, `+0x154/+0x158` screen 31/32).
+- **Ghidra / capstone spot-checks (3, all match):**
+  1. `BeginRender` `31d3cf80`. Jump table `31d3e4dc` = the March `RENDER_TYPE` order (fades 17/18).
+     - Prologue `31d3d29c`: `+0x190` = 13, both texture ops = 1.
+     - Ramp pick `31d3c230` = `type ? type : (world > 3u ? 0 : world)`.
+     - Black edge `31d3d4ab`: guard `type < 20` with the ramp loaded, then stage 1 / stage 2 / flag `[esp+0x2f]` / `+0x190`.
+     - Color edge `31d3d6e9`: no guard, stores `+0x190`, rim = `+0x18c` alone (`31d3d5b0`). Cartoon jumps into the real-color tail `31d3d334` (no rim).
+     - Grading `+0x5b` = case flag `[esp+0x13]` && `+0x80` && `+0x59` (`31d3d384`). Cases 7/8 run the edge helper `31d3d89e`. No-fog `g_fEye` (`31d3d203`).
+     - `g_mView` = app `+0xdc`, `g_vEyeDir` = normalize( look-at - eye ), w 0 (`31d3daa6`).
+     - Screen size = back-buffer desc `3376d9ac` Width / Height.
+  2. `DrawFrame` tail `31d3eb34-31d3ee8c`:
+     - Stage 1 / 2 ops.
+     - Env box rim: colour (r, g, b, 1), power `+0x74`, forced `+0x7c`, wide `+0x78`.
+     - No env box: rim ramp `+0x190` clamped, pushes COLOROP ADD (7) and sampler 2 ADDRESSU CLAMP (3).
+     - Grading LUT in stage 3.
+     - The pushes are popped by March's existing `PopStates( iStackTop )` after the frame render, as June's are.
+  3. X2Lib side:
+     - Option apply `32421110`: `+0x81` / `SetAnisotropy( +0x104 )` / `+0x80` = option && `+0x58`.
+     - `CX2Main` frame move `31d90360`: `SetRimLight( +0x280 )` first.
+     - Square / agit fill `323ed6b0`: square, else wedding, else field world, then `327fb1f0` / `327fb210` into `+0x9c` / `+0xa0`.
+- **`#else` paths** are March's code untouched (Ranox stand-in and the `NULL` macro `D3DXCreateEffect` calls intact).
+- **Deviations, all inert with June's fx (none fixed):**
+  - `m_bRimShader` gates the BeginRender stage-2 rim bind and `m_bRimLightThisDraw`. June binds it unconditionally, but with June's file this flag is 1.
+  - Black edge also rejects `type < 0`.
+  - The `DrawFrame` rim ramp bind checks for `NULL`.
+  - Only the color-edge / cartoon guards were in the Done note; these complete the list.
+- **Cosmetic, not fixed:** the saved `GameOptions.lua` spacing differs from June's writer `3241ef40` strings (`USE_VIEW_INDEPENDENT_EDGE\t\t\t= `,
+  `ANISOTROPIC_FILTER_SAMPLE  = `). Lua parses both the same. The key order and the TRUE / FALSE tokens match.
+- **Hygiene** (`--range c46a281b^..80757b8f`; the range also holds U1's `915bb24`):
+  - SHADER_CONTRACT `files: 1 PASS, 2 PASS~ (blank/marker only), 0 DEFINE, 31 OTHER (other flags), 2 FAIL, 0 ERROR` / `1 deleted line(s), 0 non-ASCII, 0 EOL, 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: FAIL`
+  - RIM_OPTION `files: 1 PASS, 1 PASS~, 0 DEFINE, 31 OTHER, 2 FAIL, 0 ERROR` / `0 deleted` / `RESULT: FAIL`
+  - WORLD_CARTOON `files: 5 PASS, 2 PASS~, 0 DEFINE, 26 OTHER, 2 FAIL, 0 ERROR` / `0 deleted` / `RESULT: FAIL`
+  - Both FAIL rows are explained, so neither is a finding:
+    - `Always.h` (`c46a281`, `flag-off differs at stripped line 7711`): R2's three blocks carry `#ifndef X / #error / #endif X` dependency guards. The define-file rule
+      accepts only comments, blanks and the `#define`. Each block is otherwise comment + `#define` (diff read).
+    - `KTDXWordWrap.cpp` (`915bb24`): U1's new file, not R2's.
+  - The 1 deleted line is `80757b8f`'s log-cap line, replaced inside the flag's own block.
+  - OTHER = the sibling R2 flags and the U1 flags in shared files.
+  - `git log -S SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT 80757b8f..HEAD`: nothing.
+- **Bookkeeping (U1 review note):** R2's JUNE_BUGS row 256 (weapon takes no world rim ramp) collided with U1's 256-261; renumbered to **266** (262-265 are
+  held by a W1b peer), in `JUNE_BUGS.md`, the Done note above and the `KTDGXRenderer.cpp` log-cap comment (comment only, no rebuild).
+- **Still owed by the user:** the visual verdict of the rim (blue body rim in Ranox Secret Hell, see the hand-off). The log already shows 33/33 handles and ramp 15.
+- **Next:** asset P10's copy step was done here (data041 carries June's `XRenderer.fx`). P10 is now verification only (kickoff note added). R3 / R7 / R9 are unblocked.
 
 ## Phase R3 - Environment box and colour grading
 
