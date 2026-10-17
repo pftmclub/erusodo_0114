@@ -976,6 +976,26 @@ md5 ea4a74b48006d7eacdc02768fa36fe9c` (built at `cc6a579d` + uncommitted peer fi
   village should match the first village visit's figure (no growth).
 - Equipment, enchant glow and after-images look as before. Monsters still hit you, and you still hit them with kicks.
 
+**Play-test 2026-10-17 (user: all checks run; check 1 FAILED, Lire's kicks never hit).** Log: `SKREF motion collision MOTION_LIRE_COMMON.X
+collision 0 attack 0` (x3). March's motion yields no collision data, so MOTION_COLLISION left Lire with none. Ownership is clean:
+`unbalanced 0` over 8,354 dead anims (17,038 refs = closes), `kem433 0`, village device count 1066-1075 on each return (no growth).
+**Fix:** `SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION` turned OFF in `Always.h` (code kept; March's per-part collision back). The trace
+(why June's motion carries the spheres: June's mesh loader `31d4f8b0` vs March's `bInValidRadius_` radius test, and which `MOTION_*.X` ships)
+is the new **R12b**. Redeploy: ``DEPLOY OK: X2_offline.exe is 19,811,840 B, dated 2026-10-17 23:15:59, md5 e03a4e99268e8e20125a6cd731fdf5c2` (built at `830818ab` + uncommitted peer files; `SKREF dead anims` in the exe, `SKREF motion collision` gone)`.
+
+## Phase R12b - Motion collision source (trace)
+
+**Run with:** Opus 5.5 high (trace, then port), then a user play-test. Flags: R12's `SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION` (off) and
+whatever the trace adds. Added by R12's play-test: with June's switch on, March's `MOTION_LIRE_COMMON.X` gave 0 collision / 0 attack data,
+so Lire's kicks never hit. June's game hits, so this is a port gap, not a June quirk.
+- **Trace** June's mesh loader collision path: `31d4f8b0` (12 references to `"COLLISION_SPHERE"` `334532cc` / `"COLLISION_LINE_START"`) against
+  March's `XSkinMeshProxy::ComputeCollisionData` / `AddCollisionData` (`KTDXDeviceXSkinMesh.cpp:574-`), above all the radius test
+  (`bInValidRadius_`, `D3DXFrameCalculateBoundingSphere` on a frame with no geometry), and where June calls it for a motion mesh.
+- **Files:** which `MOTION_LIRE_COMMON.X` (and other `MOTION_*.X`) the March koms ship, March's or June's, and whether its `COLLISION_*` frames
+  carry geometry or a stored radius (`tools/junekom.py` for June's copy; never edit a June asset).
+- **Port** what makes June's motion yield the spheres, then turn MOTION_COLLISION back on. Gate: `SKREF motion collision MOTION_LIRE_COMMON.X
+  collision 3 attack 2` (or June's real counts), and the user's kicks hit.
+
 ## Phase R14 - Equipment skin and enchant rework
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_SKIN` (an RE pass

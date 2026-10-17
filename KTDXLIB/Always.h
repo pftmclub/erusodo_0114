@@ -7864,7 +7864,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the motion's collision / attack data to m_pXSkinAnim (31fe5860 @31fe5c25 -> 31d2f250, JuneAddCollisionData), and
 //              the equipment skin meshes CX2Eqip::_UpdateSkin() adds to the unit (3295ae20) and CKTDGXSkinAfterImage::AddMesh
 //              (3322a41e) pass bAddCollisionData = 0. March added every skin part's copy of the same spheres instead.
-#define SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+//              OFF since the R12 play-test (2026-10-17): March's MOTION_LIRE_COMMON.X yields 0 collision / 0 attack data, so with the
+//              flag on Lire's kicks never hit. Why June's motion carries the spheres (June mesh loader 31d4f8b0) is traced in R12b.
+//#define SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

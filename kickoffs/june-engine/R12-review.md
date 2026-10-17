@@ -31,8 +31,9 @@ Things this phase could get wrong:
   empty-list push.
 - **Callers:** that no March caller still closes a device the skin anim now closes (the map's 156 rows), above all the two `X2Eqip` `ChangeEnchantLevel`
   sites, and `X2GUNPC.cpp:4694` keeping `bCloseDeviceAtDestructor = true` (June passes 0; the net count is the same: is that right?).
-- **MOTION_COLLISION:** the `InitMotion` call sits after `m_pXSkinAnim->SetAnimXSkinMesh( m_pMotion )` only, and the play-test log shows the motion's
-  collision count > 0 (if it is 0, units cannot be hit: revert the flag first).
+- **MOTION_COLLISION is OFF** since the play-test (March's motion gave 0 collision, kicks never hit; R12b traces it). Review its code as
+  transcription only (the `InitMotion` call after `m_pXSkinAnim->SetAnimXSkinMesh( m_pMotion )`, the three `bAddCollisionData = 0` sites), and check
+  that flag-off really is March (flagcheck), since that is what ships.
 - **KEM 433:** the frame comparison (`GetFrameNum()` = June mesh `+0x850`, anim `m_FrameNum` = `+0x328`), the two texts, and the 20-line cap
   (a logging deviation, named in the Done note).
 
