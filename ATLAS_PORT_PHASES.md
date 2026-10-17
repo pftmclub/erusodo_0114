@@ -4400,6 +4400,40 @@ Census `--line AR`: 129 open rows before, 83 after, all routed checklist step-9 
   a June copy; table `june2017_re/elysion_npc_anim_gaps.tsv`. June's own `CommonStateStart` (327ac9d0 @~3277b4xx: `FUN_31d33fd0` false -> "NPC Motion Error. LuaFileName ..." log)
   does the same; the state just keeps the previous pose. March only adds the yellow `_IN_HOUSE_` chat line (`X2GUNPC.cpp:16071`). User decided 2026-10-17: leave it as June has it (no flag, no change).
 
+### Phase E9 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS, no fix, no repack, no copy.** Data-only phase: no C++, no flag, no build (no `DEPLOY OK`: nothing to deploy). Run after the
+peer's E10 commits (`3d01ca68`..`a5d911d9`) appended to the same three files; the E9 blocks are unchanged.
+
+- **Registry rows verbatim (CRLF-normalised, 0 diffs each; the BOM is the only file-level difference):** `data035 DungeonData.lua:17820-18051` = June
+  :32888-33119 (232 lines, `AddDungeonData({` .. `})`); `data037 NPCTemplet.lua:20441-20710` = the 30 June ranges in its header (each 9 lines,
+  HAMMER_PANG :20318 .. DAMAGE_OBJECT_STAGE2_SUB_STAGE2 :20901, 270 lines); `data040 WorldData.lua:3327-3346` = June :3380-3399 (20 lines). Every new
+  `dungeonID` / `NPC_ID` / `worldID` is defined once per file (`WI_ADRIAN_BOSSSTAGE` is C3y-1b's). The only duplicate `NPC_ID`s are the two Ranox gates E8's review named.
+- **Hero omission:** the four header ranges are exactly `DI_ADRIAN_HERO_NORMAL` / `HERO_HARD` / `HERO_EXPERT` / `HERO_HELL`, none in the block; March's
+  `DungeonEnum.lua` has no `DI_ADRIAN_HERO_*` value.
+- **Unlock chain:** `DI_SKYCROSSROADS_NORMAL` 33870, `DI_ADRIAN_NORMAL` / `HARD` / `EXPERT` 33880-33882 (`DungeonEnum.lua:324-329`). All three Adrian rows carry
+  `EXTRA_REQUIRE_DUNGEON_ID = { DI_SKYCROSSROADS_NORMAL }`, `m_MinLevel` 84, `m_MaxLevel` 87, no `m_RequireDungeonID`; Soless N/H/E (`:18073` / `:18238` /
+  `:18273`) each name `DI_ADRIAN_NORMAL`. As in E8, the June suitable-level gate opens at MinLevel - 2 = 82, not the Done note's "84+".
+- **Adopted files:** the 8 data040 files match `shipped_sha1` / size in `june_adopt_20261017_145520.tsv`, start `1B 4B 4C 81`, manifest `"2"`;
+  `Elysion_Adrian_Stage2_linemap.lua` is lower-case in the file, the directory and the manifest.
+- **Premises (spot-checks):** `NUI_ELYSION_BOSS_HERBAON` / `NEW_DEKAL` / `L_H_LASER` each have a staged data037 script whose mesh (`Motion_BOSS_HERBAON.x`,
+  `Motion_NEW_DEKAL.x`, `Motion_BOSSSATGE_LASER.x`) is in data181, exact case. Boss faces: both scripts set `BOSS_GAGE_FACE_TEX = "DLG_BossState_02.tga"` and
+  pieces `NUI_HERBAON` / `NUI_NEW_DEKAL`, both in `data215 DLG_BossState_02.TET` (read through `X2GUNPC.cpp:4454-4455`). Buffs in `Enum.lua`: `BTI_HIT_COUNT_ATTACK` 793,
+  `BTI_HOLD_WITH_STICK_SHAKE` 812, `BFI_HOLD_BY_HERBAON` 836, `BGI_JUST_BUFF` 4; the BFI's factor row (`BattleFieldBuffFactor` :114514) names that BTI, whose templet
+  row is `BattleFieldBuffTemplet` :25915. Effects: 4 Herbaon names (`EffectSet_Elysion_Boss_Herbaon_Attack_A_Ready`, `_Attack_C_Tel_FX`,
+  `DamageEffect_Elsion_Boss_Herbaon_Attack_B`, `_Attack_A_Hold_FX`) are exact constants in data036; census effects / items / strings 0 missing.
+- **Engine hooks:** `SetCameraDistance` (`X2Main.cpp:3730/3732`), `SetParticleSize` (`:3850`) bound; the movable-line reader (`KTDGLineMap.cpp:2809`,
+  `X2World.cpp:1722`, sync `X2Game.cpp:1267-1275`) is E5's, and the play-test showed 5 movable lines. The `L_H_LASER` script's 16 engine calls are all bound
+  (`CX2GUNPC` / `CX2GameUnit` / `CX2Game` class_def lines); lasers need no C++. `Always.h:4597`'s "TAT_LINE_CHANGE_MOVABLE_DATA ... Not ported" is a stale comment, left.
+- **New finding: the Stage1 `MOTIONNAME_EFFECTSETNAME` trigger is inert in June too, not only until W1.** Its value `"Effectset_ELYSION_ADRIAN_EVENT3"` has no
+  space. June case 7 (`328012b5`; funcmap row) calls `find( L" " 3344ff0c )` @32801314 and exits to `32801531` on `-1` (disassembly read this review). Ranox Geyser's
+  two rows carry `"<mesh> <effect set>"`. Kept verbatim: **JUNE_BUGS 244**; `kickoffs/june-engine/W1.md` now says not to use Adrian as a case-7 check.
+- **Routed, not open:** the census's "83 open" leaves out the 13 `assets.absent` rows, so 96 rows are listed (13 + 80 + 3), the same wording as E8's. 13 `assets.absent`
+  (June ships none: laser / 3stage `.ogg`s, `elysion_damage_object_2.dds`, the two `_the_odd_specialattack` names); 80 `keys.file`: CT_ / state keys (75),
+  `NPC_REWARD_RATE`, `REWARD_RATE`, `LINE_NUM`, `AFTER_IMAGE_DEST_ALPHA_BLEND`, `MOTIONNAME_EFFECTSETNAME`; 3 `keys.registry`: `CIEL`, `ENDING_SPEECH0`, `LU`. No other class.
+- **Hygiene:** `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`; census `--line AR --live`: `live {"same": 334}`.
+- **E10:** a peer already ran it, and its kickoff and review kickoff exist (the Soless boss is read via `ljbc.py`; no `ELYSION_SOLESS.src.lua` exists).
+
 ### Phase E10 — Soless
 
 **Run with:** Opus 5.5, high effort. Required review (Opus 5.5).
