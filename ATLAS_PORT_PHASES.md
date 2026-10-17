@@ -4398,7 +4398,7 @@ Census `--line AR`: 129 open rows before, 83 after, all routed checklist step-9 
   chat lines (BOMB_PANG `DamageAirUp`, Herbaon):** `june2017_re/npc_anim_census.py` over all 151 `ELYSION_*` unit scripts: 58 name an `ANIM_NAME` their mesh lacks, every one of
   those meshes is byte-identical to June's (e.g. `Motion_ELYSION_BOMB_PANG.x` lacks `DamageAirUp` / `JumpUp`, `Motion_BOSS_HERBAON.x` lacks `Dash` / `DashEnd`), 0 are fixed by
   a June copy; table `june2017_re/elysion_npc_anim_gaps.tsv`. June's own `CommonStateStart` (327ac9d0 @~3277b4xx: `FUN_31d33fd0` false -> "NPC Motion Error. LuaFileName ..." log)
-  does the same; the state just keeps the previous pose. March only adds the yellow `_IN_HOUSE_` chat line (`X2GUNPC.cpp:16071`). Open for the user: hide that chat line or leave it.
+  does the same; the state just keeps the previous pose. March only adds the yellow `_IN_HOUSE_` chat line (`X2GUNPC.cpp:16071`). User decided 2026-10-17: leave it as June has it (no flag, no change).
 
 ### Phase E10 — Soless
 
