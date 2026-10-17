@@ -1,0 +1,84 @@
+june_call_va	june_func	june_bMonster	march_function	march_site	march_bool_after_w1c	note
+326eb1ed	326eb090	1	CX2PET::SetPosition	X2Pet.cpp:3165	true (March)	
+325621ed	32561f70	0	CX2StateServerSelect::Handler_EGS_STATE_CHANGE_FIELD_REQ	X2StateServerSelect.cpp:7309	false (W1c)	X2StateBeginning.cpp:3923 has the same body; not in June's xrefs (region_reach R26), keeps March
+32435ae9	32435610	0	none in March: second come-back snapshot (LocationManager +0xb4, ack of June packet 0x4f3)	-	-	June-only; offline has no such packet
+326ece96	326ecd40	1	CX2PET::InitPos	X2Pet.cpp:3752	true (March)	
+31fff619	31fff4a0	0	CX2GUUser::SetPos	X2GUUser.cpp:33529 (USER_HOLD)	false (W1c)	
+32767a74	32767930	1	CX2GUNPC::SetPosition	X2GUNPC.cpp:3901	true (March)	
+320194bb	32015b30	0	CX2GUUser::PhysicProcess minor-body block (+0x8f6c gate, Lu/Ciel)	-	-	minor body not ported (funcmap C3g/C3h); char port
+32010ff8	32010440	0	CX2GUUser::PhysicProcess land helper 32010440 (start/end merged)	X2GUUser.cpp:24143 + :24156	false (W1c)	one June call for two March calls
+3206bb3f	32063650	0	CX2GUUser::CommonFrameMove LAND_CHECK	X2GUUser.cpp:19746	false (W1c)	
+32d2e1dc	32d2e090	0	CX2RidingPet::InitPos	X2RidingPet.cpp:2025	false (W1c)	
+32d2dca1	32d2db50	0	CX2RidingPet::SetPos	X2RidingPet.cpp:1961	false (W1c)	
+322f306f	322f2e00	0	none in March: CX2Game::CreateNPCReqCheckPos_LUA	-	-	c3z4_class_gap.tsv absent row; used by SA_LDN_GARDEN_OF_HAURES
+323b5fcc	323b5970	1	CX2TFieldGame::OnFrameMove OTHER_ROAD (GetLandPosition_LUA inlined)	X2TFieldGame.cpp:1439	true (March)	
+323f0491	323eef70	0	CX2SquareUnit::PhysicProcess (start/end merged)	X2SquareUnit.cpp:2986 + :2999	false (W1c)	one June call for two March calls
+32768503	327681c0	1	CX2GUNPC::InitPosition	X2GUNPC.cpp:4114	true (March)	
+32781d8f	3277fbf0	1	CX2GUNPC::PhysicProcess bMeOnStart	X2GUNPC.cpp:27025	true (March)	
+32781e11	3277fbf0	1	CX2GUNPC::PhysicProcess bMeOnEnd	X2GUNPC.cpp:27034	true (March)	
+32782b5e	3277fbf0	1	CX2GUNPC::PhysicProcess bMeOnStart (land-connect clamp)	X2GUNPC.cpp:27206	true (March)	
+32782c1e	3277fbf0	1	CX2GUNPC::PhysicProcess bMeOnEnd (land-connect clamp)	X2GUNPC.cpp:27221	true (March)	
+32800694	328004a0	0	CX2World::DoTriggerLine tail, user loop	X2World.cpp:1878	false (W1c)	W1b site
+32800794	328004a0	1	CX2World::DoTriggerLine tail, NPC loop	X2World.cpp:1890	true (March)	W1b site
+3298ae93	3298a630	1	CX2GUEve::ENSI_SI2_DIMENSION_LINK_BLADER_FrameMove	X2GuEve.cpp:15660	true (March)	
+3298b853	3298aff0	1	CX2GUEve::ENSI_SI2_DIMENSION_LINK_BLADER_HYPER_FrameMove	X2GuEve.cpp:15818	true (March)	
+3298c3d5	3298bb80	1	CX2GUEve::ENSI_SI3_DIMENSION_LINK_GUARDIAN(_HYPER)_FrameMove (merged)	X2GuEve.cpp:15980 / :16133	true (March)	medium: June one function for March's two
+329fa498	329f9ff0	1	none in March: Add skill (EffectSet_SI_SA_AMM_Installation)	-	-	June-only Add code; char port
+32a1787e	32a176c0	1	CX2GUAdd::ANSI_A_AN_PHASE_SHIFT_BLINK_StateStart (June adds the land call)	X2GUAdd.cpp:8224 (no call in March)	-	char-port checklist
+32a5f321	32a5f160	1	none in March: CX2GUAin StateStartFuture teleport	-	-	June-only class
+32a604a5	32a60370	1	none in March: CX2GUAin StateStartFuture teleport (behind)	-	-	June-only class
+32a69467	32a69390	0	none in March: CX2GUAin state (reserved pos)	-	-	June-only class
+32a6989f	32a69390	1	none in March: CX2GUAin (fallback after the false call)	-	-	June-only class
+32ac1e29	32ac1d40	1	none in March: Rose FrameMove	-	-	June-only class
+32b2f2f8	32b2f1c0	1	none in March: Luciel teleport	-	-	June-only class
+32b311b5	32b30ec0	1	none in March: Luciel teleport	-	-	June-only class
+32b32747	32b32550	1	none in March: Luciel teleport	-	-	June-only class
+32b342e8	32b341b0	1	none in March: Luciel teleport	-	-	June-only class
+32b34561	32b343b0	1	none in March: Luciel linked-unit callback	-	-	June-only class
+32b361ce	32b35fd0	1	none in March: Luciel teleport (distance gate)	-	-	June-only class
+32b38790	32b38540	1	none in March: Luciel teleport (nearest-line fallback)	-	-	June-only class
+32b7a354	32b7a0a0	1	none in March: Elesis anim-event NPC create (0x663 / 0x7b3) at a landed pos	-	-	medium; char-port checklist
+32ef6a95	32ef68b0	1	CX2PETAI::Moving master-unit block (June adds)	X2PetAI.cpp:400 (no call in March)	-	routed W1d
+32f29a7e	32f298f0	1	CX2SimplePathFinder::SimpleFollowTargetPathFly	X2SimplePathFinder.cpp:1748	true (March)	site order matched (medium)
+32f29dde	32f298f0	1	CX2SimplePathFinder::SimpleFollowTargetPathFly	X2SimplePathFinder.cpp:1856	true (March)	site order matched (medium)
+32f29f89	32f298f0	1	CX2SimplePathFinder::SimpleFollowTargetPathFly	X2SimplePathFinder.cpp:1898	true (March)	site order matched (medium)
+32f2a152	32f298f0	1	CX2SimplePathFinder::SimpleFollowTargetPathFly	X2SimplePathFinder.cpp:1962	true (March)	site order matched (medium)
+32f2a2fa	32f298f0	1	CX2SimplePathFinder::SimpleFollowTargetPathFly	X2SimplePathFinder.cpp:2004	true (March)	site order matched (medium)
+32f06581	32f064a0	1	CX2GUNPCAI::TargetUpdate forced move	X2GUNPCAI.cpp:1150	true (March)	
+32f27ce1	32f27b10	1	CX2SimplePathFinder::FollowTargetPathFly	X2SimplePathFinder.cpp:842	true (March)	site order matched (medium)
+32f280ba	32f27b10	1	CX2SimplePathFinder::FollowTargetPathFly	X2SimplePathFinder.cpp:955	true (March)	site order matched (medium)
+32f2826b	32f27b10	1	CX2SimplePathFinder::FollowTargetPathFly	X2SimplePathFinder.cpp:997	true (March)	site order matched (medium)
+32f28469	32f27b10	1	CX2SimplePathFinder::FollowTargetPathFly	X2SimplePathFinder.cpp:1061	true (March)	site order matched (medium)
+32f2861a	32f27b10	1	CX2SimplePathFinder::FollowTargetPathFly	X2SimplePathFinder.cpp:1103	true (March)	site order matched (medium)
+32f2a7d9	32f2a490	1	CX2SimplePathFinder::FollowTargetPathInBattleField	X2SimplePathFinder.cpp:2234	true (March)	site order matched (medium)
+32f2a9ff	32f2a490	1	CX2SimplePathFinder::FollowTargetPathInBattleField	X2SimplePathFinder.cpp:2303	true (March)	site order matched (medium)
+32f2ac97	32f2a490	1	CX2SimplePathFinder::FollowTargetPathInBattleField	X2SimplePathFinder.cpp:2375	true (March)	site order matched (medium)
+32f2ae6d	32f2a490	1	CX2SimplePathFinder::FollowTargetPathInBattleField	X2SimplePathFinder.cpp:2411	true (March)	site order matched (medium)
+32f2b13d	32f2a490	1	CX2SimplePathFinder::FollowTargetPathInBattleField	X2SimplePathFinder.cpp:2491	true (March)	site order matched (medium)
+32f2b321	32f2a490	1	CX2SimplePathFinder::FollowTargetPathInBattleField	X2SimplePathFinder.cpp:2527	true (March)	site order matched (medium)
+32f2788f	32f27490	1	CX2SimplePathFinder::EscapeTargetPath	X2SimplePathFinder.cpp:666	true (March)	site order matched (medium)
+32f27a91	32f27490	1	CX2SimplePathFinder::EscapeTargetPath	X2SimplePathFinder.cpp:708	true (March)	site order matched (medium)
+32f267b1	32f26430	1	CX2SimplePathFinder::FollowTargetPath	X2SimplePathFinder.cpp:174	true (March)	site order matched (medium)
+32f269ad	32f26430	1	CX2SimplePathFinder::FollowTargetPath	X2SimplePathFinder.cpp:247	true (March)	site order matched (medium)
+32f26c54	32f26430	1	CX2SimplePathFinder::FollowTargetPath	X2SimplePathFinder.cpp:314	true (March)	site order matched (medium)
+32f26e1b	32f26430	1	CX2SimplePathFinder::FollowTargetPath	X2SimplePathFinder.cpp:347	true (March)	site order matched (medium)
+32f27117	32f26430	1	CX2SimplePathFinder::FollowTargetPath	X2SimplePathFinder.cpp:435	true (March)	site order matched (medium)
+32f272dd	32f26430	1	CX2SimplePathFinder::FollowTargetPath	X2SimplePathFinder.cpp:468	true (March)	site order matched (medium)
+324354d1	324351d0	0	CX2PartyManager::RememberComeBackInfoBeforeInstanceGameStart	X2PartyManager.cpp:2653	false (W1c)	
+32f28b8f	32f287e0	1	CX2SimplePathFinder::SimpleFollowTargetPath	X2SimplePathFinder.cpp:1316	true (March)	site order matched (medium)
+32f28df2	32f287e0	1	CX2SimplePathFinder::SimpleFollowTargetPath	X2SimplePathFinder.cpp:1390	true (March)	site order matched (medium)
+32f290af	32f287e0	1	CX2SimplePathFinder::SimpleFollowTargetPath	X2SimplePathFinder.cpp:1458	true (March)	site order matched (medium)
+32f29274	32f287e0	1	CX2SimplePathFinder::SimpleFollowTargetPath	X2SimplePathFinder.cpp:1491	true (March)	site order matched (medium)
+32f2958a	32f287e0	1	CX2SimplePathFinder::SimpleFollowTargetPath	X2SimplePathFinder.cpp:1569	true (March)	site order matched (medium)
+32f29747	32f287e0	1	CX2SimplePathFinder::SimpleFollowTargetPath	X2SimplePathFinder.cpp:1601	true (March)	site order matched (medium)
+31f709aa	31f70500	1	CX2DamageEffect::CEffect::SetParticleData fShowLandHeight	X2DamageEffect.cpp:7872	true (March)	
+31c1a0bd	-	1	CKTDGLineMap::GetLandPosition_LUA (31c1a090)	KTDGLineMap.h:1175	true (March)	radius 30, index NULL
+322f2a66	-	0	none in March: CX2Game::GetPosCheckDistStandardNPC	-	-	c3z4_class_gap.tsv absent row
+327795cb	-	0	none in March: CX2GUNPC::CreateNPCReqCheckPos_LUA	-	-	c3z4_class_gap.tsv absent row
+31f8a2e3	-	1	CEffect::OnFrameMove TOUCH_LAND probe (result unused)	X2DamageEffect.cpp:3267 (not repeated)	-	SERV_IRUHADEV_JUNE_TOUCH_LAND
+31f8a8d2	-	1	CEffect::OnFrameMove REFRESH_LAND_POS	X2DamageEffect.cpp:3412	true (March)	
+31f8a9d3	-	1	CEffect::OnFrameMove crash-land probe	X2DamageEffect.cpp:3430	true (March)	
+31fed0fb	-	0	CX2GUUser::InitPosition	X2GUUser.cpp:2677	false (W1c)	
+326ec044	326eb610	1	CX2PET::PhysicProcess block 1 (start/end merged)	X2Pet.cpp:3418 + :3427	true (March)	
+326ec5cd	326eb610	1	CX2PET::PhysicProcess block 2 (start/end merged)	X2Pet.cpp:3506 + :3515	true (March)	
+3298a2f0	-	1	CX2GUEve::ENSI_SI1_DIMENSION_LINK(_HYPER)_FrameMove (merged)	X2GuEve.cpp:15300 / :15473	true (March)	medium

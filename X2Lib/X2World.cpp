@@ -1875,7 +1875,11 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 				continue;
 
 			int iLandLine = pUser->GetLastTouchLineIndex( false );
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+			GetLineMap()->GetLandPosition( pUser->GetPos( false ), false, LINE_RADIUS, &iLandLine );	/// June @32800694: bMonster false ( W1c ); the NPC loop keeps true
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 			GetLineMap()->GetLandPosition( pUser->GetPos( false ), LINE_RADIUS, &iLandLine );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 			if ( pLineData->lineIndex == iLandLine )
 				pLineData->m_vecJuneAutoDisableUserUID.push_back( pUser->GetUnitUID() );
 		}

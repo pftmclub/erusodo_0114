@@ -2650,7 +2650,11 @@ void CX2PartyManager::RememberComeBackInfoBeforeInstanceGameStart()
 									fLastPosValue = 1.f;
 
 								vStartPos = pLineData->startPos * (1.f - fLastPosValue) + pLineData->endPos * fLastPosValue;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+								vStartPos = pLineMap->GetLandPosition( vStartPos, false, LINE_RADIUS, (int*) NULL );	/// June RememberComeBackInfo 324351d0 @324354d1: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 								vStartPos = pLineMap->GetLandPosition( vStartPos, LINE_RADIUS, (int*) NULL );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 
 								pLocationManager->SetVillageIdBeforeDungeonStart( iMapId );
 								pLocationManager->SetLastTouchedIndexInVillageBeforeDungeonStart( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_ucLastTouchLineIndex );

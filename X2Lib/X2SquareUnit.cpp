@@ -2983,7 +2983,11 @@ void CX2SquareUnit::PhysicProcess()
 				//position.z		= pDwnLineData->startPos.z;
 				//landPosition.x	= pDwnLineData->startPos.x;
 				//landPosition.z	= pDwnLineData->startPos.z;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+				landPosition = pWorld->GetLineMap()->GetLandPosition( position, false, LINE_RADIUS, &lastTouchLineIndex );	/// June PhysicProcess 323eef70 @323f0491 ( start and end share it ): bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				landPosition = pWorld->GetLineMap()->GetLandPosition( position, LINE_RADIUS, &lastTouchLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				position.x = landPosition.x;
 				position.z = landPosition.z;
 			}
@@ -2996,7 +3000,11 @@ void CX2SquareUnit::PhysicProcess()
 				//position.z		= pDwnLineData->endPos.z;
 				//landPosition.x	= pDwnLineData->endPos.x;
 				//landPosition.z	= pDwnLineData->endPos.z;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+				landPosition = pWorld->GetLineMap()->GetLandPosition( position, false, LINE_RADIUS, &lastTouchLineIndex );	/// June 323eef70 @323f0491: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				landPosition = pWorld->GetLineMap()->GetLandPosition( position, LINE_RADIUS, &lastTouchLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				position.x = landPosition.x;
 				position.z = landPosition.z;
 			}

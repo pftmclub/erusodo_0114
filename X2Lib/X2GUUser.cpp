@@ -2674,7 +2674,11 @@ void CX2GUUser::InitPosition( bool bUseTeamPos, int startPosIndex )
 	D3DXVECTOR3	landPos = startPos;
 	if( lineIndex < 0 || lineIndex >= pLineMap->GetNumLineData() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+		pLineMap->GetLandPosition( startPos, false, LINE_RADIUS, &lineIndex );	/// June InitPosition 31fecb10 @31fed0fb: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 		pLineMap->GetLandPosition( startPos, LINE_RADIUS, &lineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 		pLineMap->IsOnLineConnect( startPos, &lineIndex, LINE_RADIUS, &landPos );
 	}
 
@@ -19743,9 +19747,16 @@ void CX2GUUser::CommonFrameMove()
 
 
 	KTDXPROFILE_BEGIN( "LAND_CHECK" );
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+	/// June 32063650 @3206bb3f ( LAND_CHECK ): bMonster false
+	m_FrameDataNow.unitCondition.landPosition = g_pX2Game->GetWorld()->GetLineMap()->GetLandPosition( m_FrameDataNow.syncData.position,
+		false, LINE_RADIUS,
+		&m_FrameDataNow.syncData.lastTouchLineIndex );
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 	m_FrameDataNow.unitCondition.landPosition = g_pX2Game->GetWorld()->GetLineMap()->GetLandPosition( m_FrameDataNow.syncData.position, 
 		LINE_RADIUS, 
 		&m_FrameDataNow.syncData.lastTouchLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 #ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
 	/// June 32063650 @3206bba4-3206bd03: auto-disable bookkeeping. The line read is the land line just found ( Now, +0x80f4 ); the index compared and stored is
 	/// the physics one ( Future, +0x7e54 ), June's mix ( JUNE_BUGS ). Leaving the remembered line releases my UID; a marked land line is remembered.
@@ -24140,7 +24151,11 @@ void CX2GUUser::PhysicProcess()
 				//position.z		= pDwnLineData->startPos.z;
 				//landPosition.x	= pDwnLineData->startPos.x;
 				//landPosition.z	= pDwnLineData->startPos.z;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+				landPosition = pLineMap->GetLandPosition( position, false, LINE_RADIUS, &lastTouchLineIndex );	/// June land helper 32010440 @32010ff8 ( start and end share it ): bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				landPosition = pLineMap->GetLandPosition( position, LINE_RADIUS, &lastTouchLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				position.x = landPosition.x;
 				position.z = landPosition.z;
 			}
@@ -24153,7 +24168,11 @@ void CX2GUUser::PhysicProcess()
 				//position.z		= pDwnLineData->endPos.z;
 				//landPosition.x	= pDwnLineData->endPos.x;
 				//landPosition.z	= pDwnLineData->endPos.z;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+				landPosition = pLineMap->GetLandPosition( position, false, LINE_RADIUS, &lastTouchLineIndex );	/// June 32010440 @32010ff8: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				landPosition = pLineMap->GetLandPosition( position, LINE_RADIUS, &lastTouchLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 				position.x = landPosition.x;
 				position.z = landPosition.z;
 			}
@@ -33526,7 +33545,11 @@ void CX2GUUser::SetPos( D3DXVECTOR3 vPos )
 	startPos = vPos;
 	int lineIndex = -1;
 	D3DXVECTOR3	landPos = vPos;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+	landPos = pLineMap->GetLandPosition( startPos, false, LINE_RADIUS, &lineIndex );	/// June SetPos 31fff4a0 @31fff619: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 	landPos = pLineMap->GetLandPosition( startPos, LINE_RADIUS, &lineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 	//pLineMap->IsOnLineConnect( startPos, &lineIndex, LINE_RADIUS, &landPos );
 	pLineMap->IsOnLine( startPos, LINE_RADIUS, &startPos, &lineIndex, false );
 

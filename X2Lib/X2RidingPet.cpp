@@ -1958,7 +1958,11 @@ void CX2RidingPet::SetPos( IN D3DXVECTOR3& vPos_, IN bool bIsRight_ )
 
 	int iLineIndex = -1;
 	D3DXVECTOR3 vLandPos = startPos;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+	vLandPos = pLineMap->GetLandPosition( startPos, false, LINE_RADIUS, &iLineIndex );	/// June SetPos 32d2db50 @32d2dca1: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 	vLandPos = pLineMap->GetLandPosition( startPos, LINE_RADIUS, &iLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 	pLineMap->IsOnLine( startPos, LINE_RADIUS + 10, &startPos, &iLineIndex, bIsRight_ );
 
 	const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLineIndex );
@@ -2022,7 +2026,11 @@ bool CX2RidingPet::InitPos()
 		D3DXVECTOR3 vStartPos = vPos;
 		D3DXVECTOR3 vLandPos = vStartPos;
 
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+		vLandPos = pLineMap->GetLandPosition( vStartPos, false, LINE_RADIUS, &iLineIndex );	/// June InitPos 32d2e090 @32d2e1dc: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 		vLandPos = pLineMap->GetLandPosition( vStartPos, LINE_RADIUS, &iLineIndex );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 		pLineMap->IsOnLine( vStartPos, LINE_RADIUS, &vStartPos, &iLineIndex, true );
 
 		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLineIndex );

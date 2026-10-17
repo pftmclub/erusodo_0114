@@ -625,3 +625,13 @@ white seal: only `AT_COMMAND` breaks it) needs the tag, so Atlas E10 ships a sta
 `AT_NORMAL` hit counts as `AT_COMMAND` for that test only (`X2GUNPC.h` `GetInvincibleByAttackType`). Every class port takes June's script with
 its tags; once all classes in play are ported, undefine the stand-in. Other `AT_COMMAND` readers (buff BBT 85/86/87/96, socket
 `EXTRA_DAMAGE_TYPE`) already depend on the same tags.
+
+### 7y. GetLandPosition's bMonster in class code (from June engine W1c)
+
+June's `CKTDGLineMap::GetLandPosition( pos, bool bMonster, fRadius, pLineIndex )` (`31c7bb00`) skips `LT_MONSTER_ROAD` lines unless the bool is
+true. W1c ports it with the March signature meaning `true` and gives June's `false` to the 10 shared user sites. Class code that calls it
+passes the bool June passes (`june2017_re/w1c_land_position_callers.tsv`): Eve's Dimension Link states pass `true` (already March's). June adds
+a call March lacks in Add's `ANSI_A_AN_PHASE_SHIFT_BLINK_StateStart` (`32a176c0` @`32a1787e`, `true`: lands the return position, March
+`X2GUAdd.cpp:8224` sets it unlanded) and in an Elesis anim-event NPC create (`32b7a0a0` @`32b7a354`, `true`, NPC `0x663` / `0x7b3`). Ain
+(`32a69467` `false` then `32a6989f` `true`), Rose and Luciel (all `true`) come with their classes. Lu/Ciel's minor-body block in
+`CX2GUUser::PhysicProcess` (`@320194bb`, `false`) belongs with 7o.

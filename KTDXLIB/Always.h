@@ -7924,3 +7924,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
 #endif SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase W1c. June's CKTDGLineMap::GetLandPosition (31c7bb00, ret 0x1c) takes a bool before the
+//              radius: an LT_MONSTER_ROAD (7) line counts only when it is true (@31c7bbc1). The rest of June's function is March's
+//              (LineToLine inlined, same index fallback and nearest-end pass). March's signature stays callable and passes true,
+//              which is March's old behaviour; the June call sites that pass false (users, 16 sites) pass it explicitly.
+//              Caller table: june2017_re/w1c_land_position_callers.tsv. Log tag [JUNE_ENGINE] WORLD.
+#define SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+// Short-lived: log the first 12 user land queries that skipped a monster road line they would have hit. Remove after the W1c play-test.
+#define SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+#error SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG needs SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
+//////////////////////////////////////////////////////////////////////////

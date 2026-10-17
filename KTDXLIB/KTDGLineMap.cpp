@@ -1066,7 +1066,12 @@ bool CKTDGLineMap::UpdateLineVB( bool bOnlyAnimLine /*= false*/ )
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+/// June 31c7bb00 ( thiscall, ret 0x1c ): March's body plus the monster-road skip. Callers: june2017_re/w1c_land_position_callers.tsv
+D3DXVECTOR3 CKTDGLineMap::GetLandPosition( D3DXVECTOR3 pos, bool bMonster, float fRadius, int* pLineIndex ) const
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 D3DXVECTOR3 CKTDGLineMap::GetLandPosition( D3DXVECTOR3 pos, float fRadius, int* pLineIndex ) const
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 {
 	KTDXPROFILE();
 	D3DXVECTOR3 zeroPos, pointL1, pointL2, retVal;
@@ -1091,6 +1096,26 @@ D3DXVECTOR3 CKTDGLineMap::GetLandPosition( D3DXVECTOR3 pos, float fRadius, int* 
 #endif	FIX_LINE_TYPE_WALL
 //}} kimhc // 2010.8.3 // WALL 타입의 라인맵 처리 변경
 		
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+		/// June @31c7bbc1, after the wall skip: a monster road counts only for a caller that passes true
+		if( LT_MONSTER_ROAD == pLineData->lineType && false == bMonster )
+		{
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
+			static int s_iJuneMonsterRoadSkipLog = 0;
+			if( s_iJuneMonsterRoadSkipLog < 12 )
+			{
+				D3DXVECTOR3 vJuneZero( pos.x, 0.0f, pos.z ), vJuneL1( 0.0f, 0.0f, 0.0f ), vJuneL2( 0.0f, 0.0f, 0.0f );
+				if( g_pKTDXApp->GetCollision()->LineToLine( pos, vJuneZero, pLineData->startPos, pLineData->endPos, fRadius, vJuneL1, vJuneL2 ) == true )
+				{
+					++s_iJuneMonsterRoadSkipLog;
+					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD monster-road skip: line " << i << " would land y " << vJuneL2.y
+						<< " from pos " << pos.x << " " << pos.y << " " << pos.z << " radius " << fRadius << fileout;
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD_DEBUG
+			continue;
+		}
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 		if( pos.y + fRadius < pLineData->startPos.y && pos.y + fRadius < pLineData->endPos.y )
 			continue;
 

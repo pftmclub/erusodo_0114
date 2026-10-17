@@ -1193,7 +1193,41 @@ class CKTDGLineMap : public CKTDGObject
 				return GetLandPosition( pos, fRadius, pTemp );
 			}
 		}
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+		/// June 31c7bb00: bMonster lets LT_MONSTER_ROAD lines count ( June's users pass false, NPCs true ). March's signature below
+		/// passes true, which is March's old behaviour ( no monster-road skip ).
+		D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, bool bMonster, float fRadius, int* pLineIndex ) const;
+		__forceinline D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, float fRadius = 1.0f, int* pLineIndex = NULL ) const
+		{
+			return GetLandPosition( pos, true, fRadius, pLineIndex );
+		}
+		__forceinline D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, bool bMonster, float fRadius, unsigned char* pLineIndex ) const
+		{
+			if( pLineIndex != NULL )
+			{
+				int tempLineIndex = *pLineIndex;
+				D3DXVECTOR3 vRetVal = GetLandPosition( pos, bMonster, fRadius, &tempLineIndex );
+				*pLineIndex = (unsigned char) tempLineIndex;
+				return vRetVal;
+			}
+			return GetLandPosition( pos, bMonster, fRadius, (int*) NULL );
+		}
+#ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
+		__forceinline D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, bool bMonster, float fRadius, unsigned short* pLineIndex ) const
+		{
+			if( pLineIndex != NULL )
+			{
+				int tempLineIndex = *pLineIndex;
+				D3DXVECTOR3 vRetVal = GetLandPosition( pos, bMonster, fRadius, &tempLineIndex );
+				*pLineIndex = (unsigned short) tempLineIndex;
+				return vRetVal;
+			}
+			return GetLandPosition( pos, bMonster, fRadius, (int*) NULL );
+		}
+#endif SERV_IRUHADEV_JUNE_LINE_INDEX16
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 		__forceinline D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, float fRadius = 1.0f, int* pLineIndex = NULL ) const;
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 #ifdef SERV_IRUHADEV_JUNE_LINE_INDEX16
 		// C3e-1: the user's syncData.lastTouchLineIndex is 16-bit now ( June 3201f5f0 +0x20 ); same wrappers as the unsigned char* ones, no default argument
 		__forceinline D3DXVECTOR3 GetLandPosition( D3DXVECTOR3 pos, float fRadius, unsigned short* pLineIndex ) const

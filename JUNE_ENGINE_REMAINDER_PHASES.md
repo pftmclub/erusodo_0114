@@ -1472,6 +1472,49 @@ Ghidra re-read (disassembly, read-only), all five sites:
 branch): June's `CKTDGLineMap::GetLandPosition` `31c7bb00` takes a bool before the radius that lets `LT_MONSTER_ROAD` lines count; March's has neither. Map the
 whole function and every caller's bool, then port it whole (rule 1). Not alongside W2 or atlas E5 (`KTDGLineMap.*`).
 
+### Phase W1c -- Done
+
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD` (`Always.h`), plus the short-lived `_DEBUG` (first 12 skipped hits
+logged; remove in the review once the play-test passed). Commit: `git log -S SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD`. Funcmap row `31c7bb00`
+raised to the full pseudocode (`Engine W1c`). Caller table: `june2017_re/w1c_land_position_callers.tsv` (83 rows).
+
+**Map.** June's `31c7bb00` (`ret 0x1c`) is March's `GetLandPosition` (`KTDGLineMap.cpp:1069`) plus one test: after the wall skip, an `LT_MONSTER_ROAD` (7)
+line is skipped unless `bMonster` (`@31c7bbc1`). The rest matches: `LineToLine` is inlined with `eps = fRadius` and the same branches and constants
+(`-1.0`, `0.0`, `1.0`, `0.5`, `999999.0` read from the exe); the hit test is `|d| < r` and higher `y`; the two index fallbacks have the same tie rules.
+March's existing code therefore behaves as June's `true`.
+
+**Callers (83 June sites: 16 pass `false`, 67 `true`).** Mapped by three Sonnet subagents; the bools were read from the push sequence by script; the
+`false` identities were spot-checked (`31fff4a0` = `CX2GUUser::SetPos`).
+- `false`, 10 March sites: `CX2GUUser` `InitPosition` (`:2677`), LAND_CHECK (`:19746`), PhysicProcess start / end (`:24143`, `:24156`; one merged June
+  call), `SetPos` (`:33529`); `CX2RidingPet` `SetPos` / `InitPos`; `CX2SquareUnit::PhysicProcess` start / end (merged); `CX2World` DoTriggerLine user loop
+  (W1b's); `CX2PartyManager::RememberComeBackInfo...`; `CX2StateServerSelect::Handler_EGS_STATE_CHANGE_FIELD_REQ`. `X2StateBeginning.cpp:3923` has the
+  same body but no June call site (R26 dead), so it keeps March.
+- `true` (March's behaviour, unchanged): 51 March sites (NPC, pet, path finder x30, AI, damage effect, Eve, TField, Lua wrapper).
+- No March call (22): Ain / Rose / Luciel, the Lu/Ciel minor body, Add / Elesis additions -> checklist **7y**; the three `CheckPos` Lua bindings
+  (already `absent` rows in `c3z4_class_gap.tsv`); a June-only come-back snapshot (packet `0x4f3`, nothing offline); `CX2PETAI::Moving`'s road
+  re-seat block -> new **W1d** (`kickoffs/june-engine/W1d.md`, STATUS row).
+
+**Port.** `KTDGLineMap.h`: June's 4-arg declaration; March's 3-arg `int*` overload becomes an inline forwarder that passes `true`; two
+bool-taking wrappers for `unsigned char*` / `unsigned short*` (the latter under `JUNE_LINE_INDEX16`). `KTDGLineMap.cpp`: the definition takes the bool,
+and the skip goes after the wall test. 10 call sites `#ifdef` / `#else` with the original call kept.
+
+**Hygiene** (`flagcheck --worktree --files`, 9 files): 8 PASS, 1 OTHER (`Always.h`: at the time, the peer's uncommitted R12 line, since committed);
+0 deleted lines, 0 non-ASCII inserted, 0 EOL-mismatched, 0 `#else`/`#endif` without token, 0 encoding change. Range: @@RANGE@@
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,811,840 B, dated 2026-10-17 23:17:49, md5 2455a22f44376fee754466a090095c80, equal to X2/US_SERVICE/x2.exe (2026-10-17 23:17:44); built at main 2bb92772 + 10 uncommitted code file(s).` (Second build after touching the six X2Lib files: a peer's build had compiled them mid-edit.)
+`KTDGEnvBoxMap.cpp` (peer R3/R12, uncommitted) is built in, not committed here. No kom changed.
+
+**Play-test hand-off.** Log tag `JUNE_ENGINE` (`python tools/logs.py --grep "WORLD monster-road"`). Soless Stage 0 (`WI_SOLESS_STAGE0`) has monster
+roads at lines 14, 15, 65, 68 (June bytecode, live since E10). Expect `[JUNE_ENGINE] WORLD monster-road skip: line N would land y ...` (at most 12) when
+the player is over one. The player never stands on a monster road, and monsters still use them (they walk and land as before).
+
+## Phase W1d - Pet re-seat on the master's road type
+
+**Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT` (proposed). Added by W1c (an unowned
+June branch): June's `CX2PETAI::Moving` (`32ef68b0`, block around `@32ef6a95`) re-seats a pet onto the nearest other line (`31c688c0`, then
+`CX2PET::SetPosition` `326eb090`) when, in a field or square game, its line type differs from its master's. March's `Moving` (`X2PetAI.cpp:400`)
+has no such block. Map `32ef68b0` whole against March, then port it whole (rule 1).
+
 ## Phase W2 - Portal-line markers
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:

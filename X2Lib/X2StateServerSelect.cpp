@@ -7306,7 +7306,11 @@ bool CX2StateServerSelect::Handler_EGS_STATE_CHANGE_FIELD_REQ(bool bForceMove)
 										fLastPosValue = 1.f;
 
 									vStartPos = pLineData->startPos * (1.f - fLastPosValue) + pLineData->endPos * fLastPosValue;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
+									vStartPos = pLineMap->GetLandPosition( vStartPos, false, LINE_RADIUS, (int*) NULL );	/// June STATE_CHANGE_FIELD_REQ 32561f70 @325621ed: bMonster false
+#else SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 									vStartPos = pLineMap->GetLandPosition( vStartPos, LINE_RADIUS, (int*) NULL );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_LAND_MONSTER_ROAD
 
 									startPos = -1;
 								}
