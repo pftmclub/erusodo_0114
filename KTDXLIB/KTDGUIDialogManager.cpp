@@ -1020,7 +1020,8 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 
 #ifdef DIALOG_SHOW_TOGGLE
 	// June: m_bCanHide ( +0xbc ) && !m_bShow ( +0x34 ) -> only the current hide mode's dialog list ( +0xd4 ), then return. Mode 1
-	// ( hide all ) is March's list below; June's modes 2-5 are Effect C3p-2's routed rows.
+	// ( hide all ) is June's preset ( 32597410 @3259b25e-3259b318 ): March's four names, then DLG_Exit_Party_MsgBox. The show test
+	// is June's dialog render's own ( 31cd7810 ). June's modes 2-5 are Effect C3p-2's routed rows.
 	if( GetHideDialog() == true )
 	{
 		CKTDGUIDialogType pDialog = GetDialog( L"DLG_ChatBox_EditBox" );
@@ -1036,6 +1037,10 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 			pDialog->OnFrameRender();
 
 		pDialog = GetDialog( L"OkAndCancelMsgBox" );
+		if( pDialog != NULL && pDialog->GetShow() )
+			pDialog->OnFrameRender();
+		// R8 review: June's fifth mode-1 name ( 334a9fb4; the June-only DLG_UI_ExitPartyMsgBox.lua, which March never opens )
+		pDialog = GetDialog( L"DLG_Exit_Party_MsgBox" );
 		if( pDialog != NULL && pDialog->GetShow() )
 			pDialog->OnFrameRender();
 

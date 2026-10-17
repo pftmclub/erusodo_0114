@@ -586,6 +586,66 @@ descriptions and the dragged slot, so those draw twice per frame. Not-cull objec
 (village `over 7`; dungeon `over 9`, alpha < 500 at 0-4, culled 56-100), and the alpha >= 500 chain stayed at 0, so it was not exercised.
 Review kickoff: `kickoffs/june-engine/R8-review.md`.
 
+### Phase R8 -- Review
+
+**2026-10-17, Opus 5.5. PASS, with one transcription fix** (`JUNE_UI_DIALOG_BANDS`, mode-1 hide list) and JUNE_BUGS 253 corrected to
+visible. Everything below was re-read from `unpacked_x2.exe` (Ghidra, plus a raw read of the file).
+1. **State tables.** `33728270` (12), `337284e0` (20) and `33728620` (23) were re-decoded, and the counts in `31ce6310` match (`+0x44` 0xc,
+   `+0x6c` 0x14, `+0x74` 0x17). Every entry equals `akRSICKTDXDeviceTextureAdd` / `akRSICKTDGUIDialogJune` / `akRSICKTDGUIDialogAdd`, in
+   order. SRC / DEST = 1 (ZERO) is confirmed (JUNE_BUGS 251).
+2. **Dialog manager.** `31d053f0` / `31d05700` = `_OnFrameRenderJune`:
+   - Hide path: `+0xbc && !+0x34`, then the `+0xd4` list. June's loop has no show test because `31cd7810` tests `+0x6e` itself, so March's
+     `GetShow()` is equivalent.
+   - Flagged-only branch: `+0x1e0` and show, no band.
+   - Band test: in the normal branch only, inclusive at both ends (`@31d058bf`).
+   - Guide controls: drawn under the `+0x68` block. `31c7b670` / `31c19b90` are the KD3D scope plus the push.
+   - Drag slot: drawn only when `bFront`.
+   **Fix:** June's mode-1 preset (`32597410 @3259b25e-3259b318`) is March's four names followed by `DLG_Exit_Party_MsgBox` (`334a9fb4`).
+   The port had only the four, so the fifth was added under the same flag. Nothing changes in game: only June's `DLG_UI_ExitPartyMsgBox.lua`
+   names that dialog, and March never opens it.
+3. **Chain sort and FrontUIRender.**
+   - Split: `cmp 0x1f4; jl` (`@31ceb767`), so layer < 500 goes to `+0x15c` and 500 and above to `+0x16c` (= `< 500`).
+   - Order: not-cull `+0x17c` is tested before the vslot 0x34 call. InstantShow `+0x173` is cleared and set where March does it.
+   - Sorts: `+0x14c`, `+0x15c`, `+0x16c`, `+0x13c`.
+   - FrontUIRender pass 0: the order and the `+0x110` test inside each KD3D scope = the port.
+   - Comparator `31cebc00`: the left key < right key (signed) only on equal layer and equal distance (`FUCOMPP`, `TEST AH,0x44`) = the port.
+     The particle key store `@31cf92a1` = the handle.
+4. **Frustum.** `31c829e0` = the port:
+   - radius = max scale x `+0x15c` (a radius <= 0 returns true);
+   - the third float is added only when it is not 0;
+   - `+0x18c` = -1, then the first plane with dot < -r;
+   - culled flag `+0x174`.
+   The wrapper `31ce6c90` has no not-cull test (= the port). The sort is June's only reader of `+0x17c`.
+5. **Hint loop.** Both batch sites of `31ce6eb0` were checked:
+   - with a stateID set, the inline pop to the stack top comes first;
+   - then one pass over `iStart..iIndex`: state switch, `31d3c030`, vslot 0xc;
+   - no Begin / NextRenderGroup;
+   - the stateID is cleared after the batch (`@31ce7662`; site 2 runs into the function end).
+6. **Layers above 500.** A `.text` scan for dialog-manager vslot 0x30 / 0x38 calls finds:
+   - `31ce935c` / `31ce93de` (bFront 0);
+   - FrontUIRender's three;
+   - `31ef76b0`, which calls vslot 0x30 (1, 0) only while `+0x110` == 1.
+   So nothing else draws a front dialog of layer 501+. June still builds the Lua scene's object dialogs as front, layer 502
+   (`@325b3981-325b3986`). But June's Lua `PlayEventScene` (`327ccad0`) calls `g_pData+0x274` -> `3226b130`, the GFx scene player
+   (`Tutorial_Back.swf`, GFx `+0x1c8`), so June never shows a Lua scene's objects. **This client still plays quest start / end scenes through
+   the Lua `CX2EventScene`** (`X2UIQuestNew.cpp:938` / `:1524` / `:1660` / `:1901`). Its skin meshes and textures are drawn only by their
+   502 dialog (`X2EventScene.cpp:870` / `:1099` / `:1130`), so since R8 those characters are invisible. **User 2026-10-17: keep June as it
+   is, no FIX flag,** until june-gfx plays scenes through GFx. JUNE_BUGS 253 is now marked visible, and the G0 kickoff carries the gap.
+7. **State reset.** `31be6510` calls `RestoreDeviceObjects( settings[0] AdapterOrdinal, settings[1] DeviceType )` (`@31be656e`) after
+   BeginFullSync and before SetViewport. `31be66b0` calls `InvalidateDeviceObjects` (`@31be6728`) after the stages, EndFullSync and GFx.
+   Both = the port. March has no other caller of either.
+
+**Hygiene** (`--range b1f197ca^..b1f197ca`): RESULT PASS for all seven flags, with 0 FAIL / ERROR. Every OTHER row is a sibling R8 flag
+in the same file. DG_LISTS and HINT_NO_GROUP have no file of their own: their lines are all in `KTDGManager.cpp`'s shared row.
+`git log -S` finds no later touch. The review fix: `flagcheck JUNE_UI_DIALOG_BANDS --worktree --files KTDGUIDialogManager.cpp` PASS
+(+6 -1; the -1 is a comment inside the flag).
+**Play-test log** (exe = R8's deploy, md5 9ff6fb3c): 27 `[JUNE_ENGINE] DG chains` lines; alpha >= 500 never filled; no event scene played.
+**Build:** not deployed. Both `build.py --deploy` runs (20:38, 20:41) failed in `KTDXApp.cpp` on a peer's unfinished U1 edits
+(`SetGroupOffset`, combo-box setters), the block R11 also hit. The fix is committed and ships with the next successful build from `main`.
+It needs no play-test of its own, since March never opens the fifth dialog.
+**Routed:** the hide-mode lists go to june-gfx G0 (kickoff amended): the `+0xd0` map, the presets in `32597410`, and the readers OnFrameMove
+`31d06100` and `31d05b80`, which also read `+0xd4`. Also the Lua-scene layer gap above. Funcmap rows tagged `Engine R8 review`.
+
 ## Phase R9 - Render small deltas
 
 **Run with:** Sonnet 5.5 high, then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_SMALL_DELTAS` (split if
