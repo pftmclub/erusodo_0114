@@ -3751,10 +3751,10 @@ Done when: Phase E4's "Done when" holds. Record a Done note (DEPLOY OK commit), 
   `19 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
   `RESULT: PASS`. The 19 deleted lines are A7's own flagged lines: two stale "until atlas E4" comments and A7's 17-line hidden-buttons tail.
   After commit, `--range cccffdb2^..cccffdb2` (same files): `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, same in-flag line, `RESULT: PASS`.
-- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,705,856 B, dated 2026-10-17 12:04:18, md5 4294a0c35e2165e363ed15b65d4c7871, equal to X2/US_SERVICE/x2.exe (2026-10-17 12:04:13); built at main 369d7a1b + 3 uncommitted code file(s).` (E4's 3 files). Proof: the UTF-16LE literals `[ELYDBG] local map Elysion: scroll direction`, `[ELYDBG] local map Elysion guide: checkfile.txt absent`, `DLG_Elysion_LocalMap_Guide.lua` are in the deployed exe; A7's `move buttons %s/%s hidden` is gone. `COPY` of data034 pending (user OK).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,705,856 B, dated 2026-10-17 12:04:18, md5 4294a0c35e2165e363ed15b65d4c7871, equal to X2/US_SERVICE/x2.exe (2026-10-17 12:04:13); built at main 369d7a1b + 3 uncommitted code file(s).` (E4's 3 files). Proof: the UTF-16LE literals `[ELYDBG] local map Elysion: scroll direction`, `[ELYDBG] local map Elysion guide: checkfile.txt absent`, `DLG_Elysion_LocalMap_Guide.lua` are in the deployed exe; A7's `move buttons %s/%s hidden` is gone. `COPY OK data034` md5 cdb289c0 (user OK).
 - **Expected until E8-E11:** page 1's dungeon buttons stay hidden (no DungeonData for SkyCrossroads / Adrian / Soless / Memory), but its
   title plates and the four star strips (STAR4-7, all pictures as the lua sets them) show. June never shows that state; it ends when E8-E11 add
-  the DungeonData. Question for the user in the hand-off.
+  the DungeonData. User (2026-10-17): leave it, no stand-in.
 - **How to see it:** M on reyaa (Grand Archer, 85) -> right arrow -> Elysion tab: guide pops up (first time), Up button blinks; Up slides the
   map to the Elysion page, Down slides back. Log: `[ELYDBG] local map Elysion guide: ...`, `scroll direction`, `scroll ended, page`.
 
