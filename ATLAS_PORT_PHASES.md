@@ -2225,6 +2225,9 @@ main.
    - **`DungeonData`:** comment out `m_iRequireCompleteQuestID` with `-- quest plan:`. `IsActiveDungeon` (`X2DungeonManager.cpp:750`)
      would otherwise lock the dungeon forever offline. Keep everything else verbatim, including Ciel / Lu / Ain / Rose keys and
      `EXTRA_REQUIRE_DUNGEON_ID`. Name the omitted Hero rows (C3y-5) and their June ranges in the header.
+   - **Self-check (A8 review):** diff each appended block, comment lines dropped, against the June slices; the only allowed difference is
+     the commented quest key. Grep the whole file for each new `dungeonID` / `NPC_ID` / `worldID` and expect exactly one hit. (NPCTemplet already
+     carries two pre-existing duplicates, `NUI_RANOX_BURNDEDFOREST_GATE` / `NUI_RANOX_ASHESVILLAGE_GATE`; they are not a line's to fix.)
    - **`NPCTemplet`:** add only the rows that are missing. Check that each row's `MOTION` mesh is staged
      (`ls kom_contents/*/Motion_X.[xX]`).
    - **`WorldData`:** every `WI_*` the dungeon's stages name. The boss world is often already in (C3y-1b).
@@ -2234,7 +2237,8 @@ main.
    Elysion NUI; `NPCStat` (data037) carries only some, exactly as June. The meshes: the A6 region closure staged them.
    `npc_mesh_census.py` has no read-only mode (it rewrites its tracked TSVs), so check meshes by name instead.
 6. **Boss face:** `BOSS_GAGE_FACE_TEX` + `_PIECE` in the boss scripts (`X2GUNPC.cpp:4424-4436`). The pieces are UTF-16LE names
-   inside the TET (`data215 DLG_BossState_02.TET` holds the Elysion faces).
+   inside the TET (`data215 DLG_BossState_02.TET` holds the Elysion faces). Search case-insensitively: the lookup upper-cases the key
+   (`SetTexureData_`, `KTDGUIControl.cpp:733`), and the TET may store it upper case (Dekal's `NUI_Science_Dekal` is `NUI_SCIENCE_DEKAL` there).
 7. **Effects, buffs, sounds** over the unit, dungeon and stage scripts:
    - effect-set, damage-effect and particle names, one level into the effect sets;
    - names built at runtime (`..`);
@@ -2252,7 +2256,7 @@ main.
    - `keys.file` `CT_*` / `CF_*` / state names are Lua-internal condition tables (`X2GUNPC.cpp:6443`, `BeginTable(name)`).
    - `TARGET_FRONT_ME`, `AFTER_IMAGE_DEST_ALPHA_BLEND` and `ANIM_SPPED` are never read by June (A1b).
    - `LINE_NUM` = B73.
-   - `REWARD_RATE`, `NPC_REWARD_RATE` and `DROP_TIMES` are server-only (A1b :1087).
+   - `REWARD_RATE`, `NPC_REWARD_RATE`, `DROP_TIMES` and `CREATED_NPC_DROP_TIMES` are server-only (A1b :1087).
    - `keys.registry` `ENDING_SPEECH0` / `LU` / `CIEL` (A1b :1077-1088).
    - `assets.absent` = June ships no such file either.
 10. **Pack, ask, hand off.** Run `kom.py pack` for each touched kom. Ask before each `copy`. A data-only line needs no build.
@@ -2285,6 +2289,41 @@ and those 50 are only the routed classes of checklist step 9 (5 `assets.absent`,
   ErrorLog must show no `DungeonData` / `NPCTemplet` / `WorldData` load errors.
 - **Play-test PASSED 2026-10-17 (user):** AD entered from the local map and played through on the copied koms.
 - **Open:** kill rewards (Stage 23).
+
+### Phase A8 — Review
+
+**2026-10-17, Opus 5.5 high. PASS; no transcription error, no repack, no copy.** Doc-only fixes: three checklist lines and the Stage 23 scope.
+
+- **Registry rows verbatim.** Each appended block, minus comment lines, was diffed against the `june_src_fixed` slices:
+  - `DungeonData` vs June :29932-30178: the one difference is the commented `m_iRequireCompleteQuestID = 22218` (Normal only; Hard / Expert carry none).
+  - `NPCTemplet`, 11 rows in 5 ranges: 0 diff. The gaps are PIMPIM, `HERO_WIMP` (Hero tier) and EVENT_DISION, all correct to skip.
+  - `WorldData` :3205-3219: 0 diff.
+  - No duplicate `dungeonID` / `NPC_ID` / `worldID` for any block id. BOM and CRLF are intact in all three files.
+- **Quest key.** Commenting it out is the right reading of decision 2. The decision says March reads none of the quest keys, but
+  `IsActiveDungeon` does read `m_iRequireCompleteQuestID` (`X2DungeonManager.cpp:750`, parsed at `:241`), so a live key would lock AD offline.
+  The text is kept and restorable, not tidied away. The Hero omission still holds: C3y-5 is `ready`, and DungeonEnum has no Hero AD ids.
+- **Adopted files.** The six data040 files match the sha1s in `june_adopt_20261017_071905.tsv`. Each starts with `1B 4B 4C 81` and has
+  manifest `"2"`. An `adopt-june --dry-run` re-derive reports all six identical.
+- **Premises (spot-checks).**
+  - NPC readiness for PLINGCHU_G / BERMEVA / DEKAL: Enum :4673 / :4676 / :4679, the NPCTemplet row, the `Motion_*` mesh in data181, and the NewNPCStat row are all present.
+  - Boss face: Dekal's piece `NUI_Science_Dekal` is stored as `NUI_SCIENCE_DEKAL` in the TET (offset 5994). That is fine because the lookup
+    upper-cases the key (`KTDGUIControl.cpp:733`). `NUI_ELSION_DEKALPYURITA` is an exact match (offset 3920).
+  - Buffs: `BFI_BUFF_DEKAL_DEFENCE_SHIELD` 665 is a factor id; its templet is `BTI_` 664, and both are in `BattleFieldBuff*`. `BGI_JUST_BUFF` 4 is present.
+  - Effects: Dekal's 3 effect sets and 2 damage effects are in June's `EffectSet` / `DamageEffect`.
+- **Offline claims.** The server `DropTable.lua` `AddMonsterDropInfo` stops at `DungeonID = 33252`, and has no rows for 333xx or for NUIs 2092-2127,
+  so "kills pay nothing" is confirmed. The Stage 23 brief and `JUNE_PORT_BACKLOG_ORDER.md` Stage 23 named only fields; both now name the
+  dungeons (`AddMonsterDropInfo`) too.
+- **Hygiene.** `LEDGER CHECK PASS: 0 FAIL, 0 WARN`; `CORE CHECK PASS: 0 FAIL, 0 WARN`.
+  - Census `--line AD`: header 50 open (5 `assets.absent`, 47 `keys.file`, 3 `keys.registry`); every row is in a step-9 class.
+    The 47 are 42 `unit:` rows plus 5 rows that span several lines: the four dungeon reward keys and `LINE_NUM`. The class counts add up to 55
+    while the header says 50. That is the census's own counting, the same 50 A8 reported, not a new gap; the review did not trace it.
+  - `--live`: the same open rows, `live {"same": 280}`.
+- **Checklist.** It is complete enough for A9 and E8-E11. The review added three things:
+  - step 4 gets a verbatim / duplicate self-check;
+  - step 6 says to search the TET case-insensitively;
+  - step 9 adds `CREATED_NPC_DROP_TIMES`.
+
+  For A9: the boss is `NUI_ELSION_SUVEILLAN` 2120 (Appendix A). The A9 kickoff was written and committed by the A9 session (`4fb90cb1`).
 
 ---
 

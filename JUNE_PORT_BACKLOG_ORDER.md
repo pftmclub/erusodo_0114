@@ -677,6 +677,9 @@ wildcard key 0) and `StaticDropTable.lua` (`AddBattleFieldStaticDropInfo`), read
 - **Scope:** design and implement a stand-in for the missing field rows, both regions, behind its own `SERV_IRUHADEV_` flag, labelled in the log.
   Candidate sources to weigh: June client data that names drops (item templets, `DROP = TRUE` per spawn), A2's `NpcExpTable` 81-99, the
   pattern of the last real region (Sander 40022-40025 rows, by level), and the Lanox / Elysion dungeons' own rows if the server files have them.
+- **Dungeons are in scope too (atlas A8 review, 2026-10-17):** they have no rows either. `DropTable.lua`'s `AddMonsterDropInfo` stops at
+  `DungeonID = 33252`, so Lanox 33300 / 33310 and AtlasDevelopment 33330-33332 kills pay 0 EXP / ED / items (and the 30 % clear bonus is 0).
+  A9-A10 and E8-E11 add more such dungeons. The stand-in covers `AddMonsterDropInfo` (keyed `DungeonID` + `MonsterID`) as well as the fields.
 - **Rules:** never invent silently; the user picks the design before code (memory `design-missing-june-pieces`); server Lua is the user's to pack
   if the stand-in lives in `DropTable.lua` / `StaticDropTable.lua` (CLAUDE.md server-Lua rule).
 
