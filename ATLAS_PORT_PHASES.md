@@ -3291,7 +3291,8 @@ VMI_SPA_RANOX`), and every one of its 37 portal targets is a battle field. June 
 `VillageParsing` key owned by E1 is left unread.
 
 **June behaviour changes in March villages:**
-- Ranox's spa-entrance row (146) is no longer a portal. In March it drew a portal gate and tilted the camera but led nowhere (no BattleFieldId).
+- Ranox's spa-entrance row (146, at the Ranox door) is no longer a portal. March's code listed it as one: gate effect within 2000, camera tilt within 3000,
+  never a move, since it has no BattleFieldId. The door itself is world art (user, play-test: "just the door"). Entering the spa through it is June's spa system: backlog Stage 24.
 - Every village portal now runs June's block. Results are the same for March's battle-field portals: same 100 / 2000 / 3000 ranges and a 3.0 s wait.
 
 **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_VILLAGE --worktree --with SERV_IRUHADEV_ELYSION_DEBUG --files <6 code files>` right after the edit: `files: 5 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;

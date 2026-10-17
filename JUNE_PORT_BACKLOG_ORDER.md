@@ -685,6 +685,26 @@ wildcard key 0) and `StaticDropTable.lua` (`AddBattleFieldStaticDropInfo`), read
 
 **Depends on:** atlas A6 (done). Touches `X2Lib/Offline/` and server Lua only; runs alongside any stage.
 
+### Stage 24: June spa villages (atlas E1d, 2026-10-17)
+
+Found by atlas E1d (Done note): June has two spa villages, `VMI_SPA_RUBEN` 1500 (no March enum) and `VMI_SPA_RANOX` 1501, and March has neither
+village row. The Ranox door is the entrance: Ranox's `START_POS` 146 (`IsSpaEnter`, `OtherPlaceID = VMI_SPA_RANOX`, line 1). On today's data,
+walking up to the door does nothing (user, E1d play-test: "just the door").
+- **Already landed (E1d):** `VillageParsing` reads `IsSpaEnter` / `IsSpaOut` / `SPA_INFO` (type + `LineIdx`, templet +0x70). June's link filter
+  `324f2ff0` keeps spa rows out of the portal list. There is no portal camera inside a spa.
+- **Scope:**
+  - June's `Village[VMI_SPA_RUBEN]` / `[VMI_SPA_RANOX]` rows (June `DLG_Map_Village` :4424 / :4502; core-list file) and the spa worlds / assets.
+  - June's entrance / exit lists `324f2ca0` (TFieldGame +0x324) and `324f2d30` (+0x334). The TFieldGame ctor builds them only when
+    code event 31 is on (@323bb5c9-323bb5ee). Port their consumers too: whatever reads +0x324 / +0x334 and moves the player.
+  - `SPA_INFO`'s `SPA_BUFF_TYPE` buffs by line.
+  - The emulator's state change into 1500 / 1501.
+  - Spa avatars are the cosmetic stage's (line ~382).
+- **Rules:** June wins. Find June's consumers in Ghidra before planning phases. If code event 31 is off offline, decide with June's own behaviour
+  where the event is absent (memory `design-missing-june-pieces`).
+
+**Depends on:** atlas E1d (done). Touches `X2TFieldGame.*`, `X2LocationManager.*`, `DLG_Map_Village.lua`, `X2Lib/Offline/`; not alongside
+another session in `X2TFieldGame.*`.
+
 ## Open decisions that gate stages
 
 | Decision | Gates | How to settle |
