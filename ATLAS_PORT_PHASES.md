@@ -4682,7 +4682,28 @@ Done when: staged with manifests, pack list handed over. Record a Done note, the
 
 ### Phase E12 — Done
 
-*(empty)*
+*(2026-10-17, Sonnet 5.5; data only, no C++, no build, no flag beyond the Lua block's `SERV_IRUHADEV_ELYSION_PORT`.)*
+
+- **Adopted, ljconv, no edit** (`adopt-june`, records `june2017_re/june_adopt_20261017_174813.tsv` / `_174816` / `_174905`):
+  data040 `PVP_Elysion_Field.lua` (12154 B) + `PVP_Elysion_Field_LineMap.lua` (8623 B); data036 `PVP_Map_List.lua` (June's file replaces the
+  Lanox-patched one: it already carries the Ranox row and adds the `MAP_SELECT_ELISION` row; June also swaps `m_MapSize` on two older rows,
+  taken as June has it; the superseded `.src.lua` is in `kom_backup_stage_june/20261017_174816`); data034 `DLG_PVP_Map_List.lua` (the
+  PvP room's own map window: March's had **neither** Ranox nor Elysion, Lanox Phase 11 only patched the party-UI list).
+- **BOM source:** `WorldData` (data040, core list) gets June :3700-3704 `WI_ELYSION_FIELD_PVPMAP` (752) verbatim as an `atlas E12` block;
+  `luasrc.py refresh` done, the core row's why extended. `core --check` and `ledger --check` PASS.
+- **Map-select art keys (a Lanox gap too):** `DLG_New_PVP_Image09.TET` (344 B, new in data215) holds `MAP_SELECT_ELISION` **and** Lanox's
+  `MAP_SELECT_RANOX`; `DLG_New_PVP_Image_TITLE.TET` (data065, 1468 -> 2048 B) adds both `MAP_SELECT_*` keys (March keys all kept; June also adds
+  4 Winner / Resiam title keys, unused here). The two `.dds` are already staged (same sizes as June).
+- **Checked, nothing to do:** 16 enum tokens + 44 Lua methods in the two scene files all bound / present; 27 mesh and texture names staged
+  (A6 closure covers their embedded textures: 34 `PVP_Elysion` rows in `atlas_a6_region_closure.tsv`); `field_elysion001.ogg` in `music/`;
+  `rain-blend.tga` staged; LineMap uses only `LT_NORMAL` / `LT_JUMP_UP_REL` (36 lines, no `LT_FIRE_GROUND`, so no Lanox-style substitution);
+  `STR_ID_44262/44263/13601` exist in `General.ess` (also settles Lanox's open `STR_ID_4426x` risk: both resolve).
+- **Left out on purpose:** `WINNER_Adrian_PVPMAP` (757, tournament), as the plan says.
+- **Packed:** `PACK OK` data034 / data036 / data040 / data065 / data215. **Copy: asked, not done** (`/x2-kom-packed copy` per kom, user OK first).
+- **How to see it:** PvP lobby -> create a PvP room -> map window: the Ranox and Elysion entries with art and names; pick Elysion and start.
+  The offline emulator has no PvP session (see memory "Offline client has no PvP"): if the room cannot be created, the only check is a clean load:
+  `python tools/logs.py --grep "WorldData|PVP_Map_List|PVP_Elysion|DLG_PVP_Map_List"` shows no error. Say which happened.
+- **Open for E13:** re-run the closure over the PvP scene (done by hand here, not by the script).
 
 ---
 
