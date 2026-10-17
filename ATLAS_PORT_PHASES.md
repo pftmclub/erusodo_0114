@@ -4520,7 +4520,7 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   <- `ClearJuneAdditionalWorld` <- `CX2Game::Release`. E7 cleared the additional worlds after `SAFE_DELETE( m_pCamera )`; June 323080c0 deletes world (+0x39c),
   clears (322d7f90 @323083ff), then camera (+0x3b0 @32308404). Fixed under `SERV_IRUHADEV_ELYSION_SCRIPT_B` (`X2Game.cpp` Release order).
   (2) **Stage3 seals took both attack types.** E7 parsed `INVINCIBLE_ATTACK_TYPE` but noted "June reads neither"; June does: NPC state start
-  327ad91e-327ad957 push_backs StateData +0x434 into NPC +0x83f0 (never cleared, JUNE_BUGS 244), and slot 95 3275bbf0 (`GetInvincible( DamageData* )`;
+  327ad91e-327ad957 push_backs StateData +0x434 into NPC +0x83f0 (never cleared, JUNE_BUGS 246, renumbered in the review), and slot 95 3275bbf0 (`GetInvincible( DamageData* )`;
   funcmap row 1011 misread DD+8 as an attacker UID: it is `attackType`) tests it at both NPC DamageReact invincible sites. Ported:
   `SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE` (`X2GUNPC.h` `GetInvincibleByAttackType` + list, `X2GUNPC.cpp` :9821 / :11459 sites, state start).
   June tags combos `AT_COMMAND` in its class scripts; March's are untagged (`AT_NORMAL`, both parsers' default, June 32632d46-32632d5e), so the white
@@ -4549,6 +4549,43 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   cause the play-test-3 deaths; this run's two deaths had the boss as killer. The repeated after-revive deaths did not reproduce: closed as an
   unexplained edge case (user, 2026-10-17). Diagnostic removed (files restored to their bytes before `c3f460c6`, 33 lines);
   `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 17:21:12, md5 d73b1838804aeeb79fdc67ab35d0dfae`.
+
+### Phase E10 — Review (2026-10-17)
+
+**Opus 5.5 high. PASS, one bookkeeping fix, no repack, no copy.** Run after the peer's E11 commit (`61e99328`); the E10 blocks are unchanged by it.
+
+- **Registry rows verbatim (CRLF / BOM normalised, 0 diffs):** `data035 DungeonData.lua:18059-18293` = June :33120-33354 (235 lines); `data037 NPCTemplet.lua:20718-21114`
+  = 45 June rows, each byte-identical, in June's line order (:21019 .. :21514); `data040 WorldData.lua` body (33 lines) = June :3405-3437. Every new
+  `dungeonID` (`DI_SOLESS_NORMAL/HARD/EXPERT` 33890-33892) / `NPC_ID` / `worldID` once per file. June has no `DI_SOLESS_HERO_*`. Left out: `NUI_ELYSION_SOLESS_EVENT2`
+  / `_A` (June :21172 / :21181; no March enum; 0 hits in the 13 data040 files, the 3 Soless dungeon scripts or any June Soless source; only `Enum` / `NewNPCStat` /
+  `NPCTemplet(_LA)` name them; March's `NewNPCStat` rows for them stay inert).
+- **Unlock chain:** all three rows require `DI_ADRIAN_NORMAL` (33880), as June (Hard / Expert also key on Normal). June's Memory N/H/E all name `DI_SOLESS_NORMAL`.
+- **Adopted files:** the 13 data040 files = `shipped_sha1` / size in `june_adopt_20261017_150655.tsv`, header `1b4b4c81`, kom_contents manifest `"2"`.
+- **Boss (`ljbc` listing, 8,886 lines):** 105 distinct method names; bindings spot-checked (`SetShowAdditionalWorld` `X2Main.cpp:3984`, `PlayAdditionalWorldAllSound` :3985,
+  `GetBuffAccumulationCountNow` :4361, `SetThornsInfo` :4369, `SetMovieDescriptionData` :4784, `CreateSimpleDLG` :3940). **Correction to the Done note:** proto 60
+  is `KSHORT 10 3; ISGT 10 9; JMP` (skip when 3 > count), so the AWAKEN step fires at **count >= 3** (its own print: "3 buff user find!!"), not "> 3". June's bytecode
+  is unedited, so nothing to fix. Phase 2: proto 93 continues when game Int(9) <= 0, NPC Flag(2) false and NowHP < MaxHP x `g_iPhaseChangeContidion_Soles`; proto 97
+  `SetShowWorld(false)`, `PlayWorldAllSound`, `SetShowAdditionalWorld(0, true)`, `PlayAdditionalWorldAllSound`, `Motion_BOSS_SOLESS_2PHASE.x`, Phase1 / Phase2 statics:
+  E7's reader holds (play-tests 3 / 4 saw it). Endings: proto 56 true on Flag(3) == true, 57 bad on Flag(3) == false.
+- **JUNE_BUGS 240-243:** 240 June `327f3c40`: `BeginTable` `READY_NPC`, `GetValue( 1 )`, loop until the first miss (= March). 241: `region_engine.tsv` B40, no XOR / ASCII /
+  UTF-16 string, no Lua definition. 242 / 243 hold (census `members.june_nil` = `LT_INVALID`, `NUI_ELYSION_S_CIRCLE_CTR`).
+- **Play-test fixes, re-read in June:** slot 95 `3275bbf0` = walk +0x83f0..+0x83f4 for `[DD+8]` (March DamageData: `damageType`, `attackerType`, `attackType`), hit ->
+  true, else vtable +0x180 (slot 96): = `GetInvincibleByAttackType`. State start: `SetForceInvincible` `3231dc20` (+0x368 / +0x36c) then `327ad91e-327ad957` push_back of
+  every StateData +0x434 entry into +0x83f0, no clear: = port. Parser `3278f63c-3278f6a4`: `BeginTable( i )`, `GetValue( 1 )`, skip -1, `EndTable`, i++ until
+  `BeginTable` fails: = E10's fix. Release `323083e5-32308416`: world +0x39c, `322d7f90`, camera +0x3b0: = port. `MOVABLE_LINE_END` is the user-observed port gap
+  (JUNE_BUGS 230 "fixed"); the stand-in is the user's choice (checklist 7x). `LoadReadyNPC` probe only reads past the loop's end and logs.
+- **Fix:** **JUNE_BUGS had two rows numbered 244** (E9 review's Adrian `MOTIONNAME_EFFECTSETNAME`, `36bb6fdb`, came first; E10's never-cleared list, `1077e562`,
+  second; 245 is E11's). E10's row is now **246**, placed after 245; the `X2GUNPC.cpp:15882` comment (bytepatch, CP949 unchanged) and the Done note's reference say 246.
+  The kickoffs that say "244" for the Adrian row (W1) stay right.
+- **Hygiene:** `flagcheck --range` per flag: `ELYSION_DEBUG` (`3d01ca68`) `1 PASS ... 0 FAIL`, `0 deleted`; over `30b389d6^..48f5194e`: `MOVABLE_LINE_END` 1 PASS, 0 deleted;
+  `SCRIPT_B` 2 PASS, 5 deleted (2 = the moved camera delete and E7's clear line, 3 = E7's own int parser lines inside the flag); `INVINCIBLE_ATTACK_TYPE` 2 PASS,
+  0 deleted, 2 plain `#else` (nested in `JUNE_BUFF_NEW_FLAG`); `ATTACK_TYPE_STANDIN` all OTHER (inside INVINCIBLE), 0 FAIL; all `RESULT: PASS`. This fix:
+  `--worktree --files X2Lib/X2GUNPC.cpp` `1 PASS, 0 FAIL`, 1 deleted (the replaced comment line), `RESULT: PASS`. `REVIVE_DEBUG`: no use left in `X2Lib` / `KTDXLIB`.
+  `LEDGER CHECK PASS: 0 FAIL, 0 WARN`, `CORE CHECK PASS: 0 FAIL, 0 WARN`; census `--line SL --live`: `live {"same": 334}`, 81 open, all routed.
+  `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 17:32:18, md5 6de80f55064d50d88d98b5a85451d993` (comment-only rebuild).
+- **Play-test:** not needed for the review (play-test 4 passed seals, hidden stage, phase 2, result screen; the change is a comment). Of the E5 review's two Stage0
+  checks, the X02 skin mesh was play-test 1's sinking platform (fixed; play-tests 2-4 crossed Stage0); whether a unit rides along on lines 34-39 is not
+  recorded separately and is left as is (not blocking). Nothing owed.
 
 ### Phase E11 — Memory
 

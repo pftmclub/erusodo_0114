@@ -15879,7 +15879,7 @@ void CX2GUNPC::CommonStateStart()
         SetForceInvincible( nowStateData.m_fSetForceInvincibleTimeValue, nowStateData.m_fSetShowInvincibleTimeValue );
 #ifdef SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 		/// Atlas E10: June 327ad91e-327ad957, right after SetForceInvincible ( 3231dc20 ): append the state's INVINCIBLE_ATTACK_TYPE
-		/// ( StateData +0x434 ) to the NPC list +0x83f0 ( push_back 31f8b860 ). June never clears it ( JUNE_BUGS 244 ).
+		/// ( StateData +0x434 ) to the NPC list +0x83f0 ( push_back 31f8b860 ). June never clears it ( JUNE_BUGS 246 ).
 		for ( UINT iJune = 0; iJune < nowStateData.m_vecJuneInvincibleAttackType.size(); iJune++ )
 			m_vecJuneInvincibleAttackTypeNow.push_back( nowStateData.m_vecJuneInvincibleAttackType[iJune] );
 #endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
