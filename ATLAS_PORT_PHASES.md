@@ -4511,7 +4511,10 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   (2) **Stuck in Stage0's gate room:** stage 0 was loaded twice (15:26:44, 15:27:18). The second load was a `GoStage` (the only path that sends
   `EGS_DUNGEON_STAGE_LOAD_REQ` with no sub-stage clear; no Soless script calls it, so the END console's `/stage`), and it left the first load's NPCs alive:
   two gates, two `HIDE_STAGE_B`. Both gates' dying function killed the first `HIDE_STAGE_B` (1000068), the second (1000145) lived, so `CC_KILL_NPC_TYPE` never
-  cleared. A console restart of the current stage duplicates its NPCs: pre-existing, not E10's; restart the dungeon instead. 0 EXCEPTION; `READY_NPC` log as designed.
+  cleared. A console restart of the current stage duplicates its NPCs: pre-existing, not E10's; restart the dungeon instead.
+  Why the user restarted (user): a laser hit in the air put reyaa on floor 2 before floor 1 was clear. June's data allows it: floor 2's walkway, line 48
+  (y 10455), is never disabled (trigger 2 disables only the connectors 46/47/73/74/76 and 59/60/72/75; triggers 1 / 0 re-enable them), and line 48 has
+  no `CAN_DOWN = FALSE` (March default true, `KTDGLineMap.cpp:257`), so the down key drops back to floor 1. Not a port gap. 0 EXCEPTION; `READY_NPC` log as designed.
 
 ### Phase E11 — Memory
 
