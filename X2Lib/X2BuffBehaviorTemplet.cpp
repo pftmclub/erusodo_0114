@@ -6,6 +6,9 @@
 
 #include "StdAfx.h"
 #include ".\X2BuffBehaviorTemplet.h"
+#ifdef SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /// June buff port 4b-ii: June's buff code raises no popup (the user's 2026-10-04 decision: follow June, always
@@ -491,7 +494,15 @@ void CX2BuffChangeNowHpPerSecondBehaviorTemplet::ChangeHpByValue( CX2GameUnit* p
 			return;
 #endif // FIX_RECOVERY_HP
 
+#ifdef SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
+		const float fJuneDbgHpBefore = pGameUnit_->GetNowHp();
+#endif SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
 		pGameUnit_->UpNowHp( m_fResultValue );
+#ifdef SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
+		if ( CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() && m_fResultValue < 0.f )
+			CX2OfflineLog::Server( L"[ELYDBG] revive-dbg hp tick (value): unit %I64d delta %.0f hp %.0f -> %.0f / %.0f",
+				pGameUnit_->GetUnitUID(), m_fResultValue, fJuneDbgHpBefore, pGameUnit_->GetNowHp(), pGameUnit_->GetMaxHp() );
+#endif SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
 		if ( m_bDrawText )
 			DrawText( pGameUnit_, m_fResultValue );
 	}
@@ -511,7 +522,15 @@ void CX2BuffChangeNowHpPerSecondBehaviorTemplet::ChangeHpByPercent( CX2GameUnit*
 #endif // FIX_RECOVERY_HP
 
 		const float fDeltaValue = pGameUnit_->GetMaxHp() * m_fResultValue;
+#ifdef SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
+		const float fJuneDbgHpBefore = pGameUnit_->GetNowHp();
+#endif SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
 		pGameUnit_->UpNowHp( fDeltaValue );
+#ifdef SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
+		if ( CX2GameUnit::GUT_USER == pGameUnit_->GetGameUnitType() && fDeltaValue < 0.f )
+			CX2OfflineLog::Server( L"[ELYDBG] revive-dbg hp tick (percent): unit %I64d delta %.0f hp %.0f -> %.0f / %.0f",
+				pGameUnit_->GetUnitUID(), fDeltaValue, fJuneDbgHpBefore, pGameUnit_->GetNowHp(), pGameUnit_->GetMaxHp() );
+#endif SERV_IRUHADEV_ELYSION_REVIVE_DEBUG
 		if ( m_bDrawText )
 			DrawText( pGameUnit_, fDeltaValue );
 	}

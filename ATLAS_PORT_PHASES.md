@@ -4537,6 +4537,13 @@ Census `--line SL`: 152 open rows before, 81 after, all routed: 31 `assets.absen
   (stand-in kept, user). Funcmap row 1011 corrected (DD+8 = attackType). `DEPLOY OK: X2_offline.exe is 19,760,128 B, dated 2026-10-17 16:48:51,
   md5 4c86e089c563a414d4f6bcd74b10530e`. **Phase 2 PASSED** (`[ELYDBG] SetShowAdditionalWorld 0 1` at 16:42:45, `/monhpR`), **result screen no crash**
   (cleared 16:44:17, no CrashRpt bundle). Open: repeated deaths after revive in phase 2 (below).
+- **Open: deaths right after revive in phase 2.** reyaa revived 5 times (16:43:19-16:44:01) and died 2.3-3 s after each (`killer NPC UID=-1`), inside the
+  5 s revive invincibility (`RebirthUserUnit`: `SetForceInvincible( 5.0f )`). Ruled out by reading: Pattern A only coincided with the first revive (its
+  `PatternA_Safe` effect has no damage data; overlap logs only); the boss's Lua zeroes no user HP (proto 58 = SOLESS_DUMMY, 89 = summoned swords,
+  102 = boss heal on a user's death); the phase-2 fire (`DarkSoles_PhaseTwo_OnFrameMove`, proto 100: `_SetBuffAllUser( BFI_..._PHASE_TWO_FIRE )` every
+  1 s during the true-ending window) re-applies to dead users too, but with `ACCUMULATION_LIMIT = 1` it does not compound (10% of the receiver's mixed
+  attack per s). Diagnostic `SERV_IRUHADEV_ELYSION_REVIVE_DEBUG` (temporary): `[ELYDBG] revive-dbg` lines for every per-second buff HP tick that lowers a
+  user's HP and the HP after each revive. `DEPLOY OK: X2_offline.exe is 19,760,640 B, dated 2026-10-17 17:02:46, md5 b9295cef6e77272ae6f893e047369aee`.
 
 ### Phase E11 — Memory
 
