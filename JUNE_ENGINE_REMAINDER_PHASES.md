@@ -809,6 +809,47 @@ the device auto-release that june-effect C9h-7 settled.
    `SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE` (`#error` guard). The FMOD callback in `KTDXDeviceManager.cpp` is a file-static today: expose a
    public `JuneRegisterAutoRelease( FMOD_CHANNEL* )` (June `31cdd4e0`) under the new flag.
 
+### Phase W1 -- Done
+
+**2026-10-17, Sonnet 5.5 high.** Three flags (the planned `_WORLD_EVENT` split by W0), all in `Always.h` with `#error` guards (`_EFFECTSET` needs
+`_MESH_ID` + `RANOX_TRIGGER_PLAY_EFFECTSET`; `_MESH_ID` needs `RANOX_TRIGGER_ID`; `_SOUND` needs `JUNE_SOUND_AUTO_RELEASE`). Every change is insert-only, the
+original code sits in `#else`. Commit: see `git log -S SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID`.
+
+| Flag | What landed (June address) |
+|---|---|
+| `JUNE_WORLD_TRIGGER_MESH_ID` | `GetTriggerMesh( name, iTriggerId )` (`327fc680`): an `OT_SKIN_MESH` is a candidate only if `GetTriggerID() < 0` or `== iTriggerId`, then March's upper-case name match. `DoTriggerMesh` / `DoTriggerEtc` take the id and `DoTriggerFrameMove` passes `triggerSeg.m_iTriggerId` (`32801580` @3280169c / @328017bc). Log `[JUNE_ENGINE] WORLD mesh-id reject: trigger T mesh M carries trigger id N`, once per (trigger, mesh id, name), only when the name matched. |
+| `JUNE_WORLD_TRIGGER_EFFECTSET` | Etc case 7: loader reads `MOTIONNAME_EFFECTSETNAME` into `m_wstrActionName` (`31c77e20` @31c7b041); `DoTriggerEtc` (`328012b5-32801484`) splits at the first space (none -> nothing), `GetTriggerMesh( token1, id )`, first non-NULL user unit, `PlayEffectSet( token2, user, NULL, false, -1, -1, (1,1,1), true, mesh->GetPos(), user->GetRotateDegree(), (0,0,0) )`. Any missing piece does nothing. Log `[JUNE_ENGINE] WORLD effectset: trigger T played '<value>' at x,y,z`. Ranox `EFFECT_NAME` / `EFFECT_POS_*` read and play are the `#else`. |
+| `JUNE_WORLD_TRIGGER_SOUND` | `CKTDXDeviceManager::JuneRegisterAutoRelease( FMOD_CHANNEL* )` (`31cdd4e0`, returns the FMOD result); etc case 1 calls it when the device's channel is not NULL, after `OpenSound` + `Play( false, false )` (as March). `PlaySound` now registers through the same function. |
+
+- **Mesh position:** `CX2WorldObject::GetPos()` = `GetMatrix().GetPos()`, and `CKTDGObject::GetMatrix()` goes through the manager object when set, which is
+  June `32802ae0` (object +0x110..0x118 through the manager object when +0xc != 0).
+- **June's trailing `1.0f`** in `321e1e60` is `fForceDownValueRate`; March's `PlayEffectSet` has no such parameter (already settled by june-effect), not passed.
+- **No new JUNE_BUGS row.** Adrian Stage1's value (no space) plays nothing, which is JUNE_BUGS 244 already.
+- **Built with peers' uncommitted edits** (`KTDGXMeshPlayer.*`, `KTDGXSkinAnim.*`, `KTDXApp.*`, `X2DamageEffect.cpp`, `KTDXWordWrap.*`, `Always.h` second hunk): not mine, not committed here.
+  `Always.h` is committed as a partial (my hunk only).
+- **MODS.md** rows for these flags go in at Phase Z (MODS.md is peer-dirty now).
+
+**Hygiene** (`flagcheck --worktree --files`, per flag): `_MESH_ID` files 1 PASS + 5 OTHER, RESULT PASS; `_EFFECTSET` RESULT PASS; `_SOUND` RESULT PASS; 0 deleted
+lines, 0 non-ASCII inserted lines, 0 `#else`/`#endif` without token, 0 encoding change. `_MESH_ID` reports 12 EOL-mismatched inserted lines in `X2World.h`: that file mixes
+LF and CRLF and the inserts take their anchors' EOL (anchors are LF), as the house rule says.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,778,560 B, dated 2026-10-17 20:35:54, md5 8ffc762a45b36b586c365c5a119f3ef9, equal to X2/US_SERVICE/x2.exe (2026-10-17 20:35:48); built at main 508fd3cc + 18 uncommitted code file(s).`
+No kom changed (data only as already staged). User owes the play-test below.
+
+**Play-test hand-off.** Log tag `JUNE_ENGINE` (`python tools/logs.py --grep "JUNE_ENGINE\] WORLD"` also works). Never launch for me; start `start_offline.bat` yourself.
+Character: `reyaa` (Lire, Grand Archer, Lv 85, uid 12). Dev console (END key, auth level 3) is optional here; clear the monsters or walk past them.
+1. **Geyser effect set + id filter.** Enter Ranox Geyser Normal (`DI_RANOX_GEYSER_NORMAL` 33290), stage 0 (`Ranox_Geyser_stage0_linemap`). Three trigger ids; the three `Motion_GEYSER_PUMP.x` pumps carry `SetTriggerID` 0, 2 and 3, the `Motion_GEYSER_STEELPUMP.x` mesh carries none.
+   - Trigger 1 (the steel pump moving): plays `EffectSet_STEELPUMP_Move_FX` at the steel pump (twice, at 0 s and 0.5 s), then the steel pump jumps to (11450, 510, -500).
+     Look for: the effect at the pump (not at your feet), and two `[JUNE_ENGINE] WORLD effectset: trigger 1 played 'Motion_GEYSER_STEELPUMP.x EffectSet_STEELPUMP_Move_FX' at ...` lines in `ErrorLog.txt`.
+     If not: no line = trigger 1 never fired or the mesh was not found; send me the `WORLD` lines.
+   - Triggers 0 and 2 (`WorkEnd` on `Motion_GEYSER_PUMP.x`): only the pump whose id equals the trigger's id stops. Look for a `mesh-id reject: trigger 0 mesh MOTION_GEYSER_PUMP.X carries trigger id 2` style line (once per pair), and the other pumps keep running.
+   Do **not** test case 7 on Adrian Stage1: its value has no space, June plays nothing there and so does the port (JUNE_BUGS 244).
+2. **Sound release.** Enter Ranox Fire Temple Normal (`DI_RANOX_FIRETEMPLE_NORMAL` 33310), stage 1 (`Ranox_FireTemple_Stage1_LineMap`, plays `AMB_Earthquake02.ogg` in its `PLAY_SOUND` rows). The sound plays once, then the dungeon carries on without a stall or an error line.
+   `FinalHall` has no `PLAY_SOUND` rows, only camera shake, so it is not a sound check.
+3. **Regression.** Any older dungeon with mesh triggers (Hamel Frozen Water Hall stage 3 statue, `Trigger_Hammel_Statue.ogg`): the statue still animates, no `mesh-id reject` for it (its meshes carry no id).
+
+Next: `/x2-phase june-engine W1 review` on Opus 5.5 / high after the play-test passes.
+
 ## Phase W1b - AUTO_DISABLE_LINE
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE`. Map first:

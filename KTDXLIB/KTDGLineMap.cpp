@@ -2879,10 +2879,15 @@ bool CKTDGLineMap::AddTrigger_LUA()
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
 			case TAT_ETC_PLAY_EFFECTSET:
 				{
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
+					// June 31c77e20 @31c7b041: one string "<mesh> <effect set>" ( DoTriggerEtc case 7 splits it ).
+					LUA_GET_VALUE(		luaManager,	"MOTIONNAME_EFFECTSETNAME",	triggerDataEtc.m_wstrActionName,	L"" );
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
 					LUA_GET_VALUE(		luaManager,	"EFFECT_NAME",		triggerDataEtc.m_wstrActionName,	L"" );
 					LUA_GET_VALUE(		luaManager,	"EFFECT_POS_X",	triggerDataEtc.m_vEffectPosition.x,	0.f );
 					LUA_GET_VALUE(		luaManager,	"EFFECT_POS_Y",	triggerDataEtc.m_vEffectPosition.y,	0.f );
 					LUA_GET_VALUE(		luaManager,	"EFFECT_POS_Z",	triggerDataEtc.m_vEffectPosition.z,	0.f );
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
 				}
 				break;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET

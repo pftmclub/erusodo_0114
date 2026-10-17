@@ -133,6 +133,9 @@ class CKTDXDeviceManager :
 		CKTDXDeviceSound* PlaySound( const WCHAR* pFileName, bool bLoop = false, bool b3DSound = true, bool bJuneAutoRelease_ = true );
 		void	JuneQueueAutoRelease( FMOD_CHANNEL* pEndedChannel_ );			// June 31cdcbb0
 		void	JuneCloseDeviceByPointer( CKTDXDevice* pDevice_ );				// June 31cdd8d0
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
+		int		JuneRegisterAutoRelease( FMOD_CHANNEL* pChannel_ );				// June 31cdd4e0 ( W1 ): returns the FMOD result
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 		vector< CKTDXDevice* >	m_vecJuneAutoRelease;							// June +0x240
 #else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 		CKTDXDeviceSound* PlaySound( const WCHAR* pFileName, bool bLoop = false, bool b3DSound = true );

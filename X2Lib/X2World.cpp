@@ -1613,7 +1613,11 @@ void CX2World::AddWorldMonster_LUA()
 }
 
 #ifdef WORLD_TRIGGER
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+CX2WorldObjectSkinMesh* CX2World::GetTriggerMesh(const wstring &wstrMeshName, int iTriggerId)
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 CX2WorldObjectSkinMesh* CX2World::GetTriggerMesh(const wstring &wstrMeshName)
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 {
 	for( int i = 0; i < (int)m_ObjectList.size(); i++ )
 	{
@@ -1622,6 +1626,32 @@ CX2WorldObjectSkinMesh* CX2World::GetTriggerMesh(const wstring &wstrMeshName)
 		if( pCX2WorldObject->GetObjectType() == CX2WorldObject::OT_SKIN_MESH )
 		{
 			CX2WorldObjectSkinMesh* pWorldMesh = (CX2WorldObjectSkinMesh *)pCX2WorldObject.get();
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+			// June 327fc680: a mesh is a candidate only when its trigger id is < 0 or equals the firing trigger's id.
+			if( pWorldMesh->GetTriggerID() >= 0 && pWorldMesh->GetTriggerID() != iTriggerId )
+			{
+				// "[JUNE_ENGINE] WORLD mesh-id reject": logged once per (trigger, mesh id, name), only when the name matched.
+				static std::set<wstring> s_setRejectLogged;
+				wstring wstrWant = wstrMeshName;
+				wstring wstrHave = pWorldMesh->GetXSkinMeshName();
+				MakeUpperCase( wstrWant );
+				MakeUpperCase( wstrHave );
+				if( wstrWant == wstrHave )
+				{
+					WCHAR wszKey[32] = {0};
+					StringCchPrintfW( wszKey, ARRAY_SIZE( wszKey ), L"%d/%d/", iTriggerId, pWorldMesh->GetTriggerID() );
+					const wstring wstrKey = wstring( wszKey ) + wstrHave;
+					if( s_setRejectLogged.insert( wstrKey ).second == true )
+					{
+						std::string strName;
+						ConvertWCHARToChar( strName, wstrHave.c_str() );
+						KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD mesh-id reject: trigger " << iTriggerId << " mesh " << strName.c_str()
+							<< " carries trigger id " << pWorldMesh->GetTriggerID() << fileout;
+					}
+				}
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 
 			wstring wstrMeshName1 = wstrMeshName;
 			wstring wstrMeshName2 = pWorldMesh->GetXSkinMeshName();
@@ -1634,14 +1664,22 @@ CX2WorldObjectSkinMesh* CX2World::GetTriggerMesh(const wstring &wstrMeshName)
 	return NULL;	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+void CX2World::DoTriggerMesh(CKTDGLineMap::TRIGGER_DATA_MESH &triggerMesh, int iTriggerId)
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 void CX2World::DoTriggerMesh(CKTDGLineMap::TRIGGER_DATA_MESH &triggerMesh)
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 {	
 	triggerMesh.m_bDone = true;
 	
 	if( triggerMesh.m_wstrMeshName.empty() )
 		return;
 	
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+	CX2WorldObjectSkinMesh *pWorldMesh = GetTriggerMesh( triggerMesh.m_wstrMeshName, iTriggerId );
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 	CX2WorldObjectSkinMesh *pWorldMesh = GetTriggerMesh( triggerMesh.m_wstrMeshName );
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 	if( pWorldMesh == NULL )
 		return;
 
@@ -1733,7 +1771,11 @@ void CX2World::DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine)
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+void CX2World::DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc, int iTriggerId)
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 void CX2World::DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc)
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 {
 	triggerEtc.m_bDone = true;
 
@@ -1745,6 +1787,11 @@ void CX2World::DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc)
 			if( NULL != pDevice )
 			{
 				pDevice->Play( false, false );
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
+				// June 32800e82-32800edb: 31cdd4e0( device channel ) when the channel is not NULL.
+				if( pDevice->GetChannel() != NULL )
+					g_pKTDXApp->GetDeviceManager()->JuneRegisterAutoRelease( pDevice->GetChannel() );
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 			}
 		}
 		break;
@@ -1810,12 +1857,42 @@ void CX2World::DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc)
 #ifdef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
 	case CKTDGLineMap::TAT_ETC_PLAY_EFFECTSET:
 		{
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
+			// June 2017 DoTriggerEtc case 7 (328012b5-32801484, funcmap "Engine W0"): the value is "<mesh> <effect set>", split at the
+			// first space (no space -> nothing). The set plays from the first user unit at the mesh's position (32802ae0 = object
+			// matrix position, through its manager object: CKTDGObject::GetMatrix does the same). June's trailing float (1.0) is
+			// fForceDownValueRate, which March's PlayEffectSet does not take.
+			{
+				const size_t uiSpace = triggerEtc.m_wstrActionName.find( L" " );
+				if( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL && uiSpace != wstring::npos )
+				{
+					const wstring wstrMeshName = triggerEtc.m_wstrActionName.substr( 0, uiSpace );
+					const wstring wstrEffectSetName = triggerEtc.m_wstrActionName.substr( uiSpace + 1 );
+					CX2WorldObjectSkinMesh* pTriggerMesh = GetTriggerMesh( wstrMeshName, iTriggerId );
+					CX2GUUser* pUser = NULL;
+					for( int iUser = 0; pUser == NULL && iUser < g_pX2Game->GetUserUnitListSize(); ++iUser )
+						pUser = g_pX2Game->GetUserUnit( iUser );
+					if( pTriggerMesh != NULL && pUser != NULL )
+					{
+						const D3DXVECTOR3 vMeshPos = pTriggerMesh->GetPos();
+						g_pX2Game->GetEffectSet()->PlayEffectSet( wstrEffectSetName, pUser, NULL, false, -1.f, -1.f,
+							D3DXVECTOR3( 1, 1, 1 ), true, vMeshPos, pUser->GetRotateDegree(), D3DXVECTOR3( 0, 0, 0 ) );
+
+						std::string strValue;
+						ConvertWCHARToChar( strValue, triggerEtc.m_wstrActionName.c_str() );
+						KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD effectset: trigger " << iTriggerId << " played '" << strValue.c_str()
+							<< "' at " << vMeshPos.x << "," << vMeshPos.y << "," << vMeshPos.z << fileout;
+					}
+				}
+			}
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
 			if( g_pX2Game != NULL && g_pX2Game->GetEffectSet() != NULL && g_pX2Game->GetMyUnit() != NULL &&
 				false == triggerEtc.m_wstrActionName.empty() )
 			{
 				g_pX2Game->GetEffectSet()->PlayEffectSet( triggerEtc.m_wstrActionName, g_pX2Game->GetMyUnit(), NULL, false, -1.f, -1.f,
 					D3DXVECTOR3( 1, 1, 1 ), true, triggerEtc.m_vEffectPosition );
 			}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
 		}
 		break;
 #endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
@@ -1887,7 +1964,11 @@ void CX2World::DoTriggerFrameMove( double fTime, float fElapsedTime )
 				triggerData.m_fElapsedTime >= trigger.m_fTriggerTime &&
 				trigger.m_iMeshTriggerAction > CKTDGLineMap::TAT_MESH_NONE )
 			{
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+				DoTriggerMesh(trigger, triggerSeg.m_iTriggerId);
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 				DoTriggerMesh(trigger);
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 			}
 			bTriggerDataDone = bTriggerDataDone && trigger.m_bDone;
 		}
@@ -1909,7 +1990,11 @@ void CX2World::DoTriggerFrameMove( double fTime, float fElapsedTime )
 				triggerData.m_fElapsedTime >= trigger.m_fTriggerTime &&
 				trigger.m_iEtcTriggerAction > CKTDGLineMap::TAT_ETC_NONE )
 			{
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+				DoTriggerEtc(trigger, triggerSeg.m_iTriggerId);
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 				DoTriggerEtc(trigger);
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 			}
 			bTriggerDataDone = bTriggerDataDone && trigger.m_bDone;
 		}

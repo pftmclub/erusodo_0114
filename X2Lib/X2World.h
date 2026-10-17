@@ -1213,11 +1213,23 @@ public:
 			}
 		}
 		void InitTriggerDone(CKTDGLineMap::TRIGGER_DATA &triggerData, bool bDone = false);
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+		CX2WorldObjectSkinMesh *GetTriggerMesh(const wstring &wstrMeshName, int iTriggerId);		// June 327fc680
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 		CX2WorldObjectSkinMesh *GetTriggerMesh(const wstring &wstrMeshName);
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+		void DoTriggerMesh(CKTDGLineMap::TRIGGER_DATA_MESH &triggerMesh, int iTriggerId);		// June 327fc8c0
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 		void DoTriggerMesh(CKTDGLineMap::TRIGGER_DATA_MESH &triggerMesh);
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 		void DoTriggerLine(CKTDGLineMap::TRIGGER_DATA_LINE &triggerLine);
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+		void DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc, int iTriggerId);			// June 32800e10
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 		void DoTriggerEtc(CKTDGLineMap::TRIGGER_DATA_ETC &triggerEtc);
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
 		void DoTriggerFrameMove( double fTime, float fElapsedTime );
 
 		void SetTriggerCamera(int iVal, float fVal) { m_iTriggerCameraIndex = iVal; m_fDurationTriggerCamera = fVal; }

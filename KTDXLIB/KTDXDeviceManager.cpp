@@ -1201,6 +1201,15 @@ void CKTDXDeviceManager::JuneCloseDeviceByPointer( CKTDXDevice* pDevice_ )
 }
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
+// June 31cdd4e0: registers JuneSoundAutoReleaseCallback ( 31cdcca0 ) on the channel. PlaySound uses the same call.
+int CKTDXDeviceManager::JuneRegisterAutoRelease( FMOD_CHANNEL* pChannel_ )
+{
+	if ( pChannel_ == NULL )
+		return -1;
+	return (int) FMOD_Channel_SetCallback( pChannel_, JuneSoundAutoReleaseCallback );
+}
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 CKTDXDeviceSound* CKTDXDeviceManager::PlaySound( const WCHAR* pFileName, bool bLoop /* = false */, bool b3DSound /*= true*/, bool bJuneAutoRelease_ /*= true*/ )
 #else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
@@ -1249,7 +1258,11 @@ out:
 				int iJuneResult = -1;
 				if ( bJuneAutoRelease_ == true && pSound->GetChannel() != NULL )
 				{
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
+					iJuneResult = JuneRegisterAutoRelease( pSound->GetChannel() );
+#else SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 					iJuneResult = (int) FMOD_Channel_SetCallback( pSound->GetChannel(), JuneSoundAutoReleaseCallback );
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
 					iJuneRegistered = 1;
 				}
 #ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE_DEBUG

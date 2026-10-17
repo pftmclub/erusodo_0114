@@ -7616,6 +7616,52 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #define SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase W1 item 1. CX2World::GetTriggerMesh( name, iTriggerId ) (327fc680) accepts a world skin
+//              mesh only when its SetTriggerID (+0x368) is < 0 or equals the firing trigger's id; DoTriggerFrameMove passes the
+//              segment's TRIGGER_ID to DoTriggerMesh / DoTriggerEtc (32801580 @3280169c / @328017bc). Needs SERV_IRUHADEV_RANOX_TRIGGER_ID.
+#define SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase W1 item 2. Line-map etc case 7 (PLAY_EFFECTSET): MOTIONNAME_EFFECTSETNAME = "<mesh> <effect set>"
+//              (AddTrigger_LUA 31c77e20 @31c7b041; DoTriggerEtc 328012b5-32801484) plays the effect set from the first user unit at the
+//              trigger mesh's position. Ranox's EFFECT_NAME / EFFECT_POS_* stay in the #else. Needs ..._TRIGGER_MESH_ID.
+#define SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase W1 item 3. Line-map etc case 1 (PLAY_SOUND): after OpenSound + Play the device's channel gets
+//              June's auto-release callback (DoTriggerEtc 32800e82-32800edb -> 31cdd4e0). CKTDXDeviceManager::JuneRegisterAutoRelease.
+//              Needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE.
+#define SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
+//////////////////////////////////////////////////////////////////////////
+
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+#ifndef SERV_IRUHADEV_RANOX_TRIGGER_ID
+#error SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID needs SERV_IRUHADEV_RANOX_TRIGGER_ID
+#endif SERV_IRUHADEV_RANOX_TRIGGER_ID
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
+#ifndef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+#error SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET needs SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_MESH_ID
+#ifndef SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#error SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET needs SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#endif SERV_IRUHADEV_RANOX_TRIGGER_PLAY_EFFECTSET
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_EFFECTSET
+#ifdef SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
+#ifndef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#error SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_SOUND
+
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 #ifndef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
 #error SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS needs SERV_IRUHADEV_JUNE_RENDER_DG_STATES
