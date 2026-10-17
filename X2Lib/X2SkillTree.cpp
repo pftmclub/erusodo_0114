@@ -5337,6 +5337,12 @@ void CX2SkillTree::JuneScratchLoad( const WCHAR* pFileName_, const WCHAR* pSkill
 			}
 		}
 
+		if( true == bOk && ( vecBuffer.size() < 3 || 0xEF != static_cast<unsigned char>( vecBuffer[0] ) ) )
+		{
+			/// june_src_fixed files carry no BOM; the binder wants BOM + UTF-8 text
+			static const char s_abyBom[] = { (char)0xEF, (char)0xBB, (char)0xBF };
+			vecBuffer.insert( vecBuffer.begin(), s_abyBom, s_abyBom + 3 );
+		}
 		if( true == bOk && false == g_pKTDXApp->GetLuaBinder()->DoMemoryNotEncrypt( &vecBuffer[0], static_cast<long>( vecBuffer.size() ) ) )
 		{
 			CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD june-file scratch: the Lua chunk failed to run" );
@@ -5406,8 +5412,22 @@ void CX2SkillTree::JuneCompareTrees( CX2SkillTree& marchTree_ )
 		JUNE_SKILL_CMP_EQ( m.m_vecEffectiveDesc, j.m_vecEffectiveDesc, "effective desc" );
 		JUNE_SKILL_CMP_EQ( m.m_vecPowerRate, j.m_vecPowerRate, "power rate" );
 		JUNE_SKILL_CMP_EQ( m.m_vecStat.size(), j.m_vecStat.size(), "stat size" );
-		if( m.m_vecStat.size() == j.m_vecStat.size() && false == m.m_vecStat.empty() && 0 != memcmp( &m.m_vecStat[0], &j.m_vecStat[0], m.m_vecStat.size() * sizeof( m.m_vecStat[0] ) ) )
-			JUNE_SKILL_CMP_FAIL( "stat" );
+		if( m.m_vecStat.size() == j.m_vecStat.size() )
+		{
+			/// the stat floats are KProtectedType ( a per-instance key ): compare the values, not the bytes
+			for( size_t iStat = 0; iStat < m.m_vecStat.size(); ++iStat )
+			{
+				const CX2Stat::Stat& sm = m.m_vecStat[ iStat ];
+				const CX2Stat::Stat& sj = j.m_vecStat[ iStat ];
+				if( static_cast<float>( sm.m_fBaseHP ) != static_cast<float>( sj.m_fBaseHP ) || static_cast<float>( sm.m_fAtkPhysic ) != static_cast<float>( sj.m_fAtkPhysic )
+					|| static_cast<float>( sm.m_fAtkMagic ) != static_cast<float>( sj.m_fAtkMagic ) || static_cast<float>( sm.m_fDefPhysic ) != static_cast<float>( sj.m_fDefPhysic )
+					|| static_cast<float>( sm.m_fDefMagic ) != static_cast<float>( sj.m_fDefMagic ) )
+				{
+					JUNE_SKILL_CMP_FAIL( "stat" );
+					break;
+				}
+			}
+		}
 #ifdef NEW_CHARACTER_CHUNG
 		JUNE_SKILL_CMP_EQ( m.m_usCBConsumption, j.m_usCBConsumption, "cb" );
 #endif NEW_CHARACTER_CHUNG
