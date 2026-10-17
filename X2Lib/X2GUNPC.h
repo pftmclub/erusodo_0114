@@ -2031,6 +2031,30 @@ class CX2GUNPC : public CX2GameUnit
 #else
 		virtual bool				GetInvincible()	const						{ return m_NPCFrameData.stateParam.bInvincible; }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
+		/// Atlas E10: June CX2GUNPC slot 95 3275bbf0: true if the hit's attack type ( DamageData +8 ) is in the NPC list +0x83f0,
+		/// else slot 96 ( GetInvincible ). The NULL test is an addition; June's callers never pass NULL.
+		bool						GetInvincibleByAttackType( const CX2DamageManager::DamageData* pDamageData_ ) const
+		{
+			if ( NULL != pDamageData_ )
+			{
+				int iJuneAttackType = static_cast<int>( pDamageData_->attackType );
+#ifdef SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN
+				/// STAND-IN (not June): a user's untagged hit is June's AT_COMMAND (March class scripts lack June's tags)
+				CX2DamageManager::DamageData* pJuneDD = const_cast<CX2DamageManager::DamageData*>( pDamageData_ );
+				if ( CX2DamageManager::AT_NORMAL == pJuneDD->attackType && null != pJuneDD->optrAttackerGameUnit &&
+					CX2GameUnit::GUT_USER == pJuneDD->optrAttackerGameUnit->GetGameUnitType() )
+					iJuneAttackType = static_cast<int>( CX2DamageManager::AT_COMMAND );
+#endif SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN
+				for ( UINT i = 0; i < m_vecJuneInvincibleAttackTypeNow.size(); i++ )
+				{
+					if ( m_vecJuneInvincibleAttackTypeNow[i] == iJuneAttackType )
+						return true;
+				}
+			}
+			return GetInvincible();
+		}
+#endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 		virtual bool				GetIsFallDownState()						
         { 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -3614,6 +3638,9 @@ class CX2GUNPC : public CX2GameUnit
         int                                             m_iLua_CommonCameraMoveRefID;
         int                                             m_iLua_CommonFrameMoveRefID;
         int                                             m_iLua_AttackedFuncRefID;
+#ifdef SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
+		std::vector<int>								m_vecJuneInvincibleAttackTypeNow;	/// Atlas E10: June +0x83f0, appended at every state start, never cleared
+#endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 
 #else   X2OPTIMIZE_NPC_NONHOST_SIMULATION
 

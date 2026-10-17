@@ -617,3 +617,11 @@ renders it (cases in `june2017_re/r0_renderer_contract.tsv`, `crs` rows). R5 por
 and come with their ports: `Add_NasodRuler` (`CRS_INVISIBLE` x6, `CRS_UNIT_FADE_WHITE_WITHOUT_WEAPON` x1), `Ara_Martial_Artist`,
 `Ain_Apostasia`, `Ain_Erbluhen_Emotion`, `Luciel_Demonio`, `Rose_Ranger`, `RidingPet_Rakshasa` (all `CRS_INVISIBLE`). The `Enum` table
 itself is the `CUSTOM_RENDER_STATE` row at line 152. Funcmap rows `31fce500`, `31fd4460` (`Engine R0`).
+### 7x. Combo hits must carry June's AT_COMMAND tag (from Atlas E10)
+
+June's class scripts tag combo `DAMAGE_DATA` with `ATTACK_TYPE = ATTACK_TYPE.AT_COMMAND` (e.g. `Lire_ElvenRanger`: 52 `AT_COMMAND`, 11 `AT_SPECIAL`); March's leave combos
+untagged, which parses as `AT_NORMAL` in both clients (June `32632d46`-`32632d5e`). The NPC state key `INVINCIBLE_ATTACK_TYPE` (Soless Stage3's
+white seal: only `AT_COMMAND` breaks it) needs the tag, so Atlas E10 ships a stand-in, `SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN`: a user's
+`AT_NORMAL` hit counts as `AT_COMMAND` for that test only (`X2GUNPC.h` `GetInvincibleByAttackType`). Every class port takes June's script with
+its tags; once all classes in play are ported, undefine the stand-in. Other `AT_COMMAND` readers (buff BBT 85/86/87/96, socket
+`EXTRA_DAMAGE_TYPE`) already depend on the same tags.

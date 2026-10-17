@@ -723,10 +723,13 @@ CX2Game::~CX2Game()
 	}
 
 	SAFE_DELETE( m_pWorld );
-	SAFE_DELETE( m_pCamera );
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-	ClearJuneAdditionalWorld();	// Atlas E7: June Release 323080c0 @323083ff, right after the main world's delete
+	/// Atlas E7 (order fixed in E10): June Release 323080c0 deletes the main world (+0x39c), clears the additional worlds
+	/// (322d7f90 @323083ff), then deletes the camera (+0x3b0 @32308404). An additional world's dtor unloads the world camera
+	/// through GetX2Camera(), so after the camera's delete it read NULL (E10 play-test crash at the result screen).
+	ClearJuneAdditionalWorld();
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
+	SAFE_DELETE( m_pCamera );
 	SAFE_DELETE( m_pDamageEffect );
 
 	GetEffectSet()->StopEffectSetAll();

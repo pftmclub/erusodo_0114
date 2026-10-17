@@ -7512,3 +7512,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              it there (user, 2026-10-17). JUNE_BUGS 230. Undefine to get June's code back.
 #define SERV_IRUHADEV_ELYSION_MOVABLE_LINE_END
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase E10 play-test): the NPC state key INVINCIBLE_ATTACK_TYPE takes
+//              effect. June's state start (327ad91e-327ad957) appends the state's list (E7's StateData vector, needs
+//              SERV_IRUHADEV_ELYSION_SCRIPT_B) to an NPC list (+0x83f0, never cleared); June's CX2GUNPC slot 95 (3275bbf0)
+//              is true when the hit's attack type (DamageData +8) is in it, else slot 96; NPC DamageReact asks slot 95 at
+//              both invincible tests. Soless Stage3's command / skill seals (white: only command attacks, black: only skills).
+#define SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: STAND-IN (not June; user chose it, 2026-10-17), on SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE: June's class
+//              scripts tag combo hits ATTACK_TYPE.AT_COMMAND; March's leave them untagged (AT_NORMAL, the parse default in
+//              both clients, June 32632d46-32632d5e). So for the INVINCIBLE_ATTACK_TYPE test only, a user's AT_NORMAL hit counts
+//              as AT_COMMAND: Soless Stage3's white seal breaks by combos, the black by skills, as in June. Undefine once the
+//              class scripts carry June's tags (JUNE2017_CHARACTER_PORT_CHECKLIST.md).
+#define SERV_IRUHADEV_ELYSION_ATTACK_TYPE_STANDIN
+//////////////////////////////////////////////////////////////////////////

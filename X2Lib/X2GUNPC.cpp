@@ -9818,7 +9818,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
+	if( GetInvincibleByAttackType( pDamageData ) == true &&		/// Atlas E10: June slot 95 3275bbf0 (@327b25f7)
+#else
 	if( GetInvincible() == true && 		/// June buff port Phase 7b: June asks slot 95 (3275bbf0), which falls back to slot 96
+#endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 #else
 	if( m_NPCFrameData.stateParam.bInvincible == true && 
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
@@ -11456,7 +11460,11 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 	// DELETE_EFFECT_SET_ON_DAMAGE_REACT가 TRUE인 경우 등록된 현재 스테이트의 effectset들을 지운다.	
 	if( IsSuperArmor() == false && 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
+#ifdef SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
+		GetInvincibleByAttackType( pDamageData ) == false &&		/// Atlas E10: June slot 95 (@327b5283)
+#else
 		GetInvincible() == false &&		/// June buff port Phase 7b: slot 95 in June (@327b5283), as above
+#endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 #else
 		m_NPCFrameData.stateParam.bInvincible == false &&
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG
@@ -15866,6 +15874,12 @@ void CX2GUNPC::CommonStateStart()
 		else
 			m_NPCFrameData.stateParam.bInvincible = false;
         SetForceInvincible( nowStateData.m_fSetForceInvincibleTimeValue, nowStateData.m_fSetShowInvincibleTimeValue );
+#ifdef SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
+		/// Atlas E10: June 327ad91e-327ad957, right after SetForceInvincible ( 3231dc20 ): append the state's INVINCIBLE_ATTACK_TYPE
+		/// ( StateData +0x434 ) to the NPC list +0x83f0 ( push_back 31f8b860 ). June never clears it ( JUNE_BUGS 244 ).
+		for ( UINT iJune = 0; iJune < nowStateData.m_vecJuneInvincibleAttackType.size(); iJune++ )
+			m_vecJuneInvincibleAttackTypeNow.push_back( nowStateData.m_vecJuneInvincibleAttackType[iJune] );
+#endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		if( m_LuaManager.BeginTable( "INVINCIBLE" ) == true )
 		{
