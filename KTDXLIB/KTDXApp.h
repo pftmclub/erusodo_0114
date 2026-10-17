@@ -261,6 +261,11 @@ class CKTDXApp
 		}
 		const float& GetResolutionScaleX() const { return m_ResolutionScale.x; }
 		const float& GetResolutionScaleY() const { return m_ResolutionScale.y; }
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+		/// June CKTDXApp +0x2e8 (ctor 31c18de3 "NONE"; set once in the CX2Main ctor 31e4af22). The UI script readers append "_<name>" to a key.
+		const std::string&	GetNationName() const { return m_strNationName; }
+		void				SetNationName( const char* pszNationName ) { m_strNationName = pszNationName; }
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 		D3DXVECTOR2 MouseConvertByResolution( float fX, float fY )
 		{
 			D3DXVECTOR2 retval( fX, fY );
@@ -455,6 +460,9 @@ class CKTDXApp
 		float					m_fEffectAlphaMyTeam;			/// June +0x2dc
 		float					m_fEffectAlphaAnotherTeam;		/// June +0x2e0
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+		std::string				m_strNationName;				/// June +0x2e8
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
         //{{ seojt // 2009-1-14, 20:49
         /// main thread의 ID를 가진다. GetCurrentThreadID()를 호출하여
         /// 함수가 main thread에서 호출되는지 어떤지를 검사하기 위해서 사용한다.

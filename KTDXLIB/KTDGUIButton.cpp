@@ -330,6 +330,9 @@ HRESULT CKTDGUIButton::OnFrameRender()
 */
 	if ( m_pStringData != NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+		m_pStringData->RewrapPending();		// June button OnFrameRender 31ca37f0 -> 31d45f20
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 		CKTDGFontManager::CUKFont* pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( m_pStringData->fontIndex );
 		D3DXVECTOR2 pos;
 		D3DXCOLOR	tempColor;

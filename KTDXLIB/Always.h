@@ -7684,6 +7684,58 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-17
+// Description: June engine remainder, Phase U1 group A (UI framework). New UI methods and members June's UI scripts call:
+//              SetDisableUnderWindow, CPictureData GetSize / SetColor, SetChangeFocusByKeyMsg (gates the Tab / arrow focus chain),
+//              SetCaretOffSet (IME), SetGroupOffset (radio) + the dialog method 31cd2af0, combo SetCustomMsgMouseOverOnItem /
+//              OutOnItem / SetScrollBarOffsetPos, and the ROTATION key (UIPointData::fRotDegree, lifted out of DLL_BUILD).
+#define SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase U1 group B. CKTDXApp +0x2e8 nation name ("US" here, set in the CX2Main ctor) and the
+//              KEY_GLOBAL / KEY_<nation> overrides June's SetStringData_ / SetPointData_ read (31c9e2d0 / 31c9ec20 / 31c9e1f0),
+//              AddDummyInt_Flag (31c95b40) and SetFont_Flag (31cbc6b0).
+#define SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase U1 group C. Movie subtitles: CMovieData rows + AddSubtitleData (31c9da10), the
+//              Movie_<name>.lua script load (31c9b970, g_pMovieData), CKTDGUIStatic::SetMovieSubtitleIndex (31cbe880) and its
+//              per-frame update (31cc07b0). Needs REFORM_ENTRY_POINT + MOVIE_TEST_BASE (live in this build).
+#define SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase U1 group D. The word-wrap helpers move into the engine as June has them (new file
+//              KTDXLIB/KTDXWordWrap.*; X2Lib CWordLineHandler forwards to it): LINE_BREAK_LENGTH / LINE_BREAK_TYPE keys in
+//              SetStringData_ (31c9c920 -> 31d45dd0) and the pending re-wrap (31d45f20) in the controls' OnFrameRender.
+#define SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+//////////////////////////////////////////////////////////////////////////
+
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+#ifndef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+#error SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE needs SERV_IRUHADEV_JUNE_UI_LINE_BREAK (the subtitle wrap is in KTDXWordWrap.*)
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: June engine remainder, Phase U1 diagnostics (short-lived). [JUNE_ENGINE] UI lines in ErrorLog.txt: the nation name and every
+//              nation-suffixed key that matched, line-break and wrap calls, movie subtitle script and text changes, combo OnItem messages,
+//              caret shifts, the skipped Tab / arrow focus chain, radio group offset calls. Comment out to remove all of them.
+#define SERV_IRUHADEV_JUNE_UI_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
 // Description: June engine remainder, Phase R11 items 1-2. Skin-anim playback: the loop-restart transition byte (anim +0x854,
 //              default 1) and the last-ChangeAnim transition byte (+0x855), play type 3 in OnFrameMove (31d2bd80, no Lua name),
 //              the ChangeAnim( int ) bounds check, ChangeAnim( name ) finding without inserting, and Lua world-object

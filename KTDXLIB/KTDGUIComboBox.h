@@ -130,6 +130,11 @@ class CKTDGUIComboBox : public CKTDGUIControl
 		void	SetCustomMsgCloseDropdown(int msg) { m_CustomMsgCloseDropdown = msg; } 
 		
 		void	SetDrawTextLimit(int nLen) { m_iTextLimit = nLen; }
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		void	SetCustomMsgMouseOverOnItem( int msg ) { m_CustomMsgMouseOverOnItem = msg; }	/// June 31c1b240
+		void	SetCustomMsgMouseOutOnItem( int msg ) { m_CustomMsgMouseOutOnItem = msg; }		/// June 31c1b250
+		void	SetScrollBarOffsetPos( int x, int y ) { m_iScrollBarOffsetPosX = x; m_iScrollBarOffsetPosY = y; }	/// June 31cc1070
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 		bool	GetOpenedDrowdown() { return m_bOpened; }
 
@@ -224,6 +229,12 @@ protected:
 		int								m_CustomMsgSelectionChanged;
 		int								m_CustomMsgOpenDropdown;
 		int								m_CustomMsgCloseDropdown;
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		int								m_CustomMsgMouseOverOnItem;		/// June +0x444 (ctor -1)
+		int								m_CustomMsgMouseOutOnItem;		/// June +0x448 (ctor -1)
+		int								m_iScrollBarOffsetPosX;			/// June +0x460 (ctor 0)
+		int								m_iScrollBarOffsetPosY;			/// June +0x464 (ctor 0)
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 		bool							m_bMousePointAdjust;			//마우스 포인터 조정하기 위해..
 		bool							m_bIsReverseDropDown;

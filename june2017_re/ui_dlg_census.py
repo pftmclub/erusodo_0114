@@ -39,6 +39,11 @@ JUNE = os.path.join(TRUNK, "june_src_fixed")
 ELSTOOLS = os.path.join(TRUNK, "elstools", "elstools.exe")
 ORIG_KOMS = ["data001", "data034", "data035", "data036", "data037", "data040", "data064", "datai014", "datai022"]
 TSV = os.path.join(HERE, "ui_dlg_census.tsv")
+# U1 routing (2026-10-17): nation-suffixed keys and the keys routed to other owners
+NATION_BASES = {"FONT_INDEX", "POS", "LEFT_TOP", "RIGHT_BOTTOM", "RIGHT_TOP", "LEFT_BOTTOM", "ADD_SIZE_X", "ADD_SIZE_Y"}
+NATION_SUFFIX_US = {"GLOBAL", "US"}
+NATION_SUFFIX_OTHER = {"DE", "FR", "IT", "PL", "ES", "EN", "KR", "JP", "TW", "HK", "CN", "TH", "BR"}
+ROUTED_KEYS = {"IS_FOR_MINOR_UNIT": "checklist 7v (Lu / Ciel minor-unit slots)", "m_PrivateType": "PvP only: the offline client has no PvP"}
 
 LUA_BUILTINS = set("""print pairs ipairs next type tostring tonumber setmetatable getmetatable rawget rawset rawequal select
 unpack pcall xpcall error assert require dofile loadfile loadstring load collectgarbage module string table math os io
@@ -568,7 +573,24 @@ def main():
         elif kind == "key":
             ctxs = collections.Counter({c: len(fs) for (c, k), fs in ctx_use.items() if k == name})
             ui_ctx = [c for c in ctxs if c in ui_method_names or c in nonui_method_names or c in ("AddString", "SetPoint", "Move")]
-            if name in key_reads and not any(act for act, _g in KEY_GUARD[name]):
+            nb_, _, ns_ = name.rpartition("_")
+            if nb_ in NATION_BASES and ns_ in NATION_SUFFIX_US and in_exe("AddDummyInt_Flag"):
+                # U1 (2026-10-17): GetValueWithNationKey reads KEY_GLOBAL, then KEY_<nation> ("US" here), after the plain key
+                cls = "bound"
+                note = "nation suffix read by GetValueWithNationKey (U1)"
+            elif (nb_ in NATION_BASES and ns_ in NATION_SUFFIX_OTHER) or (ns_ in NATION_SUFFIX_OTHER and not nb_) or name in NATION_SUFFIX_OTHER:
+                cls = "routed"
+                note = "non-US nation key: read by the same helpers, never matches under US (U1)"
+            elif name == "GLOBAL" and ("SetFont_Flag" in ctxs or "AddDummyInt_Flag" in ctxs):
+                cls = "bound"
+                note = "flag-table key read by GetFlagValueByNation (U1)"
+            elif name in ROUTED_KEYS:
+                cls = "routed"
+                note = ROUTED_KEYS[name]
+            elif ctxs and all(c.startswith("AddVillageNpcRelationData") for c in ctxs):
+                cls = "routed"
+                note = "Elysion E1 (AddVillageNpcRelationData*)"
+            elif name in key_reads and not any(act for act, _g in KEY_GUARD[name]):
                 cls = "june-only-unbound"
                 where = key_reads[name][0]
                 note = "reader exists but every read sits in an inactive guard: " + KEY_GUARD[name][0][1]

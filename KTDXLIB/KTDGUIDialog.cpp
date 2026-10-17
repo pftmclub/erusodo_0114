@@ -608,6 +608,34 @@ HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */ )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+// June 31cd2af0: the first radio button of group iGroupID with group offset iGroupOffset is enabled / disabled (disabled also unchecks it,
+// the vslot 0x60 call is SetEnable and 31caa0e0 is SetCheckedInternal). Returns whether such a button exists.
+bool CKTDGUIDialog::SetEnableRadioButtonByGroupOffset( int iGroupID, int iGroupOffset, bool bEnable )
+{
+	for ( int i = 0; i < (int)m_ControlsList.size(); i++ )
+	{
+		CKTDGUIControl* pControl = m_ControlsList[i];
+		if ( pControl != NULL && pControl->GetType() == CKTDGUIControl::UCT_RADIOBUTTON )
+		{
+			CKTDGUIRadioButton* pRadioButton = static_cast<CKTDGUIRadioButton*>( pControl );
+			if ( pRadioButton->GetGroupID() == iGroupID && pRadioButton->GetGroupOffset() == iGroupOffset )
+			{
+				pRadioButton->SetEnable( bEnable );
+				if ( bEnable == false )
+					pRadioButton->SetCheckedInternal( false, false, false );
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI RADIOGROUP group " << iGroupID << " offset " << iGroupOffset << " enable " << (int)bEnable << fileout;
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 HRESULT	CKTDGUIDialog::OnResetDevice()
 {
 	for ( int i = 0; i < (int)m_ControlsList.size(); i++ )
@@ -681,7 +709,20 @@ bool CKTDGUIDialog::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 		case WM_KEYUP:
 		case WM_SYSKEYUP:
 			{
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+				if ( uMsg == WM_KEYUP && s_pControlFocus != NULL && s_pControlFocus->GetChangeFocusByKeyMsg() == false
+					&& ( wParam == VK_TAB || wParam == VK_RIGHT || wParam == VK_DOWN || wParam == VK_LEFT || wParam == VK_UP ) )
+				{
+					static int s_iLogFocusChain = 0;
+					if ( ++s_iLogFocusChain <= 10 )
+						KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI FOCUSCHAIN skipped for key " << (int)wParam << " (SetChangeFocusByKeyMsg false)" << fileout;
+				}
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+				if( uMsg == WM_KEYUP  && s_pControlFocus != NULL && s_pControlFocus->GetChangeFocusByKeyMsg() == true )	// June 31cd8a6e: SetChangeFocusByKeyMsg( false ) keeps Tab / arrows for the control
+#else SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 				if( uMsg == WM_KEYUP  && s_pControlFocus != NULL )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 				{
 					if ( wParam == VK_TAB || wParam == VK_RIGHT || wParam == VK_DOWN )
 					{

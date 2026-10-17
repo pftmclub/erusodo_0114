@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\ktdguistatic.h"
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+#include "KTDXWordWrap.h"
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 
 CKTDGUIStatic::CKTDGUIStatic()
 {
@@ -50,6 +53,9 @@ HRESULT CKTDGUIStatic::OnFrameMove( double fTime, float fElapsedTime )
 
 	
 	
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+	UpdateMovieSubtitle();		// June OnFrameMove 31cc0950 calls 31cc07b0 first
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 	KTDXPROFILE_BEGIN("control_framemove");
 	CKTDGUIControl::OnFrameMove( fTime, fElapsedTime );
 	KTDXPROFILE_END();
@@ -113,6 +119,52 @@ HRESULT CKTDGUIStatic::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+// June 31cbe880: both indices must name an existing movie / string; the first call for a movie wins (std::map::insert).
+void CKTDGUIStatic::SetMovieSubtitleIndex( int iMovie, int iString )
+{
+	if ( iMovie < 0 || (int)m_MovieDataList.size() <= iMovie || m_MovieDataList[iMovie] == NULL )
+		return;
+
+	if ( iString < 0 || (int)m_StringDataList.size() <= iString || m_StringDataList[iString] == NULL )
+		return;
+
+	m_mapMovieSubtitle.insert( std::make_pair( iMovie, iString ) );
+}
+
+// June 31cc07b0: every mapped movie that has a current subtitle row writes it, line-broken to 770 px, into its string.
+void CKTDGUIStatic::UpdateMovieSubtitle()
+{
+	for ( map<int, int>::iterator it = m_mapMovieSubtitle.begin(); it != m_mapMovieSubtitle.end(); ++it )
+	{
+		CMovieData* pMovieData = NULL;
+		if ( 0 <= it->first && it->first < (int)m_MovieDataList.size() )
+			pMovieData = m_MovieDataList[it->first];
+
+		CKTDGUIControl::UIStringData* pStringData = NULL;
+		if ( 0 <= it->second && it->second < (int)m_StringDataList.size() )
+			pStringData = m_StringDataList[it->second];
+
+		if ( pMovieData != NULL && pStringData != NULL )
+		{
+			wstring wstrSubtitle;
+			if ( pMovieData->GetSubtitle( wstrSubtitle ) == true )
+			{
+				wstring wstrWrapped = CKTDXWordWrap::GetStrByLineBreak( wstrSubtitle.c_str(), 0x302, pStringData->fontIndex, NULL );
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+				if ( wstrWrapped != pStringData->msg )
+				{
+					static int s_iLogSubtitle = 0;
+					if ( ++s_iLogSubtitle <= 40 )
+						KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI MOVIE subtitle changes: " << (int)wstrWrapped.size() << " chars (movie " << it->first << " -> string " << it->second << ")" << fileout;
+				}
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+				pStringData->msg = wstrWrapped;
+			}
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 HRESULT CKTDGUIStatic::OnFrameRender()
 {
 	KTDXPROFILE();
@@ -155,6 +207,9 @@ HRESULT CKTDGUIStatic::OnFrameRender()
 		CKTDGUIControl::UIStringData* pStringData = m_StringDataList[i];
 		if( pStringData->msg.size() <= 0 )
 			continue;
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+		pStringData->RewrapPending();		// June static OnFrameRender 31cbec10 -> 31d45f20
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 
 		if ( pStringData->bUseUkFont == true )
 		{

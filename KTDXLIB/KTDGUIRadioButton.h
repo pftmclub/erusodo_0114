@@ -133,6 +133,10 @@ class CKTDGUIRadioButton : public CKTDGUIControl
 		void	SetGroupMaxCheckCount( int iMaxCheckCount );
 		void	SetGroupID_LUA( int iGroupID );
 		int		GetGroupID() { return m_GroupID; }
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		void	SetGroupOffset( int iGroupOffset ) { m_iGroupOffset = iGroupOffset; }	/// June 31c1b400
+		int		GetGroupOffset() { return m_iGroupOffset; }
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 		void SetString( CKTDGUIControl::UIStringData* pString ){ m_pStringData = pString; }
 
@@ -229,6 +233,9 @@ class CKTDGUIRadioButton : public CKTDGUIControl
 
 		CKTDGUIControl::UIStringData*	m_pStringData;
 		int								m_GroupID;
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		int								m_iGroupOffset;		/// June +0x3e8: never initialised in June's ctor; March starts at 0
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 		CKTDGUIControl::UIPointData		m_MyNowPoint;
 		CKTDGUIControl::UIPointData		m_MyEndPoint;

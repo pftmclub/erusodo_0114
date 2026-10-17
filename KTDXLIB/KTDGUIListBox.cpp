@@ -226,6 +226,10 @@ HRESULT CKTDGUIListBox::OnFrameRender()
 	DrawEditEdge();
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+	if ( m_pStringData != NULL )
+		m_pStringData->RewrapPending();		// June list box OnFrameRender 31cd16a0 -> 31d45f20
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 	CKTDGFontManager::CUKFont* pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( m_pStringData->fontIndex ); 
 	if ( pFont == NULL )
 	{

@@ -45,6 +45,12 @@ class CKTDGUIIMEEditBox : public CKTDGUIControl
 		void	SetTextPoint_LUA();
 
 		void	SetFont_LUA( int nFontIndex );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		void	SetCaretOffSet( float fCaretOffSet ) { m_fCaretOffSet = fCaretOffSet; }	/// June 31c1b120
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+		void	SetFont_Flag_LUA();		/// June 31cbc6b0: { GLOBAL = font, <nation> = font }
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 
 		void	SetCustomMsgChange( int msg ){ m_CustomMsgEditBoxChange = msg; }
 		void	SetCustomMsgEnter( int msg ){ m_CustomMsgEditBoxEnter = msg; }
@@ -348,6 +354,9 @@ protected:
 				int									m_GroupSequence;
 
 				bool								m_bEnablePaste;
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+				float								m_fCaretOffSet;		/// June +0x58c: vertical shift of the caret / composition rectangle per text line (June never initialises it; March starts at 0 = no shift)
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 
 #if defined(DEBUG) || defined(_DEBUG)

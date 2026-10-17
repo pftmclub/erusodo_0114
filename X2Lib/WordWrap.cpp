@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 //{{ 2010/10/27 조효진	일단 임시로 WordWrap include 여기에서 함
 #include "WordWrap.h"
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+#include "KTDXWordWrap.h"
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 //}}
 
 
@@ -969,6 +972,10 @@ void CWordLineHandler::LineBreakInTalkBoxManagerImp( CKTDGFontManager::CUKFont* 
 
 wstring CWordLineHandler::GetStrByLineBreakInX2Main( const WCHAR* pOrgStr, int width, int fontIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+	// June keeps one copy of this helper, in the engine (31d471f0 -> 31cbff90); X2Lib's callers use it too.
+	return CKTDXWordWrap::GetStrByLineBreak( pOrgStr, width, fontIndex, NULL );
+#else SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 	if ( pOrgStr == NULL )
 		return L"";
 
@@ -1129,6 +1136,7 @@ wstring CWordLineHandler::GetStrByLineBreakInX2Main( const WCHAR* pOrgStr, int w
 	}
 
 	return tempText;
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 }
 
 wstring CWordLineHandler::BasicLineBreak( const WCHAR* pOrgStr, int width, int fontIndex )
@@ -1298,6 +1306,10 @@ wstring CWordLineHandler::BasicLineBreak( const WCHAR* pOrgStr, int width, int f
 #ifdef FIX_TOOLTIP
 wstring CWordLineHandler::GetStrByLineBreakColorInX2Main( const WCHAR* pOrgStr, int width, int fontIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+	// June 31d43ef0, also in the engine (the CLIENT_GLOBAL_EU_WORDWRAP branch of this function, always on in June)
+	return CKTDXWordWrap::GetStrByLineBreakColor( pOrgStr, width, fontIndex );
+#else SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 	if ( pOrgStr == NULL )
 		return L"";
 
@@ -1490,6 +1502,7 @@ wstring CWordLineHandler::GetStrByLineBreakColorInX2Main( const WCHAR* pOrgStr, 
 	}
 
 	return tempText;
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 }
 #endif FIX_TOOLTIP
 

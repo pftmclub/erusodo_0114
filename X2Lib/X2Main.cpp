@@ -1543,6 +1543,34 @@ m_pMemoryHolder( NULL )
 	std::wstring wstrBasicConfigFile = GetWstrBasicConfigFile();
 	OpenScriptFile(wstrBasicConfigFile.c_str());
 	//}}
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+#ifdef CLIENT_USE_NATION_FLAG
+	{	// June CX2Main ctor 31e46300 @31e4ae03-31e4af22: the nation name that the UI script readers append to a key ("US" for NF_US here).
+		// The config script above has just called SetNationFlag. June's NF values for the other nations differ from March's (June DE..EN = 1..6,
+		// TH 0x600, BR 0x700, DEV 0x800; March TR = 6, EN = 7, CN 0x600, TH 0x800, BR 0x1000), so this switch keys on March's NF_* names and keeps
+		// June's name strings; a nation June has no value for stays "NONE". No UI script loads between here and June's store point.
+		const char* pszNationName = "NONE";
+		switch ( m_dwNationFlag )
+		{
+		case NF_DE: pszNationName = "DE"; break;
+		case NF_FR: pszNationName = "FR"; break;
+		case NF_IT: pszNationName = "IT"; break;
+		case NF_PL: pszNationName = "PL"; break;
+		case NF_ES: pszNationName = "ES"; break;
+		case NF_EN: pszNationName = "EN"; break;
+		case NF_KR: pszNationName = "KR"; break;
+		case NF_JP: pszNationName = "JP"; break;
+		case NF_TW: pszNationName = "TW"; break;
+		case NF_HK: pszNationName = "HK"; break;
+		case NF_US: pszNationName = "US"; break;
+		case NF_CN: pszNationName = "CN"; break;
+		case NF_TH: pszNationName = "TH"; break;
+		case NF_BR: pszNationName = "BR"; break;
+		}
+		g_pKTDXApp->SetNationName( pszNationName );
+	}
+#endif CLIENT_USE_NATION_FLAG
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 #if defined(CHECK_KOM_EU)
 //네셔널 플래그 파싱 한 후에 체크콤 로드하게 합니다. 
 #ifdef	CHECK_KOM_FILE_ON_LOAD

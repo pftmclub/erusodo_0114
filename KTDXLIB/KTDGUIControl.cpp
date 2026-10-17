@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\ktdguicontrol.h"
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+#include "KTDXWordWrap.h"
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 
 CKTDGUIControl::CKTDGUIControl()
 {
@@ -26,6 +29,9 @@ CKTDGUIControl::CKTDGUIControl()
 #ifdef SHOW_DESCRIPTION_WHEN_DISABLE
 	m_bShowDescriptionWhenDisable	= false;
 #endif SHOW_DESCRIPTION_WHEN_DISABLE
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	m_bChangeFocusByKeyMsg = true;		// June control ctor 31c9b090 @31c9b327
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 	
 
 	m_kMaximizeOffset.x = 0;
@@ -69,6 +75,98 @@ CKTDGUIControl::~CKTDGUIControl(void)
 //#endif
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+// Diagnostic: every distinct nation-suffixed key that matched in a script is logged once ([JUNE_ENGINE] UI NATIONKEY ...).
+static void LogNationKeyHit( const std::string& strKey )
+{
+	static std::set<std::string> s_setLogged;
+	if ( s_setLogged.size() < 60 && s_setLogged.insert( strKey ).second == true )
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI NATIONKEY hit " << strKey.c_str() << " nation=" << g_pKTDXApp->GetNationName().c_str() << fileout;
+}
+static void LogNationNameOnce()
+{
+	static bool s_bLogged = false;
+	if ( s_bLogged == false )
+	{
+		s_bLogged = true;
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI NATION name=" << g_pKTDXApp->GetNationName().c_str() << " (first key read)" << fileout;
+	}
+}
+#define JUNE_UI_NATION_HIT( bHit, strKey )		LogNationNameOnce(); if ( bHit == true ) LogNationKeyHit( strKey )
+#else
+#define JUNE_UI_NATION_HIT( bHit, strKey )
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+
+// June 31c9e2d0: KEY_GLOBAL, then KEY_<nation>, read into the value the plain read left; a miss keeps it.
+void CKTDGUIControl::GetValueWithNationKey( KLuaManager& luaManager, const char* pszKey, int& iValue )
+{
+	std::string strKey = pszKey;
+	strKey += "_GLOBAL";
+	bool bHit = luaManager.GetValue( strKey.c_str(), iValue );
+	JUNE_UI_NATION_HIT( bHit, strKey );
+
+	strKey = pszKey;
+	strKey += "_";
+	strKey += g_pKTDXApp->GetNationName();
+	bHit = luaManager.GetValue( strKey.c_str(), iValue );
+	JUNE_UI_NATION_HIT( bHit, strKey );
+}
+
+// June 31c9e1f0 (float version of 31c9e2d0)
+void CKTDGUIControl::GetValueWithNationKey( KLuaManager& luaManager, const char* pszKey, float& fValue )
+{
+	std::string strKey = pszKey;
+	strKey += "_GLOBAL";
+	bool bHit = luaManager.GetValue( strKey.c_str(), fValue );
+	JUNE_UI_NATION_HIT( bHit, strKey );
+
+	strKey = pszKey;
+	strKey += "_";
+	strKey += g_pKTDXApp->GetNationName();
+	bHit = luaManager.GetValue( strKey.c_str(), fValue );
+	JUNE_UI_NATION_HIT( bHit, strKey );
+}
+
+// June 31c9ec20 (D3DXVECTOR2 version of 31c9e2d0)
+void CKTDGUIControl::GetValueWithNationKey( KLuaManager& luaManager, const char* pszKey, D3DXVECTOR2& vValue )
+{
+	std::string strKey = pszKey;
+	strKey += "_GLOBAL";
+	bool bHit = luaManager.GetUserDefinedTypeValue( strKey.c_str(), vValue );
+	JUNE_UI_NATION_HIT( bHit, strKey );
+
+	strKey = pszKey;
+	strKey += "_";
+	strKey += g_pKTDXApp->GetNationName();
+	bHit = luaManager.GetUserDefinedTypeValue( strKey.c_str(), vValue );
+	JUNE_UI_NATION_HIT( bHit, strKey );
+}
+
+// June 31c95b40 / 31cbc6b0: the table's GLOBAL key, then the key named like the nation; -1 when neither is set
+int CKTDGUIControl::GetFlagValueByNation( KLuaManager& luaManager )
+{
+	int iValue = -1;
+	luaManager.GetValue( "GLOBAL", iValue );
+	luaManager.GetValue( g_pKTDXApp->GetNationName().c_str(), iValue );
+	return iValue;
+}
+
+// June 31c95b40
+void CKTDGUIControl::AddDummyInt_Flag_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	int iValue = GetFlagValueByNation( luaManager );
+	if ( iValue != -1 )
+	{
+		AddDummyInt( iValue );
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+		KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI AddDummyInt_Flag value " << iValue << " nation=" << g_pKTDXApp->GetNationName().c_str() << fileout;
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+	}
+}
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 HRESULT	CKTDGUIControl::OnFrameMove( double fTime, float fElapsedTime )
 {
 	KTDXPROFILE();
@@ -765,7 +863,16 @@ CKTDGUIControl::UIPointData* CKTDGUIControl::SetPointData_()
 
 	LUA_GET_VALUE( luaManager, "ADD_SIZE_X", pPointData->addSize.x, 0.0f );
 	LUA_GET_VALUE( luaManager, "ADD_SIZE_Y", pPointData->addSize.y, 0.0f );
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+	GetValueWithNationKey( luaManager, "ADD_SIZE_X", pPointData->addSize.x );		// June SetPointData_ 31c97ce0 @31c98124 / @31c98134
+	GetValueWithNationKey( luaManager, "ADD_SIZE_Y", pPointData->addSize.y );
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifndef DLL_BUILD
+	LUA_GET_VALUE( luaManager, "ROTATION", pPointData->fRotDegree, 0.0f );		// June 31c97ce0 @31c9816d (live in June's client, March kept it under DLL_BUILD)
+#endif DLL_BUILD
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 #ifdef DLL_BUILD
 	LUA_GET_VALUE( luaManager, "ROTATION", pPointData->fRotDegree, 0.0f );
 #endif
@@ -788,6 +895,9 @@ CKTDGUIControl::UIPointData* CKTDGUIControl::SetPointData_()
 	pPointData->leftTopPoint		= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(),  "LEFT_TOP" );
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+	GetValueWithNationKey( luaManager, "LEFT_TOP", pPointData->leftTopPoint );		// June @31c987db
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 	if ( pPointData->bUseTextureSize == false )
 	{
 		if ( bRect == true )
@@ -797,6 +907,9 @@ CKTDGUIControl::UIPointData* CKTDGUIControl::SetPointData_()
 #else   X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 			pPointData->rightBottomPoint	= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(),  "RIGHT_BOTTOM" );
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+			GetValueWithNationKey( luaManager, "RIGHT_BOTTOM", pPointData->rightBottomPoint );		// June @31c9890c
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 
 			pPointData->rightTopPoint.x = pPointData->rightBottomPoint.x;
 			pPointData->rightTopPoint.y = pPointData->leftTopPoint.y;
@@ -815,6 +928,11 @@ CKTDGUIControl::UIPointData* CKTDGUIControl::SetPointData_()
 			pPointData->leftBottomPoint		= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(),  "LEFT_BOTTOM" );
 			pPointData->rightBottomPoint	= lua_tinker::get<D3DXVECTOR2>( luaManager.GetLuaState(),  "RIGHT_BOTTOM" );
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+			GetValueWithNationKey( luaManager, "RIGHT_TOP", pPointData->rightTopPoint );			// June @31c98c24 / @31c98c34 / @31c98c44
+			GetValueWithNationKey( luaManager, "LEFT_BOTTOM", pPointData->leftBottomPoint );
+			GetValueWithNationKey( luaManager, "RIGHT_BOTTOM", pPointData->rightBottomPoint );
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 		}
 	}
 	
@@ -864,9 +982,27 @@ CKTDGUIControl::UIStringData* CKTDGUIControl::SetStringData_()
 	UIStringData* pStringData	= new UIStringData();	
 	//LUA_GET_VALUE( luaManager, "IS_UK_FONT", pStringData->bUkFont, false );
 	LUA_GET_VALUE( luaManager, "FONT_INDEX", pStringData->fontIndex, 0 );	
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+	GetValueWithNationKey( luaManager, "FONT_INDEX", pStringData->fontIndex );		// June SetStringData_ 31c9c920 @31c9ce04
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 	LUA_GET_VALUE( luaManager, "SORT_FLAG", pStringData->sortFlag, DT_LEFT );
 	pStringData->msg			= wMsg.c_str();
 	pStringData->stringTableID	= iIndex;
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+	// June 31c9c920 @31c9d1e4: LINE_BREAK_LENGTH / LINE_BREAK_TYPE (stored either way), msg wrapped by 31d45dd0 after the nation font override
+	LUA_GET_VALUE( luaManager, "LINE_BREAK_LENGTH", pStringData->iLineBreakLength, 0 );
+	LUA_GET_VALUE( luaManager, "LINE_BREAK_TYPE", pStringData->iLineBreakType, 0 );
+	if ( pStringData->iLineBreakLength != 0 )
+	{
+		std::wstring wstrWrapped = CKTDXWordWrap::GetStrByLineBreakByType( pStringData->msg.c_str(), pStringData->iLineBreakLength, pStringData->iLineBreakType, pStringData->fontIndex );
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+		static int s_iLogLineBreak = 0;
+		if ( ++s_iLogLineBreak <= 12 )
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI LINEBREAK length " << pStringData->iLineBreakLength << " type " << pStringData->iLineBreakType << " font " << pStringData->fontIndex << " chars " << (int)pStringData->msg.size() << " -> " << (int)wstrWrapped.size() << fileout;
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+		pStringData->msg = wstrWrapped;
+	}
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 
 
 	LUA_GET_VALUE( luaManager, "SPREAD", pStringData->bSpread, false );
@@ -887,6 +1023,9 @@ CKTDGUIControl::UIStringData* CKTDGUIControl::SetStringData_()
 	pStringData->outlineColor	= lua_tinker::get<D3DXCOLOR>( luaManager.GetLuaState(),  "OUTLINE_COLOR" );
 #endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
 
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+	GetValueWithNationKey( luaManager, "POS", pStringData->pos );		// June @31c9d607
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 	return pStringData;
 
 }
@@ -1672,6 +1811,20 @@ void CKTDGUIControl::CPictureData::SetPoint_LUA()
 	originalPos = pos;
 	originalSize = size;
 
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifndef DLL_BUILD
+	if( pPoint->fRotDegree != 0 )
+		pPoint->Rotate( pPoint->fRotDegree );		// June SetPoint_LUA 31c9a700: ROTATION turns the picture about its centre
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+	if ( pPoint->fRotDegree != 0 )
+	{
+		static int s_iLogRotation = 0;
+		if ( ++s_iLogRotation <= 10 )
+			KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI ROTATION " << pPoint->fRotDegree << " deg (SetPoint_LUA)" << fileout;
+	}
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+#endif DLL_BUILD
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 #ifdef DLL_BUILD
 	if( pPoint->fRotDegree != 0 )
 		pPoint->Rotate( pPoint->fRotDegree );
@@ -1696,6 +1849,12 @@ void CKTDGUIControl::CPictureData::SetPoint( CKTDGUIControl::UIPointData* pNewPo
 	originalPos = pos;
 	originalSize = size;
 
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifndef DLL_BUILD
+	if( pPoint->fRotDegree != 0 )
+		pPoint->Rotate( pPoint->fRotDegree );		// June SetPoint( UIPointData* ) 31c948a0
+#endif DLL_BUILD
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 #ifdef DLL_BUILD
 	if( pPoint->fRotDegree != 0 )
 		pPoint->Rotate( pPoint->fRotDegree );
@@ -1926,6 +2085,10 @@ CKTDGUIControl::CMovieData::CMovieData()
 	, m_bLoop( false )
 #endif //PLAY_PROMOTION_MOVIE
 {
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+	m_uiSubtitleIndex = 0;
+	m_fSubtitleTime = 0.f;
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 // 	if ( !m_Bvl.IsCreated() )
 // 		m_Bvl.Create( BANDIVIDEO_RELEASE_DLL_FILE_NAME, NULL, NULL );
 }
@@ -1965,6 +2128,9 @@ void CKTDGUIControl::CMovieData::SetMovieFileName( const WCHAR* wstrMovieFileNam
 	m_Bvl.Verify("KOG_ELSWORD_20131203", "1b9b533c");
 #endif // VERIFY_BANDI_VIDEO_LIBRARY
 
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+	LoadSubtitleScript( wstrMovieFileName_ );		// June movie open 31c9c250 -> 31c9b970: <movie stem>.lua (g_pMovieData:AddSubtitleData rows)
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 	WCHAR buff[MAX_PATH] = {0, };
 	GetCurrentDirectory( MAX_PATH, buff );	
 	m_wstrMovieFileName = buff;
@@ -2027,10 +2193,81 @@ void CKTDGUIControl::CMovieData::SetRect_LUA( const float fX_, const float fY_, 
 // }
 
 
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+// June 31c9b970: clears the rows, publishes this movie as the Lua global g_pMovieData and runs <movie file name without extension>.lua.
+// A missing script logs KEM_ERROR72 (June ErrorLogMsg 0x48), a failing one KEM_ERROR73 (0x49); neither is a popup and the movie plays on.
+void CKTDGUIControl::CMovieData::LoadSubtitleScript( const WCHAR* wstrMovieFileName_ )
+{
+	m_vecSubtitle.clear();
+
+	wstring wstrScriptName = wstrMovieFileName_;
+	wstrScriptName = wstrScriptName.substr( 0, wstrScriptName.rfind( L'.' ) );
+	wstrScriptName += L".lua";
+
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pMovieData", this );
+	bool bLoaded = g_pKTDXApp->LoadLuaTinker( wstrScriptName.c_str() );
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+	KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI MOVIE subtitle script " << ( bLoaded ? "loaded" : "NOT loaded (missing or failed, movie plays on)" ) << ", rows " << (int)m_vecSubtitle.size() << fileout;
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+}
+
+// June 31c9da10
+void CKTDGUIControl::CMovieData::AddSubtitleData( float fTime, int iStrID )
+{
+	SubtitleRow kRow;
+	kRow.fTime = fTime;
+	if ( iStrID != STR_ID_EMPTY )
+		kRow.wstrText = GET_STRING( iStrID );
+
+	m_vecSubtitle.push_back( kRow );
+}
+
+// June 31c9a310: the row that is current for the playing time. The row index only ever moves forward by one per call.
+bool CKTDGUIControl::CMovieData::GetSubtitle( wstring& wstrOut )
+{
+	const unsigned int uiRowCount = (unsigned int)m_vecSubtitle.size();
+	if ( uiRowCount == 0 )
+		return false;
+
+	bool bFound = false;
+	const unsigned int uiNext = m_uiSubtitleIndex + 1;
+	if ( uiNext < uiRowCount )
+	{
+		const float fNow = m_fSubtitleTime;
+		if ( fNow <= m_vecSubtitle[m_uiSubtitleIndex].fTime || m_vecSubtitle[uiNext].fTime <= fNow )
+		{
+			if ( !( fNow < m_vecSubtitle[uiNext].fTime ) )
+			{
+				m_uiSubtitleIndex = uiNext;
+				bFound = true;
+			}
+		}
+		else
+			bFound = true;
+	}
+	else if ( uiNext == uiRowCount )
+		bFound = true;
+
+	wstring wstrText;
+	if ( bFound == true )
+		wstrText = m_vecSubtitle[m_uiSubtitleIndex].wstrText;
+
+	wstrOut = wstrText;
+	return bFound;
+}
+
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 void CKTDGUIControl::CMovieData::OnFrameMove()
 {
 	BVL_STATUS status;
 	m_Bvl.GetStatus(status);
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+	if ( status == BVL_STATUS_PLAYEND )		// June OnFrameMove 31c935f0: the subtitle row and time restart with the movie
+	{
+		m_fSubtitleTime = 0.f;
+		m_uiSubtitleIndex = 0;
+	}
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 
 #ifdef PLAY_PROMOTION_MOVIE //JHKang
 	if ( status == BVL_STATUS_PLAYEND )
@@ -2070,6 +2307,13 @@ void CKTDGUIControl::CMovieData::OnFrameMove()
 				m_Bvl.GetFrame(frame, TRUE);
 
 				m_pBvt->Unlock();
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+				{	// June 31c935f0: the playing time follows the newest frame (100 ns units -> seconds, 31c935f0 divides by 1e7), never backwards
+					const float fFrameTime = (float)( (double)frame.frame_time / 10000000.0 );
+					if ( m_fSubtitleTime < fFrameTime )
+						m_fSubtitleTime = fFrameTime;
+				}
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 			}
 		}
 	}

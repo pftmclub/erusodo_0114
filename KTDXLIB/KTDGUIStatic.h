@@ -26,6 +26,9 @@ class CKTDGUIStatic : public CKTDGUIControl
 // #ifdef MOVIE_TEST	 	// 13-11-11, 진입 구조 개편, kimjh, MOVIE_TEST 중 사용에 필요한 Define 을 MOVIE_TEST_BASE 로 변경
 
 		void AddMovieData_LUA(CKTDGUIControl::CMovieData* pMovieData_ ) { m_MovieDataList.push_back( pMovieData_ ); }
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+		void SetMovieSubtitleIndex( int iMovie, int iString );	/// June 31cbe880: the subtitle of movie iMovie is written into string iString
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 
 #endif // defined(REFORM_ENTRY_POINT) && defined( MOVIE_TEST_BASE ) || defined( MOVIE_TEST ) 
 // #endif //  MOVIE_TEST	// 13-11-11, 진입 구조 개편, kimjh, MOVIE_TEST 중 사용에 필요한 Define 을 MOVIE_TEST_BASE 로 변경
@@ -128,6 +131,10 @@ class CKTDGUIStatic : public CKTDGUIControl
 
 
 		vector<CKTDGUIControl::CMovieData*>		m_MovieDataList;
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+		void UpdateMovieSubtitle();								/// June 31cc07b0 (called from OnFrameMove)
+		map<int, int>		m_mapMovieSubtitle;					/// June +0x278: movie index -> string index
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 
 #endif // defined(REFORM_ENTRY_POINT) && defined( MOVIE_TEST_BASE ) || defined( MOVIE_TEST ) 
 // #endif //  MOVIE_TEST	// 13-11-11, 진입 구조 개편, kimjh, MOVIE_TEST 중 사용에 필요한 Define 을 MOVIE_TEST_BASE 로 변경

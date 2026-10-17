@@ -84,6 +84,12 @@ CKTDGUIComboBox::CKTDGUIComboBox()
 
     m_bSelectTextShow = true;
 	m_iTextLimit = 0;
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	m_CustomMsgMouseOverOnItem = -1;
+	m_CustomMsgMouseOutOnItem = -1;
+	m_iScrollBarOffsetPosX = 0;
+	m_iScrollBarOffsetPosY = 0;
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 //{{ robobeg : 2008-10-28
 	//KLuaManager kLuaManager;
@@ -152,6 +158,9 @@ void CKTDGUIComboBox::InitScrollBar_LUA()
 	m_pScrollBar->SetUpButtonDownTex( m_pScollBarUpButtonDownTex );
 	m_pScrollBar->SetTrackTex( m_pScollBarTrackTex );
 	m_pScrollBar->SetThumbTex( m_pScollBarThumbTex );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	m_pScrollBar->SetOffsetPos( D3DXVECTOR2( (float)m_iScrollBarOffsetPosX, (float)m_iScrollBarOffsetPosY ) );		// June InitScrollBar 31cc1110
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 }
 
 
@@ -234,6 +243,9 @@ HRESULT CKTDGUIComboBox::OnFrameRender()
 
 	if ( m_pStringData != NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+		m_pStringData->RewrapPending();		// June combo box OnFrameRender 31cc5040 -> 31d45f20
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 		pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( m_pStringData->fontIndex );
 	}
 
@@ -445,6 +457,9 @@ HRESULT CKTDGUIComboBox::OnFrameRenderEnd()
 
 	if ( m_pStringData != NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+		m_pStringData->RewrapPending();		// June combo box OnFrameRenderEnd 31cc5a90 -> 31d45f20
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 		pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( m_pStringData->fontIndex );
 	}
 
@@ -856,7 +871,14 @@ bool CKTDGUIComboBox::HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lP
 	// Let the scroll bar handle it first.
 	if( m_pScrollBar != NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		POINT ptScrollBar = pt;			// June HandleMouse 31cc1660 @31cc169e: the scroll bar sees the mouse minus its offset
+		ptScrollBar.x -= m_iScrollBarOffsetPosX;
+		ptScrollBar.y -= m_iScrollBarOffsetPosY;
+		if ( m_pScrollBar->HandleMouse( uMsg, ptScrollBar, wParam, lParam ) == true )
+#else SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 		if ( m_pScrollBar->HandleMouse( uMsg, pt, wParam, lParam ) == true )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 		{
 			return true;
 		}
@@ -879,10 +901,29 @@ bool CKTDGUIComboBox::HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lP
 					if( pItem -> bVisible &&
 						PtInRect( &pItem->rcActive, pt ) )
 					{
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+						// June 31cc1730-31cc1777: leaving the old item sends Out, entering sends Over (every mouse move over the item)
+						if ( m_iFocused != i && 0 <= m_iFocused && m_CustomMsgMouseOutOnItem != -1 )
+							SendInternelEvent( g_pKTDXApp->GetHWND(), CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, m_CustomMsgMouseOutOnItem, (LPARAM)this );
+						if ( m_CustomMsgMouseOverOnItem != -1 )
+						{
+							SendInternelEvent( g_pKTDXApp->GetHWND(), CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, m_CustomMsgMouseOverOnItem, (LPARAM)this );
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+							static int s_iLogComboOver = 0;
+							if ( ++s_iLogComboOver <= 10 )
+								KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI COMBO mouse over item " << i << " msg " << m_CustomMsgMouseOverOnItem << fileout;
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+						}
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 						m_iFocused = i;
 
 					}
 				}
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+				// June 31cc17b2-31cc17d9: after the item loop Out goes out for the focused item whenever the pointer is inside the dropdown
+				if ( 0 <= m_iFocused && m_CustomMsgMouseOutOnItem != -1 )
+					SendInternelEvent( g_pKTDXApp->GetHWND(), CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, m_CustomMsgMouseOutOnItem, (LPARAM)this );
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 //				return false;
 				return true;
 			}

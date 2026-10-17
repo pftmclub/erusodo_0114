@@ -1957,6 +1957,7 @@
     <ClCompile Include="KTDGUISlider.cpp" />
     <ClCompile Include="KTDGUISlot.cpp" />
     <ClCompile Include="KTDGUIStatic.cpp" />
+    <ClCompile Include="KTDXWordWrap.cpp" />
     <ClCompile Include="KTDGUIUniBuffer.cpp" />
     <ClCompile Include="KTDGXMeshPlayer.cpp" />
     <ClCompile Include="KTDGXRenderer.cpp" />
@@ -2214,6 +2215,7 @@
     <ClInclude Include="KTDGUISlider.h" />
     <ClInclude Include="KTDGUISlot.h" />
     <ClInclude Include="KTDGUIStatic.h" />
+    <ClInclude Include="KTDXWordWrap.h" />
     <CustomBuildStep Include="KTDGUIUniBuffer.h" />
     <ClInclude Include="KTDGXMeshPlayer.h" />
     <ClInclude Include="KTDGXRenderer.h" />

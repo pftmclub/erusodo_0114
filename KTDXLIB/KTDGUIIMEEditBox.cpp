@@ -187,6 +187,9 @@ CKTDGUIIMEEditBox::CKTDGUIIMEEditBox()
 	m_pSndKeyDown = g_pKTDXApp->GetDeviceManager()->OpenSound( keyDownSndFileName );
 
 	m_bEnablePaste = true;
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	m_fCaretOffSet = 0.f;
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 #ifdef KTDGDEVICEFONT_SIMULATE_DIRECTX_FONT
 	ClearText();
@@ -2735,6 +2738,25 @@ void CKTDGUIIMEEditBox::RenderComposition( IDirect3DDevice9* pd3dDevice, float f
 	}
 
 
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	{	// June RenderComposition 31cb9670 @31cb982d: the rectangle moves down by ftol( float( ( nY / lineCount ) * lineCount ) * offset ); lineCount = 31d4bc40 = GetLineCount( caret )
+		int iLineCount = m_Buffer.GetLineCount( m_nCaret );
+		if ( 0 < iLineCount )
+		{
+			int iCaretOffset = (int)( (float)( ( nY / iLineCount ) * iLineCount ) * m_fCaretOffSet );
+			rc.top += iCaretOffset;
+			rc.bottom += iCaretOffset;
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+			if ( iCaretOffset != 0 )
+			{
+				static int s_iLogCompOffset = 0;
+				if ( ++s_iLogCompOffset <= 10 )
+					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI CARETOFFSET composition shift " << iCaretOffset << " px (offset " << m_fCaretOffSet << ", lines " << iLineCount << ")" << fileout;
+			}
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 	// Save the rectangle position for processing highlighted text.
 	RECT rcFirst = rc;
 
@@ -3141,6 +3163,25 @@ HRESULT CKTDGUIIMEEditBox::OnFrameRender()
 			}
 
 
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+			{	// June OnFrameRender 31cb9ff0 @31cba50e: same shift for the caret rectangle (nCaretY is 0 unless GetGroupID() >= 0)
+				int iLineCount = m_Buffer.GetLineCount( m_nCaret );
+				if ( 0 < iLineCount )
+				{
+					int iCaretOffset = (int)( (float)( ( nCaretY / iLineCount ) * iLineCount ) * m_fCaretOffSet );
+					rcCaret.top += iCaretOffset;
+					rcCaret.bottom += iCaretOffset;
+#ifdef SERV_IRUHADEV_JUNE_UI_DEBUG
+					if ( iCaretOffset != 0 )
+					{
+						static int s_iLogCaretOffset = 0;
+						if ( ++s_iLogCaretOffset <= 10 )
+							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] UI CARETOFFSET caret shift " << iCaretOffset << " px (offset " << m_fCaretOffSet << ", lines " << iLineCount << ")" << fileout;
+					}
+#endif SERV_IRUHADEV_JUNE_UI_DEBUG
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 			// If we are in overwrite mode, adjust the caret rectangle
 			// to fill the entire character.
 			if( !m_bInsertMode )
@@ -3309,6 +3350,17 @@ void CKTDGUIIMEEditBox::SetFont_LUA( int nFontIndex )
 }
 
 //--------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+// June 31cbc6b0: the table's GLOBAL font, then the font named for this nation; -1 leaves the font alone
+void CKTDGUIIMEEditBox::SetFont_Flag_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+
+	int iFontIndex = GetFlagValueByNation( luaManager );
+	if ( iFontIndex != -1 )
+		SetFont_LUA( iFontIndex );
+}
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 void CKTDGUIIMEEditBox::ResetCaretBlink()
 {
 	m_bCaretOn = true;

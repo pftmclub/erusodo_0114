@@ -40,6 +40,9 @@ CKTDGUIRadioButton::CKTDGUIRadioButton()
 	m_bFixOverByCheck = false;
 
 	m_GroupID = -1;
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	m_iGroupOffset = 0;
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 	m_CheckedEdgeColor = D3DXCOLOR( 1, 1, 1, 1 );
 	m_CheckedEdgeWidth = 0;
@@ -247,6 +250,9 @@ HRESULT CKTDGUIRadioButton::OnFrameRender()
 		tempOutLineColor.g = m_pStringData->outlineColor.g * m_pDialog->GetColor().g * m_Color.g;
 		tempOutLineColor.b = m_pStringData->outlineColor.b * m_pDialog->GetColor().b * m_Color.b;
 
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+		m_pStringData->RewrapPending();		// June radio button OnFrameRender 31cab2b0 -> 31d45f20
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 		CKTDGFontManager::CUKFont* pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( m_pStringData->fontIndex );
 		D3DXVECTOR2 pos;
 		pos = m_pStringData->pos + m_pDialog->GetPos() + m_OffsetPos;		

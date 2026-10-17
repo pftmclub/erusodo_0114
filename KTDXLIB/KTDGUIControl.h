@@ -148,6 +148,11 @@ class CKTDGUIControl : private boost::noncopyable
 			float			fRotDegree;
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifndef DLL_BUILD
+			float			fRotDegree;				/// June UIPointData +0x44: the ROTATION key (SetPointData_ 31c97ce0); March has it under DLL_BUILD only
+#endif DLL_BUILD
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 #ifdef RESIZE_TEXTURE
 			D3DXVECTOR2		kResize;
 #endif RESIZE_TEXTURE
@@ -173,6 +178,11 @@ class CKTDGUIControl : private boost::noncopyable
 #ifdef DLL_BUILD
 				fRotDegree = 0.f;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifndef DLL_BUILD
+				fRotDegree = 0.f;
+#endif DLL_BUILD
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 #ifdef RESIZE_TEXTURE
 				kResize = D3DXVECTOR2( 1, 1 );
 #endif RESIZE_TEXTURE
@@ -243,6 +253,14 @@ class CKTDGUIControl : private boost::noncopyable
 				Rotate( (leftTopPoint + rightBottomPoint)/2, fDegree );
 			}
 #endif
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifndef DLL_BUILD
+			void Rotate( float fDegree )			/// June 31c9a700 / 31c948a0: ROTATION turns the rectangle about its centre
+			{
+				Rotate( (leftTopPoint + rightBottomPoint)/2, fDegree );
+			}
+#endif DLL_BUILD
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 			void Scale( float fx, float fy )
 			{
 #ifdef DLL_BUILD
@@ -298,9 +316,21 @@ class CKTDGUIControl : private boost::noncopyable
 			float							fNowSpreadTime;			
 
 
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+			int								iLineBreakLength;		/// June UIStringData +0x64: LINE_BREAK_LENGTH (0 = no wrap)
+			int								iLineBreakType;			/// +0x68: LINE_BREAK_TYPE ( 0 color wrap, > 0 ellipse wrap with that many lines, < 0 none )
+			bool							bRewrapPending;			/// +0x6c: set by the X2Lib UI that changed msg; RewrapPending() wraps msg again on the next render
+
+			void RewrapPending();									/// June 31d45f20
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 			UIStringData()
 			{
 				bUseUkFont = true;
+#ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
+				iLineBreakLength = 0;
+				iLineBreakType = 0;
+				bRewrapPending = false;
+#endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 				bSpread = false;
 				iSpreadCount = 0;
 				fNowSpreadTime = 0.f;
@@ -604,6 +634,18 @@ class CKTDGUIControl : private boost::noncopyable
 			const D3DXVECTOR2& GetPos() const { return m_vPos; }
 			void SetPos(const D3DXVECTOR2& val) { m_vPos = val; }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+			/// June 2017 movie subtitles. CMovieData +0x10 current row, +0x14 playing time (seconds), +0x18 the rows (32 bytes each).
+			struct SubtitleRow
+			{
+				float		fTime;
+				wstring		wstrText;
+			};
+
+			void AddSubtitleData( float fTime, int iStrID );		/// June 31c9da10 (Lua, from the Movie_<name>.lua script)
+			bool GetSubtitle( wstring& wstrOut );					/// June 31c9a310: false when the movie has no rows
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+
 		public:
 			CBandiVideoLibrary	m_Bvl;
 
@@ -619,6 +661,13 @@ class CKTDGUIControl : private boost::noncopyable
 			
 			D3DXVECTOR2			m_vPos;
 			bool				m_bShow;
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+			void LoadSubtitleScript( const WCHAR* wstrMovieFileName_ );	/// June 31c9b970
+
+			vector<SubtitleRow>	m_vecSubtitle;						/// June +0x18
+			unsigned int		m_uiSubtitleIndex;					/// June +0x10
+			float				m_fSubtitleTime;					/// June +0x14: frame time of the newest decoded frame, seconds
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 		#ifdef PLAY_PROMOTION_MOVIE //JHKang
 			bool				m_bLoop;	/// 반복 재생
 		#endif //PLAY_PROMOTION_MOVIE
@@ -885,6 +934,13 @@ class CKTDGUIControl : private boost::noncopyable
 		void Animate();
 
 		bool GetMouseOver() { return m_bMouseOver; }
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		void SetChangeFocusByKeyMsg( bool bChange ) { m_bChangeFocusByKeyMsg = bChange; }	/// June 31c1a740 (default true)
+		bool GetChangeFocusByKeyMsg() const { return m_bChangeFocusByKeyMsg; }
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+		void AddDummyInt_Flag_LUA();	/// June 31c95b40: { GLOBAL = n, <nation> = n } -> AddDummyInt
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 		bool GetIsMoving();
 
 		// Minimize / Maximize
@@ -949,6 +1005,14 @@ class CKTDGUIControl : private boost::noncopyable
 		static UITextureData*	SetTexureData_( const WCHAR* pFileName, const WCHAR* pKeyName );
 		static UIPointData*		SetPointData_();
 		static UIStringData*	SetStringData_();
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+		/// June 31c9e2d0 / 31c9ec20 / 31c9e1f0: read KEY_GLOBAL, then KEY_<nation>, into the value the plain read left (a miss keeps it)
+		static void				GetValueWithNationKey( KLuaManager& luaManager, const char* pszKey, int& iValue );
+		static void				GetValueWithNationKey( KLuaManager& luaManager, const char* pszKey, float& fValue );
+		static void				GetValueWithNationKey( KLuaManager& luaManager, const char* pszKey, D3DXVECTOR2& vValue );
+		/// June 31c95b40 / 31cbc6b0: the table's GLOBAL key, then the nation-name key; -1 when neither is there
+		static int				GetFlagValueByNation( KLuaManager& luaManager );
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 
 		TexChangeData*			SetTexChangeData_();
 
@@ -1023,4 +1087,7 @@ class CKTDGUIControl : private boost::noncopyable
 #ifdef SHOW_DESCRIPTION_WHEN_DISABLE
 		bool	m_bShowDescriptionWhenDisable;
 #endif SHOW_DESCRIPTION_WHEN_DISABLE
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		bool	m_bChangeFocusByKeyMsg;		/// June CKTDGUIControl +0x244: Tab / arrow keys may move the focus away from this control
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 };

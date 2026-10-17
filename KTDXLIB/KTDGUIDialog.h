@@ -368,6 +368,9 @@ class CKTDGUIDialog
 		bool GetIsOverControl();
 		void SetIsOverControl(bool val);
 		bool GetDisableUnderWindow () { return m_bDisableUnderWindow; }
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+		bool SetEnableRadioButtonByGroupOffset( int iGroupID, int iGroupOffset, bool bEnable );	/// June 31cd2af0 (its X2Lib caller 32dca200 is the synthesis UI)
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 		void SetDisableUnderWindow (bool val) { m_bDisableUnderWindow = val; }		
 
 		void SetMouseOverShowDlg(bool val) { m_bMouseOverShowDlg = val; }

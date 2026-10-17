@@ -891,6 +891,45 @@ for the nation-suffix readers). Port U0's list. `KTDXApp.cpp` bindings are also 
 same session. **Done gate:** `ui_dlg_census.py` shows 0 `june-only-unbound` rows apart from the routed ones; a June DLG from each
 group opens in game.
 
+### Phase U1 -- Done (2026-10-17, Sonnet 5.5)
+
+Four flags in `KTDXLIB/Always.h` plus the short-lived `SERV_IRUHADEV_JUNE_UI_DEBUG` (`[JUNE_ENGINE] UI` lines in `ErrorLog.txt`). Commit: the one that adds this note. Funcmap: 17 rows `Engine U1`
+(`june2017_re/funcmap.tsv`, they correct four U0 rows). JUNE_BUGS.md rows 256-261. `DEPLOY OK: X2_offline.exe is 19,804,672 B, dated 2026-10-17 21:19:47, md5 94b8520e61305072a3134e8d67237848, equal to X2/US_SERVICE/x2.exe (2026-10-17 21:19:31); built at main 129bae3e + 34 uncommitted code file(s).` That exe also holds the R2 session's uncommitted work (it deployed the same md5, `c46a281b`). Strings checked in the deployed exe: all 9 new method names, `g_pMovieData`, `[JUNE_ENGINE] UI NATIONKEY` / `MOVIE`.
+
+**A -- `JUNE_UI_FRAMEWORK`.** All 8 items.
+- Bound: `Dialog:SetDisableUnderWindow`, `CPictureData:GetSize` / `SetColor`, `Control:SetChangeFocusByKeyMsg` (default true, gates the Tab / arrow chain in `KTDGUIDialog.cpp` `MsgProc`, June `31cd8a6e`),
+  `IMEEditBox:SetCaretOffSet`, `RadioButton:SetGroupOffset`, `ComboBox:SetCustomMsgMouseOverOnItem` / `OutOnItem` / `SetScrollBarOffsetPos`.
+- ROTATION: `UIPointData::fRotDegree`, its reader and both `SetPoint` rotates are live outside `DLL_BUILD` (`#ifndef DLL_BUILD` twins, `DLL_BUILD` itself untouched).
+- **U0 corrections found while transcribing:** (1) `SetCaretOffSet` shifts the caret and composition rectangle's **top and bottom**, not x, by `ftol( float( ( caretY / n ) * n ) * offset )`
+  where `n` = `31d4bc40` = `CKTDGUIUniBuffer::GetLineCount( caret )` (March has it). A zero count faults in June; the port skips the shift. (2) The dialog method `31cd2af0` calls vslot `0x60`, which is
+  `SetEnable` (not a check call): ported as `CKTDGUIDialog::SetEnableRadioButtonByGroupOffset( group, offset, bEnable )`, unchecking a disabled radio. Its X2Lib caller `32dca200` (synthesis UI) is **not U1's**.
+  (3) The combo hover loop sends Over on every move and Out again after the loop (JUNE_BUGS). (4) `SetScrollBarOffsetPos` must be called before `InitScrollBar` (June's script order); the scroll bar's
+  `SetOffsetPos` runs in `InitScrollBar_LUA`.
+- Members June never initialises start at March's value: caret offset `0.0f`, radio group offset `0` (JUNE_BUGS).
+
+**B -- `JUNE_UI_NATION_KEYS`.** `CKTDXApp` gets the nation-name string ("NONE", then "US": `CX2Main` ctor, right after the config script, `X2Main.cpp`; nothing loads UI in between, so
+this is June's store point; switch keyed on March's `NF_*`, June's name strings). The three readers `GetValueWithNationKey( int / float / D3DXVECTOR2 )` read `KEY_GLOBAL` then `KEY_US` after the plain key at
+June's 8 sites (FONT_INDEX, POS, LEFT_TOP, RIGHT_BOTTOM x2, RIGHT_TOP, LEFT_BOTTOM, ADD_SIZE_X/Y). `AddDummyInt_Flag` and `SetFont_Flag` bound.
+
+**C -- `JUNE_UI_MOVIE_SUBTITLE`.** All four parts. `CMovieData` rows + `AddSubtitleData` + `GetSubtitle`; the script `<movie stem>.lua` is loaded with `LoadLuaTinker` after `g_pMovieData` is set
+(`KEM_ERROR72` / `73` = June's `ErrorLogMsg` 0x48 / 0x49, no popup); the playing time follows the newest frame (`frame_time` / 1e7, `31c935f0`);
+`CKTDGUIStatic::SetMovieSubtitleIndex` + the per-frame update (wrapped to 770 px with June's plain wrap). `Movie_Title`, `Movie_Henir_Start`, `Movie_Elysion_Clear` adopted (ljconv bytecode, `datai015`, packed:
+`PACK OK datai015`; **not copied**). Not ported: June's string-ID debug prefix in `AddSubtitleData` (`31c9da10` string-manager flag `+0x40`). The three `.avi` are P9's.
+
+**D -- `JUNE_UI_LINE_BREAK`.** New engine file `KTDXLIB/KTDXWordWrap.{h,cpp}` (added to `KTDXLIB_2010.vcxproj`) holds June's wrap helpers:
+- `31cbff90` (plain, via `31d471f0`), `31d43ef0` (colour; **it is March's `GetStrByLineBreakColorInX2Main`**, EU branch), `31d42bc0` (ellipse, = March's), `31d45dd0` (type dispatch), IsSpace / IsSplit.
+- `UIStringData` gets `LINE_BREAK_LENGTH` / `LINE_BREAK_TYPE` / `bRewrapPending`; `SetStringData_` wraps after the nation font override; `RewrapPending` is called in the seven
+  OnFrameRender sites (button, radio, slot, static, combo x2, list box -- U0 listed five).
+- **Visible change:** X2Lib's `GetStrByLineBreakInX2Main` and `GetStrByLineBreakColorInX2Main` now forward to the engine, so every X2Lib caller (tooltips, quest text, ...) wraps at spaces like June's US client
+  instead of March's mid-word cut. `BasicLineBreak` has no X2Lib caller and no June twin; the `WithEllipse` family is compiled only under `ELLIPSE_GLOBAL` (off here), so X2Lib keeps its own copy.
+
+**Hygiene** (`flagcheck.py <flag> --worktree --files ...`, before the range run below): all five flags `worktree --files <my 24 files>`: 0 deleted lines, 0 non-ASCII, 0 EOL-mismatch, 0 `#else`/`#endif` without the flag token, 0 encoding changes; per flag the only FAIL is `KTDXWordWrap.cpp`'s `#include "StdAfx.h"` (PCH needs it first, outside the flag).
+**Census** (`ui_dlg_census.py`, run against the deployed exe): `GAP LIST june-only-unbound: 0 names`, `type-aware misses: 0` (was 37 names / 13 misses). The census learned the suffix rule (`FONT_INDEX|POS|LEFT_TOP|RIGHT_BOTTOM|RIGHT_TOP|LEFT_BOTTOM|ADD_SIZE_X|Y` + `_GLOBAL` / `_US` = bound; other nation codes, `IS_FOR_MINOR_UNIT`, `m_PrivateType` and the `AddVillageNpcRelationData*` table keys = `routed`), edited in `ui_dlg_census.py`.
+
+**Open / for the review.** (a) No live March DLG calls any of the new methods (kom_contents grep, 0 hits): June DLGs bring them with their UI ports, so A can only be shown by log lines and by a regression
+that default-on `SetChangeFocusByKeyMsg` changes nothing. (b) Live exercisers: `DLG_Map_Local_*_Icon_NEW` read `*_GLOBAL` / `*_US` keys (B), the movies (C), every X2Lib text wrap (D).
+(c) The done gate "a June DLG from each group opens in game" is **not met by live content**: it needs a June DLG calling the new methods, and the owning UI port brings it. The play-test checks the groups that have a live exerciser plus the log lines.
+
 ## Phase W0 - World-event timeline RE
 
 **Run with:** Opus 5.5 high. No code. Funcmap rows `Engine W0`.

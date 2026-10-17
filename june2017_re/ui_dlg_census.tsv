@@ -1,41 +1,4 @@
 kind	name	class	june_files	top5_files	march_binding_or_reader	note	march_const_anywhere
-key	POS_BR	june-only-unbound	6	DLG_Achievement_System_UI, DLG_Guild_Info_Control, DLG_Magical_Closet_NEW_2, DLG_UI_EXTRACT_SOCKET, DLG_UI_EXTRACT_SOCKET_METERIAL		ctx: AddString(6)	
-key	IS_FOR_MINOR_UNIT	june-only-unbound	5	DLG_Magical_Closet, DLG_UI_CHARACTER_NEW_2, DLG_UI_CHARACTER_NEW_3, DLG_UI_CHARACTER_NEW_4, DLG_Magical_Closet_NEW_2		ctx: SetSlotData(5)	
-key	LINE_BREAK_LENGTH	june-only-unbound	4	DLG_UI_Trade_Result_Success, DLG_UI_Bingo_Quest_Main, DLG_UI_SURPRISE_SALE_SYSTEM, DLG_UI_Pet_Accompany_List		ctx: AddString(4)	
-key	POS_US	june-only-unbound	3	DLG_Achievement_System_UI, DLG_Magical_Closet_NEW_2, DLG_UI_EXTRACT_SOCKET		ctx: AddString(3)	
-key	ROTATION	june-only-unbound	3	DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_Guild_Info_New_3	KTDGUIControl.cpp:770 CKTDGUIControl::SetPointData_	reader exists but every read sits in an inactive guard: ifdef DLL_BUILD; ctx: SetPoint(3)	
-key	FONT_INDEX_BR	june-only-unbound	2	DLG_UI_EXTRACT_SOCKET, DLG_UI_EXTRACT_SOCKET_METERIAL		ctx: AddString(2)	
-key	FONT_INDEX_US	june-only-unbound	2	DLG_Achievement_System_UI, DLG_UI_EXTRACT_SOCKET		ctx: AddString(2)	
-key	LINE_BREAK_TYPE	june-only-unbound	2	DLG_UI_Bingo_Quest_Main, DLG_UI_Pet_Accompany_List		ctx: AddString(2)	
-key	POS_JP	june-only-unbound	2	DLG_Guild_AD_Registration_Filter, DLG_Guild_Info_New_3		ctx: AddString(2)	
-key	POS_TH	june-only-unbound	2	DLG_Magical_Closet_NEW_2, DLG_UI_EXTRACT_SOCKET		ctx: AddString(2)	
-key	POS_TW	june-only-unbound	2	DLG_Magical_Closet_NEW_2, DLG_UI_SpaceOfThought_NPC_Info		ctx: AddString(2)	
-key	FONT_INDEX_JP	june-only-unbound	1	DLG_UI_Item_Extract_Result_Success		ctx: AddString(1)	
-key	FONT_INDEX_TH	june-only-unbound	1	DLG_UI_EXTRACT_SOCKET		ctx: AddString(1)	
-key	LEFT_TOP_DE	june-only-unbound	1	DLG_Map_Local_Hamel_Icon_NEW		ctx: SetPoint(1)	
-key	LEFT_TOP_EN	june-only-unbound	1	DLG_Map_Local_Hamel_Icon_NEW		ctx: SetPoint(1)	
-key	LEFT_TOP_ES	june-only-unbound	1	DLG_Map_Local_Hamel_Icon_NEW		ctx: SetPoint(1)	
-key	LEFT_TOP_FR	june-only-unbound	1	DLG_Map_Local_Hamel_Icon_NEW		ctx: SetPoint(1)	
-key	LEFT_TOP_IT	june-only-unbound	1	DLG_Map_Local_Hamel_Icon_NEW		ctx: SetPoint(1)	
-key	LEFT_TOP_PL	june-only-unbound	1	DLG_Map_Local_Hamel_Icon_NEW		ctx: SetPoint(1)	
-key	RIGHT_BOTTOM_GLOBAL	june-only-unbound	1	DLG_Guild_Info_New_3		ctx: SetTextPoint(1)	
-key	m_PrivateType	june-only-unbound	1	DLG_PVP_Map_List		ctx: AddMapInfo_LUA(1)	
-method	SetDisableUnderWindow	june-only-unbound	11	DLG_Common_BG, DLG_ItemToolTip, DLG_ItemToolTip_SetInfo, DLG_SlotManager, DLG_UI_COBO_COUNT		guess: method 'set disable under window'	
-method	GetNationFlag	june-only-unbound	7	DLG_ChatBox_NEW, DLG_Magical_Closet_NEW_2, DLG_Map_Local_Elysion_Icon_NEW, DLG_Map_Local_Event_Icon_NEW, DLG_UI_HighSchool_2017_Dungeon		guess: method 'get nation flag'	
-method	SetMovieSubtitleIndex	june-only-unbound	4	DLG_Dungeon_Clear_Movie, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW		guess: method 'set movie subtitle index'	
-method	AddDummyInt_Flag	june-only-unbound	1	DLG_Guild_Info_New_3		guess: method 'add dummy int flag'	
-method	AddVillageNpcRelationDataByQuest_LUA	june-only-unbound	1	DLG_Map_House_NPC_RelationData		guess: method 'add village npc relation data by quest lua'	
-method	AddVillageNpcRelationDataByVillage_LUA	june-only-unbound	1	DLG_Map_House_NPC_RelationData		guess: method 'add village npc relation data by village lua'	
-method	GetSize	june-only-unbound	1	UICommon		guess: method 'get size'	
-method	SetCaretOffSet	june-only-unbound	1	DLG_Mail_Shop_Popup_Send		guess: method 'set caret off set'	
-method	SetChangeFocusByKeyMsg	june-only-unbound	1	DLG_Magical_Closet_Auto_Search_Keyword		guess: method 'set change focus by key msg'	
-method	SetChangeUVPoint	june-only-unbound	1	DLG_Map_Local_Elysion_Back_NEW		guess: method 'set change uv point'	
-method	SetCustomMsgMouseOutOnItem	june-only-unbound	1	DLG_Magical_Closet_ComboBox		guess: method 'set custom msg mouse out on item'	
-method	SetCustomMsgMouseOverOnItem	june-only-unbound	1	DLG_Magical_Closet_ComboBox		guess: method 'set custom msg mouse over on item'	
-method	SetFont_Flag	june-only-unbound	1	DLG_Guild_Info_New_3		guess: method 'set font flag'	
-method	SetGroupOffset	june-only-unbound	1	DLG_UI_Synthesis		guess: method 'set group offset'	
-method	SetScrollBarOffsetPos	june-only-unbound	1	DLG_Magical_Closet_ComboBox		guess: method 'set scroll bar offset pos'	
-method@CPictureData	SetColor	june-only-unbound	1	DLG_Character_System_ToolTip		nil-method call on a CPictureData receiver (name is bound on another class)	
 const	DRAW_TEXT.DT_LEFT	march-lua-defines	613	DLG_Guide_Skill_Popup, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha, DLG_1ST_Class_Change_Guide_Ara			yes
 const	X2_DIALOG_LAYER.XDL_POP_UP	march-lua-defines	573	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add			yes
 const	FALSE	march-lua-defines	512	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_Bad_Attribute_Player_Warning, DLG_Bank, DLG_Bank_Reform			yes
@@ -471,7 +434,7 @@ const	HOUSE_TYPE.HT_NPC_HOUSE	march-lua-defines	5	DLG_Map_House, DLG_Map_House_1
 const	HOUSE_TYPE.HT_POSTBOX	march-lua-defines	5	DLG_Map_House, DLG_Map_House_1, DLG_Map_House_2, DLG_Map_House_GuraEvnet, DLG_Map_House_Week3			yes
 const	HOUSE_TYPE.HT_PRIVATE_BANK	march-lua-defines	5	DLG_Map_House, DLG_Map_House_1, DLG_Map_House_2, DLG_Map_House_GuraEvnet, DLG_Map_House_Week3			yes
 const	HOUSE_TYPE.HT_TRAINNING_ZONE	const-field-absent	5	DLG_Map_House, DLG_Map_House_1, DLG_Map_House_2, DLG_Map_House_GuraEvnet, DLG_Map_House_Week3		table HOUSE_TYPE exists in March Lua, field HT_TRAINNING_ZONE does not	yes
-const	NF_KR	bound	5	DLG_Magical_Closet_NEW_2, DLG_Map_Local_Event_Icon_NEW, DLG_UI_HighSchool_2017_Dungeon, DLG_UI_PARTY_LENGTH_NEW_2, DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3373		
+const	NF_KR	bound	5	DLG_Magical_Closet_NEW_2, DLG_Map_Local_Event_Icon_NEW, DLG_UI_HighSchool_2017_Dungeon, DLG_UI_PARTY_LENGTH_NEW_2, DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3412		
 const	NPC_UNIT_ID.NUI_BENDERS_TOWN	march-lua-defines	5	DLG_Map_House, DLG_Map_House_1, DLG_Map_House_2, DLG_Map_House_GuraEvnet, DLG_Map_House_Week3			yes
 const	NPC_UNIT_ID.NUI_DAPPAR	march-lua-defines	5	DLG_Map_House, DLG_Map_House_1, DLG_Map_House_2, DLG_UI_FIELD_MAP_Sander_Village_NEW, DLG_Map_House_Week3			yes
 const	NPC_UNIT_ID.NUI_EMIRATE	march-lua-defines	5	DLG_Map_House, DLG_Map_House_1, DLG_Map_House_2, DLG_UI_FIELD_MAP_Sander_Village_NEW, DLG_Map_House_Week3			yes
@@ -1589,7 +1552,7 @@ const	MOMOTI_EVENT_UI_MSG.SHOW_MOMOTI_QUIZ_EVENT_ENTER	march-lua-defines	2	DLG_U
 const	NASOD_SCOPE_UI_MSG.NSUM_CHAT_OPEN_MENU	march-lua-defines	2	DLG_ChatBox, DLG_ChatBox_NEW			yes
 const	NASOD_SCOPE_UI_MSG.NSUM_CHAT_SELECT_MESSAGE	march-lua-defines	2	DLG_ChatBox, DLG_ChatBox_NEW			yes
 const	NASOD_SCOPE_UI_MSG.NSUM_MENU_CLEAR	march-lua-defines	2	DLG_ChatBox, DLG_ChatBox_NEW			yes
-const	NF_US	bound	2	DLG_ChatBox_NEW, DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3377		
+const	NF_US	bound	2	DLG_ChatBox_NEW, DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3416		
 const	NOW_EQIP_SLOT_ID.NESI_AC_RING2	const-field-absent	2	DLG_UI_CHARACTER_NEW_4, DLG_UI_Watch_Ver2		table NOW_EQIP_SLOT_ID exists in March Lua, field NESI_AC_RING2 does not	yes
 const	NOW_EQIP_SLOT_ID.NESI_MINORUNIT_AC_EARRING	const-field-absent	2	DLG_UI_CHARACTER_NEW_4, DLG_Magical_Closet_NEW_2		table NOW_EQIP_SLOT_ID exists in March Lua, field NESI_MINORUNIT_AC_EARRING does not	yes
 const	NOW_EQIP_SLOT_ID.NESI_MINORUNIT_AC_MINIME	const-field-absent	2	DLG_UI_CHARACTER_NEW_4, DLG_Magical_Closet_NEW_2		table NOW_EQIP_SLOT_ID exists in March Lua, field NESI_MINORUNIT_AC_MINIME does not	yes
@@ -3597,7 +3560,7 @@ const	XF_DODUM_12_BOLD	march-lua-uses	2	DLG_Dungeon_Room_List, DLG_Unit_State_Te
 const	XUF_DODUM_11_NORMAL_MAPPED	march-lua-defines	2	DLG_Unit_Create_Front_Server_Select_New, DLG_Unit_Create_Front_Server_Select_New_TW			
 const	XUF_DODUM_30_BOLD	const-table-absent	2	DLG_Tournament_LoseByDefaultCount, DLG_UI_HighSchool_2017_Dungeon			
 const	XUF_DODUM_8_NORMAL	march-lua-defines	2	DLG_RIDING_SKILL_SLOT, DLG_UI_PET_GAGE_BAR_NEW			
-const	g_pUIDialog	bound	2	DLG_Tournament_Honor, DLG_Tournament_MatchList	KTDXLIB/KTDGUIDialog.cpp:2323		yes
+const	g_pUIDialog	bound	2	DLG_Tournament_Honor, DLG_Tournament_MatchList	KTDXLIB/KTDGUIDialog.cpp:2371		yes
 const	ARCADE_CHANNEL_ID.ACI_ARCADE_ELDER	march-lua-defines	1	DLG_Dungeon_Arcade_Lobby			yes
 const	ARCADE_CHANNEL_ID.ACI_ARCADE_RUBEN	march-lua-defines	1	DLG_Dungeon_Arcade_Lobby			yes
 const	ARCADE_CHANNEL_ID.ACI_ARCADE_SEASON1	march-lua-defines	1	DLG_Dungeon_Arcade_Lobby			yes
@@ -4018,12 +3981,12 @@ const	NASOD_SCOPE_UI_MSG.NSUM_INSERT_MESSAGE_CLOSE	march-lua-defines	1	DLG_UI_Us
 const	NASOD_SCOPE_UI_MSG.NSUM_INSERT_MESSAGE_OK	march-lua-defines	1	DLG_UI_Use_Nasod_Scope			yes
 const	NASOD_SCOPE_UI_MSG.NSUM_MENU_FRIEND	march-lua-defines	1	DLG_Mega_Phone_User_Menu			yes
 const	NASOD_SCOPE_UI_MSG.NSUM_MENU_RELATION	march-lua-defines	1	DLG_ChatBox_NEW			yes
-const	NF_BR	bound	1	DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3382		
-const	NF_DE	bound	1	DLG_Map_Local_Elysion_Icon_NEW	X2Lib/X2Main.cpp:3365		
-const	NF_ES	bound	1	DLG_Map_Local_Elysion_Icon_NEW	X2Lib/X2Main.cpp:3369		
-const	NF_IT	bound	1	DLG_Map_Local_Elysion_Icon_NEW	X2Lib/X2Main.cpp:3367		
-const	NF_JP	bound	1	DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3374		
-const	NF_TH	bound	1	DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3380		
+const	NF_BR	bound	1	DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3421		
+const	NF_DE	bound	1	DLG_Map_Local_Elysion_Icon_NEW	X2Lib/X2Main.cpp:3404		
+const	NF_ES	bound	1	DLG_Map_Local_Elysion_Icon_NEW	X2Lib/X2Main.cpp:3408		
+const	NF_IT	bound	1	DLG_Map_Local_Elysion_Icon_NEW	X2Lib/X2Main.cpp:3406		
+const	NF_JP	bound	1	DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3413		
+const	NF_TH	bound	1	DLG_UI_PVP_Set_Password	X2Lib/X2Main.cpp:3419		
 const	NOW_EQIP_SLOT_ID.NESI_MINORUNIT_AC_RING2	const-field-absent	1	DLG_UI_CHARACTER_NEW_4		table NOW_EQIP_SLOT_ID exists in March Lua, field NESI_MINORUNIT_AC_RING2 does not	yes
 const	NOW_FISHING_SLOT_ID.NFSI_FISHING_BAIT	march-lua-uses	1	DLG_UI_Fishing_Inventory			yes
 const	NOW_FISHING_SLOT_ID.NFSI_FISHING_ROD	march-lua-uses	1	DLG_UI_Fishing_Inventory			yes
@@ -6494,10 +6457,10 @@ const	XUF_DODUM_9_NORMAL	const-table-absent	1	DLG_Achievement_System_Piece_Detai
 const	XUF_HEADLINE_15_NORMAL	march-lua-uses	1	DLG_Mission_Dungeon_F_Kill_Count			yes
 const	Y	const-table-absent	1	DLG_UI_CHECK_BOARD_EVENT_MAIN			
 const	falsE	march-lua-uses	1	DLG_GameEdit			yes
-global	D3DXVECTOR2	bound	1455	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:1852		yes
-global	D3DXCOLOR	bound	944	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_10LV_PR, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain	KTDXLIB/KTDXApp.cpp:1863		yes
-global	D3DXVECTOR3	bound	252	DLG_BuffManager, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Subpage_Hot_Itemslot	KTDXLIB/KTDXApp.cpp:1857		yes
-global	IncludeLua	bound	76	DLG_Cash_Shop_Right_Front, DLG_Cash_Shop_Right_Front_New, DLG_Dungeon_Result_Back, DLG_Dungeon_Result_Front, DLG_Dungeon_Room_Back	KTDXLIB/KTDXApp.cpp:2066		yes
+global	D3DXVECTOR2	bound	1455	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:1868		yes
+global	D3DXCOLOR	bound	944	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_10LV_PR, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain	KTDXLIB/KTDXApp.cpp:1879		yes
+global	D3DXVECTOR3	bound	252	DLG_BuffManager, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Subpage_Hot_Itemslot	KTDXLIB/KTDXApp.cpp:1873		yes
+global	IncludeLua	bound	76	DLG_Cash_Shop_Right_Front, DLG_Cash_Shop_Right_Front_New, DLG_Dungeon_Result_Back, DLG_Dungeon_Result_Front, DLG_Dungeon_Room_Back	KTDXLIB/KTDXApp.cpp:2085		yes
 global	string.format	lua-builtin	51	DLG_Cash_Shop_Popup_Coupon, DLG_Coupon_Input_Window2, DLG_Event_Claw_MaChine, DLG_FriendShip_UI, DLG_Friend_ReCommend_UI			yes
 global	IconAni	march-lua-defines	26	DLG_BossRaid_Enter, DLG_Map_Local_Altera_Island_Icon, DLG_Map_Local_Elder_Icon_NEW, DLG_Map_Local_Hamel_Icon, DLG_Map_Local_Ruben_Icon_NEW			yes
 global	tostring	lua-builtin	7	DLG_UI_ELYSION_SOLESS_AWAKEN_GAGE, DLG_UI_ELYSION_SOLESS_HERBAON_GAGE, DLG_UI_ELYSION_SOLESS_OF_SUN_GAGE, DLG_UI_RANOX_SECRET_FEVER_GAGE, DLG_UI_ROSE_STORM_TROOPER_GAGE			
@@ -6515,54 +6478,65 @@ global	QuickButtonAnim	june-defined-same-file	1	DLG_PVP_Lobby_Button			yes
 global	_CreateBlock	june-defined-same-file	1	DLG_Tournament_MatchList			
 global	_CreateBranch	june-defined-same-file	1	DLG_Tournament_MatchList			
 global	_CreateRowElement	june-defined-same-file	1	DLG_Tournament_Honor			
-key	LEFT_TOP	bound	1435	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDGUIControl.cpp:786 CKTDGUIControl::SetPointData_	ctx: SetPoint(1342), SetNormalPoint(953), SetOverPoint(952), SetDownPoint(952)	yes
-key	CHANGE_TIME	bound	1430	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDGUIControl.cpp:282 CKTDGUIControl::Move_LUA	ctx: SetPoint(1332), SetNormalPoint(948), SetOverPoint(947), SetDownPoint(947)	
-key	ADD_SIZE_Y	bound	1099	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDGUIControl.cpp:767 CKTDGUIControl::SetPointData_	ctx: SetDownPoint(866), SetPoint(649), SetOverPoint(272), SetNormalPoint(260)	yes
-key	ADD_SIZE_X	bound	1070	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDGUIControl.cpp:766 CKTDGUIControl::SetPointData_	ctx: SetDownPoint(864), SetPoint(641), SetOverPoint(324), SetNormalPoint(306)	yes
-key	COLOR	bound	878	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_10LV_PR, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain	KTDGUIControl.cpp:293 CKTDGUIControl::Move_LUA	ctx: AddString(695), SetPoint(295), SetNormalPoint(146), SetOverPoint(127)	yes
-key	POS	bound	856	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:292 CKTDGUIControl::Move_LUA	ctx: AddString(793), SetSlotData(86), SetString(75), Move(18)	yes
-key	FONT_INDEX	bound	822	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:866 CKTDGUIControl::SetStringData_	ctx: AddString(794), SetString(75), SetGroupString(2)	yes
-key	SORT_FLAG	bound	796	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:867 CKTDGUIControl::SetStringData_	ctx: AddString(793), SetString(13)	yes
-key	OUTLINE_COLOR	bound	644	DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha, DLG_1ST_Class_Change_Guide_Ara, DLG_1ST_Class_Change_Guide_Chung	KTDGUIControl.cpp:883 CKTDGUIControl::SetStringData_	ctx: AddString(621), SetString(48)	yes
-key	MSG	bound	577	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:852 CKTDGUIControl::SetStringData_	ctx: AddString(569), SetString(10)	yes
-key	RIGHT_BOTTOM	bound	483	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_Bad_Attribute_Player_Warning, DLG_Bank, DLG_Bank_Reform	KTDGUIControl.cpp:796 CKTDGUIControl::SetPointData_	ctx: SetPoint(204), SetRBPoint(140), SetTextPoint(112), SetBGPoint(89)	yes
-key	USE_TEXTURE_SIZE	bound	477	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_Bad_Attribute_Player_Warning, DLG_Bank, DLG_Bank_Reform	KTDGUIControl.cpp:763 CKTDGUIControl::SetPointData_	ctx: SetPoint(199), SetRBPoint(140), SetTextPoint(112), SetBGPoint(85)	yes
-key	FONT_STYLE	bound	420	DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha, DLG_1ST_Class_Change_Guide_Ara	KTDGUIControl.cpp:862 CKTDGUIControl::SetStringData_	ctx: AddString(409), SetString(24)	yes
+key	LEFT_TOP	bound	1435	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDGUIControl.cpp:893 CKTDGUIControl::SetPointData_	ctx: SetPoint(1342), SetNormalPoint(953), SetOverPoint(952), SetDownPoint(952)	yes
+key	CHANGE_TIME	bound	1430	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDGUIControl.cpp:380 CKTDGUIControl::Move_LUA	ctx: SetPoint(1332), SetNormalPoint(948), SetOverPoint(947), SetDownPoint(947)	
+key	ADD_SIZE_Y	bound	1099	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDGUIControl.cpp:865 CKTDGUIControl::SetPointData_	ctx: SetDownPoint(866), SetPoint(649), SetOverPoint(272), SetNormalPoint(260)	yes
+key	ADD_SIZE_X	bound	1070	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDGUIControl.cpp:864 CKTDGUIControl::SetPointData_	ctx: SetDownPoint(864), SetPoint(641), SetOverPoint(324), SetNormalPoint(306)	yes
+key	COLOR	bound	878	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_10LV_PR, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain	KTDGUIControl.cpp:391 CKTDGUIControl::Move_LUA	ctx: AddString(695), SetPoint(295), SetNormalPoint(146), SetOverPoint(127)	yes
+key	POS	bound	856	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:390 CKTDGUIControl::Move_LUA	ctx: AddString(793), SetSlotData(86), SetString(75), Move(18)	yes
+key	FONT_INDEX	bound	822	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:984 CKTDGUIControl::SetStringData_	ctx: AddString(794), SetString(75), SetGroupString(2)	yes
+key	SORT_FLAG	bound	796	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:988 CKTDGUIControl::SetStringData_	ctx: AddString(793), SetString(13)	yes
+key	OUTLINE_COLOR	bound	644	DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha, DLG_1ST_Class_Change_Guide_Ara, DLG_1ST_Class_Change_Guide_Chung	KTDGUIControl.cpp:1019 CKTDGUIControl::SetStringData_	ctx: AddString(621), SetString(48)	yes
+key	MSG	bound	577	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDGUIControl.cpp:970 CKTDGUIControl::SetStringData_	ctx: AddString(569), SetString(10)	yes
+key	RIGHT_BOTTOM	bound	483	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_Bad_Attribute_Player_Warning, DLG_Bank, DLG_Bank_Reform	KTDGUIControl.cpp:906 CKTDGUIControl::SetPointData_	ctx: SetPoint(204), SetRBPoint(140), SetTextPoint(112), SetBGPoint(89)	yes
+key	USE_TEXTURE_SIZE	bound	477	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_Bad_Attribute_Player_Warning, DLG_Bank, DLG_Bank_Reform	KTDGUIControl.cpp:861 CKTDGUIControl::SetPointData_	ctx: SetPoint(199), SetRBPoint(140), SetTextPoint(112), SetBGPoint(85)	yes
+key	FONT_STYLE	bound	420	DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha, DLG_1ST_Class_Change_Guide_Ara	KTDGUIControl.cpp:980 CKTDGUIControl::SetStringData_	ctx: AddString(409), SetString(24)	yes
 key	SIZE	march-lua-uses	87	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List		ctx: SetSlotData(86), SetNormalPoint(2), SetOverPoint(2), SetDownPoint(2)	yes
 key	ENABLE	march-lua-uses	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List		ctx: SetSlotData(86)	yes
 key	SHOW	march-lua-uses	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List		ctx: SetSlotData(86)	yes
 key	SLOT_ID	march-lua-uses	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List		ctx: SetSlotData(86)	yes
 key	SLOT_TYPE	march-lua-uses	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List		ctx: SetSlotData(86)	yes
-key	LEFT_TOP_JP	march-lua-uses	82	DLG_Class_Change_Add_AT, DLG_Class_Change_Add_DE, DLG_Class_Change_Add_LP, DLG_Class_Change_Add_MM, DLG_Class_Change_Add_PT		ctx: SetNormalPoint(79), SetOverPoint(79), SetDownPoint(79), SetPoint(4)	yes
+key	LEFT_TOP_JP	routed	82	DLG_Class_Change_Add_AT, DLG_Class_Change_Add_DE, DLG_Class_Change_Add_LP, DLG_Class_Change_Add_MM, DLG_Class_Change_Add_PT		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetNormalPoint(79), SetOverPoint(79), SetDownPoint(79), SetPoint(4)	yes
 key	EQUIP_POS	bound	78	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2SlotItem.cpp:60 CX2SlotItem::LuaGetValue	ctx: SetSlotData(78)	yes
 key	FASHION	bound	78	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2SlotItem.cpp:59 CX2SlotItem::LuaGetValue	ctx: SetSlotData(78)	yes
 key	SORT_TYPE	bound	77	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2SlotItem.cpp:57 CX2SlotItem::LuaGetValue	ctx: SetSlotData(77)	yes
-key	STRING	bound	52	DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_BossRaid_State_User_Rank, DLG_Cash_Shop_Popup_BUY_NEW	KTDGUIControl.cpp:855 CKTDGUIControl::SetStringData_	ctx: AddString(52), SetString(1)	
-key	LEFT_TOP_CN	march-lua-uses	44	DLG_Class_Change_Aisha_DW, DLG_Class_Change_Aisha_EM, DLG_Class_Change_Aisha_VP, DLG_Class_Change_Ara_LH, DLG_Class_Change_Ara_LS		ctx: SetNormalPoint(40), SetOverPoint(40), SetDownPoint(40), SetPoint(4)	yes
-key	LEFT_BOTTOM	bound	40	DLG_Bad_Attribute_Player_Warning, DLG_Cheat_Window, DLG_Create_PVP_Room, DLG_GameEdit, DLG_Join_Back	KTDGUIControl.cpp:811 CKTDGUIControl::SetPointData_	ctx: SetPoint(28), SetNormalPoint(10), SetOverPoint(10), SetDownPoint(10)	yes
-key	RIGHT_TOP	bound	40	DLG_Bad_Attribute_Player_Warning, DLG_Cheat_Window, DLG_Create_PVP_Room, DLG_GameEdit, DLG_Join_Back	KTDGUIControl.cpp:810 CKTDGUIControl::SetPointData_	ctx: SetPoint(28), SetNormalPoint(10), SetOverPoint(10), SetDownPoint(10)	yes
-key	IS_RECT	bound	35	DLG_Bad_Attribute_Player_Warning, DLG_Cheat_Window, DLG_GameEdit, DLG_Join_Back, DLG_Login_Back	KTDGUIControl.cpp:784 CKTDGUIControl::SetPointData_	ctx: SetPoint(27), SetNormalPoint(9), SetOverPoint(9), SetDownPoint(9)	yes
-key	LEFT_TOP_TH	march-lua-uses	26	DLG_Class_Change_Aisha_EM, DLG_Class_Change_Aisha_VP, DLG_Class_Change_Ara_LH, DLG_Class_Change_CodeArchitecture, DLG_Class_Change_CodeExotic		ctx: SetOverPoint(21), SetDownPoint(21), SetPoint(5), SetNormalPoint(4)	yes
-key	AUTO_DELETE	bound	18	DLG_PVP_Game_Damaged_Arme, DLG_PVP_Game_Damaged_Arme_DM, DLG_PVP_Game_Damaged_Arme_HM, DLG_PVP_Game_Damaged_Elsword, DLG_PVP_Game_Damaged_Elsword_LK	KTDGUIControl.cpp:284 CKTDGUIControl::Move_LUA	ctx: Move(18)	yes
-key	IS_DIRECT	bound	18	DLG_PVP_Game_Damaged_Arme, DLG_PVP_Game_Damaged_Arme_DM, DLG_PVP_Game_Damaged_Arme_HM, DLG_PVP_Game_Damaged_Elsword, DLG_PVP_Game_Damaged_Elsword_LK	KTDGUIControl.cpp:281 CKTDGUIControl::Move_LUA	ctx: Move(18)	yes
-key	LEFT_TOP_BR	march-lua-uses	17	DLG_Class_Change_Ara_LH, DLG_Class_Change_Ara_SD, DLG_Class_Change_Ara_YR, DLG_Class_Change_Battle_Seraph, DLG_Class_Change_Chung_TT		ctx: SetNormalPoint(9), SetOverPoint(9), SetDownPoint(9), SetPoint(8)	yes
+key	STRING	bound	52	DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_BossRaid_State_User_Rank, DLG_Cash_Shop_Popup_BUY_NEW	KTDGUIControl.cpp:973 CKTDGUIControl::SetStringData_	ctx: AddString(52), SetString(1)	
+key	LEFT_TOP_CN	routed	44	DLG_Class_Change_Aisha_DW, DLG_Class_Change_Aisha_EM, DLG_Class_Change_Aisha_VP, DLG_Class_Change_Ara_LH, DLG_Class_Change_Ara_LS		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetNormalPoint(40), SetOverPoint(40), SetDownPoint(40), SetPoint(4)	yes
+key	LEFT_BOTTOM	bound	40	DLG_Bad_Attribute_Player_Warning, DLG_Cheat_Window, DLG_Create_PVP_Room, DLG_GameEdit, DLG_Join_Back	KTDGUIControl.cpp:924 CKTDGUIControl::SetPointData_	ctx: SetPoint(28), SetNormalPoint(10), SetOverPoint(10), SetDownPoint(10)	yes
+key	RIGHT_TOP	bound	40	DLG_Bad_Attribute_Player_Warning, DLG_Cheat_Window, DLG_Create_PVP_Room, DLG_GameEdit, DLG_Join_Back	KTDGUIControl.cpp:923 CKTDGUIControl::SetPointData_	ctx: SetPoint(28), SetNormalPoint(10), SetOverPoint(10), SetDownPoint(10)	yes
+key	IS_RECT	bound	35	DLG_Bad_Attribute_Player_Warning, DLG_Cheat_Window, DLG_GameEdit, DLG_Join_Back, DLG_Login_Back	KTDGUIControl.cpp:891 CKTDGUIControl::SetPointData_	ctx: SetPoint(27), SetNormalPoint(9), SetOverPoint(9), SetDownPoint(9)	yes
+key	LEFT_TOP_TH	routed	26	DLG_Class_Change_Aisha_EM, DLG_Class_Change_Aisha_VP, DLG_Class_Change_Ara_LH, DLG_Class_Change_CodeArchitecture, DLG_Class_Change_CodeExotic		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetOverPoint(21), SetDownPoint(21), SetPoint(5), SetNormalPoint(4)	yes
+key	AUTO_DELETE	bound	18	DLG_PVP_Game_Damaged_Arme, DLG_PVP_Game_Damaged_Arme_DM, DLG_PVP_Game_Damaged_Arme_HM, DLG_PVP_Game_Damaged_Elsword, DLG_PVP_Game_Damaged_Elsword_LK	KTDGUIControl.cpp:382 CKTDGUIControl::Move_LUA	ctx: Move(18)	yes
+key	IS_DIRECT	bound	18	DLG_PVP_Game_Damaged_Arme, DLG_PVP_Game_Damaged_Arme_DM, DLG_PVP_Game_Damaged_Arme_HM, DLG_PVP_Game_Damaged_Elsword, DLG_PVP_Game_Damaged_Elsword_LK	KTDGUIControl.cpp:379 CKTDGUIControl::Move_LUA	ctx: Move(18)	yes
+key	LEFT_TOP_BR	routed	17	DLG_Class_Change_Ara_LH, DLG_Class_Change_Ara_SD, DLG_Class_Change_Ara_YR, DLG_Class_Change_Battle_Seraph, DLG_Class_Change_Chung_TT		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetNormalPoint(9), SetOverPoint(9), SetDownPoint(9), SetPoint(8)	yes
 key	SLOT_DESC	bound	14	DLG_Cash_Shop_Slot_List, DLG_Dungeon_Game_QuickSlot_List, DLG_Magical_Closet, DLG_Shop_State_Button, DLG_UI_CHARACTER	X2SlotItem.cpp:63 CX2SlotItem::LuaGetValue	ctx: SetSlotData(14)	yes
-key	SequenceID	bound	13	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button	KTDGUIControl.cpp:926 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(7)	
-key	bEndTexChange	bound	13	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button	KTDGUIControl.cpp:932 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(7)	yes
-key	fShowTime	bound	13	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button	KTDGUIControl.cpp:927 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(7)	
-key	SCALE	bound	12	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back	KTDGUIControl.cpp:946 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(6)	yes
-key	ScaleAxis	bound	12	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back	KTDGUIControl.cpp:929 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(6)	yes
-key	LEFT_TOP_US	march-lua-uses	9	DLG_Class_Change_Ara_LH, DLG_Class_Change_Rose_BD, DLG_Class_Change_Rose_CR, DLG_Magical_Closet_NEW_2, DLG_Map_Local_Hamel_Icon_NEW		ctx: SetNormalPoint(6), SetOverPoint(6), SetDownPoint(6), SetPoint(4)	yes
-key	LEFT_TOP_TW	march-lua-uses	7	DLG_Class_Change_Ara_LH, DLG_Class_Change_Night_Watcher, DLG_Class_Change_Rose_BD, DLG_Class_Change_Rose_CR, DLG_Guild_Info_Control		ctx: SetNormalPoint(4), SetOverPoint(4), SetDownPoint(4), SetPoint(3)	yes
-key	RESIZE_X	bound	7	DLG_UI_Local_Peita_Icon_Info_NEW, DLG_Map_Local_Elysion_Icon_NEW, DLG_Map_Local_Event_Icon_NEW, DLG_Map_Local_China_Icon_Info_NEW, DLG_UI_Check_Power_Event	KTDGUIControl.cpp:774 CKTDGUIControl::SetPointData_	ctx: SetPoint(4), SetNormalPoint(3), SetOverPoint(3), SetDownPoint(3)	
-key	RotateAxis	bound	7	DLG_Dungeon_Room_Back, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back	KTDGUIControl.cpp:923 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(6), SetOverAnimTex(1)	yes
-key	RotateDegree	bound	7	DLG_Dungeon_Room_Back, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back	KTDGUIControl.cpp:924 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(6), SetOverAnimTex(1)	
-key	FileName	bound	6	DLG_BossRaid_Enter, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_Map_Local_Back, DLG_UI_Local_Map_NEW	KTDGUIControl.cpp:920 CKTDGUIControl::SetTexChangeData_	ctx: SetOverAnimTex(6), SetDownAnimTex(2)	yes
-key	KeyName	bound	6	DLG_BossRaid_Enter, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_Map_Local_Back, DLG_UI_Local_Map_NEW	KTDGUIControl.cpp:921 CKTDGUIControl::SetTexChangeData_	ctx: SetOverAnimTex(6), SetDownAnimTex(2)	yes
+key	SequenceID	bound	13	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button	KTDGUIControl.cpp:1065 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(7)	
+key	bEndTexChange	bound	13	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button	KTDGUIControl.cpp:1071 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(7)	yes
+key	fShowTime	bound	13	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button	KTDGUIControl.cpp:1066 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(7)	
+key	SCALE	bound	12	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back	KTDGUIControl.cpp:1085 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(6)	yes
+key	ScaleAxis	bound	12	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back	KTDGUIControl.cpp:1068 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(8), SetOverAnimTex(6)	yes
+key	LEFT_TOP_US	bound	9	DLG_Class_Change_Ara_LH, DLG_Class_Change_Rose_BD, DLG_Class_Change_Rose_CR, DLG_Magical_Closet_NEW_2, DLG_Map_Local_Hamel_Icon_NEW		nation suffix read by GetValueWithNationKey (U1); ctx: SetNormalPoint(6), SetOverPoint(6), SetDownPoint(6), SetPoint(4)	yes
+key	LEFT_TOP_TW	routed	7	DLG_Class_Change_Ara_LH, DLG_Class_Change_Night_Watcher, DLG_Class_Change_Rose_BD, DLG_Class_Change_Rose_CR, DLG_Guild_Info_Control		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetNormalPoint(4), SetOverPoint(4), SetDownPoint(4), SetPoint(3)	yes
+key	RESIZE_X	bound	7	DLG_UI_Local_Peita_Icon_Info_NEW, DLG_Map_Local_Elysion_Icon_NEW, DLG_Map_Local_Event_Icon_NEW, DLG_Map_Local_China_Icon_Info_NEW, DLG_UI_Check_Power_Event	KTDGUIControl.cpp:881 CKTDGUIControl::SetPointData_	ctx: SetPoint(4), SetNormalPoint(3), SetOverPoint(3), SetDownPoint(3)	
+key	RotateAxis	bound	7	DLG_Dungeon_Room_Back, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back	KTDGUIControl.cpp:1062 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(6), SetOverAnimTex(1)	yes
+key	RotateDegree	bound	7	DLG_Dungeon_Room_Back, DLG_Menu_Button_New1, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back	KTDGUIControl.cpp:1063 CKTDGUIControl::SetTexChangeData_	ctx: SetDownAnimTex(6), SetOverAnimTex(1)	
+key	FileName	bound	6	DLG_BossRaid_Enter, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_Map_Local_Back, DLG_UI_Local_Map_NEW	KTDGUIControl.cpp:1059 CKTDGUIControl::SetTexChangeData_	ctx: SetOverAnimTex(6), SetDownAnimTex(2)	yes
+key	KeyName	bound	6	DLG_BossRaid_Enter, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_Map_Local_Back, DLG_UI_Local_Map_NEW	KTDGUIControl.cpp:1060 CKTDGUIControl::SetTexChangeData_	ctx: SetOverAnimTex(6), SetDownAnimTex(2)	yes
 key	LEFT_TOP_EU	march-lua-uses	6	DLG_Class_Change_Ara_LH, DLG_Class_Change_Luciel_LC, DLG_Class_Change_Rose_BD, DLG_Class_Change_Rose_CR, DLG_Map_Local_Hamel_Icon_NEW		ctx: SetNormalPoint(4), SetOverPoint(4), SetDownPoint(4), SetPoint(2)	yes
-key	LEFT_TOP_GLOBAL	march-lua-uses	6	DLG_ChatBox_NEW, DLG_Guild_Info_New_3, DLG_Map_Local_Hamel_Icon_NEW, DLG_Map_Local_Ranox_Icon_NEW, DLG_Map_Local_Sander_Icon_NEW		ctx: SetNormalPoint(4), SetOverPoint(4), SetDownPoint(4), SetPoint(2)	yes
-key	RESIZE_Y	bound	5	DLG_UI_Local_Peita_Icon_Info_NEW, DLG_Map_Local_Event_Icon_NEW, DLG_Map_Local_China_Icon_Info_NEW, DLG_UI_Check_Power_Event, DLG_UI_Return_User_Popup_Reward_Global	KTDGUIControl.cpp:775 CKTDGUIControl::SetPointData_	ctx: SetPoint(4), SetNormalPoint(1), SetOverPoint(1), SetDownPoint(1)	
+key	LEFT_TOP_GLOBAL	bound	6	DLG_ChatBox_NEW, DLG_Guild_Info_New_3, DLG_Map_Local_Hamel_Icon_NEW, DLG_Map_Local_Ranox_Icon_NEW, DLG_Map_Local_Sander_Icon_NEW		nation suffix read by GetValueWithNationKey (U1); ctx: SetNormalPoint(4), SetOverPoint(4), SetDownPoint(4), SetPoint(2)	yes
+key	POS_BR	routed	6	DLG_Achievement_System_UI, DLG_Guild_Info_Control, DLG_Magical_Closet_NEW_2, DLG_UI_EXTRACT_SOCKET, DLG_UI_EXTRACT_SOCKET_METERIAL		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddString(6)	
+key	IS_FOR_MINOR_UNIT	routed	5	DLG_Magical_Closet, DLG_UI_CHARACTER_NEW_2, DLG_UI_CHARACTER_NEW_3, DLG_UI_CHARACTER_NEW_4, DLG_Magical_Closet_NEW_2		checklist 7v (Lu / Ciel minor-unit slots); ctx: SetSlotData(5)	
+key	RESIZE_Y	bound	5	DLG_UI_Local_Peita_Icon_Info_NEW, DLG_Map_Local_Event_Icon_NEW, DLG_Map_Local_China_Icon_Info_NEW, DLG_UI_Check_Power_Event, DLG_UI_Return_User_Popup_Reward_Global	KTDGUIControl.cpp:882 CKTDGUIControl::SetPointData_	ctx: SetPoint(4), SetNormalPoint(1), SetOverPoint(1), SetDownPoint(1)	
+key	LINE_BREAK_LENGTH	bound	4	DLG_UI_Trade_Result_Success, DLG_UI_Bingo_Quest_Main, DLG_UI_SURPRISE_SALE_SYSTEM, DLG_UI_Pet_Accompany_List	KTDGUIControl.cpp:993 CKTDGUIControl::SetStringData_	ctx: AddString(4)	
 key	CHANGE_	march-lua-uses	3	DLG_ITEM_LIST_DEV_ONLY, DLG_Map_Local_Create_Room, DLG_Monster_List_Window		ctx: SetNormalPoint(3), SetOverPoint(3), SetDownPoint(3)	
+key	POS_US	bound	3	DLG_Achievement_System_UI, DLG_Magical_Closet_NEW_2, DLG_UI_EXTRACT_SOCKET		nation suffix read by GetValueWithNationKey (U1); ctx: AddString(3)	
+key	ROTATION	bound	3	DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_Guild_Info_New_3	KTDGUIControl.cpp:873 CKTDGUIControl::SetPointData_	ctx: SetPoint(3)	
+key	FONT_INDEX_BR	routed	2	DLG_UI_EXTRACT_SOCKET, DLG_UI_EXTRACT_SOCKET_METERIAL		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddString(2)	
+key	FONT_INDEX_US	bound	2	DLG_Achievement_System_UI, DLG_UI_EXTRACT_SOCKET		nation suffix read by GetValueWithNationKey (U1); ctx: AddString(2)	
+key	LINE_BREAK_TYPE	bound	2	DLG_UI_Bingo_Quest_Main, DLG_UI_Pet_Accompany_List	KTDGUIControl.cpp:994 CKTDGUIControl::SetStringData_	ctx: AddString(2)	
+key	POS_JP	routed	2	DLG_Guild_AD_Registration_Filter, DLG_Guild_Info_New_3		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddString(2)	
+key	POS_TH	routed	2	DLG_Magical_Closet_NEW_2, DLG_UI_EXTRACT_SOCKET		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddString(2)	
+key	POS_TW	routed	2	DLG_Magical_Closet_NEW_2, DLG_UI_SpaceOfThought_NPC_Info		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddString(2)	
 key	m_MapName	march-lua-uses	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List		ctx: AddMapInfo_LUA(2)	yes
 key	m_MapNameTexKeyName	march-lua-uses	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List		ctx: AddMapInfo_LUA(2)	
 key	m_MapNameTexName	march-lua-uses	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List		ctx: AddMapInfo_LUA(2)	
@@ -6571,281 +6545,293 @@ key	m_MapTexName	march-lua-uses	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List		ctx: A
 key	m_WorldID	march-lua-uses	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List		ctx: AddMapInfo_LUA(2)	yes
 key	m_bHot	march-lua-uses	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List		ctx: AddMapInfo_LUA(2)	yes
 key	m_bNew	march-lua-uses	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List		ctx: AddMapInfo_LUA(2)	yes
-key	APPLY_FORCE	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_AlphaBlend1stMesh	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
-key	Change_AlphaBlend2ndMesh	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_Bye_Talk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_Exchange_Talk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_Make_Talk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NPCAniTex	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NPCAniTex2nd	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NPCByeTalk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
-key	Change_NPCJoinTalk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
-key	Change_NPCMeshName	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
-key	Change_NPCMeshName2nd	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NPCMeshRot	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NPCMeshScale	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NPCTextureKey	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NPCTextureName	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_Name	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_NoEdge2ndMesh	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_Quest_Talk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_Shop_Talk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_TalkMotionName	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_UIFileName	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
-key	Change_Wait01MotionName	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	Change_Wait_Talk	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	EFFECT_SET_NAME	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByVillage_LUA(1)	
-key	GLOBAL	key-in-non-ui-call	1	DLG_Guild_Info_New_3		ctx: SetFont_Flag(1)	
-key	JP	key-in-non-ui-call	1	DLG_Guild_Info_New_3		ctx: AddDummyInt_Flag(1)	
-key	KR	key-in-non-ui-call	1	DLG_Guild_Info_New_3		ctx: SetFont_Flag(1), AddDummyInt_Flag(1)	
+key	APPLY_FORCE	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_AlphaBlend1stMesh	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
+key	Change_AlphaBlend2ndMesh	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_Bye_Talk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_Exchange_Talk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_Make_Talk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NPCAniTex	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NPCAniTex2nd	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NPCByeTalk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
+key	Change_NPCJoinTalk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
+key	Change_NPCMeshName	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
+key	Change_NPCMeshName2nd	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NPCMeshRot	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NPCMeshScale	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NPCTextureKey	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NPCTextureName	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_Name	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_NoEdge2ndMesh	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_Quest_Talk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_Shop_Talk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_TalkMotionName	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_UIFileName	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
+key	Change_Wait01MotionName	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	Change_Wait_Talk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	EFFECT_SET_NAME	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByVillage_LUA(1)	
+key	FONT_INDEX_JP	routed	1	DLG_UI_Item_Extract_Result_Success		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddString(1)	
+key	FONT_INDEX_TH	routed	1	DLG_UI_EXTRACT_SOCKET		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddString(1)	
+key	GLOBAL	bound	1	DLG_Guild_Info_New_3		flag-table key read by GetFlagValueByNation (U1); ctx: SetFont_Flag(1)	
+key	JP	routed	1	DLG_Guild_Info_New_3		non-US nation key: read by the same helpers, never matches under US (U1); ctx: AddDummyInt_Flag(1)	
+key	KR	routed	1	DLG_Guild_Info_New_3		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetFont_Flag(1), AddDummyInt_Flag(1)	
 key	LEFT_TO	march-lua-uses	1	DLG_UI_System_New		ctx: SetDownPoint(1)	yes
+key	LEFT_TOP_DE	routed	1	DLG_Map_Local_Hamel_Icon_NEW		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetPoint(1)	
+key	LEFT_TOP_EN	routed	1	DLG_Map_Local_Hamel_Icon_NEW		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetPoint(1)	
+key	LEFT_TOP_ES	routed	1	DLG_Map_Local_Hamel_Icon_NEW		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetPoint(1)	
+key	LEFT_TOP_FR	routed	1	DLG_Map_Local_Hamel_Icon_NEW		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetPoint(1)	
+key	LEFT_TOP_IT	routed	1	DLG_Map_Local_Hamel_Icon_NEW		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetPoint(1)	
+key	LEFT_TOP_PL	routed	1	DLG_Map_Local_Hamel_Icon_NEW		non-US nation key: read by the same helpers, never matches under US (U1); ctx: SetPoint(1)	
 key	MiniNGE_TIME	march-lua-uses	1	DLG_UI_Chat_Window		ctx: SetPoint(1)	
-key	NPCByeTalk	march-lua-uses	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByVillage_LUA(1)	yes
-key	NPCJoinTalk	march-lua-uses	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByVillage_LUA(1)	yes
-key	QUEST_ID	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-key	RenderOption	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByVillage_LUA(1)	
-key	SequenceIDToGo	bound	1	DLG_Menu_Button_New1	KTDGUIControl.cpp:934 CKTDGUIControl::SetTexChangeData_	ctx: SetOverAnimTex(1)	
-key	TARGET_NPC_HOUSE_ID	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
+key	NPCByeTalk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByVillage_LUA(1)	yes
+key	NPCJoinTalk	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByVillage_LUA(1)	yes
+key	QUEST_ID	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+key	RIGHT_BOTTOM_GLOBAL	bound	1	DLG_Guild_Info_New_3		nation suffix read by GetValueWithNationKey (U1); ctx: SetTextPoint(1)	
+key	RenderOption	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByVillage_LUA(1)	
+key	SequenceIDToGo	bound	1	DLG_Menu_Button_New1	KTDGUIControl.cpp:1073 CKTDGUIControl::SetTexChangeData_	ctx: SetOverAnimTex(1)	
+key	TARGET_NPC_HOUSE_ID	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
 key	TEX_NAME	march-lua-uses	1	DLG_PVP_Game_Exit		ctx: SetTex(1)	
-key	USE_UK_FONT	bound	1	DLG_Dungeon_Room_List	KTDGUIControl.cpp:877 CKTDGUIControl::SetStringData_	ctx: AddString(1)	yes
-key	VILLAGE_ID	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByVillage_LUA(1)	
-key	VillageNpc_RelationData_Type	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
-key	m_iUseCodeEventTriger	key-in-non-ui-call	1	DLG_Map_House_NPC_RelationData		ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
-method	SetName	bound	1466	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2079		yes
-method	AddControl	bound	1453	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2108		yes
-method	CreateStatic	bound	1367	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2097		yes
-method	AddPicture	bound	1345	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2272		yes
-method	CreatePicture	bound	1345	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2082		yes
-method	SetPoint	bound	1342	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2210		yes
-method	SetTex	bound	1336	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2209		yes
-method	SetFront	bound	1178	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2109		yes
-method	SetModal	bound	1128	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2081		yes
-method	SetNormalTex	bound	999	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2235		yes
-method	SetOverTex	bound	986	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2236		yes
-method	CreateButton	bound	955	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2093		yes
-method	SetNormalPoint	bound	954	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2246		yes
-method	SetDownPoint	bound	953	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2248		yes
-method	SetOverPoint	bound	953	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2247		yes
-method	SetDownTex	bound	945	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2237		yes
-method	SetPos	bound	934	DLG_Guide_Skill_Popup, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis, Class_Change_Guide_Luciel	KTDXLIB/KTDXApp.cpp:2080		yes
-method	SetLayer	bound	905	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2127		yes
-method	SetCustomMsgMouseUp	bound	884	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2254		yes
-method	AddString	bound	794	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDXLIB/KTDXApp.cpp:2273		yes
-method	SetCloseCustomUIEventID	bound	619	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2146		yes
-method	SetShow	bound	340	DLG_2ND_Class_Change_Guide_Add, DLG_2ND_Class_Change_Guide_Ain, DLG_2ND_Class_Change_Guide_Aisha, DLG_2ND_Class_Change_Guide_Ara, DLG_2ND_Class_Change_Guide_Chung	KTDXLIB/KTDXApp.cpp:2167		yes
-method	AddDummyInt	bound	330	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_Reward_List_Button, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2116		yes
-method	AddDummyPos	bound	252	DLG_BuffManager, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Subpage_Hot_Itemslot	KTDXLIB/KTDXApp.cpp:2112		yes
-method	SetBGPoint	bound	234	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2296		yes
-method	SetCheckPoint	bound	234	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2297		yes
-method	SetCheckedTex	bound	234	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2295		yes
-method	SetDisableTex	bound	220	DLG_BossRaid_Enter, DLG_BossRaid_Reward_List_Button, DLG_BossRaid_State, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1	KTDXLIB/KTDXApp.cpp:2238		yes
-method	SetCustomMsgChecked	bound	216	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2298		yes
-method	SetDisablePoint	bound	207	DLG_BossRaid_Enter, DLG_BossRaid_Reward_List_Button, DLG_BossRaid_State, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1	KTDXLIB/KTDXApp.cpp:2249		yes
-method	CreateRadioButton	bound	174	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2098		yes
-method	SetBGMouseOverPoint	bound	174	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2374		yes
-method	SetRBPoint	bound	174	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2375		yes
-method	SetGroupID	bound	171	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2381		yes
-method	SetFixOverByCheck	bound	161	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Right_Front, DLG_Cash_Shop_Right_Front_New	KTDXLIB/KTDXApp.cpp:2385		yes
-method	SetShowOffBGByCheck	bound	161	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Right_Front, DLG_Cash_Shop_Right_Front_New	KTDXLIB/KTDXApp.cpp:2384		yes
-method	SetCustomMsgMouseOver	bound	159	DLG_BossRaid_Reward_Result, DLG_Elesis_WayOfSword, DLG_Elsword_WayOfSword, DLG_Event_Clock, DLG_GAME_SKILL_SLOT_NEW	KTDXLIB/KTDXApp.cpp:2252		yes
-method	SetCustomMsgMouseOut	bound	139	DLG_BossRaid_Reward_Result, DLG_Elesis_WayOfSword, DLG_Elsword_WayOfSword, DLG_Event_Clock, DLG_GAME_SKILL_SLOT_NEW	KTDXLIB/KTDXApp.cpp:2251		yes
-method	SetGuideDesc	bound	128	DLG_Ain_DF, DLG_BossRaid_Enter, DLG_BossRaid_Reward_List_Button, DLG_CharacterCustomize_ControlList_Item, DLG_Customizing_System	KTDXLIB/KTDXApp.cpp:2196		yes
-method	SetCaretColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2320		yes
-method	SetFont	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2311		yes
-method	SetSelectedBackColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2319		yes
-method	SetSelectedTextColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2318		yes
-method	SetTextColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2317		yes
-method	SetTextPoint	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2310		yes
-method	CreateIMEEditBox	bound	111	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2096		yes
-method	SetSize	bound	97	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2141		yes
-method	CreateCheckBox	bound	95	DLG_Guide_Skill_Popup, DLG_BossRaid_State_User_Rank, DLG_Cash_Shop_Popup_BUY_NEW, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy	KTDXLIB/KTDXApp.cpp:2094		yes
-method	SetEnableMoveByDrag	bound	90	DLG_Cheat_Window, DLG_Create_PVP_Room, DLG_Find_User, DLG_Guide_Account_Protective, DLG_Guide_Trade_Restraint	KTDXLIB/KTDXApp.cpp:2111		yes
-method	AddSlot	bound-nonui	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2Lib/X2Main.cpp:5073		yes
-method	CreateItemSlot	bound-nonui	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2Lib/X2Main.cpp:5074		yes
-method	SetSlotData	bound-nonui	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2Lib/X2Main.cpp:5092		yes
-method	RequestFocus	bound	81	DLG_BossRaid_Reward_Result, DLG_Charm_Item_Result, DLG_Charm_Item_Result_1slot, DLG_Coupon_Input_Window2, DLG_Create_PVP_Room	KTDXLIB/KTDXApp.cpp:2183		yes
-method	SetCustomMsgUnChecked	bound	78	DLG_Guide_Skill_Popup, DLG_BossRaid_State_User_Rank, DLG_Cash_Shop_Popup_BUY_NEW, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy	KTDXLIB/KTDXApp.cpp:2299		yes
-method	SetChecked	bound	75	DLG_Guide_Skill_Popup, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1	KTDXLIB/KTDXApp.cpp:2300		yes
-method	SetString	bound	75	DLG_Bank_Reform, DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot	KTDXLIB/KTDXApp.cpp:2250		yes
-method	SetEdge	bound	68	DLG_Bank_Reform, DLG_BossRaid_Reward_Result, DLG_Charm_Item_Result, DLG_Cube_Result_Window, DLG_Grand_Ice_Heater_Use	KTDXLIB/KTDXApp.cpp:2214		yes
-method	SetOffsetPos	bound	68	DLG_Boss_Raid_Game_Start_Count, DLG_Dungeon_Game_Continue, DLG_Dungeon_Game_Start_Count, DLG_Dungeon_Luto_Game_Start_Count, DLG_Dungeon_Room_UserInfo	KTDXLIB/KTDXApp.cpp:2175		yes
-method	SetCustomMsgEnter	bound	66	DLG_Change_Guild_Name, DLG_Change_Nickname, DLG_Change_Nickname_New, DLG_Change_PetName, DLG_ChatBox_EditBox	KTDXLIB/KTDXApp.cpp:2313		yes
-method	SetTextTex	bound	65	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2398		yes
-method	SetByteLimit	bound	63	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname, DLG_Change_Nickname_New	KTDXLIB/KTDXApp.cpp:2327		yes
-method	SetEnable	bound	60	DLG_Cash_Shop_Choiced_Menu_Window, DLG_Cash_Shop_Left_Front, DLG_Cash_Shop_Popup_ItemToInven, DLG_Cash_Shop_Right_Front, DLG_Create_PVP_Room	KTDXLIB/KTDXApp.cpp:2179		yes
-method	SetIndex	bound	58	DLG_Common_Info, DLG_Cube_Open, DLG_Ice_Heater_Use, DLG_Mail_Shop_Popup_Send, DLG_Menu_Button_New1	KTDXLIB/KTDXApp.cpp:2215		yes
-method	SetShowEnable	bound	57	DLG_Customizing_System, DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Info	KTDXLIB/KTDXApp.cpp:2181		yes
-method	SetDraggingRange	bound	55	DLG_Skill_Tree_Main, DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW	KTDXLIB/KTDXApp.cpp:2144		yes
-method	SetDraggingRangeCenter	bound	55	DLG_Skill_Tree_Main, DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW	KTDXLIB/KTDXApp.cpp:2143		yes
-method	SetEnableDraggingRange	bound	55	DLG_Skill_Tree_Main, DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW	KTDXLIB/KTDXApp.cpp:2142		yes
-method	InitScrollBar	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2424		yes
-method	SetCustomMsgStopDragging	bound	54	DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW, DLG_UI_FIELD_MAP_Altera_Village_NEW	KTDXLIB/KTDXApp.cpp:2147		yes
-method	SetScollBarDownButtonDownTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2405		yes
-method	SetScollBarDownButtonTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2404		yes
-method	SetScollBarThumbTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2406		yes
-method	SetScollBarTrackTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2407		yes
-method	SetScollBarUpButtonDownTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2409		yes
-method	SetScollBarUpButtonTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2408		yes
-method	SetCustomMsgRMouseUp	bound	53	DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW, DLG_UI_FIELD_MAP_Altera_Village_NEW	KTDXLIB/KTDXApp.cpp:2152		yes
-method	SetTex2	bound	51	DLG_BossState, DLG_BossState_NEW, DLG_Dungeon_Ending_Event_Character, DLG_First_Loading_Front, DLG_Game_My_Score	KTDXLIB/KTDXApp.cpp:2208		yes
-method	SetTabControlName	bound	49	DLG_Bank_Reform, DLG_Cash_Shop_Popup_Coupon, DLG_ChatBox_EditBox, DLG_Cheat_Window, DLG_Coupon_Input_Window2	KTDXLIB/KTDXApp.cpp:2173		yes
-method	SetButtonMouseOverTex	bound	47	DLG_Bank_Reform, DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot	KTDXLIB/KTDXApp.cpp:2402		yes
-method	SetButtonTex	bound	42	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2401		yes
-method	SetButtonSize	bound	40	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2416		yes
-method	CreateComboBox	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2099		yes
-method	SetButtonMouseDownTex	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2403		yes
-method	SetButtonPos	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2415		yes
-method	SetDropdownTex	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2399		yes
-method	SetDropdownTextTex	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2400		yes
-method	SetTextPos	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2413		yes
-method	SetTextSize	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2414		yes
-method	SetTextStringOffsetPos	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2412		yes
-method	SetCustomButtonMouseOverSndFile	bound	34	DLG_UI_Channel_Selection_Slot_New, DLG_UI_Character_Selection_Back_New, DLG_UI_Character_Selection_Creat_Unit_New, DLG_UI_Character_Selection_Delete_Unit_New, DLG_UI_Character_Selection_Slot_New	KTDXLIB/KTDXApp.cpp:2156		yes
-method	SetCustomButtonMouseUpSndFile	bound	34	DLG_UI_Channel_Selection_Slot_New, DLG_UI_Character_Selection_Back_New, DLG_UI_Character_Selection_Creat_Unit_New, DLG_UI_Character_Selection_Delete_Unit_New, DLG_UI_Character_Selection_Slot_New	KTDXLIB/KTDXApp.cpp:2157		yes
-method	SetCustomMsgSelectionChanged	bound	34	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2425		yes
-method	SetDropHeight	bound	34	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2417		yes
-method	ChangeMouseUpSound_LUA	bound	32	DLG_Dungeon_Room_Back, DLG_Game_Skill_Slot, DLG_Menu_Button, DLG_Menu_Button_NEW, DLG_Menu_Button_NEW2	KTDXLIB/KTDXApp.cpp:2264		yes
-method	CreateControlList	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2104		yes
-method	InitYScrollBar	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2532		yes
-method	SetScrollOffset	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2537		yes
-method	SetViewSize	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2538		yes
-method	SetYScollBarDownButtonDownTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2522		yes
-method	SetYScollBarDownButtonTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2521		yes
-method	SetYScollBarThumbTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2523		yes
-method	SetYScollBarUpButtonDownTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2526		yes
-method	SetYScollBarUpButtonTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2525		yes
-method	SetYScrollBarPos	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2527		yes
-method	SetYScrollBarSize	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2528		yes
-method	CreateListBox	bound	31	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2100		yes
-method	SetBoundingBoxTex	bound	31	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2442		yes
-method	SetCustomMsgMouseRightUp	bound	31	DLG_Cash_Shop_Right_Front, DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Info_New_2	KTDXLIB/KTDXApp.cpp:2255		yes
-method	SetYScollBarTrackTex	bound	30	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2524		yes
-method	SetPrevTabControlName	bound	29	DLG_Bank_Reform, DLG_ChatBox_EditBox, DLG_GameEdit_WorldLight, DLG_Grand_Ice_Heater_Use, DLG_Ice_Heater_Use	KTDXLIB/KTDXApp.cpp:2174		yes
-method	SetEnableClick	bound	27	DLG_BossRaid_Reward_Result, DLG_Event_Clock, DLG_Map_Local_Altera_Island_Icon, DLG_Map_Local_Hamel_Icon, DLG_Map_Local_Velder_East_Icon	KTDXLIB/KTDXApp.cpp:2260		yes
-method	SetLengthLimit	bound	26	DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Coupon_Input_Window2, DLG_Dungeon_Arcade_Lobby_Create_Room, DLG_GameEdit	KTDXLIB/KTDXApp.cpp:2354		yes
-method	SetScrollBarWidth	bound	25	DLG_ChatBox_Emotion_List, DLG_Cheat_Window, DLG_ITEM_LIST_DEV_ONLY, DLG_Magical_Closet, DLG_Magical_Closet_Auto_Search_Keyword	KTDXLIB/KTDXApp.cpp:2443		yes
-method	ChangeMouseOverSound_LUA	bound	24	DLG_Game_Skill_Slot, DLG_Menu_Button, DLG_Menu_Button_NEW, DLG_Menu_Button_NEW2, DLG_Menu_Button_NEW3	KTDXLIB/KTDXApp.cpp:2266		yes
-method	SetOnlyNumMode	bound	23	DLG_Mail_Shop_Popup_Send, DLG_Personal_Shop_Board, DLG_Ranking_Henir_Season, DLG_Ranking_Henir_Season_Event, DLG_Ranking_Henir_Season_Event_2	KTDXLIB/KTDXApp.cpp:2356		yes
-method	SetCloseOnFocusOut	bound	22	DLG_Cash_Shop_Choiced_Menu_Window, DLG_Map_Local_DetailLocal_Dungeon, DLG_Mega_Phone_User_Menu, DLG_Messenger_Group_Menu, DLG_Messenger_User_Menu	KTDXLIB/KTDXApp.cpp:2136		yes
-method	AddItem	bound	21	DLG_Bank_Reform, DLG_Cash_Shop_Popup_Present, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Guild_AD_Registration	KTDXLIB/KTDXApp.cpp:2421		yes
-method	SetClickable	bound-nonui	21	DLG_Cash_Shop_Slot_List, DLG_Dungeon_Game_QuickSlot_List, DLG_Personal_Shop_Board, DLG_UI_Agency_Seller, DLG_UI_Buyer	X2Lib/X2Main.cpp:5093		yes
-method	AddDummyString	bound	18	DLG_Create_PVP_Room, DLG_Map_Local_Altera_Island_Icon, DLG_Map_Local_Elder_Icon_NEW, DLG_Map_Local_Elysion_Back_NEW, DLG_Map_Local_Hamel_Icon	KTDXLIB/KTDXApp.cpp:2114		yes
-method	Move	bound	18	DLG_PVP_Game_Damaged_Arme, DLG_PVP_Game_Damaged_Arme_DM, DLG_PVP_Game_Damaged_Arme_HM, DLG_PVP_Game_Damaged_Elsword, DLG_PVP_Game_Damaged_Elsword_LK	KTDXLIB/KTDXApp.cpp:2110		yes
-method	SetCustomMsgFocusOut	bound	16	DLG_Guild_Board, DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back_Itemmode	KTDXLIB/KTDXApp.cpp:2315		yes
-method	SetCustomMsgMouseDblClk	bound	16	DLG_Change_Job_Control, DLG_Destination_Control, DLG_Destination_Control_byButton, DLG_Event_First_Change_Job_Control, DLG_Map_Select_WIndow	KTDXLIB/KTDXApp.cpp:2259		yes
-method	SetCustomMsgMouseDown	bound	16	DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_UI_Character_Selection_Back_New, DLG_UI_RutoMode_Vote, DLG_Unit_Create_Front_Menu	KTDXLIB/KTDXApp.cpp:2253		yes
-method	SetGuideDescOffsetPos	bound	15	DLG_Customizing_System, DLG_Dungeon_Arcade_Lobby, DLG_Friend_ReCommend_UI, DLG_Luciel_CombinationPoint, DLG_UI_Cobo_Event	KTDXLIB/KTDXApp.cpp:2199		yes
-method	SetCustomMsgChange	bound	14	DLG_Friend_Add_UI, DLG_Mail_Shop_Popup_Send, DLG_Personal_Shop_Board, DLG_Ranking_Henir_Season, DLG_Ranking_Henir_Season_Event	KTDXLIB/KTDXApp.cpp:2312		yes
-method	SetNameStrID	bound	14	DLG_Map_Local_Elder_Icon_NEW, DLG_Map_Local_Hero_Recruit, DLG_UI_Local_Peita_Icon_Info, DLG_UI_Local_Peita_Icon_NEW, DLG_Map_Local_Altera_Island_Icon_NEW	KTDXLIB/KTDXApp.cpp:2201		yes
-method	CreateSlot	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2105		yes
-method	SetCustomMsgFocusIn	bound	12	DLG_UI_PPoru_Letter, DLG_Guild_Board, DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_Personal_Shop_Board	KTDXLIB/KTDXApp.cpp:2344		yes
-method	SetCustomMsgSelection	bound	12	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2459		yes
-method	SetDisabledPoint	bound	12	DLG_CharacterCustomize_ControlList_Item, DLG_Customizing_System, DLG_UI_Camera_Setting, DLG_UI_Item_Upgrade, DLG_UI_Item_Upgrade_Event_Plu	KTDXLIB/KTDXApp.cpp:2372		yes
-method	SetItemTex	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2558		yes
-method	SetMouseOverPoint	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2563		yes
-method	SetMouseOverTex	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2560		yes
-method	SetMultiLineOption	bound	12	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Coupon_Input_Window2, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send	KTDXLIB/KTDXApp.cpp:2358		yes
-method	SetWidthLimit	bound	12	DLG_UI_PPoru_Letter, DLG_Create_PVP_Room, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send, DLG_Map_Local_Create_Room	KTDXLIB/KTDXApp.cpp:2359		yes
-method	SetCustomMsgScroll	bound	11	DLG_UI_Damage_Meter_Log, DLG_UI_Guild_Skill_Tree, DLG_UI_Guild_Skill_Tree_Info, DLG_UI_Guild_Skill_Tree_New, DLG_UI_PC_POPUP_V2	KTDXLIB/KTDXApp.cpp:2539		yes
-method	SetDownStatic	bound	10	DLG_Bad_Attribute_Player_Warning, DLG_Map_World_Elios_Front, DLG_Server_Select_Back, DLG_UI_Angels_Feather, DLG_Unit_Select_Slot_Arme	KTDXLIB/KTDXApp.cpp:2244		yes
-method	SetLineLimit	bound	10	DLG_UI_PPoru_Letter, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send, DLG_Post_InviteLetter_Window_System, DLG_Post_Letter_Window	KTDXLIB/KTDXApp.cpp:2360		yes
-method	SetOverStatic	bound	10	DLG_Bad_Attribute_Player_Warning, DLG_Map_World_Elios_Front, DLG_Server_Select_Back, DLG_UI_Angels_Feather, DLG_Unit_Select_Slot_Arme	KTDXLIB/KTDXApp.cpp:2243		yes
-method	SetCustomMsgItemDoubleClick	bound	9	DLG_ChatBox, DLG_ITEM_LIST_DEV_ONLY, DLG_Messenger_Window, DLG_Monster_List_Window, DLG_Motion_List_Window	KTDXLIB/KTDXApp.cpp:2461		yes
-method	SetCustomMsgOpenDropdown	bound	9	DLG_Customizing_System_Select_TwoSeater_ComboBox, DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_Magical_Closet_ComboBox, DLG_Mail_Shop_Popup_Send	KTDXLIB/KTDXApp.cpp:2426		yes
-method	CreateNavigation	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2102		yes
-method	SetBGPoint_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2502		yes
-method	SetBGTex_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2500		yes
-method	SetCustomMsgLButtonDown	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2504		yes
-method	SetDownAnimTex	bound	8	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode	KTDXLIB/KTDXApp.cpp:2241		yes
-method	SetNormalStatic	bound	8	DLG_Bad_Attribute_Player_Warning, DLG_Map_World_Elios_Front, DLG_Server_Select_Back, DLG_Unit_Select_Slot_Arme, DLG_Unit_Select_Slot_Elsword	KTDXLIB/KTDXApp.cpp:2242		yes
-method	SetReverseDropdown	bound	8	DLG_Find_User, DLG_Free_Training_Menu, DLG_ITEM_LIST_DEV_ONLY, DLG_Messenger_Group_Move, DLG_Room_ChatBox_Mode	KTDXLIB/KTDXApp.cpp:2430		yes
-method	SetScrollBarPos	bound	8	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_Magical_Closet	KTDXLIB/KTDXApp.cpp:2444		yes
-method	SetScrollBarSize	bound	8	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_Magical_Closet	KTDXLIB/KTDXApp.cpp:2445		yes
-method	SetSound	bound	8	DLG_Dungeon_Result_Reward_Box, DLG_UI_Character_Selection_Back_New, DLG_Unit_Create_Front_Menu, DLG_Unit_Create_Front_Menu_Elesis, DLG_Unit_Create_Front_Menu_New	KTDXLIB/KTDXApp.cpp:2182		yes
-method	SetUpdateScrollBarOnUpdate	bound	8	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_Magical_Closet	KTDXLIB/KTDXApp.cpp:2469		yes
-method	SetWindowPoint_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2503		yes
-method	SetWindowTex_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2501		yes
-method	SetCustomMsgMouseDragging	bound	7	DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request, DLG_UI_Training	KTDXLIB/KTDXApp.cpp:2505		yes
-method	SetDragable	bound	7	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_LUCIEL_TRANSFORM_SKILL_SLOT, DLG_RIDING_SKILL_SLOT	KTDXLIB/KTDXApp.cpp:2565		yes
-method	SetOverAnimTex	bound	7	DLG_BossRaid_Enter, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button, DLG_Map_Local_Back	KTDXLIB/KTDXApp.cpp:2240		yes
-method	ChangeMouseDownSound_LUA	bound	6	DLG_Dungeon_Room_Back, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back, DLG_PVP_Room_Team_Back_Itemmode	KTDXLIB/KTDXApp.cpp:2265		yes
-method	GetDummyValue	bound-nonui	6	DLG_Private_Bank, DLG_UI_Pet_Inventory1x4, DLG_UI_Pet_Inventory2x4, DLG_UI_Pet_Inventory3x4, DLG_UI_Pet_Inventory4x4	X2Lib/X2Main.cpp:5075		yes
-method	SetCustomMsgSelectionByRButton	bound	6	DLG_ChatBox, DLG_Cheat_Window, DLG_Messenger_Window, DLG_Title_Window, DLG_UI_Community_Friend	KTDXLIB/KTDXApp.cpp:2462		yes
-method	SetEnablePaste	bound	6	DLG_UI_PPoru_Letter, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send, DLG_UI_Invite_Wedding, DLG_GameEdit_Camera	KTDXLIB/KTDXApp.cpp:2364		yes
-method	SetEnableThumb	bound	6	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2480		yes
-method	SetEnableTrack	bound	6	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2479		yes
-method	SetIgnoreListClick	bound	6	DLG_ChatBox, DLG_GameEdit, DLG_Notice_Popup_InHouseOnly, DLG_PVP_MAP_SELECT_FOR_DEBUG, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2467		yes
-method	SetScrollToEndOnUpdateRects	bound	6	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2470		yes
-method	AddMovieData	bound	5	DLG_Dungeon_Clear_Movie, DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2278		yes
-method	CreateMovie	bound	5	DLG_Dungeon_Clear_Movie, DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2088		yes
-method	SetColor	bound	5	DLG_Unit_Create_NickName, DLG_Unit_Create_NickName_Elesis, DLG_Unit_Create_NickName_New, DLG_Unit_Create_NickName_TEST, DLG_Character_System_ToolTip	KTDXLIB/KTDXApp.cpp:2128		yes
-method	SetRect	bound	5	DLG_Dungeon_Clear_Movie, DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2223		yes
-method	AddItemStrID	bound	4	DLG_Free_Training_Menu, DLG_Ranking, DLG_UI_Invite_Wedding, DLG_Guild_AD_Registration_Ver2	KTDXLIB/KTDXApp.cpp:2433		yes
-method	CreateEditBox	bound	4	DLG_Join_Back, DLG_Login_Back, DLG_UI_OkAndCancelEditBox_Hide, DLG_Login_Keyboard	KTDXLIB/KTDXApp.cpp:2095		yes
-method	SetCustomMsgDropped	bound	4	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_UI_KEY_SETTING	KTDXLIB/KTDXApp.cpp:2556		yes
-method	SetCustomMsgRButtonUp	bound	4	DLG_UI_CHARACTER_NEW_2, DLG_UI_CHARACTER_NEW_4, DLG_UI_Partylist, DLG_ChatBox_NEW	KTDXLIB/KTDXApp.cpp:2380		yes
-method	SetEnableCheckToggle	bound	4	DLG_Story_Book, DLG_UI_NEW_Quest_List, DLG_UI_Party, DLG_UI_Synthesis	KTDXLIB/KTDXApp.cpp:2388		yes
-method	SetGuideDescByString	bound	4	DLG_PVP_Lobby_Channel, DLG_UI_Emulate, DLG_UI_Emulate_ItemMode, DLG_UI_Skill_Icon_New2015	KTDXLIB/KTDXApp.cpp:2197		yes
-method	SetHideChar	bound	4	DLG_Join_Back, DLG_Login_Back, DLG_UI_OkAndCancelEditBox_Hide, DLG_Login_Keyboard	KTDXLIB/KTDXApp.cpp:2322		yes
-method	SetLoop	bound	4	DLG_Dungeon_Clear_Movie, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2227		yes
-method	SetMovieFileName	bound	4	DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2222		yes
-method	SetSelectTextShow	bound	4	DLG_Bank_Reform, DLG_Mail_Shop_Popup_Send, DLG_Private_Bank_Reform, DLG_UI_NoMannerUserReportSystem	KTDXLIB/KTDXApp.cpp:2431		yes
-method	SetShowDescriptionWhenDisable	bound	4	DLG_UI_Bingo_Quest_Main, DLG_UI_CHALLENGE_EL_MISSION_EVENT, DLG_UI_Check_Power_Event, DLG_UI_New_Year_2014_Event	KTDXLIB/KTDXApp.cpp:2204		yes
-method	SetUseItemDisappear	bound	4	DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ, DLG_ChatBox_NEW	KTDXLIB/KTDXApp.cpp:2468		yes
-method	CreateSlider	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2101		yes
-method	SetBGTex	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2487		yes
-method	SetCustomMsgCloseDropdown	bound	3	DLG_Mail_Shop_Popup_Send, DLG_UI_Mini_Map, DLG_UI_Mini_Map_NEW	KTDXLIB/KTDXApp.cpp:2427		yes
-method	SetCustomMsgValueChanged	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2493		yes
-method	SetGuideDescAbsolutePos	bound	3	DLG_PVP_Game_State_RankBox_NEW, DLG_UI_BookButton, DLG_UI_CHALLENGE_EL_MISSION_EVENT	KTDXLIB/KTDXApp.cpp:2198		yes
-method	SetOffsetMaximize	bound	3	DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2193		yes
-method	SetOutlineColor	bound	3	DLG_Mail_Shop_Popup_Send, DLG_UI_Item_Enroll, DLG_UI_Trade	KTDXLIB/KTDXApp.cpp:2321		yes
-method	SetRange	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2491		yes
-method	SetValue	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2492		yes
-method	AddMapInfo_LUA	bound-nonui	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List	X2Lib/X2Main.cpp:5254		yes
-method	Handler_EGS_CHANGE_SLOT_OPEN_REQ	bound-nonui	2	DLG_PVP_Room_O, DLG_PVP_Room_X	X2Lib/X2Main.cpp:3343		yes
-method	SetAutoChangeBigEnglish	bound	2	DLG_Cash_Shop_Popup_Coupon, DLG_Coupon_Input_Window2	KTDXLIB/KTDXApp.cpp:2363		yes
-method	SetCloseOnFocusOutEvent	bound	2	DLG_ChatBox, DLG_ChatBox_NEW	KTDXLIB/KTDXApp.cpp:2137		yes
-method	SetCustomFuncMouseUp	bound	2	DLG_PVP_Room_O, DLG_PVP_Room_X	KTDXLIB/KTDXApp.cpp:2258		yes
-method	SetForceSendCustomMsgChange	bound	2	DLG_Personal_Shop_Board, DLG_Magical_Closet_NEW_2	KTDXLIB/KTDXApp.cpp:2347		yes
-method	SetGroupString	bound	2	DLG_Messenger_Window, DLG_UI_Community_Friend	KTDXLIB/KTDXApp.cpp:2457		yes
-method	SetOnlyNumAndEnglishMode	bound	2	DLG_Cash_Shop_Popup_Coupon, DLG_Coupon_Input_Window2	KTDXLIB/KTDXApp.cpp:2361		yes
-method	SetSelectItemAtMouseMove	bound	2	DLG_Magical_Closet_Auto_Search_Keyword, DLG_Personal_Shop_Board_Auto_Search_Keyword	KTDXLIB/KTDXApp.cpp:2473		yes
-method	ChangeSequenceByNameAndPivot	bound	1	DLG_PVP_Lobby_CharBG	KTDXLIB/KTDXApp.cpp:2139		yes
-method	GetButton	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2119		yes
-method	GetDialog	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2166		yes
-method	GetDialogManager	bound-nonui	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2680		yes
-method	GetMySlot	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3134		yes
-method	GetPVPGameType	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3271		yes
-method	GetPVPRoom	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3292		yes
-method	GetPicture	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2283		yes
-method	GetPlayTime	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3273		yes
-method	GetRadioButton	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2125		yes
-method	GetRoomPublic	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3132		yes
-method	GetStatic	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2126		yes
-method	GetString	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2284		yes
-method	GetTeamNum	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3251		yes
-method	GetWinKillNum	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3272		yes
-method	InsertItem	bound	1	DLG_UI_Option_KeyConfig	KTDXLIB/KTDXApp.cpp:2536		
-method	SetCustomMsgDoubleClicked	bound	1	DLG_UI_Partylist	KTDXLIB/KTDXApp.cpp:2379		yes
-method	SetDefTextAlign	bound	1	DLG_Shop_Sell_Window	KTDXLIB/KTDXApp.cpp:2357		yes
-method	SetEnableDoubleClick	bound	1	DLG_UI_Partylist	KTDXLIB/KTDXApp.cpp:2387		yes
-method	SetMsg	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:1898		yes
-method	SetText	bound	1	DLG_Shop_Sell_Window	KTDXLIB/KTDXApp.cpp:2339		yes
-method	SetTimeForSelfDelete	bound	1	DLG_Notice_Popup_InHouseOnly	KTDXLIB/KTDXApp.cpp:2150		yes
+key	USE_UK_FONT	bound	1	DLG_Dungeon_Room_List	KTDGUIControl.cpp:1013 CKTDGUIControl::SetStringData_	ctx: AddString(1)	yes
+key	VILLAGE_ID	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByVillage_LUA(1)	
+key	VillageNpc_RelationData_Type	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1), AddVillageNpcRelationDataByVillage_LUA(1)	
+key	m_PrivateType	routed	1	DLG_PVP_Map_List		PvP only: the offline client has no PvP; ctx: AddMapInfo_LUA(1)	
+key	m_iUseCodeEventTriger	routed	1	DLG_Map_House_NPC_RelationData		Elysion E1 (AddVillageNpcRelationData*); ctx: AddVillageNpcRelationDataByQuest_LUA(1)	
+method	SetName	bound	1466	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2098		yes
+method	AddControl	bound	1453	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2127		yes
+method	CreateStatic	bound	1367	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2116		yes
+method	AddPicture	bound	1345	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2310		yes
+method	CreatePicture	bound	1345	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2101		yes
+method	SetPoint	bound	1342	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2238		yes
+method	SetTex	bound	1336	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2237		yes
+method	SetFront	bound	1178	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2128		yes
+method	SetModal	bound	1128	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2100		yes
+method	SetNormalTex	bound	999	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2273		yes
+method	SetOverTex	bound	986	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2274		yes
+method	CreateButton	bound	955	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2112		yes
+method	SetNormalPoint	bound	954	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2284		yes
+method	SetDownPoint	bound	953	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2286		yes
+method	SetOverPoint	bound	953	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2285		yes
+method	SetDownTex	bound	945	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2275		yes
+method	SetPos	bound	934	DLG_Guide_Skill_Popup, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis, Class_Change_Guide_Luciel	KTDXLIB/KTDXApp.cpp:2099		yes
+method	SetLayer	bound	905	DLG_Guide_Skill_Popup, DLG_UI_Arbor_Day_Event01, DLG_UI_Arbor_Day_Event02, DLG_UI_PPoru_Letter, Class_Change_Guide_Add	KTDXLIB/KTDXApp.cpp:2146		yes
+method	SetCustomMsgMouseUp	bound	884	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2292		yes
+method	AddString	bound	794	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, DLG_1ST_Class_Change_Guide_Add, DLG_1ST_Class_Change_Guide_Ain, DLG_1ST_Class_Change_Guide_Aisha	KTDXLIB/KTDXApp.cpp:2311		yes
+method	SetCloseCustomUIEventID	bound	619	DLG_Guide_Skill_Popup, DLG_UI_PPoru_Letter, Class_Change_Guide_Add, Class_Change_Guide_Ain, Class_Change_Guide_Elesis	KTDXLIB/KTDXApp.cpp:2168		yes
+method	SetShow	bound	340	DLG_2ND_Class_Change_Guide_Add, DLG_2ND_Class_Change_Guide_Ain, DLG_2ND_Class_Change_Guide_Aisha, DLG_2ND_Class_Change_Guide_Ara, DLG_2ND_Class_Change_Guide_Chung	KTDXLIB/KTDXApp.cpp:2189		yes
+method	AddDummyInt	bound	330	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_Reward_List_Button, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2135		yes
+method	AddDummyPos	bound	252	DLG_BuffManager, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Subpage_Hot_Itemslot	KTDXLIB/KTDXApp.cpp:2131		yes
+method	SetBGPoint	bound	234	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2337		yes
+method	SetCheckPoint	bound	234	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2338		yes
+method	SetCheckedTex	bound	234	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2336		yes
+method	SetDisableTex	bound	220	DLG_BossRaid_Enter, DLG_BossRaid_Reward_List_Button, DLG_BossRaid_State, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1	KTDXLIB/KTDXApp.cpp:2276		yes
+method	SetCustomMsgChecked	bound	216	DLG_Guide_Skill_Popup, DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank	KTDXLIB/KTDXApp.cpp:2339		yes
+method	SetDisablePoint	bound	207	DLG_BossRaid_Enter, DLG_BossRaid_Reward_List_Button, DLG_BossRaid_State, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1	KTDXLIB/KTDXApp.cpp:2287		yes
+method	CreateRadioButton	bound	174	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2117		yes
+method	SetBGMouseOverPoint	bound	174	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2421		yes
+method	SetRBPoint	bound	174	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2422		yes
+method	SetGroupID	bound	171	DLG_Bank, DLG_Bank_Reform, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo	KTDXLIB/KTDXApp.cpp:2428		yes
+method	SetFixOverByCheck	bound	161	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Right_Front, DLG_Cash_Shop_Right_Front_New	KTDXLIB/KTDXApp.cpp:2435		yes
+method	SetShowOffBGByCheck	bound	161	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Right_Front, DLG_Cash_Shop_Right_Front_New	KTDXLIB/KTDXApp.cpp:2434		yes
+method	SetCustomMsgMouseOver	bound	159	DLG_BossRaid_Reward_Result, DLG_Elesis_WayOfSword, DLG_Elsword_WayOfSword, DLG_Event_Clock, DLG_GAME_SKILL_SLOT_NEW	KTDXLIB/KTDXApp.cpp:2290		yes
+method	SetCustomMsgMouseOut	bound	139	DLG_BossRaid_Reward_Result, DLG_Elesis_WayOfSword, DLG_Elsword_WayOfSword, DLG_Event_Clock, DLG_GAME_SKILL_SLOT_NEW	KTDXLIB/KTDXApp.cpp:2289		yes
+method	SetGuideDesc	bound	128	DLG_Ain_DF, DLG_BossRaid_Enter, DLG_BossRaid_Reward_List_Button, DLG_CharacterCustomize_ControlList_Item, DLG_Customizing_System	KTDXLIB/KTDXApp.cpp:2224		yes
+method	SetCaretColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2361		yes
+method	SetFont	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2352		yes
+method	SetSelectedBackColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2360		yes
+method	SetSelectedTextColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2359		yes
+method	SetTextColor	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2358		yes
+method	SetTextPoint	bound	112	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2351		yes
+method	CreateIMEEditBox	bound	111	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname	KTDXLIB/KTDXApp.cpp:2115		yes
+method	SetSize	bound	97	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2163		yes
+method	CreateCheckBox	bound	95	DLG_Guide_Skill_Popup, DLG_BossRaid_State_User_Rank, DLG_Cash_Shop_Popup_BUY_NEW, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy	KTDXLIB/KTDXApp.cpp:2113		yes
+method	SetEnableMoveByDrag	bound	90	DLG_Cheat_Window, DLG_Create_PVP_Room, DLG_Find_User, DLG_Guide_Account_Protective, DLG_Guide_Trade_Restraint	KTDXLIB/KTDXApp.cpp:2130		yes
+method	AddSlot	bound-nonui	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2Lib/X2Main.cpp:5187		yes
+method	CreateItemSlot	bound-nonui	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2Lib/X2Main.cpp:5188		yes
+method	SetSlotData	bound-nonui	86	DLG_Bank, DLG_Bank_Reform, DLG_Cash_Shop_Slot_List, DLG_Change_Item, DLG_Dungeon_Game_QuickSlot_List	X2Lib/X2Main.cpp:5206		yes
+method	RequestFocus	bound	81	DLG_BossRaid_Reward_Result, DLG_Charm_Item_Result, DLG_Charm_Item_Result_1slot, DLG_Coupon_Input_Window2, DLG_Create_PVP_Room	KTDXLIB/KTDXApp.cpp:2205		yes
+method	SetCustomMsgUnChecked	bound	78	DLG_Guide_Skill_Popup, DLG_BossRaid_State_User_Rank, DLG_Cash_Shop_Popup_BUY_NEW, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy	KTDXLIB/KTDXApp.cpp:2340		yes
+method	SetChecked	bound	75	DLG_Guide_Skill_Popup, DLG_BossRaid_State, DLG_BossRaid_State_Guild_Rank, DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1	KTDXLIB/KTDXApp.cpp:2341		yes
+method	SetString	bound	75	DLG_Bank_Reform, DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot	KTDXLIB/KTDXApp.cpp:2288		yes
+method	SetEdge	bound	68	DLG_Bank_Reform, DLG_BossRaid_Reward_Result, DLG_Charm_Item_Result, DLG_Cube_Result_Window, DLG_Grand_Ice_Heater_Use	KTDXLIB/KTDXApp.cpp:2245		yes
+method	SetOffsetPos	bound	68	DLG_Boss_Raid_Game_Start_Count, DLG_Dungeon_Game_Continue, DLG_Dungeon_Game_Start_Count, DLG_Dungeon_Luto_Game_Start_Count, DLG_Dungeon_Room_UserInfo	KTDXLIB/KTDXApp.cpp:2197		yes
+method	SetCustomMsgEnter	bound	66	DLG_Change_Guild_Name, DLG_Change_Nickname, DLG_Change_Nickname_New, DLG_Change_PetName, DLG_ChatBox_EditBox	KTDXLIB/KTDXApp.cpp:2354		yes
+method	SetTextTex	bound	65	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2448		yes
+method	SetByteLimit	bound	63	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Present, DLG_Change_Guild_Name, DLG_Change_Nickname, DLG_Change_Nickname_New	KTDXLIB/KTDXApp.cpp:2368		yes
+method	SetEnable	bound	60	DLG_Cash_Shop_Choiced_Menu_Window, DLG_Cash_Shop_Left_Front, DLG_Cash_Shop_Popup_ItemToInven, DLG_Cash_Shop_Right_Front, DLG_Create_PVP_Room	KTDXLIB/KTDXApp.cpp:2201		yes
+method	SetIndex	bound	58	DLG_Common_Info, DLG_Cube_Open, DLG_Ice_Heater_Use, DLG_Mail_Shop_Popup_Send, DLG_Menu_Button_New1	KTDXLIB/KTDXApp.cpp:2246		yes
+method	SetShowEnable	bound	57	DLG_Customizing_System, DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Info	KTDXLIB/KTDXApp.cpp:2203		yes
+method	SetDraggingRange	bound	55	DLG_Skill_Tree_Main, DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW	KTDXLIB/KTDXApp.cpp:2166		yes
+method	SetDraggingRangeCenter	bound	55	DLG_Skill_Tree_Main, DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW	KTDXLIB/KTDXApp.cpp:2165		yes
+method	SetEnableDraggingRange	bound	55	DLG_Skill_Tree_Main, DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW	KTDXLIB/KTDXApp.cpp:2164		yes
+method	InitScrollBar	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2474		yes
+method	SetCustomMsgStopDragging	bound	54	DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW, DLG_UI_FIELD_MAP_Altera_Village_NEW	KTDXLIB/KTDXApp.cpp:2169		yes
+method	SetScollBarDownButtonDownTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2455		yes
+method	SetScollBarDownButtonTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2454		yes
+method	SetScollBarThumbTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2456		yes
+method	SetScollBarTrackTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2457		yes
+method	SetScollBarUpButtonDownTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2459		yes
+method	SetScollBarUpButtonTex	bound	54	DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_Present, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List	KTDXLIB/KTDXApp.cpp:2458		yes
+method	SetCustomMsgRMouseUp	bound	53	DLG_UI_FIELD_MAP_Altera_01_NEW, DLG_UI_FIELD_MAP_Altera_02_NEW, DLG_UI_FIELD_MAP_Altera_03_NEW, DLG_UI_FIELD_MAP_Altera_Rest_NEW, DLG_UI_FIELD_MAP_Altera_Village_NEW	KTDXLIB/KTDXApp.cpp:2174		yes
+method	SetTex2	bound	51	DLG_BossState, DLG_BossState_NEW, DLG_Dungeon_Ending_Event_Character, DLG_First_Loading_Front, DLG_Game_My_Score	KTDXLIB/KTDXApp.cpp:2236		yes
+method	SetTabControlName	bound	49	DLG_Bank_Reform, DLG_Cash_Shop_Popup_Coupon, DLG_ChatBox_EditBox, DLG_Cheat_Window, DLG_Coupon_Input_Window2	KTDXLIB/KTDXApp.cpp:2195		yes
+method	SetButtonMouseOverTex	bound	47	DLG_Bank_Reform, DLG_BossRaid_Cheat, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot	KTDXLIB/KTDXApp.cpp:2452		yes
+method	SetButtonTex	bound	42	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2451		yes
+method	SetButtonSize	bound	40	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2466		yes
+method	CreateComboBox	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2118		yes
+method	SetButtonMouseDownTex	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2453		yes
+method	SetButtonPos	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2465		yes
+method	SetDropdownTex	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2449		yes
+method	SetDropdownTextTex	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2450		yes
+method	SetTextPos	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2463		yes
+method	SetTextSize	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2464		yes
+method	SetTextStringOffsetPos	bound	39	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2462		yes
+method	SetCustomButtonMouseOverSndFile	bound	34	DLG_UI_Channel_Selection_Slot_New, DLG_UI_Character_Selection_Back_New, DLG_UI_Character_Selection_Creat_Unit_New, DLG_UI_Character_Selection_Delete_Unit_New, DLG_UI_Character_Selection_Slot_New	KTDXLIB/KTDXApp.cpp:2178		yes
+method	SetCustomButtonMouseUpSndFile	bound	34	DLG_UI_Channel_Selection_Slot_New, DLG_UI_Character_Selection_Back_New, DLG_UI_Character_Selection_Creat_Unit_New, DLG_UI_Character_Selection_Delete_Unit_New, DLG_UI_Character_Selection_Slot_New	KTDXLIB/KTDXApp.cpp:2179		yes
+method	SetCustomMsgSelectionChanged	bound	34	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2480		yes
+method	SetDropHeight	bound	34	DLG_Bank_Reform, DLG_Cash_Shop_Popup_BUY_Slot_New, DLG_Cash_Shop_Popup_Buy_Slot, DLG_Cash_Shop_Popup_ItemToInven_Slot, DLG_Cash_Shop_Popup_Present	KTDXLIB/KTDXApp.cpp:2467		yes
+method	ChangeMouseUpSound_LUA	bound	32	DLG_Dungeon_Room_Back, DLG_Game_Skill_Slot, DLG_Menu_Button, DLG_Menu_Button_NEW, DLG_Menu_Button_NEW2	KTDXLIB/KTDXApp.cpp:2302		yes
+method	CreateControlList	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2123		yes
+method	InitYScrollBar	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2587		yes
+method	SetScrollOffset	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2592		yes
+method	SetViewSize	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2593		yes
+method	SetYScollBarDownButtonDownTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2577		yes
+method	SetYScollBarDownButtonTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2576		yes
+method	SetYScollBarThumbTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2578		yes
+method	SetYScollBarUpButtonDownTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2581		yes
+method	SetYScollBarUpButtonTex	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2580		yes
+method	SetYScrollBarPos	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2582		yes
+method	SetYScrollBarSize	bound	32	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2583		yes
+method	CreateListBox	bound	31	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2119		yes
+method	SetBoundingBoxTex	bound	31	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2497		yes
+method	SetCustomMsgMouseRightUp	bound	31	DLG_Cash_Shop_Right_Front, DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Info_New_2	KTDXLIB/KTDXApp.cpp:2293		yes
+method	SetYScollBarTrackTex	bound	30	DLG_BossRaid_State_MyInfo, DLG_BossRaid_State_MyInfo_1, DLG_Change_Job, DLG_Change_Job_FirstClass, DLG_Change_Job_SecondClass	KTDXLIB/KTDXApp.cpp:2579		yes
+method	SetPrevTabControlName	bound	29	DLG_Bank_Reform, DLG_ChatBox_EditBox, DLG_GameEdit_WorldLight, DLG_Grand_Ice_Heater_Use, DLG_Ice_Heater_Use	KTDXLIB/KTDXApp.cpp:2196		yes
+method	SetEnableClick	bound	27	DLG_BossRaid_Reward_Result, DLG_Event_Clock, DLG_Map_Local_Altera_Island_Icon, DLG_Map_Local_Hamel_Icon, DLG_Map_Local_Velder_East_Icon	KTDXLIB/KTDXApp.cpp:2298		yes
+method	SetLengthLimit	bound	26	DLG_Cash_Shop_Popup_Coupon, DLG_Cash_Shop_Popup_Present, DLG_Coupon_Input_Window2, DLG_Dungeon_Arcade_Lobby_Create_Room, DLG_GameEdit	KTDXLIB/KTDXApp.cpp:2401		yes
+method	SetScrollBarWidth	bound	25	DLG_ChatBox_Emotion_List, DLG_Cheat_Window, DLG_ITEM_LIST_DEV_ONLY, DLG_Magical_Closet, DLG_Magical_Closet_Auto_Search_Keyword	KTDXLIB/KTDXApp.cpp:2498		yes
+method	ChangeMouseOverSound_LUA	bound	24	DLG_Game_Skill_Slot, DLG_Menu_Button, DLG_Menu_Button_NEW, DLG_Menu_Button_NEW2, DLG_Menu_Button_NEW3	KTDXLIB/KTDXApp.cpp:2304		yes
+method	SetOnlyNumMode	bound	23	DLG_Mail_Shop_Popup_Send, DLG_Personal_Shop_Board, DLG_Ranking_Henir_Season, DLG_Ranking_Henir_Season_Event, DLG_Ranking_Henir_Season_Event_2	KTDXLIB/KTDXApp.cpp:2403		yes
+method	SetCloseOnFocusOut	bound	22	DLG_Cash_Shop_Choiced_Menu_Window, DLG_Map_Local_DetailLocal_Dungeon, DLG_Mega_Phone_User_Menu, DLG_Messenger_Group_Menu, DLG_Messenger_User_Menu	KTDXLIB/KTDXApp.cpp:2158		yes
+method	AddItem	bound	21	DLG_Bank_Reform, DLG_Cash_Shop_Popup_Present, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Guild_AD_Registration	KTDXLIB/KTDXApp.cpp:2471		yes
+method	SetClickable	bound-nonui	21	DLG_Cash_Shop_Slot_List, DLG_Dungeon_Game_QuickSlot_List, DLG_Personal_Shop_Board, DLG_UI_Agency_Seller, DLG_UI_Buyer	X2Lib/X2Main.cpp:5207		yes
+method	AddDummyString	bound	18	DLG_Create_PVP_Room, DLG_Map_Local_Altera_Island_Icon, DLG_Map_Local_Elder_Icon_NEW, DLG_Map_Local_Elysion_Back_NEW, DLG_Map_Local_Hamel_Icon	KTDXLIB/KTDXApp.cpp:2133		yes
+method	Move	bound	18	DLG_PVP_Game_Damaged_Arme, DLG_PVP_Game_Damaged_Arme_DM, DLG_PVP_Game_Damaged_Arme_HM, DLG_PVP_Game_Damaged_Elsword, DLG_PVP_Game_Damaged_Elsword_LK	KTDXLIB/KTDXApp.cpp:2129		yes
+method	SetCustomMsgFocusOut	bound	16	DLG_Guild_Board, DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back_Itemmode	KTDXLIB/KTDXApp.cpp:2356		yes
+method	SetCustomMsgMouseDblClk	bound	16	DLG_Change_Job_Control, DLG_Destination_Control, DLG_Destination_Control_byButton, DLG_Event_First_Change_Job_Control, DLG_Map_Select_WIndow	KTDXLIB/KTDXApp.cpp:2297		yes
+method	SetCustomMsgMouseDown	bound	16	DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_UI_Character_Selection_Back_New, DLG_UI_RutoMode_Vote, DLG_Unit_Create_Front_Menu	KTDXLIB/KTDXApp.cpp:2291		yes
+method	SetGuideDescOffsetPos	bound	15	DLG_Customizing_System, DLG_Dungeon_Arcade_Lobby, DLG_Friend_ReCommend_UI, DLG_Luciel_CombinationPoint, DLG_UI_Cobo_Event	KTDXLIB/KTDXApp.cpp:2227		yes
+method	SetCustomMsgChange	bound	14	DLG_Friend_Add_UI, DLG_Mail_Shop_Popup_Send, DLG_Personal_Shop_Board, DLG_Ranking_Henir_Season, DLG_Ranking_Henir_Season_Event	KTDXLIB/KTDXApp.cpp:2353		yes
+method	SetNameStrID	bound	14	DLG_Map_Local_Elder_Icon_NEW, DLG_Map_Local_Hero_Recruit, DLG_UI_Local_Peita_Icon_Info, DLG_UI_Local_Peita_Icon_NEW, DLG_Map_Local_Altera_Island_Icon_NEW	KTDXLIB/KTDXApp.cpp:2229		yes
+method	CreateSlot	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2124		yes
+method	SetCustomMsgFocusIn	bound	12	DLG_UI_PPoru_Letter, DLG_Guild_Board, DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_Personal_Shop_Board	KTDXLIB/KTDXApp.cpp:2385		yes
+method	SetCustomMsgSelection	bound	12	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_ChatBox_Emotion_List, DLG_Cheat_Window	KTDXLIB/KTDXApp.cpp:2514		yes
+method	SetDisabledPoint	bound	12	DLG_CharacterCustomize_ControlList_Item, DLG_Customizing_System, DLG_UI_Camera_Setting, DLG_UI_Item_Upgrade, DLG_UI_Item_Upgrade_Event_Plu	KTDXLIB/KTDXApp.cpp:2419		yes
+method	SetItemTex	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2613		yes
+method	SetMouseOverPoint	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2618		yes
+method	SetMouseOverTex	bound	12	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_Guild_Skill_Icon, DLG_Guild_Skill_Info_Icon	KTDXLIB/KTDXApp.cpp:2615		yes
+method	SetMultiLineOption	bound	12	DLG_UI_PPoru_Letter, DLG_Cash_Shop_Popup_Coupon, DLG_Coupon_Input_Window2, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send	KTDXLIB/KTDXApp.cpp:2405		yes
+method	SetWidthLimit	bound	12	DLG_UI_PPoru_Letter, DLG_Create_PVP_Room, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send, DLG_Map_Local_Create_Room	KTDXLIB/KTDXApp.cpp:2406		yes
+method	SetCustomMsgScroll	bound	11	DLG_UI_Damage_Meter_Log, DLG_UI_Guild_Skill_Tree, DLG_UI_Guild_Skill_Tree_Info, DLG_UI_Guild_Skill_Tree_New, DLG_UI_PC_POPUP_V2	KTDXLIB/KTDXApp.cpp:2594		yes
+method	SetDisableUnderWindow	bound	11	DLG_Common_BG, DLG_ItemToolTip, DLG_ItemToolTip_SetInfo, DLG_SlotManager, DLG_UI_COBO_COUNT	KTDXLIB/KTDXApp.cpp:2149		
+method	SetDownStatic	bound	10	DLG_Bad_Attribute_Player_Warning, DLG_Map_World_Elios_Front, DLG_Server_Select_Back, DLG_UI_Angels_Feather, DLG_Unit_Select_Slot_Arme	KTDXLIB/KTDXApp.cpp:2282		yes
+method	SetLineLimit	bound	10	DLG_UI_PPoru_Letter, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send, DLG_Post_InviteLetter_Window_System, DLG_Post_Letter_Window	KTDXLIB/KTDXApp.cpp:2407		yes
+method	SetOverStatic	bound	10	DLG_Bad_Attribute_Player_Warning, DLG_Map_World_Elios_Front, DLG_Server_Select_Back, DLG_UI_Angels_Feather, DLG_Unit_Select_Slot_Arme	KTDXLIB/KTDXApp.cpp:2281		yes
+method	SetCustomMsgItemDoubleClick	bound	9	DLG_ChatBox, DLG_ITEM_LIST_DEV_ONLY, DLG_Messenger_Window, DLG_Monster_List_Window, DLG_Motion_List_Window	KTDXLIB/KTDXApp.cpp:2516		yes
+method	SetCustomMsgOpenDropdown	bound	9	DLG_Customizing_System_Select_TwoSeater_ComboBox, DLG_Guild_Info_New, DLG_Guild_Info_New_2, DLG_Magical_Closet_ComboBox, DLG_Mail_Shop_Popup_Send	KTDXLIB/KTDXApp.cpp:2481		yes
+method	CreateNavigation	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2121		yes
+method	SetBGPoint_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2557		yes
+method	SetBGTex_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2555		yes
+method	SetCustomMsgLButtonDown	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2559		yes
+method	SetDownAnimTex	bound	8	DLG_BossRaid_Enter, DLG_Dungeon_Room_Back, DLG_Map_Select_Window_Instance, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode	KTDXLIB/KTDXApp.cpp:2279		yes
+method	SetNormalStatic	bound	8	DLG_Bad_Attribute_Player_Warning, DLG_Map_World_Elios_Front, DLG_Server_Select_Back, DLG_Unit_Select_Slot_Arme, DLG_Unit_Select_Slot_Elsword	KTDXLIB/KTDXApp.cpp:2280		yes
+method	SetReverseDropdown	bound	8	DLG_Find_User, DLG_Free_Training_Menu, DLG_ITEM_LIST_DEV_ONLY, DLG_Messenger_Group_Move, DLG_Room_ChatBox_Mode	KTDXLIB/KTDXApp.cpp:2485		yes
+method	SetScrollBarPos	bound	8	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_Magical_Closet	KTDXLIB/KTDXApp.cpp:2499		yes
+method	SetScrollBarSize	bound	8	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_Magical_Closet	KTDXLIB/KTDXApp.cpp:2500		yes
+method	SetSound	bound	8	DLG_Dungeon_Result_Reward_Box, DLG_UI_Character_Selection_Back_New, DLG_Unit_Create_Front_Menu, DLG_Unit_Create_Front_Menu_Elesis, DLG_Unit_Create_Front_Menu_New	KTDXLIB/KTDXApp.cpp:2204		yes
+method	SetUpdateScrollBarOnUpdate	bound	8	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_Magical_Closet	KTDXLIB/KTDXApp.cpp:2524		yes
+method	SetWindowPoint_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2558		yes
+method	SetWindowTex_LUA	bound	8	DLG_SkillTree_Navi, DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request	KTDXLIB/KTDXApp.cpp:2556		yes
+method	GetNationFlag	bound-nonui	7	DLG_ChatBox_NEW, DLG_Magical_Closet_NEW_2, DLG_Map_Local_Elysion_Icon_NEW, DLG_Map_Local_Event_Icon_NEW, DLG_UI_HighSchool_2017_Dungeon	X2Lib/X2Main.cpp:3400		
+method	SetCustomMsgMouseDragging	bound	7	DLG_UI_NEW_Quest_List, DLG_UI_Pet_Auto_Use_Item, DLG_UI_Quest, DLG_UI_Request, DLG_UI_Training	KTDXLIB/KTDXApp.cpp:2560		yes
+method	SetDragable	bound	7	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_LUCIEL_TRANSFORM_SKILL_SLOT, DLG_RIDING_SKILL_SLOT	KTDXLIB/KTDXApp.cpp:2620		yes
+method	SetOverAnimTex	bound	7	DLG_BossRaid_Enter, DLG_Map_Select_Window_Instance, DLG_Menu_Button_New1, DLG_PVP_Lobby_Button, DLG_Map_Local_Back	KTDXLIB/KTDXApp.cpp:2278		yes
+method	ChangeMouseDownSound_LUA	bound	6	DLG_Dungeon_Room_Back, DLG_PVP_Room_Death_Back, DLG_PVP_Room_Death_Back_Itemmode, DLG_PVP_Room_Team_Back, DLG_PVP_Room_Team_Back_Itemmode	KTDXLIB/KTDXApp.cpp:2303		yes
+method	GetDummyValue	bound-nonui	6	DLG_Private_Bank, DLG_UI_Pet_Inventory1x4, DLG_UI_Pet_Inventory2x4, DLG_UI_Pet_Inventory3x4, DLG_UI_Pet_Inventory4x4	X2Lib/X2Main.cpp:5189		yes
+method	SetCustomMsgSelectionByRButton	bound	6	DLG_ChatBox, DLG_Cheat_Window, DLG_Messenger_Window, DLG_Title_Window, DLG_UI_Community_Friend	KTDXLIB/KTDXApp.cpp:2517		yes
+method	SetEnablePaste	bound	6	DLG_UI_PPoru_Letter, DLG_GameEdit_WorldLight, DLG_Mail_Shop_Popup_Send, DLG_UI_Invite_Wedding, DLG_GameEdit_Camera	KTDXLIB/KTDXApp.cpp:2411		yes
+method	SetEnableThumb	bound	6	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2535		yes
+method	SetEnableTrack	bound	6	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2534		yes
+method	SetIgnoreListClick	bound	6	DLG_ChatBox, DLG_GameEdit, DLG_Notice_Popup_InHouseOnly, DLG_PVP_MAP_SELECT_FOR_DEBUG, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2522		yes
+method	SetScrollToEndOnUpdateRects	bound	6	DLG_BossRaid_Cheat, DLG_Change_Class_Cheat, DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2525		yes
+method	AddMovieData	bound	5	DLG_Dungeon_Clear_Movie, DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2316		yes
+method	CreateMovie	bound	5	DLG_Dungeon_Clear_Movie, DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2107		yes
+method	SetColor	bound	5	DLG_Unit_Create_NickName, DLG_Unit_Create_NickName_Elesis, DLG_Unit_Create_NickName_New, DLG_Unit_Create_NickName_TEST, DLG_Character_System_ToolTip	KTDXLIB/KTDXApp.cpp:2147		yes
+method	SetRect	bound	5	DLG_Dungeon_Clear_Movie, DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2258		yes
+method	AddItemStrID	bound	4	DLG_Free_Training_Menu, DLG_Ranking, DLG_UI_Invite_Wedding, DLG_Guild_AD_Registration_Ver2	KTDXLIB/KTDXApp.cpp:2488		yes
+method	CreateEditBox	bound	4	DLG_Join_Back, DLG_Login_Back, DLG_UI_OkAndCancelEditBox_Hide, DLG_Login_Keyboard	KTDXLIB/KTDXApp.cpp:2114		yes
+method	SetCustomMsgDropped	bound	4	DLG_GAME_SKILL_SLOT_NEW, DLG_GAME_SKILL_SLOT_NEW_10slot, DLG_GAME_SKILL_SLOT_NEW_EVENT, DLG_UI_KEY_SETTING	KTDXLIB/KTDXApp.cpp:2611		yes
+method	SetCustomMsgRButtonUp	bound	4	DLG_UI_CHARACTER_NEW_2, DLG_UI_CHARACTER_NEW_4, DLG_UI_Partylist, DLG_ChatBox_NEW	KTDXLIB/KTDXApp.cpp:2427		yes
+method	SetEnableCheckToggle	bound	4	DLG_Story_Book, DLG_UI_NEW_Quest_List, DLG_UI_Party, DLG_UI_Synthesis	KTDXLIB/KTDXApp.cpp:2438		yes
+method	SetGuideDescByString	bound	4	DLG_PVP_Lobby_Channel, DLG_UI_Emulate, DLG_UI_Emulate_ItemMode, DLG_UI_Skill_Icon_New2015	KTDXLIB/KTDXApp.cpp:2225		yes
+method	SetHideChar	bound	4	DLG_Join_Back, DLG_Login_Back, DLG_UI_OkAndCancelEditBox_Hide, DLG_Login_Keyboard	KTDXLIB/KTDXApp.cpp:2363		yes
+method	SetLoop	bound	4	DLG_Dungeon_Clear_Movie, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2265		yes
+method	SetMovieFileName	bound	4	DLG_Unit_Create_Front_Menu_New, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2257		yes
+method	SetMovieSubtitleIndex	bound	4	DLG_Dungeon_Clear_Movie, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW	KTDXLIB/KTDXApp.cpp:2318		
+method	SetSelectTextShow	bound	4	DLG_Bank_Reform, DLG_Mail_Shop_Popup_Send, DLG_Private_Bank_Reform, DLG_UI_NoMannerUserReportSystem	KTDXLIB/KTDXApp.cpp:2486		yes
+method	SetShowDescriptionWhenDisable	bound	4	DLG_UI_Bingo_Quest_Main, DLG_UI_CHALLENGE_EL_MISSION_EVENT, DLG_UI_Check_Power_Event, DLG_UI_New_Year_2014_Event	KTDXLIB/KTDXApp.cpp:2232		yes
+method	SetUseItemDisappear	bound	4	DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ, DLG_ChatBox_NEW	KTDXLIB/KTDXApp.cpp:2523		yes
+method	CreateSlider	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2120		yes
+method	SetBGTex	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2542		yes
+method	SetCustomMsgCloseDropdown	bound	3	DLG_Mail_Shop_Popup_Send, DLG_UI_Mini_Map, DLG_UI_Mini_Map_NEW	KTDXLIB/KTDXApp.cpp:2482		yes
+method	SetCustomMsgValueChanged	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2548		yes
+method	SetGuideDescAbsolutePos	bound	3	DLG_PVP_Game_State_RankBox_NEW, DLG_UI_BookButton, DLG_UI_CHALLENGE_EL_MISSION_EVENT	KTDXLIB/KTDXApp.cpp:2226		yes
+method	SetOffsetMaximize	bound	3	DLG_ChatBox, DLG_GameEdit, DLG_UI_Observ	KTDXLIB/KTDXApp.cpp:2221		yes
+method	SetOutlineColor	bound	3	DLG_Mail_Shop_Popup_Send, DLG_UI_Item_Enroll, DLG_UI_Trade	KTDXLIB/KTDXApp.cpp:2362		yes
+method	SetRange	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2546		yes
+method	SetValue	bound	3	DLG_Command_Skill, DLG_Option_Window_Sound, DLG_UI_Option_Sound	KTDXLIB/KTDXApp.cpp:2547		yes
+method	AddMapInfo_LUA	bound-nonui	2	DLG_PVP_Map_List, DLG_PVP_Tag_Map_List	X2Lib/X2Main.cpp:5375		yes
+method	Handler_EGS_CHANGE_SLOT_OPEN_REQ	bound-nonui	2	DLG_PVP_Room_O, DLG_PVP_Room_X	X2Lib/X2Main.cpp:3379		yes
+method	SetAutoChangeBigEnglish	bound	2	DLG_Cash_Shop_Popup_Coupon, DLG_Coupon_Input_Window2	KTDXLIB/KTDXApp.cpp:2410		yes
+method	SetCloseOnFocusOutEvent	bound	2	DLG_ChatBox, DLG_ChatBox_NEW	KTDXLIB/KTDXApp.cpp:2159		yes
+method	SetCustomFuncMouseUp	bound	2	DLG_PVP_Room_O, DLG_PVP_Room_X	KTDXLIB/KTDXApp.cpp:2296		yes
+method	SetForceSendCustomMsgChange	bound	2	DLG_Personal_Shop_Board, DLG_Magical_Closet_NEW_2	KTDXLIB/KTDXApp.cpp:2388		yes
+method	SetGroupString	bound	2	DLG_Messenger_Window, DLG_UI_Community_Friend	KTDXLIB/KTDXApp.cpp:2512		yes
+method	SetOnlyNumAndEnglishMode	bound	2	DLG_Cash_Shop_Popup_Coupon, DLG_Coupon_Input_Window2	KTDXLIB/KTDXApp.cpp:2408		yes
+method	SetSelectItemAtMouseMove	bound	2	DLG_Magical_Closet_Auto_Search_Keyword, DLG_Personal_Shop_Board_Auto_Search_Keyword	KTDXLIB/KTDXApp.cpp:2528		yes
+method	AddDummyInt_Flag	bound	1	DLG_Guild_Info_New_3	KTDXLIB/KTDXApp.cpp:2219		
+method	AddVillageNpcRelationDataByQuest_LUA	bound-nonui	1	DLG_Map_House_NPC_RelationData	X2Lib/X2Main.cpp:3551		
+method	AddVillageNpcRelationDataByVillage_LUA	bound-nonui	1	DLG_Map_House_NPC_RelationData	X2Lib/X2Main.cpp:3552		
+method	ChangeSequenceByNameAndPivot	bound	1	DLG_PVP_Lobby_CharBG	KTDXLIB/KTDXApp.cpp:2161		yes
+method	GetButton	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2138		yes
+method	GetDialog	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2188		yes
+method	GetDialogManager	bound-nonui	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2735		yes
+method	GetMySlot	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3167		yes
+method	GetPVPGameType	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3307		yes
+method	GetPVPRoom	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3328		yes
+method	GetPicture	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2324		yes
+method	GetPlayTime	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3309		yes
+method	GetRadioButton	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2144		yes
+method	GetRoomPublic	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3165		yes
+method	GetSize	bound	1	UICommon	KTDXLIB/KTDXApp.cpp:2249		
+method	GetStatic	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2145		yes
+method	GetString	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:2325		yes
+method	GetTeamNum	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3287		yes
+method	GetWinKillNum	bound-nonui	1	DLG_PVP_Room_Lua_Func	X2Lib/X2Main.cpp:3308		yes
+method	InsertItem	bound	1	DLG_UI_Option_KeyConfig	KTDXLIB/KTDXApp.cpp:2591		
+method	SetCaretOffSet	bound	1	DLG_Mail_Shop_Popup_Send	KTDXLIB/KTDXApp.cpp:2395		
+method	SetChangeFocusByKeyMsg	bound	1	DLG_Magical_Closet_Auto_Search_Keyword	KTDXLIB/KTDXApp.cpp:2216		
+method	SetChangeUVPoint	bound	1	DLG_Map_Local_Elysion_Back_NEW	KTDXLIB/KTDXApp.cpp:2240		
+method	SetCustomMsgDoubleClicked	bound	1	DLG_UI_Partylist	KTDXLIB/KTDXApp.cpp:2426		yes
+method	SetCustomMsgMouseOutOnItem	bound	1	DLG_Magical_Closet_ComboBox	KTDXLIB/KTDXApp.cpp:2477		
+method	SetCustomMsgMouseOverOnItem	bound	1	DLG_Magical_Closet_ComboBox	KTDXLIB/KTDXApp.cpp:2476		
+method	SetDefTextAlign	bound	1	DLG_Shop_Sell_Window	KTDXLIB/KTDXApp.cpp:2404		yes
+method	SetEnableDoubleClick	bound	1	DLG_UI_Partylist	KTDXLIB/KTDXApp.cpp:2437		yes
+method	SetFont_Flag	bound	1	DLG_Guild_Info_New_3	KTDXLIB/KTDXApp.cpp:2398		
+method	SetGroupOffset	bound	1	DLG_UI_Synthesis	KTDXLIB/KTDXApp.cpp:2430		
+method	SetMsg	bound	1	DLG_PVP_Room_Lua_Func	KTDXLIB/KTDXApp.cpp:1914		yes
+method	SetScrollBarOffsetPos	bound	1	DLG_Magical_Closet_ComboBox	KTDXLIB/KTDXApp.cpp:2478		
+method	SetText	bound	1	DLG_Shop_Sell_Window	KTDXLIB/KTDXApp.cpp:2380		yes
+method	SetTimeForSelfDelete	bound	1	DLG_Notice_Popup_InHouseOnly	KTDXLIB/KTDXApp.cpp:2172		yes
 
 # type-aware: method called on a receiver whose UI class is known, not bound on it or its bases
 # class	method	june_files	top5_files
-#	CKTDGUIDialog	SetDisableUnderWindow	11	DLG_Common_BG, DLG_ItemToolTip, DLG_ItemToolTip_SetInfo, DLG_SlotManager, DLG_UI_COBO_COUNT
-#	CKTDGUIStatic	SetMovieSubtitleIndex	4	DLG_Dungeon_Clear_Movie, DLG_Unit_Select_Back_New, DLG_Unit_Select_Back_New_HK, DLG_Unit_Select_Back_New_TW
-#	CKTDGUIButton	AddDummyInt_Flag	1	DLG_Guild_Info_New_3
-#	CKTDGUIComboBox	SetCustomMsgMouseOutOnItem	1	DLG_Magical_Closet_ComboBox
-#	CKTDGUIComboBox	SetCustomMsgMouseOverOnItem	1	DLG_Magical_Closet_ComboBox
-#	CKTDGUIComboBox	SetScrollBarOffsetPos	1	DLG_Magical_Closet_ComboBox
-#	CKTDGUIIMEEditBox	SetCaretOffSet	1	DLG_Mail_Shop_Popup_Send
-#	CKTDGUIIMEEditBox	SetFont_Flag	1	DLG_Guild_Info_New_3
-#	CKTDGUIListBox	SetChangeFocusByKeyMsg	1	DLG_Magical_Closet_Auto_Search_Keyword
-#	CKTDGUIRadioButton	SetGroupOffset	1	DLG_UI_Synthesis
-#	CPictureData	GetSize	1	UICommon
-#	CPictureData	SetChangeUVPoint	1	DLG_Map_Local_Elysion_Back_NEW
-#	CPictureData	SetColor	1	DLG_Character_System_ToolTip

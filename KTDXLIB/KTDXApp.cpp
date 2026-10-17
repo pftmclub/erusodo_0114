@@ -190,6 +190,9 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 	m_fEffectAlphaMyTeam		= 1.0f;
 	m_fEffectAlphaAnotherTeam	= 1.0f;
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+	m_strNationName = "NONE";	// June CKTDXApp ctor 31c18de3: the nation name member (+0x2e8) starts as "NONE"
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 
 #if !defined(X2VIEWER)
     std::wstring wstrGeneralStringFileName( L"General.ess" );
@@ -2142,6 +2145,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIDialog>( L, "GetStatic",						&CKTDGUIDialog::GetStatic_LUA );
 	lua_tinker::class_def<CKTDGUIDialog>( L, "SetLayer",						&CKTDGUIDialog::SetLayer );
 	lua_tinker::class_def<CKTDGUIDialog>( L, "SetColor",						&CKTDGUIDialog::SetColor );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	lua_tinker::class_def<CKTDGUIDialog>( L, "SetDisableUnderWindow",			&CKTDGUIDialog::SetDisableUnderWindow );	// June @31bf3f45 ( 31c1bf70 )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 
 //{{ robobeg : 2009-01-07
 	//lua_tinker::class_def<CKTDGUIDialog>( L, "GetKeyID",						&CKTDGUIDialog::GetKeyID );
@@ -2206,6 +2212,12 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIControl>( L, "GetDummyString",					&CKTDGUIControl::GetDummyString );
 	lua_tinker::class_def<CKTDGUIControl>( L, "AddDummyInt",					&CKTDGUIControl::AddDummyInt );
 	lua_tinker::class_def<CKTDGUIControl>( L, "GetDummyInt",					&CKTDGUIControl::GetDummyInt );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	lua_tinker::class_def<CKTDGUIControl>( L, "SetChangeFocusByKeyMsg",			&CKTDGUIControl::SetChangeFocusByKeyMsg );	// June @31bf7164 ( 31c1a740 )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+	lua_tinker::class_def<CKTDGUIControl>( L, "AddDummyInt_Flag",				&CKTDGUIControl::AddDummyInt_Flag_LUA );	// June @31bf5a7e ( 31c95b40 )
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 	lua_tinker::class_def<CKTDGUIControl>( L, "SetOffsetMaximize",				&CKTDGUIControl::SetOffsetMaximize );
 	lua_tinker::class_def<CKTDGUIControl>( L, "SetEnableLeftTop",				&CKTDGUIControl::SetEnableLeftTop );
 	lua_tinker::class_def<CKTDGUIControl>( L, "SetEnableRightBottom",			&CKTDGUIControl::SetEnableRightBottom );
@@ -2233,6 +2245,10 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetEdge",			&CKTDGUIControl::CPictureData::SetEdge );
     lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetIndex",			&CKTDGUIControl::CPictureData::SetIndex );
     lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "GetIndex",			&CKTDGUIControl::CPictureData::GetIndex );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "GetSize",			&CKTDGUIControl::CPictureData::GetSize );	// June @31bf7e94 ( 31c1a550 )
+	lua_tinker::class_def<CKTDGUIControl::CPictureData>( L, "SetColor",			&CKTDGUIControl::CPictureData::SetColor );	// June @31bf7dc0 ( 31c1a580 )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
     
 #if defined(REFORM_ENTRY_POINT) && defined( MOVIE_TEST_BASE ) || defined( MOVIE_TEST ) 
 // #ifdef MOVIE_TEST	 	// 13-11-11, 진입 구조 개편, kimjh, MOVIE_TEST 중 사용에 필요한 Define 을 MOVIE_TEST_BASE 로 변경
@@ -2242,6 +2258,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIControl::CMovieData>( L, "SetRect",				&CKTDGUIControl::CMovieData::SetRect_LUA );
 	lua_tinker::class_def<CKTDGUIControl::CMovieData>( L, "SetShow",				&CKTDGUIControl::CMovieData::SetShow );
 	//lua_tinker::class_def<CKTDGUIControl::CMovieData>( L, "SetMoivePoint",			&CKTDGUIControl::CMovieData::SetMoivePoint_LUA );
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+	lua_tinker::class_def<CKTDGUIControl::CMovieData>( L, "AddSubtitleData",		&CKTDGUIControl::CMovieData::AddSubtitleData );	// June @31bf8280 ( 31c9da10 )
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 #ifdef PLAY_PROMOTION_MOVIE //JHKang
 	lua_tinker::class_def<CKTDGUIControl::CMovieData>( L, "SetLoop",				&CKTDGUIControl::CMovieData::SetLoop );
 #endif //PLAY_PROMOTION_MOVIE
@@ -2295,6 +2314,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 // #ifdef MOVIE_TEST	 	// 13-11-11, 진입 구조 개편, kimjh, MOVIE_TEST 중 사용에 필요한 Define 을 MOVIE_TEST_BASE 로 변경
 
 	lua_tinker::class_def<CKTDGUIStatic>( L, "AddMovieData",				&CKTDGUIStatic::AddMovieData_LUA );
+#ifdef SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+	lua_tinker::class_def<CKTDGUIStatic>( L, "SetMovieSubtitleIndex",		&CKTDGUIStatic::SetMovieSubtitleIndex );	// June @31bfb6db ( 31cbe880 )
+#endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
 
 #endif // defined(REFORM_ENTRY_POINT) && defined( MOVIE_TEST_BASE ) || defined( MOVIE_TEST ) 
 // #endif //  MOVIE_TEST	// 13-11-11, 진입 구조 개편, kimjh, MOVIE_TEST 중 사용에 필요한 Define 을 MOVIE_TEST_BASE 로 변경
@@ -2369,6 +2391,12 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetSelectedTextColor",		&CKTDGUIIMEEditBox::SetSelectedTextColor_LUA );
 	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetSelectedBackColor",		&CKTDGUIIMEEditBox::SetSelectedBackColor_LUA );
 	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetCaretColor",				&CKTDGUIIMEEditBox::SetCaretColor_LUA );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetCaretOffSet",				&CKTDGUIIMEEditBox::SetCaretOffSet );	// June @31c00abc ( 31c1b120 )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+#ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetFont_Flag",				&CKTDGUIIMEEditBox::SetFont_Flag_LUA );	// June @31bfe9f0 ( 31cbc6b0 )
+#endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetOutlineColor",				&CKTDGUIIMEEditBox::SetOutlineColor_LUA );
 	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetLengthLimit",				&CKTDGUIIMEEditBox::SetLengthLimit_LUA );		
 	lua_tinker::class_def<CKTDGUIIMEEditBox>( L, "SetOneCharMode",				&CKTDGUIIMEEditBox::SetOneCharMode_LUA );
@@ -2398,6 +2426,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIRadioButton>( L, "SetCustomMsgDoubleClicked",	&CKTDGUIRadioButton::SetCustomMsgDoubleClicked );
 	lua_tinker::class_def<CKTDGUIRadioButton>( L, "SetCustomMsgRButtonUp",		&CKTDGUIRadioButton::SetCustomMsgRButtonUp );
 	lua_tinker::class_def<CKTDGUIRadioButton>( L, "SetGroupID",					&CKTDGUIRadioButton::SetGroupID_LUA );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	lua_tinker::class_def<CKTDGUIRadioButton>( L, "SetGroupOffset",				&CKTDGUIRadioButton::SetGroupOffset );	// June @31c030c8 ( 31c1b400 )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 	lua_tinker::class_def<CKTDGUIRadioButton>( L, "SetString",					&CKTDGUIRadioButton::SetString_LUA );
 	lua_tinker::class_def<CKTDGUIRadioButton>( L, "SetChecked",					&CKTDGUIRadioButton::SetChecked_LUA );
 	lua_tinker::class_def<CKTDGUIRadioButton>( L, "SetShowOffBGByCheck",		&CKTDGUIRadioButton::SetShowOffBGByCheck );
@@ -2441,6 +2472,11 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDGUIComboBox>( L, "AddControl",						&CKTDGUIComboBox::AddControl );
 	//lua_tinker::class_def<CKTDGUIComboBox>( L, "SetItemScriptName",					&CKTDGUIComboBox::SetItemScriptName );
 	lua_tinker::class_def<CKTDGUIComboBox>( L, "InitScrollBar",						&CKTDGUIComboBox::InitScrollBar_LUA );
+#ifdef SERV_IRUHADEV_JUNE_UI_FRAMEWORK
+	lua_tinker::class_def<CKTDGUIComboBox>( L, "SetCustomMsgMouseOverOnItem",		&CKTDGUIComboBox::SetCustomMsgMouseOverOnItem );	// June @31c05d26 ( 31c1b240 )
+	lua_tinker::class_def<CKTDGUIComboBox>( L, "SetCustomMsgMouseOutOnItem",		&CKTDGUIComboBox::SetCustomMsgMouseOutOnItem );	// June @31c05f5a ( 31c1b250 )
+	lua_tinker::class_def<CKTDGUIComboBox>( L, "SetScrollBarOffsetPos",				&CKTDGUIComboBox::SetScrollBarOffsetPos );	// June @31c0673f ( 31cc1070 )
+#endif SERV_IRUHADEV_JUNE_UI_FRAMEWORK
 	lua_tinker::class_def<CKTDGUIComboBox>( L, "SetCustomMsgSelectionChanged",		&CKTDGUIComboBox::SetCustomMsgSelectionChanged );
 	lua_tinker::class_def<CKTDGUIComboBox>( L, "SetCustomMsgOpenDropdown",			&CKTDGUIComboBox::SetCustomMsgOpenDropdown );
 	lua_tinker::class_def<CKTDGUIComboBox>( L, "SetCustomMsgCloseDropdown",			&CKTDGUIComboBox::SetCustomMsgCloseDropdown );	
