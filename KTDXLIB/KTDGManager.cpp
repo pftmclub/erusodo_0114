@@ -820,7 +820,7 @@ void CKTDGManager::FrontUIRender()
 	if( m_fFadeAlpha > 0.0f )
 	{
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
-		// Atlas E7: June 31ce94a0 @31ce956a-31ce9727: the stored colour with its alpha set to the fade alpha, drawn on FadeInOut.dds
+		// Atlas E7: June 31ce94a0 @31ce956a-31ce9727: the stored colour with its alpha set to the fade alpha, drawn on HQ_WhiteBack.dds
 		m_colorJuneFade.a = m_fFadeAlpha;
 		if( m_pTextureFadeInOut != NULL )
 			m_pTextureFadeInOut->Draw( 0, 0, 1024, 768, m_colorJuneFade );
@@ -893,7 +893,13 @@ HRESULT CKTDGManager::OnResetDevice()
 
 	//m_pGrayScale->OnResetDevice();
 
+#ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
+	// Atlas E7: June's fade quad is HQ_WhiteBack.dds ( 31ce9860 @31ce9a28 -> +0x3a0 @31ce9a48 ), solid white, so the fade colour shows as given
+	// ( March's FadeInOut.dds is solid black: a white fade drew black ); plain fades pass black, so they look as before
+	m_pTextureFadeInOut = g_pKTDXApp->GetDeviceManager()->OpenTexture( L"HQ_WhiteBack.dds" );
+#else SERV_IRUHADEV_ELYSION_SCRIPT_B
 	m_pTextureFadeInOut = g_pKTDXApp->GetDeviceManager()->OpenTexture( L"FadeInOut.dds" );
+#endif SERV_IRUHADEV_ELYSION_SCRIPT_B
 
 	return S_OK;
 }

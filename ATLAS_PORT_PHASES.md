@@ -4063,6 +4063,7 @@ Done when: Phase E7's "Done when" holds. Record a Done note, then commit on main
 - **How to see it in game:** the Soless boss world row (with its additional world) and most callers arrive with E9-E11, so this phase's
   play-test checks what already-live scripts reach (hand-off in the session). `[ELYDBG]` first-use lines name each mechanism.
 - **Open for the user:** nothing to decide. Next: `/x2-phase atlas E7 review` (Opus 5.5 high).
+- **Play-test 2026-10-17 PASSED** (run 13:48 on exe e6b48a06; console on jtLordKnight in Besma Mine 2): countdown 5 -> 0 over the head (`[ELYDBG] StartSimpleTimerCount unit 25 time 5.00 count 5`), thorns (`[ELYDBG] thorns: unit 25 reflects 1427.8 ... to 1000000`, red HP text), monsters faded out / in (`[ELYDBG] StartAlphaFade npc 1000000 ( 111 ) time 2.00 in 0 hide 1`, 10 NPCs), small HP bars hidden / shown, world hide / show and music off / on; 0 EXCEPTION. **One miss, fixed:** the white flash drew black. June's fade quad is `HQ_WhiteBack.dds` (31ce9860 @31ce9a28 -> +0x3a0), not March's black `FadeInOut.dds`; now loaded behind the same flag (already in March data048, byte-equal to June; plain fades pass black, so they look as before). `DEPLOY OK: X2_offline.exe is 19,758,592 B, dated 2026-10-17 14:00:28, md5 f9eb73294bc2507ecab2ca5cd28a35bb, equal to X2/US_SERVICE/x2.exe (2026-10-17 14:00:22); built at main 4de3172a + 1 uncommitted code file(s).` (`HQ_WhiteBack.dds` in the exe). Re-test owed: the white flash only.
 
 ---
 
