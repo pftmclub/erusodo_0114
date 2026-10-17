@@ -209,7 +209,11 @@ public:		/// public function
 #ifdef SKILL_PAGE_SYSTEM //JHKang
 	void AddSkillPage();
 	void SetAcquiredSkill( const std::vector<KUserSkillPageData>& vecSkillList );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+	int GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBaslcLevel = false, USHORT usSkillPage_ = 0, bool bUpgradeSwap_ = false ) const;   /// June 32890620: the 4th argument is the upgrade swap 328905b0
+#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	int GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBaslcLevel = false, USHORT usSkillPage_ = 0 ) const;
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	USHORT GetSkillPoint( USHORT usPageNumber_ ) const { return m_arrSkillPoint[usPageNumber_ - 1]; }
 	USHORT GetCashSkillPoint( USHORT usPageNumber_ ) const { return m_arrCashSkillPoint[usPageNumber_ - 1]; }
 	void SetSkillPoint( const USHORT usSkillPoint_, const USHORT usSkillPage_ = 0 )
@@ -246,7 +250,12 @@ public:		/// public function
 	void SetUnsealedSkill( const std::vector<short>& vecUnsealedSkillList );
 	
 	//{{ oasis907 : 김상윤 //// 2009-11-18 ////   userskilltree.GetSkillLevel + skilltree.GetSkillTemplet 통합 함수
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+	const CX2SkillTree::SkillTemplet* GetUserSkillTemplet( CX2SkillTree::SKILL_ID eSkillID, bool bUpgradeSwap_ = false ) const;    /// June 32890720
+	CX2SkillTree::SKILL_ID GetUpgradeSwappedSkillID( CX2SkillTree::SKILL_ID eSkillID ) const;                                       /// June 328905b0
+#else SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	const CX2SkillTree::SkillTemplet* GetUserSkillTemplet( CX2SkillTree::SKILL_ID eSkillID) const; 
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	bool GetSkillLevelAndCSP( IN CX2SkillTree::SKILL_ID eSkillID, OUT int& iSkillLevel, OUT int& iSkillCSPoint ) const;	// 획득한 스킬이 존재하는지 체크, 있다면 스킬레벨을 return, 없으면 -1 return
 #ifdef SKILL_PAGE_SYSTEM //JHKang

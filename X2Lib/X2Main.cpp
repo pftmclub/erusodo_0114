@@ -5261,6 +5261,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_add<CX2SkillTree>( L, "CX2SkillTree" );
 	lua_tinker::class_def<CX2SkillTree>( L, "AddSkillTemplet_LUA",			&CX2SkillTree::AddSkillTemplet_LUA );
 	lua_tinker::class_def<CX2SkillTree>( L, "AddSkillTreeTemplet_LUA",		&CX2SkillTree::AddSkillTreeTemplet_LUA );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+	lua_tinker::class_def<CX2SkillTree>( L, "OpenScriptFilePostProcess",    &CX2SkillTree::OpenScriptFilePostProcessLua );  // June binds it to a bare RET: its work runs inside OpenScriptFile
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 	lua_tinker::class_def<CX2SkillTree>( L, "AddSkillPowerRate_LUA",		&CX2SkillTree::AddSkillPowerRate_LUA );
 	lua_tinker::class_def<CX2SkillTree>( L, "AddDefaultSkill_LUA",			&CX2SkillTree::AddDefaultSkill_LUA );

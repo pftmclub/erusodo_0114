@@ -4046,6 +4046,27 @@ Mostly data. June's own files are ljconv bytecode; registry rows in BOM sources 
   `ELYSION_INVINCIBLE_ATTACK_TYPE` / `ELYSION_MOVABLE_LINE_END` each alone bring back the bug they fixed. For the data, delete the phase blocks and
   the files named in each `june_adopt_*.tsv` record, then repack the koms each Done note in `ATLAS_PORT_PHASES.md` lists.
 
+### June skill templet loader (skill-system-core S2, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` (+ short-lived `SERV_IRUHADEV_JUNE_SKILL_DEBUG`), plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S2". **The data is still March's**
+(`NewSkillTempletVer2.lua`, `SkillData.lua`); S3 flips it. What changes with the flag on:
+- **Loader (June `32216320`, whole).** `CX2SkillTree::AddSkillTemplet_JuneLUA` replaces the body of `AddSkillTemplet_LUA`. Differences from March, each deliberate:
+  - `m_SkillCoolTime`, `m_MPConsumption` and `m_RequireCharacterLevel` are **not padded to 30** (March repeated the head of the array). A level past the end reads 0.
+  - An **empty `SA_*` table inserts nothing** (March inserted `{ 0.f }`).
+  - `IN_HOUSE_TEST_ONLY` drops the templet. A duplicate `m_eID` is not added and the call still returns true (first wins).
+  - New fields, stored: `m_DeleteSkillIDByUpgrade` (also fills the upgrade map base -> "[Enhanced]"), `NUMERICAL_DATA<n>`, `m_ExtraIconInfo<n>`, SA ids 143-202, `SPRT_HYPER_CLASS` = 5.
+  - `31c59710` (anti-tamper registration) is not ported.
+- **Kept March behaviour, on purpose** (S2 only): `AddSkillTreeTemplet_LUA` still reads `m_iPrecedingSkill` (June dropped the read; June's data carries it on 0 unit rows,
+  so on June data it is a no-op, and on March data dropping it would remove every prerequisite). `AddSealSkillInfo` reads `m_iItemIDList` and falls back to the scalar
+  `m_iItemID` when the list is absent (June's data only has lists). S3 removes both fallbacks when it flips the data.
+- **Lookups.** `GetUpgradedSkillID` (`32205c00`), `IsUpgradedSkill` (`32206d00`), `GetUpgradeBaseSkillID` (`32207210`); `CX2UserSkillTree::GetUpgradeSwappedSkillID` (`328905b0`) and
+  its use as a trailing `bUpgradeSwap_` argument of `GetSkillLevel` / `GetUserSkillTemplet` / `CX2GUUser::GetEquippedActiveSkillTemplet` (defaults false = March's calls).
+  `SkillTemplet::GetSkillPowerRateValue` reads SA `0xad` first for an upgraded skill (`32071720`); `GetSkillAbilityValue` reads a `NUMERICAL_DATA` block named after the ability first
+  (`32206e50` / `32206fb0`, `JuneTryGetSkillAbilityValue`, the 3-argument overload carries the PvP flag).
+- **The three `_ULTIMATE` gates are live** (they were constant false): `SPEED_TIME_ULTIMATE` (`CommonStateStartFuture`), `BUFF_FACTOR_ID_ULTIMATE` (`ParsingBuffFactorID`),
+  and the DamageEffect `_ULTIMATE` keys (`m_bUseUltimateDamageData`). They stay off until a templet with `m_DeleteSkillIDByUpgrade` exists, i.e. until S3.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` (and `_DEBUG`) in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, save or kom changes.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

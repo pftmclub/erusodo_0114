@@ -7945,3 +7945,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              june-engine R13's play-test; corrects Effect C9h-5's "same" verdict for block 41.
 #define SERV_IRUHADEV_JUNE_FIELD_NPC_HEAD_BONE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system core, Phase S2 (JUNE_SKILL_SYSTEM_PHASES.md "Phase S2"). June's skill templet loader (AddSkillTemplet_LUA
+//              32216320: no padding of cool time / MP / required level, empty SA tables not inserted, IN_HOUSE_TEST_ONLY drop, duplicate id
+//              kept first, NUMERICAL_DATA<n>, m_ExtraIconInfo<n>, m_DeleteSkillIDByUpgrade, SA 143-202, SPRT_HYPER_CLASS), the upgrade map
+//              (32205c00), the swap (CX2UserSkillTree 328905b0), GetSkillPowerRateValue 32071720, the numerical-first ability lookup
+//              (32206e50 / 32206fb0), AddSealSkillInfo's m_iItemIDList, and the three _ULTIMATE gates (SPEED_TIME, BUFF_FACTOR_ID, DamageEffect).
+//              The data stays March's until S3. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system core, Phase S2, short-lived debug. "[JUNE_SKILL] LOAD" lines: padding differences, runtime reads past a
+//              short array, a scratch load of March's file through March's parser (compared with the real June-parser tree) and of June's
+//              own NewSkillTempletVer2.src.lua (2,346 / 3,360 / 12). Remove after the S2 review.
+#define SERV_IRUHADEV_JUNE_SKILL_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////
