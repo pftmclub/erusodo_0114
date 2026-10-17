@@ -2337,6 +2337,12 @@ Zero engine gaps, as the kickoff's model rule required.
 - **How to see it (after the copy):** a level-81+ character that has cleared AtlasDevelopment Normal: M -> Elysion tab -> AC icon enabled
   -> enter Normal; Stage0, 1, 2 and the boss stage load; Suveillan's gauge shows his face. ErrorLog must show no `DungeonData` /
   `NPCTemplet` / `WorldData` load errors.
+- **Play-test logs read 2026-10-17 (user played; run after the deploy):** `dungeonID=33340 CLEARED in 227s: 87 kill(s)` (played at Expert, reward key 33342),
+  boss `npc=2120` (Suveillan) with `bossGauge=1`, clear broadcast sent, 0 EXCEPTION, UNHANDLED only the two known `E_DISABLE_HB_CHECK_REQ`.
+  Kills pay `+0 exp / +0 ED` with the `no reward row` NOTE, as designed (Stage 23). No `DungeonData` / `NPCTemplet` / `WorldData` load errors.
+  ErrorLog noise, none from A9: `result : 47` on `Update3DPosition` for `SUVEILLAN_ATTACK_D_FIRE2 / _EXPLOSION.OGG` (files are staged in data182 and
+  `Sonic_Arrow.ogg` / `Arrow.ogg` log the same, so it is the existing 3D-position update on a finished channel, not a missing file) and
+  `<dungeon name> <- control not found: DLG_UI_LOCAL_MAP` (`X2LocalMapUI.cpp:1324`, the event-disabled star static; NULL-checked, same for Burnt Forest etc.).
 - **Open:** kill rewards (Stage 23). Review kickoff: `kickoffs/atlas/A9-review.md`.
 
 
