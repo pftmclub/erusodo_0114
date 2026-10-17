@@ -3989,6 +3989,56 @@ Nothing was deployed with this commit. A peer's deploy at 13:41 (exe md5 e6b48a0
 (E10 / E11), Erda, Treasure, Halloween and En_Time (later stages). The E6 play-test is therefore a regression check of ordinary NPC and
 village speech bubbles, which share the changed base class. The first real dramatic boxes show up in the E10 / E11 play-tests.
 
+### Phase E6 — Review (2026-10-17)
+
+**Opus 5.5. Verdict: PASS + one fix** (the line-break decision is handed back as wrong and fixed under the same flag).
+
+Checked against June in Ghidra (decompile + asm, constants read from the raw exe):
+- **Player 32306110**, every field: team gate (GetMyUnit vslot 0x98, team +0x278 XOR-decoded, vs row +0xa8); `START_TIME <= elapsed`; the
+  TalkBox it fills (stack box at ESP+0x1e0: uid -10 / -20 and type 2 / 3, trace 0, pos, remain, text and back colour, +0xdc, +0xe0 = 200, image
+  +0xe4, +0x110 / +0x111 / +0x114, image offset +0x118 / +0x11c, base y +0x124). The stacking matches the asm @32306440-323064f4: the other
+  box's `SetMove( 1, NULL )` runs with ECX = the other box, the new box's `SetMove( 1, other )` with ECX = the local box, and the gap is
+  10.0 (33438088). The +44 block (3348c590) adds to pos y, base y and image offset y. The sound plays through vslot 0xa8 (low uid) and
+  PlaySound( name, 0, 0 ), and the played flag is set. All match.
+- **Loader 322e9e00**: TYPE read first (default 0), the duplicate erase / skip on ( index, uid, state ), the skip path without EndTable
+  (JUNE_BUGS 237), the POSITION (0, 0) rule (TYPE 0 / 1 spots 33733d74..80 = (430, 170) / (570, 170), other TYPEs keep (0, 0), custom = 0),
+  DISPLAY_TEAM_TYPE last (-1), return `count > 0` (SETG @322eb807). Constants: SHOW_TIME 3.0, IMAGE_OFFSET 50.0, gap 0.1. All match.
+- **Talk box**: `TalkBox::Update` slide-up 32e945c0 (both owners, high dword -1, base + 170.0, step 5.0, stop at base + target).
+  SetBalloonTip 32f21380 (`type == 2 || type != 3`, 0.2 / 0.4, flip 2). DrawImage 32e92cf0 (both anchor sums, fixed spots
+  (430, 170) / (570, 170) with 3373ef5c = 170.0, +0x23c ReverseY, +0x170 OverUI). LineBreak override 32f21600, line for line. All match.
+- **Render @3230ad36**: June picks one of two CKTDGObject render wrappers on the pass flag (31cda1a0 / 31cda140), exactly as it does for the
+  default manager (@3230acca). March renders the default manager with a plain `OnFrameRender()`, so the dramatic one does the same: match.
+  Each of the four game-side functions has exactly one caller (xrefs), and it is the site the port uses: loader @327af18c
+  (CommonStateStart), remove @3277fa43 (CommonStateEnd), remove-all @327a062f (NPC dtor), player @3230aa21. The OnFrameMove order matches:
+  the +0x48c tick comes right after +0x488's @323095da, and the player call is followed only by E5's 322cfe20 @3230aa28, as in March.
+
+**Fix (the decision handed back): the dramatic Push now runs the global line breaker.** The Done note's premise was wrong.
+- March's US build defines `CLIENT_GLOBAL_LINEBREAK` and `CLIENT_GLOBAL_EU_WORDWRAP` (`KTDXLIB/OnlyGlobal/Always_US.h:143/152`).
+  `CWordLineHandler::LineBreakInTalkBoxManagerImp` is linked (`X2/US_SERVICE/X2.map`), and March's base Push already uses it.
+- June's 31d436c0 is that same function with the length cap and the screen width passed in. Both have the space / split-letter cut, the
+  "-\n" hyphen and the resolution tail, and neither reads MAX_ROW_CHAR. June's base Push 32e943d0 and dramatic Push 32f218c0 are its only
+  callers.
+- `CX2TalkBoxManagerImpDramaticMessage::Push` now does what June's does (call @32f2196d): `m_ResSize = ConvertByResolution( m_Size )`, then the
+  global breaker with this manager's font, then a cut to the box's max length (+0xe0, 200), which June's breaker does at its end.
+- June's LineBreak override stays in the `#else` (`!CLIENT_GLOBAL_LINEBREAK`), the same build split June had. Dramatic boxes now wrap at the
+  speech-bubble width (143 px x scale), like June US's, not at 16 x the width of U+AC00.
+- No separate breaker phase is needed: March's and June's breakers differ only in where the 240 / max-length cap comes from.
+
+**Hygiene:**
+- E6 commit (`--range 761ce721^..761ce721 --with SERV_IRUHADEV_ELYSION_DEBUG`):
+  `files: 8 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 7 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`.
+  - PASS~ = one blank line in `X2TalkBoxManagerImp.h`.
+  - The 7 bare tokens are house-style `#else` lines and the `#endif // A && B` of the debug include.
+- Fix (`--worktree --files X2Lib/X2TalkBoxManagerImp.cpp`): `files: 1 PASS`, `RESULT: PASS`.
+  - The 2 deleted lines are E6's own comment lines inside the flag, rewritten.
+  - The 3 bare tokens are the new `#else` and the `CLIENT_GLOBAL_*` `#endif`s.
+- `BUILD OK` x2.exe 19,759,104 B 14:05:41. **Deploy owed:** `DEPLOY REFUSED` because the game was running; run `build.py --deploy-only`.
+
+**How to see it:** unchanged. There is nothing to see until E10 / E11 register a dramatic NPC. The fix touches only the TBMT 3 manager, so
+ordinary speech bubbles are byte-for-byte what the E6 regression play-test passed.
+
 ---
 
 ## Phase E7 — Elysion-half bindings + additional world

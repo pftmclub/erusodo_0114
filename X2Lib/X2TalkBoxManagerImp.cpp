@@ -2354,8 +2354,10 @@ CX2TalkBoxManagerImpDramaticMessage::~CX2TalkBoxManagerImpDramaticMessage(void)
 
 /// June vslot 4 override 32f218c0 ( Atlas E6 ). The same as June's base Push 32e943d0 except the box height: rows * font height
 /// ( the base adds 1 to the height ). The font height comes from the font each time ( June: inner font size / enlarge, +0x2c ).
-/// June breaks lines with the global line breaker 31d436c0 ( a CLIENT_GLOBAL_LINEBREAK build, which ignores MAX_ROW_CHAR ). March's
-/// US build has no global line breaker, so this runs June's own non-global LineBreak override 32f21600 ( MAX_ROW_CHAR, max length ).
+/// June breaks lines with the global line breaker 31d436c0 ( a CLIENT_GLOBAL_LINEBREAK build, which ignores MAX_ROW_CHAR ). March's US
+/// build defines CLIENT_GLOBAL_LINEBREAK too ( Always_US.h ), and 31d436c0 is March's CWordLineHandler::LineBreakInTalkBoxManagerImp with
+/// the length cap and the screen width passed in, so this calls it the way March's base Push does ( E6 review ). June's non-global
+/// LineBreak override 32f21600 ( MAX_ROW_CHAR, max length ) is what a build without the global breaker runs.
 void CX2TalkBoxManagerImpDramaticMessage::Push( TalkBox& talkBox )
 {
 	KTDXPROFILE();
@@ -2366,8 +2368,21 @@ void CX2TalkBoxManagerImpDramaticMessage::Push( TalkBox& talkBox )
 	m_FontHeight = m_pFont->GetHeight();
 #endif USE_FREE_TYPE
 
+#ifdef CLIENT_GLOBAL_LINEBREAK
+	/// June 32f218c0 ( call @32f2196d ): m_ResSize = m_Size scaled to the resolution ( +0x50 / +0x54 ), then 31d436c0 with this manager's
+	/// font ( +0x10 ). June's breaker ends by cutting the text to the box's max length ( +0xe0, 200 here ); March's cuts at its own cap.
+	m_ResSize = g_pKTDXApp->ConvertByResolution( m_Size );
+	CWordLineHandler::LineBreakInTalkBoxManagerImp( m_pFont, m_Size, talkBox.m_nFontArticleRow, talkBox.m_iFontArticleColumnSize, talkBox.m_wstrTalkContent, talkBox.m_bTrade
+#ifdef CLIENT_GLOBAL_EU_WORDWRAP
+		, m_ResSize
+#endif CLIENT_GLOBAL_EU_WORDWRAP
+		);
+	if ( 0 <= talkBox.m_iMaxStrLen && (UINT)talkBox.m_iMaxStrLen < talkBox.m_wstrTalkContent.length() )
+		talkBox.m_wstrTalkContent = talkBox.m_wstrTalkContent.substr( 0, talkBox.m_iMaxStrLen );
+#else
 	LineBreak( talkBox.m_nFontArticleRow, talkBox.m_iFontArticleColumnSize, talkBox.m_wstrTalkContent, talkBox.m_bTrade,
 		talkBox.m_iMaxRowChar, (UINT)talkBox.m_iMaxStrLen );
+#endif CLIENT_GLOBAL_LINEBREAK
 	talkBox.m_AddLineNum = talkBox.m_nFontArticleRow - 4;
 
 	talkBox.m_vTalkBoxSize.x = (float)m_pFont->GetWidth( talkBox.m_wstrTalkContent.c_str() ) / g_pKTDXApp->GetResolutionScaleX()
