@@ -26,3 +26,4 @@ data034	DLG_UI_World_Map_NEW.lua	march	edit: atlas A5 (2026-10-17) June's whole 
 data034	DLG_Map_World_Elios.lua	march	edit: convert convert (format change only); edit: atlas A7 (2026-10-17) June's LMI_ELYSION in LocalIDList	source	2026-10-17
 data034	DLG_UI_Local_Map_NEW.lua	march	edit: convert convert (format change only); edit: atlas A7 (2026-10-17) June's LocalMapRadioBtn9 + QuestGuide picture for LMI_ELYSION	source	2026-10-17
 data034	DLG_UI_FIELD_MAP_Ranox_04_NEW.lua	march	edit: atlas A6 (2026-10-17) June's right button to 1008 and the left button's AddDummyInt, which the Ranox port had omitted	source	2026-10-17
+data036	ShopItem.lua	march	edit: atlas E2 edit: atlas E2 adds June's VMI_ELYSION shop block	source	2026-10-17

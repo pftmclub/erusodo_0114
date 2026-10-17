@@ -1084,6 +1084,16 @@ bool CX2ChatBox::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 				g_pMain->AddServerPacket( EGS_WARP_BY_BUTTON_ACK );
 				return true;
 			}
+			// Iruha : 2026-10-17 : Atlas E2: "elysion" warps to the Elysion village (20009), the same free button warp.
+			if( boost::iequals( wstrChatMsg, L"elysion" ) )
+			{
+				KEGS_WARP_BY_BUTTON_REQ kPacket;
+				kPacket.m_iCurrentVillageWarpIndex = SEnum::VMI_ELYSION;
+				kPacket.m_bFreeWarp = true;
+				g_pData->GetServerProtocol()->SendPacket( EGS_WARP_BY_BUTTON_REQ, kPacket );
+				g_pMain->AddServerPacket( EGS_WARP_BY_BUTTON_ACK );
+				return true;
+			}
 #endif SERV_IRUHADEV_CHAT_WARP_DEBUG
 #endif SERV_IRUHADEV_ELYSION_PORT
 #ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG

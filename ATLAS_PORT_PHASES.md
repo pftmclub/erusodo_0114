@@ -3471,7 +3471,45 @@ Done when: Phase E2's "Done when" holds. Record a Done note (DEPLOY OK commit), 
 
 ### Phase E2 — Done
 
-*(empty)*
+**2026-10-17, Opus 5.5 high.** Flag `SERV_IRUHADEV_ELYSION_PORT` (C++: the `elysion` chat warp only; data blocks carry the same label).
+The village engine (E1a-E1d) and June's whole region C++ (A3 / A5 / A7: `IsValidWarpField`, `LoadFieldImage` 0x4e29, `OpenFieldName`,
+`GetFieldMapDlg`, `UpdateNaviMap`, `ResetCameraMatrix`, `WarpByCommand` case 18, both warp lists) were already in: E2 is the data that
+turns them on. The four A7 stand-ins that wait for a 20009 templet (`X2LocationManager.cpp:603`, `X2StateMenu.cpp:6340`, `X2UIInventory.cpp:14120`,
+`X2WorldMapUI.cpp:495`) now pass through to June's behaviour unchanged; none was removed.
+
+- **Premises.** `HouseIDList` (21) resolves whole: every `HI_*` is in March's enum; `HI_STORY_QUEST` / `HI_TRANSCEND_QUEST` load with an empty
+  `NPC_ID_LIST` (their NUIs are the quest plan's, census `lists.hole` 2, routed). `START_POS` 500-517 (no 515) = the E1d keys; June's
+  `OtherPlaceID` / `OtherPlaceStartLineIndex` renamed to `BattleFieldId` / `BattleFieldStartLineIndex` (as A5). 500 summon (F02 exit lands here),
+  501 -> F02 line 248, 502/504/506/508/510/512 -> 503/505/507/509/511/513 in-village warps (`WaitingTime 1.5`), 514 warp, 516 summon,
+  **517 -> F03: its two portal keys are commented until atlas E3** (F03 has no BattleFieldData; A6's precedent).
+- **Registry Lua (BOM source, ledger refreshed):** `DLG_Map_Village` Village[VMI_ELYSION] (June :991-1152); `DLG_Map_House` 11 new houses
+  (June :8591-9365) + the Elysion row in 7 shared houses (CAMILLA_PVP, ARIEL_EVENT, POSTBOX, BILLBOARD, PRIVATE_BANK, GUILD_MARK, MU; the
+  plan's "9" is 8 with ADAMS) + **`HI_ADAMS_HOUSE` = June's whole block** (March's had no COMMON_NPC_LOCATION, so a lone Elysion row would drop
+  Adams from Ranox, the only March village listing him; Ranox's scene is June's, so June's Ranox row fits; June drops MAKING_NPC / ATTRIBUTE /
+  SELL_NPC: June behaviour; March block kept commented); `NPCTemplet` 11 rows (June :28955-29406); `WorldData` WI 636 (June :150-156,
+  Festival / XMAS names inert as WI 637's); `MapData` AddMapData 20009 (June :357-370) + Cobo zone 18 for 20009 and F03, and the server
+  mirror (`ServerResource/US/MapData.lua`, +29 lines, LF like its neighbours); `BattleFieldData` F02 exit `L142 -> VMI_ELYSION` 500 restored
+  verbatim; `DLG_UI_World_Map_NEW` town pin shown (F03's stays hidden for E3); `ShopItem.lua` converted (decompile T0, core row) + June's
+  VMI_ELYSION block (June :3389-3773). June's whole ShopItem is not taken: its Ruben / Ranox / Peita rows name NUI_SHY_WISP_EVENT /
+  NUI_SAYRENA_EVENT / NUI_PANE (no March enum), and a nil NPC_ID takes `AddShopItemList_LUA`'s LFail01, which deletes a list it already stored.
+- **Shared houses keep March's rows for March villages.** June moved several NPCs in Ruben / Elder / Besma, but those scenes are still March's
+  (`Elder_village.lua` 46,051 B vs June 10,400 B), so June's coordinates would misplace them. They follow the village scenes (asset port), not E2.
+- **June files (ljconv, `june_adopt_20261017_103941.tsv`):** `Elysion_Village.lua`, `Elysion_villeage_LineMap.lua` (data040),
+  `DLG_UI_FIELD_MAP_Elysion_Village_NEW.lua` (data034), 12 data039 NPC dialogs (UI_{ADAMS,ARIEL,CAMILLA,MU,RURIEL}_ELYSION, UI_NPC_ELYSION_{RED,BLUE}_TREE,
+  UI_{BERNARD,DURANDA,THEODOR,HUGO}, UI_QEUST_BIRD). Assets: `HQ_LoadingVillage_Elision_01/02.tga` (data183), `Elysion_Village_Blossom1.dds`
+  (data002), `Elysion_Village_POST.X` (data013). Everything else the scene, houses and NPCs name was already staged (A6 closure); music in `data\music`.
+- **Census `--phase E2` 29 -> 14, all routed:** festival / XMAS scenes (seasonal, out of scope), NUI_STORY_QUEST / NUI_TRANSCEND_QUEST (quest
+  plan), `LINE_NUM` (B73), `NPC_TALK_LIST0..3` (read as `"%s%d"`, `KLuaManagerProxy.cpp:84`), `BaseLocalStateID` (unread in both),
+  `OtherPlace*` (renamed), `motion_npc_elsion_hugo.xet` (June ships none: JUNE_BUGS 226). `--line VIL` = the same 14.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_ELYSION_PORT --worktree --with SERV_IRUHADEV_CHAT_WARP_DEBUG --files X2Lib/X2ChatBox.cpp`: `files: 1 PASS, 0 PASS~,
+  0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag
+  token, 0 encoding change(s)`; `RESULT: PASS`. `ledger --check` PASS, `core --check` PASS.
+- **Pack:** `PACK OK` data002 / 013 / 034 / 036 / 037 / 039 / 040 / 183; each diff vs live is only E2's entries. Copy waits for the user's OK.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,699,712 B, dated 2026-10-17 10:44:16, md5 23083f5020277448521cb93066309abd, equal to X2/US_SERVICE/x2.exe
+  (2026-10-17 10:44:10); built at main 72491252 + 1 uncommitted code file(s).` `L"elysion"` is in the deployed exe.
+- **Open, routed (no question):** March has no Ranox shop row (June's ShopItem has one; its `NUI_SAYRENA_EVENT` blocks a straight copy): a
+  pre-existing Ranox-port gap, noted, not E2's. June's other shared-house changes (talk lists, EVENT2/3, JoinArea) wait for the friendship system and village scenes.
+- **How to see it in game:** the hand-off below (`elysion` warp, every house / NPC, in-village warps, F02 round trip, Cobo, shop, NPC dialogs).
 
 ---
 

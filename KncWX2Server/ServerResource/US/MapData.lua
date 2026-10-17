@@ -352,6 +352,30 @@ MapData:AddMapData
 	},
 }
 
+-- SERV_IRUHADEV_ELYSION_PORT (atlas E2, 2026-10-17): Elysion village, from June MapData.lua (client data036). The quest keys are
+-- June's, inert offline (the quest plan owns them). To restore: delete this AddMapData.
+MapData:AddMapData
+{
+	ID			= VILLAGE_MAP_ID["VMI_ELYSION"],
+	
+	BEFORE		= VILLAGE_MAP_ID["VMI_RANOX"],
+	AFTER		= VILLAGE_MAP_ID["VMI_INVALID"],
+	
+	REQUIRE_COMPLETE_QUEST_ID		= 22218,
+	REQUIRE_COMPLETE_SUB_QUEST_ID	= 22268,
+	
+	REQUIRE_LEVEL = 
+	{
+		MIN = 85,
+		MAX = 99,
+	},
+	
+	REQUIRE_DUNGEON = 
+	{
+		DUNGEON_ID["DI_RUBEN_SWAMP_NORMAL"],
+	},
+}
+
 
 -- 로컬맵 정보 (루벤)
 MapData:AddLocalMapInfo( LOCAL_MAP_ID["LMI_RUBEN"],	DUNGEON_MODE["DM_INVALID"],			DUNGEON_ID["DI_RUBEN_EL_TREE_NORMAL"] )
@@ -694,6 +718,11 @@ function CheckCOBOExpressTicketMapID( iMapID )
 		return 17
 	elseif (iMapID == VILLAGE_MAP_ID["VMI_BATTLE_FIELD_ELYSION_FIELD_02"]) then
 		return 17
+	-- SERV_IRUHADEV_ELYSION_PORT (atlas E2, 2026-10-17): Cobo zone 18, from June MapData.lua (client data036)
+	elseif (iMapID == VILLAGE_MAP_ID["VMI_ELYSION"]) then
+		return 18
+	elseif (iMapID == VILLAGE_MAP_ID["VMI_BATTLE_FIELD_ELYSION_FIELD_03"]) then
+		return 18
 	end
 
     return 0

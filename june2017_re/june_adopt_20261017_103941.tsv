@@ -1,0 +1,18 @@
+# adopt-june --bytecode run 2026-10-17 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+DLG_UI_FIELD_MAP_Elysion_Village_NEW.lua	data034	new	data034	9467	31351d12b431c2c5c0da36d2274d17fc1f4e2644	bytecode		ljconv
+UI_ADAMS_ELYSION.lua	data039	new	data039	629	0f4f7fda6bd765ef6be4f9b7a0ed4e75ff3c548b	bytecode		ljconv
+UI_ARIEL_ELYSION.lua	data039	new	data039	583	aea4512541f0620bd4975b75cf23007f1b6c1d23	bytecode		ljconv
+UI_BERNARD.lua	data039	new	data039	579	a230cc93a34e176addb3bf97a297daea4593d6fc	bytecode		ljconv
+UI_CAMILLA_ELYSION.lua	data039	new	data039	622	ebc465367e8eec59a6c9746a2d10fad7081b0edd	bytecode		ljconv
+UI_DURANDA.lua	data039	new	data039	603	ef0162318f767e710dbd9f859be90dfb1983d1e5	bytecode		ljconv
+UI_HUGO.lua	data039	new	data039	561	c94bdbcbe0b1951f48020ada1dd133ff4fd8d72a	bytecode		ljconv
+UI_MU_ELYSION.lua	data039	new	data039	600	d17989fc2bc2373f9bf6e057553d6c735398ffbb	bytecode		ljconv
+UI_NPC_ELYSION_BLUE_TREE.lua	data039	new	data039	307	0e48cb44801916d95f25a257c86ed9f14e32285b	bytecode		ljconv
+UI_NPC_ELYSION_RED_TREE.lua	data039	new	data039	304	8deda2c213ea3a4db0c7132cb4abd4e94f05ff19	bytecode		ljconv
+UI_QEUST_BIRD.lua	data039	new	data039	581	489d3576bad519d38a7aa39e81d9c1c67fb2e63c	bytecode		ljconv
+UI_RURIEL_ELYSION.lua	data039	new	data039	644	94a1dfc32f0095a446879e42200ea4eae4d4e8ac	bytecode		ljconv
+UI_THEODOR.lua	data039	new	data039	579	1c616f6e61c917c040353bc8cefd022f59b2ddf4	bytecode		ljconv
+Elysion_Village.lua	data040	new	data040	20092	981ccc45f45bea2ebb3f376f53e8934cd5e4f82a	bytecode		ljconv
+Elysion_villeage_LineMap.lua	data040	new	data040	26590	10b9f65179dbd3b8f5380f521c6fcc1e5f1f7f50	bytecode		ljconv
