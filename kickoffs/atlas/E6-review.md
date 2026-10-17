@@ -21,7 +21,7 @@ Then `june2017_re/e6_dramatic_re.md` (the RE notes: row layout, TalkBox offsets,
 
 Review Phase E6's commit against June:
 - the loader 322e9e00: every key's default (raw constants 33436700 / 3344a510 / 33733d74.. / 334395e0), the POSITION ( 0, 0 ) rule, the
-  duplicate / skip rule and the missing EndTable (JUNE_BUGS 230), the return value;
+  duplicate / skip rule and the missing EndTable (JUNE_BUGS 237), the return value;
 - the player 32306110: the team gate, the START_TIME compare, every TalkBox field it fills (stack offsets in the asm 323061f0-323065b0),
   the stacking / SetMove order for both types, the +44 block (g_pMain +0x278 = GetIsSkillUITypeA), the sound, the played flag;
 - the remove pair 322e61c0 / 322e6270 and their call sites (CommonStateEnd @3277f9f7, NPC dtor @327a062f), the CommonStateStart site @327af18c;

@@ -3925,7 +3925,7 @@ Done when: Phase E6's "Done when" holds. Record a Done note, then commit on main
 ### Phase E6 — Done
 
 **2026-10-17 (Opus 5.5).** Flag `SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE` (Always.h; debug lines `SERV_IRUHADEV_ELYSION_DEBUG`, `[ELYDBG] dramatic message:`).
-RE notes `june2017_re/e6_dramatic_re.md`; 17 funcmap rows `Atlas E6`; JUNE_BUGS 230-231.
+RE notes `june2017_re/e6_dramatic_re.md`; 17 funcmap rows `Atlas E6`; JUNE_BUGS 237-238.
 
 **1. SimpleDLG: nothing to port.** june-effect C3z-4s already ported it whole (`SERV_IRUHADEV_JUNE_SIMPLE_DLG`, play-test PASSED 2026-10-15).
 Re-checked against June: Create 322def10 / Delete 322cc520 / Get 31e4de40, the +0xba8 lifetime (ctor @32307743, dtor @32308b85, no
@@ -3955,7 +3955,7 @@ so June's NULL lookup no-ops.
     Push, Delete, DeleteByIndex, Clear); Update's slide-up 32e945c0 with `SetMove` 32e90a30; and the per-box spread fields in InitTalkBox
     (defaults true / 0.1 = March's constants, so ordinary speech bubbles are unchanged).
 - Assets: all 41 portrait / sound names the June rows use are already staged, identical to June (stage-june dry run: 0 new, 0 replaced).
-- June bugs kept: #230 (a played REPEAT = FALSE row skips its EndTable; latent, no June script sets REPEAT) and #231 (the portrait stays at
+- June bugs kept: #237 (a played REPEAT = FALSE row skips its EndTable; latent, no June script sets REPEAT) and #238 (the portrait stays at
   the fixed spot when a box stacks or slides).
 - Ours, not June's: NULL guards on g_pX2Game / g_pData / the particle system / GetMyUnit, and a range check on TYPE (June indexes its two
   vectors unchecked).
@@ -3978,7 +3978,9 @@ so June's NULL lookup no-ops.
 - run 1, X2Lib: `X2World.cpp` (C2039 `GetXSkinAnim`, C3861 `ConvertWCHARToUtf8`);
 - run 2, X2: C2248 protected `CX2GUUser::Get/SetShowHpSmallGage` (`X2GageUI.cpp:549`, `X2Main.cpp:4831`).
 
-Nothing was deployed with this commit; the deploy is owed (STATUS row).
+Nothing was deployed with this commit. A peer's deploy at 13:41 (exe md5 e6b48a06, built on 761ce721 + E5 15c08485) carries E6: the
+`[ELYDBG] dramatic message: show npc` and `DramaticMessageImage_Left` / `_Right` literals are in `X2_offline.exe`. JUNE_BUGS rows renumbered
+230-231 -> 237-238 (E5 committed its own 230-233 after E6).
 
 **How to see it in game:** not yet. Every NPC with `DRAMATIC_MESSAGE` rows sits in a dungeon that is not registered: Memory and Soless
 (E10 / E11), Erda, Treasure, Halloween and En_Time (later stages). The E6 play-test is therefore a regression check of ordinary NPC and
