@@ -1231,7 +1231,7 @@ behaviour March never had, so there is no `#else`. Commit: `git log -S SERV_IRUH
   land line with the Future index; the lists grow on each fire of a looping trigger.
 
 **Hygiene** (`flagcheck --worktree --files`, 8 files): 7 PASS, 1 DEFINE, 0 FAIL; 0 deleted lines, 0 non-ASCII inserted lines, 0 EOL-mismatched lines,
-0 `#else`/`#endif` without token, 0 encoding change. Range check: see the commit's follow-up line below.
+0 `#else`/`#endif` without token, 0 encoding change. Range `b8653b47^..b8653b47`: `files: 7 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,809,280 B, dated 2026-10-17 22:10:14, md5 acbb882777d398c1676cb09e5335c772, equal to X2/US_SERVICE/x2.exe (2026-10-17 22:10:09); built at main 82dd3ce4 + 12 uncommitted code file(s).`
 The 4 code files that are not mine are peer R13's (`KTDGCamera.*`, `X2WorldObjectMesh.*`, its `Always.h` block), built in, not committed here. No kom changed.
