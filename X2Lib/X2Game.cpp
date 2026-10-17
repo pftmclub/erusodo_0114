@@ -412,6 +412,10 @@ m_bSkillSlotJustChanged(true)
 	}	
 
 	m_pTalkBoxMgr = CX2TalkBoxManager::CreateTalkBoxManger();
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	/// June CX2Game ctor 32306600 @32307a51: a second talk box manager, type 3 ( dramatic messages ), right after the default one ( +0x488 )
+	m_pDramaticTalkBoxMgr = CX2TalkBoxManager::CreateTalkBoxManger( CX2TalkBoxManager::TBMT_DRAMATIC_MESSAGE );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	m_pTextureF1Help		= g_pKTDXApp->GetDeviceManager()->OpenTexture( L"FadeInOut.dds" );	
 	m_pFontF1Help			= g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( XUF_DODUM_15_BOLD );
 
@@ -756,6 +760,9 @@ CX2Game::~CX2Game()
 	SAFE_CLOSE( m_pRenderTargetLastkillShot );
 
 	SAFE_DELETE_KTDGOBJECT( m_pTalkBoxMgr );
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	SAFE_DELETE_KTDGOBJECT( m_pDramaticTalkBoxMgr );	/// June CX2Game dtor 323080c0 @32308613, right after +0x488
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 	SAFE_CLOSE( m_pTextureF1Help );
 
@@ -3045,6 +3052,10 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 
 
 		m_pTalkBoxMgr->OnFrameMove( fTime, fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		if( NULL != m_pDramaticTalkBoxMgr )		/// June CX2Game::OnFrameMove 32308c20 @323095da, right after the default manager's
+			m_pDramaticTalkBoxMgr->OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 #ifdef SERV_WORLD_TRIGGER_RELOCATION
 		// June 2017 CX2Game::OnFrameMove (@323091c3): send the oldest queued trigger, and drop it
@@ -3820,6 +3831,9 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 #ifdef MODIFY_DUNGEON_STAGING
 	m_pCinematicUI->OnFrameMove(fTime, fElapsedTime);
 #endif //MODIFY_DUNGEON_STAGING
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	ProcessDramaticMessage( fElapsedTime );		/// June CX2Game::OnFrameMove 32308c20 @3230aa21, the last call before the return
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 	return S_OK;
 }
@@ -3993,6 +4007,12 @@ HRESULT	CX2Game::OnFrameRender()
 
 		g_pKTDXApp->GetDGManager()->FrontUIRender();		
 
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		/// June CX2Game render 3230aa60 @3230ad36-3230ad4c: the dramatic boxes right after FrontUIRender ( 31ce94a0, which draws the fade ), so
+		/// they stay visible over a fade-out
+		if( NULL != m_pDramaticTalkBoxMgr )
+			m_pDramaticTalkBoxMgr->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		RenderF1Help();
 
 		if( m_AllowFrameCount < 0 )
@@ -18601,6 +18621,247 @@ void CX2Game::ShowDangerAlarm( int iIndex )
 	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+/// June CX2Game::LoadDramaticMessage 322e9e00 ( Atlas E6 ), called by CX2GUNPC::CommonStateStart ( 327ac9d0 @327af18c ) with the state's
+/// table open. Rows DRAMATIC_MESSAGE0.. ( "%s%d", 33449104 + 3348bdf4 ) are read until one is missing, each into the vector of its TYPE.
+/// A row already queued for this ( index, NPC, state ) is replaced, unless it is a REPEAT = FALSE row that has played: then it is skipped,
+/// and June skips its EndTable too ( 322e9f96 -> 322eb7ac ), so the walk ends inside that table ( JUNE_BUGS; no June script sets REPEAT ).
+/// Returns whether any row was read ( SETG @322eb807 ).
+bool CX2Game::LoadDramaticMessage( KLuaManager& luaManager, UidType npcUID, int iStateID )
+{
+	int iIndex = 0;
+	while( true == luaManager.BeginTable( "DRAMATIC_MESSAGE", iIndex ) )
+	{
+		int iType = 0;
+		if( false == luaManager.GetValue( "TYPE", iType ) )
+			iType = 0;
+		if( iType < DMT_LEFT || iType >= DMT_END )		/// ours: June indexes its two vectors with the value unchecked
+		{
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			CX2OfflineLog::Server( L"[ELYDBG] dramatic message: npc %I64d state %d DRAMATIC_MESSAGE%d has TYPE %d, skipped", npcUID, iStateID, iIndex, iType );
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+			luaManager.EndTable();
+			iIndex++;
+			continue;
+		}
+
+		std::vector<DramaticMessage>& vecMessage = m_vecDramaticMessage[iType];
+		std::vector<DramaticMessage>::iterator vit = vecMessage.begin();
+		for( ; vit != vecMessage.end(); ++vit )
+		{
+			if( vit->m_iIndex == iIndex && vit->m_NPCUID == npcUID && vit->m_iStateID == iStateID )
+				break;
+		}
+		if( vit != vecMessage.end() )
+		{
+			if( false == vit->m_bRepeat && true == vit->m_bPlayed )
+			{
+				iIndex++;			/// June @322e9f96: no EndTable on this path ( see above )
+				continue;
+			}
+			vecMessage.erase( vit );
+		}
+
+		DramaticMessage message;
+		message.m_iIndex	= iIndex;
+		message.m_NPCUID	= npcUID;
+		message.m_iStateID	= iStateID;
+		message.m_iType		= iType;
+		message.m_bCustomPosition = true;
+
+		LUA_GET_VALUE( luaManager, "START_TIME",			message.m_fStartTime,			0.f );
+		LUA_GET_VALUE( luaManager, "SHOW_TIME",				message.m_fShowTime,			3.f );
+		LUA_GET_VALUE( luaManager, "REPEAT",				message.m_bRepeat,				true );
+		LUA_GET_VALUE( luaManager, "IMAGE_FILE_NAME",		message.m_wstrImageFileName,	L"" );
+		LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "IMAGE_OFFSET_POSITION",	message.m_vImageOffset,	D3DXVECTOR2( 50.f, 0.f ) );
+		LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "BACK_COLOR",				message.m_coBack,		D3DXCOLOR( 1, 1, 1, 1 ) );
+		LUA_GET_VALUE( luaManager, "MESSAGE",				message.m_iMessageID,			-1 );
+		LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "MESSAGE_COLOR",			message.m_coMessage,	D3DXCOLOR( 0, 0, 0, 1 ) );
+		LUA_GET_USER_DEFINED_TYPE_VALUE( luaManager, "POSITION",				message.m_vPosition,	D3DXVECTOR2( 0.f, 0.f ) );
+		if( 0.f == message.m_vPosition.x && 0.f == message.m_vPosition.y )
+		{
+			/// June @322ead3c-322ead8a: no POSITION ( or ( 0, 0 ) ) takes the TYPE's spot ( 33733d74.. ); a TYPE outside 0 / 1 keeps ( 0, 0 )
+			if( DMT_LEFT == iType )
+				message.m_vPosition = D3DXVECTOR2( 430.f, 170.f );
+			else if( DMT_RIGHT == iType )
+				message.m_vPosition = D3DXVECTOR2( 570.f, 170.f );
+			message.m_bCustomPosition = false;
+		}
+		LUA_GET_VALUE( luaManager, "MAX_ROW_CHAR",			message.m_iMaxRowChar,			16 );
+		LUA_GET_VALUE( luaManager, "USE_SPREAD",			message.m_bUseSpread,			true );
+		LUA_GET_VALUE( luaManager, "SPREAD_TIME_GAP",		message.m_fSpreadTimeGap,		0.1f );
+		LUA_GET_VALUE( luaManager, "SOUND_FILE_NAME",		message.m_wstrSoundFileName,	L"" );
+		LUA_GET_VALUE( luaManager, "NO_STATE_MESSAGE",		message.m_bNoStateMessage,		false );
+		LUA_GET_VALUE( luaManager, "ON_SKILL_SLOT_UI",		message.m_bOnSkillSlotUI,		true );
+		LUA_GET_VALUE( luaManager, "DISPLAY_TEAM_TYPE",		message.m_iDisplayTeamType,		-1 );
+
+		vecMessage.push_back( message );
+		iIndex++;
+		luaManager.EndTable();
+	}
+
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+	if( 0 < iIndex )
+	{
+		static int s_iDramaticLoadLog = 0;
+		if( s_iDramaticLoadLog < 20 )
+		{
+			++s_iDramaticLoadLog;
+			CX2OfflineLog::Server( L"[ELYDBG] dramatic message: npc %I64d state %d read %d row(s); queued left %d, right %d",
+				npcUID, iStateID, iIndex, (int)m_vecDramaticMessage[DMT_LEFT].size(), (int)m_vecDramaticMessage[DMT_RIGHT].size() );
+		}
+	}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+
+	return ( 0 < iIndex );
+}
+
+/// June 322e61c0, called by CX2GUNPC::CommonStateEnd ( 3277ee10 @3277fa43 ) when the state loaded rows: the state's rows go, except a
+/// REPEAT = FALSE row that has played and a NO_STATE_MESSAGE row.
+void CX2Game::RemoveDramaticMessage( UidType npcUID, int iStateID )
+{
+	for( int iType = 0; iType < DMT_END; ++iType )
+	{
+		std::vector<DramaticMessage>& vecMessage = m_vecDramaticMessage[iType];
+		std::vector<DramaticMessage>::iterator vit = vecMessage.begin();
+		while( vit != vecMessage.end() )
+		{
+			if( vit->m_NPCUID == npcUID && vit->m_iStateID == iStateID &&
+				( true == vit->m_bRepeat || false == vit->m_bPlayed ) && false == vit->m_bNoStateMessage )
+				vit = vecMessage.erase( vit );
+			else
+				++vit;
+		}
+	}
+}
+
+/// June 322e6270, called by the CX2GUNPC dtor ( 3279fb60 @327a062f ): every row of the NPC goes.
+void CX2Game::RemoveDramaticMessage( UidType npcUID )
+{
+	for( int iType = 0; iType < DMT_END; ++iType )
+	{
+		std::vector<DramaticMessage>& vecMessage = m_vecDramaticMessage[iType];
+		std::vector<DramaticMessage>::iterator vit = vecMessage.begin();
+		while( vit != vecMessage.end() )
+		{
+			if( vit->m_NPCUID == npcUID )
+				vit = vecMessage.erase( vit );
+			else
+				++vit;
+		}
+	}
+}
+
+/// June 322d5bb0 ( Lua "Playing_Dramatic_Message_LUA", binder 31d95080 @31ddf702 ): the first row of the TYPE with this NPC and MESSAGE gets
+/// the start time ( a NO_STATE_MESSAGE row with a far START_TIME is armed this way, Treasure_Mimic ).
+void CX2Game::Playing_Dramatic_Message_LUA( UidType npcUID, int iType, int iMessageID, float fStartTime )
+{
+	if( iType < DMT_LEFT || iType >= DMT_END )		/// ours: June indexes unchecked
+		return;
+
+	std::vector<DramaticMessage>& vecMessage = m_vecDramaticMessage[iType];
+	for( std::vector<DramaticMessage>::iterator vit = vecMessage.begin(); vit != vecMessage.end(); ++vit )
+	{
+		if( vit->m_NPCUID == npcUID && vit->m_iMessageID == iMessageID )
+		{
+			vit->m_fStartTime = fStartTime;
+			return;
+		}
+	}
+}
+
+/// June 32306110 ( Atlas E6 ), the last call of CX2Game::OnFrameMove: each row not yet played and meant for my team ( DISPLAY_TEAM_TYPE
+/// -1 or my unit's team ) counts its time; at START_TIME it becomes a talk box of the dramatic manager. TYPE 0 boxes belong to -10 and point
+/// left ( TBT_FROM_DOWN_LEFT ), TYPE 1 boxes to -20 ( TBT_FROM_DOWN_RIGHT ); a box goes under the other side's box when both sit at their
+/// default spots ( 10.0 below it, 33438088 ), and the other box slides back to the top when this side's box replaces an older one. Then
+/// ON_SKILL_SLOT_UI moves it 44 ( 3348c590 ) lower when the skill slot UI is type B ( g_pMain +0x278 ), the NPC plays the sound, and the
+/// row is marked played. June's other text branch ( string-manager +0x40, an in-house string id display ) is not ported.
+void CX2Game::ProcessDramaticMessage( float fElapsedTime )
+{
+	for( int iType = 0; iType < DMT_END; ++iType )
+	{
+		std::vector<DramaticMessage>& vecMessage = m_vecDramaticMessage[iType];
+		for( UINT i = 0; i < vecMessage.size(); ++i )
+		{
+			DramaticMessage& message = vecMessage[i];
+			if( true == message.m_bPlayed )
+				continue;
+
+			if( -1 != message.m_iDisplayTeamType )
+			{
+				CX2GUUser* pMyUnit = GetMyUnit();
+				if( NULL == pMyUnit || pMyUnit->GetTeam() != message.m_iDisplayTeamType )		/// the NULL test is ours
+					continue;
+			}
+
+			message.m_fElapsedTime += fElapsedTime;
+			if( message.m_fElapsedTime < message.m_fStartTime || NULL == m_pDramaticTalkBoxMgr )
+				continue;
+
+			CX2TalkBoxManagerImp::TalkBox talkBox;
+			talkBox.m_wstrTalkContent	= GET_STRING( message.m_iMessageID );
+			talkBox.m_OwnerUnitUID		= ( DMT_RIGHT == iType ) ? -20 : -10;
+			talkBox.m_TalkBoxType		= ( DMT_RIGHT == iType ) ? CX2TalkBoxManagerImp::TBT_FROM_DOWN_RIGHT : CX2TalkBoxManagerImp::TBT_FROM_DOWN_LEFT;
+			talkBox.m_bTraceUnit		= false;
+			talkBox.m_vPos				= message.m_vPosition;
+			talkBox.m_fRemainTime		= message.m_fShowTime;
+			talkBox.m_coTextColor		= message.m_coMessage;
+			talkBox.m_BackTexColor		= message.m_coBack;
+			talkBox.m_iMaxRowChar		= message.m_iMaxRowChar;
+			talkBox.m_iMaxStrLen		= 200;
+			talkBox.m_wstrImageName		= message.m_wstrImageFileName;
+			talkBox.m_bCustomPos		= message.m_bCustomPosition;
+			talkBox.m_bUseSpread		= message.m_bUseSpread;
+			talkBox.m_fSpreadTimeGap	= message.m_fSpreadTimeGap;
+			talkBox.m_vImageOffset		= message.m_vImageOffset;
+
+			CX2TalkBoxManagerImp::TalkBox* pLeftBox		= m_pDramaticTalkBoxMgr->GetTalkBoxByUID( -10 );
+			CX2TalkBoxManagerImp::TalkBox* pRightBox	= m_pDramaticTalkBoxMgr->GetTalkBoxByUID( -20 );
+			CX2TalkBoxManagerImp::TalkBox* pOtherBox	= ( DMT_RIGHT == iType ) ? pLeftBox : pRightBox;
+			CX2TalkBoxManagerImp::TalkBox* pSameBox		= ( DMT_RIGHT == iType ) ? pRightBox : pLeftBox;
+			if( NULL != pOtherBox && false == pOtherBox->m_bCustomPos )
+			{
+				talkBox.m_vPos.y = pOtherBox->m_vTalkBoxSize.y + pOtherBox->m_vPos.y + 10.f;
+				if( NULL != pSameBox && false == pSameBox->m_bCustomPos )
+					pOtherBox->SetMove( true, NULL );
+				if( true == pOtherBox->m_bMoving )
+					talkBox.SetMove( true, pOtherBox );
+			}
+
+#ifdef SKILL_SLOT_UI_TYPE_B
+			if( true == message.m_bOnSkillSlotUI && NULL != g_pMain && false == g_pMain->GetGameOption().GetIsSkillUITypeA() )
+			{
+				talkBox.m_vPos.y		+= 44.f;
+				talkBox.m_fBaseY		+= 44.f;
+				talkBox.m_vImageOffset.y += 44.f;
+			}
+#endif SKILL_SLOT_UI_TYPE_B
+
+			m_pDramaticTalkBoxMgr->Push( talkBox );
+
+			if( false == message.m_wstrSoundFileName.empty() )
+			{
+				CX2GUNPC* pNPC = GetNPCUnitByUID( (int)message.m_NPCUID );		/// June vslot 0xa8 with the low dword
+				if( NULL != pNPC )
+					pNPC->PlaySound( message.m_wstrSoundFileName.c_str(), false, false );
+			}
+
+			message.m_bPlayed = true;
+
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+			static int s_iDramaticPlayLog = 0;
+			if( s_iDramaticPlayLog < 30 )
+			{
+				++s_iDramaticPlayLog;
+				CX2OfflineLog::Server( L"[ELYDBG] dramatic message: show npc %I64d state %d row %d type %d str %d at ( %.0f, %.0f ) for %.1f s, image %s, sound %s",
+					message.m_NPCUID, message.m_iStateID, message.m_iIndex, iType, message.m_iMessageID, talkBox.m_vPos.x, talkBox.m_vPos.y,
+					message.m_fShowTime, message.m_wstrImageFileName.c_str(), message.m_wstrSoundFileName.c_str() );
+			}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 int CX2Game::LoadDangerAlarm( KLuaManager &luaManager, UidType iUid, int iStateId )
 {
 	int iRet = -1;

@@ -3891,7 +3891,65 @@ Done when: Phase E6's "Done when" holds. Record a Done note, then commit on main
 
 ### Phase E6 — Done
 
-*(empty)*
+**2026-10-17 (Opus 5.5).** Flag `SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE` (Always.h; debug lines `SERV_IRUHADEV_ELYSION_DEBUG`, `[ELYDBG] dramatic message:`).
+RE notes `june2017_re/e6_dramatic_re.md`; 17 funcmap rows `Atlas E6`; JUNE_BUGS 230-231.
+
+**1. SimpleDLG: nothing to port.** june-effect C3z-4s already ported it whole (`SERV_IRUHADEV_JUNE_SIMPLE_DLG`, play-test PASSED 2026-10-15).
+Re-checked against June: Create 322def10 / Delete 322cc520 / Get 31e4de40, the +0xba8 lifetime (ctor @32307743, dtor @32308b85, no
+stage-change delete in June either), SetIsSkillUITypeA's re-place (32420d30), and the 12 class methods 326b1320..326b24a0. No June behaviour
+is missing. Staged the three gauge dialogs (June bytecode via `adopt-june`): `DLG_UI_ELYSION_SOLESS_{AWAKEN,HERBAON,OF_SUN}_GAGE.lua` into
+data034, `PACK OK data034` (+3, nothing else changed). Their textures and TETs (`DLG_UI_Image_02/04/05`, `DLG_UI_Common_Texture93_NEW`) were
+already staged (A11, `atlas_a11_tet.tsv`). Lanox's deferred SimpleDLG item (`RANOX_PORT_PLAN.md` 3d, Secret Hell fever gauge) works since C3z-4s.
+Two June quirks are unchanged and need no row: nothing loads AWAKEN_GAGE, and `ELYSION_M_SOLESS` drives AWAKEN statics on the OF_SUN dialog,
+so June's NULL lookup no-ops.
+
+**2. Dramatic messages, ported whole:**
+- Game side (X2Game):
+  - `LoadDramaticMessage` 322e9e00 is called from `CX2GUNPC::CommonStateStart` @327af18c, right after the alarm block. It sets
+    `m_bHaveDramaticMessage` (NPC +0x9060).
+  - `RemoveDramaticMessage( uid, state )` 322e61c0 runs from CommonStateEnd @3277f9f7; `RemoveDramaticMessage( uid )` 322e6270 from the NPC dtor.
+  - The player `ProcessDramaticMessage` 32306110 is the last call of OnFrameMove. Lua `Playing_Dramatic_Message_LUA` 322d5bb0 is bound.
+  - The C++ `DRAMATIC_MESSAGE_TYPE` is { DMT_LEFT 0, DMT_RIGHT 1, DMT_END 2 }, equal to the Lua table.
+  - The row struct is June's 0xb0 layout, with every default read from the exe: SHOW_TIME 3.0, IMAGE_OFFSET (50, 0), default spots
+    (430, 170) / (570, 170), MAX_ROW_CHAR 16, spread gap 0.1.
+- Talk box side:
+  - A second manager, `TBMT_DRAMATIC_MESSAGE` (3) → `CX2TalkBoxManagerImpDramaticMessage` (vtable 3353c620), is created and deleted next
+    to the default one. It ticks after it, and draws right after FrontUIRender (@3230ad36), so it stays visible over a fade.
+  - The subclass carries June's overrides: Push 32f218c0, SetBalloonTip 32f21380 and LineBreak 32f21600. Push, SetBalloonTip and the
+    `Update( …, manager )` signature become virtual / extended under the flag, matching June's vslots 4 and 7.
+  - Base additions June made: TalkBox fields (+0xdc..+0x124, ctor 323151a0); the portrait `DrawImage` 32e92cf0 (UI major particle
+    `DramaticMessageImage_Left` / `_Right`, already in the staged UIMajorParticle.txt); its destroy at every removal site (dtor, OnFrameMove ×2,
+    Push, Delete, DeleteByIndex, Clear); Update's slide-up 32e945c0 with `SetMove` 32e90a30; and the per-box spread fields in InitTalkBox
+    (defaults true / 0.1 = March's constants, so ordinary speech bubbles are unchanged).
+- Assets: all 41 portrait / sound names the June rows use are already staged, identical to June (stage-june dry run: 0 new, 0 replaced).
+- June bugs kept: #230 (a played REPEAT = FALSE row skips its EndTable; latent, no June script sets REPEAT) and #231 (the portrait stays at
+  the fixed spot when a box stacks or slides).
+- Ours, not June's: NULL guards on g_pX2Game / g_pData / the particle system / GetMyUnit, and a range check on TYPE (June indexes its two
+  vectors unchecked).
+
+**Decision taken (review to confirm):**
+- June's US client breaks dramatic lines with the global line breaker 31d436c0 (`CLIENT_GLOBAL_LINEBREAK`). That breaker ignores
+  MAX_ROW_CHAR and wraps at m_ResSize ≈ 143 px × scale.
+- March's US build has no global breaker. The dramatic Push therefore runs June's own non-global LineBreak override 32f21600: row width =
+  MAX_ROW_CHAR × the width of U+AC00, max 200 chars. So boxes may be wider than June US's.
+- The alternative would be porting the global breaker; that is an engine-wide talk-box change, outside E6.
+
+**Hygiene:**
+- flagcheck `--worktree --files` (10 files): `files: 5 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s)`; `RESULT: PASS`.
+- The OTHER rows are E7's uncommitted `SERV_IRUHADEV_ELYSION_SCRIPT_B` hunks in the same files.
+- Census `--region elysion`: no SimpleDLG, gauge or `DRAMATIC_MESSAGE` key item open. What is left is `CT_ELYSION_SOLESS_DRAMATIC_*` state
+  names and the `NUI_ELYSION_SOLESS_DRAMATIC` NPCTemplet row, both E10's.
+
+**Build:** E6's files compile clean (two runs). Both tree builds failed in E7's uncommitted code:
+- run 1, X2Lib: `X2World.cpp` (C2039 `GetXSkinAnim`, C3861 `ConvertWCHARToUtf8`);
+- run 2, X2: C2248 protected `CX2GUUser::Get/SetShowHpSmallGage` (`X2GageUI.cpp:549`, `X2Main.cpp:4831`).
+
+Nothing was deployed with this commit; the deploy is owed (STATUS row).
+
+**How to see it in game:** not yet. Every NPC with `DRAMATIC_MESSAGE` rows sits in a dungeon that is not registered: Memory and Soless
+(E10 / E11), Erda, Treasure, Halloween and En_Time (later stages). The E6 play-test is therefore a regression check of ordinary NPC and
+village speech bubbles, which share the changed base class. The first real dramatic boxes show up in the E10 / E11 play-tests.
 
 ---
 

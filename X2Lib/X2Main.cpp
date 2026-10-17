@@ -3936,6 +3936,10 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Game>( L, "GetSimpleDLG",							&CX2Game::GetSimpleDLG );
 	CX2SimpleDLG_WithLuaFunc::RegisterLuaBind( L );
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	// June binder 31d95080 @31ddf702 ( 322d5bb0 ), on CX2Game ( Atlas E6 )
+	lua_tinker::class_def<CX2Game>( L, "Playing_Dramatic_Message_LUA",			&CX2Game::Playing_Dramatic_Message_LUA );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #ifdef SERV_IRUHADEV_JUNE_GAME_HOST_GAME_UNIT
 	// June @31dd906c ( 31aa6280: the host observer +0x89c, -0x1a0 -> CX2GUUser* ) = March m_optrHostGameUnit
 	lua_tinker::class_def<CX2Game>( L, "GetHostGameUnit",						&CX2Game::GetHostGameUnit );

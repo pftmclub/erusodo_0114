@@ -19,6 +19,11 @@ CX2TalkBoxManager::CX2TalkBoxManager( CX2TalkBoxManager::TALK_BOX_MANAGER_TYPE t
 	case CX2TalkBoxManager::TBMT_PARTY_INFO:
 		m_pTalkBoxManagerImp = new CX2TalkBoxManagerImpPartyLeader();
 		break;
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	case CX2TalkBoxManager::TBMT_DRAMATIC_MESSAGE:
+		m_pTalkBoxManagerImp = new CX2TalkBoxManagerImpDramaticMessage();
+		break;
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	default:
 		m_pTalkBoxManagerImp = new CX2TalkBoxManagerImp();
 		break;

@@ -7465,3 +7465,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              count too, so the region tabs no longer stack and the left/right arrows show.
 #define SERV_IRUHADEV_LOCALMAP_GM_PAGING
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-17
+// Description: Atlas/Elysion port (ATLAS_PORT_PHASES.md Phase E6), June 2017 dramatic messages whole: an NPC state's
+//              DRAMATIC_MESSAGE0.. rows ( loader 322e9e00 from CommonStateStart, dropped at CommonStateEnd / NPC dtor,
+//              per-frame player 32306110, Lua Playing_Dramatic_Message_LUA 322d5bb0 ), shown by a second talk box manager
+//              ( TBMT_DRAMATIC_MESSAGE, CX2TalkBoxManagerImpDramaticMessage: Push / SetBalloonTip / LineBreak overrides )
+//              drawn after the fade, with June's TalkBox additions: the portrait particle ( DramaticMessageImage_Left /
+//              _Right, 32e92cf0 ), the slide-up ( 32e945c0 / 32e90a30 ) and the per-box text spread. SimpleDLG is
+//              SERV_IRUHADEV_JUNE_SIMPLE_DLG ( C3z-4s ).
+#define SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+//////////////////////////////////////////////////////////////////////////

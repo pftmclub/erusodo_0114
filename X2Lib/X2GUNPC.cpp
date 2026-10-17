@@ -2028,6 +2028,11 @@ void CX2GUNPC::JuneStopPlayedSounds( bool bStop_, const WCHAR* pwszWhy_ )
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
 CX2GUNPC::~CX2GUNPC(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	/// June NPC dtor 3279fb60 @327a0607-327a062f: every dramatic row of this NPC goes ( 322e6270 ). The g_pX2Game test is ours.
+	if( NULL != g_pX2Game )
+		g_pX2Game->RemoveDramaticMessage( GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	// 자신을 참조하는 몬스터들에게 더이상 나를 참조하지 말라고 설정한다.
 	for(UINT i=0; i<m_vecConsultedNpc.size(); ++i)
 	{
@@ -2355,6 +2360,9 @@ void CX2GUNPC::CommonConstructor()
 #endif
 
 	m_iDangerAlarm = -1;
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	m_bHaveDramaticMessage = false;	/// June NPC ctor 327af620 @327b09f4
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 #ifdef SUMMON_MONSTER_CARD_SYSTEM
 	m_bISMonsterCard = false;
@@ -2766,6 +2774,9 @@ void CX2GUNPC::CommonConstructor()
 #endif
 
 	m_iDangerAlarm = -1;
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	m_bHaveDramaticMessage = false;	/// June battlefield NPC ctor 327b0a20 @327b1ce9
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 	m_colorName						= 0xffffffff;
 	m_colorOutLine					= 0x00000000;
@@ -17589,6 +17600,12 @@ void CX2GUNPC::CommonStateStart()
 			m_iDangerAlarm = -1;
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	/// June CX2GUNPC::CommonStateStart 327ac9d0 @327af161-327af191: right after the alarm block ( outside its Henir / training / PvP test ),
+	/// the state's DRAMATIC_MESSAGEn rows are queued ( 322e9e00 ) and the result kept for CommonStateEnd. The g_pX2Game test is ours.
+	if( NULL != g_pX2Game )
+		m_bHaveDramaticMessage = g_pX2Game->LoadDramaticMessage( m_LuaManager, GetUnitUID(), GetNowStateID() );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 #ifdef SERV_NEW_DEFENCE_DUNGEON // 적용날짜: 2013-04-24
 
@@ -25378,6 +25395,16 @@ void CX2GUNPC::CommonStateEnd()
 	/// STOP_SOUND_AT_STATE_END ( June bit 0x4e ), and cleared whatever the flag says. June runs this after the staging block and before FinishAndClearAllBuff.
 	JuneStopPlayedSounds( NOWSTATE_FLAG( STOP_SOUND_AT_STATE_END ), L"state_end" );
 #endif SERV_IRUHADEV_JUNE_NPC_SOUND
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277f9f7-3277fa48: right after the played-sound clear, a state that queued dramatic rows
+	/// drops them ( 322e61c0 ) and the flag is cleared. The g_pX2Game test is ours.
+	if( true == m_bHaveDramaticMessage )
+	{
+		if( NULL != g_pX2Game )
+			g_pX2Game->RemoveDramaticMessage( GetUnitUID(), GetNowStateID() );
+		m_bHaveDramaticMessage = false;
+	}
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 	/// June CX2GUNPC::CommonStateEnd 3277ee10 @3277fb2e-@3277fbd2: clear-all(false) when the ending state has
 	/// DYING_END (June bit 23) or ESCAPE_END (bit 24), or is one of the four dying states. June's other branch, taken

@@ -544,6 +544,56 @@ class CX2Game : public CKTDXStage
 		void						DeleteSimpleDLG();
 		CX2SimpleDLG_WithLuaFunc*	GetSimpleDLG() { return m_pJuneSimpleDLG; }
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		/// June 2017 dramatic messages ( Atlas E6 ): an NPC state's DRAMATIC_MESSAGE0.. rows, queued per TYPE and shown by a second talk
+		/// box manager ( TBMT_DRAMATIC_MESSAGE ) as a portrait + speech box at the top of the screen.
+		enum DRAMATIC_MESSAGE_TYPE		/// June Enum.lua:17866 ( the Lua table is atlas A3's ); explicit values = Lua
+		{
+			DMT_LEFT	= 0,
+			DMT_RIGHT	= 1,
+			DMT_END		= 2,
+		};
+		struct DramaticMessage			/// June row, 0xb0 bytes ( ctor 32315550, loader 322e9e00 ); June offsets and defaults per field
+		{
+			int				m_iIndex;				/// +0x00: n of DRAMATIC_MESSAGEn
+			UidType			m_NPCUID;				/// +0x08
+			int				m_iStateID;				/// +0x10
+			float			m_fStartTime;			/// +0x14 START_TIME ( 0 )
+			float			m_fElapsedTime;			/// +0x18
+			float			m_fShowTime;			/// +0x1c SHOW_TIME ( 3.0, 33436700 )
+			bool			m_bRepeat;				/// +0x20 REPEAT ( true )
+			bool			m_bPlayed;				/// +0x21
+			int				m_iType;				/// +0x24 TYPE ( 0 )
+			std::wstring	m_wstrImageFileName;	/// +0x28 IMAGE_FILE_NAME
+			D3DXVECTOR2		m_vImageOffset;			/// +0x44 IMAGE_OFFSET_POSITION ( 50, 0; 3344a510 )
+			D3DXCOLOR		m_coBack;				/// +0x4c BACK_COLOR ( 1, 1, 1, 1 )
+			int				m_iMessageID;			/// +0x5c MESSAGE ( -1 )
+			D3DXCOLOR		m_coMessage;			/// +0x60 MESSAGE_COLOR ( 0, 0, 0, 1 )
+			D3DXVECTOR2		m_vPosition;			/// +0x70 POSITION ( none or ( 0, 0 ): ( 430, 170 ) left / ( 570, 170 ) right, 33733d74.. )
+			bool			m_bCustomPosition;		/// +0x78: POSITION given
+			int				m_iMaxRowChar;			/// +0x7c MAX_ROW_CHAR ( 16 )
+			bool			m_bUseSpread;			/// +0x80 USE_SPREAD ( true )
+			float			m_fSpreadTimeGap;		/// +0x84 SPREAD_TIME_GAP ( 0.1, 334395e0 )
+			std::wstring	m_wstrSoundFileName;	/// +0x88 SOUND_FILE_NAME
+			bool			m_bNoStateMessage;		/// +0xa4 NO_STATE_MESSAGE ( false ): the row outlives its state
+			bool			m_bOnSkillSlotUI;		/// +0xa5 ON_SKILL_SLOT_UI ( true ): 44 lower when the skill slot UI is type B
+			int				m_iDisplayTeamType;		/// +0xa8 DISPLAY_TEAM_TYPE ( -1 = everyone )
+
+			DramaticMessage() :
+				m_iIndex( 0 ), m_NPCUID( 0 ), m_iStateID( 0 ), m_fStartTime( 0.f ), m_fElapsedTime( 0.f ), m_fShowTime( 0.f ),
+				m_bRepeat( false ), m_bPlayed( false ), m_iType( 0 ), m_vImageOffset( 0, 0 ), m_coBack( 0, 0, 0, 1 ),
+				m_iMessageID( -1 ), m_coMessage( 1, 1, 1, 1 ), m_vPosition( 0, 0 ), m_bCustomPosition( false ), m_iMaxRowChar( 0 ),
+				m_bUseSpread( false ), m_fSpreadTimeGap( 0.f ), m_bNoStateMessage( false ), m_bOnSkillSlotUI( true ), m_iDisplayTeamType( -1 )
+			{}
+		};
+
+		bool						LoadDramaticMessage( KLuaManager& luaManager, UidType npcUID, int iStateID );	/// June 322e9e00
+		void						RemoveDramaticMessage( UidType npcUID, int iStateID );							/// June 322e61c0
+		void						RemoveDramaticMessage( UidType npcUID );										/// June 322e6270
+		void						Playing_Dramatic_Message_LUA( UidType npcUID, int iType, int iMessageID, float fStartTime );	/// June 322d5bb0
+		CX2TalkBoxManager*			GetDramaticTalkBoxMgr() { return m_pDramaticTalkBoxMgr; }
+		void						ProcessDramaticMessage( float fElapsedTime );									/// June 32306110
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #ifdef SERV_IRUHADEV_JUNE_GAME_STAGE_QUERY
 		bool						GetIsLastStage();		// June 322f36e0
 		int							GetNowStateID_LUA();	// June 322cf9b0, in June's X2_STATE numbering
@@ -2038,6 +2088,10 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_SIMPLE_DLG
 		CX2SimpleDLG_WithLuaFunc*	m_pJuneSimpleDLG;		/// June +0xba8: NULL in the ctor ( @32307743 ), deleted in the dtor ( @32308b85 )
 #endif SERV_IRUHADEV_JUNE_SIMPLE_DLG
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		CX2TalkBoxManager*				m_pDramaticTalkBoxMgr;							/// June +0x48c ( TBMT_DRAMATIC_MESSAGE, ctor @32307a51 )
+		std::vector<DramaticMessage>	m_vecDramaticMessage[DMT_END];					/// June +0x8d8, one vector per TYPE
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #ifdef SERV_IRUHADEV_JUNE_SKIP_START
 		bool						m_bJuneSkipStartArmed;		/// June +0xb40
 		bool						m_bJuneSkipStartSent;		/// June +0xb41 ( set by the ESC; the party path waits on it )

@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2talkboxmanagerimp.h"
+#if defined(SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE) && defined(SERV_IRUHADEV_ELYSION_DEBUG)
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE && SERV_IRUHADEV_ELYSION_DEBUG
 
 #define CX2TalkBoxManagerImp_NUM_FACEUV  10
 #define CX2TalkBoxManagerImp_EffectTalkBox_NUM_FACEUV  2
@@ -135,6 +138,9 @@ CX2TalkBoxManagerImp::~CX2TalkBoxManagerImp(void)
 	for ( int i = 0; i < (int)m_TalkBoxList.size(); i++ )
 	{
 		TalkBox& talkBox = m_TalkBoxList[i];
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		DestroyImageParticle( talkBox );	/// June dtor body 32e93d50 @32e93dba
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		m_pFont->Delete2DFont( talkBox.m_iFontArticleID );
 
 	}
@@ -267,6 +273,9 @@ HRESULT CX2TalkBoxManagerImp::OnFrameMove( double fTime, float fElapsedTime )
 
 		if( true == bEraseTalkBox )
 		{
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			DestroyImageParticle( talkBox );	/// June OnFrameMove 32e94890 @32e94a58
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 			m_pFont->Delete2DFont( talkBox.m_iFontArticleID );
 			m_TalkBoxList.erase( m_TalkBoxList.begin() + i );
 			i--;
@@ -286,6 +295,10 @@ HRESULT CX2TalkBoxManagerImp::OnFrameMove( double fTime, float fElapsedTime )
 			talkBox.m_fRemainTime -= fElapsedTime;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		if ( talkBox.m_fRemainTime <= 0 )
+			DestroyImageParticle( talkBox );	/// June OnFrameMove 32e94890 @32e94b2a
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		if ( talkBox.m_fRemainTime <= 0 )
 		{
 			m_pFont->Delete2DFont( talkBox.m_iFontArticleID );
@@ -303,7 +316,11 @@ HRESULT CX2TalkBoxManagerImp::OnFrameMove( double fTime, float fElapsedTime )
 	for ( int i = 0; i < (int)m_TalkBoxList.size(); i++ )
 	{
 		TalkBox& talkBox = m_TalkBoxList[i];
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		talkBox.Update( m_pFont, m_fMarginLeft, m_fMarginRight, m_Offset, this );	/// June @32e94bb5: the manager goes along
+#else
 		talkBox.Update( m_pFont, m_fMarginLeft, m_fMarginRight, m_Offset );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	}
 
 	return S_OK;
@@ -434,6 +451,10 @@ HRESULT CX2TalkBoxManagerImp::OnFrameRender()
 				DT_LEFT, CKTDGFontManager::FS_NONE, pFontArticle->iSpreadCount );
 			}
 #endif ALWAYS_SCREEN_SHOT_TEST
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			/// June OnFrameRender 32e930c0: right after the box's text, 32e92cf0 makes the portrait once ( DrawImage )
+			DrawImage( talkBox );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		}
 	}
 
@@ -523,6 +544,9 @@ void CX2TalkBoxManagerImp::Push( TalkBox& talkBox )
 			
 			)
 		{
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			DestroyImageParticle( tempTalkBox );	/// June Push 32e943d0 @32e9456e
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 			m_pFont->Delete2DFont( tempTalkBox.m_iFontArticleID );
 			//SAFE_DELETE(pTempTalkBox);
 			m_TalkBoxList.erase( m_TalkBoxList.begin() + i );
@@ -543,6 +567,9 @@ bool CX2TalkBoxManagerImp::Delete( UidType unitUID, bool bTraceUnit, CX2GameUnit
 			tempTalkBox.m_bTraceUnit == bTraceUnit &&
 			tempTalkBox.m_GameUnitType == gameUnitType )
 		{
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			DestroyImageParticle( tempTalkBox );	/// June Delete 32e93c00 @32e93c6f
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 			m_pFont->Delete2DFont( tempTalkBox.m_iFontArticleID );
 			//SAFE_DELETE(pTempTalkBox);
 			m_TalkBoxList.erase( m_TalkBoxList.begin() + i );
@@ -562,6 +589,9 @@ bool CX2TalkBoxManagerImp::DeleteByIndex( int index )
 
 	TalkBox& tempTalkBox = m_TalkBoxList[index];
 
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	DestroyImageParticle( tempTalkBox );	/// June DeleteByIndex 32e93cc0 @32e93cf4
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	m_pFont->Delete2DFont( tempTalkBox.m_iFontArticleID );
 	m_TalkBoxList.erase( m_TalkBoxList.begin() + index );
 
@@ -719,6 +749,9 @@ void CX2TalkBoxManagerImp::Clear()
 	for ( int i = 0; i < (int)m_TalkBoxList.size(); i++ )
 	{
 		TalkBox& talkBox = m_TalkBoxList[i];
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		DestroyImageParticle( talkBox );	/// June Clear 32e93f10 @32e93f43
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		m_pFont->Delete2DFont( talkBox.m_iFontArticleID );
 	}
 
@@ -1659,7 +1692,11 @@ void CX2TalkBoxManagerImp::InitTalkBox( TalkBox& talkBox )
 
 		index = m_pFont->Push2DText(talkBox.m_wstrTalkContent.c_str(), 
 			(int)pos.x, (int)pos.y, talkBox.m_coTextColor, talkBox.m_OutLineTextColor, //talkBox.m_coTextColor, 
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			DT_LEFT, CKTDGFontManager::FS_NONE, false, talkBox.m_bUseSpread, talkBox.m_fSpreadTimeGap );	/// June 32e928f0 @32e92a94: the box's +0x111 / +0x114
+#else
 			DT_LEFT, CKTDGFontManager::FS_NONE, false, true, 0.1f );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	}
 
 	talkBox.m_iFontArticleID = index;
@@ -1832,7 +1869,11 @@ void CX2TalkBoxManagerImp::ResetTalkBox( TalkBox& talkBox )
 
 
 #ifdef KTDGDEVICEFONT_SIMULATE_DIRECTX_FONT
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+void CX2TalkBoxManagerImp::TalkBox::Update( CKTDGFontManager::CUKFont* pKTDGFont, const float fMarginLeft, const float fMarginTop, const D3DXVECTOR2 vOffset, CX2TalkBoxManagerImp* pManager )
+#else
 void CX2TalkBoxManagerImp::TalkBox::Update( CKTDGFontManager::CUKFont* pKTDGFont, const float fMarginLeft, const float fMarginTop, const D3DXVECTOR2 vOffset )
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #else
 void CX2TalkBoxManagerImp::TalkBox::Update( CKTDGFontManager::CKTDGFont* pKTDGFont, const float fMarginLeft, const float fMarginTop, const D3DXVECTOR2 vOffset )
 #endif
@@ -1921,6 +1962,37 @@ void CX2TalkBoxManagerImp::TalkBox::Update( CKTDGFontManager::CKTDGFont* pKTDGFo
 		ResetFontPos( pKTDGFont, fMarginLeft, fMarginTop );
 
 	}
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+	/// June TalkBox::Update 32e945c0 @32e947a0-32e94874 ( Atlas E6 ): a box that is not traced, not moving and not placed by its script's
+	/// POSITION, owned by -10 ( the left dramatic box ) or -20 ( the right ), sitting below the top spot ( base + 170.0, 3373ef54 ) starts
+	/// sliding back up once the other side's box is gone. A moving box rises 5.0 ( 334396b0 ) a frame and stops at base + target.
+	else if ( false == m_bMoving && false == m_bCustomPos )
+	{
+		UidType uidOther = 0;
+		if ( -10 == m_OwnerUnitUID && m_fBaseY + 170.f < m_vPos.y )
+			uidOther = -20;
+		else if ( -20 == m_OwnerUnitUID && m_fBaseY + 170.f < m_vPos.y )
+			uidOther = -10;
+
+		if ( 0 != uidOther && NULL != pManager && NULL == pManager->GetTalkBoxByUID( uidOther ) )
+		{
+			m_bMoving		= true;
+			m_fMoveTargetY	= 170.f;
+		}
+	}
+
+	if ( true == m_bMoving )
+	{
+		m_vPos.y -= 5.f;
+		const float fStopY = m_fBaseY + m_fMoveTargetY;
+		if ( m_vPos.y <= fStopY )
+		{
+			m_vPos.y	= fStopY;
+			m_bMoving	= false;
+		}
+		ResetFontPos( pKTDGFont, fMarginLeft, fMarginTop );
+	}
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 }
 
@@ -2177,6 +2249,236 @@ void CX2TalkBoxManagerImp::TalkBox::GetTalkBoxPosByUnitUID( IN UidType uiOwnerUn
 	}		
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+/// June TalkBox::SetMove 32e90a30 ( Atlas E6 ): starts or stops the slide-up. With no other box the target is the top spot ( 170.0,
+/// 3373ef54 ); with one, this box keeps the gap it has to the other box's target.
+void CX2TalkBoxManagerImp::TalkBox::SetMove( bool bMoving, const TalkBox* pOther )
+{
+	m_bMoving = bMoving;
+	if ( true == bMoving )
+	{
+		if ( NULL == pOther )
+		{
+			m_fMoveTargetY = 170.f;
+			return;
+		}
+
+		m_fMoveX		= m_vPos.x;
+		m_fMoveTargetY	= m_vPos.y - ( pOther->m_vPos.y - pOther->m_fMoveTargetY );
+	}
+}
+
+/// June: every removal ( dtor 32e93d50, OnFrameMove 32e94890, Push 32e943d0, Delete 32e93c00, DeleteByIndex 32e93cc0, Clear 32e93f10 )
+/// destroys the portrait sequence ( 31cefbc0 on +0x100 ) before Delete2DFont. The NULL tests are ours.
+void CX2TalkBoxManagerImp::DestroyImageParticle( TalkBox& talkBox )
+{
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == talkBox.m_hImageParticle )
+		return;
+
+	if ( NULL != g_pData && NULL != g_pData->GetUIMajorParticle() )
+		g_pData->GetUIMajorParticle()->DestroyInstanceHandle( talkBox.m_hImageParticle );
+	else
+		talkBox.m_hImageParticle = INVALID_PARTICLE_SEQUENCE_HANDLE;
+}
+
+/// June 32e92cf0 ( Atlas E6 ), called by OnFrameRender after each box's text: a box with an image name and no portrait yet gets one,
+/// a UI major particle ( g_pData +0x7c ) whose texture is the image. Right-hand box types ( 1, 3 ): "DramaticMessageImage_Right"
+/// ( 33535948 ) beside the box's right edge, mirrored ( sequence +0x23c = m_bReverseY ); the others "DramaticMessageImage_Left"
+/// ( 33535980 ) beside the left edge. The anchor is the box position when the script gave POSITION, else June's fixed spot
+/// ( 430, 170 ) / ( 570, 170 ) ( 3373ef50 / 3373ef58 ). The portrait is made once and does not follow a later slide ( June ).
+void CX2TalkBoxManagerImp::DrawImage( TalkBox& talkBox )
+{
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE != talkBox.m_hImageParticle || true == talkBox.m_wstrImageName.empty() )
+		return;
+
+	if ( NULL == g_pData || NULL == g_pData->GetUIMajorParticle() )		/// ours
+		return;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+	if ( TBT_FROM_UP_RIGHT == talkBox.m_TalkBoxType || TBT_FROM_DOWN_RIGHT == talkBox.m_TalkBoxType )
+	{
+		D3DXVECTOR2 vBase( 570.f, 170.f );
+		if ( true == talkBox.m_bCustomPos )
+			vBase = talkBox.m_vPos;
+
+		const float fX = m_fTalkBoxCornerWidth * talkBox.m_vTalkBoxSizeScale.x + ( 1.f - talkBox.m_fTalkBoxTipLerpCoef ) * talkBox.m_vTalkBoxSize.x
+			+ vBase.x + talkBox.m_vImageOffset.x;
+		const float fY = talkBox.m_vImageOffset.y + vBase.y;
+		pSeq = g_pData->GetUIMajorParticle()->CreateSequence( NULL, L"DramaticMessageImage_Right", fX, fY, 0.f );
+		if ( NULL == pSeq )
+			return;
+
+		pSeq->SetReverseY( true );
+	}
+	else
+	{
+		D3DXVECTOR2 vBase( 430.f, 170.f );
+		if ( true == talkBox.m_bCustomPos )
+			vBase = talkBox.m_vPos;
+
+		const float fX = vBase.x - talkBox.m_fTalkBoxTipLerpCoef * talkBox.m_vTalkBoxSize.x - m_fTalkBoxCornerWidth * talkBox.m_vTalkBoxSizeScale.x
+			- talkBox.m_vImageOffset.x;
+		const float fY = talkBox.m_vImageOffset.y + vBase.y;
+		pSeq = g_pData->GetUIMajorParticle()->CreateSequence( NULL, L"DramaticMessageImage_Left", D3DXVECTOR3( fX, fY, 0.f ) );
+	}
+
+	if ( NULL != pSeq )
+	{
+		pSeq->ChangeTexForce( talkBox.m_wstrImageName.c_str() );
+		pSeq->SetOverUI( true );
+		talkBox.m_hImageParticle = pSeq->GetHandle();
+#ifdef SERV_IRUHADEV_ELYSION_DEBUG
+		static int s_iDramaticImageLog = 0;
+		if ( s_iDramaticImageLog < 10 )
+		{
+			++s_iDramaticImageLog;
+			CX2OfflineLog::Server( L"[ELYDBG] dramatic message: portrait %s ( box type %d, owner %I64d ) at ( %.0f, %.0f )",
+				talkBox.m_wstrImageName.c_str(), (int)talkBox.m_TalkBoxType, talkBox.m_OwnerUnitUID, talkBox.m_vPos.x, talkBox.m_vPos.y );
+		}
+#endif SERV_IRUHADEV_ELYSION_DEBUG
+	}
+}
+
+/// June CX2TalkBoxManagerImpDramaticMessage ctor 32f21840: the base ctor, then m_pFont ( +0x10 ) = the dialog manager's font 2
+/// ( XUF_DODUM_15_BOLD ).
+CX2TalkBoxManagerImpDramaticMessage::CX2TalkBoxManagerImpDramaticMessage(void)
+	: CX2TalkBoxManagerImp()
+{
+	m_pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( XUF_DODUM_15_BOLD );
+}
+
+/// June 32f21ab0: the base dtor only
+CX2TalkBoxManagerImpDramaticMessage::~CX2TalkBoxManagerImpDramaticMessage(void)
+{
+}
+
+/// June vslot 4 override 32f218c0 ( Atlas E6 ). The same as June's base Push 32e943d0 except the box height: rows * font height
+/// ( the base adds 1 to the height ). The font height comes from the font each time ( June: inner font size / enlarge, +0x2c ).
+/// June breaks lines with the global line breaker 31d436c0 ( a CLIENT_GLOBAL_LINEBREAK build, which ignores MAX_ROW_CHAR ). March's
+/// US build has no global line breaker, so this runs June's own non-global LineBreak override 32f21600 ( MAX_ROW_CHAR, max length ).
+void CX2TalkBoxManagerImpDramaticMessage::Push( TalkBox& talkBox )
+{
+	KTDXPROFILE();
+
+#ifdef USE_FREE_TYPE
+	m_FontHeight = m_pFont->GetHeight() - 1;	/// CKTDGFreeTypeFont::GetHeight adds 1 for anti-aliasing; June reads size / enlarge
+#else
+	m_FontHeight = m_pFont->GetHeight();
+#endif USE_FREE_TYPE
+
+	LineBreak( talkBox.m_nFontArticleRow, talkBox.m_iFontArticleColumnSize, talkBox.m_wstrTalkContent, talkBox.m_bTrade,
+		talkBox.m_iMaxRowChar, (UINT)talkBox.m_iMaxStrLen );
+	talkBox.m_AddLineNum = talkBox.m_nFontArticleRow - 4;
+
+	talkBox.m_vTalkBoxSize.x = (float)m_pFont->GetWidth( talkBox.m_wstrTalkContent.c_str() ) / g_pKTDXApp->GetResolutionScaleX()
+		+ m_fMarginLeft + m_fMarginRight;
+	talkBox.m_vTalkBoxSize.y = (float)( talkBox.m_nFontArticleRow * m_FontHeight ) + m_fMarginTop + m_fMarginBottom;
+	talkBox.m_vTalkBoxSizeScale			= D3DXVECTOR2( 1, 1 );
+	talkBox.m_vTalkBoxSizeScaleDelta	= D3DXVECTOR2( 0, 0 );
+
+	InitTalkBox( talkBox );
+
+	for ( int i = 0; i < (int)m_TalkBoxList.size(); i++ )
+	{
+		TalkBox& tempTalkBox = m_TalkBoxList[i];
+		if ( tempTalkBox.m_OwnerUnitUID == talkBox.m_OwnerUnitUID &&
+			tempTalkBox.m_bTraceUnit == talkBox.m_bTraceUnit &&
+			tempTalkBox.m_GameUnitType == talkBox.m_GameUnitType &&
+			talkBox.m_TalkBoxType != CX2TalkBoxManagerImp::TBT_TALKBOX_EFFECT )
+		{
+			DestroyImageParticle( tempTalkBox );
+			m_pFont->Delete2DFont( tempTalkBox.m_iFontArticleID );
+			m_TalkBoxList.erase( m_TalkBoxList.begin() + i );
+			break;
+		}
+	}
+
+	m_TalkBoxList.push_back( talkBox );
+}
+
+/// June vslot 7 override 32f21380 ( Atlas E6 ): the tip on the box's side, toward the portrait. Type 3 ( right box ): right of the box,
+/// rotated 270; every other type: left of it, rotated 90. Both flipped ( 2 ), June's constants 0.2 ( 334411a8 ) and 0.4 ( 33487220 ),
+/// the same tip UV block as the base ( 33535938.. = 259 / 1 / 88 / 121 of 512 ).
+void CX2TalkBoxManagerImpDramaticMessage::SetBalloonTip( DRAWFACE_RHW_VERTEX aFaces[4], int iType, float fX, float fY, float fCenterWidth, float fCenterHeight,
+														float fWidthScale, float fHeightScale, D3DXCOLOR backTexColor )
+{
+	KTDXPROFILE();
+
+	const float fCornerWidthScaled  = m_fTalkBoxCornerWidth  * fWidthScale;
+	const float fCornerHeightScaled = m_fTalkBoxCornerHeight * fHeightScale;
+
+	float _fX = 0.f;
+	float _fY = 0.f;
+	float _fRotAngle = 0.f;
+	if ( TBT_FROM_DOWN_LEFT == iType || TBT_FROM_DOWN_RIGHT != iType )
+	{
+		_fX = ( ( fX - ( fCornerWidthScaled + fCornerWidthScaled ) ) - fCenterWidth * 0.2f ) + fCornerWidthScaled * 0.2f;
+		_fY = ( fY - fCornerHeightScaled ) - fCenterHeight * 0.4f;
+		_fRotAngle = 90.f;
+	}
+	else
+	{
+		_fX = ( fCornerWidthScaled + fX + fCenterWidth * 0.2f ) - fCornerWidthScaled * 0.2f;
+		_fY = ( fY - fCornerHeightScaled ) - fCenterHeight * 0.4f;
+		_fRotAngle = 270.f;
+	}
+
+	SetFaceUV( aFaces, _fX, _fY, fCornerWidthScaled, fCornerHeightScaled, 259.f/512.f, 1.f/512.f, 88.f/512.f, 121.f/512.f, _fRotAngle, 2, backTexColor );
+}
+
+/// June LineBreak override 32f21600 ( the same body as June's base 32e937b0 ): March's LineBreak with the row width taken from the
+/// box ( width of L'\xac00' in m_pFont * max( iMaxRowChar, 6 ) ) and the length cap from the box instead of MAX_ROOM_CHAT_STR_LEN.
+void CX2TalkBoxManagerImpDramaticMessage::LineBreak( int& nRow, int& iColumnSize, wstring& wstrSpeech, bool bTrade, int iMaxRowChar, UINT uiMaxStrLen )
+{
+	KTDXPROFILE();
+
+	const wstring wstrNextLine = L"\n";
+
+	UINT uMaxStringLength = wstrSpeech.length();
+	if ( (int)uiMaxStrLen < (int)uMaxStringLength )
+		uMaxStringLength = uiMaxStrLen;
+
+	if ( iMaxRowChar < 6 )
+		iMaxRowChar = 6;
+
+	nRow = 1;
+	int iStringSize = 0;
+	const float fMaxRowWidth = (float)( m_pFont->GetWidth( (WCHAR)0xac00 ) * iMaxRowChar );
+
+	for ( UINT i = 0; i < uMaxStringLength; i++ )
+	{
+		const WCHAR wChar = wstrSpeech[i];
+		iStringSize += m_pFont->GetWidth( wChar );
+
+		if ( ( fMaxRowWidth <= (float)iStringSize || L'\n' == wChar ) && false == bTrade )
+		{
+			if ( L'\n' != wChar )
+			{
+				wstrSpeech.insert( wstrSpeech.begin() + i, wstrNextLine.begin(), wstrNextLine.end() );
+				if ( L' ' == wstrSpeech[i + 1] )
+				{
+					wstrSpeech.erase( i + 1, 1 );
+				}
+				else
+				{
+					++i;
+					++uMaxStringLength;
+				}
+			}
+			nRow++;
+			iStringSize = 0;
+		}
+	}
+
+	if ( uiMaxStrLen < wstrSpeech.length() )
+		wstrSpeech = wstrSpeech.substr( 0, uiMaxStrLen );
+
+	if ( nRow < 2 )
+		iColumnSize = iStringSize;
+	else
+		iColumnSize = (int)fMaxRowWidth;
+}
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 #ifdef ADDED_RELATIONSHIP_SYSTEM
 void CX2TalkBoxManagerImp::TalkBox::GetTalkBoxPosByCostomPos( OUT D3DXVECTOR3 & vPos_ ) const
 {

@@ -10,6 +10,9 @@ class CX2TalkBoxManager : public CKTDGObject
 			TBMT_DEFAULT = 0,
 			TBMT_PERSONAL_SHOP,
 			TBMT_PARTY_INFO,
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			TBMT_DRAMATIC_MESSAGE = 3,	/// June factory 32e904e0 case 3 -> CX2TalkBoxManagerImpDramaticMessage ( 32f21840 )
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		};
 
 	private:

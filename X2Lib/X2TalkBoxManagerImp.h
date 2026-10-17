@@ -82,6 +82,21 @@ class CX2TalkBoxManagerImp
 			D3DXVECTOR3							m_vTalkBoxPosition;				// 
 		
 #endif // ADDED_RELATIONSHIP_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			/// June 2017 TalkBox ( 0x128 bytes, ctor 323151a0 ): the fields the dramatic messages use ( Atlas E6 ).
+			int									m_iMaxRowChar;					/// June +0xdc ( 10 ): LineBreak row width = width of L'\xac00' * max( this, 6 )
+			int									m_iMaxStrLen;					/// June +0xe0 ( 240 )
+			wstring								m_wstrImageName;				/// June +0xe4: the portrait texture ( DrawImage 32e92cf0 )
+			CKTDGParticleSystem::CParticleEventSequenceHandle	m_hImageParticle;	/// June +0x100 ( -1 ): the portrait sequence
+			bool								m_bMoving;						/// June +0x104: slide-up running ( TalkBox::Update 32e945c0 )
+			float								m_fMoveX;						/// June +0x108 ( SetMove 32e90a30 writes it, nothing reads it )
+			float								m_fMoveTargetY;					/// June +0x10c
+			bool								m_bCustomPos;					/// June +0x110: POSITION came from the script
+			bool								m_bUseSpread;					/// June +0x111 ( true ): Push2DText spread
+			float								m_fSpreadTimeGap;				/// June +0x114 ( 0.1 )
+			D3DXVECTOR2							m_vImageOffset;					/// June +0x118 / +0x11c
+			float								m_fBaseY;						/// June +0x124: the skill-slot offset ( 44 ) under ON_SKILL_SLOT_UI
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 			TalkBox()
 			{
 				m_TalkBoxID						= -1;
@@ -129,6 +144,21 @@ class CX2TalkBoxManagerImp
 				m_vTalkBoxPosition = D3DXVECTOR3 ( 0, 0, 0 );
 				
 #endif // ADDED_RELATIONSHIP_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+				/// June TalkBox ctor 323151a0
+				m_iMaxRowChar					= 10;
+				m_iMaxStrLen					= 240;
+				m_wstrImageName					= L"";
+				m_hImageParticle				= INVALID_PARTICLE_SEQUENCE_HANDLE;
+				m_bMoving						= false;
+				m_fMoveX						= 0.f;
+				m_fMoveTargetY					= 0.f;
+				m_bCustomPos					= false;
+				m_bUseSpread					= true;
+				m_fSpreadTimeGap				= 0.1f;
+				m_vImageOffset					= D3DXVECTOR2( 0, 0 );
+				m_fBaseY						= 0.f;
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 			}
 			TalkBox( const TalkBox& t ) { *this = t; }    // copy constructor
@@ -164,7 +194,12 @@ class CX2TalkBoxManagerImp
 			//}} 허상형 : [2009/10/28] //	주석처리
 
 #ifdef KTDGDEVICEFONT_SIMULATE_DIRECTX_FONT
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			/// June TalkBox::Update 32e945c0 takes the manager too ( a hidden 6th argument: the slide-up looks the other box up )
+			void Update( CKTDGFontManager::CUKFont* pKTDGFont, const float fMarginLeft, const float fMarginTop, const D3DXVECTOR2 vOffset, CX2TalkBoxManagerImp* pManager );
+#else
 			void Update( CKTDGFontManager::CUKFont* pKTDGFont, const float fMarginLeft, const float fMarginTop, const D3DXVECTOR2 vOffset );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 			void ResetFontPos(  CKTDGFontManager::CUKFont* pKTDGFont, const float fMarginLeft, const float fMarginTop );
 #else
 			void Update( CKTDGFontManager::CKTDGFont* pKTDGFont, const float fMarginLeft, const float fMarginTop, const D3DXVECTOR2 vOffset );
@@ -175,6 +210,9 @@ class CX2TalkBoxManagerImp
 #ifdef ADDED_RELATIONSHIP_SYSTEM
 			void GetTalkBoxPosByCostomPos( OUT D3DXVECTOR3& vPos_ ) const;
 #endif // ADDED_RELATIONSHIP_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+			void SetMove( bool bMoving, const TalkBox* pOther );	/// June 32e90a30
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		};
 
 
@@ -188,7 +226,11 @@ class CX2TalkBoxManagerImp
 		virtual HRESULT OnFrameRender();
 
 		//void Push(TalkBox* talkBox) { Push( *talkBox ); }
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		virtual void Push( TalkBox& talkBox );	/// June vslot 4 ( base 32e943d0, dramatic 32f218c0 )
+#else
 		void Push( TalkBox& talkBox );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 		bool Delete( UidType unitUID, bool bTraceUnit = false, CX2GameUnit::GAME_UNIT_TYPE gameUnitType = CX2GameUnit::GUT_USER );
 		bool DeleteByIndex( int index );
 		int GetTalkBoxNum() { return (int)m_TalkBoxList.size(); }
@@ -224,9 +266,15 @@ class CX2TalkBoxManagerImp
 
 		void DrawBalloonBodyAndTip( int iType, float _fX, float _fY, float fX, float fY, float fCenterWidth, float fCenterHeight, 
 			float fWidthScale, float fHeightScale, D3DXCOLOR backTexColor );
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		/// June vslot 7 ( base 32e92200, dramatic 32f21380 )
+		virtual void SetBalloonTip( DRAWFACE_RHW_VERTEX arvVertices[4], int iType, float fX, float fY, float fCenterWidth, float fCenterHeight,
+			float fWidthScale, float fHeightScale, D3DXCOLOR backTexColor );
+#else
 
 		void SetBalloonTip( DRAWFACE_RHW_VERTEX arvVertices[4], int iType, float fX, float fY, float fCenterWidth, float fCenterHeight, 
 			float fWidthScale, float fHeightScale, D3DXCOLOR backTexColor );
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 //#else
 //		virtual void DrawFaceUV( float nX, float nY, float nWidth, float nHeight, 
 //								float fU, float fV, float fTexWidth, float fTexHeight, 
@@ -257,6 +305,10 @@ class CX2TalkBoxManagerImp
 		void DrawTalkBoxEffect ( int iType, float fX, float fY, float fCenterWidth, float fCenterHeight, 
 			float fWidthScale, float fHeightScale, float fTipLerpCoeff, D3DXCOLOR backTexColor, wstring backTexName );
 #endif // ADDED_RELATIONSHIP_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		void DrawImage( TalkBox& talkBox );				/// June 32e92cf0: the portrait ( UI major particle ), from OnFrameRender
+		void DestroyImageParticle( TalkBox& talkBox );	/// June: every removal destroys +0x100 before Delete2DFont
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 	protected:
 
 		CKTDXDeviceTexture* m_pTalkBoxTexture;
@@ -321,3 +373,21 @@ class CX2TalkBoxManagerImp
 
 		bool				m_bExtraVariable;
 };
+
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+/// June 2017 CX2TalkBoxManagerImpDramaticMessage ( RTTI 3373fea0, vtable 3353c620, ctor 32f21840, dtor 32f21ab0 ):
+/// CX2TalkBoxManager::TBMT_DRAMATIC_MESSAGE ( 3 ). It overrides Push ( 32f218c0 ), SetBalloonTip ( 32f21380 ) and LineBreak ( 32f21600 ).
+class CX2TalkBoxManagerImpDramaticMessage : public CX2TalkBoxManagerImp
+{
+	public:
+		CX2TalkBoxManagerImpDramaticMessage(void);
+		virtual ~CX2TalkBoxManagerImpDramaticMessage(void);
+
+		virtual void Push( TalkBox& talkBox );
+
+	protected:
+		virtual void SetBalloonTip( DRAWFACE_RHW_VERTEX arvVertices[4], int iType, float fX, float fY, float fCenterWidth, float fCenterHeight,
+			float fWidthScale, float fHeightScale, D3DXCOLOR backTexColor );
+		void LineBreak( int& nRow, int& iColumnSize, wstring& wstrSpeech, bool bTrade, int iMaxRowChar, UINT uiMaxStrLen );
+};
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE

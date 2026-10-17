@@ -4497,6 +4497,9 @@ class CX2GUNPC : public CX2GameUnit
 #endif
 
 		int m_iDangerAlarm;
+#ifdef SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
+		bool m_bHaveDramaticMessage;	/// June NPC +0x9060: the state start queued dramatic messages ( Atlas E6 )
+#endif SERV_IRUHADEV_JUNE_DRAMATIC_MESSAGE
 
 #ifdef INDEPENDENT_ANIMATION_TIME
 		CKTDXCollision::CollisionDataListSet		m_SimpleCollisionListSet;
