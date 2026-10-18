@@ -9054,7 +9054,12 @@ void CX2Main::CreateStateChangeDLG( const WCHAR* szExplanation )
 		{
 			g_pKTDXApp->GetDevice()->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x32323232, 1.0f, 0);
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June @31d807b8: the state-change frame calls the stage's vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			m_pNowState->OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			m_pNowState->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			HRESULT hr = g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -9087,7 +9092,12 @@ void CX2Main::CreateStateChangeDLG( const WCHAR* szExplanation )
 #else
 		g_pKTDXApp->GetDevice()->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x32323232, 1.0f, 0);
 		g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		/// June @31d807b8: the state-change frame calls the stage's vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+		m_pNowState->OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 		m_pNowState->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 		g_pKTDXApp->GetDevice()->EndScene();
 		g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 #endif

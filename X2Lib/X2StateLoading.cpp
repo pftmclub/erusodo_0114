@@ -404,7 +404,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -414,7 +419,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 5 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -424,7 +434,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 10 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -438,7 +453,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 	
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -449,7 +469,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 20 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -472,7 +497,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 30 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -481,7 +511,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 40 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -490,7 +525,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 50 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -499,7 +539,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 54 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -508,7 +553,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 58 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -517,7 +567,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 62 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -526,7 +581,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 66 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -535,7 +595,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 70 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -544,7 +609,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 74 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -553,7 +623,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 78 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -562,7 +637,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 82 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -571,7 +651,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 86 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -581,7 +666,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 90 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -639,7 +729,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 92 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -649,7 +744,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 93 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -685,7 +785,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			g_pData->ResetPlayGuide();
 			//}}
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -712,7 +817,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 95 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -733,7 +843,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 96 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -743,7 +858,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 97 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 
@@ -791,7 +911,12 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			SetLoadingGageBar( 100 );
 
 			g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+			/// June 3258c6d2..32592efc: each loading frame calls vslot 0x14 ( 31d28530: 0x8, 0xc( 0 ), 0x10( 0 ) )
+			OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 			g_pKTDXApp->GetDevice()->EndScene();
 			g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 

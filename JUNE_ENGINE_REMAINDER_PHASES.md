@@ -978,6 +978,40 @@ the quest-end story scene stay invisible in the village (cursor = `XCS_EVENT_SCE
 
 **User owes:** nothing. Next: `/x2-phase june-engine R4c review` on Opus 5.5 / high; R4c2 after the review.
 
+### Phase R4c -- Review
+
+Reviewed 2026-10-18 (Opus 5.5 high) against `f754f8c1` and June. **One finding, fixed under the same flag.**
+
+**Slots match** (Ghidra / `disasm_range.py`): `CX2State` `31ef75b0` (culling 33773660 on, sort 31ceb5f0, non-alpha 31ce93a0, off), `31ef75f0`
+(`pass == 1` -> 31ce9470 else 31ce9440), `31ef7640` (31ce94a0( pass ), +0x440 text manager no NULL check, +0x43c game edit when set, event
+notice on pass 0 with `g_pInstanceData` and `+8` checks, cursor `+0x64` when set), `31ef76b0` (+0x1fc / +0x38c NULL checks, `+0x110 == 1` ->
+vslot 0x30( 1, 0 ), then +0x444 -> R4h); Loading `3258b800 / 30 / 70` (no culling, cursor NULL check); ServerSelect `3255d4a0 / c0` skip on
+`+0x385`, `e0` plain thunk; DungeonResult `3250e4e0 / 500 / 520` gate on `+0x310`; PvPLobby `32543260` (+0x16a / +0x16c, `+0x4a8` handle ->
+31cd7810( 0, pass ), else menu 32459ea0). Every `#else` is March's body. Results and ServerSelect bodies were base-call plus gate in March, so no
+draw order moved. StartUp / Login `FIRST_SCREEN_TEST` backgrounds still cover the whole frame as March's did.
+
+**Finding: March's forced single frames drew only `0x8`.** R4 recorded `CKTDXStage` vslot 0x14 (`31d28530`, `0x8` + `0xc( 0 )` + `0x10( 0 )`) as
+having no caller. A BeginScene scan finds 34: June draws every `BeginScene` / render / `EndScene` / `Present` frame through it, from
+`CX2Main::CreateStateChangeDLG` (@31d807c0, `m_pNowState` vtable +0x14, clear 0x32323232), 24 frames in `CX2StateLoading` (3258c6d2..32592efc)
+and 9 game-state frames. March's sites still called `OnFrameRender()`, which after R4c is the sort + non-alpha only. So the state-change message
+box, the first-load gauge (`FIRST_GAME_LOADING_THREAD_TEST` is off, so these frames are live) and the start-up splash were not drawn in those frames.
+**Fix:** `OnFrameRenderAll()` under `SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT`, March's call in `#else`: `X2Main.cpp` (2, one per
+`DXUT_KTDXLIB_SAFE_ON_RESET` branch), `X2StateLoading.cpp` (25), `X2StateStartUp.cpp` (2, the in-house `FIRST_SCREEN_TEST` splash). A forced
+frame on an unsplit R4c2 state is unchanged (`0x8` still draws everything, its `0xc` / `0x10` are empty). DungeonGame (June `324d9f80`), PVPGame
+(`325297f0`) and the unmapped `324b06e0` / `3249fd50` go to R4c2 (kickoff updated). Funcmap row `31d28530 callers (R4c review)`.
+
+Hygiene: `flagcheck --range f754f8c1^..HEAD`: `files: 26 PASS, 0 PASS~, 2 DEFINE, 54 OTHER, 0 FAIL, 0 ERROR` / `1 deleted line(s)` /
+`RESULT: PASS`. The OTHER rows are peers' commits in the range (R4e, S3b, S3c). The deleted line is S3c's `JUNE_SKILL_TYPE` comment in `Always.h`
+(8a842484). The fix, `--worktree --files` on the 3 files: `files: 3 PASS, 0 FAIL` / `0 deleted line(s)` / `RESULT: PASS`.
+Build: **deploy pending.** My three files compiled clean, but X2Lib stopped at the peer's uncommitted S5 edits (`JUNE_SKILL_SLOT_10`:
+`X2GUUser.cpp` / `X2UserSkillTree.cpp` `USI_SPECIAL_ATTACK_5`, `X2OfflineSkill.cpp` `m_wstrSkillSlotBEndDate`). Following the shared-build
+rule I did not re-run. The first exe built after S5 compiles carries the fix.
+
+**How to see it in game:** select a character -> the loading screen's gauge advances while loading; changing state (village -> dungeon room
+and similar) shows the state-change box; the start-up splash shows during the boot load.
+
+**User owes:** a short play-test on the first exe built after S5 compiles. Next: `/x2-phase june-engine R4c2` on Opus 5.5 / high.
+
 ## Phase R4c2 - Game and room state split
 
 **Run with:** Opus 5.5 high (transcribe from Ghidra), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT`

@@ -22,7 +22,12 @@ m_pTexutureBG(NULL)
 	if ( DXUTGetDeviceLost() == false && DXUTGetDeviceObjectsReset() == true )
 	{
 		g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		/// FIRST_SCREEN_TEST ( in-house ): the whole split frame, as June's forced frames ( vslot 0x14, 31d28530 )
+		OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 		OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 		g_pKTDXApp->GetDevice()->EndScene();
 		hr = g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 		if( FAILED(hr) )
@@ -53,7 +58,12 @@ m_pTexutureBG(NULL)
 	}
 #else
 	g_pKTDXApp->GetDevice()->BeginScene();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+	/// FIRST_SCREEN_TEST ( in-house ): the whole split frame, as June's forced frames ( vslot 0x14, 31d28530 )
+	OnFrameRenderAll();
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 	g_pKTDXApp->GetDevice()->EndScene();
 	g_pKTDXApp->GetDevice()->Present( NULL, NULL, NULL, NULL );
 #endif
