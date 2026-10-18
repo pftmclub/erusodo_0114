@@ -12,6 +12,15 @@ Full source for **Elsword (internal codename "ProjectX2")** by KOG Studios — t
 
 All work happens on `main` in this Trunk, for every plan, phase and review. Do not create a branch or a worktree, do not `git switch` or `git checkout` another branch, and merge nothing. Other sessions share this tree and this branch, so commit with explicit pathspecs. The old `mods/*` and `feat/*` branches are history. Never build or deploy from them: they lack june-item-kim K2 and silently misread the live `item.kim`. Older plan text that names a `mods/*` branch for future work means `main`.
 
+## Rule: shared builds - one request each, and a tree that compiles (user, 2026-10-18)
+
+Every session builds the same tree through one lock, and a full build takes about 11 minutes. One broken header or one extra run costs every session waiting in the queue.
+
+1. **Build once, after your last edit.** Run `python tools/build.py --deploy` in the background. Do not start a second run while one of yours is waiting, do not retry in a loop, and do not pass `--no-coalesce` without a reason. `COALESCED` followed by `DEPLOY OK` is a pass: a peer's build that started after your request already compiled your edits. A run promises only what was on disk when it started, so an edit saved after that needs a new run.
+2. **Never stop another session's build or delete `build.lock`.** Only the user orders builds stopped. When they do, kill by PID (never by image name), waiting runs first, and the next build uses `--pch force`. Stale locks clear themselves.
+3. **Keep the tree compiling.** Before saving a new `Always.h` define or a dependency guard (`#error X needs Y`), confirm `Y` really is defined at that line: resolve it with `cl /EP` (see *Toolchains*), not by reading `#ifdef`s. If your own edit breaks the build, fixing or backing it out comes before anything else.
+4. **A build that fails in someone else's edit is not yours to fix.** Do not edit that file and do not keep re-running. Report the error line and its owner (the flag's `Always.h` comment names the phase), then wait. Re-run once the owner has fixed it.
+
 ## Workflow automation: use `tools/` and the `x2-*` skills, not hand-typed commands
 
 Added 2026-10-04. Every repeated step of the phase loop is a script. A session that types msbuild, writes a throwaway byte-patch or unifdef script, or reads a plan doc "in full" is doing by hand what these already do and have been validated to do. See `tools/README.md`.
