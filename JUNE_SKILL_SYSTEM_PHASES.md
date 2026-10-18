@@ -637,6 +637,9 @@ mechanical checks. Opus read the diff of `d483753d` and did the Ghidra spot-chec
   `memo0_dropped=0 skill0=0 parent_missing=0 class_dup=0`. No memo can be switched on until S7, so nothing changes in play.
   No class script is ported to June yet (Stages 5 / 7), so per the kickoff the load counts are the gate.
 - **Open questions:** none.
+- **Play-test 2026-10-18: PASSED (log, user launched once).** `COPY OK data036` (13504762 B, md5 `57a7da4c...`, user OK); exe md5 `d4eef836`. Lines 115-116:
+  `AddNewSkillNoteTemplet=86 AddMemoIDMatchItemID=23 AddRemovableMemoItemID=7 AddSkillNoteTemplet=0`, `classes=86 rows=3236 ( own=1132 inherited=2104 )
+  match_pairs=23 removable_items=7 | memo0_dropped=0 skill0=0 parent_missing=0 class_dup=0`. 1132 = June's 1155 MEMO_ID uses minus the 23 match lines. 0 EXCEPTION.
 
 ## Phase S3c - June skill types 14-18 in March's engine
 
