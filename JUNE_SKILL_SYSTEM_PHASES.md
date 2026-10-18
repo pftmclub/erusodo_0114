@@ -914,6 +914,13 @@ Sub-tags `[JUNE_SKILL] SBUF` (state buffs, including the slot-476 call) and `SST
   The build includes a peer's uncommitted `X2Game.cpp` S6 hunks. The first build failed in S3e's own edit (the new getter sat in a protected section; fixed to `public:` in the same block).
   All six `SBUF` / `SSTR` format strings and `BUFF_FACTOR_ID_AND_APPLY_TIME_ULTIMATE` are in the exe.
 - **Bookkeeping note:** the S3e `MODS.md` section and checklist **7ai** were committed inside the peer's S6 commit `eae671fd`, which took the whole files. They are S3e's text.
+- **Play-test (2026-10-18, log).**
+  - Run: exe `c0952f40`, a peer's rebuild of `80e19ca1`, which contains `c6ca2d33`; the run started 14:18 and the game was still open when the log was read.
+  - Check 1 PASSED: `[14:21:59.423] [JUNE_SKILL] SBUF bybfi BFI 143 level 1 -> slot 476 with skill 0 (+0x9274, the state's) (322a6a65)`.
+    The console call went through June's user block with skip 0, and the fallback is the idle state's skill 0.
+  - Check 2, the skill smoke test, could not run on ElesisGM. Its four equipped skills (28000 / 28200 / 28001 / 28002) are all S3 no-state reform skills (`MIG no-state skill ...`, presses refused): a hand-off error, not a defect.
+    The run also visited Eve Code Empress (unit 19, skills 25200 / 25201 have states).
+  - 0 EXCEPTION. 4 UNHANDLED: the older `E_DISABLE_HB_CHECK_REQ`, unrelated. No `SSTR` line, as expected.
 - **How to see it in game:**
   - Item 1: the dev console's `g_pGameEdit:ApplyBuffFactor(143, 5)` now passes June's skip 0, so it writes `[JUNE_SKILL] SBUF bybfi BFI 143 level 1 -> slot 476 with skill <the state's> (+0x9274 ...)`, and super armor shows.
   - Item 2 cannot be triggered by a skill today. The only user script that has the table, March's Elesis `ELESIS_KNIGHT.lua` (Endurance Power, Flame Sword, the Endurance memo), keys its states on March ids
