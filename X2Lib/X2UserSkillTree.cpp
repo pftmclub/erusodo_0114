@@ -795,6 +795,71 @@ CX2SkillTree::SKILL_ID CX2UserSkillTree::GetUpgradeSwappedSkillID( CX2SkillTree:
 
 	return eSkillID;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+/** @function	AddJuneAcquiredSkills
+	@brief		June 328924c0 ( the add path of the server-pushed grant ): a skill already acquired takes the pushed level byte ( node +0x10 );
+				a new one first erases the skill it upgrades ( templet +0x178 m_iDeleteSkillIDByUpgrade, 32891500 ), then is inserted with
+				the pushed level ( 32898c80 ). The acquired map is the page in use ( June +0x4a8 ).
+*/
+void CX2UserSkillTree::AddJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ )
+{
+	if( true == m_vecSkillDataMap.empty() || m_usUsingPage >= m_vecSkillDataMap.size() )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ add: no skill page %d ( %d page(s) ), %d skill(s) dropped",
+			static_cast<int>( m_usUsingPage ) + 1, static_cast<int>( m_vecSkillDataMap.size() ), static_cast<int>( vecSkillData_.size() ) );
+#endif SERV_IRUHADEV_OFFLINE
+		return;
+	}
+
+	SkillDataMap& mapAcquired = m_vecSkillDataMap[ m_usUsingPage ];
+	for( UINT i = 0; i < vecSkillData_.size(); ++i )
+	{
+		const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( static_cast<int>( vecSkillData_[i].m_iSkillID ) );
+		const int iLevel = static_cast<int>( vecSkillData_[i].m_cSkillLevel );
+
+		SkillDataMap::iterator mit = mapAcquired.find( eSkillID );
+		if( mit != mapAcquired.end() )
+		{
+			mit->second.m_iSkillLevel = iLevel;
+			continue;
+		}
+
+		if( NULL != g_pData && NULL != g_pData->GetSkillTree() )
+		{
+			const CX2SkillTree::SkillTemplet* pTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+			if( NULL != pTemplet )
+			{
+				SkillDataMap::iterator mitBase = mapAcquired.find( static_cast<CX2SkillTree::SKILL_ID>( pTemplet->m_iDeleteSkillIDByUpgrade ) );
+				if( mitBase != mapAcquired.end() )
+					mapAcquired.erase( mitBase );
+			}
+		}
+
+		mapAcquired[ eSkillID ] = UserSkillData( iLevel, 0 );
+	}
+}
+
+/** @function	GetJuneEmptySlotIndexList
+	@brief		June 328920d0: the empty slot indices ( 0-4 ) of bar A or B; the transcendence slot ( 3214f3d0( i ) == 3, index 4 ) only
+				when bWithTC_
+*/
+void CX2UserSkillTree::GetJuneEmptySlotIndexList( OUT std::vector< int >& vecSlotIndex_, const bool bSlotB_, const bool bWithTC_ ) const
+{
+	vecSlotIndex_.clear();
+
+	for( int i = 0; i < (int)ARRAY_SIZE( m_aEquippedSkill ); ++i )
+	{
+		if( false == bWithTC_ && 4 == i )
+			continue;
+
+		const SkillSlotData& kSlot = ( true == bSlotB_ ) ? m_aEquippedSkillSlotB[i] : m_aEquippedSkill[i];
+		if( CX2SkillTree::SI_NONE == kSlot.m_eID )
+			vecSlotIndex_.push_back( i );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef GUILD_SKILL
 //{{ oasis907 : ±è»óÀ± //// 2009-11-18 ////

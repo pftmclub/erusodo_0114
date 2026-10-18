@@ -851,6 +851,136 @@ bool CX2OfflineSkill::SeedJuneAutoLearn( UidType nUnitUID, int iUnitClass, int i
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+int CX2OfflineSkill::GrantJuneSkillsByLevel( int iUnitClass, int iUnitLevel, OUT std::vector< KSkillData >& vecGranted_ )
+{
+	vecGranted_.clear();
+
+	if( 0 == m_nUnitUID || NULL == g_pData || NULL == g_pData->GetSkillTree() )
+	{
+		CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ grant skipped: unitUID=%I64d, skill tree %s",
+			(__int64)m_nUnitUID, ( NULL == g_pData || NULL == g_pData->GetSkillTree() ) ? L"not loaded" : L"loaded" );
+		return 0;
+	}
+
+	const CX2SkillTree* pTree = g_pData->GetSkillTree();
+	const CX2SkillTree::SkillTreeTempletMap* pRows = pTree->JuneFindSkillTreeTempletMap( iUnitClass );
+	if( NULL == pRows )
+	{
+		CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ grant: class %d has no tree rows", iUnitClass );
+		return 0;
+	}
+
+	int iNoLevel = 0;		// no m_RequireCharacterLevel (900, the couple skill: granted by the relationship, not by level)
+	int iHyper = 0;			// SPRT_HYPER_CLASS: June's own level-up list skips these without transcendence (Stage 6)
+	int iSealed = 0;		// born sealed and not unsealed
+	int iReplaced = 0;		// bases an upgraded skill replaced (level 0, as June's client erases them, 328924c0)
+
+	CX2SkillTree::SkillTreeTempletMap::const_iterator mit;
+	for( mit = pRows->begin(); mit != pRows->end(); ++mit )
+	{
+		const int iSkillID = static_cast<int>( mit->first );
+		const CX2SkillTree::SkillTemplet* pTemplet = pTree->GetSkillTemplet( mit->first );
+		if( NULL == pTemplet )
+			continue;
+
+		if( true == pTemplet->m_vecRequireCharacterLevel.empty() )
+		{
+			++iNoLevel;
+			continue;
+		}
+
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
+		{
+			++iHyper;
+			continue;
+		}
+
+		if( true == pTemplet->m_bBornSealed && false == IsSkillUnsealed( iSkillID ) )
+		{
+			++iSealed;
+			continue;
+		}
+
+		// A base whose upgraded skill is already held stays replaced.
+		const int iUpgraded = pTree->GetUpgradedSkillID( iSkillID );
+		if( 0 < iUpgraded && 0 < GetSkillLevel( iUpgraded ) )
+			continue;
+
+		int iTarget = 0;
+		for( size_t i = 0; i < pTemplet->m_vecRequireCharacterLevel.size(); ++i )
+		{
+			if( pTemplet->m_vecRequireCharacterLevel[i] <= iUnitLevel )
+				++iTarget;
+		}
+		iTarget = min( iTarget, mit->second.m_iMaxSkillLevel );
+
+		if( iTarget <= GetSkillLevel( iSkillID ) )
+			continue;
+
+		m_mapSkill[ iSkillID ].m_iLevel = iTarget;
+		Persist( iSkillID );
+
+		const int iBase = pTemplet->m_iDeleteSkillIDByUpgrade;
+		if( 0 != iBase && 0 < GetSkillLevel( iBase ) )
+		{
+			// The save keeps the bar working after a relog (Load drops a level-0 skill from its slot): the
+			// upgraded skill takes the base's slot. In the session June's client keeps the base id there and
+			// resolves it through the upgrade swap (328905b0).
+			const int iSlot = GetSlotOfSkill( iBase );
+			if( 0 <= iSlot )
+			{
+				m_aiSkillSlot[ iSlot ] = iSkillID;
+				Persist( iSkillID );
+			}
+
+			m_mapSkill[ iBase ].m_iLevel = 0;
+			Persist( iBase );
+			++iReplaced;
+		}
+
+		KSkillData kData;
+		kData.Init();
+		kData.m_iSkillID	= static_cast<short>( iSkillID );
+		kData.m_cSkillLevel	= static_cast<UCHAR>( iTarget );
+		vecGranted_.push_back( kData );
+	}
+
+	// A base granted earlier in this pass and replaced later in it is not sent.
+	std::vector< KSkillData > vecKept;
+	for( size_t i = 0; i < vecGranted_.size(); ++i )
+	{
+		if( 0 < GetSkillLevel( vecGranted_[i].m_iSkillID ) )
+			vecKept.push_back( vecGranted_[i] );
+	}
+	vecGranted_.swap( vecKept );
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ grant unitUID=%I64d class %d L=%d: %d row(s) raised, %d base(s) replaced;"
+		L" skipped %d no-level, %d hyper-class, %d sealed (stand-in rule: one level per m_RequireCharacterLevel entry <= L)",
+		(__int64)m_nUnitUID, iUnitClass, iUnitLevel, (int)vecGranted_.size(), iReplaced, iNoLevel, iHyper, iSealed );
+
+	return (int)vecGranted_.size();
+}
+
+void CX2OfflineSkill::GetJuneAcquiredSkillData( OUT std::vector< KSkillData >& vecOut_ ) const
+{
+	vecOut_.clear();
+
+	std::map< int, KSkillState >::const_iterator mit;
+	for( mit = m_mapSkill.begin(); mit != m_mapSkill.end(); ++mit )
+	{
+		if( mit->second.m_iLevel <= 0 )
+			continue;
+
+		KSkillData kData;
+		kData.Init();
+		kData.m_iSkillID	= static_cast<short>( mit->first );
+		kData.m_cSkillLevel	= static_cast<UCHAR>( mit->second.m_iLevel );
+		vecOut_.push_back( kData );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 //////////////////////////////////////////////////////////////////////////
 // skill unsealing (phase 21)
 //

@@ -5019,6 +5019,12 @@ bool CX2StateMenu::Hander_EGS_ZERO_ENDURANCE_ITEM_IN_ROOM_NOT( HWND hWnd, UINT u
 
 			g_pChatBox->AddChatLog( strStream.str().c_str(), KEGS_CHAT_REQ::CPT_TOTAL, coTextColor, wstrColor );		
 		}
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+		/// June 32473f70 @32474a7f ( inside the living-unit block, for any unit's NOT ): below level 11 my newly unlocked castables go into free slots
+		if( NULL != g_pData->GetSkillTree() )
+			g_pData->GetSkillTree()->JuneAutoEquipOnLevelUp();
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	}
 
 	return true;

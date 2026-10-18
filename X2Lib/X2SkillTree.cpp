@@ -1629,6 +1629,13 @@ bool CX2SkillTree::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			return Handler_EGS_UNSEAL_SKILL_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	case EGS_JUNE_ACQUIRE_SKILL_NOT:
+		{
+			return Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( hWnd, uMsg, wParam, lParam );
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 	case EGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_ACK:
 		{
 			Handler_EGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_ACK( hWnd, uMsg, wParam, lParam );
@@ -1741,6 +1748,39 @@ bool CX2SkillTree::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
 bool CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_REQ( int iSlotID, CX2SkillTree::SKILL_ID eSkillID )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	/// June 3220e3b0 whole: the checks, then the change is queued. JuneFrameMoveSkillSlotQueue ( 322105c0 ) sends it ( 3220e5f0 ).
+	/// clock() - instance +0x14c over 1 s ( _DAT_334355b0 = 1.0, divisor 1000 ) = IsElapsedPacketTiming's default
+	if( false == g_pInstanceData->IsElapsedPacketTiming() )
+		return false;
+
+	/// instance +0x191 = the game-start REQ already sent: accepted and dropped
+	if( true == g_pInstanceData->GetSendGameStartReqPacket() )
+		return true;
+
+	if( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return false;
+
+	/// In a game: a slot change still cooling down ( 3221c560 reads +0x939c ) is refused only above level 10 ( vslot 0x20c )
+	if( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() &&
+		false == g_pX2Game->GetMyUnit()->IsValideSlotChange() && 10 < g_pX2Game->GetMyUnit()->GetUnitLevel() )
+		return false;
+
+	/// B slots 5-8 need slot-state key 0, the B-TC slot 9 key 1; an unequip ( skill 0 ) always passes
+	const CX2UserSkillTree& kJuneUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+	const bool bJuneSlotB = ( 5 <= iSlotID && iSlotID <= 8 );
+	if( ( false == kJuneUserSkillTree.IsJuneSlotUsable( 0 ) && true == bJuneSlotB && 0 != static_cast<int>( eSkillID ) ) ||
+		( false == kJuneUserSkillTree.IsJuneSlotUsable( 1 ) && 9 == iSlotID && 0 != static_cast<int>( eSkillID ) ) )
+		return false;
+
+	/// the same ( slot, skill ) already queued: accepted, not queued twice
+	const std::pair< int, int > pairJuneChange( iSlotID, static_cast<int>( eSkillID ) );
+	if( m_deqJuneSkillSlotChange.end() != std::find( m_deqJuneSkillSlotChange.begin(), m_deqJuneSkillSlotChange.end(), pairJuneChange ) )
+		return true;
+
+	m_deqJuneSkillSlotChange.push_back( pairJuneChange );	/// 3221d830
+	return true;
+#else SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 	// 게임 시작 직후에 skill slot 바꾸기를 시도하면 안되게 막는다. 버그 플레이 때문에. 
 	// 장착스킬 정보를 방에 들어왔을 때 받고, 게임 시작 직후에 다시 받는데, 
@@ -1787,6 +1827,7 @@ bool CX2SkillTree::Handler_EGS_CHANGE_SKILL_SLOT_REQ( int iSlotID, CX2SkillTree:
 #endif	MODIFY_INFINITE_SKILL_BUG_WHEN_INTRUDE
 	//}} kimhc // 2010.7.29 // 난입시 무한 스킬 버그 수정
 
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	return true;
 }
 
@@ -3119,6 +3160,135 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+/// June 3220e5f0: the send half of the slot-change queue
+bool CX2SkillTree::JuneSendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_ID eSkillID )
+{
+	if( true == g_pMain->IsWaitingServerPacket( EGS_CHANGE_SKILL_SLOT_ACK ) )
+		return false;
+
+	KEGS_CHANGE_SKILL_SLOT_REQ kPacket;
+	kPacket.m_iSlotID = iSlotID;
+	kPacket.m_iSkillID = static_cast<int>( eSkillID );
+
+	g_pData->GetServerProtocol()->SendPacket( EGS_CHANGE_SKILL_SLOT_REQ, kPacket );
+	g_pMain->AddServerPacket( EGS_CHANGE_SKILL_SLOT_ACK );
+
+#ifdef	MODIFY_INFINITE_SKILL_BUG_WHEN_INTRUDE
+	SetSkillSlotChanging( true );		/// tree +0x90
+#endif	MODIFY_INFINITE_SKILL_BUG_WHEN_INTRUDE
+
+	/// In a game my unit takes no input until the ACK: +0xde8 ( m_fCanNotInputTime ) = 10 ( _DAT_3344a51c ); the ACK sets 0.5
+	if( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+		g_pX2Game->GetMyUnit()->SetCanNotInputTime_LUA( 10.f );
+
+	return true;
+}
+
+/// June 322105c0: one queued change per frame; it leaves the queue only once it was sent
+void CX2SkillTree::JuneFrameMoveSkillSlotQueue()
+{
+	if( true == m_deqJuneSkillSlotChange.empty() )
+		return;
+
+	const std::pair< int, int > pairFront = m_deqJuneSkillSlotChange.front();
+	if( true == JuneSendChangeSkillSlotReq( pairFront.first, static_cast<CX2SkillTree::SKILL_ID>( pairFront.second ) ) &&
+		false == m_deqJuneSkillSlotChange.empty() )
+	{
+		m_deqJuneSkillSlotChange.pop_front();
+	}
+}
+
+/// June 32206d30: every tree skill of the class whose required-level list holds ( level / 5 ) * 5
+void CX2SkillTree::JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std::vector< int >& vecSkillID_ ) const
+{
+	UnitSkillTreeTempletMap::const_iterator mitClass = m_mapUnitSkillTreeTemplet.find( iUnitClass );
+	if( mitClass == m_mapUnitSkillTreeTemplet.end() )
+		return;
+
+	const int iLevelBand = ( iUnitLevel / 5 ) * 5;
+	SkillTreeTempletMap::const_iterator mitRow;
+	for( mitRow = mitClass->second.begin(); mitRow != mitClass->second.end(); ++mitRow )
+	{
+		const SkillTemplet* pTemplet = GetSkillTemplet( mitRow->first );
+		if( NULL == pTemplet )
+			continue;
+
+		/// +0x174 == 5 ( SPRT_HYPER_CLASS ) is skipped unless my unit is transcendent ( CX2Unit +0x3c ), which March has no field for ( Stage 6 )
+		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
+			continue;
+
+		for( UINT i = 0; i < pTemplet->m_vecRequireCharacterLevel.size(); ++i )
+		{
+			if( iLevelBand == pTemplet->m_vecRequireCharacterLevel[i] )
+			{
+				vecSkillID_.push_back( static_cast<int>( pTemplet->m_eID ) );
+				break;
+			}
+		}
+	}
+}
+
+/// The block June's three level-up handlers end with ( 323ae130, 32473f70, 325346e0 ). It reads my own unit's level and class
+/// whichever unit the NOT is for ( JUNE_BUGS ), and it only runs below level 11.
+void CX2SkillTree::JuneAutoEquipOnLevelUp()
+{
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	const CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	const int iLevel = pUnit->GetUnitData().m_Level;
+	if( 11 <= iLevel )
+		return;
+
+	std::vector< int > vecSkillID;
+	JuneGetSkillListByLevel( iLevel, static_cast<int>( pUnit->GetClass() ), vecSkillID );
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ level-up L=%d: %d skill(s) at band %d", iLevel, static_cast<int>( vecSkillID.size() ), ( iLevel / 5 ) * 5 );
+#endif SERV_IRUHADEV_OFFLINE
+
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+		g_pData->GetUIManager()->GetUISkillTree()->JuneAutoEquipNewSkills( vecSkillID );
+}
+
+/// June's server-pushed skill grant. June handles it in its states ( village 323b0770, menu 324631a0, 32535be0 ); March routes skill
+/// packets here from every state ( CX2State::UIServerEventProc ).
+bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	KSerBuffer* pBuff = (KSerBuffer*)lParam;
+	KEGS_JUNE_ACQUIRE_SKILL_NOT kEvent;
+	DeSerialize( pBuff, &kEvent );
+
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return true;
+
+	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	if( pUnit->GetUID() != kEvent.m_iUnitUID )
+		return true;
+
+	pUnit->AccessUnitData().m_UserSkillTree.AddJuneAcquiredSkills( kEvent.m_vecSkillData );	/// 328924c0
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ NOT unitUID=%I64d: %d skill(s) added", (__int64)kEvent.m_iUnitUID, static_cast<int>( kEvent.m_vecSkillData.size() ) );
+#endif SERV_IRUHADEV_OFFLINE
+
+	if( NULL != g_pData->GetUIManager() )
+	{
+		/// 32535be0's copy redraws the tree when the skill window is shown ( UpdateUI( 0, 1, 0 ) ); every copy also lights the new skills'
+		/// memo buttons ( 328df480 -> 328ded60 ), which come with June's tree UI ( S7b )
+		if( NULL != g_pData->GetUIManager()->GetUISkillTree() && true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_SKILL ) )
+			g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( false, true, true );
+
+		/// the character window's stats ( 321524d0( 0x13 ) -> 3214ef80 -> 3291cfb0 )
+		if( true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_CHARINFO ) && NULL != g_pData->GetUIManager()->GetUICharInfo() )
+			g_pData->GetUIManager()->GetUICharInfo()->ResetStat();
+	}
+
+	/// June then calls CX2Unit 3235a160, a HUD stat refresh through a June-only singleton ( 324943c0 ) March does not have ( S7b note )
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 void CX2SkillTree::On_EGS_EXPIRE_CASH_SKILL_POINT_NOT( KEGS_EXPIRE_CASH_SKILL_POINT_NOT kEvent )
 {
 	if( kEvent.m_iUnitUID <= 0 )

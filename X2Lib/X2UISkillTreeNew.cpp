@@ -2730,6 +2730,88 @@ static void JuneClearSlotCoolTime( CKTDGUIDialogType pDLG_, const bool bSlotB_, 
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+/// June 328db990: the castables among vecSkillID_ ( types 5, 6, 7, 14-16, acquired, in neither bar ) go into the free A slots, then into the
+/// free B slots when slot-state key 0 is usable; the transcendence slots stay out. Each one plays Skill_Equip.ogg and queues a slot change.
+bool CX2UISkillTreeNew::JuneAutoEquipNewSkills( const std::vector< int >& vecSkillID_ )
+{
+	/// +0xf4 = the unit's user skill tree ( set in InitSkillTreeUI 328ed890 )
+	if( NULL == m_pUserSkillTree || true == vecSkillID_.empty() )
+		return false;
+
+	std::vector< int > vecEmptyA;
+	std::vector< int > vecEmptyB;
+	m_pUserSkillTree->GetJuneEmptySlotIndexList( vecEmptyA, false, false );
+	if( true == m_pUserSkillTree->IsJuneSlotUsable( 0 ) )
+		m_pUserSkillTree->GetJuneEmptySlotIndexList( vecEmptyB, true, false );
+
+	if( true == vecEmptyA.empty() && true == vecEmptyB.empty() )
+		return false;
+
+	std::vector< int > vecCandidate;
+	for( UINT i = 0; i < vecSkillID_.size(); ++i )
+	{
+		const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( vecSkillID_[i] );
+
+		if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+			0 >= m_pUserSkillTree->GetSkillLevel( eSkillID, false, 0, true ) )
+			continue;
+
+		const CX2SkillTree::SkillTemplet* pTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+		if( NULL == pTemplet || 0 >= m_pUserSkillTree->GetSkillLevel( eSkillID, false, 0, true ) )	/// 32890a30
+			continue;
+
+		switch( pTemplet->m_eType )
+		{
+		case CX2SkillTree::ST_BUFF:
+		case CX2SkillTree::ST_ACTIVE:
+		case CX2SkillTree::ST_SPECIAL_ACTIVE:
+		case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+		case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+		case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+			if( -1 == m_pUserSkillTree->GetSkillEquippedSlotIndex( eSkillID, false ) &&
+				-1 == m_pUserSkillTree->GetSkillEquippedSlotIndex( eSkillID, true ) )
+			{
+				vecCandidate.push_back( vecSkillID_[i] );
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	UINT uiNextA = 0;
+	UINT uiNextB = 0;
+	for( UINT i = 0; i < vecCandidate.size(); ++i )
+	{
+		if( vecEmptyA.size() <= uiNextA )
+		{
+			if( uiNextB < vecEmptyB.size() )
+			{
+				g_pKTDXApp->GetDeviceManager()->PlaySound( L"Skill_Equip.ogg", false, false );
+				g_pData->GetSkillTree()->Handler_EGS_CHANGE_SKILL_SLOT_REQ( vecEmptyB[ uiNextB ] + EQUIPPED_SKILL_SLOT_COUNT,
+					static_cast<CX2SkillTree::SKILL_ID>( vecCandidate[i] ) );
+				++uiNextB;
+			}
+		}
+		else
+		{
+			g_pKTDXApp->GetDeviceManager()->PlaySound( L"Skill_Equip.ogg", false, false );
+			g_pData->GetSkillTree()->Handler_EGS_CHANGE_SKILL_SLOT_REQ( vecEmptyA[ uiNextA ], static_cast<CX2SkillTree::SKILL_ID>( vecCandidate[i] ) );
+			++uiNextA;
+		}
+	}
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ auto-equip: %d given, %d candidate(s), free A %d / B %d, queued A %d / B %d",
+		static_cast<int>( vecSkillID_.size() ), static_cast<int>( vecCandidate.size() ), static_cast<int>( vecEmptyA.size() ),
+		static_cast<int>( vecEmptyB.size() ), static_cast<int>( uiNextA ), static_cast<int>( uiNextB ) );
+#endif SERV_IRUHADEV_OFFLINE
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 /// June 328dfab0 ( the lock half of UpdateSkillEquipedSlotUI ): A-TC, B-TC and B lock overlays; a skill sitting in a slot that is locked is unequipped
 void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 {

@@ -4186,6 +4186,22 @@ plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S3e"; log tags `[JUNE_SKILL] SBUF` / `
   - Every March call passes 0, so nothing changes until class code calls `CX2GUUser::JuneShowSkillNameStateString` (3 s, June `3200ab60`).
 - **Revert:** comment out the flag(s) in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Each `#else` keeps March's code. No data, save or kom changes.
 
+### June's learn path: server-pushed skills, level-up auto-equip, the slot-change queue (skill-system-core S7, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_ACQUIRE`, defined in `KTDXLIB/Always.h` **and** `KncWX2Server/Common/ServerDefine.h` (`EventID_Client.h` / `ClientPacket.h` precede `Always.h`; `SECOND_HOMES` in
+`tools/flagcheck.py`); `#error` guards for `_SLOT_10`, `_SKILL_TEMPLET`, `_SKILL_REFORM`, `_SKILL_TYPE`, `_SOCKET_PARITY`. Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7"; log tag `[JUNE_SKILL] ACQ`.
+- **June's client never learns a skill.** The learn REQ (June 0x11c) has no sender and the one-skill reset sender (`3220df10`) no caller; June tree rows have no SP key. The server pushes skills with a
+  June-only NOT (`{ UID, vector<KSkillData> }`, handlers `323b0770` / `324631a0` / `32535be0`; June's id is not recoverable), added client-side as `EGS_JUNE_ACQUIRE_SKILL_NOT` at the end of the client event block
+  (offline only: it renumbers the global ids after it, harmless since client and emulator share the exe).
+- **Client.** `CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT` -> `CX2UserSkillTree::AddJuneAcquiredSkills` (June `328924c0`: an "[Enhanced]" skill erases its base from the acquired map). The level-up
+  handlers (`CX2TFieldGame`, `CX2StateMenu`) end with `CX2SkillTree::JuneAutoEquipOnLevelUp` (June `32206d30` + `328db990`: below level 11, castables whose required level is the level's multiple of 5 go into free
+  A, then B slots). `Handler_EGS_CHANGE_SKILL_SLOT_REQ` is June's `3220e3b0` (checks + queue); `JuneSendChangeSkillSlotReq` (`3220e5f0`) is pumped once a frame from `CX2Data::OnFrameMove` (`322105c0`).
+- **Emulator (labelled stand-in, June's rule is server-only).** `CX2OfflineSkill::GrantJuneSkillsByLevel`: each class tree row gets one level per `m_RequireCharacterLevel` entry at or below the unit's level, capped at the
+  master level; skipped: no required level (900, the couple skill), `SPRT_HYPER_CLASS` (needs transcendence, Stage 6), born-sealed and not unsealed. An upgraded skill zeroes its base and takes its slot. Run at
+  level-up (NOT before the level-up NOT), at job change (NOT), at character select (silent catch-up) and after a whole-tree reset (NOT with every acquired skill).
+- **Revert:** comment out both defines, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Saves keep the extra rows the grant wrote (levelled rows, bases at level 0); they read as learned skills
+  under the S3 rules. No data files changed.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

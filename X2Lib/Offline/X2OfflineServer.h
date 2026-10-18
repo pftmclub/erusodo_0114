@@ -1031,6 +1031,14 @@ private:
 	/// not touch the dungeon leave gate.
 	void PushLevelUp( KOfflineSession& kSes, UidType nUnitUID );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	/// June skill system S7: run the level grant (CX2OfflineSkill::GrantJuneSkillsByLevel, a labelled
+	/// stand-in) and push what it raised as EGS_JUNE_ACQUIRE_SKILL_NOT. bAll_ sends every acquired
+	/// skill instead (after a whole-tree reset the client's map is empty: June's INIT ACK 3220ea50 runs
+	/// Reset + SetDefaultSkill, and June has no default skills).
+	void PushJuneSkillGrant( KOfflineSession& kSes, UidType nUnitUID, int iUnitClass, int iUnitLevel, bool bAll_, const wchar_t* pwszWhy_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 	/// Put one dead monster's loot on the floor: the ED it is worth, split into
 	/// coins, plus whatever the item lottery drew. One EGS_DROP_ITEM_NOT for
 	/// both, because they scatter from the same corpse.

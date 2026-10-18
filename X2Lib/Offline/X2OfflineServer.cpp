@@ -1051,6 +1051,29 @@ bool CX2OfflineServer::FillAckED( KOfflineSession& kSes, OUT int& iED )
 }
 //}}
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+void CX2OfflineServer::PushJuneSkillGrant( KOfflineSession& kSes, UidType nUnitUID, int iUnitClass, int iUnitLevel,
+										   bool bAll_, const wchar_t* pwszWhy_ )
+{
+	CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
+	if( false == pSkill->Load( nUnitUID ) )
+		return;
+
+	KEGS_JUNE_ACQUIRE_SKILL_NOT kNot;
+	kNot.m_iUnitUID = nUnitUID;
+	pSkill->GrantJuneSkillsByLevel( iUnitClass, iUnitLevel, kNot.m_vecSkillData );
+
+	if( true == bAll_ )
+		pSkill->GetJuneAcquiredSkillData( kNot.m_vecSkillData );
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] ACQ push (%s) unitUID=%I64d: %d skill(s)%s", pwszWhy_, (__int64)nUnitUID,
+		(int)kNot.m_vecSkillData.size(), true == kNot.m_vecSkillData.empty() ? L", NOT not sent" : L"" );
+
+	if( false == kNot.m_vecSkillData.empty() )
+		Reply( kSes, EGS_JUNE_ACQUIRE_SKILL_NOT, kNot );
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 void CX2OfflineServer::PushLevelUp( KOfflineSession& kSes, UidType nUnitUID )
 {
 	KOfflineUnitRow kRow;
@@ -1093,6 +1116,12 @@ void CX2OfflineServer::PushLevelUp( KOfflineSession& kSes, UidType nUnitUID )
 	// ResetDungeonRewardItem, which would drop the run's reward list. A run
 	// already gets its refresh from the end-game push, which carries
 	// m_bGameEnd = true and the obtained-item map (Handlers_Room.cpp:3000).
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	// June skill system S7: the skills the new level unlocks go out first - June's level-up handlers
+	// auto-equip only what is already acquired (328db990 reads GetSkillLevel).
+	PushJuneSkillGrant( kSes, nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, false, L"level-up" );
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 	if( S_ROOM != kSes.m_eState )
 		PushUnitInfoUpdate( kSes, nUnitUID );
 	//}}

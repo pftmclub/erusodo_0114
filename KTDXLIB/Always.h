@@ -8567,3 +8567,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the class code that calls it ( checklist ). Revert: JUNE_SKILL_STATE_STRING_TIME in MODS.md.
 #define SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S7: June's learn path. June's client never sends the learn REQ ( 0x11c has no sender; the
+//              one-skill reset sender 3220df10 has no caller ): the server pushes skills with a June-only NOT ( UID +
+//              vector<KSkillData>, handlers 323b0770 / 324631a0 / 32535be0, id not recoverable ), added here as
+//              EGS_JUNE_ACQUIRE_SKILL_NOT. The client adds them to the acquired map ( 328924c0: an upgraded skill erases its base ),
+//              the level-up handlers auto-equip newly unlocked castables up to level 10 ( 32206d30 + 328db990 ), and every slot
+//              change goes through June's queue ( 3220e3b0 enqueue, 322105c0 per-frame pump, 3220e5f0 send ). The emulator
+//              grants by m_RequireCharacterLevel ( labelled stand-in: June's grant rule is server-only ). Also defined in
+//              KncWX2Server/Common/ServerDefine.h ( EventID_Client.h and ClientPacket.h precede Always.h ); toggle both together.
+//              Revert: JUNE_SKILL_ACQUIRE in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_ACQUIRE needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 (June's 7-byte KSkillData, slot ids 0-9)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_ACQUIRE needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET (m_iDeleteSkillIDByUpgrade, upgrade swap)
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_REFORM
+#error SERV_IRUHADEV_JUNE_SKILL_ACQUIRE needs SERV_IRUHADEV_JUNE_SKILL_REFORM (June's GetSkillLevel 32890620)
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TYPE
+#error SERV_IRUHADEV_JUNE_SKILL_ACQUIRE needs SERV_IRUHADEV_JUNE_SKILL_TYPE (ST_SPECIAL_ACTIVE_GRADE_1..3)
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_ACQUIRE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY (SkillTemplet::m_eJunePowerRateType, June +0x174)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+//////////////////////////////////////////////////////////////////////////

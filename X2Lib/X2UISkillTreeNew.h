@@ -219,6 +219,9 @@ public:
 	void UpdateJuneSkillSlotLockUI();					/// June 328dfab0 ( the lock half of UpdateSkillEquipedSlotUI )
 	void SetOffsetPosJuneTCSlotUI( const bool bTypeA_ );	/// June 328daed0 / 328db100: TC lock pictures and buy-guide buttons
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	bool JuneAutoEquipNewSkills( const std::vector< int >& vecSkillID_ );	/// June 328db990 ( CX2UISkillTreeNew2015 )
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	
 	void CreateSkillTree( CX2Unit::UNIT_CLASS eUnitClass );
 	void UpdateSkillTree();

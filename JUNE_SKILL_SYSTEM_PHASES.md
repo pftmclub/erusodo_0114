@@ -1152,6 +1152,48 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG` (needs `SLOT_10`, `#error` guard), `KT
 - Settle `SKILLTREE_NO_LOCK` / `SKILL_SLOT_B_FREE` as the user decided in S0b.
 - **Play-test:** open the tree, learn, level, reset and re-learn on two classes; the page UI as June has it.
 
+### Phase S7 - Done (2026-10-18, Opus 5.5 high)
+
+**Split (user, 2026-10-18).** June has no SP learning, so the user chose June's model: S7 = the learn path, the tree UI = new **S7b**
+(`kickoffs/skill-system-core/S7b.md` carries every UI item). Flag `SERV_IRUHADEV_JUNE_SKILL_ACQUIRE` (`KTDXLIB/Always.h` + `ServerDefine.h`,
+`SECOND_HOMES`; `#error` guards `_SLOT_10`, `_SKILL_TEMPLET`, `_SKILL_REFORM`, `_SKILL_TYPE`, `_SOCKET_PARITY`). Log `[JUNE_SKILL] ACQ`. Revert: `MODS.md`
+"June's learn path". Funcmap rows `(S7)` (14). JUNE_BUGS 296-297.
+- **Finding (RE).** June's ids 0x11c-0x12d are March's contiguous block (`RESET_SKILL_ACK` 0x128, `UNSEAL_SKILL_NOT` 0x12d). A byte scan of every
+  `push` / `mov` of 0x11c (GET_SKILL_REQ) finds string ids and sizes, no send; the one-skill reset sender `3220df10` has no call, jump or data ref.
+  June tree rows have no SP key. Skills arrive from the server: a June-only NOT `{ UID, vector<KSkillData>, vector<3 int> }` (handlers `323b0770` /
+  `324631a0` / `32535be0`; its id is not recoverable). The only reset is the item-driven `INIT_SKILL_TREE_REQ` (`3220e000`); its ACK (`3220ea50`)
+  empties the acquired map (June has no default skills). June's `328924c0` erases a base when its "[Enhanced]" skill arrives: that supersedes S0a's
+  "keep the base" stand-in (Q2).
+- **Client.** `EGS_JUNE_ACQUIRE_SKILL_NOT` (end of the client event block) + `KEGS_JUNE_ACQUIRE_SKILL_NOT` (`ClientPacket.h/.cpp`, the unread
+  second vector is not carried). One handler in `CX2SkillTree::UIServerEventProc` (reached from every state) instead of June's three state copies:
+  `AddJuneAcquiredSkills` (`328924c0`), tree redraw when the skill window is shown (`32535be0`), charinfo `ResetStat`. The level-up handlers
+  (`CX2TFieldGame`, `CX2StateMenu`) end with `JuneAutoEquipOnLevelUp` = `32206d30` + `328db990` (below level 11: castables whose required level
+  is the level's multiple of 5 go into free A slots, then B; no TC). `Handler_EGS_CHANGE_SKILL_SLOT_REQ` = June's `3220e3b0` (gates + queue),
+  `JuneSendChangeSkillSlotReq` = `3220e5f0`, pumped from `CX2Data::OnFrameMove` (`322105c0`).
+- **Emulator - labelled stand-in (June's grant rule is server-only).** `GrantJuneSkillsByLevel`: each class tree row gets one level per
+  `m_RequireCharacterLevel` entry at or below the unit's level, capped at the master level; skips no-level rows (900, the couple skill),
+  `SPRT_HYPER_CLASS` (Stage 6) and unsealed-sealed rows; an upgrade zeroes its base and takes its slot. Runs before the level-up NOT, at job change,
+  at character select (silent catch-up) and after a tree reset (NOT with every skill). Each run logs one `ACQ grant` line with its counts.
+- **Not ported, owner named.** The rest of June's three level-up handlers (only the closing block); `CX2Unit 3235a160` (HUD refresh through the
+  June-only singleton `324943c0`) -> S7b; the memo buttons `328df480` -> S7b. Pre-existing, untouched: after a tree reset the emulator re-slots
+  castables (S3 seed) while the client's Reset empties the bar until relog.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_ACQUIRE --worktree --files <21 code files>`: `files: 9 PASS, 10 PASS~ (blank/marker only), 2 DEFINE,
+  0 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without
+  the flag token, 0 encoding change(s)` / `RESULT: PASS`. `cl /P` (flagprobe): the enum, the packet struct and every new member are in X2Lib's stdafx expansion.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 20,008,960 B, dated 2026-10-18 15:00:33, md5 5fc80b2a89f842386033ef6fdb420f8c, equal to X2/US_SERVICE/x2.exe
+  (2026-10-18 15:00:28); built at main 041f852d + 21 uncommitted code file(s).` All six `ACQ` strings are in the exe.
+- **Save (for the play-test).** `elsdb setchar`: unit 44 arishiaaa (Aisha, class 2) L5 -> 9, EXP 31000 (L10 at 31100); unit 39 Tut14c (Elsword,
+  class 1) L2 -> 4, EXP 6150 (L5 at 6200). Backups `db_backup\els_db_20261018_145226_pre_setchar*.sql`.
+- **How to see it.** Select unit 44: `ACQ grant ... 1 row(s) raised` (22001 Gust Screw, required L5). Kill a monster -> L10: `ACQ push (level-up) ... 1 skill(s)`,
+  `ACQ NOT`, `ACQ level-up L=10`, `ACQ auto-equip ... queued A 1`: Gust Storm (22002) appears in a free A slot. Same on unit 39 at L5 with Flame Geyser (21001).
+
+## Phase S7b - June's skill tree UI
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI`. Sub-tag `[JUNE_SKILL] UI`. Split out of S7 (user,
+2026-10-18): `CX2UISkillTreeNew2015` function by function (`june2017_re/s0b_ui_funcmap.tsv`), the memo popups and memo packets (S3b carry), the page
+packets and page UI, `SKILLTREE_NO_LOCK` retired, and the user's call on March's learn / SP UI path. Kickoff `kickoffs/skill-system-core/S7b.md`.
+**Play-test:** the tree on two classes, skill types (S3c), memo select + activation (S3d's first play-test), a reset with the item, the page UI.
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.

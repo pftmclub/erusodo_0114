@@ -4680,3 +4680,14 @@
 //              Comment out both together.
 #define SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S7 ( the learn path ), client flag ( offline only ). Also
+//              defined in KTDXLIB/Always.h; this second home exists because
+//              EventID_Client.h and ClientPacket.h ( EGS_JUNE_ACQUIRE_SKILL_NOT ) are compiled
+//              before Always.h is reachable ( X2Main.h:4 -> X2ServerProtocolLib.h ). See the
+//              Always.h entry. Comment out both together.
+#define SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+//////////////////////////////////////////////////////////////////////////

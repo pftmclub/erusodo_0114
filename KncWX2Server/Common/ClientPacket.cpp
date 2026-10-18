@@ -8092,6 +8092,22 @@ SERIALIZE_DEFINE_GET( KEGS_UNSEAL_SKILL_NOT, obj, ks )
 	return GET( m_iSkillID )
 		;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_ACQUIRE_SKILL_NOT, obj, ks )
+{
+	return PUT( m_iUnitUID )
+		&& PUT( m_vecSkillData )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_ACQUIRE_SKILL_NOT, obj, ks )
+{
+	return GET( m_iUnitUID )
+		&& GET( m_vecSkillData )
+		;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 //}}
 
 

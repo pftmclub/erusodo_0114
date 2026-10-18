@@ -2610,6 +2610,23 @@ public:
 
 	bool Handler_EGS_CHANGE_SKILL_SLOT_REQ( int iSlotID, CX2SkillTree::SKILL_ID eSkillID );
 	bool Handler_EGS_CHANGE_SKILL_SLOT_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	/// June's slot-change queue: Handler_EGS_CHANGE_SKILL_SLOT_REQ only queues ( 3220e3b0 ), this sends ( 3220e5f0 ), and
+	/// JuneFrameMoveSkillSlotQueue ( 322105c0, from CX2Data::OnFrameMove 31ee9f50 ) sends the front once per frame.
+	bool JuneSendChangeSkillSlotReq( int iSlotID, CX2SkillTree::SKILL_ID eSkillID );
+	void JuneFrameMoveSkillSlotQueue();
+	/// June 32206d30: the class's tree skills with a required level equal to ( level / 5 ) * 5.
+	void JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std::vector< int >& vecSkillID_ ) const;
+	/// the class's tree rows, or NULL ( GetSkillTreeTempletMap asserts and falls back to the first class ); the emulator's grant reads it
+	const SkillTreeTempletMap* JuneFindSkillTreeTempletMap( int iUnitClass ) const
+	{
+		UnitSkillTreeTempletMap::const_iterator mit = m_mapUnitSkillTreeTemplet.find( iUnitClass );
+		return ( mit != m_mapUnitSkillTreeTemplet.end() ) ? &mit->second : NULL;
+	}
+	/// The block June's level-up handlers end with ( 323ae130 @323ae5c9, 32473f70 @32474a7f, 325346e0 @32534b1b ).
+	void JuneAutoEquipOnLevelUp();
+	bool Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 
 
@@ -2813,6 +2830,9 @@ private:
 #ifdef	MODIFY_INFINITE_SKILL_BUG_WHEN_INTRUDE
 	bool m_bSkillSlotChanging;			// 스킬슬롯체인지 중인가? (SkillSlotChangeReq를 전송한 후 Ack를 아직 받지 못한 상태인가?)
 #endif	MODIFY_INFINITE_SKILL_BUG_WHEN_INTRUDE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	std::deque< std::pair< int, int > >	m_deqJuneSkillSlotChange;	/// June tree +0xd4: queued ( slot, skill ) changes
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	//}} kimhc // 2010.7.29 // 난입시 무한 스킬 버그 수정
 
 #ifdef SERV_SUB_QUEST_LEARN_NEW_SKILL

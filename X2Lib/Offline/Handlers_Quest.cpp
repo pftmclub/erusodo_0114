@@ -544,6 +544,10 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 #else SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 		CX2OfflineSkill::Instance()->SeedDefaultSkills( kRow.m_nUnitUID, iNewClass );
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+		// June skill system S7: the new class's level-earned skills (stand-in grant), pushed now.
+		PushJuneSkillGrant( kSes, kRow.m_nUnitUID, iNewClass, kRow.m_iLevel, false, L"job change" );
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 		bChangedJob = true;
 

@@ -1241,6 +1241,12 @@ HRESULT CX2Data::OnFrameMove( double fTime, float fElapsedTime )
 	if( NULL != m_pSlideShot )
 		m_pSlideShot->OnFrameMove( fElapsedTime );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	/// June 31ee9f50: the skill tree's slot-change queue sends one change per frame ( 322105c0 )
+	if( NULL != m_pSkillTree )
+		m_pSkillTree->JuneFrameMoveSkillSlotQueue();
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 	if( GetMyUser() != NULL && g_pKTDXApp->GetIsNowVeryfy() == true )
 	{
 		for ( int i = 0; i < GetMyUser()->GetUnitNum(); i++ )

@@ -183,6 +183,17 @@ public:
 	bool	SeedJuneAutoLearn( UidType nUnitUID, int iUnitClass, int iUnitLevel );
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	/// June skill system S7, LABELLED STAND-IN (June's grant rule is server-only). June's client never
+	/// learns: the server pushes skills (EGS_JUNE_ACQUIRE_SKILL_NOT). This grants from June's own data:
+	/// every tree row of the class gets one level per m_RequireCharacterLevel entry at or below the
+	/// unit's level, capped at the row's master level. Works on the loaded unit; returns the rows it
+	/// raised (and persisted) in vecGranted_.
+	int		GrantJuneSkillsByLevel( int iUnitClass, int iUnitLevel, OUT std::vector< KSkillData >& vecGranted_ );
+	/// Every acquired skill as June's 7-byte KSkillData (the NOT after a whole-tree reset).
+	void	GetJuneAcquiredSkillData( OUT std::vector< KSkillData >& vecOut_ ) const;
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 	/// SP for levelling from iFromLevel to iToLevel, summed out of the client's
 	/// own `CalcLevelUpIncreaseSkillPoint` Lua function. Zero when the levels
 	/// are equal, so a dungeon that did not level anybody costs nothing.

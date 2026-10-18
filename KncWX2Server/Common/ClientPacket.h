@@ -5486,6 +5486,16 @@ DECL_PACKET( EGS_UNSEAL_SKILL_NOT )
 };
 //}}
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+// June skill system S7: June's server-pushed skill grant ( reader 323be430 -> 320de720: UID @0, vector<KSkillData> @8, then a
+// vector of 3-int records @0x18 ( 32114cc0 ) that no June handler reads; it is not carried here ).
+DECL_PACKET( EGS_JUNE_ACQUIRE_SKILL_NOT )
+{
+	UidType							m_iUnitUID;
+	std::vector< KSkillData >		m_vecSkillData;
+};
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
 
 //////////////////////////////////////////////////////////////////////////
 //{{ 2009. 6. 3  최육사		확성기

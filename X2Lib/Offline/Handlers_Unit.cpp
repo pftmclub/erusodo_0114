@@ -647,6 +647,14 @@ bool CX2OfflineServer::Handler_EGS_SELECT_UNIT_REQ( KOfflineSession& kSes, const
 	// tracking whether this ran.
 	CX2OfflineInventory::Instance()->Load( kRow.m_nUnitUID );
 	CX2OfflineSkill::Instance()->Load( kRow.m_nUnitUID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	{
+		// June skill system S7: catch the save up with the level grant (stand-in) before the select
+		// notifications carry the skill list - no NOT needed here.
+		std::vector< KSkillData > vecJuneGranted;
+		CX2OfflineSkill::Instance()->GrantJuneSkillsByLevel( kRow.m_iUnitClass, kRow.m_iLevel, vecJuneGranted );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 	kSes.m_nSelectedUnitUID	= kRow.m_nUnitUID;
 	kSes.m_eState			= S_FIELD_MAP;

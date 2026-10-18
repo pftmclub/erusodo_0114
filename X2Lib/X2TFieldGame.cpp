@@ -4917,6 +4917,11 @@ bool CX2TFieldGame::Handler_EGS_CHAR_LEVEL_UP_NOT( HWND hWnd, UINT uMsg, WPARAM 
 	}
 #endif //ITEM_IS_IN_INVENTORY_MSG_BY_LEVEL
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	/// June 323ae130 @323ae5c9: below level 11 the newly unlocked castables go into free slots
+	if( NULL != g_pData->GetSkillTree() )
+		g_pData->GetSkillTree()->JuneAutoEquipOnLevelUp();
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	return true;
 }
 

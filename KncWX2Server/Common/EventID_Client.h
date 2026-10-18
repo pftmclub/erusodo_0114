@@ -2270,6 +2270,10 @@ enum
 	//}}
 	//=============================================================//
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	// June skill system S7: June's server-pushed skill grant ( handlers 323b0770 / 324631a0 / 32535be0; June's id is not recoverable ).
+	_ENUM( EGS_JUNE_ACQUIRE_SKILL_NOT )
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	_ENUM( EGS_CLIENT_EVENT_ID_END )
 
 #ifdef __NEVER_DEFINED_MACRO__

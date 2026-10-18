@@ -356,7 +356,16 @@ bool CX2OfflineServer::Handler_EGS_INIT_SKILL_TREE_REQ( KOfflineSession& kSes, c
 	kAck.m_iSPoint	= iSPTotal;
 	kAck.m_iCSPoint	= 0;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+	// June skill system S7: June's INIT ACK (3220ea50) empties the client's acquired map (Reset +
+	// SetDefaultSkill, and June has no default skills), so every skill the level earns goes back out
+	// after it.
+	const bool bAckSent = Reply( kSes, EGS_INIT_SKILL_TREE_ACK, kAck );
+	PushJuneSkillGrant( kSes, kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, true, L"tree reset" );
+	return bAckSent;
+#else SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	return Reply( kSes, EGS_INIT_SKILL_TREE_ACK, kAck );
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 }
 
 //////////////////////////////////////////////////////////////////////////
