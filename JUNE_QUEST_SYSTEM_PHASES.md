@@ -311,6 +311,45 @@ the ctor, the buttons, mode/tab, list, detail, notice, UICustomEventProc and the
   Stop for the answer.
 - **Output.** `june2017_re/quest_plan/rm0_map.tsv`, funcmap rows `Quest RM0`, the RM1 kickoff amended with the user's answer, and a Done note.
 
+### RM0 - Done (2026-10-19)
+
+Read-only, so there is no flag and no build. The evidence is `june2017_re/quest_plan/rm0_map.tsv` (56 rows: every raise site, state call,
+payload field, UI function, kom file and cheat) plus 16 funcmap rows `(Quest RM0)`.
+
+- **User decision (2026-10-19): dormant + cheat.** No mission appears in normal play, which is June's absent-value default. The emulator answers
+  June's own cheat path. RM1's kickoff carries the details.
+- **The server owned every value.** 0x492 carries `{ int id, type, goal, seconds, +0x10, float, set<int>, set<int> }`, then int `+0x38` and
+  int `+0x3c`. The client keeps id, type, goal, seconds, the description STR id (`pkt[4]` -> `+0x18`) and the two reward fields
+  (`+0x1c` likely the buff, `+0x20` likely the EXP; read from the UI text, not proven).
+  - On success the client sends **0x493** with the mission id and waits 10 s for **0x494**. No client handler for 0x494 was found.
+  - The reward button is an invisible button with no handler, so the server paid the reward.
+- **Events (12)** and the March function each one is raised from:
+  - 1 combo count: `CX2ComboManager::AddCombo`.
+  - 2 boss damage % of max HP: `CX2GUNPC::DamageReact`.
+  - 3 hits taken, must stay at or under the goal: `CX2GUUser::DamageReact`.
+  - 4 kills: `Handler_EGS_NPC_UNIT_DIE_NOT`.
+  - 5 survive: no raise site.
+  - 6 sub-stage: `ClearSubStage`.
+  - 7 quick slot: `Handler_EGS_USE_QUICK_SLOT_ACK`.
+  - 8 resurrection: `Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK`.
+  - 9 MP spent: June's virtual MP change, slot 3 of every gage class (March's non-virtual `UpNowMp`).
+  - 10 / 11 / 12 skill types: hook `31fcd3d0` in 13 skill-use functions. 9 have March sites. Ain, Rose and Luciel (x2) have no March class.
+  - Add's site has no `3235a710` port in March either.
+- **Life cycle.**
+  - `CX2DungeonGame::StageStart` (stage index > 0) starts a received mission, with a 5 s popup.
+  - `CX2DungeonGame::OnFrameMove` ticks it. The time limit running out fails it.
+  - `CX2StateDungeonGame::Handler_EGS_END_GAME_NOT` judges types 3 and 5. Any other type still running fails.
+  - Three things reset it: `CX2State::Handler_EGS_GAME_START_TIME_COUNT_NOT` (June 0x385, count 3), `CX2DungeonGame::Release`, and agreeing to enter
+    Gate of Darkness. `CX2UIManager::SetShowUI` and `CX2StateDungeonGame::ShortCutKeyProcess` mirror UI visibility.
+- **Files.** `DLG_UI_Random_Mission.lua` and `_PopUp.lua` (June data034) and `DLG_UI_Common_Texture83_NEW` / `84_NEW` `.tga` + `.TET` (June data057)
+  are absent from March. RM1 adopts them.
+- **Cheats** (bound on `g_pX2Game`; Lua `Slash_rm` / `Slash_rmexp` / `Slash_rmbuff` in `GameEditCommandList`):
+  - `SendRandomMissionCheat( a, b, c )` sends 0x495 with the three ints.
+  - `SendRandomMissionRewardEXPCheat( n )` sends 0x496.
+  - `SendRandomMissionRewardBuffCheat( n )` sends 0x497.
+  - What a / b / c mean was the server's. RM1 proposes a labelled reading.
+- **Not settled (RM1 reads them):** what sub-stage `+0x4` is (event 6), the exact key in `ShortCutKeyProcess`, and the Ain / Luciel flag test on event 9.
+
 ## Phase Q1 - Enums, loader keys, new binders, new June quest files
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD`. Sub-tag `LOAD`.
