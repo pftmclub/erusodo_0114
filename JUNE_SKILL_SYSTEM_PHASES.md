@@ -810,6 +810,70 @@ stubbed). Task and gate: `kickoffs/skill-system-core/S3d.md`. Sub-tag `[JUNE_SKI
 - **How to see it in game:** after S7 (memo activation). Each use writes a throttled `[JUNE_SKILL] MEMO <site>` line to `offline_server.log`.
 - **Open questions:** none.
 
+### Phase S3d -- Review (2026-10-18, Opus 5.5 high): PASS, no code change, no rebuild
+
+**Verdict: PASS.** Commit 5ac08da9 was checked against June's binary, read-only. Every site in the kickoff matches. I found no transcription error.
+- **Effect sets.**
+  - `321e1e60`: the user branch is `+0x264 == 0` (@321e1ed2). `31fdbbb0( [ebx+0x5c] )` is called with no zero test (@321e1f51), and type 2 writes v0 from `*begin` into `+0x60..+0x68` (@321e1f8c).
+    This happens before `321e1bf0` (@321e1fcf). March skips an empty value list, where June would read past the end (noted in S3d).
+  - Instance `321df230`: the fldz stores come first (@321df495), then the templet copy (@321df584).
+  - `321ee600`: the copy @321eede8-321eee0e comes before `321df7e0` / `321dddb0`.
+  - `321dddb0`: the `+0x105` test, then `+0x108.. x scale` (@321dde5f-321dde89).
+  - Defaults: EffectData `0,0,0` (the fldz from @321f4b15 is still on the stack at @321f4ba5) and templet `1,1,1` (@321f3f90).
+  - March's other `GetEffectScale` caller (`X2EffectSet.cpp:1053`) sits in the RUNTIME-off `#else`, which MEMO_FX's guard excludes.
+- **CEffect ctor `31f7aab0`.**
+  - The skip on `[esp+0x27] != 0` (IGNORE_MI_HUGE, default 0 when GetValue fails) matches.
+  - `SetScale( s,s,s )` comes before the base store `+0xb24` (@31f7c80a). Life = `+0x7dc x mesh+0x44c`, in that order.
+  - The `+0x3bc` / `+0x3c0` / `+0x1fc` walk matches. For radius, March's order `s x +0x8c` matches June's.
+  - ebx is 0 for the whole ctor (`xor ebx,ebx` @31f7ab46, never written again). So `cmp [eax+0x20], ebx` tests type 0 = CT_LINE (March `KTDXCollision.h`: CT_LINE 0, CT_GUARD 2).
+  - March's own CollisionData layout puts `m_CollisionType` at +0x20, `m_fRadiusScale` at +0x8c and `m_bUseRadiusScaleY` at +0x94 (EVE_ELECTRA on), the offsets June uses.
+  - **Order is the same.** June stores the main-effect handle `+0x1e4` (@31f7bde3, with `+0x44c` = MAIN_EFFECT_TIME @31f7bdcc) before the step (@31f7c795).
+    March creates the main effect at `X2DamageEffect.cpp:1718-1760`, before the step at `:1846`. Neither ctor calls SetScale again afterwards.
+  - The step's `SetScale(1,1,1)` now runs in every damage effect. That is June's behaviour, and harmless in March: mesh `m_vScale` defaults to 1 and is only set by SetScale. The template size is the separate `m_vSize`.
+  - `31f6fdc0` multiplies by the base first. March's vector overload forwards to the float one.
+- **Switch `3202ac40`.**
+  - Tail: `fMagic`, `fPhysic`, then `+0x5e4 x s` (@3202acd9-3202acf3).
+  - Case 2: `+0x5d0` (fst @3202ad07) before the DamageDistance multiply.
+  - Case 0xc: `+0x4f8 = bl`, with ebx = 1 (@3202ac89). `+0x4f8` is NO_DETONATION: SetDamageDataFromLUA reads the key @3263b439 into `[ebp+0x4f8]` (@3263b4ec).
+  - 0xf / 0x10: Rate `{v0,1,1}` / `{1,v0,1}`, factor 0 (@3202af87-3202afee).
+  - 0x16: `+0x5dc` (@3202b0a6).
+- **`32089ff0`.** The fields are `bApply == 1`, each factor in `+0x40..+0x44`, and the `32d417b0` first BFT_TIME finalizer with size > 1, then `32d41910( 1, v1 x fTime, 0 )`.
+  - `32d41910` ignores its type argument and tests 1 itself, as March's `JuneSetTimeFinalizerValue` does.
+  - The behaviors run over a copy. `ftol( value[0] )` (fld @3208a0f1) == 3 gives `(v1-1) x |fValue-1| + v1`, with |.| rounded to float (@3208a10a-3208a136); otherwise `v1 x fValue`.
+  - The result goes to `32d41820`: value[1] of the first behavior of that type with size > 1 only. That is `JuneSetBehaviorValue` op 2, which returns after the first match.
+  - March's clone (`X2BuffFactor.h:787/798`) deep-copies `BUFF_FACTOR`, so slot 476 rescales only the clone. The DamageData list is a vector of pointers in both builds.
+- **Slot 476 `32028250`.** The arguments are (skill id, factor) and `-1 < id` is tested. v0 is 0 for an empty list. Type 0xf takes the time half; 0x10 the behavior half, whose x87 @3202830b-3202833f is identical to `32089ff0`'s (v0 and fld1 reloaded per entry).
+  Callers: `3229af40` and `3229b0a0 @3229b14d-3229b17a` test the user (`+0x264 == 0`) and call vslot `0x770` with `templet+8` after can-apply and before `32d4d670`. March's base virtual is empty, so NPCs are unchanged.
+- **MP.**
+  - `31fd1840` and `3203cf60` both swap the templet for `323511f0`'s id when it is > 0 and has a templet (@3203cf92 / @3203cfa7).
+  - `323511f0` is a CX2Unit method: class `+0x38`, with `31fdbcc0` doing the same walk on the user's own `+0x867c`. So `g_pData +0x68 +0x90` is my unit, and JUNE_BUGS 292 stands.
+    It takes the base skill's rows, active test, the upgraded test on the original id (`32206d00`), `0x12 < type < 0x15`, and truncated value[i].
+  - `31fd1840` takes the level from the alternate id (@31fd189b); March's `GetSkillLevel( pSkillTemplet->m_eID )` does too.
+  - Rate = vslot `0x75c` (471) x BBT 63 (@3203cfca-3203cfeb), MP multiplied last (@3203d09c).
+  - vslot 471 `31fdbe20`: types 3 / 7 / 8 give v0 (0 when empty), else fld1.
+  - Phase 6b's "stays out" note at `X2GUUser.cpp:25344` meant "March has no memo list". S3b added the list, so S3d may port these reads.
+- **CommonStateStart @3205841f-320584bb.** Slot `0x528` (330) is called with 1. `3208e430`: arg 1 reads `+0x7cb0`, the future state data (funcmap, Buff 16-step3b), and byte `+0x11`.
+  Then `31fdbcc0( slot 329 )`, or slot 329 when that is 0; `32206450( id, 1 )`, name `+0x14`, `32079be0( name, 0.f )`.
+  `GetFutureStateID()` (`m_FutureStateData.stateID`) is March's twin of June's future pointer. June asks for the future side explicitly.
+- **Timed attack `31ff27c0`.**
+  - Scale 1.0 (@31ff2a06), slot 329, memo type 2. Empty values give 0 (@31ff2b27). Scale only when 0 < v0 (`fcomp`, `test ah,5; jp` @31ff2a41-31ff2a4c).
+  - Then DamageCheck `3262f5a0` (@31ff2abc), and `1 / v0` (`fdivrp`) when scale > 0, hit or miss (@31ff2bf8-31ff2c4a).
+  - `32274310`: `|s - 1| > FLT_EPSILON` (`334490f8` = 1.1920929e-07; `334355b0` = 1.0 double). It walks both sets `+0x214` / `+0x224` and every non-null box with no type test, applying the `31c1c1a0` name compare when the name is non-empty.
+- **Hygiene** (`flagcheck <FLAG> --range 5ac08da9^..5ac08da9`):
+  - `RESULT: PASS` x5. Each run: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+  - `files:` FX `5 PASS, 7 OTHER`; DAMAGE `1 PASS, 11 OTHER`; MP `1 PASS, 11 OTHER`; BUFF and STATE `0 PASS, 12 OTHER`; 0 FAIL / 0 ERROR in all five.
+  - Every OTHER row is a file that mixes the five MEMO flags (plus Always.h's defines and X2SkillNoteManager.h's SKILL_DEBUG helper).
+    BUFF and STATE own no file outright: their blocks sit in X2GameUnit.cpp / X2GUUser.cpp next to the others. I read those blocks in the diff (X2GameUnit.cpp:13336 / :13379, X2GUUser.cpp AdjustBuffFactorByIndex and CommonStateStart).
+  - `git log -S<FLAG> 5ac08da9..HEAD`: none for the five MEMO flags. SKILL_DEBUG: e30eec8d (the S5 review, not S3d code).
+- **Nits, not fixed (no behaviour change; a rebuild for them would cost every peer's queue):**
+  - `JuneGetFirstFinalizer` / `JuneCopyBehaviorFactors` sit inside `JUNE_EFFECTSET_BUFF_LIST` (`X2BuffFactor.h:959`), but MEMO_DAMAGE's Always.h guard does not name that flag.
+    Undefining it alone fails at compile time, not silently. Add the `#error` the next time Always.h is edited.
+  - The X2GUUser.cpp comments at :25344 (BUFF_NEW_SKILL) and :25367 (SOCKET_PARITY) ("not written here: the alternate templet ... March lacks") predate S3d.
+    They are stale under `JUNE_SKILL_MEMO_MP`.
+- **`SERV_IRUHADEV_JUNE_SKILL_DEBUG`: keep.** It now carries the MEMO lines, and S3e uses it too. S7's play-test is the first one where a memo is active. Retire it in the S7 review, which now says so (`kickoffs/skill-system-core/S7-review.md`); its Always.h comment "remove after the S2 review" is out of date.
+- **S3e kickoff** checked: it matches the routed rows (`322a6960`, `31fe32d0`, `32079be0` / `+0xb3c`).
+- **User owes:** nothing for S3d. The play-test waits for S7.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.

@@ -28,3 +28,8 @@ Spot-check 2-3 items directly in Ghidra (read-only); if one fails, re-check the 
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand
 design decisions back to the user. Write "Phase S7 -- Review" into the plan doc, update the
 phase's STATUS.md row, write or check the next phase's kickoff file, and commit.
+
+**`SERV_IRUHADEV_JUNE_SKILL_DEBUG` (S3d review, 2026-10-18):** once S7's play-test has shown the `[JUNE_SKILL] MEMO` lines (S3d)
+and S3e is done, retire the flag: remove its define and every `#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) ...` block (`git grep`), or say why
+it stays. Its Always.h comment ("remove after the S2 review") is out of date. In the same Always.h edit, add the missing guard
+`#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST` (its helpers sit in `X2BuffFactor.h:959`).
