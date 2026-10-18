@@ -4668,3 +4668,15 @@
 //              together.
 #define SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S5 ( slots 5+5 ), client flag ( offline only ). Also
+//              defined in KTDXLIB/Always.h; this second home exists because
+//              CommonPacket.h is compiled before Always.h is reachable
+//              ( X2Main.h:4 -> X2ServerProtocolLib.h -> SystemPacket.h ) and
+//              includes this file ( CommonPacket.h:16 ). See the Always.h entry.
+//              Comment out both together.
+#define SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+//////////////////////////////////////////////////////////////////////////

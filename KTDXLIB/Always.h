@@ -8493,3 +8493,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 #endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S5: skill slots 4+4 -> 5+5 ( A 0-3 + A-TC 4, B 5-8 + B-TC 9 ). Wire ( KSkillData 7 B,
+//              KUnitSkillData / KUserSkillPageData 5+5, slot-state vector instead of the B end date ), CX2UserSkillTree and
+//              every slot reader, the A5 / B5 state pairs, the F / T quick keys, the emulator ( ChangeSkillSlot 0-9, save v18 ).
+//              The TC slots exist and stay locked until Stage 6. Also defined in KncWX2Server/Common/ServerDefine.h
+//              ( CommonPacket.h precedes Always.h, X2Main.h:4 ); comment out both together. Revert: JUNE_SKILL_SLOT_10 in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+// Short-lived: [JUNE_SKILL] SLOT lines in ErrorLog.txt / offline_server.log. Remove after the review.
+#define SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
+//////////////////////////////////////////////////////////////////////////

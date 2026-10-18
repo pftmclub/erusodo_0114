@@ -1110,6 +1110,16 @@ bool CX2OfflineDB::Migrate()
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	if( iFrom < 18 )
+	{
+		if( false == MigrateSkillSlotsToTen() )
+			return false;
+
+		CX2OfflineLog::Server( L"DB       schema upgraded to v18 (skill slots: the B bar moved from 4-7 to 5-8)" );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+
 	char szSetVersion[64];
 	_snprintf( szSetVersion, 64, "PRAGMA user_version = %d;", (int)SCHEMA_VERSION );
 	szSetVersion[63] = '\0';
@@ -1385,7 +1395,11 @@ bool CX2OfflineDB::MigrateSkillsToJuneTree()
 			switch( kRow.m_iSkillType )
 			{
 			case 5: case 6: case 7: case 14: case 15: case 16:
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				if( iSlotted < 4 )	// the A bar's four castable slots; the v18 rung and the fifth (transcendence) slot come after
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				if( iSlotted < CX2UserSkillTree::MAX_SKILL_SLOT / 2 )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 					iSlot = iSlotted++;
 				break;
 			default:
@@ -1439,6 +1453,59 @@ bool CX2OfflineDB::MigrateSkillsToJuneTree()
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+//////////////////////////////////////////////////////////////////////////
+// v18: the equipped B bar moves from slots 4-7 to 5-8 (June skill system S5).
+//
+// unit_skill.slot is the combined slot id: -1 not equipped, 0-3 the A bar, and until v17 4-7 the B bar. June's
+// KUnitSkillData has five slots per bar (A 0-3 + the transcendence slot 4, B 5-8 + the transcendence slot 9;
+// 3288fe30: > 4 is B, minus 5), so the old B1-B4 become 5-8 and 4 is the A transcendence slot, which stays empty
+// until Stage 6. Nothing else in the save changes. One-way: an exe without the flag refuses the save
+// ("save is schema v18"). Runs from Open(), before the first packet.
+//////////////////////////////////////////////////////////////////////////
+bool CX2OfflineDB::MigrateSkillSlotsToTen()
+{
+	if( false == Exec( "BEGIN;" ) )
+		return false;
+
+	int iMoved = 0;
+	{
+		sqlite3_stmt* pSel = Prepare(
+			"SELECT unit_uid, skill_id, slot FROM unit_skill WHERE slot BETWEEN 4 AND 7 ORDER BY unit_uid, slot;" );
+		if( NULL == pSel )
+		{
+			Exec( "ROLLBACK;" );
+			return false;
+		}
+
+		while( SQLITE_ROW == sqlite3_step( pSel ) )
+		{
+			const sqlite3_int64 iUnitUID	= sqlite3_column_int64( pSel, 0 );
+			const int iSkillID				= sqlite3_column_int( pSel, 1 );
+			const int iSlot					= sqlite3_column_int( pSel, 2 );
+
+			CX2OfflineLog::Server( L"[JUNE_SKILL] MIG unit %I64d skill %d slot %d -> %d",
+				(__int64)iUnitUID, iSkillID, iSlot, iSlot + 1 );
+			++iMoved;
+		}
+		sqlite3_finalize( pSel );
+	}
+
+	if( false == Exec( "UPDATE unit_skill SET slot = slot + 1 WHERE slot BETWEEN 4 AND 7;" ) )
+	{
+		LogError( L"v18 skill slot migration UPDATE" );
+		Exec( "ROLLBACK;" );
+		return false;
+	}
+
+	if( false == Exec( "COMMIT;" ) )
+		return false;
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG v18 done: %d equipped B-bar row(s) moved from slots 4-7 to 5-8", iMoved );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 //////////////////////////////////////////////////////////////////////////
 // account

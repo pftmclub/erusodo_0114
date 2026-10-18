@@ -356,8 +356,34 @@ void CX2OfflineSkill::FillUnitSkillData( OUT KUnitSkillData& kOut ) const
 	// and the date have to agree: the client derives the state from the date
 	// when it is re-checked, and a date in the past with a PERMANENT state would
 	// flip to expired on the next check.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	// June S5: the B end date / expiration state became the slot-state vector ( KUnitSkillData 320e3670 ): key 0 gates the B slots 5-8 and is
+	// sent permanent ( the SKILL_SLOT_B_FREE rule, kept by the emulator ); key 1 gates the B transcendence slot 9 and stays 0 ( locked )
+	// until Stage 6. June's default date for a state that was never bought is '2000-01-01 00:00:00' ( funcmap, Skill S0b ).
+	{
+		KJuneSkillSlotState kStateB;
+		kStateB.m_iKey		= 0;
+		kStateB.m_iState	= (int)CX2UserSkillTree::SSBES_PERMANENT;
+		kStateB.m_wstrDate	= SLOT_B_END_DATE;
+		kOut.m_vecJuneSkillSlotState.push_back( kStateB );
+
+		KJuneSkillSlotState kStateTC;
+		kStateTC.m_iKey		= 1;
+		kStateTC.m_iState	= (int)CX2UserSkillTree::SSBES_EXPIRED;
+		kStateTC.m_wstrDate	= L"2000-01-01 00:00:00";
+		kOut.m_vecJuneSkillSlotState.push_back( kStateTC );
+	}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT sent unit %I64d: A %d/%d/%d/%d/%d B %d/%d/%d/%d/%d, state vector %u entries (key 0 = %d, key 1 = %d)",
+		(__int64)m_nUnitUID,
+		(int)kOut.m_aEquippedSkill[0].m_iSkillID, (int)kOut.m_aEquippedSkill[1].m_iSkillID, (int)kOut.m_aEquippedSkill[2].m_iSkillID, (int)kOut.m_aEquippedSkill[3].m_iSkillID, (int)kOut.m_aEquippedSkill[4].m_iSkillID,
+		(int)kOut.m_aEquippedSkillSlotB[0].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[1].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[2].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[3].m_iSkillID, (int)kOut.m_aEquippedSkillSlotB[4].m_iSkillID,
+		(unsigned int)kOut.m_vecJuneSkillSlotState.size(), kOut.m_vecJuneSkillSlotState[0].m_iState, kOut.m_vecJuneSkillSlotState[1].m_iState );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	kOut.m_wstrSkillSlotBEndDate	= SLOT_B_END_DATE;
 	kOut.m_cSkillSlotBExpirationState = (char)CX2UserSkillTree::SSBES_PERMANENT;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	// The passive list. Only read for units other than the player
 	// (CX2Unit::UnitData::SetKRoomUserInfo gates it on the UID), so nothing
@@ -383,6 +409,9 @@ void CX2OfflineSkill::FillUnitSkillData( OUT KUnitSkillData& kOut ) const
 		case CX2SkillTree::ST_PASSIVE:
 			{
 				KSkillData kData;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				kData.Init();	// the June-only int (m_iJuneSkillDataExtra) goes out as 0
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				kData.m_iSkillID	= (short)mit->first;
 				kData.m_cSkillLevel	= (UCHAR)mit->second.m_iLevel;
 
@@ -651,6 +680,15 @@ int CX2OfflineSkill::ChangeSkillSlot( int iSlotID, int iSkillID,
 
 		// Slot B is permanently open under SERV_IRUHADEV_SKILL_SLOT_B_FREE, so
 		// the server's end-date check here can only pass.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		// June S5: the transcendence slots ( combined ids 4 and 9 ) exist but stay locked until Stage 6 ( A needs CX2Unit +0x3c, B the
+		// slot-state key 1; the emulator sends key 1 = 0 ). June 3220e3b0 refuses the equip the same way.
+		if( 4 == iSlotID || 9 == iSlotID )
+		{
+			CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT TC slot %d refused: skill %d, locked until Stage 6", iSlotID, iSkillID );
+			return NetError::ERR_SKILL_09;
+		}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	}
 
 	if( iSlotID2 >= 0 && iSlotID2 < MAX_SKILL_SLOT )
@@ -717,7 +755,11 @@ bool CX2OfflineSkill::SeedDefaultSkills( UidType nUnitUID, int iUnitClass )
 		// active into the first empty slot). A passive has no slot.
 		const CX2SkillTree::SkillTemplet* pTemplet = Templet( iSkillID );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		if( NULL != pTemplet && iSlot < SLOT_COUNT_PER_SET - 1 )	// the fifth slot of a bar is the locked transcendence slot
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		if( NULL != pTemplet && iSlot < SLOT_COUNT_PER_SET )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			switch( pTemplet->m_eType )
 			{
@@ -780,7 +822,11 @@ bool CX2OfflineSkill::SeedJuneAutoLearn( UidType nUnitUID, int iUnitClass, int i
 		switch( kRow.m_iSkillType )
 		{
 		case 5: case 6: case 7: case 14: case 15: case 16:
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			for( int s = 0; s < SLOT_COUNT_PER_SET - 1; ++s )	// not the locked transcendence slot
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			for( int s = 0; s < SLOT_COUNT_PER_SET; ++s )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			{
 				if( 0 == m_aiSkillSlot[s] )
 				{

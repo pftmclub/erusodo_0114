@@ -48,6 +48,7 @@ DEFINE_HOME = "KTDXLIB/Always.h"
 SECOND_HOMES = {
     "SERV_IRUHADEV_JUNE_BUFF_FACTOR_WIRE": "KncWX2Server/Common/ServerDefine.h",  # CommonPacket.h precedes Always.h (X2Main.h:4)
     "SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket_Global.h precedes Always.h (ClientPacket.h:11056)
+    "SERV_IRUHADEV_JUNE_SKILL_SLOT_10": "KncWX2Server/Common/ServerDefine.h",  # CommonPacket.h precedes Always.h (X2Main.h:4)
 }
 
 

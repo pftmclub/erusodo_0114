@@ -752,3 +752,15 @@ What only class code reaches:
 - **`TILTANGLE`** (roll, `-deg * 0.017453292`) is read by the same Lua table but appears in no June or March file: dormant.
 - June's `PartsLookTrackingCameraFromPartsEye` (`31fae6d0`) takes a 5th byte for `+0x90`; its June callers pass the unit pointer's low byte
   (C3v review quirk), which is never 1 for an aligned pointer.
+
+### 7ag. Pressed-index space, the fifth slot and the A5 / B5 states (from June skill system S5)
+
+S5 made the engine 5 + 5 (slot ids A 0-3 + A-TC 4, B 5-8 + B-TC 9; `CX2UserSkillTree::SKILL_SLOT_*`, the wire, the gage list, `GetSlotIndexAndSlotB`). **It deliberately left the pressed-index space alone**:
+`CommonSpecialAttackEventProcess`'s `iSkillSlotIndexPressed_`, `m_iPressedSkillSlotIndex`, `CountUsedSkill`, `GetPressedSkillState` and `CurrentSkillKeyManager` still use March's 0-3 (A) / 4-7 (B), because about 35
+class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way. A class port that adopts June's class code converts at that moment:
+- June's combined index is A 0-4, B 5-9 (`3288fe30`: `> 4` is B, minus 5). Its pressed key reader `31fcadd0` also returns **4** (F, `GA_SKILL5`) and **9** (T, `GA_SKILL_EX5`, only while slot-state key 1 is usable).
+  Change `CommonSpecialAttackEventProcess` and every `> 3` / `-4` decode of the ported class together; the `InputData` groups `oneSkill5` / `oneSkillEx5` already exist (S5 only consumes the press).
+- The TC slot's states `USI_SPECIAL_ATTACK_5` / `_HYPER_5` / `USI_SPECIAL_ATTACK_SLOTB_5` / `_HYPER_5` exist and the state arrays have 5 entries, but `SetEquippedSkillFunc*`, `SetEquippedSkillLevelCommon`, `CalcEquippedSkillLevelPlusAndMPCost`
+  and `ChangeEquippedSkillState` skip the fifth slot, so no class `SetEquippedSkillFuncBySkillSlotIndex` ever sees it. Stage 6 (transcendence) removes those skips and gives each class its TC cases.
+- A-TC is locked because March has no transcendence flag (`CX2Unit +0x3c`, June `328dfab0` / `3220e3b0`); the emulator refuses an equip into 4 / 9. Stage 6 adds the flag and sends key 1 = usable.
+- `X2GuEve.cpp` (Mega Electronball, Taser Pilum) stores a **slot id**: S5 moved its three loops to `iSlot >= EQUIPPED_SKILL_SLOT_COUNT`, so the id it keeps is June's.

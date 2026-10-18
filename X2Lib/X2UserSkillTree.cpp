@@ -1126,6 +1126,9 @@ void CX2UserSkillTree::SetSkillSlotInfo( int iSkillSlotID, CX2SkillTree::SKILL_I
 	case CX2UserSkillTree::SKILL_SLOT_A2:
 	case CX2UserSkillTree::SKILL_SLOT_A3:
 	case CX2UserSkillTree::SKILL_SLOT_A4:
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case CX2UserSkillTree::SKILL_SLOT_A5_TC:
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUserSkillTemplet( eSkillID);
 			if(pSkillTemplet != NULL)
@@ -1168,6 +1171,9 @@ void CX2UserSkillTree::SetSkillSlotInfo( int iSkillSlotID, CX2SkillTree::SKILL_I
 	case CX2UserSkillTree::SKILL_SLOT_B2:
 	case CX2UserSkillTree::SKILL_SLOT_B3:
 	case CX2UserSkillTree::SKILL_SLOT_B4:
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case CX2UserSkillTree::SKILL_SLOT_B5_TC:
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUserSkillTemplet( eSkillID);
 			if(pSkillTemplet != NULL)
@@ -1222,6 +1228,9 @@ void CX2UserSkillTree::SetSkillSlotInfo( int iSkillSlotID, CX2SkillTree::SKILL_I
 	case CX2UserSkillTree::SKILL_SLOT_A2:
 	case CX2UserSkillTree::SKILL_SLOT_A3:
 	case CX2UserSkillTree::SKILL_SLOT_A4:
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case CX2UserSkillTree::SKILL_SLOT_A5_TC:
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUserSkillTemplet( eSkillID);
 			if(pSkillTemplet != NULL)
@@ -1239,6 +1248,9 @@ void CX2UserSkillTree::SetSkillSlotInfo( int iSkillSlotID, CX2SkillTree::SKILL_I
 	case CX2UserSkillTree::SKILL_SLOT_B2:
 	case CX2UserSkillTree::SKILL_SLOT_B3:
 	case CX2UserSkillTree::SKILL_SLOT_B4:
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case CX2UserSkillTree::SKILL_SLOT_B5_TC:
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUserSkillTemplet( eSkillID);
 			if(pSkillTemplet != NULL)
@@ -1482,10 +1494,18 @@ const CX2UserSkillTree::SkillSlotData* CX2UserSkillTree::GetSkillSlot( int iSlot
 		return NULL;
 	}
 	
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	if( iSlotIndex >= EQUIPPED_SKILL_SLOT_COUNT )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	if( iSlotIndex >= 4 )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	{
 		bSlotB = true;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		iSlotIndex -= EQUIPPED_SKILL_SLOT_COUNT;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		iSlotIndex -= 4;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	}
 	
 	if( true == bSlotB )
@@ -1524,6 +1544,25 @@ const CX2UserSkillTree::SkillSlotData* CX2UserSkillTree::GetSkillSlot( const CX2
 		(Phase 6 review; it decides only when one skill sits in both rows).
 	@return : 0 when the skill is in no equipped slot, 1 for the slot A row, 2 for the slot B row
 */
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+int CX2UserSkillTree::GetEquippedSkillSlotType( const CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	if ( CX2SkillTree::SI_NONE == eSkillID_ )
+		return 0;
+
+	for ( UINT uiIndex = 0; uiIndex < ARRAY_SIZE( m_aEquippedSkill ) || uiIndex < ARRAY_SIZE( m_aEquippedSkillSlotB ); ++uiIndex )
+	{
+		const int iTCIndex = EQUIPPED_SKILL_SLOT_COUNT - 1;
+		if ( uiIndex < ARRAY_SIZE( m_aEquippedSkill ) && eSkillID_ == m_aEquippedSkill[uiIndex].m_eID )
+			return ( iTCIndex == static_cast<int>( uiIndex ) ) ? 3 : 1;
+
+		if ( uiIndex < ARRAY_SIZE( m_aEquippedSkillSlotB ) && eSkillID_ == m_aEquippedSkillSlotB[uiIndex].m_eID )
+			return ( iTCIndex == static_cast<int>( uiIndex ) ) ? 3 : 2;
+	}
+
+	return 0;
+}
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 int CX2UserSkillTree::GetEquippedSkillSlotType( const CX2SkillTree::SKILL_ID eSkillID_ ) const
 {
 	if ( CX2SkillTree::SI_NONE == eSkillID_ )
@@ -1541,6 +1580,7 @@ int CX2UserSkillTree::GetEquippedSkillSlotType( const CX2SkillTree::SKILL_ID eSk
 	return 0;
 }
 
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 /** @function : GetSkillCoolTimeSpeedByBuff
 	@brief : June 32896850 (BBT 103 reader). With a game and the local player's unit in it, the unit's speed for the skill's SKILL_TYPE (June 32205ab0
 		maps the ID to the type through the skill templet, without GetSkillTemplet's level gate); 1.0 otherwise.
@@ -2469,7 +2509,11 @@ int CX2UserSkillTree::GetSkillEquippedSlotIndex( CX2SkillTree::SKILL_ID eSkillID
 {
 	if( false == bSlotB )
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i=0; i<(int)ARRAY_SIZE( m_aEquippedSkill ) - ( CX2SkillTree::SI_NONE == eSkillID ? 1 : 0 ); ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i=0; i<ARRAY_SIZE( m_aEquippedSkill ); ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			if( m_aEquippedSkill[i].m_eID == eSkillID )
 				return i;
@@ -2478,7 +2522,11 @@ int CX2UserSkillTree::GetSkillEquippedSlotIndex( CX2SkillTree::SKILL_ID eSkillID
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i=0; i<(int)ARRAY_SIZE( m_aEquippedSkillSlotB ) - ( CX2SkillTree::SI_NONE == eSkillID ? 1 : 0 ); ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i=0; i<ARRAY_SIZE( m_aEquippedSkillSlotB ); ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			if( m_aEquippedSkillSlotB[i].m_eID == eSkillID )
 				return i;
@@ -2489,7 +2537,29 @@ int CX2UserSkillTree::GetSkillEquippedSlotIndex( CX2SkillTree::SKILL_ID eSkillID
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
+/** @function : LogJuneSlotCensus
+	@brief : S5 gate: what the client holds after the select-unit feed. Slot ids A 0-4 / B 5-9, the slot-state keys 0 / 1 and what
+		GetEnabledSkillSlotB() answers.
+*/
+void CX2UserSkillTree::LogJuneSlotCensus( const wchar_t* wszWhere_ ) const
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT census %s: A %d/%d/%d/%d/%d B %d/%d/%d/%d/%d key0 state %d usable %d, key1 state %d usable %d, enabledB %d, slots per bar %d",
+		wszWhere_,
+		(int)m_aEquippedSkill[0].m_eID, (int)m_aEquippedSkill[1].m_eID, (int)m_aEquippedSkill[2].m_eID, (int)m_aEquippedSkill[3].m_eID, (int)m_aEquippedSkill[4].m_eID,
+		(int)m_aEquippedSkillSlotB[0].m_eID, (int)m_aEquippedSkillSlotB[1].m_eID, (int)m_aEquippedSkillSlotB[2].m_eID, (int)m_aEquippedSkillSlotB[3].m_eID, (int)m_aEquippedSkillSlotB[4].m_eID,
+		GetJuneSlotState( 0 ), IsJuneSlotUsable( 0 ) ? 1 : 0, GetJuneSlotState( 1 ), IsJuneSlotUsable( 1 ) ? 1 : 0,
+		GetEnabledSkillSlotB() ? 1 : 0, (int)EQUIPPED_SKILL_SLOT_COUNT );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
 bool CX2UserSkillTree::GetEnabledSkillSlotB() const
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+{
+	return IsJuneSlotUsable( 0 );
+}
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 {
 //{{ Iruha : 2026-08-25 // Skill Slot B open by default, no medal purchase required
 #ifdef SERV_IRUHADEV_SKILL_SLOT_B_FREE
@@ -2516,6 +2586,7 @@ bool CX2UserSkillTree::GetEnabledSkillSlotB() const
 
 
 
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, float fCoolTimeLeft )
 {
 	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
@@ -2581,16 +2652,28 @@ void CX2UserSkillTree::SetSkillCoolTimeLeft( CX2SkillTree::SKILL_ID eSkillID, fl
 					const float fTime = pSkillTemplet->GetSkillCoolTimeValue( iSkillTempletLevel );
 					
 					skillSlot.m_fCoolTimeLeft = fTime;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+					pGageManager->SetMySkillCoolTimeList( i + EQUIPPED_SKILL_SLOT_COUNT, fTime );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 					pGageManager->SetMySkillCoolTimeList( i + 4, fTime );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				}
 				else
 				{
 					skillSlot.m_fCoolTimeLeft = fCoolTimeLeft;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+					pGageManager->SetMySkillCoolTimeList( i + EQUIPPED_SKILL_SLOT_COUNT, fCoolTimeLeft );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 					pGageManager->SetMySkillCoolTimeList( i + 4, fCoolTimeLeft );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				}
 #else //FINALITY_SKILL_SYSTEM
 				skillSlot.m_fCoolTimeLeft = fCoolTimeLeft;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				pGageManager->SetMySkillCoolTimeList( i + EQUIPPED_SKILL_SLOT_COUNT, fCoolTimeLeft );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				pGageManager->SetMySkillCoolTimeList( i + 4, fCoolTimeLeft );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #endif //FINALITY_SKILL_SYSTEM
 
 #ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
@@ -2629,7 +2712,11 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeAll()
 			m_aEquippedSkillSlotB[iCurrentIndex].m_fCoolTimeLeft = 0.0f;
 
 			pGageManager->SetMySkillCoolTimeList( iCurrentIndex, 0.0f );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			pGageManager->SetMySkillCoolTimeList( iCurrentIndex + EQUIPPED_SKILL_SLOT_COUNT, 0.0f );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			pGageManager->SetMySkillCoolTimeList( iCurrentIndex + 4, 0.0f );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		}
 		else
 	#endif //FINALITY_SKILL_COOLTIMERESET_IN_TRAINING
@@ -2649,7 +2736,11 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeAll()
 				pSkillTempletB->m_eType != CX2SkillTree::ST_RELATIONSHIP_SKILL ) )
 			{
 				m_aEquippedSkillSlotB[iCurrentIndex].m_fCoolTimeLeft = 0.0f;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				pGageManager->SetMySkillCoolTimeList( iCurrentIndex + EQUIPPED_SKILL_SLOT_COUNT, 0.0f );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				pGageManager->SetMySkillCoolTimeList( iCurrentIndex + 4, 0.0f );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			}
 		}
 #else //FINALITY_SKILL_SYSTEM
@@ -2657,7 +2748,11 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeAll()
 		m_aEquippedSkillSlotB[iCurrentIndex].m_fCoolTimeLeft = 0.0f;
 
 		pGageManager->SetMySkillCoolTimeList( iCurrentIndex, 0.0f );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		pGageManager->SetMySkillCoolTimeList( iCurrentIndex + EQUIPPED_SKILL_SLOT_COUNT, 0.0f );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		pGageManager->SetMySkillCoolTimeList( iCurrentIndex + 4, 0.0f );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #endif //FINALITY_SKILL_SYSTEM
 	}
 }
@@ -2763,7 +2858,11 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType( const CX2SkillTree::SK
 					if ( true == bForceSet || fNowCoolTime > fCoolTime )
 					{
 						m_aEquippedSkillSlotB[iCurrentIndex].m_fCoolTimeLeft = fCoolTime;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+						pGageManager->SetMySkillCoolTimeList( iCurrentIndex + EQUIPPED_SKILL_SLOT_COUNT, fCoolTime );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 						pGageManager->SetMySkillCoolTimeList( iCurrentIndex + 4, fCoolTime );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 					}
 				} break;
 
@@ -2773,7 +2872,11 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType( const CX2SkillTree::SK
 					fNowCoolTime = max( 0, fNowCoolTime );
 
 					m_aEquippedSkillSlotB[iCurrentIndex].m_fCoolTimeLeft = fNowCoolTime;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+					pGageManager->SetMySkillCoolTimeList( iCurrentIndex + EQUIPPED_SKILL_SLOT_COUNT, fNowCoolTime );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 					pGageManager->SetMySkillCoolTimeList( iCurrentIndex + 4, fNowCoolTime );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				} break;
 
 
@@ -2796,7 +2899,11 @@ void CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType( const CX2SkillTree::SK
 			
 	#else // UPGRADE_SKILL_SYSTEM_2013
 			m_aEquippedSkillSlotB[iCurrentIndex].m_fCoolTimeLeft = 0.0f;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			pGageManager->SetMySkillCoolTimeList( iCurrentIndex + EQUIPPED_SKILL_SLOT_COUNT, 0.0f );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			pGageManager->SetMySkillCoolTimeList( iCurrentIndex + 4, 0.0f );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 
 		}
@@ -2821,14 +2928,22 @@ bool CX2UserSkillTree::ResetLeftSkillCoolTimeByBuff( const CX2SkillTree::SKILL_T
 		const CX2SkillTree::SkillTemplet* pSkillTempletSlotA = GetUserSkillTemplet( m_aEquippedSkill[iCurrentIndex].m_eID );
 		if ( NULL != pSkillTempletSlotA
 			&& true == IsResetCoolTimeTarget( eSkillType_, pSkillTempletSlotA, bIsRelativeAllSkill_, bForceSet_ )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			&& true == ApplyResetCoolTime( m_aEquippedSkill[iCurrentIndex], pSkillTempletSlotA, iCurrentIndex, ( EQUIPPED_SKILL_SLOT_COUNT - 1 == iCurrentIndex ) ? 3 : 1,
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			&& true == ApplyResetCoolTime( m_aEquippedSkill[iCurrentIndex], pSkillTempletSlotA, iCurrentIndex, 1,
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				fCoolTime_, eChangeType_, fCoolTimeRate_, bForceSet_, iSkillSlotType_ ) )
 			bChanged = true;
 
 		const CX2SkillTree::SkillTemplet* pSkillTempletSlotB = GetUserSkillTemplet( m_aEquippedSkillSlotB[iCurrentIndex].m_eID );
 		if ( NULL != pSkillTempletSlotB
 			&& true == IsResetCoolTimeTarget( eSkillType_, pSkillTempletSlotB, bIsRelativeAllSkill_, bForceSet_ )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			&& true == ApplyResetCoolTime( m_aEquippedSkillSlotB[iCurrentIndex], pSkillTempletSlotB, iCurrentIndex + iSizeOfIndex, ( EQUIPPED_SKILL_SLOT_COUNT - 1 == iCurrentIndex ) ? 3 : 2,
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			&& true == ApplyResetCoolTime( m_aEquippedSkillSlotB[iCurrentIndex], pSkillTempletSlotB, iCurrentIndex + iSizeOfIndex, 2,
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				fCoolTime_, eChangeType_, fCoolTimeRate_, bForceSet_, iSkillSlotType_ ) )
 			bChanged = true;
 	}
@@ -3285,6 +3400,13 @@ const CX2SkillTree::SKILL_ID CX2UserSkillTree::GetSkillIDByEquipSlotID( IN const
 		{
 			iSkillSlotIndex = 3;
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case CX2GUUser::USI_SPECIAL_ATTACK_5:
+	case CX2GUUser::USI_SPECIAL_ATTACK_HYPER_5:
+		{
+			iSkillSlotIndex = 4;
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	case CX2GUUser::USI_SPECIAL_ATTACK_SLOTB_1:
 	case CX2GUUser::USI_SPECIAL_ATTACK_SLOTB_HYPER_1:
@@ -3310,6 +3432,14 @@ const CX2SkillTree::SKILL_ID CX2UserSkillTree::GetSkillIDByEquipSlotID( IN const
 			iSkillSlotIndex = 3;
 			bSlotB = true;
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case CX2GUUser::USI_SPECIAL_ATTACK_SLOTB_5:
+	case CX2GUUser::USI_SPECIAL_ATTACK_SLOTB_HYPER_5:
+		{
+			iSkillSlotIndex = 4;
+			bSlotB = true;
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	}
 
 	const SkillSlotData* pSkillSlotData = GetSkillSlot( iSkillSlotIndex, bSlotB );

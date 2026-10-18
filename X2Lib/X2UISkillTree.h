@@ -226,11 +226,15 @@ public:
 #ifdef REFORM_UI_SKILLSLOT 
 	CKTDGUIDialogType	GetDLGGameSkillSLot() {return m_pDLGGameSkillSlot; }
 //{{ Iruha : 2026-08-25 // Skill Slot B open by default, no medal purchase required
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	bool				IsExpandSkillSlot()	{return m_bIsExpandSkillSlot; }
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #ifdef SERV_IRUHADEV_SKILL_SLOT_B_FREE
 	bool				IsExpandSkillSlot()	{return true; }
 #else
 	bool				IsExpandSkillSlot()	{return m_bIsExpandSkillSlot; }
 #endif SERV_IRUHADEV_SKILL_SLOT_B_FREE
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 //}}
 	bool				GetShowEquipSkillGuide() {return m_bShowEquipSkillGuide; }
 #endif //REFORM_UI_SKILLSLOT

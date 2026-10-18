@@ -440,6 +440,10 @@ void CKTDIManager::SetDefaultMap()
 		m_KTDIKeyboard->SetAction( GAMEACTION_SKILL_EX2, DIK_W );
 		m_KTDIKeyboard->SetAction( GAMEACTION_SKILL_EX3, DIK_E );
 		m_KTDIKeyboard->SetAction( GAMEACTION_SKILL_EX4, DIK_R );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		m_KTDIKeyboard->SetAction( GAMEACTION_SKILL5, DIK_F );
+		m_KTDIKeyboard->SetAction( GAMEACTION_SKILL_EX5, DIK_T );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		//m_KTDIKeyboard->SetAction( GAMEACTION_SCREENSHOT_MODE, DIK_DELETE );
 		m_KTDIKeyboard->SetAction( GAMEACTION_SLOT_CHANGE, DIK_SPACE );
@@ -449,7 +453,11 @@ void CKTDIManager::SetDefaultMap()
 		m_KTDIKeyboard->SetAction( GAMEACTION_ZOOMOUT, DIK_MINUS );
 		m_KTDIKeyboard->SetAction( GAMEACTION_QUEST, DIK_L );
 		m_KTDIKeyboard->SetAction( GAMEACTION_MAP, DIK_M );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		m_KTDIKeyboard->SetAction( GAMEACTION_COMMUNITY, DIK_0 );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		m_KTDIKeyboard->SetAction( GAMEACTION_COMMUNITY, DIK_T );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		m_KTDIKeyboard->SetAction( GAMEACTION_INFO, DIK_U );
 		m_KTDIKeyboard->SetAction( GAMEACTION_INVENTORY, DIK_I );
 		m_KTDIKeyboard->SetAction( GAMEACTION_OPTION, DIK_O );

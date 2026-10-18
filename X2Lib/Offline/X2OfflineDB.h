@@ -442,6 +442,12 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		SCHEMA_VERSION			= 18,	///< v18: skill slots 4-7 (the B bar) move to 5-8 (June skill system S5, 5 + 5 slots)
+
+		/// As in the v16 branch below, which this one replaces wholesale.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
 		SCHEMA_VERSION			= 17,	///< v17: skills reset onto June's skill tree (June skill system S3)
 
@@ -469,6 +475,7 @@ public:
 #endif SERV_IRUHADEV_OFFLINE_RES_STONE
 #endif SERV_IRUHADEV_LEVEL_CAP_99
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -895,6 +902,11 @@ private:
 	/// free rows come back. One-way. See the .cpp.
 	bool	MigrateSkillsToJuneTree();
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	/// The v18 rung (June skill system S5): the equipped B bar moves from slots 4-7 to 5-8, because slot 4 became
+	/// the A bar's transcendence slot (June 3288fe30: > 4 is B, minus 5). One [JUNE_SKILL] MIG line per moved row.
+	bool	MigrateSkillSlotsToTen();
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	int		ReadSchemaVersion();
 	void	LogError( const wchar_t* szWhat );
 

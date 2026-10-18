@@ -3562,8 +3562,12 @@ void CX2Unit::UnitData::SetKUnitInfo( const KUnitInfo& data )
 
 	m_UserSkillTree.SetGuildClass( 0 );
 	m_UserSkillTree.SetUnitClass( m_UnitClass );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	m_UserSkillTree.SetJuneSlotStateFromVector( data.m_UnitSkillData.m_vecJuneSkillSlotState );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	m_UserSkillTree.SetSkillSlotBExpirationState( (CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE) data.m_UnitSkillData.m_cSkillSlotBExpirationState );
 	m_UserSkillTree.SetSkillSlotBEndDateString( data.m_UnitSkillData.m_wstrSkillSlotBEndDate );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	// 내 유닛이 아니라면 장착스킬과 패시브 스킬 정보로 부터 스킬트리를 만들어 낸다
 	if( NULL != g_pData->GetMyUser() &&
@@ -3745,8 +3749,12 @@ void CX2Unit::UnitData::SetKRoomUserInfo( const KRoomUserInfo& data )
 
 	m_UserSkillTree.SetGuildClass( 0 );
 	m_UserSkillTree.SetUnitClass( m_UnitClass );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	m_UserSkillTree.SetJuneSlotStateFromVector( data.m_UnitSkillData.m_vecJuneSkillSlotState );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	m_UserSkillTree.SetSkillSlotBExpirationState( (CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE) data.m_UnitSkillData.m_cSkillSlotBExpirationState );
 	m_UserSkillTree.SetSkillSlotBEndDateString( data.m_UnitSkillData.m_wstrSkillSlotBEndDate );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 
 	// 내 유닛이 아니라면 장착스킬과 패시브 스킬 정보로 부터 스킬트리를 만들어 낸다

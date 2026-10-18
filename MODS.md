@@ -4108,6 +4108,27 @@ Flags `SERV_IRUHADEV_JUNE_SKILL_MEMO_FX`, `_MEMO_DAMAGE`, `_MEMO_BUFF` (needs `_
 - **Revert:** comment out the flag(s) in `KTDXLIB/Always.h` (`_MEMO_BUFF` before `_MEMO_DAMAGE`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
   Each `#else` restores the C8b / buff-port stub it replaced. No data, save or kom changes.
 
+### June skill slots 5 + 5 (skill-system-core S5, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_10` (+ short-lived `SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG`), defined in `KTDXLIB/Always.h` **and** `KncWX2Server/Common/ServerDefine.h` (`SECOND_HOMES` in `tools/flagcheck.py`), plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S5", log tag `[JUNE_SKILL] SLOT` / `MIG`.
+- **Wire (`CommonPacket.h/.cpp`).** `EQUIPPED_SKILL_SLOT_COUNT` 5 (static member and the `#define`). `KSkillData` is 7 bytes (id, level, June-only `m_iJuneSkillDataExtra`, meaning unmapped, the emulator sends 0).
+  `KUnitSkillData` follows June `320e3670`: `A[0..4]`, `B[0..4]`, `m_vecJuneSkillSlotState` (replaces the B end date / expiration state), passives, guild passives, notes, the two page bytes, then the
+  June-only `KJuneSkillExtraData` (`320dc980`, sent empty). `KUserSkillPageData` has 5 + 5.
+- **Slot ids.** A 0-3, A-TC 4, B 5-8, B-TC 9 (`CX2UserSkillTree::SKILL_SLOT_*`, `GetSlotIndexAndSlotB`, the gage list A `i`, B `i + 5`). The **pressed-index space** the class files use (A 0-3, B 4-7, `-4` offsets in ~35 class
+  sites) is left as it was: only the transcendence (TC) slots have no pressed index, and they stay dormant. The in-game HUD and the tree dialog keep their 4 + 4 controls (loops bounded 8 / 4); S6 owns the 10-slot dialog.
+- **Slot state (`CX2UserSkillTree`).** `m_mapJuneSlotState` key -> { state, date } (June `+0x434`, `32892a00` / `32890ea0` / `32890ee0`): key 0 gates B 5-8, key 1 gates B-TC 9; state 1 / 2 = usable.
+  `GetEnabledSkillSlotB()` = `IsJuneSlotUsable( 0 )`. The legacy B-expiry setters write key 0. **`SERV_IRUHADEV_SKILL_SLOT_B_FREE` is retired under this flag** (four client sites); the emulator sends key 0 = 2 (permanent), key 1 = 0.
+  The TC slots: June locks A-TC on `CX2Unit +0x3c` (transcendence) and B-TC on slot-state key 1. March has no such flag and the emulator sends key 1 = 0, so both stay locked until Stage 6: the emulator refuses an equip into 4 / 9
+  and the unit state code skips the fifth slot of a bar. Press path: `CommonSpecialAttackEventProcess` consumes an F press (index 4, no lock check, as June) and a T press only while key 1 is usable; neither selects a skill.
+- **States.** `USI_SPECIAL_ATTACK_5` / `_HYPER_5` after the A4 pair and `USI_SPECIAL_ATTACK_SLOTB_5` / `_HYPER_5` after the B4 pair (June `GUSI_END + 53/54` and `63/64`); every later `USI_*` shifts by 2 / 4. Nothing uses numeric USI ids.
+  `_CONST_GUUSER_::aNormalSkillStateID*` have 5 entries. Unit state code never sees a TC slot (`ChangeEquippedSkillState`, `SetEquippedSkillFunc*` skip it).
+- **Keys.** `GAMEACTION_SKILL5` / `GAMEACTION_SKILL_EX5` (default F / T; Community moves T -> 0, as June `@31c48b2a`), `InputData` groups `*Skill5` / `*SkillEx5`, fed in `CX2Game::KeyProcess` (swapped with the bars), chat key lock. The key map is not persisted
+  offline, so the enum insert renumbers nothing saved. F is also the March riding key: both fire on F (TC is locked, so only riding acts).
+- **Types.** `GetEquippedSkillSlotType` returns 3 for slots 4 / 9 (June `3214f3d0`): BBT 98's reader and BFT 16's slot-type use count see it; `ApplyResetCoolTime` gets slot type 3 for the TC index.
+- **Emulator + save.** `FillUnitSkillData` sends the state vector; `ChangeSkillSlot` refuses 4 / 9; seeds stop before the TC slot. **Save schema v18** (`MigrateSkillSlotsToTen`): `unit_skill.slot` 4-7 -> 5-8, one `[JUNE_SKILL] MIG unit .. skill .. slot a -> b` line per row.
+  Forward-only: an exe without the flag refuses the save ("save is schema v18"). Snapshot to `db_backup/` before the first launch.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_SLOT_10` (and `_DEBUG`) in `KTDXLIB/Always.h` **and** `KncWX2Server/Common/ServerDefine.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and put back the pre-S5 save snapshot (`db_backup/*pre_S5*`): the flagless exe refuses a v18 save.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

@@ -6364,6 +6364,17 @@ void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSk
 	int iSlotIndex = 0;
 
 	CX2UserSkillTree::GetSlotIndexAndSlotB( IN iSkillSlotId_, OUT iSlotIndex, OUT bSlotB );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	if ( CX2UserSkillTree::IsTranscendenceSlotIndex( bSlotB ? iSlotIndex + EQUIPPED_SKILL_SLOT_COUNT : iSlotIndex ) )
+	{
+#ifdef SERV_IRUHADEV_OFFLINE
+		static int s_iLogged = 0;
+		if ( s_iLogged++ < 5 )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT TC slot %d%s got skill %d: dormant until Stage 6, no state is set", iSlotIndex, bSlotB ? L" B" : L" A", iSkillId_ );
+#endif SERV_IRUHADEV_OFFLINE
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	const CX2SkillTree::SKILL_ID eSkillId = static_cast<CX2SkillTree::SKILL_ID>( iSkillId_ );
 	const int iSkillLevel = kUnitData.m_UserSkillTree.UpdateEquippedSkillLevelFromAcqureidMap( eSkillId, iSlotIndex, bSlotB );
 
@@ -6389,6 +6400,10 @@ void CX2GUUser::ChangeEquippedSkillState( const int iSkillSlotId_, const int iSk
 
 void CX2GUUser::ChangeEquippedSkillState( CX2Unit::UnitData& kUnitData_, const CX2SkillTree::SKILL_ID eSkillId_, const int iSlotIndex_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	if ( EQUIPPED_SKILL_SLOT_COUNT - 1 == iSlotIndex_ )	// the transcendence slot of a bar, dormant until Stage 6
+		return;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	// 아이템에의해 스킬레벨이 증가 되거나 MP 양이 변경 된것 처리
 	CalcEquippedSkillLevelPlusAndMPCostBySlotID( kUnitData_.m_UserSkillTree, iSlotIndex_, bSlotB_ );
 
@@ -6468,8 +6483,16 @@ void CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost( CX2Unit::UnitData& kUnitDat
 
 	for( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT*2; ++i )
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		bool bSlotB = (i >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		bool bSlotB = (i > 3) ? true : false;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		int iSlotIndex = (i >= EQUIPPED_SKILL_SLOT_COUNT) ? i-EQUIPPED_SKILL_SLOT_COUNT : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		int iSlotIndex = (i > 3) ? i-4 : i;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		CalcEquippedSkillLevelPlusAndMPCostBySlotID( cUserSkillTree, iSlotIndex, bSlotB );
 	}
 }
@@ -6482,7 +6505,11 @@ void CX2GUUser::SetEquippedSkillLevelCommon( const CX2Unit::UnitData& kUnitData_
 {
     const CX2UserSkillTree& userSkillTree = kUnitData_.m_UserSkillTree;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	for( int i=0; i< ( EQUIPPED_SKILL_SLOT_COUNT - 1 ); i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for( int i=0; i< EQUIPPED_SKILL_SLOT_COUNT; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	{
 		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = userSkillTree.GetSkillSlot( i, bSlotB_ );
 		ASSERT( NULL != pSkillSlotData );
@@ -25128,6 +25155,18 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 		}
 		return true;
 	}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	if( true == m_InputData.oneSkill5 )
+	{
+		pSkillSlotDataPressed_ = cUserSkillTree_.GetSkillSlot( EQUIPPED_SKILL_SLOT_COUNT - 1, bSkillSlotB );
+		return true;
+	}
+	if( true == m_InputData.oneSkillEx5 && true == cUserSkillTree_.IsJuneSlotUsable( 1 ) )
+	{
+		pSkillSlotDataPressed_ = cUserSkillTree_.GetSkillSlot( EQUIPPED_SKILL_SLOT_COUNT - 1, !bSkillSlotB );
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 //{{오현빈 // 2012-04-30 // 스킬슬롯 체인지 없이 확장 스킬 사용 할 수 있도록 수정
 	//스킬슬롯 확장 상태가 아니라면 확장 스킬 사용 할 수 없도록 수정
 	if( NULL != g_pData && NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() &&
@@ -34164,6 +34203,16 @@ void CX2GUUser::SetInputData( InputData* pInputData )
 		pInputData->pureR			= false;
 		pInputData->oneDoubleR		= false;
 		pInputData->pureDoubleR		= false;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		pInputData->oneSkill5		= false;
+		pInputData->pureSkill5		= false;
+		pInputData->oneDoubleSkill5	= false;
+		pInputData->pureDoubleSkill5	= false;
+		pInputData->oneSkillEx5		= false;
+		pInputData->pureSkillEx5		= false;
+		pInputData->oneDoubleSkillEx5	= false;
+		pInputData->pureDoubleSkillEx5	= false;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	}
 
 	if ( !m_vecDownImpossiblePtr.empty() )
@@ -37482,6 +37531,13 @@ bool CX2GUUser::GetSkillSlotIndexUsed( OUT int& iSkillSlotIndex_, OUT bool& bSlo
 		{
 			iSkillSlotIndex_ = 3;
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case USI_SPECIAL_ATTACK_5:
+	case USI_SPECIAL_ATTACK_HYPER_5:
+		{
+			iSkillSlotIndex_ = 4;
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	case USI_SPECIAL_ATTACK_SLOTB_1:
 	case USI_SPECIAL_ATTACK_SLOTB_HYPER_1:
@@ -37507,6 +37563,14 @@ bool CX2GUUser::GetSkillSlotIndexUsed( OUT int& iSkillSlotIndex_, OUT bool& bSlo
 			iSkillSlotIndex_ = 3;
 			bSlotB_ = true;
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	case USI_SPECIAL_ATTACK_SLOTB_5:
+	case USI_SPECIAL_ATTACK_SLOTB_HYPER_5:
+		{
+			iSkillSlotIndex_ = 4;
+			bSlotB_ = true;
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	default:
 		ASSERT( !L"Wrong Path" );
@@ -38398,7 +38462,11 @@ bool CX2GUUser::GetAddItemAndRemoveItemToViewList( OUT CX2EqipPtr& pEquipPtrToRe
 */
 int CX2GUUser::GetUsingSkillCount( void )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for ( int i = 0; i < 4; ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	{
 		if ( m_iSkillSlotACount[i] > 2 )
 			m_iUsingSkillCount++;
@@ -39190,7 +39258,11 @@ bool CX2GUUser::IsJuneChangeWorldColorNow()
 
 void CX2GUUser::SetEquippedSkillFunc( const CX2Unit::UnitData& kUnitData_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	for( int i = 0; i< ( EQUIPPED_SKILL_SLOT_COUNT - 1 ); i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for( int i = 0; i< EQUIPPED_SKILL_SLOT_COUNT; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	{
 		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = kUnitData_.m_UserSkillTree.GetSkillSlot( i, bSlotB_ );
 		ASSERT( pSkillSlotData != NULL );

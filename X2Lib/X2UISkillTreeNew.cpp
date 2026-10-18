@@ -2540,7 +2540,11 @@ void CX2UISkillTreeNew::InitEquippedSkillSlotData()
 	if(m_pDLGUISkillTree == NULL)
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	for(int i=0; i<8; ++i)
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for(int i=0; i<EQUIPPED_SKILL_SLOT_COUNT*2; ++i)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	{
 		bool bSlotB = (i > 3) ? true : false;
 		int iSlotIndex = (i > 3) ? i-4 : i;
@@ -2620,7 +2624,11 @@ void CX2UISkillTreeNew::UpdateSkillEquipedSlotUI()
 {
 	if(m_pUserSkillTree != NULL)
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for(int i=0; i<8; ++i)
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for(int i=0; i<EQUIPPED_SKILL_SLOT_COUNT*2; ++i)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{			
 			bool bSlotB = (i > 3) ? true : false;
 			int iSlotIndex = (i > 3) ? i-4 : i;
@@ -4644,14 +4652,22 @@ void CX2UISkillTreeNew::UpdateSkillCoolTime( float fElapsedTime )
 
 			CKTDGUIStatic* pStaticSlot_A = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"Static_SKILL_SLOT_A" );
 			CKTDGUIStatic* pStaticSlot_B = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"Static_SKILL_SLOT_B" );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			for ( int i = 0; i < 4; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			{
 				pStaticSlot_A->GetPicture(i)->SetColor( D3DXCOLOR(1.f,1.f,1.f,0.3f));
 				pStaticSlot_B->GetPicture(i)->SetColor( D3DXCOLOR(1.f,1.f,1.f,0.3f));
 			}
 			if ( pStaticCoolTime != NULL && pStatic_Skill_Cool_Time_Fade != NULL )
 			{  //B슬롯도 같이 하기 위해서 EQUIPPED_SKILL_SLOT_COUNT*2
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				for ( int i = 0; i < 8; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT*2; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				{				
 					bool bSlotB = (i > 3) ? true : false;
 					int iSlotIndex = (i > 3) ? i-4 : i;
@@ -4742,7 +4758,11 @@ void CX2UISkillTreeNew::SwapSkillSlot(bool bVal, bool bForce/* = false*/)
 	if( true == m_bSkillSlotSwap ) 
 	{
 		D3DXVECTOR2 vOffsetPos(0,0);
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i = 0 ; i < 8; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			vOffsetPos.y = ( i >= 4 ) ? 51.f : -51.f;
 			if( NULL != GetEquippedSlot(i) )
@@ -4755,7 +4775,11 @@ void CX2UISkillTreeNew::SwapSkillSlot(bool bVal, bool bForce/* = false*/)
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i = 0 ; i < 8; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			if( NULL != GetEquippedSlot(i) )
 			{
@@ -4931,7 +4955,11 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeA(bool bVal, bool bForce/* = false*/)
 	if( true == m_bSkillSlotSwap ) 
 	{
 		D3DXVECTOR2 vOffsetPos(0,0);
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i = 0 ; i < 8; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			vOffsetPos.y = ( i >= 4 ) ? 51.f : -51.f;
 			if( NULL != GetEquippedSlot(i) )
@@ -4944,7 +4972,11 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeA(bool bVal, bool bForce/* = false*/)
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i = 0 ; i < 8; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			if( NULL != GetEquippedSlot(i) )
 			{
@@ -4972,7 +5004,11 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 
 	if( true == m_bSkillSlotSwap ) //슬롯 교체 중(B슬롯이 하단에 내려온 상태)
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i = 0 ; i < 8; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )//4~7 상단슬롯
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			vOffsetPos.y = ( i >= 4 ) ? 51.f : -200.f;
 			if( NULL != GetEquippedSlot(i) )
@@ -4984,7 +5020,11 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 	}
 	else //기본 상태( A슬롯이 하단에 내려온 상태)
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i = 0 ; i < 8; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i ) //4~7 상단슬롯
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			if( NULL != GetEquippedSlot(i) )
 				vOffsetPos.y = ( i >= 4 ) ? -150.f : 0.f;

@@ -30,11 +30,17 @@ public:
 		SKILL_SLOT_A2,			/// A½½·Ô 2, Key = S
 		SKILL_SLOT_A3,			/// A½½·Ô 3, Key = D
 		SKILL_SLOT_A4,			/// A½½·Ô 4, Key = C
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		SKILL_SLOT_A5_TC,		/// June: the A bar transcendence slot ( combined index 4 ), locked until Stage 6
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		SKILL_SLOT_B1,			/// B½½·Ô 1, Key = A
 		SKILL_SLOT_B2,			/// B½½·Ô 2, Key = S
 		SKILL_SLOT_B3,			/// B½½·Ô 3, Key = D
 		SKILL_SLOT_B4,			/// B½½·Ô 4, Key = C
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		SKILL_SLOT_B5_TC,		/// June: the B bar transcendence slot ( combined index 9 ), slot state key 1
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		MAX_SKILL_SLOT,			/// ÃÖ´ë ½½·Ô
 	};
@@ -391,6 +397,62 @@ public:
 
 	static void GetSlotIndexAndSlotB( IN const int iSkillSlotId_, OUT int& iSlotIndex_, OUT bool& bSlotB_ );	// ½½·Ô ID¸¦ ÅëÇØ SlotIndex¿Í SlotB ÀÎÁö ¿©ºÎ¸¦ ¾Ë¼öÀÖ´Â ÇÔ¼ö
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	/// June skill slot state ( S5 ): replaces the B end date / expiration state. Key 0 = B slots 5-8, key 1 = B-TC slot 9. A key not in the
+	/// map has state 0; state 1 ( SSBES_NOT_EXPIRED ) and 2 ( SSBES_PERMANENT ) are usable ( June 32890ee0 ). SKILL_SLOT_B_FREE is retired
+	/// here: the emulator sends key 0 = 2 ( permanent ) instead, and June's lock code runs unchanged.
+	struct JuneSlotState
+	{
+		int				m_iState;
+		std::wstring	m_wstrDate;
+		JuneSlotState() : m_iState( 0 ) {}
+	};
+	void SetJuneSlotState( const int iKey_, const int iState_, const std::wstring& wstrDate_ )	/// June 32892a00
+	{
+		JuneSlotState& kState = m_mapJuneSlotState[iKey_];
+		kState.m_iState = iState_;
+		kState.m_wstrDate = wstrDate_;
+	}
+	int GetJuneSlotState( const int iKey_ ) const												/// June 32890ea0: the state, 0 when the key is absent
+	{
+		std::map<int, JuneSlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
+		return ( m_mapJuneSlotState.end() == it ) ? 0 : it->second.m_iState;
+	}
+	bool IsJuneSlotUsable( const int iKey_ ) const											/// June 32890ee0: state 1 or 2
+	{
+		const int iState = GetJuneSlotState( iKey_ );
+		return ( 1 == iState || 2 == iState );
+	}
+	const std::wstring& GetJuneSlotDate( const int iKey_ ) const
+	{
+		static const std::wstring s_wstrEmpty;
+		std::map<int, JuneSlotState>::const_iterator it = m_mapJuneSlotState.find( iKey_ );
+		return ( m_mapJuneSlotState.end() == it ) ? s_wstrEmpty : it->second.m_wstrDate;
+	}
+	/// The select-unit feed: June 3235eb20 passes the first two elements of KUnitSkillData's slot-state vector to 32892a00
+	void SetJuneSlotStateFromVector( const std::vector<KJuneSkillSlotState>& vecState_ )
+	{
+		for ( size_t i = 0; i < vecState_.size() && i < 2; ++i )
+			SetJuneSlotState( vecState_[i].m_iKey, vecState_[i].m_iState, vecState_[i].m_wstrDate );
+	}
+	/// Combined slot index 4 ( A-TC ) and 9 ( B-TC ), June 3214f3d0
+	static bool IsTranscendenceSlotIndex( const int iCombinedIndex_ ) { return 4 == iCombinedIndex_ || 9 == iCombinedIndex_; }
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
+	void LogJuneSlotCensus( const wchar_t* wszWhere_ ) const;	/// [JUNE_SKILL] SLOT census line ( short-lived )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
+
+	CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE GetSkillSlotBExpirationState() const
+	{
+		return static_cast<SKILL_SLOT_B_EXPIRATION_STATE>( GetJuneSlotState( 0 ) );
+	}
+	void SetSkillSlotBExpirationState(CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE val)
+	{
+		SetJuneSlotState( 0, static_cast<int>( val ), GetJuneSlotDate( 0 ) );
+	}
+	bool GetEnabledSkillSlotB() const;
+	const std::wstring& GetSkillSlotBEndDateString() const { return GetJuneSlotDate( 0 ); }
+	void SetSkillSlotBEndDateString(std::wstring val) { SetJuneSlotState( 0, GetJuneSlotState( 0 ), val ); }
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE GetSkillSlotBExpirationState() const
 	{
 //{{ Iruha : 2026-08-25 // Skill Slot B open by default, no medal purchase required
@@ -408,6 +470,7 @@ public:
 	bool GetEnabledSkillSlotB() const;
 	const std::wstring& GetSkillSlotBEndDateString() const { return m_wstrSkillSlotBEndDate; }
 	void SetSkillSlotBEndDateString(std::wstring val) { m_wstrSkillSlotBEndDate = val; }
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	void CalcUsedSPointAndCSPoint( OUT int& iSPoint, OUT int& iCSPoint ) const;
 	void CalcCumulativeUsedSPointOnEachTier( OUT std::vector<int>& vecTierSPoint ) const;
@@ -486,7 +549,11 @@ public:
 	}
 	void ToggleSkillSlotAB()
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		SkillSlotData EquipSkillTemp[EQUIPPED_SKILL_SLOT_COUNT];
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		SkillSlotData EquipSkillTemp[4];
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		memcpy( EquipSkillTemp, m_aEquippedSkill, sizeof(m_aEquippedSkill) );
 		memcpy( m_aEquippedSkill, m_aEquippedSkillSlotB, sizeof(m_aEquippedSkillSlotB) );
@@ -576,6 +643,9 @@ private:
 
 	SKILL_SLOT_B_EXPIRATION_STATE		m_eSkillSlotBExpirationState;
 	std::wstring						m_wstrSkillSlotBEndDate;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	std::map<int, JuneSlotState>			m_mapJuneSlotState;		/// June +0x434: slot-state key -> { state, date }
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	int									m_iUnitClass;
 #ifdef GUILD_SKILL

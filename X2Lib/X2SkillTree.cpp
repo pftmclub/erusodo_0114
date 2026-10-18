@@ -2411,8 +2411,16 @@ bool CX2SkillTree::Handler_EGS_RESET_SKILL_ACK( HWND hWnd, UINT uMsg, WPARAM wPa
 				{
 					for( int i=0; i<EQUIPPED_SKILL_SLOT_COUNT*2; i++ )
 					{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+						bool bSlotB = (i >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 						bool bSlotB = (i > 3) ? true : false;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+						int iSlotIndex = (i >= EQUIPPED_SKILL_SLOT_COUNT) ? i-EQUIPPED_SKILL_SLOT_COUNT : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 						int iSlotIndex = (i > 3) ? i-4 : i;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 						const CX2UserSkillTree::SkillSlotData* pSkillSlotData = pUnitData->m_UserSkillTree.GetSkillSlot( iSlotIndex, bSlotB );
 						if( NULL != pSkillSlotData )
 						{
@@ -4037,7 +4045,11 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 				for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
 				{
 					g_pData->GetMyUser()->ChangeEquippedSkillState( i, kEvent.m_kUserSkillPageData.m_aEquippedSkill[i].m_iSkillID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+					g_pData->GetMyUser()->ChangeEquippedSkillState( i + EQUIPPED_SKILL_SLOT_COUNT, kEvent.m_kUserSkillPageData.m_aEquippedSkillSlotB[i].m_iSkillID );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 					g_pData->GetMyUser()->ChangeEquippedSkillState( i, kEvent.m_kUserSkillPageData.m_aEquippedSkillSlotB[i].m_iSkillID );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				}
 			}
 			

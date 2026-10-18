@@ -3390,8 +3390,16 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 		m_sMegaElectronBallData.SetSlotID( -1 );
 		for( int iSlot = 0; iSlot < EQUIPPED_SKILL_SLOT_COUNT*2; ++iSlot )	// ½½·Ô ÀÎµ¦½º.
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			const bool bSlotB = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			const bool bSlotB = (iSlot > 3) ? true : false;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			const int iSlotIndex = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? iSlot - EQUIPPED_SKILL_SLOT_COUNT : iSlot;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			const int iSlotIndex = (iSlot > 3) ? iSlot - 4 : iSlot;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			//½½·Ô B°¡ È°¼ºÈ­ µÇÁö ¾ÊÀ¸¸é ½½·Ô A¸¸ È®ÀÎÇÏµµ·Ï break;
 			if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
 				&& bSlotB == true)
@@ -3419,8 +3427,16 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 		{
 			for( int iSlot = 0; iSlot < EQUIPPED_SKILL_SLOT_COUNT * 2; ++iSlot )	// ½½·Ô ÀÎµ¦½º.
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				const bool bSlotB = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const bool bSlotB = (iSlot > 3) ? true : false;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				const int iSlotIndex = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? iSlot - EQUIPPED_SKILL_SLOT_COUNT : iSlot;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const int iSlotIndex = (iSlot > 3) ? iSlot - 4 : iSlot;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				//½½·Ô B°¡ È°¼ºÈ­ µÇÁö ¾ÊÀ¸¸é ½½·Ô A¸¸ È®ÀÎÇÏµµ·Ï break;
 				if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
 					&& bSlotB == true)
@@ -3453,8 +3469,16 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 		{
 			for( int iSlot = 0; iSlot < EQUIPPED_SKILL_SLOT_COUNT * 2; ++iSlot )	// ½½·Ô ÀÎµ¦½º.
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				const bool bSlotB = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const bool bSlotB = (iSlot > 3) ? true : false;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				const int iSlotIndex = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? iSlot - EQUIPPED_SKILL_SLOT_COUNT : iSlot;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const int iSlotIndex = (iSlot > 3) ? iSlot - 4 : iSlot;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				
 				if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
 					&& bSlotB == true)

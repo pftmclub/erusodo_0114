@@ -1034,6 +1034,49 @@ DECL_DATA( KStat )
 	}
 };
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+DECL_DATA( KSkillData )
+{
+	short m_iSkillID;
+	UCHAR m_cSkillLevel;
+	int m_iJuneSkillDataExtra;	// June KSkillData +3 (320ef0e0): meaning unmapped, no client reader. The emulator writes 0.
+
+	void Init()
+	{
+		m_iSkillID = 0;
+		m_cSkillLevel = 0;
+		m_iJuneSkillDataExtra = 0;
+	}
+};
+
+// June skill-slot state ( KUnitSkillData vector entry, replaces the B end date / expiration state ). Key 0 = B slots 5-8, key 1 = B-TC slot 9.
+// State 0 = locked, 1 = usable with an end date, 2 = permanent ( CX2UserSkillTree::SSBES_* ).
+DECL_DATA( KJuneSkillSlotState )
+{
+	int				m_iKey;
+	int				m_iState;
+	std::wstring	m_wstrDate;
+
+	KJuneSkillSlotState() : m_iKey( 0 ), m_iState( 0 ) {}
+};
+
+DECL_DATA( KJuneIntPair )
+{
+	int m_iFirst;
+	int m_iSecond;
+
+	KJuneIntPair() : m_iFirst( 0 ), m_iSecond( 0 ) {}
+};
+
+// June-only struct at the end of KUnitSkillData ( 320dc980 ): no consumer mapped, the emulator sends it empty.
+DECL_DATA( KJuneSkillExtraData )
+{
+	std::vector< KSkillData >		m_vecSkillDataA;
+	std::vector< KSkillData >		m_vecSkillDataB;
+	std::map< int, int >			m_mapIntInt;
+	std::vector< KJuneIntPair >		m_vecIntPair;
+};
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 DECL_DATA( KSkillData )
 {
 	short m_iSkillID;
@@ -1045,15 +1088,24 @@ DECL_DATA( KSkillData )
 		m_cSkillLevel = 0;
 	}
 };
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 DECL_DATA( KUnitSkillData )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	static const int EQUIPPED_SKILL_SLOT_COUNT = 5;		// A 0-3 + A-TC 4, B 0-3 + B-TC 4 ( June 320e3670 )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	static const int EQUIPPED_SKILL_SLOT_COUNT = 4;				
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	KSkillData 		m_aEquippedSkill[ EQUIPPED_SKILL_SLOT_COUNT ];
 	KSkillData 		m_aEquippedSkillSlotB[ EQUIPPED_SKILL_SLOT_COUNT ];
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	std::vector< KJuneSkillSlotState >	m_vecJuneSkillSlotState;	// June: replaces m_wstrSkillSlotBEndDate / m_cSkillSlotBExpirationState
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	std::wstring	m_wstrSkillSlotBEndDate;														
 	char			m_cSkillSlotBExpirationState;										// KUserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE		
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 	std::vector< KSkillData >	m_vecPassiveSkill;
 	//{{ 2009. 11. 23  최육사	길드스킬
@@ -1071,6 +1123,9 @@ DECL_DATA( KUnitSkillData )
 	unsigned char	m_nActiveSkillPagesNumber;
 	unsigned char	m_nTheNumberOfSkillPagesAvailable;
 #endif // SERV_SKILL_PAGE_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	KJuneSkillExtraData	m_kJuneSkillExtraData;	// June 320dc980, last field of 320e3670
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	
 	KUnitSkillData()
 	{
@@ -1090,8 +1145,13 @@ DECL_DATA( KUnitSkillData )
 		m_vecSkillNote.resize(0);
 #endif SERV_SKILL_NOTE
 		//}}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		m_vecJuneSkillSlotState.clear();
+		m_kJuneSkillExtraData = KJuneSkillExtraData();
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		m_wstrSkillSlotBEndDate = L"";
 		m_cSkillSlotBExpirationState = 0;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		for( int i=0; i<EQUIPPED_SKILL_SLOT_COUNT; i++ )
 		{
@@ -6408,7 +6468,11 @@ DECL_DATA( KUserSkillData )
 	}
 };
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#define EQUIPPED_SKILL_SLOT_COUNT 5
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #define EQUIPPED_SKILL_SLOT_COUNT 4
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 #ifdef SERV_SKILL_PAGE_SYSTEM
 DECL_DATA( KRetrievedSkillPageData )

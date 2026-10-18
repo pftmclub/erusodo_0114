@@ -2211,8 +2211,15 @@ bool CX2StateBeginning::Handler_EGS_SELECT_UNIT_ACK( HWND hWnd, UINT uMsg, WPARA
 		pUnit->AccessUnitData().m_UserSkillTree.SetAcquiredSkill( kEvent.m_vecSkillAcquired );
 		pUnit->AccessUnitData().m_UserSkillTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );
 		pUnit->AccessUnitData().m_UserSkillTree.SetEquippedSkill( kEvent.m_kUnitInfo.m_UnitSkillData.m_aEquippedSkill, kEvent.m_kUnitInfo.m_UnitSkillData.m_aEquippedSkillSlotB );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		pUnit->AccessUnitData().m_UserSkillTree.SetJuneSlotStateFromVector( kEvent.m_kUnitInfo.m_UnitSkillData.m_vecJuneSkillSlotState );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		pUnit->AccessUnitData().m_UserSkillTree.SetSkillSlotBExpirationState( (CX2UserSkillTree::SKILL_SLOT_B_EXPIRATION_STATE) kEvent.m_kUnitInfo.m_UnitSkillData.m_cSkillSlotBExpirationState );
 		pUnit->AccessUnitData().m_UserSkillTree.SetSkillSlotBEndDateString( kEvent.m_kUnitInfo.m_UnitSkillData.m_wstrSkillSlotBEndDate );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
+		pUnit->GetUnitData().m_UserSkillTree.LogJuneSlotCensus( L"select unit" );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
 
 
 		if( g_pData->GetUIManager() != NULL)

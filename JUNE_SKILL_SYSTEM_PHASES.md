@@ -913,6 +913,43 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (+ short-lived `_DEBUG`), code commit 
 
 **Done gate:** both `cl /P` probes show the flag; flagcheck PASS (both homes); `DEPLOY OK`; the v18 lines.
 
+### Phase S5 -- Done (2026-10-18, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_10` (+ short-lived `_DEBUG`), defined in `KTDXLIB/Always.h` **and** `KncWX2Server/Common/ServerDefine.h` (`SECOND_HOMES`). Log tag `[JUNE_SKILL] SLOT` / `MIG`.
+Revert and the full behaviour list: `MODS.md` "June skill slots 5 + 5". Site ledger: `june2017_re/s5_slot_sites_done.tsv` (1,304 rows; the disposition is derived from each row's shape and was read
+against the code, not proved line by line: the review spot-checks it).
+- **Hygiene:** `flagcheck --worktree --files <25 files>`: `files: 22 PASS, 1 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `3 deleted line(s)` (the three `GAMEACTION_COMMUNITY` lines of
+  `X2KeyPad.cpp`, kept verbatim in `#else`), `6 EOL-mismatched inserted line(s)` (`X2GuEve.cpp` / `X2SkillTree.cpp`, mixed-EOL files, inserts follow their anchor), `0 #else/#endif without the flag token`.
+- **Probes (`cl /P`):** `june2017_re/flagprobe.py` (X2Lib): `ON SERV_IRUHADEV_JUNE_SKILL_SLOT_10`. New `june2017_re/flagprobe_sp.py` (X2ServerProtocol, X2TOOL): `ON SERV_IRUHADEV_JUNE_SKILL_SLOT_10`, `EQUIPPED_SKILL_SLOT_COUNT = 5`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,992,064 B, dated 2026-10-18 11:12:15, md5 99b5211ec587d8c0bd2caab63493e7a9, equal to X2/US_SERVICE/x2.exe` (an earlier coalesced build, md5 `ee639661`, already carried the code without the census lines).
+- **What landed**
+  - *Wire* (`CommonPacket.h/.cpp`): count 5 (static member and the `#define`); `KSkillData` 7 B (`m_iJuneSkillDataExtra`, unmapped, sent 0); `KUnitSkillData` in June's Get order (`A[0..4]`, `B[0..4]`,
+    slot-state vector in place of the B end date / state, passives, guild passives, notes, page bytes, `KJuneSkillExtraData` = `320dc980`, sent empty); `KUserSkillPageData` 5 + 5.
+  - *Slot ids* A 0-3 + A-TC 4, B 5-8 + B-TC 9 (`SKILL_SLOT_*` enum, `GetSkillSlot`'s combined branch, gage list `i + COUNT`, `GetEquippedSkillSlotType` 0-3 A / 5-8 B / 4, 9 = type 3, `ApplyResetCoolTime` type 3).
+    BBT 98's reader and BFT 16's counter need nothing more: both already take the type from `GetEquippedSkillSlotType` / a `std::map`.
+  - *Slot state* `m_mapJuneSlotState` (June `+0x434`; `32892a00` / `32890ea0` / `32890ee0`), fed from the vector's first two entries; `GetEnabledSkillSlotB()` = key 0 usable; the legacy setters write key 0.
+    The four `SKILL_SLOT_B_FREE` client sites (tree `.h` / `.cpp`, both tree UIs) are retired under the flag; the emulator sends key 0 = 2 (permanent), key 1 = 0.
+  - *States* `USI_SPECIAL_ATTACK_5` / `_HYPER_5` (`GUSI_END + 53 / 54`) and `_SLOTB_5` / `_HYPER_5` (`+ 63 / 64`) = June's numbers; the four state arrays have 5 entries; `GetSkillSlotIndexUsed` and
+    `GetSkillIDByEquipSlotID` know them.
+  - *Keys* `GAMEACTION_SKILL5` / `SKILL_EX5` (F / T), Community T -> 0 (June `@31c48b2a`), `InputData` groups `*Skill5` / `*SkillEx5` fed in `KeyProcess` (swapped with the bars), chat key lock,
+    `CommonSpecialAttackEventProcess` consumes an F press (index 4, no lock check: JUNE_BUGS 288) and a T press only while key 1 is usable.
+  - *Emulator + save* state vector, `ChangeSkillSlot` refuses 4 / 9 (`ERR_SKILL_09`), seeds stop before the TC slot, **schema v18** (`MigrateSkillSlotsToTen`: slot 4-7 -> 5-8, a `MIG unit .. skill .. slot a -> b` line per row).
+  - *Small fixes the widening forced:* `ToggleSkillSlotAB` temp buffer (was `[4]`: a stack overflow at 5), `GetSkillSlot`'s `>= 4` (would have mapped A-TC to B1), the reset-skill and page-ACK loops' decode, Eve's three slot-id loops,
+    the learn-ACK auto-equip no longer lands in the empty TC slot (`GetSkillEquippedSlotIndex`), the v17 rung's bar size (`MAX_SKILL_SLOT / 2` would now be 5).
+- **Decisions the plan did not fix (judgement calls, say if you disagree)**
+  - **Pressed-index space stays March's** (A 0-3, B 4-7) in `CommonSpecialAttackEventProcess` / `CountUsedSkill` / `GetPressedSkillState` / `CurrentSkillKeyManager`: about 35 class sites read it as `> 3` / `-4`, and S0b put class files in the
+    checklist. Slot ids, wire, DB and gage use June's numbering. Conversion at class-port time: checklist **7ag**.
+  - **The HUD and both tree dialogs keep 4 + 4 controls** (their loops are bounded 8 / 4; `GetPicture( 4 )` would be NULL). S6 builds the 10-slot dialog. The key-config dialog (`X2KeyPad` `UpdateUI`, `X2StateOption`) has no icons for
+    the new actions: they take the default branch (S6).
+  - **TC is dormant, not half-live:** unit state code skips the fifth slot (`SetEquippedSkillFunc*`, `SetEquippedSkillLevelCommon`, `ChangeEquippedSkillState`), so no class code sees a TC skill.
+  - F is also the March riding key (both fire on F); only riding acts because TC is empty.
+  - `3235a160` (called after the SkillDown sound in June's reset ACK `322112d0`) is a unit stat / HP / MP recalculation, not slot work: not ported here (S7 owns the reset path). The reset loop's 0-9 decode is ported.
+- **Out of scope, noted:** `KUnitInfo +0x30c` map (no consumer), `KSkillData +3` meaning, the `m_mapSkillSlotVector` option packet (page-option, not the skill slots), cash-item packets that still carry the B end date.
+- **Play-test (pending; no console command reaches slots, so it is the skill window + logs).** Character `SaberT` (Elesis, Saber Knight, L70, unit 40). The save now holds the old-numbering B bar (skill 28003 Sonic Assault: Sting at slot 4,
+  28004 Unlimited Blade at slot 5) and `user_version` 17, so the next launch runs the v18 rung on real rows. Snapshots: `db_backup/els_db_20261018_104349_pre_pre_S5_skill_slots.sql` (before any S5 launch) and
+  `..._111246_pre_sql.sql`. Look for in `python tools/logs.py --tag JUNE_SKILL`: `MIG unit 40 skill 28003 slot 4 -> 5`, `skill 28004 slot 5 -> 6`, `MIG v18 done: 2`, `SLOT sent unit 40: A 28000/28200/28001/28002/0 B 28003/28004/0/0/0 ... key 0 = 2, key 1 = 0`,
+  `SLOT census select unit: ... key0 state 2 usable 1, key1 state 0 usable 0, enabledB 1, slots per bar 5`; after moving a skill into B3 and a relog the census shows it in B[2].
+
 ## Phase S6 - Slot UI
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI`. Sub-tag `[JUNE_SKILL] UI`.

@@ -5924,6 +5924,10 @@ void CX2Game::KeyProcess()
 					InputData( GA_SKILL2, m_InputData.pureDoubleW, m_InputData.oneDoubleW, m_InputData.pureW, m_InputData.oneW ); //DIK_W
 					InputData( GA_SKILL3, m_InputData.pureDoubleE, m_InputData.oneDoubleE, m_InputData.pureE, m_InputData.oneE ); //DIK_E
 					InputData( GA_SKILL4, m_InputData.pureDoubleR, m_InputData.oneDoubleR, m_InputData.pureR, m_InputData.oneR ); //DIK_R
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+					InputData( GA_SKILL_EX5, m_InputData.pureDoubleSkill5, m_InputData.oneDoubleSkill5, m_InputData.pureSkill5, m_InputData.oneSkill5 );
+					InputData( GA_SKILL5, m_InputData.pureDoubleSkillEx5, m_InputData.oneDoubleSkillEx5, m_InputData.pureSkillEx5, m_InputData.oneSkillEx5 );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				}
 				else
 				{
@@ -5936,6 +5940,10 @@ void CX2Game::KeyProcess()
 					InputData( GA_SKILL_EX2, m_InputData.pureDoubleW, m_InputData.oneDoubleW, m_InputData.pureW, m_InputData.oneW );
 					InputData( GA_SKILL_EX3, m_InputData.pureDoubleE, m_InputData.oneDoubleE, m_InputData.pureE, m_InputData.oneE );
 					InputData( GA_SKILL_EX4, m_InputData.pureDoubleR, m_InputData.oneDoubleR, m_InputData.pureR, m_InputData.oneR );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+					InputData( GA_SKILL5, m_InputData.pureDoubleSkill5, m_InputData.oneDoubleSkill5, m_InputData.pureSkill5, m_InputData.oneSkill5 );
+					InputData( GA_SKILL_EX5, m_InputData.pureDoubleSkillEx5, m_InputData.oneDoubleSkillEx5, m_InputData.pureSkillEx5, m_InputData.oneSkillEx5 );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				}
 
 #ifdef RIDING_SYSTEM
@@ -13404,7 +13412,11 @@ void CX2Game::UpdateElswordSkillSlotEffect()
 			pStatic_ElSkillVigor->SetShow(true);
 			pStatic_ElSkillDest->SetShow(true);
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			for ( int i = 0; i < 8; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT*2; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			{
 				bool bSlotB = (i > 3) ? true : false;
 				int iSlotIndex = (i > 3) ? i-4 : i;
@@ -13509,7 +13521,11 @@ void CX2Game::UpdateEveElectraSkillSlotIcon()
 	{
 		const CX2UserSkillTree& refUserSkillTree = GetMyUnit()->GetUnit()->GetUnitData().m_UserSkillTree;
 		//B슬롯도 같이 하기 위해서 EQUIPPED_SKILL_SLOT_COUNT*2
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for(int i=0; i<8; ++i)
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for(int i=0; i<EQUIPPED_SKILL_SLOT_COUNT * 2; ++i)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			bool bSlotB = (i > 3) ? true : false;
 			int iSlotIndex = (i > 3) ? i-4 : i;
@@ -13589,7 +13605,11 @@ void CX2Game::UpdateNightWatcherSkillSlotIcon()
 	{
 		const CX2UserSkillTree& refUserSkillTree = GetMyUnit()->GetUnit()->GetUnitData().m_UserSkillTree;
 		//B슬롯도 같이 하기 위해서 EQUIPPED_SKILL_SLOT_COUNT*2
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for(int i=0; i<8; ++i)
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for(int i=0; i<EQUIPPED_SKILL_SLOT_COUNT * 2; ++i)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			bool bSlotB = (i > 3) ? true : false;
 			int iSlotIndex = (i > 3) ? i-4 : i;
@@ -13652,7 +13672,11 @@ void CX2Game::UpdateVeteranCommanderSkillSlotIcon()
 	{
 		const CX2UserSkillTree& refUserSkillTree = GetMyUnit()->GetUnit()->GetUnitData().m_UserSkillTree;
 		//B슬롯도 같이 하기 위해서 EQUIPPED_SKILL_SLOT_COUNT*2
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for(int i=0; i<8; ++i)
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for(int i=0; i<EQUIPPED_SKILL_SLOT_COUNT * 2; ++i)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			bool bSlotB = (i > 3) ? true : false;
 			int iSlotIndex = (i > 3) ? i-4 : i;
@@ -13711,7 +13735,11 @@ void CX2Game::UpdateCodeEmpressSkillSlotIcon()
 	{
 		const CX2UserSkillTree& refUserSkillTree = GetMyUnit()->GetUnit()->GetUnitData().m_UserSkillTree;
 		//B슬롯도 같이 하기 위해서 EQUIPPED_SKILL_SLOT_COUNT*2
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for(int i=0; i<8; ++i)
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for(int i=0; i<EQUIPPED_SKILL_SLOT_COUNT * 2; ++i)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			bool bSlotB = (i > 3) ? true : false;
 			int iSlotIndex = (i > 3) ? i-4 : i;
@@ -13779,7 +13807,11 @@ void CX2Game::UpdateAddNasodRulerSkillSlotIcon()
 		const CX2UserSkillTree& refUserSkillTree = GetMyUnit()->GetUnit()->GetUnitData().m_UserSkillTree;
 
 		//B슬롯도 같이 하기 위해서 EQUIPPED_SKILL_SLOT_COUNT*2
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for( int i = 0; i<8; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0; i<EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			bool bSlotB = (i > 3) ? true : false;
 			int iSlotIndex = (i > 3) ? i-4 : i;
@@ -13874,7 +13906,11 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 			CKTDGUIStatic* pStatic_Skill_Cool_Time_Fade = (CKTDGUIStatic*)m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time_Fade" );
 			CKTDGUIStatic* pStaticSlot_A = (CKTDGUIStatic*) m_pDLGSkillSlot->GetControl( L"Static_SKILL_SLOT_A" );
 			CKTDGUIStatic* pStaticSlot_B = (CKTDGUIStatic*) m_pDLGSkillSlot->GetControl( L"Static_SKILL_SLOT_B" );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			for ( int i = 0; i < 4; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			{
 				pStaticSlot_A->GetPicture(i)->SetColor( D3DXCOLOR(1.f,1.f,1.f,0.3f));
 				pStaticSlot_B->GetPicture(i)->SetColor( D3DXCOLOR(1.f,1.f,1.f,0.3f));
@@ -13904,7 +13940,11 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 
 			if ( pStaticCoolTime != NULL && pStatic_Skill_Cool_Time_Fade != NULL )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				for ( int i = 0; i < 8; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT*2; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				{
 					bool bSlotB = (i > 3) ? true : false;
 					int iSlotIndex = (i > 3) ? i-4 : i;
@@ -14323,7 +14363,11 @@ void CX2Game::InitExpandSkillCoolTime()
 		CKTDGUIStatic* pStaticCoolTime = (CKTDGUIStatic*)m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time" );
 		CKTDGUIStatic* pStaticCoolTime_B = (CKTDGUIStatic*)m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time_B" );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		for ( int i = 0; i < 4; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; i++ )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			if( NULL != pStaticCoolTime )
 			{

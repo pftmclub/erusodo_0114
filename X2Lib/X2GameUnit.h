@@ -265,6 +265,17 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			bool oneLCtr;
 			bool pureDoubleLCtr;
 			bool oneDoubleLCtr;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			/// June 31fcadd0: GA_SKILL5 ( A bar transcendence slot, combined index 4 ) and GA_SKILL_EX5 ( B bar, index 9 )
+			bool pureSkill5;
+			bool oneSkill5;
+			bool pureDoubleSkill5;
+			bool oneDoubleSkill5;
+			bool pureSkillEx5;
+			bool oneSkillEx5;
+			bool pureDoubleSkillEx5;
+			bool oneDoubleSkillEx5;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 			InputData()
 			{
@@ -371,6 +382,16 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				oneLCtr				= false;
 				pureDoubleLCtr		= false;
 				oneDoubleLCtr		= false;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				pureSkill5			= false;
+				oneSkill5			= false;
+				pureDoubleSkill5	= false;
+				oneDoubleSkill5		= false;
+				pureSkillEx5		= false;
+				oneSkillEx5			= false;
+				pureDoubleSkillEx5	= false;
+				oneDoubleSkillEx5	= false;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			}
 
 

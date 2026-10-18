@@ -740,6 +740,72 @@ SERIALIZE_DEFINE_GET( KStat, obj, ks )
 
 
 //////////////////////////////////////////////////////////////////////////
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+SERIALIZE_DEFINE_PUT( KSkillData, obj, ks )
+{
+	return PUT( m_iSkillID )
+		&& PUT( m_cSkillLevel )
+		&& PUT( m_iJuneSkillDataExtra )
+		;
+
+}
+
+SERIALIZE_DEFINE_GET( KSkillData, obj, ks )
+{
+	return GET( m_iSkillID )
+		&& GET( m_cSkillLevel )
+		&& GET( m_iJuneSkillDataExtra )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KJuneSkillSlotState, obj, ks )
+{
+	return PUT( m_iKey )
+		&& PUT( m_iState )
+		&& PUT( m_wstrDate )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KJuneSkillSlotState, obj, ks )
+{
+	return GET( m_iKey )
+		&& GET( m_iState )
+		&& GET( m_wstrDate )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KJuneIntPair, obj, ks )
+{
+	return PUT( m_iFirst )
+		&& PUT( m_iSecond )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KJuneIntPair, obj, ks )
+{
+	return GET( m_iFirst )
+		&& GET( m_iSecond )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KJuneSkillExtraData, obj, ks )
+{
+	return PUT( m_vecSkillDataA )
+		&& PUT( m_vecSkillDataB )
+		&& PUT( m_mapIntInt )
+		&& PUT( m_vecIntPair )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KJuneSkillExtraData, obj, ks )
+{
+	return GET( m_vecSkillDataA )
+		&& GET( m_vecSkillDataB )
+		&& GET( m_mapIntInt )
+		&& GET( m_vecIntPair )
+		;
+}
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 SERIALIZE_DEFINE_PUT( KSkillData, obj, ks )
 {
 	return PUT( m_iSkillID )
@@ -754,11 +820,39 @@ SERIALIZE_DEFINE_GET( KSkillData, obj, ks )
 		&& GET( m_cSkillLevel )
 		;
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 
 //////////////////////////////////////////////////////////////////////////
 SERIALIZE_DEFINE_PUT( KUnitSkillData, obj, ks )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	// June 320e3670 order: A[0..4], B[0..4], slot-state vector, passive, guild passive, note, pages, June-only struct
+	return PUT( m_aEquippedSkill[0] )
+		&& PUT( m_aEquippedSkill[1] )
+		&& PUT( m_aEquippedSkill[2] )
+		&& PUT( m_aEquippedSkill[3] )
+		&& PUT( m_aEquippedSkill[4] )
+		&& PUT( m_aEquippedSkillSlotB[0] )
+		&& PUT( m_aEquippedSkillSlotB[1] )
+		&& PUT( m_aEquippedSkillSlotB[2] )
+		&& PUT( m_aEquippedSkillSlotB[3] )
+		&& PUT( m_aEquippedSkillSlotB[4] )
+		&& PUT( m_vecJuneSkillSlotState )
+		&& PUT( m_vecPassiveSkill )
+#ifdef GUILD_SKILL_TEST
+		&& PUT( m_vecGuildPassiveSkill )
+#endif GUILD_SKILL_TEST
+#ifdef SERV_SKILL_NOTE
+		&& PUT( m_vecSkillNote )
+#endif SERV_SKILL_NOTE
+#ifdef SERV_SKILL_PAGE_SYSTEM
+		&& PUT( m_nActiveSkillPagesNumber)
+		&& PUT( m_nTheNumberOfSkillPagesAvailable )
+#endif // SERV_SKILL_PAGE_SYSTEM
+		&& PUT( m_kJuneSkillExtraData )
+		;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	return PUT( m_aEquippedSkill[0] )
 		&& PUT( m_aEquippedSkill[1] )
 		&& PUT( m_aEquippedSkill[2] )
@@ -786,10 +880,37 @@ SERIALIZE_DEFINE_PUT( KUnitSkillData, obj, ks )
 		&& PUT( m_nTheNumberOfSkillPagesAvailable )
 #endif // SERV_SKILL_PAGE_SYSTEM
 		;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 }
 
 SERIALIZE_DEFINE_GET( KUnitSkillData, obj, ks )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+	return GET( m_aEquippedSkill[0] )
+		&& GET( m_aEquippedSkill[1] )
+		&& GET( m_aEquippedSkill[2] )
+		&& GET( m_aEquippedSkill[3] )
+		&& GET( m_aEquippedSkill[4] )
+		&& GET( m_aEquippedSkillSlotB[0] )
+		&& GET( m_aEquippedSkillSlotB[1] )
+		&& GET( m_aEquippedSkillSlotB[2] )
+		&& GET( m_aEquippedSkillSlotB[3] )
+		&& GET( m_aEquippedSkillSlotB[4] )
+		&& GET( m_vecJuneSkillSlotState )
+		&& GET( m_vecPassiveSkill )
+#ifdef GUILD_SKILL_TEST
+		&& GET( m_vecGuildPassiveSkill )
+#endif GUILD_SKILL_TEST
+#ifdef SERV_SKILL_NOTE
+		&& GET( m_vecSkillNote )
+#endif SERV_SKILL_NOTE
+#ifdef SERV_SKILL_PAGE_SYSTEM
+		&& GET( m_nActiveSkillPagesNumber)
+		&& GET( m_nTheNumberOfSkillPagesAvailable )
+#endif // SERV_SKILL_PAGE_SYSTEM
+		&& GET( m_kJuneSkillExtraData )
+		;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	return GET( m_aEquippedSkill[0] )
 		&& GET( m_aEquippedSkill[1] )
 		&& GET( m_aEquippedSkill[2] )
@@ -816,6 +937,7 @@ SERIALIZE_DEFINE_GET( KUnitSkillData, obj, ks )
 		&& GET( m_nTheNumberOfSkillPagesAvailable )
 #endif // SERV_SKILL_PAGE_SYSTEM
 		;   
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 }
 
 
@@ -5893,10 +6015,16 @@ SERIALIZE_DEFINE_PUT( KUserSkillPageData, obj, ks )
 		&& PUT( m_aEquippedSkill[1] )
 		&& PUT( m_aEquippedSkill[2] )
 		&& PUT( m_aEquippedSkill[3] )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		&& PUT( m_aEquippedSkill[4] )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		&& PUT( m_aEquippedSkillSlotB[0] )
 		&& PUT( m_aEquippedSkillSlotB[1] )
 		&& PUT( m_aEquippedSkillSlotB[2] )
 		&& PUT( m_aEquippedSkillSlotB[3] )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		&& PUT( m_aEquippedSkillSlotB[4] )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		&& PUT( m_usSkillPoint )
 		&& PUT( m_usCashSkillPoint )
 		&& PUT( m_vecUserSkillData )
@@ -5909,10 +6037,16 @@ SERIALIZE_DEFINE_GET( KUserSkillPageData, obj, ks )
 		&& GET( m_aEquippedSkill[1] )
 		&& GET( m_aEquippedSkill[2] )
 		&& GET( m_aEquippedSkill[3] )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		&& GET( m_aEquippedSkill[4] )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		&& GET( m_aEquippedSkillSlotB[0] )
 		&& GET( m_aEquippedSkillSlotB[1] )
 		&& GET( m_aEquippedSkillSlotB[2] )
 		&& GET( m_aEquippedSkillSlotB[3] )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		&& GET( m_aEquippedSkillSlotB[4] )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		&& GET( m_usSkillPoint )
 		&& GET( m_usCashSkillPoint )
 		&& GET( m_vecUserSkillData ) 
