@@ -873,6 +873,49 @@ dir's `GameOptions.lua`: smoother edges, the FRAME line says `-> 2` and "scene t
 
 **User owes:** nothing. Next: `/x2-phase june-engine R4b review` on Opus 5.5 / high.
 
+### Phase R4b -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS. No findings, no code change, no rebuild** (the play-tested exe 0818bfeb stays deployed).
+
+**Hygiene** (`flagcheck --range 84ce49f2^..84ce49f2`, the phase's one code commit; `git log -S<FLAG> 84ce49f2..HEAD` finds no later commit):
+- RENDER_TARGET `files: 7 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 10 OTHER (other flags), 1 FAIL, 0 ERROR` / `RESULT: FAIL`
+- RENDER_FRAME `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 11 OTHER (other flags), 1 FAIL, 0 ERROR` / `RESULT: FAIL`
+- FRAME `--with JUNE_RENDER_TARGET` (both stripped): `files: 9 PASS, 0 PASS~, 1 DEFINE, 8 OTHER, 1 FAIL, 0 ERROR`; `KTDXApp.cpp` / `.h`, OTHER
+  in the single-flag runs because they carry both flags, PASS with both stripped, so their `#else` is March's code byte for byte.
+- All runs: 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, 0 encoding changes. The one FAIL is `KTDGDeviceSurfaceManager.cpp`'s
+  `#include "StdAfx.h"` PCH line (R4a precedent). The other OTHER rows are the other R4b flag; PASS~ is the blank line before the new RT
+  functions. `KTDXLIB_2010.vcxproj` lists the new `.cpp` unconditionally (flag off: an empty unit, as R4a's shimmer file).
+
+**Ghidra spot-checks (read only), all match:**
+- `31be3800`: render count + three transforms, then the no-target path (`31ce6600`, sampler 0 / 10 = renderer `+0x84` around `31be2cd0`,
+  then 1, `31be2d30( 0 )`, `31be2d90( 0 )`, `31ce6140`) and the target path (`31ce63f0`, `BeginRender( 1, 1, 0, ARGB of DG +0xc0..+0xcc )`
+  = `D3DXCOLOR`'s DWORD cast, same loops, `31cdb5c0`, or `31cdb550` / `( 1, 1, 1, 0xff000000 )` / passes 1 / `31cdb550` / shimmer with
+  technique 0 (an `int&`, the low dword of the 8-byte local) + identity / slot `0x14( 0 )` / `31be34c0( 0, 0, 1, 1 )` / `31ce5d00`). GFx,
+  `0x18` loop and `31ce5400( 0 )` as the note routes them.
+- `31cdb3c0` / `31cdb550` / `31cdb5c0` (disassembled): save target + depth per call, multisample surface or texture surface, depth unless keep,
+  stencil on formats 0x49 / 0x4b / 0x4f / 0x53; EndRender `StretchRect( ms, tex surface, NONE )` + texture slot 0x54 = AddDirtyRect;
+  to-back-buffer filter 2 when `+0x98 / +0x9c` differ from `3376d9c4 / c8`.
+- `31cdb950`: format `+0x54` or the saved target's, never written back; surface manager only with `+0x5c`, app and `+0x208`; depth
+  `31d00d20` / `31d00f20` by the multisample surface; error codes 0x4c (target), 0x4f (surface level), 0x50 (depth) = KEM_ERROR76 / 79 / 80, as ported.
+- `31d00b30` / `31d00d20` / `31d00ff0` (disassembled): the cache hit jumps out (`@31d00bf3 -> 31d00c45`); Purge re-AddRefs a held surface
+  and unlinks a sole-owner one, as ported.
+- `31be4230` (disassembled @31be43b9): the effect target opens non-multisampled when `+0x26d` is 0 and multisampled otherwise, an if / else
+  (the decompile shows a fall-through). `31be6510`: state restore, SetViewport, `31be4230`, SetProjection, the stage resets, as placed.
+- `31be34c0` (FPU stack traced): v0 `( -0.5, -0.5, u0, v0 )`, v1 `( W-0.5, -0.5, u1, v0 )`, v2 `( -0.5, H-0.5, u0, v1 )`, v3 `( W-0.5,
+  H-0.5, u1, v1 )`; ZENABLE / ZWRITEENABLE 0; DVB `( 3, TRIANGLESTRIP, 2, v, 1 )` = `DVB_TYPE_XYZRHW_DIFFUSE_TEX1`.
+- `32421110` @32421263-324212a3: level then the pair, each only on a forced apply. `324214a0` @32428335-3242836a: `<= 60` MB video or
+  `< 300` MB physical, then `+0x30`, word `+0x34`, `+0x100` / `+0x104` / `+0x108` zeroed, as ported.
+
+**March reach:** no March class defines the four new `CKTDXStage` names, so the loops call only the empty base slots and every March
+class still draws in `OnFrameRender`. March `BeginRender( bClear )` = `( bClear, bClear, false, 0 )`; `m_D3DFormat` has no other reader.
+
+**Notes (no change):** the Done note's "June tests a void call's leftover EAX" is loose: `31d00b30` / `31d00d20` return an HRESULT
+(`0x8876086b` without a device). The port's void + NULL test is behaviour-equal on every path read (the RT desc is always
+`D3DUSAGE_RENDERTARGET`). `X2GameOption.h` declares the two setters inside `#ifdef VERTICAL_SYNC_OPTION` (defined, `Always.h:2486`);
+undefining that flag would fail the compile, not silently.
+
+**User owes:** nothing. Next: `/x2-phase june-engine R4c` on Opus 5.5 / high (or R4f / R4g, both now unblocked).
+
 ## Phase R4c - State render split
 
 **Run with:** Opus 5.5 high (transcribe each June slot), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT`.
