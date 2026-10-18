@@ -2644,7 +2644,7 @@ first 20 refusals and 5 passes: `[JUNE_ENGINE] WORLD fly-down refused / allowed`
 
 **Hygiene** (`flagcheck --worktree --files`): `X2SimplePathFinder.cpp` PASS +37; `Always.h` OTHER = peers' uncommitted `Always.h` lines (R12b `REFS_DEBUG`,
 S3b `JUNE_SKILL_NOTE`), not in this commit; `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, 0 non-ASCII, 0 EOL-mismatched,
-0 encoding change, `RESULT: PASS`. Range line: see the commit's follow-up below.
+0 encoding change, `RESULT: PASS`. Range (`e2006aa7^..e2006aa7`): `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`.
 
 **Deploy.** My three `build.py --deploy` runs lost the lock to two peer builds; the fourth failed in KTDXLIB on a peer's uncommitted S3b line
 (`Always.h(8043): #error SERV_IRUHADEV_JUNE_SKILL_NOTE needs REFORM_SKILL_NOTE_UI`), not on W1g. The deployed exe is a peer's `build.py --deploy` of this
