@@ -621,8 +621,10 @@ and June's data gives most special actives type 14-16. Add the enumerators, then
 - **Hygiene** (`flagcheck JUNE_SKILL_TYPE --worktree --files` Always.h, X2SkillTree.h, X2SkillTree.cpp): `0 deleted line(s), 0 non-ASCII inserted line(s),
   0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS` (3 OTHER = peers' S4 / S3b lines then
   in the same files). Range line: see the follow-up commit. All S3c code is insert-only `case` labels / a census block; no `#else` needed.
-- **Deploy: pending.** X2Lib with S3c compiled (`ok in 478s`, log `20261018-084253`), but the X2 link and the next run stopped on peers' uncommitted
-  Always.h / font code (S3b `JUNE_SKILL_NOTE` guard, R4e `DRAW_PASS`; both told). The `DEPLOY OK` line follows in a later commit.
+- **Deploy** (R4e's build, built at HEAD with S3c `a2b20c4c` in it; the exe carries the TYPE string): `DEPLOY OK: X2_offline.exe is 19,973,120 B, dated
+  2026-10-18 09:18:28, md5 d4eef83688b181e6dbdb7d59656cc4a8, equal to X2/US_SERVICE/x2.exe`. Range: `flagcheck JUNE_SKILL_TYPE --range a2b20c4c^..a2b20c4c`:
+  `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token,
+  0 encoding change(s)`; `RESULT: PASS`.
 - **How to see it:** `python tools/logs.py --grep "JUNE_SKILL] TYPE"` shows the census above. In game, as a character with a grade-1 special active in a slot,
   reset that skill in the tree: its slot empties (before S3c the slot kept the id). Learning a new 14-16 skill with a free slot puts it in the slot.
 
