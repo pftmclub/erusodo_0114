@@ -930,6 +930,70 @@ Sub-tags `[JUNE_SKILL] SBUF` (state buffs, including the slot-476 call) and `SST
   - Item 3: no engine caller sets a time, so the state string looks as before. An `SSTR` line appears only once a class port calls the helper.
 - **Open questions:** none. Routed: the class calls' June arguments, Rose's vslot 0x830 and the 3 s helper's callers go to checklist 7ai. The NPC `ParsingBuffFactorID` / frame apply were not in scope and are not changed.
 
+### Phase S3e -- Review (2026-10-18, Opus 5.5 high)
+
+**Verdict: PASS. No code change, no rebuild.** Code commit c6ca2d33 checked against June's binary, read-only (Ghidra and `disasm_range.py`).
+- **`322a6960`** matches. Five stack args (`RET 0x14`): BFI `[esp+0x2c]` (factor `326c32a0`), creator `+0x30`, level `+0x34` (clone `32089f60`),
+  adjust `+0x38`, skip byte `+0x3c`.
+  - User test `cmp [edi+0x264], 0` (GUT_USER = 0). Skip set jumps to `@322a6a74`, so slot 141 `( ptr, 0 )` runs for every user. Non-users skip both.
+  - Slot 476 `@322a6a5c-322a6a72`: the first `push ecx` reserves the by-value ptr slot (overwritten with the clone), the second pushes the id
+    (adjust, or `+0x9274` when 0). The port's `AdjustBuffFactorByIndex( clone, id )` passes the same two values.
+  - Creator stamp: `EDX:EAX` = -1 and the bool = 1 without a creator; else vslot 21 UID and `[creator+0x264] == 0`, then `32d4d670`, slot 137.
+  - `322a6b60` is unchanged: `( BFI, UID lo, UID hi, isUser, level )`, no slot 476 / 141. It is March's `...AndCreatorID`.
+  - `SetBuffAccumulationCount` `322a7660 @322a776c-322a7799` has the same user test and `+0x9274` fallback.
+- **The engine sites** (push order skip / adjust / level / creator / BFI) match `s3e_bybfi_callers.tsv` part 1:
+  - skip 0: `3274c954` (`ebx` zeroed `@3274c8b4`), `3236997f` (`0,0,1,0,0x2ea`), `3244c599` (`0,0,1,0,0x9a`), `320392ab` (0x314 = 788) and
+    `32039624` (0x324 = 804).
+  - In `32034e50`, `ebx` is reassigned in other cases, but the 788 path null-tests with `cmp esi, ebx; jz` (`@3203921d`) and the 804 path with
+    `cmp [eax+0x264], ebx` / `cmp esi, ebx` / `cmp ecx, ebx` (`@32039526-3203954a`). The compiler emits those only with `ebx` = 0.
+  - Spot checks left at the defaults: `31feb12c` (`1,0,1,0,0xc7`), `322d6fc8` (`1,0,1,0,eax`), `32060cb8` (`1,0,level,0,BFI`), `32298ad7` (`1,ebp,1,ebp,1`).
+  - No override of the virtual exists (one declaration in `X2GameUnit.h`), so the longer signature hides nothing.
+- **`31fe32d0` vs the new `ParsingBuffFactorID`** matches.
+  - `+0x9270` = 0 and the vector `+0x865c` cleared. With the flag, `_ULTIMATE` is opened; if it is absent or the flag is off, the base table is used.
+  - Row: index 1 (int) and 2 (float), `EndTable` (`32fe9a10`), then the 0 test. The outer `EndTable` runs only when a table opened.
+  - `+0x9274` is written twice: vslot 0x524 (`@31fe3551`), then, on a non-empty list, `BUFF_FACTOR_RELATIVE_SKILL_ID` (XOR string, 29 bytes),
+    falling back to vslot 0x524 on a miss or -1 (SI_INVALID = -1 in March).
+  - Level `32890620( id, 0, 0, 1 )` only when id != 0 (SI_NONE = 0) and `+0x867c` is set. `RELATIVE_SKILL_LEARN_CHECK` (26 bytes) with
+    level < 1 calls `32079d60` on `edi = +0x865c` (an erase of the whole range) and returns.
+  - Time-0 rows: slot 0x21c `( BFI, 0, max(level, 1), 0, 0 )`, then erase.
+- **The caller's flag.** `@32057c03` pushes 1 and then calls vslot 0x524 with no args, so it is `31fca8e0( GetNowStateSkillID(), 1 )`; the templet
+  goes to `[esp+0x34]`. `@3205ad70-3205ad82` sets byte `[esp+0x40]` when `+0x178` (`m_iDeleteSkillIDByUpgrade`) is > 0 (`jle`).
+  - In between, the only writes at `+0x40` sit under pending pushes: `@3205ba4d` (one push: the base `+0x3c` bool) and `@3205d1d7` (three: the `+0x34` slot).
+    `@32060693` reads the same byte, so the port's flag is right.
+  - **New finding:** the same byte also goes to `32024ff0` (LoadEffectSetFromScript, `@3205ad87-3205ad90`) and picks `DAMAGE_DATA_ULTIMATE` over
+    `DAMAGE_DATA` (`@3205c865-3205c883`, `31fcd280`). March still uses `APPLY_MEMO` / `m_bApplyMemo` there (`X2GUUser.cpp:16212-16221`, `:16432-16441`;
+    `DAMAGE_DATA_NEXT_MEMO` `:43433`). No phase owned it -> **new Phase S3f** (the effect-set list choice itself stays checklist row 397).
+- **`31fdf4c0`**: `(t < a) == (t == a)` advances, so a row applies when t <= anim `+0x214`; slot 0x21c then vslot 0x830, both with max(level, 1).
+  June's anim getter `32071d80` picks `+0x8e88` only for the June-only second body (`+0x8e90`); March's `m_pXSkinAnim` is `+0x87d4`.
+- **CommonStateEnd `@32015284-32015304`**: every row, no time test, front first, slots 0x21c / 0x830. Then the second-body block `@32015306-320153c5`
+  (character material, C9h-4g), then `32009ae0` `@320153c7`. The port's order is right.
+- **Timer.** `32079be0` stores the float `[entry+0x20]` (after the 0x1c-byte wstring, `RET 0x20`) to `+0xb3c` before the string.
+  - `@3230a7d1`: `fcom` + `test ah, 5; jp` counts only when t > 0. After `t -= +0x2d0` (elapsed, stored `@32308c6b`), `test ah, 0x41; jp` clears
+    only when t <= 0, through `g_pX2Game` (`+0xb3c` = 0, then `""`).
+  - Only `@32308dd3` (`+0x2d8 == 1`, March's `m_bGameWait` return) branches past it; the jump `@3230a742` returns into the loop. The placement is right.
+  - Ctor `@323076e6` stores 0. Helper `3200ab60`: game alive, skill tree `g_pData +0x50`, `32206450( id, 1 )`, name `+0x14`, `3.0f` (read from `3347209c`).
+- **NPC (decided: no phase).** June's parser `3275ee70` = March's live `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` parser (`X2GUNPC.cpp:33668`: row parse,
+  `< 0` skipped, stable sort `327c55d0`). Frame apply `32761b40` = March's cursor loop with the defaults `( BFI, 0, 1, 0, 1 )`, plus a loop over
+  `+0x9038`, the absolute-monster list. Its only writer, `3277cf10`, is the known unported Buff 16-step3b gap (funcmap row added).
+  June's NPC parser drops `_IN_HOUSE_`'s duplicate popup, a build-config difference, not a June change.
+- **Hygiene** (`flagcheck <flag> --range c6ca2d33^..c6ca2d33`; `git log -S` shows no later commit for either flag):
+  - `JUNE_SKILL_STATE_BUFF`: `files: 5 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR`.
+  - `JUNE_SKILL_STATE_STRING_TIME`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 8 OTHER (other flags), 0 FAIL, 0 ERROR`.
+  - Both: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+    `RESULT: PASS`. The OTHER rows are `Always.h`, plus each flag counting the other flag's files.
+- **Play-test:** already PASSED (S3e Done note, exe `c0952f40`); nothing new to read. **Open questions:** none.
+
+## Phase S3f - CommonStateStart's upgraded-skill flag: the state's damage data and the effect-set argument
+
+**Run with:** Opus 5.5 high, then an Opus review. Added 2026-10-18 by the S3e review (an unowned June branch next to S3e's `ParsingBuffFactorID` caller).
+Task and gate: `kickoffs/skill-system-core/S3f.md`. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE`, sub-tag `[JUNE_SKILL] SULT` with
+`SERV_IRUHADEV_JUNE_SKILL_DEBUG`. Funcmap: rows tagged `(S3f)`.
+- June's CommonStateStart `32057b80` computes "the equipped version of the now-state skill is upgraded" once (`@32057c03-32057c1d`, `@3205ad70-3205ad82`)
+  and passes it to `LoadEffectSetFromScript` `32024ff0` (`@3205ad90`), to the `DAMAGE_DATA_ULTIMATE` / `DAMAGE_DATA` choice (`@3205c865-3205c883`, `31fcd280`),
+  and to `ParsingBuffFactorID` (`@32060693`, ported by S3e).
+- March still reads `APPLY_MEMO` into `m_bApplyMemo` and `DAMAGE_DATA_MEMO` / `DAMAGE_DATA_NEXT_MEMO` (`X2GUUser.cpp:16212-16221`, `:16432-16441`, `:43433-43442`).
+- The effect-set list choice inside `32024ff0` stays checklist row 397; S3f ports the argument, the damage-data choices and the memo path's retirement.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.
