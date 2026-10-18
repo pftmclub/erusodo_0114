@@ -17,10 +17,10 @@ Then the phase's Done note (`python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES
 
 ## Task
 
-Review Phase S4's commit(s) against the S0a / S0b map it used: the condition (index > 0 or name, and APPLIED / DAMAGE skill id), the row pick by learned level and the clamp, x0.01, the PVP_RATE / TECH_POINT / HIT_ADD_MP defaults, the three JUNE_BUGS rows and the MODS.md values; re-run the self-check lines against `c1a_numerical_blocks.tsv`.
+Review Phase S4's commit(s) against the S0a / S0b map it used: the condition (index > 0 or name, and APPLIED / DAMAGE skill id), the row pick by learned level and the clamp, x0.01, the PVP_RATE / TECH_POINT / HIT_ADD_MP defaults, the four JUNE_BUGS rows (282-285) and the MODS.md values; re-run the self-check lines against `c1a_numerical_blocks.tsv`.
 
 Hygiene is one command, not a fresh script:
-`python tools/flagcheck.py <FLAG> --range <first phase commit>^..HEAD --with SERV_IRUHADEV_JUNE_SKILL_DEBUG`.
+`python tools/flagcheck.py <FLAG> --range <first phase commit>^..HEAD --with SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG`.
 Paste its `files:` / `in this flag's files:` / `RESULT:` lines into the review. Explain every
 OTHER row and every deleted line; a FAIL or ERROR is a finding.
 

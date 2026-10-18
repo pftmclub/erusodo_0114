@@ -615,6 +615,42 @@ and June's data gives most special actives type 14-16. Add the enumerators, then
 
 **Done gate:** self-check lines all equal the tsv; flagcheck PASS; `DEPLOY OK`.
 
+### Phase S4 -- Done (2026-10-18, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (+ short-lived `_DEBUG`), code commit `9eae42db`. Log tag `[JUNE_SKILL] NUM`. Revert and the full behaviour list: `MODS.md` "June numerical skill data override".
+- **Override** (`X2DamageManager.cpp`, `JuneApplyNumericalSkillData`, called just before `EndTable` in `SetDamageDataFromLUA`, which is June's order: after the
+  `DAMAGE_DATA_KEY_NAME` record, before `SetDamageExceptionProcess`, which applies the power rate). Transcribed from `3263fe41-32640054` (disassembly read in Ghidra this
+  session; the `@` addresses are in the code comments):
+  - gate in June's order, any miss skips the whole block: INDEX > 0 or NAME set; `APPLIED_SKILL_ID` (+0x5c4) or `DAMAGE_SKILL_ID` (+0x5cc) non-zero (USED_SKILL_ID is not a
+    trigger); `g_pData` and its skill tree; the attacker's observer valid; unit type user (itself) or NPC (`GetOwnerGameUnit 32759f00`), else skip;
+  - skill = APPLIED else DAMAGE; level = `GetSkillLevel( id, 0, 0, swap )` on the owner's `CX2Unit` skill tree (`32890620`, no null test), templet =
+    `GetEquippedActiveSkillTemplet( id, swap )` (`31fca8e0`); skip unless level > 0 and templet;
+  - row = INDEX > 0 ? `JuneGetNumericalRowByIndex` (`320717e0`; index 0 or past the count = four zeros, checked in the disassembly: `count < index` unsigned, `index <= 0`)
+    : `JuneGetNumericalRowByName` (`32078060`, first `wstring::compare` match, none = zeros); both over S2's clamp `JuneGetNumericalRow` (`320716c0`);
+  - writes, unconditional: PHYSIC unless `DT_MAGIC`, MAGIC unless `DT_PHYSIC` (value * 0.01f; `DT_MIX`, `DT_WEAPON_*`, `DT_BUFF` write both), `PVP_RATE`, `TECH_POINT`
+    (`_ftol2` truncation = `static_cast<int>`), `HIT_ADD_MP` (assigned only when different).
+- **`DAMAGE_SKILL_ID`** was not parsed in March at all (only the record column of `Elsword_DamageData.lua`). New `DamageData::m_iDamageSkillID` (+0x5cc), June getter
+  `32fe9fd0` default 0 read at `32632842`, reset in the DamageData init. The "unsupported" log for `NUMERICAL_DATA_INDEX` / `_NAME` is replaced under the flag (original in `#else`).
+- **Verification (log self-check, no class script uses the keys yet).** `CX2SkillTree::JuneNumericalSelfCheck`, `_DEBUG`, runs at skill-tree load: 40 rows of
+  `june2017_re/c1a_numerical_blocks.tsv` (every 36th distinct ok (skill, index) + the 3 zero rows), level 1, tolerance 1e-4; plus a by-name cross-check where the element has a
+  name. Logs `[JUNE_SKILL] NUM selfcheck: sample=40 ok=.. mismatch=.. no_templet=.. PASS`. Each distinct real use logs `[JUNE_SKILL] NUM use ...` (first 80), a refused use
+  `[JUNE_SKILL] NUM skip ...` (first 40 skills). **Not yet run: the log is the gate.**
+- **JUNE_BUGS 282-285.** 282-284 the three past-the-end blocks (Mortal Blow 21006 INDEX 2 of 1 element; Flick Shot 30003 INDEX 5 of 4; Wind Blade 21013 INDEX 2 of 1; element counts read from
+  June's `NewSkillTempletVer2.src.lua`), kept verbatim: zero damage once the skill is learned. 285: the owner's `CX2Unit` is dereferenced unguarded (latent: only the "my slot data is null" error branch in
+  `X2GUUser.cpp` clears `m_pUnit`).
+- **MODS.md** records June's values: 1,913 blocks in `c1a_numerical_blocks.tsv`; no value in today's game changes (no March class script sets the keys). The two June-vs-March pairs the
+  checklist cites (Aceldama 9.50 vs 2.33, Aiming Shot 14.82 vs 5.63) and the June-side `GetSkillPowerRateValue 32071720` note (an "[Enhanced]" skill's damage also carries SA `0xad`) are there too.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SKILL_NUMERICAL --worktree --files` the 5 code files: `RESULT: PASS`. Range `--range 9eae42db^..9eae42db --with SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG`:
+  `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+  0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- **Deploy.** My own `build.py --deploy` was blocked twice: first by the build lock, then by a peer's uncommitted S3b edits (`SERV_IRUHADEV_JUNE_SKILL_NOTE`, `CX2SkillNoteManager` undeclared; my two
+  files compiled without error in that run). The deployed exe came from the peer's build at 08:09 (`last_deploy.json`: `X2_offline.exe` 19,944,960 B, dated 2026-10-18 08:09:08, md5
+  `00703adcea5d79dfdd6c61b040922363`, from `X2/US_SERVICE/x2.exe` 08:09:03, built at `7a43b7a3` + uncommitted files incl. both S4 sources). All three `[JUNE_SKILL] NUM selfcheck / use / skip` strings
+  are in that exe (UTF-16 scan). No kom, no save change.
+- **How to see it:** launch the offline client once and close it at character select. `python tools/logs.py --tag JUNE_SKILL --grep "NUM"` shows `NUM selfcheck: sample=40 ok=40 mismatch=0 no_templet=0 ... PASS`.
+  The `NUM use` lines appear once a ported class's DamageEffect with `NUMERICAL_DATA_INDEX` hits (none today).
+- **Open for the review (Opus):** the sample is 40 of 1,913 rows at level 1 only; the level clamp (`min( level - 1, count - 1 )`) is S2's and was read, not re-run on a level > 1 row here.
+
 ## Phase S5 - Slots 4+4 -> 5+5
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_10`, defined in `Always.h` **and**
