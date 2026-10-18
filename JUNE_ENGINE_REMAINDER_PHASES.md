@@ -1845,6 +1845,59 @@ Its own slots are Prepare, RayHit, OnFrameMove, Draw, Reset / Lost and the dtor;
 0818bfeb, a later `main` deploy at 74dd25e6 that carries R13b): `WSKIN hide: ASHS_VILLAGE_S2_CAIN.X alpha 1` at 07:45:19 in Ash Covered Village
 stage 2 (June script, any-camera skin mesh); 0 EXCEPTION, the only UNHANDLED the 2x `E_DISABLE_HB_CHECK_REQ` baseline.
 
+### Phase R13b -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no code change.** Every item was re-read in `funcdis.py` disassembly (Ghidra has carved none of the three).
+Commit `29e57897`; `_WORLD_SKIN_MESH_DEBUG` is now off.
+
+- **Prepare `327f6e40`: matches.**
+  - The hide gate is `cmp [+0x2f0], 1` and `cmp [+0x2f1], 1` only (`@327f6f1d`, `@327f6f29`), with no game or camera-state test.
+  - Thunk `31e4c6a0` stores arg 1 at `+0x2f0` and arg 2 at `+0x2f1` (`ret 8`), so `+0x2f1` is `m_bAnyCamera`.
+  - RayHit is `call [vtbl+0x40]` with a NULL hit distance (`push ebp`, ebp = 0); lookAt (DG `+0x1cc`) is pushed first and eye (DG `+0x1c0`) last.
+  - Hit: `fld 0.3f; fcom alpha; test ah,5; jp` subtracts only when `0.3f < alpha` (NaN or `<=` stores 0.3). The `DE E9` `fsubp` gives `alpha - elapsed * 4.0`.
+  - No hit: `alpha + elapsed * 4.0` is stored, then capped when `cap < alpha` (`test ah,5`).
+  - The camera write `@327f7098` is only in the `+0x2f0 == 1 && hide` branch, after a NULL test of DG (`g_pKTDXApp +0x1fc`).
+  - Otherwise `test ah,0x41; jp` after `fld alpha; fld cap; fcompp` restores `+0x2a8` when `alpha >= cap`; when `alpha < cap` or NaN it forces alpha.
+  - The constants are `3345993c` = 0.3f and `33437838` = 4.0 (double). `elapsed * 4` is exact, and a float sum or difference rounded through a double
+    intermediate gives the float March's `4.0f` does, so the claim holds.
+- **RayHit `327f6a70`: matches.** The x87 stack was re-derived from the raw bytes, not the mnemonics.
+  - `DE EA` (`st2 = st2 - st0`) gives `d = end - start`.
+  - `D8 E3`, `DE E2` and `D8 6C` all give `toCentre = centre - start`.
+  - The projection `<= 0` (or NaN) keeps the start (`test ah,0x41; jne`).
+  - `|d|^2 > proj` interpolates (`DE F9`: `t = proj / |d|^2`); `<=` takes the end. The `test ah,0x41; jp` parity sense was checked on all four outcomes.
+  - `fcompp` with `r + 1` (`334355b0` = 1.0 double) on top misses on `r + 1 <= dist`, so a hit is strict `dist < r + 1`. NaN misses.
+  - The impact is `centre + normalize( closest - centre ) * ( dist * 0.5 )`, `*pHit = |impact - start|`, and a miss writes -1 (`334380f0`).
+  - **No other reader.** A linear scan of `.text` found 195 slot-0x40 virtual calls. Only one passes two by-value vec3s: Prepare's (`327f6f87`).
+    No June caller reads the skin mesh's hit distance.
+- **OnFrameMove `327f83a0` "= March": confirmed by spot-check.**
+  - The jump table `327f8cf8` (index `+0x314 - 2`, `ja` above 3) is LOOP `327f896f`, PINGPONG `327f8a1b`, OCC_ONE `327f8b07` and OCC_ONE_WAIT `327f8bef`.
+    That is `WOSMPY_LOOP..WOSMPY_OCCASIONAL_ONE_WAIT` (2..5).
+  - The `Play` arguments are `push 0` = XAP_LOOP, `push ebx` (ebx = 1) = XAP_ONE and `push 2` = XAP_ONE_WAIT, as March's `:136-266`.
+  - The states tested are 2 = XAS_WAIT and 0 = XAS_STOP.
+  - Culling runs when `g_pX2Game` (`3372c0fc`, the guarded pointer) is set and not (`+0x2c0` != 0 && `+0x2c0` == `+0x2b8`). That is March's
+    `IsHost()` (`X2Game.h:476`), which is symmetric in the two uids. Host: anim `+0x174 = 0`.
+- **`AddModelXSkinMesh` `__FILEW__` / 151 not passed: agreed, no route.** They only label the KEM 433 log text (R12's parameters). Behaviour is the same.
+
+**Hygiene** (`flagcheck --range 29e57897^..29e57897`):
+
+| Flag | `files:` | `in this flag's files:` | RESULT |
+|---|---|---|---|
+| `_WORLD_SKIN_MESH` | 0 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR | 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 bare `#else`/`#endif`, 0 encoding | PASS |
+| `_RAYHIT` | 0 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR | (same) | PASS |
+| `_DEBUG` | 1 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR | (same) | PASS |
+
+Every OTHER row comes from the three flags sharing one commit:
+- `Always.h` +33 holds all three define blocks.
+- In the skin-mesh `.cpp` (+90), the `_DEBUG` and `_RAYHIT` blocks nest in or sit beside `_WORLD_SKIN_MESH`.
+- The header (+3) holds only the `_DEBUG` member.
+
+There are no deleted lines.
+
+**Debug retired:** `//#define SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG` (`bytepatch`, one line; CRLF and the high-byte count unchanged).
+**Deploy pending.** The review build (08:09) stopped in X2 on a peer's uncommitted `Always.h` hunk: `#error SERV_IRUHADEV_JUNE_SKILL_NOTE needs
+REFORM_SKILL_NOTE_UI`, which is skill-system work. Nothing was deployed. The change only drops log lines, so the next `main` deploy carries it.
+The live exe still writes the WSKIN lines; that is harmless.
+
 ## Phase R13c - Camera tracking and roll (UpdateCamera whole)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK`.

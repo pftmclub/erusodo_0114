@@ -8122,7 +8122,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-18
 // Description: June engine remainder, Phase R13b, short-lived. One [JUNE_ENGINE] WSKIN "render on" line, then each skin mesh's
 //              first hide: line (name, alpha) in ErrorLog.txt. Turn off at the R13b review.
-#define SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG
+//#define SERV_IRUHADEV_JUNE_RENDER_WORLD_SKIN_MESH_DEBUG	// off 2026-10-18 (R13b review): play-test passed (render-on line, WSKIN hide: ASHS_VILLAGE_S2_CAIN.X in Ash Covered Village stage 2)
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
