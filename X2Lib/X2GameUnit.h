@@ -3110,7 +3110,14 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+		/// June 322a6960 ( vslot 0x21c ): ( BFI, creator unit, level, adjust skill id, skip ). March's ( BFI, level ) order is kept and June's
+		/// three follow; the defaults are March's behaviour ( no creator, no slot-476 rescale ). See the definition.
+		virtual bool SetBuffFactorToGameUnitByBuffFactorID( const UINT uiBuffFactorId_, IN const UINT uiLevel_ = 1, CX2GameUnit* pCreatorUnit_ = NULL,
+			const int iAdjustSkillID_ = 0, const bool bSkipAdjust_ = true );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		virtual bool SetBuffFactorToGameUnitByBuffFactorID( const UINT uiBuffFactorId_, IN const UINT uiLevel_ = 1 );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #else //UPGRADE_SKILL_SYSTEM_2013
 		virtual bool SetBuffFactorToGameUnitByBuffFactorID( const UINT uiBuffFactorId_ );
 #endif //UPGRADE_SKILL_SYSTEM_2013

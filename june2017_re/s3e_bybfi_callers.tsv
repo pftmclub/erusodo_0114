@@ -1,0 +1,312 @@
+# Skill S3e (2026-10-18): June 322a6960 CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID, vslot +0x21c, args ( BFI, creator unit, level, adjust skill id, skip ).
+# March keeps ( BFI, level ) and appends ( pCreatorUnit_ = NULL, iAdjustSkillID_ = 0, bSkipAdjust_ = true ): the defaults are March behaviour.
+# Part 1: the March engine call sites and their June call (S3e passed June's values where June differs: skip 0 at X2GameEdit 624, X2BuffTemplet 2291,
+#   X2EmblemManager 596, X2GameUnit ExtraDamage 788 / 804; X2GUUser ParsingBuffFactorID / CommonFrameMove_InsertBuffFactor were ported whole).
+# Part 2: every real June +0x21c call (call va, function, pushes in push order: skip|adjust|level|creator|BFI). Class code (>= 0x32900000) is the
+#   character ports' map: a ported class passes June's creator / adjust / skip (checklist 7ai).
+# part1
+march_file:line	live/dead(+flags)	march_call_text	june_call_va	june_function_va(+funcmap name)	creator	level	adjust	skip	confidence
+X2BuffTemplet.cpp:2291	live [SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION]	SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR(746=0x2ea), 1 )	3236997f	323698b0 (Ghidra span; March comment says FunctionInCommonStateStart 32369950; funcmap: CX2CustomFunctionByBuffServoNitro ctor)	NULL	1	0	0	high: BFI 0x2ea exact, only caller of 0x2ea
+X2EmblemManager.cpp:596	live [NEW_EMBLEM_MANAGER]	PlayEmblemOtherProcess: GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF(154=0x9a) )	3244c599	3244c4b0 (not in funcmap; sits between the emblem GetInstance and CX2EmblemManager::OnFrameMove 3244c8c0)	NULL	1	0	0	medium: BFI 0x9a unique in scan, receiver = game-unit getter vslot 0x98, function name inferred from neighbours
+X2EmblemManager.cpp:607	dead (commented line, inside NEW_EMBLEM_MANAGER > EVENT_NEW_HENIR)	// ...SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF )	not found	not found	not found	not found	not found	not found	n/a: commented out
+X2GUNPC.cpp:33727	live if X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE [INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE > X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE]; textual #define at KTDX.h:342 and Always.h:1577	CommonFrameMove_InsertBuffFactor(float): SetBuffFactorToGameUnitByBuffFactorID( factor.m_uiBuffFactorID )	32761bad	32761b40 (between CX2GUNPC::ResetAnimSpeed and SetNPCStat; not in funcmap)	NULL	1	0	1	medium-high: decompile (BFI,0,1,0,1) in the progress loop over the (id,time) table; function name inferred
+X2GUNPC.cpp:33777	dead if X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE defined [ELSE of X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE]	ParsingBuffFactorID: time==0 entries applied at parse: SetBuffFactorToGameUnitByBuffFactorID( it->first )	32761bfd	32761b40	NULL	1	0	1	low-medium: June applies its time-0 list (vector +0x9038) inside the same frame-move function, not at parse
+X2GUNPC.cpp:33802	dead if X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE defined [ELSE of X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE]	CommonFrameMove_InsertBuffFactor(): SetBuffFactorToGameUnitByBuffFactorID( it->first )	32761bad	32761b40	NULL	1	0	1	low-medium: ELSE twin of 33727; same June site
+X2GUUser.cpp:2418	live [SET_WORLD_BUFF_AT_RESURRECTION > SERV_IRUHADEV_JUNE_BUFF_PREMIUM]	ReInit: per world-buff stack SetBuffFactorToGameUnitByBuffFactorID( kRecord.first, 1 )	32024319	32022380 (March comment: June 32022380 @320242ab; ReInit)	NULL	1	0	1	high: March comment cites the function; call insn 32024319 is the loop body (BFI = record id in eax)
+X2GUUser.cpp:2425	dead [ELSE of SERV_IRUHADEV_JUNE_BUFF_PREMIUM]	ReInit: SetBuffFactorToGameUnitByBuffFactorID( eWorldBuffFactorID )	32024319	32022380	NULL	1	0	1	n/a: dead branch; same June site as 2418
+X2GUUser.cpp:13097	live [RIDING_SYSTEM]	DamageReactStateChange: SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_SUPER_AMOR_FOR_RIDING(199=0xc7) )	31feb12c	31feabd0 CX2GUUser::DamageReactStateChange (funcmap)	NULL	1	0	1	high on function+BFI; medium on 1:1 order (3 March sites, 3 June sites, matched in address order)
+X2GUUser.cpp:13208	live [RIDING_SYSTEM]	DamageReactStateChange: SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_SUPER_AMOR_FOR_RIDING(199=0xc7) )	31feb2d9	31feabd0 CX2GUUser::DamageReactStateChange (funcmap)	NULL	1	0	1	high on function+BFI; medium on 1:1 order (3 March sites, 3 June sites, matched in address order)
+X2GUUser.cpp:13295	live [RIDING_SYSTEM]	DamageReactStateChange: SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_SUPER_AMOR_FOR_RIDING(199=0xc7) )	31feb402	31feabd0 CX2GUUser::DamageReactStateChange (funcmap)	NULL	1	0	1	high on function+BFI; medium on 1:1 order (3 March sites, 3 June sites, matched in address order)
+X2GUUser.cpp:16996	live [SERV_IRUHADEV_JUNE_SOCKET_PARITY]	CommonStateStart: SetBuffFactorToGameUnitByBuffFactorID( vecConditionalBuff[i].m_uiBuffFactorID, .m_iBuffLevel )	32060cb8	32057b80 CX2GUUser::CommonStateStart (funcmap; March comment @32060c3e)	NULL	vecConditionalBuff[i].m_iBuffLevel (eax)	0	1	high
+X2GUUser.cpp:32321	dead [UNIT_EMOTION > ELSE of RIDING_SYSTEM]	EmotionFrameMove ET_SITREADY: SetBuffFactorToGameUnitByBuffFactorID( BFI_CALM_REST(78=0x4e) )	3204aef7	3204a860 CX2GUUser::EmotionFrameMove (funcmap)	NULL	1	0	1	medium: June has ONE call for both March sites; BFI is 0x4e, or 0x2c1 on one condition (same call insn)
+X2GUUser.cpp:32329	live [UNIT_EMOTION]	EmotionFrameMove ET_SITREADY: SetBuffFactorToGameUnitByBuffFactorID( BFI_CALM_REST )	3204aef7	3204a860	NULL	1	0	1	medium: see 32321; June picks 0x4e or 0x2c1 (March has no 0x2c1 branch here)
+X2GUUser.cpp:36325	live [SERV_SECRET_HELL > SERV_IRUHADEV_JUNE_SOCKET_PARITY]	ProcessSocketEffectEx SIEE_ATTACK_SPEED_UP: SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_MECHANIZATION_SPEED_UP(141=0x8d), 1 )	32029036	32028ba0 CX2GUUser::ProcessSocketEffectEx (funcmap)	NULL	1	0	1	high (March comment @32028fd7)
+X2GUUser.cpp:36426	live [SERV_SECRET_HELL > SERV_IRUHADEV_JUNE_SOCKET_PARITY]	ProcessSocketEffectEx: SetBuffFactorToGameUnitByBuffFactorID( 1081, 1 )	320297c2	32028ba0	NULL	1	0	1	high: 1081=0x439 exact (March comment @3202978d)
+X2GUUser.cpp:36483	live [SERV_SECRET_HELL > SERV_IRUHADEV_JUNE_SOCKET_PARITY]	ProcessSocketEffectEx: SetBuffFactorToGameUnitByBuffFactorID( 940, 1 )	32029fe3	32028ba0	NULL	1	0	1	high: 940=0x3ac exact (March comment @32029fbb)
+X2GUUser.cpp:36933	dead [SERV_SECRET_HELL > ELSE of SERV_IRUHADEV_JUNE_SOCKET_PARITY]	SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_MECHANIZATION_SPEED_UP )	32029036	32028ba0	NULL	1	0	1	n/a: dead branch, base-line twin of 36325
+X2GUUser.cpp:42479	live [RIDING_SYSTEM]	RidingSpecialAttackFrameMove: SetBuffFactorToGameUnitByBuffFactorID( BFI_RIDING_SCORPION_ENERGY_SWORD(206=0xce) )	32003fce	32003ea0 (switch over riding-pet id; not in funcmap)	NULL	1	0	1	medium-high: BFI 0xce exact; function name inferred from the riding-pet switch + timer gate
+X2GUUser.cpp:42941	live [RIDING_SYSTEM]	ProcessRidingOn: SetBuffFactorToGameUnitByBuffFactorID( buffInfo.m_eBuffFactorID )	3204d270	3204d120 CX2GUUser::ProcessRidingOn (funcmap)	NULL	1	0	1	high
+X2GUUser.cpp:43571	live [INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE]	ParsingBuffFactorID: time==0 entries SetBuffFactorToGameUnitByBuffFactorID( it->first, max( m_uiNowStateSkillLevel, 1 ) )	31fe39e0	31fe32d0 (not in funcmap; resets +0x9270, walks vector +0x865c)	NULL	max(+0x9270,1) (eax)	0 (ebx==0: xor ebx,ebx @31fe3978)	0 (ebx==0)	medium-high: level field +0x9270 and the time-0 vector walk match; name inferred
+X2GUUser.cpp:43596	live [INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE]	CommonFrameMove_InsertBuffFactor: SetBuffFactorToGameUnitByBuffFactorID( it->first, max( m_uiNowStateSkillLevel, 1 ) )	31fdf56a	31fdf4c0 (funcmap: reserved-buff apply loop over +0x865c)	NULL	max(+0x9270,1) (eax)	0	0	high
+X2Game.cpp:9478	live [SERV_IRUHADEV_JUNE_SOCKET_PARITY]	ApplyBuffFactorOnNpcKill: SetBuffFactorToGameUnitByBuffFactorID( vecConditionalBuff[i].m_uiBuffFactorID, .m_iBuffLevel )	322d6f84	322d6f20 (funcmap: CX2Game NPC-kill socket/NPC buff hook)	NULL	record level (edx)	0	1	high (decompile: (id,0,lvl,0,1))
+X2Game.cpp:9499	live [SERV_IRUHADEV_JUNE_SOCKET_PARITY]	ApplyBuffFactorOnNpcKill: SetBuffFactorToGameUnitByBuffFactorID( vecDeathBuff[i], 1 )	322d6fc8	322d6f20	NULL	1	0	1	high
+X2Game.cpp:9507	live [SERV_IRUHADEV_JUNE_SOCKET_PARITY]	ApplyBuffFactorOnNpcKill: pNpc->SetBuffFactorToGameUnitByBuffFactorID( 0x286, 1 )	322d702c	322d6f20	NULL	1	0	1	high: 0x286 exact
+X2Game.cpp:14975	dead (EVENT_NEW_CHARACTER_EL: no #define found in KTDXLIB, X2Lib/*.h or KncWX2Server/Common; textual grep)	Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_NOT: GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF )	not found	not found	not found	not found	not found	not found	n/a: dead in March; June's resurrect handler has no 0x9a call (the only 0x9a in the scan is the emblem one)
+X2Game.cpp:14982	dead (commented line, EVENT_NEW_HENIR)	// GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF )	not found	not found	not found	not found	not found	not found	n/a: commented out
+X2Game.cpp:21228	live [DUNGEON_ITEM]	ProcessGetOutlayItem: SetBuffFactorToGameUnitByBuffFactorID( BFI_DEBUFF_SIDE_EFFECT_MEDICINE(67=0x43) )	32304a19	323046f0 (right after CX2Game::UseItemSpecialAbility 322fbc60; one shared call insn, BFI 0x43 or 0x44)	NULL	1	0	1	high: BFI exact; June merges the two March calls into one insn
+X2Game.cpp:21240	live [DUNGEON_ITEM]	ProcessGetOutlayItem: SetBuffFactorToGameUnitByBuffFactorID( BFI_DEBUFF_SIDE_EFFECT_CREST(68=0x44) )	32304a19	323046f0	NULL	1	0	1	high: decompile sets uVar5=0x44 then jumps to the same call
+X2GameEdit.cpp:624	live [SERV_IRUHADEV_JUNE_BUFF_BINDING]	ApplyBuffFactor_LUA: pGUUser->SetBuffFactorToGameUnitByBuffFactorID( uiBuffFactorID_, 1 )	3274c954	3274c880 CX2GameEdit::ApplyBuffFactor_LUA (funcmap)	NULL	1	0	0	high: ebx==0 (xor ebx,ebx @3274c8b4); decompile (id,0,1,0,0)
+X2GameEdit.cpp:703	live [NEW_HENIR_TEST > ADD_HENIR_BUFF]	HenirBuffCheat_LUA: GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_HENIR_FIRE(147=0x93) )	3274a39f	inside Ghidra span 32749f30 (jump-table switch ending 'ret 4', starting ~3274a2d0; not a Ghidra function; no funcmap row)	NULL	1	0	1	high on BFI (0x93 exact, 5 consecutive cases); medium on function name
+X2GameEdit.cpp:706	live [NEW_HENIR_TEST > ADD_HENIR_BUFF]	HenirBuffCheat_LUA: GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_HENIR_WATER(148=0x94) )	3274a3d1	inside Ghidra span 32749f30 (jump-table switch ending 'ret 4', starting ~3274a2d0; not a Ghidra function; no funcmap row)	NULL	1	0	1	high on BFI (0x94 exact, 5 consecutive cases); medium on function name
+X2GameEdit.cpp:709	live [NEW_HENIR_TEST > ADD_HENIR_BUFF]	HenirBuffCheat_LUA: GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_HENIR_NATURE(149=0x95) )	3274a403	inside Ghidra span 32749f30 (jump-table switch ending 'ret 4', starting ~3274a2d0; not a Ghidra function; no funcmap row)	NULL	1	0	1	high on BFI (0x95 exact, 5 consecutive cases); medium on function name
+X2GameEdit.cpp:712	live [NEW_HENIR_TEST > ADD_HENIR_BUFF]	HenirBuffCheat_LUA: GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_HENIR_WIND(150=0x96) )	3274a435	inside Ghidra span 32749f30 (jump-table switch ending 'ret 4', starting ~3274a2d0; not a Ghidra function; no funcmap row)	NULL	1	0	1	high on BFI (0x96 exact, 5 consecutive cases); medium on function name
+X2GameEdit.cpp:715	live [NEW_HENIR_TEST > ADD_HENIR_BUFF]	HenirBuffCheat_LUA: GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_HENIR_LIGHT(151=0x97) )	3274a467	inside Ghidra span 32749f30 (jump-table switch ending 'ret 4', starting ~3274a2d0; not a Ghidra function; no funcmap row)	NULL	1	0	1	high on BFI (0x97 exact, 5 consecutive cases); medium on function name
+X2GameUnit.cpp:14030	live [SERV_IRUHADEV_JUNE_SOCKET_EDT > SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER]	JuneProcessSocketExtraDamage: pAttacker->SetBuffFactorToGameUnitByBuffFactorID( 788, iLevel )	320392ab (CX2GUUser) and 3279cf5a (CX2GUNPC)	32034e50 CX2GUUser::Process_ExtraDamage and 327995c0 CX2GUNPC::Process_ExtraDamage (funcmap)	NULL (user: ebx, taken as 0; npc: literal 0)	variable (ebp: decoded level)	0 (user ebx; npc literal 0)	0 (user ebx; npc literal 0)	medium-high: BFI 0x314 exact; June splits March's single function into two overrides; ebx==0 inferred from xor ebx,ebx @32034ea0
+X2GameUnit.cpp:14109	live [SERV_IRUHADEV_JUNE_SOCKET_EDT]	JuneProcessSocketExtraDamage: pUser->SetBuffFactorToGameUnitByBuffFactorID( 804, iLevel )	32039624 (CX2GUUser) and 3279d43b (CX2GUNPC)	32034e50 and 327995c0	NULL (same caveat)	variable (ebp)	0	0	medium-high: BFI 0x324 exact
+X2GameUnit.cpp:16506	live (unconditional inside ApplyHyperModeBuff)	ApplyHyperModeBuff: SetBuffFactorToGameUnitByBuffFactorID( BFI_HYPER_MODE(1), 1 )	32298ad7 and 32298ce0 (two paths, both BFI 1)	32298590 CX2GameUnit::ApplyHyperModeBuff (funcmap, vslot 48)	NULL (ebp==0: xor ebp,ebp @322985cb)	1	0	1	high: June also has a BFI 0x34d call (322988da) in the same function, no March counterpart
+X2GameUnit.cpp:13227/13229	definition (not a call)	CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID( id, level ) / ELSE (id) under UPGRADE_SKILL_SYSTEM_2013	not found	June impl 322a6960 (slot 135 +0x21c); forwarder 3208dd90 = 'slot 134', its scan site 3208ddae just passes args through	not found	not found	not found	not found	n/a
+X2Main.cpp:4350	not a call: Lua binder SetBuffFactorToGameUnitByBuffFactorID_LUA = &CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID	class_def<CX2GameUnit>( L, ..._LUA, &...ByBuffFactorID )	not found	not found	not found	not found	not found	not found	n/a: member-function pointer; Lua callers use March's (id[,level]) form
+X2Pet.cpp:4043	live [SERV_PET_SYSTEM > PET_AURA_BUFF]	DoCheer case 1: m_optrMasterGameUnit->SetBuffFactorToGameUnitByBuffFactorID( 125 + GetBuffLevelByIntimacy() )	no +0x21c call; June uses vslot +0x224 @326ef6c9 (add eax,0x7d/0x82/0x87 @326ef644/60e/5d8)	326ef510 (Ghidra FUN_326ef510, the June DoCheer; not in funcmap)	n/a (June builds a CX2BuffFactor via 326c32a0 + 32d41910(time) and calls SetBuffFactorToGameUnit(const CX2BuffFactor&))	n/a	n/a	n/a	medium: found by the base-id constants 0x7d/0x82/0x87; June does not use the +0x21c entry here
+X2Pet.cpp:4046	live [SERV_PET_SYSTEM > PET_AURA_BUFF]	DoCheer case 2: m_optrMasterGameUnit->SetBuffFactorToGameUnitByBuffFactorID( 130 + GetBuffLevelByIntimacy() )	no +0x21c call; June uses vslot +0x224 @326ef6c9 (add eax,0x7d/0x82/0x87 @326ef644/60e/5d8)	326ef510 (Ghidra FUN_326ef510, the June DoCheer; not in funcmap)	n/a (June builds a CX2BuffFactor via 326c32a0 + 32d41910(time) and calls SetBuffFactorToGameUnit(const CX2BuffFactor&))	n/a	n/a	n/a	medium: found by the base-id constants 0x7d/0x82/0x87; June does not use the +0x21c entry here
+X2Pet.cpp:4049	live [SERV_PET_SYSTEM > PET_AURA_BUFF]	DoCheer case 3: m_optrMasterGameUnit->SetBuffFactorToGameUnitByBuffFactorID( 135 + GetBuffLevelByIntimacy() )	no +0x21c call; June uses vslot +0x224 @326ef6c9 (add eax,0x7d/0x82/0x87 @326ef644/60e/5d8)	326ef510 (Ghidra FUN_326ef510, the June DoCheer; not in funcmap)	n/a (June builds a CX2BuffFactor via 326c32a0 + 32d41910(time) and calls SetBuffFactorToGameUnit(const CX2BuffFactor&))	n/a	n/a	n/a	medium: found by the base-id constants 0x7d/0x82/0x87; June does not use the +0x21c entry here
+X2PremiumBuffManager.cpp:586	live [COME_BACK_REWARD > BUFF_TEMPLET_SYSTEM > SERV_IRUHADEV_JUNE_BUFF_PREMIUM]	Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT: bApplied = pCX2GUUser->SetBuffFactorToGameUnitByBuffFactorID( iFactorID, 1 )	326c939c	326c9030 CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT (funcmap)	NULL	1	0	1	high: only +0x21c call in the function
+X2PremiumBuffManager.cpp:673	dead [COME_BACK_REWARD > BUFF_TEMPLET_SYSTEM > ELSE of SERV_IRUHADEV_JUNE_BUFF_PREMIUM > SET_WORLD_BUFF_AT_RESURRECTION]	...ByBuffFactorID( kBuffInfo.m_kFactorInfo.m_iFactorID ) in an if	326c939c	326c9030	NULL	1	0	1	n/a: dead branch
+X2PremiumBuffManager.cpp:677	dead [... > ELSE of SERV_IRUHADEV_JUNE_BUFF_PREMIUM > ELSE of SET_WORLD_BUFF_AT_RESURRECTION]	...ByBuffFactorID( m_iFactorID ) in an if	326c939c	326c9030	NULL	1	0	1	n/a: dead branch
+
+#JUNE-ONLY engine calls (no March counterpart in the listed files); class-script calls (>=32900000, 322a0180 Lanox) are excluded
+june_call_va	june_function_va	where	BFI	creator	level	adjust	skip
+31fc8c6d / 31fc8c86	31fc8c20	CX2GUUser (after IsSummonSkill)	0x34b and 0x34c	NULL	1	0	1
+31fd1835	31fd17e0	CX2GUUser (before GetActualMPConsume)	0x449	NULL	1	0	0
+31fef471	31fee090	CX2GUUser vslot 487 neighbour	0x32f	NULL	1	0	1
+3200409e,32004172,3200425c,32004633,320046b9 (+ a 0x335 path via LAB_320046af)	32003ea0	CX2GUUser riding-pet switch (same function as March 42479)	0x274e,0x261,0x28b,0x452,0x176,0x335	NULL	1	0	1
+32009118	32008e40	CX2GUUser (custom-function skill level helper)	0x33b	NULL	1	0	1
+320152b6	32015250	CX2GUUser::CommonStateEnd (funcmap 'likely')	pending list +0x865c ids	NULL	max(+0x9270,1)	0	0
+32023b54 / 3202448e	32022380	CX2GUUser::ReInit (June-only branches)	0x32f / 0x3a2	NULL	1	0	1
+3204db45	3204da60	CX2GUUser slot 0x744 Crest of Time restore (funcmap)	0x2ab	NULL (ebx==0)	1	0 (ebx)	1
+3204e1ac	3204e160	CX2GUUser setter of +0x8e90	ebp (variable)	NULL	1	0	0
+322988da	32298590	CX2GameUnit::ApplyHyperModeBuff, extra June branch	0x34d	NULL	1	0	1
+322f1884	322f1840	CX2Game zero-start-motion-delay helper	edi (variable)	NULL	1	0	1
+322ff61a	322fbc60	CX2Game::UseItemSpecialAbility (June-only SAT case)	0x217	NULL	[edi+8] (variable)	0	1
+32358963	32358800	unit-ability helper next to CX2Unit ability value	0x3a2	NULL	1	0	1
+323c5ad4	323c5310	town/field NPC or square-unit region (after CX2TFieldNpc::GetOnlyClickable)	0x3d5	ebx (= the receiver itself, NON-NULL)	1	0	1
+324ae443	324ae320	funcmap: clear a unit's buffs and apply BFI 1117	0x45d	NULL	1	0	0
+324af0dc	324aefe0	CX2StateBattleField neighbourhood	ebp (variable)	NULL	1	0	1
+324b1e26	324b1c70	CX2StateBattleField neighbourhood	eax (variable)	NULL (ebx==0)	1	0 (ebx)	0 (ebx)
+326efa4f	326ef840	CX2PET state change (funcmap 'Pet state loader')	0x270 applied to the pet master	NULL	1	0	1
+3275a587	3275a520	CX2GUNPC (after CX2GUNPC::StartAlphaFade)	0x20e	param_1 = the caller's this (NON-NULL)	1	0	0
+32761488	32761420	CX2GUNPC (after AddStateCoolTime_LUA)	0x449	NULL	1	0	0
+327cfa5f	327cf620	CX2DungeonGame::SubStageStart (funcmap)	0x431	NULL	eax (variable)	0	0
+327d1503	327d11e0	CX2DungeonGame tutorial-exit tail	0x3a2	NULL	1	0	0
+# part2
+call_va	function_va	ghidra_name	pushes(skip|adjust|level|creator|BFI)
+31bc6053	31bc5f80	FUN_31bc5f80	ebx|eax|esi|ecx|esi
+31fc8c6d	31fc8c20	FUN_31fc8c20	1|0|1|0|0x34b
+31fc8c86	31fc8c20	FUN_31fc8c20	1|0|1|0|0x34c
+31fd1835	31fd17e0	FUN_31fd17e0	0|0|1|0|0x449
+31fdf56a	31fdf4c0	CX2GUUser: reserved-buff apply loop over +0x865c (tail of CommonFrameMove_TimedEvent)	0|0|eax|0|eax
+31fe39e0	31fe32d0	FUN_31fe32d0	ebx|ebx|eax|ebx|eax
+31feb12c	31feabd0	CX2GUUser::DamageReactStateChange	1|0|1|0|0xc7
+31feb2d9	31feabd0	CX2GUUser::DamageReactStateChange	1|0|1|0|0xc7
+31feb402	31feabd0	CX2GUUser::DamageReactStateChange	1|0|1|0|0xc7
+31fef471	31fee090	FUN_31fee090	1|0|1|0|0x32f
+32003fce	32003ea0	FUN_32003ea0	1|0|1|0|0xce
+3200409e	32003ea0	FUN_32003ea0	1|0|1|0|0x274e
+32004172	32003ea0	FUN_32003ea0	1|0|1|0|0x261
+3200425c	32003ea0	FUN_32003ea0	1|0|1|0|0x28b
+32004633	32003ea0	FUN_32003ea0	1|0|1|0|0x452
+320046b9	32003ea0	FUN_32003ea0	1|0|1|0|0x176
+32009118	32008e40	FUN_32008e40	1|0|1|0|0x33b
+320152b6	32015250	CX2GUUser::CommonStateEnd (likely)	0|0|eax|0|eax
+32023b54	32022380	FUN_32022380	1|0|1|0|0x32f
+32024319	32022380	FUN_32022380	1|0|1|0|eax
+3202448e	32022380	FUN_32022380	1|0|1|0|0x3a2
+32029036	32028ba0	CX2GUUser::ProcessSocketEffectEx	1|0|1|0|0x8d
+320297c2	32028ba0	CX2GUUser::ProcessSocketEffectEx	1|0|1|0|0x439
+32029fe3	32028ba0	CX2GUUser::ProcessSocketEffectEx	1|0|1|0|0x3ac
+320392ab	32034e50	CX2GUUser::Process_ExtraDamage	ebx|ebx|ebp|ebx|0x314
+32039624	32034e50	CX2GUUser::Process_ExtraDamage	ebx|ebx|ebp|ebx|0x324
+3204aef7	3204a860	CX2GUUser::EmotionFrameMove (June head; March X2GUUser.cpp:28994)	1|0|1|0|0x4e
+3204d270	3204d120	FUN_3204d120	1|0|1|0|eax
+3204db45	3204da60	none in March: CX2GUUser slot 0x744 Crest of Time restore	1|ebx|1|ebx|0x2ab
+3204e1ac	3204e160	FUN_3204e160	0|0|1|0|ebp
+32060cb8	32057b80	CX2GUUser::CommonStateStart: detonation bytes	1|0|eax|0|ecx
+3208ddae	3208dbc0	FUN_3208dbc0	edx|edx|edx|0|edx
+322988da	32298590	FUN_32298590	1|ebp|1|ebp|0x34d
+32298ad7	32298590	FUN_32298590	1|ebp|1|ebp|1
+32298ce0	32298590	FUN_32298590	1|ebp|1|ebp|1
+322a036c	322a0180	none in March: Lanox Secret Ammo extra damage( DamageData*, n )	0|0|eax|0|0x334
+322a03ca	322a0180	none in March: Lanox Secret Ammo extra damage( DamageData*, n )	esi|0x319|ecx|0|0x333
+322d6f84	322d6f20	CX2Game NPC-kill socket/NPC buff hook	1|0|edx|0|edx
+322d6fc8	322d6f20	CX2Game NPC-kill socket/NPC buff hook	1|0|1|0|eax
+322d702c	322d6f20	CX2Game NPC-kill socket/NPC buff hook	1|0|1|0|0x286
+322f1884	322f1840	FUN_322f1840	1|0|1|0|edi
+322ff61a	322fbc60	CX2Game::UseItemSpecialAbility	1|0|eax|0|0x217
+32304a19	323046f0	FUN_323046f0	1|0|1|0|0x43
+32358963	32358800	FUN_32358800	1|0|1|0|0x3a2
+3236997f	323698b0	CX2CustomFunctionByBuffServoNitro ctor	0|0|1|0|0x2ea
+323c5ad4	323c5310	FUN_323c5310	1|0|1|ebx|0x3d5
+3244c599	3244c4b0	FUN_3244c4b0	0|0|1|0|0x9a
+324ae443	324ae320	none in March: clear a unit's buffs and apply BFI 1117	0|0|1|0|0x45d
+324af0dc	324aefe0	FUN_324aefe0	1|0|1|0|ebp
+324b1e26	324b1c70	FUN_324b1c70	ebx|ebx|1|ebx|eax
+326c939c	326c9030	CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT	1|0|1|0|eax
+326efa4f	326ef840	CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader)	1|0|1|0|0x270
+3274a39f	32749f30	FUN_32749f30	1|0|1|0|0x93
+3274a3d1	32749f30	FUN_32749f30	1|0|1|0|0x94
+3274a403	32749f30	FUN_32749f30	1|0|1|0|0x95
+3274a435	32749f30	FUN_32749f30	1|0|1|0|0x96
+3274a467	32749f30	FUN_32749f30	1|0|1|0|0x97
+3274c954	3274c880	CX2GameEdit::ApplyBuffFactor_LUA (new)	ebx|ebx|1|ebx|edi
+3275a587	3275a520	FUN_3275a520	0|0|1|esi|0x20e
+32761488	32761420	FUN_32761420	0|0|1|0|0x449
+32761bad	32761b40	FUN_32761b40	ebx|0|ebx|0|ecx
+32761bfd	32761b40	FUN_32761b40	ebx|0|ebx|0|edx
+3279cf5a	327995c0	CX2GUNPC::Process_ExtraDamage	0|0|ebp|0|0x314
+3279d43b	327995c0	CX2GUNPC::Process_ExtraDamage	0|0|ebp|0|0x324
+327cfa5f	327cf620	CX2DungeonGame::SubStageStart (vslot 155; also CX2PVEGame)	0|0|eax|0|0x431
+327d1503	327d11e0	FUN_327d11e0	0|0|1|0|0x3a2
+32976f7f	32976f30	FUN_32976f30	0|0|1|esi|0x3f2
+32976fa8	32976f30	FUN_32976f30	0|0|1|0|0x3f9
+329830e2	32982fb0	FUN_32982fb0	0|0|ebp|0|0x1a6
+3298a547	32988e40	FUN_32988e40	ebp|ebp|eax|ebp|0x1b7
+32990c1a	329903e0	FUN_329903e0	0|0|ebx|0|0x1b8
+329936ab	32993020	FUN_32993020	0|0|1|0|0x1a2
+329979ef	32997940	FUN_32997940	0|0|eax|0|0x1b6
+3299b7e6	3299b790	FUN_3299b790	0|0|eax|0|0x32c
+3299b8b0	3299b810	FUN_3299b810	ebp|ebp|ebx|ebp|0x1b9
+3299bb10	3299ba70	FUN_3299ba70	ebp|ebp|ebx|ebp|0x1ba
+329b2e8f	329b1e20	FUN_329b1e20	0|0|1|0|0x28c
+329b58c4	329b57a0	FUN_329b57a0	0|0|1|0|0x2a9
+329b5a1f	329b57a0	FUN_329b57a0	0|0|1|0|0x45f
+329d51eb	329d50d0	FUN_329d50d0	0|0|1|0|0x161
+329e244c	329e2410	CX2GUAdd::ApplyHyperModeBuff (June form)	0|0|1|0|0x13b
+329e28a9	329e2800	FUN_329e2800	0|0|eax|0|0x164
+329e72a2	329e7210	FUN_329e7210	0|0|1|0|0x34e
+329e72bd	329e7210	FUN_329e7210	0|0|1|0|0x13b
+329e736c	329e7210	FUN_329e7210	0|0|1|0|0x384
+329e7d49	329e7ca0	FUN_329e7ca0	0|0|1|0|ebx
+329f1491	329f12f0	FUN_329f12f0	0|0|ebp|edi|0x15c
+329f14d5	329f12f0	FUN_329f12f0	0|0|ebp|edi|0x395
+329f1e9e	329f1970	FUN_329f1970	0|0|eax|esi|0x166
+329f22bb	329f2080	FUN_329f2080	0|0|eax|0|0x29c
+329f33f9	329f3070	FUN_329f3070	ebp|ebp|1|ebp|0x256
+329f52a9	329f4bd0	FUN_329f4bd0	0|0|eax|0|0x171
+329fe9e7	329fe650	FUN_329fe650	ebp|ebp|1|ebp|0x256
+32a07ca2	32a07b60	FUN_32a07b60	0|0|eax|0|0x387
+32a0871a	32a08150	CX2GUAdd StateStart (Add range; called from 32a31190)	ebp|ebp|eax|ebp|0x26b
+32a16061	32a15ca0	FUN_32a15ca0	0|0|ebp|0|0x1dc
+32a1c946	32a1c730	FUN_32a1c730	0|0|eax|0|0x387
+32a26407	32a26090	FUN_32a26090	0|0|eax|edi|0x1f5
+32a267f1	32a26480	FUN_32a26480	ebp|ebp|ebx|esi|0x1de
+32a279df	32a27900	FUN_32a27900	edi|edi|eax|edi|0x16f
+32a28939	32a288d0	FUN_32a288d0	0|0|ecx|0|0x16e
+32a3d298	32a3d150	FUN_32a3d150	1|0|edx|0|0x43c
+32a3d8eb	32a3d860	FUN_32a3d860	1|0|1|0|0x40c
+32a3d93e	32a3d860	FUN_32a3d860	1|0|1|0|0x40b
+32a3d9ce	32a3d990	FUN_32a3d990	1|0|1|0|0x40b
+32a3da1e	32a3d990	FUN_32a3d990	1|0|1|0|0x40c
+32a4d70f	32a4d6a0	FUN_32a4d6a0	0|0|1|0|0x415
+32a4dcaa	32a4dbf0	FUN_32a4dbf0	0|0x7ea0|edi|0|0x446
+32a4dd85	32a4dce0	FUN_32a4dce0	0|0x7ea0|ebx|0|0x447
+32a4f590	32a4f510	FUN_32a4f510	1|0|eax|0|0x43c
+32a4f64a	32a4f5b0	FUN_32a4f5b0	0|0x7ea0|edi|esi|0x444
+32a50856	32a507a0	FUN_32a507a0	0|0x7de3|edi|0|0x44e
+32a53df7	32a53b70	FUN_32a53b70	1|0|1|esi|0x41e
+32a64947	32a64920	FUN_32a64920	1|0|eax|0|0x43c
+32a64994	32a64950	FUN_32a64950	1|0|eax|0|0x43c
+32a6595c	32a65860	FUN_32a65860	0|0x7d45|1|0|0x451
+32a69db8	32a69b80	FUN_32a69b80	0|0|1|0|0x41d
+32a69fcf	32a69f40	FUN_32a69f40	0x7de3|edi|ebx|0x44e|0x43d
+32a701a0	32a6fe00	FUN_32a6fe00	1|0|eax|0|0x43c
+32a70285	32a701c0	FUN_32a701c0	1|0|eax|0|0x43c
+32a71d7e	32a71a90	CX2GUAin::ApplyHyperModeBuff (Ain, June-only class)	1|0|1|0|0x40a
+32a7ead7	32a7eab0	FUN_32a7eab0	1|1|1|0|0x398
+32a80292	32a80250	FUN_32a80250	0|0|ecx|0|0x2f8
+32a803f3	32a80250	FUN_32a80250	0|0|ecx|0|0x2fc
+32aa7e7e	32aa7e10	FUN_32aa7e10	0|0|ecx|edi|0x2e2
+32aab219	32aab1b0	FUN_32aab1b0	0|0x7aac|eax|ebp|0x2d3
+32ab437f	32ab42f0	FUN_32ab42f0	0|2|1|edi|0x2e0
+32ab442d	32ab42f0	FUN_32ab42f0	0|0|1|edi|0x2e1
+32ab5142	32ab50c0	FUN_32ab50c0	0|0|eax|0|0x349
+32ab80d9	32ab8080	FUN_32ab8080	0|0|1|0|0x2cc
+32ac29ff	32ac2910	FUN_32ac2910	0|0|1|0|0x3b2
+32ac5d97	32ac5ce0	FUN_32ac5ce0	0|0|1|0|0x2df
+32ac5e0c	32ac5ce0	FUN_32ac5ce0	1|1|1|0|0x39a
+32ac6b87	32ac6a30	FUN_32ac6a30	0|0|1|0|0x2f7
+32ad066f	32ad0620	FUN_32ad0620	ebx|ebx|1|ebx|0x2f7
+32ad6b24	32ad6ac0	FUN_32ad6ac0	0|0|ecx|0|0x2e3
+32ae2ee5	32ae2e90	FUN_32ae2e90	1|1|1|ebx|esi
+32b0ef38	32b0eed0	FUN_32b0eed0	0|0|1|0|0x39d
+32b0fccc	32b0fc50	FUN_32b0fc50	0|0|edx|esi|0x20e
+32b1323c	32b13180	FUN_32b13180	0|0|eax|0|0x20c
+32b136fa	32b135e0	FUN_32b135e0	0|0|1|esi|0x318
+32b14d87	32b14d10	FUN_32b14d10	0|ecx|eax|0|0x38a
+32b1fc6c	32b1f800	FUN_32b1f800	0|0|1|0|0x25b
+32b1ffe7	32b1fc90	FUN_32b1fc90	0|0|eax|edi|0x211
+32b206ff	32b20670	FUN_32b20670	0|edi|0|0x222|0x221
+32b20a3c	32b20a10	FUN_32b20a10	0|0|1|0|0x225
+32b20a55	32b20a10	FUN_32b20a10	0|0|1|0|0x225
+32b20a91	32b20a10	FUN_32b20a10	0|0|1|0|0x225
+32b2ff15	32b2fba0	FUN_32b2fba0	0|0|ebp|0|0x224
+32b31e33	32b318e0	FUN_32b318e0	0|0|1|0|0x312
+32b3a0f7	32b39e90	FUN_32b39e90	ebp|0x7600|eax|ebp|ebp
+32b3a126	32b39e90	FUN_32b39e90	0|0x7600|eax|esi|ebp
+32b3a15a	32b39e90	FUN_32b39e90	ebp|0x7600|eax|ebp|ecx
+32b3d5ce	32b3d380	FUN_32b3d380	0|0|1|edi|0x25f
+32b3d6d1	32b3d380	FUN_32b3d380	0|0|esi|edi|0x226
+32b3d772	32b3d380	FUN_32b3d380	0|0|eax|edi|0x205
+32b3dafb	32b3d380	FUN_32b3d380	0|0|ecx|edi|0x39e
+32b3db3b	32b3d380	FUN_32b3d380	0|0|eax|edi|0x205
+32b3dc58	32b3db80	FUN_32b3db80	0|0|eax|0|0x21c
+32b3dd3e	32b3db80	FUN_32b3db80	0|0|eax|0|0x20b
+32b3dfa5	32b3dea0	FUN_32b3dea0	0|0|eax|0|0x21c
+32b3e0a6	32b3dea0	FUN_32b3dea0	0|0|eax|0|0x20b
+32b3e6d0	32b3e470	FUN_32b3e470	0|0|ebp|0|0x322
+32b6e0ba	32b6e050	FUN_32b6e050	ecx|ecx|1|ecx|0xf5
+32b6f888	32b6e500	FUN_32b6e500	0|0|ecx|edi|0x12c
+32b6f8a5	32b6e500	FUN_32b6e500	0|0|ecx|edi|0x12d
+32b6ffe8	32b6ff20	FUN_32b6ff20	0|0|eax|0|0x39f
+32b70023	32b6ff20	FUN_32b6ff20	0|0|ecx|0|0x392
+32b7007e	32b6ff20	FUN_32b6ff20	0|0|ecx|0|0x393
+32b700ad	32b6ff20	FUN_32b6ff20	0|0|ecx|0|0x394
+32b735a4	32b734d0	FUN_32b734d0	0|0|esi|0|0x29a
+32b73faa	32b73e60	FUN_32b73e60	0|0|1|0|0x1a4
+32b74900	32b74760	FUN_32b74760	0|1|0|0x1d9|0xed
+32b766a9	32b76320	FUN_32b76320	ebx|ebx|edi|ebx|0x159
+32b766cc	32b76320	FUN_32b76320	ebx|ebx|edi|ebx|0x28f
+32b7acbe	32b7ac20	FUN_32b7ac20	0|0|ecx|0|eax
+32b7ad6f	32b7ac20	FUN_32b7ac20	0|0|ecx|0|eax
+32b7bb4b	32b7bad0	FUN_32b7bad0	0|0|eax|0|0x1d0
+32b7e6f9	32b7e580	FUN_32b7e580	0|0|eax|0|0x38b
+32b7e725	32b7e580	FUN_32b7e580	0|0|ecx|0|0x38c
+32b7e7c8	32b7e740	FUN_32b7e740	0|0|eax|0|0x38d
+32b7e95e	32b7e740	FUN_32b7e740	0|0|ebp|ebx|0x38e
+32b7eaea	32b7e9a0	FUN_32b7e9a0	0|0|ecx|0|0x38f
+32b7eb26	32b7e9a0	FUN_32b7e9a0	0|0|ecx|0|0x390
+32b7eba0	32b7e9a0	FUN_32b7e9a0	0|0|1|0|0x391
+32b7f347	32b7f0b0	FUN_32b7f0b0	0|0|1|0|0xf6
+32b80ae0	32b80840	FUN_32b80840	0|0|edi|0|0x1e0
+32b80afd	32b80840	FUN_32b80840	0|0|edi|0|0x1df
+32b80d4b	32b80c60	FUN_32b80c60	0|0|edi|0|0xe8
+32b87379	32b872d0	FUN_32b872d0	ebp|ebp|ebx|esi|0x123
+32b873e6	32b872d0	FUN_32b872d0	ebp|ebp|eax|esi|0x124
+32b87401	32b872d0	FUN_32b872d0	ebp|ebp|ecx|esi|0x133
+32b8775e	32b87520	FUN_32b87520	ebx|ebx|eax|ebx|0x127
+32b87950	32b87880	none in March: Elesis Blood Runaway hit block	ebp|ebp|ecx|ebp|0x1ce
+32b87a2b	32b87880	none in March: Elesis Blood Runaway hit block	ebp|ebp|eax|ebp|0x293
+32b89961	32b898a0	FUN_32b898a0	0|0|edx|esi|0x1d1
+32b8a444	32b8a320	FUN_32b8a320	0|0|1|0|0x252
+32b8b821	32b8b410	FUN_32b8b410	0|0|1|0|0x1d6
+32b94bb4	32b94b80	FUN_32b94b80	0|0|1|0|0x24f
+32ba6df1	32ba6990	FUN_32ba6990	0|0|ecx|0|0x294
+32ba6e16	32ba6990	FUN_32ba6990	0|0|1|0|0x295
+32ba6e40	32ba6990	FUN_32ba6990	0|0|1|0|0x9c
+32bab361	32bab2d0	FUN_32bab2d0	0|0|1|0|0xb5
+32bb881c	32bb8680	FUN_32bb8680	0|0|1|0|0xb5
+32bc825b	32bc8030	FUN_32bc8030	ebx|ebx|1|ebx|0x108
+32bc8752	32bc84b0	FUN_32bc84b0	ebp|ebp|eax|ebp|0x108
+32bc8888	32bc84b0	FUN_32bc84b0	0|0x6a4d|eax|0|0x103
+32bfea69	32bfe730	FUN_32bfe730	0|0|1|0|0x1c4
+32c527ad	32c526e0	FUN_32c526e0	ebx|ebx|eax|ebx|ecx
+32c52a0a	32c528c0	FUN_32c528c0	ebx|ebx|eax|ebx|ecx
+32c52e0a	32c52cc0	FUN_32c52cc0	ebx|ebx|eax|ebx|ecx
+32c52ff2	32c52f30	FUN_32c52f30	ebx|ebx|eax|ebx|ecx
+32c5343a	32c532f0	FUN_32c532f0	ebx|ebx|eax|ebx|ecx
+32c5378a	32c536c0	FUN_32c536c0	ebx|ebx|eax|ebx|ecx
+32c539f7	32c538c0	FUN_32c538c0	ebx|ebx|eax|ebx|ecx
+32c53c47	32c53b10	FUN_32c53b10	ebx|ebx|eax|ebx|ecx
+32c53e97	32c53d60	FUN_32c53d60	ebx|ebx|eax|ebx|ecx
+32c54072	32c53fb0	FUN_32c53fb0	ebx|ebx|eax|ebx|ecx
+32c5465a	32c54510	FUN_32c54510	ebx|ebx|eax|ebx|ecx
+32c54842	32c54780	FUN_32c54780	ebx|ebx|eax|ebx|ecx
+32c5aacf	32c5a940	FUN_32c5a940	ebx|ebx|eax|ebx|ecx
+32c6188f	32c61580	FUN_32c61580	ebp|ebp|eax|ebp|ecx
+32c61df1	32c619e0	FUN_32c619e0	ebx|ebx|eax|ebx|ecx
+32c85255	32c85200	FUN_32c85200	0|0|1|0|0x163
+32ca120e	32ca0f20	FUN_32ca0f20	0|0|1|0|0x273
+32ca4d58	32ca4a40	FUN_32ca4a40	ebx|ebx|1|ebx|0x1a8
+32cb7728	32cb7530	FUN_32cb7530	0|0|1|0|0x194
+32cd5bc9	32cd57c0	FUN_32cd57c0	0|0|1|ebx|0x49
+32cd6308	32cd5d60	FUN_32cd5d60	0|0|1|esi|0x4a
+32cd7f23	32cd7bf0	FUN_32cd7bf0	ebx|ebx|1|esi|0x4b
+32cfc2f0	32cfc1f0	FUN_32cfc1f0	0|0|eax|0|0x151

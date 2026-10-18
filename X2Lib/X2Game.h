@@ -1199,7 +1199,13 @@ class CX2Game : public CKTDXStage
 		int							GetNPCCountAt( D3DXVECTOR3 vPosition, float fRadius = 30.f, CX2UnitManager::NPC_UNIT_ID eNPCID = CX2UnitManager::NUI_NONE );
 		D3DXVECTOR3					GetEmptyStartPos();
 #ifdef SKILLSTRING_IN_SKILLTEMPLET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+		/// S3e, June2017 32079be0 ( string, float ): the float is the string's display time ( +0xb3c, set first ), counted down by OnFrameMove
+		/// ( 32308c20 @3230a7d1 ), which clears the string when it runs out. 0 ( every March call, June's CommonStateStart / StateEnd ) = no timer
+		void						SetStateString( const wstring pStr, const float fShowTime_ = 0.0f ){ m_fJuneStateStringTime = fShowTime_; m_StateString = pStr; }
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 		void						SetStateString( const wstring pStr ){ m_StateString = pStr; }
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 #else //SKILLSTRING_IN_SKILLTEMPLET
 		void						SetStateString( const WCHAR* pStr ){ m_StateString = pStr; }
 #endif //#ifdef SKILLSTRING_IN_SKILLTEMPLET
@@ -2008,6 +2014,9 @@ protected:
 #endif	ELOG_STATISTICS_NEW_DATA
 
 		wstring						m_StateString;				/// 유저 현재 스테이트에 스테이트명이 있는 경우 출력 해준다.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+		float						m_fJuneStateStringTime;		/// June +0xb3c: the state string's display time ( 0 = none )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 		InfoTextManager				m_InfoTextManager;			/// 마나가 부족 하다는 등 화면 가운데에 나오는 메시지
 		bool						m_bSkipKeyPressed;			/// 튜토리얼에서 사용
 		

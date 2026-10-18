@@ -799,6 +799,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE
 #ifdef INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 , m_uiNowStateSkillLevel( 0 )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+, m_iJuneStateBuffSkillID( 0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 , m_fShowSkillCutInTime(-1.f)
 , m_bChangeWorldColor(false)
@@ -17155,7 +17158,16 @@ void CX2GUUser::CommonStateStart()
 
 #ifdef INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 	#ifdef ADD_MEMO_1ST_CLASS //김창한
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+		/// S3e, June2017 CommonStateStart 32057b80 @3206069b: the flag is "the equipped version of the state's skill is an upgraded one":
+		/// GetEquippedActiveSkillTemplet( GetNowStateSkillID(), upgrade swap ) ( 31fca8e0 @32057c03-32057c1d ) with +0x178 > 0 ( @3205ad70-3205ad82 )
+		{
+			const CX2SkillTree::SkillTemplet* pJuneStateSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+			ParsingBuffFactorID( m_LuaManager, NULL != pJuneStateSkillTemplet && 0 < pJuneStateSkillTemplet->m_iDeleteSkillIDByUpgrade );
+		}
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		ParsingBuffFactorID( m_LuaManager, m_bApplyMemo );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 	#else //ADD_MEMO_1ST_CLASS
 		ParsingBuffFactorID( m_LuaManager );
 	#endif //ADD_MEMO_1ST_CLASS
@@ -23360,6 +23372,9 @@ void CX2GUUser::CommonStateEndFuture()
 
 void CX2GUUser::CommonStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+	JuneApplyAllStateInsertBuffFactor();	/// June 32015250 @32015284, the first thing CommonStateEnd does
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
 	/// June CommonStateEnd 32015250 @320153c7 ( before the avatar-emotion sound stop, which is March's first block here ): 32009ae0
 	JuneClearStateSounds();
@@ -43430,6 +43445,171 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 	}
 }
 #ifdef INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+/** @function : JuneShowSkillNameStateString
+	@brief : S3e, June2017 3200ab60 ( static, no unit ). With a live game ( 3372c0fc ) and skill tree ( g_pData +0x50 ), the templet
+			 ( 32206450 ) name becomes the state string for 3 s ( float 3.0 @3347209c, 32079be0 ). Its only callers are class code:
+			 32b818b0 ( skills 28201, 28218 ), 32bc84b0, 32d1ddf0, 32ccfb92-32ccfc91 ( character checklist ).
+*/
+/*static*/ void CX2GUUser::JuneShowSkillNameStateString( const int iSkillID_ )
+{
+	if ( NULL == g_pX2Game || NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if ( NULL == pSkillTemplet )
+		return;
+	g_pX2Game->SetStateString( pSkillTemplet->m_wstrName, 3.0f );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	CX2OfflineLog::Server( L"[JUNE_SKILL] SSTR skill %d name shown for 3 s (3200ab60)", iSkillID_ );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#ifndef ADD_MEMO_1ST_CLASS
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF needs ADD_MEMO_1ST_CLASS (the two-argument ParsingBuffFactorID)
+#endif ADD_MEMO_1ST_CLASS
+/// S3e, June2017 31fe32d0: one ( BFI, anim time ) table, rows until a BFI of 0, each row closed before the check ( June's two inlined loops )
+static void JuneParseStateInsertBuffFactorTable( KLuaManager& luaManager_, std::vector< std::pair< UINT, float > >& vecList_ )
+{
+	int iTableIndex = 1;
+	while ( true == luaManager_.BeginTable( iTableIndex++ ) )
+	{
+		UINT uiBuffFactorID = 0;
+		float fStartAnimationTime = 0.f;
+		LUA_GET_VALUE( luaManager_, 1, uiBuffFactorID, 0 );
+		LUA_GET_VALUE( luaManager_, 2, fStartAnimationTime, 0.f );
+		luaManager_.EndTable();
+		if ( 0 == uiBuffFactorID )
+			break;
+		vecList_.push_back( std::make_pair( uiBuffFactorID, fStartAnimationTime ) );	/// a vector: duplicates kept, script order ( March: a map )
+	}
+	luaManager_.EndTable();
+}
+
+/** @function : ParsingBuffFactorID
+	@brief : S3e, June2017 31fe32d0, whole. The level ( +0x9270 ) is reset and the list ( +0x865c ) cleared. When the caller's flag is set
+			 ( the state's skill is an upgraded one ) BUFF_FACTOR_ID_AND_APPLY_TIME_ULTIMATE is read, else, or when it is absent,
+			 BUFF_FACTOR_ID_AND_APPLY_TIME ( March's _MEMO table is gone from June ). +0x9274 = GetNowStateSkillID ( @31fe3551 ). With a
+			 non-empty list: BUFF_FACTOR_RELATIVE_SKILL_ID ( missing or -1: GetNowStateSkillID ) goes to +0x9274 ( @31fe3796 ); a skill
+			 other than 0 with a unit sets the level from GetSkillLevel( id, 0, 0, upgrade swap ) ( 32890620 ); RELATIVE_SKILL_LEARN_CHECK
+			 with level 0 clears the list and returns ( 32079d60 ); the rows with time 0 are applied at once through slot 0x21c
+			 ( BFI, no creator, max( level, 1 ), 0, no skip: slot 476 takes +0x9274 ) and removed. June has no duplicate-BFI popup.
+*/
+/*virtual*/ void CX2GUUser::ParsingBuffFactorID( KLuaManager& luaManager_, const bool IsEqippedMemo_ /*= false*/ )
+{
+	m_uiNowStateSkillLevel = 0;
+	m_vecJuneStateInsertBuffFactor.clear();
+
+	const bool bJuneUltimate = IsEqippedMemo_;	/// June: the caller's upgraded-skill flag, not March's memo flag
+	bool bJuneUltimateTable = false;
+	if ( true == bJuneUltimate && true == luaManager_.BeginTable( "BUFF_FACTOR_ID_AND_APPLY_TIME_ULTIMATE" ) )
+	{
+		bJuneUltimateTable = true;
+		JuneParseStateInsertBuffFactorTable( luaManager_, m_vecJuneStateInsertBuffFactor );
+	}
+	else if ( true == luaManager_.BeginTable( "BUFF_FACTOR_ID_AND_APPLY_TIME" ) )
+	{
+		JuneParseStateInsertBuffFactorTable( luaManager_, m_vecJuneStateInsertBuffFactor );
+	}
+
+	m_iJuneStateBuffSkillID = static_cast<int>( GetNowStateSkillID() );
+	if ( true == m_vecJuneStateInsertBuffFactor.empty() )
+		return;
+
+	CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+	LUA_GET_VALUE_ENUM( luaManager_, "BUFF_FACTOR_RELATIVE_SKILL_ID", eSkillID,	CX2SkillTree::SKILL_ID,	CX2SkillTree::SI_INVALID );
+	if ( CX2SkillTree::SI_INVALID == eSkillID )
+		eSkillID = GetNowStateSkillID();
+	m_iJuneStateBuffSkillID = static_cast<int>( eSkillID );
+	if ( CX2SkillTree::SI_NONE != eSkillID && NULL != GetUnit() )
+		m_uiNowStateSkillLevel = static_cast<UINT>( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, false, 0, true ) );
+
+	bool bCheckSkillLevel = false;
+	LUA_GET_VALUE( luaManager_, "RELATIVE_SKILL_LEARN_CHECK", bCheckSkillLevel, false );
+
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iJuneStateBuffLogs = 0;
+	static DWORD s_dwJuneStateBuffLog = 0;
+	if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
+		CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF parse state %d: %u row(s) from %s, skill %d level %u, learn check %d (31fe32d0)", GetNowStateID(),
+			static_cast<UINT>( m_vecJuneStateInsertBuffFactor.size() ), ( true == bJuneUltimateTable ) ? L"_ULTIMATE" : L"the base table",
+			m_iJuneStateBuffSkillID, m_uiNowStateSkillLevel, ( true == bCheckSkillLevel ) ? 1 : 0 );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+
+	if ( true == bCheckSkillLevel && 0 == m_uiNowStateSkillLevel )
+	{
+		m_vecJuneStateInsertBuffFactor.clear();
+		return;
+	}
+
+	UINT uiIndex = 0;
+	while ( uiIndex < m_vecJuneStateInsertBuffFactor.size() )
+	{
+		if ( 0.f == m_vecJuneStateInsertBuffFactor[uiIndex].second )
+		{
+			SetBuffFactorToGameUnitByBuffFactorID( m_vecJuneStateInsertBuffFactor[uiIndex].first, max( m_uiNowStateSkillLevel, 1 ), NULL, 0, false );
+			m_vecJuneStateInsertBuffFactor.erase( m_vecJuneStateInsertBuffFactor.begin() + uiIndex );
+		}
+		else
+			++uiIndex;
+	}
+}
+
+/** @function : CommonFrameMove_InsertBuffFactor
+	@brief : S3e, June2017 31fdf4c0 ( the tail of CommonFrameMove_TimedEvent ), whole. With a skin anim, each row whose time is reached is
+			 applied through slot 0x21c ( BFI, no creator, max( level, 1 ), 0, no skip ), then user slot 0x830 ( BFI, max( level, 1 ) ), and removed.
+*/
+void CX2GUUser::CommonFrameMove_InsertBuffFactor()
+{
+	if( NULL == m_pXSkinAnim )
+		return;
+
+	UINT uiIndex = 0;
+	while ( uiIndex < m_vecJuneStateInsertBuffFactor.size() )
+	{
+		if ( m_pXSkinAnim->GetNowAnimationTime() >= m_vecJuneStateInsertBuffFactor[uiIndex].second )
+		{
+			const UINT uiJuneBuffFactorID = m_vecJuneStateInsertBuffFactor[uiIndex].first;
+			SetBuffFactorToGameUnitByBuffFactorID( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ), NULL, 0, false );
+			JuneOnStateInsertBuffFactorApplied( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ) );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+			static int s_iJuneStateBuffLogs = 0;
+			static DWORD s_dwJuneStateBuffLog = 0;
+			if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
+				CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF frame state %d: BFI %u at anim time %.3f, level %u (31fdf4c0)", GetNowStateID(), uiJuneBuffFactorID,
+					m_pXSkinAnim->GetNowAnimationTime(), m_uiNowStateSkillLevel );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+			if ( uiIndex < m_vecJuneStateInsertBuffFactor.size() )
+				m_vecJuneStateInsertBuffFactor.erase( m_vecJuneStateInsertBuffFactor.begin() + uiIndex );
+		}
+		else
+			++uiIndex;
+	}
+}
+
+/** @function : JuneApplyAllStateInsertBuffFactor
+	@brief : S3e, June2017 CommonStateEnd 32015250 @32015284-32015304: every row still waiting is applied now, whatever its time
+			 ( slot 0x21c as the frame apply, then slot 0x830 ), first to last, and removed.
+*/
+void CX2GUUser::JuneApplyAllStateInsertBuffFactor()
+{
+	while ( false == m_vecJuneStateInsertBuffFactor.empty() )
+	{
+		const UINT uiJuneBuffFactorID = m_vecJuneStateInsertBuffFactor.front().first;
+		SetBuffFactorToGameUnitByBuffFactorID( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ), NULL, 0, false );
+		JuneOnStateInsertBuffFactorApplied( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ) );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static int s_iJuneStateBuffLogs = 0;
+		static DWORD s_dwJuneStateBuffLog = 0;
+		if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF state end %d: BFI %u applied before its time, level %u (32015284)", GetNowStateID(), uiJuneBuffFactorID,
+				m_uiNowStateSkillLevel );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+		if ( false == m_vecJuneStateInsertBuffFactor.empty() )
+			m_vecJuneStateInsertBuffFactor.erase( m_vecJuneStateInsertBuffFactor.begin() );
+	}
+}
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 /** @function : ParsingBuffFactorID
 	@brief : 스크립트에서 지정한 스테이트의, 지정한 시간에
 		     자기자신에게 적용하는 버프 팩터 정보 파싱
@@ -43602,6 +43782,7 @@ void CX2GUUser::CommonFrameMove_InsertBuffFactor()
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환

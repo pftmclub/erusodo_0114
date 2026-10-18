@@ -3933,8 +3933,22 @@ public:
 #endif // ADD_MEMO_1ST_CLASS
 
 			void CommonFrameMove_InsertBuffFactor();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+			/// June CommonStateEnd 32015250 @32015284-32015304: every reserved buff factor still in the list is applied ( slots 0x21c, 0x830 ), then removed
+			void JuneApplyAllStateInsertBuffFactor();
+			/// June user vslot 0x830 ( BFI, level ), after a reserved buff factor is applied ( 31fdf58a, @320152d6 ). Base 33093ad0 is empty;
+			/// only Rose overrides it ( 32ad9a40, checklist )
+			virtual void JuneOnStateInsertBuffFactorApplied( const UINT uiBuffFactorID_, const UINT uiLevel_ ) {}
+	public:
+			int GetJuneStateBuffSkillID() const { return m_iJuneStateBuffSkillID; }	/// read by CX2GameUnit ( 322a6960 / 322a7660 )
+	protected:
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 		
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+		/// June 3200ab60 ( static ): the skill's name as the state string for 3 s. Only class code calls it ( checklist )
+		static void JuneShowSkillNameStateString( const int iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 		virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ ){}
 #ifdef SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 		/// June 32014fc0 ( C3t ): vslot 0x838, the slot after ShowActiveSkillCutInAndLightByScript ( 0x834 ); no June class overrides it
@@ -4810,6 +4824,10 @@ private:
 		// 현재 스테이트 스킬 레벨 
 		// 지정한 시간에 자기 자신에게 적용하는 버프를 위해 사용
 		UINT m_uiNowStateSkillLevel;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+		std::vector< std::pair< UINT, float > >	m_vecJuneStateInsertBuffFactor;	/// June +0x865c: ( BFI, anim time ) in script order; replaces m_mapStateInsertBuffFactor
+		int										m_iJuneStateBuffSkillID;		/// June +0x9274: the reserved buffs' skill id, slot 476's fallback
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif // INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 
 	// 오현빈 // 2013-07-02

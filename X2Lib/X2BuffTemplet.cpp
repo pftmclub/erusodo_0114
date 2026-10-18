@@ -2288,7 +2288,11 @@ CX2CustomFunctionByBuffServoNitro::CX2CustomFunctionByBuffServoNitro( const KBuf
 		return;
 
 	if ( false == static_cast<CX2GUUser*>( pGameUnit_ )->IsOnSomethingFuture() )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+		pGameUnit_->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR, 1, NULL, 0, false );	/// S3e: June 3236997f, no skip
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		pGameUnit_->SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_NITRO_SERVO_ADD_STAT_IN_AIR, 1 );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 }
 
 /** @function : FunctionInCommonStateEnd

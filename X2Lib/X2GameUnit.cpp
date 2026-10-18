@@ -1,6 +1,9 @@
 
 #include "StdAfx.h"
 #include ".\x2gameunit.h"
+#if defined( SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF && SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -13218,6 +13221,56 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 
 #endif SERV_IRUHADEV_JUNE_BUFF_GROUP
 //}}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+/** @function : SetBuffFactorToGameUnitByBuffFactorID
+	@brief : S3e, June2017 322a6960 ( vslot 0x21c ), whole. June did not merge it with ...AndCreatorID ( 322a6b60, unchanged ): it added
+			 three arguments ( creator unit, adjust skill id, skip ) after the BFI, the level being the third. March's ( BFI, level ) order is
+			 kept and June's three follow. The factor ( 326c32a0 ), the can-apply check with its BTI ( slot 132 @322a6a08 ), the levelled
+			 clone ( 32089f60 ). A user ( +0x264 == 0 ) then runs slot 476 ( AdjustBuffFactorByIndex, the skill-memo rescale ) with the
+			 adjust id, or with +0x9274 ( the reserved-buff skill id ParsingBuffFactorID stores ) when it is 0, unless skip
+			 ( @322a6a3e-322a6a72 ), and slot 141 ( OnBuffAccumulationFactorReady, empty except Ain / Rose ) with 0 ( @322a6a74-322a6a8b ).
+			 The creator stamp ( 32d4d670 ): the creator's UID ( vslot 21 ) and is-user, or -1 / true without one ( @322a6a8d-322a6ac1 ),
+			 then slot 137. The defaults keep March's behaviour; the callers' June values are in june2017_re/s3e_bybfi_callers.tsv.
+*/
+/*virtual*/ bool CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID( const UINT uiBuffFactorId_, IN const UINT uiLevel_ /*= 1*/,
+	CX2GameUnit* pCreatorUnit_ /*= NULL*/, const int iAdjustSkillID_ /*= 0*/, const bool bSkipAdjust_ /*= true*/ )
+{
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( uiBuffFactorId_ );
+	if ( NULL == ptrBuffFactor || true != CanApplyBuffToGameUnit( ptrBuffFactor->GetBuffTempletID() ) )
+		return false;
+
+	CX2BuffFactorPtr ptrBuffFactorClone = ptrBuffFactor->GetClonePtr( uiLevel_ );
+	if ( NULL == ptrBuffFactorClone )
+		return false;
+
+	if ( GUT_USER == GetGameUnitType() )
+	{
+		if ( false == bSkipAdjust_ )
+		{
+			const int iJuneAdjustSkillID = ( 0 != iAdjustSkillID_ ) ? iAdjustSkillID_ : static_cast<CX2GUUser*>( this )->GetJuneStateBuffSkillID();
+			AdjustBuffFactorByIndex( ptrBuffFactorClone, iJuneAdjustSkillID );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+			static int s_iJuneStateBuffLogs = 0;
+			static DWORD s_dwJuneStateBuffLog = 0;
+			if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
+				CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF bybfi BFI %u level %u -> slot 476 with skill %d (%s) (322a6a65)", uiBuffFactorId_, uiLevel_,
+					iJuneAdjustSkillID, ( 0 != iAdjustSkillID_ ) ? L"the caller's" : L"+0x9274, the state's" );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+		}
+		OnBuffAccumulationFactorReady( ptrBuffFactorClone, 0 );
+	}
+
+	UidType iCreatorUID = -1;
+	bool bCreatorIsUser = true;
+	if ( NULL != pCreatorUnit_ )
+	{
+		iCreatorUID = pCreatorUnit_->GetUnitUID();
+		bCreatorIsUser = ( GUT_USER == pCreatorUnit_->GetGameUnitType() );
+	}
+	ptrBuffFactorClone->SetGameUnitBuffFactor( this, iCreatorUID, bCreatorIsUser );
+	return SetBuffFactorToGameUnit( *ptrBuffFactorClone );
+}
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 /** @function : SetBuffFactorToGameUnitByBuffFactorID
 	@brief : 버프팩터 ID로 게임유닛에 버프 적용
 	@param : 버프팩터ID(uiBuffFactorId_)
@@ -13254,6 +13307,7 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 	}
 	return false;
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 
 #ifdef ADD_LIVE_CREATOR_FINALIZER
 /** @function : SetBuffFactorToGameUnitByBuffFactorIDAndCreatorID
@@ -14027,7 +14081,12 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			else
 			{
 				const int iLevel = extraDamageData_.m_iLevel;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+				/// S3e: June 320392ab ( user ) / 3279cf5a ( NPC ) pass ( 788, NULL, level, 0, no skip )
+				const bool bSet = pAttacker->SetBuffFactorToGameUnitByBuffFactorID( 788, static_cast<UINT>( iLevel ), NULL, 0, false );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				const bool bSet = pAttacker->SetBuffFactorToGameUnitByBuffFactorID( 788, static_cast<UINT>( iLevel ) );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				if ( true == JuneSocketEdtFirstTime( iType ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d fired (first this run): BFI 788 level %d on the attacker -> %s", iType, iLevel,
 						true == bSet ? "set" : "not set (its factor is June buff data: Phase 13)" );
@@ -14106,7 +14165,12 @@ void CX2GameUnit::JuneProcessSocketExtraDamage( const CX2DamageManager::DamageDa
 			else
 			{
 				const int iLevel = extraDamageData_.m_iLevel;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+				/// S3e: June 32039624 ( user ) / 3279d43b ( NPC ) pass ( 804, NULL, level, 0, no skip )
+				const bool bSet = pUser->SetBuffFactorToGameUnitByBuffFactorID( 804, static_cast<UINT>( iLevel ), NULL, 0, false );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				const bool bSet = pUser->SetBuffFactorToGameUnitByBuffFactorID( 804, static_cast<UINT>( iLevel ) );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				pUser->SetJuneCommandHit( iCount, fLastTime );
 				if ( true == JuneSocketEdtFirstTime( iType + 10000 ) )
 					CX2JuneBuffCapture::Line( "socket EXTRA_DAMAGE_TYPE %d: command hit %d counted (first this run): BFI 804 level %d on the attacker -> %s", iType, iCount, iLevel,
@@ -14209,7 +14273,12 @@ void CX2GameUnit::SetBuffAccumulationCount( const UINT uiBuffFactorID_, const in
 	CX2BuffFactorPtr ptrLevelledFactor( new CX2BuffFactor( *ptrBuffFactor, uiLevel_ ) );
 	if ( GUT_USER == GetGameUnitType() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+		/// S3e, June2017 322a7660 @322a776d-322a777b: slot 476 gets the caller's index, or the user's +0x9274 when it is 0
+		AdjustBuffFactorByIndex( ptrLevelledFactor, ( 0 != iAdjustIndex_ ) ? iAdjustIndex_ : static_cast<CX2GUUser*>( this )->GetJuneStateBuffSkillID() );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		AdjustBuffFactorByIndex( ptrLevelledFactor, iAdjustIndex_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		OnBuffAccumulationFactorReady( ptrLevelledFactor, 0 );
 	}
 	(*vItr)->SetAccumulationCountNow( iCount_, this, *ptrLevelledFactor );

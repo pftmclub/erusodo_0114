@@ -8520,3 +8520,35 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S3e: the state buff-factor path. CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID is June's
+//              322a6960 ( March's BFI, level, then June's creator unit, adjust skill id, skip ): a user runs slot 476 ( the skill-memo
+//              rescale ) with the adjust id, or the state's reserved-buff skill id ( +0x9274 ) when it is 0, unless skip, then slot 141.
+//              CX2GUUser::ParsingBuffFactorID is June's 31fe32d0 ( ordered list, the _ULTIMATE table when the state's skill is an
+//              upgraded one, +0x9274, the upgrade-swap skill level ); the frame apply ( 31fdf4c0 ) and CommonStateEnd's apply of the
+//              leftovers ( @32015284 ) also call user slot 0x830; SetBuffAccumulationCount falls back to +0x9274 ( @322a777b ).
+//              Revert: JUNE_SKILL_STATE_BUFF in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#ifndef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF needs SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY (slots 476 / 141)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifndef SERV_IRUHADEV_JUNE_BUFF_GROUP
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF needs SERV_IRUHADEV_JUNE_BUFF_GROUP (CanApplyBuffToGameUnit( BTI ))
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET (upgrade swap, m_iDeleteSkillIDByUpgrade)
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S3e: the state string's display time. CX2Game::SetStateString takes June's second argument
+//              ( 32079be0, +0xb3c ); OnFrameMove counts it down and clears the string when it runs out ( 32308c20 @3230a7d1 ). Every
+//              March call passes 0 ( shown until the next set, as before ). June's 3 s skill-name helper ( 3200ab60 ) is ported for
+//              the class code that calls it ( checklist ). Revert: JUNE_SKILL_STATE_STRING_TIME in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+//////////////////////////////////////////////////////////////////////////

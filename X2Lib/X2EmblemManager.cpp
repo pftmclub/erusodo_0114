@@ -593,7 +593,11 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 		{
 			if ( NULL != g_pX2Game )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+				g_pX2Game->GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF, 1, NULL, 0, false );	/// S3e: June 3244c599, no skip
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 				g_pX2Game->GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 			}
 		} break;
 

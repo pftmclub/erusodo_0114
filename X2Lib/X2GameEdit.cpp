@@ -621,7 +621,11 @@ void CX2GameEdit::ApplyBuffFactor_LUA( UINT uiBuffFactorID_, float fTime_ )
 	if ( NULL == pGUUser )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+	pGUUser->SetBuffFactorToGameUnitByBuffFactorID( uiBuffFactorID_, 1, NULL, 0, false );	/// S3e: June 3274c954 passes ( id, NULL, 1, 0, no skip )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 	pGUUser->SetBuffFactorToGameUnitByBuffFactorID( uiBuffFactorID_, 1 );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 
 	if ( 0.0f < fTime_ )
 	{

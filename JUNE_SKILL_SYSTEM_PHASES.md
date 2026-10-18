@@ -874,6 +874,54 @@ stubbed). Task and gate: `kickoffs/skill-system-core/S3d.md`. Sub-tag `[JUNE_SKI
 - **S3e kickoff** checked: it matches the routed rows (`322a6960`, `31fe32d0`, `32079be0` / `+0xb3c`).
 - **User owes:** nothing for S3d. The play-test waits for S7.
 
+## Phase S3e - The state buff-factor path and the state-string timer
+
+**Run with:** Opus 5.5 high, then an Opus review. Added 2026-10-18 by S3d (unowned June-changed functions next to the memo consumers). Task and gate: `kickoffs/skill-system-core/S3e.md`.
+Sub-tags `[JUNE_SKILL] SBUF` (state buffs, including the slot-476 call) and `SSTR` (timer), with `SERV_IRUHADEV_JUNE_SKILL_DEBUG`. Funcmap: rows tagged `(S3e)`. Revert: MODS.md "June state buff factors and the state-string timer".
+
+**Done note (2026-10-18, Opus 5.5 high).** Two flags.
+- **Correction to S3d's routing.** June did **not** merge `ByBuffFactorID` with `...AndCreatorID`. `322a6b60` (vslot 0x220) still exists, unchanged except the BTI already ported.
+  `322a6960` (vslot 0x21c) gained three arguments: `( BFI, creator unit, level, adjust skill id, skip )`.
+- **`JUNE_SKILL_STATE_BUFF`: `SetBuffFactorToGameUnitByBuffFactorID` (June `322a6960`, whole).**
+  - Signature: March's `( BFI, level )`, then `pCreatorUnit_ = NULL, iAdjustSkillID_ = 0, bSkipAdjust_ = true`. The defaults are March's behaviour.
+  - Body:
+    - The factor, and can-apply on its BTI; then the levelled clone.
+    - User, no skip: slot 476 with the adjust id, or `+0x9274` when it is 0 (`@322a6a47-322a6a72`). Then slot 141 with 0 for every user.
+    - The creator stamp: the creator's UID / is-user, or -1 / true (`32d4d670`). Then slot 137.
+  - Callers: the June scan of every `+0x21c` call is `june2017_re/s3e_bybfi_callers.tsv`. Part 1 is the engine sites; part 2 is all 231 June calls, the class map.
+    - Five live engine sites pass June's skip 0: `X2GameEdit` `ApplyBuffFactor_LUA`, `X2BuffTemplet` servo nitro (0x2ea), `X2EmblemManager` EXP buff (0x9a), and `X2GameUnit` ExtraDamage 788 / 804.
+      For ExtraDamage, `ebx` = 0 was proven by `cmp [unit+0x264], ebx` in `32034e50`.
+    - Every other matched engine site passes skip 1, no creator and adjust 0, which are the defaults. No engine site passes a creator or an adjust id.
+    - The pet aura (`X2Pet` DoCheer) has no June `+0x21c` call: June builds the factor and calls slot 137 directly. It is left as is (not in scope).
+  - `SetBuffAccumulationCount`: slot 476 falls back to `+0x9274` when the index is 0 (`322a7660 @322a777b`).
+- **`JUNE_SKILL_STATE_BUFF`: `ParsingBuffFactorID` (June `31fe32d0`, whole).**
+  - The list is a vector at `+0x865c`, in script order with duplicates kept (March: a map, and an in-house duplicate popup that June dropped).
+  - The caller's flag is June's "equipped version of the state's skill is upgraded": `31fca8e0( NowStateSkillID, swap )` with `+0x178` > 0 (`32057b80 @32057c03`, `@3205ad70`).
+    With the flag, `BUFF_FACTOR_ID_AND_APPLY_TIME_ULTIMATE` is read, falling back to the base table when absent. March's `_MEMO` table is not in June.
+  - `+0x9274` = the now-state skill id, then `BUFF_FACTOR_RELATIVE_SKILL_ID` (missing / -1: the now-state skill).
+  - The level comes from `GetSkillLevel( id, 0, 0, upgrade swap )` (`32890620`); March had no swap. The learn check is kept.
+  - Rows with time 0 apply at once with skip 0. June's frame apply `31fdf4c0` adds user vslot 0x830 (`JuneOnStateInsertBuffFactorApplied`, empty; Rose `32ad9a40` -> checklist 7ai).
+  - **June's `CommonStateEnd` first applies every row still waiting, whatever its time** (`@32015284-32015304`), and S3e ports that.
+    This is the one change a player can see before S7: a state's delayed self-buff now lands even if the state ends early.
+- **`JUNE_SKILL_STATE_STRING_TIME`.**
+  - `CX2Game::SetStateString( str, fShowTime_ = 0 )` (June `32079be0`; the timer is written first). The member `m_fJuneStateStringTime` is June's `+0xb3c` (ctor 0, `@323076e6`).
+  - `OnFrameMove` counts it down and clears the string at <= 0 (`32308c20 @3230a7d1-3230a87b`). June gates it on nothing but the `+0x2d8` early return, so it sits after March's `GS_PLAY` block.
+  - All June engine sets pass 0, and June's `CommonStateEnd` inlines `("", 0)`; March's calls default to 0, so they match.
+  - The 3 s caller is June's static `3200ab60`, ported as `CX2GUUser::JuneShowSkillNameStateString`. Its callers are class code only (checklist 7ai), so the timer is dormant in March today.
+- **Hygiene.** `flagcheck <flag> --worktree --files ...`: RESULT PASS for both. Each shows `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`.
+  The OTHER rows are files that mix the two flags, plus a peer's S6 hunks (`Always.h`, `X2Game.cpp`).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,998,720 B, dated 2026-10-18 13:04:05, md5 f1645b0f4434d266725a25f2ad3e8533, equal to X2/US_SERVICE/x2.exe (2026-10-18 13:03:59); built at main fc09cddd + 10 uncommitted code file(s).`
+  The build includes a peer's uncommitted `X2Game.cpp` S6 hunks. The first build failed in S3e's own edit (the new getter sat in a protected section; fixed to `public:` in the same block).
+  All six `SBUF` / `SSTR` format strings and `BUFF_FACTOR_ID_AND_APPLY_TIME_ULTIMATE` are in the exe.
+- **Bookkeeping note:** the S3e `MODS.md` section and checklist **7ai** were committed inside the peer's S6 commit `eae671fd`, which took the whole files. They are S3e's text.
+- **How to see it in game:**
+  - Item 1: the dev console's `g_pGameEdit:ApplyBuffFactor(143, 5)` now passes June's skip 0, so it writes `[JUNE_SKILL] SBUF bybfi BFI 143 level 1 -> slot 476 with skill <the state's> (+0x9274 ...)`, and super armor shows.
+  - Item 2 cannot be triggered by a skill today. The only user script that has the table, March's Elesis `ELESIS_KNIGHT.lua` (Endurance Power, Flame Sword, the Endurance memo), keys its states on March ids
+    (8217), while the save holds June's (28210). S3 refuses reform skills with no state, so the `SBUF parse` / `frame` / `state end` lines arrive with the Elesis port (as S4's `NUM use` does).
+    The play-test is a smoke test: every state runs the new parser and state end.
+  - Item 3: no engine caller sets a time, so the state string looks as before. An `SSTR` line appears only once a class port calls the helper.
+- **Open questions:** none. Routed: the class calls' June arguments, Rose's vslot 0x830 and the 3 s helper's callers go to checklist 7ai. The NPC `ParsingBuffFactorID` / frame apply were not in scope and are not changed.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.

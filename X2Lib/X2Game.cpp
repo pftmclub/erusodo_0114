@@ -259,6 +259,9 @@ m_GetEXPInGame( 0 ),
 m_bGameEnd( false ),
 m_bShowAllUnitGageBar( true ),
 m_StateString( L"" ),
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+m_fJuneStateStringTime( 0.0f ),		/// June ctor 32306600 @323076e6
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 m_bSkipKeyPressed( false ),
 m_pNPCFunc( NULL ),
 m_pDLGMissionOpening( NULL ),
@@ -3840,6 +3843,22 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 
 	}
 	
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+	/// S3e, June2017 CX2Game::OnFrameMove 32308c20 @3230a7d1-3230a87b ( every frame past the early return, no GS_PLAY gate ): a state string
+	/// with a display time loses it by the frame time; when it reaches 0 the string is cleared ( "" with time 0; June writes it through
+	/// g_pX2Game, which is this game )
+	if ( 0.0f < m_fJuneStateStringTime )
+	{
+		m_fJuneStateStringTime -= m_fElapsedTime;
+		if ( m_fJuneStateStringTime <= 0.0f )
+		{
+			SetStateString( L"", 0.0f );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] SSTR display time ran out: state string cleared (32308c20 @3230a80b)" );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 	if( m_pShowAlarm != NULL )
 	{
 		m_fShowAlarmTime += fElapsedTime;
