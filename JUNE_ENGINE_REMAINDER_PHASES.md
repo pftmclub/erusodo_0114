@@ -1062,6 +1062,46 @@ buttons, slots, edit boxes, list and combo boxes, scroll bars, text) should look
 movie-subtitle lines and nothing new, 0 EXCEPTION, clean exit (census written). User owes nothing for R4e; next
 `/x2-phase june-engine R4e review` on Opus 5.5 / high.
 
+### Phase R4e -- Review
+
+**2026-10-18, Opus 5.5 high: PASS, no findings, no code change, no rebuild** (the deployed exe stays `d4eef836`).
+
+- **Font** (`CKTDGDeviceFont`): June `Flush` `31d1bae0` is March's plus one branch, pass `== 1` selects font `+0x1000bc` over `+0x1000b4` (`@31d1bb2d`).
+  The page bounds and the per-page outline / plain draw match March. June's table `337295d8` was read from the file: 15 `KState`s
+  (RS 27/1, 14/0, 15/1, 25/6, 24/0, 19/1, 20/1; TSS 1/3, 3/0, 4/4, 5/2, 6/0; SAMP 6/2, 5/2, 7/2). It matches `s_akStatesJunePostEffect`
+  entry for entry. Its only reference is the ctor store `@31d1c72f`.
+- **Live branches:** under `USE_DT_VCENTER`, each live `Buffering` in OutTextXY gets the pass, and so does each `Flush` in OutTextXY and
+  OutTextMultiline. The page-full `Flush` inside `Buffering` gets it too.
+- **Texture:** `31d48f90` picks DG `+0x40` / `+0x44` when its last byte is 1, and `GetRSICKTDXDeviceTextureAdditive` is that `+0x40` member.
+- **Controls, re-read in Ghidra:**
+
+  | Control | June | What was checked |
+  |---|---|---|
+  | Button | `31cb1ef0` | Edge before and after with the pass; picture without it; string gate `pass == 0 \|\| +0x242`; font gets the pass |
+  | Static | `31cbec10` | Edge gets the pass. Pass 1: `RenderVertex( .., 1 )` only when `+0x50 > 0`, with no SRC/DEST push; otherwise 0x13 / 0x14 are pushed. `+0x242` gate `@31cbeed3`; all 4 font calls get the pass; movies skipped when pass is 1. The `+0x268` loop is R4j's |
+  | List box | `31ca37f0` | Visibility, then the font NULL path, then the bounding box, then the pass-1 return; children get 0 (`@31ca45f2`) |
+  | Control list | `31cca350` | Both bars test the X bar's `+0x241` (JUNE_BUGS 287 holds); nothing else in the body, matching March's live code |
+  | Dialog | `31cd7810` `@31cd7b6c` / `@31cd7b9a` | Both push the same stack argument `[ESP+0x1c8]`, the pass |
+  | Guide | `31d053f0` `@31d05695` | Pushes `[EBP+0xc]` |
+
+  Radio, slot, edit, IME and scroll bar were checked from the diff only, not re-opened in Ghidra. Each change sits where its funcmap
+  row cites it: the slot's pass-0 gate on its additional pictures, the edit and IME pass-1 returns after the background, and the scroll
+  bar's pass-0 repeat.
+- **Edge helpers:** a normalised diff of each new copy against its `#else` copy covered button `DrawEdge`, radio `DrawCheckedEdge` and
+  static `DrawEdge`. Only the Korean side comments differ, plus `tempColor` becoming `tempColor, 0.f, pass` (0.f is the rotation default),
+  so March's geometry is kept.
+- **Overrides:** every class deriving `CKTDGUIControl` in `KTDXLIB` / `X2Lib` declares `OnFrameRender( int iRenderPass_ = 0 )` under the
+  flag, with the old one in `#else`. That covers the base, the 14 engine controls and `CX2TalkBoxManagerUI`; `CKTDGUIItem` inherits the static's. The only parameterless declaration
+  is the dead first `CKTDGUIScrollBar` inside the `/* */` at `KTDGUIScrollBar.h:3`. The unflagged `->OnFrameRender()` calls on child
+  controls and scroll bars in `KTDGUIComboBox.cpp` / `KTDGUIListBox.cpp` compile to pass 0, which is June's (`@31ca45f2`, `@31cc5a3a`).
+- **Hygiene** (`flagcheck --range f96952cd^..f96952cd`):
+  - UI_CONTROL_PASS: `files: 34 PASS, 0 PASS~, 0 DEFINE, 9 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched,
+    0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  - DRAW_PASS: `files: 8 PASS, 0 PASS~, 0 DEFINE, 35 OTHER, 0 FAIL, 0 ERROR` / `0 deleted, 0 non-ASCII, 3 EOL-mismatched, 0 ..., 0 ...` / `RESULT: PASS`.
+  - The OTHER rows are `Always.h` plus the other flag's files. The 3 EOL lines are the device-font ctor insert in a mixed-EOL file, the same lines the Done note named.
+
+User owes nothing. R4i (needs this review) and R4j are ready.
+
 ## Phase R4f - Software cursor (CKTDXCursor)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CURSOR` (proposed).
