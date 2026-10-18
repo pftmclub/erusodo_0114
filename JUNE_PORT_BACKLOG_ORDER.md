@@ -366,6 +366,9 @@ Found by june-effect C9d (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9d - Done"; 
 - **June's rewritten `PlayEmotion`** in `CX2GUUser`, `CX2SquareUnit` and `CX2UnitViewerUI`, their EmotionData `UI_EFFECT_SET` paths
   (the second writers of `+0x9434` / `+0x7ac`), and June's two-seater (`0x2c`/`0x2d`) handling.
 - **Assets and UI:** per-class emotion motions, sounds, the 5 June-only mesh players C9e lists, `DLG_ChatBox_Emotion_List.lua`.
+- **The Cash25 emotion motion** (june-engine R12b): `31ee9150` appends `Motion_<Class>_Emotion_Cash25` to a motion list. The game unit's
+  call is ported (`SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION`, inert until june-asset-port adds the June-only files); the unit
+  viewer's motion builder `31faa6f0` (two calls, 29 UI callers) is this stage's.
 
 **Depends on:** Stage 2 (UI framework measurement) and june-effect C9e (the `32355a50` helper and the three effect-set handles,
 which this stage widens). Lu/Ciel, Rose and Ain rows stay inert until Stage 8, as C9c-1's Rose/Ain rows do.

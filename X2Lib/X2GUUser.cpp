@@ -4854,6 +4854,36 @@ void CX2GUUser::AppendMotionToDeviceList( CKTDXDeviceDataList& listInOut_, CX2Un
 
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION
+// June2017 31ee9150 ( unit type, bool, vector<wstring>& ): appends the unit type's Cash25 emotion motion to a motion list. Callers:
+// CX2GUUser's motion init ( 31fe5860 @31fe5cfa with true; @31fe6483 for the unit type 10 minor unit ) and the unit-viewer motion builder
+// 31faa6f0. Types 10-12 have no March UNIT_TYPE; their cases are kept as June has them.
+static void JuneAppendCashEmotionMotion( int iUnitType_, bool bMajorUnit_, std::vector<wstring>& vecMotion_ )
+{
+	switch( iUnitType_ )
+	{
+	case CX2Unit::UT_ELSWORD:	vecMotion_.push_back( L"Motion_Elsword_Emotion_Cash25.x" );	break;
+	case CX2Unit::UT_ARME:		vecMotion_.push_back( L"Motion_Arme_Emotion_Cash25.x" );	break;
+	case CX2Unit::UT_LIRE:		vecMotion_.push_back( L"Motion_Lire_Emotion_Cash25.x" );	break;
+	case CX2Unit::UT_RAVEN:		vecMotion_.push_back( L"Motion_Raven_Emotion_Cash25.x" );	break;
+	case CX2Unit::UT_EVE:		vecMotion_.push_back( L"Motion_EVE_Emotion_Cash25.X" );		break;
+	case CX2Unit::UT_CHUNG:		vecMotion_.push_back( L"Motion_CHUNG_Emotion_Cash25.X" );	break;
+	case CX2Unit::UT_ARA:		vecMotion_.push_back( L"Motion_Ara_Emotion_Cash25.X" );		break;
+	case CX2Unit::UT_ELESIS:	vecMotion_.push_back( L"Motion_EL_Emotion_Cash25.X" );		break;
+	case CX2Unit::UT_ADD:		vecMotion_.push_back( L"Motion_Add_Emotion_Cash25.X" );		break;
+	case 10:
+		if( true == bMajorUnit_ )
+			vecMotion_.push_back( L"Motion_Lu_Emotion_Cash25.X" );
+		else
+			vecMotion_.push_back( L"Motion_Ciel_Emotion_Cash25.X" );
+		break;
+	case 11:					vecMotion_.push_back( L"Motion_Rose_Emotion_Cash25.X" );	break;
+	case 12:					vecMotion_.push_back( L"Motion_Ain_Emotion_Cash25.X" );		break;
+	default:
+		break;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION
 void CX2GUUser::InitMotion()
 {
 	if( m_LuaManager.BeginTable( "INIT_MOTION" ) == true )
@@ -4861,8 +4891,16 @@ void CX2GUUser::InitMotion()
 		wstring motion;
 		LUA_GET_VALUE( m_LuaManager, "MOTION_FILE_NAME", motion, L"" );
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
+		// June2017 31fe5860 @31fe5a48-31fe5b4c: both motions are the templet's m_GameMotion0 ( templet +0x178, opened with L"Bip01" =
+		// March's default ). MOTION_FILE_NAME ( read @31fe591d ) is only the first mixed motion below. The collision / attack spheres
+		// come from this motion ( JUNE_RENDER_MOTION_COLLISION ): the m_GameMotion0 files store their radii, the _Common files store 0.
+		m_pMotionFuture		= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( GetUnit()->GetUnitTemplet()->m_GameMotion0.c_str() );
+		m_pMotion			= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( GetUnit()->GetUnitTemplet()->m_GameMotion0.c_str() );
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
 		m_pMotionFuture		= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( motion.c_str() );
 		m_pMotion			= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( motion.c_str() );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
 
 		m_pXSkinAnimFuture	= CKTDGXSkinAnim::CreateSkinAnim();
 		m_pXSkinAnim		= CKTDGXSkinAnim::CreateSkinAnimPtr();
@@ -4889,7 +4927,12 @@ void CX2GUUser::InitMotion()
 		CKTDXDeviceXSkinMesh* pMixMotion = NULL;
 		int iGrade = GetX2UnitClassGrade( GetUnit()->GetUnitTemplet()->m_UnitClass );
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
+		// June2017 31fe5860 @31fe5c78: MOTION_FILE_NAME is mixed first, where March pushed m_GameMotion0 ( now the main motion )
+		vecMotion.push_back( motion );
+#else SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
 		vecMotion.push_back( GetUnit()->GetUnitTemplet()->m_GameMotion0 );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
 
 		switch( iGrade )
 		{
@@ -4903,6 +4946,10 @@ void CX2GUUser::InitMotion()
 		}
 		
 		vecMotion.push_back( GetUnit()->GetUnitTemplet()->m_EmotionMotion );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION
+		// June2017 31fe5860 @31fe5cfa: 31ee9150( unit type, true, vecMotion ), after the emotion motion and before the m_GameMotion0 test
+		JuneAppendCashEmotionMotion( (int)GetUnit()->GetUnitTemplet()->m_UnitType, true, vecMotion );
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION
 
 		if( GetUnit()->GetUnitTemplet()->m_GameMotion0 == L"" )
 		{

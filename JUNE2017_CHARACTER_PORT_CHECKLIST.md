@@ -642,3 +642,22 @@ June's `CX2Eqip::_UpdateSkin()` (`3295ae20` @`3295aed0`-`3295aef9`) attaches eve
 10 (`UT_LU_CIEL`), the eqip's ctor flag (+0x15d4, the bool the model-name selector `32867880` takes with the unit type; ctor `32961280` @`3296148d`) is clear,
 and the item has a second model (+0x5a8). R14 ported the function with this term as a comment only (`X2Eqip.cpp`, `SERV_IRUHADEV_JUNE_EQIP_SKIN`): the
 Lu/Ciel port adds the ctor flag and the term. Related: 7v (minor-unit slot key), 7o (minor-unit physics).
+
+### 7ad. Character motions: June's renamed animations (from June engine R12b)
+
+June engine R12b ported June's motion order (`SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER`: the main motion is the templet's `m_GameMotion0`,
+`MOTION_FILE_NAME` is mixed) and took June's `Motion_Raven.x`, `Motion_CHUNG.x`, `Motion_EL.x` and `Motion_EL_SK.x` into data033 for their
+collision spheres. Every other `Motion_<Class>*` file of the nine March classes is still March's (83 files; user, 2026-10-18), because June
+renamed animations its class scripts play and March's scripts still use the old names. `june2017_re/r12b_anim_loss.tsv` lists the 43
+animation names March's motions have and June's same-named files lack (Elsword, Arme and Eve: none).
+
+What a class port does:
+- **Stage June's `Motion_<Class>*` files** with the class script (`python tools/kom.py stage-june <list>`; the R12b list builder is the
+  `^motion_(elsword|arme|lire|raven|eve|chung|ara|el|add)[_.]` pattern over `kom_contents` against June's koms). Keep script and motions in
+  the same pack: Lire's `ComboX3` / `ComboX4` / `ComboX4Up` / `ComboX4Down` / `DashAttackX` became `Lire_ComboX3` ..., Elesis's
+  `SI_A_EL_LEAP_CRASH_*` / `SI_A_EL_RUSHING_SWORD` became `SI_A_SSK_*` (in `Motion_EL_SK.x`), Raven's `OT_ComboX3Down` .. `OT_ComboX5Down`
+  and `OT_SP1a_ChargedBolt`, Add's `APT_NA_Ready` / `APT_NA_preAttack`, plus skill animations of Add, Ara, Chung, Elesis and Lire.
+- **Elesis already runs June's base and SK motions** (R12b), so these 6 March animations are missing now, accepted by the user until this
+  port / skill S3: `SI_A_EL_LEAP_CRASH_Start`, `_Jump`, `_Landing`, `SI_A_EL_RUSHING_SWORD`, `SI_SA_SSK_SPIRAL_BLAST`, `SI_SA_SSK_VICTORIOUS_SWORD`
+  (June deleted the last two).
+- Re-run the census for the class after staging; a name still missing is a script fix, not a motion hold.

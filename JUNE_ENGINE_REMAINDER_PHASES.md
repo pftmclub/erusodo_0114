@@ -1293,6 +1293,47 @@ Proven (each item checked in Ghidra or by a raw byte scan of `unpacked_x2.exe`):
 
 Leads for trace 2 are in the kickoff. Rows tagged `(R12b)` in `june2017_re/funcmap.tsv`.
 
+### Phase R12b -- Done (trace 2 + port)
+
+**2026-10-18, Opus 5.5 xhigh. Route found; trace 1's item 5 was wrong.** June's InitMotion (`31fe5860`) opens the templet's
+**`m_GameMotion0`** (templet `+0x178`, e.g. `Motion_Lire.x`) as `m_pMotion` / `m_pMotionFuture`, and mixes `MOTION_FILE_NAME` (the class
+Lua's `Motion_*_Common.x`) first. March does the reverse. Proof of `+0x178`: the templet parser `3237aa40` stores `m_GameMotion0` at
+node pair + 4 + 0x178 (`@3237c865`), and June's own "clear the mix list when `m_GameMotion0` is empty" test reads `+0x178` (`@31fe5d1f`).
+June's `m_GameMotion0` files store their sphere radii (body 52 / 44 / 47, feet 39 / 39 on most classes); the `_Common` files store 0.
+Leads 1-4 are all closed as "no other route": 6 list pushes into anim `+0x1f0` / `+0x1fc` over all `.text`; mesh lists read only by the
+three copy functions; hit test 32611970 = March's math on the defender `+0x200` set, no fallback; eqip `+0x1c0` = unit `+0x87d4`.
+Funcmap rows tagged `(R12b)` (8 new).
+
+**Landed** (commit: this one). `X2Lib/X2GUUser.cpp`, `KTDXLIB/Always.h`:
+- `SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER` (new): main motion = `m_GameMotion0`, `MOTION_FILE_NAME` first in the mix list. `#error` if
+  MOTION_COLLISION is on without it, or without `SEPARATION_MOTION`.
+- `SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION` (new): `31ee9150`, the unit type's `Motion_<Class>_Emotion_Cash25` appended after
+  the emotion motion. Those files are June-only (data199-209, june-asset-port P2-P4); until then `OpenXSkinMesh` returns NULL and logs
+  KEM_ERROR428 once per name.
+- `SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION` **on again**; `_SKIN_ANIM_REFS_DEBUG` on for this play-test (off at the review).
+- No skin part adds a second copy: every X2Eqip add into the unit anim passes `false, false` under MOTION_COLLISION (R12); the
+  remaining default-collision adds of a user motion are the bunker-cannon ride (`Motion_BunkerCannon.x`, = June 31fd9970 / 31fd9af0).
+
+**Data** (user, 2026-10-18). March's data033 `Motion_Raven.x`, `Motion_CHUNG.x` and `Motion_EL.x` store radius 0 (March relied on the
+parts). Staged June's byte-exact `Motion_Raven.x`, `Motion_CHUNG.x`, `Motion_EL.x`, `Motion_EL_SK.x` into `kom_contents/data033_kom`
+(`kom.py stage-june`; March originals in `kom_backup_stage_june\20261018_064307`). The user first asked for every character motion;
+the census (`june2017_re/r12b_anim_loss.tsv`, 43 rows) showed June renamed the animations its class scripts play (Lire `ComboX3` ->
+`Lire_ComboX3`, Elesis `SI_A_EL_LEAP_CRASH_*` -> `SI_A_SSK_LEAP_CRASH_*`, ...), so the user chose the 4 sphere files now and the full
+swap with each class's character port (checklist 7ad; june-asset-port P5 kickoff amended). The other 83 staged files were restored
+to March's bytes. Pack: `PACK OK data033` (vs live: ~4 changed = the 4 files). Copy: pending (refused while `X2_offline.exe` ran; ask, then `kom.py copy data033`).
+Known cost, accepted by the user: 6 Elesis skill animations (`SI_A_EL_LEAP_CRASH_Start/Jump/Landing`, `SI_A_EL_RUSHING_SWORD`,
+`SI_SA_SSK_SPIRAL_BLAST`, `SI_SA_SSK_VICTORIOUS_SWORD`) are gone until the Elesis port / skill S3.
+
+**Hygiene.** `flagcheck --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h` with all four flags stripped: X2GUUser.cpp PASS (+47,
+insert-only); Always.h FAIL on comment lines only (three flags' define blocks, +1 / +3 / +30, insert-only; the one deleted line in the
+worktree is a peer's). Range: pending (after the commit).
+**Deploy:** pending: the first build lost the lock to another session's build, the game was running, and the tree carries a peer's
+uncommitted S3 skill reform (save v17), so the deploy waits for the user (Done-note follow-up commit).
+
+**How to see it in game:** `python tools/logs.py --grep "JUNE_ENGINE] SKREF"` -> `SKREF motion collision MOTION_LIRE.X collision 3
+attack 2` per Lire unit (Raven: collision 3 attack 4; others 3 / 2). Monsters hurt every class; kicks and combos hit.
+**Routed:** the viewer half of the Cash25 append (`31faa6f0`) -> backlog Stage 10; the full motion swap -> checklist 7ad.
+
 ## Phase R14 - Equipment skin and enchant rework
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_SKIN` (an RE pass

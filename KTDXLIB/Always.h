@@ -7850,6 +7850,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              vs closed (session totals at most once per 2 s, the first 10 unbalanced anims by name), the KEM 433 total, the
 //              live device count, and the user motion's collision counts after JuneAddCollisionData. Remove after the review.
 //#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG	// off 2026-10-18 (R12 review): balance proven (unbalanced 0 over 8,354 + 6,756 dead anims in two runs, kem433 0, no village device growth)
+#define SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG	// on again 2026-10-18 for the R12b play-test (the SKREF motion collision line); off at the R12b review
 #ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
 #error SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
@@ -7867,6 +7868,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              OFF since the R12 play-test (2026-10-17): March's MOTION_LIRE_COMMON.X yields 0 collision / 0 attack data, so with the
 //              flag on Lire's kicks never hit. Why June's motion carries the spheres (June mesh loader 31d4f8b0) is traced in R12b.
 //#define SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+//              ON again 2026-10-18 (R12b): June's motion is the templet's m_GameMotion0, not MOTION_FILE_NAME (31fe5860, see
+//              SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER); the m_GameMotion0 files carry the spheres. Needs MOTION_ORDER (checked below it).
+#define SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -8092,4 +8096,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG needs SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
 #endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
 #endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R12b. June's CX2GUUser motion init (31fe5860) opens the templet's m_GameMotion0
+//              (templet +0x178, e.g. Motion_Lire.x) as m_pMotion / m_pMotionFuture and mixes MOTION_FILE_NAME (the class Lua's
+//              Motion_*_Common.x) first, where March opened MOTION_FILE_NAME and mixed m_GameMotion0. The unit's collision / attack
+//              spheres come from that motion (JUNE_RENDER_MOTION_COLLISION): the m_GameMotion0 files store their radii, the _Common
+//              files store 0. Needs June's Motion_Raven.x / Motion_CHUNG.x / Motion_EL.x / Motion_EL_SK.x (data033; March's base
+//              three store radius 0). Revert: undefine this flag and SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION together.
+#define SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
+#ifndef SEPARATION_MOTION
+#error SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER needs SEPARATION_MOTION (UnitTemplet::m_GameMotion0)
+#endif SEPARATION_MOTION
+#ifdef SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+#ifndef SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
+#error SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION needs SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER (March's MOTION_FILE_NAME motions store radius 0)
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER
+#endif SERV_IRUHADEV_JUNE_RENDER_MOTION_COLLISION
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R12b. June's motion init appends the unit type's Cash25 emotion motion
+//              (31ee9150, e.g. Motion_Lire_Emotion_Cash25.x) to the mixed motions after the emotion motion. The files are June-only
+//              (june-asset-port); until they are packed OpenXSkinMesh returns NULL and logs KEM_ERROR428 once per name.
+//              Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION
 //////////////////////////////////////////////////////////////////////////
