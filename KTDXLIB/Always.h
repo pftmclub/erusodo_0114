@@ -8023,6 +8023,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
+// Description: June skill system core, Phase S3c (JUNE_SKILL_SYSTEM_PHASES.md "Phase S3c"). June's SKILL_TYPE 14-16
+//              ST_SPECIAL_ACTIVE_GRADE_1..3, 17 ST_CORE and 18 ST_CORE_PASSIVE (June Enum.lua) join March's C++ enum, and the
+//              engine readers treat them as June does: RESET_SKILL_ACK clears the slots of types 5, 6, 7, 12-16 (June 322112d0
+//              @32211750), and the learn ACK auto-slots 14-16 next to 7 (June's auto-equip 328db990 takes 5, 6, 7, 14-16).
+//              A [JUNE_SKILL] TYPE line at load counts the templets per type 0-18. The tree UI's readers are S7's.
+//              Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_TYPE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TYPE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_TYPE needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET (the load summary the TYPE line sits in)
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
 // Description: June skill system core, Phase S4 (JUNE_SKILL_SYSTEM_PHASES.md "Phase S4"). June's numerical skill data override at the end
 //              of SetDamageDataFromLUA ( FUN_32632390 @3263fe41-32640054 ): a DAMAGE_DATA table with NUMERICAL_DATA_INDEX / _NAME and an
 //              APPLIED_SKILL_ID or DAMAGE_SKILL_ID ( +0x5cc, parsed for it ) takes PHYSIC / MAGIC ( x0.01 ), PVP_RATE, TECH_POINT and

@@ -49,6 +49,14 @@ public:
 #ifdef FINALITY_SKILL_SYSTEM //JHKang
 		ST_HYPER_ACTIVE_SKILL,
 #endif //FINALITY_SKILL_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TYPE
+		/// June Enum.lua SKILL_TYPE: the special active grades and the core skills ( explicit, as June numbers them )
+		ST_SPECIAL_ACTIVE_GRADE_1 = 14,
+		ST_SPECIAL_ACTIVE_GRADE_2 = 15,
+		ST_SPECIAL_ACTIVE_GRADE_3 = 16,
+		ST_CORE = 17,
+		ST_CORE_PASSIVE = 18,
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
 	};
 
 

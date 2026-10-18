@@ -1,0 +1,23 @@
+june_va	june_role	types_named	march_reader	s3c_action	evidence
+322112d0	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	passive 1-4,8; slot clear 5,6,7,0xc-0x10	X2SkillTree.cpp Handler_EGS_RESET_SKILL_ACK switch	ported: 14-16 join the slot-clear group (SERV_IRUHADEV_JUNE_SKILL_TYPE); the 10-slot loop is S5 (s0b_slot_sites rows 1540-1544); the per-page SP writes (+0x4a8/+0x4ae), 3235a160 after the sound and the UI refresh 3214f050/328e7b70 go with S5/S7	switch @32211750
+328db990	none in March: auto-equip a vector of new skills into free slots (UI class block)	5,6,7,0xe-0x10	X2SkillTree.cpp Handler_EGS_GET_SKILL_ACK auto-slot switch (March-only, June has no GET_SKILL_ACK case in UIServerEventProc 32216150)	ported: 14-16 auto-slot on learn next to 7; 12/13 kept (removing them is June's learn path, S7)	switch in 328db990; callers 323ae130, 32473f70, 325346e0
+328e6550	CX2UISkillTreeNew::ProcessSkillTreeSlotRMouseUp	equip 5,6,7,0xc-0x10	X2UISkillTreeNew.cpp:4314	S7 (user 2026-10-18: leave the tree UI to S7)	s0b_ui_funcmap changed
+328e2900	CX2UISkillTreeNew::GetSkillSubDesc	jump table (STR 40577-40585 type texts)	X2UISkillTreeNew.cpp:6177	S7	s0b_ui_funcmap changed
+328dcd50	CX2SkillTreeSlotData::UpdateUI	0xc	X2UISkillTreeNew.cpp:310	S7	s0b_ui_funcmap changed
+328db2d0	CX2UISkillTreeNew::CreateSlotUIPreset	(type background)	X2UISkillTreeNew.cpp:3202	S7	s0b_ui_funcmap changed
+328e9160	CX2UISkillTreeNew::ShowSkillDesc	(level bonus by type)	X2UISkillTreeNew.cpp:3739	S7	s0b_ui_funcmap changed
+32926490	guild skill tree icon preset (DLG_Guild_Skill_Icon.lua)	frame 1 for 7,0xd,0xe-0x10; 3 for 0xc / default	X2UIGuildSkillTree.cpp:1809 CreateSlotUIPreset	not ported: no guild skill has type 14-16 in June's data (the 12 guild tree rows, ids 500-511, are types 9 / 10 / 11); a guild-UI port owns it	caller 32928040
+32f189d0	guild skill info icon preset (DLG_Guild_Skill_Info_Icon.lua)	same as 32926490	X2UIGuildSkillTreeInfo.cpp:1165 CreateSlotUIPreset	not ported: as 32926490	caller 32f1a840
+32f1bf80	guild skill info description (558 lines)	7,0xe-0x10 grouped	X2UIGuildSkillTreeInfo.cpp:1649 GetSkillDesc (candidate)	not ported: as 32926490	caller 32f1cfe0
+3220a940	CX2SkillTree::Handler_EGS_GET_GUILD_SKILL_NOT	passive 1-4,8,9,10 only	X2SkillTree.cpp:3277	no change: 14-18 do nothing in both	switch @3220aab6
+3220ad40	CX2SkillTree::Handler_EGS_RESET_GUILD_SKILL_NOT	passive 1-4,8,9,10 only	X2SkillTree.cpp:3499	no change: as 3220a940	switch @3220aef0
+3220b440	DECIDE_TO_USE_THIS_SKILL_PAGE_ACK apply step	passive 1-4,8	X2SkillTree.cpp:4005	no change: 14-18 do nothing in both	@3220b4xx
+328922f0	CX2UserSkillTree::IsResetCoolTimeTarget	12/13 need FORCE_SET; type compared exactly	X2UserSkillTree.cpp:2846 (already June)	no change	decompile
+32894490	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	12/13 excluded	X2UserSkillTree.cpp:2639	no change for 14-18	s0a_skilltree_tu_map
+32895390	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType (older June variant)	a request for 7 matches 7,0xe,0xf,0x10	X2UserSkillTree.cpp:2668	not ported: March's only live caller asks for 13 (X2Game.cpp:2073); June's callers are class code (32a4c320, 32a760d0) -> checklist 7ae	@3289543x, @328957xx
+31fcd3d0	none in March: guide event by skill type (32676150 / 326760b0 manager)	6 -> 10; 7,0xe-0x10 -> 11; 0xd -> 12	none	not ported: June-only, unidentified manager; review identifies and routes	callers in 6 class blocks
+32622bd0	none in March: DamageManager rate from the APPLIED_SKILL_ID templet's +0x130 array x a type factor	5; 0xe 1.0, 0xf, 0x10	none	not ported: June-only, unidentified; review identifies and routes	callers 32012b50, 32a76f00
+32622e80	none in March: same family as 32622bd0, game-state 0xc gate	5, 6; 0xe 1.0, 0xf, 0x10	none	not ported: as 32622bd0	caller 320462a0
+3297b720	Ain-only buff ( skill 0x6343 ) on a type 6,7,0xe-0x10 skill	6,7,0xe-0x10	none (Ain not in March)	class material	callers 3297bad0, 329c12a0
+32a4dce0	class block	7, 0xd, 0x10	none	class material (checklist 7ae)	typesweep
+32aacb90	class block	7, 0xe-0x10	none	class material (checklist 7ae)	typesweep

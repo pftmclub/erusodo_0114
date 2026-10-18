@@ -2099,6 +2099,12 @@ bool CX2SkillTree::Handler_EGS_GET_SKILL_ACK( HWND hWnd, UINT uMsg, WPARAM wPara
 #ifdef FINALITY_SKILL_SYSTEM //JHKang
 			case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
 #endif //FINALITY_SKILL_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TYPE
+			/// June's auto-equip of new skills ( 328db990 ) takes 5, 6, 7 and 14-16; June has no GET_SKILL_ACK
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
 				{
 					// 장착 가능한 스킬을 새로 배웠다면
 					if( kEvent.m_iSkillLevel == 1 )
@@ -2402,6 +2408,12 @@ bool CX2SkillTree::Handler_EGS_RESET_SKILL_ACK( HWND hWnd, UINT uMsg, WPARAM wPa
 #ifdef FINALITY_SKILL_SYSTEM //JHKang
 			case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
 #endif //FINALITY_SKILL_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TYPE
+			/// June 322112d0 @32211750: the slot-clear group is 5, 6, 7, 12-16 ( 17 / 18 fall through, as in June )
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
 				{
 					for( int i=0; i<EQUIPPED_SKILL_SLOT_COUNT*2; i++ )
 					{
@@ -5325,6 +5337,25 @@ void CX2SkillTree::JuneLogLoadSummary()
 	CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD rules: empty_sa_skipped=%d duplicate_ids=%d inhouse_dropped=%d short_arrays cool_time/mp/req_level=%d/%d/%d",
 		m_JuneLoadStats.m_iEmptySASkipped, m_JuneLoadStats.m_iDuplicate, m_JuneLoadStats.m_iInHouseDropped,
 		m_JuneLoadStats.m_iShortCoolTime, m_JuneLoadStats.m_iShortMP, m_JuneLoadStats.m_iShortReqLevel );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TYPE
+	/// S3c census: templets per SKILL_TYPE 0-18 ( June Enum.lua ); anything outside counts as out
+	{
+		int aiType[ ST_CORE_PASSIVE + 1 ] = { 0, };
+		int iOut = 0;
+		for( SkillTempletMap::const_iterator itType = m_mapSkillTemplet.begin(); itType != m_mapSkillTemplet.end(); ++itType )
+		{
+			const int iType = ( NULL != itType->second ) ? static_cast<int>( itType->second->m_eType ) : -1;
+			if( 0 <= iType && iType <= ST_CORE_PASSIVE )
+				++aiType[ iType ];
+			else
+				++iOut;
+		}
+		CX2OfflineLog::Server( L"[JUNE_SKILL] TYPE templets per type 0-18: %d %d %d %d %d | %d %d %d | %d | %d %d %d | %d %d | %d %d %d | %d %d out=%d",
+			aiType[ 0 ], aiType[ 1 ], aiType[ 2 ], aiType[ 3 ], aiType[ 4 ], aiType[ 5 ], aiType[ 6 ], aiType[ 7 ], aiType[ 8 ],
+			aiType[ 9 ], aiType[ 10 ], aiType[ 11 ], aiType[ 12 ], aiType[ 13 ], aiType[ 14 ], aiType[ 15 ], aiType[ 16 ],
+			aiType[ 17 ], aiType[ 18 ], iOut );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
 #endif SERV_IRUHADEV_OFFLINE
 }
 

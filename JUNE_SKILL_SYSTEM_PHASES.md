@@ -598,6 +598,34 @@ and June's data gives most special actives type 14-16. Add the enumerators, then
 
 **Done gate:** a `[JUNE_SKILL] TYPE` census at load; a grade-1 special active shows its type in the tree UI and tooltip; flagcheck PASS; `DEPLOY OK`.
 
+**Done note (2026-10-18, Opus 5.5 high): S3c built; play-test pending.** Flag `SERV_IRUHADEV_JUNE_SKILL_TYPE` (needs `_TEMPLET`); tag `[JUNE_SKILL] TYPE`.
+**User decision (2026-10-18): the tree UI's type readers stay with S7**, so the gate's "tree UI and tooltip" item moved to S7 (`kickoffs/skill-system-core/S7.md`,
+"Carried from S3c"). Until S7, June's special actives look and act like passives in March's tree (passive background, `[Passive]`, no drag, no right-click equip).
+- **Enum** (`X2SkillTree.h`): `ST_SPECIAL_ACTIVE_GRADE_1..3` = 14-16, `ST_CORE` = 17, `ST_CORE_PASSIVE` = 18, explicit values from June `Enum.lua`.
+- **Readers.** The census subagent listed ~60 March sites (none in KTDXLIB). On the June side, a capstone sweep of every call to `GetSkillTemplet 32206450` /
+  type-by-id `32205ab0` followed by a type compare or a jump table found 45 functions. Every one is in `june2017_re/s3c_skill_type_readers.tsv`
+  with its March reader and the action. June has **no templet of type 7, 17 or 18**: its 1,148 special actives are 14-16, and wherever June names them it groups them with 7.
+  - Ported: `Handler_EGS_RESET_SKILL_ACK` clears slots for 14-16 as well (June `322112d0`, switch @32211750: 5, 6, 7, 12-16). `Handler_EGS_GET_SKILL_ACK`
+    (March-only; June's `UIServerEventProc 32216150` has no case for it) auto-slots a new 14-16 skill next to 7 (June's auto-equip `328db990` takes 5, 6, 7, 14-16).
+  - No change needed: guild NOT handlers `3220a940` / `3220ad40` and the page apply step `3220b440` switch on passives only, in both. The cool-time filters
+    (`328922f0`, `32894490`) single out only 12 / 13. March's HYPER-only tests (`X2Unit`, `X2Game`, `X2SocketItem`, `X2GUUser`) have no 14-16 branch in the June functions already ported.
+  - Routed, not ported. Tree UI (`328e6550`, `328dcd50`, `328db2d0`, `328e9160`, `328e2900`): S7. The rest of `322112d0`: the slot loop is S5's (its kickoff
+    also asks it to identify `3235a160`), and the page SP writes and UI refresh are S7's. `ResetLeftSkillCoolTimeBySkillType 32895390` matches a request
+    for 7 against 7 and 14-16, but no non-class March caller asks for 7 (`X2Game.cpp:2073` asks for 13), so it went to checklist 7ae with class code. The guild UI
+    readers (`32926490`, `32f189d0`, `32f1bf80`) are unreachable: June's 12 guild skills (500-511) are types 9-11.
+  - Unidentified June-only readers with no March counterpart: `31fcd3d0` (a guide event by type), `32622bd0` / `32622e80` (a DamageManager rate from the
+    applied skill's +0x130 array x a 14 / 15 / 16 factor). The review identifies and routes them.
+- **Census** in `JuneLogLoadSummary` (`X2SkillTree.cpp`), one line per real load. From June's data, expect
+  `TYPE templets per type 0-18: 4 10 3 0 0 | 35 622 0 | 408 | 1 1 10 | 1 103 | 372 467 309 | 0 0 out=0` (2,346 = S3's `LOAD templets`).
+- **Not changed:** `JuneSkillCategory` (`X2GUUser.cpp`, the socket flag) already maps 14-16 by number; its comment that they "never come back" is stale since S3 and is left for its owner.
+- **Hygiene** (`flagcheck JUNE_SKILL_TYPE --worktree --files` Always.h, X2SkillTree.h, X2SkillTree.cpp): `0 deleted line(s), 0 non-ASCII inserted line(s),
+  0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS` (3 OTHER = peers' S4 / S3b lines then
+  in the same files). Range line: see the follow-up commit. All S3c code is insert-only `case` labels / a census block; no `#else` needed.
+- **Deploy: pending.** X2Lib with S3c compiled (`ok in 478s`, log `20261018-084253`), but the X2 link and the next run stopped on peers' uncommitted
+  Always.h / font code (S3b `JUNE_SKILL_NOTE` guard, R4e `DRAW_PASS`; both told). The `DEPLOY OK` line follows in a later commit.
+- **How to see it:** `python tools/logs.py --grep "JUNE_SKILL] TYPE"` shows the census above. In game, as a character with a grade-1 special active in a slot,
+  reset that skill in the tree: its slot empties (before S3c the slot kept the id). Learning a new 14-16 skill with a free slot puts it in the slot.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.
