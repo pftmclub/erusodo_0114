@@ -1186,6 +1186,7 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG` (needs `SLOT_10`, `#error` guard), `KT
   class 1) L2 -> 4, EXP 6150 (L5 at 6200). Backups `db_backup\els_db_20261018_145226_pre_setchar*.sql`.
 - **How to see it.** Select unit 44: `ACQ grant ... 1 row(s) raised` (22001 Gust Screw, required L5). Kill a monster -> L10: `ACQ push (level-up) ... 1 skill(s)`,
   `ACQ NOT`, `ACQ level-up L=10`, `ACQ auto-equip ... queued A 1`: Gust Storm (22002) appears in a free A slot. Same on unit 39 at L5 with Flame Geyser (21001).
+- **Play-test PASSED 2026-10-18** (user: all checks; log, exe 5fc80b2a, 0 EXCEPTION, clean exit). Unit 44 L9 -> 10: `ACQ grant ... L=10: 1 row(s) raised` -> `ACQ push (level-up)` -> `ACQ NOT ... 1 skill(s) added` -> `ACQ level-up L=10: 1 skill(s) at band 10` -> `ACQ auto-equip ... queued A 1` -> one `CHANGE_SKILL_SLOT_REQ`/`ACK`; save: 22002 in slot 3. Unit 39 L4 -> 5: the same chain, 21001 in slot 2. Unit 19 (Code Empress, L80) select: `9 row(s) raised, 5 base(s) replaced; skipped 1 no-level, 7 hyper-class, 9 sealed`. Unit 44's select raised 0 rows, not the 1 predicted: 22001 was already in the save when this run started (3 rows at the 15:09:21 list load, so an earlier launch's select had granted it). The 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are outside this phase.
 
 ## Phase S7b - June's skill tree UI
 
