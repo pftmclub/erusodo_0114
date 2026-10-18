@@ -2604,6 +2604,73 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 	SetOffsetPosJuneTCSlotUI( false );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+/// June 328e6970. The radio of the select page ( my unit +0x4b8 = user tree +0x24 ) is checked ( 31caa0e0( 1, 0, 0 ) ), the radios follow the
+/// opened page count ( +0x4b6 / +0x22 ). June's dialog has no Add_Skill_Page_ED and no Decide_Skill_Page: the ED button is looked up and
+/// never used, and the cash button takes the place of the first closed radio. It shows in state 0xe ( XS_VILLAGE_MAP ) or 0xf ( June's
+/// XS_GUILD_AGIT_GAME, which March has no state for ). Only Page1, Page2 and the cash button are tested for NULL.
+void CX2UISkillTreeNew::UpdateSkillPageUI()
+{
+	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+
+	const USHORT usOpenedPage = refUserSkillTree.GetOpenedPage();
+	const USHORT usSelectPage = refUserSkillTree.GetSelectPage();
+	D3DXVECTOR2 vPos( 0.f, 0.f );
+
+	CKTDGUIRadioButton* pRadioButton_Page1 = reinterpret_cast<CKTDGUIRadioButton*>( m_pDLGUISkillTree->GetControl( L"Skill_Page1" ) );
+	CKTDGUIRadioButton* pRadioButton_Page2 = reinterpret_cast<CKTDGUIRadioButton*>( m_pDLGUISkillTree->GetControl( L"Skill_Page2" ) );
+	CKTDGUIRadioButton* pRadioButton_Page3 = reinterpret_cast<CKTDGUIRadioButton*>( m_pDLGUISkillTree->GetControl( L"Skill_Page3" ) );
+	CKTDGUIButton* pButton_Add_Page_Cash = reinterpret_cast<CKTDGUIButton*>( m_pDLGUISkillTree->GetControl( L"Add_Skill_Page_Cash" ) );
+
+	if ( NULL == pRadioButton_Page1 || NULL == pRadioButton_Page2 || NULL == pButton_Add_Page_Cash )
+		return;
+
+	switch ( usSelectPage )
+	{
+	case 1:	pRadioButton_Page1->SetChecked( true );	break;
+	case 2:	pRadioButton_Page2->SetChecked( true );	break;
+	case 3:	pRadioButton_Page3->SetChecked( true );	break;
+	default:	break;
+	}
+
+	bool bPage1 = false, bPage2 = false, bPage3 = false, bAdd = false;
+	switch ( usOpenedPage )
+	{
+	case 1:
+		bPage1 = bAdd = true;
+		vPos = pRadioButton_Page2->GetPos();	/// vslot 0x70
+		break;
+
+	case 2:
+		bPage1 = bPage2 = bAdd = true;
+		vPos = pRadioButton_Page3->GetPos();
+		break;
+
+	case 3:
+		bPage1 = bPage2 = bPage3 = true;
+		break;
+
+	default:
+		break;
+	}
+
+	pRadioButton_Page1->SetShowEnable( bPage1, bPage1 );	/// vslot 0x78
+	pRadioButton_Page2->SetShowEnable( bPage2, bPage2 );
+	pRadioButton_Page3->SetShowEnable( bPage3, bPage3 );
+
+	if ( CX2Main::XS_VILLAGE_MAP == g_pMain->GetNowStateID() )
+	{
+		pButton_Add_Page_Cash->SetOffsetPos( vPos );								/// vslot 0x50
+		pButton_Add_Page_Cash->SetShowEnable( bAdd, bAdd );
+		pButton_Add_Page_Cash->SetGuideDesc( GET_STRING( STR_ID_29367 ) );		/// 0x72b7, +0x1d0
+		pButton_Add_Page_Cash->SetGuideDescOffsetPos( D3DXVECTOR2( 100, 0 ) );	/// vslot 0x94, _DAT_334355b8 = 100.0
+	}
+	else
+	{
+		pButton_Add_Page_Cash->SetShowEnable( false, false );
+	}
+}
+#else SERV_IRUHADEV_JUNE_SKILL_PAGE
 void CX2UISkillTreeNew::UpdateSkillPageUI()
 {
 	CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree;
@@ -2704,6 +2771,7 @@ void CX2UISkillTreeNew::UpdateSkillPageUI()
 		pButton_Add_Page_Cash->SetShowEnable( false, false );
 	}
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 void CX2UISkillTreeNew::BuySkillPageDialog( const int iED_ )
 {
@@ -3672,6 +3740,16 @@ bool CX2UISkillTreeNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
 		ShowSkillDesc( false );
 		return true;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	/// June's page cases: 29049 328ec068 ( all three Skill_Page radios send it ), 29052 328ec1ef, 29053 328ec3ff, 29055 328ec48e,
+	/// 29056 328ec6b3. June's switch has no 29050 / 29051 / 29054 case.
+	case STUCM_SKILL_PAGE1:
+	case STUCM_ADD_SKILL_PAGE_ED:
+	case STUCM_ADD_SKILL_PAGE_CASH:
+	case STUCM_BUY_CONFIRM:
+	case STUCM_BUY_CANCEL:
+		return JunePageCustomEventProc( hWnd, uMsg, wParam, lParam );
+#else SERV_IRUHADEV_JUNE_SKILL_PAGE
 	/// Page cases ( S7d ): 29049 328ec068, 29052 328ec1ef, 29053 328ec3ff, 29055 328ec48e, 29056 328ec6b3. Until S7d ports June's, the
 	/// page radios still run March's page code ( UpdateSkillPageUI / BuySkillPageDialog below ).
 	case STUCM_SKILL_PAGE1:
@@ -3682,6 +3760,7 @@ bool CX2UISkillTreeNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
 	case STUCM_BUY_CONFIRM:
 	case STUCM_BUY_CANCEL:
 		return JuneSkillPageCustomEventProc( hWnd, uMsg, wParam, lParam );
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	case STUCM_SELECT_SKILL_LEFT_MEMO:			/// 328ed02c
@@ -4203,6 +4282,100 @@ bool CX2UISkillTreeNew::JuneSkillPageCustomEventProc( HWND hWnd, UINT uMsg, WPAR
 	}
 	return false;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+/// June's page cases of UICustomEventProc ( 328ec068 .. 328ec719 )
+bool CX2UISkillTreeNew::JunePageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	switch ( wParam )
+	{
+	case STUCM_SKILL_PAGE1:		/// 328ec068: every Skill_Page radio; the page is the radio's dummy int 0 ( 1 / 2 / 3 in the dialog )
+		{
+			CKTDGUIRadioButton* pRadio = reinterpret_cast<CKTDGUIRadioButton*>( lParam );
+			if ( NULL == pRadio || NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+				return false;
+
+			/// in a game, a busy unit ( 323022b0( 1 ) = CheckAndWarningBusyStateNow( true ), the warning is its own ) un-checks the
+			/// clicked radio ( 31caa0e0( 0, 0, 0 ) ) and eats the click
+			if ( NULL != g_pX2Game && true == g_pX2Game->CheckAndWarningBusyStateNow( true ) )
+			{
+				pRadio->SetCheckedInternal( false, false, false );
+				return true;
+			}
+			/// in a game, a skill-slot change still cooling down ( 3221c560 ) above level 10 ( vslot 0x20c ) eats the click; the clicked
+			/// radio stays checked ( JUNE_BUGS )
+			if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() &&
+				 false == g_pX2Game->GetMyUnit()->IsValideSlotChange() && 10 < g_pX2Game->GetMyUnit()->GetUnitLevel() )
+				return true;
+
+			/// the select page ( +0x4b8 ) takes the radio's page ( 31c947d0( 0 ) ); June keeps the old one at UI +0x2c, which no tree
+			/// function reads back ( not ported ). Then the tree ( 328ddf60 ) and the page UI ( 328e6970 ) are redrawn.
+			CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree;
+			refUserSkillTree.SetSelectPage( static_cast<USHORT>( pRadio->GetDummyInt( 0 ) ) );
+			UpdateSkillTree();
+			UpdateSkillPageUI();
+
+			if ( true == g_pMain->IsWaitingServerPacket( EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK ) )
+				return false;
+			/// the page in use ( +0x4b4, 0-based ) is the selected one: nothing to send
+			if ( refUserSkillTree.GetUsingPage() == refUserSkillTree.GetSelectPage() - 1 )
+				return false;
+			if ( NULL == g_pData->GetSkillTree() )
+				return false;
+			return g_pData->GetSkillTree()->Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( refUserSkillTree.GetSelectPage() );	/// 3220f160
+		}
+
+	case STUCM_ADD_SKILL_PAGE_ED:	/// 328ec1ef: June's dialog has no button that sends it; the body is March's
+		{
+			/// state 0xe or 0xf ( June's XS_GUILD_AGIT_GAME, none in March ), else the notice 0x72e2 ( 29410 )
+			if ( CX2Main::XS_VILLAGE_MAP != g_pMain->GetNowStateID() )
+			{
+				g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), GET_STRING( STR_ID_29410 ), g_pMain->GetNowState() );
+				return false;
+			}
+			if ( true == g_pMain->IsWaitingServerPacket( EGS_GET_NEXT_SKILL_PAGE_ED_ACK ) )
+				return false;
+			g_pData->GetServerProtocol()->SendID( EGS_GET_NEXT_SKILL_PAGE_ED_REQ );		/// 0x476
+			g_pMain->AddServerPacket( EGS_GET_NEXT_SKILL_PAGE_ED_ACK );
+		} return true;
+
+	case STUCM_ADD_SKILL_PAGE_CASH:	/// 328ec3ff
+		{
+			if ( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+				return false;
+			CX2StateField* pStateField = static_cast<CX2StateField*>( g_pMain->GetNowState() );
+			if ( NULL == pStateField )
+				return false;
+			if ( NULL != g_pTFieldGame )
+				g_pTFieldGame->CloseFieldName( 0.0f );									/// 323a9780( 0 )
+			g_pData->GetCashShop()->SetMenuTypeCallingCashShop( CX2UIManager::UI_MENU_PRIVATE_BANK );	/// cash shop +0x31c = 0x11
+			/// June then pushes CI_EXPAND_SKILL_PAGE ( 0x1f129 = 127273 ) into the cash shop's June-only open-at-item list ( +0x338,
+			/// setter 321cd390, six callers ): that list is not in March ( STATUS skill-system-core S7g ), so the shop opens as March's does
+			pStateField->ToggleCashShop();												/// vslot 0xac
+		} return true;
+
+	case STUCM_BUY_CONFIRM:		/// 328ec48e: = March's case
+		{
+			if ( NULL != m_pDLGBuyConfirm )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGBuyConfirm, NULL, false );
+			m_pDLGBuyConfirm = NULL;
+			if ( g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_ED >= m_iConfirmED )
+				return g_pData->GetSkillTree()->Handler_EGS_EXPAND_SKILL_PAGE_REQ();	/// 322149e0
+			g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), GET_STRING( STR_ID_28961 ), g_pMain->GetNowState() );
+		} return false;
+
+	case STUCM_BUY_CANCEL:		/// 328ec6b3: = March's case
+		if ( NULL != m_pDLGBuyConfirm )
+			g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGBuyConfirm, NULL, false );
+		m_pDLGBuyConfirm = NULL;
+		return true;
+
+	default:
+		break;
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 #endif UPGRADE_SKILL_SYSTEM_2013
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI

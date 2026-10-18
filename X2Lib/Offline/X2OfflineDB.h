@@ -442,6 +442,12 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+		SCHEMA_VERSION			= 20,	///< v20: unit_skill_page_info + unit_skill_page, June's skill pages ( one bar per page, S7d )
+
+		/// As in the v19 branch below, which this one replaces wholesale.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else SERV_IRUHADEV_JUNE_SKILL_PAGE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		SCHEMA_VERSION			= 19,	///< v19: unit_skill_note holds June's active skill memos, skill -> memo (June skill system S7c)
 
@@ -483,6 +489,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -771,6 +778,18 @@ public:
 	/// June skill system S7c: the active skill memos ( traits ), unit_skill_note since v19: one row per skill, skill -> MEMO_ID, the
 	/// map the unit info carries ( KJuneSkillExtraData::m_mapIntInt ). LoadSkillNotes / SaveSkillNote ( March's pages ) are not
 	/// called under the flag: their columns are gone.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	/// June skill system S7d ( LABELLED STAND-IN, no June server ): the skill pages since v20. unit_skill_page_info holds the page count
+	/// and the page in use ( no row = 1 / 1, every save before v20 ); unit_skill_page holds the bar ( combined slot -> skill ) of every
+	/// page that is NOT in use. The page in use keeps its bar in unit_skill.slot, as before. The skill list is shared by all pages.
+	bool	LoadSkillPageInfo( UidType nUnitUID, OUT int& iPageCount, OUT int& iActivePage );
+	bool	SaveSkillPageInfo( UidType nUnitUID, int iPageCount, int iActivePage );
+	bool	LoadSkillPageBar( UidType nUnitUID, int iPage, OUT std::map< int, int >& mapSlotSkill );
+	/// Replaces the page's stored bar ( zeros are not stored ); an empty map deletes it.
+	bool	SaveSkillPageBar( UidType nUnitUID, int iPage, const std::map< int, int >& mapSlotSkill );
+	/// Every stored bar of the unit ( a whole-tree reset ).
+	bool	DeleteSkillPageBars( UidType nUnitUID );
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 	bool	LoadJuneSkillMemos( UidType nUnitUID, OUT std::map< int, int >& mapOut );
 	bool	SaveJuneSkillMemo( UidType nUnitUID, int iSkillID, int iMemoID );
 	bool	DeleteJuneSkillMemo( UidType nUnitUID, int iSkillID );
@@ -925,6 +944,9 @@ private:
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	bool	MigrateSkillNoteToJuneMemo();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	bool	MigrateJuneSkillPages();		///< v20 ( S7d )
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	int		ReadSchemaVersion();
 	void	LogError( const wchar_t* szWhat );

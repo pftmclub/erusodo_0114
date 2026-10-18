@@ -1147,6 +1147,12 @@ private:
 	bool Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 	bool Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	/// June skill system S7d: the three page packets, a labelled stand-in ( no June server )
+	bool Handler_EGS_GET_NEXT_SKILL_PAGE_ED_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_EXPAND_SKILL_PAGE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 	/// Sent by the client every time a skill is fired in a dungeon. Nothing but
 	/// SQT_SKILL_USE listens to it, and it expects no reply at all.

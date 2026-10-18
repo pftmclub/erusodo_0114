@@ -15049,6 +15049,9 @@ SERIALIZE_DEFINE_PUT( KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, obj, ks )
 		&& PUT( m_iSPointAvailable )
 		&& PUT( m_iCSPointAvailable )
 		&& PUT( m_kUserSkillPageData )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+		&& PUT( m_kJuneSkillExtraData )
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 		;
 }
 
@@ -15059,6 +15062,9 @@ SERIALIZE_DEFINE_GET( KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, obj, ks )
 		&& GET( m_iSPointAvailable )
 		&& GET( m_iCSPointAvailable )
 		&& GET( m_kUserSkillPageData )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+		&& GET( m_kJuneSkillExtraData )
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 		;
 	
 }

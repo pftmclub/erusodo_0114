@@ -807,3 +807,9 @@ S7b ports June's skill tree UI (`CX2UISkillTreeNew2015`). These parts of its cla
 
 "` + STR 30357 with the key name of game action 0x27 (`31f5ee50`). March's templet has no `+0x170` field.
 - **Rose's sub-text costs** (`328e2900`, unit type 11: alternate templet MP and raw FP with STR 38426) are ported; they show once a Rose unit exists.
+
+### 7ak. Skill page decide ACK class pieces (from June skill system S7d)
+
+June's decide-page ACK (`3220f2b0`) has two class branches after `InitEquippedActiveSkillState( false )` (vslot 0x684), on the game unit's type (`31e4d0e0`). S7d ports the rest of the handler; the class port adds these:
+- **Unit type 2 (Aisha):** `32ce1770( &true )` on the game unit (@3220f4dc), a walk over the unit's class list (`32cf1b10` / `32a78b90`).
+- **Unit type 9 (Add):** the tree UI's `328e0290( string 3347f014 )` (@3220f53a), the same install / G-Core mark refresh as 7aj.

@@ -240,6 +240,9 @@ private:
 	void JuneAddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ );	/// 328ded30
 	void JuneShowCommandGroup( const bool bShow_, const int iGroup_ );					/// 328da3c0
 	bool JuneSkillPageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// March's page cases until S7d
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	bool JunePageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// June's page cases ( S7d )
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// S7c: the memo half of the tree. June keeps each side as 3 dwords of SkillSlotUI: state ( +0x14 / +0x20: 0 locked, 1 open, 2 active ),
 	/// the button ( +0x18 / +0x24 ) and the state icon ( +0x1c / +0x28 ); bRight_ picks +0x20 and the class's second memo row of the skill.

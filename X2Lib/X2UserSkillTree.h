@@ -580,6 +580,19 @@ public:
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 #ifdef SKILL_PAGE_SYSTEM //JHKang
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	/// Local, not June ( S7d ): June's expand ACK ( 32214c60 ) only raises the opened page count, but March reads
+	/// m_vecSkillDataMap[ m_usUsingPage ] without a bound ( AccessMapSkillAcquired ). Every opened page gets its skill map here, a copy of
+	/// the page in use: the offline save keeps one shared skill list, a page holds only its bar.
+	void JuneGrowSkillPages()
+	{
+		while ( m_vecSkillDataMap.size() < m_usOpenedPage )
+		{
+			const SkillDataMap mapCopy = ( m_usUsingPage < m_vecSkillDataMap.size() ) ? m_vecSkillDataMap[ m_usUsingPage ] : SkillDataMap();
+			m_vecSkillDataMap.push_back( mapCopy );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 	const std::map< CX2SkillTree::SKILL_ID, UserSkillData >& GetMapSkillAcquired( USHORT usPageNum_ ) const
 	{
 		return m_vecSkillDataMap[usPageNum_];

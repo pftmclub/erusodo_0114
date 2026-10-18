@@ -844,6 +844,52 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 	// the use-item switch, GSUserInventory.cpp:4610 - and the bag path added in
 	// phase 22 covers it. The offline shop does not sell it, so this branch
 	// would never see it anyway.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	// June skill system S7d ( stand-in ): the page-expansion item is claimed, not carried, as the real server does
+	// ( GSUserCashShop.cpp CI_EXPAND_SKILL_PAGE: pieces * quantity pages, then EGS_EXPAND_SKILL_PAGE_ACK with m_bPayWithED false ).
+	// June's ACK handler ( 32214c60 ) does not test the wait, so the unsolicited ACK lands.
+	if( 127273 == iItemID )	// CXSLItem::CI_EXPAND_SKILL_PAGE ( XSLItem.h:553 ); the client has no constant for it
+	{
+		CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
+		KOfflineUnitRow kUnit;
+		if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kUnit ) || false == pSkill->Load( kUnit.m_nUnitUID ) )
+			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+
+		int iPageCount = 1, iActivePage = 1;
+		pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+		if( iPageCount >= CX2OfflineSkill::JUNE_MAX_SKILL_PAGE )
+		{
+			CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE cash expand refused: %d page(s) already ( the deposit line is left in place )", iPageCount );
+			kAck.m_iOK = NetError::ERR_SKILL_PAGE_02;
+			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+		}
+
+		if( false == pDB->DeleteCashOrder( kSes.m_nUserUID, pRow->m_nTransNo ) )
+		{
+			CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE cash expand refused: deposit line %I64d could not be removed", pRow->m_nTransNo );
+			return Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+		}
+
+		pSkill->ExpandJuneSkillPage( iQuantity, iPageCount );
+
+		kAck.m_iOK = NetError::NET_OK;
+		Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );
+
+		KEGS_EXPAND_SKILL_PAGE_ACK kNot;
+		kNot.m_iOK								= NetError::NET_OK;
+		kNot.m_iED								= kUnit.m_iED;
+		kNot.m_iTheNumberOfSkillPagesAvailable	= iPageCount;
+		kNot.m_iSPointAvailable					= kUnit.m_iSP;
+		kNot.m_iCSPointAvailable				= 0;
+		kNot.m_bPayWithED						= false;
+		Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kNot );
+
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE cash expand: claimed line %I64d, %d x item 127273 -> %d page(s)",
+			pRow->m_nTransNo, iQuantity, iPageCount );
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
+
 	if( CASH_SKILL_NOTE_ITEM_ID == iItemID )
 	{
 		KOfflineUnitRow kUnit;

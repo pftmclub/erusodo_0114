@@ -152,6 +152,25 @@ public:
 	bool	ClearJuneActiveMemo( int iSkillID );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	//////////////////////////////////////////////////////////////////////////
+	// June's skill pages ( S7d, LABELLED STAND-IN: no June server ). A page is a bar; the skill list and the memos are shared.
+
+	enum { JUNE_MAX_SKILL_PAGE = 3 };	///< KUserSkillTree::MAX_COUNT_OF_PAGES_AVAILABLE ( UserSkillTree.h:345 ); June's USHORT[3] at tree +0x8 / +0xe
+
+	/// Page count and page in use of the loaded unit ( 1 / 1 without a row ).
+	void	GetJuneSkillPageInfo( OUT int& iPageCount, OUT int& iActivePage ) const;
+	/// Adds up to iAdd pages ( capped at JUNE_MAX_SKILL_PAGE ); a new page has an empty bar. ERR_SKILL_PAGE_02 when none could be added.
+	int		ExpandJuneSkillPage( int iAdd, OUT int& iPageCount );
+	/// Stores the bar in use under its page, puts the asked page's bar on the slots ( a skill no longer learned is dropped with a log
+	/// line ) and makes it the page in use. ERR_SKILL_PAGE_03 for a page that is not open.
+	int		SwitchJuneSkillPage( int iPage );
+	/// The bar in use as June's two vectors of KJuneSkillExtraData ( 5 entries each, id + level ).
+	void	GetJuneEquippedSkillVectors( OUT std::vector< KSkillData >& vecA_, OUT std::vector< KSkillData >& vecB_ ) const;
+	/// A whole-tree reset: every slot empty ( June's INIT ACK 3220ea50 empties the client's bar ) and every stored page bar gone.
+	void	ClearJuneSkillBars();
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
+
 	//////////////////////////////////////////////////////////////////////////
 	// writes
 

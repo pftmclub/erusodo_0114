@@ -21,7 +21,7 @@ Added by S7c (2026-10-18, unowned-branch rule). Two June paths S7c found and did
 
 1. **The memo map in other ACKs.** June's merge `32892410` has four more callers besides the two unit-info appliers S7c ported (`3235eb20` /
    `32360090`): the slot-change ACK `31ed4c80` (Clear `32892050`, then Merge from ACK `+0xe9`; the ACK carries a whole KUnitSkillData at
-   `+0x41`, whose `+0x76` vector also goes to unit data `+0x8dc` through `32853ff0`), the 0x47b ACK `3220f2b0` (@3220f416), `31f276b0`
+   `+0x41`, whose `+0x76` vector also goes to unit data `+0x8dc` through `32853ff0`), the 0x47b ACK `3220f2b0` (@3220f416; **done in S7d**, the decide ACK carries `KJuneSkillExtraData`), `31f276b0`
    (@31f2791a) and `3257b610` (@3257b8d9). Identify each packet, compare with March's struct (S5 ported the slot ACK without the
    KUnitSkillData), and port the June layout and the merge where March has the packet. Offline the client's list already matches the
    save after every memo ACK, so the play-test is "nothing changes": the memos survive a slot change, a page change and a job change.

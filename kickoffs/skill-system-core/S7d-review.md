@@ -18,6 +18,10 @@ Then the phase's Done note (`python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES
 ## Task
 
 Review Phase S7d (pages, the reset item, the HUD refresh) against `june2017_re/s0b_ui_funcmap.tsv`: the page radios / expand / buy against `328ec068` .. `328ec6b3`, `328e6970`, `328dd1f0`; the page packets handled or ignored with a reason; `RESET_SKILL_ACK` page fields; the HUD refresh verdict.
+Added by S7d (funcmap rows `Skill S7d`): the decide REQ / ACK `3220f160` / `3220f2b0` (raw disassembly, no Ghidra function; the ACK's
+`KJuneSkillExtraData` at +0x6a), the expand ACK `32214c60` (raw), the S0b correction (`31f1fd90` handles June-only `0x735`, not the decide
+ACK), the local `JuneGrowSkillPages` (is it the smallest safe deviation?), and the emulator stand-in (save v20, the cash item 127273 claim,
+the bar emptied on a tree reset). Check the v20 rung on a copy of the save, not the live one.
 
 Hygiene is one command, not a fresh script:
 `python tools/flagcheck.py SERV_IRUHADEV_JUNE_SKILL_PAGE --range <first phase commit>^..HEAD`.

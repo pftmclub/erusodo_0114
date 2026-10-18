@@ -1463,6 +1463,49 @@ June's page radios / expand / buy ( 29049 .. 29056, `328e6970`, `328dd1f0` ), th
 tree rebuild ( `31f08290` ) and the HUD refresh `CX2Unit 3235a160` / singleton `324943c0`. Kickoff `kickoffs/skill-system-core/S7d.md`.
 **Play-test:** switch pages, buy a page with ED, use the reset item.
 
+### Phase S7d - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_PAGE` (`Always.h` + `ServerDefine.h`, `SECOND_HOMES`; five `#error` guards). Funcmap rows `Skill S7d` (14). JUNE_BUGS 311-312.
+Checklist 7ak. Revert: `MODS.md` "June's skill pages". User decisions (2026-10-19): real pages in save v20; a page is unlocked with the cash item 127273;
+on a tree reset the emulator matches June (bar empty).
+- **June's model.** A page is a bar, nothing else: June's decide ACK reads neither SP nor the page's skill levels. June's event ids are March's minus 7
+  (0x476..0x47b = March 1149..1154). **S0b correction:** `31f1fd90` handles the June-only `0x735` (dispatch table `31f2ccd4`), not the decide ACK;
+  the decide ACK is `3220f2b0` (raw disassembly, no Ghidra function).
+- **Client.** `UpdateSkillPageUI` = June `328e6970` (June's dialog has no ED / decide button; the cash button sits on the first closed radio, village
+  only: June's state 0xf is `XS_GUILD_AGIT_GAME`, absent in March). Case 29049 = `328ec068` (all three radios send it; the page is the radio's dummy
+  int; busy guard `CheckAndWarningBusyStateNow`, cool-down above L10; then the decide REQ). 29052 / 29055 / 29056 = March. 29053 = March's shop open
+  (June's open-at-item push `321cd390` -> S7g). Decide REQ `3220f160` (+ the in-game cool-down guard). Decide ACK `3220f2b0`: page in use + selected,
+  bars from the ACK's `KJuneSkillExtraData` (new trailing field, `320e0620` @+0x6a), memos cleared and merged, in-game input hold 0.5 s +
+  `InitEquippedActiveSkillState( false )`, per-slot `CX2User::ChangeEquippedSkillState` (B under A's ids, JUNE_BUGS 311), redraw, the two
+  skill-level resets. Expand ACK `32214c60`: page count, redraw, STR 29386, ED.
+  **Local, not June:** `CX2UserSkillTree::JuneGrowSkillPages` gives each opened page a skill map (copy of the page in use), because March indexes
+  `m_vecSkillDataMap[ m_usUsingPage ]` unchecked and June's expand ACK adds no map.
+- **Checked, no change.** `GET_NEXT_SKILL_PAGE_ED_ACK` `32205a20` and the expand REQ `322149e0` = March. Reset item: `INIT_SKILL_TREE_ACK` `3220ea50`
+  = March (June's `UpdateUI( 1, 1, 0 )` = March's `( true, true, true )`); the bar is empty after it in both. `RESET_SKILL_ACK` `322112d0` writes the page's
+  SP / CSP (+0x4a8 / +0x4ae) = March's `SetSkillPoint`; June's tree has no SP display, so nothing shows them.
+- **HUD refresh verdict.** `3235a160` writes stat totals into the June-only singleton `324943c0` (`3248a800` / `3248d3a0`, keyed by unit uid), which March has
+  no counterpart or reader for: not portable here. It and the shop list go to the new **S7g** (unowned-branch rule). `31f08290` (event 0x43b) is not the
+  reset item's path.
+- **Emulator and save (labelled stand-in).** Handlers for the three page REQs (no ignore rows needed): next-page ED = 50,000,000
+  (`ED_NEEDED_TO_EXPAND_SECOND_SKILL_PAGE`), expand by ED (cap 3), decide (stores the bar in use, loads the page's bar, drops a skill no longer learned,
+  answers with the bar in `KJuneSkillExtraData`, then re-sends the shared skill list). Cash item 127273 is claimed as page(s) plus an unsolicited
+  `EGS_EXPAND_SKILL_PAGE_ACK` (`m_bPayWithED` false). Select unit: one page entry per open page; unit info carries the page count / page in use. A tree
+  reset now leaves every bar empty. Schema **v20**: `unit_skill_page_info`, `unit_skill_page`, and 127273 offered in cash category 33.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_PAGE --worktree --files <17 files>`: `files: 9 PASS, 6 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 20,017,664 B, dated 2026-10-19 02:34:28, md5 388434fde74c704997fd450f24c1e593, equal to X2/US_SERVICE/x2.exe (2026-10-19 02:34:23); built at main ab2ddb3d + 17 uncommitted code file(s).`
+  The PAGE / MIG v20 strings are in the exe.
+- **Save.** Backup `db_backup/els_db_20261019_022520_pre_pre_S7d_pages.sql` (v19, before the first v20 launch). Unit 25 (jtLordKnight) got one Complete Skill Reset
+  Medal (203800) for the reset check.
+- **How to see it.** Unit 25 in a village: the skill window shows radio 1 and the cash button; buy "Skill Tree Page Expansion" (category 33) and move it out of
+  the cash inventory -> radio 2 appears; page 2 starts with an empty bar; switching back restores page 1's bar; the reset medal empties the bar.
+
+## Phase S7g - The HUD stat singleton and the cash shop's open-at-item list
+
+**Run with:** Opus 5.5 high, then an Opus review. Added by S7d (2026-10-19, unowned-branch rule). Identify June's `324943c0` singleton (written by
+`CX2Unit 3235a160`, 23 callers) and the cash shop's `+0x338` open-at-item list (`321cd390`, six callers), then port or record why not.
+Kickoff `kickoffs/skill-system-core/S7g.md`.
+
 ## Phase S7e - Description panels: major skills and the command tab
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS`. Sub-tag `[JUNE_SKILL] UI`. Split out of S7b (2026-10-18, unowned June branch).

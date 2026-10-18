@@ -703,6 +703,11 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 	case EGS_JUNE_ACTIVE_SKILL_MEMO_REQ:	return Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( kSes, kEvent );
 	case EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ:	return Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( kSes, kEvent );
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	case EGS_GET_NEXT_SKILL_PAGE_ED_REQ:			return Handler_EGS_GET_NEXT_SKILL_PAGE_ED_REQ( kSes, kEvent );
+	case EGS_EXPAND_SKILL_PAGE_REQ:					return Handler_EGS_EXPAND_SKILL_PAGE_REQ( kSes, kEvent );
+	case EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ:		return Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( kSes, kEvent );
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 	case EGS_SKILL_USE_REQ:					return Handler_EGS_SKILL_USE_REQ( kSes, kEvent );
 
 	//////////////////////////////////////////////////////////////////////////

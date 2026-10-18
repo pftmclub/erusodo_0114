@@ -560,4 +560,139 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+//////////////////////////////////////////////////////////////////////////
+// June skill system S7d: the skill pages, a LABELLED STAND-IN ( no June server; the shape is March's GSUserGameCommon.cpp page
+// handlers, the data June's: a page is a bar, the skill list and the memos are shared, and the decide ACK carries the bar in
+// KJuneSkillExtraData, which June's handler 3220f2b0 reads ).
+
+/// The ED a page costs: KUserSkillTree::ED_NEEDED_TO_EXPAND_SECOND_SKILL_PAGE ( UserSkillTree.h:344 ), the real server's figure.
+static const int JUNE_ED_PER_SKILL_PAGE = 50000000;
+
+/// GSUserGameCommon.cpp EGS_GET_NEXT_SKILL_PAGE_ED_REQ: with 1 or 2 pages open the next one costs the constant, else ERR_SKILL_PAGE_02.
+/// June's dialog has no ED button, so nothing in June's UI sends this; it is answered for completeness.
+bool CX2OfflineServer::Handler_EGS_GET_NEXT_SKILL_PAGE_ED_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_GET_NEXT_SKILL_PAGE_ED_ACK kAck;
+	kAck.m_iOK	= NetError::ERR_SKILL_PAGE_02;
+	kAck.m_iED	= 0;
+
+	CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
+	if( 0 == kSes.m_nSelectedUnitUID || false == pSkill->Load( kSes.m_nSelectedUnitUID ) )
+		return Reply( kSes, EGS_GET_NEXT_SKILL_PAGE_ED_ACK, kAck );
+
+	int iPageCount = 1, iActivePage = 1;
+	pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+	if( iPageCount < CX2OfflineSkill::JUNE_MAX_SKILL_PAGE )
+	{
+		kAck.m_iOK	= NetError::NET_OK;
+		kAck.m_iED	= JUNE_ED_PER_SKILL_PAGE;
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE next-page ED: %d page(s) open -> %d ED ( OK %d )", iPageCount, kAck.m_iED, kAck.m_iOK );
+	return Reply( kSes, EGS_GET_NEXT_SKILL_PAGE_ED_ACK, kAck );
+}
+
+/// GSUserGameCommon.cpp EGS_EXPAND_SKILL_PAGE_REQ ( pay with ED ): below the cap and with the ED, the ED goes and a page is added.
+bool CX2OfflineServer::Handler_EGS_EXPAND_SKILL_PAGE_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	CX2OfflineDB*		pDB		= CX2OfflineDB::Instance();
+	CX2OfflineSkill*	pSkill	= CX2OfflineSkill::Instance();
+
+	KEGS_EXPAND_SKILL_PAGE_ACK kAck;
+	kAck.m_iOK			= NetError::ERR_SKILL_PAGE_02;
+	kAck.m_bPayWithED	= true;
+
+	KOfflineUnitRow kRow;
+	if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) || false == pSkill->Load( kRow.m_nUnitUID ) )
+		return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
+
+	kAck.m_iED = kRow.m_iED;
+
+	int iPageCount = 1, iActivePage = 1;
+	pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+	if( iPageCount >= CX2OfflineSkill::JUNE_MAX_SKILL_PAGE )
+		return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
+
+	if( kRow.m_iED < JUNE_ED_PER_SKILL_PAGE )
+	{
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE expand by ED refused: %d ED, a page costs %d", kRow.m_iED, JUNE_ED_PER_SKILL_PAGE );
+		kAck.m_iOK = NetError::ERR_EXPAND_INVENTORY_ED_01;
+		return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
+	}
+
+	kAck.m_iOK = pSkill->ExpandJuneSkillPage( 1, iPageCount );
+	if( NetError::NET_OK != kAck.m_iOK )
+		return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
+
+	kRow.m_iED -= JUNE_ED_PER_SKILL_PAGE;
+	pDB->SaveProgress( kRow.m_nUnitUID, kRow.m_iLevel, kRow.m_iEXP, kRow.m_iED );
+
+	kAck.m_iED								= kRow.m_iED;
+	kAck.m_iTheNumberOfSkillPagesAvailable	= iPageCount;
+	kAck.m_iSPointAvailable					= kRow.m_iSP;
+	kAck.m_iCSPointAvailable				= 0;
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE expanded by ED: %d page(s), %d ED left", iPageCount, kRow.m_iED );
+	return Reply( kSes, EGS_EXPAND_SKILL_PAGE_ACK, kAck );
+}
+
+/// GSUserGameCommon.cpp EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ: page 1 .. the open count. The stand-in swaps the bars, answers with the
+/// page's bar in KJuneSkillExtraData ( and in m_kUserSkillPageData, which June does not read ), then re-sends the shared skill list
+/// ( EGS_JUNE_ACQUIRE_SKILL_NOT ): June's grant handler only adds to the page in use, which is now the new one.
+bool CX2OfflineServer::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	CX2OfflineDB*		pDB		= CX2OfflineDB::Instance();
+	CX2OfflineSkill*	pSkill	= CX2OfflineSkill::Instance();
+
+	KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK kAck;
+	kAck.m_iOK								= NetError::ERR_SKILL_PAGE_03;
+	kAck.m_iSkillPagesNumberDecidedToUse	= 1;	///< never 0: SetUsingPage subtracts 1 ( MARCH_2014_MIGRATION.md:1068-1100 )
+
+	KOfflineUnitRow kRow;
+	if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) || false == pSkill->Load( kRow.m_nUnitUID ) )
+		return Reply( kSes, EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, kAck );
+
+	kAck.m_iOK = pSkill->SwitchJuneSkillPage( kReq.m_iSkillPagesNumberDecidedToUse );
+	if( NetError::NET_OK != kAck.m_iOK )
+		return Reply( kSes, EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, kAck );
+
+	kAck.m_iSkillPagesNumberDecidedToUse	= kReq.m_iSkillPagesNumberDecidedToUse;
+	kAck.m_iSPointAvailable					= kRow.m_iSP;
+	kAck.m_iCSPointAvailable				= 0;
+
+	{
+		KUnitSkillData kUnitSkill;
+		pSkill->FillUnitSkillData( kUnitSkill );
+		for( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
+		{
+			kAck.m_kUserSkillPageData.m_aEquippedSkill[i]		= kUnitSkill.m_aEquippedSkill[i];
+			kAck.m_kUserSkillPageData.m_aEquippedSkillSlotB[i]	= kUnitSkill.m_aEquippedSkillSlotB[i];
+		}
+		pSkill->GetAcquiredSkills( kAck.m_kUserSkillPageData.m_vecUserSkillData );
+		kAck.m_kUserSkillPageData.m_usSkillPoint		= (USHORT)kRow.m_iSP;
+		kAck.m_kUserSkillPageData.m_usCashSkillPoint	= 0;
+
+		kAck.m_kJuneSkillExtraData.m_mapIntInt = kUnitSkill.m_kJuneSkillExtraData.m_mapIntInt;
+		pSkill->GetJuneEquippedSkillVectors( kAck.m_kJuneSkillExtraData.m_vecSkillDataA, kAck.m_kJuneSkillExtraData.m_vecSkillDataB );
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE decide: page %d in use, A %d/%d/%d/%d B %d/%d/%d/%d, %d memo(s)",
+		kAck.m_iSkillPagesNumberDecidedToUse,
+		(int)kAck.m_kJuneSkillExtraData.m_vecSkillDataA[0].m_iSkillID, (int)kAck.m_kJuneSkillExtraData.m_vecSkillDataA[1].m_iSkillID,
+		(int)kAck.m_kJuneSkillExtraData.m_vecSkillDataA[2].m_iSkillID, (int)kAck.m_kJuneSkillExtraData.m_vecSkillDataA[3].m_iSkillID,
+		(int)kAck.m_kJuneSkillExtraData.m_vecSkillDataB[0].m_iSkillID, (int)kAck.m_kJuneSkillExtraData.m_vecSkillDataB[1].m_iSkillID,
+		(int)kAck.m_kJuneSkillExtraData.m_vecSkillDataB[2].m_iSkillID, (int)kAck.m_kJuneSkillExtraData.m_vecSkillDataB[3].m_iSkillID,
+		(int)kAck.m_kJuneSkillExtraData.m_mapIntInt.size() );
+
+	const bool bAckSent = Reply( kSes, EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK, kAck );
+	PushJuneSkillGrant( kSes, kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, true, L"page switch" );
+	return bAckSent;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
+
 #endif SERV_IRUHADEV_OFFLINE

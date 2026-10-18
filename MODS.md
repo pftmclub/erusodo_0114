@@ -4234,6 +4234,22 @@ log tag `[JUNE_SKILL] MEMO`.
 - **Revert:** comment out both defines together, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. **The save is forward-only:** an exe without the flag refuses a v19 save, so restore
   the `db_backup/` snapshot taken before the first v19 launch (`els_db_20261018_195712_pre_manual.sql`) together with the old exe.
 
+### June's skill pages (skill-system-core S7d, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_PAGE`, defined twice: `KTDXLIB/Always.h` (`#error` guards: `_SKILL_TREE_UI`, `_SKILL_MEMO_PACKET`, `_ACQUIRE`, `_SLOT_10`, `SERV_IRUHADEV_OFFLINE`)
+and `KncWX2Server/Common/ServerDefine.h` (ClientPacket.h precedes Always.h; `SECOND_HOMES` in `tools/flagcheck.py`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7d"; log tag `[JUNE_SKILL] PAGE`.
+- **Client.** June's page UI (`UpdateSkillPageUI` `328e6970`: no ED or decide button, the cash button beside the last radio, village only), the one radio case 29049 (`328ec068`: the radio's
+  dummy int is the page; busy / cool-down guards; then the decide REQ), the decide REQ / ACK (`3220f160` / `3220f2b0`: the ACK's `KJuneSkillExtraData` vectors are the page's bars, its map
+  the page's memos; SP and skill levels are not touched) and the expand ACK (`32214c60`: page count, notice, ED). Local, not June: `CX2UserSkillTree::JuneGrowSkillPages` gives every opened
+  page a skill map (March indexes the page in use unchecked).
+- **Packet.** `KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK` gains June's trailing `KJuneSkillExtraData` (June `320e0620` @+0x6a).
+- **Emulator and save** (labelled stand-in, no June server). Handlers for `EGS_GET_NEXT_SKILL_PAGE_ED_REQ` / `EGS_EXPAND_SKILL_PAGE_REQ` (50,000,000 ED, the server's
+  `ED_NEEDED_TO_EXPAND_SECOND_SKILL_PAGE`) / `EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ` (swaps the bar, then re-sends the shared skill list); the cash item 127273 (`CI_EXPAND_SKILL_PAGE`)
+  is claimed as a page plus an unsolicited `EGS_EXPAND_SKILL_PAGE_ACK`; select unit sends one page entry per open page; a whole-tree reset leaves every bar empty, as June's client shows.
+  Schema **v20**: `unit_skill_page_info` (count, page in use) and `unit_skill_page` (bars of the pages not in use); the migration offers 127273 in cash category 33.
+- **Revert:** comment out both defines together, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. **The save is forward-only:** an exe without the flag refuses a v20 save, so restore
+  the `db_backup/` snapshot taken before the first v20 launch (`els_db_20261019_022520_pre_pre_S7d_pages.sql`) together with the old exe.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

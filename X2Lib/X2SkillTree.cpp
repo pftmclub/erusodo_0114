@@ -4172,6 +4172,36 @@ bool CX2SkillTree::Handler_EGS_EXPAND_SKILL_PAGE_ACK( HWND hWnd, UINT uMsg, WPAR
 	KSerBuffer* pBuff = reinterpret_cast<KSerBuffer*>( lParam );
 	KEGS_EXPAND_SKILL_PAGE_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	/// June 32214c60 ( ACK 0x479 ): the wait is cleared ( 31d71ed0, result unused ); OK and the tree UI exists -> the opened page count
+	/// ( unit data +0x48e = user tree +0x22 ), the tree UI redrawn ( 328e7b70( 1, 1, 1 ) ), the notice ( STR 0x72ca = 29386 ) and the ED
+	/// ( unit data +0x80 ). June adds no skill page, sets no default skill and no SP ( March's AddSkillPage / SetDefaultSkill / SetSkillPoint ).
+	g_pMain->DeleteServerPacket( EGS_EXPAND_SKILL_PAGE_ACK );
+	if ( false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
+		return false;
+
+	if ( NULL == g_pData ||
+		 NULL == g_pData->GetMyUser() ||
+		 NULL == g_pData->GetMyUser()->GetSelectUnit() ||
+		 NULL == g_pData->GetUIManager() ||
+		 NULL == g_pData->GetUIManager()->GetUISkillTree() )
+	{
+		return false;
+	}
+
+	{
+		CX2Unit::UnitData* pJuneUnitData = &g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData();
+		pJuneUnitData->m_UserSkillTree.SetOpenedPage( static_cast<USHORT>( kEvent.m_iTheNumberOfSkillPagesAvailable ) );
+		pJuneUnitData->m_UserSkillTree.JuneGrowSkillPages();	/// local: the new page's skill map ( X2UserSkillTree.h )
+
+		g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, true );
+		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999, -999 ), GET_STRING( STR_ID_29386 ), g_pMain->GetNowState() );
+		pJuneUnitData->m_ED = kEvent.m_iED;
+
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE expand ACK: %d page(s) open, ED %d", kEvent.m_iTheNumberOfSkillPagesAvailable, kEvent.m_iED );
+	}
+	return true;
+#else SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 	g_pMain->DeleteServerPacket( EGS_EXPAND_SKILL_PAGE_ACK );
 	{
@@ -4232,12 +4262,21 @@ bool CX2SkillTree::Handler_EGS_EXPAND_SKILL_PAGE_ACK( HWND hWnd, UINT uMsg, WPAR
 	}
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 }
 
 bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ( USHORT usPageNumber_ )
 {
 	if( true == g_pMain->IsWaitingServerPacket( EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK ) )
 		return false;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	/// June 3220f160: in a game, a skill-slot change still cooling down ( my unit +0x939c > 0, i.e. not IsValideSlotChange ) refuses the
+	/// switch above level 10 ( vslot 0x20c ), the same guard as the slot REQ 3220e3b0. Then the REQ ( 0x47a, the page ) and the wait ( 0x47b ).
+	if( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() &&
+		false == g_pX2Game->GetMyUnit()->IsValideSlotChange() && 10 < g_pX2Game->GetMyUnit()->GetUnitLevel() )
+		return false;
+	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE decide REQ: page %d", static_cast<int>( usPageNumber_ ) );
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 	
 	KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ kPacket;
 	kPacket.m_iSkillPagesNumberDecidedToUse = usPageNumber_;
@@ -4253,6 +4292,78 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 	KSerBuffer* pBuff = reinterpret_cast<KSerBuffer*>( lParam );
 	KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	/// June 3220f2b0 ( ACK 0x47b, deserializer 3221d290 -> 320e0620 ): the wait is cleared ( result unused ); OK and the tree UI exists ->
+	/// the page goes in use and selected ( user tree +0x20 = page - 1, +0x24 = page ), the page's bars come from the ACK's
+	/// KJuneSkillExtraData ( 32896130: both bars cleared, then id / level of each vector entry, at most 5 ), its active memos replace the
+	/// tree's ( 32892050 + 32892410 ). June reads neither the SP / CSP fields nor m_kUserSkillPageData: the skill levels are not touched.
+	g_pMain->DeleteServerPacket( EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK );
+	if ( false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
+		return false;
+
+	if ( NULL == g_pData ||
+		 NULL == g_pData->GetMyUser() ||
+		 NULL == g_pData->GetMyUser()->GetSelectUnit() ||
+		 NULL == g_pData->GetUIManager() ||
+		 NULL == g_pData->GetUIManager()->GetUISkillTree() )
+	{
+		return false;
+	}
+
+	{
+		CX2Unit* pJuneUnit = g_pData->GetMyUser()->GetSelectUnit();
+		CX2UserSkillTree& kJuneTree = pJuneUnit->AccessUnitData().m_UserSkillTree;
+		const KJuneSkillExtraData& kJunePage = kEvent.m_kJuneSkillExtraData;
+
+		kJuneTree.SetUsingPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
+		kJuneTree.SetSelectPage( static_cast<USHORT>( kEvent.m_iSkillPagesNumberDecidedToUse ) );
+
+		/// 32896130: only the first 5 entries of each vector are read; a missing entry leaves an empty slot
+		KSkillData aJuneSlotA[ EQUIPPED_SKILL_SLOT_COUNT ];
+		KSkillData aJuneSlotB[ EQUIPPED_SKILL_SLOT_COUNT ];
+		for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
+		{
+			if ( i < static_cast<int>( kJunePage.m_vecSkillDataA.size() ) )
+				aJuneSlotA[i] = kJunePage.m_vecSkillDataA[i];
+			if ( i < static_cast<int>( kJunePage.m_vecSkillDataB.size() ) )
+				aJuneSlotB[i] = kJunePage.m_vecSkillDataB[i];
+		}
+		kJuneTree.SetEquippedSkill( aJuneSlotA, aJuneSlotB );
+
+		kJuneTree.ClearJuneActiveMemo();																					/// 32892050
+		kJuneTree.MergeJuneActiveMemo( std::multimap< int, int >( kJunePage.m_mapIntInt.begin(), kJunePage.m_mapIntInt.end() ) );	/// 32892410
+
+		/// in a game ( g_pX2Game, my unit vslot 0x98 ): input is held for 0.5 s ( +0xde8 = _DAT_3343777c ) and the equipped skill states rebuilt
+		/// ( vslot 0x684( 0 ) ); unit type 2 ( 32ce1770 ) and 9 ( the tree's 328e0290 ) add class pieces: checklist 7ak
+		if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+		{
+			g_pX2Game->GetMyUnit()->SetCanNotInputTime_LUA( 0.5f );
+			g_pX2Game->GetMyUnit()->InitEquippedActiveSkillState( false );
+		}
+
+		/// 3264ad40 ( CX2User::ChangeEquippedSkillState ) for every bar-A entry, then, when slot-state key 0 is above 0 ( 32890ea0 ), every
+		/// bar-B entry; June passes the entry's index for both bars, so a B skill is refreshed under the A slot id ( JUNE_BUGS )
+		for ( UINT i = 0; i < kJunePage.m_vecSkillDataA.size(); ++i )
+			g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kJunePage.m_vecSkillDataA[i].m_iSkillID );
+		if ( 0 < kJuneTree.GetJuneSlotState( 0 ) )
+		{
+			for ( UINT i = 0; i < kJunePage.m_vecSkillDataB.size(); ++i )
+				g_pData->GetMyUser()->ChangeEquippedSkillState( static_cast<int>( i ), kJunePage.m_vecSkillDataB[i].m_iSkillID );
+		}
+
+		/// the tree UI, when shown ( +0xa8 ): 328e7b70( 1, 1, 1 )
+		if ( true == g_pData->GetUIManager()->GetUISkillTree()->GetShow() )
+			g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, true );
+
+		pJuneUnit->ResetIncreaseSkillLevelByBuff();		/// 323646a0
+		pJuneUnit->ResetIncreaseSkillLevelBySocket();	/// 3235a080( 0 )
+
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE decide ACK: page %d in use, bar A %d / B %d entries, %d memo(s)",
+			kEvent.m_iSkillPagesNumberDecidedToUse, static_cast<int>( kJunePage.m_vecSkillDataA.size() ),
+			static_cast<int>( kJunePage.m_vecSkillDataB.size() ), static_cast<int>( kJunePage.m_mapIntInt.size() ) );
+	}
+	return true;
+#else SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 	g_pMain->DeleteServerPacket( EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK );
 	{
@@ -4338,6 +4449,7 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 	}
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 }
 #endif //SKILL_PAGE_SYSTEM
 #pragma endregion 페이지 확장, 결정 패킷 처리

@@ -10989,6 +10989,9 @@ DECL_PACKET( EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK )
 	int						m_iCSPointAvailable;
 	KUserSkillPageData		m_kUserSkillPageData;
 	//std::map< int, int>		m_mapSkillListLearned;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	KJuneSkillExtraData		m_kJuneSkillExtraData;	/// June 320e0620 @+0x6a ( 32124f30 -> 320dc980 ): the page's A / B bars and active memos
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 	KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK()
 		: m_iOK(0),

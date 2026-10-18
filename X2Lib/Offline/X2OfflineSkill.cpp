@@ -410,6 +410,16 @@ void CX2OfflineSkill::FillUnitSkillData( OUT KUnitSkillData& kOut ) const
 	// both unit-info appliers merge ( 3235eb20 @3235f9e0, 32360090 @323608a4 ). The room packets carry this same struct for my own unit.
 	kOut.m_kJuneSkillExtraData.m_mapIntInt = m_mapJuneActiveMemo;
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	// June skill system S7d: the page count and the page in use ( v20 ). The client seeds SetUsingPage / SetOpenedPage /
+	// SetSelectPage from these ( X2StateServerSelect.cpp:3736-3746 ); never 0 ( LoadSkillPageInfo clamps ).
+	{
+		int iPageCount = 1, iActivePage = 1;
+		GetJuneSkillPageInfo( iPageCount, iActivePage );
+		kOut.m_nActiveSkillPagesNumber			= (unsigned char)iActivePage;
+		kOut.m_nTheNumberOfSkillPagesAvailable	= (unsigned char)iPageCount;
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
 	CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT sent unit %I64d: A %d/%d/%d/%d/%d B %d/%d/%d/%d/%d, state vector %u entries (key 0 = %d, key 1 = %d)",
 		(__int64)m_nUnitUID,
@@ -677,6 +687,11 @@ int CX2OfflineSkill::InitSkillTree( int iUnitLevel, int iUnitClass, OUT int& iSP
 	// June's default list is empty; the S3 Q1 stand-in grants the class's free rows instead. Every one costs 0 SP, so
 	// iSPTotal (June GetCalcInitSkillPoint for the level) stays whole.
 	SeedJuneAutoLearn( m_nUnitUID, iUnitClass, iUnitLevel );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	// June skill system S7d ( stand-in ): June's INIT ACK ( 3220ea50 ) empties the client's bar ( Reset( 1, 1, 0, 0 ) ) and nothing in
+	// June's client re-fills it, so the seed's slots are taken back off and every page's bar is cleared: the save agrees with the screen.
+	ClearJuneSkillBars();
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #else SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 	if( false == SeedDefaultSkills( m_nUnitUID, iUnitClass ) )
 	{
@@ -998,6 +1013,139 @@ int CX2OfflineSkill::GrantJuneSkillsByLevel( int iUnitClass, int iUnitLevel, OUT
 
 	return (int)vecGranted_.size();
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+//////////////////////////////////////////////////////////////////////////
+// June's skill pages ( S7d, labelled stand-in )
+
+void CX2OfflineSkill::GetJuneSkillPageInfo( OUT int& iPageCount, OUT int& iActivePage ) const
+{
+	iPageCount	= 1;
+	iActivePage	= 1;
+	if( 0 != m_nUnitUID )
+		CX2OfflineDB::Instance()->LoadSkillPageInfo( m_nUnitUID, iPageCount, iActivePage );
+}
+
+int CX2OfflineSkill::ExpandJuneSkillPage( int iAdd, OUT int& iPageCount )
+{
+	int iActivePage = 1;
+	GetJuneSkillPageInfo( iPageCount, iActivePage );
+
+	if( iAdd < 1 || iPageCount >= JUNE_MAX_SKILL_PAGE )
+	{
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE expand refused unitUID=%I64d: %d page(s) open, %d asked, the cap is %d",
+			(__int64)m_nUnitUID, iPageCount, iAdd, (int)JUNE_MAX_SKILL_PAGE );
+		return NetError::ERR_SKILL_PAGE_02;
+	}
+
+	const int iBefore = iPageCount;
+	iPageCount += iAdd;
+	if( iPageCount > JUNE_MAX_SKILL_PAGE )
+		iPageCount = JUNE_MAX_SKILL_PAGE;
+
+	// a new page's bar is empty: no unit_skill_page row ( June has no default skills, KUserSkillTree::ExpandSkillPage would add them )
+	CX2OfflineDB::Instance()->SaveSkillPageInfo( m_nUnitUID, iPageCount, iActivePage );
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE expand unitUID=%I64d: %d -> %d page(s), page %d in use",
+		(__int64)m_nUnitUID, iBefore, iPageCount, iActivePage );
+	return NetError::NET_OK;
+}
+
+int CX2OfflineSkill::SwitchJuneSkillPage( int iPage )
+{
+	int iPageCount = 1, iActivePage = 1;
+	GetJuneSkillPageInfo( iPageCount, iActivePage );
+
+	// GSUserGameCommon.cpp's EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_REQ: 1 .. the open page count
+	if( iPage < 1 || iPage > iPageCount )
+	{
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE switch refused unitUID=%I64d: page %d, %d page(s) open", (__int64)m_nUnitUID, iPage, iPageCount );
+		return NetError::ERR_SKILL_PAGE_03;
+	}
+
+	if( iPage == iActivePage )
+	{
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE switch unitUID=%I64d: page %d already in use", (__int64)m_nUnitUID, iPage );
+		return NetError::NET_OK;
+	}
+
+	CX2OfflineDB* pDB = CX2OfflineDB::Instance();
+
+	// the bar in use goes under its page
+	std::map< int, int > mapOld;
+	for( int i = 0; i < MAX_SKILL_SLOT; ++i )
+	{
+		if( 0 != m_aiSkillSlot[i] )
+			mapOld[i] = m_aiSkillSlot[i];
+	}
+	pDB->SaveSkillPageBar( m_nUnitUID, iActivePage, mapOld );
+
+	// the asked page's bar onto the slots; a skill that is no longer learned ( a reset, an upgrade that erased its base ) is dropped
+	std::map< int, int > mapNew;
+	pDB->LoadSkillPageBar( m_nUnitUID, iPage, mapNew );
+
+	for( int i = 0; i < MAX_SKILL_SLOT; ++i )
+	{
+		m_aiSkillSlot[i] = 0;
+		pDB->SetSkillSlot( m_nUnitUID, i, 0 );
+	}
+
+	int iPlaced = 0;
+	for( std::map< int, int >::const_iterator mit = mapNew.begin(); mit != mapNew.end(); ++mit )
+	{
+		if( mit->first < 0 || mit->first >= MAX_SKILL_SLOT || 0 == mit->second )
+			continue;
+		if( GetSkillLevel( mit->second ) <= 0 || -1 != GetSlotOfSkill( mit->second ) )
+		{
+			CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE page %d slot %d: skill %d dropped ( not learned or already on the bar )",
+				iPage, mit->first, mit->second );
+			continue;
+		}
+		m_aiSkillSlot[ mit->first ] = mit->second;
+		pDB->SetSkillSlot( m_nUnitUID, mit->first, mit->second );
+		++iPlaced;
+	}
+
+	// the page in use keeps its bar in unit_skill.slot only
+	pDB->SaveSkillPageBar( m_nUnitUID, iPage, std::map< int, int >() );
+	pDB->SaveSkillPageInfo( m_nUnitUID, iPageCount, iPage );
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE switch unitUID=%I64d: page %d -> %d ( %d slot(s) stored, %d placed )",
+		(__int64)m_nUnitUID, iActivePage, iPage, (int)mapOld.size(), iPlaced );
+	return NetError::NET_OK;
+}
+
+void CX2OfflineSkill::GetJuneEquippedSkillVectors( OUT std::vector< KSkillData >& vecA_, OUT std::vector< KSkillData >& vecB_ ) const
+{
+	vecA_.clear();
+	vecB_.clear();
+	for( int i = 0; i < SLOT_COUNT_PER_SET; ++i )
+	{
+		KSkillData kA;
+		kA.m_iSkillID		= (short)GetSlotSkillID( i );
+		kA.m_cSkillLevel	= (UCHAR)GetSkillLevel( kA.m_iSkillID );
+		vecA_.push_back( kA );
+
+		KSkillData kB;
+		kB.m_iSkillID		= (short)GetSlotSkillID( i + SLOT_COUNT_PER_SET );
+		kB.m_cSkillLevel	= (UCHAR)GetSkillLevel( kB.m_iSkillID );
+		vecB_.push_back( kB );
+	}
+}
+
+void CX2OfflineSkill::ClearJuneSkillBars()
+{
+	CX2OfflineDB* pDB = CX2OfflineDB::Instance();
+	for( int i = 0; i < MAX_SKILL_SLOT; ++i )
+	{
+		m_aiSkillSlot[i] = 0;
+		pDB->SetSkillSlot( m_nUnitUID, i, 0 );
+	}
+	pDB->DeleteSkillPageBars( m_nUnitUID );
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE tree reset unitUID=%I64d: every bar emptied", (__int64)m_nUnitUID );
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 void CX2OfflineSkill::GetJuneAcquiredSkillData( OUT std::vector< KSkillData >& vecOut_ ) const
 {

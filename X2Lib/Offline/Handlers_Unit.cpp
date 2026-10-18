@@ -813,6 +813,17 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 		kNot.m_vecUserSkillPageData.clear();
 		kNot.m_vecUserSkillPageData.push_back( kSkillPage );
 		//}}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+		// June skill system S7d ( stand-in ): one entry per open page, all with the shared skill list. SetAcquiredSkill builds one
+		// skill map per open page from this vector ( X2UserSkillTree.cpp:486 ), and March indexes the map of the page in use unchecked.
+		{
+			int iPageCount = 1, iActivePage = 1;
+			pSkill->GetJuneSkillPageInfo( iPageCount, iActivePage );
+			for( int iPage = 1; iPage < iPageCount; ++iPage )
+				kNot.m_vecUserSkillPageData.push_back( kSkillPage );
+			CX2OfflineLog::Server( L"[JUNE_SKILL] PAGE select unit %I64d: %d page(s), page %d in use", (__int64)kRow.m_nUnitUID, iPageCount, iActivePage );
+		}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 		// Phase 21: the skills a "secret manual" has unlocked. This used to be a
 		// hard clear with a comment saying nothing offline unseals anything -

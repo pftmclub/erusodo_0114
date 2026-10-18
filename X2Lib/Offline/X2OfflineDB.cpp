@@ -1130,6 +1130,16 @@ bool CX2OfflineDB::Migrate()
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+	if( iFrom < 20 )
+	{
+		if( false == MigrateJuneSkillPages() )
+			return false;
+
+		CX2OfflineLog::Server( L"DB       schema upgraded to v20 (June skill pages: unit_skill_page_info, unit_skill_page)" );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
+
 	char szSetVersion[64];
 	_snprintf( szSetVersion, 64, "PRAGMA user_version = %d;", (int)SCHEMA_VERSION );
 	szSetVersion[63] = '\0';
@@ -1567,6 +1577,49 @@ bool CX2OfflineDB::MigrateSkillNoteToJuneMemo()
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+//////////////////////////////////////////////////////////////////////////
+// v20: June's skill pages (June skill system S7d, a labelled stand-in: no June server).
+//
+// June keeps 3 pages ( user tree +0x20 / +0x22 / +0x24 ) and a page switch only swaps the bar ( decide ACK 3220f2b0 reads the A / B
+// vectors of KJuneSkillExtraData ). Two new tables: unit_skill_page_info ( page count, page in use; no row = 1 / 1, so nothing is
+// copied ) and unit_skill_page ( the bar of every page not in use ). Also offers the page-expansion cash item 127273
+// ( CXSLItem::CI_EXPAND_SKILL_PAGE, XSLItem.h:553; "Skill Tree Page Expansion" in June's item.kim ) in category 33 beside the two skill
+// reset items, once. One-way: an exe without the flag refuses the save ( "save is schema v20" ). Runs from Open(), before the first packet.
+//////////////////////////////////////////////////////////////////////////
+bool CX2OfflineDB::MigrateJuneSkillPages()
+{
+	if( false == Exec( "BEGIN;" ) )
+		return false;
+
+	if( false == Exec(
+		"CREATE TABLE IF NOT EXISTS unit_skill_page_info ("
+		"  unit_uid    INTEGER PRIMARY KEY,"
+		"  page_count  INTEGER NOT NULL DEFAULT 1,"
+		"  active_page INTEGER NOT NULL DEFAULT 1 );"
+		"CREATE TABLE IF NOT EXISTS unit_skill_page ("
+		"  unit_uid INTEGER NOT NULL,"
+		"  page     INTEGER NOT NULL,"
+		"  slot     INTEGER NOT NULL,"
+		"  skill_id INTEGER NOT NULL,"
+		"  PRIMARY KEY( unit_uid, page, slot ) );"
+		"INSERT INTO cash_product( product_no, item_id, category, quantity, price, is_event )"
+		"  SELECT COALESCE( MAX( product_no ), 0 ) + 1, 127273, 33, 1, 1, 0 FROM cash_product"
+		"  WHERE NOT EXISTS ( SELECT 1 FROM cash_product WHERE item_id = 127273 );" ) )
+	{
+		LogError( L"v20 skill page tables" );
+		Exec( "ROLLBACK;" );
+		return false;
+	}
+
+	if( false == Exec( "COMMIT;" ) )
+		return false;
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG v20 done: skill page tables created, cash item 127273 offered in category 33" );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 //////////////////////////////////////////////////////////////////////////
 // account
@@ -2904,6 +2957,151 @@ bool CX2OfflineDB::DeleteJuneSkillMemo( UidType nUnitUID, int iSkillID )
 	return bOK;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+bool CX2OfflineDB::LoadSkillPageInfo( UidType nUnitUID, OUT int& iPageCount, OUT int& iActivePage )
+{
+	KLocker lock( m_cs );
+
+	iPageCount	= 1;
+	iActivePage	= 1;
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "SELECT page_count, active_page FROM unit_skill_page_info WHERE unit_uid = ?1;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+
+	if( SQLITE_ROW == sqlite3_step( pStmt ) )
+	{
+		iPageCount	= sqlite3_column_int( pStmt, 0 );
+		iActivePage	= sqlite3_column_int( pStmt, 1 );
+	}
+
+	sqlite3_finalize( pStmt );
+
+	// SetUsingPage subtracts 1 unchecked ( MARCH_2014_MIGRATION.md:1068-1100 ): never hand out 0
+	if( iPageCount < 1 )					iPageCount = 1;
+	if( iActivePage < 1 )					iActivePage = 1;
+	if( iActivePage > iPageCount )			iActivePage = iPageCount;
+	return true;
+}
+
+bool CX2OfflineDB::SaveSkillPageInfo( UidType nUnitUID, int iPageCount, int iActivePage )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare(
+		"INSERT OR REPLACE INTO unit_skill_page_info( unit_uid, page_count, active_page ) VALUES( ?1, ?2, ?3 );" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iPageCount );
+	sqlite3_bind_int(   pStmt, 3, iActivePage );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+
+	if( false == bOK )
+		LogError( L"save skill page info" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+
+bool CX2OfflineDB::LoadSkillPageBar( UidType nUnitUID, int iPage, OUT std::map< int, int >& mapSlotSkill )
+{
+	KLocker lock( m_cs );
+
+	mapSlotSkill.clear();
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "SELECT slot, skill_id FROM unit_skill_page WHERE unit_uid = ?1 AND page = ?2;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iPage );
+
+	while( SQLITE_ROW == sqlite3_step( pStmt ) )
+		mapSlotSkill[ sqlite3_column_int( pStmt, 0 ) ] = sqlite3_column_int( pStmt, 1 );
+
+	sqlite3_finalize( pStmt );
+	return true;
+}
+
+bool CX2OfflineDB::SaveSkillPageBar( UidType nUnitUID, int iPage, const std::map< int, int >& mapSlotSkill )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	{
+		sqlite3_stmt* pStmt = Prepare( "DELETE FROM unit_skill_page WHERE unit_uid = ?1 AND page = ?2;" );
+		if( NULL == pStmt )
+			return false;
+
+		sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+		sqlite3_bind_int(   pStmt, 2, iPage );
+		sqlite3_step( pStmt );
+		sqlite3_finalize( pStmt );
+	}
+
+	bool bOK = true;
+	for( std::map< int, int >::const_iterator mit = mapSlotSkill.begin(); mit != mapSlotSkill.end(); ++mit )
+	{
+		if( 0 == mit->second )
+			continue;
+
+		sqlite3_stmt* pStmt = Prepare(
+			"INSERT OR REPLACE INTO unit_skill_page( unit_uid, page, slot, skill_id ) VALUES( ?1, ?2, ?3, ?4 );" );
+		if( NULL == pStmt )
+			return false;
+
+		sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+		sqlite3_bind_int(   pStmt, 2, iPage );
+		sqlite3_bind_int(   pStmt, 3, mit->first );
+		sqlite3_bind_int(   pStmt, 4, mit->second );
+
+		if( SQLITE_DONE != sqlite3_step( pStmt ) )
+		{
+			LogError( L"save skill page bar" );
+			bOK = false;
+		}
+		sqlite3_finalize( pStmt );
+	}
+
+	return bOK;
+}
+
+bool CX2OfflineDB::DeleteSkillPageBars( UidType nUnitUID )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "DELETE FROM unit_skill_page WHERE unit_uid = ?1;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 
 bool CX2OfflineDB::SaveSkillNotePage( UidType nUnitUID, int iMaxPage )
 {

@@ -8676,3 +8676,35 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7d - skill pages. June's page UI ( UpdateSkillPageUI 328e6970: no ED or decide button,
+//              the cash button beside the last radio ), the one page radio case 29049 ( 328ec068: the radio's dummy int is the page,
+//              busy / cool-down guards, then the decide REQ ), the decide REQ / ACK ( 3220f160 / 3220f2b0: the ACK carries
+//              KJuneSkillExtraData, whose two vectors are the page's A / B bars and whose map is its active memos ), the expand ACK
+//              ( 32214c60: only the page count, the ED and the notice ), and the emulator's page handlers with save schema v20 ( one
+//              bar per page; the cash item 127273 CI_EXPAND_SKILL_PAGE adds a page; a tree reset leaves the bar empty, as June's
+//              client shows ). Also defined in KncWX2Server/Common/ServerDefine.h ( ClientPacket.h precedes Always.h ): comment
+//              out both together. Log [JUNE_SKILL] PAGE. Revert: JUNE_SKILL_PAGE in MODS.md ( the exe and the save move together;
+//              v20 is forward-only ).
+#define SERV_IRUHADEV_JUNE_SKILL_PAGE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#error SERV_IRUHADEV_JUNE_SKILL_PAGE needs SERV_IRUHADEV_JUNE_SKILL_TREE_UI (June's tree class that hosts the page radios)
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#ifndef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#error SERV_IRUHADEV_JUNE_SKILL_PAGE needs SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET (the decide ACK reloads the page's active memos)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#error SERV_IRUHADEV_JUNE_SKILL_PAGE needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE (the emulator re-grants the shared skill list after a page switch)
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_PAGE needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 (KJuneSkillExtraData, June's slot-state map)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_JUNE_SKILL_PAGE needs SERV_IRUHADEV_OFFLINE (the emulator handlers, CX2OfflineLog)
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_PAGE
+//////////////////////////////////////////////////////////////////////////

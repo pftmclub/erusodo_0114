@@ -4701,3 +4701,13 @@
 //              reachable ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
 #define SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7d ( skill pages ), client flag ( offline only ). Also defined in
+//              KTDXLIB/Always.h; this second home exists because ClientPacket.h
+//              ( KEGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK ) is compiled before Always.h is reachable
+//              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
+#define SERV_IRUHADEV_JUNE_SKILL_PAGE
+//////////////////////////////////////////////////////////////////////////
