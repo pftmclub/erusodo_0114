@@ -13431,6 +13431,12 @@ void CX2Game::UpdateElswordSkillSlotEffect()
 					pStatic_ElSkillVigor = (CKTDGUIStatic*) m_pDLGSkillSlot->GetControl( L"Static_EL_SKILL_B_B" );
 					if( pStatic_ElSkillVigor == NULL )
 						break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+			for ( int i = 0; i < 10; i++ )
+			{
+				bool bSlotB = (i > 4) ? true : false;
+				int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 				}
 
 				pStatic_ElSkillVigor->GetPicture(iSlotIndex)->SetShow(false);
@@ -13439,6 +13445,7 @@ void CX2Game::UpdateElswordSkillSlotEffect()
 				//슬롯 B가 활성화 되지 않으면 슬롯 A만 확인하도록 break;
 				if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
 					&& bSlotB == true)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 				{
 					pStatic_ElSkillDest->SetShow(false);
 					pStatic_ElSkillVigor->SetShow(false);
@@ -13540,6 +13547,12 @@ void CX2Game::UpdateEveElectraSkillSlotIcon()
 			const CX2UserSkillTree::SkillSlotData* pSkillData = refUserSkillTree.GetSkillSlot(iSlotIndex, bSlotB );
 			if( pSkillData != NULL && pSkillData->m_eID != CX2SkillTree::SI_NONE )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for(int i=0; i<10; ++i)
+		{
+			bool bSlotB = (i > 4) ? true : false;
+			int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID );
 #else // UPGRADE_SKILL_SYSTEM_2013
@@ -13548,6 +13561,7 @@ void CX2Game::UpdateEveElectraSkillSlotIcon()
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID, iLevel );
 #endif // UPGRADE_SKILL_SYSTEM_2013
 				if(pSkillTemplet != NULL)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 				{
 					wstring wstrTextureName			= pSkillTemplet->m_wstrIconName;
 					wstring wstrTexturePieceName	= pSkillTemplet->m_wstrIconPieceName;
@@ -13624,6 +13638,12 @@ void CX2Game::UpdateNightWatcherSkillSlotIcon()
 			const CX2UserSkillTree::SkillSlotData* pSkillData = refUserSkillTree.GetSkillSlot(iSlotIndex, bSlotB );
 			if( pSkillData != NULL && pSkillData->m_eID != CX2SkillTree::SI_NONE )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for(int i=0; i<10; ++i)
+		{
+			bool bSlotB = (i > 4) ? true : false;
+			int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID );
 #else // UPGRADE_SKILL_SYSTEM_2013
@@ -13632,6 +13652,7 @@ void CX2Game::UpdateNightWatcherSkillSlotIcon()
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID, iLevel );
 #endif // UPGRADE_SKILL_SYSTEM_2013
 				if(pSkillTemplet != NULL)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 				{
 					wstring wstrTextureName			= pSkillTemplet->m_wstrIconName;
 					wstring wstrTexturePieceName	= pSkillTemplet->m_wstrIconPieceName;
@@ -13691,6 +13712,12 @@ void CX2Game::UpdateVeteranCommanderSkillSlotIcon()
 			const CX2UserSkillTree::SkillSlotData* pSkillData = refUserSkillTree.GetSkillSlot(iSlotIndex, bSlotB );
 			if( pSkillData != NULL && pSkillData->m_eID != CX2SkillTree::SI_NONE )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for(int i=0; i<10; ++i)
+		{
+			bool bSlotB = (i > 4) ? true : false;
+			int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID );
 #else // UPGRADE_SKILL_SYSTEM_2013
@@ -13699,6 +13726,7 @@ void CX2Game::UpdateVeteranCommanderSkillSlotIcon()
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID, iLevel );
 #endif // UPGRADE_SKILL_SYSTEM_2013
 				if(pSkillTemplet != NULL)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 				{
 					wstring wstrTextureName			= pSkillTemplet->m_wstrIconName;
 					wstring wstrTexturePieceName	= pSkillTemplet->m_wstrIconPieceName;
@@ -13754,6 +13782,12 @@ void CX2Game::UpdateCodeEmpressSkillSlotIcon()
 			const CX2UserSkillTree::SkillSlotData* pSkillData = refUserSkillTree.GetSkillSlot(iSlotIndex, bSlotB );
 			if( pSkillData != NULL && pSkillData->m_eID != CX2SkillTree::SI_NONE )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for(int i=0; i<10; ++i)
+		{
+			bool bSlotB = (i > 4) ? true : false;
+			int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID );
 #else // UPGRADE_SKILL_SYSTEM_2013
@@ -13762,6 +13796,7 @@ void CX2Game::UpdateCodeEmpressSkillSlotIcon()
 				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID, iLevel );
 #endif // UPGRADE_SKILL_SYSTEM_2013
 				if(pSkillTemplet != NULL)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 				{
 					wstring wstrTextureName			= pSkillTemplet->m_wstrIconName;
 					wstring wstrTexturePieceName	= pSkillTemplet->m_wstrIconPieceName;
@@ -13826,6 +13861,12 @@ void CX2Game::UpdateAddNasodRulerSkillSlotIcon()
 				continue;
 			
 			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillData->m_eID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for( int i = 0; i<10; ++i )
+		{
+			bool bSlotB = (i > 4) ? true : false;
+			int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 
 			if( pSkillTemplet == NULL)
 				continue;
@@ -13834,6 +13875,7 @@ void CX2Game::UpdateAddNasodRulerSkillSlotIcon()
 			const wchar_t* pwstrTexturePieceName	= pSkillTemplet->m_wstrIconPieceName.c_str();
 			
 			switch( pSkillData->m_eID )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			{
 			case CX2SkillTree::SI_SA_APT_STASIS_FIELD:
 				{
@@ -13925,11 +13967,15 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 			}
 
 	#ifdef SKILL_SLOT_UI_TYPE_B
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+			for ( int i = 0; i < 5; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			//스킬슬롯 UI 타입 체크
 			bool bIsSlotUITypeA = false;
 			bool bIsSkillSlotSwap = false;
 			if( NULL != g_pData && NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
 				
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			{
 				bIsSlotUITypeA = g_pData->GetUIManager()->GetUISkillTree()->GetIsSkillUiTypeA();
 				bIsSkillSlotSwap = g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap();
@@ -13959,6 +14005,12 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 
 						pStatic_Skill_Cool_Time_Fade = (CKTDGUIStatic*)m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time_Fade_B" );
 						if( NULL == pStatic_Skill_Cool_Time_Fade )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+				for ( int i = 0; i < 10; i++ )
+				{
+					bool bSlotB = (i > 4) ? true : false;
+					int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 							break;
 
 						pStaticCoolTime = (CKTDGUIStatic*)m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time_B" );
@@ -13967,6 +14019,7 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 					}
 					const CX2UserSkillTree::SkillSlotData* pSlotData = refUserSkillTree.GetSkillSlot(iSlotIndex, bSlotB);
 					if(pSlotData != NULL)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 					{	
 						if( NULL != pStaticSlot_A && NULL != pStaticSlot_B )
 						{
@@ -14341,7 +14394,11 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 									}
 									g_pKTDXApp->GetDeviceManager()->PlaySound( L"Skill_Refresh.ogg", false, false );
 									
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+												EffectPos.y+=47.f;	/// the type B swap moves the B bar by June's slot pitch ( 47, see CX2UISkillTreeNew::SwapSkillSlotTypeB )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 								}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 								pStatic_Skill_Cool_Time_Fade->GetPicture(iSlotIndex)->bShow = false;
 							}
 
@@ -14382,11 +14439,15 @@ void CX2Game::InitExpandSkillCoolTime()
 }
 void CX2Game::ResurrectionFrameMove( double fTime, float fElapsedTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for ( int i = 0; i < 5; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	CKTDGUIStatic* pStaticRestore_Continue_End = static_cast<CKTDGUIStatic*>( m_pDLGContinue->GetControl( L"Restore_Continue_End" ) );
 	if ( pStaticRestore_Continue_End != NULL )
 		pStaticRestore_Continue_End->SetShow( false );
 
 	// 자신이 죽었고 부활 카운트가 시작되지 않았으면
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	if ( m_bResurrectionCountStart == false && GetMyUnit() != NULL && GetMyUnit()->GetGameUnitState() == CX2GameUnit::GUSI_DIE
 		)
 	{

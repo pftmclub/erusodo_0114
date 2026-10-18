@@ -1876,6 +1876,16 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 		break;
 #endif //REFORM_UI_SKILLSLOT
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	case SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP:
+	case SMUCM_DISABLED_TRANSCENDENTAL_EXPAND_SKILL_SLOT_MOUSE_UP:
+		{
+			/// June opens the transcendence guide from here; March has no transcendence ( Stage 6 ), so a click on a locked TC slot only leaves a log line
+			CX2OfflineLog::Server( L"[JUNE_SKILL] UI click on a locked transcendence slot ( msg %d ): nothing to open before Stage 6", (int) wParam );
+			return true;
+		}
+		break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	case SMUCM_GUILD:
 		{	// ±æµå Ã¢
 			if(g_pData->GetUIManager() != NULL)

@@ -4,6 +4,10 @@
 
 #include ".\x2uiskilltreeNew.h"
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+
 const int	MAGIC_SKILL_DESC_WIDTH					= 370;		/// 스킬 툴팁 스트링 한줄당 최대 가로 길이
 const int	MAX_ONE_CLASS_SKILL_ROW_NUM				= 5;		/// 하나의 전직당 스킬 트리 최대 행 개수
 const int	SKILL_USE_IMAGE_WIDTH_SIZE				= 70;		/// 스킬 시전 샘플 이미지 가로 크기
@@ -1000,7 +1004,11 @@ m_pTalkBoxManager(NULL)
 	m_pTalkBoxManager->SetOverUI( true );
 	m_bUsingCSP = false;	// 사용하는 곳이 없는듯 한데.....
 #ifdef REFORM_UI_SKILLSLOT
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	m_pDLGGameSkillSlot	= new CKTDGUIDialog( pNowStage, L"DLG_GAME_SKILL_SLOT_NEW_10slot.lua" );
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	m_pDLGGameSkillSlot	= new CKTDGUIDialog( pNowStage, L"DLG_GAME_SKILL_SLOT_NEW.lua" );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGGameSkillSlot );
 	m_pDLGGameSkillSlot->SetShow(false);
 	UpdateSkillSlotString();
@@ -2362,6 +2370,14 @@ CX2EquippedSkillSlotData* CX2UISkillTreeNew::GetEquippedSlotData( int index, boo
 				if(pSlot != NULL)
 					pSlotData = (CX2EquippedSkillSlotData*) pSlot->GetSlotData();
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		case 4:
+			{
+				CKTDGUISlot* pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotA5" );
+				if(pSlot != NULL)
+					pSlotData = (CX2EquippedSkillSlotData*) pSlot->GetSlotData();
+			} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		default:
 			break;
 		}
@@ -2394,6 +2410,14 @@ CX2EquippedSkillSlotData* CX2UISkillTreeNew::GetEquippedSlotData( int index, boo
 				if(pSlot != NULL)
 					pSlotData = (CX2EquippedSkillSlotData*) pSlot->GetSlotData();
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		case 4:
+			{
+				CKTDGUISlot* pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotB5" );
+				if(pSlot != NULL)
+					pSlotData = (CX2EquippedSkillSlotData*) pSlot->GetSlotData();
+			} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		default:
 			break;
 		}
@@ -2476,11 +2500,19 @@ CKTDGUISlot* CX2UISkillTreeNew::GetEquippedSlot( int index , bool bSlotB /* = fa
 	CKTDGUISlot* pSlot = NULL ;
 
 	//인덱스값이 4이상으로 오면 무조건 B슬롯으로 판단
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	if( index >= 5 )	/// June 328da440: 0-4 A, 5-9 B
+	{
+		index -= 5;
+		bSlotB = true;
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	if( index >= 4 )
 	{
 		index -= 4;
 		bSlotB = true;
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		
 	if(false == bSlotB)	// 슬롯 A
 	{
@@ -2502,6 +2534,12 @@ CKTDGUISlot* CX2UISkillTreeNew::GetEquippedSlot( int index , bool bSlotB /* = fa
 			{
 				pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotA4" );
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		case 4:
+			{
+				pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotA5" );
+			} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		default:
 			break;
 		}
@@ -2526,6 +2564,12 @@ CKTDGUISlot* CX2UISkillTreeNew::GetEquippedSlot( int index , bool bSlotB /* = fa
 			{
 				pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotB4" );
 			} break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		case 4:
+			{
+				pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotB5" );
+			} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		default:
 			break;
 		}
@@ -2540,6 +2584,12 @@ void CX2UISkillTreeNew::InitEquippedSkillSlotData()
 	if(m_pDLGUISkillTree == NULL)
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	for(int i=0; i<10; ++i)
+	{
+		bool bSlotB = (i > 4) ? true : false;
+		int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 	for(int i=0; i<8; ++i)
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
@@ -2548,6 +2598,7 @@ void CX2UISkillTreeNew::InitEquippedSkillSlotData()
 	{
 		bool bSlotB = (i > 3) ? true : false;
 		int iSlotIndex = (i > 3) ? i-4 : i;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		CX2EquippedSkillSlotData* pData = GetEquippedSlotData(iSlotIndex, bSlotB);
 		SAFE_DELETE(pData);
 	}
@@ -2584,6 +2635,27 @@ void CX2UISkillTreeNew::InitEquippedSkillSlotData()
 	pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotB4" );
 	if(pSlot != NULL)
 		pSlot->SetSlotData(new CX2EquippedSkillSlotData(3, true));
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotA5" );
+	if(pSlot != NULL)
+		pSlot->SetSlotData(new CX2EquippedSkillSlotData(4, false));
+
+	pSlot = (CKTDGUISlot*) m_pDLGGameSkillSlot->GetControl( L"SlotB5" );
+	if(pSlot != NULL)
+		pSlot->SetSlotData(new CX2EquippedSkillSlotData(4, true));
+
+	{
+		/// a missing control would leave a slot without data: say so once per dialog build
+		static const WCHAR* s_awszSlot[10] = { L"SlotA1", L"SlotA2", L"SlotA3", L"SlotA4", L"SlotA5", L"SlotB1", L"SlotB2", L"SlotB3", L"SlotB4", L"SlotB5" };
+		int iFound = 0;
+		for( int i = 0; i < 10; ++i )
+		{
+			if( NULL != m_pDLGGameSkillSlot->GetControl( s_awszSlot[i] ) )
+				++iFound;
+		}
+		CX2OfflineLog::Server( L"[JUNE_SKILL] UI slot dialog DLG_GAME_SKILL_SLOT_NEW_10slot: %d of 10 slot controls found, slot data attached to each", iFound );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #else
 	CKTDGUISlot* pSlot = NULL;
 	pSlot = (CKTDGUISlot*) m_pDLGUISkillTree->GetControl( L"SlotA1" );
@@ -2620,10 +2692,194 @@ void CX2UISkillTreeNew::InitEquippedSkillSlotData()
 #endif //REFORM_UI_SKILLSLOT
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+//{{ Iruha : 2026-10-18 // June skill slot dialog ( DLG_GAME_SKILL_SLOT_NEW_10slot ), phase S6
+/// June 328dfab0: one lock overlay ( the buy-guide button and the lock picture ) shown or hidden
+static void JuneSetSlotLockControls( CKTDGUIDialogType pDLG_, const WCHAR* wszButton_, const WCHAR* wszLock_, const bool bLocked_ )
+{
+	CKTDGUIButton* pButton = (CKTDGUIButton*) pDLG_->GetControl( wszButton_ );
+	if( NULL != pButton )
+		pButton->SetShowEnable( bLocked_, bLocked_ );
+
+	CKTDGUIStatic* pStaticLock = (CKTDGUIStatic*) pDLG_->GetControl( wszLock_ );
+	if( NULL != pStaticLock )
+		pStaticLock->SetShow( bLocked_ );
+}
+
+/// June 328dfab0: the B bar key labels ( SkillHotKeyEx ) go to alpha 1 or to the locked 0.5 ( _DAT_3343777c )
+static void JuneSetSlotHotKeyAlpha( CKTDGUIDialogType pDLG_, const float fAlpha_ )
+{
+	CKTDGUIStatic* pStaticSkillHotKey = (CKTDGUIStatic*) pDLG_->GetControl( L"SkillHotKeyEx" );
+	if( NULL != pStaticSkillHotKey )
+		pStaticSkillHotKey->SetColor( D3DXCOLOR( 1.f, 1.f, 1.f, fAlpha_ ) );
+}
+
+/// June 328dfab0: a locked slot shows no cool time: clear the text and hide the fade picture of slots [ iFrom_, iTo_ )
+static void JuneClearSlotCoolTime( CKTDGUIDialogType pDLG_, const bool bSlotB_, const int iFrom_, const int iTo_ )
+{
+	CKTDGUIStatic* pStaticCoolTime = (CKTDGUIStatic*) pDLG_->GetControl( ( true == bSlotB_ ) ? L"Static_Skill_Cool_Time_B" : L"Static_Skill_Cool_Time" );
+	CKTDGUIStatic* pStaticFade = (CKTDGUIStatic*) pDLG_->GetControl( ( true == bSlotB_ ) ? L"Static_Skill_Cool_Time_Fade_B" : L"Static_Skill_Cool_Time_Fade" );
+	if( NULL == pStaticCoolTime || NULL == pStaticFade )
+		return;
+
+	for( int i = iFrom_; i < iTo_; ++i )
+	{
+		pStaticCoolTime->SetString( i, L"" );
+		if( NULL != pStaticFade->GetPicture( i ) )
+			pStaticFade->GetPicture( i )->bShow = false;
+	}
+}
+
+/// June 328dfab0 ( the lock half of UpdateSkillEquipedSlotUI ): A-TC, B-TC and B lock overlays; a skill sitting in a slot that is locked is unequipped
+void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
+{
+	if( NULL == m_pDLGGameSkillSlot || NULL == m_pUserSkillTree )
+		return;
+
+	/// A-TC ( slot 4 ) is locked while CX2Unit +0x3c ( transcendence ) is 0. March has no such unit state: Stage 6 adds it, so the slot stays locked
+	const bool bTranscendent = false;
+	if( false == bTranscendent )
+	{
+		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_A_TC", L"LOCK_SLOT_A_TC", true );
+		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
+		JuneClearSlotCoolTime( m_pDLGGameSkillSlot, false, 4, 5 );
+	}
+	else
+	{
+		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_A_TC", L"LOCK_SLOT_A_TC", false );
+		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
+	}
+
+	/// B-TC ( slot 9 ): slot-state key 1 ( 32890ea0( 1 ) ) in { 1, 2 } unlocks it
+	const bool bBTCLocked = ( false == m_pUserSkillTree->IsJuneSlotUsable( 1 ) );
+	if( false == bBTCLocked )
+	{
+		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_B_TC", L"LOCK_SLOT_B_TC", false );
+		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
+	}
+	else
+	{
+		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_B_TC", L"LOCK_SLOT_B_TC", true );
+		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
+		JuneClearSlotCoolTime( m_pDLGGameSkillSlot, true, 4, 5 );
+
+		CX2EquippedSkillSlotData* pSlotData = GetEquippedSlotData( 4, true );
+		if( NULL != pSlotData && CX2SkillTree::SI_NONE != pSlotData->m_eSkillID && -1 != static_cast<int>( pSlotData->m_eSkillID ) )
+			g_pData->GetSkillTree()->Handler_EGS_CHANGE_SKILL_SLOT_REQ( pSlotData->GetSlotID(), CX2SkillTree::SI_NONE );
+	}
+
+	/// B ( slots 5-8 ): slot-state key 0 ( 32890ea0( 0 ) ) in { 1, 2 }; the emulator sends key 0 = 2, so the offline game never locks it
+	const bool bBLocked = ( false == m_pUserSkillTree->IsJuneSlotUsable( 0 ) );
+	if( false == bBLocked )
+	{
+		m_bIsExpandSkillSlot = true;
+		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot", L"LOCK", false );
+		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 1.f );
+	}
+	else
+	{
+		m_bIsExpandSkillSlot = false;
+		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot", L"LOCK", true );
+		JuneSetSlotHotKeyAlpha( m_pDLGGameSkillSlot, 0.5f );
+		JuneClearSlotCoolTime( m_pDLGGameSkillSlot, true, 0, 4 );
+
+		for( int i = 0; i < 4; ++i )
+		{
+			CX2EquippedSkillSlotData* pSlotData = GetEquippedSlotData( i, true );
+			if( NULL != pSlotData && CX2SkillTree::SI_NONE != pSlotData->m_eSkillID && -1 != static_cast<int>( pSlotData->m_eSkillID ) )
+			{
+				g_pData->GetSkillTree()->Handler_EGS_CHANGE_SKILL_SLOT_REQ( pSlotData->GetSlotID(), CX2SkillTree::SI_NONE );
+				break;
+			}
+		}
+	}
+
+	/// June hides the class statics that belong to the game when the dialog is shown outside one ( Elsword way of sword in the existing March block, Rose glow here )
+	if( NULL == g_pX2Game )
+	{
+		CKTDGUIStatic* pStaticRoseGlow = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"Static_RoseGlow_B" );
+		if( NULL != pStaticRoseGlow )
+			pStaticRoseGlow->SetShow( false );
+		pStaticRoseGlow = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"Static_RoseGlow" );
+		if( NULL != pStaticRoseGlow )
+			pStaticRoseGlow->SetShow( false );
+	}
+
+	/// one line per change of the lock state, not per call
+	static int s_iLastLockState = -1;
+	const int iLockState = ( true == bBLocked ? 4 : 0 ) | ( true == bBTCLocked ? 2 : 0 ) | ( false == bTranscendent ? 1 : 0 );
+	if( s_iLastLockState != iLockState )
+	{
+		s_iLastLockState = iLockState;
+		CX2OfflineLog::Server( L"[JUNE_SKILL] UI slot locks: A-TC %s ( transcendence is Stage 6 ), B-TC %s ( key 1 state %d ), B %s ( key 0 state %d ), B expand flag %d",
+			( false == bTranscendent ) ? L"locked" : L"open", ( true == bBTCLocked ) ? L"locked" : L"open", m_pUserSkillTree->GetJuneSlotState( 1 ),
+			( true == bBLocked ) ? L"locked" : L"open", m_pUserSkillTree->GetJuneSlotState( 0 ), ( true == m_bIsExpandSkillSlot ) ? 1 : 0 );
+	}
+}
+
+/// June 328daed0 ( UI type B ) / 328db100 ( UI type A ): where the TC lock pictures and buy-guide buttons sit for the current swap state
+void CX2UISkillTreeNew::SetOffsetPosJuneTCSlotUI( const bool bTypeA_ )
+{
+	if( NULL == m_pDLGGameSkillSlot )
+		return;
+
+	D3DXVECTOR2 vOffsetA( 0.f, 0.f );
+	D3DXVECTOR2 vOffsetB( 0.f, 0.f );
+	if( true == bTypeA_ )
+	{
+		if( true == m_bSkillSlotSwap )
+		{
+			vOffsetA.y = -47.f;
+			vOffsetB.y = 47.f;
+		}
+	}
+	else
+	{
+		if( true == m_bSkillSlotSwap )
+		{
+			vOffsetA.y = -200.f;
+			vOffsetB.y = 48.f;
+		}
+		else
+		{
+			vOffsetB.y = -200.f;
+		}
+	}
+
+	CKTDGUIStatic* pStaticLockA = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"LOCK_SLOT_A_TC" );
+	if( NULL != pStaticLockA )
+		pStaticLockA->SetOffsetPos( vOffsetA );
+	CKTDGUIStatic* pStaticLockB = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"LOCK_SLOT_B_TC" );
+	if( NULL != pStaticLockB )
+		pStaticLockB->SetOffsetPos( vOffsetB );
+
+	CKTDGUIButton* pButtonBuyA = (CKTDGUIButton*) m_pDLGGameSkillSlot->GetControl( L"Button_Buy_Guide_Slot_A_TC" );
+	if( NULL != pButtonBuyA )
+	{
+		pButtonBuyA->SetOffsetPos( vOffsetA );
+		if( false == bTypeA_ )
+			pButtonBuyA->SetGuideDescOffsetPos( D3DXVECTOR2( 0.f, 100.f ) );
+	}
+	CKTDGUIButton* pButtonBuyB = (CKTDGUIButton*) m_pDLGGameSkillSlot->GetControl( L"Button_Buy_Guide_Slot_B_TC" );
+	if( NULL != pButtonBuyB )
+	{
+		pButtonBuyB->SetOffsetPos( vOffsetB );
+		if( false == bTypeA_ )
+			pButtonBuyB->SetGuideDescOffsetPos( D3DXVECTOR2( 0.f, 100.f ) );
+	}
+}
+//}}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 void CX2UISkillTreeNew::UpdateSkillEquipedSlotUI()
 {
 	if(m_pUserSkillTree != NULL)
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for(int i=0; i<10; ++i)
+		{
+			bool bSlotB = (i > 4) ? true : false;
+			int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for(int i=0; i<8; ++i)
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
@@ -2632,6 +2888,7 @@ void CX2UISkillTreeNew::UpdateSkillEquipedSlotUI()
 		{			
 			bool bSlotB = (i > 3) ? true : false;
 			int iSlotIndex = (i > 3) ? i-4 : i;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			CX2EquippedSkillSlotData* pSlotData = GetEquippedSlotData(iSlotIndex, bSlotB);
 			if(pSlotData != NULL)
 			{
@@ -2642,6 +2899,9 @@ void CX2UISkillTreeNew::UpdateSkillEquipedSlotUI()
 #ifdef REFORM_UI_SKILLSLOT
 		if(m_pDLGGameSkillSlot != NULL)
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+			UpdateJuneSkillSlotLockUI();
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			switch(m_pUserSkillTree->GetSkillSlotBExpirationState())
 			{
 			case CX2UserSkillTree::SSBES_NOT_EXPIRED: //슬롯 확장 상태
@@ -2679,6 +2939,7 @@ void CX2UISkillTreeNew::UpdateSkillEquipedSlotUI()
 				}
 				break;
 			}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #else
 		if(m_pDLGUISkillTree != NULL)
 		{
@@ -4652,17 +4913,27 @@ void CX2UISkillTreeNew::UpdateSkillCoolTime( float fElapsedTime )
 
 			CKTDGUIStatic* pStaticSlot_A = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"Static_SKILL_SLOT_A" );
 			CKTDGUIStatic* pStaticSlot_B = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"Static_SKILL_SLOT_B" );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+			for ( int i = 0; i < 5; i++ )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			for ( int i = 0; i < 4; i++ )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; i++ )
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			{
 				pStaticSlot_A->GetPicture(i)->SetColor( D3DXCOLOR(1.f,1.f,1.f,0.3f));
 				pStaticSlot_B->GetPicture(i)->SetColor( D3DXCOLOR(1.f,1.f,1.f,0.3f));
 			}
 			if ( pStaticCoolTime != NULL && pStatic_Skill_Cool_Time_Fade != NULL )
 			{  //B슬롯도 같이 하기 위해서 EQUIPPED_SKILL_SLOT_COUNT*2
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+				for ( int i = 0; i < 10; i++ )
+				{
+					bool bSlotB = (i > 4) ? true : false;
+					int iSlotIndex = (i > 4) ? i-5 : i;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				for ( int i = 0; i < 8; i++ )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
@@ -4671,6 +4942,7 @@ void CX2UISkillTreeNew::UpdateSkillCoolTime( float fElapsedTime )
 				{				
 					bool bSlotB = (i > 3) ? true : false;
 					int iSlotIndex = (i > 3) ? i-4 : i;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 
 					//슬롯 B가 활성화 되지 않으면 슬롯 A만 확인하도록 break;
 					if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
@@ -4758,6 +5030,11 @@ void CX2UISkillTreeNew::SwapSkillSlot(bool bVal, bool bForce/* = false*/)
 	if( true == m_bSkillSlotSwap ) 
 	{
 		D3DXVECTOR2 vOffsetPos(0,0);
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for( int i = 0 ; i < 10; ++i )
+		{
+			vOffsetPos.y = ( i >= 5 ) ? 47.f : -47.f;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < 8; ++i )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
@@ -4765,21 +5042,30 @@ void CX2UISkillTreeNew::SwapSkillSlot(bool bVal, bool bForce/* = false*/)
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			vOffsetPos.y = ( i >= 4 ) ? 51.f : -51.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			if( NULL != GetEquippedSlot(i) )
 			{
 				GetEquippedSlot(i)->SetOffsetPos( vOffsetPos );
 			}
 		}	
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		vOffsetPos.y = 47.f;	/// June 328db100: the slot pitch is 47 ( 51 - 4 )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		vOffsetPos.y = 51.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		SetOffsetPosSkillSLotStatic(vOffsetPos);
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for( int i = 0 ; i < 10; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < 8; ++i )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		{
 			if( NULL != GetEquippedSlot(i) )
 			{
@@ -4810,6 +5096,10 @@ void CX2UISkillTreeNew::SetOffsetPosSkillSLotStatic(const D3DXVECTOR2& vPos_, co
 	SetOffsetStatic( L"Static_EL_SKILL_B_B", vPos_ );
 	SetOffsetStatic( L"Static_EL_SKILL_R", -vPos_ -vAddPos_ );
 	SetOffsetStatic( L"Static_EL_SKILL_R_B", vPos_ );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	SetOffsetStatic( L"Static_RoseGlow", -vPos_ -vAddPos_ );	/// June 328dab10
+	SetOffsetStatic( L"Static_RoseGlow_B", vPos_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 }
 
 /** @function : SetOffsetStatic
@@ -4831,6 +5121,30 @@ void CX2UISkillTreeNew::UpdateSkillSlotString()
 	if ( NULL == m_pDLGGameSkillSlot || NULL == g_pMain || NULL == g_pMain->GetKeyPad() )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	/// June 328e1170: five key labels per bar ( SkillHotKeyEx = the B bar, SkillHotKey = the A bar ); the B labels are blank in UI type B
+	{
+		const GAME_ACTION aeActionEx[5] = { GAMEACTION_SKILL_EX1, GAMEACTION_SKILL_EX2, GAMEACTION_SKILL_EX3, GAMEACTION_SKILL_EX4, GAMEACTION_SKILL_EX5 };
+		const GAME_ACTION aeAction[5] = { GAMEACTION_SKILL1, GAMEACTION_SKILL2, GAMEACTION_SKILL3, GAMEACTION_SKILL4, GAMEACTION_SKILL5 };
+
+		CKTDGUIStatic* pStaticSkillHotKeyEx = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"SkillHotKeyEx" );
+		CKTDGUIStatic* pStaticSkillHotKeyA = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"SkillHotKey" );
+		for( int i = 0; i < 5; ++i )
+		{
+			if( NULL != pStaticSkillHotKeyEx && NULL != pStaticSkillHotKeyEx->GetString(i) )
+			{
+	#ifdef SKILL_SLOT_UI_TYPE_B
+				if( false == m_bIsSkillUITypeA )
+					pStaticSkillHotKeyEx->GetString(i)->msg = L"";
+				else
+	#endif //SKILL_SLOT_UI_TYPE_B
+					pStaticSkillHotKeyEx->GetString(i)->msg = g_pMain->GetKeyPad()->GetKeyString( aeActionEx[i] );
+			}
+			if( NULL != pStaticSkillHotKeyA && NULL != pStaticSkillHotKeyA->GetString(i) )
+				pStaticSkillHotKeyA->GetString(i)->msg = g_pMain->GetKeyPad()->GetKeyString( aeAction[i] );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	if ( NULL != g_pMain->GetKeyPad() )
 	{
 		CKTDGUIStatic* pStaticSkillHotKey = (CKTDGUIStatic*) m_pDLGGameSkillSlot->GetControl( L"SkillHotKeyEx" );
@@ -4873,6 +5187,7 @@ void CX2UISkillTreeNew::UpdateSkillSlotString()
 			pStaticSkillHotKey->GetString(3)->msg = g_pMain->GetKeyPad()->GetKeyString( GAMEACTION_SKILL4 );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 }
 
 #ifdef SKILL_SLOT_UI_TYPE_B
@@ -4887,7 +5202,11 @@ void CX2UISkillTreeNew::SetSkillUIType( bool bIsTypeA_ )
 	D3DXVECTOR2 vSlotPos(0,0);
 	if( false == m_bIsSkillUITypeA )
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		vSlotPos.x = -257.f;	/// June 328e1680 ( five slots a bar ); the y keeps March's wide-bar rule below
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		vSlotPos.x = -297.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef INT_WIDE_BAR
 		vSlotPos.y = -599.f;
 #else // INT_WIDE_BAR
@@ -4955,6 +5274,11 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeA(bool bVal, bool bForce/* = false*/)
 	if( true == m_bSkillSlotSwap ) 
 	{
 		D3DXVECTOR2 vOffsetPos(0,0);
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for( int i = 0 ; i < 10; ++i )
+		{
+			vOffsetPos.y = ( i >= 5 ) ? 47.f : -47.f;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < 8; ++i )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
@@ -4962,21 +5286,30 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeA(bool bVal, bool bForce/* = false*/)
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			vOffsetPos.y = ( i >= 4 ) ? 51.f : -51.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			if( NULL != GetEquippedSlot(i) )
 			{
 				GetEquippedSlot(i)->SetOffsetPos( vOffsetPos );
 			}
 		}	
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		vOffsetPos.y = 47.f;	/// June 328db100: the slot pitch is 47 ( 51 - 4 )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		vOffsetPos.y = 51.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		SetOffsetPosSkillSLotStatic(vOffsetPos);
 	}
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for( int i = 0 ; i < 10; ++i )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < 8; ++i )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < EQUIPPED_SKILL_SLOT_COUNT * 2; ++i )
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		{
 			if( NULL != GetEquippedSlot(i) )
 			{
@@ -4986,6 +5319,9 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeA(bool bVal, bool bForce/* = false*/)
 
 		SetOffsetPosSkillSLotStatic(D3DXVECTOR2(0,0));
 	}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	SetOffsetPosJuneTCSlotUI( true );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 }
 
 
@@ -5004,6 +5340,11 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 
 	if( true == m_bSkillSlotSwap ) //슬롯 교체 중(B슬롯이 하단에 내려온 상태)
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for( int i = 0 ; i < 10; ++i )
+		{
+			vOffsetPos.y = ( i >= 5 ) ? 47.f : -200.f;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < 8; ++i )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
@@ -5011,15 +5352,26 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		{
 			vOffsetPos.y = ( i >= 4 ) ? 51.f : -200.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 			if( NULL != GetEquippedSlot(i) )
 				GetEquippedSlot(i)->SetOffsetPos( vOffsetPos );
 		}	
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		vOffsetPos.y = 47.f;	/// June 328daed0: the slot pitch is 47 ( 51 - 4 )
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		vOffsetPos.y = 51.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		vOffsetAddPos.y = 200.f;
 
 	}
 	else //기본 상태( A슬롯이 하단에 내려온 상태)
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		for( int i = 0 ; i < 10; ++i )
+		{
+			if( NULL != GetEquippedSlot(i) )
+				vOffsetPos.y = ( i >= 5 ) ? -150.f : 0.f;
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		for( int i = 0 ; i < 8; ++i )
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
@@ -5028,6 +5380,7 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 		{
 			if( NULL != GetEquippedSlot(i) )
 				vOffsetPos.y = ( i >= 4 ) ? -150.f : 0.f;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 				GetEquippedSlot(i)->SetOffsetPos( vOffsetPos );
 		}
 
@@ -5035,6 +5388,9 @@ void CX2UISkillTreeNew::SwapSkillSlotTypeB(bool bVal_, bool bForce_/* = false */
 		vOffsetAddPos.y = 200.f;
 	}
 	SetOffsetPosSkillSLotStatic(vOffsetPos, vOffsetAddPos);
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	SetOffsetPosJuneTCSlotUI( false );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 }
 #endif //SKILL_SLOT_UI_TYPE_B
 

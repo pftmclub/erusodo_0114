@@ -8505,3 +8505,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Short-lived: [JUNE_SKILL] SLOT lines in ErrorLog.txt / offline_server.log. Remove after the review.
 #define SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S6: the 10-slot skill dialog. CX2UISkillTreeNew loads DLG_GAME_SKILL_SLOT_NEW_10slot ( five A + five B
+//              slot controls, the A-TC / B-TC lock pictures and buy-guide buttons, five key labels a bar ), widens every 4 + 4 slot loop of the
+//              dialog and the in-game cool-time / class-icon updates to 5 + 5 ( June ids A 0-4, B 5-9 ), ports June's lock rules ( 328dfab0 ),
+//              the type A / B swap offsets ( slot pitch 47 ) and the type B dialog position. Needs the data036 Enum.lua members, data034 / data056 /
+//              data057 koms ( the exe and the koms move together ). Revert: JUNE_SKILL_SLOT_UI in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_SLOT_UI needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+//////////////////////////////////////////////////////////////////////////

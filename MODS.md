@@ -4129,6 +4129,49 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_10` (+ short-lived `SERV_IRUHADEV_JUNE_SKILL
   Forward-only: an exe without the flag refuses the save ("save is schema v18"). Snapshot to `db_backup/` before the first launch.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_SLOT_10` (and `_DEBUG`) in `KTDXLIB/Always.h` **and** `KncWX2Server/Common/ServerDefine.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and put back the pre-S5 save snapshot (`db_backup/*pre_S5*`): the flagless exe refuses a v18 save.
 
+### June 10-slot skill dialog (skill-system-core S6, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI`, defined in `KTDXLIB/Always.h` after `SERV_IRUHADEV_JUNE_SKILL_SLOT_10` (an `#error` guards the dependency), plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S6". Log tag `[JUNE_SKILL] UI`
+- **Data (the exe and the koms move together).** data034 gets June's `DLG_GAME_SKILL_SLOT_NEW_10slot.lua` (`ljconv` bytecode, not on the core list). data036 `Enum.lua` (core list, BOM source, ledger `refresh`) gets
+  `SKILL_TREE_UI_CUSTOM_MSG.STUCM_MEMORIZE_SKILL_SLOT_MOUSEIN` = 29059, `STATE_MENU_UI_CUSTOM_MSG.SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP` / `_EXPAND_SKILL_SLOT_MOUSE_UP` = **208 / 209** (June's 182 / 183 are
+  March's `SMUCM_WARP_DEST_OK` / `SMUCM_USE_SPIRIT_REWARD_RAGE`; `X2StateMenu.h` carries the same numbers), `GAGE_UI_CUSTOM_MSG.STUCM_CHARACTER_SYSTEM_TOOLTIP_ON` / `_OFF` = 54002 / 54003 and the table
+  `UI_TOOLTIP_TYPE` (June's 3 members). data056 + data057: June's `DLG_UI_Button24_NEW`, `DLG_UI_Common_Texture106`, `DLG_UI_Common_Texture92_NEW` (new) and `DLG_UI_Common_Texture63_NEW` (replaced: June's tet is a
+  superset, no March key is lost). The other shared sheets the dialog uses (`Texture20`, `Texture64_NEW`, `Texture65_NEW`) already carry every key it names, so they wait for the asset port (June's `Texture64_NEW` drops `EXP`).
+- **`CX2UISkillTreeNew` (`X2UISkillTreeNew.cpp`).** The constructor loads the 10-slot dialog. `GetEquippedSlotData` / `GetEquippedSlot` / `InitEquippedSkillSlotData` know `SlotA5` / `SlotB5` (combined ids A 0-4, B 5-9,
+  June `328da440`). Every 8-wide loop (equip-slot data, `UpdateSkillCoolTime`, the swap offsets, 10 sites) is 10 wide with `i > 4` / `i - 5`. New `UpdateJuneSkillSlotLockUI` = the lock half of June `328dfab0`: A-TC and B-TC and B
+  overlays (button + lock picture), the B key labels' alpha 1 / 0.5, the cool-time text and fade of a locked slot cleared, a skill sitting in a locked slot unequipped, `m_bIsExpandSkillSlot` from slot-state key 0, the Rose glow
+  hidden outside a game. A-TC stays locked (`CX2Unit +0x3c` has no March counterpart: Stage 6), B-TC follows key 1 (the emulator sends 0), B follows key 0 (sends 2). `SetOffsetPosJuneTCSlotUI` = the TC placement in
+  `328daed0` / `328db100` (type A +-47, type B -200 / 48, guide-text offset 100). The slot pitch is 47 (51 - 4) in the swap offsets, the type B dialog x is -257 (June `328e1680`; March's wide-bar y is kept),
+  `UpdateSkillSlotString` writes five labels a bar (`GAMEACTION_SKILL5` / `_EX5`), `SetOffsetPosSkillSLotStatic` moves the Rose glow statics.
+- **`CX2Game` (`X2Game.cpp`).** The nine 4+4 loops S5 left (`UpdateSkillCoolTime`, `InitExpandSkillCoolTime`, the Elsword / Eve / Night Watcher / Veteran Commander / Code Empress / Add class slot-icon updates) are 5 + 5 / 10 wide.
+  The recharge particle of the type B B bar sits 47 (was 51) below its picture (inferred from the swap offset: June's game-side cool-time function is not mapped).
+- **`X2StateMenu`.** `SMUCM_DISABLED_TRANSCENDENTAL_*_MOUSE_UP` (a click on a locked TC slot) log one `[JUNE_SKILL] UI click on a locked transcendence slot` line and return: June opens the transcendence guide, March has none.
+- **Not ported (routed):** the key-config dialog's rows/icons for `GAMEACTION_SKILL5` / `_EX5` (`X2KeyPad` `UpdateUI`, `X2StateOption::MappingKeyConfigIndex`); the Install / G-Core slot statics (`328e0290`) and the
+  Eve / Luciel / Ain / Aisha-memorize statics (class material, hidden by the dialog); the tail of `SetSkillUIType` that moves one `CX2Game` dialog (`+0x8f70`) with the type; June's `SetOffsetPosSkillSLotStatic` TC-lock offsets behind
+  the unit-map entry 0xb flag (March has no such map: the TC placement is done by the swap functions instead).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI` in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy` (the exe then loads the 4+4 `DLG_GAME_SKILL_SLOT_NEW.lua` again, which still sits in data034). The data034 / data036 /
+  data056 / data057 additions can stay: nothing else reads them (data057's replaced `Texture63_NEW` has no March key removed; the pre-S6 files are under `kom_backup_stage_june\20261018_1218*`, `kom_backup_s6_slot_ui\Enum.lua.before_S6`).
+
+### June state buff factors and the state-string timer (skill-system-core S3e, 2026-10-18)
+
+Flags `SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF` (needs `_JUNE_BUFF_BEHAVIOR_PARITY`, `_JUNE_BUFF_GROUP`, `_JUNE_SKILL_TEMPLET`; `#error` guards) and `SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME`, both in `KTDXLIB/Always.h`;
+plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S3e"; log tags `[JUNE_SKILL] SBUF` / `SSTR` (with `SERV_IRUHADEV_JUNE_SKILL_DEBUG`, throttled per site).
+- **`_STATE_BUFF`.**
+  - `CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID` is June's `322a6960`. Its arguments are `( BFI, level, pCreatorUnit_ = NULL, iAdjustSkillID_ = 0, bSkipAdjust_ = true )`. The defaults are March's behaviour.
+  - A user without skip runs slot 476 (the memo rescale) with the adjust id or `+0x9274`, then slot 141. A creator unit stamps its UID.
+  - Five engine callers pass June's skip 0: `ApplyBuffFactor_LUA`, the servo-nitro custom function, the emblem EXP buff, and ExtraDamage 788 / 804.
+  - `CX2GUUser::ParsingBuffFactorID` / `CommonFrameMove_InsertBuffFactor` are June's whole. The list is an ordered vector, so duplicates are kept and there is no popup.
+    - On an upgraded skill the `_ULTIMATE` table is read. March's `_MEMO` table is gone from June.
+    - `+0x9274` is set, and the skill level comes from the upgrade swap.
+    - User vslot 0x830 (`JuneOnStateInsertBuffFactorApplied`, empty) runs after each frame apply.
+  - **`CommonStateEnd` now applies every reserved buff factor whose time was not reached** (June `@32015284`).
+  - `SetBuffAccumulationCount` falls back to `+0x9274`.
+  - What a player sees today: the reserved buffs fire at state end, and a memo rescale once S7 activates memos.
+- **`_STATE_STRING_TIME`.**
+  - `CX2Game::SetStateString( str, fShowTime_ = 0 )`. `OnFrameMove` counts a non-zero time down and clears the string.
+  - Every March call passes 0, so nothing changes until class code calls `CX2GUUser::JuneShowSkillNameStateString` (3 s, June `3200ab60`).
+- **Revert:** comment out the flag(s) in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Each `#else` keeps March's code. No data, save or kom changes.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

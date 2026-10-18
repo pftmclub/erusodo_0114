@@ -767,3 +767,29 @@ class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way.
   `iSkillSlotIndexPressed_ =` assignments, the three `GetSkillSlotData*` decoders (`> 3`, `-4`) and the state-array lookup. S5 first moved only the three encoder loops to June's numbering; the S5 review
   (2026-10-18) put them back to March's (`if( iSlot >= 8 ) break;`) and gave the two `GetSlotIndexAndSlotB` readers a March split, because that splitter is June's 5 + 5 now. An Eve port converts the
   encoders, every reader above and the pressed index together.
+
+### 7ah. The 10-slot dialog's class statics and the key-config rows (from June skill system S6)
+
+S6 loads June's `DLG_GAME_SKILL_SLOT_NEW_10slot` and ports its generic parts (slot controls, TC lock pictures, cool-time/fade, key labels, swap offsets). The dialog also carries June's **class statics, all hidden by the file**; nothing
+in March drives them, so a class port that needs one shows it and feeds it from its own unit code (June's driver is `CX2Game` `322cd5c0`-`322e07e0`, looping slots 0-9 with `3214f3d0`):
+- `Static_EL_SKILL_B(_B)` / `_R(_B)` (Elsword way of sword; March's `CX2Game::UpdateElswordSkillSlotEffect` already drives them, now over 10 slots), `Static_RoseGlow(_B)` (Rose), `Static_EveRecoveryGuide` / `_Cooltime` /
+  `Button_EveRecoveryToolTip`, `Static_LucielSwitchingGuide` / `g_pStatic_LucielCooltime`, `Static_AinDisparateForceGuide` / `g_pStatic_AinCooltime` / `Button_AinDisparateForce` (Ain), the memorize slots
+  `Static_Memorize_Skill_Slot_TypeA1-3` / `TypeB1-3`, `Memorize_Slot1-3_TypeA/B`, `UseMemorizedSkillHotKey_A/B` (Aisha; needs `STUCM_MEMORIZE_SKILL_SLOT_MOUSEIN` = 29059, already in Enum.lua), and `Static_Install_Skill` /
+  `Static_GCore_Skill` (10 pictures each; June toggles them per slot through `328e0290` for classes 9 and 0xb).
+- `Button_V_Key_ToolTip` (the character-system V key) needs `GAGE_UI_CUSTOM_MSG.STUCM_CHARACTER_SYSTEM_TOOLTIP_ON/OFF` handling (54002 / 54003 exist in Enum.lua only), which March has no feature for.
+- The TC buy-guide buttons send `SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP` / `_EXPAND_..._MOUSE_UP` (208 / 209 here, June 182 / 183); `CX2StateMenu` only logs the click until Stage 6 gives them a transcendence guide.
+- **Key config.** The option dialog's key rows and icons (`X2KeyPad::UpdateUI` icon switch, `X2StateOption::MappingKeyConfigIndex`, `DLG_UI_KEYSETTING` art keys `SKILL_A5` / `SKILL_B5`) have nothing for `GAMEACTION_SKILL5` / `_EX5`
+  (F / T): the keys work and the HUD labels show them, but they cannot be rebound in the options. Owner: skill-system-core S6b (`kickoffs/skill-system-core/S6b.md`), not a class port.
+
+### 7ai. Buff-factor calls by BFI, the reserved-buff hook and the 3 s skill-name string (from June skill system S3e)
+
+S3e gave `CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID` June's three extra arguments (`322a6960`, vslot 0x21c): `( BFI, level, pCreatorUnit_ = NULL, iAdjustSkillID_ = 0, bSkipAdjust_ = true )`. March's
+class calls still pass `( BFI, level )`, which keeps March's behaviour (no slot-476 memo rescale, no creator stamp). June's class code passes its own values, and most of it passes **skip 0**, so slot 476
+rescales the factor by the state's reserved-buff skill id (`+0x9274`) when that skill has an active memo. Some calls pass an explicit adjust skill id (e.g. Ara `32a4dcaa` 0x7ea0) or a creator unit (e.g. `3275a587`, `32b0fccc`).
+- A class port passes June's arguments at every call it ports. The map is `june2017_re/s3e_bybfi_callers.tsv`, part 2: each June call address, its function and its pushes in push order (`skip|adjust|level|creator|BFI`).
+- **User vslot 0x830** (`CX2GUUser::JuneOnStateInsertBuffFactorApplied( BFI, level )`, empty) runs after each reserved buff factor of a state is applied, in the frame apply and at state end. Only **Rose** overrides it
+  (`32ad9a40`: it looks the factor up and walks a list at `+0x9818`). The Rose port adds the override.
+- **`CX2GUUser::JuneShowSkillNameStateString( iSkillID )`** (June `3200ab60`, static) shows a skill's name as the state string for 3 s. Its callers are class code: `32b818b0` (skills 28201 / 28218, after `32b80c60`),
+  `32bc84b0`, `32d1ddf0`, `32ccfb92`-`32ccfc91`. The port of each calls it where June does.
+- **First live use of the reserved-buff path.** `BUFF_FACTOR_ID_AND_APPLY_TIME` appears only in Elesis's script among user classes (Endurance Power, its memo state, Flame Sword `{ BFI 299, 0.1 }`). S3 left those states keyed on March ids
+  (8217) while the save holds June's (28210), so the `[JUNE_SKILL] SBUF parse` / `frame` / `state end` lines first appear with the Elesis port. That port's play-test checks them.

@@ -215,6 +215,10 @@ public:
 	CKTDGUISlot* GetEquippedSlot( int index, bool bSlotB = false );
 #endif //REFORM_UI_SKILLSLOT
 	void UpdateSkillEquipedSlotUI();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+	void UpdateJuneSkillSlotLockUI();					/// June 328dfab0 ( the lock half of UpdateSkillEquipedSlotUI )
+	void SetOffsetPosJuneTCSlotUI( const bool bTypeA_ );	/// June 328daed0 / 328db100: TC lock pictures and buy-guide buttons
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	
 	void CreateSkillTree( CX2Unit::UNIT_CLASS eUnitClass );
 	void UpdateSkillTree();
