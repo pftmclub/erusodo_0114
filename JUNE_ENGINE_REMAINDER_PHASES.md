@@ -1054,6 +1054,10 @@ Range check after commit: `flagcheck --range f96952cd^..f96952cd`: UI_CONTROL_PA
 **How to see it in game:** nothing changes. Every March caller passes 0, and render pass 1 has no caller yet. The UI (buttons, tabs, radio
 buttons, slots, edit boxes, list and combo boxes, scroll bars, text) should look and behave as before.
 
+**Play-test 2026-10-18: PASSED** (log; exe md5 d4eef836 = this phase's deploy): ErrorLog 09:50-10:01 has the usual `[JUNE_ENGINE]` DG-chain and
+movie-subtitle lines and nothing new, 0 EXCEPTION, clean exit (census written). User owes nothing for R4e; next
+`/x2-phase june-engine R4e review` on Opus 5.5 / high.
+
 ## Phase R4f - Software cursor (CKTDXCursor)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CURSOR` (proposed).
