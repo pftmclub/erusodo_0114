@@ -1481,8 +1481,9 @@ void CX2UISkillTreeNew::OpenDLGSkillUnsealed( bool bOpen )
 /// target slot id with the B index 0-4 ( no +5 ).
 static bool JuneCanEquipSkillToSlot( const CX2UserSkillTree& refUserSkillTree_, const int iSlotID_, const CX2SkillTree::SKILL_ID eSkillID_ )
 {
+	/// June @32896cd1: no templet -> 32896f5f XOR AL,AL ( false; S7b review: S7b had true )
 	if ( NULL == g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ ) )
-		return true;
+		return false;
 
 	for ( int iBar = 0; iBar < 2; ++iBar )
 	{

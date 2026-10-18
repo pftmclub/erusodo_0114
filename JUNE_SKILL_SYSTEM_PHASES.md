@@ -1353,6 +1353,37 @@ taken off on field entry (the save was changed; she needs re-equipping). 0 EXCEP
   `DEPLOY OK: X2_offline.exe is 19,964,928 B, dated 2026-10-18 18:13:57, md5 8cc9c75eae4bc8f4465ca5d501f64526, equal to X2/US_SERVICE/x2.exe (2026-10-18 18:13:52); built at main 9be863cb + 2 uncommitted code file(s).`
 - **Play-test 3 PASSED** (user, 2026-10-18; 18:15 run on exe 8cc9c75e: the 2015 tree opened, 0 EXCEPTION, clean exit). S7b is done; its review is next.
 
+### Phase S7b -- Review (2026-10-18, Opus 5.5 high)
+
+**Verdict: PASS with one transcription fix.** Commits `0c02e7be` .. `70c9d2e2`, flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI`.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_TREE_UI --range 0c02e7be^..HEAD --with SERV_IRUHADEV_JUNE_SKILL_DEBUG`:
+  `files: 7 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 38 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  OTHER = `Always.h` +43 -1: the -1 is the retired `#define SERV_IRUHADEV_SKILLTREE_NO_LOCK`. The 38 deleted lines are S7b's own lines in `X2UISkillTreeNew2015.cpp`, which is new and
+  sits wholly inside the flag: 18 in the play-test fix `4cf5840d` (unsealed -> acquired, `@N`), 20 in `2347581f` (the portrait block rewritten around the group code).
+- **Ghidra spot-checks** (read-only). `328e2900` GetSkillSubDesc: the type switch (STR 0x9e7c-0x9e8c, passive set for 1-4 / 8-11, the default's `+0x120` byte), the base-templet MP gate,
+  the UT_ADD DP / Rose FP / other unit lines and the cool-time tail with the alternate templet: **match**. `328de040` CreateSkillTree: (tier, index) key, hyper-class `+0x174 == 5` needs
+  unit `+0x3c`, an upgrade (`+0x178`) replaces only when `328914b0( id, 0 )`, 8 inserts (indices 1, 2, 3, 6, 7, 9, 10, 0 of the 11-dword set), max row `+0x118`, `SetIndex( 0, 0, 1, 1 )`: **match**.
+  `32896c70` the equip check: both loops, SA 190 against the equipped skill's own id, the B loop's 0-4 index (JUNE_BUGS) and message 0x9b55 = 39765 match, but **a skill with no templet
+  returns false in June** (`32896cd1 JZ 32896f5f: XOR AL,AL`); the port returned true. **Fixed** under the same flag (one line, `/// June @32896cd1`).
+- **Re-check after the failed spot-check** (every ported function that returns a value or gates on one): `328e6550` right-click equip (gate, STR 35567, types 5-7 / 12-16, TC kind 3,
+  expanded B `iFree + 5`, closed B -> slot 9 when `32890140( 0x44 )` = B slot 4 `+0x3cc` is empty), `328d9ea0` drop, `328d9cf0` unequip, `322074e0` same-or-upgrade (miss = -1 as March's
+  `GetUpgradedSkillID`), `328ea4e0` MsgProc (the 9 messages, drag guide `+0x114`, layer 0x15), `328d9b60` wheel (`31d41d90` = the handle test, = `NULL == m_pDLGUISkillTree`): **match**.
+  Only difference left: `328d9ea0` dereferences its own slot data without a test on the type-1 path; the port's `NULL` guard returns false there (unreachable; kept).
+- **Carried code.** The S6 bar and S7's `JuneAutoEquipNewSkills`: 22 of 23 functions identical to `X2UISkillTreeNew.cpp`'s `JUNE_SKILL_SLOT_UI` branch (difflib, comments stripped);
+  `SetSkillUIType` keeps a dead `vSlotPos.y = -599.f;` (the old `INT_WIDE_BAR` branch, now unguarded) that the next line overwrites with -619: same result, left as is.
+- **Markers.** `/// S7c:` 6 (memo popups, the two memo text builders, the left / right memo buttons), `/// S7e:` 4 (video popup, ComboTree lists, command map, Skill_Description text),
+  `/// S7d:` 0 in the code (the page cases are `JuneSkillPageCustomEventProc`, named in S7d's kickoff), checklist 5 (`328e0aa0`, `328e0290`, Luciel group, `+0x170`, Aisha / Luciel slots),
+  stand-ins 2 (the memo-name / memo-effect builders return empty until S7c ports `32453420` / `324513e0`; S7c's kickoff owns them).
+- **`SKILLTREE_NO_LOCK` retired:** no define; its two use sites in `X2UISkillTreeNew.cpp` (`:416`, `:6840`) sit inside the tree flag's `#else` and fall to their own `#else` too.
+- **Data.** Game == packed: data034 cbbf994b, data036 f3ea3181, data056 41f03dee, data057 0ba792cb; manifests complete (963 / 243 / 84 / 923). The 4 data034 dialogs
+  (incl. `DLG_UI_Command_Desc_Video.lua`) and `SkillTypeColor.lua` are `1B 4B 4C 81` with adopt rows. `Enum.lua`: one hunk in `SKILL_TREE_UI_CUSTOM_MSG`, 58 members 29055-29114
+  (one comma added to the previous last member, nothing else changed). `LEDGER CHECK PASS`, `CORE CHECK PASS`. The staged textures are byte-identical to June's; `Texture64_NEW` is still March's.
+- **Fix hygiene.** `flagcheck --worktree --files X2Lib/X2UISkillTreeNew2015.cpp`: `1 PASS ... 0 FAIL` / `1 deleted line(s)` (S7b's `return true;`) / `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 19,964,928 B, dated 2026-10-18 18:23:13, md5 5744a8fd8d0322eb0df7fb8ea56880a2, equal to X2/US_SERVICE/x2.exe (2026-10-18 18:23:08); built at main 70c9d2e2 + 1 uncommitted code file(s).`
+  `X2UISkillTreeNew.obj` rebuilt 18:22:57 (after the edit). No play-test needed: the path is reached only by a skill id with no templet.
+- **User owes:** nothing. Next: `/x2-phase skill-system-core S7c` (S7c / S7d / S7e one at a time: they share the tree class).
+
 ## Phase S7c - Skill memos: popups, packets, emulator, save
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET`. Sub-tag `[JUNE_SKILL] MEMO`. Split out of S7b (user, 2026-10-18).
