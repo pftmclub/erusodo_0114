@@ -972,7 +972,11 @@ are in this exe too; two earlier runs stopped on the build lock and on a peer's 
 **How to see it in game**: everything looks as before (the gate). Server select -> character creation: the server-select UI stays drawn while
 the state changes. No `[JUNE_ENGINE] SPLIT` log line was added (the slots run every frame; a broken split shows as missing or doubled UI).
 
-**User owes:** the play-test in the hand-off. Next: `/x2-phase june-engine R4c review` on Opus 5.5 / high; R4c2 after the review.
+**Play-test PASSED 2026-10-18** (user: every gate screen as before; log: 0 EXCEPTION, UNHANDLED only `E_DISABLE_HB_CHECK_REQ`). The user saw
+the quest-end story scene stay invisible in the village (cursor = `XCS_EVENT_SCENE`): that is JUNE_BUGS 253 (R8's dialog bands skip layers
+501-505; kept as June 2026-10-17, owned by june-gfx), in `CX2StateField`, which R4c did not split.
+
+**User owes:** nothing. Next: `/x2-phase june-engine R4c review` on Opus 5.5 / high; R4c2 after the review.
 
 ## Phase R4c2 - Game and room state split
 
