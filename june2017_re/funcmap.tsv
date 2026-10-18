@@ -3379,7 +3379,8 @@ not located	CKTDGXSkinAnim::CopyModelFrameStructure (March KTDGXSkinAnim.h:638-6
 31c947d0	CKTDGUIControl::GetDummyInt( index )	confirmed	Skill S7e: +0x1b0 = m_DummyIntList, -1 out of range; 31f8b860 = its push_back (AddDummyInt)
 31c3db10	CKTDGFontManager::CUKFont::GetHeight( const WCHAR* )	confirmed	Skill S7e: counts LF lines
 31c3aa90	CKTDGFontManager::CUKFont::GetWidth( const WCHAR* )	confirmed	Skill S7e: -> 31d1e9d0( text, -1 )
-31c94970	CKTDGUIControl::CPictureData::SetSizeAsTextureSize	confirmed	Skill S7e
+31c94970	CKTDGUIControl::CPictureData: point from the texture when absent (June-only)	ported	Skill S7e play-test fix: no point and a texture -> new UIPointData, SetAutoPointByTextureSize 31c930f0, pos = its left-top, size = texture texSize, original pos / size; with a point: nothing. JuneSetPointByTextureSize. Callers 328dc680 x2 (S7b read it as SetSizeAsTextureSize), 32207630 x2, 328e42d0, 32713420, 324c99d0 x4, ...
+31c94870	CKTDGUIControl::CPictureData::SetSizeAsTextureSize	confirmed	Skill S7e: = March (point present: 31c930f0, size from the point); June keeps it beside 31c94970
 31c93530	CKTDGUIControl::CPictureData::SetPos( x, y )	confirmed	Skill S7e: +0xc / +0x10 and the point rectangle
 31c949f0	CKTDGUIControl::CPictureData::SetSize( x, y )	confirmed	Skill S7e: +0x14 / +0x18
 31cbe6a0	CKTDGUIStatic::SetString( index, const WCHAR* )	confirmed	Skill S7e: string list +0x258

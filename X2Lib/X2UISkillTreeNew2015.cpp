@@ -35,6 +35,26 @@ namespace
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+	/// June 31c94970 ( CPictureData; March has no such method ): a picture with a texture and no point gets one, sized to the texture
+	/// ( UIPointData::SetAutoPointByTextureSize, 31c930f0 ), and pos / size / original pos / original size follow it. With a point it does
+	/// nothing. June keeps March's SetSizeAsTextureSize as 31c94870; S7b and S7e first read 31c94970 as that, which leaves a new picture
+	/// with no point ( SetPos logs KEM_ERROR347 and nothing draws: play-test 2026-10-19, 385 lines )
+	void JuneSetPointByTextureSize( CKTDGUIControl::CPictureData* pPicture_ )
+	{
+		if ( NULL == pPicture_ || NULL != pPicture_->pPoint || NULL == pPicture_->pTexture )
+			return;
+
+		pPicture_->pPoint = new CKTDGUIControl::UIPointData();
+		pPicture_->pPoint->pUITextureData = pPicture_->pTexture;
+		pPicture_->pPoint->SetAutoPointByTextureSize();
+		pPicture_->pos			= pPicture_->pPoint->leftTopPoint;
+		pPicture_->originalPos	= pPicture_->pos;
+		pPicture_->size			= pPicture_->pTexture->texSize;
+		pPicture_->originalSize	= pPicture_->size;
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+
 	/// June 31c94ac0: resize a picture around its centre ( CPictureData has no such method in March )
 	void JuneSetPictureSizeAroundCenter( CKTDGUIControl::CPictureData* pPicture_, const float fWidth_, const float fHeight_ )
 	{
@@ -1238,12 +1258,20 @@ void CX2UISkillTreeNew::CreateSkillTreeLevelRows()
 		pStatic->AddString( pString );
 
 		pPictureBG->SetTex( L"DLG_UI_Common_Texture_NewSkill_02.TGA", L"BG_LV" );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+		JuneSetPointByTextureSize( pPictureBG );		/// 328dc680 calls 31c94970 ( S7e correction of S7b's reading )
+#else SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 		pPictureBG->SetSizeAsTextureSize();
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 		pPictureBG->SetPos( D3DXVECTOR2( -25.f, -11.f ) );
 		pStatic->AddPicture( pPictureBG );
 
 		pPictureLine->SetTex( L"DLG_UI_Common_Texture_NewSkill_02.TGA", L"LINE" );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+		JuneSetPointByTextureSize( pPictureLine );		/// 31c94970
+#else SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 		pPictureLine->SetSizeAsTextureSize();
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 		pPictureLine->SetPos( D3DXVECTOR2( -27.f, -14.f ) );
 		pStatic->AddPicture( pPictureLine );
 
@@ -1475,7 +1503,7 @@ void CX2UISkillTreeNew::JuneCreateMajorSkillPanel( CX2Unit::UNIT_CLASS eUnitClas
 
 		/// @328e49ec: ( i * 70 + 111, 165 ); the button's rectangle starts 3 px right of it at y 168
 		const float fX = static_cast<float>( i ) * 70.f + 111.f;
-		pPicture->SetSizeAsTextureSize();					/// 31c94970
+		JuneSetPointByTextureSize( pPicture );				/// 31c94970
 		pPicture->SetPos( D3DXVECTOR2( fX, 165.f ) );		/// 31c93530
 		pButton->SetNormalPoint( JuneNewPointAt( fX + 3.f, 168.f ) );
 		pButton->SetOverPoint( JuneNewPointAt( fX + 3.f, 168.f ) );
@@ -5445,7 +5473,7 @@ void CX2SkillTree::JuneAddCommandIconPicture( int iIcon_, float fX_, float fY_, 
 
 	CKTDGUIControl::CPictureData* pIcon = new CKTDGUIControl::CPictureData();
 	pIcon->SetTex( wstrTexture.c_str(), wstrKey.c_str() );
-	pIcon->SetSizeAsTextureSize();
+	JuneSetPointByTextureSize( pIcon );				/// 31c94970
 	pIcon->SetPos( D3DXVECTOR2( fX_, fOffsetY + fY_ ) );
 	pStatic_->AddPicture( pIcon );
 
@@ -5457,7 +5485,7 @@ void CX2SkillTree::JuneAddCommandIconPicture( int iIcon_, float fX_, float fY_, 
 	pIcon->SetPos( D3DXVECTOR2( pIcon->GetPos().x + 2.f, pIcon->GetPos().y ) );
 	CKTDGUIControl::CPictureData* pOutLine = new CKTDGUIControl::CPictureData();
 	pOutLine->SetTex( wstrTexture.c_str(), wstrKey.c_str() );
-	pOutLine->SetSizeAsTextureSize();
+	JuneSetPointByTextureSize( pOutLine );			/// 31c94970
 	pOutLine->SetPos( D3DXVECTOR2( fX_, ( fY_ - 2.f ) + fOffsetY ) );
 	pStatic_->AddPicture( pOutLine );
 }
