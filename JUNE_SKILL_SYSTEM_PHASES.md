@@ -1576,6 +1576,32 @@ Funcmap rows `Skill S7e` (35). JUNE_BUGS 315-319. Checklist 7aj (Luciel's comman
   the major-command rows, the combo lists with arrow / Z / X icons. Log lines `CommandIconData.lua loaded 89 icon row(s)`, `SkillCommandDescriptionData.lua class N ( NAME ): ...`,
   `major skills class N`, `command tab class N`.
 
+### Phase S7e -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe stays 73fc5e7c).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS --range acfad5ef^..HEAD`: `files: 6 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 10 OTHER (other flags), 2 FAIL, 0 ERROR` /
+  `in this flag's files: 3 deleted line(s), 0 non-ASCII inserted line(s), 8 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: FAIL`.
+  The 10 OTHER rows and both FAILs belong to june-gfx G2's `5d61dd0`, which lies inside the range. Its new files `KTDGFXSound.cpp` / `KTDGGFXManager.cpp` start with `#include "StdAfx.h"` before their flag; judging that is the G2 review's job, not this flag's. Per S7e commit:
+  `acfad5ef^..acfad5ef`: `files: 6 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 8 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`;
+  `5e1bcfec^..5e1bcfec`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `3 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), ...` / `RESULT: PASS`.
+  The 3 deleted lines are S7e's own `SetSizeAsTextureSize()` calls inside this flag's blocks (`328e42d0`, `32207630` x2), each replaced by `JuneSetPointByTextureSize`; S7b's two level-row calls stay in the `#else`. The 8 EOL rows are in `X2UIComboTree.cpp`, a mixed-EOL file where the new lines follow the anchor's LF.
+- **Ghidra spot-checks** (read-only; float / double / string constants read from `unpacked_x2.exe`):
+  - `328e42d0` major-skill panel: dialog-handle guard `31d41d90`. The transcendence copy `32714e10` runs only when 0x910 (the +0xa18 map) and 0x911 (`31e5a860`) are both off, unit +0x3c is set and TRANSCENDENTAL (+0x40 / +0x44) is non-empty. SKILL_DATA is 8-byte pairs at +0x54 (skill id, string id) through `32206450( id, 1 )`, with the guide text `31d43ef0( 0x172, 1 )` into +0x1d0.
+    Positions are x = i * 70.0 + 111.0, y 165.0, button +3.0 / 168.0, and the texture is `DLG_UI_Common_Texture_NewSkill_02.TGA`. **Match.**
+  - `328df060` fit: the literals are `\r\n`, ` \n`, `#C` and `\r\n\r\n`. Also checked: both line counts, the `#C......#CX` test (+8 / +9 / +10, -1 == `\n`), the 6+ Replace and its one-line decrement, the 5+ move kept in dummy pos 0 ((+0x194 - +0x190) / 12 == 0), and the final SetString when the text is non-empty. **Match.**
+    **JUNE_BUGS 317 is right.** June's `+1` step sits inside the `pos + 0xb < length` test, so a "#C" in the last 11 characters finds itself again forever. The port keeps that.
+  - `32207630` / `3220f8d0` icons: the icon sits at ( x, y + node +0x8c ). With an outline, the icon moves +2.0 (`33437820`) and the outline goes at ( x, y - 2.0 + offset ). The binder's seven keys are the `xorstrings.tsv` rows of `3220f8d0`. The defaults are `..._NewSkill_02.TGA` (0x25 chars), "", (1, 1, 1) and 0.
+    `m_ToolTipString` [1] = string (-1), [2] = unit type (0), pushed as ( type, string ). The map insert keeps the first row. **Match.**
+- **Claims checked:**
+  - `31eeaf20`: Ghidra has no xref to it, and a scan of the whole exe finds no E8 call to it and no pointer bytes for it. March's `ResetComboTree` therefore belongs in the `#else`, and March's one reader (`X2UIComboTree.cpp:352`) is NULL-guarded.
+  - JUNE_BUGS 316: in 328d0000-32900000 the only non-stack `+0x90` LEAs are the ctor `328e76a0`, the dtor `328e2090`, the clear `328eaa50` and the readers `328da200` / `328da290`. No writer.
+  - `32375530`: all 86 cases equal `JuneGetUnitClassName` (scripted diff, default "").
+  - `Enum.lua`'s COMBO_TREE_ICON equals June's: 151 members each, no name or value difference.
+- **Finding (doc + June data, no code):** the Done note's "89 rows" is the file's row count; the log reads `CommandIconData.lua loaded 88 icon row(s)`, which is June's own result. June's Enum gives
+  `CTI_ICON_LUCIEL_SWITCHING_DOWN_Z` and `_X` the same value, 132, so the `_Z` row (CommandIconData line 772) loses to the `_X` row (line 761) at the map insert. JUNE_BUGS 326; kept verbatim (Luciel is not in March).
+- **`SERV_IRUHADEV_JUNE_SKILL_DEBUG`: kept.** The last run (06:32) has no `[JUNE_SKILL] MEMO` line in `offline_server.log` or `ErrorLog.txt`. The retire note moves to `kickoffs/skill-system-core/S8-review.md` (Z retires the flag at the latest).
+- **User owes:** nothing. Next: `/x2-phase skill-system-core S7f` (or S7g / S8).
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.

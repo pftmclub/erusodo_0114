@@ -28,3 +28,7 @@ Spot-check 2-3 items directly in Ghidra (read-only); if one fails, re-check the 
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand
 design decisions back to the user. Write "Phase S8 -- Review" into the plan doc, update the
 phase's STATUS.md row, write or check the next phase's kickoff file, and commit.
+
+**`SERV_IRUHADEV_JUNE_SKILL_DEBUG` (carried from the S7e review, 2026-10-19):** retire it only once a play-test has shown the S3d
+`[JUNE_SKILL] MEMO effectset` / `damageeffect` / `attack box` lines (a class whose memo skill plays). Then remove its define and every
+`#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) ...` block (`git grep`). If they still have not run, say so and leave it to Phase Z.
