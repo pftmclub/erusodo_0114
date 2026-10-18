@@ -1351,6 +1351,7 @@ taken off on field entry (the save was changed; she needs re-equipping). 0 EXCEP
   clear in InitSkillTreeUI (`@328ed964`); the portrait's missing-control return no longer skips the panels (`@328e8f64`). S7e kickoff updated
   (also: `Command_Description` overlaps `Skill_Description`, June never hides it). flagcheck (2 files) RESULT: PASS (20 deleted = S7b's own lines).
   `DEPLOY OK: X2_offline.exe is 19,964,928 B, dated 2026-10-18 18:13:57, md5 8cc9c75eae4bc8f4465ca5d501f64526, equal to X2/US_SERVICE/x2.exe (2026-10-18 18:13:52); built at main 9be863cb + 2 uncommitted code file(s).`
+- **Play-test 3 PASSED** (user, 2026-10-18; 18:15 run on exe 8cc9c75e: the 2015 tree opened, 0 EXCEPTION, clean exit). S7b is done; its review is next.
 
 ## Phase S7c - Skill memos: popups, packets, emulator, save
 
