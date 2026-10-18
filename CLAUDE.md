@@ -209,6 +209,20 @@ or compile by hand.
    tier, source sha1, phase, date, reason, state); `luasrc.py ledger --check` must stay PASS, and `luasrc.py refresh` re-records a file
    after a deliberate text edit.
 
+## Rule: a March asset with the same name as a June asset is replaced by June's (user, 2026-10-19)
+
+When June has a file with the same name as a March file (texture, `.tet`, mesh, sound, dialog or data `.lua`, anything in a kom or loose in
+`data\`), **replace March's file with June's**, byte-exact, through the tools (`kom.py stage-june`, `luasrc.py adopt-june`). Do not keep
+March's copy, do not merge the two, and do not ask first.
+
+- **No merge, no hand edit.** June's file goes in as June shipped it (memory `june-assets-byte-exact-no-edits`). If a March reader then
+  breaks (a key March reads is missing or moved, a format March cannot parse), the fix is code: port June's reader, or route the
+  follow-up to its owner (a plan phase, the character checklist). S7e is the pattern: June's `ComboTree.lua` replaced March's, and
+  March's own reader, which June never calls, moved to the `#else`.
+- **The one exception is the core-list `.lua`** (the rule above): files on `tools/data/lua_core_list.tsv` stay merged BOM source because
+  March's C++ still needs March's values; a phase adds June's missing members to them (as S7e did for `COMBO_TREE_ICON`).
+- Record each replace where the phase records its data (Done note, `MODS.md` revert line). The tools back up the replaced file.
+
 ## Rule: `DataBase/` and `ScriptData/` are a stale snapshot — the live DB is the source of record
 
 The user has access to the **original SQL Server databases** (`Account`,
