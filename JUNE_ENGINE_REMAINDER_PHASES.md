@@ -1460,6 +1460,40 @@ Elesis unit loads (`Anim Frame : 79, Mesh Frame : 80` for March's `MESH_EL_*_SOR
 unnamed frame March's file and parts carry; every named bone matches, so it is a warning only. It goes with June's Elesis meshes in
 the Elesis port (checklist 7ad).
 
+### Phase R12b -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no code change.** The only edit is `_SKIN_ANIM_REFS_DEBUG` off again (`Always.h:7853`).
+Ghidra and the June exe were read only.
+
+- **Main motion:** `31fe5860 @31fe5a48-31fe5b4c` opens unit `+0x867c` -> `+0xaf0` (templet) `+0x178` twice (SSO test `+0x18c >= 8`),
+  stored to `+0x87c8` / `+0x87cc`. `+0x178` = `m_GameMotion0`: the parser `3237aa40` decodes key `337a20ac` = `m_GameMotion0`
+  (xorstrings.tsv:3514) and stores it at `ESI + 0x17c` (`@3237c865`, templet = ESI + 4); `@31fe5d1f` compares `+0x178` with `L""`. The port matches.
+- **Mix order:** `@31fe5c78` pushes the local at `ESP+0x38` (the `MOTION_FILE_NAME` string) first. Then grade 2 pushes `+0x1b0` (GameMotion2)
+  and falls into `+0x194` (GameMotion1), grade 1 pushes `+0x194`, and both push `+0x15c` (Emotion). After that comes `31ee9150( templet[0], 1, vec )`
+  (`@31fe5cfa`), then the `+0x178 == L""` clear. June inlines the grade (class 10-199: 1 + (class >= 100), else 0). That equals March's
+  `GetX2UnitClassGrade` (`X2Unit.h:2084`) for every March class, since all are below 200. The `#else` paths are March's lines, untouched.
+- **`31ee9150`:** the jump table at `31ee9470`, read from `unpacked_x2.exe`, maps 1 Elsword, 2 Arme, 3 Lire, then 4-9 Raven / EVE / CHUNG / Ara / EL / Add,
+  10 Lu (bool == 1) or Ciel, 11 Rose, 12 Ain. Strings `3345c238`..`3345bf7c` match the port character for character, including the
+  `.x` / `.X` case. Any other type does nothing.
+- **No second copy:** under MOTION_COLLISION every add into the unit anim (`X2Eqip.cpp:2074 / 2092 / 2099 / 2171 / 2201`) and every AfterImage
+  add (`KTDGXSkinAfterImage.cpp:77`, `:208`, `:215`) passes `false, false`. `X2Eqip.cpp:2600 / 2689` add with collision into the item's
+  *own* attach anims, which are separate objects (R14b scope), not the unit's.
+- **Play-test log:** checked from the R12b Done note above. That run's log has since been overwritten by a later launch, whose log has no unit
+  load yet. The lines were `collision 3 attack 2` for Add / Elsword / Lire / Chung / Elesis, Raven not played, `unbalanced 0`, 0 EXCEPTION.
+  A Raven run (expected 3 / 4) stays optional.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_RENDER_MOTION_ORDER --range 74dd25e6^..74dd25e6 --with ..._CASH_EMOTION ..._MOTION_COLLISION ..._SKIN_ANIM_REFS_DEBUG`:
+`files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 1 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: FAIL`. The FAIL is `Always.h` (+34, insert-only). The three `//` "ON again" comment lines are inserted under the commented
+MOTION_COLLISION define, inside its block, so flag-off differs only on comment lines (the multi-flag define shape). `X2GUUser.cpp` is PASS (+47).
+The review edit, `flagcheck SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS_DEBUG --worktree --files KTDXLIB/Always.h`, gives `1 DEFINE`, `1 deleted line(s)`
+(the `#define` turned into a comment), and `RESULT: FAIL` "not #defined anywhere". Both are intended, since the debug flag is off.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,944,960 B, dated 2026-10-18 08:09:08, md5 00703adcea5d79dfdd6c61b040922363, equal to X2/US_SERVICE/x2.exe (2026-10-18 08:09:03); built at main 7a43b7a3 + 6 uncommitted code file(s)` (peers' files plus Always.h).
+
+No open questions.
+
 ## Phase R14 - Equipment skin and enchant rework
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_SKIN` (an RE pass
