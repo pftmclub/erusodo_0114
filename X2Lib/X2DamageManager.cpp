@@ -59,6 +59,113 @@ static void JuneDamageDataUnsupportedInt( const WCHAR* pwszTemplet_, const char*
 	JuneDamageDataUnsupported( pwszTemplet_, pTableName_, pwszKey_, pwszSystem_, wszValue );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+// Phase S4 (JUNE_SKILL_SYSTEM_PHASES.md): June's numerical skill data override, FUN_32632390 @3263fe41-32640054, called from the end of
+// SetDamageDataFromLUA ( before EndTable ). Any failed gate skips the whole block; once it runs, every write below is unconditional, so a
+// zero row ( index past the data, name not found ) zeroes all five values.
+static void JuneApplyNumericalSkillData( CX2DamageManager::DamageData* pDamageData_, const WCHAR* pwszTemplet_, const char* pTableName_ )
+{
+	/// @3263fe41-3263fe50: NUMERICAL_DATA_INDEX > 0, or NUMERICAL_DATA_NAME not empty
+	if( 0 >= pDamageData_->m_iNumericalDataIndex && true == pDamageData_->m_wstrNumericalDataName.empty() )
+		return;
+
+	/// @3263fe56-3263fe66: APPLIED_SKILL_ID ( +0x5c4 ) or DAMAGE_SKILL_ID ( +0x5cc ); USED_SKILL_ID is not a trigger
+	if( 0 == pDamageData_->m_iAppliedSkillID && 0 == pDamageData_->m_iDamageSkillID )
+		return;
+
+	/// @3263fe6c-3263fe7d: g_pData and its skill tree ( +0x50 )
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return;
+
+	/// @3263fe83-3263fe99: the attacker's observer pointer must be valid
+	if( null == pDamageData_->optrAttackerGameUnit )
+		return;
+	CX2GameUnit* pAttacker = pDamageData_->optrAttackerGameUnit.GetObservable();
+	if( NULL == pAttacker )
+		return;
+
+	/// @3263fea6-3263fedc: unit type 0 ( user ) is the attacker itself, 1 ( NPC ) its owner ( GetOwnerGameUnit 32759f00 ); any other type, or no owner, skips
+	CX2GUUser* pUser = NULL;
+	if( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
+		pUser = static_cast<CX2GUUser*>( pAttacker );
+	else if( CX2GameUnit::GUT_NPC == pAttacker->GetGameUnitType() )
+		pUser = static_cast<CX2GUNPC*>( pAttacker )->GetOwnerGameUnit();
+	else
+		return;
+	if( NULL == pUser )
+		return;
+
+	/// @3263fee4-3263ff26: APPLIED_SKILL_ID first, else DAMAGE_SKILL_ID. Level = 32890620( id, 0, 0, upgrade swap ) on the owner's CX2Unit ( +0x867c ) skill tree,
+	/// with no CX2Unit null test ( JUNE_BUGS ); the templet = 31fca8e0( id, upgrade swap ). Both must be there: level > 0 and a templet.
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>(
+		0 != pDamageData_->m_iAppliedSkillID ? pDamageData_->m_iAppliedSkillID : pDamageData_->m_iDamageSkillID );
+	const int iLevel = pUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, false, 0, true );
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( eSkillID, true );
+
+#if defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	WCHAR wszTemplet[256] = L"";
+	if( NULL != pwszTemplet_ )
+		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"%s", pwszTemplet_ );
+	else
+		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"(no templet) %S", ( NULL != pTableName_ ? pTableName_ : "(null)" ) );
+#endif // SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE
+
+	if( iLevel <= 0 || NULL == pSkillTemplet )
+	{
+#if defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static std::set<int> s_setSkipLogged;
+		if( s_setSkipLogged.size() < 40 && true == s_setSkipLogged.insert( static_cast<int>( eSkillID ) ).second )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] NUM skip skill=%d level=%d templet=%s in %s: override not applied",
+				static_cast<int>( eSkillID ), iLevel, ( NULL != pSkillTemplet ? L"found" : L"none" ), wszTemplet );
+#endif // SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE
+		return;
+	}
+
+	/// @3263ff2c-3263ff5e: INDEX > 0 ? 320717e0( INDEX, level ) : 32078060( NAME, level )
+	CX2SkillTree::SkillTemplet::JuneNumericalRow row;
+	if( 0 < pDamageData_->m_iNumericalDataIndex )
+		pSkillTemplet->JuneGetNumericalRowByIndex( pDamageData_->m_iNumericalDataIndex, iLevel, row );
+	else
+		pSkillTemplet->JuneGetNumericalRowByName( pDamageData_->m_wstrNumericalDataName.c_str(), iLevel, row );
+
+	/// @3263ff5e-3263ffb0: PHYSIC ( +0x38 ) unless DT_MAGIC, MAGIC ( +0x3c ) unless DT_PHYSIC, value * 0.01f ( 0x334436a0 is the double of 0.01f )
+	if( CX2DamageManager::DT_MAGIC != pDamageData_->damageType )
+		pDamageData_->damage.fPhysic = row.m_fValue * 0.01f;
+	if( CX2DamageManager::DT_PHYSIC != pDamageData_->damageType )
+		pDamageData_->damage.fMagic = row.m_fValue * 0.01f;
+
+	/// @3263ffb0-3263ffc9: PVP_RATE ( +0x538 ), TECH_POINT ( +0x34, _ftol2: truncates )
+#ifdef SKILL_BALANCE_20110728
+	pDamageData_->m_fPvpRate = row.m_fPvpRate;
+#endif SKILL_BALANCE_20110728
+	pDamageData_->techPoint = static_cast<int>( row.m_fTechPoint );
+
+	/// @3263ffcc-32640035: HIT_ADD_MP ( protected +0x3f8 ), written only when it differs
+	if( pDamageData_->fHitAddMP != row.m_fHitAddMP )
+		pDamageData_->fHitAddMP = row.m_fHitAddMP;
+
+#if defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	/// one line per distinct ( templet, skill, level, row source ), the first 80
+	static std::set<std::wstring> s_setUseLogged;
+	WCHAR wszUseKey[400] = L"";
+	StringCchPrintfW( wszUseKey, ARRAY_SIZE(wszUseKey), L"%s|%d|%d|%d|%s", wszTemplet, static_cast<int>( eSkillID ), iLevel,
+		pDamageData_->m_iNumericalDataIndex, pDamageData_->m_wstrNumericalDataName.c_str() );
+	if( s_setUseLogged.size() < 80 && true == s_setUseLogged.insert( wszUseKey ).second )
+		CX2OfflineLog::Server( L"[JUNE_SKILL] NUM use %s skill=%d level=%d by=%s%d%s%s row v=%.2f pvp=%.3f tech=%.1f mp=%.3f -> physic=%.4f magic=%.4f type=%d ( before the power rate )",
+			wszTemplet, static_cast<int>( eSkillID ), iLevel,
+			( 0 < pDamageData_->m_iNumericalDataIndex ? L"index " : L"name " ), pDamageData_->m_iNumericalDataIndex,
+			( true == pDamageData_->m_wstrNumericalDataName.empty() ? L"" : L" " ), pDamageData_->m_wstrNumericalDataName.c_str(),
+			row.m_fValue, row.m_fPvpRate, row.m_fTechPoint, row.m_fHitAddMP,
+			pDamageData_->damage.fPhysic, pDamageData_->damage.fMagic, static_cast<int>( pDamageData_->damageType ) );
+#endif // SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE
+
+#if !( defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE ) )
+	UNREFERENCED_PARAMETER( pwszTemplet_ );
+	UNREFERENCED_PARAMETER( pTableName_ );
+#endif // !( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE )
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+
 #if defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 // Effect completion C5 diagnostic: once per templet, how many ADDITIONAL_ATTACK_TRIGGER_TYPE values and
 // DAMAGE_TRIGGER_DATA entries the parse read (only templets that carry either are logged).
@@ -271,10 +378,16 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		// first test of that override (@3263fe41-3263fe50): INDEX > 0, or NAME not empty.
 		LUA_GET_VALUE( luaManager, "NUMERICAL_DATA_INDEX",		pDamageData->m_iNumericalDataIndex,		0 );
 		LUA_GET_VALUE( luaManager, "NUMERICAL_DATA_NAME",		pDamageData->m_wstrNumericalDataName,	L"" );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+		// Phase S4: June FUN_32632390 @32632842, int getter 32fe9fd0, default 0 (EBX), to +0x5cc. The numerical override below reads it when
+		// APPLIED_SKILL_ID is 0 (the read order against the keys above does not matter). The "unsupported" log is replaced by the override.
+		LUA_GET_VALUE( luaManager, "DAMAGE_SKILL_ID", pDamageData->m_iDamageSkillID, 0 );
+#else SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 		if( 0 < pDamageData->m_iNumericalDataIndex )
 			JuneDamageDataUnsupportedInt( pwszJuneTemplet, pTableName, L"NUMERICAL_DATA_INDEX", L"numerical skill data", pDamageData->m_iNumericalDataIndex );
 		if( false == pDamageData->m_wstrNumericalDataName.empty() )
 			JuneDamageDataUnsupported( pwszJuneTemplet, pTableName, L"NUMERICAL_DATA_NAME", L"numerical skill data", pDamageData->m_wstrNumericalDataName.c_str() );
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 
 		// June2017 FUN_32632390 @32640064-3264026d: int getter @32640246, default -1 (RWAT_NONE), to +0x600.
 		// March's Enum.lua has no ROSE_WEAPON_ATTACK_TYPE table (Phase 11).
@@ -824,6 +937,12 @@ bool CX2DamageManager::SetDamageDataFromLUA( DamageData* pDamageData, KLuaManage
 		LUA_GET_VALUE( luaManager, "DIVISION_NUM",			pDamageData->m_iDivisionNum,		0 );
 		LUA_GET_VALUE( luaManager, "DIVISION_OFF_TIME",		pDamageData->m_fDivisionOffTime,	0.f );
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+		// Phase S4: June FUN_32632390 @3263fe41-32640054, after every key above (so after the DAMAGE_DATA_KEY_NAME record that may set
+		// APPLIED_SKILL_ID) and before EndTable and SetDamageExceptionProcess, which scales PHYSIC / MAGIC by the power rate.
+		JuneApplyNumericalSkillData( pDamageData, pwszJuneTemplet, pTableName );
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 		luaManager.EndTable();
 
 #ifndef MODIFY_SET_DAMAGE_DATA

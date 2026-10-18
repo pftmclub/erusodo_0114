@@ -1338,6 +1338,9 @@ class CX2DamageManager
 			float				m_fHpRateDamageValue;				/// HP_RATE_DAMAGE_VALUE (+0x5f8)
 			int					m_iNumericalDataIndex;				/// NUMERICAL_DATA_INDEX (a stack local in June)
 			std::wstring		m_wstrNumericalDataName;			/// NUMERICAL_DATA_NAME (a stack local in June)
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+			int					m_iDamageSkillID;					/// DAMAGE_SKILL_ID (+0x5cc, getter @32632842): the numerical override's second skill source
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 			int					m_iRoseWeaponAttackType;			/// ROSE_WEAPON_ATTACK_TYPE (+0x600)
 			/// June effect completion C3: DamageData members of the straightforward keys (JUNE2017_EFFECT_COMPLETION_PHASES.md C3). The +0x
 			/// offsets are June's DamageData layout, cited only; each default is June's SimpleInit (31f8ee50) value.
@@ -1604,6 +1607,9 @@ class CX2DamageManager
 				m_fHpRateDamageValue					= 0.f;
 				m_iNumericalDataIndex					= 0;
 				m_wstrNumericalDataName					= L"";
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+				m_iDamageSkillID						= 0;
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 				m_iRoseWeaponAttackType					= -1;	/// RWAT_NONE in June's Enum.lua
 				m_fBoundingBackSpeedX					= 0.f;
 				m_fBoundingBackSpeedY					= 0.f;

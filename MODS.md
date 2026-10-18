@@ -4069,6 +4069,28 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` (+ short-lived `SERV_IRUHADEV_JUNE_SKILL
   to `m_vecPowerRate`; `AddSkillPowerRate_LUA` reads `m_Value` without padding (June `32209d80`; every row in both data sets has 30 entries).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` (and `_DEBUG`) in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, save or kom changes.
 
+### June numerical skill data override (skill-system-core S4, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (+ short-lived `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG`), plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S4", log tag `[JUNE_SKILL] NUM`.
+- **What it ports.** June's override at the end of `SetDamageDataFromLUA` (`FUN_32632390 @3263fe41-32640054`), as `JuneApplyNumericalSkillData` in `X2DamageManager.cpp`, called
+  after every key (so after the `DAMAGE_DATA_KEY_NAME` record) and before `EndTable` / `SetDamageExceptionProcess`. It replaces the "unsupported" log for `NUMERICAL_DATA_INDEX` / `_NAME`.
+  - Gate (any miss skips it all): INDEX > 0 or NAME set; `APPLIED_SKILL_ID` or the new `DAMAGE_SKILL_ID` (`m_iDamageSkillID`, +0x5cc, parsed with default 0) non-zero; skill tree present;
+    attacker valid; unit type user (itself) or NPC (its owner); then level `GetSkillLevel( id, 0, 0, swap )` > 0 and `GetEquippedActiveSkillTemplet( id, swap )` non-null.
+  - Row: INDEX > 0 gives `JuneGetNumericalRowByIndex` (`320717e0`, 1-based, out of range = zeros), else `JuneGetNumericalRowByName` (`32078060`, first name match, none = zeros); the clamp is S2's
+    `JuneGetNumericalRow` (`320716c0`).
+  - Writes, unconditional (a zero row zeroes all five): `PHYSIC = value * 0.01f` unless `DT_MAGIC`; `MAGIC = value * 0.01f` unless `DT_PHYSIC`; `PVP_RATE`; `TECH_POINT` (truncated); `HIT_ADD_MP`.
+    `SetDamageExceptionProcess` then scales PHYSIC / MAGIC by the power rate, so the override is scaled too.
+- **Values that change.** None in today's game: no March class script sets `NUMERICAL_DATA_INDEX` / `_NAME`, and June's 1,913 blocks (`june2017_re/c1a_numerical_blocks.tsv`: file, templet, skill, level-1
+  value / x0.01 / pvp rate / tech point / hit add MP) only reach this code once a ported class (Stage 5/7) uses June's DamageEffect. When they do, June's number replaces March's:
+  June's damage scale differs, e.g. Aceldama (26002) 9.50 at level 1 vs March's 2.33, Aiming Shot (26203) 14.82 vs March's 5.63 (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1).
+  Three blocks index past their skill's data and write a zero row (JUNE_BUGS 282-284); the owner's `CX2Unit` is unguarded as in June (JUNE_BUGS 285).
+- **June-side power-rate note.** `GetSkillPowerRateValue 32071720` (S2) gives an upgraded skill (`m_DeleteSkillIDByUpgrade` non-zero) its power rate from SA `0xad`
+  (`SA_ULTIMATE_STRENGTHENED_SKILL_POWERRATE`), so the damage of an "[Enhanced]" skill carries that factor on top of the numerical row.
+- **Self-check (`_DEBUG`).** At skill-tree load `CX2SkillTree::JuneNumericalSelfCheck` compares 40 rows of `c1a_numerical_blocks.tsv` (level 1; every 36th distinct skill / index plus the three zero rows)
+  with the templets and logs `[JUNE_SKILL] NUM selfcheck: sample=40 ok=.. mismatch=.. no_templet=.. PASS`. Each distinct real use logs `[JUNE_SKILL] NUM use ...` (first 80); a refused use logs
+  `[JUNE_SKILL] NUM skip ...`.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (and `_DEBUG`) in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, save or kom changes.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

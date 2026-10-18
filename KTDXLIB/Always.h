@@ -8023,6 +8023,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
+// Description: June skill system core, Phase S4 (JUNE_SKILL_SYSTEM_PHASES.md "Phase S4"). June's numerical skill data override at the end
+//              of SetDamageDataFromLUA ( FUN_32632390 @3263fe41-32640054 ): a DAMAGE_DATA table with NUMERICAL_DATA_INDEX / _NAME and an
+//              APPLIED_SKILL_ID or DAMAGE_SKILL_ID ( +0x5cc, parsed for it ) takes PHYSIC / MAGIC ( x0.01 ), PVP_RATE, TECH_POINT and
+//              HIT_ADD_MP from the attacker's learned skill templet ( getters 320717e0 / 32078060, clamp 320716c0 ); the power rate scales it
+//              afterwards. Replaces the "unsupported" log. No March script uses these keys; June's damage scale differs (MODS.md).
+//              Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_NUMERICAL needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET (the templet's NUMERICAL_DATA<n> rows)
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_DAMAGEDATA
+#error SERV_IRUHADEV_JUNE_SKILL_NUMERICAL needs SERV_IRUHADEV_JUNE_DAMAGEDATA (the NUMERICAL_DATA_INDEX / _NAME parse)
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+// Short-lived: the load-time self-check against june2017_re/c1a_numerical_blocks.tsv ( 40 rows ) and one [JUNE_SKILL] NUM line per distinct use.
+// Remove after the S4 review.
+#define SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+#error SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG needs SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
 // Description: June engine remainder, Phase R14. CX2Eqip skin and enchant path as June2017: InitSkin 32963eb0 (with its XET open
 //              3295ffd0: the four XETs always, a weapon's multi-tex XETs, one skin anim per hyper model), _UpdateSkin() 3295ae20 (every
 //              model of a division-item group 6 / 0x31 / 0x36 / 7 item attaches; the normal multi-tex XET passed at add time), and the

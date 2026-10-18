@@ -2149,6 +2149,10 @@ public:
 
 		static void JuneGetNumericalRow( const JuneNumericalData& data_, int iLevel_, JuneNumericalRow& rowOut_ );     /// 320716c0
 		const JuneNumericalData* JuneFindNumericalData( const WCHAR* pwszName_ ) const;                                 /// 3221e930
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+		void JuneGetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const;                  /// 320717e0
+		void JuneGetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const;        /// 32078060
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 		bool JuneGetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;
 		bool JuneTryGetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const;     /// 32206fb0
 		float GetSkillAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_ ) const;                         /// 32206e50
@@ -2550,6 +2554,9 @@ public:
 	void    JuneSetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_TYPE eSkillAbility_, SkillTemplet* pSkillTemplet_, const char* pszKey_ );   /// 3220b740
 	void    JuneLogShortArray( int iSkillID_, int iKind_, int iSize_ );
 	void    JuneLogLoadSummary();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
+	void    JuneNumericalSelfCheck() const;
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
 	void    JuneScratchLoad( const WCHAR* pFileName_, const WCHAR* pSkillDataFileName_ );
 	void    JuneCompareTrees( CX2SkillTree& marchTree_ );

@@ -155,6 +155,9 @@ bool CX2SkillTree::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pSkillDa
 	OpenScriptFilePostProcess();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	JuneLogLoadSummary();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
+	JuneNumericalSelfCheck();
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
 	JuneScratchLoad( pFileName, pSkillDataFileName );
 #endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
@@ -4950,6 +4953,39 @@ const CX2SkillTree::SkillTemplet::JuneNumericalData* CX2SkillTree::SkillTemplet:
 	return NULL;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+/// June 320717e0 ( this templet, row out, index, level ): the element at the 1-based index; an index of 0 or past the count gives four zeros
+/// ( @32071802: count < index unsigned, or index <= 0 ). The element's row is picked by the clamp 320716c0.
+void CX2SkillTree::SkillTemplet::JuneGetNumericalRowByIndex( int iIndex_, int iLevel_, JuneNumericalRow& rowOut_ ) const
+{
+	if( iIndex_ <= 0 || static_cast<unsigned int>( m_vecJuneNumericalData.size() ) < static_cast<unsigned int>( iIndex_ ) )
+	{
+		rowOut_.m_fValue = 0.f;
+		rowOut_.m_fPvpRate = 0.f;
+		rowOut_.m_fTechPoint = 0.f;
+		rowOut_.m_fHitAddMP = 0.f;
+		return;
+	}
+
+	JuneGetNumericalRow( m_vecJuneNumericalData[ iIndex_ - 1 ], iLevel_, rowOut_ );
+}
+
+/// June 32078060 ( this templet, row out, name, level ): the first element whose name matches ( wstring::compare ), none gives four zeros.
+void CX2SkillTree::SkillTemplet::JuneGetNumericalRowByName( const WCHAR* pwszName_, int iLevel_, JuneNumericalRow& rowOut_ ) const
+{
+	const JuneNumericalData* pData = JuneFindNumericalData( pwszName_ );
+	if( NULL == pData )
+	{
+		rowOut_.m_fValue = 0.f;
+		rowOut_.m_fPvpRate = 0.f;
+		rowOut_.m_fTechPoint = 0.f;
+		rowOut_.m_fHitAddMP = 0.f;
+		return;
+	}
+
+	JuneGetNumericalRow( *pData, iLevel_, rowOut_ );
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 /// June 32206e50 / 32206fb0, first half: a NUMERICAL_DATA block named after the ability type. Found: value * ( bPvp ? pvp rate : 1.0 ),
 /// no x0.01.
 bool CX2SkillTree::SkillTemplet::JuneGetNumericalAbilityValue( SKILL_ABILITY_TYPE eType_, int iLevel_, bool bPvp_, float& fOut_ ) const
@@ -5292,6 +5328,140 @@ void CX2SkillTree::JuneLogLoadSummary()
 #endif SERV_IRUHADEV_OFFLINE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
+//////////////////////////////////////////////////////////////////////////
+// Phase S4 load-time self-check. Each row of the sample is a block of june2017_re/c1a_numerical_blocks.tsv ( result ok, picked every 36th
+// distinct ( skill, index ) in id order ) with its level-1 columns, plus the three blocks that index past their skill's data ( June writes a
+// zero row ). The override's row for ( skill, index, level 1 ) must equal the tsv. Where the element has a name, the by-name getter must
+// return the same row ( when the name's first match is that element ).
+struct JuneNumericalSample
+{
+	int     m_iSkillID;
+	int     m_iIndex;
+	float   m_fValue;
+	float   m_fPvpRate;
+	float   m_fTechPoint;
+	float   m_fHitAddMP;
+};
+
+static const JuneNumericalSample s_aJuneNumericalSample[] =
+{
+	{ 21000, 1, 2329.0f, 0.4f, 750.0f, 10.0f },	/// Mega Slash
+	{ 21041, 1, 74.0f, 0.4f, 25.0f, 0.33f },	/// Infinite Chaser
+	{ 22000, 1, 576.0f, 0.4f, 248.0f, 1.1f },	/// Chain Fireball
+	{ 22017, 4, 342.0f, 0.4f, 94.0f, 0.63f },	/// Hell Stone
+	{ 22209, 1, 330.0f, 0.4f, 50.0f, 0.75f },	/// Petit Angkor
+	{ 23007, 6, 1979.0f, 0.4f, 563.0f, 1.0f },	/// Dive Kick Bombing
+	{ 23023, 1, 658.0f, 0.4f, 214.0f, 2.86f },	/// Gliding Strike
+	{ 23214, 1, 147.0f, 0.4f, 25.0f, 0.25f },	/// Explosive Trap
+	{ 24013, 2, 648.0f, 0.4f, 188.0f, 2.31f },	/// Hypersonic Stab
+	{ 24204, 1, 934.0f, 0.28f, 150.0f, 1.5f },	/// Weapon Crash
+	{ 25005, 2, 146.0f, 0.36f, 63.0f, 0.83f },	/// Atomic Blaster
+	{ 25020, 4, 381.0f, 0.4f, 150.0f, 3.0f },	/// Electronic Field
+	{ 25209, 2, 282.0f, 0.4f, 50.0f, 0.5f },	/// Spitfire
+	{ 26002, 1, 950.0f, 0.4f, 500.0f, 3.33f },	/// Aceldama
+	{ 26019, 2, 270.0f, 0.28f, 75.0f, 1.0f },	/// Big Bang Stream
+	{ 26212, 1, 327.0f, 0.4f, 75.0f, 0.75f },	/// Elastic Bomb  Hand Grenade
+	{ 27008, 4, 3306.0f, 0.4f, 1125.0f, 15.0f },	/// Dragon Stance 4n Moonlight Slash
+	{ 27024, 2, 2593.0f, 0.4f, 1125.0f, 0.0f },	/// Exorcism Stance 4n Darkness Sever
+	{ 27202, 1, 133.0f, 0.32f, 23.0f, 0.34f },	/// Tiger Stance 1n Rock Smash
+	{ 28001, 1, 181.0f, 0.4f, 88.0f, 0.39f },	/// Wild Shock
+	{ 28025, 1, 118.0f, 0.4f, 44.0f, 0.59f },	/// Dread Weapon
+	{ 28600, 1, 2273.0f, 0.24f, 600.0f, 8.0f },	/// Sword of Relics
+	{ 29013, 1, 1376.0f, 0.4f, 750.0f, 10.0f },	/// Installn Drone Activator
+	{ 29058, 1, 669.0f, 0.4f, 121.0f, 1.61f },	/// Supersonic
+	{ 29600, 3, 1206.0f, 0.24f, 321.0f, 4.29f },	/// Dooms Day
+	{ 30016, 2, 491.0f, 0.4f, 188.0f, 2.5f },	/// Shadow Bolt
+	{ 30049, 4, 287.0f, 0.36f, 125.0f, 0.83f },	/// Transcendence
+	{ 30216, 2, 953.0f, 0.28f, 150.0f, 1.5f },	/// Phantom Rush
+	{ 31014, 3, 4397.0f, 0.4f, 2250.0f, 20.0f },	/// Laser Rifle
+	{ 31034, 1, 300.0f, 0.4f, 150.0f, 0.67f },	/// Lightweight Mine
+	{ 31056, 1, 100.0f, 0.4f, 15.0f, 0.0f },	/// Aimed Strike
+	{ 31213, 2, 861.0f, 0.3f, 200.0f, 1.33f },	/// Plasma Shock
+	{ 31305, 1, 75.0f, 0.4f, 8.0f, 0.12f },	/// Dust Shot
+	{ 32005, 2, 180.0f, 0.4f, 0.0f, 0.0f },	/// Schwert Platzen
+	{ 32037, 3, 1055.0f, 0.26f, 750.0f, 10.0f },	/// Wind Einfallen
+	{ 32060, 2, 390.0f, 0.28f, 159.0f, 2.5f },	/// Reflexion
+	{ 32218, 1, 1115.0f, 0.28f, 175.0f, 1.75f },	/// Lied Schwach
+	{ 21006, 2, 0.0f, 0.0f, 0.0f, 0.0f },	/// past the end: June writes a zero row
+	{ 30003, 5, 0.0f, 0.0f, 0.0f, 0.0f },	/// past the end: June writes a zero row
+	{ 21013, 2, 0.0f, 0.0f, 0.0f, 0.0f },	/// past the end: June writes a zero row
+};
+
+static bool JuneNumericalNear( float fA_, float fB_ )
+{
+	float fDiff = fA_ - fB_;
+	if( fDiff < 0.f )
+		fDiff = -fDiff;
+	float fBig = ( fB_ < 0.f ? -fB_ : fB_ );
+	return fDiff <= 0.0001f + 0.0001f * fBig;
+}
+
+void CX2SkillTree::JuneNumericalSelfCheck() const
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	if( true == m_bJuneScratch )
+		return;
+
+	const int iCount = ARRAY_SIZE( s_aJuneNumericalSample );
+	int iOk = 0, iBad = 0, iNoTemplet = 0, iNameOk = 0, iNameBad = 0, iLogged = 0;
+	for( int i = 0; i < iCount; ++i )
+	{
+		const JuneNumericalSample& s = s_aJuneNumericalSample[i];
+		const SkillTemplet* pTemplet = GetSkillTemplet( static_cast<SKILL_ID>( s.m_iSkillID ) );
+		if( NULL == pTemplet )
+		{
+			++iNoTemplet;
+			if( iLogged < 12 )
+			{
+				++iLogged;
+				CX2OfflineLog::Server( L"[JUNE_SKILL] NUM selfcheck no templet for skill=%d ( index %d )", s.m_iSkillID, s.m_iIndex );
+			}
+			continue;
+		}
+
+		SkillTemplet::JuneNumericalRow row;
+		pTemplet->JuneGetNumericalRowByIndex( s.m_iIndex, 1, row );
+		if( true == JuneNumericalNear( row.m_fValue, s.m_fValue ) && true == JuneNumericalNear( row.m_fPvpRate, s.m_fPvpRate )
+			&& true == JuneNumericalNear( row.m_fTechPoint, s.m_fTechPoint ) && true == JuneNumericalNear( row.m_fHitAddMP, s.m_fHitAddMP ) )
+		{
+			++iOk;
+		}
+		else
+		{
+			++iBad;
+			if( iLogged < 12 )
+			{
+				++iLogged;
+				CX2OfflineLog::Server( L"[JUNE_SKILL] NUM selfcheck MISMATCH skill=%d index=%d: got %.4f / %.4f / %.2f / %.4f, tsv %.4f / %.4f / %.2f / %.4f ( elements=%d )",
+					s.m_iSkillID, s.m_iIndex, row.m_fValue, row.m_fPvpRate, row.m_fTechPoint, row.m_fHitAddMP,
+					s.m_fValue, s.m_fPvpRate, s.m_fTechPoint, s.m_fHitAddMP, static_cast<int>( pTemplet->m_vecJuneNumericalData.size() ) );
+			}
+		}
+
+		if( 0 < s.m_iIndex && s.m_iIndex <= static_cast<int>( pTemplet->m_vecJuneNumericalData.size() ) )
+		{
+			const SkillTemplet::JuneNumericalData& element = pTemplet->m_vecJuneNumericalData[ s.m_iIndex - 1 ];
+			if( false == element.m_wstrName.empty() && &element == pTemplet->JuneFindNumericalData( element.m_wstrName.c_str() ) )
+			{
+				SkillTemplet::JuneNumericalRow rowByName;
+				pTemplet->JuneGetNumericalRowByName( element.m_wstrName.c_str(), 1, rowByName );
+				if( rowByName.m_fValue == row.m_fValue && rowByName.m_fPvpRate == row.m_fPvpRate
+					&& rowByName.m_fTechPoint == row.m_fTechPoint && rowByName.m_fHitAddMP == row.m_fHitAddMP )
+					++iNameOk;
+				else
+					++iNameBad;
+			}
+		}
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] NUM selfcheck: sample=%d ok=%d mismatch=%d no_templet=%d ( by-name cross-check ok=%d mismatch=%d ) %s",
+		iCount, iOk, iBad, iNoTemplet, iNameOk, iNameBad,
+		( iOk == iCount ? L"PASS" : ( iNoTemplet == iCount ? L"SKIPPED ( the tree is not June's )" : L"FAIL" ) ) );
+#endif SERV_IRUHADEV_OFFLINE
+}
+//////////////////////////////////////////////////////////////////////////
+#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 // Debug scratch loads ( once per run ), both into throw-away trees so the real tree is never touched:
