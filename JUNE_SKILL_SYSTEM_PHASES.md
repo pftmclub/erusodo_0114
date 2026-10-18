@@ -1343,6 +1343,14 @@ taken off on field entry (the save was changed; she needs re-equipping). 0 EXCEP
   (the 18 are S7b's own lines in a file that is wholly inside the flag).
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 19,962,368 B, dated 2026-10-18 17:47:39, md5 9f2dc90916b2449eaab6b74254b0f501, equal to X2/US_SERVICE/x2.exe (2026-10-18 17:47:33); built at main ad0d41b7 + 1 uncommitted code file(s).`
   `X2UISkillTreeNew.obj` rebuilt 17:47:23 (after the edit), `JuneReplaceSkillDescValues` in x2.map. PACK OK and COPY OK (user OK) data056 / data057 (data057 md5 0ba792cb).
+- **Play-test 2 (17:52 run, exe 9f2dc909):** equip passed (9 slot changes, none undone; relog kept the bar; unit 41 kept hers), `@N` filled, 0 EXCEPTION.
+  The user's screenshot still showed a doubled window: "Primary Skill" overprinted by "Primary\nCommand" (STR 35502 / 35501) and a second panel edge at y 292 / 303
+  with an inner lined panel from x 107. That is June's own `Command_Back_Black` + `SkillTree_MajorCommand` (OpenScriptFile.log: only the 2015 dialogs open, no March
+  tree script). June registers them in the command group +0x18 (`328e8820` -> `328ded30`, group 2) and `328e89f0` hides that group on the skill tab (`328da3c0`); S7b
+  had deferred both to S7e, so the dialog's default "shown" stayed. Ported the group halves of `328e42d0` / `328e8820`, `328ded30`, `328da3c0`, +0x8c, and the +0x18
+  clear in InitSkillTreeUI (`@328ed964`); the portrait's missing-control return no longer skips the panels (`@328e8f64`). S7e kickoff updated
+  (also: `Command_Description` overlaps `Skill_Description`, June never hides it). flagcheck (2 files) RESULT: PASS (20 deleted = S7b's own lines).
+  `DEPLOY OK: X2_offline.exe is 19,964,928 B, dated 2026-10-18 18:13:57, md5 8cc9c75eae4bc8f4465ca5d501f64526, equal to X2/US_SERVICE/x2.exe (2026-10-18 18:13:52); built at main 9be863cb + 2 uncommitted code file(s).`
 
 ## Phase S7c - Skill memos: popups, packets, emulator, save
 

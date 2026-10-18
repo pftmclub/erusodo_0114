@@ -736,6 +736,7 @@ void CX2EquippedSkillSlotData::ShowSlotPicture( bool bShow, CKTDGUISlot* pSlot, 
 /// June 328e76a0
 CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 : m_iSelectedTab( 0 )
+, m_iJuneCommandGroup( 0 )
 , m_pDLGCommandDesc( NULL )
 , m_bShow( false )
 , m_bSkillRemoveMode( false )
@@ -780,6 +781,7 @@ CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 	SAFE_DELETE_DIALOG( m_pDLGUISkillTree );
 	m_mapSkillSlotUISet.clear();
 	m_vecSkillTabControl.clear();
+	m_vecJuneCommandGroupControl.clear();
 	m_mapSkillPosition.clear();
 	SAFE_DELETE_DIALOG( m_pDLGSkillToolTip );
 	SAFE_DELETE_DIALOG( m_pDLGSkillUnsealInform );
@@ -959,6 +961,7 @@ void CX2UISkillTreeNew::InitSkillTreeUI()
 	m_bSkillSlotSwap = false;
 	m_mapSkillSlotUISet.clear();
 	m_vecSkillTabControl.clear();
+	m_vecJuneCommandGroupControl.clear();		/// @328ed964: +0x18 cleared with +0x08
 
 	m_pDLGUISkillTree = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_UI_Skill_Tree_New2015.lua" );
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGUISkillTree );
@@ -972,7 +975,9 @@ void CX2UISkillTreeNew::InitSkillTreeUI()
 	if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
 		 NULL != g_pData->GetMyUser()->GetSelectUnit()->GetUnitTemplet() )
 	{
-		/// +0x8c = ( unit +0xe40 == 1 ) is Luciel's form flag: character material ( checklist )
+		/// @328edaca: +0x8c = ( unit +0xe40 == 1 ), Luciel's form flag ( the minor command group ). March's CX2Unit has no such flag and no
+		/// Luciel: group 0. The flag is character material ( checklist )
+		m_iJuneCommandGroup = 0;
 		CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
 		m_pUserSkillTree = &pUnit->GetUnitData().m_UserSkillTree;
 		CreateSkillTree( pUnit->GetUnitTemplet()->m_UnitClass, JuneIsMyUnitTranscended() );
@@ -1235,27 +1240,89 @@ void CX2UISkillTreeNew::CreateSkillTreeLevelRows()
 /// and command panels that follow ( 3220bdb0, 328e42d0, 328e8820 ) are S7e's. Luciel ( unit type 10, 328dcba0 ) is character material.
 void CX2UISkillTreeNew::CreateSkillTreePortrait( CX2Unit::UNIT_CLASS eUnitClass, bool bTranscended_ )
 {
+	/// @328e8f64: no SkillTree_Character skips only the portrait; the panels at 328e9100.. run either way
 	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_pDLGUISkillTree->GetControl( L"SkillTree_Character" ) );
-	if ( NULL == pStatic )
+	if ( NULL != pStatic )
+	{
+		wstring wstrFileName = L"";
+		wstring wstrPieceName = L"";
+		if ( true == CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, eUnitClass, CX2Data::CIT_160by160 ) && NULL != pStatic->GetPicture( 1 ) )
+			pStatic->GetPicture( 1 )->SetTex( wstrFileName.c_str(), wstrPieceName.c_str() );
+
+		if ( NULL != g_pData->GetUnitManager() )
+		{
+			const CX2Unit::UnitTemplet* pUnitTemplet = g_pData->GetUnitManager()->GetUnitTemplet( eUnitClass );
+			if ( NULL != pUnitTemplet && NULL != pStatic->GetString( 0 ) )
+			{
+				/// June: find( L"(" ) + 1 .. find( L")" ); with no brackets that is the whole name
+				const wstring& wstrName = pUnitTemplet->m_Name;
+				const wstring::size_type iOpen = wstrName.find( L"(" );
+				const wstring::size_type iClose = wstrName.find( L")" );
+				const wstring::size_type iFrom = iOpen + 1;
+				pStatic->GetString( 0 )->msg = wstrName.substr( iFrom, iClose - iFrom );
+			}
+		}
+	}
+
+	/// @328e9109..328e912e: 328ee430 ( clears the +0x3c description cache ) and 3220bdb0 ( SkillCommandDescriptionData.lua ) are S7e's;
+	/// 328e42d0 and 328e8820 build the major-skill / major-command panels. Their text and rows are S7e's; the group registrations below
+	/// are what keeps each tab's statics off the other tab ( play-test 2026-10-18: the command background showed on the skill tab )
+	JuneRegisterMajorSkillPanelControls();
+	JuneRegisterMajorCommandPanelControls();
+}
+
+/// June 328e42d0, its group half: Skill_Description ( @328e452f, after S7e's text ), SkillTree_MajorSkill ( @328e455d ) and
+/// SkillTree_Back_Black ( @328e4585 ) join the skill-tab group +0x08, each only when found. The MajorSkillBack%d / MajorSkillButton%d
+/// rows ( @328e4acd / @328e4ae6 ) and the description text come with S7e ( SkillCommandDescriptionData.lua ).
+void CX2UISkillTreeNew::JuneRegisterMajorSkillPanelControls()
+{
+	if ( NULL == m_pDLGUISkillTree )
 		return;
 
-	wstring wstrFileName = L"";
-	wstring wstrPieceName = L"";
-	if ( true == CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, eUnitClass, CX2Data::CIT_160by160 ) && NULL != pStatic->GetPicture( 1 ) )
-		pStatic->GetPicture( 1 )->SetTex( wstrFileName.c_str(), wstrPieceName.c_str() );
-
-	if ( NULL != g_pData->GetUnitManager() )
+	/// S7e: Skill_Description's text ( the class's DESCRIPTION_STRING_ID, fitted by 328df060 ) is set before it is added
+	const WCHAR* awszControl[] = { L"Skill_Description", L"SkillTree_MajorSkill", L"SkillTree_Back_Black" };
+	for ( int i = 0; i < ARRAY_SIZE( awszControl ); ++i )
 	{
-		const CX2Unit::UnitTemplet* pUnitTemplet = g_pData->GetUnitManager()->GetUnitTemplet( eUnitClass );
-		if ( NULL != pUnitTemplet && NULL != pStatic->GetString( 0 ) )
-		{
-			/// June: find( L"(" ) + 1 .. find( L")" ); with no brackets that is the whole name
-			const wstring& wstrName = pUnitTemplet->m_Name;
-			const wstring::size_type iOpen = wstrName.find( L"(" );
-			const wstring::size_type iClose = wstrName.find( L")" );
-			const wstring::size_type iFrom = iOpen + 1;
-			pStatic->GetString( 0 )->msg = wstrName.substr( iFrom, iClose - iFrom );
-		}
+		CKTDGUIControl* pControl = m_pDLGUISkillTree->GetControl( awszControl[i] );
+		if ( NULL != pControl )
+			m_vecSkillTabControl.push_back( pControl );
+	}
+}
+
+/// June 328e8820, its group half: Command_Back_Black ( @328e88cf ) and SkillTree_MajorCommand ( @328e88f0 ) join the command group
+/// +0x18 as group 2 ( shown on the command tab whatever +0x8c is ). June's guard also needs g_pData +0x38 and two June globals
+/// ( 337676e8 / 337676ec ); the rest ( 328e73f0 description, 3220d4d0 rows, 328e5290 panel, the _MINOR pass ) is S7e's.
+void CX2UISkillTreeNew::JuneRegisterMajorCommandPanelControls()
+{
+	if ( NULL == m_pDLGUISkillTree )
+		return;
+
+	JuneAddCommandGroupControl( m_pDLGUISkillTree->GetControl( L"Command_Back_Black" ), 2 );
+	JuneAddCommandGroupControl( m_pDLGUISkillTree->GetControl( L"SkillTree_MajorCommand" ), 2 );
+}
+
+/// June 328ded30: a found control is pushed as { group, control } ( 3207b770 )
+void CX2UISkillTreeNew::JuneAddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ )
+{
+	if ( NULL != pControl_ )
+		m_vecJuneCommandGroupControl.push_back( std::make_pair( iGroup_, pControl_ ) );
+}
+
+/// June 328da3c0( bShow, group ): hidden -> every control off; shown -> group 2 on, the asked group on, every other group off
+/// ( SetShowEnable, vslot 0x78 )
+void CX2UISkillTreeNew::JuneShowCommandGroup( const bool bShow_, const int iGroup_ )
+{
+	for ( vector< std::pair<int, CKTDGUIControl*> >::iterator it = m_vecJuneCommandGroupControl.begin(); it != m_vecJuneCommandGroupControl.end(); ++it )
+	{
+		if ( NULL == it->second )
+			continue;
+
+		if ( false == bShow_ )
+			it->second->SetShowEnable( false, false );
+		else if ( 2 == it->first || iGroup_ == it->first )
+			it->second->SetShowEnable( true, true );
+		else
+			it->second->SetShowEnable( false, false );
 	}
 }
 
@@ -1353,8 +1420,8 @@ void CX2UISkillTreeNew::SelectJuneTab( const bool bSkillTab_ )
 		pRadio->SetChecked( false == bSkillTab_ );
 }
 
-/// June 328e89f0: the skill tab shows SkillTreeControlList and the +0x08 controls; the command tab ( CommandControlList and its
-/// group controls, 328da3c0 ) is S7e's
+/// June 328e89f0: the skill tab shows SkillTreeControlList and the +0x08 controls; the command tab CommandControlList and the +0x18
+/// group ( 328da3c0 ). The command rows themselves are S7e's
 void CX2UISkillTreeNew::UpdateJuneTabUI()
 {
 	if ( NULL == m_pDLGUISkillTree )
@@ -1385,7 +1452,8 @@ void CX2UISkillTreeNew::UpdateJuneTabUI()
 		pControlList->SetShow( false == bSkillTab );
 		pControlList->SetEnable( false == bSkillTab );
 		pControlList->SetShowEnable( false == bSkillTab, false == bSkillTab );
-		/// S7e: 328da3c0( show, group ) over the +0x18 command controls
+		/// @328e8aea: 328da3c0( command tab, skill tab ? 2 : +0x8c )
+		JuneShowCommandGroup( false == bSkillTab, ( true == bSkillTab ) ? 2 : m_iJuneCommandGroup );
 	}
 }
 

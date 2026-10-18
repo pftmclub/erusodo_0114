@@ -31,5 +31,11 @@ Split out of S7b (2026-10-18, rule "plan unowned June branches without asking"):
   (`328e5290`, `328e8820`), the description text (`328e73f0`, `328e8cd0`), the group show/hide (`328da3c0` over tree `+0x18`) and the video popup `DLG_UI_Command_Desc_Video.lua`
   (`328e6cd0`, tree `+0x30`; already in data034). Cases 29069-29074 (`328ecb05` .. `328ecfbf`). Check the `.avi` files it names exist in March's data; if not, stage June's.
 - Replace S7b's `/// S7e:` markers in `X2UISkillTreeNew2015.cpp` (SetShow, CreateSkillTree, UpdateJuneTabUI, OnMouseWheel, UICustomEventProc).
+- **Already in S7b (play-test fix, 2026-10-18):** the group halves of `328e42d0` / `328e8820` (`JuneRegisterMajorSkillPanelControls`, `JuneRegisterMajorCommandPanelControls`),
+  the +0x18 group (`m_vecJuneCommandGroupControl`, `328ded30`, `328da3c0`) and +0x8c (`m_iJuneCommandGroup`, 0 without Luciel). Add the panel text and the
+  MajorSkillBack / MajorSkillButton rows (+0x08) and the command rows into those; `328e8cd0` sets +0x8c and calls `328e89f0`.
+- **Check:** `Command_Description` and `Skill_Description` sit at the same point (110, 75), both default STR 4770 "Actions". June never hides
+  `Command_Description` (not in either group; `328e73f0` / `328e8cd0` only write its text). Once `Skill_Description` carries the class text, see what June shows
+  on the skill tab and port that (a June overprint is a JUNE_BUGS row).
 
 **Play-test:** open the tree on two classes: the major-skill icons and their hover text; the command tab's lists and a video popup.

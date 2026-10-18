@@ -235,11 +235,18 @@ private:
 	void CreateSkillTreeSlots( CX2Unit::UNIT_CLASS eUnitClass );		/// 328de040
 	void CreateSkillTreeLevelRows();									/// 328dc680
 	void CreateSkillTreePortrait( CX2Unit::UNIT_CLASS eUnitClass, bool bTranscended_ );		/// 328e8e90
+	void JuneRegisterMajorSkillPanelControls();							/// the group half of 328e42d0
+	void JuneRegisterMajorCommandPanelControls();						/// the group half of 328e8820
+	void JuneAddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ );	/// 328ded30
+	void JuneShowCommandGroup( const bool bShow_, const int iGroup_ );					/// 328da3c0
 	bool JuneSkillPageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// March's page cases until S7d
 
 private:
 	int									m_iSelectedTab;				/// +0x04 0 skill tab, 1 command tab
 	vector<CKTDGUIControl*>				m_vecSkillTabControl;		/// +0x08 shown with the skill tab ( 328e89f0 )
+	vector< std::pair<int, CKTDGUIControl*> >	m_vecJuneCommandGroupControl;	/// +0x18 { group, control } shown with the command tab: group 2 always,
+																			/// 0 / 1 when it equals +0x8c ( 328da3c0 )
+	int									m_iJuneCommandGroup;		/// +0x8c the command group shown ( June: unit +0xe40 == 1, Luciel's form; 328e8cd0 sets it )
 	CKTDGUIDialogType					m_pDLGCommandDesc;			/// +0x30 DLG_UI_Command_Desc_Video.lua ( S7e opens it; SelectJuneTab tests it )
 
 	bool								m_bShow;					/// +0xa8
