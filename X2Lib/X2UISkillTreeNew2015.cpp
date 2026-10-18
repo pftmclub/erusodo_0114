@@ -52,10 +52,127 @@ namespace
 		pPicture_->SetSize( D3DXVECTOR2( fWidth_, fHeight_ ) );
 	}
 
-	/// June 32890a30: the user tree holds the skill at level 1 or more ( GetSkillLevel( id, 0, 0, 1 ) > 0 )
+	/// June 32890a30: the user tree holds the skill at level 1 or more ( GetSkillLevel( id, 0, 0, 1 ) > 0; the 4th argument 1 is the
+	/// upgrade swap 328905b0 )
 	bool JuneDoIHaveThisSkill( const CX2UserSkillTree& refUserSkillTree_, const CX2SkillTree::SKILL_ID eSkillID_ )
 	{
-		return 0 < refUserSkillTree_.GetSkillLevel( eSkillID_ );
+		return 0 < refUserSkillTree_.GetSkillLevel( eSkillID_, false, 0, true );
+	}
+
+	/// June 328914b0( id, bUpgradeSwap ): the acquired map ( user tree +0x4a8, the page in use; end sentinel +0x4ac ) holds the id, after
+	/// the upgrade swap 328905b0 when the flag is set. GetUserSkillTemplet ( June 32890720 ) is the same find on the same map. S7b first
+	/// read 328914b0 as IsSkillUnsealed ( the unsealed set is 32890a00, user tree +0x38 ): every slot refresh then took each skill off
+	/// again ( play-test 2026-10-18 ).
+	bool JuneIsSkillAcquired( const CX2UserSkillTree& refUserSkillTree_, const CX2SkillTree::SKILL_ID eSkillID_, const bool bUpgradeSwap_ )
+	{
+		return NULL != refUserSkillTree_.GetUserSkillTemplet( eSkillID_, bUpgradeSwap_ );
+	}
+
+	/// June 32214fc0, one row: the value text for type letter cParamType_ ( jump tables 32215e04 / 32215e4c ). fRaw_ is the row's value
+	/// ( +0 ), fNumber_ the number the e / f / h / i letters print ( value * pvp rate in the PvP pass, the value in the other ).
+	/// I and L / S / l / s read the raw value in both passes ( June ); any other letter prints nothing.
+	void JuneFormatSkillDescValue( wstringstream& wstrstm_, const char cParamType_, const float fRaw_, const float fNumber_ )
+	{
+		WCHAR wszBuf[64] = L"";
+		switch ( cParamType_ )
+		{
+		case 'I':	/// @32215324: a string id; March's GET_STRING carries June's "[S%1%]%2%" debug branch ( 31c31060 +0x40 )
+			wstrstm_ << GET_STRING( static_cast<int>( fRaw_ ) );
+			break;
+		case 'L':
+		case 'S':
+		case 'l':
+		case 's':	/// @3221545e: the float as the stream prints it
+			wstrstm_ << fRaw_;
+			break;
+		case 'e':	/// @3221529b: a sign above zero, then "%.2f" read back with _wtof
+			if ( 0.f < fNumber_ )
+				wstrstm_ << L"+";
+			swprintf_s( wszBuf, 64, L"%.2f", static_cast<double>( fNumber_ ) );
+			wstrstm_ << _wtof( wszBuf );
+			break;
+		case 'f':	/// @322152fc
+			swprintf_s( wszBuf, 64, L"%.2f", static_cast<double>( fNumber_ ) );
+			wstrstm_ << _wtof( wszBuf );
+			break;
+		case 'h':	/// @32215263: a sign above zero, then the integer ( falls into 'i' )
+			if ( 0.f < fNumber_ )
+				wstrstm_ << L"+";
+		case 'i':	/// @32215282: ftol ( 32fe25f0 ) truncates
+			wstrstm_ << static_cast<int>( fNumber_ );
+			break;
+		default:
+			break;
+		}
+	}
+
+	/// June 32214fc0 ( cdecl: out, text, const char* param types, const vector<row>* rows ): count = min( strlen( types ), rows ). Pass 1
+	/// replaces every "@<101 + i>" with row i's PvP number ( value * pvp rate ), pass 2 every "@<1 + i>" with its value; each match is
+	/// replaced in place and the search goes on after the inserted text. "@1" also matches the start of "@10".."@19" ( June ).
+	wstring JuneReplaceSkillDescValues( const wstring& wstrText_, const std::string& strParamTypes_,
+		const vector<CX2SkillTree::SkillTemplet::JuneNumericalRow>& vecRow_ )
+	{
+		wstring wstrOut = wstrText_;
+		const int iCount = min( static_cast<int>( strParamTypes_.size() ), static_cast<int>( vecRow_.size() ) );
+		for ( int iPass = 0; iPass < 2; ++iPass )
+		{
+			for ( int i = 0; i < iCount; ++i )
+			{
+				wstringstream wstrstmKey;
+				wstrstmKey << L"@" << ( ( 0 == iPass ) ? 101 + i : 1 + i );
+
+				const float fRaw = vecRow_[i].m_fValue;
+				const float fNumber = ( 0 == iPass ) ? vecRow_[i].m_fPvpRate * vecRow_[i].m_fValue : vecRow_[i].m_fValue;
+				wstringstream wstrstmValue;
+				JuneFormatSkillDescValue( wstrstmValue, strParamTypes_[i], fRaw, fNumber );
+
+				const wstring wstrKey = wstrstmKey.str();
+				const wstring wstrValue = wstrstmValue.str();
+				wstring::size_type uiPos = 0;
+				while ( wstring::npos != ( uiPos = wstrOut.find( wstrKey, uiPos ) ) )
+				{
+					wstrOut.replace( uiPos, wstrKey.size(), wstrValue );
+					uiPos += wstrValue.size();
+				}
+			}
+		}
+		return wstrOut;
+	}
+
+	/// June 328ee280 ( thiscall on the templet: out, level ) = June's GetSkillEffectiveDescValue: the level's text ( templet +0xc0, March
+	/// m_vecEffectiveDesc ), out of range -> L""; then 32215e80( text, level ), which always returns 1 ( @3221611f ), so its text is used.
+	/// 32215e80: per NUMERICAL_DATA row ( +0x17c, March m_vecJuneNumericalData ) the level's 16 B row, index min( level - 1, count - 1 ) as
+	/// unsigned ( level 0 -> the last row, June ), an empty row vector -> zeros; the row's param type ( +0x2c, a narrow string ) appended
+	/// to the type string; any row -> 32214fc0. It replaces March's GetSkillEffectiveDescExpand special cases. Also read by 32929770
+	/// ( caller 3292a640, a June UI no phase owns yet ).
+	wstring JuneGetSkillEffectiveDescValue( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iLevel_ )
+	{
+		const int iIndex = iLevel_ - 1;
+		if ( NULL == pSkillTemplet_ || 0 > iIndex || static_cast<int>( pSkillTemplet_->m_vecEffectiveDesc.size() ) <= iIndex )
+			return L"";
+
+		std::string strParamTypes;
+		vector<CX2SkillTree::SkillTemplet::JuneNumericalRow> vecRow;
+		for ( vector<CX2SkillTree::SkillTemplet::JuneNumericalData>::const_iterator it = pSkillTemplet_->m_vecJuneNumericalData.begin();
+			  it != pSkillTemplet_->m_vecJuneNumericalData.end(); ++it )
+		{
+			CX2SkillTree::SkillTemplet::JuneNumericalRow kRow = { 0.f, 0.f, 0.f, 0.f };
+			if ( false == it->m_vecRow.empty() )
+			{
+				unsigned int uiRow = static_cast<unsigned int>( it->m_vecRow.size() ) - 1;
+				if ( static_cast<unsigned int>( iLevel_ - 1 ) < uiRow )
+					uiRow = static_cast<unsigned int>( iLevel_ - 1 );
+				kRow = it->m_vecRow[uiRow];
+			}
+			vecRow.push_back( kRow );
+
+			for ( wstring::const_iterator itChar = it->m_wstrParamType.begin(); itChar != it->m_wstrParamType.end(); ++itChar )
+				strParamTypes += static_cast<char>( *itChar );
+		}
+
+		if ( true == vecRow.empty() )
+			return pSkillTemplet_->m_vecEffectiveDesc[iIndex];
+		return JuneReplaceSkillDescValues( pSkillTemplet_->m_vecEffectiveDesc[iIndex], strParamTypes, vecRow );
 	}
 
 	/// June 323511f0 ( a thiscall on MY unit ): the transcendence memo's alternate skill, 0 when none. The same June function
@@ -235,11 +352,11 @@ CX2SkillTreeSlotData::CX2SkillTreeSlotData()
 	}
 	else
 	{
-		/// sealed: not in the acquired map ( 32890a00 ), born sealed ( +0x4c ) and not unsealed ( 328914b0 )
+		/// June @328dd042..328dd066: sealed = not unsealed ( 32890a00 ), born sealed ( +0x4c ) and not acquired ( 328914b0( id, 0 ) )
 		bool bIsLockSkill = false;
-		if ( false == refUserSkillTree.DoIHaveThisSkill( m_eSkillID ) &&
+		if ( false == refUserSkillTree.IsSkillUnsealed( m_eSkillID ) &&
 			 true == pSkillTemplet->m_bBornSealed &&
-			 false == refUserSkillTree.IsSkillUnsealed( m_eSkillID ) )
+			 false == JuneIsSkillAcquired( refUserSkillTree, m_eSkillID, false ) )
 		{
 			bIsLockSkill = true;
 			pUISkillTree->GetDLGUISkillTree()->ChangeSequence( refSkillSlotUI.m_pStaticSkillLock, true );
@@ -500,16 +617,16 @@ void CX2EquippedSkillSlotData::SetLockedSlotUI( CKTDGUISlot* pSlot, const bool b
 		pSlot->SetItemTex( pSkillTemplet->m_wstrIconName.c_str(), pSkillTemplet->m_wstrIconPieceName.c_str() );
 		pSlot->SetDragable( true );
 
-		const int iSkillLevel = refUserSkillTree.GetSkillLevel( m_eSkillID, true );
+		const int iSkillLevel = refUserSkillTree.GetSkillLevel( m_eSkillID, true, 0, true );		/// June 328e1caf: 32890620( id, 1, 0, 1 )
 		if ( iSkillLevel < 1 && CX2SkillTree::SI_NONE != m_eSkillID )
 		{
 			g_pData->GetSkillTree()->Handler_EGS_CHANGE_SKILL_SLOT_REQ( GetSlotID(), CX2SkillTree::SI_NONE );
 			return;
 		}
 
-		/// June 328914b0 @328e1d3d: a skill that is not unsealed is taken off: 32205dc0( slot, 0 ) queues the change unless the same
-		/// change is already queued; S7's Handler_EGS_CHANGE_SKILL_SLOT_REQ is June's queue ( 3220e3b0 )
-		if ( false == refUserSkillTree.IsSkillUnsealed( m_eSkillID ) )
+		/// June @328e1d38: 328914b0( id, 1 ): a skill that is not acquired ( after the upgrade swap ) is taken off: 32205dc0( slot, 0 )
+		/// queues the change unless the same change is already queued; S7's Handler_EGS_CHANGE_SKILL_SLOT_REQ is June's queue ( 3220e3b0 )
+		if ( false == JuneIsSkillAcquired( refUserSkillTree, m_eSkillID, true ) )
 		{
 			g_pData->GetSkillTree()->Handler_EGS_CHANGE_SKILL_SLOT_REQ( GetSlotID(), CX2SkillTree::SI_NONE );
 			return;
@@ -887,7 +1004,7 @@ void CX2UISkillTreeNew::CreateSkillTreeSlots( CX2Unit::UNIT_CLASS eUnitClass )
 		return;
 
 	/// one skill per ( tier, index in tier ); a second skill at a taken position replaces it only when it is an upgraded skill
-	/// ( +0x178 m_iDeleteSkillIDByUpgrade ) that is unsealed ( 328914b0 ). A hyper-class row ( +0x174 == 5 ) needs transcendence.
+	/// ( +0x178 m_iDeleteSkillIDByUpgrade ) that is acquired ( 328914b0( id, 0 ) @328de1b9 ). A hyper-class row ( +0x174 == 5 ) needs transcendence.
 	const CX2SkillTree::SkillTreeTempletMap& refSkillTreeTempletMap = g_pData->GetSkillTree()->GetSkillTreeTempletMap( static_cast<int>( eUnitClass ) );
 	for ( CX2SkillTree::SkillTreeTempletMap::const_iterator mapit = refSkillTreeTempletMap.begin(); mapit != refSkillTreeTempletMap.end(); ++mapit )
 	{
@@ -905,7 +1022,7 @@ void CX2UISkillTreeNew::CreateSkillTreeSlots( CX2Unit::UNIT_CLASS eUnitClass )
 			m_mapSkillPosition.insert( std::make_pair( kKey, eSkillID ) );
 		}
 		else if ( 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
-				  true == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.IsSkillUnsealed( eSkillID ) )
+				  true == JuneIsSkillAcquired( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree, eSkillID, false ) )
 		{
 			it->second = eSkillID;
 		}
@@ -1333,7 +1450,7 @@ bool CX2UISkillTreeNew::ProcessSkillTreeSlotRMouseUp( LPARAM lParam )
 		return true;
 
 	if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
-		 m_pUserSkillTree->GetSkillLevel( pSlotData->m_eSkillID, true ) < 1 )
+		 m_pUserSkillTree->GetSkillLevel( pSlotData->m_eSkillID, false, 0, true ) < 1 )		/// June 328e6602: 32890620( id, 0, 0, 1 )
 	{
 		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250.f, 300.f ), GET_STRING( 35567 ), g_pMain->GetNowState() );
 		return true;
@@ -2820,7 +2937,7 @@ void CX2UISkillTreeNew::GetSkillEffectiveDesc( OUT wstring& wstrDesc, IN int iSk
 		/// June @328e5f68..328e5f95: 328ee280( templet, level + 1 ) = GetSkillEffectiveDescValue( level + 1 ), compared with L"" ( 3344f1f4 ).
 		/// The "<current effect>" heading ( STR_ID_25071 ) is printed only when the NEXT level has a text ( June quirk: at the top level
 		/// the current effect carries no heading )
-		const wstring wstrNextLevelEffectiveDesc = pSkillTemplet->GetSkillEffectiveDescValue( iSkillLevel + 1 );
+		const wstring wstrNextLevelEffectiveDesc = JuneGetSkillEffectiveDescValue( pSkillTemplet, iSkillLevel + 1 );
 		if ( 0 != wstrNextLevelEffectiveDesc.compare( L"" ) )
 		{
 			wstrDesc += GET_STRING( STR_ID_25071 );		/// June 0x61ef = 25071
@@ -2829,9 +2946,9 @@ void CX2UISkillTreeNew::GetSkillEffectiveDesc( OUT wstring& wstrDesc, IN int iSk
 
 		/// June @328e607e..328e60cf: the current level's text, from the alternate skill when there is one ( mode 1 ), else the templet
 		if ( NULL != pAltTemplet && 1 == iDescMode_ )
-			wstrDesc += pAltTemplet->GetSkillEffectiveDescValue( iSkillLevel );
+			wstrDesc += JuneGetSkillEffectiveDescValue( pAltTemplet, iSkillLevel );
 		else
-			wstrDesc += pSkillTemplet->GetSkillEffectiveDescValue( iSkillLevel );
+			wstrDesc += JuneGetSkillEffectiveDescValue( pSkillTemplet, iSkillLevel );
 	}
 
 	/// June @328e60e3: the next level's preview, below the level cap ( 0x1e = MAX_LIMITED_SKILL_LEVEL ) and with a select unit
@@ -2843,7 +2960,7 @@ void CX2UISkillTreeNew::GetSkillEffectiveDesc( OUT wstring& wstrDesc, IN int iSk
 		const int iUnitLevel = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_Level;
 		const int iNextLevel = ( 0 == iSkillLevel ) ? 1 : iSkillLevel + 1;
 
-		const wstring wstrNextEffectiveDesc = pSkillTemplet->GetSkillEffectiveDescValue( iNextLevel );		/// June 328ee280( templet, next )
+		const wstring wstrNextEffectiveDesc = JuneGetSkillEffectiveDescValue( pSkillTemplet, iNextLevel );		/// June 328ee280( templet, next )
 
 		/// June @328e6162: HIDE_DO_NOT_EXIST_SKILL_EFFECTIVE_DESC is always on in June: no next text -> no preview
 		if ( 0 != wstrNextEffectiveDesc.compare( L"" ) )
@@ -3143,8 +3260,8 @@ void CX2UISkillTreeNew::ShowSkillDesc( bool bShow, CX2SkillTree::SKILL_ID eSkill
 		wstrMain += L"\n";
 
 	/// @328e96b1: a born-sealed skill that is neither unsealed nor acquired names its unseal item
-	if ( true == pSkillTemplet->m_bBornSealed && false == refUserSkillTree.IsSkillUnsealed( eSkillID ) &&
-		 false == refUserSkillTree.DoIHaveThisSkill( eSkillID ) )
+	if ( true == pSkillTemplet->m_bBornSealed && false == JuneIsSkillAcquired( refUserSkillTree, eSkillID, false ) &&
+		 false == refUserSkillTree.IsSkillUnsealed( eSkillID ) )
 		GetSkillUnSealedDesc( wstrMain, eSkillID );
 
 	/// @328e96e8: the common description ( the alternate skill's in mode 1 )

@@ -1321,6 +1321,29 @@ Revert: `MODS.md` "June's skill tree UI". Funcmap rows `Skill S7b` (38). JUNE_BU
 - **How to see it.** Unit 25 (Lord Knight): the 2015 tree window with Lv rows, coloured type backgrounds, no learn buttons / SP; 21000 (grade 1) shows `[Special Active ...]` in the tooltip and
   drags; the type colours load once (`[JUNE_SKILL] UI SkillTypeColor.lua loaded N colour row(s)`). Unit 41 (Electra) the same on another class.
 
+### Phase S7b - Play-test fixes (2026-10-18, Opus 5.5 high)
+
+**First play-test (17:25 run, exe e31d2624):** layout, type labels, second class and tabs passed; equip FAILED, the background looked stacked, the TC slot looked wrong,
+the tooltip showed `@1%` / `@2%`. Log: every drop was undone 50 ms later (`SKILL slot N <- skill X`, then `slot N <- skill 0`), and unit 41's four equipped skills were all
+taken off on field entry (the save was changed; she needs re-equipping). 0 EXCEPTION, clean exit, `SkillTypeColor.lua loaded 16 colour row(s)`.
+- **Equip (cause of both).** `328914b0` is the **acquired-map** check `(id, bUpgradeSwap)`, not IsSkillUnsealed (the unsealed set is `32890a00`, user tree `+0x38`). The equipped
+  slot's refresh (`328e1d38`) takes off a skill that is not *acquired*; S7b's port tested March's unsealed set, so every refresh unequipped. All four call sites now use June's test:
+  `JuneIsSkillAcquired` (= `GetUserSkillTemplet( id, swap )`, the same find); the tree lock (`328dd042`) and the desc unseal line (`328e96b1`) keep June's order. Also June passes the
+  upgrade swap at `32890a30`, `328e1caf` and `328e6602`, which S7b dropped. Funcmap rows "Skill S7b play-test fix".
+- **`@1` / `@2`.** June's effect text (`328ee280`) fills `@N` from the templet's NUMERICAL_DATA rows (`32215e80` + `32214fc0`: `@101+i` = value * pvp rate, `@1+i` = value; letters
+  I / L / S / e / f / h / i); March's getter has only the `GetSkillEffectiveDescExpand` special cases. Ported whole as `JuneGetSkillEffectiveDescValue` (the 4 calls of `328e5e60`).
+  JUNE_BUGS 305-308. The other caller, `32929770` (from `3292a640`), is a June UI no phase owns yet.
+- **Textures.** The tree's page radios and cash button name `NewSkill_01` pieces March's sheet lacks (`BT_1..3_*`, `BT_CASHBUY_*`); a missing piece draws the wrong area. A census of all 72
+  (texture, piece) pairs of the 5 dialogs + the C++ found only those. Staged June's copies (stage-june; every March piece kept, except `ABLECHOICE` / `BG_TITLE_RESKILL`, read only by
+  March's removed learn path and `DLG_UI_Skill_Choice.lua`, which nothing loads): data057 `NewSkill_01`, `Texture02`, `Texture20`, `Texture21_NEW.tga`, `Texture65_NEW`; data056 `Button14`.
+  **Held back:** `DLG_UI_Common_Texture64_NEW` (the slot bar's sheet; same coordinates for SKILL_SLOT / LOCK / Glow): June's drops `EXP`, which March's live
+  `DLG_Menu_Button_NEW.lua` (SERV_RECOMMEND_LIST_EVENT is off) draws the EXP gauge with; June's menu uses `EXP_Y`. Adopting it needs June's menu dialog with it (June asset plan).
+  The A-TC slot shows locked by design (transcendence is Stage 6; B-TC follows slot-state key 1 = 0).
+- **Hygiene.** `flagcheck --worktree --files X2Lib/X2UISkillTreeNew2015.cpp`: `1 PASS ... 0 FAIL` / `18 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched` / `RESULT: PASS`
+  (the 18 are S7b's own lines in a file that is wholly inside the flag).
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 19,962,368 B, dated 2026-10-18 17:47:39, md5 9f2dc90916b2449eaab6b74254b0f501, equal to X2/US_SERVICE/x2.exe (2026-10-18 17:47:33); built at main ad0d41b7 + 1 uncommitted code file(s).`
+  `X2UISkillTreeNew.obj` rebuilt 17:47:23 (after the edit), `JuneReplaceSkillDescValues` in x2.map. PACK OK data056 / data057.
+
 ## Phase S7c - Skill memos: popups, packets, emulator, save
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET`. Sub-tag `[JUNE_SKILL] MEMO`. Split out of S7b (user, 2026-10-18).
