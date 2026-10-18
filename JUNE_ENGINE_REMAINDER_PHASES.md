@@ -869,7 +869,9 @@ ANTIALIASING_LEVEL`, `@CKTDXAPP@SceneRenderTarget@`, `PerturbationMap.png` and t
 both switches 1 ("scene target made, effect target made"), then one with switches 0 and no targets. (2) `ANTIALIASING_LEVEL = 2` in the game
 dir's `GameOptions.lua`: smoother edges, the FRAME line says `-> 2` and "scene target made". (3) On exit the file keeps the key.
 
-**User owes:** the play-test below. Next after it: `/x2-phase june-engine R4b review` on Opus 5.5 / high.
+**Play-test PASSED 2026-10-18** (user: the game looks fine at the default and at level 2; log, exe 0818bfeb, run 07:43: FRAME lines 1024x768 then 1366 / 1365x768 with both start-up switches 1 ( scene + effect made ), then the forced apply `2 -> 2` ( NONMASKABLE levels 4, quality 1 ) and switches 0 / 0: multisampled scene target, no effect target; no KEM_ERROR76-80; 0 EXCEPTION; GameOptions.lua rewritten at exit with `ANTIALIASING_LEVEL  = 2,`).
+
+**User owes:** nothing. Next: `/x2-phase june-engine R4b review` on Opus 5.5 / high.
 
 ## Phase R4c - State render split
 
