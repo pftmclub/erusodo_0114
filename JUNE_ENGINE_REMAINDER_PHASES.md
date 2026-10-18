@@ -1005,12 +1005,12 @@ Hygiene: `flagcheck --range f754f8c1^..HEAD`: `files: 26 PASS, 0 PASS~, 2 DEFINE
 (8a842484). The fix, `--worktree --files` on the 3 files: `files: 3 PASS, 0 FAIL` / `0 deleted line(s)` / `RESULT: PASS`.
 Build: **deploy pending.** My three files compiled clean, but X2Lib stopped at the peer's uncommitted S5 edits (`JUNE_SKILL_SLOT_10`:
 `X2GUUser.cpp` / `X2UserSkillTree.cpp` `USI_SPECIAL_ATTACK_5`, `X2OfflineSkill.cpp` `m_wstrSkillSlotBEndDate`). Following the shared-build
-rule I did not re-run. The first exe built after S5 compiles carries the fix.
+rule I did not re-run. Re-run once S5 compiled: `DEPLOY OK: X2_offline.exe is 19,991,040 B, dated 2026-10-18 10:50:47, md5 7de78c309d9c964cd14106a37b1a86ae, equal to X2/US_SERVICE/x2.exe (2026-10-18 10:50:42); built at main 2d6777e8 + 33 uncommitted code file(s)`. The 10:34 play-test ran on the 10:11 exe (md5 2475b432, before the fix): clean, 0 EXCEPTION, not the fix's test.
 
 **How to see it in game:** select a character -> the loading screen's gauge advances while loading; changing state (village -> dungeon room
 and similar) shows the state-change box; the start-up splash shows during the boot load.
 
-**User owes:** a short play-test on the first exe built after S5 compiles. Next: `/x2-phase june-engine R4c2` on Opus 5.5 / high.
+**User owes:** the three checks above on exe md5 7de78c30 (or later). Next: `/x2-phase june-engine R4c2` on Opus 5.5 / high.
 
 ## Phase R4c2 - Game and room state split
 
