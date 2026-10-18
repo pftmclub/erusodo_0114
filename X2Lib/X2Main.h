@@ -627,6 +627,9 @@ using boost::mt19937;
 #ifdef REFORM_SKILL_NOTE_UI
 #include "./X2SkillNoteManager.h"
 #endif // REFORM_SKILL_NOTE_UI
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#include "./X2SkillNoteManager.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 #ifdef ENUM_CHILD_WINDOW
 BOOL CALLBACK EnumChildProc_Thread(HWND , LPARAM);
 #endif

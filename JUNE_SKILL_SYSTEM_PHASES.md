@@ -589,6 +589,55 @@ mechanical checks. Opus read the diff of `d483753d` and did the Ghidra spot-chec
   noise and goes when Z turns `_DEBUG` off. (2) The tree UI reads required level index 2 of the 1-entry arrays (`LOAD reach ... -> 0`). That is June's
   no-padding rule meeting March's UI; it is noted in `kickoffs/skill-system-core/S7.md`.
 
+## Phase S3b - June skill notes (memos)
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NOTE`. Sub-tag `[JUNE_SKILL] NOTE`. Added 2026-10-17 by S0a
+(unowned June branch). Task and gate: `kickoffs/skill-system-core/S3b.md`.
+
+**Done note (2026-10-18, Opus 5.5 high): S3b built, packed; copy and play-test pending.** Funcmap: 16 rows tagged `(S3b)`.
+- **Finding: March's skill-note manager is not in the US build.** `OnlyGlobal/Always_Global.h:39` `#undef`s `REFORM_SKILL_NOTE_UI`
+  (Always.h:526 defines it first), so March's `CX2SkillNoteManager`, its Lua binding (`X2Main.cpp:5523`) and its load
+  (`X2StateLoading.cpp:778`) were compiled out and `SkillNoteTemplet.lua` was never read. S0a's "March binds AddSkillNoteTemplet" held for
+  the source only. June's US build has the manager, so S3b declares June's class under the flag (`X2SkillNoteManager.h`, `#error` if the
+  March class is ever on too), with its own include (`X2Main.h`), binding, load and destroy beside March's.
+- **June's model (RE).** A memo is a `MEMO_ID` type (1-22, `MI_ENHANCE` .. `MI_LONGSHOT`), not an item. Each class lists rows
+  { memo, skill, required unit level, five values }. A row opens at the unit's level and is switched on per skill in the tree UI
+  (REQ `0x554` / `0x556`). The ACKs write the user tree's `multimap<skill, memo>` (+0x458), and the unit-info refresh also merges it.
+  Readers ask "the active row for this skill" (`31fdbbb0`, `31fdbcc0`).
+- **Ported (flag `JUNE_SKILL_NOTE`):**
+  - `CX2SkillNoteManager`: loader `32452270`; `AddSkillNoteTemplet 32453160` (March's body; June's data calls it 0 times);
+    `AddNewSkillNoteTemplet 32454840` with June's parent inheritance (first job / base rows inserted at the front; the class tables
+    `31eca1d0` / `32368880` / `31eca340` and the `337a1660` table read off its initializer's stores); `AddMemoIDMatchItemID 32452120` (multimap);
+    `AddRemovableMemoItemID 32450f20` (set). Readers `324511a0`, `324510e0`, `32451140`, `32451250`, `32452150`, `32451ff0`, `32450f50`,
+    `32451210`, `32455150`.
+  - `CX2UserSkillTree`: `IsJuneMemoActive 32890f90`, `GetJuneActiveMemoList 32891e10`, `Add 328923e0`, `Remove 32891050`, `Clear 32892050`,
+    `Merge 32892410`.
+  - `CX2GUUser::GetJuneSkillMemoEntry` (`31fdbbb0`) is real; it was C8b's null stub. The C8b memo DamageData switch (`3202ac40`) now runs
+    whenever a memo is active. `GetJuneTranscendenceMemoSkillID` (`31fdbcc0`) is new; S3d wires its caller.
+- **Data.** `adopt-june data036 SkillNoteTemplet.lua` (ljconv, 86176 B; record `june2017_re/june_adopt_20261018_081934.tsv`). Core `Enum.lua`
+  (BOM source, `luasrc.py refresh`, ledger + core check PASS) gains June's `MEMO_ID` verbatim, plus the 80 June `SKILL_ID` names the file uses
+  that the table lacked, with June's values and no value collisions. Without them the rows read nil, and the whole file stops at `MEMO_ID`.
+  `PACK OK data036` (242 entries, 13504762 bytes; vs live ~2: Enum.lua, SkillNoteTemplet.lua).
+- **JUNE_BUGS 286:** a second job holds its base's rows twice (first-job list + base list, both at the front). Guarded, not June:
+  `32454840` reads a missing parent's map node without an end() test; June's data never has one (`parent_missing` in the load line).
+- **Routed (no owner before):**
+  - **S7:** the memo UI (`328dda50`, `328e9b30`, `328ded60`, the text builders `32453420` / `324513e0`), the packets `0x554`-`0x557`
+    with their ACK handlers (`31f1bdb0`, `31f1c1d0`), the emulator handlers, and the save rows. These move to S7, not S3b as the
+    kickoff planned, because nothing can send the REQs before S7's UI exists.
+  - **S5:** the unit-info merge (`31ed4c80`, `3220f2b0`).
+  - **New S3d:** the stubbed consumers (EffectSet memo scale `321e1e60` / `321dddb0`, the switch's unported cases, `32028250`, vslot 471,
+    `32024ff0` variants, CommonStateStart's `31fdbcc0` use).
+- **Hygiene:** `flagcheck JUNE_SKILL_NOTE --worktree` (10 files): `files: 7 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- **Deploy:** S3b's own builds were blocked by peer guards (fixed by their owners), so the exe came from a peer's build:
+  `X2_offline.exe` 19973120 B, 2026-10-18 09:18:28, md5 `d4eef83688b181e6dbdb7d59656cc4a8`. Checked: it carries both `[JUNE_SKILL] NOTE` format strings and the
+  three binder names. data036: `PACK OK`, copy pending the user's OK.
+- **How to see it in game:** the first loading screen writes two `[JUNE_SKILL] NOTE` lines to `offline_server.log`. Expect
+  `AddNewSkillNoteTemplet=86 AddMemoIDMatchItemID=23 AddRemovableMemoItemID=7 AddSkillNoteTemplet=0`, then `classes=86`,
+  `memo0_dropped=0 skill0=0 parent_missing=0 class_dup=0`. No memo can be switched on until S7, so nothing changes in play.
+  No class script is ported to June yet (Stages 5 / 7), so per the kickoff the load counts are the gate.
+- **Open questions:** none.
+
 ## Phase S3c - June skill types 14-18 in March's engine
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TYPE`. Sub-tag `[JUNE_SKILL] TYPE`. Added 2026-10-18 by S3

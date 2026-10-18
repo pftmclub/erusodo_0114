@@ -3018,6 +3018,68 @@ bool CX2UserSkillTree::GetEqipSkillMemo(int iSkillMemo) const
 #endif
 
 //슬롯 B에 장착 할 때 레벨값을 갱신하지 않는 오류 수정
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+/// June2017 32890f90: equal_range( skill ) on the +0x458 multimap, true when one value is the memo
+bool CX2UserSkillTree::IsJuneMemoActive( int iSkillID_, int iMemoID_ ) const
+{
+	typedef std::multimap<int, int>::const_iterator MemoIt;
+	std::pair<MemoIt, MemoIt> range = m_mmapJuneActiveMemo.equal_range( iSkillID_ );
+	for( MemoIt it = range.first; it != range.second; ++it )
+	{
+		if( it->second == iMemoID_ )
+			return true;
+	}
+	return false;
+}
+
+/// June2017 32891e10: the skill through 32207210 (an [Enhanced] id reads as its base), then every memo > 0 of it, appended
+void CX2UserSkillTree::GetJuneActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const
+{
+	int iBaseSkillID = iSkillID_;
+	if( NULL != g_pData && NULL != g_pData->GetSkillTree() )
+		iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) );
+
+	typedef std::multimap<int, int>::const_iterator MemoIt;
+	std::pair<MemoIt, MemoIt> range = m_mmapJuneActiveMemo.equal_range( iBaseSkillID );
+	for( MemoIt it = range.first; it != range.second; ++it )
+	{
+		if( 0 < it->second )
+			vecMemoID_.push_back( it->second );
+	}
+}
+
+/// June2017 328923e0: multimap insert, the ids as given (the 0x555 ACK's skill and memo)
+void CX2UserSkillTree::AddJuneActiveMemo( int iSkillID_, int iMemoID_ )
+{
+	m_mmapJuneActiveMemo.insert( std::make_pair( iSkillID_, iMemoID_ ) );
+}
+
+/// June2017 32891050: erase, inside equal_range( skill ), every pair whose memo matches, or all of them when the memo is 0
+void CX2UserSkillTree::RemoveJuneActiveMemo( int iSkillID_, int iMemoID_ )
+{
+	typedef std::multimap<int, int>::iterator MemoIt;
+	std::pair<MemoIt, MemoIt> range = m_mmapJuneActiveMemo.equal_range( iSkillID_ );
+	MemoIt it = range.first;
+	while( it != range.second )
+	{
+		if( it->second == iMemoID_ || 0 == iMemoID_ )
+			it = m_mmapJuneActiveMemo.erase( it );
+		else
+			++it;
+	}
+}
+
+/// June2017 32892410: every source pair not already active (32890f90) is inserted
+void CX2UserSkillTree::MergeJuneActiveMemo( const std::multimap<int, int>& mmapMemo_ )
+{
+	typedef std::multimap<int, int>::const_iterator MemoIt;
+	for( MemoIt it = mmapMemo_.begin(); it != mmapMemo_.end(); ++it )
+	{
+		if( false == IsJuneMemoActive( it->first, it->second ) )
+			m_mmapJuneActiveMemo.insert( std::make_pair( it->first, it->second ) );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 int CX2UserSkillTree::UpdateEquippedSkillLevelFromAcqureidMap( const CX2SkillTree::SKILL_ID eSkillID, const int iSlotIndex_, bool bSlotB )
 {
 #ifdef SKILL_PAGE_SYSTEM //JHKang

@@ -2,6 +2,20 @@
 
 
 #ifdef NEW_SKILL_TREE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+/// June2017 CX2SkillNoteManager memo row, 28 bytes (built by AddNewSkillNoteTemplet 32454840, read by 324510e0 / 32451140 / 32451250):
+/// +0 MEMO_ID, +4 skill id, +8 the unit level the memo needs (-1 when the row has none; 32455150 compares the unit's level), +0xc five
+/// values (-1.0 where the row has none). Declared here because X2Main.h includes this header before X2GUUser.h and X2SkillNoteManager.h.
+struct SJuneSkillMemoTemplet
+{
+	int					m_iType;
+	int					m_iSkillID;
+	int					m_iRequireLevel;
+	std::vector<float>	m_vecValue;
+
+	SJuneSkillMemoTemplet() : m_iType( 0 ), m_iSkillID( 0 ), m_iRequireLevel( -1 ) {}
+};
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 /** @class	CX2UserSkillTree
 	@brief	유저의 스킬 슬롯 관련, B 슬롯 상태 확인, 던전 플레이 시 스킬 레벨 증가 아이템 적용 등
 	@date	2011/01/06(주석 추가)
@@ -437,6 +451,17 @@ public:
 	void SetEqipSkillMemo( const std::vector<int>& vecSkillMemo) { m_vecSkillNote = vecSkillMemo; }
 	bool GetEqipSkillMemo(int iSkillMemo) const;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+	/// June2017 active skill memos: a multimap skill id -> MEMO_ID at +0x458 (ctor 32897b70, dtor 32898120; Reset 328983b0 leaves it).
+	/// June writes it only from the memo ACKs (0x555 -> 328923e0, 0x557 -> 32891050) and the unit-info refresh (32892050 + 32892410).
+	bool IsJuneMemoActive( int iSkillID_, int iMemoID_ ) const;					/// June 32890f90: the id as given, no base mapping
+	void GetJuneActiveMemoList( int iSkillID_, OUT std::vector<int>& vecMemoID_ ) const;	/// June 32891e10: the base id (32207210), memos > 0
+	void AddJuneActiveMemo( int iSkillID_, int iMemoID_ );						/// June 328923e0
+	void RemoveJuneActiveMemo( int iSkillID_, int iMemoID_ );					/// June 32891050: memo 0 removes every memo of the skill
+	void ClearJuneActiveMemo() { m_mmapJuneActiveMemo.clear(); }					/// June 32892050
+	void MergeJuneActiveMemo( const std::multimap<int, int>& mmapMemo_ );		/// June 32892410: adds the pairs not active yet
+	const std::multimap<int, int>& GetJuneActiveMemoMap() const { return m_mmapJuneActiveMemo; }
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 	bool IsChangedSkillSlot( const int iSlotIndex_, const bool bSlotB_, const KSkillData& kSkillData_ ) const
 	{
@@ -561,6 +586,9 @@ private:
 #ifdef SERV_SKILL_NOTE
 	std::vector<int> m_vecSkillNote; // CX2SkillTree::SKILL_MEMO_ID
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+	std::multimap<int, int>	m_mmapJuneActiveMemo;	/// June +0x458: skill id -> MEMO_ID
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 /// private variable End ----------
 

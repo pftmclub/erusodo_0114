@@ -2984,6 +2984,16 @@ public:
 		virtual	void				SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);
 #endif //MODIFY_SET_DAMAGE_DATA
 #ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+		/// June 31fdbbb0's result is a CX2SkillNoteManager memo row (S3b): +0 the type (MEMO_ID), +0xc / +0x10 the value vector.
+		typedef SJuneSkillMemoTemplet JuneSkillMemoEntry;
+		/// June 31fdbbb0 (user, thiscall, one arg: APPLIED_SKILL_ID): the first of the class's memo rows for the skill that this unit's
+		/// tree has active, or null.
+		const JuneSkillMemoEntry*	GetJuneSkillMemoEntry( const int iAppliedSkillID_ ) const;
+		/// June 31fdbcc0 (user, thiscall, one arg: a skill id): the skill an active MI_TRANSCENDENCE_1 / _2 memo turns it into (value 1 when
+		/// the equipped version is upgraded, else value 0, truncated), or 0. CommonStateStart (32058444) and class code call it.
+		int							GetJuneTranscendenceMemoSkillID( const int iSkillID_ ) const;
+#else SERV_IRUHADEV_JUNE_SKILL_NOTE
 		/// June effect completion C8b: one skill-memo entry, June 31fdbbb0's result: +0 the type, +0xc / +0x10 a float vector (the
 		/// entry's values v0, v1, v2; a value past the end of the vector reads 0 in 3202ac40 @3202ac6c-3202aca9).
 		struct JuneSkillMemoEntry
@@ -2994,6 +3004,7 @@ public:
 		/// June 31fdbbb0 (user, thiscall, one arg: APPLIED_SKILL_ID): the user's skill-memo entry for that skill, or null. March has no
 		/// skill-memo system, so this is a plan-rule-5 stub: it returns null and logs "JUNE_FX unsupported skill memo" once.
 		const JuneSkillMemoEntry*	GetJuneSkillMemoEntry( const int iAppliedSkillID_ ) const;
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 		/// June CX2GUUser vslot 0x758 (3202ac40): the skill-memo DamageData switch. Called on the attacker by the user layer of
 		/// SetDamageExceptionProcess, and by the NPC override on the NPC's owner.
 		virtual void				JuneApplySkillMemoToDamageData( CX2DamageManager::DamageData* pDamageData_ );

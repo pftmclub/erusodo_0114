@@ -224,3 +224,425 @@ int CX2SkillNoteManager::GetSkillIDByMemoItemID( int iMemoItemID_ , bool bIsMySk
 	return 0;
 }
 #endif // REFORM_SKILL_NOTE_UI
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifdef SERV_IRUHADEV_OFFLINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
+
+CX2SkillNoteManager* CX2SkillNoteManager::m_pManager = NULL;
+
+/// June2017 324550a0: made on first use (0x54 bytes)
+/*static*/ CX2SkillNoteManager* CX2SkillNoteManager::GetInstance()
+{
+	if( NULL == m_pManager )
+		m_pManager = new CX2SkillNoteManager;
+	return m_pManager;
+}
+
+/*static*/ void CX2SkillNoteManager::ResetSkillNoteManager()
+{
+	DestroyInstance();
+}
+
+/// June2017 32455240
+/*static*/ void CX2SkillNoteManager::DestroyInstance()
+{
+	SAFE_DELETE( m_pManager );
+}
+
+CX2SkillNoteManager::CX2SkillNoteManager() :
+m_iJuneOldTempletCalls( 0 ),
+m_iJuneNewTempletCalls( 0 ),
+m_iJuneMatchCalls( 0 ),
+m_iJuneRemovableCalls( 0 ),
+m_iJuneOwnRows( 0 ),
+m_iJuneInheritedRows( 0 ),
+m_iJuneZeroMemoRows( 0 ),
+m_iJuneZeroSkillRows( 0 ),
+m_iJuneMissingParents( 0 ),
+m_iJuneDuplicateClasses( 0 )
+{
+}
+
+CX2SkillNoteManager::~CX2SkillNoteManager()
+{
+}
+
+/// June2017 32452270: g_pSkillNoteManager = this, then SkillNoteTemplet.lua (the shipped DoMemory path, as March's loader). Logs the
+/// "[JUNE_SKILL] NOTE" counts after the script ran.
+bool CX2SkillNoteManager::OpenScriptFile()
+{
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pSkillNoteManager", this );
+	if( false == g_pKTDXApp->LoadLuaTinker( L"SkillNoteTemplet.lua" ) )
+	{
+		ErrorLogMsg( XEM_ERROR147, L"SkillNoteTemplet.lua" );
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_SKILL] NOTE SkillNoteTemplet.lua did not load (XEM_ERROR147): no memo rows; check data036 carries June's file and Enum.lua's MEMO_ID" );
+#endif SERV_IRUHADEV_OFFLINE
+		return false;
+	}
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	int iClassRows = 0;
+	for( std::map< int, std::vector<SJuneSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.begin(); it != m_mapJuneMemoTemplet.end(); ++it )
+		iClassRows += static_cast<int>( it->second.size() );
+	CX2OfflineLog::Server( L"[JUNE_SKILL] NOTE AddNewSkillNoteTemplet=%d AddMemoIDMatchItemID=%d AddRemovableMemoItemID=%d AddSkillNoteTemplet=%d",
+		m_iJuneNewTempletCalls, m_iJuneMatchCalls, m_iJuneRemovableCalls, m_iJuneOldTempletCalls );
+	CX2OfflineLog::Server( L"[JUNE_SKILL] NOTE classes=%d rows=%d ( own=%d inherited=%d ) match_pairs=%d removable_items=%d | memo0_dropped=%d skill0=%d parent_missing=%d class_dup=%d",
+		static_cast<int>( m_mapJuneMemoTemplet.size() ), iClassRows, m_iJuneOwnRows, m_iJuneInheritedRows,
+		static_cast<int>( m_mmapJuneMemoMatchItemID.size() ), static_cast<int>( m_setJuneRemovableMemoItemID.size() ),
+		m_iJuneZeroMemoRows, m_iJuneZeroSkillRows, m_iJuneMissingParents, m_iJuneDuplicateClasses );
+#endif SERV_IRUHADEV_OFFLINE
+	return true;
+}
+
+/// June2017 32453160 = March's AddSkillNoteTemplet_LUA: UNIT_CLASS (0 -> nothing), MEMO_LIST rows { memo item id, skill id } (-1 when
+/// absent; a row needs both), the class inserted when it has rows (never replaces)
+void CX2SkillNoteManager::AddSkillNoteTemplet_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	++m_iJuneOldTempletCalls;
+
+	int iUnitClass = 0;
+	if( false == luaManager.GetValue( "UNIT_CLASS", iUnitClass ) || 0 == iUnitClass )
+		return;
+
+	std::vector< std::pair<int, int> > vecMemoList;
+	if( true == luaManager.BeginTable( "MEMO_LIST" ) )
+	{
+		int iTableIndex = 1;
+		while( true == luaManager.BeginTable( iTableIndex++ ) )
+		{
+			int iMemoItemID = -1;
+			int iSkillID = -1;
+			luaManager.GetValue( 1, iMemoItemID );
+			luaManager.GetValue( 2, iSkillID );
+			if( -1 != iMemoItemID && -1 != iSkillID )
+				vecMemoList.push_back( std::make_pair( iMemoItemID, iSkillID ) );
+			luaManager.EndTable();
+		}
+		luaManager.EndTable();
+	}
+
+	if( false == vecMemoList.empty() )
+		m_mapSkillNoteTemplet.insert( std::make_pair( iUnitClass, vecMemoList ) );
+}
+
+namespace
+{
+	/// June2017 31eca1d0: UNIT_CLASS -> UNIT_TYPE, a switch (0 for any other class)
+	int JuneUnitTypeOfClass( int iUnitClass_ )
+	{
+		switch( iUnitClass_ )
+		{
+		case 1:   case 10:  case 11:  case 22:  case 100: case 101: case 112:	return 1;
+		case 2:   case 14:  case 15:  case 23:  case 104: case 105: case 113:	return 2;
+		case 3:   case 12:  case 13:  case 24:  case 102: case 103: case 114:	return 3;
+		case 4:   case 16:  case 17:  case 25:  case 106: case 107: case 115:	return 4;
+		case 5:   case 18:  case 19:  case 26:  case 108: case 109: case 116:	return 5;
+		case 6:   case 20:  case 21:  case 27:  case 110: case 111: case 117:	return 6;
+		case 7:   case 28:  case 31:  case 34:  case 118: case 119: case 124:	return 7;
+		case 8:   case 29:  case 30:  case 35:  case 120: case 121: case 125:	return 8;
+		case 9:   case 32:  case 33:  case 36:  case 122: case 123: case 126:	return 9;
+		case 37:  case 38:  case 39:  case 127: case 128: case 129: case 200:	return 10;
+		case 40:  case 41:  case 42:  case 43:  case 130: case 131: case 132: case 133: case 201:	return 11;
+		case 44:  case 45:  case 46:  case 134: case 135: case 136: case 202:	return 12;
+		default:	return 0;
+		}
+	}
+
+	/// June2017 32368880: UNIT_TYPE -> the type's base class (0 for any other type)
+	int JuneBaseClassOfType( int iUnitType_ )
+	{
+		if( 1 <= iUnitType_ && iUnitType_ <= 9 )
+			return iUnitType_;
+		switch( iUnitType_ )
+		{
+		case 10:	return 200;
+		case 11:	return 201;
+		case 12:	return 202;
+		default:	return 0;
+		}
+	}
+
+	/// June2017 31eca340: UNIT_CLASS -> its job line 1-4 (0 for a base class or any other class)
+	int JuneLineOfClass( int iUnitClass_ )
+	{
+		switch( iUnitClass_ )
+		{
+		case 10:  case 12:  case 14:  case 16:  case 18:  case 20:  case 28:  case 29:  case 32:  case 37:  case 41:  case 44:
+		case 100: case 102: case 104: case 106: case 108: case 110: case 118: case 120: case 122: case 127: case 131: case 134:
+			return 1;
+		case 11:  case 13:  case 15:  case 17:  case 19:  case 21:  case 30:  case 31:  case 33:  case 38:  case 40:  case 45:
+		case 101: case 103: case 105: case 107: case 109: case 111: case 119: case 121: case 123: case 128: case 130: case 135:
+			return 2;
+		case 22:  case 23:  case 24:  case 25:  case 26:  case 27:  case 34:  case 35:  case 36:  case 39:  case 43:  case 46:
+		case 112: case 113: case 114: case 115: case 116: case 117: case 124: case 125: case 126: case 129: case 133: case 136:
+			return 3;
+		case 42:  case 132:
+			return 4;
+		default:
+			return 0;
+		}
+	}
+
+	/// June2017 3234b390: the class at [ type ][ tier ][ line ] of the table at 337a1660 (BSS, filled by the static initializer
+	/// @3234afb5-3234b389; read out of its stores). Tier 0 base, 1 first job, 2 second job; entries the initializer never writes are 0.
+	int JuneClassAt( int iUnitType_, int iTier_, int iLine_ )
+	{
+		static const int s_aiJuneClassTable[13][4][5] =
+		{
+			{ { 0, 0,   0,   0,   0   }, { 0, 0,   0,   0,   0   }, { 0, 0,   0,   0,   0   }, { 0 } },
+			{ { 0, 1,   1,   1,   0   }, { 0, 10,  11,  22,  0   }, { 0, 100, 101, 112, 0   }, { 0 } },
+			{ { 0, 2,   2,   2,   0   }, { 0, 14,  15,  23,  0   }, { 0, 104, 105, 113, 0   }, { 0 } },
+			{ { 0, 3,   3,   3,   0   }, { 0, 12,  13,  24,  0   }, { 0, 102, 103, 114, 0   }, { 0 } },
+			{ { 0, 4,   4,   4,   0   }, { 0, 16,  17,  25,  0   }, { 0, 106, 107, 115, 0   }, { 0 } },
+			{ { 0, 5,   5,   5,   0   }, { 0, 18,  19,  26,  0   }, { 0, 108, 109, 116, 0   }, { 0 } },
+			{ { 0, 6,   6,   6,   0   }, { 0, 20,  21,  27,  0   }, { 0, 110, 111, 117, 0   }, { 0 } },
+			{ { 0, 7,   7,   7,   0   }, { 0, 28,  31,  34,  0   }, { 0, 118, 119, 124, 0   }, { 0 } },
+			{ { 0, 8,   8,   8,   0   }, { 0, 29,  30,  35,  0   }, { 0, 120, 121, 125, 0   }, { 0 } },
+			{ { 0, 9,   9,   9,   0   }, { 0, 32,  33,  36,  0   }, { 0, 122, 123, 126, 0   }, { 0 } },
+			{ { 0, 200, 200, 0,   0   }, { 0, 37,  38,  39,  0   }, { 0, 127, 128, 129, 0   }, { 0 } },
+			{ { 0, 201, 201, 201, 201 }, { 0, 41,  40,  43,  42  }, { 0, 131, 130, 133, 132 }, { 0 } },
+			{ { 0, 202, 202, 202, 202 }, { 0, 44,  45,  46,  0   }, { 0, 134, 135, 136, 0   }, { 0 } },
+		};
+		if( iUnitType_ < 0 || 13 <= iUnitType_ || iTier_ < 0 || 4 <= iTier_ || iLine_ < 0 || 5 <= iLine_ )
+			return 0;
+		return s_aiJuneClassTable[ iUnitType_ ][ iTier_ ][ iLine_ ];
+	}
+
+	/// June2017 32207210 (g_pData skill tree present): an [Enhanced] id reads as the base it replaces
+	int JuneMemoBaseSkillID( int iSkillID_ )
+	{
+		if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+			return iSkillID_;
+		return static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) );
+	}
+}
+
+/// June2017 32454840. UNIT_CLASS (0 -> nothing). A first job (class 10-99) starts with its base class's rows, a second job (100-199)
+/// with its first job's rows and then its base's, each inserted at the front (32455e30 at begin), so a second job holds its base's
+/// rows twice (JUNE_BUGS). Then MEMO_LIST: { MEMO_ID, SKILL_ID, required level, up to five values }; memo, skill read 0 and the level -1
+/// when absent, each value -1.0 (334380f0); a row with memo 0 is dropped. The class goes in with map insert (32457140: never replaces).
+void CX2SkillNoteManager::AddNewSkillNoteTemplet_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	++m_iJuneNewTempletCalls;
+
+	int iUnitClass = 0;
+	if( false == luaManager.GetValue( "UNIT_CLASS", iUnitClass ) || 0 == iUnitClass )
+		return;
+
+	std::vector<SJuneSkillMemoTemplet> vecMemo;
+	const int iTier = ( 9 < iUnitClass && iUnitClass < 200 ) ? ( ( 99 < iUnitClass ) ? 2 : 1 ) : 0;
+	const int iUnitType = JuneUnitTypeOfClass( iUnitClass );
+	if( 2 == iTier )
+	{
+		/// @324549b9-324549f9: the first job on the same line
+		const int iFirstJob = JuneClassAt( iUnitType, 1, JuneLineOfClass( iUnitClass ) );
+		std::map< int, std::vector<SJuneSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iFirstJob );
+		/// June inserts from the found node without testing for end(); an absent parent would read the map head. Guarded here
+		/// (June's own data always defines a parent first: none is missing), counted in the load line.
+		if( m_mapJuneMemoTemplet.end() != it )
+			vecMemo.insert( vecMemo.begin(), it->second.begin(), it->second.end() );
+		else
+			++m_iJuneMissingParents;
+	}
+	if( 1 <= iTier )
+	{
+		/// @32454a0b-32454a40: the base class of the type
+		const int iBaseClass = JuneBaseClassOfType( iUnitType );
+		std::map< int, std::vector<SJuneSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iBaseClass );
+		if( m_mapJuneMemoTemplet.end() != it )
+			vecMemo.insert( vecMemo.begin(), it->second.begin(), it->second.end() );
+		else
+			++m_iJuneMissingParents;
+	}
+	m_iJuneInheritedRows += static_cast<int>( vecMemo.size() );
+
+	if( true == luaManager.BeginTable( "MEMO_LIST" ) )
+	{
+		int iTableIndex = 1;
+		while( true == luaManager.BeginTable( iTableIndex++ ) )
+		{
+			SJuneSkillMemoTemplet kMemo;
+			int iValue = 0;
+			kMemo.m_iType = ( true == luaManager.GetValue( 1, iValue ) ) ? iValue : 0;
+			iValue = 0;
+			kMemo.m_iSkillID = ( true == luaManager.GetValue( 2, iValue ) ) ? iValue : 0;
+			iValue = -1;
+			kMemo.m_iRequireLevel = ( true == luaManager.GetValue( 3, iValue ) ) ? iValue : -1;
+			for( int i = 0; i < 5; ++i )
+			{
+				float fValue = -1.f;
+				if( false == luaManager.GetValue( i + 4, fValue ) )
+					fValue = -1.f;
+				kMemo.m_vecValue.push_back( fValue );
+			}
+
+			if( 0 != kMemo.m_iType )
+			{
+				if( 0 == kMemo.m_iSkillID )
+					++m_iJuneZeroSkillRows;
+				vecMemo.push_back( kMemo );
+				++m_iJuneOwnRows;
+			}
+			else
+			{
+				++m_iJuneZeroMemoRows;
+			}
+			luaManager.EndTable();
+		}
+		luaManager.EndTable();
+	}
+
+	if( false == vecMemo.empty() )
+	{
+		if( false == m_mapJuneMemoTemplet.insert( std::make_pair( iUnitClass, vecMemo ) ).second )
+			++m_iJuneDuplicateClasses;
+	}
+}
+
+/// June2017 32452120: multimap insert ( MEMO_ID, item id ) at +0x14
+void CX2SkillNoteManager::AddMemoIDMatchItemID_LUA( int iMemoID_, int iItemID_ )
+{
+	++m_iJuneMatchCalls;
+	m_mmapJuneMemoMatchItemID.insert( std::make_pair( iMemoID_, iItemID_ ) );
+}
+
+/// June2017 32450f20: set insert at +0x24
+void CX2SkillNoteManager::AddRemovableMemoItemID_LUA( int iItemID_ )
+{
+	++m_iJuneRemovableCalls;
+	m_setJuneRemovableMemoItemID.insert( iItemID_ );
+}
+
+/// June2017 324511a0: the class has memo rows
+bool CX2SkillNoteManager::HasJuneMemoClass( int iUnitClass_ ) const
+{
+	return m_mapJuneMemoTemplet.end() != m_mapJuneMemoTemplet.find( iUnitClass_ );
+}
+
+/// June2017 324510e0: the class's first row with the base skill (32207210) and the memo
+const SJuneSkillMemoTemplet* CX2SkillNoteManager::GetJuneMemo( int iSkillID_, int iMemoID_, int iUnitClass_ ) const
+{
+	const int iBaseSkillID = JuneMemoBaseSkillID( iSkillID_ );
+	std::map< int, std::vector<SJuneSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
+	if( m_mapJuneMemoTemplet.end() == it )
+		return NULL;
+	for( std::vector<SJuneSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
+	{
+		if( itMemo->m_iSkillID == iBaseSkillID && itMemo->m_iType == iMemoID_ )
+			return &( *itMemo );
+	}
+	return NULL;
+}
+
+/// June2017 32451140: the class's iIndex_-th row (from 0) with the base skill (32207210)
+const SJuneSkillMemoTemplet* CX2SkillNoteManager::GetJuneMemoByIndex( int iSkillID_, int iIndex_, int iUnitClass_ ) const
+{
+	const int iBaseSkillID = JuneMemoBaseSkillID( iSkillID_ );
+	std::map< int, std::vector<SJuneSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
+	if( m_mapJuneMemoTemplet.end() == it )
+		return NULL;
+	int iFound = 0;
+	for( std::vector<SJuneSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
+	{
+		if( itMemo->m_iSkillID == iBaseSkillID )
+		{
+			if( iFound == iIndex_ )
+				return &( *itMemo );
+			++iFound;
+		}
+	}
+	return NULL;
+}
+
+/// June2017 32451250 (filter struct { skill, level, class, memo }): every row of the class matching each non-zero filter; the skill
+/// goes through 32207210 first, and an id 32207210 leaves at 0 matches any skill
+void CX2SkillNoteManager::GetJuneMemoList( int iSkillID_, int iRequireLevel_, int iUnitClass_, int iMemoID_,
+	OUT std::vector<const SJuneSkillMemoTemplet*>& vecMemo_ ) const
+{
+	const int iBaseSkillID = JuneMemoBaseSkillID( iSkillID_ );
+	std::map< int, std::vector<SJuneSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
+	if( m_mapJuneMemoTemplet.end() == it )
+		return;
+	for( std::vector<SJuneSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
+	{
+		if( ( 0 == iRequireLevel_ || iRequireLevel_ == itMemo->m_iRequireLevel ) &&
+			( 0 == iBaseSkillID || iBaseSkillID == itMemo->m_iSkillID ) &&
+			( 0 == iMemoID_ || iMemoID_ == itMemo->m_iType ) )
+			vecMemo_.push_back( &( *itMemo ) );
+	}
+}
+
+/// June2017 32452150: a copy of the values of the class's first row with the memo and the base skill (32207210); empty when none
+std::vector<float> CX2SkillNoteManager::GetJuneMemoValue( int iSkillID_, int iMemoID_, int iUnitClass_ ) const
+{
+	const SJuneSkillMemoTemplet* pMemo = GetJuneMemo( iSkillID_, iMemoID_, iUnitClass_ );
+	if( NULL == pMemo )
+		return std::vector<float>();
+	return pMemo->m_vecValue;
+}
+
+/// June2017 32451ff0: the skill of the class's first MI_TRANSCENDENCE_1 / _2 row (19, 20) whose value 0 or value 1, truncated
+/// (32fe25f0), is iValue_ (a value past the end reads 0); 0 when none. No base mapping.
+int CX2SkillNoteManager::GetJuneSkillIDByTranscendenceValue( int iValue_, int iUnitClass_ ) const
+{
+	std::map< int, std::vector<SJuneSkillMemoTemplet> >::const_iterator it = m_mapJuneMemoTemplet.find( iUnitClass_ );
+	if( m_mapJuneMemoTemplet.end() == it )
+		return 0;
+	for( std::vector<SJuneSkillMemoTemplet>::const_iterator itMemo = it->second.begin(); itMemo != it->second.end(); ++itMemo )
+	{
+		if( 19 != itMemo->m_iType && 20 != itMemo->m_iType )
+			continue;
+		const int iValueCount = static_cast<int>( itMemo->m_vecValue.size() );
+		const float fValue0 = ( 1 <= iValueCount ) ? itMemo->m_vecValue[0] : 0.f;
+		const float fValue1 = ( 2 <= iValueCount ) ? itMemo->m_vecValue[1] : 0.f;
+		if( iValue_ == static_cast<int>( fValue0 ) || iValue_ == static_cast<int>( fValue1 ) )
+			return itMemo->m_iSkillID;
+	}
+	return 0;
+}
+
+/// June2017 32450f50: equal_range( memo ) on the +0x14 multimap, item ids appended
+void CX2SkillNoteManager::GetJuneMemoMatchItemIDList( int iMemoID_, OUT std::vector<int>& vecItemID_ ) const
+{
+	typedef std::multimap<int, int>::const_iterator MatchIt;
+	std::pair<MatchIt, MatchIt> range = m_mmapJuneMemoMatchItemID.equal_range( iMemoID_ );
+	for( MatchIt it = range.first; it != range.second; ++it )
+		vecItemID_.push_back( it->second );
+}
+
+/// June2017 32451210: every removable-memo item id, appended in set order
+void CX2SkillNoteManager::GetJuneRemovableMemoItemIDList( OUT std::vector<int>& vecItemID_ ) const
+{
+	for( std::set<int>::const_iterator it = m_setJuneRemovableMemoItemID.begin(); it != m_setJuneRemovableMemoItemID.end(); ++it )
+		vecItemID_.push_back( *it );
+}
+
+/// June2017 32455150 (static; makes the manager if needed): 0 when the class has the row and the unit's level is below its level,
+/// else 2 when MY selected unit's tree (g_pData +0x68 +0x90, +0x494) has the memo active for the base skill (32890f90), else 1
+/*static*/ int CX2SkillNoteManager::GetJuneMemoState( int iSkillID_, int iMemoID_, int iUnitLevel_, int iUnitClass_ )
+{
+	const int iBaseSkillID = JuneMemoBaseSkillID( iSkillID_ );
+	const SJuneSkillMemoTemplet* pMemo = GetInstance()->GetJuneMemo( iBaseSkillID, iMemoID_, iUnitClass_ );
+	if( NULL != pMemo && iUnitLevel_ < pMemo->m_iRequireLevel )
+		return 0;
+
+	if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+		true == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.IsJuneMemoActive( iBaseSkillID, iMemoID_ ) )
+		return 2;
+
+	return 1;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE

@@ -8023,6 +8023,28 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
+// Description: June skill system core, Phase S3b (JUNE_SKILL_SYSTEM_PHASES.md "Phase S3b"). June's skill memos, engine side:
+//              CX2SkillNoteManager gains June's three tables and binders (AddNewSkillNoteTemplet 32454840 with its parent-class
+//              inheritance, AddMemoIDMatchItemID 32452120, AddRemovableMemoItemID 32450f20) and readers (324511a0 .. 32455150);
+//              CX2UserSkillTree gains June's active-memo multimap (+0x458: 32890f90, 32891e10, 328923e0, 32891050, 32892050,
+//              32892410); CX2GUUser's memo lookup 31fdbbb0 becomes real (the C8b memo switch 3202ac40 then runs) and 31fdbcc0
+//              (transcendence memo skill) is added. data036 carries June's SkillNoteTemplet.lua (ljconv) and Enum.lua gains
+//              MEMO_ID + 80 June SKILL_ID names. "[JUNE_SKILL] NOTE" load line. Nothing activates a memo until S7 (tree UI + packets).
+//              Revert: undefine, and restore March's SkillNoteTemplet.lua in data036.
+#define SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_NOTE needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET (GetUpgradeBaseSkillID 32207210)
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+#error SERV_IRUHADEV_JUNE_SKILL_NOTE needs SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION (CX2GUUser::GetJuneSkillMemoEntry, the C8b memo switch)
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
 // Description: June skill system core, Phase S3c (JUNE_SKILL_SYSTEM_PHASES.md "Phase S3c"). June's SKILL_TYPE 14-16
 //              ST_SPECIAL_ACTIVE_GRADE_1..3, 17 ST_CORE and 18 ST_CORE_PASSIVE (June Enum.lua) join March's C++ enum, and the
 //              engine readers treat them as June does: RESET_SKILL_ACK clears the slots of types 5, 6, 7, 12-16 (June 322112d0

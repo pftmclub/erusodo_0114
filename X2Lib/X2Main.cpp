@@ -2201,6 +2201,9 @@ CX2Main::~CX2Main(void)
 #ifdef REFORM_SKILL_NOTE_UI
 	CX2SkillNoteManager::DestroyInstance();
 #endif // REFORM_SKILL_NOTE_UI
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+	CX2SkillNoteManager::DestroyInstance();
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 	g_pMain = NULL;
 	
@@ -5520,6 +5523,14 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2UIPersonalShopBoard>( L, "AddBanItemNameList",					&CX2UIPersonalShopBoard::AddBanItemNameList_LUA );
 #endif //SERV_UPGRADE_TRADE_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+	// June2017 31d95080 @31e39643-31e39faf: CX2SkillNoteManager and its four binders (March's block below is off: Always_Global.h:39)
+	lua_tinker::class_add<CX2SkillNoteManager>( L, "CX2SkillNoteManager" );
+	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddSkillNoteTemplet",		&CX2SkillNoteManager::AddSkillNoteTemplet_LUA );
+	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddMemoIDMatchItemID",		&CX2SkillNoteManager::AddMemoIDMatchItemID_LUA );
+	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddNewSkillNoteTemplet",	&CX2SkillNoteManager::AddNewSkillNoteTemplet_LUA );
+	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddRemovableMemoItemID",	&CX2SkillNoteManager::AddRemovableMemoItemID_LUA );
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 #ifdef REFORM_SKILL_NOTE_UI
 	lua_tinker::class_add<CX2SkillNoteManager>( L, "CX2SkillNoteManager" );
 	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddSkillNoteTemplet",						&CX2SkillNoteManager::AddSkillNoteTemplet_LUA);

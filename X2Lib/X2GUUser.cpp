@@ -40544,6 +40544,62 @@ void CX2GUUser::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamage
 /// (+0x867c) with the skill id and returns the entry or null. March has no skill-memo system (the memo that swaps a skill for another is a
 /// June reform feature; March only has the hard-coded SKILL_MEMO_ID notes), so per plan rule 5 this returns null, and logs once that the memo
 /// switch below can never run. Nothing is guessed in its place.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+/// June2017 31fdbbb0 (S3b): no CX2Unit (+0x867c) -> null. The filter { base skill (32207210), level 0, the unit's class (+0x38), memo 0 }
+/// collects the class's memo rows for the skill (32451250); the first row whose memo the unit's tree (+0x494) has active for that base
+/// skill (32890f90) is the result.
+const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int iAppliedSkillID_ ) const
+{
+	if ( NULL == GetUnit() )
+		return NULL;
+
+	int iBaseSkillID = iAppliedSkillID_;
+	if ( NULL != g_pData && NULL != g_pData->GetSkillTree() )
+		iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iAppliedSkillID_ ) ) );
+
+	std::vector<const SJuneSkillMemoTemplet*> vecMemo;
+	CX2SkillNoteManager::GetInstance()->GetJuneMemoList( iBaseSkillID, 0, static_cast<int>( GetUnit()->GetClass() ), 0, vecMemo );
+
+	const CX2UserSkillTree& refUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	for ( std::vector<const SJuneSkillMemoTemplet*>::const_iterator it = vecMemo.begin(); it != vecMemo.end(); ++it )
+	{
+		if ( NULL != *it && true == refUserSkillTree.IsJuneMemoActive( iBaseSkillID, (*it)->m_iType ) )
+			return *it;
+	}
+	return NULL;
+}
+
+/// June2017 31fdbcc0 (S3b): the same row walk as 31fdbbb0; for the first active row of type 19 or 20 (MI_TRANSCENDENCE_1 / _2), value
+/// [ upgraded ? 1 : 0 ] truncated (32071cd0, 0 past the end; 32fe25f0), where upgraded = the equipped version of the id as given is an
+/// upgraded skill (31fca8e0( id, 1 ) +0x178, = IsEquippedSkillUpgraded 32071e70). An active row of another type is passed over. 0 when none.
+int CX2GUUser::GetJuneTranscendenceMemoSkillID( const int iSkillID_ ) const
+{
+	if ( NULL == GetUnit() )
+		return 0;
+
+	int iBaseSkillID = iSkillID_;
+	if ( NULL != g_pData && NULL != g_pData->GetSkillTree() )
+		iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) );
+
+	std::vector<const SJuneSkillMemoTemplet*> vecMemo;
+	CX2SkillNoteManager::GetInstance()->GetJuneMemoList( iBaseSkillID, 0, static_cast<int>( GetUnit()->GetClass() ), 0, vecMemo );
+
+	const CX2UserSkillTree& refUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	for ( std::vector<const SJuneSkillMemoTemplet*>::const_iterator it = vecMemo.begin(); it != vecMemo.end(); ++it )
+	{
+		const SJuneSkillMemoTemplet* pMemo = *it;
+		if ( NULL == pMemo || false == refUserSkillTree.IsJuneMemoActive( iBaseSkillID, pMemo->m_iType ) )
+			continue;
+		if ( pMemo->m_iType < 19 || 20 < pMemo->m_iType )
+			continue;
+
+		const int iIndex = ( true == IsEquippedSkillUpgraded( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) ) ? 1 : 0;
+		const float fValue = ( iIndex < static_cast<int>( pMemo->m_vecValue.size() ) ) ? pMemo->m_vecValue[ iIndex ] : 0.f;
+		return static_cast<int>( fValue );
+	}
+	return 0;
+}
+#else SERV_IRUHADEV_JUNE_SKILL_NOTE
 const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int iAppliedSkillID_ ) const
 {
 	static bool s_bLogged = false;
@@ -40556,6 +40612,7 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 	}
 	return NULL;
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 /// June2017 CX2GUUser vslot 0x758 = 3202ac40: the skill-memo DamageData switch, on the attacker. Called from the user layer of
 /// SetDamageExceptionProcess (32045340 @32045402) and from the NPC override (32759f30). With GetJuneSkillMemoEntry a stub it returns at the

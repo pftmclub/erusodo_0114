@@ -779,6 +779,11 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 			CX2SkillNoteManager::ResetSkillNoteManager();
 			CX2SkillNoteManager::GetInstance()->OpenScriptFile();
 #endif // REFORM_SKILL_NOTE_UI
+#ifdef SERV_IRUHADEV_JUNE_SKILL_NOTE
+			// June2017 3258c470 @325908af-325908bb: destroy (32455240), make (324550a0), load SkillNoteTemplet.lua (32452270)
+			CX2SkillNoteManager::ResetSkillNoteManager();
+			CX2SkillNoteManager::GetInstance()->OpenScriptFile();
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
 
 			//드랍아이템 리소스
 			DropItemLoading();
