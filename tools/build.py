@@ -329,7 +329,9 @@ def stale_link(cfg):
 
 
 def dirty_code_files():
-    out = git("status", "--porcelain", "--", *CODE_DIRS)
+    # Not git(): its strip() eats the first line's leading status space, and l[3:] then drops a letter.
+    out = subprocess.run(["git", "-C", TRUNK, "status", "--porcelain", "--"] + CODE_DIRS,
+                         capture_output=True, text=True, errors="replace").stdout
     return [l[3:] for l in out.splitlines() if l.strip()]
 
 
