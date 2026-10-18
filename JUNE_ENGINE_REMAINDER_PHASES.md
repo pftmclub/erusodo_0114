@@ -1761,6 +1761,11 @@ Its own slots are Prepare, RayHit, OnFrameMove, Draw, Reset / Lost and the dtor;
 2. ErrorLog.txt: one `[JUNE_ENGINE] WSKIN June world skin-mesh render on` line, and `WSKIN hide: BESMA_VILLAGE_HORSE.X alpha ...` when it first fades.
 3. Any dungeon: animated world objects play, show and cull as before.
 
+**Play-test 2026-10-18.** Run 1 (exe 6e1b71e8): the render-on line, no hide: the deployed `Besma_Village.lua` is March's (horse at 0,0,0,
+`SetCanHide(false, false)`), so check 1 had nothing to fade and moves to new **W3** (June village world Lua, user's call). Run 2 **PASSED** (exe
+0818bfeb, a later `main` deploy at 74dd25e6 that carries R13b): `WSKIN hide: ASHS_VILLAGE_S2_CAIN.X alpha 1` at 07:45:19 in Ash Covered Village
+stage 2 (June script, any-camera skin mesh); 0 EXCEPTION, the only UNHANDLED the 2x `E_DISABLE_HB_CHECK_REQ` baseline.
+
 ## Phase R13c - Camera tracking and roll (UpdateCamera whole)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK`.
