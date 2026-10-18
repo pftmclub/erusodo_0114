@@ -16,6 +16,10 @@ class CX2StatePVPResult : public CX2StateCommonBG
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		virtual HRESULT OnFrameRenderAlpha( int iRenderPass_ );
+		virtual HRESULT OnFrameRenderFrontUI( int iRenderPass_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 	protected:
 		virtual bool UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

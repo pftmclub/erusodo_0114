@@ -193,6 +193,12 @@ class CX2State : public CKTDXStage
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		/// June CX2State stage slots: OnFrameRender is 0x8 ( 31ef75b0 ), then 0xc ( 31ef75f0 ), 0x10 ( 31ef7640 ), 0x18 ( 31ef76b0 )
+		virtual HRESULT OnFrameRenderAlpha( int iRenderPass_ );
+		virtual HRESULT OnFrameRenderFrontUI( int iRenderPass_ );
+		virtual HRESULT OnFrameRenderAfter();
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 #ifdef SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
 		/// June 31ef7370: the NPC scripts' subtitle ( CX2GUNPC::SetMovieDescriptionData ), drawn by RenderMovieDescription ( 31f179b0 )
 		void SetMovieDescriptionData( int iStringID_, float fTime_ ) { m_iJuneMovieDescStringID = iStringID_; m_fJuneMovieDescTime = fTime_; }

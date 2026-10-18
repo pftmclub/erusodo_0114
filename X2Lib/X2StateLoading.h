@@ -66,6 +66,10 @@ class CX2StateLoading : public CX2State
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		virtual HRESULT OnFrameRenderAlpha( int iRenderPass_ );
+		virtual HRESULT OnFrameRenderFrontUI( int iRenderPass_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 
 		void SetLoadingGageBar( int iLoadingPercent );

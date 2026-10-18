@@ -398,6 +398,11 @@ HRESULT CX2StateDungeonRoom::OnFrameRender()
 	}
 
 	CX2StateMenu::OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+	/// Until Phase R4c2 splits this class: the base is split ( R4c ), so March's single pass draws its alpha and front UI here
+	CX2StateMenu::OnFrameRenderAlpha( 0 );
+	CX2StateMenu::OnFrameRenderFrontUI( 0 );
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 
 	if ( g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR )

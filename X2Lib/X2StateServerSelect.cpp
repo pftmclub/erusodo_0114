@@ -1287,6 +1287,18 @@ void CX2StateServerSelect::OnFrameMove_GameServerConnect( double fTime, float fE
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June 3255d4c0 ( vslot 0xc ): skipped while m_bStateChangingToUnitCreate ( +0x385 ), as 0x8 ( 3255d4a0 = March's OnFrameRender
+/// below ). The front UI ( 3255d4e0 ) is CX2State's and is NOT skipped ( March skipped the whole frame )
+HRESULT CX2StateServerSelect::OnFrameRenderAlpha( int iRenderPass_ )
+{
+	if( true == m_bStateChangingToUnitCreate )
+		return S_OK;
+
+	return CX2State::OnFrameRenderAlpha( iRenderPass_ );
+}
+
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2StateServerSelect::OnFrameRender()
 {
 	if( true == m_bStateChangingToUnitCreate )

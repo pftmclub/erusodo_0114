@@ -401,10 +401,32 @@ HRESULT CX2StateLogin::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June 32595080 ( vslot 0x10 ) is a thunk to CX2State's. FIRST_SCREEN_TEST ( in-house, not in June ) keeps March's background over
+/// the frame, on pass 0 ( March's frame ) only
+HRESULT CX2StateLogin::OnFrameRenderFrontUI( int iRenderPass_ )
+{
+	CX2State::OnFrameRenderFrontUI( iRenderPass_ );
+
+#ifdef FIRST_SCREEN_TEST
+	if( 0 == iRenderPass_ && false == g_pMain->GetManualLogin() )
+	{
+		if( NULL != m_pTexutureBG )
+			m_pTexutureBG->Draw( 0, 0, 1024, 768 );
+	}
+#endif // FIRST_SCREEN_TEST
+
+	return S_OK;
+}
+
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2StateLogin::OnFrameRender()
 {
 	CX2State::OnFrameRender();
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+	/// June 32595060 ( vslot 0x8 ) is a thunk to CX2State's; the background moved to OnFrameRenderFrontUI
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 #ifdef FIRST_SCREEN_TEST
 
 	if( false == g_pMain->GetManualLogin() )
@@ -414,6 +436,7 @@ HRESULT CX2StateLogin::OnFrameRender()
 	}
 
 #endif // FIRST_SCREEN_TEST
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 
 	return S_OK;

@@ -89,6 +89,11 @@ public:
 
 	virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 	virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+	/// Not split yet ( Phase R4c2 ): OnFrameRender still draws the whole frame, so the base slots are off here
+	virtual HRESULT OnFrameRenderAlpha( int /*iRenderPass_*/ ){ return S_OK; }
+	virtual HRESULT OnFrameRenderFrontUI( int /*iRenderPass_*/ ){ return S_OK; }
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 	virtual HRESULT OnResetDevice();
 	virtual HRESULT OnLostDevice();

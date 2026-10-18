@@ -1156,6 +1156,77 @@ void CX2State::RenderMovieDescription( bool bJuneRenderArg_ )
 	}
 }
 #endif SERV_IRUHADEV_JUNE_MOVIE_DESCRIPTION
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June 31ef75b0 ( stage vslot 0x8 ): the sort and the non-alpha chain with particle culling on; the alpha chain is 0xc's
+HRESULT CX2State::OnFrameRender()
+{
+#ifdef  X2OPTIMIZE_CULLING_PARTICLE
+    CKTDGParticleSystem::EnableParticleCulling( true );
+#endif  X2OPTIMIZE_CULLING_PARTICLE
+	g_pKTDXApp->GetDGManager()->ObjectChainSort();
+	g_pKTDXApp->GetDGManager()->ObjectChainNonAlphaRender();
+#ifdef  X2OPTIMIZE_CULLING_PARTICLE
+    CKTDGParticleSystem::EnableParticleCulling( false );
+#endif  X2OPTIMIZE_CULLING_PARTICLE
+
+	return S_OK;
+}
+
+/// June 31ef75f0 ( vslot 0xc ): the alpha chain of the pass ( 1 = the pass-1 twin 31ce9470, else 31ce9440 ) with particle culling on
+HRESULT CX2State::OnFrameRenderAlpha( int iRenderPass_ )
+{
+#ifdef  X2OPTIMIZE_CULLING_PARTICLE
+    CKTDGParticleSystem::EnableParticleCulling( true );
+#endif  X2OPTIMIZE_CULLING_PARTICLE
+	if ( 1 == iRenderPass_ )
+		g_pKTDXApp->GetDGManager()->ObjectChainAlphaRenderPass1();
+	else
+		g_pKTDXApp->GetDGManager()->ObjectChainAlphaRender();
+#ifdef  X2OPTIMIZE_CULLING_PARTICLE
+    CKTDGParticleSystem::EnableParticleCulling( false );
+#endif  X2OPTIMIZE_CULLING_PARTICLE
+
+	return S_OK;
+}
+
+/// June 31ef7640 ( vslot 0x10 ): front UI of the pass, text manager g_pMain +0x440 ( no NULL check, as March ), game edit +0x43c,
+/// the minimap event notice on pass 0 only ( no carnival deco, EVENT_CARNIVAL_DECORATION is off here ), cursor +0x64 when set.
+/// June hands the pass to the text manager ( 32744860 ), the game edit ( 32746640, draws only when pass != 1 ) and the cursor
+/// ( 32868a00 ); March's take none, and pass 1 never runs ( R4 RE item 1 ): their pass handling is Phase R4h's.
+HRESULT CX2State::OnFrameRenderFrontUI( int iRenderPass_ )
+{
+	g_pKTDXApp->GetDGManager()->FrontUIRender( iRenderPass_ );
+
+	g_pMain->GetTextManager()->OnFrameRender();
+
+	if ( g_pMain->GetGameEdit() )
+		g_pMain->GetGameEdit()->OnFrameRender();
+
+	if ( 0 == iRenderPass_ && g_pInstanceData != NULL && g_pInstanceData->GetMiniMapUI() != NULL )
+		g_pInstanceData->GetMiniMapUI()->UpdateEventNotice();
+
+	if ( NULL != m_pCursor )
+		m_pCursor->OnFrameRender();
+
+	return S_OK;
+}
+
+/// June 31ef76b0 ( vslot 0x18, after the frame ): in the dialog manager's flagged-only mode ( +0x110, never set here ) the front
+/// dialogs are drawn here ( vslot 0x30 ( 1, 0 ), FrontUIRender draws no band then ). June then draws the second text manager
+/// g_pMain +0x444 ( 32744860( 0 ) ): that is CX2NoticeManager's own text manager ( made beside +0x440 @31e4abb5 ), which March
+/// does not have; it comes with the notice manager in Phase R4h.
+HRESULT CX2State::OnFrameRenderAfter()
+{
+	if ( g_pKTDXApp->GetDGManager() != NULL )
+	{
+		CKTDGUIDialogManager* pDialogManager = g_pKTDXApp->GetDGManager()->GetDialogManager();
+		if ( pDialogManager != NULL && pDialogManager->GetJuneFlaggedDialogsOnly() == true )
+			pDialogManager->OnFrameRender( true, 0 );
+	}
+
+	return S_OK;
+}
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2State::OnFrameRender()
 {
 #ifdef  X2OPTIMIZE_CULLING_PARTICLE
@@ -1197,6 +1268,7 @@ HRESULT CX2State::OnFrameRender()
 
 	return S_OK;
 }
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 bool CX2State::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {

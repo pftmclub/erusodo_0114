@@ -259,6 +259,41 @@ HRESULT CX2StatePvPLobby::OnFrameMove(double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June 32543210 / 32543230 ( vslots 0x8 / 0xc ): the menu's slots, skipped while the tutorial plays or exits ( g_pMain +0x16a / +0x16c )
+HRESULT CX2StatePvPLobby::OnFrameRender()
+{
+	if( true == g_pMain->GetIsPlayingTutorial() ||
+		true == g_pMain->GetIsExitingTutorial() )
+		return S_OK;
+
+	return CX2StateMenu::OnFrameRender();
+}
+
+HRESULT CX2StatePvPLobby::OnFrameRenderAlpha( int iRenderPass_ )
+{
+	if( true == g_pMain->GetIsPlayingTutorial() ||
+		true == g_pMain->GetIsExitingTutorial() )
+		return S_OK;
+
+	return CX2StateMenu::OnFrameRenderAlpha( iRenderPass_ );
+}
+
+/// June 32543260 ( vslot 0x10 ): in the tutorial only the loading dialog ( +0x4a8, through the handle check 31d41d10 / 31d41c90 ) is
+/// drawn, as dialog render 31cd7810( 0, pass ); otherwise the menu's front UI
+HRESULT CX2StatePvPLobby::OnFrameRenderFrontUI( int iRenderPass_ )
+{
+	if( true == g_pMain->GetIsPlayingTutorial() ||
+		true == g_pMain->GetIsExitingTutorial() )
+	{
+		if( m_pDLGLoadingState != NULL )
+			m_pDLGLoadingState->OnFrameRender( false, iRenderPass_ );
+		return S_OK;
+	}
+
+	return CX2StateMenu::OnFrameRenderFrontUI( iRenderPass_ );
+}
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2StatePvPLobby::OnFrameRender()
 {
 	if( true == g_pMain->GetIsPlayingTutorial() ||
@@ -273,6 +308,7 @@ HRESULT CX2StatePvPLobby::OnFrameRender()
 
 	return S_OK;
 }
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 bool CX2StatePvPLobby::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {

@@ -345,6 +345,26 @@ HRESULT CX2StatePVPResult::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June 325169c0 / 325169e0 ( vslots 0xc / 0x10 ): skipped when m_bInitUIFail ( +0x32c ), then CX2State's, as 0x8 ( 325169a0 =
+/// March's OnFrameRender below )
+HRESULT CX2StatePVPResult::OnFrameRenderAlpha( int iRenderPass_ )
+{
+	if ( m_bInitUIFail == true )
+		return S_OK;
+
+	return CX2State::OnFrameRenderAlpha( iRenderPass_ );
+}
+
+HRESULT CX2StatePVPResult::OnFrameRenderFrontUI( int iRenderPass_ )
+{
+	if ( m_bInitUIFail == true )
+		return S_OK;
+
+	return CX2State::OnFrameRenderFrontUI( iRenderPass_ );
+}
+
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2StatePVPResult::OnFrameRender()
 {
 	if ( m_bInitUIFail == true )

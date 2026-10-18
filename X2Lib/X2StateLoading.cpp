@@ -840,6 +840,44 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June 3258b800 ( vslot 0x8 ): the sort and the non-alpha chain ( no particle culling, as March )
+HRESULT CX2StateLoading::OnFrameRender()
+{
+	g_pKTDXApp->GetDGManager()->ObjectChainSort();
+	g_pKTDXApp->GetDGManager()->ObjectChainNonAlphaRender();
+
+	return S_OK;
+}
+
+/// June 3258b830 ( vslot 0xc ): the alpha chain of the pass ( 1 = 31ce9470, else 31ce9440 )
+HRESULT CX2StateLoading::OnFrameRenderAlpha( int iRenderPass_ )
+{
+	if ( 1 == iRenderPass_ )
+		g_pKTDXApp->GetDGManager()->ObjectChainAlphaRenderPass1();
+	else
+		g_pKTDXApp->GetDGManager()->ObjectChainAlphaRender();
+
+	return S_OK;
+}
+
+/// June 3258b870 ( vslot 0x10 ): front UI of the pass, text manager, game edit when set, cursor when set ( June NULL-checks it ).
+/// No LOADING_ANIMATION_TEST draw ( off here anyway ). Pass handling of the three callees: Phase R4h ( see CX2State's )
+HRESULT CX2StateLoading::OnFrameRenderFrontUI( int iRenderPass_ )
+{
+	g_pKTDXApp->GetDGManager()->FrontUIRender( iRenderPass_ );
+
+	g_pMain->GetTextManager()->OnFrameRender();
+
+	if ( g_pMain->GetGameEdit() )
+		g_pMain->GetGameEdit()->OnFrameRender();
+
+	if ( NULL != m_pCursor )
+		m_pCursor->OnFrameRender();
+
+	return S_OK;
+}
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2StateLoading::OnFrameRender()
 {
 	//CX2State::OnFrameRender();
@@ -867,6 +905,7 @@ HRESULT CX2StateLoading::OnFrameRender()
 
 	return S_OK;
 }
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 bool CX2StateLoading::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {

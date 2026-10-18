@@ -265,6 +265,20 @@ void CX2StateStartUp::LoadData()
 
 #ifdef FIRST_SCREEN_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June CX2StateStartUp has no render override ( CX2State's 0x8 / 0xc / 0x10 ). FIRST_SCREEN_TEST ( in-house, not in June ) keeps
+/// March's background over the frame, on pass 0 ( March's frame ) only
+HRESULT CX2StateStartUp::OnFrameRenderFrontUI( int iRenderPass_ )
+{
+	CX2State::OnFrameRenderFrontUI( iRenderPass_ );
+
+#ifndef X2TOOL
+	if ( 0 == iRenderPass_ )
+		m_pTexutureBG->Draw( 0, 0, 1024, 768 );
+#endif
+	return S_OK;
+}
+#else SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2StateStartUp::OnFrameRender()
 {
 #ifndef X2TOOL
@@ -272,4 +286,5 @@ HRESULT CX2StateStartUp::OnFrameRender()
 #endif
 	return S_OK;
 }
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 #endif // FIRST_SCREEN_TEST

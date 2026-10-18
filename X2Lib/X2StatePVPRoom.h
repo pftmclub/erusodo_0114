@@ -176,6 +176,11 @@ class CX2StatePVPRoom : public CX2StateMenu
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		/// Not split yet ( Phase R4c2 ): OnFrameRender draws the whole frame and calls the menu's three slots itself
+		virtual HRESULT OnFrameRenderAlpha( int /*iRenderPass_*/ ){ return S_OK; }
+		virtual HRESULT OnFrameRenderFrontUI( int /*iRenderPass_*/ ){ return S_OK; }
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 

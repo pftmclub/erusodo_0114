@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort (transcribe from Ghidra), then a user play-test; type `/x2-phase june-engine R4d` |
 | Plan doc | `JUNE_ENGINE_REMAINDER_PHASES.md` (branch `main`) |
-| Depends on | R4c; not alongside another session editing `X2Game.cpp` or the game-class files it lists |
+| Depends on | R4c2 (R4c split the base, R4c2 the game states); not alongside another session editing `X2Game.cpp` or the game-class files it lists |
 | Flag | `SERV_IRUHADEV_JUNE_RENDER_GAME_SPLIT` |
 | Log tag | `[JUNE_ENGINE] SPLIT` (`python tools/logs.py --tag JUNE_ENGINE`) |
 | Review | `kickoffs/june-engine/R4d-review.md` |

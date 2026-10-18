@@ -8271,6 +8271,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
+// Description: June engine remainder, Phase R4c. CX2State's render split into June's stage slots: 0x8 sort + non-alpha
+//              ( 31ef75b0 ), 0xc( pass ) alpha ( 31ef75f0 ), 0x10( pass ) front UI, text, game edit, event notice, cursor
+//              ( 31ef7640 ), 0x18 the dialog manager's flagged-only front dialogs ( 31ef76b0 ). Split with it: StartUp / Login
+//              ( FIRST_SCREEN_TEST background kept in 0x10, pass 0 ), ServerSelect ( 0x10 no longer skipped while changing to
+//              unit create ), PvPLobby ( tutorial loading dialog in 0x10 ), Loading, DungeonResult, PVPResult. Not split yet
+//              ( Phase R4c2 ): DungeonRoom, PVPRoom, DungeonGame, BattleField, PVPGame, Field, SquareGame, WeddingGame keep
+//              March's single OnFrameRender and switch the base 0xc / 0x10 off. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+#ifndef SERV_IRUHADEV_JUNE_RENDER_FRAME
+#error SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT needs SERV_IRUHADEV_JUNE_RENDER_FRAME ( the stage pass slots )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
+#ifndef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#error SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT needs SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS ( the dialog manager's flagged-only mode )
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
 // Description: June engine remainder, Phase W1g. CX2SimplePathFinder::FollowTargetPathFly as June 32f27b10: when the unit is more
 //              than fDestArriveHeight + 10 above the destination, the fly-down holds only if CKTDGLineMap::CanDown finds a line below
 //              ( @32f27ea2: LINE_RADIUS, in = copy of iCurrLineDataIndex, out NULL, bDownRadius / bIsMonster true, bOnLine / bDroppable

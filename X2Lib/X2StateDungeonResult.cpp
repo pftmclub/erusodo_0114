@@ -1735,6 +1735,26 @@ HRESULT CX2StateDungeonResult::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+/// June 3250e500 / 3250e520 ( vslots 0xc / 0x10, also CX2StateTrainingResult ): skipped when m_bInitUIFail ( +0x310 ), then
+/// CX2State's, as 0x8 ( 3250e4e0 = March's OnFrameRender below )
+HRESULT CX2StateDungeonResult::OnFrameRenderAlpha( int iRenderPass_ )
+{
+	if ( m_bInitUIFail == true )
+		return S_OK;
+
+	return CX2State::OnFrameRenderAlpha( iRenderPass_ );
+}
+
+HRESULT CX2StateDungeonResult::OnFrameRenderFrontUI( int iRenderPass_ )
+{
+	if ( m_bInitUIFail == true )
+		return S_OK;
+
+	return CX2State::OnFrameRenderFrontUI( iRenderPass_ );
+}
+
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 HRESULT CX2StateDungeonResult::OnFrameRender()
 {
 	if ( m_bInitUIFail == true )

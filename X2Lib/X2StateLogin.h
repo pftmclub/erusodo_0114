@@ -64,6 +64,9 @@ class CX2StateLogin : public CX2State
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		virtual HRESULT OnFrameRenderFrontUI( int iRenderPass_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 		
 	protected:

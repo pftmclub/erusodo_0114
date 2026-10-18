@@ -106,6 +106,10 @@ class CX2StateDungeonResult : public CX2StateCommonBG
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+		virtual HRESULT OnFrameRenderAlpha( int iRenderPass_ );
+		virtual HRESULT OnFrameRenderFrontUI( int iRenderPass_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 
 		//{{ kimhc // 2011-04-18 // 국내, 디펜스 던전
 #ifdef	SERV_INSERT_GLOBAL_SERVER

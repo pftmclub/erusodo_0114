@@ -929,9 +929,68 @@ Depends on R4b. Split `CX2State` and every March state class in the tsv `state` 
 
 Play-test: login, server select, village, dungeon and PvP rooms, a dungeon, the square, and loading screens look and behave as before.
 
+### Phase R4c -- Done
+
+Built + deployed 2026-10-18 (Opus 5.5). Flag `SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT` (needs `JUNE_RENDER_FRAME`, `JUNE_UI_DIALOG_BANDS`).
+**Split in two** (the kickoff's size rule): R4c did `CX2State` and the thunk / simple states; the game and room states are new **R4c2**. June's
+game-state front-UI slots are rewritten bodies with dozens of new callees (e.g. DungeonGame `324cff10`, Field `3250aa10`, rooms `324e4c40` /
+`325374d0`), each to map. 8 funcmap rows `(R4c)`.
+
+**`CX2State`**: `0x8` = particle culling on, sort, non-alpha, off (`31ef75b0`); `0xc( pass )` = culling on, pass 1 -> `ObjectChainAlphaRenderPass1`
+else `ObjectChainAlphaRender`, off (`31ef75f0`); `0x10( pass )` = `FrontUIRender( pass )`, text manager `+0x440`, game edit when set, minimap
+`UpdateEventNotice` on pass 0 only, cursor when set (`31ef7640`); `0x18` = DG manager and dialog manager NULL checks, then in the flagged-only
+mode (`+0x110`, never set in March) dialog-manager vslot `0x30( 1, 0 )` (`31ef76b0`).
+**`g_pMain +0x444` resolved**: a second `CX2TextManager` (ctor `32744c10`, made right after `+0x440` @31e4abb5, freed @31d93b3f, frame-moved
+by `CX2State::OnFrameMove` @31f0d945). Its only writer is `CX2NoticeManager` (`+0x448`, RTTI on vtable `334ab704`, ctor `325ad9a0( 150 )`,
+`325acf90` adds the text, `325ad410` checks it, called from `CX2StateMenu::OnFrameMove` @324727ad). In June, notices are drawn after the frame,
+above GFx; March puts them in the main text manager. The member, its draw in `0x18` and the notice manager's switch -> **R4h**.
+**Callee pass arguments**: June hands the pass to the text manager (`32744860`), the game edit (`32746640`: no draw when pass == 1) and the
+cursor (`32868a00`); March's take none. The slots call March's on every pass June does. Pass 1 never runs (R4 RE item 1) -> **R4h**.
+
+| Class | June slots | Port |
+|---|---|---|
+| `CX2StateMenu`, `TrainingSchool`, `CommonBG`, `CreateUnit`, `Join` | thunks / inherit | nothing to add (March's OnFrameRender thunk = June `0x8`) |
+| `CX2StateStartUp` | inherits (no override) | `0x8` override dropped; `FIRST_SCREEN_TEST` (on here) background in `0x10` after the base, pass 0 |
+| `CX2StateLogin` | thunks `32595060..80` | `FIRST_SCREEN_TEST` background moved from `0x8` to `0x10` after the base, pass 0 |
+| `CX2StateServerSelect` | `3255d4a0 / c0 / e0` | `0x8` (March's body) and `0xc` skip while `m_bStateChangingToUnitCreate`; `0x10` does **not** (March skipped all) |
+| `CX2StatePvPLobby` | `32543210 / 30 / 60` | tutorial: no menu slots; `0x10` draws only the loading dialog `( false, pass )` |
+| `CX2StateLoading` | `3258b800 / 30 / 70` | no culling; `0x10` NULL-checks the cursor; no `LOADING_ANIMATION_TEST` (off here) |
+| `CX2StateDungeonResult` (+ Training), `CX2StatePVPResult` | `3250e4e0..` / `325169a0..` | each slot gated by `m_bInitUIFail` (`+0x310` / `+0x32c`) |
+| DungeonRoom, PVPRoom, DungeonGame (+ PVE / Training / Arcade), BattleField, PVPGame, Field, Square, Wedding | R4c2 | **interim**: empty `0xc` / `0x10` overrides keep March's single `OnFrameRender`; DungeonRoom / PVPRoom call the menu's three slots in place of the old base call |
+
+Visible change from June: server select keeps its UI while it changes to unit creation; the minimap event notice draws only on pass 0
+(same in practice). `0x18` runs for every state (also the R4c2 ones, as June) and draws nothing while the flagged mode is unset.
+
+Hygiene (`flagcheck --worktree --files` on the 26 code files + Always.h): `files: 25 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL,
+0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched` / `RESULT: PASS`. The 2 OTHER rows are peers' uncommitted
+hunks in the same files (Always.h tail, `X2StateLoading.cpp` `JUNE_SKILL_NOTE`), not part of this commit.
+Deploy: `DEPLOY OK: X2_offline.exe is 19,972,608 B, dated 2026-10-18 09:06:45, md5 d5457f55f7daf176675ebdc4ce262055, equal to
+X2/US_SERVICE/x2.exe (2026-10-18 09:06:40); built at main a2b20c4c + 77 uncommitted code file(s)` (the peers' in-flight R4e / S-phase files
+are in this exe too; two earlier runs stopped on the build lock and on a peer's `JUNE_RENDER_DRAW_PASS` `#error`, since fixed by them).
+
+**How to see it in game**: everything looks as before (the gate). Server select -> character creation: the server-select UI stays drawn while
+the state changes. No `[JUNE_ENGINE] SPLIT` log line was added (the slots run every frame; a broken split shows as missing or doubled UI).
+
+**User owes:** the play-test in the hand-off. Next: `/x2-phase june-engine R4c review` on Opus 5.5 / high; R4c2 after the review.
+
+## Phase R4c2 - Game and room state split
+
+**Run with:** Opus 5.5 high (transcribe from Ghidra), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT`
+(same flag; R4c2 replaces R4c's interim overrides). Added by R4c (2026-10-18). Depends on R4c. The tsv `state` rows R4c left:
+`CX2StateDungeonRoom` (`324e2660 / 324e2690 / 324e4c40`), `CX2StatePVPRoom` (`32531450 / 32531480 / 325374d0`), `CX2StateDungeonGame` (+ PVE /
+Training; `324cc530 / 324cc5c0 / 324cff10`), `CX2StateBattleField` (`324b92e0 / 324b9340 / 324bb230`), `CX2StatePVPGame` (`32521370 / 32521410 /
+325214c0`), `CX2StateField` (`32507650 / 32507790 / 3250aa10`), `CX2StateSquareGame` (`324c7070 / 324c70d0 / 324c7150`), `CX2StateWeddingGame`
+(`324b60c0 / 324b60e0 / 324b63c0`), and the plain classes `CX2TFieldGame` (`323a9f20`, `323b7e10`, vtable `+0xc / +0x10 / +0x14`),
+`CX2SquareGame` (`323a4b10 / 323a4b50 / 323a5040`), `CX2WeddingGame` (`323a0a80 / 323a0ac0 / 323a13d0`).
+- Transcribe each slot whole; map every callee of the `0x10` slots (many take the pass). Earlier ports in the March bodies move with their
+  code (`JUNE_TUTORIAL_MODE`, `JUNE_MOVIE_DESCRIPTION` in DungeonGame). Remove R4c's interim overrides and the two interim base calls.
+- Until R4d each game state calls its game's March `OnFrameRender` where June calls the game's `0x8`, and nothing for the game's `0xc` / `0x10`.
+
+Play-test: village, field, dungeon and PvP rooms, a dungeon (also the tutorial), a PvP match, a battlefield, the square, results look as before.
+
 ## Phase R4d - Game render split
 
-**Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_GAME_SPLIT`. Depends on R4c. Split
+**Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_GAME_SPLIT`. Depends on R4c2. Split
 `CX2Game` (`322d7260` / `322cc8f0` / `3230aa60`) and the five March game classes in the tsv `game` rows, transcribing each `0x10` UI slot from
 June. The `CX2Game::OnFrameRender` June blocks (env box, Elysion script B, dramatic message, skip-start) move into the matching slot. Play-test:
 dungeon, PvP and battlefield HUDs as before.
@@ -965,6 +1024,21 @@ March's defaults (own depth, no multisample, `BeginRender( bClear )`); June pass
 (`31cdf310`: env box `31d0b200`, LastKillShot `32306600`, minimap `32e583d0`, MoveData `31c96daa`, `31c40220`) and to the four-argument
 `BeginRender` (`31cdb3c0` callers). Also: how June takes the last-kill shot when the frame is in the scene target (`ANTIALIASING_LEVEL > 0`).
 Gate: minimap, last-kill shot (also at level 2), colour grading and UI move data look as before.
+
+## Phase R4h - Notice text manager and the slot callees' pass argument
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_NOTICE_TEXT`
+(proposed; a second flag for the pass arguments if they split cleanly). Added by R4c (2026-10-18). Depends on R4c; not alongside another
+`X2Main.*` / `X2NoticeManager.*` editor.
+- **Notice text manager.** June's `g_pMain +0x444` is a second `CX2TextManager` (ctor `32744c10` @31e4abb5, freed @31d93b3f, frame-moved
+  @31f0d945 beside `+0x440`) that only `CX2NoticeManager` (`+0x448`, ctor `325ad9a0`, `325acf90` / `325ad410`) writes; `CX2State`'s `0x18`
+  draws it after the frame (`31ef76b0`, `32744860( 0 )`). Port the member, its lifetime, its frame-move and draw, and the notice manager's
+  functions that differ from March (whole; also its frame-move moving to `CX2StateMenu::OnFrameMove` @324727ad if that is June's only one).
+- **Pass arguments** of the slot callees: `CX2TextManager` render `32744860( pass )` (font draw `31c3ae80`'s last argument), game edit
+  `32746640( pass )` (no draw when pass == 1), `CX2Cursor` render `32868a00( pass )` (with R4f if the cursor port owns it), and the ones R4c2
+  finds. Every caller passes June's pass; pass 1 stays unreachable, so the gate is "unchanged".
+
+Gate: GM / item notices still appear (now drawn after the frame); UI unchanged.
 
 ## Phase R5 - CUSTOM_RENDER_STATE
 

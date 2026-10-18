@@ -184,6 +184,9 @@ public:
 
 	virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );
 	virtual HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+	virtual HRESULT OnFrameRenderAlpha( int iRenderPass_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 	void OnFrameMove_GameServerConnect( double fTime, float fElapsedTime );
 
 
