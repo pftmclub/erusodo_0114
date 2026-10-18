@@ -8708,3 +8708,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June GFx runtime Phase G1 - Scaleform SDK link and system init. Under the flag KTDXApp.cpp links libgfx, libgfx_as2,
+//              libgfx_as3, libgfxrender_d3d9 and pcre ( #pragma comment lib; the library dir is in X2_2010.vcxproj's US LibraryPath ),
+//              and the CKTDXApp ctor / dtor bring Scaleform::GFx::System up / down ( June's ctor 31c17ed0 @31c19677 builds its GFx
+//              manager there; the manager itself is G2 ). New KTDXLIB/KTDGFXRuntime.{h,cpp} hold the System object and the first-frame
+//              line. Log [JUNE_GFX] RUNTIME. Revert: JUNE_GFX_RUNTIME in MODS.md ( comment out the define; the libs then drop out of the link ).
+#define SERV_IRUHADEV_JUNE_GFX_RUNTIME
+//////////////////////////////////////////////////////////////////////////

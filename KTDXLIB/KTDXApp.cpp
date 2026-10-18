@@ -57,6 +57,16 @@
 #pragma comment( lib, "dsound.lib" )
 #pragma comment( lib, "winmm.lib" )
 #pragma comment(lib, "strmiids")
+#ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
+#include "KTDGFXRuntime.h"
+// Scaleform 4.2.22 ( Libs\ExternalLib\Scaleform\Lib\Win32\Msvc10\Release ). June registers AS2 and AS3 support ( G0 item 1 )
+#pragma comment( lib, "libgfx.lib" )
+#pragma comment( lib, "libgfx_as2.lib" )
+#pragma comment( lib, "libgfx_as3.lib" )
+#pragma comment( lib, "libgfxrender_d3d9.lib" )
+#pragma comment( lib, "pcre.lib" )
+// zlib / libpng / libjpeg: the client's own stay the one copy ( zlibstat, png, jpeg ); the symbols libgfx wants beyond them are shimmed in KTDGFXRuntime.cpp
+#endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
 #ifdef CONVERSION_VS
 #else CONVERSION_VS
 #pragma comment(lib, "dplayx")
@@ -193,6 +203,9 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 #ifdef SERV_IRUHADEV_JUNE_UI_NATION_KEYS
 	m_strNationName = "NONE";	// June CKTDXApp ctor 31c18de3: the nation name member (+0x2e8) starts as "NONE"
 #endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+#ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
+	KTDGFXRuntime_Init();	// June ctor 31c17ed0 @31c19677 builds the GFx manager here; G1 stops at Scaleform::GFx::System
+#endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
 
 #if !defined(X2VIEWER)
     std::wstring wstrGeneralStringFileName( L"General.ess" );
@@ -610,6 +623,9 @@ CKTDXApp::~CKTDXApp(void)
 	SAFE_DELETE( m_pCollision );
 
 	SAFE_DELETE( ms_pLuaBinder );
+#ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
+	KTDGFXRuntime_Shutdown();	// the System goes down last; G2 deletes the GFx manager before this
+#endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
 
 	g_pKTDXApp = NULL;
 
@@ -696,6 +712,9 @@ HRESULT CKTDXApp::OnFrameMove( double dTime, float fElapsedTime )
 #endif //X2VIEWER
 	KTDXPROFILE();
 	m_fElapsedTimeAdd += fElapsedTime;
+#ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
+	KTDGFXRuntime_FirstFrameLog();	// one use-time line; a mount-time line never reaches ErrorLog.txt
+#endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
 
 	m_pd3dDevice->SetTransform( D3DTS_WORLD,		&m_WorldMatrix		);
 	m_pd3dDevice->SetTransform( D3DTS_VIEW,			&m_ViewMatrix		);

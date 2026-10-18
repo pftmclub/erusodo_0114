@@ -211,6 +211,48 @@ Its play-test will show GFx cut-ins in place of March's particle ones.
 **Done gate:** flag on and off both link; exe size delta in the Done note; the line in the log; a village / dungeon regression shows
 no change.
 
+### Phase G1 - Done (2026-10-19, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_GFX_RUNTIME`)
+
+**What landed.**
+- `Always.h`: the flag block. `KTDXApp.cpp`: under the flag `#pragma comment( lib )` for `libgfx`, `libgfx_as2`, `libgfx_as3`, `libgfxrender_d3d9`, `pcre`
+  (G0 item 1: both AS libs); `KTDGFXRuntime_Init()` in the CKTDXApp ctor (June ctor `31c17ed0` @`31c19677` builds its manager there),
+  `KTDGFXRuntime_Shutdown()` in the dtor, `KTDGFXRuntime_FirstFrameLog()` at the top of `OnFrameMove`.
+- New `KTDXLIB/KTDGFXRuntime.{h,cpp}`: a `Scaleform::GFx::System` (default SysAlloc and root heap), the one-time line
+  `[JUNE_GFX] RUNTIME Scaleform 4.2.22 up` to ErrorLog.txt at the first frame, and the link shims below. The `.h` has no Scaleform include.
+- **`.vcxproj` hunks** (flagcheck does not read them; all inert with the flag off):
+  `X2/X2_2010.vcxproj` `LibraryPath` of `US_INTERNAL` and `US_SERVICE`: `$(SolutionDir)\Libs\ExternalLib\Scaleform\Lib\Win32\Msvc10\Release;` prepended.
+  `KTDXLIB/KTDXLIB_2010.vcxproj`: the same prepend on both `LibraryPath` lines (the lib is static, so only X2's counts); a new
+  `<ClCompile Include="KTDGFXRuntime.cpp">` whose `AdditionalIncludeDirectories` is `...\Scaleform\Src;...\Scaleform\Include` (this file only,
+  all configs, so no March `#include` resolves differently); `<ClInclude Include="KTDGFXRuntime.h" />`.
+
+**Link record (the "keep one copy" rule).** `libgfx` alone left 8 unresolved: `deflate / deflateEnd / deflateInit_ / inflate / inflateEnd / inflateInit_`
+(AMP profiler code, `Amp_Message`) and `png_longjmp / png_set_longjmp_fn` (PNG reader). The client carries **zlib 1.2.3 as `zlibstat.lib` built
+`ZLIB_WINAPI` (names `_deflate@8`)** and **libpng 1.2.24 (`png.lib`, CxImage's, used for PNG screenshots)**; Scaleform ships zlib 1.2.7 (cdecl) and
+libpng 1.5.13. Tried and rejected: linking `zlib127.lib` = LNK2005 on `_tr_*`, `_dist_code`, `_length_code`, `_deflate_copyright` (two zlib versions
+would share one set of internals); `libpng.lib` beside `png.lib` would pair 1.5 functions with a 1.2.24 `png_struct`. **Kept: the client's zlib, png and
+jpeg as the one copy; Scaleform's `zlib127`, `libpng`, `libjpeg`, `libgfxexpat`, `expat` are not linked.** The 8 symbols come from shims in
+`KTDGFXRuntime.cpp`: six cdecl wrappers forwarding to zlibstat (`/alternatename:_deflate=_sfgfx_deflate` ...; `z_stream` has the same layout in 1.2.3 and
+1.2.7, and `deflateInit_` / `inflateInit_` check only the version's first character), and two PNG functions over 1.2.24's `png_struct` (its first member is
+the `jmp_buf`, `cximage/png/png.h:1137`). **No `Sound::` symbols were left unresolved**, so the three `Src/Sound` files are not compiled in G1; G2 creates
+the renderer and may need them (G0's note stands).
+**Known limit, for G2 / G3:** libgfx's PNG reader passes `"1.5.13"` to `png_create_read_struct`, and libpng 1.2.24 rejects a differing major.minor, so a
+GFx PNG *file* load fails cleanly (NULL). `.gfx` / `.swf` content does not go through it; AMP's compress path is never called. If G2 / G3 meet an
+external PNG, the fix is a renamed private libpng, not these shims. JUNE_BUGS: none (nothing of June's is copied).
+
+**Hygiene.** `flagcheck JUNE_GFX_RUNTIME --worktree --files KTDXLIB/Always.h KTDXLIB/KTDXApp.cpp KTDXLIB/KTDGFXRuntime.{h,cpp}`:
+`files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 1 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`.
+The one FAIL is `KTDGFXRuntime.cpp`'s `#include "StdAfx.h"`: a PCH-using `.cpp` must include it first, outside the flag (the flag is only visible
+after it), so with the flag off the file is an empty translation unit. Everything else in the file is inside the flag.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 21,188,608 B, dated 2026-10-19 04:11:19, md5 bf47e88ac5b34d7d0b370f89aaa964ba, equal to X2/US_SERVICE/x2.exe
+(2026-10-19 04:11:13); built at main 879eb555 + 6 uncommitted code file(s).` The strings `[JUNE_GFX] RUNTIME Scaleform ` and `4.2.22` are in the exe.
+**Not measured:** a flag-off build and the exe size delta (no flag-off exe exists; a second full build would hold the shared queue ~11 min). The flag-off
+equivalence rests on flagcheck (`KTDXApp.cpp` reduces to the base byte-for-byte; the new `.cpp` is empty) and on the libs being named only inside the flag.
+The first build of this phase took 3 attempts: a `KLOG` in an `if/else` without braces (it expands to two statements), then the link errors above.
+
+**How to see it in game.** Start the game and reach the first frame: `ErrorLog.txt` holds `[JUNE_GFX] RUNTIME Scaleform 4.2.22 up`
+(`python tools/logs.py --tag JUNE_GFX`). Nothing else changes on screen. **Open questions:** none.
+
 ## Phase GA - GFx assets in, byte-exact
 
 **Run with:** Sonnet 5.5 high. No code, no flag.

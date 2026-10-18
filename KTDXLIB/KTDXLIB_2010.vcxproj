@@ -786,8 +786,8 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='HK_SERVICE|Win32'">$(DXSDK_DIR)Lib\x86;$(BOOST_DIR)libs;E:\ProjectX2_SVN\source\ExternalLib\Boost\boost_1_44_0\libs;..\KNCSDK\lib_2010;..\KOGGamePerformanceCheck\libs;$(FREE_TYPE_DIR)libs;..\XTRAP\Client;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='JP_INTERNAL|Win32'">$(DXSDK_DIR)Lib\x86;$(BOOST_DIR)libs;E:\ProjectX2_SVN\source\ExternalLib\Boost\boost_1_44_0\libs;..\KNCSDK\lib_2010;..\KOGGamePerformanceCheck\libs;$(FREE_TYPE_DIR)libs;..\XTRAP\Client;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='CN_INTERNAL|Win32'">$(DXSDK_DIR)Lib\x86;$(BOOST_DIR)libs;E:\ProjectX2_SVN\source\ExternalLib\Boost\boost_1_44_0\libs;..\KNCSDK\lib_2010;..\KOGGamePerformanceCheck\libs;$(FREE_TYPE_DIR)libs;..\XTRAP\Client;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='US_INTERNAL|Win32'">$(SolutionDir)Libs\ExternalLib\DXSDK\Lib\x86;$(SolutionDir)Libs\ExternalLib\Boost\boost_1_44_0\libs;$(SolutionDir)KNCSDK\lib_2010;$(SolutionDir)KOGGamePerformanceCheck\libs;$(SolutionDir)Libs\ExternalLib\freetype-2.4.11\libs;$(SolutionDir)XTRAP\Client;$(SolutionDir)Steamworks\lib;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='US_SERVICE|Win32'">$(SolutionDir)Libs\ExternalLib\DXSDK\Lib\x86;$(SolutionDir)Libs\ExternalLib\Boost\boost_1_44_0\libs;$(SolutionDir)KNCSDK\lib_2010;$(SolutionDir)KOGGamePerformanceCheck\libs;$(SolutionDir)Libs\ExternalLib\freetype-2.4.11\libs;$(SolutionDir)XTRAP\Client;$(SolutionDir)Steamworks\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='US_INTERNAL|Win32'">$(SolutionDir)Libs\ExternalLib\Scaleform\Lib\Win32\Msvc10\Release;$(SolutionDir)Libs\ExternalLib\DXSDK\Lib\x86;$(SolutionDir)Libs\ExternalLib\Boost\boost_1_44_0\libs;$(SolutionDir)KNCSDK\lib_2010;$(SolutionDir)KOGGamePerformanceCheck\libs;$(SolutionDir)Libs\ExternalLib\freetype-2.4.11\libs;$(SolutionDir)XTRAP\Client;$(SolutionDir)Steamworks\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='US_SERVICE|Win32'">$(SolutionDir)Libs\ExternalLib\Scaleform\Lib\Win32\Msvc10\Release;$(SolutionDir)Libs\ExternalLib\DXSDK\Lib\x86;$(SolutionDir)Libs\ExternalLib\Boost\boost_1_44_0\libs;$(SolutionDir)KNCSDK\lib_2010;$(SolutionDir)KOGGamePerformanceCheck\libs;$(SolutionDir)Libs\ExternalLib\freetype-2.4.11\libs;$(SolutionDir)XTRAP\Client;$(SolutionDir)Steamworks\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='TW_INTERNAL|Win32'">$(DXSDK_DIR)Lib\x86;$(BOOST_DIR)libs;E:\ProjectX2_SVN\source\ExternalLib\Boost\boost_1_44_0\libs;..\KNCSDK\lib_2010;..\KOGGamePerformanceCheck\libs;$(FREE_TYPE_DIR)libs;..\XTRAP\Client;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='EU_INTERNAL|Win32'">$(DXSDK_DIR)Lib\x86;$(BOOST_DIR)libs;E:\ProjectX2_SVN\source\ExternalLib\Boost\boost_1_44_0\libs;..\KNCSDK\lib_2010;..\KOGGamePerformanceCheck\libs;$(FREE_TYPE_DIR)libs;..\XTRAP\Client;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='TH_TEST|Win32'">$(DXSDK_DIR)Lib\x86;$(BOOST_DIR)libs;..\KNCSDK\lib_2010;..\KOGGamePerformanceCheck\libs;$(FREE_TYPE_DIR)libs;$(LibraryPath)</LibraryPath>
@@ -1926,6 +1926,9 @@
     <ClCompile Include="KTDGGrayScale.cpp" />
     <ClCompile Include="KTDGLensFlare.cpp" />
     <ClCompile Include="KTDGLineMap.cpp" />
+    <ClCompile Include="KTDGFXRuntime.cpp">
+      <AdditionalIncludeDirectories>$(SolutionDir)Libs\ExternalLib\Scaleform\Src;$(SolutionDir)Libs\ExternalLib\Scaleform\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="KTDGManager.cpp" />
     <ClCompile Include="KTDGMatrix.cpp" />
     <ClCompile Include="KTDGMotionBlur.cpp" />
@@ -2187,6 +2190,7 @@
     <ClInclude Include="KTDGGrayScale.h" />
     <ClInclude Include="KTDGLensFlare.h" />
     <ClInclude Include="KTDGLineMap.h" />
+    <ClInclude Include="KTDGFXRuntime.h" />
     <ClInclude Include="KTDGManager.h" />
     <ClInclude Include="KTDGMatrix.h" />
     <ClInclude Include="KTDGMotionBlur.h" />

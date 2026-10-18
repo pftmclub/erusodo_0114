@@ -4250,6 +4250,16 @@ and `KncWX2Server/Common/ServerDefine.h` (ClientPacket.h precedes Always.h; `SEC
 - **Revert:** comment out both defines together, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. **The save is forward-only:** an exe without the flag refuses a v20 save, so restore
   the `db_backup/` snapshot taken before the first v20 launch (`els_db_20261019_022520_pre_pre_S7d_pages.sql`) together with the old exe.
 
+### June GFx runtime: SDK link and system init (june-gfx G1, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_GFX_RUNTIME` in `KTDXLIB/Always.h` (client only). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G1"; log tag `[JUNE_GFX] RUNTIME`.
+- **Client.** `KTDXApp.cpp` links `libgfx`, `libgfx_as2`, `libgfx_as3`, `libgfxrender_d3d9`, `pcre` (`#pragma comment lib`, inside the flag); the CKTDXApp ctor / dtor bring
+  `Scaleform::GFx::System` up / down; the first frame writes `[JUNE_GFX] RUNTIME Scaleform 4.2.22 up` to ErrorLog.txt. New `KTDXLIB/KTDGFXRuntime.{h,cpp}` hold the System object and
+  the link shims (six cdecl zlib wrappers over the client's zlib 1.2.3, two PNG longjmp functions over libpng 1.2.24; the client's zlib / png / jpeg stay the one copy).
+- **Project files** (inert with the flag off): `X2/X2_2010.vcxproj` and `KTDXLIB/KTDXLIB_2010.vcxproj` `LibraryPath` of `US_INTERNAL` / `US_SERVICE` start with
+  `$(SolutionDir)\Libs\ExternalLib\Scaleform\Lib\Win32\Msvc10\Release;`; `KTDXLIB_2010.vcxproj` lists `KTDGFXRuntime.cpp` (per-file Scaleform `Src` + `Include` dirs) and `KTDGFXRuntime.h`.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The libraries then drop out of the link; the project-file hunks may stay.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used
