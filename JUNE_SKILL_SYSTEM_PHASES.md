@@ -1571,6 +1571,7 @@ Funcmap rows `Skill S7e` (35). JUNE_BUGS 315-319. Checklist 7aj (Luciel's comman
   ( `CPictureData::SetPos` with no point ). Cause: June's `31c94970` is not March's `SetSizeAsTextureSize` (that is June `31c94870`, unchanged) but a June-only "point from the
   texture when absent"; read as the March method a new picture never gets a point. Fixed with `JuneSetPointByTextureSize` at June's five 31c94970 sites in the tree: S7e's
   `32207630` x2 and `328e42d0`, and **S7b's level rows `328dc680` x2** ( BG_LV / LINE, invisible since S7b; corrected under this flag, S7b's call in the `#else` ).
+- **Play-test 2 PASSED (2026-10-19 06:32, exe 73fc5e7c, user + log):** units 25 / 41: 4 major-skill buttons, 3 major-command rows, 14 combo rows each with their icons; `KEM_ERROR347` 0, 0 EXCEPTION, clean exit.
 - **How to see it** (log `[JUNE_SKILL] UI`): open the tree ( K ) on a class: the class text under the portrait, the major-skill icons with hover guide text; the Command tab: the class text,
   the major-command rows, the combo lists with arrow / Z / X icons. Log lines `CommandIconData.lua loaded 89 icon row(s)`, `SkillCommandDescriptionData.lua class N ( NAME ): ...`,
   `major skills class N`, `command tab class N`.
