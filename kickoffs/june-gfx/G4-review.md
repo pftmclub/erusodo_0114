@@ -25,3 +25,11 @@ Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OT
 Spot-check 2-3 items in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear transcription errors under the same
 flag (then `build.py --deploy`); hand design decisions to the user. Write "Phase G4 -- Review" into the plan doc, update the
 STATUS row, write or check the next kickoff, commit.
+
+## Amended by G0 (2026-10-19)
+
+The scope is June's user skill cut-in (see G4.md's amendment):
+- `31fd95a0` / `31fde0f0` against March's ActiveSkillShow;
+- the `.gfx` name build;
+- the 8 callers mapped or logged;
+- CX2GUNPC left on the texture route.

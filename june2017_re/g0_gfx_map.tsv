@@ -1,0 +1,120 @@
+june_va	june_name	march_equivalent	verdict	target	evidence
+# --- CKTDGGFXManager (0x120 B, g_pKTDXApp +0x1c8): layout. All [D] from ctor 31c45cc0 / dtor 31c45970 / the methods below unless marked.
++0x0	vtable 33446ebc (slot0 dtor 31c485a0, slot1 31c43170 CreateMovie(name): Loader(+8).CreateMovie, slot2 31c431a0 copy the +0x18 block)	none	D	G2	ctor 31c45cc0 @31c45cc0; 31c43170 calls 31ab1a20 / 31ab1a70 on ecx+8
++0x4	IntGFXManagerListener sub-object, vtable 33446ea8 (31c48560 dtor thunk, 31c48570 name string 33446ec8, 31c45ed0 AS->C++ callback)	none	D	G2	31c45ed0 reads this+0x80 (= mgr+0x84), this+0x94 (= mgr+0x98), this+0xb4 (= mgr+0xb8)
++0x8	GFx::Loader (embedded, 0x10 B: vtable, pImpl, pStrongResourceLib, DefLoadFlags = 4.2.22's layout); built with ZlibSupport (id 0x19, vtable 33446cb8) + plain FileOpener (id 8, 33446d18)	none	D	G2	ctor 31ab1e00 @31c45d93 (ecx = esi+8); dtor 31ab1970
++0x18	9-dword block (copied out by vslot2 31c431a0)	none	open	G2	only reader seen is 31c431a0; G2 reads 31c43170's 2nd arg (mgr+0x18) to name it (MemoryParams-like)
++0x3c	Render::D3D9::HAL (0xcd20 B, ctor 3321a190(0))	none	D	G2	31c451d0 @31c45304-31c4533f
++0x40	Render::Renderer2D (0xc B, ctor 31af9560(HAL))	none	D	G2	31c451d0 @31c4534e-31c4538d; corrects the sweep (+0x40 is not the loader)
++0x44	D3DPRESENT_PARAMETERS (14 dwords) used by HAL init	DXUT present params	D	G2	resize 31c430c0 copies 14 dwords; reset 31c43e60 copies them into HAL init params
++0x7c	last timeGetTime	none	D	G2	Init 31c456e0 sets; dt 31c430e0 reads
++0x80	IDirect3DStateBlock9* (D3DSBT_ALL)	none	D	G2	reset 31c43e60 device vslot 0xec ( CreateStateBlock( 1, +0x80 ) ); render 31c43b20 Capture (+0x10) / Apply (+0x14); lost 31c43440 Release
++0x84	CKTDXStage* message receiver (the current CX2State)	none	D	G2	set by CKTDXApp 31be2fd0 (from the state change @31d89c26 right after InsertStage 31be3df0 of the new state, then tail-calls stage vslot 0x2c( movie wrapper )); cleared by 31be3000 (31d88c9e); used as stage->MsgProc( hwnd, 0x467 / 0x46c / 0x46d, ... )
++0x8c	std::map head (node 0x18 B) / +0x90 size	none	open	G2	ctor only; G2 finds its users in 31c45ed0's DataStringTable branch
++0x98	movie wrapper (0x98 B, ctor 31c40220( mgr, mgr+4 ); main.gfx)	none	D	G2	31c465b0; deleted by Init on a main.gfx failure; 14 external readers (+0x98 != 0 tests)
++0xa0	GFx::Value (+0xa4 type, +0xa8 data)	none	D	G2	dtor releases when (+0xa4 >> 6) & 1
++0xb8	HWND (ctor arg = app +4)	CKTDXApp::m_hWnd	D	G2	ctor @31c45e4b; IME 33030d00( +0xb8 ); MsgProc forward arg
++0xbc	D3DVIEWPORT9 (6 dwords, +0xbc..+0xd0)	CKTDXApp::m_ViewPort	D	G2	Init 31c456e0 + reset 31c43e60 from device GetViewport (vslot 0xc0)
++0xd4	frame dt, seconds (float)	fElapsedTime	D	G2	31c430e0: ( timeGetTime - +0x7c ) / 1000.0
++0xd8	GFx String	none	open	G2	ctor 31ab7350 @31c45e24; dtor; 31c44040 (clipboard path) is the only other reader seen
++0xf8	FontConfigSet (array +0xf8, count +0xfc; ctor 31d226c0)	none (SDK has no FxPlayer FontConfigParser)	D	G2	31c43d00 parse fontconfig.font; 31c44ff0 pick config +0x104 whose fontlibs exist (31c4bcb0), else next; 31d21e10 apply to the loader
++0x104	current font config index (-1 none)	none	D	G2	31c43d00 sets 0 / -1
++0x108	byte: GFx SHOWN (1 = render + mouse may swallow); ctor 1	none	D	G2/G5	render @31be3c60 cmp [+0x108], bl with ebx = 1 (31be384a); MsgProc @31be3fd2 cmp al(1); writers 31f02f50 @31f030fc (0, after SetShow( 0, 0 ) when the current mode is 2-4) / @31f03172 (1, every other branch), 31f25112 / state dtors 324ad780 / 324d5670 / 32520d70 (1). Corrects the sweep ("hide GFx")
++0x10a	short IME composition length / +0x10c byte IME composing	none	D	G2	31c435b0 WM_IME_STARTCOMPOSITION / END / COMPOSITION
++0x110	SoundRenderer (FMOD, on KTDS's FMOD::System = (app+0x200)+0x40)	none	D	G1/G2	31c43700: 33221b20 create, vslot 0x2c init, Audio state 0x1c via 330872d0( renderer, 0xf, 2 ). Corrects the sweep ("no Audio state")
++0x114	byte: GFx took the last LBUTTONDOWN	none	D	G2	31c44040 clears each message, 1 on a hit; read by 3224c7ce (cash shop, Stage 9)
++0x115	byte: event scene playing -> keys ignored, mouse only wheel	none	D	G2/G3	set 3226b580 (Play), cleared 3226b75c (End); read 31c43890 / 31c44040
++0x118	int: 1 when g_pMain +0x708 == 1 at app init	none	open	G2	only writer 31aa20c3; no reader found in the scan (mgr_access): G2 records it, ports the write
++0x11c	byte: mouse input enabled; ctor 0	none	D	G2	only writer 32577e9c ( = 1, in 32576ff0, a June startup step after g_pMain 31d93660 ); 31c44040 returns 0 while 0
+# --- create / init / teardown order
+31c17ed0 @31c19677	CKTDXApp ctor: new 0x120 + 31c45cc0( app+4 ) -> +0x1c8	CKTDXApp::CKTDXApp (KTDXApp.cpp:177)	D	G2	sweep; ctor body read
+31c45cc0	CKTDGGFXManager ctor	none	D	G2	members above
+31aa1fc0	OnCreateDevice: app ctor, g_pMain ctor, InsertStage 31be3df0, +0x118 write, 31be4510( device )	OnCreateDevice (X2.cpp:1300)	D	G2	31aa1fc0 @31aa2057 / @31aa2086 / @31aa20a0 / @31aa20c3 / @31aa20d8; RET 0xc = the DXUT callback
+31be4510	PerturbationMap.png, then mgr Init 31c456e0( device )	CKTDXApp::JuneOpenPerturbationMap (R4b, X2.cpp:1323)	D	G2	31be4562; G2 adds the Init call there
+31c456e0	Init( device ): 31c451d0 loader states, 31c465b0 wrapper, wrapper 31c3f3d0( "main.gfx" ), device GetViewport -> wrapper viewport + +0xbc, +0x7c = timeGetTime; main.gfx fail -> delete wrapper	none	D	G2	decompile
+31c451d0	loader states, in order: Log (0x824 B, 31c46880, id 2 via 31ac99a0); r3dGFXFileOpener id 8; FxPlayerTextClipboard id 0x14; HAL +0x3c; Renderer2D +0x40 (fail -> return 0); AS2Support id 0x21; AS3Support id 0x22; ImageFileHandlerRegistry id 0xb (4 handlers 337458bc / 33723454 / 337458b8 / 337458b4); FontProviderWin32( GetDC(0) ) id 0x11; IME manager id 0x17 (ime.xml / IME.swf); sound 31c43700; fontconfig.font 31c43d00 / 31c44ff0 / 31d21e10; a 0x50 B object (31b01930) to global 31abe360 vslot 0x30	none	D	G1/G2	asm 31c45208-31c45644. June ids are 4.0.15's enum: G2 uses the typed 4.2.22 setters, not the numbers
+33193b90	AS3Support ctor: State type 0x22, RegisterTagLoader( 0x4c SymbolClass ), ( 0x52 DoAbc )	GFx_AS3Support.cpp:198	D	G1	asm 33193ba7 / 33193b9e / 33193bbe: settles AS3 (root movie is AS3: main.gfx has gfxAS3.* packages)
+31c43700	sound: FMOD SoundRenderer on the KTDS FMOD system, Audio state 0x1c	Src/Sound/Sound_SoundRendererFMOD.cpp (source only, no lib)	D	G1/G2	decompile; G1 compiles the 3 Src/Sound .cpp or proves libgfx needs none
+33030d00	Win32 IME manager (0x70 B)	none (SDK: SF_ENABLE_IME off, no Win32 IME src)	D	G2	ime.xml / IME.swf are absent from June's data too: G2 skips it with one log line
+31c485a0 / 31c45970	dtor: +0x110, +0xf8 array, +0xd8 string, +0xa0 Value, +0x8c map, +0x40, +0x3c, Loader 31ab1970	none	D	G2	decompile
+# --- per frame / device
+31be3800 @31be3c56	OnFrameRender: after pass loops + effect RT + shimmer, if mgr && +0x108 == 1: 31c43b20; then the 0x18 loop 31be2e90; then CKTDXCursor 31ce5400( 0 )	KTDXApp.cpp:1287 (the comment slot, before JuneStageChainRenderAfter 1289)	D	G2	March draws its cursor in CX2State FrontUI (X2State.cpp:1208), so until R4f GFx draws over March's cursor
+31c43b20	render: wrapper 31c3faf0 (advance) ; state block Capture; Renderer2D BeginFrame 31af94e0; if wrapper: 31c3f6e0 (display); EndFrame 31af94f0; Apply	none	D	G2	decompile
+31c3faf0	advance: movie SetBackgroundAlpha?( 0 ), SetViewport( +0x44 ), Advance( dt, 2 ), display handle -> wrapper +0x38	none	D	G2	4.0 vslots differ from 4.2 (Advance 0x5c, GetDisplayHandle 0x64): G2 calls by name
+31c3f6e0	display: Renderer2D Display( wrapper display handle ) when the handle has a next capture	none	D	G2	decompile
+31be5c40 @31be64b0	OnFrameMove: mgr 31c430e0 (dt)	CKTDXApp::OnFrameMove (KTDXApp.cpp:692)	D	G2	sweep
+31be6510 @31be6625	OnResetDevice: mgr 31c43e60( device )	CKTDXApp::OnResetDevice (KTDXApp.cpp:1742)	D	G2	R8 row
+31c43e60	reset: CreateStateBlock; HAL not up -> InitHAL( device, present params +0x44, ... ) + wrapper +0x80 = HAL vslot 0xa8, 31c40030( device ); else HAL RestoreAfterReset 33213b40 + wrapper 31c3f6c0; viewport -> wrapper + +0xbc	none	D	G2	first call is DXUT's first reset after OnCreateDevice: Init (31be4510) runs before it, so the HAL is created there and initialised here
+31be66b0 @31be6723	OnLostDevice: mgr 31c43440	CKTDXApp::OnLostDevice (KTDXApp.cpp:1782)	D	G2	R8 row
+31c43440	lost: release state block; HAL up -> PrepareForReset 33213ad0	none	D	G2	decompile
+31be2a00	resize: 14 dwords from arg+0x10 -> mgr 31c430c0	none (March has no resize hook; reset carries present params)	D	G2	sweep; G2 feeds DXUT's present params at reset instead (state the stand-in)
+# --- input
+31be1aa0 @31be1e0a	main loop: after PeekMessage, mgr 31c43ab0( hwnd, msg, wp, lp )	DXUTMainLoop (DXUT.cpp:3962 / 4025)	D	G2	March's loop is DXUT's: G2 hooks there (DXUT.cpp is KTDXLIB, under the flag)
+31c43ab0	pre-filter: WM_KEYDOWN / KEYUP / LBUTTONDOWN / LBUTTONUP or ImmIsUIMessage -> 31c435b0( wrapper, msg, ..., preprocess 1 )	none	D	G2	decompile (32fe46a0 = ImmIsUIMessageW)
+31c435b0	IME event: WM_IME_START/END/COMPOSITION track +0x10a/+0x10c and forward 0x46c to +0x84 MsgProc; WM_IME_NOTIFY 6 with app+0x28c == 3 -> ImmGetContext / ImmSetConversionStatus; movie HandleEvent( IMEWin32Event ); returns the HE_NoDefaultAction bit	none	D	G2	decompile; app +0x28c is an input-mode int (G2 maps it)
+31be3f20	MsgProc: (lock 337676b8) msg >= 0x465 -> queue; mgr 31c44040 first: 1 && +0x108 == 1 && dialogMgr +0x110 == 0 -> return 1; stage chain (first true sets the result, loop stops); then mgr 31c43890 ALWAYS: 1 -> return 1	CKTDXApp::MsgProc (KTDXApp.cpp:1523)	D	G2	msgproc.txt (asm 31be3f20-31be409e). Corrects the sweep: keys run after the stages even when a stage took the message
+dialogMgr +0x110	byte: June-only modal flag (writers 31f1e108 = 1 in the exit box 31f1dd70, 31f017a9 / 31f25187 / 32529381 = 0, 3243d15f = 1, 324d5eb2 / 324d831c)	none	D	G2	scan; March never sets it: G2 reads a stand-in false (labelled)
+31c44040	mouse: +0x11c == 0 -> 0; +0x115 && not WHEEL -> 0; MOUSEMOVE -> event, 0; ACTIVATEAPP -> clipboard; LBUTTONDOWN hit -> SetCapture + MouseDown + +0x114 = 1 + 31cd2030, 1 ; miss -> clearFocus 31c43150, 0; LBUTTONUP / RBUTTON need a hit; WHEEL hit -> event + 31d23f00 / 31d23f40, 1	none	D	G2	decompile; 31c3f100 = HitTest
+31c43890	keys: +0x115 -> 0; IME msgs -> 31c435b0( preprocess 0 ); KEYDOWN/UP/SYS -> 31c43480 (Enter with app+0x28c 4/1, arrows with 1: forward 0x46d to +0x84) else 31c432e0 KeyEvent; WM_CHAR -> CharEvent	none	D	G2	decompile
+31c432e0	KeyEvent: VK -> GFx key (letters, F1-F15, digits, numpad pass, table 33726390), ToAscii, modifiers 31c43030; Ctrl alone skipped, with Ctrl only V / C	none	D	G2	decompile
+31c45ed0	AS->C++ callback: "MSG"( number ) -> +0x84 MsgProc( hwnd, 0x467, n, 0 ); isShippingBuild; DataStringTable; RegisterMainUI( value ) -> wrapper 31c3f650; NowCounTry; NowServiceMode	none	D	G2	decompile + 33446f68 = "MSG"
+# --- file opener
+31c47a00	r3dGFXFileOpener::OpenFile: lower-case, KOM lookup 31c4c170; member -> memory file (algo-2 decode when flag bit 2); miss or empty -> SDK FileOpener::OpenFile 33087ed0 (SysFile on disk, url as given)	KGCMassFileManager::LoadDataFile	D	G2	asm @31c47f2e / @31c47ff7 / @31c4811b. Corrects the sweep: there IS a disk fallback
+31c4e7f0	GetPullPath( WCHAR* ): first data dir where _wfopen_s( dir + name ) opens; rewrites name to the full path	CKTDXDeviceManager::GetPullPath (KTDXDeviceManager.h:164)	D	G3	data dirs = every cwd subfolder (March KGCMassFileManager::SetSubDirectory, KTDXDeviceManager.cpp:67): this is how eventscene\X.swf is reached
+# --- ActionScript wrappers (all thiscall on the manager, Invoke 31c3f150 on the root Value)
+31c45af0	loadUserWidget( id, path, a, b )	none	D	G3	id 0x2711 scene, 0x2712 Tutorial_Back
+31c457e0	loadEventSceneEndFrame( id, path, frame )	none	D	G3	one caller 3226b502
+31c44670	unloadUserWidget( id )	none	D	G3	End 3226b777 / 3226b792
+31c445d0	unloadWidget( id )	none	D	G3 (id 3 in Play); rest Stage 9	15 callers
+31c44530	openUI( id )	none	D	Stage 9	12 callers
+31c44710	isOpenUI( id )	none	D	G5 (0xb); rest Stage 9	19 callers
+31c43bb0	closeToTopZorder()	none	D	G5	HandleMsgByESC @31f1e271
+31c43150 / 31c44860 / 31c44940 / 31c44a20 / 31c44ae0 / 31c44bc0 / 31c44ca0	clearFocus / moveToTopZorder / changeCharacter / showOkPopup / ShowUI / HideUI / isVisibleI	none	D	G2 (port all 14); callers Stage 9	sweep section 6
+# --- event scenes (CX2GFXEventScene, 0xd8 B, g_pData +0x274)
+31edc620	CX2Data: delete +0x274, new 0xd8, ctor 3226aed0	CX2Data::ResetEventScene (X2Data.cpp:2412) makes only the Lua scene	D	G3	decompile; called from the startup loader @325904b9
+3226aed0	ctor: +4 playing, +0x8 name, +0x24 -1, +0x2c queue (+0x3c count), +0x58 / +0x78 / +0x94 wstrings, +0xb0 sound, +0xb4 adapter 32e59c50, +0xc0 GFX map (+0xc4 head, +0xc8 size), +0xd0 black-layout handle -1, +0xd4 skip byte	none	D	G3	decompile
+31eed660	region XMLs: names from VillageName.xml (31ee7000) -> each <NAME>.xml via 31eecc40 into g_pData +0x4ac map (+0x4b0 size)	none	D	G3	settles item 5: the 11 region files ARE loaded (VillageName.xml data036, 428 B: TUTORIAL_ROSE, RUBEN, ELDER, BESMA, ALTERA, VELDER, PEITA, HAMEL, SANDER, RANOX, ELYSION)
+31eed7a0	GFXEventSceneInfo.xml -> the scene's +0xc0 map	none	D	G3	string 3345c414; startup loader @32590869 right after 31eed660 @3259085e
+3226b130	Play( name, frame = -1, arg ): 0 / 1-char name -> return; playing -> queue unless queued (3226c8f0); else region route 31ee3160 / 31ee3250 [I] or "%s.swf"; GetPullPath; Tutorial_Back.swf -> loadUserWidget( 0x2712 ); scene -> loadUserWidget( 0x2711 ) or loadEventSceneEndFrame( 0x2711, frame ); +4 = 1; 32868250 if g_pMain+0x90 +0x64; 3226c250( 1 ); mgr +0x115 = 1; 32269f20; black layout 322ceaa0 / 31f33bb0 -> +0xd0; unloadWidget( 3 )	none	D	G3	decompile; 31ee3160 / 31ee3250 (region-map lookup) are G3's to read
+3226b6c0	End( bool ): unloadUserWidget 0x2711 / 0x2712, mgr +0x115 = 0, +4 = 0, 32269f20, black layout off, per-name follow-ups (Quest_11005 Start ...), queue pop -> Play, maps cleared, +0xd4 skip	none	D	G3	asm skim; G3 reads it in full
+3226c120	vslot 2 per frame: End( 1 ) after a timer	none	D	G3	census caller 3226c231
+3226bff0 / 3226c8f0	queue / queue-while-playing	none	D	G3	no direct callers (vtable / indirect)
+3226a010	IsPlaying: +4 || g_pData +0x278 325ae1e0	CX2EventScene::GetIsPlayingEventScene (X2EventScene.cpp:2146)	D	G3	census
+3226a130	IsRecentlyPlayedEventScene( name ): +0x94 == name -> clear, true; else Lua scene 325aece0( name )	none	D	G3	Lua name from xorstrings 31de3297
+3226a050	PlaySound( key ): stop +0xb0 (31cdd8d0), open 31cdf4a0 -> +0xb0, play 31d414d0	CKTDXDeviceManager::OpenSound + CKTDXDeviceSound::Play	D	G3	soundKey GFX_ID_n.ogg live in data179 / 188 / 214 / 174 / 186 (+ small); 83 keys absent in June too
+32269f20	scene UI hide: dialogs SetShow( b, mode 0 ) 31d05af0, quest refresh, minimap	CKTDGUIDialogManager::SetShow	D	G3	decompile
+32e597e0 / 32e59d40 / 32e59f10 / 32e59e00	AS callbacks (table 33531f58): endEventScene -> End( 0 ); playEventSceneSound( utf8 ) -> 3226a050; getEventSceneData; playedEventSceneAndGetMent( frame ) -> row 3226a2b0 + sound + "GFX_ID_%d" texts	none	D	G3	disassembly
+textKey / characterNameKey	resolved by the Translator from fontconfig.font's tr lines (GFX_ID_0..9132)	none	D	G2/G3	384 refs (Elysion Quest_22337-22346) use keys >= GFX_ID_9133 absent from fontconfig.font: June shows them unresolved (JUNE_BUGS row in G3)
+# --- +0x274 readers (26 sites) and +0x278 readers (6), from readers_census; 11 briefed sites were other objects
+327ccad0	Lua PlayEventScene( name ) -> Play( name, -1, 0 )	none (March binds no PlayEventScene)	D	G3	census 327ccb03
+327ccb20	Lua IsRecentlyPlayedEventScene( name ) -> 3226a130	none	D	G3	census 327ccb2a / 327ccb4f
+31d88bf0	StateChange: IsPlaying -> End( 1 ); Lua scene 325ae1e0 -> 325b68a0( 1 ); 31be3000	CX2Main state change (X2Main.cpp:5551)	D	G3	census 31d88c45 / 31d88c60 / 31d88c73 / 31d88c8b
+31d8e280	MsgProc dispatcher: +0x274 vslot 0xc, then +0x278, +0x27c	CX2Main::MsgProc (X2Main.cpp:3133)	D	G3	census 31d8e584 / 31d8e5a2
+31d71810	CX2Main gate( type 1..7 ): scene playing -> false; also +0x80a movie, state 0xb, 0x15	none found	open	G3	callers 322dd0f0 / 322cf810 / 322d8100 / 322d8590; G3 names the March function or logs it absent
+323ae6a0	CX2TFieldGame vslot 11: IsPlaying	X2TFieldGame.cpp:1842	D	G3	census
+324d1580	CX2StateDungeonGame vslot 61: IsPlaying	CX2StateDungeonGame	D	G3	census
+32f2b8e0	CX2Informer vslot 2: IsPlaying	X2Informer.cpp:87	D	G3	census
+32e90640	CX2TalkBoxManager vslot 1: IsPlaying	CX2TalkBoxManager	D	G3	census
+32ab4480	CX2GUAdd: denied while a scene plays	CX2GUAdd	D	G3	census
+324ed550	CX2GuildAgitGame vslot 11: IsPlaying	none (no guild agit in March)	D	log	absent system
+31efccf0 @31efcd98	key handler: 32269e60 sets scene +0xd4 = 1 (skip)	none found	open	G3	caller 31f2ab80; G3 names it
+327d2160	CX2DungeonGame::Release tail: 3226a260 clears +0x94	CX2DungeonGame::Release	D	G3	census
+3258c470 @3259082b	startup loader: scene ptr into the tutorial guide manager (31d70b00() +0xc4)	none (CX2TutorialGuide is a GFx root screen)	D	Stage 9	census
+31f0bdd0 @31f0ce51	state init: Lua scene +0xc4 = the state	none found	open	G3	+0x278 site; 8+ callers (32edd6c0, 325297f0, 3255bd10, ...)
+323cb2e0	quest UI scene starter: lookup 3226ac80 + Play x4 (callers 31d8942f, 323e1bf0, 323e4cb0, 323e57e0, 323e5c10)	CX2UIQuestNew (X2UIQuestNew.cpp:1901 / 1524 / 1660 / 2065 / 938)	D	quest-system	census
+323e4cb0 @323e4e4e	quest UI: scene +0x70 = 1 when record +8 == 5	CX2UIQuestNew	D	quest-system	census
+# --- talk cut-ins = June's user skill cut-in display (corrects the plan's "skill cut-ins stay textures")
+32078b70	SkillCutIn struct ctor ( name, 512 x 512 defaults )	CX2GUUser skill cut-in data	D	G4	decompile: builds data only, draws nothing
+32014fc0 @320151e4	ShowHyperSkillCutInByScript -> 31fde0f0( L"Dummy1_Rhand", cut-in name, ... )	ported in C3t (texture body)	D	G4	decompile
+31fde0f0	ActiveSkillShow( bone name, ... ): bone pos 31d38a20 -> 31fd95a0	CX2GUUser::ActiveSkillShow bone overload (X2GUUser.cpp:28150 family)	D	G4	callers 32014fc0, 3297b840, 329e7ed0, 32a50fd0, 32a52080, 32aad480, 32b16940, 32b70af0
+31fd95a0	ActiveSkillShow( pos, name, ... ): unless hidden (31d03920) or flag: g_pData +0x2cc 32153240; name (utf8) + ".gfx" -> g_pMain 31d76b40( 0xc, name.gfx, right = !vslot 0x170( 0 ), 0 )	CX2GUUser::ActiveSkillShow (particles CutIn_Talk_* + HQ_CutIn_Talk_*.dds)	D	G4	decompile; June draws NO particle cut-in for users. NPCs keep the texture route (32772080, HQ_CutIn_Talk_L_/R_, one caller 32783f84)
+31d76b40	CX2Main play cut-in widget( uiId, name, side, b ): +0xd7c (CX2SimpleWidgetPlayer) needed; uiId 0xc -> Common_CutIn_Frame.gfx ( side, 1 ) + CUT_IN_TALK_<R_|L_><rand()%3+1>.gfx ( 0, 0x3c ); then name ( side, b )	none	D	G4	decompile; one caller 31fd9834
+31fc75e0	CX2SimpleWidgetPlayer::playSimpleWidget( uiId, name, a, b ) -> DW "SimpleWidgetPlayer.playSimpleWidget" (31d1ef00 / 31d1ee10)	none	D	G4	decompile; data152 holds Common_CutIn_Frame + 6 CUT_IN_TALK + the HQ_CutIn_*.gfx; data195 60 more (transcendence / Rose)
+# --- owed gates
+31fd3180 @31fd3228	GetShowActiveSkillShow tail: mgr isOpenUI( 0xb ) -> false; g_pMain +0x80a == 1 -> false	X2GUUser.cpp:39086 (C3t-1 port)	D	G5 (0xb); movie -> backlog	UI 0xb is opened only from cash-shop code (32228478 / 3223dd01): false until Stage 9
+g_pMain +0x80a	byte: AVI movie playing (DungeonClearMovieTemplet / Movie.lua; table +0x7f8..+0x7fc, name +0x808; writers 31d7a150 / 31d7a240 / 31d884f0, clear 324dadc2)	none (March has only PLAY_PROMOTION_MOVIE)	D	backlog (movie system)	not GFx: G5 leaves the term out with a comment; a backlog row owns it
+31f1e1a0 @31f1e262	HandleMsgByESC: closeToTopZorder 31c43bb0 true -> consume ESC	X2State.cpp:4148	D	G5	C3p-2 row
+31f1e1a0 (+0x210 / profession)	result-UI mode switch, CX2UIProfessionManager close	none	D	Stage 9	C3p-2 rows
+31d05af0 modes 2-5	dialog hide modes entered by 31f14e40 / 324c95b0 / 324d8600 / 3243be8b (2), 324ac353 (4), 328c3750 (5)	none	D	Stage 9 (entry points)	SetShow caller scan; the event scene uses mode 0 only
+dialogMgr +0xd0 / 32597410 / 31d06100 / 31d05b80	hide-mode name map, its presets (mode 1 @3259b25e, mode 4 @3259b351, @3259b5f6 / @3259b7bb / @3259ba6f) and the two list readers	KTDGUIDialogManager.cpp:826-847 (4 literal names)	D	G5 (mechanism, all modes)	R8 review routing; ported whole so the readers are not a partial update; modes 2-5 stay unreached until Stage 9
+JUNE_BUGS 253	Lua quest scenes lose their layer-502 characters	X2EventScene	D	G3	the GFx scene draws them; G3's hand-off re-checks a Lua scene too

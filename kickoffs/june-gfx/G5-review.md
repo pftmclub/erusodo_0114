@@ -25,3 +25,9 @@ Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OT
 Spot-check 2-3 items in Ghidra (read-only); if one fails, re-check the whole phase. Fix clear transcription errors under the same
 flag (then `build.py --deploy`); hand design decisions to the user. Write "Phase G5 -- Review" into the plan doc, update the
 STATUS row, write or check the next kickoff, commit.
+
+## Amended by G0 (2026-10-19)
+
+Also review:
+- the hide-mode map, the presets and both readers against `32597410` / `31d06100` / `31d05b80`;
+- the `+0x80a` movie term left out, with its backlog row.

@@ -134,6 +134,67 @@ june-engine U1. Nothing here depends on Atlas/Elysion or the skill system.
 
 **Done gate:** every row in the map is [D] or marked open with a reason; G1-G5 kickoffs amended; no open question that blocks G1.
 
+### Phase G0 - Done (2026-10-19, Opus 5.5 high; read-only: no code, no flag, no build)
+
+**Output.**
+- `june2017_re/g0_gfx_map.tsv`: about 95 rows. Every row is `D` except 7 that are `open`, each with its reason and owner phase:
+  `+0x18`, `+0x8c`, `+0xd8`, `+0x118`, `31d71810`, `31efccf0`, `31f0bdd0`.
+- 27 funcmap rows tagged `GFx G0`.
+- Kickoffs amended: G1, GA, G2, G3, G4, G4-review, G5, G5-review. Each ends in "Amended by G0".
+- Scratch evidence (session scratchpad, not committed): decompiles, the `+0x274` / `+0x278` census, the manager-member scan.
+
+**Settled.**
+1. **AS2 vs AS3: both are registered; content is AS3.**
+   - June sets AS2Support (0x21), then AS3Support (0x22: `33193b90` registers the SymbolClass / DoAbc tag loaders).
+   - `main.gfx` is `gfxAS3.*`.
+   - G1 links `libgfx_as2` + `libgfx_as3`.
+2. **Scene `.swf`: loose, through `GetPullPath`.**
+   - Play resolves `X.swf` and `Tutorial_Back.swf` with `31c4e7f0`, which is March's `GetPullPath` (every cwd subfolder is a data
+     dir), then calls `loadUserWidget`.
+   - The opener `31c47a00` tries the kom first, then falls back to the SDK's disk `OpenFile`. That corrects the sweep's "no loose
+     fallback".
+   - The one `.swf` that does not inflate is `quest_22254_rosestart.swf`: a CWS header over an uncompressed body, named by no XML.
+3. **The 11 region XMLs are loaded.**
+   - `31eed660` reads `VillageName.xml` (data036, 428 B, 11 names), then each `<NAME>.xml` into `g_pData +0x4ac`.
+   - `GFXEventSceneInfo.xml` (`31eed7a0`) goes into the scene's `+0xc0` map.
+   - The 493 rows are 442 region + 51 GFX.
+4. **Movie term: `g_pMain +0x80a` is June's AVI DungeonClearMovie system, not GFx.** March has none. G5 leaves it out, and a backlog
+   row owns it.
+
+**Corrections to the planning sweep / Context.**
+- `+0x108` means **GFx shown** (render when `== 1`), not "hide".
+- `+0x40` is Renderer2D, and the Loader is embedded at `+8`.
+- June **does** set an Audio state: an FMOD SoundRenderer on KTDS's FMOD system (`31c43700`). The SDK has it only as `Src/Sound`
+  source.
+- Keys (`31c43890`) run after the stage chain **even when a stage handled the message**.
+- `+0x84` is the current CX2State. It receives AS "MSG" and the IME / key forwards as MsgProc 0x467 / 0x46c / 0x46d.
+- **"Talk cut-ins" are June's user skill cut-ins.** `31d76b40`'s only caller is `31fd95a0` = CX2GUUser::ActiveSkillShow. That
+  plays `<cut-in>.gfx` plus `Common_CutIn_Frame` plus a random `CUT_IN_TALK_L/R_1-3`, and no particle cut-in. NPCs keep textures.
+  G4 is rescoped to that, and GA adds data195.
+- The SDK has no FxPlayer FontConfigParser and no Win32 IME. G2 transcribes June's parser and skips IME; June ships no `ime.xml` /
+  `IME.swf` either.
+- 11 of the briefed `+0x274` / `+0x278` sites read other objects. The real counts are 26 and 6.
+
+**Routing.**
+- **G3:** the scene class, both Lua bindings (`PlayEventScene`, `IsRecentlyPlayedEventScene`), and the readers in StateChange,
+  MsgProc, TFieldGame, DungeonGame, Informer, TalkBox, Add and DungeonGame::Release. JUNE_BUGS 253 is fixed by the GFx scene.
+- **G4:** the ActiveSkillShow GFx body and its 8 callers.
+- **G5:** `isOpenUI(0xb)` (cash-shop UI: false until Stage 9), `closeToTopZorder`, and the R8-review hide-mode mechanism whole (map
+  `+0xd0`, presets `32597410`, readers `31d06100` / `31d05b80`).
+- **quest-system:** `323cb2e0`, `323e4cb0`.
+- **Stage 9:** hide-mode entry points 2-5, the result-UI mode, the profession close, the tutorial guide, the other wrapper callers.
+- **Logged absent:** CX2GuildAgitGame.
+
+**Data found (for GA).**
+- 2,385 loose `eventscene\*.swf` (318 MB).
+- `main.gfx` + 22 files in data194; 426 `.gfx` in data152; 60 in data195.
+- `fontconfig.font` (US) has keys `GFX_ID_0..9132`. 384 Elysion text references (Quest_22337-22346) use missing keys, as in June:
+  that is a JUNE_BUGS row for G3.
+- 2,793 of the 2,876 `soundKey` files are in June koms 179 / 188 / 214 / 174 / 186 (+ small). 83 are missing in June too.
+
+**How to see it in game:** nothing (read-only). **Open questions for the user:** none block G1. G4's widening is June's behaviour.
+Its play-test will show GFx cut-ins in place of March's particle ones.
+
 ## Phase G1 - SDK link and system init
 
 **Run with:** Sonnet 5.5 high. Flag `SERV_IRUHADEV_JUNE_GFX_RUNTIME`. Sub-tag `RUNTIME`.

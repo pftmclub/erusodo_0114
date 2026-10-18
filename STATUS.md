@@ -733,12 +733,12 @@ reaches the scenes (439/493 are Rose, 21 Ain; Elysion 22329-22340 need quest-sys
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| G0 | ready | Opus 5.5 / high | - (read-only) | `june2017_re/g0_gfx_map.tsv`, `funcmap.tsv`, plan doc, kickoffs G1-G5 | `G0.md` |
-| G1 | ready (better after G0 item 1) | Sonnet 5.5 / high, then regression play-test | -; not with june-engine U1 (`KTDXApp.cpp`) | `KTDXApp.cpp`, `KTDXLIB_2010.vcxproj`, `X2_2010.vcxproj`, Always.h | `G1.md` |
-| GA | ready (koms); `.swf` part after G0 item 4 | Sonnet 5.5 / high | - | `kom_contents` data194 / data152 / data036 (+ manifests), scene `.swf` | `GA.md` |
+| G0 | **done 2026-10-19** (Opus, read-only): `june2017_re/g0_gfx_map.tsv` + 27 funcmap rows `GFx G0`; AS2 + AS3 both registered (content AS3); scene `.swf` loose via `GetPullPath` + the opener's disk fallback; 11 region XMLs loaded via `VillageName.xml`; `+0x80a` = AVI movie (backlog); talk cut-in = June's user skill cut-in (G4 rescoped, GA adds data195); kickoffs G1-G5 / GA amended. User owes nothing | Opus 5.5 / high | - (read-only) | `june2017_re/g0_gfx_map.tsv`, `funcmap.tsv`, plan doc, kickoffs G1-G5 | `G0.md` |
+| G1 | ready (G0: link `libgfx_as2` + `libgfx_as3`; FMOD sound source, see `G1.md`) | Sonnet 5.5 / high, then regression play-test | -; not with june-engine U1 (`KTDXApp.cpp`) | `KTDXApp.cpp`, `KTDXLIB_2010.vcxproj`, `X2_2010.vcxproj`, Always.h | `G1.md` |
+| GA | ready (G0 done: `.swf` go loose into the game dir `data\eventscene\`; list in `GA.md`) | Sonnet 5.5 / high | - | `kom_contents` data194 / data152 / data195 / data036 + the voice koms 179 / 188 / 214 / 174 / 186 (+ manifests), loose `eventscene\*.swf` | `GA.md` |
 | G2 | waiting (G0, G1, GA) | Opus 5.5 / high, then user play-test | G0, G1, GA; not with june-engine U1 | new `KTDGGFXManager.*` (KTDXLIB), `KTDXApp.cpp`, Always.h | `G2.md`, review `G2-review.md` |
 | G3 | waiting (G2 review) | Sonnet 5.5 / high, then user play-test | G2 review | new `X2GFXEventScene.*`, `X2Data.*`, Lua bindings, G0's G3 readers, Always.h | `G3.md`, review `G3-review.md` |
-| G4 | waiting (G2 review) | Sonnet 5.5 / high, then user play-test | G2 review; one code phase at a time | `31d76b40`'s March class, Always.h | `G4.md`, review `G4-review.md` |
+| G4 | waiting (G2 review) | Sonnet 5.5 / high, then user play-test | G2 review; one code phase at a time | `X2GUUser.cpp` (ActiveSkillShow: June's GFx cut-in), `X2Main.*` (SimpleWidgetPlayer), the 8 callers' classes, Always.h | `G4.md`, review `G4-review.md` |
 | G5 | waiting (G2 review) | Sonnet 5.5 / high, then user play-test | G2 review; one code phase at a time | `X2GUUser.cpp` (cut-in term), `X2State.cpp` (ESC), Always.h | `G5.md`, review `G5-review.md` |
 | Z | waiting (all) | Sonnet 5.5 / medium | G1-G5 | `MODS.md`, backlog, memory, Always.h (`_DEBUG` off) | `Z.md` |
 
