@@ -4,6 +4,9 @@
 #ifdef SERV_IRUHADEV_LEVEL_CAP_99
 #include "X2OfflineCap99Exp.h"
 #endif SERV_IRUHADEV_LEVEL_CAP_99
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+#include "X2OfflineJuneSkillAutoLearn.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 #ifdef SERV_IRUHADEV_OFFLINE
 
@@ -1097,6 +1100,16 @@ bool CX2OfflineDB::Migrate()
 	}
 #endif SERV_IRUHADEV_LEVEL_CAP_99
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	if( iFrom < 17 )
+	{
+		if( false == MigrateSkillsToJuneTree() )
+			return false;
+
+		CX2OfflineLog::Server( L"DB       schema upgraded to v17 (skills reset onto June's skill tree)" );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
+
 	char szSetVersion[64];
 	_snprintf( szSetVersion, 64, "PRAGMA user_version = %d;", (int)SCHEMA_VERSION );
 	szSetVersion[63] = '\0';
@@ -1227,6 +1240,205 @@ bool CX2OfflineDB::MigrateExpToJuneTable()
 	return true;
 }
 #endif SERV_IRUHADEV_LEVEL_CAP_99
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+//////////////////////////////////////////////////////////////////////////
+// v17: the save moves onto June's skill tree (June skill system S3).
+//
+// data036 now carries June's NewSkillTempletVer2.lua, whose trees use reform
+// ids (21000+). S0a's census found none of the save's learned skills on any
+// June tree row and none named by an "[Enhanced]" skill's
+// m_DeleteSkillIDByUpgrade (kept 0, upgraded 0, gone all), so per unit:
+//
+//   unit_skill            every row goes (the equipped slots live on it)
+//   unit_skill_unsealed   every row goes: June keys unseals by skill id and
+//                         these are March ids (user, S3 Q3: no June unseals)
+//   unit_skill_note       every memo goes, one log line each: June's note
+//                         table (S3b) has no March memo id
+//   unit.sp / unit.csp    sp = June GetCalcInitSkillPoint( level ) 32205790
+//                         less what the grants below cost (0), csp = 0
+//   AUTOLEARN             the class's free rows the level allows (S3 Q1)
+//
+// Rows of units no longer in `unit` (already orphaned) go too, counted once.
+// unit.skill_note_page stays: the page count is S3b's.
+//
+// Runs from Open(), before the skill tree loads, so June's data comes from
+// X2OfflineJuneSkillAutoLearn.h (generated from June's own files). One-way:
+// an exe without the flag refuses the save ("save is schema v17").
+//////////////////////////////////////////////////////////////////////////
+
+#ifndef SERV_IRUHADEV_LEVEL_CAP_99
+#error SERV_IRUHADEV_JUNE_SKILL_REFORM's schema v17 sits on top of v16 (SERV_IRUHADEV_LEVEL_CAP_99)
+#endif SERV_IRUHADEV_LEVEL_CAP_99
+
+bool CX2OfflineDB::MigrateSkillsToJuneTree()
+{
+	using namespace X2OfflineJuneSkillAutoLearn;
+
+	struct KMigUnit
+	{
+		sqlite3_int64	m_iUnitUID;
+		int				m_iUnitClass;
+		int				m_iLevel;
+		int				m_iSP;
+		int				m_iCSP;
+		int				m_iSkills;
+		int				m_iUnsealed;
+	};
+
+	std::vector< KMigUnit > vecUnit;
+	{
+		sqlite3_stmt* pSel = Prepare(
+			"SELECT u.unit_uid, u.unit_class, u.level, u.sp, u.csp,"
+			" ( SELECT COUNT(*) FROM unit_skill s WHERE s.unit_uid = u.unit_uid AND s.level > 0 ),"
+			" ( SELECT COUNT(*) FROM unit_skill_unsealed n WHERE n.unit_uid = u.unit_uid )"
+			" FROM unit u ORDER BY u.unit_uid;" );
+		if( NULL == pSel )
+			return false;
+
+		while( SQLITE_ROW == sqlite3_step( pSel ) )
+		{
+			KMigUnit kUnit;
+			kUnit.m_iUnitUID	= sqlite3_column_int64( pSel, 0 );
+			kUnit.m_iUnitClass	= sqlite3_column_int( pSel, 1 );
+			kUnit.m_iLevel		= sqlite3_column_int( pSel, 2 );
+			kUnit.m_iSP			= sqlite3_column_int( pSel, 3 );
+			kUnit.m_iCSP		= sqlite3_column_int( pSel, 4 );
+			kUnit.m_iSkills		= sqlite3_column_int( pSel, 5 );
+			kUnit.m_iUnsealed	= sqlite3_column_int( pSel, 6 );
+			vecUnit.push_back( kUnit );
+		}
+		sqlite3_finalize( pSel );
+	}
+
+	// The memos, logged one by one before they go.
+	{
+		sqlite3_stmt* pNote = Prepare( "SELECT unit_uid, page, memo_id FROM unit_skill_note ORDER BY unit_uid, page;" );
+		if( NULL == pNote )
+			return false;
+
+		while( SQLITE_ROW == sqlite3_step( pNote ) )
+		{
+			CX2OfflineLog::Server( L"[JUNE_SKILL] MIG unit %I64d skill note page %d memo %d dropped (no June note row; S3b owns June's notes)",
+				(__int64)sqlite3_column_int64( pNote, 0 ), sqlite3_column_int( pNote, 1 ), sqlite3_column_int( pNote, 2 ) );
+		}
+		sqlite3_finalize( pNote );
+	}
+
+	int iOrphanSkills = 0;
+	int iOrphanUnsealed = 0;
+	{
+		sqlite3_stmt* pOrphan = Prepare(
+			"SELECT ( SELECT COUNT(*) FROM unit_skill WHERE unit_uid NOT IN ( SELECT unit_uid FROM unit ) ),"
+			" ( SELECT COUNT(*) FROM unit_skill_unsealed WHERE unit_uid NOT IN ( SELECT unit_uid FROM unit ) );" );
+		if( NULL == pOrphan )
+			return false;
+
+		if( SQLITE_ROW == sqlite3_step( pOrphan ) )
+		{
+			iOrphanSkills	= sqlite3_column_int( pOrphan, 0 );
+			iOrphanUnsealed	= sqlite3_column_int( pOrphan, 1 );
+		}
+		sqlite3_finalize( pOrphan );
+	}
+
+	if( false == Exec( "BEGIN;" ) )
+		return false;
+
+	if( false == Exec( "DELETE FROM unit_skill; DELETE FROM unit_skill_unsealed; DELETE FROM unit_skill_note;" ) )
+	{
+		Exec( "ROLLBACK;" );
+		return false;
+	}
+
+	sqlite3_stmt* pIns = Prepare(
+		"INSERT OR REPLACE INTO unit_skill( unit_uid, skill_id, level, csp, slot ) VALUES( ?1, ?2, 1, 0, ?3 );" );
+	sqlite3_stmt* pUpd = Prepare( "UPDATE unit SET sp = ?2, csp = 0 WHERE unit_uid = ?1;" );
+	if( NULL == pIns || NULL == pUpd )
+	{
+		if( NULL != pIns )	sqlite3_finalize( pIns );
+		if( NULL != pUpd )	sqlite3_finalize( pUpd );
+		Exec( "ROLLBACK;" );
+		return false;
+	}
+
+	for( size_t i = 0; i < vecUnit.size(); ++i )
+	{
+		const KMigUnit& kUnit = vecUnit[i];
+
+		int iLevel = kUnit.m_iLevel;
+		if( iLevel < 1 )			iLevel = 1;
+		if( iLevel > MAX_LEVEL )	iLevel = MAX_LEVEL;
+
+		int iGranted = 0;
+		int iSlotted = 0;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+		for( int r = 0; r < ROW_COUNT; ++r )
+		{
+			const KRow& kRow = ROWS[r];
+			if( kRow.m_iUnitClass != kUnit.m_iUnitClass || kRow.m_iRequireLevel > iLevel )
+				continue;
+
+			// The bar, as CX2OfflineSkill::SeedDefaultSkills fills it: the first four castable rows go into slots A 0..3.
+			// June's SKILL_TYPE: 5 BUFF, 6 ACTIVE, 7 SPECIAL_ACTIVE, 14..16 SPECIAL_ACTIVE_GRADE_1..3 (June Enum.lua).
+			int iSlot = -1;
+			switch( kRow.m_iSkillType )
+			{
+			case 5: case 6: case 7: case 14: case 15: case 16:
+				if( iSlotted < CX2UserSkillTree::MAX_SKILL_SLOT / 2 )
+					iSlot = iSlotted++;
+				break;
+			default:
+				break;
+			}
+
+			sqlite3_reset( pIns );
+			sqlite3_bind_int64( pIns, 1, kUnit.m_iUnitUID );
+			sqlite3_bind_int(   pIns, 2, kRow.m_iSkillID );
+			sqlite3_bind_int(   pIns, 3, iSlot );
+			if( SQLITE_DONE != sqlite3_step( pIns ) )
+			{
+				LogError( L"v17 skill migration INSERT" );
+				sqlite3_finalize( pIns );
+				sqlite3_finalize( pUpd );
+				Exec( "ROLLBACK;" );
+				return false;
+			}
+			++iGranted;
+		}
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+
+		// Every granted row costs 0 SP (the AUTOLEARN rule), so the unit keeps all of June's points for its level.
+		const int iNewSP = INIT_SKILL_POINT[ iLevel ];
+
+		sqlite3_reset( pUpd );
+		sqlite3_bind_int64( pUpd, 1, kUnit.m_iUnitUID );
+		sqlite3_bind_int(   pUpd, 2, iNewSP );
+		if( SQLITE_DONE != sqlite3_step( pUpd ) )
+		{
+			LogError( L"v17 skill migration UPDATE" );
+			sqlite3_finalize( pIns );
+			sqlite3_finalize( pUpd );
+			Exec( "ROLLBACK;" );
+			return false;
+		}
+
+		CX2OfflineLog::Server( L"[JUNE_SKILL] MIG unit %I64d class %d L=%d skills %d -> %d (slotted %d), unsealed %d -> 0, SP %d -> %d, CSP %d -> 0",
+			(__int64)kUnit.m_iUnitUID, kUnit.m_iUnitClass, kUnit.m_iLevel, kUnit.m_iSkills, iGranted, iSlotted,
+			kUnit.m_iUnsealed, kUnit.m_iSP, iNewSP, kUnit.m_iCSP );
+	}
+
+	sqlite3_finalize( pIns );
+	sqlite3_finalize( pUpd );
+
+	if( false == Exec( "COMMIT;" ) )
+		return false;
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG done: %u unit(s) moved onto June's skill tree; orphaned rows dropped: %d skill, %d unsealed",
+		(unsigned int)vecUnit.size(), iOrphanSkills, iOrphanUnsealed );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 //////////////////////////////////////////////////////////////////////////
 // account

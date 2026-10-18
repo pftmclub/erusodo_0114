@@ -291,7 +291,11 @@ bool CX2SkillTree::AddSkillTreeTemplet_LUA()
 	LUA_GET_VALUE( luaManager,		"m_iColumnIndex",			skillTreeTemplet.m_iIndexInTier,	0				);
 
 	int iPrecedingSkillID = 0;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	/// June's tree parser does not read m_iPrecedingSkill ( S2 kept it while the data was March's; June's unit rows carry none )
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM
 	LUA_GET_VALUE( luaManager,		"m_iPrecedingSkill",		skillTreeTemplet.m_iPrecedingSkill,	0				);
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 
 	SkillTreeTempletMap& mapSkillTreeTemplet = m_mapUnitSkillTreeTemplet[ (int)eUnitClass ];
@@ -1144,8 +1148,12 @@ bool CX2SkillTree::AddSealSkillInfo_LUA()
 			}
 			luaManager.EndTable();
 		}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+		/// June 3220a350 reads only m_iItemIDList; the scalar fallback served March's data until S3
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM
 		if( true == vecUnsealItemID.empty() )
 			vecUnsealItemID.push_back( iUnsealItemID );
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 		for( size_t iItem = 0; iItem < vecUnsealItemID.size(); ++iItem )
 			m_mapSealSkillItemTemplet.insert( std::make_pair( vecUnsealItemID[iItem], kInfo ) );

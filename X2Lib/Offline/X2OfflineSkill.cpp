@@ -10,8 +10,70 @@
 #ifdef SERV_IRUHADEV_OFFLINE
 
 #include "X2OfflineLog.h"
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+#include "X2OfflineJuneSkillAutoLearn.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
 CX2OfflineSkill* CX2OfflineSkill::ms_pInstance = NULL;
+
+#if defined( SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG )
+/// June skill system S3, short-lived: the generated auto-learn table (built from june_src_fixed under kom_contents' Enum.lua)
+/// against the tree the client actually loaded from data036, once, at the first unit load.
+static void JuneCheckAutoLearnTable()
+{
+	static bool s_bChecked = false;
+	if( true == s_bChecked || NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return;
+	s_bChecked = true;
+
+	using namespace X2OfflineJuneSkillAutoLearn;
+	CX2SkillTree* pTree = g_pData->GetSkillTree();
+
+	std::set< std::pair<int, int> > setHeader;
+	std::set< int > setClass;
+	int iRequireDiff = 0;
+	for( int r = 0; r < ROW_COUNT; ++r )
+	{
+		setHeader.insert( std::make_pair( ROWS[r].m_iUnitClass, ROWS[r].m_iSkillID ) );
+		setClass.insert( ROWS[r].m_iUnitClass );
+
+		const CX2SkillTree::SkillTemplet* pTemplet = pTree->GetSkillTemplet( (CX2SkillTree::SKILL_ID)ROWS[r].m_iSkillID );
+		const int iLiveRequire = ( NULL != pTemplet && false == pTemplet->m_vecRequireCharacterLevel.empty() ) ? pTemplet->m_vecRequireCharacterLevel[0] : 0;
+		if( iLiveRequire != ROWS[r].m_iRequireLevel )
+			++iRequireDiff;
+	}
+
+	int iLive = 0;
+	int iOnlyLive = 0;
+	int iOnlyHeader = 0;
+	std::set< int >::const_iterator cit;
+	for( cit = setClass.begin(); cit != setClass.end(); ++cit )
+	{
+		const CX2SkillTree::SkillTreeTempletMap& mapRow = pTree->GetSkillTreeTempletMap( *cit );
+		CX2SkillTree::SkillTreeTempletMap::const_iterator mit;
+		for( mit = mapRow.begin(); mit != mapRow.end(); ++mit )
+		{
+			const CX2SkillTree::SkillTemplet* pTemplet = pTree->GetSkillTemplet( mit->first );
+			if( NULL == pTemplet || 1 != mit->second.m_iMaxSkillLevel || 0 != pTemplet->m_iRequireLearnSkillPoint ||
+				true == pTemplet->m_bBornSealed || 0 != pTemplet->m_iDeleteSkillIDByUpgrade )
+				continue;
+
+			++iLive;
+			if( setHeader.end() == setHeader.find( std::make_pair( *cit, (int)mit->first ) ) )
+				++iOnlyLive;
+		}
+	}
+	std::set< std::pair<int, int> >::const_iterator hit;
+	for( hit = setHeader.begin(); hit != setHeader.end(); ++hit )
+	{
+		if( NULL == pTree->GetSkillTreeTemplet( hit->first, (CX2SkillTree::SKILL_ID)hit->second ) )
+			++iOnlyHeader;
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG autolearn check: generated %d rows in %u classes, loaded tree %d; only generated %d,"
+		L" only loaded %d, require-level diffs %d", (int)ROW_COUNT, (unsigned int)setClass.size(), iLive, iOnlyHeader, iOnlyLive, iRequireDiff );
+}
+#endif // SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN && SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 /*static*/ const wchar_t* CX2OfflineSkill::SLOT_B_END_DATE = L"2049-12-31 23:59:00";
 
@@ -101,9 +163,21 @@ bool CX2OfflineSkill::Load( UidType nUnitUID )
 	std::vector< KOfflineSkillRow > vecRow;
 	CX2OfflineDB::Instance()->LoadSkills( nUnitUID, vecRow );
 
+#if defined( SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG )
+	JuneCheckAutoLearnTable();
+#endif // SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN && SERV_IRUHADEV_JUNE_SKILL_DEBUG
+
 	for( size_t i = 0; i < vecRow.size(); ++i )
 	{
 		const KOfflineSkillRow& kRow = vecRow[i];
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+		// June's GetSkillLevel 32890620 reads a stored level of 0 as 1, and June's SetSkillLevelAndCSP 32897240 erases an entry
+		// set below 1, so a June client never holds a level-0 skill. A row a reset left at 0 is therefore not loaded (nor sent
+		// in m_vecSkillAcquired), or the client would treat the skill as learned.
+		if( kRow.m_iLevel <= 0 )
+			continue;
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 		KSkillState kState;
 		kState.m_iLevel		= kRow.m_iLevel;
@@ -248,6 +322,11 @@ void CX2OfflineSkill::GetAcquiredSkills( OUT std::vector< KUserSkillData >& vecO
 	std::map< int, KSkillState >::const_iterator mit;
 	for( mit = m_mapSkill.begin(); mit != m_mapSkill.end(); ++mit )
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+		// A June client reads a stored 0 as level 1 (GetSkillLevel 32890620); a skill reset to 0 is not sent (see Load).
+		if( mit->second.m_iLevel <= 0 )
+			continue;
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 		KUserSkillData kData;
 		kData.m_iSkillID		= (short)mit->first;
 		kData.m_cSkillLevel		= (UCHAR)mit->second.m_iLevel;
@@ -528,11 +607,17 @@ int CX2OfflineSkill::InitSkillTree( int iUnitLevel, int iUnitClass, OUT int& iSP
 
 	CX2OfflineDB::Instance()->ClearSkills( m_nUnitUID );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+	// June's default list is empty; the S3 Q1 stand-in grants the class's free rows instead. Every one costs 0 SP, so
+	// iSPTotal (June GetCalcInitSkillPoint for the level) stays whole.
+	SeedJuneAutoLearn( m_nUnitUID, iUnitClass, iUnitLevel );
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 	if( false == SeedDefaultSkills( m_nUnitUID, iUnitClass ) )
 	{
 		CX2OfflineLog::Server( L"SKILL    WARNING class %d has no default-skill list - the tree is"
 			L" now empty", iUnitClass );
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
 	CX2OfflineLog::Server( L"SKILL    tree reset for unitUID=%I64d, SP restored to %d",
 		(__int64)m_nUnitUID, iSPTotal );
@@ -666,6 +751,59 @@ bool CX2OfflineSkill::SeedDefaultSkills( UidType nUnitUID, int iUnitClass )
 
 	return true;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+bool CX2OfflineSkill::SeedJuneAutoLearn( UidType nUnitUID, int iUnitClass, int iUnitLevel )
+{
+	using namespace X2OfflineJuneSkillAutoLearn;
+
+	if( false == Load( nUnitUID ) || m_nUnitUID != nUnitUID )
+		return false;
+
+	int iGranted = 0;
+	int iSlotted = 0;
+
+	for( int r = 0; r < ROW_COUNT; ++r )
+	{
+		const KRow& kRow = ROWS[r];
+		if( kRow.m_iUnitClass != iUnitClass || kRow.m_iRequireLevel > iUnitLevel )
+			continue;
+
+		if( GetSkillLevel( kRow.m_iSkillID ) > 0 )
+			continue;
+
+		m_mapSkill[ kRow.m_iSkillID ].m_iLevel		= 1;
+		m_mapSkill[ kRow.m_iSkillID ].m_iCSPoint	= 0;
+
+		// As the v17 migration: castable rows (June SKILL_TYPE 5 BUFF, 6 ACTIVE, 7 SPECIAL_ACTIVE, 14..16
+		// SPECIAL_ACTIVE_GRADE_1..3) take the first free A slot.
+		switch( kRow.m_iSkillType )
+		{
+		case 5: case 6: case 7: case 14: case 15: case 16:
+			for( int s = 0; s < SLOT_COUNT_PER_SET; ++s )
+			{
+				if( 0 == m_aiSkillSlot[s] )
+				{
+					m_aiSkillSlot[s] = kRow.m_iSkillID;
+					++iSlotted;
+					break;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+
+		Persist( kRow.m_iSkillID );
+		++iGranted;
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG seed unitUID=%I64d class %d L=%d: %d free row(s) granted, %d slotted",
+		(__int64)nUnitUID, iUnitClass, iUnitLevel, iGranted, iSlotted );
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
 //////////////////////////////////////////////////////////////////////////
 // skill unsealing (phase 21)

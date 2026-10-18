@@ -442,6 +442,12 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+		SCHEMA_VERSION			= 17,	///< v17: skills reset onto June's skill tree (June skill system S3)
+
+		/// As in the v16 branch below, which this one replaces wholesale.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM
 #ifdef SERV_IRUHADEV_LEVEL_CAP_99
 		SCHEMA_VERSION			= 16,	///< v16: unit.exp moved from March's ExpTable to June's (Atlas A2)
 
@@ -462,6 +468,7 @@ public:
 #endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 #endif SERV_IRUHADEV_OFFLINE_RES_STONE
 #endif SERV_IRUHADEV_LEVEL_CAP_99
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -882,6 +889,12 @@ private:
 	/// its level and its fraction of progress through it. One-way. See the .cpp.
 	bool	MigrateExpToJuneTable();
 #endif SERV_IRUHADEV_LEVEL_CAP_99
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	/// The v17 rung (June skill system S3): every unit's skills, unseals and skill-note memos
+	/// go, SP becomes June's GetCalcInitSkillPoint for its level, and (AUTOLEARN) the class's
+	/// free rows come back. One-way. See the .cpp.
+	bool	MigrateSkillsToJuneTree();
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 	int		ReadSchemaVersion();
 	void	LogError( const wchar_t* szWhat );
 

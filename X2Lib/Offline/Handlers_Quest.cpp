@@ -538,7 +538,12 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 		// re-upserted at level 1 and is a no-op for anything already learned
 		// higher, because the base skills are shared down the class tree.
 		CX2OfflineSkill::Instance()->Load( kRow.m_nUnitUID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+		// June skill system S3: the new class's free tree rows for this level (June has no default list; Q1 stand-in).
+		CX2OfflineSkill::Instance()->SeedJuneAutoLearn( kRow.m_nUnitUID, iNewClass, kRow.m_iLevel );
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 		CX2OfflineSkill::Instance()->SeedDefaultSkills( kRow.m_nUnitUID, iNewClass );
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
 		bChangedJob = true;
 

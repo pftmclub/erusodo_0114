@@ -677,3 +677,24 @@ bOnLine, bDroppable )`; March's 7-arg form forwards (index twice, `false`). Clas
 - June-only helpers with `NULL, &idx`: user landing prediction `32021390` (Add / Luciel / Arme callers), target-follow prediction `3200eeb0`, line clamp
   `32294530` (Add), Ara landing helper `32bc0420`, Rena Grand Archer `LESI_RGA_GUNGNIR_READY` (`@32ca111a`); Luciel's states (`@32b2fd79`, `@32b33fb7`,
   `@32b33d09`) come with the class.
+
+### 7ae. June skill-tree ids with no March class state (from June skill system S3)
+
+Since S3, data036 ships June's `NewSkillTempletVer2.lua` and every save is on June's trees (schema v17). The census
+`june2017_re/s3_reform_ids_no_state.tsv` lists every tree row of the 55 classes March has (2,044 rows) with its June name, templet name, type,
+master level, row / column, and whether the class family's GU file has a state for it. **1,989 rows have none.** Every reform id (21000+, `RNSI_*`) is
+absent from March's C++ `SKILL_ID` enum, so no class `case` can name it. The only rows with a state are `SI_ETC_WS_COMMON_LOVE` (900), one per class.
+Per family (rows / no state; first job, second job): base classes 15 / 14 each (Raven 14 / 13); first jobs 28-34 / 27-33; second jobs 52-57 / 51-56.
+
+What a class port does with its rows:
+- **Add the `RNSI_*` enumerators** (values from June's `Enum.lua`) and the state for each one in the class's `SetEquippedSkillFuncBySkillSlotIndex`
+  and its Lua script. Until then, two March behaviours apply. An id whose type the class switch lists (BUFF / ACTIVE / SPECIAL_ACTIVE / HYPER)
+  falls into that switch's `default:` and plays the class's first skill state (Elsword Mega Slash, Lire Power Attack, Arme Power Attack, Raven,
+  Eve, Chung Detonation, Ara Wind Wedge); Elesis and Add leave it blank.
+- **June's types 14-16 (`ST_SPECIAL_ACTIVE_GRADE_1..3`), 17 (`ST_CORE`) and 18 (`ST_CORE_PASSIVE`) are not in March's C++ `SKILL_TYPE`.** Every
+  class switch sends them to `default: return`, so the slot state is blank. S3 logs such a slot once (`[JUNE_SKILL] MIG no-state skill`) and
+  `CX2GUUser::StateChange` refuses the blank state (`SERV_IRUHADEV_JUNE_SKILL_REFORM`); MP and the cool time are still spent, as March's
+  `SpecialAttackEventProcess` charges them before the state change. The port removes that path for its class by binding the state.
+- `lookalike_march_name` in the tsv names March's old skill with the same suffix (e.g. `RNSI_SA_ES_MEGASLASH` 21000 vs `SI_A_ES_MEGASLASH` 1200):
+  a hint for where the old state's code lives, not proof that the June skill behaves the same.
+- 49 rows (Chung upgrade ids 26027-26029, 26216-26219) have no June `SKILL_ID` name; name them from the templet.

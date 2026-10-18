@@ -56,6 +56,11 @@ bool CX2OfflineServer::Handler_EGS_GET_SKILL_REQ( KOfflineSession& kSes, const K
 	// array - either silently no-ops (the skill tree reads as fully unlearned)
 	// or walks off a fixed-size array (the crash the field's absence was causing).
 	kAck.m_iActiveSkillPageNumber = kReq.m_iActiveSkillPageNumber;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	// June skill system S3 (plan rule 4): the client's SetUsingPage subtracts 1 unchecked, so an ACK never carries page 0.
+	if( kAck.m_iActiveSkillPageNumber < 1 )
+		kAck.m_iActiveSkillPageNumber = 1;
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 	KOfflineUnitRow kRow;
 	if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) )
@@ -242,6 +247,11 @@ bool CX2OfflineServer::Handler_EGS_RESET_SKILL_REQ( KOfflineSession& kSes, const
 
 	// See the same field in Handler_EGS_GET_SKILL_REQ - echoed, never derived.
 	kAck.m_iActiveSkillPageNumber = kReq.m_iActiveSkillPageNumber;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	// June skill system S3 (plan rule 4): the client's SetUsingPage subtracts 1 unchecked, so an ACK never carries page 0.
+	if( kAck.m_iActiveSkillPageNumber < 1 )
+		kAck.m_iActiveSkillPageNumber = 1;
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 	KOfflineUnitRow kRow;
 	if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) )
@@ -303,6 +313,11 @@ bool CX2OfflineServer::Handler_EGS_INIT_SKILL_TREE_REQ( KOfflineSession& kSes, c
 
 	// See the same field in Handler_EGS_GET_SKILL_REQ - echoed, never derived.
 	kAck.m_iActiveSkillPageNumber = kReq.m_iActiveSkillPageNumber;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	// June skill system S3 (plan rule 4): the client's SetUsingPage subtracts 1 unchecked, so an ACK never carries page 0.
+	if( kAck.m_iActiveSkillPageNumber < 1 )
+		kAck.m_iActiveSkillPageNumber = 1;
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 	KOfflineUnitRow kRow;
 	if( false == pDB->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) )

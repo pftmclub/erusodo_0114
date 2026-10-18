@@ -493,6 +493,56 @@ A Sonnet subagent checked the 260 rows of `s0a_templet_keys.tsv` key by key; Opu
 **Done gate:** migration lines for every unit; the snapshot path recorded; `COPY OK data036`; `DEPLOY OK`; flagcheck PASS; the
 checklist section written.
 
+**Done note (2026-10-18, Opus 5.5 high): S3 built, packed; copy, migrating launch and play-test pending.** Flags `SERV_IRUHADEV_JUNE_SKILL_REFORM` and
+`..._REFORM_AUTOLEARN` (labelled stand-in), short-lived lines under `_DEBUG`; tag `[JUNE_SKILL] MIG`. User answers (2026-10-18): flip now; Q1 auto-learn
+free rows; Q2 keep the base when an [Enhanced] skill is learned; Q3 no June unseals.
+- **Data.** `adopt-june data036 SkillData.lua NewSkillTempletVer2.lua` (ljconv; record `june2017_re/june_adopt_20261018_064900.tsv`). Core `Enum.lua`
+  (BOM source, `luasrc.py refresh`, ledger PASS): 31 June `UNIT_CLASS` names (33-46, 123-136, 200-202; the S2 count, not 39) and
+  `SPRT_HYPER_CLASS = 5` with `SPRT_END` 5 -> 6. The nine `BUFF_FACTOR_ID` names are missing from **June's** Enum too: kept, `JUNE_BUGS.md` 279.
+  `PACK OK data036` (242 entries; vs live: ~3 changed: Enum.lua, NewSkillTempletVer2.lua, SkillData.lua). Not adopted: `_LA`, CommandIconData (S7).
+- **Loader.** No change: `OpenScriptFile` already loads SkillData.lua, then NewSkillTempletVer2.lua; the Trans load is dead (`LUA_TRANS_DEVIDE` off).
+  S2's two supersets go under the flag: the tree row's `m_iPrecedingSkill` read and AddSealSkillInfo's scalar `m_iItemID` fallback (`X2SkillTree.cpp`).
+- **June `GetSkillLevel 32890620` whole** (amendment 9, `X2UserSkillTree.cpp`). The guild branch is March's (the `31d717d0` test is state 0x17 / 0x18,
+  June's PVE states, which March lacks). Every other skill reads the current page's map: the stored level, 0 reads 1, no bonus / bBasic / page / cap.
+  A page argument other than the page in use logs once.
+- **Save v17** (`X2OfflineDB::MigrateSkillsToJuneTree`, one-way; an exe without the flag refuses v17). All `unit_skill`, `unit_skill_unsealed` and
+  `unit_skill_note` rows go (one log line per memo; orphan rows counted). SP = June `GetCalcInitSkillPoint(level)` (L80 604, L99 842); CSP 0.
+  AUTOLEARN grants each class's 0-SP, master-level-1, not born-sealed, non-[Enhanced] rows up to the unit's level; the first 4 castable go in A
+  slots. Unit 12: 20 at L85, 22 at L99; unit 39: 2. One `[JUNE_SKILL] MIG unit` line per unit. June data comes from the generated
+  `X2OfflineJuneSkillAutoLearn.h` (`june2017_re/s3_autolearn_gen.py`, `--check` SAME x3; 1,347 rows, 86 classes), because Open() runs before the tree loads.
+  `_DEBUG` checks it against the loaded tree (`MIG autolearn check`).
+- **Emulator.** Create / job change / full reset seed June's free rows (`SeedJuneAutoLearn`); level-0 rows are neither loaded nor sent (June reads 0 as 1;
+  June's `SetSkillLevelAndCSP 32897240` erases below 1); GET / RESET / INIT ACK pages clamp to >= 1; the `UNIT_CLASS` seed merges into Enum.lua's table
+  instead of replacing it (it would have nil'd the 31 names for later loads). `createchar.py` (SP = 1 + June init SP) and `elsdb.py setchar` (level / class)
+  grant the same rows (`tools/data/june_skill_autolearn.tsv`, `june_skill_init_sp.tsv`).
+- **No-state skills** (`X2GUUser.cpp`). Every reform id lacks a March state. Types BUFF / ACTIVE / SPECIAL_ACTIVE fall into the class switch's
+  `default:` (the class's first skill state, March's own behaviour). June types 14-16 hit `default: return`, which leaves a blank state that would hold
+  the unit forever. Such a slot logs once (`MIG no-state skill`), and `StateChange` refuses the blank state. MP and the cool time are still spent: the
+  class charges them first.
+- **Checklist** 7ae (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`) + census `june2017_re/s3_reform_ids_no_state.tsv`: 2,044 rows of March's 55 classes, 1,989
+  with no state (only SI_ETC_WS_COMMON_LOVE has one). **New phase S3c** (unowned, planned per rule): March's engine readers of June types 14-18.
+- **Side finds.** `SkillLevelUpSocketGroup.lua` / `AnimationNameTable.lua` now resolve the 31 names (both loaders safe: stored or bound-checked; the
+  socket loader still drops classes >= `UC_END` 124, which March cannot play).
+- **Snapshot:** `db_backup\els_db_20261018_070707_pre_S3_skill_reform.sql` (v16, taken before any v17 exe could run).
+- **Hygiene** (`flagcheck JUNE_SKILL_REFORM --worktree --with JUNE_SKILL_REFORM_AUTOLEARN JUNE_SKILL_DEBUG --files` the 12 code files): 7 PASS, 3 PASS~
+  (blank lines outside the flag), 1 OTHER (`X2GUUser.cpp`: a peer's R12b lines, since committed in `74dd25e6`), 0 FAIL; 0 deleted lines. Range line below.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to X2/US_SERVICE/x2.exe
+  (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s).` A peer's build compiled this phase first; all six S3 strings are in the exe.
+  `COPY OK data036: ... data036.kom 13486307 bytes, 242 entries, md5 c485fe6f654085d82dda3570ee90da86` (user OK 2026-10-18).
+- **How to see it:** the first launch migrates (save v16 -> v17): `logs.py --tag JUNE_SKILL` shows 27 `MIG unit` lines, 3 memo lines, `MIG done`,
+  `schema upgraded to v17`, the `UNIT_CLASS seed merged` line, and (debug) `MIG autolearn check ... only generated 0, only loaded 0, require-level diffs 0`.
+  In game, the skill tree shows June's rows; SP is June's (reyaa L99: 842).
+- **Gate to read in the log:** the real load's `[JUNE_SKILL] LOAD templets=2346 tree_rows=3360` (was 2,697 before the 31 class names; S0a amendment 2).
+
+## Phase S3c - June skill types 14-18 in March's engine
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TYPE`. Sub-tag `[JUNE_SKILL] TYPE`. Added 2026-10-18 by S3
+(unowned June branch). June's `SKILL_TYPE` has 14-16 `ST_SPECIAL_ACTIVE_GRADE_1..3`, 17 `ST_CORE`, 18 `ST_CORE_PASSIVE`; March's C++ enum stops at 13,
+and June's data gives most special actives type 14-16. Add the enumerators, then port June's handling in every engine reader of `m_eType`
+(class GU files are checklist 7ae; UI readers S7 rewrites go to S7).
+
+**Done gate:** a `[JUNE_SKILL] TYPE` census at load; a grade-1 special active shows its type in the tree UI and tooltip; flagcheck PASS; `DEPLOY OK`.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.

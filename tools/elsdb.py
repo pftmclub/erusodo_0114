@@ -387,7 +387,15 @@ def cmd_setchar(a):
         if 'nickname' in sets and c.execute('SELECT 1 FROM unit WHERE nickname=? COLLATE NOCASE AND unit_uid<>?', (a.nick, uid)).fetchone():
             die('nickname %r is already taken' % a.nick)
         before = c.execute('SELECT unit_class,nickname,level,exp,ed,sp FROM unit WHERE unit_uid=?', (uid,)).fetchone()
+        if 'level' in sets and 'sp' not in sets and sets['level'] != before[2]:
+            # June's SP rule, as the game levels a unit: + GetCalcInitSkillPoint(new) - GetCalcInitSkillPoint(old).
+            sets['sp'] = max(0, before[5] + createchar.init_sp(sets['level']) - createchar.init_sp(before[2]))
         c.execute('UPDATE unit SET %s WHERE unit_uid=?' % ', '.join('%s=?' % k for k in sets), list(sets.values()) + [uid])
+        if 'level' in sets or 'unit_class' in sets:
+            # June skill system S3: the (new) class's free rows the (new) level allows, as SeedJuneAutoLearn on a job change.
+            # Additive: nothing learned is removed.
+            granted, slotted = createchar.seed_skills(c, uid, sets.get('unit_class', before[0]), sets.get('level', before[2]))
+            say('  skills: %d free June row(s) granted, %d on the bar' % (granted, slotted))
         after = c.execute('SELECT unit_class,nickname,level,exp,ed,sp FROM unit WHERE unit_uid=?', (uid,)).fetchone()
         say('unit %d (%s)' % (uid, nick))
         for n, b, f in zip(('class', 'nick', 'level', 'exp', 'ed', 'sp'), before, after):

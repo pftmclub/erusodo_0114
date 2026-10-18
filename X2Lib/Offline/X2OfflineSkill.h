@@ -174,6 +174,15 @@ public:
 	/// exist in this build's SKILL_ID enum, so it is not a usable source.
 	bool	SeedDefaultSkills( UidType nUnitUID, int iUnitClass );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+	/// June skill system S3, the Q1 stand-in: June's SkillData.lua has no default
+	/// skills, so a new character, a job change and a full tree reset get every
+	/// free row of the class tree the level allows (X2OfflineJuneSkillAutoLearn.h,
+	/// the rows the v17 migration granted). Rows already learned are left alone;
+	/// castable ones fill free A slots. Loads the unit.
+	bool	SeedJuneAutoLearn( UidType nUnitUID, int iUnitClass, int iUnitLevel );
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+
 	/// SP for levelling from iFromLevel to iToLevel, summed out of the client's
 	/// own `CalcLevelUpIncreaseSkillPoint` Lua function. Zero when the levels
 	/// are equal, so a dungeon that did not level anybody costs nothing.

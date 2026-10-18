@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2userskilltree.h"
+#if defined( SERV_IRUHADEV_JUNE_SKILL_REFORM ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_SKILL_REFORM && SERV_IRUHADEV_OFFLINE
 
 
 /** @function	CX2userSkillTree
@@ -594,6 +597,58 @@ int CX2UserSkillTree::GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBasl
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	/// June CX2UserSkillTree::GetSkillLevel 32890620 whole (S2 review amendment 9). The templet's guild byte (+0) picks the branch.
+	const CX2SkillTree::SkillTemplet* pJuneTemplet = ( NULL != g_pData && NULL != g_pData->GetSkillTree() ) ? g_pData->GetSkillTree()->GetSkillTemplet( eSkillID ) : NULL;
+	if( NULL != pJuneTemplet && true == pJuneTemplet->m_bGuildSkill )
+	{
+		/// @32890645: g_pMain ( 3377585c ) set and 31d717d0 ( state +0x8c is 0x17 / 0x18, June XS_PVE_GAME / XS_PVE_RESULT ) -> 0.
+		/// March has neither state, so that test is never true here. Then the guild map ( +0x28 ): bBasic ? level : level + the two
+		/// bonus fields, capped at 30 ( @328906b3 ) - March's own guild branch.
+#ifdef GUILD_SKILL
+		SkillDataMap::const_iterator mitGuild = m_mapGuildSkillAcquired.find( eSkillID );
+		if( mitGuild != m_mapGuildSkillAcquired.end() )
+		{
+			const UserSkillData& guildSkillData = mitGuild->second;
+			const int iGuildSkillLevel = true == bBaslcLevel ? guildSkillData.m_iSkillLevel : guildSkillData.GetTotalSkillLevel();
+			return min( iGuildSkillLevel, MAX_LIMITED_SKILL_LEVEL );
+		}
+#endif GUILD_SKILL
+		return 0;
+	}
+
+	/// @328906c2: every other skill reads the acquired map ( +0x4a8 ): empty -> 0; the 4th argument 1 -> the upgrade swap 328905b0
+	/// first; found -> the stored level byte ( value +0 ), and 1 when that byte is 0; not found -> 0. No bonus levels, no bBasic, no
+	/// page argument, no 30 cap. March's acquired map is the current page's m_vecSkillDataMap, as GetUpgradeSwappedSkillID reads it
+	/// ( whether +0x4a8 is that page or a copy is S5's page question ).
+	if( true == m_vecSkillDataMap.empty() || m_usUsingPage >= m_vecSkillDataMap.size() )
+		return 0;
+
+	const SkillDataMap& mapJuneAcquired = m_vecSkillDataMap[ m_usUsingPage ];
+	if( true == mapJuneAcquired.empty() )
+		return 0;
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	if( usPageNumber_ > 0 && usPageNumber_ - 1 != m_usUsingPage )
+	{
+		static bool s_bPageArgLogged = false;
+		if( false == s_bPageArgLogged )
+		{
+			s_bPageArgLogged = true;
+			CX2OfflineLog::Server( L"[JUNE_SKILL] MIG GetSkillLevel: page %d asked while page %d is in use; June 32890620 has no page"
+				L" argument and reads the page in use (logged once)", static_cast<int>( usPageNumber_ ), static_cast<int>( m_usUsingPage ) + 1 );
+		}
+	}
+#endif SERV_IRUHADEV_OFFLINE
+
+	const CX2SkillTree::SKILL_ID eJuneSkillID = ( true == bUpgradeSwap_ ) ? GetUpgradeSwappedSkillID( eSkillID ) : eSkillID;
+	SkillDataMap::const_iterator mitJune = mapJuneAcquired.find( eJuneSkillID );
+	if( mitJune == mapJuneAcquired.end() )
+		return 0;
+
+	const int iJuneStoredLevel = static_cast<int>( static_cast<unsigned char>( static_cast<int>( mitJune->second.m_iSkillLevel ) ) );
+	return ( 0 == iJuneStoredLevel ) ? 1 : iJuneStoredLevel;
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 #ifdef GUILD_SKILL
 	//{{ oasis907 : ±ËªÛ¿± //// 2009-11-16 //// 
@@ -658,6 +713,7 @@ int CX2UserSkillTree::GetSkillLevel( CX2SkillTree::SKILL_ID eSkillID, bool bBasl
 	#endif //SKILL_PAGE_SYSTEM
 	}
 	return 0;
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 }
 
 //{{ oasis907 : ±ËªÛ¿± //// 2009-11-18 ////

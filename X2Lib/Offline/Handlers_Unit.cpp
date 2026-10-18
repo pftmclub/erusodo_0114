@@ -273,7 +273,12 @@ void CX2OfflineServer::BuildCreateUnitAck( KOfflineSession& kSes, const std::wst
 	//
 	// Seeded before MakeUnitInfoFromRow, so the KUnitInfo it builds carries the
 	// slot assignments rather than an empty bar.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
+	// June skill system S3: June has no default skills; the Q1 stand-in grants the class's free rows for the new level.
+	CX2OfflineSkill::Instance()->SeedJuneAutoLearn( kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel );
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 	CX2OfflineSkill::Instance()->SeedDefaultSkills( kRow.m_nUnitUID, kRow.m_iUnitClass );
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 
 	// The class's five-piece promotional costume, worn.
 	//

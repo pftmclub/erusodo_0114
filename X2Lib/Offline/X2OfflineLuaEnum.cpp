@@ -47,8 +47,56 @@ bool CX2OfflineLuaEnum::ms_bPublished = false;
 
 	using namespace X2OfflineLuaEnumSeed;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	// June skill system S3: core Enum.lua's UNIT_CLASS now carries the 31 June
+	// classes NewSkillTempletVer2.lua names. Replacing the global with this
+	// 58-name seed would turn them back into nil for any script loaded later
+	// (the skill tree reloads, ServerResource tables), so the seed only fills
+	// names the table lacks and Enum.lua's values win.
+	{
+		int iAdded = 0;
+		int iDiffer = 0;
+
+		lua_getglobal( pLuaState, "UNIT_CLASS" );
+		if( lua_istable( pLuaState, -1 ) )
+		{
+			const int iCount = (int)( sizeof( UNIT_CLASS ) / sizeof( UNIT_CLASS[0] ) );
+			for( int i = 0; i < iCount; ++i )
+			{
+				lua_pushstring( pLuaState, UNIT_CLASS[i].m_szName );
+				lua_rawget( pLuaState, -2 );
+				const bool bHave = ( 0 != lua_isnumber( pLuaState, -1 ) );
+				const int iHave = bHave ? (int)lua_tonumber( pLuaState, -1 ) : 0;
+				lua_pop( pLuaState, 1 );
+
+				if( true == bHave )
+				{
+					if( iHave != UNIT_CLASS[i].m_iValue )
+						++iDiffer;
+					continue;
+				}
+
+				lua_pushstring( pLuaState, UNIT_CLASS[i].m_szName );
+				lua_pushnumber( pLuaState, (lua_Number)UNIT_CLASS[i].m_iValue );
+				lua_rawset( pLuaState, -3 );
+				++iAdded;
+			}
+			lua_pop( pLuaState, 1 );
+
+			CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD UNIT_CLASS seed merged into Enum.lua's table: %d name(s) added,"
+				L" %d seed value(s) differ (Enum.lua kept)", iAdded, iDiffer );
+		}
+		else
+		{
+			lua_pop( pLuaState, 1 );
+			PublishTable( pLuaState, "UNIT_CLASS",
+				UNIT_CLASS,			sizeof( UNIT_CLASS ) / sizeof( UNIT_CLASS[0] ) );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM
 	PublishTable( pLuaState, "UNIT_CLASS",
 		UNIT_CLASS,			sizeof( UNIT_CLASS ) / sizeof( UNIT_CLASS[0] ) );
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 	PublishTable( pLuaState, "USE_CONDITION",
 		USE_CONDITION,		sizeof( USE_CONDITION ) / sizeof( USE_CONDITION[0] ) );
 	PublishTable( pLuaState, "PET_UNIT_ID",

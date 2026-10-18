@@ -28,3 +28,17 @@ Spot-check 2-3 items directly in Ghidra (read-only); if one fails, re-check the 
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand
 design decisions back to the user. Write "Phase S3 -- Review" into the plan doc, update the
 phase's STATUS.md row, write or check the next phase's kickoff file, and commit.
+
+## What S3 added beyond the plan text (check these too)
+
+- **June `GetSkillLevel 32890620` whole** (`X2UserSkillTree.cpp`, amendment 9): compare with the disassembly `@32890620-3289071a`; the guild
+  branch's `31d717d0` test (state 0x17 / 0x18 = June PVE states, none in March) is a comment, not code.
+- **Level-0 skills are not loaded or sent** (`X2OfflineSkill.cpp` Load / GetAcquiredSkills), because June's getter reads 0 as 1 and June's
+  `SetSkillLevelAndCSP 32897240` erases below 1. Confirm no other path sends a 0 row.
+- **The blank-state guard** (`X2GUUser.cpp` `JuneIsBlankSlotSkillState` / `JuneLogNoStateSkill`, `StateChange`): a March safety for slot
+  skills whose class code has no state (June types 14-16 hit every class's `default: return`). Not June code: judge whether it can refuse a
+  state June-ported code relies on.
+- **The emulator's `UNIT_CLASS` seed now merges** into Enum.lua's table (`X2OfflineLuaEnum.cpp`); before, it replaced the global and would
+  have turned the 31 June classes back into nil for later loads.
+- **The generated table** `X2OfflineJuneSkillAutoLearn.h` (`june2017_re/s3_autolearn_gen.py --check` must print SAME x3) and the `_DEBUG`
+  `[JUNE_SKILL] MIG autolearn check` line (only generated / only loaded / require-level diffs all 0).

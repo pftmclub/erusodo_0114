@@ -6,6 +6,62 @@
 #if defined( SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+#ifdef SERV_IRUHADEV_OFFLINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE
+/// June skill system S3: after the flip a slot can hold a June skill id the March class code has no state for. Each class's
+/// SetEquippedSkillFuncBySkillSlotIndex then leaves the slot's state blank (a type it does not list, or no case): no callbacks and
+/// no Lua table, so entering it would hold the unit in a state with no exit. These two helpers log such a slot once per
+/// (class, skill) and let StateChange refuse the blank state. Ids that fall into a class's "default:" case play that case's
+/// state (March's own behaviour) and are not blank. Character-port rows: JUNE2017_CHARACTER_PORT_CHECKLIST.md, S3 section.
+static bool JuneIsBlankSlotSkillState( const CX2GUUser* pUser_, const int iState_ )
+{
+	bool bSlotState = false;
+	for( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
+	{
+		if( iState_ == _CONST_GUUSER_::aNormalSkillStateID[i] || iState_ == _CONST_GUUSER_::aHyperSkillStateID[i] ||
+			iState_ == _CONST_GUUSER_::aNormalSkillStateIDSlotB[i] || iState_ == _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] )
+			bSlotState = true;
+	}
+	if( false == bSlotState )
+		return false;
+
+	const CX2GUUser::UserUnitStateDataMap& mapState = pUser_->GetStateList();
+	CX2GUUser::UserUnitStateDataMap::const_iterator mit = mapState.find( static_cast<CX2GUUser::UserUnitStateDataMap::key_type>( iState_ ) );
+	if( mapState.end() == mit )
+		return false;
+
+	return ( NULL == mit->second.OnEventProcess && NULL == mit->second.OnFrameMove && NULL == mit->second.StateStart );
+}
+
+static void JuneLogNoStateSkill( CX2GUUser* pUser_, const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
+{
+	if( NULL == pUser_ || CX2SkillTree::SI_NONE == eSkillID_ || iSlotIndex_ < 0 || iSlotIndex_ >= EQUIPPED_SKILL_SLOT_COUNT )
+		return;
+
+	const int iState = ( false == bSlotB_ ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_] );
+	if( false == JuneIsBlankSlotSkillState( pUser_, iState ) )
+		return;
+
+	const int iUnitClass = ( NULL != pUser_->GetUnit() ) ? static_cast<int>( pUser_->GetUnit()->GetClass() ) : 0;
+	static std::set< std::pair<int, int> > s_setLogged;
+	if( false == s_setLogged.insert( std::make_pair( iUnitClass, static_cast<int>( eSkillID_ ) ) ).second )
+		return;
+
+	int iSkillType = -1;
+	if( NULL != g_pData && NULL != g_pData->GetSkillTree() )
+	{
+		const CX2SkillTree::SkillTemplet* pTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ );
+		if( NULL != pTemplet )
+			iSkillType = static_cast<int>( pTemplet->m_eType );
+	}
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG no-state skill %d type %d class %d (slot %d%s): the March class code has no state for it,"
+		L" presses are refused (character-port row)", static_cast<int>( eSkillID_ ), iSkillType, iUnitClass, iSlotIndex_, bSlotB_ ? L" B" : L"" );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -6261,6 +6317,9 @@ void CX2GUUser::ChangeEquippedSkillState( CX2Unit::UnitData& kUnitData_, const C
 
 	// 스킬 장착 처리
 	SetEquippedSkillFuncBySkillSlotIndex( eSkillId_, iSlotIndex_, bSlotB_ );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	JuneLogNoStateSkill( this, eSkillId_, iSlotIndex_, bSlotB_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 	// 장착한 스킬의 Level에 따라는 정보 셋팅(PowerRate 등)
 	SetEquippedSkillLevelCommon( kUnitData_, bSlotB_ );
@@ -8023,6 +8082,11 @@ bool CX2GUUser::StateChange( int state, bool bDirectChange )
 	/// June 320348c0 @320348dc -> 31fea640, right after the riding-pet reset and before every early return: Future N = map[ state ], then the re-bind
 	JuneRebindCommonRandomStateOnStateChange( state );
 #endif SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+	/// A slot skill with no March state (see JuneLogNoStateSkill): stay in the current state instead of entering a blank one.
+	if( true == JuneIsBlankSlotSkillState( this, state ) )
+		return false;
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 
 #ifndef BALANCE_ELEMENTAL_MASTER_20130117		/// 버프에 있는 엠피 회복 기능을 사용하므로, 해당 부분은 필요 없다.
 #ifdef FIX_MEDITATION_RUN
@@ -38914,7 +38978,14 @@ void CX2GUUser::SetEquippedSkillFunc( const CX2Unit::UnitData& kUnitData_, const
 		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = kUnitData_.m_UserSkillTree.GetSkillSlot( i, bSlotB_ );
 		ASSERT( pSkillSlotData != NULL );
 		if( NULL != pSkillSlotData )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
+		{
 			SetEquippedSkillFuncBySkillSlotIndex( pSkillSlotData->m_eID, i, bSlotB_ );
+			JuneLogNoStateSkill( this, pSkillSlotData->m_eID, i, bSlotB_ );
+		}
+#else SERV_IRUHADEV_JUNE_SKILL_REFORM
+			SetEquippedSkillFuncBySkillSlotIndex( pSkillSlotData->m_eID, i, bSlotB_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 	}
 }
 
