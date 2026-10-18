@@ -225,6 +225,42 @@ no change.
 
 **Done gate:** `PACK OK` / `COPY OK` lines; md5 of three sample files equal to June's `junekom.py` extract.
 
+### Phase GA - Done (2026-10-19, Sonnet 5.5 high; data only: no code, no flag, no build)
+
+**Staged** with `tools/kom.py stage-june` (June's strict decoder, byte-exact; no commit needed for `kom_contents`, it is outside the repo).
+Full list, 4,645 rows: `june2017_re/ga_staged_files.tsv` (name, kom, size, state). Counts by kom:
+
+| Kom | Files | What | Live state before |
+|---|---|---|---|
+| data194 | 131 | the whole kom: `main.gfx`, screens, `fonts_*.swf`, `gfxfontlib.gfx` + their `.dds` | new |
+| data152 | 1,428 | 426 `.gfx` (skill cut-ins, `Common_CutIn_Frame`, 6 `CUT_IN_TALK_*`) + 1,002 `.dds` | new |
+| data195 | 279 | 60 `.gfx` (transcendence / Rose cut-ins) + 219 `.dds` | new |
+| data036 | 14 | `GFXEventSceneInfo.xml`, 11 region XMLs, `VillageName.xml`, `fontconfig.font`; `Ranox.xml` already identical (not rewritten); `fontconfig.txt` left out | +13 |
+| data179 | 1,651 | voice `.ogg`; `GFX_ID_5342` / `5344` already identical | +1,649 |
+| data188 / 214 / 174 / 186 | 863 / 138 / 54 / 28 | voice `.ogg` (186 = `Tuto_*`) | new |
+| data070 / 078 / 178 | 11 / 7 / 6 | voice `.ogg` | +11 / +7 / +6 |
+| data167 / 168 / 171 / 173 / 175 / 176 | 10 / 10 / 3 / 2 / 4 / 6 | voice `.ogg` | new |
+
+- Voice list = unique `soundKey` of `GFXEventSceneInfo.xml` + the 11 region XMLs: 2,878 names, **2,793 staged**; 85 not in any June kom
+  (83 files + 2 blank lines) -> `june2017_re/ga_missing_sound_keys.txt`. They are missing in June too: not a GA gap.
+- **Mount range:** `X2Main.cpp:802` `SERV_IRUHADEV_KOM_FILE_COUNT_226` (defined `Always.h:3913`) mounts `data001`..`data226`, so every new number
+  (152, 167, 168, 171, 173, 174, 175, 176, 186, 188, 194, 195, 214) is covered. No client change.
+- **Name collisions:** none replaced (0 replaced, 3 identical: `Ranox.xml`, 2 voice files). Nothing needed asking.
+- **Scene `.swf`:** all 2,385 June `eventscene\*.swf` (309 MB) are now loose in `...965799\data\eventscene\`: 2,383 copied, `ranox.swf` and
+  `npc_ranox_png.swf` identical (skipped), `tutorial_back.swf` and `quest_22254_rosestart.swf` included. A full md5 + size verify of all 2,385: 0 failures.
+  The dir now also holds March's `assets.txt` (2,386 entries).
+
+**Gate lines** (pack and copy, additions only; the `~0 changed, -0 removed` diff was checked for the 5 existing koms):
+- `PACK OK` x18: data036 070 078 152 167 168 171 173 174 175 176 178 179 186 188 194 195 214.
+- `COPY OK data194: ...\data194.kom 32764543 bytes, 131 entries, md5 c78c49acc1cbdc469565461eccec5643`
+- `COPY OK data152: ... 160531668 bytes, 1428 entries, md5 8a300dbfcd09573f2a0ccd717aa99929`
+- `COPY OK data036: ... 13841577 bytes, 256 entries, md5 4b1fa6107e63eb2a967e79d9989c0530` (all 18 `COPY OK` lines were printed; the rest follow the same shape).
+- **Sample md5 = `junekom.py extract`** (4 files, all equal to the staged file): `main.gfx 308dd6945995b051b4fae0a9c0d62a10`, `fontconfig.font 6eb65292e7ac4de4a0b06c9abc422696`, `GFX_ID_2371.ogg 2ae6e003701b84d554ee4549c6cf2008`, `Balloon_I3.dds d48dee6e8ab98b577b7b19d3dcbd143b`.
+
+**Notes.** The pack's "23 stale `X.src.lua`" warning on data036 is a peer's pre-existing state; the diff vs live shows only the 13 added names, so no Lua was repacked.
+A kom backup of each overwritten live kom is in `kom_backup_tools/`. **How to see it in game:** nothing yet (data only). Starting the game with these
+koms mounted is the only regression check (a longer mount); G1 will exercise them. **Open questions:** none.
+
 ## Phase G2 - The GFx manager
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_MANAGER`. Sub-tag `MGR`.
