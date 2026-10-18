@@ -1314,7 +1314,7 @@ Revert: `MODS.md` "June's skill tree UI". Funcmap rows `Skill S7b` (38). JUNE_BU
   (`/// S7e:`), class pieces (checklist 7aj: `328e0aa0`, `328e0290`, slot types 5 / 6, Luciel portrait, Aisha memorize, transform slot). HUD refresh `3235a160` (singleton `324943c0`) is not tree
   UI: June's tree-rebuild handler `31f08290` drives it, so it goes with the reset item to S7d. June's notice branch of the acquisition popup (`31d72cc0`, g_pData `+0x290`) has no March system.
 - **Data.** data034: June's 4 tree dialogs (adopt-june, bytecode); data036: `SkillTypeColor.lua` (adopt-june) + 58 June `STUCM_*` members in `Enum.lua` (ledger refreshed, check PASS);
-  data057: `DLG_UI_Common_Texture_NewSkill_02` / `_03` (stage-june). PACK OK data034 / data036 / data057.
+  data057: `DLG_UI_Common_Texture_NewSkill_02` / `_03` (stage-june). PACK OK and COPY OK (user OK): data034 md5 cbbf994b, data036 f3ea3181, data057 0bbaa80a.
 - **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_TREE_UI --worktree --files <5 files>`: `files: 4 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII
   inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The OTHER row: `Always.h` -1 is the retired NO_LOCK define.
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 19,958,784 B, dated 2026-10-18 16:49:34, md5 e31d2624d9ed4db27338fc36ce7ac6f4, equal to X2/US_SERVICE/x2.exe (2026-10-18 16:49:29); built at main b07e3bc4 + 7 uncommitted code file(s).` The four strings ( `SkillTypeColor.lua loaded`, the two 2015 dialog names, `g_pSkillToolTipManager` ) are in the exe.
