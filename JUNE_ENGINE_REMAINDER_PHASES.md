@@ -2106,7 +2106,9 @@ caller's values through. March keeps its `CX2Camera` signatures (C3v's call) and
 - `_CAMERA_SHAKE_LOCK`: 6 OTHER, 0 FAIL; 0 deleted; RESULT: PASS.
 - `_CAMERA_TRACK` with both others: 3 PASS, 2 PASS~, 1 OTHER (Always.h), 0 FAIL; 0 deleted, 0 non-ASCII; RESULT: PASS. Every code file reduces to March.
 
-**Deploy: pending.** The 08:29 build compiled KTDXLIB and X2Lib with these edits (0 errors); its X2 step was cut off, and every later queued build stopped at a peer's uncommitted `Always.h` `#error` (`JUNE_SKILL_NOTE`, then `JUNE_RENDER_DRAW_PASS`). The DEPLOY line is added when a build of this commit lands.
+**Deploy:** no R13c build of its own landed (queued builds stopped at peers' uncommitted `Always.h` `#error`s and a `KTDGFontManager.cpp` signature change). It shipped in a later `main` deploy: `X2_offline.exe` 19,973,120 B, 2026-10-18 09:18:28, md5 `d4eef83688b181e6dbdb7d59656cc4a8` = build.py deploy of `eb5280c7` (+52 peer files), which contains `87c5aa0e`; the `[JUNE_ENGINE] CAMTRACK` and `SetLookAtDependOnEye` strings are in the exe.
+
+**Play-test 2026-10-18 (log):** run started 09:50:43 on that exe. After the console line `g_pKTDXApp:SetLookAtDependOnEye( true )` in a dungeon, ErrorLog has 48 `CAMTRACK SetTracking: linear 0, roll target 0, roll now 0, time 0.3, look-at-depends-on-eye 1` lines (09:52:14-09:52:41: 20 at once, then one a second, the throttle), none after `false`. Roll and linear stay 0 as the caller table says. 0 EXCEPTION; UNHANDLED = the 2x `E_DISABLE_HB_CHECK_REQ` baseline. The camera's look in game is the user's to confirm.
 
 **How to see it in game:** nothing in March content sets a roll, the linear byte or the lock, so camera behaviour should be unchanged. The one live
 switch is the console line `g_pKTDXApp:SetLookAtDependOnEye( true )`: every `SetTracking` then aims the eye straight at the look-at point (no side angle),
