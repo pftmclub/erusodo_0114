@@ -528,6 +528,16 @@ free rows; Q2 keep the base when an [Enhanced] skill is learned; Q3 no June unse
   (blank lines outside the flag), 1 OTHER (`X2GUUser.cpp`: a peer's R12b lines, since committed in `74dd25e6`), 0 FAIL; 0 deleted lines.
   Range `--range d483753d^..d483753d`: `files: 9 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII,
   0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Code commit `d483753d`.
+- **Play-test 2026-10-18: PASSED (log, user launched once).** v16 -> v17 at 07:34:28: 27 `MIG unit` lines, 3 memo lines, `MIG done` (4 orphaned unseal rows of
+  unit 17); `LOAD templets=2346 tree_rows=3360 ( classes=86 )`; `autolearn check: generated 1347 ... loaded tree 1347; only generated 0, only loaded 0,
+  require-level diffs 0`; `UNIT_CLASS seed merged ... 2 added, 0 differ`. Every character loaded (27 `SKILL loaded` lines). reyaa learned 23048 / 23234 /
+  23235 in the tree (GET_SKILL HANDLED, 0 SP, 842 left; in the save after exit, v17, 25 skills, bar 23200 / 23000 / 23001 / 23002). Dungeon runs as
+  Lord Knight, Grand Archer, Tactical Trooper, Grand Master and Lunatic Psyker: one `no-state skill` line per blank slot, the type-6 slots of Elsword /
+  Lire / Chung fell into their class's default state (no line), Elesis's and Add's type-6 slots logged as blank. 0 EXCEPTION, UNHANDLED = baseline
+  (`E_DISABLE_HB_CHECK_REQ`), no crash. Not exercised: a paid learn (Extreme Heavenly Love, 2 SP). For the review: (1) S2's `_DEBUG` march-vs-june parser
+  compare now runs on June's file and reports `unexpected=1586` (March's parser lacks June's SA keys): debug noise, remove with `_DEBUG`; (2) a level-1
+  unit's SP goes 1 -> 0 (June init SP(1) = 0 drops the creation point; the kickoff rule, `createchar.py` gives 1 + init SP); (3) the tree UI reads
+  required level 2 of 1-entry arrays (`LOAD reach ... -> 0`), June's no-padding rule as S2 planned.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to X2/US_SERVICE/x2.exe
   (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s).` A peer's build compiled this phase first; all six S3 strings are in the exe.
   `COPY OK data036: ... data036.kom 13486307 bytes, 242 entries, md5 c485fe6f654085d82dda3570ee90da86` (user OK 2026-10-18).
