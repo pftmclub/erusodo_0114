@@ -8040,6 +8040,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
+// Description: June engine remainder, Phase R14b. CX2Eqip::InitAttatchAnim as June2017 3295dfa0: an Add owner's weapon slot gets a
+//              model only where the unit skin has "Weapon0<n>"; the hyper half remaps Add weapons to model 0 as the normal half does;
+//              attach-anim jiggle by DIVISION_ITEM_TEMPLET_TYPE 30 (1.5, expand 0 / 4) instead of March's ITEM_ID_JIGGLE_TYPE1 list
+//              (empty until backlog Stage 11); an attach frame "TraceLandPos" binds the unit skin's clone frame root; the Add frame
+//              lookup is null-checked. Routed: Lu/Ciel minor-unit anims (checklist 7aa), Rose frames (7ab), DITT 72 loop anim (Stage 11).
+//              Log tag [JUNE_ENGINE] EQATTACH. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+#ifndef SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#error SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM needs SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET (CX2ItemManager::IsDivisionItem)
+#endif SERV_IRUHADEV_JUNE_EQUIP_EFFECT_SET
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
 // Description: June engine remainder, Phase R4a. June's heat-shimmer object (CKTDGManager +0x384; ctor 31ce5630, reset 31ce5e90, lost
 //              31ce5680, begin 31ce5710, end 31ce5d00, commit 31ce56a0), made, reset, lost and deleted by the DG manager as June does.
 //              It loads XHeatShimmerRenderer.fx at the first device reset; until asset-port P4a ships the file it logs one

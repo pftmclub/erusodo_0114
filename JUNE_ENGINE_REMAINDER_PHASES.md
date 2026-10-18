@@ -1520,6 +1520,44 @@ may split it). Added by R14 (an unowned June branch). After the R14 review; not 
 - R14 already ported this function's enchant texture choice (`JUNE_EQIP_SKIN`). Lu/Ciel minor-unit material goes to the checklist (7v / 7z).
 - Funcmap rows `3295dfa0 (R12)` / `(R14)`, `32961280` (ctor).
 
+### Phase R14b -- Done
+
+**2026-10-18, Opus 5.5.** One flag, `SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM` (the RE split nothing out); code in `X2Eqip.cpp` `InitAttatchAnim` only.
+Funcmap rows `(R14b)` (10 rows). No June bug kept, so no `JUNE_BUGS.md` row.
+
+**Map** (June `3295dfa0` vs March):
+- XET opens, the `MULTI_TEX_%s_%dl` names, the normal / hyper anim builds (Set / Add collision 1 / ChangeAnim( name, false ) / XAP_LOOP /
+  UseDXMatrix) and the templet-type Add remap of the normal half = March. R14's texture chain and R12's adds are untouched.
+- **Add frame gate (new):** when the OWNER unit (+0x1b4 -> +0xaf0) is Add and the item is on EP_WEAPON_HAND / EP_AC_WEAPON, slot i gets a model
+  only where the unit skin (+0x1c0) has `Weapon0<i+1>`. March opened all 8 slots (each model 0); slots 7 / 8 had no frame, so no matrix and no frame move, yet were still drawn.
+- **Hyper half (new):** the same Add remap to hyper model 0 (March's hyper loop opened slot i).
+- **Jiggle (changed):** normal and hyper anims jiggle for `DIVISION_ITEM_TEMPLET_TYPE` 30 (`DITT_ITEM_ID_JIGGLE_TYPE1`, `32809f40`), tension 1.5
+  (33471a1c), expand 0 / 4. June moved March's `ITEM_ID_JIGGLE_TYPE1` ids (`X2Define.h:559`) into `RenderDivisionItemTemplet.lua`, so they jiggle
+  again when Stage 11 fills group 30. `3295b230` is June's `GetJiggleBone` (group 30 -> 1.5, else -1.0); in this function only the minor-unit
+  block calls it, so March's inline `GetJiggleBone` stays as is.
+- **Tail:** the Add `Weapon0<n>` lookup null-checks the unit skin; an attach frame named `"TraceLandPos"` binds the unit skin's clone frame root
+  (skin anim +0x324 = `m_pCloneFrameRoot`, proven by `31d32620` = March `KTDGXSkinAnim.cpp:401-407`). 95 June kim items use it, all with June-only meshes.
+- Named: `329657d0` (minor-unit item by position), `325bb740` (`GetItemTemplet`), `32867210` / `328671e0` (`GetModelName` / `GetAttachFrameName`),
+  `329658b0` (`SetUnitXSkinAnim`), `32807e00` / `3295a570` (DITT 72 record, change every attach anim). The "appearance templet + flags +8 bit 2"
+  from the kickoff is `GetItemTemplet` + `m_bIsForMinorUnit` (flags2 bit 2) -> `m_ItemIDForMinorUnit` (+0x30): Lu/Ciel material.
+
+**Routed** (each a comment at its site):
+- Checklist **7aa**: the Lu/Ciel minor-unit anim / model pair (+0x584 / +0x5e4). Checklist **7ab**: the Rose weapon frames (0xb, slots 1..4 -> frame 1).
+- Backlog **Stage 11** (bullet added): the group-30 data, and the DITT 72 (`DITT_LOOP_ANIM_ITEM_ID`) tail (`32807e00` -> `3295a570`, eqip +0x15f0).
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM --worktree --files X2Lib/X2Eqip.cpp KTDXLIB/Always.h`: RESULT PASS; X2Eqip.cpp
+PASS +109, Always.h OTHER (peers' uncommitted defines; this flag's hunk is 16 inserted lines); 0 FAIL, 0 ERROR, 0 deleted, 0 non-ASCII,
+0 EOL-mismatched inserted lines, 0 encoding changes.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to X2/US_SERVICE/x2.exe (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s)`
+
+**How to see it** (save set for the play-test: LunaticPsykerT uid 36 wears Add's Basic Dynamo 89; jtLordKnight uid 25 wears Miracle Alchemist
+Light (Elsword) 85811, a `TraceLandPos` item whose mesh March lacks; backup `db_backup/els_db_20261018_064009_pre_additem.sql`):
+- LunaticPsykerT in a village and a dungeon, awakening on and off: the dynamos look as before. Log: `EQATTACH item 89 ... addslots_skipped 2`
+  (Weapon07 / 08 absent), `hyper_remap` 1 when the item can awaken.
+- jtLordKnight: `EQATTACH item 85811 ... tracelandpos 1` (no visible mesh until the asset port).
+- Every other class: weapons unchanged; an eqip with an `ITEM_ID_JIGGLE_TYPE1` id logs `jiggle_lost 1` (no jiggle until Stage 11).
+Strings `] EQATTACH item `, `TraceLandPos`, `addslots_skipped` checked in the deployed exe (the build that deployed it was a peer's, from the same tree).
+
 ## Phase R13 - World object mesh render
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH`.

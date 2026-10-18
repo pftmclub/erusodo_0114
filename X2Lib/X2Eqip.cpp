@@ -2539,10 +2539,39 @@ void CX2Eqip::InitAttatchAnim()
 		/// 아이템 장착 위치
 		CX2Unit::EQIP_POSITION	eEquipPosition	= m_pItemTemplet->GetEqipPosition();
 #endif //SERV_9TH_NEW_CHARACTER
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+		// June2017 3295dfa0: what this eqip did differently from March, for the one "[JUNE_ENGINE] EQATTACH" line at the end.
+		int		iJuneAddSlotsSkipped	= 0;		// Add owner: weapon slots with no "Weapon0<n>" frame (no model)
+		bool	bJuneHyperRemap			= false;	// hyper half: Add weapon slots 1.. opened model 0
+		bool	bJuneTraceLandPos		= false;	// an attach frame "TraceLandPos" took the clone frame root
+		bool	bJuneJiggle				= false;	// DITT 30 jiggle applied
+		bool	bJuneJiggleLost			= false;	// March's ITEM_ID_JIGGLE_TYPE1 list would jiggle, DITT 30 does not (Stage 11)
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 
 		for( int i=0; i< CX2Item::MAX_MODEL_COUNT_A_ITEM; i++ )
 		{
 			//g_pMain->GetMemoryHolder()->LoadEquip( m_ModelName[i].c_str() );		// fix!! 이 부분 필요한가?
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+			// June2017 3295dfa0 @3295e1a7-3295e205: when the OWNER unit (+0x1b4 -> +0xaf0 -> type) is Add (9) and the item sits on
+			// EP_WEAPON_HAND / EP_AC_WEAPON (+0xd5 = 2 / 0x19), slot i gets a model only when the unit skin anim (+0x1c0) has the
+			// clone frame "Weapon0<i+1>" (334c9ad0, 31d38a20); no unit skin anim = no model. No owner unit takes the normal path.
+			// March opened a model and an anim in every slot. The index remap below (templet unit type, = March) is unchanged.
+			// Routed (checklist 7aa, Lu/Ciel): after the model opens June builds a minor-unit anim / model pair (+0x584 / +0x5e4) from
+			// the owner templet's per-position minor item (329657d0 +0xe4..+0x100, 325bb740, m_bIsForMinorUnit flags2 bit 2,
+			// m_ItemIDForMinorUnit +0x30, model name 32867210), with the 3295b230 jiggle; skipped for templet unit types 9 / 0xb.
+			if( NULL != m_pOwnerUnit && NULL != m_pOwnerUnit->GetUnitTemplet()
+				&& CX2Unit::UT_ADD == m_pOwnerUnit->GetUnitTemplet()->m_UnitType
+				&& ( CX2Unit::EP_WEAPON_HAND == m_pItemTemplet->GetEqipPosition() || CX2Unit::EP_AC_WEAPON == m_pItemTemplet->GetEqipPosition() ) )
+			{
+				WCHAR wszJuneFrame[256] = L"";
+				StringCchPrintfW( wszJuneFrame, 255, L"Weapon0%d", i + 1 );
+				if( m_pUnitXSkinAnim == NULL || NULL == m_pUnitXSkinAnim->GetCloneFrame( wszJuneFrame ) )
+				{
+					++iJuneAddSlotsSkipped;
+					continue;
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
@@ -2574,12 +2603,26 @@ void CX2Eqip::InitAttatchAnim()
 			m_pNormalXSkinAnim[i]->UseDXMatrix( true );
 
 #ifdef JIGGLEBONE_TEST
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+			// June2017 3295dfa0 @3295e5b0-3295e64a: jiggle when the item is in DIVISION_ITEM_TEMPLET_TYPE 30 (DITT_ITEM_ID_JIGGLE_TYPE1,
+			// 32809f40), tension 1.5 (33471a1c), expand 0 (+0x848). March read GetJiggleBone()'s ITEM_ID_JIGGLE_TYPE1 list (June moved
+			// the same ids into RenderDivisionItemTemplet.lua). Group 30 is filled by backlog Stage 11: until then nothing jiggles.
+			if( NULL != m_pItemTemplet && true == g_pData->GetItemManager()->IsDivisionItem( 30, m_pItemTemplet->GetItemID() ) )
+			{
+				m_pNormalXSkinAnim[i]->SetUnitXSkinAnim( m_pUnitXSkinAnim );
+				m_pNormalXSkinAnim[i]->SetJiggleMesh( true, 1.5f, 0 );
+				bJuneJiggle = true;
+			}
+			else if( GetJiggleBone() >= 0.f )	// log only: June has no list
+				bJuneJiggleLost = true;
+#else SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 			float fTension = GetJiggleBone();
 			if( fTension >= 0.f)
 			{
 				m_pNormalXSkinAnim[i]->SetUnitXSkinAnim(m_pUnitXSkinAnim);
 				m_pNormalXSkinAnim[i]->SetJiggleMesh(true, fTension);
 			}
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 #endif
 		}//for
 
@@ -2617,7 +2660,21 @@ void CX2Eqip::InitAttatchAnim()
 		    {
 			    //g_pMain->GetMemoryHolder()->LoadEquip( m_ModelNameHyper[i].c_str() );
 
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+			    // June2017 3295dfa0 @3295e7e0-3295e801: the hyper half remaps as the normal half does (templet unit type Add on
+			    // EP_WEAPON_HAND / EP_AC_WEAPON -> hyper model 0, +0x724); March's hyper loop opened slot i.
+			    int iJuneHyperIndex = i;
+			    if( CX2Unit::UT_ADD == m_pItemTemplet->GetUnitType()
+				    && ( CX2Unit::EP_WEAPON_HAND == m_pItemTemplet->GetEqipPosition() || CX2Unit::EP_AC_WEAPON == m_pItemTemplet->GetEqipPosition() ) )
+			    {
+				    iJuneHyperIndex = 0;
+				    if( 0 != i )
+					    bJuneHyperRemap = true;
+			    }
+			    m_pHyperXSkinModel[i]		= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( m_ModelNameHyper[iJuneHyperIndex] );
+#else SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 			    m_pHyperXSkinModel[i]		= g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( m_ModelNameHyper[i] );
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 
 			    if( NULL == m_pHyperXSkinModel[i] )
 			    {
@@ -2635,6 +2692,17 @@ void CX2Eqip::InitAttatchAnim()
 			    m_pHyperXSkinAnim[i]->UseDXMatrix( true );
 
 #ifdef JIGGLEBONE_TEST
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+				// June2017 3295dfa0 @3295e94c-3295e9e6: DITT 30 as the normal half, tension 1.5 (33471a1c), expand 4 (+0x848).
+				if( NULL != m_pItemTemplet && true == g_pData->GetItemManager()->IsDivisionItem( 30, m_pItemTemplet->GetItemID() ) )
+				{
+					m_pHyperXSkinAnim[i]->SetUnitXSkinAnim( m_pUnitXSkinAnim );
+					m_pHyperXSkinAnim[i]->SetJiggleMesh( true, 1.5f, 4 );
+					bJuneJiggle = true;
+				}
+				else if( GetJiggleBone() >= 0.f )	// log only: June has no list
+					bJuneJiggleLost = true;
+#else SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 				float fTension = GetJiggleBone();
 				if( fTension >= 0.f)
 				{
@@ -2642,6 +2710,7 @@ void CX2Eqip::InitAttatchAnim()
 					m_pHyperXSkinAnim[i]->SetJiggleMesh(true, fTension, 4);
 
 				}
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 #endif
 		    }//for
 	    }//if
@@ -2662,7 +2731,12 @@ void CX2Eqip::InitAttatchAnim()
 
 					StringCchPrintf( buf, 255, L"Weapon0%d", i + 1 );	/// Weapon01 ~ Weapon06
 
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+					// June2017 3295dfa0 @3295e9f0-3295ea2c: the unit skin anim (+0x1c0) is null-checked first.
+					pFrame = ( m_pUnitXSkinAnim != NULL ) ? m_pUnitXSkinAnim->GetCloneFrame( buf ) : NULL;
+#else SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 					pFrame = m_pUnitXSkinAnim->GetCloneFrame( buf );
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 
 					if( NULL != pFrame )
 						m_pUnitMatrix[i] = &pFrame->combineMatrix;
@@ -2671,6 +2745,10 @@ void CX2Eqip::InitAttatchAnim()
 #endif //SERV_9TH_NEW_CHARACTER
 				{
 					if( m_pItemTemplet->GetAttachFrameName(i)[0] != NULL )
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+					// Routed (checklist 7ab, Rose): June2017 3295dfa0 @3295ea4f-3295ec1e, before this default, a templet of unit type 0xb
+					// (UT_ROSE; March has none) on EP_WEAPON_HAND takes attach frame 1 (328671e0( 1 )) for slots 1..4, frame 0 otherwise.
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 					{
 			        	pFrame = 
 	#ifdef  X2OPTIMIZE_X2EQIP_CRASH_BUG_FIX          
@@ -2678,6 +2756,16 @@ void CX2Eqip::InitAttatchAnim()
 	#else   X2OPTIMIZE_X2EQIP_CRASH_BUG_FIX
                         m_pUnitXSkinAnim->GetCloneFrame( m_pItemTemplet->GetAttachFrameName(i) );
 	#endif  X2OPTIMIZE_X2EQIP_CRASH_BUG_FIX
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+						// June2017 3295dfa0 @3295ecd5-3295ed2c: an attach frame named "TraceLandPos" (334c9a84, wstring compare == 0)
+						// takes the unit skin anim's clone frame root instead (skin anim +0x324 = m_pCloneFrameRoot, rebuilt by 31d32620),
+						// whatever GetCloneFrame found; no unit skin anim = none.
+						if( 0 == wcscmp( m_pItemTemplet->GetAttachFrameName(i), L"TraceLandPos" ) )
+						{
+							pFrame = ( m_pUnitXSkinAnim != NULL ) ? m_pUnitXSkinAnim->GetCloneFrameRoot() : NULL;
+							bJuneTraceLandPos = true;
+						}
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
 			        	if( NULL != pFrame )
 			        	{
 				        	m_pUnitMatrix[i] = &pFrame->combineMatrix;
@@ -2685,6 +2773,27 @@ void CX2Eqip::InitAttatchAnim()
 					}//if
 		        }//if
 	        }//for
+#ifdef SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
+		// Routed (backlog Stage 11): June2017 3295dfa0 @3295edc0-3295ee2a, after the frames: an item in DITT 72
+		// (DITT_LOOP_ANIM_ITEM_ID, 32809f40) looks up its record in the item manager (32807e00, map +0x2c0), calls 3295a570( record
+		// name, 1 ) = ChangeAnim( name, true ) on every normal / hyper / minor attach anim when +0x1c8 == 2, and sets +0x15f0 = 1.
+		// Group 72 is empty until Stage 11, so the branch is dead here.
+
+		// One "[JUNE_ENGINE] EQATTACH" line per eqip whose June path differed: the first 60 per run, then every 100th.
+		if( 0 < iJuneAddSlotsSkipped || bJuneHyperRemap || bJuneTraceLandPos || bJuneJiggle || bJuneJiggleLost )
+		{
+			static int s_iJuneEqAttachLines = 0;
+			++s_iJuneEqAttachLines;
+			if( s_iJuneEqAttachLines <= 60 || 0 == s_iJuneEqAttachLines % 100 )
+			{
+				KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] EQATTACH item " << m_ItemID << " unittype " << (int)m_pItemTemplet->GetUnitType()
+					<< " pos " << (int)m_pItemTemplet->GetEqipPosition() << " addslots_skipped " << iJuneAddSlotsSkipped
+					<< " hyper_remap " << ( bJuneHyperRemap ? 1 : 0 ) << " hyper " << ( m_bCanHyperMode ? 1 : 0 )
+					<< " tracelandpos " << ( bJuneTraceLandPos ? 1 : 0 ) << " jiggle " << ( bJuneJiggle ? 1 : 0 )
+					<< " jiggle_lost " << ( bJuneJiggleLost ? 1 : 0 ) << " line " << s_iJuneEqAttachLines << fileout;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM
         }//if
     }//if.. else..
 }//CX2Eqip::InitAttatchAnim()

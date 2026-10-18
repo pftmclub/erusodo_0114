@@ -698,3 +698,17 @@ What a class port does with its rows:
 - `lookalike_march_name` in the tsv names March's old skill with the same suffix (e.g. `RNSI_SA_ES_MEGASLASH` 21000 vs `SI_A_ES_MEGASLASH` 1200):
   a hint for where the old state's code lives, not proof that the June skill behaves the same.
 - 49 rows (Chung upgrade ids 26027-26029, 26216-26219) have no June `SKILL_ID` name; name them from the templet.
+### 7aa. Lu/Ciel minor-unit attach-anim models (from June engine R14b)
+
+June's attach-anim init (`CX2Eqip` `3295dfa0` @`3295e2cf`-`3295e4f6`) builds a second anim / model pair per slot (+0x584 / +0x5e4) when the eqip has an
+owner and the templet's unit type is not 9 / 0xb: the owner templet's minor-unit item for the equip position (`329657d0`, June-only unit-templet fields
++0xe4..+0x100 for EP 2 / 6..11 / 0x24), its templet (`325bb740`), and, when the worn item has `m_bIsForMinorUnit` (flags2 bit 2), the templet of its
+`m_ItemIDForMinorUnit` (+0x30) instead; model name `32867210`( slot ), Set / Add with the normal XETs (collision 1), ChangeAnim( m_AniName ), the
+`GetJiggleBone` (`3295b230`, DITT 30) jiggle. `3295a570` also changes this third array's anim. R14b left it as a comment (`X2Eqip.cpp`,
+`SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM`). Its own 0xb remap (slots 4..7 -> 0..3) is dead code in June (the outer test excludes 0xb). Related: 7v, 7z.
+
+### 7ab. Rose weapon attach frames (from June engine R14b)
+
+June's attach-anim init (`3295dfa0` @`3295ea4f`-`3295ec1e`) binds a Rose weapon (templet unit type 0xb `UT_ROSE`, EP_WEAPON_HAND) to attach frame 1
+(`328671e0`( 1 )) for slots 1..4 and attach frame 0 for the others, before the default per-slot frame. March has no Rose: R14b left it as a comment
+(`X2Eqip.cpp`, `SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM`). The Rose port adds the branch with `UT_ROSE`.
