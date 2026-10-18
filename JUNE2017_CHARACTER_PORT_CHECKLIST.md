@@ -793,3 +793,17 @@ rescales the factor by the state's reserved-buff skill id (`+0x9274`) when that 
   `32bc84b0`, `32d1ddf0`, `32ccfb92`-`32ccfc91`. The port of each calls it where June does.
 - **First live use of the reserved-buff path.** `BUFF_FACTOR_ID_AND_APPLY_TIME` appears only in Elesis's script among user classes (Endurance Power, its memo state, Flame Sword `{ BFI 299, 0.1 }`). S3 left those states keyed on March ids
   (8217) while the save holds June's (28210), so the `[JUNE_SKILL] SBUF parse` / `frame` / `state end` lines first appear with the Elesis port. That port's play-test checks them.
+
+### 7aj. Tree-UI class pieces June keyed to one class (from June skill system S7b)
+
+S7b ports June's skill tree UI (`CX2UISkillTreeNew2015`). These parts of its class block only do something for one class and need that class's runtime state, so the class port adds them:
+- **Equipped-slot icon overrides** `328e0aa0` (from the equipped slot's `UpdateUI` `328e18d0`): per class type (0x6d, 0x7b, 0x72, 0x73, 0x1a Eve, 0x7e, 0x24) a skill shows another icon while a class state holds
+  (Eve's El Crystal index at tree `+0x134`, Add's `+0x138` / `+0x139`, the game unit's vslot 0x98 / 0x56c). March keeps only its Eve `UpdateEveElectraSkillSlotIcon` call, which S7b ports as June's tail.
+- **Install / G-Core marks** `328e0290`: classes 9 and 0xb toggle `Static_Install_Skill` / `Static_GCore_Skill` per slot through the game unit's vslot 0x71c.
+- **Slot data types 5 and 6** (`328d9ac0` / `328e0f10` Aisha memorize slots, ctor caller `322deb80`; `328d9b00` / `328da050` Luciel transform slot, caller `3200f380`), the equipped slot's
+  `SESAPT_MEMORIZE` picture (`328e0460` case 2, `AISHA_MEMORIZE_SIGN`, `328df840` through vslot 0x714), the memorize mouse-in case 29059 (`328ec719`) and the transform-slot cases 29078 / 29079 (`328ed6a8`; 29079 only hides the tooltip, ported).
+- **Luciel's portrait** `328dcba0` / `328db7a0` (unit type 10: the form flag at tree `+0x8c` from unit `+0xe40`, `DLG_UI_Common_Texture91/89/96/103_NEW` keys).
+- **Aisha's memorize line** in the tooltip (`328e9160` @328e9710): unit type 2, templet `+0x170 == 3` (`32205af0`), `"
+
+"` + STR 30357 with the key name of game action 0x27 (`31f5ee50`). March's templet has no `+0x170` field.
+- **Rose's sub-text costs** (`328e2900`, unit type 11: alternate templet MP and raw FP with STR 38426) are ported; they show once a Rose unit exists.

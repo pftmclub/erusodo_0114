@@ -852,6 +852,9 @@
     <ClInclude Include="X2UISkillTreeNew.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="X2UISkillTreeNew2015.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="X2GUEl.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -1826,6 +1829,9 @@
     <ClCompile Include="X2UISkillTreeNew.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <None Include="X2UISkillTreeNew2015.cpp">
+      <Filter>소스 파일</Filter>
+    </None>
     <ClCompile Include="X2GUEL.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>

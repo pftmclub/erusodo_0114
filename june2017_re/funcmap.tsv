@@ -3262,3 +3262,41 @@ not located	CKTDGXSkinAnim::CopyModelFrameStructure (March KTDGXSkinAnim.h:638-6
 3275ee70 (S3e)	CX2GUNPC::ParsingBuffFactorID( StateData&, lua ) (static)	confirmed	Skill S3e review: = March X2GUNPC.cpp:33668 (adaptive build): state data +0x2fc vector, BUFF_FACTOR_ID_AND_APPLY_TIME rows ( int, float ), EndTable before the 0 test, t < 0 skipped, stable sort 327c55d0; no duplicate popup (March's is _IN_HOUSE_ only). Unchanged.
 32057b80 @3205c865-3205c883 (S3f)	CX2GUUser::CommonStateStart: the state's damage data	NOT PORTED	Skill S3e review: byte [esp+0x40] (equipped version of the now-state skill upgraded, @3205ad70) set -> 31fcd280( DAMAGE_DATA_ULTIMATE 3346f12c ), false -> 31fcd280( DAMAGE_DATA 3346f158 ); then +0x8024 = 1. March: APPLY_MEMO / m_bApplyMemo / DAMAGE_DATA_MEMO (X2GUUser.cpp:16432). -> Phase S3f.
 32057b80 @3205ad87-3205ad90 (S3f)	CX2GUUser::CommonStateStart: LoadEffectSetFromScript argument	NOT PORTED	Skill S3e review: 32024ff0( esi, eax, byte [esp+0x40] ) gets the same upgraded-skill flag; March passes m_bApplyMemo (X2GUUser.cpp:16221). The list choice inside 32024ff0 is checklist row 397; the argument is Phase S3f.
+328dcd50	CX2SkillTreeSlotData::UpdateUI (X2UISkillTreeNew2015.cpp)	ported	Skill S7b: relationship branch, sealed test (acquired map + born sealed + not unsealed), alternate-skill icon, drag types 5,6,7,13-16, glow picture 6
+328dbcd0	CX2SkillTreeSlotData::ShowSlotPicture	ported	Skill S7b: pictures 0-5 as March + June 6 ( Texture09 Glow, flicker 1/1.4/0.2, 50x50 around centre 31c94ac0 )
+328e18d0	CX2EquippedSkillSlotData::UpdateUI	ported	Skill S7b: TC lock ( index 4: A transcendence / B key 1 ), B key 0, 328e1830; unsealed check -> queue unequip ( 32205dc0 ); Eve El Crystal tail; 328e0aa0 / 328e0290 -> checklist 7aj
+328e1830	CX2EquippedSkillSlotData::SetLockedSlotUI	ported	Skill S7b
+328e0460	CX2EquippedSkillSlotData::ShowSlotPicture	ported	Skill S7b: 0 / 1 as March; case 2 AISHA_MEMORIZE_SIGN -> checklist 7aj
+328e76a0	CX2UISkillTreeNew ctor ( June class )	ported	Skill S7b: 10slot dialog ( 0.07, layer 0 ), SetLayer(1), AddDlg, SetShow(0), UpdateSkillSlotString
+328e2090	CX2UISkillTreeNew dtor	ported	Skill S7b
+328ea4e0	CX2UISkillTreeNew::MsgProc	ported	Skill S7b
+328d9b60	CX2UISkillTreeNew::OnMouseWheel	ported	Skill S7b ( command list S7e )
+328ea6d0	CX2UISkillTreeNew::SetShow	ported	Skill S7b ( 328e6cd0 command popup S7e )
+328ed890	CX2UISkillTreeNew::InitSkillTreeUI	ported	Skill S7b: DLG_UI_Skill_Tree_New2015.lua; CreateSkillTree( class, unit +0x3c )
+328eaa50	CX2UISkillTreeNew::CreateSkillTree	ported	Skill S7b ( 328e7ba0 layout loader S7e )
+328de040	CX2UISkillTreeNew::CreateSkillTreeSlots	ported	Skill S7b: position map ( tier, col ), hyper-class rows need transcendence, unsealed upgrade replaces; memo button x offset @328de384 S7c
+328db2d0	CX2UISkillTreeNew::CreateSlotUIPreset	ported	Skill S7b: DLG_UI_Skill_Icon_New2015.lua, skill-type BG key 32207560
+328dc680	CX2UISkillTreeNew::CreateSkillTreeLevelRows	ported	Skill S7b: Lv.%d rows 1,5..70,80,90,95,100; BG_LV ( -25,-11 ), LINE ( -27,-14 )
+328e8e90	CX2UISkillTreeNew::CreateSkillTreePortrait	ported	Skill S7b: GetCharacterImageName CIT_160by160 ( June type 2 ), class name from templet "( )"; panels 3220bdb0 / 328e42d0 / 328e8820 S7e; Luciel 328dcba0 checklist
+328e7b70	CX2UISkillTreeNew::UpdateUI	ported	Skill S7b: March 4-arg signature kept, bSP ignored
+328ddf60	CX2UISkillTreeNew::UpdateSkillTree()	ported	Skill S7b ( memo popups S7c )
+328ddff0	CX2UISkillTreeNew::UpdateSkillTree( id )	ported	Skill S7b ( memo popups S7c )
+328da2e0	CX2UISkillTreeNew::MarkJuneNewSkills	ported	Skill S7b: no caller ( June's 31f08290 passes an empty vector, JUNE_BUGS 301 )
+328da100	CX2UISkillTreeNew::RecountJuneNewSkills	ported	Skill S7b
+328d98e0	CX2UISkillTreeNew::DecreaseJuneNewSkillCount	ported	Skill S7b
+328d9fb0	CX2UISkillTreeNew::SelectJuneTab	ported	Skill S7b: tests +0x30 ( JUNE_BUGS 298 ); caller 324c3873 not ported
+328e89f0	CX2UISkillTreeNew::UpdateJuneTabUI	ported	Skill S7b ( command half 328da3c0 S7e )
+328e2590	CX2UISkillTreeNew::OpenDLGSkillUnsealed	ported	Skill S7b: the notice branch ( 31d72cc0, g_pData +0x290 ) is absent in March
+328e6550	CX2UISkillTreeNew::ProcessSkillTreeSlotRMouseUp	ported	Skill S7b: types 5,6,7,12-16; TC rules; B-TC slot 9 when B closed
+328d9ea0	CX2UISkillTreeNew::ProcessEquipSlotDropped	ported	Skill S7b: 32896c70 check ( JUNE_BUGS 299 / 300 )
+328d9cf0	CX2UISkillTreeNew::ProcessEquipSlotRMouseUp	ported	Skill S7b
+32896c70	CX2UserSkillTree: may the skill go into the slot ( JuneCanEquipSkillToSlot, file static )	ported	Skill S7b: SA 190 vs the equipped skill's own id, OK box STR 39765 at ( -999, -999 )
+322074e0	CX2SkillTree: same or upgrade skill ( CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill )	ported	Skill S7b
+328eab00	CX2UISkillTreeNew::UICustomEventProc	ported	Skill S7b: shared cases + tabs; pages S7d ( March's kept ), memo S7c, panels S7e, 29059 / 29078 checklist
+328e9160	CX2UISkillTreeNew::ShowSkillDesc	ported	Skill S7b: DLG_UI_Skill_Desc_Video.lua ( 0.07, 400 ), width 0x1a4, font 1 then 0 at >= 0x300, mode 2 anchor +0x14c; Aisha memorize line checklist
+328ee680	ShowSkillDesc closure body ( JuneLayoutSkillDescMain, file static )	ported	Skill S7b: line-break 0x17c / 0x186, dividers at x 10, + 65 / + 0x3c
+328e5ae0	CX2UISkillTreeNew::GetSkillTitleDesc	ported	Skill S7b ( memo name 32453420 S7c )
+328e2900	CX2UISkillTreeNew::GetSkillSubDesc	ported	Skill S7b: STR 40572-40588 labels, SkillTypeColor.lua colours ( 3220baf0 table ported as CX2JuneSkillTypeColorTable )
+328e5e60	CX2UISkillTreeNew::GetSkillEffectiveDesc	ported	Skill S7b ( memo text 32453420 / 324513e0 S7c )
+328dc260	CX2UISkillTreeNew::GetSkillUnSealedDesc	ported	Skill S7b
+3220baf0	CX2SkillTree::AddSkillTypeColor_LUA ( g_pSkillToolTipManager )	ported	Skill S7b: SKILL_TYPE ( 0 ), COLOR ( #C000000 ), first row stays; loaded on the first tooltip

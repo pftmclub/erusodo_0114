@@ -1,6 +1,10 @@
 #ifdef UPGRADE_SKILL_SYSTEM_2013
 
 #pragma once
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+/// June 2017's tree UI ( CX2UISkillTreeNew2015, under this class name ): JUNE_SKILL_SYSTEM_PHASES.md S7b
+#include "X2UISkillTreeNew2015.h"
+#else SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 
 class CX2EquippedSkillSlotData;
 class CX2SkillTreeSlotData;
@@ -480,5 +484,6 @@ public:
 
 
 };
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 
 #endif // UPGRADE_SKILL_SYSTEM_2013

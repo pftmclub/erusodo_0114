@@ -1,5 +1,9 @@
 #include "StdAfx.h"
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+/// June 2017's class ( CX2UISkillTreeNew2015, under this class name ): JUNE_SKILL_SYSTEM_PHASES.md S7b
+#include "X2UISkillTreeNew2015.cpp"
+#else SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 #ifdef UPGRADE_SKILL_SYSTEM_2013
 
 #include ".\x2uiskilltreeNew.h"
@@ -7201,9 +7205,11 @@ void CX2UISkillTreeNew::GetSkillUnSealedDesc( OUT wstring& wstrDesc, IN const CX
 
 }
 #endif // UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 
 #ifdef SKILL_PAGE_SYSTEM //JHKang
 #pragma region InitSkillPageUI
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 void CX2UISkillTreeNew::UpdateSkillPageUI()
 {
 	CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree;
@@ -7323,4 +7329,5 @@ void CX2UISkillTreeNew::BuySkillPageDialog( const int iED_ )
 	}
 }
 #pragma endregion 구입 요청 대화상자 출력
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 #endif //SKILL_PAGE_SYSTEM

@@ -1292,6 +1292,56 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG` (needs `SLOT_10`, `#error` guard), `KT
 packets and page UI, `SKILLTREE_NO_LOCK` retired, and the user's call on March's learn / SP UI path. Kickoff `kickoffs/skill-system-core/S7b.md`.
 **Play-test:** the tree on two classes, skill types (S3c), memo select + activation (S3d's first play-test), a reset with the item, the page UI.
 
+### Phase S7b - Done (2026-10-18, Opus 5.5 high)
+
+**Split (user, 2026-10-18).** S7b = June's tree class; memo -> new **S7c**, pages / reset item / HUD refresh -> **S7d**, and the June-only major-skill and command panels
+(`SkillCommandDescriptionData.lua`, `ComboTree.lua`) -> **S7e** (unowned-branch rule). **SP path (user):** removed with the June tree: no learn / upgrade / init buttons, no SP box;
+March's `EGS_GET_SKILL_REQ` sender and the emulator's `LearnSkills` stay compiled but unreachable. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI` (`Always.h`, nine `#error` guards).
+Revert: `MODS.md` "June's skill tree UI". Funcmap rows `Skill S7b` (38). JUNE_BUGS 298-304. Checklist 7aj.
+- **Shape.** June's `CX2UISkillTreeNew2015` is `X2Lib/X2UISkillTreeNew2015.h/.cpp` under March's class name (callers of `GetUISkillTree()` unchanged; `cl /Zs` of
+  X2UIManager / X2SkillTree / X2State clean). `X2UISkillTreeNew.h` includes it in its `#ifdef`; `X2UISkillTreeNew.cpp` `#include`s the June `.cpp` (no `StdAfx.h` of its own; vcxproj `None`).
+  March's class is the `#else`. `SERV_IRUHADEV_SKILLTREE_NO_LOCK` retired (define gone, comment left; `MODS.md`).
+- **Ported** (each `/// June <addr>`): slot data 1 / 2 (`328dcd50`, `328dbcd0` incl. the June glow picture 6, `328e18d0`, `328e1830`, `328e0460`); ctor / dtor / MsgProc / wheel / SetShow /
+  SetLayer; InitSkillTreeUI (`DLG_UI_Skill_Tree_New2015.lua`); CreateSkillTree: slots by (tier, col) with the hyper-class and unsealed-upgrade rules (`328de040`), `CreateSlotUIPreset`
+  (`DLG_UI_Skill_Icon_New2015.lua`, skill-type background `32207560`), level rows Lv.1/5/../70/80/90/95/100 (`328dc680`), portrait CIT_160by160 + class name (`328e8e90`); UpdateUI (March's
+  4-arg signature, bSP ignored); UpdateSkillTree; new-skill marks; tabs (`328d9fb0`, `328e89f0`); acquisition dialog; right-click / drop / unequip (`328e6550`, `328d9ea0`, `328d9cf0`,
+  equip check `32896c70`); ShowSkillDesc (`328e9160` + closure `328ee680`: `DLG_UI_Skill_Desc_Video.lua`, width 0x1a4, font 1 -> 0 at 0x300) and the text builders Title / Sub
+  (STR 40572-40588 labels + `SkillTypeColor.lua` colours, `3220baf0`) / Effective / UnSealed (drafted by a Sonnet subagent, reviewed); UICustomEventProc's shared cases + tabs.
+  The equip bar (S6) and JuneAutoEquipNewSkills (S7) are carried verbatim.
+- **Skill types (S3c carry).** Types 14-16 now get the special-active background, the `[Special Active Grade n]` label, drag and right-click equip; type 13 / 12 as June.
+- **Required level (S3 carry).** June's tree has no per-row level reader: the level column is the tier (`328dc680`); the tooltip's next-level preview reads `GetSkillRequireLevelValue( level + 1 )`.
+- **Left for later, owner named.** Memo popups / buttons / text (`/// S7c:`), page radios still run March's page cases (`JuneSkillPageCustomEventProc`, `/// S7d:`), panels and command tab
+  (`/// S7e:`), class pieces (checklist 7aj: `328e0aa0`, `328e0290`, slot types 5 / 6, Luciel portrait, Aisha memorize, transform slot). HUD refresh `3235a160` (singleton `324943c0`) is not tree
+  UI: June's tree-rebuild handler `31f08290` drives it, so it goes with the reset item to S7d. June's notice branch of the acquisition popup (`31d72cc0`, g_pData `+0x290`) has no March system.
+- **Data.** data034: June's 4 tree dialogs (adopt-june, bytecode); data036: `SkillTypeColor.lua` (adopt-june) + 58 June `STUCM_*` members in `Enum.lua` (ledger refreshed, check PASS);
+  data057: `DLG_UI_Common_Texture_NewSkill_02` / `_03` (stage-june). PACK OK data034 / data036 / data057.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_TREE_UI --worktree --files <5 files>`: `files: 4 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII
+  inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The OTHER row: `Always.h` -1 is the retired NO_LOCK define.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 19,958,784 B, dated 2026-10-18 16:49:34, md5 e31d2624d9ed4db27338fc36ce7ac6f4, equal to X2/US_SERVICE/x2.exe (2026-10-18 16:49:29); built at main b07e3bc4 + 7 uncommitted code file(s).` The four strings ( `SkillTypeColor.lua loaded`, the two 2015 dialog names, `g_pSkillToolTipManager` ) are in the exe.
+- **How to see it.** Unit 25 (Lord Knight): the 2015 tree window with Lv rows, coloured type backgrounds, no learn buttons / SP; 21000 (grade 1) shows `[Special Active ...]` in the tooltip and
+  drags; the type colours load once (`[JUNE_SKILL] UI SkillTypeColor.lua loaded N colour row(s)`). Unit 41 (Electra) the same on another class.
+
+## Phase S7c - Skill memos: popups, packets, emulator, save
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET`. Sub-tag `[JUNE_SKILL] MEMO`. Split out of S7b (user, 2026-10-18).
+June's memo popups on the tree ( `328dda50`, `328e9b30`, `328ded60`, `328df480`, cases 29065-29068 / 29076 / 29077 ), the memo packets 0x554-0x557 on client and emulator,
+the save rung for June's memo rows, the grant-handler memo buttons and the memo text builders ( `32453420`, `324513e0` ). Kickoff `kickoffs/skill-system-core/S7c.md`.
+**Play-test:** select a memo, use the skill ( the `[JUNE_SKILL] MEMO` lines ), relog, remove it with the removal item.
+
+## Phase S7d - Skill pages, the reset item's UI, the HUD refresh
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_PAGE`. Sub-tag `[JUNE_SKILL] PAGE`. Split out of S7b (user, 2026-10-18).
+June's page radios / expand / buy ( 29049 .. 29056, `328e6970`, `328dd1f0` ), the page packets ( handlers or `X2OfflineIgnore` rows ), `RESET_SKILL_ACK`'s page fields, the reset item's
+tree rebuild ( `31f08290` ) and the HUD refresh `CX2Unit 3235a160` / singleton `324943c0`. Kickoff `kickoffs/skill-system-core/S7d.md`.
+**Play-test:** switch pages, buy a page with ED, use the reset item.
+
+## Phase S7e - Description panels: major skills and the command tab
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS`. Sub-tag `[JUNE_SKILL] UI`. Split out of S7b (2026-10-18, unowned June branch).
+The major-skill panel ( `328e42d0` from `SkillCommandDescriptionData.lua` via `CX2SkillTree 3220bdb0` ) and the command tab ( `ComboTree.lua` through `328e7ba0`, `328e4bd0`, `328de9a0`,
+`328e5290`, `328e8820`, the video popup `328e6cd0`, cases 29061 / 29062 / 29069-29074 ). Kickoff `kickoffs/skill-system-core/S7e.md`.
+**Play-test:** the major-skill icons and hover text on two classes; the command tab and a video popup.
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.

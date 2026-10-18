@@ -2100,6 +2100,7 @@
     <ClInclude Include="X2UIShop.h" />
     <ClInclude Include="X2UISkillNote.h" />
     <ClInclude Include="X2UISkillTreeNew.h" />
+    <ClInclude Include="X2UISkillTreeNew2015.h" />
     <ClInclude Include="X2UISocketItem.h" />
     <ClInclude Include="X2UISynthesis.h" />
     <ClInclude Include="X2UITempInventory.h" />
@@ -3064,6 +3065,7 @@
     <ClCompile Include="X2UISkillNote.cpp" />
     <ClCompile Include="X2UISkillTree.cpp" />
     <ClCompile Include="X2UISkillTreeNew.cpp" />
+    <None Include="X2UISkillTreeNew2015.cpp" />
     <ClCompile Include="X2UISocketItem.cpp" />
     <ClCompile Include="X2UISynthesis.cpp" />
     <ClCompile Include="X2UITempInventory.cpp" />

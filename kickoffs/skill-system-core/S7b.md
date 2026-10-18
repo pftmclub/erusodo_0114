@@ -9,6 +9,11 @@
 | Log tag | `[JUNE_SKILL] UI` (`python tools/logs.py --tag JUNE_SKILL`) |
 | Review | `kickoffs/skill-system-core/S7b-review.md` |
 
+> **Split during the phase (user, 2026-10-18):** S7b = June's tree class itself ( window, slots, level rows, portrait, tooltips with the skill-type
+> branches, tabs, the carried equip bar, no learn / SP UI ). The memo popups and packets moved to `S7c.md`, the page packets / reset item / HUD refresh to
+> `S7d.md`, and the major-skill and command panels ( `SkillCommandDescriptionData.lua`, `ComboTree.lua` ) to `S7e.md`. The items below are kept as
+> written; the Done note says which phase owns each.
+
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh

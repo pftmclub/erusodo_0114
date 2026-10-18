@@ -3444,7 +3444,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-08-25
 // Description: Allow learning both skills in a 2-choice skill tree row instead of locking the unchosen one
-#define SERV_IRUHADEV_SKILLTREE_NO_LOCK
+// Retired 2026-10-18 by JUNE_SKILL_SYSTEM_PHASES.md S7b ( user decision, S0b ): June's tree has no two-choice rows, so the define is gone.
+// Its two sites in X2UISkillTreeNew.cpp are now March-only code; MODS.md lists the retirement.
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -8597,4 +8598,45 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKILL_ACQUIRE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY (SkillTemplet::m_eJunePowerRateType, June +0x174)
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S7b - June's skill tree UI ( CX2UISkillTreeNew2015, class block 328d98e0-328ee680 ) in
+//              X2Lib/X2UISkillTreeNew2015.h/.cpp under March's class name; X2UISkillTreeNew.h/.cpp keep March's class in their #else /
+//              #ifndef. Dialogs DLG_UI_Skill_Tree_New2015 / DLG_UI_Skill_Icon_New2015 / DLG_UI_Skill_Desc_Video ( data034, June's ),
+//              SkillTypeColor.lua ( data036 ), Enum.lua SKILL_TREE_UI_CUSTOM_MSG members, DLG_UI_Common_Texture_NewSkill_02 / _03 ( data057 ).
+//              No learn / SP UI ( user, 2026-10-18 ). Memo popups / packets S7c, pages S7d, major-skill and command panels S7e.
+//              Log [JUNE_SKILL] UI. Revert: JUNE_SKILL_TREE_UI in MODS.md ( the exe and data034 / data036 / data057 move together ).
+#define SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SKILL_SLOT_UI (the 10-slot equip bar it carries)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#ifndef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE (JuneAutoEquipNewSkills, the slot-change queue)
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SKILL_NOTE (the transcendence memo's alternate skill, active memos)
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TYPE
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SKILL_TYPE (skill types 14-18)
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 (slot ids 0-9, slot states)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET (m_iDeleteSkillIDByUpgrade, upgrade lookups)
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_REFORM
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SKILL_REFORM (June's GetSkillLevel 32890620)
+#endif SERV_IRUHADEV_JUNE_SKILL_REFORM
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_JUNE_SOCKET_PARITY (SkillTemplet::m_eJunePowerRateType)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_UI needs SERV_IRUHADEV_OFFLINE (CX2OfflineLog)
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 //////////////////////////////////////////////////////////////////////////

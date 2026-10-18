@@ -11,14 +11,15 @@
 ## Read first
 
 ```sh
-python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "Rules" "Starting context" "Phase S0b - Slots, pages and UI RE" "Phase S7 - Skill tree UI and learn logic"
+python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "Rules" "Starting context" "Phase S0b - Slots, pages and UI RE" "Phase S7 - Skill tree UI and learn logic" "Phase S7b - Done (2026-10-18, Opus 5.5 high)"
 ```
 Then the phase's Done note (`python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md --list` names it).
 
 ## Task
 
-Review Phase S7b's commit(s) against `june2017_re/s0b_ui_funcmap.tsv`: each tree-UI function against June, the memo packets on client
-and emulator, page packets handled or ignored with a reason, `SKILLTREE_NO_LOCK` retired.
+Review Phase S7b's commit(s) against `june2017_re/s0b_ui_funcmap.tsv`: each ported tree-UI function against June ( the Done note lists
+them; memo, pages and the panels are S7c / S7d / S7e ), the `/// S7c:` / `/// S7d:` / `/// S7e:` / checklist markers each owned, the carried S6 equip-bar code
+unchanged, `SKILLTREE_NO_LOCK` retired, the data in data034 / data036 / data057.
 
 Hygiene is one command, not a fresh script:
 `python tools/flagcheck.py <FLAG> --range <first phase commit>^..HEAD --with SERV_IRUHADEV_JUNE_SKILL_DEBUG`.
@@ -30,8 +31,4 @@ Fix clear transcription errors under the same flag (then `tools/build.py --deplo
 design decisions back to the user. Write "Phase S7b -- Review" into the plan doc, update the
 phase's STATUS.md row, write or check the next phase's kickoff file, and commit.
 
-**`SERV_IRUHADEV_JUNE_SKILL_DEBUG` (S3d review, 2026-10-18; moved here from S7-review when S7 split):** once S7b's play-test has
-shown the `[JUNE_SKILL] MEMO` lines (S3d) and S3e is done, retire the flag: remove its define and every
-`#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) ...` block (`git grep`), or say why it stays. Its Always.h comment ("remove after the S2
-review") is out of date. In the same Always.h edit, add the missing guard
-`#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST` (its helpers sit in `X2BuffFactor.h:959`).
+(The `SERV_IRUHADEV_JUNE_SKILL_DEBUG` retirement moved to `S7c-review.md`: it waits for the `[JUNE_SKILL] MEMO` lines, which S7c's play-test shows.)

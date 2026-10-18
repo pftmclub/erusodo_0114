@@ -4202,6 +4202,23 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_ACQUIRE`, defined in `KTDXLIB/Always.h` **and** `
 - **Revert:** comment out both defines, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Saves keep the extra rows the grant wrote (levelled rows, bases at level 0); they read as learned skills
   under the S3 rules. No data files changed.
 
+### June's skill tree UI (skill-system-core S7b, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI` in `KTDXLIB/Always.h` (`#error` guards: `_SLOT_UI`, `_ACQUIRE`, `_SKILL_NOTE`, `_SKILL_TYPE`, `_SLOT_10`, `_SKILL_TEMPLET`, `_SKILL_REFORM`,
+`_SOCKET_PARITY`, `SERV_IRUHADEV_OFFLINE`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7b"; log tag `[JUNE_SKILL] UI`.
+- **Code.** June's `CX2UISkillTreeNew2015` (class block `328d98e0`-`328ee680`) lives in `X2Lib/X2UISkillTreeNew2015.h/.cpp` under March's class name, so the callers of
+  `CX2UIManager::GetUISkillTree()` are unchanged. `X2UISkillTreeNew.h` includes the June header in its `#ifdef` and keeps March's class in the `#else`; `X2UISkillTreeNew.cpp` includes
+  the June `.cpp` in its `#ifdef` and keeps March's code in the `#else` / `#ifndef`. The June `.cpp` is not a compile unit of its own (it has no `StdAfx.h`); the vcxproj lists it as `None`.
+- **No learn / SP UI** (user, 2026-10-18): June's tree has no learn, upgrade or init buttons and no SP box. March's `EGS_GET_SKILL_REQ` sender, the emulator's `LearnSkills` and the
+  SP display stay compiled but nothing reaches them with the flag on. `GetNowLearnSkill()` returns false (June has no learn mode), so the nine class `GetNowLearnSkill` checks never block a skill.
+- **Data (they move with the exe).** data034: June's `DLG_UI_Skill_Tree_New2015.lua`, `DLG_UI_Skill_Icon_New2015.lua`, `DLG_UI_Skill_Desc_Video.lua`, `DLG_UI_Command_Desc_Video.lua`
+  (adopt-june, ljconv bytecode); data036: June's `SkillTypeColor.lua` (adopt-june) and 58 June `SKILL_TREE_UI_CUSTOM_MSG` members in the merged `Enum.lua` (ledger refreshed);
+  data057: June's `DLG_UI_Common_Texture_NewSkill_02` / `_03` `.tga` + `.tet` (stage-june).
+- **`SERV_IRUHADEV_SKILLTREE_NO_LOCK` is retired** (user decision, S0b): its `#define` is gone from `Always.h` (a comment marks the spot). Its two sites are in March's tree code, which the
+  flag compiles out; with the flag off they read the March lock logic again.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and restore data034 / data036 / data057 from `kom_backup_tools/` (the added files are unused by March's
+  class, so leaving them in is harmless). Put `#define SERV_IRUHADEV_SKILLTREE_NO_LOCK` back for the old two-choice behaviour.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used
