@@ -1046,7 +1046,7 @@ known) goes to new **R4j**.
 **Hygiene** (`flagcheck --worktree --files` on the 42 code files): UI_CONTROL_PASS `files: 34 PASS, 0 PASS~, 0 DEFINE, 8 OTHER, 0 FAIL,
 0 ERROR` / `0 deleted, 0 non-ASCII, 0 EOL-mismatched`; DRAW_PASS `files: 8 PASS, ..., 34 OTHER, 0 FAIL` / `0 deleted, 0 non-ASCII,
 3 EOL-mismatched` (the device-font ctor insert in a mixed-EOL file); `RESULT: PASS` for both. Each flag's OTHER rows are the other flag's files.
-Range check after commit: RANGE_LINE.
+Range check after commit: `flagcheck --range f96952cd^..f96952cd`: UI_CONTROL_PASS `34 PASS, 9 OTHER, 0 FAIL, 0 ERROR` / `0 deleted, 0 non-ASCII, 0 EOL`, DRAW_PASS `8 PASS, 35 OTHER, 0 FAIL, 0 ERROR` / `0 deleted, 0 non-ASCII, 3 EOL`; `RESULT: PASS` for both.
 
 `DEPLOY OK: X2_offline.exe is 19,973,120 B, dated 2026-10-18 09:18:28, md5 d4eef83688b181e6dbdb7d59656cc4a8, equal to X2/US_SERVICE/x2.exe
 (2026-10-18 09:18:23); built at main eb5280c7 + 52 uncommitted code file(s).` (the 10 non-R4e files are peers' S-phase work.)
