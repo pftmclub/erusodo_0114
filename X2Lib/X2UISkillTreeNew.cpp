@@ -5203,7 +5203,7 @@ void CX2UISkillTreeNew::SetSkillUIType( bool bIsTypeA_ )
 	if( false == m_bIsSkillUITypeA )
 	{
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
-		vSlotPos.x = -257.f;	/// June 328e1680 ( five slots a bar ); the y keeps March's wide-bar rule below
+		vSlotPos.x = -257.f;	/// June 328e1680 ( five slots a bar ); the y is set to June's -619 below
 #else SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 		vSlotPos.x = -297.f;
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
@@ -5212,6 +5212,9 @@ void CX2UISkillTreeNew::SetSkillUIType( bool bIsTypeA_ )
 #else // INT_WIDE_BAR
 		vSlotPos.y = -619.f;
 #endif // INT_WIDE_BAR
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+		vSlotPos.y = -619.f;	/// June 328e1680: ( -257, -619 ) with no wide-bar rule ( user, S6 review 2026-10-18 )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
 	}
 	//슬롯 B 활성화 여부
 	bool bEnableSlotB = false;

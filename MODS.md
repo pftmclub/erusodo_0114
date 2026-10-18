@@ -4141,7 +4141,7 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI`, defined in `KTDXLIB/Always.h` after `SE
   June `328da440`). Every 8-wide loop (equip-slot data, `UpdateSkillCoolTime`, the swap offsets, 10 sites) is 10 wide with `i > 4` / `i - 5`. New `UpdateJuneSkillSlotLockUI` = the lock half of June `328dfab0`: A-TC and B-TC and B
   overlays (button + lock picture), the B key labels' alpha 1 / 0.5, the cool-time text and fade of a locked slot cleared, a skill sitting in a locked slot unequipped, `m_bIsExpandSkillSlot` from slot-state key 0, the Rose glow
   hidden outside a game. A-TC stays locked (`CX2Unit +0x3c` has no March counterpart: Stage 6), B-TC follows key 1 (the emulator sends 0), B follows key 0 (sends 2). `SetOffsetPosJuneTCSlotUI` = the TC placement in
-  `328daed0` / `328db100` (type A +-47, type B -200 / 48, guide-text offset 100). The slot pitch is 47 (51 - 4) in the swap offsets, the type B dialog x is -257 (June `328e1680`; March's wide-bar y is kept),
+  `328daed0` / `328db100` (type A +-47, type B -200 / 48, guide-text offset 100). The slot pitch is 47 (51 - 4) in the swap offsets, the type B dialog is at (-257, -619) (June `328e1680`; June has no wide-bar y, user 2026-10-18),
   `UpdateSkillSlotString` writes five labels a bar (`GAMEACTION_SKILL5` / `_EX5`), `SetOffsetPosSkillSLotStatic` moves the Rose glow statics.
 - **`CX2Game` (`X2Game.cpp`).** The nine 4+4 loops S5 left (`UpdateSkillCoolTime`, `InitExpandSkillCoolTime`, the Elsword / Eve / Night Watcher / Veteran Commander / Code Empress / Add class slot-icon updates) are 5 + 5 / 10 wide.
   The recharge particle of the type B B bar sits 47 (was 51) below its picture (inferred from the swap offset: June's game-side cool-time function is not mapped).
