@@ -165,7 +165,12 @@ HRESULT CX2DropItemManager::OnFrameMove( double fTime, float fElapsedTime )
 					if( pDropItemData->m_fNowSpeed < 0.0f )
 					{
 						pDropItemData->m_fNowSpeed = 0.0f;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+						// June2017 3273b950 @3273c0e3-3273c114: no in index, out index lineIndex, bDroppable true ( a drop item lands on a DROPPABLE_MONSTER_ROAD )
+						if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( pDropItemData->m_Pos, LINE_RADIUS * 2.3f, &outPos, NULL, &lineIndex, false, false, true, true ) == false )
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 						if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( pDropItemData->m_Pos, LINE_RADIUS * 2.3f, &outPos, &lineIndex, false ) == false )
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 						{
 							lineIndex = g_pX2Game->GetWorld()->GetLineMap()->GetNearestLine( pDropItemData->m_Pos, &outPos );
 							if( -1 != lineIndex )
@@ -183,7 +188,12 @@ HRESULT CX2DropItemManager::OnFrameMove( double fTime, float fElapsedTime )
 
 					if( pDropItemData->m_fNowSpeed != 0.0f )
 					{
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+						// June2017 3273b950 @3273c568-3273c599: the same shape as the first call ( no in index, bDroppable true )
+						if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( pDropItemData->m_Pos, LINE_RADIUS * 2.3f, &outPos, NULL, &lineIndex, false, false, true, true ) == false )
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 						if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( pDropItemData->m_Pos, LINE_RADIUS * 2.3f, &outPos, &lineIndex, false ) == false )
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 						{
 							lineIndex = g_pX2Game->GetWorld()->GetLineMap()->GetNearestLine( pDropItemData->m_Pos, &outPos );
 							pDropItemData->m_Pos = outPos;

@@ -2218,6 +2218,48 @@ No open question. W1f (`kickoffs/june-engine/W1f.md`, checked) owns the signatur
 - **Out line index:** June reads the entry index from `param_7` (`[EBP+0x1c]`) and writes the result to `param_8` (`[EBP+0x20]`, `@31c6f86c`).
 - **Callers:** 342 June sites; table them (`june2017_re/w1f_candown_callers.tsv`), port the ones that differ from March's shape.
 
+### Phase W1f -- Done
+
+**2026-10-18, Opus 5.5 high.** Flag `SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE` (`Always.h`). Commit: `git log -S SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE`.
+Funcmap rows `(W1f)`. Caller table: `june2017_re/w1f_candown_callers.tsv` (343 rows).
+
+**Map** (`31c6c310` disassembly). `[EBP+0x1c]` (in index) is read only at the `bOnLine` head (`@31c6c320`) and the no-hit fallback (`@31c6f747`); NULL skips
+both. `[EBP+0x20]` (out index) is written only when `touch` (`@31c6f86c`). The `LT_MONSTER_ROAD` case (`@31c6c491-31c6c4ae`) tests the line when `bIsMonster`,
+else only when `LineData +0xa4` and `[EBP+0x30]` (`bDroppable`) are both set. `AddLine_LUA` stores 0 when the key is absent (`@31c716ec-31c716f0`); June's
+LineData init `31c7da50` does not write `+0xa4` (March's `Init` sets false: no loaded line differs).
+**Data:** only June's `2017_Valentine_Stage1-5_Linemap` (11-23 lines each) set the key. March ships none of them (a byte scan of all of `kom_contents` finds no
+`DROPPABLE_MONSTER_ROAD`), so no gate log was added and there is no play-test.
+
+**Callers** (pushes read by script from June's raw bytes, wrapper branches followed; 6 sites hand-read; the 19 that differ identified by two Sonnet
+subagents, the four ported ones re-read here). 324 sites use March's shape (same pointer twice or NULL twice, `bDroppable` 0), so the forwarder covers them.
+Of the 19 that differ:
+- **Ported, 4 sites:** `CEffect::FollowLine` (`@31f71146`: in NULL, `bOnLine` false), `CEffect::CreateDieDamageEffect` (`@31f82653`: in NULL),
+  `CX2DropItemManager::OnFrameMove` x2 (`@3273c114`, `@3273c599`: in NULL, `bDroppable` true; a drop item may rest on a droppable monster road).
+- **Equivalent, no change, 3 sites:** pet `SCT_AI_DOWN`, Chung Artillery Strike, Aisha Hell Drop. June passes NULL out; March's out locals are never read.
+- **New W1g:** `CX2SimplePathFinder::FollowTargetPathFly` (`32f27b10`) adds a fly-down `CanDown` gate (`@32f27ea2`) and differs elsewhere; whole function.
+- **Class code -> checklist 7ac:** Ara `ProcessLockOn` + Swallow Assault x2, June-only helpers (Add / Luciel / Arme / Ara / Rena Grand Archer). Luciel's
+  states come with the class.
+
+**Port.** `KTDGLineMap.h`: `LineData::m_bJuneDroppableMonsterRoad`; June's 9-arg `CanDown` declaration; March's 7-arg form becomes an inline forwarder
+(index twice, `false`). `KTDGLineMap.cpp`: the key parse, the definition with `const int* pLineIndex` (in) + `pOutLineIndex`, the droppable case, the
+out write. 4 call sites `#ifdef` / `#else` with the original call kept.
+
+**Hygiene** (`flagcheck --worktree --files`, 5 files): 4 PASS (`KTDGLineMap.cpp` +22, `.h` +21, `X2DamageEffect.cpp` +10, `X2DropItemManager.cpp` +10);
+`Always.h` FAIL from the peer's uncommitted R12b lines only (its `_REFS_DEBUG` re-define, a dropped blank line), not committed here. 0 non-ASCII,
+0 EOL-mismatched, 0 `#else`/`#endif` without token, 0 encoding change. Range: see the line below.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to X2/US_SERVICE/x2.exe (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s).`
+`DROPPABLE_MONSTER_ROAD` found once in the deployed exe.
+
+**How to see it in game:** nothing should change. Drop items, damage effects that follow a line, and death effects still land as before. No open question.
+
+## Phase W1g - FollowTargetPathFly as June's
+
+**Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_PATHFINDER_FLY` (proposed). Added by W1f (an unowned June
+branch). Kickoff `kickoffs/june-engine/W1g.md`. June `32f27b10` vs March `X2SimplePathFinder.cpp:760`: the fly-down `CanDown` gate `@32f27ea2` (in = copy of
+`iCurrLineDataIndex`, out NULL, `bDownRadius` 1, `bIsMonster` 1, `bOnLine` 0), the destination line's `+0xf4` / `+0xf8` read, the road-type early return,
+`GetLandPosition( pos, true, ... )`. Port the whole function.
+
 ## Phase W2 - Portal-line markers
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:

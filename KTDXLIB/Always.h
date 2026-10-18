@@ -8127,3 +8127,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine this flag.
 #define SERV_IRUHADEV_JUNE_RENDER_MOTION_CASH_EMOTION
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase W1f. CKTDGLineMap::CanDown takes June2017's signature ( 31c6c310, ret 0x2c ): a read-only
+//              in line index ( the bOnLine head and the no-hit fallback ), a separate out line index ( @31c6f86c ), and bDroppable,
+//              which lets a non-monster land on an LT_MONSTER_ROAD carrying the new line key DROPPABLE_MONSTER_ROAD ( LineData +0xa4,
+//              31c705c0 @31c716be; only June's 2017_Valentine_Stage1-5 line maps, which March does not ship ). March's 7-arg form
+//              forwards ( index twice, false ). June call sites whose shape differs from March's are ported per site
+//              ( june2017_re/w1f_candown_callers.tsv ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+//////////////////////////////////////////////////////////////////////////

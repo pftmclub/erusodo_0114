@@ -515,6 +515,9 @@ class CKTDGLineMap : public CKTDGObject
 			vector<__int64>	m_vecJuneAutoDisableUserUID;	/// June +0x12c: users standing on the line when it was marked; only they may land on it
 			vector<int>		m_vecJuneAutoDisableNPCUID;		/// June +0x13c: the same for NPCs ( 4-byte UIDs )
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+			bool			m_bJuneDroppableMonsterRoad;	/// June LineData +0xa4: DROPPABLE_MONSTER_ROAD ( 31c705c0 @31c716be, false when absent ); CanDown lets a non-monster land on this monster road when its bDroppable is set
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP
@@ -653,6 +656,10 @@ class CKTDGLineMap : public CKTDGObject
 				m_vecJuneAutoDisableUserUID.clear();
 				m_vecJuneAutoDisableNPCUID.clear();
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+				/// June's init 31c7da50 leaves +0xa4 alone; its loader always writes it ( 31c716ec-31c716f0 ), so false here changes no loaded line
+				m_bJuneDroppableMonsterRoad = false;
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 
 
 #ifdef	X2OPTIMIZE_LINEMAP_LINEGROUP
@@ -1282,8 +1289,22 @@ class CKTDGLineMap : public CKTDGObject
 		}
 
 		// @ bOnLine : 주의!! input parameter입니다. 캐릭터가 라인위에 있는지 공중에 떠 있는지
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+		/// June 31c6c310 ( ret 0x2c ): the entry line index is read from pInLineIndex ( the bOnLine head and the no-hit fallback;
+		/// NULL skips both ) and the landed line is written to pOutLineIndex ( @31c6f86c ). bDroppable lets a non-monster land on
+		/// an LT_MONSTER_ROAD whose DROPPABLE_MONSTER_ROAD is set ( @31c6c491-31c6c4ae ). March's signature below passes its one
+		/// index pointer twice and false, which is March's behaviour.
+		bool CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos, const int* pInLineIndex, int* pOutLineIndex,
+			bool bDownRadius, bool bIsMonster, IN bool bOnLine, bool bDroppable );
+		__forceinline bool CanDown( D3DXVECTOR3 pos, float fRadius = 1.0f, D3DXVECTOR3* pOutPos = NULL, int* pLineIndex = NULL,
+			bool bDownRadius = true, bool bIsMonster = false, IN bool bOnLine = true )
+		{
+			return CanDown( pos, fRadius, pOutPos, pLineIndex, pLineIndex, bDownRadius, bIsMonster, bOnLine, false );
+		}
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 		bool CanDown( D3DXVECTOR3 pos, float fRadius = 1.0f, D3DXVECTOR3* pOutPos = NULL, int* pLineIndex = NULL, 
 			bool bDownRadius = true, bool bIsMonster = false, IN bool bOnLine = true );
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 		
 
 

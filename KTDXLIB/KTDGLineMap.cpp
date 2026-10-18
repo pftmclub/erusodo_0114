@@ -281,6 +281,10 @@ bool CKTDGLineMap::AddLine_LUA()
 
 #endif NEW_VILLAGE_RENDERING_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+	/// June 31c705c0 @31c716be: LineData +0xa4, false when the key is absent ( only June's 2017_Valentine_Stage1-5 line maps set it )
+	LUA_GET_VALUE( luaManager,		"DROPPABLE_MONSTER_ROAD",	pLineData->m_bJuneDroppableMonsterRoad,	false	);
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 #ifdef OTHER_ROAD
 	LUA_GET_VALUE( luaManager,		"OTHER_ROAD_UP",			pLineData->m_bOtherRoadUp,			false	);	
 #endif
@@ -1222,7 +1226,12 @@ bool CKTDGLineMap::JuneAutoDisableRelease( int iLine, __int64 uid, bool bUser )
 	return false;
 }
 #endif SERV_IRUHADEV_JUNE_WORLD_TRIGGER_AUTO_DISABLE
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+/// June 31c6c310: pLineIndex is June's in index ( [EBP+0x1c], read only ), pOutLineIndex its out index ( [EBP+0x20] )
+bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos, const int* pLineIndex, int* pOutLineIndex, bool bDownRadius, bool bIsMonster, bool bOnLine, bool bDroppable )
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos, int* pLineIndex, bool bDownRadius, bool bIsMonster, bool bOnLine )
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 {
 	KTDXPROFILE();
 	
@@ -1288,8 +1297,15 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 		{
 		case LT_MONSTER_ROAD:
 			{
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+				/// June @31c6c491-31c6c4ae: a monster always tests the line; anyone else only when the line is droppable and bDroppable is set
+				if( false == bIsMonster
+					&& ( false == pLine->m_bJuneDroppableMonsterRoad || false == bDroppable ) )
+					continue;
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 				if( false == bIsMonster )
 					continue;
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 			} break;
 
 		case LT_UNIT_ROAD:
@@ -1534,8 +1550,14 @@ bool CKTDGLineMap::CanDown( D3DXVECTOR3 pos, float fRadius, D3DXVECTOR3* pOutPos
 	{
 		if( pOutPos != NULL )
 			*pOutPos = retVal;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+		/// June @31c6f86c: the landed line goes to the out index only
+		if( pOutLineIndex != NULL )
+			*pOutLineIndex = line;
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 		if( pLineIndex != NULL )
 			*pLineIndex = line;
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 	}
 
 	if( pos.y < 0.0f )

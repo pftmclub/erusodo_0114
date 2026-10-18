@@ -661,3 +661,19 @@ What a class port does:
   port / skill S3: `SI_A_EL_LEAP_CRASH_Start`, `_Jump`, `_Landing`, `SI_A_EL_RUSHING_SWORD`, `SI_SA_SSK_SPIRAL_BLAST`, `SI_SA_SSK_VICTORIOUS_SWORD`
   (June deleted the last two).
 - Re-run the census for the class after staging; a name still missing is a script fix, not a motion hold.
+
+### 7ac. CanDown's June call shape in class code (from June engine W1f)
+
+June's `CKTDGLineMap::CanDown` (`31c6c310`) reads the entry line from a separate in index (NULL skips the `bOnLine` head and the no-hit fallback) and
+writes the landed line to an out index. W1f ports it as a 9-arg overload, `CanDown( pos, r, pOutPos, pInIndex, pOutIndex, bDownRadius, bIsMonster,
+bOnLine, bDroppable )`; March's 7-arg form forwards (index twice, `false`). Class code takes June's shape from `june2017_re/w1f_candown_callers.tsv`
+(`w1f_action` = `-> checklist 7ac`):
+- Ara: `SLockOnSystem::ProcessLockOn` (`3200fa20` @`3200ff98`, March `X2GUAra.cpp:5435`), `ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK` EventProcess (`@32bc204c`,
+  `:11264`) and `_FINISH` StateStart (`@32bb70ff`, `:11371`) pass `NULL, &lineIndex` (March seeds `lineIndex = 0`, so its head tests line 0). June also
+  calls `CanDown` (all NULL) in `ProcessLockOn`'s candidate loop (`@3200fcad`) and clears a flag when it fails; March's loop has none. June's
+  `ProcessLockOn` is shared with Luciel.
+- Chung Artillery Strike Ready (`@32bfe8c3`, `X2GUChung.cpp:17152`) and Aisha Hell Drop (`@32cd97ba`, `X2GUArme_VioletMage.cpp:16482`) pass the in
+  index and a NULL out index; March's out local is unread, so nothing changes. Aisha's June state always creates `NUI_UFO_AISHA_DROPPER_MEMO` (0x627).
+- June-only helpers with `NULL, &idx`: user landing prediction `32021390` (Add / Luciel / Arme callers), target-follow prediction `3200eeb0`, line clamp
+  `32294530` (Add), Ara landing helper `32bc0420`, Rena Grand Archer `LESI_RGA_GUNGNIR_READY` (`@32ca111a`); Luciel's states (`@32b2fd79`, `@32b33fb7`,
+  `@32b33d09`) come with the class.

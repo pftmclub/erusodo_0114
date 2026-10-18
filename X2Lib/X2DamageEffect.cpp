@@ -7536,7 +7536,12 @@ void CX2DamageEffect::CEffect::CreateDieDamageEffect( vector<DamageEffectData*>&
 				{
 					D3DXVECTOR3 outPos;
 					int			lineIndex = 0;
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+					// June2017 31f82210 @31f82624-31f82653: no in index ( so no on-line head, no fallback ), out index lineIndex
+					if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( GetPos() , LINE_RADIUS, &outPos, NULL, &lineIndex, false, false, true, false ) == true )
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 					if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( GetPos() , LINE_RADIUS, &outPos, &lineIndex, false ) == true )
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 					{
 						const CKTDGLineMap::LineData* pLineData = g_pX2Game->GetWorld()->GetLineMap()->GetLineData( lineIndex );
 						if( pLineData != NULL )
@@ -8049,7 +8054,12 @@ void CX2DamageEffect::CEffect::FollowLine()
 			fLineRadius -= 15.f;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+		// June2017 31f70ee0 @31f71109-31f71146: no in index ( so no on-line head, no fallback ), out index lineIndex, bOnLine false
+		if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( pMeshInst->GetPos() , fLineRadius, &outPos, NULL, &lineIndex, false, false, false, false ) == true )
+#else SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 		if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( pMeshInst->GetPos() , fLineRadius, &outPos, &lineIndex, false ) == true )
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 		{
 			const CKTDGLineMap::LineData* pLineData = g_pX2Game->GetWorld()->GetLineMap()->GetLineData( lineIndex );
 			if( pLineData != NULL )
