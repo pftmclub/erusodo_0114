@@ -1320,15 +1320,17 @@ parts). Staged June's byte-exact `Motion_Raven.x`, `Motion_CHUNG.x`, `Motion_EL.
 the census (`june2017_re/r12b_anim_loss.tsv`, 43 rows) showed June renamed the animations its class scripts play (Lire `ComboX3` ->
 `Lire_ComboX3`, Elesis `SI_A_EL_LEAP_CRASH_*` -> `SI_A_SSK_LEAP_CRASH_*`, ...), so the user chose the 4 sphere files now and the full
 swap with each class's character port (checklist 7ad; june-asset-port P5 kickoff amended). The other 83 staged files were restored
-to March's bytes. Pack: `PACK OK data033` (vs live: ~4 changed = the 4 files). Copy: pending (refused while `X2_offline.exe` ran; ask, then `kom.py copy data033`).
+to March's bytes. Pack: `PACK OK data033` (vs live: ~4 changed = the 4 files). Copy (user OK): `COPY OK data033: ... 131234168 bytes, 165 entries, md5 176b993a66996c3a82370ffe38414df5`.
 Known cost, accepted by the user: 6 Elesis skill animations (`SI_A_EL_LEAP_CRASH_Start/Jump/Landing`, `SI_A_EL_RUSHING_SWORD`,
 `SI_SA_SSK_SPIRAL_BLAST`, `SI_SA_SSK_VICTORIOUS_SWORD`) are gone until the Elesis port / skill S3.
 
 **Hygiene.** `flagcheck --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h` with all four flags stripped: X2GUUser.cpp PASS (+47,
 insert-only); Always.h FAIL on comment lines only (three flags' define blocks, +1 / +3 / +30, insert-only; the one deleted line in the
-worktree is a peer's). Range: pending (after the commit).
-**Deploy:** pending: the first build lost the lock to another session's build, the game was running, and the tree carries a peer's
-uncommitted S3 skill reform (save v17), so the deploy waits for the user (Done-note follow-up commit).
+worktree is a peer's). Range `74dd25e6^..74dd25e6`, MOTION_ORDER `--with` the other three: `files: 1 PASS, 0 PASS~, 0 DEFINE,
+0 OTHER, 1 FAIL, 0 ERROR` / `0 deleted line(s)` / `RESULT: FAIL` = Always.h's comment lines (multi-flag define shape), X2GUUser.cpp PASS.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to
+X2/US_SERVICE/x2.exe (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s)` (peers' files, incl. skill S3's
+uncommitted reform). The exe carries the Cash25 names and the `SKREF motion collision` line.
 
 **How to see it in game:** `python tools/logs.py --grep "JUNE_ENGINE] SKREF"` -> `SKREF motion collision MOTION_LIRE.X collision 3
 attack 2` per Lire unit (Raven: collision 3 attack 4; others 3 / 2). Monsters hurt every class; kicks and combos hit.
