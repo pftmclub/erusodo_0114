@@ -8718,3 +8718,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              line. Log [JUNE_GFX] RUNTIME. Revert: JUNE_GFX_RUNTIME in MODS.md ( comment out the define; the libs then drop out of the link ).
 #define SERV_IRUHADEV_JUNE_GFX_RUNTIME
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7e - the skill tree's description panels and command tab. The major-skill panel
+//              ( 328e42d0: the class's DESCRIPTION_STRING_ID and one icon button per SKILL_DATA row, from June's
+//              SkillCommandDescriptionData.lua via CX2SkillTree 3220bdb0 ), the major-command panel ( 328e8820 / 328e5290 ),
+//              the command tab's lists from June's ComboTree.lua ( 328e7ba0 / 328df4c0 / 328e4bd0 ), the command icons from
+//              June's CommandIconData.lua ( CX2SkillTree::OpenScriptFile tail 32207dd0, binder 3220f8d0, 32207630 ), the
+//              description fit ( 328df060 ), the description popup ( 328e6cd0 ) and UICustomEventProc 29061-29062 / 29069-29074.
+//              June never calls ResetComboTree ( 31eeaf20 ), so March's call to it moves to the #else and the old combo
+//              window opens empty. Log [JUNE_SKILL] UI. Revert: JUNE_SKILL_TREE_PANELS in MODS.md ( data036 moves with the exe ).
+#define SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS needs SERV_IRUHADEV_JUNE_SKILL_TREE_UI (June's tree class that hosts the panels)
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS needs SERV_IRUHADEV_OFFLINE (CX2OfflineLog)
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+//////////////////////////////////////////////////////////////////////////

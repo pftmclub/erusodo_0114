@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2uicombotree.h"
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 
 
 #ifdef COMBO_TREE_UI_TEST
@@ -344,6 +347,14 @@ void CX2UIComboTree::UpdateComboTree( CX2Unit::UNIT_CLASS eUnitClass, CX2ComboTr
 		eComboCategory = CX2ComboTree::CC_NORMAL;
 #endif //SERV_ADD_LUNATIC_PSYKER
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+		/// June loads no CX2ComboTree ( ResetComboTree 31eeaf20 has no caller ), so the old combo window has nothing to show
+		if( NULL == g_pData->GetComboTree() )
+		{
+			CX2OfflineLog::Server( L"[JUNE_SKILL] UI the old combo-tree window has no data: June loads no CX2ComboTree ( the command tab of the skill tree shows the combos )" );
+			return;
+		}
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 		const CX2ComboTree::ComboSet* pComboSet = g_pData->GetComboTree()->GetUnitComboSet( eUnitClass );
 		ASSERT( NULL != pComboSet );
 		if( NULL == pComboSet )

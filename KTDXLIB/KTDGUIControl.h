@@ -966,6 +966,9 @@ class CKTDGUIControl : private boost::noncopyable
 		// Dummy Data
 		void			AddDummyPos( D3DXVECTOR3 pos ) { m_DummyPosList.push_back( pos ); }
 		D3DXVECTOR3 	GetDummyPos( int index );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+		int				GetDummyPosNum() const { return static_cast<int>( m_DummyPosList.size() ); }	/// June 328edc20 ( ( +0x194 - +0x190 ) / 12, inlined )
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 
 		void			AddDummyString_LUA( const char* pDummyString );
 		std::wstring	GetDummyString( int index );

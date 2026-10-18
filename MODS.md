@@ -4250,6 +4250,22 @@ and `KncWX2Server/Common/ServerDefine.h` (ClientPacket.h precedes Always.h; `SEC
 - **Revert:** comment out both defines together, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. **The save is forward-only:** an exe without the flag refuses a v20 save, so restore
   the `db_backup/` snapshot taken before the first v20 launch (`els_db_20261019_022520_pre_pre_S7d_pages.sql`) together with the old exe.
 
+### June's skill tree panels and command tab (skill-system-core S7e, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS` in `KTDXLIB/Always.h` (`#error` guards: `_SKILL_TREE_UI`, `SERV_IRUHADEV_OFFLINE`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7e";
+log tag `[JUNE_SKILL] UI`.
+- **Client.** The tree's major-skill panel (`328e42d0`), major-command panel (`328e8820` / `328e5290`), command tab lists (`328e7ba0` / `328df4c0` / `328e4bd0` / `328de9a0`), the
+  description fit (`328df060`), the description popup (`328e6cd0`, `DLG_UI_Command_Desc_Video.lua`) and UICustomEventProc 29061 / 29062 / 29069-29074 (`X2UISkillTreeNew2015.*`);
+  `CX2SkillTree` gains June's readers of `SkillCommandDescriptionData.lua` (`3220bdb0`) and `ComboTree.lua` (`3220d4d0`), the `CommandIconData.lua` map (binder `3220f8d0`, loaded at the
+  end of `OpenScriptFile` like June's `32207dd0`) and the icon picture builder (`32207630`); their bodies sit in `X2UISkillTreeNew2015.cpp`, so the CP949 `X2SkillTree.cpp` only gains the call.
+  `CKTDGUIControl::GetDummyPosNum()` (June `328edc20`, inlined there).
+- **March's combo tree is retired.** June never calls `CX2Data::ResetComboTree` (`31eeaf20`), so `X2StateLoading.cpp`'s call is in the `#else`; the old combo window
+  (`CX2UIComboTree`, e.g. from the training game) opens empty and logs why instead of crashing on a NULL `GetComboTree()`.
+- **Data (they move with the exe).** data036: June's `SkillCommandDescriptionData.lua`, `CommandIconData.lua` (new) and `ComboTree.lua` (replaces March's; adopt-june, ljconv bytecode;
+  backup `kom_backup_stage_june\20261019_051018`), and June's 48 missing `COMBO_TREE_ICON` members appended to the merged `Enum.lua` (ledger refreshed).
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and restore data036 from `kom_backup_tools/` (March's `ComboTree.lua` is needed again by the
+  `#else`'s `ResetComboTree`). No save change.
+
 ### June GFx runtime: SDK link and system init (june-gfx G1, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_GFX_RUNTIME` in `KTDXLIB/Always.h` (client only). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G1"; log tag `[JUNE_GFX] RUNTIME`.

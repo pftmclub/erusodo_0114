@@ -231,6 +231,12 @@ public:
 	const int GetSkillLevelInSkillWimdow( const CX2SkillTree::SKILL_ID eSkillID ) const;	/// June reads GetSkillLevel ( 32890620 ) directly
 	void UpdateSPInfo() {}									/// June has no SP display
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+	/// June 328e8cd0: the command group shown ( +0x8c ) and Command_Description's text for it. June's only caller is the Luciel form
+	/// change on the unit ( 3234d930 ), character material ( checklist )
+	void JuneSetCommandGroup( const int iGroup_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+
 private:
 	void CreateSkillTreeSlots( CX2Unit::UNIT_CLASS eUnitClass );		/// 328de040
 	void CreateSkillTreeLevelRows();									/// 328dc680
@@ -239,6 +245,23 @@ private:
 	void JuneRegisterMajorCommandPanelControls();						/// the group half of 328e8820
 	void JuneAddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ );	/// 328ded30
 	void JuneShowCommandGroup( const bool bShow_, const int iGroup_ );					/// 328da3c0
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+	/// S7e: the description panels and the command tab
+	void JuneCreateMajorSkillPanel( CX2Unit::UNIT_CLASS eUnitClass_ );									/// 328e42d0
+	void JuneCreateMajorCommandPanel( CX2Unit::UNIT_CLASS eUnitClass_, const bool bMinor_ );			/// 328e8820
+	void JuneSetCommandDescription( const bool bMinor_ );												/// 328e73f0
+	void JuneFitDescriptionText( CKTDGUIStatic* pStatic_ );											/// 328df060
+	void JuneCreateMajorCommandRows( const std::vector<CX2SkillTree::JuneComboRow>& vecRow_, const int iGroup_ );	/// 328e5290
+	void JuneCreateCommandLists( CX2Unit::UNIT_CLASS eUnitClass_ );									/// 328e7ba0
+	void JuneLoadComboRows( KLuaManager& luaManager_, const char* pszTableName_, std::vector<CX2SkillTree::JuneComboRow>& vecRow_ );	/// 328df4c0
+	void JuneCreateCommandRows( CKTDGUIContolList* pControlList_, const std::vector<CX2SkillTree::JuneComboRow>& vecRow_, const int iGroup_ );	/// 328e4bd0
+	CKTDGUIButton* JuneCreateCommandToolTipButton( const int iIcon_, CKTDGUIStatic* pStatic_ );		/// 328de9a0
+	int JuneGetCommandToolTipStringID( const int iIcon_ ) const;										/// 328da200
+	bool JuneGetCommandToolTipColor( const int iIcon_, D3DXVECTOR3& vColor_ ) const;					/// 328da290
+	void JuneShowCommandDescPopup( const bool bShow_, const float fPosY_, const int iStringID_, const wstring& wstrMovie_,
+		const D3DXVECTOR3& vEdgeColor_ );																/// 328e6cd0
+	bool JunePanelCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );				/// cases 29061 / 29062 / 29069-29074
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	bool JuneSkillPageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// March's page cases until S7d
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
 	bool JunePageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		/// June's page cases ( S7d )
@@ -263,6 +286,14 @@ private:
 																			/// 0 / 1 when it equals +0x8c ( 328da3c0 )
 	int									m_iJuneCommandGroup;		/// +0x8c the command group shown ( June: unit +0xe40 == 1, Luciel's form; 328e8cd0 sets it )
 	CKTDGUIDialogType					m_pDLGCommandDesc;			/// +0x30 DLG_UI_Command_Desc_Video.lua ( S7e opens it; SelectJuneTab tests it )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+	int									m_iJuneCommandRow;			/// +0x28 the next CommandControlList row ( 328e7ba0 resets it, 328e4bd0 counts )
+	bool								m_bJuneCommandToolTip;		/// +0x38 a command tooltip button is under the mouse ( 29071 / 29072 )
+	bool								m_bJuneCommandMovieToolTip;	/// +0x39 a command movie control is under the mouse ( 29073 / 29074 )
+	CX2SkillTree::JuneSkillCommandDesc	m_kJuneSkillCommandDesc;	/// +0x3c the class's SkillCommandDescriptionData.lua rows while the tree is built
+	std::map< int, CX2SkillTree::JuneCommandIconData >	m_mapJuneCommandToolTip;	/// +0x90 read by 328da200 / 328da290, cleared by CreateSkillTree;
+																	/// JUNE_BUGS: nothing in June fills it, so no tooltip button is built
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 
 	bool								m_bShow;					/// +0xa8
 	bool								m_bSkillRemoveMode;			/// +0xa9 29016 toggles it

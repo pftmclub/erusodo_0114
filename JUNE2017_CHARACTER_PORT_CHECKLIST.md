@@ -807,6 +807,9 @@ S7b ports June's skill tree UI (`CX2UISkillTreeNew2015`). These parts of its cla
 
 "` + STR 30357 with the key name of game action 0x27 (`31f5ee50`). March's templet has no `+0x170` field.
 - **Rose's sub-text costs** (`328e2900`, unit type 11: alternate templet MP and raw FP with STR 38426) are ported; they show once a Rose unit exists.
+- **Luciel's command group** (from S7e): the tree's `JuneSetCommandGroup` (June `328e8cd0`, ported) is called only by the unit's form change `3234d930` (my unit's `+0x28` / `+0x2c`
+  match, then `3214f050`, `328e8cd0( form )`, `328dcba0`). The class port calls it; the tree's Luciel `_MINOR` command lists (`328e7ba0`, unit type 10) and `COMMAND_DATA_MINOR` (`3220bdb0`,
+  June's minor flag = my unit `+0x3c`) are ported and need March's Luciel unit type and that flag.
 
 ### 7ak. Skill page decide ACK class pieces (from June skill system S7d)
 

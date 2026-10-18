@@ -152,6 +152,9 @@ bool CX2SkillTree::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pSkillDa
 	}
 #endif // UPGRADE_SKILL_SYSTEM_2013
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+	JuneOpenCommandIconData();		/// June 322083e0 @322092f2: 32207dd0( L"CommandIconData.lua" ), then the post-process 32206050
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	OpenScriptFilePostProcess();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	JuneLogLoadSummary();

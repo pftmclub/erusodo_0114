@@ -836,7 +836,11 @@ HRESULT CX2StateLoading::OnFrameMove( double fTime, float fElapsedTime )
 #endif // UPGRADE_SKILL_SYSTEM_2013
 
 #ifdef COMBO_TREE_UI_TEST
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+			/// June's CX2Data::ResetComboTree ( 31eeaf20 ) has no caller: ComboTree.lua is June's format, read by the skill tree ( 328e7ba0 )
+#else SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 			g_pData->ResetComboTree( L"ComboTree.lua" );
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 #endif COMBO_TREE_UI_TEST
 
 			SetLoadingString( GET_REPLACED_STRING( ( STR_ID_655, "i", 96 ) ) );

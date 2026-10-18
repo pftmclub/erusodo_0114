@@ -2627,6 +2627,61 @@ public:
 	void JuneAutoEquipOnLevelUp();
 	bool Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+	/// S7e: the data behind June's tree panels. JuneSkillCommandDesc is the tree UI's +0x3c block ( 0x50 bytes, reset by 328ee430 );
+	/// a combo row is June's 0x34-byte record ( 328df4c0 / 3220d4d0 ); a command icon is one CommandIconData.lua row ( map +0xc4 ).
+	struct JuneDescGroup
+	{
+		int										m_iDescStringID;	/// DESCRIPTION_STRING_ID ( -1 when absent )
+		std::vector< std::pair< int, int > >	m_vecSkill;			/// SKILL_ID read in pairs: { skill id, string id }
+	};
+	struct JuneMajorCombo
+	{
+		std::string	m_strComboName;		/// MAJOR_COMBO row [1]: NORMAL_COMBO / DASH_COMBO / JUMP_COMBO / DASH_JUMP_COMBO ( "" when absent )
+		int			m_iIndex;			/// [2]: the INDEX_n row of the class's ComboTree.lua table ( -1 when absent )
+		int			m_iStringID;		/// [3]: the row's text ( -1 when absent )
+	};
+	struct JuneSkillCommandDesc
+	{
+		JuneDescGroup				m_kTranscendental;		/// +0x00 TRANSCENDENTAL_SKILL_DATA
+		JuneDescGroup				m_kSkill;				/// +0x14 SKILL_DATA ( the shown group; 328e42d0 copies +0x00 over it when transcended )
+		int							m_iCommandDescStringID;	/// +0x28 COMMAND_DATA
+		std::vector<JuneMajorCombo>	m_vecMajorCombo;		/// +0x2c
+		int							m_iMinorDescStringID;	/// +0x3c COMMAND_DATA_MINOR
+		std::vector<JuneMajorCombo>	m_vecMinorCombo;		/// +0x40
+		JuneSkillCommandDesc() { Reset(); }
+		void Reset();				/// June 328ee430: the four ids to -1, the four vectors cleared
+	};
+	struct JuneComboRow
+	{
+		int					m_iComboType;	/// 32205870( table name ): 0 normal, 1 dash, 2 jump, 3 dash jump ( 0 for any other name )
+		std::wstring		m_wstrMovie;	/// INDEX_n [1] ( 328df4c0 reads it; 3220d4d0 leaves it empty )
+		std::vector<int>	m_vecIcon;		/// INDEX_n [2..]: COMBO_TREE_ICON values
+		int					m_iStringID;	/// 3220d4d0: the MAJOR_COMBO row's text; 328df4c0: -1
+		JuneComboRow() : m_iComboType( 0 ), m_iStringID( -1 ) {}
+	};
+	struct JuneCommandIconData
+	{
+		std::wstring	m_wstrIconTextureName;		/// node +0x10 m_IconTextureName ( default DLG_UI_Common_Texture_NewSkill_02.TGA )
+		std::wstring	m_wstrIconTetName;			/// +0x2c m_IconTetName ( a row without it is not added )
+		std::wstring	m_wstrOutLineTextureName;	/// +0x48 m_OutLineTextureName ( default DLG_UI_Common_Texture_NewSkill_02.TGA )
+		std::wstring	m_wstrOutLineTetName;		/// +0x64 m_OutLineTetName
+		D3DXVECTOR3		m_vToolTipOutLineColor;		/// +0x80 m_ToolTipOutLineColor ( default 1, 1, 1 )
+		float			m_fOffsetY;					/// +0x8c m_fOffsetY ( default 0 )
+		std::vector< std::pair< int, int > >	m_vecToolTipString;	/// +0x90 m_ToolTipString rows: { unit type ( 0 when absent ), string id }
+	};
+	void JuneLoadSkillCommandDescription( int iUnitClass_, bool bMinor_, JuneSkillCommandDesc* pDesc_ );	/// 3220bdb0
+	void JuneLoadMajorComboRows( const JuneSkillCommandDesc* pDesc_, const std::string& strClassName_, bool bMinor_,
+		std::vector<JuneComboRow>& vecRow_ );																/// 3220d4d0
+	static int JuneGetComboType( const std::string& strTableName_ );		/// 32205870
+	static int JuneGetComboTitleStringID( int iComboType_ );				/// 32205610
+	static std::string JuneGetUnitClassName( int iUnitClass_ );			/// 32375e30 ( narrows 32375530's wide name )
+	bool JuneGetCommandIconTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const;		/// 32207110
+	bool JuneGetCommandOutLineTexture( int iIcon_, std::wstring& wstrTexture_, std::wstring& wstrKey_ ) const;	/// 32207190
+	void JuneAddCommandIconPicture( int iIcon_, float fX_, float fY_, CKTDGUIStatic* pStatic_ ) const;			/// 32207630
+	void AddCommandIconData_LUA();		/// 3220f8d0
+	void JuneOpenCommandIconData();		/// 32207dd0 ( OpenScriptFile's tail @322092f2 )
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// S7c: June's memo ACKs ( CX2State handlers 31f1bdb0 / 31f1c1d0; March routes skill packets here from every state )
 	bool Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -2871,4 +2926,7 @@ private:
 	bool                m_bJuneMarchParser;     /// debug: this tree runs March's AddSkillTemplet_LUA body
 #endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
+	std::map< int, JuneCommandIconData >	m_mapJuneCommandIcon;	/// June CX2SkillTree +0xc4: CommandIconData.lua by COMBO_TREE_ICON
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 }; // class CX2SkillTree

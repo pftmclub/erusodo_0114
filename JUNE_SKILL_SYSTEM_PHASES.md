@@ -1547,6 +1547,30 @@ The major-skill panel ( `328e42d0` from `SkillCommandDescriptionData.lua` via `C
 `328e5290`, `328e8820`, the video popup `328e6cd0`, cases 29061 / 29062 / 29069-29074 ). Kickoff `kickoffs/skill-system-core/S7e.md`.
 **Play-test:** the major-skill icons and hover text on two classes; the command tab and a video popup.
 
+### Phase S7e - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS` (`Always.h`, `#error` guards `_SKILL_TREE_UI`, `SERV_IRUHADEV_OFFLINE`). Revert: `MODS.md` "June's skill tree panels and command tab".
+Funcmap rows `Skill S7e` (35). JUNE_BUGS 315-319. Checklist 7aj (Luciel's command group).
+- **Major-skill panel** (`328e42d0`): Skill_Description = the class's `DESCRIPTION_STRING_ID` (fitted, `328df060`), one MajorSkillBack_%d (type background) + MajorSkillButton_%d (skill icon,
+  guide text = the row's string at 0x172) per `SKILL_DATA` row at x = i * 70 + 111; transcendence / 0x910 / 0x911 rule ported (false in March). Data: `CX2SkillTree::JuneLoadSkillCommandDescription`
+  (`3220bdb0`) over June's `SkillCommandDescriptionData.lua` into the tree's +0x3c block, reset as June does (`328ee430`, after the panels).
+- **Major-command panel** (`328e8820` / `328e5290` / `328e73f0`): MajorCommandBack_%d (BG_COMMAND, guide text) + MajorCommand_%d (combo title `32205610` + icons) per `MAJOR_COMBO` row, icons from
+  `ComboTree.lua`'s INDEX row (`3220d4d0`). **Check item settled:** `Command_Description` is pushed into group 2 by `328e73f0` (@328e7668), so it only shows on the command tab; no overprint.
+- **Command tab** (`328e7ba0` / `328df4c0` / `328e4bd0`): per combo type a title row ( BG_LV ) and one row per INDEX_n with its icons ( `32207630`, CommandIconData.lua ); Luciel `_MINOR` lists as group 1.
+  Icons: June's `CX2SkillTree::OpenScriptFile` ends with `CommandIconData.lua` (`32207dd0` @322092f2, binder `3220f8d0`) - not in the kickoff; ported ( 89 rows ).
+- **Popup / cases** (`328e6cd0`, 29061 / 29062 / 29069-29074, SetShow(false) hides the popup first). June quirks kept (JUNE_BUGS): no June code or data sends the hover messages (315), the tree's
+  +0x90 tooltip map is never filled so no tooltip button is built (316), the description fit hangs on a "#C" in the last 11 chars (317; none of the 860 live ids has one), the title row shares
+  the first combo row (318), the popup never plays its movie (319; so no .avi staged).
+- **March's combo tree retired:** June never calls `ResetComboTree` (`31eeaf20`, call + pointer scan), so `X2StateLoading.cpp`'s call is in the `#else`; `CX2UIComboTree` opens empty and logs.
+- **Data.** data036: June's `SkillCommandDescriptionData.lua`, `CommandIconData.lua` (new), `ComboTree.lua` (replaces March's) by adopt-june (ljconv); 48 June `COMBO_TREE_ICON` members appended to
+  `Enum.lua` (no value conflicts; ledger refreshed, check PASS). `DLG_UI_Command_Desc_Video.lua` was already June's (S7b). `PACK OK data036`; copy waits for the user.
+- **Engine:** `CKTDGUIControl::GetDummyPosNum()` (June `328edc20`). June's control "+0x1b0 string ids" are March's `m_DummyIntList` (`31c947d0` = GetDummyInt), no engine change.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS --worktree --files <9 files>`: `files: 5 PASS, 2 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 8 EOL-mismatched inserted line(s) [X2UIComboTree.cpp, a mixed-EOL file: the anchor's LF], 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. OTHER rows: `Always.h` / `X2Main.cpp` also hold june-gfx G2's uncommitted lines (not in this commit).
+- **Deploy.** **Blocked (not S7e's):** X2Lib with S7e compiles clean; the X2 link fails on 17 externals of june-gfx G2's uncommitted GFX manager (`libgfx` `_inflateReset`, `libgfx_as3` `XML_*` / `ClassRegistrationTable`, `_compress2`; log `.build/logs/20261019-052440/X2.log`). Deploy once G2 links; `PACK OK data036` done, copy waits.
+- **How to see it** (log `[JUNE_SKILL] UI`): open the tree ( K ) on a class: the class text under the portrait, the major-skill icons with hover guide text; the Command tab: the class text,
+  the major-command rows, the combo lists with arrow / Z / X icons. Log lines `CommandIconData.lua loaded 89 icon row(s)`, `SkillCommandDescriptionData.lua class N ( NAME ): ...`,
+  `major skills class N`, `command tab class N`.
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.

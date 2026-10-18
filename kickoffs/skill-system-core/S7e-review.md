@@ -18,6 +18,9 @@ Then the phase's Done note (`python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES
 ## Task
 
 Review Phase S7e (major-skill and command panels) against `june2017_re/s0b_ui_funcmap.tsv`: the major-skill panel against `328e42d0` / `3220bdb0`, the command tab against `328e7ba0` / `328e4bd0` / `328de9a0` / `328e5290` / `328e8820` / `328e6cd0`, cases 29061 / 29062 / 29069-29074.
+Added by S7e (2026-10-19; funcmap rows `Skill S7e`): the description fit `328df060` (and JUNE_BUGS 317's hang claim at @328df23f), `3220d4d0` (ComboTree.lua for the major-command rows),
+`CommandIconData.lua` (`3220f8d0` binder, `32207dd0` from `OpenScriptFile` @322092f2, `32207110` / `32207190` / `32207630`), the class-name switch `32375530` (86 cases), the "never filled"
+claim for the tree's `+0x90` map (JUNE_BUGS 316) and the "no caller" claim for `ResetComboTree 31eeaf20` (March's call moved to `#else`), and the 48 `COMBO_TREE_ICON` members appended to `Enum.lua`.
 
 Hygiene is one command, not a fresh script:
 `python tools/flagcheck.py SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS --range <first phase commit>^..HEAD`.
