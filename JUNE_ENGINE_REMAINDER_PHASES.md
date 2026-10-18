@@ -1407,6 +1407,14 @@ uncommitted reform). The exe carries the Cash25 names and the `SKREF motion coll
 attack 2` per Lire unit (Raven: collision 3 attack 4; others 3 / 2). Monsters hurt every class; kicks and combos hit.
 **Routed:** the viewer half of the Cash25 append (`31faa6f0`) -> backlog Stage 10; the full motion swap -> checklist 7ad.
 
+**Play-test 2026-10-18: PASSED** (user: kicks and combos hit, monsters hurt; exe md5 `0818bfeb`, run after the deploy). Log, one line per
+user unit: `SKREF motion collision MOTION_ADD.X / MOTION_ELSWORD.X / MOTION_LIRE.X / MOTION_CHUNG.X / MOTION_EL.X collision 3 attack 2`.
+Raven (`MOTION_RAVEN.X`, expected 3 / 4) is not in this run's log. KEM 428 once per class for `MOTION_<CLASS>_EMOTION_CASH25.X`, as
+expected. Ownership clean (`unbalanced 0`, 0 EXCEPTION; UNHANDLED = the `E_DISABLE_HB_CHECK_REQ` baseline). New: `kem433 66` when the
+Elesis unit loads (`Anim Frame : 79, Mesh Frame : 80` for March's `MESH_EL_*_SORTED.X` parts): June's `Motion_EL.x` lacks one
+unnamed frame March's file and parts carry; every named bone matches, so it is a warning only. It goes with June's Elesis meshes in
+the Elesis port (checklist 7ad).
+
 ## Phase R14 - Equipment skin and enchant rework
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_EQIP_SKIN` (an RE pass
