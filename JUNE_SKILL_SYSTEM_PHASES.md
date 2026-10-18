@@ -921,6 +921,7 @@ Sub-tags `[JUNE_SKILL] SBUF` (state buffs, including the slot-476 call) and `SST
   - Check 2, the skill smoke test, could not run on ElesisGM. Its four equipped skills (28000 / 28200 / 28001 / 28002) are all S3 no-state reform skills (`MIG no-state skill ...`, presses refused): a hand-off error, not a defect.
     The run also visited Eve Code Empress (unit 19, skills 25200 / 25201 have states).
   - 0 EXCEPTION. 4 UNHANDLED: the older `E_DISABLE_HB_CHECK_REQ`, unrelated. No `SSTR` line, as expected.
+  - User (2026-10-18): the super armor buff showed after the console call, and the Eve skill names looked normal.
 - **How to see it in game:**
   - Item 1: the dev console's `g_pGameEdit:ApplyBuffFactor(143, 5)` now passes June's skip 0, so it writes `[JUNE_SKILL] SBUF bybfi BFI 143 level 1 -> slot 476 with skill <the state's> (+0x9274 ...)`, and super armor shows.
   - Item 2 cannot be triggered by a skill today. The only user script that has the table, March's Elesis `ELESIS_KNIGHT.lua` (Endurance Power, Flame Sword, the Endurance memo), keys its states on March ids
