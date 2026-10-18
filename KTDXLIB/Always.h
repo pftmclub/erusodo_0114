@@ -7979,7 +7979,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-18
 // Description: June skill system core, Phase S2, short-lived debug. "[JUNE_SKILL] LOAD" lines: padding differences, runtime reads past a
 //              short array, a scratch load of March's file through March's parser (compared with the real June-parser tree) and of June's
-//              own NewSkillTempletVer2.src.lua (2,346 / 3,360 / 12). Remove after the S2 review.
+//              own NewSkillTempletVer2.src.lua (2,346 / 3,360 / 12). Since S3d it also carries the "[JUNE_SKILL] MEMO" consumer lines
+//              (effectset / damageeffect / attack box). Kept (S7c review, 2026-10-18) until a play-test shows those lines: the first
+//              class whose memo skill plays (Elsword's skill state waits for his class port). Remove it then.
 #define SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
@@ -8130,6 +8132,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_ENCHANT_PARITY (CX2BuffFactor::JuneSetBehaviorValue / JuneSetTimeFinalizerValue)
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#ifndef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST (its helpers sit in X2BuffFactor.h:959)
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 //////////////////////////////////////////////////////////////////////////
 

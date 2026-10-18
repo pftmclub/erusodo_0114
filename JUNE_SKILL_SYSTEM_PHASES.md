@@ -1430,6 +1430,32 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET` (`Always.h` + `ServerDefine.h`, `SEC
   skill state never starts (character material, checklist). The memo does reach the game unit: my own room slot's unit is `GetMyUser()->GetUnitByUID()` ( `X2Room.cpp:2135` ),
   the object the ACK writes. The consumers' first live run waits for a class whose memo skill plays.
 
+### Phase S7c -- Review (2026-10-18, Opus 5.5 high)
+
+**Verdict: PASS, no transcription errors.** Commits `db1e5b09` .. `dbe7d29f`, flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET`.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET --range db1e5b09^..dbe7d29f`:
+  `files: 7 PASS, 11 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  Defines `Always.h:8655` + `ServerDefine.h:4702`; `git log -S` finds no later commit touching the flag.
+- **Ghidra spot-checks** (read-only), all **match**:
+  - Readers `320aaae0` (int, int, int, byte) and `320e7eb0` (int x4, byte @0x10, `3213c870` vector @0x11, `3211eae0` vector @0x21) = the Put / Get order in `ClientPacket.cpp`.
+  - ACK handler `31f1bdb0`: `DeleteServerPacket` / `IsValidPacket` gate, box 0x8b98, `328923e0` on the select unit (`g_pData +0x68 +0x90`), the game gate, then slot `i` bar A / bar B
+    for i 0-4 with the select unit's data (`+0x28`) into vslot 0x98's `31fd84c0`, and `328e7b70( 1, 1, 0 )` = port's `UpdateUI( true, (bSP, ignored), true, false )`.
+  - Popup `328e9b30`: busy check only in a game, `328dda50` first, side word +0x20 when bRight else +0x14; state 0 -> 0x8b20 kept in +0xa0; state 1 -> `3235b070` then `32453420`
+    then 0x8b21 / 0x718b with dummies (base, memo); state 2 -> `3235b750` false -> the literal box (bytes at `334c3b50` read from the exe: `c54c 0020 c218 0020 c5c6 b294 0020 c5d0
+    b7ec 0020 c785 b2c8 b2e4 002e`, the port's string exactly), item UID `> 0` -> 0x8b22 / 0x718c + the int64 dummy, else 0x8b9a unkept.
+  - Grant swap `328ded60`: templet +0x178, the 11-dword set moved to the new key, +0x3c8 / slot data +0xc / +4, both memo buttons' dummy 0 written twice (JUNE_BUGS), `328ddff0`,
+    bar A else bar B +5 -> `32205dc0`, then the new mark (type 1, +0x10, `+0x150`++).
+- **Save and emulator.** v19 rung recreates `unit_skill_note` as ( unit, skill, memo ); a fresh save walks the whole ladder, so no old-shape table survives; the unit delete
+  list already names the table. Handlers repeat the client's checks; play-test log shows each decision (13 MEMO lines, `MIG v19 done ... 0 ... dropped`, 0 EXCEPTION, exe `baa6da54`).
+  Observation, not changed: in the deactivate stand-in, a SQLite failure in `ClearJuneActiveMemo` after `ConsumeOne` answers ERR with the tome already spent (the handler does not
+  fault, so the savepoint commits). Only on a DB write failure; noted, left as is.
+- **Review edits (`Always.h` only).** Added `#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST` (one define, `Always.h:6038`, before the
+  guard, no `#undef`; `flagprobe`: both ON). `SERV_IRUHADEV_JUNE_SKILL_DEBUG` **stays**: its retirement needs the S3d consumer lines (`MEMO effectset` / `damageeffect` /
+  `attack box`), which S7c's play-test could not show (Elsword's memo skill waits for his class port). Its comment now says so; the item moves to `S7d-review.md`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,999,744 B, dated 2026-10-19 01:47:49, md5 68c7d7fee1e0edb19b8f3333f7500b45, equal to X2/US_SERVICE/x2.exe (2026-10-19 01:47:43); built at main dbe7d29f + 1 uncommitted code file(s).` (the guard compiled; the exe is the same size, no code changed).
+- **Next:** `/x2-phase skill-system-core S7d` (or S7e / S7f; S7f and S7d never together). Open questions: none.
+
 ## Phase S7d - Skill pages, the reset item's UI, the HUD refresh
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_PAGE`. Sub-tag `[JUNE_SKILL] PAGE`. Split out of S7b (user, 2026-10-18).
