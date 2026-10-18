@@ -4152,6 +4152,20 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI`, defined in `KTDXLIB/Always.h` after `SE
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI` in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy` (the exe then loads the 4+4 `DLG_GAME_SKILL_SLOT_NEW.lua` again, which still sits in data034). The data034 / data036 /
   data056 / data057 additions can stay: nothing else reads them (data057's replaced `Texture63_NEW` has no March key removed; the pre-S6 files are under `kom_backup_stage_june\20261018_1218*`, `kom_backup_s6_slot_ui\Enum.lua.before_S6`).
 
+### June key-config rows for the fifth skill keys (skill-system-core S6b, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG`, defined in `KTDXLIB/Always.h` after `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI` (an `#error` guards the `SLOT_10` dependency), plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S6b". Log tag `[JUNE_SKILL] UI`
+- **The dialog is `DLG_UI_KEY_SETTING.LUA` driven by `CX2KeyPad`, not `X2StateOption`** (`MappingKeyConfigIndex` is the gamepad list). Slots, drag/drop, the conflict swap and the save are generic over `GAMEACTION_END`, so F / T were already
+  draggable; what was missing was the icon and tooltip. `CX2UseKeySlotData::UpdateUI` and `CX2DisUseKeySlotData::UpdateUI` (`X2KeyPad.cpp`) get cases for `GAMEACTION_SKILL5` (art `SKILL_A5`, string 41915 "Skill Slot 5")
+  and `GAMEACTION_SKILL_EX5` (`SKILL_B5`, 43093 "Skill Slot B 5"), June `31f5be70` region / `31f5f040` region; the strings are read out of the live `general.ess` and are passed as numbers (March's `STR_ID_` enums stop at 30534).
+- **Art (data063).** June's `DLG_UI_KEYSETTING.TET` (6,080 B; adds `SKILL_A5` / `SKILL_B5`) and `.tga` replace March's (staged with `kom.py stage-june`, data063 packed and copied, md5 97e47f22). Backups `kom_backup_stage_june\20261018_131139`,
+  `kom_backup_tools\data063.kom.20261018_141325`.
+- **Defaults (judgement call).** March binds RIDING to F and GUILD to G; June's `31f5da70` binds only SKILL5 to F, RIDING (action 40, read at `322f7fe3`) to G, and has no GUILD action (its `GUILD_INFO` 45 = `,`). With RIDING on F the
+  dialog's F slot showed riding and SKILL5 could not be dragged at all, so the three key-pad default maps (`DefaultSlotData`, `JuneSetDefaultKeyPadMap`, `InitKeySlotData`) and `CKTDIManager::SetDefaultMap` move RIDING F -> G and GUILD G -> `,`.
+  WARP (June `'`) is untouched: nothing else sits on B in March.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG` in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy` (riding / guild go back to F / G; the F / T slots lose their icons). The data063 files can stay (the old
+  `.TET` is a subset). Keys are not persisted offline, so no save changes.
+
 ### June state buff factors and the state-string timer (skill-system-core S3e, 2026-10-18)
 
 Flags `SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF` (needs `_JUNE_BUFF_BEHAVIOR_PARITY`, `_JUNE_BUFF_GROUP`, `_JUNE_SKILL_TEMPLET`; `#error` guards) and `SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME`, both in `KTDXLIB/Always.h`;

@@ -8523,6 +8523,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
+// Description: June skill system Phase S6b: the key-config dialog ( DLG_UI_KEY_SETTING, CX2KeyPad ) lists and rebinds the fifth skill keys.
+//              CX2UseKeySlotData / CX2DisUseKeySlotData::UpdateUI get cases for GAMEACTION_SKILL5 / _EX5 ( June 31f5be70 region: art SKILL_A5 /
+//              SKILL_B5 from June's DLG_UI_KEYSETTING.TET, tooltip strings 41915 / 43093 ). Two March defaults move so F stays SKILL5's alone: RIDING
+//              F -> G ( June 31f5da70, read at 322f7fe3 ) and GUILD G -> ',' ( June's GUILD_INFO ), in the three key-pad default maps and CKTDIManager::SetDefaultMap.
+//              Needs data063 DLG_UI_KEYSETTING.TET / .tga from June ( the exe and the kom move together ). Revert: JUNE_SKILL_KEYCONFIG in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( GAMEACTION_SKILL5 / _EX5 )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
 // Description: June skill system Phase S3e: the state buff-factor path. CX2GameUnit::SetBuffFactorToGameUnitByBuffFactorID is June's
 //              322a6960 ( March's BFI, level, then June's creator unit, adjust skill id, skip ): a user runs slot 476 ( the skill-memo
 //              rescale ) with the adjust id, or the state's reserved-buff skill id ( +0x9274 ) when it is 0, unless skip, then slot 141.

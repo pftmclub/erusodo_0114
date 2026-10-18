@@ -1121,6 +1121,19 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI` (needs `SLOT_10`, `#error` guard), `KTDX
 - **Flag off:** every hunk is insert-only with the S5 code in `#else` (0 deleted lines), so the 4+4 `DLG_GAME_SKILL_SLOT_NEW.lua` and 8-wide loops come back.
 - **Judgement call 2, decided (user, 2026-10-18: "take -619"):** June `328e1680` puts the type B dialog at (-257, **-619**). -619 is March's own non-`INT_WIDE_BAR` value, so June dropped the wide-bar rule; S6 had kept March's -599 (`INT_WIDE_BAR` is on at `Always_Global.h:240`). `SetSkillUIType` now sets y = -619 after the `INT_WIDE_BAR` block, under the same flag. Flagcheck `--worktree`: PASS, 1 deleted line (S6's own x-line comment reworded). `DEPLOY OK: X2_offline.exe is 20,000,768 B, dated 2026-10-18 14:15:27, md5 c0952f40deaaf46db29d4537aaa20aaf, equal to X2/US_SERVICE/x2.exe (2026-10-18 14:15:22); built at main 80e19ca1 + 4 uncommitted code file(s).` (the other 3 are the peer's S6b). Judgement call 3 (the particle offset 47) stays inferred: June's game-side cool-time function is unmapped.
 
+### Phase S6b -- Done (2026-10-18, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG` (needs `SLOT_10`, `#error` guard), `KTDXLIB/Always.h`. Log `[JUNE_SKILL] UI keys:`. Revert: `MODS.md` "June key-config rows for the fifth skill keys". No JUNE_BUGS row (nothing kept verbatim).
+- **Finding.** The dialog is `DLG_UI_KEY_SETTING.LUA` under `CX2KeyPad`, not `X2StateOption` (`MappingKeyConfigIndex` is the gamepad list). Slots, drag/drop, conflict swap and save are generic over `GAMEACTION_END`; only the icon and tooltip of the two actions were missing.
+- **What landed.** `CX2UseKeySlotData::UpdateUI` / `CX2DisUseKeySlotData::UpdateUI` cases for `GAMEACTION_SKILL5` (`SKILL_A5`, string 41915) and `_EX5` (`SKILL_B5`, 43093): June `31f5be70` / `31f5f040` regions (the strings are in the live `general.ess`: "Skill Slot 5" / "Skill Slot B 5"; passed as numbers, March's `STR_ID_` enums end at 30534).
+  data063 gets June's `DLG_UI_KEYSETTING.TET` (adds the two keys) + `.tga` (`stage-june`, `PACK OK`, `COPY OK data063` md5 97e47f22 with the user's yes; backups `kom_backup_stage_june\20261018_131139`, `kom_backup_tools\data063.kom.20261018_141325`).
+  One log line a key-map write: `[JUNE_SKILL] UI keys: SKILL5 'F' SKILL_EX5 'T' RIDING 'G' GUILD ','`.
+- **Judgement call (say if you disagree): two March defaults move.** March binds RIDING to F, so the dialog's F slot showed riding and SKILL5 could not be dragged. June (`31f5da70`) binds F to SKILL5 only and RIDING (action 40, read at `322f7fe3`) to G; it has no GUILD action (`GUILD_INFO` 45 = `,`, `ACTION1` takes B).
+  Under the flag RIDING F -> G and GUILD G -> `,` in the three key-pad default maps and `CKTDIManager::SetDefaultMap`. WARP stays B. The key map is not saved offline, so each launch starts from these defaults.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG --worktree --files X2Lib/X2KeyPad.cpp KTDXLIB/KTDIManager.cpp KTDXLIB/Always.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 20,000,768 B, dated 2026-10-18 14:14:48, md5 ef215f60ca5ec94458f91e82a0d31ee3, equal to X2/US_SERVICE/x2.exe (2026-10-18 14:14:43); built at main 80e19ca1 + 3 uncommitted code file(s).` `SKILL_A5` and the log string are in the exe.
+- **Play-test (pending).** Options (O) -> Key setting: F and T show the two icons (tooltips "Skill Slot 5" / "Skill Slot B 5"); drag one to another key, save; the in-game bar's fifth labels follow. Log: `python tools/logs.py --tag JUNE_SKILL`.
+
 ## Phase S7 - Skill tree UI and learn logic
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI`. Sub-tag `[JUNE_SKILL] UI`.

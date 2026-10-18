@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include "X2KeyPad.h"
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 
 
 #ifdef SERV_KEY_MAPPING_INT
@@ -354,7 +357,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 		m_KeyPadMap[GAMEACTION_SKILL_TREE]	= KBI_K;
 		m_KeyPadMap[GAMEACTION_QUEST]		= KBI_L;
 		m_KeyPadMap[GAMEACTION_MAP]			= KBI_M;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+		m_KeyPadMap[GAMEACTION_GUILD]		= KBI_COMMA;	/// June 31f5da70: GUILD_INFO ( 45 ) = ','; G is June's riding key
+#else SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_GUILD]		= KBI_G;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_FRIEND]		= KBI_Y;
 
 		m_KeyPadMap[GAMEACTION_UP]			= KBI_UP;
@@ -364,7 +371,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 
 		m_KeyPadMap[GAMEACTION_SIT]			= KBI_V;
 #ifdef RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+		m_KeyPadMap[GAMEACTION_RIDING]		= KBI_G;	/// June 31f5da70: RIDING ( 40 ) = G, 322f7fe3 reads it; F is SKILL5
+#else SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_RIDING]		= KBI_F;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 #endif //RIDING_SYSTEM
 #ifdef SERV_ADD_WARP_BUTTON
 		m_KeyPadMap[GAMEACTION_WARP]		= KBI_B;
@@ -426,7 +437,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 		m_KeyPadMap[GAMEACTION_SKILL_TREE]	= KBI_K;
 		m_KeyPadMap[GAMEACTION_QUEST]		= KBI_L;
 		m_KeyPadMap[GAMEACTION_MAP]			= KBI_M;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+		m_KeyPadMap[GAMEACTION_GUILD]		= KBI_COMMA;	/// June 31f5da70: GUILD_INFO ( 45 ) = ','; G is June's riding key
+#else SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_GUILD]		= KBI_G;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_FRIEND]		= KBI_Y;
 
 		m_KeyPadMap[GAMEACTION_UP]			= KBI_UP;
@@ -436,7 +451,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 
 		m_KeyPadMap[GAMEACTION_SIT]			= KBI_V;
 #ifdef RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+		m_KeyPadMap[GAMEACTION_RIDING]		= KBI_G;	/// June 31f5da70: RIDING ( 40 ) = G, 322f7fe3 reads it; F is SKILL5
+#else SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_RIDING]		= KBI_F;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 #endif //RIDING_SYSTEM
 #ifdef SERV_ADD_WARP_BUTTON
 		m_KeyPadMap[GAMEACTION_WARP]		= KBI_B;
@@ -967,7 +986,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 		m_KeyPadMap[GAMEACTION_SKILL_TREE]	= KBI_K;
 		m_KeyPadMap[GAMEACTION_QUEST]		= KBI_L;
 		m_KeyPadMap[GAMEACTION_MAP]			= KBI_M;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+		m_KeyPadMap[GAMEACTION_GUILD]		= KBI_COMMA;	/// June 31f5da70: GUILD_INFO ( 45 ) = ','; G is June's riding key
+#else SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_GUILD]		= KBI_G;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_FRIEND]		= KBI_Y;
 
 		m_KeyPadMap[GAMEACTION_UP]			= KBI_UP;
@@ -978,7 +1001,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 		m_KeyPadMap[GAMEACTION_SIT]			= KBI_V;
 
 #ifdef RIDING_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+		m_KeyPadMap[GAMEACTION_RIDING]		= KBI_G;	/// June 31f5da70: RIDING ( 40 ) = G, 322f7fe3 reads it; F is SKILL5
+#else SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		m_KeyPadMap[GAMEACTION_RIDING]		= KBI_F;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 #endif //RIDING_SYSTEM
 #ifdef SERV_ADD_WARP_BUTTON
 		m_KeyPadMap[GAMEACTION_WARP]		= KBI_B;
@@ -1260,6 +1287,18 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 #endif KEY_MAPPING_TOOLTIP
 				} break;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+			case GAMEACTION_SKILL5:	/// June 31f5c601: art SKILL_A5, tooltip string 41915 ( "Skill Slot 5" )
+				{
+					pSlot_->SetItemTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_A5" );
+					pSlot_->SetMouseOverTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_A5" );
+					pSlot_->SetDragable( true );
+#ifdef KEY_MAPPING_TOOLTIP
+					pSlot_->SetGuideDesc_LUA( 41915 );
+#endif KEY_MAPPING_TOOLTIP
+				} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+
 			case GAMEACTION_SKILL_EX1:
 				{
 					pSlot_->SetItemTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_B1" );
@@ -1299,6 +1338,18 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 					pSlot_->SetGuideDesc_LUA( STR_ID_24408 );
 #endif KEY_MAPPING_TOOLTIP
 				} break;
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+			case GAMEACTION_SKILL_EX5:	/// June 31f5c63e: art SKILL_B5, tooltip string 43093 ( "Skill Slot B 5" )
+				{
+					pSlot_->SetItemTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_B5" );
+					pSlot_->SetMouseOverTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_B5" );
+					pSlot_->SetDragable( true );
+#ifdef KEY_MAPPING_TOOLTIP
+					pSlot_->SetGuideDesc_LUA( 43093 );
+#endif KEY_MAPPING_TOOLTIP
+				} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 
 			case GAMEACTION_COMMUNITY:
 				{
@@ -1756,6 +1807,18 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 #endif KEY_MAPPING_TOOLTIP
 				} break;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+			case GAMEACTION_SKILL5:	/// June 31f5f693: art SKILL_A5, tooltip string 41915
+				{
+					pSlot_->SetItemTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_A5" );
+					pSlot_->SetMouseOverTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_A5" );
+					pSlot_->SetDragable( true );
+#ifdef KEY_MAPPING_TOOLTIP
+					pSlot_->SetGuideDesc_LUA( 41915 );
+#endif KEY_MAPPING_TOOLTIP
+				} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+
 			case GAMEACTION_SKILL_EX1:
 				{
 					pSlot_->SetItemTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_B1" );
@@ -1795,6 +1858,18 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 					pSlot_->SetGuideDesc_LUA( STR_ID_24408 );
 #endif KEY_MAPPING_TOOLTIP
 				} break;
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+			case GAMEACTION_SKILL_EX5:	/// June 31f5f6cc: art SKILL_B5, tooltip string 43093
+				{
+					pSlot_->SetItemTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_B5" );
+					pSlot_->SetMouseOverTex( L"DLG_UI_KEYSETTING.TGA", L"SKILL_B5" );
+					pSlot_->SetDragable( true );
+#ifdef KEY_MAPPING_TOOLTIP
+					pSlot_->SetGuideDesc_LUA( 43093 );
+#endif KEY_MAPPING_TOOLTIP
+				} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 
 			case GAMEACTION_COMMUNITY:
 				{
@@ -2018,6 +2093,12 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 		if( NULL == g_pData )
 			return;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
+		/// one line a key-map write ( the dialog's save, the reset ): the fifth skill keys and the two actions that used to share their keys
+		CX2OfflineLog::Server( L"[JUNE_SKILL] UI keys: SKILL5 '%s' SKILL_EX5 '%s' RIDING '%s' GUILD '%s'",
+			GetKeyString( GAMEACTION_SKILL5 ).c_str(), GetKeyString( GAMEACTION_SKILL_EX5 ).c_str(),
+			GetKeyString( GAMEACTION_RIDING ).c_str(), GetKeyString( GAMEACTION_GUILD ).c_str() );
+#endif SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG
 		CX2UIManager* pUIManager = g_pData->GetUIManager();
 		if( NULL != pUIManager )
 		{
