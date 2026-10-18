@@ -251,6 +251,11 @@ Ask both before planning past the parser.
 (`JUNE_GFX_RUNTIME_PHASES.md`, key `june-gfx`; user-supplied GFx 4.2.22, June ran 4.0.15), scope event scenes + talk cut-ins, root-UI
 screens stay Stage 9. The quest plan itself waits for Stage 1, skill S1 and june-gfx G0: brief `kickoffs/june-backlog/stage4-plan.md`.
 
+**Planned (2026-10-19):** `JUNE_QUEST_SYSTEM_PHASES.md`, key `quest-system`, phases Q0a-Q9 + RM0 / RM1 + Z (`kickoffs/quest-system/`).
+The planning census (`june2017_re/quest_plan/`) found June's data replaces March's wholesale (430 June-only and 257 March-only quests,
+8 new sub-quest types), so the plan flips the data in one phase (Q2) with an old-save migration, as skill S3 did. June's random
+mission system (carried in from skill S3c) is RM0 / RM1.
+
 **Why here:** transcendence is quest-gated, and three regions' worth of inert quest keys wait on the same engine. Doing quests once, after all three regions are in and before transcendence, avoids porting the quest engine piecemeal inside each feature.
 
 ### Stage 5: pilot character revamp

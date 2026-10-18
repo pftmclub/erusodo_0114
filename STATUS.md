@@ -617,7 +617,7 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 |---|---|---|---|---|---|
 | stage2-plan | **done 2026-10-16**: `JUNE_ENGINE_REMAINDER_PHASES.md` + `kickoffs/june-engine/` + the `june-engine` block; measurements M1-M4 in its ledger (M5 = june-effect C11, pending); backlog facts 6/7 and Stage 2 carry dated notes; asset-port P10 now waits for R2 | Opus 5.5 / high | dep: -; runs with anything (read-only), incl. june-effect C11 | docs, `june2017_re/` census script + funcmap rows (`Engine S2`), `JUNE_PORT_BACKLOG_ORDER.md` dated notes | `stage2-plan.md` |
 | stage3-plan | **done 2026-10-17**: `JUNE_SKILL_SYSTEM_PHASES.md` + `kickoffs/skill-system-core/` + the `skill-system-core` block; user decisions: flip every class to June's skill data in Stage 3 (S3), adopt June's pointer model (S8); backlog facts 1-3 re-checked (companion tables already decompiled; C1a identified the override's callees; slot macro at `CommonPacket.h:6411`, two structs) | Opus 5.5 / high | dep: -; read-only | docs, kickoffs, `JUNE_PORT_BACKLOG_ORDER.md` dated note | (inline, backlog "Stages 3-9 (short)") |
-| stage4-plan | **waiting** (start: `/x2-phase new-plan quest-system`): needs Stage 1 closed (atlas A13 + E15: done 2026-10-17), skill-system-core S1, june-gfx G0. First session 2026-10-17 stopped at those preconditions and split the Scaleform runtime out as `june-gfx`; both brief decisions answered (guild quests parse-and-log; GFx runtime = june-gfx) | Opus 5.5 / high | dep: atlas E15, skill S1, june-gfx G0 | docs, kickoffs | `stage4-plan.md` |
+| stage4-plan | **done 2026-10-19**: `JUNE_QUEST_SYSTEM_PHASES.md` + `kickoffs/quest-system/` + the `quest-system` block; preconditions re-checked in git log (atlas A13 `f9c2b2a1` / E15 `03062f55`, skill S1, june-gfx G0 `ab2ddb3d`); planning census in `june2017_re/quest_plan/` (June 1,633 quests / 3,219 sub-quests vs March 1,460 / 1,733; 430 June-only, 257 March-only; 8 new SQT, 3 QT; 26 of the save's 58 quest ids not in June); random mission carried in as RM0 / RM1 | Opus 5.5 / high | dep: atlas E15, skill S1, june-gfx G0 | docs, kickoffs, `june2017_re/quest_plan/` | `stage4-plan.md` |
 | stage12-plan | **ready** (start: `/x2-phase new-plan june-customize`): character customize system (`CX2CustomizeManager`, `CharCustomData.lua`) -> `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` + `kickoffs/june-customize/` | Opus 5.5 / high | dep: june-effect C9g-2 review (done); runs with anything (read-only) | docs, funcmap rows (`Customize S12`) | `stage12-plan.md` |
 | stage23-plan | **ready** (start: `/x2-phase new-plan field-rewards`): offline field rewards stand-in for Lanox + Elysion fields (no server drop rows past 40025; found by atlas A6) -> `OFFLINE_FIELD_REWARDS_PHASES.md` + `kickoffs/field-rewards/` | Opus 5.5 / high | dep: atlas A6 (done); runs with anything (read-only) | docs | `stage23-plan.md` |
 | stage25-plan | **ready** (start: `/x2-phase new-plan june-fonts`): June fonts and text rendering (June's `data196` font set, June's FreeType setup; user: March text looks un-anti-aliased) -> `JUNE_FONTS_PHASES.md` + `kickoffs/june-fonts/` | Opus 5.5 / high | dep: -; runs with anything (read-only) | docs, funcmap rows (`Fonts S25`) | `stage25-plan.md` |
@@ -744,6 +744,35 @@ reaches the scenes (439/493 are Rose, 21 Ain; Elysion 22329-22340 need quest-sys
 | Z | waiting (all) | Sonnet 5.5 / medium | G1-G5 | `MODS.md`, backlog, memory, Always.h (`_DEBUG` off) | `Z.md` |
 
 Running together: G0, G1 and GA now (read-only / code / data). G2 after all three; G3, G4, G5 one at a time after the G2 review.
+
+## quest-system - June quest system: engine, data, offline completion, quest UI, gates, random mission
+
+Plan `JUNE_QUEST_SYSTEM_PHASES.md` · branch `main` · log tag `[JUNE_QUEST]` (sub-tags `LOAD`, `MIG`, `RUN`, `OFF`, `UI`, `SCENE`, `GATE`,
+`NPC`, `MOVIE`, `RM`) · flags `SERV_IRUHADEV_JUNE_QUEST_*` (+ `_DEBUG`) and `SERV_IRUHADEV_JUNE_RANDOM_MISSION` · kickoffs
+`kickoffs/quest-system/` · backlog Stage 4 · created 2026-10-19.
+
+**User decisions (2026-10-17):** guild quests parse-and-log (no emulator stand-in); Scaleform runtime = `june-gfx` (its G3 is the scene
+class Q5b builds on). Decisions still to come, each inside its phase: Q2 old-save migration choices, Q4 server stand-ins, RM0 mission source.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| Q0a | **ready** (read-only) | Opus 5.5 / high | -; runs with anything | `june2017_re/quest_plan/q0a_*`, `funcmap.tsv`, plan doc, kickoffs Q1 / Q3 / Q4 / Q6 | `Q0a.md` |
+| Q0b | **ready** (read-only) | Opus 5.5 / high | -; runs with anything | `june2017_re/quest_plan/q0b_*`, `funcmap.tsv`, plan doc, kickoffs Q4 / Q5a / Q5b / Q8 | `Q0b.md` |
+| RM0 | **ready** (read-only; ends on a user decision) | Opus 5.5 / high | -; runs with anything | `june2017_re/quest_plan/rm0_*`, `funcmap.tsv`, plan doc, `RM1.md` | `RM0.md` |
+| Q1 | waiting (Q0a) | Sonnet 5.5 / high, then Opus review | Q0a | `X2QuestManager.*`, `X2Main.cpp` (binders), `X2Data.cpp` / `X2StateLoading.cpp` (loader), core `Enum.lua`, data036 kom, Always.h | `Q1.md`, review `Q1-review.md` (Q1 writes it) |
+| Q2 | waiting (Q1 review) | Opus 5.5 / high, then review | Q1 review | `X2Lib/Offline/X2OfflineDB.*` (rung), `GetQuestTemplet` NULL readers, data036 kom, save (snapshot) | `Q2.md`, review `Q2-review.md` (Q2 writes it) |
+| Q3 | waiting (Q2 review) | Sonnet 5.5 / high, then Opus review | Q2 review; not with Q1 / Q6 (`X2QuestManager.*`) | `X2QuestManager.*`, Q0a's reader sites, Always.h | `Q3.md`, review `Q3-review.md` |
+| Q4 | waiting (Q2 review) | Opus 5.5 / high, then review | Q2 review; runs with Q3 / Q5a (other files) | `X2Lib/Offline/X2OfflineQuest.*`, `Handlers_Quest.cpp`, other `Handlers_*` hooks, Always.h | `Q4.md`, review `Q4-review.md` |
+| Q5a | waiting (Q0b, Q2 review) | Sonnet 5.5 / high, then Opus review | Q0b, Q2 review | `X2UIQuestNew.*`, data034 quest DLGs, Always.h | `Q5a.md`, review `Q5a-review.md` |
+| Q5b | waiting (Q5a review, june-gfx G3 review) | Sonnet 5.5 / high, then Opus review | Q5a review, june-gfx G3 review | `X2UIQuestNew.*` (scene calls), Always.h | `Q5b.md`, review `Q5b-review.md` |
+| Q6 | waiting (Q3 review) | Sonnet 5.5 / high, then Opus review | Q3 review | `X2QuestManager.*`, local-map / world-map / Cobo / warp / MapData readers, region Lua (`-- quest plan:` keys), Always.h | `Q6.md`, review `Q6-review.md` |
+| Q7 | waiting (Q2 review) | Sonnet 5.5 / high | Q2 review | core `NPCTemplet.lua` / `Enum.lua`, house Lua, meshes (stage-june) | `Q7.md` |
+| Q8 | waiting (Q0b, Q5b review) | Opus 5.5 / high, then review | Q0b, Q5b review; june-gfx G5 owns `+0x80a` | `EventScene.lua`, movie table / player, `DungeonClearMovieTemplet`, Always.h | `Q8.md`, review `Q8-review.md` |
+| RM1 | waiting (RM0 + user answer, Q4 review) | Sonnet 5.5 / high, then Opus review | RM0, Q4 review | new random-mission class, 13 per-class skill-use sites, emulator, Always.h | `RM1.md`, review `RM1-review.md` |
+| Q9 | waiting (Q3-Q8 reviews) | Sonnet 5.5 / medium, then user play-test | Q3, Q4, Q5b, Q6, Q7, Q8 | save (snapshot), checklist | `Q9.md` |
+| Z | waiting (all) | Sonnet 5.5 / medium | all | `MODS.md`, backlog, memory, Always.h (`_DEBUG` off) | `Z.md` |
+
+Running together: Q0a, Q0b and RM0 now (read-only, alongside anything). Later: Q4 with Q3 or Q5a; Q7 with any code phase.
 
 ## Other plans
 
