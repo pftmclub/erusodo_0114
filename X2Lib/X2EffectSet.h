@@ -340,6 +340,9 @@ public:
 		bool			m_bUseEffectScaleInUnitViewer;			// USE_EFFECT_SCALE_IN_UNIT_VIEWER
 		int				m_iBoneTraceTargetMeshIndex;			// BONE_TRACE_TARGET_MESH_INDEX, default -1
 		bool			m_bNotAllowMemo;						// NOT_ALLOW_MEMO
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		D3DXVECTOR3		m_vJuneMemoScale;						// June2017 EffectData +0x108..+0x110 (ctor 321f4a20 @321f4ba5: 0,0,0): the instance's memo scale, copied in before GetEffectScale (321ee600 @321eede8)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		int				m_iApplyEffectAlphaConditionByOption;	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; unsupported, effect-alpha option absent
 
 		// APPLY_DAMAGE_EFFECT_VELOCITY, ET_DAMAGE_EFFECT only. June pushes one entry per
@@ -483,6 +486,9 @@ public:
 		, m_bUseEffectScaleInUnitViewer( false )
 		, m_iBoneTraceTargetMeshIndex( -1 )
 		, m_bNotAllowMemo( false )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		, m_vJuneMemoScale( 0.f, 0.f, 0.f )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		, m_iApplyEffectAlphaConditionByOption( 0 )
 		, m_bApplyDamageEffectVelocity( false )
 		, m_vApplyDamageEffectVelocity( 1.f, 1.f, 1.f )
@@ -509,6 +515,9 @@ public:
 		bool			m_bDeleteEffectSetAtTraceUnitDie;		// DELETE_EFFECTSET_AT_TRACE_UNIT_DIE; consumed in Phase 4b
 		bool			m_bOverlap;								// OVERLAP; consumed in Phase 4a
 		int				m_iAppliedSkillID;						// APPLIED_SKILL_ID; unsupported, applied-skill-ID system absent
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		D3DXVECTOR3		m_vJuneMemoScale;						// June2017 EffectSetData +0x60..+0x68 (ctor 321f3f70 @321f3f90: 1,1,1): an MI_HUGE memo's v0, written when a user with that memo plays the set (321e1e60 @321e1f8c) and never reset (JUNE_BUGS)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		bool			m_bSyncShowByCreateUnit;				// SYNC_SHOW_BY_CREATE_UNIT; consumed in Phase 4a
 		int				m_iApplyEffectAlphaConditionByOption;	// APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION; unsupported, effect-alpha option absent
 		// June2017 SOUND%d entries, parsed in AddEffectSetTemplet_LUA from FUN_321e48e0 @
@@ -578,6 +587,9 @@ public:
 			m_bDeleteEffectSetAtTraceUnitDie = rhs.m_bDeleteEffectSetAtTraceUnitDie;
 			m_bOverlap = rhs.m_bOverlap;
 			m_iAppliedSkillID = rhs.m_iAppliedSkillID;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+			m_vJuneMemoScale = rhs.m_vJuneMemoScale;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			m_bSyncShowByCreateUnit = rhs.m_bSyncShowByCreateUnit;
 			m_iApplyEffectAlphaConditionByOption = rhs.m_iApplyEffectAlphaConditionByOption;
 			m_vecSoundData = rhs.m_vecSoundData;
@@ -615,6 +627,9 @@ public:
 		, m_bDeleteEffectSetAtTraceUnitDie( false )
 		, m_bOverlap( false )
 		, m_iAppliedSkillID( 0 )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		, m_vJuneMemoScale( 1.f, 1.f, 1.f )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		, m_bSyncShowByCreateUnit( false )
 		, m_iApplyEffectAlphaConditionByOption( 0 )
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
@@ -758,6 +773,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 		BYTE							m_byEffectAlphaCondition;		// June2017 EffectSetInstance +0x1bc (ctor default 0 @321df516): APPLY_EFFECT_ALPHA_CONDITION_BY_OPTION
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		D3DXVECTOR3						m_vJuneMemoScale;				// June2017 EffectSetInstance +0x150..+0x158: 0,0,0 in the ctor (321df230 @321df495), then the templet's (@321df584)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 
 		bool							m_bUseAnimationTiming;		// 유닛의 애니메이션 타이밍에 맞춰서 이펙트를 생성하는지 아닌지

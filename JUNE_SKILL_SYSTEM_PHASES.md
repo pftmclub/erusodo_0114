@@ -771,6 +771,45 @@ and June's data gives most special actives type 14-16. Add the enumerators, then
 - **Deploy:** none (no code change). The live exe, md5 `d4eef836`, carries S3c.
 - **Next:** `S3d.md` checked; it is current. **Open questions:** none.
 
+## Phase S3d - June skill memo consumers
+
+**Run with:** Opus 5.5 high, then an Opus review. Added 2026-10-18 by S3b (unowned: the engine readers of an active memo that earlier plans
+stubbed). Task and gate: `kickoffs/skill-system-core/S3d.md`. Sub-tag `[JUNE_SKILL] MEMO` (with `SERV_IRUHADEV_JUNE_SKILL_DEBUG`).
+
+**Done note (2026-10-18, Opus 5.5 high): S3d built and deployed; play-test waits for S7.** Five flags, one per change. Funcmap: rows tagged `(S3d)`.
+- **`JUNE_SKILL_MEMO_FX`: the size memos MI_HUGE (2) and MI_LONGSHOT (22).**
+  - Effect sets: user `APPLIED_SKILL_ID` lookup -> type 2 writes the templet's memo scale (`321e1e60 @321e1f51`, no reset, JUNE_BUGS 289).
+  - The instance copies it (`321df230 @321df584`, 0,0,0 first), each effect takes it (`321ee600 @321eede8`).
+  - `GetEffectScale` multiplies by it unless `NOT_ALLOW_MEMO` (`321dddb0 @321dde5f`). Both stubs are replaced in `#else`.
+  - DamageData `+0x5d0` / `+0x5dc` (memo cases 2 / 0x16). Their one reader is the CEffect ctor (`31f7aab0 @31f7c795-31f7c8db`):
+    `SetScale(s)` and the scale base, the main mesh's life x `+0x5dc`, and the attack list's CT_LINE boxes x `s`. June tests type 0: JUNE_BUGS 290.
+  - `CEffect::SetScale` multiplies by the base `+0xb24` (`31f6fdc0`).
+  - User attack boxes: radius x v0 before and x 1 / v0 after the timed DamageCheck (`31ff27c0` -> `32274310`), as `JuneMultiplyAttackBoxRadiusScale`.
+- **`JUNE_SKILL_MEMO_DAMAGE`: the rest of switch `3202ac40`.**
+  - Case 0xc sets `m_bNoDetonation` (DD `+0x4f8` = NO_DETONATION: both DamageReacts copy it to `+0x6892`).
+  - Cases 0xf / 0x10 run `32089ff0` (decoded; x87 settled; JUNE_BUGS 291).
+  - The tail's third multiply: DD `+0x5e4`, which GetFinalDamage applies to the level-damage power rate (`32284aa0 @32285eef`).
+- **`JUNE_SKILL_MEMO_BUFF`: slot 476 `32028250`.** June passes (skill id, factor): type 0xf rescales the time finalizer, 0x10 the behaviors.
+  It is now called from `SetBuffFactorToGameUnit( skill, index )` (`3229af40 @3229b036`) and `...AtLevel` (`3229b0a0 @3229b162`).
+- **`JUNE_SKILL_MEMO_MP`.** GetActualMPConsume takes the transcendence alternate templet (`323511f0`; it reads **my** unit: JUNE_BUGS 292).
+  It is also multiplied by vslot 471 (`31fdbe20`: types 3 / 7 / 8 give v0, else 1.0), June `31fd1840` / `3203cf60`.
+- **`JUNE_SKILL_MEMO_STATE`.** CommonStateStart's state string only on a skill-slot state (slot 330 on the future state) and with the
+  `31fdbcc0` skill (`32057b80 @3205841f-320584bb`).
+- **Routed:**
+  - **New S3e:** `322a6960` (June merged ByBuffFactorID with the creator-ID variant; user block = slot 476 with the `+0x9274` fallback + slot
+    0x234), the `+0x9274` writer (June's ParsingBuffFactorID `31fe32d0`), and June's X2Game state-string timer (`32079be0` float `+0xb3c`, `32308c20`).
+  - **Checklist:** `320284c0 @3202858e` (skills 31301 / 31321) and `3230c1a0 @3230c742` (summon of skill 22027, type 0xf); row 396 (`32024ff0` lists) stays.
+  - **S7:** `3220d2b0` (item -> skills / memo rows, item tooltip) and `3235b070` / `3235b9e0` (memo text, under `328e9b30`).
+  - Noted, not memo: June's SetScale also stores `+0xa74` / `+0xa80` (time / start particle scale). March has neither (APPLY_START_PARTICLE_SCALE parse-only).
+- **What a memo does now (once S7 can activate one):** MI_HUGE bigger effect sets, attack boxes and DamageDistance. MI_LONGSHOT and the CEffect
+  path are 1.0 on June's own data flow (JUNE_BUGS 290). MI_BRUTAL no detonation; MI_CHECK_AND_KILL buff rescales; MI_LIGHT / BRILLIANT / CRITICAL MP rate.
+  TRANSCENDENCE: the MP templet and the state name. Without an active memo every path multiplies by 1.0 or is skipped.
+- **Hygiene:** `flagcheck <each flag> --worktree --files <12 files>`: RESULT PASS x5; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched,
+  0 #else/#endif without the flag token, 0 encoding change(s)` each. OTHER rows = files that mix the five flags (and the peer's S5 hunks).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,991,040 B, dated 2026-10-18 11:01:20, md5 ee639661bb8fe55323ac62c8d2e7068c` (built at c8b47c9b + 33 uncommitted files: it also carries the peer's in-progress S5, save v18). All eight `[JUNE_SKILL] MEMO` format strings are in it.
+- **How to see it in game:** after S7 (memo activation). Each use writes a throttled `[JUNE_SKILL] MEMO <site>` line to `offline_server.log`.
+- **Open questions:** none.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.

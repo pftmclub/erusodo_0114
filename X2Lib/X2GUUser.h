@@ -2993,6 +2993,10 @@ public:
 		/// June 31fdbcc0 (user, thiscall, one arg: a skill id): the skill an active MI_TRANSCENDENCE_1 / _2 memo turns it into (value 1 when
 		/// the equipped version is upgraded, else value 0, truncated), or 0. CommonStateStart (32058444) and class code call it.
 		int							GetJuneTranscendenceMemoSkillID( const int iSkillID_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
+		/// June CX2GUUser vslot 471 (31fdbe20, the same in every user vtable): the MP rate of the skill's active memo (S3d)
+		float						GetJuneSkillMemoMPRate( const int iSkillID_ ) const;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 #else SERV_IRUHADEV_JUNE_SKILL_NOTE
 		/// June effect completion C8b: one skill-memo entry, June 31fdbbb0's result: +0 the type, +0xc / +0x10 a float vector (the
 		/// entry's values v0, v1, v2; a value past the end of the vector reads 0 in 3202ac40 @3202ac6c-3202aca9).

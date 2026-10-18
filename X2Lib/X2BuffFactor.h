@@ -957,6 +957,20 @@ public:
 	}
 #endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+	/// S3d: June 32d417b0 ( type, &out ): the first finalizer of type eType_, with no size test; NULL when there is none
+	const KBuffFinalizerFactor* JuneGetFirstFinalizer( const BUFF_FINALIZER_TYPE eType_ ) const
+	{
+		for ( UINT i = 0; i < m_pDataBuffFactor->m_vecBuffFinalizerFactors.size(); ++i )
+		{
+			if ( static_cast<UINT>( eType_ ) == m_pDataBuffFactor->m_vecBuffFinalizerFactors[i].m_uiType )
+				return &m_pDataBuffFactor->m_vecBuffFinalizerFactors[i];
+		}
+		return NULL;
+	}
+	/// S3d: June 32d42000 ( &out ): a copy of the behavior list (+0x8..+0xc)
+	vector<KBuffBehaviorFactor> JuneCopyBehaviorFactors() const { return m_pDataBuffFactor->m_vecBuffBehaviorFactors; }
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 	/// June 32d41960 ( type, value, op ) -> 32d40dd0, the finalizer twin of JuneSetBehaviorValue (32d418a0), used by the effect-set buff
 	/// list (effect completion C6c). Every finalizer whose type is eType_ AND is BFT_TIME (June tests the argument against 1) with 2 or 3
 	/// values gets value[1..n-1] += / *= / = fValue_ (op 0 / 1 / 2); index 0 is skipped, any other op does nothing.

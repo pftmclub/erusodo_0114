@@ -1374,6 +1374,14 @@ class CX2DamageManager
 			int					m_iJuneAttackSerial;				/// +0x5e8: the attacker's attack serial (SetDamageExceptionProcess @322996f8)
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+			/// S3d: June-only runtime fields (no Lua key; SetDamageDataFromLUA never writes them). The +0x offsets are June's layout, cited only.
+			float				m_fJuneMemoHugeScale;				/// +0x5d0: memo case 2 (MI_HUGE) v0 (3202ac40 @3202ad07); read by the CEffect ctor (31f7aab0 @31f7c79f)
+			float				m_fJuneMemoLongshotRate;			/// +0x5dc: memo case 0x16 (MI_LONGSHOT) v0 (@3202b0a6); the CEffect ctor's main-effect life rate (@31f7c854)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+			float				m_fJuneMemoLvDamagePowerRate;		/// +0x5e4: x= the memo tail's scale (3202ac40 @3202acf3); GetFinalDamage's level-damage power rate x it (32284aa0 @32285eef)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 			/// June effect completion C6b: DamageData members the spawner tail and the effect set stamps use. The +0x offsets are June's layout, cited only.
@@ -1639,6 +1647,13 @@ class CX2DamageManager
 				m_iJuneAttackSerial						= 0;	/// +0x5e8 = 0
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 //}}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+				m_fJuneMemoHugeScale					= 1.f;	/// June SimpleInit 31f8ee50 @31f8f35f: +0x5d0 = 1.0
+				m_fJuneMemoLongshotRate					= 1.f;	/// @31f8f37b: +0x5dc = 1.0
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+				m_fJuneMemoLvDamagePowerRate			= 1.f;	/// @31f8f3b1: +0x5e4 = 1.0
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 				m_bCountAsOwnerSkillHit					= false;	/// June SimpleInit 31f8ee50 @31f8f3ef: +0x5fd = 0
 				m_iJuneDamageEffectIndex				= -1;		/// @31f8f47b: +0x638 = -1

@@ -1510,6 +1510,38 @@ void CX2GameUnit::SetSphereAttackBoxScale( const wstring& attackBoxName, float f
 	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+/** @function : JuneMultiplyAttackBoxRadiusScale
+	@brief : S3d, June2017 32274310 ( float scale, const wstring& name ). Its caller is the user's timed attack (CommonFrameMove_TimedEvent
+			 31ff27c0), x v0 before and x 1 / v0 after the DamageCheck of an active MI_HUGE memo. Only when | scale - 1 | > FLT_EPSILON
+			 (334490f8): every non-null box of both attack-box sets (+0x214 m_AttackListSet, +0x224 m_SubAttackListSet), of any collision
+			 type, gets m_fRadiusScale (+0x8c) x= scale; a non-empty name keeps only the boxes of that name (31c1c1a0). March's
+			 SetSphereAttackBoxScale instead sets one named sphere.
+*/
+void CX2GameUnit::JuneMultiplyAttackBoxRadiusScale( const float fScale_, const wstring& wstrName_ )
+{
+	if ( !( FLT_EPSILON < fabs( fScale_ - 1.f ) ) )
+		return;
+
+	const CKTDXCollision::CollisionDataListSet* apJuneSets[2] = { &m_AttackListSet, &m_SubAttackListSet };
+	for ( int iSet = 0; iSet < 2; ++iSet )
+	{
+		BOOST_TEST_FOREACH( const CKTDXCollision::CollisionDataList*, pCollisionDataList, *apJuneSets[iSet] )
+		{
+			if ( NULL == pCollisionDataList )
+				continue;
+			BOOST_TEST_FOREACH( CKTDXCollision::CollisionData*, pCollisionData, *pCollisionDataList )
+			{
+				if ( NULL == pCollisionData )
+					continue;
+				if ( false == wstrName_.empty() && 0 != pCollisionData->m_Name.compare( wstrName_ ) )
+					continue;
+				pCollisionData->m_fRadiusScale = pCollisionData->m_fRadiusScale * fScale_;
+			}
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 void CX2GameUnit::SetEnableAttackBox( const WCHAR* pName, bool bEnable )
 {
 	KTDXPROFILE(); 
@@ -3394,6 +3426,21 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 			CX2GUUser* pUser = (CX2GUUser*) pAttacker;
 			fEnergySpurtPowerRate = pUser->GetPowerRate();
 		}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+		/// S3d, June2017 GetFinalDamage 32284aa0 @32285ecf-32285efe: the level-damage power rate (the attacker's GetPowerRate, slot 129, for a
+		/// user; else 1) is multiplied by DamageData +0x5e4 (1.0 unless the skill-memo tail of 3202ac40 scaled it)
+		fEnergySpurtPowerRate = pAttDamageData->m_fJuneMemoLvDamagePowerRate * fEnergySpurtPowerRate;
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		if ( 1.f != pAttDamageData->m_fJuneMemoLvDamagePowerRate )
+		{
+			static int s_iJuneMemoLogs = 0;
+			static DWORD s_dwJuneMemoLog = 0;
+			if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+				CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO lv-damage APPLIED_SKILL_ID=%d power rate x%.3f -> %.3f (32284aa0 @32285eef)",
+					pAttDamageData->m_iAppliedSkillID, pAttDamageData->m_fJuneMemoLvDamagePowerRate, fEnergySpurtPowerRate );
+		}
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 #endif
 
 		float fFixDamage = 0.f;
@@ -13286,6 +13333,11 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 #endif //UPGRADE_SKILL_SYSTEM_2013
 			if ( NULL != ptrBuffFactorClone )
 			{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
+				/// S3d, June2017 3229af40 @3229b021-3229b043: a user's levelled clone goes through user slot 476 (32028250, the skill-memo
+				/// rescale) with the skill id, after the can-apply check and before the creator stamp (32d4d670)
+				AdjustBuffFactorByIndex( ptrBuffFactorClone, static_cast<int>( pSkillTemplet_->m_eID ) );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
 				ptrBuffFactorClone->SetGameUnitBuffFactor( this );
 				return SetBuffFactorToGameUnit( *ptrBuffFactorClone );
 			}
@@ -13324,6 +13376,10 @@ bool CX2GameUnit::SetBuffFactorToGameUnitAtLevel( const CX2SkillTree::SkillTempl
 	if ( NULL == ptrBuffFactorClone || true != CanApplyBuffToGameUnit( ptrBuffFactorClone->GetBuffTempletID() ) )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
+	/// S3d, June2017 3229b0a0 @3229b162: user slot 476 with the skill id, as 3229af40 (the doc comment above predates S3d)
+	AdjustBuffFactorByIndex( ptrBuffFactorClone, static_cast<int>( pSkillTemplet_->m_eID ) );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
 	ptrBuffFactorClone->SetGameUnitBuffFactor( this );
 	return SetBuffFactorToGameUnit( *ptrBuffFactorClone );
 }

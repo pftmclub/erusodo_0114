@@ -1042,6 +1042,12 @@ class CX2DamageEffect
 
 				void SetScale( float fX, float fY, float fZ );
 				void SetScale( D3DXVECTOR3 vScale );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+				/// S3d: June 31f8af20 / 31f8aef0, the per-instance scale base (+0xb24) that June's SetScale multiplies by. June's one caller of both is
+				/// the effect-set modifier list 321db1b0 (its scale tag is character-checklist material, 7a)
+				D3DXVECTOR3 JuneGetScaleBase() const { return m_vJuneScaleBase; }
+				void JuneSetScaleBase( const D3DXVECTOR3& vBase_ ) { m_vJuneScaleBase = vBase_; }
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 				void SetPassiveparticleTriggerTimeRate( float fPassiveParticleTriggerTimeRate ){ m_fPassiveParticleTriggerTimeRate = fPassiveParticleTriggerTimeRate; }
 				float GetPassiveparticleTriggerTimeRate(){ return m_fPassiveParticleTriggerTimeRate; }
@@ -1440,6 +1446,9 @@ class CX2DamageEffect
 				float								m_fPassiveParticleTriggerTimeRate;	// CreateInstance() 에서 인자로 받은 lifeTime 을 적용해주기 위해
 				bool								m_bReflected;
 #endif NEW_SKILL_TREE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+				D3DXVECTOR3							m_vJuneScaleBase;	/// June CEffect +0xb24..+0xb2c: 1,1,1 in the ctor (31f7aab0 @31f7b33c), MI_HUGE's s after the ctor's SetScale (@31f7c80a)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 
 #ifdef GIANT_UNIT_GIANT_EFFECT_TEST

@@ -8090,6 +8090,106 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
+// Description: June skill system core, Phase S3d (JUNE_SKILL_SYSTEM_PHASES.md "Phase S3d"), the size memos MI_HUGE (2) and
+//              MI_LONGSHOT (22). Effect sets: APPLIED_SKILL_ID's memo lookup writes the templet's memo scale (321e1e60 @321e1f51),
+//              the instance copies it (321df230 @321df584), each effect takes it (321ee600 @321eede8) and GetEffectScale multiplies
+//              by it unless NOT_ALLOW_MEMO (321dddb0 @321dde5f). Damage effects: DamageData +0x5d0 / +0x5dc (memo cases 2 / 0x16),
+//              the CEffect ctor step (31f7aab0 @31f7c795-31f7c8d9) and the per-instance scale base that June's SetScale multiplies
+//              by (31f6fdc0, +0xb24). User attack boxes: the timed attack's x v0 / x 1 / v0 around DamageCheck (31ff27c0, 32274310).
+//              "[JUNE_SKILL] MEMO" lines with SERV_IRUHADEV_JUNE_SKILL_DEBUG. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_FX needs SERV_IRUHADEV_JUNE_SKILL_NOTE (the memo lookup 31fdbbb0)
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_FX needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME (the June effect-set create loop and GetEffectScale)
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifndef SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_FX needs SERV_IRUHADEV_JUNE_EFFECTSET_PARSE (APPLIED_SKILL_ID, NOT_ALLOW_MEMO)
+#endif SERV_IRUHADEV_JUNE_EFFECTSET_PARSE
+#ifndef SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_FX needs SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE (IGNORE_MI_HUGE)
+#endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_PARSE
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system core, Phase S3d. The rest of the memo DamageData switch 3202ac40: case 0xc (MI_BRUTAL) sets
+//              NO_DETONATION (+0x4f8); cases 0xf / 0x10 (MI_CHECK_AND_KILL_1 / _2) rescale the DamageData's buff factors
+//              (32089ff0); the shared tail also multiplies DamageData +0x5e4, which GetFinalDamage applies to the level-damage
+//              power rate (32284aa0 @32285eef). Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_SKILL_NOTE (the memo lookup 31fdbbb0)
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE needs SERV_IRUHADEV_JUNE_ENCHANT_PARITY (CX2BuffFactor::JuneSetBehaviorValue / JuneSetTimeFinalizerValue)
+#endif SERV_IRUHADEV_JUNE_ENCHANT_PARITY
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system core, Phase S3d. User slot 476 (32028250, AdjustBuffFactorByIndex), a stub until now: the skill's
+//              active memo of type 0xf rescales the factor's BFT_TIME finalizer, type 0x10 its behavior values. Called with the
+//              skill id from SetBuffFactorToGameUnit( skill, index ) (3229af40 @3229b036) and SetBuffFactorToGameUnitAtLevel
+//              (3229b0a0 @3229b162), as June does. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
+#ifndef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF needs SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE (the shared factor-rescale helpers)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+#ifndef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF needs SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY (the slot-476 virtual)
+#endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifndef SERV_IRUHADEV_JUNE_BUFF_GROUP
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF needs SERV_IRUHADEV_JUNE_BUFF_GROUP (SetBuffFactorToGameUnitAtLevel)
+#endif SERV_IRUHADEV_JUNE_BUFF_GROUP
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system core, Phase S3d. GetActualMPConsume's two memo reads: the transcendence alternate templet
+//              (323511f0, read from MY unit, JUNE_BUGS) replaces the skill's templet, and user vslot 471 (31fdbe20: MI_LIGHT /
+//              MI_BRILLIANT / MI_CRITICAL v0, else 1.0) multiplies the rate (3203cf60 @3203cfcf). Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_MP needs SERV_IRUHADEV_JUNE_SKILL_NOTE (the memo lookups)
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_MP needs SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL (the June GetActualMPConsume body)
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system core, Phase S3d. CommonStateStart's state string (32057b80 @3205841f-320584bb): only on a
+//              skill-slot state (user slot 330 on the future state), and named after the transcendence memo's skill (31fdbcc0)
+//              when one is active. Revert: undefine this flag.
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE needs SERV_IRUHADEV_JUNE_SKILL_NOTE (31fdbcc0)
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY (IsJuneSkillSlotState, slot 330)
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
 // Description: June engine remainder, Phase R14. CX2Eqip skin and enchant path as June2017: InitSkin 32963eb0 (with its XET open
 //              3295ffd0: the four XETs always, a weapon's multi-tex XETs, one skin anim per hyper model), _UpdateSkin() 3295ae20 (every
 //              model of a division-item group 6 / 0x31 / 0x36 / 7 item attaches; the normal multi-tex XET passed at add time), and the

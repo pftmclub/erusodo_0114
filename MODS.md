@@ -4093,6 +4093,21 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (+ short-lived `SERV_IRUHADEV_JUNE_SKI
   `[JUNE_SKILL] NUM skip ...`.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (and `_DEBUG`) in `KTDXLIB/Always.h`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, save or kom changes.
 
+### June skill memo consumers (skill-system-core S3d, 2026-10-18)
+
+Flags `SERV_IRUHADEV_JUNE_SKILL_MEMO_FX`, `_MEMO_DAMAGE`, `_MEMO_BUFF` (needs `_MEMO_DAMAGE`), `_MEMO_MP`, `_MEMO_STATE`, all in `KTDXLIB/Always.h` and all needing S3b's
+`SERV_IRUHADEV_JUNE_SKILL_NOTE`; plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S3d"; log tag `[JUNE_SKILL] MEMO` (with `SERV_IRUHADEV_JUNE_SKILL_DEBUG`, throttled per site).
+- **What changes.** Nothing until a memo is active (S7 activates them). Every path then multiplies by 1.0 or is skipped. With a memo:
+  - `_MEMO_FX`: MI_HUGE scales effect sets with `APPLIED_SKILL_ID`, through the templet, which is never reset (JUNE_BUGS 289). It also scales the user's attack boxes during a
+    timed DamageCheck (`JuneMultiplyAttackBoxRadiusScale`). The DamageData fields `+0x5d0` / `+0x5dc` reach the CEffect ctor (1.0 on June's flow, JUNE_BUGS 290).
+    `CEffect::SetScale` now multiplies by a per-instance base (1,1,1 by default, so every existing call is unchanged).
+  - `_MEMO_DAMAGE`: MI_BRUTAL sets NO_DETONATION. MI_CHECK_AND_KILL rescales the DamageData's buff factors (`32089ff0`, JUNE_BUGS 291). The tail scales the level-damage power rate (`+0x5e4`).
+  - `_MEMO_BUFF`: slot 476 rescales skill buff factors (types 0xf / 0x10) from `SetBuffFactorToGameUnit( skill, index )` and `...AtLevel`.
+  - `_MEMO_MP`: the MP cost uses the transcendence templet (read from my unit, JUNE_BUGS 292) and the MI_LIGHT / BRILLIANT / CRITICAL rate (vslot 471).
+  - `_MEMO_STATE`: CommonStateStart sets the state string only on skill-slot states, with the transcendence skill's name.
+- **Revert:** comment out the flag(s) in `KTDXLIB/Always.h` (`_MEMO_BUFF` before `_MEMO_DAMAGE`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+  Each `#else` restores the C8b / buff-port stub it replaced. No data, save or kom changes.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

@@ -166,4 +166,18 @@ private:
 	int		m_iJuneDuplicateClasses;
 };
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+/// S3d: the "[JUNE_SKILL] MEMO" lines (one per use of an active memo) are throttled per call site: the first 20, then one a second.
+inline bool JuneSkillMemoLogDue( int& riCount_, DWORD& rdwLast_ )
+{
+	const DWORD dwNow = timeGetTime();
+	if ( riCount_ < 20 || dwNow - rdwLast_ >= 1000 )
+	{
+		++riCount_;
+		rdwLast_ = dwNow;
+		return true;
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 

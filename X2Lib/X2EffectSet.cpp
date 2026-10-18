@@ -992,6 +992,11 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 #endif // MODIFY_CREATE_EFFECT_SET_LIMIT_DISTANCE
 
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+			// S3d, June2017 FUN_321ee600 @321eede4-321eee0e: the instance's memo scale is copied into the effect (+0x108..+0x110) first;
+			// GetEffectScale (the only reader, @321eee21) multiplies by it
+			pEffectData->m_vJuneMemoScale = pEffectSetInstance->m_vJuneMemoScale;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			// June2017 FUN_321ee600 @ 321eee07-321eee21: rotation and scale are taken once per effect, before the
 			// position, and every GROUP_NAME child below shares them
 			const D3DXVECTOR3 vEffectRotation = pEffectSetInstance->GetEffectRotation( pEffectData );
@@ -3363,8 +3368,31 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 			// on the user (FUN_31fdbbb0, user +0x867c) and, for a type-2 entry, sets the templet's memo scale
 			// (EffectSetData +0x60), which GetEffectScale applies unless NOT_ALLOW_MEMO. This build has no
 			// applied-skill-ID system, so a set using the key is logged only (plan rule 5).
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+			// S3d, June2017 FUN_321e1e60 @321e1f51-321e1f95: the memo entry of APPLIED_SKILL_ID (31fdbbb0; June calls it with 0 too, which
+			// finds no row because memos are keyed by skill). An MI_HUGE (type 2) entry writes its v0 into all three axes of the templet's
+			// memo scale, before the instance is made (321e1bf0), so this instance copies it. June has no reset: the templet keeps the value
+			// for every later play by any unit until another MI_HUGE play rewrites it (JUNE_BUGS). June reads v0 from the vector's begin with
+			// no size test; an entry with no value is skipped here (June's data gives every MI_HUGE row its values).
+			{
+				const CX2GUUser::JuneSkillMemoEntry* pJuneMemo = pUser->GetJuneSkillMemoEntry( pEffectSetData->m_iAppliedSkillID );
+				if( NULL != pJuneMemo && 2 == pJuneMemo->m_iType && false == pJuneMemo->m_vecValue.empty() )
+				{
+					const float fJuneMemoScale = pJuneMemo->m_vecValue[0];
+					pEffectSetData->m_vJuneMemoScale = D3DXVECTOR3( fJuneMemoScale, fJuneMemoScale, fJuneMemoScale );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+					static int s_iJuneMemoLogs = 0;
+					static DWORD s_dwJuneMemoLog = 0;
+					if( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+						CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO effectset %s APPLIED_SKILL_ID=%d MI_HUGE v0=%.3f -> templet memo scale (321e1e60)",
+							pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iAppliedSkillID, fJuneMemoScale );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+				}
+			}
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			if( 0 != pEffectSetData->m_iAppliedSkillID )
 				JuneFxUnsupported( pEffectSetData, L"APPLIED_SKILL_ID", L"", L"applied-skill-ID system", pEffectSetData->m_iAppliedSkillID, L"321e1f57" );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 		} break;
 
@@ -4911,6 +4939,13 @@ CX2EffectSet::EffectSetInstance::EffectSetInstance( EffectSetData* pEffectSetDat
 	m_bToggleVisibilityPending = false;
 	m_fToggleVisibilityTimer = 0.f;
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+	// S3d, June2017 FUN_321df230 @321df495-321df4a3: the memo scale starts at 0,0,0; @321df57c-321df599: with a templet it takes the
+	// templet's (EffectSetData +0x60, 1,1,1 unless an MI_HUGE play set it)
+	m_vJuneMemoScale = D3DXVECTOR3( 0.f, 0.f, 0.f );
+	if( NULL != pEffectSetData )
+		m_vJuneMemoScale = pEffectSetData->m_vJuneMemoScale;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 	m_pFieldNpcHolder = NULL;			// +0xe0 (Atlas E1c)
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
@@ -5302,8 +5337,19 @@ D3DXVECTOR3 CX2EffectSet::EffectSetInstance::GetEffectScale( EffectData* pEffect
 	// June2017 FUN_321dddb0 @ 321dde5f-321dde89: unless NOT_ALLOW_MEMO, the scale is multiplied by the memo scale
 	// APPLIED_SKILL_ID sets (EffectData +0x108, copied from the instance @ 321eede8). March has no memo scale,
 	// so the key changes nothing here; it is logged only (plan rule 5).
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+	// S3d, June2017 FUN_321dddb0 @321dde5f-321dde89: unless NOT_ALLOW_MEMO (+0x105), each axis is multiplied by the effect's memo scale
+	// (+0x108..+0x110, the instance's copy)
+	if( false == pEffectData->m_bNotAllowMemo )
+	{
+		vScale.x = pEffectData->m_vJuneMemoScale.x * vScale.x;
+		vScale.y = pEffectData->m_vJuneMemoScale.y * vScale.y;
+		vScale.z = pEffectData->m_vJuneMemoScale.z * vScale.z;
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 	if( true == pEffectData->m_bNotAllowMemo )
 		JuneFxUnsupported( m_pEffectSetData, L"NOT_ALLOW_MEMO", L"", L"applied-skill-ID system", 1, L"321dde5f" );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 #endif SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME
 	return vScale;
 }

@@ -2422,6 +2422,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		float GetSphereAttackBoxScale( const wstring& attackBoxName );
 		void SetSphereAttackBoxScale( const wstring& attackBoxName, float fScale );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		void JuneMultiplyAttackBoxRadiusScale( const float fScale_, const wstring& wstrName_ );	/// June 32274310 (S3d)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 
 		const wstring&				GetHeadBoneName() const				{ return m_HeadBoneName; }

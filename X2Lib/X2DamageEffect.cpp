@@ -1575,6 +1575,9 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	m_fPassiveParticleTriggerTimeRate = -1.f;
 	m_bReflected			= false;
 #endif NEW_SKILL_TREE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+	m_vJuneScaleBase		= D3DXVECTOR3( 1.f, 1.f, 1.f );		/// June 31f7aab0 @31f7b33c-31f7b368 (fld1)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 #ifdef SKILL_CASH_10_TEST
 	m_fReactAnimSpeed	= 0.f;
@@ -1829,6 +1832,55 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 	// the scale's value is unknown and there is no honest March value to feed it. Deferred with
 	// its source; see JUNE2017_EFFECT_KEY_MATRIX.md.
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+	// S3d: the writers are now known: memo cases 2 (MI_HUGE, +0x5d0) and 0x16 (MI_LONGSHOT, +0x5dc) of the DamageData switch 3202ac40, which runs
+	// on a hit (SetDamageExceptionProcess). June2017 FUN_31f7aab0, right after the DAMAGE_DATA parse:
+	// - @31f7c795-31f7c83e: unless IGNORE_MI_HUGE, SetScale( s, s, s ) with s = m_DamageData +0x5d0 (June's SetScale multiplies by the base,
+	//   1,1,1 here), then the base (+0xb24..+0xb2c) = s;
+	// - @31f7c83e-31f7c880: with a main effect (31f6eb30), its max life time (mesh +0x44c) = m_DamageData +0x5dc x it;
+	// - @31f7c886-31f7c8db: when the main effect is a skin mesh (+0x3bc), every non-null entry of its skin anim's attack list (+0x3c0 -> +0x1fc)
+	//   whose type (+0x20) is 0, which is CT_LINE (June's CT_GUARD is 2 as March's, funcmap 32628890), gets m_bUseRadiusScaleY (+0x94) = true
+	//   and m_fRadiusScale (+0x8c) x= s; not gated by IGNORE_MI_HUGE. Spheres are left alone (JUNE_BUGS).
+	// The ctor runs before any hit of its own DamageData, and both fields start at 1.0 (SimpleInit), so on June's data flow every factor
+	// here is 1.0 (JUNE_BUGS).
+	if( false == m_bIgnoreMIHuge )
+	{
+		const float fJuneMemoHuge = m_DamageData.m_fJuneMemoHugeScale;
+		SetScale( fJuneMemoHuge, fJuneMemoHuge, fJuneMemoHuge );
+		m_vJuneScaleBase = D3DXVECTOR3( fJuneMemoHuge, fJuneMemoHuge, fJuneMemoHuge );
+	}
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pJuneMainEffect = GetMainEffect();
+		if( NULL != pJuneMainEffect )
+		{
+			pJuneMainEffect->SetMaxLifeTime( m_DamageData.m_fJuneMemoLongshotRate * pJuneMainEffect->GetMaxLifeTime() );
+			if( NULL != pJuneMainEffect->GetXSkinMesh() && NULL != pJuneMainEffect->GetXSkinAnim() )
+			{
+				CKTDXCollision::CollisionDataList& refJuneAttackList = pJuneMainEffect->GetXSkinAnim()->GetAttackDataListNonConst();
+				for( CKTDXCollision::CollisionDataList::iterator itJune = refJuneAttackList.begin(); itJune != refJuneAttackList.end(); ++itJune )
+				{
+					CKTDXCollision::CollisionData* pJuneData = *itJune;
+					if( NULL == pJuneData || CKTDXCollision::CT_LINE != pJuneData->m_CollisionType )
+						continue;
+#ifdef EVE_ELECTRA
+					pJuneData->m_bUseRadiusScaleY = true;
+#endif EVE_ELECTRA
+					pJuneData->m_fRadiusScale = m_DamageData.m_fJuneMemoHugeScale * pJuneData->m_fRadiusScale;
+				}
+			}
+		}
+	}
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	if( 1.f != m_DamageData.m_fJuneMemoHugeScale || 1.f != m_DamageData.m_fJuneMemoLongshotRate )
+	{
+		static int s_iJuneMemoLogs = 0;
+		static DWORD s_dwJuneMemoLog = 0;
+		if( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO damageeffect %s ctor: MI_HUGE s=%.3f%s MI_LONGSHOT life x%.3f (31f7aab0)", m_Name.c_str(),
+				m_DamageData.m_fJuneMemoHugeScale, m_bIgnoreMIHuge ? L" (IGNORE_MI_HUGE: spheres only)" : L"", m_DamageData.m_fJuneMemoLongshotRate );
+	}
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 	
 	if(fHitAddMp >= 0.f)
@@ -6105,6 +6157,15 @@ void CX2DamageEffect::CEffect::SetDieDamageEffectScale( D3DXVECTOR3 vScale )
 
 void CX2DamageEffect::CEffect::SetScale(float fX, float fY, float fZ)
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+	// S3d, June2017 31f6fdc0: the arguments are first multiplied by the per-instance base (+0xb24..+0xb2c, 1,1,1 unless the ctor's MI_HUGE step
+	// or 31f8aef0 set it); the main effect (31f6fca0), passive, hit and die scales then take the products. June also stores the products at
+	// +0xa74 / +0xa80 (the time / start particle scales, read by 31f76880 / 31f76620), which March's CEffect does not have
+	// (APPLY_START_PARTICLE_SCALE is parse-only since effect Phase 6b).
+	fX = m_vJuneScaleBase.x * fX;
+	fY = m_vJuneScaleBase.y * fY;
+	fZ = m_vJuneScaleBase.z * fZ;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 	SetMainEffectScale(fX,fY,fZ);
 	SetPassiveParticleScale(fX,fY,fZ);
 	SetHitDamageEffectScale(fX,fY,fZ);

@@ -6016,6 +6016,60 @@ void CX2GUUser::ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet
 	else
 		return false;	/// GameUnit에서 체크한 것이 false면 바로 false로 리턴 함
 }
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+/// S3d. The skill-memo rescale of a buff factor's time finalizer, as June's memo readers do it: 32d417b0 ( 1, &out ) takes the factor's
+/// first finalizer of type 1 (BFT_TIME, no size test); when it holds more than one value, 32d41910 ( 1, v, 0 ) sets value[1] of EVERY
+/// BFT_TIME finalizer with more than one value to that first one's value[1] x fRate_ (JuneSetTimeFinalizerValue with bAdd false).
+/// Callers: 32028250 type 0xf (fRate_ = v0), 32089ff0 (fRate_ = the Rate's fTime).
+static void JuneMemoRescaleTimeFinalizer( CX2BuffFactor& refFactor_, const float fRate_ )
+{
+	const KBuffFinalizerFactor* pFirstTime = refFactor_.JuneGetFirstFinalizer( BFT_TIME );
+	if ( NULL == pFirstTime || pFirstTime->m_vecValues.size() <= 1 )
+		return;
+	const float fJuneTime = pFirstTime->m_vecValues[1] * fRate_;
+	refFactor_.JuneSetTimeFinalizerValue( fJuneTime, false );
+}
+
+/// S3d. The behavior half (32028250 type 0x10 with v0, 32089ff0 with the Rate's fValue). Over a copy of the behavior list (32d42000), each
+/// entry with values gives r = v1 + ( v1 - 1 ) x | fRate_ - 1 | when its value[0] truncates (32fe25f0) to 3, else v1 x fRate_ (x87 settled
+/// @3202831c-3202833f: the 1.0 is fld1), and r goes to value[1] of the factor's FIRST behavior of that type holding more than one value
+/// (32d41820, = JuneSetBehaviorValue op 2), so same-type entries overwrite each other and the last wins. June reads v1 from an entry with a
+/// single value too (past its vector's end); such an entry is skipped here (JUNE_BUGS).
+static void JuneMemoRescaleBehaviors( CX2BuffFactor& refFactor_, const float fRate_ )
+{
+	const vector<KBuffBehaviorFactor> vecJuneCopy = refFactor_.JuneCopyBehaviorFactors();
+	for ( UINT i = 0; i < vecJuneCopy.size(); ++i )
+	{
+		const KBuffBehaviorFactor& kEntry = vecJuneCopy[i];
+		if ( kEntry.m_vecValues.size() < 2 )
+			continue;
+		const float fV1 = kEntry.m_vecValues[1];
+		float fJuneValue = 0.f;
+		if ( 3 == static_cast<int>( kEntry.m_vecValues[0] ) )
+		{
+			const float fJuneAbs = fabs( fRate_ - 1.f );
+			fJuneValue = ( fV1 - 1.f ) * fJuneAbs + fV1;
+		}
+		else
+			fJuneValue = fV1 * fRate_;
+		refFactor_.JuneSetBehaviorValue( static_cast<BUFF_BEHAVIOR_TYPE>( kEntry.m_uiType ), fJuneValue, 2 );
+	}
+}
+
+/// S3d. June2017 32089ff0 ( DamageData, const Rate& { float fTime, float fValue, bool bApply }, CX2BuffFactorPtr only = NULL ), from the memo
+/// switch's cases 0xf ( v0, 1.0 ) and 0x10 ( 1.0, v0 ), always with bApply 1 and no factor: every non-null factor of the DamageData's list
+/// (+0x40) gets the time finalizer x fTime, then the behaviors x fValue.
+static void JuneMemoRescaleDamageDataBuffFactors( CX2DamageManager::DamageData* pDamageData_, const float fTime_, const float fValue_ )
+{
+	for ( UINT i = 0; i < pDamageData_->m_vecBuffFactorPtr.size(); ++i )
+	{
+		if ( NULL == pDamageData_->m_vecBuffFactorPtr[i] )
+			continue;
+		JuneMemoRescaleTimeFinalizer( *pDamageData_->m_vecBuffFactorPtr[i], fTime_ );
+		JuneMemoRescaleBehaviors( *pDamageData_->m_vecBuffFactorPtr[i], fValue_ );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
 /** @function : AdjustBuffFactorByIndex
@@ -6026,12 +6080,35 @@ void CX2GUUser::ApplyAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet
 */
 /*virtual*/ void CX2GUUser::AdjustBuffFactorByIndex( CX2BuffFactorPtr ptrBuffFactor_, const int iAdjustIndex_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
+	/// S3d, June2017 32028250 (June's arguments: skill id, factor). The "index" is a skill id; below 0 nothing happens (@32028281). Otherwise
+	/// the skill's active memo (31fdbbb0); v0 = its first value (0.0 when it has none). Type 0xf (MI_CHECK_AND_KILL_1): the factor's time
+	/// finalizer x v0; type 0x10 (_2): its behaviors x v0; any other type: nothing.
+	if ( iAdjustIndex_ < 0 || NULL == ptrBuffFactor_ )
+		return;
+	const JuneSkillMemoEntry* pJuneMemo = GetJuneSkillMemoEntry( iAdjustIndex_ );
+	if ( NULL == pJuneMemo || ( 0xf != pJuneMemo->m_iType && 0x10 != pJuneMemo->m_iType ) )
+		return;
+	const float fJuneValue0 = pJuneMemo->m_vecValue.empty() ? 0.f : pJuneMemo->m_vecValue[0];
+	if ( 0xf == pJuneMemo->m_iType )
+		JuneMemoRescaleTimeFinalizer( *ptrBuffFactor_, fJuneValue0 );
+	else
+		JuneMemoRescaleBehaviors( *ptrBuffFactor_, fJuneValue0 );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iJuneMemoLogs = 0;
+	static DWORD s_dwJuneMemoLog = 0;
+	if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO buff skill=%d memo=%d v0=%.3f -> %s x v0 (BTI %d, slot 476 32028250)", iAdjustIndex_, pJuneMemo->m_iType,
+			fJuneValue0, ( 0xf == pJuneMemo->m_iType ) ? L"time finalizer" : L"behaviors", static_cast<int>( ptrBuffFactor_->GetBuffTempletID() ) );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
 	static bool s_bLogged = false;
 	if ( false == s_bLogged && 0 <= iAdjustIndex_ )
 	{
 		s_bLogged = true;
 		CX2JuneBuffCapture::Line( "unsupported (June-only system): user slot 476 factor adjustment by index %d (June 32028250) skipped", iAdjustIndex_ );
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
@@ -15848,6 +15925,39 @@ void CX2GUUser::CommonStateStart()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
 #ifdef SKILLSTRING_IN_SKILLTEMPLET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE
+	/// S3d, June2017 CommonStateStart 32057b80 @3205841f-320584bb. Only when user slot 330( true ) is set (the future state's skill-slot byte
+	/// +0x11, 3208e430; IsJuneSkillSlotState on the future state id): the skill is GetNowStateSkillID (slot 329), or the active
+	/// transcendence memo's skill (31fdbcc0 @32058444) when that is not 0, and its templet's name becomes the state string (32079be0).
+	/// June's string setter also stores a float 0 at X2Game +0xb3c (the string's display timer, read by 32308c20), which March's X2Game
+	/// does not have (routed to S3e). March's in-house ADD_DAMAGE_LOG chat line is kept as March has it.
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+	if ( true == IsJuneSkillSlotState( GetFutureStateID() ) )
+	{
+		const int iJuneMemoSkillID = GetJuneTranscendenceMemoSkillID( static_cast<int>( GetNowStateSkillID() ) );
+		pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( ( 0 != iJuneMemoSkillID ) ? static_cast<CX2SkillTree::SKILL_ID>( iJuneMemoSkillID ) : GetNowStateSkillID() );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		if ( 0 != iJuneMemoSkillID )
+		{
+			static int s_iJuneMemoLogs = 0;
+			static DWORD s_dwJuneMemoLog = 0;
+			if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+				CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO state %d skill %d -> transcendence skill %d (%s), state string (32058444)", GetNowStateID(),
+					static_cast<int>( GetNowStateSkillID() ), iJuneMemoSkillID, ( NULL != pSkillTemplet ) ? L"templet found" : L"no templet: string unchanged" );
+		}
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+	}
+	if( pSkillTemplet != NULL )
+	{
+		g_pX2Game->SetStateString( pSkillTemplet->m_wstrName );
+#ifdef ADD_DAMAGE_LOG
+		if( true == IsMyUnit() )
+		{
+			g_pChatBox->AddChatLog( pSkillTemplet->m_wstrName.c_str(), KEGS_CHAT_REQ::CPT_SYSTEM);
+		}
+#endif // ADD_DAMAGE_LOG
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( GetNowStateSkillID() );
 	if( pSkillTemplet != NULL )
 	{
@@ -15859,6 +15969,7 @@ void CX2GUUser::CommonStateStart()
 		}
 #endif // ADD_DAMAGE_LOG
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_STATE
 #else //SKILLSTRING_IN_SKILLTEMPLET
 	int stateStrID;
 	if( m_LuaManager.GetValue( "STATE_STRING",	stateStrID ) == true )
@@ -20792,6 +20903,30 @@ void CX2GUUser::CommonFrameMove_TimedEvent()
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		if( m_pXSkinAnim->GetNowAnimationTime() > attackTime.x && m_pXSkinAnim->GetNowAnimationTime() < attackTime.y )
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+			/// S3d, June2017 CommonFrameMove_TimedEvent 31ff27c0 @31ff2a04-31ff2a87: inside the attack window the scale is 1.0, or for an
+			/// active MI_HUGE memo (type 2) of the now state's skill (slot 329, 31fdbbb0) its v0 (0.0 when it has none). A scale above 0 goes
+			/// to every attack box (32274310 with an empty name; 1.0 is a no-op there) before the DamageCheck, and its inverse after it
+			/// (@31ff2c09-31ff2c4a, after the DamageCheck @31ff2abc), so the boxes are only bigger for this check (the round trip is not exact in
+			/// float: JUNE_BUGS).
+			float fJuneMemoHuge = 1.f;
+			{
+				const JuneSkillMemoEntry* pJuneMemo = GetJuneSkillMemoEntry( static_cast<int>( GetNowStateSkillID() ) );
+				if ( NULL != pJuneMemo && 2 == pJuneMemo->m_iType )
+				{
+					fJuneMemoHuge = pJuneMemo->m_vecValue.empty() ? 0.f : pJuneMemo->m_vecValue[0];
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+					static int s_iJuneMemoLogs = 0;
+					static DWORD s_dwJuneMemoLog = 0;
+					if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+						CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO attack box state %d skill %d MI_HUGE v0=%.3f: radius x v0 for the timed DamageCheck (31ff27c0)",
+							GetNowStateID(), static_cast<int>( GetNowStateSkillID() ), fJuneMemoHuge );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+				}
+			}
+			if ( 0.f < fJuneMemoHuge )
+				JuneMultiplyAttackBoxRadiusScale( fJuneMemoHuge, L"" );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 			if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
 			{
 				if( m_FrameDataNow.unitCondition.bHit == false && GetShowSmallGageAndName() )
@@ -20831,6 +20966,10 @@ void CX2GUUser::CommonFrameMove_TimedEvent()
 				m_FrameDataNow.unitCondition.bHit = true;
 				m_FrameDataFuture.unitCondition.bHit = m_FrameDataNow.unitCondition.bHit;
 			}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+			if ( 0.f < fJuneMemoHuge )
+				JuneMultiplyAttackBoxRadiusScale( 1.f / fJuneMemoHuge, L"" );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		}
 	}
 
@@ -25039,6 +25178,56 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
+/// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)
+/// give its v0 (0.0 when it has no value), any other type or no memo 1.0. June's one reader is GetActualMPConsume (3203cf60 @3203cfcf).
+float CX2GUUser::GetJuneSkillMemoMPRate( const int iSkillID_ ) const
+{
+	const JuneSkillMemoEntry* pJuneMemo = GetJuneSkillMemoEntry( iSkillID_ );
+	if ( NULL == pJuneMemo || ( 3 != pJuneMemo->m_iType && 7 != pJuneMemo->m_iType && 8 != pJuneMemo->m_iType ) )
+		return 1.f;
+	const float fJuneValue0 = pJuneMemo->m_vecValue.empty() ? 0.f : pJuneMemo->m_vecValue[0];
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iJuneMemoLogs = 0;
+	static DWORD s_dwJuneMemoLog = 0;
+	if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO mp skill=%d memo=%d rate x%.3f (vslot 471 31fdbe20)", iSkillID_, pJuneMemo->m_iType, fJuneValue0 );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+	return fJuneValue0;
+}
+
+/// S3d, June2017 323511f0, a thiscall on MY unit: both GetActualMPConsume slots pass g_pData +0x68 +0x90 (@31fd1859, @3203cf79) whoever is
+/// asking (JUNE_BUGS). The class's memo rows for the skill's base (32207210; filter class = my unit's, +0x38); the first row my unit's tree
+/// (+0x494) has active (32890f90) whose type is 0x13 / 0x14 (MI_TRANSCENDENCE_1 / _2) gives value[ i ] truncated (32071cd0, 0 past the end;
+/// 32fe25f0), i = 1 when g_pData +0x50 (the skill tree) exists and the skill's own templet is an upgraded one (32206d00: +0x178
+/// m_iDeleteSkillIDByUpgrade != 0), else 0. An active row of another type is passed over. 0 when none, or when I have no unit.
+static int JuneGetMyUnitTranscendenceSkillID( const int iSkillID_ )
+{
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return 0;
+	CX2Unit* pJuneMyUnit = g_pData->GetMyUser()->GetSelectUnit();
+
+	const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) );
+	std::vector<const SJuneSkillMemoTemplet*> vecMemo;
+	CX2SkillNoteManager::GetInstance()->GetJuneMemoList( iBaseSkillID, 0, static_cast<int>( pJuneMyUnit->GetClass() ), 0, vecMemo );
+
+	const CX2UserSkillTree& refUserSkillTree = pJuneMyUnit->GetUnitData().m_UserSkillTree;
+	for ( std::vector<const SJuneSkillMemoTemplet*>::const_iterator it = vecMemo.begin(); it != vecMemo.end(); ++it )
+	{
+		const SJuneSkillMemoTemplet* pMemo = *it;
+		if ( NULL == pMemo || false == refUserSkillTree.IsJuneMemoActive( iBaseSkillID, pMemo->m_iType ) )
+			continue;
+		if ( pMemo->m_iType < 0x13 || 0x14 < pMemo->m_iType )
+			continue;
+
+		const CX2SkillTree::SkillTemplet* pOwnTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+		const int iIndex = ( NULL != pOwnTemplet && 0 != pOwnTemplet->m_iDeleteSkillIDByUpgrade ) ? 1 : 0;
+		const float fValue = ( iIndex < static_cast<int>( pMemo->m_vecValue.size() ) ) ? pMemo->m_vecValue[ iIndex ] : 0.f;
+		return static_cast<int>( fValue );
+	}
+	return 0;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /** @function : CX2GetActualMPConsume
 	@brief : 사용한 스킬의 MP 소모량을 얻어옴
 	@param : 사용한 스킬의 ID, 사용한 스킬의 레벨
@@ -25072,6 +25261,28 @@ float CX2GUUser::GetActualMPConsumeJune( const CX2SkillTree::SKILL_ID eSkillID_,
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID_ );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
+	/// S3d, June2017 31fd1840 @31fd1859-31fd1889 (3203cf60 @3203cf79-3203cfa9 does the same again): the transcendence alternate of MY unit's
+	/// memo (323511f0) replaces the templet when it is above 0 and has a templet; the level, the MP, the BBT 99 / 63 rates, the memo MP
+	/// rate and the type test below then all use it
+	{
+		const int iJuneAltSkillID = JuneGetMyUnitTranscendenceSkillID( static_cast<int>( eSkillID_ ) );
+		if ( 0 < iJuneAltSkillID )
+		{
+			const CX2SkillTree::SkillTemplet* pJuneAltTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iJuneAltSkillID ) );
+			if ( NULL != pJuneAltTemplet )
+			{
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+				static int s_iJuneMemoLogs = 0;
+				static DWORD s_dwJuneMemoLog = 0;
+				if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+					CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO mp skill %d -> transcendence templet %d (323511f0, my unit's memo)", static_cast<int>( eSkillID_ ), iJuneAltSkillID );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+				pSkillTemplet = pJuneAltTemplet;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 
 	if( NULL == pSkillTemplet )
 	{
@@ -25144,7 +25355,13 @@ float CX2GUUser::GetActualMPConsumeJune( const CX2SkillTree::SKILL_ID eSkillID_,
 		}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
+		/// S3d, June2017 3203cf60 @3203cfca-3203cfeb: the rate is vslot 471 (31fdbe20, the memo MP rate of the templet's id) x the BBT 63 rate
+		/// (32039a50); the MP multiplies it last (@3203d097)
+		return ( GetJuneSkillMemoMPRate( static_cast<int>( pSkillTemplet->m_eID ) ) * GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE ) ) * fJuneBuffMPConsume;
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 		return GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE ) * fJuneBuffMPConsume;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 #else // SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		return pSkillTemplet->GetSkillMPConsumptionValue( iSkillTempletLevel )
 			* GetSkillRateByBuffBehavior( pSkillTemplet->m_eID, BBT_CHANGE_CONSUME_MP_RATE );
@@ -40637,6 +40854,16 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 	/// @3202aca9-3202acbf: DamageData +0x5c8 (APPLIED_MEMO_ID, C3) set and not the entry's type -> return
 	if ( 0 != pDamageData_->m_iAppliedMemoID && pEntry->m_iType != pDamageData_->m_iAppliedMemoID )
 		return;
+#if defined( SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	/// S3d: one "[JUNE_SKILL] MEMO" line per use of the switch (throttled), whichever case runs
+	{
+		static int s_iJuneMemoLogs = 0;
+		static DWORD s_dwJuneMemoLog = 0;
+		if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO damage APPLIED_SKILL_ID=%d memo=%d v=%.3f/%.3f/%.3f (3202ac40)", pDamageData_->m_iAppliedSkillID,
+				pEntry->m_iType, fValue0, fValue1, fValue2 );
+	}
+#endif // SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE && SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 
 	/// June EDT 0x10 is March's EDT_MANA_DAMAGE (case 0xd writes it); the compile breaks here if the enums ever stop agreeing
 	typedef char JuneMemoEdtCheck[ ( CX2DamageManager::EDT_MANA_DAMAGE == 0x10 ) ? 1 : -1 ];
@@ -40655,6 +40882,10 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 	case 2:
 		/// @3202ad03-3202ad19: DamageData +0x5d0 = v0 is NOT ported (no March member: it is the CEffect ctor's scale, see the C3 review
 		/// note in kickoffs/june-effect/C8b.md); +0x4c8 (DamageDistance) x= v0 is. Returns without the tail.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		/// S3d: +0x5d0 = v0 (@3202ad07), the CEffect ctor's MI_HUGE scale (31f7aab0 @31f7c79f), before the DamageDistance multiply
+		pDamageData_->m_fJuneMemoHugeScale = fValue0;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		pDamageData_->DamageDistance *= fValue0;
 		return;
 
@@ -40679,6 +40910,11 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 
 	case 0xc:
 		/// @3202ad6d-3202ad7a: +0x4f8 = true is NOT ported: no March member of DamageData has an identified reader there (funcmap row 3202ac40)
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+		/// S3d: +0x4f8 is NO_DETONATION (m_bNoDetonation): both DamageReacts copy it to the defender's damage byte (+0x6892, user 320462a0
+		/// @3204630b, NPC 327b1f30 @327b1fca), so an MI_BRUTAL hit cannot be detonated out of
+		pDamageData_->m_bNoDetonation = true;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 		return;
 
 	case 0xd:
@@ -40696,6 +40932,14 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 	case 0x10:
 		/// @3202af87-3202afb9 (0xf), @3202afbc-3202afee (0x10): 32089ff0 on the DamageData's buff-factor list (a rescale by v0: case 0xf = (v0, 1), case 0x10 = (1, v0)) is NOT
 		/// ported: 32089ff0 is not decoded (funcmap row 3202ac40)
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+		/// S3d: 32089ff0 decoded (JuneMemoRescaleDamageDataBuffFactors): case 0xf passes the Rate { fTime v0, fValue 1.0, bApply 1 }, case 0x10
+		/// { 1.0, v0, 1 }, both with no factor (every factor of the list)
+		if ( 0xf == pEntry->m_iType )
+			JuneMemoRescaleDamageDataBuffFactors( pDamageData_, fValue0, 1.f );
+		else
+			JuneMemoRescaleDamageDataBuffFactors( pDamageData_, 1.f, fValue0 );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 		return;
 
 	case 0x11:
@@ -40710,6 +40954,10 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 
 	case 0x16:
 		/// @3202b0a2-3202b0a6: +0x5dc = v0 is NOT ported (no March member identified; funcmap row 3202ac40)
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
+		/// S3d: +0x5dc is the CEffect ctor's main-effect life rate (31f7aab0 @31f7c854), MI_LONGSHOT
+		pDamageData_->m_fJuneMemoLongshotRate = fValue0;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 		return;
 
 	default:
@@ -40719,6 +40967,10 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 	/// the shared tail @3202acd9-3202acf9: +0x3c fMagic x= s, +0x38 fPhysic x= s; +0x5e4 x= s is NOT ported (no March member identified)
 	pDamageData_->damage.fMagic		*= fTailScale;
 	pDamageData_->damage.fPhysic	*= fTailScale;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
+	/// S3d, @3202aced-3202acf3: +0x5e4 x= s last; GetFinalDamage multiplies the level-damage power rate by it (32284aa0 @32285eef)
+	pDamageData_->m_fJuneMemoLvDamagePowerRate = fTailScale * pDamageData_->m_fJuneMemoLvDamagePowerRate;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 }
 #endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
 
