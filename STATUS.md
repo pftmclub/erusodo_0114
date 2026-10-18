@@ -757,17 +757,17 @@ class Q5b builds on). Decisions still to come, each inside its phase: Q2 old-sav
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | Q0a | **ready** (read-only) | Opus 5.5 / high | -; runs with anything | `june2017_re/quest_plan/q0a_*`, `funcmap.tsv`, plan doc, kickoffs Q1 / Q3 / Q4 / Q6 | `Q0a.md` |
-| Q0b | **ready** (read-only) | Opus 5.5 / high | -; runs with anything | `june2017_re/quest_plan/q0b_*`, `funcmap.tsv`, plan doc, kickoffs Q4 / Q5a / Q5b / Q8 | `Q0b.md` |
+| Q0b | **done 2026-10-19** (Opus, read-only): `june2017_re/quest_plan/q0b_ui_map.tsv` + 30 funcmap rows `Quest Q0b`; 12 dispatcher cases (June = March - 9 here; 0x27c = June UPDATE_QUEST_NOT moved into the window; 0x27b / 0x27d / 0x593 / 0x605 server pushes -> Q4; 0x604 dead); scenes GFx-only via Quest_Event_Scene_Info, no Lua fallback found (780 quests lose Lua scenes; Q5b re-proves); movie triggers + Bandi player -> Q8; quest DLGs never staged -> Q5a / Q5b; E1c citation at X2UIQuestNew.cpp:2032 wrong -> Q5a; Q4 / Q5a / Q5b / Q8 kickoffs amended | Opus 5.5 / high | -; runs with anything | `june2017_re/quest_plan/q0b_*`, `funcmap.tsv`, plan doc, kickoffs Q4 / Q5a / Q5b / Q8 | `Q0b.md` |
 | RM0 | **ready** (read-only; ends on a user decision) | Opus 5.5 / high | -; runs with anything | `june2017_re/quest_plan/rm0_*`, `funcmap.tsv`, plan doc, `RM1.md` | `RM0.md` |
 | Q1 | waiting (Q0a) | Sonnet 5.5 / high, then Opus review | Q0a | `X2QuestManager.*`, `X2Main.cpp` (binders), `X2Data.cpp` / `X2StateLoading.cpp` (loader), core `Enum.lua`, data036 kom, Always.h | `Q1.md`, review `Q1-review.md` (Q1 writes it) |
 | Q2 | waiting (Q1 review) | Opus 5.5 / high, then review | Q1 review | `X2Lib/Offline/X2OfflineDB.*` (rung), `GetQuestTemplet` NULL readers, data036 kom, save (snapshot) | `Q2.md`, review `Q2-review.md` (Q2 writes it) |
 | Q3 | waiting (Q2 review) | Sonnet 5.5 / high, then Opus review | Q2 review; not with Q1 / Q6 (`X2QuestManager.*`) | `X2QuestManager.*`, Q0a's reader sites, Always.h | `Q3.md`, review `Q3-review.md` |
 | Q4 | waiting (Q2 review) | Opus 5.5 / high, then review | Q2 review; runs with Q3 / Q5a (other files) | `X2Lib/Offline/X2OfflineQuest.*`, `Handlers_Quest.cpp`, other `Handlers_*` hooks, Always.h | `Q4.md`, review `Q4-review.md` |
-| Q5a | waiting (Q0b, Q2 review) | Sonnet 5.5 / high, then Opus review | Q0b, Q2 review | `X2UIQuestNew.*`, data034 quest DLGs, Always.h | `Q5a.md`, review `Q5a-review.md` |
+| Q5a | waiting (Q2 review; Q0b done) | Sonnet 5.5 / high, then Opus review | Q0b, Q2 review | `X2UIQuestNew.*`, data034 quest DLGs, Always.h | `Q5a.md`, review `Q5a-review.md` |
 | Q5b | waiting (Q5a review, june-gfx G3 review) | Sonnet 5.5 / high, then Opus review | Q5a review, june-gfx G3 review | `X2UIQuestNew.*` (scene calls), Always.h | `Q5b.md`, review `Q5b-review.md` |
 | Q6 | waiting (Q3 review) | Sonnet 5.5 / high, then Opus review | Q3 review | `X2QuestManager.*`, local-map / world-map / Cobo / warp / MapData readers, region Lua (`-- quest plan:` keys), Always.h | `Q6.md`, review `Q6-review.md` |
 | Q7 | waiting (Q2 review) | Sonnet 5.5 / high | Q2 review | core `NPCTemplet.lua` / `Enum.lua`, house Lua, meshes (stage-june) | `Q7.md` |
-| Q8 | waiting (Q0b, Q5b review) | Opus 5.5 / high, then review | Q0b, Q5b review; june-gfx G5 owns `+0x80a` | `EventScene.lua`, movie table / player, `DungeonClearMovieTemplet`, Always.h | `Q8.md`, review `Q8-review.md` |
+| Q8 | waiting (Q5b review; Q0b done) | Opus 5.5 / high, then review | Q0b, Q5b review; june-gfx G5 owns `+0x80a` | `EventScene.lua`, movie table / player, `DungeonClearMovieTemplet`, Always.h | `Q8.md`, review `Q8-review.md` |
 | RM1 | waiting (RM0 + user answer, Q4 review) | Sonnet 5.5 / high, then Opus review | RM0, Q4 review | new random-mission class, 13 per-class skill-use sites, emulator, Always.h | `RM1.md`, review `RM1-review.md` |
 | Q9 | waiting (Q3-Q8 reviews) | Sonnet 5.5 / medium, then user play-test | Q3, Q4, Q5b, Q6, Q7, Q8 | save (snapshot), checklist | `Q9.md` |
 | Z | waiting (all) | Sonnet 5.5 / medium | all | `MODS.md`, backlog, memory, Always.h (`_DEBUG` off) | `Z.md` |

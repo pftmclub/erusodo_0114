@@ -184,6 +184,71 @@ plus a reason.
 
 **Done gate:** every dispatcher case, every function in the candidate list, and every quest DLG file has a row with a verdict and a target.
 
+### Q0b - Done (2026-10-19, Opus 5.5 high; read-only: no code, no flag, no build, no pack)
+
+**Output:** `june2017_re/quest_plan/q0b_ui_map.tsv` (71 rows, kinds case / send / func / dlg / data / player / reader / struct), 30 funcmap rows
+`(Quest Q0b)`, amendments ("## Amended by Q0b") in `kickoffs/quest-system/Q4.md`, `Q5a.md`, `Q5b.md`, `Q8.md`. Raw dumps stayed in the session scratchpad.
+
+**Event ids.** March's ids came from a `cl /P` preprocess of `X2Lib/stdafx.h` (US_SERVICE defines), every one of the 1,331 checked by a C2440
+probe, and 119 `offline_packets.log` anchors agree. June has no event-name table; in the quest block June = March - 9. Proof: every handler
+deletes its own id, and the senders pair up (0xea/0xeb, 0xf0/0xf1, 0xf4/0xf5, 0xf9/0xfa).
+
+**Dispatcher `323e5fb0`, 12 cases** (March `UIServerEventProc` has 7):
+- Already March: 0xeb NEW_QUEST_ACK.
+- Port whole (Q5a): 0xec NEW_QUEST_NOT, 0xf1 QUEST_COMPLETE_ACK, 0xf5 ALL_COMPLETED ACK, 0xf8 GIVE_UP ACK, 0xfa TALK_WITH_NPC ACK, and
+  0x27c, which is June's UPDATE_QUEST_NOT moved here from `CX2State` (`X2State.cpp:4776`).
+- June-only server pushes (Q5a ports the bodies; Q4 decides whether the emulator sends them): 0x27b quest instance, 0x27d completion,
+  0x593 batch, 0x605 id set.
+- Dead: 0x604. Its request 0x603 has no reference in the image, and it deletes 0xf1's wait (a June quirk, unreachable).
+- None of the June-only ids has a sender in June's client: they came from June's server.
+
+**Corrections to earlier work:**
+- `X2UIQuestNew.cpp:2032` (Atlas E1c) cites `323e1710` for ALL_COMPLETED. That is the 0x593 handler. June's ALL_COMPLETED `323e5c10` has no
+  relation refresh. Routed to Q5a.
+- The kickoff's skip-epic request `322f4c60` is the dungeon-start ESC skip (0x4ac). `Button_Skip_Epic_Quest` -> custom message 41045 ->
+  OK 41046 -> `323d24f0`, a plain QUEST_COMPLETE_REQ.
+- The range `323e3e8d`-`323e4cb0` is the tail of `UICustomEventProc` `323e1bf0` (case bodies), not separate functions.
+  `3214f7c0` is not code: there is no function at that address.
+
+**Functions:** every candidate has a verdict row. Already March: `323c8da0`, `323cee10` (unless Q5a's diff finds a change). Port whole (Q5a):
+the ctor, the buttons, mode/tab, list, detail, notice, UICustomEventProc and the request senders. June-only: scenario-movie tab
+`323ca6d0` / `323dfc00` -> Q8. Clear window `323d2c60` -> Q5b. June-only custom messages 41038-41047 need the C++ enum and `Enum.lua`.
+
+**Scenes (Q5b).**
+- `323cb2e0( quest, 0/1/2 )` reads `Quest_Event_Scene_Info` (`323cb190`, map `g_pData+0x498`). The unit's class sub-row wins over `DEFAULT_*`.
+  Names go to GFx `3226ac80` / `3226b130`. End also plays every `m_vecAdditionalSceneQuestID`.
+- **No Lua fallback found:** neither function calls the Lua scene, and no `GetQuestTemplet` caller reads templet `+0x1d8` / `+0x1f4`
+  (`m_wstrStartScene` / `m_wstrEndScene`).
+  So 780 of June's 968 Lua-scene quests play no scene in June. Q5b's kickoff re-proves this by a whole-image sweep before following June.
+  It also replaces the done gate's "a Lua-scene quest still plays its scene".
+
+**Movies (Q8).**
+- Table: parser `31d8cb90` -> `g_pMain+0x7f8`. Three triggers: by quest `31d7a240` (record `+0xc0`, called first by the complete REQs, request
+  deferred to `31d822b0`), by dungeon first clear `31d7a150`, by id from the scenario tab `31d884f0`.
+- March has a player: Bandi `CMovieData`, with June's subtitles already ported. June's host DLG `DLG_Dungeon_Clear_Movie` is June-only.
+- G5 leaves the `+0x80a` hide term to Q8. 13 `.avi` files are missing from March's `data/movie/`.
+
+**DLGs.** None of March's quest DLGs was ever staged from June (all are March bytecode).
+- Q5a adopts List / Detail / Quick, plus the dead-reader `DLG_UI_Quest*` / `DLG_UI_Request` and the guide DLGs (same-filename rule).
+- Q5b adopts Clear; Q8 adopts `DLG_Dungeon_Clear_Movie`.
+- The datai014 event-quest UIs are Stage 9's.
+
+**EventScene.lua** is parse-compatible (same two binders). March does not read 2 June keys (`*_DUO_TYPE`): Q8 adopts it.
+
+**Shared-struct changes** (Q4 / Q5a; `CommonPacket.h` -> `ServerDefine.h` second home):
+- `KSubQuestInstance` clear data UCHAR -> short (0x27c reads a short).
+- An int64 is added to `KQuestInstance`, `KCompleteQuestInfo` and `KQuestAck`.
+- NEW_QUEST_NOT gains +2 int32 and the complete REQ +1 bool.
+- One exe serves both ends, so each field lands only where a ported reader needs it.
+
+**Other readers:**
+- This plan: `GetBoardStartQuestList` (Q3), `GetNPCFaceTextureKey` (Q5a).
+- Stage 9: `GetNPCQuestDesc` (world map), `CX2InformerQuest`, and the quick-quest toggle body (user, 2026-10-07).
+- Already ported: the field-NPC quest button (Elysion E1, JUNE_BUGS 221).
+
+**Open for the user:** none to answer now. Two notes. June drops 780 quests' Lua scenes (Q5b proves it, then follows June). And the 13 clear
+`.avi` files need copying into the game's `data/movie/` when Q8 lands (Q8 asks).
+
 ## Phase RM0 - Random mission map and source proposal
 
 **Run with:** Opus 5.5 high. Read-only.
