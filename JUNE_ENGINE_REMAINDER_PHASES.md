@@ -2163,6 +2163,46 @@ switch is the console line `g_pKTDXApp:SetLookAtDependOnEye( true )`: every `Set
 and logs `[JUNE_ENGINE] CAMTRACK SetTracking ... look-at-depends-on-eye 1`. June has no caller that passes a non-zero roll or `+0x90 = 1` outside Ain's
 skill cameras (checklist 7af), so no dungeon boss intro reaches either path in this build.
 
+### Phase R13c -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no transcription error, no code change except retiring `_DEBUG`.** Reviewed `87c5aa0e` (the only R13c code commit;
+`463a91fa` / `fb5337a8` are notes) against June in Ghidra (`31d01640`, `31d01a30`, `31d01b70`, `31d02e50`) and raw capstone (`june2017_re/disasm_range.py`
+over `31d01310..31d03570` and `31fb5800..31fb5915`, where Ghidra has no function).
+
+- **`SetTracking` `31d01b70`:** args `[esp+4..0x28]` = `XTo YTo ZTo XAt YAt ZAt Time atTime bLinear fRollTo` (`ret 0x28`). App `+0x2d4 == 1` stores `XAt` / `YAt`
+  into the `XTo` / `YTo` slots before the branch. `fld 0.001; fcomp Time; test ah,5; jp else` = `Time > 0.001`, NaN to the else. Rates: `+0x6c..+0x74` eye,
+  `+0x78..+0x80` look-at, `fdivrp` gives `+0x84 = ( fRollTo - +0x68 ) / Time`. Else: raw values, `+0x84 = fRollTo`, track time 0 (`@31d01c3a`). Then `+0x88 = track time`,
+  `+0x90 = bLinear`, `+0x8c = atTime`. All = port.
+- **`UpdateCamera` `31d02e50`:** the x87 stack was traced through each branch. `+0x90 == 1` loads `+0x94` into the step local and stores 0 back. Both tracking branches multiply by the step.
+  The time step clamps `<= 0` to 0. Roll `+0x68 += +0x84 * step` at the join `31d02fbc` (reached from both branches; the `TrackTime == 0` jump goes past it to
+  `31d02fca`). The `TrackAt` block uses the step. `UpdateCameraShake` / `UpdateCameraImpact` / up-side-down use the real `dt` (`[esp+0x6c]`). After `LookAtLH`,
+  `|roll - 0.0| > FLT_EPSILON` (`test ah,0x41; jne skip`) -> `RotationZ( &tmp, roll )`, then `Multiply( view, view, &tmp )` (push order `tmp, view, view`): **view x roll,
+  roll on the right** = port. `IsSamef` is `fabs > FLT_EPSILON` -> false, the same sense.
+- **`31d01640` / `31d01a30`:** argument offsets traced; the 10th / 3rd arg goes to `+0x68`. `31d01640` zeroes `+0x88` / `+0x8c` only. `31d01a30` copies eye / look-at into
+  `m_Track` / `m_TrackAt`, zeroes `+0x84` / `+0x88` / `+0x8c`, and applies the same roll tail. = port.
+- **`OnFrameMove` `31fb5800`:** `[esi+0x38]` = March's `CKTDGCamera& m_kCamera`; `+0x90 != 0` and `|+0x94| <= FLT_EPSILON` (also NaN) -> `xor eax,eax; ret 0xc`
+  (S_OK, nothing else runs) = port.
+- **Shake lock:** `cmp byte [ecx+0x19c],1` opens exactly `31d01490 / 4c0 / 4f0 / 520 / 540 / 570 / 5a0 / 5d0`, plus the inlined `31d01cd0` / `31d01d10`.
+  ImpactForward `31d015f0`, UpSideDown `31d01630` and ShakeRandom `31d02b00` have none. The only other `+0x19c` access in the camera range is the ctor's
+  word clear `@31d03383`. The census of new members in the range finds only Point, Reset, `31d01640`, `31d01a30`, SetTracking, UpdateCamera and the ctor, whose memset of 0x68 bytes at `+4` covers the roll.
+- **Callers:** Ghidra lists exactly the table's 11 xrefs to `31d01b70`. Spot-check `31fb3623`: `push 0` (linear), and roll = the same x87 value as `atTime`
+  (0.0, as the table says), Time `0x3345993c`. March has 14 live `SetTracking` calls (17 lines, 3 commented) and none outside the camera files.
+- **Layout:** `KTDGCamera.h` comes only via `KTDGManager.h` (`KTDX.h:1351`), `KTDXApp.h` at `KTDX.h:1393`, and `Always.h` at `:190`; `KTDGCamera.cpp` opens with
+  `stdafx.h`. So every TU sees one size of `CameraData` / `CKTDGCamera` / `CKTDXApp`.
+- **Not line-diffed (as the phase said):** `31d01d50` / `31d02c70` were read here only for new members (none).
+
+**Hygiene** (`flagcheck --range 87c5aa0e^..87c5aa0e`; `git log -S` finds no later commit touching the flags):
+- `_CAMERA_TRACK --with _DEBUG`: files: 2 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR; 0 deleted line(s), 0 non-ASCII; RESULT: PASS.
+- `_CAMERA_SHAKE_LOCK`: files: 0 PASS, 0 PASS~, 0 DEFINE, 6 OTHER (other flags), 0 FAIL, 0 ERROR; 0 deleted line(s); RESULT: PASS.
+- With both: files: 3 PASS, 2 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR; 0 deleted line(s); RESULT: PASS.
+- OTHER rows: `Always.h` is always OTHER (other flags' defines). `KTDGCamera.cpp/.h` share both flags, and the combined run passes them. The three files without a shake-lock line are
+  OTHER for that flag only. The PASS~ rows are blank lines next to the blocks. No deleted lines.
+
+**Review change:** `//#define SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG` (`Always.h`; play-test passed). Its code stays, so R13d can re-enable it to log its callers.
+**Deploy:** pending. The review build (`.build/logs/20261018-101214`) stopped in X2Lib at a peer's uncommitted S5 skill-slot edits (61 errors in
+`X2Game.cpp` / `X2KeyPad.cpp` / `X2Unit.cpp` / `X2GameUnit.h`, none in R13c's files), so nothing was deployed. The change only turns logging off, so the next
+`main` deploy carries it. Until then the deployed exe (`d4eef836` or later) still writes `CAMTRACK` lines when the console switch is on.
+
 ## Phase R13d - Camera members' outside callers (shake lock, Point-and-view)
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test and an Opus review. Added by R13c, which ported `CKTDGCamera` whole; these are

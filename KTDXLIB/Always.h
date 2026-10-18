@@ -8340,7 +8340,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #define SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 // Short-lived: one [JUNE_ENGINE] CAMTRACK ErrorLog line per non-zero roll, linear tracking or look-at-depends-on-eye
 // SetTracking ( the first 20, then one a second ). Remove after the review.
-#define SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+//#define SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG	// off 2026-10-18 (R13c review): play-test passed (48 throttled look-at-depends-on-eye lines, roll / linear 0)
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 #error SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
