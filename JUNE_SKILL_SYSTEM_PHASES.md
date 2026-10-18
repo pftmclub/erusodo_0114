@@ -1423,6 +1423,12 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET` (`Always.h` + `ServerDefine.h`, `SEC
 - **How to see it:** the tree's memo icons (lock / open / selected) under each skill; Sand Storm's left icon -> "apply the Gigantic trait?" -> OK -> "registered"; Sand Storm's
   effects 1.3x; relog keeps it; the selected icon -> Tome of Amnesia prompt -> "removed", one tome gone.
 - **Open questions:** none.
+- **Play-test 2026-10-18: PASSED** (user; exe md5 `baa6da54`, run 20:10-20:13, clean exit, 0 EXCEPTION; 3 UNHANDLED = the known `E_DISABLE_HB_CHECK_REQ`). Log: `MIG v19 done ... 0 March page row(s)
+  dropped`; Sand Storm left memo: `popup ... memo=2 state=1` -> `emu activated` -> `REQ activate` -> `ACK activated`; `popup ... state=2` -> `emu deactivated ... spent item 135667 ( uid 1491 )`
+  -> `ACK deactivated ..., 1 inventory slot(s)`; activated again; relog ( SELECT_UNIT 20:13:00 ) kept it (user; save row `25 / 21009 / 2`).
+  **Not shown:** the S3d consumer lines ( `MEMO effectset` / `damageeffect` / `attack box` ). The user cast Sand Storm, but Elsword's June motion file is in and his class port is not, so the
+  skill state never starts (character material, checklist). The memo does reach the game unit: my own room slot's unit is `GetMyUser()->GetUnitByUID()` ( `X2Room.cpp:2135` ),
+  the object the ACK writes. The consumers' first live run waits for a class whose memo skill plays.
 
 ## Phase S7d - Skill pages, the reset item's UI, the HUD refresh
 
