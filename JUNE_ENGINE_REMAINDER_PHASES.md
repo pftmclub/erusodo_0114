@@ -2622,6 +2622,40 @@ branch). Kickoff `kickoffs/june-engine/W1g.md`. June `32f27b10` vs March `X2Simp
 `iCurrLineDataIndex`, out NULL, `bDownRadius` 1, `bIsMonster` 1, `bOnLine` 0), the destination line's `+0xf4` / `+0xf8` read, the road-type early return,
 `GetLandPosition( pos, true, ... )`. Port the whole function.
 
+### Phase W1g -- Done
+
+**2026-10-18, Opus 5.5 high.** Flags `SERV_IRUHADEV_JUNE_PATHFINDER_FLY` + short-lived `SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG` (`Always.h`; `#error` without
+W1f's `JUNE_LINEMAP_CANDOWN_SIGNATURE`). Commit: `git log -S SERV_IRUHADEV_JUNE_PATHFINDER_FLY`. Funcmap row `32f27b10 (W1g)`.
+
+**Map** (`32f27b10` decompile + disassembly, read whole against March `X2SimplePathFinder.cpp:760`). One delta: when `cur.y > dest.y + fDestArriveHeight + 10`
+(10.0 double `@33438088`), June copies `vCurrPos` to a scratch and calls `CanDown( vCurrPos, 30 @33441b9c, &scratch, &copy of iCurrLineDataIndex, NULL,
+true, true, false, false )` (`@32f27e51-32f27ea2`; the copy is `[ESP+0x34]`, stored `@32f27b72`); a false return clears `bFlyDown` (`[ESP+0x12]`, `@32f27eb3`),
+so the unit keeps its height (`FLY_*_FRONT` / `_BACK`, or `MS_WAIT` once in the arrival band). Everything else is March's:
+- `RET 0x30`: the 12 arguments stay (`fLineEndDetectRange` is unused in both);
+- the head's `+0xf4` / `+0xf8` read is `m_lineGroupID` (`X2OPTIMIZE_LINEMAP_LINEGROUP`, KTDX.h:298); types 4 / 5 / 8 = `LT_JUMP_UP_REL` / `_ABS` / `LT_UNIT_ROAD`,
+  `rand` odd -> `+0x10` (`m_MoveState`) = 0xb `MS_FLY_LEFT_FRONT`, else 0x11 `MS_FLY_RIGHT_FRONT`, as March;
+- every `GetLandPosition` is `31c7bb00( .., true, 2000 / 30, .. )` = March's 3-arg forwarder (W1c);
+- bFlyFront, arrival band, turn (0.3 `@3345993c` / -0.3 `@3348434c`), both side checks (before / next line, start / end pos, `+0x95` monster-allowed
+  early return, `31c8ee10` / `31cfd6b0` = `LineGroupID` == / != against `this + 0` = `m_pPrevLineGroup`) and the 12-state select = March.
+No June quirk to record (no `JUNE_BUGS.md` row).
+
+**Port.** `X2SimplePathFinder.cpp`: one insert-only block after March's `bFlyDown = true;` (the 9-arg `CanDown`, no `#else` needed). `_DEBUG` logs the
+first 20 refusals and 5 passes: `[JUNE_ENGINE] WORLD fly-down refused / allowed` in `ErrorLog.txt`.
+
+**Hygiene** (`flagcheck --worktree --files`): `X2SimplePathFinder.cpp` PASS +37; `Always.h` OTHER = peers' uncommitted `Always.h` lines (R12b `REFS_DEBUG`,
+S3b `JUNE_SKILL_NOTE`), not in this commit; `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, 0 non-ASCII, 0 EOL-mismatched,
+0 encoding change, `RESULT: PASS`. Range line: see the commit's follow-up below.
+
+**Deploy.** My three `build.py --deploy` runs lost the lock to two peer builds; the fourth failed in KTDXLIB on a peer's uncommitted S3b line
+(`Always.h(8043): #error SERV_IRUHADEV_JUNE_SKILL_NOTE needs REFORM_SKILL_NOTE_UI`), not on W1g. The deployed exe is a peer's `build.py --deploy` of this
+shared tree, whose dirty list includes `X2Lib/X2SimplePathFinder.cpp` and `Always.h` with W1g in them (edited 07:49): `last_deploy.json`: X2_offline.exe
+19,944,960 B, deployed 2026-10-18 08:09:08, md5 00703adcea5d79dfdd6c61b040922363, HEAD 7a43b7a3 + 6 dirty code files. `WORLD fly-down refused` and
+`WORLD fly-down allowed` are each found once in it.
+
+**How to see it in game:** Sander Garpai Rock Normal (33210) stage 0 spawns 12 Wing Harpies and 9 Giant Harpies (`FLY_CHASE_MOVE` = fly units,
+`X2GUNPCAI.cpp:257`, chase path `:1517-1527`); stand on the ground below them. They still come down to you; a harpy over a drop with no line under it stays
+level (refused line). Open question: none.
+
 ## Phase W2 - Portal-line markers
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:

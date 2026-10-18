@@ -883,6 +883,43 @@ void CX2SimplePathFinder::FollowTargetPathFly( /*float fElapsedTime,*/ const D3D
 				// 목적지가 아래에 있는 경우
 				bFlyUp = false;
 				bFlyDown = true;
+#ifdef SERV_IRUHADEV_JUNE_PATHFINDER_FLY
+				// June CX2SimplePathFinder::FollowTargetPathFly 32f27b10 @32f27e3f-32f27eb3: the fly-down holds only when CanDown finds a line
+				// below the unit ( LINE_RADIUS, the out position is discarded, in index = a copy of iCurrLineDataIndex, out index NULL,
+				// bDownRadius true, bIsMonster true, bOnLine false, bDroppable false ); otherwise the unit keeps its height.
+				// The rest of 32f27b10 is March's function ( W1g map, funcmap row (W1g) ).
+				{
+					D3DXVECTOR3 vJuneDownPos = vCurrPos;
+					const int iJuneCurrLineDataIndex = iCurrLineDataIndex;
+					if( false == pLineMap->CanDown( vCurrPos, LINE_RADIUS, &vJuneDownPos, &iJuneCurrLineDataIndex, NULL, true, true, false, false ) )
+					{
+						bFlyDown = false;
+#ifdef SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
+						static int s_iJuneFlyDownRefuseLogCount = 0;
+						if( s_iJuneFlyDownRefuseLogCount < 20 )
+						{
+							++s_iJuneFlyDownRefuseLogCount;
+							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD fly-down refused: line " << iCurrLineDataIndex
+								<< " at " << vCurrPos.x << "," << vCurrPos.y << "," << vCurrPos.z
+								<< " dest y " << vFinalDestPos.y << " + height " << fDestArriveHeight << fileout;
+						}
+#endif SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
+					}
+#ifdef SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
+					else
+					{
+						static int s_iJuneFlyDownAllowLogCount = 0;
+						if( s_iJuneFlyDownAllowLogCount < 5 )
+						{
+							++s_iJuneFlyDownAllowLogCount;
+							KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD fly-down allowed: line " << iCurrLineDataIndex
+								<< " at " << vCurrPos.x << "," << vCurrPos.y << "," << vCurrPos.z
+								<< " land y " << vJuneDownPos.y << " dest y " << vFinalDestPos.y << fileout;
+						}
+					}
+#endif SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
+				}
+#endif SERV_IRUHADEV_JUNE_PATHFINDER_FLY
 			}
 
 			// 목적지의 일정범위내에 도착했는지 검사한다.

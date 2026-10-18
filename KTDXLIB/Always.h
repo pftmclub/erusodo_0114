@@ -8222,3 +8222,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_RENDER_PASS1
 #endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase W1g. CX2SimplePathFinder::FollowTargetPathFly as June 32f27b10: when the unit is more
+//              than fDestArriveHeight + 10 above the destination, the fly-down holds only if CKTDGLineMap::CanDown finds a line below
+//              ( @32f27ea2: LINE_RADIUS, in = copy of iCurrLineDataIndex, out NULL, bDownRadius / bIsMonster true, bOnLine / bDroppable
+//              false ); otherwise the unit keeps its height. The rest of 32f27b10 is March's. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_PATHFINDER_FLY
+#ifdef SERV_IRUHADEV_JUNE_PATHFINDER_FLY
+#ifndef SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+#error SERV_IRUHADEV_JUNE_PATHFINDER_FLY needs SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE ( the 9-arg CanDown )
+#endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
+#endif SERV_IRUHADEV_JUNE_PATHFINDER_FLY
+// Short-lived: the first 20 fly-down refusals and 5 passes as [JUNE_ENGINE] WORLD lines in ErrorLog.txt. Remove after the review.
+#define SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
+//////////////////////////////////////////////////////////////////////////
