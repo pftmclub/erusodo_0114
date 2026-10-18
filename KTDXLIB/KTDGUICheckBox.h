@@ -21,7 +21,12 @@ class CKTDGUICheckBox : public CKTDGUIControl
 		virtual	~CKTDGUICheckBox(void);
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31c91650 ( the pass is unused )
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		virtual	bool	HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam );
 		virtual	void	ChangeState( CHECKBOX_CONTROL_STATE state );

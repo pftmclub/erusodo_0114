@@ -1009,6 +1009,51 @@ Added by R4a (2026-10-18). Depends on R4a; it can run before or after R4b-R4d (p
 
 Every March caller passes 0, so nothing in game changes. Gate: build + deploy; UI unchanged.
 
+### Phase R4e -- Done
+
+**2026-10-18, Opus 5.5 high.** Split into two flags (`Always.h`): `SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS` (the 2D primitives, `#error`s
+without `JUNE_RENDER_DG_STATES`) and `SERV_IRUHADEV_JUNE_UI_CONTROL_PASS` (the controls, `#error`s without `DRAW_PASS` and `JUNE_RENDER_PASS1`).
+Commit: `git log -S SERV_IRUHADEV_JUNE_UI_CONTROL_PASS`. 15 funcmap rows `(R4e)`; JUNE_BUGS 287.
+
+**Map.** June has 16 classes deriving `CKTDGUIControl` (RTTI sweep), each with vslot 8 = `OnFrameRender( pass )`, `ret 4`. U1 had three
+labels rotated: `31ca37f0` is the list box, `31cb1ef0` the button and `31cd16a0` the slot (vtables `3344b20c` / `3344b794` / `3344c454`).
+U1's port is unaffected, because each class has its own `RewrapPending` call. The pass goes further than the controls:
+
+- **Draw primitives** (`DRAW_PASS`): the three `CKTDXDeviceTexture::Draw` overloads and the render-target `Draw` take a last bool and push
+  DG `+0x40` (R8's additive block) instead of `+0x38`.
+- **Font** (`DRAW_PASS`): the font is **`CKTDGDeviceFont`** in June too (vtable `3344de70`, RTTI `3361154c`; June has no FreeType class, and
+  `Always_US.h:17` `#undef`s `USE_FREE_TYPE`). Its `Flush` pushes a second state table in pass 1 (`337295d8`, font `+0x1000bc`). The table
+  has alpha test on (`NOTEQUAL 0`), SRC and DEST blend both ZERO and colour = diffuse, a mask that writes zero under every glyph. Buffering,
+  OutTextXY and OutTextMultiline, plus the `CUKFont` wrappers OutTextXY, OutProjectionText, OutTextMultiline and Draw2DText, hand the pass down.
+- **Controls** (`UI_CONTROL_PASS`), in pass 1:
+  - Button, radio, slot and static: strings draw only with `+0x242` (`SetBlockStringPostEffect`), and the font and edges get the pass.
+    Button `DrawEdge`, radio `DrawCheckedEdge` and static `DrawEdge` are ported whole: March's body with the pass on every edge `Draw`.
+  - The static's pictures draw once with no SRC/DEST blend push, and its movies are skipped.
+  - The slot skips its additional pictures.
+  - Edit, IME edit and list box draw their background only. The scroll bar's held-arrow repeat runs in pass 0 only.
+  - The control list passes the pass to both bars, gated on the X bar's `+0x241` for both (JUNE_BUGS 287).
+  - Check box, combo, navigation and slider ignore the pass and get the new signature only. So do March's `CKTDGUIListControl` (not in
+    June) and `CX2TalkBoxManagerUI` (its imp's pass is R4i), so they stay overrides.
+- **Call sites:** the dialog render's control loop (June `@31cd7b6c` / `@31cd7b9a`) and the guide control (`@31d05695`) pass the pass.
+  Children inside controls get 0, as June's do (`@31ca45f2`, `@31cc5a3a`).
+
+**Routed:** the `CKTDGObject` vslot `0x10` / `0x2c` overrides go to new **R4i**. The sweep of every `CKTDGObject` RTTI class finds three
+beyond R4a's mesh and particle: `CX2UnitViewerUI`, `CX2Equip` and `CX2TalkBoxManager`. R4i also takes the talk-box imp's
+`OnFrameRender( pass )` (`32e930c0`, party leader `32f21da0`). The size rule decided that split: the viewer's post-effect draw alone is
+about 1,300 decompiled lines. The static's June-only list `+0x268` (untextured quads drawn in every pass; no March member, no filler
+known) goes to new **R4j**.
+
+**Hygiene** (`flagcheck --worktree --files` on the 42 code files): UI_CONTROL_PASS `files: 34 PASS, 0 PASS~, 0 DEFINE, 8 OTHER, 0 FAIL,
+0 ERROR` / `0 deleted, 0 non-ASCII, 0 EOL-mismatched`; DRAW_PASS `files: 8 PASS, ..., 34 OTHER, 0 FAIL` / `0 deleted, 0 non-ASCII,
+3 EOL-mismatched` (the device-font ctor insert in a mixed-EOL file); `RESULT: PASS` for both. Each flag's OTHER rows are the other flag's files.
+Range check after commit: RANGE_LINE.
+
+`DEPLOY OK: X2_offline.exe is 19,973,120 B, dated 2026-10-18 09:18:28, md5 d4eef83688b181e6dbdb7d59656cc4a8, equal to X2/US_SERVICE/x2.exe
+(2026-10-18 09:18:23); built at main eb5280c7 + 52 uncommitted code file(s).` (the 10 non-R4e files are peers' S-phase work.)
+
+**How to see it in game:** nothing changes. Every March caller passes 0, and render pass 1 has no caller yet. The UI (buttons, tabs, radio
+buttons, slots, edit boxes, list and combo boxes, scroll bars, text) should look and behave as before.
+
 ## Phase R4f - Software cursor (CKTDXCursor)
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CURSOR` (proposed).
@@ -1040,6 +1085,33 @@ Gate: minimap, last-kill shot (also at level 2), colour grading and UI move data
   finds. Every caller passes June's pass; pass 1 stays unreachable, so the gate is "unchanged".
 
 Gate: GM / item notices still appear (now drawn after the frame); UI unchanged.
+
+## Phase R4i - Post-effect object overrides and the talk-box pass
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_POST_EFFECT_OBJECTS`
+(proposed). Added by R4e (2026-10-18). Depends on R4e (`DRAW_PASS`, `UI_CONTROL_PASS`).
+- `CKTDGObject` vslot `0x10` (`OnFrameRender_PostEffectDraw`) / `0x2c` (`IsPostEffect`) overrides, from R4e's RTTI sweep:
+  - `CX2UnitViewerUI` (vtable `33471184`): `31f97960` (about 1,300 decompiled lines; compare with March `OnFrameRender_Draw`,
+    X2UnitViewerUI.cpp:1438) / `31fae370`. `31fae370` is `GetShowObject`'s body, folded, i.e. `IsPostEffect() = GetShowObject()`.
+  - `CX2Equip` (vtable `334c9b50`): `3295caa0` / `3295bd50`. `3295bd50` is true when `+0x8ec` is set and any effect sequence in
+    `+0x8f0..+0x8f4` (found through `31cefdd0( handle, 1 )`) is a post-effect sequence.
+  - `CX2TalkBoxManager` (vtable `335358e0`): `32e903e0` (the imp's vslot `0xc` with the pass; `Draw` `32e903b0` pushes 0) / `31fae370`.
+- `CX2TalkBoxManagerImp::OnFrameRender( pass )` (imp vslot `0xc`: base `32e930c0`, party leader `32f21da0`) with its draw callees.
+  Then `CX2TalkBoxManagerUI` (`32eec4a0`) hands the pass to it; R4e gave the UI class the signature only.
+
+Every caller of pass 1 is still unreached (R4b's frame has no post-effect pass), so the gate is "unchanged": the dialog 3D models, the
+equipped-item effects and the talk boxes look as before.
+
+## Phase R4j - Static colour-quad list (June-only)
+
+**Run with:** Opus 5.5 high (RE first: find the filler), then the port if March can reach it. Flag `SERV_IRUHADEV_JUNE_UI_STATIC_QUADS`
+(proposed). Added by R4e (2026-10-18). Depends on R4e.
+- June's `CKTDGUIStatic` has a vector at `+0x268` that March lacks (March's next member is the movie list, June `+0x288`). Its render
+  `31cbec10` (`@31cbee6a-31cbeed1`) walks it in every pass. Each entry gets `31c9b660` (it places the entry's 0x1c-byte vertices at
+  `( src + dialog pos ) * resolution`), then `31c954a0`, which draws type 2 with 4 vertices through `31c94e70` (untextured
+  `DrawPrimitiveUP`).
+- RE: who fills `+0x268` (a Lua binding or June-only UI code), what the entry type is, and whether any June script or dialog uses it. If
+  nothing March loads can create one, record that and close the phase; otherwise port the member, its filler and the draw.
 
 ## Phase R5 - CUSTOM_RENDER_STATE
 

@@ -101,7 +101,12 @@ class CKTDGUIScrollBar : public CKTDGUIControl
 		//virtual void    Render( IDirect3DDevice9* pd3dDevice, float fElapsedTime );
 		virtual void    UpdateRects();
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31d47b10
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
 

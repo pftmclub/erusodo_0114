@@ -193,7 +193,12 @@ HRESULT CKTDGUIRadioButton::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 31cab2b0: the pass reaches the checked edge and the string ( +0x242 gate )
+HRESULT CKTDGUIRadioButton::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUIRadioButton::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	HRESULT hr	= S_OK;
 
@@ -203,7 +208,11 @@ HRESULT CKTDGUIRadioButton::OnFrameRender()
 	//BG Draw
 
 	if ( m_bChecked == true )
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		DrawCheckedEdge( true, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		DrawCheckedEdge( true );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 #ifdef DLL_BUILD
 	DrawEditEdge(m_pRadioButtonPoint);
@@ -233,12 +242,20 @@ HRESULT CKTDGUIRadioButton::OnFrameRender()
 	}
 
 	if ( m_bChecked == true )
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		DrawCheckedEdge( false, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		DrawCheckedEdge( false );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 	D3DXCOLOR	tempColor;
 	D3DXCOLOR	tempOutLineColor;
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if ( m_pStringData != NULL && ( 0 == iRenderPass_ || true == GetBlockStringPostEffect() ) )	// June @31cab33f
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	if ( m_pStringData != NULL )
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	{
 		tempColor.a = m_pStringData->color.a * m_pDialog->GetColor().a * m_Color.a;
 		tempColor.r = m_pStringData->color.r * m_pDialog->GetColor().r * m_Color.r;
@@ -267,7 +284,11 @@ HRESULT CKTDGUIRadioButton::OnFrameRender()
 		// LANOX_TROUBLESHOOTING.md.
 		if ( pFont != NULL )
 		{
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+			pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag, -1, 1.f, 1.f, ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 			pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		}
 		else
 		{
@@ -276,7 +297,11 @@ HRESULT CKTDGUIRadioButton::OnFrameRender()
 			ErrorLogMsg( 0, strstm.str().c_str() );
 		}
 #else
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag, -1, 1.f, 1.f, ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 #endif SERV_IRUHADEV_RADIOBUTTON_FONT_DEGRADE
 	}
 	
@@ -877,6 +902,85 @@ D3DXVECTOR2 CKTDGUIRadioButton::GetGuideDescPos()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 31ca7cc0: March's function, with the pass handed to every edge draw
+void CKTDGUIRadioButton::DrawCheckedEdge( bool bDrawOut, int iRenderPass_ )
+{
+	if ( m_CheckedEdgeWidth == 0 || m_pCheckedEdgeTexture == NULL )
+		return;
+
+	D3DXCOLOR tempColor;
+
+	tempColor.a = m_CheckedEdgeColor.a * m_pDialog->GetColor().a * m_Color.a;
+	tempColor.r = m_CheckedEdgeColor.r * m_pDialog->GetColor().r * m_Color.r;
+	tempColor.g = m_CheckedEdgeColor.g * m_pDialog->GetColor().g * m_Color.g;
+	tempColor.b = m_CheckedEdgeColor.b * m_pDialog->GetColor().b * m_Color.b;
+
+
+	int _width = (int)(m_MyNowPoint.rightBottomPoint.x - m_MyNowPoint.leftTopPoint.x);
+	int _height = (int)(m_MyNowPoint.rightBottomPoint.y - m_MyNowPoint.leftTopPoint.y);
+
+	if ( bDrawOut == true )
+	{
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.leftTopPoint.x - m_CheckedEdgeWidth), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftTopPoint.y - m_CheckedEdgeWidth), 
+			m_CheckedEdgeWidth , 
+			_height + m_CheckedEdgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.leftTopPoint.x - m_CheckedEdgeWidth), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftBottomPoint.y ), 
+			_width + m_CheckedEdgeWidth, 
+			m_CheckedEdgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.rightTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftTopPoint.y ), 
+			m_CheckedEdgeWidth, 
+			_height + m_CheckedEdgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftTopPoint.y - m_CheckedEdgeWidth ), 
+			_width + m_CheckedEdgeWidth, 
+			m_CheckedEdgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+	}
+	else
+	{
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftTopPoint.y ), 
+			m_CheckedEdgeWidth , 
+			_height, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.leftTopPoint.x), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftBottomPoint.y - m_CheckedEdgeWidth ), 
+			_width, 
+			m_CheckedEdgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.rightTopPoint.x - m_CheckedEdgeWidth ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftTopPoint.y ), 
+			m_CheckedEdgeWidth, 
+			_height, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pCheckedEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_MyNowPoint.leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_MyNowPoint.leftTopPoint.y ), 
+			_width , 
+			m_CheckedEdgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+	}
+}
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 void CKTDGUIRadioButton::DrawCheckedEdge( bool bDrawOut )
 {
 	if ( m_CheckedEdgeWidth == 0 || m_pCheckedEdgeTexture == NULL )
@@ -961,6 +1065,7 @@ void CKTDGUIRadioButton::DrawCheckedEdge( bool bDrawOut )
 
 	}
 }
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 void CKTDGUIRadioButton::MoveControl( float fx, float fy )
 {

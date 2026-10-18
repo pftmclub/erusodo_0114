@@ -21,7 +21,12 @@ class CKTDGUIIMEEditBox : public CKTDGUIControl
 		static	void	EnableImeSystem( bool bEnable );
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31cb9ff0
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual void	SetEnable( bool bEnable );
 
 		virtual	bool	HandleKeyboard( UINT uMsg, WPARAM wParam, LPARAM lParam );

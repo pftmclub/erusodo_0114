@@ -7,7 +7,12 @@ class CKTDGUIListControl : public CKTDGUIControl
 		virtual ~CKTDGUIListControl(void);
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// not in June ( no RTTI ): the signature only, so it stays an override
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	bool	CanHaveFocus(){	return false; }
 
 		void		SetItemControlScript_( const char* pFileName );

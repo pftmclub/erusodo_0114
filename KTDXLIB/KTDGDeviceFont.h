@@ -331,7 +331,12 @@ public:
 	/// @param  iTop: top-position of first char of text string
 	/// @param  pszText: [in] output text
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+	// June 31d1c7f0 ( CKTDGDeviceFont, RTTI 3361154c ): the last argument is the render pass, handed to Buffering and Flush
+	void OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, D3DCOLOR colorOutLine = 0xff000000, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f, bool bJunePostEffectPass_ = false );
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	void OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, D3DCOLOR colorOutLine = 0xff000000, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f );
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 //#else
 //	__forceinline void OutTextXY( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, D3DCOLOR colorOutLine = 0xff000000, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP )
 //	{
@@ -395,7 +400,12 @@ public:
 	/// @note   we use '\n' and "\\n" as line breaking special characters
 	///         so "Hello\nWorld" and "Hello\\nWorld" will be rendered same format.
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+	// June 31d1d180: the last argument is the render pass, handed to Buffering and Flush
+	void OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, D3DCOLOR colorOutLine = 0xff000000, float fLineSpace = 1.0f, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f, bool bJunePostEffectPass_ = false );
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	void OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, D3DCOLOR colorOutLine = 0xff000000, float fLineSpace = 1.0f, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f );
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 //#else
 //	__forceinline void OutTextMultiline( const int& iLeft, const int& iTop, const WCHAR* wszText, D3DCOLOR color = 0xffffffff, D3DCOLOR colorOutLine = 0xff000000, float fLineSpace = 1.0f, RECT* pRt = NULL, DWORD dwFlag = DT_LEFT|DT_TOP)
 //	{
@@ -698,7 +708,12 @@ private:
 
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
 	#ifdef HIDE_FONT_OUT_OF_EDITBOX_SIZE
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+		// June 31d1bc10: the last argument is the render pass, handed to the page-full Flush
+		void Buffering( bool bOutLine, const int& iLeft, const int& iTop, const WCHAR* str, const D3DCOLOR& color, const D3DCOLOR& DefColor,bool bNoColor, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f, const int& iRight = -1, bool bJunePostEffectPass_ = false );
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 		void Buffering( bool bOutLine, const int& iLeft, const int& iTop, const WCHAR* str, const D3DCOLOR& color, const D3DCOLOR& DefColor,bool bNoColor, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f, const int& iRight = -1  );
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	#else //HIDE_FONT_OUT_OF_EDITBOX_SIZE
 		void Buffering( bool bOutLine, const int& iLeft, const int& iTop, const WCHAR* str, const D3DCOLOR& color, const D3DCOLOR& DefColor,bool bNoColor, int nCount = -1, float fScaleX = 1.f, float fScaleY = 1.f );
 	#endif //HIDE_FONT_OUT_OF_EDITBOX_SIZE
@@ -797,7 +812,12 @@ private:
 //#endif
 	
 //#ifdef DYNAMIC_VERTEX_BUFFER_OPT
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+	// June 31d1bae0: pass 1 pushes m_RenderStateIDJunePostEffect ( +0x1000bc ) instead of m_RenderStateID ( +0x1000b4 )
+	void Flush( bool bOutLine, int iPage = -1, bool bJunePostEffectPass_ = false );
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 	void Flush( bool bOutLine, int iPage = -1 );
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 //#else
 //	void Flush(bool bOutLine);
 //#endif
@@ -887,6 +907,9 @@ private:
 
 //{{ robobeg : 2008-10-13
 	CKTDGStateManager::KStateID m_RenderStateID;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+	CKTDGStateManager::KStateID m_RenderStateIDJunePostEffect;		// June +0x1000bc ( table 337295d8, 15 states )
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 //}} robobeg : 2008-10-13
 	int					m_EnlargeNum;
 

@@ -213,7 +213,11 @@ HRESULT	CKTDGUIComboBox::OnFrameMove( double fTime, float fElapsedTime )
 
 
 //--------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT CKTDGUIComboBox::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUIComboBox::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 
 	

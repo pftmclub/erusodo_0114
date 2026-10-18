@@ -26,7 +26,12 @@ class CKTDGUIButton : public CKTDGUIControl
 		virtual	~CKTDGUIButton(void);
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31cb1ef0
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		virtual void	SetShow( bool bShow );
 		virtual void	SetEnable( bool bEnable );
@@ -164,7 +169,11 @@ class CKTDGUIButton : public CKTDGUIControl
 	protected:
 
 		void ReNameStatics();
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		void DrawEdge( bool bDrawOut, int iRenderPass_ = 0 );	// June 31cad320 ( bDrawOut, pass )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		void DrawEdge( bool bDrawOut );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		void LButtonMouseUp();
 

@@ -9,7 +9,12 @@ class CX2TalkBoxManagerUI : public CKTDGUIControl
 		virtual ~CX2TalkBoxManagerUI(void);
 
 		HRESULT OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 32eec4a0 ( the imp's pass is R4h )
+		HRESULT OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		HRESULT OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		//void Push(TalkBox* talkBox) { Push( *talkBox ); }
 		void Push( CX2TalkBoxManagerImp::TalkBox& talkBox );

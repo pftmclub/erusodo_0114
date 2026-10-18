@@ -68,7 +68,12 @@ public:
 	virtual	~CKTDGUISlot(void);
 	
 	virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	// June 31cd16a0
+	virtual HRESULT OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	virtual HRESULT OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	virtual	HRESULT	OnFrameRenderEnd();
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1

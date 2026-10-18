@@ -792,7 +792,12 @@ class CKTDGUIControl : private boost::noncopyable
 		virtual	~CKTDGUIControl(void);
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June control vslot 8 ( ret 4 ): the render pass ( 0 = the frame, 1 = the post-effect pass; every March caller passes 0 )
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRenderEnd()  { return S_OK; }
 		virtual	HRESULT	OnResetDevice()		{ return S_OK; }
 		virtual	HRESULT	OnLostDevice()		{ return S_OK; }

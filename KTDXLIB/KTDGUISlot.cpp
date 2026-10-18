@@ -380,7 +380,12 @@ void CKTDGUISlot::LButtonMouseUp()
 	return S_OK;
 
 }
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 31cd16a0: the additional pictures draw in pass 0 only; the string gets the pass ( +0x242 gate )
+/*virtual*/ HRESULT CKTDGUISlot::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 /*virtual*/ HRESULT CKTDGUISlot::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	KTDXPROFILE();
 	if( m_bShow == false )
@@ -411,6 +416,9 @@ void CKTDGUISlot::LButtonMouseUp()
 		RenderVertex( m_Vertex, *m_pMouseOverPoint );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if( 0 == iRenderPass_ )	// June @31cd1755
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	for( map<int, CKTDGUIControl::CPictureData*>::iterator it = m_mapAdditionalPictureDataList.begin(); it != m_mapAdditionalPictureDataList.end(); ++it )
 	{
 		KTDXPROFILE_BEGIN("Picture");
@@ -444,7 +452,11 @@ void CKTDGUISlot::LButtonMouseUp()
 
 //	UpdateAnimVertex( m_Vertex, &m_NowTexChangeData );
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if ( m_pStringData != NULL && ( 0 == iRenderPass_ || true == GetBlockStringPostEffect() ) )	// June @31cd1961
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	if ( m_pStringData != NULL )
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	{
 #ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 		m_pStringData->RewrapPending();		// June slot OnFrameRender 31cb1ef0 -> 31d45f20
@@ -466,8 +478,13 @@ void CKTDGUISlot::LButtonMouseUp()
 
 		pos = m_pStringData->pos + m_pDialog->GetPos() + m_OffsetPos;		
 		//pFont->Draw2DText( pStringData->msg.c_str(), (int)pos.x, (int)pos.y, tempColor, tempOutLineColor, pStringData->sortFlag, pStringData->fontStyle );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, 
+			m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag, -1, 1.f, 1.f, ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, 
 			m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 	}
 

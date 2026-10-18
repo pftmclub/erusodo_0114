@@ -16,7 +16,12 @@ public:
 	CKTDGUINavigation(void);
 	virtual ~CKTDGUINavigation(void);
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	// June 31cc8480 ( the pass is unused )
+	virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
 
 	virtual bool    HandleKeyboard( UINT uMsg, WPARAM wParam, LPARAM lParam );

@@ -526,9 +526,16 @@ void CKTDXDeviceTexture::DrawLayer( float nX, float nY, float nWidth, float nHei
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+// June 31d48f90: the pass picks the state block, the rest is March's
+void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */, float fRotateDegree /*= 0.f*/, bool bJunePostEffectPass_ /*= false*/ )
+{
+    KD3DPUSH( true == bJunePostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color /* = 0xffffffff  */, float fRotateDegree /*= 0.f*/ )
 {
     KD3DPUSH( g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 
 	D3DXVECTOR3 pos		= g_pKTDXApp->ConvertByResolution( (float)nX, (float)nY );
 	D3DXVECTOR3 size	= g_pKTDXApp->ConvertByResolution( (float)nWidth, (float)nHeight );
@@ -624,9 +631,16 @@ void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR
 	KD3DEND()
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+// June 31d49430: the pass picks the state block, the rest is March's
+void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, const TEXTURE_UV* pTextureUV, D3DCOLOR color /* = 0xffffffff  */, bool bJunePostEffectPass_ /*= false*/ )
+{
+    KD3DPUSH( true == bJunePostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, const TEXTURE_UV* pTextureUV, D3DCOLOR color /* = 0xffffffff  */)
 {
     KD3DPUSH( g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 
 	D3DXVECTOR3 pos		= g_pKTDXApp->ConvertByResolution( (float)nX, (float)nY );
 	D3DXVECTOR3 size	= g_pKTDXApp->ConvertByResolution( (float)nWidth, (float)nHeight );
@@ -693,9 +707,16 @@ void CKTDXDeviceTexture::Draw( int nX, int nY, int nWidth, int nHeight, const TE
     KD3DEND()
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+// June 31d49760: the pass picks the state block, the rest is March's
+void CKTDXDeviceTexture::Draw( float fX, float fY, float fWidth, float fHeight, int nTexU, int nTexV, int nTexWidth, int nTexHeight, D3DCOLOR color /* = 0xffffffff  */, bool bJunePostEffectPass_ /*= false*/ )
+{
+    KD3DPUSH( true == bJunePostEffectPass_ ? g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTextureAdditive() : g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 void CKTDXDeviceTexture::Draw( float fX, float fY, float fWidth, float fHeight, int nTexU, int nTexV, int nTexWidth, int nTexHeight, D3DCOLOR color /* = 0xffffffff  */ )
 {
     KD3DPUSH( g_pKTDXApp->GetDGManager()->GetRSICKTDXDeviceTexture() )
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 
 	D3DXVECTOR2 pos		= g_pKTDXApp->ConvertByResolution( fX, fY );
 	D3DXVECTOR2 size	= g_pKTDXApp->ConvertByResolution( fWidth, fHeight );

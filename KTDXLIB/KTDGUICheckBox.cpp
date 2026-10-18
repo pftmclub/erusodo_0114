@@ -115,7 +115,11 @@ HRESULT CKTDGUICheckBox::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT CKTDGUICheckBox::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUICheckBox::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	KTDXPROFILE();
 	HRESULT hr	= S_OK;

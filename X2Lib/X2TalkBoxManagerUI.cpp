@@ -22,7 +22,12 @@ HRESULT CX2TalkBoxManagerUI::OnFrameMove( double fTime, float fElapsedTime )
 
 	return S_OK;
 }
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 32eec4a0 hands the pass to the imp's vslot 0xc; the imp's pass is Phase R4h, so the imp still draws as March
+HRESULT CX2TalkBoxManagerUI::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CX2TalkBoxManagerUI::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	KTDXPROFILE();
 

@@ -126,7 +126,11 @@ HRESULT CKTDGUIEditBox::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT CKTDGUIEditBox::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUIEditBox::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	KTDXPROFILE();
 	if( m_bShow == false )
@@ -153,6 +157,10 @@ HRESULT CKTDGUIEditBox::OnFrameRender()
 
 		RenderVertex( m_Vertex, m_NowPoint );
 	}
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if( 1 == iRenderPass_ )		// June 31cb3ae0 @31cb3b72: pass 1 draws the background only
+		return S_OK;
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 	//
 	// Compute the X coordinates of the first visible character.

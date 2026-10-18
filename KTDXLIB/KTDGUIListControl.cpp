@@ -58,7 +58,11 @@ HRESULT	CKTDGUIListControl::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT	CKTDGUIListControl::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT	CKTDGUIListControl::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	if( m_bShow == false )
 		return S_OK;

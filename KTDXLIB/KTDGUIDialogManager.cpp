@@ -1149,7 +1149,11 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 				continue;
 			if ( pDialog->GetShow() && pDialog->GetGuideControl() != NULL )
 			{
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+				pDialog->GetGuideControl()->OnFrameRender( iRenderPass_ );	// June @31d05695
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 				pDialog->GetGuideControl()->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 			}
 		}//while
     KD3DEND()

@@ -61,7 +61,11 @@ HRESULT	CKTDGUISlider::OnFrameMove(double fTime, float fElapsedTime )
 
 
 //--------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT CKTDGUISlider::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUISlider::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	if ( m_bShow == false )
 	{

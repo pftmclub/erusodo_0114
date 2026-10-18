@@ -62,7 +62,11 @@ HRESULT	CKTDGUINavigation::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT CKTDGUINavigation::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUINavigation::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	if( false == m_bShow )
 		return S_OK;

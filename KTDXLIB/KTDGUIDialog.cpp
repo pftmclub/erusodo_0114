@@ -468,7 +468,11 @@ HRESULT	CKTDGUIDialog::OnFrameRender( bool bForceDraw /* = false */, int iRender
 			if( 0 != iRenderPass_ && pControl->GetBlockPostEffect() == false )
 				continue;
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+			pControl->OnFrameRender( iRenderPass_ );	// June @31cd7b6c / @31cd7b9a
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 			pControl->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	    }
 
 		if( 0 == iRenderPass_ )		// June @31cd7bc5: pass 0 only

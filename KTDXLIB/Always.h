@@ -8333,3 +8333,40 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Phase R13d, so the lock stays clear until then. Revert: undefine.
 #define SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R4e. The 2D draw primitives take June's render pass as a last argument: the
+//              texture draws ( 31d48f90 / 31d49430 / 31d49760 ) and the render-target draw ( 31cdadc0 ) push DG +0x40 ( the
+//              additive block ) instead of +0x38 in pass 1; the device font's Flush 31d1bae0 ( CKTDGDeviceFont, RTTI 3361154c; US #undefs USE_FREE_TYPE, as June ) pushes June's second state
+//              table ( 337295d8: alpha test, SRCBLEND = DESTBLEND = ZERO, colour = diffuse; font +0x1000bc ) instead of
+//              March's ( 33729508 ), and Buffering 31d1bc10 / OutTextXY 31d1c7f0 / OutTextMultiline 31d1d180 and the
+//              CUKFont wrappers 31c3aba0 / 31c3acb0 / 31c3ae80 hand the pass down. Every March caller passes 0. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+#ifndef SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#error SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS needs SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#endif SERV_IRUHADEV_JUNE_RENDER_DG_STATES
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R4e. The UI controls' render takes June's render pass ( control vslot 8,
+//              ret 4 ): CKTDGUIControl::OnFrameRender( int pass = 0 ) in every control class ( button 31cb1ef0, radio
+//              31cab2b0, slot 31cd16a0, static 31cbec10, list box 31ca37f0, combo 31cc5040, check 31c91650, edit 31cb3ae0,
+//              IME 31cb9ff0, navigation 31cc8480, control list 31cca350, scroll bar 31d47b10, slider 31cac080; talk-box UI
+//              32eec4a0 signature only, its imp's pass is R4h ). In pass 1 strings draw only with SetBlockStringPostEffect
+//              ( +0x242 ), the edges / pictures / fonts get the pass, edit and list boxes draw their background only, the slot
+//              skips its additional pictures and the static its movies. The dialog render ( 31cd7810 @31cd7b6c / @31cd7b9a )
+//              and the guide control ( 31d053f0 @31d05695 ) pass the pass down. Every March caller passes 0. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+#ifndef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+#error SERV_IRUHADEV_JUNE_UI_CONTROL_PASS needs SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+#ifndef SERV_IRUHADEV_JUNE_RENDER_PASS1
+#error SERV_IRUHADEV_JUNE_UI_CONTROL_PASS needs SERV_IRUHADEV_JUNE_RENDER_PASS1
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+//////////////////////////////////////////////////////////////////////////

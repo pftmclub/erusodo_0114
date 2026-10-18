@@ -167,7 +167,12 @@ void CKTDGUIStatic::UpdateMovieSubtitle()
 	}
 }
 #endif SERV_IRUHADEV_JUNE_UI_MOVIE_SUBTITLE
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 31cbec10: pictures draw once with no blend push in pass 1; strings only in pass 0 or with +0x242; movies not in pass 1
+HRESULT CKTDGUIStatic::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUIStatic::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	KTDXPROFILE();
 	if( m_bShow == false )
@@ -184,25 +189,54 @@ HRESULT CKTDGUIStatic::OnFrameRender()
 			&& pPictureData->pTexture->pTexture != NULL )
 		{
 			if ( pPictureData->m_EdgeWidth != 0 )
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+				DrawEdge( pPictureData->m_bDrawEdgeOut, pPictureData->m_EdgeWidth, pPictureData->m_EdgeColor, pPictureData->pPoint, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 				DrawEdge( pPictureData->m_bDrawEdgeOut, pPictureData->m_EdgeWidth, pPictureData->m_EdgeColor, pPictureData->pPoint );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 			UpdateVertex( m_Vertex[VP_LEFT_TOP], m_Vertex[VP_RIGHT_TOP],
 											m_Vertex[VP_LEFT_BOTTOM], m_Vertex[VP_RIGHT_BOTTOM],
 											*pPictureData->pPoint );
 			
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+			// June @31cbed0e: pass 1 draws the picture once ( when m_iDrawCount >= 1 ) and pushes no blend states
+			if( 1 == iRenderPass_ )
+			{
+				if( pPictureData->pPoint->m_iDrawCount >= 1 )
+					RenderVertex( m_Vertex, *pPictureData->pPoint, 1 );
+			}
+			else
+			{
             KD3DBEGIN()
 			    CKTDGStateManager::PushRenderState( D3DRS_SRCBLEND,			pPictureData->pPoint->m_eSrcBlend );
 			    CKTDGStateManager::PushRenderState( D3DRS_DESTBLEND,		pPictureData->pPoint->m_eDestBlend );
 			    RenderVertex( m_Vertex, *pPictureData->pPoint, pPictureData->pPoint->m_iDrawCount );
             KD3DEND()
+			}
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+            KD3DBEGIN()
+			    CKTDGStateManager::PushRenderState( D3DRS_SRCBLEND,			pPictureData->pPoint->m_eSrcBlend );
+			    CKTDGStateManager::PushRenderState( D3DRS_DESTBLEND,		pPictureData->pPoint->m_eDestBlend );
+			    RenderVertex( m_Vertex, *pPictureData->pPoint, pPictureData->pPoint->m_iDrawCount );
+            KD3DEND()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 			if ( pPictureData->m_EdgeWidth != 0 )
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+				DrawEdge( pPictureData->m_bDrawEdgeOut, pPictureData->m_EdgeWidth, pPictureData->m_EdgeColor, pPictureData->pPoint, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 				DrawEdge( pPictureData->m_bDrawEdgeOut, pPictureData->m_EdgeWidth, pPictureData->m_EdgeColor, pPictureData->pPoint );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		}
 		KTDXPROFILE_END();
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	// June @31cbeed3: the strings draw in pass 0, or in pass 1 with SetBlockStringPostEffect ( +0x242 )
+	if( 0 == iRenderPass_ || true == GetBlockStringPostEffect() )
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	for( int i = 0; i < (int)m_StringDataList.size(); i++ )
 	{
 		KTDXPROFILE_BEGIN("Text");
@@ -236,11 +270,19 @@ HRESULT CKTDGUIStatic::OnFrameRender()
 			if( true == pStringData->bSpread )
 			{
 				wstring spreadMsg = pStringData->msg.substr( 0, pStringData->iSpreadCount );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+				pFont->OutTextMultiline( (int)pos.x, (int)pos.y, spreadMsg.c_str(), tempColor, pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, pStringData->sortFlag, -1, 1.f, 1.f, ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 				pFont->OutTextMultiline( (int)pos.x, (int)pos.y, spreadMsg.c_str(), tempColor, pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, pStringData->sortFlag );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 			}
 			else
 			{
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+				pFont->OutTextMultiline( (int)pos.x, (int)pos.y, pStringData->msg.c_str(), tempColor, pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, pStringData->sortFlag, -1, 1.f, 1.f, ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 				pFont->OutTextMultiline( (int)pos.x, (int)pos.y, pStringData->msg.c_str(), tempColor, pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, pStringData->sortFlag );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 			}
 		}
 		else
@@ -271,12 +313,20 @@ HRESULT CKTDGUIStatic::OnFrameRender()
 			{
 				wstring spreadMsg = pStringData->msg.substr( 0, pStringData->iSpreadCount );
 				//pFont->OutTextMultiline( (int)pos.x, (int)pos.y, spreadMsg.c_str(), tempColor, pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, pStringData->sortFlag );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+				pFont->Draw2DText( spreadMsg.c_str(), (int)pos.x, (int)pos.y, tempColor, tempOutLineColor, pStringData->sortFlag, pStringData->fontStyle, (int)spreadMsg.size(), ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 				pFont->Draw2DText( spreadMsg.c_str(), (int)pos.x, (int)pos.y, tempColor, tempOutLineColor, pStringData->sortFlag, pStringData->fontStyle, (int)spreadMsg.size() );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 			}
 			else
 			{
 				//pFont->OutTextMultiline( (int)pos.x, (int)pos.y, pStringData->msg.c_str(), tempColor, pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, pStringData->sortFlag );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+				pFont->Draw2DText( pStringData->msg.c_str(), (int)pos.x, (int)pos.y, tempColor, tempOutLineColor, pStringData->sortFlag, pStringData->fontStyle, (int)pStringData->msg.size(), ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 				pFont->Draw2DText( pStringData->msg.c_str(), (int)pos.x, (int)pos.y, tempColor, tempOutLineColor, pStringData->sortFlag, pStringData->fontStyle, (int)pStringData->msg.size() );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 			}
 		}
 
@@ -287,6 +337,9 @@ HRESULT CKTDGUIStatic::OnFrameRender()
 
 #if defined(REFORM_ENTRY_POINT) && defined( MOVIE_TEST_BASE ) || defined( MOVIE_TEST ) 
 // #ifdef MOVIE_TEST	 	// 13-11-11, 진입 구조 개편, kimjh, MOVIE_TEST 중 사용에 필요한 Define 을 MOVIE_TEST_BASE 로 변경
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if( 1 != iRenderPass_ )	// June @31cbfd45: no movies in pass 1
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	BOOST_FOREACH( CMovieData* pMovieData, m_MovieDataList )
 	{
 		if ( NULL != pMovieData &&
@@ -546,6 +599,88 @@ void CKTDGUIStatic::SetMaximize( bool val )
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 31cbce60: March's function, with the pass handed to every edge draw
+void CKTDGUIStatic::DrawEdge( bool bDrawOut, int edgeWidth, D3DXCOLOR edgeColor, CKTDGUIControl::UIPointData* pPoint, int iRenderPass_ )
+{
+	if ( edgeWidth == 0 || m_pEdgeTexture == NULL )
+		return;
+
+	if ( pPoint == NULL )
+		return;
+
+	int _width = (int)(pPoint->rightTopPoint.x - pPoint->leftTopPoint.x);
+	int _height = (int)(pPoint->rightBottomPoint.y - pPoint->leftTopPoint.y);
+
+	D3DXCOLOR tempColor;
+
+	tempColor.a = edgeColor.a * m_pDialog->GetColor().a * m_Color.a;
+	tempColor.r = edgeColor.r * m_pDialog->GetColor().r * m_Color.r;
+	tempColor.g = edgeColor.g * m_pDialog->GetColor().g * m_Color.g;
+	tempColor.b = edgeColor.b * m_pDialog->GetColor().b * m_Color.b;
+
+	if ( bDrawOut == true )
+	{
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->leftTopPoint.x - edgeWidth), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftTopPoint.y - edgeWidth), 
+			edgeWidth , 
+			_height + edgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->leftTopPoint.x - edgeWidth), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftBottomPoint.y ), 
+			_width + edgeWidth, 
+			edgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->rightTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftTopPoint.y ), 
+			edgeWidth, 
+			_height + edgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftTopPoint.y - edgeWidth ), 
+			_width + edgeWidth, 
+			edgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+	}
+	else
+	{
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftTopPoint.y ), 
+			edgeWidth , 
+			_height, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->leftTopPoint.x), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftBottomPoint.y - edgeWidth ), 
+			_width, 
+			edgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->rightTopPoint.x - edgeWidth ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftTopPoint.y ), 
+			edgeWidth, 
+			_height, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + pPoint->leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + pPoint->leftTopPoint.y ), 
+			_width , 
+			edgeWidth, 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+	}
+
+}
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 void CKTDGUIStatic::DrawEdge( bool bDrawOut, int edgeWidth, D3DXCOLOR edgeColor, CKTDGUIControl::UIPointData* pPoint )
 {
 	if ( edgeWidth == 0 || m_pEdgeTexture == NULL )
@@ -633,6 +768,7 @@ void CKTDGUIStatic::DrawEdge( bool bDrawOut, int edgeWidth, D3DXCOLOR edgeColor,
 	}
 
 }
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 
 void CKTDGUIStatic::SetRoundBoxPosSize( D3DXVECTOR2 vPos, D3DXVECTOR2 vRectSize, D3DXVECTOR2 vRoundSize, CKTDGUIStatic::CPictureData** apPictureData )

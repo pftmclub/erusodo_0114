@@ -56,7 +56,12 @@ public:
 	void SetCustomMsgScroll( int msg ) { m_CustomMsgScroll = msg; }
 
 	virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	// June 31cca350
+	virtual HRESULT OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	virtual HRESULT OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	virtual	HRESULT	OnFrameRenderEnd();
 
 	virtual bool    HandleKeyboard( UINT uMsg, WPARAM wParam, LPARAM lParam );

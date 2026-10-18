@@ -40,7 +40,12 @@ class CKTDGUIComboBox : public CKTDGUIControl
 
 		void InitScrollBar_LUA();
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31cc5040 ( the pass is unused )
+		virtual HRESULT OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual HRESULT OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual HRESULT OnFrameRenderEnd();
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
 

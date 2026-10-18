@@ -266,7 +266,11 @@ void CKTDGUIContolList::UpdateRenderControlList()
 	return S_OK;    
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+/*virtual*/ HRESULT CKTDGUIContolList::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 /*virtual*/ HRESULT CKTDGUIContolList::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 // 	for ( int i = 0; i < (int)m_vecNowControls.size(); i++ )
 // 	{
@@ -282,6 +286,18 @@ void CKTDGUIContolList::UpdateRenderControlList()
 #endif // DLL_BUILD
 
 	// Render the scroll bar
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	// June 31cca350: both scroll bars get the pass; in pass 1 each needs SetBlockPostEffect, and June reads the X bar's flag
+	// ( +0x241 ) for the Y bar too, without a NULL check ( JUNE_BUGS ). Every March caller passes 0.
+	if ( m_pScrollBarX != NULL && ( 0 == iRenderPass_ || true == m_pScrollBarX->GetBlockPostEffect() ) )
+	{
+		m_pScrollBarX->OnFrameRender( iRenderPass_ );
+	}
+	if ( m_pScrollBarY != NULL && ( 0 == iRenderPass_ || true == m_pScrollBarX->GetBlockPostEffect() ) )
+	{
+		m_pScrollBarY->OnFrameRender( iRenderPass_ );
+	}
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	if ( m_pScrollBarX != NULL )
 	{
 		m_pScrollBarX->OnFrameRender();
@@ -290,6 +306,7 @@ void CKTDGUIContolList::UpdateRenderControlList()
 	{
 		m_pScrollBarY->OnFrameRender();
 	}
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 
 	return S_OK;    	

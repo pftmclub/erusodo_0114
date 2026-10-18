@@ -265,14 +265,23 @@ HRESULT CKTDGUIButton::OnFrameMove( double fTime, float fElapsedTime )
 	return S_OK;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 31cb1ef0: the pass reaches the edge and the string; strings draw in pass 1 only with SetBlockStringPostEffect ( +0x242 )
+HRESULT CKTDGUIButton::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUIButton::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	KTDXPROFILE();
 	if( m_bShow == false )
 		return S_OK;
 
 	if ( m_bHasFocus == true && m_EdgeWidth > 0 )
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		DrawEdge( true, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		DrawEdge( true );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 	UpdateVertex( m_Vertex[CKTDGUIControl::VP_LEFT_TOP], 
 		m_Vertex[CKTDGUIControl::VP_RIGHT_TOP], 
@@ -302,7 +311,11 @@ HRESULT CKTDGUIButton::OnFrameRender()
 	RenderVertex( m_Vertex, m_NowPoint );
 
 	if ( m_bHasFocus == true && m_EdgeWidth > 0 )
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		DrawEdge( false, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		DrawEdge( false );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 /*
 	if( m_pStringData != NULL )
@@ -328,7 +341,11 @@ HRESULT CKTDGUIButton::OnFrameRender()
 	}
 
 */
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if ( m_pStringData != NULL && ( 0 == iRenderPass_ || true == GetBlockStringPostEffect() ) )	// June @31cb1f8b
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	if ( m_pStringData != NULL )
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	{
 #ifdef SERV_IRUHADEV_JUNE_UI_LINE_BREAK
 		m_pStringData->RewrapPending();		// June button OnFrameRender 31ca37f0 -> 31d45f20
@@ -353,8 +370,13 @@ HRESULT CKTDGUIButton::OnFrameRender()
 
 		pos = m_pStringData->pos + m_pDialog->GetPos() + m_OffsetPos;		
 		//pFont->Draw2DText( pStringData->msg.c_str(), (int)pos.x, (int)pos.y, tempColor, tempOutLineColor, pStringData->sortFlag, pStringData->fontStyle );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, 
+			m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag, -1, 1.f, 1.f, ( 1 == iRenderPass_ ) );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		pFont->OutTextMultiline( (int)pos.x, (int)pos.y, m_pStringData->msg.c_str(), tempColor, 
 			m_pStringData->fontStyle, tempOutLineColor, 1.0f, NULL, m_pStringData->sortFlag );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 	}
 
@@ -1112,6 +1134,87 @@ void CKTDGUIButton::ReNameStatics()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+// June 31cad320: March's function, with the pass handed to every edge draw
+void CKTDGUIButton::DrawEdge( bool bDrawOut, int iRenderPass_ )
+{
+	if ( m_EdgeWidth == 0 || m_pEdgeTexture == NULL )
+		return;
+
+	D3DXCOLOR tempColor;
+
+	tempColor.a = m_EdgeColor.a * m_pDialog->GetColor().a * m_Color.a;
+	tempColor.r = m_EdgeColor.r * m_pDialog->GetColor().r * m_Color.r;
+	tempColor.g = m_EdgeColor.g * m_pDialog->GetColor().g * m_Color.g;
+	tempColor.b = m_EdgeColor.b * m_pDialog->GetColor().b * m_Color.b;
+
+
+	int _width = (int)(m_edgePoint.rightBottomPoint.x - m_edgePoint.leftTopPoint.x);
+	int _height = (int)(m_edgePoint.rightBottomPoint.y - m_edgePoint.leftTopPoint.y);
+
+	if ( bDrawOut == true )
+	{
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.leftTopPoint.x - m_EdgeWidth) + -m_EdgeEnlargeValue, 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftTopPoint.y - m_EdgeWidth) - m_EdgeEnlargeValue, 
+			m_EdgeWidth, 
+			_height + m_EdgeWidth + (m_EdgeEnlargeValue*2), 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.leftTopPoint.x - m_EdgeWidth) + -m_EdgeEnlargeValue, 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftBottomPoint.y ) +m_EdgeEnlargeValue , 
+			_width + m_EdgeWidth +m_EdgeEnlargeValue , 
+			m_EdgeWidth , 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.rightTopPoint.x ) + m_EdgeEnlargeValue, 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftTopPoint.y ) , 
+			m_EdgeWidth, 
+			_height + m_EdgeWidth + (m_EdgeEnlargeValue) ,
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftTopPoint.y - m_EdgeWidth ) + -m_EdgeEnlargeValue, 
+			_width + m_EdgeWidth + (m_EdgeEnlargeValue*2), 
+			m_EdgeWidth , 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+	}
+	else
+	{
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.leftTopPoint.x ) + -m_EdgeEnlargeValue, 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftTopPoint.y ) - m_EdgeEnlargeValue, 
+			m_EdgeWidth, 
+			_height + (m_EdgeEnlargeValue*2), 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.leftTopPoint.x) + -m_EdgeEnlargeValue, 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftBottomPoint.y - m_EdgeWidth ) + m_EdgeEnlargeValue, 
+			_width +m_EdgeEnlargeValue, 
+			m_EdgeWidth , 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.rightTopPoint.x - m_EdgeWidth ) + m_EdgeEnlargeValue, 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftTopPoint.y ), 
+			m_EdgeWidth, 
+			_height + (m_EdgeEnlargeValue), 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+
+		m_pEdgeTexture->Draw( (int)(m_pDialog->GetPos().x + m_OffsetPos.x + m_edgePoint.leftTopPoint.x ), 
+			(int)(m_pDialog->GetPos().y + m_OffsetPos.y + m_edgePoint.leftTopPoint.y ) + -m_EdgeEnlargeValue, 
+			_width + (m_EdgeEnlargeValue*2), 
+			m_EdgeWidth , 
+			tempColor, 0.f, ( 1 == iRenderPass_ ) );
+
+	}
+
+
+}
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 void CKTDGUIButton::DrawEdge( bool bDrawOut )
 {
 	if ( m_EdgeWidth == 0 || m_pEdgeTexture == NULL )
@@ -1198,6 +1301,7 @@ void CKTDGUIButton::DrawEdge( bool bDrawOut )
 
 
 }
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 void CKTDGUIButton::LButtonMouseUp()
 {

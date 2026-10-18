@@ -215,7 +215,11 @@ HRESULT	CKTDGUIListBox::OnFrameMove( double fTime, float fElapsedTime )
 
 
 //--------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT CKTDGUIListBox::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUIListBox::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	KTDXPROFILE();
 
@@ -250,6 +254,10 @@ HRESULT CKTDGUIListBox::OnFrameRender()
 		m_TempPoint );
 
 	RenderVertex( m_Vertex, m_TempPoint );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if( 1 == iRenderPass_ )		// June 31ca37f0 @31ca3b51: pass 1 draws the bounding box only
+		return S_OK;
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 
 	// Render the text

@@ -8,7 +8,12 @@ class CKTDGUIStatic : public CKTDGUIControl
 		virtual	~CKTDGUIStatic(void);
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31cbec10
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		bool HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam );
 
@@ -121,7 +126,11 @@ class CKTDGUIStatic : public CKTDGUIControl
 #endif
 	protected:
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		void DrawEdge( bool bDrawOut, int edgeWidth, D3DXCOLOR edgeColor, CKTDGUIControl::UIPointData* pPoint, int iRenderPass_ = 0 );	// June 31cbce60
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		void DrawEdge( bool bDrawOut, int edgeWidth, D3DXCOLOR edgeColor, CKTDGUIControl::UIPointData* pPoint );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		
 		vector<CKTDGUIControl::CPictureData*>	m_PictureDataList;
 		vector<CKTDGUIControl::UIStringData*>	m_StringDataList;

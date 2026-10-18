@@ -394,7 +394,11 @@ HRESULT	CKTDGUIScrollBar::OnFrameMove( double fTime, float fElapsedTime )
 }
 
 //--------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+HRESULT CKTDGUIScrollBar::OnFrameRender( int iRenderPass_ /*= 0*/ )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 HRESULT CKTDGUIScrollBar::OnFrameRender()
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 {
 	// Check if the arrow button has been held for a while.
 	// If so, update the thumb position to simulate repeated
@@ -408,7 +412,11 @@ HRESULT CKTDGUIScrollBar::OnFrameRender()
 	DrawEditEdge();
 #endif
 #ifndef DLL_BUILD
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+	if( 0 == iRenderPass_ && m_Arrow != CLEAR )	// June 31d47b10 @31d47b26: the held-arrow repeat runs in pass 0 only
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	if( m_Arrow != CLEAR )
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 	{
 		double dCurrTime = DXUTGetTime();
 		if( PtInRect( &m_rcUpButton, m_LastMouse ) )

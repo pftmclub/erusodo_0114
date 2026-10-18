@@ -138,9 +138,16 @@ class CKTDXDeviceTexture
 		const KeyTexUVMap&  GetMapTexUVRect() const { return m_mapTexUVRect; }
 #endif  X2OPTIMIZE_TET_XET_PREPROCESSING
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
+		// June 31d48f90 / 31d49430 / 31d49760: the last argument is the render pass ( 1 = DG +0x40, the additive block )
+		void				Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color = 0xffffffff, float fRotateDegree = 0.f, bool bJunePostEffectPass_ = false );
+		void				Draw( int nX, int nY, int nWidth, int nHeight, const TEXTURE_UV* pTextureUV, D3DCOLOR color = 0xffffffff, bool bJunePostEffectPass_ = false );
+		void				Draw( float fX, float fY, float fWidth, float fHeight, int nTexU, int nTexV, int nTexWidth, int nTexHeight, D3DCOLOR color  = 0xffffffff, bool bJunePostEffectPass_ = false );
+#else SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
 		void				Draw( int nX, int nY, int nWidth, int nHeight, D3DCOLOR color = 0xffffffff, float fRotateDegree = 0.f );
 		void				Draw( int nX, int nY, int nWidth, int nHeight, const TEXTURE_UV* pTextureUV, D3DCOLOR color = 0xffffffff );
 		void				Draw( float fX, float fY, float fWidth, float fHeight, int nTexU, int nTexV, int nTexWidth, int nTexHeight, D3DCOLOR color  = 0xffffffff   );
+#endif SERV_IRUHADEV_JUNE_RENDER_DRAW_PASS
         void                DrawLayer( float nX, float nY, float nWidth, float nHeight, D3DCOLOR color, D3DXVECTOR2 minUV, D3DXVECTOR2 maxUV, int blendType = 0);
 
 	private:

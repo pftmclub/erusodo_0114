@@ -84,7 +84,12 @@ class CKTDGUIRadioButton : public CKTDGUIControl
 		virtual ~CKTDGUIRadioButton(void);
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31cab2b0
+		virtual	HRESULT	OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual	HRESULT	OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		virtual	bool	HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam );
 		virtual	void	ChangeState( RADIOBUTTON_CONTROL_STATE state );
@@ -195,7 +200,11 @@ class CKTDGUIRadioButton : public CKTDGUIControl
 
 	protected:
 
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		void							DrawCheckedEdge( bool bDrawOut, int iRenderPass_ = 0 );	// June 31ca7cc0 ( bDrawOut, pass )
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		void							DrawCheckedEdge( bool bDrawOut );
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 #ifdef DLL_BUILD		
 		bool							m_bEditEdge;
 #endif

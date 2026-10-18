@@ -133,7 +133,12 @@ class CKTDGUIListBox : public CKTDGUIControl
 		CKTDGUIScrollBar* InitScrollBar_LUA();
 
 		virtual	HRESULT	OnFrameMove( double fTime, float fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
+		// June 31ca37f0
+		virtual HRESULT OnFrameRender( int iRenderPass_ = 0 );
+#else SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 		virtual HRESULT OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_UI_CONTROL_PASS
 
 		virtual bool    HandleKeyboard( UINT uMsg, WPARAM wParam, LPARAM lParam );
 		virtual bool    HandleMouse( UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam );
