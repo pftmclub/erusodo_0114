@@ -763,4 +763,7 @@ class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way.
 - The TC slot's states `USI_SPECIAL_ATTACK_5` / `_HYPER_5` / `USI_SPECIAL_ATTACK_SLOTB_5` / `_HYPER_5` exist and the state arrays have 5 entries, but `SetEquippedSkillFunc*`, `SetEquippedSkillLevelCommon`, `CalcEquippedSkillLevelPlusAndMPCost`
   and `ChangeEquippedSkillState` skip the fifth slot, so no class `SetEquippedSkillFuncBySkillSlotIndex` ever sees it. Stage 6 (transcendence) removes those skips and gives each class its TC cases.
 - A-TC is locked because March has no transcendence flag (`CX2Unit +0x3c`, June `328dfab0` / `3220e3b0`); the emulator refuses an equip into 4 / 9. Stage 6 adds the flag and sends key 1 = usable.
-- `X2GuEve.cpp` (Mega Electronball, Taser Pilum) stores a **slot id**: S5 moved its three loops to `iSlot >= EQUIPPED_SKILL_SLOT_COUNT`, so the id it keeps is June's.
+- `X2GuEve.cpp` (Mega Electronball, Taser Pilum, Kugelblitz) stores a **slot id** that is March's 4 + 4 (A 0-3, B 4-7), the pressed-index space: its readers are the key switches (`case 4: oneQ`), the
+  `iSkillSlotIndexPressed_ =` assignments, the three `GetSkillSlotData*` decoders (`> 3`, `-4`) and the state-array lookup. S5 first moved only the three encoder loops to June's numbering; the S5 review
+  (2026-10-18) put them back to March's (`if( iSlot >= 8 ) break;`) and gave the two `GetSlotIndexAndSlotB` readers a March split, because that splitter is June's 5 + 5 now. An Eve port converts the
+  encoders, every reader above and the pressed index together.

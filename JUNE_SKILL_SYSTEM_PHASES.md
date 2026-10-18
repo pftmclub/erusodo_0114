@@ -950,6 +950,32 @@ against the code, not proved line by line: the review spot-checks it).
   `..._111246_pre_sql.sql`. Look for in `python tools/logs.py --tag JUNE_SKILL`: `MIG unit 40 skill 28003 slot 4 -> 5`, `skill 28004 slot 5 -> 6`, `MIG v18 done: 2`, `SLOT sent unit 40: A 28000/28200/28001/28002/0 B 28003/28004/0/0/0 ... key 0 = 2, key 1 = 0`,
   `SLOT census select unit: ... key0 state 2 usable 1, key1 state 0 usable 0, enabledB 1, slots per bar 5`; after moving a skill into B3 and a relog the census shows it in B[2].
 
+### Phase S5 -- Review (2026-10-18, Opus 5.5 high): PASS with one fix (Eve slot id)
+
+- **Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_SKILL_SLOT_10 --range dc4e0c0c^..dc4e0c0c --with SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG`; the later S5 commits touch only STATUS.md):
+  `files: 22 PASS, 1 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` / `in this flag's files: 3 deleted line(s), 0 non-ASCII inserted line(s), 6 EOL-mismatched inserted line(s),
+  0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. The 3 deleted lines are the blank line above `GAMEACTION_COMMUNITY` in `X2KeyPad.cpp`'s three default maps, re-inserted after the new F / T lines; `= KBI_T` itself is untouched in `#else`; PASS~ = 2 blank lines in
+  `X2OfflineDB.cpp`. (The kickoff's `--with SERV_IRUHADEV_JUNE_SKILL_DEBUG` names the wrong debug flag: with it, the `_SLOT_10_DEBUG` blocks in `X2StateBeginning.cpp` / `X2UserSkillTree.cpp` show as OTHER.)
+- **Wire** = S0b's spec. Ghidra `320e3670`: A[0..4] (+0, +7 inline, then `320ef0e0` x8 to +0x3f), slot-state vector `32138800` +0x46, two `vector<KSkillData>` +0x56 / +0x66, `vector<int>` +0x76, UCHAR +0x86 / +0x87,
+  `32124f30` +0x88: the same order as `CommonPacket.cpp`'s Put and Get. `320ef0e0` = short, UCHAR, int (7 B). `KUserSkillPageData` 5 + 5. Both `cl /P` probes re-run: X2Lib `ON` (and `_DEBUG` `ON`), X2ServerProtocol
+  `ON`, `EQUIPPED_SKILL_SLOT_COUNT = 5`.
+- **Slot numbering, locks, keys** match June: `3214f3d0` (0-3 -> 1, 5-8 -> 2, 4 / 9 -> 3) = `GetEquippedSkillSlotType`; `3288fff0` scans A[i] then B[i] per index, as March's loop does; `3288fe30` (> 4 is B,
+  minus 5) = `GetSkillSlot`'s combined branch; `32890ee0` (state 1 or 2) = `IsJuneSlotUsable`; `32892a00` (insert with the `2000-01-01` default, else overwrite) = `SetJuneSlotState`; `31fcadd0` reads F with no lock and
+  T through `32890ee0( 1 )` (JUNE_BUGS 288). June also sets the pressed index to 4 / 9 there; the port does not (pressed space stays March's, checklist 7ag), which changes nothing while TC is empty.
+- **Sites:** all 1,304 S5 rows of `s0b_slot_sites.tsv` are in `s5_slot_sites_done.tsv` (joined on file / line / function / kind; 0 unmatched); 17 dispositions spot-checked against HEAD, all hold. 34 rows cited a
+  `s5_slot_sites_done.md` that was never written; they now cite the Done note and checklist 7ag.
+- **Emulator / save:** `ChangeSkillSlot` refuses 4 / 9 before any write; seeds stop before TC; the v18 rung moves `slot 4-7 -> +1` inside its own transaction from `Open()`. Snapshot
+  `els_db_20261018_104349_pre_pre_S5_skill_slots.sql` is v17 and pre-S5 (the `111246` copy is already v18); the live save is v18 with unit 40's B rows at 5 / 6 / 7. The key map is not stored by the emulator
+  (`Handlers_Unit.cpp:81` sends an empty map, `Handlers_Login.cpp:322` does not persist), so June's `GAMEACTION` renumbering touches no saved data: S0b's open item is closed.
+- **Fix (under the same flag): `X2GuEve.cpp`.** S5 moved the three `InitEquippedActiveSkillState` encoder loops (Mega Electronball, Taser Pilum, Kugelblitz) to June's slot ids. Every reader stayed in March's
+  4 + 4 space: the key switches (`case 4: oneQ` ...), `iSkillSlotIndexPressed_ = id`, the decoders `GetSkillSlotData*` (`> 3`, `-4`). Only the two `GetSlotIndexAndSlotB` readers followed, because that splitter is now 5 + 5.
+  A B-bar skill was therefore mis-decoded. The fix puts the encoders back on March's split (`if( iSlot >= 8 ) break;`) and gives the two `GetSlotIndexAndSlotB` readers a March split. `flagcheck --base dc4e0c0c^ X2Lib/X2GuEve.cpp`:
+  PASS, 0 deleted lines. It is latent today: S3's June data names these skills `RNSI_*` (e.g. 25207), so March's 5204 / 5220 / 5221 match no equipped skill. Checklist 7ag's Eve bullet is corrected.
+  `DEPLOY OK: X2_offline.exe is 19,992,064 B, dated 2026-10-18 12:04:52, md5 09273198f5c63ddd466a01423d549e37, equal to X2/US_SERVICE/x2.exe (2026-10-18 12:04:46); built at main dc54a8b3 + 1 uncommitted code file(s).`
+- **Noted, not changed:** `GetSkillSlot( int, bool )`'s guard (`> ARRAY_SIZE - 1`) rejects combined ids 5-9, so its combined branch is unreachable. That is March's own behaviour (ids 4-7 were rejected too); every caller passes
+  (index, bSlotB), and it is routed to S6. `JuneBuffTestNewSkill_LUA`'s debug dump loops `GetSkillSlot( 0..7, false )`, so it never lists the B bar (debug only). The comment at `X2GUUser.cpp:25757` still says "4 + 4".
+- **User owes:** an optional smoke test (below). No new behaviour is reachable.
+
 ## Phase S6 - Slot UI
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_UI`. Sub-tag `[JUNE_SKILL] UI`.

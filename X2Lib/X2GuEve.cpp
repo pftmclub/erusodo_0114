@@ -3391,15 +3391,13 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 		for( int iSlot = 0; iSlot < EQUIPPED_SKILL_SLOT_COUNT*2; ++iSlot )	// ½½·Ô ÀÎµ¦½º.
 		{
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-			const bool bSlotB = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
-#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+			// S5 review: Eve keeps March's 4 + 4 slot id ( A 0-3, B 4-7 ), the space every reader decodes ( the key switches, the
+			// pressed index, GetSkillSlotDataMegaElectronBall ); the transcendence slots are skipped. Checklist 7ag converts it.
+			if( iSlot >= 8 )
+				break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			const bool bSlotB = (iSlot > 3) ? true : false;
-#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-			const int iSlotIndex = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? iSlot - EQUIPPED_SKILL_SLOT_COUNT : iSlot;
-#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			const int iSlotIndex = (iSlot > 3) ? iSlot - 4 : iSlot;
-#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 			//½½·Ô B°¡ È°¼ºÈ­ µÇÁö ¾ÊÀ¸¸é ½½·Ô A¸¸ È®ÀÎÇÏµµ·Ï break;
 			if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
 				&& bSlotB == true)
@@ -3428,15 +3426,12 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 			for( int iSlot = 0; iSlot < EQUIPPED_SKILL_SLOT_COUNT * 2; ++iSlot )	// ½½·Ô ÀÎµ¦½º.
 			{
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-				const bool bSlotB = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
-#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				// S5 review: March's 4 + 4 slot id, as the Mega Electronball loop above ( checklist 7ag )
+				if( iSlot >= 8 )
+					break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const bool bSlotB = (iSlot > 3) ? true : false;
-#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-				const int iSlotIndex = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? iSlot - EQUIPPED_SKILL_SLOT_COUNT : iSlot;
-#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const int iSlotIndex = (iSlot > 3) ? iSlot - 4 : iSlot;
-#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				//½½·Ô B°¡ È°¼ºÈ­ µÇÁö ¾ÊÀ¸¸é ½½·Ô A¸¸ È®ÀÎÇÏµµ·Ï break;
 				if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
 					&& bSlotB == true)
@@ -3470,15 +3465,12 @@ void CX2GUEve::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 			for( int iSlot = 0; iSlot < EQUIPPED_SKILL_SLOT_COUNT * 2; ++iSlot )	// ½½·Ô ÀÎµ¦½º.
 			{
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-				const bool bSlotB = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? true : false;
-#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+				// S5 review: March's 4 + 4 slot id, as the Mega Electronball loop above ( checklist 7ag )
+				if( iSlot >= 8 )
+					break;
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const bool bSlotB = (iSlot > 3) ? true : false;
-#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
-				const int iSlotIndex = (iSlot >= EQUIPPED_SKILL_SLOT_COUNT) ? iSlot - EQUIPPED_SKILL_SLOT_COUNT : iSlot;
-#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				const int iSlotIndex = (iSlot > 3) ? iSlot - 4 : iSlot;
-#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				
 				if( false == g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetEnabledSkillSlotB() 
 					&& bSlotB == true)
@@ -5536,7 +5528,13 @@ void CX2GUEve::CommonFrameMove()
 
 		int iSlotIndex = 0;
 		bool bSlotB = false;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		// S5 review: Eve's slot id is March's 4 + 4 ( InitEquippedActiveSkillState ); GetSlotIndexAndSlotB now splits June's 5 + 5
+		bSlotB = ( m_sTaserPilumData.GetSkillSlotID() > 3 ) ? true : false;
+		iSlotIndex = bSlotB ? m_sTaserPilumData.GetSkillSlotID() - 4 : m_sTaserPilumData.GetSkillSlotID();
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		CX2UserSkillTree::GetSlotIndexAndSlotB( m_sTaserPilumData.GetSkillSlotID(), OUT iSlotIndex, OUT bSlotB );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		int iNowState = -1;
 			
@@ -5591,7 +5589,13 @@ void CX2GUEve::CommonFrameMove()
 
 		int iSlotIndex = 0;
 		bool bSlotB = false;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+		// S5 review: Eve's slot id is March's 4 + 4 ( InitEquippedActiveSkillState ); GetSlotIndexAndSlotB now splits June's 5 + 5
+		bSlotB = ( m_sKugelBlitz_Data.GetSkillSlotID() > 3 ) ? true : false;
+		iSlotIndex = bSlotB ? m_sKugelBlitz_Data.GetSkillSlotID() - 4 : m_sKugelBlitz_Data.GetSkillSlotID();
+#else SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		CX2UserSkillTree::GetSlotIndexAndSlotB( m_sKugelBlitz_Data.GetSkillSlotID(), OUT iSlotIndex, OUT bSlotB );
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
 		int iNowState = -1;
 

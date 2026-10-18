@@ -295,7 +295,7 @@ X2Lib/X2GUNPC.cpp	11085	CX2GUNPC::DamageReact	other	reviewed: no slot-count depe
 X2Lib/X2GUUser.cpp	623		quickkey	edited: GAMEACTION_SKILL5 / SKILL_EX5 + defaults (F / T, Community -> 0) + InputData groups + KeyProcess feed + chat lock
 X2Lib/X2GUUser.cpp	1105	CX2GUUser::CX2GUUser	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	1106	CX2GUUser::CX2GUUser	other	reviewed: no slot-count dependence
-X2Lib/X2GUUser.cpp	3382	CX2GUUser::SumSocketOption	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	3382	CX2GUUser::SumSocketOption	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	3384	CX2GUUser::SumSocketOption	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	5927	CX2GUUser::InitEquippedActiveSkillState	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	5928	CX2GUUser::InitEquippedActiveSkillState	other	reviewed: no slot-count dependence
@@ -321,11 +321,11 @@ X2Lib/X2GUUser.cpp	6248	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCostBySlotID	o
 X2Lib/X2GUUser.cpp	6249	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCostBySlotID	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2GUUser.cpp	6255	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCostBySlotID	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2GUUser.cpp	6256	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCostBySlotID	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
-X2Lib/X2GUUser.cpp	6265	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost	loop8	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2GUUser.cpp	6267	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2GUUser.cpp	6268	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	6265	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost	loop8	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	6267	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	6268	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	6269	CX2GUUser::CalcEquippedSkillLevelPlusAndMPCost	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
-X2Lib/X2GUUser.cpp	6281	CX2GUUser::SetEquippedSkillLevelCommon	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	6281	CX2GUUser::SetEquippedSkillLevelCommon	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	6283	CX2GUUser::SetEquippedSkillLevelCommon	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2GUUser.cpp	6302	CX2GUUser::SetEquippedSkillLevelCommon	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
 X2Lib/X2GUUser.cpp	6303	CX2GUUser::SetEquippedSkillLevelCommon	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
@@ -376,7 +376,7 @@ X2Lib/X2GUUser.cpp	25270	CX2GUUser::GetSkillDamageRateBySlotType	slot_type	edite
 X2Lib/X2GUUser.cpp	25271	CX2GUUser::GetSkillDamageRateBySlotType	slot_type	edited: GetEquippedSkillSlotType 0-3 A, 5-8 B, 4/9 TC = 3 (BBT 98, BFT 16 read it)
 X2Lib/X2GUUser.cpp	25283	BOOST_FOREACH	slot_type	edited: GetEquippedSkillSlotType 0-3 A, 5-8 B, 4/9 TC = 3 (BBT 98, BFT 16 read it)
 X2Lib/X2GUUser.cpp	25284	BOOST_FOREACH	slot_type	edited: GetEquippedSkillSlotType 0-3 A, 5-8 B, 4/9 TC = 3 (BBT 98, BFT 16 read it)
-X2Lib/X2GUUser.cpp	25623	CX2GUUser::JuneBuffTestNewSkill_LUA	loop8	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	25623	CX2GUUser::JuneBuffTestNewSkill_LUA	loop8	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	25625	CX2GUUser::JuneBuffTestNewSkill_LUA	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	25638	CX2GUUser::JuneBuffTestNewSkill_LUA	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	25641	CX2GUUser::JuneBuffTestNewSkill_LUA	slot_type	edited: GetEquippedSkillSlotType 0-3 A, 5-8 B, 4/9 TC = 3 (BBT 98, BFT 16 read it)
@@ -420,16 +420,16 @@ X2Lib/X2GUUser.cpp	37037	CX2GUUser::GetSkillSlotIndexUsed	other	reviewed: no slo
 X2Lib/X2GUUser.cpp	37040	CX2GUUser::GetSkillSlotIndexUsed	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
 X2Lib/X2GUUser.cpp	37041	CX2GUUser::GetSkillSlotIndexUsed	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
 X2Lib/X2GUUser.cpp	37043	CX2GUUser::GetSkillSlotIndexUsed	other	reviewed: no slot-count dependence
-X2Lib/X2GUUser.cpp	37937	CX2GUUser::GetUsingSkillCount	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	37937	CX2GUUser::GetUsingSkillCount	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	37939	CX2GUUser::GetUsingSkillCount	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	37942	CX2GUUser::GetUsingSkillCount	other	reviewed: no slot-count dependence
-X2Lib/X2GUUser.cpp	37956	CX2GUUser::CountUsedSkill	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2GUUser.cpp	37957	CX2GUUser::CountUsedSkill	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	37956	CX2GUUser::CountUsedSkill	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	37957	CX2GUUser::CountUsedSkill	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	37959	CX2GUUser::CountUsedSkill	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	37961	CX2GUUser::CountUsedSkill	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	37967	CX2GUUser::CountUsedSkill	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2GUUser.cpp	38727		other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
-X2Lib/X2GUUser.cpp	38729	CX2GUUser::SetEquippedSkillFunc	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	38729	CX2GUUser::SetEquippedSkillFunc	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	38731	CX2GUUser::SetEquippedSkillFunc	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2GUUser.cpp	38734	CX2GUUser::SetEquippedSkillFunc	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2GUUser.cpp	39151	CX2GUUser::CountReservedSkillUse	slot_type	edited: GetEquippedSkillSlotType 0-3 A, 5-8 B, 4/9 TC = 3 (BBT 98, BFT 16 read it)
@@ -448,10 +448,10 @@ X2Lib/X2GUUser.cpp	39314	CX2GUUser::ResetLeftSkillCoolTimeByBuff	other	reviewed:
 X2Lib/X2GUUser.cpp	39315	CX2GUUser::ResetLeftSkillCoolTimeByBuff	slot_type	edited: GetEquippedSkillSlotType 0-3 A, 5-8 B, 4/9 TC = 3 (BBT 98, BFT 16 read it)
 X2Lib/X2GUUser.cpp	39491		other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	39496	CX2GUUser::ToggleSkillSlotAB	other	reviewed: no slot-count dependence
-X2Lib/X2GUUser.cpp	40443	CX2GUUser::GetPressedSkillState	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	40443	CX2GUUser::GetPressedSkillState	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	40445	CX2GUUser::GetPressedSkillState	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
 X2Lib/X2GUUser.cpp	40449	CX2GUUser::GetPressedSkillState	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
-X2Lib/X2GUUser.cpp	40454	CX2GUUser::GetPressedSkillState	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	40454	CX2GUUser::GetPressedSkillState	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	40456	CX2GUUser::GetPressedSkillState	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
 X2Lib/X2GUUser.cpp	40460	CX2GUUser::GetPressedSkillState	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
 X2Lib/X2GUUser.cpp	40596	CX2GUUser::COMMON_RELATIONSHIP_SKILL_FrameMove	other	reviewed: no slot-count dependence
@@ -460,7 +460,7 @@ X2Lib/X2GUUser.cpp	42975		quickkey	edited: GAMEACTION_SKILL5 / SKILL_EX5 + defau
 X2Lib/X2GUUser.cpp	42977	CX2GUUser::CurrentSkillKeyManager::Init	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	42984		quickkey	edited: GAMEACTION_SKILL5 / SKILL_EX5 + defaults (F / T, Community -> 0) + InputData groups + KeyProcess feed + chat lock
 X2Lib/X2GUUser.cpp	42989	CX2GUUser::CurrentSkillKeyManager::CheckSkillSlotSwap	other	reviewed: no slot-count dependence
-X2Lib/X2GUUser.cpp	42991	CX2GUUser::CurrentSkillKeyManager::CheckSkillSlotSwap	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2GUUser.cpp	42991	CX2GUUser::CurrentSkillKeyManager::CheckSkillSlotSwap	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2GUUser.cpp	42995		quickkey	edited: GAMEACTION_SKILL5 / SKILL_EX5 + defaults (F / T, Community -> 0) + InputData groups + KeyProcess feed + chat lock
 X2Lib/X2GUUser.cpp	42997	CX2GUUser::CurrentSkillKeyManager::InitCurrentSkillKeyManager	other	reviewed: no slot-count dependence
 X2Lib/X2GUUser.cpp	43001	CX2GUUser::CurrentSkillKeyManager::InitCurrentSkillKeyManager	other	reviewed: no slot-count dependence
@@ -763,7 +763,7 @@ X2Lib/X2KeyPad.cpp	1745	CX2DisUseKeySlotData::UpdateUI	quickkey	S6: key-config d
 X2Lib/X2KeyPad.cpp	1755	CX2DisUseKeySlotData::UpdateUI	quickkey	S6: key-config dialog needs its own icons/tooltips (new actions fall into the default branch); defaults + enum + feed done
 X2Lib/X2KeyPad.cpp	1765	CX2DisUseKeySlotData::UpdateUI	quickkey	S6: key-config dialog needs its own icons/tooltips (new actions fall into the default branch); defaults + enum + feed done
 X2Lib/X2Room.cpp	1661	CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT	packet_handler	reviewed: slot-id space (June numbering), no literal
-X2Lib/X2Room.cpp	1663	CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2Room.cpp	1663	CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2Room.cpp	1665	CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT	packet_handler	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2Room.cpp	1667	CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT	packet_handler	reviewed: slot-id space (June numbering), no literal
 X2Lib/X2Room.cpp	1669	CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT	packet_handler	reviewed: slot-id space (June numbering), no literal
@@ -810,10 +810,10 @@ X2Lib/X2SkillTree.cpp	2050	CX2SkillTree::Handler_EGS_GET_SKILL_ACK	packet_handle
 X2Lib/X2SkillTree.cpp	2054	CX2SkillTree::Handler_EGS_GET_SKILL_ACK	packet_handler	reviewed: slot-id space (June numbering), no literal
 X2Lib/X2SkillTree.cpp	2056	CX2SkillTree::Handler_EGS_GET_SKILL_ACK	packet_handler	reviewed: slot-id space (June numbering), no literal
 X2Lib/X2SkillTree.cpp	2058	CX2SkillTree::Handler_EGS_GET_SKILL_ACK	packet_handler	reviewed: slot-id space (June numbering), no literal
-X2Lib/X2SkillTree.cpp	2061	CX2SkillTree::Handler_EGS_GET_SKILL_ACK	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2SkillTree.cpp	2349	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	loop8	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2SkillTree.cpp	2351	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2SkillTree.cpp	2352	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2SkillTree.cpp	2061	CX2SkillTree::Handler_EGS_GET_SKILL_ACK	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2SkillTree.cpp	2349	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	loop8	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2SkillTree.cpp	2351	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2SkillTree.cpp	2352	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2SkillTree.cpp	2353	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	packet_handler	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2SkillTree.cpp	2361	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	packet_handler	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2SkillTree.cpp	2363	CX2SkillTree::Handler_EGS_RESET_SKILL_ACK	packet_handler	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
@@ -860,7 +860,7 @@ X2Lib/X2SkillTree.cpp	2979	CX2SkillTree::Handler_EGS_SKILL_SLOT_CHANGE_ITEM_NOT	
 X2Lib/X2SkillTree.cpp	2980	CX2SkillTree::Handler_EGS_SKILL_SLOT_CHANGE_ITEM_NOT	packet_handler	edited: B expiry replaced by the slot-state map (SetJuneSlotState / IsJuneSlotUsable); B_FREE client sites retired; emulator sends key 0 = 2
 X2Lib/X2SkillTree.cpp	3969	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK	packet_handler	reviewed: slot-id space (June numbering), no literal
 X2Lib/X2SkillTree.cpp	3970	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK	packet_handler	reviewed: slot-id space (June numbering), no literal
-X2Lib/X2SkillTree.cpp	3974	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2SkillTree.cpp	3974	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2SkillTree.cpp	3976	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK	packet_handler	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2SkillTree.cpp	3977	CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK	packet_handler	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2SkillTree.cpp	4094	CX2SkillTree::UnequipRelationSkill	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
@@ -944,7 +944,7 @@ X2Lib/X2UserSkillTree.cpp	67	CX2UserSkillTree::OnFrameMove	other	auto: widens wi
 X2Lib/X2UserSkillTree.cpp	81	CX2UserSkillTree::OnFrameMove	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	85	CX2UserSkillTree::OnFrameMove	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	87	CX2UserSkillTree::OnFrameMove	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
-X2Lib/X2UserSkillTree.cpp	101	CX2UserSkillTree::OnFrameMove	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	101	CX2UserSkillTree::OnFrameMove	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	248		other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	252	CX2UserSkillTree::Reset	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	254	CX2UserSkillTree::Reset	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
@@ -958,9 +958,9 @@ X2Lib/X2UserSkillTree.cpp	297	CX2UserSkillTree::Reset	other	auto: widens with EQ
 X2Lib/X2UserSkillTree.cpp	325	CX2UserSkillTree::Reset	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	327	CX2UserSkillTree::Reset	other	edited: B expiry replaced by the slot-state map (SetJuneSlotState / IsJuneSlotUsable); B_FREE client sites retired; emulator sends key 0 = 2
 X2Lib/X2UserSkillTree.cpp	339		other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	356	CX2UserSkillTree::ConstructSkillTreeNotMyUnit	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	356	CX2UserSkillTree::ConstructSkillTreeNotMyUnit	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	358	CX2UserSkillTree::ConstructSkillTreeNotMyUnit	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	361	CX2UserSkillTree::ConstructSkillTreeNotMyUnit	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	361	CX2UserSkillTree::ConstructSkillTreeNotMyUnit	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	363	CX2UserSkillTree::ConstructSkillTreeNotMyUnit	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	393		other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	397	CX2UserSkillTree::SetEquippedSkill	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
@@ -1070,7 +1070,7 @@ X2Lib/X2UserSkillTree.cpp	1366	CX2UserSkillTree::SetSkillSlot	other	auto: widens
 X2Lib/X2UserSkillTree.cpp	1380		other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	1382	CX2UserSkillTree::GetSkillSlot	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	1383	CX2UserSkillTree::GetSkillSlot	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
-X2Lib/X2UserSkillTree.cpp	1388	CX2UserSkillTree::GetSkillSlot	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	1388	CX2UserSkillTree::GetSkillSlot	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	1390	CX2UserSkillTree::GetSkillSlot	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	1391	CX2UserSkillTree::GetSkillSlot	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	1394	CX2UserSkillTree::GetSkillSlot	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
@@ -1121,26 +1121,26 @@ X2Lib/X2UserSkillTree.cpp	2463	CX2UserSkillTree::SetSkillCoolTimeLeft	other	revi
 X2Lib/X2UserSkillTree.cpp	2469	CX2UserSkillTree::SetSkillCoolTimeLeft	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2471	CX2UserSkillTree::SetSkillCoolTimeLeft	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	2473	CX2UserSkillTree::SetSkillCoolTimeLeft	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
-X2Lib/X2UserSkillTree.cpp	2487	CX2UserSkillTree::SetSkillCoolTimeLeft	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2UserSkillTree.cpp	2492	CX2UserSkillTree::SetSkillCoolTimeLeft	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
-X2Lib/X2UserSkillTree.cpp	2496	CX2UserSkillTree::SetSkillCoolTimeLeft	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2487	CX2UserSkillTree::SetSkillCoolTimeLeft	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2492	CX2UserSkillTree::SetSkillCoolTimeLeft	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2496	CX2UserSkillTree::SetSkillCoolTimeLeft	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	2508	CX2UserSkillTree::SetSkillCoolTimeLeft	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2519		other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2522	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	2531	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2532	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2534	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	2535	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2535	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	2540	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2545	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2546	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2549	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2554	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	2555	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2555	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	2559	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2560	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2562	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	2563	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2563	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	2571		other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2574		other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2579		other	reviewed: no slot-count dependence
@@ -1159,13 +1159,13 @@ X2Lib/X2UserSkillTree.cpp	2645	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillTy
 X2Lib/X2UserSkillTree.cpp	2647	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2659	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2668	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	2669	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2669	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	2678	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	2679	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2679	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	2690	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2691	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2701	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.cpp	2702	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	2702	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	2716		other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	2717		slot_type	edited: GetEquippedSkillSlotType 0-3 A, 5-8 B, 4/9 TC = 3 (BBT 98, BFT 16 read it)
 X2Lib/X2UserSkillTree.cpp	2720	CX2UserSkillTree::ResetLeftSkillCoolTimeByBuff	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
@@ -1202,7 +1202,7 @@ X2Lib/X2UserSkillTree.cpp	2998	CX2UserSkillTree::AllSkillNoCoolTime	other	auto: 
 X2Lib/X2UserSkillTree.cpp	3001	CX2UserSkillTree::AllSkillNoCoolTime	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	3004	CX2UserSkillTree::AllSkillNoCoolTime	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	3006	CX2UserSkillTree::AllSkillNoCoolTime	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
-X2Lib/X2UserSkillTree.cpp	3009	CX2UserSkillTree::AllSkillNoCoolTime	index_B_offset(+4)	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.cpp	3009	CX2UserSkillTree::AllSkillNoCoolTime	index_B_offset(+4)	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.cpp	3104	CX2UserSkillTree::GetSkillIDByEquipSlotID	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.cpp	3105	CX2UserSkillTree::GetSkillIDByEquipSlotID	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.cpp	3109	CX2UserSkillTree::GetSkillIDByEquipSlotID	state_array	edited: USI A5/B5 state pairs + 5-entry state arrays; GetSkillSlotIndexUsed / GetSkillIDByEquipSlotID cases
@@ -1296,7 +1296,7 @@ X2Lib/X2UserSkillTree.h	457	ToggleSkillSlotAB	other	reviewed: no slot-count depe
 X2Lib/X2UserSkillTree.h	458	ToggleSkillSlotAB	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.h	459	ToggleSkillSlotAB	other	reviewed: no slot-count dependence
 X2Lib/X2UserSkillTree.h	463	class:CX2UserSkillTree	other	reviewed: no slot-count dependence
-X2Lib/X2UserSkillTree.h	465	VerifyEquippedSkillslot	loop4	edited or kept by index space: see s5_slot_sites_done.md (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
+X2Lib/X2UserSkillTree.h	465	VerifyEquippedSkillslot	loop4	edited or kept by index space: see the S5 Done note and checklist 7ag (gage +COUNT, HUD loops 8/4, pressed-index decode kept for the class files)
 X2Lib/X2UserSkillTree.h	467	VerifyEquippedSkillslot	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.h	468	VerifyEquippedSkillslot	other	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
 X2Lib/X2UserSkillTree.h	536	class:CX2UserSkillTree	struct	auto: widens with EQUIPPED_SKILL_SLOT_COUNT / ARRAY_SIZE; read for literal 4 / 8
