@@ -8325,7 +8325,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 #endif SERV_IRUHADEV_JUNE_PATHFINDER_FLY
 // Short-lived: the first 20 fly-down refusals and 5 passes as [JUNE_ENGINE] WORLD lines in ErrorLog.txt. Remove after the review.
-#define SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
+// 2026-10-18 W1g review: off, the play-test logged both branches (5 allowed over line 2, 9 refused over line 10) and the review found no change to make.
+//#define SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

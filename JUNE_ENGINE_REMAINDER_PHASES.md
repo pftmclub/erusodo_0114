@@ -2920,6 +2920,41 @@ level (refused line). Open question: none.
 (y 790, land y 350 = dest y 350); 9 `refused` lines over line 10 (y 529 -> 505, dest y 394 + height 100, no line below); 0 EXCEPTION, UNHANDLED = the
 2x `E_DISABLE_HB_CHECK_REQ` baseline.
 
+### Phase W1g -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no code change; `_DEBUG` off.** The source was June's `unpacked_x2.exe` (Ghidra: decompile and disassembly of
+`32f27b10`, disassembly of `31c6c310`), read only. Below, `S` = ESP after the four prologue pushes (`SUB ESP,0xd8` + EBX/EBP/ESI/EDI).
+
+- **Arguments.** ESI = `[S+0xec]` = arg 1 `vCurrPos`. EDI = arg 2 `iCurrLineDataIndex`, copied to `[S+0x34]` `@32f27b72`. `[S+0x7c]` = arg 3 `vFinalDestPos`.
+  EAX = arg 4. EBX = arg 9 `pLineMap`. `[S+0x104]` = arg 7 height, `[S+0x108]` / `[S+0x110]` = args 8 / 10 area / gap. `RET 0x30` = 12 dwords = March's 12 arguments.
+- **Gate `@32f27e3f-32f27ea2`.** Pushes, last argument first: `0` bDroppable, `0` bOnLine, `1` bIsMonster, `1` bDownRadius, `0` out index, `&[S+0x34]` in index,
+  `&[S+0x84]` out position (just filled with `vCurrPos`), radius `[0x33441b9c]` (30 = `LINE_RADIUS`), then the vector by value. The bool order is fixed by the callee:
+  `31c6c310` tests `[EBP+0x2c]` = bOnLine before its first in-index read `@31c6c31c`. March's call binds the 9-arg declaration (`KTDGLineMap.h:1297`,
+  `const int* pInLineIndex`) with the same order. `31c6c310` only reads `[EBP+0x1c]` (`@31c6c320`, `@31c6f747`), so `[S+0x34]` keeps `iCurrLineDataIndex` for the
+  side checks, as March's `iCurrLineDataIndex` does. The scratch `[S+0x84..0x8c]` is not the right vector (`[S+0x90]`), the destination direction (`[S+0x9c]`) or a
+  live temporary. The out position is discarded, as in the port.
+- **Flags and compares.** `[S+0x13]` = bFlyUp (set `@32f27e23`), `[S+0x12]` = bFlyDown (set `@32f27e9d`). The fail path `@32f27eb3` clears only `[S+0x12]`.
+  Arrival: `0x17` (MS_FLY_UP) from `[S+0x13]`, `0x18` (MS_FLY_DOWN) from `[S+0x12]`. Traced on the x87 stack: up when `cur.y < dest.y + h - 10`, gate when
+  `dest.y + h + 10 < cur.y`, with 10.0 the double `@33438088`. Same as March `:875` / `:881`.
+- **Rest = March, re-read.** Enum numbering: `MS_FLY_LEFT_FRONT` = 0xb ... `MS_FLY_RIGHT_BACK_DOWN` = 0x16, `MS_FLY_UP` / `_DOWN` = 0x17 / 0x18
+  (`X2SimplePathFinder.h`). Line types: `LT_JUMP_UP_REL` / `_ABS` / `LT_UNIT_ROAD` = 4 / 5 / 8 (`KTDGLineMap.h`).
+  - Head: `+0xf4` / `+0xf8` group; types 4 / 5 / 8 do `rand` odd -> 0xb, else 0x11 (`NEG/SBB/AND 0xfffffffa/ADD 0x11`). The switch is state 0 or 0xb..0x18,
+    which is exactly March's 15 cases. NULL current line -> state 0, turn 0. `GetLandPosition( vCurrPos, true, 2000, &-1 )`.
+  - bFlyFront `@32f27da0-32f27dec` = `!(L < gap - area) || L > gap + area`. Arrival band `@32f27eb8-32f27ed0` = `gap - area <= L <= gap + area`.
+    Turn: 0xb..0xd with `fIsRight > 0.3` `@3345993c`, or 0x11..0x13 with `fIsRight < -0.3` `@3348434c` -> turn 0, MS_WAIT.
+  - Side-check state set: {0x11, 0xb, 0x14, 0xe, 0x15, 0xf, 0x16, 0x10} = March `:969-972`. `fIsRight >= 0` uses beforeLine `+0x1c`, `startPos - right*R - up*R`,
+    jump `- right * fMaxJumpRight / pow(2, i)`, and ends at 0x11. The other side uses nextLine `+0x20`, `endPos + right*R - up*R`, `+`, and ends at 0xb.
+  - Each landing: `!= [S+0x34]`, non-NULL, type not 4 / 5 / 8, `+0x95` == 0 -> return, `31c8ee10` (== final group) or `31cfd6b0` (!= `this + 0`).
+    `m_iDestLineDataIndex` is reset after the down check. Final 12-state select = March `:1193-1234`.
+- **Play-test lines.** The only caller of `FollowTargetPathFly` is `CX2GUNPCAI` (`X2GUNPCAI.cpp:1527`, the fly chase; pets use `SimpleFollowTargetPathFly`),
+  so both logged branches came from fly NPCs. The lines do not name the unit. The refused run's y 529 -> 505 is movement outside this function (the gate only
+  withholds the `_DOWN` states); not traced.
+- **Hygiene** (`--range e2006aa7^..e2006aa7`): `files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. `_DEBUG` off (`--worktree --files KTDXLIB/Always.h`): `1 DEFINE`, `RESULT: PASS`. The 1 deleted line is the `#define`, now commented with the date.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,971,584 B, dated 2026-10-18 10:11:33, md5 2475b432c08a3011bf58842f7ff272d2`, built at main `b359e5c1` + 8
+  uncommitted code files (also peers' work in progress, e.g. S5 `JUNE_SKILL_SLOT_10`). No play-test needed: `_DEBUG` off only removes log lines.
+
 ## Phase W2 - Portal-line markers
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:
