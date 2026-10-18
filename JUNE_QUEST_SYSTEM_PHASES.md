@@ -154,6 +154,49 @@ Q0a, Q0b and RM0 run now, alongside anything.
 **Done gate:** every key and type in the census tsvs and every function above has a row with a target phase or "June-only, not ported"
 plus a reason.
 
+### Q0a - Done (2026-10-19)
+
+Read-only: no code, no flag, no build, no pack. Opus judged the results; Sonnet subagents read and dumped. I spot-checked every claim that
+decides a port in Ghidra.
+- **Map.** `june2017_re/quest_plan/q0a_engine_map.tsv`, built by `q0a_build.py`.
+  - 551 rows: every key of `q_june_quest_keys.tsv`, every type of `q_june_quest_types.tsv`, and 82 function / binder / loader / reader rows.
+  - 0 unmapped. `-` means same as March, no work.
+  - Evidence:
+    - `q0a_june_templets.md` and `q0a_june_clearcond.md`: per-key offsets;
+    - `q0a_qm_functions.tsv`: all 244 functions in 32318000-3234a000;
+    - `q0a_qm_summary.md`, `q0a_june_callers.md` and `q0a_march_digest.md`.
+  - 26 funcmap rows `Quest Q0a`, and kickoff amendments in Q1 / Q3 / Q4 / Q6.
+- **Binders.** Account, guild and normal quests share `323321f0`: the three pushes are identical, and only the stored `m_bIsAccount` / `m_bIsGuild`
+  differ. `AddChainQuestDays` `32322b10` is the last quest binding. **`AddGroupChainQuest` is unbound** (JUNE_BUGS 320, kept).
+- **Loader.**
+  - `ResetQuestManager` `31edbf70` loads Field, Sub, Account, Guild, then AccountQuestDate (empty in June), ChainQuestInfo, and scene info `31eeb040`.
+  - `_LA` = `argv[1] == "Axeso5"`; the US branch uses the plain files. `ChainCashItem.lua` is cash-shop data (Stage 16).
+- **Keys.**
+  - `m_fSelectBGM` is a wstring.
+  - `QR_*` in `m_eUnitClass` -> its own scalar (`v % 1000`).
+  - `m_eChangeUnitClass` splits on QT 9.
+  - `m_eDungeonID` keeps 0.
+  - `m_cDifficulty` is stored (-1 default) with no reader found.
+  - Server-only keys, unknown to June's client: `m_bExpDungeonAndField`, `m_eExceptionDungeonID`, `m_ePublisher`, `m_fRandomRate`, `m_iFairDungeonID`,
+    `m_vecAcceptRewardItem`, the MapData `REQUIRE_COMPLETE_*` pair and BattleFieldData `NEED_ONGOING_QUEST_ID` / `BATTLE_FIELD_DIRECTION_INFO`.
+- **Correction to Context.** The "344 difficulty-only sub-quests" are March's `m_eDungeonID = {0}`, which June deleted. Both loaders give an empty set
+  ("any dungeon"). Only 35373 and 74520 carry `m_cDifficulty` alone. `m_cDifficulty` disagrees with the id's last digit in 123 sub-quests.
+- **Enum.**
+  - Collisions: `QT_END` 8, `SQT_END` 37 and `CJT_JOB_END` 6 against June's new values.
+  - `NUI_EDEL` differs: June 10067, March 10072; June uses 10072 for `NUI_STEEL_AND_STEING`.
+  - `DL_HELL` / `DL_NOMAL` are nil in June too (JUNE_BUGS 322).
+- **June bug found.** `SQT_ITEM_EXCHANGE`'s source-item loop is inverted, `@3232c0cf` (JUNE_BUGS 321).
+- **Runtime.**
+  - Chain rule `3232caf0`: local midnight of (last completion + AllowFewDays) <= now, with the TestMinute variant under enable-code 0x10.
+  - Week: next Wednesday 00:00 (`32322050`). Month: the 1st, 00:00 (`32321d10`). Both run inside `SetUnitQuest` only.
+  - `QRT_CHAIN_REPEAT` has no code. `QT_STORY` is indexed at `+0xec`.
+- **`IsCompleteQuest` `32322260`** = March `GetUnitCompleteQuest`. Of its 17 callers, 4 are as in March, 7 are local-map `+0x70` gates March lacks (Q6),
+  and 6 are June-only (Q5a / Q5b / Q8 / tutorial guide, out of plan; `31f14e40`'s packet goes to Q0b).
+
+**Open for the user (each raised in its own phase, not now):**
+- Q4/Q6: an emulator stand-in for each server-only gate above.
+- Q7: whether `NUI_EDEL` moves to June's 10067.
+
 ## Phase Q0b - Quest UI, packet and movie map
 
 **Run with:** Opus 5.5 high. Read-only.

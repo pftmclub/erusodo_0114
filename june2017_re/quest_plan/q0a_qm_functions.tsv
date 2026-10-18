@@ -1,0 +1,245 @@
+june_va	kind	size	callers	proposed_march	evidence	notes
+32318010	a-stl/helper	231	2: 323183e0	none	_Lockit/iterator argument thunk to a string/vector insert	
+32318150	a-stl/helper	131	1: 323186f0	none	vector<0x3c-byte elem>::reserve check	
+323181e0	a-stl/helper	124	2: 323187d0	none	vector<0xb0-byte elem>::reserve check	
+32318260	a-stl/helper	374	1: 32318890	none	basic_string insert/assign	
+323183e0	a-stl/helper	691	1: 32318900	none	basic_string insert with iterators	
+323186f0	a-stl/helper	224	7: 322e94a0,32300f30,323011f0,323014b0	none	vector<0x3c-byte elem>::resize	
+323187d0	a-stl/helper	187	1: 322e9e00	none	vector<0xb0-byte elem>::push_back	
+32318890	a-stl/helper	100	14: 322e67c0,322e6aa0,322e6d40,322e7010,322e72b0	none	_Lockit/iterator argument thunk to a string/vector insert	
+32318900	a-stl/helper	237	1: 32319670	none	_Lockit/iterator argument thunk to a string/vector insert	
+323189f0	c-non-quest	945	1: 32306600	none in March (not CX2QuestManager)	XOR-protected value object ctor (registry DAT_3376cdd0)	
+32318da0	c-non-quest	255	2: 323080c0,324b9d40	none in March (not CX2QuestManager)	vector<wstring> reset on game object +0x868..+0x88c; callers 323080c0 / 324b9d40	
+32318ea0	a-stl/helper	213	1: 322ee790	none	vector<0x81-byte elem>::resize (KNPCUnitReq)	
+32318fd0	c-non-quest	838	1: 3231e1e0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+32319320	c-non-quest	838	1: 3231e2b0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+32319670	a-stl/helper	279	1: 3231e380	none	_Lockit/iterator argument thunk to a string/vector insert	
+32319790	c-non-quest	838	1: 3231e470	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+32319ae0	c-non-quest	838	1: 3231e540	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+32319e30	c-non-quest	838	1: 3231e610	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231a180	c-non-quest	838	1: 3231e6e0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231a4d0	c-non-quest	838	1: 3231e7b0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231a820	c-non-quest	838	1: 3231e880	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231ab70	c-non-quest	838	1: 3231e950	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231aec0	c-non-quest	838	1: 3231ea20	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231b210	c-non-quest	838	1: 3231eaf0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231b560	c-non-quest	838	1: 3231ebc0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231b8b0	c-non-quest	838	1: 3231ec90	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231bc00	c-non-quest	838	1: 3231ed60	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231bf50	c-non-quest	838	1: 3231ee30	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231c2a0	c-non-quest	838	1: 3231ef00	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231c5f0	c-non-quest	838	1: 3231efd0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231c940	c-non-quest	838	1: 3231f0a0	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231cc90	c-non-quest	838	1: 3231f170	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231cfe0	c-non-quest	838	1: 3231f240	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231d330	c-non-quest	838	1: 3231f310	none in March (not CX2QuestManager)	KSession::SendPacket string; builds a 0x202 P2P packet (CX2Game side)	
+3231d680	c-non-quest	140	5: 3231d9e0,32a344a0,32a35170,32a355c0,32a35a30	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231d710	c-non-quest	140	9: 3231d9e0,32a344a0,32a35170,32a355c0,32a35a30	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231d7a0	c-non-quest	213	28: 322ed400,32473f70,32a347e0,32bf3d30,32bf3e40	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231d880	c-non-quest	213	15: 322ed400,32a347e0,32bf3f60,32bf4540,32bf4600	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231d960	c-non-quest	125	1: 3230d2b0	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231d9e0	c-non-quest	46	1: 322fbc60	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231da10	c-non-quest	125	1: 322eb840	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231da90	c-non-quest	257	1: 322fbc60	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231db90	c-non-quest	133	2: 322fbc60	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231dc20	c-non-quest	200	3: 322eb840,322ece70,327ac9d0	none in March (not CX2QuestManager)	anti-tamper XOR-protected stat setter (value ^ addr ^ ...), registry DAT_3376cdd0	
+3231dcf0	c-non-quest	605	1: 322ebaa0	none in March (not CX2QuestManager)	XOR-protected value object ctor (registry DAT_3376cdd0)	
+3231df50	c-non-quest	260	12: 3231f660,327d9780,328bcb10,328c2610,32d58a40	none in March (not CX2QuestManager)	release a protected-handle slot (DAT_3375c950 table)	
+3231e060	c-non-quest	165	0	none in March (not CX2QuestManager)	vector pair dtor (2 vectors at +0 / +0x10)	
+3231e110	c-non-quest	204	1: 32306600	none in March (not CX2QuestManager)	protected-handle slot ctor (DAT_3375c950)	
+3231e1e0	c-non-quest	196	2: 322ed680,322f0970	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e2b0	c-non-quest	196	1: 32308c20	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e380	a-stl/helper	232	1: 322ee790	none	_Lockit/iterator argument thunk to a string/vector insert	
+3231e470	c-non-quest	196	1: 322ee790	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e540	c-non-quest	196	2: 322eeed0,322eef30	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e610	c-non-quest	196	2: 322ef010,322ef1b0	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e6e0	c-non-quest	196	2: 324ccda0	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e7b0	c-non-quest	196	1: 322ef740	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e880	c-non-quest	196	1: 322efeb0	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231e950	c-non-quest	196	1: 322f0020	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231ea20	c-non-quest	196	1: 322f0410	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231eaf0	c-non-quest	196	4: 322f04f0,322f5b10,322ff710	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231ebc0	c-non-quest	196	1: 322f5b10	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231ec90	c-non-quest	196	1	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231ed60	c-non-quest	196	1: 322f05b0	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231ee30	c-non-quest	196	2: 322f0740,322f0cf0	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231ef00	c-non-quest	196	1: 322f07a0	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231efd0	c-non-quest	196	1	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231f0a0	c-non-quest	196	1: 322f1380	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231f170	c-non-quest	196	1: 322f1990	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231f240	c-non-quest	196	1: 322f1a50	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231f310	c-non-quest	196	1: 322f23e0	none in March (not CX2QuestManager)	thin wrapper: session check then the matching 3231xxxx P2P send (event 0x202)	
+3231f400	c-non-quest	68	1: 32302a10	none in March (not CX2QuestManager)	handle copy-ctor with validity test 31aad500	
+3231f510	a-stl/helper	6	100: 33203480,33208880,332098e0,3323ab50,3323c220	none	stub returning 0 (shared S_OK vtable stub, 100 callers)	
+3231f660	c-non-quest	39	2	none in March (not CX2QuestManager)	scalar deleting dtor thunk (322f5d70 + free of +0x3c)	
+3231f690	a-stl/helper	4	1: 31d93900	none	empty function	
+3231f700	c-non-quest	200	0	none in March (not CX2QuestManager)	mail-log screenshot name builder (string mailLogScreenShot.jpg)	
+3231f7d0	c-non-quest	319	0	none in March (not CX2QuestManager)	mail-log (_ES_KR_CLIENT_LOG_MAIL_) string builder keyed by MLI code	
+3231f940	c-non-quest	144	2: 31e5b960,32576ff0	none in March (not CX2QuestManager)	map<int,...> lookup + log (callers 31e5b960, 32576ff0)	
+3231f9d0	c-non-quest	146	0	none in March (not CX2QuestManager)	map dtor (singleton 337a06f8)	
+3231fa60	c-non-quest	120	1: 3231fae0	none in March (not CX2QuestManager)	singleton std::map create/insert/destroy (DAT_337a06f8)	
+3231fae0	c-non-quest	122	4: 31d93900,31e46300,32576ff0	none in March (not CX2QuestManager)	singleton std::map create/insert/destroy (DAT_337a06f8)	
+3231fb60	c-non-quest	31	1: 31d93900	none in March (not CX2QuestManager)	singleton std::map create/insert/destroy (DAT_337a06f8)	
+3231fb80	c-non-quest	31	1: 3258c470	none in March (not CX2QuestManager)	singleton std::map create/insert/destroy (DAT_337a06f8)	
+3231fba0	c-non-quest	239	1: 3231f940	none in March (not CX2QuestManager)	singleton std::map create/insert/destroy (DAT_337a06f8)	
+3231fca0	c-non-quest	164	2: 3231fb60,3231fb80	none in March (not CX2QuestManager)	singleton std::map create/insert/destroy (DAT_337a06f8)	
+3231fd80	c-non-quest	5228	5: 323211f0,323212a0,32321440	none in March (not CX2QuestManager)	SHA-1 block transform (0x5a827999 round constants)	
+323211f0	c-non-quest	177	4: 323212a0,32321440	none in March (not CX2QuestManager)	SHA-1 update	
+323212a0	c-non-quest	405	1: 31d74de0	none in March (not CX2QuestManager)	SHA-1 file hash (fopen/fread 8000-byte chunks)	
+32321440	c-non-quest	271	1: 31d74de0	none in March (not CX2QuestManager)	SHA-1 final	
+32321550	c-non-quest	415	1: 31d74de0	none in March (not CX2QuestManager)	digest to hex string	
+32321730	c-non-quest	55	1: 31d74de0	none in March (not CX2QuestManager)	SHA-1 context init (0x67452301...)	
+32321770	c-non-quest	53	2: 31d74de0	none in March (not CX2QuestManager)	SHA-1 context init (0x67452301...)	
+32321800	c-non-quest	12	2: 31d74de0,31d82b00	none in March (not CX2QuestManager)	vtable pointer setter	
+32321810	c-non-quest	10	3: 31d74de0,31d82b00	none in March (not CX2QuestManager)	vtable pointer setter	
+32321860	c-non-quest	438	1: 31d82b00	none in March (not CX2QuestManager)	byte-shift (+7 / -7) string encode/decode	
+32321a20	c-non-quest	438	1: 31d74de0	none in March (not CX2QuestManager)	byte-shift (+7 / -7) string encode/decode	
+32321be0	c-non-quest	149	2: 31d74de0,31d82b00	none in March (not CX2QuestManager)	wstring ctor from range	
+32321cc0	c-non-quest	73	1: 32e05790	none in March (not CX2QuestManager)	_localtime64_s wrapper (caller 32e05790)	
+32321d10	b-logic	453	1: 32336e80	none (June monthly expiry)	true when mktime(1st of next month 00:00 of completeDate) <= now (Dec -> Jan year+1)	Q2: QRT_MONTH(4); compares with 31edca50 | consts: localtime64_s,mktime64
+32321ee0	b-logic	367	1: 32336e80	X2Lib/X2QuestManager.cpp:1092 GetTimeToRefreshQuest	returns local midnight of ServerCurrentTime (now - hour*3600 - min*60 - sec)	equals March US value (HOUR_TO_REFRESH_DAILY_QUEST=0, X2Define.h:198); single caller 32336e80 | consts: localtime64_s
+32322050	b-logic	528	1: 32336e80	none (June weekly expiry)	true when mktime(midnight of completeDate) + d*86400 <= now; d = (wday+1<4 ? 4-wday1 : 11-wday1): next Wednesday 00:00, Wednesday itself -> +7	Q2: QRT_WEEK(3); compares with 31edca50 (GetServerCurrentTime64) | consts: 86400,localtime64_s,mktime64
+32322260	b-logic	36	17: 31d79ac0,31f14e40,32173120,3225d340,3225d970	X2Lib/X2QuestManager.cpp:1339 GetUnitCompleteQuest	find in completed-quest map this+0x34 (end +0x38); 17 callers pass quest ids	IsCompleteQuest, prior id | this-offs: 0x38
+32322290	b-logic	64	5: 32337db0,323ca970,323cd720,327ccce0	unresolved (SubQuestTemplet ClearCondition predicate)	arg+0x48==1 and set at arg+0x40 has no key 0 -> true; callers MakeSubQuestString 32337db0 + 323cd720/327ccce0/323ca970	maybe "kill-NPC set has exactly one real NPC" (March MakeSubQuestString tests m_setKillNPCID.size()>1) | this-offs: 0x48
+323222d0	b-logic	52	1: 323ca200	X2Lib/X2QuestManager.cpp:1006 GetQuestDayByQuestID	find in map<int,int> this+0x9c (end +0xa0) -> value, 0 if absent; map is written by AddAccountQuestDate 3232e070	Q4: only reader of the account-quest-date map in the range; caller 323ca200 | this-offs: 0xa0
+32322310	b-logic	65	82: 31efb3a0,31f09b50,32197a70,32260ba0,3232c8f0	X2Lib/X2QuestManager.cpp:1294 GetQuestTemplet	find in templet map this+4 (end +8) -> value +0x10; drops templet when templet+0 (server group) not -1 / g_pMain+0x120	QuestTemplet+0 = m_iServerGroupID (March ADD_SERVER_GROUP); 82 callers
+32322350	b-logic	44	20: 31efb3a0,31f09b50,32260ba0,323ca970,323cac70	X2Lib/X2QuestManager.cpp:1318 GetSubQuestTemplet	find in map this+0x18 (end) -> value +0x10	20 callers | this-offs: 0x18
+32322380	b-logic	44	32: 31f09b50,31f14e40,32229540,32260ba0,323cbbf0	X2Lib/X2QuestManager.cpp:1328 GetUnitQuest	find in in-progress map this+0x28 -> QuestInst*	32 callers; 0 = not in progress | this-offs: 0x28
+323223b0	b-logic	225	1: 323d8be0	X2Lib/X2QuestManager.cpp:2103 GetQuestColor	out D3DXCOLOR from templet+8 (type 1,4,2 -> green) and level delta (arg - templet+0x30 m_iFairLevel): >7 grey, <0 && >-3 yellow, <=-3 red	same tree as 32323000
+32322490	b-logic	323	0	none (in-progress quest ids filtered by type + start NPC)	walks this+0x28; templet via g_pData+0x4c map +8; templet+8==type and (npc==0 or templet+0xc==npc) -> push id	0 callers | this-offs: 0x28
+323225e0	b-logic	142	10: 31f09b50,31f31990,323cdfe0,323da7a0,323e08c0	X2Lib/X2QuestManager.cpp:3203 SubQuestInst::IsComplete	SQT 3/4 (ITEM_COLLECTION / QUEST_ITEM_COLLECTION): inventory count 32869b80 vs clear-cond count (+0x3c); other types: flag byte inst+6	Q3. DIFFS: June is complete if flag==1 OR count>=need (March: false whenever count<need); SubQuestInst is 8 B (id +0, short ucClearData +4, bool bIsSuccess +6); no SQT_POINT_COUNT branch. 10 callers
+32322670	b-logic	59	2: 31efa680	X2Lib/X2QuestManager.cpp:5012 SetTimedEventQuest	find templet; templet+0x39 (m_bIsTimeEvent)=bValue, templet+0x264 (m_bStartTimeEvent)=!bValue	caller 31efa680
+323226b0	b-logic	292	1: 323357c0	X2Lib/X2QuestManager.cpp:5212 CheckGiveUpRandomQuest	(group id, quest id): map this+0x78 (m_mapTodayRandomQuest) lookup, then scans the group list against completed (this+0x38) / in-progress	called from GetAvailableQuest 323357c0 with templet+0x268 (m_iRandomGroupID) | this-offs: 0x28 0x38 0x7c
+323227e0	b-logic	485	2: 32336e80,323dfa80	X2Lib/X2QuestManager.cpp:5540 SetHasDungeonQuest	this+0x98=0; first unfinished sub-quest whose templet +0x48 != 0 (dungeon id set non-empty) -> this+0x98=1	caller 32336e80 (SetUnitQuest) as March:1088 | this-offs: 0x18 0x28 0x98
+323229d0	b-logic	250	1: 3232ef70	none (June chain-quest system)	true if any in-progress quest (this+0x28) has templet+0x278 (m_iChainID) == arg	Q1; only caller 3232ef70 | this-offs: 0x28
+32322ad0	b-logic	52	1: 323d5650	none (June chain-quest system)	find chainID in map this+0x10c (end +0x110) -> bool at node+0x10; false if missing	Q1 reader #1 of the chain-startable flag; only caller 323d5650 (quest-list UI: state 7 when flag==0 and quest not in progress) | this-offs: 0x110
+32322b10	b-logic	1002	1: 31d95080	none (June chain-quest system)	AddChainQuestDays: keys m_iChainID/m_iAllowFewDays/m_iTestMinute; node in chain map this+0xfc: +0x20 AllowFewDays, +0x24 TestMinute	known; see Q1 | this-offs: 0x100
+32322f80	b-logic	129	0	unresolved	probe over id table DAT_3348ca94 starting 0xa604 (42500): true if any listed id is in a map at this+0x28	0 callers | this-offs: 0x28
+32323000	b-logic	287	2: 32260ba0,323d6d20	X2Lib/X2QuestManager.cpp:2147 GetQuestColorString	same decision tree as 323223b0 returning "#CFFFFFF/#C00FF00/#CB3B3B3/#CCCCC00/#CFF0000"	
+32323120	b-logic	2469	1: 323321f0	X2Lib/X2QuestManager.cpp:2192 LoadQuestCondition	strings m_iLevel/m_iLimitLevel/m_eUnitType/m_iConditionItemID/m_iConditionItemNum/m_iNotBeforeQuestID	known
+32323ad0	b-logic	35501	1: 32330ff0	X2Lib/X2QuestManager.cpp:2345 LoadClearCondition	89 XOR key strings (m_eTalkNPCID ... )	known; decompile is a 1-line stub in Ghidra (35 KB)
+3232c640	b-logic	266	24: 32229540,322e5b40,3232c8f0,3232c980,3232cf70	X2Lib/X2QuestManager.cpp:3146 QuestInst::IsComplete	all sub-quest records (stride 8) complete, SubQuestInst::IsComplete inlined (same logic as 323225e0)	24 callers | this-offs: 0x10 0x14
+3232c750	b-logic	232	2	X2Lib/X2QuestManager.cpp:3158 QuestInst::IsCompleteVisitQuest	true if sub-quest id==arg is complete	DIFF: no "must be the last sub-quest" rule that March has | this-offs: 0x10 0x14
+3232c840	b-logic	177	2: 323cbbf0,323d6d20	X2Lib/X2QuestManager.cpp:3185 QuestInst::HasNotCompletedSubQuest	returns 1 when the matching sub-quest is NOT complete	this-offs: 0x10 0x14
+3232c8f0	b-logic	144	1: 32336e80	X2Lib/X2QuestManager.cpp:5293 InsertCompletedVisitQuestID	one sub-quest only; templet type != 1 (QT_EVENT); SQT 0x18-0x1a (VISIT_VILLAGE/FIELD/DUNGEON) and complete -> push id	caller SetUnitQuest
+3232c980	b-logic	362	1: 32006b30	X2Lib/X2QuestManager.cpp:5743 HasSkillUseSubQuest	skill id==900 early out; unfinished SQT 0x17 (SKILL_USE); special quests 0xaa0b/0xaa0c	single caller 32006b30 | this-offs: 0x28
+3232caf0	b-logic	1140	1: 3232ef70	none (June chain-quest system)	IsChainQuestAvailable(chainID): AllowFewDays / TestMinute cooldown, see summary	Q1; only caller 3232ef70 | this-offs: 0x100 0x120 | consts: localtime64_s,mktime64
+3232cf70	b-logic	121	0	X2Lib/X2QuestManager.cpp:2025 HasCompletableQuest	any in-progress quest complete (3232c640) -> 1	0 callers | this-offs: 0x28
+3232cff0	b-logic	423	0	X2Lib/X2QuestManager.cpp:3240 LineBreakSubQuestString	glyph width accumulate (31c3ab30), \n (10) or overflow -> new line, line counter out	0 callers
+3232d1a0	b-logic	229	1: 323d80d0	X2Lib/X2QuestManager.cpp:5189 GetEpicGroupTitle	find group id in map this+0x58 (end +0x5c) -> wstring	caller 323d80d0 | this-offs: 0x5c
+3232d290	b-logic	708	3: 3232ee50,3293f5f0	X2Lib/X2QuestManager.cpp:5338 GetNeedToTalkNPCList	unit quests; unfinished SQT 1 (NPC_TALK) -> (talk npc templet+0x60, bIsEpic = quest type==5)	this-offs: 0x18 0x28
+3232d560	b-logic	720	1: 3293f5f0	X2Lib/X2QuestManager.cpp:5383 GetNeedToVisitVillageList	same shape, SQT 0x18	this-offs: 0x18 0x28
+3232d830	b-logic	720	1: 3293f5f0	X2Lib/X2QuestManager.cpp:5432 GetNeedToVisitFieldList	same shape, SQT 0x19	this-offs: 0x18 0x28
+3232db00	b-logic	854	2: 3293c6f0	X2Lib/X2QuestManager.cpp:5495 GetNeedToClearDungeonList	dungeon id sets of unfinished sub-quests -> map<dungeon,bool>	caller 3293c6f0 (local map UI) | this-offs: 0x18 0x28
+3232de60	b-logic	182	1: 323cf130	none (June: forget a completed quest)	erase questID from completed map this+0x34; if templet chain id!=0 and type!=10 (STORY) and chain in this+0x11c: remove quest from that chain list (323459b0)	Q1/Q2; caller 323cf130 | this-offs: 0x120
+3232df20	c-non-quest	221	3: 323cb2e0	none in March (not CX2QuestManager)	UI hint show: flag this+0x148, g_pKTDXApp+0xa8 (caller 323cb2e0)	
+3232e000	c-non-quest	109	1: 3226b6c0	none in March (not CX2QuestManager)	UI hint hide: flag this+0x148 (caller 3226b6c0)	
+3232e070	b-logic	675	1: 31d95080	X2Lib/X2QuestManager.cpp:988 AddAccountQuestDate_LUA	keys AccountQuestID, DayOfWeek; writes map<int,int> this+0x9c via 32257cf0 @3232e2c7	known; Q4
+3232e310	b-logic	502	2: 31f09b50,323e08c0	X2Lib/X2QuestManager.cpp:1200 CheckUpdateSubQuestInst	string "UpdateQuest_QuestUpdate_Fail_<id>", error 0x2761; sub-quest id scan	this-offs: 0x28
+3232e510	b-logic	1921	6: 3232ecd0,3232fa40,3232fbd0,3232fcd0,323cab40	X2Lib/X2QuestManager.cpp:5030 IsForbiddenQuest	1=forbidden: show-item list (+0x224), hide-item (+0x234), hide-skill (+0x244), bank grade (+0x254) as March; June keeps March ids 0x2328/0x2332 (9000/9010 skill-note quests, March:5036) and adds 0x7918 (31000), type-1 (EVENT) quest ids 0x32c94/0x32c9e/0x32ca8/0x32cb2/0x32cbc gated on g_pData+0x334, and QT==9 gates: code-event 0x920 & job rec[0]==0xc, 0x921 & rec[1]==0x87, 0x923 & rec[1]==0x88 (rec = unit +0xaf0)	Q2: QT_CHANGE_TRANSCENDENTAL_CLASS; 6 callers
+3232ecd0	b-logic	376	19: 31ef82f0,31ef8880,31efe9d0,31f1fd90,31f272a0	X2Lib/X2QuestManager.cpp:5122 GiveUpForbiddenQuest	gathers in-progress ids with 3232e510==1 then 323d2aa0 (UIQuestNew gather give-up)	19 callers | this-offs: 0x28
+3232ee50	b-logic	283	2: 325c81a0,32e548f0	none (NPC quest-info helper)	counts talk-NPC guide entries 3232d290 for an NPC id	prior id: NPC quest-info counter
+3232ef70	b-logic	254	4: 3232f830,32331830,32331fb0,32336e80	none (June chain-quest system)	rebuilds map<chainID,bool> at this+0x10c: for each chain in this+0xfc: false if 323229d0 (chain quest in progress) or 3232caf0==0 (cooldown)	Q1; 4 callers (Refresh, Create, Remove, SetUnitQuest) | this-offs: 0x100
+3232f070	b-logic	1980	6: 31edbf70,31edceb0,31ee0a80	X2Lib/X2QuestManager.cpp:46 OpenScriptFile	g_pQuestManager string	known
+3232f830	b-logic	516	2: 31ef7970	X2Lib/X2QuestManager.cpp:1118 RefreshDailyQuest	erases from completed map every quest with templet+0x34==1 (QRT_DAY), then 3232ef70	June does NOT purge WEEK/MONTH here; caller 31ef7970 | this-offs: 0x38 0x3c
+3232fa40	b-logic	393	0	X2Lib/X2QuestManager.cpp:1234 GetCompletableQuestEpic	all non-forbidden templets (3232e510) then keep in-progress and complete	0 callers | this-offs: 0x28
+3232fbd0	b-logic	243	8: 3232fd70,32330120,323357c0,32336310	X2Lib/X2QuestManager.cpp:1350 GetStartQuestList	June: list when templet+0xc==npc OR (type 2 / 9 with start NPC set, deduped); skip forbidden; skip type 5 (EPIC); type 8 (GUILD) listed only if **(g_pData+0x2ec)!=0	Q2: QT 2/5/8/9; 8 callers
+3232fcd0	b-logic	156	1: 3232fff0	X2Lib/X2QuestManager.cpp:1385 GetEndQuestList	templet+0x10==npc and !forbidden (3232e510)	
+3232fd70	b-logic	523	1: 323357c0	X2Lib/X2QuestManager.cpp:1588 GetBoardStartQuestList	bulletin-board start list	known
+3232fff0	b-logic	297	3: 32331ca0,325cdfa0,32f16d50	X2Lib/X2QuestManager.cpp:2043 GetCompletableQuest	end-list 3232fcd0, drop quests not in this+0x28 or not complete (3232c640)	same shape as March; 3 callers | this-offs: 0x28
+32330120	b-logic	297	2: 32331c00,3245b5a0	X2Lib/X2QuestManager.cpp:2073 GetOnGoingQuest	start-list 3232fbd0, drop quests not in this+0x28 or complete	one-compare diff vs 3232fff0 | this-offs: 0x28
+32330250	b-logic	3434	1: 323321f0	X2Lib/X2QuestManager.cpp:2304 LoadReward	keys m_iEXP/m_iED/m_iBuff/m_iSP/m_eChangeUnitClass/m_iGuildCoopQuestRewardID/m_iItemID/m_iQuantity/m_iPeriod/m_sSocketOption; branch on arg3+8==9	known; Q2: QT 9 reward reads m_eChangeUnitClass
+32330fc0	b-logic	46	2: 31efefd0,32563270	X2Lib/X2QuestManager.cpp:5207 SetRandomQuestInfo	assigns map<int,int> at this+0x78 (m_mapTodayRandomQuest)	this-offs: 0x78 0x7c
+32330ff0	b-logic	2100	1: 31d95080	X2Lib/X2QuestManager.cpp:851 AddSubQuestTemplet_LUA	keys m_iID/m_wstrDescription/m_eClearType/m_bAutomaticDescription (+0x140)	known
+32331830	b-logic	500	3: 323e05f0,323e1710,323e4cb0	X2Lib/X2QuestManager.cpp:1179 CreateUnitQuest	string "CreateQuest_AddQuest_Fail"; June calls 3232ef70 (chain refresh) after insert	this-offs: 0x28
+32331a30	b-logic	457	2: 31f09b50,323e08c0	X2Lib/X2QuestManager.cpp:1276 UpdateUnitQuest	string "UpdateQuest_QuestUpdate_Fail"; copies via 32346f80	this-offs: 0x28
+32331c00	b-logic	151	0	none (count wrapper)	count of GetOnGoingQuest (32330120) for an NPC	0 callers
+32331ca0	b-logic	292	0	X2Lib/X2QuestManager.cpp:1551 GetCompleteQuest	completable quests counted: templet+0x34==2 (QRT_REPEAT) -> nRepeat, else nNormal	0 callers
+32331dd0	b-logic	470	2: 32336830,32336e80	X2Lib/X2QuestManager.cpp:3107 ClearUnitQuest	frees in-progress this+0x28, completed this+0x34, chain-startable this+0x10c, chain-complete this+0x11c	Q1 clear site | this-offs: 0x28 0x2c 0x38 0x3c 0x110 0x114 0x120 0x124
+32331fb0	b-logic	572	7: 31efa680,323e15e0,323e1710,323e4aa0,323e55e0	X2Lib/X2QuestManager.cpp:3125 RemoveUnitQuest	erase this+0x28; bComplete: templet chain id (+0x278)!=0 -> insert (questID, ServerCurrentTime 31edbdb0) into chain-complete map this+0x11c; m_mapCompleteQuest[id]=id; then 3232ef70	Q1: writer of chain completion time; 7 callers | this-offs: 0x28 0x120
+323321f0	b-logic	13776	3: 31d95080	X2Lib/X2QuestManager.cpp:497 AddQuestTemplet_LUA	keys incl. m_iChainID (templet+0x278), m_bIsAccount(+0x270), m_bIsGuild(+0x271), m_bIsCommon, m_iEpisodeGroupID(+0x1b4), m_iRandomGroupID, m_iNextVillageID, m_iServerGroupID	known; QT==10 (STORY) branch @32335511 inserts into map this+0xec keyed by templet+0x1b4; chain map find @32334392
+323357c0	b-logic	1926	9: 32260ba0,32336310,32337320,32344ab0,323d0770	X2Lib/X2QuestManager.cpp:1708 GetAvailableQuest	NPC 0x2729 -> GetBoardStartQuestList+start list; drops level/limit-level misses, completed non-repeat quests (templet+0x34 != 2), random-group misses (323226b0), type-8 quests in the non-repeat branch; reads chain-startable map @32335dd9-32335e3b and drops the quest when flag==0	Q1 reader #2; Q2 QT 8; 9 callers | this-offs: 0x28 0x38 0x110
+32335f50	b-logic	958	2: 32336e80,323e57e0	unresolved	for each completed quest (this+0x38 map) with group ok: singleton lookup 326ab210/326ab090 on templet id, rebuilds a map at g_pData+0x570, writes g_pMain+0xabd = arg	June-only; callers SetUnitQuest (@32337290), 323e57e0 | this-offs: 0x38
+32336310	b-logic	1302	1: 3245abd0	none (June class-up notice)	class step 31edf870: 1-2 -> quest type 2, 3 -> type 9 (CHANGE_TRANSCENDENTAL_CLASS); NPC 0x2714 available+start quests filtered by type	Q2 consumer of QT 9; single caller 3245abd0 (CX2StateMenu class-up button) | this-offs: 0x28
+32336830	b-logic	1605	1: 3234ae80	X2Lib/X2QuestManager.cpp:19 ~CX2QuestManager	vtable PTR_FUN_3348cdd0; destroys templets 32349b20, sub templets 32346020, maps +0x10c/+0xec/+0x68	single caller scalar-dtor 3234ae80 | this-offs: 0xd 0x11 0x16 0x1a 0x1e 0x22 0x27 0x2b 0x2f 0x33
+32336e80	b-logic	1185	3: 31f276b0,324112e0,32563270	X2Lib/X2QuestManager.cpp:1022 SetUnitQuest	(vec<KQuestInstance> stride 0x24, vec<KCompleteQuestInfo> stride 0x18, bClear): daily 32321ee0, weekly 32322050 (templet+0x34==3), monthly 32321d10 (==4), chain-complete map this+0x11c, then 3232ef70, 32335f50, 323227e0	Q1/Q2: only evaluator of QRT_WEEK/QRT_MONTH; 3 callers | this-offs: 0x38 0x120
+32337320	b-logic	510	3: 325c81a0,32e548f0	X2Lib/X2QuestManager.cpp:1410 GetNewQuest	323357c0 list then counts repeat (templet+0x34==2), event (type 1/4), pcbang (+0x38), time-event (+0x39), level window <8	known
+32337520	b-logic	509	2: 324bb780	unresolved (non-QuestManager this)	this+0x88 vector<quest id> -> 31effd10 pack -> 323d2c20 UI add	caller 324bb780 | this-offs: 0x88 0x8c
+32337720	b-logic	1673	1: 31edbf70	X2Lib/X2QuestManager.cpp:11 CX2QuestManager ctor	object 0x14c; inits maps +0x28/+0x34/+0x18/+0x10c/+0x11c	known | this-offs: 0x15 0x26 0x4b 0x52
+32337db0	b-logic	13225	19: 3233b290,323cdfe0,323da7a0,32683600	X2Lib/X2QuestManager.cpp:3277 MakeSubQuestString	(out, bAuto, SubQuestTemplet* (+0x20 type), QuestInst*, bShowCount): wostringstream, switch over SQT 1..0x30, counts from 32344f30 (short +4)	Q3 progress-string builder; 19 callers
+3233b290	b-logic	997	2: 31f03520,329084e0	X2Lib/X2QuestManager.cpp:4916 CheckItemCollection	item id arg; SQT 3/4 sub-quests with clear-cond item (+0x38)==id: MakeSubQuestString 32337db0 (bAuto=subquest+0x140) then display	callers 31f03520, 329084e0 | this-offs: 0x18 0x28
+3233b680	b-logic	18909	1: 31d95080	X2Lib/X2QuestManager.cpp:185 AddVillageNpcRelationDataByQuest_LUA	prior identification (Atlas/Elysion E1, funcmap.tsv)	Elysion village NPC relation
+32340060	b-logic	690	1: 32340630	X2Lib/X2QuestManager.cpp:355 GetVillageNpcRelationDataByQuestID	prior identification (Atlas/Elysion E1, funcmap.tsv)	Elysion village NPC relation | this-offs: 0x38 0xac 0xb0 0xbc 0xc0 0xcc 0xd0 0xdc 0xe0
+32340320	b-logic	770	2: 32344880,323ba5f0	X2Lib/X2QuestManager.cpp:259 GetVillageNpcRelationDataByQuest	prior identification (Atlas/Elysion E1, funcmap.tsv)	Elysion village NPC relation | this-offs: 0x38 0xac 0xb0 0xbc 0xc0 0xcc 0xd0 0xdc 0xe0
+32340630	b-logic	235	3: 323e15e0,323e1710,323e57e0	X2Lib/X2QuestManager.cpp:427 RefreshVillageNpcRelationDataByQuest	prior identification (Atlas/Elysion E1, funcmap.tsv)	Elysion village NPC relation
+32340720	b-logic	16278	1: 31d95080	X2Lib/X2QuestManager.cpp:229 AddVillageNpcRelationDataByVillage_LUA	prior identification (Atlas/Elysion E1, funcmap.tsv)	Elysion village NPC relation
+323446c0	b-logic	437	2: 32344880,323ba5f0	X2Lib/X2QuestManager.cpp:323 GetVillageNpcRelationDataByVillage	prior identification (Atlas/Elysion E1, funcmap.tsv)	Elysion village NPC relation | this-offs: 0xac 0xb0 0xcc 0xd0
+32344880	b-logic	552	1: 31f00970	X2Lib/X2QuestManager.cpp:453 RefreshVillageNpcRelationDataByCodeEvent	prior identification (Atlas/Elysion E1, funcmap.tsv)	Elysion village NPC relation
+32344ab0	b-logic	964	5: 327127a0	none (June class-up notice)	quests of type arg2 (2/9) whose templet+0xd4 matches the unit class record: shows a message string id 0xabee	caller 327127a0
+32344e80	a-stl/helper	30	1: 3260e680	none	rb-tree rightmost/leftmost walk (nil flag +0x11)	
+32344ea0	a-stl/helper	93	1: 3234a8f0	none	operator new for array of 0x388-byte village NPC relation rows	
+32344f00	a-stl/helper	49	4	none	vector<int>::set(index,value<8) bounded store	
+32344f30	b-logic	60	29: 32337db0,323da7a0,32683600	none (inlined in March MakeSubQuestString)	find sub-quest record by id in vector stride 8 (QuestInst +0x10..+0x14)	29 callers | this-offs: 0x10 0x14
+32344f70	a-stl/helper	72	1: 323c21e0	none	copy range of 0x14-byte structs	
+32344fc0	a-stl/helper	131	7: 32276de0,32278840,32278880,3232e510,328136f0	none	map lower_bound (nil flag +0x11)	
+32345050	a-stl/helper	131	3: 323459b0,32926870,32f18db0	none	map lower_bound (nil flag +0x29)	
+323450e0	a-stl/helper	548	7: 321005f0,32104cc0,3210a830,323453f0	none	rb-tree insert (map<int,..> node)	
+32345310	a-stl/helper	46	9: 31d1aeb0,320791a0,32079f50,3207d660,322ad0d0	none	copy range of 8-byte elements	
+32345340	a-stl/helper	99	85: 31d88790,31edfbe0,31edfc10,31edfc40,31ee39f0	none	map<int,..>::find (lower_bound + compare), 85 callers	
+323453b0	a-stl/helper	55	2: 32331fb0	none	compose (key,value) pair for the chain-complete map insert	
+323453f0	a-stl/helper	210	4: 32331fb0,32336e80	none	map insert-unique (node 0x2c, chain inner map)	
+323454d0	a-stl/helper	105	1: 323459b0	none	iterator distance counter	
+32345540	a-stl/helper	58	1: 32346330	none	fill range of 8-byte elements (-1, 0)	
+32345580	a-stl/helper	210	100: 31ee7350,31eea1f0,32057b80,3220a350,32229e00	none	map insert-unique (100 callers)	
+32345660	a-stl/helper	142	5: 32331fb0,32336e80,32345a10	none	alloc node 0x2c (chain inner map entry)	
+323456f0	a-stl/helper	112	16: 32100830,32105b00,3210bf10,322578d0,3232d290	none	alloc node 0x18 (pair<int,bool>)	
+32345770	a-stl/helper	114	1: 32347580	none	copy-construct 0x44-byte village NPC relation sub-row	
+323457f0	a-stl/helper	208	1: 32347f70	none	map copy-ctor (node 0x2c)	
+323458d0	a-stl/helper	49	2: 3232df20,325c68a0	none	copy wstring at +0x44 (tooltip text getter)	
+32345900	a-stl/helper	171	100: 31ceb310,31e6ff00,31e86fd0,31e99ba0,31e9a1c0	none	rb-tree erase subtree (100 callers)	
+323459b0	a-stl/helper	89	1: 3232de60	none	erase key from inner map (equal_range + erase)	
+32345a10	a-stl/helper	159	3: 32345a10,32345c40	none	rb-tree copy subtree (node 0x2c)	
+32345ad0	a-stl/helper	208	3: 322b39a0,3265f750,32829f10	none	map copy-ctor (node 0x14)	
+32345bb0	a-stl/helper	96	3: 3233b680,32340720,324f3260	none	copy-construct 0x44-byte village NPC relation sub-row (Elysion callers 3233b680/32340720)	
+32345c40	a-stl/helper	116	1: 32345dd0	none	map copy (node 0x2c)	
+32345cc0	a-stl/helper	112	1: 323321f0	none	map ctor (node 0x14) used by AddQuestTemplet	
+32345d60	a-stl/helper	102	1: 32331fb0	none	map dtor (tree free)	
+32345dd0	a-stl/helper	190	1: 323489a0	none	map copy-ctor (node 0x2c)	
+32345e90	b-logic	192	1: 32349b20	X2Lib/X2QuestManager.h ~QuestTemplet part (inline)	destroys vector +0x3c and string +0x20	this-offs: 0xc 0x1c 0x20 0x3c 0x40 0x44
+32345f50	b-logic	117	1: 32349b20	X2Lib/X2QuestManager.h ~QuestCondition part (inline)	clears set at +4	
+32345fd0	b-logic	77	2: 32331830,32336e80	X2Lib/X2QuestManager.h QuestInst ctor (inline)	id=-1, uid=-1, vector empty	
+32346020	b-logic	493	2: 32330ff0,32336830	X2Lib/X2QuestManager.h ~SubQuestTemplet (inline)	destroys ClearCondition containers (+0xe0 set, +0x104 vector ...)	this-offs: 0x1c 0x20 0x68 0x6c 0x70 0x8c 0x90 0x9c 0xa0 0xb4
+32346210	b-logic	286	1: 32349b20	X2Lib/X2QuestManager.h ~ClearCondition part (inline)	destroys sets at +0x38/+0x48/+0x58	this-offs: 0xc 0x28 0x2c 0x30 0x38 0x3c 0x48 0x4c 0x58 0x5c
+32346330	a-stl/helper	140	1: 32346f80	none	vector<pair<int,int>>::resize	
+323463c0	b-logic (Elysion)	1431	13: 32336830,3233b680,32340060,32340320,32340720	X2Lib/X2QuestManager.cpp VillageNpcRelationData (X2QuestManager.h top)	village NPC relation row reset/clear, Elysion E1	Elysion E1 helper, no quest rule | this-offs: 0x10 0x20 0x24 0x2c 0x3c 0x40 0x48 0x58 0x5c 0x74
+32346960	b-logic	106	1: 32331fb0	X2Lib/X2QuestManager.h QuestInst dtor (inline)	frees vecSubQuestInst, optional delete	this-offs: 0x10 0x14 0x18
+323469d0	a-stl/helper	485	1: 3234a2e0	none	map ctor (node 0x14) + init, caller 3234a2e0	
+32346bc0	b-logic	953	1: 32330ff0	X2Lib/X2QuestManager.h SubQuestTemplet ctor (inline)	initialises ClearCondition containers and fields	single caller AddSubQuestTemplet | this-offs: 0x10 0x14 0x18 0x20 0x24 0x2c 0x30 0x34 0x38 0x3c
+32346f80	b-logic	385	3: 32331830,32331a30,32336e80	X2Lib/X2QuestManager.h QuestInst::SetKQuestInstance (inline)	copies uid, id and sub-quest records (stride 7 -> 8)	callers Create/Update/SetUnitQuest
+32347110	b-logic (Elysion)	1069	6: 3233b680,32340060,32340320,32340720,323446c0	X2Lib/X2QuestManager.cpp VillageNpcRelationData (X2QuestManager.h top)	village NPC relation row (0x388) ctor, Elysion E1	Elysion E1 helper, no quest rule | this-offs: 0xb 0x12 0x19 0x21 0x28 0x2f 0x36 0x3d 0x44 0x4b
+32347540	a-stl/helper	59	1: 323321f0	none	copy 3 words (AddQuestTemplet helper)	
+32347580	b-logic (Elysion)	1234	2: 32349a70,3234adc0	X2Lib/X2QuestManager.cpp VillageNpcRelationData (X2QuestManager.h top)	village NPC relation row copy-ctor, Elysion E1	Elysion E1 helper, no quest rule | this-offs: 0xb 0x12 0x19 0x21 0x28 0x2f 0x36 0x3d 0x44 0x4b
+32347a60	a-stl/helper	226	1: 3234a690	none	alloc node 0x84 (map<int, 7 vectors>)	
+32347b50	a-stl/helper	741	1: 323491e0	none	map erase range (node 0x84)	
+32347e40	a-stl/helper	78	2: 32347e40,323491e0	none	rb-tree free subtree (node 0x84, 7 vector dtor)	
+32347e90	a-stl/helper	219	1: 323321f0	none	alloc node 0x2c	
+32347f70	a-stl/helper	205	2: 32331fb0,32336e80	none	alloc node 0x24	
+32348040	b-logic (Elysion)	894	6: 32340060,32340320,323446c0	X2Lib/X2QuestManager.cpp VillageNpcRelationData (X2QuestManager.h top)	0x32c-byte row copy, Elysion E1	Elysion E1 helper, no quest rule | this-offs: 0xc9 0xca 0x329
+323483c0	a-stl/helper	620	9: 32348fb0,32349fd0	none	rb-tree insert (node 0x84)	
+32348630	b-logic (Elysion)	868	3: 32336830,3234aa10,323b8970	X2Lib/X2QuestManager.cpp VillageNpcRelationData (X2QuestManager.h top)	copy range of 0x32c-byte rows, Elysion E1	Elysion E1 helper, no quest rule | this-offs: 0xcb
+323489a0	a-stl/helper	43	2: 32331fb0,32336e80	none	compose pair for chain-complete insert	
+323489d0	a-stl/helper	643	2: 32349810	none	rb-tree insert (node 0x24)	
+32348c60	a-stl/helper	643	2: 32349940	none	rb-tree insert (node 0x24)	
+32348ef0	a-stl/helper	159	3: 32348ef0,32349f50	none	rb-tree copy subtree (nil +0x21)	
+32348fb0	a-stl/helper	236	1: 32349fd0	none	map insert helper (node 0x84)	
+323490a0	a-stl/helper	155	3: 32337720,323490a0,3234a140	none	rb-tree free subtree (nil +0x29)	
+32349140	a-stl/helper	155	3: 32331dd0,32349140,3234a210	none	rb-tree free subtree (nil +0x21)	
+323491e0	a-stl/helper	209	2: 32336830,3234a820	none	map erase range (node 0x84)	
+323492b0	a-stl/helper	675	1: 3234a140	none	map erase (node 0x24)	
+32349560	a-stl/helper	675	1: 3234a210	none	map erase (node 0x24)	
+32349810	a-stl/helper	296	1: 323321f0	none	map insert helper (node 0x2c)	
+32349940	a-stl/helper	296	2: 32331fb0,32336e80	none	map insert helper (node 0x24)	
+32349a70	b-logic (Elysion)	167	1: 3234a8f0	X2Lib/X2QuestManager.cpp VillageNpcRelationData (X2QuestManager.h top)	uninitialized copy of 0x388-byte rows, Elysion E1	Elysion E1 helper, no quest rule | this-offs: 0x388
+32349b20	b-logic	1072	2: 323321f0,32336830	X2Lib/X2QuestManager.h ~QuestTemplet (inline)	destroys vectors/maps of the templet (+0x134, +0x148...)	callers AddQuestTemplet error path and dtor | this-offs: 0x14 0x24 0x28 0x3c 0x4c 0x50 0x58 0x68 0x6c 0x74
+32349f50	a-stl/helper	116	2: 32335f50,3234a5d0	none	map copy (node 0x20)	
+32349fd0	a-stl/helper	357	1: 3234a690	none	map hint insert (node 0x84)	

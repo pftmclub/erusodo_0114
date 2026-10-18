@@ -1,0 +1,552 @@
+item	june_va	june_name	march_equivalent	verdict	target	evidence
+key:quest:CHANGE_JOB_TYPE	parser of the table	CHANGE_JOB_TYPE	same key	same	-	q_june_quest_keys.tsv
+key:quest:HIDE_QUEST_ITEM	parser of the table	HIDE_QUEST_ITEM	same key	same	-	q_june_quest_keys.tsv
+key:quest:HIDE_QUEST_SKILL	parser of the table	HIDE_QUEST_SKILL	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition	parser of the table	QuestCondition	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_eUnitClass	32323120 QuestCondition @32323572	unit-class set +0x08; value >= 1000 -> cond+0x18 = value % 1000 (QR_NONE 0, QR_TRANSCENDENTAL_CLASS 1)	m_setUnitClass (cpp:2258)	changed: QR tail goes to a new scalar	Q1 (parse); reader Q3 (IsForbiddenQuest 3232e510), consumer Stage 6	decompile 32323120 lines 175-191
+key:quest:QuestCondition.m_eUnitType	parser of the table	QuestCondition.m_eUnitType	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_iConditionItemID	parser of the table	QuestCondition.m_iConditionItemID	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_iConditionItemNum	parser of the table	QuestCondition.m_iConditionItemNum	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_iEnableDungeon	parser of the table	QuestCondition.m_iEnableDungeon	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_iEnableField	-	not read; June reads m_iEnableBattleField (+0x58)	m_setEnableBattleField (cpp:2238)	data key unread on both sides	June-only, not ported: neither client reads it	q0a_june_templets.md QuestCondition row 5
+key:quest:QuestCondition.m_iEnableVillage	parser of the table	QuestCondition.m_iEnableVillage	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_iLevel	parser of the table	QuestCondition.m_iLevel	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_iLimitLevel	parser of the table	QuestCondition.m_iLimitLevel	same key	same	-	q_june_quest_keys.tsv
+key:quest:QuestCondition.m_iNotBeforeQuestID	32323120 QuestCondition @3232392c	cond+0x24	m_iNotBeforeQuestID	same	-	q0a_june_templets.md
+key:quest:QuestCondition.m_vecBeforeQuestID	parser of the table	QuestCondition.m_vecBeforeQuestID	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward	parser of the table	Reward	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_bEnable	parser of the table	Reward.m_bEnable	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_eChangeUnitClass	32330250 Reward @3233070e / @3233088e	QT 9: reward+0x38 = value % 1000 (miss -> 0); else reward+0x30 raw	m_eChangeUnitClass (raw)	changed: QT 9 split	Q1 (parse both); Q4 refuses the transcendental change (Stage 6)	CMP [EBP+8],9 @323306b5
+key:quest:Reward.m_iBuff	parser of the table	Reward.m_iBuff	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_iED	parser of the table	Reward.m_iED	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_iEXP	parser of the table	Reward.m_iEXP	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_iSP	parser of the table	Reward.m_iSP	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_vecItem	parser of the table	Reward.m_vecItem	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_vecItem[].m_iItemID	parser of the table	Reward.m_vecItem[].m_iItemID	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_vecItem[].m_iPeriod	parser of the table	Reward.m_vecItem[].m_iPeriod	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_vecItem[].m_iQuantity	parser of the table	Reward.m_vecItem[].m_iQuantity	same key	same	-	q_june_quest_keys.tsv
+key:quest:Reward.m_vecItem[].m_sSocketOption	parser of the table	Reward.m_vecItem[].m_sSocketOption	same key	same	-	q_june_quest_keys.tsv
+key:quest:SHOW_QUEST_ITEM	parser of the table	SHOW_QUEST_ITEM	same key	same	-	q_june_quest_keys.tsv
+key:quest:SelectReward	parser of the table	SelectReward	same key	same	-	q_june_quest_keys.tsv
+key:quest:SelectReward.m_iSelectionCount	parser of the table	SelectReward.m_iSelectionCount	same key	same	-	q_june_quest_keys.tsv
+key:quest:SelectReward.m_vecSelectItem	parser of the table	SelectReward.m_vecSelectItem	same key	same	-	q_june_quest_keys.tsv
+key:quest:SelectReward.m_vecSelectItem[].m_iItemID	parser of the table	SelectReward.m_vecSelectItem[].m_iItemID	same key	same	-	q_june_quest_keys.tsv
+key:quest:SelectReward.m_vecSelectItem[].m_iPeriod	parser of the table	SelectReward.m_vecSelectItem[].m_iPeriod	same key	same	-	q_june_quest_keys.tsv
+key:quest:SelectReward.m_vecSelectItem[].m_iQuantity	parser of the table	SelectReward.m_vecSelectItem[].m_iQuantity	same key	same	-	q_june_quest_keys.tsv
+key:quest:SelectReward.m_vecSelectItem[].m_sSocketOption	parser of the table	SelectReward.m_vecSelectItem[].m_sSocketOption	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_bIsPcBang	parser of the table	m_bIsPcBang	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_bIsTimeEvent	parser of the table	m_bIsTimeEvent	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_bRepeat	-	not read by June's client	dead #else in March (cpp:543)	obsolete key; both read m_eRepeatType	June-only, not ported: neither client reads it	q0a_march_digest.md s2
+key:quest:m_eEndNPCID	parser of the table	m_eEndNPCID	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_ePublisher	-	not read by June's client	not read	server-only key (no plain or XOR string in the June exe)	June-only, not ported: client never reads it	q0a_june_templets.md 'keys that do not exist'
+key:quest:m_eQuestType	parser of the table	m_eQuestType	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_eRepeatType	323321f0 AddQuestTemplet_LUA @32332ad3	QuestTemplet+0x34	m_eRepeatType	same key; June adds values 3/4 (SetUnitQuest 32336e80)	Q3 (week/month expiry)	q0a_qm_summary.md s2
+key:quest:m_eStartNPCID	parser of the table	m_eStartNPCID	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_fRandomRate	-	not read by June's client	not read	server-only key	Q4 (emulator: check March UserQuestManager for random-day use)	q0a_june_templets.md
+key:quest:m_fSelectBGM	323321f0 @32335659	QuestTemplet+0x28c m_fSelectBGM (wstring, not float)	new	new member; read after the duplicate check; no reader in 32318000-3234a000	Q1 (store); reader Q0b/Q5b	q0a_june_templets.md row 38
+key:quest:m_iAfterQuestID	323321f0 AddQuestTemplet_LUA (table)	vector<int> +0x214	m_vecAfterQuestID (ours, SERV_IRUHADEV_OFFLINE)	same as our revival	-	q0a_june_templets.md row 19
+key:quest:m_iChainID	323321f0 @323342ad	QuestTemplet+0x278 m_iChainID	new	new; != 0 -> manager+0xfc map<chain, {set<questID>, AllowFewDays, TestMinute}>	Q1 (parse + index); Q3 (chain rule 3232caf0); Q4 (emulator)	q0a_june_templets.md index table; 3232caf0
+key:quest:m_iEpisodeGroupID	parser of the table	m_iEpisodeGroupID	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_iFairDungeonID	-	not read by June's client	not read	server-only key	June-only, not ported: client never reads it	q0a_june_templets.md
+key:quest:m_iFairLevel	parser of the table	m_iFairLevel	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_iID	parser of the table	m_iID	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_iPlayLevel	parser of the table	m_iPlayLevel	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_iRandomGroupID	parser of the table	m_iRandomGroupID	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_vecAcceptRewardItem	-	not read by June's client	not read	server-only (accept-time item grant, 7 quests)	Q4 (emulator pays on accept if March's server does)	q0a_june_templets.md
+key:quest:m_vecAcceptRewardItem[].m_iItemID	-	not read by June's client	not read	see m_vecAcceptRewardItem	Q4	q0a_june_templets.md
+key:quest:m_vecAcceptRewardItem[].m_iQuantity	-	not read by June's client	not read	see m_vecAcceptRewardItem	Q4	q0a_june_templets.md
+key:quest:m_vecAdditionalSceneQuestID	323321f0 @32334478	QuestTemplet+0x27c vector<int> (> 0)	new	new; stored only in the quest manager	Q1 (store); reader Q0b/Q5b	q0a_june_templets.md row 27
+key:quest:m_vecSubQuest	parser of the table	m_vecSubQuest	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_vecSubQuest_Group	parser of the table	m_vecSubQuest_Group	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_wstrDissClearText	parser of the table	m_wstrDissClearText	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_wstrEndScene	parser of the table	m_wstrEndScene	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_wstrEpisodeGroupTitle	parser of the table	m_wstrEpisodeGroupTitle	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_wstrMainText	parser of the table	m_wstrMainText	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_wstrStartScene	parser of the table	m_wstrStartScene	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_wstrThanksText	parser of the table	m_wstrThanksText	same key	same	-	q_june_quest_keys.tsv
+key:quest:m_wstrTitle	parser of the table	m_wstrTitle	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition	parser of the table	m_ClearCondition	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_bExpDungeonAndField	-	not read by June's client (no plain/XOR string)	none	server-only key (36 sub-quests)	Q4 (stand-in proposal, ask)	Ghidra strings filter 'ExpDungeonAndField': 0
+key:subquest:m_ClearCondition.m_bIsGuildJoin	32323ad0 clear condition case 38	cond+0x120 (required)	none	new	Q1 (parse); Q4 undriven (guild decision)	q0a_june_clearcond.md
+key:subquest:m_ClearCondition.m_bUpperDifficulty	32323ad0 clear condition	cond+0x54 bool, required in 2,4,5-8,12,17,32,37,48; not read in 22/26/27	m_bUpperDifficulty	same (June adds cases 37/48)	Q1	q0a_june_clearcond.md N1
+key:subquest:m_ClearCondition.m_cDifficulty	32323ad0 clear condition	cond+0x13c int, missing -> -1 (stub 3232434c), still true	none live (dead #ifndef REFORM_QUEST)	new member; read in all 12 dungeon cases; no reader in the quest-manager range	Q1 (parse); Q3 (find a UI reader before porting one)	q0a_june_clearcond.md N1; 699 agree / 123 differ with id%10
+key:subquest:m_ClearCondition.m_eAttribCountType	parser of the table	m_ClearCondition.m_eAttribCountType	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_eDungeonID	32323ad0 clear condition	set<int> cond+0x40, inserts values >= 0	m_setDungeonID, inserts > 0 (cpp:2384)	changed: June keeps 0 (5 June sub-quests list {0})	Q1 (verbatim >= 0); Q4 (a {0} set matches no dungeon)	CMP EAX,EBX; JL @32323d09
+key:subquest:m_ClearCondition.m_eDungeonMode	32323ad0 clear condition	cond+0x50 optional	m_eDungeonMode	"same; June data has 2 DUNGEON_MODE[""n""] string indexes (nil -> 0)"	-	FieldSubQuest.src.lua:20727, 34518
+key:subquest:m_ClearCondition.m_eDungeonRank	parser of the table	m_ClearCondition.m_eDungeonRank	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_eExceptionDungeonID	-	not read by June's client	none	server-only key (6 sub-quests)	Q4 (stand-in proposal, ask)	Ghidra strings filter 'ExceptionDungeon': 0
+key:subquest:m_ClearCondition.m_eFieldID	parser of the table	m_ClearCondition.m_eFieldID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_eKillNPCID	parser of the table	m_ClearCondition.m_eKillNPCID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_ePVPType	parser of the table	m_ClearCondition.m_ePVPType	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_ePvpChannelClass	parser of the table	m_ClearCondition.m_ePvpChannelClass	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_ePvpRank	32323ad0 clear condition case 45	cond+0x118 (required)	none	new	Q1 (parse); Q4 undriven (no PvP)	q0a_june_clearcond.md
+key:subquest:m_ClearCondition.m_ePvpTournamentType	32323ad0 clear condition cases 9/10	optional, default 0	none	new	Q1 (parse); Q4 undriven (no PvP)	q0a_june_clearcond.md
+key:subquest:m_ClearCondition.m_eTalkNPCID	parser of the table	m_ClearCondition.m_eTalkNPCID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_eVillageID	parser of the table	m_ClearCondition.m_eVillageID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_fQuestItemDropRate	parser of the table	m_ClearCondition.m_fQuestItemDropRate	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iCharLevel	32323ad0 clear condition case 31	int (required)	m_iCharLevel (SERV_ACCOUNT_MISSION_SYSTEM)	same	-	q0a_march_digest.md s3
+key:subquest:m_ClearCondition.m_iCollectionHonorPointCount	32323ad0 clear condition case 39	cond+0x11c (required)	none	new	Q1 (parse); Q4 undriven (guild decision)	q0a_june_clearcond.md
+key:subquest:m_ClearCondition.m_iCollectionItemID	parser of the table	m_ClearCondition.m_iCollectionItemID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iCollectionItemNum	parser of the table	m_ClearCondition.m_iCollectionItemNum	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iDungeonClearCount	parser of the table	m_ClearCondition.m_iDungeonClearCount	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iDungeonClearTime	parser of the table	m_ClearCondition.m_iDungeonClearTime	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iDungeonDamage	parser of the table	m_ClearCondition.m_iDungeonDamage	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iEnchantLevel	parser of the table	m_ClearCondition.m_iEnchantLevel	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iExchangeCount	32323ad0 clear condition case 43	cond+0x124 (required)	none	new	Q1 (parse); Q4 (drive or label)	q0a_june_clearcond.md
+key:subquest:m_ClearCondition.m_iFindNPCID	parser of the table	m_ClearCondition.m_iFindNPCID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iKillNum	parser of the table	m_ClearCondition.m_iKillNum	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iLearnNewSkillCount	parser of the table	m_ClearCondition.m_iLearnNewSkillCount	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iPVPKill	parser of the table	m_ClearCondition.m_iPVPKill	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iPVPPlay	parser of the table	m_ClearCondition.m_iPVPPlay	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iPVPWin	parser of the table	m_ClearCondition.m_iPVPWin	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iResolveCount	parser of the table	m_ClearCondition.m_iResolveCount	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iSocketCount	parser of the table	m_ClearCondition.m_iSocketCount	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iSpUseCount	parser of the table	m_ClearCondition.m_iSpUseCount	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iUseItemCnt	parser of the table	m_ClearCondition.m_iUseItemCnt	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_iUseSkillCount	parser of the table	m_ClearCondition.m_iUseSkillCount	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_listUseItemID	parser of the table	m_ClearCondition.m_listUseItemID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_ClearCondition.m_vecExchangeSourceItem_ID	32323ad0 clear condition case 43 @3232c0cf	vector<int> cond+0x128; loop exit inverted: a non-empty table pushes nothing	none	new; June bug kept (JUNE_BUGS 321)	Q1 (verbatim); Q4	TEST AL,AL; JNZ exit @3232c0cf
+key:subquest:m_ClearCondition.m_vecSkillID	parser of the table	m_ClearCondition.m_vecSkillID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_bAutomaticDescription	parser of the table	m_bAutomaticDescription	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_eClearType	parser of the table	m_eClearType	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_iID	parser of the table	m_iID	same key	same	-	q_june_quest_keys.tsv
+key:subquest:m_wstrDescription	parser of the table	m_wstrDescription	same key	same	-	q_june_quest_keys.tsv
+key:account:CHANGE_JOB_TYPE	323321f0 (shared parser)	CHANGE_JOB_TYPE	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:HIDE_QUEST_ITEM	323321f0 (shared parser)	HIDE_QUEST_ITEM	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition	323321f0 (shared parser)	QuestCondition	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_eUnitClass	32323120 QuestCondition @32323572	unit-class set +0x08; value >= 1000 -> cond+0x18 = value % 1000 (QR_NONE 0, QR_TRANSCENDENTAL_CLASS 1)	m_setUnitClass (cpp:2258)	changed: QR tail goes to a new scalar	Q1 (parse); reader Q3 (IsForbiddenQuest 3232e510), consumer Stage 6	decompile 32323120 lines 175-191
+key:account:QuestCondition.m_eUnitType	323321f0 (shared parser)	QuestCondition.m_eUnitType	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_iConditionItemID	323321f0 (shared parser)	QuestCondition.m_iConditionItemID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_iConditionItemNum	323321f0 (shared parser)	QuestCondition.m_iConditionItemNum	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_iEnableDungeon	323321f0 (shared parser)	QuestCondition.m_iEnableDungeon	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_iEnableField	-	not read; June reads m_iEnableBattleField (+0x58)	m_setEnableBattleField (cpp:2238)	data key unread on both sides	June-only, not ported: neither client reads it	q0a_june_templets.md QuestCondition row 5
+key:account:QuestCondition.m_iEnableVillage	323321f0 (shared parser)	QuestCondition.m_iEnableVillage	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_iLevel	323321f0 (shared parser)	QuestCondition.m_iLevel	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_iLimitLevel	323321f0 (shared parser)	QuestCondition.m_iLimitLevel	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:QuestCondition.m_vecBeforeQuestID	323321f0 (shared parser)	QuestCondition.m_vecBeforeQuestID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward	323321f0 (shared parser)	Reward	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_bEnable	323321f0 (shared parser)	Reward.m_bEnable	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_eChangeUnitClass	32330250 Reward @3233070e / @3233088e	QT 9: reward+0x38 = value % 1000 (miss -> 0); else reward+0x30 raw	m_eChangeUnitClass (raw)	changed: QT 9 split	Q1 (parse both); Q4 refuses the transcendental change (Stage 6)	CMP [EBP+8],9 @323306b5
+key:account:Reward.m_iBuff	323321f0 (shared parser)	Reward.m_iBuff	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_iED	323321f0 (shared parser)	Reward.m_iED	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_iEXP	323321f0 (shared parser)	Reward.m_iEXP	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_iSP	323321f0 (shared parser)	Reward.m_iSP	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_vecItem	323321f0 (shared parser)	Reward.m_vecItem	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_vecItem[].m_iItemID	323321f0 (shared parser)	Reward.m_vecItem[].m_iItemID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_vecItem[].m_iPeriod	323321f0 (shared parser)	Reward.m_vecItem[].m_iPeriod	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_vecItem[].m_iQuantity	323321f0 (shared parser)	Reward.m_vecItem[].m_iQuantity	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:Reward.m_vecItem[].m_sSocketOption	323321f0 (shared parser)	Reward.m_vecItem[].m_sSocketOption	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:SelectReward	323321f0 (shared parser)	SelectReward	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:SelectReward.m_iSelectionCount	323321f0 (shared parser)	SelectReward.m_iSelectionCount	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_bIsAccount	323321f0 AddQuestTemplet_LUA @323332fe	QuestTemplet+0x270 bool	none (account = AccountQuest.lua via the same parser, X2Main.cpp:3560)	new; no reader in the quest-manager range	Q1 (store); Q4 (account-wide progress)	q0a_qm_summary.md s4
+key:account:m_bIsPcBang	323321f0 (shared parser)	m_bIsPcBang	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_bIsTimeEvent	323321f0 (shared parser)	m_bIsTimeEvent	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_bRepeat	-	not read by June's client	dead #else in March (cpp:543)	obsolete key; both read m_eRepeatType	June-only, not ported: neither client reads it	q0a_march_digest.md s2
+key:account:m_eEndNPCID	323321f0 (shared parser)	m_eEndNPCID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_eQuestType	323321f0 (shared parser)	m_eQuestType	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_eRepeatType	323321f0 AddQuestTemplet_LUA @32332ad3	QuestTemplet+0x34	m_eRepeatType	same key; June adds values 3/4 (SetUnitQuest 32336e80)	Q3 (week/month expiry)	q0a_qm_summary.md s2
+key:account:m_eStartNPCID	323321f0 (shared parser)	m_eStartNPCID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_fRandomRate	-	not read by June's client	not read	server-only key	Q4 (emulator: check March UserQuestManager for random-day use)	q0a_june_templets.md
+key:account:m_iAfterQuestID	323321f0 AddQuestTemplet_LUA (table)	vector<int> +0x214	m_vecAfterQuestID (ours, SERV_IRUHADEV_OFFLINE)	same as our revival	-	q0a_june_templets.md row 19
+key:account:m_iEpisodeGroupID	323321f0 (shared parser)	m_iEpisodeGroupID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_iFairDungeonID	-	not read by June's client	not read	server-only key	June-only, not ported: client never reads it	q0a_june_templets.md
+key:account:m_iFairLevel	323321f0 (shared parser)	m_iFairLevel	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_iID	323321f0 (shared parser)	m_iID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_iPlayLevel	323321f0 (shared parser)	m_iPlayLevel	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_iRandomGroupID	323321f0 (shared parser)	m_iRandomGroupID	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_vecSubQuest	323321f0 (shared parser)	m_vecSubQuest	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_vecSubQuest_Group	323321f0 (shared parser)	m_vecSubQuest_Group	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_wstrDissClearText	323321f0 (shared parser)	m_wstrDissClearText	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_wstrEpisodeGroupTitle	323321f0 (shared parser)	m_wstrEpisodeGroupTitle	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_wstrMainText	323321f0 (shared parser)	m_wstrMainText	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_wstrThanksText	323321f0 (shared parser)	m_wstrThanksText	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:account:m_wstrTitle	323321f0 (shared parser)	m_wstrTitle	AddQuestTemplet_LUA (X2Main.cpp:3560)	same parser; June has 5 account quests, March's file is empty	Q2 (data flip); Q4 (account quests)	q0a_march_digest.md s2
+key:guild:CHANGE_JOB_TYPE	323321f0 (shared parser)	CHANGE_JOB_TYPE	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition	323321f0 (shared parser)	QuestCondition	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_eUnitClass	32323120 QuestCondition @32323572	unit-class set +0x08; value >= 1000 -> cond+0x18 = value % 1000 (QR_NONE 0, QR_TRANSCENDENTAL_CLASS 1)	m_setUnitClass (cpp:2258)	changed: QR tail goes to a new scalar	Q1 (parse); reader Q3 (IsForbiddenQuest 3232e510), consumer Stage 6	decompile 32323120 lines 175-191
+key:guild:QuestCondition.m_eUnitType	323321f0 (shared parser)	QuestCondition.m_eUnitType	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_iConditionItemID	323321f0 (shared parser)	QuestCondition.m_iConditionItemID	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_iConditionItemNum	323321f0 (shared parser)	QuestCondition.m_iConditionItemNum	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_iEnableDungeon	323321f0 (shared parser)	QuestCondition.m_iEnableDungeon	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_iEnableField	-	not read; June reads m_iEnableBattleField (+0x58)	m_setEnableBattleField (cpp:2238)	data key unread on both sides	June-only, not ported: neither client reads it	q0a_june_templets.md QuestCondition row 5
+key:guild:QuestCondition.m_iEnableVillage	323321f0 (shared parser)	QuestCondition.m_iEnableVillage	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_iLevel	323321f0 (shared parser)	QuestCondition.m_iLevel	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_iLimitLevel	323321f0 (shared parser)	QuestCondition.m_iLimitLevel	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:QuestCondition.m_vecBeforeQuestID	323321f0 (shared parser)	QuestCondition.m_vecBeforeQuestID	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:Reward	323321f0 (shared parser)	Reward	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:Reward.m_bEnable	323321f0 (shared parser)	Reward.m_bEnable	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:Reward.m_eChangeUnitClass	32330250 Reward @3233070e / @3233088e	QT 9: reward+0x38 = value % 1000 (miss -> 0); else reward+0x30 raw	m_eChangeUnitClass (raw)	changed: QT 9 split	Q1 (parse both); Q4 refuses the transcendental change (Stage 6)	CMP [EBP+8],9 @323306b5
+key:guild:Reward.m_iBuff	323321f0 (shared parser)	Reward.m_iBuff	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:Reward.m_iED	323321f0 (shared parser)	Reward.m_iED	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:Reward.m_iEXP	323321f0 (shared parser)	Reward.m_iEXP	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:Reward.m_iGuildCoopQuestRewardID	32330250 Reward @32330a0b	QuestTemplet+0x274	none	new	Q1 (parse, log)	q0a_june_templets.md reward row 8
+key:guild:Reward.m_iSP	323321f0 (shared parser)	Reward.m_iSP	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:SelectReward	323321f0 (shared parser)	SelectReward	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:SelectReward.m_iSelectionCount	323321f0 (shared parser)	SelectReward.m_iSelectionCount	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_bIsGuild	323321f0 AddQuestTemplet_LUA @3233341e	QuestTemplet+0x271 bool	none	new; no reader in range	Q1 (parse, log, skip guild quests)	plan decision 2026-10-17
+key:guild:m_bIsPcBang	323321f0 (shared parser)	m_bIsPcBang	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_bIsTimeEvent	323321f0 (shared parser)	m_bIsTimeEvent	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_bRepeat	-	not read by June's client	dead #else in March (cpp:543)	obsolete key; both read m_eRepeatType	June-only, not ported: neither client reads it	q0a_march_digest.md s2
+key:guild:m_eEndNPCID	323321f0 (shared parser)	m_eEndNPCID	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_eQuestType	323321f0 (shared parser)	m_eQuestType	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_eRepeatType	323321f0 AddQuestTemplet_LUA @32332ad3	QuestTemplet+0x34	m_eRepeatType	same key; June adds values 3/4 (SetUnitQuest 32336e80)	Q3 (week/month expiry)	q0a_qm_summary.md s2
+key:guild:m_eStartNPCID	323321f0 (shared parser)	m_eStartNPCID	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_fRandomRate	-	not read by June's client	not read	server-only key	Q4 (emulator: check March UserQuestManager for random-day use)	q0a_june_templets.md
+key:guild:m_iAfterQuestID	323321f0 AddQuestTemplet_LUA (table)	vector<int> +0x214	m_vecAfterQuestID (ours, SERV_IRUHADEV_OFFLINE)	same as our revival	-	q0a_june_templets.md row 19
+key:guild:m_iFairDungeonID	-	not read by June's client	not read	server-only key	June-only, not ported: client never reads it	q0a_june_templets.md
+key:guild:m_iFairLevel	323321f0 (shared parser)	m_iFairLevel	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_iID	323321f0 (shared parser)	m_iID	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_iRandomGroupID	323321f0 (shared parser)	m_iRandomGroupID	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_vecSubQuest	323321f0 (shared parser)	m_vecSubQuest	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_vecSubQuest_Group	323321f0 (shared parser)	m_vecSubQuest_Group	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_wstrDissClearText	323321f0 (shared parser)	m_wstrDissClearText	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_wstrEndScene	323321f0 (shared parser)	m_wstrEndScene	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_wstrMainText	323321f0 (shared parser)	m_wstrMainText	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_wstrStartScene	323321f0 (shared parser)	m_wstrStartScene	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_wstrThanksText	323321f0 (shared parser)	m_wstrThanksText	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:guild:m_wstrTitle	323321f0 (shared parser)	m_wstrTitle	AddQuestTemplet_LUA	guild file, same parser	Q1 (parse, log, skip)	plan decision 2026-10-17
+key:chain:AddChainQuestDays:m_iAllowFewDays	32322b10 @32322c92	node+0x20	none	new	Q1; Q3 (3232caf0)	decompile 32322b10
+key:chain:AddChainQuestDays:m_iChainID	32322b10 @32322ba7	map +0xfc key (find only, no insert)	none	new binder (bound @31dafded)	Q1 (bind); Q3 rule	decompile 32322b10
+key:chain:AddChainQuestDays:m_iTestMinute	32322b10 @32322db5	node+0x24 (used only with enable-code 0x10)	none	new	Q1; Q3	decompile 3232caf0
+key:chain:AddGroupChainQuest:m_iAllowFewDays	-	AddGroupChainQuest is NOT bound	none	June bug kept: ChainQuestInfo.lua stops at its 6th call	Q1 (do not bind; JUNE_BUGS 320)	31d95080: AddChainQuestDays @31dafcfd is the last CX2QuestManager binding
+key:chain:AddGroupChainQuest:m_iChainGroupID	-	not bound	none	as above	Q1 (do not bind)	as above
+key:chain:AddGroupChainQuest:m_iChainIDList	-	not bound	none	as above	Q1 (do not bind)	as above
+key:scene:[].DEFAULT_END_SCENE	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[].DEFAULT_END_SCENE_END_FRAME	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[].DEFAULT_END_SCENE_MENT	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[].DEFAULT_START_SCENE	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[].DEFAULT_START_SCENE_END_FRAME	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[].DEFAULT_START_SCENE_MENT	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[].QuestID	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[][].CHAR	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[][].END_SCENE	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[][].END_SCENE_END_FRAME	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[][].END_SCENE_MENT	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[][].START_SCENE	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[][].START_SCENE_END_FRAME	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+key:scene:[][].START_SCENE_MENT	31eeb040	scene-info loader -> g_pData+0x498 map by QuestID; reader 323cb190 (caller 323cb2e0)	none	new file	Q1 (load); Q5b (read)	decompile 31eeb040 / 323cb190
+type:ATTRIB_COUNT_TYPE:ACT_SINGLE	Enum	ATTRIB_COUNT_TYPE.ACT_SINGLE = 1	same value	same	-	q_june_quest_types.tsv
+type:CHANGE_JOB_TYPE:CJT_JOB_FIRST	Enum	CHANGE_JOB_TYPE.CJT_JOB_FIRST = 3	same value	same	-	q_june_quest_types.tsv
+type:CHANGE_JOB_TYPE:CJT_JOB_FOURTH	323321f0 @323347a0	6: change-job index accepts 0 <= v < 7	March CJT_JOB_END = 6 sizes m_setQuestID[CJT_JOB_END]	new; array grows	Q1 (enum + ChangeJobQuest array)	q0a_june_templets.md index table
+type:CHANGE_JOB_TYPE:CJT_JOB_NONE	Enum	CHANGE_JOB_TYPE.CJT_JOB_NONE = 0	same value	same	-	q_june_quest_types.tsv
+type:CHANGE_JOB_TYPE:CJT_JOB_SECOND	Enum	CHANGE_JOB_TYPE.CJT_JOB_SECOND = 4	same value	same	-	q_june_quest_types.tsv
+type:CHANGE_JOB_TYPE:CJT_JOB_THIRD	Enum	CHANGE_JOB_TYPE.CJT_JOB_THIRD = 5	same value	same	-	q_june_quest_types.tsv
+type:CHANNELING_ENUM:CE_NONE	Enum	CHANNELING_ENUM.CE_NONE = -1	same value	same	-	q_june_quest_types.tsv
+type:DIFFICULTY_LEVEL:DL_EXPERT	Enum	DIFFICULTY_LEVEL.DL_EXPERT = 2	same value	same	-	q_june_quest_types.tsv
+type:DIFFICULTY_LEVEL:DL_HARD	Enum	DIFFICULTY_LEVEL.DL_HARD = 1	same value	same	-	q_june_quest_types.tsv
+type:DIFFICULTY_LEVEL:DL_HELL	-	nil in June's Enum: m_cDifficulty read fails -> -1	nil	June data bug kept	Q1 (keep nil; JUNE_BUGS 322)	q_june_quest_types.tsv
+type:DIFFICULTY_LEVEL:DL_NOMAL	-	nil (typo of DL_NORMAL)	nil	June data bug kept	Q1 (keep nil; JUNE_BUGS 322)	q_june_quest_types.tsv
+type:DIFFICULTY_LEVEL:DL_NORMAL	Enum	DIFFICULTY_LEVEL.DL_NORMAL = 0	same value	same	-	q_june_quest_types.tsv
+type:DUNGEON_ID:DI_NONE	-	DI_NONE	-	Lua global / placeholder	-	q_june_quest_types.tsv
+type:DUNGEON_MODE:DM_HENIR_CHALLENGE	Enum	DUNGEON_MODE.DM_HENIR_CHALLENGE = 2	same value	same	-	q_june_quest_types.tsv
+type:DUNGEON_MODE:DM_HENIR_PRACTICE	Enum	DUNGEON_MODE.DM_HENIR_PRACTICE = 1	same value	same	-	q_june_quest_types.tsv
+type:DUNGEON_MODE:DM_SECRET_HELL	Enum	DUNGEON_MODE.DM_SECRET_HELL = 4	same value	same	-	q_june_quest_types.tsv
+type:DUNGEON_MODE:DM_SECRET_NORMAL	Enum	DUNGEON_MODE.DM_SECRET_NORMAL = 3	same value	same	-	q_june_quest_types.tsv
+type:DUNGEON_MODE[0]:	-	"DUNGEON_MODE[""0""] string index -> nil -> optional 0"	-	June data, kept	-	FieldSubQuest.src.lua:34518
+type:DUNGEON_MODE[1]:	-	"DUNGEON_MODE[""1""] -> nil -> 0"	-	June data, kept	-	FieldSubQuest.src.lua:20727
+type:False:	-	False	-	Lua global / placeholder	-	q_june_quest_types.tsv
+type:NONE:	-	NONE	-	Lua global / placeholder	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_	-	empty name in dev sub-quest 205680 -> nil; required m_eTalkNPCID fails, June drops it too	-	June data, kept	-	FieldSubQuest.src.lua:54602
+type:NPC_UNIT_ID:NUI_ADAMS	Enum	NPC_UNIT_ID.NUI_ADAMS = 10003	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ADEL	Enum	NPC_UNIT_ID.NUI_ADEL = 10012	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_AGATHA	Enum	NPC_UNIT_ID.NUI_AGATHA = 10013	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_AIDA	Enum	NPC_UNIT_ID.NUI_AIDA = 10014	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ALLEGRO	Enum	NPC_UNIT_ID.NUI_ALLEGRO = 10020	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_AMOS	Enum	NPC_UNIT_ID.NUI_AMOS = 10015	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ANNE	Enum	NPC_UNIT_ID.NUI_ANNE = 10000	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ARIEL	Enum	NPC_UNIT_ID.NUI_ARIEL = 10018	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_BERNARD	Enum	NPC_UNIT_ID.NUI_BERNARD = 10143	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_BILLBOARD	Enum	NPC_UNIT_ID.NUI_BILLBOARD = 10025	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_CAMILLA	Enum	NPC_UNIT_ID.NUI_CAMILLA = 10017	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_CHACHABUK	Enum	NPC_UNIT_ID.NUI_CHACHABUK = 10009	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_DAISY	Enum	NPC_UNIT_ID.NUI_DAISY = 10039	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_DAPPAR	Enum	NPC_UNIT_ID.NUI_DAPPAR = 10058	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_DENKA	Enum	NPC_UNIT_ID.NUI_DENKA = 10041	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_DURANDA	Enum	NPC_UNIT_ID.NUI_DURANDA = 10144	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ECHO	Enum	NPC_UNIT_ID.NUI_ECHO = 10004	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_EDEL	Enum	June 10067	March 10072 (Enum.lua + X2UnitManager.h:2700); June 10072 = NUI_STEEL_AND_STEING	value differs	Q7 (keep 10072 unless NUI_STEEL_AND_STEING is needed; then ask)	Enum.src.lua:5346 vs kom Enum.lua:4398
+type:NPC_UNIT_ID:NUI_ELYSION_QUEST_BIRD0	Enum	NPC_UNIT_ID.NUI_ELYSION_QUEST_BIRD0 = 10148	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ELYSION_QUEST_BIRD1	Enum	NPC_UNIT_ID.NUI_ELYSION_QUEST_BIRD1 = 10149	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ELYSION_QUEST_BIRD2	Enum	NPC_UNIT_ID.NUI_ELYSION_QUEST_BIRD2 = 10150	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ELYSION_QUEST_BIRD3	Enum	NPC_UNIT_ID.NUI_ELYSION_QUEST_BIRD3 = 10151	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ELYSION_QUEST_BIRD4	Enum	NPC_UNIT_ID.NUI_ELYSION_QUEST_BIRD4 = 10152	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_EMIRATE	Enum	NPC_UNIT_ID.NUI_EMIRATE = 10056	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_EVENT_APINK	Enum	NPC_UNIT_ID.NUI_EVENT_APINK = 10050	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_EVENT_APINK_ARCHANGEL	Enum	NPC_UNIT_ID.NUI_EVENT_APINK_ARCHANGEL = 10051	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_EVENT_GUILD_EDAN_VILAGE	Enum	NPC_UNIT_ID.NUI_EVENT_GUILD_EDAN_VILAGE = 4255	missing in March	new	Q1 (Enum.lua); Q7 (NPC templet)	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_EVENT_KEEPER	Enum	NPC_UNIT_ID.NUI_EVENT_KEEPER = 4116	missing in March	new	Q1 (Enum.lua); Q7 (NPC templet)	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_FACEOFF	Enum	NPC_UNIT_ID.NUI_FACEOFF = 10069	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_GLAVE	Enum	NPC_UNIT_ID.NUI_GLAVE = 10026	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_GRAIL	Enum	NPC_UNIT_ID.NUI_GRAIL = 10028	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_HAGERS	Enum	NPC_UNIT_ID.NUI_HAGERS = 10001	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_HANNA	Enum	NPC_UNIT_ID.NUI_HANNA = 10032	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_HELLEN	Enum	NPC_UNIT_ID.NUI_HELLEN = 10019	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_HOFMANN	Enum	NPC_UNIT_ID.NUI_HOFMANN = 10005	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_HORATIO	Enum	NPC_UNIT_ID.NUI_HORATIO = 10037	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_HUGO	Enum	NPC_UNIT_ID.NUI_HUGO = 10146	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_IGNIA	Enum	NPC_UNIT_ID.NUI_IGNIA = 10071	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_LENPAD	Enum	NPC_UNIT_ID.NUI_LENPAD = 10007	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_LENTO	Enum	NPC_UNIT_ID.NUI_LENTO = 10021	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_LOW	Enum	NPC_UNIT_ID.NUI_LOW = 10002	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_LUCY	Enum	NPC_UNIT_ID.NUI_LUCY = 10038	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_LUICHEL	Enum	NPC_UNIT_ID.NUI_LUICHEL = 10006	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_LURIEL	Enum	NPC_UNIT_ID.NUI_LURIEL = 10027	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_MU	Enum	NPC_UNIT_ID.NUI_MU = 10045	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_NOEL	Enum	NPC_UNIT_ID.NUI_NOEL = 10029	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_NONE	Enum	NPC_UNIT_ID.NUI_NONE = 0	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_PENENSIO	Enum	NPC_UNIT_ID.NUI_PENENSIO = 10040	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_PRAUS	Enum	NPC_UNIT_ID.NUI_PRAUS = 10031	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_RICHANG	Enum	NPC_UNIT_ID.NUI_RICHANG = 10010	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_ROSEANG	Enum	NPC_UNIT_ID.NUI_ROSEANG = 10055	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_STEEL	Enum	NPC_UNIT_ID.NUI_STEEL = 10068	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_STELLA	Enum	NPC_UNIT_ID.NUI_STELLA = 10008	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_STORY_QUEST	Enum	NPC_UNIT_ID.NUI_STORY_QUEST = 10142	missing in March	new	Q1 (Enum.lua); Q7 (NPC templet)	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_SYOTA	Enum	NPC_UNIT_ID.NUI_SYOTA = 10070	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_THEODOR	Enum	NPC_UNIT_ID.NUI_THEODOR = 10145	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_TOMA	Enum	NPC_UNIT_ID.NUI_TOMA = 10011	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_TRANSCEND_QUEST	Enum	NPC_UNIT_ID.NUI_TRANSCEND_QUEST = 10153	missing in March	new	Q1 (Enum.lua); Q7 (NPC templet)	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_VANESSA	Enum	NPC_UNIT_ID.NUI_VANESSA = 10030	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_VAPOR	Enum	NPC_UNIT_ID.NUI_VAPOR = 10057	same value	same	-	q_june_quest_types.tsv
+type:NPC_UNIT_ID:NUI_YUNO	Enum	NPC_UNIT_ID.NUI_YUNO = 10078	same value	same	-	q_june_quest_types.tsv
+type:PVP_CHANNEL_CLASS:PCC_1VS1_PVP_CHALLENGE	Enum	PVP_CHANNEL_CLASS.PCC_1VS1_PVP_CHALLENGE = 15	missing in March	new	Q1 (Enum.lua)	q_june_quest_types.tsv
+type:PVP_CHANNEL_CLASS:PCC_NONE	Enum	PVP_CHANNEL_CLASS.PCC_NONE = -1	same value	same	-	q_june_quest_types.tsv
+type:PVP_CHANNEL_CLASS:PCC_OFFICIAL	Enum	PVP_CHANNEL_CLASS.PCC_OFFICIAL = 12	same value	same	-	q_june_quest_types.tsv
+type:PVP_GAME_TYPE:PGT_1VS1_CHALLENGE_MODE	Enum	PVP_GAME_TYPE.PGT_1VS1_CHALLENGE_MODE = 7	missing in March	new	Q1 (Enum.lua)	q_june_quest_types.tsv
+type:PVP_GAME_TYPE:PGT_AMUSEMENT_ITEM	Enum	PVP_GAME_TYPE.PGT_AMUSEMENT_ITEM = 8	missing in March	new	Q1 (Enum.lua)	q_june_quest_types.tsv
+type:PVP_GAME_TYPE:PGT_NULL	Enum	PVP_GAME_TYPE.PGT_NULL = -1	same value	same	-	q_june_quest_types.tsv
+type:PVP_GAME_TYPE:PGT_SURVIVAL	Enum	PVP_GAME_TYPE.PGT_SURVIVAL = 2	same value	same	-	q_june_quest_types.tsv
+type:PVP_GAME_TYPE:PGT_TEAM	Enum	PVP_GAME_TYPE.PGT_TEAM = 0	same value	same	-	q_june_quest_types.tsv
+type:PVP_GAME_TYPE:PGT_TEAM_DEATH	Enum	PVP_GAME_TYPE.PGT_TEAM_DEATH = 1	same value	same	-	q_june_quest_types.tsv
+type:PVP_GAME_TYPE:PGT_WINNER	Enum	PVP_GAME_TYPE.PGT_WINNER = 6	missing in March	new	Q1 (Enum.lua)	q_june_quest_types.tsv
+type:PVP_TOURNAMENT_TYPE:PTT_EVENT	Enum	PVP_TOURNAMENT_TYPE.PTT_EVENT = 2	missing in March	new	Q1 (Enum.lua)	q_june_quest_types.tsv
+type:QUEST_REPEAT_TYPE:QRT_DAY	Enum	QUEST_REPEAT_TYPE.QRT_DAY = 1	same value	same	-	q_june_quest_types.tsv
+type:QUEST_REPEAT_TYPE:QRT_MONTH	32321d10 (in SetUnitQuest 32336e80)	4: expires after the 1st of next month 00:00	none	new	Q1 (enum); Q3; Q4	q0a_qm_summary.md s2
+type:QUEST_REPEAT_TYPE:QRT_NORMAL	Enum	QUEST_REPEAT_TYPE.QRT_NORMAL = 0	same value	same	-	q_june_quest_types.tsv
+type:QUEST_REPEAT_TYPE:QRT_REPEAT	Enum	QUEST_REPEAT_TYPE.QRT_REPEAT = 2	same value	same	-	q_june_quest_types.tsv
+type:QUEST_REPEAT_TYPE:QRT_WEEK	32322050 (in SetUnitQuest 32336e80)	3: expires after the next Wednesday 00:00 local	none	new (32 quests)	Q1 (enum); Q3 (SetUnitQuest); Q4 (emulator reset)	q0a_qm_summary.md s2
+type:QUEST_REWARD_TRAN_CLASS:QR_NONE	32323120 QuestCondition / 32330250 Reward	1000 -> 0 after % 1000	none	new table QUEST_REWARD_TRAN_CLASS	Q1 (Enum.lua + C++)	see QuestCondition.m_eUnitClass
+type:QUEST_REWARD_TRAN_CLASS:QR_TRANSCENDENTAL_CLASS	32323120 QuestCondition / 32330250 Reward	1001 -> 1 after % 1000	none	new	Q1; Stage 6 consumer	see Reward.m_eChangeUnitClass
+type:QUEST_TYPE:QT_CHANGE_JOB	Enum	QUEST_TYPE.QT_CHANGE_JOB = 2	same value	same	-	q_june_quest_types.tsv
+type:QUEST_TYPE:QT_CHANGE_TRANSCENDENTAL_CLASS	3232e510 / 32336310 / 32330250	9: gated by code events 0x920/0x921/0x923 + job record; reward % 1000	none	new	Q1 (enum); Q3 (IsForbiddenQuest, class-up notice); Stage 6 owns the class change	q0a_qm_summary.md s2
+type:QUEST_TYPE:QT_EPIC	Enum	QUEST_TYPE.QT_EPIC = 5	same value	same	-	q_june_quest_types.tsv
+type:QUEST_TYPE:QT_EVENT	Enum	QUEST_TYPE.QT_EVENT = 1	same value	same	-	q_june_quest_types.tsv
+type:QUEST_TYPE:QT_GUILD	323321f0 / 3232fbd0	8: listed only if **(g_pData+0x2ec) != 0	March QT_END = 8 (collision)	new	Q1 (enum, QT_END -> 11); Q3 (guild gate); quests skipped (decision)	q0a_qm_summary.md s2
+type:QUEST_TYPE:QT_NORMAL	Enum	QUEST_TYPE.QT_NORMAL = 0	same value	same	-	q_june_quest_types.tsv
+type:QUEST_TYPE:QT_SKILL	Enum	QUEST_TYPE.QT_SKILL = 3	same value	same	-	q_june_quest_types.tsv
+type:QUEST_TYPE:QT_STORY	323321f0 / 3232de60 / 323d5650	10: indexed at manager+0xec by m_iEpisodeGroupID; exempt from chain removal; UI sort 8	none	new (91 quests)	Q1 (enum); Q3 (index, chain exemption); Q5a (UI row 323d5aec)	q0a_qm_summary.md s2
+type:SUB_QUEST_TYPE:SQT_CHAR_LEVEL_UP	Enum	SUB_QUEST_TYPE.SQT_CHAR_LEVEL_UP = 31	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_DUNGEON_CLEAR_COUNT	Enum	SUB_QUEST_TYPE.SQT_DUNGEON_CLEAR_COUNT = 8	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_DUNGEON_DAMAGE	Enum	SUB_QUEST_TYPE.SQT_DUNGEON_DAMAGE = 7	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_DUNGEON_RANK	Enum	SUB_QUEST_TYPE.SQT_DUNGEON_RANK = 6	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_DUNGEON_TIME	Enum	SUB_QUEST_TYPE.SQT_DUNGEON_TIME = 5	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_FIND_NPC	Enum	SUB_QUEST_TYPE.SQT_FIND_NPC = 27	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_GUILD_HONOR_POINT_COLLECTION	32323ad0 clear condition case 39; string case 0x27	m_iCollectionHonorPointCount	none	new	Q1; Q3 (string); Q4 undriven (guild)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_GUILD_JOIN	32323ad0 clear condition case 38	m_bIsGuildJoin	none	new	Q1; Q4 undriven (guild)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_HAS_EXP_DUNGEON_CLEAR	32323ad0 clear condition case 48 (= case 8/32 body)	dungeon clear count keys	none	new	Q1; Q3 (string); Q4 (drive as clear count + m_bExpDungeonAndField stand-in)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_ITEM_ATTRIB	Enum	SUB_QUEST_TYPE.SQT_ITEM_ATTRIB = 15	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_ITEM_COLLECTION	Enum	SUB_QUEST_TYPE.SQT_ITEM_COLLECTION = 3	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_ITEM_ENCHANT	Enum	SUB_QUEST_TYPE.SQT_ITEM_ENCHANT = 13	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_ITEM_EXCHANGE	32323ad0 clear condition case 43; string case 0x2b	m_iExchangeCount, m_vecExchangeSourceItem_ID	none	new	Q1; Q3 (string); Q4 (drive or label)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_ITEM_RESOLVE	Enum	SUB_QUEST_TYPE.SQT_ITEM_RESOLVE = 16	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_ITEM_SOCKET	Enum	SUB_QUEST_TYPE.SQT_ITEM_SOCKET = 14	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_ITEM_USE	Enum	SUB_QUEST_TYPE.SQT_ITEM_USE = 22	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_LEARN_NEW_SKILL	Enum	SUB_QUEST_TYPE.SQT_LEARN_NEW_SKILL = 36	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_NPC_HUNT	Enum	SUB_QUEST_TYPE.SQT_NPC_HUNT = 2	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_NPC_TALK	Enum	SUB_QUEST_TYPE.SQT_NPC_TALK = 1	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_PLAY_TOGETHER_WITH_TITLE	32323ad0 clear condition case 47 (no keys, returns true)	-	none	new	Q1; Q4 (party-only: label or stand-in, ask)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_PVE_WIN	32323ad0 clear condition case 37; MakeSubQuestString 32337db0 case 0x25	dungeon keys + m_iDungeonClearCount	March SQT_END = 37 (collision)	new (15)	Q1 (enum, SQT_END -> 49); Q3 (string); Q4 (drive or label)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_PVP_KILL	Enum	SUB_QUEST_TYPE.SQT_PVP_KILL = 11	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_PVP_PLAY	Enum	SUB_QUEST_TYPE.SQT_PVP_PLAY = 9	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_PVP_PLAY_ARRANGE	Enum	SUB_QUEST_TYPE.SQT_PVP_PLAY_ARRANGE = 28	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_PVP_RANK	32323ad0 clear condition case 45	m_ePvpRank	none	new	Q1; Q4 undriven (no PvP)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_PVP_WIN	Enum	SUB_QUEST_TYPE.SQT_PVP_WIN = 10	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_QUEST_ITEM_COLLECTION	Enum	SUB_QUEST_TYPE.SQT_QUEST_ITEM_COLLECTION = 4	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_SKILL_USE	Enum	SUB_QUEST_TYPE.SQT_SKILL_USE = 23	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_SUITABLE_LEVEL_DUNGEON_CLEAR	32323ad0 clear condition case 32 (= case 8 body)	same keys as clear count	SQT 32 (case shared with 8, cpp:2641)	same	Q4 (undriven today: decide a driver)	q0a_march_digest.md s7
+type:SUB_QUEST_TYPE:SQT_TOGETHER_SUBQUEST_CLEAR	32323ad0 clear condition case 44; string case 0x2c	m_iDungeonClearCount	none	new	Q1; Q3; Q4 (party-only: label or stand-in, ask)	q0a_june_clearcond.md
+type:SUB_QUEST_TYPE:SQT_USE_SKILL_POINT	Enum	SUB_QUEST_TYPE.SQT_USE_SKILL_POINT = 18	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_VISIT_DUNGEON	Enum	SUB_QUEST_TYPE.SQT_VISIT_DUNGEON = 26	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_VISIT_FIELD	Enum	SUB_QUEST_TYPE.SQT_VISIT_FIELD = 25	same value	same	-	q_june_quest_types.tsv
+type:SUB_QUEST_TYPE:SQT_VISIT_VILLAGE	Enum	SUB_QUEST_TYPE.SQT_VISIT_VILLAGE = 24	same value	same	-	q_june_quest_types.tsv
+type:True:	-	True	-	Lua global / placeholder	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ADD_ARC_TRACER	Enum	UNIT_CLASS.UC_ADD_ARC_TRACER = 33	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ADD_DIABOLIC_ESPER	Enum	UNIT_CLASS.UC_ADD_DIABOLIC_ESPER = 126	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ADD_LUNATIC_PSYKER	Enum	UNIT_CLASS.UC_ADD_LUNATIC_PSYKER = 122	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ADD_MASTERMIND	Enum	UNIT_CLASS.UC_ADD_MASTERMIND = 123	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ADD_NASOD_RULER	Enum	UNIT_CLASS.UC_ADD_NASOD_RULER = 9	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ADD_PSYCHIC_TRACER	Enum	UNIT_CLASS.UC_ADD_PSYCHIC_TRACER = 32	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ADD_TIME_TRACER	Enum	UNIT_CLASS.UC_ADD_TIME_TRACER = 36	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_AIN_ANGEL	Enum	UNIT_CLASS.UC_AIN_ANGEL = 202	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_AIN_APOSTASIA	Enum	UNIT_CLASS.UC_AIN_APOSTASIA = 136	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_AIN_ARME_THAUMATURGY	Enum	UNIT_CLASS.UC_AIN_ARME_THAUMATURGY = 134	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_AIN_ERBLUHEN_EMOTION	Enum	UNIT_CLASS.UC_AIN_ERBLUHEN_EMOTION = 135	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_AIN_LOFTY_ANPASSEN	Enum	UNIT_CLASS.UC_AIN_LOFTY_ANPASSEN = 45	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_AIN_LOFTY_EXACTER	Enum	UNIT_CLASS.UC_AIN_LOFTY_EXACTER = 44	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_AIN_LOFTY_WANDERER	Enum	UNIT_CLASS.UC_AIN_LOFTY_WANDERER = 46	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARA_ASURA	Enum	UNIT_CLASS.UC_ARA_ASURA = 124	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARA_LITTLE_DEVIL	Enum	UNIT_CLASS.UC_ARA_LITTLE_DEVIL = 31	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARA_LITTLE_HSIEN	Enum	UNIT_CLASS.UC_ARA_LITTLE_HSIEN = 28	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARA_LITTLE_SPECTER	Enum	UNIT_CLASS.UC_ARA_LITTLE_SPECTER = 34	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARA_MARTIAL_ARTIST	Enum	UNIT_CLASS.UC_ARA_MARTIAL_ARTIST = 7	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARA_SAKRA_DEVANAM	Enum	UNIT_CLASS.UC_ARA_SAKRA_DEVANAM = 118	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARA_YAMA_RAJA	Enum	UNIT_CLASS.UC_ARA_YAMA_RAJA = 119	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARME_BATTLE_MAGICIAN	Enum	UNIT_CLASS.UC_ARME_BATTLE_MAGICIAN = 23	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARME_DARK_MAGICIAN	Enum	UNIT_CLASS.UC_ARME_DARK_MAGICIAN = 15	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARME_DIMENSION_WITCH	Enum	UNIT_CLASS.UC_ARME_DIMENSION_WITCH = 113	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARME_ELEMENTAL_MASTER	Enum	UNIT_CLASS.UC_ARME_ELEMENTAL_MASTER = 104	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARME_HIGH_MAGICIAN	Enum	UNIT_CLASS.UC_ARME_HIGH_MAGICIAN = 14	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARME_VIOLET_MAGE	Enum	UNIT_CLASS.UC_ARME_VIOLET_MAGE = 2	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ARME_VOID_PRINCESS	Enum	UNIT_CLASS.UC_ARME_VOID_PRINCESS = 105	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_CHUNG_DEADLY_CHASER	Enum	UNIT_CLASS.UC_CHUNG_DEADLY_CHASER = 111	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_CHUNG_FURY_GUARDIAN	Enum	UNIT_CLASS.UC_CHUNG_FURY_GUARDIAN = 20	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_CHUNG_IRON_CANNON	Enum	UNIT_CLASS.UC_CHUNG_IRON_CANNON = 6	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_CHUNG_IRON_PALADIN	Enum	UNIT_CLASS.UC_CHUNG_IRON_PALADIN = 110	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_CHUNG_SHELLING_GUARDIAN	Enum	UNIT_CLASS.UC_CHUNG_SHELLING_GUARDIAN = 27	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_CHUNG_SHOOTING_GUARDIAN	Enum	UNIT_CLASS.UC_CHUNG_SHOOTING_GUARDIAN = 21	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_CHUNG_TACTICAL_TROOPER	Enum	UNIT_CLASS.UC_CHUNG_TACTICAL_TROOPER = 117	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELESIS_BLAZING_HEART	Enum	UNIT_CLASS.UC_ELESIS_BLAZING_HEART = 121	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELESIS_CRIMSON_AVENGER	Enum	UNIT_CLASS.UC_ELESIS_CRIMSON_AVENGER = 125	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELESIS_DARK_KNIGHT	Enum	UNIT_CLASS.UC_ELESIS_DARK_KNIGHT = 35	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELESIS_GRAND_MASTER	Enum	UNIT_CLASS.UC_ELESIS_GRAND_MASTER = 120	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELESIS_KNIGHT	Enum	UNIT_CLASS.UC_ELESIS_KNIGHT = 8	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELESIS_PYRO_KNIGHT	Enum	UNIT_CLASS.UC_ELESIS_PYRO_KNIGHT = 30	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELESIS_SABER_KNIGHT	Enum	UNIT_CLASS.UC_ELESIS_SABER_KNIGHT = 29	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELSWORD_INFINITY_SWORD	Enum	UNIT_CLASS.UC_ELSWORD_INFINITY_SWORD = 112	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELSWORD_KNIGHT	Enum	UNIT_CLASS.UC_ELSWORD_KNIGHT = 10	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELSWORD_LORD_KNIGHT	Enum	UNIT_CLASS.UC_ELSWORD_LORD_KNIGHT = 100	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELSWORD_MAGIC_KNIGHT	Enum	UNIT_CLASS.UC_ELSWORD_MAGIC_KNIGHT = 11	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELSWORD_RUNE_SLAYER	Enum	UNIT_CLASS.UC_ELSWORD_RUNE_SLAYER = 101	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELSWORD_SHEATH_KNIGHT	Enum	UNIT_CLASS.UC_ELSWORD_SHEATH_KNIGHT = 22	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ELSWORD_SWORDMAN	Enum	UNIT_CLASS.UC_ELSWORD_SWORDMAN = 1	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_EVE_ARCHITECTURE	Enum	UNIT_CLASS.UC_EVE_ARCHITECTURE = 19	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_EVE_BATTLE_SERAPH	Enum	UNIT_CLASS.UC_EVE_BATTLE_SERAPH = 116	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_EVE_CODE_EMPRESS	Enum	UNIT_CLASS.UC_EVE_CODE_EMPRESS = 109	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_EVE_CODE_NEMESIS	Enum	UNIT_CLASS.UC_EVE_CODE_NEMESIS = 108	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_EVE_ELECTRA	Enum	UNIT_CLASS.UC_EVE_ELECTRA = 26	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_EVE_EXOTIC_GEAR	Enum	UNIT_CLASS.UC_EVE_EXOTIC_GEAR = 18	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_EVE_NASOD	Enum	UNIT_CLASS.UC_EVE_NASOD = 5	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LIRE_COMBAT_RANGER	Enum	UNIT_CLASS.UC_LIRE_COMBAT_RANGER = 12	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LIRE_ELVEN_RANGER	Enum	UNIT_CLASS.UC_LIRE_ELVEN_RANGER = 3	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LIRE_GRAND_ARCHER	Enum	UNIT_CLASS.UC_LIRE_GRAND_ARCHER = 103	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LIRE_NIGHT_WATCHER	Enum	UNIT_CLASS.UC_LIRE_NIGHT_WATCHER = 114	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LIRE_SNIPING_RANGER	Enum	UNIT_CLASS.UC_LIRE_SNIPING_RANGER = 13	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LIRE_TRAPPING_RANGER	Enum	UNIT_CLASS.UC_LIRE_TRAPPING_RANGER = 24	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LIRE_WIND_SNEAKER	Enum	UNIT_CLASS.UC_LIRE_WIND_SNEAKER = 102	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LUCIEL_CHILIARCH	Enum	UNIT_CLASS.UC_LUCIEL_CHILIARCH = 37	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LUCIEL_DEMONIO	Enum	UNIT_CLASS.UC_LUCIEL_DEMONIO = 129	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LUCIEL_DIABLURA	Enum	UNIT_CLASS.UC_LUCIEL_DIABLURA = 39	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LUCIEL_DREAD_LORD	Enum	UNIT_CLASS.UC_LUCIEL_DREAD_LORD = 127	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LUCIEL_DUO	Enum	UNIT_CLASS.UC_LUCIEL_DUO = 200	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LUCIEL_NOBLESSE	Enum	UNIT_CLASS.UC_LUCIEL_NOBLESSE = 128	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_LUCIEL_ROYAL_GUARD	Enum	UNIT_CLASS.UC_LUCIEL_ROYAL_GUARD = 38	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_NONE	Enum	UNIT_CLASS.UC_NONE = 0	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_RAVEN_BLADE_MASTER	Enum	UNIT_CLASS.UC_RAVEN_BLADE_MASTER = 106	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_RAVEN_FIGHTER	Enum	UNIT_CLASS.UC_RAVEN_FIGHTER = 4	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_RAVEN_OVER_TAKER	Enum	UNIT_CLASS.UC_RAVEN_OVER_TAKER = 17	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_RAVEN_RECKLESS_FIST	Enum	UNIT_CLASS.UC_RAVEN_RECKLESS_FIST = 107	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_RAVEN_SOUL_TAKER	Enum	UNIT_CLASS.UC_RAVEN_SOUL_TAKER = 16	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_RAVEN_VETERAN_COMMANDER	Enum	UNIT_CLASS.UC_RAVEN_VETERAN_COMMANDER = 115	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_RAVEN_WEAPON_TAKER	Enum	UNIT_CLASS.UC_RAVEN_WEAPON_TAKER = 25	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_BLOODIA	Enum	UNIT_CLASS.UC_ROSE_BLOODIA = 40	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_CRIMSON_ROSE	Enum	UNIT_CLASS.UC_ROSE_CRIMSON_ROSE = 130	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_FREYJA	Enum	UNIT_CLASS.UC_ROSE_FREYJA = 133	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_GUNNER	Enum	UNIT_CLASS.UC_ROSE_GUNNER = 201	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_HEAVY_BARREL	Enum	UNIT_CLASS.UC_ROSE_HEAVY_BARREL = 41	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_METAL_HEART	Enum	UNIT_CLASS.UC_ROSE_METAL_HEART = 42	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_OPTIMUS	Enum	UNIT_CLASS.UC_ROSE_OPTIMUS = 132	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_STORM_TROOPER	Enum	UNIT_CLASS.UC_ROSE_STORM_TROOPER = 131	same value	same	-	q_june_quest_types.tsv
+type:UNIT_CLASS:UC_ROSE_VALKYRIE	Enum	UNIT_CLASS.UC_ROSE_VALKYRIE = 43	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_ADD	Enum	UNIT_TYPE.UT_ADD = 9	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_ARA	Enum	UNIT_TYPE.UT_ARA = 7	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_ARME	Enum	UNIT_TYPE.UT_ARME = 2	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_CHUNG	Enum	UNIT_TYPE.UT_CHUNG = 6	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_ELESIS	Enum	UNIT_TYPE.UT_ELESIS = 8	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_ELSWORD	Enum	UNIT_TYPE.UT_ELSWORD = 1	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_EVE	Enum	UNIT_TYPE.UT_EVE = 5	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_LIRE	Enum	UNIT_TYPE.UT_LIRE = 3	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_LUCIEL	Enum	UNIT_TYPE.UT_LUCIEL = 10	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_NONE	Enum	UNIT_TYPE.UT_NONE = 0	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_RAVEN	Enum	UNIT_TYPE.UT_RAVEN = 4	same value	same	-	q_june_quest_types.tsv
+type:UNIT_TYPE:UT_ROSE	Enum	UNIT_TYPE.UT_ROSE = 11	same value	same	-	q_june_quest_types.tsv
+func	31d95080 @31dae93e..@31dafded	quest-manager Lua bindings	X2Main.cpp:3549-3569	June adds AddGuildQuestTemplet_LUA, AddChainQuestDays; Account/Guild/Quest push the same 323321f0	Q1	xorstrings.tsv; PUSH 0x323321f0 @31daebfa / 31daf0c0 / 31daf322
+func	31edbf70	CX2Data::ResetQuestManager(field, sub, account, guild)	X2Data.cpp:1918 (3 files)	June adds GuildQuest; new 0x14c manager	Q1	decompile 31edbf70
+func	3258c470 @3258f852	loader: _LA switch on g_pMain+0x708 (argv[1] == Axeso5)	X2StateLoading.cpp:803	US = plain FieldQuest / FieldSubQuest / AccountQuest / GuildQuest; AccountQuest_LA never loaded	Q1 (US branch only)	funcmap 31e46300; disasm @3258f852-3258f899
+func	3258c470 @3258fa7b	AccountQuestDate.lua (31ee0a80: clear, open)	X2StateLoading.cpp:809	same; June's file has 0 AddAccountQuestDate calls	-	AccountQuestDate.src.lua
+func	3258c470 @3258fc67	ChainQuestInfo.lua (31edceb0)	none	new file	Q1	disasm
+func	3258c470 @32590853	Quest_Event_Scene_Info.lua (31eeb040)	none	new file	Q1; Q5b	disasm
+func	3258c470 @32591ff5	ChainCashItem.lua (ChainItem:AddChainCashItem)	none	cash-shop chain items, not quests	June-only, not ported here: backlog Stage 16 (item-side)	ChainCashItem.src.lua
+func	3232f070	CX2QuestManager::OpenScriptFile (void; a Lua error ends that file)	X2QuestManager.cpp:46	same	-	decompile
+func	32337720	CX2QuestManager ctor (0x14c)	X2QuestManager.cpp:11	June adds maps +0x9c, +0xec, +0xfc, +0x10c, +0x11c	Q1 (members); Q3	q0a_qm_summary.md layout
+func	32336830	~CX2QuestManager	X2QuestManager.cpp:19	frees the new maps	Q1/Q3	q0a_qm_functions.tsv
+func	323321f0	AddQuestTemplet_LUA	X2QuestManager.cpp:497	new keys + chain / story indexes	Q1	q0a_june_templets.md
+func	32330ff0	AddSubQuestTemplet_LUA	X2QuestManager.cpp:851	same shape; error 0x2760	Q1	q0a_june_templets.md
+func	32323120	LoadQuestCondition	X2QuestManager.cpp:2192	QR tail scalar (cond+0x18)	Q1	q0a_june_templets.md
+func	32323ad0	LoadClearCondition (48-way jump table @3232c57c)	X2QuestManager.cpp:2345	June cases 37-39, 43-45, 47, 48; m_cDifficulty; >= 0 dungeon ids; defaults 19,20,29,30,35,40-42 false (as March)	Q1	q0a_june_clearcond.md
+func	32330250	LoadReward	X2QuestManager.cpp:2304	QT 9 split, guild coop id	Q1	q0a_june_templets.md
+func	3232e070	AddAccountQuestDate_LUA -> map this+0x9c	X2QuestManager.cpp:988	same	-	q0a_qm_functions.tsv
+func	32322b10	AddChainQuestDays	none	new	Q1	decompile
+func	31eeb040	Quest_Event_Scene_Info loader	none	new	Q1	decompile
+func	323cb190	GetQuestEventSceneInfo(quest, ...) (only reader of g_pData+0x498)	none	new	Q5b	decompile; callers 323cb2e0 x2
+func	32322260	IsCompleteQuest	GetUnitCompleteQuest X2QuestManager.cpp:1339	same (renamed)	-	q0a_june_callers.md
+func	323225e0	SubQuestInst::IsComplete	X2QuestManager.cpp:3203	changed: SQT 3/4 complete on flag OR count; no POINT_COUNT	Q3	q0a_qm_summary.md s3
+func	3232c640	QuestInst::IsComplete	X2QuestManager.cpp:3146	inlines 323225e0	Q3	q0a_qm_functions.tsv
+func	3232c750	QuestInst::IsCompleteVisitQuest	X2QuestManager.cpp:3158	changed: no last-sub-quest rule	Q3	q0a_qm_summary.md s3
+func	32337db0	MakeSubQuestString	X2QuestManager.cpp:3277	new cases 0x25, 0x27, 0x2b, 0x2c; 0x2d-0x2f empty	Q3	q0a_qm_summary.md s3
+func	32344f30	find sub-quest record by id	inline in MakeSubQuestString	same	-	q0a_qm_functions.tsv
+func	32321ee0	GetTimeToRefreshQuest (local midnight)	X2QuestManager.cpp:1092	same (US hour 0)	-	q0a_qm_functions.tsv
+func	32321d10	monthly expiry	none	new	Q3	q0a_qm_summary.md s2
+func	32322050	weekly expiry (next Wednesday 00:00)	none	new	Q3	q0a_qm_summary.md s2
+func	32336e80	SetUnitQuest (daily / weekly / monthly purge, chain times)	X2QuestManager.cpp:1022	changed	Q3	q0a_qm_functions.tsv
+func	3232f830	RefreshDailyQuest (+ chain refresh 3232ef70)	X2QuestManager.cpp:1118	changed	Q3	q0a_qm_functions.tsv
+func	323229d0	chain quest in progress?	none	new	Q3	q0a_qm_functions.tsv
+func	32322ad0	chain startable flag (map +0x10c)	none	new	Q3	q0a_qm_functions.tsv
+func	3232caf0	IsChainQuestAvailable: AllowFewDays -> local midnight of (last completion + N days) <= now; enable-code 0x10 + TestMinute -> minutes	none	new	Q3; Q4 (emulator mirror)	decompile 3232caf0
+func	3232ef70	rebuild chain startable map	none	new	Q3	q0a_qm_functions.tsv
+func	3232de60	forget a completed quest (chain, not QT_STORY)	none	new	Q3	q0a_qm_functions.tsv
+func	32331830	CreateUnitQuest (+ chain refresh)	X2QuestManager.cpp:1179	changed	Q3	q0a_qm_functions.tsv
+func	32331fb0	RemoveUnitQuest (chain completion time into +0x11c)	X2QuestManager.cpp:3125	changed	Q3	q0a_qm_functions.tsv
+func	32331dd0	ClearUnitQuest (also +0x10c / +0x11c)	X2QuestManager.cpp:3107	changed	Q3	q0a_qm_functions.tsv
+func	32331a30	UpdateUnitQuest	X2QuestManager.cpp:1276	same	-	q0a_qm_functions.tsv
+func	3232e310	CheckUpdateSubQuestInst	X2QuestManager.cpp:1200	same	-	q0a_qm_functions.tsv
+func	3232e510	IsForbiddenQuest (+ QT 9 code events 0x920/0x921/0x923)	X2QuestManager.cpp:5030	changed	Q3	q0a_qm_summary.md s2
+func	3232ecd0	GiveUpForbiddenQuest	X2QuestManager.cpp:5122	same	-	q0a_qm_functions.tsv
+func	3232fbd0	GetStartQuestList (QT 2/9 at any start NPC; QT 8 guild gate)	X2QuestManager.cpp:1350	changed	Q3	q0a_qm_functions.tsv
+func	3232fcd0	GetEndQuestList	X2QuestManager.cpp:1385	same	-	q0a_qm_functions.tsv
+func	3232fd70	GetBoardStartQuestList (location state switch, June villages)	X2QuestManager.cpp:1588	changed	Q3	decompile 3232fd70
+func	323357c0	GetAvailableQuest (chain flag, QT 8 drop)	X2QuestManager.cpp:1708	changed	Q3	q0a_qm_functions.tsv
+func	3232fff0	GetCompletableQuest	X2QuestManager.cpp:2043	same	-	q0a_qm_functions.tsv
+func	32330120	GetOnGoingQuest	X2QuestManager.cpp:2073	same	-	q0a_qm_functions.tsv
+func	3232fa40	GetCompletableQuestEpic	X2QuestManager.cpp:1234	same	-	q0a_qm_functions.tsv
+func	32337320	GetNewQuest	X2QuestManager.cpp:1410	same	-	q0a_qm_functions.tsv
+func	32331ca0	GetCompleteQuest	X2QuestManager.cpp:1551	same	-	q0a_qm_functions.tsv
+func	32336310	class-up quest notice (QT 2 / QT 9 by class step)	none	new	Q3 (QT 9 half to Stage 6)	q0a_qm_functions.tsv
+func	32344ab0	class-up notice message	none	new	Q3	q0a_qm_functions.tsv
+func	32322490	in-progress ids by type + start NPC (0 callers)	none	dead in June	June-only, not ported: no caller	q0a_qm_functions.tsv
+func	32331c00	GetOnGoingQuest count (0 callers)	none	dead in June	June-only, not ported: no caller	q0a_qm_functions.tsv
+func	3232cf70	HasCompletableQuest (0 callers)	X2QuestManager.cpp:2025	same	-	q0a_qm_functions.tsv
+func	32322f80	id-table probe from 42500 (0 callers)	none	dead in June	June-only, not ported: no caller	q0a_qm_functions.tsv
+func	32322290	clear-condition predicate (cond+0x48 == 1, set +0x40 has no 0)	none	unresolved field	Q3 (resolve with MakeSubQuestString)	q0a_qm_functions.tsv
+func	32335f50	rebuild g_pData+0x570 from completed quests	none	unresolved	Q3 (identify)	q0a_qm_functions.tsv
+func	32337520	vector of quest ids -> UI add (not a quest-manager this)	none	unresolved	Q0b / Q5a	q0a_qm_functions.tsv
+func	3293c6f0 @3293cbf1	CX2LocalMapUI::UpdateLocalMapDLG: tab hidden while local-map +0x70 quest not complete	X2LocalMapUI.cpp:850 (comment :1024)	missing in March	Q6	q0a_june_callers.md row 1
+func	323d5650 @323d5a5a	CX2UIQuestNew::UpdateOngoingQuestInfo epic row	X2UIQuestNew.cpp:4777	same	-	row 2
+func	323d5650 @323d5aec	UpdateOngoingQuestInfo QT_STORY row	none	new	Q5a	row 3
+func	323cab40 @323caba3	CX2UIQuestNew::CanIAcceptQuest (before-quest list)	X2UIQuestNew.cpp:3013/3028	same	-	row 4
+func	327da190 @327da29f	IsActiveDungeon: DungeonData +0x1cc	X2DungeonManager.cpp:750	same (ported)	Q6 (uncomment AD Normal 22218 only)	row 5
+func	327da190 @327da2ea	IsActiveDungeon: local-map +0x70	X2DungeonManager.cpp:744 (comment)	missing	Q6	row 6
+func	3226b6c0 @3226bb88	CX2GFXEventScene::End: Quest_11005 + code event 2362 popup	none	new	Q5b (june-gfx G3 owns the class)	row 7
+func	31f14e40 @31f1514f	server event 0x2db handler: hint quest 26600 (lv 35-70)	none	new; packet unresolved	Q0b	row 8
+func	31d79ac0 @31d79afb	unlock quest movies (g_pMain+0x7f8 table)	none	new	Q8	row 9
+func	32173120 @321738e3	CX2UIInventory::CreateWarpDest: Elysion rows	X2UIInventory.cpp:13996	missing	Q6	row 10
+func	3225d340 @3225d745	CX2WorldMapUI::UpdateWorldMap region gate	X2WorldMapUI.cpp:424 (level only)	missing	Q6	row 11
+func	3225d970 @3225dca3	CX2WorldMapUI::UpdateFieldMap button gate	X2WorldMapUI.cpp:1036 (level only)	missing	Q6	row 12
+func	323d4390 @323d44ca	CX2UIQuestNew::UpdateNewQuestNotice local-map gate	X2UIQuestNew.cpp:2825	missing	Q6	row 13
+func	3289dd50 @3289dd68	CX2PlayGuide Go effect: 11005 not complete and level < 3	X2PlayGuide.cpp:485 (no level test)	changed	Q3	row 14
+func	324627f0 @32462ffd	CX2StateMenu::CreateWarpDest: Elysion rows	X2StateMenu.cpp:6230 (comment :6242)	missing	Q6	row 15
+func	32f16d50 @32f16e4e	CX2InformerQuest::CheckHouseQuestInfo	X2InformerQuest.cpp:98	same	-	row 16
+func	31fbde90 @31fbdea1	CX2TutorialGuideManager::CheckToNeedTutorialGuide (11000)	none	new (no March tutorial-guide manager)	June-only, not ported: TutorialGuide system not in this plan (backlog)	row 17
+func	32501bb0 @32502b6a	CX2LocationManager::OpenScriptFile: EnterCondition RequireCompletedQuestID -> local-map +0x70	X2LocationManager.cpp:285-308 (not parsed)	missing; set only by data217 DLG_Map_Local_Elysion.lua:6 (22218)	Q6	q0a_june_callers.md part B
+func	327e0f80 @327e4f01	AddDungeonData_LUA m_iRequireCompleteQuestID -> +0x1cc	X2DungeonManager.cpp:241	same; data line still commented (data035 DungeonData.lua)	Q6	part B
+func	-	MapData REQUIRE_COMPLETE_QUEST_ID / _SUB_QUEST_ID: no June client reader (AddMapData unbound)	X2OfflineMapData.cpp:155 (no-op)	server-only; March's server XSLMapData does not read them either	Q6 (emulator stand-in, propose first)	Ghidra strings 'REQUIRE_COMPLETE' / 'AddMapData': 0
+func	-	BattleFieldData NEED_ONGOING_QUEST_ID / BATTLE_FIELD_DIRECTION_INFO: no June client reader	not parsed	server-only (data036 BattleFieldData.lua:1642-1651, Lanox F04)	Q6 (emulator stand-in, propose first)	Ghidra strings 'NEED_ONGOING' / 'DIRECTION_INFO': 0
+func	31fbe4a0 @31fbf1a4	CX2TutorialGuideManager::LoadTutorialGuideInfo CONDITION_GOING/NEW/COMPLETE_QUEST_ID	none	new system; evaluator unresolved	June-only, not ported: TutorialGuide system not in this plan (backlog)	part B
