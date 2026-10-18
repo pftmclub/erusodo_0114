@@ -1548,6 +1548,7 @@ Funcmap rows `(R14b)` (10 rows). No June bug kept, so no `JUNE_BUGS.md` row.
 **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM --worktree --files X2Lib/X2Eqip.cpp KTDXLIB/Always.h`: RESULT PASS; X2Eqip.cpp
 PASS +109, Always.h OTHER (peers' uncommitted defines; this flag's hunk is 16 inserted lines); 0 FAIL, 0 ERROR, 0 deleted, 0 non-ASCII,
 0 EOL-mismatched inserted lines, 0 encoding changes.
+**Range:** `flagcheck SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM --range d523b1d9^..d523b1d9`: X2Eqip.cpp PASS +109, Always.h DEFINE +17; 0 FAIL, 0 ERROR, 0 deleted; RESULT: PASS.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to X2/US_SERVICE/x2.exe (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s)`
 
 **How to see it** (save set for the play-test: LunaticPsykerT uid 36 wears Add's Basic Dynamo 89; jtLordKnight uid 25 wears Miracle Alchemist
