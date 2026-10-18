@@ -200,6 +200,9 @@ m_bRemoveUnitAfterReceiveNMSerialNum( false )
 #endif // FIX_REFORM_ENTRY_POINT_10TH
 
 {
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	g_pKTDXApp->JuneGfxEnableMouseInput();		/// June CX2StateServerSelect ctor 32576ff0 @32577e9c: GFx mouse input on ( mgr +0x11c = 1 )
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 	m_bReConnectChannelServer = true;
 #ifndef NEW_SKILL_TREE
 	g_pInstanceData->DeleteSkillTreeUI();

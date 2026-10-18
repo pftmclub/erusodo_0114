@@ -674,6 +674,11 @@ class KGCMassFileManager
 		bool KGCMassFileManager::IsValidFile_LocalFile( std::wstring wstrFileName );
 		CMassFile::MASSFILE_MEMBERFILEINFO_PTR LoadDataFile_LocalFile( std::string strFileName, bool bRealData = true );
 		CMassFile::MASSFILE_MEMBERFILEINFO_PTR LoadDataFile_LocalFile( std::wstring wstrFileName, bool bRealData = true );
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+		// June GFx: a kom member only, no loose file and no error log ( r3dGFXFileOpener 31c47a00 -> 31c4c170, fontlib check 31c4bcb0 )
+		bool IsValidFile_MassFileOnly( std::wstring wstrFileName );
+		CMassFile::MASSFILE_MEMBERFILEINFO_PTR LoadDataFile_MassFileOnly( std::wstring wstrFileName );
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 		
 #ifdef  X2OPTIMIZE_SUPPORT_LOADING_TWO_ADJACENT_MASS_FILES

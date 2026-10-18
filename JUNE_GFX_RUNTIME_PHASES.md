@@ -320,6 +320,47 @@ koms mounted is the only regression check (a longer mount); G1 will exercise the
 away; Alt-Tab and a resolution change survive with the movie up; mouse and keys reach March's UI when no GFx widget is open; no
 render-state leak (the world and March's UI look the same before and after).
 
+### Phase G2 - Done (2026-10-19, Opus 5.5 high; flags `SERV_IRUHADEV_JUNE_GFX_MANAGER` + `SERV_IRUHADEV_JUNE_GFX_DEBUG`)
+
+**What landed** (June addresses per item in `june2017_re/funcmap.tsv`, tag `GFx G2`, 15 rows).
+- New `KTDXLIB/KTDGGFXManager.{h,cpp}`: June's manager (RTTI `CKTDGGGFXManager`) behind a plain header. In it, transcribed from Ghidra:
+  the loader states (`31c451d0`), `r3dGFXFileOpener` (kom member first through a new kom-only `KGCMassFileManager::LoadDataFile_MassFileOnly`,
+  then the SDK disk opener), `FxPlayerTextClipboard`, `GFxPlayerLog` (debugger output; mirrored to ErrorLog under `_DEBUG`), AS2 + AS3, four image
+  handlers, `FontProviderWin32`, the FMOD sound renderer on KTDS's FMOD Ex system, June's FxPlayer font-config parser over `fontconfig.font`
+  (pick / apply / `FontTranslator`), the D3D9 HAL + Renderer2D, the movie wrapper `CKTDGGFXUI` with `main.gfx` as root, the
+  `CLIKDataBindingAdapter` listener map and the manager's AS callback (`MSG`, `isShippingBuild`, `DataStringTable`, `RegisterMainUI`,
+  `NowCounTry`, `NowServiceMode`), the input path (main-loop filter, IME events, mouse, keys, Enter / arrows) and all 14 AS wrappers.
+- New `KTDXLIB/KTDGFXSound.cpp`: the SDK's three `Src/Sound` files (GFx::Audio is in libgfx; the FMOD renderer ships as source only).
+- Hooks: `KTDXApp` ctor (manager after the System) / dtor (before it), `JuneOpenPerturbationMap` = Init, OnFrameMove end = dt + the held init
+  lines, OnFrameRender before `JuneStageChainRenderAfter` (state block Capture / Apply around BeginFrame / Display / EndFrame), reset
+  (after the stage loop) / lost (after the full sync), MsgProc (mouse first; stages; keys always after), DXUT's live PeekMessage loop,
+  `CX2Main::StateChange` (clear before RemoveStage, set after InsertStage), `CX2StateServerSelect` ctor (mouse input on), a no-op
+  `CKTDXStage::JuneGfxSetMovieUI` (vslot 0x2c). Dev-console binds `JuneGfxOpenUI` / `JuneGfxLoadWidget` / `JuneGfxUnloadWidget` / `JuneGfxShow`.
+- Link (the G1 "one copy" rule kept): `AS3_Global.h` included once (the app defines the AS3 class table); `expat.lib` linked (AS3 XML; the
+  client has no expat); `inflateReset` / `compress2` shimmed over zlibstat like G1's six. `.vcxproj` hunks (`KTDXLIB_2010.vcxproj`, inert flag
+  off): `KTDGGFXManager.cpp` (Scaleform `Src` + `Include`), `KTDGFXSound.cpp` (the same + `Src\Sound` + `$(ProjectDir)FMOD\inc`), `KTDGGFXManager.h`.
+
+**Stand-ins and left-outs (labelled in code).** Dialog-manager `+0x110` (June-only modal byte) read false. The resize hook `31be2a00` has no
+March point: DXUT's present params are fed at reset. App `+0x28c` (IME text-field id) lives on the manager, 0 until Stage 9's
+`getSelectedIMETextFieldObjectID` (`32664210`) sets it. `+0x118` stays 0 (its writer keys off June's Axeso5 `_LA` byte; no reader). The IME
+manager is skipped with a log line (SDK without IME, no `ime.xml` / `IME.swf`). The wrapper's "CharacterView" render target and CX2State's
+vslot-0x2c handler list are Stage 9's. The four image handlers have no RTTI: taken as JPEG / PNG / TGA / DDS [I]. Message ids are June's values:
+0x467 (March `KM_UI_CONTROL_CUSTOM_EVENT`), 0x46c / 0x46d (no March handler: inert until Stage 9). JUNE_BUGS 323-324.
+
+**Hygiene.** `flagcheck JUNE_GFX_MANAGER --worktree --with _DEBUG --files <the 12 code files>`: `files: 8 PASS, 0 PASS~, 0 DEFINE, 2 OTHER,
+2 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`. The FAILs are
+the PCH `#include "StdAfx.h"` of the two new .cpp (empty units with the flag off, as G1). OTHER = a peer's uncommitted S7e lines in `Always.h`
+and `X2Main.cpp` (not in this commit). The first build stopped in S7e's `X2UISkillTreeNew2015.cpp` (theirs, rebuilt after their fix); the
+second on 17 link externals (fixed above).
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 25,098,240 B, dated 2026-10-19 05:27:48, md5 f9d277ac5a539d97ea741547ff065b5e, equal to
+X2/US_SERVICE/x2.exe (2026-10-19 05:27:40); built at main f35c1c08 + 20 uncommitted code file(s).` (+3.9 MB over G1: the AS3 class set.)
+Strings `[JUNE_GFX] MGR `, `main.gfx`, `fontconfig.font`, `GFXManager`, `JuneGfxLoadWidget` are in the exe.
+
+**How to see it in game.** ErrorLog at the first frame: `[JUNE_GFX] MGR main.gfx loaded, font config "US" ( 1 fontlib fonts_Tahoma.swf, 1 map,
+9133 tr )` plus the sound / IME lines. In a village, `JuneGfxLoadWidget( 10002, "Tutorial_Back.swf" )` draws the GFx widget over the world,
+`JuneGfxUnloadWidget( 10002 )` removes it. **Open questions:** none.
+
 ## Phase G3 - Event scenes
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_EVENTSCENE`. Sub-tag `SCENE`.

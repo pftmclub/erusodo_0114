@@ -5,6 +5,9 @@
 #endif
 
 #define KTDX_BASE_MESSAGE WM_USER + 100
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+class CKTDGGFXManager;
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 class CKTDXApp
 
@@ -172,6 +175,13 @@ class CKTDXApp
 		CKTDIManager*		GetDIManager(){ return m_pDIManager; }
 		CKTDGManager*		GetDGManager(){ return m_pDGManager; }
 		CKTDSManager*		GetDSManager(){ return m_pDSManager; }
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+		CKTDGGFXManager*	GetJuneGFXManager(){ return m_pJuneGFXManager; }	/// June +0x1c8
+		void				JuneGfxSetMessageStage( CKTDXStage* pStage );		/// June 31be2fd0
+		void				JuneGfxClearMessageStage();							/// June 31be3000
+		void				JuneGfxMainLoopFilter( const MSG& kMsg );			/// June main loop 31be1aa0 @31be1e0a -> 31c43ab0
+		void				JuneGfxEnableMouseInput();							/// June 32576ff0 @32577e9c: mgr +0x11c = 1
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef CONVERSION_VS
 #else CONVERSION_VS
 		CKTDNManager*		GetDNManager(){ return m_pDNManager; }
@@ -542,6 +552,9 @@ class CKTDXApp
 		CKTDIManager*			m_pDIManager;
 		CKTDGManager*			m_pDGManager;
 		CKTDSManager*			m_pDSManager;
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+		CKTDGGFXManager*		m_pJuneGFXManager;			/// June +0x1c8 ( ctor 31c45cc0, built in the app ctor 31c17ed0 @31c196be )
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef CONVERSION_VS
 #else CONVERSION_VS
 		CKTDNManager*			m_pDNManager;

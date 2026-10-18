@@ -1,0 +1,1518 @@
+#include "StdAfx.h"
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+#include "KTDGGFXManager.h"
+
+// Scaleform's own headers. Include dirs ( Libs\ExternalLib\Scaleform\Src and \Include ) are set per file in KTDXLIB_2010.vcxproj
+// for this .cpp only ( as for KTDGFXRuntime.cpp ), so no March #include resolves differently.
+#include "GFx/GFx_Player.h"
+#include "GFx/GFx_Loader.h"
+#include "GFx/GFx_Log.h"
+#include "GFx/GFx_Event.h"
+#include "GFx/GFx_FontLib.h"
+#include "GFx/GFx_ImageCreator.h"
+#include "GFx/GFx_AS2Support.h"
+#include "GFx/GFx_AS3Support.h"
+#include "GFx/GFx_Audio.h"
+#include "GFx/GFx_FontProviderWin32.h"
+#include "Render/Renderer2D.h"
+#include "Render/D3D9/D3D9_HAL.h"
+#include "Render/ImageFiles/JPEG_ImageFile.h"
+#include "Render/ImageFiles/PNG_ImageFile.h"
+#include "Render/ImageFiles/TGA_ImageFile.h"
+#include "Render/ImageFiles/DDS_ImageFile.h"
+#include "Sound/Sound_SoundRendererFMOD.h"
+#include "Kernel/SF_File.h"
+
+#pragma comment( lib, "imm32.lib" )		// ImmIsUIMessageW / ImmGetContext / ImmSetConversionStatus ( 31c43ab0, 31c435b0 )
+
+// The AS3 VM's class table: the SDK leaves Classes::ClassRegistrationTable for the application to define, by including AS3_Global.h in
+// exactly one .cpp ( as FxPlayer does ). It names every AS3 class, so libgfx_as3's XML class pulls in expat ( Scaleform's expat.lib;
+// the client has no expat of its own, its libxml is a different library ).
+#include "GFx/AS3/AS3_Global.h"
+#pragma comment( lib, "expat.lib" )
+
+// Two more zlib entry points than G1's six ( KTDGFXRuntime.cpp ): libgfx's ZLibFile::Reset wants inflateReset and AS3 ByteArray.compress
+// wants compress2. Same shim: cdecl wrappers over the client's ZLIB_WINAPI zlib 1.2.3 ( zlibstat.lib: _inflateReset@4, _compress2@20 ).
+extern "C"
+{
+	int __cdecl sfgfx_inflateReset( z_streamp strm )		{ return inflateReset( strm ); }
+	int __cdecl sfgfx_compress2( Bytef* dest, uLongf* destLen, const Bytef* source, uLong sourceLen, int level )
+															{ return compress2( dest, destLen, source, sourceLen, level ); }
+}
+#pragma comment( linker, "/alternatename:_inflateReset=_sfgfx_inflateReset" )
+#pragma comment( linker, "/alternatename:_compress2=_sfgfx_compress2" )
+
+namespace SF	= Scaleform;
+namespace SFG	= Scaleform::GFx;
+namespace SFR	= Scaleform::Render;
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Log lines. Everything the manager logs during Init ( OnCreateDevice, right after the koms mount ) is held and written at the first frame,
+// since a line logged that early never reaches ErrorLog.txt ( memory errorlog-loses-mount-time-lines ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+namespace
+{
+	CRITICAL_SECTION			s_csJuneGfxLog;
+	bool						s_bJuneGfxLogInit		= false;
+	bool						s_bJuneGfxLogFlushed	= false;
+	std::vector< std::string >	s_vecJuneGfxLogPending;
+#ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
+	int							s_iJuneGfxSdkLogLines	= 0;		// GFx's own log mirrored to ErrorLog.txt ( DEBUG only ), capped
+	const int					JUNE_GFX_SDK_LOG_CAP	= 300;
+#endif SERV_IRUHADEV_JUNE_GFX_DEBUG
+
+	void JuneGfxLogLine( const std::string& strLine )
+	{
+		if ( s_bJuneGfxLogInit == false )
+		{
+			InitializeCriticalSection( &s_csJuneGfxLog );
+			s_bJuneGfxLogInit = true;
+		}
+		EnterCriticalSection( &s_csJuneGfxLog );
+		if ( s_bJuneGfxLogFlushed == false )
+		{
+			s_vecJuneGfxLogPending.push_back( strLine );
+		}
+		else
+		{
+			KLOG( "ErrorLog.txt" ) << strLine.c_str() << fileout;
+		}
+		LeaveCriticalSection( &s_csJuneGfxLog );
+	}
+
+	void JuneGfxLog( const char* szFormat, ... )
+	{
+		char szBuf[2048] = { 0, };
+		va_list args;
+		va_start( args, szFormat );
+		_vsnprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, szFormat, args );
+		va_end( args );
+		JuneGfxLogLine( std::string( "[JUNE_GFX] MGR " ) + szBuf );
+	}
+
+	std::string JuneGfxToUTF8( const wchar_t* wsz )
+	{
+		if ( wsz == NULL || wsz[0] == 0 )
+			return std::string();
+		int iLen = WideCharToMultiByte( CP_UTF8, 0, wsz, -1, NULL, 0, NULL, NULL );
+		std::string str( iLen > 0 ? iLen - 1 : 0, '\0' );
+		if ( iLen > 1 )
+			WideCharToMultiByte( CP_UTF8, 0, wsz, -1, &str[0], iLen, NULL, NULL );
+		return str;
+	}
+
+	std::wstring JuneGfxFromUTF8( const char* sz )
+	{
+		if ( sz == NULL || sz[0] == 0 )
+			return std::wstring();
+		int iLen = MultiByteToWideChar( CP_UTF8, 0, sz, -1, NULL, 0 );
+		std::wstring wstr( iLen > 0 ? iLen - 1 : 0, L'\0' );
+		if ( iLen > 1 )
+			MultiByteToWideChar( CP_UTF8, 0, sz, -1, &wstr[0], iLen );
+		return wstr;
+	}
+
+	// June reads its .gfx / fontconfig.font out of the koms through the mass-file map only ( r3dGFXFileOpener 31c47a00 -> 31c4c170,
+	// ConfigParser 31d22280 -> 31c4c3d0, fontlib check 31c4bcb0 ); KGCMassFileManager::LoadDataFile_MassFileOnly is that lookup.
+	bool JuneGfxLoadFromKom( const std::wstring& wstrName, std::vector< unsigned char >& vecOut )
+	{
+		vecOut.clear();
+		if ( g_pKTDXApp == NULL || g_pKTDXApp->GetDeviceManager() == NULL )
+			return false;
+		KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_PTR Info =
+			g_pKTDXApp->GetDeviceManager()->GetMassFileManager()->LoadDataFile_MassFileOnly( wstrName );
+		if ( Info->pRealData == NULL || Info->size <= 0 )
+			return false;
+		vecOut.assign( (const unsigned char*)Info->pRealData, (const unsigned char*)Info->pRealData + Info->size );
+		return true;
+	}
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// GFxPlayerLog ( RTTI .?AVGFxPlayerLog@@, 0x824 B, ctor 31c46880, vtable 33446d0c ): June's is the FxPlayer sample's console log
+// ( GetStdHandle( STD_OUTPUT_HANDLE ) + colour attributes 7 / 0xd ). A GUI exe has no console, so the text goes to the debugger, and under
+// SERV_IRUHADEV_JUNE_GFX_DEBUG it is mirrored to ErrorLog.txt as "[JUNE_GFX] MGR gfx: ...".
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class GFxPlayerLog : public SF::Log
+{
+public:
+	virtual void LogMessageVarg( SF::LogMessageId messageId, const char* pfmt, va_list argList )
+	{
+		char szBuf[1024] = { 0, };
+		SF::Log::FormatLog( szBuf, sizeof( szBuf ), messageId, pfmt, argList );
+		OutputDebugStringA( szBuf );
+#ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
+		if ( s_iJuneGfxSdkLogLines < JUNE_GFX_SDK_LOG_CAP )
+		{
+			++s_iJuneGfxSdkLogLines;
+			std::string strLine( szBuf );
+			while ( strLine.empty() == false && ( strLine[ strLine.size() - 1 ] == '\n' || strLine[ strLine.size() - 1 ] == '\r' ) )
+				strLine.erase( strLine.size() - 1 );
+			JuneGfxLogLine( std::string( "[JUNE_GFX] MGR gfx: " ) + strLine );
+		}
+#endif SERV_IRUHADEV_JUNE_GFX_DEBUG
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// r3dGFXFileOpener ( RTTI .?AVr3dGFXFileOpener@@, vtable 33446d2c; only OpenFile 31c47a00 is June's, GetFileModifyTime / OpenFileEx are the
+// SDK's ). The url is lower-cased and looked up as a kom member ( 31c4c170 ); a member becomes a memory file ( June decodes algo-2 there,
+// March's GetMemberFile does its own formats ). A miss, or an empty member, goes to the SDK FileOpener::OpenFile ( 33087ed0 ): SysFile on
+// disk with the url as given. That is how the loose eventscene\X.swf ( GetPullPath full paths ) open.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class JuneGfxKomFileBuffer
+{
+protected:
+	explicit JuneGfxKomFileBuffer( std::vector< unsigned char >& vecData ) { m_vecData.swap( vecData ); }
+	std::vector< unsigned char >	m_vecData;
+};
+
+// MemoryFile neither copies nor owns its buffer: the buffer base is declared first, so it is built ( and holds the kom bytes ) before
+// MemoryFile is handed their address
+class JuneGfxKomFile : protected JuneGfxKomFileBuffer, public SF::MemoryFile
+{
+public:
+	JuneGfxKomFile( const char* szURL, std::vector< unsigned char >& vecData )
+		: JuneGfxKomFileBuffer( vecData ), SF::MemoryFile( szURL, &m_vecData[0], (int)m_vecData.size() )
+	{
+	}
+};
+
+class r3dGFXFileOpener : public SFG::FileOpener
+{
+public:
+	virtual SF::File* OpenFile( const char* purl, int flags, int modes )
+	{
+		std::wstring wstrName = JuneGfxFromUTF8( purl );
+		std::transform( wstrName.begin(), wstrName.end(), wstrName.begin(), towlower );
+
+		std::vector< unsigned char > vecData;
+		if ( JuneGfxLoadFromKom( wstrName, vecData ) == true && vecData.empty() == false )
+			return new JuneGfxKomFile( purl, vecData );
+
+		return SFG::FileOpener::OpenFile( purl, flags, modes );
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// FxPlayerTextClipboard ( RTTI .?AVFxPlayerTextClipboard@@, vtable 33446bd4 ): OnTextStore ( 31c46550 ) puts a GFx copy on the Windows
+// clipboard as CF_UNICODETEXT; the paste side is read on WM_ACTIVATEAPP ( 31c44040 -> 31c43de0 ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class FxPlayerTextClipboard : public SFG::TextClipboard
+{
+public:
+	virtual void OnTextStore( const wchar_t* ptext, SF::UPInt len )
+	{
+		if ( OpenClipboard( NULL ) == FALSE )
+			return;
+		EmptyClipboard();
+		HGLOBAL hMem = GlobalAlloc( GMEM_DDESHARE, ( len + 1 ) * sizeof( wchar_t ) );
+		wchar_t* pDest = (wchar_t*)GlobalLock( hMem );
+		wcscpy_s( pDest, len + 1, ptext );
+		GlobalUnlock( hMem );
+		SetClipboardData( CF_UNICODETEXT, hMem );
+		CloseClipboard();
+	}
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// FontConfig ( FxPlayer FontConfigParser, transcribed from June: ConfigParser 31d22280, FontConfigSet::Parse 31d227e0, tokenizer 31d21b60,
+// line reader 31d224e0, matcher 31d220d0, string token 31d22fe0, map style 31d21f40, FontConfig ctor 31d23c10, Apply 31d21e10,
+// FontTranslator::Translate 31d225d0 ). The SDK ships no FontConfigParser ( only a PS3 provider ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class FontTranslator : public SFG::Translator		// RTTI .?AVFontTranslator@GFx@Scaleform@@, 0x14 B, vtable 3344dfcc
+{
+public:
+	virtual unsigned GetCaps() const { return Cap_StripTrailingNewLines; }		// 330673a0: return 2
+	virtual void Translate( TranslateInfo* ptranslateInfo )					// 31d225d0
+	{
+		std::map< std::wstring, std::wstring >::const_iterator it = m_mapTable.find( ptranslateInfo->GetKey() );
+		if ( it != m_mapTable.end() )
+			ptranslateInfo->SetResult( it->second.c_str(), it->second.size() );
+	}
+	// 31d226d0 -> 31d239f0: a hash Add; fontconfig.font has no repeated key ( 9,133 distinct ), so the first value is kept as in a lookup
+	void AddTranslation( const std::wstring& wstrKey, const std::wstring& wstrValue ) { m_mapTable.insert( std::make_pair( wstrKey, wstrValue ) ); }
+	size_t GetCount() const { return m_mapTable.size(); }
+private:
+	std::map< std::wstring, std::wstring >	m_mapTable;
+};
+
+class FontConfig : public SF::RefCountBase< FontConfig, SF::Stat_Default_Mem >		// RTTI .?AVFontConfig@GFx@Scaleform@@, 0x24 B
+{
+public:
+	FontConfig( const std::wstring& wstrName ) : m_wstrName( wstrName ), m_iMapCount( 0 ) { m_pTranslator = *new FontTranslator(); }
+
+	// 31d21e10
+	void Apply( SFG::Loader& kLoader )
+	{
+		kLoader.SetFontLib( NULL );
+		kLoader.SetFontMap( m_pFontMap );
+		kLoader.SetTranslator( m_pTranslator );
+		if ( m_vecFontLibFiles.empty() == false )
+		{
+			SF::Ptr< SFG::FontLib > pFontLib = *new SFG::FontLib();
+			kLoader.SetFontLib( pFontLib );
+			for ( size_t i = 0; i < m_vecFontLibFiles.size(); ++i )
+			{
+				SF::Ptr< SFG::MovieDef > pDef = *kLoader.CreateMovie( m_vecFontLibFiles[i].c_str(), SFG::Loader::LoadAll, 0 );
+				if ( pDef )
+					pFontLib->AddFontsFrom( pDef, false );		// 31b796a0( def, 0 )
+			}
+		}
+	}
+
+	std::wstring						m_wstrName;			// +8
+	std::vector< std::string >			m_vecFontLibFiles;	// +0x10 / +0x14 ( UTF-8 )
+	SF::Ptr< SFG::FontMap >				m_pFontMap;			// +0x1c, made by the first map line
+	SF::Ptr< FontTranslator >			m_pTranslator;		// +0x20, made by the ctor
+	int									m_iMapCount;
+};
+
+class JuneGfxConfigParser
+{
+public:
+	enum TOKEN_TYPE { TT_ERROR = 0, TT_EOL = 1, TT_EOF = 2, TT_CHAR = 3, TT_STRING = 4, TT_IDENT = 5, TT_NUMBER = 6 };
+	struct Token
+	{
+		TOKEN_TYPE		eType;
+		size_t			uStart;
+		size_t			uLen;
+		const char*		szError;
+	};
+
+	// 31d22280: the file comes from the koms ( 31c4c3d0 ); UTF-16 LE / BE by BOM, UTF-8 BOM skipped, else read as UTF-8
+	explicit JuneGfxConfigParser( const char* szFileName ) : m_uPos( 0 ), m_iLine( 1 ), m_iErrorIndex( -1 ), m_iTokenLine( 1 )
+	{
+		std::vector< unsigned char > vecData;
+		if ( JuneGfxLoadFromKom( JuneGfxFromUTF8( szFileName ), vecData ) == false || vecData.empty() == true )
+			return;
+		if ( vecData.size() >= 2 && vecData[0] == 0xff && vecData[1] == 0xfe )
+		{
+			size_t uCount = vecData.size() / 2 - 1;
+			m_wstrText.resize( uCount );
+			for ( size_t i = 0; i < uCount; ++i )
+				m_wstrText[i] = (wchar_t)( vecData[ 2 + i * 2 ] | ( vecData[ 3 + i * 2 ] << 8 ) );
+		}
+		else if ( vecData.size() >= 2 && vecData[0] == 0xfe && vecData[1] == 0xff )
+		{
+			size_t uCount = vecData.size() / 2 - 1;
+			m_wstrText.resize( uCount );
+			for ( size_t i = 0; i < uCount; ++i )
+				m_wstrText[i] = (wchar_t)( ( vecData[ 2 + i * 2 ] << 8 ) | vecData[ 3 + i * 2 ] );
+		}
+		else
+		{
+			size_t uSkip = ( vecData.size() >= 3 && vecData[0] == 0xef && vecData[1] == 0xbb && vecData[2] == 0xbf ) ? 3 : 0;
+			std::string strUTF8( (const char*)&vecData[ uSkip ], vecData.size() - uSkip );
+			m_wstrText = JuneGfxFromUTF8( strUTF8.c_str() );
+		}
+	}
+
+	bool	HasData() const		{ return m_wstrText.empty() == false; }
+	int		GetLine() const		{ return m_iTokenLine; }
+	int		GetErrorIndex() const { return m_iErrorIndex; }
+	const char* GetErrorText() const { return m_vecTokens[ m_iErrorIndex ].szError; }
+
+	// 31d224e0: one line of tokens, up to and including the EOL / EOF / error token; false at the end of the file
+	bool NextLine()
+	{
+		m_iErrorIndex = -1;
+		m_iTokenLine = m_iLine;
+		m_vecTokens.clear();
+		for ( ;; )
+		{
+			Token kToken = ReadToken();
+			if ( kToken.eType == TT_ERROR && m_iErrorIndex == -1 )
+				m_iErrorIndex = (int)m_vecTokens.size();
+			m_vecTokens.push_back( kToken );
+			if ( kToken.eType < TT_CHAR )
+				return !( m_vecTokens.size() < 2 && kToken.eType == TT_EOF );
+		}
+	}
+
+	// 31d220d0: %i keyword ( case-insensitive ), %s string, %I identifier, %n number; any other character must be that punctuation token.
+	// The whole format must be used and the next token must end the line.
+	bool Match( const wchar_t* wszFormat, const wchar_t* wszKeyword = NULL, std::wstring* pStr1 = NULL, std::wstring* pStr2 = NULL,
+		std::wstring* pStr3 = NULL, std::wstring* pStr4 = NULL, float* pfNumber = NULL )
+	{
+		std::wstring* apStr[4] = { pStr1, pStr2, pStr3, pStr4 };
+		int iStr = 0;
+		size_t uToken = 0;
+		for ( const wchar_t* p = wszFormat; *p != 0; ++p, ++uToken )
+		{
+			if ( uToken >= m_vecTokens.size() )
+				return false;
+			const Token& kToken = m_vecTokens[ uToken ];
+			if ( *p != L'%' )
+			{
+				if ( kToken.eType != TT_CHAR || m_wstrText[ kToken.uStart ] != *p )
+					return false;
+				continue;
+			}
+			++p;
+			if ( *p == L'i' )
+			{
+				if ( kToken.eType != TT_IDENT || wszKeyword == NULL )
+					return false;
+				std::wstring wstrIdent = m_wstrText.substr( kToken.uStart, kToken.uLen );
+				if ( wcslen( wszKeyword ) != wstrIdent.size() || _wcsicmp( wstrIdent.c_str(), wszKeyword ) != 0 )
+					return false;
+			}
+			else if ( *p == L's' || *p == L'I' )
+			{
+				if ( kToken.eType != ( *p == L's' ? TT_STRING : TT_IDENT ) )
+					return false;
+				if ( iStr < 4 && apStr[ iStr ] != NULL )
+					*apStr[ iStr ] = TokenString( kToken );
+				++iStr;
+			}
+			else if ( *p == L'n' )
+			{
+				if ( kToken.eType != TT_NUMBER )
+					return false;
+				if ( pfNumber != NULL )
+					*pfNumber = (float)atof( JuneGfxToUTF8( m_wstrText.substr( kToken.uStart, kToken.uLen ).c_str() ).c_str() );
+			}
+			// any other letter: the token is skipped ( 31d22220 )
+			if ( *p == 0 )
+				break;
+		}
+		return uToken < m_vecTokens.size() && ( m_vecTokens[ uToken ].eType == TT_EOL || m_vecTokens[ uToken ].eType == TT_EOF );
+	}
+
+private:
+	// 31d21b60 ( whitespace 31d21ae0: space and tab; identifier start 31d21b10; number start 31d21b40 )
+	Token ReadToken()
+	{
+		Token kToken = { TT_EOF, 0, 0, "" };
+		const size_t uLen = m_wstrText.size();
+		if ( uLen == 0 || m_uPos == uLen )
+			return kToken;
+		while ( m_uPos < uLen && ( m_wstrText[ m_uPos ] == L' ' || m_wstrText[ m_uPos ] == L'\t' ) )
+			++m_uPos;
+		if ( m_uPos < uLen && m_wstrText[ m_uPos ] == 0x1a && ++m_uPos == uLen )
+			return kToken;
+		if ( m_uPos >= uLen )
+			return kToken;
+
+		const wchar_t c = m_wstrText[ m_uPos ];
+		if ( c == L'\r' && m_uPos + 1 < uLen && m_wstrText[ m_uPos + 1 ] == L'\n' )
+		{
+			++m_iLine;
+			m_uPos += 2;
+			kToken.eType = TT_EOL;
+			return kToken;
+		}
+		if ( c == L'\n' )
+		{
+			++m_iLine;
+			++m_uPos;
+			kToken.eType = TT_EOL;
+			return kToken;
+		}
+		if ( ( c >= L'a' && c <= L'z' ) || ( c >= L'A' && c <= L'Z' ) || c == L'_' )
+		{
+			kToken.eType = TT_IDENT;
+			kToken.uStart = m_uPos++;
+			while ( m_uPos < uLen )
+			{
+				const wchar_t d = m_wstrText[ m_uPos ];
+				if ( !( ( d >= L'a' && d <= L'z' ) || ( d >= L'A' && d <= L'Z' ) || d == L'_' || ( d >= L'0' && d <= L'9' ) ) )
+					break;
+				++m_uPos;
+			}
+			kToken.uLen = m_uPos - kToken.uStart;
+			return kToken;
+		}
+		if ( ( c >= L'0' && c <= L'9' ) || c == L'.' )
+		{
+			bool bDot = ( c == L'.' );
+			kToken.eType = TT_NUMBER;
+			kToken.uStart = m_uPos++;
+			while ( m_uPos < uLen )
+			{
+				const wchar_t d = m_wstrText[ m_uPos ];
+				if ( ( d < L'0' || d > L'9' ) && d != L'.' )
+					break;
+				if ( d == L'.' )
+				{
+					if ( bDot )
+						break;
+					bDot = true;
+				}
+				++m_uPos;
+			}
+			kToken.uLen = m_uPos - kToken.uStart;
+			return kToken;
+		}
+		++m_uPos;
+		if ( c != L'"' )
+		{
+			kToken.eType = TT_CHAR;
+			kToken.uStart = m_uPos - 1;
+			kToken.uLen = 1;
+			return kToken;
+		}
+		const size_t uStart = m_uPos;
+		while ( m_uPos < uLen && m_wstrText[ m_uPos ] != L'"' )
+			++m_uPos;
+		if ( m_uPos >= uLen )
+		{
+			kToken.eType = TT_ERROR;
+			kToken.szError = "closing quote \" character expected";
+			return kToken;
+		}
+		++m_uPos;
+		kToken.eType = TT_STRING;
+		kToken.uStart = uStart;
+		kToken.uLen = m_uPos - uStart - 1;
+		return kToken;
+	}
+
+	// 31d22fe0: LF dropped; "\n" becomes CR ( 0x0d, June's own choice: Flash breaks lines on \r ); any other "\x" stays as the two characters
+	std::wstring TokenString( const Token& kToken ) const
+	{
+		std::wstring wstrOut;
+		bool bEscape = false;
+		for ( size_t i = 0; i < kToken.uLen; ++i )
+		{
+			const wchar_t c = m_wstrText[ kToken.uStart + i ];
+			if ( c == L'\n' )
+				continue;
+			if ( bEscape )
+			{
+				bEscape = false;
+				if ( c == L'n' )
+				{
+					wstrOut += (wchar_t)0x0d;
+				}
+				else
+				{
+					wstrOut += L'\\';
+					wstrOut += c;
+				}
+			}
+			else if ( c == L'\\' )
+			{
+				bEscape = true;
+			}
+			else
+			{
+				wstrOut += c;
+			}
+		}
+		return wstrOut;
+	}
+
+	std::wstring			m_wstrText;
+	size_t					m_uPos;			// +0x10
+	int						m_iLine;		// +0x14
+	std::vector< Token >	m_vecTokens;
+	int						m_iErrorIndex;
+	int						m_iTokenLine;
+};
+
+class FontConfigSet
+{
+public:
+	// 31d21f40: map font style, chained from MFF_Original ( 0x10 ); June warns and keeps the previous flags on a bad word
+	static unsigned ParseStyle( unsigned uPrev, const std::wstring& wstrStyle, int iLine )
+	{
+		unsigned uFlag = 0;
+		if		( _wcsicmp( wstrStyle.c_str(), L"bold" ) == 0 )			uFlag = 2;
+		else if ( _wcsicmp( wstrStyle.c_str(), L"normal" ) == 0 )		uFlag = 0;
+		else if ( _wcsicmp( wstrStyle.c_str(), L"italic" ) == 0 )		uFlag = 1;
+		else if ( _wcsicmp( wstrStyle.c_str(), L"fauxbold" ) == 0 )		uFlag = 8;
+		else if ( _wcsicmp( wstrStyle.c_str(), L"fauxitalic" ) == 0 )	uFlag = 4;
+		else if ( _wcsicmp( wstrStyle.c_str(), L"noautofit" ) == 0 )	uFlag = 0x20;
+		else
+		{
+			JuneGfxLog( "Warning: FontConfig(%d) - unknown map font style '%s'", iLine, JuneGfxToUTF8( wstrStyle.c_str() ).c_str() );
+			return uPrev;
+		}
+		if ( uPrev == 0x10 )
+			return uFlag;
+		if ( ( uPrev == 0 && ( uFlag & 3 ) != 0 ) || ( uFlag == 0 && ( uPrev & 3 ) != 0 ) )
+		{
+			JuneGfxLog( "Warning: FontConfig(%d) - unexpected map font style '%s'", iLine, JuneGfxToUTF8( wstrStyle.c_str() ).c_str() );
+			return uPrev;
+		}
+		return uPrev | uFlag;
+	}
+
+	static void AddMap( FontConfig* pConfig, const std::wstring& wstrFrom, const std::wstring& wstrTo, unsigned uFlags, float fScale )
+	{
+		if ( !pConfig->m_pFontMap )
+			pConfig->m_pFontMap = *new SFG::FontMap();
+		pConfig->m_pFontMap->MapFont( wstrFrom.c_str(), wstrTo.c_str(), (SFG::FontMap::MapFontFlags)uFlags, fScale );
+		++pConfig->m_iMapCount;
+	}
+
+	// 31d227e0 ( June's errors go to stderr; here they are log lines )
+	void Parse( JuneGfxConfigParser& kParser )
+	{
+		m_vecConfigs.clear();
+		if ( kParser.HasData() == false )
+			return;
+
+		std::wstring a, b, c, d;
+		float fScale = 1.0f;
+		while ( kParser.NextLine() == true )
+		{
+			if ( kParser.GetErrorIndex() != -1 )
+			{
+				JuneGfxLog( "Error: FontConfig(%d) - %s", kParser.GetLine(), kParser.GetErrorText() );
+				break;
+			}
+			if ( kParser.Match( L"[%i]", L"FontConfig" ) == true )
+			{
+				m_vecConfigs.push_back( *new FontConfig( L"Unnamed" ) );
+				continue;
+			}
+			if ( kParser.Match( L"[%i%s]", L"FontConfig", &a ) == true )
+			{
+				m_vecConfigs.push_back( *new FontConfig( a ) );
+				continue;
+			}
+			if ( kParser.Match( L"" ) == true )
+				continue;
+			if ( m_vecConfigs.empty() == true )
+			{
+				JuneGfxLog( "Error: FontConfig(%d) - file mappings outside of [FontConfig] section", kParser.GetLine() );
+				break;
+			}
+			FontConfig* pConfig = m_vecConfigs.back();
+			fScale = 1.0f;
+			if ( kParser.Match( L"%i%s=%s", L"map", &a, &b ) == true )
+				AddMap( pConfig, a, b, 0x10, 1.0f );
+			else if ( kParser.Match( L"%i%s=%s%I", L"map", &a, &b, &c ) == true )
+				AddMap( pConfig, a, b, ParseStyle( 0x10, c, kParser.GetLine() ), 1.0f );
+			else if ( kParser.Match( L"%i%s=%s%n", L"map", &a, &b, NULL, NULL, &fScale ) == true )
+				AddMap( pConfig, a, b, 0x10, fScale );
+			else if ( kParser.Match( L"%i%s=%s%I%n", L"map", &a, &b, &c, NULL, &fScale ) == true )
+				AddMap( pConfig, a, b, ParseStyle( 0x10, c, kParser.GetLine() ), fScale );
+			else if ( kParser.Match( L"%i%s=%s%I%I", L"map", &a, &b, &c, &d ) == true )
+				AddMap( pConfig, a, b, ParseStyle( ParseStyle( 0x10, c, kParser.GetLine() ), d, kParser.GetLine() ), 1.0f );
+			else if ( kParser.Match( L"%i%s=%s%I%I%n", L"map", &a, &b, &c, &d, &fScale ) == true )
+				AddMap( pConfig, a, b, ParseStyle( ParseStyle( 0x10, c, kParser.GetLine() ), d, kParser.GetLine() ), fScale );
+			else if ( kParser.Match( L"%i%s", L"fontlib", &a ) == true )
+				pConfig->m_vecFontLibFiles.push_back( JuneGfxToUTF8( a.c_str() ) );	// parser +0x18 path prefix: empty for a kom file name
+			else if ( kParser.Match( L"%i%s=%s", L"tr", &a, &b ) == true )
+				pConfig->m_pTranslator->AddTranslation( a, b );
+			else
+			{
+				JuneGfxLog( "Error: FontConfig(%d) - unexpected statement", kParser.GetLine() );
+				break;
+			}
+		}
+	}
+
+	std::vector< SF::Ptr< FontConfig > >	m_vecConfigs;		// mgr +0xf8 / +0xfc
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The AS -> C++ side. June's movie carries a CLIKDataBindingAdapter ( RTTI .?AVCLIKDataBindingAdapter@@, 0x24 B, ctor 31d1f7b0 ) as its
+// ExternalInterface. Its Callback ( 31d1ed00 ) walks a std::map< name, listener > and stops at the first listener that returns true;
+// AddListener is 31d1f690. The manager's own listener ( mgr +4, name "GFXManager", 31c48570 ) is callback 31c45ed0. Stage 9's screens
+// add theirs to the same map.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class IJuneGfxListener
+{
+public:
+	virtual ~IJuneGfxListener() {}
+	virtual std::string	GetListenerName() const = 0;
+	virtual bool		OnExternalCall( SFG::Movie* pMovie, const char* szMethod, const SFG::Value* pArgs, unsigned uArgCount ) = 0;
+};
+
+class CLIKDataBindingAdapter : public SFG::ExternalInterface
+{
+public:
+	virtual void Callback( SFG::Movie* pmovieView, const char* methodName, const SFG::Value* args, unsigned argCount )
+	{
+		for ( std::map< std::string, IJuneGfxListener* >::iterator it = m_mapListener.begin(); it != m_mapListener.end(); ++it )
+		{
+			if ( it->second != NULL && it->second->OnExternalCall( pmovieView, methodName, args, argCount ) == true )
+				break;
+		}
+	}
+	void AddListener( IJuneGfxListener* pListener )
+	{
+		if ( pListener == NULL )
+			return;
+		m_mapListener[ pListener->GetListenerName() ] = pListener;
+	}
+private:
+	std::map< std::string, IJuneGfxListener* >	m_mapListener;	// +0x18
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// CKTDGGFXUI ( RTTI .?AVCKTDGGFXUI@@, 0x98 B, ctor 31c40220, vtable 33443a64 ): the root movie wrapper at mgr +0x98.
+// Left out, for Stage 9: the "CharacterView" render-target image ( +0x84 / +0x88 / +0x8c..+0x90 1024 x 1024, +0x8 name map, 31c40030 /
+// 31c3ff40 / 31c3f6c0 ) that the root UI's character panel draws into.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class CKTDGGFXUI
+{
+public:
+	CKTDGGFXUI( SFG::Loader* pLoader, IJuneGfxListener* pListener )
+		: m_pLoader( pLoader ), m_pListener( pListener ), m_iBufW( 0 ), m_iBufH( 0 ), m_iLeft( 0 ), m_iTop( 0 ), m_iWidth( 0 ), m_iHeight( 0 )
+	{
+	}
+	~CKTDGGFXUI()
+	{
+		m_RootValue.SetUndefined();		// a managed Value goes before its movie
+		m_hDisplay.Clear();
+		m_pMovie = NULL;
+	}
+
+	// 31c3f3d0
+	bool Load( const char* szFile )
+	{
+		if ( m_pLoader == NULL )
+			return false;
+		SF::Ptr< SFG::MovieDef > pDef = *m_pLoader->CreateMovie( szFile, SFG::Loader::LoadAll, 0 );		// mgr vslot 1 31c43170
+		if ( !pDef )
+			return false;
+		m_pMovie = *pDef->CreateInstance( SFG::MemoryParams(), true, NULL );		// June's MemoryParams are the defaults ( 0.25 / ~0 / ... )
+		if ( !m_pMovie )
+			return false;
+		m_pMovie->SetMouseCursorCount( 1 );								// 4.0 vslot 0xa4
+		m_pMovie->SetControllerCount( 1 );								// 4.0 vslot 0xac
+		m_pMovie->Advance( 0.f, 0, true );								// 4.0 vslot 0x5c
+		m_pMovie->SetBackgroundAlpha( 0.f );							// 4.0 vslot 0x7c
+		m_pMovie->SetViewScaleMode( SFG::Movie::SM_ExactFit );			// ( 2 )
+		m_pMovie->SetViewAlignment( SFG::Movie::Align_TopLeft );		// ( 5 )
+		m_pMovie->HandleEvent( SFG::SetFocusEvent() );					// event 8
+		m_pAdapter = *new CLIKDataBindingAdapter();						// 31c3f340 -> +0x60
+		m_pMovie->SetExternalInterface( m_pAdapter );
+		if ( m_pAdapter && m_pListener != NULL )
+			m_pAdapter->AddListener( m_pListener );
+		return true;
+	}
+
+	// 31c3f060
+	void SetViewport( int iBufW, int iBufH, int iLeft, int iTop, int iWidth, int iHeight )
+	{
+		if ( m_pMovie )
+			m_pMovie->SetViewport( SFG::Viewport( iBufW, iBufH, iLeft, iTop, iWidth, iHeight ) );
+		m_iBufW = iBufW;	m_iBufH = iBufH;	m_iLeft = iLeft;	m_iTop = iTop;	m_iWidth = iWidth;	m_iHeight = iHeight;
+	}
+
+	// 31c3faf0
+	void Advance( float fElapsed, unsigned uCatchUp )
+	{
+		if ( !m_pMovie )
+			return;
+		m_pMovie->SetBackgroundAlpha( 0.f );
+		m_pMovie->SetViewport( SFG::Viewport( m_iBufW, m_iBufH, m_iLeft, m_iTop, m_iWidth, m_iHeight ) );
+		m_pMovie->Advance( fElapsed, uCatchUp, true );
+		m_hDisplay = m_pMovie->GetDisplayHandle();
+	}
+
+	// 31c3f6e0
+	void Display( SFR::Renderer2D* pRenderer )
+	{
+		SFG::MovieDisplayHandle hDisplay = m_pMovie->GetDisplayHandle();
+		if ( hDisplay.NextCapture( pRenderer->GetContextNotify() ) == true )
+			pRenderer->Display( hDisplay.GetRenderEntry() );
+	}
+
+	unsigned HandleEvent( const SFG::Event& kEvent )		// 31c3f130
+	{
+		if ( !m_pMovie )
+			return 0;
+		return m_pMovie->HandleEvent( kEvent );
+	}
+
+	bool HitTest( float x, float y )						// 31c3f100
+	{
+		if ( !m_pMovie )
+			return false;
+		return m_pMovie->HitTest( x, y, SFG::Movie::HitTest_ShapesNoInvisible, 0 );
+	}
+
+	// 31c3f150: only when the root Value is an object / array / display object
+	void Invoke( const char* szMethod, SFG::Value* pResult, const SFG::Value* pArgs, unsigned uCount )
+	{
+		if ( m_RootValue.IsObject() || m_RootValue.IsArray() || m_RootValue.IsDisplayObject() )
+			m_RootValue.Invoke( szMethod, pResult, pArgs, uCount );
+	}
+
+	void SetRootValue( const SFG::Value& kValue ) { m_RootValue = kValue; }		// 31c3f650 ( AS RegisterMainUI )
+
+private:
+	SFG::Loader*						m_pLoader;			// +0x40 ( June keeps the manager; the loader is its +8 )
+	IJuneGfxListener*					m_pListener;		// +0x5c ( mgr +4 )
+	SF::Ptr< SFG::Movie >				m_pMovie;			// +0x3c
+	SFG::MovieDisplayHandle				m_hDisplay;			// +0x38
+	int									m_iBufW, m_iBufH, m_iLeft, m_iTop, m_iWidth, m_iHeight;	// +0x44..+0x58
+	SF::Ptr< CLIKDataBindingAdapter >	m_pAdapter;			// +0x60
+	SFG::Value							m_RootValue;		// +0x68..+0x70
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// The manager's Scaleform-typed half
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class CKTDGGFXManagerImpl : public IJuneGfxListener
+{
+public:
+	CKTDGGFXManagerImpl( HWND hWnd )
+		: m_pUI( NULL ), m_pStateBlock( NULL ), m_dwLastTime( 0 ), m_pMessageStage( NULL ), m_hWnd( hWnd ), m_fElapsed( 0.f ),
+		  m_iFontConfig( -1 ), m_bShow( true ), m_sIMECompositionLength( 0 ), m_bIMEComposing( false ), m_bLButtonDownHit( false ),
+		  m_bEventScenePlaying( false ), m_iLA( 0 ), m_bMouseOn( false ), m_iIMETextFieldID( 0 ), m_bMainLoaded( false )
+	{
+		ZeroMemory( &m_kPresentParams, sizeof( m_kPresentParams ) );
+		ZeroMemory( &m_kViewport, sizeof( m_kViewport ) );
+		// +0x118 = 1 only when g_pMain +0x708 == 1 ( 31aa20c3 ): that byte is June's Axeso5 "_LA" switch, which March does not have, and
+		// nothing reads +0x118. Kept at 0.
+	}
+
+	~CKTDGGFXManagerImpl()
+	{
+		SAFE_DELETE( m_pUI );				// the movie and its Values before the loader states, the renderer and the HAL
+		SAFE_RELEASE( m_pStateBlock );
+		m_pRenderer = NULL;
+		if ( m_pHAL && m_pHAL->IsInitialized() )
+			m_pHAL->ShutdownHAL();
+		m_pHAL = NULL;
+		m_pSoundRenderer = NULL;
+	}
+
+	// ---- IJuneGfxListener ( 31c48570 / 31c45ed0 ) --------------------------------------------------------------------------------
+	virtual std::string GetListenerName() const { return "GFXManager"; }
+
+	virtual bool OnExternalCall( SFG::Movie* /*pMovie*/, const char* szMethod, const SFG::Value* pArgs, unsigned uArgCount )
+	{
+		if ( szMethod == NULL )
+			return false;
+		if ( strcmp( szMethod, "MSG" ) == 0 && uArgCount == 1 && pArgs[0].IsInt() )
+		{
+			// the stage's MsgProc( hwnd, 0x467 = KM_UI_CONTROL_CUSTOM_EVENT, n, 0 )
+			if ( m_pMessageStage == NULL )
+				return false;
+			m_pMessageStage->MsgProc( m_hWnd, CKTDXApp::KM_UI_CONTROL_CUSTOM_EVENT, (WPARAM)pArgs[0].GetInt(), 0 );
+			return true;
+		}
+		if ( strcmp( szMethod, "isShippingBuild" ) == 0 )
+		{
+			SetMemberOf( pArgs, uArgCount, "isShipping", SFG::Value( true ) );
+		}
+		else if ( strcmp( szMethod, "DataStringTable" ) == 0 )
+		{
+			// June reads args[1]'s data word as the id whatever its type ( a Number would give the double's low dword ): JUNE_BUGS row
+			int iID = 0;
+			if ( uArgCount >= 2 )
+			{
+				if ( pArgs[1].IsInt() )
+					iID = pArgs[1].GetInt();
+				else if ( pArgs[1].IsUInt() )
+					iID = (int)pArgs[1].GetUInt();
+				else if ( pArgs[1].IsNumber() )
+				{
+					double dNumber = pArgs[1].GetNumber();
+					memcpy( &iID, &dNumber, sizeof( iID ) );
+				}
+			}
+			std::wstring wstrString = GET_STRING( iID );
+			SetMemberOf( pArgs, uArgCount, "string", SFG::Value( wstrString.c_str() ) );
+		}
+		else if ( strcmp( szMethod, "RegisterMainUI" ) == 0 && uArgCount == 1 )
+		{
+			if ( m_pUI != NULL )
+				m_pUI->SetRootValue( pArgs[0] );
+		}
+		else if ( strcmp( szMethod, "NowCounTry" ) == 0 && uArgCount == 1 )
+		{
+			SetMemberOf( pArgs, uArgCount, "NowClientCountry", SFG::Value( (SF::SInt32)4 ) );		// June's literal
+		}
+		else if ( strcmp( szMethod, "NowServiceMode" ) == 0 && uArgCount == 1 )
+		{
+			SetMemberOf( pArgs, uArgCount, "NowClientMode", SFG::Value( (SF::SInt32)3 ) );			// June's literal
+		}
+		return false;
+	}
+
+	// June calls the object's SetMember with no type test ( a non-object would fault there ); the test here only stops that crash
+	static void SetMemberOf( const SFG::Value* pArgs, unsigned uArgCount, const char* szMember, const SFG::Value& kValue )
+	{
+		if ( uArgCount < 1 )
+			return;
+		SFG::Value kObject( pArgs[0] );
+		if ( kObject.IsObject() || kObject.IsArray() || kObject.IsDisplayObject() )
+			kObject.SetMember( szMember, kValue );
+	}
+
+	// ---- loader states ( 31c451d0 ) -----------------------------------------------------------------------------------------------
+	void InitLoaderStates()
+	{
+		m_Loader.SetLog( SF::Ptr< SF::Log >( *new GFxPlayerLog() ) );
+		m_Loader.SetFileOpener( SF::Ptr< SFG::FileOpener >( *new r3dGFXFileOpener() ) );
+		m_Loader.SetTextClipboard( SF::Ptr< SFG::TextClipboard >( *new FxPlayerTextClipboard() ) );
+
+		m_pHAL = *SF_NEW SFR::D3D9::HAL( NULL );						// 3321a190( 0 ) -> +0x3c
+		m_pRenderer = *SF_NEW SFR::Renderer2D( m_pHAL );				// 31af9560( HAL ) -> +0x40
+		if ( !m_pRenderer )
+		{
+			JuneGfxLog( "Renderer2D not made: no GFx states set" );		// June returns 0 here ( Init ignores it )
+			return;
+		}
+
+		m_Loader.SetAS2Support( SF::Ptr< SFG::ASSupport >( *new SFG::AS2Support() ) );		// 0x21
+		m_Loader.SetAS3Support( SF::Ptr< SFG::ASSupport >( *new SFG::AS3Support() ) );		// 0x22
+
+		// four handler instances ( 337458bc / 33723454 / 337458b8 / 337458b4, no RTTI ): taken as the FxPlayer set, JPEG / PNG / TGA / DDS
+		SF::Ptr< SFG::ImageFileHandlerRegistry > pImageRegistry = *new SFG::ImageFileHandlerRegistry();
+		pImageRegistry->AddHandler( &SFR::JPEG::FileReader::Instance );
+		pImageRegistry->AddHandler( &SFR::PNG::FileReader::Instance );		// fails cleanly under the client's libpng 1.2.24 ( G1 note )
+		pImageRegistry->AddHandler( &SFR::TGA::FileReader::Instance );
+		pImageRegistry->AddHandler( &SFR::DDS::FileReader::Instance );
+		m_Loader.SetImageFileHandlerRegistry( pImageRegistry );
+
+		m_Loader.SetFontProvider( SF::Ptr< SFG::FontProviderWin32 >( *new SFG::FontProviderWin32( ::GetDC( NULL ) ) ) );		// 0x11
+
+		// IME manager ( 33030d00, 0x70 B, ime.xml / IME.swf, state 0x17 ): the SDK has SF_ENABLE_IME off and no Win32 IME source, and
+		// neither file is in June's data. Not made; the IME events below still go to the movie as June sends them.
+		JuneGfxLog( "IME manager skipped ( SDK without IME support; no ime.xml / IME.swf in June's data )" );
+
+		InitSound();
+
+		JuneGfxConfigParser kParser( "fontconfig.font" );
+		m_kFontConfigs.Parse( kParser );
+		m_iFontConfig = m_kFontConfigs.m_vecConfigs.empty() ? -1 : 0;		// 31c43d00
+		if ( kParser.HasData() == false )
+			JuneGfxLog( "fontconfig.font not found in the koms ( data036 ): no font config" );
+		FontConfig* pConfig = ( m_iFontConfig != -1 ) ? PickFontConfig() : NULL;
+		if ( pConfig != NULL )
+			pConfig->Apply( m_Loader );
+
+		// a 0x50 B object ( 31b01930 ) handed to the AMP server singleton ( 31abe360 ) vslot 0x30, which is "return false" ( 31e4c550 ):
+		// June runs without AMP. Nothing to port.
+	}
+
+	// 31c43700
+	void InitSound()
+	{
+		if ( g_pKTDXApp == NULL || g_pKTDXApp->GetDSManager() == NULL || g_pKTDXApp->GetDSManager()->GetSystem() == NULL )
+		{
+			JuneGfxLog( "sound: no FMOD system on KTDS, GFx sound off" );
+			return;
+		}
+		m_pSoundRenderer = *SF::Sound::SoundRendererFMOD::CreateSoundRenderer();		// 33221b20 -> +0x110
+		if ( !m_pSoundRenderer )
+			return;
+		// the client's FMOD Ex C handle is the same object as the C++ FMOD::System
+		FMOD::System* pSystem = reinterpret_cast< FMOD::System* >( g_pKTDXApp->GetDSManager()->GetSystem() );
+		if ( m_pSoundRenderer->Initialize( pSystem, true, true ) == false )
+		{
+			JuneGfxLog( "sound: SoundRendererFMOD::Initialize failed, GFx sound off" );
+			return;
+		}
+		m_Loader.SetAudio( SF::Ptr< SFG::Audio >( *new SFG::Audio( m_pSoundRenderer, 0.1f, 15, SFG::AudioBase::AudioMaster ) ) );	// 0x1c
+		m_pSoundRenderer->SetMasterVolume( 100.f );		// vslot 0x1c ( 334355b8 )
+		m_pSoundRenderer->Mute( false );				// vslot 0x24
+		JuneGfxLog( "sound: FMOD renderer up on KTDS's FMOD system" );
+	}
+
+	// 31c44ff0: the first config whose fontlib files are all kom members ( 31c4bcb0 ), else the next one round; NULL when none has them
+	FontConfig* PickFontConfig()
+	{
+		const int iStart = m_iFontConfig;
+		if ( iStart == -1 )
+			return NULL;
+		for ( ;; )
+		{
+			FontConfig* pConfig = m_kFontConfigs.m_vecConfigs[ m_iFontConfig ];
+			size_t i = 0;
+			for ( ; i < pConfig->m_vecFontLibFiles.size(); ++i )
+			{
+				if ( g_pKTDXApp->GetDeviceManager()->GetMassFileManager()->IsValidFile_MassFileOnly(
+						JuneGfxFromUTF8( pConfig->m_vecFontLibFiles[i].c_str() ) ) == false )
+					break;
+			}
+			if ( i == pConfig->m_vecFontLibFiles.size() )
+				return pConfig;
+			JuneGfxLog( "Fontlib file '%s' cannot be found. Skipping config '%s'..", pConfig->m_vecFontLibFiles[i].c_str(),
+				JuneGfxToUTF8( pConfig->m_wstrName.c_str() ).c_str() );
+			m_iFontConfig = ( m_iFontConfig + 1 ) % (int)m_kFontConfigs.m_vecConfigs.size();
+			if ( m_iFontConfig == iStart )
+				return NULL;
+		}
+	}
+
+	// ---- Init ( 31c456e0 ) --------------------------------------------------------------------------------------------------------
+	void Init( IDirect3DDevice9* pDevice )
+	{
+		InitLoaderStates();
+		SAFE_DELETE( m_pUI );
+		m_pUI = new CKTDGGFXUI( &m_Loader, this );		// 31c465b0
+		if ( m_pUI->Load( "main.gfx" ) == false )
+		{
+			SAFE_DELETE( m_pUI );
+			JuneGfxLog( "main.gfx FAILED to load ( data036 ): no GFx movie" );
+			return;
+		}
+		D3DVIEWPORT9 kViewport;
+		if ( pDevice != NULL && SUCCEEDED( pDevice->GetViewport( &kViewport ) ) )
+		{
+			m_pUI->SetViewport( kViewport.Width, kViewport.Height, 0, 0, kViewport.Width, kViewport.Height );
+			m_kViewport = kViewport;			// +0xbc
+		}
+		m_dwLastTime = timeGetTime();			// +0x7c
+		m_bMainLoaded = true;
+
+		FontConfig* pConfig = ( m_iFontConfig != -1 && m_iFontConfig < (int)m_kFontConfigs.m_vecConfigs.size() )
+			? (FontConfig*)m_kFontConfigs.m_vecConfigs[ m_iFontConfig ] : NULL;
+		if ( pConfig != NULL )
+		{
+			JuneGfxLog( "main.gfx loaded, font config \"%s\" ( %d fontlib%s%s, %d map, %d tr )", JuneGfxToUTF8( pConfig->m_wstrName.c_str() ).c_str(),
+				(int)pConfig->m_vecFontLibFiles.size(), pConfig->m_vecFontLibFiles.empty() ? "" : " ",
+				pConfig->m_vecFontLibFiles.empty() ? "" : pConfig->m_vecFontLibFiles[0].c_str(), pConfig->m_iMapCount,
+				(int)pConfig->m_pTranslator->GetCount() );
+		}
+		else
+		{
+			JuneGfxLog( "main.gfx loaded, no font config applied" );
+		}
+	}
+
+	// ---- per frame / device -------------------------------------------------------------------------------------------------------
+	void OnFrameMove()		// 31c430e0
+	{
+		DWORD dwNow = timeGetTime();
+		m_fElapsed = (float)( dwNow - m_dwLastTime ) / 1000.f;
+		m_dwLastTime = dwNow;
+	}
+
+	void OnFrameRender()	// 31c43b20
+	{
+		if ( m_pUI != NULL )
+			m_pUI->Advance( m_fElapsed, 2 );
+		if ( m_pStateBlock == NULL )
+			return;
+		m_pStateBlock->Capture();
+		if ( m_pRenderer )
+		{
+			m_pRenderer->BeginFrame();
+			if ( m_pUI != NULL )
+				m_pUI->Display( m_pRenderer );
+			m_pRenderer->EndFrame();
+		}
+		m_pStateBlock->Apply();
+	}
+
+	void OnLostDevice()		// 31c43440
+	{
+		SAFE_RELEASE( m_pStateBlock );
+		if ( m_pHAL && m_pHAL->IsInitialized() )
+			m_pHAL->PrepareForReset();
+	}
+
+	void OnResetDevice( IDirect3DDevice9* pDevice )		// 31c43e60
+	{
+		if ( pDevice != NULL )
+			pDevice->CreateStateBlock( D3DSBT_ALL, &m_pStateBlock );
+		if ( !m_pHAL )
+			return;
+		if ( m_pHAL->IsInitialized() == false )
+		{
+			// the first call is DXUT's first reset after OnCreateDevice ( Init ran before it )
+			SFR::D3D9::HALInitParams kParams( pDevice, m_kPresentParams, SFR::D3D9::HALConfig_NoSceneCalls );
+			kParams.RenderQueueSize = 0x100;
+			if ( m_pHAL->InitHAL( kParams ) == false )
+				JuneGfxLog( "D3D9 HAL InitHAL failed: the movie will not draw" );
+			// wrapper +0x80 = HAL vslot 0xa8 ( the texture manager ) and 31c40030( device ) feed the Stage 9 character view
+		}
+		else
+		{
+			m_pHAL->RestoreAfterReset();
+		}
+		if ( m_pUI != NULL && pDevice != NULL )
+		{
+			D3DVIEWPORT9 kViewport;
+			if ( SUCCEEDED( pDevice->GetViewport( &kViewport ) ) )
+			{
+				m_pUI->SetViewport( kViewport.Width, kViewport.Height, 0, 0, kViewport.Width, kViewport.Height );
+				m_kViewport = kViewport;
+			}
+		}
+	}
+
+	void OnResize( const D3DPRESENT_PARAMETERS& kPresentParams ) { m_kPresentParams = kPresentParams; }		// 31c430c0
+
+	// ---- input --------------------------------------------------------------------------------------------------------------------
+	// 31c435b0: IME messages. Composition state ( +0x10a / +0x10c ) and the 0x46c forward to the stage ( March: KM_GAME_BASE, which no
+	// March stage handles ), then the movie's IME event; true when the movie answers HE_NoDefaultAction.
+	bool OnIMEEvent( UINT uMsg, WPARAM wParam, LPARAM lParam, HWND hWnd, bool bPreProcess )
+	{
+		if ( uMsg > WM_IME_COMPOSITION )
+		{
+			if ( uMsg == WM_IME_NOTIFY && wParam == IMN_SETOPENSTATUS && m_iIMETextFieldID == 3 )
+			{
+				// 32fe469a / 32fe4694 taken as ImmGetContext / ImmSetConversionStatus by their call shapes [I]; June never releases the
+				// context ( JUNE_BUGS row )
+				HIMC hImc = ImmGetContext( g_pKTDXApp->GetHWND() );
+				if ( hImc != NULL )
+					ImmSetConversionStatus( hImc, 0, 0 );
+			}
+		}
+		else if ( uMsg == WM_IME_COMPOSITION )
+		{
+			if ( m_bIMEComposing == true )
+			{
+				m_sIMECompositionLength = (short)wParam;
+				if ( m_pMessageStage != NULL )
+					m_pMessageStage->MsgProc( m_hWnd, CKTDXApp::KM_GAME_BASE, WM_IME_COMPOSITION, wParam );
+			}
+		}
+		else if ( uMsg == WM_IME_STARTCOMPOSITION )
+		{
+			m_sIMECompositionLength = 0;
+			m_bIMEComposing = true;
+			if ( m_pMessageStage != NULL )
+				m_pMessageStage->MsgProc( m_hWnd, CKTDXApp::KM_GAME_BASE, WM_IME_STARTCOMPOSITION, wParam );
+		}
+		else if ( uMsg == WM_IME_ENDCOMPOSITION )
+		{
+			m_bIMEComposing = false;
+			m_sIMECompositionLength = 0;
+			if ( m_pMessageStage != NULL )
+				m_pMessageStage->MsgProc( m_hWnd, CKTDXApp::KM_GAME_BASE, WM_IME_ENDCOMPOSITION, wParam );
+		}
+		if ( m_pUI == NULL )
+			return false;
+		SFG::IMEWin32Event kEvent( bPreProcess ? SFG::IMEEvent::IME_PreProcessKeyboard : SFG::IMEEvent::IME_Default,
+			(SF::UPInt)hWnd, uMsg, (SF::UPInt)wParam, (SF::UPInt)lParam, bPreProcess ? 0 : 1 );
+		return ( m_pUI->HandleEvent( kEvent ) & SFG::Movie::HE_NoDefaultAction ) != 0;
+	}
+
+	// 31c43ab0
+	void MainLoopFilter( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+	{
+		BOOL bIMEMessage = ImmIsUIMessageW( NULL, uMsg, wParam, lParam );
+		if ( uMsg == WM_KEYDOWN || uMsg == WM_KEYUP || bIMEMessage != FALSE || uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP )
+			OnIMEEvent( uMsg, wParam, lParam, hWnd, true );
+	}
+
+	// 31c43030
+	static unsigned GetModifierBits()
+	{
+		unsigned u = 0;
+		if ( ( GetKeyState( VK_SHIFT ) & 0x8000 ) != 0 )	u = 4;
+		if ( ( GetKeyState( VK_CONTROL ) & 0x8000 ) != 0 )	u |= 1;
+		if ( ( GetKeyState( VK_MENU ) & 0x8000 ) != 0 )		u |= 2;
+		if ( ( GetKeyState( VK_NUMLOCK ) & 1 ) != 0 )		u |= 8;
+		if ( ( GetKeyState( VK_CAPITAL ) & 1 ) != 0 )		u |= 0x10;
+		if ( ( GetKeyState( VK_SCROLL ) & 1 ) != 0 )		u |= 0x20;
+		return u;
+	}
+
+	// 31c431c0: KeyDown ( 5 ) / KeyUp ( 6 ); modifier bits renumbered to KeyModifiers
+	unsigned SendKeyEvent( unsigned uCode, unsigned char ucAscii, unsigned uMods, bool bDown )
+	{
+		if ( m_pUI == NULL || uCode == 0 )
+			return 0;
+		SF::UInt8 ucStates = ( uMods >> 2 ) & 1;					// shift -> Key_ShiftPressed
+		if ( ( uMods & 1 ) != 0 )			ucStates |= 2;			// ctrl -> Key_CtrlPressed
+		if ( ( ( uMods >> 1 ) & 1 ) != 0 )	ucStates |= 4;			// alt -> Key_AltPressed
+		if ( ( ( uMods >> 3 ) & 1 ) != 0 )	ucStates |= 0x10;		// num lock -> Key_NumToggled
+		if ( ( ( uMods >> 4 ) & 1 ) != 0 )	ucStates |= 8;			// caps lock -> Key_CapsToggled
+		if ( ( ( uMods >> 5 ) & 1 ) != 0 )	ucStates |= 0x20;		// scroll lock -> Key_ScrollToggled
+		SFG::KeyEvent kEvent( bDown ? SFG::Event::KeyDown : SFG::Event::KeyUp, (SF::Key::Code)uCode, ucAscii, 0, SF::KeyModifiers( ucStates ) );
+		return m_pUI->HandleEvent( kEvent );
+	}
+
+	// 31c432e0
+	bool OnKeyEvent( UINT uMsg, WPARAM wParam, LPARAM lParam )
+	{
+		if ( m_pUI == NULL )
+			return false;
+		const unsigned uVK = (unsigned)wParam;
+		unsigned uCode = 0;
+		if ( uVK - 0x41 <= 0x19 || uVK - 0x70 <= 0xe || uVK - 0x30 <= 9 || uVK - 0x60 <= 0xf )
+		{
+			uCode = uVK;		// letters, F1-F15, digits, the numpad block
+		}
+		else
+		{
+			// table 33726390 ( 35 { VK, GFx key } pairs, all equal ); June's loop reads on into the next data until a zero dword, which no
+			// VK can match
+			static const unsigned s_auKeyTable[] = { 8, 9, 12, 13, 16, 17, 18, 19, 20, 27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 47,
+				144, 145, 186, 187, 188, 189, 190, 191, 192, 219, 220, 221, 222 };
+			for ( size_t i = 0; i < sizeof( s_auKeyTable ) / sizeof( s_auKeyTable[0] ); ++i )
+			{
+				if ( s_auKeyTable[i] == uVK )
+				{
+					uCode = uVK;
+					break;
+				}
+			}
+		}
+		unsigned char ucAscii = 0;
+		if ( uCode != 0 )
+		{
+			BYTE abyKeyState[256];
+			GetKeyboardState( abyKeyState );
+			WORD wChar = 0;
+			if ( ToAscii( uVK, ( (unsigned)lParam >> 16 ) & 0xff, abyKeyState, &wChar, 0 ) > 0 )
+				ucAscii = (unsigned char)wChar;
+		}
+		const bool bDown = ( uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN );
+		const unsigned uMods = GetModifierBits();
+		unsigned uResult = 0;
+		if ( uCode != VK_CONTROL && ( ( uMods & 1 ) == 0 || uCode == 'V' || uCode == 'C' ) )
+			uResult = SendKeyEvent( uCode, ucAscii, uMods, bDown );
+		return ( ( uResult >> 1 ) & 1 ) != 0;
+	}
+
+	// 31c43480: Enter with the IME text field id 4 / 1, arrows with id 1 go to the stage as 0x46d ( March: XGM_SYSTEM_BASE, unhandled )
+	bool OnEnterOrArrow( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam )
+	{
+		if ( wParam == VK_RETURN )
+		{
+			if ( m_iIMETextFieldID != 4 && m_iIMETextFieldID != 1 )
+				return false;
+			if ( m_pMessageStage != NULL )
+				m_pMessageStage->MsgProc( m_hWnd, 0x46d, VK_RETURN, lParam );
+			return true;
+		}
+		if ( wParam < VK_LEFT || wParam > VK_DOWN || m_iIMETextFieldID != 1 )
+			return false;
+		if ( m_pMessageStage != NULL )
+			m_pMessageStage->MsgProc( m_hWnd, 0x46d, wParam, lParam );
+		return true;
+	}
+
+	// 31c43890
+	bool MsgProcKey( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+	{
+		if ( m_bEventScenePlaying == true )
+			return false;
+		switch ( uMsg )
+		{
+		case WM_INPUTLANGCHANGE:
+		case WM_IME_STARTCOMPOSITION:
+		case WM_IME_ENDCOMPOSITION:
+		case WM_IME_COMPOSITION:
+		case WM_IME_NOTIFY:
+		case WM_IME_CHAR:
+		case WM_IME_KEYDOWN:
+			return OnIMEEvent( uMsg, wParam, lParam, hWnd, false );
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
+			if ( OnEnterOrArrow( uMsg, wParam, lParam ) == false && OnKeyEvent( uMsg, wParam, lParam ) == true )
+				return true;
+			return false;
+		case WM_CHAR:
+			if ( m_pUI != NULL && ( m_pUI->HandleEvent( SFG::CharEvent( (SF::UInt32)wParam ) ) & SFG::Movie::HE_NoDefaultAction ) != 0 )
+				return true;
+			return false;
+		default:
+			return false;
+		}
+	}
+
+	// 31c44040
+	bool MsgProcMouse( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+	{
+		if ( m_bMouseOn == false )
+			return false;
+		if ( m_bEventScenePlaying == true && uMsg != WM_MOUSEWHEEL )
+			return false;
+		const unsigned uX = (unsigned)lParam & 0xffff;
+		const unsigned uY = (unsigned)lParam >> 16;
+		m_bLButtonDownHit = false;
+		if ( ( uMsg == WM_LBUTTONUP || uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP ) && m_pUI != NULL
+			&& m_pUI->HitTest( (float)uX, (float)uY ) == false )
+			return false;
+
+		if ( uMsg < WM_LBUTTONDOWN )
+		{
+			if ( uMsg == WM_MOUSEMOVE )
+			{
+				if ( m_pUI != NULL )
+					m_pUI->HandleEvent( SFG::MouseEvent( SFG::Event::MouseMove, 0, (float)uX, (float)uY, 0.f, 0 ) );
+				return false;
+			}
+			if ( uMsg != WM_ACTIVATEAPP )
+				return false;
+			// the paste side of FxPlayerTextClipboard ( 31c43de0 )
+			if ( OpenClipboard( NULL ) == FALSE )
+				return false;
+			HANDLE hData = GetClipboardData( CF_UNICODETEXT );
+			if ( hData != NULL )
+			{
+				const wchar_t* wszText = (const wchar_t*)GlobalLock( hData );
+				if ( wszText != NULL )
+				{
+					SF::Ptr< SFG::TextClipboard > pClipboard = m_Loader.GetTextClipboard();
+					if ( pClipboard )
+						pClipboard->SetText( wszText );
+					GlobalUnlock( hData );
+				}
+			}
+			CloseClipboard();
+			return false;
+		}
+
+		switch ( uMsg )
+		{
+		case WM_LBUTTONDOWN:
+			if ( m_pUI != NULL && m_pUI->HitTest( (float)uX, (float)uY ) == true )
+			{
+				SetCapture( hWnd );
+				m_pUI->HandleEvent( SFG::MouseEvent( SFG::Event::MouseDown, 0, (float)uX, (float)uY, 0.f, 0 ) );
+				m_bLButtonDownHit = true;
+				CKTDGUIDialog::ClearFocus();		// 31cd2030: March's focused UI control loses focus
+				return true;
+			}
+			ClearFocusAS();
+			return false;
+		case WM_LBUTTONUP:
+			ReleaseCapture();
+			return m_pUI != NULL && ( m_pUI->HandleEvent( SFG::MouseEvent( SFG::Event::MouseUp, 0, (float)uX, (float)uY, 0.f, 0 ) )
+				& SFG::Movie::HE_NoDefaultAction ) != 0;
+		case WM_RBUTTONDOWN:
+			SetCapture( hWnd );
+			return m_pUI != NULL && ( m_pUI->HandleEvent( SFG::MouseEvent( SFG::Event::MouseDown, 1, (float)uX, (float)uY, 0.f, 0 ) )
+				& SFG::Movie::HE_NoDefaultAction ) != 0;
+		case WM_RBUTTONUP:
+			ReleaseCapture();
+			return m_pUI != NULL && ( m_pUI->HandleEvent( SFG::MouseEvent( SFG::Event::MouseUp, 1, (float)uX, (float)uY, 0.f, 0 ) )
+				& SFG::Movie::HE_NoDefaultAction ) != 0;
+		case WM_MOUSEWHEEL:
+			{
+				POINT kOrigin = { 0, 0 };
+				ClientToScreen( hWnd, &kOrigin );
+				const int iY = (short)( (unsigned)lParam >> 16 ) - kOrigin.y;
+				const float fX = (float)( (short)lParam - kOrigin.x );
+				const float fY = (float)iY;
+				if ( m_pUI != NULL && m_pUI->HitTest( fX, fY ) == true )
+				{
+					const float fWheel = (float)(int)(short)( (unsigned)wParam >> 16 );
+					const float fDelta = ( (float)(int)fWheel / 120.f ) * 3.f;
+					m_pUI->HandleEvent( SFG::MouseEvent( SFG::Event::MouseWheel, 0, fX, fY, fDelta, 0 ) );
+					// 31d23f00 / 31d23f40 on the DirectInput mouse ( app +0x1f8 +0x44 ): position reads, results unused
+					if ( g_pKTDXApp->GetDIManager() != NULL && g_pKTDXApp->GetDIManager()->GetMouse() != NULL )
+					{
+						g_pKTDXApp->GetDIManager()->GetMouse()->GetXPos();
+						g_pKTDXApp->GetDIManager()->GetMouse()->GetYPos();
+					}
+					return true;
+				}
+			}
+			return false;
+		default:
+			return false;
+		}
+	}
+
+	// ---- the 14 ActionScript wrappers ---------------------------------------------------------------------------------------------
+	void InvokeIntArg( const char* szMethod, int iArg, SFG::Value* pResult )
+	{
+		if ( m_pUI == NULL )
+			return;
+		SFG::Value kArg( (SF::SInt32)iArg );
+		m_pUI->Invoke( szMethod, pResult, &kArg, 1 );
+	}
+	bool InvokeIntArgBool( const char* szMethod, int iArg )
+	{
+		if ( m_pUI == NULL )
+			return false;
+		SFG::Value kResult;
+		InvokeIntArg( szMethod, iArg, &kResult );
+		return kResult.IsBool() ? kResult.GetBool() : false;
+	}
+	void ClearFocusAS()		// 31c43150
+	{
+		if ( m_pUI != NULL )
+			m_pUI->Invoke( "clearFocus", NULL, NULL, 0 );
+	}
+
+	SFG::Loader					m_Loader;				// +8 ( ZlibSupport + FileOpener from the Loader's default arguments, as June's ctor )
+	SF::Ptr< SFR::D3D9::HAL >	m_pHAL;					// +0x3c
+	SF::Ptr< SFR::Renderer2D >	m_pRenderer;			// +0x40
+	D3DPRESENT_PARAMETERS		m_kPresentParams;		// +0x44
+	DWORD						m_dwLastTime;			// +0x7c
+	IDirect3DStateBlock9*		m_pStateBlock;			// +0x80
+	CKTDXStage*					m_pMessageStage;		// +0x84
+	CKTDGGFXUI*					m_pUI;					// +0x98
+	HWND						m_hWnd;					// +0xb8
+	D3DVIEWPORT9				m_kViewport;			// +0xbc
+	float						m_fElapsed;				// +0xd4
+	FontConfigSet				m_kFontConfigs;			// +0xf8
+	int							m_iFontConfig;			// +0x104
+	bool						m_bShow;				// +0x108
+	short						m_sIMECompositionLength;// +0x10a
+	bool						m_bIMEComposing;		// +0x10c
+	SF::Ptr< SF::Sound::SoundRendererFMOD >	m_pSoundRenderer;	// +0x110
+	bool						m_bLButtonDownHit;		// +0x114
+	bool						m_bEventScenePlaying;	// +0x115
+	int							m_iLA;					// +0x118
+	bool						m_bMouseOn;				// +0x11c
+	int							m_iIMETextFieldID;		// June's app +0x28c
+	bool						m_bMainLoaded;
+	// +0x18 ( 9 dwords, copied out by vslot 2 31c431a0 ) and +0xd8 ( a String read by the clipboard path ) have no other reader in June;
+	// +0x8c ( a std::map, ctor only ) has none: not carried.
+};
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// CKTDGGFXManager
+// ---------------------------------------------------------------------------------------------------------------------------------------
+CKTDGGFXManager::CKTDGGFXManager( HWND hWnd )
+	: m_pImpl( new CKTDGGFXManagerImpl( hWnd ) )
+{
+}
+
+CKTDGGFXManager::~CKTDGGFXManager()
+{
+	SAFE_DELETE( m_pImpl );
+}
+
+void CKTDGGFXManager::Init( IDirect3DDevice9* pDevice )								{ m_pImpl->Init( pDevice ); }
+void CKTDGGFXManager::OnFrameMove()													{ m_pImpl->OnFrameMove(); }
+void CKTDGGFXManager::OnFrameRender()												{ m_pImpl->OnFrameRender(); }
+void CKTDGGFXManager::OnLostDevice()												{ m_pImpl->OnLostDevice(); }
+void CKTDGGFXManager::OnResetDevice( IDirect3DDevice9* pDevice )					{ m_pImpl->OnResetDevice( pDevice ); }
+void CKTDGGFXManager::OnResize( const D3DPRESENT_PARAMETERS& kPresentParams )		{ m_pImpl->OnResize( kPresentParams ); }
+void CKTDGGFXManager::MainLoopFilter( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )	{ m_pImpl->MainLoopFilter( hWnd, uMsg, wParam, lParam ); }
+bool CKTDGGFXManager::MsgProcMouse( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )	{ return m_pImpl->MsgProcMouse( hWnd, uMsg, wParam, lParam ); }
+bool CKTDGGFXManager::MsgProcKey( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )		{ return m_pImpl->MsgProcKey( hWnd, uMsg, wParam, lParam ); }
+void CKTDGGFXManager::SetMessageStage( CKTDXStage* pStage )						{ m_pImpl->m_pMessageStage = pStage; }
+CKTDXStage* CKTDGGFXManager::GetMessageStage() const								{ return m_pImpl->m_pMessageStage; }
+
+void CKTDGGFXManager::openUI( int iUIID )				{ m_pImpl->InvokeIntArg( "openUI", iUIID, NULL ); }
+bool CKTDGGFXManager::isOpenUI( int iUIID )				{ return m_pImpl->InvokeIntArgBool( "isOpenUI", iUIID ); }
+void CKTDGGFXManager::moveToTopZorder( int iUIID )		{ SFG::Value kResult; m_pImpl->InvokeIntArg( "moveToTopZorder", iUIID, &kResult ); }
+void CKTDGGFXManager::unloadWidget( int iUIID )			{ m_pImpl->InvokeIntArg( "unloadWidget", iUIID, NULL ); }
+void CKTDGGFXManager::unloadUserWidget( int iUIID )		{ m_pImpl->InvokeIntArg( "unloadUserWidget", iUIID, NULL ); }
+void CKTDGGFXManager::clearFocus()						{ m_pImpl->ClearFocusAS(); }
+void CKTDGGFXManager::changeCharacter( int iUnitClass )	{ SFG::Value kResult; m_pImpl->InvokeIntArg( "changeCharacter", iUnitClass, &kResult ); }
+void CKTDGGFXManager::ShowUI( int iUIID )				{ SFG::Value kResult; m_pImpl->InvokeIntArg( "ShowUI", iUIID, &kResult ); }
+void CKTDGGFXManager::HideUI( int iUIID )				{ SFG::Value kResult; m_pImpl->InvokeIntArg( "HideUI", iUIID, &kResult ); }
+bool CKTDGGFXManager::isVisibleI( int iUIID )			{ return m_pImpl->InvokeIntArgBool( "isVisibleI", iUIID ); }
+
+bool CKTDGGFXManager::closeToTopZorder()
+{
+	if ( m_pImpl->m_pUI == NULL )
+		return false;
+	SFG::Value kResult;
+	m_pImpl->m_pUI->Invoke( "closeToTopZorder", &kResult, NULL, 0 );
+	return kResult.IsBool() ? kResult.GetBool() : false;
+}
+
+void CKTDGGFXManager::loadUserWidget( int iUIID, const WCHAR* wszPath, int iArg1, int iArg2 )
+{
+	if ( m_pImpl->m_pUI == NULL )
+		return;
+	SFG::Value akArgs[4] = { SFG::Value( (SF::Double)iUIID ), SFG::Value( wszPath ), SFG::Value( (SF::Double)iArg1 ), SFG::Value( (SF::Double)iArg2 ) };
+	m_pImpl->m_pUI->Invoke( "loadUserWidget", NULL, akArgs, 4 );
+}
+
+void CKTDGGFXManager::loadEventSceneEndFrame( int iUIID, const WCHAR* wszPath, int iFrame )
+{
+	if ( m_pImpl->m_pUI == NULL )
+		return;
+	SFG::Value akArgs[3] = { SFG::Value( (SF::Double)iUIID ), SFG::Value( wszPath ), SFG::Value( (SF::Double)iFrame ) };
+	m_pImpl->m_pUI->Invoke( "loadEventSceneEndFrame", NULL, akArgs, 3 );
+}
+
+void CKTDGGFXManager::showOkPopup( std::wstring wstrMessage )
+{
+	if ( m_pImpl->m_pUI == NULL )
+		return;
+	SFG::Value kArg( wstrMessage.c_str() );
+	m_pImpl->m_pUI->Invoke( "showOkPopup", NULL, &kArg, 1 );
+}
+
+bool CKTDGGFXManager::IsMovieLoaded() const						{ return m_pImpl->m_pUI != NULL; }
+bool CKTDGGFXManager::GetShow() const							{ return m_pImpl->m_bShow; }
+void CKTDGGFXManager::SetShow( bool bShow )						{ m_pImpl->m_bShow = bShow; }
+bool CKTDGGFXManager::GetEventScenePlaying() const				{ return m_pImpl->m_bEventScenePlaying; }
+void CKTDGGFXManager::SetEventScenePlaying( bool bPlaying )		{ m_pImpl->m_bEventScenePlaying = bPlaying; }
+bool CKTDGGFXManager::GetLastLButtonDownHit() const				{ return m_pImpl->m_bLButtonDownHit; }
+void CKTDGGFXManager::SetMouseInputEnabled( bool bEnabled )		{ m_pImpl->m_bMouseOn = bEnabled; }
+bool CKTDGGFXManager::GetMouseInputEnabled() const				{ return m_pImpl->m_bMouseOn; }
+void CKTDGGFXManager::SetIMETextFieldID( int iID )				{ m_pImpl->m_iIMETextFieldID = iID; }
+int  CKTDGGFXManager::GetIMETextFieldID() const					{ return m_pImpl->m_iIMETextFieldID; }
+
+void CKTDGGFXManager::FirstFrameLog()
+{
+	if ( s_bJuneGfxLogFlushed == true )
+		return;
+	if ( s_bJuneGfxLogInit == false )
+	{
+		InitializeCriticalSection( &s_csJuneGfxLog );
+		s_bJuneGfxLogInit = true;
+	}
+	EnterCriticalSection( &s_csJuneGfxLog );
+	for ( size_t i = 0; i < s_vecJuneGfxLogPending.size(); ++i )
+	{
+		KLOG( "ErrorLog.txt" ) << s_vecJuneGfxLogPending[i].c_str() << fileout;
+	}
+	s_vecJuneGfxLogPending.clear();
+	s_bJuneGfxLogFlushed = true;
+	LeaveCriticalSection( &s_csJuneGfxLog );
+}
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Dev-console hooks ( typed at the console as Lua, bound in CKTDXApp::RegisterLuabind )
+// ---------------------------------------------------------------------------------------------------------------------------------------
+namespace
+{
+	CKTDGGFXManager* JuneGfxDebugManager()
+	{
+		CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetJuneGFXManager() : NULL;
+		if ( pManager == NULL || pManager->IsMovieLoaded() == false )
+		{
+			JuneGfxLog( "debug: no GFx movie ( main.gfx not loaded )" );
+			return NULL;
+		}
+		return pManager;
+	}
+}
+
+void JuneGfxOpenUI_LUA( int iUIID )
+{
+	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	if ( pManager == NULL )
+		return;
+	pManager->openUI( iUIID );
+	JuneGfxLog( "debug: openUI( %d ), isOpenUI -> %d", iUIID, pManager->isOpenUI( iUIID ) ? 1 : 0 );
+}
+
+void JuneGfxLoadWidget_LUA( int iUIID, const char* szName )
+{
+	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	if ( pManager == NULL || szName == NULL )
+		return;
+	// as CX2GFXEventScene::Play ( 3226b130 ): GetPullPath on the name, then loadUserWidget( id, full path, 0, 0 )
+	WCHAR wszName[MAX_PATH] = { 0, };
+	MultiByteToWideChar( CP_ACP, 0, szName, -1, wszName, MAX_PATH );
+	WCHAR* wszPath = g_pKTDXApp->GetDeviceManager()->GetPullPath( wszName );
+	std::wstring wstrPath = ( wszPath != NULL ) ? wszPath : wszName;
+	pManager->loadUserWidget( iUIID, wstrPath.c_str(), 0, 0 );
+	JuneGfxLog( "debug: loadUserWidget( %d, \"%s\", 0, 0 )", iUIID, JuneGfxToUTF8( wstrPath.c_str() ).c_str() );
+}
+
+void JuneGfxUnloadWidget_LUA( int iUIID )
+{
+	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	if ( pManager == NULL )
+		return;
+	pManager->unloadUserWidget( iUIID );
+	JuneGfxLog( "debug: unloadUserWidget( %d )", iUIID );
+}
+
+void JuneGfxShow_LUA( bool bShow )
+{
+	CKTDGGFXManager* pManager = JuneGfxDebugManager();
+	if ( pManager == NULL )
+		return;
+	pManager->SetShow( bShow );
+	JuneGfxLog( "debug: GFx shown ( +0x108 ) = %d", bShow ? 1 : 0 );
+}
+#endif SERV_IRUHADEV_JUNE_GFX_DEBUG
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER

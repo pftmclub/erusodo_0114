@@ -67,6 +67,9 @@
 #pragma comment( lib, "pcre.lib" )
 // zlib / libpng / libjpeg: the client's own stay the one copy ( zlibstat, png, jpeg ); the symbols libgfx wants beyond them are shimmed in KTDGFXRuntime.cpp
 #endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+#include "KTDGGFXManager.h"
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef CONVERSION_VS
 #else CONVERSION_VS
 #pragma comment(lib, "dplayx")
@@ -206,6 +209,9 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 #ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
 	KTDGFXRuntime_Init();	// June ctor 31c17ed0 @31c19677 builds the GFx manager here; G1 stops at Scaleform::GFx::System
 #endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	m_pJuneGFXManager = new CKTDGGFXManager( hWnd );	// June 31c17ed0 @31c19677: new 0x120 + 31c45cc0( app +4 = hWnd ) -> +0x1c8
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 #if !defined(X2VIEWER)
     std::wstring wstrGeneralStringFileName( L"General.ess" );
@@ -623,6 +629,9 @@ CKTDXApp::~CKTDXApp(void)
 	SAFE_DELETE( m_pCollision );
 
 	SAFE_DELETE( ms_pLuaBinder );
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	SAFE_DELETE( m_pJuneGFXManager );	// before the Scaleform System goes down
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
 	KTDGFXRuntime_Shutdown();	// the System goes down last; G2 deletes the GFx manager before this
 #endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
@@ -981,6 +990,13 @@ HRESULT CKTDXApp::OnFrameMove( double dTime, float fElapsedTime )
 		GetDeviceManager()->ProcessForegroundQueue( fElapsedTime );
 	}//if
 #endif	X2OPTIMIZE_INFORM_FIRST_FRAME_OF_SIMULATION_LOOP
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	if ( m_pJuneGFXManager != NULL )
+	{
+		m_pJuneGFXManager->FirstFrameLog();		// Init's lines ( OnCreateDevice ) are written now
+		m_pJuneGFXManager->OnFrameMove();		// June OnFrameMove 31be5c40 @31be64b0: 31c430e0 ( dt )
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 	return S_OK;
 }
@@ -1305,6 +1321,10 @@ HRESULT CKTDXApp::OnFrameRender()
 	}
 	/// June @31be3c4b: GFx ( +0x1c8, 31c43b20 ) is june-gfx's. Then the 0x18 pass. June ends with its software cursor ( CKTDXCursor at
 	/// +0x290, 31ce5400( 0 ) ), a June-only class routed to its own phase ( R4b Done note ).
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	if ( m_pJuneGFXManager != NULL && m_pJuneGFXManager->GetShow() == true )	// @31be3c56: +0x108 == 1
+		m_pJuneGFXManager->OnFrameRender();										// @31be3c68: 31c43b20
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 	JuneStageChainRenderAfter();
 #else SERV_IRUHADEV_JUNE_RENDER_FRAME
 	if( m_pDGManager->BeginRender() == false )
@@ -1503,11 +1523,46 @@ void CKTDXApp::JuneSetSceneEffectRenderTarget( bool bScene_, bool bEffect_ )
 	JuneCreateRenderTargets();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+/// June 31be2fd0 ( from the state change @31d89c26, after InsertStage of the new state ): mgr +0x84 = the stage, then the stage's
+/// vslot 0x2c with the movie wrapper ( CKTDXStage::JuneGfxSetMovieUI; CX2State's override walks a Stage 9 handler list )
+void CKTDXApp::JuneGfxSetMessageStage( CKTDXStage* pStage )
+{
+	if ( m_pJuneGFXManager == NULL )
+		return;
+	m_pJuneGFXManager->SetMessageStage( pStage );
+	if ( pStage != NULL )
+		pStage->JuneGfxSetMovieUI( NULL );		/// the wrapper is the manager's private class until Stage 9 needs it
+}
+
+/// June 31be3000 ( from StateChange 31d88bf0 @31d88c9e )
+void CKTDXApp::JuneGfxClearMessageStage()
+{
+	if ( m_pJuneGFXManager != NULL )
+		m_pJuneGFXManager->SetMessageStage( NULL );
+}
+
+void CKTDXApp::JuneGfxMainLoopFilter( const MSG& kMsg )
+{
+	if ( m_pJuneGFXManager != NULL )
+		m_pJuneGFXManager->MainLoopFilter( kMsg.hwnd, kMsg.message, kMsg.wParam, kMsg.lParam );
+}
+
+void CKTDXApp::JuneGfxEnableMouseInput()
+{
+	if ( m_pJuneGFXManager != NULL )
+		m_pJuneGFXManager->SetMouseInputEnabled( true );
+}
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 /// June 31be4510 ( app init 31aa1fc0 @31aa20d8 ): PerturbationMap.png ( data045, june-asset-port ) into +0x268. Then GFx ( +0x1c8,
 /// 31c456e0 ), june-gfx's. Nothing in June's C++ reads +0x268 back that R4 found.
 HRESULT CKTDXApp::JuneOpenPerturbationMap()
 {
 	m_pJunePerturbationMap = m_pDeviceManager->OpenTexture( L"PerturbationMap.png" );
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	if ( m_pJuneGFXManager != NULL )
+		m_pJuneGFXManager->Init( m_pd3dDevice );		// 31be4562: 31c456e0( device )
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 	return S_OK;
 }
 
@@ -1564,6 +1619,40 @@ bool CKTDXApp::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 		m_GameMsgQ.push( gameMessage );
 		retval = true;
 	}
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	/// June MsgProc 31be3f20: the GFx mouse first ( 31c44040 ); it swallows only when it returns 1, GFx is shown ( +0x108 ) and the dialog
+	/// manager's +0x110 is 0. +0x110 is a June-only modal byte ( exit box 31f1dd70 and Stage 9 screens set it ) that March never has:
+	/// read as false, a labelled stand-in. Then the stage chain, then the GFx keys ( 31c43890 ), which run even when a stage took the
+	/// message; a 1 from them makes MsgProc return true.
+	else
+	{
+		const bool bJuneGfxDialogModal = false;		/// stand-in for June's dialog manager +0x110
+		if( m_pJuneGFXManager != NULL && m_pJuneGFXManager->MsgProcMouse( hWnd, uMsg, wParam, lParam ) == true
+			&& m_pJuneGFXManager->GetShow() == true && bJuneGfxDialogModal == false )
+		{
+			retval = true;
+		}
+		else
+		{
+			for( UINT i = 0; i < m_vecStageChain.size(); i++ )
+			{
+				if( NULL == m_vecStageChain[i] )
+					continue;
+
+				if( m_vecStageChain[i]->GetStageState() == CKTDXStage::SS_ACTIVE )
+				{
+					if( m_vecStageChain[i]->MsgProc( hWnd, uMsg, wParam, lParam ) == true )
+					{
+						retval = true;
+						break;
+					}
+				}
+			}
+			if( m_pJuneGFXManager != NULL && m_pJuneGFXManager->MsgProcKey( hWnd, uMsg, wParam, lParam ) == true )
+				retval = true;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_GFX_MANAGER
 	else
 	{
 		for( UINT i = 0; i < m_vecStageChain.size(); i++ )
@@ -1581,6 +1670,7 @@ bool CKTDXApp::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 	return retval;
 }
@@ -1789,6 +1879,15 @@ HRESULT CKTDXApp::OnResetDevice( const D3DSURFACE_DESC* pBackBufferSurfaceDesc )
 		if ( m_vecStageChain[i] != NULL )
 			m_vecStageChain[i]->OnResetDevice();
 	}
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	/// June OnResetDevice 31be6510 @31be6625: 31c43e60( device ) after the stage loop, inside the full sync. June's resize hook 31be2a00
+	/// ( 31c430c0, the present params ) has no March point: DXUT's present params are fed here, a labelled stand-in.
+	if ( m_pJuneGFXManager != NULL )
+	{
+		m_pJuneGFXManager->OnResize( DXUTGetDeviceSettings().pp );
+		m_pJuneGFXManager->OnResetDevice( m_pd3dDevice );
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 	if ( m_pDeviceManager != NULL )
 		m_pDeviceManager->EndFullSync();
@@ -1815,6 +1914,11 @@ HRESULT CKTDXApp::OnLostDevice()
 
 	if ( m_pDeviceManager != NULL )
 		m_pDeviceManager->EndFullSync();
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+	/// June OnLostDevice 31be66b0 @31be6723: 31c43440 after the full sync, before the state manager ( 31c59fd0 )
+	if ( m_pJuneGFXManager != NULL )
+		m_pJuneGFXManager->OnLostDevice();
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 #ifdef SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
 	// June 31be66b0 @31be6728: the state manager is invalidated after every stage's OnLostDevice
@@ -2418,6 +2522,12 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::decl( L, "g_pFontManager", m_pDGManager->GetFontManager() );
 
 	//UI
+#if defined( SERV_IRUHADEV_JUNE_GFX_MANAGER ) && defined( SERV_IRUHADEV_JUNE_GFX_DEBUG )
+	lua_tinker::def( L,  "JuneGfxOpenUI",		&JuneGfxOpenUI_LUA );		/// june-gfx G2 dev-console hooks, DEBUG only
+	lua_tinker::def( L,  "JuneGfxLoadWidget",	&JuneGfxLoadWidget_LUA );
+	lua_tinker::def( L,  "JuneGfxUnloadWidget",	&JuneGfxUnloadWidget_LUA );
+	lua_tinker::def( L,  "JuneGfxShow",			&JuneGfxShow_LUA );
+#endif defined( SERV_IRUHADEV_JUNE_GFX_MANAGER ) && defined( SERV_IRUHADEV_JUNE_GFX_DEBUG )
 	lua_tinker::def( L,  "IncludeLua",		&IncludeLua_  );
 	lua_tinker::def( L,  "GetDistance_LUA", &GetDistance_LUA  );
 	lua_tinker::def( L,  "RandomFloat_LUA", &RandomFloat );

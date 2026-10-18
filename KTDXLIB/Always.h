@@ -8739,3 +8739,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June GFx runtime Phase G2 - June's GFx manager ( CKTDGGGFXManager, g_pKTDXApp +0x1c8 ) as KTDXLIB/KTDGGFXManager.{h,cpp}:
+//              loader states ( r3dGFXFileOpener over the koms, FxPlayer clipboard / log, AS2 + AS3, image handlers, Win32 font provider,
+//              FMOD sound on KTDS = KTDGFXSound.cpp, fontconfig.font "US" ), the D3D9 HAL + Renderer2D, main.gfx as the root movie, the 14
+//              ActionScript wrappers; hooked at June's points ( ctor / dtor, JuneOpenPerturbationMap = Init, OnFrameMove dt, OnFrameRender
+//              with the state block, lost / reset, the DXUT PeekMessage loop, MsgProc mouse-first / keys-after, StateChange message stage,
+//              CX2StateServerSelect mouse enable ). Log [JUNE_GFX] MGR. Revert: JUNE_GFX_MANAGER in MODS.md ( comment out the define ).
+#define SERV_IRUHADEV_JUNE_GFX_MANAGER
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+#ifndef SERV_IRUHADEV_JUNE_GFX_RUNTIME
+#error SERV_IRUHADEV_JUNE_GFX_MANAGER needs SERV_IRUHADEV_JUNE_GFX_RUNTIME ( Scaleform::GFx::System and the libs )
+#endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
+#ifndef SERV_IRUHADEV_JUNE_RENDER_FRAME
+#error SERV_IRUHADEV_JUNE_GFX_MANAGER needs SERV_IRUHADEV_JUNE_RENDER_FRAME ( the GFx draw sits in June's OnFrameRender, 31be3800 )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June GFx runtime debug: dev-console Lua hooks JuneGfxOpenUI( id ) / JuneGfxLoadWidget( id, name ) / JuneGfxUnloadWidget( id )
+//              / JuneGfxShow( bool ), and GFx's own log mirrored to ErrorLog.txt ( [JUNE_GFX] MGR gfx: ..., capped ). Off after the G2 review.
+#define SERV_IRUHADEV_JUNE_GFX_DEBUG
+//////////////////////////////////////////////////////////////////////////

@@ -4026,6 +4026,11 @@ HRESULT DXUTMainLoop( HACCEL hAccel )
 
         if( bGotMsg )
         {
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+			// June's main loop 31be1aa0 @31be1e0a: the GFx pre-filter ( 31c43ab0 ) right after PeekMessage, before the key-up hook
+			if( NULL != g_pKTDXApp )
+				g_pKTDXApp->JuneGfxMainLoopFilter( msg );
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 			//{{ dmlee 2008.04.07 - 넥슨캐시충전페이지에서 주민번호입력시 다음 editbox로 자동이동할 수 있도록 keyup event 처리
 			if( WM_KEYUP == msg.message )
 			{

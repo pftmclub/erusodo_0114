@@ -1929,6 +1929,12 @@
     <ClCompile Include="KTDGFXRuntime.cpp">
       <AdditionalIncludeDirectories>$(SolutionDir)Libs\ExternalLib\Scaleform\Src;$(SolutionDir)Libs\ExternalLib\Scaleform\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <ClCompile Include="KTDGGFXManager.cpp">
+      <AdditionalIncludeDirectories>$(SolutionDir)Libs\ExternalLib\Scaleform\Src;$(SolutionDir)Libs\ExternalLib\Scaleform\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="KTDGFXSound.cpp">
+      <AdditionalIncludeDirectories>$(SolutionDir)Libs\ExternalLib\Scaleform\Src;$(SolutionDir)Libs\ExternalLib\Scaleform\Include;$(SolutionDir)Libs\ExternalLib\Scaleform\Src\Sound;$(ProjectDir)FMOD\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="KTDGManager.cpp" />
     <ClCompile Include="KTDGMatrix.cpp" />
     <ClCompile Include="KTDGMotionBlur.cpp" />
@@ -2191,6 +2197,7 @@
     <ClInclude Include="KTDGLensFlare.h" />
     <ClInclude Include="KTDGLineMap.h" />
     <ClInclude Include="KTDGFXRuntime.h" />
+    <ClInclude Include="KTDGGFXManager.h" />
     <ClInclude Include="KTDGManager.h" />
     <ClInclude Include="KTDGMatrix.h" />
     <ClInclude Include="KTDGMotionBlur.h" />

@@ -5557,6 +5557,9 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 			g_pData->GetEventScene()->EndEventScene(true);
 		}
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+		g_pKTDXApp->JuneGfxClearMessageStage();		/// June StateChange 31d88bf0 @31d88c9e: 31be3000
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 		g_pKTDXApp->RemoveStage( m_pNowState, true );
 		m_pNowState = NULL; 
 
@@ -5877,6 +5880,9 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetStage( m_pNowState );
 		g_pKTDXApp->InsertStage( m_pNowState );
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+		g_pKTDXApp->JuneGfxSetMessageStage( m_pNowState );	/// June @31d89c26: 31be2fd0( the new state ) right after InsertStage
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 
 		CX2GageManager::StateChange( stateID );
         //{{ seojt // 2008-10-21, 18:08

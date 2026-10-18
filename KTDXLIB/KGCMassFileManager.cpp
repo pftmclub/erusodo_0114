@@ -979,6 +979,46 @@ KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_PTR  KGCMassFileManager::
 #endif MASS_FILE_FIRST
 }//KGCMassFileManager::LoadDataFile()
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_MANAGER
+// June GFx ( 31c4c170 / 31c4bcb0 ): the mass-file map only. LoadDataFile above reads a loose file first ( MASS_FILE_FIRST is off ); June's
+// opener goes to the kom first and leaves the disk to the SDK's own FileOpener, so its kom side is this.
+bool KGCMassFileManager::IsValidFile_MassFileOnly( std::wstring wstrFileName )
+{
+	if ( wstrFileName.empty() == true )
+		return false;
+#ifdef WCHAR_DIR
+	MakeUpperCase( wstrFileName );
+	return m_mapMassFile.find( wstrFileName ) != m_mapMassFile.end();
+#else WCHAR_DIR
+	char szFileName[512] = { 0, };
+	WideCharToMultiByte( CP_ACP, 0, wstrFileName.c_str(), -1, szFileName, ARRAY_SIZE( szFileName ), NULL, NULL );
+	std::string strFileName( szFileName );
+	MakeUpperCase( strFileName );
+	return m_mapMassFile.find( strFileName ) != m_mapMassFile.end();
+#endif WCHAR_DIR
+}
+
+KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_PTR KGCMassFileManager::LoadDataFile_MassFileOnly( std::wstring wstrFileName )
+{
+	CMassFile::MASSFILE_MEMBERFILEINFO_POINTER retInfo;
+	if ( wstrFileName.empty() == true )
+		return retInfo;
+	retInfo.dwFlag = MFI_REALDATA;
+#ifdef WCHAR_DIR
+	MakeUpperCase( wstrFileName );
+	MassFileMap::const_iterator iter = m_mapMassFile.find( wstrFileName );
+#else WCHAR_DIR
+	char szFileName[512] = { 0, };
+	WideCharToMultiByte( CP_ACP, 0, wstrFileName.c_str(), -1, szFileName, ARRAY_SIZE( szFileName ), NULL, NULL );
+	std::string strFileName( szFileName );
+	MakeUpperCase( strFileName );
+	MassFileMap::const_iterator iter = m_mapMassFile.find( strFileName );
+#endif WCHAR_DIR
+	if ( iter != m_mapMassFile.end() )
+		iter->second.pMassFile->GetMemberFile( *this, iter->second.Index, &retInfo );
+	return retInfo;
+}
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
 #ifdef WCHAR_DIR
 //#ifdef  X2OPTIMIZE_MASS_FILE_MANAGER_REAL_FILE_ONLY
 KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_PTR  KGCMassFileManager::LoadDataFile( std::string strFileName, bool bRealData

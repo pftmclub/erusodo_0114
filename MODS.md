@@ -4276,6 +4276,20 @@ Flag `SERV_IRUHADEV_JUNE_GFX_RUNTIME` in `KTDXLIB/Always.h` (client only). Plan 
   `$(SolutionDir)\Libs\ExternalLib\Scaleform\Lib\Win32\Msvc10\Release;`; `KTDXLIB_2010.vcxproj` lists `KTDGFXRuntime.cpp` (per-file Scaleform `Src` + `Include` dirs) and `KTDGFXRuntime.h`.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The libraries then drop out of the link; the project-file hunks may stay.
 
+### June GFx runtime: the GFx manager (june-gfx G2, 2026-10-19)
+
+Flags `SERV_IRUHADEV_JUNE_GFX_MANAGER` (+ `SERV_IRUHADEV_JUNE_GFX_DEBUG`) in `KTDXLIB/Always.h` (client only; the define `#error`s without `JUNE_GFX_RUNTIME` /
+`JUNE_RENDER_FRAME`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G2"; log tag `[JUNE_GFX] MGR`.
+- **Client.** New `KTDXLIB/KTDGGFXManager.{h,cpp}`: June's manager ( loader states, kom-first file opener, clipboard, log, AS2 + AS3, image handlers, Win32 fonts,
+  `fontconfig.font` "US", D3D9 HAL + Renderer2D, `main.gfx` root movie, the 14 AS wrappers ). New `KTDXLIB/KTDGFXSound.cpp` compiles the SDK's three `Src/Sound` files
+  (FMOD renderer on KTDS's FMOD Ex system). Hooks: `KTDXApp.h/.cpp` (member, ctor / dtor, `JuneOpenPerturbationMap` = Init, OnFrameMove dt, OnFrameRender draw, MsgProc
+  mouse first / keys after, reset / lost, four `JuneGfx*` methods, the DEBUG Lua binds), `DXUT/DXUT.cpp` (PeekMessage loop), `KTDXStage.h` (no-op virtual
+  `JuneGfxSetMovieUI`), `KGCMassFileManager.h/.cpp` (`IsValidFile_MassFileOnly` / `LoadDataFile_MassFileOnly`), `X2Main.cpp` (StateChange message stage),
+  `X2StateServerSelect.cpp` (mouse input on).
+- **Project files** (inert with the flag off): `KTDXLIB_2010.vcxproj` lists `KTDGGFXManager.cpp` (per-file Scaleform `Src` + `Include`), `KTDGFXSound.cpp` (the same plus
+  `Src\Sound` and `$(ProjectDir)FMOD\inc`) and `KTDGGFXManager.h`; both .cpp are empty with the flag off.
+- **Revert:** comment out `JUNE_GFX_MANAGER` (and `_DEBUG`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used
