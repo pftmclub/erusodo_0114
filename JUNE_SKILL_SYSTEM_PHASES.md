@@ -728,6 +728,49 @@ and June's data gives most special actives type 14-16. Add the enumerators, then
   followed, which is March's live behaviour (see Withdrawn). The two `MIG no-state skill` lines (23000 type 14, 23001 type 15) are S3's guard. 0 EXCEPTION,
   UNHANDLED = baseline (`E_DISABLE_HB_CHECK_REQ`). **Gate: census PASS; the reset path is code-read only; the UI item is S7's.**
 
+### Phase S3c -- Review (2026-10-18, Opus 5.5 high): PASS, no code change, no rebuild
+
+**Verdict: PASS.** Commits a2b20c4c + 8a842484 checked against June's binary, read-only. Net code: 33 inserted lines, nothing deleted.
+- **Enumerators** match June `Enum.lua` `SKILL_TYPE` (`june_src_fixed/data036_kom/Enum.src.lua:7126-7146`): 14-16 `ST_SPECIAL_ACTIVE_GRADE_1..3`,
+  17 `ST_CORE`, 18 `ST_CORE_PASSIVE`.
+- **`Handler_EGS_RESET_SKILL_ACK`.** June `322112d0`'s switch @32211750: passives 1-4 and 8; slot clear for 5, 6, 7, 12, 13, 14, 15, 16.
+  March's group now has the same members (`flagprobe`: `ADDED_RELATIONSHIP_SYSTEM`, `FINALITY_SKILL_SYSTEM` ON). The case is live:
+  no `#if` encloses `X2SkillTree.cpp:2396-2410`.
+  - The withdrawn `GET_SKILL_ACK` cases sat under `#else // UPGRADE_SKILL_SYSTEM_2013` (`:2076`, flag ON). 8a842484 removed exactly
+    the 6 lines a2b20c4c added (`git diff a2b20c4c^ 8a842484`: only the RESET cases, the census and the enum remain).
+  - The census block sits inside `JUNE_SKILL_TEMPLET` / `OFFLINE` / `JUNE_SKILL_TYPE`, all ON; the play-test printed it.
+- **Census.** I recounted it from `june_src_fixed/data036_kom/NewSkillTempletVer2.src.lua` (`m_eType` per templet):
+  `4 10 3 0 0 35 622 0 408 1 1 10 1 103 372 467 309 0 0`, total 2,346. That equals the logged line.
+- **Sweep re-run.** I added the script to the tree as `june2017_re/s3c_typesweep.py`. Its output is byte-identical to S3c's (46 lines).
+  - S3c's Done note said all 45 functions were in the tsv, but the tsv had 22 rows. The review adds the other 30
+    (`s3c_skill_type_readers.tsv`, now 52 rows). Every sweep line has a row; `3220a350` / `32210c70` are function-start artefacts of the
+    rows `3220a940` / `322112d0`.
+  - **No engine reader with a March counterpart was missed.** Three engine readers group 14-16, and March's copies already match June:
+    - `3234fbd0` is the socket cool time; `32070510` (called from `31fcef00`) is the now-state category. Both map 14 to 2, 15 to 3 and
+      16 to 4, as `JuneSkillCategory` (`X2GUUser.cpp:15722`) does.
+    - `32039e00` (BBT 98) excludes only 13, as `GetSkillDamageRateBySlotType` does.
+    - `3201ad10` uses the type only for an ability term that is June-only and 0 in March.
+  - The other engine hits test only 12 / 13, or switch on a skill id or an argument rather than the type.
+  - The rest are class code: the 9 `SetEquippedSkillFuncBySkillSlotIndex` blocks (7ae), and `32c5c080` Raven's `SetDamageExceptionProcess`,
+    already a checklist row.
+  - March's own engine `ST_SPECIAL_ACTIVE` readers: the two `X2SkillTree` handlers above, the guild NOT handlers (`:3290`, `:3528`;
+    June passives only) and the emulator's `SeedDefaultSkills` (`X2OfflineSkill.cpp:725`). The last is unreachable: `default-skill classes 0 / 0` in the log.
+- **The three unidentified readers, identified and routed:**
+  - `31fcd3d0` is **June's random mission system**. It is a 16-byte singleton `337a66b4` (`32676150`), with dialogs `RANDOM_MISSION_UI_02/03`
+    (`326791c0`). While a mission runs, a skill use counts as mission event 10 (type 6), 11 (types 7 and 14-16) or 12 (type 13).
+    13 per-class skill-use functions (vtable `+0x800`) call it. No STATUS row owned it, so it goes to the quest-system planning brief
+    (`kickoffs/june-backlog/stage4-plan.md`, "Carried in").
+  - `32622bd0` / `32622e80` are **Ain only**. Every caller gates on unit type 12 (`UT_AIN`): `AttackResult` @32013519, `DamageReact`
+    @32049af5, and `CX2GUAin` `32a76f00`. They charge a gauge from the hit's damage, with a 14 / 15 / 16 factor, and go to checklist 7ae (Stage 8).
+    The tsv's "game-state 0xc gate" was this unit-type test.
+- **Hygiene:** `flagcheck JUNE_SKILL_TYPE --range a2b20c4c^..a2b20c4c`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - `--range 8a842484^..8a842484`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `7 deleted line(s)`, 0 of everything else;
+    `RESULT: PASS`. Of the 7 deletions, 6 are the withdrawn block and 1 is the Always.h description line, rewritten.
+  - `git log -S` finds one other commit: S3's d483753d, which names the flag only in the plan doc and `S3c.md`. No other code touches it.
+- **Deploy:** none (no code change). The live exe, md5 `d4eef836`, carries S3c.
+- **Next:** `S3d.md` checked; it is current. **Open questions:** none.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.

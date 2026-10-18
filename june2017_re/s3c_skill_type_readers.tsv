@@ -15,9 +15,39 @@ june_va	june_role	types_named	march_reader	s3c_action	evidence
 328922f0	CX2UserSkillTree::IsResetCoolTimeTarget	12/13 need FORCE_SET; type compared exactly	X2UserSkillTree.cpp:2846 (already June)	no change	decompile
 32894490	CX2UserSkillTree::ResetLeftSkillCoolTimeAll	12/13 excluded	X2UserSkillTree.cpp:2639	no change for 14-18	s0a_skilltree_tu_map
 32895390	CX2UserSkillTree::ResetLeftSkillCoolTimeBySkillType (older June variant)	a request for 7 matches 7,0xe,0xf,0x10	X2UserSkillTree.cpp:2668	not ported: March's only live caller asks for 13 (X2Game.cpp:2073); June's callers are class code (32a4c320, 32a760d0) -> checklist 7ae	@3289543x, @328957xx
-31fcd3d0	none in March: guide event by skill type (32676150 / 326760b0 manager)	6 -> 10; 7,0xe-0x10 -> 11; 0xd -> 12	none	not ported: June-only, unidentified manager; review identifies and routes	callers in 6 class blocks
-32622bd0	none in March: DamageManager rate from the APPLIED_SKILL_ID templet's +0x130 array x a type factor	5; 0xe 1.0, 0xf, 0x10	none	not ported: June-only, unidentified; review identifies and routes	callers 32012b50, 32a76f00
-32622e80	none in March: same family as 32622bd0, game-state 0xc gate	5, 6; 0xe 1.0, 0xf, 0x10	none	not ported: as 32622bd0	caller 320462a0
+31fcd3d0	none in March: CX2RandomMissionManager-style singleton (DAT_337a66b4, 32676150 creates it; RANDOM_MISSION_UI_02/03 dialogs in 326791c0); when a mission is running (state +8 == 2) a skill use counts as mission event 10 (type 6), 11 (types 7, 14-16) or 12 (type 13); 32679820 adds to the counter +0x10 against the goal +0x14	6 -> 10; 7,0xe-0x10 -> 11; 0xd -> 12	none	S3c review: identified as June's random mission system (June-only; no STATUS row owned it) -> routed to the quest-system planning brief kickoffs/june-backlog/stage4-plan.md; the 13 per-class skill-use (+0x800) callers are March functions the mission port touches	callers in 6 class blocks
+32622bd0	none in March: Ain-only gauge charge on a hit; both callers gate on unit type 12 (UT_AIN): CX2GUUser::AttackResult @32013519 (cmp [templet],0xc) and CX2GUAin 32a76f00; ECX = g_pData+0x58; amount = (physic + magic) x reaction factor x the applied skill's +0x130 level array x 1.0 / x / x for types 14 / 15 / 16 (5 has its own) x PvP/PvE factor -> unit vslot 0x86c	5; 0xe 1.0, 0xf, 0x10	none	S3c review: Ain class material -> JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7 (Ain row; Stage 8); the two engine call sites are Ain-gated	callers 32012b50, 32a76f00
+32622e80	none in March: Ain-only gauge charge when hit, same family as 32622bd0; its only caller CX2GUUser::DamageReact @32049af5 gates on unit type 12 (UT_AIN, 31e4c370); attacker must be a user (+0x264 == 0); unit vslots 0x878 / 0x86c	5, 6; 0xe 1.0, 0xf, 0x10	none	S3c review: Ain class material -> checklist section 7 (as 32622bd0)	caller 320462a0
 3297b720	Ain-only buff ( skill 0x6343 ) on a type 6,7,0xe-0x10 skill	6,7,0xe-0x10	none (Ain not in March)	class material	callers 3297bad0, 329c12a0
 32a4dce0	class block	7, 0xd, 0x10	none	class material (checklist 7ae)	typesweep
 32aacb90	class block	7, 0xe-0x10	none	class material (checklist 7ae)	typesweep
+31fcef00	CX2GUUser now-state skill category (Effect C3t-1); the type switch is its callee 32070510	5->6, 6->1, 7/0xe->2, 0xf->3, 0x10->4, 0xd->5	X2GUUser.cpp JuneSkillCategory (SERV_IRUHADEV_JUNE_SOCKET_PARITY)	no change: March's copy already maps 14-16 by number (S3c review)	typesweep; funcmap
+3201ad10	CX2GUUser skill additional power rate (Buff 16-step3b5)	6, 0xd-0x10 pick the 32358970 ability term	X2GUUser GetSkillAdditionalPowerRateJune	no change: the typed term is June-only and 0 in March (Buff 9a)	typesweep; funcmap
+32039e00	skill damage by equipped slot type (BBT 98 reader)	0xd -> 1.0, every other type by slot	X2GUUser.cpp GetSkillDamageRateBySlotType	no change: excludes only 13, as March's copy	typesweep; decompile
+3234fbd0	CX2Unit socket cool-time factor (Buff 16)	5->6, 6->1, 7/0xe->2, 0xf->3, 0x10->4, 0xd->5	X2Unit.cpp GetJuneSocketCoolTimeFactor via JuneSkillCategory	no change: same mapping	typesweep; decompile
+32275ba0	CX2GameUnit::GetAdditionalAttackPowerRateByType (Buff 16)	0xd only	X2GameUnit (Buff 16 port)	no change: no 14-18 branch	typesweep
+323646a0	CX2Unit::ResetIncreaseSkillLevelByBuff	passives 1-4, 8; 0xc, 0xd	X2Unit (Buff 11)	no change: no 14-18 branch	typesweep
+32893e00	CX2UserSkillTree reduce left cool times by rate	0xc, 0xd	X2UserSkillTree (Buff 16-step3c)	no change: no 14-18 branch	typesweep
+32894e40	CX2UserSkillTree cool-time walk (unidentified; sweep printed 32894d50)	0xc, 0xd excluded	none identified	no change: no 14-18 branch	typesweep; decompile
+322d8100	unidentified (CX2Game region)	0xc, 0xd excluded	none identified	no change: no 14-18 branch	typesweep; decompile
+322d9d10	unidentified: switch on skill id (0x714f, 0x7173, ...), not on type	-	none	no change: not a type reader	decompile
+324486c0	unidentified: switch on its 4th argument, not on type (sweep printed 324485d0)	-	none	no change: not a type reader	decompile
+32719cb0	unidentified	0xd excluded	none identified	no change: no 14-18 branch	decompile
+3220a350	sweep artefact: CX2SkillTree::AddSealSkillInfo_LUA; the type call @3220aab1 is inside 3220a940 (row above)	-	-	see 3220a940	typesweep function-start heuristic
+32210c70	sweep artefact: AddGuildSkillTreeTemplet_LUA; the type call @3221174b is inside 322112d0 (row above)	-	-	see 322112d0	typesweep function-start heuristic
+329c8a00	CX2GUEve::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	class GU file	class material (checklist 7ae)	funcmap C9h-6
+32a71eb0	CX2GUAin::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	none (Ain not in March)	class material (Stage 8)	funcmap C9h-6
+32ad9b60	CX2GURose::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	none (Rose not in March)	class material (Stage 8)	funcmap C9h-6
+32b8c470	CX2GUEL::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	class GU file	class material (checklist 7ae)	funcmap C9h-6
+32bd09d0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	class GU file	class material (checklist 7ae)	funcmap C9h-6
+32c1f530	CX2GUChung::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	class GU file	class material (checklist 7ae)	funcmap C9h-6
+32c641a0	CX2GURaven::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	class GU file	class material (checklist 7ae)	funcmap C9h-6
+32cb06d0	CX2GULire_ElvenRanger::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	class GU file	class material (checklist 7ae)	funcmap C9h-6
+32d223e0	CX2GUElsword_SwordMan::SetEquippedSkillFuncBySkillSlotIndex (slot 493)	jump table	class GU file	class material (checklist 7ae)	funcmap C9h-6
+32c5c080	CX2GURaven::SetDamageExceptionProcess	7 or 0xe-0x10 (not 0xc / 0xd) scale physic / magic	X2GURaven (checklist section 7 row with the 8 overrides)	class material: already on the checklist	decompile
+32a4d9e0	Ain class block (skill 0x7e9d gate)	6; 7, 0xe-0x10 grouped	none (Ain)	class material (Stage 8)	decompile
+32a4d6a0	Ain class block: reads templet +0x160, not the type (sweep false positive)	-	none (Ain)	class material (Stage 8)	decompile
+32a67340	Ain region; no Ghidra function at the call	jump table	none (Ain)	class material (Stage 8)	typesweep
+32a288d0	Add region; no Ghidra function at the call	jump table	class GU file	class material (checklist 7ae)	typesweep
+32b3d380	Luciel region class block	0, 0xc, 0xd	none (Luciel)	class material (Stage 8); no 14-18 branch	decompile
+32ca81b0	Lire region class block	6 only	class GU file	class material; no 14-18 branch	decompile

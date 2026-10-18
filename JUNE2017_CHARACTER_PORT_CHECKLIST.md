@@ -689,6 +689,13 @@ What a class port does with its rows:
   in `june2017_re/s3c_skill_type_readers.tsv` group 7 with 14-16). A class port that calls `ResetLeftSkillCoolTimeBySkillType( ST_SPECIAL_ACTIVE )`
   needs June's rule from `32895390`: a request for 7 matches skills of type 7, 14, 15 and 16. March's version compares exactly, and no
   non-class March caller asks for 7, so S3c left it.
+- **Ain's gauge charge (from the S3c review, 2026-10-18; Stage 8).** `32622bd0` (on a hit) and `32622e80` (when hit) are thiscalls on
+  `g_pData +0x58`. They take the unit's (physic + magic) damage times a reaction factor. In `32622bd0` that is times the applied skill's
+  `+0x130` level array, with a factor of 1.0 / x / x for types 14 / 15 / 16 and one of its own for 5. Then they feed unit vslots `0x878` / `0x86c`.
+  Engine code calls them only for unit type 12 (`UT_AIN`): `CX2GUUser::AttackResult` @32013519 and `CX2GUUser::DamageReact` @32049af5.
+  `CX2GUAin` `32a76f00` calls the first too. The Ain port adds both call sites to March's `AttackResult` / `DamageReact` behind its own flag.
+  The constants are at `33439b24`, `3348a3a8`, `3343b240` and `33438088`. Rows: `june2017_re/s3c_skill_type_readers.tsv`.
+- Every class block of June's that names a skill type is in the same tsv, with `class material` in its action column.
 
 ### 7ad. Character motions: June's renamed animations (from June engine R12b)
 

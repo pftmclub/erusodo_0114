@@ -32,3 +32,20 @@ follow-up, S1's extracted tables), plus `june2017_re/g0_gfx_map.tsv`'s rows mark
 
 The backlog's "Stage 4, quest system" brief (in "Stages 3–9 (short)"), minus its "first ask" step: both decisions are above.
 Re-check the preconditions against `git log` first; if one is not met, stop and say which.
+
+## Carried in: June's random mission system (skill-system-core S3c review, 2026-10-18)
+
+No STATUS row owned it, so this plan gives it a phase of its own (follow June). What is known, read-only:
+- **Manager.** A 16-byte singleton at `337a66b4`, created by `32676150` (state `+8`, current mission `+0xc`). `326765d0` tests whether the
+  running mission's event id (`+0xc`) is the one given. `32679820` adds to the counter `+0x10` and tests it against the goal `+0x14`:
+  - event 3 sets the counter rather than adding;
+  - 4 and 7-12 accumulate;
+  - a goal reached sets state 1, then `32676870` (STR `0x493`/`0x494`) and `326791c0`.
+  The UI is `326791c0` / `32677f90`: `RANDOM_MISSION_UI_02/03` on `DLG_UI_Common_Texture83_NEW.TGA`, `SRewardButton`, `StaticBG` / `StaticInfo`.
+- **Skill-use hook `31fcd3d0`( skill id ).** While a mission runs (state 2), a skill counts as event 10 (type 6 active), 11 (7 and the
+  special-active grades 14-16) or 12 (13 hyper). 13 per-class skill-use functions (vtable `+0x800`, e.g. Eve `32981130` @32981646) call it,
+  right after the cool-time helper `3235a710`. March has those functions, and each carries a `3235a710` comment (BBT 100).
+- **Other callers of `32676150`** are where the other event ids are raised, about 25 call sites. They include NPC die `3230b7b0`, user / NPC DamageReact
+  (`320462a0`, `327b1f30`) and `327d1820` / `327d38e0`. They are not mapped yet.
+- **Open for the planner:** where missions come from (a server packet or a script; `SendRandomMissionRewardBuffCheat` `322f0e30` is
+  bound, `JUNE_BUFF_PORT_PHASES.md:662`). The offline emulator would have to serve that source.
