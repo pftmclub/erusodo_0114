@@ -8763,5 +8763,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-19
 // Description: June GFx runtime debug: dev-console Lua hooks JuneGfxOpenUI( id ) / JuneGfxLoadWidget( id, name ) / JuneGfxUnloadWidget( id )
 //              / JuneGfxShow( bool ), and GFx's own log mirrored to ErrorLog.txt ( [JUNE_GFX] MGR gfx: ..., capped ). Off after the G2 review.
-#define SERV_IRUHADEV_JUNE_GFX_DEBUG
+//#define SERV_IRUHADEV_JUNE_GFX_DEBUG		// off since the G2 review ( 2026-10-19 )
 //////////////////////////////////////////////////////////////////////////

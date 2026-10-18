@@ -4288,7 +4288,9 @@ Flags `SERV_IRUHADEV_JUNE_GFX_MANAGER` (+ `SERV_IRUHADEV_JUNE_GFX_DEBUG`) in `KT
   `X2StateServerSelect.cpp` (mouse input on).
 - **Project files** (inert with the flag off): `KTDXLIB_2010.vcxproj` lists `KTDGGFXManager.cpp` (per-file Scaleform `Src` + `Include`), `KTDGFXSound.cpp` (the same plus
   `Src\Sound` and `$(ProjectDir)FMOD\inc`) and `KTDGGFXManager.h`; both .cpp are empty with the flag off.
-- **Revert:** comment out `JUNE_GFX_MANAGER` (and `_DEBUG`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+- **G2 review (2026-10-19):** `_DEBUG` is off: the `JuneGfx*` dev-console binds and the GFx SDK log mirror are gone. A kom miss in `LoadDataFile_MassFileOnly`
+  now logs `KEM_ERROR135` as June's lookup does.
+- **Revert:** comment out `JUNE_GFX_MANAGER` (and `_DEBUG`, if it is on again), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 
 ## Known deviations to clean up
 

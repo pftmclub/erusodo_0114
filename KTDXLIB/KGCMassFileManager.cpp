@@ -1016,6 +1016,15 @@ KGCMassFileManager::CMassFile::MASSFILE_MEMBERFILEINFO_PTR KGCMassFileManager::L
 #endif WCHAR_DIR
 	if ( iter != m_mapMassFile.end() )
 		iter->second.pMassFile->GetMemberFile( *this, iter->second.Index, &retInfo );
+	else
+	{
+		// G2 review: June's 31c4c170 logs a miss as error 0x87 ( = KEM_ERROR135 ) with the upper-cased name, then returns empty
+#ifdef WCHAR_DIR
+		ErrorLogMsg( KEM_ERROR135, wstrFileName.c_str() );
+#else WCHAR_DIR
+		ErrorLogMsg( KEM_ERROR135, strFileName.c_str() );
+#endif WCHAR_DIR
+	}
 	return retInfo;
 }
 #endif SERV_IRUHADEV_JUNE_GFX_MANAGER

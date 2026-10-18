@@ -157,7 +157,7 @@ public:
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // r3dGFXFileOpener ( RTTI .?AVr3dGFXFileOpener@@, vtable 33446d2c; only OpenFile 31c47a00 is June's, GetFileModifyTime / OpenFileEx are the
-// SDK's ). The url is lower-cased and looked up as a kom member ( 31c4c170 ); a member becomes a memory file ( June decodes algo-2 there,
+// SDK's ). The url is lower-cased and looked up as a kom member ( 31c4c170, which logs a miss as KEM_ERROR135 ); a member becomes a memory file ( June decodes algo-2 there,
 // March's GetMemberFile does its own formats ). A miss, or an empty member, goes to the SDK FileOpener::OpenFile ( 33087ed0 ): SysFile on
 // disk with the url as given. That is how the loose eventscene\X.swf ( GetPullPath full paths ) open.
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -769,6 +769,8 @@ public:
 
 	~CKTDGGFXManagerImpl()
 	{
+		// June's dtor 31c45970 never deletes the wrapper at +0x98 ( an exit-time leak, JUNE_BUGS 325 ). Not kept: a live movie would outlive
+		// the Scaleform System that KTDGFXRuntime_Shutdown destroys right after this. June's HAL Release ends in ~HAL -> ShutdownHAL, as below.
 		SAFE_DELETE( m_pUI );				// the movie and its Values before the loader states, the renderer and the HAL
 		SAFE_RELEASE( m_pStateBlock );
 		m_pRenderer = NULL;
@@ -1384,13 +1386,15 @@ CKTDXStage* CKTDGGFXManager::GetMessageStage() const								{ return m_pImpl->m_
 
 void CKTDGGFXManager::openUI( int iUIID )				{ m_pImpl->InvokeIntArg( "openUI", iUIID, NULL ); }
 bool CKTDGGFXManager::isOpenUI( int iUIID )				{ return m_pImpl->InvokeIntArgBool( "isOpenUI", iUIID ); }
-void CKTDGGFXManager::moveToTopZorder( int iUIID )		{ SFG::Value kResult; m_pImpl->InvokeIntArg( "moveToTopZorder", iUIID, &kResult ); }
+// moveToTopZorder / changeCharacter / ShowUI / HideUI: June builds a result Value but passes NULL to Invoke ( 31c44860 / 31c44940 /
+// 31c44ae0 / 31c44bc0 ); G2 review corrected the result pointer to NULL
+void CKTDGGFXManager::moveToTopZorder( int iUIID )		{ m_pImpl->InvokeIntArg( "moveToTopZorder", iUIID, NULL ); }
 void CKTDGGFXManager::unloadWidget( int iUIID )			{ m_pImpl->InvokeIntArg( "unloadWidget", iUIID, NULL ); }
 void CKTDGGFXManager::unloadUserWidget( int iUIID )		{ m_pImpl->InvokeIntArg( "unloadUserWidget", iUIID, NULL ); }
 void CKTDGGFXManager::clearFocus()						{ m_pImpl->ClearFocusAS(); }
-void CKTDGGFXManager::changeCharacter( int iUnitClass )	{ SFG::Value kResult; m_pImpl->InvokeIntArg( "changeCharacter", iUnitClass, &kResult ); }
-void CKTDGGFXManager::ShowUI( int iUIID )				{ SFG::Value kResult; m_pImpl->InvokeIntArg( "ShowUI", iUIID, &kResult ); }
-void CKTDGGFXManager::HideUI( int iUIID )				{ SFG::Value kResult; m_pImpl->InvokeIntArg( "HideUI", iUIID, &kResult ); }
+void CKTDGGFXManager::changeCharacter( int iUnitClass )	{ m_pImpl->InvokeIntArg( "changeCharacter", iUnitClass, NULL ); }
+void CKTDGGFXManager::ShowUI( int iUIID )				{ m_pImpl->InvokeIntArg( "ShowUI", iUIID, NULL ); }
+void CKTDGGFXManager::HideUI( int iUIID )				{ m_pImpl->InvokeIntArg( "HideUI", iUIID, NULL ); }
 bool CKTDGGFXManager::isVisibleI( int iUIID )			{ return m_pImpl->InvokeIntArgBool( "isVisibleI", iUIID ); }
 
 bool CKTDGGFXManager::closeToTopZorder()

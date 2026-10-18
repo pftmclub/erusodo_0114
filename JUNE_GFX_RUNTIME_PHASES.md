@@ -288,7 +288,7 @@ Full list, 4,645 rows: `june2017_re/ga_staged_files.tsv` (name, kom, size, state
 - **Mount range:** `X2Main.cpp:802` `SERV_IRUHADEV_KOM_FILE_COUNT_226` (defined `Always.h:3913`) mounts `data001`..`data226`, so every new number
   (152, 167, 168, 171, 173, 174, 175, 176, 186, 188, 194, 195, 214) is covered. No client change.
 - **Name collisions:** none replaced (0 replaced, 3 identical: `Ranox.xml`, 2 voice files). Nothing needed asking.
-- **Scene `.swf`:** all 2,385 June `eventscene\*.swf` (309 MB) are now loose in `...965799\data\eventscene\`: 2,383 copied, `ranox.swf` and
+- **Scene `.swf`:** all 2,385 June `eventscene\*.swf` (309 MB) are now loose in `...\24965799\data\eventscene\`: 2,383 copied, `ranox.swf` and
   `npc_ranox_png.swf` identical (skipped), `tutorial_back.swf` and `quest_22254_rosestart.swf` included. A full md5 + size verify of all 2,385: 0 failures.
   The dir now also holds March's `assets.txt` (2,386 entries).
 
@@ -362,6 +362,73 @@ Strings `[JUNE_GFX] MGR `, `main.gfx`, `fontconfig.font`, `GFXManager`, `JuneGfx
 `JuneGfxUnloadWidget( 10002 )` removes it. **Open questions:** none.
 
 **Play-test PASSED 2026-10-19** (user: all five checks; exe md5 f9d277ac). ErrorLog: the `main.gfx loaded` line above, `sound: FMOD renderer up`, `IME manager skipped`; main.gfx's own callbacks `NowCountry 4` / `NowServiceMode 3` and its start-up `tutorial_guide.gfx` widget; widget 10002 loaded and unloaded twice (Alt-Tab and resolution change with it up). The SDK's `Loader failed to open ...Tutorial_Back.gfx` is its .gfx-before-.swf probe (the .swf then opens); the Scale9Grid warnings are main.gfx content, visible through the `_DEBUG` log mirror. 0 EXCEPTION, baseline UNHANDLED only, clean exit.
+
+### Phase G2 - Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS with three small corrections** (flag `SERV_IRUHADEV_JUNE_GFX_MANAGER`; `_DEBUG` now off). Checked in Ghidra against
+the decompile or disassembly of every G2 function. Values that live in data were read from `unpacked_x2.exe`.
+
+**Matches June (no change).**
+- **Layout and init:** ctor `31c45cc0` (+0x104 = -1, +0x108 = 1, +0x114..+0x11c = 0). Init `31c456e0` (states, wrapper, main.gfx,
+  device viewport into the wrapper and +0xbc, +0x7c = timeGetTime; a main.gfx failure deletes the wrapper).
+- **Loader states** `31c451d0`, in June's order: log, opener (8), clipboard (0x14), HAL, Renderer2D (June returns early if it is
+  missing), AS2 (0x21), AS3 (0x22), the four image handlers, FontProviderWin32 (0x11), IME (skipped), sound, font config pick and
+  apply. Sound `31c43700`: `Audio( r, 0.1f, 15, 2 = AudioMaster )`, volume 100.0, unmute.
+- **Render:** `31be3800 @31be3c56` tests `+0x108 == 1` after the heat-shimmer block, before `31be2e90` (= `JuneStageChainRenderAfter`).
+  `31c43b20` = Advance( +0xd4, 2 ) (viewport from +0x44..+0x58, `Advance( dt, 2, true )`), then Capture, BeginFrame, Display, EndFrame,
+  Apply on the D3DSBT_ALL block. The block brackets every HAL draw, so March's cached render states are not leaked.
+- **dt / lost / reset:** dt `31c430e0` = ( now - +0x7c ) / 1000.0. Lost `31c43440` releases the block, then PrepareForReset. Reset
+  `31c43e60` makes the block, then either InitHAL with `{ 0, ConfigFlags 1 = NoSceneCalls, 0, 0, 0, queue 0x100, device, pp }` or
+  RestoreAfterReset, then the viewport. Nothing on the D3D side leaks across a reset.
+- **Input.** MsgProc `31be3f20` order, below `0x465`:
+  - GFx mouse first. It swallows only when it returns 1, +0x108 is 1, and dialog +0x110 is 0.
+  - Then the stage chain, then the GFx keys, which run even when a stage took the message.
+- **Mouse** `31c44040`:
+  - Gates: +0x11c, then +0x115 (wheel only).
+  - LBUTTONUP and RBUTTONDOWN / RBUTTONUP need a hit first. A hit LBUTTONDOWN swallows and clears March's focus.
+  - Wheel: 120.0 / 3.0. WM_ACTIVATEAPP pastes the clipboard.
+- **Keys** `31c43890` / `31c432e0` / `31c431c0`:
+  - The message set and the key table `33726390` match (35 pairs, all VK = code).
+  - The Ctrl rule and the modifier renumbering match.
+  - Swallow = HandleEvent bit 1 (`SHR 1; AND 1`).
+- **IME and main loop:** IME `31c435b0` and the main-loop filter `31c43ab0` (hwnd = `msg.hwnd`) match. Enter / arrows `31c43480` match.
+- **AS callback `31c45ed0`:** only `MSG` with a stage returns 1 (`@31c45f9d mov al, bl`). Every other path ends at `@31c4651a xor al, al`.
+  The adapter walk `31d1ed00` stops on `AL == 1`. The listener vtable `33446ea8` is name `31c48570`, callback `31c45ed0`. The port
+  returns the same values.
+- **Wrappers:** all 14 names, argument types (Int for the UI ids, Number + StringW + Number for the two loads, StringW for showOkPopup)
+  and counts match. `isOpenUI` / `isVisibleI` / `closeToTopZorder` return only a Boolean result.
+- **Opener** `31c47a00`: lower-case url, then June's LoadDataFile `31c4c170` (kom only), then a memory file, else the SDK disk
+  FileOpener. March's GetMemberFile does the kom formats; main.gfx and fontconfig.font load (G2 play-test). Kom first is June's order.
+  The plan text's "LoadDataFile, so March's loose-first rule applies" predates G0 and is superseded.
+- **`#else` path:** every March site keeps its original code (range flagcheck: 0 deleted lines). With the flag off, the new .cpp files
+  are empty units and the `.vcxproj` include dirs are per file.
+
+**Corrected (same flag).**
+1. **Kom lookup miss log.** `31c4c170` logs a miss as error `0x87` (= `KEM_ERROR135`, via `31bd0f50`) before returning empty. G2's
+   `LoadDataFile_MassFileOnly` was silent, and its header comment said June logs nothing. It now logs as June does
+   (`KGCMassFileManager.cpp`). The fontlib check `31c4bcb0` logs nothing in June and stays silent.
+   In game: a scene `.swf` opened by full path, and the SDK's `.gfx`-before-`.swf` probe, each add one KEM_ERROR135 line before the
+   disk opens the file.
+2. **Result pointer.** `moveToTopZorder` / `changeCharacter` / `ShowUI` / `HideUI` passed a result Value; June passes NULL. No effect
+   in game.
+3. **Dtor.** `31c45970` never deletes the +0x98 wrapper: JUNE_BUGS 325, **not kept**, since a live movie would outlive the Scaleform
+   System. June's HAL Release ends in `~HAL -> ShutdownHAL`, which is the same as the port's explicit call.
+
+Also fixed: a stray `0x14` byte in the GA Done note (a heredoc had read `\24965799` as octal).
+
+**For G3** (G3 kickoff amended): the scene adapter is reached for every non-`MSG` name, because "GFXManager" returns 0 there. With
+`_DEBUG` off, `JuneGfx*` are no longer bound; G3's `PlayEventScene` is its own binding.
+
+**Hygiene.**
+- Phase range `5d61dd0c^..5d61dd0c --with _DEBUG`: `files: 9 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 2 FAIL, 0 ERROR`, 0 deleted lines,
+  `RESULT: FAIL`. The 2 FAILs are the PCH `#include "StdAfx.h"` of the two new .cpp files (empty units with the flag off), as G1.
+- Review worktree (4 files): `3 PASS, 1 DEFINE, 0 FAIL`, `RESULT: PASS`. The 7 deleted lines are G2's own flagged lines: 4 wrappers,
+  2 comments, and the `_DEBUG` define.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 25,096,704 B, dated 2026-10-19 06:45:31, md5 644d22933d7545af553ff9170fd9ddb6, equal to
+X2/US_SERVICE/x2.exe (2026-10-19 06:45:24); built at main 8971693b + 4 uncommitted code file(s).` `JuneGfxLoadWidget` and `MGR gfx: ` are
+gone from the exe; `[JUNE_GFX] MGR ` and `main.gfx` are in. **How to see it:** a regression check only (hand-off below); nothing new is
+visible. **Open questions:** none.
 
 ## Phase G3 - Event scenes
 
