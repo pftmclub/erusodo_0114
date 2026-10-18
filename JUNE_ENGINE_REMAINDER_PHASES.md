@@ -963,7 +963,8 @@ Visible change from June: server select keeps its UI while it changes to unit cr
 
 Hygiene (`flagcheck --worktree --files` on the 26 code files + Always.h): `files: 25 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL,
 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched` / `RESULT: PASS`. The 2 OTHER rows are peers' uncommitted
-hunks in the same files (Always.h tail, `X2StateLoading.cpp` `JUNE_SKILL_NOTE`), not part of this commit.
+hunks in the same files (Always.h tail, `X2StateLoading.cpp` `JUNE_SKILL_NOTE`), not part of this commit. After the commit,
+`--range f754f8c1^..f754f8c1`: `files: 26 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR` / `0 deleted line(s)` / `RESULT: PASS`.
 Deploy: `DEPLOY OK: X2_offline.exe is 19,972,608 B, dated 2026-10-18 09:06:45, md5 d5457f55f7daf176675ebdc4ce262055, equal to
 X2/US_SERVICE/x2.exe (2026-10-18 09:06:40); built at main a2b20c4c + 77 uncommitted code file(s)` (the peers' in-flight R4e / S-phase files
 are in this exe too; two earlier runs stopped on the build lock and on a peer's `JUNE_RENDER_DRAW_PASS` `#error`, since fixed by them).
