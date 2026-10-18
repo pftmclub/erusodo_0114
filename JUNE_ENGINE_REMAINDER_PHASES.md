@@ -2188,6 +2188,26 @@ No open question. W1f (`kickoffs/june-engine/W1f.md`, checked) owns the signatur
 If the keeper consumers turn out to be Erda-only gameplay, route them to backlog Stage 19 with a dated note. Test case:
 `Ranox_Secret_Stage2` (retype) and any dungeon's portal line.
 
+## Phase W3 - June village world Lua
+
+**Run with:** Sonnet 5.5 high (census, then adopt), then a user play-test; say "this needs a higher model" and stop if a June world-object method or key has
+no March binding. Log tag `[JUNE_ENGINE] WVIL`. No code flag unless the census routes one (then a separate engine phase, never a Lua edit).
+Added 2026-10-18 by the R13b play-test (user: "replace all the village's lua with June"). Nobody owned it: the asset port leaves `.lua` to the Lua ports,
+and the 2026-10-09 ljconv adoption took NPC / dungeon scripts, not village world scripts. The deployed `data040` `Besma_Village.lua` is still March's (horse at
+0,0,0, `SetCanHide(false, false)`; June: 1300,0,1000, `(true, true)`), so R13b's village check had nothing to fade. Standing rules: June's file wins at the same
+name, June behaviour wins even when it drops a March feature (memories `june-asset-wins-over-march-at-same-filename`, `june-behaviour-wins-even-when-it-removes-features`).
+- **Scope:** every village world script in `kom_contents/data040_kom/` and its line-map script (`*_Village*.lua`, `*_village*.lua`, `LINEMAP_*` / `Linemap_*` /
+  `*_LineMap.lua` of those villages), with the seasonal variants (`_Festival`, `_Snow`, `_XMAS`), replaced by June's through `luasrc.py adopt-june` (ljconv bytecode,
+  no edit). Core-list files (`luasrc.py core --check`: `WorldData.lua`, the `DLG_Map_*` dialogs, ...) stay as they are. Files already June (Ranox, Elysion,
+  Karuso) are skipped and listed. Dungeon / field world scripts are out of scope.
+- **Census first** (`june2017_re/w3_village_lua.tsv`): per file the March name, June's name (case can differ), June-only or March-only, and its closure: every
+  mesh / texture / line map / sound it names that March's kom_contents lacks (stage June's copy, as `npc_mesh_census.py --seed` does), every world-object Lua
+  method or key March does not bind (route, do not edit), and line-map ids / start positions that June moved (village spawn and portal positions live in
+  `WorldData` / village data, so a moved line map must still land the player and NPCs).
+- **Adopt, pack, ask, copy** (`/elstools pack data040`, then ask before `/x2-kom-packed copy`).
+- **Gate:** each adopted village loads with no new missing-file, Lua or `KEM_ERROR` line and State.log lists its meshes; in Besma Village
+  the horse fades (R13b's check 1, `WSKIN hide: BESMA_VILLAGE_HORSE.X`).
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium. Record june-effect C11's result as M5 (which Stage 0 effect items closed), re-run
