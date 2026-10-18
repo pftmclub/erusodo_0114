@@ -4080,8 +4080,10 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (+ short-lived `SERV_IRUHADEV_JUNE_SKI
     `JuneGetNumericalRow` (`320716c0`).
   - Writes, unconditional (a zero row zeroes all five): `PHYSIC = value * 0.01f` unless `DT_MAGIC`; `MAGIC = value * 0.01f` unless `DT_PHYSIC`; `PVP_RATE`; `TECH_POINT` (truncated); `HIT_ADD_MP`.
     `SetDamageExceptionProcess` then scales PHYSIC / MAGIC by the power rate, so the override is scaled too.
-- **Values that change.** None in today's game: no March class script sets `NUMERICAL_DATA_INDEX` / `_NAME`, and June's 1,913 blocks (`june2017_re/c1a_numerical_blocks.tsv`: file, templet, skill, level-1
-  value / x0.01 / pvp rate / tech point / hit add MP) only reach this code once a ported class (Stage 5/7) uses June's DamageEffect. When they do, June's number replaces March's:
+- **Values that change.** None in today's game. June's `DamageEffect.lua` / `EffectSet.lua` are live (C11a), so the keys are parsed and the override would run. But June's 1,913 blocks
+  (`june2017_re/c1a_numerical_blocks.tsv`: file, templet, skill, level-1 value / x0.01 / pvp rate / tech point / hit add MP) all name reform skill IDs, and S3 refuses presses of a reform skill
+  that has no March class state (`[JUNE_SKILL] MIG no-state skill ...`). They reach this code once a ported class (Stage 5/7) has the states (S4 review, 2026-10-18).
+  Until then the "deal 0" note under "June partial ports replaced" holds. Afterwards a learned skill's blocks deal June's numbers. When they do, June's number replaces March's:
   June's damage scale differs, e.g. Aceldama (26002) 9.50 at level 1 vs March's 2.33, Aiming Shot (26203) 14.82 vs March's 5.63 (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` section 1).
   Three blocks index past their skill's data and write a zero row (JUNE_BUGS 282-284); the owner's `CX2Unit` is unguarded as in June (JUNE_BUGS 285).
 - **June-side power-rate note.** `GetSkillPowerRateValue 32071720` (S2) gives an upgraded skill (`m_DeleteSkillIDByUpgrade` non-zero) its power rate from SA `0xad`

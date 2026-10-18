@@ -91,6 +91,12 @@ It copies the June scripts into `<scratch dir>` and never writes to the June dir
 - **Three blocks** index past their skill's data and get a zero row. They need a `JUNE_BUGS.md` row when
   ported (names in the C1a note).
 - Because this changes damage values, it goes under its own flag, and every value lands in `MODS.md`.
+- **The engine side is ported** (skill-system-core S4, flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`, reviewed 2026-10-18). Since S3 the
+  character is on June's templets, but S3 refuses presses of reform skills that have no class state. The first port that adds
+  those states is the first to reach the override. Its play-test must:
+  - show a `[JUNE_SKILL] NUM use ...` line (`python tools/logs.py --tag JUNE_SKILL --grep "NUM"`) whose physic / magic equal the
+    tsv's x0.01 column at that level;
+  - then retire the short-lived `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` (its `Always.h` block and guarded code), in the same phase.
 
 ## 2. DamageData keys June's character scripts use that March does not parse yet
 

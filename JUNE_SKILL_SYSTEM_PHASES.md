@@ -739,6 +739,35 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL` (+ short-lived `_DEBUG`), code commit 
   The `NUM use` lines appear once a ported class's DamageEffect with `NUMERICAL_DATA_INDEX` hits (none today).
 - **Open for the review (Opus):** the sample is 40 of 1,913 rows at level 1 only; the level clamp (`min( level - 1, count - 1 )`) is S2's and was read, not re-run on a level > 1 row here.
 
+### Phase S4 -- Review (2026-10-18, Opus 5.5 high): PASS, no code change, no rebuild
+
+- **Gate met.** The run of 09:50 (exe `d4eef836`, built from `eb5280c7`, which carries `9eae42db`) logged
+  `[JUNE_SKILL] NUM selfcheck: sample=40 ok=40 mismatch=0 no_templet=0 ( by-name cross-check ok=19 mismatch=0 ) PASS`. The 40 sample rows in `X2SkillTree.cpp`
+  were re-read against `c1a_numerical_blocks.tsv` by script: 40/40 equal the tsv's level-1 columns (37 `ok` rows plus the 3 "index out of range" zero rows). All 1,913 blocks use `INDEX`; none use `NAME`.
+- **Ghidra, read-only (4 functions):**
+  - `3263fe41-32640054`: the gate order, the type 0 / 1 branch with the null test on the owner, and `32890620( id, 0, 0, 1 )` on `[+0x867c]+0x494` all match.
+    So do `31fca8e0( id, 1 )`, `level <= 0` signed then templet null, and INDEX > 0 choosing `320717e0`, else `32078060`.
+  - The writes match: PHYSIC unless `[EBP]==1`, MAGIC unless `[EBP]==0`, `+0x538`, `_ftol2` -> `+0x34`, and HIT_ADD_MP written when not equal
+    (`TEST AH,0x44 / JNP`; NaN writes, as C++ `!=`).
+  - `0x334436a0` read from `unpacked_x2.exe` is `0.009999999776482582` = `(double)0.01f`. A float x float product is exact in double, so `value * 0.01f` rounds the same as June's x87 path.
+  - `320717e0`: the element count is `(end - begin) / 0x48`, `JC` count < index, `JLE` index, and element `index - 1`. All match.
+  - `32078060`: the first `wstring::compare` match, else zeros. This matches `JuneFindNumericalData`.
+  - `320716c0` (S4's open item, now closed): `idx = level - 1`, `JNC` -> last row (unsigned min), and an empty vector gives zeros. This matches `JuneGetNumericalRow`.
+- **March side.** `GUT_USER 0` / `GUT_NPC 1` (`X2GameUnit.h:79-80`); `CX2GUNPC::GetOwnerGameUnit` returns `CX2GUUser*` (`X2GUNPC.h:3038`, live under
+  `X2OPTIMIZE_UNITTYPE_BUG_FIX`); `GetSkillLevel( id, bBasic, usPage, bUpgradeSwap )` (`X2UserSkillTree.h:227`); `SKILL_BALANCE_20110728` defined unconditionally
+  (`Always.h:2491`), so the PVP_RATE write compiles in. Every `SetDamageDataFromLUA` caller (DamageEffect ctor `:1521` -> `:1807`, NEXT chains by copy, NPC `:16504`,
+  user `:16285`, reflect, third blade) sets `optrAttackerGameUnit` before the parse, so the override can run wherever June's does. `DamageData`'s copy is memberwise, so `m_iDamageSkillID` is copied.
+- **JUNE_BUGS 282-285**: the rows agree with the tsv and the disassembly (285: no test at `3263feec`). **MODS.md**: the values are right (Aceldama 950 -> 9.50, Aiming Shot 1482 -> 14.82).
+  One reason was wrong and is corrected in this commit: June's `DamageEffect.lua` / `EffectSet.lua` are live (C11a), so the keys *are* parsed today. Nothing changes in play
+  because S3 refuses presses of reform skills that have no March class state (`MIG no-state skill ...` lines in the same run). The first `NUM use` line therefore waits on a character port.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SKILL_NUMERICAL --range 9eae42db^..9eae42db --with SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG`:
+  `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s),
+  0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The PASS~ is `X2DamageManager.cpp`'s 2 blank lines next to the call.
+  `git log -S SERV_IRUHADEV_JUNE_SKILL_NUMERICAL 9eae42db..HEAD` touches code in no other commit.
+- **`_DEBUG` stays on**, although `Always.h` says "remove after the S4 review". The `NUM use` / `skip` lines are the pilot character's evidence (plan text above), and no use has happened yet.
+  Retire it in the first character port whose play-test logs a `NUM use` line (checklist row added to section 1).
+- **User owes:** nothing for S4.
+
 ## Phase S5 - Slots 4+4 -> 5+5
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_SLOT_10`, defined in `Always.h` **and**
