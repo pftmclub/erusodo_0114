@@ -1559,6 +1559,9 @@ Light (Elsword) 85811, a `TraceLandPos` item whose mesh March lacks; backup `db_
 - Every other class: weapons unchanged; an eqip with an `ITEM_ID_JIGGLE_TYPE1` id logs `jiggle_lost 1` (no jiggle until Stage 11).
 Strings `] EQATTACH item `, `TraceLandPos`, `addslots_skipped` checked in the deployed exe (the build that deployed it was a peer's, from the same tree).
 
+**Play-test 2026-10-18: PASSED** (user: LunaticPsykerT's dynamos float normally, awakened and not, no stray dynamo; the other four characters' weapons and glow unchanged). Log (exe md5 0818bfeb; field, village, dungeon, village; 0 EXCEPTION): ErrorLog.txt 838-942 four `EQATTACH item 89 unittype 9 pos 2 addslots_skipped 2` (Weapon07 / 08 got no model), `hyper 0` (Basic Dynamo has no hyper model, so the hyper remap was not exercised); 947-1000 five `EQATTACH item 85811 ... tracelandpos 1`, no crash; no line for reyaa / Freils / Iivue / ravbe; no `jiggle_lost`.
+
+
 ## Phase R13 - World object mesh render
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review and a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_WORLD_MESH`.
