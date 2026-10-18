@@ -2246,7 +2246,7 @@ out write. 4 call sites `#ifdef` / `#else` with the original call kept.
 
 **Hygiene** (`flagcheck --worktree --files`, 5 files): 4 PASS (`KTDGLineMap.cpp` +22, `.h` +21, `X2DamageEffect.cpp` +10, `X2DropItemManager.cpp` +10);
 `Always.h` FAIL from the peer's uncommitted R12b lines only (its `_REFS_DEBUG` re-define, a dropped blank line), not committed here. 0 non-ASCII,
-0 EOL-mismatched, 0 `#else`/`#endif` without token, 0 encoding change. Range: see the line below.
+0 EOL-mismatched, 0 `#else`/`#endif` without token, 0 encoding change. Range (`153ef842^..153ef842`): `files: 4 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, 0 deleted, `RESULT: PASS`. Committed through a private index (`GIT_INDEX_FILE`): peers were staging into the shared one.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to X2/US_SERVICE/x2.exe (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s).`
 `DROPPABLE_MONSTER_ROAD` found once in the deployed exe.
