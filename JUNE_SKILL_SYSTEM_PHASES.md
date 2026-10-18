@@ -1342,7 +1342,7 @@ taken off on field entry (the save was changed; she needs re-equipping). 0 EXCEP
 - **Hygiene.** `flagcheck --worktree --files X2Lib/X2UISkillTreeNew2015.cpp`: `1 PASS ... 0 FAIL` / `18 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched` / `RESULT: PASS`
   (the 18 are S7b's own lines in a file that is wholly inside the flag).
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 19,962,368 B, dated 2026-10-18 17:47:39, md5 9f2dc90916b2449eaab6b74254b0f501, equal to X2/US_SERVICE/x2.exe (2026-10-18 17:47:33); built at main ad0d41b7 + 1 uncommitted code file(s).`
-  `X2UISkillTreeNew.obj` rebuilt 17:47:23 (after the edit), `JuneReplaceSkillDescValues` in x2.map. PACK OK data056 / data057.
+  `X2UISkillTreeNew.obj` rebuilt 17:47:23 (after the edit), `JuneReplaceSkillDescValues` in x2.map. PACK OK and COPY OK (user OK) data056 / data057 (data057 md5 0ba792cb).
 
 ## Phase S7c - Skill memos: popups, packets, emulator, save
 
