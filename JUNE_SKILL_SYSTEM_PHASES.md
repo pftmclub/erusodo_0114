@@ -1501,6 +1501,39 @@ on a tree reset the emulator matches June (bar empty).
   the cash inventory -> radio 2 appears; page 2 starts with an empty bar; switching back restores page 1's bar; the reset medal empties the bar.
 - **Play-test 2026-10-19 (user: all passed; log, exe 388434fd, 0 EXCEPTION, clean exit).** Cash claim of 127273 -> 2 pages (`claimed line 329`), switch 1 -> 2 (8 slots stored, 0 placed, empty bar), the shared skill list re-sent, 8 slot changes on page 2, relog kept page 2, the reset medal emptied every bar. **Re-check 04:07 (user + log):** page 1 bar 7 slots, page 2 bar 5 slots, 6 switches each storing the old bar and placing the other exactly (A 21026-21029 / B 21202 21005 21203 vs A 21030 21203 21029 21202 / B 21005); a skill on both pages is kept, 0 dropped; relog keeps the page in use (1, then 2). v20 migrated at 03:54 (`MIG v20 done`). Unrelated: 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only.
 
+### Phase S7d -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS, no code change, no rebuild** (the deployed exe stays 388434fd).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_PAGE --range b2816d06^..b2816d06` (the one code commit; `git log -S` finds no later commit touching the flag, and 0a482e27 / 879eb555 are doc-only):
+  `files: 9 PASS, 6 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- **Ghidra and raw disassembly (four checks, all match).**
+  - Decide ACK `3220f2b0`. Steps in order: wait 0x47b cleared; OK; the g_pData / user / unit / UI-tree guard. The unit data +0x48c gets page - 1 (= March `SetUsingPage( page )`, which subtracts 1) and +0x490 gets page. Then `32896130`( A @+0x86, B @+0x96 ), `32892050`, `32892410`.
+  - The decide ACK's in-game step: +0xde8 = 0.5 (constant `3343777c` read from the exe = 0.5) and vslot 0x684( 0 ). The loops run outside the g_pX2Game test, as in the port. Then the 7-byte `KSkillData` loops through `3264ad40`( i, id ), with B behind `32890ea0`( 0 ) > 0 and the A index reused (JUNE_BUGS 311). Then the shown-test +0xa8 -> `328e7b70`( 1, 1, 1 ), `323646a0`, `3235a080`( 0 ), return 1.
+  - `328e7b70`( a, b, c ) = `328dfab0` / `328ddf60` / `328e6970`, which is March `UpdateUI( a, -, b, c )`, so `( true, true, true, true )` is right.
+  - Radio case `328ec068`:
+    - Busy `323022b0`( 1 ) -> `31caa0e0`( 0, 0, 0 ) and return 1.
+    - Cool-down `3221c560` false and level > 10: jumps to `328eaf5e` = `mov al, 1` (return true, the radio stays checked).
+    - Select page = dummy int 0, then `328ddf60` and `328e6970`.
+    - Waiting 0x47b, or using == select - 1, returns 0 (`328ec399`). Otherwise `3220f160`( select ). All as ported.
+  - Page UI `328e6970` (registers: ebx Page1, edi Page2, ebp Page3, [esp+0x24] cash):
+    - opened 1 -> P1 + cash at Page2's pos;
+    - opened 2 -> P1 P2 + cash at Page3's pos;
+    - opened 3 -> P1 P2 P3, no cash;
+    - otherwise all hidden.
+    - `31caa0e0`( 1, 0, 0 ) = March `SetChecked( true )`. The cash button shows in states 0xe / 0xf with the guide text 0x72b7 at offset (100.0, 0) (`334355b8` = 100.0); in other states it is hidden.
+  - Expand ACK `32214c60`: count @+8 -> unit data +0x48e, `328e7b70`( 1, 1, 1 ), msg box STR 0x72ca at (-999, -999), -1, -1.0 (`33458018` / `334380f0` read from the exe), ED @+4 -> +0x80, return 1.
+  - S0b correction confirmed: the only xref to `31f1fd90` is the dispatcher `31f2ab80` (`31f2c2b9`).
+- **`JuneGrowSkillPages`.** This is the smallest safe deviation. June keeps no per-page skill map, while March indexes `m_vecSkillDataMap[ m_usUsingPage ]` unchecked in every reader. Growing the vector once on the expand ACK (cash or ED) is one call site, against guarding every reader. The other paths that make a page are covered: select-unit sends one entry per open page, and the decide re-sends the shared list (`EGS_JUNE_ACQUIRE_SKILL_NOT`), so a stale copy on another page is refreshed on switch.
+- **Emulator stand-in.**
+  - Three REQ handlers dispatched, no ignore rows needed.
+  - The decide checks the page bounds, stores the bar in use, places the asked bar, drops unlearned or duplicate skills with a log line, and sends always-5-wide vectors (the log indexes `[0..3]` safely).
+  - The cash claim refuses at the cap before deleting the deposit line.
+  - A tree reset (`InitSkillTree`, AUTOLEARN branch) empties every slot and every stored bar, as the user decided.
+- **Save v20 (on a copy).** The v19 backup `els_db_20261019_022520_pre_pre_S7d_pages.sql` was migrated with the rung's own SQL: no error, `integrity_check` ok. All of `sqlite_master` is identical to a copy of the live save, and 127273 = product 41223 / category 33 / price 1 in both. The rung is idempotent (`IF NOT EXISTS`, the `WHERE NOT EXISTS` insert, `iFrom < 20`), and its literal BEGIN runs from `Open()` only. The live save has unit 25 at 2 pages / page 2, with page 1's 7-slot bar stored.
+- **Nits, not changed.** The decide log prints 4 of each bar's 5 slots. The cash-claim comment says "pieces * quantity", but the code adds `iQuantity` pages (product quantity 1). The ED-short error is `ERR_EXPAND_INVENTORY_ED_01`, which June's UI cannot reach. June's string-id debug variant of the guide text (`31c31060` +0x40) is not ported.
+- **`SERV_IRUHADEV_JUNE_SKILL_DEBUG` kept.** The S7d play-test logs (ErrorLog / offline_server.log of 04:08) do not show, and the S7c play-test did not show, the S3d `[JUNE_SKILL] MEMO effectset` / `damageeffect` / `attack box` lines. The note moves to `S7e-review.md`.
+
 ## Phase S7g - The HUD stat singleton and the cash shop's open-at-item list
 
 **Run with:** Opus 5.5 high, then an Opus review. Added by S7d (2026-10-19, unowned-branch rule). Identify June's `324943c0` singleton (written by
