@@ -1569,6 +1569,37 @@ Strings `] EQATTACH item `, `TraceLandPos`, `addslots_skipped` checked in the de
 
 **Play-test 2026-10-18: PASSED** (user: LunaticPsykerT's dynamos float normally, awakened and not, no stray dynamo; the other four characters' weapons and glow unchanged). Log (exe md5 0818bfeb; field, village, dungeon, village; 0 EXCEPTION): ErrorLog.txt 838-942 four `EQATTACH item 89 unittype 9 pos 2 addslots_skipped 2` (Weapon07 / 08 got no model), `hyper 0` (Basic Dynamo has no hyper model, so the hyper remap was not exercised); 947-1000 five `EQATTACH item 85811 ... tracelandpos 1`, no crash; no line for reyaa / Freils / Iivue / ravbe; no `jiggle_lost`.
 
+### Phase R14b -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no code change.** Nothing was rebuilt; the deployed exe (md5 0818bfeb, play-tested) already carries R14b.
+`3295dfa0` was re-read whole in Ghidra (decompile + disasm, read-only), plus `32809f40` and `3295a570`. Every kickoff point matches.
+
+- **Layout:** June eqip +0x198 templet, +0x1a0 item id, +0x1a8 UID, +0x1b4 owner, +0x1c0 unit skin anim, +0x1c5 `m_bCanHyperMode` follow March's
+  member order (`X2Eqip.h:306-324`). Owner +0xaf0 -> [0] is `m_pUnitTemplet->m_UnitType` (`X2Unit.h:290`, `:1236`; funcmap `31e4d0e0`).
+- **Add frame gate:** owner non-NULL, +0xaf0 non-NULL, type 9, and templet +0xd5 is 2 or 0x19. Then `Weapon0%d` (i+1) and 31d38a20 on +0x1c0.
+  A NULL skin or no frame skips the slot (no model, no anim); otherwise -> `LAB_3295e20b` = the normal path. The index remap after it tests
+  templet +0xd2 == 9 (templet unit type = March). The port matches, including the `GetUnitTemplet()` NULL test.
+- **Jiggle:** templet non-NULL && `32809f40`( 0x1e, templet[0] ). That is the (type, id) twin of `IsDivisionItem` (map +0x230 / end +0x234, then the
+  set; `X2ItemManager.h:606`). It sets +0x84c (unit skin, ref-counted = `SetUnitXSkinAnim`), +0x844 = 1.5 (33471a1c), +0x840 = 1, and +0x848
+  = 0 normal / 4 hyper, which is `SetJiggleMesh( true, 1.5f, 0 / 4 )` (`KTDGXSkinAnim.h:63-68`). `JIGGLEBONE_TEST` is defined (`Always.h:3102`),
+  so this code is live. `3295b230` is called only in the minor-unit block (+0x584); the normal and hyper anims have no other jiggle.
+- **Hyper half** (+0x1c5): +0xd2 == 9 and pos 2 / 0x19 -> `m_ModelNameHyper[0]` (+0x724 + idx*0x1c). No owner gate here in June, and the port has none.
+- **Tail:** the Add branch null-checks +0x1c0 before `Weapon0<n>`. The default branch runs GetCloneFrame( name ) (NULL skin = 0). Then
+  31c1c1a0( 0, size, `"TraceLandPos"`, 12 ) == 0 replaces that frame with skin +0x324 (`m_pCloneFrameRoot`, `GetCloneFrameRoot()`
+  `KTDGXSkinAnim.h:297`), or 0 when there is no skin. That matches `wcscmp == 0`. The Rose branch (0xb, pos 2, i-1 < 4 -> frame 1) and the DITT 72
+  tail are comments only. The DITT 72 comment matches `3295a570` (+0x1c8 == 2: ChangeAnim( name, true ) on normal / hyper-if-can / minor).
+- **Untouched:** R14's texture chain (@3295e10c and the hyper site) and R12's AddModelXSkinMesh calls sit outside every R14b hunk.
+- **Routed:** checklist 7aa / 7ab (`JUNE2017_CHARACTER_PORT_CHECKLIST.md:646`, `:655`), backlog Stage 11 R14b bullet (`JUNE_PORT_BACKLOG_ORDER.md:398`),
+  10 funcmap rows `(R14b)`.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM --range d523b1d9^..d523b1d9`:
+`files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. `git log -SSERV_IRUHADEV_JUNE_EQIP_ATTACH_ANIM d523b1d9..HEAD -- X2Lib KTDXLIB` lists nothing.
+
+No open questions. The hyper remap was not exercised in the play-test (Basic Dynamo has no hyper model). It is a two-line index change, the same
+as the normal half's, and needs no extra test.
+
 
 ## Phase R13 - World object mesh render
 
