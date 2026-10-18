@@ -361,6 +361,8 @@ Strings `[JUNE_GFX] MGR `, `main.gfx`, `fontconfig.font`, `GFXManager`, `JuneGfx
 9133 tr )` plus the sound / IME lines. In a village, `JuneGfxLoadWidget( 10002, "Tutorial_Back.swf" )` draws the GFx widget over the world,
 `JuneGfxUnloadWidget( 10002 )` removes it. **Open questions:** none.
 
+**Play-test PASSED 2026-10-19** (user: all five checks; exe md5 f9d277ac). ErrorLog: the `main.gfx loaded` line above, `sound: FMOD renderer up`, `IME manager skipped`; main.gfx's own callbacks `NowCountry 4` / `NowServiceMode 3` and its start-up `tutorial_guide.gfx` widget; widget 10002 loaded and unloaded twice (Alt-Tab and resolution change with it up). The SDK's `Loader failed to open ...Tutorial_Back.gfx` is its .gfx-before-.swf probe (the .swf then opens); the Scale9Grid warnings are main.gfx content, visible through the `_DEBUG` log mirror. 0 EXCEPTION, baseline UNHANDLED only, clean exit.
+
 ## Phase G3 - Event scenes
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_EVENTSCENE`. Sub-tag `SCENE`.
