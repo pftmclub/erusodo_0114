@@ -2443,6 +2443,48 @@ out write. 4 call sites `#ifdef` / `#else` with the original call kept.
 
 **How to see it in game:** nothing should change. Drop items, damage effects that follow a line, and death effects still land as before. No open question.
 
+### Phase W1f -- Review
+
+**2026-10-18, Opus 5.5 high. Verdict: PASS, no code change, no build.** The source was June's `unpacked_x2.exe` (Ghidra + `disasm_range.py`), read only.
+
+- **Signature.** In `31c6c310`, `[EBP+0x1c]` is read twice. At `@31c6c320` it goes into EAX and `*in` into EBX, both used only by the head
+  block and overwritten before the loop (`@31c6c401`, `@31c6c47f`). At `@31c6f747` it is the fallback, NULL-tested and bounds-tested.
+  `[EBP+0x20]` is touched only at `@31c6f86c` (NULL test, then a write of EDI). Both the loop touch and the fallback touch reach it through
+  `@31c6f85d`. `RET 0x2c` = 11 dwords = the 9-arg form. March's body reads `pLineIndex` only at the head (`KTDGLineMap.cpp:1241`,
+  `JUNE_MOVABLE_LINE`) and in the fallback (`:1501-1508`) and writes only `pOutLineIndex` (`:1556`); `const int*` makes any other write a
+  compile error. The forwarder (`KTDGLineMap.h`) passes `pLineIndex` twice and `false`. Since the head and fallback reads come before the
+  write, March's single-pointer behaviour is unchanged.
+- **Monster road** `@31c6c491-31c6c4ae`: `bIsMonster` -> test; else `+0xa4 == 0` -> skip; else `[EBP+0x30] != 0` -> test, else skip. This is
+  the port's `!monster && ( !droppable || !bDroppable ) -> continue`. The loader default (`@31c716ec-31c716f0`, absent = 0) was not
+  re-read: the Done note's reading was taken as is.
+- **Four ported sites**, pushes read right to left (`bDroppable, bOnLine, bIsMonster, bDownRadius, out, in, pOutPos, radius, pos`):
+  - `@31f71146`: `0,0,0,0, &local, 0, &local`.
+  - `@31f82653`: `0,1,0,0, &local, 0, &local`, radius `[0x33441b9c]` = 30.0 = `LINE_RADIUS`. It sits inside `TEST EAX,EAX / JNZ` after
+    `31c83970` (`@31f82571`), the `pMeshInst == NULL` branch, like March `X2DamageEffect.cpp:7533`.
+  - `@3273c114` / `@3273c599`: `1,1,0,0, &local, 0, &local`, radius `[0x3349bcbc]` = 69.0.
+
+  March's four 9-arg lines (`X2DamageEffect.cpp:7541` / `:8059`, `X2DropItemManager.cpp:170` / `:193`) are the same calls.
+- **324 "March shape" rows**, 5 spot-checked:
+  - `31fd749d` / `31fd74d6` is the inlined 16-bit index wrapper (`movzx` into a local). One branch pushes `&local` twice and writes it
+    back; the other pushes `0, 0`. Flags `0,1,0,1`.
+  - `31fd713f`: the same wrapper, same pointer twice.
+  - `32c8cd12`: `0, 0`; `bOnLine` / `bDownRadius` = EBX (1).
+  - `32b22fb3`: `push edx` twice; EBX = 1 (`@32b22e43`).
+- **Equivalent sites.** June's pushes at `32bfe8c3` are `0,1,0,1, 0, &local, &local`. In March, `vTempLandPosition` /
+  `iTempLastLineIndex` (`X2Pet.cpp:2915-2919`) and `vLandPos` / `iNewLineIndex` (`X2GUChung.cpp:17149-17152`) are never read after the
+  call. Aisha's `iNewLineIndex` (`X2GUArme_VioletMage.cpp:16479-16486`) is only reset, never read. The verdicts hold. The memo NPC is in
+  checklist 7ac.
+- **Overloads** (Sonnet grep, depth-aware argument count over `X2Lib`, `KTDXLIB`, `X2`): no 8-arg call, and exactly the four 9-arg calls
+  above, all under the flag. Every 4th argument is a pointer. The 4-, 5-, 6- and 7-arg calls and the `JUNE_LINE_INDEX16` wrappers all
+  resolve to the forwarder.
+- **Hygiene** (`--range 153ef842^..153ef842`): `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. `git log -S` also finds `4c3719c8` / `a5aeb19b` / `a40bb330`, whose messages or diffs name the flag. Not hygiene rows.
+- **Correction to the Done note's "nothing should change".** March's original calls at all four ported lines passed
+  `&lineIndex` (= 0) with `bOnLine` true, so March's head tested **line 0**. If line 0 is `CAN_DOWN` false, March returned false: the drop
+  item fell back to `GetNearestLine`, and the effect did not follow. June (NULL in) never makes that test, and the port follows June. This
+  is visible only on a map whose line 0 cannot be gone down. No play-test asked for.
+
 ## Phase W1g - FollowTargetPathFly as June's
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_PATHFINDER_FLY` (proposed). Added by W1f (an unowned June
