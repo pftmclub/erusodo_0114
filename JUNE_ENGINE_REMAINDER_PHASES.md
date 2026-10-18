@@ -1010,7 +1010,10 @@ rule I did not re-run. Re-run once S5 compiled: `DEPLOY OK: X2_offline.exe is 19
 **How to see it in game:** select a character -> the loading screen's gauge advances while loading; changing state (village -> dungeon room
 and similar) shows the state-change box; the start-up splash shows during the boot load.
 
-**User owes:** the three checks above on exe md5 7de78c30 (or later). Next: `/x2-phase june-engine R4c2` on Opus 5.5 / high.
+**Play-test PASSED 2026-10-18** on exe md5 7de78c30 (user: everything same as before; log: run 10:59 on that exe, states start-up / login /
+loading / server select / village / dungeon / village / server select, 0 EXCEPTION, UNHANDLED only `E_DISABLE_HB_CHECK_REQ`, clean exit).
+No visible difference was reported: these single frames are brief, and the fix restores March's content in them, so the gate is "no
+regression". **User owes:** nothing. Next: `/x2-phase june-engine R4c2` on Opus 5.5 / high.
 
 ## Phase R4c2 - Game and room state split
 
