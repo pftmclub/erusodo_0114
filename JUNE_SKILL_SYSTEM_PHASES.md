@@ -546,6 +546,49 @@ free rows; Q2 keep the base when an [Enhanced] skill is learned; Q3 no June unse
   In game, the skill tree shows June's rows; SP is June's (reyaa L99: 842).
 - **Gate to read in the log:** the real load's `[JUNE_SKILL] LOAD templets=2346 tree_rows=3360` (was 2,697 before the 31 class names; S0a amendment 2).
 
+### Phase S3 -- Review (2026-10-18, Opus 5.5 high)
+
+**Verdict: PASS, no code change** (so no rebuild; S3's `DEPLOY OK` md5 0818bfeb and `COPY OK data036` md5 c485fe6f stand). A Sonnet subagent ran the
+mechanical checks. Opus read the diff of `d483753d` and did the Ghidra spot-checks.
+- **Hygiene** (`flagcheck JUNE_SKILL_REFORM --range d483753d^..d483753d --with JUNE_SKILL_REFORM_AUTOLEARN JUNE_SKILL_DEBUG`):
+  `files: 9 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. The PASS~ rows are blank lines in `X2OfflineDB.cpp`, `X2OfflineSkill.cpp` and `X2OfflineSkill.h`. DEFINE is `Always.h` (+33).
+  `git log -S` finds no later commit that touches the flag.
+- **Closure.** The two S3 flips in `s0a_skill_data_closure.tsv` are adopted: `SkillData.lua` 4469 B sha1 `030f8761...` and `NewSkillTempletVer2.lua`
+  5208709 B sha1 `7f6986ca...`. Both equal the adopt record and ljconv(June). Every other closure row is owned elsewhere: `_LA` (argv `Axeso5` only),
+  `NewSkillTempletVer2Trans` (dead), `SkillNoteTemplet` (S3b), `CommandIconData` / `ComboTree` / `SkillCommandDescriptionData` / `SkillTypeColor` (S7),
+  `TranscendentalClassItem` (not skill-keyed), and `SkillLevelUpSocketGroup` (already June). `ledger --check` PASS and `core --check` PASS.
+- **Load order.** `OpenScriptFile` under `UPGRADE_SKILL_SYSTEM_2013` loads SkillData.lua, then the templet file. The Trans load sits behind `LUA_TRANS_DEVIDE`
+  (off). This is June's US order (S0a item 3).
+- **v17 rung.** `iFrom > SCHEMA_VERSION` refuses a newer save (`X2OfflineDB.cpp:844`), so a flag-off exe refuses v17. Every table S0a named is
+  cleared (`unit_skill`, `_unsealed`, `_note`; orphans counted). SP = `INIT_SKILL_POINT[level]`, CSP 0. Defaults: `s3_autolearn_gen.py --check` printed SAME x3
+  (1,347 rows, 86 classes), and the play-test's `autolearn check` was 0 / 0 / 0. The snapshot `els_db_20261018_070707_pre_S3_skill_reform.sql` exists and
+  reads `user_version` 16.
+- **SP rule settled** (Done note item 2). The live server's own reset, `GSUserGameCommon.cpp` `EGS_INIT_SKILL_TREE_REQ` ->
+  `CXSLSkillTree::GetCalcInitSkillPoint` (`XSLSkillTree.cpp:821`), also returns init(level) with no creation point. So the migration and the emulator's
+  reset follow the server, and `createchar.py` (1 + init) models a unit that has never been reset. All three are right; no change.
+- **Pages.** All three ACKs (`Handlers_Skill.cpp:61`, `:252`, `:318`) clamp the page to >= 1. SELECT_UNIT sends no explicit page.
+- **Level-0 rows.** They are filtered at load (`X2OfflineSkill.cpp:178`), in the acquired list (`:326`) and in the passive list (`:370`, `:387`). The only
+  zero levels that still go out are the slot arrays (`:349` / `:352`) of an empty slot, which is correct. Stale comment: `X2OfflineSkill.h:83` still says
+  "Level-0 rows go out too". It is a comment only, left for S5 (which touches that file).
+- **Ghidra spot-checks (read-only), all match:**
+  - `GetSkillLevel 32890620` @32890620-3289071b. The guild byte selects the branch. `31d717d0` returns 0. In the guild map, bBasic (arg 2) gives the
+    level, otherwise the level plus two bonus fields, capped at 0x1e (= `MAX_LIMITED_SKILL_LEVEL` 30). Otherwise: an empty map (`+0x4b0`) gives 0; arg 4
+    selects `328905b0`; a found byte `+0x10` gives max(1, byte); a missing skill gives 0.
+  - `GetCalcInitSkillPoint 32205790`: the sum of `CalcLevelUpIncreaseSkillPoint(2..L)`, identical to March and to the server.
+  - `SetSkillLevelAndCSP 32897240`: a level < 1 is not inserted, and an existing entry is erased (`32898f50`). This backs the level-0 filter.
+- **Blank-state guard.** `StateChange` refuses only a slot state (A/B, normal/hyper) whose `StateStart`, `OnFrameMove` and `OnEventProcess` are all
+  empty. Every class `SetEquippedSkillFuncBySkillSlotIndex` calls `Init()` before its switch (e.g. `X2GUElsword_SwordMan.cpp:2893`). A ported state
+  always binds `OnEventProcess`, so the guard cannot refuse one. Its check sits after June's random-state rebind, which June places before every early
+  return. Not June code: a March safety, judged sound.
+- **UNIT_CLASS merge.** The merge fills only missing names and keeps Enum.lua's values (log: 2 added, 0 differ). Without a table it falls back to the old publish.
+- **Flag combinations.** REFORM without AUTOLEARN: `SeedDefaultSkills` reads the loaded tree's default map, which June's SkillData leaves empty. Units
+  then start empty, as the define's comment says.
+- **Carried, not S3's:** (1) S2's `_DEBUG` parser compare reports `unexpected=1586` on June's file (March's parser lacks June's SA keys). It is debug
+  noise and goes when Z turns `_DEBUG` off. (2) The tree UI reads required level index 2 of the 1-entry arrays (`LOAD reach ... -> 0`). That is June's
+  no-padding rule meeting March's UI; it is noted in `kickoffs/skill-system-core/S7.md`.
+
 ## Phase S3c - June skill types 14-18 in March's engine
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TYPE`. Sub-tag `[JUNE_SKILL] TYPE`. Added 2026-10-18 by S3
