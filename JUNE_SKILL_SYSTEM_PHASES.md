@@ -641,6 +641,48 @@ mechanical checks. Opus read the diff of `d483753d` and did the Ghidra spot-chec
   `AddNewSkillNoteTemplet=86 AddMemoIDMatchItemID=23 AddRemovableMemoItemID=7 AddSkillNoteTemplet=0`, `classes=86 rows=3236 ( own=1132 inherited=2104 )
   match_pairs=23 removable_items=7 | memo0_dropped=0 skill0=0 parent_missing=0 class_dup=0`. 1132 = June's 1155 MEMO_ID uses minus the 23 match lines. 0 EXCEPTION.
 
+### Phase S3b -- Review (2026-10-18, Opus 5.5 high)
+
+**Verdict: PASS. No code change, no rebuild.** Code commit 53713bc9 checked against June's binary, read-only.
+- **AddNewSkillNoteTemplet `32454840`** matches. Tier test `9 < class < 200`, then `99 < class` gives 2 (base classes 200-202 are tier 0).
+  - Tier 2 inserts the first job's rows (`3234b390( 31eca1d0, 1, 31eca340 )`) at the front through `32455e30`, then jumps to `LAB_32454a0b`,
+    which inserts the base's rows (`32368880( 31eca1d0 )`) at the front. Tier 1 runs the base insert only.
+  - Row defaults match: memo 0 and skill 0 (the `-(ok) & value` masks), level -1, and five values from `334380f0` at Lua indices 4-8.
+  - A row is pushed only when memo != 0. The class goes in through unique insert `32457140`.
+  - June looks up the parent with `32076c90` and does not test it against end(). The port guards that case and counts it
+    (`parent_missing=0` in the play-test log). That keeps behaviour identical on June's data, so it is not a finding.
+- **Class tables.** The initializer stores at `3234b050-3234b37f` were re-read against `JuneClassAt`. The table is `[type][tier][line]`,
+  laid out as 0x50 / 0x14 / 4 bytes from `337a1660`.
+  - Tiers 1 and 2 match for types 1, 7, 8, 9, 10, 11 and 12.
+  - That includes type 11's order 41 / 40 / 43 / 42 and 131 / 130 / 133 / 132, and type 10's empty line 4.
+  - The `31eca340` line numbers agree with that order: 41 is line 1, 40 is line 2.
+- **Readers** match.
+  - `32451250` maps the skill through `32207210` and tests each filter field for equality, with 0 matching anything.
+    Level is tested by equality, not as a minimum. Unlike Add, it does test the class against end().
+  - `32451ff0` takes no base mapping. It accepts types 0x13 and 0x14 when `v0` or `v1` truncates (`32fe25f0`) to the argument;
+    an index past the end reads 0. It returns the row's raw skill id.
+  - `32455150` maps once, then `324510e0` maps again, as the port does (the double map is idempotent). It returns 0 at `324551dd` when
+    the row's level is above the unit's.
+  - It then requires `g_pData +0x68` and `+0x90` to be non-null, and calls `32890f90` on `+0x494` with the mapped id: 2 when active, 1 otherwise.
+  - `IsJuneMemoActive`, `Add` and `Remove` take the id as given. `GetJuneActiveMemoList` maps the id.
+- **`31fdbbb0` / `31fdbcc0`** match.
+  - Both return null or 0 when `+0x867c` is null. Both build the filter `{ 32207210(id), 0, unit +0x38, 0 }` and test `32890f90( base, memo )`.
+  - In `31fdbcc0`, the value index is `31fca8e0( id as given, 1 ) +0x178 != 0`. That is March's `IsEquippedSkillUpgraded`
+    (`X2GUUser.cpp:6535`, `m_iDeleteSkillIDByUpgrade`). The type test is `0x12 < t < 0x15`.
+- **The REFORM_SKILL_NOTE_UI finding is confirmed with `cl /P`** (US_SERVICE defines and includes from `X2Lib_2010.vcxproj`).
+  - `KTDXLIB/OnlyGlobal/Always_Global.h:39` (the commit said `OnlyGlobal/`; it lives under `KTDXLIB/`) `#undef`s it after `Always.h:526`.
+  - `X2SkillNoteManager.i` has exactly one `class CX2SkillNoteManager`, June's (`.h:108-168`).
+  - `X2StateLoading.i` keeps only the flag's pair (source `:784-785`). `X2Main.i` keeps only the flag's destroy (`:2205`) and its binders (`:5528-5532`).
+  - Both `[JUNE_SKILL] NOTE` success lines (`X2SkillNoteManager.cpp:290`, `:292`) survive preprocessing.
+- **Hygiene:** `flagcheck JUNE_SKILL_NOTE --range 53713bc9^..53713bc9`, with no later commit touching the flag (`git log -S`):
+  - `files: 7 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`
+  - `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`
+  - `RESULT: PASS`
+  - The two PASS~ rows are the one blank line before each file's flag block.
+- **Deploy:** none (no code change). The live exe, md5 `d4eef836`, already carries S3b; the play-test passed on it.
+- **Next:** `S3d.md` checked; it is current. S3d can start now, but its play-test waits for S7.
+- **Open questions:** none.
+
 ## Phase S3c - June skill types 14-18 in March's engine
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TYPE`. Sub-tag `[JUNE_SKILL] TYPE`. Added 2026-10-18 by S3
