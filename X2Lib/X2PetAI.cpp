@@ -456,18 +456,6 @@ void CX2PETAI::Moving( float fElapsedTime )
 			if( true == pLineMap->GetNearOtherLine( vJuneLandPos, vJuneOutPos, m_iLastTouchLineIndex, iJuneOutLineIndex, 200.f )
 				&& pJunePetLine->lineType != pJuneMasterLine->lineType )
 			{
-#ifdef SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
-				static int s_iJunePetReseatLogCount = 0;
-				if( s_iJunePetReseatLogCount < 20 )
-				{
-					++s_iJunePetReseatLogCount;
-					const CKTDGLineMap::LineData* pJuneOutLine = pLineMap->GetLineData( iJuneOutLineIndex );
-					KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] WORLD pet re-seat: pet line " << m_iLastTouchLineIndex << " type " << (int)pJunePetLine->lineType
-						<< ", master line " << pJuneMaster->GetLastTouchLineIndex() << " type " << (int)pJuneMasterLine->lineType
-						<< " -> line " << iJuneOutLineIndex << " type " << ( ( NULL != pJuneOutLine ) ? (int)pJuneOutLine->lineType : -1 )
-						<< " at " << vJuneOutPos.x << "," << vJuneOutPos.y << "," << vJuneOutPos.z << fileout;
-				}
-#endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
 				m_pPet->SetPosition( vJuneOutPos, m_bIsRight );
 			}
 		}

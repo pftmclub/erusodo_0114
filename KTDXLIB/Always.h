@@ -8121,19 +8121,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
-// Description: June engine remainder, Phase W1d, short-lived. "[JUNE_ENGINE] WORLD pet re-seat:" lines in ErrorLog.txt, the first
-//              20 re-seats (pet / master / found line and type, the new position). Remove at the W1d review.
-#define SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
-#ifndef SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
-#error SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG needs SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
-#endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT
-#endif SERV_IRUHADEV_JUNE_PET_AI_ROAD_RESEAT_DEBUG
-//////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-18
 // Description: June engine remainder, Phase R12b. June's CX2GUUser motion init (31fe5860) opens the templet's m_GameMotion0
 //              (templet +0x178, e.g. Motion_Lire.x) as m_pMotion / m_pMotionFuture and mixes MOTION_FILE_NAME (the class Lua's
 //              Motion_*_Common.x) first, where March opened MOTION_FILE_NAME and mixed m_GameMotion0. The unit's collision / attack

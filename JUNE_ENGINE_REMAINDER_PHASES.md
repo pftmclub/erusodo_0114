@@ -2127,6 +2127,37 @@ baseline; clean exit. Elder village, left staircase (x -304), reyaa's pet Chioo,
 then the same pair again via stair line 10 (`master line 35 type 9`, a different other-road line than the pet's target: June's compare is by
 type only). The logged indices are the engine's; they differ from the hand-off's `june_src_fixed` numbering (17 / 7-14).
 
+### Phase W1d -- Review
+
+**2026-10-18, Opus 5.5 high. PASS, no transcription error, no code change except dropping the short-lived `_DEBUG`.**
+- **The block** (`@32ef69b2-32ef6b08`, re-read in the disassembly): the field test comes first (`[0x33775870]` -> `323a8dd0` with `ECX` = the
+  field game), then the square game (`[0x3377586c]` -> `323a4dd0`), both on `+0xd8/+0xdc`; a NULL master skips. Pet line = `+0x3c` bounds-checked
+  against the line map's `+0x190/+0x194` vector (`[ESP+0x18]` or 0); master line = `MOVZX` byte `+0x3d4` (March `unsigned char
+  m_LastTouchLineIndex`, `X2SquareUnit.h:90`), same check, `EDI` or 0. Land: `m_pPet +0xa0`, position `+0x42c..+0x434`, pushes NULL, 30
+  (`@33441b9c`), 1, so `GetLandPosition( pos, true, 30, NULL )`; the port's 3-arg form resolves to the `int*` forwarder that passes `true`
+  (`KTDGLineMap.h`, W1c). `GetNearOtherLine( land, &out = 0, +0x3c, &idx = -1, 200 @33457460 )`, argument order traced through the stack.
+  `CMP AL,1`, then `[pet line +4]` vs `[master line +4]` (`lineType`, `LineData +4`), then `326eb090( &out, byte +0x40 )`. The port matches all of it.
+- **The rest of `32ef68b0` = March** (`X2PetAI.cpp:400`): line-map pick; jump (`+0xd5` not flying, `+0xc0` vs AI `+0x60`, up `+0x64/+0x68`, down
+  `+0x6c/+0x70`, `100 -` chance); fly / walk path-finder argument lists (`+0x44` doubled for fly, `+0x1c` lost-target height); `+0xb4`; the switch
+  (`IsSpeedTime` only on the walk DIR_CHANGE, fly sets `{9, 0x11..0x16}`); fly interval `+0xd0/+0x88`; walk / dash `+0xc4/+0x54`,
+  `moveSplitRange` / `runGap` squared with March's `>=`; send when changed and non-zero.
+- **Callees.** `31c688c0` = March `GetNearOtherLine` (`KTDGLineMap.cpp:2713` in today's tree): NULL / out-of-range last line false; skips self,
+  NULL, `!bEnable`, `LT_WALL` (1); OTHER_ROAD-from-NORMAL with `GetNearest( pos, &out, i )` inlined (999999, the start + dir / end - dir fallback),
+  NORMAL-from-OTHER_ROAD nearest only. `326eb090` = March `CX2PET::SetPosition` (`X2Pet.cpp:3129`; June returns void, the caller ignores it):
+  `GetAnyEnabledLine`, `+0x439`, land `( pos, true, 30, &idx )`, inlined `IsOnLine` / `GetNearestWithBound` (skips types 1 / 4 / 5 / 8 =
+  wall + the `bIsMonster` unit / jump-up roads, wraps from idx, stops at 0), the stores and the `+180`.
+- **JUNE_BUGS 278** holds: after `CMP AL,1` only the two `+4` reads come before the call (no read of the found line), and `EDI` is 0 when the byte
+  index is at or past the line count.
+- **Hygiene** (`flagcheck --range 4f035996^..4f035996 --with ..._DEBUG`): `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other
+  flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0
+  #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. PASS~ = the one blank line after `#endif`.
+- **`_DEBUG` removed** (play-test passed): the `#define` block in `Always.h` (13 lines) and the log block in `X2PetAI.cpp` (12 lines).
+  `flagcheck --worktree --files X2Lib/X2PetAI.cpp KTDXLIB/Always.h`: X2PetAI.cpp PASS (-12, the debug block); Always.h OTHER (the peers' +107
+  uncommitted lines, not in this commit); `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to X2/US_SERVICE/x2.exe (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s).`
+  A peer's build (same tree) linked this edit; `WORLD pet re-seat` in the deployed exe = 0 (was 1). Nothing to play-test: the re-seat itself is
+  unchanged and passed.
+
 ## Phase W1e - Line links to a far line (Elysion line 2 `BEFORE_LINE = 130`)
 
 **Run with:** Opus 5.5 high (map, then port), then a user play-test. Flag `SERV_IRUHADEV_JUNE_LINEMAP_FAR_LINK` (proposed). Added by R13's play-test
