@@ -26,6 +26,9 @@ Paths can be overridden with `X2_GAME_DIR` and `X2_BUILD_STATE`.
 Validation done when they were written (2026-10-04):
 - `build.py`: incremental build of all four projects; deploy of an identical exe; lock wait,
   lock timeout (exit 75) and stale-lock recovery; deploy refused while the game ran.
+  2026-10-18: build coalescing (`last_build.json`, 13 cases incl. failed / `--only` / other
+  config / older exe) and X2 with `BuildProjectReferences=false` after both libs built in the
+  same run (the X2 step had been rebuilding both libs, ~10 min); STALE LINK guard.
 - `flagcheck.py`: `--selftest`, and reproduces three verdicts earlier reviews recorded by hand
   (TEMPLET_PARITY vs `9133871^` including X2Game.h's 19 EOL-mismatched lines; BEHAVIOR_PARITY
   part 1's 3 blank lines in X2BuffFactor.cpp; OFFLINE_AUTH_LEVEL's one blank line in each

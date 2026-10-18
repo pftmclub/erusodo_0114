@@ -11,8 +11,15 @@ Do not type msbuild by hand. Run, from the Trunk root:
 python tools/build.py --deploy        # build X2ServerProtocol, KTDXLIB, X2Lib, X2 (US_SERVICE), then deploy
 ```
 
-Run it with the Bash tool's `run_in_background: true` (a full X2Lib rebuild is ~4 min; a wait for
-another session's build can add more). You are notified when it ends; read the output then.
+Run it with the Bash tool's `run_in_background: true` (a full rebuild, after any `Always.h` edit,
+is ~11 min: X2Lib ~9, KTDXLIB and X2 ~1 each; a wait for another session's build can add more).
+You are notified when it ends; read the output then. Run it once, after your last edit: the run
+is only promised to build what was on disk when you started it.
+
+If another session is building, the run waits for the lock (default `--wait 30`). If a full build
+that **started after you ran the command** finishes successfully, your run does not build again: it
+prints `COALESCED: ...` and deploys that exe, which already has your edits. That is a normal pass;
+paste the `DEPLOY OK` line as usual.
 
 Other forms:
 - `python tools/build.py` - build only.
@@ -21,6 +28,7 @@ Other forms:
 - `--pch force` - invalidate every PCH (normally automatic: a header newer than a project's `.pch` touches that project's PCH source).
 - `--deps` - also rebuild luajitLib/luaLib (only after changing them).
 - `--config US_INTERNAL` - only when the user explicitly asks.
+- `--no-coalesce` - always build yourself, even if a later-started build already covered you.
 
 ## Reading the result
 
@@ -32,6 +40,10 @@ Other forms:
   - paste this line into the phase's Done note. It replaces the hand-written size/mtime/md5 check.
 - `DEPLOY REFUSED` (exit 3): the game is running. Ask the user to close it, then `--deploy-only`.
 - `DEPLOY FAILED: ... gone` (exit 4): Defender quarantine. Tell the user (Protection History; folder exclusion needs admin).
+- `COALESCED: '<other run>' ... started ... after this request ...`: a peer's full build already
+  compiled your edits; no own build ran. Followed by `DEPLOY OK` when `--deploy` was given.
+- `STALE LINK: x2.exe did not pick up the libraries it links` (exit 4): `X2/KTDXLIB.lib` or
+  `X2/X2Lib.lib` is missing or newer than the exe. Nothing was deployed. Re-run with `--no-coalesce`.
 - `LOCK TIMEOUT` / `COMPILER BUSY` (exit 75): another session is building. Re-run later in the background. Never delete `.build/build.lock` by hand; stale locks (dead pid, >90 min) clear themselves.
 
 ## Rules the script cannot enforce

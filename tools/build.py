@@ -16,7 +16,16 @@ What it does for you (each item is a rule that used to live in CLAUDE.md prose):
     than its .pch, the PCH-creating .cpp is touched first. --pch force|skip overrides.
   * One build at a time across every session AND every worktree (they share one game
     directory): a lock in %LOCALAPPDATA%/x2build/ (override with X2_BUILD_STATE).
-    Waits up to --wait minutes (default 8), then exits 75 naming the holder.
+    Waits up to --wait minutes (default 30), then exits 75 naming the holder.
+  * Coalescing: a run that waited for the lock does not build again if another session's
+    full build STARTED after this run was requested and succeeded (it compiled the tree
+    with this session's edits already on disk); it deploys that exe instead. Only a
+    successful, full (no --only), same-config, same-tree build counts. --no-coalesce or
+    --pch force always builds. Edits saved after you ran build.py are not covered.
+  * X2 is built with BuildProjectReferences=false when KTDXLIB and X2Lib were built
+    successfully earlier in the same run (otherwise its references re-check, as before),
+    and afterwards x2.exe must be at least as new as X2/KTDXLIB.lib and X2/X2Lib.lib,
+    or the run fails (STALE LINK, exit 4).
   * Refuses to start while a cl.exe/link.exe/lib.exe from someone else is running.
   * Prints only errors (full log in .build/logs/), checks x2.exe is newer than the
     build start, and with --deploy: refuses if X2_offline.exe is running, copies,
@@ -43,6 +52,8 @@ STATE = os.path.join(TRUNK, ".build")  # per-tree: build logs
 SHARED = os.environ.get("X2_BUILD_STATE", os.path.join(os.environ.get("LOCALAPPDATA", STATE), "x2build"))
 LOCK = os.path.join(SHARED, "build.lock")
 MANIFEST = os.path.join(SHARED, "last_deploy.json")
+LAST_BUILD = os.path.join(SHARED, "last_build.json")  # what the last lock holder built, for coalescing
+LINKED_LIBS = ["X2/KTDXLIB.lib", "X2/X2Lib.lib"]  # x2.exe pulls these in via #pragma comment(lib) in X2.cpp
 LOCK_STALE_MIN = 90
 
 # Headers each project's PCH can see (conservative). Dirs are relative to TRUNK.
@@ -231,11 +242,11 @@ ERR_RE = re.compile(r"(: (fatal )?error [A-Z]*\d+|error MSB\d+|: error :|LINK : 
 WARN_RE = re.compile(r": warning [A-Z]*\d+", re.I)
 
 
-def build_project(name, proj, cfg, logdir, dry):
+def build_project(name, proj, cfg, logdir, dry, extra=()):
     cmd = [MSBUILD, tp(proj), "-p:Configuration=%s" % cfg, "-p:Platform=Win32",
            "-p:SolutionDir=%s/" % TRUNK.replace("\\", "/"), "-m", "-p:MultiProcessorCompilation=true",
-           "-nr:false", "-nologo", "-v:minimal"]
-    p("build: %-17s %s" % (name, cfg))
+           "-nr:false", "-nologo", "-v:minimal"] + list(extra)
+    p("build: %-17s %s%s" % (name, cfg, ("  " + " ".join(extra)) if extra else ""))
     if dry:
         p("   " + " ".join('"%s"' % c if " " in c else c for c in cmd))
         return True
@@ -272,6 +283,49 @@ def build_project(name, proj, cfg, logdir, dry):
         return False
     p("   ok in %.0fs (%d warning line(s))" % (dt, nwarn))
     return True
+
+
+def write_last_build(rec):
+    try:
+        os.makedirs(SHARED, exist_ok=True)
+        with open(LAST_BUILD, "w") as f:
+            json.dump(rec, f, indent=2)
+    except OSError as e:
+        p("note: could not write %s (%s); the next waiter will build itself." % (LAST_BUILD, e))
+
+
+def coalesced_build(a, t_req):
+    """The last build if it already covers this request (see the docstring), else None."""
+    if a.no_coalesce or a.only or a.pch == "force":
+        return None
+    try:
+        with open(LAST_BUILD) as f:
+            rec = json.load(f)
+    except Exception:
+        return None
+    if not (rec.get("ok") and rec.get("full") and rec.get("config") == a.config
+            and os.path.normcase(rec.get("tree", "")) == os.path.normcase(TRUNK)
+            and rec.get("started", 0) >= t_req and (rec.get("deps") or not a.deps)):
+        return None
+    exe = tp("X2/%s/x2.exe" % a.config)
+    if not os.path.exists(exe):
+        return None
+    # A later build may have relinked the exe since (newer = still includes this request).
+    if md5(exe) != rec.get("exe_md5") and os.path.getmtime(exe) < rec["started"]:
+        return None
+    return rec
+
+
+def stale_link(cfg):
+    """Libs x2.exe should have linked that are missing or newer than it; [] when fine."""
+    exe_t = os.path.getmtime(tp("X2/%s/x2.exe" % cfg))
+    bad = []
+    for lib in LINKED_LIBS:
+        if not os.path.exists(tp(lib)):
+            bad.append("%s is missing" % lib)
+        elif os.path.getmtime(tp(lib)) > exe_t + 2:
+            bad.append("%s (%s) is newer than x2.exe (%s)" % (lib, fmt_time(os.path.getmtime(tp(lib))), fmt_time(exe_t)))
+    return bad
 
 
 def dirty_code_files():
@@ -339,9 +393,12 @@ def main():
     ap.add_argument("--deps", action="store_true", help="also build luajitLib and luaLib")
     ap.add_argument("--only", help="comma list of projects to build (e.g. X2Lib,X2)")
     ap.add_argument("--pch", choices=["auto", "force", "skip"], default="auto")
-    ap.add_argument("--wait", type=float, default=8, help="minutes to wait for the lock / foreign compilers")
+    ap.add_argument("--wait", type=float, default=30, help="minutes to wait for the lock / foreign compilers")
+    ap.add_argument("--no-coalesce", action="store_true",
+                    help="always build, even if a build that started after this request already succeeded")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    t_req = time.time()  # edits on disk before this moment are what this run promises to build
 
     if a.config not in ("US_SERVICE", "US_INTERNAL"):
         p("--config must be US_SERVICE or US_INTERNAL")
@@ -355,6 +412,16 @@ def main():
         return 75
     try:
         build_start = None
+        rec = None if (a.deploy_only or a.dry_run) else coalesced_build(a, t_req)
+        if rec:
+            p("COALESCED: '%s' (pid %s) started a full %s build at %s, after this request (%s), and it succeeded"
+              % (rec.get("what"), rec.get("pid"), rec["config"], fmt_time(rec["started"]), fmt_time(t_req)))
+            p("  at %s; it compiled this tree with your edits on disk, so this run does not build again."
+              % rec.get("head"))
+            p("  (Pass --no-coalesce to force an own build.)")
+            if a.deploy:
+                return deploy(a.config, rec["started"], a.dry_run)
+            return 0
         if not a.deploy_only:
             if not a.dry_run and not wait_for_foreign_compilers(a.wait):
                 return 75
@@ -370,6 +437,9 @@ def main():
             if dirty:
                 p("  (other sessions share this tree: anything listed that is not yours is built in too)")
             build_start = time.time()
+            rec = {"pid": os.getpid(), "what": label, "tree": TRUNK, "config": a.config, "started": build_start,
+                   "full": not only, "deps": a.deps, "head": git("rev-parse", "--short", "HEAD"), "ok": False}
+            built = set()
             for name, proj, cfg, src, pch, dirs in PROJECTS:
                 if only and name not in only:
                     continue
@@ -377,17 +447,32 @@ def main():
                     continue
                 cfg = cfg or a.config
                 pch_check(name, src, pch, dirs, cfg, a.pch, a.dry_run)
-                if not build_project(name, proj, cfg, logdir, a.dry_run):
+                # Both libs were just built in this run: X2's ProjectReferences would only rebuild
+                # them a second time (a peer's mid-build header edit makes that a ~10 min full pass).
+                extra = ["-p:BuildProjectReferences=false"] if name == "X2" and {"KTDXLIB", "X2Lib"} <= built else []
+                if not build_project(name, proj, cfg, logdir, a.dry_run, extra):
                     p("BUILD FAILED (%s). Nothing was deployed." % name)
+                    if not a.dry_run:
+                        write_last_build(rec)
                     return 1
+                built.add(name)
             if not a.dry_run and (not only or "X2" in only):
                 exe = tp("X2/%s/x2.exe" % a.config)
                 if not os.path.exists(exe):
                     p("BUILD FAILED: X2/%s/x2.exe missing after a clean build" % a.config)
+                    write_last_build(rec)
+                    return 4
+                bad = stale_link(a.config)
+                if bad:
+                    p("STALE LINK: x2.exe did not pick up the libraries it links: " + "; ".join(bad))
+                    p("  Re-run with --no-coalesce; if it repeats, delete X2/%s/link.*.tlog and build again." % a.config)
+                    write_last_build(rec)
                     return 4
                 mt = os.path.getmtime(exe)
                 p("BUILD OK: X2/%s/x2.exe %s B, %s%s" % (a.config, format(os.path.getsize(exe), ","), fmt_time(mt),
                   "" if mt >= build_start - 2 else " (unchanged: nothing needed relinking)"))
+                rec.update(ok=True, finished=time.time(), exe_md5=md5(exe))
+                write_last_build(rec)
         if a.deploy or a.deploy_only:
             return deploy(a.config, build_start, a.dry_run)
         return 0
