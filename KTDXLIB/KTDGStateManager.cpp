@@ -65,6 +65,9 @@ D3DDISPLAYMODE              CKTDGStateManager::ms_d3dDisplayMode;
 
 D3DFORMAT                   CKTDGStateManager::ms_d3dColorKeyTextureFormat = D3DFMT_UNKNOWN;
 D3DFORMAT                   CKTDGStateManager::ms_d3dAlphaTextureFormat = D3DFMT_UNKNOWN;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+WORD                        CKTDGStateManager::ms_awJuneMultiSampleQuality[18] = { 0, };
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
 
 void    CKTDGStateManager::InvalidateDeviceObjects()
@@ -644,6 +647,21 @@ void    CKTDGStateManager::RestoreDeviceObjects(
 
     _SetPossibleColorKeyTextureFormat();
     _SetPossibleAlphaTextureFormat();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+    /// June 31c5a3d0 @31c5ae60-31c5aed0: after the two texture-format probes, the quality levels of every multisample type for the
+    /// back buffer's format ( type 0 stays 0 ), read by the app's render-target setup ( 31be4230 through 31c5a120 )
+    for( UINT uJuneType = 0; uJuneType < 17; ++uJuneType )
+    {
+        ms_awJuneMultiSampleQuality[ uJuneType ] = 0;
+        if( 0 != uJuneType )
+        {
+            DWORD dwJuneQuality = 0;
+            if( SUCCEEDED( g_pD3D->CheckDeviceMultiSampleType( ms_uiAdapter, ms_d3dDeviceType, ms_d3dBackBufferDesc.Format,
+                DXUTIsWindowed(), (D3DMULTISAMPLE_TYPE) uJuneType, &dwJuneQuality ) ) )
+                ms_awJuneMultiSampleQuality[ uJuneType ] = (WORD) dwJuneQuality;
+        }
+    }
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
     ms_bRestored = TRUE;
 }//D3DDeviceState::Initialize()
@@ -664,6 +682,25 @@ HRESULT CKTDGStateManager::CheckDepthStencilMatch( D3DFORMAT BackBufferFormat, D
     return g_pD3D->CheckDepthStencilMatch( ms_uiAdapter, ms_d3dDeviceType
         , ms_d3dBackBufferDesc.Format, BackBufferFormat, DepthFormat );
 }//CKTDGStateManager::CheckDepthStencilMatch()
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+/// June 31c5a0d0: the out value is zeroed first; windowed = DXUTIsWindowed() ( 31bd44e0 )
+HRESULT CKTDGStateManager::JuneCheckDeviceMultiSampleType( D3DFORMAT SurfaceFormat, D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels )
+{
+    *pQualityLevels = 0;
+    return g_pD3D->CheckDeviceMultiSampleType( ms_uiAdapter, ms_d3dDeviceType, SurfaceFormat, DXUTIsWindowed(), MultiSampleType, pQualityLevels );
+}//CKTDGStateManager::JuneCheckDeviceMultiSampleType()
+
+/// June 31c5a120: the cached table. June tests "> 0x11", so type 17 passes and reads one entry past the 17 it fills
+/// ( JUNE_BUGS.md "multisample quality table" ); March's array has an 18th, zero entry for it.
+HRESULT CKTDGStateManager::JuneGetMultiSampleQualityLevels( D3DMULTISAMPLE_TYPE MultiSampleType, DWORD* pQualityLevels )
+{
+    *pQualityLevels = 0;
+    if( (UINT) MultiSampleType > 0x11 )
+        return D3DERR_NOTAVAILABLE;
+    *pQualityLevels = ms_awJuneMultiSampleQuality[ (UINT) MultiSampleType ];
+    return S_OK;
+}//CKTDGStateManager::JuneGetMultiSampleQualityLevels()
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
 
 void    CKTDGStateManager::ClearBackBuffer( D3DCOLOR d3dColor, float fZ, DWORD dwStencil )

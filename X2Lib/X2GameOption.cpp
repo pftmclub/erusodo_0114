@@ -882,6 +882,10 @@ bool CX2GameOption::OpenScriptFile()
 		m_OptionList.m_bJoyEnable = true;
 #endif KEY_MAPPING_INT_IN_KEYBOARD_SETTING
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+		/// June loader 324214a0 @3242294a: int, a miss is 0 ( the RT switches +0x34 / +0x35 are never read )
+		LUA_GET_VALUE( luaManager, "ANTIALIASING_LEVEL",				m_OptionList.m_iAntiAliasingLevel,			0 );
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 #ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 		/// June loader 324214a0 (R0 map, option row): the four renderer switches, with June's defaults.
 		LUA_GET_VALUE( luaManager, "RIM_LIGHT",						m_OptionList.m_bRimLight,					false );
@@ -1016,6 +1020,21 @@ bool CX2GameOption::OpenScriptFile()
 		m_OptionList.m_MaxMapDetail		= OL_MEDIUM;
 		m_OptionList.m_MaxFieldDetail	= FL_MEDIUM;
 	}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+	/// June low-spec preset @32428343-3242836a ( the same video / physical memory test ): + ANTIALIASING_LEVEL 0 and both RT switches
+	/// off ( word store at +0x34 ). June zeroes RIM_LIGHT / ANISOTROPIC_FILTER_SAMPLE / USE_ENV_BOX in the same block ( below ).
+	if( totalTextureMem <= 60 || totalPhysicMem < 300 )
+	{
+		m_OptionList.m_iAntiAliasingLevel		= 0;
+		m_OptionList.m_bJuneSceneRenderTarget	= false;
+		m_OptionList.m_bJuneEffectRenderTarget	= false;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+		m_OptionList.m_bRimLight				= false;	/// +0x100
+		m_OptionList.m_iAnisotropicFilterSample	= 0;		/// +0x104
+		m_OptionList.m_bUseEnvBox				= false;	/// +0x108
+#endif SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
+	}
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 	// depth buffer format이 16bit이면 unit의 외곽선을 그리지 않도록~	
 	DXUTDeviceSettings deviceSettings = DXUTGetDeviceSettings();
@@ -1318,6 +1337,10 @@ bool CX2GameOption::SaveScriptFile()
 	fwprintf( file, L"\tCAMERA_ZOOM_LEVEL		= %d, \n", m_OptionList.m_iZoomLevel );
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+	/// June writer 3241ef40 @3241f1c7 ( string 33496168 ), before RIM_LIGHT; nothing for the RT switches
+	fwprintf( file, L"\tANTIALIASING_LEVEL  = %d, \n", m_OptionList.m_iAntiAliasingLevel );
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 #ifdef SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION
 	/// June writer 3241ef40 (R0 map, option row): the same four keys, so the saved file keeps them.
 	fwprintf( file, L"\tRIM_LIGHT\t\t\t= %s, \n", ( true == m_OptionList.m_bRimLight ) ? L"TRUE" : L"FALSE" );
@@ -1481,6 +1504,16 @@ void CX2GameOption::ApplyAllOption( bool bForce /*= false*/ )
 #ifdef VERTICAL_SYNC_OPTION
 	SetFlashEffect( m_OptionList.m_bFlashEffect );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+	/// June apply 32421110 @32421251-3242129b: only on a forced apply ( the startup Apply( true ), 3259bb20 ): the level, then the RT pair
+	if( true == bForce )
+	{
+		if( NULL != g_pKTDXApp )
+			g_pKTDXApp->JuneSetAntiAliasLevel( m_OptionList.m_iAntiAliasingLevel );
+	}
+	if( true == bForce && NULL != g_pKTDXApp )
+		g_pKTDXApp->JuneSetSceneEffectRenderTarget( m_OptionList.m_bJuneSceneRenderTarget, m_OptionList.m_bJuneEffectRenderTarget );
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 	// SOUND
 	SetSound( m_OptionList.m_bSound );
@@ -1506,6 +1539,31 @@ void CX2GameOption::ApplyAllOption( bool bForce /*= false*/ )
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+/// June 3241ccf0 ( ret 8 )
+void CX2GameOption::SetAntiAliasingLevel( int iLevel_, bool bForce_ /*= false*/ )
+{
+	if( true == bForce_ || m_OptionList.m_iAntiAliasingLevel != iLevel_ )
+	{
+		if( NULL != g_pKTDXApp )
+			g_pKTDXApp->JuneSetAntiAliasLevel( iLevel_ );
+		m_OptionList.m_iAntiAliasingLevel = iLevel_;
+	}
+}
+
+/// June 3241cd20 ( ret 0xc ). No call, jump or pointer reaches it in June ( JUNE_BUGS.md ), so the switches stay at the data block's 0.
+void CX2GameOption::SetSceneEffectRenderTarget( bool bScene_, bool bEffect_, bool bForce_ /*= false*/ )
+{
+	if( true == bForce_ || m_OptionList.m_bJuneSceneRenderTarget != bScene_ || m_OptionList.m_bJuneEffectRenderTarget != bEffect_ )
+	{
+		m_OptionList.m_bJuneSceneRenderTarget = bScene_;
+		m_OptionList.m_bJuneEffectRenderTarget = bEffect_;
+		if( NULL != g_pKTDXApp )
+			g_pKTDXApp->JuneSetSceneEffectRenderTarget( bScene_, bEffect_ );
+	}
+}
+
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 void CX2GameOption::SetPlayGuide( bool bGuide, bool bUpdateDB /* = true */ )
 {
 	if( m_OptionList.m_bPlayGuide == bGuide )

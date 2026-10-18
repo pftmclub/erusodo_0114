@@ -101,7 +101,13 @@ class CKTDXDeviceManager :
 													);
 		CKTDXDeviceXSkinMesh*			OpenXSkinMesh( wstring deviceID, wstring moveBoneName = L"Bip01" );
 		CKTDXDeviceXMesh*               OpenXMesh( wstring deviceID );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+		/// June 31cdf310 ( ret 0x34 ): + use depth, multisample type / quality; a target whose device failed comes back NULL
+		CKTDXDeviceRenderTargetTexture*	OpenRenderTargetTexture( wstring deviceID, int width = 128, int height = 128, D3DFORMAT fmt = D3DFMT_UNKNOWN,
+			bool bUseDepth = true, D3DMULTISAMPLE_TYPE eMultiSampleType = D3DMULTISAMPLE_NONE, DWORD dwMultiSampleQuality = 0 );
+#else SERV_IRUHADEV_JUNE_RENDER_TARGET
 		CKTDXDeviceRenderTargetTexture*	OpenRenderTargetTexture( wstring deviceID, int width = 128, int height = 128, D3DFORMAT fmt = D3DFMT_UNKNOWN );
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 		CKTDXDeviceSound*				OpenSound( wstring deviceID, int bufCount = 10, bool bUse3D = true, float fMax3DDistance = -1.f );
 #ifdef CHECK_SOUND_LOADING_TIME
 		CKTDXDeviceSound*				CheckOpenSound( bool& bCreateSound, wstring deviceID, int bufCount = 10, bool bUse3D = true, float fMax3DDistance = -1.f );

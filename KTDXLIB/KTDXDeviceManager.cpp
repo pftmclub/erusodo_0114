@@ -778,7 +778,12 @@ CKTDXDeviceXMesh* CKTDXDeviceManager::OpenXMesh( wstring deviceID )
 	return pXMesh;
 }//CKTDXDeviceManager::OpenXMesh()
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+CKTDXDeviceRenderTargetTexture*	CKTDXDeviceManager::OpenRenderTargetTexture( wstring deviceID, int width, int height, D3DFORMAT fmt,
+	bool bUseDepth, D3DMULTISAMPLE_TYPE eMultiSampleType, DWORD dwMultiSampleQuality )
+#else SERV_IRUHADEV_JUNE_RENDER_TARGET
 CKTDXDeviceRenderTargetTexture*	CKTDXDeviceManager::OpenRenderTargetTexture( wstring deviceID, int width, int height, D3DFORMAT fmt )
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 {
 	if ( deviceID.empty() )
 		return NULL;
@@ -789,11 +794,21 @@ CKTDXDeviceRenderTargetTexture*	CKTDXDeviceManager::OpenRenderTargetTexture( wst
 
 	if( pRenderTargetTexture == NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+		pRenderTargetTexture = new CKTDXDeviceRenderTargetTexture( g_pKTDXApp->GetDevice(), deviceID, width, height, fmt,
+			bUseDepth, eMultiSampleType, dwMultiSampleQuality );
+#else SERV_IRUHADEV_JUNE_RENDER_TARGET
 		pRenderTargetTexture = new CKTDXDeviceRenderTargetTexture( g_pKTDXApp->GetDevice(), deviceID, width, height, fmt );
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
         ASSERT( pRenderTargetTexture != NULL );
         pRenderTargetTexture = static_cast<CKTDXDeviceRenderTargetTexture*>(
             CreateAndOpenDevice( pRenderTargetTexture ) );
 	}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+	/// June @31cdf44a: a device in DEVICE_STATE_FAILED ( +0x44 == 3 ) is not handed out
+	if( NULL != pRenderTargetTexture && CKTDXDevice::DEVICE_STATE_FAILED == pRenderTargetTexture->GetDeviceState() )
+		return NULL;
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
 	return pRenderTargetTexture;
 }

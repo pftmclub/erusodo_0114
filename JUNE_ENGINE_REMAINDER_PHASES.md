@@ -198,6 +198,8 @@ type 3 world `+0x18c/+0x190`, types 4-8 game / unit actions. Loader, Lua keys an
 | R4b | Frame render `31be3800`, stage slots, render targets (MSAA), `ANTIALIASING_LEVEL` (added by R4) | Opus 5.5 high + review | yes | yes |
 | R4c | State render split: `CX2State` + the March state classes into June's three pass slots (added by R4) | Opus 5.5 high + review | yes | yes |
 | R4d | Game render split: `CX2Game` + the March game classes (added by R4) | Opus 5.5 high + review | yes | yes |
+| R4f | Software cursor `CKTDXCursor` (app `+0x290`, drawn at frame end; added by R4b) | Opus 5.5 high (map, then port) + review | yes | yes |
+| R4g | Render-target call sites take June's arguments (opens, four-argument begins, last-kill shot under AA; added by R4b) | Opus 5.5 high (map, then port) + review | yes | yes |
 | R5 | `CUSTOM_RENDER_STATE`: table, reader, render | Sonnet 5.5 high + review | yes | yes |
 | R6 | `SKIN_MESH_RENDER_TYPE` 1, 2, 4-7, and (R0b) June's whole skin-anim draw | Opus 5.5 high (map, then port) + review | yes | yes |
 | R7 | Hookable textures: per-mesh hook id, device-manager table, `HookableTextureData.lua` (added by R0b) | Opus 5.5 high (map, then port) + review | yes | yes |
@@ -817,6 +819,58 @@ tsv `frame` and `option` rows:
 Until R4c a March class still draws everything in `0x8`, which is March's order. Play-test: the game looks unchanged; then
 `ANTIALIASING_LEVEL = 2` in the game dir's `GameOptions.lua` gives smoothed edges, with a `[JUNE_ENGINE] FRAME` line naming the level and the targets.
 
+### Phase R4b -- Done
+
+Built + deployed 2026-10-18 (Opus 5.5). Two flags (R4b split the kickoff's one): `SERV_IRUHADEV_JUNE_RENDER_TARGET` (the render-target
+class, a new surface manager, the state manager's multisample table) and `SERV_IRUHADEV_JUNE_RENDER_FRAME` (frame, stage slots, the app's
+targets, the option; needs RENDER_TARGET, RENDER_STATE_RESET, RENDER_SHADER_CONTRACT, RENDER_PASS1). 17 funcmap rows `(R4b)`, JUNE_BUGS 280-281.
+
+**Frame** (`31be3800`): March's prologue and transforms, then June's two paths. No scene target: DG `BeginRender` (`31ce6600`), sampler-0
+MAXANISOTROPY = the renderer's (`GetAnisotropy`, new getter) around the `0x8` loop, then 1, `0xc( 0 )`, `0x10( 0 )` (MULTISAMPLEANTIALIAS
+pushed off), `EndRender`. Scene target: the countdown alone (`JuneBeginRenderCountdown`, `31ce63f0`), scene `BeginRender( 1, 1, 0, clear
+colour )`, the same loops, `EndRenderToBackBuffer`; with an effect target, pass 1 and the shimmer composite (`BeginEffect( 0, identity )`,
+`SetDeviceTexture( 0 )`, full-screen quad, `EndEffect`). Then the `0x18` loop. `CKTDXStage` gets `OnFrameRenderAlpha( pass )`,
+`OnFrameRenderFrontUI( pass )`, `OnFrameRenderAll()`, `OnFrameRenderAfter()` (June bodies). Every March class still draws in `OnFrameRender`.
+
+**Render target** (`31cdc5d0` / `31cdb950` / `31cdb310` / `31cdb3c0` / `31cdb550` / `31cdb5c0`, open `31cdf310`): + use-depth, multisample
+type / quality; `BeginRender` saves the bound target / depth at every call (March: at reset), so nested targets restore to the scene target;
+`EndRender` resolves the multisample surface; a FAILED device opens as NULL. The multisample and depth surfaces come from **June's
+`CKTDGDeviceSurfaceManager`** (new `KTDGDeviceSurfaceManager.h/.cpp`; app `+0x208`, a stage before the device manager; R4 had not
+mapped it). March callers keep the defaults (own depth, no multisample; `BeginRender( bClear )` = `( bClear, bClear, 0, 0 )`); March-only
+`CopySurfaceToBackBuffer` / `CopyBackBufferToSurface` read the state manager's back buffer, the surface March saved at reset.
+
+**App** (`31be4230` / `31be2ef0` / `31be4cf0` / `31be4d10` / `31be4510` / `31be34c0`): targets made after SetViewport in OnResetDevice,
+released first in OnLostDevice; ctor switches 1 / 1 until the start-up `ApplyAllOption( true )` (JUNE_BUGS 280). `PerturbationMap.png`
+opens from X2.cpp after `g_pMain` (data045: a missing-file error until asset-port P4a). Corrections to R4: `31be34c0`'s arguments are
+UVs, not x / y / w / h; the RT texture's `0x54` call is AddDirtyRect, not GenerateMipSubLevels.
+
+**Option:** `ANTIALIASING_LEVEL` (int, default / miss 0) loaded before RIM_LIGHT, saved as `\tANTIALIASING_LEVEL  = %d, \n` before
+RIM_LIGHT, applied only on a forced apply (level, then the RT pair); the low-spec preset zeroes it and the RT pair, and (June's same block)
+RIM_LIGHT / ANISOTROPIC_FILTER_SAMPLE / USE_ENV_BOX, the last three under `SERV_IRUHADEV_JUNE_RENDER_RIM_OPTION` (an R2 gap fixed under its
+flag). Setters `SetAntiAliasingLevel` (`3241ccf0`) and the caller-less `SetSceneEffectRenderTarget` (`3241cd20`).
+
+**Named:** KTDXApp `+0x290` = `CKTDXCursor` (RTTI, vtable `3344c980`), a June-only software cursor -> new **R4f**. June's per-site target
+arguments (env box use-depth 0, LastKillShot, minimap, MoveData) and the last-kill shot while the frame is in the scene target -> new **R4g**.
+GFx (`31c43b20`, `31c456e0`, the option page `32ee07d3` that calls `3241ccf0`) -> june-gfx.
+
+**Deviations (not June):** one `[JUNE_ENGINE] FRAME` line per target (re)build; the RT reset guards a NULL surface manager and logs
+KEM_ERROR80 when no depth surface came back (June tests a void call's leftover EAX); March's clear-screen timer kept (June: tick count).
+
+**Hygiene:** `flagcheck --worktree --files <18 files>`: FRAME `files: 7 PASS, 0 PASS~, 0 DEFINE, 10 OTHER, 1 FAIL`; TARGET `files: 7 PASS,
+1 PASS~, 0 DEFINE, 2 OTHER, 1 FAIL`; both `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched, 0 encoding change(s)`.
+OTHER = the other R4b flag's hunks (and RIM_OPTION in X2GameOption.cpp); the one FAIL is `KTDGDeviceSurfaceManager.cpp`'s `#include
+"StdAfx.h"` PCH line, as R4a's KTDGHeatShimmer.cpp. PASS~ = one blank line before the new RT functions.
+
+**Deploy:** DEPLOY OK: X2_offline.exe is 19,942,400 B, dated 2026-10-18 07:20:29, md5 0818bfebcaf0f51a0fdf4836d1634a0b, equal to
+X2/US_SERVICE/x2.exe (2026-10-18 07:20:24); built at main 74dd25e6 + 38 uncommitted code file(s). The exe holds `[JUNE_ENGINE] FRAME
+ANTIALIASING_LEVEL`, `@CKTDXAPP@SceneRenderTarget@`, `PerturbationMap.png` and the save string.
+
+**In game:** (1) default `ANTIALIASING_LEVEL = 0`: the game looks as before; ErrorLog shows a `[JUNE_ENGINE] FRAME` line at start-up with
+both switches 1 ("scene target made, effect target made"), then one with switches 0 and no targets. (2) `ANTIALIASING_LEVEL = 2` in the game
+dir's `GameOptions.lua`: smoother edges, the FRAME line says `-> 2` and "scene target made". (3) On exit the file keeps the key.
+
+**User owes:** the play-test below. Next after it: `/x2-phase june-engine R4b review` on Opus 5.5 / high.
+
 ## Phase R4c - State render split
 
 **Run with:** Opus 5.5 high (transcribe each June slot), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT`.
@@ -849,6 +903,23 @@ Added by R4a (2026-10-18). Depends on R4a; it can run before or after R4b-R4d (p
   overrides them).
 
 Every March caller passes 0, so nothing in game changes. Gate: build + deploy; UI unchanged.
+
+## Phase R4f - Software cursor (CKTDXCursor)
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CURSOR` (proposed).
+Added by R4b (2026-10-18). Depends on R4b. KTDXApp `+0x290` is an embedded `CKTDXCursor` (RTTI, vtable `3344c980`, ctor `31ce50e0`, dtor
+`31ce5090`), drawn last in every frame by `31ce5400( 0 )` (`31be3800 @31be3c7c`); March has no such class. Map every slot and every writer
+of its fields (texture, position, offset, size, shown / hidden), decide whether June's flow ever shows it, then port the class, the member,
+the frame-end call and the writers. Gate: build + deploy; the cursor as June's flow says (or unchanged when it stays hidden).
+
+## Phase R4g - Render-target call sites take June's arguments
+
+**Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_TARGET_CALLERS`
+(proposed). Added by R4b (2026-10-18). Depends on R4b; not alongside R4d / R4e on the same files. R4b kept every March render-target site on
+March's defaults (own depth, no multisample, `BeginRender( bClear )`); June passes per-site arguments to `OpenRenderTargetTexture`
+(`31cdf310`: env box `31d0b200`, LastKillShot `32306600`, minimap `32e583d0`, MoveData `31c96daa`, `31c40220`) and to the four-argument
+`BeginRender` (`31cdb3c0` callers). Also: how June takes the last-kill shot when the frame is in the scene target (`ANTIALIASING_LEVEL > 0`).
+Gate: minimap, last-kill shot (also at level 2), colour grading and UI move data look as before.
 
 ## Phase R5 - CUSTOM_RENDER_STATE
 

@@ -8159,3 +8159,49 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ( june2017_re/w1f_candown_callers.tsv ). Revert: undefine.
 #define SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R4b. June2017's render target ( CKTDXDeviceRenderTargetTexture, 31cdc5d0 / 31cdb950 /
+//              31cdb310 / 31cdb3c0 / 31cdb550 / 31cdb5c0, OpenRenderTargetTexture 31cdf310 ): a multisample colour surface and a depth
+//              surface from the new device surface manager ( CKTDGDeviceSurfaceManager, app +0x208, a stage; new
+//              KTDGDeviceSurfaceManager.h/.cpp ), BeginRender( target, depth, keep depth, colour ) saving what is bound and EndRender
+//              restoring it and resolving the multisample surface. The state manager caches the multisample quality levels ( 31c5a3d0 ).
+//              March's BeginRender( bClear ) and every March caller keep working with the defaults ( own depth, no multisample ).
+//              Revert: undefine ( undefine SERV_IRUHADEV_JUNE_RENDER_FRAME first ).
+#define SERV_IRUHADEV_JUNE_RENDER_TARGET
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+#ifndef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#error SERV_IRUHADEV_JUNE_RENDER_TARGET needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE ( CKTDXDeviceManager::JuneCloseDeviceByPointer )
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R4b. CKTDXApp::OnFrameRender as June 31be3800: the CKTDXStage pass slots ( 0xc alpha,
+//              0x10 front UI, 0x14 all, 0x18 after; March classes still draw everything in OnFrameRender until R4c / R4d ), sampler-0
+//              MAXANISOTROPY = the renderer's around the 0x8 pass, MULTISAMPLEANTIALIAS off around the UI, and the scene render target:
+//              GameOptions.lua ANTIALIASING_LEVEL > 0 draws the frame into a multisampled target stretched onto the back buffer. The
+//              scene / effect switch pair ( pass 1 + heat shimmer ) is on only until the first option Apply( true ), as in June
+//              ( setter 3241cd20 has no caller, JUNE_BUGS.md ). CKTDGManager::BeginRender split ( 31ce63f0 / 31ce6600 ), the app's target
+//              lifecycle ( 31be4230 / 31be2ef0 / 31be4cf0 / 31be4d10 ), PerturbationMap.png ( 31be4510 ), the full-screen quad ( 31be34c0 ),
+//              ANTIALIASING_LEVEL load / save / apply + the low-spec zero. One [JUNE_ENGINE] FRAME line per target (re)build. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RENDER_FRAME
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+#ifndef SERV_IRUHADEV_JUNE_RENDER_TARGET
+#error SERV_IRUHADEV_JUNE_RENDER_FRAME needs SERV_IRUHADEV_JUNE_RENDER_TARGET
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
+#ifndef SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
+#error SERV_IRUHADEV_JUNE_RENDER_FRAME needs SERV_IRUHADEV_JUNE_RENDER_STATE_RESET ( the back-buffer desc before the targets are made )
+#endif SERV_IRUHADEV_JUNE_RENDER_STATE_RESET
+#ifndef SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#error SERV_IRUHADEV_JUNE_RENDER_FRAME needs SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT ( the renderer's anisotropy )
+#endif SERV_IRUHADEV_JUNE_RENDER_SHADER_CONTRACT
+#ifndef SERV_IRUHADEV_JUNE_RENDER_PASS1
+#error SERV_IRUHADEV_JUNE_RENDER_FRAME needs SERV_IRUHADEV_JUNE_RENDER_PASS1
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
+//////////////////////////////////////////////////////////////////////////

@@ -317,6 +317,9 @@ public:
 		void    SetViewIndependentEdge( bool bInEdge_ ) { m_bViewIndependentEdge = bInEdge_; }
 		void    SetEnvBoxEnable( bool bInEnvBox_ ) { m_bEnvBox = ( m_bShader30 && bInEnvBox_ ); }
 		void    SetAnisotropy( int iInSamples_ );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+		int     GetAnisotropy() const { return m_iAnisotropy; }		/// +0x84, read by CKTDXApp::OnFrameRender ( June 31be3800 @31be3896 )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 		bool    IsShader30() const { return m_bShader30; }
 #ifdef SERV_IRUHADEV_JUNE_RENDER_ENVBOX
 		/// June R3: what CKTDGEnvBoxMap::Render ( 31d0a410 ) writes. Lut: +0x59 present, +0x5c / +0x60 the LUT texture ( one of them is NULL ). Rim: +0x64 override

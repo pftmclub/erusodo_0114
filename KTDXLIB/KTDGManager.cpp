@@ -533,6 +533,39 @@ void CKTDGManager::BuildRenderStateID()
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+/// June 31ce63f0: the clear-screen countdown ( +0xa8 count, +0xac colour, +0xbc tick of the last clear ): a countdown frame clears
+/// target + depth with the clear-screen colour and skips the frame once 0.2 s have passed since the last such clear. June keeps the
+/// time as a tick count ( / 1000.0 ); March's timer is kept.
+bool CKTDGManager::JuneBeginRenderCountdown()
+{
+	KTDXPROFILE();
+
+	if( m_ClearScreen > 0 )
+	{
+		m_ClearScreen--;
+
+		const float MAGIC_CLEAR_SCREEN_GAP = 0.2f;
+		if( m_ClearScreenTimer.elapsed() > MAGIC_CLEAR_SCREEN_GAP )
+		{
+			g_pKTDXApp->GetDevice()->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, m_ClearScreenColor, 1.0f, 0);
+			m_ClearScreenTimer.restart();
+			return false;
+		}
+	}
+	return true;
+}
+
+/// June 31ce6600 = the countdown, then the default Clear with the clear colour ( +0xc0 ): March's BeginRender split in two
+bool CKTDGManager::BeginRender()
+{
+	if( false == JuneBeginRenderCountdown() )
+		return false;
+
+	g_pKTDXApp->GetDevice()->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, m_ClearColor, 1.0f, 0);
+	return true;
+}
+#else SERV_IRUHADEV_JUNE_RENDER_FRAME
 bool CKTDGManager::BeginRender()
 {
 	KTDXPROFILE();
@@ -560,6 +593,7 @@ bool CKTDGManager::BeginRender()
 	return true;
 }
 
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 void CKTDGManager::EndRender()
 {
 	KTDXPROFILE();

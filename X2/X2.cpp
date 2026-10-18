@@ -1317,6 +1317,11 @@ HRESULT CALLBACK OnCreateDevice( IDirect3DDevice9* pd3dDevice, const D3DSURFACE_
 	g_pMain		= new CX2Main();
 
 	g_pKTDXApp->InsertStage( g_pMain );	
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+	// June app init 31aa1fc0 @31aa20d8: after CX2Main is made and inserted ( and June's GFx setup ), PerturbationMap.png ( 31be4510 )
+	if( NULL != g_pKTDXApp )
+		g_pKTDXApp->JuneOpenPerturbationMap();
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 
 

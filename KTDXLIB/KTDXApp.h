@@ -72,6 +72,21 @@ class CKTDXApp
 // #endif // BACKGROUND_LOADING_TEST // 2008-10-17
 		HRESULT OnFrameMove( double fTime, float fElapsedTime );
 		HRESULT OnFrameRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+		/// June engine remainder R4b: the frame ( 31be3800 ) draws into a scene render target when ANTIALIASING_LEVEL > 0 ( multisampled )
+		/// or when the scene / effect switch is on ( never in June: the option setter 3241cd20 has no caller, JUNE_BUGS.md )
+		void	JuneSetAntiAliasLevel( int iLevel_ );								/// June 31be4cf0 ( +0x260 )
+		void	JuneSetSceneEffectRenderTarget( bool bScene_, bool bEffect_ );		/// June 31be4d10 ( +0x26c / +0x26d )
+		int		JuneGetAntiAliasLevel() const { return m_iJuneAntiAliasLevel; }
+		HRESULT	JuneOpenPerturbationMap();											/// June 31be4510 ( +0x268 )
+		void	JuneDrawFullScreenQuad( float fU0_, float fV0_, float fU1_, float fV1_ );	/// June 31be34c0
+		void	JuneCreateRenderTargets();											/// June 31be4230
+		void	JuneReleaseRenderTargets();											/// June 31be2ef0
+		void	JuneStageChainRender();												/// June 31be2cd0: vslot 0x8
+		void	JuneStageChainRenderAlpha( int iRenderPass_ );						/// June 31be2d30: vslot 0xc
+		void	JuneStageChainRenderFrontUI( int iRenderPass_ );					/// June 31be2d90: vslot 0x10
+		void	JuneStageChainRenderAfter();										/// June 31be2e90: vslot 0x18
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 		void SlowFrame( float fSlowFactor, float fSlowTime, float fSlowReserveTime = 0.0f ){ m_fSlowFactor = fSlowFactor; m_fSlowTime = fSlowTime; m_fSlowReserveTime = fSlowReserveTime; }
 		void SlowFrame_LUA( float fSlowFactor, float fSlowTime ) { SlowFrame( fSlowFactor, fSlowTime ); }
@@ -166,6 +181,9 @@ class CKTDXApp
         CKTDGDynamicVBManager*
                             GetDVBManager() { ASSERT( m_pDVBManager != NULL ); return m_pDVBManager; }
 //#endif
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+		CKTDGDeviceSurfaceManager*	GetJuneSurfaceManager() { return m_pJuneSurfaceManager; }
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 		
 		bool				GetAppDestroy(){ return m_bAppDestroy; }
 
@@ -531,6 +549,17 @@ class CKTDXApp
 //#ifdef  DYNAMIC_VERTEX_BUFFER_OPT
 		CKTDGDynamicVBManager*  m_pDVBManager;
 //#endif
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+		CKTDGDeviceSurfaceManager*	m_pJuneSurfaceManager;		/// June +0x208: a stage, inserted before the device manager
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+		CKTDXDeviceRenderTargetTexture*	m_pJuneSceneRenderTarget;	/// June +0x25c @CKTDXAPP@SceneRenderTarget@
+		int								m_iJuneAntiAliasLevel;		/// June +0x260 ANTIALIASING_LEVEL, clamped by the device
+		CKTDXDeviceRenderTargetTexture*	m_pJuneEffectRenderTarget;	/// June +0x264 @CKTDXAPP@EffectRenderTarget@
+		CKTDXDeviceTexture*				m_pJunePerturbationMap;		/// June +0x268 PerturbationMap.png ( data045 )
+		bool							m_bJuneSceneRenderTarget;	/// June +0x26c, ctor true
+		bool							m_bJuneEffectRenderTarget;	/// June +0x26d, ctor true ( multisampled effect target )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 #ifdef CHECKSUM_THREAD_TEST
 		KFileVerifier*          m_pFileVerifier;		// filechecksum 검사 쓰레드 - seojt // 2008-1-5, 17:50

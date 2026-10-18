@@ -19,6 +19,20 @@ class CKTDXStage : public CKTDXDeviceHolder
 
 		virtual HRESULT OnFrameMove( double fTime, float fElapsedTime ){ return S_OK; }
 		virtual HRESULT OnFrameRender(){ return S_OK; }
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+		/// June CKTDXStage vtable 33446fa8: 0x8 OnFrameRender ( 3231f510, empty ), then the pass slots CKTDXApp::OnFrameRender ( 31be3800 )
+		/// runs over the stage chain after it. A March class that overrides only OnFrameRender keeps drawing everything there ( R4c / R4d split them ).
+		virtual HRESULT OnFrameRenderAlpha( int /*iRenderPass_*/ ){ return S_OK; }		/// 0xc ( 330f9c30 ): alpha objects of the pass
+		virtual HRESULT OnFrameRenderFrontUI( int /*iRenderPass_*/ ){ return S_OK; }		/// 0x10 ( 330f9c30 ): front UI of the pass
+		virtual HRESULT OnFrameRenderAll()															/// 0x14 ( 31d28530; June has no caller )
+		{
+			OnFrameRender();
+			OnFrameRenderAlpha( 0 );
+			OnFrameRenderFrontUI( 0 );
+			return S_OK;
+		}
+		virtual HRESULT OnFrameRenderAfter(){ return S_OK; }								/// 0x18 ( 3231f510 ): after the frame ( GFx )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 		virtual bool	MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ){ return false; }
 

@@ -144,6 +144,9 @@ class CKTDGManager : public CKTDXStage
 
 		bool BeginRender();
 		void EndRender();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_FRAME
+		bool JuneBeginRenderCountdown();						// June 31ce63f0: BeginRender without the default Clear ( the scene target clears )
+#endif SERV_IRUHADEV_JUNE_RENDER_FRAME
 
 		void ObjectChainSort();
 		void ObjectChainNonAlphaRender();

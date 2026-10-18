@@ -1341,6 +1341,9 @@ typedef boost::shared_ptr<CKTDGObject>		CKTDGObjectPtr;
 #include "KTDXDeviceRenderTargetTexture.h"
 #include "KTDXDeviceSound.h"
 #include "KTDXDeviceManager.h"
+#ifdef SERV_IRUHADEV_JUNE_RENDER_TARGET
+#include "KTDGDeviceSurfaceManager.h"
+#endif SERV_IRUHADEV_JUNE_RENDER_TARGET
 
 #include "KTDXEnumToLua.h"
 
