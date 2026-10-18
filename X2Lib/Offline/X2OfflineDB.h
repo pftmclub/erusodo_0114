@@ -442,6 +442,12 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+		SCHEMA_VERSION			= 19,	///< v19: unit_skill_note holds June's active skill memos, skill -> memo (June skill system S7c)
+
+		/// As in the v18 branch below, which this one replaces wholesale.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 		SCHEMA_VERSION			= 18,	///< v18: skill slots 4-7 (the B bar) move to 5-8 (June skill system S5, 5 + 5 slots)
 
@@ -476,6 +482,7 @@ public:
 #endif SERV_IRUHADEV_LEVEL_CAP_99
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -760,6 +767,15 @@ public:
 	/// an assignment, and GetExpandSkillNotePage returns the total for a level.
 	bool	SaveSkillNotePage( UidType nUnitUID, int iMaxPage );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// June skill system S7c: the active skill memos ( traits ), unit_skill_note since v19: one row per skill, skill -> MEMO_ID, the
+	/// map the unit info carries ( KJuneSkillExtraData::m_mapIntInt ). LoadSkillNotes / SaveSkillNote ( March's pages ) are not
+	/// called under the flag: their columns are gone.
+	bool	LoadJuneSkillMemos( UidType nUnitUID, OUT std::map< int, int >& mapOut );
+	bool	SaveJuneSkillMemo( UidType nUnitUID, int iSkillID, int iMemoID );
+	bool	DeleteJuneSkillMemo( UidType nUnitUID, int iSkillID );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
 	//////////////////////////////////////////////////////////////////////////
 	// quests (phase 6)
 
@@ -907,6 +923,9 @@ private:
 	/// the A bar's transcendence slot (June 3288fe30: > 4 is B, minus 5). One [JUNE_SKILL] MIG line per moved row.
 	bool	MigrateSkillSlotsToTen();
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	bool	MigrateSkillNoteToJuneMemo();
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	int		ReadSchemaVersion();
 	void	LogError( const wchar_t* szWhat );
 

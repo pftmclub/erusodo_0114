@@ -2656,6 +2656,14 @@ bool CX2OfflineServer::Handler_EGS_REG_SKILL_NOTE_MEMO_REQ( KOfflineSession& kSe
 	kAck.m_cSkillNotePageNum	= kReq.m_cSkillNotePageNum;
 	kAck.m_iMemoID				= 0;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	// June skill system S7c retires March's notebook: June's data registers no note templet ( 0 AddSkillNoteTemplet calls ),
+	// REFORM_SKILL_NOTE_UI is off in this build, and since v19 unit_skill_note holds June's memo rows instead of pages.
+	CX2OfflineLog::Server( L"SKILL    memo refused - March's skill note is retired ( June skill memos, save v19 ); itemUID=%I64d",
+		(__int64)kReq.m_iItemUID );
+	return Reply( kSes, EGS_REG_SKILL_NOTE_MEMO_ACK, kAck );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
 	pSkill->Load( kSes.m_nSelectedUnitUID );
 
 	KOfflineItemRow kRow;

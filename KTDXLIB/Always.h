@@ -8640,3 +8640,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S7c - skill memos ( traits ). The tree's memo buttons, state icons and select popup
+//              ( 328dda50 / 328e9b30, UICustomEventProc 29065-29068 / 29076 / 29077 ), the upgraded-skill slot swap of the grant
+//              handler ( 328df480 -> 328ded60 ), the memo name / effect texts ( 32453420 / 324513e0 ), June's four memo packets
+//              ( 0x554-0x557: EGS_JUNE_ACTIVE_SKILL_MEMO_REQ / _ACK, EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ / _ACK, ACK handlers 31f1bdb0 /
+//              31f1c1d0 ), the active memos in the unit info ( 3235eb20 @3235f9e0 ), and the emulator's two handlers with save
+//              schema v19 ( unit_skill_note becomes June's skill -> memo rows ). Also defined in KncWX2Server/Common/ServerDefine.h
+//              ( EventID_Client.h / ClientPacket.h precede Always.h ): comment out both together. Log [JUNE_SKILL] MEMO.
+//              Revert: JUNE_SKILL_MEMO_PACKET in MODS.md ( the exe and the save move together; v19 is forward-only ).
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET needs SERV_IRUHADEV_JUNE_SKILL_NOTE (the memo tables, the active-memo multimap)
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET needs SERV_IRUHADEV_JUNE_SKILL_TREE_UI (June's tree class that hosts the memo popups)
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#ifndef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE (the grant handler, the slot-change queue)
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 (KJuneSkillExtraData, the unit info's memo map)
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET needs SERV_IRUHADEV_OFFLINE (the emulator handlers, CX2OfflineLog)
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+//////////////////////////////////////////////////////////////////////////

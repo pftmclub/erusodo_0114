@@ -758,6 +758,10 @@ CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 , m_bReplacedEsCounter( false )
 , m_iConfirmED( 0 )
 , m_pHoveredMemoButton( NULL )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+, m_pDLGJuneMemoMsgBox( NULL )
+, m_iJuneMemoRemoveItemUID( 0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 , m_iNewSkillCount( 0 )
 {
 	m_pTalkBoxManager = CX2TalkBoxManager::CreateTalkBoxManger();
@@ -1062,8 +1066,19 @@ void CX2UISkillTreeNew::CreateSkillTreeSlots( CX2Unit::UNIT_CLASS eUnitClass )
 		pSkillTreeSlotData->m_eSkillID = eSkillID;
 		pSkillTreeSlotData->m_bDataUpdated = true;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+		/// June @328de384..328de3db sets both memo buttons' offset ( vslot 0x8c, +0x1ec ) to the left one's vslot 0x90 position ( a June
+		/// button virtual March lacks: the offset when set, else the normal rect's centre ) plus the list's +0x2b0 ( its x step, March's
+		/// m_iScrollOffsetX ) on x. Not reproduced: the list rewrites every item's offset when it lays them out ( SetIndex below,
+		/// KTDGUIControlList.cpp:186-190 ), so June's value never survives either.
+		/// both memo popups ( 328dda50( 1 ) @328de3e3, 328dda50( 0 ) @328de3ee ), on the local set ( esp+0x2c ) after its copy went into
+		/// the map: the map's state words stay 0 until the next UpdateSkillTree, and the select popup refreshes them first ( 328e9b30 )
+		JuneUpdateMemoPopup( UISet, true );
+		JuneUpdateMemoPopup( UISet, false );
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		/// S7c: June moves the left memo button right by the list's +0x2b0 ( @328de384 ), gives the right one the same position, and builds
 		/// both memo popups ( 328dda50( 1 ), 328dda50( 0 ) )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 		if ( iRow > m_iMaxSkillRowNum )
 			m_iMaxSkillRowNum = iRow;
@@ -1345,7 +1360,13 @@ void CX2UISkillTreeNew::UpdateSkillTree()
 		if ( NULL != it->second.m_pSlot && NULL != it->second.m_pSlot->GetSlotData() )
 		{
 			it->second.m_pSlot->GetSlotData()->m_bDataUpdated = true;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+			/// the memo popups of the skill ( 328dda50( 1 ) @328ddf8b, 328dda50( 0 ) @328ddf95 )
+			JuneUpdateMemoPopup( it->second, true );
+			JuneUpdateMemoPopup( it->second, false );
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 			/// S7c: the memo popups of the skill ( 328dda50( 1 ), 328dda50( 0 ) )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		}
 	}
 }
@@ -1357,7 +1378,13 @@ void CX2UISkillTreeNew::UpdateSkillTree( CX2SkillTree::SKILL_ID eSkillID )
 	if ( it != m_mapSkillSlotUISet.end() && NULL != it->second.m_pSlot && NULL != it->second.m_pSlot->GetSlotData() )
 	{
 		it->second.m_pSlot->GetSlotData()->m_bDataUpdated = true;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+		/// the memo popups of the skill ( 328dda50( 1 ) @328de02c, 328dda50( 0 ) @328de035 )
+		JuneUpdateMemoPopup( it->second, true );
+		JuneUpdateMemoPopup( it->second, false );
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		/// S7c: the memo popups of the skill ( 328dda50( 1 ), 328dda50( 0 ) )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	}
 }
 
@@ -2732,6 +2759,11 @@ void CX2UISkillTreeNew::GetSkillTitleDesc( OUT wstring& wstrDesc, IN const CX2Sk
 			for ( std::vector<int>::const_iterator it = vecMemoID.begin(); it != vecMemoID.end(); ++it )
 			{
 				/// June 324550a0() -> 32453420( out, memo id ): the memo's name text
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+				const wstring wstrMemoName = CX2SkillNoteManager::GetJuneMemoName( *it );
+				/// June 31aab330 + 323e7600 + 31aa92b0: wstrDesc = ( name + L" " ) + wstrDesc, with no empty test
+				wstrDesc = ( wstrMemoName + L" " ) + wstrDesc;
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 				wstring wstrMemoName = L"";
 				/// S7c: 32453420 CX2SkillNoteManager memo-name text builder ( 711 lines, not ported ): wstrMemoName = CX2SkillNoteManager::GetInstance()->( 32453420 )( *it )
 				if ( false == wstrMemoName.empty() )	/// S7b stand-in: June has no test; until 32453420 is ported the name is empty and nothing is prepended
@@ -2739,6 +2771,7 @@ void CX2UISkillTreeNew::GetSkillTitleDesc( OUT wstring& wstrDesc, IN const CX2Sk
 					/// June 31aab330 + 323e7600 + 31aa92b0: wstrDesc = ( name + L" " ) + wstrDesc
 					wstrDesc = ( wstrMemoName + L" " ) + wstrDesc;
 				}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 			}
 		}
 		else
@@ -3094,6 +3127,16 @@ void CX2UISkillTreeNew::GetSkillEffectiveDesc( OUT wstring& wstrDesc, IN int iSk
 		{
 			/// June @328e63fd: a wstring built from L"" that is never used again ( destroyed at the loop's end ); not reproduced
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+			/// June 324550a0() -> 32453420( out, memo id ): the memo's name text
+			const wstring wstrMemoName = CX2SkillNoteManager::GetJuneMemoName( *it );
+			/// June 324550a0() -> 324513e0( out, base skill id, memo id, unit class = select unit +0x38 ): the memo's effect text
+			const wstring wstrMemoDesc = CX2SkillNoteManager::GetInstance()->GetJuneMemoEffectDesc( iBaseSkillID, *it, static_cast<int>( pUnit->GetClass() ) );
+
+			/// June has no test: always appended
+			wstrDesc += L"\n\n";		/// June @328e645a: 3347e7ac
+			wstrDesc += GET_REPLACED_STRING( ( 36281, "LL", wstrMemoName, wstrMemoDesc ) );	/// June 0x8db9 = 36281, "LL": ( name, effect )
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 			/// June 324550a0() -> 32453420( out, memo id ): the memo's name text
 			wstring wstrMemoName = L"";
 			/// S7c: 32453420 CX2SkillNoteManager memo-name text builder ( 711 lines, not ported )
@@ -3110,6 +3153,7 @@ void CX2UISkillTreeNew::GetSkillEffectiveDesc( OUT wstring& wstrDesc, IN int iSk
 				wstrDesc += L"\n\n";		/// June @328e645a: 3347e7ac
 				wstrDesc += GET_REPLACED_STRING( ( 36281, "LL", wstrMemoName, wstrMemoDesc ) );	/// June 0x8db9 = 36281, "LL": ( name, effect )
 			}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		}
 	}
 }
@@ -3285,6 +3329,18 @@ void CX2UISkillTreeNew::ShowSkillDesc( bool bShow, CX2SkillTree::SKILL_ID eSkill
 	{
 		const CX2SkillTree::SkillTreeTemplet* pSkillTreeTemplet =
 			g_pData->GetSkillTree()->GetSkillTreeTemplet( static_cast<int>( pUnit->GetClass() ), pSkillTemplet->m_eID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+		/// June @328e9486..328e94bc: in mode 2 a skill with no row of its own is looked up through the class's transcendence memo that
+		/// names it ( 32451ff0 on the id as given ); none ( <= 0 ) or no row for that skill either -> hidden
+		if ( NULL == pSkillTreeTemplet && 2 == iDescMode_ )
+		{
+			const int iMemoSkillID = CX2SkillNoteManager::GetInstance()->GetJuneSkillIDByTranscendenceValue( static_cast<int>( eSkillID ),
+				static_cast<int>( pUnit->GetClass() ) );
+			if ( 0 < iMemoSkillID )
+				pSkillTreeTemplet = g_pData->GetSkillTree()->GetSkillTreeTemplet( static_cast<int>( pUnit->GetClass() ),
+					static_cast<CX2SkillTree::SKILL_ID>( iMemoSkillID ) );
+		}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		if ( NULL == pSkillTreeTemplet )
 		{
 			m_pDLGSkillToolTip->SetShow( false );
@@ -3627,7 +3683,17 @@ bool CX2UISkillTreeNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
 	case STUCM_BUY_CANCEL:
 		return JuneSkillPageCustomEventProc( hWnd, uMsg, wParam, lParam );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	case STUCM_SELECT_SKILL_LEFT_MEMO:			/// 328ed02c
+	case STUCM_SELECT_SKILL_RIGHT_MEMO:			/// 328ed259
+	case STUCM_SELECT_SKILL_ACTIVE_MEMO:		/// 328ed483
+	case STUCM_SELECT_SKILL_DEACTIVE_MEMO:		/// 328ed519
+	case STUCM_BUTTON_MEMO_SELECT_MOUSE_OVER:	/// 328ed5ca
+	case STUCM_BUTTON_MEMO_SELECT_MOUSE_OUT:	/// 328ed64b
+		return JuneMemoCustomEventProc( hWnd, uMsg, wParam, lParam );
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// S7c ( memo ): 29065 328ed02c, 29066 328ed259, 29067 328ed483, 29068 328ed519, 29076 328ed5ca, 29077 328ed64b
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	/// S7e ( panels ): 29061 328ec85b, 29062 328ec9b6, 29069 328ecb05, 29070 328ecc59, 29071 328ecd9f, 29072 328ece68, 29073 328ecf35, 29074 328ecfbf
 	/// checklist ( class material ): 29059 328ec719 ( Aisha memorize slot ), 29078 328ed6a8 ( Luciel transform slot )
 	default:
@@ -3637,6 +3703,435 @@ bool CX2UISkillTreeNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
 }
 
 
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+/////////////////////////////////////////////////////////////////////////
+// S7c: the skill memos ( traits )
+/////////////////////////////////////////////////////////////////////////
+namespace
+{
+	/// June's message boxes in the memo checks ( 3235b070 / 3235b750 / 3235be30, the ACK handlers ) sit at ( 250, 300 ) ( 334577b8 / 3344f348 )
+	void JuneMemoOKMsgBox( const wstring& wstrText_ )
+	{
+		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250.f, 300.f ), wstrText_.c_str(), g_pMain->GetNowState(), -1, -1.f );
+	}
+
+	/// June 3235b070 ( a CX2Unit thiscall on my unit; skill, memo, class ): may the memo be switched on? Each refusal shows its box.
+	bool JuneCanActivateMemo( const int iSkillID_, const int iMemoID_, const int iUnitClass_ )
+	{
+		const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) );
+		if ( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		{
+			JuneMemoOKMsgBox( GET_STRING( 35614 ) );		/// 0x8b1e "Unknown error has occurred."
+			return false;
+		}
+		const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+
+		/// @3235b101: the class has the row ( 32452150 )
+		if ( false == CX2SkillNoteManager::GetInstance()->HasJuneMemo( iSkillID_, iMemoID_, iUnitClass_ ) )
+		{
+			JuneMemoOKMsgBox( GET_STRING( 35619 ) );		/// 0x8b23 "You can't apply a memo to this skill."
+			return false;
+		}
+
+		/// @3235b119: one memo per skill: any active memo on the base ( 32891fc0 = 32891e10 not empty )
+		std::vector<int> vecMemoID;
+		refUserSkillTree.GetJuneActiveMemoList( iBaseSkillID, vecMemoID );
+		if ( false == vecMemoID.empty() )
+		{
+			JuneMemoOKMsgBox( GET_STRING( 35620 ) );		/// 0x8b24 "A different trait has been applied..."
+			return false;
+		}
+
+		/// @3235b290: the skill is acquired ( 328914b0( id, 0 ) )
+		if ( false == JuneIsSkillAcquired( refUserSkillTree, static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false ) )
+		{
+			JuneMemoOKMsgBox( GET_STRING( 35621 ) );		/// 0x8b25 "You have yet to learn this skill."
+			return false;
+		}
+		return true;
+	}
+
+	/// June 3235b750 ( my unit; skill, an argument it does not read ): the base skill has an active memo; else 0x8b26's box and false
+	bool JuneCanDeactivateMemo( const int iSkillID_ )
+	{
+		const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) );
+		std::vector<int> vecMemoID;
+		g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree.GetJuneActiveMemoList( iBaseSkillID, vecMemoID );
+		if ( false == vecMemoID.empty() )
+			return true;
+		JuneMemoOKMsgBox( GET_STRING( 35622 ) );			/// 0x8b26 "There are no traits in effect."
+		return false;
+	}
+
+	/// June 3235be30 ( my unit ): the UID of the first removal item ( AddRemovableMemoItemID's set, in order ) that the inventory holds
+	/// ( 32869d40( id, 0, 1, 1 ): no bank-type categories, E-equip included = March's GetItemByTID( id, false, true ) ); 0 when none.
+	/// An empty list shows "Unknown error" first ( 0x8b1e ).
+	UidType JuneFindMemoRemoveItemUID()
+	{
+		std::vector<int> vecItemID;
+		CX2SkillNoteManager::GetInstance()->GetJuneRemovableMemoItemIDList( vecItemID );
+		if ( true == vecItemID.empty() )
+		{
+			JuneMemoOKMsgBox( GET_STRING( 35614 ) );
+			return 0;
+		}
+		const CX2Inventory& refInventory = g_pData->GetMyUser()->GetSelectUnit()->GetInventory();
+		for ( std::vector<int>::const_iterator it = vecItemID.begin(); it != vecItemID.end(); ++it )
+		{
+			const CX2Item* pItem = refInventory.GetItemByTID( *it, false, true );
+			if ( NULL != pItem )
+				return pItem->GetUID();
+		}
+		return 0;
+	}
+}
+
+/// June 328dcae0 ( bRight ): the side's button loses its text, is hidden and disabled and loses its hover messages ( +0x270 / +0x274 = -1 );
+/// the state icon's three pictures are hidden
+void CX2UISkillTreeNew::JuneHideMemoPopup( SkillSlotUI& UISet_, const bool bRight_ )
+{
+	CKTDGUIButton* pButton = ( true == bRight_ ) ? UISet_.m_pButtonRightMemoDesc : UISet_.m_pButtonLeftMemoDesc;
+	CKTDGUIStatic* pStatic = ( true == bRight_ ) ? UISet_.m_pStaticRightMemoState : UISet_.m_pStaticLeftMemoState;
+	if ( NULL != pButton )
+	{
+		pButton->SetGuideDesc( L"" );					/// +0x1d0
+		pButton->SetShowEnable( false, false );			/// vslot 0x78
+		pButton->SetCustomMsgMouseOver( -1 );			/// +0x274
+		pButton->SetCustomMsgMouseOut( -1 );			/// +0x270
+	}
+	if ( NULL != pStatic )
+	{
+		for ( int i = 0; i < 3; ++i )
+		{
+			if ( NULL != pStatic->GetPicture( i ) )
+				pStatic->GetPicture( i )->SetShow( false );
+		}
+	}
+}
+
+/// June 328dda50 ( a SkillSlotUI thiscall, bRight ): hide the side, then with my unit: the class's memo row of the slot's skill by index
+/// ( 32451140: 1 = right, 0 = left ). No row -> stays hidden. Else the state ( 32455150: 0 locked below the row's level, 1 open, 2 active )
+/// goes into the side's state word, the button gets the guide text and is shown, and the state's picture is shown.
+void CX2UISkillTreeNew::JuneUpdateMemoPopup( SkillSlotUI& UISet_, const bool bRight_ )
+{
+	JuneHideMemoPopup( UISet_, bRight_ );
+	if ( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	int& riState					= ( true == bRight_ ) ? UISet_.m_iReserved20 : UISet_.m_iReserved14;
+	CKTDGUIButton* pButton			= ( true == bRight_ ) ? UISet_.m_pButtonRightMemoDesc : UISet_.m_pButtonLeftMemoDesc;
+	CKTDGUIStatic* pStatic			= ( true == bRight_ ) ? UISet_.m_pStaticRightMemoState : UISet_.m_pStaticLeftMemoState;
+	const CX2Unit* pUnit			= g_pData->GetMyUser()->GetSelectUnit();
+	const int iUnitClass			= static_cast<int>( pUnit->GetClass() );		/// unit +0xaf0 templet +4
+	const int iUnitLevel			= static_cast<int>( pUnit->GetUnitData().m_Level );
+	const int iSkillID				= ( NULL != UISet_.m_pSlot ) ? UISet_.m_pSlot->GetID() : 0;	/// slot +0x3c8
+
+	const SJuneSkillMemoTemplet* pMemo = CX2SkillNoteManager::GetInstance()->GetJuneMemoByIndex( iSkillID, true == bRight_ ? 1 : 0, iUnitClass );
+	if ( NULL == pMemo )
+		return;
+
+	riState = CX2SkillNoteManager::GetJuneMemoState( iSkillID, pMemo->m_iType, iUnitLevel, iUnitClass );
+
+	if ( NULL != pButton )
+	{
+		std::wstringstream wstrmGuide;
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = ( NULL != g_pData->GetSkillTree() ) ?
+			g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ) ) : NULL;
+		if ( NULL != pSkillTemplet )
+		{
+			/// name + L" " + the skill's name ( templet +0x14 ) + L"\n" + the effect text ( 3344ff0c / 3342f1b8 )
+			wstring wstrText = CX2SkillNoteManager::GetJuneMemoName( pMemo->m_iType );
+			wstrText += L" ";
+			wstrText += pSkillTemplet->m_wstrName;
+			wstrText += L"\n";
+			wstrText += CX2SkillNoteManager::GetInstance()->GetJuneMemoEffectDesc( iSkillID, pMemo->m_iType, iUnitClass );
+			if ( 0 == riState )
+			{
+				/// locked: L"\n\n" ( 3347e7ac ) + "Can be used from Level @1." ( 0x8b1f, "i": the row's level )
+				wstrText += L"\n\n";
+				wstrText += GET_REPLACED_STRING( ( 35615, "i", pMemo->m_iRequireLevel ) );
+			}
+			wstrmGuide << wstrText;
+		}
+
+		/// open or active, a transcendence memo ( 19 / 20 ): the skill it switches to ( value[ 1 ] for an upgraded skill, 32206d00 ) goes
+		/// into the button's second dummy int, and hovering shows that skill ( 29076 / 29077 )
+		if ( 0 != riState && 0x13 <= pMemo->m_iType && pMemo->m_iType <= 0x14 )
+		{
+			bool bUpgraded = false;
+			if ( NULL != g_pData->GetSkillTree() )
+			{
+				const CX2SkillTree::SkillTemplet* pOwnTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ) );
+				bUpgraded = ( NULL != pOwnTemplet && 0 != pOwnTemplet->m_iDeleteSkillIDByUpgrade );
+			}
+			const int iIndex = ( true == bUpgraded ) ? 1 : 0;
+			const int iAltSkillID = ( iIndex < static_cast<int>( pMemo->m_vecValue.size() ) ) ? static_cast<int>( pMemo->m_vecValue[ iIndex ] ) : 0;
+			if ( 0 < iAltSkillID )
+			{
+				pButton->SetDummyInt( 1, iAltSkillID );
+				pButton->SetCustomMsgMouseOver( STUCM_BUTTON_MEMO_SELECT_MOUSE_OVER );	/// +0x274 = 0x7194
+				pButton->SetCustomMsgMouseOut( STUCM_BUTTON_MEMO_SELECT_MOUSE_OUT );	/// +0x270 = 0x7195
+			}
+		}
+
+		pButton->SetGuideDesc( wstrmGuide.str().c_str() );		/// 31f61bd0
+		pButton->SetShowEnable( true, true );
+	}
+
+	/// 328d9cc0( state, 1 ): the state's picture ( MEMO_LOCK / MEMO_OPEN / MEMO_SELECT )
+	if ( NULL != pStatic && NULL != pStatic->GetPicture( riState ) )
+		pStatic->GetPicture( riState )->SetShow( true );
+}
+
+/// June 328e9b30 ( bRight ): a click on a memo button ( 29065 / 29066 )
+void CX2UISkillTreeNew::JuneOpenMemoSelectPopup( SkillSlotUI& UISet_, const bool bRight_ )
+{
+	ShowSkillDesc( false );		/// 328e9160( 0, 0, 0, 0, 0, 1 )
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+	/// @328e9bc8: in a game, a busy unit is warned and nothing opens ( 323022b0 = CheckAndWarningBusyStateNow( true ) )
+	if ( NULL != g_pX2Game && true == g_pX2Game->CheckAndWarningBusyStateNow( true ) )
+		return;
+
+	JuneUpdateMemoPopup( UISet_, bRight_ );
+
+	const int iUnitClass	= static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetClass() );
+	const int iSkillID		= ( NULL != UISet_.m_pSlot ) ? UISet_.m_pSlot->GetID() : 0;
+	const int iBaseSkillID	= static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ) ) );
+	const SJuneSkillMemoTemplet* pMemo = CX2SkillNoteManager::GetInstance()->GetJuneMemoByIndex( iBaseSkillID, true == bRight_ ? 1 : 0, iUnitClass );
+	if ( NULL == pMemo )
+		return;
+
+	/// @328e9d01: the previous box goes ( 31be4210( XGM_DELETE_DIALOG, +0xa0 ) )
+	g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneMemoMsgBox, NULL, false );
+	m_pDLGJuneMemoMsgBox = NULL;
+	m_iJuneMemoRemoveItemUID = 0;
+
+	const int iState = ( true == bRight_ ) ? UISet_.m_iReserved20 : UISet_.m_iReserved14;
+	switch ( iState )
+	{
+	case 0:		/// locked: "You haven't met the requirements to open the trait option." ( 0x8b20 )
+		m_pDLGJuneMemoMsgBox = g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999.f, -999.f ), GET_STRING( 35616 ), g_pMain->GetNowState(), -1, -1.f );
+		break;
+
+	case 1:		/// open: the checks ( 3235b070 ), then "Would you like to apply the @1 trait?" ( 0x8b21 ) with OK = 29067
+		{
+			if ( false == JuneCanActivateMemo( iSkillID, pMemo->m_iType, iUnitClass ) )
+				break;
+			const wstring wstrMemoName = CX2SkillNoteManager::GetJuneMemoName( pMemo->m_iType );
+			if ( true == wstrMemoName.empty() )		/// 31cda210
+				break;
+			m_pDLGJuneMemoMsgBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999.f, -999.f ),
+				GET_REPLACED_STRING( ( 35617, "L", wstrMemoName ) ), STUCM_SELECT_SKILL_ACTIVE_MEMO, g_pMain->GetNowState(), -1 );
+			if ( NULL != m_pDLGJuneMemoMsgBox )
+			{
+				m_pDLGJuneMemoMsgBox->AddDummyInt( iBaseSkillID );		/// 31f8b860
+				m_pDLGJuneMemoMsgBox->AddDummyInt( pMemo->m_iType );
+			}
+		} break;
+
+	case 2:		/// active
+		{
+			if ( false == JuneCanDeactivateMemo( iSkillID ) )
+			{
+				/// @328ea0e3: after 3235b750's own box June opens a second one with a hard-coded Korean literal ( 334c3b50,
+				/// "Unknown error." ), not kept in +0xa0 ( JUNE_BUGS )
+				g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999.f, -999.f ), L"\xc54c \xc218 \xc5c6\xb294 \xc5d0\xb7ec \xc785\xb2c8\xb2e4.", g_pMain->GetNowState(), -1, -1.f );
+				break;
+			}
+			const UidType iItemUID = JuneFindMemoRemoveItemUID();
+			if ( 0 < iItemUID )
+			{
+				const wstring wstrMemoName = CX2SkillNoteManager::GetJuneMemoName( pMemo->m_iType );
+				if ( true == wstrMemoName.empty() )
+					break;
+				/// "Would you like to deactivate the @1 trait? Consumes [Tome of Amnesia]." ( 0x8b22 ) with OK = 29068
+				m_pDLGJuneMemoMsgBox = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( -999.f, -999.f ),
+					GET_REPLACED_STRING( ( 35618, "L", wstrMemoName ) ), STUCM_SELECT_SKILL_DEACTIVE_MEMO, g_pMain->GetNowState(), -1 );
+				if ( NULL != m_pDLGJuneMemoMsgBox )
+				{
+					m_pDLGJuneMemoMsgBox->AddDummyInt( iBaseSkillID );
+					m_pDLGJuneMemoMsgBox->AddDummyInt( pMemo->m_iType );
+					m_iJuneMemoRemoveItemUID = iItemUID;				/// 31ed7710 ( the box's int64 dummy )
+				}
+				break;
+			}
+			/// "[Tome of Amnesia] not found." ( 0x8b9a ), not kept in +0xa0
+			g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( -999.f, -999.f ), GET_STRING( 35738 ), g_pMain->GetNowState(), -1, -1.f );
+		} break;
+
+	default:
+		break;
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO popup skill=%d base=%d side=%s memo=%d state=%d", iSkillID, iBaseSkillID,
+		true == bRight_ ? L"right" : L"left", pMemo->m_iType, iState );
+}
+
+/// UICustomEventProc's memo cases ( June 328eab00: ESI = lParam, the control; EBP = 0; 328ec399 returns false )
+bool CX2UISkillTreeNew::JuneMemoCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	switch ( wParam )
+	{
+	case STUCM_SELECT_SKILL_LEFT_MEMO:			/// 328ed02c
+	case STUCM_SELECT_SKILL_RIGHT_MEMO:			/// 328ed259
+		{
+			CKTDGUIControl* pControl = reinterpret_cast<CKTDGUIControl*>( lParam );
+			if ( NULL == pControl )
+				return false;
+			const int iSkillID = pControl->GetDummyInt( 0 );		/// 31c947d0( 0 )
+			if ( iSkillID <= 0 )
+				return false;
+
+			/// the slot of the skill, else of its "[Enhanced]" skill ( 32205c00, -1 when none )
+			map<CX2SkillTree::SKILL_ID, SkillSlotUI>::iterator it = m_mapSkillSlotUISet.find( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ) );
+			if ( it == m_mapSkillSlotUISet.end() && NULL != g_pData && NULL != g_pData->GetSkillTree() )
+				it = m_mapSkillSlotUISet.find( static_cast<CX2SkillTree::SKILL_ID>( g_pData->GetSkillTree()->GetUpgradedSkillID( iSkillID ) ) );
+			if ( it != m_mapSkillSlotUISet.end() )
+			{
+				JuneOpenMemoSelectPopup( it->second, STUCM_SELECT_SKILL_RIGHT_MEMO == wParam );
+				return true;
+			}
+			JuneMemoOKMsgBox( GET_STRING( 35614 ) );		/// 0x8b1e
+		} return true;
+
+	case STUCM_SELECT_SKILL_ACTIVE_MEMO:		/// 328ed483: the box's dummy ints ( 0 past the end ) -> 32453060, then the box goes; returns false
+	case STUCM_SELECT_SKILL_DEACTIVE_MEMO:		/// 328ed519: the same with the removal item's UID -> 324530d0
+		{
+			int iBaseSkillID = 0;
+			int iMemoID = 0;
+			if ( NULL != m_pDLGJuneMemoMsgBox && true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneMemoMsgBox ) )
+			{
+				iBaseSkillID	= m_pDLGJuneMemoMsgBox->GetDummyInt( 0 );
+				iMemoID			= m_pDLGJuneMemoMsgBox->GetDummyInt( 1 );
+			}
+			if ( STUCM_SELECT_SKILL_ACTIVE_MEMO == wParam )
+				CX2SkillNoteManager::GetInstance()->SendJuneActiveMemoReq( iBaseSkillID, iMemoID );
+			else
+				CX2SkillNoteManager::GetInstance()->SendJuneDeactiveMemoReq( iBaseSkillID, iMemoID, m_iJuneMemoRemoveItemUID );
+
+			g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneMemoMsgBox, NULL, false );
+			m_pDLGJuneMemoMsgBox = NULL;
+			m_iJuneMemoRemoveItemUID = 0;
+		} return false;
+
+	case STUCM_BUTTON_MEMO_SELECT_MOUSE_OVER:	/// 328ed5ca: the skill in the button's second dummy int, at the button, mode 2
+		{
+			CKTDGUIButton* pButton = reinterpret_cast<CKTDGUIButton*>( lParam );
+			if ( NULL == pButton )
+				return false;
+			m_pHoveredMemoButton = pButton;
+			const int iSkillID = pButton->GetDummyInt( 1 );
+			if ( iSkillID <= 0 )
+				return false;
+			ShowSkillDesc( true, static_cast<CX2SkillTree::SKILL_ID>( iSkillID ), pButton->GetPos(), D3DXVECTOR2( 0.f, 0.f ), false, 2 );	/// vslot 0x70
+		} return false;
+
+	case STUCM_BUTTON_MEMO_SELECT_MOUSE_OUT:	/// 328ed64b: only for the hovered button
+		{
+			CKTDGUIButton* pButton = reinterpret_cast<CKTDGUIButton*>( lParam );
+			if ( NULL == pButton || pButton != m_pHoveredMemoButton )
+				return false;
+			ShowSkillDesc( false );
+			m_pHoveredMemoButton = NULL;
+		} return false;
+
+	default:
+		break;
+	}
+	return false;
+}
+
+/// June 328df480 ( the grant handlers 323b0770 / 324631a0 / 32535be0 / 3220ee30, after 328924c0 ): with g_pData's skill tree, each
+/// granted skill ( KSkillData's short id ) through 328ded60
+void CX2UISkillTreeNew::JuneReplaceUpgradedSkillSlots( const std::vector<KSkillData>& vecSkillData_ )
+{
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return;
+	for ( std::vector<KSkillData>::const_iterator it = vecSkillData_.begin(); it != vecSkillData_.end(); ++it )
+		JuneReplaceUpgradedSkillSlot( static_cast<int>( it->m_iSkillID ) );
+}
+
+/// June 328ded60 ( skill ): a granted "[Enhanced]" skill takes over its base's tree slot ( templet +0x178 ): the slot UI set moves to the
+/// new key with the slot's id and slot data rewritten, the base's two memo buttons are re-pointed ( dummy int 0 set twice, JUNE_BUGS ),
+/// the slot is redrawn, and an equipped base is swapped on the bar ( 32205dc0 = the slot-change queue ). Then the skill is marked new.
+void CX2UISkillTreeNew::JuneReplaceUpgradedSkillSlot( const int iSkillID_ )
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	const int iBaseSkillID = pSkillTemplet->m_iDeleteSkillIDByUpgrade;
+	map<CX2SkillTree::SKILL_ID, SkillSlotUI>::iterator itBase = m_mapSkillSlotUISet.find( static_cast<CX2SkillTree::SKILL_ID>( iBaseSkillID ) );
+	if ( itBase != m_mapSkillSlotUISet.end() )
+	{
+		SkillSlotUI kUISet = itBase->second;
+		m_mapSkillSlotUISet.erase( itBase );
+		if ( NULL != kUISet.m_pSlot )
+		{
+			kUISet.m_pSlot->SetID( iSkillID_ );												/// +0x3c8
+			CKTDGUISlotData* pSlotData = kUISet.m_pSlot->GetSlotData();						/// +0x3c4
+			if ( NULL != pSlotData )
+			{
+				static_cast<CX2SkillTreeSlotData*>( pSlotData )->m_eSkillID = static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ );	/// +0xc
+				pSlotData->m_bDataUpdated = true;											/// +4
+			}
+		}
+		m_mapSkillSlotUISet.insert( std::make_pair( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), kUISet ) );	/// 3265c6a0
+
+		if ( NULL != m_pDLGUISkillTree )
+		{
+			const WCHAR* awszFormat[] = { L"g_pButton_LeftMemoDesc_%d", L"g_pButton_RightMemoDesc_%d" };
+			for ( int i = 0; i < ARRAY_SIZE( awszFormat ); ++i )
+			{
+				WCHAR buf[256] = { 0, };
+				StringCchPrintf( buf, 256, awszFormat[i], iBaseSkillID );
+				CKTDGUIButton* pButton = static_cast<CKTDGUIButton*>( m_pDLGUISkillTree->GetControl( buf ) );
+				if ( NULL != pButton && iBaseSkillID == pButton->GetDummyInt( 0 ) )
+				{
+					/// June writes index 0 twice ( @328deecc / @328deed6 ); index 1 keeps the base id ( JUNE_BUGS )
+					pButton->SetDummyInt( 0, iSkillID_ );
+					pButton->SetDummyInt( 0, iSkillID_ );
+					m_pDLGUISkillTree->ChangeSequence( pButton, true );
+				}
+			}
+		}
+
+		UpdateSkillTree( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );		/// 328ddff0
+
+		/// @328defa7: the base on bar A ( 32890070( base, 0 ) ), else on bar B ( +5 )
+		if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() && NULL != m_pUserSkillTree )
+		{
+			int iSlotID = m_pUserSkillTree->GetSkillEquippedSlotIndex( static_cast<CX2SkillTree::SKILL_ID>( iBaseSkillID ), false );
+			if ( -1 == iSlotID )
+			{
+				iSlotID = m_pUserSkillTree->GetSkillEquippedSlotIndex( static_cast<CX2SkillTree::SKILL_ID>( iBaseSkillID ), true );
+				if ( -1 != iSlotID )
+					iSlotID += 5;
+			}
+			if ( -1 != iSlotID )
+				g_pData->GetSkillTree()->Handler_EGS_CHANGE_SKILL_SLOT_REQ( iSlotID, static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );	/// 32205dc0
+		}
+
+		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO slot %d -> %d ( the upgraded skill takes its base's tree slot )", iBaseSkillID, iSkillID_ );
+	}
+
+	/// @328defe9: the new-skill mark on a tree slot ( slot data type 1, +0x10 not set yet )
+	map<CX2SkillTree::SKILL_ID, SkillSlotUI>::iterator it = m_mapSkillSlotUISet.find( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if ( it != m_mapSkillSlotUISet.end() && NULL != it->second.m_pSlot )
+	{
+		CKTDGUISlotData* pSlotData = it->second.m_pSlot->GetSlotData();
+		if ( NULL != pSlotData && CKTDGUISlotData::SDT_SKILL_TREE == pSlotData->m_eSlotDataType &&
+			 false == static_cast<CX2SkillTreeSlotData*>( pSlotData )->m_bNewSkill )
+		{
+			static_cast<CX2SkillTreeSlotData*>( pSlotData )->m_bNewSkill = true;
+			pSlotData->m_bDataUpdated = true;
+			++m_iNewSkillCount;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 /// S7d replaces this: March's page cases ( X2UISkillTreeNew.cpp SKILL_PAGE_SYSTEM block ) carried as they are, minus the learn-mode
 /// decide paths June's switch does not have ( 29054, 29057, 29058 ). June's 29049 ( 328ec068 ) is the one page radio case.

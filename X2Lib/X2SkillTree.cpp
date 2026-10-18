@@ -1635,6 +1635,17 @@ bool CX2SkillTree::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			return Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	case EGS_JUNE_ACTIVE_SKILL_MEMO_ACK:
+		{
+			return Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
+		} break;
+
+	case EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK:
+		{
+			return Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK( hWnd, uMsg, wParam, lParam );
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 	case EGS_ADMIN_CASH_SKILL_POINT_DATE_CHANGE_ACK:
 		{
@@ -3275,6 +3286,12 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPA
 
 	if( NULL != g_pData->GetUIManager() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+		/// every copy, when the tree UI exists ( 3214f050 ): 328df480( the granted skills ) -> 328ded60, an upgraded skill takes its base's
+		/// tree slot and memo buttons
+		if( NULL != g_pData->GetUIManager()->GetUISkillTree() )
+			g_pData->GetUIManager()->GetUISkillTree()->JuneReplaceUpgradedSkillSlots( kEvent.m_vecSkillData );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 		/// 32535be0's copy redraws the tree when the skill window is shown ( UpdateUI( 0, 1, 0 ) ); every copy also lights the new skills'
 		/// memo buttons ( 328df480 -> 328ded60 ), which come with June's tree UI ( S7b )
 		if( NULL != g_pData->GetUIManager()->GetUISkillTree() && true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_SKILL ) )
@@ -3288,6 +3305,92 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPA
 	/// June then calls CX2Unit 3235a160, a HUD stat refresh through a June-only singleton ( 324943c0 ) March does not have ( S7b note )
 	return true;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+/// June 31f1bdb0 @31f1c008..31f1c162 ( the same block in 31f1c1d0 ): with a game whose my-unit ( vslot 0x98 ) has unit data, each of the five
+/// slots of bar A then bar B ( 3288fe00( i, b ) ) that holds a skill ( > 0 ) is rebuilt: 31fd84c0( unit data, skill, i, b ), March's
+/// 4-argument ChangeEquippedSkillState ( 31fd6880 = CalcEquippedSkillLevelPlusAndMPCostBySlotID, slots 493 / 495 / 494 ).
+/*static*/ void CX2SkillTree::JuneRefreshEquippedSkillsForMemo()
+{
+	if( NULL == g_pX2Game || NULL == g_pX2Game->GetMyUnit() || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	CX2Unit::UnitData& kUnitData = g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData();
+	for( int i = 0; i < 5; ++i )
+	{
+		for( int iBar = 0; iBar < 2; ++iBar )
+		{
+			const CX2UserSkillTree::SkillSlotData* pSlot = kUnitData.m_UserSkillTree.GetSkillSlot( i, 1 == iBar );
+			if( NULL == pSlot )
+				continue;
+			const CX2SkillTree::SKILL_ID eSkillID = pSlot->m_eID;
+			if( static_cast<int>( eSkillID ) <= 0 )
+				continue;
+			g_pX2Game->GetMyUnit()->ChangeEquippedSkillState( kUnitData, eSkillID, i, 1 == iBar );
+		}
+	}
+}
+
+/// June 31f1bdb0 ( ACK 0x555 ): wait over and OK -> "Selected trait has been registered." ( 0x8b98, 250 x 300 ); with my unit, the memo goes
+/// into its tree ( 328923e0( skill, memo ) ), the equipped skills are rebuilt, and the tree UI redrawn ( 328e7b70( 1, 1, 0 ) ).
+bool CX2SkillTree::Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	KSerBuffer* pBuff = (KSerBuffer*)lParam;
+	KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK kEvent;
+	DeSerialize( pBuff, &kEvent );
+
+	if( false == g_pMain->DeleteServerPacket( EGS_JUNE_ACTIVE_SKILL_MEMO_ACK ) || false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
+		return true;
+
+	g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250.f, 300.f ), GET_STRING( 35736 ), g_pMain->GetNowState(), -1, -1.f );
+
+	if( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return true;
+
+	g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree.AddJuneActiveMemo( kEvent.m_iSkillID, kEvent.m_iMemoID );
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO ACK activated skill=%d memo=%d", kEvent.m_iSkillID, kEvent.m_iMemoID );
+
+	JuneRefreshEquippedSkillsForMemo();
+
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+		g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, false );
+	return true;
+}
+
+/// June 31f1c1d0 ( ACK 0x557 ): wait over and OK -> "Selected trait has been removed." ( 0x8b99 ); with my unit: the inventory takes the
+/// changed slots ( 3286d590( vec, 0 ) ), the memo leaves the tree ( 32891050( skill, memo ) ), the equipped skills are rebuilt and the tree
+/// UI redrawn ( 1, 1, 0 ). Then, unit or not, an open inventory window takes the slots too ( 321524d0( 0x1f ) -> 32196a00( vec, 1, 1 ) ).
+bool CX2SkillTree::Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	KSerBuffer* pBuff = (KSerBuffer*)lParam;
+	KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK kEvent;
+	DeSerialize( pBuff, &kEvent );
+
+	if( false == g_pMain->DeleteServerPacket( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK ) || false == g_pMain->IsValidPacket( kEvent.m_iOK ) )
+		return true;
+
+	g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250.f, 300.f ), GET_STRING( 35737 ), g_pMain->GetNowState(), -1, -1.f );
+
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+	{
+		CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+		pUnit->AccessInventory().UpdateInventorySlotList( kEvent.m_vecInventorySlotInfo );
+		pUnit->AccessUnitData().m_UserSkillTree.RemoveJuneActiveMemo( kEvent.m_iSkillID, kEvent.m_iMemoID );
+		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO ACK deactivated skill=%d memo=%d, %d inventory slot(s)", kEvent.m_iSkillID, kEvent.m_iMemoID,
+			static_cast<int>( kEvent.m_vecInventorySlotInfo.size() ) );
+
+		JuneRefreshEquippedSkillsForMemo();
+
+		if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+			g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, false );
+	}
+
+	if( NULL != g_pData->GetUIManager() && true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_INVEN ) &&
+		NULL != g_pData->GetUIManager()->GetUIInventory() )
+		g_pData->GetUIManager()->GetUIInventory()->UpdateInventorySlotList( kEvent.m_vecInventorySlotInfo, true );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 void CX2SkillTree::On_EGS_EXPIRE_CASH_SKILL_POINT_NOT( KEGS_EXPIRE_CASH_SKILL_POINT_NOT kEvent )
 {

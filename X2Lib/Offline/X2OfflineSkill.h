@@ -142,6 +142,16 @@ public:
 	/// the same two checks GSUserGameCommon.cpp:7275-7298 makes.
 	int		RegisterSkillNoteMemo( int iPage, int iMemoID );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	//////////////////////////////////////////////////////////////////////////
+	// June's skill memos ( S7c ): skill -> MEMO_ID, one per skill, persisted in unit_skill_note ( v19 )
+
+	const std::map< int, int >&	GetJuneActiveMemos() const	{ return m_mapJuneActiveMemo; }
+	int		GetJuneActiveMemo( int iSkillID ) const;		///< 0 when the skill has none
+	bool	SetJuneActiveMemo( int iSkillID, int iMemoID );
+	bool	ClearJuneActiveMemo( int iSkillID );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
 	//////////////////////////////////////////////////////////////////////////
 	// writes
 
@@ -244,6 +254,9 @@ private:
 	std::set< int >					m_setUnsealedSkill;
 	std::map< char, int >			m_mapSkillNote;
 	char							m_cSkillNoteMaxPage;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	std::map< int, int >			m_mapJuneActiveMemo;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	int									m_aiSkillSlot[ CX2UserSkillTree::MAX_SKILL_SLOT ];
 };
 

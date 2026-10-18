@@ -4691,3 +4691,13 @@
 //              Always.h entry. Comment out both together.
 #define SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June skill system Phase S7c ( skill memo packets ), client flag ( offline only ). Also
+//              defined in KTDXLIB/Always.h; this second home exists because EventID_Client.h and
+//              ClientPacket.h ( EGS_JUNE_ACTIVE_SKILL_MEMO_REQ ... ) are compiled before Always.h is
+//              reachable ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+//////////////////////////////////////////////////////////////////////////

@@ -50,6 +50,7 @@ SECOND_HOMES = {
     "SERV_IRUHADEV_JUNE_PET_PREVIEW_LOOKUP": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket_Global.h precedes Always.h (ClientPacket.h:11056)
     "SERV_IRUHADEV_JUNE_SKILL_SLOT_10": "KncWX2Server/Common/ServerDefine.h",  # CommonPacket.h precedes Always.h (X2Main.h:4)
     "SERV_IRUHADEV_JUNE_SKILL_ACQUIRE": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
+    "SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
 }
 
 

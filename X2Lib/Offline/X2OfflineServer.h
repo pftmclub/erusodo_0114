@@ -1142,6 +1142,11 @@ private:
 	bool Handler_EGS_RESET_SKILL_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 	bool Handler_EGS_INIT_SKILL_TREE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 	bool Handler_EGS_CHANGE_SKILL_SLOT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// June skill system S7c: the skill memos ( REQ 0x554 / 0x556 ), a labelled stand-in ( no June server )
+	bool Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 	/// Sent by the client every time a skill is fired in a dungeon. Nothing but
 	/// SQT_SKILL_USE listens to it, and it expects no reply at all.

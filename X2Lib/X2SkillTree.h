@@ -2627,6 +2627,13 @@ public:
 	void JuneAutoEquipOnLevelUp();
 	bool Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// S7c: June's memo ACKs ( CX2State handlers 31f1bdb0 / 31f1c1d0; March routes skill packets here from every state )
+	bool Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	bool Handler_EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	/// both ACKs then rebuild every equipped skill of my game unit ( 31fd84c0 = ChangeEquippedSkillState, slots 0-4 of bar A and B )
+	static void JuneRefreshEquippedSkillsForMemo();
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 
 

@@ -1391,6 +1391,39 @@ June's memo popups on the tree ( `328dda50`, `328e9b30`, `328ded60`, `328df480`,
 the save rung for June's memo rows, the grant-handler memo buttons and the memo text builders ( `32453420`, `324513e0` ). Kickoff `kickoffs/skill-system-core/S7c.md`.
 **Play-test:** select a memo, use the skill ( the `[JUNE_SKILL] MEMO` lines ), relog, remove it with the removal item.
 
+### Phase S7c - Done (2026-10-18, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET` (`Always.h` + `ServerDefine.h`, `SECOND_HOMES`; 5 `#error` guards). Revert: `MODS.md` "June's skill memos". JUNE_BUGS 309-310.
+- **Tree UI** (`X2UISkillTreeNew2015.cpp`). `328dda50` (per side: state word +0x14 / +0x20 from `32455150`, button text = name + skill + effect, locked adds STR 35615 with the
+  row's level; transcendence memos 19 / 20 put the alternate skill in the button's dummy int 1 and the hover messages), `328dcae0`, `328e9b30` (busy check `323022b0` =
+  `CheckAndWarningBusyStateNow`; locked / open / active boxes STR 35616-35618, 35738; dummy ints base + memo; the removal item's UID kept by the tree: March's dialog has no int64
+  dummies), cases 29065-29068 / 29076 / 29077, both `UpdateSkillTree`s and `CreateSkillTree` call `328dda50( 1 )`, `( 0 )`. The `@328de384` offset step is not reproduced (the
+  list rewrites item offsets on layout). Tooltip: memo name / effect in the title and sub text; mode 2 falls back through `32451ff0`.
+- **Checks** (June CX2Unit helpers, file-local): `3235b070` (row `32452150`, one memo per skill `32891fc0`, acquired `328914b0`), `3235b750`, `3235be30` (`GetItemByTID( id, false, true )`).
+- **Texts** (`X2SkillNoteManager`). `32453420` (memo 1-18 -> STR 35593+, 19 / 20 -> 35611, 22 -> 36206, else empty) and `324513e0` (22 cases, x87 settled from the opcode bytes:
+  `dc c9` / `de e9`; case 6 reads value 1, 8 uses STR 43199, 12 STR 43304, 16 `v0*100-100`, 18 `-v0`, 19 / 20 "Change the skill (@1)").
+- **Finding:** June's `32452150` returns a **bool** (ret 0xc, `CMP AL,1` in `3235b070`), not values: S3b's `GetJuneMemoValue` (no caller) is the `#else` of the new `HasJuneMemo`.
+- **Packets.** `EGS_JUNE_ACTIVE_SKILL_MEMO_REQ` { base skill, memo } / `_ACK` { OK, skill, memo, byte } and `EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ` { base, memo, item UID } / `_ACK`
+  { OK, int, skill, memo, byte, `vector<KInventoryItemInfo>`, `vector<KJuneUIDFlag>` } (readers `320aaae0` / `320e7eb0`; June's names are not in the binary). Senders `32453060` /
+  `324530d0`. ACK handlers in `CX2SkillTree` (`31f1bdb0` / `31f1c1d0`): box STR 35736 / 35737, Add / Remove memo, inventory update, `31fd84c0` = March's 4-arg
+  `ChangeEquippedSkillState` on slots 0-4 of both bars, `UpdateUI( 1, 1, 0 )`.
+- **Unit info.** The active memos are `KJuneSkillExtraData::m_mapIntInt` (KUnitInfo +0x1ce = KUnitSkillData +0x126 +0x88 +0x20), merged by `SetKUnitInfo` (`3235eb20 @3235f9e0`) and
+  `SetKRoomUserInfo` (`32360090 @323608a4`; the room packets carry my own unit's skill data, so the dungeon unit gets the memos).
+- **Grant handler.** `328df480` -> `328ded60` (an upgraded skill takes its base's tree slot, re-points the memo buttons, swaps the equipped base via the slot-change queue, marks new).
+- **Emulator and save** (labelled stand-in: no June server). `Handler_EGS_JUNE_ACTIVE / DEACTIVE_SKILL_MEMO_REQ` check what the client checks (row, level, one memo, learned;
+  active memo, removal item in bag and in the list), spend one item, log every decision (`[JUNE_SKILL] MEMO emu ...`). Save **v19**: `unit_skill_note` recreated as
+  (unit, skill, memo) (`[JUNE_SKILL] MIG v19`), `FillUnitSkillData` sends the map. March's `EGS_REG_SKILL_NOTE_MEMO_REQ` is refused with a log line.
+- **Routed (new row S7f, `kickoffs/skill-system-core/S7f.md`):** the memo map in four more ACKs (`31ed4c80` slot ACK with its KUnitSkillData, `3220f2b0`, `31f276b0`, `3257b610`);
+  the item tooltip's skill lists `3220d2b0` / `3220b990`. Not ported (no caller in June): `3235b9e0`, `32452f00`.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET --worktree --files <20 files>`: `files: 7 PASS, 11 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 19,999,744 B, dated 2026-10-18 20:07:55, md5 baa6da54b0f6f26c31ee393fd4b92261, equal to X2/US_SERVICE/x2.exe (2026-10-18 20:07:50); built at main d9d9f469 + 20 uncommitted code file(s).` The five phase strings ( MEMO REQ / popup / ACK / emu / MIG v19 ) are in the exe. The first build failed on two macro misuses of mine ( `GET_STRING` pastes its argument into a `%` chain; `GET_REPLACED_STRING` already ends in `.c_str()` ), fixed before this one.
+- **Save:** `db_backup/els_db_20261018_195712_pre_manual.sql` (before the v19 launch). Unit 25 (Lord Knight L80): +2 Tome of Amnesia (135667); Sand Storm (21009) moved to A slot 0
+  (21011 to slot 6). Its left memo is Gigantic (MI_HUGE, row level 53, x1.3), the S3d `MEMO fx` consumer.
+- **How to see it:** the tree's memo icons (lock / open / selected) under each skill; Sand Storm's left icon -> "apply the Gigantic trait?" -> OK -> "registered"; Sand Storm's
+  effects 1.3x; relog keeps it; the selected icon -> Tome of Amnesia prompt -> "removed", one tome gone.
+- **Open questions:** none.
+
 ## Phase S7d - Skill pages, the reset item's UI, the HUD refresh
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_PAGE`. Sub-tag `[JUNE_SKILL] PAGE`. Split out of S7b (user, 2026-10-18).

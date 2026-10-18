@@ -5496,6 +5496,63 @@ DECL_PACKET( EGS_JUNE_ACQUIRE_SKILL_NOT )
 };
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+// June skill system S7c: the skill memos ( traits ). REQ 0x554 ( sender 32453060 ): the base skill ( 32207210 ), the memo.
+DECL_PACKET( EGS_JUNE_ACTIVE_SKILL_MEMO_REQ )
+{
+	int								m_iSkillID;
+	int								m_iMemoID;
+
+	KEGS_JUNE_ACTIVE_SKILL_MEMO_REQ() : m_iSkillID( 0 ), m_iMemoID( 0 ) {}
+};
+
+// ACK 0x555 ( reader 320aaae0 ): OK @0, skill @4, memo @8, a byte @0xc that June's handler ( 31f1bdb0 ) does not read.
+DECL_PACKET( EGS_JUNE_ACTIVE_SKILL_MEMO_ACK )
+{
+	int								m_iOK;
+	int								m_iSkillID;
+	int								m_iMemoID;
+	bool							m_bJuneUnread0C;
+
+	KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread0C( false ) {}
+};
+
+// REQ 0x556 ( sender 324530d0 ): the base skill, the memo, the UID of the removal item ( 3235be30, the first owned of
+// AddRemovableMemoItemID's list ).
+DECL_PACKET( EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ )
+{
+	int								m_iSkillID;
+	int								m_iMemoID;
+	UidType							m_iItemUID;
+
+	KEGS_JUNE_DEACTIVE_SKILL_MEMO_REQ() : m_iSkillID( 0 ), m_iMemoID( 0 ), m_iItemUID( 0 ) {}
+};
+
+// A record of 0x557's second vector ( element reader 32113b60: int64, then a byte that defaults to 1 ); no June handler reads it.
+DECL_DATA( KJuneUIDFlag )
+{
+	UidType							m_iUID;
+	bool							m_bFlag;
+
+	KJuneUIDFlag() : m_iUID( 0 ), m_bFlag( true ) {}
+};
+
+// ACK 0x557 ( reader 320e7eb0 ): OK @0, an int @4 June's handler ( 31f1c1d0 ) does not read, skill @8, memo @0xc, a byte @0x10
+// ( unread ), the changed inventory slots @0x11 ( 3213c870 -> KInventoryItemInfo ), vector< KJuneUIDFlag > @0x21 ( unread ).
+DECL_PACKET( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK )
+{
+	int								m_iOK;
+	int								m_iJuneUnread04;
+	int								m_iSkillID;
+	int								m_iMemoID;
+	bool							m_bJuneUnread10;
+	std::vector< KInventoryItemInfo >	m_vecInventorySlotInfo;
+	std::vector< KJuneUIDFlag >		m_vecJuneUIDFlag;
+
+	KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ), m_iSkillID( 0 ), m_iMemoID( 0 ), m_bJuneUnread10( false ) {}
+};
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
 
 //////////////////////////////////////////////////////////////////////////
 //{{ 2009. 6. 3  최육사		확성기

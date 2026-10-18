@@ -3615,6 +3615,14 @@ void CX2Unit::UnitData::SetKUnitInfo( const KUnitInfo& data )
 	// 기술의 노트관련 등록된 메모설정
 	m_UserSkillTree.SetEqipSkillMemo( data.m_UnitSkillData.m_vecSkillNote );	
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// June 3235eb20 @3235f9e0: the unit's active memos ( KUnitSkillData +0x88 +0x20, KJuneSkillExtraData's map, skill -> memo; KUnitInfo
+	/// +0x1ce ) merge into the tree ( 32892410, the pairs not active yet ), for every unit, after the equipped items
+	{
+		const std::map< int, int >& mapJuneMemo = data.m_UnitSkillData.m_kJuneSkillExtraData.m_mapIntInt;
+		m_UserSkillTree.MergeJuneActiveMemo( std::multimap< int, int >( mapJuneMemo.begin(), mapJuneMemo.end() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 
 	m_bIsParty				= data.m_bIsParty;
@@ -3804,6 +3812,13 @@ void CX2Unit::UnitData::SetKRoomUserInfo( const KRoomUserInfo& data )
 	// 기술의 노트관련 등록된 메모설정	
 	m_UserSkillTree.SetEqipSkillMemo( data.m_UnitSkillData.m_vecSkillNote );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// June 32360090 @323608a4: the same merge from the room user's skill data ( KRoomUserInfo +0x1a1 )
+	{
+		const std::map< int, int >& mapJuneMemo = data.m_UnitSkillData.m_kJuneSkillExtraData.m_mapIntInt;
+		m_UserSkillTree.MergeJuneActiveMemo( std::multimap< int, int >( mapJuneMemo.begin(), mapJuneMemo.end() ) );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 #ifndef SERV_DELETE_ROOM_USER_INFO_DATA
 	//{{ 2007. 10. 5  최육사  근성도 추가

@@ -585,6 +585,14 @@ void CX2SkillNoteManager::GetJuneMemoList( int iSkillID_, int iRequireLevel_, in
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+/// June2017 32452150 ( skill, memo, class; ret 0xc ): the class's rows ( 32076c90 ), one with the memo ( row +0 ) and the base skill
+/// ( 32207210, row +4 ) -> true. The row's value vector is copied per row and dropped ( 31e6ecd0 ); nothing is returned but the bool.
+bool CX2SkillNoteManager::HasJuneMemo( int iSkillID_, int iMemoID_, int iUnitClass_ ) const
+{
+	return NULL != GetJuneMemo( iSkillID_, iMemoID_, iUnitClass_ );
+}
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 /// June2017 32452150: a copy of the values of the class's first row with the memo and the base skill (32207210); empty when none
 std::vector<float> CX2SkillNoteManager::GetJuneMemoValue( int iSkillID_, int iMemoID_, int iUnitClass_ ) const
 {
@@ -593,6 +601,7 @@ std::vector<float> CX2SkillNoteManager::GetJuneMemoValue( int iSkillID_, int iMe
 		return std::vector<float>();
 	return pMemo->m_vecValue;
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 /// June2017 32451ff0: the skill of the class's first MI_TRANSCENDENCE_1 / _2 row (19, 20) whose value 0 or value 1, truncated
 /// (32fe25f0), is iValue_ (a value past the end reads 0); 0 when none. No base mapping.
@@ -645,4 +654,139 @@ void CX2SkillNoteManager::GetJuneRemovableMemoItemIDList( OUT std::vector<int>& 
 
 	return 1;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+/// June2017 32453420 ( out, memo ): the memo's name, GET_STRING by MEMO_ID ( with GET_STRING's "[S%1%]%2%" debug branch, 31c31060 +0x40 ).
+/// 1-18 -> 35593-35610 ( 0x8b09.. ), 19 / 20 ( the two transcendence memos ) -> 35611, 22 -> 36206; 0, 21 and anything else -> L"".
+/*static*/ std::wstring CX2SkillNoteManager::GetJuneMemoName( int iMemoID_ )
+{
+	if( 1 <= iMemoID_ && iMemoID_ <= 18 )
+	{
+		const int iStringID = 35592 + iMemoID_;	/// GET_STRING pastes its argument into a boost::format '%' chain
+		return GET_STRING( iStringID );
+	}
+	switch( iMemoID_ )
+	{
+	case 19:
+	case 20:
+		return GET_STRING( 35611 );		/// 0x8b1b
+	case 22:
+		return GET_STRING( 36206 );		/// 0x8d6e
+	default:
+		break;
+	}
+	return L"";
+}
+
+namespace
+{
+	/// the row's value[ i ], 0 past the end ( June reads it this way in every case of 324513e0, and in 32071cd0 )
+	float JuneMemoValueAt( const SJuneSkillMemoTemplet& kMemo_, const int iIndex_ )
+	{
+		return ( 0 <= iIndex_ && iIndex_ < static_cast<int>( kMemo_.m_vecValue.size() ) ) ? kMemo_.m_vecValue[ iIndex_ ] : 0.f;
+	}
+
+	/// 324513e0 cases 19 / 20: L"Change the skill (@1)" with the named skill's name ( templet +0x14 ), L"" when it has no templet
+	std::wstring JuneMemoChangeSkillDesc( const int iSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+		if( NULL == pTemplet )
+			return L"";
+		return GET_REPLACED_STRING( ( 35592, "L", pTemplet->m_wstrName ) );		/// 0x8b08
+	}
+}
+
+/// June2017 324513e0 ( out, skill, memo, unit class; ret 0x10 ): memo 0 or no row ( 324510e0 ) -> L"". Otherwise by the row's MEMO_ID,
+/// GET_REPLACED_STRING of the row's values ( v[i], 0 past the end ), most of them x 100.0 ( double 3342f360 ). The x87 is settled
+/// opcode by opcode ( dc c9 = fmul st(1),st(0); de e9 = fsubp st(1),st(0) ), so @1 is always v0's figure and @2 v1's.
+std::wstring CX2SkillNoteManager::GetJuneMemoEffectDesc( int iSkillID_, int iMemoID_, int iUnitClass_ ) const
+{
+	if( 0 == iMemoID_ )
+		return L"";
+	const SJuneSkillMemoTemplet* pMemo = GetJuneMemo( iSkillID_, iMemoID_, iUnitClass_ );
+	if( NULL == pMemo )
+		return L"";
+
+	const double v0 = static_cast<double>( JuneMemoValueAt( *pMemo, 0 ) );
+	const double v1 = static_cast<double>( JuneMemoValueAt( *pMemo, 1 ) );
+	const double v2 = static_cast<double>( JuneMemoValueAt( *pMemo, 2 ) );
+
+	switch( pMemo->m_iType )
+	{
+	case 1:		return GET_REPLACED_STRING( ( 35574, "f", v0 * 100.0 ) );					/// 0x8af6
+	case 2:		return GET_REPLACED_STRING( ( 35575, "f", v0 * 100.0 ) );					/// 0x8af7
+	case 3:		return GET_REPLACED_STRING( ( 35576, "f", v0 * 100.0 ) );					/// 0x8af8
+	case 4:		return GET_REPLACED_STRING( ( 35577, "ff", v0 * 100.0, v1 * 100.0 ) );		/// 0x8af9
+	case 5:		return GET_REPLACED_STRING( ( 35578, "ff", v0 * 100.0, v1 * 100.0 ) );		/// 0x8afa
+	case 6:		return GET_REPLACED_STRING( ( 35579, "f", v1 * 100.0 ) );					/// 0x8afb: value 1, not 0 ( @324516fa )
+	case 7:		return GET_REPLACED_STRING( ( 35580, "ff", v0 * 100.0, v1 * 100.0 ) );		/// 0x8afc
+	case 8:		return GET_REPLACED_STRING( ( 43199, "fff", v0 * 100.0, v1 * 100.0, v2 * 100.0 ) );	/// 0xa8bf ( not 0x8afd )
+	case 9:		return GET_REPLACED_STRING( ( 35582, "f", v0 * 100.0 ) );					/// 0x8afe
+	case 10:	return GET_REPLACED_STRING( ( 35583, "ff", v0 * 100.0, v1 * 100.0 ) );		/// 0x8aff
+	case 11:	return GET_REPLACED_STRING( ( 35584, "ff", v0 * 100.0, v1 * 100.0 ) );		/// 0x8b00
+	case 12:	return GET_REPLACED_STRING( ( 43304, "f", v0 * 100.0 ) );					/// 0xa928 ( not 0x8b01 )
+	case 13:	return GET_REPLACED_STRING( ( 35586, "f", v0 ) );							/// 0x8b02: as is
+	case 14:	return GET_REPLACED_STRING( ( 35587, "f", v0 * 100.0 ) );					/// 0x8b03
+	case 15:	return GET_REPLACED_STRING( ( 35588, "f", v0 * 100.0 ) );					/// 0x8b04
+	case 16:	return GET_REPLACED_STRING( ( 35589, "f", v0 * 100.0 - 100.0 ) );			/// 0x8b05 ( @32451c07 fmul, fsubp )
+	case 17:	return GET_REPLACED_STRING( ( 35590, "f", v0 * 100.0 ) );					/// 0x8b06
+	case 18:	return GET_REPLACED_STRING( ( 35591, "f", -v0 ) );							/// 0x8b07 ( fchs )
+	case 19:
+		{
+			/// @32451d21: value[ 1 ] when the skill's own templet is an upgraded one ( 32206d00 ), else value[ 0 ], truncated ( 32071cd0, 32fe25f0 )
+			if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+				return L"";
+			const CX2SkillTree::SkillTemplet* pOwnTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+			const int iIndex = ( NULL != pOwnTemplet && 0 != pOwnTemplet->m_iDeleteSkillIDByUpgrade ) ? 1 : 0;
+			return JuneMemoChangeSkillDesc( static_cast<int>( JuneMemoValueAt( *pMemo, iIndex ) ) );
+		}
+	case 20:
+		{
+			/// @32451ddd: value[ 0 ], truncated
+			if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+				return L"";
+			return JuneMemoChangeSkillDesc( static_cast<int>( JuneMemoValueAt( *pMemo, 0 ) ) );
+		}
+	case 22:	return GET_REPLACED_STRING( ( 36207, "f", v0 * 100.0 ) );					/// 0x8d6f
+	default:	break;		/// 21 and the rest: the jump table's default ( 32451f0d ), L""
+	}
+	return L"";
+}
+
+/// June2017 32453060 ( skill, memo ): unless the ACK is awaited ( 31d70e00 ), REQ 0x554 { 32207210( skill ), memo }, then wait for 0x555.
+void CX2SkillNoteManager::SendJuneActiveMemoReq( int iSkillID_, int iMemoID_ )
+{
+	if( NULL == g_pMain || NULL == g_pData || NULL == g_pData->GetServerProtocol() )
+		return;
+	if( true == g_pMain->IsWaitingServerPacket( EGS_JUNE_ACTIVE_SKILL_MEMO_ACK ) )
+		return;
+
+	KEGS_JUNE_ACTIVE_SKILL_MEMO_REQ kPacket;
+	kPacket.m_iSkillID	= JuneMemoBaseSkillID( iSkillID_ );
+	kPacket.m_iMemoID	= iMemoID_;
+	g_pData->GetServerProtocol()->SendPacket( EGS_JUNE_ACTIVE_SKILL_MEMO_REQ, kPacket );
+	g_pMain->AddServerPacket( EGS_JUNE_ACTIVE_SKILL_MEMO_ACK );
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO REQ activate skill=%d memo=%d", kPacket.m_iSkillID, kPacket.m_iMemoID );
+}
+
+/// June2017 324530d0 ( skill, memo, item UID ): unless the ACK is awaited, REQ 0x556 with the three as given ( no base mapping ), then
+/// wait for 0x557.
+void CX2SkillNoteManager::SendJuneDeactiveMemoReq( int iSkillID_, int iMemoID_, UidType iItemUID_ )
+{
+	if( NULL == g_pMain || NULL == g_pData || NULL == g_pData->GetServerProtocol() )
+		return;
+	if( true == g_pMain->IsWaitingServerPacket( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK ) )
+		return;
+
+	KEGS_JUNE_DEACTIVE_SKILL_MEMO_REQ kPacket;
+	kPacket.m_iSkillID	= iSkillID_;
+	kPacket.m_iMemoID	= iMemoID_;
+	kPacket.m_iItemUID	= iItemUID_;
+	g_pData->GetServerProtocol()->SendPacket( EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ, kPacket );
+	g_pMain->AddServerPacket( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK );
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO REQ deactivate skill=%d memo=%d itemUID=%I64d", iSkillID_, iMemoID_, (__int64)iItemUID_ );
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE

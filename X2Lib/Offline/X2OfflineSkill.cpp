@@ -201,7 +201,12 @@ bool CX2OfflineSkill::Load( UidType nUnitUID )
 	for( size_t u = 0; u < vecUnsealed.size(); ++u )
 		m_setUnsealedSkill.insert( vecUnsealed[u] );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	// June skill system S7c: unit_skill_note holds June's active memos since v19 ( skill -> memo ); March's pages stay empty.
+	CX2OfflineDB::Instance()->LoadJuneSkillMemos( nUnitUID, m_mapJuneActiveMemo );
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	CX2OfflineDB::Instance()->LoadSkillNotes( nUnitUID, m_mapSkillNote );
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 	{
 		KOfflineUnitRow kUnitRow;
@@ -227,6 +232,9 @@ void CX2OfflineSkill::Clear()
 	m_setUnsealedSkill.clear();
 	m_mapSkillNote.clear();
 	m_cSkillNoteMaxPage = 0;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	m_mapJuneActiveMemo.clear();
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 	for( int i = 0; i < MAX_SKILL_SLOT; ++i )
 		m_aiSkillSlot[i] = 0;
@@ -257,6 +265,30 @@ int CX2OfflineSkill::GetSkillLevel( int iSkillID ) const
 
 	return mit->second.m_iLevel;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+int CX2OfflineSkill::GetJuneActiveMemo( int iSkillID ) const
+{
+	std::map< int, int >::const_iterator mit = m_mapJuneActiveMemo.find( iSkillID );
+	return ( mit == m_mapJuneActiveMemo.end() ) ? 0 : mit->second;
+}
+
+bool CX2OfflineSkill::SetJuneActiveMemo( int iSkillID, int iMemoID )
+{
+	if( false == CX2OfflineDB::Instance()->SaveJuneSkillMemo( m_nUnitUID, iSkillID, iMemoID ) )
+		return false;
+	m_mapJuneActiveMemo[ iSkillID ] = iMemoID;
+	return true;
+}
+
+bool CX2OfflineSkill::ClearJuneActiveMemo( int iSkillID )
+{
+	if( false == CX2OfflineDB::Instance()->DeleteJuneSkillMemo( m_nUnitUID, iSkillID ) )
+		return false;
+	m_mapJuneActiveMemo.erase( iSkillID );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 int CX2OfflineSkill::GetSkillCSPoint( int iSkillID ) const
 {
@@ -373,6 +405,11 @@ void CX2OfflineSkill::FillUnitSkillData( OUT KUnitSkillData& kOut ) const
 		kStateTC.m_wstrDate	= L"2000-01-01 00:00:00";
 		kOut.m_vecJuneSkillSlotState.push_back( kStateTC );
 	}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	// June skill system S7c: the active memos ride in KJuneSkillExtraData's map ( KUnitSkillData +0x88 +0x20, skill -> memo ), which
+	// both unit-info appliers merge ( 3235eb20 @3235f9e0, 32360090 @323608a4 ). The room packets carry this same struct for my own unit.
+	kOut.m_kJuneSkillExtraData.m_mapIntInt = m_mapJuneActiveMemo;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG
 	CX2OfflineLog::Server( L"[JUNE_SKILL] SLOT sent unit %I64d: A %d/%d/%d/%d/%d B %d/%d/%d/%d/%d, state vector %u entries (key 0 = %d, key 1 = %d)",
 		(__int64)m_nUnitUID,

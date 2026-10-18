@@ -132,11 +132,24 @@ public:
 	const SJuneSkillMemoTemplet* GetJuneMemoByIndex( int iSkillID_, int iIndex_, int iUnitClass_ ) const;			/// June 32451140
 	void GetJuneMemoList( int iSkillID_, int iRequireLevel_, int iUnitClass_, int iMemoID_,
 		OUT std::vector<const SJuneSkillMemoTemplet*>& vecMemo_ ) const;											/// June 32451250
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// June 32452150 returns a bool ( ret 0xc, tested CMP AL,1 by 3235b070 ): the class has a row with the memo and the base skill.
+	/// S3b read it as a value getter; it had no caller.
+	bool HasJuneMemo( int iSkillID_, int iMemoID_, int iUnitClass_ ) const;										/// June 32452150
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	std::vector<float> GetJuneMemoValue( int iSkillID_, int iMemoID_, int iUnitClass_ ) const;						/// June 32452150
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	int GetJuneSkillIDByTranscendenceValue( int iValue_, int iUnitClass_ ) const;									/// June 32451ff0
 	void GetJuneMemoMatchItemIDList( int iMemoID_, OUT std::vector<int>& vecItemID_ ) const;						/// June 32450f50
 	void GetJuneRemovableMemoItemIDList( OUT std::vector<int>& vecItemID_ ) const;									/// June 32451210
 	static int GetJuneMemoState( int iSkillID_, int iMemoID_, int iUnitLevel_, int iUnitClass_ );					/// June 32455150: 0 locked, 1 open, 2 active
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// S7c: the memo texts and the two memo requests
+	static std::wstring GetJuneMemoName( int iMemoID_ );															/// June 32453420
+	std::wstring GetJuneMemoEffectDesc( int iSkillID_, int iMemoID_, int iUnitClass_ ) const;						/// June 324513e0
+	void SendJuneActiveMemoReq( int iSkillID_, int iMemoID_ );														/// June 32453060
+	void SendJuneDeactiveMemoReq( int iSkillID_, int iMemoID_, UidType iItemUID_ );									/// June 324530d0
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 private:
 	CX2SkillNoteManager();

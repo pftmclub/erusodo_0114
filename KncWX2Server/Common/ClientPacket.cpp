@@ -8108,6 +8108,94 @@ SERIALIZE_DEFINE_GET( KEGS_JUNE_ACQUIRE_SKILL_NOT, obj, ks )
 		;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_ACTIVE_SKILL_MEMO_REQ, obj, ks )
+{
+	return PUT( m_iSkillID )
+		&& PUT( m_iMemoID )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_ACTIVE_SKILL_MEMO_REQ, obj, ks )
+{
+	return GET( m_iSkillID )
+		&& GET( m_iMemoID )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK, obj, ks )
+{
+	return PUT( m_iOK )
+		&& PUT( m_iSkillID )
+		&& PUT( m_iMemoID )
+		&& PUT( m_bJuneUnread0C )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_ACTIVE_SKILL_MEMO_ACK, obj, ks )
+{
+	return GET( m_iOK )
+		&& GET( m_iSkillID )
+		&& GET( m_iMemoID )
+		&& GET( m_bJuneUnread0C )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_DEACTIVE_SKILL_MEMO_REQ, obj, ks )
+{
+	return PUT( m_iSkillID )
+		&& PUT( m_iMemoID )
+		&& PUT( m_iItemUID )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_DEACTIVE_SKILL_MEMO_REQ, obj, ks )
+{
+	return GET( m_iSkillID )
+		&& GET( m_iMemoID )
+		&& GET( m_iItemUID )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KJuneUIDFlag, obj, ks )
+{
+	return PUT( m_iUID )
+		&& PUT( m_bFlag )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KJuneUIDFlag, obj, ks )
+{
+	return GET( m_iUID )
+		&& GET( m_bFlag )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK, obj, ks )
+{
+	return PUT( m_iOK )
+		&& PUT( m_iJuneUnread04 )
+		&& PUT( m_iSkillID )
+		&& PUT( m_iMemoID )
+		&& PUT( m_bJuneUnread10 )
+		&& PUT( m_vecInventorySlotInfo )
+		&& PUT( m_vecJuneUIDFlag )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK, obj, ks )
+{
+	return GET( m_iOK )
+		&& GET( m_iJuneUnread04 )
+		&& GET( m_iSkillID )
+		&& GET( m_iMemoID )
+		&& GET( m_bJuneUnread10 )
+		&& GET( m_vecInventorySlotInfo )
+		&& GET( m_vecJuneUIDFlag )
+		;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 //}}
 
 

@@ -2274,6 +2274,14 @@ enum
 	// June skill system S7: June's server-pushed skill grant ( handlers 323b0770 / 324631a0 / 32535be0; June's id is not recoverable ).
 	_ENUM( EGS_JUNE_ACQUIRE_SKILL_NOT )
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	// June skill system S7c: the skill memos. June's ids 0x554-0x557; June's names are not recoverable, so they are named after
+	// the tree's STUCM_SELECT_SKILL_ACTIVE_MEMO / _DEACTIVE_MEMO.
+	_ENUM( EGS_JUNE_ACTIVE_SKILL_MEMO_REQ )
+	_ENUM( EGS_JUNE_ACTIVE_SKILL_MEMO_ACK )
+	_ENUM( EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ )
+	_ENUM( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	_ENUM( EGS_CLIENT_EVENT_ID_END )
 
 #ifdef __NEVER_DEFINED_MACRO__

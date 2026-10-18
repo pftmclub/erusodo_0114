@@ -4219,6 +4219,21 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI` in `KTDXLIB/Always.h` (`#error` guards: 
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and restore data034 / data036 / data057 from `kom_backup_tools/` (the added files are unused by March's
   class, so leaving them in is harmless). Put `#define SERV_IRUHADEV_SKILLTREE_NO_LOCK` back for the old two-choice behaviour.
 
+### June's skill memos (skill-system-core S7c, 2026-10-18)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET`, defined twice: `KTDXLIB/Always.h` (`#error` guards: `_SKILL_NOTE`, `_SKILL_TREE_UI`, `_ACQUIRE`, `_SLOT_10`, `SERV_IRUHADEV_OFFLINE`)
+and `KncWX2Server/Common/ServerDefine.h` (EventID_Client.h / ClientPacket.h precede Always.h; `SECOND_HOMES` in `tools/flagcheck.py`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7c";
+log tag `[JUNE_SKILL] MEMO`.
+- **Client.** The tree's memo buttons, state icons and select popup (`328dda50`, `328e9b30`, UICustomEventProc 29065-29068 / 29076 / 29077), the memo texts in the tooltip
+  (`32453420` / `324513e0`, `X2SkillNoteManager`), June's bool `32452150` (`HasJuneMemo`; S3b's `GetJuneMemoValue` is its `#else`), the grant handler's upgraded-skill slot swap
+  (`328df480` / `328ded60`), the ACK handlers (`CX2SkillTree`, June `31f1bdb0` / `31f1c1d0`), and the unit-info merge in `SetKUnitInfo` / `SetKRoomUserInfo` (`3235eb20` / `32360090`).
+- **Packets.** `EGS_JUNE_ACTIVE_SKILL_MEMO_REQ` / `_ACK`, `EGS_JUNE_DEACTIVE_SKILL_MEMO_REQ` / `_ACK` appended to `EventID_Client.h` (June's 0x554-0x557); the active memos ride in the existing
+  `KJuneSkillExtraData::m_mapIntInt` (skill -> memo).
+- **Emulator and save.** Two handlers in `Handlers_Skill.cpp` (a labelled stand-in: no June server), schema **v19**: `unit_skill_note` is recreated as (unit, skill, memo); March's notebook
+  REQ (`EGS_REG_SKILL_NOTE_MEMO_REQ`) is refused with a log line.
+- **Revert:** comment out both defines together, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. **The save is forward-only:** an exe without the flag refuses a v19 save, so restore
+  the `db_backup/` snapshot taken before the first v19 launch (`els_db_20261018_195712_pre_manual.sql`) together with the old exe.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

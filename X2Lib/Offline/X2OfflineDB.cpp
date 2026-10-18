@@ -1120,6 +1120,16 @@ bool CX2OfflineDB::Migrate()
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	if( iFrom < 19 )
+	{
+		if( false == MigrateSkillNoteToJuneMemo() )
+			return false;
+
+		CX2OfflineLog::Server( L"DB       schema upgraded to v19 (unit_skill_note holds June's skill memos)" );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
 	char szSetVersion[64];
 	_snprintf( szSetVersion, 64, "PRAGMA user_version = %d;", (int)SCHEMA_VERSION );
 	szSetVersion[63] = '\0';
@@ -1506,6 +1516,57 @@ bool CX2OfflineDB::MigrateSkillSlotsToTen()
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+//////////////////////////////////////////////////////////////////////////
+// v19: unit_skill_note becomes June's active skill memos (June skill system S7c).
+//
+// Until v18 the table held March's skill-note pages ( unit, page, memo item id ); v17 emptied it, and June has no notebook ( its
+// memos are a per-skill switch, not items on pages ). The table is recreated as ( unit, skill, memo ), one row per skill: the
+// unit info carries the active memos as a map, skill -> MEMO_ID ( KUnitSkillData +0x88 +0x20 ). Any page row still there is
+// dropped with a log line. unit.skill_note_page stays ( no reader under the flag ). One-way: an exe without the flag refuses the
+// save ( "save is schema v19" ). Runs from Open(), before the first packet.
+//////////////////////////////////////////////////////////////////////////
+bool CX2OfflineDB::MigrateSkillNoteToJuneMemo()
+{
+	if( false == Exec( "BEGIN;" ) )
+		return false;
+
+	int iDropped = 0;
+	{
+		sqlite3_stmt* pSel = Prepare( "SELECT unit_uid, page, memo_id FROM unit_skill_note ORDER BY unit_uid, page;" );
+		if( NULL != pSel )
+		{
+			while( SQLITE_ROW == sqlite3_step( pSel ) )
+			{
+				CX2OfflineLog::Server( L"[JUNE_SKILL] MIG v19 unit %I64d: March note page %d ( memo item %d ) dropped, June has no notebook",
+					(__int64)sqlite3_column_int64( pSel, 0 ), sqlite3_column_int( pSel, 1 ), sqlite3_column_int( pSel, 2 ) );
+				++iDropped;
+			}
+			sqlite3_finalize( pSel );
+		}
+	}
+
+	if( false == Exec(
+		"DROP TABLE IF EXISTS unit_skill_note;"
+		"CREATE TABLE unit_skill_note ("
+		"  unit_uid INTEGER NOT NULL,"
+		"  skill_id INTEGER NOT NULL,"
+		"  memo_id  INTEGER NOT NULL,"
+		"  PRIMARY KEY( unit_uid, skill_id ) );" ) )
+	{
+		LogError( L"v19 skill memo table" );
+		Exec( "ROLLBACK;" );
+		return false;
+	}
+
+	if( false == Exec( "COMMIT;" ) )
+		return false;
+
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG v19 done: unit_skill_note is ( unit, skill, memo ); %d March page row(s) dropped", iDropped );
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 //////////////////////////////////////////////////////////////////////////
 // account
@@ -2772,6 +2833,77 @@ bool CX2OfflineDB::SaveSkillNote( UidType nUnitUID, int iPage, int iMemoID )
 	sqlite3_finalize( pStmt );
 	return bOK;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+bool CX2OfflineDB::LoadJuneSkillMemos( UidType nUnitUID, OUT std::map< int, int >& mapOut )
+{
+	KLocker lock( m_cs );
+
+	mapOut.clear();
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "SELECT skill_id, memo_id FROM unit_skill_note WHERE unit_uid = ?1 ORDER BY skill_id;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+
+	while( SQLITE_ROW == sqlite3_step( pStmt ) )
+		mapOut[ sqlite3_column_int( pStmt, 0 ) ] = sqlite3_column_int( pStmt, 1 );
+
+	sqlite3_finalize( pStmt );
+	return true;
+}
+
+bool CX2OfflineDB::SaveJuneSkillMemo( UidType nUnitUID, int iSkillID, int iMemoID )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "INSERT OR REPLACE INTO unit_skill_note( unit_uid, skill_id, memo_id ) VALUES( ?1, ?2, ?3 );" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iSkillID );
+	sqlite3_bind_int(   pStmt, 3, iMemoID );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+
+	if( false == bOK )
+		LogError( L"save skill memo" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+
+bool CX2OfflineDB::DeleteJuneSkillMemo( UidType nUnitUID, int iSkillID )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare( "DELETE FROM unit_skill_note WHERE unit_uid = ?1 AND skill_id = ?2;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iSkillID );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+
+	if( false == bOK )
+		LogError( L"delete skill memo" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 bool CX2OfflineDB::SaveSkillNotePage( UidType nUnitUID, int iMaxPage )
 {

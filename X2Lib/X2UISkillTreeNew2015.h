@@ -240,6 +240,18 @@ private:
 	void JuneAddCommandGroupControl( CKTDGUIControl* pControl_, const int iGroup_ );	/// 328ded30
 	void JuneShowCommandGroup( const bool bShow_, const int iGroup_ );					/// 328da3c0
 	bool JuneSkillPageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// March's page cases until S7d
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	/// S7c: the memo half of the tree. June keeps each side as 3 dwords of SkillSlotUI: state ( +0x14 / +0x20: 0 locked, 1 open, 2 active ),
+	/// the button ( +0x18 / +0x24 ) and the state icon ( +0x1c / +0x28 ); bRight_ picks +0x20 and the class's second memo row of the skill.
+	void JuneUpdateMemoPopup( SkillSlotUI& UISet_, const bool bRight_ );				/// 328dda50
+	void JuneHideMemoPopup( SkillSlotUI& UISet_, const bool bRight_ );				/// 328dcae0
+	void JuneOpenMemoSelectPopup( SkillSlotUI& UISet_, const bool bRight_ );			/// 328e9b30
+	bool JuneMemoCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// UICustomEventProc 29065-29068 / 29076 / 29077
+public:
+	void JuneReplaceUpgradedSkillSlots( const std::vector<KSkillData>& vecSkillData_ );	/// 328df480 ( the grant handlers' call )
+private:
+	void JuneReplaceUpgradedSkillSlot( const int iSkillID_ );							/// 328ded60
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
 private:
 	int									m_iSelectedTab;				/// +0x04 0 skill tab, 1 command tab
@@ -275,6 +287,11 @@ private:
 
 	map<CX2SkillTree::SKILL_ID, SkillSlotUI>	m_mapSkillSlotUISet;	/// +0x13c
 	CKTDGUIButton*						m_pHoveredMemoButton;		/// +0x14c the memo button under the mouse ( S7c sets it: 29076 / 29077 )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+	CKTDGUIDialogType					m_pDLGJuneMemoMsgBox;		/// +0xa0 the memo popup's message box ( 328e9b30; 29067 / 29068 read its dummy ints )
+	UidType								m_iJuneMemoRemoveItemUID;	/// June keeps it in that box's int64 dummy list ( dialog +0xf0, 31ed7710 ); March's
+																	/// dialog has none, so the tree holds it ( 29068 reads it back )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	int									m_iNewSkillCount;			/// +0x150
 };
 
