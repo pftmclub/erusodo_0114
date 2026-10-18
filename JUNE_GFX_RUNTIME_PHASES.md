@@ -430,6 +430,8 @@ X2/US_SERVICE/x2.exe (2026-10-19 06:45:24); built at main 8971693b + 4 uncommitt
 gone from the exe; `[JUNE_GFX] MGR ` and `main.gfx` are in. **How to see it:** a regression check only (hand-off below); nothing new is
 visible. **Open questions:** none.
 
+**Regression play-test PASSED 2026-10-19** (user: village, dungeon, Alt-Tab, exit; exe md5 644d2293). ErrorLog: `[JUNE_GFX] MGR main.gfx loaded, font config "US" ( 1 fontlib fonts_Tahoma.swf, 1 map, 9133 tr )` plus the sound and IME lines; 0 KEM_ERROR135 (nothing reached the disk fallback); 0 EXCEPTION, baseline UNHANDLED only (2x E_DISABLE_HB_CHECK_REQ), clean exit.
+
 ## Phase G3 - Event scenes
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_EVENTSCENE`. Sub-tag `SCENE`.
