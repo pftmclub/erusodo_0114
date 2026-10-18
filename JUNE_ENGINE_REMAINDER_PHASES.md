@@ -2866,6 +2866,10 @@ shared tree, whose dirty list includes `X2Lib/X2SimplePathFinder.cpp` and `Alway
 `X2GUNPCAI.cpp:257`, chase path `:1517-1527`); stand on the ground below them. They still come down to you; a harpy over a drop with no line under it stays
 level (refused line). Open question: none.
 
+**Play-test PASSED 2026-10-18** (user + `logs.py --grep "WORLD fly-down"`, run after deploy, exe d4eef836): 5 `allowed` lines over line 2
+(y 790, land y 350 = dest y 350); 9 `refused` lines over line 10 (y 529 -> 505, dest y 394 + height 100, no line below); 0 EXCEPTION, UNHANDLED = the
+2x `E_DISABLE_HB_CHECK_REQ` baseline.
+
 ## Phase W2 - Portal-line markers
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review. Flag `SERV_IRUHADEV_JUNE_WORLD_PORTAL_GATE`. One system:
