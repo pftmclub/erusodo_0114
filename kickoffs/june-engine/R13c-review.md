@@ -26,9 +26,15 @@ Review R13c's commit(s) against June's camera code. Things this phase could get 
   `LookAtLH` (which D3DX function thunk `33086abc` binds, and whether the roll matrix is multiplied left or right).
 - **Callers:** each of June's 11 sites maps to the March site the table says, and the March-only sites pass neutral values.
 - **Layout:** new `CKTDGCamera` members are reached only after `Always.h` (R13 review: `KTDGCamera.h` is included only via `KTDGManager.h`).
+- **Added by the phase:** `CameraData::m_fRoll` (PopCamera `31d03430` copies 0x1a dwords); the June-only `PointAndUpdateViewTransform` `31d01640`;
+  `UpdateViewTransform`'s roll argument (`31d01a30`, `ret 0xc`); `CX2Camera::OnFrameMove`'s linear gate (`31fb5800` `@31fb5804-31fb5839`);
+  `CKTDXApp::SetLookAtDependOnEye` (`+0x2d4`, setter `31c1c140`, Lua bind `31c154dc`); and a second flag, `SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK`
+  (camera `+0x19c`, the `cmp byte [+0x19c], 1` at the top of the eight shake setters `31d01490..31d015d0`). Check that ShakeRandom / ImpactForward /
+  UpSideDown really have no lock, and that `31d01d50` / `31d02b00` / `31d02c70` (census-equal, not line-diffed) match March.
 
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK --range <first R13c commit>^..<last R13c commit> --with SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG`.
-Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and deleted line.
+Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and deleted line. Run it once more for
+`SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK`.
 
 Spot-check 2-3 items in capstone / Ghidra (read-only); if one fails, re-check the whole phase. Fix clear transcription errors under the same flag (then
 `tools/build.py --deploy`); hand design decisions back to the user. If the play-test passed, retire `_DEBUG`. Write "Phase R13c -- Review" into the plan doc,

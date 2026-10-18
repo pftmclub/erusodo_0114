@@ -8267,3 +8267,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Short-lived: the first 20 fly-down refusals and 5 passes as [JUNE_ENGINE] WORLD lines in ErrorLog.txt. Remove after the review.
 #define SERV_IRUHADEV_JUNE_PATHFINDER_FLY_DEBUG
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R13c. CKTDGCamera tracking and view roll as June 31d01310..31d03220:
+//              CameraData gains the roll ( +0x68 ); Point 31d01310 and UpdateViewTransform 31d01a30 take it; new June setter
+//              31d01640 ( Point + view update ); SetTracking 31d01b70 takes ( bLinear, fRollTo ), uses Time > 0.001, the roll rate
+//              +0x84 and app +0x2d4 ( CKTDXApp::SetLookAtDependOnEye, Lua-bound ); UpdateCamera 31d02e50 steps the tracking by
+//              +0x94 when +0x90 is set and multiplies RotationZ( roll ) into the view; CX2Camera::OnFrameMove 31fb5800 skips the
+//              frame while linear tracking waits for +0x94. Every March caller passes June's ( false, 0 ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+// Short-lived: one [JUNE_ENGINE] CAMTRACK ErrorLog line per non-zero roll, linear tracking or look-at-depends-on-eye
+// SetTracking ( the first 20, then one a second ). Remove after the review.
+#define SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+#error SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG needs SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-18
+// Description: June engine remainder, Phase R13c. CKTDGCamera shake lock, June camera +0x19c: the eight shake setters
+//              ( 31d01490..31d015d0, and UpDownCrashCamera 31d01cd0 / LeftRightCrashCamera 31d01d10 through them ) return at
+//              once while it is set. Engine side only; June's writers ( CX2CashShop::SetOpen, the game-camera creation ) are
+//              Phase R13d, so the lock stays clear until then. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+//////////////////////////////////////////////////////////////////////////

@@ -60,6 +60,16 @@ CKTDGCamera::CKTDGCamera( LPDIRECT3DDEVICE9 pd3dDevice )
 	m_fSmoothCameraCreshMaxGap	= 0.f;		/// 부드러운 카메라 크래시 강도
 	m_bEnableSmoothCameraCresh	= false;	/// 부드러운 카메라 크래시 적용 여부
 #endif TOGETHER_FESTIVAL_2012_AUTUMN
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+	// June ctor 31d03220: +0x68 roll ( @31d03251, and the 0x68-byte memset of CameraData ), +0x84 / +0x94 = 0, +0x90 = 0 ( @31d03364 )
+	m_Camera.m_fRoll	= 0.f;
+	m_fRollTrack		= 0.f;
+	m_bLinearTrack		= false;
+	m_fLinearTrackTime	= 0.f;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	m_bJuneShakeLock	= false;	// June ctor 31d03383 ( word +0x19c = 0 )
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
 	m_bJuneWorldMeshHidden = false;	// June ctor 31d03383 ( word +0x19c = 0 )
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
@@ -71,7 +81,42 @@ CKTDGCamera::~CKTDGCamera()
 
 void CKTDGCamera::Point( float XEye, float YEye, float ZEye, 
 							float XAt, float YAt, float ZAt,
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+							float XUpVec, float YUpVec, float ZUpVec, float fRoll )	// June 31d01310: as March, plus the roll +0x68
+#else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 							float XUpVec, float YUpVec, float ZUpVec )
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+{
+	m_Camera.m_Eye.x	= XEye;
+	m_Camera.m_Eye.y	= YEye;
+	m_Camera.m_Eye.z	= ZEye;
+
+	m_Camera.m_LookAt.x = XAt;
+	m_Camera.m_LookAt.y = YAt;
+	m_Camera.m_LookAt.z = ZAt;
+
+	m_Camera.m_UpVec.x	= XUpVec;
+	m_Camera.m_UpVec.y	= YUpVec;
+	m_Camera.m_UpVec.z	= ZUpVec;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+
+	m_Camera.m_fRoll	= fRoll;	// June 31d0134f, before the track times
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+	if( IsSamef( fRoll, 0.f ) == false )
+		JuneCamTrackLog( "Point", false, fRoll, 0.f );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+
+	m_fTrackTime = 0.0f;
+	m_fTrackAtTime = 0.0f;
+}
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+
+// June 31d01640 ( 3 callers: 324baa7c, 328c43bc, 328c4466 -> Phase R13d ): Point, then the view is built and applied at once.
+// No m_Track / roll-rate reset ( unlike UpdateViewTransform 31d01a30 ).
+void CKTDGCamera::PointAndUpdateViewTransform( float XEye, float YEye, float ZEye,
+							float XAt, float YAt, float ZAt,
+							float XUpVec, float YUpVec, float ZUpVec, float fRoll )
 {
 	m_Camera.m_Eye.x	= XEye;
 	m_Camera.m_Eye.y	= YEye;
@@ -85,9 +130,50 @@ void CKTDGCamera::Point( float XEye, float YEye, float ZEye,
 	m_Camera.m_UpVec.y	= YUpVec;
 	m_Camera.m_UpVec.z	= ZUpVec;
 
+	m_Camera.m_fRoll	= fRoll;
+
 	m_fTrackTime = 0.0f;
 	m_fTrackAtTime = 0.0f;
+
+	D3DXMatrixLookAtLH( &m_Camera.m_ViewMatrix, &m_Camera.m_Eye, &m_Camera.m_LookAt, &m_Camera.m_UpVec );	// @31d016c5
+	JuneApplyViewRoll();
+	g_pKTDXApp->SetViewTransform( &m_Camera.m_ViewMatrix );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+	if( IsSamef( fRoll, 0.f ) == false )
+		JuneCamTrackLog( "PointAndUpdateViewTransform", false, fRoll, 0.f );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
 }
+
+// June: after D3DXMatrixLookAtLH, when | roll - 0.0 | > FLT_EPSILON ( 0x334350e8 / 0x334490f8 ), view = view * RotationZ( roll )
+// ( thunks 33086abc = D3DXMatrixRotationZ, 33086a26 = D3DXMatrixMultiply, resolved through the bound d3dx9_43 imports ).
+// Inlined in June at 31d016ca ( 31d01640 ), 31d01ac1 ( 31d01a30 ) and 31d030fe ( 31d02e50 ); the only RotationZ users in the exe.
+void CKTDGCamera::JuneApplyViewRoll()
+{
+	if( IsSamef( m_Camera.m_fRoll, 0.f ) == false )
+	{
+		D3DXMATRIX matRoll;
+		D3DXMatrixRotationZ( &matRoll, m_Camera.m_fRoll );
+		D3DXMatrixMultiply( &m_Camera.m_ViewMatrix, &m_Camera.m_ViewMatrix, &matRoll );
+	}
+}
+
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+// One ErrorLog line per non-zero roll or linear-tracking request: the first 20, then at most one a second.
+void CKTDGCamera::JuneCamTrackLog( const char* pszFrom, bool bLinear, float fRollTo, float fTime )
+{
+	static int		s_iCount	= 0;
+	static DWORD	s_dwLast	= 0;
+	DWORD dwNow = ::GetTickCount();
+	if( s_iCount >= 20 && dwNow - s_dwLast < 1000 )
+		return;
+	++s_iCount;
+	s_dwLast = dwNow;
+	KLOG( "ErrorLog.txt" ) << "[JUNE_ENGINE] CAMTRACK " << pszFrom << ": linear " << ( bLinear ? 1 : 0 ) << ", roll target " << fRollTo
+		<< ", roll now " << m_Camera.m_fRoll << ", time " << fTime << ", look-at-depends-on-eye " << ( g_pKTDXApp->GetLookAtDependOnEye() ? 1 : 0 )
+		<< " (#" << s_iCount << ")" << fileout;
+}
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 void CKTDGCamera::Move( float XPos, float YPos, float ZPos )
 {
@@ -188,6 +274,53 @@ void CKTDGCamera::UpdateCamera( float fElapsedTime )
 #ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
 	m_bJuneWorldMeshHidden = false;	// June 31d02e75: cleared every update, before the tracking
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+	// June 31d02e50: the tracking steps by fTrackElapsed. With +0x90 set it is +0x94, which is then consumed ( @31d02e6d-31d02e88 ).
+	// The shake / impact / up-side-down below still take the real fElapsedTime ( @31d03052, @31d0305b, @31d0307f ).
+	float fTrackElapsed = fElapsedTime;
+	if( m_bLinearTrack == true )
+	{
+		fTrackElapsed		= m_fLinearTrackTime;
+		m_fLinearTrackTime	= 0.f;
+	}
+
+	if( IsSamef( m_fTrackTime, 0.f ) == false )
+	{
+		if( IsSamef( m_fTrackAtTime, 0.f ) == true )
+		{
+			MoveRel( m_Track.x * fTrackElapsed,
+						m_Track.y * fTrackElapsed,
+						m_Track.z * fTrackElapsed );
+
+			LookAtRel( m_TrackAt.x * fTrackElapsed,
+						m_TrackAt.y * fTrackElapsed,
+						m_TrackAt.z * fTrackElapsed );
+		}
+		else
+		{
+			MoveRel( m_Track.x * fTrackElapsed,
+				m_Track.y * fTrackElapsed,
+				m_Track.z * fTrackElapsed );
+		}
+
+		m_fTrackTime -= fTrackElapsed;
+		if( m_fTrackTime <= 0.0f )
+			m_fTrackTime = 0.0f;
+
+		m_Camera.m_fRoll += m_fRollTrack * fTrackElapsed;	// @31d02fbc: inside the tracking block, after the time step
+	}
+
+	if ( IsSamef(m_fTrackAtTime, 0.f) == false )
+	{
+		LookAtRel( m_TrackAt.x * fTrackElapsed,
+			m_TrackAt.y * fTrackElapsed,
+			m_TrackAt.z * fTrackElapsed );
+
+		m_fTrackAtTime -= fTrackElapsed;
+		if( m_fTrackAtTime <= 0.0f )
+			m_fTrackAtTime = 0.0f;
+	}
+#else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 	if( IsSamef( m_fTrackTime, 0.f ) == false && IsSamef( m_fTrackAtTime, 0.f ) == true )
 	{
 		MoveRel( m_Track.x * fElapsedTime, 
@@ -225,6 +358,7 @@ void CKTDGCamera::UpdateCamera( float fElapsedTime )
 		if( m_fTrackAtTime <= 0.0f )
 			m_fTrackAtTime = 0.0f;
 	}
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 	// 카메라 흔들기 및 기타 조작
 	UpdateCameraShake( fElapsedTime );
@@ -250,10 +384,39 @@ void CKTDGCamera::UpdateCamera( float fElapsedTime )
 	
 
     D3DXMatrixLookAtLH( &m_Camera.m_ViewMatrix, &m_Camera.m_Eye, &m_Camera.m_LookAt, &m_Camera.m_UpVec );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+	JuneApplyViewRoll();	// June 31d02e50 @31d030fe
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 	g_pKTDXApp->SetViewTransform( &m_Camera.m_ViewMatrix );
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+// June 31d01a30 ( ret 0xc ): as March, plus the roll rate +0x84 = 0, the roll +0x68 = fRoll_, and the roll after LookAtLH ( @31d01ac1 ).
+// Both June callers ( 31fb061a SquareCameraUpdate, 31fb0a98 TFieldCameraUpdate ) pass 0.
+void CKTDGCamera::UpdateViewTransform(const D3DXVECTOR3& vEye_, const D3DXVECTOR3& vLookAt_, float fRoll_)
+{
+    ASSERT( g_pKTDXApp );
+
+	m_Track         = vEye_;
+	m_TrackAt       = vLookAt_;
+	m_fTrackTime    = 0.f;
+	m_fTrackAtTime  = 0.f;
+	m_fRollTrack    = 0.f;
+	m_Camera.m_fRoll = fRoll_;
+
+    m_Camera.m_Eye      = vEye_;
+    m_Camera.m_LookAt   = vLookAt_;
+
+    D3DXMatrixLookAtLH( &m_Camera.m_ViewMatrix, &m_Camera.m_Eye, &m_Camera.m_LookAt, &m_Camera.m_UpVec );
+	JuneApplyViewRoll();
+	g_pKTDXApp->SetViewTransform( &m_Camera.m_ViewMatrix );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+	if( IsSamef( fRoll_, 0.f ) == false )
+		JuneCamTrackLog( "UpdateViewTransform", false, fRoll_, 0.f );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+}//CKTDGCamera::UpdateViewTransform()
+#else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 void CKTDGCamera::UpdateViewTransform(const D3DXVECTOR3& vEye_, const D3DXVECTOR3& vLookAt_)
 {
     ASSERT( g_pKTDXApp );
@@ -269,8 +432,59 @@ void CKTDGCamera::UpdateViewTransform(const D3DXVECTOR3& vEye_, const D3DXVECTOR
     D3DXMatrixLookAtLH( &m_Camera.m_ViewMatrix, &m_Camera.m_Eye, &m_Camera.m_LookAt, &m_Camera.m_UpVec );
 	g_pKTDXApp->SetViewTransform( &m_Camera.m_ViewMatrix );
 }//CKTDGCamera::UpdateViewTransform()
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+// June 31d01b70 ( ret 0x28 ). Differences from March:
+//  - g_pKTDXApp +0x2d4 ( SetLookAtDependOnEye, Lua bind 31c154dc ) == 1: the target eye x / y become the look-at x / y ( @31d01b79-31d01b90 );
+//  - threshold Time > 0.001 ( 0x33431564 ) instead of > 0; when it fails the track time is 0, not Time ( @31d01c3a );
+//  - the 7th channel: roll rate +0x84 = ( fRollTo - roll ) / Time, or fRollTo itself when the threshold fails ( @31d01bf8 / @31d01c30 );
+//  - bLinear goes to +0x90 ( @31d01c4e ).
+void CKTDGCamera::SetTracking( float XTo, float YTo, float ZTo, float XAt, float YAt, float ZAt, float Time, float atTime, bool bLinear, float fRollTo )
+{
+	if( g_pKTDXApp->GetLookAtDependOnEye() == true )
+	{
+		XTo = XAt;
+		YTo = YAt;
+	}
+
+	float fTrackTime = Time;
+	if( Time > 0.001f )
+	{
+		m_Track.x = (XTo - m_Camera.m_Eye.x)/Time;
+		m_Track.y = (YTo - m_Camera.m_Eye.y)/Time;
+		m_Track.z = (ZTo - m_Camera.m_Eye.z)/Time;
+
+		m_TrackAt.x = (XAt - m_Camera.m_LookAt.x)/Time;
+		m_TrackAt.y = (YAt - m_Camera.m_LookAt.y)/Time;
+		m_TrackAt.z = (ZAt - m_Camera.m_LookAt.z)/Time;
+
+		m_fRollTrack = (fRollTo - m_Camera.m_fRoll)/Time;
+	}
+	else
+	{
+		m_Track.x = XTo;
+		m_Track.y = YTo;
+		m_Track.z = ZTo;
+
+		m_TrackAt.x = XAt;
+		m_TrackAt.y = YAt;
+		m_TrackAt.z = ZAt;
+
+		m_fRollTrack = fRollTo;
+		fTrackTime = 0.f;
+	}
+
+	m_fTrackTime = fTrackTime;
+	m_bLinearTrack = bLinear;
+	m_fTrackAtTime = atTime;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+	if( bLinear == true || IsSamef( fRollTo, 0.f ) == false || IsSamef( m_Camera.m_fRoll, 0.f ) == false || g_pKTDXApp->GetLookAtDependOnEye() == true )
+		JuneCamTrackLog( "SetTracking", bLinear, fRollTo, Time );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+}
+#else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 void CKTDGCamera::SetTracking( float XTo, float YTo, float ZTo, float XAt, float YAt, float ZAt, float Time, float atTime )
 {
     //{{ seojt // 2008-10-23, 18:53
@@ -299,6 +513,7 @@ void CKTDGCamera::SetTracking( float XTo, float YTo, float ZTo, float XAt, float
 	m_fTrackTime = Time;
 	m_fTrackAtTime = atTime;
 }
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 void CKTDGCamera::PushCamera()
 {
@@ -332,6 +547,10 @@ float CKTDGCamera::GetCameraDistance()
 
 void CKTDGCamera::DownCrashCamera( float speed, float accel )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d01490
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fDownCrashGap			= 0.0f;
 	m_fDownCrashSpeed		= speed;
 	m_fDownCrashAccel		= accel;
@@ -339,6 +558,10 @@ void CKTDGCamera::DownCrashCamera( float speed, float accel )
 
 void CKTDGCamera::UpCrashCamera( float speed, float accel )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d014c0
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fUpCrashGap		= 0.0f;
 	m_fUpCrashSpeed		= speed;
 	m_fUpCrashAccel		= accel;
@@ -351,6 +574,10 @@ void CKTDGCamera::UpDownCrashCamera( float fGap, float fTime )
 
 void CKTDGCamera::ShakeUpDown( float fGap /*= 10.f*/, float fTime /*= 0.2f*/, float fTimeGap /*= 0.05f */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d014f0; UpDownCrashCamera 31d01cd0 inlines this with the same test
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fUpDownCrashGap		= fGap;
 	m_fUpDownCrashTime		= fTime;
 
@@ -365,6 +592,10 @@ void CKTDGCamera::ShakeUpDown( float fGap /*= 10.f*/, float fTime /*= 0.2f*/, fl
 
 void CKTDGCamera::UpDownCrashCameraNoReset( float fGap, float fTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d01520
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fUpDownCrashGap		= fGap;
 	m_fUpDownCrashTime		= fTime;
 }
@@ -374,6 +605,10 @@ void CKTDGCamera::UpDownCrashCameraNoReset( float fGap, float fTime )
 
 void CKTDGCamera::LeftCrashCamera( float speed, float accel )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d01540
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fLeftCrashGap			= 0.0f;
 	m_fLeftCrashSpeed		= speed;
 	m_fLeftCrashAccel		= accel;
@@ -381,6 +616,10 @@ void CKTDGCamera::LeftCrashCamera( float speed, float accel )
 
 void CKTDGCamera::RightCrashCamera( float speed, float accel )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d01570
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fRightCrashGap		= 0.0f;
 	m_fRightCrashSpeed		= speed;
 	m_fRightCrashAccel		= accel;
@@ -394,6 +633,10 @@ void CKTDGCamera::LeftRightCrashCamera( float fGap, float fTime )
 // @fTimeGap: 방향을 반대로 바꾸는 시간 간격
 void CKTDGCamera::ShakeLeftRight( float fGap /*= 10.f*/, float fTime /*= 0.2f*/, float fTimeGap /*= 0.05f */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d015a0; LeftRightCrashCamera 31d01d10 inlines this with the same test
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fLeftRightCrashGap		= fGap;
 	m_fLeftRightCrashTime		= fTime;
 
@@ -404,6 +647,10 @@ void CKTDGCamera::ShakeLeftRight( float fGap /*= 10.f*/, float fTime /*= 0.2f*/,
 
 void CKTDGCamera::LeftRightCrashCameraNoReset( float fGap, float fTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	if( m_bJuneShakeLock == true )	// June 31d015d0
+		return;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 	m_fLeftRightCrashGap		= fGap;
 	m_fLeftRightCrashTime		= fTime;
 }

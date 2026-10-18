@@ -31,6 +31,9 @@ class CKTDGCamera
 			D3DXVECTOR3	m_Eye;
 			D3DXVECTOR3	m_LookAt;
 			D3DXVECTOR3	m_UpVec;
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+			float		m_fRoll;	// June camera +0x68 ( = CameraData +0x64 ): the view roll. Part of the struct: PopCamera 31d03430 copies 0x1a dwords.
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 		};
 
 
@@ -113,7 +116,17 @@ class CKTDGCamera
 
 		void Point( float XEye, float YEye, float ZEye, 
 					float XAt, float YAt, float ZAt,
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+					float XUpVec = 0.0f, float YUpVec = 1.0f, float ZUpVec = 0.0f, float fRoll = 0.0f );	// June 31d01310 ( ret 0x28 ): 10th = the view roll
+#else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 					float XUpVec = 0.0f, float YUpVec = 1.0f, float ZUpVec = 0.0f );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+		// June 31d01640 ( ret 0x28, no March counterpart ): Point plus the view update ( LookAtLH, the roll, SetViewTransform ).
+		void PointAndUpdateViewTransform( float XEye, float YEye, float ZEye,
+					float XAt, float YAt, float ZAt,
+					float XUpVec = 0.0f, float YUpVec = 1.0f, float ZUpVec = 0.0f, float fRoll = 0.0f );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 		void Move( float XPos, float YPos, float ZPos );
 		void MoveRel( float XAdd, float YAdd, float ZAdd );
@@ -134,10 +147,20 @@ class CKTDGCamera
 
 		
         //{{ seojt // 2008-10-23, 15:50
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+        void UpdateViewTransform( const D3DXVECTOR3& vEye_, const D3DXVECTOR3& vLookAt_, float fRoll_ = 0.0f );	// June 31d01a30 ( ret 0xc )
+#else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
         void UpdateViewTransform( const D3DXVECTOR3& vEye_, const D3DXVECTOR3& vLookAt_ );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
         //}} seojt // 2008-10-23, 15:50
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+		// June 31d01b70 ( ret 0x28 ): 9th = the linear-tracking byte ( +0x90 ), 10th = the roll target. ( false, 0 ) is what June's 11 callers
+		// pass outside the Lua camera table's LINEARMOVING / TILTANGLE keys ( june2017_re/r13c_settracking_callers.tsv ).
+		void SetTracking( float XTo, float YTo, float ZTo, float XAt, float YAt, float ZAt, float Time, float atTime = 0.0f, bool bLinear = false, float fRollTo = 0.0f );
+#else SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 		void SetTracking( float XTo, float YTo, float ZTo, float XAt, float YAt, float ZAt, float Time, float atTime = 0.0f );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 		void PushCamera();
 		int  PopCamera();
@@ -293,6 +316,33 @@ class CKTDGCamera
 	private:
 		bool	m_bJuneWorldMeshHidden;
 #endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_MESH_HIDDEN
+
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+	public:
+		float	GetRoll() const { return m_Camera.m_fRoll; }
+		bool	GetLinearTracking() const { return m_bLinearTrack; }
+		float	GetLinearTrackingTime() const { return m_fLinearTrackTime; }
+		// June CX2Camera inline 31fae7b0 writes camera +0x94 directly ( callers 31ff629c, 3276c9b6, 32d2e88f: the camera sequencers ).
+		void	SetLinearTrackingTime( float fTime ) { m_fLinearTrackTime = fTime; }
+	private:
+		float	m_fRollTrack;			// June +0x84: the roll rate, ( target - roll ) / Time, set by SetTracking
+		bool	m_bLinearTrack;			// June +0x90: SetTracking's 9th argument; UpdateCamera steps the tracking by +0x94, not dt
+		float	m_fLinearTrackTime;		// June +0x94: the step time for the linear tracking, consumed ( set to 0 ) by UpdateCamera
+		void	JuneApplyViewRoll();
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+		void	JuneCamTrackLog( const char* pszFrom, bool bLinear, float fRollTo, float fTime );
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK_DEBUG
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
+	public:
+		// June camera +0x19c ( byte; ctor 31d03383 word +0x19c = 0 ): while set, the eight shake setters return at once.
+		// June writers: CX2CashShop::SetOpen 3223d680 @3223e0a5 / @3223e144 ( = 1 ), the game-camera creation 322dfed2 @322dfedb ( = 0 ): Phase R13d.
+		void	SetShakeLock( bool bLock ) { m_bJuneShakeLock = bLock; }
+		bool	GetShakeLock() const { return m_bJuneShakeLock; }
+	private:
+		bool	m_bJuneShakeLock;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK
 
 #ifdef TOGETHER_FESTIVAL_2012_AUTUMN
 		float m_fSmoothCameraCreshMaxTime;		/// 부드러운 카메라 크래시에 적용되는 시간

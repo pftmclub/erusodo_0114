@@ -716,3 +716,20 @@ bOnLine, bDroppable )`; March's 7-arg form forwards (index twice, `false`). Clas
 - June-only helpers with `NULL, &idx`: user landing prediction `32021390` (Add / Luciel / Arme callers), target-follow prediction `3200eeb0`, line clamp
   `32294530` (Add), Ara landing helper `32bc0420`, Rena Grand Archer `LESI_RGA_GUNGNIR_READY` (`@32ca111a`); Luciel's states (`@32b2fd79`, `@32b33fb7`,
   `@32b33d09`) come with the class.
+
+### 7af. Camera linear tracking and view roll that only class code drives (from June engine R13c)
+
+R13c ports June's engine camera whole (`SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK`): `CKTDGCamera::SetTracking( ..., bLinear, fRollTo )` (`31d01b70`),
+`GetLinearTracking` / `SetLinearTrackingTime` (camera `+0x90` / `+0x94`), the view roll (`+0x68`, `GetRoll`) and `CX2Camera::OnFrameMove`'s linear
+gate (`31fb5800`). March's `CX2Camera` functions keep their signatures and pass June's defaults ( `false`, `0` ) (`june2017_re/r13c_settracking_callers.tsv`).
+What only class code reaches:
+- **`LINEARMOVING = TRUE`** sub-camera tables (`CAMERA_TYPE.CT_PARTS_LOOK_TRACKING`) exist only in `Ain_Apostasia.lua` (13) and `Ain_Erbluhen_Emotion.lua` (3)
+  (data036). June's Lua camera table `31fb5920` reads it (`@31fb6123` / `@31fb63e8`) and passes it as `SetTracking`'s 9th argument through June's
+  12-arg `PartsLookTrackingCamera` (`31faee30`, `a11` / `a12`) and 10-arg `NomalTrackingCamera` (`31fb3640` / `31fae910`). Ain's port extends those
+  `CX2Camera` signatures (and `PlayLuaCamera`'s key reads) and passes them on.
+- **The SUB_CAMERA time sequencer** `31ff5440` (`@31ff61e9-31ff62a1`, user side): picks `SUB_CAMERA%d` by elapsed time, plays it (`31fb6af0`), then sets
+  the camera's step time to the overshoot (`31fae7b0` = `GetCamera().SetLinearTrackingTime( t )`). March plays SUB_CAMERA tables from class code by name
+  (`X2GUArme_VioletMage.cpp:6865` etc.).
+- **`TILTANGLE`** (roll, `-deg * 0.017453292`) is read by the same Lua table but appears in no June or March file: dormant.
+- June's `PartsLookTrackingCameraFromPartsEye` (`31fae6d0`) takes a 5th byte for `+0x90`; its June callers pass the unit pointer's low byte
+  (C3v review quirk), which is never 1 for an aligned pointer.

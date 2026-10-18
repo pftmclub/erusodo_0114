@@ -131,6 +131,12 @@ CX2Camera::~CX2Camera(void)
 
 HRESULT CX2Camera::OnFrameMove( double fTime, float fElapsedTime )
 {
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+	// June 31fb5800 @31fb5804-31fb5839: while the engine camera tracks linearly ( +0x90 ) and no step time is pending ( +0x94 ),
+	// the whole frame move is skipped, UpdateCamera included. Reached only through the Lua camera table's LINEARMOVING key.
+	if( m_kCamera.GetLinearTracking() == true && IsSamef( m_kCamera.GetLinearTrackingTime(), 0.f ) == true )
+		return S_OK;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 	if ( m_bBigAngle == true )
 	{
 		m_fAngleDegree += fElapsedTime*50.0f;

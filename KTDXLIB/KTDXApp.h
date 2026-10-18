@@ -595,6 +595,16 @@ private:
 	bool m_bFinalFrame;
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+public:
+	// June app +0x2d4 ( ctor 31c18def = 0; setter 31c1c140, Lua "SetLookAtDependOnEye" 31c154dc ): read by CKTDGCamera::SetTracking 31d01b79.
+	// June's only setter of true is Raid_Red_Dragon_Phase2.lua; CX2NewBossRaidManager clears it ( 3266ced2, 3266dc42 ), as does 326b2a1c.
+	void SetLookAtDependOnEye( bool bSet ) { m_bLookAtDependOnEye = bSet; }
+	bool GetLookAtDependOnEye() const { return m_bLookAtDependOnEye; }
+private:
+	bool m_bLookAtDependOnEye;
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+
 #ifdef X2OPTIMIZE_ONE_SIMUL_ONE_RENDER_TEST
 public:
 	void SetEnableOneSimulOneRenderTest( bool bEnable ) { m_bOneSimulOneRender = bEnable; }

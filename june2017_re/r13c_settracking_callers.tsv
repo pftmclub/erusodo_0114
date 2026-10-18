@@ -1,0 +1,14 @@
+june_call	june_func (ret)	march_func	march_site (X2Lib/X2Camera.cpp)	june_a9 (+0x90)	june_a10 (roll target)	march_passes (R13c)	note
+31fae54a	31fae430 (ret 0x14)	CX2Camera::GameLineCamera	1044	push 0 @31fae50a	fldz @31fae501	default ( false, 0.f )	same
+31fae72a	31fae6d0 (ret 0x18)	CX2Camera::PartsLookTrackingCameraFromPartsEye	2926	own 5th arg [esp+0x14] @31fae6d9	fldz @31fae6d7 ( June's 6th arg is unread )	default ( false, 0.f )	June signature ( unit, look&, eye&, time, a5, a6 ); March has 4 args; June's callers of 31fae6d0 pass the unit pointer's low byte as a5 ( C3v review quirk ), never 1 for an aligned pointer: routed with Ain ( checklist 7af )
+31faee12	31fae910 (ret 0x28)	CX2Camera::NomalTrackingCamera ( CX2SquareUnit )	607	own 9th arg [esp+0x7c] @31faedc1	own 10th arg [esp+0x80] @31faedba	default ( false, 0.f )	pass-through; March signature 8 args ( C3v kept it ); June's non-zero values come only from the Lua camera table ( 31fb5920 LINEARMOVING / TILTANGLE )
+31faf106	31faee30 (ret 0x30)	CX2Camera::PartsLookTrackingCamera	638	own 11th arg [esp+0x5c] @31faf092	own 12th arg [esp+0x60] @31faf0be	default ( false, 0.f )	pass-through; June = March's 10 args + ( a11 byte, a12 roll ); LINEARMOVING = TRUE reaches here via CAMERA_TYPE CT_PARTS_LOOK_TRACKING in Ain_Apostasia / Ain_Erbluhen_Emotion ( data036 ): checklist 7af
+31faf879	31faf410 (ret 0x18)	CX2Camera::FieldCamera	781	push 0 @31faf836	fldz @31faf82d	default ( false, 0.f )	same
+31fafd15	31faf890 (ret 0x20)	CX2Camera::SquareCamera ( 8 args )	828	push 0 @31fafcd2	fldz @31fafcc9	default ( false, 0.f )	same
+31fb01a9	31fafd30 (ret 0x28)	CX2Camera::SquareCamera ( vLookAt )	870	push 0 @31fb0166	fldz @31fb015d	default ( false, 0.f )	same
+31fb0bb4	31fb0640 (ret 0x14 part)	CX2Camera::SquareLineCamera	1000	push 0 @31fb0b74	fldz @31fb0b6b	default ( false, 0.f )	same; 31fb0640 also holds TFieldCameraUpdate ( ret 0x1c, UpdateViewTransform roll 0 @31fb0a85 )
+31fb1c38	31fb0bc0 (ret 0x44)	CX2Camera::FixedCamera	1191 / 1246 / 1299 / 1346	push 0 @31fb1bf7	fldz @31fb1be8	default ( false, 0.f )	March's four zoom-level calls are one call in June
+31fb3623	31fb32f0 (ret 0xc)	CX2Camera::ManualTrackingCamera	380	push 0 @31fb35e1	0.0 ( fldz @31fb3556, stored @31fb35db; x87 trace )	default ( false, 0.f )	Time 0.3 ( 0x3345993c ) = March's 0.3f
+31fb3c2b	31fb3640 (ret 0x28)	CX2Camera::NomalTrackingCamera ( CX2GameUnit )	548	own 9th arg [esp+0x70] @31fb3be5	own 10th arg [esp+0x74] @31fb3bd6	default ( false, 0.f )	pass-through ( funcmap 31fb3640 (C3v) ); every June caller passes ( 0, 0.f ) except the Lua camera table 31fb6254 ( a9 = LINEARMOVING )
+-	-	(commented out)	916 / 958 / 1366	-	-	-	no code
+-	31fb01c0 / 31fb0640	CX2Camera::SquareCameraUpdate / TFieldCameraUpdate ( UpdateViewTransform )	919 / 961	-	fldz @31fb0607 / @31fb0a85	default 0.f	UpdateViewTransform 31d01a30 3rd arg

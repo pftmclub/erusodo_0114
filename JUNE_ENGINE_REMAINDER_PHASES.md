@@ -1917,6 +1917,69 @@ What June changed in the engine camera, from the C3v review rows 2479-2480 and t
 - **Callers.** June has 11 direct calls to `31d01b70`; March has 17 `SetTracking` calls in `X2Camera.cpp`. Map each June caller's roll and `+0x90` arguments onto March's sites, and give the March-only sites June's defaults.
   Some of those callers were moved by C3v (`NomalTrackingCamera` `31fb3640`, 10 args); keep C3v's flags as they are.
 
+### Phase R13c -- Done
+
+**2026-10-18, Opus 5.5 high.** `CKTDGCamera` mapped whole (`31d01310..31d03570`, vtable `3344d770`), ported where it differs; commit in the STATUS row.
+Flags `SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK` (+ short-lived `_DEBUG`) and, split off as its own June change, `SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK`.
+Funcmap rows `(R13c)` (10); caller table `june2017_re/r13c_settracking_callers.tsv`.
+
+**Layout.** June inserts the roll at `+0x68` (inside `CameraData`: PopCamera `31d03430` copies 0x1a dwords), so `m_Track` / `m_TrackAt` move to
+`+0x6c` / `+0x78`; then roll rate `+0x84`, track times `+0x88` / `+0x8c`, linear byte `+0x90`, linear step time `+0x94`; the shake fields follow at
+March's order (`+0x98..`), impact `+0xf0..+0x10c`, `m_bFixedUpVec` `+0x110`, stack `+0x114`, random shake `+0x12c`, up-side-down `+0x198`,
+shake lock `+0x19c`, R13's mesh-hidden `+0x19d`.
+
+**Ported (`_CAMERA_TRACK`):**
+- `SetTracking` `31d01b70` (10 args): app `+0x2d4` copies `at.x / at.y` into `to.x / to.y`; `Time > 0.001f`; roll rate; `m_fTrackTime = 0` on the
+  failing branch (where the raw roll target goes into the rate); `+0x90 = bLinear`.
+- `UpdateCamera` `31d02e50`: step time = `+0x94` (then 0) when `+0x90`, else `dt`; roll `+= rate * step` inside the tracking block; shake / impact /
+  up-side-down keep the real `dt`; after `LookAtLH`, `view = view * RotationZ( roll )` when `|roll| > FLT_EPSILON`.
+  Thunk `33086abc` is `D3DXMatrixRotationZ` (bound import, resolved against the June dir's `d3dx9_43.dll` exports).
+- `Point` (roll 10th), `UpdateViewTransform` (roll 3rd, rate reset), June-only `PointAndUpdateViewTransform` `31d01640`, ctor, `CameraData::m_fRoll`.
+- `CKTDXApp::SetLookAtDependOnEye` (`+0x2d4`, ctor 0, Lua bind after `GetVec3`, as June `31c154dc`).
+- `CX2Camera::OnFrameMove` `31fb5800`: returns before anything (UpdateCamera included) while linear tracking has no step time pending.
+
+**Ported (`_CAMERA_SHAKE_LOCK`):** `+0x19c` at the top of the eight shake setters (`31d01490..31d015d0`; `UpDownCrashCamera` / `LeftRightCrashCamera`
+reach it through `ShakeUpDown` / `ShakeLeftRight`). ShakeRandom, ImpactForward and UpSideDown have none. The lock stays clear until R13d ports its writers.
+
+**Same as March:** Move / MoveRel / LookAt / LookAtRel / UpVec / Rotate X-Y-Z / GetCameraDistance / Push / Pop (apart from the struct), Reset `31d01460`
+(no callers; it was the C3v review's "Init"), and `UpdateCameraShake` / `ShakeRandom` / `UpdateCameraImpact` by member and call census (not line-diffed).
+
+**Callers.** June's 11 `SetTracking` sites map onto March's 14 live calls (FixedCamera's four are one in June); all pass `( 0, 0.f )` or pass their own
+caller's values through. March keeps its `CX2Camera` signatures (C3v's call) and passes June's defaults. There are no March-only sites. `UpdateViewTransform`'s two callers pass roll 0.
+
+**Routed:**
+- Ain (checklist **7af**): `LINEARMOVING = TRUE` exists only in `Ain_Apostasia.lua` / `Ain_Erbluhen_Emotion.lua`, read by the Lua camera table `31fb5920`
+  into June's 12-arg `PartsLookTrackingCamera`; the user SUB_CAMERA time sequencer `31ff5440` sets `+0x94` (`31fae7b0`). `TILTANGLE` stays dormant.
+- New **R13d** (`kickoffs/june-engine/R13d.md`): the shake-lock writers (`CX2CashShop::SetOpen` `@3223e0a5` / `@3223e144`, game-camera creation
+  `@322dfedb`), the `PointAndUpdateViewTransform` callers (`324baa7c`, `328c43bc`, `328c4466`), and the two non-user sequencers `3276c6f0` / `32d2e520`.
+- `SetLookAtDependOnEye(true)`'s only June user is `Raid_Red_Dragon_Phase2.lua`. Its resets are in `CX2NewBossRaidManager` and come with the raid.
+
+**Hygiene** (`flagcheck --worktree --files` the 6 files):
+- `_CAMERA_TRACK` (with `_DEBUG`): 2 PASS, 1 PASS~, 3 OTHER (Always.h + the two camera files, which share the second flag), 0 FAIL; 0 deleted; RESULT: PASS.
+- `_CAMERA_SHAKE_LOCK`: 6 OTHER, 0 FAIL; 0 deleted; RESULT: PASS.
+- `_CAMERA_TRACK` with both others: 3 PASS, 2 PASS~, 1 OTHER (Always.h), 0 FAIL; 0 deleted, 0 non-ASCII; RESULT: PASS. Every code file reduces to March.
+
+**Deploy: pending.** The 08:29 build compiled KTDXLIB and X2Lib with these edits (0 errors); its X2 step was cut off, and every later queued build stopped at a peer's uncommitted `Always.h` `#error` (`JUNE_SKILL_NOTE`, then `JUNE_RENDER_DRAW_PASS`). The DEPLOY line is added when a build of this commit lands.
+
+**How to see it in game:** nothing in March content sets a roll, the linear byte or the lock, so camera behaviour should be unchanged. The one live
+switch is the console line `g_pKTDXApp:SetLookAtDependOnEye( true )`: every `SetTracking` then aims the eye straight at the look-at point (no side angle),
+and logs `[JUNE_ENGINE] CAMTRACK SetTracking ... look-at-depends-on-eye 1`. June has no caller that passes a non-zero roll or `+0x90 = 1` outside Ain's
+skill cameras (checklist 7af), so no dungeon boss intro reaches either path in this build.
+
+## Phase R13d - Camera members' outside callers (shake lock, Point-and-view)
+
+**Run with:** Opus 5.5 high (map, then port), then a user play-test and an Opus review. Added by R13c, which ported `CKTDGCamera` whole; these are
+June's callers of its new members that live outside the camera classes (plan rule 1: the June functions they sit in differ from March's there).
+Not alongside a session editing `X2CashShop.cpp`, `X2Game.cpp`, `X2StateField.cpp` or `X2StateBattleField.cpp`.
+- **Shake-lock writers** (camera `+0x19c`, `CKTDGCamera::SetShakeLock`): `CX2CashShop::SetOpen` `3223d680` sets it at `@3223e0a5` and `@3223e144`
+  (`g_pX2Game->GetX2Camera()->GetCamera()`); the game-camera creation `322dfed2` clears it at `@322dfedb` after `new CX2Camera` (`31fb6e30`). No other
+  writer clears it, so June keeps shakes off after the shop opens in a game until the next game (a `JUNE_BUGS.md` row if confirmed).
+- **`PointAndUpdateViewTransform` callers** (June `31d01640`): `324ba910` `@324baa7c` (eye `( 0,-5000,-1300 )`, like March `X2StateField.cpp:956`) and
+  `328c41f0` `@328c43bc` / `@328c4466`.
+- **Camera sequencers** `3276c6f0` `@3276c9b6` and `32d2e520` `@32d2e88f`: the same SUB_CAMERA-by-time shape as the user's `31ff5440` (checklist 7af).
+  Name the classes; route class-only ones to the checklist.
+- Flags proposed: `SERV_IRUHADEV_JUNE_RENDER_CAMERA_SHAKE_LOCK_SET`, `SERV_IRUHADEV_JUNE_RENDER_CAMERA_POINT_VIEW`. Log sub-tag `CAMTRACK`.
+
 ## Phase U0 - UI framework RE
 
 **Run with:** Opus 5.5 high. No code. Funcmap rows `Engine U0`.

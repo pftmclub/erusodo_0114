@@ -376,6 +376,9 @@ CKTDXApp::CKTDXApp( HWND hWnd, HINSTANCE hInstance, IDirect3DDevice9* pd3dDevice
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     m_bFinalFrame = false;
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+	m_bLookAtDependOnEye = false;	// June ctor 31c18def
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 	m_FrameMoveCount	= 0;
 	m_RenderCount		= 0;
@@ -3059,6 +3062,9 @@ void CKTDXApp::RegisterLuabind( KLuabinder* pKLuabinder )
 	lua_tinker::class_def<CKTDXApp>( L, "StopSound_LUA",						&CKTDXApp::StopSound_LUA );
 	lua_tinker::class_def<CKTDXApp>( L, "GetVectorByRotate",					&CKTDXApp::GetVectorByRotate );
 	lua_tinker::class_def<CKTDXApp>( L, "GetVec3",								&CKTDXApp::GetVec3 );
+#ifdef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+	lua_tinker::class_def<CKTDXApp>( L, "SetLookAtDependOnEye",					&CKTDXApp::SetLookAtDependOnEye );	// June 31c153bb / 31c154dc, after GetVec3
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
 
 	lua_tinker::class_add<CKTDXStage>( L, "CKTDXStage" );
 	//lua_tinker::class_def<CKTDXStage>( L, "SetLuaFrameMoveFunc",				&CKTDXStage::SetLuaFrameMoveFunc_LUA );
