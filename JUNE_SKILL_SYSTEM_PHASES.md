@@ -657,8 +657,9 @@ and June's data gives most special actives type 14-16. Add the enumerators, then
 - **Readers.** The census subagent listed ~60 March sites (none in KTDXLIB). On the June side, a capstone sweep of every call to `GetSkillTemplet 32206450` /
   type-by-id `32205ab0` followed by a type compare or a jump table found 45 functions. Every one is in `june2017_re/s3c_skill_type_readers.tsv`
   with its March reader and the action. June has **no templet of type 7, 17 or 18**: its 1,148 special actives are 14-16, and wherever June names them it groups them with 7.
-  - Ported: `Handler_EGS_RESET_SKILL_ACK` clears slots for 14-16 as well (June `322112d0`, switch @32211750: 5, 6, 7, 12-16). `Handler_EGS_GET_SKILL_ACK`
-    (March-only; June's `UIServerEventProc 32216150` has no case for it) auto-slots a new 14-16 skill next to 7 (June's auto-equip `328db990` takes 5, 6, 7, 14-16).
+  - Ported: `Handler_EGS_RESET_SKILL_ACK` clears slots for 14-16 as well (June `322112d0`, switch @32211750: 5, 6, 7, 12-16).
+  - **Withdrawn after the play-test:** the `Handler_EGS_GET_SKILL_ACK` auto-slot cases. That switch is in `UPGRADE_SKILL_SYSTEM_2013`'s `#else`, dead in
+    this build; the live branch auto-slots no learned skill of any type. Removed in the follow-up commit (no compiled change); June's auto-equip `328db990` is S7's.
   - No change needed: guild NOT handlers `3220a940` / `3220ad40` and the page apply step `3220b440` switch on passives only, in both. The cool-time filters
     (`328922f0`, `32894490`) single out only 12 / 13. March's HYPER-only tests (`X2Unit`, `X2Game`, `X2SocketItem`, `X2GUUser`) have no 14-16 branch in the June functions already ported.
   - Routed, not ported. Tree UI (`328e6550`, `328dcd50`, `328db2d0`, `328e9160`, `328e2900`): S7. The rest of `322112d0`: the slot loop is S5's (its kickoff
@@ -678,7 +679,12 @@ and June's data gives most special actives type 14-16. Add the enumerators, then
   `files: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token,
   0 encoding change(s)`; `RESULT: PASS`.
 - **How to see it:** `python tools/logs.py --grep "JUNE_SKILL] TYPE"` shows the census above. In game, as a character with a grade-1 special active in a slot,
-  reset that skill in the tree: its slot empties (before S3c the slot kept the id). Learning a new 14-16 skill with a free slot puts it in the slot.
+  reset that skill in the tree: its slot empties (before S3c the slot kept the id). Not reachable offline today: every grade special active has master
+  level 1, and the emulator (as the live server) refuses to reset a slotted level-1 skill (`ERR_RESET_SKILL_04` / `_05`).
+- **Play-test 2026-10-18 (log, exe d4eef836):** `[JUNE_SKILL] TYPE templets per type 0-18: 4 10 3 0 0 | 35 622 0 | 408 | 1 1 10 | 1 103 | 372 467 309 | 0 0
+  out=0` = June's data exactly. reyaa learned 23050 `[Enhanced] Wind Blast` (type 15; `SKILL skill 23050: level 0 -> 1`, 0 SP) and no slot change
+  followed, which is March's live behaviour (see Withdrawn). The two `MIG no-state skill` lines (23000 type 14, 23001 type 15) are S3's guard. 0 EXCEPTION,
+  UNHANDLED = baseline (`E_DISABLE_HB_CHECK_REQ`). **Gate: census PASS; the reset path is code-read only; the UI item is S7's.**
 
 ## Phase S4 - Numerical skill data override
 

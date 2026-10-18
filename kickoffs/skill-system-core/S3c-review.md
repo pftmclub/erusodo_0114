@@ -18,8 +18,8 @@ Then `june2017_re/s3c_skill_type_readers.tsv` (one row per June reader of a skil
 ## Task
 
 Review Phase S3c's commit against the tsv: the five enumerator values (June `Enum.lua` `SKILL_TYPE`), the two case groups in
-`X2SkillTree.cpp` (`Handler_EGS_RESET_SKILL_ACK` = June 322112d0's switch @32211750; `Handler_EGS_GET_SKILL_ACK` = June's
-auto-equip 328db990), and the TYPE census against June's data (types 14 / 15 / 16 = 372 / 467 / 309 of 2,346; none of 7, 17, 18).
+`X2SkillTree.cpp` (`Handler_EGS_RESET_SKILL_ACK` = June 322112d0's switch @32211750; the withdrawn `Handler_EGS_GET_SKILL_ACK` cases
+(removed: dead `#else` of `UPGRADE_SKILL_SYSTEM_2013`; check nothing else S3c touched sits in a dead branch, with `cl /P` if unsure), and the TYPE census against June's data (types 14 / 15 / 16 = 372 / 467 / 309 of 2,346; none of 7, 17, 18).
 
 Also:
 - Re-run the June-side sweep (`typesweep.py` method in the Done note: every call to GetSkillTemplet 32206450 / type-by-id 32205ab0

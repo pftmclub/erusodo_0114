@@ -2099,12 +2099,6 @@ bool CX2SkillTree::Handler_EGS_GET_SKILL_ACK( HWND hWnd, UINT uMsg, WPARAM wPara
 #ifdef FINALITY_SKILL_SYSTEM //JHKang
 			case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
 #endif //FINALITY_SKILL_SYSTEM
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TYPE
-			/// June's auto-equip of new skills ( 328db990 ) takes 5, 6, 7 and 14-16; June has no GET_SKILL_ACK
-			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
-			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
-			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
-#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
 				{
 					// 장착 가능한 스킬을 새로 배웠다면
 					if( kEvent.m_iSkillLevel == 1 )

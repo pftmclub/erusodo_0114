@@ -8048,7 +8048,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June skill system core, Phase S3c (JUNE_SKILL_SYSTEM_PHASES.md "Phase S3c"). June's SKILL_TYPE 14-16
 //              ST_SPECIAL_ACTIVE_GRADE_1..3, 17 ST_CORE and 18 ST_CORE_PASSIVE (June Enum.lua) join March's C++ enum, and the
 //              engine readers treat them as June does: RESET_SKILL_ACK clears the slots of types 5, 6, 7, 12-16 (June 322112d0
-//              @32211750), and the learn ACK auto-slots 14-16 next to 7 (June's auto-equip 328db990 takes 5, 6, 7, 14-16).
+//              @32211750). March's live learn ACK auto-slots nothing (its switch is in UPGRADE_SKILL_SYSTEM_2013's #else); S7.
 //              A [JUNE_SKILL] TYPE line at load counts the templets per type 0-18. The tree UI's readers are S7's.
 //              Revert: undefine this flag.
 #define SERV_IRUHADEV_JUNE_SKILL_TYPE
