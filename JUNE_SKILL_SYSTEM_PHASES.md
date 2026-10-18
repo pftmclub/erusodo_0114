@@ -1188,6 +1188,39 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_KEYCONFIG` (needs `SLOT_10`, `#error` guard), `KT
   `ACQ NOT`, `ACQ level-up L=10`, `ACQ auto-equip ... queued A 1`: Gust Storm (22002) appears in a free A slot. Same on unit 39 at L5 with Flame Geyser (21001).
 - **Play-test PASSED 2026-10-18** (user: all checks; log, exe 5fc80b2a, 0 EXCEPTION, clean exit). Unit 44 L9 -> 10: `ACQ grant ... L=10: 1 row(s) raised` -> `ACQ push (level-up)` -> `ACQ NOT ... 1 skill(s) added` -> `ACQ level-up L=10: 1 skill(s) at band 10` -> `ACQ auto-equip ... queued A 1` -> one `CHANGE_SKILL_SLOT_REQ`/`ACK`; save: 22002 in slot 3. Unit 39 L4 -> 5: the same chain, 21001 in slot 2. Unit 19 (Code Empress, L80) select: `9 row(s) raised, 5 base(s) replaced; skipped 1 no-level, 7 hyper-class, 9 sealed`. Unit 44's select raised 0 rows, not the 1 predicted: 22001 was already in the save when this run started (3 rows at the 15:09:21 list load, so an earlier launch's select had granted it). The 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are outside this phase.
 
+### Phase S7 -- Review (2026-10-18, Opus 5.5 high)
+
+**PASS. No code change, no rebuild** (exe stays 5fc80b2a).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_ACQUIRE --range a5f970d2^..HEAD`: `files: 9 PASS, 10 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` /
+  `RESULT: PASS`. Defines `Always.h:8582` + `ServerDefine.h:4692`. No OTHER rows, no deleted lines.
+- **Finding re-checked.** Ghidra `xrefs_to 3220df10`: none (no code or data reference); the push-scan of 0x11c is not re-run (the dead sender and
+  the absent SP key agree with S0a / S0b).
+- **Ghidra vs the port (all match).** `328924c0`: found -> level byte at node +0x10; else, only with the skill tree loaded (`g_pData +0x50`), erase
+  templet +0x178's row, then insert with the level byte. `32206d30`: class tree map, `+0x174 == 5` skipped unless unit +0x3c, `(level / 5) * 5` in
+  +0x150. `328db990`: A list (no TC), B list only if `32890ee0(0)`; the doubled level test is June's own (`32890620( id, 0, 0, 1 )` when a unit is
+  selected, then `32890a30` = the same call > 0); types 5 / 6 / 7 / 0xe-0x10; A first then B + 5; `Skill_Equip.ogg` per equip. `3220e3b0`: 1 s timing,
+  `+0x191` -> 1, game alive + my unit + `3221c560` false + vslot 0x20c > 10 -> 0, B 5-8 key 0 / slot 9 key 1 unless skill 0, dedup -> 1, push.
+  `3220e5f0`: 0x11f waiting -> 0, REQ 0x11e, AddServerPacket 0x11f, +0x90 = 1, my unit +0xde8 = `_DAT_3344a51c`. `322105c0`: send front, pop
+  only on true. `32535be0`: UID test vs my unit +0x28/+0x2c, `328924c0`, then (UI manager +0x2cc, tree UI) memo buttons + `328e7b70( 0, 1, 0 )` if
+  UI 0x15 shown, charinfo `3214ef80` if 0x13 shown.
+- **`UpdateUI` arguments.** June's `328e7b70` is `( bEquipped, bSkillTree, bSkillPage )` with no SP argument (funcmap), so June's `( 0, 1, 0 )` is a
+  tree redraw. March's `UpdateUI( false, true, true )` = that redraw plus March's `UpdateSPInfo` (bSP): a correct mapping while March's SP box
+  exists. Routed to S7b (June's `UpdateUI` has no SP step).
+- **Stand-in.** `GrantJuneSkillsByLevel` logs one `ACQ grant` line per run with the rule in the text ("stand-in rule: one level per
+  m_RequireCharacterLevel entry <= L") and the skip counts; `PushJuneSkillGrant` logs every push, including "NOT not sent". The select
+  catch-up is silent only on the wire (no NOT), not in the log. Skips = Done note (no level, `SPRT_HYPER_CLASS`, sealed and not unsealed, a base whose
+  upgrade is held). The base swap moves the slot (`Persist` writes `GetSlotOfSkill`), zeroes the base, and drops a base raised earlier in the same
+  pass from the NOT; both map orders (base before or after its upgrade) end the same.
+- **Routing.** `CX2State::UIServerEventProc` (`X2State.cpp:2110`, `NEW_SKILL_TREE` on at `Always.h:3022`) hands packets to the skill tree; every state
+  override chains to it except `CX2StateJoin` (no unit). **Level-up sites:** `CX2StateField`'s override (`X2StateField.cpp:2029`) forwards to
+  `CX2TFieldGame`'s (patched); `CX2StateBattleField` / `CX2StateDungeonGame` inherit `CX2StateMenu`'s (patched, inside its
+  `Handler_EGS_CHAR_LEVEL_UP_NOT` at `:4871`). Every March level-up path runs the block. June's `325346e0` sits in one vtable (`334a4398`), `32473f70`
+  in 13 (the base), `323ae130` is called once.
+- **Nits, no change.** The Done note did not name `CX2StateField`'s forwarder (above). `SERV_IRUHADEV_JUNE_SKILL_DEBUG` retires in the S7b review now
+  (`S7b-review.md`), not here.
+- **User owes:** nothing for S7. Next: `S7b` (or `S8`).
+
 ## Phase S7b - June's skill tree UI
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_UI`. Sub-tag `[JUNE_SKILL] UI`. Split out of S7 (user,

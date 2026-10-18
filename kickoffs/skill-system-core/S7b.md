@@ -32,6 +32,8 @@ the slot-change queue). **S7b is the tree UI**, function by function from `june2
   away with the June tree (June has none) or stays as a local convenience. Do not keep it silently.
 - `CX2Unit 3235a160` (HUD stat refresh through the June-only singleton `324943c0`, 23 callers) was not ported by S7: say whether it
   belongs to this UI port or needs its own row.
+- S7 review: the grant handler calls March's `UpdateUI( false, true, true )` for June's `328e7b70( 0, 1, 0 )` (June has no SP argument:
+  `( bEquipped, bSkillTree, bSkillPage )`). When June's `UpdateUI` replaces March's, map the call to it and drop the SP step with the SP UI.
 
 **Play-test:** open the tree on two classes; skill types (S3c's gate item), memo select + activation (S3d's first play-test: the
 `[JUNE_SKILL] MEMO` lines), a tree reset with the reset item, the page UI as June has it.
