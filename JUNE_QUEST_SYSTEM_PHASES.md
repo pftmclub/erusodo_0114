@@ -926,6 +926,18 @@ Against March's server (no June code involved), every cited range re-read.
   17:39:22, md5 82ec74d235280a818e541e214ee4a713` (main f743a5e2 + 18 uncommitted code files).
 - Not in this review: `SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END` (`4e3fefed`), its own flag, play-tested. User owes nothing.
 
+## Phase Q4d - Sub-quest upper-difficulty flag
+
+**Run with:** Sonnet 5.5 high, then a short review. Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF`. Found by Q9 play-test 1 (user, 2026-10-19: "doesn't June remove
+difficulty?" - no: the data carries `m_bUpperDifficulty`, the server reads it, the emulator did not).
+
+- Quest 22162 sub 22182 (visit Burnt Forest, `m_bUpperDifficulty = True`) refused Burnt Forest Expert: the client parser does not read the key for
+  `SQT_VISIT_DUNGEON`, so the emulator (which copies the client's parsed struct) matched the exact dungeon id only.
+- Server parser (`XSLQuestManager.cpp:1293-1318`) reads the key and `IsExistDungeonInSubQuest` (:2158) accepts the same dungeon at the same or harder difficulty.
+- Scan lead: server-only reads for `DUNGEON_CLEAR_COUNT`, `FIND_NPC`, `ITEM_USE`, `SUITABLE_LEVEL_DUNGEON_CLEAR`, `VISIT_DUNGEON`. Read each case.
+- Task: audit, parse the flag for those types (optional, default false), check what else reads the struct, play-test Expert on 22182 / 22183.
+- Kickoff: `kickoffs/quest-system/Q4d.md`. Q4 itself stays done (review PASS); this is a new phase of the same subject, not a reopening.
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.
