@@ -24,3 +24,9 @@ Do "Phase Z".
 - The checklist rows from S3 and S4, confirmed.
 - Memory updated.
 - `_DEBUG` off; build and deploy if that changes anything.
+
+**`SERV_IRUHADEV_JUNE_SKILL_DEBUG` (carried by the S8 review, 2026-10-19):** the S7e review allowed retiring it only after a play-test had shown the S3d
+`[JUNE_SKILL] MEMO effectset` / `damageeffect` / `attack box` lines. At the S8 review they still had not run. First check the logs
+(`python tools/logs.py --grep "JUNE_SKILL] MEMO"`). If they still have not run, say so in the Done note, then remove the define and every
+`#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) ...` block (`git grep`). They are diagnostics only, so removing them changes no behaviour.
+The S8 `PTR snapshot` lines cannot run offline (S8 Done note).

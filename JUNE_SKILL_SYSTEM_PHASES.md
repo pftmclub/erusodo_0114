@@ -1741,6 +1741,39 @@ The snapshot and its four consumers are left to the S8 review's Ghidra compariso
 
 **How to see it in game:** the hand-off below (unit 25 jtLordKnight, page switch while Impact Smash runs; Kick for the power rate). **User owes:** the play-test.
 
+### Phase S8 -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe 12560fa1 is a build of `7ee961df`).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_STATE_PTR --range 387f4d85^..7ee961df --with SERV_IRUHADEV_JUNE_SKILL_DEBUG`:
+  `files: 10 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  The 2 deleted lines are `7ee961df` rewriting the two comment lines of its own ReInit block (inside the flag, code unchanged). No OTHER rows.
+- **Snapshot `31fd2af0` (raw disassembly).** March's `UserUnitStateData` is June's 100-byte entry (vptr 0, id 4, SP 6, rate 8, skill `+0xc`, hyper `+0x10`, delegates from `+0x14`, 8 B each),
+  so Future `+0x2c` / `+0x44` / `+0x4c` = OnFrameMoveFuture / OnEventProcess / StateEndFuture and Now `+0x34` / `+0x54` = OnFrameMove / StateEnd, stored at `+0x9544..+0x9568` in that order.
+  Guard: vslot 0x524 `JLE`, then `31edf580` (skill tree `g_pData +0x50`, null -> false) -> `322074e0( now skill, slot entry +0xc )`: the push order makes the running skill the first
+  argument = `JuneIsSameOrUpgradeSkill( iSkill_, iTarget_ )`. **Match** (March's extra `g_pData` null test only adds safety).
+- **The four consumers, instruction by instruction:**
+  - `320347d0`: table id = (Future - base) / 100; FMF snapshot `+0x9548` -> entry `+0x30` -> vslot 0x7c8; the riding-pet block (`+0x683c`, `32d3cff0`, `+0x620` -> `32031e60`) between; EP snapshot
+    `+0x9550` -> entry `+0x48` -> nothing. **Match** (the pet part is C9h-4c's, unchanged).
+  - `31fd6b80`: FM snapshot `+0x9560` -> entry `+0x38` -> vslot 0x7cc. **Match.**
+  - `31fe6a40`: SEF snapshot `+0x9558` -> entry `+0x50` -> 0x7d8; `+0x7e3a` cleared; Future = base + id x 100 (entry 0 past the end); `+0x9544..+0x9558` zeroed; StateStartFuture `+0x20` -> 0x7c0. **Match.**
+  - `3203c3a0`: SE snapshot `+0x9568` -> entry `+0x58` -> 0x7dc; random pick (not ported, 6b); summon rate when `31fc8200`; 98 recomputed only when old `+0xc` != new; store; vslot 0x78c (not ported);
+    `+0x7cc8` = entry `+8`, x `31fd7cc0`, x 98; `+0x955c..+0x9568` zeroed; StateStart `+0x28` -> 0x7c4. **Match.** March stores before the rate terms, but reads the old skill first, so the order change is harmless.
+- **Engine call vs June's slot-493 functions.** `31fd2af0` has 12 callers. Spot-checked `32d223e0`, `329c8a00`, `32a28e9d` and `32b46615`. Each tests slot < 5, takes the normal state from
+  its own A / B table copy (all read 50..58 / 60..68), then calls `31fd88f0`, `31fd2af0` and the entry's Init. March has the same range (`ARRAY_SIZE` = 5 under SLOT_10) and
+  `aNormalSkillStateID` / `...SlotB`, and makes the call right before both `SetEquippedSkillFuncBySkillSlotIndex` sites (`X2GUUser.cpp:6439`, `:39654`). All nine class functions open with
+  that check and that Init. **Same entry by role.** Note: March's ids are June's minus 1 (49 / 51 / ... / 59 / ...). Both sides use symbolic tables, so this is harmless here, but a port that
+  copies a June numeric user-state id must map it.
+- **Early readers / ReInit.** The ctor seed is the last statement of `CX2GUUser::CX2GUUser`, and the body before it reads no iterator or getter (`GetNowStateID` / `GetNowStateSkillID` / `IsHyperState` /
+  `GetPowerRate`: 0 hits in `:645-1388`). Base-ctor virtuals dispatch to `CX2GameUnit`. Every class `ReInit` (8 classes + EL) calls `CX2GUUser::ReInit` first. Its reset = June `32022380` (`@32022493` / `@3202251d` /
+  `@32022590`), and `32022380` writes nothing in `+0x9544..+0x9568`. **Match.**
+- **No dangling position.** `m_StateList` is cleared only in the dtor (`:1623`, no state read after it), and map inserts keep iterators valid. The seed's key-0 entry is the insert March's
+  `operator[]` already made, and `InitState`'s walk finds a null StateInit there.
+- **Readers.** Under the flag the by-value members are gone, so the compiler proves every reader converted. The only writes in the converted code go to the rate cache (seed, ReInit,
+  DoStateEndStart, the 6b terms, the class sites). None go through `->second` (`SetCustomAnimName` takes a const ref). June's class code multiplies `+0x7cc8` (`32bf2e37`, `32c42cee`). **Match.**
+- **`SERV_IRUHADEV_JUNE_SKILL_DEBUG`:** the S3d `[JUNE_SKILL] MEMO` lines have still not run (0 in `offline_server.log` / `ErrorLog.txt`, 07:45 run), so it stays on and goes to Phase Z (`Z.md` notes it).
+- **User owes:** nothing.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
