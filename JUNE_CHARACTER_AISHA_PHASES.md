@@ -368,6 +368,63 @@ if CH0 splits it). Sub-tags `CORE`, `DATA`.
 `ErrorLog.txt` has no new `KEM_ERROR` / `Motion Error` / missing-animation line against a pre-CH1 run. Combos, dash, jump, damage and bounding
 play June's animations (the 7l `JUNE_FX C3d-3` legs pass). `charport_scan.py` shows nothing new for `Arme_VioletMage`.
 
+### CH1a - Done (2026-10-20)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (`KTDXLIB/Always.h`), the commit "Character pilot Phase CH1a". The 40 class-map rows of phase CH1a are 40 new
+`CX2GUArme_VioletMage::June_*` members: declarations after `ChargeMPEnd` in `X2GUArme_VioletMage.h`, bodies at the end of `X2GUArme_VioletMage.cpp`, each with its
+June address. Nothing registers, calls or overrides them; March's members are untouched. 44 funcmap rows `Char CH1a` (`june2017_re/funcmap.tsv`).
+
+| June | Member (`June_` prefix) | June | Member |
+|---|---|---|---|
+| `32cb6f70` | WaitStartFuture | `32cb9a40` | WaitStart |
+| `32cb6fa0` | WaitFrameMoveFuture | `32cd0200` | WaitEventProcess |
+| `32cd0490` | WalkEventProcess | `32cc5e40` | JumpReadyEventProcess |
+| `32cb6fd0` | JumpUpEventProcess | `32cb9a70` | JumpDownEventProcess |
+| `32cb7090` | JumpLevitationStartFuture | `32cc5f40` | JumpLevitationFrameMoveFuture |
+| `32cd0670` | JumpLevitationFrameMove | `32cb9ba0` | JumpLevitationEventProcess |
+| `32cd0730` | JumpLevitationEnd | `32cd07e0` | JumpLandingEventProcess |
+| `32cd0a40` | DashEventProcess | `32cb70b0` | DashEndStart |
+| `32cc6040` | DashEndFrameMoveFuture | `32cb9c60` | DashEndFrameMove |
+| `32cd0c40` | DashEndEventProcess | `32cc60a0` | DashJumpEventProcess |
+| `32cb70c0` | DashJumpLevitationStartFuture | `32cc63c0` | DashJumpLevitationFrameMoveFuture |
+| `32cd0ef0` | DashJumpLevitationFrameMove | `32cb9ce0` | DashJumpLevitationEventProcess |
+| `32cd0fb0` | DashJumpLevitationEnd | `32cd1060` | DashJumpLandingEventProcess |
+| `32cb70f0` | DashJumpPowerLandingStart | `32cd1280` | DashJumpPowerLandingEventProcess |
+| `32cc8410` | ChargeMPInit | `32ccbe10` | ChargeMPStartFuture |
+| `32cd1540` | ChargeMPStart | `32cd1830` | ChargeMPFrameMove |
+| `32cd21d0` | ChargeMPEventProcess | `32ccc070` | ChargeMPEndFuture |
+| `32cd2420` | ChargeMPEnd | `32cc8800` | EvasionStandupAttackInit (the Init June registers for 59 states) |
+| `32cb7570` / `32cb7580` | AVSI_SI_AV_POWER_ATTACK(_HYPER)_FrameMove (a bare jump to `CommonFrameMove`) | `32cbe620` / `32cbe660` | AVSI_SI_AV_POWER_ATTACK(_HYPER)_EventProcess |
+
+**What differs from March** (the rest is March's body): the wait event's MP-charge test, jump up / down / levitation events (double-tap dash, `AVSI_WALL_LANDING`),
+the two levitation `FrameMoveFuture` (newest key press picks the facing when both keys are held), the dash-jump events (turn-around, the `@32cc62fd` block runs on the
+ground too), the charge-MP start / frame-move / event (MemoRise effect set, `+0x9770` rule), and the two power-attack `FrameMove`s (June dropped the hyper world colour
+and the cut-in light).
+
+**Method, for CH1b-CH1i:**
+- `m_InputData` is bytes from `+0x86da` in March's member order (`oneZ` `+0x86eb`, `oneX` `+0x86ef`); `SpecialAttackEventProcess( 1 / 2 )` is `ASUT_GROUND / ASUT_AIR`;
+  vslots `0x5c` StateChange, `0x668` StateChangeDashIfPossible, `0x55c` TryHyperModeStateChange, `0x200` GetRidingOn, `0x7ec` CreateStepDust; `FUN_3226ddb0( 2 )` is `GetEnableDash( EDS_END )`.
+- June inlines `GetWalkSpeed / GetDashSpeed / GetJumpSpeed / GetDashJumpSpeed` as `m_fRunJumpSpeedRate * (a ^ b ^ &c)` triples: March's getters are the same.
+- **Constants are mostly qwords.** Read as floats they come out 0 or junk. `june2017_re/charport_consts.py <phase>` lists every constant with its width. Values used here:
+  45.0 (`33472998`, `LINE_RADIUS * 1.5`), 30.0, 40.0, 3.0, 0.5, 1.0, 0.2 / 0.7 / 1.2 / 1.1 / 0.36 / 0.23 / 0.4 as March has them.
+- Decompiler comparisons: `X < Y != (X == Y)` is `X <= Y`; `(0 < f) == (f == 0)` is "f < 0".
+- `CanDown`: June's 11-argument call is March's 4-argument form (7ac, `SERV_IRUHADEV_JUNE_LINE_INDEX16`); the defaults match June's arguments.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files ...`: `files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+`cl /Zs` of `X2GUArme_VioletMage.cpp` under the US_SERVICE defines: 0 errors; the preprocessed file holds the block (flag live). Build: `DEPLOY OK: X2_offline.exe is 25,518,592 B, dated 2026-10-20 06:27:53, md5 914acf30d7ed78a3b4418d61a413ba51, equal to X2/US_SERVICE/x2.exe; built at main 58e5a759 + 3 uncommitted code file(s).`.
+
+**Open for the review (unmapped, not guessed; the stand-ins keep June's constructor default).** All need Opus:
+1. CX2Game `+0xc20` (a byte, cleared by the constructor `32306600 @323077a6`; the charge entry needs it clear, the exit needs it set). No March member: `June_GameByteC20()` returns false.
+2. `322cc030`: CX2Game `+0xb38` = float (reader `322f4740 @322f47d2`), called with 2.8 by the MemoRise block. A file-local no-op, `June_SetGameFloatB38`.
+3. Arme `+0x9770` (`m_iJune9770`, unsigned-compared with 3 in 9 functions, next to a container at `+0x9760`; only the constructor `32cc99d0` touches it) and `+0x9778`
+   (`m_hJuneMemoRiseLoop`, an `EffectSet_AIsha_MemoRise_Loop` handle, constructor sets -1). CH1 must initialise both in the constructor; the owner of `+0x9770` is CH1h / CH1i.
+4. vslot `0x718` (`32cc7b30`): `+0x9770 < 3`, state index 157 (charge MP), state time >= 1.5. `June_IsMemoRiseChargeActive` answers false until CH1i, so the MemoRise branch stays off.
+5. With `+0x9770 < 3` June's charge state stays on a full MP bar and the wait event enters it (the MP-full test applies only above 2). Whether that is intended depends on item 3; no `JUNE_BUGS` row until then.
+
+No `JUNE_BUGS` row (no June bug found). No drift: every branch found is Aisha's class core. Checklist rows: none of the 40 functions multiplies `m_fNowStatePowerRate` or reads
+`USEFUL_VALUE` (§7 l.243, §7h stay with CH1b+). **In game:** nothing to see (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1a-review.md`.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

@@ -21218,4 +21218,1438 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GUArme_VioletMage::GetSkillUse
 
 	return eActiveSkillUseCondition;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+//{{ Iruha : 2026-10-20 // June character pilot Phase CH1a ( JUNE_CHARACTER_AISHA_PHASES.md )
+// Inert June transcriptions of Aisha's movement / slot-head states ( class map phase CH1a, 40 June functions in
+// june2017_re/char_arme/ch0_class_map.tsv ). Nothing registers or calls them until CH1 wires them in.
+// Key and state numbers: June reads m_InputData as bytes from +0x86da in March's member order ( pureLeft, oneLeft, pureDoubleLeft,
+// oneDoubleLeft, pureRight, ... ), the Arme state ids are the ids of ch0_state_skill.tsv, and SpecialAttackEventProcess( 1 / 2 )
+// is ASUT_GROUND / ASUT_AIR. vslots 0x5c StateChange, 0x668 StateChangeDashIfPossible, 0x7c0..0x7dc the CommonState* / CommonFrameMove*
+// family, 0x7d4 CommonEventProcess, 0x7ec CreateStepDust, 0x200 GetRidingOn, 0x55c TryHyperModeStateChange.
+// Float constants that unpacked_x2.exe stores as qwords are read as doubles ( 45.0 = LINE_RADIUS * 1.5f, 40.0, 3.0, 0.5, 1.2, 0.7 ... );
+// the values checked against June's bytes are listed in the Done note.
+
+namespace
+{
+	/// June CX2Game +0xc20 ( one byte; its constructor 32306600 @323077a6 clears it, nothing in the class code scanned writes it ) has no
+	/// March member. It reads as its constructor default until the engine side is identified ( CH1 / Opus ). Read by 32cd0200, 32cd21d0.
+	bool June_GameByteC20()
+	{
+		return false;
+	}
+
+	/// June 322cc030: CX2Game +0xb38 = a float ( reader 322f4740 @322f47d2 ). The setter is an unmapped engine callee, so it does nothing
+	/// here ( CH1 / Opus ). Called by 32cd1830 with 2.8.
+	void June_SetGameFloatB38( const float& fValue_ )
+	{
+		UNREFERENCED_PARAMETER( fValue_ );
+	}
+}
+
+//AVSI_WAIT
+// June 32cb6f70
+void CX2GUArme_VioletMage::June_WaitStartFuture()
+{
+	CommonStateStartFuture();
+	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+
+	m_fMPChargeWaitTime = 0.0f;
+}
+
+// June 32cb9a40
+void CX2GUArme_VioletMage::June_WaitStart()
+{
+	CommonStateStart();
+	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+}
+
+// June 32cb6fa0
+void CX2GUArme_VioletMage::June_WaitFrameMoveFuture()
+{
+	CommonFrameMoveFuture();
+
+	m_fMPChargeWaitTime = m_fElapsedTime + m_fMPChargeWaitTime;
+}
+
+// June 32cd0200
+void CX2GUArme_VioletMage::June_WaitEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else
+	{
+		// @32cd02bb-32cd0477: the MP charge test. A charge-wait time of 0.5 s or more, not skipped by a full MP bar once
+		// +0x9770 is above 2, and no slide show playing, decides here ( and ends the event, whether or not the state changes ).
+		bool bChargeTest = false;
+		if( 0.5f <= m_fMPChargeWaitTime )
+		{
+			if( (unsigned int)m_iJune9770 > 2 && GetNowMp() == GetMaxMp() )
+			{
+			}
+			else if( g_pX2Game->GetSlideShot()->IsPresentNow() == false )
+			{
+				bChargeTest = true;
+			}
+		}
+
+		if( true == bChargeTest )
+		{
+#ifdef UNIT_EMOTION
+			if( m_ePlayedEmotion == CX2Unit::ET_NONE && NULL != g_pX2Game && false == June_GameByteC20() )
+#else
+			if( NULL != g_pX2Game && false == June_GameByteC20() )
+#endif
+				StateChange( AVSI_CHARGE_MP );
+		}
+		else if( m_InputData.oneDown == true
+			&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if( true == GetRidingOn() )
+		{
+			StateChange( USI_RIDING_ON );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cd0490
+void CX2GUArme_VioletMage::June_WalkEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_JUMP_READY
+// June 32cc5e40
+void CX2GUArme_VioletMage::June_JumpReadyEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else
+	{
+		bool bJump = false;
+
+		if( m_InputData.oneZ == true )
+		{
+			StateChange( AVSI_JUMP_ATTACK_Z );
+			bJump = true;
+		}
+		else if( m_InputData.oneX == true )
+		{
+			StateChange( AVSI_JUMP_ATTACK_X );
+			bJump = true;
+		}
+		else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+		{
+		}
+		else if( m_pXSkinAnimFuture->IsAnimationEnd() == true
+			|| m_InputData.pureRight == true
+			|| m_InputData.pureLeft == true )
+		{
+			StateChange( USI_JUMP_UP );
+			bJump = true;
+		}
+
+		if( true == bJump )
+		{
+			m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+			m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cb6fd0
+void CX2GUArme_VioletMage::June_JumpUpEventProcess()
+{
+	if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_JUMP_ATTACK_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_JUMP_ATTACK_X );
+	}
+	else if( ( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true ) && GetEnableDash( EDS_END ) == true )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneUp == true && m_FrameDataFuture.unitCondition.bFootOnWall == false )
+	{
+		StateChange( AVSI_JUMP_LEVITATION );
+	}
+	else if( 0.0f < m_PhysicParam.nowSpeed.y )
+	{
+		if( true == GetRidingOn() )
+		{
+			StateChange( USI_RIDING_ON );
+		}
+	}
+	else
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cb9a70
+void CX2GUArme_VioletMage::June_JumpDownEventProcess()
+{
+	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] != true )
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+		else if( m_InputData.pureLeft == true || m_InputData.pureRight == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_JUMP_ATTACK_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_JUMP_ATTACK_X );
+	}
+	else if( ( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true ) && GetEnableDash( EDS_END ) == true )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true
+		&& ( m_InputData.oneUp == true || m_InputData.oneDoubleUp == true ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( AVSI_WALL_LANDING );
+	}
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( AVSI_JUMP_LEVITATION );
+	}
+	else if( 0.0f <= m_PhysicParam.nowSpeed.y )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_JUMP_LEVITATION
+// June 32cb7090
+void CX2GUArme_VioletMage::June_JumpLevitationStartFuture()
+{
+	CommonStateStartFuture();
+	m_fLevitationElapsedTime		= _CONST_AISHA_::AISHA_LEVITATION_CONSUME_MP_TIME;
+}
+
+// June 32cc5f40
+void CX2GUArme_VioletMage::June_JumpLevitationFrameMoveFuture()
+{
+	const float fElapsedTimeBefore = m_fLevitationElapsedTime;
+	m_fLevitationElapsedTime = m_fElapsedTime + fElapsedTimeBefore;
+
+	// Both keys held: the newest press ( oneRight / oneLeft ) decides the facing; no new press keeps it. The speed is set in every
+	// case but "neither key held".
+	bool bSetSpeed = true;
+	if( false == ( m_InputData.pureRight == true && m_InputData.pureLeft == true ) )
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = true;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = false;
+		}
+		else
+		{
+			bSetSpeed = false;
+		}
+	}
+	else if( m_InputData.oneRight == false )
+	{
+		if( m_InputData.oneLeft == true )
+			m_FrameDataFuture.syncData.bIsRight = false;
+	}
+	else
+	{
+		m_FrameDataFuture.syncData.bIsRight = true;
+	}
+
+	if( true == bSetSpeed )
+	{
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+
+	// FlushMp( 1.0 ) is March's FlushMp( 5.0f * AISHA_LEVITATION_CONSUME_MP_TIME ); June's vslot 0xe4 takes a second argument ( 0 ).
+	if( IsTransformed() || m_fElapsedTime + fElapsedTimeBefore <= _CONST_AISHA_::AISHA_LEVITATION_CONSUME_MP_TIME )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed / 40.0f;
+	}
+	else if( FlushMp( 1.0f ) == true )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed / 40.0f;
+		m_fLevitationElapsedTime = 0.f;
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32cd0670
+void CX2GUArme_VioletMage::June_JumpLevitationFrameMove()
+{
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepRight = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepRight );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepLeft  = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepLeft );
+
+	if( pSeqArmeAirStepRight != NULL )
+	{
+		pSeqArmeAirStepRight->SetEmitRate(10,20);
+	}
+
+	if( pSeqArmeAirStepLeft != NULL )
+	{
+		pSeqArmeAirStepLeft->SetEmitRate(10,20);
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cb9ba0
+void CX2GUArme_VioletMage::June_JumpLevitationEventProcess()
+{
+	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] != true )
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+		else if( m_InputData.pureLeft == true || m_InputData.pureRight == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_JUMP_ATTACK_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_JUMP_ATTACK_X );
+	}
+	else if( m_InputData.pureUp == false )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( 0.0f <= m_PhysicParam.nowSpeed.y )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cd0730
+void CX2GUArme_VioletMage::June_JumpLevitationEnd()
+{
+	CommonStateEnd();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepRight = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepRight );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepLeft  = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepLeft );
+
+	if( pSeqArmeAirStepRight != NULL )
+	{
+		pSeqArmeAirStepRight->SetEmitRate(0,0);
+	}
+
+	if( pSeqArmeAirStepLeft != NULL )
+	{
+		pSeqArmeAirStepLeft->SetEmitRate(0,0);
+	}
+}
+
+// June 32cd07e0
+void CX2GUArme_VioletMage::June_JumpLandingEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	// June folds March's key-pressed skip point and the animation-end test into one condition ( it adds pureLCtr ).
+	else if( m_InputData.pureUp == true || m_InputData.pureDown == true || m_InputData.pureRight == true || m_InputData.pureLeft == true
+		|| m_InputData.pureZ == true || m_InputData.pureX == true || m_InputData.pureA == true || m_InputData.pureS == true
+		|| m_InputData.pureD == true || m_InputData.pureC == true || m_InputData.pureQ == true || m_InputData.pureW == true
+		|| m_InputData.pureE == true || m_InputData.pureR == true || m_InputData.pureLCtr == true
+		|| m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_DASH
+// June 32cd0a40
+void CX2GUArme_VioletMage::June_DashEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_DASH_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_DASH_ATTACK_X );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+	}
+	else if( ( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+		|| ( m_InputData.pureRight == true && ( m_InputData.pureLeft == true || m_FrameDataFuture.syncData.bIsRight == false ) )
+		|| ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_DASH_END
+// June 32cb70b0
+void CX2GUArme_VioletMage::June_DashEndStart()
+{
+	CommonStateStart();
+}
+
+// June 32cc6040
+void CX2GUArme_VioletMage::June_DashEndFrameMoveFuture()
+{
+	if( m_FrameDataFuture.unitCondition.fStateTime < 0.36f )
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * 0.7f;
+
+	CommonFrameMoveFuture();
+}
+
+// June 32cb9c60
+void CX2GUArme_VioletMage::June_DashEndFrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.23f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.23f ) == true && EventCheck( 0.23f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		CreateStepDust();
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.4f ) == true && EventCheck( 0.4f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cd0c40
+void CX2GUArme_VioletMage::June_DashEndEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() <= m_pXSkinAnimFuture->GetMaxAnimationTime() / 3.0f )
+		{
+			StateChange( AVSI_DASH_COMBO_Z1 );
+		}
+		else
+		{
+			StateChange( AVSI_COMBO_Z1 );
+		}
+	}
+	else if( m_InputData.oneX == true )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() <= m_pXSkinAnimFuture->GetMaxAnimationTime() / 3.0f )
+		{
+			StateChange( AVSI_DASH_ATTACK_X );
+		}
+		else
+		{
+			StateChange( AVSI_COMBO_X1 );
+		}
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( ( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+		|| ( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == false ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_DASH_JUMP
+// June 32cc60a0
+void CX2GUArme_VioletMage::June_DashJumpEventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+			m_bDownForce = false;
+		}
+		else if( m_bDownForce == true )
+		{
+			StateChange( AVSI_DASH_JUMP_POWER_LANDING );
+			m_bDownForce = false;
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+			m_bDownForce = false;
+		}
+		else
+		{
+			StateChange( USI_DASH_JUMP_LANDING );
+			m_bDownForce = false;
+		}
+	}
+	else
+	{
+		if( m_InputData.oneZ == true )
+		{
+			StateChange( AVSI_DASH_JUMP_ATTACK_Z );
+		}
+		else if( m_InputData.oneX == true )
+		{
+			StateChange( AVSI_DASH_JUMP_ATTACK_X );
+		}
+		else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) == true )
+		{
+		}
+		else
+		{
+			// Facing against the held direction: cap the rise at the jump speed and go up or down ( both keys held: a new press against the facing ).
+			bool bTurnAround = false;
+			if( false == ( m_InputData.pureRight == true && m_InputData.pureLeft == true ) )
+			{
+				if( m_InputData.pureRight == true )
+					bTurnAround = ( m_FrameDataFuture.syncData.bIsRight == false );
+				else if( m_InputData.pureLeft == true )
+					bTurnAround = ( m_FrameDataFuture.syncData.bIsRight == true );
+			}
+			else
+			{
+				bTurnAround = ( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+					|| ( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == true );
+			}
+
+			if( true == bTurnAround )
+			{
+				if( GetJumpSpeed() < m_PhysicParam.nowSpeed.y )
+					m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+				if( m_PhysicParam.nowSpeed.y <= 0.0f )
+					StateChange( USI_JUMP_DOWN );
+				else
+					StateChange( USI_JUMP_UP );
+			}
+		}
+	}
+
+	// @32cc62fd: every path above ends here, on the ground too.
+	if( m_InputData.oneUp == true && m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y < LINE_RADIUS * 2.0f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	else if( m_FrameDataFuture.unitCondition.bFootOnWall == true
+		&& ( m_InputData.oneUp == true || m_InputData.oneDoubleUp == true ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( AVSI_WALL_LANDING );
+	}
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( AVSI_DASH_JUMP_LEVITATION );
+	}
+
+	if( m_InputData.oneDown == true )
+	{
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		m_PhysicParam.fMaxGSpeed = m_OrgPhysicParam.fMaxGSpeed * 2.0f;
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed;
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_DASH_JUMP_LEVITATION
+// June 32cb70c0
+void CX2GUArme_VioletMage::June_DashJumpLevitationStartFuture()
+{
+	CommonStateStartFuture();
+	m_PhysicParam.fDownAccel		= m_PhysicParam.fGAccel * 1.1f;
+	m_fLevitationElapsedTime		= _CONST_AISHA_::AISHA_LEVITATION_CONSUME_MP_TIME;
+}
+
+// June 32cc63c0
+void CX2GUArme_VioletMage::June_DashJumpLevitationFrameMoveFuture()
+{
+	const float fElapsedTimeBefore = m_fLevitationElapsedTime;
+	m_fLevitationElapsedTime = m_fElapsedTime + fElapsedTimeBefore;
+
+	bool bSetSpeed = true;
+	if( false == ( m_InputData.pureRight == true && m_InputData.pureLeft == true ) )
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = true;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = false;
+		}
+		else
+		{
+			bSetSpeed = false;
+		}
+	}
+	else if( m_InputData.oneRight == false )
+	{
+		if( m_InputData.oneLeft == true )
+			m_FrameDataFuture.syncData.bIsRight = false;
+	}
+	else
+	{
+		m_FrameDataFuture.syncData.bIsRight = true;
+	}
+
+	if( true == bSetSpeed )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * 1.2f;
+	}
+
+	if( IsTransformed() || m_fElapsedTime + fElapsedTimeBefore <= _CONST_AISHA_::AISHA_LEVITATION_CONSUME_MP_TIME )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed / 40.0f;
+	}
+	else if( FlushMp( 1.0f ) == true )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed / 40.0f;
+		m_fLevitationElapsedTime = 0.f;
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32cd0ef0
+void CX2GUArme_VioletMage::June_DashJumpLevitationFrameMove()
+{
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepRight = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepRight );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepLeft  = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepLeft );
+
+	if( pSeqArmeAirStepRight != NULL )
+	{
+		pSeqArmeAirStepRight->SetEmitRate(10,20);
+	}
+
+	if( pSeqArmeAirStepLeft != NULL )
+	{
+		pSeqArmeAirStepLeft->SetEmitRate(10,20);
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cb9ce0
+void CX2GUArme_VioletMage::June_DashJumpLevitationEventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_bDownForce == true )
+		{
+			StateChange( AVSI_DASH_JUMP_POWER_LANDING );
+			m_bDownForce = false;
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+		{
+			StateChange( USI_DASH_JUMP_LANDING );
+		}
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_DASH_JUMP_ATTACK_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_DASH_JUMP_ATTACK_X );
+	}
+
+	if( m_InputData.pureUp == false )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cd0fb0
+void CX2GUArme_VioletMage::June_DashJumpLevitationEnd()
+{
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepRight = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepRight );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepLeft  = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepLeft );
+
+	if( pSeqArmeAirStepRight != NULL )
+	{
+		pSeqArmeAirStepRight->SetEmitRate(0, 0);
+	}
+
+	if( pSeqArmeAirStepLeft != NULL )
+	{
+		pSeqArmeAirStepLeft->SetEmitRate(0, 0);
+	}
+
+	CommonStateEnd();
+}
+
+// June 32cd1060
+void CX2GUArme_VioletMage::June_DashJumpLandingEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( ( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+		|| ( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == false ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_DASH_JUMP_POWER_LANDING
+// June 32cb70f0
+void CX2GUArme_VioletMage::June_DashJumpPowerLandingStart()
+{
+	CommonStateStart();
+
+	CreateStepDust();
+}
+
+// June 32cd1280
+void CX2GUArme_VioletMage::June_DashJumpPowerLandingEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() <= m_pXSkinAnimFuture->GetMaxAnimationTime() * 0.5f )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true
+		|| m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_CHARGE_MP
+// June 32cc8410 ( the same body as March's ChargeMPInit )
+void CX2GUArme_VioletMage::June_ChargeMPInit()
+{
+	CKTDXDeviceXSkinMesh* pChargeMPA = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"ChargeMPA.X" );
+	CKTDXDeviceXSkinMesh* pChargeMPB = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"ChargeMPB.X" );
+	DeviceReady( pChargeMPA );
+	DeviceReady( pChargeMPB );
+
+	m_pMPChargeA			= CKTDGXSkinAnim::CreateSkinAnim();
+	m_pMPChargeB			= CKTDGXSkinAnim::CreateSkinAnim();
+	m_pMPChargeC			= CKTDGXSkinAnim::CreateSkinAnim();
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pMPChargeA );
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pMPChargeB );
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pMPChargeC );
+
+	m_pMPChargeA->SetAnimXSkinMesh( pChargeMPA );
+	m_pMPChargeA->AddModelXSkinMesh( pChargeMPA );
+	m_pMPChargeB->SetAnimXSkinMesh( pChargeMPB );
+	m_pMPChargeB->AddModelXSkinMesh( pChargeMPB );
+	m_pMPChargeC->SetAnimXSkinMesh( pChargeMPA );
+	m_pMPChargeC->AddModelXSkinMesh( pChargeMPA );
+
+	m_pMPChargeA->SetAlphaObject( true );
+	m_pMPChargeA->SetLayer( XL_EFFECT_0 );
+
+	m_pMPChargeB->SetAlphaObject( true );
+	m_pMPChargeB->SetLayer( XL_EFFECT_0 );
+
+	m_pMPChargeC->SetAlphaObject( true );
+	m_pMPChargeC->SetLayer( XL_EFFECT_0 );
+
+	m_pMPChargeA->GetRenderParam()->bAlphaBlend		= true;
+	m_pMPChargeA->GetRenderParam()->bZWriteEnable	= false;
+	m_pMPChargeA->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pMPChargeA->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pMPChargeA->GetRenderParam()->destBlend		= D3DBLEND_INVSRCALPHA;
+
+	m_pMPChargeB->GetRenderParam()->bAlphaBlend		= true;
+	m_pMPChargeB->GetRenderParam()->bZWriteEnable	= false;
+	m_pMPChargeB->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pMPChargeB->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pMPChargeB->GetRenderParam()->destBlend		= D3DBLEND_INVSRCALPHA;
+
+	m_pMPChargeC->GetRenderParam()->bAlphaBlend		= true;
+	m_pMPChargeC->GetRenderParam()->bZWriteEnable	= false;
+	m_pMPChargeC->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pMPChargeC->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pMPChargeC->GetRenderParam()->destBlend		= D3DBLEND_INVSRCALPHA;
+}
+
+// June 32ccbe10
+void CX2GUArme_VioletMage::June_ChargeMPStartFuture()
+{
+	CommonStateStartFuture();
+
+	const float fMPChangeRate = GetOriginalMPChangeRate();
+	float fAddMPChangeRate = 0.f;
+	LUA_GET_VALUE( m_LuaManager, "ADD_MP_CHANGE_RATE", fAddMPChangeRate, 0.f );
+	m_fAddMPChangeRate = fAddMPChangeRate;
+
+	ResetMPChangeRate( ( m_fAddMPChangeRate + fMPChangeRate ) * ( m_SocketData.m_fSpeedUpManaGather + 1.f ) );
+}
+
+// June 32cd1540
+void CX2GUArme_VioletMage::June_ChargeMPStart()
+{
+	CommonStateStart();
+
+	m_pMPChargeA->ChangeAnim( L"ChargeSoulA" );
+	m_pMPChargeA->SetPlaySpeed( 0.7f );
+
+	m_pMPChargeB->ChangeAnim( L"ChargeSoulB" );
+
+	m_pMPChargeC->ChangeAnim( L"ChargeSoulA" );
+	m_pMPChargeC->SetPlaySpeed( 0.4f );
+
+	m_fMPChargeSoundTime = 1.5f;
+
+	PlaySound( L"wind.ogg" );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2MagicCircle	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2MagicCircle );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up2	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up2 );
+
+	if( pSeqMPCharge2MagicCircle != NULL )
+	{
+		pSeqMPCharge2MagicCircle->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+		pSeqMPCharge2MagicCircle->SetEmitRate( CMinMax<float>(1.0f,1.0f) );
+	}
+
+	if( pSeqMPCharge2Up != NULL )
+	{
+		pSeqMPCharge2Up->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+		pSeqMPCharge2Up->SetEmitRate( CMinMax<float>(10.0f,10.0f) );
+	}
+
+	if( pSeqMPCharge2Up2 != NULL )
+	{
+		pSeqMPCharge2Up2->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+		pSeqMPCharge2Up2->SetEmitRate( CMinMax<float>(10.0f,10.0f) );
+	}
+
+	m_RenderParam.cartoonTexType	= CKTDGXRenderer::CTT_NORMAL_COUNTER;
+
+	// June: a MemoRise loop set that is still running ends when the charge starts ( 321dafb0 on +0x9778 ).
+	if( NULL != g_pX2Game->GetEffectSet() && m_hJuneMemoRiseLoop != INVALID_EFFECTSET_HANDLE )
+	{
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hJuneMemoRiseLoop );
+	}
+}
+
+// June 32cd1830
+void CX2GUArme_VioletMage::June_ChargeMPFrameMove()
+{
+	D3DXVECTOR3 pos = GetWeaponBonePos( 0, L"Center_Jewel", 0 );
+
+	if( m_hSeqMPEnergy != INVALID_PARTICLE_SEQUENCE_HANDLE &&
+		m_hSeqMPEnergyCenter != INVALID_PARTICLE_SEQUENCE_HANDLE &&
+		m_hSeqMPChargeWave != INVALID_PARTICLE_SEQUENCE_HANDLE )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergy		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergyCenter = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergyCenter );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPChargeWave	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargeWave );
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2MagicCircle	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2MagicCircle );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up2	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up2 );
+
+		if( NULL != pSeqMPEnergy )
+		{
+			pSeqMPEnergy->SetPosition( pos );
+			pSeqMPEnergy->SetBlackHolePosition( pos );
+			pSeqMPEnergy->SetLookPoint( pos );
+		}
+
+		if( NULL != pSeqMPEnergyCenter )
+		{
+			pSeqMPEnergyCenter->SetPosition( pos );
+		}
+
+		D3DXVECTOR3 pos2 = GetMatrix().GetPos();
+		pos2.y += 10.0f;
+		if( NULL != pSeqMPChargeWave )
+		{
+			pSeqMPChargeWave->SetPosition( pos2 );
+		}
+
+		if( pSeqMPCharge2MagicCircle != NULL )
+			pSeqMPCharge2MagicCircle->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+		if( pSeqMPCharge2Up != NULL )
+			pSeqMPCharge2Up->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+		if( pSeqMPCharge2Up2 != NULL )
+			pSeqMPCharge2Up2->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+	}
+
+	float alpha = m_FrameDataNow.unitCondition.fStateTime * 2.0f;
+	if( alpha > 0.7f )
+		alpha = 0.7f;
+	m_pMPChargeA->GetRenderParam()->color.a = alpha;
+
+	if( 5.0f <= m_FrameDataNow.unitCondition.fStateTime )
+	{
+		alpha = m_FrameDataNow.unitCondition.fStateTime - 4.0f;
+		if( alpha > 2.0f )
+			alpha = 2.0f;
+		m_pMPChargeA->GetMatrix().Scale( 1.0f, alpha, 1.0f );
+
+		alpha = m_FrameDataNow.unitCondition.fStateTime - 4.0f;
+		if( alpha > 2.0f )
+			alpha = 2.0f;
+		m_pMPChargeB->GetMatrix().Scale( 1.0f, alpha, 1.0f );
+	}
+	else
+	{
+		alpha = m_FrameDataNow.unitCondition.fStateTime;
+		if( alpha > 1.0f )
+			alpha = 1.0f;
+		m_pMPChargeA->GetMatrix().Scale( 1.0f, alpha, 1.0f );
+
+		alpha = m_FrameDataNow.unitCondition.fStateTime * 0.5f;
+		if( alpha > 1.0f )
+			alpha = 1.0f;
+		m_pMPChargeB->GetMatrix().Scale( 1.0f, alpha, 1.0f );
+	}
+
+	alpha = m_FrameDataNow.unitCondition.fStateTime;
+	if( alpha > 1.0f )
+		alpha = 1.0f;
+	m_pMPChargeB->GetRenderParam()->color.a = alpha;
+
+	alpha = m_pMPChargeC->GetNowAnimationTime() / m_pMPChargeC->GetMaxAnimationTime();
+	m_pMPChargeC->GetRenderParam()->color.a = 1.0f - alpha;
+
+	if( 5.0f <= m_FrameDataNow.unitCondition.fStateTime )
+	{
+		m_pMPChargeC->GetMatrix().Scale( alpha * 3.0f, alpha * 3.0f, alpha * 3.0f );
+	}
+	else
+	{
+		m_pMPChargeC->GetMatrix().Scale( alpha * 2.5f, alpha * 2.0f, alpha * 2.5f );
+	}
+
+	if( m_FrameDataNow.unitCondition.fStateTime < 1.0f )
+	{
+		m_pMPChargeC->GetMatrix().Scale( 0.0f, 0.0f, 0.0f );
+	}
+
+	if( EventTimer( 5.0f, false ) == true )
+	{
+		m_pMPChargeB->SetPlaySpeed( 1.5f );
+		m_pMPChargeC->SetPlaySpeed( 0.3f );
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergy		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergyCenter = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergyCenter );
+
+		if( pSeqMPEnergy != NULL )
+			pSeqMPEnergy->SetEmitRate( CMinMax<float>(5.0f,15.0f) );
+		if( pSeqMPEnergyCenter != NULL )
+			pSeqMPEnergyCenter->SetEmitRate( CMinMax<float>(5.0f,15.0f) );
+
+		PlaySound( L"Charge.ogg" );
+	}
+
+	m_fMPChargeSoundTime = m_fMPChargeSoundTime - m_fElapsedTime;
+	if( m_fMPChargeSoundTime <= 0.0f )
+	{
+		if( 5.0f < m_FrameDataNow.unitCondition.fStateTime )
+		{
+			PlaySound( L"Charge.ogg" );
+		}
+		PlaySound( L"wind.ogg" );
+
+		m_fMPChargeSoundTime = 1.5f;
+	}
+
+	// June @32cd1ffe-32cd21a8: the MemoRise charge boost ( vslot 0x718 ) adds a one-shot game float for the local player at 1.5 s
+	// and plays EffectSet_AIsha_MemoRise_Loop once.
+	if( true == June_IsMemoRiseChargeActive() )
+	{
+		if( EventTimer( 1.5f, false ) == true )
+		{
+			if( true == IsMyUnit() )
+			{
+				June_SetGameFloatB38( 2.8f );
+			}
+		}
+
+		if( NULL != g_pX2Game->GetEffectSet() && m_hJuneMemoRiseLoop == INVALID_EFFECTSET_HANDLE )
+		{
+			m_hJuneMemoRiseLoop = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AIsha_MemoRise_Loop", this );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cd21d0
+void CX2GUArme_VioletMage::June_ChargeMPEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( AVSI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( AVSI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else
+	{
+		// Stay in the charge only while MP is not full ( or +0x9770 is below 3 ) and no slide show plays; the CX2Game +0xc20 byte ends it too.
+		bool bLeave = true;
+		if( GetNowMp() != GetMaxMp() || (unsigned int)m_iJune9770 < 3 )
+		{
+			if( g_pX2Game->GetSlideShot()->IsPresentNow() == false )
+			{
+				bLeave = false;
+
+				if( m_InputData.oneDown == true
+					&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+				{
+					StateChange( USI_JUMP_DOWN );
+					m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+				}
+				else if( true == GetRidingOn() )
+				{
+					StateChange( USI_RIDING_ON );
+				}
+				else if( true == June_GameByteC20() )
+				{
+					bLeave = true;
+				}
+			}
+		}
+
+		if( true == bLeave )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32ccc070
+void CX2GUArme_VioletMage::June_ChargeMPEndFuture()
+{
+	CommonStateEndFuture();
+
+	m_fAddMPChangeRate = 0.f;
+	ResetMPChangeRate( GetOriginalMPChangeRate() );
+}
+
+// June 32cd2420 ( the same body as March's ChargeMPEnd )
+void CX2GUArme_VioletMage::June_ChargeMPEnd()
+{
+	CommonStateEnd();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergy		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergyCenter = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergyCenter );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPChargeWave	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargeWave );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2MagicCircle	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2MagicCircle );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up2	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up2 );
+
+	if( pSeqMPEnergy != NULL )
+		pSeqMPEnergy->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( pSeqMPEnergyCenter != NULL )
+		pSeqMPEnergyCenter->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( pSeqMPChargeWave != NULL )
+		pSeqMPChargeWave->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+
+	if( pSeqMPCharge2MagicCircle != NULL )
+		pSeqMPCharge2MagicCircle->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( pSeqMPCharge2Up != NULL )
+		pSeqMPCharge2Up->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( pSeqMPCharge2Up2 != NULL )
+		pSeqMPCharge2Up2->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"wind.ogg" );
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"Charge.ogg" );
+
+	m_RenderParam.cartoonTexType	= CKTDGXRenderer::CTT_NORMAL;
+}
+
+// June 32cc8800 ( the same body as March's EvasionStandupAttackInit; June registers it as the Init of 59 states )
+void CX2GUArme_VioletMage::June_EvasionStandupAttackInit()
+{
+	CKTDXDeviceXSkinMesh* pEvasionAttackMesh = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Arme_EvasionAttack.X" );
+	CKTDXDeviceXSkinMesh* pEvasionMesh = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Arme_Evasion.X" );
+	DeviceReady( pEvasionAttackMesh );
+	DeviceReady( pEvasionMesh );
+
+	m_pEvasionAttackAnim = CKTDGXSkinAnim::CreateSkinAnim();
+	m_pEvasionAttackAnim->SetAnimXSkinMesh( pEvasionAttackMesh );
+	m_pEvasionAttackAnim->AddModelXSkinMesh( pEvasionAttackMesh );
+}
+
+//AVSI_SI_AV_POWER_ATTACK
+// June 32cb7570: a bare jump to CommonFrameMove ( June dropped March's ChangeWorldColorByHyperMode and ShowActiveSkillCutInAndLight )
+void CX2GUArme_VioletMage::June_AVSI_SI_AV_POWER_ATTACK_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32cbe620
+void CX2GUArme_VioletMage::June_AVSI_SI_AV_POWER_ATTACK_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+}
+
+//AVSI_SI_AV_POWER_ATTACK_HYPER
+// June 32cb7580: a bare jump to CommonFrameMove
+void CX2GUArme_VioletMage::June_AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32cbe660
+void CX2GUArme_VioletMage::June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+}
+
+// June 32cc7b30 ( vslot 0x718 ): body in CH1i. False until then.
+bool CX2GUArme_VioletMage::June_IsMemoRiseChargeActive()
+{
+	return false;
+}
+//}} Iruha : 2026-10-20 // June character pilot Phase CH1a
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

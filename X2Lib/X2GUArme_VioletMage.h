@@ -787,6 +787,62 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void ChargeMPEndFuture();
 		void ChargeMPEnd();
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1a ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June transcriptions of Aisha's movement / slot-head states ( class map phase CH1a ). Nothing registers or calls them
+		/// until CH1 wires them in; March's own members above stay untouched. Each definition ( end of X2GUArme_VioletMage.cpp )
+		/// carries the June address it was read from.
+		void June_WaitStartFuture();									/// June 32cb6f70
+		void June_WaitStart();											/// June 32cb9a40
+		void June_WaitFrameMoveFuture();								/// June 32cb6fa0
+		void June_WaitEventProcess();									/// June 32cd0200
+		void June_WalkEventProcess();									/// June 32cd0490
+		void June_JumpReadyEventProcess();								/// June 32cc5e40
+		void June_JumpUpEventProcess();									/// June 32cb6fd0
+		void June_JumpDownEventProcess();								/// June 32cb9a70
+		void June_JumpLevitationStartFuture();							/// June 32cb7090
+		void June_JumpLevitationFrameMoveFuture();						/// June 32cc5f40
+		void June_JumpLevitationFrameMove();							/// June 32cd0670
+		void June_JumpLevitationEventProcess();							/// June 32cb9ba0
+		void June_JumpLevitationEnd();									/// June 32cd0730
+		void June_JumpLandingEventProcess();							/// June 32cd07e0
+		void June_DashEventProcess();									/// June 32cd0a40
+		void June_DashEndStart();										/// June 32cb70b0
+		void June_DashEndFrameMoveFuture();								/// June 32cc6040
+		void June_DashEndFrameMove();									/// June 32cb9c60
+		void June_DashEndEventProcess();								/// June 32cd0c40
+		void June_DashJumpEventProcess();								/// June 32cc60a0
+		void June_DashJumpLevitationStartFuture();						/// June 32cb70c0
+		void June_DashJumpLevitationFrameMoveFuture();					/// June 32cc63c0
+		void June_DashJumpLevitationFrameMove();						/// June 32cd0ef0
+		void June_DashJumpLevitationEventProcess();						/// June 32cb9ce0
+		void June_DashJumpLevitationEnd();								/// June 32cd0fb0
+		void June_DashJumpLandingEventProcess();						/// June 32cd1060
+		void June_DashJumpPowerLandingStart();							/// June 32cb70f0
+		void June_DashJumpPowerLandingEventProcess();					/// June 32cd1280
+		void June_ChargeMPInit();										/// June 32cc8410
+		void June_ChargeMPStartFuture();								/// June 32ccbe10
+		void June_ChargeMPStart();										/// June 32cd1540
+		void June_ChargeMPFrameMove();									/// June 32cd1830
+		void June_ChargeMPEventProcess();								/// June 32cd21d0
+		void June_ChargeMPEndFuture();									/// June 32ccc070
+		void June_ChargeMPEnd();										/// June 32cd2420
+		void June_EvasionStandupAttackInit();							/// June 32cc8800 ( shared Init of 59 states, AVSI_DAMAGE_BOUNDING_DOWN .. AVSI_TELEPORT_STANDUP_ATTACK )
+		void June_AVSI_SI_AV_POWER_ATTACK_FrameMove();					/// June 32cb7570 ( a bare jump to CommonFrameMove )
+		void June_AVSI_SI_AV_POWER_ATTACK_EventProcess();				/// June 32cbe620
+		void June_AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove();			/// June 32cb7580 ( a bare jump to CommonFrameMove )
+		void June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess();			/// June 32cbe660
+		/// June 32cc7b30 ( vslot 0x718, class map phase CH1i ): body in CH1i. Until then it answers false, so the MemoRise branch of
+		/// June_ChargeMPFrameMove stays off.
+		bool June_IsMemoRiseChargeActive();
+
+		/// June-only members the functions above read. The constructor does not set them yet ( CH1 does ); the June constructor
+		/// 32cc99d0 sets +0x9778 to -1 @32ccb01c and leaves +0x9770 as its container's size.
+		int							m_iJune9770;				/// June +0x9770: unsigned-compared with 3 by the wait, charge-MP and 0x718 code ( owner not identified; CH1h / CH1i )
+		CX2EffectSet::Handle		m_hJuneMemoRiseLoop;		/// June +0x9778: the EffectSet_AIsha_MemoRise_Loop handle ( -1 = none ), played by ChargeMPFrameMove, stopped by ChargeMPStart
+		//}} Iruha : 2026-10-20 // June character pilot Phase CH1a
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+
 		////AVSI_DAMAGE_GROGGY
 		//void AVSI_DAMAGE_GROGGY_FrameMoveFuture();
 		//void AVSI_DAMAGE_GROGGY_EventProcess();

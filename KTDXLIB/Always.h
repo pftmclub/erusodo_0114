@@ -9617,3 +9617,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              was refused ERR_QUEST_09 with a message box. Revert: JUNE_QUEST_VISIT_FLUSH in MODS.md.
 #define SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-20
+// Description: June character pilot ( Aisha ) Phase CH1a - 40 inert June_* members of CX2GUArme_VioletMage, transcribed from June's
+//              class core ( movement and slot-head states: wait, walk, jump, dash, levitation, charge MP, power attack ). Nothing
+//              registers or calls them until CH1 wires them in, so the flag only adds members and two June-only fields to the class.
+//              Revert: undefine the flag ( JUNE_CHAR_ARME_CORE ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+//////////////////////////////////////////////////////////////////////////
