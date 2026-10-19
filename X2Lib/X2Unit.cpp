@@ -1583,7 +1583,10 @@ void CX2Unit::JuneResetHudMaxHpMp()
 	fSumBaseHP = GetGuildSkillStat().m_fBaseHP + fSumBaseHP;
 #endif GUILD_SKILL
 	const float fTitleBaseHP = ( NULL != g_pData->GetTitleManager() ) ? g_pData->GetTitleManager()->GetSocketStat().m_fBaseHP : 0.f;
-	fSumBaseHP = kAggregate.m_Stat.m_fBaseHP + fTitleBaseHP + fSumBaseHP;	/// @3235a4f1: aggregate + title, then the sum
+	/// S7k review: June adds the title into the sum and stores it ( @3235a5a9..3235a5b0 ), then the aggregate ( @3235a624..3235a62f ),
+	/// each rounded to float; Ghidra's decompile prints it as aggregate + title + sum
+	fSumBaseHP = fTitleBaseHP + fSumBaseHP;
+	fSumBaseHP = kAggregate.m_Stat.m_fBaseHP + fSumBaseHP;
 
 	float fHpBonus = 0.5f * fSumBaseHP;
 	if ( fJuneHpCap < fHpBonus )

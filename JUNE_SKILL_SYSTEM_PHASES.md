@@ -2011,6 +2011,47 @@ JUNE_BUGS 339 (the unit's summon list `+0xe20` is never cleared) and 340 (the HU
   - Unit 12 shows the aggregate's socket terms: `max MP 345.0 ( ResetMaxMp 300.0, socket rate 0.050, add 30 ), max HP 252370.3 ( base 185045.3, socket cap 67325.0 )`, later cap 72035.0.
   - Unrelated: 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only. User (2026-10-19): the HUD max HP equals the in-game max HP.
 
+### Phase S7k -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS with one fix** under `SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP`: the HUD's HP sum now adds the title term before the aggregate's, as June does.
+- **Hygiene.** `flagcheck --range 74719292^..74719292` (`git log -S` after it: no commit touches the three flags):
+  - `_UNIT_SOCKET`: `files: 0 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 13 OTHER (other flags), 0 FAIL, 0 ERROR` / `RESULT: PASS`. No PASS row because its code shares `X2Unit.cpp` / `.h` with the other two flags; the other 10 files do not name it.
+  - `_STAT_GETTERS`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 11 OTHER (other flags), 0 FAIL, 0 ERROR` / `RESULT: PASS`.
+  - `_HUD_MAXHPMP`: `files: 8 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` / `RESULT: PASS`.
+  - All three: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. OTHER = files that carry the other S7k flags, plus peers' blocks in `Always.h`.
+  - The fix: `--worktree --files X2Lib/X2Unit.cpp`: `1 PASS`, `1 deleted line(s)` (the flag's own old sum line), `RESULT: PASS`.
+- **`32364790`** (raw). The `+0x191` / `+0x190` skip comes @32364823, before the unit type is read.
+  - Rank `+0x294` uses `31edfe70( char +0x114 )`. PVE `+0x58` uses `32070600( 1 )` (= `+0xa00 < 5 ? 0 : +0xa0c`) with bForMP = `0 < +0x124 && +0x124 == +0x12c`. Both scale a copy (`32092030` / `320925f0`).
+  - Every ConvertAndAdd gets ( socket, EBP = arg 3, ESI = type ).
+  - Then: the `+0x48` map add, the `+0x38` append (`3207d660` at the end), the `+0x28` groups by `this +0x38` (`32719be0` -> `3207b4c0`), `+0x324` (S7m), and `+0x374` / `+0x384` at the front (`3208f840`).
+  - Summon ( `+0x240 > 0`, `+0x244 > 0` ) goes to unit `+0xe20`. Hyper `+0x27c != -1` pushes the 24-byte entry ( place, type, ptr `+0x278`, `+0x290`, `+0x1f8`, -1 @32364cab ) into `+0x280`.
+  - Cool-time: `+0x2c4` / `+0x2c8` / `+0x2cc` / `+0x2d0` -> keys 1-4, then `+0x2e8` -> keys 1, 2, 3, 4 (EBP = 4 kept from @32364f41), no 6. **Match.**
+- **`32365d30`.** ReInit, then clear `+0xe78`.
+  - Equipment: `3286a230`, the templet, `328825c0`, class `+0xd3` via `31e4c380` / `31ed6500`. The float is `328842f0`'s `+0x20`. Random `+0x6c` and templet `32867f80` form one list.
+    Level = templet `+0xd1` when > 0, else unit `+0xb4`. Then the list, `+0x5c` (`+0x8c` / `+0x9c` / `+0xac`: S7m).
+  - Pet: the state gate (0xb / 0x12 / 0x15) and the my-unit UID test cover only the pick-up reset (`+0x90 = 0`) and set (= pet `+0x88`). Aura: satiety / 4800 >= 0.4, `m_vecPetStatus[ step ]` rows of `+0xfc`.
+  - Riding: `321f8a40`, then `321f5b10( mgr +0x40 / +0x44 )` `+0xec`. Title: `326f8010( +0x9a0 )` `+0xa0` -> `+0xe30` (`32853ff0`) -> sum. Party: S7m.
+  - Tail: vslot 2( mode, type-10 ptr ), premium `326c67f0( +0x9a4 )`, `320804f0( 0 )`, `3235a080( 31d717e0() )`. **Match.**
+- **`323652b0`.** Group 0 = `32350cb0( 0 )`: category-9 items that are usable, of the class, pass `328823d0`, and are in group 2 or 0 (`3286a4b0`), so every March slot (0..19) counts.
+  Summed for mode 0 / 2 at 1.0 and `maxLevel > 0 ? maxLevel : unit level`. Group 1 runs only with the type-10 pointer. **Match.**
+- **`3235a160`** (raw). fill( 2 ), cap = aggregate stat[0] (`+0x2f8`), fill( `+0xe40 == 1` ). MP = ( mp + mp x rate ) + add, with rate = `32358970( 5 )` x 0.01 + getter( 1 ), stored as float.
+  - HP: GetUnitStat, `GetEqipStat( out, 0, +0xe40 == 1 )`, `32890230`, `328902f0( +0x988 )`, title `326f8080`, then the aggregate. Each is `acc = src + acc`, stored to float.
+    Then min( 0.5 x sum, cap ) @3235a691..3235a6ad, + sum -> `3248d3a0`.
+  - **Finding (fixed):** March computed `( aggregate + title ) + sum`. June adds the title first (@3235a5a9..3235a5b0), then the aggregate (@3235a624..3235a62f).
+    Ghidra's decompile prints `agg + title + sum`, which is where the port's order came from. The difference is at most one float ulp of max HP. Two lines in `X2Unit.cpp`; the funcmap row is corrected.
+- **`32358b00`.** Ids `0x539b` / `0x6723` / `0x1cef` / `0x6a`, in order.
+  - 21403: SA 20 x the current [6].
+  - 26403 / 7407 / 106: ( SA - 1.0 + 5e-8, doubles `334355b0` / `3346ed68` ), stored to float, x base + current. Bases: `+0x170` / `+0x184` / `+0x188` = [6] / [11] / [12].
+  - 7407 runs SA 9 -> [11], SA 10 -> [12], SA 20 -> [6]. March's SA_DEF_PHYSIC_REL / SA_DEF_MAGIC_REL / SA_MAX_HP_REL = 9 / 10 / 20. **Match.**
+- **`3234e210`.** Fashion `+0xca0` (no usable test), then normal `+0xcb0` (usable). Group test `arg == 2 || item == 2 || item == arg`. Bit 7 of templet `+4` counts only with bWithPvpEquip (`32368910`).
+  Floats [6..12]; March's Stat has 5 of the 7 ([9] / [10] have no March field). **Match.** **`3286a4b0`:** 1/3/5/7/9 -> 2, 0x14..0x22 / 0x24 / 0x26 / 0x28 / 0x2a -> 1, else 0. **Match.**
+- **Call sites, 3 spot-checked raw.** **Match** for all three:
+  - `3220ede2` comes after the charinfo `GetUIOpened( 0x13 )` -> `ResetStat` (`3291cfb0`), which is March's spot.
+  - `3250a208` comes after `31fc5c20` and before two June-only steps (`+0x5f6 = 0`, the map-ID range call), which is March's ctor end.
+  - `32703345` comes right after `3235a080( 0 )`, which is after March's ResetIncreaseSkillLevelBySocket.
+- **Deploy.** `COALESCED` (a peer's build at b369047c started after the edit), then `DEPLOY OK: X2_offline.exe is 25,378,304 B, dated 2026-10-19 13:32:18, md5 d6d5904ead27d67a1a21bf16e78a9b94, equal to X2/US_SERVICE/x2.exe (2026-10-19 13:32:11); built at main 6785efa9 + 5 uncommitted code file(s).`
+- **Play-test:** none needed (a one-ulp order change; the S7k play-test stands). **Open questions:** none. Next: **S7h**, then **S7m**. Both kickoffs are checked and need no change.
+
 ## Phase S7l - The rest of June's emblem manager
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7i (2026-10-19, unowned-branch rule). June's parser `32449000` whole (`EXPAND_TEXTURE_FILE_NAME`, no
