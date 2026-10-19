@@ -154,6 +154,14 @@ m_byNumOfItemThatICanGet( 0 )	// kimhc // 2009-12-18 // 가질수 있는 선택 보상 아
 	}
 
 	m_pCheckListQuickQuest = static_cast< CKTDGUICheckBox* >( m_pDLGUIQuestList->GetControl( L"CheckBox_QuickQuest" ) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	// June 323d0ca0 @323d1638-323d1684, just before the tab hide: the movie rows and the navi steps ( rows of three, rounded up )
+	m_iJuneMovieCount = g_pMain->JuneGetClearMovieCount();
+	if( 0 == m_iJuneMovieCount % 3 )
+		m_iJuneMovieNaviStep = ( m_iJuneMovieCount - 1 ) / 3 + 1;
+	else
+		m_iJuneMovieNaviStep = m_iJuneMovieCount / 3 + 1;
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
 	JuneHideMovieTab();		// June 323d0ca0 @323d0cd4 ( window creation ): hide the scenario-movie tab's controls
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
@@ -687,6 +695,9 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 			SetNowQuestUIMode(QUM_QUEST);
 			m_iTopQuestSlotIndex = 0;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			m_bJuneMovieTab = false;		// June @323e1dd0: every quest tab closes the Video tab before the reset ( Q8b )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
 		return true;
@@ -694,6 +705,9 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 			SetNowQuestUIMode(QUM_EPIC_QUEST);
 			m_iTopQuestSlotIndex = 0;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			m_bJuneMovieTab = false;		// June @323e1dd0 ( Q8b )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
 		return true;
@@ -1202,10 +1216,27 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			}
 
 			CloseQuestRewardWindow();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			JuneHideMovieTab();			// June @323e331d / @323e335a: after the complete request ( Q8b )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 		}
 		return true;
 	case UQNCM_SCROOL_UP:
 		{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			// June 323e1bf0 case 0xa02f @323e3364: on the Video tab, three movies up ( not below 1 ) while there are more than 13 rows
+			if( true == m_bJuneMovieTab )
+			{
+				if( m_iJuneMovieCount > 13 )
+				{
+					m_iJuneMovieStartID -= 3;
+					if( m_iJuneMovieStartID <= 1 )
+						m_iJuneMovieStartID = 1;
+					JuneUpdateMovieList( true );
+				}
+				return true;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			m_iTopQuestSlotIndex--;
 			ResetQuestUI();
 
@@ -1213,6 +1244,20 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		return true;
 	case UQNCM_SCROOL_DOWN:
 		{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			// June 323e1bf0 case 0xa030 @323e34a7: on the Video tab, three movies down ( at most the row count ) while there are more than 13 rows
+			if( true == m_bJuneMovieTab )
+			{
+				if( m_iJuneMovieCount > 13 )
+				{
+					m_iJuneMovieStartID += 3;
+					if( m_iJuneMovieStartID >= m_iJuneMovieCount )
+						m_iJuneMovieStartID = m_iJuneMovieCount;
+					JuneUpdateMovieList( true );
+				}
+				return true;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			m_iTopQuestSlotIndex++;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
 			// June 323e1bf0 case 0xa030: no scrolling down while 14 rows or fewer are listed
@@ -1329,6 +1374,23 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 			CKTDGUINavigation* pNavi	= (CKTDGUINavigation*)lParam;
 			D3DXVECTOR2 vRelativePos = pNavi->GetRelativeWindowPos();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			// June 323e1bf0 cases 0xa035 / 0xa036 @323e39c0: on the Video tab, while there are more than 12 rows the first movie follows the
+			// navi, 1 - 3 * (int)( navi steps * y / -0.68 ), with no clamp; the list is rebuilt without a navi update
+			if( true == m_bJuneMovieTab )
+			{
+				if( m_iJuneMovieCount > 12 )
+				{
+					int iMovieStartID = 1 - 3 * (int)( (double)m_iJuneMovieNaviStep * (double)vRelativePos.y / -0.68 );
+					if( iMovieStartID != m_iJuneMovieStartID )
+					{
+						m_iJuneMovieStartID = iMovieStartID;
+						JuneUpdateMovieList( false );
+					}
+				}
+				return true;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 
 			// 0.68 : Navi Size에 따른 값. MAGIC VALUE
 			m_iTopQuestSlotIndex = (int)((vRelativePos.y / 0.68f) * (m_iSizeQuestInfoList - _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage + 1));
@@ -1341,6 +1403,9 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 			SetNowQuestUIMode(QUM_EVENT_QUEST);
 			m_iTopQuestSlotIndex = 0;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			m_bJuneMovieTab = false;		// June @323e1dd0 ( Q8b )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
 		return true;
@@ -1365,6 +1430,28 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			JuneSkipEpicQuestOk();
 		}
 		return true;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	// June 323e1bf0 cases 41038-41042 ( jump table 323e4504 ): the Video tab ( quest-system Q8b )
+	case UQNCM_SELECT_SCENARIO_MOVIE_TAB:
+		return JuneOpenMovieTab();						// @323e3cb7
+	case UQNCM_SELECT_SCENARIO_MOVIE_PLAY:
+		{
+			JunePlayMovieFromTab( (CKTDGUIControl*)lParam );	// @323e4055
+		}
+		return true;
+	case UQNCM_SELECT_SCENARIO_MOVIE_AREA_TAB:
+		return true;									// 323e1c60: nothing but true
+	case UQNCM_SELECT_SCENARIO_MOVIE_BUTTON_OVER:
+		{
+			JuneMarkMovieButton( (CKTDGUIControl*)lParam, false );	// @323e4117
+		}
+		return true;
+	case UQNCM_SELECT_SCENARIO_MOVIE_BUTTON_OUT:
+		{
+			JuneMarkMovieButton( (CKTDGUIControl*)lParam, true );	// @323e41d8
+		}
+		return true;
+#else SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	case UQNCM_SELECT_SCENARIO_MOVIE_TAB:
 	case UQNCM_SELECT_SCENARIO_MOVIE_PLAY:
 	case UQNCM_SELECT_SCENARIO_MOVIE_AREA_TAB:
@@ -1375,6 +1462,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			CX2OfflineLog::Server( L"[JUNE_QUEST] UI scenario-movie message %d ignored ( Q8 owns the movie tab )", (int)wParam );
 		}
 		return true;
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 	case UQNCM_QUEST_INSTANTLY_COMPLETE:
 		{			
@@ -1477,12 +1565,42 @@ bool CX2UIQuestNew::OnMouseWheel( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		{
 			if(m_SumDelta>0)
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+				// June 323e45c0 @323e465f: on the Video tab, three movies up ( not below 1 ) while there are more than 12 rows
+				if( true == m_bJuneMovieTab )
+				{
+					if( m_iJuneMovieCount > 12 )
+					{
+						m_iJuneMovieStartID -= 3;
+						if( m_iJuneMovieStartID < 2 )
+							m_iJuneMovieStartID = 1;
+						JuneUpdateMovieList( true );
+					}
+					m_SumDelta -= WHEEL_DELTA;
+					continue;
+				}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 				m_iTopQuestSlotIndex--;
 				ResetQuestUI();
 				m_SumDelta -= WHEEL_DELTA;
 			}
 			else
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+				// June 323e45c0 @323e47b0: on the Video tab, three movies down ( at most the row count ) while there are more than 12 rows
+				if( true == m_bJuneMovieTab )
+				{
+					if( m_iJuneMovieCount > 12 )
+					{
+						m_iJuneMovieStartID += 3;
+						if( m_iJuneMovieStartID >= m_iJuneMovieCount )
+							m_iJuneMovieStartID = m_iJuneMovieCount;
+						JuneUpdateMovieList( true );
+					}
+					m_SumDelta += WHEEL_DELTA;
+					continue;
+				}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 				m_iTopQuestSlotIndex++;
 				ResetQuestUI();
 				m_SumDelta += WHEEL_DELTA;
@@ -2373,6 +2491,9 @@ void CX2UIQuestNew::SetShow(bool val)
 			SetNowQuestUIMode(QUM_EPIC_QUEST);
 		
 		ResetQuestUI(true, false, false);
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+		JuneHideMovieTab();		// June 323e5340 @323e53e6: the tab hide after the reset; an open Video tab skipped that reset ( JUNE_BUGS )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 
 		g_pData->GetUIManager()->UIOpened(CX2UIManager::UI_MENU_QUEST_NEW);
 	}
@@ -2986,6 +3107,21 @@ void CX2UIQuestNew::UpdateNavi()
 	CKTDGUINavigation* pNavi = (CKTDGUINavigation*) m_pDLGUIQuestList->GetControl( L"Navi_QuestList" );
 	if( NULL != pNavi )
 	{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+		// June 323c8da0 @323c8dd0 / @323c8e09: on the Video tab the navi shows from 13 rows, at ( start / 3 ) * 0.68 / ( navi steps - 1 )
+		if( true == m_bJuneMovieTab )
+		{
+			if( m_iJuneMovieCount < 13 )
+			{
+				pNavi->SetShow( false );
+				return;
+			}
+			pNavi->SetShow( true );
+			D3DXVECTOR2 vMoviePos( 0.0f, (float)( m_iJuneMovieStartID / 3 ) * 0.68f / (float)( m_iJuneMovieNaviStep - 1 ) );
+			pNavi->SetRelativeWindowPos( vMoviePos );
+			return;
+		}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 		if( m_iSizeQuestInfoList <= _CONST_UIQUESTNEW_INFO_::g_iNumQuestSlotPerPage )
 		{
 			pNavi->SetShow(false);

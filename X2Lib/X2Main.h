@@ -2804,6 +2804,19 @@ private:
 	CKTDGUIDialogType				m_pDLGJuneClearMovie;			/// +0x844: DLG_Dungeon_Clear_Movie.lua
 	vector< std::pair<int, bool> >	m_vecJuneSeenClearMovie;		/// +0x84c: { movie id, true } per movie played ( reader: the scenario-movie tab, Q8c )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+public:
+	const JuneClearMovieTemplet*	JuneGetClearMovieTemplet( int iMovieID_ ) const;	/// June 31d75b50 ( also 31d759e0 / 31d75a70 / 31d76230 )
+	int								JuneGetClearMovieCount() const { return (int)m_vecJuneClearMovieTemplet.size(); }	/// June 323d1638: rows ( 0xc4 each )
+	bool							JuneIsSeenClearMovie( int iMovieID_ ) const;		/// June 31d759a0
+	bool							JuneIsNewClearMovie( int iMovieID_ ) const;			/// June 31d75b80
+	void							JuneSetNewClearMovie( int iMovieID_, bool bNew_ );	/// June 31d75bb0
+	int								JuneGetClearMovieFileState( int iMovieID_ ) const;	/// June 31d75b00: -1 no row, 0 no file, 1 file
+	bool							JuneGetClearMovieIDByDungeon( int iDungeonID_, int& iMovieID_ ) const;	/// June 31d758c0
+	void							JuneAddSeenClearMovieByQuest();						/// June 31d79ac0
+	void							JuneClearSeenClearMovie();							/// June 324625b0 @32462657
+	void							JunePlayClearMovieByID( int iMovieID_ );			/// June 31d884f0
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 }; // CX2Main
 
 extern CX2Data*			g_pData;

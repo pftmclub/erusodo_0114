@@ -846,6 +846,18 @@ private:
 	void	JuneOpenSkipEpicMsgBox();
 	void	JuneSkipEpicQuestOk();
 	void	JuneHideMovieTab();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	// quest-system Q8b: the Video tab ( RadioButton_Movie )
+	int		m_iJuneMovieStartID;		// +0x770: the movie id shown in Button_Movie_1 ( 1, 4, 7, ... )
+	bool	m_bJuneMovieTab;			// +0x774: the Video tab is open ( ResetQuestUI then does nothing )
+	int		m_iJuneMovieCount;			// +0x778: movie table rows ( ctor 323d1664 )
+	int		m_iJuneMovieNaviStep;		// +0x77c: rows of three, rounded up ( ctor 323d1684 )
+	bool	JuneOpenMovieTab();
+	void	JuneUpdateMovieList( bool bUpdateNavi );
+	wstring	JuneGetMovieLockDesc( int iMovieID );
+	void	JunePlayMovieFromTab( CKTDGUIControl* pButton );
+	void	JuneMarkMovieButton( CKTDGUIControl* pButton, bool bFront );
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 };
 #endif SERV_EPIC_QUEST

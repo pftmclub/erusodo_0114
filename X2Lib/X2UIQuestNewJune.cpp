@@ -110,6 +110,12 @@ void CX2UIQuestNew::JuneInitMembers()
 	m_bOngoingQuestInStoryTab	= false;	// +0x759
 	m_iCompleteStoryCategory	= -1;		// +0x760
 	m_iOngoingStoryCategory		= -1;		// +0x764
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	m_iJuneMovieStartID			= 0;		// June ctor 323d121d-323d122f: +0x770 / +0x774 / +0x778 / +0x77c = 0
+	m_bJuneMovieTab				= false;
+	m_iJuneMovieCount			= 0;
+	m_iJuneMovieNaviStep		= 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 }
 
 /// June 323c9e80: set the mode and check the matching tab radio. Mode 3 ( detail ) has no radio.
@@ -877,6 +883,10 @@ void CX2UIQuestNew::JuneFillQuestSlots()
 /// June 323dfa80. The scenario-movie tab ( +0x774 ) skips all of it; Q8 owns that tab.
 void CX2UIQuestNew::JuneResetQuestUI( bool bUpdateNavi, bool bResetExpand, bool bIgnoreTabPriority )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	if( true == m_bJuneMovieTab )		// June 323dfab2: an open Video tab skips the whole reset ( quest-system Q8b )
+		return;
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	JuneUpdateOngoingQuestInfo();
 #ifdef GUIDE_QUEST_MONSTER
 	UpdateQuestMonster();
@@ -920,6 +930,9 @@ void CX2UIQuestNew::JuneHideMovieTab()
 {
 	if( NULL == m_pDLGUIQuestList )
 		return;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	m_bJuneMovieTab = false;			// June 323ca716: +0x774 = 0 ( quest-system Q8b )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 
 	int iMovieCount = m_pDLGUIQuestList->GetDummyInt( 4 );		// Lua AddDummyInt( 12 ), June reads dummy int #4
 	for( int i = 1; i <= iMovieCount; ++i )
@@ -1704,6 +1717,9 @@ bool CX2UIQuestNew::JuneHandler_EGS_TALK_WITH_NPC_ACK( HWND hWnd, UINT uMsg, WPA
 void CX2UIQuestNew::JuneSelectTab( QUEST_UI_MODE eMode )
 {
 	JuneQuestUILog( L"[JUNE_QUEST] UI tab %d", (int)eMode );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	m_bJuneMovieTab = false;			// June @323e1dd0: the Guild / Story tabs close the Video tab before the reset ( Q8b )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	JuneSetNowQuestUIMode( eMode );
 	m_iTopQuestSlotIndex = 0;
 	ResetQuestUI();
@@ -1737,6 +1753,9 @@ void CX2UIQuestNew::JuneSkipEpicQuestOk()
 		JuneQuestUILog( L"[JUNE_QUEST] UI skip epic quest %d: complete request", m_iSelectedQuestID );
 		std::map<int,int> mapNoSelectedItem;
 		Handler_EGS_QUEST_COMPLETE_REQ( m_eNPCID, m_iSelectedQuestID, mapNoSelectedItem );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+		JuneHideMovieTab();				// June @323e44f8 ( Q8b )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	}
 }
 
@@ -1912,6 +1931,309 @@ void CX2UIQuestNew::JunePlayDeferredQuestScene()
 	pUIQuestNew->JunePlayQuestScene( iQuestID, iMode );
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+// quest-system Q8b - the quest window's Video tab ( RadioButton_Movie in DLG_UI_NEW_Quest_List.lua ) on Q8's movie table ( CX2Main ).
+
+/// June 323e1bf0 case 41038 ( @323e3cb7 ): the Video tab. Refused with "Cannot be used here." ( string 4495 at ( 250, 300 ), the case
+/// returns false ) in a boss-raid battle field and in the dungeon game. Otherwise the quest rows ( 323c8820 ) and reward slots ( 323c9200 )
+/// are cleared, the list starts at movie 1 and the tab is open ( +0x770 = 1, +0x774 = 1, 323dfc00( true ) ).
+bool CX2UIQuestNew::JuneOpenMovieTab()
+{
+	bool bRefuse = false;
+
+	// 32481fa0 ( g_pData +0x124 ) comes first and is true only in June's boss-raid fields 40033 / 40034 / 40039-40044 ( 3266cdc0 ). March has
+	// none of those fields, so it is never true here and is left out ( as Skill S7o left it; owner june-dungeons C3z-8 ).
+	if( CX2Main::XS_BATTLE_FIELD == g_pMain->GetNowStateID() )
+	{
+		// 32482650: the current field's type ( June battle-field data +0x9c ) == 2, re-expressed as March's boss-raid test as X2DamageEffect and
+		// X2EmblemManager do for the same function; March keeps a bool, not June's type, so the two are not proven equal
+		bRefuse = g_pData->GetBattleFieldManager().GetIsBossRaidCurrentField();
+	}
+	else if( CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() )
+	{
+		// June states 0xb ( XS_DUNGEON_GAME ), 0x17 ( XS_PVE_GAME ) and 0x1a ( XS_PHOTOZONE_GAME ); the last two have no March state
+		bRefuse = true;
+	}
+
+	if( true == bRefuse )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE tab refused in state %d ( string 4495 )", (int)g_pMain->GetNowStateID() );
+		g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( STR_ID_4495 ), g_pMain->GetNowState() );
+		return false;
+	}
+
+	InitUIQuestSlotInfo();		// June 323c8820
+	InitRewardItemSlot();		// June 323c9200
+	m_iJuneMovieStartID	= 1;
+	m_bJuneMovieTab		= true;
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE tab open: %d movie row(s), %d navi step(s)", m_iJuneMovieCount, m_iJuneMovieNaviStep );
+	JuneUpdateMovieList( true );
+	return true;
+}
+
+/// June 323dfc00 ( bool update navi ): the 13 Button_Movie_N show movie ids m_iJuneMovieStartID on ( id 10 is skipped for 11 when code
+/// event 2260 or 2261 is on; offline it never is ). The button's dummy int 0 becomes the id. A seen movie gets its row's movie texture
+/// ( ScenarioMovie_01 if empty ), "<key>_Overlay" for over / down, no description and clicks; its NewTexture_N shows ( to the front,
+/// flickering ) while it is still new. A movie not seen gets Overlay_Lock, no clicks and a description: string 31168 without a movie file,
+/// else the lock text ( 323ddb00 ); with no row the button hides. Then g_pStatic_HorizonLine shows one line per row of three and Village one
+/// icon + area name per shown movie ( the row's icon texture and m_dungeonName ), the rest hidden and blanked.
+void CX2UIQuestNew::JuneUpdateMovieList( bool bUpdateNavi )
+{
+	if( NULL == m_pDLGUIQuestList || NULL == g_pMain )
+		return;
+
+	if( true == bUpdateNavi )
+		UpdateNavi();		// June 323c8da0
+
+	const WCHAR* wszDefaultTex = L"DLG_UI_Common_Texture_ScenarioMovie_01.tga";
+	int iMovieID = m_iJuneMovieStartID;
+	int iSkipped = 0;
+	int iSeen = 0, iLocked = 0, iHidden = 0;
+	WCHAR wszName[256] = {0,};
+
+	for( int iSlot = 1; iSlot <= 13; ++iSlot )
+	{
+		wsprintf( wszName, L"NewTexture_%d", iSlot );
+		CKTDGUIStatic* pNew = (CKTDGUIStatic*) m_pDLGUIQuestList->GetControl( wszName );
+		if( NULL != pNew && NULL != pNew->GetPicture( 0 ) )
+			pNew->SetShowEnable( false, false );
+
+		wsprintf( wszName, L"Button_Movie_%d", iSlot );
+		CKTDGUIButton* pButton = (CKTDGUIButton*) m_pDLGUIQuestList->GetControl( wszName );
+		if( NULL == pButton )
+			continue;		// June @323dfd55: no button, no id step
+
+		wstring wstrTex = wszDefaultTex;
+		if( 10 == iMovieID && NULL != g_pInstanceData )
+		{
+			if( true == g_pInstanceData->IsEnableCode( 2260 ) || true == g_pInstanceData->IsEnableCode( 2261 ) )
+			{
+				iSkipped	= 1;
+				iMovieID	= 11;
+			}
+		}
+
+		pButton->SetDummyInt( 0, iMovieID );
+
+		if( true == g_pMain->JuneIsSeenClearMovie( iMovieID ) )
+		{
+			const CX2Main::JuneClearMovieTemplet* pTemplet = g_pMain->JuneGetClearMovieTemplet( iMovieID );
+			wstrTex = ( NULL != pTemplet ) ? pTemplet->m_wstrMovieTextureName : L"";
+			if( true == wstrTex.empty() )
+				wstrTex = wszDefaultTex;
+			wstring wstrKey = ( NULL != pTemplet ) ? pTemplet->m_wstrMovieTextureKeyName : L"";
+
+			pButton->SetNormalTex( wstrTex.c_str(), wstrKey.c_str() );
+			wstrKey += L"_Overlay";
+			pButton->SetOverTex( wstrTex.c_str(), wstrKey.c_str() );
+			pButton->SetDownTex( wstrTex.c_str(), wstrKey.c_str() );
+			pButton->SetGuideDesc( L"" );
+			pButton->SetEnableClick( true );
+			pButton->SetShowEnable( true, true );
+
+			wsprintf( wszName, L"NewTexture_%d", iSlot );
+			pNew = (CKTDGUIStatic*) m_pDLGUIQuestList->GetControl( wszName );
+			if( NULL != pNew && NULL != pNew->GetPicture( 0 ) )
+			{
+				if( true == g_pMain->JuneIsNewClearMovie( iMovieID ) )
+				{
+					m_pDLGUIQuestList->ChangeSequence( pNew, true );
+					pNew->SetShowEnable( true, true );
+					pNew->GetPicture( 0 )->SetFlicker( 1.0f, 1.0f, 0.0f, true );		// June 31c1a5b0( 1, 1, 0, true )
+				}
+				else
+				{
+					pNew->SetShowEnable( false, false );
+				}
+			}
+			++iSeen;
+		}
+		else
+		{
+			pButton->SetNormalTex( wstrTex.c_str(), L"Overlay_Lock" );
+			pButton->SetOverTex( wstrTex.c_str(), L"Overlay_Lock" );
+			pButton->SetEnableClick( false );
+			pButton->SetShowEnable( true, true );
+
+			wsprintf( wszName, L"NewTexture_%d", iSlot );
+			pNew = (CKTDGUIStatic*) m_pDLGUIQuestList->GetControl( wszName );
+			if( NULL != pNew )
+				pNew->SetShowEnable( false, false );
+
+			switch( g_pMain->JuneGetClearMovieFileState( iMovieID ) )
+			{
+			case 0:
+				pButton->SetGuideDesc( GET_STRING( 31168 ) );
+				++iLocked;
+				break;
+			case 1:
+				{
+					wstring wstrDesc = JuneGetMovieLockDesc( iMovieID );
+					pButton->SetGuideDesc( wstrDesc.c_str() );
+					++iLocked;
+				}
+				break;
+			default:
+				pButton->SetShowEnable( false, false );
+				++iHidden;
+				break;
+			}
+		}
+		++iMovieID;
+	}
+
+	const int iRows = m_iJuneMovieCount - iSkipped - m_iJuneMovieStartID + 1;
+
+	CKTDGUIStatic* pHorizonLine = (CKTDGUIStatic*) m_pDLGUIQuestList->GetControl( L"g_pStatic_HorizonLine" );
+	if( NULL != pHorizonLine )
+	{
+		int iLines = iRows / 3;
+		if( iRows != iLines * 3 )
+			++iLines;
+
+		int i = 0;
+		for( ; i < iLines; ++i )
+		{
+			if( NULL != pHorizonLine->GetPicture( i ) )
+				pHorizonLine->GetPicture( i )->SetShow( true );
+		}
+		for( ; i < pHorizonLine->GetPictureNum(); ++i )
+		{
+			if( NULL != pHorizonLine->GetPicture( i ) )
+				pHorizonLine->GetPicture( i )->SetShow( false );
+		}
+		pHorizonLine->SetShowEnable( true, true );
+	}
+
+	CKTDGUIStatic* pVillage = (CKTDGUIStatic*) m_pDLGUIQuestList->GetControl( L"Village" );
+	if( NULL != pVillage )
+	{
+		int i = 0;
+		for( ; i < iRows; ++i )
+		{
+			if( NULL == pVillage->GetPicture( i ) || NULL == pVillage->GetString( i ) )
+				continue;
+
+			pVillage->GetPicture( i )->SetShow( true );
+
+			int iAreaMovieID = 1;
+			wsprintf( wszName, L"Button_Movie_%d", i + 1 );
+			CKTDGUIControl* pAreaButton = m_pDLGUIQuestList->GetControl( wszName );
+			if( NULL != pAreaButton )
+				iAreaMovieID = pAreaButton->GetDummyInt( 0 );
+
+			const CX2Main::JuneClearMovieTemplet* pTemplet = g_pMain->JuneGetClearMovieTemplet( iAreaMovieID );
+			if( NULL != pTemplet )
+			{
+				pVillage->GetPicture( i )->SetTex( pTemplet->m_wstrIconTextureFileName.c_str(), pTemplet->m_wstrIconTextureKeyName.c_str() );
+				pVillage->GetString( i )->msg = pTemplet->m_wstrDungeonName;
+			}
+		}
+		for( ; i < pVillage->GetPictureNum(); ++i )
+		{
+			if( NULL != pVillage->GetPicture( i ) )
+				pVillage->GetPicture( i )->SetShow( false );
+			if( NULL != pVillage->GetString( i ) )
+				pVillage->GetString( i )->msg = L"";
+		}
+		pVillage->SetShowEnable( true, true );
+	}
+
+	CKTDGUIControl* pArea = m_pDLGUIQuestList->GetControl( L"RadioButton_Area" );
+	if( NULL != pArea )
+		pArea->SetShowEnable( true, true );
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE list from %d: %d seen, %d locked, %d without a row, %d skipped ( code event ), %d area row(s)",
+		m_iJuneMovieStartID, iSeen, iLocked, iHidden, iSkipped, iRows );
+}
+
+/// June 323ddb00 ( id ): the lock description of a movie not seen yet. With g_pMain, g_pData and the dungeon manager ( g_pData +0x44 ) and
+/// a row: a row with dungeons reads the first one's data ( 327da150 ): a Henir dungeon ( type +0x184 == 2 ) -> 36031, Elder's secret
+/// dungeon ( 33030 / 33031 ) -> 36397, else 31167 "LL" ( the row's area name, the dungeon's name ). A row without dungeons and with a quest
+/// -> 43910 "iL" ( the quest's m_iEpisodeGroupID / 10, its title ). Anything else -> L"".
+wstring CX2UIQuestNew::JuneGetMovieLockDesc( int iMovieID )
+{
+	wstring wstrDesc = L"";
+	if( NULL == g_pMain || NULL == g_pData || NULL == g_pData->GetDungeonManager() )
+		return wstrDesc;
+
+	const CX2Main::JuneClearMovieTemplet* pTemplet = g_pMain->JuneGetClearMovieTemplet( iMovieID );
+	if( NULL == pTemplet )
+		return wstrDesc;
+
+	if( false == pTemplet->m_vecDungeonID.empty() )
+	{
+		const CX2Dungeon::DungeonData* pDungeonData = g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID) pTemplet->m_vecDungeonID[0] );
+		if( NULL != pDungeonData )
+		{
+			if( CX2Dungeon::DT_HENIR == pDungeonData->m_eDungeonType )
+			{
+				wstrDesc = GET_STRING( 36031 );
+			}
+			else if( SEnum::DI_ELDER_SECRET_COMMON == pDungeonData->m_DungeonID || SEnum::DI_ELDER_SECRET_HELL == pDungeonData->m_DungeonID )
+			{
+				wstrDesc = GET_STRING( 36397 );
+			}
+			else
+			{
+				wstring wstrAreaName	= pTemplet->m_wstrDungeonName;
+				wstring wstrDungeonName	= pDungeonData->m_DungeonName;
+				wstrDesc = GET_REPLACED_STRING( ( 31167, "LL", wstrAreaName, wstrDungeonName ) );
+			}
+		}
+	}
+	else if( pTemplet->m_iQuestID > 0 && NULL != g_pData->GetQuestManager() )
+	{
+		const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( pTemplet->m_iQuestID );
+		if( NULL != pQuestTemplet )
+		{
+			wstring wstrTitle = pQuestTemplet->m_wstrTitle;
+			wstrDesc = GET_REPLACED_STRING( ( 43910, "iL", pQuestTemplet->m_iEpisodeGroupID / 10, wstrTitle ) );
+		}
+	}
+	return wstrDesc;
+}
+
+/// June 323e1bf0 case 41039 ( @323e4055 ): a seen movie ( the button's dummy int 0 ) loses its new mark ( 31d75bb0 ) and plays ( 31d884f0 );
+/// then NewTexture_<that id> hides. June indexes NewTexture by the movie id, not the slot ( JUNE_BUGS ).
+void CX2UIQuestNew::JunePlayMovieFromTab( CKTDGUIControl* pButton )
+{
+	if( NULL == pButton || NULL == g_pMain || NULL == m_pDLGUIQuestList )
+		return;
+
+	const int iMovieID = pButton->GetDummyInt( 0 );
+	if( false == g_pMain->JuneIsSeenClearMovie( iMovieID ) )
+		return;
+
+	g_pMain->JuneSetNewClearMovie( iMovieID, false );
+	g_pMain->JunePlayClearMovieByID( iMovieID );
+
+	WCHAR wszName[256] = {0,};
+	wsprintf( wszName, L"NewTexture_%d", pButton->GetDummyInt( 0 ) );
+	CKTDGUIControl* pNew = m_pDLGUIQuestList->GetControl( wszName );
+	if( NULL != pNew )
+		pNew->SetShowEnable( false, false );
+}
+
+/// June 323e1bf0 cases 41041 / 41042 ( @323e4117 / @323e41d8 ): the hovered button's NewTexture ( slot = id + 1 - first id ) goes to the back
+/// on mouse-over and to the front on mouse-out ( ChangeSequence 31cd4da0 ).
+void CX2UIQuestNew::JuneMarkMovieButton( CKTDGUIControl* pButton, bool bFront )
+{
+	if( NULL == m_pDLGUIQuestList || NULL == pButton )
+		return;
+
+	int iSlot = pButton->GetDummyInt( 0 );
+	if( 1 != m_iJuneMovieStartID )
+		iSlot += 1 - m_iJuneMovieStartID;
+
+	WCHAR wszName[256] = {0,};
+	wsprintf( wszName, L"NewTexture_%d", iSlot );
+	CKTDGUIControl* pNew = m_pDLGUIQuestList->GetControl( wszName );
+	if( NULL != pNew )
+		m_pDLGUIQuestList->ChangeSequence( pNew, bFront );
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 #endif SERV_EPIC_QUEST

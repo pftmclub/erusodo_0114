@@ -247,6 +247,19 @@ void CX2Unit::Reset( const KUnitInfo& unitInfo, bool bForceUpdate /* = false */ 
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	// June 32362730 @323629d7-32362a5d: after the dungeon-clear merge, every cleared dungeon with a movie row adds that movie to
+	// g_pMain's seen list as watched ( 31d758c0, then 31d78bf0( id, false ) ). Any unit's Reset does it ( quest-system Q8b, JUNE_BUGS ).
+	{
+		std::map< int, KDungeonClearInfo >::const_iterator mitMovie;
+		for( mitMovie = m_mapDungeonClear.begin(); mitMovie != m_mapDungeonClear.end(); ++mitMovie )
+		{
+			int iMovieID = 0;
+			if( true == g_pMain->JuneGetClearMovieIDByDungeon( mitMovie->first, iMovieID ) )
+				g_pMain->JuneAddSeenClearMovie( iMovieID, false );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 	m_mapTCClear.clear();
 	m_mapTCClear = unitInfo.m_mapTCClear;
 

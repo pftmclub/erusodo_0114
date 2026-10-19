@@ -5470,6 +5470,11 @@ void CX2StateMenu::UpdateMenuPosistion()
 #endif	GUILD_MANAGEMENT
 			//}} kimhc // 2009-10-12 // 서버 선택시 길드 정보 삭제
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			// June 324625b0 @32462657: the movie tab's seen list is emptied on the way to the character select ( quest-system Q8b )
+			if( NULL != g_pMain )
+				g_pMain->JuneClearSeenClearMovie();
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #ifdef SERV_GLOBAL_MISSION_MANAGER
 			g_pData->ResetGlobalMissionManager();
 #endif SERV_GLOBAL_MISSION_MANAGER

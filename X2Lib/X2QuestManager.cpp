@@ -1221,6 +1221,10 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 #ifdef REFORM_QUEST
 	SetHasDungeonQuest();
 #endif //REFORM_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+	// June 32336e80 @323372f9-323372ff: the last call, the movie tab's seen list from the completed quests ( 31d79ac0, quest-system Q8b )
+	g_pMain->JuneAddSeenClearMovieByQuest();
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_QUEST] RUN SetUnitQuest clear %d in progress %d completed %d ( %d records ) chains %d",

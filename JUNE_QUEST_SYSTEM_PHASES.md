@@ -1291,6 +1291,44 @@ and its five messages logged, and Q8 routed it here (quest UI = this plan's subj
 
 **Done gate:** the Video tab lists the movies by area, seen ones unlocked; pressing one plays it and returns to the window.
 
+### Q8b - Done (2026-10-19, Opus 5.5 high; compiles, deploy pending on RM1's build break)
+
+**Landed:** flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB` (Always.h; `#error`s without `JUNE_QUEST_MOVIE` / `JUNE_QUEST_UI`). 12 funcmap rows `(Quest Q8b)`;
+JUNE_BUGS 360-365. Q5a's log-only stub for cases 41038-41042 is the `#else`.
+- **Seen list (`g_pMain +0x84c`): no packet, no save.** June rebuilds it on the client: the option window's character select empties it
+  (`324625b0 @32462657`, `CX2StateMenu::ProcessStateChangeUnitSelectWithOptionWindow`, vslot 155), `SetUnitQuest` adds every row whose quest is
+  completed (`31d79ac0` @323372ff, as watched), `CX2Unit::Reset` adds every cleared dungeon's movie (`32362730 @323629d7` -> `31d758c0`), and Q8's
+  complete requests add `{ id, true }` (new). Sweep `dispsweep.py 84c 850 854`: no other writer. So the kickoff's design question does not arise.
+- **CX2Main** (X2Main.cpp before `LoadLuaEnum`): row / seen helpers (`31d75b50`, `31d759a0`, `31d75b80`, `31d75bb0`, `31d75b00`, `31d758c0`),
+  `JuneAddSeenClearMovieByQuest` (`31d79ac0`), `JuneClearSeenClearMovie`, `JunePlayClearMovieByID` (`31d884f0`: no reserved request, so Q8's stop
+  sends nothing).
+- **Quest window** (X2UIQuestNewJune.cpp tail): `JuneOpenMovieTab` (case 41038 `@323e3cb7`: refused with string 4495 in the dungeon game or a boss-raid
+  field; `32481fa0` needs June-only raid fields and is left out, `32482650 == 2` is re-expressed as `GetIsBossRaidCurrentField` as X2DamageEffect /
+  X2EmblemManager do), `JuneUpdateMovieList` (`323dfc00`), `JuneGetMovieLockDesc` (`323ddb00`: 36031 Henir, 36397 Elder secret, 31167 "LL",
+  43910 "iL"), play (41039: clears the NEW mark, plays), hover (41041 / 41042: `ChangeSequence` of the slot's NEW mark), 41040 returns true.
+- **Branches** (X2UIQuestNew.cpp): scroll buttons (> 13 rows), navi drag (> 12, June's -0.68 formula, no clamp), wheel `323e45c0` (> 12),
+  `UpdateNavi` (`323c8da0`), `JuneResetQuestUI` returns while the tab is open (`@323dfab2`), the quest tabs clear the tab flag before their reset
+  (`@323e1dd0`), and June's hide sites (SetShow `323e53e6`, clear-OK `323e331d` / `323e335a`, skip-epic OK `323e44f8`). Ctor: rows (13) and navi
+  steps (5) at `323d1638-323d1684`.
+- Control fields: June button `+0x35e` = `m_bEnableClick` (the gate in `31caec10`), control `+0x1d0` = `m_GuideDesc`.
+
+**Data:** `stage-june` (backup `kom_backup_stage_june\20261019_210421`): June-only `DLG_UI_Common_Texture_ScenarioMovie_01.tga/.TET` -> data063 (new);
+June's `DLG_UI_Common_Texture10.tga/.TET` replaces March's in data057 (same-name rule; adds `ICON_ELDER_SECRET`, `ICON_HENIR`). `NewSkill_01` is
+identical. PACK OK data057 / data063; copy not done (ask). Strings 4495 / 31167 / 31168 / 36031 / 36397 / 43910 are in the live `General.ess`
+(June's). June's own data names keys its atlases lack (Atlas / Elysion backgrounds, Sander / Ranox / Elysion icons): JUNE_BUGS 365.
+
+**Hygiene:** `flagcheck JUNE_QUEST_MOVIE_TAB --worktree --files` (9 files): 7 PASS, 1 PASS~ (one blank line, X2UIQuestNewJune.cpp), 1 DEFINE, 0 OTHER, 0 FAIL; 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, RESULT: PASS.
+
+**Deploy:** PENDING. The first full build (`.build/logs/20261019-210459`) compiled all six Q8b files with no error and failed only in RM1's uncommitted `JUNE_RANDOM_MISSION` hunks (X2UIManager.cpp:4205-4208, X2UIQuickSlot.cpp:987-988, `CX2RandomMissionManager` undeclared). Rebuild once RM1 has fixed it.
+
+**How to see it in game:** open the quest window, press Video (top-right tab). 13 movie buttons by area; seen ones show their picture and play on
+click (Q8's player, subtitles where `datai015` has them), the rest show the lock picture and a description on hover. The wheel scrolls three
+at a time. In a dungeon the tab refuses with "Cannot be used here.".
+
+**Routed, not ported:** none new. The dungeon first-clear / intro movies that also add to the seen list are Stage 26's (Q8's routing stands).
+
+**Open for the user:** none.
+
 ## Phase RM1 - Random mission port
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION`. Sub-tag `RM`.

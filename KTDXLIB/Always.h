@@ -9498,3 +9498,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif MOVIE_TEST_BASE
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q8b - the quest window's Video tab ( RadioButton_Movie, DLG_UI_NEW_Quest_List.lua ). June's
+//              list 323dfc00 ( 13 Button_Movie_N on Q8's movie table: seen = the movie's texture and clickable, else Overlay_Lock with a
+//              lock description 323ddb00; NewTexture_N marks a movie not yet watched from the tab ), the area icons and names ( Village ),
+//              its tab / play / hover cases 41038-41042 ( 323e1bf0 ), play by id 31d884f0, and the tab's branches in the scroll buttons,
+//              navi, wheel, UpdateNavi and ResetQuestUI ( +0x770 / +0x774 / +0x778 / +0x77c ). The seen list ( g_pMain +0x84c ) is June's
+//              own client rebuild, no packet and no save: cleared on the option window's character select ( 324625b0 ), refilled from
+//              completed quests ( SetUnitQuest -> 31d79ac0 ) and cleared dungeons ( CX2Unit::Reset 32362730 -> 31d758c0 ), plus Q8's
+//              complete requests. Log [JUNE_QUEST] MOVIE. Revert: JUNE_QUEST_MOVIE_TAB in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+#ifndef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#error SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB needs SERV_IRUHADEV_JUNE_QUEST_MOVIE ( the movie table, the seen list and the player )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifndef SERV_IRUHADEV_JUNE_QUEST_UI
+#error SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB needs SERV_IRUHADEV_JUNE_QUEST_UI ( June's quest window, its movie-tab hide and cases )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+//////////////////////////////////////////////////////////////////////////

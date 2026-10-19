@@ -11885,6 +11885,132 @@ void CX2Main::JuneCheckClearMovieEnd()
 	}
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+/// June 31d75b50 ( id ): the first row whose m_eMovieCategory ( +0x2c ) is the id, else NULL. June's 31d759e0 / 31d75a70 ( the row's movie
+/// texture name +0x30 / key +0x4c, L"" without a row ) and 31d76230 ( a copy of the row, false without one ) are the same walk.
+const CX2Main::JuneClearMovieTemplet* CX2Main::JuneGetClearMovieTemplet( int iMovieID_ ) const
+{
+	vector<JuneClearMovieTemplet>::const_iterator it;
+	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
+	{
+		if( iMovieID_ == it->m_eMovieCategory )
+			return &(*it);
+	}
+	return NULL;
+}
+
+/// June 31d759a0 ( id ): is the id in the seen list ( +0x84c )
+bool CX2Main::JuneIsSeenClearMovie( int iMovieID_ ) const
+{
+	vector< std::pair<int, bool> >::const_iterator it;
+	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
+	{
+		if( iMovieID_ == it->first )
+			return true;
+	}
+	return false;
+}
+
+/// June 31d75b80 ( id ): the first seen entry's bool ( true = not watched from the tab yet, the NewTexture mark ), false without one
+bool CX2Main::JuneIsNewClearMovie( int iMovieID_ ) const
+{
+	vector< std::pair<int, bool> >::const_iterator it;
+	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
+	{
+		if( iMovieID_ == it->first )
+			return it->second;
+	}
+	return false;
+}
+
+/// June 31d75bb0 ( id, bool ): every seen entry with the id gets the bool ( the tab's play clears it, 323e408f )
+void CX2Main::JuneSetNewClearMovie( int iMovieID_, bool bNew_ )
+{
+	vector< std::pair<int, bool> >::iterator it;
+	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
+	{
+		if( iMovieID_ == it->first )
+			it->second = bNew_;
+	}
+}
+
+/// June 31d75b00 ( id ): -1 without a row, else 1 when the row has a movie file ( +0x00 ) and 0 when it has none
+int CX2Main::JuneGetClearMovieFileState( int iMovieID_ ) const
+{
+	const JuneClearMovieTemplet* pTemplet = JuneGetClearMovieTemplet( iMovieID_ );
+	if( NULL == pTemplet )
+		return -1;
+	return ( false == pTemplet->m_wstrMovieFileName.empty() ) ? 1 : 0;
+}
+
+/// June 31d758c0 ( dungeon id, out id ): the rows in order, each row's m_eDungeonID list ( +0x1c ) in order; the first listed dungeon whose
+/// row has a movie file gives that row's m_eMovieCategory. A match in a row without a file is passed over and the walk goes on.
+bool CX2Main::JuneGetClearMovieIDByDungeon( int iDungeonID_, int& iMovieID_ ) const
+{
+	vector<JuneClearMovieTemplet>::const_iterator it;
+	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
+	{
+		for( UINT i = 0; i < it->m_vecDungeonID.size(); ++i )
+		{
+			if( iDungeonID_ == it->m_vecDungeonID[i] && false == it->m_wstrMovieFileName.empty() )
+			{
+				iMovieID_ = it->m_eMovieCategory;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+/// June 31d79ac0 ( the last call of CX2QuestManager::SetUnitQuest 32336e80, @323372ff ): with rows and the quest manager ( g_pData +0x4c ),
+/// every row whose m_iQuestID is a completed quest ( 32322260 ) adds its id to the seen list as watched ( 31d78bf0( id, false ) ).
+void CX2Main::JuneAddSeenClearMovieByQuest()
+{
+	if( true == m_vecJuneClearMovieTemplet.empty() || NULL == g_pData || NULL == g_pData->GetQuestManager() )
+		return;
+
+	const int iBefore = (int)m_vecJuneSeenClearMovie.size();
+	vector<JuneClearMovieTemplet>::const_iterator it;
+	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
+	{
+		if( true == g_pData->GetQuestManager()->GetUnitCompleteQuest( it->m_iQuestID ) )
+			JuneAddSeenClearMovie( it->m_eMovieCategory, false );
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE seen list: %d added from completed quests ( %d seen )",
+		(int)m_vecJuneSeenClearMovie.size() - iBefore, (int)m_vecJuneSeenClearMovie.size() );
+}
+
+/// June 324625b0 @32462657 ( CX2StateMenu::ProcessStateChangeUnitSelectWithOptionWindow ): the seen list is emptied on the way back to the
+/// character select; the next character's SetUnitQuest and CX2Unit::Reset fill it again.
+void CX2Main::JuneClearSeenClearMovie()
+{
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE seen list cleared ( %d entries, character select )", (int)m_vecJuneSeenClearMovie.size() );
+	m_vecJuneSeenClearMovie.clear();
+}
+
+/// June 31d884f0 ( id ): 31d79960 first; the first row whose m_eMovieCategory is the id gives the next movie ( its file into +0x80c ) and
+/// sets the playing flag ( +0x80a ); 31d880b0 then starts it either way. No complete request is reserved, so the stop sends nothing.
+void CX2Main::JunePlayClearMovieByID( int iMovieID_ )
+{
+	JuneResetClearMovieState();
+
+	vector<JuneClearMovieTemplet>::const_iterator it;
+	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
+	{
+		if( iMovieID_ == it->m_eMovieCategory )
+		{
+			m_wstrJuneClearMovieFileName	= it->m_wstrMovieFileName;
+			m_bJuneClearMoviePlaying		= true;
+			break;
+		}
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE tab play %d: %s", iMovieID_,
+		( true == m_bJuneClearMoviePlaying ) ? m_wstrJuneClearMovieFileName.c_str() : L"no row" );
+	JuneStartClearMovie();
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 void CX2Main::LoadLuaEnum()
 {
 	// luamanager에 enum.lua 등 전역에서 사용되는 스크립트 로딩은 CKTDXApp::loadkluamanagertemplate() 함수에서
