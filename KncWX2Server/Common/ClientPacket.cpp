@@ -8196,6 +8196,104 @@ SERIALIZE_DEFINE_GET( KEGS_JUNE_DEACTIVE_SKILL_MEMO_ACK, obj, ks )
 		;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_RANDOM_MISSION_NOT, obj, ks )
+{
+	return PUT( m_iMissionID )
+		&& PUT( m_iEventType )
+		&& PUT( m_iGoal )
+		&& PUT( m_iSeconds )
+		&& PUT( m_iDescStrID )
+		&& PUT( m_fJuneUnread14 )
+		&& PUT( m_setJuneUnread18 )
+		&& PUT( m_setJuneUnread28 )
+		&& PUT( m_iRewardExpRate )
+		&& PUT( m_iRewardBuffID )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_RANDOM_MISSION_NOT, obj, ks )
+{
+	return GET( m_iMissionID )
+		&& GET( m_iEventType )
+		&& GET( m_iGoal )
+		&& GET( m_iSeconds )
+		&& GET( m_iDescStrID )
+		&& GET( m_fJuneUnread14 )
+		&& GET( m_setJuneUnread18 )
+		&& GET( m_setJuneUnread28 )
+		&& GET( m_iRewardExpRate )
+		&& GET( m_iRewardBuffID )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_RANDOM_MISSION_COMPLETE_REQ, obj, ks )
+{
+	return PUT( m_iMissionID )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_RANDOM_MISSION_COMPLETE_REQ, obj, ks )
+{
+	return GET( m_iMissionID )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_RANDOM_MISSION_COMPLETE_ACK, obj, ks )
+{
+	return PUT( m_iOK )
+		&& PUT( m_iJuneUnread04 )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_RANDOM_MISSION_COMPLETE_ACK, obj, ks )
+{
+	return GET( m_iOK )
+		&& GET( m_iJuneUnread04 )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_RANDOM_MISSION_CHEAT_REQ, obj, ks )
+{
+	return PUT( m_iA )
+		&& PUT( m_iB )
+		&& PUT( m_iC )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_RANDOM_MISSION_CHEAT_REQ, obj, ks )
+{
+	return GET( m_iA )
+		&& GET( m_iB )
+		&& GET( m_iC )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ, obj, ks )
+{
+	return PUT( m_iValue )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ, obj, ks )
+{
+	return GET( m_iValue )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ, obj, ks )
+{
+	return PUT( m_iValue )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ, obj, ks )
+{
+	return GET( m_iValue )
+		;
+}
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 //}}
 
 

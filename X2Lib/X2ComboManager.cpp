@@ -807,6 +807,11 @@ void CX2ComboManager::AddCombo()
 #endif
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June 32955280 @32956371..32956390: random mission event 1 ( RME_COMBO ) with the combo count
+	if( true == CX2RandomMissionManager::GetInstance()->IsRunningEvent( CX2RandomMission::RME_COMBO ) )
+		CX2RandomMissionManager::GetInstance()->AddEvent( m_ComboNum );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 #ifdef ELSWORD_SHEATH_KNIGHT
 	return m_ComboNum;
 #endif ELSWORD_SHEATH_KNIGHT

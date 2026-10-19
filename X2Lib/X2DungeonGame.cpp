@@ -305,6 +305,10 @@ CX2DungeonGame::~CX2DungeonGame(void)
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hBossName )
 		GetMinorParticle()->DestroyInstanceHandle(m_hBossName);
 #endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June 327d2240 @327d267d..327d2684: the mission is cleared when the game goes
+	CX2RandomMissionManager::GetInstance()->Reset();
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	/// June 327d2160 ( CX2DungeonGame::Release 327d2240 @327d23fb, when the tutorial is left ): 3226a260 forgets the scene played last
@@ -353,6 +357,11 @@ HRESULT CX2DungeonGame::OnFrameMove( double fTime, float fElapsedTime )
 		TickOfflinePartyBots( fElapsedTime );
 #endif SERV_IRUHADEV_OFFLINE
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		/// June 327d38e0 @327d3bfb..327d3c1a: the random mission ticks once it is running
+		if( CX2RandomMissionManager::GetInstance()->GetState() >= CX2RandomMissionManager::MS_RUNNING )
+			CX2RandomMissionManager::GetInstance()->OnFrameMove( fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		if( m_pDungeon != NULL )
 			m_pDungeon->OnFrameMove( fTime, fElapsedTime );
 
@@ -1103,6 +1112,10 @@ void CX2DungeonGame::StageStart()
 #ifndef _SERVICE_
 	dbg::clog << L"StageStart! Index: " << m_pDungeon->GetNowStageIndex() << L" WORLD ID : " << (int)m_pDungeon->GetNowStage()->GetStageData()->m_WorldID << dbg::endl;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June 327d1820 @327d1b8a..327d1bb8: a stage past the first starts a received mission
+	CX2RandomMissionManager::GetInstance()->OnStageStart( m_pDungeon->GetNowStageIndex() );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	wstringstream dungeonStageIndex;
 	dungeonStageIndex << L"Stage Start : " << m_pDungeon->GetNowStageIndex();
 	StateLog( dungeonStageIndex.str().c_str() );

@@ -9551,3 +9551,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif DUNGEONSTAGE_CONTINUOUS_BGM
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase RM1 - the random dungeon mission. June's CX2RandomMissionManager ( 337a66b4 ) and
+//              CX2RandomMission ( new X2RandomMission.* ): a mission is set only by the server push 0x492 ( EGS_JUNE_RANDOM_MISSION_NOT ),
+//              counted by 12 event types raised from March's dungeon code ( combo, boss damage, hits taken, gate kills, sub-stage,
+//              quick slot, resurrection, MP spent, the three skill types ), judged at the end of the dungeon, shown by
+//              DLG_UI_Random_Mission(_PopUp).lua. DORMANT ( user, 2026-10-19 ): the emulator never sends a mission on its own; only the
+//              dev-console cheat Slash_rm sets one ( 0x495 -> a labelled stand-in reading, see Handlers_Quest.cpp ). Also defined in
+//              ServerDefine.h ( EventID_Client.h / ClientPacket.h precede this file ). Log [JUNE_QUEST] RM.
+//              Revert: JUNE_RANDOM_MISSION in MODS.md.
+#define SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_JUNE_RANDOM_MISSION needs SERV_IRUHADEV_OFFLINE ( the emulator handlers, CX2OfflineLog )
+#endif SERV_IRUHADEV_OFFLINE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TYPE
+#error SERV_IRUHADEV_JUNE_RANDOM_MISSION needs SERV_IRUHADEV_JUNE_SKILL_TYPE ( ST_SPECIAL_ACTIVE_GRADE_1-3 )
+#endif SERV_IRUHADEV_JUNE_SKILL_TYPE
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+//////////////////////////////////////////////////////////////////////////

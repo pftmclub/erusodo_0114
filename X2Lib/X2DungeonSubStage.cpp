@@ -494,6 +494,11 @@ void CX2DungeonSubStage::ClearSubStage( int clearType, int nextStageNum, int nex
 	SetJuneClearType( clearType, "ClearSubStage, June 327f03c0" );
 
 #endif SERV_IRUHADEV_JUNE_BUFF_CLEAR_TYPE
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June 327f03c0 @327f043c..327f0459: random mission event 6 ( RME_SUB_STAGE ) with this sub-stage's index, on every client
+	if( true == CX2RandomMissionManager::GetInstance()->IsRunningEvent( CX2RandomMission::RME_SUB_STAGE ) )
+		CX2RandomMissionManager::GetInstance()->AddEvent( m_SubStageIndex );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	if( g_pX2Game->IsHost() == false )
 		return;
 

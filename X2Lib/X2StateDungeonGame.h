@@ -714,6 +714,9 @@ protected:
 
 	virtual bool UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 	virtual bool UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	bool Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// June 324c94d0 ( X2RandomMission.cpp )
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	virtual bool UIP2PEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	// 09.03.30 еб©о

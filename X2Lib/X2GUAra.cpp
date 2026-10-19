@@ -3956,6 +3956,10 @@ void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SKILL_ID eSkillI
 		if ( NULL != GetUnit() )
 			GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		/// June 32bb1ff0 @32bb2253: random mission events 10-12, the skill-use hook 31fcd3d0 right after 3235a710
+		CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 		if ( NULL != m_ComboAndSkillChainSystem.GetPtrNowUseChainInfo() )
 		{

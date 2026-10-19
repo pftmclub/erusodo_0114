@@ -760,6 +760,9 @@ class CX2State : public CKTDXStage
 
 		bool Handler_EGS_UPDATE_PARTY_MEMBER_STATUS_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 		bool Handler_EGS_GAME_START_TIME_COUNT_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		bool Handler_EGS_JUNE_RANDOM_MISSION_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );	/// June 31efe2a0 ( X2RandomMission.cpp )
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 		void SetShowPictureGameStartCount( const bool bIsDungeonWait, const int iCount_ );
 

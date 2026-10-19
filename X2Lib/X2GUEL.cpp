@@ -3184,6 +3184,10 @@ void CX2GUEL::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pSk
 		if ( NULL != GetUnit() )
 			GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet_->m_eID );
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		/// June 32b73e60 @32b73fd8: random mission events 10-12, the skill-use hook 31fcd3d0 right after 3235a710
+		CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet_->m_eID );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		if( false == SpecialAttackNoStageChange( pSkillTemplet_ ) )
 		{
 			if( GetRemainHyperModeTime() <= 0.f )

@@ -11307,6 +11307,10 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				{
 					pMyUnit->AddGivenDamamge( static_cast<int>(fFinalDamage) );
 					pMyUnit->SetCurrentDamage( fFinalDamage );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+				/// June 327b1f30 @327b4f87..327b5063: random mission event 2 ( boss damage ), the user attacker
+				CX2RandomMissionManager::GetInstance()->OnBossDamage( this, pMyUnit, fFinalDamage );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 				}
 #endif
 				//}}
@@ -11334,6 +11338,10 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 						{
 							pMyUnit->AddGivenDamamge( static_cast<int>(fFinalDamage) );
 							pMyUnit->SetCurrentDamage( fFinalDamage );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+							/// June 327b1f30 @327b4f87..327b5063: random mission event 2 ( boss damage ), a summon owned by my unit
+							CX2RandomMissionManager::GetInstance()->OnBossDamage( this, pMyUnit, fFinalDamage );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 #ifndef FINALITY_SKILL_SYSTEM //±èÃ¢ÇÑ
 							if( NULL != pMyUnit->GetComboManager() )

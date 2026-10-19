@@ -9448,6 +9448,13 @@ ELSWORD_VIRTUALIZER_END
 	//	ProcessSummonNPCDieEvent( kEvent );
 #endif //FINALITY_SKILL_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		/// June 3230b7b0 @3230bcab..3230bd0a: random mission event 4 ( RME_GATE_KILL ): the dead npc is a gate ( vslot 0x298, 327559d0:
+		/// class type 100 ) and my unit is the killer
+		if( true == CX2RandomMissionManager::GetInstance()->IsRunningEvent( CX2RandomMission::RME_GATE_KILL )
+			&& CX2UnitManager::NCT_THING_GATE == pCX2GUNPC->GetClassType() && NULL != GetMyUnit() && kEvent.m_uiAttUnit == GetMyUnit()->GetUnitUID() )
+			CX2RandomMissionManager::GetInstance()->AddEvent( 1 );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		/// June 3230b7b0 @3230bd1b..3230bd2b: when the packet names a killer, the kill hook 322d6f20, just before
 		/// the summon-owner cleanup (@3230bd32, GetOwnerGameUnit 32759f00)
@@ -14935,6 +14942,11 @@ bool CX2Game::Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK( KEGS_RESURRECT_TO_C
 				GetMyUnit()->GetUnit()->SetAutoResStoneNum( kEGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK.m_iNumAutoPaymentResStone );
 #endif	//	AUTO_PAYMENT
 				//}} 허상형 : [2009/10/14] //	자동 결제 부활석
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+				/// June 322da7b0 @322da878..322da891: random mission event 8 ( RME_RESURRECT ), after the stone count is set
+				if( true == CX2RandomMissionManager::GetInstance()->IsRunningEvent( CX2RandomMission::RME_RESURRECT ) )
+					CX2RandomMissionManager::GetInstance()->AddEvent( 1 );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 				ResetReBirthStoneNumUI();
 
 				if ( kEGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK.m_bUseCash == true )

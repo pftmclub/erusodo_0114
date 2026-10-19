@@ -4006,6 +4006,11 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2Game>( L, "GetGameType",							&CX2Game::GetGameType );
 #endif
 	lua_tinker::class_def<CX2Game>( L, "IsHost",								&CX2Game::IsHost );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	lua_tinker::class_def<CX2Game>( L, "SendRandomMissionCheat",				&CX2Game::SendRandomMissionCheat );				// June 31dd52e7
+	lua_tinker::class_def<CX2Game>( L, "SendRandomMissionRewardEXPCheat",		&CX2Game::SendRandomMissionRewardEXPCheat );		// June 31dd5559
+	lua_tinker::class_def<CX2Game>( L, "SendRandomMissionRewardBuffCheat",		&CX2Game::SendRandomMissionRewardBuffCheat );	// June 31dd5860
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 #ifdef SERV_IRUHADEV_JUNE_ACTIVE_TRIGGER
 #ifdef SERV_WORLD_TRIGGER_RELOCATION
 	lua_tinker::class_def<CX2Game>( L, "SetActiveTrigger_LUA",					&CX2Game::SetActiveTrigger_LUA );

@@ -97,6 +97,10 @@ public:
 	/// (the caller then leaves it to the item's own effect); true when the item
 	/// is one, whether or not every buff in its group could be activated.
 	bool	ActivateItemBuff( UidType nUnitUID, int iItemID, int iNumItemBuffFactor );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June quest system RM1: June's dev cheat Slash_rmbuff( n ) -> 0x497. Activates buff n for the unit ( EnsureLoaded, then ActivateBuff now ).
+	bool	ActivateBuffByCheat( UidType nUnitUID, int iBuffID );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 	/// The end flags. Each returns true when it removed something (the caller
 	/// then resends the list).

@@ -12,3 +12,6 @@
 
 #include "../X2/resource.h"
 #include "X2Main.h"
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#include "X2RandomMission.h"
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION

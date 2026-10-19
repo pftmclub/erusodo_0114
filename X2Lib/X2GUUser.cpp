@@ -977,6 +977,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 
 	m_fRebirthTime				= 0.0f;
 	m_nDamageCount				= 0;
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	m_iJuneMissionHitCount		= 0;		/// June ctor 320424e5..320424f7
+	m_fJuneMissionBossDamage	= 0.f;
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 	m_StopAdvanceTimeFuture		= false;
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11007,6 +11011,14 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			}
 	#endif //SERV_9TH_NEW_CHARACTER
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+			/// June 320462a0 @32049a78..32049a9e: random mission event 3 ( RME_HITTED ), the hits taken while it runs ( after the DP-by-damage call 31fdcb70 )
+			if( true == CX2RandomMissionManager::GetInstance()->IsRunningEvent( CX2RandomMission::RME_HITTED ) )
+			{
+				++m_iJuneMissionHitCount;
+				CX2RandomMissionManager::GetInstance()->AddEvent( m_iJuneMissionHitCount );
+			}
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 			float fOldHP = GetNowHp();
 
 //#ifdef PVP_BOSS_COMBAT_TEST

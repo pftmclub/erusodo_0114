@@ -4721,3 +4721,13 @@
 //              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
 #define SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 //////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase RM1 ( the random dungeon mission ), client flag ( offline only ). Also defined in
+//              KTDXLIB/Always.h; this second home exists because EventID_Client.h and ClientPacket.h
+//              ( KEGS_JUNE_RANDOM_MISSION_NOT ) are compiled before Always.h is reachable
+//              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
+#define SERV_IRUHADEV_JUNE_RANDOM_MISSION
+//////////////////////////////////////////////////////////////////////////

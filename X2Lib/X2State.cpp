@@ -3019,6 +3019,12 @@ bool CX2State::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		{
 			return Handler_EGS_GAME_START_TIME_COUNT_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	case EGS_JUNE_RANDOM_MISSION_NOT:
+		{
+			return Handler_EGS_JUNE_RANDOM_MISSION_NOT( hWnd, uMsg, wParam, lParam );
+		} break;
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 	case EGS_UPDATE_PARTY_MEMBER_STATUS_NOT:
 		{
@@ -12375,6 +12381,10 @@ bool CX2State::Handler_EGS_GAME_START_TIME_COUNT_NOT( HWND hWnd, UINT uMsg, WPAR
 	{
 	case 3:
 		{
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+			/// June 31f06e60 @31f06ebf..31f06ec6: the countdown's first second clears the random mission
+			CX2RandomMissionManager::GetInstance()->Reset();
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 			SAFE_DELETE_DIALOG( m_pDlgGameStartCount );
 			m_pDlgGameStartCount = new CKTDGUIDialog( this, L"DLG_DUNGEON_GAME_START_COUNT.lua" );
 			g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDlgGameStartCount );

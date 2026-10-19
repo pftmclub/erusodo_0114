@@ -1576,6 +1576,12 @@ void ShowTimerAlarm( int iIndex, float fValue_ );
 
 		virtual bool			Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_REQ( UidType unitUID, bool bAllowUseCash = false );
 		virtual	bool			Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK( KEGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK& kEGS_RESURRECT_TO_CONTINUE_DUNGEON_ACK );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		/// June quest system RM1: the dev-console cheats 322f0db0 / 322f0e00 / 322f0e30 ( X2RandomMission.cpp ), Lua Slash_rm / Slash_rmexp / Slash_rmbuff
+		void			SendRandomMissionCheat( int iA_, int iB_, int iC_ );
+		void			SendRandomMissionRewardEXPCheat( int iValue_ );
+		void			SendRandomMissionRewardBuffCheat( int iValue_ );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		virtual	bool			Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_NOT( KEGS_RESURRECT_TO_CONTINUE_DUNGEON_NOT& kEGS_RESURRECT_TO_CONTINUE_DUNGEON_NOT );
 
 		void					SetShowSmallGageAndNameForAllGameUnit( const bool bShow_ );

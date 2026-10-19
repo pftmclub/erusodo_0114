@@ -982,6 +982,11 @@ bool CX2UIQuickSlot::Handler_EGS_USE_QUICK_SLOT_ACK( HWND hWnd, UINT uMsg, WPARA
 			}
 #endif COOLTIME_SHARE_GROUP_ITEM
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+			/// June 32952930 @32952c0f..32952c2a: random mission event 7 ( RME_QUICK_SLOT ), one per quick slot use
+			if( true == CX2RandomMissionManager::GetInstance()->IsRunningEvent( CX2RandomMission::RME_QUICK_SLOT ) )
+				CX2RandomMissionManager::GetInstance()->AddEvent( 1 );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 			switch ( g_pMain->GetNowStateID() )
 			{
 			case CX2Main::XS_VILLAGE_MAP:

@@ -1226,6 +1226,14 @@ private:
 	bool Handler_EGS_GIVE_UP_QUEST_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 	bool Handler_EGS_GATHER_GIVE_UP_QUEST_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 	bool Handler_EGS_EQUIP_TITLE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June quest system RM1 ( Handlers_Quest.cpp ): the random mission. DORMANT - nothing here sends a mission on its own; only the
+	/// dev-console cheat ( 0x495 ) does, and 0x496 / 0x497 are June's two reward cheats.
+	bool Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 	/// Make sure the quest and title state belongs to the character this
 	/// session has selected, and hand back its row. Returns false when there is

@@ -4200,6 +4200,14 @@ void CX2UIManager::SetShowUI(bool bVal, bool bForce/* = false*/)
 	SetShowQucikQuest(m_bShowUI);
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	SetShowPlayGuide(m_bShowUI);
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June 32154820 @32154b71..32154b92: with a mission past nothing ( state 1-4 ) its UI byte follows this show flag
+	if( true == CX2RandomMissionManager::GetInstance()->IsActiveState() )
+	{
+		CX2RandomMissionManager::GetInstance()->SetShowUIByte( m_bShowUI );
+		CX2RandomMissionManager::GetInstance()->RefreshUI();
+	}
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 #ifdef FIELD_BOSS_RAID
 	if( false == g_pData->GetBattleFieldManager().GetIsBossRaidCurrentField() )

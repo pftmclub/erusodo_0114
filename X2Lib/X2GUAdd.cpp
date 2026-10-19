@@ -2684,6 +2684,10 @@ void CX2GUAdd::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pS
 
 		if( false == IsSamef( -1.f, fResultCoolTime ))
 			accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet_->m_eID, fResultCoolTime );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		/// June 32a07dc0 @32a07f98: random mission events 10-12, the skill-use hook 31fcd3d0 ( March has no 3235a710 port here: after the cool time )
+		CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet_->m_eID );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 		if( false == SpecialAttackNoStageChange( pSkillTemplet_ ) )
 		{

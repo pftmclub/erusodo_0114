@@ -1548,6 +1548,10 @@ public:
 
 		int							GetDamageCount(){ return m_nDamageCount; }
 		void						SetDamageCount( int nCount ) { m_nDamageCount = nCount; }
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		float						GetJuneMissionBossDamage() const { return m_fJuneMissionBossDamage; }	/// June user +0x8850
+		void						SetJuneMissionBossDamage( float fDamage_ ) { m_fJuneMissionBossDamage = fDamage_; }
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		virtual void				AttackResult();
 		virtual void				AttackResultStateChange( int damageRevenge );
 		
@@ -4267,6 +4271,10 @@ public:
 
 		int												m_nDamageCount;		/// 피격획수
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		int												m_iJuneMissionHitCount;		/// June user +0x884c: hits taken while the random mission's event 3 runs
+		float											m_fJuneMissionBossDamage;	/// June user +0x8850: this unit's total damage to the boss, event 2
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 		bool											m_StopAdvanceTimeFuture;
 #ifndef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 		int												m_AdvanceTimeCount;		/// 사용안함 1이외의 값을 셋팅하는 곳이 없음

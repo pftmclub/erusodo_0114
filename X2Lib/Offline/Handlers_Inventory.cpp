@@ -3713,6 +3713,14 @@ bool CX2OfflineBuff::CheckUseItem( UidType nUnitUID, int iItemID, __int64 iTempC
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+bool CX2OfflineBuff::ActivateBuffByCheat( UidType nUnitUID, int iBuffID )
+{
+	EnsureLoaded();
+	return ActivateBuff( nUnitUID, iBuffID, _time64( NULL ) );
+}
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+
 bool CX2OfflineBuff::ActivateItemBuff( UidType nUnitUID, int iItemID, int iNumItemBuffFactor )
 {
 	int iBuffID = 0;

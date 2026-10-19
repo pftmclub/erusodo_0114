@@ -1201,4 +1201,138 @@ void CX2OfflineServer::QuestOnInventoryChanged( KOfflineSession& kSes )
 	PushMissionUpdate( kSes, vecNewMission, vecMissionChanged, vecNewTitle );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+//////////////////////////////////////////////////////////////////////////
+// June quest system Phase RM1 - the random dungeon mission ( log [JUNE_QUEST] RM ).
+//
+// DORMANT ( user, 2026-10-19 ): June's server owned every value of the push 0x492 ( id, type, goal, time limit, description,
+// reward ) and no June Lua defines a mission, so nothing here ever sends one on its own. The one route in is June's own dev
+// cheat, Slash_rm( a, b, c ) -> 0x495, answered by the labelled stand-in below.
+//////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+	/// STAND-IN ( not June's server ): the description string of each event type, from June's own General.ess
+	/// ( 30677-30689 ). Type 1 and 2 are the "keep attacking" and "boss damage" lines, 4 is the door line, 9 the MP line, 10-12
+	/// the "use [type] skills" line ( its first argument is the skill type's name, filled in by the client ).
+	int JuneRandomMissionDescStrID( int iEventType )
+	{
+		switch( iEventType )
+		{
+		case 1:		return 30677;
+		case 2:		return 30678;
+		case 3:		return 30679;
+		case 4:		return 30680;
+		case 5:		return 30681;
+		case 6:		return 30682;
+		case 7:		return 30683;
+		case 8:		return 30684;
+		case 9:		return 30686;
+		case 10:
+		case 11:
+		case 12:	return 30688;
+		}
+		return -1;
+	}
+
+	/// STAND-IN ( user, 2026-10-19 ): every cheat mission carries +10% clear EXP in its reward word so the reward text and
+	/// the tooltip can be seen. The buff word stays 0 ( no June buff is known for a mission ).
+	const int JUNE_RANDOM_MISSION_STANDIN_EXP_RATE = 10;
+}
+
+/// 0x493 ( 32676870 ): the client reports a finished mission. June's server paid the reward here; this one does not.
+bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_JUNE_RANDOM_MISSION_COMPLETE_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu complete request: mission %d - June's server paid the reward ( clear EXP rate, buff ) here; this emulator pays nothing",
+		kReq.m_iMissionID );
+
+	// The ACK the client waits 10 s for ( 324c94d0 deletes the wait entry and checks the OK word ).
+	KEGS_JUNE_RANDOM_MISSION_COMPLETE_ACK kAck;
+	kAck.m_iOK = NetError::NET_OK;
+	return Reply( kSes, EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK, kAck );
+}
+
+/// 0x495 ( 322f0db0 ): Slash_rm( a, b, c ). STAND-IN reading ( user, 2026-10-19 ): a = event type 1-12, b = goal, c = time limit in
+/// seconds ( 0 = none ). The mission id counts up from 1; the description comes from the table above; the reward word is +10% EXP.
+bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_JUNE_RANDOM_MISSION_CHEAT_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	const int iDescStrID = JuneRandomMissionDescStrID( kReq.m_iA );
+	if( iDescStrID < 0 || kReq.m_iB < 1 )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu cheat refused: a = %d ( event type, 1-12 ), b = %d ( goal, 1 or more ), c = %d ( seconds )",
+			kReq.m_iA, kReq.m_iB, kReq.m_iC );
+		return true;
+	}
+
+	static int s_iNextMissionID = 1;
+
+	KEGS_JUNE_RANDOM_MISSION_NOT kNot;
+	kNot.m_iMissionID		= s_iNextMissionID++;
+	kNot.m_iEventType		= kReq.m_iA;
+	kNot.m_iGoal			= kReq.m_iB;
+	kNot.m_iSeconds			= ( kReq.m_iC > 0 ) ? kReq.m_iC : 0;
+	kNot.m_iDescStrID		= iDescStrID;
+	kNot.m_iRewardExpRate	= JUNE_RANDOM_MISSION_STANDIN_EXP_RATE;
+	kNot.m_iRewardBuffID	= 0;
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu cheat ( stand-in reading ): mission %d type %d goal %d seconds %d desc STR %d reward +%d%% EXP",
+		kNot.m_iMissionID, kNot.m_iEventType, kNot.m_iGoal, kNot.m_iSeconds, kNot.m_iDescStrID, kNot.m_iRewardExpRate );
+
+	return Reply( kSes, EGS_JUNE_RANDOM_MISSION_NOT, kNot );
+}
+
+/// 0x496 ( 322f0e00 ): Slash_rmexp( n ) - n EXP to the character, through the same path every other EXP grant uses.
+bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	if( 0 == kSes.m_nSelectedUnitUID || kReq.m_iValue <= 0 )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu EXP cheat refused: n = %d, unit %I64d", kReq.m_iValue, (__int64)kSes.m_nSelectedUnitUID );
+		return true;
+	}
+
+	int iOldLevel = 0;
+	const int iNewLevel = ApplyDungeonReward( kSes.m_nSelectedUnitUID, kReq.m_iValue, 0, &iOldLevel );
+	PushUnitInfoUpdate( kSes, kSes.m_nSelectedUnitUID );
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu EXP cheat: +%d EXP, level %d -> %d", kReq.m_iValue, iOldLevel, iNewLevel );
+	return true;
+}
+
+/// 0x497 ( 322f0e30 ): Slash_rmbuff( n ) - buff n through the emulator's buff path ( CX2OfflineBuff, BuffTemplet.lua ).
+bool CX2OfflineServer::Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	if( 0 == kSes.m_nSelectedUnitUID || kReq.m_iValue <= 0 )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu buff cheat refused: n = %d, unit %I64d", kReq.m_iValue, (__int64)kSes.m_nSelectedUnitUID );
+		return true;
+	}
+
+	const bool bActivated = CX2OfflineBuff::Instance()->ActivateBuffByCheat( kSes.m_nSelectedUnitUID, kReq.m_iValue );
+	CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu buff cheat: buff %d %s", kReq.m_iValue, bActivated ? L"activated" : L"not activated ( see the BUFF line above )" );
+	if( true == bActivated )
+		SendUpdateBuffInfo( kSes );
+#else SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	CX2OfflineLog::Server( L"[JUNE_QUEST] RM emu buff cheat: buff %d ignored - the emulator's buff module is off", kReq.m_iValue );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+
 #endif SERV_IRUHADEV_OFFLINE

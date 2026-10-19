@@ -1338,6 +1338,24 @@ at a time. In a dungeon the tab refuses with "Cannot be used here.".
 
 **Done gate:** a mission set by the cheat or by the stand-in counts its event, completes, and shows the UI.
 
+### RM1 - Done (2026-10-19)
+
+Built and deployed; play-test owed. Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION` (`Always.h` + `ServerDefine.h`), log `[JUNE_QUEST] RM`. Revert steps: `MODS.md`.
+- **Client, whole.** New `X2RandomMission.h/.cpp`: the manager (states 0-4, 5 s popup timer, the two UI bytes) and the mission (all of `rm0_map.tsv`'s mission, UI and fade rows). Two dialogs from June's Lua. Raise sites: events 1 (combo), 2 (boss damage, both copies), 3 (hits), 4 (gates), 6 (sub-stage), 7 (quick slot), 8 (resurrect), 9 (MP), 10-12 (skill hook in nine class files). Life cycle: start, tick, end, three resets, `SetShowUI`, Tab.
+- **Read in Ghidra (RM0's open items).**
+  - Sub-stage `+0x4` = `m_SubStageIndex`; the boss test `+0x2c` is `m_bIsBossStage` (ctor `327f09e5`), not "done clearing".
+  - Tab: DIK 0xF without Alt (0x38), after `ToggleUserShowQuickQuestDLG` (`323ddfe0`); the toggle byte = the quick-quest flag `m_bUserShowQuickQuestDLG`.
+  - Event 4's test (vslot `0x298`, `327559d0`) is class type 100 = `NCT_THING_GATE`: "break the door", string 30680. Not a bug.
+  - Event 9: base gage `322b33d0` (arg 3 == 1 skips everything; arg 2 == 1 gates the stats and the event) and Rose / Ain / Luciel carry the same arg-2 gate.
+- **`0x494` has a handler** (`324c94d0`, in `CX2StateDungeonGame`'s dispatcher `324dbc20`): it clears the wait entry and checks OK. RM0 missed it.
+- **Emulator (dormant, labelled stand-in; user, 2026-10-19).** `Slash_rm( a, b, c )` -> 0x495: a = event type 1-12, b = goal, c = seconds (0 = none), id counts from 1, description from June's General.ess (30677-30688), reward word +10% EXP (user chose the visible stand-in), buff word 0. 0x493 is logged ("June's server paid the reward; nothing is paid here") and answered with the 0x494 ACK. 0x496 -> EXP through `ApplyDungeonReward`; 0x497 -> `CX2OfflineBuff::ActivateBuffByCheat` + `SendUpdateBuffInfo`.
+- **Deviations from June (March has no counterpart).** Event 9 counts every negative `UpNowMp` of my own gage (no a2 / a3 flags). The popup fade-in starts by `SetColor` alpha 0, because March's `Move` ignores a zero time. Rows `JUNE_BUGS` 368-370 (accumulator -1.0, countdown after success, "Mission Success" tooltip on a running mission).
+- **Out of scope (no March class):** the skill-use hooks of Ain (`32a59b20`), Rose (`32ac7fa0`) and Luciel (`32b1eef0`, `32b3acf0`), and the gage slot 3 of Rose / Ain / Luciel (event 9). Left as is; they belong to the character ports (checklist 7).
+- **Data.** data034 + `DLG_UI_Random_Mission(_PopUp).lua`; data057 + `DLG_UI_Common_Texture83_NEW` / `84_NEW` `.tga/.TET`; data036 `GameEditCommandList.lua` = June's (March's had none of the 119 newer Slash functions; backup in `kom_backup_stage_june`). `DLG_Room_Button0` is already identical to June's. Packed: `PACK OK` data034, data036, data057. **`/x2-kom-packed copy` is owed (ask first, game closed).**
+- **Hygiene** (`flagcheck JUNE_RANDOM_MISSION --worktree`): `files: 28 PASS, 5 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags: Always.h neighbours, X2Game.cpp STORY_PLAYER), 2 FAIL` - the 2 FAIL are the new files' `#include "StdAfx.h"` / `#pragma once`. `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,504,768 B, dated 2026-10-19 21:27:29, md5 2a7336901851f465dd7eca7624dedbd1, equal to X2/US_SERVICE/x2.exe` (built at main fd56d901 + the then-uncommitted tree). Evidence rows: funcmap `(Quest RM1)`.
+- **Play-test hand-off** is in the chat reply of the session that ran RM1 (auth level 3, console `Slash_rm 1 5 60`). Review: `kickoffs/quest-system/RM1-review.md`.
+
 ## Phase Q10 - Story book (QT_STORY)
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_STORY`. Sub-tag `STORY`. Added by Q3 (2026-10-19): no earlier phase owned it.

@@ -1721,6 +1721,10 @@ bool CX2StateDungeonGame::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 		case DGUCM_AGREE_ENTER_GATE_OF_DARKNESS:		/// 어둠의 문 입장 동의
 			{
 				Sned_Handler_EGS_ENTER_DEFENCE_DUNGEON_POPUP_REPLY_NOT( true );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+				/// June 324d8f70 @324d92ba: agreeing to enter the Gate of Darkness clears the mission
+				CX2RandomMissionManager::GetInstance()->Reset();
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 			} break;
 
 		case DGUCM_NOT_AGREE_ENTER_GATE_OF_DARKNESS:	/// 어둠의 문 입장 거부
@@ -1808,6 +1812,12 @@ bool CX2StateDungeonGame::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 	case EGS_END_GAME_ACK:
 		return Handler_EGS_END_GAME_ACK( hWnd, uMsg, wParam, lParam );
 		break;
+
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	case EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK:
+		return Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK( hWnd, uMsg, wParam, lParam );
+		break;
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 	case EGS_STATE_CHANGE_RESULT_ACK:
 		return StateChangeResultAck( hWnd, uMsg, wParam, lParam );
@@ -2569,6 +2579,11 @@ bool CX2StateDungeonGame::Handler_EGS_END_GAME_ACK( HWND hWnd, UINT uMsg, WPARAM
 	}				
 	//	g_pX2Room->Set_KRoomSlotInfoList( kEvent.m_vecSlot, false );
 	m_pDungeonGame->Handler_EGS_END_GAME_NOT( kEvent );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	/// June 324db0f0 @324db1ac..324db1c4: a running mission is judged when the dungeon ends
+	if( CX2RandomMissionManager::MS_RUNNING == CX2RandomMissionManager::GetInstance()->GetState() )
+		CX2RandomMissionManager::GetInstance()->OnDungeonEnd();
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 #ifdef SERV_DUNGEON_FORCED_EXIT_SYSTEM
 	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
@@ -4929,6 +4944,14 @@ bool CX2StateDungeonGame::ShortCutKeyProcess()
 		g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_LALT) != TRUE )
 	{
 		g_pData->GetUIManager()->GetUIQuestNew()->ToggleUserShowQuickQuestDLG();
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		/// June 324d2e20 @324d3e02..324d3e34: with a mission in state 1-4 its toggle byte follows the quick-quest window
+		if( true == CX2RandomMissionManager::GetInstance()->IsActiveState() )
+		{
+			CX2RandomMissionManager::GetInstance()->SetToggleByte( g_pData->GetUIManager()->GetUIQuestNew()->m_bUserShowQuickQuestDLG );
+			CX2RandomMissionManager::GetInstance()->RefreshUI();
+		}
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	}
 
 	return false;

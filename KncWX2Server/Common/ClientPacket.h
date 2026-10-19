@@ -5553,6 +5553,67 @@ DECL_PACKET( EGS_JUNE_DEACTIVE_SKILL_MEMO_ACK )
 };
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+// June quest system RM1: the random dungeon mission. The push 0x492 ( reader 31f312d0 / 320db120 / 320d6b20 ): an inner 0x38-byte
+// record { id, type, goal, seconds, the description's string id, a float, two sets of int } and two ints after it ( the reward words ).
+DECL_PACKET( EGS_JUNE_RANDOM_MISSION_NOT )
+{
+	int								m_iMissionID;			// +0
+	int								m_iEventType;			// +4, 1-12
+	int								m_iGoal;				// +8
+	int								m_iSeconds;				// +0xc, the time limit
+	int								m_iDescStrID;			// +0x10, the description's General.ess id
+	float							m_fJuneUnread14;		// read, not kept by 326798b0
+	std::set< int >					m_setJuneUnread18;		// read, not kept
+	std::set< int >					m_setJuneUnread28;		// read, not kept
+	int								m_iRewardExpRate;		// +0x38 -> mission +0x20 ( read from the UI text: the EXP rate )
+	int								m_iRewardBuffID;		// +0x3c -> mission +0x1c ( read from the UI text: the buff )
+
+	KEGS_JUNE_RANDOM_MISSION_NOT() : m_iMissionID( -1 ), m_iEventType( 0 ), m_iGoal( -1 ), m_iSeconds( 0 ), m_iDescStrID( -1 ), m_fJuneUnread14( 0.f ), m_iRewardExpRate( 0 ), m_iRewardBuffID( 0 ) {}
+};
+
+// REQ 0x493 ( 32676870 ): the mission id.
+DECL_PACKET( EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ )
+{
+	int								m_iMissionID;
+
+	KEGS_JUNE_RANDOM_MISSION_COMPLETE_REQ() : m_iMissionID( -1 ) {}
+};
+
+// ACK 0x494 ( handler 324c94d0, reader 324dd9a0 / 3209b600 ): OK @0 and an int @4 the handler does not read.
+DECL_PACKET( EGS_JUNE_RANDOM_MISSION_COMPLETE_ACK )
+{
+	int								m_iOK;
+	int								m_iJuneUnread04;
+
+	KEGS_JUNE_RANDOM_MISSION_COMPLETE_ACK() : m_iOK( 0 ), m_iJuneUnread04( 0 ) {}
+};
+
+// The cheat REQs of g_pX2Game:SendRandomMissionCheat / ...RewardEXPCheat / ...RewardBuffCheat ( 322f0db0 / 322f0e00 / 322f0e30 ).
+DECL_PACKET( EGS_JUNE_RANDOM_MISSION_CHEAT_REQ )
+{
+	int								m_iA;
+	int								m_iB;
+	int								m_iC;
+
+	KEGS_JUNE_RANDOM_MISSION_CHEAT_REQ() : m_iA( 0 ), m_iB( 0 ), m_iC( 0 ) {}
+};
+
+DECL_PACKET( EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ )
+{
+	int								m_iValue;
+
+	KEGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ() : m_iValue( 0 ) {}
+};
+
+DECL_PACKET( EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ )
+{
+	int								m_iValue;
+
+	KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ() : m_iValue( 0 ) {}
+};
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+
 
 //////////////////////////////////////////////////////////////////////////
 //{{ 2009. 6. 3  최육사		확성기

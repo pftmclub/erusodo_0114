@@ -699,6 +699,12 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 	case EGS_GIVE_UP_QUEST_REQ:				return Handler_EGS_GIVE_UP_QUEST_REQ( kSes, kEvent );
 	case EGS_GATHER_GIVE_UP_QUEST_REQ:		return Handler_EGS_GATHER_GIVE_UP_QUEST_REQ( kSes, kEvent );
 	case EGS_EQUIP_TITLE_REQ:				return Handler_EGS_EQUIP_TITLE_REQ( kSes, kEvent );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	case EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ:			return Handler_EGS_JUNE_RANDOM_MISSION_COMPLETE_REQ( kSes, kEvent );
+	case EGS_JUNE_RANDOM_MISSION_CHEAT_REQ:				return Handler_EGS_JUNE_RANDOM_MISSION_CHEAT_REQ( kSes, kEvent );
+	case EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ:	return Handler_EGS_JUNE_RANDOM_MISSION_REWARD_EXP_CHEAT_REQ( kSes, kEvent );
+	case EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ:	return Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( kSes, kEvent );
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 	//////////////////////////////////////////////////////////////////////////
 	// the skill tree - Handlers_Skill.cpp
