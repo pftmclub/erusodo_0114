@@ -24,8 +24,11 @@ Do "Phase CH0" items 1-7. Ghidra is read-only. You are on Opus, so hand the mech
 addresses you already know, and the `charport_keys.py` script once you have specified it. Keep the June-vs-March verdicts and the phase
 assignment for yourself.
 
-- Write the outputs to `june2017_re/char_arme/` (`ch0_class_map.tsv`, `ch0_state_skill.tsv`, `ch0_checklist_rows.tsv`, `ch0_assets.tsv`) and
-  `june2017_re/charport_keys.py`. Add funcmap rows tagged `Char CH0`.
+- Write the outputs to `june2017_re/char_arme/` (`ch0_class_map.tsv`, `ch0_state_skill.tsv`, `ch0_checklist_rows.tsv`, `ch0_assets.tsv`,
+  `ch0_effect_closure.tsv`) and `june2017_re/charport_keys.py`. Add funcmap rows tagged `Char CH0`.
+- The effect closure (item 5b) is a requirement from the user: every particle, mesh-player entry, texture, mesh and sound Aisha's June states
+  reach, including run-time-built names. Make the closure walker reusable, because Stage 7 runs it for every character.
+- Third jobs (`UC_150`-`UC_186`) are out of scope: skip them.
 - Write the Done note under the phase (at most ~60 lines; the tables live in the tsvs).
 - Amend `kickoffs/pilot-char-revamp/CH1.md`-`CH5.md`: each has an "Amended by CH0" section; fill it with the tsv filter, the addresses and
   any split you made (e.g. CH2a / CH2b, with new kickoff files and STATUS rows).

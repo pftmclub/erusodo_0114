@@ -121,6 +121,10 @@ These were measured on 2026-10-03. Re-verify any of them before building on it.
    - later paths for existing characters: Ara, Elesis, Add, Aisha, Chung, Eve and Rena;
    - a few `UC_150..183` entries that appear only as numbers.
 
+   *Scope (user, 2026-10-20): third jobs are out.* The port targets what June 2017 ships, up to transcendence: the revamps, the June class lines
+   of March characters (Ara 34 / 124, Elesis 35 / 125, Add 33 / 36 / 123 / 126) and the new characters. The `UC_150`-`UC_186` block holds the
+   third-job names, e.g. Aisha 153-155 and Eve 162-164. It is enum names plus one placeholder `UnitTemplet` row (`UC_150`), and no stage ports it.
+
    **The "new base model" claim is not verified.** Stage 2 measures it.
    - *Measured 2026-10-16 (Stage 2 planning, `JUNE_ENGINE_REMAINDER_PHASES.md` M3):* **no new base model** for any of the 9 March characters. Motion file names, frame counts and bone parent maps are unchanged; June adds animation sets (e.g. Elsword 235 -> 300) and new job motion files (Ara 2, Elesis 2, Add 4). Lu/Ciel, Rose and Ain are June-only in every bucket. Stages 5 and 7 need no skeleton work; Stage 8 is data plus new unit types.
 7. **Shaders.**
@@ -302,7 +306,7 @@ kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revam
 - **Phases:** CH0 map, CH1 script + motions + class core, CH2 / CH3 skills by job tier, CH4 passives + memorize, CH5 `UnitTemplet` + cut-ins + UI pieces, CH6 walk, Z.
 - **Gap scan** (`charport_scan.py`, attacks whose damage is numerical-only): Aisha 1, Eve 3, Rena 12, Ara 14, Chung 15, Elsword 20, Elesis 20, Raven 25. Add's March kit is a skeleton.
 - **Model diff (M3):** no new Aisha motion file, no renamed animation.
-- **The class-path step is not exercised.** Aisha has no June-only class path: `UC_ARME_*` 153-155 have no June `UnitTemplet` row. That step is
+- **The class-path step is not exercised.** All seven of Aisha's June classes are in March already, and third jobs are out of scope (below). That step is
   written as the template block CH-N, and Ara, Elesis or Add runs it first in Stage 7.
 - **Stat rows:** every Aisha class already has rows 1-99.
 - **`ADD_RENA_SYSTEM`:** waits for Rena in Stage 7.

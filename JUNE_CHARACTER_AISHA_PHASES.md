@@ -25,11 +25,15 @@ Aisha also scores well on the other measures:
 
 The user chose her over Ara, the smallest character that would exercise every template step.
 
-**What Aisha does not exercise: a June-only later class path.** June's `Enum.lua` names `UC_ARME_AETHER_SAGE` 153, `_OZ_SORCERER` 154 and
-`_METAMORPHY` 155, but June's own `UnitTemplet.lua` has no row for them (it has rows for only `UC_150` in the 150-186 block). In June 2017 they
-are enum placeholders, not a playable path. So this plan's class-path phase (CH-N, below) is written as a template block and marked
-**not run for Aisha**. Its first real run is the first Stage 7 character that has one: Ara (34 Little Specter, 124 Asura), Elesis (35, 125)
-or Add (33, 36, 123, 126).
+**Scope: what June 2017 ships, up to transcendence (user, 2026-10-20).** That means the character revamps, the class lines June has for March
+characters, the new characters and transcendence. **Third jobs are out.** June's `UC_150`-`UC_186` block is never ported by any phase of this
+plan or of Stage 7. It includes Aisha's `UC_ARME_AETHER_SAGE` 153, `_OZ_SORCERER` 154 and `_METAMORPHY` 155, which are enum names only, and the
+one placeholder `UnitTemplet` row, `UC_150`. A June table that carries such a row is still adopted whole (the same-name rule). The row stays
+inert, and the reader only has to survive it.
+
+**What Aisha does not exercise: a June-only class line.** All seven of Aisha's June classes already exist in March. So this plan's class-line
+phase (CH-N, below) is written as a template block and marked **not run for Aisha**. Its first real run is the first Stage 7 character that has
+one: Ara (34 Little Specter, 124 Asura), Elesis (35 Dark Knight, 125 Crimson Avenger) or Add (33, 36, 123, 126).
 
 **The state she starts from.**
 - **Skill system (Stage 3, closed 2026-10-19).** Every save is on June's skill trees (schema v17-v19), and June's `NewSkillTempletVer2.lua` ships.
@@ -71,6 +75,14 @@ or Add (33, 36, 123, 126).
   - `Enum.lua` is core source: edit it as text and run `luasrc.py refresh`.
 - **Assets.** June's same-name files replace March's, byte-exact, through `kom.py stage-june` (motions, meshes, textures, `.gfx` cut-ins).
   Pack them yourself; ask before every `/x2-kom-packed copy`.
+- **Effects and particles come with the skill (user, 2026-10-20).** Each phase that ports a state also brings in that state's whole effect
+  closure (CH0 item 5b). That closure covers:
+  - every damage-effect and effect-set templet it names;
+  - the particle sequences and mesh-player entries those templets play;
+  - the textures, meshes and sounds behind them.
+
+  Do not wait for the asset-port plan (Stage 15, not started). Its waves later carry the same bytes, so nothing collides. Names built at run
+  time (string concatenation in C++ or Lua) are part of the closure ([[lanox-fix-effect-data-closure]]).
 - **CP949.** `X2GUArme_VioletMage.*` and most `X2Lib` sources are CP949: edit them with `bytepatch.py` only.
 - **Damage numbers.** June's numerical scale differs from March's (checklist §1). Record both values in `MODS.md` for every Aisha skill whose
   damage changes.
@@ -172,17 +184,32 @@ CH0 runs now, alongside anything (read-only). CH3 and CH4 both edit `X2GUArme_Vi
      `Ain_Arme_Thaumaturgy` (Stage 8); boss / shadow / event NPC scripts (whichever plan already adopted June's NPC Lua: check the ledger
      and `adopt-june` records).
    - Output: `ch0_assets.tsv` (file, kom, June size, March size, owner, phase).
+
+   5b. **Effect and particle closure, per state.** Walk out from each of Aisha's 313 June states and her C++ functions:
+   - **Templets.** The `DamageEffect` / `EffectSet` templet names they use, including names built at run time.
+   - **What each templet plays.** Particle sequences, mesh-player entries (`.txt` definitions) and damage effects.
+   - **The files behind them.** Every texture (`.dds` / `.tga`), mesh (`.x` / `.X`), animation and sound.
+
+   For each name, record two things:
+   - whether March has it today, and as June's bytes or March's;
+   - which June kom it comes from.
+
+   Output: `ch0_effect_closure.tsv` (state, kind, name, March status, June kom, phase), with a count of missing / March-copy / already-June.
+
+   Also find out where June's particle and mesh-player `.txt` definitions stand in March today: June's, merged, or March's (the effect plan's
+   Phase 10 ported the keys; the asset-port plan leaves `.txt` with the effect plan). If Aisha's definitions are still March's, the
+   definitions her states need become CH1-CH3 items.
 6. **Shared data decisions** (write them down; ask the user only for real choices):
    - **June's `UnitTemplet.lua`.** It is March bytecode now; June's adds `m_HyperCutIn` / `m_BerserkCutIn` / `_Trans` keys and rows for classes
-     March's C++ lacks (Lu/Ciel, Rose, Ain, `UC_150`). Say what March's reader does with each (a nil class from `UNIT_CLASS.UC_150`, unknown keys)
-     and whether CH5 adopts it whole (the same-name rule) with a reader fix.
+     March's C++ lacks (Lu/Ciel, Rose, Ain, and the third-job placeholder `UC_150`, out of scope). Say what March's reader does with each (a nil
+     class from `UNIT_CLASS.UC_150`, unknown keys) and whether CH5 adopts it whole (the same-name rule) with a reader fix that keeps those rows inert.
    - **The class enum.** Which `RNSI_*` Aisha names the C++ `SKILL_ID` enum needs (values from June's `Enum.lua`), and whether any are absent
      from the core `Enum.lua`.
    - **The slot-5 gap.** `X2GUUser.cpp:25500-25510` returns slot data for `oneSkill5` / `oneSkillEx5` without setting `iSkillSlotIndexPressed_`.
      Confirm it is Stage 6's (TC slot, refused today), or a CH1 item if June sets it there.
 7. **Amend the kickoffs.** Rewrite CH1-CH5's "Amended by CH0" sections with the tsv filters, addresses and splits.
 
-**Done gate:** the five tsvs exist; every Aisha checklist row has a phase or an n/a reason; `ch0_state_skill.tsv` covers 313 / 313 states and
+**Done gate:** the six tsvs exist (with `ch0_effect_closure.tsv`); every Aisha checklist row has a phase or an n/a reason; `ch0_state_skill.tsv` covers 313 / 313 states and
 130 / 130 skill ids; the CH1-CH5 kickoffs are amended; funcmap rows written; open questions listed for the user.
 
 ## Phase CH1 - Deploy unit: June script, motions and the class core
@@ -192,8 +219,9 @@ if CH0 splits it). Sub-tags `CORE`, `DATA`.
 
 **Scope** (CH0's `ch1` rows decide the detail):
 - **Data in one unit.** Adopt June's `Arme_VioletMage.lua` (`adopt-june`, bytecode unless an edit is needed). Adopt her skill NPC / summon
-  scripts that CH0 marked CH1. Stage June's `Motion_Arme*` (data200 -> March's placement via `kom.py stage-june`) and the effect assets the
-  script loads. Pack them, then ask before the copy.
+  scripts that CH0 marked CH1. Stage June's `Motion_Arme*` (data200 -> March's placement via `kom.py stage-june`), the script's
+  `INIT_DEVICE` assets, and the effect closure of the common states (`ch0_effect_closure.tsv`, phase `ch1`: particles, mesh-player
+  entries, textures, meshes, sounds). Pack them, then ask before the copy.
 - **Class core.** June's state registration and `InitState` order; the common states (wait, walk, dash, jump, combos, dash combos, damage,
   bounding, win / lose, the job start / win / lose blocks) as June has them; the class `CommonSpecialAttackEventProcess` decode, converted to
   June's pressed-index space with every `> 3` / `- 4` site together (7ag; Aisha `:5232-5257`, `:5072`).
@@ -217,6 +245,8 @@ user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH0 may split by job)
 - add its case in `SetEquippedSkillFuncBySkillSlotIndex`, with June's state functions whole;
 - carry the checklist rows attached to that skill: 7b (the `32cccc70` block + D8 swap), 7c alpha-tag calls, 7u effect-name swaps, 7ai BFI
   arguments, 7ac (Hell Drop), 7p (binding circle).
+- bring in the skill's effect closure (`ch0_effect_closure.tsv`, phase `ch2`): June's particle sequences, mesh-player entries, textures,
+  meshes and sounds, staged byte-exact, packed, then copied after asking.
 - **Numerical damage, first live class:** checklist §1's gate.
   - Show `[JUNE_SKILL] NUM use ...` for an Aisha skill (`logs.py --tag JUNE_SKILL --grep NUM`).
   - Retire `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` in the same phase.
@@ -224,7 +254,8 @@ user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH0 may split by job)
 
 **Done gate:** every class-2 / 14 / 15 / 23 skill id in `s3_reform_ids_no_state.tsv` has a state (re-run the S3 census: 0 `no_state` for these
 classes, except ids CH0 marked passive / CH4 / Stage 6). In game, each skill equipped in an A or B slot casts June's state, with June's motion
-and effect, and deals damage.
+and effect, and deals damage. `ch0_effect_closure.tsv` has 0 `missing` rows for these classes, and casting them adds no missing particle /
+mesh / texture line to `ErrorLog.txt`.
 
 ## Phase CH3 - Skills: second jobs (104, 105, 113) and hyper actives
 
@@ -269,8 +300,7 @@ CH0 decides the adoption needs a reader fix) and `SERV_IRUHADEV_JUNE_CHAR_ARME_U
 ## Phase CH-N - A June-only later class path (template; not run for Aisha)
 
 Written here so Stage 7 does not rediscover it. The first character with a templet-backed June-only class runs it as its own phase. The
-candidates: Ara 34 / 124, Elesis 35 / 125, Add 33 / 36 / 123 / 126, and `UC_150` (Elsword, motions shared with SK / LK; check it first, it may
-be a placeholder).
+candidates are Ara 34 / 124, Elesis 35 / 125 and Add 33 / 36 / 123 / 126. Third jobs (`UC_150`-`UC_186`) are out of scope (Context).
 
 - **Class enum.** The C++ `UNIT_CLASS` entry, flag-gated. `Enum.lua` already has 31 June names (S3). `UNIT_CLASS` is client-side (`X2Unit.h`),
   but check every struct that carries a class for `UC_END`-sized arrays (the socket loader drops classes >= `UC_END` 124).
@@ -322,7 +352,7 @@ What differs per character, as known on 2026-10-20 (gap = June attacks whose dam
 | Rena | 12 | - | **`ADD_RENA_SYSTEM` decision** (natural force, 77 uses); 7ad renames (`Lire_*`); D8 3405 -> 23405 |
 | Ara | 14 | 34, 124 | `CUSTOM_RENDER_STATE` (7w); 2 new motion files; orb handle retirement needs the user's OK (7e) |
 | Chung | 15 | - | `ChangeMaxCharacterAddResource` already ported; 49 unnamed upgrade ids (7ae); cinematic UI (7r) |
-| Elsword | 20 | `UC_150` (verify) | `DAMAGE_SKILL_ID` x103 in `Elsword_DamageData.lua` (§2); Rune Slayer reflect (7j); S3d memo consumers |
+| Elsword | 20 | - | `DAMAGE_SKILL_ID` x103 in `Elsword_DamageData.lua` (§2); Rune Slayer reflect (7j); S3d memo consumers |
 | Elesis | 20 | 35, 125 | already on June base / SK motions (6 anims lost, accepted); first live reserved-buff path (7ai) |
 | Raven | 25 | - | 7b passive setter `+0x4108`; 7u effect names; power-rate operator (§7 l.243) |
 | Add | 0 (skeleton) | 33, 36, 123, 126 | March kit incomplete ("the user ports Add from June", l.237); `CUSTOM_RENDER_STATE`; no stat rows for 9 / 32 / 122 at all; 4 new motion files; 13 §7 rows |
