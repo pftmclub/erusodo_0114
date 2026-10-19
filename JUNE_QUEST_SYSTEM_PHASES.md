@@ -1576,6 +1576,32 @@ first runs was the data: 42730's only pictures are cut 13 / cut 17 (42720 has no
 'StoryQuest_3_1_1' key 13_0 created 1`, `layer 15 overUI 1 show 1 particles 1`, and the picture drew over the layer-100 black (user). 0 EXCEPTION, ErrorLog 0.
 COPY OK data048 (md5 4c9a4baf); the ogg in `data\music\` (md5 = June's). The `_DEBUG` flag is removed from the tree (never committed); the next build drops its lines.
 
+### Q10b - Review (2026-10-19, Opus 5.5 high): PASS with 2 fixes
+
+Ghidra (read-only) against commit `8d8f05d4`; the constants were read out of `unpacked_x2.exe` itself.
+- **Confirmed:** Start `328c3750`: the state set, the running test returning AL 1 (@328c37ae -> @328c3abb), the null-story test returning 0, the black background's 14 arguments
+  (`0, name, 0,0,0, -1,-1, -1,-1, 1.0, cull 0, latency 0, next-frame 0, layer 100`; 31cf90f0's 13th = next-frame list, 14th = layer when != -1), the village branch
+  (hides objects + sounds) / battle field (sounds only), the field resets, the saved BGM, `SetShow( 0, 5 )`, cursor 0xf, dialog show. OnFrameMove `328c41f0` (raw disasm):
+  ESC `1` / mouse `1` (RBUTTON) skip, Enter `0x1c` / mouse `0` (LBUTTON) with the text up, spread -> finish, no picture -> next cut at t >= 1.5, camera
+  `Point( 0,-5000,-1300, 0,-5000,0, 0,1,0, 0 )` (10 floats, both branches), the cut lists' offsets and one-row-a-frame vs the Scene_Delete loop, BG `next-frame 0 / layer 100`
+  vs Scene `1 / -1`, AddText's arguments (spread = cut +0xc / unsigned text length), the auto-advance max and the Static_Enter rule. AddText `328c27d0`: width rounded to
+  float before `_ftol` (FSTP / FLD), the strip, the font / Name early returns, the bounds-checked dummy pos. End `328c3ae0`: the restore order, `SetProjection( +0x110, +0x114 )`,
+  the message call `31c325d0( out, 0x9c70, "SL", GET_STRING( 40147 ) as WCHAR*, title as wstring by value )` (S = gallery, L = title, as ported), box (250, 300).
+  Constants: -1.0, -5000, -1300, 1.5, 8.0, 1.0, 675.0, 250, 300, 0.07 all equal. ACK @323e5a63 (`CMP AL,1`), Remind @323e293d..63, ready check (non-leader branch,
+  after the name, before the popup), auto-party @3243d75c, the gates 32276284 / 32e90649 match.
+- **Fix 1** (`X2SlideShotScripted.cpp`): both fades compared against `0.1`; June's 334395e8 is the double `(double)0.1f` = 0.10000000149, so the tests are now `> 0.1f`
+  (one frame apart only when a fade time lands exactly on 0.1f).
+- **Fix 2** (`X2Game.cpp`, `~CX2Game`): June ends the story at @32308817, *before* `g_pX2Game` is cleared (@32308828); the port called it after `g_pX2Game = NULL`. Moved above it.
+  No behaviour change in March: `m_pWorld` is already deleted there, so End's battle-field branch finds no world either way (as in June).
+- **Not a row:** June's PlaySound gate reads `+0x288` only when the old slide show object exists (`3227627b..80`); March always creates it, so the separate test is equal.
+- **Not carried, own scan:** every byte access `[R + 5]` within 6 instructions of `R = [X + 0xa8]`, `[X + 0x39c]` or `CALL [reg + 0x90]` in June's .text: 3 hits, all the player
+  (Start 328c3871 / 328c3882, End 328c3d10). No other reader.
+- **Hygiene.** Range `flagcheck JUNE_QUEST_STORY_PLAYER --range 8d8f05d4^..8d8f05d4`: `files: 9 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 1 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  FAIL = the expected `#include "StdAfx.h"` of the new file. Worktree (the 2 fixed files): `2 PASS`, RESULT PASS (the 5 "deleted" lines are this flag's own lines, moved / reworded).
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,505,792 B, dated 2026-10-19 22:39:16, md5 bc59b5fdcfd1ae46411f437e1ccbd64c` (main 63599d9e + the 2 fixes; a peer's
+  uncommitted `X2UIQuestNew.cpp` was built in too). No play-test needed: neither fix is visible. `kickoffs/quest-system/Q10c.md` still matches (wrapper `JuneStartStorySlideShot`).
+
 ## Phase Q10c - Story book UI
 
 **Routed to backlog Stage 9 (user, 2026-10-19).** June opens the book only from the menu-bar StoryBook button, which Stage 9 owns, so the

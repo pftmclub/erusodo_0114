@@ -209,11 +209,11 @@ void CX2SlideShotScripted::OnFrameMove( float fElapsedTime_ )
 	m_fCutTime += fElapsedTime_;
 	const int iState = g_pMain->GetNowStateID();
 
-	// the end fade: End after 0.1 s ( 334395e8 )
+	// the end fade: End after 0.1 s ( 334395e8 is the double ( double )0.1f = 0.10000000149, so the test is against 0.1f, not 0.1 )
 	if( true == m_bEnding && false == m_bStarting )
 	{
 		m_fEndFadeTime += fElapsedTime_;
-		if( m_fEndFadeTime > 0.1 )
+		if( m_fEndFadeTime > 0.1f )
 			End();
 		return;
 	}
@@ -222,7 +222,7 @@ void CX2SlideShotScripted::OnFrameMove( float fElapsedTime_ )
 	if( true == m_bStarting && false == m_bEnding )
 	{
 		m_fStartFadeTime += fElapsedTime_;
-		if( m_fStartFadeTime > 0.1 )
+		if( m_fStartFadeTime > 0.1f )		// 334395e8, as the end fade
 		{
 			if( false == m_bCameraMoved )
 			{

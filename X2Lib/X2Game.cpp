@@ -793,11 +793,12 @@ CX2Game::~CX2Game()
 
 	g_pData->GetSlideShot()->ScenEnd();
 
-	g_pX2Game	= NULL;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
-	// June CX2Game::Release 323080c0 @3230880d..32308817: right after the old slide show, the story slide show ends
+	// June CX2Game::Release 323080c0 @3230880d..32308817: right after the old slide show and before g_pX2Game is cleared ( @32308828 ),
+	// the story slide show ends ( m_pWorld is already deleted, so End's battle-field branch finds no world here, as in June )
 	g_pData->JuneEndStorySlideShot();
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	g_pX2Game	= NULL;
 
 	//RemoveAllGuideText();
 
