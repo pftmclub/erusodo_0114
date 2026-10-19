@@ -1226,6 +1226,11 @@ HRESULT CX2State::OnFrameRenderAfter()
 		if ( pDialogManager != NULL && pDialogManager->GetJuneFlaggedDialogsOnly() == true )
 			pDialogManager->OnFrameRender( true, 0 );
 	}
+#ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+	// June 31be3800 @31be3c7c: CKTDXCursor 31ce5400( 0 ) after this pass; March's CX2Cursor stands in while a GFx scene plays
+	if ( NULL != m_pCursor )
+		m_pCursor->JuneOnFrameRenderAfterGFx();
+#endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 
 	return S_OK;
 }

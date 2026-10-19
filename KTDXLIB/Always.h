@@ -9409,3 +9409,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June GFx runtime Phase G6 - the GFx event scene's cursor is drawn after the GFx layer, as June does. June's frame
+//              31be3800 ends GFx 31c43b20 ( @31be3c68 ), then the 0x18 pass 31be2e90 ( @31be3c6f ), then CKTDXCursor 31ce5400( 0 )
+//              ( app +0x290, @31be3c7c ); the scene's Play 3226b130 shows that cursor with DLG_Eventscene_Cursor.dds ( @3226b56b
+//              3226c250 -> 31ce5520( 1 ), its only writer ) and hides CX2Cursor ( @3226b542 32868250: +0xb0 show = 0, +0xb8 = 1 ),
+//              End 3226b6c0 hides it again ( @3226b748 31ce50d0 ). March draws its CX2Cursor ( XCS_EVENT_SCENE ) in the front-UI /
+//              OnFrameRender pass, before GFx. Here CX2GFXEventScene Play / End switch the CX2Cursor into an after-GFx mode: its
+//              normal draws are skipped and CX2State::OnFrameRenderAfter ( 0x18 ) draws it. A stand-in for CKTDXCursor until
+//              Phase R4f ports the class, which retires this flag. Off = the scene cursor draws under the movie.
+#define SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+#ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+#ifndef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#error SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER needs SERV_IRUHADEV_JUNE_GFX_EVENTSCENE ( CX2GFXEventScene Play / End )
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifndef SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+#error SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER needs SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT ( CX2State::OnFrameRenderAfter, the 0x18 pass )
+#endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
+#endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+//////////////////////////////////////////////////////////////////////////

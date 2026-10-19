@@ -607,6 +607,43 @@ widget open, ESC and cut-ins behave as before.
 
 **Done gate:** the map (addresses + order) in this section and `(GFx G6)` funcmap rows; with code, build + deploy and the user sees the cursor where June puts it with a click still advancing the scene.
 
+### Phase G6 - Done (2026-10-19, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER`)
+
+**Answer: June draws the scene cursor IN FRONT of the movie, as the frame's very last draw.** March drew it before GFx (under the movie;
+where it looked in front, the movie was transparent there). June and March differed, so the order is ported.
+
+**June's frame (`31be3800`), in order:** 1. stage passes 0x8 / 0xc( 0 ) / 0x10( 0 ) (`31be2cd0` / `31be2d30` / `31be2d90`): the world, the
+dialog manager's front UI and **`CX2Cursor`** (state +0x64, `32868a00` from `CX2State` front UI `31ef7640`); 2. the scene / effect target
+branch (pass 1); 3. **GFx** `31c43b20` when manager +0x108 == 1 (@31be3c56..31be3c68); 4. the 0x18 pass `31be2e90` (@31be3c6f); 5. **`CKTDXCursor`
+`31ce5400( 0 )`** on app +0x290 (@31be3c7c).
+**The scene's cursor calls:** Play `3226b130`: @3226b542 `32868250` on the CX2Cursor (+0xb0 show = 0, +0xb8 = 1: no draw, frame move
+`32868670` and hardware cursor `32868740` stop); @3226b56b `3226c250( 1, -40, -40 )` -> `31ce5520( 1 )`: CKTDXCursor shown with
+DLG_Eventscene_Cursor.dds, offset -40. End `3226b6c0`: @3226b71d `32868790( 0 )` (CX2Cursor normal, +0xb8 = 0), @3226b748 `31ce50d0`
+(CKTDXCursor hidden). `31ce5520` has no other caller: June's after-GFx cursor exists only for GFx scenes (no client call asks the movie to draw
+a cursor; the `.swf` contents were not inspected). The cursor is never hidden for the scene; it hides after 5 s without mouse movement (`31ce51b0`, the same rule as CX2Cursor).
+June's scene cursor matches March's `XCS_EVENT_SCENE` draw (`FIX_EVENT_SCENE_CURSOR_PICK_POINT_POSITION`: same texture, 128 x 128 `3344c984`,
+-40 offset `33486f20`), so only the draw position changes.
+
+**What landed** (the class stays R4f's): `CX2Cursor` gets an after-GFx mode (`SetJuneDrawAfterGFx`, `JuneOnFrameRenderAfterGFx`):
+while it is on, `OnFrameRender` returns at every state's own call (CX2State front UI and the unsplit states' `OnFrameRender`), and
+`CX2State::OnFrameRenderAfter` (the 0x18 pass, after GFx; no state overrides it) draws it. `CX2GFXEventScene` Play turns it on after
+the `XCS_EVENT_SCENE` switch, and End turns it off. The slide shot and March's Lua scene keep `XCS_EVENT_SCENE` before GFx, as June's
+CX2Cursor does. Files: `Always.h`, `X2Cursor.h/.cpp`, `X2State.cpp`, `X2GFXEventScene.cpp`. No JUNE_BUGS row (nothing kept verbatim).
+10 funcmap rows `(GFx G6)`. `kickoffs/june-engine/R4f.md` now names what R4f inherits: port the real `CKTDXCursor` after the 0x18 pass,
+`32868250`'s CX2Cursor switch-off, and retire this flag in the same phase so the cursor is never drawn twice.
+
+**Hygiene:** `flagcheck JUNE_GFX_CURSOR_ORDER --worktree --files <5>`: `files: 4 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag
+token, 0 encoding change(s)`; `RESULT: PASS`. The OTHER row is `Always.h`: a peer's uncommitted block in the worktree (not in this commit).
+Guards `JUNE_GFX_EVENTSCENE` / `JUNE_RENDER_STAGE_SPLIT` are top-level defines above line 9424 (nesting scan), never `#undef`'d.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,415,168 B, dated 2026-10-19 17:08:42, md5 cad1ab82212b7fc4806800ba17607729, equal to
+X2/US_SERVICE/x2.exe (2026-10-19 17:08:33); built at main 4edc83db + 10 uncommitted code file(s).` (COALESCED: a peer's build started
+16:55, after these edits were on disk.)
+
+**How to see it:** dev console `PlayEventScene("Quest_22329_Start")`: the 128 px event-scene cursor stays visible over the whole movie,
+including over its characters and boxes. A click still advances the scene, and after End the normal cursor is back.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.

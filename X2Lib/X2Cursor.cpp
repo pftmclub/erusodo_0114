@@ -129,6 +129,10 @@ CX2Cursor::CX2Cursor(void)
 	SetShow( true );
 
 	m_CursorState = CX2Cursor::XCS_NORMAL;
+#ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+	m_bJuneDrawAfterGFx		= false;
+	m_bJuneInAfterGFxPass	= false;
+#endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 
 //#ifndef DYNAMIC_VERTEX_BUFFER_OPT
 //	m_pVB = NULL;
@@ -227,6 +231,11 @@ HRESULT CX2Cursor::OnFrameMove( double fTime, float fElapsedTime )
 
 HRESULT CX2Cursor::OnFrameRender()
 {
+#ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+	// a GFx scene plays: the states' own draws ( front UI / OnFrameRender, before GFx ) are skipped, the 0x18 pass draws it
+	if ( m_bJuneDrawAfterGFx == true && m_bJuneInAfterGFxPass == false )
+		return S_OK;
+#endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 	if ( m_bShow == true )
     {
 //{{ robobeg : 2008-10-24
@@ -416,6 +425,20 @@ HRESULT CX2Cursor::OnFrameRender()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+// June 31be3800 @31be3c7c: the scene cursor is the frame's last draw, after GFx ( @31be3c68 ) and the 0x18 pass ( @31be3c6f )
+HRESULT CX2Cursor::JuneOnFrameRenderAfterGFx()
+{
+	if ( m_bJuneDrawAfterGFx == false )
+		return S_OK;
+
+	m_bJuneInAfterGFxPass = true;
+	HRESULT hr = OnFrameRender();
+	m_bJuneInAfterGFxPass = false;
+	return hr;
+}
+
+#endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 void CX2Cursor::SetShow( bool bShow )
 {
 	m_bShow = bShow;

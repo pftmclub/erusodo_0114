@@ -4579,3 +4579,11 @@ dependency order: `JUNE_GFX_RUNTIME` (G1) <- `JUNE_GFX_MANAGER` (G2) <- `JUNE_GF
 To switch the whole runtime off, comment out `JUNE_GFX_RUNTIME` last and every dependent before it (the `#error` guards enforce the order). Project-file hunks, all inert with the flags off: `X2/X2_2010.vcxproj` and
 `KTDXLIB/KTDXLIB_2010.vcxproj` `LibraryPath` (Scaleform `Lib\Win32\Msvc10\Release`), `KTDXLIB_2010.vcxproj` (`KTDGFXRuntime`, `KTDGGFXManager`, `KTDGFXSound` with per-file Scaleform dirs), `X2Lib/X2Lib_2010.vcxproj`
 (`X2GFXEventScene`). Data staged by GA (4,645 June files, 18 koms, 2,383 loose `eventscene\*.swf`) stays regardless.
+
+### June GFx runtime: the scene cursor after the GFx layer (june-gfx G6, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER` in `KTDXLIB/Always.h` (client only; `#error`s without `JUNE_GFX_EVENTSCENE` and `JUNE_RENDER_STAGE_SPLIT`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G6 - Done"; log tag `[JUNE_GFX] SCENE`.
+- **Client.** `X2Cursor.{h,cpp}`: after-GFx mode (`SetJuneDrawAfterGFx`, `JuneOnFrameRenderAfterGFx`; the normal `OnFrameRender` calls return while it is on). `X2State.cpp` `OnFrameRenderAfter` draws it. `X2GFXEventScene.cpp` Play / End switch it on / off.
+- **Project files:** none.
+- **What changes in game:** during a GFx event scene the event-scene cursor is drawn over the movie (June `31be3800 @31be3c7c`) instead of under it. A stand-in for June's `CKTDXCursor` until engine Phase R4f, which retires this flag.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.

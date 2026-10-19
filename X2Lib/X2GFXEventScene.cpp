@@ -397,6 +397,11 @@ void CX2GFXEventScene::Play( const std::wstring& wstrName, int iFrame /*= -1*/, 
 		CX2Cursor* pCursor = pState->GetCursor();
 		if ( pCursor != NULL && pCursor->GetCurorState() != CX2Cursor::XCS_EVENT_SCENE )
 			pCursor->ChangeCursorState( CX2Cursor::XCS_EVENT_SCENE );
+#ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+		// June's scene cursor ( CKTDXCursor, @3226b56b ) is drawn after GFx ( 31be3800 @31be3c7c ): the CX2Cursor stands in from the 0x18 pass
+		if ( pCursor != NULL )
+			pCursor->SetJuneDrawAfterGFx( true );
+#endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 	}
 
 	pManager->SetEventScenePlaying( true );		// +0x115: the keys stop, the mouse is wheel-only
@@ -419,6 +424,11 @@ void CX2GFXEventScene::End( bool bForce )
 		CX2Cursor* pCursor = pState->GetCursor();
 		if ( pCursor != NULL )
 			pCursor->ChangeCursorState( CX2Cursor::XCS_NORMAL );
+#ifdef SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
+		// @3226b748: June hides its scene cursor ( 31ce50d0 ); the CX2Cursor draws in its own pass again
+		if ( pCursor != NULL )
+			pCursor->SetJuneDrawAfterGFx( false );
+#endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 	}
 	// not ported here: the quest manager's pending-scene reset ( 3232e000, quest manager +0x148 ) is the quest-system plan's; the software cursor
 	// reset ( 31ce50d0 ) is R4f's

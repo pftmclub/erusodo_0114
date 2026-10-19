@@ -31,3 +31,11 @@ Do "Phase R4f". R4b named KTDXApp `+0x290`: an embedded `CKTDXCursor` (RTTI `.?A
   `JuneStageChainRenderAfter()`, R4b left the comment there) and every writer the map finds.
 - **Gate:** build + deploy; the cursor looks and behaves as June's flow says (or as before when the cursor is inactive), plus a
   `[JUNE_ENGINE] CURSOR` line naming the state it is in.
+
+**Inherited from june-gfx G6 (2026-10-19)** (read `JUNE_GFX_RUNTIME_PHASES.md` "Phase G6 - Done" and the `(GFx G6)` funcmap rows): June
+does show this cursor. Its only writer is the GFx scene's Play (`3226b130 @3226b56b` -> `3226c250( 1, -40, -40 )` -> `31ce5520( 1 )`,
+DLG_Eventscene_Cursor.dds), End hides it (`31ce50d0 @3226b748`), frame move `31ce51b0` (5 s idle hide). G6 left the class to you and
+stood March's `CX2Cursor` in for it behind `SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER` (drawn from `CX2State::OnFrameRenderAfter` while a GFx
+scene plays). Keep: the cursor after GFx and after the 0x18 pass; Play also switches the CX2Cursor off (`32868250`: +0xb0 = 0,
++0xb8 = 1, frame move and hardware cursor stop) and `32868790` turns +0xb8 off. When your port draws the real one, retire G6's flag
+(comment its define out, remove the `X2GFXEventScene.cpp` calls' effect) in the same phase, so the scene cursor is never drawn twice.
