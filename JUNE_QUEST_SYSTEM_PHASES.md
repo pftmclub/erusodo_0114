@@ -1291,7 +1291,7 @@ and its five messages logged, and Q8 routed it here (quest UI = this plan's subj
 
 **Done gate:** the Video tab lists the movies by area, seen ones unlocked; pressing one plays it and returns to the window.
 
-### Q8b - Done (2026-10-19, Opus 5.5 high; built + deployed, play-test pending)
+### Q8b - Done (2026-10-19, Opus 5.5 high; built + deployed, play-test PASSED 2026-10-19)
 
 **Landed:** flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB` (Always.h; `#error`s without `JUNE_QUEST_MOVIE` / `JUNE_QUEST_UI`). 12 funcmap rows `(Quest Q8b)`;
 JUNE_BUGS 360-365. Q5a's log-only stub for cases 41038-41042 is the `#else`.
@@ -1337,6 +1337,11 @@ Elysion ( id 11 ) played from the tab and returned ( stop with quest 0 ), the du
   June's list mode hides that dialog, so the wheel never reached any list tab. June's `323e5690` has no such test. User chose June as is: new flag
   `SERV_IRUHADEV_JUNE_QUEST_MSGPROC` (March's test in the `#else`). June's guard that keeps other windows' clicks was not found (UI manager
   `+0x2c` = the quest window); the play-test watches it. flagcheck worktree PASS. `DEPLOY OK: X2_offline.exe is 25,505,792 B, dated 2026-10-19 22:05:52, md5 4de4ec930d17660ed79d6ac2a444bd88` (COALESCED into a peer full build started 21:55, after the edit).
+
+**Play-test 2 (PASSED 2026-10-19, user: "like June flows"; log on exe md5 4de4ec93):** previews show, the wheel scrolls the Video tab and the quest lists,
+other windows still take clicks with the quest window open. Log: tab open x3, 56 list rebuilds ( wheel / navi ), seen list cleared at character select
+( 22:15:00 ) and refilled from completed quests ( 1 seen on the next character ); 0 UNHANDLED, 0 EXCEPTION, ErrorLog 0 lines for the tag. JUNE_BUGS 362's
+reach corrected to latent offline ( the entry-point character list does not reset each listed unit ).
 
 ## Phase RM1 - Random mission port
 

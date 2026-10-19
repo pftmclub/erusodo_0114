@@ -29,6 +29,9 @@ Q8b ported the Video tab from a single Opus reading. Re-read in Ghidra (raw disa
   `323c8820` = `InitUIQuestSlotInfo`, `323c9200` = `InitRewardItemSlot`; play and hover index maths.
 - **Branches:** scroll buttons (> 13), navi (> 12, the -0.68 formula, list( 0 )), wheel `323e45c0` (> 12), `UpdateNavi` (< 13), ResetQuestUI's
   early return, the ctor values, and every June caller of the hide `323ca6d0` against the port.
+- **MsgProc fix** (flag `SERV_IRUHADEV_JUNE_QUEST_MSGPROC`, play-test 1): `323e5690` raw disasm vs March `MsgProc` (modal tests, the 0x200-0x20c
+  jump table, MOUSEMOVE store + vslot 0x58, wheel when mode != 3); only the QuestDetail mouse-over test differs. Look once more for June's guard
+  that keeps other windows' clicks (UI manager `+0x2c` = the quest window, quest vslot 0x10); the play-test saw no problem.
 - **Seen list:** `31d79ac0` at the end of `SetUnitQuest`, `32362730 @323629d7` in `CX2Unit::Reset`, the clear `324625b0 @32462657` (vslot 155 =
   `ProcessStateChangeUnitSelectWithOptionWindow`), and the `+0x84c` sweep (`dispsweep.py 84c 850 854`).
 
