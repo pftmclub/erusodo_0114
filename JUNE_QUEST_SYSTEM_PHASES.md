@@ -1478,8 +1478,9 @@ Ghidra, read-only, against `1f92c15f` (no later commit touches the flag: `git lo
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
 FAIL = `X2SlideShotScripted.cpp`'s `#include "StdAfx.h"` (PCH, as Q10's file); OTHER = Q8b's uncommitted `MOVIE_TAB` hunks in `Always.h` / `X2UIQuestNew.cpp`; PASS~ = one blank line.
 
-**Deploy: pending.** The first build compiled every file of this phase with no new warning and failed only in RM1's uncommitted `X2RandomMission.cpp(614)` (C2660, not
-touched). The build reruns when RM1's fix lands; its `DEPLOY OK` line goes into the STATUS row.
+**Deploy.** My build compiled every file of this phase with no new warning and failed only in RM1's uncommitted `X2RandomMission.cpp(614)` (C2660, not touched).
+RM1 fixed it at 21:26; Q8b's run then built the tree with all of this phase on disk: `DEPLOY OK md5 2a733690` (`X2_offline.exe` 25,504,768 B, 21:27:29, commit `ea4d72c7`).
+The exe holds `[JUNE_QUEST] STORY PLAY start`, `... cut`, `STORY PLAY message`, `DLG_SlideShotScripted_TalkBox` (checked). No rerun.
 
 **How to see it** (after the deploy and the data048 / ogg copy): complete a story quest in a village (or press Remind on one completed); `logs.py --grep "STORY PLAY"`
 shows `start: quest N, K cut scene(s)`, one `cut i / K` per cut, `end` and, after a completion, `message: ... Story has been added to Media Gallery.`
