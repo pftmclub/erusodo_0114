@@ -1641,6 +1641,33 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; 
 - **How to see it:** nothing changes offline (the emulator never sends this NOT). Regression only: the memos survive a relog, a page switch and a dungeon entry.
 - **Open questions:** none.
 
+### Phase S7f -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe stays 0fcefb77; later builds by peers carry the same code).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC --range ea2a47a6^..ea2a47a6` (the flag's only commit: `git log -S` names no other):
+  `files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  No OTHER rows, no deleted lines. March's handler is whole in the `#else`.
+- **`31ed4c80` against `X2Room.cpp`, instruction by instruction** (raw disassembly, Ghidra read-only):
+  - The game user: vslot 0xa0 ( UID ), then vslot 0x1e0 ( packet +9 ) = `SetGameStat`, called before the unit test (`+0x867c`). With no unit, June falls into the inline slot loop
+    (`this +0x40 / +0x44`, slot UID `+0x18 / +0x1c`, unit `+0x50`, 0 when absent), and the user pointer (EBP) stays set. The port keeps `pUser` the same way. **Match.**
+  - The unit data is unit `+0x28`. `323571c0` takes packet +0x25 and +9 (7 dwords each), the membership byte +8 goes to `+0x960`, and the tree is `+0x46c`. March's one 5-field KStat is
+    the known Buff 5c / 11 deviation. **Match.**
+  - The test for another user is `g_pData +0x68 -> +0x90 -> +0x28 / +0x2c`. Then guild `32898520( +0xa7 )` and `328926f0( +0x97, +0x41, +0x64 )` = March's ( passives, A, B ). The slot lookup
+    `31ed18b0` runs on `this` (`[esp+0x10]` = the ECX saved in the prologue); then `32853ff0( +0xb7 )` on slot unit `+0x8dc`, and Clear `32892050` / Merge `32892410( +0xe9 )` on slot unit `+0x494` (= tree). **Match.**
+  - The loop runs 5 times: `32895d20( i, 0, +0x41 + 7i )`, then, only with a user, `31fd84c0( unitdata, (short) id, i, 0 )`; the same for B with 1 and `+0x64 + 7i`. There is no changed-slot test. **Match.**
+  - Then, with a user, `3204b4c0` (UpdateSocketDataAndEnchantData) and vslot 0x2c0 (UpdatePassiveAndActiveSkillState); then `31ed3f90` with ECX = `[33775868]` when it is non-zero; return 1. **Match.**
+  - `31ed3f90` / `31ed23a0`: `31ed23a0` collects the UIDs of non-NULL slots whose state `+0xc` is neither 1 nor 2 (March `SS_EMPTY` = 1, `SS_CLOSE` = 2, `X2Room.h:107`). For each UID, `31ed3f90` re-runs the
+    game test, `GetUserUnitByUID`, `3204b4c0` and vslot 0x2c0. **Match.** `33775868` is the room global: it is the ECX of a room method that reads the room slot vector.
+- **Routing claims checked:**
+  - `31f276b0`: its one xref is dispatcher `31f2ab80` @31f2b91b, which supports S7h. `3257b610`: one caller @3257e191; not ported, as the Done note says.
+  - `31d885e0`: exactly the three level-up callers (`323ae130` @323ae277, `32473f70` @324744af, `325346e0` @32534832). Its tail pushes 0x11 into `32447d70` on the `3244be60` manager.
+    June's `Enum.src.lua` has `EI_GET_NEW_SKILL_OR_MEMO = 17` (and March's last, `EI_NAVER_EVENT = 13`). This supports S7i.
+  - Item 3: `32890100` has no Ghidra xref. A byte scan of every section of `unpacked_x2.exe` finds 0 E8 / E9 rel32 hits in `.text` and 0 absolute pointers anywhere. The original claim covered `.text` only. **Confirmed.**
+- **Kickoffs checked:** `S7h.md` and `S7i.md` exist and match their STATUS rows. S7g's kickoff stays as S7d wrote it, and the next phases are S7g, then S7h; S7i can run on its own.
+- **`SERV_IRUHADEV_JUNE_SKILL_DEBUG`:** not touched; its retire note stays in `S8-review.md`.
+- **Nits (no change):** the `[JUNE_SKILL] MEMO room` log line is the port's own addition (June logs nothing here). Online, a busy room would write it once per notice.
+
 ## Phase S7h - June's class-change notice
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). Depends on S7g (`324943c0`). June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler `31f276b0`
