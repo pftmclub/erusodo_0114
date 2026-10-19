@@ -8875,8 +8875,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-19
 // Description: June GFx runtime G5 debug: [JUNE_GFX] GATE lines ( the 0xb term, closeToTopZorder per ESC, hide-mode changes ), and the G2 dev-console hooks
 //              ( JuneGfxOpenUI( 11 ) opens UI 0xb ) back on for the play-test. Both off after the G5 review.
-#define SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
-#define SERV_IRUHADEV_JUNE_GFX_DEBUG
+//#define SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG		// off since the G5 review ( 2026-10-19 )
+//#define SERV_IRUHADEV_JUNE_GFX_DEBUG			// off since the G5 review ( 2026-10-19 )
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 

@@ -579,6 +579,23 @@ widget open, ESC and cut-ins behave as before.
 - ESC with UI 0xb open: March's menu opened every time (`closeToTopZorder -> 0` x5). Diagnostic (debug-only line in `CKTDGGFXManager::closeToTopZorder`): `type 2 isBool 1 bool 0, isOpenUI( 0xb ) 1, isVisibleI( 0xb ) 1`, i.e. the AS returns a real Boolean false for UI 0xb, so the port reads it right. June closes this shop through `unloadWidget( 0xb )` / its own C++ (`32228498`), so the false branch is June-faithful. The true branch (ESC taken) is still unproven in game: no closeable widget was tried.
 - DELETE toggle (`GATE hide` lines) not exercised yet; only the `SetShow( 1, 0 ) -> mode 0` lines of state entries.
 
+### Phase G5 -- Review (2026-10-19, Opus 5.5 high): PASS, no findings, no code change
+
+**Checked in Ghidra / raw disassembly (`june2017_re/disasm_range.py`), read-only, all against the port:**
+- **Cut-in term** `31fd3180 @31fd3228-31fd325e`: after C3t-1's terms have set `BL` (option 5 -> vslot 0x198 hyper / `32431360`), `g_pKTDXApp +0x1c8` non-NULL and `31c44710( 0xb ) == 1` -> `return false`; then `g_pMain +0x80a == 1` -> false; else `BL`. The port sits after every C3t-1 term with only the debug line before `return`; the movie term is left out with its comment and owned by backlog Stage 26.
+- **ESC** `31f1e1a0 @31f1e262-31f1e2f3`: GFx non-NULL and `31c43bb0` (closeToTopZorder) == 1 -> the profession close (`32396dc0` / `3239d190`) -> `return false` either way (tail `31f1e245` = `xor al,al; ret`); else `g_pInstanceData` / dialog manager / `31d03920` GetHideDialog -> `31d03a10` (mode 2-4) -> `return false`, else the unhide. Port order is the same: closeToTopZorder right after the ESC key test, before March's `DIALOG_SHOW_TOGGLE` block, the mode rule first inside it. The two gates before it (tutorial guide, result-UI `+0x210`) and the profession close are backlog notes (Stage 9 / C3z-4t), checked present.
+- **Hide modes.** `31d05af0` (`+0x34 = bShow`; mode = bShow ? 0 : mode ? mode : 1; `31d05a20` find + `31d08460` assign) = `JuneSetShow`. `31f02f50` = `JuneToggleHide`: the struct copy's id / previous id, `31d03940` on each; now 2-4 -> `SetShow( 0, 0 )`, GFx `+0x108 = 0`; previous 2-4 -> `SetShow( 0, previous )`, else `SetShow( old == 0, 0 )`, both `+0x108 = 1`; the opening loop walks the struct's second set (`+0xe4` head), never filled. OnFrameMove `31d06100`: `+0xbc && !+0x34` -> walk `+0xd4`, GetDialog `31d05070`, valid `31d41d10` -> `31cd6ed0`. The port walks a copy (June walks the live set; a frame move that changes the mode would leave June's iterator dangling); behaviour is the same otherwise.
+- **Presets** `32597410 @3259b24e-3259bafb`: each block builds a struct (`31d08180`), stores the id, inserts the names into the first set (struct +8 = `+0xd0`), adds it with `31d06540`. Mode 1 (@3259b26e) 5 names, 4 (@3259b365) 19, 3 (`EBX` @3259b63d; no `DLG_ChatBox_EditBox`, no quick slots) 11, 2 (@3259b800) 18 incl. `DLG_Dungeon_Game_Start_Count` / `_Continue`, 5 (`ESI` @3259bab6) `DLG_SlideShotScripted_TalkBox`. Names and order match `s_aJuneHidePresetRows`; sorting wide vs narrow is the same for these ASCII names.
+
+**Debug off:** `SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG` and `SERV_IRUHADEV_JUNE_GFX_DEBUG` commented in Always.h (`JuneGfxOpenUI` and the `GATE` lines leave the exe).
+
+**Hygiene.** The kickoff's `--range b224be51^..HEAD` crosses peers' commits and FAILs on one of them (`5383d63 X2Lib/X2UIQuestNewJune.cpp`, a quest-UI new file, not this flag); per phase commit instead:
+`flagcheck SERV_IRUHADEV_JUNE_GFX_GATES --range b224be51^..b224be51 --with SERV_IRUHADEV_JUNE_GFX_DEBUG`: `files: 4 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` /
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS` (OTHER = Always.h, the flag's own define block beside peers' flags).
+`flagcheck SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG --range c2e1d35c^..c2e1d35c`: `files: 1 PASS, 0 FAIL` / `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,381,376 B, dated 2026-10-19 13:10:38, md5 01c5f8d1bdcb1c04c201029a1384fe1d, equal to X2/US_SERVICE/x2.exe (2026-10-19 13:10:30); built at main e3a34f3b + 3 uncommitted code file(s).` (`JuneGfxOpenUI` / `GATE ESC closeToTopZorder` no longer in the exe.)
+**Owes:** nothing (debug-off only; no play-test). The ESC-true branch and hide modes 2-4 stay unproven in game until Stage 9 brings a closeable widget and the result UI. Next: `/x2-phase june-gfx Z` on Sonnet 5.5 medium.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
