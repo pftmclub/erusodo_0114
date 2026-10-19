@@ -557,6 +557,23 @@ Review worktree (`--files KTDGGFXManager.cpp Always.h`): `RESULT: PASS`; Always.
 **Done gate:** with a debug-opened UI 0xb, the cut-in hides as June's option says; ESC closes the top GFx widget first; with no
 widget open, ESC and cut-ins behave as before.
 
+### Phase G5 - Done (2026-10-19, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_GFX_GATES` + `_GATES_DEBUG`, and `SERV_IRUHADEV_JUNE_GFX_DEBUG` back on)
+
+**What landed** (Ghidra / raw disassembly; 9 funcmap rows `GFx G5`; JUNE_BUGS 336):
+- **Cut-in term.** `GetShowActiveSkillShow` (`31fd3180 @31fd3228`): the GFx manager present and `isOpenUI( 0xb )` true -> false, after C3t-1's terms. UI 0xb is opened only by June's cash-shop code, so it is false until Stage 9. The `g_pMain +0x80a` term is June's AVI movie flag, not GFx: left out with a comment, owned by the new backlog **Stage 26**.
+- **ESC.** `CX2State::HandleMsgByESC` (`31f1e1a0 @31f1e262`): `closeToTopZorder` first (true -> return false; June then closes the profession manager, absent in March), before the hide-toggle block. Inside it, `31d03a10` (current hide mode 2, 3 or 4 -> return false without unhiding).
+- **Hide-mode mechanism whole** (`KTDGUIDialogManager`): `JuneSetShow( bShow, mode )` = `31d05af0` (mode rule, previous id, preset copy; March's one-argument `SetShow` = mode 0, so the Lua binding is unchanged); the five presets of the StartUp loader `32597410` (mode 1: 5 names, 4: 19, 3: 11, 2: 18, 5: 1; ids from the code, 3 = `ebx`, 5 = `esi`), built in the manager ctor; the name list read by OnFrameMove (`31d06100`, walks a copy) and by the R8 render hide path (its six literals replaced; mode 1 = the same names, now in June's sorted order); `JuneToggleHide` = `31f02f50` (modes, and the GFx `+0x108` write) at the two March DELETE-key sites (`X2State.cpp` = `31f036a0`, `X2StatePVPGame.cpp` = `32523dc0`). `X2Main`'s DELETE handler has no June twin and keeps the plain toggle.
+- **Corrections.** `31d05b80` is not a list reader (it is GetDialog by UTF-8 name): G0 row 119 and the R8 review were wrong there. Sets 2 and 3 of the preset struct are never filled (JUNE_BUGS 336): the toggle's opening delete loop is dead and not ported.
+- **Stage 9 / backlog notes written** (`JUNE_PORT_BACKLOG_ORDER.md`): the cash shop (UI 0xb), hide-mode entries 2-5, the result-UI mode `+0x210`, the profession close, the tutorial guide (C3z-4t); new Stage 26 (AVI movie system).
+- Project files: none.
+
+**Hygiene** (`flagcheck --worktree --files` on the 6 code files): `files: 4 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; OTHER = Always.h (peers' uncommitted flags beside this flag's block); `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without token, 0 encoding change(s)`. `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,350,656 B, dated 2026-10-19 11:57:00, md5 b5a84db238c64efbfc12bbb564b82b34, equal to X2/US_SERVICE/x2.exe (2026-10-19 11:56:52); built at main e0b19fc5 + 20 uncommitted code file(s).` (`COALESCED` onto a peer's build that started after this request.) Strings in the exe: `GATE ESC closeToTopZorder`, `GATE cutin: unit`, `GATE hide: SetShow`, `JuneGfxOpenUI`.
+
+**How to see it:** dev console `JuneGfxOpenUI( 11 )` (log `debug: openUI( 11 ), isOpenUI -> n`), cast a cut-in skill, press ESC, press DELETE. Log: `python tools/logs.py --grep "JUNE_GFX GATE"` and `--grep "JUNE_GFX MGR debug"`.
+**Debug on until the G5 review:** `SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG`, `SERV_IRUHADEV_JUNE_GFX_DEBUG`.
+**Open:** if `openUI( 11 )` reports `isOpenUI -> 0` (main.gfx has no widget for UI 0xb without the cash shop), the cut-in term cannot be shown in game; the review then reads it from Ghidra only. No question for the user.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.

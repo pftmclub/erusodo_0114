@@ -8846,6 +8846,39 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              class tables write it ). Off after the G4 review.
 //#define SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG		// off since the G4 review ( 2026-10-19 )
 //////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June GFx runtime Phase G5 - owed gates. (1) GetShowActiveSkillShow's isOpenUI( 0xb ) term ( 31fd3180 @31fd3228 ): the skill cut-in
+//              hides while GFx UI 0xb ( June's cash shop ) is open. (2) CX2State::HandleMsgByESC ( 31f1e1a0 @31f1e262 ): GFx closeToTopZorder takes the
+//              ESC first. (3) June's dialog hide-mode mechanism whole: CKTDGUIDialogManager::JuneSetShow( bShow, mode ) ( 31d05af0 ), the mode
+//              presets 1-5 ( StartUp loader 32597410 @3259b25e ... ) and their name lists, read by OnFrameMove ( 31d06100 ) and the render
+//              ( 31d053f0 ), 31d03a10's ESC rule ( modes 2-4 keep the UI hidden ) and the DELETE-key toggle 31f02f50 ( CX2State and the PVP game
+//              state ), which also writes the GFx shown byte ( +0x108 ). Modes 2-5 are entered only by Stage 9 code. Log [JUNE_GFX] GATE.
+//              Off = March's single hide-all mode and ESC chain.
+#define SERV_IRUHADEV_JUNE_GFX_GATES
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+#ifndef SERV_IRUHADEV_JUNE_GFX_MANAGER
+#error SERV_IRUHADEV_JUNE_GFX_GATES needs SERV_IRUHADEV_JUNE_GFX_MANAGER ( isOpenUI / closeToTopZorder, KTDGGFXManager.h )
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
+#ifndef SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION
+#error SERV_IRUHADEV_JUNE_GFX_GATES needs SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION ( the GetShowActiveSkillShow port the 0xb term sits on )
+#endif SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION
+#ifndef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#error SERV_IRUHADEV_JUNE_GFX_GATES needs SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS ( _OnFrameRenderJune, whose hide-all name list it replaces )
+#endif SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#ifndef DIALOG_SHOW_TOGGLE
+#error SERV_IRUHADEV_JUNE_GFX_GATES needs DIALOG_SHOW_TOGGLE ( the hide-all UI it generalises )
+#endif DIALOG_SHOW_TOGGLE
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June GFx runtime G5 debug: [JUNE_GFX] GATE lines ( the 0xb term, closeToTopZorder per ESC, hide-mode changes ), and the G2 dev-console hooks
+//              ( JuneGfxOpenUI( 11 ) opens UI 0xb ) back on for the play-test. Both off after the G5 review.
+#define SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+#define SERV_IRUHADEV_JUNE_GFX_DEBUG
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

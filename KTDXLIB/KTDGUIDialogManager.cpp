@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\ktdguidialogmanager.h"
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+#include "KTDGGFXManager.h"
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 
 
 #define MA_
@@ -38,6 +41,11 @@ CKTDGUIDialogManager::CKTDGUIDialogManager(void)
 
 #ifdef DIALOG_SHOW_TOGGLE
 	m_bCanHide = false;
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+	m_iJuneHideMode = 0;			// 31d08180: the empty preset
+	m_iJuneHidePrevMode = 0;
+	_BuildJuneHidePresets();
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 	m_bJuneFlaggedDialogsOnly = false;	// June +0x110 ( ctor 31d067e0 @31d06a5b )
@@ -824,6 +832,22 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 	KTDXPROFILE_END();
 
 #ifdef DIALOG_SHOW_TOGGLE
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+	// June 31d06100 ( OnFrameMove ): m_bCanHide ( +0xbc ) && !m_bShow ( +0x34 ) -> the current hide mode's name list ( +0xd4 ): GetDialog by name
+	// ( 31d05070 ), the dialog's OnFrameMove ( 31cd6ed0 ) when it exists, nothing else. Walks a copy: a dialog's frame move may change the mode.
+	if( GetHideDialog() == true )
+	{
+		const std::vector< std::wstring > vecJuneHideNames( m_setJuneHideNames.begin(), m_setJuneHideNames.end() );
+		for( size_t iJuneName = 0; iJuneName < vecJuneHideNames.size(); ++iJuneName )
+		{
+			CKTDGUIDialogType pDialog = GetDialog( vecJuneHideNames[iJuneName].c_str() );
+			if( pDialog != NULL )
+				pDialog->OnFrameMove( fTime, fElapsedTime );
+		}
+
+		return S_OK;
+	}
+#else SERV_IRUHADEV_JUNE_GFX_GATES
 	if( GetHideDialog() == true )
 	{
 		CKTDGUIDialogType pDialog = GetDialog( L"DLG_ChatBox_EditBox" );
@@ -844,6 +868,7 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 
 		return S_OK;
 	}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif //DIALOG_SHOW_TOGGLE
 
 	KTDXPROFILE_BEGIN( "DIALOG_FRAME_MOVE" );
@@ -1042,6 +1067,25 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 	// June: m_bCanHide ( +0xbc ) && !m_bShow ( +0x34 ) -> only the current hide mode's dialog list ( +0xd4 ), then return. Mode 1
 	// ( hide all ) is June's preset ( 32597410 @3259b25e-3259b318 ): March's four names, then DLG_Exit_Party_MsgBox. The show test
 	// is June's dialog render's own ( 31cd7810 ). June's modes 2-5 are Effect C3p-2's routed rows.
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+	// G5: the current hide mode's name list ( 31d053f0 / 31d05700 hide path ) instead of mode 1's six literals ( the R8 review's list is preset 1 )
+	if( GetHideDialog() == true )
+	{
+		const std::vector< std::wstring > vecJuneHideNames( m_setJuneHideNames.begin(), m_setJuneHideNames.end() );
+		for( size_t iJuneName = 0; iJuneName < vecJuneHideNames.size(); ++iJuneName )
+		{
+			CKTDGUIDialogType pDialog = GetDialog( vecJuneHideNames[iJuneName].c_str() );
+			if( pDialog != NULL && pDialog->GetShow() )
+#ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
+				pDialog->OnFrameRender( false, iRenderPass_ );
+#else SERV_IRUHADEV_JUNE_RENDER_PASS1
+				pDialog->OnFrameRender();
+#endif SERV_IRUHADEV_JUNE_RENDER_PASS1
+		}
+
+		return S_OK;
+	}
+#else SERV_IRUHADEV_JUNE_GFX_GATES
 	if( GetHideDialog() == true )
 	{
 #ifdef SERV_IRUHADEV_JUNE_RENDER_PASS1
@@ -1088,6 +1132,7 @@ HRESULT CKTDGUIDialogManager::_OnFrameRenderJune( bool bFront, bool bLayerBand_,
 
 		return S_OK;
 	}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif //DIALOG_SHOW_TOGGLE
 
 	if ( m_bShow == false )
@@ -1420,6 +1465,123 @@ bool CKTDGUIDialogManager::GetFocusInEditBox()
 
 	return false;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// June GFx runtime G5 ( SERV_IRUHADEV_JUNE_GFX_GATES ): the hide-mode mechanism. June's manager keeps, at +0xc8, a "current mode" struct ( id, previous
+// id, then three std::set<std::string> lists at +0xd0 / +0xe0 / +0xf0 ) and, at +0x100, a std::set of preset structs ordered by id. SetShow 31d05af0 copies
+// the preset of the wanted mode into the current struct ( 31d05a20 looks it up, 31d08460 assigns it; an unknown mode copies the empty preset 31d08180,
+// id 0 ). Only the first list ( +0xd0 ) has a reader ( OnFrameMove 31d06100, the render 31d053f0 / 31d05700 ). The StartUp loader 32597410 fills only that
+// list; the other two stay empty, so 31f02f50's first loop ( GetDialog + DeleteDlg 31d05d30 per name of the second list, @31f02fb8-31f030bd ) never runs
+// and is not ported. 31d05b80 is not a list reader: it is GetDialog( UTF-8 name ), March's GetDialog( WCHAR ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+namespace
+{
+	struct KJuneHidePresetRow
+	{
+		int				m_iMode;
+		const WCHAR*	m_wszName;
+	};
+
+	// Rows in the order of the loader's code: mode 1 @3259b25e, mode 4 @3259b351, mode 3 @3259b629 ( id from ebx = 3 ), mode 2 @3259b7ec, mode 5 @3259baa2
+	// ( id from esi = 5 ). The names are the loader's wide literals ( 334a9fe0 ... ); June stores them narrow, in a sorted set.
+	const KJuneHidePresetRow s_aJuneHidePresetRows[] =
+	{
+		{ 1, L"DLG_ChatBox_EditBox" }, { 1, L"DLG_MsgBox" }, { 1, L"DLG_OKMsgBox" }, { 1, L"OkAndCancelMsgBox" }, { 1, L"DLG_Exit_Party_MsgBox" },
+
+		{ 4, L"DLG_ChatBox_EditBox" }, { 4, L"DLG_MsgBox" }, { 4, L"DLG_OKMsgBox" }, { 4, L"OkAndCancelMsgBox" },
+		{ 4, L"DLG_GAME_SKILL_SLOT_NEW" }, { 4, L"DLG_Menu_Button" }, { 4, L"DLG_UI_MINI_MAP" },
+		{ 4, L"DLG_UI_Quick_Slot" }, { 4, L"DLG_UI_Quick_Slot_Item_0" }, { 4, L"DLG_UI_Quick_Slot_Item_1" }, { 4, L"DLG_UI_Quick_Slot_Item_2" },
+		{ 4, L"DLG_UI_Quick_Slot_Item_3" }, { 4, L"DLG_UI_Quick_Slot_Item_4" }, { 4, L"DLG_UI_Quick_Slot_Item_5" },
+		{ 4, L"DLG_Party_Member_Result_State" }, { 4, L"DLG_Exit_Party_MsgBox" }, { 4, L"ChannelBox" }, { 4, L"mini_map_title" },
+		{ 4, L"g_pComboBoxPresent_Select_User" },
+
+		{ 3, L"DLG_MsgBox" }, { 3, L"DLG_OKMsgBox" }, { 3, L"OkAndCancelMsgBox" },
+		{ 3, L"DLG_GAME_SKILL_SLOT_NEW" }, { 3, L"DLG_Menu_Button" }, { 3, L"DLG_UI_MINI_MAP" },
+		{ 3, L"DLG_Party_Member_Result_State" }, { 3, L"DLG_Exit_Party_MsgBox" }, { 3, L"ChannelBox" }, { 3, L"mini_map_title" },
+		{ 3, L"g_pComboBoxPresent_Select_User" },
+
+		{ 2, L"DLG_ChatBox_EditBox" }, { 2, L"DLG_MsgBox" }, { 2, L"DLG_OKMsgBox" }, { 2, L"OkAndCancelMsgBox" },
+		{ 2, L"DLG_UI_Quick_Slot" }, { 2, L"DLG_UI_Quick_Slot_Item_0" }, { 2, L"DLG_UI_Quick_Slot_Item_1" }, { 2, L"DLG_UI_Quick_Slot_Item_2" },
+		{ 2, L"DLG_UI_Quick_Slot_Item_3" }, { 2, L"DLG_UI_Quick_Slot_Item_4" }, { 2, L"DLG_UI_Quick_Slot_Item_5" },
+		{ 2, L"DLG_Party_Member_Result_State" }, { 2, L"DLG_Exit_Party_MsgBox" }, { 2, L"ChannelBox" }, { 2, L"mini_map_title" },
+		{ 2, L"g_pComboBoxPresent_Select_User" }, { 2, L"DLG_Dungeon_Game_Start_Count" }, { 2, L"DLG_Dungeon_Game_Continue" },
+
+		{ 5, L"DLG_SlideShotScripted_TalkBox" },
+	};
+}
+
+void CKTDGUIDialogManager::_BuildJuneHidePresets()
+{
+	m_mapJuneHidePreset.clear();
+	const int iRows = static_cast<int>( sizeof( s_aJuneHidePresetRows ) / sizeof( s_aJuneHidePresetRows[0] ) );
+	for( int iRow = 0; iRow < iRows; ++iRow )
+		m_mapJuneHidePreset[ s_aJuneHidePresetRows[iRow].m_iMode ].insert( std::wstring( s_aJuneHidePresetRows[iRow].m_wszName ) );
+}
+
+// 31d05af0: +0x34 = bShow; mode = bShow ? 0 : ( mode ? mode : 1 ); the current struct becomes the mode's preset ( previous id = the old current id ),
+// the empty one ( id 0 ) when no preset has that id.
+void CKTDGUIDialogManager::JuneSetShow( bool bShow, int iHideMode )
+{
+	m_bShow = bShow;
+
+	int iMode = iHideMode;
+	if( true == bShow )
+		iMode = 0;
+	else if( 0 == iMode )
+		iMode = 1;
+
+	m_iJuneHidePrevMode = m_iJuneHideMode;
+	std::map< int, std::set< std::wstring > >::const_iterator itPreset = m_mapJuneHidePreset.find( iMode );
+	if( itPreset != m_mapJuneHidePreset.end() )
+	{
+		m_iJuneHideMode = iMode;
+		m_setJuneHideNames = itPreset->second;
+	}
+	else
+	{
+		m_iJuneHideMode = 0;
+		m_setJuneHideNames.clear();
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+	{
+		char szBuf[256] = { 0, };
+		_snprintf( szBuf, sizeof( szBuf ) - 1, "[JUNE_GFX] GATE hide: SetShow( %d, %d ) -> mode %d ( was %d ), %d names", bShow ? 1 : 0, iHideMode,
+			m_iJuneHideMode, m_iJuneHidePrevMode, static_cast<int>( m_setJuneHideNames.size() ) );
+		KLOG( "ErrorLog.txt" ) << szBuf << fileout;
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+}
+
+// 31f02f50, called by the DELETE-key handlers ( 31f036a0 = CX2State::ProcessGameScoreAndPostEffect, 32523dc0 = the PVP game state; 3249c9d0 is the June-only
+// PVE state ). The mode now / before decide: now 2-4 -> SetShow( false, 0 ) ( hide all ), GFx shown = 0; else before 2-4 -> SetShow( false, before ), GFx
+// shown = 1; else a plain toggle SetShow( !shown, 0 ), GFx shown = 1. GFx shown is the manager's +0x108 ( G0 map ), set only when the manager exists.
+void CKTDGUIDialogManager::JuneToggleHide()
+{
+	const bool bOldShow = m_bShow;
+	const int iNow = m_iJuneHideMode;
+	const int iPrev = m_iJuneHidePrevMode;
+
+	bool bGfxShow = true;
+	if( true == IsJuneRestoreMode( iNow ) )
+	{
+		JuneSetShow( false, 0 );
+		bGfxShow = false;
+	}
+	else if( true == IsJuneRestoreMode( iPrev ) )
+	{
+		JuneSetShow( false, iPrev );
+	}
+	else
+	{
+		JuneSetShow( !bOldShow, 0 );
+	}
+
+	if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetJuneGFXManager() )
+		g_pKTDXApp->GetJuneGFXManager()->SetShow( bGfxShow );
+}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 
 #ifdef DIALOG_SHOW_TOGGLE
 bool CKTDGUIDialogManager::GetHideDialog()

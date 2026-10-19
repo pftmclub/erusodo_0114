@@ -790,9 +790,15 @@ bool CX2StatePVPGame::ShortCutKeyProcess()
 #ifdef DIALOG_SHOW_TOGGLE
 	if( g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_DELETE) == TRUE )
 	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+		/// June 32523dc0 @325247a0 -> 31f02f50: the hide-mode toggle ( see CX2State::ProcessGameScoreAndPostEffect ) + the GFx shown byte
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneToggleHide();
+		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
+#else SERV_IRUHADEV_JUNE_GFX_GATES
 		bool bShow = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetShow();
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( !bShow );
 		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 		
 #ifdef ALWAYS_SCREEN_SHOT_TEST
 		if(g_pInstanceData->GetScreenShotTest() == false)

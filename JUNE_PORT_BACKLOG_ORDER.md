@@ -65,6 +65,7 @@ The user's remaining backlog, in the order they listed it:
 | 22 | June dungeons and worlds *(added 2026-10-11, user: split out of june-effect)* | - (found by june-effect C3x / C3y / C3z) | Not a backlog item but missing content: the June dungeons, worlds and map entries that March lacks or has half of (Sander and Hamel secret dungeons, the five Henir Space boss worlds, class tutorial dungeons, Bestera, Space of Thought, the Hero tier, June's data101 map assets, the DungeonData readers june-effect C3z-5 routed, the Battle Field tutorial guide). Planned as `JUNE_DUNGEONS_PHASES.md`, STATUS block `june-dungeons`; phase IDs kept from june-effect. It shares the core registries with Stages 1 (Atlas / Elysion dungeons A8-A10, E8-E11) and 19 (event dungeons), so those port halves run one at a time. Numbered 22 to keep the earlier numbers stable. |
 | 23 | Offline field rewards stand-in *(added 2026-10-17, user: atlas A6)* | - (found by atlas A6) | Not a backlog item but missing server data: the server `DropTable.lua` / `StaticDropTable.lua` stop at Sander (40025), so Lanox (40029-40032) and Elysion (40035-40038) field kills grant no EXP, ED or items offline. No June server exists, so the rewards are a labelled stand-in (own flag, proposed first, [[design-missing-june-pieces]]). It touches only the offline emulator and server Lua, so it can run alongside any stage. Numbered 23 to keep the earlier numbers stable. |
 | 25 | June fonts and text rendering *(added 2026-10-17, user)* | - (the user: March's text looks un-anti-aliased; use June's fonts) | Not a backlog item but a visible gap: March installs one FreeType face (`Gulim.ttc`) and ships 3 font files in `datai022`; June ships 26 in `data196`. Which faces June installs for the US build, and how it rasterizes them, is unmeasured. It touches the font manager, `X2Main` and one font kom, so it can run alongside Stages 2-8 (not alongside a session in `KTDGFontManager.*` / `KTDGFreeTypeFont.*`). Stage 20's damage-number fonts are separate. Numbered 25 to keep the earlier numbers stable. |
+| 26 | June AVI movie system *(added 2026-10-19, june-gfx G5)* | - (found by june-gfx G0 / G5) | Not a backlog item but a missing system: June plays AVI movies from `DungeonClearMovieTemplet` / `Movie.lua` (dungeon-clear and quest movies) and flags them in `g_pMain +0x80a`; March has none. It is not GFx, so the GFx plan only noted it. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -351,6 +352,12 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     `m_fMinorUnitLobbyRotationY` (`@3237f144`, `+0x2dc` = templet `+0x2d8`). They come right after `introMovieFIleName` (`32fea370` float getter).
   - Reader: not identified yet. It is probably the character-select / lobby model. Find the readers of templet `+0x2d4 / +0x2d8` first.
   - The minor-unit key belongs to Lu/Ciel (Stage 8).
+
+- **June GFx owed gates that need a screen** (handed here by june-gfx G5, 2026-10-19). G5 ported the mechanism (`isOpenUI( 0xb )` in the cut-in term, `closeToTopZorder` in the ESC chain, the dialog hide modes with all five presets, `JuneSetShow( bShow, mode )`). What waits for these screens:
+  - **Cash shop = GFx UI `0xb`**: opened by June's cash-shop code (`32228478` / `3223dd01`) through `openUI( 0xb )`. Until it exists the cut-in term stays false.
+  - **Hide modes 2-5 are entered only by June's result-UI / presentation code**: `31f14e40`, `324c95b0`, `324d8600`, `3243be8b` (mode 2), `324ac353` (mode 4), `328c3750` (mode 5, `PresentProlBlackBack`). Each calls `CKTDGUIDialogManager::JuneSetShow( false, mode )`; the lists are ready (March has no caller). `31f02f50`'s toggle and `31d03a10`'s ESC rule already handle them.
+  - **The result-UI mode `+0x210`** at `31f1e214` (setter `31ef7be0`, exit box `31f1dd70`, writers listed in the C3p-2 Done note) and the **profession-manager close** at `31f1e27a` (`CX2UIProfessionManager` `32396dc0`, SetShow `3239d190`).
+  - **The tutorial guide ESC gate** stays with C3z-4t (june-dungeons). **The GFx show byte `+0x108`** is already written by the toggle; the other writers (`31f25112`, state dtors `324ad780` / `324d5670` / `32520d70`) come with their states.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
@@ -744,6 +751,17 @@ Scope:
 - **Before/after screenshots** from the user decide whether the anti-aliasing complaint is fixed; if June renders the same way, say so.
 
 **Depends on:** nothing in code. Stage 14's extractor (`tools/junekom.py`) for the files. Planning is read-only and can start now.
+
+### Stage 26: June AVI movie system (added 2026-10-19, june-gfx G5)
+
+June plays AVI movies for dungeon clears and quests. March has only `PLAY_PROMOTION_MOVIE` and the server-select intro flag.
+
+What June has (june-gfx G0 row `g_pMain +0x80a`, funcmap `GFx G0` / `GFx G5`):
+- Data: `DungeonClearMovieTemplet` and `Movie.lua`; table at `g_pMain +0x7f8..+0x7fc` (0xc4-byte records parsed by `31d8cb90`: file name, intro flag, category, quest id ...).
+- State: `g_pMain +0x808` movie name, `+0x80a` movie playing; writers `31d7a150` (by quest), `31d7a240`, `31d884f0` (by id), cleared at `324dadc2` / `324d9f80`.
+- Readers that need it: `GetShowActiveSkillShow` (`31fd3180 @31fd324c`: no cut-ins while a movie plays; left out in C3t-1 and G5), `31d71810` (the scene gate, G3 open row), the quest-system Elysion clear movie (quest 22336).
+
+Scope: identify the player (`31d7a150` onward), port the table parser and the player behind a new flag, then add the two terms above. Depends on: quest-system (the quest-driven movies) and Stage 14's extractor for the movie files. Not started.
 
 ## Open decisions that gate stages
 

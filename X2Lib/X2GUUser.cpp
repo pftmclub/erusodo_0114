@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2guuser.h"
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+#include "KTDGGFXManager.h"
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #if defined( SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -39663,6 +39666,24 @@ bool CX2GUUser::GetShowActiveSkillShow() const
 	/// - g_pMain +0x80a: set when an entry of June's movie table ( g_pMain +0x7f8, 0xc4-byte records parsed by 31d8cb90: m_wstrMovieFileName,
 	///   m_bIntroMovie, m_eMovieCategory, m_iQuestID, ... ) starts ( 31d7a150 by quest, 31d884f0 by id ), cleared in 324d9f80. March has no
 	///   in-game movie table ( its m_bPlayIntroMovie is a one-shot server-select intro flag ); routed with the backlog's quest movies.
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+	/// G5, @31fd3228-31fd3241: with the GFx manager present ( g_pKTDXApp +0x1c8 ) and 31c44710( 0xb ) = ActionScript isOpenUI( 11 ) true, the answer is false
+	/// whatever the option and the hyper active said. UI 0xb is opened only by June's cash-shop code ( 32228478 / 3223dd01 ), so it stays false until Stage 9
+	/// brings that screen; the G5 play-test opens it by hand ( JuneGfxOpenUI( 11 ) ). The g_pMain +0x80a term that follows in June is its AVI movie
+	/// ( DungeonClearMovieTemplet / Movie.lua, not GFx ): left out as above, owned by the backlog's movie-system row.
+	if( NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetJuneGFXManager() && true == g_pKTDXApp->GetJuneGFXManager()->isOpenUI( 0xb ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+		{
+			char szJuneBuf[160] = { 0, };
+			_snprintf( szJuneBuf, sizeof( szJuneBuf ) - 1, "[JUNE_GFX] GATE cutin: unit %I64d, isOpenUI( 0xb ) = 1 -> show %d becomes 0", m_UnitUID,
+				( true == bShowActiveSkillShow ) ? 1 : 0 );
+			KLOG( "ErrorLog.txt" ) << szJuneBuf << fileout;
+		}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+		bShowActiveSkillShow = false;
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #ifdef SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG
 	CX2OfflineLog::Server( L"JUNE_FX C3t-1 unit %I64d ( %s ) my %d: option %d -> june %d, now skill %d hyper %d -> show %d",
 		m_UnitUID, ( NULL != m_pUnit ) ? m_pUnit->GetNickName() : L"?", ( true == IsMyUnit() ) ? 1 : 0,

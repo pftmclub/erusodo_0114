@@ -10,7 +10,12 @@ class CKTDGUIDialogManager : public CKTDXStage
 		bool	GetShow() { return m_bShow; }
 		void	ToggleShow() { SetShow(!m_bShow);}
 #endif
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+		/// June GFx runtime G5: June's SetShow( bShow, mode ) ( 31d05af0 ) takes the hide mode; the one-argument form is mode 0, as every March / Lua call site passes it.
+		void	SetShow( bool bShow ) { JuneSetShow( bShow, 0 ); }
+#else SERV_IRUHADEV_JUNE_GFX_GATES
 		void	SetShow( bool bShow ) { m_bShow = bShow; }
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 
 		void	RegisterLuaBind();
 
@@ -128,6 +133,17 @@ class CKTDGUIDialogManager : public CKTDXStage
 #ifdef DIALOG_SHOW_TOGGLE
 		bool GetHideDialog();
 		void SetCanHide(bool bVal) { m_bCanHide = bVal; }
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+		/// June GFx runtime G5 ( SERV_IRUHADEV_JUNE_GFX_GATES ): June's dialog hide modes. 0 = shown, 1 = hide all ( what March has ), 2-4 = the result-UI
+		/// modes, 5 = the presentation mode; 2-5 are entered only by Stage 9 code ( June 31f14e40, 324c95b0, 324d8600, 3243be8b, 324ac353, 328c3750 ).
+		/// Each mode keeps a name list ( preset, StartUp loader 32597410 ) of the dialogs that still run and draw while the UI is hidden.
+		void	JuneSetShow( bool bShow, int iHideMode );										// 31d05af0
+		void	JuneToggleHide();																// 31f02f50: the DELETE-key toggle
+		int		GetJuneHideMode() const { return m_iJuneHideMode; }							// +0xc8
+		int		GetJuneHidePrevMode() const { return m_iJuneHidePrevMode; }					// +0xcc
+		static bool	IsJuneRestoreMode( int iMode ) { return 2 == iMode || 3 == iMode || 4 == iMode; }	// 31d03940
+		bool	IsJuneHideModeKeepingHidden() const { return IsJuneRestoreMode( m_iJuneHideMode ); }	// 31d03a10: ESC does not unhide in modes 2-4
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif
 
 private:
@@ -175,6 +191,13 @@ private:
 
 #ifdef DIALOG_SHOW_TOGGLE
 		bool m_bCanHide;
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+		int										m_iJuneHideMode;			// +0xc8: the current hide mode ( ctor: 0 )
+		int										m_iJuneHidePrevMode;		// +0xcc: the mode before the last SetShow
+		std::set< std::wstring >				m_setJuneHideNames;			// +0xd0 ( head +0xd4 ): the current mode's name list ( June: a std::set of narrow names )
+		std::map< int, std::set< std::wstring > >	m_mapJuneHidePreset;	// +0x100: mode -> name list, built by _BuildJuneHidePresets ( June: set of 0x40 B presets )
+		void	_BuildJuneHidePresets();										// June's StartUp loader 32597410 @3259b25e-3259bafb
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #endif
 #ifdef SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
 		bool m_bJuneFlaggedDialogsOnly;

@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2state.h"
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+#include "KTDGGFXManager.h"
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
@@ -4168,11 +4171,31 @@ bool CX2State::HandleMsgByESC()
 	if ( ( g_pMain->GetNowStateID() != CX2Main::XS_LOADING ) && g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState( DIK_ESCAPE ) == TRUE )
 #endif // SERV_KEY_MAPPING_INT
 	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+		/// June 31f1e1a0 @31f1e262-31f1e2a0, after June's tutorial guide and result-UI-mode gates ( both June-only systems: C3z-4t / Stage 9 ) and before the
+		/// hide-toggle block: the GFx manager ( g_pKTDXApp +0x1c8 ) runs ActionScript closeToTopZorder ( 31c43bb0 ); a true takes the ESC. June then looks
+		/// for the profession manager ( CX2UIProfessionManager 32396dc0, +4 shown -> SetShow( 0 ) 3239d190 ) and returns false whatever it finds;
+		/// March has no profession screen ( Stage 9 note ), so the true case is just the return. A false carries on to the hide-toggle block.
+		if( NULL != g_pKTDXApp->GetJuneGFXManager() )
+		{
+			const bool bJuneClosed = g_pKTDXApp->GetJuneGFXManager()->closeToTopZorder();
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+			KLOG( "ErrorLog.txt" ) << ( bJuneClosed ? "[JUNE_GFX] GATE ESC closeToTopZorder -> 1 ( ESC taken )" : "[JUNE_GFX] GATE ESC closeToTopZorder -> 0" ) << fileout;
+#endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+			if( true == bJuneClosed )
+				return false;
+		}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #ifdef DIALOG_SHOW_TOGGLE
 		if( g_pInstanceData!= NULL &&  g_pKTDXApp->GetDGManager() != NULL && g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
 		{		
 			if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
 			{
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+				/// June @31f1e2d1-31f1e2f3: 31d03a10 ( the current hide mode is 2, 3 or 4 ) -> return false without unhiding. Only Stage 9 code enters those modes.
+				if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->IsJuneHideModeKeepingHidden() )
+					return false;
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 				g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow(true);
 
 				if ( NULL != g_pInstanceData->GetMiniMapUI() )
@@ -12011,11 +12034,19 @@ bool CX2State::ProcessGameScoreAndPostEffect()
 #ifdef DIALOG_SHOW_TOGGLE
 	if ( g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_DELETE) == TRUE )
 	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES
+		/// June 31f036a0 -> 31f02f50: the hide-mode toggle ( modes 2-4 -> hide all, mode before 2-4 -> back to it, else the plain toggle ) + the GFx shown byte
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneToggleHide();
+		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
+
+		ProcessShowMiniMap( bHide );
+#else SERV_IRUHADEV_JUNE_GFX_GATES
 		bool bShow = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetShow();
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( !bShow );
 		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
 
 		ProcessShowMiniMap( bHide );
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
 #ifdef ALWAYS_SCREEN_SHOT_TEST
 		if(g_pInstanceData->GetScreenShotTest() == false)
 		{
