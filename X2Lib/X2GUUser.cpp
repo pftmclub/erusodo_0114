@@ -28567,6 +28567,34 @@ void CX2GUUser::ActiveSkillShow( D3DXVECTOR3 bonePos, const WCHAR* pBackFaceTexN
 
 				iter++; if ( iter == iterEnd ) goto out;
 				CKTDGParticleSystem::CParticleEvent_Position* pEPos = (CKTDGParticleSystem::CParticleEvent_Position*) (*iter);
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	// June 31fd95a0 ( G4 ), the leaf every ActiveSkillShow overload reaches ( 31fde0f0 = the bone overload ): hidden dialogs ( 31d03920 = the GetHideDialog test
+	// above ) or bOnlyLight ( the last stack argument, @31fd95ef ) draw nothing. Otherwise the UI manager returns a dragged item ( 32153240 =
+	// SetNowDragItemReturn ), the narrow name + ".gfx" ( 31e572c0 = L".gfx" ) goes to g_pMain 31d76b40( 0xc, name, GetIsRight() == false ( vslot 0x170 ), 0 ).
+	// June draws no particle here: the CutIn_Left / Right / Talk particles and FocusLine / OutLine are March's, kept below for flag off.
+	if( false == bOnlyLight )
+	{
+		if( NULL != g_pData && NULL != g_pData->GetUIManager() )
+			g_pData->GetUIManager()->JuneSetNowDragItemReturn();
+
+		std::string strJuneCutInName;
+		if( NULL != pBackFaceTexName )
+		{
+			const int iJuneLen = static_cast<int>( wcslen( pBackFaceTexName ) );
+			const int iJuneNeed = ( iJuneLen > 0 ) ? WideCharToMultiByte( CP_ACP, 0, pBackFaceTexName, iJuneLen, NULL, 0, NULL, NULL ) : 0;	/// June: code page 0
+			if( iJuneNeed > 0 )
+			{
+				strJuneCutInName.resize( iJuneNeed );
+				WideCharToMultiByte( CP_ACP, 0, pBackFaceTexName, iJuneLen, &strJuneCutInName[0], iJuneNeed, NULL, NULL );
+			}
+		}
+		strJuneCutInName += ".gfx";
+
+		if( NULL != g_pMain )
+			g_pMain->JunePlayCutInWidget( 0xc, strJuneCutInName, ( false == GetIsRight() ), 0 );
+	}
+	return;
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 				pEPos->SetPosition( CMinMax<D3DXVECTOR3>( D3DXVECTOR3(pos.x-size.x, pos.y, 0),D3DXVECTOR3(pos.x-size.x, pos.y, 0) ) );
 
 				iter++; if ( iter == iterEnd ) goto out;
@@ -28693,6 +28721,22 @@ float CX2GUUser::GetDashCameraAngleDegree()
 	{
 		return DASH_CAMERA_ANGLE - 25;
 	}
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+/// G4 debug: the real leaf with a June cut-in name ( no extension ): the hide test, the dragged item, the frame, the talk balloon, the cut-in
+void CX2GUUser::JuneDebugCutIn( const WCHAR* wszName_ )
+{
+	ActiveSkillShow( D3DXVECTOR3( 0.f, 0.f, 0.f ), wszName_, D3DXVECTOR2( 512.f, 512.f ), D3DXVECTOR3( 256.f, 512.f, 0.f ), false, false );
+}
+
+void JuneGfxCutIn_LUA( const char* szName )
+{
+	if( NULL == g_pX2Game || NULL == g_pX2Game->GetMyUnit() || NULL == szName )
+		return;
+	std::wstring wstrName;
+	ConvertUtf8ToWCHAR( wstrName, szName );
+	g_pX2Game->GetMyUnit()->JuneDebugCutIn( wstrName.c_str() );
+}
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 
 	return 0;
 }

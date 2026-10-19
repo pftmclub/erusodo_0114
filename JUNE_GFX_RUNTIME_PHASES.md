@@ -498,6 +498,31 @@ Fix 1 (`SERV_IRUHADEV_JUNE_GFX_JPEG8`, `3b566a1f^..3b566a1f`): `files: 1 PASS, 0
 **Done gate:** a talk cut-in shows in the state G0 names (or through the debug hook if no March state reaches it), left and right
 variants, and closes.
 
+### Phase G4 - Done (2026-10-19, Sonnet 5.5 high; flags `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN` + `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG`)
+
+**What landed** (Ghidra `31fd95a0` / `31fde0f0` / `31d76b40` / `31fc75e0` / `31fc74e0` / `31fc72e0` / `31fc73a0` / `31fc7720` / `31fc7360` / `31d70c60`; 8 funcmap rows `GFx G4`):
+- **The leaf.** `CX2GUUser::ActiveSkillShow( bonePos, ... )` = June `31fd95a0`: hidden dialogs (`31d03920` = `GetHideDialog`, March's own test above it) or `bOnlyLight` draw nothing; else the
+  dragged item goes back (`32153240` = `CX2UIManager::SetNowDragItemReturn`, public wrapper `JuneSetNowDragItemReturn`), then `g_pMain->JunePlayCutInWidget( 0xc, <name>.gfx, GetIsRight() == false, 0 )`.
+  An early return before March's particle body (kept for flag off). The two other overloads and the 8 June callers reach it through March's existing class code; the position args are not read by June either.
+- **`CX2Main`** (`X2GFXEventScene.cpp`, member `m_pJuneSimpleWidgetPlayer` = June `+0xd7c`): `JuneMakeSimpleWidgetPlayer` (`31d70c60`; also at the end of the StartUp state's script load, `3259bb20`, so
+  the player exists before main.gfx's AS registers) and `JunePlayCutInWidget` (`31d76b40`: frame `Common_CutIn_Frame.gfx` ( side, 1 ), a talk balloon `CUT_IN_TALK_<R_|L_><rand() % 3 + 1>.gfx` ( 0, 0x3c ), then the cut-in ( side, b )).
+  Side: `L_` for a non-zero side, i.e. a unit facing left.
+- **`CKTDGGFXSimpleWidgetPlayer`** (`KTDGGFXManager.{h,cpp}`, June's `CX2SimpleWidgetPlayer`): listener `simpleWidgetPlayer` (answers `simpleWidgetFunctionInit` true, nothing else), bindings
+  `SimpleWidgetPlayer.playSimpleWidget` and `...clearSimpleWidgetPlayer`; `PlaySimpleWidget` = `31fc75e0` (sets widgetID / fileName / parameter1 / parameter2, notifies). G3's binding table got a third kind:
+  an object `{ widgetID, fileName, parameter1, parameter2 }` built with the movie (`31fc7720`); the adapter keeps the movie pointer (June adapter `+0x10`).
+- **Not ported, with reasons.** `31fc7360` clearAll (its binding is never registered: JUNE_BUGS 333); the NPC route (`32772080`, textures); `31fde0f0`'s bone lookup (March has it).
+- **Callers.** `32014fc0` (ShowHyperSkillCutInByScript, C3t) and 7 class functions all end in `31fde0f0`; March's classes (Add, Ara, Chung, EL, Elsword, Eve, Lire, Raven, Arme) already call the matching overloads. No caller is absent.
+- **Names (routed, not ported).** June's tables name cut-ins without an extension; March's name `.dds` textures that are other names, and none of the 52 has a `.gfx` (`june2017_re/g4_cutin_names.tsv`). So a March class
+  cut-in shows frame + balloon but no hero art until its class port renames its table: JUNE2017_CHARACTER_PORT_CHECKLIST.md, after 7t. Hyper cut-ins use `UnitTemplet` names (empty in March data).
+- **Data:** none new (GA staged data152 `Common_CutIn_Frame`, `CUT_IN_TALK_*`, `HQ_CutIn_*`; data195; data194 `main.gfx`). Project files: none.
+
+**Hygiene** (`flagcheck --worktree --files`, 10 files): `files: 5 PASS, 3 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; OTHER = Always.h's other flags' lines and a peer's `SKILL_MAX_MP` hunk in X2GUUser.cpp (not committed here);
+`0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without token, 0 encoding change(s)`. `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,309,696 B, dated 2026-10-19 09:15:01, md5 3aad257b3d2b6fd97bede5edf038828a, equal to X2/US_SERVICE/x2.exe (2026-10-19 09:14:54); built at main 3444f3ae + 14 uncommitted code file(s).` Strings in the exe:
+`SimpleWidgetPlayer.playSimpleWidget`, `simpleWidgetFunctionInit`, `CUT_IN_TALK_`, `Common_CutIn_Frame.gfx`, `[JUNE_GFX] CUTIN`, `JuneGfxCutIn`.
+**How to see it:** dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` in a dungeon / field: frame, balloon and the cut-in. Log: `python tools/logs.py --grep "JUNE_GFX CUTIN"` (one `play ui=0xc <name>.gfx side=L|R` line per cut-in).
+**Replaces** March's particle cut-in for users: tell the play-tester. **Open (user):** none blocking; the table rename waits for the class ports.
+
 ## Phase G5 - Owed gates
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_GATES`. Sub-tag `GATE`.

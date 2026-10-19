@@ -33,3 +33,10 @@ The scope is June's user skill cut-in (see G4.md's amendment):
 - the `.gfx` name build;
 - the 8 callers mapped or logged;
 - CX2GUNPC left on the texture route.
+
+## Amended by G4 (2026-10-19)
+
+- Turn `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG` off (comment its define, as G2's review did) and rebuild; run flagcheck with `--with SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG`.
+- Spot-check in Ghidra: `31fd95a0` (the `bOnlyLight` stack arg `[ebp+0x30]` @31fd95ef, the GetIsRight sense), `31d76b40` (`L_` / `R_` strings `33456858` / `3345685c`, the (0xc, frame, side, 1) / (0xc, talk, 0, 0x3c) args), `31fc7720` (member order).
+- Check the play-test log for `play ui=0xc ...` lines and that no `EXCEPTION` or crash followed.
+- Names: the March tables' `.dds` names are the character ports' (checklist after 7t); do not rename them here.

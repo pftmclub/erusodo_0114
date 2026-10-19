@@ -3620,6 +3620,11 @@ public:
 		bool						CheckDashAngleChangeTime();
 		float						GetDashCameraAngleDegree();
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+	public:
+		void						JuneDebugCutIn( const WCHAR* wszName_ );	/// G4 debug: the dev console's JuneGfxCutIn
+	protected:
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 		virtual float				GetBasicReducedDamagePercent();
 
 

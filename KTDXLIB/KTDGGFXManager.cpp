@@ -642,6 +642,9 @@ enum JUNE_GFX_BINDING_KIND
 {
 	JGBK_TRIGGER	= 0,
 	JGBK_BOOL		= 1,
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	JGBK_SIMPLE_WIDGET	= 2,	// G4: "SimpleWidgetPlayer.playSimpleWidget" ( vtable 33471e40, GetValue 31fc7720 ): { widgetID, fileName, parameter1, parameter2 }
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 };
 
 struct KJuneGfxBindingObserver
@@ -655,7 +658,15 @@ struct KJuneGfxBinding
 	int			m_iKind;
 	bool		m_bValue;
 	std::vector< KJuneGfxBindingObserver >	m_vecObserver;
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	int			m_iWidgetID;		// value object +8
+	std::string	m_strFileName;		// +0xc
+	int			m_iParameter1;		// +0x28
+	int			m_iParameter2;		// +0x2c
+	KJuneGfxBinding() : m_iKind( JGBK_TRIGGER ), m_bValue( false ), m_iWidgetID( 0 ), m_iParameter1( 0 ), m_iParameter2( 0 ) {}
+#else SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	KJuneGfxBinding() : m_iKind( JGBK_TRIGGER ), m_bValue( false ) {}
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 };
 
 // The link a native function keeps to its owner: the movie can outlive the C++ object that registered the function, a late call is dropped
@@ -715,8 +726,29 @@ public:
 		m_mapListener[ pListener->GetListenerName() ] = pListener;
 	}
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	CLIKDataBindingAdapter() : m_pOwnerLink( *new CJuneGfxOwnerLink( this ) ), m_pMovie( NULL ) {}
+#else SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	CLIKDataBindingAdapter() : m_pOwnerLink( *new CJuneGfxOwnerLink( this ) ) {}
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	~CLIKDataBindingAdapter() { m_pOwnerLink->m_pOwner = NULL; }
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	// June's adapter +0x10: the movie the notify hands every value object's GetValue ( 31d1ee10 -> 31d1ec40 ). Set by CKTDGGFXUI::Load, cleared with it.
+	void SetMovie( SFG::Movie* pMovie ) { m_pMovie = pMovie; }
+
+	// 31fc75e0: the playSimpleWidget value object's four fields ( id +8, fileName +0xc, parameter1 +0x28, parameter2 +0x2c )
+	void SetBindingWidget( const std::string& strName, int iWidgetID, const char* szFileName, int iParameter1, int iParameter2 )
+	{
+		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		if ( it == m_mapBinding.end() )
+			return;
+		it->second.m_iWidgetID		= iWidgetID;
+		it->second.m_strFileName	= ( szFileName != NULL ) ? szFileName : "";
+		it->second.m_iParameter1	= iParameter1;
+		it->second.m_iParameter2	= iParameter2;
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 	void RemoveListener( const std::string& strName )		// 31d1f550
 	{
@@ -756,6 +788,10 @@ public:
 		SFG::Value kValue;
 		if ( it->second.m_iKind == JGBK_BOOL )
 			kValue = SFG::Value( it->second.m_bValue );
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+		else if ( it->second.m_iKind == JGBK_SIMPLE_WIDGET )
+			BuildWidgetValue( it->second, &kValue );
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 		else
 			kValue.SetNull();
 		std::vector< KJuneGfxBindingObserver > vecObserver = it->second.m_vecObserver;
@@ -771,6 +807,21 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	std::map< std::string, KJuneGfxBinding >	m_mapBinding;	// +0xc
 	SF::Ptr< CJuneGfxOwnerLink >				m_pOwnerLink;
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	SFG::Movie*									m_pMovie;		// +0x10 ( not owned: the wrapper clears it before its movie goes )
+
+	// GetValue 31fc7720( movie, out ): only with a movie ( June's "if param_2 != 0" ): a new object with widgetID, fileName, parameter1, parameter2
+	void BuildWidgetValue( const KJuneGfxBinding& kBinding, SFG::Value* pValue )
+	{
+		if ( m_pMovie == NULL )
+			return;
+		m_pMovie->CreateObject( pValue );
+		pValue->SetMember( "widgetID",		SFG::Value( (SF::SInt32)kBinding.m_iWidgetID ) );
+		pValue->SetMember( "fileName",		SFG::Value( kBinding.m_strFileName.c_str() ) );
+		pValue->SetMember( "parameter1",	SFG::Value( (SF::SInt32)kBinding.m_iParameter1 ) );
+		pValue->SetMember( "parameter2",	SFG::Value( (SF::SInt32)kBinding.m_iParameter2 ) );
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 	// the table 3344de9c: ( name, native function ) pairs, set on the object dataBindingInit hands over
 	void AttachBindingFunction( SFG::Movie* pMovie, SFG::Value& kObject, const char* szName, int iID )
@@ -844,6 +895,10 @@ public:
 		if ( m_pAdapter )
 			m_pAdapter->ClearBindings();	// the observers' closure Values go before their movie
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+		if ( m_pAdapter )
+			m_pAdapter->SetMovie( NULL );
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 		m_RootValue.SetUndefined();		// a managed Value goes before its movie
 		m_hDisplay.Clear();
 		m_pMovie = NULL;
@@ -869,6 +924,10 @@ public:
 		m_pMovie->HandleEvent( SFG::SetFocusEvent() );					// event 8
 		m_pAdapter = *new CLIKDataBindingAdapter();						// 31c3f340 -> +0x60
 		m_pMovie->SetExternalInterface( m_pAdapter );
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+		if ( m_pAdapter )
+			m_pAdapter->SetMovie( m_pMovie.GetPtr() );
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 		if ( m_pAdapter && m_pListener != NULL )
 			m_pAdapter->AddListener( m_pListener );
 		return true;
@@ -1773,6 +1832,85 @@ CKTDGGFXEventSceneBridge::~CKTDGGFXEventSceneBridge()
 bool CKTDGGFXEventSceneBridge::IsBound() const			{ return m_pImpl->IsBound(); }
 void CKTDGGFXEventSceneBridge::FireNextScene()			{ m_pImpl->FireNextScene(); }
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// CKTDGGFXSimpleWidgetPlayer ( Phase G4 ): June's CX2SimpleWidgetPlayer ( vtable 33471da4: slot 1 31fc79a0 = the listener name "simpleWidgetPlayer",
+// slot 2 31fc73a0 = the external-call callback ). Ctor 31fc74e0 adds itself as a listener on the root movie's adapter and registers two data
+// bindings: "SimpleWidgetPlayer.playSimpleWidget" ( value object 0x30 B, vtable 33471e40 ) and "SimpleWidgetPlayer.clearSimpleWidgetPlayer" ( the
+// 8 B trigger ); dtor 31fc72e0 removes the listener and both. main.gfx's AS3 SimpleWidgetPlayer observes playSimpleWidget and loads the widget.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+namespace
+{
+	const char*	JGSW_BINDING_PLAY	= "SimpleWidgetPlayer.playSimpleWidget";			// 33471d7c
+	const char*	JGSW_BINDING_CLEAR	= "SimpleWidgetPlayer.clearSimpleWidgetPlayer";		// 33471d50
+}
+
+class CKTDGGFXSimpleWidgetPlayer::CImpl : public IJuneGfxListener
+{
+public:
+	explicit CImpl( CKTDGGFXManagerImpl* pMgrImpl )
+	{
+		if ( pMgrImpl != NULL && pMgrImpl->m_pUI != NULL )
+			m_pAdapter = pMgrImpl->m_pUI->GetAdapter();
+		if ( m_pAdapter )
+		{
+			m_pAdapter->AddListener( this );									// 31fc74e0 -> 31d1f690
+			m_pAdapter->AddBinding( JGSW_BINDING_PLAY, JGBK_SIMPLE_WIDGET );	// 31d1f900: the 0x30 B value object
+			m_pAdapter->AddBinding( JGSW_BINDING_CLEAR, JGBK_TRIGGER );			// 31d1f900: the 8 B trigger, notified by nobody in June
+		}
+	}
+
+	~CImpl()
+	{
+		if ( m_pAdapter )		// 31fc72e0: 31d1f550 ( the listener ), 31d1f600 x 2
+		{
+			m_pAdapter->RemoveListener( GetListenerName() );
+			m_pAdapter->RemoveBinding( JGSW_BINDING_PLAY );
+			m_pAdapter->RemoveBinding( JGSW_BINDING_CLEAR );
+		}
+	}
+
+	virtual std::string GetListenerName() const { return "simpleWidgetPlayer"; }		// 31fc79a0: 18 chars of 33471e84
+
+	// 31fc73a0: the AS call "simpleWidgetFunctionInit" is answered ( true ) and does nothing: June copies the first argument, makes a 0xc B function
+	// object ( vtable 33471e00, owner = the player ) and drops it again without setting it anywhere
+	virtual bool OnExternalCall( SFG::Movie* /*pMovie*/, const char* szMethod, const SFG::Value* /*pArgs*/, unsigned /*uArgCount*/ )
+	{
+		return ( szMethod != NULL && strcmp( szMethod, "simpleWidgetFunctionInit" ) == 0 );
+	}
+
+	bool IsBound() const { return m_pAdapter.GetPtr() != NULL; }
+
+	// 31fc75e0
+	bool PlaySimpleWidget( int iUIID, const char* szFileName, int iParam1, int iParam2 )
+	{
+		if ( !m_pAdapter || szFileName == NULL )
+			return false;
+		if ( m_pAdapter->HasBinding( JGSW_BINDING_PLAY ) == false )		// 31d1ef00 returned 0
+			return false;
+		m_pAdapter->SetBindingWidget( JGSW_BINDING_PLAY, iUIID, szFileName, iParam1, iParam2 );
+		m_pAdapter->NotifyBinding( JGSW_BINDING_PLAY );					// 31d1ee10
+		return true;
+	}
+
+private:
+	SF::Ptr< CLIKDataBindingAdapter >	m_pAdapter;
+};
+
+CKTDGGFXSimpleWidgetPlayer::CKTDGGFXSimpleWidgetPlayer( CKTDGGFXManager* pManager )
+	: m_pImpl( new CImpl( pManager != NULL ? pManager->m_pImpl : NULL ) )
+{
+}
+
+CKTDGGFXSimpleWidgetPlayer::~CKTDGGFXSimpleWidgetPlayer()
+{
+	SAFE_DELETE( m_pImpl );
+}
+
+bool CKTDGGFXSimpleWidgetPlayer::IsBound() const															{ return m_pImpl->IsBound(); }
+bool CKTDGGFXSimpleWidgetPlayer::PlaySimpleWidget( int iUIID, const char* szFileName, int iParam1, int iParam2 )	{ return m_pImpl->PlaySimpleWidget( iUIID, szFileName, iParam1, iParam2 ); }
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // CKTDGGFXManager

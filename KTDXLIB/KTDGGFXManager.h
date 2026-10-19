@@ -70,6 +70,9 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	friend class CKTDGGFXEventSceneBridge;		// reaches the root movie's data-binding adapter ( KTDGGFXManager.cpp )
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	friend class CKTDGGFXSimpleWidgetPlayer;	// reaches the root movie's data-binding adapter ( KTDGGFXManager.cpp )
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	CKTDGGFXManagerImpl*	m_pImpl;
 };
 
@@ -127,6 +130,27 @@ private:
 	CImpl*	m_pImpl;
 };
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// June GFx runtime, Phase G4 ( SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN ): June's CX2SimpleWidgetPlayer ( RTTI .?AVCX2SimpleWidgetPlayerAdapter@@, 8 B:
+// vtable 33471da4, +4 = the root movie's adapter; ctor 31fc74e0, dtor 31fc72e0 / 31fc7650 ), owned by CX2Main ( +0xd7c ). Plain types only.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class CKTDGGFXSimpleWidgetPlayer
+{
+public:
+	explicit CKTDGGFXSimpleWidgetPlayer( CKTDGGFXManager* pManager );	// 31fc74e0: listener "simpleWidgetPlayer" + the bindings playSimpleWidget / clearSimpleWidgetPlayer
+	~CKTDGGFXSimpleWidgetPlayer();										// 31fc72e0: the same three taken off again
+
+	bool	IsBound() const;											// this +4 != 0: there was a root movie adapter
+	// 31fc75e0: false without an adapter or binding; else sets the binding's widgetID / fileName / parameter1 / parameter2 and notifies it
+	bool	PlaySimpleWidget( int iUIID, const char* szFileName, int iParam1, int iParam2 );
+
+private:
+	class CImpl;
+	CImpl*	m_pImpl;
+};
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
 // Dev-console hooks ( C++ Lua bindings, CKTDXApp::RegisterLuabind ): no .lua is involved.

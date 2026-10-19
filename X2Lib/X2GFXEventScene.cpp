@@ -600,3 +600,51 @@ bool JuneGfxIsRecentlyPlayedEventScene_LUA( const char* szName )		// 327ccb20
 	return g_pData->GetGFXEventScene()->IsRecentlyPlayed( wstrName );
 }
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Phase G4: CX2Main's CX2SimpleWidgetPlayer ( g_pMain +0xd7c ) and the user skill cut-in widgets. Log tag [JUNE_GFX] CUTIN ( ErrorLog.txt ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+static void JuneGfxCutInLog( const char* szFormat, ... )
+{
+	char szBuf[ 1024 ] = { 0, };
+	va_list args;
+	va_start( args, szFormat );
+	_vsnprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, szFormat, args );
+	va_end( args );
+	KLOG( "ErrorLog.txt" ) << "[JUNE_GFX] CUTIN " << szBuf << fileout;
+}
+
+// 31d70c60: made once; June passes the root movie's adapter ( g_pKTDXApp +0x1c8 -> +0x98 vslot 1 ) or 0 when there is no movie, and then
+// 31fc75e0 returns 0 for good ( this +4 == 0 ), as CKTDGGFXSimpleWidgetPlayer does without an adapter
+void CX2Main::JuneMakeSimpleWidgetPlayer()
+{
+	if ( NULL != m_pJuneSimpleWidgetPlayer || NULL == g_pKTDXApp )
+		return;
+	m_pJuneSimpleWidgetPlayer = new CKTDGGFXSimpleWidgetPlayer( g_pKTDXApp->GetJuneGFXManager() );
+}
+
+// 31d76b40( uiId, name, side, b ): make the player, then, when it exists: UI 0xc first plays the frame ( side, 1 ) and a random talk balloon
+// CUT_IN_TALK_<R_|L_><rand() % 3 + 1> ( 0, 0x3c ) ( "L_" for a non-zero side ), then the cut-in itself ( side, b )
+void CX2Main::JunePlayCutInWidget( int iUIID_, const std::string& strName_, bool bLeft_, int iParam_ )
+{
+	JuneMakeSimpleWidgetPlayer();
+	if ( NULL == m_pJuneSimpleWidgetPlayer )
+		return;
+
+	const int iSide = ( true == bLeft_ ) ? 1 : 0;
+	bool bPlayed = true;
+	if ( 0xc == iUIID_ )
+	{
+		bPlayed = m_pJuneSimpleWidgetPlayer->PlaySimpleWidget( 0xc, "Common_CutIn_Frame.gfx", iSide, 1 ) && bPlayed;
+
+		char szTalk[ 64 ] = { 0, };
+		sprintf_s( szTalk, sizeof( szTalk ), "CUT_IN_TALK_%s%d.gfx", ( true == bLeft_ ) ? "L_" : "R_", rand() % 3 + 1 );
+		bPlayed = m_pJuneSimpleWidgetPlayer->PlaySimpleWidget( 0xc, szTalk, 0, 0x3c ) && bPlayed;
+	}
+	bPlayed = m_pJuneSimpleWidgetPlayer->PlaySimpleWidget( iUIID_, strName_.c_str(), iSide, iParam_ ) && bPlayed;
+
+	JuneGfxCutInLog( "play ui=0x%x %s side=%s%s", iUIID_, strName_.c_str(), ( true == bLeft_ ) ? "L" : "R",
+		( true == bPlayed ) ? "" : " ( no widget binding: the root movie is not up )" );
+}
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN

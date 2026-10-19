@@ -8827,6 +8827,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June GFx runtime Phase G4 - June's user skill cut-in as a GFx widget: CX2GUUser::ActiveSkillShow's leaf ( 31fd95a0 ) hides while the dialogs
+//              are hidden or for bOnlyLight, returns a dragged item ( 32153240 ), then plays <name>.gfx on UI 0xc through CX2Main's
+//              CX2SimpleWidgetPlayer ( g_pMain +0xd7c, made at the StartUp state's script load 3259bb20 and lazily by 31d76b40 ): Common_CutIn_Frame.gfx +
+//              CUT_IN_TALK_<R_|L_><1-3>.gfx + the cut-in ( 31d76b40 ), each a playSimpleWidget ( 31fc75e0 ) = a notify of the movie's
+//              "SimpleWidgetPlayer.playSimpleWidget" data binding ( KTDGGFXManager.cpp, CKTDGGFXSimpleWidgetPlayer ). Replaces March's CutIn_Right / CutIn_Left /
+//              CutIn_Talk_* particles for users ( NPCs keep the texture route ). Log tag [JUNE_GFX] CUTIN. Off = March's particle cut-in.
+#define SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+#ifndef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#error SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN needs SERV_IRUHADEV_JUNE_GFX_EVENTSCENE (the adapter's data-binding table, X2GFXEventScene.cpp's file)
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June GFx runtime G4 debug: dev-console JuneGfxCutIn( "HQ_CutIn_Elsword_01" ) runs my unit's ActiveSkillShow with a June cut-in name ( no extension, as June's
+//              class tables write it ). Off after the G4 review.
+#define SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June quest system Phase Q1: June's quest enums (QT_GUILD / QT_CHANGE_TRANSCENDENTAL_CLASS / QT_STORY, QRT_WEEK / QRT_MONTH /
 //              QRT_CHAIN_REPEAT, CJT_JOB_FOURTH, SQT 37-48), the quest parser's new keys (chain id, additional scene quests, select BGM, account /
 //              guild flags, QR_* class tail, clear-condition keys for the new sub-quest types, m_eDungeonID keeps 0, m_cDifficulty), the

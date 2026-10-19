@@ -404,6 +404,11 @@ private:
 	D3DXVECTOR2 GetDLGSize(UI_MENU DLG);
 	void SetDLGPosition(UI_MENU DLG, D3DXVECTOR2 vec);
 	void SetNowDragItemReturn();
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+public:
+	void JuneSetNowDragItemReturn() { SetNowDragItemReturn(); }	/// June 32153240 ( CX2UIManager, g_pData +0x2cc ): ActiveSkillShow's first act
+private:
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 	void SetShowMinimapUI(bool bVal);
 	void SetShowGageUI(bool bVal);

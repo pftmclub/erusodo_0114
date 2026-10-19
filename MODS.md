@@ -4362,3 +4362,19 @@ went live under `US_INTERNAL` for the first time in this migration and does
 the same job (skip the login screen, sign in as a fixed account) by reading
 an external `LoginKey.lua`, which has none of the three problems. See
 `MARCH_2014_MIGRATION.md`'s "What Phase 1 established" for the full reasoning.
+
+### June GFx runtime: user skill cut-in as a GFx widget (june-gfx G4, 2026-10-19)
+
+Flags `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN` (+ `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG`) in `KTDXLIB/Always.h` (client only; `#error`s without `JUNE_GFX_EVENTSCENE`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G4"; log tag `[JUNE_GFX] CUTIN` (ErrorLog.txt).
+- **Client.** `X2GUUser.cpp`: `ActiveSkillShow( bonePos, ... )` (June's leaf `31fd95a0`) returns early with June's GFx body: the dragged item goes back (`CX2UIManager::JuneSetNowDragItemReturn`, `X2UIManager.h`),
+  then `g_pMain->JunePlayCutInWidget( 0xc, <name>.gfx, facing left, 0 )`; March's `CutIn_Right/Left`, `FocusLine`, `OutLine` and `CutIn_Talk_*` particles stay below it for flag off. NPC cut-ins (`CX2GUNPC`) are untouched.
+  `X2GFXEventScene.cpp`: `CX2Main::JuneMakeSimpleWidgetPlayer` (`31d70c60`; also called at the end of `X2StateStartUp.cpp`'s script load, as June's `3259bb20`) and `JunePlayCutInWidget` (`31d76b40`:
+  frame + random `CUT_IN_TALK_<R_|L_><1-3>` + the cut-in). `X2Main.h/.cpp`: member `m_pJuneSimpleWidgetPlayer` (June `+0xd7c`), deleted in `~CX2Main`.
+  `KTDXLIB/KTDGGFXManager.{h,cpp}`: `CKTDGGFXSimpleWidgetPlayer` (June's `CX2SimpleWidgetPlayer`: listener `simpleWidgetPlayer`, data bindings `SimpleWidgetPlayer.playSimpleWidget` /
+  `...clearSimpleWidgetPlayer`), a third binding kind (an object `{ widgetID, fileName, parameter1, parameter2 }`) in G3's adapter table, and the adapter keeps the movie for it.
+- **Project files:** none (no new file).
+- **What changes in game:** every user skill cut-in is a GFx widget set (frame, talk balloon, cut-in art) instead of the particle cut-in. March's class tables still name `.dds` textures
+  (`june2017_re/g4_cutin_names.tsv`: none of the 52 names has a June `.gfx`), so until the character ports rename them the art part of a class cut-in does not show; hyper cut-ins and the
+  debug command use June names.
+- **Debug (G4 review turns it off):** dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` runs my unit's `ActiveSkillShow` with a June name.
+- **Revert:** comment out `JUNE_GFX_TALK_CUTIN` (and `_DEBUG`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.

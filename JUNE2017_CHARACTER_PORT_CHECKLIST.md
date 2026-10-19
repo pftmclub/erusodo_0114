@@ -590,6 +590,13 @@ with the first ported hyper active: option on Hide, use it -> the cut-in shows; 
 `Chung_Iron_Cannon`, `ELESIS_KNIGHT`, `Eve_Nasod`, `Rose_Ranger`), and `STATE_SOUND_PLAY<n>` inside a sound set (`Add_NasodRuler`, `ELESIS_KNIGHT`).
 Engine side done; nothing to port per class beyond the overrides.
 
+**Skill cut-in names (from june-gfx G4, `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN`):** June's user skill cut-in is a GFx widget: `ActiveSkillShow` appends `.gfx` to the name
+it is given and plays it (with `Common_CutIn_Frame` and a `CUT_IN_TALK_` balloon) through the root movie. June's class tables therefore hold names **without an extension**
+(`HQ_CutIn_Elsword_01`, `HQ_CutIn_Raven_BM_01`, `HQ_CutIn_Ain_AAP_hyper`), and the files are `.gfx` in data152 / data194 / data195. March's tables (`s_SkillCutInSet`, `s_SkillCutInSetFoolsDay`) name
+`.dds` textures that are other names (`HQ_CutIn_Elsword_1.dds`, `HQ_CutIn_Raven_Blade_Master_1.dds`): none of the 52 has a `.gfx` (`june2017_re/g4_cutin_names.tsv`, with June's files of the same
+class prefix beside each). **Each class port replaces its table with June's names** (and the set / index layout June's class function reads: June `329cd890` + `32078b70` per class), dropping the
+`.dds`. Until then a class's skill cut-in shows the frame and the balloon but not the hero art. Dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` (G4's `_DEBUG`, while on) shows a full one.
+
 ### 7u. March-only effect templets the June re-adoption dropped (from June effect completion C11a)
 
 C11a (2026-10-16, user: full June re-adoption, route b) replaced data036 `DamageEffect.lua` / `EffectSet.lua` with June's own files. The merged

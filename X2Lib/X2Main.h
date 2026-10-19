@@ -726,6 +726,9 @@ inline void DeSerialize( KSerBuffer* pBuff, T* pData )
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+class CKTDGGFXSimpleWidgetPlayer;	/// June GFx runtime G4: KTDGGFXManager.h ( June's CX2SimpleWidgetPlayer, g_pMain +0xd7c )
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 class CX2Main : public CKTDXStage
 {
 	public:
@@ -1706,6 +1709,12 @@ class CX2Main : public CKTDXStage
 		CX2PVPEmblem*	GetPVPEmblem() { return m_pX2PVPEmblem; }
 		CX2InformerManager* GetInformerManager() { return m_pInformerManager; }
 		CX2MemoryHolder*	GetMemoryHolder() { return m_pMemoryHolder; }
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+		/// June GFx runtime G4 ( X2GFXEventScene.cpp ): 31d70c60 makes the player once ( StartUp state script load 3259bb20, and lazily below ); 31d76b40 plays
+		/// the cut-in widgets of a user skill cut-in: UI 0xc adds Common_CutIn_Frame.gfx + CUT_IN_TALK_<R_|L_><1-3>.gfx first. strName_ is "<cut-in>.gfx".
+		void				JuneMakeSimpleWidgetPlayer();
+		void				JunePlayCutInWidget( int iUIID_, const std::string& strName_, bool bLeft_, int iParam_ );
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 		void			IntentionalCrash();	// 고의로 crash 내는 함수
 		void			SetFreeCamera( bool bEnable );
@@ -2439,6 +2448,9 @@ class CX2Main : public CKTDXStage
 		
 		CX2InformerManager*			m_pInformerManager;
 		CX2MemoryHolder*			m_pMemoryHolder;
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+		CKTDGGFXSimpleWidgetPlayer*	m_pJuneSimpleWidgetPlayer;	/// June CX2Main +0xd7c
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 
 		HINTERNET					m_hInternet;
 

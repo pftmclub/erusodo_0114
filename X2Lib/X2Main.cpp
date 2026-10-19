@@ -25,6 +25,9 @@ using boost::bind;
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #include "X2GFXEventScene.h"
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+void JuneGfxCutIn_LUA( const char* szName );	/// X2GUUser.cpp
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 
 #ifdef	CHECK_KOM_FILE_ON_LOAD
 #include <libxml/parser.h>
@@ -1498,6 +1501,9 @@ m_pMemoryHolder( NULL )
 #ifdef SERV_IRUHADEV_JUNE_TUTORIAL_MODE
 	m_bJuneTutorialKeyLatch	= false;
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	m_pJuneSimpleWidgetPlayer = NULL;
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	m_StateIDBeforeTutorial = XS_INVALID;
 	m_iRandLoadingBG		= 0;
 
@@ -1983,6 +1989,9 @@ CX2Main::~CX2Main(void)
 	m_mapWaitServerPacketList.clear();
 
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+	SAFE_DELETE( m_pJuneSimpleWidgetPlayer );	/// June 31d51ec8 region: the player's dtor 31fc72e0 takes its listener and bindings off the movie's adapter
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	SAFE_DELETE( g_pInstanceData );
 
 
@@ -5560,6 +5569,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::def( L, "PlayEventScene",				&JuneGfxPlayEventScene_LUA );
 	lua_tinker::def( L, "IsRecentlyPlayedEventScene",	&JuneGfxIsRecentlyPlayedEventScene_LUA );
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+	lua_tinker::def( L, "JuneGfxCutIn",					&JuneGfxCutIn_LUA );	/// G4 debug: JuneGfxCutIn( "HQ_CutIn_Elsword_01" )
+#endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 #ifdef REFORM_SKILL_NOTE_UI
 	lua_tinker::class_add<CX2SkillNoteManager>( L, "CX2SkillNoteManager" );
 	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddSkillNoteTemplet",						&CX2SkillNoteManager::AddSkillNoteTemplet_LUA);
