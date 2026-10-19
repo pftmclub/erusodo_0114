@@ -835,7 +835,7 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UI` (Always.h, needs `JUNE_QUEST_LOAD`). Log `[JU
 - **Play-test fix (user, 2026-10-19).** First test: June's scenario-movie controls (12 `Button_Movie_N` / `NewTexture_N`, `Village`, `g_pStatic_HorizonLine`, `RadioButton_Area`) drew over every tab. June hides them with `323ca6d0`, which I had left with the movie tab. Ported as `JuneHideMovieTab` (called at window creation `323d0ca0` and at the end of every `JuneResetQuestUI`), commit `6785efa9`, `DEPLOY OK` md5 2d6615c5116fa2c18e2bff380dde9080. Re-test: user PASSED (all tabs, accept / complete / give up); log: `[JUNE_QUEST] UI tab 5/6`, quest 11010 completed + relation refresh, 0 EXCEPTION, ErrorLog 0 lines.
 - **Hygiene.** `flagcheck JUNE_QUEST_UI --worktree --files ...`: `X2UIQuestNew.h` PASS (+71); `X2UIQuestNew.cpp` OTHER (+170, 0 deleted: two inserts sit inside the Elysion `#ifdef`); `Always.h` OTHER (define); the new `X2UIQuestNewJune.cpp` FAILs only on its first line `#include "StdAfx.h"` (a new file, same shape as `X2GFXEventScene.cpp`). 0 deleted, 0 non-ASCII, 0 EOL mismatches.
 
-### Q5a - Review (2026-10-19, Opus 5.5 high): PASS with 2 fixes
+### Q5a - Review (2026-10-19, Opus 5.5 high): PASS with 2 fixes; play-test PASSED 2026-10-19 (user: the red developer suffix shows on the detail title)
 
 Same flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Second reading against Ghidra (raw disassembly where the decompile lost registers).
 - **Matched, no change.**
