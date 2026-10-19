@@ -968,6 +968,28 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF` (needs `JUNE_QUEST_OFFLINE`; `#error`
 - **Not play-tested:** "a sub-quest without the flag still refuses Hard" holds by construction (`IsExistDungeonInSub` unchanged); it is not walked.
 - **Play-test = Q9 A3** (`june2017_re/quest_plan/q9_walk_checklist.md`): Burnt Forest Expert, 22182 then 22183; log `grep "VISIT quest 22162|upperDiff" offline_server.log`.
 
+### Q4d - Review (2026-10-19, Opus 5.5 high): PASS, no findings, no code change, no rebuild
+
+- **Server vs client, re-derived** (each `m_bUpperDifficulty` Lua read mapped to its `case`). Live server block is `#ifdef SERV_REFORM_QUEST`
+  (`XSLQuestManager.cpp:853`, the `#else` copy at 1510+ is not the reference): 883 NPC_HUNT, 943 QUEST_ITEM_COLLECTION, 1013 / 1039 / 1065 DUNGEON_TIME /
+  RANK / DAMAGE, 1096 the DUNGEON_CLEAR_COUNT + SUITABLE_LEVEL body (1070-1073), 1142 WITH_DIF_SERV_USER, 1200 ITEM_EQUIP_DUNGEON_CLEAR, 1318 VISIT_DUNGEON,
+  1353 FIND_NPC, 1437 ITEM_USE. Client `LoadClearCondition` reads all of them: 2672, 2777, 2833, 2873, 2917, 2964 (the body of `case` DUNGEON_CLEAR_COUNT /
+  SUITABLE_LEVEL / HAS_EXP, 2924-2929), 3056, 3139, and the three Q4d inserts 3243 / 3283 / 3379. The Done note's "missing exactly 22 / 26 / 27" holds.
+  The client's extra read at 3442 (PVE_WIN) has no live-server counterpart; PvP is not driven offline, out of scope.
+- **Inserts:** each inside its `case` braces before `break`; `LUA_GET_VALUE( ..., false )` (optional, default false, no `goto error_proc`), the shape
+  `X2TitleManager.cpp` uses. `#error` guard on `JUNE_QUEST_OFFLINE` is correct (the emulator is the only consumer that changes).
+- **Other readers, no label or gate change:** `GetPartyUIQuestIcon` `X2UIQuestNew.cpp:3828-3830` already ORs VISIT / FIND in (the studio's "tool cannot set
+  UPPER" stop-gap); 3868 is the `#else` of `REFORM_QUEST`; `SetQuestMonsterByQuestInfo` 7567 skips subs with no kill NPC; `X2DungeonGame` 2947-3012 sit after
+  the `!= SQT_DUNGEON_TIME` `continue` (2930); all eight `MakeSubQuestString` readers (4313...5478) are `#ifndef REFORM_QUEST` with no 22 / 26 / 27 case.
+- **Emulator:** `X2OfflineQuest.cpp` 2551 (VISIT_DUNGEON), 2619 (FIND_NPC), 2976 (ITEM_USE) pass `iDungeonID + (int)cDifficulty`; `IsExistDungeonInSub` (831)
+  half-compares (dungeon / 10 equal, digit <= user's) as `CXSLQuestManager::IsExistDungeonInSubQuest`.
+- **In-game evidence:** the user's Q9 A3 run ticked "Enter Burnt Forest" on Expert (recorded under Q4e, which it uncovered; that run's log was overwritten by
+  the 23:07 relaunch). The 23:07 run (deployed md5 c700eef7) census: type 26 `126 of 155` upperDiff=1, type 27 `38 of 43`, type 22 `0 of 1` (was 0 for all
+  three). The Done note's "about 88 / 121, 39 / 47" were offline phase 30's January counts; the June data gives the numbers above. 0 UNHANDLED, 0 EXCEPTION.
+- **Hygiene** (`flagcheck --range 674f09be^..674f09be`): `files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- Open: 22183 (clear, Expert) completing 22162 at Edel is still Q9 A3's to walk; the message box on the visit is Q4e.
+
 ## Phase Q4e - Visit-quest auto-complete refusal
 
 **Run with:** Opus 5.5 high. Found by Q9 play-test (user, 2026-10-19): after Q4d ticked "Enter Burnt Forest", a message box "the completion requirement is not met" appeared.
