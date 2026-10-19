@@ -5101,6 +5101,9 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GameEdit>( L, "AddString",					&CX2GameEdit::AddString_LUA );
 #ifdef MODIFY_EDIT_HELP
 	lua_tinker::class_def<CX2GameEdit>( L, "AddHelperText",				&CX2GameEdit::AddHelperText );
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+	lua_tinker::class_def<CX2GameEdit>( L, "AddPublicCommand",			&CX2GameEdit::AddPublicCommand );	// June 31d95080 @31e19734 -> 32747d70
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 #else
 	lua_tinker::class_def<CX2GameEdit>( L, "SetCommandListHelperText",	&CX2GameEdit::SetCommandListHelperText );
 #endif //MODIFY_EDIT_HELP
