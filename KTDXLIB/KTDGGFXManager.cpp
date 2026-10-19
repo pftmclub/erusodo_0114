@@ -816,10 +816,11 @@ private:
 		if ( m_pMovie == NULL )
 			return;
 		m_pMovie->CreateObject( pValue );
-		pValue->SetMember( "widgetID",		SFG::Value( (SF::SInt32)kBinding.m_iWidgetID ) );
+		// G4 review: June sets the three numbers as VT_UInt ( type 4 @31fc776b, the same for parameter1 / parameter2 ) and fileName as VT_String ( 6 )
+		pValue->SetMember( "widgetID",		SFG::Value( (SF::UInt32)kBinding.m_iWidgetID ) );
 		pValue->SetMember( "fileName",		SFG::Value( kBinding.m_strFileName.c_str() ) );
-		pValue->SetMember( "parameter1",	SFG::Value( (SF::SInt32)kBinding.m_iParameter1 ) );
-		pValue->SetMember( "parameter2",	SFG::Value( (SF::SInt32)kBinding.m_iParameter2 ) );
+		pValue->SetMember( "parameter1",	SFG::Value( (SF::UInt32)kBinding.m_iParameter1 ) );
+		pValue->SetMember( "parameter2",	SFG::Value( (SF::UInt32)kBinding.m_iParameter2 ) );
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 

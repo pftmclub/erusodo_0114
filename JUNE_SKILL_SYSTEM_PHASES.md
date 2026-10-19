@@ -1801,6 +1801,12 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` (`Always.h` only; `#error` guards `
 - **How to see it.** Unit 44 arishiaaa (Violet Mage) L10 -> 11: one row "Chain Fireball's new trait can be learned." (memo MI_ENHANCE). Unit 23 ravbe (Blade Master)
   L71 -> 72: two rows "[Enhanced] ... skill has became [Enhanced]" with the base names (24026 Cannon Blade, 24217 Shadow Step). Log `[JUNE_SKILL] EMBLEM`.
 - **Open questions:** none.
+- **Play-test 1 (09:34): emblem not shown -> fixed.** The feed ran (5 rows, L11-L15 by philosopher's scrolls) but emblem 17 was never parsed: March's parser never
+  closes `PLAY_SOUND_FILE_NAME_EMBLEM`, and the closing `EndTable` sits under `ADD_2013_CHARACTER_ADD_EVENT` (OFF), so after June's first entry with sounds
+  (`EI_OPEN_LONG_TIME_BOSS_RAID`) every later table was looked up inside it. Ported June's unconditional `EndTable` before the push (`32449000` @3244acef;
+  `KLuaManager::EndTable` stops at depth 0) and a parse summary line `[JUNE_SKILL] EMBLEM parsed N of M ...; emblem 17 loaded = 1`.
+  `DEPLOY OK: X2_offline.exe is 25,315,840 B, dated 2026-10-19 09:42:51, md5 2a1c1d3e0f0ec75e251bfc3d44cdacc3, equal to X2/US_SERVICE/x2.exe (2026-10-19 09:42:44); built at main c3fb3adf + 5 uncommitted code file(s).`
+  Unit 44 reset to L10, EXP 38700 (backup `db_backup`, `pre_setchar`).
 
 ## Phase S7j - June's max MP / max HP: ResetMaxMp, the unit's socket aggregate, the HUD refresh
 

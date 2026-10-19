@@ -4395,7 +4395,7 @@ an external `LoginKey.lua`, which has none of the three problems. See
 
 ### June GFx runtime: user skill cut-in as a GFx widget (june-gfx G4, 2026-10-19)
 
-Flags `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN` (+ `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG`) in `KTDXLIB/Always.h` (client only; `#error`s without `JUNE_GFX_EVENTSCENE`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G4"; log tag `[JUNE_GFX] CUTIN` (ErrorLog.txt).
+Flags `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN` (+ `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG`, off since the G4 review) in `KTDXLIB/Always.h` (client only; `#error`s without `JUNE_GFX_EVENTSCENE`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G4"; log tag `[JUNE_GFX] CUTIN` (ErrorLog.txt).
 - **Client.** `X2GUUser.cpp`: `ActiveSkillShow( bonePos, ... )` (June's leaf `31fd95a0`) returns early with June's GFx body: the dragged item goes back (`CX2UIManager::JuneSetNowDragItemReturn`, `X2UIManager.h`),
   then `g_pMain->JunePlayCutInWidget( 0xc, <name>.gfx, facing left, 0 )`; March's `CutIn_Right/Left`, `FocusLine`, `OutLine` and `CutIn_Talk_*` particles stay below it for flag off. NPC cut-ins (`CX2GUNPC`) are untouched.
   `X2GFXEventScene.cpp`: `CX2Main::JuneMakeSimpleWidgetPlayer` (`31d70c60`; also called at the end of `X2StateStartUp.cpp`'s script load, as June's `3259bb20`) and `JunePlayCutInWidget` (`31d76b40`:

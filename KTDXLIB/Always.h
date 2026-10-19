@@ -8844,7 +8844,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-19
 // Description: June GFx runtime G4 debug: dev-console JuneGfxCutIn( "HQ_CutIn_Elsword_01" ) runs my unit's ActiveSkillShow with a June cut-in name ( no extension, as June's
 //              class tables write it ). Off after the G4 review.
-#define SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+//#define SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG		// off since the G4 review ( 2026-10-19 )
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

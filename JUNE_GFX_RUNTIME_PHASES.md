@@ -525,6 +525,26 @@ variants, and closes.
 
 **Play-test PASSED (2026-10-19, user + log):** (1) `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` showed the frame, the balloon and the art; (2) a real Eve skill showed frame + balloon only (the name was `HQ_CutIn_Eve_EP_1.dds.gfx`: March's `.dds` table name, the checklist item, not a bug of this phase); (3) dialog hide showed nothing. Log: 4 + 3 `[JUNE_GFX] CUTIN play` lines, 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`. **The frame is black by design:** `Common_CutIn_Frame_I1/I8.dds` are black DXT3 with alpha (a slanted band, a wedge, dark radial lines), so there is no colour to lose. **Not exercised:** the left-facing variant (all 7 plays were `side=R`); the review checks `L_` against June's strings `33456858` / `3345685c` in Ghidra instead.
 
+### Phase G4 -- Review (2026-10-19, Opus 5.5 high): PASS, one transcription fix
+
+**Checked in Ghidra (read-only), all against the port:**
+- `31fd95a0` (leaf): `31d03920` on `g_pKTDXApp +0x1fc -> +0x38c` (GetHideDialog) == 1 or `[ebp+0x30]` (bOnlyLight, @31fd95ef; `[ebp+0x14]` = the name) skip all; `g_pData +0x2cc` != 0 -> `32153240`; name narrowed with code page 0 + `L".gfx"` (`31e572c0`); `31d76b40( 0xc, name, vslot 0x170() == 0, 0 )`: vslot 0x170 takes no argument (the `PUSH EBX` @31fd9820 is 31d76b40's last argument) and is GetIsRight (funcmap `321dc470`). Port matches, placed at the top of the leaf after March's own `DIALOG_SHOW_TOGGLE` test; March's body below is particles only (FocusLine / OutLine / CutIn_* / CutIn_Talk_*), nothing else dropped.
+- `31d76b40`: `31d70c60` first; nothing without `+0xd7c`; UI 0xc -> `Common_CutIn_Frame` (0x12 chars) + `.gfx` ( side, 1 ), then `CUT_IN_TALK_` + ( side == 0 ? `3345685c` : `33456858` ) + `rand() % 3 + 1` + `.gfx` ( 0, 0x3c ); then the name ( side, b ) for every UI id. Bytes from `unpacked_x2.exe`: `33456858` = `"L_"`, `3345685c` = `"R_"`, so non-zero side (facing left) = `L_`, as ported.
+- `31fc7720` (GetValue): only with a movie; members in order `widgetID` (+8), `fileName` (+0xc), `parameter1` (+0x28), `parameter2` (+0x2c), as ported. **Finding:** June builds the three numbers as `VT_UInt` (type 4 @31fc776b and the two parameter stores), the port as `SInt32` (`VT_Int`). Fixed under the same flag (`SF::UInt32`, `KTDGGFXManager.cpp` BuildWidgetValue). No in-game difference expected (values 0xc / 0 / 1 / 0x3c).
+- Also matched: `31fc75e0` (this +4 == 0 -> 0; `31d1ef00` binding, +8 / string / +0x28 / +0x2c, `31d1ee10` notify, 1), `31d70c60` (once, adapter from `g_pKTDXApp +0x1c8 -> +0x98` vslot 1 or 0), `31fc74e0` (listener, then the 0x30 B playSimpleWidget value and the 8 B clear trigger).
+- Callers: `ShowHyperSkillCutInByScript` (C3t) and the class code reach the leaf through March's overloads; no override of `CX2GUUser::ActiveSkillShow`; `CX2GUNPC::ActiveSkillShow` stays on its texture route (untouched).
+
+**Debug off:** `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG` commented in Always.h (every use is under it; `JuneGfxCutIn` no longer in the exe).
+
+**Hygiene.** Phase range `flagcheck SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN --range a826cb95^..a826cb95 --with ..._DEBUG`:
+`files: 6 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+Review worktree (`--files KTDGGFXManager.cpp Always.h`): `RESULT: PASS`; Always.h OTHER = peers' uncommitted flags; the 3 deleted lines are the three `SInt32` SetMember lines of this flag's own block, replaced.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,315,840 B, dated 2026-10-19 09:42:16, md5 6c49167a65a05f0a776f1a9508dd6978, equal to X2/US_SERVICE/x2.exe (2026-10-19 09:42:09); built at main c3fb3adf + 5 uncommitted code file(s).`
+
+**Log** (the 09:26 run, exe 3aad257b, i.e. the S7j play-test): 5 `[JUNE_GFX] CUTIN play ui=0xc` lines, sides L, R, L, R, L: **the left variant was exercised there** (G4's own run had only R). Each `HQ_CutIn_Elsword_LK_1.dds.gfx` play is followed by `KEM_ERROR135` for that name (the March `.dds` table names, checklist after 7t), 0 EXCEPTION, clean exit.
+**Owes:** nothing (no play-test needed for the type fix). Next: `/x2-phase june-gfx G5` on Sonnet 5.5 high.
+
 ## Phase G5 - Owed gates
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_GATES`. Sub-tag `GATE`.
