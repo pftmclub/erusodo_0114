@@ -1195,7 +1195,7 @@ clean `ErrorLog.txt` (below). Sonnet did everything here.
 - The `.avi` files are loose in June's `14JUN17\data\movie\` (13 files; `movie_elysion_clear` 43.6 MB). March has only `movie_ranox_clear`. The user copies them.
 
 **Hygiene:** `flagcheck JUNE_QUEST_MOVIE --worktree --files` (8 files): 4 PASS. The 4 OTHER rows are peers' uncommitted hunks: Q10's `QUEST_STORY` in
-X2Main.cpp / X2UIQuestNew.cpp, the skill session in X2GUUser.cpp, and Always.h defines. 0 deleted lines in this flag's files, RESULT: PASS. Range line after the commit: see STATUS.
+X2Main.cpp / X2UIQuestNew.cpp, the skill session in X2GUUser.cpp, and Always.h defines. 0 deleted lines in this flag's files, RESULT: PASS. Range `a2a1f29b^..a2a1f29b`: 7 PASS, 1 DEFINE, 0 FAIL, 0 deleted lines, RESULT: PASS.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,446,400 B, dated 2026-10-19 18:00:54, md5 36fbf5def5d982244a330e179b7837dd` (COALESCED into a peer's
 full build at 14420b7d + 30 uncommitted files, started after this request). The exe holds `DLG_Dungeon_Clear_Movie.lua`, `DungeonClearMovieTemplet.lua`,
