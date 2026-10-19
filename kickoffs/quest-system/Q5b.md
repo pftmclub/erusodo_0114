@@ -41,3 +41,9 @@ Rows: `june2017_re/quest_plan/q0b_ui_map.tsv`, target `Q5b`.
   **This replaces the done gate's second half:** "a pre-Elysion quest with a Lua scene still plays that scene" becomes
   "a quest with no scene-info row plays no scene and logs it".
 - **The clear window** `323d2c60` matches `OpenQuestRewardWindow` (`:2331`). Port it whole, and adopt June's `DLG_UI_NEW_Quest_Clear` (`ljconv`, data034) with it.
+
+## Added by the Q5a review (2026-10-19)
+
+- NEW_QUEST_NOT `323e4cb0` @323e4e48-323e4e54: for **every** epic quest (templet type 5) June sets `*(g_pData +0x274) +0x70 = 1` before it
+  opens the detail mode. March calls `NotifyNewEpicQuest()` only inside its start-scene branch (`X2UIQuestNew.cpp`, NEW_QUEST_NOT). Name the
+  `+0x274` object (likely the event scene, `m_bNotifyNewEpicQuest`) and port the write with the scene calls.

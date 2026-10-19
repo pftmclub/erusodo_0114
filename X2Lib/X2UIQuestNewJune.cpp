@@ -13,7 +13,7 @@
 //   - the scenario-movie tab ( 323ca6d0 / 323dfc00 ) and the clear movie of a complete request ( 31d7a240 ): Q8.
 //   - the village-NPC friendship manager ( 32696fa0 / 3267b440, backlog Stage 18 ): no quest is a friendship quest here, which is
 //     what June's lookup returns for an empty manager ( JuneIsFriendshipQuest ).
-//   - the story-quest helper object ( 326ab210 family, g_pData +0x288 ): Q3 / Q4.
+//   - the story-book singleton ( 326ab210 / 326ab090 ) behind the story Remind button: Q10.
 //   - the tutorial-guide manager ( 31d70b00 / 31fc5920 ) and the menu "Skill_New" mark refresh ( state vtable +0x104 ): Stage 9.
 
 #ifndef SERV_IRUHADEV_OFFLINE
@@ -1551,7 +1551,8 @@ void CX2UIQuestNew::JuneUpdateQuestButton()
 		pButtonAccept->RequestFocus();
 		break;
 	case QSS_COMPLETE_STORY:
-		// June 323ccbc0 case 6: the remind button needs the story scene helper ( 326ab210 family, Q3 / Q4 ); without it the button stays hidden
+		// June 323ccbc0 case 6 ( @323cd3a7 ): the remind button needs the story-book singleton 326ab210 / 326ab090 ( Q10 ); until then it
+		// stays hidden, as June has it for a quest with no book entry
 		break;
 	}
 }
@@ -1584,6 +1585,46 @@ void CX2UIQuestNew::JuneUpdateDetailQuestTitle()
 	}
 	pStaticQuestTitle->SetString( 0, wstrTitle.c_str() );
 #endif ELLIPSE_GLOBAL
+
+	// June 323ce6f0 @323ce89a: the red developer suffix "( id, repeat, time event, level, class )" for auth level 2 and up ( March:
+	// XUAL_DEV and up under SHOW_DAILY_REPEAT_MARK_ON_EVENT_QUEST_FOR_DEVELOPER, without W / M ). Strings 334939bc .. 3345732c.
+	if( g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR )
+	{
+		wstringstream wstrstm;
+#ifdef ELLIPSE_GLOBAL
+		wstrstm << wstrTitle;
+#else ELLIPSE_GLOBAL
+		wstrstm << pQuestTemplet->m_wstrTitle;
+#endif ELLIPSE_GLOBAL
+		wstrstm << L"#CFF0000(" << pQuestTemplet->m_iID << L", ";
+		switch( pQuestTemplet->m_eRepeatType )
+		{
+		case CX2QuestManager::QRT_NORMAL:	wstrstm << L"N";	break;
+		case CX2QuestManager::QRT_DAY:		wstrstm << L"D";	break;
+		case CX2QuestManager::QRT_REPEAT:	wstrstm << L"R";	break;
+		case CX2QuestManager::QRT_WEEK:		wstrstm << L"W";	break;
+		case CX2QuestManager::QRT_MONTH:	wstrstm << L"M";	break;
+		default:							wstrstm << L"?";	break;
+		}
+		wstrstm << L", " << ( true == pQuestTemplet->m_bIsTimeEvent ? L"T" : L"F" );
+		wstrstm << L", " << pQuestTemplet->m_Condition.m_iLevel << L", ";
+
+		bool bSelected = ( CX2Unit::UT_NONE != pQuestTemplet->m_Condition.m_eUnitType );
+		if( false == bSelected )
+		{
+			std::set< CX2Unit::UNIT_CLASS >::const_iterator sit;
+			for( sit = pQuestTemplet->m_Condition.m_setUnitClass.begin(); sit != pQuestTemplet->m_Condition.m_setUnitClass.end(); ++sit )
+			{
+				if( CX2Unit::UC_NONE != *sit )
+				{
+					bSelected = true;
+					break;
+				}
+			}
+		}
+		wstrstm << ( true == bSelected ? L"S" : L"A" ) << L")";
+		pStaticQuestTitle->SetString( 0, wstrstm.str().c_str() );
+	}
 
 	// pictures 0..12 and 15..19 off ( 13 is the face, 14 the frame )
 	for( int iPic = 0; iPic <= 12; ++iPic )

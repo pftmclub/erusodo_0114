@@ -1986,6 +1986,10 @@ bool CX2UIQuestNew::Handler_EGS_NEW_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wPar
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_NEW_QUEST_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	// June 323e4cb0 ( NEW_QUEST_NOT ) has no forbidden-quest give-up: June calls IsForbiddenQuest 3232e510 from the June-only
+	// push 0x27b 323e05f0 instead ( Q4 ). March's check stays in the #else.
+#else SERV_IRUHADEV_JUNE_QUEST_UI
 
 #ifdef SERV_GATHER_GIVE_UP_QUEST
 	if( true == g_pData->GetQuestManager()->IsForbiddenQuest( kEvent.m_QuestInst.m_iID ) )
@@ -1994,6 +1998,7 @@ bool CX2UIQuestNew::Handler_EGS_NEW_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wPar
 		return true;
 	}
 #endif SERV_GATHER_GIVE_UP_QUEST	
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 	g_pData->GetQuestManager()->CreateUnitQuest( kEvent.m_QuestInst.m_iID, kEvent.m_QuestInst );
 	m_iSelectedQuestID = kEvent.m_QuestInst.m_iID;

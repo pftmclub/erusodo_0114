@@ -803,6 +803,47 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UI` (Always.h, needs `JUNE_QUEST_LOAD`). Log `[JU
 - **Play-test fix (user, 2026-10-19).** First test: June's scenario-movie controls (12 `Button_Movie_N` / `NewTexture_N`, `Village`, `g_pStatic_HorizonLine`, `RadioButton_Area`) drew over every tab. June hides them with `323ca6d0`, which I had left with the movie tab. Ported as `JuneHideMovieTab` (called at window creation `323d0ca0` and at the end of every `JuneResetQuestUI`), commit `6785efa9`, `DEPLOY OK` md5 2d6615c5116fa2c18e2bff380dde9080. Re-test: user PASSED (all tabs, accept / complete / give up); log: `[JUNE_QUEST] UI tab 5/6`, quest 11010 completed + relation refresh, 0 EXCEPTION, ErrorLog 0 lines.
 - **Hygiene.** `flagcheck JUNE_QUEST_UI --worktree --files ...`: `X2UIQuestNew.h` PASS (+71); `X2UIQuestNew.cpp` OTHER (+170, 0 deleted: two inserts sit inside the Elysion `#ifdef`); `Always.h` OTHER (define); the new `X2UIQuestNewJune.cpp` FAILs only on its first line `#include "StdAfx.h"` (a new file, same shape as `X2GFXEventScene.cpp`). 0 deleted, 0 non-ASCII, 0 EOL mismatches.
 
+### Q5a - Review (2026-10-19, Opus 5.5 high): PASS with 2 fixes
+
+Same flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Second reading against Ghidra (raw disassembly where the decompile lost registers).
+- **Matched, no change.**
+  - List builders `323d5650` (vector targets settled by disasm `323d5a60-323d5d70`: epic `+0x4c8`, event `+0x458`, guild `+0x488`, story `+0x498`, ongoing `+0x438`,
+    quick `+0x4e8`; an ongoing story quest goes to story and ongoing), `323cf570`, `323d0770`, `323d4910`, `323d4ae0`, `323cab40`, `323ca300`, `323c9250`, `323c9e80`.
+    - States 0..7 and the tab-priority flags (`+0x736..+0x739`, `+0x758/759`).
+    - The story progress map: insert-if-absent, erase or set to 1.
+    - The quick-quest push condition.
+    - June skips a completed story quest whose group is missing from the story index. That case never happens, because the index holds every QT_STORY quest by its group (Q0a).
+  - `JuneResetQuestList` `323d9400`: all 7 modes, the per-mode lists, the clamp, mode 0 -> 1. `323dfa80`.
+  - Slot rows `323d8be0` / `323d80d0`: picture numbers match June's `Static_QuestList0` order (0 usual .. 22 MONTH, 23 Black). The shade colour is 0.7058 and the ellipse offset (150, 50), both read from the exe. The width is 208, because `ELLIPSE_GLOBAL` and `QUEST_LIST_TITLE_CUT_STRING` are both on in US. The done / going marks and the open rules also match.
+  - `323ccbc0` buttons from the raw disassembly (`323ccbc0-323cd490`, jump tables `323cd454` / `323cd474`): every assignment is right.
+    - Admin is `[esp+0x18]`. The game states for the tooltip are June 9 / 0xb / 0x17 PVE_GAME / 0x1a PHOTOZONE_GAME, and March has no twin for the last two.
+    - `323ca880`, and the skip flow `0xa055` / `0xa056` (string 43475, ok id 0xa056, `323d24f0` with an empty map) also match.
+  - The in-place edits, each against June:
+    - category select `0xa03e` (mode 1 keeps the top row);
+    - scroll-down `0xa030` (rows - 1 < 14);
+    - GIVE_UP `154` (`323e4aa0`);
+    - COMPLETE_ACK 11000 (`323e57e0`);
+    - board default (`323d2b40`);
+    - tab cases `0xa044/45/53/54`.
+  - June state numbers (funcmap row `31d6fd60`): 0xe village, **0xf = June-only `XS_GUILD_AGIT_GAME`**, 0x15 battle field. March's square is not in June's set.
+  - Strings: 40047 "Waiting for Action" and 43475 are in the live `general.ess` (45,160 rows).
+- **Fix 1: the developer title suffix** (`323ce6f0` @323ce89a, auth >= 2): `#CFF0000(id, N/D/R/W/M, T/F, level, S/A)`. March had it (`SHOW_DAILY_REPEAT_MARK_ON_EVENT_QUEST_FOR_DEVELOPER`, dev only); Q5a dropped it. Added to `JuneUpdateDetailQuestTitle`.
+- **Fix 2: NEW_QUEST_NOT** `323e4cb0` has no forbidden-quest give-up. June calls `IsForbiddenQuest` only from the June-only push `0x27b` `323e05f0` (xrefs).
+  March's `SERV_GATHER_GIVE_UP_QUEST` block now sits in the flag's `#else` (`X2UIQuestNew.cpp`).
+- **Owners corrected / added.**
+  - The story Remind button (`323ccbc0` case 6) needs the story-book singleton `326ab210`. It belongs to **Q10**, not Q3/Q4 (kickoff amended).
+  - NEW_QUEST_NOT's epic write `*(g_pData+0x274)+0x70` (@323e4e54) goes to **Q5b** (kickoff amended).
+  - The admin complete REQ `323d1fc0` has the same clear movie / transcend guard as `323d24f0` (Q8 / Stage 6). Both also call `CX2UIProfessionManager` `32396dc0` / `3239d810`, which June alone has (Stage 9).
+  - `UpdateNewQuestNotice` `323d4390` (Q0b: "port whole") was never compared by Q5a. Q6 (running) adds its gate there; **Q6's review compares the whole body**.
+  - The detail case's guild reward `323cdbc0` stays Q1's.
+- **Hygiene.** `flagcheck JUNE_QUEST_UI --range 5383d636^..HEAD` showed the expected results:
+  - the new file FAILs on `#include "StdAfx.h"` only;
+  - `X2UIQuestNew.cpp` is OTHER (inside the Elysion `#ifdef`);
+  - 0 deleted lines, 0 non-ASCII, 0 EOL mismatches.
+
+  The review edits give `--worktree`: `X2UIQuestNewJune.cpp` PASS (+43 -2: two comment lines reworded), `X2UIQuestNew.cpp` +5 (the other +7 are Q6's `JUNE_QUEST_GATE`, not in this commit).
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,389,568 B, dated 2026-10-19 14:15:23, md5 5b3e8252d9fd53faffc492745a69ed5f, equal to X2/US_SERVICE/x2.exe (2026-10-19 14:15:15); built at main d3c30f58 + 21 uncommitted code file(s)` (COALESCED: a peer's full build at 14:15:28 compiled these edits; `X2UIQuestNew.obj` / `X2UIQuestNewJune.obj` 14:13 are newer than the 14:03 sources).
+
 ## Phase Q5b - Quest UI: scenes, clear window, scene info
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_SCENE`. Sub-tag `SCENE`. Needs june-gfx G3.

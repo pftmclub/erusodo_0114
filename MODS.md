@@ -4474,6 +4474,7 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RUNTIME` in `KTDXLIB/Always.h` (needs `JUNE_QUEST
 Flag `SERV_IRUHADEV_JUNE_QUEST_UI` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q5a - Done"; log tag `[JUNE_QUEST] UI`.
 - **Client.** New `X2Lib/X2UIQuestNewJune.cpp` (listed in `X2Lib_2010.vcxproj`): June's tabs (Request / Scenario / Event / Guild / Story), list builders, slot rows, buttons incl. skip-epic, detail title, NPC face keys. `X2UIQuestNew.cpp/.h`: dispatches, enums, members.
 - **Data.** data034 `DLG_UI_NEW_Quest_List` / `_Detail` / `DLG_UI_Quest_Clear` = June's (backup `kom_backup_stage_june\20261019_115132`); data036 `Enum.lua` + 10 UQNCM ids (core list, `luasrc refresh`).
+- **Review (2026-10-19).** June's developer suffix on the detail title (auth >= 2); NEW_QUEST_NOT without March's forbidden-quest give-up (`#else` of the flag in `X2UIQuestNew.cpp`). Same revert.
 - **Revert:** comment out the define, restore the three DLGs from `24965799\kom_contents_bytecode\data034_kom\` (or the backup above), drop the 10 `UQNCM_*` lines from `Enum.lua` (`luasrc.py refresh`), `kom.py pack` data034 / data036, ask, copy; `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No save change.
 
 ### June quest system: region quest gates (quest-system Q6, 2026-10-19)
