@@ -4339,6 +4339,18 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYS
   `NUI_EDEL` stays 10072 (Q7 decides).
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and restore data036 from `kom_backup_tools/` (`data036.kom.20261019_070244`). No save change.
 
+### June quest system: data flip and old-save migration (quest-system Q2, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_DATA` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q2"; log tag `[JUNE_QUEST] MIG`.
+- **Data (moves with the exe).** data036: June's `FieldQuest.lua`, `FieldSubQuest.lua`, `AccountQuest.lua` replace March's (adopt-june, ljconv bytecode; March's 257 quests go).
+  March's originals are kept in `24965799\kom_contents_bytecode\data036_kom\` and `kom_backup_stage_june\20261019_074358\`.
+- **Save v21** (`X2Lib/Offline/X2OfflineDB.*`, `MigrateQuestsToJune`; tables `X2OfflineJuneQuestMig.h` from `june2017_re/quest_plan/q2_gen.py`): in-progress and completed
+  quests June has no templet for are deleted; where a dropped epic was in progress, the epic June opens from the same predecessor is accepted; quests whose sub-quests
+  changed restart at 0 (user, 2026-10-19). One-way.
+- **Client.** `X2UIQuestNew.cpp`: the two complete-ack handlers and four quest-list readers skip a quest id with no templet and log it once.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, put March's three `.lua` back into `kom_contents\data036_kom\` and repack /
+  copy data036, and restore the save from `db_backup\els_db_20261019_075100_pre_pre-quest-q2-v21.sql` (an exe without the flag refuses a v21 save).
+
 went live under `US_INTERNAL` for the first time in this migration and does
 the same job (skip the login screen, sign in as a fixed account) by reading
 an external `LoginKey.lua`, which has none of the three problems. See

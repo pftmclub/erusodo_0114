@@ -1,0 +1,185 @@
+unit_uid	nick	category	quest_id	detail
+12	reyaa	P_SUBS_CHANGED	7780	QT_NORMAL 'Dungeon Master! 1/3' [no progress] ; sub 7780 condition differs (SQT_DUNGEON_RANK -> SQT_DUNGEON_RANK) ; sub 7781 condition differs (SQT_DUNGEON_RANK -> SQT_DUNGEON_RANK)
+12	reyaa	P_NO_JUNE	8940	QT_NORMAL 'Wally's Underground Laboratory'
+12	reyaa	P_NO_JUNE	8941	QT_NORMAL 'Introduction To Wally's Underground Laboratory'
+12	reyaa	P_NO_JUNE	8950	QT_NORMAL 'Dragon Nest: Abyss'
+12	reyaa	P_NO_JUNE	8951	QT_NORMAL 'Introduction To Dragon Nest: Abyss'
+12	reyaa	P_NO_JUNE	8960	QT_NORMAL 'Transporting Tunnel: CA'
+12	reyaa	P_NO_JUNE	8961	QT_NORMAL 'Introduction To Transporting Tunnel: CA'
+12	reyaa	P_SUBS_CHANGED	9501	QT_EPIC '[Dungeon] (Pet) Tainted Life Crystal 2/3' [no progress] ; sub 9471 condition differs (SQT_QUEST_ITEM_COLLECTION -> SQT_QUEST_ITEM_COLLECTION)
+12	reyaa	P_NO_JUNE	10234	QT_NORMAL 'Unknown Different Pieces'
+12	reyaa	P_SUBS_CHANGED	12040	QT_EPIC '[Field] Banthus, Beware!' [has progress] ; sub 12040 condition differs (SQT_QUEST_ITEM_COLLECTION -> SQT_QUEST_ITEM_COLLECTION)
+12	reyaa	P_SUBS_CHANGED	14010	QT_EPIC '[Dungeon] Repelling the Lizardmen' [no progress] ; sub 14011 condition differs (SQT_NPC_HUNT -> SQT_NPC_HUNT)
+12	reyaa	P_NO_JUNE	18020	QT_EPIC '[Dungeon] Power of the Dead'
+12	reyaa	P_KEEP	21260	QT_EPIC '[Dungeon] Preparing Retreat!!'
+12	reyaa	P_NO_JUNE	21910	QT_EPIC '[Dungeon] He Who Knows!'
+12	reyaa	P_NO_JUNE	26190	QT_NORMAL '[Field] Demon Subjugation'
+12	reyaa	P_NO_JUNE	60700	QT_NORMAL 'Bank Sharing Service 1/2'
+12	reyaa	C_KEEP	5440	QT_CHANGE_JOB 'Sniping Ranger 4/4'
+12	reyaa	C_NO_JUNE	7600	QT_NORMAL 'Guild Master Qualifications [1/4]'
+12	reyaa	C_KEEP	7930	QT_CHANGE_JOB 'Grand Archer 5/5'
+12	reyaa	C_NO_JUNE	9050	QT_NORMAL '(Skill Note) Hero's Qualifications 1/3'
+12	reyaa	C_KEEP	9500	QT_EPIC '[Dungeon] (Pet) Tainted Life Crystal 1/3'
+12	reyaa	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+12	reyaa	C_KEEP	11005	QT_EPIC '[Field] Thief Pursuit'
+12	reyaa	C_KEEP	11010	QT_EPIC '[Dungeon] Protect the El'
+12	reyaa	C_KEEP	11030	QT_EPIC '[Dungeon] William the Prankster'
+12	reyaa	C_NO_JUNE	11040	QT_EPIC '[Field] Thief Phoru'
+12	reyaa	C_KEEP	11050	QT_EPIC '[Dungeon] Sacred Animal'
+12	reyaa	C_NO_JUNE	11060	QT_EPIC '[Field] Clues for Pursuit'
+12	reyaa	C_KEEP	12000	QT_EPIC 'From Hagus to Hoffman'
+12	reyaa	C_NO_JUNE	12005	QT_EPIC '[Field] Develop Trust'
+12	reyaa	C_KEEP	12010	QT_EPIC 'Hoffman's Trust'
+12	reyaa	C_KEEP	12020	QT_EPIC '[Dungeon] ENThralled Opponents'
+12	reyaa	C_NO_JUNE	12030	QT_EPIC '[Dungeon] Mage Mischief'
+12	reyaa	C_KEEP	14000	QT_EPIC 'Wally at Large'
+12	reyaa	C_NO_JUNE	14005	QT_EPIC '[Field] Wally in Hiding'
+12	reyaa	C_KEEP	18000	QT_EPIC 'Feita Messenger'
+12	reyaa	C_KEEP	18010	QT_EPIC 'Secure Passageway'
+12	reyaa	C_KEEP	21250	QT_EPIC 'Letters From Vanessa'
+12	reyaa	C_KEEP	21870	QT_EPIC 'Major Mission'
+12	reyaa	C_KEEP	21900	QT_EPIC '[Dungeon] Click! Clack!'
+12	reyaa	C_KEEP	30120	QT_EPIC 'Learn about Skill Points (SP)'
+12	reyaa	C_KEEP	30130	QT_EPIC 'A Journey Supported by Cobo Service'
+12	reyaa	EPIC	9501,12040,14010,18020,21260,21910	epics completed=22 (in June 17) ; in-progress ['9501', '12040', '14010', '18020*no-june', '21260', '21910*no-june']
+18	Freils	P_SUBS_CHANGED	13000	QT_EPIC '[Field] Under Cover of Night' [has progress] ; sub 13000 condition differs (SQT_QUEST_ITEM_COLLECTION -> SQT_QUEST_ITEM_COLLECTION)
+18	Freils	P_NO_JUNE	26010	QT_NORMAL '[Field] Luichel's Guidance'
+18	Freils	P_NO_JUNE	26020	QT_NORMAL '[Field] Underground Water Soldiers'
+18	Freils	P_KEEP	30150	QT_EPIC 'Worthy of a Good Weapon'
+18	Freils	C_KEEP	9500	QT_EPIC '[Dungeon] (Pet) Tainted Life Crystal 1/3'
+18	Freils	C_KEEP	9501	QT_EPIC '[Dungeon] (Pet) Tainted Life Crystal 2/3'
+18	Freils	C_KEEP	9502	QT_EPIC '[Dungeon] (Pet) Tainted Life Crystal 3/3'
+18	Freils	C_NO_JUNE	10971	QT_CHANGE_JOB 'Guardian 1/4'
+18	Freils	C_NO_JUNE	10972	QT_CHANGE_JOB 'Guardian 2/4'
+18	Freils	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+18	Freils	C_KEEP	11005	QT_EPIC '[Field] Thief Pursuit'
+18	Freils	C_KEEP	11010	QT_EPIC '[Dungeon] Protect the El'
+18	Freils	C_KEEP	11030	QT_EPIC '[Dungeon] William the Prankster'
+18	Freils	C_NO_JUNE	11040	QT_EPIC '[Field] Thief Phoru'
+18	Freils	C_KEEP	11050	QT_EPIC '[Dungeon] Sacred Animal'
+18	Freils	C_NO_JUNE	11060	QT_EPIC '[Field] Clues for Pursuit'
+18	Freils	C_KEEP	12000	QT_EPIC 'From Hagus to Hoffman'
+18	Freils	C_NO_JUNE	12005	QT_EPIC '[Field] Develop Trust'
+18	Freils	C_KEEP	12010	QT_EPIC 'Hoffman's Trust'
+18	Freils	C_KEEP	12020	QT_EPIC '[Dungeon] ENThralled Opponents'
+18	Freils	C_NO_JUNE	12030	QT_EPIC '[Dungeon] Mage Mischief'
+18	Freils	C_KEEP	12040	QT_EPIC '[Field] Banthus, Beware!'
+18	Freils	C_NO_JUNE	12050	QT_EPIC '[Dungeon] Threat Removal'
+18	Freils	C_KEEP	12060	QT_EPIC '[Dungeon] The Truth Revealed!'
+18	Freils	C_KEEP	12070	QT_EPIC '[Dungeon] Secret Passages?'
+18	Freils	C_NO_JUNE	12080	QT_EPIC '[Dungeon] Banthus' Source of Strength'
+18	Freils	C_NO_JUNE	12090	QT_EPIC '[Field] Underground Water Soldiers'
+18	Freils	C_NO_JUNE	26000	QT_NORMAL '[Field] Develop Trust'
+18	Freils	C_KEEP	30120	QT_EPIC 'Learn about Skill Points (SP)'
+18	Freils	C_KEEP	30130	QT_EPIC 'A Journey Supported by Cobo Service'
+18	Freils	C_KEEP	30140	QT_EPIC 'Finding the Artisan'
+18	Freils	EPIC	13000,30150	epics completed=24 (in June 17) ; in-progress ['13000', '30150']
+19	Iivue	P_SUBS_CHANGED	11030	QT_EPIC '[Dungeon] William the Prankster' [no progress] ; subs march=[11030, 11031, 11032] june=[11030, 11031, 11032, 11033]
+19	Iivue	P_KEEP	12010	QT_EPIC 'Hoffman's Trust'
+19	Iivue	P_NO_JUNE	14005	QT_EPIC '[Field] Wally in Hiding'
+19	Iivue	P_KEEP	21260	QT_EPIC '[Dungeon] Preparing Retreat!!'
+19	Iivue	P_KEEP	21900	QT_EPIC '[Dungeon] Click! Clack!'
+19	Iivue	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+19	Iivue	C_KEEP	11005	QT_EPIC '[Field] Thief Pursuit'
+19	Iivue	C_KEEP	11010	QT_EPIC '[Dungeon] Protect the El'
+19	Iivue	C_KEEP	12000	QT_EPIC 'From Hagus to Hoffman'
+19	Iivue	C_NO_JUNE	12005	QT_EPIC '[Field] Develop Trust'
+19	Iivue	C_KEEP	14000	QT_EPIC 'Wally at Large'
+19	Iivue	C_KEEP	21250	QT_EPIC 'Letters From Vanessa'
+19	Iivue	C_KEEP	21870	QT_EPIC 'Major Mission'
+19	Iivue	EPIC	11030,12010,14005,21260,21900	epics completed=8 (in June 7) ; in-progress ['11030', '12010', '14005*no-june', '21260', '21900']
+21	eresisu	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+21	eresisu	P_SUBS_CHANGED	11030	QT_EPIC '[Dungeon] William the Prankster' [no progress] ; subs march=[11030, 11031, 11032] june=[11030, 11031, 11032, 11033]
+21	eresisu	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+21	eresisu	C_KEEP	11010	QT_EPIC '[Dungeon] Protect the El'
+21	eresisu	EPIC	11005,11030	epics completed=2 (in June 2) ; in-progress ['11005', '11030']
+22	weevwe	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+22	weevwe	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=0 ok=0) not in June
+22	weevwe	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+22	weevwe	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+23	ravbe	P_SUBS_CHANGED	11030	QT_EPIC '[Dungeon] William the Prankster' [no progress] ; subs march=[11030, 11031, 11032] june=[11030, 11031, 11032, 11033]
+23	ravbe	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+23	ravbe	C_KEEP	11005	QT_EPIC '[Field] Thief Pursuit'
+23	ravbe	C_KEEP	11010	QT_EPIC '[Dungeon] Protect the El'
+23	ravbe	EPIC	11030	epics completed=3 (in June 3) ; in-progress ['11030']
+24	arasss	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=1 ok=1) not in June
+24	arasss	P_NO_JUNE	12005	QT_EPIC '[Field] Develop Trust'
+24	arasss	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+24	arasss	C_KEEP	11005	QT_EPIC '[Field] Thief Pursuit'
+24	arasss	C_KEEP	12000	QT_EPIC 'From Hagus to Hoffman'
+24	arasss	EPIC	11010,12005	epics completed=3 (in June 3) ; in-progress ['11010', '12005*no-june']
+25	jtLordKnight	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+25	jtLordKnight	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=1 ok=1) not in June
+25	jtLordKnight	P_SUBS_CHANGED	12020	QT_EPIC '[Dungeon] ENThralled Opponents' [no progress] ; subs march=[12020, 12021, 12022] june=[12020, 12021, 12022, 12023] ; sub 12021 condition differs (SQT_FIND_NPC -> SQT_FIND_NPC) ; sub 12022 condition differs (SQT_QUEST_ITEM_COLLECTION -> SQT_QUEST_ITEM_COLLECTION)
+25	jtLordKnight	P_KEEP	20010	QT_EPIC '[Dungeon] Small Fissure'
+25	jtLordKnight	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+25	jtLordKnight	C_KEEP	12000	QT_EPIC 'From Hagus to Hoffman'
+25	jtLordKnight	C_NO_JUNE	12005	QT_EPIC '[Field] Develop Trust'
+25	jtLordKnight	C_KEEP	12010	QT_EPIC 'Hoffman's Trust'
+25	jtLordKnight	C_KEEP	20000	QT_EPIC 'The Fall of Velder'
+25	jtLordKnight	EPIC	11005,11010,12020,20010	epics completed=5 (in June 4) ; in-progress ['11005', '11010', '12020', '20010']
+26	jtRuneSlayer	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+26	jtRuneSlayer	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=1 ok=1) not in June
+26	jtRuneSlayer	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+26	jtRuneSlayer	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+27	jtCodeEmpress	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+27	jtCodeEmpress	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=0 ok=0) not in June
+27	jtCodeEmpress	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+27	jtCodeEmpress	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+28	jtVoidPrincess	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+28	jtVoidPrincess	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=1 ok=1) not in June
+28	jtVoidPrincess	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+28	jtVoidPrincess	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+29	ElesisGM	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+29	ElesisGM	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=0 ok=0) not in June
+29	ElesisGM	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+29	ElesisGM	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+30	ElesisBH	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+30	ElesisBH	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+30	ElesisBH	EPIC	11005	epics completed=1 (in June 1) ; in-progress ['11005']
+31	NWatcher	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+31	NWatcher	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=1 ok=1) not in June
+31	NWatcher	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+31	NWatcher	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+32	MagicKnightT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+32	MagicKnightT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+32	MagicKnightT	EPIC	11005	epics completed=1 (in June 1) ; in-progress ['11005']
+34	InfinitySwordT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+34	InfinitySwordT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+34	InfinitySwordT	EPIC	11005	epics completed=1 (in June 1) ; in-progress ['11005']
+36	LunaticPsykerT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+36	LunaticPsykerT	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=1 ok=1) not in June
+36	LunaticPsykerT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+36	LunaticPsykerT	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+37	AddTest	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+37	AddTest	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=0 ok=0) not in June
+37	AddTest	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+37	AddTest	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+38	LittleDevilT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+38	LittleDevilT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+38	LittleDevilT	EPIC	11005	epics completed=1 (in June 1) ; in-progress ['11005']
+39	Tut14c	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+39	Tut14c	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=0 ok=0) not in June
+39	Tut14c	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+39	Tut14c	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+40	SaberT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+40	SaberT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+40	SaberT	EPIC	11005	epics completed=1 (in June 1) ; in-progress ['11005']
+41	ElectraT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [has progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+41	ElectraT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+41	ElectraT	EPIC	11005	epics completed=1 (in June 1) ; in-progress ['11005']
+42	RapidT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [no progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+42	RapidT	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=0 ok=0) not in June
+42	RapidT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+42	RapidT	EPIC	11005,11010	epics completed=1 (in June 1) ; in-progress ['11005', '11010']
+43	NovaT	P_SUBS_CHANGED	11005	QT_EPIC '[Field] Thief Pursuit' [no progress] ; subs march=[11005, 11006] june=[11005] ; saved sub 11006 (cd=0 ok=0) not in June
+43	NovaT	P_SUBS_CHANGED	11010	QT_EPIC '[Dungeon] Protect the El' [has progress] ; subs march=[11010, 11011, 11012] june=[11010, 11011, 40997] ; saved sub 11012 (cd=1 ok=1) not in June
+43	NovaT	P_NO_JUNE	12005	QT_EPIC '[Field] Develop Trust'
+43	NovaT	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+43	NovaT	C_KEEP	12000	QT_EPIC 'From Hagus to Hoffman'
+43	NovaT	EPIC	11005,11010,12005	epics completed=2 (in June 2) ; in-progress ['11005', '11010', '12005*no-june']
+44	arishiaaa	P_SUBS_CHANGED	11030	QT_EPIC '[Dungeon] William the Prankster' [no progress] ; subs march=[11030, 11031, 11032] june=[11030, 11031, 11032, 11033]
+44	arishiaaa	C_KEEP	11000	QT_EPIC 'Suspicious Movements'
+44	arishiaaa	C_KEEP	11005	QT_EPIC '[Field] Thief Pursuit'
+44	arishiaaa	C_KEEP	11010	QT_EPIC '[Dungeon] Protect the El'
+44	arishiaaa	EPIC	11030	epics completed=3 (in June 3) ; in-progress ['11030']

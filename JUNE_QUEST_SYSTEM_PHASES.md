@@ -459,6 +459,49 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD` (`Always.h`; `MODS.md` has the file list an
 - every character logs in and opens the quest window without a crash;
 - the epic chain resumes where the user chose.
 
+### Q2 - Done (2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_DATA` (Always.h, `#error` without `JUNE_QUEST_LOAD`). Opus did everything here; the reader survey went to a Sonnet subagent and
+its 10 sites were re-read before the guards went in.
+- **Census** (`june2017_re/quest_plan/q2_census.py` on a copy of the save -> `q2_census.tsv`). The save holds 58 distinct quest ids; 26 are not in June,
+  which confirms the planning count.
+
+  | Category | Rows | User's answer (2026-10-19) |
+  |---|---|---|
+  | in progress, no June templet | 16 (units 12 / 18 / 19 / 24 / 43; 5 of them epics) | drop; where an epic was dropped, accept June's next epic |
+  | in progress, sub-quests changed | 42 (11005 ×19, 11010 ×13, 11030 ×4, 6 others) | reset all 42 to 0 |
+  | completed, no June templet | 19 (units 12 / 18 / 19 / 25) | delete and log |
+  | Lanox cleared (`DI_RANOX_FINALHALL_NORMAL`) | 0 (reyaa cleared Expert 33322 only; their chain is at Sander 21910) | nothing |
+
+  Kept: 6 in progress, 76 completed. June opens its next epic only on a completion (none of the targets has a village, dungeon or before-list
+  gate), so a dropped in-progress epic would leave its chain stuck. That is why the 5 epic next links exist: 18020 -> 18030, 21910 -> 21920,
+  14005 -> 14010, and 12005 -> 12020 for units 24 and 43.
+- **Flip.** `luasrc.py adopt-june FieldQuest.lua FieldSubQuest.lua AccountQuest.lua` (ljconv bytecode, 3 replaced; record
+  `june2017_re/june_adopt_20261019_074358.tsv`). `PACK OK data036`. March's originals are snapshotted to `24965799\kom_contents_bytecode\data036_kom\`,
+  where the census and the generator read them.
+- **Rung v21.** `CX2OfflineDB::MigrateQuestsToJune` (`X2OfflineDB.cpp/.h`, `#error` without v20 `JUNE_SKILL_PAGE`) works in one transaction and logs one
+  `[JUNE_QUEST] MIG` line per unit and category after COMMIT, then a `MIG v21 done` total. Its tables are in `X2Lib/Offline/X2OfflineJuneQuestMig.h`, generated
+  by `q2_gen.py` (`--check` re-proves it):
+  - 1,638 June quest ids (FieldQuest plus AccountQuest);
+  - 833 reset ids: every common quest whose sub-quest list or a sub-quest's clear condition changed (42 are in this save);
+  - 52 epic next links: for each March epic June dropped, the epics June's after-list opens from the same March predecessor.
+
+  `q2_gen.py simulate` on the pre-v21 copy writes `q2_expected_mig.txt`: 25 units, 16 dropped / 5 accepted / 42 reset / 19 completed dropped, which equals the census.
+  Snapshot: `db_backup\els_db_20261019_075100_pre_pre-quest-q2-v21.sql`.
+- **Guards** (`X2UIQuestNew.cpp`; each logs `[JUNE_QUEST] MIG quest N has no templet - <where> skips it` once per id). The survey found 127 call sites,
+  15 of them live and unchecked:
+  - guarded: `Handler_EGS_QUEST_COMPLETE_ACK` and `Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK` (repeat type, end scene, job-change test), plus
+    `GetPartyUIQuestIcon`, `GetLocalMapQuestDesc`, `UpdateUIQuestSlotInfo` and `SetUIQuickQuestSlotInfo`;
+  - not guarded: the other 5 (`UpdateAvailQuestInfo`, `UpdateOngoingQuestInfo` ×2, `X2WorldMapUI` ×2) take ids from lists that already drop NULL templets.
+
+  The emulator already skipped a save row with no templet (`X2OfflineQuest.cpp` load), and its complete handler refuses one (`ERR_QUEST_08`).
+- **Chain index (from the Q1 review).** Q1 writes a chain index only for a stored quest. A June quest that fails to load and carries `m_iChainID` would
+  therefore drop out of its chain; the LOAD line's `XEM_ERROR79/80` count in the play-test shows whether any does.
+- Hygiene: `flagcheck JUNE_QUEST_DATA --worktree`: 2 PASS, 2 PASS~ (blank/marker only), 1 OTHER (Always.h), 0 FAIL, 0 deleted lines, 0 encoding changes, RESULT: PASS.
+- Deploy: `DEPLOY OK: X2_offline.exe is 25,305,088 B, dated 2026-10-19 08:02:40, md5 134d1b2edaaba175e675fe62d91841d1` (main 4c96fcc5 + uncommitted;
+  the `MIG v21 done` and guard strings are in the exe).
+- **How to see it:** the hand-off below. Open for the user: nothing.
+
 ## Phase Q3 - Quest manager runtime to June
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_RUNTIME`. Sub-tag `RUN`.

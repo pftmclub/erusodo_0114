@@ -442,6 +442,12 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+		SCHEMA_VERSION			= 21,	///< v21: quest rows moved onto June's quest data ( June quest system Q2 )
+
+		/// As in the v20 branch below, which this one replaces wholesale.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else SERV_IRUHADEV_JUNE_QUEST_DATA
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
 		SCHEMA_VERSION			= 20,	///< v20: unit_skill_page_info + unit_skill_page, June's skill pages ( one bar per page, S7d )
 
@@ -490,6 +496,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no
@@ -948,6 +955,11 @@ private:
 	bool	MigrateJuneSkillPages();		///< v20 ( S7d )
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+	/// The v21 rung (June quest system Q2): quest rows onto June's quest data, as the user chose 2026-10-19.
+	/// One [JUNE_QUEST] MIG line per unit and category.
+	bool	MigrateQuestsToJune();
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 	int		ReadSchemaVersion();
 	void	LogError( const wchar_t* szWhat );
 

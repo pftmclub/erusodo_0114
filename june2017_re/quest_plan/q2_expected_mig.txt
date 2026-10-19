@@ -1,0 +1,39 @@
+[JUNE_QUEST] MIG unit 12 in-progress dropped (no June templet) 11: 8940,8941,8950,8951,8960,8961,10234,18020,21910,26190,60700
+[JUNE_QUEST] MIG unit 12 epic next accepted 2: 18020->18030,21910->21920
+[JUNE_QUEST] MIG unit 12 progress reset (sub-quests changed) 4: 7780,9501,12040,14010
+[JUNE_QUEST] MIG unit 12 completed dropped (no June templet) 7: 7600,9050,11040,11060,12005,12030,14005
+[JUNE_QUEST] MIG unit 18 in-progress dropped (no June templet) 2: 26010,26020
+[JUNE_QUEST] MIG unit 18 progress reset (sub-quests changed) 1: 13000
+[JUNE_QUEST] MIG unit 18 completed dropped (no June templet) 10: 10971,10972,11040,11060,12005,12030,12050,12080,12090,26000
+[JUNE_QUEST] MIG unit 19 in-progress dropped (no June templet) 1: 14005
+[JUNE_QUEST] MIG unit 19 epic next accepted 1: 14005->14010
+[JUNE_QUEST] MIG unit 19 progress reset (sub-quests changed) 1: 11030
+[JUNE_QUEST] MIG unit 19 completed dropped (no June templet) 1: 12005
+[JUNE_QUEST] MIG unit 21 progress reset (sub-quests changed) 2: 11005,11030
+[JUNE_QUEST] MIG unit 22 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 23 progress reset (sub-quests changed) 1: 11030
+[JUNE_QUEST] MIG unit 24 in-progress dropped (no June templet) 1: 12005
+[JUNE_QUEST] MIG unit 24 epic next accepted 1: 12005->12020
+[JUNE_QUEST] MIG unit 24 progress reset (sub-quests changed) 1: 11010
+[JUNE_QUEST] MIG unit 25 progress reset (sub-quests changed) 3: 11005,11010,12020
+[JUNE_QUEST] MIG unit 25 completed dropped (no June templet) 1: 12005
+[JUNE_QUEST] MIG unit 26 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 27 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 28 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 29 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 30 progress reset (sub-quests changed) 1: 11005
+[JUNE_QUEST] MIG unit 31 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 32 progress reset (sub-quests changed) 1: 11005
+[JUNE_QUEST] MIG unit 34 progress reset (sub-quests changed) 1: 11005
+[JUNE_QUEST] MIG unit 36 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 37 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 38 progress reset (sub-quests changed) 1: 11005
+[JUNE_QUEST] MIG unit 39 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 40 progress reset (sub-quests changed) 1: 11005
+[JUNE_QUEST] MIG unit 41 progress reset (sub-quests changed) 1: 11005
+[JUNE_QUEST] MIG unit 42 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 43 in-progress dropped (no June templet) 1: 12005
+[JUNE_QUEST] MIG unit 43 epic next accepted 1: 12005->12020
+[JUNE_QUEST] MIG unit 43 progress reset (sub-quests changed) 2: 11005,11010
+[JUNE_QUEST] MIG unit 44 progress reset (sub-quests changed) 1: 11030
+25 unit(s); {'in-progress dropped (no June templet)': 16, 'epic next accepted': 5, 'progress reset (sub-quests changed)': 42, 'completed dropped (no June templet)': 19}

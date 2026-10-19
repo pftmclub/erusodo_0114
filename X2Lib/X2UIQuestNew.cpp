@@ -10,6 +10,21 @@
 #endif SERV_IRUHADEV_JOBCHANGE_PORTRAIT
 //}}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+#include "Offline/X2OfflineLog.h"
+
+// June quest system Q2: a quest id with no templet (June's data dropped it, or a save / packet still
+// names it) is skipped where it would be dereferenced, and logged once per id.
+static void JuneQuestNoTempletLog( int iQuestID, const wchar_t* szWhere )
+{
+	static std::set< int > s_setLogged;
+	if( false == s_setLogged.insert( iQuestID ).second )
+		return;
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MIG quest %d has no templet - %s skips it (guarded)", iQuestID, szWhere );
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
+
 CX2UIQuestNew::CX2UIQuestNew( CKTDXStage* pNowStage, const WCHAR* pFileName )
 : CX2ItemSlotManager( pNowStage, pFileName ),
 m_iQuestPerPage(0),
@@ -1493,7 +1508,15 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 			// 반복 퀘스트가 아니라면 들고 있는 퀘스트 ID를 -1로 리셋해주자.
 			// 반복 퀘스트이면서 목록에 있는 퀘스트라면 선택된 퀘스트 ID를 리셋하지 않는다 : 엔터 연타로 되게.
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+			const CX2QuestManager::QuestTemplet* pJuneQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_kCompleteQuestInfo.m_iQuestID );
+			if( NULL == pJuneQuestTemplet )
+				JuneQuestNoTempletLog( kEvent.m_kCompleteQuestInfo.m_iQuestID, L"Handler_EGS_QUEST_COMPLETE_ACK" );
+
+			if( NULL != pJuneQuestTemplet && CX2QuestManager::QRT_REPEAT == pJuneQuestTemplet->m_eRepeatType &&
+#else SERV_IRUHADEV_JUNE_QUEST_DATA
 			if( CX2QuestManager::QRT_REPEAT == g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_kCompleteQuestInfo.m_iQuestID)->m_eRepeatType &&
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 				find( m_vecAvailableQuestID.begin(), m_vecAvailableQuestID.end(), kEvent.m_kCompleteQuestInfo.m_iQuestID ) != m_vecAvailableQuestID.end() )
 			{
 				m_iSelectedQuestID = kEvent.m_kCompleteQuestInfo.m_iQuestID;
@@ -1517,7 +1540,11 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 			ReturnToQuestListUI();
 			ResetQuestUI(true, true);
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+			wstring wstrEndSceneID = ( NULL != pJuneQuestTemplet ) ? pJuneQuestTemplet->m_wstrEndScene : wstring();
+#else SERV_IRUHADEV_JUNE_QUEST_DATA
 			wstring wstrEndSceneID = g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_kCompleteQuestInfo.m_iQuestID)->m_wstrEndScene;
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
 			if(wstrEndSceneID != L"")
 			{
@@ -1529,7 +1556,11 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 
 			// 전직 퀘스트라면 : 스킬트리 업데이트
 			const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_kCompleteQuestInfo.m_iQuestID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+			if( NULL != pQuestTemplet && CX2QuestManager::QT_CHANGE_JOB == pQuestTemplet->m_eQuestType && CX2Unit::UC_NONE != pQuestTemplet->m_Reward.m_eChangeUnitClass )
+#else SERV_IRUHADEV_JUNE_QUEST_DATA
 			if( CX2QuestManager::QT_CHANGE_JOB == pQuestTemplet->m_eQuestType && CX2Unit::UC_NONE != pQuestTemplet->m_Reward.m_eChangeUnitClass )
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 			{
 				// 스킬트리 업데이트. 새로 초기화 시켜 준다.
 				g_pData->GetUIManager()->GetUISkillTree()->InitSkillTreeUI();
@@ -2045,7 +2076,15 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 				// 반복 퀘스트가 아니라면 들고 있는 퀘스트 ID를 -1로 리셋해주자.
 				// 반복 퀘스트이면서 목록에 있는 퀘스트라면 선택된 퀘스트 ID를 리셋하지 않는다 : 엔터 연타로 되게.
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+				const CX2QuestManager::QuestTemplet* pJuneQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID );
+				if( NULL == pJuneQuestTemplet )
+					JuneQuestNoTempletLog( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID, L"Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK" );
+
+				if( NULL != pJuneQuestTemplet && CX2QuestManager::QRT_REPEAT == pJuneQuestTemplet->m_eRepeatType &&
+#else SERV_IRUHADEV_JUNE_QUEST_DATA
 				if( CX2QuestManager::QRT_REPEAT == g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID)->m_eRepeatType &&
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 					find( m_vecAvailableQuestID.begin(), m_vecAvailableQuestID.end(), kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID ) != m_vecAvailableQuestID.end() )
 				{
 					m_iSelectedQuestID = kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID;
@@ -2058,7 +2097,11 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 				ReturnToQuestListUI();
 				ResetQuestUI(true, true);
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+				wstring wstrEndSceneID = ( NULL != pJuneQuestTemplet ) ? pJuneQuestTemplet->m_wstrEndScene : wstring();
+#else SERV_IRUHADEV_JUNE_QUEST_DATA
 				wstring wstrEndSceneID = g_pData->GetQuestManager()->GetQuestTemplet(kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID)->m_wstrEndScene;
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
 				if(wstrEndSceneID != L"")
 				{
@@ -2070,7 +2113,11 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 
 				// 전직 퀘스트라면 : 스킬트리 업데이트
 				const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+				if( NULL != pQuestTemplet && CX2QuestManager::QT_CHANGE_JOB == pQuestTemplet->m_eQuestType && CX2Unit::UC_NONE != pQuestTemplet->m_Reward.m_eChangeUnitClass )
+#else SERV_IRUHADEV_JUNE_QUEST_DATA
 				if( CX2QuestManager::QT_CHANGE_JOB == pQuestTemplet->m_eQuestType && CX2Unit::UC_NONE != pQuestTemplet->m_Reward.m_eChangeUnitClass )
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 				{
 					// 스킬트리 업데이트. 새로 초기화 시켜 준다.
 					g_pData->GetUIManager()->GetUISkillTree()->InitSkillTreeUI();
@@ -3371,6 +3418,13 @@ bool CX2UIQuestNew::GetPartyUIQuestIcon( std::vector<QuestInfo>& vecQuestInfo, i
 
 		const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kQuestInfo.m_iID );
 		const CX2QuestManager::QuestInst* pQuestInst = g_pData->GetQuestManager()->GetUnitQuest( kQuestInfo.m_iID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+		if( NULL == pQuestTemplet )
+		{
+			JuneQuestNoTempletLog( kQuestInfo.m_iID, L"GetPartyUIQuestIcon" );
+			continue;
+		}
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
 		if(pQuestInst == NULL) // oasis907 : 김상윤 [2010.7.11] // 여기서 완료 보고된 에픽퀘스트 걸러짐
 		{
@@ -3652,6 +3706,13 @@ wstring CX2UIQuestNew::GetLocalMapQuestDesc( std::vector<QuestInfo>& vecQuestInf
 
 		const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kQuestInfo.m_iID );
 		const CX2QuestManager::QuestInst* pQuestInst = g_pData->GetQuestManager()->GetUnitQuest( kQuestInfo.m_iID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+		if( NULL == pQuestTemplet )
+		{
+			JuneQuestNoTempletLog( kQuestInfo.m_iID, L"GetLocalMapQuestDesc" );
+			continue;
+		}
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
 		if(pQuestInst == NULL) // oasis907 : 김상윤 [2010.7.11] // 여기서 완료 보고된 에픽퀘스트 걸러짐
 		{
@@ -5193,6 +5254,13 @@ void CX2UIQuestNew::UpdateUIQuestSlotInfo( UINT iQuestSlotInfoIndex,  QuestInfo&
 	UINT i = iQuestSlotInfoIndex;
 
 	const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( QuestInfo.m_iID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+	if( NULL == pQuestTemplet )
+	{
+		JuneQuestNoTempletLog( QuestInfo.m_iID, L"UpdateUIQuestSlotInfo" );
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
 
 	m_vecUIQuestSlotInfo[i].m_QuestID = QuestInfo.m_iID;
@@ -6280,6 +6348,13 @@ bool CX2UIQuestNew::SetUIQuickQuestSlotInfo(int iQuestSlotInfoIndex, QuestInfo& 
 
 	const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( QuestInfo.m_iID );
 	const CX2QuestManager::QuestInst* pQuestInst = g_pData->GetQuestManager()->GetUnitQuest( QuestInfo.m_iID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+	if( NULL == pQuestTemplet )
+	{
+		JuneQuestNoTempletLog( QuestInfo.m_iID, L"SetUIQuickQuestSlotInfo" );
+		return false;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
 
 	if(iQuestSlotInfoIndex > _CONST_UIQUESTNEW_INFO_::g_iMaxNumOngoingQuest - 1)

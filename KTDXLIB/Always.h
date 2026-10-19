@@ -8824,6 +8824,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June quest system Phase Q2 - data flip and old-save migration. data036 ships June's FieldQuest / FieldSubQuest /
+//              AccountQuest (luasrc adopt-june, ljconv bytecode); save schema v21 (CX2OfflineDB::MigrateQuestsToJune, tables in
+//              X2OfflineJuneQuestMig.h from june2017_re/quest_plan/q2_gen.py) drops in-progress / completed quests June has no templet
+//              for, accepts June's next epic where a dropped epic was in progress, and restarts quests whose sub-quests changed (user,
+//              2026-10-19); quest-window readers of a quest id with no templet skip it and log once. Log [JUNE_QUEST] MIG. Revert:
+//              comment out the define, restore March's three .lua from 24965799\kom_contents_bytecode\data036_kom and the save from
+//              db_backup/ (v21 is one-way).
+#define SERV_IRUHADEV_JUNE_QUEST_DATA
+#ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
+#ifndef SERV_IRUHADEV_JUNE_QUEST_LOAD
+#error SERV_IRUHADEV_JUNE_QUEST_DATA needs SERV_IRUHADEV_JUNE_QUEST_LOAD ( the June quest parser reads the flipped files )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#endif SERV_IRUHADEV_JUNE_QUEST_DATA
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June skill system Phase S8 - June's pointer model for the running state data. m_FutureStateData / m_NowStateData
 //              become positions in m_StateList ( m_itFutureStateData / m_itNowStateData; June +0x7cb0 / +0x7cbc point into the state
 //              vector +0x7cec, stored by 31fe6a40 / 3203c3a0; the id is the position ); the running power rate is its own member
