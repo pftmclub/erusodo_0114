@@ -647,6 +647,33 @@ including over its characters and boxes. A click still advances the scene, and a
 **Play-test PASSED 2026-10-19** (user: "now it's on top layer"; log: `SCENE Play Quest_22329_Start ( ...Elysion7.swf ): frame -1`, `getEventSceneData ... 25 frames`,
 `End ( forced )`, 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ` x2; the missing black layout is the known asset-port gap).
 
+### Phase G6 - Review (2026-10-19, Opus 5.5 high): PASS, no findings, no code change, no rebuild
+
+**June, re-read in Ghidra (read-only):** `31be3800` tail: @31be3c56 manager +0x1c8, `CMP [ECX+0x108], BL` (EBX = 1 @31be384a), @31be3c68
+`31c43b20`, @31be3c6f `31be2e90`, @31be3c74..3c7c `PUSH 0` / `LEA ECX,[ESI+0x290]` / `CALL 31ce5400` = the last draw before the frame's
+epilogue (the `31ce5d00` call @31be3c51 is the target branch's pass end, before GFx). xrefs: `31ce5520` only from `3226c250` (@3226c25e),
+`3226c250` only from Play @3226b56b, `31ce5400` only from @31be3c7c, `31ce50d0` only from End @3226b748. Play @3226b530..b542: state
+(`g_pMain +0x90`) +0x64 -> `32868250` (+0xb8 = 1, +0xb0 = 0); @3226b551..b56b `3226c250( 1, -40.0 (33486f20), -40.0 )`. `31ce5520( 1 )`:
++0x34 = 5.0 hide timer, +0x38 = 1, loads `DLG_Eventscene_Cursor.dds`. End `3226b6c0` has no early exit before @3226b71d `32868790( 0 )`
+and @3226b748 `31ce50d0`. All match the Done note and the funcmap rows.
+
+**March (Sonnet audit, spot-checked):** one `CX2Cursor` only (`X2State.cpp:157`). Its live draws all go through the early return:
+`CX2State::OnFrameRenderFrontUI` (`X2State.cpp:1212`), `CX2StateLoading::OnFrameRenderFrontUI` (`:1013`), and the unsplit states'
+`OnFrameRender` (BattleField `:184`, DungeonGame `:1353`, Field `:791`, PVPGame `:1040`, SquareGame `:293`, WeddingGame `:76`); the
+`#else STAGE_SPLIT` copies are dead. `OnFrameRenderAfter` is declared only in `KTDXStage.h:34` and `CX2State`; no subclass overrides
+it; `KTDXApp.cpp:1328-1332` draws GFx, then `JuneStageChainRenderAfter` on every active chain stage (only `CX2Data` + the now-state are
+inserted). End clears the mode on every path: forced skip (`X2GFXEventScene.cpp:526`), the movie's end (`:558`), and
+`CX2Main::StateChange` (`X2Main.cpp:5593`), which ends a playing scene before `RemoveStage` on the old state. The state-change frame
+(`X2Main.cpp:9120`, `OnFrameRenderAll`, June @31d807b8) runs no 0x18 pass, in June or here. The scene ends before it, so no cursor is lost.
+
+**Notes (no change):** the stand-in keeps `CX2Cursor`'s 5 s idle hide, which matches `CKTDXCursor 31ce51b0`. The scene cursor's texture /
+128 px / -40 offset come from March's `XCS_EVENT_SCENE` (`X2Cursor.cpp:370-382`). The destructor / `ResetGFXEventScene` skip End, but they
+run only after StateChange has already ended the scene. All of this is R4f's to replace (kickoff `R4f.md:35-41` already names it).
+
+**Hygiene:** `flagcheck JUNE_GFX_CURSOR_ORDER --range 0a8ca525^..0a8ca525`: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER
+(other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (no OTHER row in the commit range). No build: nothing changed.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
