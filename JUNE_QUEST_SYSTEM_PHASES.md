@@ -405,6 +405,37 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD` (`Always.h`; `MODS.md` has the file list an
 - **Play-test (user, 2026-10-19).** The first exe closed before character select: `LoadQuestEventSceneInfo` used a default `KLuaManager` at root, which reads the table on top of the Lua stack. Fixed with `KLuaManager( L, 0, true )` + `LoadAndDoMemory` (the `CX2Book::SetBookTable` form). Second run, log: `LOAD quests 1460 sub-quests 1733 guild skipped 15 chain entries 0 ( calls 5 applied 0 ) groups 0 story groups 0 scene-info 268 coop 45`, 15 guild-skip lines, `ChainQuestInfo.lua loaded 0` (the expected JUNE_BUGS 320 Lua error), 0 XEM_ERROR79/80, 0 EXCEPTION; the 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`. Done gate met.
 - **Open for the user.** Nothing. The review is `kickoffs/quest-system/Q1-review.md`.
 
+### Q1 - Review (2026-10-19, Opus)
+
+**Verdict: PASS, no fixes, no rebuild.** Commits `be8ba59a` and `72de2249` were checked against `q0a_june_clearcond.md`, `q0a_june_templets.md` and June's `Enum.src.lua`.
+- **Hygiene.** `flagcheck JUNE_QUEST_LOAD --range be8ba59a^..be8ba59a`: `files: 5 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  `--range 72de2249^..72de2249`: `files: 1 PASS, ...`, 3 deleted lines (the scene loader's replaced `LoadLuaTinker` block, inside the flag), `RESULT: PASS`. No later commit touches the flag.
+- **Enums.** QT 0-10 / `QT_END` 11, QRT 0-5, CJT 0-6 / `CJT_JOB_END` 7, SQT 0-48 (each once, no gap) / `SQT_END` 49. These match June and the merged `Enum.lua` by name and value, and so do
+  `QUEST_REWARD_TRAN_CLASS` (1000 / 1001), `PVP_TOURNAMENT_TYPE` (0-2), `PGT_WINNER` 6 / `_1VS1_CHALLENGE_MODE` 7 / `_AMUSEMENT_ITEM` 8, `PCC_1VS1_PVP_CHALLENGE` 15 and the four NUI ids.
+  `NUI_EDEL` 10072 is March's own value (June's 10067 is March's `NUI_EVENT_ADAMS_UI_SHOP`); it was already there before Q1. No June quest file names `PGT_GUILD` / `_EVENT_MODE` / `_BEST_OF_N_GAMES` /
+  `_HERO_PVP_PRELIMINARY`. `DL_HELL` / `DL_NOMAL` occur in June's `FieldSubQuest` only and stay nil, as June has them (JUNE_BUGS 322).
+  The `CJT_JOB_END` readers (`X2QuestManager.cpp` :668 / :1806 / :1919, `X2UIQuestNew.cpp` :2898 / :2958) stay in bounds. `X2UIQuestReceive.cpp` sits under `#ifndef SERV_EPIC_QUEST`, so it is dead code. `QT_END` / `SQT_END` have no reader.
+- **Parser.**
+  - `m_eDungeonID` keeps 0 at 11 March sites. These are cases 2, 4, 5, 6, 7, 8 (+32 / 48), 12, 17, 22, 26 and 27, which is June's dungeon list less 37, and 37 is new code that reads `>= 0` itself.
+  - Cases 37-39 and 43-45 are required or optional exactly as the key table says. 46 / 47 return true with no keys. 48 shares case 8's body.
+  - 19 / 20 / 29 / 30 / 40-42 have no March case, so they take the default and return false. 35 is `SERV_POINT_COUNT_SYSTEM`, which is not defined for US, so it also returns false, as in June.
+  - The `m_cDifficulty` post-switch is June's 14 types (2 4 5 6 7 8 32 48 12 17 22 26 27 37). It runs only on success, which matches June, where the key is last and a miss gives -1 and still true.
+  - `m_ePvpTournamentType` is optional on cases 9 / 10. Case 43's inverted loop matches the disassembly at `3232c0cf`.
+- **Quest level.** The `m_eUnitClass` `>= 1000` -> `% 1000` scalar matches. The QT 9 reward split matches: the only caller of `32330250` passes `"Reward"`, a miss gives 0, and the class becomes `UC_NONE`. `m_iGuildCoopQuestRewardID` is read from `Reward` into the quest, as June does.
+- **Ghidra spot checks (read-only).**
+  1. `31eeb040`: the per-CHAR rows are `OpenTableAt( 1.. )` inside the entry. `CHAR` is an int (a miss gives 0), the strings default to `L""` and both END_FRAMEs to -1. The MENT helper `31edff90` pushes every int by index, with no filter.
+     The rows are keyed by CHAR and the entries by QuestID. The file agrees: 268 entries, 268 distinct ids, 1,198 rows, contiguous from 1, `CHAR = UNIT_TYPE.UT_*`, no duplicate CHAR. Spot entry 22321 has a DEFAULT pair plus a ROSE row with its own MENT lists.
+  2. `3232c410`: case 44 `m_iDungeonClearCount` is required, and a miss gives -1, then false.
+  3. `323321f0`: the chain index is written at `32334377`, before the duplicate check (`3233539b`). The story index is written after it (`32335515`, `m_eQuestType == 0xA`, key `+0x1b4` EpisodeGroupID).
+- **Deviations Q1 chose; they are kept and none is a defect.**
+  - The chain index is written only for a stored quest. June leaves a failed or duplicate quest's id in its chain set, and a reader would get a NULL templet. The two differ only if a quest with a `m_iChainID` fails to load; the Q2 census line will show whether one does.
+  - `m_fSelectBGM` is read before the duplicate check rather than after it. That is not observable.
+  - Scene rows overwrite on a duplicate QuestID, where June inserts without overwriting. There are no duplicates in the data.
+  - `m_eUnitClass` values below 0 are inserted, as March already did, while June drops them. The data has none.
+- **Guild coop.** `g_pGuildCoopQuestRewardTable` is the guild manager under a second name. All 45 June rows are `AddGuildRewardData( reward id, item id, quantity, 0 )`, which matches the binder.
+- **Open for the user.** Nothing. Next is Q2 (`kickoffs/quest-system/Q2.md`, Opus 5.5 high).
+
 ## Phase Q2 - Data flip and old-save migration
 
 **Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_DATA`. Sub-tags `LOAD`, `MIG`.
