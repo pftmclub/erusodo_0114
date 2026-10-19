@@ -526,7 +526,7 @@ its 10 sites were re-read before the guards went in.
   - RESET drops from 833 to 758: 75 false ids removed, 0 added. The header was regenerated (`--check` PASS) and rebuilt.
   - The save is already v21, so the fix only affects a save that has not migrated yet.
   - One of the 42 resets in this save was false: unit 18 (Freils), quest 13000. Its subs 12090 / 13000 match June's apart from the `{0}`. The reset deleted
-    `(12090, clear 1, success 1)` and `(13000, 0, 0)`. Restoring those two rows is offered to the user. `q2_census.tsv` and `q2_expected_mig.txt` stay unchanged as the record of what ran.
+    `(12090, clear 1, success 1)` and `(13000, 0, 0)`. User (2026-10-19): leave it reset, no restore. `q2_census.tsv` and `q2_expected_mig.txt` stay unchanged as the record of what ran.
   - The other 41 resets are real changes: a new or removed sub-quest (11005, 11010, 11030, 12020), a new `m_cDifficulty` (7780), a changed count or rate (12040, 14010),
     or a changed NPC id (9501 / 12020: 78 -> 1613).
 - **Latent, not fixed:** 58 of March's 110 dropped epics have no EPIC_NEXT link.
