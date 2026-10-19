@@ -1777,6 +1777,9 @@ which carries everything decoded here). S7h now waits on S7k. Flag `SERV_IRUHADE
   (COALESCED with a peer's build that started after this request.) The `[JUNE_SKILL] MAXMP uid` string is in the exe.
 - **How to see it.** Unit 19 Iivue (Code Empress, 25405 at level 3) in any dungeon: HUD max MP = 425 + her equipment's added max MP + socket MP. Log
   `[JUNE_SKILL] MAXMP uid 19: skills + equips <125 + equips> ( base 300 ), socket rate <r>, add <n> -> max MP <total>`.
+- **Play-test 2026-10-19 (user: both 425; log, exe 3aad257b, 0 EXCEPTION).** `[09:22:14] MAXMP uid 19: skills + equips 125.0 ( base 300 ), socket rate 0.000, add 0 -> max MP 425.0`;
+  unit 27 (planned as the control) logged the same: the save now gives her the same 28 skills as unit 19, 25405 lv 3 included, and no equipment. Unit 25 (Lord Knight, none of
+  the 19 ids) logged `0.0 -> 300.0`. Unrelated: 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only.
 
 ## Phase S7k - The unit's socket aggregate and June's HUD max MP / max HP refresh
 
