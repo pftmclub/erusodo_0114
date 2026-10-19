@@ -16166,6 +16166,20 @@ void CX2GUUser::CommonStateStart()
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	CountReservedSkillUse();	/// June 32057b80: the reserved-skill block comes first (@32057bfb)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+#ifndef ADD_MEMO_1ST_CLASS
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE needs ADD_MEMO_1ST_CLASS (m_bApplyMemo, the bool SetDamageData, the two-argument LoadEffectSetFromScript)
+#endif ADD_MEMO_1ST_CLASS
+	/// S3f, June2017 CommonStateStart 32057b80 @32057c03-32057c1d, right after the reserved-skill block: the now-state skill's equipped
+	/// templet with the upgrade swap ( 31fca8e0( GetNowStateSkillID(), 1 ) ); @3205ad70-3205ad82 turns it into one byte ( [esp+0x40]:
+	/// templet +0x178 m_iDeleteSkillIDByUpgrade > 0 ) that feeds LoadEffectSetFromScript ( @3205ad90 ), the DAMAGE_DATA_ULTIMATE pick
+	/// ( @3205c865 ) and ParsingBuffFactorID ( @32060693 ).
+	bool bJuneUpgradedStateSkill = false;
+	{
+		const CX2SkillTree::SkillTemplet* pJuneStateSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+		bJuneUpgradedStateSkill = ( NULL != pJuneStateSkillTemplet && 0 < pJuneStateSkillTemplet->m_iDeleteSkillIDByUpgrade );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_SOUND
 	/// June 32057b80 @32057de1 (early, before any key is read): 32009ae0 clears the STATE_SOUND_PLAY records (+0x85d4) and stops their handles
@@ -16519,6 +16533,15 @@ void CX2GUUser::CommonStateStart()
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 
 	
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+	/// S3f, June 32057b80 @3205ad43-3205ad90: +0x9284 ( m_bApplyMemo ) = 0; the state's MemoCondition ( +0x7d10, RTTI
+	/// CX2GUUser::MemoCondition, vtable 334720bc ) parses the state ( slot 2 = 31fc8cf0: APPLY_MEMO, MEMO_NEEDS_HYPER / _FULL_HYPER /
+	/// _DESTRUCTION / _VIGOR into its own fields ) and decides ( slot 1 ). The base 31fd4450 and all 12 class overrides ( Eve 334cccc0
+	/// .. Elsword 3352286c, each 'base != 0' ) return false, so the memo never applies and nothing reads the parsed fields ( JUNE_BUGS ).
+	/// 32024ff0 gets ( lua, that memo byte, the upgraded-skill byte ).
+	m_bApplyMemo = false;
+	LoadEffectSetFromScript( m_LuaManager, m_bApplyMemo, bJuneUpgradedStateSkill );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #ifdef ADD_MEMO_1ST_CLASS
 	m_bApplyMemo = false;
 	CX2SkillTree::SKILL_MEMO_ID eMemoID = CX2SkillTree::SMI_NONE;
@@ -16533,6 +16556,7 @@ void CX2GUUser::CommonStateStart()
 	// 현재스테이트에서 발생하는 effectset list를 담는다.
 	LoadEffectSetFromScript( m_LuaManager );
 #endif //ADD_MEMO_1ST_CLASS
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 
 	m_vecEffectSetToDeleteOnDamageReact.resize(0);
 	m_vecEffectSetToDeleteOnStateEnd.resize(0);	
@@ -16738,6 +16762,26 @@ void CX2GUUser::CommonStateStart()
 	m_DamageData.pAttackerEffect		= NULL;
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+	/// S3f, June 32057b80 @3205c865-3205c883: upgraded -> 31fcd280( DAMAGE_DATA_ULTIMATE ), and DAMAGE_DATA when not upgraded or when that
+	/// returned false ( no table ). June has no DAMAGE_DATA_MEMO ( neither plain text nor an XOR string ).
+	bool bJuneUltimateDamageData = false;
+	if( true == bJuneUpgradedStateSkill )
+		bJuneUltimateDamageData = SetDamageData( "DAMAGE_DATA_ULTIMATE" );
+	if( false == bJuneUltimateDamageData )
+		SetDamageData( "DAMAGE_DATA" );
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	if( true == bJuneUpgradedStateSkill || CX2SkillTree::SI_NONE != GetNowStateSkillID() )
+	{
+		static int s_iJuneStateUltimateLogs = 0;
+		static DWORD s_dwJuneStateUltimateLog = 0;
+		if ( true == JuneSkillMemoLogDue( s_iJuneStateUltimateLogs, s_dwJuneStateUltimateLog ) )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] SULT state %d skill %d: upgraded %d -> %s, effect-set memo 0 (3205c865)", GetNowStateID(),
+				static_cast<int>( GetNowStateSkillID() ), ( true == bJuneUpgradedStateSkill ) ? 1 : 0,
+				( true == bJuneUltimateDamageData ) ? L"DAMAGE_DATA_ULTIMATE" : L"DAMAGE_DATA" );
+	}
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #ifdef ADD_MEMO_1ST_CLASS
 	if( true == m_bApplyMemo )
 	{
@@ -16749,6 +16793,7 @@ void CX2GUUser::CommonStateStart()
 	else
 #endif //ADD_MEMO_1ST_CLASS
 	SetDamageData( "DAMAGE_DATA" );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 
 
 #ifndef DELETE_OVERlAP_DECREASE_FORCE_DOWN_MELEE		/// 중복 적용중인 포스 다운 감소 구문 삭제
@@ -17485,12 +17530,17 @@ void CX2GUUser::CommonStateStart()
 #ifdef INSERT_BUFF_FACTOR_BY_SCPRIPT_STATE
 	#ifdef ADD_MEMO_1ST_CLASS //김창한
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+		/// S3f: S3e's flag is computed once at the top of CommonStateStart ( June @32057c03 / @3205ad70 ) and passed here ( @32060693 )
+		ParsingBuffFactorID( m_LuaManager, bJuneUpgradedStateSkill );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 		/// S3e, June2017 CommonStateStart 32057b80 @3206069b: the flag is "the equipped version of the state's skill is an upgraded one":
 		/// GetEquippedActiveSkillTemplet( GetNowStateSkillID(), upgrade swap ) ( 31fca8e0 @32057c03-32057c1d ) with +0x178 > 0 ( @3205ad70-3205ad82 )
 		{
 			const CX2SkillTree::SkillTemplet* pJuneStateSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
 			ParsingBuffFactorID( m_LuaManager, NULL != pJuneStateSkillTemplet && 0 < pJuneStateSkillTemplet->m_iDeleteSkillIDByUpgrade );
 		}
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 		ParsingBuffFactorID( m_LuaManager, m_bApplyMemo );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
@@ -38044,6 +38094,36 @@ bool CX2GUUser::GetSkillSlotIndexUsed( OUT int& iSkillSlotIndex_, OUT bool& bSlo
 	@brief : 각 스테이트의 FrameMove 중간에 DAMAGE_DATA 타입을 변경하기 위한 함수
 	@param :  const wstring& wstrTableName_ (데미지 데이터 테이블 네임)
 */            //<ADD_MEMO_1ST_CLASS>  const bool IsEqippedMemo_ (메모 배웠는지 여부)
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+/// S3f, June2017 31fcd280 ( one argument, RET 4 ): SetDamageDataFromLUA 32632390( &m_DamageData +0x3a0, m_LuaManager +0x2b4, name,
+/// GetPowerRate vslot 0x204 ), no memo argument. Then, for a damage data that is not AT_SPECIAL ( +0x3a8 != 1 ), whose FORCE_DOWN ( +0x790 )
+/// is not 0 ( fabs > FLT_EPSILON 334490f8 ) and with a melee force-down rate ( +0x4058 ) other than 1: a positive value is multiplied as
+/// March does; a negative one ( June-only ) moves away from 0 by the rate's distance from 1 ( rate > 1: v - ( rate - 1 ) v, else
+/// ( ( 1 - rate ) + 1 ) v ). ChangeDamageData ( vslot 0x83c: empty in CX2GUUser 31f3f070, overridden by CX2GUEL 32b732e0 and
+/// CX2GUAin 32a3d1b0 ) runs every time.
+bool CX2GUUser::SetDamageData( const char* pszTableNameUTF8_ )
+{
+	bool bIsSetDamageData = g_pData->GetDamageManager()->SetDamageDataFromLUA( &m_DamageData, m_LuaManager, pszTableNameUTF8_, GetPowerRate() );
+
+	const float fForceDownRate = m_SkillRelatedData.GetForceDownValueRateOfMeleeAttack();
+	if( m_DamageData.attackType != CX2DamageManager::AT_SPECIAL &&
+		false == IsSamef( m_DamageData.fForceDownValue, 0.f ) &&
+		1.f != fForceDownRate )
+	{
+		if( 0.f < m_DamageData.fForceDownValue )
+			m_DamageData.fForceDownValue *= fForceDownRate;
+		else if( 1.f < fForceDownRate )
+			m_DamageData.fForceDownValue = m_DamageData.fForceDownValue - ( fForceDownRate - 1.f ) * m_DamageData.fForceDownValue;
+		else
+			m_DamageData.fForceDownValue = ( ( 1.f - fForceDownRate ) + 1.f ) * m_DamageData.fForceDownValue;
+	}
+#ifdef SERV_ELESIS_SECOND_CLASS_CHANGE
+	ChangeDamageData();
+#endif // SERV_ELESIS_SECOND_CLASS_CHANGE
+
+	return bIsSetDamageData;
+}
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #ifdef ADD_MEMO_1ST_CLASS
 bool CX2GUUser::SetDamageData( const char* pszTableNameUTF8_, const bool IsEqippedMemo_ /*= false*/ )
 #else //ADD_MEMO_1ST_CLASS
@@ -38073,6 +38153,7 @@ void CX2GUUser::SetDamageData( const char* pszTableNameUTF8_ )
 	return bIsSetDamageData;
 #endif //ADD_MEMO_1ST_CLASS
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 
 /** @function : CreateWeapon
 	@brief : 아이템 템플릿과 EquipPtr을 사용하여 Weapon 객체를 생성, 
@@ -43886,6 +43967,12 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 #ifndef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 	        m_DamageData.pAttackerEffect		= NULL;
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+			/// S3f, June2017 DamageDataChangeProcess 320454a0 @320455af: DAMAGE_DATA_NEXT only. June has no DAMAGE_DATA_NEXT_MEMO, and
+			/// DAMAGE_DATA_NEXT_ULTIMATE ( 3346f064 ) is read only by the CEffect ctor ( 31f7e86e ). The rest of 320454a0 is March's live
+			/// branch ( m_fAnimOneshotTimer < t && EventTimer( t ), the state table, SimpleInit, AT_UNIT, this ).
+			SetDamageData( "DAMAGE_DATA_NEXT" );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #ifdef ADD_MEMO_1ST_CLASS //김창한
 			if( m_bApplyMemo == true )
 			{
@@ -43897,6 +43984,7 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 			else
 #endif //ADD_MEMO_1ST_CLASS
 			SetDamageData( "DAMAGE_DATA_NEXT" );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 			m_LuaManager.EndTable();		
 		}
 	}
@@ -45121,7 +45209,15 @@ void CX2GUUser::SetActionSyncData( OUT vector<SyncData>& ReceiveSyncDataList_, I
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 #ifdef ADD_MEMO_1ST_CLASS //김창한
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+/// S3f, June2017 32024ff0( lua, memo byte, upgraded-skill byte ). The memo byte picks EFFECT_SET_LIST_MEMO ( @3202505f ) and
+/// EFFECT_SET_LIST_EX_MEMO ( @3202576e ) as March's IsEqippedMemo_ does; June's caller always passes 0 ( see CommonStateStart ). The
+/// upgraded-skill byte picks EFFECT_SET_LIST_ULTIMATE_EX_APPLIED_SKILL / _ULTIMATE_EX ( @32025acf / @32025eaf ) and
+/// EFFECT_SET_LIST_FINAL_ULTIMATE ( @320268c0 ): March reads none of these yet. Checklist row 397 ports them on this argument.
+void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager, IN const bool IsEqippedMemo_/* = false */, IN const bool bJuneUltimate_/* = false */ )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager, IN const bool IsEqippedMemo_/* = false */)
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #else //ADD_MEMO_1ST_CLASS
 void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager )
 #endif //ADD_MEMO_1ST_CLASS

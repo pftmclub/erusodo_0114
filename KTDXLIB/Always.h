@@ -8951,3 +8951,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S3f - CommonStateStart's upgraded-skill flag ( June 32057b80 @32057c03 / @3205ad70: the now-state
+//              skill's equipped templet with the upgrade swap has m_iDeleteSkillIDByUpgrade > 0 ), computed once at the top and passed to
+//              LoadEffectSetFromScript's new third argument ( 32024ff0; its _ULTIMATE lists stay checklist row 397 ), to the
+//              DAMAGE_DATA_ULTIMATE / DAMAGE_DATA pick ( @3205c865 ) and to ParsingBuffFactorID ( S3e ). March's memo path retired as June
+//              has it: m_bApplyMemo is always false ( June's MemoCondition decides false in the base and all 12 classes, JUNE_BUGS ), no
+//              DAMAGE_DATA_MEMO / DAMAGE_DATA_NEXT_MEMO. CX2GUUser::SetDamageData is June's 31fcd280 ( one argument, negative FORCE_DOWN ).
+//              Log [JUNE_SKILL] SULT ( with JUNE_SKILL_DEBUG ). Revert: JUNE_SKILL_STATE_ULTIMATE in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE needs SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ( the two-argument ParsingBuffFactorID it feeds )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+//////////////////////////////////////////////////////////////////////////

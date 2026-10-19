@@ -1494,7 +1494,11 @@ public:
 
 #ifdef X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	#ifdef ADD_MEMO_1ST_CLASS
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+		void                        LoadEffectSetFromScript( IN KLuaManager& luaManager, IN const bool IsEqippedMemo_ = false, IN const bool bJuneUltimate_ = false );	/// S3f: June 32024ff0
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 		void                        LoadEffectSetFromScript( IN KLuaManager& luaManager, IN const bool IsEqippedMemo_ = false );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 	#else //ADD_MEMO_1ST_CLASS
 		void                        LoadEffectSetFromScript( IN KLuaManager& luaManager );
 	#endif //ADD_MEMO_1ST_CLASS
@@ -3871,11 +3875,15 @@ public:
 
 //{{ kimhc // 2010.12.6 // 2010-12-23 New Character CHUNG
 #ifdef	NEW_CHARACTER_CHUNG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+		bool SetDamageData( const char* pszTableNameUTF8_ );	/// S3f: June 31fcd280, no memo argument
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #ifdef ADD_MEMO_1ST_CLASS
 		bool SetDamageData( const char* pszTableNameUTF8_, const bool IsEqippedMemo_ = false );
 #else //ADD_MEMO_1ST_CLASS
 		void SetDamageData( const char* pszTableNameUTF8_ );
 #endif //ADD_MEMO_1ST_CLASS
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 
 		void CreateWeapon( 
             IN const CX2Item::ItemTemplet* pItemTemplet_, 

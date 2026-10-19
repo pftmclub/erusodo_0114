@@ -994,6 +994,30 @@ Task and gate: `kickoffs/skill-system-core/S3f.md`. Flag `SERV_IRUHADEV_JUNE_SKI
 - March still reads `APPLY_MEMO` into `m_bApplyMemo` and `DAMAGE_DATA_MEMO` / `DAMAGE_DATA_NEXT_MEMO` (`X2GUUser.cpp:16212-16221`, `:16432-16441`, `:43433-43442`).
 - The effect-set list choice inside `32024ff0` stays checklist row 397; S3f ports the argument, the damage-data choices and the memo path's retirement.
 
+### Phase S3f - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE` (`KTDXLIB/Always.h`; `#error` guards `_SKILL_STATE_BUFF` there, `ADD_MEMO_1ST_CLASS` in `X2GUUser.cpp`), in `X2GUUser.h/.cpp`.
+Funcmap: the two `(S3f)` rows flipped to ported, plus `31fcd280`, `320454a0`, `334720bc`, `31fc8cf0` and `32024ff0` rows. JUNE_BUGS 332; MODS.md section; checklist row 397 note.
+- **The flag, once.** A local `bJuneUpgradedStateSkill` at the top of CommonStateStart, right after `CountReservedSkillUse` (June `@32057bfb` -> `@32057c03`):
+  `GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true )` with `m_iDeleteSkillIDByUpgrade > 0`. S3e's inline block moved to `#else`; `ParsingBuffFactorID` reads the local.
+- **Damage data (`@3205c865`).** Upgraded -> `SetDamageData( "DAMAGE_DATA_ULTIMATE" )`, then `DAMAGE_DATA` when not upgraded or when that returned false.
+- **`SetDamageData` = June `31fcd280`, whole.** One argument (June passes no memo flag to `32632390`). Force-down: same gate as March (not AT_SPECIAL, value not 0, melee rate
+  `+0x4058` != 1); > 0 multiplies as March did; **< 0 is June-only**: rate > 1 -> v - (rate - 1) v, else ((1 - rate) + 1) v (x87 traced by hand). `ChangeDamageData` (vslot `0x83c`) runs every time.
+- **`LoadEffectSetFromScript`.** June `32024ff0( lua, memo, upgraded )`. The memo byte is `+0x9284` = MemoCondition `+0x7d10` slot 1. **June kept `APPLY_MEMO`** (xorstrings, in parse
+  `31fc8cf0` with `MEMO_NEEDS_*`), but the decide slot is `xor al,al; ret 4` in the base (`31fd4450`) and `base != 0` in all 12 class subclasses. So `m_bApplyMemo = false`, kept verbatim
+  (JUNE_BUGS 332: June's own Add / Chung / Eve / Ara / Luciel memo lists are dead). The MemoCondition classes are not ported: their only output is false and the parse has no reader.
+  The upgraded byte reaches March as a new third argument `bJuneUltimate_`, **unread**: the `_ULTIMATE_EX(_APPLIED_SKILL)` / `_FINAL_ULTIMATE` lists are checklist row 397.
+- **`DAMAGE_DATA_NEXT` (June `320454a0`).** Plain `DAMAGE_DATA_NEXT` only; the rest of the function is March's live branch. `DAMAGE_DATA_NEXT_ULTIMATE` is read only by the CEffect ctor.
+- **Dropped, as June:** `DAMAGE_DATA_MEMO` / `DAMAGE_DATA_NEXT_MEMO`: absent as plain text and from `xorstrings.tsv` (`APPLY_MEMO` and `EFFECT_SET_LIST(_EX)_MEMO` are present).
+- **Data note:** no June class state script has `DAMAGE_DATA_ULTIMATE` (only `DamageEffect*.lua`), so no user state picks it until class data says so.
+- **Hygiene:** `flagcheck --worktree --files X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h KTDXLIB/Always.h`: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+  0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the 3 OTHER rows were peers' uncommitted JUNE_GFX_TALK_CUTIN / JUNE_SKILL_MAX_MP hunks).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,316,864 B, dated 2026-10-19 09:28:45, md5 d0db73136b0eb15d5748e27d44b38816, equal to X2/US_SERVICE/x2.exe (2026-10-19 09:28:36); built at main 96de98f4 + 9 uncommitted code file(s).`
+  (S7i's uncommitted EMBLEM edits are in this exe too.) The exe has the wide `[JUNE_SKILL] SULT state` string and `DAMAGE_DATA_ULTIMATE`, and no `DAMAGE_DATA_MEMO`.
+- **How to see it in game:** any skill state runs as before; `offline_server.log` gets `[JUNE_SKILL] SULT state N skill S: upgraded 0 -> DAMAGE_DATA` for skill states
+  (the first 20, then at most one a second). An upgraded skill shows `upgraded 1`, with `DAMAGE_DATA` as long as its script has no `_ULTIMATE` table.
+- **Open questions:** none.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.

@@ -4396,3 +4396,15 @@ Flags `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN` (+ `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_
   debug command use June names.
 - **Debug (G4 review turns it off):** dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` runs my unit's `ActiveSkillShow` with a June name.
 - **Revert:** comment out `JUNE_GFX_TALK_CUTIN` (and `_DEBUG`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
+### June's upgraded-skill flag at state start; March's memo path retired (skill-system-core S3f, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE` in `KTDXLIB/Always.h` (`#error` guards: `_SKILL_STATE_BUFF` in Always.h, `ADD_MEMO_1ST_CLASS` in `X2GUUser.cpp`). Plan `JUNE_SKILL_SYSTEM_PHASES.md`
+"Phase S3f"; log tag `[JUNE_SKILL] SULT` (with `SERV_IRUHADEV_JUNE_SKILL_DEBUG`, throttled).
+- **Client (`X2GUUser.h/.cpp`).** `CommonStateStart` computes June's one flag at the top (`32057b80 @32057c03`: the now-state skill's equipped templet, upgrade swap, `m_iDeleteSkillIDByUpgrade > 0`) and
+  passes it to `LoadEffectSetFromScript`'s new third argument (`32024ff0`; its `_ULTIMATE` lists are checklist row 397), to the `DAMAGE_DATA_ULTIMATE` / `DAMAGE_DATA` pick (`@3205c865`) and to S3e's
+  `ParsingBuffFactorID`. `m_bApplyMemo` is always false (June's MemoCondition decides false, JUNE_BUGS 332), so `EFFECT_SET_LIST_MEMO` / `_EX_MEMO` are never picked; `DAMAGE_DATA_MEMO` and
+  `DAMAGE_DATA_NEXT_MEMO` are no longer read (June has neither key). `SetDamageData` is June's `31fcd280`: one argument, and a negative `FORCE_DOWN` moves away from 0 by the melee rate's distance from 1.
+- **What changes in game:** March class scripts' `APPLY_MEMO` states lose their memo effect sets / damage data (as in June). `DAMAGE_DATA_ULTIMATE` exists only in June's DamageEffect files, so no
+  class state picks it yet.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
