@@ -9520,3 +9520,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q10b - the story slide-show player ( June's unnamed class at CX2Data +0x288, new
+//              X2SlideShotScripted.* ): reset with the quest data ( 31edee40 ), Start ( 328c3750 ) from the story quest's complete ACK
+//              ( then the end message g_pInstanceData +0xabc, STR 40048 ) and from the quest window's Remind button, OnFrameMove 328c41f0
+//              ( start / end fades of 0.1 s, camera away, the cut scenes' UI particles, BGM, sounds, talk box text with spread,
+//              Enter / left click next, ESC / right click skip, auto-advance ), End 328c3ae0. June's forced Ends ( CX2Game::Release,
+//              the party ready / match popups ) and its four "story running" gates ( unit sounds, unit input, focus camera, talk boxes ).
+//              Data: 69 StoryQuest_*.dds into data048, Tutorial_New_ElswordAisha.ogg loose in data\music\. The book is Q10c.
+//              Log [JUNE_QUEST] STORY PLAY. Revert: JUNE_QUEST_STORY_PLAYER in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+#ifndef SERV_IRUHADEV_JUNE_QUEST_STORY
+#error SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER needs SERV_IRUHADEV_JUNE_QUEST_STORY ( the story data, GetStory, the complete-ACK block )
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifndef SERV_IRUHADEV_JUNE_QUEST_SCENE
+#error SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER needs SERV_IRUHADEV_JUNE_QUEST_SCENE ( the Remind case it extends )
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifndef SERV_IRUHADEV_JUNE_GFX_GATES
+#error SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER needs SERV_IRUHADEV_JUNE_GFX_GATES ( CKTDGUIDialogManager::JuneSetShow, hide mode 5 )
+#endif SERV_IRUHADEV_JUNE_GFX_GATES
+#ifndef SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+#error SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER needs SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK ( CKTDGCamera::PointAndUpdateViewTransform )
+#endif SERV_IRUHADEV_JUNE_RENDER_CAMERA_TRACK
+#ifndef DUNGEONSTAGE_CONTINUOUS_BGM
+#error SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER needs DUNGEONSTAGE_CONTINUOUS_BGM ( CKTDSMP3Play::GetPlayingFileName )
+#endif DUNGEONSTAGE_CONTINUOUS_BGM
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+//////////////////////////////////////////////////////////////////////////

@@ -1430,6 +1430,42 @@ Ghidra, read-only, against `1f92c15f` (no later commit touches the flag: `git lo
 
 **Done gate:** completing a story quest in a village plays its slide show and the end message; Remind on a completed story quest replays it. 0 EXCEPTION.
 
+### Q10b - Done (2026-10-19, Opus 5.5 high)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER`, `#error`s without `JUNE_QUEST_STORY` / `_SCENE`, `JUNE_GFX_GATES`, `JUNE_RENDER_CAMERA_TRACK`,
+`DUNGEONSTAGE_CONTINUOUS_BGM`; every June address, offset and constant used is a row of `june2017_re/quest_plan/q10b_player_map.tsv`).
+- New `X2SlideShotScripted.h/.cpp` = June's player whole: ctor `328c34b0`, dtor `328c3290`, Start `328c3750`, OnFrameMove `328c41f0` (fades, camera away,
+  ESC / Enter / mouse, the five cut lists with June's keys and particle arguments, text, auto-advance, Static_Enter), NextCutScene `328c3210`, End `328c3ae0`
+  (restore, BGM back, the end message `GET_REPLACED_STRING( 40048, "SL", GET_STRING( 40147 ), title )` = "<title> Story has been added to Media Gallery."
+  in an OK box at ( 250, 300 )), AddText `328c27d0` and the text / sound / particle helpers.
+- `CX2Data`: `m_pJuneSlideShotScripted` (+0x288), reset after the story data in `ResetQuestManager` (`31edee40` @32590890), ticked after the old slide show
+  (@31eea122), deleted beside it; wrappers `JuneStartStorySlideShot` / `JuneIsStorySlideShotRunning` / `JuneEndStorySlideShot`. `CX2InstanceData`: `+0xabc`.
+- Starts: the complete ACK (@323e5a4a..6d, then the end message) and Remind (@323e293d..63). The book's start (`32d74141`) is Q10c's.
+- Forced Ends: `CX2Game::Release` (@32308817), `CX2PartyManager` ready check (June 0x147 `3243d1d0` @3243d35c) and auto-party success (0x37d `3243d4e0` @3243d76c).
+- **Four more June gates** the Q10 map lacked (a scan of every `[x + 0x288]` in the exe): unit `PlaySound` (`32276284`), unit input (`322f8326`), the focus unit's
+  `OnCameraMove` (`32309d80`; without it a battle-field story snaps the camera back) and `CX2TalkBoxManager::OnFrameMove` (`32e90649`). All sit next to March's
+  own old-slide-show / cash-shop / event-scene checks.
+- Data: 69 `StoryQuest_*.dds` staged into data048 (`stage-june`, new), `PACK OK data048`; `Tutorial_New_ElswordAisha.ogg` goes loose into `data\music\` (March's BGM
+  player resolves through `GetPullPath`, like the other two story BGMs already there; June's copy is loose in its own `music\`). `DLG_NewSlideShot.lua`: no change,
+  June's `ljconv` bytes equal March's (`adopt-june --dry-run`: identical).
+- Mapping: June states 0xe / 0x15 = `XS_VILLAGE_MAP` / `XS_BATTLE_FIELD` (0xf, the guild agit, has no March state); `g_pData +0x7c` = UI major particles; June's 14th
+  `CreateSequence` argument = `SetLayer`; `+0x170` = `SetOverUI`; village `+0x12d` = `m_bEnableCameraProcess`; world `+0x11c` sounds = `Stop/PlayAllEffectBGM`;
+  `31d7d8c0` = `KTDGUIOKMsgBox`; cursor 0xf = `XCS_EVENT_SCENE` (as the old slide show 325c6791).
+- **Not carried:** June's world `+0x05` byte (saved / zeroed by Start, restored by End; no other reader in the exe, no March member) and the write-only player fields
+  (`+0x20`, `+0x56`, `+0x70`, `+0x7c..+0x84`, `+0x8c`). Null guards added where June dereferences the dialog without one. JUNE_BUGS 366-367.
+- **Drift (scope rule):** June's party handlers changed beyond the forced Ends (the ready check's June-only branch `3243cec0`, the auto-party tail) -> new backlog
+  **Stage 28** (`kickoffs/june-backlog/stage28-plan.md`, STATUS `stage28-plan`). Offline both handlers are undriven.
+
+**Hygiene.** `flagcheck JUNE_QUEST_STORY_PLAYER --worktree --files <12 files>`: `files: 8 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 1 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+FAIL = `X2SlideShotScripted.cpp`'s `#include "StdAfx.h"` (PCH, as Q10's file); OTHER = Q8b's uncommitted `MOVIE_TAB` hunks in `Always.h` / `X2UIQuestNew.cpp`; PASS~ = one blank line.
+
+**Deploy: pending.** The first build compiled every file of this phase with no new warning and failed only in RM1's uncommitted `X2RandomMission.cpp(614)` (C2660, not
+touched). The build reruns when RM1's fix lands; its `DEPLOY OK` line goes into the STATUS row.
+
+**How to see it** (after the deploy and the data048 / ogg copy): complete a story quest in a village (or press Remind on one completed); `logs.py --grep "STORY PLAY"`
+shows `start: quest N, K cut scene(s)`, one `cut i / K` per cut, `end` and, after a completion, `message: ... Story has been added to Media Gallery.`
+
 ## Phase Q10c - Story book UI
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_STORY_BOOK` (+ `_DEBUG` dev-console opener). Sub-tag `STORY`. Split out of Q10.

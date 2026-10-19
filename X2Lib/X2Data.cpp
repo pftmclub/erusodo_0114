@@ -6,6 +6,9 @@
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 #include "X2SlideShotScriptedManager.h"
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+#include "X2SlideShotScripted.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 //{{ Iruha : 2026-08-31 // offline mode
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -966,6 +969,9 @@ CX2Data::CX2Data(void)
 	m_pLocationManager		= NULL;
 	m_pMessenger			= NULL;
 	m_pSlideShot			= NULL;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	m_pJuneSlideShotScripted	= NULL;
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 #ifdef EVENT_SCENE
 	m_pEventScene			= NULL;
@@ -1136,6 +1142,9 @@ CX2Data::~CX2Data(void)
 	SAFE_DELETE( m_pLocationManager );
 	SAFE_DELETE( m_pMessenger );
 	SAFE_DELETE( m_pSlideShot );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	SAFE_DELETE( m_pJuneSlideShotScripted );		/// June ~CX2Data @31eeecdc; before the UI particle system its particles live in
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 #ifdef EVENT_SCENE
 	SAFE_DELETE( m_pEventScene );
@@ -1259,6 +1268,11 @@ HRESULT CX2Data::OnFrameMove( double fTime, float fElapsedTime )
 
 	if( NULL != m_pSlideShot )
 		m_pSlideShot->OnFrameMove( fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	/// June 31ee9f50 @31eea110..31eea122: right after the old slide show
+	if( NULL != m_pJuneSlideShotScripted )
+		m_pJuneSlideShotScripted->OnFrameMove( fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	/// June 31ee9f50: the skill tree's slot-change queue sends one change per frame ( 322105c0 )
@@ -1964,6 +1978,10 @@ CX2QuestManager* CX2Data::ResetQuestManager( const WCHAR* pQuestFileName, const 
 	CX2SlideShotScriptedManager::GetInstance()->Load();
 	CX2SlideShotScriptedManager::GetInstance()->LogLoadCensus();
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	// June 3258c470 @32590890: then the player is made again ( 31edee40 )
+	ResetJuneSlideShotScripted();
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	m_pQuestManager->LogLoadCensus( NULL != m_pGuildManager ? m_pGuildManager->GetGuildCoopQuestRewardRowCount() : 0 );
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	return m_pQuestManager;
@@ -2492,6 +2510,34 @@ CX2SlideShot* CX2Data::ResetSlideShot()
 
 	return m_pSlideShot;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+/// June 31edee40: delete the old player ( dtor 328c3290 ), make a new one ( 0xc8 B, ctor 328c34b0 )
+CX2SlideShotScripted* CX2Data::ResetJuneSlideShotScripted()
+{
+	SAFE_DELETE( m_pJuneSlideShotScripted );
+	m_pJuneSlideShotScripted = new CX2SlideShotScripted();
+	return m_pJuneSlideShotScripted;
+}
+
+bool CX2Data::JuneStartStorySlideShot( int iQuestID_ )
+{
+	if( NULL == m_pJuneSlideShotScripted )
+		return false;
+	return m_pJuneSlideShotScripted->Start( iQuestID_ );
+}
+
+bool CX2Data::JuneIsStorySlideShotRunning()
+{
+	return NULL != m_pJuneSlideShotScripted && true == m_pJuneSlideShotScripted->IsRunning();
+}
+
+void CX2Data::JuneEndStorySlideShot()
+{
+	if( NULL != m_pJuneSlideShotScripted )
+		m_pJuneSlideShotScripted->End();
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 #ifdef SERV_PET_SYSTEM
 CX2PetManager* CX2Data::ResetPetManager()

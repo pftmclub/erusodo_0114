@@ -6712,6 +6712,11 @@ CKTDXDeviceSound* CX2GameUnit::PlaySound( const WCHAR* pName, bool b3DSound, boo
  		g_pData->GetSlideShot()->IsPresentNow() == true)
  		return NULL;
 #endif NEW_CHARACTER_CHUNG
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	// June CX2GameUnit::PlaySound 32276220 @32276284..32276292: no unit sounds while the story slide show runs either
+	if( NULL != g_pData && true == g_pData->JuneIsStorySlideShotRunning() )
+		return NULL;
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 	CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->OpenSound( pName, 10, b3DSound );
 	if( NULL != pSound )

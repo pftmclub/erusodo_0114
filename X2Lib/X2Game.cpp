@@ -794,6 +794,10 @@ CX2Game::~CX2Game()
 	g_pData->GetSlideShot()->ScenEnd();
 
 	g_pX2Game	= NULL;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	// June CX2Game::Release 323080c0 @3230880d..32308817: right after the old slide show, the story slide show ends
+	g_pData->JuneEndStorySlideShot();
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 	//RemoveAllGuideText();
 
@@ -3442,7 +3446,12 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 		m_pDropItemManager->OnFrameMove( fTime, fElapsedTime );
 
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+		// June 32309d68..32309d8e: the focus unit does not move the camera while the story slide show runs ( its start fade moved it away )
+		if ( ( NULL == g_pData->GetCashShop() ||	!g_pData->GetCashShop()->GetOpen() ) && false == g_pData->JuneIsStorySlideShotRunning() )
+#else SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		if ( NULL == g_pData->GetCashShop() ||	!g_pData->GetCashShop()->GetOpen() )
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		{
 			if( null != m_optrFocusUnit )
 				m_optrFocusUnit->OnCameraMove();
@@ -6053,6 +6062,13 @@ void CX2Game::KeyProcess()
 	{
 		m_InputData.Init();
 	}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	// June 322f8321..322f8338: no unit input while the story slide show runs either
+	if( true == g_pData->JuneIsStorySlideShotRunning() )
+	{
+		m_InputData.Init();
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	if ( pMyGUUser != NULL && pMyGUUser->GetNowHp() <= 0.0f )
 		return;
 

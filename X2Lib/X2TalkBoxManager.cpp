@@ -52,6 +52,11 @@ HRESULT CX2TalkBoxManager::OnFrameMove( double fTime, float fElapsedTime )
 {
 	KTDXPROFILE();
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	/// June 32e90640 @32e90649..32e90657 ( first ): while the story slide show runs the talk boxes are not moved ( left shown as they were )
+	if ( g_pData != NULL && g_pData->JuneIsStorySlideShotRunning() == true )
+		return S_OK;
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	/// June 32e90640 ( vslot 1 ) @32e9066d: while an event scene plays the talk boxes are hidden and not moved. June gates this and the frame move
 	/// on a byte of the object at CX2Data +0x288 ( +0x51 == 1 skips both ); that object is not in March, so the gate is not ported.

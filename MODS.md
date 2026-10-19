@@ -4561,6 +4561,18 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UI` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD
 - **Review (2026-10-19).** June's developer suffix on the detail title (auth >= 2); NEW_QUEST_NOT without March's forbidden-quest give-up (`#else` of the flag in `X2UIQuestNew.cpp`). Same revert.
 - **Revert:** comment out the define, restore the three DLGs from `24965799\kom_contents_bytecode\data034_kom\` (or the backup above), drop the 10 `UQNCM_*` lines from `Enum.lua` (`luasrc.py refresh`), `kom.py pack` data034 / data036, ask, copy; `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No save change.
 
+### June quest system: story slide-show player (quest-system Q10b, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER` in `KTDXLIB/Always.h` (`#error`s without `JUNE_QUEST_STORY`, `JUNE_QUEST_SCENE`, `JUNE_GFX_GATES`, `JUNE_RENDER_CAMERA_TRACK`,
+`DUNGEONSTAGE_CONTINUOUS_BGM`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q10b - Done"; log tag `[JUNE_QUEST] STORY PLAY`.
+- **Client.** New `X2Lib/X2SlideShotScripted.{h,cpp}` (June's player at `CX2Data +0x288`; listed in `X2Lib_2010.vcxproj`, inert with the flag off). `X2Data.h/.cpp`: the member, reset with the
+  quest data (`ResetQuestManager`), frame move, dtor, `JuneStartStorySlideShot` / `JuneIsStorySlideShotRunning` / `JuneEndStorySlideShot`. `X2InstanceData.h/.cpp`: `m_bJuneStoryEndMessage`
+  (June `+0xabc`). `X2UIQuestNew.cpp`: the complete ACK's start + end message, the Remind replay. Forced Ends: `X2Game.cpp` `Release`, `X2PartyManager.cpp` ready-check and auto-party
+  popups. Gates while a show runs: `X2GameUnit.cpp` `PlaySound`, `X2Game.cpp` key input and focus camera (the one `#else` line), `X2TalkBoxManager.cpp` frame move.
+- **Data.** data048 + 69 June `StoryQuest_*.dds` (new, `stage-june`); `Tutorial_New_ElswordAisha.ogg` loose in `data\music\` (June's; the other two story BGMs are March's own).
+  `DLG_NewSlideShot.lua` unchanged (June's `ljconv` bytes equal March's).
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The textures and the ogg may stay (nothing reads them with the flag off). No save change.
+
 ### June quest system: story book data (quest-system Q10, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_QUEST_STORY` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD`, `JUNE_QUEST_RUNTIME`, `JUNE_QUEST_UI`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q10 - Done"; log tag `[JUNE_QUEST] STORY`.

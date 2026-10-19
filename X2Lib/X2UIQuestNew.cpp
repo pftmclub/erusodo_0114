@@ -1007,6 +1007,11 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 				const CX2QuestManager::QuestTemplet* pJuneSceneTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
 				if( NULL != pJuneSceneTemplet )
 					JunePlayQuestScene( pJuneSceneTemplet->m_iID, 2 );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+				// June @323e293d..323e295e: a story quest then replays its slide show ( g_pData +0x288 328c3750; its result is not used )
+				if( NULL != pJuneSceneTemplet && CX2QuestManager::QT_STORY == pJuneSceneTemplet->m_eQuestType )
+					g_pData->JuneStartStorySlideShot( pJuneSceneTemplet->m_iID );
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 			}
 #else SERV_IRUHADEV_JUNE_QUEST_SCENE
 			if( m_iSelectedQuestID != -1 )
@@ -1814,6 +1819,11 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 					true == CX2SlideShotScriptedManager::GetInstance()->HasStory( pJuneStoryTemplet->m_iID ) )
 				{
 					g_pData->GetQuestManager()->JuneRebuildStoryBookQuest( true );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+					// June @323e5a4a..323e5a6d: the story's slide show; when Start returns true ( started, or one already running ) the end message is due
+					if( true == g_pData->JuneStartStorySlideShot( pJuneStoryTemplet->m_iID ) )
+						g_pInstanceData->SetJuneStoryEndMessage( true );
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 				}
 			}
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY

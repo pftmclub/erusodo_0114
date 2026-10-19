@@ -839,6 +839,14 @@ June's `EventScene.lua` / `EventSceneObject.lua` (data036) parse with March's tw
 never alone. No quest plays a Lua scene (Q0b, re-proved by Q5b), so this is not the quest plan's. Brief: `kickoffs/june-backlog/stage27-plan.md`.
 Planning: `/x2-phase new-plan june-lua-scenes`. Not started.
 
+### Stage 28: June party-manager handlers (added 2026-10-19, quest-system Q10b)
+
+June's `CX2PartyManager` packet handler (`3243ee30`, vtable `33496b80` slot 1) changed handlers March has: the ready-check
+(`3243d1d0`, March `PARTY_GAME_START_OPINION_CHECK_NOT`) gained a June-only branch on a packet byte (`3243cec0`), and the auto-party
+match success (`3243d4e0`) a June-only tail after its popup (`31d70b00`, `31fc6010`, manager `+0x8a`, `32461a70` / `324639a0`). Q10b
+ported only their story-slide-show forced Ends. Offline the AI party sends neither packet, so the handlers are undriven. Not the quest
+plan's subject (scope rule). Brief: `kickoffs/june-backlog/stage28-plan.md`. Planning: `/x2-phase new-plan june-party`. Not started.
+
 ## Open decisions that gate stages
 
 | Decision | Gates | How to settle |

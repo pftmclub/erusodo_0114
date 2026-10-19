@@ -942,6 +942,13 @@ public:
 		bool	GetJuneStoryBookNew() const { return m_bJuneStoryBookNew; }
 		bool	m_bJuneStoryBookNew;
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+		/// Q10b. June g_pInstanceData +0xabc: the story's end message is due. Set by the complete ACK when the player started ( 323e5a6d ), read
+		/// and cleared by the player's End ( 328c3e03 / 328c41b5 ); no other June reader.
+		void	SetJuneStoryEndMessage( bool bShow_ ) { m_bJuneStoryEndMessage = bShow_; }
+		bool	GetJuneStoryEndMessage() const { return m_bJuneStoryEndMessage; }
+		bool	m_bJuneStoryEndMessage;
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 #ifdef SERV_4TH_ANNIVERSARY_EVENT
 		K4ThAnnivEventInfo					m_k4ThAnnivEventInfo;
 		std::vector< bool >					m_vec4ThAnnivEventRewardInfo;

@@ -16,6 +16,9 @@
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 class CX2GFXEventScene;		// June GFx runtime G3: X2GFXEventScene.h
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+class CX2SlideShotScripted;		// quest-system Q10b: X2SlideShotScripted.h
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 
 // 게임 동작중 변하지 않는 데이터를 담아두는 구조체, 게임 동작중 변하는 데이터는 CX2InstanceData에 담아주세요~
@@ -337,6 +340,17 @@ class CX2Data : public CKTDXStage
 		const std::map< int, std::set<int> >& GetJuneStoryBookQuestMap() const { return m_mapJuneStoryBookQuest; }
 		void SetJuneStoryBookQuestMap( const std::map< int, std::set<int> >& mapStoryBook_ ) { m_mapJuneStoryBookQuest = mapStoryBook_; }
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+		/// quest-system Q10b: June g_pData +0x288, the story slide-show player ( CX2SlideShotScripted ). Reset 31edee40 by the quest loader.
+		CX2SlideShotScripted* ResetJuneSlideShotScripted();
+		CX2SlideShotScripted* GetJuneSlideShotScripted() { return m_pJuneSlideShotScripted; }
+		/// June's callers: "+0x288 != 0 -> Start( id )" ( 323e5a50, 323e294c, 32d74141 ); false when there is no player
+		bool JuneStartStorySlideShot( int iQuestID_ );
+		/// June's readers: "+0x288 != 0 && +0x51 == 1" ( 32276284, 322f8326, 32309d80, 32e90649, the party forced Ends )
+		bool JuneIsStorySlideShotRunning();
+		/// June's forced Ends ( 3243cff1, 3243d35c, 3243d76c, 323080c0 @32308817 ): End when there is a player ( End itself needs it running )
+		void JuneEndStorySlideShot();
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 
 		//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 		CX2SocketItem* ResetSocketItem( const WCHAR* pFileName, const WCHAR* pFormulaFileName_ );
@@ -634,6 +648,9 @@ class CX2Data : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 		std::map< int, std::set<int> >	m_mapJuneStoryBookQuest;		/// June +0x570
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+		CX2SlideShotScripted*	m_pJuneSlideShotScripted;		/// June +0x288
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		CX2SocketItem*			m_pCX2SocketItem;
 		CX2EnchantItem*			m_pCX2EnchantItem;
 

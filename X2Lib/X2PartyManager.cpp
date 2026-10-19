@@ -2540,6 +2540,11 @@ bool CX2PartyManager::Handler_EGS_PARTY_GAME_START_OPINION_CHECK_NOT( HWND hWnd,
 		wstring wstrDungeonName = 
 			g_pData->GetDungeonManager()->MakeDungeonNameString( eDungeonID, eDifficultyLevel, eDungeonMode);
 		
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+		// June 3243d1d0 @3243d35c ( and its event-dungeon twin 3243cec0 @3243cff1 ): a running story slide show ends before the ready popup
+		if( true == g_pData->JuneIsStorySlideShotRunning() )
+			g_pData->JuneEndStorySlideShot();
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 		g_pMain->AddTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST,
 			CX2Main::TimedMessagePopUp::MBT_OK_CANCEL, userData, 10.f, 
 			GET_REPLACED_STRING( ( STR_ID_21304, "Li", wstrDungeonName, m_MyPartyData.GetPartyMemberCount() ) ), 
@@ -2905,6 +2910,11 @@ bool CX2PartyManager::Handler_EGS_AUTO_PARTY_MAKING_SUCCESS_NOT( HWND hWnd, UINT
 		GET_REPLACED_STRING( ( STR_ID_21304, "Li", wstrDungeonName, kEvent.m_iMemberCount ) ), 
 		(CKTDXStage*) g_pMain->GetNowState(), 
 		CX2StateMenu::SMUCM_DUNGEON_MATCH_GAME_ACCEPT, CX2StateMenu::SMUCM_DUNGEON_MATCH_GAME_DENY, CX2StateMenu::SMUCM_DUNGEON_MATCH_GAME_DENY );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+	// June 3243d4e0 @3243d75c..3243d76c: after the match popup a running story slide show ends ( the rest of June's tail is not this phase's )
+	if( true == g_pData->JuneIsStorySlideShotRunning() )
+		g_pData->JuneEndStorySlideShot();
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 	return true;
 }
 

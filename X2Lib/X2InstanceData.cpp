@@ -121,6 +121,9 @@ m_bFirstJoinVillage(false)
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 ,m_bJuneStoryBookNew(false)
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
+,m_bJuneStoryEndMessage(false)
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER
 {
 
 #if defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ ) || defined( _OPEN_TEST_2_ )
