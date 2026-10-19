@@ -2194,7 +2194,7 @@ Kickoff `kickoffs/skill-system-core/S7n.md`.
 
 ### Phase S7n - Done (2026-10-19, Opus 5.5 high)
 
-Flag `SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE` (`Always.h` only; `#error` without `_EMBLEM_MANAGER` / `_LEVEL_EMBLEM`). Funcmap tag `Skill S7n`. JUNE_BUGS 348-351.
+Flag `SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE` (`Always.h` only; `#error` without `_EMBLEM_MANAGER` / `_LEVEL_EMBLEM`). Funcmap tag `Skill S7n`. JUNE_BUGS 354 (was 348, see the review), 349-351.
 Revert: `MODS.md` "June's new-title notice". Log `[JUNE_SKILL] EMBLEM title ...` (queued / row / notice).
 - **The feed `32701960` = March's `CX2TitleManager::CheckNewTitle`, ported whole** (March body in `#else`). `+0x37` / `+0x38` = `m_bShowNewTitle` / `m_bNewOpenMission`
   (word clears both). Gate `@327019b5`: either flag and select-unit level < 5 -> both flags and both lists dropped. Titles (`+0xb0`, key 1): June states 9 / 0xc / 0xd /
@@ -2227,6 +2227,32 @@ Revert: `MODS.md` "June's new-title notice". Log `[JUNE_SKILL] EMBLEM title ...`
   Title 10's "Apply title now?" box is not reachable offline: March's data036 sub-mission 10 asks for quest 11040 (June's: 11010), a sub-quest id, so mission 10 never completes.
 - **Play-test PASSED 2026-10-19** (user + log; exe 5b3e8252, 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`): `TITLE mission 150 complete -> title 150 awarded`
   (14:39:45.078), `EMBLEM title queued: key 1, title 150`, `row 0: key 1, title 150`, `notice: dialog 1, left key 1 = 0, key 0 = -1`; the popup showed icon + text (user).
+
+### Phase S7n -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe 5b3e8252 stays). One bookkeeping fix: S7n's first JUNE_BUGS row reused number 348,
+which S7h had already taken (and S7h's 348 is cited in code, `Always.h` and `MODS.md`), so S7n's row is now **354**, moved after 353.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE --range bd25f7bf^..bd25f7bf`: `files: 6 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  `--range bd25f7bf^..HEAD` gives `RESULT: FAIL` with 3 FAIL rows, none of them S7n's: `cb1f79d X2State.cpp` is S7h's repair commit, which rebuilt the file without S7n's block (the 19 lines) and moved
+  S7h's own `JUNE_SKILL_CLASS_CHANGE` hunks. The next commit, `041784a`, put the block back (PASS). `e2b8f21 X2OfflineDungeonRank.cpp / .h` are the quest plan's new files, which carry no flag at all.
+  The OTHER rows are peers' flags. Net check: every `TITLE_NOTICE` block in the 7 files is byte-identical between `bd25f7bf` and HEAD (block-by-block compare), and the worktree equals HEAD for those files.
+- **`CheckNewTitle` = `32701960`** (decompile + raw disassembly). Gate: `(+0x37 || +0x38) && level < 5` -> word clear, both vectors emptied, end. Title switch: 9 / 0xc / 0xd / 0x12 / 0x13 / 0x18 break to the play guide.
+  0xb / 0x17: word clear, push, `PlayEmblem( 0x12, 1 )`. Default: the same, then the box only when `+0xac == 10`, after the play: `31d7efc0( ( -999, -999 ) 33458018, 0xa8c0 = 43200, 0xc0d, g_pMain +0x90, 0xc0e )`.
+  The pushes: `PUSH 1` at @32701abc / @32701b7c / @32701e2b, `PUSH 0` at @32701fac / @32701ffc, and all four plays are `PUSH 1; PUSH 0x12`. Mission switch: the skip set + 0x1a goes to the end without clearing.
+  The default and 0xb / 0xe / 0xf / 0x10 / 0x15 / 0x17 run the same body. The word clear of both flags is March's own source too (`#else` lines 181-182 / 209-210), and March's skip list names the same
+  five states, so the state mapping is confirmed by March as well as June.
+- **Queue and callers.** `326f88a0`: kind 0 = type 7 -> word clear; else set `+0xd0` miss -> insert, dead `+0xc0` search, push, `+0x38 = 1`. Kind 1: `+0xe0` miss -> push, insert, `+0x37 = 1` (= port; `TT_EVENT` = 7).
+  `32700700`: `+0x36`, push( id, 1 ); with no event map every path reaches @327008ce (10390 with `+0x9a0 == 0` -> REQ), then id 10 with a select unit -> `+0xac = 10` (= port order).
+  `32700d20`: `326f86d0( id, 1, 1 )`, `!bFirst && ok` -> push( id, 0 ), submissions; the bFirst loop inserts only found ids (= port). `32701700` pushes the deserialised `m_bFirst` (@32701753) into `32700d20`.
+  `326ff600`: after `326f8470` (@326ff7bf) the id goes into `+0xd0` (@326ff832) and `+0xe0`, unconditionally (= port).
+  `327009b0` = REQ 0x20d / ACK 0x20e / `+0x35` (= March's `Handler_EGS_EQUIP_TITLE_REQ`). `327032c0`: `+0xac` block after `3235a160`, `32158070( 0x13, 1, 1, 0 )` = `ToggleUI( menu, forOpen, UidType )` (= port).
+- **X2State** `31f26bfb` / `31f26c45` (raw): close through `31be4210( 0x472, control +4 / +8 )`; OK tests `g_pData +0x28c` before `327009b0`, Cancel writes `+0xac = 0` without a test (= port).
+- **Emblem manager.** Case 0x12 (raw @3244c712-3244c7c1, @3244c864): key 1 missing -> `+6 = 0`; size != 0 -> `+6 = 1`, `+0x63 = 0`; key 0 size != 0 -> `+0x63 = 0`, `+6 = 1` (= `EndEmblem` / `PlayEmblem( id, true )`,
+  `m_bIsPassCondition` is byte 6 of the templet). `3244c2b0`: the key 1 loop returns at 2 rows, an empty deque or 10 tries; key 0 only when key 1 is missing or empty (= port). `3244adb0` skips null.
+  `32448420`: `"%s%d"` `g_pStaticIcon` index+1, picture 1, `326f8400( *elem )` + `.tga`, vslot 0x68( 1 ). `3244bfb0`: 0x2f5 / 0x43c8 "L", `31cbcc90` string-0 test before the set and SetShow (= port).
+- **Spot-checked in raw disassembly:** case 0x12, the push keys, TakeTitle's inserts and the two SUCM cases. All match.
+- **Open questions:** none. Next: `/x2-phase skill-system-core S7m`.
 
 ## Phase S8 - Running state data: June's pointer model
 
