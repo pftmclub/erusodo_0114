@@ -1865,6 +1865,53 @@ Four flags (revert: `MODS.md` "June's class-change notice"; funcmap tag `Skill S
   Unit 32 went 11 -> 10 at 14:31:53: grant 2 rows, `CLASS NOT build ... 13 acquired skill(s) sent`, then `CLASS NOT unitUID=32 class 10: 13 acquired skill(s) into page 1, 0 unsealed,
   both bars emptied`. Relog: grant 0 rows. Back to 11 at 14:32:37: the same chain. The 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are outside this phase.
 
+### Phase S7h -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe 9f39e25a stays). One finding: the call left out at @31f27c17 is
+**not** emblem 16 / S7l, as the Done note says. It is June's boss-raid enter UI, and no row owns it, so it becomes new **S7o**.
+- **Hygiene.** Per-commit ranges (`1dd50d30^..041784ad` for `CLASS_CHANGE`, `1dd50d30^..1dd50d30` for the other three) give `RESULT: FAIL`. Every FAIL is
+  1dd50d30's `X2State.cpp`, where hunk staging put the handler's `#else` / `#endif` in the wrong lines. cb1f79d7's 39 deleted lines are its rebuild of that file,
+  and 041784ad put back S7n's block. The net check on the file is what counts:
+  `flagcheck CLASS_CHANGE --base 1dd50d30^ --at HEAD --files X2Lib/X2State.cpp --with JUNE_SKILL_TITLE_NOTICE JUNE_SKILL_SQUARE_VIEWER_RESET`:
+  `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` /
+  `RESULT: PASS`. The `RELATION_UNEQUIP`, `CLASS_POPUP` and `CLASS_ITEM_CHOICE` files are PASS. Their only FAIL is the same `X2State.cpp` row.
+  OTHER = each other's blocks, peers' `Always.h` / `ServerDefine.h` blocks, and S7n's files.
+  `SQUARE_VIEWER_RESET --range c152c92c^..c152c92c`: `1 PASS, 1 DEFINE`, zero line, `RESULT: PASS`. No later commit touches the phase's files.
+- **Packet.** `320ed4e0` has UID `+0`, short `+8` (`33051f40`), vector<short> `+0xa`, items `+0x1a`, complete `+0x2a` (`3211ee20`), in progress `+0x3a` (`321418c0`),
+  KUnitInfo `+0x4a`, and vector<KSkillData> `+0x3bf` (`3211eb10`). It matches the struct and the Put / Get order. In the handler, the local packet sits at ESP+0x20, so the offsets used there agree.
+- **Handler `31f276b0`, call for call (raw disassembly):**
+  - `32362730( unitinfo, 0 )`, then the cash-shop block twice (`+0x290 +0xd8 == 1`, vslot 0xac; JUNE_BUGS 347), then `324886b0( 1, 0 )`.
+  - State `0x15`: the gage `0x4c` with the KUnitInfo class. Any other state: `31efd510( uid, unit +0xaf0 +4 )`.
+  - The tree, in order: `32892410` (KUnitInfo `+0x1ce`), `32891560`, `32895c40( 0, 1, 0, 0 )`, `328929e0` (`+0x3bf`), `32891560`.
+    `32895c40`: arg2 = tree, arg3 = the ten slots (`3289c380` x 2 x 5), arg4 = unsealed. That is March's 5-argument `Reset( false, false, true, false, false )`, which inits A and B.
+  - `3220f740` if `g_pData +0x50`. `32892370( { 900, info->first dword } )` if `+0x340` and `+8`; the first member is `m_eRelationStateType`.
+    `32892370` is one entry of `328924c0`'s rule, so `AddJuneAcquiredSkills( 1 row )` is equivalent.
+  - The UI: `32150380`, `328ed890`, then with g_pMain `328e1680( +0x278 )` and `328e1170`. Inventory `32196a00( items, 1, 1 )`. `32336e80( +0x3a, +0x2a, 1 )`. `323c9e40( 1 )`.
+  - The UI ids: `0x15` is the id `32150380` registers the skill tree under, and `0x13` is the one char info is read under.
+    `328e7b70( 1, 1, 0 )` maps to March's `UpdateUI( true, true, true, false )` (June's signature has no bSP, see S7b).
+  - Gage `0x4c` / `0x58` with the packet class (`FIX_CHUNG_GAGE_UI_UPDATE_BUG` is on), `3223c7f0` (`ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION` is on), then `3235a160`. **Match.**
+- **The two calls left out.** vslot 0x104 = `3245abd0`, the class-up notice buttons (funcmap row 1986, backlog Stage 9): agreed.
+  `32161070` is called on `g_pMain +0xd80` (getter `31d70d70`). It rebuilds `DLG_BossRaid_Enter.lua` (`g_pStatic_Enter_UI`, `Active_` / `Deactive_Enter_Button`).
+  March has none of it. Its four callers are `31f08290`, `31f276b0`, `324bbe50` and `32509d30`.
+  S7l did not take it, and no STATUS row or backlog stage names it. Unowned-branch rule: **S7o** (identify, then port if reachable; may need A6b's `BFT_BOSS_RAID`).
+- **`328929e0`** clears `+0x4a8` (`31d06e90`), then calls `328924c0`. `ResetJuneAcquiredSkills` clears the page in use, then calls `AddJuneAcquiredSkills` (S7's equivalence). **Match.**
+- **`3220f740`** finds 900 in bar A, else in bar B with `+5`, then calls `3220e3b0( idx, 0 )`. `SI_ETC_WS_COMMON_LOVE` = 900 under the live `UPGRADE_SKILL_SYSTEM_2013`. **Match.**
+- **Popup `324886b0` mode 0.**
+  - The dialog comes from `32486e60`, which itself does `new` + ctor `31cd9230( state, name, 0.07, 0 )` + AddDlg. That equals March's `CKTDGUIDialog( state, name )` (default 0.07 / 0).
+  - The light is -250 / 100 / -600, as in March. Scale @32488b01: `[33471a1c]` = 1.5, `[3344f240]` = 1.4 when class 0x75 (read from the exe).
+  - `+0xd84` is written 1.5 and left out (June-only member). **Match.**
+- **Tables (all cases, compared by script from the exe's jump tables):**
+  - `32227080`: 58 / 58, default -1. `32226c60`: 60 / 60, default -1.
+  - `32486e60`: 74 named cases / 74. Classes 10-46 and 100-136; the other slots and out-of-range classes give Knight.
+  - Spot-checks: 10 -> 241950, 32 -> 273863, 122 -> 273233 / 135595, 32 -> `Add_PT`, 46 -> `Ain_LW`, 136 -> `Ain_AP`. 0 diffs.
+  - `3223c7f0`: id 1 (`32227080`, > 0, scan `+0x2e8`, `3223c4d0`), then id 2 the same way. **Match.**
+- **Voice `32486c10` / `32486ae0`.** The 12 prefixes, rand for types 1 and 6-10 and 12 (`rand() % 100 & 1` + 1), `Voice_ClassUpFinish0` + `%d.ogg`, and
+  `31ce0e10( name, 0, 0, 1 )` all match. The 4th argument is March's `bJuneAutoRelease_`.
+- **Emulator.** After `InitSkillTree`, `GrantJuneSkillsByLevel` runs, then `GetJuneAcquiredSkillData` (every row of `m_mapSkill` with level > 0, i.e. the whole list
+  after the grant) and `GetUnsealedSkills` (the whole set). **Match.** The play-test's relog shows grant 0 rows, i.e. the grant persisted.
+- **Bookkeeping.** S7n's duplicate JUNE_BUGS 348 was renumbered 354 by the S7n review (7a44b9ec), so S7h keeps 347 / 348.
+
 ## Phase S7i - The level-up "new skill or memo" emblem
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). June's `31d885e0` (called by the three level-up handlers), `CX2SkillTree 3220d2b0 /
@@ -2253,6 +2300,12 @@ which S7h had already taken (and S7h's 348 is cited in code, `Always.h` and `MOD
   `32448420`: `"%s%d"` `g_pStaticIcon` index+1, picture 1, `326f8400( *elem )` + `.tga`, vslot 0x68( 1 ). `3244bfb0`: 0x2f5 / 0x43c8 "L", `31cbcc90` string-0 test before the set and SetShow (= port).
 - **Spot-checked in raw disassembly:** case 0x12, the push keys, TakeTitle's inserts and the two SUCM cases. All match.
 - **Open questions:** none. Next: `/x2-phase skill-system-core S7m`.
+
+## Phase S7o - June's boss-raid enter UI ( g_pMain +0xd80 )
+
+Found by the S7h review: June's class-change NOT calls `32161070` on `g_pMain +0xd80` (`DLG_BossRaid_Enter.lua`, also from `31f08290`, `324bbe50`, `32509d30`);
+March has no such object and no row owned it. Identify the object, its setters and reach; port it whole if the offline client can show it (may need A6b's
+`BFT_BOSS_RAID`), else leave `not ported` funcmap rows naming the blocker. Run with Opus 5.5 / high; kickoff `kickoffs/skill-system-core/S7o.md`.
 
 ## Phase S8 - Running state data: June's pointer model
 
