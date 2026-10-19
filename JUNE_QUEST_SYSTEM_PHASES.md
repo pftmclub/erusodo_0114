@@ -1329,6 +1329,15 @@ at a time. In a dungeon the tab refuses with "Cannot be used here.".
 
 **Open for the user:** none.
 
+**Play-test 1 (2026-10-19, user + log): two fixes.** Log: tab open ( 13 rows, 5 navi steps ), list rebuilds from 1 / 4 / 7 / 10 / 13 by the navi,
+Elysion ( id 11 ) played from the tab and returned ( stop with quest 0 ), the dungeon refusal ( state 11, string 4495 ); 0 EXCEPTION.
+- *No preview on Elysion:* rows 10 / 11 take `DLG_UI_Common_Texture_ScenarioMovie_02.tga` (and rows 8-11 their icons from `DLG_UI_Button17.tga`); Q8b had
+  staged only `_01`. `_02.tga/.TET` staged into data063 (Button17 was already June's), PACK OK, COPY OK data063 md5 3fc7b897. JUNE_BUGS 365 withdrawn.
+- *Wheel dead:* March's `MsgProc` returns early unless the QuestDetail dialog is under the mouse (`FIXED_QUEST_DLG_IS_NOT_CHECK_FLAG_WHEN_NOT_OVER_MOUSE`);
+  June's list mode hides that dialog, so the wheel never reached any list tab. June's `323e5690` has no such test. User chose June as is: new flag
+  `SERV_IRUHADEV_JUNE_QUEST_MSGPROC` (March's test in the `#else`). June's guard that keeps other windows' clicks was not found (UI manager
+  `+0x2c` = the quest window); the play-test watches it. flagcheck worktree PASS. `DEPLOY OK: X2_offline.exe is 25,505,792 B, dated 2026-10-19 22:05:52, md5 4de4ec930d17660ed79d6ac2a444bd88` (COALESCED into a peer full build started 21:55, after the edit).
+
 ## Phase RM1 - Random mission port
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION`. Sub-tag `RM`.

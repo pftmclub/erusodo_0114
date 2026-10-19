@@ -569,8 +569,12 @@ bool CX2UIQuestNew::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 		return false;
 
 #ifdef FIXED_QUEST_DLG_IS_NOT_CHECK_FLAG_WHEN_NOT_OVER_MOUSE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MSGPROC
+	// June 323e5690: after the two modal tests the message switch runs; there is no QuestDetail mouse-over test ( quest-system Q8b fix )
+#else SERV_IRUHADEV_JUNE_QUEST_MSGPROC
 	if ( false == m_pDLGUIQuestDetail->GetIsMouseOver() )
 		return false;
+#endif SERV_IRUHADEV_JUNE_QUEST_MSGPROC
 #endif // FIXED_QUEST_DLG_IS_NOT_CHECK_FLAG_WHEN_NOT_OVER_MOUSE
 
 	bool bFlag = false;

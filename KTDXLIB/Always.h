@@ -9573,3 +9573,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_TYPE
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q8b fix - the quest window's MsgProc as June's 323e5690: the two modal-dialog tests, then the
+//              message switch, with no QuestDetail mouse-over test ( March FIXED_QUEST_DLG_IS_NOT_CHECK_FLAG_WHEN_NOT_OVER_MOUSE, kept
+//              in the #else ). June shows the list and the detail dialog one at a time, so March's test turned the mouse wheel off on
+//              every quest tab ( the detail dialog is hidden there ). User's choice 2026-10-19: June as is; watch that other windows
+//              still take clicks while the quest window is open. Revert: JUNE_QUEST_MSGPROC in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_MSGPROC
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MSGPROC
+#ifndef SERV_IRUHADEV_JUNE_QUEST_UI
+#error SERV_IRUHADEV_JUNE_QUEST_MSGPROC needs SERV_IRUHADEV_JUNE_QUEST_UI ( June's one-dialog-at-a-time quest window )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
+#endif SERV_IRUHADEV_JUNE_QUEST_MSGPROC
+//////////////////////////////////////////////////////////////////////////

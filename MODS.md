@@ -4665,8 +4665,15 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_U
 Flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB` in `KTDXLIB/Always.h` (`#error`s without `JUNE_QUEST_MOVIE` and `JUNE_QUEST_UI`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q8b - Done"; log tag `[JUNE_QUEST] MOVIE`.
 - **Client.** `X2Main.h/.cpp`: row / seen-list helpers, `JunePlayClearMovieByID`, `JuneAddSeenClearMovieByQuest`, `JuneClearSeenClearMovie`. `X2QuestManager.cpp` (end of `SetUnitQuest`), `X2Unit.cpp` (`Reset`), `X2StateMenu.cpp` (`ProcessStateChangeUnitSelectWithOptionWindow`) feed and clear the seen list. `X2UIQuestNew.h/.cpp` + `X2UIQuestNewJune.cpp`: the Video tab (`JuneOpenMovieTab`, `JuneUpdateMovieList`, `JuneGetMovieLockDesc`, play / hover), its branches in the scroll buttons, navi, wheel, `UpdateNavi`, `JuneResetQuestUI`, and the June tab-hide sites; the Q5a log-only stub is the `#else`.
 - **What changes in game.** The quest window's Video button lists June's 13 scenario movies by area; seen ones (completed quest / cleared dungeon / played) show their picture and play on click, the rest are locked with a description.
-- **Data.** June-only `DLG_UI_Common_Texture_ScenarioMovie_01.tga/.TET` added to data063; June's `DLG_UI_Common_Texture10.tga/.TET` replaced March's in data057 (same-name rule; backup `kom_backup_stage_june61019_210421`).
+- **Data.** June-only `DLG_UI_Common_Texture_ScenarioMovie_01.tga/.TET` and `_02.tga/.TET` added to data063; June's `DLG_UI_Common_Texture10.tga/.TET` replaced March's in data057 (same-name rule; backup `kom_backup_stage_june61019_210421`).
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The textures can stay (the tab stays hidden and logs its messages). No save change.
+
+### June quest system: the quest window's MsgProc as June's (quest-system Q8b fix, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_MSGPROC` in `KTDXLIB/Always.h` (`#error`s without `JUNE_QUEST_UI`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q8b - Done".
+- **Client.** `X2UIQuestNew.cpp` `MsgProc`: no QuestDetail mouse-over test (June `323e5690`); March's `FIXED_QUEST_DLG_IS_NOT_CHECK_FLAG_WHEN_NOT_OVER_MOUSE` test is the `#else`.
+- **What changes in game.** The mouse wheel scrolls the quest list and the Video tab (it was dead on every list tab: June's list mode hides the detail dialog). Watch: other windows' clicks while the quest window is open (user chose June as is).
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 
 ### June quest system: the random dungeon mission (quest-system RM1, 2026-10-19)
 
