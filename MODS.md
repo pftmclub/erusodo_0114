@@ -4434,3 +4434,16 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE` in `KTDXLIB/Always.h` (`#error` g
 - **What changes in game:** March class scripts' `APPLY_MEMO` states lose their memo effect sets / damage data (as in June). `DAMAGE_DATA_ULTIMATE` exists only in June's DamageEffect files, so no
   class state picks it yet.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
+### June quest system: quest manager runtime (quest-system Q3, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_RUNTIME` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD`), debug flag `SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q3 - Done"; log tag `[JUNE_QUEST] RUN`.
+- **Client.** `X2QuestManager.h/.cpp`: chain quests (`m_mapChainStartable` / `m_mapChainComplete`, `IsChainQuestInProgress` / `GetChainQuestStartable` / `IsChainQuestAvailable` /
+  `RebuildChainQuestStartable` / `ForgetCompletedQuest`; hooks in `SetUnitQuest`, `CreateUnitQuest`, `RemoveUnitQuest`, `RefreshDailyQuest`, `ClearUnitQuest`, `GetAvailableQuest`),
+  `IsWeekQuestExpired` / `IsMonthQuestExpired` in `SetUnitQuest` (which also gets June's third argument `bClear_`), `GetStartQuestList` (class-change quests at every NPC, guild gate),
+  `GetAvailableQuest` (QT_GUILD drop, chain flag), `GetBoardStartQuestList` (June's village table, early return above March's body), `IsForbiddenQuest` (QR_* tail, QT 9 code events),
+  `SubQuestInst::IsComplete` (collection = flag OR count), `QuestInst::IsCompleteVisitQuest`, `MakeSubQuestString` (SQT 37 / 39 / 43, 44 and 48 in the clear-count group, the any-dungeon
+  visit text), `GetClassUpQuestNoticeState` (June 32336310; no caller yet). `X2PlayGuide.*`: `StartGoEffectNewbie` (Go effect only below level 3) at the 11005-not-complete site.
+- **Not ported (owners in the plan doc):** `32335f50` (story-book rebuild, new phase Q10), `32344ab0` and the class step `31edf870` (Stage 9 class-up notice UI), `31d79ac0` (Q8), the
+  server-fed gates of `IsForbiddenQuest`.
+- **Revert:** comment out the define (and the `_DEBUG` one), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.

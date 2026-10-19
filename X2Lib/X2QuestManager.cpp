@@ -437,6 +437,11 @@ void CX2QuestManager::RefreshVillageNpcRelationDataByQuest( int iQuestID_ )
 	if ( NULL == g_pTFieldGame )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_QUEST] RUN relation refresh after quest %d completed ( village NPC rows loaded %d )", iQuestID_, GetVillageNpcRelationDataCount() );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 	VillageNpcRelationResult kResult;
 	const int iResult = GetVillageNpcRelationDataByQuestID( iQuestID_, kResult );
 	if ( 0 == iResult )
@@ -1086,8 +1091,16 @@ UINT CX2QuestManager::GetQuestDayByQuestID( int iQuestID_ )
 //{{ kimhc // 2010.4.12 // 비밀던전 작업(일일퀘스트 시스템)
 #ifdef	SERV_DAILY_QUEST
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestInst, const std::vector<KCompleteQuestInfo>& vecCompleteQuest, bool bClear_ )
+#else SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestInst, const std::vector<KCompleteQuestInfo>& vecCompleteQuest )
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// June 32336e80 @32336f0b: the state is cleared only when the caller asks ( param 4 == 1 )
+	if( true == bClear_ )
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 	ClearUnitQuest();
 
 	// 캐릭터가 진행중인 퀘스트
@@ -1124,6 +1137,25 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 				continue;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		// June 32336e80 @32337000: a QRT_WEEK / QRT_MONTH quest completed before its reset is not counted; a chain quest's completion time is kept per chain
+		// ( insert-unique: a repeated record of the same quest keeps the first time ). The templet test is GetQuestTemplet's ( server group ).
+		if( NULL != pQuestTemplet )
+		{
+			if( ( QRT_WEEK == pQuestTemplet->m_eRepeatType && true == IsWeekQuestExpired( val.m_tCompleteDate ) ) ||
+				( QRT_MONTH == pQuestTemplet->m_eRepeatType && true == IsMonthQuestExpired( val.m_tCompleteDate ) ) )
+			{
+#ifdef SERV_IRUHADEV_OFFLINE
+				CX2OfflineLog::Server( L"[JUNE_QUEST] RUN repeat purge quest %d type %d completed %I64d ( expired, not counted )", val.m_iQuestID,
+					static_cast<int>( pQuestTemplet->m_eRepeatType ), static_cast<__int64>( val.m_tCompleteDate ) );
+#endif SERV_IRUHADEV_OFFLINE
+				continue;
+			}
+
+			if( 0 != pQuestTemplet->m_iChainID )
+				m_mapChainComplete[pQuestTemplet->m_iChainID].insert( std::make_pair( val.m_iQuestID, val.m_tCompleteDate ) );
+		}
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		map<int, int>::iterator mItr = m_mapCompleteQuest.find( val.m_iQuestID );
 
 		if ( mItr == m_mapCompleteQuest.end() )
@@ -1131,6 +1163,10 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 		else
 			(mItr->second)++;
 	}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// June 32336e80 @32337287: the chain startable map is rebuilt once the completed list is known ( 32335f50, the story-book rebuild that follows it, is not ported: no consumer )
+	RebuildChainQuestStartable();
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 #ifdef REFORM_NOVICE_GUIDE
 	if( NULL != g_pData && NULL != g_pData->GetPlayGuide() &&
 		NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit())
@@ -1154,6 +1190,16 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 #ifdef REFORM_QUEST
 	SetHasDungeonQuest();
 #endif //REFORM_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_QUEST] RUN SetUnitQuest clear %d in progress %d completed %d ( %d records ) chains %d",
+		( true == bClear_ ? 1 : 0 ), static_cast<int>( m_mapUnitQuest.size() ), static_cast<int>( m_mapCompleteQuest.size() ),
+		static_cast<int>( vecCompleteQuest.size() ), static_cast<int>( m_mapChainComplete.size() ) );
+#endif SERV_IRUHADEV_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+	JuneQuestSelfCheck();
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 }
 
 __int64 CX2QuestManager::GetTimeToRefreshQuest() const
@@ -1204,6 +1250,10 @@ bool CX2QuestManager::RefreshDailyQuest()
 	{
 		m_mapCompleteQuest.erase( val );
 	}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// June 3232f830 @3232f9f0: the chain startable map follows the purge
+	RebuildChainQuestStartable();
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 
 	return true;
 }
@@ -1259,6 +1309,10 @@ bool CX2QuestManager::CreateUnitQuest( int iQuestID, const KQuestInstance& quest
 	pQuestInst->SetKQuestInstance( &questInst );
 
 	m_mapUnitQuest.insert( std::make_pair( pQuestInst->m_iID, pQuestInst ) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// June 32331830 @323319f2: a started chain quest closes its chain
+	RebuildChainQuestStartable();
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 
 	return true;
 }
@@ -1425,9 +1479,20 @@ bool CX2QuestManager::GetStartQuestList( const CX2UnitManager::NPC_UNIT_ID eQues
 		if( pTemplet == NULL )
 			continue;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		// June 3232fbd0 @3232fbee: a QT_CHANGE_JOB / QT_CHANGE_TRANSCENDENTAL_CLASS quest with a start NPC is listed at every NPC, once ( the list is not cleared here )
+		{
+			const bool bClassUpType = ( QT_CHANGE_JOB == pTemplet->m_eQuestType || QT_CHANGE_TRANSCENDENTAL_CLASS == pTemplet->m_eQuestType );
+			if( pTemplet->m_eStartNPCID != eQuestNPCID && ( false == bClassUpType || CX2UnitManager::NUI_NONE == pTemplet->m_eStartNPCID ) )
+				continue;
+			if( true == bClassUpType && vecQuestID.end() != std::find( vecQuestID.begin(), vecQuestID.end(), pTemplet->m_iID ) )
+				continue;
+		}
+#else SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		if( pTemplet->m_eStartNPCID != eQuestNPCID )
 			continue;		
 
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		if( true == IsForbiddenQuest( pTemplet->m_iID ) )
 			continue;
 
@@ -1438,6 +1503,12 @@ bool CX2QuestManager::GetStartQuestList( const CX2UnitManager::NPC_UNIT_ID eQues
 #endif SERV_EPIC_QUEST
 
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		// June 3232fbd0 @3232fc48: a guild quest is listed only while the unit is in a guild ( **( g_pData + 0x2ec ) != 0 )
+		if( QT_GUILD == pTemplet->m_eQuestType &&
+			( NULL == g_pData->GetGuildManager() || false == g_pData->GetGuildManager()->DidJoinGuild() ) )
+			continue;
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		vecQuestID.push_back( (int)it->first );
 	}
 
@@ -1654,6 +1725,68 @@ void CX2QuestManager::GetCompleteQuest( const CX2UnitManager::NPC_UNIT_ID eQuest
 #ifdef SERV_EPIC_QUEST
 bool CX2QuestManager::GetBoardStartQuestList(std::vector<int>& vecQuestID )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// Q3. June 3232fd70: the village comes from the main state ( village map: the current village; battle field: its return village; June's state 0xf reads a
+	// location-manager member March does not have ), is mapped to the board village ( June's villages included, anything else = Ruben ), and the start lists of
+	// that village's house NPCs plus Glave / Luto / Dao are collected. This replaces March's body below, which stays for the flag-off build.
+	{
+		int iCurrent = 0;
+		if( NULL != g_pMain && NULL != g_pData )
+		{
+			switch( g_pMain->GetNowStateID() )
+			{
+			case CX2Main::XS_VILLAGE_MAP:
+				if( NULL != g_pData->GetLocationManager() )
+					iCurrent = static_cast<int>( g_pData->GetLocationManager()->GetCurrentVillageID() );
+				break;
+			case CX2Main::XS_BATTLE_FIELD:
+				iCurrent = static_cast<int>( g_pData->GetBattleFieldManager().GetReturnVillageId() );
+				break;
+			default:
+				break;
+			}
+		}
+
+		int iBoard = SEnum::VMI_RUBEN;
+		switch( iCurrent )
+		{
+		case 1000: case 10001: case 20001: case 30001:				iBoard = 20001;	break;	// Elder
+		case 1001: case 10002: case 20002: case 30002:				iBoard = 20002;	break;	// Besma
+		case 1002: case 10003: case 20003: case 30003:				iBoard = 20003;	break;	// Altera
+		case 1003: case 20005: case 30004:							iBoard = 20005;	break;	// Peita
+		case 1004: case 10004: case 20004: case 30005:				iBoard = 20004;	break;	// Velder
+		case 1005: case 10005: case 20006: case 30006:				iBoard = 20006;	break;	// Hamel
+		case 1006: case 20007:										iBoard = 20007;	break;	// Sander
+		case 1007: case 1501: case 20008:							iBoard = 20008;	break;	// Ranox
+		case 1008:													iBoard = 1008;	break;	// Elysion rest village
+		case 20009:													iBoard = 20009;	break;	// Elysion
+		default:													break;	// Ruben ( 1500, 10000, 20000, 30000 and every other id )
+		}
+
+		CX2LocationManager::VillageTemplet* pVillageTemplet = ( NULL != g_pData->GetLocationManager() ) ? g_pData->GetLocationManager()->GetVillageMapTemplet( static_cast<SEnum::VILLAGE_MAP_ID>( iBoard ) ) : NULL;
+		if( NULL != pVillageTemplet )
+		{
+			for( std::vector<CX2LocationManager::HOUSE_ID>::iterator it = pVillageTemplet->m_HouseList.begin(); it < pVillageTemplet->m_HouseList.end(); it++ )
+			{
+				CX2LocationManager::HouseTemplet* pHouseTemplet = g_pData->GetLocationManager()->GetHouseTemplet( *it );
+				if( NULL == pHouseTemplet )
+					continue;
+				for( std::vector<CX2UnitManager::NPC_UNIT_ID>::iterator itNPC = pHouseTemplet->m_NPCList.begin(); itNPC < pHouseTemplet->m_NPCList.end(); itNPC++ )
+					GetStartQuestList( *itNPC, vecQuestID );
+			}
+		}
+
+		if( 1500 == iCurrent )
+			GetStartQuestList( CX2UnitManager::NUI_BILLBOARD, vecQuestID );
+		else if( 20005 == iCurrent || 1008 == iCurrent )
+			return true;		// Peita's list already holds them; the Elysion rest village adds none
+
+		GetStartQuestList( CX2UnitManager::NUI_GLAVE, vecQuestID );
+		GetStartQuestList( CX2UnitManager::NUI_LUTO_VILLAGE, vecQuestID );
+		GetStartQuestList( CX2UnitManager::NUI_EVENT_DAO, vecQuestID );
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 #ifdef MODIFY_ACCEPT_QUEST // 현재 마을 설정
 	SEnum::VILLAGE_MAP_ID CurrentVillageID = SEnum::VMI_INVALID;
 	switch(g_pMain->GetNowStateID())
@@ -1876,6 +2009,15 @@ bool CX2QuestManager::GetAvailableQuest( const CX2UnitManager::NPC_UNIT_ID eQues
 				continue;
 			}
 #endif SERV_RANDOM_DAY_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+			// June 323357c0 @32335a35: a QT_GUILD quest is dropped from the available list ( guild quests are parsed and skipped offline, so this is the gate only )
+			if( QT_GUILD == pQuestTemplet->m_eQuestType )
+			{
+				vecQuestID.erase( vecQuestID.begin() + i );
+				i--;
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		}
 
 
@@ -1931,6 +2073,18 @@ bool CX2QuestManager::GetAvailableQuest( const CX2UnitManager::NPC_UNIT_ID eQues
 				}	// if
 			}	// for
 		}	// if
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		// June 323357c0 @32335dd9: a quest whose chain has a startable flag of false is dropped ( a chain with no flag stays )
+		{
+			map<int,bool>::const_iterator itChain = m_mapChainStartable.find( pQuestTemplet->m_iChainID );
+			if( itChain != m_mapChainStartable.end() && false == itChain->second )
+			{
+				vecQuestID.erase( vecQuestID.begin() + i );
+				i--;
+				continue;
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 	}
 
 
@@ -3486,6 +3640,300 @@ void CX2QuestManager::LogLoadCensus( int iGuildCoopRows_ ) const
 #endif SERV_IRUHADEV_OFFLINE
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+//////////////////////////////////////////////////////////////////////////
+// Q3. June's quest manager runtime: the chain rule, the week / month repeat expiry, the any-dungeon test and the class-up quest state.
+// June addresses are on each function; the chain maps are m_mapChainStartable ( June +0x10c ) and m_mapChainComplete ( June +0x11c ).
+//////////////////////////////////////////////////////////////////////////
+
+/// June 323229d0: a quest of the chain is in progress. June walks the in-progress map and takes each quest's templet ( the server-group test is
+/// GetQuestTemplet's ) looking for templet +0x278 == the chain id.
+bool CX2QuestManager::IsChainQuestInProgress( int iChainID_ )
+{
+	for( map<int,QuestInst*>::const_iterator it = m_mapUnitQuest.begin(); it != m_mapUnitQuest.end(); ++it )
+	{
+		const QuestTemplet* pQuestTemplet = GetQuestTemplet( it->first );
+		if( NULL != pQuestTemplet && iChainID_ == pQuestTemplet->m_iChainID )
+			return true;
+	}
+	return false;
+}
+
+/// June 32322ad0: the chain's startable flag; a chain with no flag reads false ( the quest list's state 7 test, Q5a ).
+bool CX2QuestManager::GetChainQuestStartable( int iChainID_ ) const
+{
+	map<int,bool>::const_iterator it = m_mapChainStartable.find( iChainID_ );
+	if( it == m_mapChainStartable.end() )
+		return false;
+	return it->second;
+}
+
+/// June 3232caf0 ( chain id ): a chain with no AllowFewDays is always available. Otherwise T = the latest completion time recorded for the chain ( 0 when none ).
+/// Code event 0x10 with a TestMinute: available once T + TestMinute minutes <= now. Else: available once the local 00:00 of the day AllowFewDays days after T
+/// <= now ( AllowFewDays 1 = the next midnight ). June throws where a time conversion fails; here the chain is then available.
+bool CX2QuestManager::IsChainQuestAvailable( int iChainID_ )
+{
+	map<int, ChainQuestData>::const_iterator itChain = m_mapChainQuest.find( iChainID_ );
+	if( itChain == m_mapChainQuest.end() || itChain->second.m_iAllowFewDays <= 0 )
+		return true;
+
+	__int64 tLast = 0;
+	map<int, map<int,__int64> >::const_iterator itDone = m_mapChainComplete.find( iChainID_ );
+	if( itDone != m_mapChainComplete.end() )
+	{
+		for( map<int,__int64>::const_iterator it = itDone->second.begin(); it != itDone->second.end(); ++it )
+		{
+			const QuestTemplet* pQuestTemplet = GetQuestTemplet( it->first );
+			if( NULL != pQuestTemplet && iChainID_ == pQuestTemplet->m_iChainID && tLast < it->second )
+				tLast = it->second;
+		}
+	}
+
+	const __int64 tNow = g_pData->GetServerCurrentTime();
+
+	if( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( 0x10 ) && itChain->second.m_iTestMinute > 0 )
+		return ( tLast + static_cast<__int64>( itChain->second.m_iTestMinute ) * 60 <= tNow );
+
+	const __time64_t tTarget = tLast + static_cast<__int64>( itChain->second.m_iAllowFewDays ) * 86400;
+	tm tmTarget;
+	if( 0 != _localtime64_s( &tmTarget, &tTarget ) )
+		return true;
+	tmTarget.tm_sec = 0;
+	tmTarget.tm_min = 0;
+	tmTarget.tm_hour = 0;
+	tmTarget.tm_isdst = -1;
+	const __time64_t tMidnight = _mktime64( &tmTarget );
+	if( -1 == tMidnight )
+		return true;
+	return ( tMidnight <= tNow );
+}
+
+/// June 3232ef70: every configured chain starts startable, then is closed while a quest of it is in progress or its day gap has not passed.
+void CX2QuestManager::RebuildChainQuestStartable()
+{
+	m_mapChainStartable.clear();
+	std::wstring wstrClosed;
+	for( map<int, ChainQuestData>::const_iterator it = m_mapChainQuest.begin(); it != m_mapChainQuest.end(); ++it )
+	{
+		const int iChainID = it->first;
+		bool bStartable = true;
+		if( true == IsChainQuestInProgress( iChainID ) )
+			bStartable = false;
+		if( false == IsChainQuestAvailable( iChainID ) )
+			bStartable = false;
+		m_mapChainStartable[iChainID] = bStartable;
+		if( false == bStartable )
+		{
+			WCHAR wszId[16] = {0};
+			StringCchPrintf( wszId, 16, L" %d", iChainID );
+			wstrClosed += wszId;
+		}
+	}
+#ifdef SERV_IRUHADEV_OFFLINE
+	// one line per change of the closed set, not per rebuild
+	static std::wstring s_wstrLastClosed = L"?";
+	if( s_wstrLastClosed != wstrClosed )
+	{
+		s_wstrLastClosed = wstrClosed;
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RUN chain rebuild chains %d closed [%s ]", static_cast<int>( m_mapChainStartable.size() ), wstrClosed.c_str() );
+	}
+#endif SERV_IRUHADEV_OFFLINE
+}
+
+/// June 3232de60: a quest leaves the completed list and, unless it is a QT_STORY quest, its chain's completion times.
+void CX2QuestManager::ForgetCompletedQuest( int iQuestID_ )
+{
+	m_mapCompleteQuest.erase( iQuestID_ );
+
+	const QuestTemplet* pQuestTemplet = GetQuestTemplet( iQuestID_ );
+	if( NULL == pQuestTemplet || 0 == pQuestTemplet->m_iChainID || QT_STORY == pQuestTemplet->m_eQuestType )
+		return;
+
+	map<int, map<int,__int64> >::iterator itDone = m_mapChainComplete.find( pQuestTemplet->m_iChainID );
+	if( itDone != m_mapChainComplete.end() )
+		itDone->second.erase( iQuestID_ );
+}
+
+/// June 32322050: a QRT_WEEK quest is expired once the next Wednesday ( strictly after the completion day ) 00:00 local has passed. A failed time
+/// conversion reads as not expired ( June throws ).
+bool CX2QuestManager::IsWeekQuestExpired( __int64 tCompleteDate_ )
+{
+	const __time64_t tDone = tCompleteDate_;
+	tm tmDone;
+	if( 0 != _localtime64_s( &tmDone, &tDone ) )
+		return false;
+
+	const int iWeekDay = tmDone.tm_wday + 1;		// 1 = Sunday
+	const int iDaysToReset = ( iWeekDay > 3 ) ? 11 - iWeekDay : 4 - iWeekDay;
+
+	tmDone.tm_sec = 0;
+	tmDone.tm_min = 0;
+	tmDone.tm_hour = 0;
+	tmDone.tm_isdst = -1;
+	const __time64_t tMidnight = _mktime64( &tmDone );
+	if( -1 == tMidnight )
+		return false;
+	return ( tMidnight + static_cast<__int64>( iDaysToReset ) * 86400 <= g_pData->GetServerCurrentTime64() );
+}
+
+/// June 32321d10: a QRT_MONTH quest is expired once the 1st of the month after the completion month, 00:00 local, has passed.
+bool CX2QuestManager::IsMonthQuestExpired( __int64 tCompleteDate_ )
+{
+	const __time64_t tDone = tCompleteDate_;
+	tm tmDone;
+	if( 0 != _localtime64_s( &tmDone, &tDone ) )
+		return false;
+
+	if( 11 == tmDone.tm_mon )
+	{
+		tmDone.tm_mon = 0;
+		tmDone.tm_year += 1;
+	}
+	else
+	{
+		tmDone.tm_mon += 1;
+	}
+	tmDone.tm_mday = 1;
+	tmDone.tm_sec = 0;
+	tmDone.tm_min = 0;
+	tmDone.tm_hour = 0;
+	tmDone.tm_isdst = -1;
+	const __time64_t tReset = _mktime64( &tmDone );
+	if( -1 == tReset )
+		return false;
+	return ( tReset <= g_pData->GetServerCurrentTime64() );
+}
+
+/// June 32322290: the clear condition's dungeon set is exactly { DI_NONE } ( "any dungeon": March's m_eDungeonID = { 0 } kept as a value by Q1 ).
+bool CX2QuestManager::IsAnyDungeonCondition( const ClearCondition& kCond_ )
+{
+	return ( 1 == kCond_.m_setDungeonID.size() && kCond_.m_setDungeonID.end() != kCond_.m_setDungeonID.find( SEnum::DI_NONE ) );
+}
+
+/// June 32336310 for the class-up notice buttons ( CX2StateMenu vslot 0x104 3245abd0, Stage 9 ). iClassUpStep_ is June 31edf870's result ( a level band of the
+/// unit's class step ), left to the UI owner. 1-2 look at QT_CHANGE_JOB, 3 at QT_CHANGE_TRANSCENDENTAL_CLASS, NPC 10004 ( Echo ). Returns 2 when such a quest is
+/// in progress and not completable yet, or when exactly one is available at step 1; 1 when one is available at a later step, or 2-4 at step 1-2; else 0.
+int CX2QuestManager::GetClassUpQuestNoticeState( int iClassUpStep_ )
+{
+	QUEST_TYPE eWantedType = QT_NORMAL;
+	if( iClassUpStep_ < 1 )
+		return 0;
+	else if( iClassUpStep_ < 3 )
+		eWantedType = QT_CHANGE_JOB;
+	else if( 3 == iClassUpStep_ )
+		eWantedType = QT_CHANGE_TRANSCENDENTAL_CLASS;
+	else
+		return 0;
+
+	std::vector<int> vecAvailable;
+	std::vector<int> vecInProgress;
+	GetAvailableQuest( CX2UnitManager::NUI_ECHO, vecAvailable );
+	GetStartQuestList( CX2UnitManager::NUI_ECHO, vecInProgress );
+
+	// of the started list keep the quests in progress that cannot be handed in yet
+	for( UINT i = 0; i < vecInProgress.size(); ++i )
+	{
+		const QuestInst* pQuestInst = GetUnitQuest( vecInProgress[i] );
+		if( NULL == pQuestInst || true == pQuestInst->IsComplete() )
+		{
+			vecInProgress.erase( vecInProgress.begin() + i );
+			--i;
+		}
+	}
+
+	if( true == vecAvailable.empty() && true == vecInProgress.empty() )
+		return 0;
+
+	for( UINT i = 0; i < vecInProgress.size(); ++i )
+	{
+		const QuestTemplet* pQuestTemplet = GetQuestTemplet( vecInProgress[i] );
+		if( NULL != pQuestTemplet && eWantedType == pQuestTemplet->m_eQuestType )
+			return 2;
+	}
+
+	int iCount = 0;
+	for( UINT i = 0; i < vecAvailable.size(); ++i )
+	{
+		const QuestTemplet* pQuestTemplet = GetQuestTemplet( vecAvailable[i] );
+		if( NULL != pQuestTemplet && eWantedType == pQuestTemplet->m_eQuestType )
+			++iCount;
+	}
+
+	if( 1 == iCount )
+		return ( iClassUpStep_ < 2 ) ? 2 : 1;
+	if( iCount >= 2 && iCount <= 4 )
+		return ( QT_CHANGE_JOB == eWantedType ) ? 1 : 0;
+	return 0;
+}
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+/// Q3 debug: once per run, after the first SetUnitQuest, one sub-quest of each type the phase touches goes through MakeSubQuestString ( without and with a
+/// quest instance ) and SubQuestInst::IsComplete ( flag off / on ); the output is the done gate's evidence. Newlines print as '|'.
+void CX2QuestManager::JuneQuestSelfCheck()
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	static bool s_bDone = false;
+	if( true == s_bDone )
+		return;
+	s_bDone = true;
+
+	const int aiTypes[] = { SQT_PVE_WIN, SQT_GUILD_HONOR_POINT_COLLECTION, SQT_ITEM_EXCHANGE, SQT_TOGETHER_SUBQUEST_CLEAR, SQT_HAS_EXP_DUNGEON_CLEAR,
+		SQT_DUNGEON_CLEAR_COUNT, SQT_ITEM_COLLECTION, SQT_VISIT_DUNGEON };
+	for( int iType = 0; iType < static_cast<int>( sizeof( aiTypes ) / sizeof( aiTypes[0] ) ); ++iType )
+	{
+		const SubQuestTemplet* pSubQuestTemplet = NULL;
+		for( map<int,SubQuestTemplet*>::const_iterator it = m_mapSubQuestTemplet.begin(); it != m_mapSubQuestTemplet.end(); ++it )
+		{
+			if( NULL == it->second || aiTypes[iType] != it->second->m_eClearType )
+				continue;
+			if( SQT_VISIT_DUNGEON == aiTypes[iType] && false == IsAnyDungeonCondition( it->second->m_ClearCondition ) )
+				continue;
+			pSubQuestTemplet = it->second;
+			break;
+		}
+		if( NULL == pSubQuestTemplet )
+		{
+			CX2OfflineLog::Server( L"[JUNE_QUEST] RUN chk type %d no sub-quest in the data", aiTypes[iType] );
+			continue;
+		}
+
+		QuestInst kQuestInst;
+		SubQuestInst kSubQuestInst;
+		kSubQuestInst.m_iID = pSubQuestTemplet->m_iID;
+		kSubQuestInst.m_ucClearData = 3;
+		kSubQuestInst.m_bIsSuccess = false;
+		kQuestInst.m_vecSubQuestInst.push_back( kSubQuestInst );
+
+		std::wstring wstrNoInst = MakeSubQuestString( pSubQuestTemplet->m_bAutomaticDescription, pSubQuestTemplet, NULL );
+		std::wstring wstrInst = MakeSubQuestString( pSubQuestTemplet->m_bAutomaticDescription, pSubQuestTemplet, &kQuestInst );
+		const bool bFlagOff = kQuestInst.m_vecSubQuestInst[0].IsComplete();
+		kQuestInst.m_vecSubQuestInst[0].m_bIsSuccess = true;
+		const bool bFlagOn = kQuestInst.m_vecSubQuestInst[0].IsComplete();
+		for( size_t i = 0; i < wstrNoInst.size(); ++i )
+			if( L'\n' == wstrNoInst[i] || L'\r' == wstrNoInst[i] )
+				wstrNoInst[i] = L'|';
+		for( size_t i = 0; i < wstrInst.size(); ++i )
+			if( L'\n' == wstrInst[i] || L'\r' == wstrInst[i] )
+				wstrInst[i] = L'|';
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RUN chk type %d sq %d auto %d text [%s] with inst ( 3 done ) [%s] complete flag off %d on %d",
+			aiTypes[iType], pSubQuestTemplet->m_iID, ( true == pSubQuestTemplet->m_bAutomaticDescription ? 1 : 0 ), wstrNoInst.c_str(), wstrInst.c_str(),
+			( true == bFlagOff ? 1 : 0 ), ( true == bFlagOn ? 1 : 0 ) );
+	}
+	{
+		// synthetic dates: the week resets on the Wednesday after the completion day, the month on the 1st of the next month ( June 32322050 / 32321d10 )
+		const __int64 tNow = g_pData->GetServerCurrentTime64();
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RUN chk repeat now %I64d: week expired now %d / 8 days ago %d / 1 day ago %d, month expired now %d / 40 days ago %d",
+			tNow, ( true == IsWeekQuestExpired( tNow ) ? 1 : 0 ), ( true == IsWeekQuestExpired( tNow - 8 * 86400 ) ? 1 : 0 ), ( true == IsWeekQuestExpired( tNow - 86400 ) ? 1 : 0 ),
+			( true == IsMonthQuestExpired( tNow ) ? 1 : 0 ), ( true == IsMonthQuestExpired( tNow - 40 * 86400 ) ? 1 : 0 ) );
+		for( map<int, ChainQuestData>::const_iterator it = m_mapChainQuest.begin(); it != m_mapChainQuest.end(); ++it )
+			CX2OfflineLog::Server( L"[JUNE_QUEST] RUN chk chain %d days %d test minute %d quests %d available %d startable %d", it->first, it->second.m_iAllowFewDays,
+				it->second.m_iTestMinute, static_cast<int>( it->second.m_setQuestID.size() ), ( true == IsChainQuestAvailable( it->first ) ? 1 : 0 ),
+				( true == GetChainQuestStartable( it->first ) ? 1 : 0 ) );
+	}
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 void CX2QuestManager::ClearUnitQuest()
 {
 
@@ -3501,6 +3949,11 @@ void CX2QuestManager::ClearUnitQuest()
 	m_mapUnitQuest.clear();
 
 	m_mapCompleteQuest.clear();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// June 32331dd0: the chain maps go with the rest
+	m_mapChainStartable.clear();
+	m_mapChainComplete.clear();
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 
 }
 
@@ -3518,6 +3971,20 @@ bool CX2QuestManager::RemoveUnitQuest( int questID, bool bComplete )
 
 		if( true == bComplete )
 			m_mapCompleteQuest[questID] = questID;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		// June 32331fb0: a completed chain quest records its completion time under the chain ( insert-unique ), then the chain startable map is rebuilt
+		if( true == bComplete )
+		{
+			const QuestTemplet* pQuestTemplet = GetQuestTemplet( questID );
+			if( NULL != pQuestTemplet && 0 != pQuestTemplet->m_iChainID )
+				m_mapChainComplete[pQuestTemplet->m_iChainID].insert( std::make_pair( questID, static_cast<__int64>( g_pData->GetServerCurrentTime() ) ) );
+		}
+		RebuildChainQuestStartable();
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RUN RemoveUnitQuest quest %d complete %d chain %d", questID, ( true == bComplete ? 1 : 0 ),
+			( NULL != GetQuestTemplet( questID ) ? GetQuestTemplet( questID )->m_iChainID : 0 ) );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 
 		return true;
 	}
@@ -3539,6 +4006,15 @@ bool CX2QuestManager::QuestInst::IsComplete() const
 #ifdef REFORM_QUEST //임시
 bool CX2QuestManager::QuestInst::IsCompleteVisitQuest( int iSubQuestID_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// June 3232c750: true as soon as the sub-quest with this id is complete ( March's "must be the last sub-quest" rule is gone )
+	for( UINT i=0; i<m_vecSubQuestInst.size(); ++i )
+	{
+		if( iSubQuestID_ == m_vecSubQuestInst[i].m_iID && true == m_vecSubQuestInst[i].IsComplete() )
+			return true;
+	}
+	return false;
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 	bool bIsComplete = false;
 	for( UINT i=0; i<m_vecSubQuestInst.size(); ++i )
 	{
@@ -3595,7 +4071,12 @@ bool CX2QuestManager::SubQuestInst::IsComplete() const
 		const CX2Inventory& kInventory = g_pData->GetMyUser()->GetSelectUnit()->GetInventory();
 		int nCount = kInventory.GetNumItemByTID( pSubQuestTemplet->m_ClearCondition.m_iCollectionItemID, true );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		// June 323225e0: a collection sub-quest is complete on the server flag OR the inventory count
+		if( false == m_bIsSuccess && nCount < pSubQuestTemplet->m_ClearCondition.m_iCollectionItemNum )
+#else SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		if( nCount < pSubQuestTemplet->m_ClearCondition.m_iCollectionItemNum )
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		{
 			return false;
 		}
@@ -4193,6 +4674,11 @@ wstring CX2QuestManager::MakeSubQuestString( bool bAuto, const CX2QuestManager::
 #ifdef SERV_SUITABLE_LEVEL_DUNGEON_CLEAR_SUB_QUEST
 	case CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR:
 #endif SERV_SUITABLE_LEVEL_DUNGEON_CLEAR_SUB_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// June 32337db0 cases 0x2c / 0x30 share this body ( description cur/need, need = m_iDungeonClearCount )
+	case CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR:
+	case CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR:
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		{
 
 #ifndef REFORM_QUEST //던전ID관련 자동완성에 대한 기획이 완료되지 않음, m_cDifficulty 제거
@@ -5093,6 +5579,14 @@ wstring CX2QuestManager::MakeSubQuestString( bool bAuto, const CX2QuestManager::
 			{
 				if( NULL != g_pData->GetDungeonManager() )
 				{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+					// June 32337db0 case 0x1a @3233a985: a dungeon set of exactly { DI_NONE } reads "<42924><17688>" ( any dungeon, visit )
+					if( true == IsAnyDungeonCondition( pSubQuestTemplet->m_ClearCondition ) )
+					{
+						wstrmQuestCond << GET_STRING( 42924 ) << GET_STRING( STR_ID_17688 ) << std::endl;
+						break;
+					}
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 					std::set<SEnum::DUNGEON_ID>::iterator sit = pSubQuestTemplet->m_ClearCondition.m_setDungeonID.begin();
 					for( ; sit != pSubQuestTemplet->m_ClearCondition.m_setDungeonID.end(); ++sit)
 					{
@@ -5289,6 +5783,66 @@ wstring CX2QuestManager::MakeSubQuestString( bool bAuto, const CX2QuestManager::
 			}
 		} break;
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// Q3. June 32337db0 cases 0x25 / 0x27 / 0x2b. SQT 45 / 46 / 47 ( 0x2d-0x2f ) and 0x26 print nothing. A missing sub-quest instance prints nothing
+	// ( June dereferences it in 0x25 / 0x2b ).
+	case CX2QuestManager::SQT_PVE_WIN:
+		{
+			if( true == bAuto )
+			{
+				// @323380fe: " cur/<STR_ID_452 with the clear count>", the "N times" text the dungeon clear count shows
+				if( NULL != pQuestInst )
+				{
+					const CX2QuestManager::SubQuestInst* pSubQuestInst = pQuestInst->GetSubQuest( pSubQuestTemplet->m_iID );
+					if( NULL != pSubQuestInst )
+						wstrmQuestCond << L" " << static_cast<int>( pSubQuestInst->m_ucClearData ) << L"/" << GET_REPLACED_STRING( ( STR_ID_452, "i", clearCond.m_iDungeonClearCount ) ) << std::endl;
+				}
+				else
+				{
+					wstrmQuestCond << GET_REPLACED_STRING( ( STR_ID_452, "i", clearCond.m_iDungeonClearCount ) );
+				}
+			}
+			else
+			{
+				int iClearData = 0;
+				if( NULL != pQuestInst )
+				{
+					const CX2QuestManager::SubQuestInst* pSubQuestInst = pQuestInst->GetSubQuest( pSubQuestTemplet->m_iID );
+					if( NULL != pSubQuestInst )
+						iClearData = static_cast<int>( pSubQuestInst->m_ucClearData );
+				}
+				wstrmQuestCond << pSubQuestTemplet->m_wstrDescription << L" " << iClearData << L"/" << clearCond.m_iDungeonClearCount << std::endl;
+			}
+		} break;
+
+	case CX2QuestManager::SQT_GUILD_HONOR_POINT_COLLECTION:
+		{
+			if( NULL != pQuestInst )
+			{
+				const CX2QuestManager::SubQuestInst* pSubQuestInst = pQuestInst->GetSubQuest( pSubQuestTemplet->m_iID );
+				if( NULL != pSubQuestInst )
+					wstrmQuestCond << pSubQuestTemplet->m_wstrDescription << L" " << static_cast<int>( pSubQuestInst->m_ucClearData ) << L"/" << clearCond.m_iCollectionHonorPointCount << std::endl;
+			}
+			else
+			{
+				wstrmQuestCond << pSubQuestTemplet->m_wstrDescription << L" 0/" << clearCond.m_iCollectionHonorPointCount << std::endl;
+			}
+		} break;
+
+	case CX2QuestManager::SQT_ITEM_EXCHANGE:
+		{
+			if( NULL != pQuestInst )
+			{
+				const CX2QuestManager::SubQuestInst* pSubQuestInst = pQuestInst->GetSubQuest( pSubQuestTemplet->m_iID );
+				if( NULL != pSubQuestInst )
+					wstrmQuestCond << pSubQuestTemplet->m_wstrDescription << L" " << static_cast<int>( pSubQuestInst->m_ucClearData ) << L"/" << clearCond.m_iExchangeCount << std::endl;
+			}
+			else
+			{
+				wstrmQuestCond << pSubQuestTemplet->m_wstrDescription << L" 0/" << clearCond.m_iExchangeCount << std::endl;
+			}
+		} break;
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 	}
 
 	return wstrmQuestCond.str();
@@ -5495,6 +6049,27 @@ bool CX2QuestManager::IsForbiddenQuest( int iQuestID )
 			return true;
 		}
 	}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	// Q3. June 3232e510, the parts March lacks. ( Left out on purpose, all server-fed with an absent value of "not forbidden": the 31000 test on g_pData +0x52c,
+	// the g_pData +0x51c set / +0x530 records, the five EVENT quests 208020..208060 on the premium-buff manager, 205530 on code event 0x8aa, 37100 on g_pData +0x5a4;
+	// none of those quest ids but 31000 is in June's FieldQuest. See the Q3 Done note. )
+	// The quest-level QR_* class tail ( QuestCondition +0x18, default 0 ) must equal the unit's transcendental step ( CX2Unit +0x3c ) unless the quest is a QT_EVENT.
+	// March has no such step: every unit is step 0 ( Stage 6 owns it ).
+	if( -1 != pQuestTemplet->m_Condition.m_iUnitClassTran && 0 != pQuestTemplet->m_Condition.m_iUnitClassTran && QT_EVENT != pQuestTemplet->m_eQuestType )
+		return true;
+
+	// QT_CHANGE_TRANSCENDENTAL_CLASS quests are forbidden while the code event of the unit's kind is on: 0x920 for type 12 ( UT_AIN ), 0x921 for class 0x87
+	// ( UC_AIN_ERBLUHEN_EMOTION ), 0x923 for class 0x88 ( UC_AIN_APOSTASIA ). March has no Ain, so these never match.
+	if( QT_CHANGE_TRANSCENDENTAL_CLASS == pQuestTemplet->m_eQuestType && NULL != g_pInstanceData )
+	{
+		const int iUnitType = static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetType() );
+		const int iUnitClass = static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetClass() );
+		if( ( true == g_pInstanceData->IsEnableCode( 0x920 ) && 12 == iUnitType ) ||
+			( true == g_pInstanceData->IsEnableCode( 0x921 ) && 0x87 == iUnitClass ) ||
+			( true == g_pInstanceData->IsEnableCode( 0x923 ) && 0x88 == iUnitClass ) )
+			return true;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 	
 	return false;
 }

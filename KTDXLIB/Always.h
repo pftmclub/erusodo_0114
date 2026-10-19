@@ -8913,6 +8913,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June quest system Phase Q3 - the quest manager's runtime to June. Chain quests ( ChainQuestInfo AllowFewDays / TestMinute, the in-progress block, per-chain
+//              completion times, the startable map: 323229d0 / 32322ad0 / 3232caf0 / 3232ef70 / 3232de60 ), QRT_WEEK / QRT_MONTH expiry ( 32322050 / 32321d10 ),
+//              SetUnitQuest's bClear and purge, GetStartQuestList ( class-change quests at every NPC, guild gate ), GetAvailableQuest ( chain flag, QT_GUILD ),
+//              GetBoardStartQuestList ( June's village table ), IsForbiddenQuest ( QR_* class tail, QT 9 code events ), SubQuestInst::IsComplete ( collection = flag OR count ),
+//              IsCompleteVisitQuest, MakeSubQuestString ( SQT 37 / 39 / 43 / 44 / 48 and the any-dungeon visit text ), the class-up quest state ( 32336310 ) and the Go
+//              effect's level < 3 test ( 3289dd50 ). Log [JUNE_QUEST] RUN. Off = the Q1 / Q2 behaviour. Revert: comment out the define.
+#define SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+#ifndef SERV_IRUHADEV_JUNE_QUEST_LOAD
+#error SERV_IRUHADEV_JUNE_QUEST_RUNTIME needs SERV_IRUHADEV_JUNE_QUEST_LOAD ( the chain / story indexes, the Q1 enums and the QR_* scalar it reads )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest Q3 debug: at the first login a self-check logs MakeSubQuestString / IsComplete for one sub-quest of each type the phase touches
+//              ( [JUNE_QUEST] RUN chk ). Off after the Q3 review.
+#define SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June skill system Phase S8 - June's pointer model for the running state data. m_FutureStateData / m_NowStateData
 //              become positions in m_StateList ( m_itFutureStateData / m_itNowStateData; June +0x7cb0 / +0x7cbc point into the state
 //              vector +0x7cec, stored by 31fe6a40 / 3203c3a0; the id is the position ); the running power rate is its own member

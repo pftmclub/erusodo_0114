@@ -915,7 +915,12 @@ class CX2QuestManager
 
 //{{ kimhc // 2010.4.12 // 비밀던전 작업(일일퀘스트 시스템)
 #ifdef	SERV_DAILY_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		/// Q3. June 32336e80 takes a third argument: true clears the unit's quests first ( the three callers that replace the whole state ), false merges.
+		void	SetUnitQuest( const std::vector<KQuestInstance>& vecQuestInst, const std::vector<KCompleteQuestInfo>& vecCompleteQuest, bool bClear_ = true );
+#else SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		void	SetUnitQuest( const std::vector<KQuestInstance>& vecQuestInst, const std::vector<KCompleteQuestInfo>& vecCompleteQuest );
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		__int64	GetTimeToRefreshQuest() const;	// 일일 퀘스트가 갱신 되야하는 시간을 구함 (매일 AM 6시에 갱신)
 		bool	RefreshDailyQuest();	// 완료퀘스트 목록에서 일일퀘스트를 제거함(일일퀘스트 갱신)
 #else	SERV_DAILY_QUEST
@@ -930,6 +935,22 @@ class CX2QuestManager
 
 		const QuestTemplet*		GetQuestTemplet( int questID );
 		const SubQuestTemplet*	GetSubQuestTemplet( int subQuestID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		/// Q3. June's chain rule ( ChainQuestInfo AllowFewDays / TestMinute ), the week / month repeat expiry and two small predicates. June addresses on each line.
+		bool	IsChainQuestInProgress( int iChainID_ );					// 323229d0: a quest of the chain is in progress
+		bool	GetChainQuestStartable( int iChainID_ ) const;				// 32322ad0: the chain's startable flag ( no flag reads false )
+		bool	IsChainQuestAvailable( int iChainID_ );						// 3232caf0: AllowFewDays since the last completion has passed
+		void	RebuildChainQuestStartable();								// 3232ef70: the startable map from the two above
+		void	ForgetCompletedQuest( int iQuestID_ );						// 3232de60: drop a quest from the completed map and its chain's completion times
+		static bool	IsWeekQuestExpired( __int64 tCompleteDate_ );			// 32322050: QRT_WEEK, reset at the next Wednesday 00:00 local
+		static bool	IsMonthQuestExpired( __int64 tCompleteDate_ );			// 32321d10: QRT_MONTH, reset at the 1st 00:00 local
+		static bool	IsAnyDungeonCondition( const ClearCondition& kCond_ );	// 32322290: the dungeon set is exactly { DI_NONE }
+		int		GetClassUpQuestNoticeState( int iClassUpStep_ );			// 32336310: 0 / 1 / 2 for the class-up notice buttons ( the step comes from the UI )
+		const map<int,bool>&	GetChainStartableMap() const { return m_mapChainStartable; }
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+		void	JuneQuestSelfCheck();										// Q3 debug: [JUNE_QUEST] RUN chk lines, once per run
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		QuestInst*				GetUnitQuest( int iQuestID );			//진행중인 퀘스트
 		bool					GetUnitCompleteQuest( int iQuestID );	//완료한 퀘스트 확인
 
@@ -1036,6 +1057,10 @@ class CX2QuestManager
 
 		map<int,QuestInst*>					m_mapUnitQuest;
 		map<int,int>						m_mapCompleteQuest;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+		map<int,bool>						m_mapChainStartable;			/// June manager +0x10c: chain id -> may a quest of the chain be started now
+		map<int, map<int,__int64> >			m_mapChainComplete;				/// June manager +0x11c: chain id -> { quest id -> completion time }
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 		VillageNpcRelationResult			m_kVillageNpcRelation;			/// June qm +0xac (rows) / +0xbc (VRT_NOT_SHOW rows)
 		VillageNpcRelationResult			m_kAppliedVillageNpcRelation;	/// June qm +0xcc / +0xdc: what the village currently shows

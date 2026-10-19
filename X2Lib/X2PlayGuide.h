@@ -128,6 +128,9 @@ public:
 	void DeleteInputGuideParticle();
 
 	void StartGoEffect();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	void StartGoEffectNewbie();		/// Q3. June 3289dd50: the Go effect only while quest 11005 is open and the unit is below level 3
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 	void StopGoEffect();
 #ifdef GUIDE_FIRST_EPIC_QUEST
 	void SetFirstEpicQuestGuide( EPIC_QUEST_GUIDE_STEP GuideStep_);

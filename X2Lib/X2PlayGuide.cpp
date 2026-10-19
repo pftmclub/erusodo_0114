@@ -489,7 +489,11 @@ void CX2PlayGuide::ResetNoviceGuide()
 		else
 		{
 			//첫번 째 에픽퀘스트가 없는 경우는 캐릭 생성 후 첫 마을 입장이라고 판단
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+			StartGoEffectNewbie();		// June 3289dd50: 11005 not complete and level < 3
+#else SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 			StartGoEffect();
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		}
 
  		CX2QuestManager::QuestInst* pQuestInst = NULL;
@@ -1078,6 +1082,19 @@ void CX2PlayGuide::StartGoEffect()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+/// June 3289dd50: the Go effect for a new unit: quest 11005 ( TQI_CHASE_THIEF ) not complete and the unit below level 3.
+void CX2PlayGuide::StartGoEffectNewbie()
+{
+	if( NULL == g_pData || NULL == g_pData->GetQuestManager() )
+		return;
+	if( true == g_pData->GetQuestManager()->GetUnitCompleteQuest( TQI_CHASE_THIEF ) )
+		return;
+	if( g_pData->GetSelectUnitLevel() < 3 )
+		StartGoEffect();
+}
+
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 void CX2PlayGuide::StopGoEffect()
 {
 	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hParticleGo ) 

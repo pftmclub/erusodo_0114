@@ -576,6 +576,40 @@ its 10 sites were re-read before the guards went in.
 
 **Done gate:** for each new type a dev-console or emulator path shows the right progress text and completion state. `[JUNE_QUEST] RUN` lines are per Q0a.
 
+### Q3 - Done (2026-10-19, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_RUNTIME` (+ `_DEBUG`, off after the review); files `X2QuestManager.h/.cpp`, `X2PlayGuide.h/.cpp`, `Always.h`; `MODS.md` has the list and the revert. Every function below
+was read in Ghidra (decompile + disassembly where the decompile hid a compare). Q0a's rows targeted Q3 are all ported except the four in "Not ported".
+- **Chains.** `IsChainQuestInProgress` 323229d0, `GetChainQuestStartable` 32322ad0, `IsChainQuestAvailable` 3232caf0 (max completion time of the chain; code event 0x10 + TestMinute = minutes;
+  else local 00:00 of the day AllowFewDays days after it <= now), `RebuildChainQuestStartable` 3232ef70, `ForgetCompletedQuest` 3232de60 (no caller yet; June's is 323cf130, Q5a). Hooks: `CreateUnitQuest`
+  32331830, `RemoveUnitQuest` 32331fb0 (insert-unique time under the chain, then rebuild), `RefreshDailyQuest` 3232f830, `ClearUnitQuest` 32331dd0, `SetUnitQuest` 32336e80 (records each completed chain quest,
+  rebuilds after the loop), `GetAvailableQuest` 323357c0 (a quest of a chain whose flag is false is dropped; no flag = stays). Chain 1 = the 91 QT_STORY quests (AllowFewDays 1), chains 43648 / 208840 / 208950 /
+  43760 (TestMinute 3) the rest; the `ChainQuestInfo.lua` file stops after its 5 `AddChainQuestDays` calls (JUNE_BUGS 320).
+- **Week / month.** `IsWeekQuestExpired` 32322050 (reset = the Wednesday strictly after the completion day, 00:00 local) and `IsMonthQuestExpired` 32321d10 (the 1st of the next month), run only inside
+  `SetUnitQuest`, as in June (not at midnight). `SetUnitQuest` takes June's third argument `bClear_` (default true: no March caller passes false; June's false caller is a guild-agit handler March lacks).
+- **Lists.** `GetStartQuestList` 3232fbd0: QT 2 / 9 quests with a start NPC are listed at every NPC (once), QT_GUILD only in a guild; `GetAvailableQuest`: QT_GUILD dropped in the non-repeat branch;
+  `GetBoardStartQuestList` 3232fd70: June's table (state -> village -> board village; Glave, Luto, Dao always; Peita and the Elysion rest village return early; 1500 adds the billboard). NULL-checked, which
+  fixes the unchecked deref the plan named. The Benders event NPC March added is gone (June wins). June's state 0xf reads a location-manager member March lacks: it falls to Ruben.
+- **Gates.** `IsForbiddenQuest` 3232e510: the QR tail must equal the unit's transcendental step (always 0 in March; Stage 6) unless QT_EVENT, so June's 10 `QR_TRANSCENDENTAL_CLASS` QT_SKILL quests (42040..)
+  are hidden for now; QT 9 hidden while code event 0x920 / 0x921 / 0x923 is on for UT_AIN / class 135 / 136 (March has no Ain: inert). Left out as server-fed with an absent value of "not forbidden": the 31000
+  test (`g_pData +0x52c`), the `+0x51c` set with the `+0x530` records, and the quests 208020..208060 / 205530 / 37100, none of which is in June's `FieldQuest` (31000 is).
+- **Completion and text.** `SubQuestInst::IsComplete` 323225e0 (collection = server flag OR count), `IsCompleteVisitQuest` 3232c750 (no last-sub-quest rule). `MakeSubQuestString` 32337db0: SQT 37 (auto and
+  plain), 39, 43 as `description cur/need`, SQT 44 and 48 added to the clear-count group (`m_iDungeonClearCount`), the any-dungeon visit text (`IsAnyDungeonCondition` 32322290 -> `GET_STRING( 42924 )` +
+  `STR_ID_17688`), SQT 45-47 print nothing. Trailing newline of the auto 37 form is a guess (stream calls in the disassembly are ambiguous). `m_cDifficulty` has no reader anywhere in June's quest code or
+  Q0b's UI map: left stored.
+- **Class-up.** `GetClassUpQuestNoticeState( step )` 32336310 (NPC Echo 10004; 0 / 1 / 2 for the notice buttons). Its step helper 31edf870 and the notice message 32344ab0 belong to the class-up UI (Stage 9).
+- **Go effect.** `CX2PlayGuide::StartGoEffectNewbie` 3289dd50 (11005 not complete and level < 3) at X2PlayGuide.cpp:492; the in-progress site :524 is left (June's flow there was not read).
+- **Relation refresh.** `RefreshVillageNpcRelationDataByQuest` follows `RemoveUnitQuest( id, true )` at all three completion sites (X2UIQuestNew.cpp:1493/1495, 1652/1654, 2061/2063); it now logs
+  `[JUNE_QUEST] RUN relation refresh after quest N`.
+- **Not ported.** `32335f50` (rebuilds `g_pData +0x570` from the story-book singleton 326ab090 / `DLG_Story_Book.lua`, no March consumer): new phase Q10. `32344ab0` + `31edf870`: Stage 9. `31d79ac0`
+  (unlock quest movies) is Q8's. Open for Q4: June's `SubQuestInst` count is a `short`; March's `m_ucClearData` is a UCHAR, so the 8 NPC_HUNT quests with 300-500 kills cannot complete.
+- **Hygiene.** `flagcheck JUNE_QUEST_RUNTIME --with JUNE_QUEST_RUNTIME_DEBUG --worktree --files <5 files>`: 4 PASS, 1 OTHER (Always.h, peers' flags), 0 FAIL, 0 deleted lines, 0 non-ASCII, 0 EOL mismatch, `RESULT: PASS`.
+  JUNE_BUGS 337 (board falls back to Ruben for the Sander / Ranox / Elysion lounges), 338 (unchecked sub-quest instance in SQT 37 / 43, guarded).
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,378,816 B, dated 2026-10-19 12:09:26, md5 8ac3a5d7258ec3a5a9706ee3922a624e, equal to X2/US_SERVICE/x2.exe (2026-10-19 12:09:18); built at main dbc0f686 + 25 uncommitted code file(s).` The exe holds the four `[JUNE_QUEST] RUN` strings (chk, chain rebuild, repeat purge, relation refresh).
+- **To see it.** Log in with any unit (unit 12 `reyaa` lv 99 is fine) and read `python tools/logs.py --grep "JUNE_QUEST\] RUN"`: `chk type ...` lines for SQT 37 / 39 / 43 / 44 / 48 / 8 / 3 / 26 (text without and with
+  an instance, completion with the flag off / on), `chk repeat` (week / month expiry on synthetic dates), `chk chain` per chain, then `SetUnitQuest ...` and `chain rebuild ...` lines. Chain and repeat purge on
+  real data: see the hand-off.
+
 ## Phase Q4 - Offline completion of every sub-quest type
 
 **Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_OFFLINE`. Sub-tag `OFF`.
@@ -749,6 +783,16 @@ clean `ErrorLog.txt` (below). Sonnet did everything here.
 - The emulator side as the user answered in RM0.
 
 **Done gate:** a mission set by the cheat or by the stand-in counts its event, completes, and shows the UI.
+
+## Phase Q10 - Story book (QT_STORY)
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_STORY`. Sub-tag `STORY`. Added by Q3 (2026-10-19): no earlier phase owned it.
+
+- Map first, read-only: the singleton `326ab210` (map by quest id, lookup `326ab090`, loader `326a8d40` from the quest loader `3258c470`), the `g_pData +0x570` rebuild `32335f50`
+  (called from `SetUnitQuest` and `323e57e0`), `CX2UIStoryBook` / `DLG_Story_Book.lua`, the QT_STORY branch of the complete ACK (`328c3750`, `328c3ae0`) and the reader of Q1's story index.
+- Then port the book whole: data file, singleton, rebuild, UI (June's `Story_New` / `StoryBook` strings), under Q5a's Story tab.
+
+**Done gate:** completing a story quest adds it to the book; the book opens and lists the completed episodes. 0 EXCEPTION.
 
 ## Phase Q9 - Region walk
 
