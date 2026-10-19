@@ -26,6 +26,8 @@ each through `3291b4b0`.
 1. Identify `3291ba40`, `3291b4b0`, `3291cee0` and `3291cfb0` whole, and map each to March's char-info code ( the reader at `:1423` and what it shows ).
 2. Port June's form whole ( June wins, no partial update ); March's body goes in `#else`. Reuse S7k / S7m helpers where June calls the same thing
    ( the party pass is `CX2Unit::JuneGetPartyShareSocketOptions` ).
+   S7m review: `31ed40c0`'s set count `32350b80` filters by the equip group `3286a3e0( uid, 3234d8d0() )`, which reads *my* unit's `+0xe40`; March has no second set,
+   so every slot counts. Check whether `3291ba40`'s own set / equipment loops use the same group source or the `group` argument.
 3. Note anything that needs June-only item data ( item `+0x8c` / `+0x9c` / `+0xac`: backlog Stage 16 ) instead of porting it.
 
 **Play-test:** the character window's stat / socket view with unit 19 ( or any equipped character ), before / after an equip change; say what should change, if anything.

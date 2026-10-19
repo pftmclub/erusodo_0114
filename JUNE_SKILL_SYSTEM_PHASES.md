@@ -2195,6 +2195,37 @@ Funcmap rows `(S7m)` (8). JUNE_BUGS 355. Revert: `MODS.md` "Socket sources the S
   has no reader. No play-test is owed.
 - **Open questions:** none.
 
+### Phase S7m -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe 9d9201b9 stays).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT --range 6682b002^..6682b002`: `files: 0 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `_PARTY_SOCKET`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`. Both: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s),
+  0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`. OTHER rows: `Always.h` carries both S7m defines; `X2GUUser.cpp` / `X2Unit.h`
+  hold only `_PARTY_SOCKET`; the `X2Unit.cpp` hunk sits inside `_UNIT_SOCKET` and holds both S7m flags, so each run files it under the other (its list is the file's enclosing flags). No deleted line.
+- **Item 1, unit side `32364790 @32364af3-32364bb2`** (raw). Gate `CMP [EDI+0x324],0` (= `EDT_NONE` 0); `3208c500( templet +0x324 )` into the aggregate `+0x32c`; `+0x344` = `FLD [EDI+0x334]` x
+  `FMUL [ESP+0x4b4]` (arg 2, `fAtkMagic_`: frame 0x4a0 + ret = arg 1 at `+0x4b0`), stored through the protected set, no 0.0 branch (= port).
+  `3208c500` copies a plain source into the protected destination: type, two bytes, refcounted buff factor, then each value (`src +0xc` -> `dst +0xc`, `src +0x10` -> `dst +0x18`, ...), so templet `+0x334`
+  and aggregate `+0x344` are the same second value. March's `Copy` copies the same members, and the source in both is the socket templet's `ExtraDamageData`. User side `3204f190 @3204f5fc` (raw):
+  the same gate and copy; `fAtkMagic == 0` -> a type switch (1 / 3 / other), each multiplying the unit's magic attack by the copied value. It is the same as March's `SumSocketOption` (`EDT_FIRE` / `EDT_POISON` /
+  default), so the user side needs no change. The loader proof (`32726850 @3272926f` case 0) was not re-traced: Ghidra's decompile returns nothing for it, and the jump-table targets are outside the listing.
+  The user-side reader, which is March's own code at the same offset, corroborates `+0x324` = `m_SocketExtraDamage` independently.
+- **Item 2, `31ed40c0` whole** (decompile + raw @31ed41a0-31ed4560). Gates `g_pX2Room` and the game pointer; `31ed23a0`: slot non-null, state `+0xc` != 1 / 2, UID `+0x18`. Game vslot 0xa0 ( user by UID,
+  as funcmap Buff 1c / 11) -> `+0x867c` unit. `@31ed4223`: unit `+0x28` / `+0x2c` == the UID arg -> *mine* = arg 3 (`[ESP+0xec]`), else *others* = arg 4. Sets: 1.0, max level < 1 -> member's `+0xb4`.
+  Items: inventory `+0x2a4` `3286a230`, templet, `(+0xc != 1 || +0x10 > 0)`, class: `31ed6500( 31e4c380( member ), templet +0xd3 )` (= `GetX2UnitClassCompatibility( unit, item )`); entry 1 = random
+  `+0x6c` then `32867f80`, entry 2 = `+0x5c`, both at `328842f0 +0x20` and use level `+0xd1` or the member's level (= port, and = S7k's unit fill).
+  **`32350b80` vs March `GetSetIDNPartsNum`:** June adds the usable test, the class test, `328823d0` and the equip group `3286a3e0( uid, 3234d8d0() )`. `3286a3e0`: slots 1 / 3 / 5 / 7 / 9 always;
+  0x14-0x2a only when the flag is set; every other slot only when it is clear. `3234d8d0` reads **my** unit's `+0xe40` (and a UI state `+0x1e5` / `32912cc0`), not the member's. March has no second equipment set,
+  so the flag is 0 and every March slot (0..19) counts, which is what `GetSetIDNPartsNum` does. The usable-expiry part, `328823d0` and the `+0xe40` set belong to backlog Stage 16, as S7k decided for
+  `32350cb0`. The class test is not ported (March's own function has none); a wrong-class equipped item cannot occur in March.
+- **Item 2, the pass** (raw). `31d70d30` = the five ids, byte cleared (= port). User `3206d770 @3206df16`: `g_pX2Room` test, UID by vslot 0x54, mine = `[ESP+0x88]`, others = `[ESP+0x68]`.
+  The mine ids != 0 are collected; per others entry: id != 0, `g_pMain`, `31d70d30 == 1`, byte clear -> linear find in mine, skip on a hit, else push.
+  Non-empty -> `3204f190( target, &list, entry +0x10, entry +0x14 )`; `target` is the same first argument as the equipment calls @3206dcbc-3206dd30 (= March's implicit `m_SocketData`).
+  It sits right after the equipment loop; after it @3206e32b comes the `g_pMain +0x8c` state switch (= March's `PET_AURA_SKILL` block, the port's placement).
+  Unit `32365d30 @323667bd`: `+0x28` / `+0x2c`, mine `[ESP+0x88]`, others `[ESP+0x58]`, the same filter (`31d70d30` @323669a7), `32364790` with `+0x10` / `+0x14` @32366beb.
+  It comes after the title sum @32366788 and before vslot 2 @32366c3f (= port). No dedup across members (JUNE_BUGS 355) confirmed.
+- **Spot-checked in raw disassembly:** the `+0x344` multiply's argument slot, `31ed40c0`'s mine / others argument order on both callers, and the class-test arguments. All match.
+- **Open questions:** none. S7p's kickoff gains one note (the `32350b80` group test). Next: `/x2-phase skill-system-core S7p`.
+
 ### Phase S7l - Done (2026-10-19, Opus 5.5 high)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` (`Always.h` only; `#error` guards `_LEVEL_EMBLEM`, `ADD_PLAY_MUSIC_WHEN_EMBLEM_POP`, `DIALOG_SHOW_TOGGLE`, `FIELD_BOSS_RAID`, `_RANOX_PORT`,
