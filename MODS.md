@@ -4275,6 +4275,15 @@ log tag `[JUNE_SKILL] MEMO room`.
   March's KStat and packet are unchanged. The emulator never sends this NOT, so nothing changes offline.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### Socket sources the S7k aggregate skipped (skill-system-core S7m, 2026-10-19)
+
+Flags `SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT` and `SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET` in `KTDXLIB/Always.h` (both `#error`-guarded on `_UNIT_SOCKET`). Plan
+`JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7m"; no log tag (nothing reachable offline).
+- **Client.** `CX2Unit::JuneSumSocketOption` copies the socket's single extra damage into the unit aggregate (June `32364790 @32364af3`); `CX2Unit::JuneGetPartySocketOptionSources` /
+  `JuneIsPartyShareSocketID` / `JuneGetPartyShareSocketOptions` (June `31ed40c0` / `31d70d30` / the pass both sums inline) add room members' shared sockets in
+  `CX2Unit::JuneInitSocketData` and `CX2GUUser::InitSocketData`.
+- **Revert:** comment out either define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June's unit socket aggregate and HUD max MP / HP (skill-system-core S7k, 2026-10-19)
 
 Flags `SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET` (`#error` guards: `_SOCKET_PARITY`, `_SOCKET_EDT`), `SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS` (`_SKILL_TEMPLET`, `_ITEM_KIM`) and

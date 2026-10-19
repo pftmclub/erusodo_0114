@@ -9413,6 +9413,38 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June skill system Phase S7m (1/2) - the unit-side socket sum ( CX2Unit::JuneSumSocketOption = June 32364790
+//              @32364af3..32364bb2 ) carries the socket templet's single extra damage ( +0x324 = March's m_SocketExtraDamage ) into the
+//              unit's aggregate ( +0x32c, 3208c500 ), damage per second = templet's x the item's magic attack. S7k read +0x324 as a
+//              June-only block; the user side already had it. No reader on the unit side ( the HUD reads HP / MP only ).
+//              Revert: comment out this define.
+#define SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT
+#ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT
+#ifndef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#error SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT needs SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET ( the unit aggregate )
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7m (2/2) - room members' shared sockets ( "Shared Item Effect" 2000139-2000141 / 2000144 /
+//              2000145, June 31d70d30 ). June 31ed40c0 collects every room member's set and equipped-item sources ( mine / others );
+//              the ids of the others' sources that are shared sockets and not among mine are summed by both sums: the unit fill
+//              ( 32365d30 @323667bd, after the title ) and CX2GUUser::InitSocketData ( 3206d770 @3206df3e, after the equipment ).
+//              Offline the room holds only my user, so nothing is added. Revert: comment out this define.
+#define SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#error SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET needs SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET ( the unit fill it extends, and where its helpers live )
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#endif SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June GFx runtime Phase G6 - the GFx event scene's cursor is drawn after the GFx layer, as June does. June's frame
 //              31be3800 ends GFx 31c43b20 ( @31be3c68 ), then the 0x18 pass 31be2e90 ( @31be3c6f ), then CKTDXCursor 31ce5400( 0 )
 //              ( app +0x290, @31be3c7c ); the scene's Play 3226b130 shows that cursor with DLG_Eventscene_Cursor.dds ( @3226b56b

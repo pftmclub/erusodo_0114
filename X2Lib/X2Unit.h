@@ -1241,6 +1241,20 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		void		JuneInitSocketData( const int iJuneMode_ );			/// June vtable 3348ffe4 slot 1 32365d30
 		void		JuneSumSetItemSocketOption( const int iJuneMode_ );	/// slot 2 323652b0
 		void		JuneSumSocketOption( const std::vector<int>& vecSocketOption_, const float fAtkMagic_, const int iSocketLevel_ );	/// 32364790
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+		/// June skill Phase S7m: one socket source of a room member ( June's 0x18-byte entry: the id list, the float, the level )
+		struct JuneSocketOptionSource
+		{
+			std::vector<int>	m_vecSocketOption;
+			float				m_fAtkMagic;
+			int					m_iSocketLevel;
+			JuneSocketOptionSource() : m_fAtkMagic( 0.f ), m_iSocketLevel( 0 ) {}
+		};
+		static void	JuneGetPartySocketOptionSources( const UidType iUnitUID_, std::vector<JuneSocketOptionSource>& vecMine_,
+			std::vector<JuneSocketOptionSource>& vecOthers_ );													/// June 31ed40c0
+		static bool	JuneIsPartyShareSocketID( const int iSocketID_, bool& bJuneSkipDedup_ );						/// June 31d70d30
+		static void	JuneGetPartyShareSocketOptions( const UidType iUnitUID_, std::vector<JuneSocketOptionSource>& vecShared_ );	/// 32365d30 @323667bd, 3206d770 @3206df16
+#endif SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
 #endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 		void		JuneResetHudMaxHpMp();								/// June 3235a160

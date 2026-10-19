@@ -3227,6 +3227,16 @@ void CX2GUUser::InitSocketData()
 		//}} kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+	/// June skill Phase S7m: June 3206d770 @3206df16..3206e326, right after the equipment: the room members' shared sockets ( 31ed40c0
+	/// with this user's UID, user vslot 0x54 ), each summed ( 3204f190 ) at its source's rate and level
+	{
+		std::vector<CX2Unit::JuneSocketOptionSource> vecShared;
+		CX2Unit::JuneGetPartyShareSocketOptions( GetUnitUID(), vecShared );
+		for ( UINT i = 0; i < vecShared.size(); ++i )
+			SumSocketOption( vecShared[i].m_vecSocketOption, vecShared[i].m_fAtkMagic, vecShared[i].m_iSocketLevel );
+	}
+#endif SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
 #ifdef PET_AURA_SKILL
 	// 펫 기운스킬 소켓효과 (모든 펫기운스킬은 소켓조합으로 구성된다.)
 	switch ( g_pMain->GetNowStateID() )

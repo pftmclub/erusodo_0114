@@ -1310,9 +1310,21 @@ void CX2Unit::JuneSumSocketOption( const std::vector<int>& vecSocketOption_, con
 		}
 #endif SERV_NEW_ITEM_SYSTEM_2013_05
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT
+		/// @32364af3..32364bb2: the templet's +0x324 is March's single extra damage ( m_SocketExtraDamage: the EXTRA_DAMAGE table's single
+		/// types, loader 32726850 @3272926f case 0 ). When its type is set it is copied into the aggregate's ( +0x32c, 3208c500 ), and the
+		/// aggregate's damage per second ( +0x344 ) becomes the templet's ( +0x334 ) x fAtkMagic_. The unit side has no 0.0 branch: the user
+		/// side 3204f190 @3204f61f takes the unit's magic attack when fAtkMagic is 0, as March's CX2GUUser::SumSocketOption does.
+		if ( CX2DamageManager::EDT_NONE != kSocketData.m_SocketExtraDamage.m_ExtraDamageType )
+		{
+			kAggregate.m_SocketExtraDamage.Copy( kSocketData.m_SocketExtraDamage );
+			kAggregate.m_SocketExtraDamage.m_DamagePerSec = fAtkMagic_ * kSocketData.m_SocketExtraDamage.m_DamagePerSec;
+		}
+#else SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT
 		/// @32364af3..32364bb2 not ported: when the templet's +0x324 is set, its 0x1c-byte block ( an int, two bytes, a refcounted pointer,
 		/// two floats ) is copied into the aggregate's +0x32c ( 3208c500 ) and its second float x fAtkMagic_ into the aggregate's +0x344.
 		/// March's SocketData has no such field and its loader no such key ( the user side 3204f190 @3204f5fc has the same block ).
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT
 
 		/// @32364bb2 / @32364beb: the multiple extra damage ( +0x374 ) and the second list ( +0x384 ) are inserted at the front ( 3208f840 )
 		if ( false == kSocketData.m_MultipleSocketExtraDamage.empty() )
@@ -1518,8 +1530,19 @@ void CX2Unit::JuneInitSocketData( const int iJuneMode_ )
 		JuneSumSocketOption( kJuneAggregate.m_vecTitleSocketOption, 1.f, static_cast<int>( m_UnitData.m_Level ) );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+	/// @323667bd..32366c26: the room members' shared sockets ( 31ed40c0 with this unit's UID +0x28 / +0x2c, then the shared pass ), each
+	/// at its source's rate and level
+	{
+		std::vector<JuneSocketOptionSource> vecShared;
+		JuneGetPartyShareSocketOptions( GetUID(), vecShared );
+		for ( UINT i = 0; i < vecShared.size(); ++i )
+			JuneSumSocketOption( vecShared[i].m_vecSocketOption, vecShared[i].m_fAtkMagic, vecShared[i].m_iSocketLevel );
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
 	/// @323667bd..32366c26 not ported: party members' shared sockets ( 31ed40c0 through g_pX2Game, ids 2000139-2000141 / 2000144 /
 	/// 2000145 by 31d70d30, deduplicated ); the user side 3206df3e has the same pass and March has neither.
+#endif SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
 
 	JuneSumSetItemSocketOption( iJuneMode_ );					/// this vslot 2 @32366c3f
 
@@ -1541,6 +1564,166 @@ void CX2Unit::JuneInitSocketData( const int iJuneMode_ )
 	ResetIncreaseSkillLevelBySocket();
 #endif UPGRADE_SKILL_SYSTEM_2013
 }
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
+/** @function : JuneGetPartySocketOptionSources
+	@brief : June 31ed40c0 ( no this, ret 0x10; args the unit UID, &mine, &others ). Needs the room ( g_pX2Room 33775868 ) and the game
+		( 31aad500( 3372c0fc ) ). Every room slot that is not empty or closed ( 31ed23a0 on the room: slot state +0xc != 1 / 2, UID +0x18;
+		no NPC or unit test ) is looked up as a user ( game vslot 0xa0 ) and its unit ( +0x867c ). Each source of that unit goes to mine
+		when the unit's UID ( +0x28 ) is iUnitUID_, else to others ( @31ed4223 ):
+		- per set ( 32350b80: set ID -> equipped parts ) with options ( 325bb840 ): rate 1.0, the set's max level, or the unit's level
+		  ( +0xb4 ) when that is 0;
+		- per equipped item ( +0x284, 3286a230 ) with a templet, not a broken endurance item ( +0xc == 1 and +0x10 <= 0 ) and, when the
+		  templet names a class ( +0xd3 ), of a fitting class ( 31e4c380 / 31ed6500 ): the random sockets ( +0x6c ) + the templet's
+		  ( 32867f80 ), then the item's own ( +0x5c ), both at the item's magic attack ( 328842f0 +0x20 ) and the templet's use level
+		  ( +0xd1 ) or the unit's. Unlike the unit fill: no full usable test ( 328825c0 ), and no item +0x8c / +0x9c / +0xac.
+		32350b80 is March's GetSetIDNPartsNum plus June's usable / class / 328823d0 tests and the group 3286a3e0( 3234d8d0() ), as the
+		S7k set sum reads it ( JuneSumSetItemSocketOption ).
+*/
+void CX2Unit::JuneGetPartySocketOptionSources( const UidType iUnitUID_, std::vector<JuneSocketOptionSource>& vecMine_,
+	std::vector<JuneSocketOptionSource>& vecOthers_ )
+{
+	if ( NULL == g_pX2Room || NULL == g_pX2Game )
+		return;
+
+	/// 31ed23a0: the UIDs of the slots that are neither SS_EMPTY ( 1 ) nor SS_CLOSE ( 2 )
+	std::vector<UidType> vecMemberUID;
+	for ( int iSlot = 0; iSlot < g_pX2Room->GetSlotNum(); ++iSlot )
+	{
+		CX2Room::SlotData* pSlotData = g_pX2Room->GetSlotData( iSlot );
+		if ( NULL != pSlotData && CX2Room::SS_EMPTY != pSlotData->GetSlotState() && CX2Room::SS_CLOSE != pSlotData->GetSlotState() )
+			vecMemberUID.push_back( pSlotData->m_UnitUID );
+	}
+
+	for ( UINT iMember = 0; iMember < vecMemberUID.size(); ++iMember )
+	{
+		CX2GUUser* pUser = g_pX2Game->GetUserUnitByUID( vecMemberUID[ iMember ] );
+		if ( NULL == pUser || NULL == pUser->GetUnit() )
+			continue;
+
+		CX2Unit* pUnit = pUser->GetUnit();
+		std::vector<JuneSocketOptionSource>& vecTarget = ( iUnitUID_ == pUnit->GetUID() ) ? vecMine_ : vecOthers_;
+		const int iUnitLevel = static_cast<int>( pUnit->GetUnitData().m_Level );
+
+		/// @31ed421e..31ed4377: the sets
+		if ( NULL != g_pData && NULL != g_pData->GetItemManager() )
+		{
+			map<int,int> mapSetIDNParts;
+			pUnit->GetSetIDNPartsNum( mapSetIDNParts );
+			for ( map<int,int>::const_iterator mItr = mapSetIDNParts.begin(); mItr != mapSetIDNParts.end(); ++mItr )
+			{
+				JuneSocketOptionSource kSource;
+				const int iMaxLevel = g_pData->GetItemManager()->GetSetItemOptions( mItr->first, mItr->second, kSource.m_vecSocketOption );
+				if ( true == kSource.m_vecSocketOption.empty() )
+					continue;
+				kSource.m_fAtkMagic		= 1.f;
+				kSource.m_iSocketLevel	= ( 0 < iMaxLevel ) ? iMaxLevel : iUnitLevel;
+				vecTarget.push_back( kSource );
+			}
+		}
+
+		/// @31ed43a6..31ed45d3: the equipped items
+		for ( UINT i = 0; i < pUnit->GetUnitData().m_NowEqipItemUIDList.size(); ++i )
+		{
+			CX2Item* pItem = pUnit->GetInventory().GetItem( pUnit->GetUnitData().m_NowEqipItemUIDList[i] );
+			if ( NULL == pItem || NULL == pItem->GetItemTemplet() )
+				continue;
+
+#ifdef REAL_TIME_ELSWORD
+			if ( pItem->GetItemData().m_PeriodType == CX2Item::PT_ENDURANCE && pItem->GetItemData().m_Endurance <= 0 )
+				continue;
+#endif REAL_TIME_ELSWORD
+
+			if ( CX2Unit::UC_NONE != pItem->GetItemTemplet()->GetUnitClass() &&
+				false == GetX2UnitClassCompatibility( pUnit->GetUnitData().m_UnitClass, pItem->GetItemTemplet()->GetUnitClass() ) )
+				continue;
+
+			JuneSocketOptionSource kSource;
+			kSource.m_fAtkMagic		= pItem->GetStat().m_fAtkMagic;
+			kSource.m_iSocketLevel	= ( 0 < pItem->GetItemTemplet()->GetUseLevel() ) ? pItem->GetItemTemplet()->GetUseLevel() : iUnitLevel;
+
+			/// @31ed446c / @31ed44ad: the random sockets, then the templet's, in one list
+			kSource.m_vecSocketOption.assign( pItem->GetItemData().m_vecRandomSocket.begin(), pItem->GetItemData().m_vecRandomSocket.end() );
+			std::vector<int> vecNormalSocketOption;
+			pItem->GetItemTemplet()->GetSocketOptions( vecNormalSocketOption );
+			kSource.m_vecSocketOption.insert( kSource.m_vecSocketOption.end(), vecNormalSocketOption.begin(), vecNormalSocketOption.end() );
+			vecTarget.push_back( kSource );
+
+			/// @31ed451e: the item's own sockets ( +0x5c ), same rate and level
+			kSource.m_vecSocketOption = pItem->GetItemData().m_SocketOption;
+			vecTarget.push_back( kSource );
+		}
+	}
+}
+
+/** @function : JuneIsPartyShareSocketID
+	@brief : June 31d70d30 ( a CX2Main method that ignores this; both sums call it on g_pMain 3377585c ): clears the out byte, then true
+		for the "Shared Item Effect" sockets 2000139-2000141 / 2000144 / 2000145 ( 0x1e850b..0x1e850d, 0x1e8510, 0x1e8511 ).
+*/
+bool CX2Unit::JuneIsPartyShareSocketID( const int iSocketID_, bool& bJuneSkipDedup_ )
+{
+	bJuneSkipDedup_ = false;
+	switch ( iSocketID_ )
+	{
+	case 2000139:
+	case 2000140:
+	case 2000141:
+	case 2000144:
+	case 2000145:
+		return true;
+	}
+	return false;
+}
+
+/** @function : JuneGetPartyShareSocketOptions
+	@brief : the pass both June sums inline after 31ed40c0 ( the unit fill 32365d30 @323667e9..32366c26 and the user's InitSocketData
+		3206d770 @3206df43..3206e326, the same code ). Every non-zero id of my own sources is collected. Then, per source of the others,
+		its non-zero ids that 31d70d30 admits ( with g_pMain ) and that are not among mine are kept in order, and a source that keeps any
+		is returned with its rate and level. Ids are not deduplicated across members ( JUNE_BUGS ): two members with the same shared
+		socket both count. The no-dedup branch ( out byte set ) is dead in June, since 31d70d30 always clears the byte.
+*/
+void CX2Unit::JuneGetPartyShareSocketOptions( const UidType iUnitUID_, std::vector<JuneSocketOptionSource>& vecShared_ )
+{
+	std::vector<JuneSocketOptionSource> vecMine;
+	std::vector<JuneSocketOptionSource> vecOthers;
+	JuneGetPartySocketOptionSources( iUnitUID_, vecMine, vecOthers );
+
+	std::vector<int> vecMineID;
+	for ( UINT iSource = 0; iSource < vecMine.size(); ++iSource )
+	{
+		for ( UINT i = 0; i < vecMine[ iSource ].m_vecSocketOption.size(); ++i )
+		{
+			if ( 0 != vecMine[ iSource ].m_vecSocketOption[i] )
+				vecMineID.push_back( vecMine[ iSource ].m_vecSocketOption[i] );
+		}
+	}
+
+	for ( UINT iSource = 0; iSource < vecOthers.size(); ++iSource )
+	{
+		JuneSocketOptionSource kShared;
+		kShared.m_fAtkMagic		= vecOthers[ iSource ].m_fAtkMagic;
+		kShared.m_iSocketLevel	= vecOthers[ iSource ].m_iSocketLevel;
+
+		for ( UINT i = 0; i < vecOthers[ iSource ].m_vecSocketOption.size(); ++i )
+		{
+			const int iSocketID = vecOthers[ iSource ].m_vecSocketOption[i];
+			if ( 0 == iSocketID || NULL == g_pMain )
+				continue;
+
+			bool bJuneSkipDedup = false;
+			if ( false == JuneIsPartyShareSocketID( iSocketID, bJuneSkipDedup ) )
+				continue;
+			if ( false == bJuneSkipDedup && vecMineID.end() != std::find( vecMineID.begin(), vecMineID.end(), iSocketID ) )
+				continue;
+
+			kShared.m_vecSocketOption.push_back( iSocketID );
+		}
+
+		if ( false == kShared.m_vecSocketOption.empty() )
+			vecShared_.push_back( kShared );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET
 #endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP

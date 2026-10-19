@@ -2164,6 +2164,37 @@ of `3244c4b0` (5, 7, 8, 0x12 title notice, 0x14 achievement notice) and June's `
 and unit `32364af3`), party members' shared sockets `31ed40c0` (user `3206df3e`, unit `323667bd`) and the item socket lists `+0x8c` / `+0x9c` / `+0xac`: identify, then port
 where March can carry them. Kickoff `kickoffs/skill-system-core/S7m.md`.
 
+### Phase S7m - Done (2026-10-19, Opus 5.5 high)
+
+Two flags (`Always.h` only, `#error` guard `_UNIT_SOCKET`, both ON by `flagprobe.py`): `SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET_EDT`, `SERV_IRUHADEV_JUNE_SKILL_PARTY_SOCKET`.
+Funcmap rows `(S7m)` (8). JUNE_BUGS 355. Revert: `MODS.md` "Socket sources the S7k aggregate skipped". No data or save change.
+- **Item 1, the `+0x324` block, is not June-only.** It is March's single extra damage `m_SocketExtraDamage` (loader `32726850 @3272926f`: the EXTRA_DAMAGE table's
+  case 0, the single types); `3208c500` copies an `ExtraDamageData` into protected storage. The user side `3204f190 @3204f5fc` matches March's `SumSocketOption`, including
+  the `fAtkMagic == 0` branch (types 1 / 3 / other all take the unit's magic attack). **Ported** on the unit side (`_UNIT_SOCKET_EDT`, `CX2Unit::JuneSumSocketOption`):
+  when the type is set, `Copy` into the aggregate, damage per second = templet x `fAtkMagic_` (`@32364b18`, no 0.0 branch). Nothing on the unit side reads it (the HUD reads HP / MP).
+- **Item 2, the party shared sockets. Ported** (`_PARTY_SOCKET`, `CX2Unit::JuneGetPartySocketOptionSources` = `31ed40c0`, `JuneIsPartyShareSocketID` = `31d70d30`,
+  `JuneGetPartyShareSocketOptions` = the pass both sums inline):
+  - `31ed40c0( uid, &mine, &others )` walks the room slots that are not empty / closed (`31ed23a0`) and looks each up as a user, then as a unit.
+    Every set and equipped item of that unit goes to *mine* when it is the asking unit, else to *others*, as `{ ids, rate, level }`
+    (sets at 1.0; items at their magic attack with random + templet sockets, then `+0x5c`).
+  - The pass keeps the others' ids that are "Shared Item Effect" sockets (2000139-2000141 / 2000144 / 2000145) and that I do not carry. It sums each kept source at its rate and level.
+  - Placement: the unit fill after the title (`32365d30 @323667bd`); `CX2GUUser::InitSocketData` right after the equipment (`3206d770 @3206df3e`).
+  - Kept verbatim: no dedup across members (JUNE_BUGS 355). The unit side skips DUNGEON_ONLY sockets (S7k), so only 2000145 (no stats) can reach it.
+  - **A third caller** `3291ba40` = June's `CX2UICharInfo::GetMyEquippedSocketData( group )` (char window, via `3291cee0`). March's differs, and no row owns it -> new **S7p**.
+- **Item 3, item `+0x8c` / `+0x9c` / `+0xac`: not ported.** `31ed7e90` (from `KInventoryItemInfo`; `32887100` from a packed record) fills them from three June-only `KItemInfo`
+  socket-id vectors (`+0x48` / `+0x58` / `+0x68`, after the socket and random-socket lists). `+0xac` counts only when `32883300`'s apply condition is met by the set's equipped
+  parts. They belong to June's socket extraction / apply system (`m_bSocketExtraction` / `m_iSocketApply` / `m_iSocketCondition`, `32883300` / `32883450`, item socket count
+  `328836c0`): March's `KItemInfo` has no such fields and the emulator no source -> backlog **Stage 16** (June item-side systems), noted in the funcmap.
+- **Customize map `+0xa44`:** noted only (Effect C9d / C9g, Stage 12).
+- **Hygiene.** `flagcheck --worktree --files KTDXLIB/Always.h X2Lib/X2Unit.h X2Lib/X2Unit.cpp X2Lib/X2GUUser.cpp`:
+  - `_UNIT_SOCKET_EDT`: `files: 0 PASS, 0 PASS~, 0 DEFINE, 4 OTHER, 0 FAIL, 0 ERROR`. `_PARTY_SOCKET`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`.
+  - Both: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+  - OTHER rows = files that also carry the other S7m flag, and peers' blocks in `Always.h`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,420,288 B, dated 2026-10-19 17:21:36, md5 9d9201b98209b44913b32df21561b9dd, equal to X2/US_SERVICE/x2.exe (2026-10-19 17:19:27); built at main d6282b74 + 4 uncommitted code file(s).` (built 17:08-17:19 from this phase's edits; the first `--deploy` was refused while the game ran)
+- **How to see it in game:** nothing. Offline, the room holds only my user (the AI party bots are NPCs), so the party pass adds nothing. The unit aggregate's extra damage
+  has no reader. No play-test is owed.
+- **Open questions:** none.
+
 ### Phase S7l - Done (2026-10-19, Opus 5.5 high)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` (`Always.h` only; `#error` guards `_LEVEL_EMBLEM`, `ADD_PLAY_MUSIC_WHEN_EMBLEM_POP`, `DIALOG_SHOW_TOGGLE`, `FIELD_BOSS_RAID`, `_RANOX_PORT`,
@@ -2341,6 +2372,12 @@ March has no such object and no row owned it. Identify the object, its setters a
 - **Routed (user 2026-10-19):** boss-raid functionality belongs to the june-dungeons plan, new phase **C3z-8** (scope first; kickoff `kickoffs/june-dungeons/C3z-8.md`).
   Nothing in it is skill-system work: apart from the no-op `32161070` call in the class-change NOT, the only boss-raid reads on the skill side are the raid-field check `32482650`
   (Phase 7b) and the S7l emblems, both ported. The S7o review is dropped. The skill plan owes nothing here, and the funcmap rows name C3z-8 as owner.
+
+## Phase S7p - June's character-window socket total ( GetMyEquippedSocketData )
+
+**Run with:** Opus 5.5 high, then user play-test. Added by S7m (2026-10-19, unowned-branch rule). June `3291ba40( out, group )` / `3291cee0` are June's form of March's
+`CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`): an equip-group filter, riding pet, title, sets and the party pass (`31ed40c0 @3291c355`) through `3291b4b0`.
+Identify and port it whole. Kickoff `kickoffs/skill-system-core/S7p.md`.
 
 ## Phase S8 - Running state data: June's pointer model
 
