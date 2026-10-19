@@ -234,6 +234,9 @@ March's copy, do not merge the two, and do not ask first.
   March's own reader, which June never calls, moved to the `#else`.
 - **The one exception is the core-list `.lua`** (the rule above): files on `tools/data/lua_core_list.tsv` stay merged BOM source because
   March's C++ still needs March's values; a phase adds June's missing members to them (as S7e did for `COMBO_TREE_ICON`).
+- **Shared Lua in a character port (user, 2026-10-20):** a `.lua` holding rows for several characters (`UnitTemplet.lua`, ...) is not
+  replaced whole; only the ported character's rows become June's, the rest stay March's until their own port (the file becomes core-list
+  BOM source). See `JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules".
 - Record each replace where the phase records its data (Done note, `MODS.md` revert line). The tools back up the replaced file.
 
 ## Rule: `DataBase/` and `ScriptData/` are a stale snapshot — the live DB is the source of record

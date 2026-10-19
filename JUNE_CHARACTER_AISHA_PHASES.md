@@ -69,6 +69,7 @@ one: Ara (34 Little Specter, 124 Asura), Elesis (35 Dark Knight, 125 Crimson Ave
   (CH1).
   - A June script on March C++ (or the reverse) loads states the other side does not have.
   - Between phases, Aisha stays playable: unported skills keep falling to `default:`, as they do today.
+- **Shared Lua is ported per character (user, 2026-10-20; the pilot and Stage 7).** A shared `.lua` table that holds rows for several characters or classes (`UnitTemplet.lua` and the like) is not adopted whole by a character port. Only the rows of the character being ported become June's; every other character's rows stay March's until that character's own port. The file becomes core-list BOM source (`luasrc.py convert` + a core row, `--why "edit: <phase> per-character rows"`) so each later port swaps in its own rows. A Lua file that belongs to one character (its class script, its skill NPC / summon scripts) is still adopted whole.
 - **Lua.** The class script arrives through `luasrc.py adopt-june` (June's `ljconv` bytecode). It becomes core-list BOM source only if a phase
   must edit it (`luasrc.py core --add ... --why "edit: pilot-char-revamp CHn <what>"`, no question; then `adopt-june --source`).
   - Never copy from `june_src_fixed/`; that is reading material.
@@ -287,15 +288,15 @@ Item 6 decisions:
 - **Enum:** 129 / 130 Aisha names are not in the C++ `SKILL_ID` enum; keep the house convention (raw id + `/// RNSI_` comment).
   69 / 130 are not in the core Enum.lua: add a member only if a Lua reader needs it.
 - **UnitTemplet:** March's reader skips `UC_150` safely (nil enum -> row dropped, `X2UnitManager.cpp:844`) and ignores unknown keys, so no
-  reader fix is needed. Adopting June's whole file also renames 15 other second-job classes and adds 23 classes' transcendence cut-in names,
-  so it waits for the user (open question, CH5).
+  reader fix is needed. Adopting the whole file would also rename 15 other second-job classes, so **the user decided (2026-10-20): per
+  character rows only**. CH5 replaces Aisha's 7 rows; this became the shared-Lua rule in Rules and the backlog's standing rules.
 
 Drift: none needs a new plan. Aisha's `Motion_Arme_Emotion_Cash25.x` belongs to Stage 10 (backlog l.447), which owns the motion's behaviour;
 CH0b stages the file. For Stage 7 / Z, the class-map builders, `charport_states.py`, `charport_keys.py` and `charport_closure.py` are the
 template's step 0.
 
 Open questions for the user:
-1. CH5: adopt June's `UnitTemplet.lua` whole (June's job names for 15 other second-job classes) or only Aisha's rows?
+1. ~~CH5: UnitTemplet whole or Aisha's rows?~~ Answered (user, 2026-10-20): Aisha's rows only (shared-Lua rule).
 2. CH0b: approve the copy of all 54 koms at once.
 
 ## Phase CH0b - Every June Aisha asset, whole, first

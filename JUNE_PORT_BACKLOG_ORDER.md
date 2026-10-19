@@ -914,6 +914,7 @@ ORDER  BY UnitClass;
   whole set. It covers motions, models, faces, hair, equipment, textures, effects, particle definitions, sounds and cut-in art. No character runs
   half-March, half-June. A March reader that breaks on a June asset gets a code fix, never March's file back. See `JUNE_CHARACTER_AISHA_PHASES.md`
   CH0 / CH0b, the pattern.
+- **Shared Lua is ported per character (user, 2026-10-20; Stages 5, 7, 8).** A shared `.lua` table that holds rows for several characters or classes (`UnitTemplet.lua` and the like) is not adopted whole by a character port. Only the rows of the character being ported become June's; every other character's rows stay March's until that character's own port. The file becomes core-list BOM source (`luasrc.py convert` + a core row, `--why "edit: <phase> per-character rows"`) so each later port swaps in its own rows. A Lua file that belongs to one character (its class script, its skill NPC / summon scripts) is still adopted whole.
 - **June wins, even when it removes a feature** ([[june-behaviour-wins-even-when-it-removes-features]]), and June's asset wins at the same filename ([[june-asset-wins-over-march-at-same-filename]]).
 - **Flags.** Every client change is behind a `SERV_IRUHADEV_` flag in `KTDXLIB/Always.h`, with the original code kept in `#else` and the `#endif FLAG` style. Shared-header changes are flag-gated and offline-only (decision above).
 - **Shared-struct flags must reach every project that sees the struct.**

@@ -37,10 +37,10 @@ Written by CH0 (2026-10-20).
     is refused (`:900`).
   - **Aisha's rows:** identical items, motions and movies; June adds `m_HyperCutIn` on 104 / 105 / 113 (`HQ_Cutin_A*_Transcendence`) and
     renames 104 / 105 / 113 (`STR_ID_615` -> `STR_ID_4792` / `4793` / `17427`).
-  - **Other classes change too, if adopted whole (open question to the user, asked in CH0's hand-off):** 15 second-job rows get their own
-    job-name string instead of the character's (`STR_ID_614` -> `4641`, ...; every id exists in `KTDXLIB/StringID_def*.h`), and 23 rows gain
-    `_Transcendence` hyper / berserk cut-in names. Those stay invisible until each class's June script is adopted (the key is read only at
-    `SHOW_HYPER_CUT_IN_TIME`), but the names show at once.
+  - **Decided (user, 2026-10-20): Aisha's rows only** (the shared-Lua rule in the plan's Rules). `luasrc.py convert data036 UnitTemplet.lua`
+    (core-list row, `--why "edit: pilot-char-revamp CH5 per-character rows"`), then replace the 7 `UC_ARME_*` rows (2, 14, 15, 23, 104, 105, 113)
+    with June's text: the new names `STR_ID_4792` / `4793` / `17427`, `m_HyperCutIn` on 104 / 105 / 113, `m_fLobbyRotationY` (ignored by March,
+    kept verbatim). Every other row stays March's; no `UC_150` row. A whole-file adoption would have renamed 15 other second-job classes.
 - **Skill cut-in table (7t):** replace `s_SkillCutInSet` / the index switch with June's names and layout (June class function `329cd890` +
   `32078b70`); the `.gfx` files come with CH0b. `g4_cutin_names.tsv` l.4-10 lists March's 7 names (none has a June `.gfx`).
 - **Hyper cut-in:** `SHOW_HYPER_CUT_IN_TIME` (3 states) arrives with the script in CH1; CH5 checks it shows for 104 / 105 / 113 once the
