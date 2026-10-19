@@ -684,6 +684,14 @@ no save rung. MODS.md "offline completion of every sub-quest type".
   peers' uncommitted files, Q3's included); Q4's four log strings are in the exe.
 - **Save:** unit 24 (Ara, Lv 47) was given quests 31110 (weekly, SQT 32 x4) and 26600 (daily, SQT 48 x3) for the play-test
   (backup `db_backup\els_db_20261019_113906_pre_sql.sql`).
+- **Play-test PASSED 2026-10-19** (user, and the log of exe 642e712f, a later deploy that carries Q4):
+  - `SQT coverage 0-48: 21 driven, 28 undriven, unclassified [none], both [none]`.
+  - Account key -1 holds all 5 account quests, opened at an earlier select (37100 by a Lv 99 character). No unit-keyed copy exists.
+  - Velder Bridge of Hope Normal (33012): `band 44..50 -> 1` on all 4 runs. 31110 counted 1 -> 4 / 4 and 26600 counted 1 -> 3 / 3. Both were handed in
+    (items 78988 / 164547 / 164549).
+  - Ruben 30000: `band 0..5 -> 0`, nothing counted.
+  - 0 EXCEPTION; UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`.
+  - Cosmetic, for the review: a field load logs `suitable level: dungeon 0 has no DungeonData row` (the loading handler runs for fields too).
 
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 

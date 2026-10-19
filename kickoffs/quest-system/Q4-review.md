@@ -27,6 +27,8 @@ Review Q4's commit against March's server (the reference) and the three June rul
 - `IsClearTypeUndriven`: each new reason true (spot-check the orphan claims with `june2017_re/quest_plan/qlib.py`), and the census line
   `SQT coverage 0-48: 21 driven, 28 undriven, unclassified [none], both [none]`.
 - The transcendental refusal (42030 only) and the QRT_DAY hour (US 0, `XSLQuestManager.h:36-40`).
+- The play-test's one cosmetic finding: `Handler_EGS_GAME_LOADING_REQ` also runs for a field, so `IsSuitableLevel` logs "dungeon 0 has no
+  DungeonData row". Skip the call when `m_kRoom.m_kInfo.m_iDungeonID` is 0 (same flag).
 
 Hygiene is one command: `python tools/flagcheck.py JUNE_QUEST_OFFLINE --with JUNE_QUEST_OFFLINE_STANDIN --range <Q4 commit>^..<Q4 commit>`.
 Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OTHER row and every deleted line; a FAIL or ERROR is a finding.
