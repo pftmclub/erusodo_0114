@@ -2338,6 +2338,9 @@ March has no such object and no row owned it. Identify the object, its setters a
   - Per the kickoff, stop at identification. A6b is not needed for this.
 - **Gate:** every `32161070` caller has a `not ported` funcmap row naming the blocker. No port, so no play-test line.
 - **Open questions:** none. If a boss-raid event schedule is ever wanted offline, it is a new emulator feature (a 0x526 sender) plus this class whole. That is a design task, not owed here.
+- **Routed (user 2026-10-19):** boss-raid functionality belongs to the june-dungeons plan, new phase **C3z-8** (scope first; kickoff `kickoffs/june-dungeons/C3z-8.md`).
+  Nothing in it is skill-system work: apart from the no-op `32161070` call in the class-change NOT, the only boss-raid reads on the skill side are the raid-field check `32482650`
+  (Phase 7b) and the S7l emblems, both ported. The S7o review is dropped. The skill plan owes nothing here, and the funcmap rows name C3z-8 as owner.
 
 ## Phase S8 - Running state data: June's pointer model
 
