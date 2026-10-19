@@ -791,6 +791,24 @@ The user's answers to the two open questions: "1: stand-in" (the strict reading 
 - **Blocked on ranks (user, 2026-10-19):** every offline result is rank F. The emulator passes RT_NONE to the quest hooks and sends RT_F
   to the screen. So SQT_DUNGEON_RANK, and with it this stand-in for 35363, cannot complete until Phase Q4c. Q4c was added for that.
 
+### Q4b - Done (2026-10-19, Sonnet 5.5 high)
+
+Flags `SERV_IRUHADEV_JUNE_QUEST_OFFLINE` (accept items) and `SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN` (exception list). Log tag `[JUNE_QUEST] OFF`.
+Emulator plus two parser keys in `X2QuestManager.*`; no shared struct, no save rung. Q3's runtime code was not touched.
+- **`m_vecAcceptRewardItem`** (7 quests: 30130 epic, 30150, 30160, 30170, 30180, 30340, 35203; one item x1 each, 111371 / 111373-6 / 92070 / 92351, all in item.kim):
+  - parsed in `AddQuestTemplet_LUA` next to Q1's keys into `QuestTemplet::m_mapAcceptRewardItem` (March's server shape, `XSLQuestManager.cpp:121-141`: both fields non-zero, first entry of an id wins);
+  - `CX2OfflineQuest::Accept` pays it as its last refusal (`UserQuestManager.cpp:694-765`): `ERR_QUEST_24` when the item is already held (inventory; the emulator has no bank), `ERR_QUEST_25` when `HasRoomFor` fails, an item without a templet is skipped, nothing is inserted unless the quest is then taken;
+  - the changed slots wait in `m_mapAcceptSlots` and ride `EGS_NEW_QUEST_NOT::m_vecUpdatedInventorySlot` on the REQ path and in `PushNewQuest` (auto-open and account auto-open);
+  - **added, same server code:** a give-up deletes every copy of the accept items (`GSUserGameCommon.cpp:1835-1855`, `RemoveAcceptItems`), single and gather. The rows go in the ACK as the server does; March's client handler never reads them, so the bag may show the item until the next character select.
+- **`m_eExceptionDungeonID`** (6 sub-quests: 42370, 42410, 43540, 43640 = SQT 32; 43670, 43710 = SQT 8): parsed into `ClearCondition::m_setExceptionDungeonID` (ids > 0, in the shared 8 / 32 / 48 case body).
+  - **The list holds dungeon id + difficulty** (`iDungeonID + cDifficulty`, the packed number `IsExistDungeonInSub` compares: 30080 / 30081 / 30082 = Ruben Ruin of Elf N / H / E; 43640's 100xxx / 110xxx are the hero and TC ids).
+  - Applied in `OnDungeonClear` right after the dungeon filter and before the type switch ("a listed dungeon never counts"), and on the other steps in `IsTogetherRunMet`. Each exclusion logs `[JUNE_QUEST] OFF <q> sub <s> not counted: dungeon <id>+<diff> is in its m_eExceptionDungeonID`.
+  - Account event 43710 lists `{0}` (any dungeon) plus Ruben 30000 / 30080-92 and 41450 (`DI_EVENT_HIGHSCHOOL`).
+- **Hygiene:** `flagcheck --worktree --files <5 files>`: OFFLINE `files: 1 PASS, 1 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`; OFFLINE_STANDIN `0 PASS, 5 OTHER, 0 FAIL, 0 ERROR`, same zero counts, `RESULT: PASS` (OTHER = Q10's STORY hunks sharing `X2QuestManager.*` and earlier Q4 flags in the emulator files).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,446,400 B, dated 2026-10-19 18:00:54, md5 36fbf5def5d982244a330e179b7837dd` (main 14420b7d plus peers' uncommitted files). The five new log strings are in the exe.
+- **Save for the play-test:** unit 21 (eresisu, Lv 77) was given item 111371 (backup `db_backup\els_db_20261019_180120_pre_additem.sql`) to show the refusal.
+- **Play-test:** see the hand-off in the session; log tag `[JUNE_QUEST] OFF`. Review kickoff `kickoffs/quest-system/Q4b-review.md`.
+
 ## Phase Q4c - Dungeon result ranks offline
 
 **Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK`. Sub-tag `RANK`. Kickoff `kickoffs/quest-system/Q4c.md`.

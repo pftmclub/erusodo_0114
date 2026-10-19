@@ -4456,6 +4456,16 @@ Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q4 - Done"; log tag `[JUNE_QUEST] OFF` (offl
     (`IsTogetherRunMet`). Revert: comment out the define; the quest stops at 4/5 again (progress already saved stays).
   - `SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET` (needs `RANOX_PORT`): 41270 / 41271 are not training camp in `IsQuestCountedDungeon`. Revert: comment out the define.
 
+### June quest system: accept-time reward items and the exception dungeon list (quest-system Q4b, 2026-10-19)
+
+Flags `SERV_IRUHADEV_JUNE_QUEST_OFFLINE` (accept items) and `SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN` (exception list), both already in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q4b - Done"; log tag `[JUNE_QUEST] OFF`.
+Two server-only June keys the client parser now reads for the emulator. No shared struct, no save schema change.
+- **`X2QuestManager.h/.cpp`.** `QuestTemplet::m_mapAcceptRewardItem` (from `m_vecAcceptRewardItem`, 7 quests) and `ClearCondition::m_setExceptionDungeonID` (from `m_eExceptionDungeonID`, 6 sub-quests; entries are dungeon id + difficulty).
+- **`X2OfflineQuest.*`, `Handlers_Quest.cpp`.** `Accept` pays the items last (`PayAcceptItems`: ERR_QUEST_24 held, ERR_QUEST_25 no room); the slots go out in `EGS_NEW_QUEST_NOT` (`TakeAcceptSlots`, REQ and `PushNewQuest`);
+  a give-up deletes the items (`RemoveAcceptItems`); `OnDungeonClear` and `IsTogetherRunMet` skip a listed dungeon (`IsExceptionDungeon`).
+- **Save.** Unit 21 (eresisu) was given item 111371 to show the ERR_QUEST_24 refusal (backup `db_backup\els_db_20261019_180120_pre_additem.sql`).
+- **Revert:** comment out the stand-in define for the exception list, and `SERV_IRUHADEV_JUNE_QUEST_OFFLINE` only if the whole offline completion is going (it also drops Q4); `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Items already paid stay in the bag.
+
 ### June quest system: dungeon result ranks offline (quest-system Q4c, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` in `KTDXLIB/Always.h` (needs `OFFLINE_MONSTER_GRADE`, `OFFLINE_SECRET_POISON`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q4c - Done"; log tag `[JUNE_QUEST] RANK`.

@@ -161,6 +161,15 @@ public:
 
 	bool	GiveUp( int iQuestID );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	/// Quest Q4b. The inventory slots Accept changed when it paid the quest's accept-time items ( m_mapAcceptRewardItem ), handed
+	/// over once for EGS_NEW_QUEST_NOT::m_vecUpdatedInventorySlot. Empty for a quest that pays nothing, or one already taken.
+	void	TakeAcceptSlots( int iQuestID, OUT std::vector< KInventoryItemInfo >& vecOut );
+
+	/// Quest Q4b. GSUserGameCommon.cpp:1835-1855: giving a quest up deletes every copy of its accept items ( DeleteItemAll ).
+	void	RemoveAcceptItems( int iQuestID, OUT std::vector< KInventoryItemInfo >& vecOut );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	//////////////////////////////////////////////////////////////////////////
 	// the event-driven half. Every one of these persists what it changed and
 	// hands back the quests to put in EGS_UPDATE_QUEST_NOT - empty when nothing
@@ -365,6 +374,11 @@ private:
 	/// Quest Q4 review. CXSLDungeon::IsTutorialDungeon ( XSLDungeon.cpp:820 ): the 15 tutorial ids.
 	static bool	IsQuestTutorialDungeon( int iDungeonID );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+	/// Quest Q4b. The sub-quest's m_eExceptionDungeonID holds this dungeon id + difficulty ( June's server-only list, stand-in ).
+	static bool	IsExceptionDungeon( const CX2QuestManager::SubQuestTemplet* pSub, int iDungeonPlusDifficulty );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 	/// Q4 review stand-in for SQT_TOGETHER_SUBQUEST_CLEAR. True when this run meets every OTHER dungeon step of the quest
 	/// ( types 5 / 6 / 7 / 8 / 32 / 48, each with its own dungeon filter and rule ), and the quest has at least one.
@@ -377,6 +391,10 @@ private:
 
 	/// Quest Q4. Where a quest's rows live: an account quest under the account key, everything else under the unit.
 	UidType	SaveKey( int iQuestID ) const;
+
+	/// Quest Q4b. UserQuestManager.cpp:694-765: refuse ERR_QUEST_24 when the character already holds one of the quest's accept items
+	/// ( inventory or bank ), ERR_QUEST_25 when the bag has no room, otherwise insert them; vecSlots gets the changed slots.
+	int		PayAcceptItems( const CX2QuestManager::QuestTemplet* pTemplet, OUT std::vector< KInventoryItemInfo >& vecSlots );
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 private:
@@ -389,6 +407,9 @@ private:
 	/// Quest Q4. The save key of the account's quests: -user_uid. unit_uid and user_uid are both AUTOINCREMENT from 1, so
 	/// the raw user_uid could be a unit; a negative key never is. No schema change ( unit_quest / unit_quest_complete as is ).
 	UidType									m_nAccountKey;
+
+	/// Quest Q4b. Quest id -> the slots Accept changed paying its accept items, until the NOT that carries them is built.
+	std::map< int, std::vector< KInventoryItemInfo > >	m_mapAcceptSlots;
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 };
 

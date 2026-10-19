@@ -72,7 +72,12 @@ void CX2OfflineServer::PushNewQuest( KOfflineSession& kSes,
 	{
 		KEGS_NEW_QUEST_NOT kNot;
 		kNot.m_QuestInst = vecOpened[i];
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+		// Q4b: the slots the quest's accept items changed ( 30130 is an epic that opens itself ).
+		CX2OfflineQuest::Instance()->TakeAcceptSlots( vecOpened[i].m_iID, kNot.m_vecUpdatedInventorySlot );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 		kNot.m_vecUpdatedInventorySlot.clear();
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 		Reply( kSes, EGS_NEW_QUEST_NOT, kNot );
 	}
@@ -237,7 +242,13 @@ bool CX2OfflineServer::Handler_EGS_NEW_QUEST_REQ( KOfflineSession& kSes, const K
 	// the server's templet) are not implemented: the client's own QuestTemplet
 	// has no such field, so there is nothing offline to read the list from.
 	// The vector goes out empty, which the client treats as "no items changed".
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Q4b: the templet now has m_mapAcceptRewardItem ( parsed from June's m_vecAcceptRewardItem ) and Accept paid it; the slots it
+	// changed ride this NOT as the server's m_vecUpdatedInventorySlot does.
+	CX2OfflineQuest::Instance()->TakeAcceptSlots( kReq.m_iQuestID, kNot.m_vecUpdatedInventorySlot );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	kNot.m_vecUpdatedInventorySlot.clear();
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	Reply( kSes, EGS_NEW_QUEST_NOT, kNot );
 
@@ -780,6 +791,10 @@ bool CX2OfflineServer::Handler_EGS_GIVE_UP_QUEST_REQ( KOfflineSession& kSes, con
 		true == CX2OfflineQuest::Instance()->GiveUp( kReq.m_iQuestID ) )
 	{
 		kAck.m_iOK = NetError::NET_OK;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+		// Q4b: GSUserGameCommon.cpp:1835 deletes the quest's accept items on a give-up.
+		CX2OfflineQuest::Instance()->RemoveAcceptItems( kReq.m_iQuestID, kAck.m_vecUpdatedInventorySlot );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	}
 
 	// The client does NOT arm a wait on this ACK - both AddServerPacket calls
@@ -810,6 +825,9 @@ bool CX2OfflineServer::Handler_EGS_GATHER_GIVE_UP_QUEST_REQ( KOfflineSession& kS
 			true == CX2OfflineQuest::Instance()->GiveUp( kReq.m_vecGatherQuestID[i] ) )
 		{
 			kAck.m_iOK = NetError::NET_OK;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			CX2OfflineQuest::Instance()->RemoveAcceptItems( kReq.m_vecGatherQuestID[i], kAck.m_vecUpdatedInventorySlot );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 		}
 
 		Reply( kSes, EGS_GIVE_UP_QUEST_ACK, kAck );

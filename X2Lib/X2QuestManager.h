@@ -340,6 +340,11 @@ class CX2QuestManager
 			std::vector<int>				m_vecExchangeSourceItem_ID;		// +0x128 ( case 43; June's loop is inverted, JUNE_BUGS 321, so it stays empty )
 			int								m_ePvpTournamentType;			// +0x138 ( cases 9 / 10; optional, 0 )
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+			// Q4b. m_eExceptionDungeonID: a server-only key June's client never reads ( 6 sub-quests of types 8 / 32 ). Each entry is a dungeon id + difficulty
+			// ( 43640: 100xxx / 110xxx ), the same packed number the m_eDungeonID filter uses. The emulator never counts a listed dungeon.
+			std::set<SEnum::DUNGEON_ID>		m_setExceptionDungeonID;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
 			ClearCondition()
 			{
 				m_iKillNum				= 0;
@@ -598,6 +603,11 @@ class CX2QuestManager
 			std::vector<int>				m_vecAdditionalSceneQuestID;	// +0x27c ( > 0 )
 			std::wstring					m_wstrSelectBGM;				// +0x28c ( a wstring, not a float )
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			// Q4b. m_vecAcceptRewardItem: a server-only key June's client never reads ( 7 quests ). Kept as March's server keeps it
+			// ( m_mapAcceptRewardItem, first entry of an item id wins ); the emulator pays it on accept.
+			std::map< int, int >			m_mapAcceptRewardItem;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 			QuestTemplet()
 			{
 #ifdef ADD_SERVER_GROUP

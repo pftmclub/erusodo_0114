@@ -652,6 +652,27 @@ bool CX2QuestManager::AddQuestTemplet_LUA()
 	}
 	LUA_GET_VALUE(		luaManager, "m_fSelectBGM",						pQuestTemplet->m_wstrSelectBGM,		L"" );		// @32335659, a wstring in June despite the name
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Q4b. m_vecAcceptRewardItem: no reader in June's client ( the server paid it ). Parsed as March's server does
+	// ( XSLQuestManager.cpp:121-141: both fields non-zero, map insert so the first entry of an id wins ).
+	if( luaManager.BeginTable( "m_vecAcceptRewardItem" ) == true )
+	{
+		int index = 1;
+		while( luaManager.BeginTable( index ) == true )
+		{
+			ITEM_DATA itemData;
+			LUA_GET_VALUE(	luaManager, "m_iItemID",		itemData.m_iItemID,		0 );
+			LUA_GET_VALUE(	luaManager, "m_iQuantity",		itemData.m_iQuantity,	0 );
+
+			if( 0 != itemData.m_iItemID && 0 != itemData.m_iQuantity )
+				pQuestTemplet->m_mapAcceptRewardItem.insert( std::make_pair( itemData.m_iItemID, itemData.m_iQuantity ) );
+
+			index++;
+			luaManager.EndTable();
+		}
+		luaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	if( LoadQuestCondition( luaManager, pQuestTemplet->m_Condition ) == false )
 		goto LoadFail;
 
@@ -2933,6 +2954,21 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 				//}}
 
 				LUA_GET_VALUE_RETURN(		luaManager, "m_iDungeonClearCount",	pSubQuestTemplet->m_ClearCondition.m_iDungeonClearCount,	-1, goto error_proc; );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+				// Q4b. m_eExceptionDungeonID ( types 8 / 32 / 48 share this body ): ids > 0, a dungeon id + difficulty each.
+				if( luaManager.BeginTable( "m_eExceptionDungeonID" ) == true )
+				{
+					int index	= 1;
+					int buf		= 0;
+					while( luaManager.GetValue( index, buf ) == true )
+					{
+						if( buf > 0 )
+							pSubQuestTemplet->m_ClearCondition.m_setExceptionDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+						index++;
+					}
+					luaManager.EndTable();
+				}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
 #ifdef SERV_EVENT_TITLE_SUBQUEST
 				LUA_GET_VALUE(				luaManager, "m_iUseTitleID",		pSubQuestTemplet->m_ClearCondition.m_iUseTitleID,		-1);
 				LUA_GET_VALUE_ENUM(			luaManager, "m_eDungeonRank",		pSubQuestTemplet->m_ClearCondition.m_eDungeonRank,	CX2DungeonRoom::RANK_TYPE,		CX2DungeonRoom::RT_NONE );

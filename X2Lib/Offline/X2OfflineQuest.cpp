@@ -876,6 +876,17 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 	return false;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+/*static*/ bool CX2OfflineQuest::IsExceptionDungeon( const CX2QuestManager::SubQuestTemplet* pSub, int iDungeonPlusDifficulty )
+{
+	if( NULL == pSub )
+		return false;
+
+	return pSub->m_ClearCondition.m_setExceptionDungeonID.end() !=
+		   pSub->m_ClearCondition.m_setExceptionDungeonID.find( (SEnum::DUNGEON_ID)iDungeonPlusDifficulty );
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+
 /*static*/ bool CX2OfflineQuest::IsQuestTutorialDungeon( int iDungeonID )
 {
 	// Q4 review: CXSLDungeon::IsTutorialDungeon ( XSLDungeon.cpp:820-843 ), all 15 ids. The client shares DungeonEnum.h with the
@@ -1015,6 +1026,11 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 
 		if( true == HasDungeonFilter( pOther ) && false == IsExistDungeonInSub( pOther, iDungeonID + (int)cDifficulty ) )
 			bMet = false;
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+		if( true == IsExceptionDungeon( pOther, iDungeonID + (int)cDifficulty ) )		// Q4b: the same exclusion, judged on the other step
+			bMet = false;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
 
 		if( false == bMet )
 		{
@@ -1499,8 +1515,24 @@ int CX2OfflineQuest::Accept( int iQuestID, int iTalkNPCID, const KOfflineUnitRow
 			L" allowing it", iQuestID, pTemplet->m_iRandomGroupID );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Q4b. The last refusal: the accept-time items ( UserQuestManager.cpp:694 runs it right before the DB write ). Nothing is
+	// inserted unless the quest is then taken.
+	std::vector< KInventoryItemInfo > vecAcceptSlots;
+	{
+		const int iAccept = PayAcceptItems( pTemplet, vecAcceptSlots );
+		if( NetError::NET_OK != iAccept )
+			return iAccept;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	MakeInstance( pTemplet, m_nUnitUID, kOut );
 	m_mapQuesting[ iQuestID ] = kOut;
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	if( false == vecAcceptSlots.empty() )
+		m_mapAcceptSlots[ iQuestID ] = vecAcceptSlots;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	Save( iQuestID );
 
@@ -1910,6 +1942,131 @@ bool CX2OfflineQuest::GiveUp( int iQuestID )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+//////////////////////////////////////////////////////////////////////////
+// Q4b. accept-time reward items ( June's m_vecAcceptRewardItem, March's server m_mapAcceptRewardItem )
+
+int CX2OfflineQuest::PayAcceptItems( const CX2QuestManager::QuestTemplet* pTemplet, OUT std::vector< KInventoryItemInfo >& vecSlots )
+{
+	vecSlots.clear();
+
+	if( NULL == pTemplet || true == pTemplet->m_mapAcceptRewardItem.empty() )
+		return NetError::NET_OK;
+
+	CX2OfflineInventory* pInven = CX2OfflineInventory::Instance();
+
+	if( false == pInven->IsLoaded() )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d refused: the bag is not loaded, cannot pay its %u accept item(s)",
+			pTemplet->m_iID, (unsigned int)pTemplet->m_mapAcceptRewardItem.size() );
+		return NetError::ERR_QUEST_25;
+	}
+
+	std::map< int, int >::const_iterator mit;
+
+	// UserQuestManager.cpp:698-710: an accept item the character already holds, bag or bank, refuses the quest ( ERR_QUEST_24 ).
+	// CountItemByID leaves the banks out and the emulator has none, so the answer is the same.
+	for( mit = pTemplet->m_mapAcceptRewardItem.begin(); mit != pTemplet->m_mapAcceptRewardItem.end(); ++mit )
+	{
+		if( pInven->CountItemByID( mit->first, false ) > 0 )
+		{
+			CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d refused: already holds accept item %d (ERR_QUEST_24)",
+				pTemplet->m_iID, mit->first );
+			return NetError::ERR_QUEST_24;
+		}
+	}
+
+	// :713-722 IsEnoughSpaceExist. HasRoomFor answers per item ( optimistic when two items would share the last free slot ); an
+	// item the client has no templet for is skipped below as the server skips it ( :729-736 ), so it is not asked about here.
+	for( mit = pTemplet->m_mapAcceptRewardItem.begin(); mit != pTemplet->m_mapAcceptRewardItem.end(); ++mit )
+	{
+		if( NULL == CX2OfflineInventory::Templet( mit->first ) )
+			continue;
+
+		if( false == pInven->HasRoomFor( mit->first, mit->second ) )
+		{
+			CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d refused: no room for accept item %d x %d (ERR_QUEST_25)",
+				pTemplet->m_iID, mit->first, mit->second );
+			return NetError::ERR_QUEST_25;
+		}
+	}
+
+	// :724-760 PrepareInsert. A fresh vector per item, appended: InsertItem clears the one it is handed.
+	for( mit = pTemplet->m_mapAcceptRewardItem.begin(); mit != pTemplet->m_mapAcceptRewardItem.end(); ++mit )
+	{
+		if( NULL == CX2OfflineInventory::Templet( mit->first ) )
+		{
+			CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d: accept item %d has no templet, skipped (as the server does)",
+				pTemplet->m_iID, mit->first );
+			continue;
+		}
+
+		std::vector< KInventoryItemInfo > vecChanged;
+		int iInserted = 0;
+
+		pInven->InsertItem( mit->first, mit->second, 0, vecChanged, iInserted );
+
+		for( size_t i = 0; i < vecChanged.size(); ++i )
+			vecSlots.push_back( vecChanged[i] );
+
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d paid accept item %d: %d of %d fitted",
+			pTemplet->m_iID, mit->first, iInserted, mit->second );
+	}
+
+	return NetError::NET_OK;
+}
+
+void CX2OfflineQuest::TakeAcceptSlots( int iQuestID, OUT std::vector< KInventoryItemInfo >& vecOut )
+{
+	vecOut.clear();
+
+	std::map< int, std::vector< KInventoryItemInfo > >::iterator mit = m_mapAcceptSlots.find( iQuestID );
+	if( mit == m_mapAcceptSlots.end() )
+		return;
+
+	vecOut.swap( mit->second );
+	m_mapAcceptSlots.erase( mit );
+}
+
+void CX2OfflineQuest::RemoveAcceptItems( int iQuestID, OUT std::vector< KInventoryItemInfo >& vecOut )
+{
+	vecOut.clear();
+
+	const CX2QuestManager::QuestTemplet* pTemplet = Templet( iQuestID );
+	if( NULL == pTemplet || true == pTemplet->m_mapAcceptRewardItem.empty() )
+		return;
+
+	CX2OfflineInventory* pInven = CX2OfflineInventory::Instance();
+	if( false == pInven->IsLoaded() )
+		return;
+
+	// DeleteItemAll: every copy of the item, worn ones too. A snapshot of the uids first, DeleteItem edits the inventory.
+	std::map< UidType, KInventoryItemInfo > mapAll;
+	pInven->GetAllItems( mapAll );
+
+	std::vector< UidType > vecUID;
+	std::map< UidType, KInventoryItemInfo >::const_iterator ait;
+	for( ait = mapAll.begin(); ait != mapAll.end(); ++ait )
+	{
+		if( pTemplet->m_mapAcceptRewardItem.end() != pTemplet->m_mapAcceptRewardItem.find( ait->second.m_kItemInfo.m_iItemID ) )
+			vecUID.push_back( ait->first );
+	}
+
+	for( size_t i = 0; i < vecUID.size(); ++i )
+	{
+		KInventoryItemInfo kOut;
+		if( true == pInven->DeleteItem( vecUID[i], 0, kOut ) )
+			vecOut.push_back( kOut );
+	}
+
+	if( false == vecUID.empty() )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF give up %d: removed %u row(s) of its accept items",
+			iQuestID, (unsigned int)vecOut.size() );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 //////////////////////////////////////////////////////////////////////////
 // events
 
@@ -2088,6 +2245,17 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 			{
 				continue;
 			}
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+			// Q4b ( user 2026-10-19 "follow June's" ): m_eExceptionDungeonID, a server-only key of 6 sub-quests ( types 8 / 32 ). A
+			// listed dungeon never counts. Entries are dungeon id + difficulty, the same packed number the filter above compares.
+			if( true == IsExceptionDungeon( pSub, iDungeonID + (int)cDifficulty ) )
+			{
+				CX2OfflineLog::Server( L"[JUNE_QUEST] OFF %d sub %d not counted: dungeon %d+%d is in its m_eExceptionDungeonID",
+					mit->first, iSubQuestID, iDungeonID, (int)cDifficulty );
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
 
 			bool bHit = false;
 
