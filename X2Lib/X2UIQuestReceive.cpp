@@ -2718,6 +2718,13 @@ void CX2UIQuestReceive::UpdateNewQuestNotice()
 			{
 				continue;
 			}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+			// March's old quest-receive window keeps its own copy of June's UpdateNewQuestNotice filter ( 323d4390 @323d44ca ): same quest test
+			if( false == pLocalMapTemplet->IsQuestGateOpen( L"quest notice" ) )
+			{
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 		}
 
 #if 0

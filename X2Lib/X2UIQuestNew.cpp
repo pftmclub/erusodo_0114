@@ -2994,6 +2994,13 @@ void CX2UIQuestNew::UpdateNewQuestNotice()
 			{
 				continue;
 			}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+			// June UpdateNewQuestNotice 323d4390 @323d44ca: the map joins the candidate NPC map only when ( +0x70 < 1 or its quest is complete ) too
+			if( false == pLocalMapTemplet->IsQuestGateOpen( L"quest notice" ) )
+			{
+				continue;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 		}
 
 #if 0

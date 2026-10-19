@@ -830,6 +830,31 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UI` (Always.h, needs `JUNE_QUEST_LOAD`). Log `[JU
 **Done gate:** on a unit without 22218, the Elysion tab, AD Normal and the Cobo / warp rows are closed. Completing 22218 at the dev console
 (`elsdb` or the cheat) opens them.
 
+### Q6 - Done (2026-10-19, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_GATE` (`Always.h`, no dependency). Client only; no shared struct, no save change. MODS.md "region quest gates".
+- **Parser.** `LocalMapTemplet::m_iRequireCompletedQuestID` (June `+0x70`, `32501bb0` @32502b6a, EnterCondition, default 0). `LocalMapTemplet::IsQuestGateOpen( site )` = June `32322260`
+  (`GetUnitCompleteQuest`); it logs each (site, map, state) once: `[JUNE_QUEST] GATE <site>: local map N is open|closed ( quest Q ... )`. The parser logs `local map N requires completed quest Q`.
+- **Readers (all seven of Q0a's table):**
+  - local-map tab `3293c6f0` @3293cbe0 (`X2LocalMapUI.cpp`; hides the tab, no quest mark; a GM skips it as in June);
+  - `IsActiveDungeon` second test `327da190` @327da2ea (`X2DungeonManager.cpp`; row `+0x10` is `m_DungeonID`: the offsets `+0x4c` / `+0x50` match `m_RequireDungeonID` / the extra list);
+  - warp item `32173120` @321738e3 (`X2UIInventory.cpp`) and Cobo `324627f0` @32462ffd (`X2StateMenu.cpp`; closed takes the branch that moves the list index);
+  - world map `3225d340` @3225d745 (hides the pin) and field map `3225d970` @3225dca3 (`SetEnable( false )`) in `X2WorldMapUI.cpp`;
+  - quest-notice map filter `323d4390` @323d44ca (`X2UIQuestNew.cpp`, inside the `RequireClearDungeonID` branch, as June's short-circuit), and the same filter in March's old `X2UIQuestReceive.cpp`.
+- **Data.** data035 `DungeonData.lua` (core row, `luasrc.py refresh` ledger PASS): AD Normal `m_iRequireCompleteQuestID = 22218` live; `PACK OK data035` (1 changed: DungeonData.lua).
+  `DLG_Map_Local_Elysion.lua` (June bytecode) already carries `RequireCompletedQuestID = 22218`, so no Lua edit there.
+- **User decision (2026-10-19): no stand-in** for MapData `REQUIRE_COMPLETE_QUEST_ID` / `_SUB_QUEST_ID` (22218 / 22268) or BattleFieldData `NEED_ONGOING_QUEST_ID` /
+  `BATTLE_FIELD_DIRECTION_INFO`. June's client has no reader for them (Q0a Part B). The `-- quest plan:` comments in data036 `MapData.lua` / `BattleFieldData.lua` are left as they are
+  (comment-only; a data036 pack was not worth it). The Lanox F04 portal into Atlas Station therefore stays open for every unit.
+- **`GetNPCFaceTextureKey`** was already June's (`323cc280`, Q5a: `X2UIQuestNew.cpp:4328` -> `JuneGetNPCFaceTextureKey`); nothing left.
+- **Hygiene.** `flagcheck JUNE_QUEST_GATE --worktree --files <10 files>`: files 8 PASS, 1 PASS~ (`X2DungeonManager.cpp`, one blank line outside the flag), 0 DEFINE, 1 OTHER
+  (`Always.h`: a peer's uncommitted skill-flag block move, not mine), 0 FAIL, 0 ERROR; 0 deleted lines, 0 non-ASCII, 0 EOL mismatch, 0 bare `#else`/`#endif`; RESULT: PASS.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,382,400 B, dated 2026-10-19 14:04:07, md5 e310d7d4f745f7ce893feec0800881f5, equal to X2/US_SERVICE/x2.exe (2026-10-19 14:03:58); built at main 857a2b74 + 26 uncommitted code file(s).`
+  Both strings (`RequireCompletedQuestID`, `GATE %s: local map`) are in the exe. The exe also carries peers' uncommitted work.
+- **Pending: `/x2-kom-packed copy data035`** (ask the user first, game closed). `data035_packed.kom` is packed.
+- **How to see it.** No unit has 22218. Auth level is 3 in this save and a GM sees every tab (as in June), so the tab check needs `python tools/elsdb.py setting auth_level 0`.
+  Play-test hand-off is in the Q6 hand-off message; log `python tools/logs.py --tag JUNE_QUEST --grep "GATE"`.
+
 ## Phase Q7 - Quest NPCs and houses
 
 **Run with:** Sonnet 5.5 high. Flag `SERV_IRUHADEV_JUNE_QUEST_NPC` (only if C++ changes). Sub-tag `NPC`.

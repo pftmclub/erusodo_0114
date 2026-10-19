@@ -640,8 +640,14 @@ void CX2WorldMapUI::UpdateWorldMap()
 
 			//if( pLocalMapTemplet->m_vecRequireClearDungeonID.size() > 0 )
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+				// June UpdateWorldMap 3225d340 @3225d745: the region control is hidden when level < +0x18 or ( +0x70 > 0 and the quest is not complete )
+				if( g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel ||
+					false == pLocalMapTemplet->IsQuestGateOpen( L"world map" ) )
+#else SERV_IRUHADEV_JUNE_QUEST_GATE
 				if( /*false == g_pData->GetMyUser()->GetSelectUnit()->IsClearDungeon( pLocalMapTemplet->m_vecRequireClearDungeonID ) ||*/
 					g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel )
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 				{
 					// 갈 수 없는 지역이다..
 					pControl->SetShow( false );
@@ -1097,8 +1103,14 @@ void CX2WorldMapUI::UpdateFieldMap()
 
 			//if( pLocalMapTemplet->m_vecRequireClearDungeonID.size() > 0 )
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+				// June UpdateFieldMap 3225d970 @3225dca3: enabled only when level >= +0x18 and ( +0x70 <= 0 or the quest is complete )
+				if( g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel ||
+					false == pLocalMapTemplet->IsQuestGateOpen( L"field map" ) )
+#else SERV_IRUHADEV_JUNE_QUEST_GATE
 				if( /*false == g_pData->GetMyUser()->GetSelectUnit()->IsClearDungeon( pLocalMapTemplet->m_vecRequireClearDungeonID ) ||*/
 					g_pData->GetSelectUnitLevel() < pLocalMapTemplet->m_RequireUnitLevel )
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 				{
 					pControl->SetEnable( false );
 				}

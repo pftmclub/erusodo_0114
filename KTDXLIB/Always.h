@@ -9142,6 +9142,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN needs SERV_IRUHADEV_JUNE_QUEST_OFFLINE ( the dungeon-clear driver it extends )
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+//////
+
+//////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q6 - the quest gates June's client puts on regions. The local-map templet's EnterCondition key
+//              RequireCompletedQuestID ( June parser 32501bb0 @32502b6a -> templet +0x70, 0 when absent ) is parsed, and the seven readers
+//              June tests it in ( through IsCompleteQuest 32322260 ) are ported: the local-map tab 3293c6f0 @3293cbe0, IsActiveDungeon's
+//              second test 327da190 @327da2ea, the inventory warp list 32173120 @321738e3, the Cobo warp list 324627f0 @32462ffd, the
+//              world map 3225d340 @3225d745 and field map 3225d970 @3225dca3, and the quest notice's map filter 323d4390 @323d44ca.
+//              Only DLG_Map_Local_Elysion sets the key ( 22218 ); AD Normal's m_iRequireCompleteQuestID = 22218 is uncommented in
+//              DungeonData.lua. MapData REQUIRE_COMPLETE_* and BattleFieldData NEED_ONGOING_QUEST_ID have no June client reader and get
+//              no stand-in ( user, 2026-10-19 ). Log [JUNE_QUEST] GATE. Revert: JUNE_QUEST_GATE in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_GATE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

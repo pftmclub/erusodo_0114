@@ -4476,6 +4476,17 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UI` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD
 - **Data.** data034 `DLG_UI_NEW_Quest_List` / `_Detail` / `DLG_UI_Quest_Clear` = June's (backup `kom_backup_stage_june\20261019_115132`); data036 `Enum.lua` + 10 UQNCM ids (core list, `luasrc refresh`).
 - **Revert:** comment out the define, restore the three DLGs from `24965799\kom_contents_bytecode\data034_kom\` (or the backup above), drop the 10 `UQNCM_*` lines from `Enum.lua` (`luasrc.py refresh`), `kom.py pack` data034 / data036, ask, copy; `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No save change.
 
+### June quest system: region quest gates (quest-system Q6, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_GATE` in `KTDXLIB/Always.h` (no dependency). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q6 - Done"; log tag `[JUNE_QUEST] GATE`.
+- **Client.** `X2LocationManager.h/.cpp`: `LocalMapTemplet::m_iRequireCompletedQuestID` (June templet `+0x70`, parser `32501bb0` @32502b6a, 0 when absent) and `IsQuestGateOpen( site )`
+  (June `32322260`; logs each site / map / state once). Readers: `X2LocalMapUI.cpp` tab (`3293c6f0`), `X2DungeonManager.cpp` `IsActiveDungeon` second test (`327da190`), `X2UIInventory.cpp` and
+  `X2StateMenu.cpp` warp lists (`32173120` / `324627f0`), `X2WorldMapUI.cpp` world and field map (`3225d340` / `3225d970`), `X2UIQuestNew.cpp` and `X2UIQuestReceive.cpp` quest-notice map filter (`323d4390`).
+- **Data.** data035 `DungeonData.lua` (core row): AD Normal's `m_iRequireCompleteQuestID = 22218` uncommented. `DLG_Map_Local_Elysion.lua` already carries `RequireCompletedQuestID = 22218` (June's bytecode).
+- **No stand-in (user, 2026-10-19):** MapData `REQUIRE_COMPLETE_QUEST_ID` / `_SUB_QUEST_ID` and BattleFieldData `NEED_ONGOING_QUEST_ID` / `BATTLE_FIELD_DIRECTION_INFO` stay verbatim and inert (June's client never read them).
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; comment out `m_iRequireCompleteQuestID = 22218,` in `DungeonData.lua` (data035), `luasrc.py refresh data035 DungeonData.lua`, pack and copy data035.
+  No save change.
+
 ### June GFx runtime: event scenes (june-gfx G3, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_GFX_EVENTSCENE` in `KTDXLIB/Always.h` (client only; `#error`s without `JUNE_GFX_MANAGER` and `JUNE_SOUND_AUTO_RELEASE`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G3"; log tag `[JUNE_GFX] SCENE`.

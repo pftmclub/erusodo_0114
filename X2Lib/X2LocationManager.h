@@ -499,6 +499,13 @@ class CX2LocationManager
 			vector<int>						m_vecRequireClearDungeonID;
 			bool							m_bEnable;
 			vector<SEnum::VILLAGE_MAP_ID>	m_vecFieldList;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+			//{{ Iruha : 2026-10-19 // June quest Q6 -- June local-map templet +0x70 ( parser 32501bb0 @32502b6a ): EnterCondition.RequireCompletedQuestID, 0 when absent
+			int								m_iRequireCompletedQuestID;
+			/// June 32322260 on +0x70: no quest set or the quest is complete. pwszSite_ names the reader for the one-line [JUNE_QUEST] GATE log.
+			bool							IsQuestGateOpen( const WCHAR* pwszSite_ ) const;
+			//}}
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 
 
 
@@ -515,6 +522,9 @@ class CX2LocationManager
 			{
 				m_DungeonList = vecDungeonIdList_;
 				m_vecFieldList = vecBattleFieldList_;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+				m_iRequireCompletedQuestID = 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 			}
 		};	
 

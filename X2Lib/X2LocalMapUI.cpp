@@ -1021,11 +1021,27 @@ void CX2LocalMapUI::UpdateLocalMapDLG()
 				bShowRadioButton = false;
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+			// June 3293c6f0 @3293cbe0: then the templet's RequireCompletedQuestID ( +0x70, quest manager 32322260 ): not completed ->
+			// SetShowEnable( false, false ) and no quest mark. Only June's Elysion sets it ( quest 22218 ). June does NOT test
+			// RequireClearDungeonID here ( every village sets one; it gates village entry only ). A GM never reaches this test in June
+			// ( the GM block above ends the loop body ), so the GM paging path skips it too.
+#ifdef SERV_IRUHADEV_LOCALMAP_GM_PAGING
+			if( false == bIsGM && false == pLocalMapTemplet->IsQuestGateOpen( L"local map tab" ) )
+#else SERV_IRUHADEV_LOCALMAP_GM_PAGING
+			if( false == pLocalMapTemplet->IsQuestGateOpen( L"local map tab" ) )
+#endif SERV_IRUHADEV_LOCALMAP_GM_PAGING
+			{
+				pControl->SetShowEnable( false, false );
+				bShowRadioButton = false;
+			}
+#else SERV_IRUHADEV_JUNE_QUEST_GATE
 			// June then tests the templet's RequireCompletedQuestID (+0x70, EnterCondition key,
 			// via the quest manager, FUN_32322260): not completed -> SetShowEnable(false,false) and no
 			// quest mark. Only June's Elysion sets it (quest 22218); March's templet and parser have
 			// no such field and no March region sets it, so it is omitted. June does NOT test
 			// RequireClearDungeonID here (every village sets one; it gates village entry only).
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 			if( true == bShowRadioButton )
 			{
 #ifdef QUEST_GUIDE

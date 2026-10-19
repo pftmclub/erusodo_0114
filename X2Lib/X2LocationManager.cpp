@@ -1,6 +1,10 @@
 #include "StdAfx.h"
 #include ".\x2locationmanager.h"
 #include <algorithm>
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+#include <set>
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 #ifdef SERV_IRUHADEV_RANOX_SCENE_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_RANOX_SCENE_DEBUG
@@ -19,6 +23,31 @@ m_bIsRight(true)
 	OpenScript();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+//{{ Iruha : 2026-10-19 // June quest Q6 -- the test every reader of the templet's +0x70 makes ( 32322260 = CX2QuestManager::GetUnitCompleteQuest ):
+//   June tests "+0x70 > 0 ( < 1 or == 0 at the warp lists ) and the quest is not complete" -> closed. Every id is positive, so the
+//   readers share this one test. Each ( site, map, state ) is logged once so a per-frame reader does not flood the log.
+bool CX2LocationManager::LocalMapTemplet::IsQuestGateOpen( const WCHAR* pwszSite_ ) const
+{
+	if( m_iRequireCompletedQuestID < 1 )
+		return true;
+
+	CX2QuestManager* pQuestManager = ( NULL != g_pData ) ? g_pData->GetQuestManager() : NULL;
+	const bool bOpen = ( NULL != pQuestManager && true == pQuestManager->GetUnitCompleteQuest( m_iRequireCompletedQuestID ) );
+
+	static std::set<std::wstring> s_setLogged;
+	WCHAR wszKey[128] = {0};
+	StringCchPrintf( wszKey, 128, L"%s|%d|%d", pwszSite_, (int) m_LocalMapID, bOpen ? 1 : 0 );
+	if( true == s_setLogged.insert( wszKey ).second )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] GATE %s: local map %d is %s ( quest %d %s )", pwszSite_, (int) m_LocalMapID,
+			bOpen ? L"open" : L"closed", m_iRequireCompletedQuestID, bOpen ? L"complete" : L"not complete" );
+	}
+
+	return bOpen;
+}
+//}}
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 CX2LocationManager::~CX2LocationManager(void)
 {
 	//메모리 해제 시켜줘야지?
@@ -305,6 +334,15 @@ void CX2LocationManager::LocalParsing( KLuaManager& kLuamanager, const vector< L
 			
 			int requireUnitLevel = 1;
 			LUA_GET_VALUE( kLuamanager, "RequireUnitLevel", pLocalMapTemplet->m_RequireUnitLevel, 1 );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+			// June 32501bb0 @32502b6a: RequireCompletedQuestID -> templet +0x70, 0 when absent. Only June's Elysion sets it ( 22218 ).
+			LUA_GET_VALUE( kLuamanager, "RequireCompletedQuestID", pLocalMapTemplet->m_iRequireCompletedQuestID, 0 );
+			if( 0 < pLocalMapTemplet->m_iRequireCompletedQuestID )
+			{
+				CX2OfflineLog::Server( L"[JUNE_QUEST] GATE local map %d requires completed quest %d ( RequireCompletedQuestID )",
+					localMapID, pLocalMapTemplet->m_iRequireCompletedQuestID );
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 
 			kLuamanager.EndTable(); // EnterCondition
 		}

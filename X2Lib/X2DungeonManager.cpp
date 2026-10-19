@@ -756,6 +756,19 @@ bool CX2DungeonManager::IsActiveDungeon( int iDungeonID, int iDiffLevel )
 		return false;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+	// June IsActiveDungeon 327da190 @327da2b8-327da2ea: with the location manager set ( g_pData +0x268 ), the local map the dungeon
+	// sits in ( 324f25f0 ( row +0x10 = m_DungeonID, 0 ) -> 324f2360 ) must have its +0x70 quest complete. The code-event tests June
+	// makes after it ( 0x8d4 / 0x8d5, dungeons 33330-33352 ) never fire offline ( Atlas A6 ).
+	if ( NULL != g_pData->GetLocationManager() )
+	{
+		CX2LocationManager::LocalMapTemplet* pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet(
+			g_pData->GetLocationManager()->GetLocalMapID( pkDungeonData->m_DungeonID ) );
+		if ( NULL != pLocalMapTemplet && false == pLocalMapTemplet->IsQuestGateOpen( L"dungeon enable" ) )
+			return false;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
+
 	// 몬스터 테스트용 던전은 개발자에게만
 #ifndef _SERVICE_
 	if( g_pData->GetMyUser()->GetAuthLevel() < CX2User::XUAL_DEV )

@@ -6353,7 +6353,13 @@ void CX2StateMenu::CreateWarpDest()
 	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_ELYSION );
 	if( pLocalMapTemplet != NULL )
 	{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+		// June 324627f0 @32462ffd: the level gate fails when level < +0x18 or ( +0x70 != 0 and the quest is not complete ( 32322260 ) ); both
+		// take the branch below that points the list index past the rows when the player stands in 1008 / 20009.
+		if( iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel && true == pLocalMapTemplet->IsQuestGateOpen( L"cobo warp" ) )
+#else SERV_IRUHADEV_JUNE_QUEST_GATE
 		if( iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 		{
 			pControl = m_pDLGWarpDestination->GetControl( L"Village_1008" );
 			if( pControl != NULL )

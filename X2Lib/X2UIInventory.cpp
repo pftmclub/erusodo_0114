@@ -14118,7 +14118,12 @@ void CX2UIInventory::CreateWarpDest()
 #endif SERV_IRUHADEV_RANOX_PORT
 
 	pLocalMapTemplet = g_pData->GetLocationManager()->GetLocalMapTemplet( CX2LocationManager::LMI_ELYSION );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_GATE
+	// June 32173120 @321738d2: level, then +0x70 == 0 or the quest complete ( 32322260 ): the Atlas Station / Elysion rows stay out until 22218.
+	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel && true == pLocalMapTemplet->IsQuestGateOpen( L"warp item" ) )
+#else SERV_IRUHADEV_JUNE_QUEST_GATE
 	if( pLocalMapTemplet != NULL && iMyUnitLevel >= pLocalMapTemplet->m_RequireUnitLevel )
+#endif SERV_IRUHADEV_JUNE_QUEST_GATE
 	{
 		pControl = m_pDLGWarpDestination->GetControl( L"Village_1008" );
 		if( pControl != NULL ) { pControl->SetShow( false ); AddWarpList( pControlList, row, SEnum::VMI_BATTLE_FIELD_ELYSION_REST_00 ); ++row; }
