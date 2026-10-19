@@ -203,6 +203,15 @@ void CX2EmblemManager::ParsingEmblemTemplet( KLuaManager& luaManager )
 			luaManager.EndTable();
 #endif // ADD_2013_CHARACTER_ADD_EVENT	// ±èÁ¾ÈÆ, 2013 ¾Öµå Ãß°¡ ±â³ä ¹ö´× ÀÌº¥Æ®
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifndef ADD_2013_CHARACTER_ADD_EVENT
+			/// June 32449000 @3244acef: the EndTable before the push is unconditional in June ( it closes the PLAY_SOUND_FILE_NAME_EMBLEM
+			/// table, which neither parser closes itself ). March has it only under ADD_2013_CHARACTER_ADD_EVENT ( OFF ), so after June's
+			/// first entry with sounds ( EI_OPEN_LONG_TIME_BOSS_RAID ) every later table, emblem 17 included, was looked up inside it and lost.
+			/// KLuaManager::EndTable stops at depth 0, so an entry without the table is safe ( as in June ).
+			luaManager.EndTable();
+#endif ADD_2013_CHARACTER_ADD_EVENT
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 			m_vecEmblemTemplet.push_back( pEmblemTemplet );
 
 			luaManager.EndTable();
@@ -221,6 +230,12 @@ void CX2EmblemManager::ParsingEmblemTemplet( KLuaManager& luaManager )
 		return rhs_->m_uiShowOrder > lhs_->m_uiShowOrder;
 	};	
 	std::sort( m_vecEmblemTemplet.begin(), m_vecEmblemTemplet.end(), SortFunc );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM parsed %d of %d listed emblem(s); emblem 17 loaded = %d",
+		static_cast<int>( m_vecEmblemTemplet.size() ), static_cast<int>( vecEmblemTempletNameUTF8.size() ), HasEmblem( EI_GET_NEW_SKILL_OR_MEMO ) ? 1 : 0 );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 
 }
 
