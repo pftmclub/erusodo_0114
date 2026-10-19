@@ -746,6 +746,34 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 
 	CX2OfflineDB* pDB = CX2OfflineDB::Instance();
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4b. The select-time quest sweep runs HERE, before _1_NOT snapshots the bag: a quest that pays accept items ( 30340 opens
+	// from 30330's after-quest list ) puts them in the inventory while it opens, and the bag in _1_NOT was already sent when the
+	// sweep ran inside the _2_NOT block - the item was in the save and not on the client. The opened quests still travel in _2_NOT's list.
+	{
+		CX2OfflineQuest* pQuestPre = CX2OfflineQuest::Instance();
+
+		pQuestPre->Load( kRow.m_nUnitUID );
+
+		std::vector< KQuestInstance > vecOpenedPre;
+		std::vector< KCompleteQuestInfo > vecDonePre;
+		pQuestPre->GetCompleteQuests( vecDonePre );
+
+		for( size_t d = 0; d < vecDonePre.size(); ++d )
+			pQuestPre->CheckAutoOpen( CX2OfflineQuest::AOP_AFTER_QUEST, vecDonePre[d].m_iQuestID, kRow, vecOpenedPre );
+
+		pQuestPre->CheckAutoOpen( CX2OfflineQuest::AOP_BEFORE_QUEST, 0, kRow, vecOpenedPre );
+		pQuestPre->CheckAccountOpen( kRow, vecOpenedPre );
+
+		// The bag snapshot below carries the paid items, so the slot lists are not sent again.
+		for( size_t o = 0; o < vecOpenedPre.size(); ++o )
+		{
+			std::vector< KInventoryItemInfo > vecDrop;
+			pQuestPre->TakeAcceptSlots( vecOpenedPre[o].m_iID, vecDrop );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	//////////////////////////////////////////////////////////////////////////
 	// 1 - unit, inventory, skills
 	{
@@ -873,6 +901,9 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 		// (UserQuestManager.cpp:358-365), which is *before* _2_NOT is built - so
 		// a quest opened here arrives as part of the list rather than as a
 		// separate EGS_NEW_QUEST_NOT, and needs no packet of its own.
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+		// Quest Q4b: the sweep already ran before _1_NOT ( above ); the quests it opened are in pQuest and in the lists below.
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 		{
 			std::vector< KQuestInstance > vecOpened;
 
@@ -898,6 +929,7 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 			pQuest->CheckAccountOpen( kRow, vecOpened );
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 		}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 		pQuest->GetQuestInstances( kNot.m_vecQuest );
 		pQuest->GetCompleteQuests( kNot.m_vecCompletQuest );
