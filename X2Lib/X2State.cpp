@@ -2064,6 +2064,25 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				g_pKTDXApp->SendGameMessage( XGM_QUIT_GAME, NULL, NULL, false );
 			}break;
 #endif //SERV_ACCOUNT_BLOCK_MESSAGE_RENEWAL // ACCOUNT_BLOCK_MESSAGE_RENEWAL_KR
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+	case SUCM_JUNE_TITLE_TEN_OK:
+		{
+			/// June 31f26bfb: close the box ( 31be4210( 0x472 = XGM_DELETE_DIALOG ) on the control's dialog ), then 327009b0
+			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
+			if( NULL != pControl )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pControl->GetDialog(), NULL, false );
+			if( NULL != g_pData->GetTitleManager() )
+				g_pData->GetTitleManager()->JuneEquipTitleTen();
+		} break;
+	case SUCM_JUNE_TITLE_TEN_CANCEL:
+		{
+			/// June 31f26c45: close the box, then title manager +0xac = 0 ( June does not test the manager for null )
+			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
+			if( NULL != pControl )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pControl->GetDialog(), NULL, false );
+			g_pData->GetTitleManager()->JuneCancelTitleTen();
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 	}
 
 

@@ -352,9 +352,18 @@ public:
     void TakeTitle(std::vector<KTitleInfo> vecTitleInfo);
     bool UpdateTitle(KTitleInfo ktitleInfo, int iState);
     bool UpdateTitle(int iTitleId, int iState, bool bInfinity = true);
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+    bool UpdateMission(std::vector< KMissionInstance > vecMisstionInfo, bool bFirst_ = true);	/// June 32700d20 ( select unit 3257bfbc passes true )
+#else SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
     bool UpdateMission(std::vector< KMissionInstance > vecMisstionInfo);
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
     void UpdateSubMission(int iMissionId, std::vector< KSubMissionInstance > vecSubMission);
     void UpdateClearCondition(KSubMissionInstance kSubMission);
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+	void JunePushTitleNotice( int iTitleID_, int iKind_ );	/// June 326f88a0: 0 = mission opened ( +0xc0 ), 1 = title earned ( +0xb0 )
+	void JuneEquipTitleTen();								/// June 327009b0: the "apply title now?" OK ( SUCM 3085 )
+	void JuneCancelTitleTen() { m_iJuneTitleTenPrompt = 0; }	/// June 31f26c7c: its Cancel ( SUCM 3086 )
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
     bool GetTakeTitle(int titleid);
 	void EqipTitle(int titleid);
@@ -384,6 +393,13 @@ private:
 #ifdef SHOW_NEW_TITLE_NAME
 	wstring m_strNewTitle;
 #endif //SHOW_NEW_TITLE_NAME
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+	int								m_iJuneTitleTenPrompt;		/// June +0xac: 10 once title 10 is earned ( the 43200 box ), 0 after the equip ACK or Cancel
+	std::vector<const TitleInfo*>	m_vecJuneNewTitle;			/// June +0xb0: earned titles not shown yet ( emblem 18, key 1 )
+	std::vector<const TitleInfo*>	m_vecJuneNewMission;		/// June +0xc0: opened title missions not shown yet ( emblem 18, key 0 )
+	std::set<int>					m_setJuneNoticedMission;	/// June +0xd0: mission ids queued or owned
+	std::set<int>					m_setJuneNoticedTitle;		/// June +0xe0: title ids queued or owned
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
 //#if 0 // ÄªÈ£ ÇÁ¸®ºä
 //    CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeqEmblem;

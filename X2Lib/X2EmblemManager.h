@@ -261,6 +261,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 	void JuneAddExpandTexture( EMBLEM_ID eEmblemID_, const EmblemExpandTexture& sExpandTexture_ );	/// June 32448fd0
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+	void JunePushTitleNotice( const CX2TitleManager::TitleInfo* pTitleInfo_, int iKey_ );	/// June 3244adb0: map +0x78[ key ].push_back ( 1 earned, 0 mission opened )
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
 #ifdef EVENT_NEW_HENIR
 	bool IsBurningEventTime() const;
@@ -298,6 +301,11 @@ private:
 	bool JuneIsExpandTextureLive() const;									/// June 3244c8c0 ( the +0x44 alive test before the pick )
 	void JuneDestroyExpandTexture();										/// June 324485d0 / 3244c8c0 ( the +0x44 destroy loop )
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+	void JuneShowNewTitle();																	/// June 3244c2b0
+	void JuneSetNewTitleIcon( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_ );				/// June 32448420
+	void JuneSetNewTitleText( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_, int iKey_ );	/// June 3244bfb0
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 
 private:
 	CX2EmblemManager();
@@ -319,6 +327,9 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 	std::vector<CKTDGParticleSystem::CParticleEventSequenceHandle>	m_vecJuneExpandHandle;	/// June +0x44: the shown expand textures
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+	std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >	m_mapJuneTitleNotice;	/// June +0x74 / +0x78 ( ctor 3244bd00 ): key 1 earned titles, key 0 opened missions
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP		// ±èÁ¾ÈÆ, ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå Ãâ·Â ±â´É Ãß°¡
 	float m_fSoundPlayingCheckTime;
 	vector<EmblemPopupSound>	m_vecNowPlayEmblemSound;

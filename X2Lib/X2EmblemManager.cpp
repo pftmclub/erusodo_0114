@@ -988,11 +988,142 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 			}
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+	case EI_NEW_TITLE_INFO_NOTICE:
+		{
+			/// June 3244c4b0 case 0x12: with the dialog open, show up to two rows ( 3244c2b0 ); then key 1 missing -> +6 = 0 ( = EndEmblem ),
+			/// key 1 non-empty -> shows again ( +6 = 1, +0x63 = 0 = PlayEmblem( id, true ) ); key 0 non-empty -> shows again
+			if( NULL != m_hJuneEmblemDialog )
+				JuneShowNewTitle();
+
+			int iLeft1 = -1;
+			int iLeft0 = -1;
+			std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >::const_iterator mit = m_mapJuneTitleNotice.find( 1 );
+			if( m_mapJuneTitleNotice.end() == mit )
+			{
+				EndEmblem( EI_NEW_TITLE_INFO_NOTICE );
+			}
+			else
+			{
+				iLeft1 = static_cast<int>( mit->second.size() );
+				if( false == mit->second.empty() )
+					PlayEmblem( EI_NEW_TITLE_INFO_NOTICE, true );
+			}
+
+			mit = m_mapJuneTitleNotice.find( 0 );
+			if( m_mapJuneTitleNotice.end() != mit )
+			{
+				iLeft0 = static_cast<int>( mit->second.size() );
+				if( false == mit->second.empty() )
+					PlayEmblem( EI_NEW_TITLE_INFO_NOTICE, true );
+			}
+#ifdef SERV_IRUHADEV_OFFLINE
+			CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM title notice: dialog %d, left key 1 = %d, key 0 = %d ( -1 = no key )",
+				NULL != m_hJuneEmblemDialog ? 1 : 0, iLeft1, iLeft0 );
+#endif SERV_IRUHADEV_OFFLINE
+		} break;
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 	default:
 		{
 		} break;
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+/// June 3244adb0 ( from CX2TitleManager::CheckNewTitle 32701960 ): a null title is skipped, else map +0x78[ key ].push_back
+void CX2EmblemManager::JunePushTitleNotice( const CX2TitleManager::TitleInfo* pTitleInfo_, int iKey_ )
+{
+	if( NULL == pTitleInfo_ )
+		return;
+	m_mapJuneTitleNotice[ iKey_ ].push_back( pTitleInfo_ );
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM title queued: key %d, title %d", iKey_, pTitleInfo_->m_iTitleID );
+#endif SERV_IRUHADEV_OFFLINE
+}
+
+/// June 3244c2b0: hide both rows ( 32447b50, the body of 32447aa0 ), then fill up to two rows from key 1 ( earned ) and return;
+/// only when key 1 is missing or empty, the same from key 0 ( mission opened ). Each row pops the front ( ten tries at most ).
+void CX2EmblemManager::JuneShowNewTitle()
+{
+	JuneShowNewSkillOrMemoRows( false );
+
+	int iRow = 0;
+	for( int iKey = 1; iKey >= 0; --iKey )
+	{
+		std::map< int, std::deque< const CX2TitleManager::TitleInfo* > >::iterator mit = m_mapJuneTitleNotice.find( iKey );
+		if( m_mapJuneTitleNotice.end() == mit || true == mit->second.empty() )
+			continue;
+
+		std::deque< const CX2TitleManager::TitleInfo* >& deqTitle = mit->second;
+		for( int iTry = 0; iTry < 10; ++iTry )
+		{
+			const CX2TitleManager::TitleInfo* pTitleInfo = deqTitle.front();
+			JuneSetNewTitleIcon( pTitleInfo, iRow );
+			JuneSetNewTitleText( pTitleInfo, iRow, iKey );
+#ifdef SERV_IRUHADEV_OFFLINE
+			CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM title row %d: key %d, title %d", iRow, iKey,
+				NULL != pTitleInfo ? pTitleInfo->m_iTitleID : 0 );
+#endif SERV_IRUHADEV_OFFLINE
+			++iRow;
+			if( false == deqTitle.empty() )
+				deqTitle.pop_front();
+			if( 2 <= iRow || true == deqTitle.empty() )
+				break;
+		}
+		return;
+	}
+}
+
+/// June 32448420: the row's picture 1 takes GetTitleModel( id ) + ".tga" ( 326f8400 on g_pData +0x28c ), and the row is shown
+void CX2EmblemManager::JuneSetNewTitleIcon( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_ )
+{
+	if( NULL == m_hJuneEmblemDialog )
+		return;
+
+	WCHAR wszName[64] = L"";
+	StringCchPrintfW( wszName, 64, L"%s%d", L"g_pStaticIcon", iIndex_ + 1 );
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hJuneEmblemDialog->GetControl( wszName ) );
+	if( NULL == pStatic )
+		return;
+
+	CKTDGUIControl::CPictureData* pPicture = pStatic->GetPicture( 1 );
+	if( NULL == pPicture )
+		return;
+
+	wstring wstrIcon = g_pData->GetTitleManager()->GetTitleModel( pTitleInfo_->m_iTitleID );
+	wstrIcon += L".tga";
+	pPicture->SetTex( wstrIcon.c_str() );
+	pStatic->SetShow( true );
+}
+
+/// June 3244bfb0: key 1 -> string 17352 ( "L", the title's name, +0xc ), key 0 -> string 757, any other key -> nothing;
+/// string 0 takes the text and the row is shown only when the static has a string 0 ( no line break, unlike 324486c0 )
+void CX2EmblemManager::JuneSetNewTitleText( const CX2TitleManager::TitleInfo* pTitleInfo_, int iIndex_, int iKey_ )
+{
+	if( NULL == m_hJuneEmblemDialog )
+		return;
+
+	WCHAR wszName[64] = L"";
+	StringCchPrintfW( wszName, 64, L"%s%d", L"g_pStaticIcon", iIndex_ + 1 );
+	CKTDGUIStatic* pStatic = static_cast<CKTDGUIStatic*>( m_hJuneEmblemDialog->GetControl( wszName ) );
+	if( NULL == pStatic )
+		return;
+
+	wstring wstrText = L"";
+	if( 0 == iKey_ )
+		wstrText = GET_STRING( STR_ID_757 );
+	else if( 1 == iKey_ )
+		wstrText = GET_REPLACED_STRING( ( STR_ID_17352, "L", pTitleInfo_->m_wstrTitleName ) );
+	else
+		return;
+
+	CKTDGUIControl::UIStringData* pString = pStatic->GetString( 0 );
+	if( NULL != pString )
+	{
+		pString->msg = wstrText;
+		pStatic->SetShow( true );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 bool CX2EmblemManager::HasEmblem( EMBLEM_ID eEmblemID_ )
 {	
 	BOOST_FOREACH( const EmblemTemplet* pEmblem, m_vecEmblemTemplet)

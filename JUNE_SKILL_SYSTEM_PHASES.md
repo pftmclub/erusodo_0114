@@ -2184,6 +2184,38 @@ Funcmap tag `Skill S7l`. JUNE_BUGS 344-346. Revert: `MODS.md` "The rest of June'
 the manager's map `+0x78` push `3244adb0`, and case 0x12 of `3244c4b0` (`3244c2b0` / `32447b50` / `32448420` / `3244bfb0`), on March's title system.
 Kickoff `kickoffs/skill-system-core/S7n.md`.
 
+### Phase S7n - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE` (`Always.h` only; `#error` without `_EMBLEM_MANAGER` / `_LEVEL_EMBLEM`). Funcmap tag `Skill S7n`. JUNE_BUGS 348-351.
+Revert: `MODS.md` "June's new-title notice". Log `[JUNE_SKILL] EMBLEM title ...` (queued / row / notice).
+- **The feed `32701960` = March's `CX2TitleManager::CheckNewTitle`, ported whole** (March body in `#else`). `+0x37` / `+0x38` = `m_bShowNewTitle` / `m_bNewOpenMission`
+  (word clears both). Gate `@327019b5`: either flag and select-unit level < 5 -> both flags and both lists dropped. Titles (`+0xb0`, key 1): June states 9 / 0xc / 0xd /
+  0x12 / 0x13 / 0x18 keep them (March's PVP_GAME / PVP_RESULT / DUNGEON_RESULT / TRAINING_GAME / _RESULT); 0xb / 0x17 (DUNGEON_GAME) push + `PlayEmblem( 18, true )`;
+  any other state the same, then title 10's box (`+0xac == 10`: OK/Cancel at ( -999, -999 ), string 43200 "Apply title now?", messages 3085 / 3086 to the state); then
+  the play guide (`g_pData +0x338` = PlayGuide, `g_pMain +0x7ec` = key pad, `31f5ee50( 0x14 )` = `GetKeyString( GAMEACTION_INFO )`, `3289db40( 10, 1 )` = `PGT_OBTAIN_TITLE`; = March).
+  Missions (`+0xc0`, key 0): skip set + 0x1a, every other state pushes; then clear + `PlayEmblem( 18, true )`. The five pushes / four plays of the kickoff are these.
+- **Where the lists come from (June changed March's functions, ported whole):** `326f88a0` = `JunePushTitleNotice( id, kind )`: kind 0 (mission) - a `TT_EVENT` title clears
+  both flags, set `+0xd0` dedups, push the TitleInfo; kind 1 (title) - set `+0xe0` dedups. June's map holds TitleInfo by value (`+0x10`: id, type `+0x18`, name `+0x1c`,
+  particle `+0x54`); March queues `it->second`. Callers: REWARD_TITLE_NOT `32700700` (UpdateTitle, `m_bNewTitle`, push kind 1; title 10390 with nothing equipped ->
+  equip REQ `327006b0` = March's; title 10 -> `+0xac = 10`; events 0x834 / 0x835 auto-equip through June's event map `g_pInstanceData +0xa18`: none in March, not ported);
+  UpdateMission `32700d20` gains `bFirst` (`!bFirst && UpdateTitle` -> push kind 0; select unit `3257bfbc` passes true = the default); NEW_MISSION_NOT `32701700` passes
+  `m_bFirst`; TakeTitle `326ff600` = March + both sets seeded with owned ids. UpdateTitle `326f86d0` / `326f8470`: record fields and secret rule = March.
+- **Title 10's box:** OK `31f26bfb` closes the box and runs `327009b0` (`JuneEquipTitleTen`: nothing equipped -> equip REQ); Cancel `31f26c45` closes it and clears `+0xac`
+  (`SUCM_JUNE_TITLE_TEN_OK / _CANCEL = 3085 / 3086`, March's SUCM ends at 3031). EQUIP_TITLE_ACK `327032c0 @32703350`: `+0xac` set -> `ToggleUI( 0x13 = UI_MENU_CHARINFO, true )`
+  (June's case at `32158bf2` = March's CHARINFO body; June's arg 1 is unread there), `+0xac = 0`.
+- **Emblem manager:** map `+0x74 / +0x78` = `map< int, deque< const TitleInfo* > >`; `3244adb0` push (null skipped); case 0x12: dialog open -> `3244c2b0`; key 1 missing ->
+  `EndEmblem` (+6 = 0), key 1 / key 0 non-empty -> `PlayEmblem( 18, true )`. `3244c2b0`: hide rows (`32447b50` = `32447aa0`'s body, byte-compared), up to two rows from key 1
+  and return, else from key 0; front + pop, ten tries. `32448420`: picture 1 = `GetTitleModel( id )` (`326f8400`) + `.tga`, shown. `3244bfb0`: key 1 -> 17352 ( "L", name ),
+  key 0 -> 757, string 0 set and row shown only when string 0 exists (no line break). Data: June's `Emblem_Manager.lua` (S7i) has emblem 18 for village / field / dungeon.
+- **Strings** (deployed `general.ess` = June's, md5 1c039a0b): 757 "A new title has been unlocked.", 17352 "Acquired '@1' title!", 43200 "Apply title now?".
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE --worktree --files <7 files>`: `files: 5 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`
+  (OTHER = peers' uncommitted blocks in `Always.h` and `X2State.cpp`: S7h `JUNE_SKILL_CLASS_CHANGE`, quest flags).
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,389,568 B, dated 2026-10-19 14:15:23, md5 5b3e8252d9fd53faffc492745a69ed5f, equal to X2/US_SERVICE/x2.exe (2026-10-19 14:15:15); built at main d3c30f58 + 21 uncommitted code file(s).`
+  (COALESCED into a peer's build that started after the S7n edits.) The `[JUNE_SKILL] EMBLEM title queued / row / notice` strings are in the exe.
+- **Open questions:** none. Not ported (no March home): the event-map auto-equip (0x834 / 0x835) and emblem 0x14 (achievements, S7l).
+
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.

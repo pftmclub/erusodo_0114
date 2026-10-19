@@ -9286,3 +9286,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
 #endif SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7n: June's new-title notice, emblem 18 EI_NEW_TITLE_INFO_NOTICE. CX2TitleManager queues
+//              earned titles and opened title missions ( June 326f88a0, dedup sets seeded by TakeTitle 326ff600 ), CheckNewTitle is
+//              June's 32701960 whole ( level < 5 drops them, the emblem shows two per pop, title 10 asks "apply title now?" ), and
+//              the emblem manager's map +0x78 / case 0x12 ( 3244adb0 / 3244c2b0 / 32448420 / 3244bfb0 ) draws icon + text rows.
+#define SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#error SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE needs SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER ( S7l's emblem pick and dialog )
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#ifndef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#error SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE needs SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM ( EI_NEW_TITLE_INFO_NOTICE, the LUA_FILE_NAME dialog, 32447aa0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+//////////////////////////////////////////////////////////////////////////

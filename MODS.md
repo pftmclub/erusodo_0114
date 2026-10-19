@@ -4320,6 +4320,16 @@ Flags `SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE` in `KTDXLIB/Always.h` **and** `Knc
 - **Revert:** comment out both `CLASS_CHANGE` defines together (and/or `RELATION_UNEQUIP`, `CLASS_POPUP`, `CLASS_ITEM_CHOICE`), `touch X2Lib/stdafx.cpp`,
   `python tools/build.py --deploy`. The data095 file is harmless if left (or remove it, `kom.py pack data095`, ask, copy). No save change.
 
+### June's new-title notice (skill-system-core S7n, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE` in `KTDXLIB/Always.h` (`#error` guards: `_EMBLEM_MANAGER`, `_LEVEL_EMBLEM`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7n";
+log tag `[JUNE_SKILL] EMBLEM title`.
+- **Client.** `X2TitleManager.*`: earned titles and opened title missions are queued once (June `326f88a0`, sets seeded by `TakeTitle`), `CheckNewTitle` is June's
+  `32701960` (level < 5 drops them; emblem 18 `EI_NEW_TITLE_INFO_NOTICE` instead of the info text / chat line / OK box; title 10 asks "Apply title now?"),
+  REWARD_TITLE_NOT / NEW_MISSION_NOT / UpdateMission / EQUIP_TITLE_ACK as June has them; `X2State.*`: custom messages 3085 / 3086 (the box's OK / Cancel);
+  `X2EmblemManager.*`: map `+0x78` and case 0x12 draw two icon + text rows per pop in `DLG_Get_New_Skill_or_Memo.lua`.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June's level-up new-skill emblem (skill-system-core S7i, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` in `KTDXLIB/Always.h` (`#error` guards: `NEW_EMBLEM_MANAGER`, `_SKILL_NOTE`, `_SKILL_TEMPLET`, `_SOCKET_PARITY`). Plan
