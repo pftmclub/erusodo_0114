@@ -732,7 +732,12 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		bool			IsClearDungeon( int iDungeonID );
 		bool			IsClearDungeon( vector<int> &vecDungeonId );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+		float			ResetMaxMp( const float fMaxMp_, const int iJuneEquipGroup_ = 0 );    /// June 3234b9d0
+		float			JuneGetMaxMpSkillValue( const int iSkillID_ ) const;                /// one skill block of 3234b9d0
+#else SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 		float			ResetMaxMp( const float fMaxMp_ );
+#endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 
 		CX2PVPEmblem::PVP_EMBLEM GetPVPEmblem()	
 		{ 

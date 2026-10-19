@@ -1131,6 +1131,56 @@ float CX2Inventory::GetAddMaxMPValue() const
 
 	return fAddMaxMPValue;
 }
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+/// June 32869f80: GetAddMaxMPValue with a slot filter. The equipped list ( +0xf4 ) is walked; slot ids 1 / 3 / 5 / 7 / 9 always count,
+/// any other slot counts only when ( group != 0 ) equals ( slot id in 0x14..0x22, 0x24, 0x26, 0x28, 0x2a ) ( June's second character's
+/// slots ). The value is the templet's added max MP ( item +0xc0, templet +0x28 ). March's equipped slots are 0..19, so with group 0
+/// every equipped item counts, as in GetAddMaxMPValue.
+float CX2Inventory::JuneGetAddMaxMPValue( const int iJuneEquipGroup_ ) const
+{
+	float fAddMaxMPValue = 0.0f;
+
+	map< int, InvenSlotData* >::const_iterator mItr;
+	for( mItr = m_ItemMap[ST_E_EQUIP].begin(); mItr != m_ItemMap[ST_E_EQUIP].end(); ++mItr )
+	{
+		const InvenSlotData* pInvenSlotData = mItr->second;
+		if ( NULL == pInvenSlotData )
+			continue;
+
+		switch ( pInvenSlotData->m_SlotID )
+		{
+		case 1:
+		case 3:
+		case 5:
+		case 7:
+		case 9:
+			break;
+
+		default:
+			{
+				bool bSecondGroup = false;
+				switch ( static_cast<short>( pInvenSlotData->m_SlotID ) )
+				{
+				case 0x14: case 0x15: case 0x16: case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b:
+				case 0x1c: case 0x1d: case 0x1e: case 0x1f: case 0x20: case 0x21: case 0x22:
+				case 0x24: case 0x26: case 0x28: case 0x2a:
+					bSecondGroup = true;
+					break;
+				}
+
+				if ( ( 0 != iJuneEquipGroup_ ) != bSecondGroup )
+					continue;
+			}
+			break;
+		}
+
+		if ( NULL != pInvenSlotData->m_pItem && NULL != pInvenSlotData->m_pItem->GetItemTemplet() )
+			fAddMaxMPValue += pInvenSlotData->m_pItem->GetItemTemplet()->GetAddMaxMP();
+	}
+
+	return fAddMaxMPValue;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 //}} kimhc // 2009-10-19 // 최대 MP 증가 값 얻어오기
 
 //{{ kimhc // 2010-01-04 // 기존의 EGS_SELECT_UNIT_ACK에 인벤정보가 포함되어 오던 것 분할

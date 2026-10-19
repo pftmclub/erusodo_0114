@@ -33178,6 +33178,34 @@ void CX2GUUser::ResetMaxHP()
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+/// June 31fd2810 ( CX2GUUser::ResetMaxMP ): m_AdditionalMaxMp ( +0x6338 ) basic 300 ( 3344f348 ); the unit's ResetMaxMp( 300, 0 )
+/// ( 3234b9d0 ); rate = 32358970( 5 ) x 0.01 ( 334436a0 ) + m_SocketData stat[1] ( m_fIncreaseMPRate ); option =
+/// ( max + ( max x rate + m_iAddMPValue ( +0x22c ) ) ) - 300 ( 334577c8 ); CheckAndUpdateResultValue; SetMaxMp ( vslot 0xe0 ) of the
+/// result. 32358970 is June's per-CX2Unit ability map, 0 in March ( Buff Phase 16 ). June has no LIMITED_MANA block ( dead in March
+/// too, FIX_LIMITED_MANA_MANAGEMENT ). The type-10 override 32b0fa90 ( second gage ) has no March class.
+void CX2GUUser::ResetMaxMP()
+{
+	const float fMaxMp = ONE_CHARGE * 3.0f;
+
+	m_AdditionalMaxMp.SetBasicStatValue( fMaxMp );
+
+	const float fResultMaxMp = GetUnit()->ResetMaxMp( fMaxMp, 0 );
+	const float fJuneAbilityRate = 0.f;     /// 32358970( 5 ) x 0.01
+	const float fRate = fJuneAbilityRate + m_SocketData.m_Stat.m_ExtraStat.m_fIncreaseMPRate;
+	const float fMaxMpWithSocket = fResultMaxMp + ( fResultMaxMp * fRate + m_SocketData.m_iAddMPValue );
+
+	m_AdditionalMaxMp.SetOptionValue( fMaxMpWithSocket - fMaxMp );
+	m_AdditionalMaxMp.CheckAndUpdateResultValue();
+
+	SetMaxMp( m_AdditionalMaxMp.GetResultValue() );
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] MAXMP uid %I64d: skills + equips %.1f ( base 300 ), socket rate %.3f, add %d -> max MP %.1f",
+		GetUnit()->GetUID(), fResultMaxMp - fMaxMp, fRate, m_SocketData.m_iAddMPValue, m_AdditionalMaxMp.GetResultValue() );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#else SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 void CX2GUUser::ResetMaxMP()
 {
 	//SetMaxMP( ONE_CHARGE * 3.f );
@@ -33227,6 +33255,7 @@ void CX2GUUser::ResetMaxMP()
 
 	SetMaxMp( m_AdditionalMaxMp.GetResultValue() );
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 
 
 

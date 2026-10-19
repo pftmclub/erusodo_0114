@@ -166,6 +166,9 @@ private:
 
 		//{{ kimhc // 2009-10-19 // 최대 MP 증가 값 얻어오기
 		float		GetAddMaxMPValue() const;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+		float		JuneGetAddMaxMPValue( const int iJuneEquipGroup_ ) const;    /// June 32869f80
+#endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 		//}} kimhc // 2009-10-19 // 최대 MP 증가 값 얻어오기
 
 		//{{ kimhc // 2009-08-07 // 캐릭터별 은행

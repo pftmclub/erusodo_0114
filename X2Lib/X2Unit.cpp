@@ -929,6 +929,70 @@ bool CX2Unit::IsClearDungeon( vector<int> &vecDungeonId )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+/// June 3234b9d0 ( CX2Unit::ResetMaxMp( float, int ) ): SA_MAX_MP_ABS ( 0x15 ) of 19 passives, each read as
+/// GetSkillLevel( id, true, 0, true ) ( 32890620( id, 1, 0, 1 ) on +0x494 ), GetSkillTemplet( id ) ( 32206450( id, 1 ) ) and
+/// GetSkillAbilityValue( SA_MAX_MP_ABS, level, false ) ( 32206e50( 0x15, level, 0, 0.0 ) ), summed in June's order with the equipment
+/// term ( 32869f80, inventory +0x2a4 ) after the 7th skill. June skips that term in XS_PVE_GAME / XS_PVE_RESULT ( 31d717d0: state
+/// 23 / 24 ); March has no PVE state, so it is always summed. 17 of the 19 ids are June-only RNSI_* names ( June Enum.lua );
+/// March's 2402 / 5402 / 5410 / 7402 are not in June's skill data any more.
+float CX2Unit::ResetMaxMp( const float fMaxMp_, const int iJuneEquipGroup_ )
+{
+	static const int s_aJuneMaxMpSkillBeforeEquip[] =
+	{
+		22401,  /// RNSI_P_AEM_UNLIMIT_MANA
+		25405,  /// RNSI_P_EAT_QUEENS_POTENTIAL
+		25414,  /// RNSI_P_ECB_ADVANCED_EL_ENERGY_REACTOR
+		27400,  /// RNSI_P_ALH_FILLED_POWER
+		2411,   /// SI_P_AVP_MAGIC_AMPLIFICATION
+		2415,   /// SI_P_ADW_SPIRIT_ACCELERATION
+		27410,  /// RNSI_P_ALS_FILLED_POWER
+	};
+	static const int s_aJuneMaxMpSkillAfterEquip[] =
+	{
+		30402,  /// RNSI_P_LLC_COMMUNION_EXPAND
+		29406,  /// RNSI_P_AAT_HIDDEN_MEMORY
+		29410,  /// RNSI_P_ATT_NASOD_ARMOR_MODE
+		31415,  /// RNSI_P_ROM_MECA_GENERATOR
+		23401,  /// RNSI_P_RWS_FRIENDSHIP_OF_NATURE
+		23406,  /// RNSI_P_RGA_COMMUNE_OF_NATURE
+		23408,  /// RNSI_P_RTR_HUNTERS_ABILITY
+		30412,  /// RNSI_P_LDB_COMMUNION_ABSORB
+		22408,  /// RNSI_P_ABM_FITNESS
+		32401,  /// RNSI_P_ALE_SEQUENCE_TRACE
+		32408,  /// RNSI_P_AEE_INNER_GROW
+		32414,  /// RNSI_P_AAP_AWAKENING
+	};
+
+	float fResultMaxMp = fMaxMp_;
+
+	for ( int i = 0; i < static_cast<int>( ARRAY_SIZE( s_aJuneMaxMpSkillBeforeEquip ) ); ++i )
+		fResultMaxMp += JuneGetMaxMpSkillValue( s_aJuneMaxMpSkillBeforeEquip[i] );
+
+	/// 31d717d0 ( June PVE state ) is never true in March
+	fResultMaxMp += GetInventory().JuneGetAddMaxMPValue( iJuneEquipGroup_ );
+
+	for ( int i = 0; i < static_cast<int>( ARRAY_SIZE( s_aJuneMaxMpSkillAfterEquip ) ); ++i )
+		fResultMaxMp += JuneGetMaxMpSkillValue( s_aJuneMaxMpSkillAfterEquip[i] );
+
+	return fResultMaxMp;
+}
+
+/// One block of June 3234b9d0: 0 unless the skill is learned ( base level > 0 ) and has a templet.
+float CX2Unit::JuneGetMaxMpSkillValue( const int iSkillID_ ) const
+{
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ );
+	const int iSkillLevel = GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, true, 0, true );
+	if ( iSkillLevel <= 0 )
+		return 0.f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+	if ( NULL == pSkillTemplet )
+		return 0.f;
+
+	return pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MAX_MP_ABS, iSkillLevel, false );
+}
+#else SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 float CX2Unit::ResetMaxMp( const float fMaxMp_ )
 {
 	float fResultMaxMp = fMaxMp_;
@@ -1089,6 +1153,7 @@ float CX2Unit::ResetMaxMp( const float fMaxMp_ )
 
 	return fResultMaxMp;
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 
 CX2Stat::Stat CX2Unit::GetUnitStat() const
 {

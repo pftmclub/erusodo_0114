@@ -8905,3 +8905,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              and the March counterparts of the other June callers. Log [JUNE_SKILL] HUD. Revert: comment out the define.
 #define SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7j - June's max MP. CX2Unit::ResetMaxMp = June 3234b9d0 ( SA_MAX_MP_ABS of 19 passives,
+//              17 of them June-only RNSI_* ids: March's 2402 / 5402 / 5410 / 7402 are gone from June's skill data, so in-game max MP
+//              from those passives was lost ), its equipment term CX2Inventory::JuneGetAddMaxMPValue = June 32869f80 ( slot filter ),
+//              CX2GUUser::ResetMaxMP = June 31fd2810. The unit-side HUD refresh 3235a160 and its socket aggregate are Phase S7k.
+//              Log [JUNE_SKILL] MAXMP. Revert: comment out the define.
+#define SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_MAX_MP needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillLevel 4 args, GetSkillAbilityValue( type, level, bPvp ) = June 32206e50 )
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+//////////////////////////////////////////////////////////////////////////

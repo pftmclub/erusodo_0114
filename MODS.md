@@ -4275,6 +4275,13 @@ log tag `[JUNE_SKILL] MEMO room`.
   March's KStat and packet are unchanged. The emulator never sends this NOT, so nothing changes offline.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### June's max MP (skill-system-core S7j, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_MAX_MP` in `KTDXLIB/Always.h` (`#error` guard: `_SKILL_TEMPLET`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7j"; log tag `[JUNE_SKILL] MAXMP`.
+- **Client.** `CX2Unit::ResetMaxMp( base, group )` = June `3234b9d0` (SA_MAX_MP_ABS of 19 passives, 17 June-only `RNSI_*`; March read 2402 / 5402 / 5410 / 7402, gone
+  from June's skill data); its equipment term `CX2Inventory::JuneGetAddMaxMPValue` = June `32869f80`; `CX2GUUser::ResetMaxMP` = June `31fd2810`.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June's cash shop open-at-item list (skill-system-core S7g, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM` in `KTDXLIB/Always.h`. Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7g"; log tag `[JUNE_SKILL] HUD`.

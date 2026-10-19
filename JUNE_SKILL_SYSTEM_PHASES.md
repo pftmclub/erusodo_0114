@@ -1738,7 +1738,7 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; 
 
 ## Phase S7h - June's class-change notice
 
-**Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). Depends on S7j (`3235a160`; S7g: `324943c0` = `CX2GageManager::GetInstance`). June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler `31f276b0`
+**Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). Depends on S7k (`3235a160`, moved from S7j by the user 2026-10-19; S7g: `324943c0` = `CX2GageManager::GetInstance`). June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler `31f276b0`
 (Get `320ed4e0`: short class, no memo map, trailing acquired-skill vector -> `328929e0`) and the emulator's sender (`Handlers_Shop.cpp`). Kickoff `kickoffs/skill-system-core/S7h.md`.
 
 ## Phase S7i - The level-up "new skill or memo" emblem
@@ -1751,6 +1751,38 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7g (2026-10-19, unowned-branch rule). June's `ResetMaxMp` `3234b9d0` (17 June-only skill ids; in-game max MP
 from those passives is lost today) with its item term `32869f80`, the CX2Unit socket aggregate (`+0xe1c`, vtable slots 1 / 2), the HUD refresh `3235a160` and its 23 callers.
 Kickoff `kickoffs/skill-system-core/S7j.md`.
+
+### Phase S7j - Done (2026-10-19, Opus 5.5 high)
+
+**Split (user, 2026-10-19):** the CX2Unit socket aggregate turned out to be a full unit-side copy of the in-game socket sum (`32365d30` ~690 lines, `323652b0`,
+`32364790` ~630 lines), so S7j ports item 1 only and items 2-4 (aggregate, HUD refresh `3235a160`, its 23 callers) became **S7k** (`kickoffs/skill-system-core/S7k.md`,
+which carries everything decoded here). S7h now waits on S7k. Flag `SERV_IRUHADEV_JUNE_SKILL_MAX_MP` (`Always.h` only; `#error` guard `_SKILL_TEMPLET`, both ON by
+`flagprobe.py`). Funcmap rows `Skill S7j` (7). No JUNE_BUGS row. Revert: `MODS.md` "June's max MP".
+- **`CX2Unit::ResetMaxMp( base, group )` = June `3234b9d0`** (`X2Unit.cpp`, March's six-skill body in `#else`). Raw pushes give 19 ids in June's order:
+  22401 25405 25414 27400 2411 2415 27410, the equipment term, then 30402 29406 29410 31415 23401 23406 23408 30412 22408 32401 32408 32414. 2411 / 2415 are March's
+  own Magic Amplification / Spirit Acceleration; the other 17 are June-only `RNSI_*` (names from `june_src_fixed` Enum). Each block (`JuneGetMaxMpSkillValue`):
+  `GetSkillLevel( id, true, 0, true )` (= `32890620( id, 1, 0, 1 )`) > 0, `GetSkillTemplet( id )`, `GetSkillAbilityValue( SA_MAX_MP_ABS, level, false )` (= `32206e50( 0x15, level, 0, 0.0 )`).
+  June skips the equipment term in XS_PVE_GAME / XS_PVE_RESULT (`31d717d0`, states 23 / 24); March has no PVE state, so it always counts.
+- **`CX2Inventory::JuneGetAddMaxMPValue( group )` = June `32869f80`**: March's equipped map with June's slot filter (1 / 3 / 5 / 7 / 9 always; others only when
+  `( group != 0 ) == ( slot in 0x14..0x22, 0x24, 0x26, 0x28, 0x2a )`, Lu/Ciel's second set). March's equipped slots are 0..19 (the save's category 9), so group 0 = every item.
+- **`CX2GUUser::ResetMaxMP` = June `31fd2810`**: base 300, `ResetMaxMp( 300, 0 )`, option = ( r + ( r x ( m_fIncreaseMPRate + 32358970( 5 ) x 0.01 ) + m_iAddMPValue ) ) - 300,
+  `m_AdditionalMaxMp` as March. `32358970` (June-only ability map) is 0, as in Buff Phase 16. March's LIMITED_MANA block was already dead (`FIX_LIMITED_MANA_MANAGEMENT`).
+  The aggregate getters it reads were checked: SocketData vtable `33478a98` slot 3 `32091320` = stat[1] = `m_fIncreaseMPRate`, slot 4 `32091310` = `fild [+0x22c]` = `m_iAddMPValue`.
+  Not ported: the type-10 override `32b0fa90` (Lu/Ciel's second gage; no March class).
+- **Effect.** In a dungeon, max MP again includes the passives June moved to new ids (e.g. Queen's Potential `RNSI_P_EAT_QUEENS_POTENTIAL` 25405: +75 / 100 / 125 / 150).
+  The village HUD still shows the emulator's `KGamePlayStatus` value until S7k.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_MAX_MP --worktree --files <6 files>`: `files: 5 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,309,696 B, dated 2026-10-19 09:15:01, md5 3aad257b3d2b6fd97bede5edf038828a, equal to X2/US_SERVICE/x2.exe (2026-10-19 09:14:54); built at main 3444f3ae + 14 uncommitted code file(s).`
+  (COALESCED with a peer's build that started after this request.) The `[JUNE_SKILL] MAXMP uid` string is in the exe.
+- **How to see it.** Unit 19 Iivue (Code Empress, 25405 at level 3) in any dungeon: HUD max MP = 425 + her equipment's added max MP + socket MP. Log
+  `[JUNE_SKILL] MAXMP uid 19: skills + equips <125 + equips> ( base 300 ), socket rate <r>, add <n> -> max MP <total>`.
+
+## Phase S7k - The unit's socket aggregate and June's HUD max MP / max HP refresh
+
+**Run with:** Opus 5.5 high, then user play-test. Split from S7j by the user (2026-10-19). The CX2Unit-owned socket aggregate (`+0xe1c`, a `CX2SocketItem::SocketData`
+filled by CX2Unit vtable slots 1 / 2 = `32365d30` / `323652b0` and the unit-side sum `32364790`), June's HUD max MP / max HP refresh `3235a160` (decoded in S7j) and its
+23 callers; the village HUD then shows June's maxima instead of the emulator's `KGamePlayStatus`. Kickoff `kickoffs/skill-system-core/S7k.md`.
 
 ## Phase S8 - Running state data: June's pointer model
 

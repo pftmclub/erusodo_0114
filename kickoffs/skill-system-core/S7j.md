@@ -9,6 +9,9 @@
 | Log tag | `[JUNE_SKILL] HUD` (`python tools/logs.py --tag JUNE_SKILL`) |
 | Review | `kickoffs/skill-system-core/S7j-review.md` (the phase writes it when done) |
 
+**Split by the user (2026-10-19, during S7j):** S7j ports item 1 only. Items 2-4 (the unit aggregate, the HUD refresh `3235a160`, its 23 callers) are
+**S7k** (`kickoffs/skill-system-core/S7k.md`).
+
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh
