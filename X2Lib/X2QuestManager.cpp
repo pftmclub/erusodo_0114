@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2questmanager.h"
+#if defined(SERV_IRUHADEV_JUNE_QUEST_LOAD) && defined(SERV_IRUHADEV_OFFLINE)
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 //{{ ÃÖ¹ÎÃ¶ [2013/1/4]  °ÔÀÓ³» Á¤º¸ ½ºÆ®¸µÀ» ¿¢¼¿ÆÄÀÏ·Î Ãâ·Â
 #ifdef PRINT_INGAMEINFO_TO_EXCEL
@@ -14,6 +17,11 @@ m_bUpdateQuest(false)
 , m_bHasDungeonQuest(false)
 #endif //QUEST_GUIDE
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	m_iGuildQuestSkipped		= 0;
+	m_iChainQuestDaysCalls		= 0;
+	m_iChainQuestDaysApplied	= 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 }
 
 CX2QuestManager::~CX2QuestManager(void)
@@ -616,6 +624,26 @@ bool CX2QuestManager::AddQuestTemplet_LUA()
 	LUA_GET_VALUE(		luaManager, "m_iRandomGroupID",	pQuestTemplet->m_iRandomGroupID,		0 );
 #endif SERV_RANDOM_DAY_QUEST
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// Q1. June 323321f0 quest-level keys March never read ( q0a_june_templets.md ); same table, same defaults.
+	LUA_GET_VALUE(		luaManager, "m_bIsAccount",						pQuestTemplet->m_bIsAccount,		false );	// @323332fe
+	LUA_GET_VALUE(		luaManager, "m_bIsGuild",						pQuestTemplet->m_bIsGuild,			false );	// @3233341e
+	LUA_GET_VALUE(		luaManager, "m_iChainID",						pQuestTemplet->m_iChainID,			0 );		// @323342ad
+	if( luaManager.BeginTable( "m_vecAdditionalSceneQuestID" ) == true )											// @32334478
+	{
+		int index	= 1;
+		int buf		= -1;
+		while( luaManager.GetValue( index, buf ) == true )
+		{
+			if( buf > 0 )
+				pQuestTemplet->m_vecAdditionalSceneQuestID.push_back( buf );
+			index++;
+		}
+
+		luaManager.EndTable();
+	}
+	LUA_GET_VALUE(		luaManager, "m_fSelectBGM",						pQuestTemplet->m_wstrSelectBGM,		L"" );		// @32335659, a wstring in June despite the name
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	if( LoadQuestCondition( luaManager, pQuestTemplet->m_Condition ) == false )
 		goto LoadFail;
 
@@ -700,6 +728,22 @@ bool CX2QuestManager::AddQuestTemplet_LUA()
 
 	if( LoadReward( luaManager, "Reward", pQuestTemplet->m_Reward ) == false )
 		goto LoadFail;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// Q1. June 32330250: Reward.m_iGuildCoopQuestRewardID goes to the quest ( @32330a0b ); for QT_CHANGE_TRANSCENDENTAL_CLASS the
+	// reward's m_eChangeUnitClass is the QR_* value: reward+0x38 = value % 1000 ( miss 0 ) and the class field +0x30 stays UC_NONE ( @3233070e / @3233088e ).
+	if( luaManager.BeginTable( "Reward" ) == true )
+	{
+		LUA_GET_VALUE( luaManager, "m_iGuildCoopQuestRewardID", pQuestTemplet->m_iGuildCoopQuestRewardID, 0 );
+		if( QT_CHANGE_TRANSCENDENTAL_CLASS == pQuestTemplet->m_eQuestType )
+		{
+			int iChangeClassTran = 0;
+			LUA_GET_VALUE( luaManager, "m_eChangeUnitClass", iChangeClassTran, 0 );
+			pQuestTemplet->m_Reward.m_iChangeUnitClassTran	= iChangeClassTran % 1000;
+			pQuestTemplet->m_Reward.m_eChangeUnitClass		= CX2Unit::UC_NONE;
+		}
+		luaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 	if( luaManager.BeginTable( "SelectReward" ) == true )
 	{
@@ -831,11 +875,34 @@ bool CX2QuestManager::AddQuestTemplet_LUA()
 	}
 #endif SERV_RANDOM_DAY_QUEST
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// Q1. Guild quests ( GuildQuest.lua, QT_GUILD / m_bIsGuild ) are parsed like any quest and then dropped: user decision 2026-10-17, no guild
+	// stand-in in the emulator. June keeps them ( 323321f0 stores m_bIsGuild at +0x271 ); the guild gate that lists them is Q3's note.
+	if( true == pQuestTemplet->m_bIsGuild || QT_GUILD == pQuestTemplet->m_eQuestType )
+	{
+		++m_iGuildQuestSkipped;
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_QUEST] LOAD guild quest %d skipped ( parsed, not stored; no guild emulation ) type %d subquests %d coop reward id %d",
+			pQuestTemplet->m_iID, static_cast<int>( pQuestTemplet->m_eQuestType ), static_cast<int>( pQuestTemplet->m_vecSubQuest.size() ), pQuestTemplet->m_iGuildCoopQuestRewardID );
+#endif SERV_IRUHADEV_OFFLINE
+		SAFE_DELETE( pQuestTemplet );
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	if( m_mapQuestTemplet.find( pQuestTemplet->m_iID ) != m_mapQuestTemplet.end() )
 		goto LoadFail;
 
 
 	// Äù½ºÆ® ÅÛÇÃ¸´ ·Îµå ¼º°ø
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// Q1. June's two indexes. Chain ( 323321f0 @323342ad, manager +0xfc ): a quest with m_iChainID != 0 joins that chain's id set, the entry is
+	// created on first use. Story ( @32335511, manager +0xec ): a QT_STORY quest joins the set of its m_iEpisodeGroupID. June indexes while the keys
+	// are read, so a quest that fails later stays in the chain set; here the index is written only for a quest that is stored ( no dangling id ).
+	if( 0 != pQuestTemplet->m_iChainID )
+		m_mapChainQuest[ pQuestTemplet->m_iChainID ].m_setQuestID.insert( pQuestTemplet->m_iID );
+	if( QT_STORY == pQuestTemplet->m_eQuestType )
+		m_mapStoryQuest[ pQuestTemplet->m_iEpisodeGroupID ].insert( pQuestTemplet->m_iID );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	m_mapQuestTemplet.insert( std::make_pair( pQuestTemplet->m_iID, pQuestTemplet ) );
 	return true;
 
@@ -2263,6 +2330,15 @@ bool CX2QuestManager::LoadQuestCondition( KLuaManager& luaManager, QuestConditio
 				if( false == luaManager.GetValue( iValueIndex, iUnitClass ) )
 					break;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+				// Q1. June 32323120 @32323572: a value >= 1000 is a QUEST_REWARD_TRAN_CLASS ( QR_NONE 1000, QR_TRANSCENDENTAL_CLASS 1001 ),
+				// not a class. It goes to its own scalar as value % 1000 and stays out of the class set.
+				if( iUnitClass >= 1000 )
+				{
+					questCondition.m_iUnitClassTran = iUnitClass % 1000;
+					continue;
+				}
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 				if( CX2Unit::UC_NONE == (CX2Unit::UNIT_CLASS) iUnitClass )
 					continue;
 
@@ -2383,6 +2459,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2465,6 +2545,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2535,6 +2619,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2571,6 +2659,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2611,6 +2703,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2640,6 +2736,9 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 #ifdef SERV_SUITABLE_LEVEL_DUNGEON_CLEAR_SUB_QUEST
 		case SQT_SUITABLE_LEVEL_DUNGEON_CLEAR:
 #endif SERV_SUITABLE_LEVEL_DUNGEON_CLEAR_SUB_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+		case SQT_HAS_EXP_DUNGEON_CLEAR:		// June jump table @3232c638: type 48 shares case 8's body ( 323265cf )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			{
 #ifdef REFORM_QUEST
 				if( luaManager.BeginTable( "m_eDungeonID" ) == true )
@@ -2650,6 +2749,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2684,6 +2787,9 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 			{
 				LUA_GET_VALUE_RETURN_ENUM(	luaManager, "m_ePVPType",	pSubQuestTemplet->m_ClearCondition.m_ePVPType,		CX2PVPRoom::PVP_GAME_TYPE,		CX2PVPRoom::PGT_TEAM, goto error_proc; );
 				LUA_GET_VALUE_RETURN(		luaManager, "m_iPVPPlay",	pSubQuestTemplet->m_ClearCondition.m_iPVPPlay,		-1, goto error_proc; );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+				LUA_GET_VALUE(				luaManager, "m_ePvpTournamentType",	pSubQuestTemplet->m_ClearCondition.m_ePvpTournamentType,	0 );	// June case 9 @323273b9, optional
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			}
 			break;
 
@@ -2691,6 +2797,9 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 			{
 				LUA_GET_VALUE_RETURN_ENUM(	luaManager, "m_ePVPType",	pSubQuestTemplet->m_ClearCondition.m_ePVPType,		CX2PVPRoom::PVP_GAME_TYPE,		CX2PVPRoom::PGT_TEAM, goto error_proc; );
 				LUA_GET_VALUE_RETURN(		luaManager, "m_iPVPWin",	pSubQuestTemplet->m_ClearCondition.m_iPVPWin,		-1, goto error_proc; );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+				LUA_GET_VALUE(				luaManager, "m_ePvpTournamentType",	pSubQuestTemplet->m_ClearCondition.m_ePvpTournamentType,	0 );	// June case 10 @32327793, optional
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			}
 			break;
 
@@ -2717,6 +2826,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2794,6 +2907,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2909,6 +3026,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 					luaManager.EndTable();
@@ -2925,6 +3046,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 
@@ -2998,6 +3123,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					{
 						if( buf > 0 )
 							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+						if( 0 == buf )	// June 32323ad0 keeps m_eDungeonID values >= 0; March dropped the 0 ( q0a_june_clearcond.md N1 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 						index++;
 					}
 
@@ -3078,6 +3207,75 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 			}
 			break;
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+		// Q1. June 32323ad0 cases 37-39 and 43-47 ( jump table @3232c57c ). 40-42 stay in the default ( false ) as in June.
+		case SQT_PVE_WIN:							// 37 @32326c38
+			{
+				if( luaManager.BeginTable( "m_eDungeonID" ) == true )
+				{
+					int index	= 1;
+					int buf		= 0;
+					while( luaManager.GetValue( index, buf ) == true )
+					{
+						if( buf >= 0 )
+							pSubQuestTemplet->m_ClearCondition.m_setDungeonID.insert( static_cast<SEnum::DUNGEON_ID>(buf) );
+						index++;
+					}
+					luaManager.EndTable();
+				}
+				LUA_GET_VALUE_RETURN(		luaManager, "m_bUpperDifficulty",	pSubQuestTemplet->m_ClearCondition.m_bUpperDifficulty,	false, goto error_proc; );
+				LUA_GET_VALUE_RETURN(		luaManager, "m_iDungeonClearCount",	pSubQuestTemplet->m_ClearCondition.m_iDungeonClearCount,	-1, goto error_proc; );
+			}
+			break;
+
+		case SQT_GUILD_JOIN:						// 38 @3232bf50
+			{
+				LUA_GET_VALUE_RETURN(		luaManager, "m_bIsGuildJoin",		pSubQuestTemplet->m_ClearCondition.m_bIsGuildJoin,		false, goto error_proc; );
+			}
+			break;
+
+		case SQT_GUILD_HONOR_POINT_COLLECTION:		// 39 @3232bcfc
+			{
+				LUA_GET_VALUE_RETURN(		luaManager, "m_iCollectionHonorPointCount",	pSubQuestTemplet->m_ClearCondition.m_iCollectionHonorPointCount,	0, goto error_proc; );
+			}
+			break;
+
+		case SQT_ITEM_EXCHANGE:						// 43 @3232c0a2
+			{
+				if( luaManager.BeginTable( "m_vecExchangeSourceItem_ID" ) == true )
+				{
+					// June @3232c0cf: the loop leaves when the read SUCCEEDS and pushes only when it fails ( JUNE_BUGS 321 ), so a table of numbers
+					// pushes nothing. Kept verbatim. The index cap only stops a table with no number in it from spinning forever, which June would do.
+					int index	= 1;
+					int buf		= -1;
+					while( index < 1000 && luaManager.GetValue( index, buf ) == false )
+					{
+						if( buf > 0 )
+							pSubQuestTemplet->m_ClearCondition.m_vecExchangeSourceItem_ID.push_back( buf );
+						index++;
+					}
+					luaManager.EndTable();
+				}
+				LUA_GET_VALUE_RETURN(		luaManager, "m_iExchangeCount",		pSubQuestTemplet->m_ClearCondition.m_iExchangeCount,	0, goto error_proc; );
+			}
+			break;
+
+		case SQT_TOGETHER_SUBQUEST_CLEAR:			// 44 @3232c268
+			{
+				LUA_GET_VALUE_RETURN(		luaManager, "m_iDungeonClearCount",	pSubQuestTemplet->m_ClearCondition.m_iDungeonClearCount,	-1, goto error_proc; );
+			}
+			break;
+
+		case SQT_PVP_RANK:							// 45 @3232c428
+			{
+				LUA_GET_VALUE_RETURN(		luaManager, "m_ePvpRank",			pSubQuestTemplet->m_ClearCondition.m_ePvpRank,			0, goto error_proc; );
+			}
+			break;
+
+		case SQT_IMMEDIATELY_CLEAR:					// 46 @3232c56a: no keys, true
+		case SQT_PLAY_TOGETHER_WITH_TITLE:			// 47 @3232c56a: no keys, true
+			break;
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 		default:
 			{
 				luaManager.EndTable();
@@ -3085,6 +3283,37 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 			}
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	#ifdef REFORM_QUEST
+		// Q1. June reads m_cDifficulty ( int, +0x13c ) as the last key of its dungeon-type cases: 2, 4, 5, 6, 7, 8 / 32 / 48, 12, 17, 22, 26, 27, 37.
+		// A missing key is -1 and the case still returns true ( stub 3232434c ). No reader in June's quest manager ( q0a_june_clearcond.md N1 ).
+		switch( pSubQuestTemplet->m_eClearType )
+		{
+		case SQT_NPC_HUNT:
+		case SQT_QUEST_ITEM_COLLECTION:
+		case SQT_DUNGEON_TIME:
+		case SQT_DUNGEON_RANK:
+		case SQT_DUNGEON_DAMAGE:
+		case SQT_DUNGEON_CLEAR_COUNT:
+		case SQT_SUITABLE_LEVEL_DUNGEON_CLEAR:
+		case SQT_HAS_EXP_DUNGEON_CLEAR:
+		case SQT_WITH_DIF_SERV_USER:
+		case SQT_ITEM_EQUIP_DUNGEON_CLEAR:
+		case SQT_ITEM_USE:
+		case SQT_VISIT_DUNGEON:
+		case SQT_FIND_NPC:
+		case SQT_PVE_WIN:
+			{
+				int iJuneDifficulty = -1;
+				LUA_GET_VALUE( luaManager, "m_cDifficulty", iJuneDifficulty, -1 );
+				pSubQuestTemplet->m_ClearCondition.m_cDifficulty = static_cast<char>( iJuneDifficulty );
+			}
+			break;
+		default:
+			break;
+		}
+	#endif REFORM_QUEST
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 		luaManager.EndTable();
 		return true;
 	}
@@ -3104,6 +3333,157 @@ error_proc:
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+/// Q1. June 32322b10, bound as AddChainQuestDays. Reads m_iChainID, m_iAllowFewDays ( both default -1 ) and m_iTestMinute ( default 0 ); only when
+/// both ids are present AND the chain already has an entry ( made by the quest parser ) are node +0x20 / +0x24 written. It never creates one.
+bool CX2QuestManager::AddChainQuestDays_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+#ifndef X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+	TableBind( &luaManager, g_pKTDXApp->GetLuaBinder() );
+#endif  X2OPTIMIZE_AVOID_LUA_RUNTIME_INTERPRETING
+
+	++m_iChainQuestDaysCalls;
+
+	int iChainID		= -1;
+	int iAllowFewDays	= -1;
+	int iTestMinute		= 0;
+	LUA_GET_VALUE( luaManager, "m_iChainID",		iChainID,		-1 );
+	LUA_GET_VALUE( luaManager, "m_iAllowFewDays",	iAllowFewDays,	-1 );
+	LUA_GET_VALUE( luaManager, "m_iTestMinute",		iTestMinute,	0 );
+
+	if( -1 != iChainID && -1 != iAllowFewDays )
+	{
+		map<int, ChainQuestData>::iterator mit = m_mapChainQuest.find( iChainID );
+		if( mit != m_mapChainQuest.end() )
+		{
+			mit->second.m_iAllowFewDays	= iAllowFewDays;
+			mit->second.m_iTestMinute	= iTestMinute;
+			++m_iChainQuestDaysApplied;
+		}
+	}
+	return true;
+}
+
+/// Q1. June 31eeb040: Quest_Event_Scene_Info.lua defines the global QUEST_EVENT_SCENE_INFO, an array of entries. Each entry has QuestID,
+/// DEFAULT_START_SCENE / DEFAULT_END_SCENE ( strings ), DEFAULT_*_SCENE_MENT ( arrays of string ids ), DEFAULT_*_SCENE_END_FRAME ( ints ) and
+/// array rows ( START_SCENE, END_SCENE, CHAR, START_SCENE_MENT, END_SCENE_MENT, START_SCENE_END_FRAME, END_SCENE_END_FRAME ) per unit type.
+/// Stored by QuestID for Q5b ( June 323cb190 ). Degrade: without the file no quest has a scene row.
+void CX2QuestManager::LoadQuestEventSceneInfo()
+{
+	m_mapQuestEventSceneInfo.clear();
+
+	if( false == g_pKTDXApp->LoadLuaTinker( L"Quest_Event_Scene_Info.lua" ) )
+	{
+		ErrorLogMsg( XEM_ERROR142, L"[JUNE_QUEST] LOAD Quest_Event_Scene_Info.lua did not load: no quest scene rows. Stage June's file into data036.kom ( quest-system Q1 )." );
+		return;
+	}
+
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+	if( luaManager.BeginTable( "QUEST_EVENT_SCENE_INFO" ) == false )
+		return;
+
+	int iEntry = 1;
+	while( luaManager.BeginTable( iEntry ) == true )
+	{
+		QuestEventSceneInfo kInfo;
+		LUA_GET_VALUE( luaManager, "QuestID",						kInfo.m_iQuestID,						0 );
+		LUA_GET_VALUE( luaManager, "DEFAULT_START_SCENE",			kInfo.m_wstrDefaultStartScene,			L"" );
+		LUA_GET_VALUE( luaManager, "DEFAULT_END_SCENE",				kInfo.m_wstrDefaultEndScene,			L"" );
+		LUA_GET_VALUE( luaManager, "DEFAULT_START_SCENE_END_FRAME",	kInfo.m_iDefaultStartSceneEndFrame,		-1 );
+		LUA_GET_VALUE( luaManager, "DEFAULT_END_SCENE_END_FRAME",	kInfo.m_iDefaultEndSceneEndFrame,		-1 );
+
+		if( luaManager.BeginTable( "DEFAULT_START_SCENE_MENT" ) == true )
+		{
+			int iIndex = 1;
+			int iValue = -1;
+			while( luaManager.GetValue( iIndex, iValue ) == true )
+			{
+				kInfo.m_vecDefaultStartSceneMent.push_back( iValue );
+				++iIndex;
+			}
+			luaManager.EndTable();
+		}
+		if( luaManager.BeginTable( "DEFAULT_END_SCENE_MENT" ) == true )
+		{
+			int iIndex = 1;
+			int iValue = -1;
+			while( luaManager.GetValue( iIndex, iValue ) == true )
+			{
+				kInfo.m_vecDefaultEndSceneMent.push_back( iValue );
+				++iIndex;
+			}
+			luaManager.EndTable();
+		}
+
+		int iChar = 1;
+		while( luaManager.BeginTable( iChar ) == true )
+		{
+			int iUnitType = 0;
+			QuestEventSceneChar kChar;
+			LUA_GET_VALUE( luaManager, "CHAR",					iUnitType,						0 );
+			LUA_GET_VALUE( luaManager, "START_SCENE",			kChar.m_wstrStartScene,			L"" );
+			LUA_GET_VALUE( luaManager, "END_SCENE",				kChar.m_wstrEndScene,			L"" );
+			LUA_GET_VALUE( luaManager, "START_SCENE_END_FRAME",	kChar.m_iStartSceneEndFrame,	-1 );
+			LUA_GET_VALUE( luaManager, "END_SCENE_END_FRAME",	kChar.m_iEndSceneEndFrame,		-1 );
+
+			if( luaManager.BeginTable( "START_SCENE_MENT" ) == true )
+			{
+				int iIndex = 1;
+				int iValue = -1;
+				while( luaManager.GetValue( iIndex, iValue ) == true )
+				{
+					kChar.m_vecStartSceneMent.push_back( iValue );
+					++iIndex;
+				}
+				luaManager.EndTable();
+			}
+			if( luaManager.BeginTable( "END_SCENE_MENT" ) == true )
+			{
+				int iIndex = 1;
+				int iValue = -1;
+				while( luaManager.GetValue( iIndex, iValue ) == true )
+				{
+					kChar.m_vecEndSceneMent.push_back( iValue );
+					++iIndex;
+				}
+				luaManager.EndTable();
+			}
+
+			kInfo.m_mapChar[ iUnitType ] = kChar;
+			luaManager.EndTable();
+			++iChar;
+		}
+
+		m_mapQuestEventSceneInfo[ kInfo.m_iQuestID ] = kInfo;
+		luaManager.EndTable();
+		++iEntry;
+	}
+	luaManager.EndTable();
+}
+
+/// Q1. ChainQuestInfo.lua is AddChainQuestDays calls only ( the quest parser has built the chain map by now ). June's file ends in a call to an
+/// unbound AddGroupChainQuest, so the load stops with a Lua error after 5 AddChainQuestDays calls: kept as June has it ( JUNE_BUGS 320 ).
+bool CX2QuestManager::LoadChainQuestInfo()
+{
+	const bool bLoaded = OpenScriptFile( L"ChainQuestInfo.lua" );
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_QUEST] LOAD ChainQuestInfo.lua loaded %d ( false after the AddChainQuestDays calls is JUNE_BUGS 320, AddGroupChainQuest unbound ) calls %d applied %d",
+		( true == bLoaded ? 1 : 0 ), m_iChainQuestDaysCalls, m_iChainQuestDaysApplied );
+#endif SERV_IRUHADEV_OFFLINE
+	return bLoaded;
+}
+/// Q1. One line per quest load, after the last file ( CX2Data::ResetQuestManager ): offline_server.log, tag [JUNE_QUEST] LOAD.
+void CX2QuestManager::LogLoadCensus( int iGuildCoopRows_ ) const
+{
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_QUEST] LOAD quests %d sub-quests %d guild skipped %d chain entries %d ( AddChainQuestDays calls %d applied %d ) groups 0 ( AddGroupChainQuest unbound, JUNE_BUGS 320 ) story groups %d scene-info %d coop %d",
+		static_cast<int>( m_mapQuestTemplet.size() ), static_cast<int>( m_mapSubQuestTemplet.size() ), m_iGuildQuestSkipped,
+		static_cast<int>( m_mapChainQuest.size() ), m_iChainQuestDaysCalls, m_iChainQuestDaysApplied,
+		static_cast<int>( m_mapStoryQuest.size() ), static_cast<int>( m_mapQuestEventSceneInfo.size() ), iGuildCoopRows_ );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 void CX2QuestManager::ClearUnitQuest()
 {
 

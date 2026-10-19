@@ -1923,12 +1923,23 @@ CX2QuestManager* CX2Data::ResetQuestManager( const WCHAR* pQuestFileName, const 
 	m_pQuestManager->OpenScriptFile( pSubQuestFileName );
 	//계정 공용 퀘스트 데이타 로드
 	m_pQuestManager->OpenScriptFile( pAccountQuestFileName );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// June ResetQuestManager 31edbf70( field, sub, account, guild ): the fourth file is GuildQuest.lua ( parsed, the guild quests are skipped )
+	m_pQuestManager->OpenScriptFile( L"GuildQuest.lua" );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	
 #ifdef LUA_TRANS_DEVIDE
 	m_pQuestManager->OpenScriptFile( L"QuestTrans.lua" );
 	m_pQuestManager->OpenScriptFile( L"SubQuestTrans.lua" );
 #endif LUA_TRANS_DEVIDE	
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// June 3258c470 order after the quest files: ChainQuestInfo ( @3258fc67 ), then Quest_Event_Scene_Info ( 31eeb040, @32590853 ).
+	// The census line goes last. ChainCashItem.lua is cash-shop data ( backlog Stage 16 ), not loaded here.
+	m_pQuestManager->LoadChainQuestInfo();
+	m_pQuestManager->LoadQuestEventSceneInfo();
+	m_pQuestManager->LogLoadCensus( NULL != m_pGuildManager ? m_pGuildManager->GetGuildCoopQuestRewardRowCount() : 0 );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	return m_pQuestManager;
 }
 #else
@@ -2283,6 +2294,10 @@ CX2GuildManager* CX2Data::ResetGuildManager()
 	SAFE_DELETE( m_pGuildManager );
 	m_pGuildManager = new CX2GuildManager;
 	m_pGuildManager->OpenScriptFile( L"GuildData.lua" );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// June ResetGuildManager 31ee0c70: GuildData.lua, then GuildCoopQuestRewardTable.lua ( 45 AddGuildRewardData rows )
+	m_pGuildManager->OpenScriptFile( L"GuildCoopQuestRewardTable.lua" );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	
 	return m_pGuildManager;
 }

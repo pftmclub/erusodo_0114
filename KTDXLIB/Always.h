@@ -8765,3 +8765,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              / JuneGfxShow( bool ), and GFx's own log mirrored to ErrorLog.txt ( [JUNE_GFX] MGR gfx: ..., capped ). Off after the G2 review.
 //#define SERV_IRUHADEV_JUNE_GFX_DEBUG		// off since the G2 review ( 2026-10-19 )
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q1: June's quest enums (QT_GUILD / QT_CHANGE_TRANSCENDENTAL_CLASS / QT_STORY, QRT_WEEK / QRT_MONTH /
+//              QRT_CHAIN_REPEAT, CJT_JOB_FOURTH, SQT 37-48), the quest parser's new keys (chain id, additional scene quests, select BGM, account /
+//              guild flags, QR_* class tail, clear-condition keys for the new sub-quest types, m_eDungeonID keeps 0, m_cDifficulty), the
+//              AddChainQuestDays / AddGuildQuestTemplet_LUA binders, guild quests parsed and skipped, GuildQuest.lua / ChainQuestInfo.lua /
+//              Quest_Event_Scene_Info.lua loaded in June's order, GuildCoopQuestRewardTable.lua loaded through the guild manager, and the
+//              [JUNE_QUEST] LOAD census line in offline_server.log. Off = the March loader.
+#define SERV_IRUHADEV_JUNE_QUEST_LOAD
+//////////////////////////////////////////////////////////////////////////

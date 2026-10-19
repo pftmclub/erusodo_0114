@@ -4301,6 +4301,23 @@ to break the project rule in CLAUDE.md two ways - it wasn't
 instead of `KTDXLIB/Always.h` - and it stored a plaintext account password in
 a header that compiled into the shipped executable. Rather than fix those
 three problems, the flag was retired: the studio's own `AUTO_LOGIN_IN_HOUSE`
+### June quest system: enums, parser keys, binders, new quest files (quest-system Q1, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q1"; log tag `[JUNE_QUEST] LOAD` (offline_server.log).
+- **Client.** `X2QuestManager.h/.cpp`: June's enums (`QT_GUILD` 8 / `QT_CHANGE_TRANSCENDENTAL_CLASS` 9 / `QT_STORY` 10 so `QT_END` is 11; `QRT_WEEK` 3 / `QRT_MONTH` 4 /
+  `QRT_CHAIN_REPEAT` 5; `CJT_JOB_FOURTH` 6 so `CJT_JOB_END` is 7; `SQT` 37-48 so `SQT_END` is 49); quest keys `m_bIsAccount`, `m_bIsGuild`, `m_iChainID` (chain index),
+  `m_vecAdditionalSceneQuestID`, `m_fSelectBGM` (a wstring), `Reward.m_iGuildCoopQuestRewardID`, the QT 9 `m_eChangeUnitClass % 1000` split, the `m_eUnitClass` QR tail scalar, the
+  QT_STORY index; clear-condition cases 37-39 and 43-47, case 48 sharing case 8, `m_ePvpTournamentType` (cases 9 / 10), `m_cDifficulty` after the switch, and `m_eDungeonID` keeping 0 (11 sites);
+  new `AddChainQuestDays_LUA`, `LoadChainQuestInfo`, `LoadQuestEventSceneInfo` (rows kept on the quest manager, not `g_pData`), `LogLoadCensus`. Guild quests (QT_GUILD / `m_bIsGuild`) are
+  parsed and dropped with one log line each. `X2Main.cpp`: binders `AddGuildQuestTemplet_LUA` (same function as `AddQuestTemplet_LUA`), `AddChainQuestDays`, and `AddGuildRewardData` on
+  `CX2GuildManager` (`X2GuildManager.*`: second global `g_pGuildCoopQuestRewardTable`, row multimap). `AddGroupChainQuest` is not bound (JUNE_BUGS 320). `X2Data.cpp`: `GuildQuest.lua`
+  after `AccountQuest.lua`, then `ChainQuestInfo.lua` and `Quest_Event_Scene_Info.lua`, then the census line; `GuildCoopQuestRewardTable.lua` after `GuildData.lua`.
+- **Data (moves with the exe).** data036: June's `GuildQuest.lua`, `ChainQuestInfo.lua`, `GuildCoopQuestRewardTable.lua`, `Quest_Event_Scene_Info.lua` (adopt-june, ljconv bytecode; all new) and
+  the merged `Enum.lua` edited as text (the enum members above, `NUI_STORY_QUEST` 10142, `NUI_TRANSCEND_QUEST` 10153, `NUI_EVENT_KEEPER` 4116, `NUI_EVENT_GUILD_EDAN_VILAGE` 4255, the
+  `QUEST_REWARD_TRAN_CLASS` and `PVP_TOURNAMENT_TYPE` tables, `PGT_WINNER` / `PGT_1VS1_CHALLENGE_MODE` / `PGT_AMUSEMENT_ITEM`, `PCC_1VS1_PVP_CHALLENGE`; ledger refreshed).
+  `NUI_EDEL` stays 10072 (Q7 decides).
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and restore data036 from `kom_backup_tools/` (`data036.kom.20261019_070244`). No save change.
+
 went live under `US_INTERNAL` for the first time in this migration and does
 the same job (skip the login screen, sign in as a fixed account) by reading
 an external `LoginKey.lua`, which has none of the three problems. See

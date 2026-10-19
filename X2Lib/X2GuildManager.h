@@ -324,6 +324,18 @@ public:
 	int				GetNowMyGuildHonorPoint( BYTE byNowGuildLevel ) const;
 
 	void			EmptyFuncUsedParsing_LUA() {};
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	/// Quest Q1. GuildCoopQuestRewardTable.lua ( June ResetGuildManager 31ee0c70 loads it after GuildData.lua ): rows keyed by the quest's
+	/// Reward.m_iGuildCoopQuestRewardID. Parsed and counted only; guild quests are skipped offline ( decision 2026-10-17 ).
+	struct GuildCoopQuestReward
+	{
+		int		m_iItemID;
+		int		m_iQuantity;
+		int		m_iFourth;		// the 4th argument; 0 in all 45 June rows
+	};
+	void			AddGuildRewardData_LUA( int iRewardID, int iItemID, int iQuantity, int iFourth );
+	int				GetGuildCoopQuestRewardRowCount() const { return static_cast<int>( m_mmapGuildCoopQuestReward.size() ); }
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 
 	
@@ -331,6 +343,9 @@ public:
 
 private:
 	GuildInfo*								m_pMyGuildInfo;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	std::multimap< int, GuildCoopQuestReward >	m_mmapGuildCoopQuestReward;	// June guild manager +0x16c ( GuildCoopQuestRewardTable.lua )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	std::set< UidType >						m_setUidOfGuildMembers;		// 길드원들의 UID
 	
 	std::map< CKTDGUIDialogType,int >		m_mapGuildInvitationDlg;	// vec< pair< Dialog, 길드UID > > // 유저를 초대 중인...

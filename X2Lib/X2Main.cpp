@@ -3549,6 +3549,12 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_add<CX2QuestManager>( L, "CX2QuestManager" );
 	lua_tinker::class_def<CX2QuestManager>( L, "AddQuestTemplet_LUA",			&CX2QuestManager::AddQuestTemplet_LUA );
 	lua_tinker::class_def<CX2QuestManager>( L, "AddSubQuestTemplet_LUA",		&CX2QuestManager::AddSubQuestTemplet_LUA );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	/// June 31d95080 @31daf322 pushes the same 323321f0 as AddQuestTemplet_LUA / AddAccountQuestTemplet_LUA ( q0a: the three pushes are identical )
+	lua_tinker::class_def<CX2QuestManager>( L, "AddGuildQuestTemplet_LUA",		&CX2QuestManager::AddQuestTemplet_LUA );
+	/// June 32322b10 ( bound @31dafded ). AddGroupChainQuest is not bound in June, so it is not bound here ( JUNE_BUGS 320 ).
+	lua_tinker::class_def<CX2QuestManager>( L, "AddChainQuestDays",				&CX2QuestManager::AddChainQuestDays_LUA );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
 	/// June binding strings 31d95080 @31daf889 / @31dafc2c (atlas E1a)
 	lua_tinker::class_def<CX2QuestManager>( L, "AddVillageNpcRelationDataByQuest_LUA",		&CX2QuestManager::AddVillageNpcRelationDataByQuest_LUA );
@@ -5413,6 +5419,10 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def< CX2GuildManager >( L, "SetGuildMemberGradeFactor",	&CX2GuildManager::EmptyFuncUsedParsing_LUA );
 	lua_tinker::class_def< CX2GuildManager >( L, "SetPcBangFactor",				&CX2GuildManager::EmptyFuncUsedParsing_LUA );
 	lua_tinker::class_def< CX2GuildManager >( L, "SetPvpMemberFactor",			&CX2GuildManager::EmptyFuncUsedParsing_LUA );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	/// June 31d95080 @31e331eb: AddGuildRewardData( reward id, item id, quantity, 4th ) -> multimap at the guild manager +0x16c ( 32406670 -> 324150f0 )
+	lua_tinker::class_def< CX2GuildManager >( L, "AddGuildRewardData",			&CX2GuildManager::AddGuildRewardData_LUA );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 #endif	GUILD_MANAGEMENT
 	//}} kimhc // 2009-10-31 // ±èÇöÃ¶
 

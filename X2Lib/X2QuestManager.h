@@ -46,6 +46,12 @@ class CX2QuestManager
 //#endif SERV_EPIC_QUEST
 			QT_CHARACTER,	// 상형 // 2009-12-23 추가
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			// June Enum.lua QUEST_TYPE: QT_GUILD 8, QT_CHANGE_TRANSCENDENTAL_CLASS 9, QT_STORY 10; QT_END becomes 11 ( was 8, the QT_GUILD collision )
+			QT_GUILD,
+			QT_CHANGE_TRANSCENDENTAL_CLASS,
+			QT_STORY,
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			QT_END,
 		};
 
@@ -57,6 +63,12 @@ class CX2QuestManager
 			QRT_NORMAL,				// 완료하면 반복 되지 않는 퀘스트
 			QRT_DAY,				// 매일 정해진 시간에 퀘스트 받을 수 있는 종류
 			QRT_REPEAT,				// 퀘스트를 완료하면 바로 다시 할 수 있는 종류
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			// June Enum.lua QUEST_REPEAT_TYPE: QRT_WEEK 3, QRT_MONTH 4, QRT_CHAIN_REPEAT 5
+			QRT_WEEK,
+			QRT_MONTH,
+			QRT_CHAIN_REPEAT,
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 		};
 #endif SERV_DAILY_QUEST
 	//}} kimhc // 2010.3.30 // 비밀던전 작업(일일퀘스트 시스템)
@@ -73,6 +85,9 @@ class CX2QuestManager
 			CJT_JOB_SECOND,			// 신 전직 퀘스트 (매직나이트, 다크매지션, 컴뱃레인저, 오버테이커, 코드 아키텍처, 슈팅 가디언)
 			CJT_JOB_THIRD,			// 신 전직 퀘스트 (시스나이트, ... )
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			CJT_JOB_FOURTH,			// June CJT_JOB_FOURTH 6; CJT_JOB_END becomes 7 ( June 323321f0 @323347a0 accepts 0 <= v < 7 )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			CJT_JOB_END,
 		};
 
@@ -149,6 +164,21 @@ class CX2QuestManager
 #ifdef SERV_SUB_QUEST_LEARN_NEW_SKILL
 			SQT_LEARN_NEW_SKILL					= 36,
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			// June Enum.lua SUB_QUEST_TYPE 37-48; SQT_END becomes 49 ( was 37, the SQT_PVE_WIN collision )
+			SQT_PVE_WIN							= 37,
+			SQT_GUILD_JOIN						= 38,
+			SQT_GUILD_HONOR_POINT_COLLECTION	= 39,
+			SQT_PLAYER_WITH_DUNGEON_CLEAR		= 40,
+			SQT_PGT_1VS1_CHALLENGE_MODE			= 41,
+			SQT_PGT_WINNER						= 42,
+			SQT_ITEM_EXCHANGE					= 43,
+			SQT_TOGETHER_SUBQUEST_CLEAR			= 44,
+			SQT_PVP_RANK						= 45,
+			SQT_IMMEDIATELY_CLEAR				= 46,
+			SQT_PLAY_TOGETHER_WITH_TITLE		= 47,
+			SQT_HAS_EXP_DUNGEON_CLEAR			= 48,
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			SQT_END,
 		};
 
@@ -172,6 +202,9 @@ class CX2QuestManager
 			int						m_iConditionItemNum;
 			int						m_iNotBeforeQuestID;	// 이 퀘스트를 clear 했으면 퀘스트를 받을 수 없다
 			std::vector<int>		m_vecBeforeQuestID;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			int						m_iUnitClassTran;		// June 32323120 @32323572: a m_eUnitClass value >= 1000 is not a class; cond+0x18 = value % 1000 ( QR_NONE 0, QR_TRANSCENDENTAL_CLASS 1 )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 #ifdef SERV_EPIC_QUEST
 	#ifdef REFORM_QUEST			
@@ -193,6 +226,9 @@ class CX2QuestManager
 				m_iConditionItemID		= -1;
 				m_iConditionItemNum		= -1;
 				m_iNotBeforeQuestID		= -1;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+				m_iUnitClassTran		= 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 #ifdef SERV_EPIC_QUEST
 	#ifdef REFORM_QUEST
 				m_iLimitLevel			= -1;		//수행 레벨 상한 제한
@@ -292,9 +328,31 @@ class CX2QuestManager
 		int								m_iLearnNewSkillCount;
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			// June 32323ad0 keys March did not read ( q0a_june_clearcond.md ); the June offsets are the clear condition struct's
+	#ifdef REFORM_QUEST
+			char							m_cDifficulty;					// +0x13c, int in June; missing -> -1. No reader in June's quest manager ( Q3 looks for a UI reader )
+	#endif REFORM_QUEST
+			int								m_ePvpRank;						// +0x118 ( case 45 SQT_PVP_RANK )
+			int								m_iCollectionHonorPointCount;	// +0x11c ( case 39 )
+			bool							m_bIsGuildJoin;					// +0x120 ( case 38 )
+			int								m_iExchangeCount;				// +0x124 ( case 43 )
+			std::vector<int>				m_vecExchangeSourceItem_ID;		// +0x128 ( case 43; June's loop is inverted, JUNE_BUGS 321, so it stays empty )
+			int								m_ePvpTournamentType;			// +0x138 ( cases 9 / 10; optional, 0 )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			ClearCondition()
 			{
 				m_iKillNum				= 0;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	#ifdef REFORM_QUEST
+				m_cDifficulty			= -1;
+	#endif REFORM_QUEST
+				m_ePvpRank				= 0;
+				m_iCollectionHonorPointCount	= 0;
+				m_bIsGuildJoin			= false;
+				m_iExchangeCount		= 0;
+				m_ePvpTournamentType	= 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 				m_iCollectionItemID		= -1;
 				m_iCollectionItemNum	= 0;
@@ -395,6 +453,9 @@ class CX2QuestManager
 			CX2Unit::UNIT_CLASS 	m_eChangeUnitClass;
 			std::vector<ITEM_DATA>	m_vecItem;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			int						m_iChangeUnitClassTran;	// June 32330250 @3233088e: for QT_CHANGE_TRANSCENDENTAL_CLASS reward+0x38 = m_eChangeUnitClass % 1000 ( miss 0 ); m_eChangeUnitClass stays UC_NONE
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			Reward()
 			{
 				m_bEnable	= true;
@@ -403,6 +464,9 @@ class CX2QuestManager
 				m_iBuff		= 0;
 				m_iSP		= 0;
 				m_eChangeUnitClass = CX2Unit::UC_NONE;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+				m_iChangeUnitClassTran = 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			}
 			~Reward()
 			{
@@ -525,6 +589,15 @@ class CX2QuestManager
 			int								m_iNextVillageID;		// 마을 이동 가이드를 위한 다음 마을 아이디( 마지막 에픽퀘스트에만 설정)
 
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+			// June 323321f0 / 32330250 quest-level keys ( q0a_june_templets.md ); June offsets in the comments
+			bool							m_bIsAccount;					// +0x270
+			bool							m_bIsGuild;						// +0x271
+			int								m_iGuildCoopQuestRewardID;		// +0x274, read from Reward.m_iGuildCoopQuestRewardID
+			int								m_iChainID;						// +0x278
+			std::vector<int>				m_vecAdditionalSceneQuestID;	// +0x27c ( > 0 )
+			std::wstring					m_wstrSelectBGM;				// +0x28c ( a wstring, not a float )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 			QuestTemplet()
 			{
 #ifdef ADD_SERVER_GROUP
@@ -545,6 +618,12 @@ class CX2QuestManager
 
 				m_bIsPcBang		= false;
 				m_bIsTimeEvent	= false;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+				m_bIsAccount	= false;
+				m_bIsGuild		= false;
+				m_iGuildCoopQuestRewardID	= 0;
+				m_iChainID		= 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 				m_wstrDissConditionText = L"";
 				m_wstrGreetingText		= L"";
@@ -663,6 +742,48 @@ class CX2QuestManager
 			std::set<int> m_setQuestID[CJT_JOB_END];
 		};
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+		/// Q1. June's chain index ( manager +0xfc ): chain id -> { quest ids, AllowFewDays ( node +0x20 ), TestMinute ( node +0x24 ) }.
+		/// Quests fill the set while they are parsed ( 323321f0 @323342ad ); AddChainQuestDays ( 32322b10 ) only updates an existing entry.
+		struct ChainQuestData
+		{
+			std::set<int>	m_setQuestID;
+			int				m_iAllowFewDays;
+			int				m_iTestMinute;
+
+			ChainQuestData() : m_iAllowFewDays( 0 ), m_iTestMinute( 0 ) {}
+		};
+
+		/// Q1. One per-character row of a Quest_Event_Scene_Info entry ( June 31eeb040, g_pData +0x498 map's +0x74 map, keyed by CHAR ).
+		/// Missing strings are empty and missing end frames are -1 ( @31eec2de / @31eec85f ). Read by Q5b.
+		struct QuestEventSceneChar
+		{
+			std::wstring		m_wstrStartScene;
+			std::wstring		m_wstrEndScene;
+			std::vector<int>	m_vecStartSceneMent;
+			std::vector<int>	m_vecEndSceneMent;
+			int					m_iStartSceneEndFrame;
+			int					m_iEndSceneEndFrame;
+
+			QuestEventSceneChar() : m_iStartSceneEndFrame( -1 ), m_iEndSceneEndFrame( -1 ) {}
+		};
+
+		/// Q1. One Quest_Event_Scene_Info entry, keyed by QuestID ( June g_pData +0x498 ). The DEFAULT_* values apply to a unit type with no row of its own.
+		struct QuestEventSceneInfo
+		{
+			int								m_iQuestID;
+			std::wstring					m_wstrDefaultStartScene;
+			std::wstring					m_wstrDefaultEndScene;
+			std::vector<int>				m_vecDefaultStartSceneMent;
+			std::vector<int>				m_vecDefaultEndSceneMent;
+			int								m_iDefaultStartSceneEndFrame;
+			int								m_iDefaultEndSceneEndFrame;
+			std::map<int, QuestEventSceneChar>	m_mapChar;
+
+			QuestEventSceneInfo() : m_iQuestID( 0 ), m_iDefaultStartSceneEndFrame( -1 ), m_iDefaultEndSceneEndFrame( -1 ) {}
+		};
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+
 	public:
 		CX2QuestManager(void);
 		virtual ~CX2QuestManager(void);
@@ -671,6 +792,21 @@ class CX2QuestManager
 
 		bool	AddQuestTemplet_LUA();
 		bool	AddSubQuestTemplet_LUA();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+		/// Q1. June 32322b10 ( bound as AddChainQuestDays ). AddGroupChainQuest is NOT bound in June ( JUNE_BUGS 320 ), so it is not here either.
+		bool	AddChainQuestDays_LUA();
+		/// Q1. June 31eeb040: Quest_Event_Scene_Info.lua -> m_mapQuestEventSceneInfo. Called from CX2Data::ResetQuestManager.
+		void	LoadQuestEventSceneInfo();
+		/// Q1. June 3258c470 @3258fc67: ChainQuestInfo.lua. Its 6th call is AddGroupChainQuest, which June never binds, so the file stops there ( JUNE_BUGS 320 ).
+		bool	LoadChainQuestInfo();
+		/// Q1. The [JUNE_QUEST] LOAD census line ( offline_server.log ). guild / coop counts come from the callers.
+		void	LogLoadCensus( int iGuildCoopRows_ ) const;
+
+		const std::map<int, ChainQuestData>&			GetChainQuestMap() const { return m_mapChainQuest; }
+		const std::map<int, std::set<int> >&			GetStoryQuestMap() const { return m_mapStoryQuest; }
+		const std::map<int, QuestEventSceneInfo>&		GetQuestEventSceneInfoMap() const { return m_mapQuestEventSceneInfo; }
+		int												GetSubQuestTempletCount() const { return static_cast<int>( m_mapSubQuestTemplet.size() ); }
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 #ifdef LUA_TRANS_DEVIDE
 		bool	AddQuestTempletTrans_LUA();
 		bool	AddSubQuestTempletTrans_LUA();
@@ -889,6 +1025,14 @@ class CX2QuestManager
 	private:
 		map<int,QuestTemplet*>				m_mapQuestTemplet;
 		map<int,SubQuestTemplet*>			m_mapSubQuestTemplet;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+		map<int, ChainQuestData>			m_mapChainQuest;				/// June manager +0xfc
+		map<int, std::set<int> >			m_mapStoryQuest;				/// June manager +0xec: QT_STORY quests by m_iEpisodeGroupID
+		map<int, QuestEventSceneInfo>		m_mapQuestEventSceneInfo;		/// June g_pData +0x498 ( kept here: the quest manager is reset with the quest files )
+		int									m_iGuildQuestSkipped;			/// guild quests parsed and dropped ( decision 2026-10-17 )
+		int									m_iChainQuestDaysCalls;			/// AddChainQuestDays calls received
+		int									m_iChainQuestDaysApplied;		/// ... that found an existing chain entry
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 		map<int,QuestInst*>					m_mapUnitQuest;
 		map<int,int>						m_mapCompleteQuest;

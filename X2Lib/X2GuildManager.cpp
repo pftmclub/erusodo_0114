@@ -2142,6 +2142,10 @@ wstring		CX2GuildManager::ConvertDisplayGuildName( const wstring &wstrGuildName 
 bool		CX2GuildManager::OpenScriptFile( const wstring wstrFileName )
 {
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pGuildManager", this );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+	// June 324066c0 publishes the same object under a second name: GuildCoopQuestRewardTable.lua calls g_pGuildCoopQuestRewardTable:AddGuildRewardData
+	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "g_pGuildCoopQuestRewardTable", this );
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
 	if( true == wstrFileName.empty() )
 		return false;
@@ -2150,6 +2154,17 @@ bool		CX2GuildManager::OpenScriptFile( const wstring wstrFileName )
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_LOAD
+// Quest Q1. June 32406670 -> 324150f0: multimap insert keyed by the first argument. Rows are only counted offline ( no guild quests ).
+void CX2GuildManager::AddGuildRewardData_LUA( int iRewardID, int iItemID, int iQuantity, int iFourth )
+{
+	GuildCoopQuestReward kReward;
+	kReward.m_iItemID		= iItemID;
+	kReward.m_iQuantity	= iQuantity;
+	kReward.m_iFourth		= iFourth;
+	m_mmapGuildCoopQuestReward.insert( std::make_pair( iRewardID, kReward ) );
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 void		CX2GuildManager::SetLimitGuildLevel_LUA( BYTE byLimitGuildLevel )
 {
 	m_byLimitGuildLevel = byLimitGuildLevel;

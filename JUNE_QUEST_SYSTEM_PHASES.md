@@ -375,6 +375,35 @@ payload field, UI function, kom file and cheat) plus 16 funcmap rows `(Quest RM0
   scene-info 268, coop 45;
 - no `XEM_ERROR79/80` new against a pre-Q1 ErrorLog.
 
+### Q1 - Done (2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD` (`Always.h`; `MODS.md` has the file list and the revert). Code is built and deployed; the log census is the user's play-test.
+- **Enums.** C++ and merged `Enum.lua`: QT 8-10 (`QT_END` 11), QRT 3-5, `CJT_JOB_FOURTH` 6 (`CJT_JOB_END` 7), SQT 37-48 (`SQT_END` 49), `QUEST_REWARD_TRAN_CLASS`, `PVP_TOURNAMENT_TYPE`,
+  `PGT_WINNER` / `_1VS1_CHALLENGE_MODE` / `_AMUSEMENT_ITEM`, `PCC_1VS1_PVP_CHALLENGE`, `NUI_STORY_QUEST` / `NUI_TRANSCEND_QUEST` / `NUI_EVENT_KEEPER` / `NUI_EVENT_GUILD_EDAN_VILAGE`.
+  `DL_HELL` / `DL_NOMAL` stay nil; `NUI_EDEL` stays 10072. The other June-only PVP members (`PGT_GUILD`, `PGT_EVENT_MODE`, ...) were not added: no quest file names them.
+  `_END` readers: `QT_END` / `SQT_END` have none outside the header; the `CJT_JOB_END` loops (`X2QuestManager.cpp`, `X2UIQuestNew.cpp`) now also walk the empty `CJT_JOB_FOURTH` set.
+- **Parser.** As the kickoff's list: quest keys, QR tail scalar, QT 9 reward split, clear-condition cases 37-39 / 43-47 / 48, `m_cDifficulty` (after the switch, June's 14 dungeon cases),
+  `m_ePvpTournamentType`, `m_eDungeonID` keeping 0 (11 sites), case 43's inverted loop (JUNE_BUGS 321, plus a 1000-index cap June lacks so an empty table cannot hang).
+- **Binders / loader.** `AddGuildQuestTemplet_LUA` (same function as `AddQuestTemplet_LUA`), `AddChainQuestDays`, `CX2GuildManager::AddGuildRewardData` (+ `g_pGuildCoopQuestRewardTable`, a second
+  name for the guild manager, June `324066c0`). `AddGroupChainQuest` is not bound (JUNE_BUGS 320). Order in `CX2Data::ResetQuestManager`: Field, Sub, Account, **Guild**, ChainQuestInfo, Quest_Event_Scene_Info,
+  census line; `AccountQuestDate` keeps its place in `X2StateLoading` (an independent table, empty in June).
+- **Choices to know about.**
+  - Guild quests (`QT_GUILD` / `m_bIsGuild`) are parsed, logged one per line, and not stored (the 2026-10-17 decision).
+  - Chain and story indexes are written only for a stored quest; June writes while parsing, so a failed quest stays in its chain set there.
+  - Scene-info rows live on the quest manager (`GetQuestEventSceneInfoMap()`), not in `g_pData` as in June (`+0x498`). Q5b reads them from there.
+  - `m_cDifficulty` is a `char` (June: int); `AddGuildRewardData`'s 4th argument is stored as `m_iFourth` (0 in all 45 rows).
+  - `ChainQuestInfo.lua` returns false after its 5 `AddChainQuestDays` calls (the 6th is the unbound `AddGroupChainQuest`). With March's `FieldQuest` no quest has `m_iChainID`, so "applied" is 0 until Q2.
+- **Data.** data036: June's `GuildQuest.lua` (14,570 B), `ChainQuestInfo.lua` (531 B), `GuildCoopQuestRewardTable.lua` (1,610 B), `Quest_Event_Scene_Info.lua` (129,348 B), all new, adopt-june run record
+  `june2017_re/june_adopt_20261019_065305.tsv`; `Enum.lua` edited as text, `luasrc.py refresh` done, `ledger --check` PASS. Packed (`PACK OK data036`: +4 added, ~1 changed) and copied with the user's yes
+  (`COPY OK data036`, md5 `2d100f15...`, backup `kom_backup_tools\data036.kom.20261019_070244`).
+- **Hygiene.** `flagcheck JUNE_QUEST_LOAD --worktree --files <7 code files>`: 5 PASS, 1 PASS~ (header), Always.h DEFINE (OTHER only because a peer's flags sit in the same file), 0 FAIL, 0 deleted lines, 0 non-ASCII,
+  0 EOL mismatch, 0 `#endif` without the token. `--range` after the commit: see the review.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,123,840 B, dated 2026-10-19 07:04:59, md5 8525b5e686972c2c504b2145bede96bc, equal to X2/US_SERVICE/x2.exe (2026-10-19 07:04:51); built at main 12cc4fb3 + 17 uncommitted code file(s).`
+  The exe holds the `[JUNE_QUEST] LOAD quests` string and the three binder names.
+- **To see it.** Start the game (any character, reach the village). `python tools/logs.py --tag JUNE_QUEST` should show one `LOAD quests 1460 sub-quests 1733 guild skipped 15` census line,
+  `LOAD guild quest <id> skipped` x15, `LOAD ChainQuestInfo.lua loaded 0 ... calls 5 applied 0`, `scene-info 268 coop 45`. No new `XEM_ERROR79/80` against a pre-Q1 ErrorLog.
+- **Open for the user.** Nothing. The review is `kickoffs/quest-system/Q1-review.md`.
+
 ## Phase Q2 - Data flip and old-save migration
 
 **Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_DATA`. Sub-tags `LOAD`, `MIG`.
