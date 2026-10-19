@@ -8949,7 +8949,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-19
 // Description: June quest Q3 debug: at the first login a self-check logs MakeSubQuestString / IsComplete for one sub-quest of each type the phase touches
 //              ( [JUNE_QUEST] RUN chk ). Off after the Q3 review.
-#define SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG
+//#define SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG		// off since the Q3 review ( 2026-10-19 )
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

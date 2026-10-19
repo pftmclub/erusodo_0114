@@ -611,6 +611,26 @@ was read in Ghidra (decompile + disassembly where the decompile hid a compare). 
   an instance, completion with the flag off / on), `chk repeat` (week / month expiry on synthetic dates), `chk chain` per chain, then `SetUnitQuest ...` and `chain rebuild ...` lines. Chain and repeat purge on
   real data: see the hand-off.
 
+### Q3 - Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS, no transcription errors, no code fix.** `c1e0f8f5` was checked against Ghidra (read-only) and `q0a_qm_summary.md`. The only change is `SERV_IRUHADEV_JUNE_QUEST_RUNTIME_DEBUG` off (`Always.h`).
+- **Hygiene.** `flagcheck JUNE_QUEST_RUNTIME --range c1e0f8f5^..c1e0f8f5 --with JUNE_QUEST_RUNTIME_DEBUG`: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. Flag off = Q2's build (insert-only, every `#else` intact).
+- **Ghidra spot checks (all match).**
+  1. `SetUnitQuest` 32336e80: clears only when param 4 == 1. Per record: a missing templet or the wrong server group is counted with no chain record; then the QRT_DAY skip; then type 3 -> `32322050` and type 4 -> `32321d10`, both skip (not counted); then templet +0x278 != 0 -> insert under +0x11c (a new list when the chain is absent); then the count. After the loop: `3232ef70`, `32335f50` (Q10), the 11005 novice flag, `323227e0`, `31d79ac0` (Q8). The port has the same order.
+  2. `GetBoardStartQuestList` 3232fd70: all 35 village cases equal the port's table. Tail: 1500 adds 0x2729 (`NUI_BILLBOARD` 10025); the *current* village 20005 / 1008 returns early; then 10026 / 10048 / 10049 (Glave / Luto / Dao, counted in `X2UnitManager.h`). June state 0xe = March `XS_VILLAGE_MAP` (14); 0x15 calls `324826f0` (return village, funcmap "Atlas A1a" row) = March `XS_BATTLE_FIELD` (24 in March, whose enum still has the arcade states).
+  3. `IsForbiddenQuest` 3232e510: `templet +0xe0 != -1 && != unit +0x3c && type != 1` (`QT_EVENT` = 1). At March's step 0 this is the port's `!= -1 && != 0`. **Stage 6 must replace the literal 0 with the step.** QT 9: 0x920 `[0] == 0xc`, 0x921 `[1] == 0x87`, 0x923 `[1] == 0x88`. The 9000 / 9010 test = March's `SERV_SKILL_NOTE` block.
+  - Extra: `RemoveUnitQuest` 32331fb0 rebuilds for both complete and give-up, and only when the quest was in progress. The port matches.
+- **Checked from the diff and the Q0a summary:** the chain rule (max time, minute branch, local midnight, the 4 rebuild sites, insert-unique); the week offset (`wday+1 > 3` is the same as June's `!< 4`; Wednesday -> 7); the December wrap; `<=` against time64; the list gates (QT 2 / 9 dedup, guild, QT 8 in the non-repeat branch, chain flag after the class-change loop); the `MakeSubQuestString` groups (0x2c / 0x30 count +0x80, 0x25 +0x80, 0x27 honor, 0x2b exchange, `42924` then `17688`).
+- **Server-fed gates left out: agreed.** Of 208020..208060 / 205530 / 37100, none is in June's `FieldQuest.src.lua`. 31000 is, and its gate (`g_pData +0x52c == 1`) defaults to "not forbidden". The `+0x530` records are a server push.
+- **Not re-proved, no change:**
+  - the auto SQT 37 trailing newline (Q3 calls it a guess; cosmetic);
+  - `GetClassUpQuestNoticeState` (no caller until Stage 9);
+  - June's else-branch for a failed `localtime` (midnight(T) + days - 1), which the port reads as "available". It cannot be reached for a positive time.
+- **Routed:** the Q3 note's "counts over 255" contradicted Q4's Done note. June's data has 8 SQT_NPC_HUNT sub-quests at 300-500, so it went into `Q4-review.md`. The Q4 review settled it: all 8 are orphans, and the field stays a UCHAR.
+- **Kickoffs:** Q4b (keeps off Q3's runtime code), Q6 and Q10 still read right. Q6 can start now; Q10 still waits on the Q5a review.
+- **Deploy.** `COALESCED` (peer build at b369047c), then `DEPLOY OK: X2_offline.exe is 25,378,304 B, dated 2026-10-19 13:32:18, md5 d6d5904ead27d67a1a21bf16e78a9b94, equal to X2/US_SERVICE/x2.exe (2026-10-19 13:32:11); built at main 6785efa9 + 5 uncommitted code file(s).` The exe no longer holds `[JUNE_QUEST] RUN chk` but still holds `chain rebuild` / `repeat purge`.
+
 ## Phase Q4 - Offline completion of every sub-quest type
 
 **Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_OFFLINE`. Sub-tag `OFF`.

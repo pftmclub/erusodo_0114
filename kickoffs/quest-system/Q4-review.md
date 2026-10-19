@@ -35,3 +35,11 @@ Paste its `files:` / `in this flag's files:` / `RESULT:` lines. Explain every OT
 
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand design decisions back to the user. Write
 "Q4 - Review" into the plan doc, update the Q4 row in `STATUS.md`, check `kickoffs/quest-system/Q4b.md` and `RM1.md`, and commit.
+
+## Amended by the Q3 review (2026-10-19)
+
+- **Counts over 255.** Q4's Done note says "no live sub-quest counts past 255, so `KSubQuestInstance` stays UCHAR". June's
+  `june_src_fixed/data036_kom/FieldSubQuest.src.lua` has 8 SQT_NPC_HUNT sub-quests above 255: 36020 (380), 203490 / 203530 / 203580 /
+  204950 (300), 203500 / 204400 / 206510 (500); also SQT 39 honor points 4530 / 8400 / 12900 (guild, undriven) and one collection of 333
+  (inventory count, not the UCHAR). Check whether the emulator's hunt counter wraps or stops at 255 for these, and whether any of their quests
+  is reachable offline. If one is, widening `m_ucClearData` to June's `short` is a Q4 fix (shared struct: Rules "Shared structs").
