@@ -2507,6 +2507,11 @@ bool CX2SkillTree::Handler_EGS_RESET_SKILL_ACK( HWND hWnd, UINT uMsg, WPARAM wPa
 
 			// 사운드
 			g_pKTDXApp->GetDeviceManager()->PlaySound( L"SkillTree_SkillDown.ogg", false, false );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+			/// June 322112d0 @3221186a: 3235a160 at the end of the OK path
+			if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+				g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 
 		
@@ -2732,6 +2737,11 @@ bool CX2SkillTree::Handler_EGS_INIT_SKILL_TREE_ACK( HWND hWnd, UINT uMsg, WPARAM
 					g_pData->GetUIManager()->GetUICharInfo()->ResetStat();
 				}
 			}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+			/// June 3220ea50 @3220ede2: the HUD max MP / HP refresh 3235a160 on my select unit, last on the OK path
+			if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+				g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 			//g_pMain->KTDGUIOKMsgBox( D3DXVECTOR2( 250, 300 ), L"모든 스킬을 초기화 하였습니다.", m_pNowStage );
 		}
@@ -3162,6 +3172,11 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 		
 		g_pData->GetUIManager()->GetUISkillTree()->OpenDLGSkillUnsealed( true );
 		g_pData->GetUIManager()->GetUISkillTree()->UpdateDLGSkillUnsealed( (CX2SkillTree::SKILL_ID) kEvent.m_iSkillID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+		/// June 3220ee30 @3220f004: 3235a160 after the tree redraw ( June runs that block only when AddSkillUnsealed 328914b0 returns true )
+		if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+			g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	}
 
 
@@ -3169,6 +3184,11 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 	{
 		g_pData->GetQuestManager()->GiveUpForbiddenQuest();
 	}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+	/// June 3220ee30 @3220f035: 3235a160 again, after the quest manager's 3232ecd0 ( June calls it twice )
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 	return true;
 }
@@ -3419,6 +3439,11 @@ bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPA
 	}
 
 	/// June then calls CX2Unit 3235a160, a HUD stat refresh through a June-only singleton ( 324943c0 ) March does not have ( S7b note )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+	/// skill Phase S7k: that is the HUD max MP / HP refresh ( 323b0770 @323b0888, 324631a0 @3246334e ); 324943c0 is March's CX2GageManager
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 	return true;
 }
 

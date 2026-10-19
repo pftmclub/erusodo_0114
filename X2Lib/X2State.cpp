@@ -9166,6 +9166,11 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 		}
 	}
 #pragma endregion
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+	/// June's class-change NOT 31f276b0 @31f27bd2: 3235a160 after the skill / memo merge ( S7h ports the handler whole )
+	if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 	if( g_pData != NULL && g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetSelectUnit() != NULL &&
 		g_pData->GetMyUser()->GetSelectUnit()->GetUID() == kEvent.m_iUnitUID )

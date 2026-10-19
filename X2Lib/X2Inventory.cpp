@@ -1181,6 +1181,42 @@ float CX2Inventory::JuneGetAddMaxMPValue( const int iJuneEquipGroup_ ) const
 	return fAddMaxMPValue;
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+/// June 3286a4b0 ( skill Phase S7k ): the equipment group of an equipped item, by its slot id ( an equipped-UID map, node +0x18, short +4;
+/// 0xffff when the UID is not equipped ): 1 / 3 / 5 / 7 / 9 -> 2 ( both groups ), 0x14..0x22 / 0x24 / 0x26 / 0x28 / 0x2a -> 1 ( June's
+/// second character's slots ), anything else -> 0. March's equipped slots are 0..19, so March items are group 2 or 0.
+int CX2Inventory::JuneGetEquipGroup( const UidType itemUID_ ) const
+{
+	int iSlotID = 0xffff;
+	map< int, InvenSlotData* >::const_iterator mItr;
+	for( mItr = m_ItemMap[ST_E_EQUIP].begin(); mItr != m_ItemMap[ST_E_EQUIP].end(); ++mItr )
+	{
+		const InvenSlotData* pInvenSlotData = mItr->second;
+		if ( NULL != pInvenSlotData && NULL != pInvenSlotData->m_pItem && itemUID_ == pInvenSlotData->m_pItem->GetUID() )
+		{
+			iSlotID = static_cast<unsigned short>( pInvenSlotData->m_SlotID );
+			break;
+		}
+	}
+
+	switch ( iSlotID )
+	{
+	case 1:
+	case 3:
+	case 5:
+	case 7:
+	case 9:
+		return 2;
+
+	case 0x14: case 0x15: case 0x16: case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b:
+	case 0x1c: case 0x1d: case 0x1e: case 0x1f: case 0x20: case 0x21: case 0x22:
+	case 0x24: case 0x26: case 0x28: case 0x2a:
+		return 1;
+	}
+
+	return 0;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 //}} kimhc // 2009-10-19 // 최대 MP 증가 값 얻어오기
 
 //{{ kimhc // 2010-01-04 // 기존의 EGS_SELECT_UNIT_ACK에 인벤정보가 포함되어 오던 것 분할

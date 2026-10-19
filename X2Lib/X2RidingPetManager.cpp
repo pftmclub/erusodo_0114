@@ -1110,6 +1110,10 @@ bool CX2RidingPetManager::Handler_EGS_UNSUMMON_RIDING_PET_ACK( HWND hWnd, UINT u
 					{
 						pMyUnit->ProcessRidingOn( false );
 						pMyUnit->GetUnit()->ClearRidingPetInfo();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+						/// June 321ff5d0 @321ff6e9: in the village states ( June 0xe / 0xf ), 3235a160 on the field game's my unit's CX2Unit ( +8 -> +0x1a0 )
+						pMyUnit->GetUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 					}
 				}
 				break;

@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\x2unit.h"
+#if defined( SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP ) && defined( SERV_IRUHADEV_OFFLINE )
+#include "Offline/X2OfflineLog.h"
+#endif // SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP && SERV_IRUHADEV_OFFLINE
 
 CX2Unit::CX2Unit( const KUnitInfo& unitInfo )
     //: m_pUnitData(NULL)
@@ -128,6 +131,9 @@ void CX2Unit::Init()
 #ifdef SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
 	m_iGateOfDarknessSupportEventTime = 0;
 #endif SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
+#ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+	m_kJuneSocketAggregate.Recreate();		/// June 32363ca0 @32363cb9: the old aggregate's vslot 0( 1 ), then new 0x468 ( 32091080 )
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
 }
 
 CX2Unit::~CX2Unit(void)
@@ -1155,8 +1161,512 @@ float CX2Unit::ResetMaxMp( const float fMaxMp_ )
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+/// June skill system Phase S7k: CX2Unit's own socket aggregate. June CX2Unit +0xe1c is a CX2SocketItem::SocketData ( new 0x468, ctor
+/// 32091080, vtable 33478a98; unit type 10, Lu/Ciel, gets 0x488 32091730: no March class ), made by CX2Unit::Init 32363ca0 and filled
+/// from this unit's data by vtable 3348ffe4 slot 1 ( 32365d30 = JuneInitSocketData ) through the unit-side SumSocketOption 32364790.
+/// +0xe20 ( summon list ) and +0xe30 ( the title's options ) are two more CX2Unit vectors only that fill writes; they live here too.
+struct CX2Unit::JuneSocketAggregate
+{
+	struct SummonNpc					/// the 12-byte entry 32364790 @32364c3d..32364c6c pushes ( 3210aae0 )
+	{
+		int		m_iNpcId;				/// socket +0x240
+		float	m_fSummonRate;			/// socket +0x244
+		float	m_fSummonNpcCoolTime;	/// socket +0x248
+	};
+
+	CX2SocketItem::SocketData	m_kSocketData;			/// +0xe1c
+	std::vector<SummonNpc>		m_vecSummonNpcSocket;	/// +0xe20: June never clears it ( Init, the fill and the sum leave it ): JUNE_BUGS
+	std::vector<int>			m_vecTitleSocketOption;	/// +0xe30: the title's options, copied in before they are summed ( 32853ff0 )
+};
+
+CX2Unit::JuneSocketAggregateHolder::JuneSocketAggregateHolder()
+	: m_p( NULL )
+{
+}
+
+CX2Unit::JuneSocketAggregateHolder::JuneSocketAggregateHolder( const JuneSocketAggregateHolder& rhs_ )
+	: m_p( NULL == rhs_.m_p ? NULL : new JuneSocketAggregate( *rhs_.m_p ) )
+{
+}
+
+CX2Unit::JuneSocketAggregateHolder& CX2Unit::JuneSocketAggregateHolder::operator=( const JuneSocketAggregateHolder& rhs_ )
+{
+	if ( this != &rhs_ )
+	{
+		SAFE_DELETE( m_p );
+		if ( NULL != rhs_.m_p )
+			m_p = new JuneSocketAggregate( *rhs_.m_p );
+	}
+	return *this;
+}
+
+CX2Unit::JuneSocketAggregateHolder::~JuneSocketAggregateHolder()
+{
+	SAFE_DELETE( m_p );
+}
+
+/// June 32363ca0 @32363cb9..32363d53: the old SocketData is deleted ( vslot 0( 1 ) ) and a new one made; the unit vectors +0xe20 /
+/// +0xe30 are not touched ( Init runs from the ctors, where they are empty ).
+void CX2Unit::JuneSocketAggregateHolder::Recreate()
+{
+	if ( NULL == m_p )
+		m_p = new JuneSocketAggregate;
+	else
+		m_p->m_kSocketData = CX2SocketItem::SocketData();
+}
+
+/** @function : JuneSumSocketOption
+	@brief : June 32364790 ( CX2Unit, ret 0xc; args vector, float, int ): the unit-side SumSocketOption, into the aggregate +0xe1c.
+		Per id: templet 32715320 ( socket item g_pData +0x280 ); a PVP_ONLY ( +0x191 ) or DUNGEON_ONLY ( +0x190 ) socket is skipped whole
+		( the user side 3204f190 gates them by game type instead ); the unit type is 31e4c370 ( the +0xaf0 templet's, 0 without one ).
+		The float is the item's magic attack for equipment ( 32365d30 @323660b3: [esp+0x30] = 328842f0's +0x20 ), 1.0 otherwise; June
+		reads it only in the +0x324 block, which March does not have ( see there ). Not in the unit version ( user-side only ): the
+		enchant attack / resist, the skill-slot pass 31fe14f0, user vslot 485, InitSocketEffectEx, the old EDT copy, the monster damage /
+		evade maps, the immune entry, socket 2000145 and the 4119 / 4120 summon gate.
+*/
+void CX2Unit::JuneSumSocketOption( const std::vector<int>& vecSocketOption_, const float fAtkMagic_, const int iSocketLevel_ )
+{
+	/// March safety: June calls 32715320 on g_pData +0x280 unchecked, and its Init always made the aggregate
+	if ( NULL == m_kJuneSocketAggregate.m_p || NULL == g_pData || NULL == g_pData->GetSocketItem() )
+		return;
+
+	JuneSocketAggregate& kJuneAggregate = *m_kJuneSocketAggregate.m_p;
+	CX2SocketItem::SocketData& kAggregate = kJuneAggregate.m_kSocketData;
+
+	for ( UINT i = 0; i < vecSocketOption_.size(); ++i )
+	{
+		const CX2SocketItem::SocketData* pSocketData = g_pData->GetSocketItem()->GetSocketData( vecSocketOption_[i] );
+		if ( NULL == pSocketData || true == pSocketData->m_bPVPOnly || true == pSocketData->m_bDungeonOnly )
+			continue;
+		const CX2SocketItem::SocketData& kSocketData = *pSocketData;
+
+		const CX2Unit::UNIT_TYPE eJuneUnitType = ( NULL != GetUnitTemplet() ) ? GetType() : CX2Unit::UT_NONE;
+
+		/// @32364844..3236498a: rank-linked ( +0x294 ) -> a scaled copy at the PvP table's rate for this unit's rank ( 31edfe70( +0x114 ) );
+		/// PVE-rank-linked ( +0x58 ) -> the PVE table ( 31edfeb0( 32070600( 1 ), bForMP ); March has no PVE rank: key 0, as the user side );
+		/// else the socket itself. Each is ConvertAndAdd'ed ( 32080670 ) with this level and this unit's type.
+		if ( kSocketData.m_bIsRankLinkedStat || kSocketData.m_bIsPVERankLinkedStat )
+		{
+			float fRankRate = 0.f;
+			if ( true == kSocketData.m_bIsRankLinkedStat )
+			{
+				fRankRate = g_pData->GetJunePvpReferData( static_cast<int>( static_cast<char>( m_UnitData.m_cRank ) ) );
+			}
+			else
+			{
+				const bool bForMP = ( 0.f < kSocketData.m_fMPIncByAttack && kSocketData.m_fMPIncByAttack == kSocketData.m_fMPIncByAttacked );
+				fRankRate = g_pData->GetJunePveReferData( 0, bForMP );
+			}
+
+			CX2SocketItem::SocketData kScaledSocketData;
+			kScaledSocketData.SetJuneRankLinkedScaled( kSocketData, fRankRate );
+#ifdef SERV_9TH_NEW_CHARACTER
+			kAggregate.ConvertAndAdd( kScaledSocketData, iSocketLevel_, eJuneUnitType );
+#else SERV_9TH_NEW_CHARACTER
+			kAggregate.ConvertAndAdd( kScaledSocketData, iSocketLevel_ );
+#endif SERV_9TH_NEW_CHARACTER
+		}
+		else
+		{
+#ifdef SERV_9TH_NEW_CHARACTER
+			kAggregate.ConvertAndAdd( kSocketData, iSocketLevel_, eJuneUnitType );
+#else SERV_9TH_NEW_CHARACTER
+			kAggregate.ConvertAndAdd( kSocketData, iSocketLevel_ );
+#endif SERV_9TH_NEW_CHARACTER
+		}
+
+		/// @3236498a: the templet's skill power map ( +0x48 ) is added key by key ( 3207a5e0 = operator[] on the aggregate's +0x48 )
+		for ( std::map<int, float>::const_iterator mit = kSocketData.m_mapJuneSkillAdditionalPowerRate.begin();
+			mit != kSocketData.m_mapJuneSkillAdditionalPowerRate.end(); ++mit )
+		{
+			kAggregate.m_mapJuneSkillAdditionalPowerRate[ mit->first ] += mit->second;
+		}
+
+		/// @323649f7: the skill level-up ids ( +0x38 ) go to the end ( 3207d660 )
+		if ( false == kSocketData.m_vecSkillLevelUpID.empty() )
+		{
+			kAggregate.m_vecSkillLevelUpID.insert( kAggregate.m_vecSkillLevelUpID.end(), kSocketData.m_vecSkillLevelUpID.begin(), kSocketData.m_vecSkillLevelUpID.end() );
+		}
+#ifdef SERV_NEW_ITEM_SYSTEM_2013_05
+		/// @32364a1e: each level-up group ( +0x28 ) by this unit's class ( +0x38 ), every result pushed ( 32719be0, 3207b4c0 )
+		if ( false == kSocketData.m_vecSkillLevelUpGroupID.empty() )
+		{
+			BOOST_FOREACH( int iGroupID, kSocketData.m_vecSkillLevelUpGroupID )
+			{
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+				vector<SkillLevelUpIDAndNum> vecSkillLevelUPIDAndNumList;
+				g_pData->GetSocketItem()->GetSkillIDByUnicClassAndGropID( vecSkillLevelUPIDAndNumList, m_UnitData.m_UnitClass, iGroupID );
+				BOOST_FOREACH( const SkillLevelUpIDAndNum& kSkillLevelUPIDAndNum, vecSkillLevelUPIDAndNumList )
+				{
+					kAggregate.m_vecSkillLevelUpID.push_back( kSkillLevelUPIDAndNum );
+				}
+#else UPGRADE_SKILL_SYSTEM_2013
+				CX2SkillTree::SKILL_ID eSkillID = g_pData->GetSocketItem()->GetSkillIDByUnicClassAndGropID( m_UnitData.m_UnitClass, iGroupID );
+				if ( CX2SkillTree::SI_NONE != eSkillID )
+					kAggregate.m_vecSkillLevelUpID.push_back( eSkillID );
+#endif UPGRADE_SKILL_SYSTEM_2013
+			}
+		}
+#endif SERV_NEW_ITEM_SYSTEM_2013_05
+
+		/// @32364af3..32364bb2 not ported: when the templet's +0x324 is set, its 0x1c-byte block ( an int, two bytes, a refcounted pointer,
+		/// two floats ) is copied into the aggregate's +0x32c ( 3208c500 ) and its second float x fAtkMagic_ into the aggregate's +0x344.
+		/// March's SocketData has no such field and its loader no such key ( the user side 3204f190 @3204f5fc has the same block ).
+
+		/// @32364bb2 / @32364beb: the multiple extra damage ( +0x374 ) and the second list ( +0x384 ) are inserted at the front ( 3208f840 )
+		if ( false == kSocketData.m_MultipleSocketExtraDamage.empty() )
+		{
+			kAggregate.m_MultipleSocketExtraDamage.insert( kAggregate.m_MultipleSocketExtraDamage.begin(),
+				kSocketData.m_MultipleSocketExtraDamage.begin(), kSocketData.m_MultipleSocketExtraDamage.end() );
+		}
+		if ( false == kSocketData.m_vecJuneSecondSocketExtraDamage.empty() )
+		{
+			kAggregate.m_vecJuneSecondSocketExtraDamage.insert( kAggregate.m_vecJuneSecondSocketExtraDamage.begin(),
+				kSocketData.m_vecJuneSecondSocketExtraDamage.begin(), kSocketData.m_vecJuneSecondSocketExtraDamage.end() );
+		}
+
+		/// @32364c24: a summoning socket ( id > 0, rate > 0 ) goes to this unit's list +0xe20 ( no 4119 / 4120 gate here )
+		if ( 0 < kSocketData.m_iSummonNpcId && 0.f < kSocketData.m_fSummonNpcRate )
+		{
+			JuneSocketAggregate::SummonNpc kSummonNpc;
+			kSummonNpc.m_iNpcId				= kSocketData.m_iSummonNpcId;
+			kSummonNpc.m_fSummonRate		= kSocketData.m_fSummonNpcRate;
+			kSummonNpc.m_fSummonNpcCoolTime	= kSocketData.m_fSummonNpcCoolTime;
+			kJuneAggregate.m_vecSummonNpcSocket.push_back( kSummonNpc );
+		}
+
+#ifdef HAMEL_SECRET_DUNGEON
+		/// @32364c71: a hyper-mode socket ( +0x27c != -1 ) adds the user side's 24-byte entry to the aggregate's +0x280 ( 3208fa40 ), with
+		/// socket ID -1 ( 0xffffffff @32364cab ) where the user side writes the socket's own
+		if ( CX2SocketItem::HMET_NONE != kSocketData.m_eHyperModeEffectiveType )
+		{
+			CX2SocketItem::POSSIBLE_USE_PLACE ePossibleUsePlace = CX2SocketItem::PUP_ALL;
+			if ( true == kSocketData.m_bDungeonOnly )
+				ePossibleUsePlace = CX2SocketItem::PUP_DUNGEON_ONLY;
+			else if ( true == kSocketData.m_bPVPOnly )
+				ePossibleUsePlace = CX2SocketItem::PUP_PVP_ONLY;
+
+			CX2SocketItem::InfoByUseHyperMode sInfoByUseHyperMode;
+			sInfoByUseHyperMode.m_ePossibleUsePlace			= ePossibleUsePlace;
+			sInfoByUseHyperMode.m_eHyperModeEffectiveType	= kSocketData.m_eHyperModeEffectiveType;
+			sInfoByUseHyperMode.m_fEffectiveValue			= kSocketData.m_fEffectiveValue;
+#ifdef ADJUST_SECRET_ITEM_OPTION
+			sInfoByUseHyperMode.m_fCoolTime					= kSocketData.m_fIntervalTime;
+#endif ADJUST_SECRET_ITEM_OPTION
+			if ( NULL != kSocketData.m_ptrBuffFactorCustomUse )
+				sInfoByUseHyperMode.m_pBuffFactorPtr = kSocketData.m_ptrBuffFactorCustomUse;
+			sInfoByUseHyperMode.m_fJuneCoolTime				= kSocketData.m_fIntervalTime;	/// +0x1f8
+			sInfoByUseHyperMode.m_iJuneSocketID				= -1;
+			kAggregate.m_vecInfoByUseHyperMode.push_back( sInfoByUseHyperMode );
+		}
+#endif HAMEL_SECRET_DUNGEON
+
+		/// @32364d40..32365256: the cool-time cuts go to this unit's slot map +0xe78 ( 32355d70's insert-or-add, inlined ): active / 1st /
+		/// 2nd / 3rd SA to slots 1-4, then the all-skill cut to slots 1-4 ( the user side also gives it slot 6 )
+		AddJuneSocketCoolTimeCut( 1, kSocketData.m_fDecreaseActiveSkillCooltime );
+		AddJuneSocketCoolTimeCut( 2, kSocketData.m_fDecrease1stSA_SkillCooltime );
+		AddJuneSocketCoolTimeCut( 3, kSocketData.m_fDecrease2ndSA_SkillCooltime );
+		AddJuneSocketCoolTimeCut( 4, kSocketData.m_fDecrease3rdSA_SkillCooltime );
+		AddJuneSocketCoolTimeCut( 1, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+		AddJuneSocketCoolTimeCut( 2, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+		AddJuneSocketCoolTimeCut( 3, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+		AddJuneSocketCoolTimeCut( 4, kSocketData.m_fAllSkillCooltimeDecreaseRate );
+	}
+}
+
+/** @function : JuneSumSetItemSocketOption
+	@brief : June vtable 3348ffe4 slot 2 323652b0( mode, type-10 aggregate ): the set options. Set ID / parts of group 0 ( 32350cb0( 0 ) ),
+		per set 325bb840 ( item manager g_pData +0x34: options, max level ); with options and mode 0 or 2, summed at rate 1.0 and the max
+		level, or this unit's level when that is 0. The second group ( 32350cb0( 1 ), modes 1 / 2 ) runs only with the type-10 pointer:
+		never in March. 32350cb0 is March's GetSetIDNPartsNum plus three item tests: usable ( 328825c0 ), class ( 31ed6500 ) and
+		328823d0 ( an appearance item's linked templet, item +0x80 / +0x84: no March field ). Equipped March items already pass the
+		class test; the usable test is the endurance check March has ( REAL_TIME_ELSWORD ), the rest is backlog Stage 16.
+*/
+void CX2Unit::JuneSumSetItemSocketOption( const int iJuneMode_ )
+{
+	if ( NULL == g_pData || NULL == g_pData->GetItemManager() )
+		return;
+
+	map<int,int> mapSetIDNParts;
+	GetSetIDNPartsNum( mapSetIDNParts );
+
+	for ( map<int,int>::const_iterator mItr = mapSetIDNParts.begin(); mItr != mapSetIDNParts.end(); ++mItr )
+	{
+		vector<int> vecOptions;
+		const int iMaxLevel = g_pData->GetItemManager()->GetSetItemOptions( mItr->first, mItr->second, vecOptions );
+		if ( true == vecOptions.empty() )
+			continue;
+
+		if ( 0 == iJuneMode_ || 2 == iJuneMode_ )
+			JuneSumSocketOption( vecOptions, 1.f, ( 0 < iMaxLevel ) ? iMaxLevel : static_cast<int>( m_UnitData.m_Level ) );
+	}
+}
+
+/** @function : JuneInitSocketData
+	@brief : June vtable 3348ffe4 slot 1 32365d30( mode ): refill the aggregate from this unit's data. Mode 0 / 1 / 2 and the group
+		filter 3286a4b0 act only with the type-10 aggregate ( Lu/Ciel, @32365d63 ); without it every source below is summed.
+		Order: ReInit, clear +0xe78, equipment, pet aura, riding pet, ( customize ), title, ( party ), set items, premium buffs,
+		LimitMaximum( 0 ), ResetIncreaseSkillLevelBySocket.
+*/
+void CX2Unit::JuneInitSocketData( const int iJuneMode_ )
+{
+	if ( NULL == m_kJuneSocketAggregate.m_p || NULL == g_pData )
+		return;
+
+	JuneSocketAggregate& kJuneAggregate = *m_kJuneSocketAggregate.m_p;
+
+	kJuneAggregate.m_kSocketData = CX2SocketItem::SocketData();	/// aggregate vslot 2 = ReInit 320922a0
+	ClearJuneSocketCoolTimeCut();								/// 31d06e90 on +0xe78 @32365d95
+
+	/// @32365d9a: the equipped list ( +0x284 ); an item 3286a230( uid ) with a templet that is usable ( 328825c0 ) and, when it names a
+	/// class ( templet +0xd3 ), fits this unit's ( 31ed6500( 31e4c380(), class ) )
+	for ( UINT i = 0; i < m_UnitData.m_NowEqipItemUIDList.size(); ++i )
+	{
+		CX2Item* pItem = GetInventory().GetItem( m_UnitData.m_NowEqipItemUIDList[i] );
+		if ( NULL == pItem || NULL == pItem->GetItemTemplet() )
+			continue;
+
+		/// 328825c0: June's usable test ( an expired item, a broken one, the item-manager list 0x4d ); March has the endurance part
+#ifdef REAL_TIME_ELSWORD
+		if ( pItem->GetItemData().m_PeriodType == CX2Item::PT_ENDURANCE && pItem->GetItemData().m_Endurance <= 0 )
+			continue;
+#endif REAL_TIME_ELSWORD
+
+		if ( CX2Unit::UC_NONE != pItem->GetItemTemplet()->GetUnitClass() &&
+			false == GetX2UnitClassCompatibility( m_UnitData.m_UnitClass, pItem->GetItemTemplet()->GetUnitClass() ) )
+			continue;
+
+		/// 328842f0 @32365e45: the item's stat; its magic attack ( +0x20 ) is the float every sum of this item gets
+		const float fAtkMagic = pItem->GetStat().m_fAtkMagic;
+
+		/// @32365e61..32365ec1: the random sockets ( item +0x6c ), then the templet's ( 32867f80 ), in one list
+		std::vector<int> vecSocketOptions( pItem->GetItemData().m_vecRandomSocket.begin(), pItem->GetItemData().m_vecRandomSocket.end() );
+		std::vector<int> vecNormalSocketOption;
+		pItem->GetItemTemplet()->GetSocketOptions( vecNormalSocketOption );
+		vecSocketOptions.insert( vecSocketOptions.end(), vecNormalSocketOption.begin(), vecNormalSocketOption.end() );
+
+		/// @32365ec1: the templet's use level ( +0xd1 ) when it has one, else this unit's level ( +0xb4 )
+		const int iSocketLevel = ( 0 < pItem->GetItemTemplet()->GetUseLevel() ) ? pItem->GetItemTemplet()->GetUseLevel() : static_cast<int>( m_UnitData.m_Level );
+
+		JuneSumSocketOption( vecSocketOptions, fAtkMagic, iSocketLevel );						/// @323660c3
+		JuneSumSocketOption( pItem->GetItemData().m_SocketOption, fAtkMagic, iSocketLevel );	/// @323660d7 ( item +0x5c )
+		/// @323660ee / @32366105 ( item +0x8c / +0x9c ) and @323661ad ( item +0xac when its set is complete: 32883300 / 3286a6b0 ): June-only
+		/// item socket lists; March's ItemData has neither field, so they are not ported
+	}
+
+#ifdef PET_AURA_SKILL
+	/// @3236627c: this unit's pet ( +0xd6c, first entry ) with the pet manager ( g_pData +0x328 )
+	KPetInfo* pPetInfo = GetPetInfo();
+	if ( NULL != g_pData->GetPetManager() && NULL != pPetInfo )
+	{
+#ifdef PET_DROP_ITEM_PICKUP
+		/// @323662c4..32366432: in the dungeon / training / battle field states ( June 0xb / 0x12 / 0x15, the same constants as the user side
+		/// 3206e337, whose March form is CX2GUUser::InitSocketData's switch ) and when this is my game unit, the pick-up flag is reset and
+		/// then set from the pet ( +0x88 ). The aura below has no state gate here.
+		if ( NULL != g_pMain && ( CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() || CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID() ||
+			CX2Main::XS_BATTLE_FIELD == g_pMain->GetNowStateID() ) &&
+			NULL != g_pX2Game && NULL != g_pX2Game->GetDropItemManager() && NULL != g_pX2Game->GetMyUnit() &&
+			GetUID() == g_pX2Game->GetMyUnit()->GetUnitUID() )
+		{
+			g_pX2Game->GetDropItemManager()->SetSummonItemPickupPet( false );
+			g_pX2Game->GetDropItemManager()->SetSummonItemPickupPet( pPetInfo->m_bAutoLooting );
+		}
+#endif PET_DROP_ITEM_PICKUP
+
+#ifdef SERV_PETID_DATA_TYPE_CHANGE
+		CX2PetManager::PetTemplet* pPetTemplet = g_pData->GetPetManager()->GetPetTemplet( static_cast<CX2PetManager::PET_UNIT_ID>( pPetInfo->m_iPetID ) );
+#else SERV_PETID_DATA_TYPE_CHANGE
+		CX2PetManager::PetTemplet* pPetTemplet = g_pData->GetPetManager()->GetPetTemplet( static_cast<CX2PetManager::PET_UNIT_ID>( pPetInfo->m_cPetID ) );
+#endif SERV_PETID_DATA_TYPE_CHANGE
+		/// @32366442..32366475: satiety / 4800 ( 334b5048 ) >= 0.4 ( 334b504c ), then m_vecPetStatus[ evolution ] steps of aura options
+		/// ( templet +0xfc, 16 bytes each ), each at rate 1.0 and this unit's level
+		if ( NULL != pPetTemplet &&
+			static_cast<float>( pPetInfo->m_sSatiety ) / CX2PetManager::MAX_OF_SATIETY >= CX2PetManager::SATIETY_RATIO_TO_BE_ABLE_TO_APPLY_AURA &&
+			static_cast<UINT>( pPetInfo->m_cEvolutionStep ) < pPetTemplet->m_vecPetStatus.size() )	/// March safety: June indexes unchecked
+		{
+			const int iStep = pPetTemplet->m_vecPetStatus[ pPetInfo->m_cEvolutionStep ];
+			for ( int i = 0; i < iStep && i < static_cast<int>( ARRAY_SIZE( pPetTemplet->m_vecAuraSkillOption ) ); ++i )	/// March safety
+				JuneSumSocketOption( pPetTemplet->m_vecAuraSkillOption[ i ], 1.f, static_cast<int>( m_UnitData.m_Level ) );
+		}
+	}
+#endif PET_AURA_SKILL
+
+#ifdef RIDING_SYSTEM
+	/// @323664c8: riding ( 321f8a40 = GetRidingOn ), the manager's current riding pet ( 321f5b10 on +0x40 ) -> its socket list ( +0xec ),
+	/// at rate 1.0 and this unit's level. March keeps that list on the riding pet's templet, where CX2GUUser::InitSocketData reads it.
+	if ( NULL != CX2RidingPetManager::GetInstance() && true == CX2RidingPetManager::GetInstance()->GetRidingOn() )
+	{
+		CX2RidingPet* pRidingPet = CX2RidingPetManager::GetInstance()->GetMyRidingPet();
+		if ( NULL != pRidingPet )
+		{
+			CX2RidingPetManager::RidingPetTemplet* pRidingPetTemplet =
+				CX2RidingPetManager::GetInstance()->GetRidingPetTemplet( static_cast<CX2RidingPetManager::RIDING_PET_UNIT_ID>( pRidingPet->GetInfo().m_Id ) );
+			if ( NULL != pRidingPetTemplet )
+				JuneSumSocketOption( pRidingPetTemplet->m_vecSocketOption, 1.f, static_cast<int>( m_UnitData.m_Level ) );
+		}
+	}
+#endif RIDING_SYSTEM
+
+	/// @32366528..323666dc not ported: with the item manager, the first entry's +4 of every node of the customize map +0xa44 ( June's
+	/// applied customize, Effect C9d / C9g ) is summed; March has no such system.
+
+	/// @32366720: the title ( +0x9a0 ) in the title manager ( g_pData +0x28c ): its options ( +0xa0 ) copied to +0xe30, then summed
+	if ( NULL != g_pData->GetTitleManager() && NULL != g_pData->GetTitleManager()->GetTitleInfo( m_UnitData.m_iTitleId ) )
+	{
+		kJuneAggregate.m_vecTitleSocketOption = g_pData->GetTitleManager()->GetTitleInfo( m_UnitData.m_iTitleId )->m_vecSocketOption;
+		JuneSumSocketOption( kJuneAggregate.m_vecTitleSocketOption, 1.f, static_cast<int>( m_UnitData.m_Level ) );
+	}
+
+	/// @323667bd..32366c26 not ported: party members' shared sockets ( 31ed40c0 through g_pX2Game, ids 2000139-2000141 / 2000144 /
+	/// 2000145 by 31d70d30, deduplicated ); the user side 3206df3e has the same pass and March has neither.
+
+	JuneSumSetItemSocketOption( iJuneMode_ );					/// this vslot 2 @32366c3f
+
+#ifdef BUFF_TEMPLET_SYSTEM
+	/// @32366c4d: the premium buffs ( 326c67f0 on +0x9a4 ), at rate 1.0 and this unit's level
+	if ( NULL != g_pData->GetPremiumBuffManager() )
+	{
+		vector<int> vecBuffSocketOptions;
+		g_pData->GetPremiumBuffManager()->GetSocketOptions( m_UnitData.GetPremiumBuffList(), vecBuffSocketOptions );
+		if ( false == vecBuffSocketOptions.empty() )
+			JuneSumSocketOption( vecBuffSocketOptions, 1.f, static_cast<int>( m_UnitData.m_Level ) );
+	}
+#endif BUFF_TEMPLET_SYSTEM
+
+	kJuneAggregate.m_kSocketData.LimitMaximum( false );		/// 320804f0( 0 ) @32366ca9
+
+#ifdef UPGRADE_SKILL_SYSTEM_2013
+	/// 3235a080( 31d717e0() ) @32366cbc: June's extra argument ( my select unit's +0xe40 ) has no March parameter
+	ResetIncreaseSkillLevelBySocket();
+#endif UPGRADE_SKILL_SYSTEM_2013
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+/** @function : JuneResetHudMaxHpMp
+	@brief : June 3235a160 ( CX2Unit, __fastcall ): my HUD's max MP and max HP from this unit's data ( the "x/300" MP text and the guide
+		marks, CX2MyGageUI ). Guard: CX2GageManager::GetInstance ( 324943c0 ), g_pData +0x68 ( my user ) +0x90 ( select unit ). Then:
+		vslot 1( 2 ), keep the aggregate's stat[0] ( m_fIncreaseHPRate, the HP cap ), vslot 1( +0xe40 == 1 ) ( June's second-character
+		byte, Lu/Ciel: 0 in March ).
+		MP = 3234b9d0( 300 ( 3344f348 ), 0 ) x ( 1 + vslot 0xc ( m_fIncreaseMPRate ) + 32358970( 5 ) x 0.01 ) + vslot 0x10 ( m_iAddMPValue )
+		-> 3248a800( uid, mp, 0 ); unit type 10 repeats it for its second gage ( no March class ).
+		HP: a CX2Stat::Stat ( 32e89900 ) sums 32358b00 ( all 13 floats ), then floats [6..12] of 3234e210( 0, +0xe40 == 1 ), 32890230,
+		328902f0( +0x988 ), 326f8080 ( title ) and the aggregate's own stat; only [6], the base HP, is read:
+		HP = sum + min( sum x 0.5 ( 3342ebc8 ), cap ) -> 3248d3a0( uid, hp ).
+*/
+void CX2Unit::JuneResetHudMaxHpMp()
+{
+	CX2GageManager* pGageManager = CX2GageManager::GetInstance();
+	if ( NULL == pGageManager || NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+	if ( NULL == m_kJuneSocketAggregate.m_p )	/// March safety: June's Init always made it
+		return;
+
+	const CX2SocketItem::SocketData& kAggregate = m_kJuneSocketAggregate.m_p->m_kSocketData;
+
+	JuneInitSocketData( 2 );
+	const float fJuneHpCap = kAggregate.m_Stat.m_ExtraStat.m_fIncreaseHPRate;
+	JuneInitSocketData( 0 );
+
+	const float fResetMaxMp = ResetMaxMp( 300.f, 0 );
+	const float fJuneAbilityRate = 0.f;		/// 32358970( 5 ) x 0.01: June's per-unit ability map, 0 in March ( Buff Phase 16, S7j )
+	const float fMpRate = kAggregate.m_Stat.m_ExtraStat.m_fIncreaseMPRate + fJuneAbilityRate;
+	const float fMaxMp = fResetMaxMp + fResetMaxMp * fMpRate + static_cast<float>( kAggregate.m_iAddMPValue );
+	pGageManager->SetMaxMp( GetUID(), fMaxMp );
+
+	float fSumBaseHP = 0.f;
+	fSumBaseHP = GetUnitStat().m_fBaseHP + fSumBaseHP;
+	fSumBaseHP = GetEqipStat( false, 0 ).m_fBaseHP + fSumBaseHP;
+	fSumBaseHP = GetSkillStat().m_fBaseHP + fSumBaseHP;
+#ifdef GUILD_SKILL
+	fSumBaseHP = GetGuildSkillStat().m_fBaseHP + fSumBaseHP;
+#endif GUILD_SKILL
+	const float fTitleBaseHP = ( NULL != g_pData->GetTitleManager() ) ? g_pData->GetTitleManager()->GetSocketStat().m_fBaseHP : 0.f;
+	fSumBaseHP = kAggregate.m_Stat.m_fBaseHP + fTitleBaseHP + fSumBaseHP;	/// @3235a4f1: aggregate + title, then the sum
+
+	float fHpBonus = 0.5f * fSumBaseHP;
+	if ( fJuneHpCap < fHpBonus )
+		fHpBonus = fJuneHpCap;
+	const float fMaxHp = fHpBonus + fSumBaseHP;
+	pGageManager->SetMaxHp( GetUID(), fMaxHp );
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] HUD uid %I64d: max MP %.1f ( ResetMaxMp %.1f, socket rate %.3f, add %d ), max HP %.1f ( base %.1f, socket cap %.1f )",
+		GetUID(), fMaxMp, fResetMaxMp, fMpRate, kAggregate.m_iAddMPValue, fMaxHp, fSumBaseHP, fJuneHpCap );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+
 CX2Stat::Stat CX2Unit::GetUnitStat() const
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+	/// June 32358b00 ( skill Phase S7k ): the unit stat ( +0x150, 13 protected floats ), then, with the skill tree ( g_pData +0x50 ), four
+	/// passives read as GetSkillLevel( id, true, 0, true ) ( 32890620( id, 1, 0, 1 ) ), GetSkillTemplet( id ) ( 32206450( id, 1 ) ) and
+	/// GetSkillAbilityValue( type, level, false ) ( 32206e50( type, level, 0, 0.0 ) ). The added terms use the base value ( the protected
+	/// copy ) and June's ( rate - 1.0 ( 334355b0 ) + 5e-8 ( 3346ed68 ) ), where March's CalculateIncreasingRate adds 5e-5.
+	CX2Stat::Stat retval = m_UnitData.m_Stat;
+	CX2SkillTree* pSkillTree = g_pData->GetSkillTree();
+	if ( NULL != pSkillTree )
+	{
+		const CX2UserSkillTree& refUserSkillTree = m_UnitData.m_UserSkillTree;
+
+		/// 21403 RNSI_P_ELK_STRONG_BONE ( June Enum.lua ): base HP x SA_MAX_HP_REL
+		const CX2SkillTree::SKILL_ID eJuneStrongBone = static_cast<CX2SkillTree::SKILL_ID>( 21403 );
+		int iSkillLevel = refUserSkillTree.GetSkillLevel( eJuneStrongBone, true, 0, true );
+		if ( 0 < iSkillLevel )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( eJuneStrongBone );
+			if ( NULL != pSkillTemplet )
+				retval.m_fBaseHP = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MAX_HP_REL, iSkillLevel, false ) * retval.m_fBaseHP;
+		}
+
+		/// 26403 ( June's Guard Mastery, icon SI_P_CFG_GUARD_MASTERY ): base HP x ( SA_MAX_HP_REL - 1 )
+		const CX2SkillTree::SKILL_ID eJuneGuardMastery = static_cast<CX2SkillTree::SKILL_ID>( 26403 );
+		iSkillLevel = refUserSkillTree.GetSkillLevel( eJuneGuardMastery, true, 0, true );
+		if ( 0 < iSkillLevel )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( eJuneGuardMastery );
+			if ( NULL != pSkillTemplet )
+			{
+				const float fRate = static_cast<float>( static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MAX_HP_REL, iSkillLevel, false ) ) - 1.0 + 5e-08 );
+				retval.m_fBaseHP = fRate * m_UnitData.m_Stat.m_fBaseHP + retval.m_fBaseHP;
+			}
+		}
+
+		/// 7407 SI_P_ASD_SELF_PROTECTION_FORTITUDE: physical / magic defence ( SA 9 / 10 ) and base HP, each x ( rate - 1 ) of its base
+		const CX2SkillTree::SKILL_ID eJuneFortitude = static_cast<CX2SkillTree::SKILL_ID>( 7407 );
+		iSkillLevel = refUserSkillTree.GetSkillLevel( eJuneFortitude, true, 0, true );
+		if ( 0 < iSkillLevel )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( eJuneFortitude );
+			if ( NULL != pSkillTemplet )
+			{
+				float fRate = static_cast<float>( static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DEF_PHYSIC_REL, iSkillLevel, false ) ) - 1.0 + 5e-08 );
+				retval.m_fDefPhysic = fRate * m_UnitData.m_Stat.m_fDefPhysic + retval.m_fDefPhysic;
+				fRate = static_cast<float>( static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DEF_MAGIC_REL, iSkillLevel, false ) ) - 1.0 + 5e-08 );
+				retval.m_fDefMagic = fRate * m_UnitData.m_Stat.m_fDefMagic + retval.m_fDefMagic;
+				fRate = static_cast<float>( static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MAX_HP_REL, iSkillLevel, false ) ) - 1.0 + 5e-08 );
+				retval.m_fBaseHP = fRate * m_UnitData.m_Stat.m_fBaseHP + retval.m_fBaseHP;
+			}
+		}
+
+		/// 106 RNSI_P_COMMON_HYPER_AURA ( June's level-80 common passive ): base HP x ( SA_MAX_HP_REL - 1 )
+		const CX2SkillTree::SKILL_ID eJuneHyperAura = static_cast<CX2SkillTree::SKILL_ID>( 106 );
+		iSkillLevel = refUserSkillTree.GetSkillLevel( eJuneHyperAura, true, 0, true );
+		if ( 0 < iSkillLevel )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( eJuneHyperAura );
+			if ( NULL != pSkillTemplet )
+			{
+				const float fRate = static_cast<float>( static_cast<double>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MAX_HP_REL, iSkillLevel, false ) ) - 1.0 + 5e-08 );
+				retval.m_fBaseHP = fRate * m_UnitData.m_Stat.m_fBaseHP + retval.m_fBaseHP;
+			}
+		}
+	}
+	/// @32358db0: + 32358970( 5 ) x base HP x 0.01, June's per-unit ability map: 0 in March ( Buff Phase 16 )
+	return retval;
+#else SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 	CX2Stat::Stat retval = m_UnitData.m_Stat;
 	CX2SkillTree* pSkillTree = g_pData->GetSkillTree();
 	if( pSkillTree != NULL )
@@ -1261,9 +1771,69 @@ CX2Stat::Stat CX2Unit::GetUnitStat() const
 #endif //UPGRADE_SKILL_SYSTEM_2013
 	}
 	return retval;
+#endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+/** @function : GetEqipStat
+	@brief : June 3234e210( out, bWithPvpEquip, group ) ( skill Phase S7k ): the fashion list ( +0xca0 ) and the normal list ( +0xcb0 ),
+		each item 3286a230( uid ) with a templet and in the group ( group 2, item group 2 or item group == group: 3286a4b0 =
+		CX2Inventory::JuneGetEquipGroup ); a normal item must also be usable ( 328825c0: March's endurance check ) and, when it is a
+		PvP-equip item ( templet flags bit 7 ), counts only with bWithPvpEquip ( 32368910( stat, 0 ), the same floats ). Each adds
+		floats [6..12] of its stat ( 328842f0 ): base HP, attack, defence, never the ExtraStat rates and without AddStat's LimitMaximum.
+*/
+CX2Stat::Stat CX2Unit::GetEqipStat( const bool bJuneWithPvpEquip_, const int iJuneEquipGroup_ ) const
+{
+	CX2Stat::Stat retStat;
+	for( int i = 0; i < GetFashionEqipNum(); i++ )
+	{
+		CX2Item* pItem = GetInventory().GetItem( GetFashionEqipUID(i) );
+		if ( NULL == pItem || NULL == pItem->GetItemTemplet() )
+			continue;
+
+		const int iJuneGroup = GetInventory().JuneGetEquipGroup( pItem->GetUID() );
+		if ( 2 != iJuneEquipGroup_ && 2 != iJuneGroup && iJuneGroup != iJuneEquipGroup_ )
+			continue;
+
+		const CX2Stat::Stat& kItemStat = pItem->GetStat();
+		retStat.m_fBaseHP		= kItemStat.m_fBaseHP + retStat.m_fBaseHP;
+		retStat.m_fAtkPhysic	= kItemStat.m_fAtkPhysic + retStat.m_fAtkPhysic;
+		retStat.m_fAtkMagic		= kItemStat.m_fAtkMagic + retStat.m_fAtkMagic;
+		retStat.m_fDefPhysic	= kItemStat.m_fDefPhysic + retStat.m_fDefPhysic;
+		retStat.m_fDefMagic		= kItemStat.m_fDefMagic + retStat.m_fDefMagic;
+	}
+
+	for( int i = 0; i < GetNormalEqipNum(); i++ )
+	{
+		CX2Item* pItem = GetInventory().GetItem( GetNormalEqipUID(i) );
+		if ( NULL == pItem || NULL == pItem->GetItemTemplet() )
+			continue;
+
+		/// 328825c0: June's usable test ( expiry, endurance, the item-manager list 0x4d ); March has the endurance part, the rest is Stage 16
+#ifdef REAL_TIME_ELSWORD
+		if ( pItem->GetItemData().m_PeriodType == CX2Item::PT_ENDURANCE && pItem->GetItemData().m_Endurance <= 0 )
+			continue;
+#endif REAL_TIME_ELSWORD
+
+		const int iJuneGroup = GetInventory().JuneGetEquipGroup( pItem->GetUID() );
+		if ( 2 != iJuneEquipGroup_ && 2 != iJuneGroup && iJuneGroup != iJuneEquipGroup_ )
+			continue;
+
+		if ( true == pItem->GetItemTemplet()->GetPvpEquip() && false == bJuneWithPvpEquip_ )
+			continue;
+
+		const CX2Stat::Stat& kItemStat = pItem->GetStat();
+		retStat.m_fBaseHP		= kItemStat.m_fBaseHP + retStat.m_fBaseHP;
+		retStat.m_fAtkPhysic	= kItemStat.m_fAtkPhysic + retStat.m_fAtkPhysic;
+		retStat.m_fAtkMagic		= kItemStat.m_fAtkMagic + retStat.m_fAtkMagic;
+		retStat.m_fDefPhysic	= kItemStat.m_fDefPhysic + retStat.m_fDefPhysic;
+		retStat.m_fDefMagic		= kItemStat.m_fDefMagic + retStat.m_fDefMagic;
+	}
+
+	return retStat;
+}
+#else SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 CX2Stat::Stat CX2Unit::GetEqipStat() const
 {
 	CX2Stat::Stat retStat;
@@ -1306,6 +1876,7 @@ CX2Stat::Stat CX2Unit::GetEqipStat() const
 
 	return retStat;
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 
 
 

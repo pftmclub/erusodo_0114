@@ -838,7 +838,12 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 #endif SERV_CHINA_SPIRIT_EVENT
 
 		CX2Stat::Stat	GetUnitStat() const;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+		/// June 3234e210( out, bWithPvpEquip, group ): the HUD passes ( false, 0 ), June's character window ( its PvP toggle, 2 )
+		CX2Stat::Stat	GetEqipStat( const bool bJuneWithPvpEquip_ = false, const int iJuneEquipGroup_ = 2 ) const;
+#else SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 		CX2Stat::Stat	GetEqipStat() const;
+#endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
 		CX2Stat::Stat	GetSkillStat() const;
 
 		//{{ kimhc // 2009-11-17 //길드 스킬과 관련된 스탯
@@ -1217,6 +1222,29 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 		float		GetJuneSocketCoolTimeFactor( const CX2SkillTree::SKILL_ID eSkillID_ ) const;
 		std::map<int, float>	m_mapJuneSocketCoolTimeCut;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+		/// June skill Phase S7k: the unit's own socket aggregate ( June +0xe1c ) with the unit vectors +0xe20 / +0xe30 its fill writes.
+		/// Defined in X2Unit.cpp ( CX2SocketItem is not declared yet here ); the holder deep-copies so a copied CX2Unit owns its own.
+		struct JuneSocketAggregate;
+		class JuneSocketAggregateHolder
+		{
+		public:
+			JuneSocketAggregateHolder();
+			JuneSocketAggregateHolder( const JuneSocketAggregateHolder& rhs_ );
+			JuneSocketAggregateHolder& operator=( const JuneSocketAggregateHolder& rhs_ );
+			~JuneSocketAggregateHolder();
+			void	Recreate();				/// June CX2Unit::Init 32363ca0 @32363cb9..32363d53
+			JuneSocketAggregate*	m_p;
+		};
+		JuneSocketAggregateHolder	m_kJuneSocketAggregate;
+
+		void		JuneInitSocketData( const int iJuneMode_ );			/// June vtable 3348ffe4 slot 1 32365d30
+		void		JuneSumSetItemSocketOption( const int iJuneMode_ );	/// slot 2 323652b0
+		void		JuneSumSocketOption( const std::vector<int>& vecSocketOption_, const float fAtkMagic_, const int iSocketLevel_ );	/// 32364790
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+		void		JuneResetHudMaxHpMp();								/// June 3235a160
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 	protected:		
 		bool			UpdateViewEqipPosition();

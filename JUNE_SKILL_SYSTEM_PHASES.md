@@ -1955,11 +1955,68 @@ which carries everything decoded here). S7h now waits on S7k. Flag `SERV_IRUHADE
 filled by CX2Unit vtable slots 1 / 2 = `32365d30` / `323652b0` and the unit-side sum `32364790`), June's HUD max MP / max HP refresh `3235a160` (decoded in S7j) and its
 23 callers; the village HUD then shows June's maxima instead of the emulator's `KGamePlayStatus`. Kickoff `kickoffs/skill-system-core/S7k.md`.
 
+### Phase S7k - Done (2026-10-19, Opus 5.5 high)
+
+Three flags (`Always.h` only, `#error` guards resolved ON by `flagprobe.py`): `SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET`, `_STAT_GETTERS`, `_HUD_MAXHPMP`. Funcmap rows `Skill S7k` (15).
+JUNE_BUGS 339 (the unit's summon list `+0xe20` is never cleared) and 340 (the HUD fill rewrites the shared cool-time map `+0xe78` with the unit rules). Revert: `MODS.md` "June's unit socket aggregate".
+- **Item 1, the aggregate** (`X2Unit.cpp`). `CX2Unit::JuneSocketAggregate` = June `+0xe1c` (a `SocketData`) + `+0xe20` / `+0xe30`, made in `Init` (`32363ca0`).
+  `JuneInitSocketData( mode )` = slot 1 `32365d30`, `JuneSumSetItemSocketOption` = slot 2 `323652b0`, `JuneSumSocketOption( vec, fAtkMagic, level )` = `32364790`.
+  - **Unit vs user side** (`CX2GUUser::InitSocketData` / `SumSocketOption`):
+    - The unit side has no game-type gate: it skips PVP_ONLY / DUNGEON_ONLY sockets.
+    - The float argument is the item's magic attack (1.0 for other sources) and only feeds the `+0x324` block.
+    - The pet aura has no state gate; only the pick-up flag has one.
+    - The all-skill cool-time cut goes to slots 1-4, without slot 6.
+    - The unit side does none of the user-only steps: enchant, skill-slot pass `31fe14f0`, vslot 485, SocketEffectEx, old EDT copy, monster maps, immune, 2000145, the 4119 / 4120 gate.
+    - Mode / group filters act only with the type-10 aggregate (Lu/Ciel), so every source counts in March.
+  - **Not ported (no March data) -> new S7m:** the socket `+0x324` block (`3208c500`; the user side has it too), party shared sockets `31ed40c0`, and item lists `+0x8c` / `+0x9c` / set-gated `+0xac`.
+    The customize map `+0xa44` is noted only. `32365690` (one-item sum) has no xref.
+- **Item 2, the HUD refresh** `CX2Unit::JuneResetHudMaxHpMp` = `3235a160`, as S7j decoded it. The five getters were compared with March:
+  - `32890230` / `328902f0` / `326f8080` match March's `GetSkillStat` / `GetGuildSkillStat` / title `GetSocketStat`.
+  - **`GetUnitStat` = June `32358b00`** (`_STAT_GETTERS`): 21403 x, 26403 / 7407 / 106 +, with June's epsilon 5e-8. March's 1400 / 1403 / 6401 are gone from June's data, so their HP was lost.
+  - **`GetEqipStat( bWithPvpEquip, group )` = `3234e210`:** PvP-equip items (kim flags bit 7) count only with the flag; floats [6..12]; `CX2Inventory::JuneGetEquipGroup` = `3286a4b0`.
+    The character window keeps the defaults (false, 2).
+  - `328825c0`'s expiry and 0x4d parts, and `32350cb0`'s `328823d0`, belong to backlog Stage 16 (item expiry, PvP-equip). March keeps its endurance check.
+- **Item 3, the 23 callers** (Sonnet mapping, sites spot-checked). 15 June sites are ported at 14 March sites:
+
+  | June site | March site |
+  |---|---|
+  | `3220ede2` | INIT_SKILL_TREE_ACK |
+  | `3221186a` | RESET_SKILL_ACK |
+  | `3220f004` + `3220f035` | UNSEAL_SKILL_NOT (two calls, as June) |
+  | `323b0888` / `3246334e` | skill-grant NOT |
+  | `31f27bd2` | `X2State` class-change NOT (S7h ports the handler whole) |
+  | `321a2d0a` | CHANGE_INVENTORY_SLOT_ACK default case |
+  | `3245811c` / `32dd7128` / `32dedd57` | REPAIR_ITEM_ACK |
+  | `3250a208` | `CX2StateField` ctor |
+  | `326cc29e` | PET_EVOLUTION_ACK |
+  | `326d0de1` + `326d0fb1` | SUMMON_PET_ACK |
+  | `32703345` | EQUIP_TITLE_ACK |
+  | `327036af` | TITLE_EXPIRATION_NOT |
+  | `321ff6e9` | UNSUMMON_RIDING_PET_ACK village case |
+
+  No March counterpart: `31f1fd90` (0x735), `321a30d0` (0x549, unidentified), Resonance UI ×3. June's TITLE_EXPIRATION also calls `3235a080` (noted, not added).
+- **Item 4, the village seed.** June's select-unit ACK has no `3235a160`. The field state ctor calls it, so entering a village replaces the emulator's `KGamePlayStatus`
+  maxima (`X2StateServerSelect.cpp` untouched).
+- **Hygiene.** `flagcheck --worktree --files <13 files>`:
+  - `_UNIT_SOCKET` `files: 0 PASS, 0 PASS~, 0 DEFINE, 13 OTHER`; `_STAT_GETTERS` `2 PASS, 11 OTHER`; `_HUD_MAXHPMP` `8 PASS, 5 OTHER`. All three: `0 FAIL, 0 ERROR`.
+  - Each: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+  - The OTHER rows are files that also carry the other two S7k flags, plus peers' blocks in `Always.h`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,383,936 B, dated 2026-10-19 12:20:27, md5 eafbff0d727a8c8ea7a7ffec863ff9c0, equal to X2/US_SERVICE/x2.exe (2026-10-19 12:20:19); built at main c1e0f8f5 + 21 uncommitted code file(s).`
+  The `[JUNE_SKILL] HUD uid` string is in the exe.
+- **How to see it.** Unit 19 Iivue (Code Empress, 25405 lv 3) in a village: the HUD reads max MP 425 (+ equipment / socket MP) as soon as the village loads.
+  Log: `[JUNE_SKILL] HUD uid 19: max MP 425.0 ( ResetMaxMp 425.0, ... ), max HP <n> ( base <n>, socket cap <n> )`, one line per refresh (village entry, skill ACKs, equip changes).
+
 ## Phase S7l - The rest of June's emblem manager
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7i (2026-10-19, unowned-branch rule). June's parser `32449000` whole (`EXPAND_TEXTURE_FILE_NAME`, no
 `OPEN_TIME_SETTING`), `32448ce0` (expand textures, second sound pick), `OnFrameMove` `3244c8c0` / `InitEmbelmPlayInfo` `324485d0` / `32447d40` whole, the other cases
 of `3244c4b0` (5, 7, 8, 0x12 title notice, 0x14 achievement notice) and June's `PlayEmblem` callers. Kickoff `kickoffs/skill-system-core/S7l.md`.
+
+## Phase S7m - June-only socket sources the S7k aggregate skipped
+
+**Run with:** Opus 5.5 high, then user play-test if reachable. Added by S7k (2026-10-19, unowned-branch rule). The socket templet's `+0x324` block (`3208c500`, user `3204f5fc`
+and unit `32364af3`), party members' shared sockets `31ed40c0` (user `3206df3e`, unit `323667bd`) and the item socket lists `+0x8c` / `+0x9c` / `+0xac`: identify, then port
+where March can carry them. Kickoff `kickoffs/skill-system-core/S7m.md`.
 
 ## Phase S8 - Running state data: June's pointer model
 

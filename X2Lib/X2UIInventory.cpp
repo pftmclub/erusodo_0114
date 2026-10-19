@@ -3877,6 +3877,11 @@ bool CX2UIInventory::Handler_EGS_CHANGE_INVENTORY_SLOT_ACK(  HWND hWnd, UINT uMs
 			{
 				UpdateInventorySlotList( kEvent.m_vecInventorySlotInfo );
 				g_pKTDXApp->GetDeviceManager()->PlaySound( L"Item_Pick_And_Drop.ogg", false, false );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+				/// June 321a29a0 @321a2d0a: out of a game ( the default case ), 3235a160 after the pick / drop sound
+				if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+					g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 
 #ifdef FIX_WRONG_EQUIP
 				if ( g_pSquareGame != NULL )

@@ -2218,6 +2218,10 @@ bool CX2PetManager::Handler_EGS_SUMMON_PET_ACK( HWND hWnd, UINT uMsg, WPARAM wPa
 			if( g_pData != NULL && g_pData->GetMyUser() != NULL && g_pData->GetMyUser()->GetSelectUnit() != NULL )
 			{
 				g_pData->GetMyUser()->GetSelectUnit()->ClearPetInfo();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+				/// June 326d0d10 @326d0de1: the unsummon branch ( pet UID 0 ), 3235a160 after the pet is cleared
+				g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 				return true;
 			}
 		}
@@ -2253,6 +2257,10 @@ bool CX2PetManager::Handler_EGS_SUMMON_PET_ACK( HWND hWnd, UINT uMsg, WPARAM wPa
 				g_pX2Game->GetMyUnit()->UpdateSocketDataAndEnchantData();
 				g_pX2Game->GetMyUnit()->UpdatePassiveAndActiveSkillState();
 			}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+			/// June 326d0d10 @326d0fb1: the summon branch, 3235a160 after the game unit's refresh and the never-summoned list
+			g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 			return true;
 		}		
 	}	
@@ -2547,6 +2555,10 @@ bool CX2PetManager::Handler_EGS_PET_EVOLUTION_ACK( HWND hWnd, UINT uMsg, WPARAM 
 		{
 			bMyPet = true;
 			g_pData->GetMyUser()->GetSelectUnit()->SetFullPetInfo( kEvent.m_kEvolutionResultPetInfo );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+			/// June 326cc1c0 @326cc29e: 3235a160 right after the unit takes the evolved pet ( 3235ac50 )
+			g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 		}
 
 		for(UINT i=0; i<m_vecMyPetEvolutionList.size(); ++i)

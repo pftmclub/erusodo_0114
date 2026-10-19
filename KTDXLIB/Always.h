@@ -9027,6 +9027,67 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7k (1/3) - CX2Unit's own socket aggregate ( June CX2Unit +0xe1c, a CX2SocketItem::SocketData
+//              (re)made by CX2Unit::Init 32363ca0 ). Fill = vtable 3348ffe4 slot 1 32365d30 ( equipment, pet aura, riding pet, title,
+//              set items = slot 2 323652b0, premium buffs, LimitMaximum, ResetIncreaseSkillLevelBySocket ) through the unit-side
+//              SumSocketOption 32364790 ( PVP_ONLY / DUNGEON_ONLY sockets skipped; cool-time cuts into +0xe78 slots 1-4 ). June-only
+//              sources with no March data are not ported ( item +0x8c / +0x9c / +0xac, the customize map +0xa44, party sockets 31ed40c0,
+//              the socket +0x324 block ). Read by the HUD refresh ( _HUD_MAXHPMP ). Revert: comment out this define and _HUD_MAXHPMP.
+#define SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#ifdef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET needs SERV_IRUHADEV_JUNE_SOCKET_PARITY ( rank scaling, the +0x48 map, the +0xe78 cool-time map )
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_EDT
+#error SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET needs SERV_IRUHADEV_JUNE_SOCKET_EDT ( the second extra-damage list +0x384 )
+#endif SERV_IRUHADEV_JUNE_SOCKET_EDT
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7k (2/3) - June's CX2Unit::GetUnitStat 32358b00 ( 21403 RNSI_P_ELK_STRONG_BONE multiplies
+//              base HP; 26403 Guard Mastery, 7407 Self Protection Fortitude and 106 RNSI_P_COMMON_HYPER_AURA add ( rate - 1 + 5e-8 ) of the
+//              base; March's 1400 / 1403 / 6401 are gone from June's skill data ) and GetEqipStat 3234e210 ( a PvP-equip item, kim flags
+//              bit 7, counts only with bWithPvpEquip; June's equipment group filter 3286a4b0 = CX2Inventory::JuneGetEquipGroup ). Callers:
+//              the HUD refresh and the character window ( defaults: no PvP-equip, every group ). Revert: comment out the define.
+#define SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillLevel 4 args, GetSkillAbilityValue( type, level, bPvp ) )
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_ITEM_KIM
+#error SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS needs SERV_IRUHADEV_JUNE_ITEM_KIM ( the templet's GetPvpEquip, kim flags bit 7 )
+#endif SERV_IRUHADEV_JUNE_ITEM_KIM
+#endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7k (3/3) - June's HUD max MP / max HP refresh, CX2Unit::JuneResetHudMaxHpMp = 3235a160: the
+//              aggregate is filled in mode 2 ( its m_fIncreaseHPRate is the HP cap ) and again in mode 0; MP = ResetMaxMp( 300, 0 ) x
+//              ( 1 + m_fIncreaseMPRate ) + m_iAddMPValue; HP = the base HP of unit + equipment + skill + guild + title + aggregate, plus
+//              min( that x 0.5, cap ); CX2GageManager SetMaxMp / SetMaxHp. Called where June calls it. Log [JUNE_SKILL] HUD.
+//              Revert: comment out the define.
+#define SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+#ifndef SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#error SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP needs SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET ( the aggregate it reads )
+#endif SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+#error SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP needs SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS ( GetEqipStat( bWithPvpEquip, group ) )
+#endif SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS
+#ifndef SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+#error SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP needs SERV_IRUHADEV_JUNE_SKILL_MAX_MP ( ResetMaxMp( base, group ) = 3234b9d0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_MAX_MP
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+//////////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

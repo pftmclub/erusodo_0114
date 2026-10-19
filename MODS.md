@@ -4275,6 +4275,16 @@ log tag `[JUNE_SKILL] MEMO room`.
   March's KStat and packet are unchanged. The emulator never sends this NOT, so nothing changes offline.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### June's unit socket aggregate and HUD max MP / HP (skill-system-core S7k, 2026-10-19)
+
+Flags `SERV_IRUHADEV_JUNE_SKILL_UNIT_SOCKET` (`#error` guards: `_SOCKET_PARITY`, `_SOCKET_EDT`), `SERV_IRUHADEV_JUNE_SKILL_STAT_GETTERS` (`_SKILL_TEMPLET`, `_ITEM_KIM`) and
+`SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP` (needs the other two and `_SKILL_MAX_MP`) in `KTDXLIB/Always.h`. Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7k"; log tag `[JUNE_SKILL] HUD`.
+- **Client.** CX2Unit owns June's socket aggregate (`+0xe1c`), filled by `JuneInitSocketData` (June `32365d30`) through `JuneSumSocketOption` (`32364790`); June's
+  `GetUnitStat` (`32358b00`) / `GetEqipStat` (`3234e210`) / `CX2Inventory::JuneGetEquipGroup` (`3286a4b0`); the HUD refresh `CX2Unit::JuneResetHudMaxHpMp` (`3235a160`)
+  at 15 of June's 23 call sites (skill tree ACKs, inventory slot, repair, pets, titles, riding-pet unsummon, class change, field state ctor).
+- **Revert:** comment out `_HUD_MAXHPMP` (the HUD goes back to the emulator's `KGamePlayStatus` maxima), then `_STAT_GETTERS` and `_UNIT_SOCKET` if wanted,
+  `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June's max MP (skill-system-core S7j, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_MAX_MP` in `KTDXLIB/Always.h` (`#error` guard: `_SKILL_TEMPLET`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7j"; log tag `[JUNE_SKILL] MAXMP`.
