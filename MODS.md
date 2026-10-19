@@ -4320,15 +4320,6 @@ Flags `SERV_IRUHADEV_JUNE_GFX_MANAGER` (+ `SERV_IRUHADEV_JUNE_GFX_DEBUG`) in `KT
   now logs `KEM_ERROR135` as June's lookup does.
 - **Revert:** comment out `JUNE_GFX_MANAGER` (and `_DEBUG`, if it is on again), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 
-## Known deviations to clean up
-
-**Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used
-to break the project rule in CLAUDE.md two ways - it wasn't
-`SERV_IRUHADEV_`-prefixed, and it lived in `KTDXLIB/OnlyGlobal/Always_US.h`
-(pulled in only for `CLIENT_COUNTRY_US`, so the change was silently US-only)
-instead of `KTDXLIB/Always.h` - and it stored a plaintext account password in
-a header that compiled into the shipped executable. Rather than fix those
-three problems, the flag was retired: the studio's own `AUTO_LOGIN_IN_HOUSE`
 ### June quest system: enums, parser keys, binders, new quest files (quest-system Q1, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q1"; log tag `[JUNE_QUEST] LOAD` (offline_server.log).
@@ -4358,6 +4349,15 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_DATA` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LO
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, put March's three `.lua` back into `kom_contents\data036_kom\` and repack /
   copy data036, and restore the save from `db_backup\els_db_20261019_075100_pre_pre-quest-q2-v21.sql` (an exe without the flag refuses a v21 save).
 
+## Known deviations to clean up
+
+**Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used
+to break the project rule in CLAUDE.md two ways - it wasn't
+`SERV_IRUHADEV_`-prefixed, and it lived in `KTDXLIB/OnlyGlobal/Always_US.h`
+(pulled in only for `CLIENT_COUNTRY_US`, so the change was silently US-only)
+instead of `KTDXLIB/Always.h` - and it stored a plaintext account password in
+a header that compiled into the shipped executable. Rather than fix those
+three problems, the flag was retired: the studio's own `AUTO_LOGIN_IN_HOUSE`
 went live under `US_INTERNAL` for the first time in this migration and does
 the same job (skip the login screen, sign in as a fixed account) by reading
 an external `LoginKey.lua`, which has none of the three problems. See

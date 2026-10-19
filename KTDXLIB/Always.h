@@ -8807,7 +8807,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_GFX_EVENTSCENE needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE (CKTDXDeviceManager::JuneCloseDeviceByPointer, the voice)
 #endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
-//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
@@ -8822,6 +8821,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_GFX_JPEG8 needs SERV_IRUHADEV_JUNE_GFX_RUNTIME (the libgfx pragmas in KTDXApp.cpp)
 #endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
 #endif SERV_IRUHADEV_JUNE_GFX_JPEG8
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
