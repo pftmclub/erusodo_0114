@@ -784,6 +784,10 @@ The user's answers to the two open questions: "1: stand-in" (the strict reading 
   uncommitted files); both new `together` log strings are in the exe.
 - **Save:** unit 25 (jtLordKnight, Lord Knight Lv 80) got 35360-35362 completed and 35363 in progress, with 35365 at 4 / 5 (backup
   `db_backup\els_db_20261019_135418_pre_sql.sql`).
+- **Play-test PASSED 2026-10-19** (user + log, exe 5b3e8252): `SQT coverage 0-48: 22 driven, 27 undriven, unclassified [none], both [none]`;
+  Ranox Secret Hell as unit 25: `suitable level: dungeon 41271 unit level 80 band 68..101 -> 1`, `35363 sub 35373 type 32 counted 1 / 1`
+  (the Ranox stand-in), `together 35365: step 35367 ( type 6 ) not met this run ( ... rank 0 ... )` (the SQT 44 driver runs, blocked on
+  rank as expected); no `dungeon 0` line on field loads; 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`.
 - **Blocked on ranks (user, 2026-10-19):** every offline result is rank F. The emulator passes RT_NONE to the quest hooks and sends RT_F
   to the screen. So SQT_DUNGEON_RANK, and with it this stand-in for 35363, cannot complete until Phase Q4c. Q4c was added for that.
 
