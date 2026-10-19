@@ -1965,10 +1965,21 @@ int CX2OfflineQuest::PayAcceptItems( const CX2QuestManager::QuestTemplet* pTempl
 	std::map< int, int >::const_iterator mit;
 
 	// UserQuestManager.cpp:698-710: an accept item the character already holds, bag or bank, refuses the quest ( ERR_QUEST_24 ).
-	// CountItemByID leaves the banks out and the emulator has none, so the answer is the same.
+	// Q4b review: IsExistInventoryItemWithBank is KInventory::IsExist( id, false ) ( Inventory.cpp:674 ), every row of any
+	// category. CountItemByID skips ST_BANK, and the emulator's private bank holds rows, so every row is scanned instead.
+	std::map< UidType, KInventoryItemInfo > mapHeld;
+	pInven->GetAllItems( mapHeld );
+
+	std::set< int > setHeldID;
+	{
+		std::map< UidType, KInventoryItemInfo >::const_iterator hit;
+		for( hit = mapHeld.begin(); hit != mapHeld.end(); ++hit )
+			setHeldID.insert( hit->second.m_kItemInfo.m_iItemID );
+	}
+
 	for( mit = pTemplet->m_mapAcceptRewardItem.begin(); mit != pTemplet->m_mapAcceptRewardItem.end(); ++mit )
 	{
-		if( pInven->CountItemByID( mit->first, false ) > 0 )
+		if( setHeldID.end() != setHeldID.find( mit->first ) )
 		{
 			CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d refused: already holds accept item %d (ERR_QUEST_24)",
 				pTemplet->m_iID, mit->first );
