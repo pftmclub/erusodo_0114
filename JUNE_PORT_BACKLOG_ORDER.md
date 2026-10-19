@@ -347,6 +347,8 @@ Everything from Stages 5 and 6, plus:
 Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.
 
 - **June's menu bar and its StoryBook button** (handed here by quest-system Q10, user 2026-10-19: "no opener; Stage 9 owns it").
+  - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.
+    Scope: `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q10c - Story book UI"; kickoff `kickoffs/quest-system/Q10c.md` (its dev-console opener becomes optional once the button lands).
   - June opens the story book (quest-system Q10c's `CX2UIStoryBook`, UI manager menu 0x2f) only from the `StoryBook` button of June's own
     `DLG_Menu_Button_NEW.lua` (data034; `DLG_UI_Button27` sheet, slot layout `MBW_GET_SLOT_LEFT_TOP`, 18 `STATE_MENU_UI_CUSTOM_MSG` ids, the
     `EXP_Y` gauge skill S7i held back). March still runs its own bar, so the book has only a dev-console opener until this lands.

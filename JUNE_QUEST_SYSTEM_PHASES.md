@@ -1487,6 +1487,9 @@ shows `start: quest N, K cut scene(s)`, one `cut i / K` per cut, `end` and, afte
 
 ## Phase Q10c - Story book UI
 
+**Routed to backlog Stage 9 (user, 2026-10-19).** June opens the book only from the menu-bar StoryBook button, which Stage 9 owns, so the
+book UI moves there whole. Not a quest-system phase any more; Phase Z does not wait for it. The scope below and `kickoffs/quest-system/Q10c.md` stand as Stage 9's input.
+
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_STORY_BOOK` (+ `_DEBUG` dev-console opener). Sub-tag `STORY`. Split out of Q10.
 
 - Port `CX2UIStoryBook` whole (`32d73c10`..`32d757a0`) and UI-manager menu 0x2f (`32158070`, `3214f1c0`, `3215a0d0`, `321524d0`, close-all, layer, dispatch).
