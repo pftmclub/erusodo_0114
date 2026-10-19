@@ -1730,7 +1730,14 @@ the three PTR strings are in the exe.
 first Now-iterator read). Cause: March's `m_FutureStateData.Init()` / `m_NowStateData.Init()` sit in `ReInit`, not in the ctor (the S0b map's "ctor region" was
 wrong), so the iterators were unseeded when the class InitState re-bound the slots. June seeds them in both: ctor `3203e850` and ReInit `32022380`
 (Future = entry 0 `@32022493`, Now = Future `@3202251d`, rate 1 `@32022590`, snapshot untouched). Fix: the same seed at the end of `CX2GUUser::CX2GUUser`;
-the ReInit block's comment now cites ReInit. Compiled clean; the rebuild was blocked by a peer's error (GFx G3, `X2DungeonGame.cpp:309`), so not deployed yet.
+the ReInit block's comment now cites ReInit. Commit `7ee961df`; deployed in GFx G3's build of `7ee961df` (exe md5 12560fa1, 07:38).
+**Play-test 2 PASSED, accepted by the user 2026-10-19** (07:42 run on exe 12560fa1, unit 25): field entry without a crash; `PTR running state data are map
+positions` (first Now change 0 -> 13); Kick 21202 x3 and Impact Smash 21203 x2 all `entry 1 (never multiplied)` (hazard 1 closed); 0 EXCEPTION, clean exit.
+**Snapshot not reachable offline (user accepted):** June itself refuses every player re-equip while the unit is busy: the page radio (`328ec068`,
+`CheckAndWarningBusyStateNow( true )`, `X2UISkillTreeNew2015.cpp:5073`), the slot drop / equip (`:4338`, `:4365`) and the slot-change cooldown (`3220f160`).
+June reaches `31fd2af0` with a running skill only when a slot ACK lands after the skill started (server latency) or through another user's room notice; the
+emulator answers in the same frame and offline has no other users. The two page switches of the run came before the skill, so no snapshot line (correct).
+The snapshot and its four consumers are left to the S8 review's Ghidra comparison (Elsword's June-motion skills also cast wrongly, a class-port matter).
 
 **How to see it in game:** the hand-off below (unit 25 jtLordKnight, page switch while Impact Smash runs; Kick for the power rate). **User owes:** the play-test.
 
