@@ -644,6 +644,9 @@ X2/US_SERVICE/x2.exe (2026-10-19 17:08:33); built at main 4edc83db + 10 uncommit
 **How to see it:** dev console `PlayEventScene("Quest_22329_Start")`: the 128 px event-scene cursor stays visible over the whole movie,
 including over its characters and boxes. A click still advances the scene, and after End the normal cursor is back.
 
+**Play-test PASSED 2026-10-19** (user: "now it's on top layer"; log: `SCENE Play Quest_22329_Start ( ...Elysion7.swf ): frame -1`, `getEventSceneData ... 25 frames`,
+`End ( forced )`, 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ` x2; the missing black layout is the known asset-port gap).
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
