@@ -4367,6 +4367,18 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_DATA` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LO
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, put March's three `.lua` back into `kom_contents\data036_kom\` and repack /
   copy data036, and restore the save from `db_backup\els_db_20261019_075100_pre_pre-quest-q2-v21.sql` (an exe without the flag refuses a v21 save).
 
+### June quest system: quest NPCs and houses (quest-system Q7, 2026-10-19)
+
+No flag, no C++, no build: Lua and assets only (they move with the koms). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q7 - Done".
+- **data037 `NPCTemplet.lua`** (core source): June's 6 rows appended in one `--{{ Iruha : 2026-10-19 ... --}}` block (`NUI_STORY_QUEST`, `NUI_TRANSCEND_QUEST`, `NUI_ELSION_EVENT_00/01`,
+  `NUI_EVENT_KEEPER`, `NUI_EVENT_GUILD_EDAN_VILAGE`).
+- **data034 `DLG_Map_Village.lua`** (core source): `HI_STORY_QUEST`, `HI_TRANSCEND_QUEST` appended to the `HouseIDList` of Ruben, Elder, Besma, Altera, Peita, Velder, Hamel, Sander
+  (marked `-- quest-system Q7`).
+- **New files (stage-june / adopt-june, June byte-exact):** datai002 `Motion_NPC_Event_Keeper.x` + 3 `.tga`; datai024 `Motion_NPC_Event_EDAN.x`, `HQ_UI_NPC_EVENT_KEEPER.X`,
+  `UI_NPC_Event_EDAN.x` + 3 `.tga`; datai016 `UI_NPC_EVENT_KEEPER.lua`, `UI_NPC_EVENT_EDAN.lua` (ljconv bytecode).
+- **Revert:** delete the `Q7` block at the end of `NPCTemplet.lua` and the two `quest-system Q7` lines (+ the comma they needed) in each of the 8 village lists, `luasrc.py refresh`
+  both, drop the 12 new files from datai002 / datai016 / datai024 (their manifests too), `kom.py pack` the five koms, ask, copy (copy backs the live kom up to `kom_backup_tools\`).
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

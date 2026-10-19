@@ -646,6 +646,34 @@ its 10 sites were re-read before the guards went in.
 
 **Done gate:** the Story and Transcend houses show their NPC. Story quests (start NPC `NUI_STORY_QUEST`) can be taken there.
 
+### Q7 - Done (2026-10-19)
+
+Lua and assets only: **no C++, no flag, no build**. The `[JUNE_QUEST] NPC` sub-tag has no emitter, so there is nothing for `logs.py --tag` to read; the check is a
+clean `ErrorLog.txt` (below). Sonnet did everything here.
+- **What was already done (nothing to add).** `Enum.lua` already carries all six ids (`NUI_STORY_QUEST` 10142, `NUI_TRANSCEND_QUEST` 10153, `NUI_EVENT_KEEPER` 4116,
+  `NUI_EVENT_GUILD_EDAN_VILAGE` 4255, `NUI_ELSION_EVENT_00/01` 2139 / 2140). The Story / Transcend houses in `DLG_Map_House.lua` already list their NPC in
+  `NPC_ID_LIST` (they pointed at undefined ids until the Enum edit, so they were empty holes). Both houses are already in the Ranox (20008), Elysion (20009) and
+  Elysion rest-field village lists. `Change_NPCJoinTalk` / `Change_NPCByeTalk` are read since Atlas E1a (`X2QuestManager.cpp:102-123`, applied at
+  `X2TFieldGame.cpp:3478`), so that bullet of the plan was stale. `CX2TFieldNpc::CreateFieldNpc` already treats both houses as static meshes (`:3376`).
+- **`NPCTemplet.lua` (core source, data037).** June's 6 rows appended verbatim, in one `--{{ ... --}}` block: `NUI_STORY_QUEST`, `NUI_TRANSCEND_QUEST`,
+  `NUI_ELSION_EVENT_00`, `NUI_ELSION_EVENT_01`, `NUI_EVENT_KEEPER`, `NUI_EVENT_GUILD_EDAN_VILAGE`. Keeper and Edan are the talk targets of June sub-quests 201090 and
+  208020 (`FieldSubQuest`), so they are needed. `luasrc.py refresh data037 NPCTemplet.lua` done; `ledger --check` and `core --check` PASS.
+- **Villages (`DLG_Map_Village.lua`, core source, data034).** `HI_STORY_QUEST` and `HI_TRANSCEND_QUEST` appended to the `HouseIDList` of Ruben, Elder, Besma,
+  Altera, Peita, Velder, Hamel and Sander (June has them in all 10 villages; March had only Ranox and Elysion). Story quests have 78 start-NPC uses and
+  Transcend 15 in June's census, and every village has to be able to host them. Refreshed.
+  Not copied: the other houses June's lists carry that March's lack (`HI_ADAMS_HOUSE`, `HI_SPA_SIGN_*`, `HI_EVENT_GUILD_EDAN_VILAGE` outside Ranox ...); they are not quest NPCs.
+- **Assets (`kom.py stage-june`, `adopt-june`).** Closure by `npc_mesh_census.py --seed` (its tsv overwrote `npc_anim_collision_need.tsv`; restored from git):
+  - datai002: `Motion_NPC_Event_Keeper.x` + 3 `.tga`.
+  - datai024: `Motion_NPC_Event_EDAN.x`, `HQ_UI_NPC_EVENT_KEEPER.X`, `UI_NPC_Event_EDAN.x` + 3 `.tga`.
+  - datai016, June bytecode via `adopt-june`: `UI_NPC_EVENT_KEEPER.lua`, `UI_NPC_EVENT_EDAN.lua` (record `june_adopt_20261019_093327.tsv`).
+  - Already staged: the `ELSION_EVENT_00/01` scripts (data037) and meshes (data181).
+- **Packed**, not copied: `PACK OK` data034 (~1 `DLG_Map_Village.lua`), data037 (~1 `NPCTemplet.lua`), datai002 (+4), datai016 (+2), datai024 (+6). Diffs against the live koms
+  show only these files. **Copy waits for the user's yes** (the game must be closed).
+- **How to see it.** Houses with `Dummy_Ani_Wait.X` and no `COMMON_NPC_LOCATION` are invisible by design (June's own data). The proof is: the game starts with the
+  new `NPCTemplet` (a bad one logs ErrorEnum 10002 at load), the 8 villages load, and `ErrorLog.txt` has no new NPC / house line. Taking a Story quest through the
+  window is Q5a's UI and Q4's completion; Q9 walks it.
+- **Open for later phases.** `BATTLE_FIELD_DIRECTION_INFO` (names the two cutscene NPCs) still has no reader in March (Q6 / A6 note); the NPC rows now exist for it.
+
 ## Phase Q8 - Scene data and clear movies
 
 **Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE`. Sub-tag `MOVIE`.
