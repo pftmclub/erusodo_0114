@@ -596,6 +596,61 @@ its 10 sites were re-read before the guards went in.
 **Done gate:** `IsClearTypeUndriven` and the driven list together cover SQT 0-48. A play-test completes one quest of each driven new type, and
 `grep UNHANDLED` stays at baseline.
 
+### Q4 - Done (2026-10-19, Opus 5.5 high)
+
+Flags `SERV_IRUHADEV_JUNE_QUEST_OFFLINE` and the stand-in `SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN` (`Always.h`). Emulator only; no shared struct,
+no save rung. MODS.md "offline completion of every sub-quest type".
+- **User answers (2026-10-19):**
+  - account quests are account-wide;
+  - accept-time reward items are paid (split to Q4b, see the last item);
+  - story quests open from their start NPC, with no stand-in;
+  - type 48 and the exception list "follow June's".
+- **Driven now, from March's server:**
+  - SQT 32 `SUITABLE_LEVEL` (Room.cpp:1593 band: min - 2 <= level <= max + 2 at loading 100, id + difficulty row; UserQuestManager.cpp:2375 exclusions:
+    tutorial / Henir / TC / Ruben). This drives 138 June sub-quests, including the 77 story quests' 41990 and Limit Break 1/5.
+  - SQT 8 gets the server's rules (:2076: event / PC-bang quests count outside those four, and a step naming no dungeon also needs EXP; the others
+    count anywhere but the Forest Gate and the tutorials).
+  - A dungeon list with no id > 0 means any dungeon (`CheckValidDungeonID`). This corrects the kickoff's "a `{0}` set matches no dungeon": the
+    server's loader drops 0, and event 43710 ("clear 5, Ruben excluded") lists `{0}`.
+- **June rules at accept** (`CheckJuneRepeat`, ERR_QUEST_04):
+  - QRT_WEEK: the next Wednesday 00:00 (`32322050`);
+  - QRT_MONTH: the 1st, 00:00 (`32321d10`);
+  - chain: midnight of (the chain's latest completion + AllowFewDays) (`3232caf0`; TestMinute needs code event 0x10, not mirrored). Only chain 1 (the 91
+    story quests) is used by any quest, so story quests open one per day.
+  - QRT_DAY now resets at 00:00 (US `QE_DAILY_REPEAT_HOUR` 0, XSLQuestManager.h:36; the emulator had the non-US 6).
+- **Account quests (5):**
+  - opened at character select (`CheckAccountOpen` = UserAccountQuestManager.cpp:361);
+  - stored once per account under `unit_uid = -user_uid`, folded into each character's lists;
+  - driven by the same hooks.
+- **Labelled undriven** (`IsClearTypeUndriven`; orphan = no quest lists the sub-quest):
+  - 0, 35 (server compiles it out);
+  - 37 (15 orphans, dungeon 41130 has no row);
+  - 38 / 39 (guild decision);
+  - 40-42 / 46 (no data, no June parser case);
+  - 43 (3 orphans, no item workshop offline);
+  - 44 (quest 35363 also needs SQT_DUNGEON_RANK, which offline never ticks);
+  - 45 (no PvP);
+  - 47 (2 orphans, party-only).
+  The census line must read `SQT coverage 0-48: 21 driven, 28 undriven, unclassified [none], both [none]`.
+- **Stand-in:** SQT 48 (`[Army]` dailies 26600 / 26610) counts a clear only when the run paid EXP.
+- **Decided, nothing to do:**
+  - `m_bExpDungeonAndField` is on 36 orphan sub-quests only.
+  - `m_cDifficulty` alone (35373, 74520) is read by neither June's client nor March's live server, so it is ignored.
+  - `m_fRandomRate` / `m_iRandomGroupID`: the emulator still allows any (no rotation).
+  - No June quest has `m_iBuff` != 0 or a title reward, and March's server pays neither.
+  - No live sub-quest counts past 255, so `KSubQuestInstance` stays UCHAR. No ported reader needs the June int64s, so no shared-struct change.
+  - Pushes 0x27b / 0x27d / 0x593 / 0x605 / 0x7a1 are not sent (March packets carry the same; no event ids until Q5a).
+  - Quest 42030 (Limit Break 5/5, `QR_TRANSCENDENTAL_CLASS`) is refused at completion with ERR_QUEST_18 until Stage 6.
+- **Split to Q4b** (`kickoffs/quest-system/Q4b.md`): `m_vecAcceptRewardItem` (7 quests) and `m_eExceptionDungeonID` need a parse in
+  `X2QuestManager.cpp`, and Q3 was editing that file family during Q4.
+- **Hygiene** (`flagcheck --worktree`, 7 files): `files: 0 PASS, 6 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
+  0 encoding change(s)`; `RESULT: PASS` (OTHER = Always.h, Q3's define next to ours, not committed here).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,350,656 B, dated 2026-10-19 11:57:00, md5 b5a84db238c64efbfc12bbb564b82b34` (built at main e0b19fc5 plus
+  peers' uncommitted files, Q3's included); Q4's four log strings are in the exe.
+- **Save:** unit 24 (Ara, Lv 47) was given quests 31110 (weekly, SQT 32 x4) and 26600 (daily, SQT 48 x3) for the play-test
+  (backup `db_backup\els_db_20261019_113906_pre_sql.sql`).
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.

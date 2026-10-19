@@ -23,6 +23,9 @@ CX2OfflineQuest* CX2OfflineQuest::ms_pInstance = NULL;
 
 CX2OfflineQuest::CX2OfflineQuest()
 : m_nUnitUID( 0 )
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+, m_nAccountKey( 0 )
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 {
 }
 
@@ -297,6 +300,61 @@ void CX2OfflineQuest::Release()
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4's done gate: every clear type 0..SQT_END-1 is either in the driven list below ( each has a driver in this file )
+	// or named by IsClearTypeUndriven. A type in neither, or in both, is printed; the line must read "0 unclassified, 0 both".
+	{
+		static const int aiDriven[] =
+		{
+			CX2QuestManager::SQT_NPC_TALK,			CX2QuestManager::SQT_NPC_HUNT,				CX2QuestManager::SQT_ITEM_COLLECTION,
+			CX2QuestManager::SQT_QUEST_ITEM_COLLECTION,	CX2QuestManager::SQT_DUNGEON_TIME,		CX2QuestManager::SQT_DUNGEON_RANK,
+			CX2QuestManager::SQT_DUNGEON_DAMAGE,	CX2QuestManager::SQT_DUNGEON_CLEAR_COUNT,	CX2QuestManager::SQT_ITEM_ENCHANT,
+			CX2QuestManager::SQT_ITEM_SOCKET,		CX2QuestManager::SQT_USE_SKILL_POINT,		CX2QuestManager::SQT_ITEM_USE,
+			CX2QuestManager::SQT_SKILL_USE,			CX2QuestManager::SQT_VISIT_VILLAGE,			CX2QuestManager::SQT_VISIT_FIELD,
+			CX2QuestManager::SQT_VISIT_DUNGEON,		CX2QuestManager::SQT_FIND_NPC,				CX2QuestManager::SQT_CHAR_LEVEL_UP,
+			CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR,	CX2QuestManager::SQT_LEARN_NEW_SKILL,
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+			CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR,
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+		};
+		const int iDrivenNum = (int)( sizeof( aiDriven ) / sizeof( aiDriven[0] ) );
+
+		int				iDriven		= 0;
+		int				iUndriven	= 0;
+		std::wstring	wstrNone;
+		std::wstring	wstrBoth;
+
+		for( int eType = 0; eType < (int)CX2QuestManager::SQT_END; ++eType )
+		{
+			bool bDriven = false;
+			for( int d = 0; d < iDrivenNum; ++d )
+			{
+				if( aiDriven[d] == eType )
+					bDriven = true;
+			}
+
+			const bool bUndriven = ( NULL != IsClearTypeUndriven( eType ) );
+
+			wchar_t szNum[16];
+			_snwprintf( szNum, 16, L" %d", eType );
+			szNum[15] = L'\0';
+
+			if( true == bDriven && true == bUndriven )
+				wstrBoth += szNum;
+			else if( true == bDriven )
+				++iDriven;
+			else if( true == bUndriven )
+				++iUndriven;
+			else
+				wstrNone += szNum;
+		}
+
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF SQT coverage 0-%d: %d driven, %d undriven, unclassified [%s], both [%s]",
+			(int)CX2QuestManager::SQT_END - 1, iDriven, iUndriven,
+			wstrNone.empty() ? L"none" : wstrNone.c_str(), wstrBoth.empty() ? L"none" : wstrBoth.c_str() );
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	if( 0 == mapAll.size() )
 	{
 		CX2OfflineLog::Server(
@@ -336,6 +394,9 @@ void CX2OfflineQuest::Clear()
 	m_nUnitUID = 0;
 	m_mapQuesting.clear();
 	m_mapComplete.clear();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	m_nAccountKey = 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 }
 
 bool CX2OfflineQuest::Load( UidType nUnitUID )
@@ -416,6 +477,72 @@ bool CX2OfflineQuest::Load( UidType nUnitUID )
 		m_mapComplete[ kInfo.m_iQuestID ] = kInfo;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4. The account's quests ( KUserAccountQuestManager::SetAccountQuest, UserAccountQuestManager.cpp:92-192 ): kept per
+	// account and folded into this character's two lists, the instance owned by the character ( GSAccountDBThread.cpp:~867 ).
+	{
+		KOfflineUnitRow kUnit;
+		if( true == pDB->LoadUnit( nUnitUID, kUnit ) && 0 < kUnit.m_nUserUID )
+			m_nAccountKey = -kUnit.m_nUserUID;
+
+		int iAccountQuesting	= 0;
+		int iAccountComplete	= 0;
+
+		if( 0 != m_nAccountKey )
+		{
+			std::vector< KOfflineQuestRow > vecAccRow;
+			pDB->LoadQuests( m_nAccountKey, vecAccRow );
+
+			for( size_t i = 0; i < vecAccRow.size(); ++i )
+			{
+				const CX2QuestManager::QuestTemplet* pTemplet = Templet( vecAccRow[i].m_iQuestID );
+				if( NULL == pTemplet || false == pTemplet->m_bIsAccount )
+				{
+					CX2OfflineLog::Server( L"[JUNE_QUEST] OFF account row %d has no account templet - left on disk, not loaded",
+						vecAccRow[i].m_iQuestID );
+					continue;
+				}
+
+				KQuestInstance kInst;
+				MakeInstance( pTemplet, nUnitUID, kInst );
+
+				for( size_t s = 0; s < kInst.m_vecSubQuestInstance.size(); ++s )
+				{
+					for( size_t r = 0; r < vecAccRow[i].m_vecSub.size(); ++r )
+					{
+						if( vecAccRow[i].m_vecSub[r].m_iSubID != kInst.m_vecSubQuestInstance[s].m_iID )
+							continue;
+
+						kInst.m_vecSubQuestInstance[s].m_ucClearData	= (UCHAR)vecAccRow[i].m_vecSub[r].m_iClearData;
+						kInst.m_vecSubQuestInstance[s].m_bIsSuccess		= vecAccRow[i].m_vecSub[r].m_bSuccess;
+						break;
+					}
+				}
+
+				m_mapQuesting[ vecAccRow[i].m_iQuestID ] = kInst;
+				++iAccountQuesting;
+			}
+
+			std::vector< KOfflineCompleteQuestRow > vecAccDone;
+			pDB->LoadCompleteQuests( m_nAccountKey, vecAccDone );
+
+			for( size_t i = 0; i < vecAccDone.size(); ++i )
+			{
+				KCompleteQuestInfo kInfo;
+				kInfo.m_iQuestID		= vecAccDone[i].m_iQuestID;
+				kInfo.m_iCompleteCount	= vecAccDone[i].m_iCount;
+				kInfo.m_tCompleteDate	= vecAccDone[i].m_tDate;
+
+				m_mapComplete[ kInfo.m_iQuestID ] = kInfo;
+				++iAccountComplete;
+			}
+		}
+
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF account key %I64d: %d account quest(s) in progress, %d completed",
+			(__int64)m_nAccountKey, iAccountQuesting, iAccountComplete );
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	CX2OfflineLog::Server( L"QUEST    loaded for unitUID=%I64d: %u in progress, %u completed",
 		(__int64)nUnitUID, (unsigned int)m_mapQuesting.size(),
 		(unsigned int)m_mapComplete.size() );
@@ -460,8 +587,24 @@ bool CX2OfflineQuest::Save( int iQuestID ) const
 		kRow.m_vecSub.push_back( kSub );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	return CX2OfflineDB::Instance()->SaveQuest( SaveKey( iQuestID ), kRow );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	return CX2OfflineDB::Instance()->SaveQuest( m_nUnitUID, kRow );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 }
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+UidType CX2OfflineQuest::SaveKey( int iQuestID ) const
+{
+	const CX2QuestManager::QuestTemplet* pTemplet = Templet( iQuestID );
+
+	if( NULL != pTemplet && true == pTemplet->m_bIsAccount && 0 != m_nAccountKey )
+		return m_nAccountKey;
+
+	return m_nUnitUID;
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 void CX2OfflineQuest::MarkChanged( const KQuestInstance& kInst,
 								   OUT std::vector< KQuestInstance >& vecChanged )
@@ -579,6 +722,11 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 	case CX2QuestManager::SQT_ITEM_RESOLVE:
 		return L"item disassembly is not implemented offline (no REQ handled)";
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4: SQT_SUITABLE_LEVEL_DUNGEON_CLEAR is driven. The room server's answer is reproducible after all: it is the
+	// dungeon row's own level band ( CenterServer Room.cpp:1593-1627, min - 2 <= level <= max + 2 at loading 100 ), which the
+	// client has ( CX2Dungeon::DungeonData m_MinLevel / m_MaxLevel ). See IsSuitableLevel and OnDungeonClear.
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	// "Was this cleared at a level appropriate to the dungeon?" is not a
 	// question this side can answer. It arrives at the GameServer already
 	// decided, as m_mapSuitableLevelInfo on the room server's end-of-game
@@ -589,6 +737,7 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 	// server sometimes and drift silently the rest of the time.
 	case CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR:
 		return L"suitable-level is decided by the room server, not derivable here";
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	// The live server's own check for this one is unreachable code: it looks
 	// the quest up in mapOngoingQuest and then dereferences the iterator on the
@@ -598,6 +747,46 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 	// lookup - is implementable; the rule itself is not knowable.
 	case CX2QuestManager::SQT_ITEM_EQUIP_DUNGEON_CLEAR:
 		return L"the shipped server's own check dereferences end(); no correct behaviour to copy";
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4: every type 0-48 is either driven or named here ( the census proves it, LogTempletCensus ). June counts and
+	// parents are from june2017_re/quest_plan ( q_june_quest_types.tsv; the Q4 Done note ).
+	case CX2QuestManager::SQT_NONE:
+		return L"not a clear type";
+
+	case CX2QuestManager::SQT_POINT_COUNT:
+		return L"the shipped GameServer compiles its driver out ( SERV_POINT_COUNT_SYSTEM off ) and no June sub-quest uses it";
+
+	case CX2QuestManager::SQT_PVE_WIN:
+		return L"no June quest uses it ( its 15 sub-quests are orphans ) and its dungeon 41130 has no DungeonData row";
+
+	case CX2QuestManager::SQT_GUILD_JOIN:
+	case CX2QuestManager::SQT_GUILD_HONOR_POINT_COLLECTION:
+		return L"guild quests are parse-and-log offline ( decision 2026-10-17 )";
+
+	case CX2QuestManager::SQT_PLAYER_WITH_DUNGEON_CLEAR:
+	case CX2QuestManager::SQT_PGT_1VS1_CHALLENGE_MODE:
+	case CX2QuestManager::SQT_PGT_WINNER:
+	case CX2QuestManager::SQT_IMMEDIATELY_CLEAR:
+		return L"no June sub-quest uses it and June's clear-condition parser ( 32323ad0 ) has no case for it";
+
+	case CX2QuestManager::SQT_ITEM_EXCHANGE:
+		return L"no June quest uses it ( 3 orphan sub-quests ) and the item workshop is not implemented offline";
+
+	case CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR:
+		return L"its one quest ( 35363 ) also needs SQT_DUNGEON_RANK, which offline never ticks, and its rule has no March server code";
+
+	case CX2QuestManager::SQT_PVP_RANK:
+		return L"no PvP offline";
+
+	case CX2QuestManager::SQT_PLAY_TOGETHER_WITH_TITLE:
+		return L"party-only ( a pair with a titled senior ) and no June quest uses it ( 2 orphan sub-quests )";
+
+#ifndef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+	case CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR:
+		return L"a June-server-only rule; driven only by the stand-in SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN";
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	default:
 		break;
@@ -663,6 +852,208 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 
 	return false;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+/*static*/ bool CX2OfflineQuest::HasDungeonFilter( const CX2QuestManager::SubQuestTemplet* pSub )
+{
+	if( NULL == pSub )
+		return false;
+
+	// CXSLQuestManager::CheckValidDungeonID ( XSLQuestManager.cpp:2099-2107 ): any entry > 0.
+	std::set< SEnum::DUNGEON_ID >::const_iterator sit;
+	for( sit = pSub->m_ClearCondition.m_setDungeonID.begin();
+		 sit != pSub->m_ClearCondition.m_setDungeonID.end(); ++sit )
+	{
+		if( (int)(*sit) > 0 )
+			return true;
+	}
+
+	return false;
+}
+
+/*static*/ bool CX2OfflineQuest::IsQuestCountedDungeon( int iDungeonID )
+{
+	// UserQuestManager.cpp:2378-2392: !IsTutorialDungeon && !IsHenirDungeon && !IsTCDungeon && !IsRubenDungeon ( the Valentine /
+	// Halloween terms are compiled out for US ). Spelled against the client's DI_* enum exactly as IsSkillUseCountedDungeon
+	// ( Handlers_Skill.cpp ) spells the same four predicates; the other entries CXSLDungeon names are not enumerators here.
+	switch( iDungeonID )
+	{
+	case SEnum::DI_TUTORIAL_ELSWORD:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_ELSWORD:
+	case SEnum::DI_ELDER_HENIR_SPACE:
+	case SEnum::DI_EL_FOREST_WEST_NORMAL:
+	case SEnum::DI_EL_FOREST_NORTH_NORMAL:
+	case SEnum::DI_EL_FOREST_GATE_NORMAL:
+	case SEnum::DI_EL_FOREST_HELL_NORMAL:
+	case SEnum::DI_EVENT_KIDDAY_RUBEN:
+	case SEnum::DI_MONSTER_TEST_NORMAL:
+	case SEnum::DI_RUBEN_SECRET_COMMON:
+	case SEnum::DI_RUBEN_EL_TREE_NORMAL:
+	case SEnum::DI_RUBEN_RUIN_OF_ELF_NORMAL:
+	case SEnum::DI_RUBEN_SWAMP_NORMAL:
+		return false;
+
+	default:
+		break;
+	}
+
+	// CXSLDungeon::IsTCDungeon, the training-camp range ( RAVEN_0 + 6: see IsSkillUseCountedDungeon ).
+	if( iDungeonID >= (int)SEnum::DI_TRAINING_FREE &&
+		iDungeonID <= (int)SEnum::DI_TRAINING_RAVEN_0 + 6 )
+	{
+		return false;
+	}
+
+	return true;
+}
+
+/*static*/ bool CX2OfflineQuest::IsSuitableLevel( int iDungeonIDAndDif, int iUnitLevel )
+{
+	if( NULL == g_pData || NULL == g_pData->GetDungeonManager() )
+		return false;
+
+	const CX2Dungeon::DungeonData* pData =
+		g_pData->GetDungeonManager()->GetDungeonData( (SEnum::DUNGEON_ID)iDungeonIDAndDif );
+
+	if( NULL == pData )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF suitable level: dungeon %d has no DungeonData row -> 0", iDungeonIDAndDif );
+		return false;
+	}
+
+	// Room.cpp:1597-1605: the slack is a hard-coded 2 on both sides ( the server ignores June's m_SuitableLevelFixValue ).
+	const int	iMin	= pData->m_MinLevel - 2;
+	const int	iMax	= pData->m_MaxLevel + 2;
+	const bool	bOK		= ( iMin <= iUnitLevel && iUnitLevel <= iMax );
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] OFF suitable level: dungeon %d unit level %d band %d..%d -> %d",
+		iDungeonIDAndDif, iUnitLevel, iMin, iMax, bOK ? 1 : 0 );
+
+	return bOK;
+}
+
+/// Local midnight of tDay's date plus iAddDays days, or of the 1st of the next month when bNextMonth.
+static __time64_t JuneQuestLocalMidnight( __time64_t tDay, int iAddDays, bool bNextMonth )
+{
+	struct tm kTm;
+	if( 0 != ::_localtime64_s( &kTm, &tDay ) )
+		return 0;
+
+	if( true == bNextMonth )
+	{
+		kTm.tm_mon	+= 1;		///< _mktime64 rolls December into January of the next year
+		kTm.tm_mday	= 1;
+	}
+	else
+	{
+		kTm.tm_mday	+= iAddDays;
+	}
+
+	kTm.tm_hour		= 0;
+	kTm.tm_min		= 0;
+	kTm.tm_sec		= 0;
+	kTm.tm_isdst	= -1;
+
+	return ::_mktime64( &kTm );
+}
+
+int CX2OfflineQuest::CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const
+{
+	if( NULL == pTemplet )
+		return NetError::NET_OK;
+
+	const __time64_t tNow = ::_time64( NULL );
+
+	if( CX2QuestManager::QRT_WEEK == pTemplet->m_eRepeatType ||
+		CX2QuestManager::QRT_MONTH == pTemplet->m_eRepeatType )
+	{
+		std::map< int, KCompleteQuestInfo >::const_iterator mit = m_mapComplete.find( pTemplet->m_iID );
+		if( mit != m_mapComplete.end() )
+		{
+			const __time64_t tDone = (__time64_t)mit->second.m_tCompleteDate;
+			if( 0 == tDone )
+				return NetError::ERR_QUEST_04;		///< as QRT_DAY treats an undated completion
+
+			__time64_t tExpiry = 0;
+
+			if( CX2QuestManager::QRT_WEEK == pTemplet->m_eRepeatType )
+			{
+				// June 32322050: the next Wednesday 00:00 after the completion's date. CTime::GetDayOfWeek is 1 ( Sunday ) .. 7;
+				// Wed..Sat add 11 - dow, Sun..Tue add 4 - dow, so a Wednesday completion waits a full week. Its "same Wednesday,
+				// hour < 0" branch can never be taken ( Ghidra marks it unreachable ).
+				struct tm kDone;
+				if( 0 != ::_localtime64_s( &kDone, &tDone ) )
+					return NetError::ERR_QUEST_04;
+
+				const int iDow	= kDone.tm_wday + 1;
+				const int iDays	= ( iDow > 3 ) ? ( 11 - iDow ) : ( 4 - iDow );
+
+				tExpiry = JuneQuestLocalMidnight( tDone, iDays, false );
+			}
+			else
+			{
+				// June 32321d10: the 1st of the next month, 00:00 ( its "the 1st, hour < 0" branch is dead the same way ).
+				tExpiry = JuneQuestLocalMidnight( tDone, 0, true );
+			}
+
+			if( tExpiry > tNow )
+			{
+				if( false == bQuiet )
+				{
+					CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d refused: %s quest resets in %I64d s",
+						pTemplet->m_iID, ( CX2QuestManager::QRT_WEEK == pTemplet->m_eRepeatType ) ? L"weekly" : L"monthly",
+						(__int64)( tExpiry - tNow ) );
+				}
+
+				return NetError::ERR_QUEST_04;
+			}
+		}
+	}
+
+	// June 3232caf0: a quest of a chain ( m_iChainID, ChainQuestInfo.lua ) waits until local midnight of ( the chain's latest
+	// completion + AllowFewDays days ). Its TestMinute variant runs only under code event 0x10, which nothing offline enables.
+	if( 0 != pTemplet->m_iChainID && NULL != g_pData && NULL != g_pData->GetQuestManager() )
+	{
+		const std::map< int, CX2QuestManager::ChainQuestData >& mapChain = g_pData->GetQuestManager()->GetChainQuestMap();
+
+		std::map< int, CX2QuestManager::ChainQuestData >::const_iterator mitChain = mapChain.find( pTemplet->m_iChainID );
+		if( mitChain != mapChain.end() && 0 < mitChain->second.m_iAllowFewDays )
+		{
+			__int64	tLast		= 0;
+			int		iLastQuest	= 0;
+
+			std::set< int >::const_iterator sit;
+			for( sit = mitChain->second.m_setQuestID.begin(); sit != mitChain->second.m_setQuestID.end(); ++sit )
+			{
+				std::map< int, KCompleteQuestInfo >::const_iterator mitDone = m_mapComplete.find( *sit );
+				if( mitDone != m_mapComplete.end() && mitDone->second.m_tCompleteDate > tLast )
+				{
+					tLast		= mitDone->second.m_tCompleteDate;
+					iLastQuest	= *sit;
+				}
+			}
+
+			if( 0 < tLast )
+			{
+				const __time64_t tAvail = JuneQuestLocalMidnight( (__time64_t)tLast, mitChain->second.m_iAllowFewDays, false );
+
+				if( tAvail > tNow )
+				{
+					if( false == bQuiet )
+					{
+						CX2OfflineLog::Server( L"[JUNE_QUEST] OFF accept %d refused: chain %d ( last quest %d ) opens in %I64d s",
+							pTemplet->m_iID, pTemplet->m_iChainID, iLastQuest, (__int64)( tAvail - tNow ) );
+					}
+
+					return NetError::ERR_QUEST_04;
+				}
+			}
+		}
+	}
+
+	return NetError::NET_OK;
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 /*static*/ bool CX2OfflineQuest::IsSubComplete( const CX2QuestManager::SubQuestTemplet* pSub,
 												const KSubQuestInstance& kInst )
@@ -890,6 +1281,16 @@ int CX2OfflineQuest::Accept( int iQuestID, int iTalkNPCID, const KOfflineUnitRow
 				return NetError::ERR_QUEST_04;
 		}
 	}
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4: June's weekly / monthly expiry and the chain-day rule. The March server has neither; June's client applies
+	// them in SetUnitQuest / IsChainQuestAvailable, so the emulator refuses the accept the client would not offer.
+	{
+		const int iJune = CheckJuneRepeat( pTemplet, bQuiet );
+		if( NetError::NET_OK != iJune )
+			return iJune;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	// Character conditions. A quest names either a unit type or a set of
 	// classes, never both - the client asserts on that when it loads the
@@ -1192,6 +1593,56 @@ void CX2OfflineQuest::CheckAutoOpen( AUTO_OPEN_PLACE ePlace, int iPlaceID,
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+void CX2OfflineQuest::CheckAccountOpen( const KOfflineUnitRow& kRow, OUT std::vector< KQuestInstance >& vecOpened )
+{
+	if( NULL == g_pData || NULL == g_pData->GetQuestManager() || 0 == m_nAccountKey )
+		return;
+
+	const std::map< int, CX2QuestManager::QuestTemplet* >& mapAll = g_pData->GetQuestManager()->GetMapQuestTemplet();
+
+	int						iCandidates = 0;
+	std::map< int, int >	mapRefused;			///< NetError -> how many
+
+	std::map< int, CX2QuestManager::QuestTemplet* >::const_iterator mit;
+	for( mit = mapAll.begin(); mit != mapAll.end(); ++mit )
+	{
+		const CX2QuestManager::QuestTemplet* pTemplet = Templet( mit->first );
+		if( NULL == pTemplet || false == pTemplet->m_bIsAccount )
+			continue;
+
+		// UserAccountQuestManager.cpp:375-386: not running and not in the completed map.
+		if( true == IsQuesting( pTemplet->m_iID ) || 0 < GetCompleteCount( pTemplet->m_iID ) )
+			continue;
+
+		++iCandidates;
+
+		// Handler_EGS_NEW_QUEST_REQ_Account with NUI_NONE: no start-NPC check, the accept rules otherwise apply.
+		KQuestInstance kInst;
+		const int iResult = Accept( pTemplet->m_iID, (int)CX2UnitManager::NUI_NONE, kRow, true, kInst, true );
+
+		if( NetError::NET_OK != iResult )
+		{
+			++mapRefused[ iResult ];
+			continue;
+		}
+
+		vecOpened.push_back( kInst );
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] OFF account auto-open: %d candidate(s), %u opened",
+		iCandidates, (unsigned int)vecOpened.size() );
+
+	std::map< int, int >::const_iterator mitR;
+	for( mitR = mapRefused.begin(); mitR != mapRefused.end(); ++mitR )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF account auto-open   %d refused with error %d%s",
+			mitR->second, mitR->first,
+			( NetError::ERR_QUEST_12 == mitR->first ) ? L" (level too low - normal)" : L"" );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 int CX2OfflineQuest::CountWaitingOn( int iQuestID ) const
 {
 	if( NULL == g_pData || NULL == g_pData->GetQuestManager() )
@@ -1276,7 +1727,11 @@ bool CX2OfflineQuest::Finish( int iQuestID, OUT KCompleteQuestInfo& kOut )
 		return false;
 
 	m_mapQuesting.erase( mit );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	CX2OfflineDB::Instance()->DeleteQuest( SaveKey( iQuestID ), iQuestID );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	CX2OfflineDB::Instance()->DeleteQuest( m_nUnitUID, iQuestID );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	std::map< int, KCompleteQuestInfo >::iterator mitC = m_mapComplete.find( iQuestID );
 
@@ -1302,7 +1757,11 @@ bool CX2OfflineQuest::Finish( int iQuestID, OUT KCompleteQuestInfo& kOut )
 	kRow.m_iCount	= kOut.m_iCompleteCount;
 	kRow.m_tDate	= kOut.m_tCompleteDate;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	CX2OfflineDB::Instance()->SaveCompleteQuest( SaveKey( iQuestID ), kRow );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	CX2OfflineDB::Instance()->SaveCompleteQuest( m_nUnitUID, kRow );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	return true;
 }
@@ -1314,7 +1773,11 @@ bool CX2OfflineQuest::GiveUp( int iQuestID )
 		return false;
 
 	m_mapQuesting.erase( mit );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	CX2OfflineDB::Instance()->DeleteQuest( SaveKey( iQuestID ), iQuestID );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	CX2OfflineDB::Instance()->DeleteQuest( m_nUnitUID, iQuestID );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	CX2OfflineLog::Server( L"QUEST    gave up %d", iQuestID );
 	return true;
@@ -1420,7 +1883,11 @@ void CX2OfflineQuest::OnNpcDie( int iDungeonID, char cDifficulty, int iBattleFie
 			}
 			else
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+				if( true == HasDungeonFilter( pSub ) &&
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 				if( false == pSub->m_ClearCondition.m_setDungeonID.empty() &&
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 					false == IsExistDungeonInSub( pSub, iDungeonID + (int)cDifficulty ) )
 				{
 					continue;
@@ -1455,9 +1922,15 @@ void CX2OfflineQuest::OnNpcDie( int iDungeonID, char cDifficulty, int iBattleFie
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRank, int iPlayTime,
+									  int iDamage, bool bSuitableLevel, bool bHaveExp, const KOfflineUnitRow& kRow,
+									  OUT std::vector< KQuestInstance >& vecChanged )
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRank, int iPlayTime,
 									  int iDamage, const KOfflineUnitRow& kRow,
 									  OUT std::vector< KQuestInstance >& vecChanged )
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 {
 	std::map< int, KQuestInstance >::iterator mit;
 	for( mit = m_mapQuesting.begin(); mit != m_mapQuesting.end(); ++mit )
@@ -1479,7 +1952,11 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 
 			// The dungeon filter first, for every type - a sub-quest that names
 			// dungeons only counts the ones it names.
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			if( true == HasDungeonFilter( pSub ) &&
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 			if( false == pSub->m_ClearCondition.m_setDungeonID.empty() &&
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 				false == IsExistDungeonInSub( pSub, iDungeonID + (int)cDifficulty ) )
 			{
 				continue;
@@ -1497,9 +1974,41 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 				bHit = ( (char)pSub->m_ClearCondition.m_eDungeonRank <= cRank );
 				break;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			case CX2QuestManager::SQT_DUNGEON_CLEAR_COUNT:
+				// UserQuestManager.cpp:2076-2097. An event / PC-bang quest counts outside tutorial, Henir, training camp and
+				// Ruben, and a step that names no dungeon also needs the run to have paid EXP ( ExistHaveExpInDungeon ); any
+				// other quest counts anywhere but the El Forest Gate and the tutorials.
+				if( CX2QuestManager::QT_EVENT == pTemplet->m_eQuestType ||
+					CX2QuestManager::QT_PCBANG == pTemplet->m_eQuestType )
+				{
+					bHit = ( true == IsQuestCountedDungeon( iDungeonID ) &&
+							 ( true == HasDungeonFilter( pSub ) || true == bHaveExp ) );
+				}
+				else
+				{
+					bHit = ( (int)SEnum::DI_EL_FOREST_GATE_NORMAL != iDungeonID &&
+							 (int)SEnum::DI_TUTORIAL_ELSWORD != iDungeonID &&
+							 (int)SEnum::DI_BATTLE_FIELD_TUTORIAL_ELSWORD != iDungeonID );
+				}
+				break;
+
+			case CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR:
+				// UserQuestManager.cpp:2375-2420: a counted dungeon, cleared by a unit inside the dungeon's level band.
+				bHit = ( true == IsQuestCountedDungeon( iDungeonID ) && true == bSuitableLevel );
+				break;
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+			case CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR:
+				// Stand-in ( June's server only; user 2026-10-19 "follow June's" ): a clear counts when the run paid EXP.
+				bHit = bHaveExp;
+				break;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 			case CX2QuestManager::SQT_DUNGEON_CLEAR_COUNT:
 				bHit = true;
 				break;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 			// A damage target, met by the total this character dealt over the
 			// run. The comparison really is this way round on the server
@@ -1514,6 +2023,17 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 				break;
 			}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			if( false == bHit &&
+				( CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR == pSub->m_eClearType ||
+				  CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR == pSub->m_eClearType ) )
+			{
+				CX2OfflineLog::Server( L"[JUNE_QUEST] OFF %d sub %d type %d not counted: dungeon %d counted=%d suitable=%d haveExp=%d",
+					mit->first, iSubQuestID, (int)pSub->m_eClearType, iDungeonID,
+					IsQuestCountedDungeon( iDungeonID ) ? 1 : 0, bSuitableLevel ? 1 : 0, bHaveExp ? 1 : 0 );
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 			if( false == bHit )
 				continue;
 
@@ -1523,6 +2043,11 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 			// The counted types keep a running total; everything else is a
 			// one-shot flag. UserQuestManager.cpp:2268.
 			if( CX2QuestManager::SQT_DUNGEON_CLEAR_COUNT == pSub->m_eClearType ||
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+				// UserQuestManager.cpp:2519-2539 counts suitable level the same way; June's 48 is case 8's body ( 32323ad0 ).
+				CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR == pSub->m_eClearType ||
+				CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR == pSub->m_eClearType ||
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 				CX2QuestManager::SQT_DUNGEON_RANK == pSub->m_eClearType )
 			{
 				if( pSub->m_ClearCondition.m_iDungeonClearCount >
@@ -1550,6 +2075,17 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 				mit->first, iSubQuestID, (int)pSub->m_eClearType,
 				(int)kInst.m_vecSubQuestInstance[i].m_ucClearData,
 				kInst.m_vecSubQuestInstance[i].m_bIsSuccess ? 1 : 0 );
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			if( CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR == pSub->m_eClearType ||
+				CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR == pSub->m_eClearType )
+			{
+				CX2OfflineLog::Server( L"[JUNE_QUEST] OFF %d sub %d type %d counted %d / %d, done=%d",
+					mit->first, iSubQuestID, (int)pSub->m_eClearType,
+					(int)kInst.m_vecSubQuestInstance[i].m_ucClearData, pSub->m_ClearCondition.m_iDungeonClearCount,
+					kInst.m_vecSubQuestInstance[i].m_bIsSuccess ? 1 : 0 );
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 			Save( mit->first );
 			MarkChanged( kInst, vecChanged );
@@ -1749,7 +2285,11 @@ void CX2OfflineQuest::OnFindNPC( const std::vector< int >& vecNpcID, bool bDunge
 
 			if( true == bDungeon )
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+				if( true == HasDungeonFilter( pSub ) &&
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 				if( false == pSub->m_ClearCondition.m_setDungeonID.empty() &&
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 					false == IsExistDungeonInSub( pSub, iDungeonID + (int)cDifficulty ) )
 				{
 					CX2OfflineLog::Server(
@@ -2101,7 +2641,11 @@ void CX2OfflineQuest::OnUseItem( int iItemID, int iDungeonID, char cDifficulty,
 			// checked in that order with an else - a sub-quest that names
 			// dungeons is never also field-filtered.
 			// KUserQuestManager::CountUseItem, UserQuestManager.cpp:6496.
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			if( true == HasDungeonFilter( pSub ) )
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 			if( false == pSub->m_ClearCondition.m_setDungeonID.empty() )
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 			{
 				if( false == IsExistDungeonInSub( pSub, iDungeonID + (int)cDifficulty ) )
 				{
@@ -2360,7 +2904,11 @@ void CX2OfflineQuest::GetQuestItemDrops( int iDungeonID, char cDifficulty, int i
 			}
 			else
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+				if( true == HasDungeonFilter( pSub ) &&
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 				if( false == pSub->m_ClearCondition.m_setDungeonID.empty() &&
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 					false == IsExistDungeonInSub( pSub, iDungeonID + (int)cDifficulty ) )
 				{
 					continue;

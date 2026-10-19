@@ -49,9 +49,15 @@ public:
 		/// KUserQuestManager's MAX_ING_QUEST_NUM, the cap ERR_QUEST_28 reports.
 		MAX_ING_QUEST_NUM	= 30,
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+		/// CXSLQuestManager::QE_DAILY_REPEAT_HOUR for SERV_COUNTRY_US ( XSLQuestManager.h:36-40 ): 0, so a daily quest
+		/// is available again at midnight. 6 is the non-US value.
+		DAILY_REPEAT_HOUR	= 0,
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 		/// CXSLQuestManager::QE_DAILY_REPEAT_HOUR - a daily quest becomes
 		/// available again at 6am, not at midnight.
 		DAILY_REPEAT_HOUR	= 6,
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	};
 
 public:
@@ -127,6 +133,16 @@ public:
 	void	CheckAutoOpen( AUTO_OPEN_PLACE ePlace, int iPlaceID, const KOfflineUnitRow& kRow,
 						   OUT std::vector< KQuestInstance >& vecOpened );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	/// Quest Q4. Every account quest ( m_bIsAccount ) not in progress and never completed, accepted for the account at
+	/// character select. KUserAccountQuestManager::CheckAccountQuest ( UserAccountQuestManager.cpp:361 ).
+	void	CheckAccountOpen( const KOfflineUnitRow& kRow, OUT std::vector< KQuestInstance >& vecOpened );
+
+	/// Quest Q4. The room server's suitable-level test ( CenterServer Room.cpp:1593-1627 ): dungeon min level - 2 <= unit
+	/// level <= dungeon max level + 2, on the dungeon + difficulty row. False for a dungeon with no row.
+	static bool	IsSuitableLevel( int iDungeonIDAndDif, int iUnitLevel );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	/// How many quests in the whole script list this one as a prerequisite.
 	///
 	/// Purely a diagnostic, and a decisive one: after a quest is handed in, a
@@ -160,9 +176,17 @@ public:
 
 	/// iDamage is the total this character dealt over the run, for
 	/// SQT_DUNGEON_DAMAGE - which is a ceiling, not a floor. See the case body.
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	/// Quest Q4: bSuitableLevel is the room's IsSuitableLevel answer from loading ( SQT_SUITABLE_LEVEL_DUNGEON_CLEAR ),
+	/// bHaveExp the run's m_mapHaveExpInDungeon figure ( SQT_DUNGEON_CLEAR_COUNT on an event quest, SQT_HAS_EXP_DUNGEON_CLEAR ).
+	void	OnDungeonClear( int iDungeonID, char cDifficulty, char cRank, int iPlayTime,
+							int iDamage, bool bSuitableLevel, bool bHaveExp, const KOfflineUnitRow& kRow,
+							OUT std::vector< KQuestInstance >& vecChanged );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	void	OnDungeonClear( int iDungeonID, char cDifficulty, char cRank, int iPlayTime,
 							int iDamage, const KOfflineUnitRow& kRow,
 							OUT std::vector< KQuestInstance >& vecChanged );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	void	OnVisitVillage( int iMapID, const KOfflineUnitRow& kRow,
 							OUT std::vector< KQuestInstance >& vecChanged );
@@ -328,12 +352,34 @@ private:
 
 	bool	Save( int iQuestID ) const;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	/// Quest Q4. CXSLQuestManager::CheckValidDungeonID ( XSLQuestManager.cpp:2089 ): the sub-quest names a dungeon only when
+	/// its list holds an id > 0. June keeps a scripted 0 ( 5 sub-quests list {0} ); the server's own loader drops it, so both
+	/// read "any dungeon".
+	static bool	HasDungeonFilter( const CX2QuestManager::SubQuestTemplet* pSub );
+
+	/// Quest Q4. Not tutorial, Henir, training camp or Ruben: the dungeons UserQuestManager.cpp:2375 ( suitable level ) and
+	/// :2078 ( event clear count ) count. The same list as Handlers_Skill.cpp's IsSkillUseCountedDungeon.
+	static bool	IsQuestCountedDungeon( int iDungeonID );
+
+	/// Quest Q4. QRT_WEEK / QRT_MONTH expiry ( June 32322050 / 32321d10 ) and the chain-day rule ( 3232caf0 ), NET_OK or ERR_QUEST_04.
+	int		CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const;
+
+	/// Quest Q4. Where a quest's rows live: an account quest under the account key, everything else under the unit.
+	UidType	SaveKey( int iQuestID ) const;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 private:
 	static CX2OfflineQuest*					ms_pInstance;
 
 	UidType									m_nUnitUID;
 	std::map< int, KQuestInstance >			m_mapQuesting;
 	std::map< int, KCompleteQuestInfo >		m_mapComplete;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	/// Quest Q4. The save key of the account's quests: -user_uid. unit_uid and user_uid are both AUTOINCREMENT from 1, so
+	/// the raw user_uid could be a unit; a negative key never is. No schema change ( unit_quest / unit_quest_complete as is ).
+	UidType									m_nAccountKey;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 };
 
 #endif SERV_IRUHADEV_OFFLINE

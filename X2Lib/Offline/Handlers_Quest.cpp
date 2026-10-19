@@ -313,6 +313,28 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 	if( NULL == pTemplet )
 		return NetError::ERR_QUEST_08;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4: a reward that would make the class transcendental ( QT_CHANGE_TRANSCENDENTAL_CLASS with
+	// QR_TRANSCENDENTAL_CLASS, 1001 % 1000 = 1: June 32330250 @3233088e; only 42030 'Limit Break 5/5' ) is Stage 6's. Refused
+	// before anything is spent, so the quest stays open for Stage 6 instead of finishing without its class change.
+	// ERR_QUEST_18 = "an error in the change-job quest reward".
+	if( CX2QuestManager::QT_CHANGE_TRANSCENDENTAL_CLASS == pTemplet->m_eQuestType &&
+		1 == pTemplet->m_Reward.m_iChangeUnitClassTran )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF complete %d refused: the transcendental class change is Stage 6's, not ported yet",
+			kReq.m_iQuestID );
+		return NetError::ERR_QUEST_18;
+	}
+
+	// Quest Q4: what this emulator does NOT do, on purpose.
+	// - Reward.m_iBuff and a title reward are not paid: March's server pays neither on completion ( UserQuestManager.cpp
+	//   5368-5640, UserAccountQuestManager.cpp 1061-1235 ), and no June quest has a non-zero m_iBuff or a title key.
+	// - June's server-only pushes 0x27b ( a quest instance ), 0x27d ( a completion ), 0x593 ( batch add + complete ) and 0x605
+	//   ( a chain id set ) are not sent: EGS_NEW_QUEST_NOT, EGS_UPDATE_QUEST_NOT and EGS_QUEST_COMPLETE_ACK carry the same
+	//   content here, the week / month / chain resets are accept-time checks ( CheckJuneRepeat ), and none has an event id
+	//   yet ( Q5a ). 0x7a1, June's third complete REQ, has no event id either; Q5a decides whether it is reachable.
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	//////////////////////////////////////////////////////////////////////////
 	// The reward items, gathered before anything is spent, so a full bag
 	// refuses the hand-in rather than eating the collected items first.
@@ -948,9 +970,19 @@ void CX2OfflineServer::QuestOnDungeonClear( KOfflineSession& kSes, char cRank,
 
 	std::vector< KQuestInstance > vecChanged;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4: the room's suitable-level answer ( decided at loading 100, Handler_EGS_GAME_LOADING_REQ ) and the run's EXP
+	// figure, the one Handler_EGS_END_GAME_REQ writes into m_mapHaveExpInDungeon ( iAddEXP > 0; this is only called on a win ).
+	CX2OfflineQuest::Instance()->OnDungeonClear( m_kRoom.m_kInfo.m_iDungeonID,
+												 m_kRoom.m_kInfo.m_DifficultyLevel,
+												 cRank, iPlayTime, iDamage,
+												 m_kRoom.m_bSuitableLevel, ( m_kRoom.m_iRewardEXP > 0 ),
+												 kRow, vecChanged );
+#else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	CX2OfflineQuest::Instance()->OnDungeonClear( m_kRoom.m_kInfo.m_iDungeonID,
 												 m_kRoom.m_kInfo.m_DifficultyLevel,
 												 cRank, iPlayTime, iDamage, kRow, vecChanged );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 
 	PushQuestUpdate( kSes, vecChanged );
 

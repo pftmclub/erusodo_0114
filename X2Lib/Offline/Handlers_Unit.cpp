@@ -891,6 +891,12 @@ void CX2OfflineServer::PushSelectUnitNotifications( KOfflineSession& kSes, const
 			}
 
 			pQuest->CheckAutoOpen( CX2OfflineQuest::AOP_BEFORE_QUEST, 0, kRow, vecOpened );
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			// Quest Q4: the account's quests, as CheckAccountQuest opens them at character select ( GSUserFunction.cpp:5988,
+			// after SetAccountQuest ) - folded into the same _2_NOT list.
+			pQuest->CheckAccountOpen( kRow, vecOpened );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 		}
 
 		pQuest->GetQuestInstances( kNot.m_vecQuest );

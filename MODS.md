@@ -4379,6 +4379,20 @@ No flag, no C++, no build: Lua and assets only (they move with the koms). Plan `
 - **Revert:** delete the `Q7` block at the end of `NPCTemplet.lua` and the two `quest-system Q7` lines (+ the comma they needed) in each of the 8 village lists, `luasrc.py refresh`
   both, drop the 12 new files from datai002 / datai016 / datai024 (their manifests too), `kom.py pack` the five koms, ask, copy (copy backs the live kom up to `kom_backup_tools\`).
 
+### June quest system: offline completion of every sub-quest type (quest-system Q4, 2026-10-19)
+
+Flags `SERV_IRUHADEV_JUNE_QUEST_OFFLINE` (needs `JUNE_QUEST_LOAD`, `OFFLINE`) and the stand-in `SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN` (needs `_OFFLINE`) in `KTDXLIB/Always.h`.
+Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q4 - Done"; log tag `[JUNE_QUEST] OFF` (offline_server.log). Emulator only (`X2Lib/Offline/`): no client UI, no shared struct, no save schema change.
+- **`X2OfflineQuest.*`.** SQT 32 `SUITABLE_LEVEL_DUNGEON_CLEAR` driven (room server's band, `IsSuitableLevel`); SQT 8 gets the server's dungeon rules; a `{0}` dungeon list = any
+  dungeon (`HasDungeonFilter`, 5 sites); `DAILY_REPEAT_HOUR` 0 (US); `CheckJuneRepeat` (weekly / monthly / chain-day accept refusals); account quests stored under `unit_uid = -user_uid`
+  and opened at character select (`CheckAccountOpen`, `SaveKey`); `IsClearTypeUndriven` labels the other June types; census line `SQT coverage`. Stand-in: SQT 48 counts EXP-paying clears.
+- **Handlers.** `Handlers_Room.cpp` decides suitable level at loading 100 (`KOfflineRoom::m_bSuitableLevel`, `X2OfflineServer.h`); `Handlers_Quest.cpp` passes it and the run's EXP to
+  `OnDungeonClear` and refuses quest 42030's transcendental class change (`ERR_QUEST_18`); `Handlers_Unit.cpp` calls `CheckAccountOpen`.
+- **Save.** Account quests write rows with a negative `unit_uid` (`unit_quest`, `unit_subquest`, `unit_quest_complete`). Unit 24 got quests 31110 / 26600 for the play-test
+  (backup `db_backup\els_db_20261019_113906_pre_sql.sql`).
+- **Revert:** comment out both defines (the stand-in first), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. An old exe ignores the negative-`unit_uid` account rows;
+  `DELETE FROM unit_quest WHERE unit_uid < 0` (and the two sibling tables) removes them.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

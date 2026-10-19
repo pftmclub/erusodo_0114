@@ -1700,6 +1700,13 @@ bool CX2OfflineServer::Handler_EGS_GAME_LOADING_REQ( KOfflineSession& kSes, cons
 		false == CX2OfflineDB::Instance()->LoadUnit( m_kRoom.m_nUnitUID, kRow ) )
 		return true;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+	// Quest Q4: the room server decides suitable level here, at loading 100, with the level the GameServer stamped on this
+	// packet ( Room.cpp:1593-1627, GSUserRoomCommon.cpp:1216-1220 ): the unit's level now, on the dungeon + difficulty row.
+	m_kRoom.m_bSuitableLevel = CX2OfflineQuest::IsSuitableLevel(
+		m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel, kRow.m_iLevel );
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 	// Everyone has loaded, which offline is true the moment the one player has.
 	ReplyID( kSes, EGS_GAME_LOADING_ALL_UNIT_OK_NOT );
 

@@ -179,6 +179,13 @@ public:
 		/// is the only thing that is still true when the request arrives.
 		bool			m_bTutorial;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+		/// Quest Q4: was the unit inside the dungeon's level band when loading reached 100 - the room server's
+		/// m_mapSuitableLevelInfo entry ( Room.cpp:1593-1627 ), read by SQT_SUITABLE_LEVEL_DUNGEON_CLEAR. Set every run by
+		/// Handler_EGS_GAME_LOADING_REQ; false until then ( IsSuitableLevelUser: a missing entry is false ).
+		bool			m_bSuitableLevel;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+
 		//{{ Iruha : 2026-09-17 // the training center, phase (offline mode follow-up)
 		/// Which training this is, if m_kInfo.m_RoomType is RT_TRAININGCENTER; 0
 		/// otherwise. Set only by Handler_EGS_CREATE_TC_ROOM_REQ and read only by
@@ -454,6 +461,9 @@ public:
 			m_kInfo.Initialize();
 			m_nUnitUID			= 0;
 			m_bTutorial			= false;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+			m_bSuitableLevel	= false;
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 			m_iTCID				= 0;
 			m_mapNpcLevel.clear();
 			m_mapNpcID.clear();

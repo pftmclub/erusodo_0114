@@ -9002,3 +9002,41 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q4 - the offline emulator completes June's sub-quest types, March's server as the reference.
+//              SQT_SUITABLE_LEVEL_DUNGEON_CLEAR driven by the room server's rule ( Room.cpp:1593: dungeon min - 2 <= level <= max + 2 at
+//              loading 100 ) with UserQuestManager.cpp:2375's exclusions; SQT_DUNGEON_CLEAR_COUNT gets the server's dungeon rules ( :2076 );
+//              a dungeon list with no id > 0 ( June's {0} ) means any dungeon ( CXSLQuestManager::CheckValidDungeonID ); QRT_DAY resets at
+//              00:00 ( US QE_DAILY_REPEAT_HOUR 0, was 6 ); QRT_WEEK / QRT_MONTH expiry ( June 32322050 / 32321d10 ) and the chain-day rule
+//              ( 3232caf0 ) at accept; account quests account-wide ( UserAccountQuestManager: opened at character select, one save row
+//              per account under unit_uid = -user_uid, user 2026-10-19 ); a QT_CHANGE_TRANSCENDENTAL_CLASS reward to a transcendental class
+//              is refused until Stage 6; IsClearTypeUndriven labels every other type and the census proves SQT 0-48 are covered.
+//              Log [JUNE_QUEST] OFF. Revert: JUNE_QUEST_OFFLINE in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#ifndef SERV_IRUHADEV_JUNE_QUEST_LOAD
+#error SERV_IRUHADEV_JUNE_QUEST_OFFLINE needs SERV_IRUHADEV_JUNE_QUEST_LOAD ( June's SQT / QRT / QT members, m_iChainID, m_bIsAccount )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_JUNE_QUEST_OFFLINE needs SERV_IRUHADEV_OFFLINE ( the emulator it changes )
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q4 stand-in ( user 2026-10-19: "follow June's" ). SQT_HAS_EXP_DUNGEON_CLEAR ( 48 ) is a rule only
+//              June's server had; June's client parses it with SQT_DUNGEON_CLEAR_COUNT's body ( 32323ad0 case 48 ). Stand-in: a dungeon
+//              clear counts only when the run gave EXP ( the emulator's own m_mapHaveExpInDungeon figure ). Off = type 48 undriven.
+//              Log [JUNE_QUEST] OFF. Revert: JUNE_QUEST_OFFLINE_STANDIN in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+#ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+#ifndef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#error SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN needs SERV_IRUHADEV_JUNE_QUEST_OFFLINE ( the dungeon-clear driver it extends )
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+//////////////////////////////////////////////////////////////////////////
