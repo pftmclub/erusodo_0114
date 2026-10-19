@@ -237,6 +237,67 @@ CH0 runs now, alongside anything (read-only). CH0b follows straight after it: th
 130 / 130 skill ids; `ch0_assets.tsv` unions routes a, b and c; the CH0b-CH5 kickoffs are amended; funcmap rows written; open questions
 listed for the user.
 
+### CH0 - Done (2026-10-20)
+
+Read-only, no flag, no build. Outputs in `june2017_re/char_arme/` (the `ch0_build_*.py` scripts there rebuild the two maps from Ghidra):
+- **`ch0_class_map.tsv`**: 560 June functions in Aisha's range **`0x32cb6e00`-`0x32cf2da0`** (Rena ends `32cb6c6e`, Elsword starts
+  `32cf2da0`; 429 Ghidra carved, the rest are state callbacks it had not): 63 vtable overrides (not 47: 16 sit below `32cc0000`), 4
+  registrars, 364 state callbacks, 94 helpers (phased by their earliest caller), **37 dead** (no pointer, call, jmp or thunk anywhere in the
+  exe). Each row: March pair, verdict, phase. 523 to transcribe. 75 funcmap rows `Char CH0`.
+- **`ch0_state_skill.tsv`**: 313 / 313 script states and 130 / 130 skill ids. States: 165 + 37 + 32 pair, 36 + 4 + 16 June-only by phase
+  CH1 / CH2 / CH3 families, **23 dead data** (Ice Storm, Icicle Wave, Aqua Shower, Vital Drain ...: no June C++ names them), 6 March-only (June
+  dropped the `_HYPER` tables of Binding Circle, Chain Burst, Gust Storm, Death Field, plus `DARK_MAGICIAN_DASH_COMBO_Z3up` and
+  `SI_A_AV_CIRCLE_FLAME_MEMO`), 1 June quirk (`AVSI_RIDING_DAMAGE_BACK`
+  registered with no table). Skills: CH2a 26, CH2b 24, CH3a 32, CH3b 22, CH4 25 (types 1 / 5 / 8), CH1 1 (900).
+- **`ch0_checklist_rows.tsv`**: every §1-§7ak row, with its phase or an n/a reason. 13 sections name Aisha, 15 apply to every class, 17 are
+  other characters'.
+- **`ch0_assets.tsv`**: 13,833 rows (routes a 12,097 names, b script / UnitTemplet / in-mesh textures, c item.kim UT_ARME). CH0b stages
+  **5,688** (`ch0b_stage_list.tsv`); 7,975 are June's bytes already.
+- **`ch0_effect_closure.tsv`** (`charport_closure.py`): 6,394 rows, 2,229 names. 2,127 June's, 33 March copies, 69 missing (49 sounds; 3 June
+  data gaps; the rest are names June itself never defines). **The particle and mesh-player `.txt` files are June's, byte for byte, and every
+  character shares them**: CH0b stages no definitions.
+- **`ch0_keys.tsv`** (`charport_keys.py`, checklist §5): 224 keys, 7 June-only (CH1).
+
+How June's code works (the facts the phases lean on):
+- **Registration:** `InitState` `32cea0c0` (vslot 0x7a4) sets the cut-in index and calls `InitStateCommon` `32ce77b0`, `3202b110` and the
+  roll `31fe22d0`, then registers per-job blocks. States go in through `UpdateUserUnitStateData` `31fd89b0( id, name, data )`.
+- **Callbacks:** each callback is a `jmp` thunk (`32cf0xxx`-`32cf2xxx`) to the real function.
+- **`UserUnitStateData` slots:** +0x18 Init, +0x20 StartFuture, +0x28 Start, +0x30 FrameMoveFuture, +0x38 FrameMove, +0x40 CameraMove,
+  +0x48 EventProcess, +0x50 EndFuture, +0x58 End.
+- **Skill switch:** `32cede00` switches on `32207210( id )` = templet `+0x178` (`m_DeleteSkillIDByUpgrade`), so upgrade ids reach the base case.
+  Meditation and the three Body skills have no state: their ids are tested in class code (`32ccbca0`, `32ccf9f0`, `32cc5c30`, `32ce1cc0`,
+  `32ccb830`).
+- `charport_states.py` (new) extracts both from Ghidra's decompiles.
+
+**Split** (the ~40-function rule; CH1's core is about 370 functions):
+- **CH1a-CH1i** (Sonnet): transcribe inert `June_*` members. CH1a movement 40, CH1b reactions / riding 38, CH1c ground combos 30, CH1d dash /
+  jump 32, CH1e HM line 46, CH1f DM line 23, CH1g BM line 21, CH1h overrides below vslot 0x600 69, CH1i overrides from 0x600 41.
+- **CH1** (Opus): wires them up, adopts the script, play-test.
+- **CH2a** VM + HM 49, **CH2b** DM + BM 34, **CH3a** AEM + AVP 36, **CH3b** ADW + hyper actives 15, **CH4** 20 functions + memorize UI.
+- The kickoffs carry the filters.
+
+Corrections to earlier docs:
+- **7p:** June never runs the forced `SetStopTime`. `32cd5d60` is dead, and June uses the normal Binding Circle table for both slots.
+- **7ad:** `Motion_Arme_EM.x` hands three Meteor Shower animations to `Motion_Arme_HM.x`. The EM class loads both, so CH0b stages them together.
+- **7c:** 4 of the 22 alpha sites are in dead functions. **7 l.264:** `32cc7300` is dead.
+- **7b** moves from CH2 to CH4: one passive function, ported whole.
+- **Slot-5 gap:** `31fcadd0` returns 4 / 9, so it is CH1's 7ag conversion, inert until Stage 6.
+
+Item 6 decisions:
+- **Enum:** 129 / 130 Aisha names are not in the C++ `SKILL_ID` enum; keep the house convention (raw id + `/// RNSI_` comment).
+  69 / 130 are not in the core Enum.lua: add a member only if a Lua reader needs it.
+- **UnitTemplet:** March's reader skips `UC_150` safely (nil enum -> row dropped, `X2UnitManager.cpp:844`) and ignores unknown keys, so no
+  reader fix is needed. Adopting June's whole file also renames 15 other second-job classes and adds 23 classes' transcendence cut-in names,
+  so it waits for the user (open question, CH5).
+
+Drift: none needs a new plan. Aisha's `Motion_Arme_Emotion_Cash25.x` belongs to Stage 10 (backlog l.447), which owns the motion's behaviour;
+CH0b stages the file. For Stage 7 / Z, the class-map builders, `charport_states.py`, `charport_keys.py` and `charport_closure.py` are the
+template's step 0.
+
+Open questions for the user:
+1. CH5: adopt June's `UnitTemplet.lua` whole (June's job names for 15 other second-job classes) or only Aisha's rows?
+2. CH0b: approve the copy of all 54 koms at once.
+
 ## Phase CH0b - Every June Aisha asset, whole, first
 
 **Run with:** Sonnet 5.5 high (mechanical staging from CH0's list), then a user play-test. No C++ unless CH0 found a March reader that a June

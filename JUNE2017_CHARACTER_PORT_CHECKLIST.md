@@ -520,7 +520,7 @@ below still call the 1-argument form. Carry them over with June's arguments (`ju
 |---|---|---|
 | All classes | `TIME_STOP_IMMUNE_STATE = TRUE` in 76 June states over 16 class files (`grep -c TIME_STOP_IMMUNE_STATE june_src_fixed/data036_kom/*.src.lua`) | the state table, verbatim |
 | Chung | DamageReact `32c0cf90` (vslot `0x60`) @32c0d18c / @32c0d19c / @32c0d1b4 | attacker `SetStopTime( 0.5, false, NULL, false )`, own `SetStopTime( 0.5, false, NULL, false )`, own `SetStop2Time( 0, false, NULL, false )` |
-| Aisha (Violet Mage) | binding circle hyper FrameMove `32cd5d60` @32cd6152 (March `AVSI_SI1_AV_BINDING_CIRCLE_HYPER_FrameMove`) | `SetStopTime( 3.0, false, NULL, true )`: the exe's only forced stop, so it overrides the immune state |
+| Aisha (Violet Mage) | binding circle hyper FrameMove `32cd5d60` @32cd6152 (March `AVSI_SI1_AV_BINDING_CIRCLE_HYPER_FrameMove`) | `SetStopTime( 3.0, false, NULL, true )`: the exe's only forced stop, so it overrides the immune state **(Aisha CH0, 2026-10-20: n/a. `32cd5d60` has no pointer, call, jmp or thunk anywhere in the exe; June registers `AVSI_SI1_AV_BINDING_CIRCLE` for both slots with FrameMove `32cd57c0`, so June never runs this forced stop.)** |
 | Elsword | March `THROW_WOODEN_PIECE_FrameMove` `SetStopTime( 1.5f )` | no June `+0x100` call loads 1.5: confirm June dropped it, then drop it too |
 
 ### 7q. Luciel's down-state getters (from June effect completion C3f)
@@ -716,7 +716,7 @@ June engine R12b ported June's motion order (`SERV_IRUHADEV_JUNE_RENDER_MOTION_O
 `MOTION_FILE_NAME` is mixed) and took June's `Motion_Raven.x`, `Motion_CHUNG.x`, `Motion_EL.x` and `Motion_EL_SK.x` into data033 for their
 collision spheres. Every other `Motion_<Class>*` file of the nine March classes is still March's (83 files; user, 2026-10-18), because June
 renamed animations its class scripts play and March's scripts still use the old names. `june2017_re/r12b_anim_loss.tsv` lists the 43
-animation names March's motions have and June's same-named files lack (Elsword, Arme and Eve: none).
+animation names March's motions have and June's same-named files lack (Elsword, Arme and Eve: none). **Aisha CH0 (2026-10-20):** per file, `Motion_Arme_EM.x` does drop `EM_METEOR_SHOWER_Start` / `_Loop` / `_End`, which June moved into `Motion_Arme_HM.x`; the EM class loads both, so stage the two together.
 
 What a class port does:
 - **Stage June's `Motion_<Class>*` files** with the class script (`python tools/kom.py stage-june <list>`; the R12b list builder is the

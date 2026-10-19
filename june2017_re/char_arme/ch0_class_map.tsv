@@ -1,0 +1,564 @@
+june_fn	kind	name_or_states	march_pair	verdict	phase	note
+32cb6e00	override 0x60	DamageReact	X2GUArme_VioletMage.h:356 virtual void DamageReact( DamageData* );	pair	CH1h	name: CONF
+32cb6e50	override 0x48	InitEffect	X2GUArme_VioletMage.h:362 virtual void InitEffect();	pair	CH1h	name: HINT
+32cb6ea0	override 0x7d8	CommonStateEndFuture	X2GUArme_VioletMage.h:495 virtual void CommonStateEndFuture();	pair	CH1i	name: CONF
+32cb6eb0	override 0x7e8	CommonRender_Prepare	X2GUArme_VioletMage.h:500 virtual RENDER_HINT CommonRender_Prepare();	pair	CH1i	name: HINT
+32cb6ed0	state-fn	AVSI_DIE_FRONT.FrameMove AVSI_RIDING_ATTACK_Z.FrameMove AVSI_RIDING_JUMP_ATTACK_Z.FrameMove AVSI_RIDING_DIE.FrameMove	CX2GUArme_VioletMage::DieFrontFrameMove	pair	CH1b	
+32cb6ef0	state-fn	AVSI_DIE_FRONT.EventProcess AVSI_RIDING_DIE.EventProcess	CX2GUArme_VioletMage::DieFrontEventProcess	pair	CH1b	
+32cb6f20	state-fn	AVSI_DIE_BACK.FrameMove	CX2GUArme_VioletMage::DieBackFrameMove	pair	CH1b	
+32cb6f40	state-fn	AVSI_DIE_BACK.EventProcess	CX2GUArme_VioletMage::DieBackEventProcess	pair	CH1b	
+32cb6f70	state-fn	AVSI_WAIT.StartFuture	CX2GUArme_VioletMage::WaitStartFuture	pair	CH1a	
+32cb6fa0	state-fn	AVSI_WAIT.FrameMoveFuture	CX2GUArme_VioletMage::WaitFrameMoveFuture	pair	CH1a	
+32cb6fd0	state-fn	AVSI_JUMP_UP.EventProcess	CX2GUArme_VioletMage::JumpUpEventProcess	pair	CH1a	
+32cb7090	state-fn	AVSI_JUMP_LEVITATION.StartFuture	CX2GUArme_VioletMage::JumpLevitationStartFuture	pair	CH1a	
+32cb70b0	state-fn	AVSI_DASH_END.Start	CX2GUArme_VioletMage::DashEndStart	pair	CH1a	
+32cb70c0	state-fn	AVSI_DASH_JUMP_LEVITATION.StartFuture	CX2GUArme_VioletMage::DashJumpLevitationStartFuture	pair	CH1a	
+32cb70f0	state-fn	AVSI_DASH_JUMP_POWER_LANDING.Start	CX2GUArme_VioletMage::DashJumpPowerLandingStart	pair	CH1a	
+32cb7110	helper	called by 32cede00	-	-	CH1	
+32cb7170	state-fn	AVSI_DAMAGE_AIR_DOWN_LANDING.Init AVSI_DAMAGE_AIR_FALL.Init AVSI_DAMAGE_AIR_UP.Init AVSI_DAMAGE_AIR_FLY_FRONT.Init +6	CX2GUArme_VioletMage::DamageAirDownLandingInit	pair	CH1b	
+32cb71a0	state-fn	AVSI_TELEPORT_START_UPGRADE.StartFuture	-	june-only	CH2a	
+32cb71d0	state-fn	AVSI_TELEPORT_START_UPGRADE.EventProcess	-	june-only	CH2a	
+32cb7210	state-fn	AVSI_TELEPORT_STAND_UP_START.EventProcess AVSI_TELEPORT_STAND_UP_START_UPGRADE.EventProcess	-	june-only	CH1b	
+32cb7240	state-fn	AVSI_TELEPORT_STANDUP_ATTACK.Start AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE.Start AVSI_COMBO_Z1.Start AVSI_COMBO_Z2.Start +8	-	june-only	CH1b	
+32cb7270	state-fn	AVSI_TELEPORT_STANDUP_ATTACK.End AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE.End AVSI_COMBO_Z1.End AVSI_COMBO_Z2.End +7	-	june-only	CH1b	
+32cb72b0	state-fn	AVSI_COMBO_Z1.FrameMove AVSI_COMBO_Z2.FrameMove AVSI_COMBO_Z3.FrameMove AVSI_ABM_COMBO_Z1.FrameMove +3	CX2GUArme_VioletMage::ComboZ1FrameMove / CX2GUArme_VioletMage::ComboZ2FrameMove	pair	CH1c	
+32cb72c0	state-fn	AVSI_COMBO_Z4up.Start	CX2GUArme_VioletMage::ComboZ4upStart	pair	CH1c	
+32cb7310	state-fn	AVSI_COMBO_Z4up.FrameMoveFuture	CX2GUArme_VioletMage::ComboZ4upFrameMoveFuture	pair	CH1c	
+32cb7320	state-fn	AVSI_COMBO_X3.End	CX2GUArme_VioletMage::ComboX3StateEnd	pair	CH1c	
+32cb7340	state-fn	AVSI_COMBO_X4_CHARGE.FrameMove	CX2GUArme_VioletMage::ComboX4ChargeFrameMove	pair	CH1c	
+32cb73a0	state-fn	AVSI_COMBO_X3front.Start	CX2GUArme_VioletMage::ComboX3frontStart	pair	CH1c	
+32cb73f0	state-fn	AVSI_COMBO_X3front.FrameMoveFuture	CX2GUArme_VioletMage::ComboX3frontFrameMoveFuture	pair	CH1c	
+32cb7400	state-fn	AVSI_DARK_MAGICIAN_COMBO_X4down.Start AVSI_DASH_COMBO_Z2a.Start	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X4down_Start	pair	CH1d	
+32cb7450	state-fn	callback set in InitState 32cea0c0 (job branch the extractor skips: read the branch)	-	june-only?	CH1h	thunk thunk 32cf0940 @32cea94c
+32cb7490	state-fn	AVSI_DASH_COMBO_Z1.FrameMove AVSI_DASH_COMBO_Z2.FrameMove	CX2GUArme_VioletMage::DashComboZ1FrameMove / CX2GUArme_VioletMage::DashComboZ2FrameMove	pair	CH1d	
+32cb74a0	state-fn	AVSI_DASH_ATTACK_X.EndFuture AVSI_DASH_ATTACK_X.EndFuture AVSI_ABM_DASH_JUMP_ATTACK_X.EndFuture AVSI_DIMENSION_WITCH_DASH_ATTACK_X.EndFuture +6	CX2GUArme_VioletMage::DashAttackXEndFuture	pair	CH1d	
+32cb74e0	state-fn	AVSI_HIGH_MAGICION_DASH_ATTACK_X.EndFuture AVSI_HIGH_MAGICION_DASH_ATTACK_X2.EndFuture	CX2GUArme_VioletMage::AVSI_HIGH_MAGICION_DASH_ATTACK_X_EndFuture	pair	CH1e	
+32cb7520	state-fn	AVSI_JUMP_ATTACK_Z.FrameMove	CX2GUArme_VioletMage::JumpAttackZFrameMove	pair	CH1d	
+32cb7530	state-fn	AVSI_DASH_JUMP_ATTACK_Z.StartFuture AVSI_WALL_LANDING.StartFuture AVSI_PEPPER_RUN_READY.StartFuture AVSI_PEPPER_RUN.StartFuture +1	-	june-only	CH1b	
+32cb7550	state-fn	AVSI_DASH_JUMP_ATTACK_X.FrameMoveFuture AVSI_DASH_JUMP_ATTACK_X.FrameMoveFuture AVSI_ABM_DASH_JUMP_ATTACK_X.FrameMoveFuture AVSI_ADW_DASH_JUMP_X2.FrameMoveFuture +1	CX2GUArme_VioletMage::DashJumpAttackXFrameMoveFuture	pair	CH1d	
+32cb7560	state-fn	AVSI_DASH_JUMP_ATTACK_X2.FrameMoveFuture AVSI_DASH_JUMP_ATTACK_X2.FrameMoveFuture AVSI_AVP_DASH_JUMP_X.FrameMoveFuture AVSI_ABM_DASH_JUMP_ATTACK_X.FrameMoveFuture	CX2GUArme_VioletMage::DashJumpAttackX2FrameMoveFuture / CX2GUArme_VioletMage::DashJumpAttackXFrameMoveFuture	pair	CH1d	
+32cb7570	state-fn	AVSI_SI_AV_POWER_ATTACK1.FrameMove	CX2GUArme_VioletMage::AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove	pair	CH1a	
+32cb7580	state-fn	AVSI_SI_AV_POWER_ATTACK1.FrameMove	CX2GUArme_VioletMage::AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove	pair	CH1a	
+32cb75b0	state-fn	AVSI_SI2_AV_LIGHTNING_BOLT.FrameMove AVSI_SI2_AV_LIGHTNING_BOLT_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SI2_AV_LIGHTNING_BOLT_FrameMove / CX2GUArme_VioletMage::AVSI_SI2_AV_LIGHTNING_BOLT_HYPER_FrameMove	pair	CH2a	
+32cb7600	state-fn	AVSI_SI1_AV_HELL_STONE.Init AVSI_SI1_AV_HELL_STONE_HYPER.Init	CX2GUArme_VioletMage::AVSI_SI1_AV_HELL_STONE_Init	pair	CH2b	
+32cb7640	state-fn	AVSI_SI2_AV_GUIDE_FIRE_BALL.Init AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER.Init	CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_Init	pair	CH2a	
+32cb76c0	state-fn	AVSI_SI2_AV_GUST_SCREW.Init AVSI_SI2_AV_GUST_SCREW_HYPER.Init	CX2GUArme_VioletMage::AVSI_SI2_AV_GUST_SCREW_Init	pair	CH2a	
+32cb76f0	state-fn	AVSI_SI2_AV_GUST_SCREW.FrameMove AVSI_SI2_AV_GUST_SCREW.FrameMove AVSI_SI2_AV_GUST_SCREW_HYPER.FrameMove AVSI_SI2_AV_GUST_SCREW_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SI2_AV_GUST_SCREW_FrameMove / CX2GUArme_VioletMage::AVSI_SI2_AV_GUST_SCREW_HYPER_FrameMove	pair	CH2a	
+32cb7750	state-fn	AVSI_SI3_AV_GUST_STORM.Init	CX2GUArme_VioletMage::AVSI_SI3_AV_GUST_STORM_Init	pair	CH2a	
+32cb77a0	state-fn	AVSI_SI3_AV_GUST_STORM.FrameMove AVSI_SI3_AV_GUST_STORM.FrameMove	CX2GUArme_VioletMage::AVSI_SI3_AV_GUST_STORM_FrameMove	pair	CH2a	
+32cb77c0	state-fn	AVSI_SI3_AV_CATASTROPHE.Init AVSI_SI3_AV_CATASTROPHE_HYPER.Init	CX2GUArme_VioletMage::AVSI_SI3_AV_CATASTROPHE_Init	pair	CH3a	
+32cb7830	state-fn	AVSI_SI1_AV_CHAIN_BURST.FrameMove	CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_BURST_FrameMove	pair	CH3a	
+32cb7850	state-fn	AVSI_SI2_AV_DARK_CLOUD.Init AVSI_SI2_AV_DARK_CLOUD_HYPER.Init	CX2GUArme_VioletMage::AVSI_SI2_AV_DARK_CLOUD_Init	pair	CH2b	
+32cb7870	state-fn	AVSI_SI_A_AV_CIRCLE_FLAME_READY.EndFuture AVSI_SI_A_AV_CIRCLE_FLAME.EndFuture	CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_READY_EndFuture	pair	CH3a	
+32cb7910	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.Init AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.Init	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_Init	pair	CH2a	
+32cb7950	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.End AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.End	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_StateEnd / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_StateEnd	pair	CH2a	
+32cb7970	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.End AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.End	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_StateEnd / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_StateEnd	pair	CH2a	
+32cb7990	state-fn	AVSI_SA_ADM_DEATHFIELD.Init	CX2GUArme_VioletMage::AVSI_SA_ADM_DEATHFIELD_Init	pair	CH2b	
+32cb79c0	state-fn	AVSI_SA_ADM_DEATHFIELD.End AVSI_SA_ADM_DEATHFIELD.End	CX2GUArme_VioletMage::AVSI_SA_ADM_DEATHFIELD_StateEnd	pair	CH2b	
+32cb79e0	state-fn	AVSI_A_ADM_MANA_INTAKE.Init AVSI_A_ADM_MANA_INTAKE_HYPER.Init	CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_HYPER_Init / CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_Init	pair	CH2b	
+32cb7a60	state-fn	AVSI_SA_AHM_BLAZE_STEP.Init AVSI_SA_AHM_BLAZE_STEP_HYPER.Init	CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_HYPER_Init / CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_Init	pair	CH3a	
+32cb7ab0	state-fn	AVSI_SA_AHM_BLAZE_STEP.Init AVSI_SA_AHM_BLAZE_STEP_HYPER.Init	CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_HYPER_Init / CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_Init	pair	CH3a	
+32cb7b00	state-fn	AVSI_SA_ADM_AGING.Init AVSI_SA_ADM_AGING_HYPER.Init	CX2GUArme_VioletMage::AVSI_SA_ADM_AGING_Init	pair	CH2b	
+32cb7bd0	state-fn	AVSI_A_AVP_SUMMON_BAT.Init	CX2GUArme_VioletMage::AVSI_A_AVP_SUMMON_BAT_Init	pair	CH3a	
+32cb7c00	state-fn	AVSI_SA_AEM_CYCLONE.Init	CX2GUArme_VioletMage::AVSI_SA_AEM_CYCLONE_Init	pair	CH3a	
+32cb7c30	state-fn	AVSI_SA_AVP_HELL_DROP.Init AVSI_HELL_DROP_CONTROL_IDLE.Init AVSI_HELL_DROP_CONTROL_LEFT.Init AVSI_HELL_DROP_CONTROL_RIGHT.Init +8	CX2GUArme_VioletMage::AVSI_SA_AVP_HELL_DROP_Init	pair	CH3a	
+32cb7cb0	state-fn	AVSI_SA_AVP_HELL_DROP.Start AVSI_SA_AVP_HELL_DROP.Start AVSI_HELL_DROP_CONTROL_IDLE.Start AVSI_HELL_DROP_CONTROL_IDLE.Start +20	CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_DOWN_LEFT_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_DOWN_RIGHT_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_DOWN_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_FIRE_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_IDLE_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_LEFT_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_RIGHT_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_UP_LEFT_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_UP_RIGHT_StateStart / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_UP_StateStart / CX2GUArme_VioletMage::AVSI_SA_AVP_HELL_DROP_Start	pair	CH3a	
+32cb7ce0	helper	called by 32cede00	-	-	CH1	
+32cb7d00	state-fn	AVSI_COMBO_X3front.Init AVSI_AEM_XXfrontX.Init	CX2GUArme_VioletMage::AVSI_AEM_XXfrontX_Init	pair	CH1c	
+32cb7d30	state-fn	AVSI_AEM_XZ.Init AVSI_AEM_XZZ.Init AVSI_AEM_XZZ_END.Init AVSI_AVP_ZZfrontZ.Init	CX2GUArme_VioletMage::AVSI_AEM_XZ_Init	pair	CH1e	
+32cb7d60	state-fn	AVSI_DASH_ATTACK_X.Init AVSI_AVP_ZZfrontZZ.Init AVSI_AVP_ZZfrontZZ_FALL.Init AVSI_DIMENSION_WITCH_DASH_ATTACK_X.Init +15	CX2GUArme_VioletMage::AVSI_AVP_ZZfrontZZ_Init	pair	CH1d	
+32cb7db0	state-fn	AVSI_AVP_ZZfrontZZ.StartFuture AVSI_AVP_ZZfrontZZ_FALL.StartFuture AVSI_ADW_COMBO_ADD_X.StartFuture AVSI_ADW_COMBO_ADD_X2.StartFuture +5	CX2GUArme_VioletMage::AVSI_AVP_ZZfrontZZ_StateStartFuture	pair	CH1e	
+32cb7de0	state-fn	AVSI_ABM_DASH_JUMP_ATTACK_X.Init AVSI_ADW_DASH_JUMP_X2.Init AVSI_ADW_DASH_JUMP_X3.Init	CX2GUArme_VioletMage::AVSI_AVP_DASH_JUMP_X_Init	pair	CH1g	
+32cb7e00	state-fn	AVSI_SA_AHM_METEOSHOWER.Init AVSI_SA_AHM_METEOSHOWER_HYPER.Init AVSI_SA_AHM_METEOSHOWER_LOOP.Init AVSI_SA_AHM_METEOSHOWER_END.Init	CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_Init	pair	CH2a	
+32cb7e30	state-fn	AVSI_SA_AHM_METEOSHOWER.End AVSI_SA_AHM_METEOSHOWER.End AVSI_SA_AHM_METEOSHOWER_HYPER.End AVSI_SA_AHM_METEOSHOWER_HYPER.End +4	CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_END_StateEnd / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_LOOP_StateEnd / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_StateEnd	pair	CH2a	
+32cb7e50	state-fn	AVSI_SA_AVP_PHANTOM_BREATHING.Init	CX2GUArme_VioletMage::AVSI_SA_AVP_PHANTOM_BREATHING_Init	pair	CH3a	
+32cb7eb0	override 0x4	OnFrameMove	X2GUArme_VioletMage.h:1414 HRESULT OnFrameMove( double fTime, float fElapsedTime );	pair	CH1h	name: CONF
+32cb7ef0	override 0x30	NotifyDGManagerChanged	X2GUArme_VioletMage.h:1415 void NotifyDGManagerChanged( CKTDGManager& refInManager_ );	pair	CH1h	name: HINT
+32cb7f00	state-fn	AVSI_A_AV_FIRE_ROAD.Init	-	june-only	CH2a	
+32cb7fa0	state-fn	AVSI_A_ABM_ENERGY_DRAIN_READY.EventProcess AVSI_A_ABM_ENERGY_DRAIN_SUCCESS.EventProcess AVSI_A_ABM_ENERGY_DRAIN_FAIL.EventProcess	CX2GUArme_VioletMage::AVSI_A_ABM_ENERGY_DRAIN_EventProcess / CX2GUArme_VioletMage::AVSI_A_ABM_ENERGY_DRAIN_READY_EventProcess	pair	CH2b	
+32cb7fd0	state-fn	AVSI_SI_A_ADW_DISTORTION.Init	CX2GUArme_VioletMage::AVSI_SI_A_ADW_DISTORTION_Init	pair	CH3b	
+32cb82e0	state-fn	AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.Init AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.Init AVSI_SA_AHM_LIGHTNING_SHOWER_END.Init	CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_Init	pair	CH3a	
+32cb83c0	state-fn	AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.End AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.End AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.End AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.End +2	CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_End_StateEnd / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_Loop_StateEnd / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_StateEnd	pair	CH3a	
+32cb83e0	state-fn	AVSI_SA_AEM_CHAIN_LIGHTNING.Init	CX2GUArme_VioletMage::AVSI_SA_AEM_Chain_Lightning_Init	pair	CH2a	
+32cb8430	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cb8450	state-fn	AVSI_A_AVP_SUMMON_BAT_HEAVY.Init	CX2GUArme_VioletMage::AVSI_A_AVP_Summon_Bat_Heavy_Init	pair	CH1f	
+32cb8530	state-fn	AVSI_SI_A_ADW_WORM_HOLE.Init	CX2GUArme_VioletMage::AVSI_A_ADW_Worm_Hole_Init	pair	CH3b	
+32cb8570	state-fn	AVSI_SI_SA_ADW_SCREWDRIVER_DRILLER.Init	CX2GUArme_VioletMage::AVSI_SI_SA_ADW_Screwdriver_Driller_Init	pair	CH1g	
+32cb8640	state-fn	AVSI_SI_SA_ADW_SCREWDRIVER_DRILLER.FrameMove AVSI_SI_SA_ADW_SCREWDRIVER_DRILLER.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ADW_Screwdriver_Driller_FrameMove	pair	CH1g	
+32cb8650	state-fn	AVSI_HA_AEM_ELEMENTAL_STORM.Init	CX2GUArme_VioletMage::AVSI_HA_AEM_Elemental_Storm_Init	pair	CH3b	
+32cb8840	state-fn	AVSI_HA_AVP_ABYSS_ANGOR.Init	CX2GUArme_VioletMage::AVSI_HA_AVP_Abyss_Angor_Init	pair	CH1f	
+32cb89b0	state-fn	AVSI_HA_ADW_FATE_SPACE.Init	CX2GUArme_VioletMage::AVSI_HA_ADW_Fate_space_Init	pair	CH3b	
+32cb8a50	state-fn	AVSI_RIDING_HYPER_MODE.Init AVSI_RIDING_SPECIFIC.Init AVSI_RIDING_ATTACK_X_READY.Init AVSI_RIDING_ATTACK_X_READY_2.Init +1	CX2GUArme_VioletMage::RidingHyperModeInit	pair	CH1b	
+32cb8ab0	override 0x818	IsValideSkillRidingOn	X2GUArme_VioletMage.h:1570 virtual bool IsValideSkillRidingOn( SKILL_ID );	pair	CH1i	name: CONF
+32cb8af0	helper	called by 32cea0c0	-	-	CH1	
+32cb8b60	override 0x60c	?	-	unnamed	CH1i	name: -
+32cb8b90	state-fn	AVSI_AHM_DASH_JUMP_ZX.FrameMoveFuture	-	june-only	CH1e	
+32cb8ba0	state-fn	AVSI_AHM_DASH_JUMP_ZXX_START.FrameMoveFuture AVSI_AHM_DASH_JUMP_ZXX_CHARGE.FrameMoveFuture	-	june-only	CH1e	
+32cb8bb0	state-fn	AVSI_AHM_DASH_JUMP_ZXX_START.FrameMove	-	june-only	CH1e	
+32cb8bc0	state-fn	AVSI_AHM_DASH_JUMP_ZXX_FINISH.FrameMoveFuture	-	june-only	CH1e	
+32cb8bd0	state-fn	AVSI_DASH_ATTACK_X.FrameMoveFuture AVSI_DIMENSION_WITCH_DASH_ATTACK_X.FrameMoveFuture AVSI_AEM_DASH_JUMP_X3.FrameMoveFuture AVSI_AVP_DASH_ATTACK_X2.FrameMoveFuture	-	june-only	CH1d	
+32cb8be0	state-fn	AVSI_ADM_DASH_JUMP_ZX.FrameMoveFuture AVSI_ABM_DASH_JUMP_ZX.FrameMoveFuture AVSI_ABM_DASH_JUMP_ZXX.FrameMoveFuture AVSI_AEM_ZZX.FrameMoveFuture +3	-	june-only	CH1e	
+32cb8bf0	state-fn	AVSI_AEM_DASH_JUMP_X3.StartFuture AVSI_ABM_DASH_JUMP_ZX.StartFuture AVSI_ABM_DASH_JUMP_ZXX.StartFuture AVSI_AEM_ZZX.StartFuture +3	-	june-only	CH1e	
+32cb8c80	state-fn	AVSI_ADW_DASH_JUMP_X2.StartFuture AVSI_ADW_DASH_JUMP_X3.StartFuture	-	june-only	CH1g	
+32cb8d10	state-fn	AVSI_DASH_JUMP_ATTACK_X.EndFuture AVSI_DASH_JUMP_ATTACK_X.EndFuture AVSI_DASH_JUMP_ATTACK_X2.EndFuture AVSI_DASH_JUMP_ATTACK_X2.EndFuture +2	-	june-only	CH1d	
+32cb8d50	state-fn	RNSI_SA_AVM_METEO_CALL_NEW.Init	-	june-only	CH2a	
+32cb8d60	state-fn	RNSI_A_ADM_DARK_ROAD.Init	-	june-only	CH2b	
+32cb8e00	state-fn	RNSI_A_ABM_ENERGETIC_ROAD.Init	-	june-only	CH2b	
+32cb8e90	state-fn	RNSI_A_ABM_ENERGETIC_ROAD.Start RNSI_A_ABM_ENERGETIC_ROAD.Start	-	june-only	CH2b	
+32cb8eb0	state-fn	AVSI_SA_ADW_AIR_STUNNER.EndFuture AVSI_SA_ADW_AIR_STUNNER_END.EndFuture	-	june-only	CH3b	
+32cb8ec0	state-fn	AVSI_SA_AEM_ICICLE_SPEAR.Init	-	june-only	CH3a	
+32cb8ed0	state-fn	AVSI_SA_AVP_ABYSS_FIELD.Init	-	june-only	CH3a	
+32cb8ee0	state-fn	AVSI_SA_ADW_IMPACT_ZONE.Init	-	june-only	CH3b	
+32cb8fd0	override 0x90	Win	X2GUArme_VioletMage.h:358 virtual void Win();	pair	CH1h	name: CONF
+32cb9010	override 0x98	Draw	X2GUArme_VioletMage.h:360 virtual void Draw();	pair	CH1h	name: CONF
+32cb9050	helper	called only from outside the class (or from an unmapped caller): 31fedfe4	-	-	CH1h	
+32cb9110	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GUArme_VioletMage.h:363 virtual void InitEnchantWeaponEffectUnitSpecific();	pair	CH1h	name: HINT
+32cb9160	helper	called only from outside the class (or from an unmapped caller): 32ccb34c	-	-	CH1h	
+32cb9220	helper	called only from outside the class (or from an unmapped caller): 32cc5d36	-	-	CH1h	
+32cb9580	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cb95c0	helper	called only from outside the class (or from an unmapped caller): 32cc5d3c	-	-	CH1h	
+32cb9650	override 0x684	InitEquippedActiveSkillState	X2GUArme_VioletMage.h:482 virtual void InitEquippedActiveSkillState( bool bOnlySkillLevel );	pair	CH1i	name: CONF
+32cb96b0	override 0x33c	InitEtc	X2GUArme_VioletMage.h:480 virtual void InitEtc();	pair	CH1h	name: CONF
+32cb96c0	helper	called only from outside the class (or from an unmapped caller): 31fca1b0	-	-	CH1h	
+32cb9720	override 0x7c0	CommonStateStartFuture	X2GUArme_VioletMage.h:491 virtual void CommonStateStartFuture();	pair	CH1i	name: CONF
+32cb9750	override 0x7c8	CommonFrameMoveFuture	X2GUArme_VioletMage.h:493 virtual void CommonFrameMoveFuture();	pair	CH1i	name: CONF
+32cb97a0	override 0x7f4	SpecialAttackEventProcess	X2GUArme_VioletMage.h:503 virtual bool SpecialAttackEventProcess( ACTIVE_SKILL_USE_CONDITION );	pair	CH1i	name: CONF
+32cb98a0	state-fn	AVSI_DIE_FRONT.StartFuture AVSI_RIDING_DIE.StartFuture	CX2GUArme_VioletMage::DieFrontStartFuture	pair	CH1b	
+32cb9900	state-fn	AVSI_DIE_FRONT.Start AVSI_RIDING_DIE.Start	CX2GUArme_VioletMage::DieFrontStart	pair	CH1b	
+32cb9970	state-fn	AVSI_DIE_BACK.StartFuture	CX2GUArme_VioletMage::DieBackStartFuture	pair	CH1b	
+32cb99d0	state-fn	AVSI_DIE_BACK.Start	CX2GUArme_VioletMage::DieBackStart	pair	CH1b	
+32cb9a40	state-fn	AVSI_WAIT.Start	CX2GUArme_VioletMage::WaitStart	pair	CH1a	
+32cb9a70	state-fn	AVSI_JUMP_DOWN.EventProcess	CX2GUArme_VioletMage::JumpDownEventProcess	pair	CH1a	
+32cb9ba0	state-fn	AVSI_JUMP_LEVITATION.EventProcess	CX2GUArme_VioletMage::JumpLevitationEventProcess	pair	CH1a	
+32cb9c60	state-fn	AVSI_DASH_END.FrameMove	CX2GUArme_VioletMage::DashEndFrameMove	pair	CH1a	
+32cb9ce0	state-fn	AVSI_DASH_JUMP_LEVITATION.EventProcess	CX2GUArme_VioletMage::DashJumpLevitationEventProcess	pair	CH1a	
+32cb9d90	state-fn	AVSI_DAMAGE_DOWN_FRONT.FrameMove	CX2GUArme_VioletMage::DamageDownFrontFrameMove	pair	CH1b	
+32cb9de0	state-fn	AVSI_DAMAGE_DOWN_BACK.FrameMove AVSI_DAMAGE_STANDUP_FRONT.FrameMove AVSI_DAMAGE_STANDUP_BACK.FrameMove AVSI_DAMAGE_AIR_SMALL.FrameMove +2	CX2GUArme_VioletMage::DamageDownBackFrameMove	pair	CH1b	
+32cb9e30	state-fn	AVSI_A_AV_TELEPORT_END.EventProcess AVSI_TELEPORT_STAND_UP_END.EventProcess	-	june-only	CH1b	
+32cb9e90	state-fn	AVSI_TELEPORT_STANDUP_ATTACK.EventProcess AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE.EventProcess	-	june-only	CH1b	
+32cb9ee0	state-fn	AVSI_COMBO_Z1.EventProcess	CX2GUArme_VioletMage::ComboZ1EventProcess	pair	CH1c	
+32cba3e0	state-fn	AVSI_COMBO_Z2.EventProcess	CX2GUArme_VioletMage::ComboZ2EventProcess	pair	CH1c	
+32cba970	state-fn	AVSI_COMBO_Z3.EventProcess	CX2GUArme_VioletMage::ComboZ3EventProcess	pair	CH1c	
+32cbaa50	state-fn	AVSI_COMBO_Z3up.EventProcess	CX2GUArme_VioletMage::ComboZ3upEventProcess	pair	CH1c	
+32cbabf0	state-fn	AVSI_COMBO_Z4up.EventProcess	CX2GUArme_VioletMage::ComboZ4upEventProcess	pair	CH1c	
+32cbacd0	state-fn	AVSI_COMBO_X1.EventProcess	CX2GUArme_VioletMage::ComboX1EventProcess	pair	CH1c	
+32cbafb0	state-fn	AVSI_COMBO_X2.EventProcess AVSI_HIGH_MAGICIAN_COMBO_X2.EventProcess	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess / CX2GUArme_VioletMage::ComboX2EventProcess	pair	CH1c	
+32cbb520	state-fn	AVSI_COMBO_X3.EventProcess	CX2GUArme_VioletMage::ComboX3EventProcess	pair	CH1c	
+32cbb8d0	state-fn	AVSI_DAMAGE_BOUNDING_DOWN.Start AVSI_DAMAGE_BOUNDING_LANDCRASH.Start AVSI_COMBO_X4_CHARGE.Start AVSI_COMBO_X4_CHARGE_FIRE.Start +19	CX2GUArme_VioletMage::ComboX4ChargeStateStart	pair	CH1b	
+32cbb8f0	state-fn	AVSI_COMBO_X4_CHARGE.EventProcess	CX2GUArme_VioletMage::ComboX4ChargeEventProcess	pair	CH1c	
+32cbba10	state-fn	AVSI_DAMAGE_BOUNDING_DOWN.End AVSI_DAMAGE_BOUNDING_LANDCRASH.End AVSI_DAMAGE_BOUNDING_UP.End AVSI_COMBO_X4_CHARGE.End +20	CX2GUArme_VioletMage::ComboX4ChargeStateEnd	pair	CH1b	
+32cbba30	state-fn	AVSI_COMBO_X4_CHARGE_FIRE.EventProcess	CX2GUArme_VioletMage::ComboX4ChargeFireEventProcess	pair	CH1c	
+32cbbc40	state-fn	AVSI_COMBO_X4.EventProcess	CX2GUArme_VioletMage::ComboX4EventProcess	pair	CH1c	
+32cbbe50	state-fn	AVSI_COMBO_X3front.EventProcess	CX2GUArme_VioletMage::ComboX3frontEventProcess	pair	CH1c	
+32cbbf40	state-fn	AVSI_COMBO_X3down.FrameMove	CX2GUArme_VioletMage::ComboX3downFrameMove	pair	CH1c	
+32cbc3e0	state-fn	callback set in InitState 32cea0c0 (job branch the extractor skips: read the branch)	-	june-only?	CH1h	thunk thunk 32cf1030 @32cea7f9
+32cbc520	state-fn	AVSI_DARK_MAGICIAN_COMBO_X3down.FrameMove	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X3down_FrameMove	pair	CH1f	
+32cbc880	state-fn	AVSI_DARK_MAGICIAN_COMBO_X3down.EventProcess	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X3down_EventProcess	pair	CH1f	
+32cbc930	state-fn	AVSI_DARK_MAGICIAN_COMBO_X4down.EventProcess AVSI_DASH_COMBO_Z2a.EventProcess	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X4down_EventProcess / CX2GUArme_VioletMage::DashComboZ2aEventProcess	pair	CH1d	
+32cbd040	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X3back.EventProcess	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X3back_EventProcess	pair	CH1e	
+32cbd120	state-fn	AVSI_DARK_MAGICIAN_COMBO_X2.EventProcess	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X2_EventProcess	pair	CH1f	
+32cbd670	state-fn	AVSI_DARK_MAGICIAN_COMBO_X3back.EventProcess	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X3back_EventProcess	pair	CH1f	
+32cbd760	state-fn	AVSI_DASH_COMBO_Z1.StartFuture	CX2GUArme_VioletMage::DashComboZ1StartFuture	pair	CH1d	
+32cbd7b0	state-fn	AVSI_DASH_COMBO_Z1.EventProcess	CX2GUArme_VioletMage::DashComboZ1EventProcess	pair	CH1d	
+32cbdc40	state-fn	AVSI_DASH_COMBO_Z2.EventProcess	CX2GUArme_VioletMage::DashComboZ2EventProcess	pair	CH1d	
+32cbdd20	state-fn	callback set in InitState 32cea0c0 (job branch the extractor skips: read the branch)	-	june-only?	CH1h	thunk thunk 32cf1070 @32cea8ca
+32cbdd70	state-fn	AVSI_EM_DASH_COMBO_Z2a.EventProcess	CX2GUArme_VioletMage::AVSI_EM_DASH_COMBO_Z2a_EventProcess	pair	CH1e	
+32cbde90	state-fn	AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a.EventProcess	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_EventProcess	pair	CH1f	
+32cbdfb0	state-fn	AVSI_ADM_DASH_COMBO_ZXX.EventProcess	-	june-only	CH1f	
+32cbe090	state-fn	AVSI_DASH_ATTACK_X.EventProcess	CX2GUArme_VioletMage::DashAttackXEventProcess	pair	CH1d	
+32cbe0e0	state-fn	AVSI_HIGH_MAGICION_DASH_ATTACK_X.EventProcess AVSI_HIGH_MAGICION_DASH_ATTACK_X2.EventProcess	CX2GUArme_VioletMage::AVSI_HIGH_MAGICION_DASH_ATTACK_X2_EventProcess / CX2GUArme_VioletMage::AVSI_HIGH_MAGICION_DASH_ATTACK_X_EventProcess	pair	CH1e	
+32cbe200	state-fn	callback set in InitState 32cea0c0 (job branch the extractor skips: read the branch)	-	june-only?	CH1h	thunk thunk 32cf1120 @32ceabfa
+32cbe2f0	state-fn	AVSI_JUMP_ATTACK_Z.EventProcess	CX2GUArme_VioletMage::JumpAttackZEventProcess	pair	CH1d	
+32cbe330	state-fn	AVSI_JUMP_ATTACK_X.EventProcess	CX2GUArme_VioletMage::JumpAttackXEventProcess	pair	CH1d	
+32cbe360	state-fn	AVSI_DASH_JUMP_ATTACK_Z.EventProcess	CX2GUArme_VioletMage::DashJumpAttackZEventProcess	pair	CH1d	
+32cbe480	state-fn	AVSI_DASH_JUMP_ATTACK_X.EventProcess AVSI_DASH_JUMP_ATTACK_X.EventProcess AVSI_DASH_JUMP_ATTACK_X2.EventProcess AVSI_DASH_JUMP_ATTACK_X2.EventProcess	CX2GUArme_VioletMage::DashJumpAttackX2EventProcess / CX2GUArme_VioletMage::DashJumpAttackXEventProcess	pair	CH1d	
+32cbe510	state-fn	AVSI_AVP_DASH_JUMP_X.EventProcess AVSI_ABM_DASH_JUMP_ATTACK_X.EventProcess	CX2GUArme_VioletMage::AVSI_AVP_DASH_JUMP_X_EventProcess	pair	CH1f	
+32cbe620	state-fn	AVSI_SI_AV_POWER_ATTACK1.EventProcess	CX2GUArme_VioletMage::AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess	pair	CH1a	
+32cbe660	state-fn	AVSI_SI_AV_POWER_ATTACK1.EventProcess	CX2GUArme_VioletMage::AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess	pair	CH1a	
+32cbe6a0	state-fn	AVSI_SI1_AV_BINDING_CIRCLE.EventProcess	CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_EventProcess	pair	CH2a	
+32cbe6e0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cbe720	state-fn	AVSI_SI2_AV_LIGHTNING_BOLT.EventProcess AVSI_SI2_AV_LIGHTNING_BOLT_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI2_AV_LIGHTNING_BOLT_EventProcess / CX2GUArme_VioletMage::AVSI_SI2_AV_LIGHTNING_BOLT_HYPER_EventProcess	pair	CH2a	
+32cbe760	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cbe7a0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cbe7e0	state-fn	AVSI_SI1_AV_CHAIN_FIRE_BALL.EventProcess AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_EventProcess / CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_EventProcess	pair	CH2a	
+32cbe820	state-fn	AVSI_SI1_AV_CHAIN_FIRE_BALL.EventProcess AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_EventProcess / CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_EventProcess	pair	CH2a	
+32cbe8a0	state-fn	AVSI_SI1_AV_HELL_STONE.EventProcess AVSI_SI1_AV_HELL_STONE.EventProcess AVSI_SI1_AV_HELL_STONE_HYPER.EventProcess AVSI_SI1_AV_HELL_STONE_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI1_AV_HELL_STONE_EventProcess / CX2GUArme_VioletMage::AVSI_SI1_AV_HELL_STONE_HYPER_EventProcess	pair	CH2b	
+32cbe8e0	state-fn	AVSI_SI2_AV_GUIDE_FIRE_BALL.EventProcess AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_EventProcess / CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_EventProcess	pair	CH2a	
+32cbe920	state-fn	AVSI_SI2_AV_GUIDE_FIRE_BALL.EventProcess AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_EventProcess / CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_EventProcess	pair	CH2a	
+32cbe960	state-fn	AVSI_SI2_AV_GUST_SCREW.EventProcess AVSI_SI2_AV_GUST_SCREW.EventProcess AVSI_SI2_AV_GUST_SCREW_HYPER.EventProcess AVSI_SI2_AV_GUST_SCREW_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI2_AV_GUST_SCREW_EventProcess / CX2GUArme_VioletMage::AVSI_SI2_AV_GUST_SCREW_HYPER_EventProcess	pair	CH2a	
+32cbe9a0	state-fn	AVSI_SI3_AV_GUST_STORM.EventProcess AVSI_SI3_AV_GUST_STORM.EventProcess	CX2GUArme_VioletMage::AVSI_SI3_AV_GUST_STORM_EventProcess	pair	CH2a	
+32cbe9f0	state-fn	AVSI_SI3_AV_CATASTROPHE.EventProcess AVSI_SI3_AV_CATASTROPHE.EventProcess AVSI_SI3_AV_CATASTROPHE_HYPER.EventProcess AVSI_SI3_AV_CATASTROPHE_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI3_AV_CATASTROPHE_EventProcess / CX2GUArme_VioletMage::AVSI_SI3_AV_CATASTROPHE_HYPER_EventProcess	pair	CH3a	
+32cbed00	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cbed20	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cbed50	state-fn	AVSI_SI1_AV_CHAIN_BURST.EventProcess	CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_BURST_EventProcess	pair	CH3a	
+32cbed90	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cbedd0	state-fn	AVSI_SI2_AV_DARK_CLOUD.EventProcess AVSI_SI2_AV_DARK_CLOUD.EventProcess AVSI_SI2_AV_DARK_CLOUD_HYPER.EventProcess AVSI_SI2_AV_DARK_CLOUD_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SI2_AV_DARK_CLOUD_EventProcess / CX2GUArme_VioletMage::AVSI_SI2_AV_DARK_CLOUD_HYPER_EventProcess	pair	CH2b	
+32cbee10	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cbee50	state-fn	AVSI_SI_A_AV_CIRCLE_FLAME_READY.StartFuture AVSI_SI_A_AV_CIRCLE_FLAME.StartFuture	CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_READY_StartFuture	pair	CH3a	
+32cbeeb0	state-fn	AVSI_SI_A_AV_CIRCLE_FLAME_READY.EventProcess AVSI_SI_A_AV_CIRCLE_FLAME.EventProcess	CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_READY_EventProcess	pair	CH3a	
+32cbeee0	helper	called by 32cede00	-	-	CH1	
+32cbef40	helper	called by 32cede00	-	-	CH1	
+32cbefb0	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.Start AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.Start	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_StateStart / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_StateStart	pair	CH2a	
+32cbf010	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.EventProcess AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_EventProcess	pair	CH2a	
+32cbf050	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.Start AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.Start	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_StateStart / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_StateStart	pair	CH2a	
+32cbf0b0	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.EventProcess AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_EventProcess	pair	CH2a	
+32cbf0f0	state-fn	AVSI_SA_ADM_DEATHFIELD.Start AVSI_SA_ADM_DEATHFIELD.Start	CX2GUArme_VioletMage::AVSI_SA_ADM_DEATHFIELD_StateStart	pair	CH2b	
+32cbf150	state-fn	AVSI_SA_ADM_DEATHFIELD.EventProcess AVSI_SA_ADM_DEATHFIELD.EventProcess	CX2GUArme_VioletMage::AVSI_SA_ADM_DEATHFIELD_EventProcess	pair	CH2b	
+32cbf190	state-fn	AVSI_A_ADM_MANA_INTAKE.EventProcess AVSI_A_ADM_MANA_INTAKE_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_EventProcess / CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_HYPER_EventProcess	pair	CH2b	
+32cbf1d0	state-fn	AVSI_A_ADM_MANA_INTAKE.EventProcess AVSI_A_ADM_MANA_INTAKE_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_EventProcess / CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_HYPER_EventProcess	pair	CH2b	
+32cbf210	state-fn	AVSI_SA_AHM_BLAZE_STEP.EventProcess AVSI_SA_AHM_BLAZE_STEP_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_HYPER_EventProcess	pair	CH3a	
+32cbf250	state-fn	AVSI_SA_AHM_BLAZE_STEP.EventProcess AVSI_SA_AHM_BLAZE_STEP_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_HYPER_EventProcess	pair	CH3a	
+32cbf290	state-fn	AVSI_SA_ADM_AGING.EventProcess AVSI_SA_ADM_AGING.EventProcess AVSI_SA_ADM_AGING_HYPER.EventProcess AVSI_SA_ADM_AGING_HYPER.EventProcess	CX2GUArme_VioletMage::AVSI_SA_ADM_AGING_EventProcess	pair	CH2b	
+32cbf2d0	state-fn	AVSI_SA_AVP_HELL_DROP.EventProcess AVSI_SA_AVP_HELL_DROP.EventProcess AVSI_HELL_DROP_CONTROL_IDLE.EventProcess AVSI_HELL_DROP_CONTROL_IDLE.EventProcess +20	CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_EventProcess / CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_FIRE_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AVP_HELL_DROP_EventProcess / CX2GUUser::GenericSpecialActiveSkillEventProcess	pair	CH3a	
+32cbf320	state-fn	AVSI_SA_AVP_HELL_DROP.End AVSI_SA_AVP_HELL_DROP.End AVSI_HELL_DROP_CONTROL_IDLE.End AVSI_HELL_DROP_CONTROL_IDLE.End +20	CX2GUArme_VioletMage::AVSI_SA_AVP_HELL_DROP_StateEnd	pair	CH3a	
+32cbf350	state-fn	AVSI_AEM_ZZupZZ.EventProcess	CX2GUArme_VioletMage::AVSI_AEM_ZZupZZ_EventProcess	pair	CH1e	
+32cbf410	state-fn	AVSI_AEM_XXfrontX.EventProcess	CX2GUArme_VioletMage::AVSI_AEM_XXfrontX_EventProcess	pair	CH1e	
+32cbf4e0	state-fn	AVSI_AEM_XZ.EventProcess	CX2GUArme_VioletMage::AVSI_AEM_XZ_EventProcess	pair	CH1e	
+32cbf620	state-fn	AVSI_AEM_XZZ.EventProcess	CX2GUArme_VioletMage::AVSI_AEM_XZZ_EventProcess	pair	CH1e	
+32cbf7e0	state-fn	AVSI_AEM_XZZ_END.EventProcess	CX2GUArme_VioletMage::AVSI_AEM_XZZ_END_EventProcess	pair	CH1e	
+32cbf810	state-fn	AVSI_AVP_ZZfrontZ.EventProcess	CX2GUArme_VioletMage::AVSI_AVP_ZZfrontZ_EventProcess	pair	CH1f	
+32cbf9a0	state-fn	AVSI_AVP_ZZfrontZZ.EventProcess	CX2GUArme_VioletMage::AVSI_AVP_ZZfrontZZ_EventProcess	pair	CH1f	
+32cbfa70	state-fn	AVSI_AVP_ZZfrontZZ_FALL.EventProcess	CX2GUArme_VioletMage::AVSI_AVP_ZZfrontZZ_FALL_EventProcess	pair	CH1f	
+32cbfaa0	state-fn	callback set in InitState 32cea0c0 (job branch the extractor skips: read the branch)	-	june-only?	CH1h	thunk thunk 32cf1180 @32ceae22
+32cbfad0	state-fn	AVSI_SA_AHM_METEOSHOWER.EventProcess AVSI_SA_AHM_METEOSHOWER.EventProcess AVSI_SA_AHM_METEOSHOWER_HYPER.EventProcess AVSI_SA_AHM_METEOSHOWER_HYPER.EventProcess +4	CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_END_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_LOOP_EventProcess	pair	CH2a	
+32cbfb70	helper	called by 32cede00	-	-	CH1	
+32cbfe20	state-fn	AVSI_SA_AVP_PHANTOM_BREATHING.EventProcess AVSI_SA_AVP_PHANTOM_BREATHING.EventProcess	CX2GUArme_VioletMage::AVSI_SA_AVP_PHANTOM_BREATHING_EventProcess	pair	CH3a	
+32cbfe50	state-fn	AVSI_ABM_COMBO_Z1.EventProcess	CX2GUArme_VioletMage::ABM_ComboZ1EventProcess	pair	CH1g	
+32cc0000	state-fn	AVSI_ABM_COMBO_Z2.EventProcess	CX2GUArme_VioletMage::ABM_ComboZ2EventProcess	pair	CH1g	
+32cc00f0	state-fn	AVSI_ABM_COMBO_Z3.EventProcess AVSI_ABM_COMBO_Z4.EventProcess	CX2GUArme_VioletMage::ABM_ComboZ3EventProcess / CX2GUArme_VioletMage::ABM_ComboZ4EventProcess	pair	CH1g	
+32cc0390	helper	called by 32cede00	-	-	CH1	
+32cc0500	state-fn	AVSI_ABM_DASH_COMBO_Z2a.EventProcess	CX2GUArme_VioletMage::AVSI_ABM_DASH_COMBO_Z2a_EventProcess	pair	CH1g	
+32cc05a0	state-fn	ABM_DASH_COMBO_ZXX.EventProcess	CX2GUArme_VioletMage::AVSI_ABM_DASH_COMBO_ZXX_EventProcess	pair	CH1g	
+32cc06e0	state-fn	ABM_DASH_COMBO_ZXXX.FrameMove	CX2GUArme_VioletMage::AVSI_ABM_DASH_COMBO_ZXXX_FrameMove	pair	CH1g	
+32cc0b80	state-fn	ABM_DASH_COMBO_ZXXX.EventProcess	CX2GUArme_VioletMage::AVSI_ABM_DASH_COMBO_ZXXX_EventProcess	pair	CH1g	
+32cc0c50	state-fn	AVSI_A_AV_FIRE_ROAD.EventProcess	CX2GUArme_VioletMage::AVSI_A_AV_FIRE_ROAD_EventProcess	pair	CH2a	
+32cc1090	state-fn	AVSI_SI_SA_ABM_GUILLOTINE_PRESS_START.EventProcess AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP.EventProcess AVSI_SI_SA_ABM_GUILLOTINE_PRESS_END.EventProcess	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP_EventProcess / CX2GUArme_VioletMage::AVSI_SI_SA_ABM_GUILLOTINE_PRESS_START_EventProcess / CX2GUUser::GenericActiveSkillEventProcess	pair	CH2b	
+32cc10f0	helper	called by 32cede00	-	-	CH1	
+32cc1140	state-fn	AVSI_SI_SA_ABM_MAGICAL_MAKEUP.Init	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_MAGICAL_MAKEUP_Init	pair	CH2b	
+32cc11a0	state-fn	AVSI_SI_SA_ABM_MAGICAL_MAKEUP.End	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_MAGICAL_MAKEUPR_StateEnd	pair	CH2b	
+32cc11f0	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X3down.EventProcess	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X3down_EventProcess	pair	CH1e	
+32cc1460	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X4down.EventProcess	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X4down_EventProcess	pair	CH1e	
+32cc1620	state-fn	AVSI_DIMENSION_WITCH_DASH_ATTACK_X.EventProcess AVSI_DIMENSION_WITCH_DASH_ATTACK_X.EventProcess	CX2GUArme_VioletMage::AVSI_DIMENSION_WITCH_DASH_ATTACK_X_EventProcess	pair	CH1g	
+32cc16f0	state-fn	AVSI_DIMENSION_WITCH_DASH_ATTACK_X2.EventProcess	CX2GUArme_VioletMage::AVSI_DIMENSION_WITCH_DASH_ATTACK_X2_EventProcess	pair	CH1g	
+32cc1900	state-fn	AVSI_ADW_COMBO_ADD_X.EventProcess AVSI_ADW_COMBO_ADD_X2.EventProcess	CX2GUArme_VioletMage::AVSI_ADW_COMBO_ADD_X_EventProcess	pair	CH1g	
+32cc1b10	state-fn	AVSI_SI_SA_ADW_MORNING_STAR.Start	-	june-only	CH3b	
+32cc1b90	override 0x7ac	GetAdditionalAccelBuffTime	X2GUArme_VioletMage.h:423 virtual float GetAdditionalAccelBuffTime( SKILL_ID ) const;	pair	CH4	passive accel-buff time; name: CONF
+32cc1c50	override 0x314	ApplyRenderParamOnEmptyRenderParamByBuff	X2GUArme_VioletMage.h:506 virtual void ApplyRenderParamOnEmptyRenderParamByBuff( RenderParam* );	pair	CH1h	name: CONF
+32cc1cd0	helper	called by 32cc6a30 32cc9160 32cd26b0	-	-	CH1b	
+32cc1f50	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cc1f90	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cc1fc0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cc2000	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cc2040	state-fn	AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.EventProcess AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.EventProcess AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.EventProcess AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.EventProcess +2	CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_End_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_EventProcess / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_Loop_EventProcess	pair	CH3a	
+32cc2110	helper	called by 32cede00	-	-	CH1	
+32cc23c0	state-fn	AVSI_SA_AEM_CHAIN_LIGHTNING.Start	-	june-only	CH2a	
+32cc2440	state-fn	AVSI_SA_AEM_CHAIN_LIGHTNING.EventProcess	CX2GUArme_VioletMage::AVSI_SA_AEM_Chain_Lightning_EventProcess	pair	CH2a	
+32cc26c0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cc26f0	helper	called by 32ccf9f0	-	-	CH1i	
+32cc2740	helper	called by 32ccf9f0	-	-	CH1i	
+32cc2790	helper	called by 32ccf9f0	-	-	CH1i	
+32cc27e0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cc2880	helper	called only from outside the class (or from an unmapped caller): 322dec1f	-	-	CH1h	
+32cc2890	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cc28b0	override 0x428	?	-	unnamed	CH4	skill-memo float hook; name: -
+32cc2950	state-fn	AVSI_ADM_ZZupZZ.FrameMoveFuture	-	june-only	CH1f	
+32cc29a0	state-fn	AVSI_ADM_ZZupZZ.EventProcess	-	june-only	CH1f	
+32cc2ab0	helper	called by 32cc6d70 32cc6de0 32cce4b0	-	-	CH1i	
+32cc2b90	helper	called by 32ce1950 32ce5780 32ce5ac0 32ce5c10	-	-	CH1c	
+32cc2c20	state-fn	AVSI_AHM_DASH_JUMP_ZX.EventProcess	-	june-only	CH1e	
+32cc2d20	state-fn	AVSI_AHM_DASH_JUMP_ZXX_START.EventProcess	-	june-only	CH1e	
+32cc2d50	state-fn	AVSI_AHM_DASH_JUMP_ZXX_CHARGE.EventProcess AVSI_AHM_DASH_JUMP_ZXX_FINISH.EventProcess	-	june-only	CH1e	
+32cc3080	state-fn	callback set in InitState 32cea0c0 (job branch the extractor skips: read the branch)	-	june-only?	CH1h	thunk thunk 32cf12a0 @32ceb602
+32cc30b0	state-fn	AVSI_AEM_ZZX.EventProcess	-	june-only	CH1e	
+32cc34c0	state-fn	AVSI_AEM_ZZXX_START.EventProcess	-	june-only	CH1e	
+32cc37e0	state-fn	AVSI_DASH_ATTACK_X.Start AVSI_ABM_DASH_JUMP_ATTACK_X.Start AVSI_DIMENSION_WITCH_DASH_ATTACK_X.Start AVSI_AEM_DASH_JUMP_X3.Start +5	-	june-only	CH1d	
+32cc3800	state-fn	AVSI_AEM_ZZXX_LOOP.EventProcess	-	june-only	CH1e	
+32cc3b70	state-fn	AVSI_DASH_ATTACK_X.End AVSI_ABM_DASH_JUMP_ATTACK_X.End AVSI_DIMENSION_WITCH_DASH_ATTACK_X.End AVSI_AEM_DASH_JUMP_X3.End +5	-	june-only	CH1d	
+32cc3b90	state-fn	AVSI_AEM_DASH_JUMP_X3.EventProcess AVSI_AEM_ZZXX_END.EventProcess	-	june-only	CH1e	
+32cc3ea0	state-fn	callback set in InitState 32cea0c0 (job branch the extractor skips: read the branch)	-	june-only?	CH1h	thunk thunk 32cf1340 @32ceb7ee
+32cc3ed0	state-fn	AVSI_ADM_DASH_JUMP_ZX.EventProcess	-	june-only	CH1f	
+32cc4180	state-fn	AVSI_DASH_ATTACK_X.EventProcess AVSI_AVP_DASH_ATTACK_X2.EventProcess	CX2GUArme_VioletMage::DashAttackXEventProcess	pair	CH1d	
+32cc45c0	state-fn	AVSI_ABM_DASH_JUMP_ZX.EventProcess AVSI_ABM_DASH_JUMP_ZXX.EventProcess	-	june-only	CH1g	
+32cc4b90	state-fn	AVSI_ABM_DASH_JUMP_ATTACK_X.EventProcess	CX2GUArme_VioletMage::AVSI_AVP_DASH_JUMP_X_EventProcess	pair	CH1g	
+32cc4c90	state-fn	AVSI_ADW_DASH_JUMP_X2.EventProcess AVSI_ADW_DASH_JUMP_X3.EventProcess	-	june-only	CH1g	
+32cc5260	state-fn	AVSI_ADW_ZZZBackZ.EventProcess	-	june-only	CH1g	
+32cc5580	state-fn	RNSI_SA_AVM_METEO_CALL_NEW.EventProcess RNSI_SA_AVM_METEO_CALL_NEW.EventProcess	-	june-only	CH2a	
+32cc5780	state-fn	RNSI_A_ADM_DARK_ROAD.EventProcess RNSI_A_ADM_DARK_ROAD.EventProcess	-	june-only	CH2b	
+32cc5840	state-fn	RNSI_A_ABM_ENERGETIC_ROAD.EventProcess RNSI_A_ABM_ENERGETIC_ROAD.EventProcess	-	june-only	CH2b	
+32cc5900	state-fn	RNSI_SA_ADM_DARK_BURST.EventProcess	-	june-only	CH3a	
+32cc5940	state-fn	AVSI_SA_AVP_RUIN.EventProcess AVSI_SA_AVP_RUIN_LOOP.EventProcess AVSI_SA_AVP_RUIN_END.EventProcess	-	june-only	CH3a	
+32cc5990	helper	called by 32cede00	-	-	CH1	
+32cc5aa0	state-fn	AVSI_SA_ADW_AIR_STUNNER.EventProcess AVSI_SA_ADW_AIR_STUNNER_END.EventProcess	-	june-only	CH3b	
+32cc5ae0	helper	called by 32cc6520 32cc66a0 32cc6820	-	-	CH1b	
+32cc5b00	override 0x63c	SetShowViewList	-	june-only (base virtual exists in March)	CH1i	name: HINT
+32cc5b20	helper	called by 32cce4b0	-	-	CH1i	
+32cc5c30	override 0x73c	?	-	unnamed	CH4	skill-memo float hook; name: -
+32cc5ca0	override 0x94	Lose	X2GUArme_VioletMage.h:359 virtual void Lose();	pair	CH1h	name: CONF
+32cc5d30	helper	called only from outside the class (or from an unmapped caller): 31fef529	-	-	CH1h	
+32cc5e40	state-fn	AVSI_JUMP_READY.EventProcess	CX2GUArme_VioletMage::JumpReadyEventProcess	pair	CH1a	
+32cc5f40	state-fn	AVSI_JUMP_LEVITATION.FrameMoveFuture	CX2GUArme_VioletMage::JumpLevitationFrameMoveFuture	pair	CH1a	
+32cc6040	state-fn	AVSI_DASH_END.FrameMoveFuture	CX2GUArme_VioletMage::DashEndFrameMoveFuture	pair	CH1a	
+32cc60a0	state-fn	AVSI_DASH_JUMP.EventProcess	CX2GUArme_VioletMage::DashJumpEventProcess	pair	CH1a	
+32cc63c0	state-fn	AVSI_DASH_JUMP_LEVITATION.FrameMoveFuture	CX2GUArme_VioletMage::DashJumpLevitationFrameMoveFuture	pair	CH1a	
+32cc6520	state-fn	AVSI_DAMAGE_DOWN_FRONT.EventProcess	CX2GUArme_VioletMage::DamageDownFrontEventProcess	pair	CH1b	
+32cc66a0	state-fn	AVSI_DAMAGE_DOWN_BACK.EventProcess	CX2GUArme_VioletMage::DamageDownBackEventProcess	pair	CH1b	
+32cc6820	state-fn	AVSI_DAMAGE_AIR_DOWN_LANDING.EventProcess	CX2GUArme_VioletMage::DamageAirDownLandingEventProcess	pair	CH1b	
+32cc6980	state-fn	AVSI_DASH_COMBO_Z2.StartFuture AVSI_JUMP_ATTACK_Z.StartFuture AVSI_JUMP_ATTACK_X.StartFuture	CX2GUArme_VioletMage::DashComboZ2StartFuture	pair	CH1d	
+32cc6a30	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X3back.Start AVSI_EM_DASH_COMBO_Z2a.Start AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a.Start AVSI_ADM_DASH_COMBO_ZXX.Start +3	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_Start	pair	CH1e	
+32cc6a50	state-fn	AVSI_DASH_ATTACK_X.StartFuture AVSI_DASH_ATTACK_X.StartFuture AVSI_ABM_DASH_JUMP_ATTACK_X.StartFuture AVSI_DIMENSION_WITCH_DASH_ATTACK_X.StartFuture +3	CX2GUArme_VioletMage::DashAttackXStartFuture	pair	CH1d	
+32cc6ae0	state-fn	AVSI_HIGH_MAGICION_DASH_ATTACK_X.StartFuture AVSI_HIGH_MAGICION_DASH_ATTACK_X2.StartFuture	CX2GUArme_VioletMage::AVSI_HIGH_MAGICION_DASH_ATTACK_X_StartFuture	pair	CH1e	
+32cc6b70	state-fn	AVSI_JUMP_ATTACK_Z.FrameMoveFuture	CX2GUArme_VioletMage::JumpAttackZFrameMoveFuture	pair	CH1d	
+32cc6c00	state-fn	AVSI_JUMP_ATTACK_X.FrameMoveFuture	CX2GUArme_VioletMage::JumpAttackXFrameMoveFuture	pair	CH1d	
+32cc6ca0	state-fn	AVSI_DASH_JUMP_ATTACK_Z.FrameMoveFuture AVSI_WALL_LANDING.FrameMoveFuture AVSI_PEPPER_RUN_READY.FrameMoveFuture	CX2GUArme_VioletMage::DashJumpAttackZFrameMoveFuture	pair	CH1b	
+32cc6d70	state-fn	AVSI_SI1_AV_HELL_STONE.Start AVSI_SI1_AV_HELL_STONE.Start AVSI_SI1_AV_HELL_STONE_HYPER.Start AVSI_SI1_AV_HELL_STONE_HYPER.Start	-	june-only	CH2b	
+32cc6de0	state-fn	AVSI_SI1_AV_HELL_STONE.StartFuture AVSI_SI1_AV_HELL_STONE.StartFuture AVSI_SI1_AV_HELL_STONE_HYPER.StartFuture AVSI_SI1_AV_HELL_STONE_HYPER.StartFuture	-	june-only	CH2b	
+32cc6e50	override 0x5f0	COMMON_BUFF_FrameMove	X2GUArme_VioletMage.h:1195 virtual void COMMON_BUFF_FrameMove();	pair	CH1h	name: CONF
+32cc6fb0	helper	called by 32cede00	-	-	CH1	
+32cc70b0	state-fn	AVSI_SI_SA_ADW_MORNING_STAR.StartFuture	-	june-only	CH3b	
+32cc7200	helper	called by 32cede00	-	-	CH1	
+32cc7300	dead	-	-	june-dead-code (no reference in the exe)	n/a	spec-A socket reader (checklist 7 l.264) never called
+32cc73e0	state-fn	AVSI_DASH_JUMP_ATTACK_X.StartFuture AVSI_DASH_JUMP_ATTACK_X.StartFuture AVSI_DASH_JUMP_ATTACK_X2.StartFuture AVSI_DASH_JUMP_ATTACK_X2.StartFuture +3	-	june-only	CH1d	
+32cc74a0	helper	called by 32cf1b10	-	-	CH1	
+32cc7530	helper	called by 32cf1b10	-	-	CH1	
+32cc75c0	helper	called by 32cf1b10	-	-	CH1	
+32cc7650	helper	called by 32cf1b10	-	-	CH1	
+32cc76e0	helper	called by 32cf1b10	-	-	CH1	
+32cc7770	helper	called by 32cf1b10	-	-	CH1	
+32cc7800	helper	called by 32cf1b10	-	-	CH1	
+32cc7890	helper	called by 32cf1b10	-	-	CH1	
+32cc7920	helper	called by 32cf1b10	-	-	CH1	
+32cc79b0	helper	called by 32cf1b10	-	-	CH1	
+32cc7a40	override 0x628	CanRidingState	X2GUArme_VioletMage.h:465 virtual bool CanRidingState();	pair	CH1i	name: CONF
+32cc7b30	override 0x718	?	-	unnamed	CH1i	name: -
+32cc7b90	override 0x828	?	-	unnamed	CH1i	name: -
+32cc7c30	override 0x850	?	-	unnamed	CH1i	name: -
+32cc7d80	state-fn	AVSI_SI_SA_ABM_MAGICAL_MAKEUP.Start	-	june-only	CH2b	
+32cc7df0	helper	called by 32cc7e60	-	-	CH1	also called from outside the class: 322ded28
+32cc7e60	helper	called by 32cea0c0	-	-	CH1	
+32cc7f10	override 0x880	?	-	unnamed	CH1i	name: -
+32cc7fa0	override 0x38	InitDevice	X2GUArme_VioletMage.h:479 void InitDevice();   (no virtual keyword)	pair	CH1h	name: CONF
+32cc8410	state-fn	AVSI_CHARGE_MP.Init	CX2GUArme_VioletMage::ChargeMPInit	pair	CH1a	
+32cc8800	state-fn	AVSI_DAMAGE_BOUNDING_DOWN.Init AVSI_DAMAGE_BOUNDING_LANDCRASH.Init AVSI_DAMAGE_BOUNDING_UP.Init AVSI_TELEPORT_STANDUP_ATTACK.Init +55	-	june-only	CH1a	
+32cc8980	helper	called by 32cc8ae0 32cc91b0 32cdbd00	-	-	CH1i	
+32cc8ae0	override 0x610	RidingOffEnd	-	june-only (base virtual exists in March)	CH1i	name: CONF
+32cc8cf0	override 0x654	?	-	unnamed	CH1i	name: -
+32cc8d30	override 0x638	UpdateEquipCollisionData	-	june-only (base virtual exists in March)	CH1i	name: CONF
+32cc9160	state-fn	AVSI_TELEPORT_STAND_UP_START.Start AVSI_TELEPORT_STAND_UP_START_UPGRADE.Start AVSI_TELEPORT_STAND_UP_END.Start	-	june-only	CH1b	
+32cc91b0	helper	called by 32cc91b0 32cddec0	-	-	CH4	
+32cc95b0	state-fn	AVSI_SI_SA_ABM_MAGICAL_MAKEUP.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove	pair	CH2b	
+32cc9680	helper	called only from outside the class (or from an unmapped caller): 32cc98c9	-	-	CH1h	
+32cc98b0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GUArme_VioletMage.h:1456 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	pair	CH1i	name: CONF
+32cc98e0	helper	called only from outside the class (or from an unmapped caller): 3230c59a	-	-	CH1h	
+32cc9950	override 0x644	UpdateEquipViewListInfo	-	june-only (base virtual exists in March)	CH1i	name: HINT
+32cc99d0	helper	called only from outside the class (or from an unmapped caller): 3230f209	-	-	CH1h	
+32ccb830	override 0x7b8	SetEquippedSkillLevel	X2GUArme_VioletMage.h:486 virtual void SetEquippedSkillLevel( SKILL_ID, bool bChangeAll );	pair	CH1i	name: CONF
+32ccbca0	override 0x810	SpecialAttackNoStageChange	X2GUArme_VioletMage.h:422 virtual bool SpecialAttackNoStageChange( const SkillTemplet* );	pair	CH1i	name: CONF
+32ccbe10	state-fn	AVSI_CHARGE_MP.StartFuture	CX2GUArme_VioletMage::ChargeMPStartFuture	pair	CH1a	
+32ccc070	state-fn	AVSI_CHARGE_MP.EndFuture	CX2GUArme_VioletMage::ChargeMPEndFuture	pair	CH1a	
+32ccc130	state-fn	AVSI_TELEPORT_START_UPGRADE.FrameMoveFuture	-	june-only	CH2a	
+32ccc5a0	state-fn	AVSI_TELEPORT_STAND_UP_START.FrameMoveFuture AVSI_TELEPORT_STAND_UP_START_UPGRADE.FrameMoveFuture AVSI_TELEPORT_STAND_UP_END.FrameMoveFuture AVSI_TELEPORT_STANDUP_ATTACK.FrameMoveFuture +16	-	june-only	CH1b	
+32ccc990	state-fn	AVSI_SA_AHM_METEOSHOWER.Start AVSI_SA_AHM_METEOSHOWER.Start AVSI_SA_AHM_METEOSHOWER_HYPER.Start AVSI_SA_AHM_METEOSHOWER_HYPER.Start +4	CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_LOOP_StateStart / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_StateStart	pair	CH2a	
+32cccb40	helper	called only from outside the class (or from an unmapped caller): 32cf2600	-	-	CH1h	
+32cccc20	state-fn	AVSI_SI_SA_ABM_HEAVY_PRESS.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_HEAVY_PRESS_FrameMove	pair	CH2b	
+32cccc70	override 0x2b8	SetDamageExceptionProcess	X2GUArme_VioletMage.h:525 virtual void SetDamageExceptionProcess( DamageData*, OUT float& fPowerRate );	pair	CH4	passive blocks keyed on RNSI_* (checklist 7b, D8 Fitness -> Magical Staff); name: CONF
+32ccce90	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cccfe0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32ccd0b0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32ccd170	state-fn	AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.Start AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.Start AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.Start AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.Start +2	CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_Loop_StateStart / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_StateStart	pair	CH3a	
+32ccd320	helper	called only from outside the class (or from an unmapped caller): 32cf2620	-	-	CH1h	
+32ccd400	helper	called only from outside the class (or from an unmapped caller): 32cf2630	-	-	CH1h	
+32ccd4a0	helper	called by 32ccda40 32ccda90 32ce12c0	-	-	CH1b	
+32ccda40	override 0x608	?	-	unnamed	CH1i	name: -
+32ccda90	override 0x604	?	-	unnamed	CH1i	name: -
+32ccdae0	override 0x860	?	-	unnamed	CH1i	name: -
+32ccdb70	override 0x3c	InitComponent	X2GUArme_VioletMage.h:470 void InitComponent();   (no virtual keyword)	pair	CH1h	name: CONF
+32cce030	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cce090	helper	called by 32cdd4e0	-	-	CH1h	
+32cce0f0	dead	-	-	june-dead-code (no reference in the exe)	n/a	alpha-tag site 32cce1c2 (7c) never runs
+32cce230	helper	called by 32ce4600	-	-	CH1h	
+32cce370	helper	called by 32ce4600	-	-	CH1h	
+32cce4b0	override 0x7cc	CommonFrameMove	X2GUArme_VioletMage.h:494 virtual void CommonFrameMove();	pair	CH1i	name: CONF
+32ccf4e0	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	X2GUArme_VioletMage.h:503 (home: SpecialAttackEventProcess body)	pair	CH1i	name: CONF
+32ccf9f0	override 0x80c	NoStateChangeActionFrameMove	X2GUArme_VioletMage.h:504 virtual void NoStateChangeActionFrameMove();	pair	CH1i	name: CONF
+32ccfe30	override 0x6a0	GetActualMPConsume	X2GUArme_VioletMage.h:508 virtual float GetActualMPConsume( SKILL_ID, int iSkillLevel ) const;	pair	CH4	MP-consume rules; name: CONF
+32cd0200	state-fn	AVSI_WAIT.EventProcess	CX2GUArme_VioletMage::WaitEventProcess	pair	CH1a	
+32cd0490	state-fn	AVSI_WALK.EventProcess	CX2GUArme_VioletMage::WalkEventProcess	pair	CH1a	
+32cd0670	state-fn	AVSI_JUMP_LEVITATION.FrameMove	CX2GUArme_VioletMage::JumpLevitationFrameMove	pair	CH1a	
+32cd0730	state-fn	AVSI_JUMP_LEVITATION.End	CX2GUArme_VioletMage::JumpLevitationEnd	pair	CH1a	
+32cd07e0	state-fn	AVSI_JUMP_LANDING.EventProcess	CX2GUArme_VioletMage::JumpLandingEventProcess	pair	CH1a	
+32cd0a40	state-fn	AVSI_DASH.EventProcess	CX2GUArme_VioletMage::DashEventProcess	pair	CH1a	
+32cd0c40	state-fn	AVSI_DASH_END.EventProcess	CX2GUArme_VioletMage::DashEndEventProcess	pair	CH1a	
+32cd0ef0	state-fn	AVSI_DASH_JUMP_LEVITATION.FrameMove	CX2GUArme_VioletMage::DashJumpLevitationFrameMove	pair	CH1a	
+32cd0fb0	state-fn	AVSI_DASH_JUMP_LEVITATION.End	CX2GUArme_VioletMage::DashJumpLevitationEnd	pair	CH1a	
+32cd1060	state-fn	AVSI_DASH_JUMP_LANDING.EventProcess	CX2GUArme_VioletMage::DashJumpLandingEventProcess	pair	CH1a	
+32cd1280	state-fn	AVSI_DASH_JUMP_POWER_LANDING.EventProcess	CX2GUArme_VioletMage::DashJumpPowerLandingEventProcess	pair	CH1a	
+32cd1470	helper	called by 32ce1590 32cf2550	-	-	CH1b	
+32cd1540	state-fn	AVSI_CHARGE_MP.Start	CX2GUArme_VioletMage::ChargeMPStart	pair	CH1a	
+32cd1830	state-fn	AVSI_CHARGE_MP.FrameMove	CX2GUArme_VioletMage::ChargeMPFrameMove	pair	CH1a	
+32cd21d0	state-fn	AVSI_CHARGE_MP.EventProcess	CX2GUArme_VioletMage::ChargeMPEventProcess	pair	CH1a	
+32cd2420	state-fn	AVSI_CHARGE_MP.End	CX2GUArme_VioletMage::ChargeMPEnd	pair	CH1a	
+32cd26b0	state-fn	AVSI_TELEPORT_START_UPGRADE.Start	-	june-only	CH2a	
+32cd2740	state-fn	AVSI_A_AV_TELEPORT_END.FrameMove AVSI_TELEPORT_STAND_UP_START.FrameMove AVSI_TELEPORT_STAND_UP_START_UPGRADE.FrameMove AVSI_TELEPORT_STAND_UP_END.FrameMove	-	june-only	CH1b	
+32cd2870	state-fn	AVSI_TELEPORT_STANDUP_ATTACK.FrameMove AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE.FrameMove	-	june-only	CH1b	
+32cd2b10	state-fn	AVSI_COMBO_Z4up.FrameMove	CX2GUArme_VioletMage::ComboZ4upFrameMove	pair	CH1c	
+32cd3370	state-fn	AVSI_COMBO_X3front.FrameMove	CX2GUArme_VioletMage::ComboX3frontFrameMove	pair	CH1c	
+32cd3be0	state-fn	AVSI_DARK_MAGICIAN_COMBO_X4down.FrameMove	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X4down_FrameMove	pair	CH1f	
+32cd4450	state-fn	AVSI_DARK_MAGICIAN_COMBO_X2.FrameMove	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X2_FrameMove	pair	CH1f	
+32cd4650	state-fn	AVSI_DARK_MAGICIAN_COMBO_X3back.FrameMove	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_COMBO_X3back_FrameMove	pair	CH1f	
+32cd4830	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X3back.StartFuture AVSI_DASH_COMBO_Z2a.StartFuture AVSI_EM_DASH_COMBO_Z2a.StartFuture AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a.StartFuture +4	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_StartFuture / CX2GUArme_VioletMage::AVSI_EM_DASH_COMBO_Z2a_StartFuture / CX2GUArme_VioletMage::DashComboZ2aStartFuture	pair	CH1d	
+32cd4df0	state-fn	AVSI_DASH_COMBO_Z2a.FrameMove	CX2GUArme_VioletMage::DashComboZ2aFrameMove	pair	CH1d	
+32cd4f20	state-fn	AVSI_EM_DASH_COMBO_Z2a.FrameMove	CX2GUArme_VioletMage::AVSI_EM_DASH_COMBO_Z2a_FrameMove	pair	CH1e	
+32cd5050	state-fn	AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a.FrameMove	CX2GUArme_VioletMage::AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_FrameMove	pair	CH1f	
+32cd5180	state-fn	AVSI_ADM_DASH_COMBO_ZXX.FrameMove	-	june-only	CH1f	
+32cd5360	state-fn	AVSI_DASH_JUMP_ATTACK_Z.FrameMove AVSI_WALL_LANDING.FrameMove AVSI_PEPPER_RUN_READY.FrameMove AVSI_PEPPER_RUN.FrameMove	CX2GUArme_VioletMage::DashJumpAttackZFrameMove	pair	CH1b	
+32cd57c0	state-fn	AVSI_SI1_AV_BINDING_CIRCLE.FrameMove	CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_FrameMove	pair	CH2a	
+32cd5c60	state-fn	AVSI_SI1_AV_BINDING_CIRCLE.CameraMove	CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_CameraMove	pair	CH2a	
+32cd5d60	dead	-	-	june-dead-code (no reference in the exe)	n/a	June BINDING_CIRCLE_HYPER FrameMove leftover (June dropped the _HYPER table); checklist 7p / 7ai / 7c sites in it never run
+32cd6360	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cd6460	state-fn	AVSI_SI2_AV_LIGHTNING_BOLT.CameraMove AVSI_SI2_AV_LIGHTNING_BOLT_HYPER.CameraMove	CX2GUArme_VioletMage::AVSI_SI2_AV_LIGHTNING_BOLT_CameraMove / CX2GUArme_VioletMage::AVSI_SI2_AV_LIGHTNING_BOLT_HYPER_CameraMove	pair	CH2a	
+32cd6530	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cd6600	state-fn	AVSI_SI1_AV_CHAIN_FIRE_BALL.FrameMove AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_FrameMove / CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_FrameMove	pair	CH2a	
+32cd6800	state-fn	AVSI_SI1_AV_CHAIN_FIRE_BALL.FrameMove AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_FrameMove / CX2GUArme_VioletMage::AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_FrameMove	pair	CH2a	
+32cd6a00	state-fn	AVSI_SI2_AV_GUIDE_FIRE_BALL.FrameMove AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_FrameMove / CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_FrameMove	pair	CH2a	
+32cd6b70	state-fn	AVSI_SI2_AV_GUIDE_FIRE_BALL.FrameMove AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_FrameMove / CX2GUArme_VioletMage::AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_FrameMove	pair	CH2a	
+32cd6ce0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cd6e50	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cd7160	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cd7470	state-fn	AVSI_SI_A_AV_CIRCLE_FLAME_READY.FrameMove AVSI_SI_A_AV_CIRCLE_FLAME.FrameMove	CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_READY_FrameMove	pair	CH3a	
+32cd75f0	helper	called only from outside the class (or from an unmapped caller): 32cf2b60	-	-	CH1h	
+32cd7800	helper	called only from outside the class (or from an unmapped caller): 32cf2b70	-	-	CH1h	
+32cd78b0	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.FrameMove AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove	pair	CH2a	
+32cd7a50	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.FrameMove AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove	pair	CH2a	
+32cd7bf0	state-fn	AVSI_SA_ADM_DEATHFIELD.FrameMove AVSI_SA_ADM_DEATHFIELD.FrameMove	CX2GUArme_VioletMage::AVSI_SA_ADM_DEATHFIELD_FrameMove	pair	CH2b	
+32cd81b0	state-fn	AVSI_A_ADM_MANA_INTAKE.FrameMove AVSI_A_ADM_MANA_INTAKE_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_FrameMove / CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_HYPER_FrameMove	pair	CH2b	
+32cd83c0	state-fn	AVSI_A_ADM_MANA_INTAKE.FrameMove AVSI_A_ADM_MANA_INTAKE_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_FrameMove / CX2GUArme_VioletMage::AVSI_A_ADM_MANA_INTAKE_HYPER_FrameMove	pair	CH2b	
+32cd85d0	state-fn	AVSI_SA_AHM_BLAZE_STEP.FrameMove AVSI_SA_AHM_BLAZE_STEP_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_HYPER_FrameMove	pair	CH3a	
+32cd8850	state-fn	AVSI_SA_AHM_BLAZE_STEP.FrameMove AVSI_SA_AHM_BLAZE_STEP_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_BLAZE_STEP_HYPER_FrameMove	pair	CH3a	
+32cd8a80	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cd8ea0	state-fn	AVSI_A_AVP_SUMMON_BAT.FrameMove AVSI_A_AVP_SUMMON_BAT.FrameMove	CX2GUArme_VioletMage::AVSI_A_AVP_SUMMON_BAT_FrameMove	pair	CH3a	
+32cd9340	state-fn	AVSI_SA_AEM_CYCLONE.FrameMove AVSI_SA_AEM_CYCLONE.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AEM_CYCLONE_FrameMove	pair	CH3a	
+32cd95d0	state-fn	AVSI_SA_AVP_HELL_DROP.FrameMove AVSI_SA_AVP_HELL_DROP.FrameMove AVSI_HELL_DROP_CONTROL_IDLE.FrameMove AVSI_HELL_DROP_CONTROL_IDLE.FrameMove +20	CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AVP_HELL_DROP_FrameMove	pair	CH3a	
+32cd9af0	helper	called only from outside the class (or from an unmapped caller): 32cf2ad0	-	-	CH1h	
+32cda260	state-fn	AVSI_AEM_ZZupZZ.FrameMove	CX2GUArme_VioletMage::AVSI_AEM_ZZupZZ_FrameMove	pair	CH1e	
+32cda550	state-fn	AVSI_AEM_XXfrontX.FrameMove	CX2GUArme_VioletMage::AVSI_AEM_XXfrontX_FrameMove	pair	CH1e	
+32cda840	state-fn	AVSI_AEM_XZ.FrameMove	CX2GUArme_VioletMage::AVSI_AEM_XZ_FrameMove	pair	CH1e	
+32cdab20	state-fn	AVSI_AEM_XZZ.FrameMove AVSI_AEM_XZZ_END.FrameMove AVSI_AVP_ZZfrontZ.FrameMove AVSI_AVP_ZZfrontZZ.FrameMove +3	CX2GUArme_VioletMage::AVSI_AEM_XZZ_FrameMove	pair	CH1e	
+32cdae90	state-fn	AVSI_SA_AHM_METEOSHOWER.FrameMove AVSI_SA_AHM_METEOSHOWER.FrameMove AVSI_SA_AHM_METEOSHOWER_HYPER.FrameMove AVSI_SA_AHM_METEOSHOWER_HYPER.FrameMove +4	CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_LOOP_FrameMove	pair	CH2a	
+32cdb5e0	helper	called only from outside the class (or from an unmapped caller): 32cf29f0	-	-	CH1h	
+32cdbb70	helper	called only from outside the class (or from an unmapped caller): 32cf2a00	-	-	CH1h	
+32cdbd00	helper	called by 32cddec0	-	-	CH4	
+32cdc0f0	state-fn	AVSI_ABM_DASH_COMBO_Z2a.FrameMove ABM_DASH_COMBO_ZXX.FrameMove	CX2GUArme_VioletMage::AVSI_ABM_DASH_COMBO_Z2a_FrameMove	pair	CH1g	
+32cdc270	state-fn	AVSI_A_AV_FIRE_ROAD.FrameMove	CX2GUArme_VioletMage::AVSI_A_AV_FIRE_ROAD_FrameMove	pair	CH2a	
+32cdc4a0	helper	called only from outside the class (or from an unmapped caller): 32cf2b30	-	-	CH1h	
+32cdc6f0	state-fn	AVSI_A_ABM_ENERGY_DRAIN_READY.FrameMove AVSI_A_ABM_ENERGY_DRAIN_SUCCESS.FrameMove AVSI_A_ABM_ENERGY_DRAIN_FAIL.FrameMove	CX2GUArme_VioletMage::AVSI_A_ABM_ENERGY_DRAIN_READY_FrameMove / CX2GUArme_VioletMage::AVSI_A_ABM_ENERGY_DRAIN_SUCCESS_FrameMove	pair	CH2b	
+32cdcac0	helper	called only from outside the class (or from an unmapped caller): 32cf2be0	-	-	CH1h	
+32cdcef0	state-fn	AVSI_SI_SA_ABM_SUPER_NOVA.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_SUPER_NOVA_FrameMove	pair	CH2b	
+32cdd4e0	override 0x4c	DeleteMinorParticle	X2GUArme_VioletMage.h:418 virtual void DeleteMinorParticle();	pair	CH1h	name: HINT
+32cdd4f0	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X3down.FrameMove	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X3down_FrameMove	pair	CH1e	
+32cdd700	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X4down.FrameMove	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X4down_FrameMove	pair	CH1e	
+32cdd900	state-fn	AVSI_SI_A_ADW_DISTORTION.Start	CX2GUArme_VioletMage::AVSI_SI_A_ADW_DISTORTION_StateStart	pair	CH3b	
+32cdda50	state-fn	AVSI_SI_A_ADW_DISTORTION.FrameMove	CX2GUArme_VioletMage::AVSI_SI_A_ADW_DISTORTION_FrameMove	pair	CH3b	
+32cddcc0	override 0xc4	HyperModeBuffEffectStart	X2GUArme_VioletMage.h:459 virtual void HyperModeBuffEffectStart();	pair	CH1h	name: CONF
+32cddec0	override 0x24c	SetSpecificValueByBuffTempletID	X2GUArme_VioletMage.h:462 virtual void SetSpecificValueByBuffTempletID( BUFF_TEMPLET_ID );	pair	CH4	buff-templet specifics (ABM / ADW Magical Makeup transform); name: CONF
+32cde300	override 0x250	UnSetSpecificValueByBuffTempletID	X2GUArme_VioletMage.h:463 virtual void UnSetSpecificValueByBuffTempletID( BUFF_TEMPLET_ID );	pair	CH4	buff-templet specifics (undo); name: CONF
+32cde380	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cde620	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cde800	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cdea30	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32cdebd0	state-fn	AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.FrameMove AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.FrameMove AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.FrameMove AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.FrameMove +2	CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_Loop_FrameMove	pair	CH3a	
+32cdf240	helper	called only from outside the class (or from an unmapped caller): 32cf2a90	-	-	CH1h	
+32cdf7f0	state-fn	AVSI_SA_AEM_CHAIN_LIGHTNING.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AEM_Chain_Lightning_FrameMove	pair	CH2a	
+32cdfb70	state-fn	AVSI_A_AVP_SUMMON_BAT_HEAVY.FrameMove AVSI_A_AVP_SUMMON_BAT_HEAVY.FrameMove	CX2GUArme_VioletMage::AVSI_A_AVP_Summon_Bat_Heavy_FrameMove	pair	CH1f	
+32ce0010	dead	-	-	june-dead-code (no reference in the exe)	n/a	alpha-tag site 32ce0615 (7c) never runs
+32ce0650	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32ce0a40	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32ce0e00	state-fn	AVSI_SI_A_ADW_WORM_HOLE.Start	CX2GUArme_VioletMage::AVSI_A_ADW_Worm_Hole_StateStart	pair	CH3b	
+32ce0f50	state-fn	AVSI_SI_A_ADW_WORM_HOLE.FrameMove	CX2GUArme_VioletMage::AVSI_A_ADW_Worm_Hole_FrameMove	pair	CH3b	
+32ce12c0	helper	called by 32ce5700 32ce6f20	-	-	CH1b	
+32ce1590	state-fn	AVSI_RIDING_HYPER_MODE.CameraMove AVSI_RIDING_SPECIFIC.CameraMove AVSI_RIDING_ATTACK_X_READY.CameraMove AVSI_RIDING_ATTACK_X_READY_2.CameraMove +1	CX2GUArme_VioletMage::RidingHyperModeCameraMove	pair	CH1b	
+32ce1650	helper	called from 328dfaa0	-	-	CH4	outside caller (skill-slot UI, memorize: checklist 7aj)
+32ce16d3	helper	called only from outside the class (or from an unmapped caller): 32ce16b3	-	-	CH1h	
+32ce1770	helper	called only from outside the class (or from an unmapped caller): 3220f4dc 3220e995 328df9db	-	-	CH1h	
+32ce1900	helper	called by 32ce4600	-	-	CH1h	
+32ce1950	state-fn	AVSI_ADM_ZZupZZ.FrameMove	-	june-only	CH1f	
+32ce1ba0	registrar	InitState tail (AVP Angor hammer mesh load)	-	differs (June state set)	CH1	
+32ce1c70	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
+32ce1cc0	override 0x6a4	GetActualCoolTime	-	june-only (base virtual exists in March)	CH4	cool-time rules; name: HINT
+32ce1f50	state-fn	AVSI_AHM_DASH_JUMP_ZX.FrameMove	-	june-only	CH1e	
+32ce2160	state-fn	AVSI_AHM_DASH_JUMP_ZXX_CHARGE.Start AVSI_AHM_DASH_JUMP_ZXX_FINISH.Start AVSI_ADM_DASH_JUMP_ZX.Start AVSI_ABM_DASH_JUMP_ZX.Start +3	-	june-only	CH1e	
+32ce21e0	state-fn	AVSI_AHM_DASH_JUMP_ZXX_CHARGE.FrameMove AVSI_AHM_DASH_JUMP_ZXX_FINISH.FrameMove	-	june-only	CH1e	
+32ce23f0	state-fn	AVSI_AHM_DASH_JUMP_ZXX_CHARGE.End AVSI_AHM_DASH_JUMP_ZXX_FINISH.End AVSI_ADM_DASH_JUMP_ZX.End AVSI_ABM_DASH_JUMP_ZX.End +3	-	june-only	CH1e	
+32ce2470	state-fn	AVSI_AEM_ZZX.FrameMove AVSI_AEM_ZZXX_START.FrameMove	-	june-only	CH1e	
+32ce26b0	state-fn	AVSI_AEM_ZZXX_LOOP.FrameMove	-	june-only	CH1e	
+32ce28f0	state-fn	AVSI_AEM_DASH_JUMP_X3.FrameMove AVSI_AEM_ZZXX_END.FrameMove	-	june-only	CH1e	
+32ce2b20	state-fn	AVSI_ADM_DASH_JUMP_ZX.FrameMove AVSI_ABM_DASH_JUMP_ZX.FrameMove AVSI_ABM_DASH_JUMP_ZXX.FrameMove	-	june-only	CH1f	
+32ce2e90	state-fn	RNSI_SA_AVM_METEO_CALL_NEW.FrameMove RNSI_SA_AVM_METEO_CALL_NEW.FrameMove	-	june-only	CH2a	
+32ce33b0	state-fn	RNSI_A_ADM_DARK_ROAD.FrameMove RNSI_A_ADM_DARK_ROAD.FrameMove	-	june-only	CH2b	
+32ce35e0	state-fn	RNSI_A_ABM_ENERGETIC_ROAD.FrameMove RNSI_A_ABM_ENERGETIC_ROAD.FrameMove	-	june-only	CH2b	
+32ce3880	state-fn	AVSI_A_AEM_FIRE_RING.FrameMove	-	june-only	CH3a	
+32ce3b80	state-fn	AVSI_A_AVP_DARK_RING.FrameMove	-	june-only	CH3a	
+32ce3e80	state-fn	AVSI_A_ADW_ENERGY_RING.FrameMove	-	june-only	CH3b	
+32ce4180	helper	called by 32ce5780 32ce5ac0 32ce5c10 32ce5dc0	-	-	CH1c	
+32ce4600	helper	called by 32cf2d50	-	-	CH1h	
+32ce4db0	override 0x44	ReInit	X2GUArme_VioletMage.h:354 virtual void ReInit( bool bRandom, int startPosIndex );	pair	CH1h	name: CONF
+32ce4e80	override 0x540	CreateMajorParticleArray	X2GUArme_VioletMage.h:366 virtual void CreateMajorParticleArray();	pair	CH1h	name: CONF
+32ce55e0	override 0x548	CreateMinorParticleArray	X2GUArme_VioletMage.h:393 virtual void CreateMinorParticleArray();	pair	CH1h	name: CONF
+32ce5700	override 0x7dc	CommonStateEnd	X2GUArme_VioletMage.h:496 virtual void CommonStateEnd();	pair	CH1i	name: CONF
+32ce5760	override 0x600	HyperModeFrameMove	X2GUArme_VioletMage.h:770 void HyperModeFrameMove();   (no virtual keyword)	pair	CH1i	name: CONF
+32ce5780	state-fn	AVSI_COMBO_Z3up.FrameMove AVSI_COMBO_X1.FrameMove	CX2GUArme_VioletMage::ComboX1FrameMove	pair	CH1c	
+32ce5970	state-fn	AVSI_COMBO_X2.FrameMove	CX2GUArme_VioletMage::ComboX2FrameMove	pair	CH1c	
+32ce5ac0	state-fn	AVSI_COMBO_X3.FrameMove	CX2GUArme_VioletMage::ComboX3FrameMove	pair	CH1c	
+32ce5c10	state-fn	AVSI_COMBO_X4_CHARGE_FIRE.FrameMove	CX2GUArme_VioletMage::ComboX4ChargeFireFrameMove	pair	CH1c	
+32ce5dc0	state-fn	AVSI_COMBO_X4.FrameMove	CX2GUArme_VioletMage::ComboX4FrameMove	pair	CH1c	
+32ce5f10	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X2.FrameMove	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X2_FrameMove	pair	CH1e	
+32ce6060	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X3back.FrameMove	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X3back_FrameMove	pair	CH1e	
+32ce61f0	state-fn	AVSI_DASH_ATTACK_X.FrameMove AVSI_DASH_ATTACK_X.FrameMove AVSI_DIMENSION_WITCH_DASH_ATTACK_X.FrameMove AVSI_DIMENSION_WITCH_DASH_ATTACK_X.FrameMove +2	CX2GUArme_VioletMage::DashAttackXFrameMove	pair	CH1d	
+32ce6380	state-fn	AVSI_HIGH_MAGICION_DASH_ATTACK_X.FrameMove	CX2GUArme_VioletMage::AVSI_HIGH_MAGICION_DASH_ATTACK_X_FrameMove	pair	CH1e	
+32ce6510	state-fn	AVSI_HIGH_MAGICION_DASH_ATTACK_X2.FrameMove	CX2GUArme_VioletMage::AVSI_HIGH_MAGICION_DASH_ATTACK_X2_FrameMove	pair	CH1e	
+32ce6660	state-fn	AVSI_JUMP_ATTACK_X.FrameMove	CX2GUArme_VioletMage::JumpAttackXFrameMove	pair	CH1d	
+32ce6830	state-fn	AVSI_DASH_JUMP_ATTACK_X.FrameMove AVSI_DASH_JUMP_ATTACK_X.FrameMove	CX2GUArme_VioletMage::DashJumpAttackXFrameMove	pair	CH1d	
+32ce69b0	state-fn	AVSI_DASH_JUMP_ATTACK_X2.FrameMove AVSI_DASH_JUMP_ATTACK_X2.FrameMove AVSI_AVP_DASH_JUMP_X.FrameMove AVSI_ABM_DASH_JUMP_ATTACK_X.FrameMove	CX2GUArme_VioletMage::AVSI_AVP_DASH_JUMP_X_FrameMove / CX2GUArme_VioletMage::DashJumpAttackX2FrameMove	pair	CH1d	
+32ce6b30	state-fn	AVSI_ABM_DASH_JUMP_ATTACK_X.FrameMove AVSI_ADW_DASH_JUMP_X2.FrameMove AVSI_ADW_DASH_JUMP_X3.FrameMove	CX2GUArme_VioletMage::AVSI_AVP_DASH_JUMP_X_FrameMove	pair	CH1g	
+32ce6f20	state-fn	AVSI_RIDING_HYPER_MODE.FrameMove AVSI_RIDING_SPECIFIC.FrameMove AVSI_RIDING_ATTACK_X_READY.FrameMove AVSI_RIDING_ATTACK_X_READY_2.FrameMove +1	CX2GUArme_VioletMage::RidingHyperModeFrameMove	pair	CH1b	
+32ce6f40	helper	called from 32ce74f5	-	-	CH1h	
+32ce72f0	state-fn	AVSI_ADW_ZZZBackZ.FrameMove	-	june-only	CH1g	
+32ce7480	override 0x7c4	CommonStateStart	X2GUArme_VioletMage.h:492 virtual void CommonStateStart();	pair	CH1i	name: CONF
+32ce77b0	registrar	InitStateCommon	CX2GUArme_VioletMage::InitStateCommon (X2GUArme_VioletMage.cpp:1637)	differs (June state set)	CH1	
+32ce9f90	helper	called by 32cf2d50	-	-	CH1h	
+32cea0c0	override 0x7a4 + registrar	InitState	X2GUArme_VioletMage.h:474 virtual void InitState();	pair	CH1	name: CONF
+32cebe80	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	X2GUArme_VioletMage.h:503 (home of the lookup: top of SpecialAttackEventProcess)	pair	CH1i	name: CONF
+32ceca70	helper	called by 32cecd70	-	-	CH4	
+32cecd70	override 0x690	InitPassiveSkillState	X2GUArme_VioletMage.h:484 virtual void InitPassiveSkillState();	pair	CH4	InitPassiveSkillState; name: CONF
+32ced640	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	X2GUArme_VioletMage.h:503 (home: SpecialAttackEventProcess body)	pair	CH1i	name: CONF
+32ced8b0	state-fn	AVSI_SI_SA_ADW_MORNING_STAR.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ADW_MORNING_STAR_FrameMove	pair	CH3b	
+32cede00	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GUArme_VioletMage.h:485 virtual void SetEquippedSkillFuncBySkillSlotIndex( SKILL_ID, int iSlotIndex, bool bSlotB );	pair	CH1	name: CONF
+32cf0f90	state-fn	AVSI_RIDING_OFF.Start	-	june-only	CH1b	
+32cf0fa0	state-fn	AVSI_RIDING_HYPER_MODE.End AVSI_RIDING_SPECIFIC.End AVSI_RIDING_ATTACK_X_READY.End AVSI_RIDING_ATTACK_X_READY_2.End +1	CX2GUUser::RidingHyperModeEnd	pair	CH1b	
+32cf1a80	helper	called only from outside the class (or from an unmapped caller): 32cd9e80	-	-	CH1h	
+32cf1ab0	helper	called only from outside the class (or from an unmapped caller): 3220e569 33231b88 33231bb8 33231996	-	-	CH1h	
+32cf1b10	helper	called by 32cc7df0 32ce1770	-	-	CH1	also called from outside the class: 31be549e 31c17b9d 31c97c1a 31cda667
+32cf1bd0	helper	called only from outside the class (or from an unmapped caller): 32cf1f24	-	-	CH1h	
+32cf1c20	helper	called by 32cc7f10	-	-	CH1i	
+32cf1c40	helper	called by 32cc7f10	-	-	CH1i	
+32cf1c60	helper	called only from outside the class (or from an unmapped caller): 32efc3a1	-	-	CH1h	
+32cf1d80	helper	called by 32cf1e60	-	-	CH4	
+32cf1da0	helper	called by 32cf1e80	-	-	CH4	
+32cf1dc0	helper	called only from outside the class (or from an unmapped caller): 32cf1f44	-	-	CH1h	
+32cf1e60	helper	called by 32cf1fa0	-	-	CH4	
+32cf1e80	helper	called by 32cf2010	-	-	CH4	
+32cf1eb0	helper	called only from outside the class (or from an unmapped caller): 32cf20f5	-	-	CH1h	
+32cf1fa0	helper	called by 32ceca70	-	-	CH4	
+32cf2010	helper	called by 32ceca70	-	-	CH4	
+32cf20a0	helper	called only from outside the class (or from an unmapped caller): 32cf2120 32cf2135	-	-	CH1h	
+32cf2100	helper	called only from outside the class (or from an unmapped caller): 32cc9936	-	-	CH1h	
+32cf2190	helper	called by 32cecd70	-	-	CH4	
+32cf2550	helper	called only from outside the class (or from an unmapped caller): 3351d090	-	-	CH1h	
+32cf25a0	override 0x680	?	-	unnamed	CH1i	name: -
+32cf2d50	override 0x0	~CX2GUArme_VioletMage (scalar deleting dtor)	X2GUArme_VioletMage.h:326 virtual ~CX2GUArme_VioletMage(void);	pair	CH1h	name: CONF
+32cf2d90	helper	called only from outside the class (or from an unmapped caller): 31fca1a2	-	-	CH1h	
+32cf2da0	helper	called only from outside the class (or from an unmapped caller): 33522de4	-	-	CH1h	
+32cf2e70	helper	called only from outside the class (or from an unmapped caller): 31fedfdc	-	-	CH1h	
+32cf2e90	helper	called only from outside the class (or from an unmapped caller): 335230d8	-	-	CH1h	
+# march-only virtuals (no June override): ParseCommonRandomState (.h:472, June rolls in CX2GUUser 31fe22d0), ApplyAuraAcceleratorBuffToGameUnit (.h:424): June wins, CH1 drops them; CreateNotEnoughMPEffect (.h:512) is not compiled
+# totals kind/phase: dead/n/a=37, helper/CH1=25, helper/CH1b=5, helper/CH1c=2, helper/CH1h=43, helper/CH1i=8, helper/CH4=11, override/CH1=2, override/CH1h=19, override/CH1i=33, override/CH4=9, registrar/CH1=2, state-fn/CH1a=40, state-fn/CH1b=33, state-fn/CH1c=28, state-fn/CH1d=32, state-fn/CH1e=46, state-fn/CH1f=23, state-fn/CH1g=21, state-fn/CH1h=7, state-fn/CH2a=49, state-fn/CH2b=34, state-fn/CH3a=36, state-fn/CH3b=15; thunks skipped: 0; functions in range: 429
+# totals per phase (functions to transcribe): CH1a=40, CH1b=38, CH1c=30, CH1d=32, CH1e=46, CH1f=23, CH1g=21, CH1h=69, CH1i=41, CH1=29, CH2a=49, CH2b=34, CH3a=36, CH3b=15, CH4=20, n/a=37

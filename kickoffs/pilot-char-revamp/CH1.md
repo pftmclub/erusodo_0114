@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase pilot-char-revamp CH1` |
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
-| Depends on | CH0, CH0b (Aisha's assets are already June's when CH1 starts) |
+| Depends on | CH0, CH0b (Aisha's assets are already June's when CH1 starts), CH1a-CH1i and their reviews (amended by CH0) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (+ `SERV_IRUHADEV_JUNE_CHAR_DEBUG` if the phase logs per frame) |
 | Log tag | `[JUNE_CHAR]` (`python tools/logs.py --tag JUNE_CHAR`; lines `ARME DATA` / `ARME CORE`) |
 | Review | `kickoffs/pilot-char-revamp/CH1-review.md` (the phase writes it when done) |
@@ -32,4 +32,30 @@ Do "Phase CH1". Her assets are June's since CH0b, and the script and the C++ go 
 
 ## Amended by CH0
 
-(CH0 fills this in: tsv filters, addresses, splits.)
+Written by CH0 (2026-10-20). **CH1 now depends on CH1a-CH1i and their reviews**: those Sonnet phases transcribe the ~340 class functions as
+inert `June_*` members; CH1 (Opus) wires them, adopts the script and hands over the play-test.
+
+Filters: `awk -F'\t' '$6=="CH1"' ch0_class_map.tsv` (29 functions: the registrars and what only they call), `awk -F'\t' 'NF==8 && $8 ~ /^CH1/'
+ch0_state_skill.tsv` (the 204 states CH1a-CH1i serve), `awk -F'\t' '$5 ~ /CH1( |$)/' ch0_checklist_rows.tsv`.
+
+What CH1 itself does:
+1. **Registration.** Port June's `InitState` `32cea0c0` whole (vslot 0x7a4): cut-in set index `+0x22b2` / `+0x22b3`, `InitStateCommon`
+   `32ce77b0`, `3202b110` (base event states), the START / WIN / LOSE roll `31fe22d0`, `AVSI_WAIT_STATE_CHANGE` (id 0x82), the per-job blocks
+   (switch on unit class 2 / 14 / 15 / 23 / 104 / 105 / 113), `31fd8f00`, `32ce1ba0` (AVP Angor hammer mesh). Every callback points at the
+   `June_*` member; March's registration stays in the `#else`. March-only states that June drops (6: `AVSI_DARK_MAGICIAN_DASH_COMBO_Z3up`,
+   `_SA_ADM_DEATHFIELD_HYPER`, `_SI1_AV_BINDING_CIRCLE_HYPER`, `_SI1_AV_CHAIN_BURST_HYPER`, `_SI3_AV_GUST_STORM_HYPER`,
+   `_SI_A_AV_CIRCLE_FLAME_MEMO`) are not registered. `AVSI_RIDING_DAMAGE_BACK` is registered by June with no script table: keep it, plus a
+   `JUNE_BUGS.md` row. 23 script tables no June C++ names (Ice Storm, Icicle Wave, Aqua Shower, Vital Drain, ...) stay dead data.
+2. **`SetEquippedSkillFuncBySkillSlotIndex` head** (`32cede00`): bounds, the two slot tables (`3351b05c` / `3351b184`), drop `31fd2af0` (7i),
+   `+0x11 = 1`, the transcendence-memo branch (`31fdbcc0`, only `0x56c9`; inert until Stage 6), the type switch (case 5 COMMON_BUFF, 0xc
+   THROW_ITEM for id 900, the hyper-active inner switch, `default:` Power Attack). Skill cases stay March's until CH2a-CH3b.
+3. **Virtuals.** Each override of CH1h / CH1i becomes the virtual's body under the flag (March body in `#else`); March-only virtuals June
+   lacks (`ParseCommonRandomState`, `ApplyAuraAcceleratorBuffToGameUnit`) are dropped under the flag.
+4. **Pressed-index space (7ag).** Convert the class decode (`:5232-5257`, `:5072`, consumer `:16610`) to June's A 0-4 / B 5-9, including
+   June's 4 (F) / 9 (T) presses: that is the slot-5 gap at `X2GUUser.cpp:25500-25510`, inert until Stage 6 unlocks the TC slot.
+   `CommonSpecialAttackEventProcess` is shared by every class: decide how Aisha alone gets June's space (an Opus design call; write it down).
+5. **Hooks:** `JuneInitWaitStateChange`, `JuneInitBoundingStates( "AVSI_" )` (7l), and the 7 June-only script keys of `ch0_keys.tsv`
+   (`FORCE_DYNAMIC_CAMERA_INDEX`, `RETAIN_CAMERA_STATE`, `EFFECT_SET_LIST_ULTIMATE_EX`, `IMMUNITY_EDT_LIST_AT_THIS_STATE`, `SPECIAL_OPTION_VALUE`,
+   `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME`): confirm each against March's preprocessed reader, port the missing reader or route it.
+6. **Script:** `luasrc.py adopt-june data036 Arme_VioletMage.lua` (June bytecode); then `charport_scan.py` and `charport_keys.py
+   Arme_VioletMage` show nothing new.

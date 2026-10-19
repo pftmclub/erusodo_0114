@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase pilot-char-revamp CH4` |
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
-| Depends on | CH2 review; not alongside CH3 (same class files) |
+| Depends on | CH2b review (CH2 was split by CH0); not alongside CH3a / CH3b (same class files) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`, `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE` (or CH0's split) |
 | Log tag | `[JUNE_CHAR]` (`ARME SKILL`, `ARME MEMO`) |
 | Review | `kickoffs/pilot-char-revamp/CH4-review.md` (the phase writes it when done) |
@@ -26,4 +26,14 @@ Do "Phase CH4". Map each June mechanism in Ghidra before porting it (memorize: s
 
 ## Amended by CH0
 
-(CH0 fills this in.)
+Written by CH0 (2026-10-20). Depends now read **CH2b review** (CH2 was split), and CH4 runs before or after CH3a / CH3b, never beside them.
+
+Filters: `awk -F'\t' '$6=="CH4"' ch0_class_map.tsv` (20 functions), `awk -F'\t' 'NF==7 && $6=="CH4"' ch0_state_skill.tsv` (25 skill ids:
+types 1 / 5 / 8), `awk -F'\t' '$5 ~ /CH4/' ch0_checklist_rows.tsv`.
+- **Overrides:** `SetDamageExceptionProcess` `32cccc70` (vslot 0x2b8; 7b and the D8 Fitness 2413 -> Magical Staff 22409 swap, whole),
+  `SetSpecificValueByBuffTempletID` `32cddec0` / `UnSet...` `32cde300` (0x24c / 0x250, Magical Makeup transform), `GetAdditionalAccelBuffTime`
+  `32cc1b90` (0x7ac), `GetActualMPConsume` `32ccfe30` (0x6a0), `GetActualCoolTime` `32ce1cc0` (0x6a4, June-only override), `InitPassiveSkillState`
+  `32cecd70` (0x690), the two skill-memo float hooks `32cc28b0` (0x428) and `32cc5c30` (0x73c), and their helpers.
+- **Memorize:** 7ah (the 10-slot dialog's memorize statics), 7aj (slot data type 5 `328d9ac0`, `SESAPT_MEMORIZE` picture `328e0460`, mouse-in
+  29059 `328ec719`, tooltip line `328e9160`; class helper `32ce1650` called from `328dfaa0`), 7ak (`32ce1770` on the decide-page ACK).
+- **Buff skills (type 5):** the state is the shared `AVSI_SI_AV_COMMON_BUFF` (CH1); CH4 brings the buff data rows.

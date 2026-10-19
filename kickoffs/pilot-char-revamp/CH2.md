@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase pilot-char-revamp CH2` |
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
-| Depends on | CH1 review |
+| Depends on | split by CH0: run CH2a, then CH2b (CH1 review first) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (or CH0's split) |
 | Log tag | `[JUNE_CHAR]` (`ARME SKILL`) and `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | `kickoffs/pilot-char-revamp/CH2-review.md` (the phase writes it when done) |
@@ -29,4 +29,10 @@ Do "Phase CH2": transcribe each listed June state function from Ghidra (the map 
 
 ## Amended by CH0
 
-(CH0 fills this in.)
+Written by CH0 (2026-10-20). **Split: run `CH2a` (Violet Mage + High Magician: 26 skill ids, 49 state functions) and then `CH2b` (Dark
+Magician + Battle Magician: 24 ids, 34 functions)**; their kickoff files carry the filters. This file stays as the shared brief.
+- The skill's line decides the phase: a skill class 2 has is CH2a; otherwise the first of 14 / 15 / 23 that has it. Types 1 / 5 / 8 are CH4.
+- Moved out of CH2: checklist 7b (`32cccc70` + the D8 Fitness -> Magical Staff swap) is passive, so it is CH4 (whole function in one phase).
+  7p's forced `SetStopTime` is dead in June (`32cd5d60` unreferenced): nothing to port.
+- Kept here: 7u (Blaze Step MEMO names in CH2a, Death Field names in CH2b), 7ai BFI arguments (`32cd57c0` Binding Circle, CH2a; `32cd7bf0`
+  Death Field, CH2b), section 1's first live `NUM use` line (CH2a).

@@ -1,0 +1,225 @@
+key	norm	count	tables	first_line	context	june_src	june_readers	march_n	march_sites	census_status	verdict
+BBT_CHANGE_NOW_HP_PER_SECOND		3	3	7332	damage-data	plain	none	0	none	implemented/unassigned	june-only
+BFT_TIME		3	3	7344	damage-data	plain	none	0	none	implemented/unassigned	june-only
+EFFECT_SET_LIST_ULTIMATE_EX		4	4	6709	state	plain	none	0	none		june-only
+FORCE_DYNAMIC_CAMERA_INDEX		15	15	485	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes	0	none		june-only
+IMMUNITY_EDT_LIST_AT_THIS_STATE		12	12	8068	state	plain	none	0	none		june-only
+RETAIN_CAMERA_STATE		1	1	500	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes	0	none		june-only
+SPECIAL_OPTION_VALUE		1	1	8932	state	plain	none	0	none		june-only
+HEAD_IK		9	9	3173	state	none	none	0	none		neither
+SLOW_FACTOR		1	1	3237	state	none	none	0	none		neither
+AFTER_IMAGE		55	55	3317	state	none	none	4	X2Lib/X2DamageEffect.cpp:10789, X2Lib/X2GUNPC.cpp:6145, X2Lib/X2GUNPC.cpp:16477, X2Lib/X2GUUser.cpp:16599		march-only-site
+READY_SOUND		1	1	23	INIT_DEVICE	none	none	7	X2Lib/X2DungeonStage.cpp:516, X2Lib/X2GameUnit.cpp:4165, X2Lib/X2GameUnit.cpp:4228, X2Lib/X2Pet.cpp:1825 +3 more		march-only-site
+ADD_MP_CHANGE_RATE		1	1	3715	state	xor	32c8bb50:?, 32ccbe10:?	2	X2Lib/X2GUArme_VioletMage.cpp:6950, X2Lib/X2GULire_ElvenRanger.cpp:7093		both
+ANGLEDEGREE		358	109	503	state	xor	31fb5920:?	1	X2Lib/X2Camera.cpp:229		both
+ANIM_NAME		312	311	483	state	xor	31c77e20:CKTDGLineMap::AddTrigger_LUA, 320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 323fad80:CX2SquareUnit::StateStart +6 more	13	X2Lib/X2EventScene.cpp:1230, X2Lib/X2GUNPC.cpp:6062, X2Lib/X2GUNPC.cpp:16077, X2Lib/X2GUNPC.cpp:31323 +9 more		both
+ANIM_SPEED		83	83	4080	state	xor	31c77e20:CKTDGLineMap::AddTrigger_LUA, 320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 326ef840:CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader) +3 more	9	X2Lib/X2GUNPC.cpp:6438, X2Lib/X2GUNPC.cpp:16127, X2Lib/X2GUUser.cpp:15681, X2Lib/X2GUUser.cpp:15683 +5 more		both
+ANIM_START_TIME		7	7	4950	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2c8b0:CX2RidingPet::StateChangeFuture( const char* ) (June rewrite), 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GUUser.cpp:15663, X2Lib/X2GUUser.cpp:16421, X2Lib/X2RidingPet.cpp:913, X2Lib/X2RidingPet.cpp:1089		both
+APPLIED_SKILL_ID		3	3	4205	damage-data	xor	31f7aab0:CX2DamageEffect::CEffect::CEffect, 32024ff0:?, 321e48e0:CX2EffectSet::AddEffectSetTemplet_LUA, 32632390:CX2DamageManager::SetDamageDataFromLUA	5	X2Lib/X2DamageEffect.cpp:1643, X2Lib/X2DamageManager.cpp:340, X2Lib/X2DamageManager.cpp:342, X2Lib/X2EffectSet.cpp:3387 +1 more	handed-off/8c	both
+APPLY_ANIM_MOVE		32	32	3733	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 326525d0:CX2CustomizeManager::OpenScriptFile (CharCustomData*.lua), 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData)	5	X2Lib/X2GUNPC.cpp:5481, X2Lib/X2GUNPC.cpp:15786, X2Lib/X2GUUser.cpp:15722, X2Lib/X2GUUser.cpp:15724 +1 more		both
+APPLY_ANIM_SPEED_BY_ITEM_ABILITY		92	92	603	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32ac4c00:?, 32ad6ac0:?	2	X2Lib/X2GUUser.cpp:15688, X2Lib/X2GUUser.cpp:16434		both
+ARME_BATTLE_MAGICIAN		1	1	339	INIT_COMMON_RANDOM_STATE	plain	none	3	X2Lib/X2ComboTree.cpp:231, X2Lib/X2GUArme_VioletMage.cpp:924, X2Lib/X2UISkillTreeNew2015.cpp:5373		both
+ARME_DARK_MAGICIAN		1	1	311	INIT_COMMON_RANDOM_STATE	plain	none	4	X2Lib/X2ComboTree.cpp:229, X2Lib/X2GUArme_VioletMage.cpp:919, X2Lib/X2UISkillTreeNew2015.cpp:5365, X2Lib/X2UnitManager.cpp:178		both
+ARME_DIMENSION_WITCH		1	1	443	INIT_COMMON_RANDOM_STATE	plain	none	3	X2Lib/X2ComboTree.cpp:281, X2Lib/X2GUArme_VioletMage.cpp:939, X2Lib/X2UISkillTreeNew2015.cpp:5410		both
+ARME_ELEMENTAL_MASTER		1	1	367	INIT_COMMON_RANDOM_STATE	plain	none	4	X2Lib/X2ComboTree.cpp:258, X2Lib/X2GUArme_VioletMage.cpp:930, X2Lib/X2UISkillTreeNew2015.cpp:5401, X2Lib/X2UnitManager.cpp:187		both
+ARME_HIGH_MAGICIAN		1	1	283	INIT_COMMON_RANDOM_STATE	plain	none	4	X2Lib/X2ComboTree.cpp:228, X2Lib/X2GUArme_VioletMage.cpp:915, X2Lib/X2UISkillTreeNew2015.cpp:5364, X2Lib/X2UnitManager.cpp:177		both
+ARME_VIOLET_MAGE		1	1	265	INIT_COMMON_RANDOM_STATE	plain	none	4	X2Lib/X2ComboTree.cpp:199, X2Lib/X2GUArme_VioletMage.cpp:911, X2Lib/X2UISkillTreeNew2015.cpp:5352, X2Lib/X2UnitManager.cpp:169		both
+ARME_VOID_PRINCESS		1	1	405	INIT_COMMON_RANDOM_STATE	plain	none	4	X2Lib/X2ComboTree.cpp:259, X2Lib/X2GUArme_VioletMage.cpp:934, X2Lib/X2UISkillTreeNew2015.cpp:5402, X2Lib/X2UnitManager.cpp:188		both
+ATTACK_CANCEL_AFTER		8	8	13141	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes	3	X2Lib/X2GUUser.cpp:16013, X2Lib/X2GUUser.cpp:17347, X2Lib/X2GUUser.cpp:22635		both
+ATTACK_TIME0	ATTACK_TIME%d	30	30	4273	state	plain(base)	none	6	base:X2Lib/X2GUNPC.cpp:6186, base:X2Lib/X2GUNPC.cpp:6187, base:X2Lib/X2GUNPC.cpp:16720, base:X2Lib/X2GUUser.cpp:16793 +2 more		both
+ATTACK_TIME1	ATTACK_TIME%d	2	2	7045	state	plain(base)	none	6	base:X2Lib/X2GUNPC.cpp:6186, base:X2Lib/X2GUNPC.cpp:6187, base:X2Lib/X2GUNPC.cpp:16720, base:X2Lib/X2GUUser.cpp:16793 +2 more		both
+ATTACK_TIME2	ATTACK_TIME%d	2	2	7049	state	plain(base)	none	6	base:X2Lib/X2GUNPC.cpp:6186, base:X2Lib/X2GUNPC.cpp:6187, base:X2Lib/X2GUNPC.cpp:16720, base:X2Lib/X2GUUser.cpp:16793 +2 more		both
+ATTACK_TRIGGER_TYPE		18	18	4293	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	2	X2Lib/X2DamageManager.cpp:791, X2Lib/X2DamageManager.cpp:879	implemented/8a	both
+ATTACK_TYPE		21	21	4288	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA, 32d46000:CX2BuffFactor::ParsingChangeAttackByTypeBehavior, 32ec2300:CX2BuffHitCountFinalizerTemplet::ParsingFinalizer	4	X2Lib/X2BuffFactor.cpp:2621, X2Lib/X2BuffFactor.cpp:2622, X2Lib/X2BuffFinalizerTemplet.cpp:433, X2Lib/X2DamageManager.cpp:269	implemented/8a	both
+BACK_SPEED_X		32	32	4204	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:683	implemented/8a	both
+BACK_SPEED_Y		23	23	4280	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:684	implemented/8a	both
+BEHAVIOR		3	3	7328	damage-data	plain	none	3	X2Lib/X2BuffFactor.cpp:803, X2Lib/X2BuffTemplet.cpp:66, X2Lib/X2BuffTemplet.cpp:152	implemented/unassigned	both
+BUFF_CHANGE_TYPE		3	3	7333	damage-data	xor	32d42030:CX2BuffFactor::ParsingChangeNowHpPerSecondBehavior, 32d42650:CX2BuffFactor::ParsingChangeNowForceDownPerSecondBehavior (new, BBT 79), 32d42910:CX2BuffFactor::ParsingChangeStateByConditionBehavior (new, BBT 80-84), 32d436b0:CX2BuffFactor::ParsingDamageValueFinalizer +27 more	61	X2Lib/X2BuffBehaviorTemplet.cpp:276, X2Lib/X2BuffBehaviorTemplet.cpp:277, X2Lib/X2BuffBehaviorTemplet.cpp:589, X2Lib/X2BuffBehaviorTemplet.cpp:590 +57 more	implemented/unassigned	both
+BUFF_DURATION_TIME_TYPE		3	3	7345	damage-data	xor	32d42da0:CX2BuffFactor::ParsingTimeFinalizer, 32ebe8b0:CX2BuffTimeFinalizerTemplet::ParsingFinalizer	4	X2Lib/X2BuffFactor.cpp:1225, X2Lib/X2BuffFactor.cpp:1226, X2Lib/X2BuffFinalizerTemplet.cpp:159, X2Lib/X2BuffFinalizerTemplet.cpp:160	implemented/unassigned	both
+BUFF_FACTOR		3	3	7322	damage-data	plain	none	6	X2Lib/X2BuffTempletManager.cpp:443, X2Lib/X2BuffTempletManager.cpp:570, X2Lib/X2BuffTempletManager.cpp:633, X2Lib/X2DamageManager.cpp:4842 +2 more	implemented/8a	both
+BUFF_RELATION_TYPE		3	3	7334	damage-data	xor	32d42030:CX2BuffFactor::ParsingChangeNowHpPerSecondBehavior, 32d436b0:CX2BuffFactor::ParsingDamageValueFinalizer, 32d445d0:CX2BuffFactor::ParsingChangeStatBehavior, 32e73640:? +1 more	11	X2Lib/X2BuffBehaviorTemplet.cpp:1061, X2Lib/X2BuffBehaviorTemplet.cpp:1062, X2Lib/X2BuffFactor.cpp:1064, X2Lib/X2BuffFactor.cpp:1191 +7 more	implemented/unassigned	both
+BUFF_TEMPLET_ID		3	3	7323	damage-data	xor	3236a9b0:CX2BuffTemplet::ParsingScript, 32632390:CX2DamageManager::SetDamageDataFromLUA, 32d4d850:CX2BuffFactor::ParsingBuffFactor	7	X2Lib/X2BuffFactor.cpp:643, X2Lib/X2BuffFactor.cpp:644, X2Lib/X2BuffTemplet.cpp:32, X2Lib/X2BuffTemplet.cpp:33 +3 more	implemented/unassigned	both
+BWALK_CANCEL_AFTER		10	10	6534	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GUUser.cpp:16010, X2Lib/X2GUUser.cpp:17344, X2Lib/X2GUUser.cpp:22637, X2Lib/X2RidingPet.cpp:1364		both
+CAMERA0	CAMERA%d	16	16	626	state	plain(base)	none	96	base:X2Lib/X2DamageEffect.cpp:6777, base:X2Lib/X2DamageEffect.cpp:9728, base:X2Lib/X2GUArme_VioletMage.cpp:6867, base:X2Lib/X2GUArme_VioletMage.cpp:6875 +92 more		both
+CAMERA1	CAMERA%d	107	107	501	state	plain(base)	none	96	base:X2Lib/X2DamageEffect.cpp:6777, base:X2Lib/X2DamageEffect.cpp:9728, base:X2Lib/X2GUArme_VioletMage.cpp:6867, base:X2Lib/X2GUArme_VioletMage.cpp:6875 +92 more		both
+CAMERA2	CAMERA%d	95	95	545	state	plain(base)	none	96	base:X2Lib/X2DamageEffect.cpp:6777, base:X2Lib/X2DamageEffect.cpp:9728, base:X2Lib/X2GUArme_VioletMage.cpp:6867, base:X2Lib/X2GUArme_VioletMage.cpp:6875 +92 more		both
+CAMERA_CRASH_GAP		36	36	4193	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:705	implemented/8a	both
+CAMERA_CRASH_TIME		36	36	4196	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:706	implemented/8a	both
+CAMERA_TYPE		378	110	512	state	xor	31fb5920:?	1	X2Lib/X2Camera.cpp:220		both
+CAN_MANA_BREAK		1	1	8931	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes	1	X2Lib/X2GUUser.cpp:17239		both
+CAN_PASS_UNIT		28	28	534	state	xor	31f637e0:CX2DamageEffect::CEffect::LoadBlackHoleData, 320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData) +3 more	10	X2Lib/X2BuffBehaviorTemplet.cpp:3098, X2Lib/X2BuffBehaviorTemplet.cpp:3099, X2Lib/X2DamageEffect.cpp:8658, X2Lib/X2DamageEffect.cpp:8672 +6 more		both
+CAN_PASS_UNIT_TIME0	CAN_PASS_UNIT_TIME%d	3	3	10137	state	plain(base)	none	3	base:X2Lib/X2GUUser.cpp:15744, base:X2Lib/X2GUUser.cpp:16206, base:X2Lib/X2RidingPet.cpp:982		both
+CAN_PASS_UNIT_TIME1	CAN_PASS_UNIT_TIME%d	3	3	10141	state	plain(base)	none	3	base:X2Lib/X2GUUser.cpp:15744, base:X2Lib/X2GUUser.cpp:16206, base:X2Lib/X2RidingPet.cpp:982		both
+CAN_PASS_UNIT_TIME2	CAN_PASS_UNIT_TIME%d	2	2	10789	state	plain(base)	none	3	base:X2Lib/X2GUUser.cpp:15744, base:X2Lib/X2GUUser.cpp:16206, base:X2Lib/X2RidingPet.cpp:982		both
+CAN_PUSH_UNIT		34	34	533	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData), 32d2c8b0:CX2RidingPet::StateChangeFuture( const char* ) (June rewrite) +1 more	6	X2Lib/X2GUNPC.cpp:5471, X2Lib/X2GUNPC.cpp:15760, X2Lib/X2GUUser.cpp:15715, X2Lib/X2GUUser.cpp:16176 +2 more		both
+CAN_REFLEX		1	1	9020	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:720	implemented/8a	both
+CAN_REVENGE		12	12	4508	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:719	implemented/8a	both
+CHANGE_WORLD_COLOR		58	58	5789	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes	1	X2Lib/X2GUUser.cpp:17399		both
+CLEAR_SCREEN		20	20	4191	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:708	implemented/8a	both
+CLEAR_SCREEN_COLOR_A		2	2	4187	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:709	implemented/8a	both
+CLEAR_SCREEN_COLOR_B		2	2	4190	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:712	implemented/8a	both
+CLEAR_SCREEN_COLOR_G		2	2	4192	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:711	implemented/8a	both
+CLEAR_SCREEN_COLOR_R		2	2	4195	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:710	implemented/8a	both
+COMBINATION		6	3	7329	damage-data	plain	none	1	X2Lib/X2BuffTempletManager.cpp:495	implemented/unassigned	both
+COMBO_GUIDE		34	34	3191	state	plain	none	2	X2Lib/X2ComboGuide.cpp:26, X2Lib/X2GUUser.cpp:17292		both
+CREATE_DAMAGE_EFFECT_NAME		11	11	5475	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:288	implemented/8a	both
+DAMAGE		36	36	4201	damage-data	both	32632390:CX2DamageManager::SetDamageDataFromLUA	2	X2Lib/X2DamageManager.cpp:488, X2Lib/X2DamageManager.cpp:569	implemented/8a	both
+DAMAGE_DATA		37	37	4186	state	plain	none	10	X2Lib/X2BuffTemplet.cpp:1483, X2Lib/X2DamageEffect.cpp:1641, X2Lib/X2DamageEffect.cpp:1812, X2Lib/X2DamageEffect.cpp:1814 +6 more		both
+DAMAGE_TYPE		37	37	4198	damage-data	xor	32373890:?, 32632390:CX2DamageManager::SetDamageDataFromLUA	2	X2Lib/X2DamageManager.cpp:268, X2Lib/X2UnitManager.cpp:1024	implemented/8a	both
+DASH_CANCEL_AFTER		31	31	4258	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GUUser.cpp:16012, X2Lib/X2GUUser.cpp:17346, X2Lib/X2GUUser.cpp:22639, X2Lib/X2RidingPet.cpp:1368		both
+DASH_JUMP_SPEED		1	1	244	INIT_PHYSIC	xor	3226d410:?, 323f3660:?, 32d27b00:?	3	X2Lib/X2GameUnit.cpp:4346, X2Lib/X2RidingPet.cpp:735, X2Lib/X2SquareUnit.cpp:682		both
+DELETE_EFFECT_SET_ON_DAMAGE_REACT		14	14	5289	state	xor	32024ff0:?, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData), 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GameUnit.cpp:7587, X2Lib/X2GUNPC.cpp:5671, X2Lib/X2GUUser.cpp:45342, X2Lib/X2RidingPet.cpp:1383		both
+DELETE_EFFECT_SET_ON_STATE_END		11	11	5288	state	xor	32024ff0:?, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData), 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	5	X2Lib/X2GameUnit.cpp:7586, X2Lib/X2GUNPC.cpp:5669, X2Lib/X2GUUser.cpp:45341, X2Lib/X2RidingPet.cpp:1380 +1 more		both
+DISABLE_GRAVITY_TIME_END		23	23	4478	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	3	X2Lib/X2GUNPC.cpp:15789, X2Lib/X2GUUser.cpp:15833, X2Lib/X2RidingPet.cpp:1205		both
+DISABLE_GRAVITY_TIME_START		23	23	4480	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	3	X2Lib/X2GUNPC.cpp:15788, X2Lib/X2GUUser.cpp:15832, X2Lib/X2RidingPet.cpp:1204		both
+DISTANCE		359	107	540	state	xor	31fb5920:?	1	X2Lib/X2Camera.cpp:223		both
+DRAIN_HP_PARTICLE_WEAPON		2	2	9756	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:749	implemented/8a	both
+DRAIN_HP_RATE		2	2	9748	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:737	implemented/8a	both
+DRAIN_MP_RATE_REACT		2	2	9749	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:741	implemented/8a	both
+DRAIN_MP_REACT		2	2	9745	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:740	implemented/8a	both
+DUNGEON_SPEECH		1	1	5	INIT_SYSTEM	plain	none	1	X2Lib/X2GUUser.cpp:2552		both
+EFFECT_SET_LIST		29	29	2096	state	plain	none	5	X2Lib/X2GameUnit.cpp:7410, X2Lib/X2GUNPC.cpp:5538, X2Lib/X2GUNPC.cpp:5559, X2Lib/X2GUUser.cpp:45171 +1 more		both
+EFFECT_SET_LIST_EX		43	43	5892	state	plain	none	4	X2Lib/X2GameUnit.cpp:7519, X2Lib/X2GUNPC.cpp:5544, X2Lib/X2GUNPC.cpp:5578, X2Lib/X2GUUser.cpp:45280		both
+EVENT_PROCESS_TIME0	EVENT_PROCESS_TIME%d	29	29	4264	state	plain(base)	none	2	base:X2Lib/X2GUUser.cpp:15988, base:X2Lib/X2GUUser.cpp:17328		both
+EVENT_PROCESS_TIME1	EVENT_PROCESS_TIME%d	8	8	4329	state	plain(base)	none	2	base:X2Lib/X2GUUser.cpp:15988, base:X2Lib/X2GUUser.cpp:17328		both
+EVENT_PROCESS_TIME2	EVENT_PROCESS_TIME%d	6	5	4334	state	plain(base)	none	2	base:X2Lib/X2GUUser.cpp:15988, base:X2Lib/X2GUUser.cpp:17328		both
+EVENT_PROCESS_TIME3	EVENT_PROCESS_TIME%d	3	3	4339	state	plain(base)	none	2	base:X2Lib/X2GUUser.cpp:15988, base:X2Lib/X2GUUser.cpp:17328		both
+EVENT_PROCESS_TIME4	EVENT_PROCESS_TIME%d	1	1	5016	state	plain(base)	none	2	base:X2Lib/X2GUUser.cpp:15988, base:X2Lib/X2GUUser.cpp:17328		both
+EXCLAMATION_MARK_SEQ		1	1	259	INIT_COMPONENT	xor	3227cec0:?, 32289090:CX2GameUnit::InitComponent (June)	2	X2Lib/X2GameUnit.cpp:4490, X2Lib/X2GameUnit.cpp:4529		both
+EYEDISTANCE		46	23	507	state	xor	31fb5920:?	1	X2Lib/X2Camera.cpp:232		both
+FINALIZER		3	3	7340	damage-data	plain	none	3	X2Lib/X2BuffFactor.cpp:830, X2Lib/X2BuffTemplet.cpp:78, X2Lib/X2BuffTemplet.cpp:166	implemented/unassigned	both
+FORCE_DOWN		25	25	4189	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:692	implemented/8a	both
+FORCE_FLY		6	6	4456	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:718	implemented/8a	both
+G_ACCEL		1	1	246	INIT_PHYSIC	xor	3226d410:?, 323f3660:?, 326ef840:CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader), 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData) +1 more	7	X2Lib/X2GameUnit.cpp:4340, X2Lib/X2GUNPC.cpp:6125, X2Lib/X2GUNPC.cpp:16324, X2Lib/X2GUNPC.cpp:16384 +3 more		both
+HEIGHT		356	108	510	state	both	31fb5920:?	1	X2Lib/X2Camera.cpp:226		both
+HITTED_TYPE		1	1	262	INIT_COMPONENT	xor	32289090:CX2GameUnit::InitComponent (June)	1	X2Lib/X2GameUnit.cpp:4546		both
+HIT_ADD_MP		26	26	4197	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:695	implemented/8a	both
+HIT_CAMERA0_RATE	HIT_CAMERA%d_RATE	9	9	611	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	2	X2Lib/X2GUUser.cpp:16670, X2Lib/X2RidingPet.cpp:1342		both
+HIT_CAMERA1_RATE	HIT_CAMERA%d_RATE	9	9	612	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	2	X2Lib/X2GUUser.cpp:16671, X2Lib/X2RidingPet.cpp:1343		both
+HIT_CAMERA2_RATE	HIT_CAMERA%d_RATE	9	9	610	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	2	X2Lib/X2GUUser.cpp:16672, X2Lib/X2RidingPet.cpp:1344		both
+HIT_GAP		7	7	4493	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:723	implemented/8a	both
+HIT_TYPE		37	37	4199	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:270	implemented/8a	both
+HYPER_MODE_COUNT		1	1	261	INIT_COMPONENT	xor	327a0fa0:?	1	X2Lib/X2GUNPC.cpp:4464		both
+IGNORE_REGIST_FOR_RATE		3	3	7327	damage-data	xor	32d4d850:CX2BuffFactor::ParsingBuffFactor	2	X2Lib/X2BuffFactor.cpp:652, X2Lib/X2BuffFactor.cpp:653	implemented/unassigned	both
+IMMUNITY_LIST_AT_THIS_STATE		12	12	8071	state	plain	none	3	X2Lib/X2GameUnit.cpp:4701, X2Lib/X2GUNPC.cpp:5429, X2Lib/X2GUUser.cpp:45472		both
+INVINCIBLE		138	138	491	state	plain	none	5	X2Lib/X2GUNPC.cpp:6412, X2Lib/X2GUNPC.cpp:15902, X2Lib/X2GUUser.cpp:16506, X2Lib/X2GUUser.cpp:21043 +1 more		both
+IS_ATTACK_STATE		209	208	3364	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes	1	X2Lib/X2GUUser.cpp:16275		both
+JUMP_SPEED		1	1	248	INIT_PHYSIC	xor	3226d410:?, 323f3660:?, 32d27b00:?	3	X2Lib/X2GameUnit.cpp:4345, X2Lib/X2RidingPet.cpp:734, X2Lib/X2SquareUnit.cpp:681		both
+LAND_CONNECT		299	297	489	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 323fad80:CX2SquareUnit::StateStart, 326ef840:CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader), 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData) +1 more	6	X2Lib/X2GUNPC.cpp:5465, X2Lib/X2GUNPC.cpp:15727, X2Lib/X2GUUser.cpp:15713, X2Lib/X2Pet.cpp:2438 +2 more		both
+LOOKATDISTANCE		80	31	508	state	xor	31fb5920:?	1	X2Lib/X2Camera.cpp:235		both
+LOOK_APPLY_ROTATE_OFFSET_X		2	1	12117	state	xor	31fb1ce0:?	1	X2Lib/X2Camera.cpp:2995		both
+LOOK_OFFSET_X		35	13	505	state	xor	31fb1ce0:?	1	X2Lib/X2Camera.cpp:2959		both
+LOOK_OFFSET_Y		46	20	511	state	xor	31fb1ce0:?	1	X2Lib/X2Camera.cpp:2960		both
+LOOK_OFFSET_Z		14	9	506	state	xor	31fb1ce0:?	1	X2Lib/X2Camera.cpp:2961		both
+LOOK_PARTS		358	108	504	state	xor	31fb1ce0:?	1	X2Lib/X2Camera.cpp:2956		both
+LOOK_TYPE		371	110	513	state	xor	31fb1ce0:?	1	X2Lib/X2Camera.cpp:2953		both
+LOSE_STATE_LIST		7	1	276	INIT_COMMON_RANDOM_STATE	plain	none	1	X2Lib/X2GUUser.cpp:5839		both
+MAGIC		10	10	4202	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:491	implemented/8a	both
+MAX_G_SPEED		1	1	247	INIT_PHYSIC	xor	3226d410:?, 323f3660:?, 32d27b00:?	3	X2Lib/X2GameUnit.cpp:4341, X2Lib/X2RidingPet.cpp:730, X2Lib/X2SquareUnit.cpp:677		both
+MAX_HYPER_MODE_TIME		1	1	257	INIT_COMPONENT	xor	32289090:CX2GameUnit::InitComponent (June), 322a5f90:?	2	X2Lib/X2GameUnit.cpp:847, X2Lib/X2GameUnit.cpp:4559		both
+MOTION_FILE_NAME		1	1	239	INIT_MOTION	xor	31fe5680:?, 31fe5860:?, 32383080:?, 326525d0:CX2CustomizeManager::OpenScriptFile (CharCustomData*.lua) +9 more	11	X2Lib/X2GUNPC.cpp:3256, X2Lib/X2GUNPC.cpp:3290, X2Lib/X2GUUser.cpp:4896, X2Lib/X2GUUser.cpp:4984 +7 more		both
+MOVE_TIME		4	4	4070	state	xor	32ccc130:?, 32ccc5a0:?	2	X2Lib/X2GUArme_VioletMage.cpp:7736, X2Lib/X2GUArme_VioletMage.cpp:7920		both
+MP_CHANGE_RATE		1	1	253	INIT_COMPONENT	xor	31fee090:?, 32022380:?, 3277c2d0:?, 327a0fa0:?	4	X2Lib/X2GUNPC.cpp:3145, X2Lib/X2GUNPC.cpp:4263, X2Lib/X2GUUser.cpp:2140, X2Lib/X2GUUser.cpp:4206		both
+MP_CHARGE_RATE		1	1	252	INIT_COMPONENT	xor	31fee090:?, 32022380:?, 3277c2d0:?, 327a0fa0:?	4	X2Lib/X2GUNPC.cpp:3156, X2Lib/X2GUNPC.cpp:4274, X2Lib/X2GUUser.cpp:2166, X2Lib/X2GUUser.cpp:4299		both
+MULTIPLIER		3	3	7335	damage-data	plain	none	12	X2Lib/X2BuffFactor.cpp:1055, X2Lib/X2BuffFactor.cpp:1058, X2Lib/X2BuffFactor.cpp:1580, X2Lib/X2BuffFactor.cpp:1583 +8 more	implemented/unassigned	both
+NORMAL		20	10	3382	state	both	3270bb90:CX2EnchantItem::AddEnchantRequire_LUA	9	X2Lib/X2EnchantItem.cpp:199, X2Lib/X2GUNPC.cpp:6297, X2Lib/X2GUNPC.cpp:16834, X2Lib/X2GUUser.cpp:17055 +5 more		both
+NORMAL_CAMERA0_RATE	NORMAL_CAMERA%d_RATE	107	107	486	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	2	X2Lib/X2GUUser.cpp:16649, X2Lib/X2RidingPet.cpp:1322		both
+NORMAL_CAMERA1_RATE	NORMAL_CAMERA%d_RATE	104	104	484	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	2	X2Lib/X2GUUser.cpp:16650, X2Lib/X2RidingPet.cpp:1323		both
+NORMAL_CAMERA2_RATE	NORMAL_CAMERA%d_RATE	90	90	520	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	2	X2Lib/X2GUUser.cpp:16651, X2Lib/X2RidingPet.cpp:1324		both
+NORMAL_TIME		3	3	7346	damage-data	plain	none	2	X2Lib/X2BuffFactor.cpp:1235, X2Lib/X2BuffFactor.cpp:1238	implemented/unassigned	both
+NUMERICAL_DATA_INDEX		1	1	9750	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	2	X2Lib/X2DamageManager.cpp:379, X2Lib/X2DamageManager.cpp:387	handed-off/8c	both
+PASSIVE_SPEED_X		1	1	9049	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 323f23c0:?, 326ef840:CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader), 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData) +1 more	7	X2Lib/X2GUNPC.cpp:6141, X2Lib/X2GUNPC.cpp:16341, X2Lib/X2GUNPC.cpp:16394, X2Lib/X2GUUser.cpp:15801 +3 more		both
+PASSIVE_SPEED_Y		1	1	9051	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 323f23c0:?, 326ef840:CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader), 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData) +1 more	7	X2Lib/X2GUNPC.cpp:6142, X2Lib/X2GUNPC.cpp:16342, X2Lib/X2GUNPC.cpp:16395, X2Lib/X2GUUser.cpp:15802 +3 more		both
+PHYSIC		26	26	4290	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:490	implemented/8a	both
+PLAY_TYPE		313	312	487	state	xor	31c77e20:CKTDGLineMap::AddTrigger_LUA, 31fe1dd0:?, 320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes +12 more	18	X2Lib/X2EffectSet.cpp:4317, X2Lib/X2EffectSet.cpp:4399, X2Lib/X2EventScene.cpp:1232, X2Lib/X2GUAdd.cpp:9399 +14 more		both
+PVP_RATE		8	8	7054	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:516	implemented/8a	both
+QUESTION_MARK_SEQ		1	1	255	INIT_COMPONENT	xor	3227cec0:?, 32289090:CX2GameUnit::InitComponent (June)	2	X2Lib/X2GameUnit.cpp:4488, X2Lib/X2GameUnit.cpp:4523		both
+RATE		3	3	7324	damage-data	both	31f73f30:CX2DamageEffect::CEffect::LoadSoundData, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 321e48e0:CX2EffectSet::AddEffectSetTemplet_LUA, 3227dc50:? +7 more	21	X2Lib/X2BuffFactor.cpp:647, X2Lib/X2BuffFactor.cpp:649, X2Lib/X2DamageEffect.cpp:6871, X2Lib/X2DamageEffect.cpp:9781 +17 more	implemented/unassigned	both
+RATE_MODIFIER		3	3	4496	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:772	implemented/8a	both
+REACT_TYPE		37	37	4200	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:271	implemented/8a	both
+READY_TEXTURE		1	1	13	INIT_DEVICE	plain	none	7	X2Lib/X2DungeonStage.cpp:477, X2Lib/X2GameUnit.cpp:4123, X2Lib/X2GameUnit.cpp:4190, X2Lib/X2Pet.cpp:1783 +3 more		both
+READY_XMESH		1	1	220	INIT_DEVICE	plain	none	7	X2Lib/X2DungeonStage.cpp:489, X2Lib/X2GameUnit.cpp:4137, X2Lib/X2GameUnit.cpp:4202, X2Lib/X2Pet.cpp:1797 +3 more		both
+READY_XSKIN_MESH		1	1	205	INIT_DEVICE	plain	none	7	X2Lib/X2DungeonStage.cpp:502, X2Lib/X2GameUnit.cpp:4151, X2Lib/X2GameUnit.cpp:4215, X2Lib/X2Pet.cpp:1811 +3 more		both
+RELOAD_ACCEL		1	1	243	INIT_PHYSIC	xor	3226d410:?, 323f3660:?, 32d27b00:?	3	X2Lib/X2GameUnit.cpp:4339, X2Lib/X2RidingPet.cpp:728, X2Lib/X2SquareUnit.cpp:675		both
+RE_ATTACK		8	8	4506	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	2	X2Lib/X2DamageManager.cpp:722, X2Lib/X2GUUser.cpp:20420	implemented/8a	both
+RIGHT		30	30	490	state	both	320506f0:CX2GUUser::CommonStateStartFuture, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData)	7	X2Lib/X2GUNPC.cpp:5452, X2Lib/X2GUNPC.cpp:15558, X2Lib/X2GUNPC.cpp:15574, X2Lib/X2GUNPC.cpp:17715 +3 more		both
+RUN_SPEED		1	1	242	INIT_PHYSIC	xor	3226d410:?, 323f3660:?, 32d27b00:?	3	X2Lib/X2GameUnit.cpp:4344, X2Lib/X2RidingPet.cpp:733, X2Lib/X2SquareUnit.cpp:680		both
+SET_LIMIT_MAX_G_SPEED		1	1	3878	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData)	3	X2Lib/X2GUNPC.cpp:5532, X2Lib/X2GUNPC.cpp:16421, X2Lib/X2GUUser.cpp:15840		both
+SHADOW_FILE_NAME		1	1	251	INIT_COMPONENT	xor	3227cec0:?, 32289090:CX2GameUnit::InitComponent (June)	2	X2Lib/X2GameUnit.cpp:4492, X2Lib/X2GameUnit.cpp:4549		both
+SHADOW_SIZE		1	1	260	INIT_COMPONENT	xor	32289090:CX2GameUnit::InitComponent (June)	1	X2Lib/X2GameUnit.cpp:4550		both
+SHOW_HYPER_CUT_IN_TIME		3	3	3369	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes	1	X2Lib/X2GUUser.cpp:17421		both
+SHOW_SKILL_CUT_IN_TIME		57	57	5782	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes	1	X2Lib/X2GUUser.cpp:17400		both
+SKILL_CANCEL_AFTER		28	28	4255	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GUUser.cpp:16009, X2Lib/X2GUUser.cpp:17343, X2Lib/X2GUUser.cpp:22636, X2Lib/X2RidingPet.cpp:1362		both
+SKIP_TIME		3	3	8497	state	xor	31fcc350:?, 31fcc9d0:?, 32c79060:?, 32c7a6c0:?	24	X2Lib/X2GULire_ElvenRanger.cpp:8934, X2Lib/X2GULire_ElvenRanger.cpp:9046, X2Lib/X2GULire_ElvenRanger.cpp:9146, X2Lib/X2GULire_ElvenRanger.cpp:9256 +20 more		both
+SLASH_TRACE		48	48	4099	state	plain	none	6	X2Lib/X2GUNPC.cpp:6031, X2Lib/X2GUNPC.cpp:6045, X2Lib/X2GUNPC.cpp:16025, X2Lib/X2GUNPC.cpp:16040 +2 more		both
+SMALL_HP_BAR_BLUE		1	1	258	INIT_COMPONENT	xor	322888b0:?	2	X2Lib/X2GameUnit.cpp:4452, X2Lib/X2GameUnit.cpp:4459		both
+SMALL_HP_BAR_RED		1	1	256	INIT_COMPONENT	xor	322888b0:?	2	X2Lib/X2GameUnit.cpp:4448, X2Lib/X2GameUnit.cpp:4463		both
+SMALL_HP_BAR_YELLOW		1	1	254	INIT_COMPONENT	xor	322888b0:?	1	X2Lib/X2GameUnit.cpp:4467		both
+SOUND_PLAY0	SOUND_PLAY%d	211	200	529	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY0_JP	SOUND_PLAY%d_JP	3	3	8238	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY1	SOUND_PLAY%d	129	119	2678	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY10	SOUND_PLAY%d	3	3	7132	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY11	SOUND_PLAY%d	1	1	11872	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY11_BR	SOUND_PLAY%d_BR	1	1	11876	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY12	SOUND_PLAY%d	1	1	11880	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY12_BR	SOUND_PLAY%d_BR	1	1	11884	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY13	SOUND_PLAY%d	1	1	11888	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY1_BR	SOUND_PLAY%d_BR	1	1	11281	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY1_JP	SOUND_PLAY%d_JP	3	3	7813	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY2	SOUND_PLAY%d	87	77	3305	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY2_BR	SOUND_PLAY%d_BR	1	1	11289	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY3	SOUND_PLAY%d	47	41	3309	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY3_JP	SOUND_PLAY%d_JP	2	2	11152	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY4	SOUND_PLAY%d	22	17	3399	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY4_BR	SOUND_PLAY%d_BR	1	1	12061	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY4_JP	SOUND_PLAY%d_JP	2	2	12065	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY5	SOUND_PLAY%d	10	9	6648	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY5_BR	SOUND_PLAY%d_BR	1	1	12073	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY6	SOUND_PLAY%d	4	4	7116	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY7	SOUND_PLAY%d	4	4	7120	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY8	SOUND_PLAY%d	4	4	7124	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY8_JP	SOUND_PLAY%d_JP	1	1	9883	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY9	SOUND_PLAY%d	3	3	7128	state	plain(base)	none	19	base:X2Lib/X2EventScene.cpp:1291, base:X2Lib/X2EventScene.cpp:1293, base:X2Lib/X2GUNPC.cpp:6214, base:X2Lib/X2GUNPC.cpp:6216 +15 more		both
+SOUND_PLAY_EX		3	3	4700	state	plain	none	1	X2Lib/X2GUUser.cpp:16853		both
+SOUND_SET0	SOUND_SET%d	10	10	3381	state	plain(base)	none	4	base:X2Lib/X2GUNPC.cpp:6272, base:X2Lib/X2GUNPC.cpp:16825, base:X2Lib/X2GUUser.cpp:17045, base:X2Lib/X2GUUser.cpp:17123		both
+SOUND_SET0_RATE	SOUND_SET%d_RATE	10	10	3370	state	xor	32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData)	5	X2Lib/X2GUNPC.cpp:6266, X2Lib/X2GUNPC.cpp:16631, X2Lib/X2GUNPC.cpp:16806, X2Lib/X2GUUser.cpp:16965 +1 more		both
+SOUND_SET1	SOUND_SET%d	10	10	3405	state	plain(base)	none	4	base:X2Lib/X2GUNPC.cpp:6272, base:X2Lib/X2GUNPC.cpp:16825, base:X2Lib/X2GUUser.cpp:17045, base:X2Lib/X2GUUser.cpp:17123		both
+SOUND_SET1_RATE	SOUND_SET%d_RATE	10	10	3367	state	xor	32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData)	4	X2Lib/X2GUNPC.cpp:6267, X2Lib/X2GUNPC.cpp:16807, X2Lib/X2GUUser.cpp:16966, X2Lib/X2GUUser.cpp:16995		both
+SPEED_TIME0	SPEED_TIME%d	29	28	5264	state	plain(base)	none	7	base:X2Lib/X2GUNPC.cpp:6102, base:X2Lib/X2GUNPC.cpp:6103, base:X2Lib/X2GUNPC.cpp:16266, base:X2Lib/X2GUUser.cpp:15781 +3 more		both
+SPEED_TIME1	SPEED_TIME%d	19	19	5270	state	plain(base)	none	7	base:X2Lib/X2GUNPC.cpp:6102, base:X2Lib/X2GUNPC.cpp:6103, base:X2Lib/X2GUNPC.cpp:16266, base:X2Lib/X2GUUser.cpp:15781 +3 more		both
+SPEED_TIME2	SPEED_TIME%d	11	11	5532	state	plain(base)	none	7	base:X2Lib/X2GUNPC.cpp:6102, base:X2Lib/X2GUNPC.cpp:6103, base:X2Lib/X2GUNPC.cpp:16266, base:X2Lib/X2GUUser.cpp:15781 +3 more		both
+SPEED_TIME3	SPEED_TIME%d	5	5	9837	state	plain(base)	none	7	base:X2Lib/X2GUNPC.cpp:6102, base:X2Lib/X2GUNPC.cpp:6103, base:X2Lib/X2GUNPC.cpp:16266, base:X2Lib/X2GUUser.cpp:15781 +3 more		both
+SPEED_TIME4	SPEED_TIME%d	2	2	11664	state	plain(base)	none	7	base:X2Lib/X2GUNPC.cpp:6102, base:X2Lib/X2GUNPC.cpp:6103, base:X2Lib/X2GUNPC.cpp:16266, base:X2Lib/X2GUUser.cpp:15781 +3 more		both
+SPEED_TIME5	SPEED_TIME%d	1	1	11670	state	plain(base)	none	7	base:X2Lib/X2GUNPC.cpp:6102, base:X2Lib/X2GUNPC.cpp:6103, base:X2Lib/X2GUNPC.cpp:16266, base:X2Lib/X2GUUser.cpp:15781 +3 more		both
+SPEED_X		102	102	3290	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 323fad80:CX2SquareUnit::StateStart, 326ef840:CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader), 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData) +1 more	7	X2Lib/X2GUNPC.cpp:6133, X2Lib/X2GUNPC.cpp:16333, X2Lib/X2GUNPC.cpp:16389, X2Lib/X2GUUser.cpp:15761 +3 more		both
+SPEED_Y		95	95	3286	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 323fad80:CX2SquareUnit::StateStart, 326ef840:CX2Pet state loader (June; SOUND_PLAY_ALL_OPTION reader), 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData) +1 more	7	X2Lib/X2GUNPC.cpp:6137, X2Lib/X2GUNPC.cpp:16337, X2Lib/X2GUNPC.cpp:16391, X2Lib/X2GUUser.cpp:15763 +3 more		both
+START_STATE_LIST		7	1	266	INIT_COMMON_RANDOM_STATE	plain	none	1	X2Lib/X2GUUser.cpp:5801		both
+STOP_MY_UNIT0	STOP_MY_UNIT%d	1	1	4026	state	plain(base)	none	3	base:X2Lib/X2GUNPC.cpp:33533, base:X2Lib/X2GUNPC.cpp:33624, base:X2Lib/X2GUUser.cpp:15950		both
+STOP_OTHER_UNIT0	STOP_OTHER_UNIT%d	70	70	3321	state	plain(base)	none	3	base:X2Lib/X2GUNPC.cpp:33507, base:X2Lib/X2GUNPC.cpp:33598, base:X2Lib/X2GUUser.cpp:43687		both
+STOP_OTHER_UNIT1	STOP_OTHER_UNIT%d	4	4	5888	state	plain(base)	none	3	base:X2Lib/X2GUNPC.cpp:33507, base:X2Lib/X2GUNPC.cpp:33598, base:X2Lib/X2GUUser.cpp:43687		both
+STOP_TIME_ATT		6	6	4194	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:701	implemented/8a	both
+STOP_TIME_DEF		18	18	4281	damage-data	xor	32632390:CX2DamageManager::SetDamageDataFromLUA	1	X2Lib/X2DamageManager.cpp:702	implemented/8a	both
+SUB_CAMERA0	SUB_CAMERA%d	92	52	646	state	plain	none	47	X2Lib/X2GUArme_VioletMage.cpp:6869, X2Lib/X2GUArme_VioletMage.cpp:11425, X2Lib/X2GUArme_VioletMage.cpp:11445, X2Lib/X2GUArme_VioletMage.cpp:11593 +43 more		both
+SUB_CAMERA1	SUB_CAMERA%d	92	52	654	state	plain	none	47	X2Lib/X2GUArme_VioletMage.cpp:6877, X2Lib/X2GUArme_VioletMage.cpp:11433, X2Lib/X2GUArme_VioletMage.cpp:11453, X2Lib/X2GUArme_VioletMage.cpp:11601 +43 more		both
+SUB_CAMERA2	SUB_CAMERA%d	52	35	663	state	plain	none	21	X2Lib/X2GUArme_VioletMage.cpp:12224, X2Lib/X2GUArme_VioletMage.cpp:12253, X2Lib/X2GUArme_VioletMage.cpp:12344, X2Lib/X2GUArme_VioletMage.cpp:12373 +17 more		both
+SUB_CAMERA3	SUB_CAMERA%d	7	6	2086	state	plain	none	10	X2Lib/X2GUElsword_SwordMan.cpp:9357, X2Lib/X2GUElsword_SwordMan.cpp:10099, X2Lib/X2GUElsword_SwordMan.cpp:10447, X2Lib/X2GUElsword_SwordMan.cpp:10492 +6 more		both
+SUB_CAMERA4	SUB_CAMERA%d	4	4	2796	state	plain	none	7	X2Lib/X2GUElsword_SwordMan.cpp:10455, X2Lib/X2GUNPC.cpp:22635, X2Lib/X2GUNPC.cpp:22644, X2Lib/X2GUUser.cpp:22350 +3 more		both
+SUB_CAMERA5	SUB_CAMERA%d	2	2	11945	state	plain	none	6	X2Lib/X2GUNPC.cpp:22635, X2Lib/X2GUNPC.cpp:22644, X2Lib/X2GUUser.cpp:22350, X2Lib/X2GUUser.cpp:22360 +2 more		both
+SUB_CAMERA6	SUB_CAMERA%d	2	2	11953	state	plain	none	6	X2Lib/X2GUNPC.cpp:22635, X2Lib/X2GUNPC.cpp:22644, X2Lib/X2GUUser.cpp:22350, X2Lib/X2GUUser.cpp:22360 +2 more		both
+SUB_CAMERA7	SUB_CAMERA%d	2	2	11962	state	plain	none	6	X2Lib/X2GUNPC.cpp:22635, X2Lib/X2GUNPC.cpp:22644, X2Lib/X2GUUser.cpp:22350, X2Lib/X2GUUser.cpp:22360 +2 more		both
+SUB_CAMERA_TIMING		76	40	642	state	plain	none	3	X2Lib/X2GUNPC.cpp:22604, X2Lib/X2GUUser.cpp:22319, X2Lib/X2RidingPet.cpp:2082		both
+SUPER_ARMOR		24	24	4088	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData), 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GUNPC.cpp:5490, X2Lib/X2GUNPC.cpp:15799, X2Lib/X2GUUser.cpp:16298, X2Lib/X2RidingPet.cpp:1233		both
+SUPER_ARMOR_NOT_RED		17	17	4089	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32784c00:CX2GUNPC::LoadStateData(StateData&, InitData&, KLuaManager&) (= March X2GUNPC.cpp LoadStateData), 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GUNPC.cpp:5493, X2Lib/X2GUNPC.cpp:15803, X2Lib/X2GUUser.cpp:16325, X2Lib/X2RidingPet.cpp:1237		both
+SUPER_ARMOR_TIME0	SUPER_ARMOR_TIME%d	1	1	4690	state	plain(base)	none	4	base:X2Lib/X2GUNPC.cpp:6394, base:X2Lib/X2GUNPC.cpp:15824, base:X2Lib/X2GUUser.cpp:16339, base:X2Lib/X2RidingPet.cpp:1257		both
+TECH_POINT		31	31	4188	damage-data	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32632390:CX2DamageManager::SetDamageDataFromLUA	2	X2Lib/X2DamageManager.cpp:681, X2Lib/X2GUUser.cpp:16282	implemented/8a	both
+TIME_STOP_IMMUNE_STATE		12	12	8677	state	xor	32057b80:CX2GUUser::CommonStateStart: detonation bytes	1	X2Lib/X2GUUser.cpp:17440		both
+TRACKINGTIME		204	61	509	state	xor	31fb5920:?	2	X2Lib/X2Camera.cpp:242, X2Lib/X2Camera.cpp:253		both
+TRANSITION		272	271	488	state	xor	31fdd8e0:?, 31fe1dd0:?, 32015250:CX2GUUser::CommonStateEnd (likely), 320506f0:CX2GUUser::CommonStateStartFuture +11 more	23	X2Lib/X2GUAdd.cpp:9407, X2Lib/X2GUAdd.cpp:9417, X2Lib/X2GUAra.cpp:6546, X2Lib/X2GUAra.cpp:6556 +19 more		both
+UNIT_HEIGHT		1	1	2	INIT_SYSTEM	xor	32022380:?, 3202b9e0:?, 3275f360:?, 3277c2d0:? +1 more	5	X2Lib/X2GUNPC.cpp:3114, X2Lib/X2GUNPC.cpp:3210, X2Lib/X2GUUser.cpp:2129, X2Lib/X2GUUser.cpp:2541 +1 more		both
+UNIT_LAYER		1	1	4	INIT_SYSTEM	xor	32286cb0:?, 326e31e0:?, 32d296a0:?	3	X2Lib/X2GameUnit.cpp:4285, X2Lib/X2Pet.cpp:1940, X2Lib/X2RidingPet.cpp:667		both
+UNIT_WIDTH		1	1	3	INIT_SYSTEM	xor	32022380:?, 3202b9e0:?, 3275f360:?, 3277c2d0:? +1 more	5	X2Lib/X2GUNPC.cpp:3113, X2Lib/X2GUNPC.cpp:3209, X2Lib/X2GUUser.cpp:2128, X2Lib/X2GUUser.cpp:2540 +1 more		both
+USEFUL_VALUE0	USEFUL_VALUE%d	2	2	495	state	plain(base)	none	1	base:X2Lib/X2GUUser.cpp:22674		both
+USE_COMMON_CANCEL_AFTER		8	8	13155	state	xor	320506f0:CX2GUUser::CommonStateStartFuture	1	X2Lib/X2GUUser.cpp:16028		both
+WALK_CANCEL_AFTER		30	30	4259	state	xor	320506f0:CX2GUUser::CommonStateStartFuture, 32057b80:CX2GUUser::CommonStateStart: detonation bytes, 32d2f560:CX2RidingPet::StateChange( int ) (June rewrite)	4	X2Lib/X2GUUser.cpp:16011, X2Lib/X2GUUser.cpp:17345, X2Lib/X2GUUser.cpp:22638, X2Lib/X2RidingPet.cpp:1366		both
+WALK_SPEED		1	1	245	INIT_PHYSIC	xor	3226d410:?, 323f3660:?, 32d27b00:?	3	X2Lib/X2GameUnit.cpp:4343, X2Lib/X2RidingPet.cpp:732, X2Lib/X2SquareUnit.cpp:679		both
+WIN_STATE_LIST		7	1	270	INIT_COMMON_RANDOM_STATE	plain	none	1	X2Lib/X2GUUser.cpp:5820		both

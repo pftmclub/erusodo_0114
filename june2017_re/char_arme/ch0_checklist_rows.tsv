@@ -1,0 +1,55 @@
+section	checklist_line	row	aisha_evidence	phase	note
+§1	L37-99	numerical-only DAMAGE_DATA + numerical override live	1 numerical-only table (Arme 1 / 36), 110 DamageEffect* blocks keyed to Aisha ids (plan_numerical_rows.tsv)	CH2a	first live class: show [JUNE_SKILL] NUM use, retire SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG; MODS.md March vs June damage per skill (CH2a-CH3b)
+§2	L108	APPLIED_SKILL_ID (parsed, logged since 8c)	3 uses: RNSI_A_AISHA_TELEPORT(_UPGRADE), RNSI_A_ABM_ENERGY_DRAIN (script l.4205/4250/9755)	CH1	comes with the script adoption; consumers ride the 7 / 7b memo rows
+§2	L109	NUMERICAL_DATA_INDEX	1 (script l.9750 = 2)	CH2a	with §1
+§3	L136-148	systems absent	numerical data = §1; applied skill id = §2	n/a	covered by §1 / §2
+§4	L150-172	missing enum tables	charport_scan ENUM: no missing table for Arme (plan "no enum-table truncation")	CH1	rerun charport_scan.py after adopting; missing SKILL_ID members: 129 / 130 names absent from the C++ enum, 69 / 130 absent from core Enum.lua (scratch ch0_enum_check, Done note): house convention = raw ids + RNSI_ comment (X2GUUser.cpp:26228), so no C++ enum work; Enum.lua members only if a Lua reader needs them
+§5	L174-189	per-character parser census	charport_keys.py (new) -> ch0_keys.tsv: 224 keys, both 213, june-only 7, neither 2, march-only-site 2	CH1	june-only keys: FORCE_DYNAMIC_CAMERA_INDEX x15 / RETAIN_CAMERA_STATE x1 (June reader 32057b80 CommonStateStart), BBT_CHANGE_NOW_HP_PER_SECOND / BFT_TIME (census implemented/unassigned), EFFECT_SET_LIST_ULTIMATE_EX x4, IMMUNITY_EDT_LIST_AT_THIS_STATE x12, SPECIAL_OPTION_VALUE x1: CH1 checks each against March's preprocessed reader (grep-based census)
+§6	L191-204	order of work	steps 1-5 done (8b, 11, S4, census)	n/a	step 6 = CH1's adopt-june
+§7	L230	322a7660 set-stack-count, Aisha caller 32cc5c16 (BFI in a register)	32cc5c16 in 32cc5b20 (called by CommonFrameMove 32cce4b0 @32ccf427)	CH1i	June calls it with a BFI register value: transcribe whole
+§7	L231 L233-L235 L245 L260	every-user engine rows	CX2GUUser code, not class code	n/a	engine owners (buff port / effect plan)
+§7	L243	class code scales the cached state power rate (+0x7cc8)	every class	CH1a-CH3b	each state port multiplies m_fNowStatePowerRate as June does (7i), never the entry's m_fPowerRate
+§7	L249	vslot 510 skill lookup	Arme 32cebe80 (vslot 0x7f8)	CH1i	with 509 32cb97a0, 511 32ced640, 512 32ccf4e0 (June's split of SpecialAttackEventProcess)
+§7	L264	spec A readers	32ccda90 (vslot 0x604, CH1i), 32ce7480 (CommonStateStart vslot 0x7c4, CH1i); 32cc7300 is dead in June (no reference anywhere)	CH1i	32cc7300: n/a
+§7	L266	SetUserSummonedNPCInfo per-case flags	32cc98e0 is called from 3230c1a0 @3230c59a; the class hook itself is 32cc98e0 (CH1h); summons: bats (AVP), stone wall (AEM), UFO / Hell Drop (AVP)	CH1h CH3a	summon NPC scripts are already June (ch0_assets done-elsewhere)
+§7	L272	SetSkillLevelStateData callers	32ccb830 (vslot 0x7b8 SetEquippedSkillLevel), 18 calls of 3201f850	CH1i
+§7a	L280-298	effect-engine hooks	none name Aisha	n/a	OTHER (Eve, Add, Rose, Elsword, Ain, Luciel)
+§7b	L302 L310	SetDamageExceptionProcess per-class block	32cccc70 (vslot 0x2b8): passives keyed on RNSI_* ids	CH4	whole function in one phase (no partial updates)
+§7b	L311	D8: Fitness 2413 -> Magical Staff 22409	22408 RNSI_P_ABM_FITNESS / 22409 RNSI_P_ADW_MAGICAL_STAFF are type-8 passives	CH4	swap March's block for June's together
+§7b	L308-309	31fdbbb0 / 31fdbcc0 memo readers	engine; 32cede00 calls 31fdbcc0 (GetJuneTranscendenceMemoSkillID) at its head	CH1	the head branch (only 0x56c9 Summon Bat Heavy) is inert until Stage 6 (transcendence memo)
+§7c	L329	22 alpha-tag sites 32ccdb70..32ce0010	8 in InitComponent 32ccdb70 (CH1h); 3 in 32cce230 / 32cce370 (helpers of the particle arrays, CH1h); 6 mesh tags in teleport stand-up (CH1b) and dash-combo Z2a FrameMoves (CH1d base, CH1e EM, CH1f DM, CH1g ABM); 1 in circle flame (CH3a); 4 are in dead functions (32cd5d60 x3, 32ce0010, 32cce0f0 holds 32cce1c2)	CH1b CH1d CH1e CH1f CH1g CH1h CH3a	dead sites: n/a (June never runs them)
+§7e §7d §7g §7f §7g(2)	L334-386	other characters	-	n/a	OTHER
+§7h	L397	effect-set list variants	EFFECT_SET_LIST_ULTIMATE_EX x4 in the script (ch0_keys june-only)	CH1	engine reader ported (C9h-4); data comes with the script
+§7h	L398	SOUND_PLAY_EX / STATE_SOUND_PLAY / CUSTOM_STATE_DELETE_SOUND	Arme script keys	CH1	nothing in code
+§7h	L399	class writers of +0x3f00	none in Aisha range	n/a
+§7h	L400	USEFUL_VALUE rows	read through the C9h-4f getters when June class code calls them	CH1a-CH3b	per state function
+§7h	L401	USI_WAIT_STATE_CHANGE	AVSI_WAIT_STATE_CHANGE registered in InitState 32cea0c0 (id 0x82, EventProcess 31fc8620)	CH1
+§7i	L405-417	SetEquippedSkillFuncBySkillSlotIndex drops 31fd2af0, sets +0x11 = 1	32cede00 head	CH1	skill cases follow their skills (CH2a-CH3b); upgrade ids reach the base case through 32207210 (templet +0x178)
+§7j	L419-431	DamageReact steps	none name Aisha	n/a	OTHER; Aisha's DamageReact 32cb6e00 (vslot 0x60) is CH1h
+§7k	L433-437	class-set callback +0x8dc0	no write in Aisha range (capstone scan)	n/a
+§7l	L444	SUPER_ARMOR_FRONT	not in Arme's script	n/a
+§7l	L445	bounding user states	AVSI_DAMAGE_BOUNDING_DOWN / _LANDCRASH / _UP in 32ce77b0	CH1b
+§7m §7n	L451-472	Add / Rena-Eve-Chung-Elesis	-	n/a	OTHER
+§7o	L476-482	SET_LIMIT_MAX_G_SPEED -4000	AVSI_DAMAGE_BOUNDING_DOWN (script l.3878)	CH1	script data
+§7p	L521	TIME_STOP_IMMUNE_STATE	12 Arme states	CH1	script data
+§7p	L523	binding circle hyper forced SetStopTime( 3.0, ..., true )	32cd5d60 is unreferenced in June (no pointer, call, jmp or thunk); June registers AVSI_SI1_AV_BINDING_CIRCLE for both slots with FrameMove 32cd57c0	n/a	June never runs the forced stop: nothing to port (row corrected in the checklist)
+§7q §7r §7s	L526-559	Luciel / Chung / new-class registries	March reads the AISHA dungeon table already	n/a
+§7t	L565	SHOW_HYPER_CUT_IN_TIME	3 states (0.06)	CH1	script data
+§7t	L567	UnitTemplet m_HyperCutIn	104 / 105 / 113 (HQ_Cutin_A*_Transcendence)	CH5	adoption decision (open question); reader already reads it (X2UnitManager.cpp:894)
+§7t	L580-584	hyper active cut-in show option	22600-22605 hyper actives	CH3b	first live hyper active: play-test Hide option
+§7t	L593-598	skill cut-in names -> June .gfx	g4_cutin_names.tsv l.4-10: no June .gfx for March's 7 names; June names come from June's class function (329cd890 + 32078b70)	CH5	the .gfx files themselves are CH0b assets
+§7u	L612	March-only effect names	EffectSet_Aisha_DeathField_FirstImpact / _DeathFieldBomb (DM Death Field, CH2b); EffectSet_AHM_Blaze_Step_Damage_MEMO / _Aisha_Blaze_step_MEMO (Blaze Step, CH2a)	CH2a CH2b	they go away when June's state functions and script replace March's
+§7v §7w §7z §7aa §7ab	L624-678	Lu/Ciel, CUSTOM_RENDER_STATE, Rose	-	n/a	OTHER
+§7x	L641-646	AT_COMMAND tags	18 in the script	CH1	script data
+§7y	L648-656	GetLandPosition bMonster	no Aisha caller of 31c7bb00 (capstone scan) and no row in w1c_land_position_callers.tsv	n/a
+§7ae	L680-711	260 skill-tree rows with no state	ch0_state_skill.tsv part 2: 130 ids by phase	CH2a CH2b CH3a CH3b CH4	types 1 / 5 / 8 = no state (CH4); Meditation / Elemental, Shadow, Energetic Body = no state, ids tested in class code (32ccbca0 SpecialAttackNoStageChange, 32ccf9f0, 32cc5c30, 32ce1cc0, 32ccb830)
+§7ad	L713-733	motions	69 Motion_Arme*: no animation lost overall, but Motion_Arme_EM.x moves EM_METEOR_SHOWER_Start / _Loop / _End to Motion_Arme_HM.x (EM loads both: UnitTemplet m_GameMotion1 = HM)	CH0b	stage EM and HM together; Common's bind pose changes in 34 frames (June fixes a March outlier: June Common = June / March Motion_Arme.x); checklist line corrected
+§7ac	L745-746	CanDown June shape	Hell Drop FrameMove 32cd95d0 @32cd97ba (AVSI_SA_AVP_HELL_DROP + 5 control states)	CH3a	always creates NUI_UFO_AISHA_DROPPER_MEMO (0x627)
+§7ac	L747	32021390 landing prediction	called twice from 32cb8bf0 (the shared StartFuture of the job dash-jump states)	CH1e
+§7af	L761-763	SUB_CAMERA sequencer 31ff5440	called from the ring skills' FrameMoves 32ce3880 / 32ce3b80 / 32ce3e80 (AEM Fire Ring, AVP Dark Ring, ADW Energy Ring)	CH3a CH3b	March X2GUArme_VioletMage.cpp:6865 by-name SUB_CAMERA plays go with the March functions
+§7ag	L768-777	pressed-index space, slot 5	decode :5232-5257, :5072, :16610 consumer; June 31fcadd0 returns 4 (F) / 9 (T)	CH1	the slot-5 gap (X2GUUser.cpp:25500-25510) is this conversion: June sets 4 / 9; inert until Stage 6 unlocks the TC slot; CommonSpecialAttackEventProcess is shared by every class, so CH1 converts per class (decision in CH1)
+§7ah	L788-789	memorize slot statics	Static_Memorize_Skill_Slot_TypeA1-3 / B1-3, Memorize_Slot1-3, UseMemorizedSkillHotKey_A/B	CH4
+§7ai	L801	BFI call arguments	s3e_bybfi_callers l.309 32cd57c0 (Binding Circle FrameMove, CH2a), l.311 32cd7bf0 (Death Field FrameMove, CH2b); l.310 32cd5d60 is dead; l.312 32cfc1f0 is Elsword's (range ends 32cf2da0)	CH2a CH2b
+§7ai	L804-805	JuneShowSkillNameStateString 3200ab60	5 calls in 32ccf9f0 (vslot 0x80c NoStateChangeActionFrameMove)	CH1i
+§7aj	L815-820	memorize slot data 5, picture, mouse-in 29059, tooltip line	328d9ac0 / 328e0460 / 328ec719 / 328e9160; class helper 32ce1650 is called from 328dfaa0	CH4
+§7ak	L828-829	decide-page ACK class piece	32ce1770 (callers 3220f4dc, 3220e995, 328df9db)	CH4	memorize re-sync on the class list walk (verify the meaning in CH4)

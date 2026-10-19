@@ -809,17 +809,30 @@ template block, first run by Ara / Elesis / Add in Stage 7. Priority (user 2026-
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0 | **ready** (read-only: no code, no build) | Opus 5.5 / high | -; runs with anything | `june2017_re/char_arme/`, `june2017_re/charport_keys.py` (new), funcmap, plan doc, kickoffs | `CH0.md` |
-| CH0b | waiting (top priority after CH0, user 2026-10-20: every June Aisha asset whole, no half-March, half-June character) | Sonnet 5.5 / high, then user play-test | CH0 | Aisha's motions / models / textures / equipment / effects / particle defs / sounds / cut-in art in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
-| CH1 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH0b | `X2GUArme_VioletMage.*`, `X2GUUser.*` (decode / hooks), Always.h, data036 `Arme_VioletMage.lua`, script kom | `CH1.md`, review `CH1-review.md` (CH1 writes it) |
-| CH2 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH2.md` |
-| CH3 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2 review; not with CH4 | `X2GUArme_VioletMage.*`, Always.h | `CH3.md` |
-| CH4 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH2 review; not with CH3 | `X2GUArme_VioletMage.*`, skill-tree / slot UI (memorize), Always.h | `CH4.md` |
+| CH0 | **done 2026-10-20** (read-only). Maps: `june2017_re/char_arme/ch0_class_map.tsv` (429 June functions), `ch0_state_skill.tsv` (313 / 313 states, 130 / 130 skills), `ch0_checklist_rows.tsv`, `ch0_assets.tsv` (13,833 rows, routes a / b / c), `ch0_effect_closure.tsv`, `ch0_keys.tsv`; tools `charport_states.py`, `charport_keys.py`, `charport_closure.py`. Split CH1 into CH1a-CH1i + CH1, CH2 into CH2a / CH2b, CH3 into CH3a / CH3b. User owes: the UnitTemplet question (CH5) | Opus 5.5 / high | - | `june2017_re/char_arme/`, funcmap, plan doc, kickoffs | `CH0.md` |
+| CH0b | **ready** (top priority, CH0 done: 5,688 files in `june2017_re/char_arme/ch0b_stage_list.tsv`, 54 koms; user 2026-10-20, user 2026-10-20: every June Aisha asset whole, no half-March, half-June character) | Sonnet 5.5 / high, then user play-test | CH0 | Aisha's motions / models / textures / equipment / effects / particle defs / sounds / cut-in art in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
+| CH1a | waiting (inert transcription: movement / slot-head states, 40 functions) | Sonnet 5.5 / high, Opus review | CH0; may run beside CH0b (inert code, no deploy effect) | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1a.md`, review `CH1a-review.md` |
+| CH1b | waiting (inert transcription: reactions, riding, event, 38) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1b.md`, review `CH1b-review.md` |
+| CH1c | waiting (inert transcription: ground combos, 30) | Sonnet 5.5 / high, Opus review | CH1b review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1c.md`, review `CH1c-review.md` |
+| CH1d | waiting (inert transcription: dash / jump combos, 32) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1d.md`, review `CH1d-review.md` |
+| CH1e | waiting (inert transcription: HM line (HM, AEM), 46) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1e.md`, review `CH1e-review.md` |
+| CH1f | waiting (inert transcription: DM line (DM, AVP), 23) | Sonnet 5.5 / high, Opus review | CH1e review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1f.md`, review `CH1f-review.md` |
+| CH1g | waiting (inert transcription: BM line (BM, ADW), 21) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1g.md`, review `CH1g-review.md` |
+| CH1h | waiting (inert transcription: overrides < vslot 0x600 + helpers, 69) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1h.md`, review `CH1h-review.md` |
+| CH1i | waiting (inert transcription: overrides >= 0x600 + helpers, 41) | Sonnet 5.5 / high, Opus review | CH1h review | `X2GUArme_VioletMage.*` (new inert `June_*` members), Always.h | `CH1i.md`, review `CH1i-review.md` |
+| CH1 | waiting (wiring: registration, SetEquipped head, virtuals, 7ag pressed index, hooks, script adoption; amended by CH0) | Opus 5.5 / high, Opus review, then user play-test | CH1i review (CH1a-CH1h reviews first) | `X2GUArme_VioletMage.*`, `X2GUUser.*` (decode / hooks), Always.h, data036 `Arme_VioletMage.lua`, script kom | `CH1.md`, review `CH1-review.md` (CH1 writes it) |
+| CH2 | split by CH0 into CH2a / CH2b (shared brief) | - | - | - | `CH2.md` |
+| CH2a | waiting (VM + HM: 26 skill ids, 49 state functions; first live NUM line) | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH2a.md` |
+| CH2b | waiting (DM + BM: 24 ids, 34 functions) | Sonnet 5.5 / high, Opus review, then user play-test | CH2a review | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH2b.md` |
+| CH3 | split by CH0 into CH3a / CH3b (shared brief) | - | - | - | `CH3.md` |
+| CH3a | waiting (AEM + AVP: 32 ids, 36 functions) | Sonnet 5.5 / high, Opus review, then user play-test | CH2b review; not with CH4 | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH3a.md` |
+| CH3b | waiting (ADW + hyper actives: 22 ids, 15 functions) | Sonnet 5.5 / high, Opus review, then user play-test | CH3a review; not with CH4 | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH3b.md` |
+| CH4 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH2b review; not with CH3a / CH3b | `X2GUArme_VioletMage.*`, skill-tree / slot UI (memorize), Always.h | `CH4.md` |
 | CH5 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review; may run beside CH2-CH4 | `UnitTemplet.lua` + its reader, cut-in table, 10-slot dialog / tree-UI class pieces, Always.h | `CH5.md` |
-| CH6 | waiting | Sonnet 5.5 / medium, then user walk | CH3, CH4, CH5 reviews | save (test characters), plan doc | `CH6.md` |
+| CH6 | waiting | Sonnet 5.5 / medium, then user walk | CH3b, CH4, CH5 reviews | save (test characters), plan doc | `CH6.md` |
 | Z | waiting | Sonnet 5.5 / medium | CH6 | `MODS.md`, checklist, plan doc, backlog, `kickoffs/june-backlog/stage6-plan.md` + `stage7-plan.md` | `Z.md` |
 
-Running together: CH0 now, alongside anything; CH0b straight after it. Later: CH5 beside CH2 / CH3 / CH4; CH3 and CH4 one at a time (same class files).
+Running together: CH0b now (top priority) and CH1a beside it (inert code, different files). CH1a-CH1i, then CH1, one at a time (same class files). Later: CH5 beside CH2a-CH4; CH3a / CH3b and CH4 one at a time.
 
 ## Other plans
 

@@ -3727,3 +3727,78 @@ not located	CKTDGXSkinAnim::CopyModelFrameStructure (March KTDGXSkinAnim.h:638-6
 31eff0f0 (Quest Q4e)	CX2State::CompleteQuestToVisitVillage( QuestTemplet* )	confirmed	Quest Q4e: 31efe0c0 reward map, then GetUIQuestNew (UIManager +0x2cc, 3214f020) -> 323d24f0 REQ ( NPC 0, quest templet +4 ); no QT_EVENT early return (March NO_FINISH_EVENT_VISIT_QUEST). Only caller @31f0a375. Unreached in March with SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
 32337520 (Quest Q4e)	CX2QuestManager::CompleteQuestToVisitVillage() (flush m_vecCompletedQuestID +0x88)	ported	Quest Q4e: per id templet (map +4) exists, server group +0 == -1 or g_pInstanceData +0x120, g_pMain +0x90 != 0 -> 31effd10 pack; clear; UIQuestNew && non-empty -> 323d2c20 ALL_COMPLETED REQ. Callers 324bb780 (field entry) and @323e101c (323e08c0 SQT 0x18 / 0x19 / 0x1a). March X2QuestManager.cpp:6351 lacks the server-group test; ported under SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
 323e08c0 @323e0ff9-323e1021 (Quest Q4e)	June UPDATE_QUEST_NOT (quest window): visit cases	ported	Quest Q4e: out-of-game SQT 0x18 and in-game SQT 0x19 / 0x1a -> IsCompleteVisitQuest 3232c750 -> quest manager 32337520 (one merged call site); no single complete REQ. Ported into March's CX2State handler (X2State.cpp) under SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH; full handler re-diff = Q5c
+32cb6e00	CX2GUArme_VioletMage::DamageReact	confirmed	Char CH0: override 0x60; March X2GUArme_VioletMage.h:356 virtual void DamageReact( DamageData* );; phase CH1h; name: CONF
+32cb6e50	CX2GUArme_VioletMage::InitEffect	candidate	Char CH0: override 0x48; March X2GUArme_VioletMage.h:362 virtual void InitEffect();; phase CH1h; name: HINT
+32cb6ea0	CX2GUArme_VioletMage::CommonStateEndFuture	confirmed	Char CH0: override 0x7d8; March X2GUArme_VioletMage.h:495 virtual void CommonStateEndFuture();; phase CH1i; name: CONF
+32cb6eb0	CX2GUArme_VioletMage::CommonRender_Prepare	candidate	Char CH0: override 0x7e8; March X2GUArme_VioletMage.h:500 virtual RENDER_HINT CommonRender_Prepare();; phase CH1i; name: HINT
+32cb7eb0	CX2GUArme_VioletMage::OnFrameMove	confirmed	Char CH0: override 0x4; March X2GUArme_VioletMage.h:1414 HRESULT OnFrameMove( double fTime, float fElapsedTime );; phase CH1h; name: CONF
+32cb7ef0	CX2GUArme_VioletMage::NotifyDGManagerChanged	candidate	Char CH0: override 0x30; March X2GUArme_VioletMage.h:1415 void NotifyDGManagerChanged( CKTDGManager& refInManager_ );; phase CH1h; name: HINT
+32cb8ab0	CX2GUArme_VioletMage::IsValideSkillRidingOn	confirmed	Char CH0: override 0x818; March X2GUArme_VioletMage.h:1570 virtual bool IsValideSkillRidingOn( SKILL_ID );; phase CH1i; name: CONF
+32cb8b60	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x60c; March none (base virtual / June-only); phase CH1i; name: -
+32cb8fd0	CX2GUArme_VioletMage::Win	confirmed	Char CH0: override 0x90; March X2GUArme_VioletMage.h:358 virtual void Win();; phase CH1h; name: CONF
+32cb9010	CX2GUArme_VioletMage::Draw	confirmed	Char CH0: override 0x98; March X2GUArme_VioletMage.h:360 virtual void Draw();; phase CH1h; name: CONF
+32cb9110	CX2GUArme_VioletMage::InitEnchantWeaponEffectUnitSpecific	candidate	Char CH0: override 0x54c; March X2GUArme_VioletMage.h:363 virtual void InitEnchantWeaponEffectUnitSpecific();; phase CH1h; name: HINT
+32cb9650	CX2GUArme_VioletMage::InitEquippedActiveSkillState	confirmed	Char CH0: override 0x684; March X2GUArme_VioletMage.h:482 virtual void InitEquippedActiveSkillState( bool bOnlySkillLevel );; phase CH1i; name: CONF
+32cb96b0	CX2GUArme_VioletMage::InitEtc	confirmed	Char CH0: override 0x33c; March X2GUArme_VioletMage.h:480 virtual void InitEtc();; phase CH1h; name: CONF
+32cb9720	CX2GUArme_VioletMage::CommonStateStartFuture	confirmed	Char CH0: override 0x7c0; March X2GUArme_VioletMage.h:491 virtual void CommonStateStartFuture();; phase CH1i; name: CONF
+32cb9750	CX2GUArme_VioletMage::CommonFrameMoveFuture	confirmed	Char CH0: override 0x7c8; March X2GUArme_VioletMage.h:493 virtual void CommonFrameMoveFuture();; phase CH1i; name: CONF
+32cb97a0	CX2GUArme_VioletMage::SpecialAttackEventProcess	confirmed	Char CH0: override 0x7f4; March X2GUArme_VioletMage.h:503 virtual bool SpecialAttackEventProcess( ACTIVE_SKILL_USE_CONDITION );; phase CH1i; name: CONF
+32cc1b90	CX2GUArme_VioletMage::GetAdditionalAccelBuffTime	confirmed	Char CH0: override 0x7ac; March X2GUArme_VioletMage.h:423 virtual float GetAdditionalAccelBuffTime( SKILL_ID ) const;; phase CH4; passive accel-buff time; name: CONF
+32cc1c50	CX2GUArme_VioletMage::ApplyRenderParamOnEmptyRenderParamByBuff	confirmed	Char CH0: override 0x314; March X2GUArme_VioletMage.h:506 virtual void ApplyRenderParamOnEmptyRenderParamByBuff( RenderParam* );; phase CH1h; name: CONF
+32cc28b0	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x428; March none (base virtual / June-only); phase CH4; skill-memo float hook; name: -
+32cc5b00	CX2GUArme_VioletMage::SetShowViewList	candidate	Char CH0: override 0x63c; March none (base virtual / June-only); phase CH1i; name: HINT
+32cc5c30	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x73c; March none (base virtual / June-only); phase CH4; skill-memo float hook; name: -
+32cc5ca0	CX2GUArme_VioletMage::Lose	confirmed	Char CH0: override 0x94; March X2GUArme_VioletMage.h:359 virtual void Lose();; phase CH1h; name: CONF
+32cc6e50	CX2GUArme_VioletMage::COMMON_BUFF_FrameMove	confirmed	Char CH0: override 0x5f0; March X2GUArme_VioletMage.h:1195 virtual void COMMON_BUFF_FrameMove();; phase CH1h; name: CONF
+32cc7a40	CX2GUArme_VioletMage::CanRidingState	confirmed	Char CH0: override 0x628; March X2GUArme_VioletMage.h:465 virtual bool CanRidingState();; phase CH1i; name: CONF
+32cc7b30	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x718; March none (base virtual / June-only); phase CH1i; name: -
+32cc7b90	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x828; March none (base virtual / June-only); phase CH1i; name: -
+32cc7c30	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x850; March none (base virtual / June-only); phase CH1i; name: -
+32cc7f10	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x880; March none (base virtual / June-only); phase CH1i; name: -
+32cc7fa0	CX2GUArme_VioletMage::InitDevice	confirmed	Char CH0: override 0x38; March X2GUArme_VioletMage.h:479 void InitDevice();   (no virtual keyword); phase CH1h; name: CONF
+32cc8ae0	CX2GUArme_VioletMage::RidingOffEnd	confirmed	Char CH0: override 0x610; March none (base virtual / June-only); phase CH1i; name: CONF
+32cc8cf0	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x654; March none (base virtual / June-only); phase CH1i; name: -
+32cc8d30	CX2GUArme_VioletMage::UpdateEquipCollisionData	confirmed	Char CH0: override 0x638; March none (base virtual / June-only); phase CH1i; name: CONF
+32cc98b0	CX2GUArme_VioletMage::ShowActiveSkillCutInAndLightByScript	confirmed	Char CH0: override 0x834; March X2GUArme_VioletMage.h:1456 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );; phase CH1i; name: CONF
+32cc9950	CX2GUArme_VioletMage::UpdateEquipViewListInfo	candidate	Char CH0: override 0x644; March none (base virtual / June-only); phase CH1i; name: HINT
+32ccb830	CX2GUArme_VioletMage::SetEquippedSkillLevel	confirmed	Char CH0: override 0x7b8; March X2GUArme_VioletMage.h:486 virtual void SetEquippedSkillLevel( SKILL_ID, bool bChangeAll );; phase CH1i; name: CONF
+32ccbca0	CX2GUArme_VioletMage::SpecialAttackNoStageChange	confirmed	Char CH0: override 0x810; March X2GUArme_VioletMage.h:422 virtual bool SpecialAttackNoStageChange( const SkillTemplet* );; phase CH1i; name: CONF
+32cccc70	CX2GUArme_VioletMage::SetDamageExceptionProcess	confirmed	Char CH0: override 0x2b8; March X2GUArme_VioletMage.h:525 virtual void SetDamageExceptionProcess( DamageData*, OUT float& fPowerRate );; phase CH4; passive blocks keyed on RNSI_* (checklist 7b, D8 Fitness -> Magical Staff); name: CONF
+32ccda40	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x608; March none (base virtual / June-only); phase CH1i; name: -
+32ccda90	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x604; March none (base virtual / June-only); phase CH1i; name: -
+32ccdae0	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x860; March none (base virtual / June-only); phase CH1i; name: -
+32ccdb70	CX2GUArme_VioletMage::InitComponent	confirmed	Char CH0: override 0x3c; March X2GUArme_VioletMage.h:470 void InitComponent();   (no virtual keyword); phase CH1h; name: CONF
+32cce4b0	CX2GUArme_VioletMage::CommonFrameMove	confirmed	Char CH0: override 0x7cc; March X2GUArme_VioletMage.h:494 virtual void CommonFrameMove();; phase CH1i; name: CONF
+32ccf4e0	CX2GUArme_VioletMage::SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	confirmed	Char CH0: override 0x800; March X2GUArme_VioletMage.h:503 (home: SpecialAttackEventProcess body); phase CH1i; name: CONF
+32ccf9f0	CX2GUArme_VioletMage::NoStateChangeActionFrameMove	confirmed	Char CH0: override 0x80c; March X2GUArme_VioletMage.h:504 virtual void NoStateChangeActionFrameMove();; phase CH1i; name: CONF
+32ccfe30	CX2GUArme_VioletMage::GetActualMPConsume	confirmed	Char CH0: override 0x6a0; March X2GUArme_VioletMage.h:508 virtual float GetActualMPConsume( SKILL_ID, int iSkillLevel ) const;; phase CH4; MP-consume rules; name: CONF
+32cdd4e0	CX2GUArme_VioletMage::DeleteMinorParticle	candidate	Char CH0: override 0x4c; March X2GUArme_VioletMage.h:418 virtual void DeleteMinorParticle();; phase CH1h; name: HINT
+32cddcc0	CX2GUArme_VioletMage::HyperModeBuffEffectStart	confirmed	Char CH0: override 0xc4; March X2GUArme_VioletMage.h:459 virtual void HyperModeBuffEffectStart();; phase CH1h; name: CONF
+32cddec0	CX2GUArme_VioletMage::SetSpecificValueByBuffTempletID	confirmed	Char CH0: override 0x24c; March X2GUArme_VioletMage.h:462 virtual void SetSpecificValueByBuffTempletID( BUFF_TEMPLET_ID );; phase CH4; buff-templet specifics (ABM / ADW Magical Makeup transform); name: CONF
+32cde300	CX2GUArme_VioletMage::UnSetSpecificValueByBuffTempletID	confirmed	Char CH0: override 0x250; March X2GUArme_VioletMage.h:463 virtual void UnSetSpecificValueByBuffTempletID( BUFF_TEMPLET_ID );; phase CH4; buff-templet specifics (undo); name: CONF
+32ce1ba0	CX2GUArme_VioletMage::InitState tail	confirmed	Char CH0: registrar; March none (base virtual / June-only); phase CH1
+32ce1cc0	CX2GUArme_VioletMage::GetActualCoolTime	candidate	Char CH0: override 0x6a4; March none (base virtual / June-only); phase CH4; cool-time rules; name: HINT
+32ce4db0	CX2GUArme_VioletMage::ReInit	confirmed	Char CH0: override 0x44; March X2GUArme_VioletMage.h:354 virtual void ReInit( bool bRandom, int startPosIndex );; phase CH1h; name: CONF
+32ce4e80	CX2GUArme_VioletMage::CreateMajorParticleArray	confirmed	Char CH0: override 0x540; March X2GUArme_VioletMage.h:366 virtual void CreateMajorParticleArray();; phase CH1h; name: CONF
+32ce55e0	CX2GUArme_VioletMage::CreateMinorParticleArray	confirmed	Char CH0: override 0x548; March X2GUArme_VioletMage.h:393 virtual void CreateMinorParticleArray();; phase CH1h; name: CONF
+32ce5700	CX2GUArme_VioletMage::CommonStateEnd	confirmed	Char CH0: override 0x7dc; March X2GUArme_VioletMage.h:496 virtual void CommonStateEnd();; phase CH1i; name: CONF
+32ce5760	CX2GUArme_VioletMage::HyperModeFrameMove	confirmed	Char CH0: override 0x600; March X2GUArme_VioletMage.h:770 void HyperModeFrameMove();   (no virtual keyword); phase CH1i; name: CONF
+32ce7480	CX2GUArme_VioletMage::CommonStateStart	confirmed	Char CH0: override 0x7c4; March X2GUArme_VioletMage.h:492 virtual void CommonStateStart();; phase CH1i; name: CONF
+32ce77b0	CX2GUArme_VioletMage::InitStateCommon	confirmed	Char CH0: registrar; March CX2GUArme_VioletMage::InitStateCommon (X2GUArme_VioletMage.cpp:1637); phase CH1
+32cea0c0	CX2GUArme_VioletMage::InitState	confirmed	Char CH0: override 0x7a4 + registrar; March X2GUArme_VioletMage.h:474 virtual void InitState();; phase CH1; name: CONF
+32cebe80	CX2GUArme_VioletMage::SpecialAttackEventProcess part: skill lookup (slot 510)	confirmed	Char CH0: override 0x7f8; March X2GUArme_VioletMage.h:503 (home of the lookup: top of SpecialAttackEventProcess); phase CH1i; name: CONF
+32cecd70	CX2GUArme_VioletMage::InitPassiveSkillState	confirmed	Char CH0: override 0x690; March X2GUArme_VioletMage.h:484 virtual void InitPassiveSkillState();; phase CH4; InitPassiveSkillState; name: CONF
+32ced640	CX2GUArme_VioletMage::SpecialAttackEventProcess part: skill use (slot 511)	confirmed	Char CH0: override 0x7fc; March X2GUArme_VioletMage.h:503 (home: SpecialAttackEventProcess body); phase CH1i; name: CONF
+32cede00	CX2GUArme_VioletMage::SetEquippedSkillFuncBySkillSlotIndex	confirmed	Char CH0: override 0x7b4 + registrar; March X2GUArme_VioletMage.h:485 virtual void SetEquippedSkillFuncBySkillSlotIndex( SKILL_ID, int iSlotIndex, bool bSlotB );; phase CH1; name: CONF
+32cf25a0	CX2GUArme_VioletMage::unnamed override	candidate	Char CH0: override 0x680; March none (base virtual / June-only); phase CH1i; name: -
+32cf2d50	CX2GUArme_VioletMage::~CX2GUArme_VioletMage (scalar deleting dtor)	confirmed	Char CH0: override 0x0; March X2GUArme_VioletMage.h:326 virtual ~CX2GUArme_VioletMage(void);; phase CH1h; name: CONF
+32cc5b20	CX2GUArme_VioletMage helper (called by 32cce4b0)	candidate	Char CH0: helper, phase CH1i
+32cc98e0	CX2GUArme_VioletMage helper (called only from outside the class (or from an unmapped caller): 3230c59a)	candidate	Char CH0: helper, phase CH1h
+32ce1770	CX2GUArme_VioletMage helper (called only from outside the class (or from an unmapped caller): 3220f4dc 3220e9)	candidate	Char CH0: helper, phase CH1h
+32ce1650	CX2GUArme_VioletMage helper (called from 328dfaa0)	candidate	Char CH0: helper, phase CH4; outside caller (skill-slot UI, memorize: checklist 7aj)
+32cb8bf0	CX2GUArme_VioletMage helper (AVSI_AEM_DASH_JUMP_X3.StartFuture AVSI_ABM_DASH_JUMP_ZX.StartFuture AVSI_ABM_DAS)	candidate	Char CH0: state-fn, phase CH1e
+32ce6f40	CX2GUArme_VioletMage helper (called from 32ce74f5)	candidate	Char CH0: helper, phase CH1h
+32cb6e00-32cf2da0 (Char CH0)	CX2GUArme_VioletMage class code range (June)	confirmed	Char CH0: first override DamageReact 32cb6e00 (vslot 0x60); Rena ends 32cb6c6e; Elsword starts 32cf2da0. 429 functions: per-function kind / state / March pair / phase in june2017_re/char_arme/ch0_class_map.tsv; state callbacks (thunk>target) per state in ch0_state_skill.tsv; extractor june2017_re/charport_states.py
+37 dead functions (Char CH0)	June Aisha code with no pointer, call, jmp or thunk anywhere in the exe	confirmed	Char CH0: 32cb8430 32cb9580 32cbe6e0 32cbe760 32cbe7a0 32cbed00 32cbed20 32cbed90 32cbee10 32cc1f50 32cc1f90 32cc1fc0 32cc2000 32cc26c0 32cc27e0 32cc2890 32cc7300 32ccce90 32cccfe0 32ccd0b0 32cce030 32cce0f0 32cd5d60 32cd6360 32cd6530 32cd6ce0 32cd6e50 32cd7160 32cd8a80 32cde380 32cde620 32cde800 32cdea30 32ce0010 32ce0650 32ce0a40 32ce1c70. Includes 32cd5d60 (the BINDING_CIRCLE_HYPER FrameMove checklist 7p cites: June never runs its forced SetStopTime) and 32cc7300 (spec-A reader of checklist 7 l.264)
+31fd88f0 (Char CH0)	CX2GUUser: state data by id (&m_StateList[ id ])	candidate	Char CH0: 32cede00 calls it for the normal and hyper slot state ids (tables 3351b05c / 3351b184 by slot index), then Init vcall and +0x11 = 1
+32fe9a40 (Char CH0)	KLuaManager::MakeTableReference( name, id, 1 )	candidate	Char CH0: every 32cede00 skill case calls it with the table name and the normal / hyper state id
