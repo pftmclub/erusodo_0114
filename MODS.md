@@ -4315,9 +4315,10 @@ Flags `SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE` in `KTDXLIB/Always.h` **and** `Knc
 - **Emulator.** `Handlers_Shop.cpp`: the class-change NOT carries the unit's whole acquired list (after the S7 grant for the new class) and its unsealed list.
 - **Callees June changed (own flags, `Always.h` only):** `SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP` (`X2StateClassChange.cpp`: June's dialog table `32486e60`, scale 1.4 for
   Chung Tactical Trooper, June's voice `32486c10`, needs `ADD_PLAY_SOUND` + `_SOUND_AUTO_RELEASE`); `SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE` (`X2CashShop.*`: June's two
-  class-change item tables, needs `ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION`).
+  class-change item tables, needs `ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION`); `SERV_IRUHADEV_JUNE_SKILL_SQUARE_VIEWER_RESET` (`X2State.cpp`: June's `31efd510` verbatim,
+  user 2026-10-19; a class change bought while in the square now reads a NULL field game, as in June: JUNE_BUGS 348).
 - **Data.** data095 + June's `RenaVoice_ClassUpFinish01.ogg` (new, nothing replaced; the popup voice names Rena where March named Lena).
-- **Revert:** comment out both `CLASS_CHANGE` defines together (and/or `RELATION_UNEQUIP`, `CLASS_POPUP`, `CLASS_ITEM_CHOICE`), `touch X2Lib/stdafx.cpp`,
+- **Revert:** comment out both `CLASS_CHANGE` defines together (and/or `RELATION_UNEQUIP`, `CLASS_POPUP`, `CLASS_ITEM_CHOICE`, `SQUARE_VIEWER_RESET`), `touch X2Lib/stdafx.cpp`,
   `python tools/build.py --deploy`. The data095 file is harmless if left (or remove it, `kom.py pack data095`, ask, copy). No save change.
 
 ### June's new-title notice (skill-system-core S7n, 2026-10-19)

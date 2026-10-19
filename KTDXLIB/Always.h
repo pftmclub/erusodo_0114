@@ -9325,6 +9325,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June skill system Phase S7h ( user 2026-10-19: follow June, June has no square any more ): CX2State's
+//              ResetUnitViewerInFieldSquare is June's 31efd510 verbatim, including the square branch's InitWaitMotion through the
+//              field game ( @31efd619, JUNE_BUGS 348: a class change bought while standing in the square reads a NULL field game ).
+#define SERV_IRUHADEV_JUNE_SKILL_SQUARE_VIEWER_RESET
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June skill system Phase S7n: June's new-title notice, emblem 18 EI_NEW_TITLE_INFO_NOTICE. CX2TitleManager queues
 //              earned titles and opened title missions ( June 326f88a0, dedup sets seeded by TakeTitle 326ff600 ), CheckNewTitle is
 //              June's 32701960 whole ( level < 5 drops them, the emblem shows two per pop, title 10 asks "apply title now?" ), and

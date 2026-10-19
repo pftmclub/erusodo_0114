@@ -9381,6 +9381,42 @@ void CX2State::ResetUnitClassInFieldSquare( UidType unitUID, CX2Unit::UNIT_CLASS
 
 void CX2State::ResetUnitViewerInFieldSquare( UidType unitUID, CX2Unit::UNIT_CLASS eUnitClass )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_SQUARE_VIEWER_RESET
+	/// June 31efd510 ( states by identity: June 14 village and 15 guild agit -> the field game, March has no agit state; June 16 square ).
+	/// Every call goes through the state's own game, except the square's InitWaitMotion ( @31efd619 ), which June looks up through the field
+	/// game ( 33775870 / 323a8dd0 ), NULL in the square: kept verbatim ( JUNE_BUGS 348, user 2026-10-19 ).
+	switch( g_pMain->GetNowStateID() )
+	{
+	case CX2Main::XS_VILLAGE_MAP:
+		{
+			if( NULL != g_pTFieldGame &&
+				NULL != g_pTFieldGame->GetSquareUnitByUID( unitUID ) )
+			{
+				g_pTFieldGame->GetSquareUnitByUID( unitUID )->SetScriptFileName( CX2SquareUnit::GetSquareUnitScriptFileName( eUnitClass ) );
+				g_pTFieldGame->GetSquareUnitByUID( unitUID )->InitSystem();
+				g_pTFieldGame->GetSquareUnitByUID( unitUID )->InitViewer();
+				g_pTFieldGame->GetSquareUnitByUID( unitUID )->InitState();
+				g_pTFieldGame->GetSquareUnitByUID( unitUID )->InitWaitMotion();
+				g_pTFieldGame->GetSquareUnitByUID( unitUID )->StateChange( g_pTFieldGame->GetSquareUnitByUID( unitUID )->GetStateID().m_Wait );
+			}
+		} break;
+	case CX2Main::XS_SQUARE_GAME:
+		{
+			if( NULL != g_pSquareGame &&
+				NULL != g_pSquareGame->GetSquareUnitByUID( unitUID ) )
+			{
+				g_pSquareGame->GetSquareUnitByUID( unitUID )->SetScriptFileName( CX2SquareUnit::GetSquareUnitScriptFileName( eUnitClass ) );
+				g_pSquareGame->GetSquareUnitByUID( unitUID )->InitSystem();
+				g_pSquareGame->GetSquareUnitByUID( unitUID )->InitViewer();
+				g_pSquareGame->GetSquareUnitByUID( unitUID )->InitState();
+				g_pTFieldGame->GetSquareUnitByUID( unitUID )->InitWaitMotion();		/// June @31efd619: the field game ( JUNE_BUGS 348 )
+				g_pSquareGame->GetSquareUnitByUID( unitUID )->StateChange( g_pSquareGame->GetSquareUnitByUID( unitUID )->GetStateID().m_Wait );
+			}
+		} break;
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_SQUARE_VIEWER_RESET
 
 	switch( g_pMain->GetNowStateID() )
 	{
@@ -9412,6 +9448,7 @@ void CX2State::ResetUnitViewerInFieldSquare( UidType unitUID, CX2Unit::UNIT_CLAS
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_SQUARE_VIEWER_RESET
 }
 
 #ifdef GUILD_MANAGEMENT

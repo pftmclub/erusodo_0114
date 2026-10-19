@@ -1857,7 +1857,10 @@ Four flags (revert: `MODS.md` "June's class-change notice"; funcmap tag `Skill S
   - The popup shows Sword Knight with Elsword's voice; both bars are empty; the tree is Sword Knight's.
   - The log has `CLASS NOT build ... N acquired skill(s)` followed by `CLASS NOT unitUID=32 class 10: N acquired ...`. After a relog the tree is the same.
   - **Data owed:** `/x2-kom-packed copy data095` (asked in the hand-off).
-- **Open question:** JUNE_BUGS 348 (port June's square line, which crashes, or keep March's).
+- **JUNE_BUGS 348 answered (user 2026-10-19): follow June, June has no square any more.** `SERV_IRUHADEV_JUNE_SKILL_SQUARE_VIEWER_RESET` (`Always.h` only): `ResetUnitViewerInFieldSquare` =
+  `31efd510` verbatim, the square's `InitWaitMotion` through `g_pTFieldGame` included (a class change claimed in the square crashes, as June would). flagcheck `--worktree`: `1 PASS, 1 DEFINE`,
+  `0 deleted line(s) ... 0 encoding change(s)`, `RESULT: PASS`.
+  `DEPLOY OK: X2_offline.exe is 25,389,568 B, dated 2026-10-19 14:50:26, md5 9f39e25afc3ef9d3e732b240c33ad455, equal to X2/US_SERVICE/x2.exe (2026-10-19 14:50:18); built at main 4cd92b84 + 2 uncommitted code file(s).`
 - **Play-test PASSED 2026-10-19** (user: all checks; data095 `COPY OK ... 2258052 bytes, 121 entries, md5 a0c1c9a3164c4344d1fffa53f5c28a8a`; log, exe 5b3e8252, 0 EXCEPTION).
   Unit 32 went 11 -> 10 at 14:31:53: grant 2 rows, `CLASS NOT build ... 13 acquired skill(s) sent`, then `CLASS NOT unitUID=32 class 10: 13 acquired skill(s) into page 1, 0 unsealed,
   both bars emptied`. Relog: grant 0 rows. Back to 11 at 14:32:37: the same chain. The 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are outside this phase.
