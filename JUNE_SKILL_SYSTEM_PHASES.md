@@ -1017,6 +1017,8 @@ Funcmap: the two `(S3f)` rows flipped to ported, plus `31fcd280`, `320454a0`, `3
 - **How to see it in game:** any skill state runs as before; `offline_server.log` gets `[JUNE_SKILL] SULT state N skill S: upgraded 0 -> DAMAGE_DATA` for skill states
   (the first 20, then at most one a second). An upgraded skill shows `upgraded 1`, with `DAMAGE_DATA` as long as its script has no `_ULTIMATE` table.
 - **Open questions:** none.
+- **Play-test PASSED 2026-10-19** (user + log, exe d0db7313, 0 EXCEPTION): unit 25 jtLordKnight, 7 `SULT` lines: Kick 21202 (state 55) and Impact Smash 21203
+  (state 51) `upgraded 0 -> DAMAGE_DATA`; skill 21217 (state 63) `upgraded 1 -> DAMAGE_DATA`, the upgraded path live with the base fallback.
 
 ## Phase S4 - Numerical skill data override
 
