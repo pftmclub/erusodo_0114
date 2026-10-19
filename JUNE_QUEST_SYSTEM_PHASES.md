@@ -477,7 +477,7 @@ its 10 sites were re-read before the guards went in.
   gate), so a dropped in-progress epic would leave its chain stuck. That is why the 5 epic next links exist: 18020 -> 18030, 21910 -> 21920,
   14005 -> 14010, and 12005 -> 12020 for units 24 and 43.
 - **Flip.** `luasrc.py adopt-june FieldQuest.lua FieldSubQuest.lua AccountQuest.lua` (ljconv bytecode, 3 replaced; record
-  `june2017_re/june_adopt_20261019_074358.tsv`). `PACK OK data036`. March's originals are snapshotted to `24965799\kom_contents_bytecode\data036_kom\`,
+  `june2017_re/june_adopt_20261019_074358.tsv`). `PACK OK data036`, `COPY OK data036` (md5 929fad78; old kom in `kom_backup_tools\data036.kom.20261019_083315`). March's originals are snapshotted to `24965799\kom_contents_bytecode\data036_kom\`,
   where the census and the generator read them.
 - **Rung v21.** `CX2OfflineDB::MigrateQuestsToJune` (`X2OfflineDB.cpp/.h`, `#error` without v20 `JUNE_SKILL_PAGE`) works in one transaction and logs one
   `[JUNE_QUEST] MIG` line per unit and category after COMMIT, then a `MIG v21 done` total. Its tables are in `X2Lib/Offline/X2OfflineJuneQuestMig.h`, generated
