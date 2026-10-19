@@ -362,6 +362,9 @@ private:
 	/// :2078 ( event clear count ) count. The same list as Handlers_Skill.cpp's IsSkillUseCountedDungeon.
 	static bool	IsQuestCountedDungeon( int iDungeonID );
 
+	/// Quest Q4 review. CXSLDungeon::IsTutorialDungeon ( XSLDungeon.cpp:820 ): the 15 tutorial ids.
+	static bool	IsQuestTutorialDungeon( int iDungeonID );
+
 	/// Quest Q4. QRT_WEEK / QRT_MONTH expiry ( June 32322050 / 32321d10 ) and the chain-day rule ( 3232caf0 ), NET_OK or ERR_QUEST_04.
 	int		CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const;
 

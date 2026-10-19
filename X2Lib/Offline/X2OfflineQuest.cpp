@@ -774,7 +774,7 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 		return L"no June quest uses it ( 3 orphan sub-quests ) and the item workshop is not implemented offline";
 
 	case CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR:
-		return L"its one quest ( 35363 ) also needs SQT_DUNGEON_RANK, which offline never ticks, and its rule has no March server code";
+		return L"a June-server-only rule ( its one sub-quest 35365, quest 35363, counts runs that clear the quest's other steps together ) with no March server code";
 
 	case CX2QuestManager::SQT_PVP_RANK:
 		return L"no PvP offline";
@@ -871,23 +871,56 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 	return false;
 }
 
-/*static*/ bool CX2OfflineQuest::IsQuestCountedDungeon( int iDungeonID )
+/*static*/ bool CX2OfflineQuest::IsQuestTutorialDungeon( int iDungeonID )
 {
-	// UserQuestManager.cpp:2378-2392: !IsTutorialDungeon && !IsHenirDungeon && !IsTCDungeon && !IsRubenDungeon ( the Valentine /
-	// Halloween terms are compiled out for US ). Spelled against the client's DI_* enum exactly as IsSkillUseCountedDungeon
-	// ( Handlers_Skill.cpp ) spells the same four predicates; the other entries CXSLDungeon names are not enumerators here.
+	// Q4 review: CXSLDungeon::IsTutorialDungeon ( XSLDungeon.cpp:820-843 ), all 15 ids. The client shares DungeonEnum.h with the
+	// server, so every one is a live enumerator here.
 	switch( iDungeonID )
 	{
 	case SEnum::DI_TUTORIAL_ELSWORD:
+	case SEnum::DI_TUTORIAL_ARME:
+	case SEnum::DI_TUTORIAL_LIRE:
+	case SEnum::DI_TUTORIAL_RAVEN:
+	case SEnum::DI_TUTORIAL_EVE:
+	case SEnum::DI_TUTORIAL_CHUNG:
 	case SEnum::DI_BATTLE_FIELD_TUTORIAL_ELSWORD:
-	case SEnum::DI_ELDER_HENIR_SPACE:
-	case SEnum::DI_EL_FOREST_WEST_NORMAL:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_AISHA:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_LENA:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_RAVEN:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_EVE:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_CHUNG:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_ARA:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_EL:
+	case SEnum::DI_BATTLE_FIELD_TUTORIAL_ADD:
+		return true;
+
+	default:
+		break;
+	}
+
+	return false;
+}
+
+/*static*/ bool CX2OfflineQuest::IsQuestCountedDungeon( int iDungeonID )
+{
+	// UserQuestManager.cpp:2377-2392: !IsTutorialDungeon && !IsHenirDungeon && !IsTCDungeon && !IsRubenDungeon ( the Valentine /
+	// Halloween terms are compiled out for US ). Q4 review: transcribed from XSLDungeon.cpp itself; the first version copied
+	// Handlers_Skill.cpp's shorter list and missed 13 tutorials, DI_RUBEN_SECRET_HELL and the TC range above RAVEN_0 + 6.
+	if( true == IsQuestTutorialDungeon( iDungeonID ) )
+		return false;
+
+	switch( iDungeonID )
+	{
+	case SEnum::DI_ELDER_HENIR_SPACE:			///< IsHenirDungeon ( XSLDungeon.cpp:1152-1161 )
+
+	case SEnum::DI_EL_FOREST_WEST_NORMAL:		///< IsRubenDungeon ( XSLDungeon.cpp:856-878 )
 	case SEnum::DI_EL_FOREST_NORTH_NORMAL:
 	case SEnum::DI_EL_FOREST_GATE_NORMAL:
 	case SEnum::DI_EL_FOREST_HELL_NORMAL:
 	case SEnum::DI_EVENT_KIDDAY_RUBEN:
 	case SEnum::DI_MONSTER_TEST_NORMAL:
 	case SEnum::DI_RUBEN_SECRET_COMMON:
+	case SEnum::DI_RUBEN_SECRET_HELL:
 	case SEnum::DI_RUBEN_EL_TREE_NORMAL:
 	case SEnum::DI_RUBEN_RUIN_OF_ELF_NORMAL:
 	case SEnum::DI_RUBEN_SWAMP_NORMAL:
@@ -897,9 +930,11 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 		break;
 	}
 
-	// CXSLDungeon::IsTCDungeon, the training-camp range ( RAVEN_0 + 6: see IsSkillUseCountedDungeon ).
+	// CXSLDungeon::IsTCDungeon ( XSLDungeon.cpp:845-854 ): DI_TRAINING_FREE <= id < DI_END. That takes in every event dungeon
+	// above 39000 too, and DI_RANOX_SECRET_COMMON / _HELL ( 41270 / 41271 ). DI_END is 41530 here ( Elysion port ) and in June's
+	// DungeonEnum.lua; the March server's 41311 names the same live ids.
 	if( iDungeonID >= (int)SEnum::DI_TRAINING_FREE &&
-		iDungeonID <= (int)SEnum::DI_TRAINING_RAVEN_0 + 6 )
+		iDungeonID <  (int)SEnum::DI_END )
 	{
 		return false;
 	}
@@ -1987,9 +2022,9 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 				}
 				else
 				{
+					// :2231-2232, IsTutorialDungeon's whole list ( Q4 review ).
 					bHit = ( (int)SEnum::DI_EL_FOREST_GATE_NORMAL != iDungeonID &&
-							 (int)SEnum::DI_TUTORIAL_ELSWORD != iDungeonID &&
-							 (int)SEnum::DI_BATTLE_FIELD_TUTORIAL_ELSWORD != iDungeonID );
+							 false == IsQuestTutorialDungeon( iDungeonID ) );
 				}
 				break;
 

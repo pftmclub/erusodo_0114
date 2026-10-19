@@ -31,3 +31,9 @@ Two server-only keys June's client never reads, so the client's parser must read
 
 Both are emulator-side stand-ins over a client parse. Log each refusal / exclusion with `[JUNE_QUEST] OFF`. Do not touch Q3's
 `X2QuestManager` runtime code.
+
+## Amended by the Q4 review (2026-10-19)
+
+- `CX2OfflineQuest::IsQuestCountedDungeon` was rewritten to match `XSLDungeon.cpp` (new `IsQuestTutorialDungeon`; the TC range now runs to
+  `DI_END`). Apply the exception list next to those tests in `OnDungeonClear`, not in place of them. 43710's `{0}` already means "any
+  dungeon" (`HasDungeonFilter`).

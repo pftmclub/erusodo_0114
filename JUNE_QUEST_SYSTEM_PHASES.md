@@ -714,6 +714,60 @@ no save rung. MODS.md "offline completion of every sub-quest type".
   - 0 EXCEPTION; UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`.
   - Cosmetic, for the review: a field load logs `suitable level: dungeon 0 has no DungeonData row` (the loading handler runs for fields too).
 
+### Q4 - Review (2026-10-19, Opus 5.5 high)
+
+**PASS with 3 fixes**, same flag (`SERV_IRUHADEV_JUNE_QUEST_OFFLINE`), emulator only.
+- **Fix 1, transcription: `IsQuestCountedDungeon` was short.** It copied `Handlers_Skill.cpp`'s list, whose comment says the rest "are not
+  enumerators here". They all are (one shared `DungeonEnum.h`). It now transcribes `XSLDungeon.cpp` itself:
+  - `IsTutorialDungeon` :820, all 15 ids (new `IsQuestTutorialDungeon`; Q4 had only the 2 Elsword ones);
+  - `IsRubenDungeon` :856, now with `DI_RUBEN_SECRET_HELL`;
+  - `IsTCDungeon` :845, `DI_TRAINING_FREE <= id < DI_END`. Q4 stopped at `RAVEN_0 + 6`; the server range also takes in every event dungeon above
+    39000 and June's 41xxx ids (41141 Sander / 41270-41271 Ranox secret, 41480-41500). `DI_END` is 41530 here and in June's `DungeonEnum.lua`; the
+    March server's 41311 names the same live ids.
+  - SQT 8's non-event branch (:2231) now uses the full tutorial list too.
+  - Reachable effect: event quest 208480 (secret dungeons) no longer counts 41141 / 41271 (its 5 other dungeons still do); 43710 ("any dungeon")
+    now skips tutorials and the TC range; 44010's 41480-41500 have no March DungeonData row. No type-32 sub-quest names a dungeon (all 12 live ones
+    are "any dungeon").
+- **Fix 2: field load.** `Handler_EGS_GAME_LOADING_REQ` skips `IsSuitableLevel` when `m_iDungeonID` is 0 and sets `m_bSuitableLevel = false`.
+- **Fix 3: SQT 44's reason was stale.** "35363 also needs SQT_DUNGEON_RANK, which offline never ticks" was true only before `HasDungeonFilter`:
+  35367 lists `{0}`, which now means any dungeon, so it ticks. The reason is now the real one: a June-server-only rule with no March server code.
+- **Checked, matches** (no change):
+  - `IsSuitableLevel` = Room.cpp:1615-1627 (loading >= 100, `GetDungeonIDAndDif`, slack 2 both sides, level from the packet). SQT 32 = UQM :2375-2392
+    plus the :2520 counted branch. `SERV_THREE_COLOR_EVENT` is off for US.
+  - SQT 8 = :2076-2236. `SERV_EVENT_TITLE_SUBQUEST` is off for US. The US-only id hooks (63780 relationship, 63962 party, 74580 / 74620 riding,
+    85560 pet) name a quest June lacks or orphan sub-quests.
+  - `HasDungeonFilter` = `CheckValidDungeonID` :2089, at the 5 sites. `OnVisitDungeon` keeps its plain `IsExistDungeonInSub`; no June
+    SQT_VISIT_DUNGEON lists `{0}`.
+  - `bHaveExp`: `m_iRewardEXP` builds up per kill (Handlers_Room.cpp:3300), is read before `QuestOnDungeonClear` (:4483) and is reset after it (:4607).
+  - Ghidra: `32322050` week = Wed..Sat +(11 - dow), Sun..Tue +(4 - dow), from midnight of the completion date. `32321d10` month = the 1st of the
+    next month (December goes to the next year). `3232caf0` chain = local midnight of (the latest completion + AllowFewDays x 86400). Its
+    `*templet == -1 || == g_pInstanceData+0x120` test is templet +0x00 `m_iServerGroupID` against the current server group, and no June quest
+    file sets that key, so every templet passes. June adds days as seconds, the emulator adds calendar days; they differ only across a DST change.
+  - Account quests: `CheckAccountOpen` = UAQM :361-401 (skip in progress or completed, then accept with NUI_NONE). The server's account handler
+    (:415-638) does not check unit type, class or the 30 cap, and the emulator's `Accept` does. All 5 account quests are EPIC / EVENT, so the cap
+    never applies, and the play-test opened all 5. No live path writes with `m_nUnitUID` (only the `#else` arms), and the v21 rung runs before
+    any account row exists.
+  - `IsClearTypeUndriven`: the orphan counts are re-derived from June's sources, 37 = 15, 43 = 3, 47 = 2, and 35 / 40-42 / 46 have none. 48 is
+    43650 in 26600 / 26610 only. Dungeon 41130 has a June row but no row in March's live `DungeonData.lua`. Only 42030 is transcendental (1001).
+  - QRT_DAY: US `QE_DAILY_REPEAT_HOUR` is 0 (XSLQuestManager.h:36-40).
+  - Counts over 255 (Q3 review's question): 8 SQT_NPC_HUNT sub-quests (36020, 203490, 203500, 203530, 203580, 204400, 204950, 206510; 300-500)
+    and 2 PvP wins are all orphans. SQT 39 honor points are undriven (guild). Nothing reachable needs more than a UCHAR, so it stays one. Latent:
+    `OnNpcDie` would wrap 255 -> 0 on such a sub-quest.
+- **Not this flag, noted once:** `Handlers_Skill.cpp` `IsSkillUseCountedDungeon` (offline phase 6) has the same short list. All 22 June
+  SQT_SKILL_USE sub-quests are orphans, so it is left as is.
+- **Open question for the user:**
+  - **Ultimate Road 4/5 (35363, 2nd jobs, Lv 63) cannot complete offline.** Its sub-quest 35365 is SQT 44 (5 runs that clear its SS-rank and
+    Expert suitable-level steps together), a June-server rule. A stand-in would be needed, and it is yours to approve ([[design-missing-june-pieces]]).
+  - **Should June's secret dungeons (41141 / 41271) count for event 208480?** March's TC range swallows them. June's server code is not available.
+- **Hygiene:** review fixes `flagcheck --worktree` (3 files): `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; 13 deleted lines =
+  Q4's own flagged lines. Q4 commit `--range dbc0f686^..dbc0f686`: `files: 0 PASS, 6 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags),
+  0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif
+  without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,378,304 B, dated 2026-10-19 13:42:42, md5 9dfa205103632cedd696af90ebb2bf6b` (built at main
+  fa78aa92 + the 3 review files + peers' Always.h / X2Unit.cpp); the new SQT 44 reason string is in the exe and the old one is gone.
+- **Play-test (optional, log only):** load any field: no `dungeon 0 has no DungeonData row` line. Next load of a save: the census line still reads
+  `SQT coverage 0-48: 21 driven, 28 undriven, unclassified [none], both [none]`.
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.
