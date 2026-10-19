@@ -9030,23 +9030,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
-// Description: June skill system Phase S3f - CommonStateStart's upgraded-skill flag ( June 32057b80 @32057c03 / @3205ad70: the now-state
-//              skill's equipped templet with the upgrade swap has m_iDeleteSkillIDByUpgrade > 0 ), computed once at the top and passed to
-//              LoadEffectSetFromScript's new third argument ( 32024ff0; its _ULTIMATE lists stay checklist row 397 ), to the
-//              DAMAGE_DATA_ULTIMATE / DAMAGE_DATA pick ( @3205c865 ) and to ParsingBuffFactorID ( S3e ). March's memo path retired as June
-//              has it: m_bApplyMemo is always false ( June's MemoCondition decides false in the base and all 12 classes, JUNE_BUGS ), no
-//              DAMAGE_DATA_MEMO / DAMAGE_DATA_NEXT_MEMO. CX2GUUser::SetDamageData is June's 31fcd280 ( one argument, negative FORCE_DOWN ).
-//              Log [JUNE_SKILL] SULT ( with JUNE_SKILL_DEBUG ). Revert: JUNE_SKILL_STATE_ULTIMATE in MODS.md.
-#define SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
-#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
-#ifndef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
-#error SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE needs SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ( the two-argument ParsingBuffFactorID it feeds )
-#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
-#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-19
 // Description: June skill system Phase S7k (1/3) - CX2Unit's own socket aggregate ( June CX2Unit +0xe1c, a CX2SocketItem::SocketData
 //              (re)made by CX2Unit::Init 32363ca0 ). Fill = vtable 3348ffe4 slot 1 32365d30 ( equipment, pet aura, riding pet, title,
 //              set items = slot 2 323652b0, premium buffs, LimitMaximum, ResetIncreaseSkillLevelBySocket ) through the unit-side
@@ -9105,6 +9088,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S3f - CommonStateStart's upgraded-skill flag ( June 32057b80 @32057c03 / @3205ad70: the now-state
+//              skill's equipped templet with the upgrade swap has m_iDeleteSkillIDByUpgrade > 0 ), computed once at the top and passed to
+//              LoadEffectSetFromScript's new third argument ( 32024ff0; its _ULTIMATE lists stay checklist row 397 ), to the
+//              DAMAGE_DATA_ULTIMATE / DAMAGE_DATA pick ( @3205c865 ) and to ParsingBuffFactorID ( S3e ). March's memo path retired as June
+//              has it: m_bApplyMemo is always false ( June's MemoCondition decides false in the base and all 12 classes, JUNE_BUGS ), no
+//              DAMAGE_DATA_MEMO / DAMAGE_DATA_NEXT_MEMO. CX2GUUser::SetDamageData is June's 31fcd280 ( one argument, negative FORCE_DOWN ).
+//              Log [JUNE_SKILL] SULT ( with JUNE_SKILL_DEBUG ). Revert: JUNE_SKILL_STATE_ULTIMATE in MODS.md.
+#define SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE needs SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ( the two-argument ParsingBuffFactorID it feeds )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
+//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
@@ -9142,7 +9142,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN needs SERV_IRUHADEV_JUNE_QUEST_OFFLINE ( the dungeon-clear driver it extends )
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
-//////
+//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
@@ -9179,7 +9179,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET
 //////////////////////////////////////////////////////////////////////////
 
-//////
+//////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
 // Description: June quest system Phase Q6 - the quest gates June's client puts on regions. The local-map templet's EnterCondition key

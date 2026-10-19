@@ -2220,7 +2220,6 @@ Revert: `MODS.md` "June's new-title notice". Log `[JUNE_SKILL] EMBLEM title ...`
   (NPC 74) in Elder Bender's Cave Hard (the sub-mission takes any difficulty of 30050): title 150 is granted, emblem 18 shows its icon + 17352 row in the dungeon.
   Title 10's "Apply title now?" box is not reachable offline: March's data036 sub-mission 10 asks for quest 11040 (June's: 11010), a sub-quest id, so mission 10 never completes.
 
-
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.
