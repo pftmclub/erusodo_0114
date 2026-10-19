@@ -1301,6 +1301,32 @@ Completing a story quest logs `STORY rebuild ... mark 1`.
 
 **Play-test (2026-10-19, user + log; exe 36fbf5de, data036 md5 5a334071) PASSED.** `STORY LOAD media rows 24 ( 1 categories, 23 groups, 81 files, 81 with a story ) stories 81 ( AddStory calls 82 ) cut scenes 1643` (= 1,655 less 43430's second copy of 12, JUNE_BUGS 357); unit 44 at login `with a story 0`, then completing 42720 "Lost Power 1" from the Story tab `completed quests 4, with a story 1, episode groups 1, Story_New mark 1`; the Remind button showed enabled in the village and does nothing on click (user), as expected: 42720 has no `Quest_Event_Scene_Info` row and the story replay is Q10b. 0 EXCEPTION, ErrorLog 0, UNHANDLED = baseline E_DISABLE_HB_CHECK_REQ. Save: unit 44's 41990 set to 5 / 5 for the test (backup `db_backup\els_db_20261019_180618_pre_sql.sql`).
 
+### Q10 - Review (2026-10-19, Opus 5.5 high): PASS, no transcription errors, no code fix
+
+Ghidra, read-only, against `1f92c15f` (no later commit touches the flag: `git log -S` empty). All six areas checked, not only three.
+- **AddMediaInfo `326a8e10`:** reads Title (-1), IsCategory, MediaType (0), UnitType (0); `IsCategory == 0` alone reads MediaGroup and MediaFile; a
+  MediaFile is { QuestID, Title -1, Tga, Tet } (stack layout = the port's struct), inserted (`326ae600`) into the row's own map; the row is appended
+  (`326b0660` on `+0x10`) either way. June also builds and frees an unused 0x38-node map per episode row (no effect, not ported). Match.
+- **AddStory `326a9890`:** Quest_ID -1; `Cut_Scene%d` from 0 (`31c7b920`) to the first gap; ctor `326af720` = the port's defaults (Speaker / Text -1);
+  Scene_Duration default `334729f0`; Scene_Text read into a temp and copied whole (`+0x04` Start_Time, `+0x08` 0, `+0x0c` Spread_Rate, `+0x10`
+  Name_Left, `+0x14` / `+0x18`, Color); Scene_Delete Key through the narrow reader `32feb110`; `326a8d70` sorts `+0x68` (`326af240`), `+0x38` / `+0x58`
+  / `+0x78` (`326af330`), `+0x48` (`326af420`) = the port's five; unique insert `326b0ea0`; no BlackLayoutMove read. Match.
+- **Loader:** `3258c470` @32590879 `326ab290`, @3259087e `326ab210`, @32590885 `326a8d40`; `326a8d40` loads `326a7d80` only when `326a8560` returned
+  true. The three calls between the scene data and here (`31eed660` / `31eed7a0` GFx XMLs, `31ededb0` the old slide show) are independent. Match.
+- **Rebuild `32335f50`:** walks `+0x38`, finds in `+0x08`, templet `+0` = -1 or `g_pInstanceData +0x120` (March's own test at `X2QuestManager.cpp:1457`
+  uses the same getter), `326ab090( +4 )`, key `+0x1b4`, set insert `323e67f0`, map copied to `g_pData +0x570`, `+0xabd` = the argument. Callers:
+  @3233728c `PUSH 0` after `3232ef70`; @323e5a43 `PUSH 1`. Match.
+- **Complete ACK `323e57e0`:** after `323cb2e0( id, 1 )` @323e59fe: templet `32322310` (NULL jumps past `323d4390`, the pre-Q10 path), `+8 == 0xa`,
+  `326a7d50( +4 )`, `32335f50( 1 )`, then the `+0x288` / `+0xabc` tail (Q10b), then `323d4390`. Match.
+- **Remind `323ccbc0` case 6** @323cd3a7..323cd409: state `+0x8c` in 0xe..0xf or 0x15 -> found pushes enable 1, else enable 0; then `PUSH 1` (show) and
+  vtable `+0x78`, then `+0x2c` (RequestFocus) in both found branches; not found = `( 0, 0 )`, no focus. Match.
+- **`#else` paths:** every site is additive except `X2UIQuestNewJune.cpp`'s case 6, whose `#else` keeps Q5a's comment-only body: flag-off = the Q6 build.
+
+**Hygiene.** `flagcheck JUNE_QUEST_STORY --range 1f92c15f^..1f92c15f`: `files: 10 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 1 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: FAIL` = the one expected FAIL, `X2SlideShotScriptedManager.cpp`'s `#include "StdAfx.h"` (PCH, as G3's new file). No build: no code changed.
+`kickoffs/quest-system/Q10b.md` checked: still matches (GetStory / HasStory, the ACK tail @323e5a4a..323e5a6d, Remind @323e293d). User owes nothing.
+
 
 ## Phase Q10b - Story slide-show player
 
