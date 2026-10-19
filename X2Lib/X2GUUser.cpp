@@ -1385,6 +1385,18 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
 	m_iAllyEventMonsterUID = -1;
 #endif SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	/// June S8: the ctor 3203e850 gives the state vector at least one entry ( @32042125 ) and points Future, then Now, at entry 0
+	/// ( @3204213c / @320421af ); the power rate +0x7cc8 starts at 1 ( @3203ed10 ); the five snapshot delegates start empty ( @32041ff6 ).
+	/// The class InitState re-binds the slots ( JuneSnapshotBeforeSlotRebind reads the Now entry ) long before the first ReInit.
+	m_itFutureStateData		= JuneGetStateDataIterator( 0 );
+	m_itNowStateData		= m_itFutureStateData;
+	m_fNowStatePowerRate	= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+	m_iJuneSnapDebugFramesFuture	= 0;
+	m_iJuneSnapDebugFramesNow		= 0;
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 }
 
 CX2GUUser::~CX2GUUser(void)
@@ -1925,8 +1937,8 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
-	/// June S8: the ctor 3203e850 gives the state vector at least one entry ( @32042125 ) and points Future, then Now, at entry 0
-	/// ( @3204213c / @320421af ); the power rate +0x7cc8 starts at 1 ( @3203ed10 ); the five snapshot delegates start empty ( @32041ff6 ).
+	/// June S8: ReInit 32022380 points Future, then Now, at entry 0 ( @32022493 / @3202251d ) and resets the power rate +0x7cc8 to 1
+	/// ( @32022590 ); it does not touch the snapshot. The ctor seeds the same three ( end of CX2GUUser::CX2GUUser ).
 	m_itFutureStateData		= JuneGetStateDataIterator( 0 );
 	m_itNowStateData		= m_itFutureStateData;
 	m_fNowStatePowerRate	= 1.f;

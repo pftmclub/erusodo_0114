@@ -1726,6 +1726,11 @@ read (June: an id past the vector's end -> entry 0; not reproducible on a map, a
 (peers' S7f / Q1 blocks in the worktree).
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,127,424 B, dated 2026-10-19 07:16:44, md5 39cea8d40f2459fd8da4b5677872d647, equal to X2/US_SERVICE/x2.exe (2026-10-19 07:16:37)`;
 the three PTR strings are in the exe.
+**Play-test 1 (07:23, exe 39cea8d4): crash entering the field** (CrashRpt `X2_A6C6.tmp`: access violation `0x32a3bbf9` = `JuneSnapshotRunningStateFunc+0x9`, the
+first Now-iterator read). Cause: March's `m_FutureStateData.Init()` / `m_NowStateData.Init()` sit in `ReInit`, not in the ctor (the S0b map's "ctor region" was
+wrong), so the iterators were unseeded when the class InitState re-bound the slots. June seeds them in both: ctor `3203e850` and ReInit `32022380`
+(Future = entry 0 `@32022493`, Now = Future `@3202251d`, rate 1 `@32022590`, snapshot untouched). Fix: the same seed at the end of `CX2GUUser::CX2GUUser`;
+the ReInit block's comment now cites ReInit. Compiled clean; the rebuild was blocked by a peer's error (GFx G3, `X2DungeonGame.cpp:309`), so not deployed yet.
 
 **How to see it in game:** the hand-off below (unit 25 jtLordKnight, page switch while Impact Smash runs; Kick for the power rate). **User owes:** the play-test.
 
