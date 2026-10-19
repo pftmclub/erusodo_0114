@@ -1807,6 +1807,9 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` (`Always.h` only; `#error` guards `
   `KLuaManager::EndTable` stops at depth 0) and a parse summary line `[JUNE_SKILL] EMBLEM parsed N of M ...; emblem 17 loaded = 1`.
   `DEPLOY OK: X2_offline.exe is 25,315,840 B, dated 2026-10-19 09:42:51, md5 2a1c1d3e0f0ec75e251bfc3d44cdacc3, equal to X2/US_SERVICE/x2.exe (2026-10-19 09:42:44); built at main c3fb3adf + 5 uncommitted code file(s).`
   Unit 44 reset to L10, EXP 38700 (backup `db_backup`, `pre_setchar`).
+- **Play-test 2 PASSED 2026-10-19** (user + log, exe 2a1c1d3e, 0 EXCEPTION, clean exit): `EMBLEM parsed 20 of 20 ...; emblem 17 loaded = 1`; unit 44 by philosopher's
+  scrolls L10 -> 16: L11 and L12 each one row at once, L13-16 queued 4 rows during L12's pop, then two pops 2 + 2 (`more to show = 1`, then `0`, ~5 s apart);
+  unit 23 L71 -> 72: one pop with two type-3 rows (24026, 24217).
 
 ## Phase S7j - June's max MP / max HP: ResetMaxMp, the unit's socket aggregate, the HUD refresh
 
