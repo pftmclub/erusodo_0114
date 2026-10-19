@@ -594,6 +594,7 @@ widget open, ESC and cut-ins behave as before.
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS` (OTHER = Always.h, the flag's own define block beside peers' flags).
 `flagcheck SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG --range c2e1d35c^..c2e1d35c`: `files: 1 PASS, 0 FAIL` / `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,381,376 B, dated 2026-10-19 13:10:38, md5 01c5f8d1bdcb1c04c201029a1384fe1d, equal to X2/US_SERVICE/x2.exe (2026-10-19 13:10:30); built at main e3a34f3b + 3 uncommitted code file(s).` (`JuneGfxOpenUI` / `GATE ESC closeToTopZorder` no longer in the exe.)
+**Follow-up (user: ESC does not close the hand-opened GFx shop):** June does not close it with ESC either. `closeToTopZorder` is false for `0xb`; the field states' ESC handler `32464b20` (vslot 0x1ec) sees `CX2CashShop` open, closes only an inner popup (`322273f0`) and swallows ESC; the shop closes through `CX2CashShop::SetOpen( false )` (`3223d680` -> `unloadWidget( 0xb )`). Our build opens March's menu instead because the debug command opened the widget with no June cash shop behind it. Stage 9 note extended; funcmap rows `GFx G5 review`. Not a G5 defect.
 **Owes:** nothing (debug-off only; no play-test). The ESC-true branch and hide modes 2-4 stay unproven in game until Stage 9 brings a closeable widget and the result UI. Next: `/x2-phase june-gfx Z` on Sonnet 5.5 medium.
 
 ## Phase Z - Close-out

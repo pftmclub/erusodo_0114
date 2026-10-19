@@ -355,6 +355,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
 
 - **June GFx owed gates that need a screen** (handed here by june-gfx G5, 2026-10-19). G5 ported the mechanism (`isOpenUI( 0xb )` in the cut-in term, `closeToTopZorder` in the ESC chain, the dialog hide modes with all five presets, `JuneSetShow( bShow, mode )`). What waits for these screens:
   - **Cash shop = GFx UI `0xb`**: opened by June's cash-shop code (`32228478` / `3223dd01`) through `openUI( 0xb )`. Until it exists the cut-in term stays false.
+    **ESC does not close it in June either** (G5 review follow-up, 2026-10-19): the AS `closeToTopZorder` answers false for `0xb`, and the
+    field states' ESC handler (vslot 0x1ec `32464b20` @32464c13) sees the cash shop open (state `+0x2f4` = `g_pData +0x290`, `+0xd8`), calls
+    `322273f0` (closes only an inner popup: `+0x3b0` and `+0x358` -> `32e3e8d0`) and returns true, so ESC is swallowed and the shop stays.
+    It closes through `CX2CashShop::SetOpen( false )` (`3223d680`, `unloadWidget( 0xb )` @3223e164). Port all three with the screen;
+    until then a hand-opened `0xb` (G5 debug) has no owner: ESC opens March's menu and nothing unloads the widget.
   - **Hide modes 2-5 are entered only by June's result-UI / presentation code**: `31f14e40`, `324c95b0`, `324d8600`, `3243be8b` (mode 2), `324ac353` (mode 4), `328c3750` (mode 5, `PresentProlBlackBack`). Each calls `CKTDGUIDialogManager::JuneSetShow( false, mode )`; the lists are ready (March has no caller). `31f02f50`'s toggle and `31d03a10`'s ESC rule already handle them.
   - **The result-UI mode `+0x210`** at `31f1e214` (setter `31ef7be0`, exit box `31f1dd70`, writers listed in the C3p-2 Done note) and the **profession-manager close** at `31f1e27a` (`CX2UIProfessionManager` `32396dc0`, SetShow `3239d190`).
   - **The tutorial guide ESC gate** stays with C3z-4t (june-dungeons). **The GFx show byte `+0x108`** is already written by the toggle; the other writers (`31f25112`, state dtors `324ad780` / `324d5670` / `32520d70`) come with their states.
