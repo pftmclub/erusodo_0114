@@ -5122,8 +5122,14 @@ bool CX2UISkillTreeNew::JunePageCustomEventProc( HWND hWnd, UINT uMsg, WPARAM wP
 			if ( NULL != g_pTFieldGame )
 				g_pTFieldGame->CloseFieldName( 0.0f );									/// 323a9780( 0 )
 			g_pData->GetCashShop()->SetMenuTypeCallingCashShop( CX2UIManager::UI_MENU_PRIVATE_BANK );	/// cash shop +0x31c = 0x11
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+			/// June then pushes CI_EXPAND_SKILL_PAGE ( 0x1f129 = 127273 ) into the cash shop's open-at-item list ( +0x338, 321cd390 );
+			/// the shop's open path then shows that item in the buy pop-up ( 3224a5d0, ported in CX2CashShop::JuneOpenAtItemList )
+			g_pData->GetCashShop()->JunePushOpenAtItemID( 127273 );
+#else SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 			/// June then pushes CI_EXPAND_SKILL_PAGE ( 0x1f129 = 127273 ) into the cash shop's June-only open-at-item list ( +0x338,
 			/// setter 321cd390, six callers ): that list is not in March ( STATUS skill-system-core S7g ), so the shop opens as March's does
+#endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 			pStateField->ToggleCashShop();												/// vslot 0xac
 		} return true;
 

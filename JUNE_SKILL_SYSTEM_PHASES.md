@@ -1540,6 +1540,38 @@ on a tree reset the emulator matches June (bar empty).
 `CX2Unit 3235a160`, 23 callers) and the cash shop's `+0x338` open-at-item list (`321cd390`, six callers), then port or record why not.
 Kickoff `kickoffs/skill-system-core/S7g.md`.
 
+### Phase S7g - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM` (`Always.h` only). Funcmap rows `Skill S7g` (17). No JUNE_BUGS row (nothing kept verbatim). Revert: `MODS.md`
+"June's cash shop open-at-item list".
+- **Item 1, identified, not ported -> new S7j.** `324943c0` is March's own `CX2GageManager::GetInstance` (corrects C9h-3's "June-only singleton"): `3248a800` =
+  `SetMaxMp( uid, mp, idx )` (June's virtual gage setter; idx 1 only for unit type 10), `3248d3a0` = `SetMaxHp( uid, hp )`. `3235a160` is a June-only CX2Unit
+  refresh of **my HUD's max MP and max HP** from unit-side data (the "x/300" MP text and the 100/200 MP guide marks, `CX2MyGageUI::UpdateMpGageAndString`).
+  March has the display but sets those maxima only from the server's `KGamePlayStatus` at select unit (`X2StateServerSelect.cpp:4127` / `:5037`, where the
+  studio's own refresh is commented out). Not portable inside S7g: its MP and HP rates come from **June's CX2Unit-owned socket aggregate** (`+0xe1c`, CX2Unit
+  vtable slots 1 / 2), which no phase has ported (Buff 16 row `32364790`), and its MP base is **June's `ResetMaxMp` `3234b9d0`**.
+- **Found on the way (S7j, priority):** June's `ResetMaxMp` reads 19 skills, 17 of them June-only `RNSI_*` ids; March's `X2Unit.cpp:932` still reads
+  2402 / 5402 / 5410 / 7402, which June's skill data (S3) no longer has. **In-game max MP from those passives is lost today** (`RNSI_P_AEM_UNLIMIT_MANA`,
+  `RNSI_P_EAT_QUEENS_POTENTIAL`, `RNSI_P_ECB_ADVANCED_EL_ENERGY_REACTOR`, `RNSI_P_ALH_FILLED_POWER`, ...). Its item term `32869f80` is a filtered June form of `GetAddMaxMPValue`.
+- **Item 2, ported.** June keeps a `vector<int>` of item ids in the cash shop (`+0x338`). The open body `3224a680` reads it in `3224a5d0` after the menu-type
+  tabs and before `+0x31c = 0`: `32229e00( list, 0, 1, 0 )` resets the buy pop-up's list (items without a product are dropped), `322470a0( 1 )` shows its
+  first page, then the list is cleared. March's buy pop-up is the DLG `BuyItemPopup`, so `CX2CashShop::JuneOpenAtItemList` runs March's own direct-link
+  sequence (`JobChangeDirectLink`: `Reset`, `SetOpen( true )`, `SetChoicedItemBuy( false )`) on the items that have a product, from `SetOpen( true )` just
+  before `m_iMenuTypeCallingCashShop = 0`. Not ported: `3223c970` (per-product pre-query REQ 0x1ed, event not named; March's pop-up runs its own coupon
+  inquiry), the GFx calls, and the sibling one-item path `3224a3c0` (`+0x334`, noted only).
+- **Callers (S7d's list corrected):** the six sites inline the push (`add ecx, 0x338; call 31f8b860`); `321cd390` itself is called from `32191420` / `321914ad`.
+  Ported where March has the UI: the skill tree's page cash button `328ec476` (127273, `X2UISkillTreeNew2015.cpp`) and the quick-slot expand button
+  `32478410` (`CX2StateMenu::UICustomEventProc 32476050` case 0xa5, 274333 Extended Quick Slot, `X2StateMenu.cpp` `SMUCM_DISABLE_QUICK_SLOT_MOUSE_UP`).
+  No March UI: the profession manager `32398159` (280943), the PvP-lobby confirm `324a6fbf` (288494), the Resonance UI `3260d801` / `3260dff1` (data-driven ids).
+- **Emulator.** 127273 is sold (cash category 33, S7d); 274333 is not in `cash_product`, so the quick-slot button opens the shop on the install tab as
+  before and the log says "0 with a product" (June shows nothing for an item without a product).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM --worktree --files <5 files>`: `files: 4 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR` (the OTHER is `Always.h`:
+  peers' uncommitted `JUNE_GFX_JPEG8` / `JUNE_QUEST_DATA` blocks beside this define) / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,305,600 B, dated 2026-10-19 08:03:19, md5 99d486a17048b2581a4ad98c302bc0f3, equal to X2/US_SERVICE/x2.exe (2026-10-19 08:03:12); built at main 4c96fcc5 + 10 uncommitted code file(s).`
+  (COALESCED with a peer's build that started after this request.) The `shop open-at-item` string is in the exe.
+- **How to see it.** In a village, skill window -> the cash button beside the page radios: the shop opens and the buy pop-up shows "Skill Tree Page
+  Expansion". Log `[JUNE_SKILL] HUD shop open-at-item: 1 pushed, 1 with a product, first 127273`.
+
 ## Phase S7e - Description panels: major skills and the command tab
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS`. Sub-tag `[JUNE_SKILL] UI`. Split out of S7b (2026-10-18, unowned June branch).
@@ -1670,13 +1702,19 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; 
 
 ## Phase S7h - June's class-change notice
 
-**Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). Depends on S7g (`324943c0`). June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler `31f276b0`
+**Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). Depends on S7j (`3235a160`; S7g: `324943c0` = `CX2GageManager::GetInstance`). June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler `31f276b0`
 (Get `320ed4e0`: short class, no memo map, trailing acquired-skill vector -> `328929e0`) and the emulator's sender (`Handlers_Shop.cpp`). Kickoff `kickoffs/skill-system-core/S7h.md`.
 
 ## Phase S7i - The level-up "new skill or memo" emblem
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). June's `31d885e0` (called by the three level-up handlers), `CX2SkillTree 3220d2b0 /
 3220b990`, and `CX2EmblemManager`'s emblem 17 `EI_GET_NEW_SKILL_OR_MEMO` (`+0x64` list, `32447d70`, parser `32449000`). Kickoff `kickoffs/skill-system-core/S7i.md`.
+
+## Phase S7j - June's max MP / max HP: ResetMaxMp, the unit's socket aggregate, the HUD refresh
+
+**Run with:** Opus 5.5 high, then user play-test. Added by S7g (2026-10-19, unowned-branch rule). June's `ResetMaxMp` `3234b9d0` (17 June-only skill ids; in-game max MP
+from those passives is lost today) with its item term `32869f80`, the CX2Unit socket aggregate (`+0xe1c`, vtable slots 1 / 2), the HUD refresh `3235a160` and its 23 callers.
+Kickoff `kickoffs/skill-system-core/S7j.md`.
 
 ## Phase S8 - Running state data: June's pointer model
 

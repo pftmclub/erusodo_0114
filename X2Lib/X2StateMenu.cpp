@@ -1850,6 +1850,11 @@ bool CX2StateMenu::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 #ifdef DIRECT_OPEN_BUY_DIALOG
 			g_pData->GetCashShop()->SetMenuTypeCallingCashShop( CX2UIManager::UI_MENU_QUICK_SLOT );
 #endif //DIRECT_OPEN_BUY_DIALOG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+			/// June CX2StateMenu::UICustomEventProc 32476050 case 0xa5: +0x31c = 1, then pushes 0x42f9d ( 274333, Extended Quick Slot ) into the
+			/// cash shop's open-at-item list ( +0x338, push_back inlined @32478410 ) before ToggleCashShop @3247841f; unconditional in June
+			g_pData->GetCashShop()->JunePushOpenAtItemID( 274333 );
+#endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 			ToggleCashShop();
 			return true;
 		} break;

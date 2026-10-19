@@ -807,6 +807,11 @@ class CX2CashShop : public CX2ItemSlotManager
 		//{{ kimhc // 2009-08-10 // UI에서 캐시샵의 특정탭으로 바로 가기 위해 추가
 #ifdef	PRIVATE_BANK
 		void	SetMenuTypeCallingCashShop( int	iMenuType ) { m_iMenuTypeCallingCashShop = iMenuType; } // 캐쉬샵을 부른 UI 메뉴의 타입
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+		/// June 321cd390: push an item id into the open-at-item list ( June +0x338 ); the callers push before ToggleCashShop
+		void	JunePushOpenAtItemID( int iItemID ) { m_vecJuneOpenAtItemID.push_back( iItemID ); }
+		void	JuneOpenAtItemList();	/// June 3224a5d0, called from SetOpen( true )
+#endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 #endif	PRIVATE_BANK
 		//}} kimhc // 2009-08-10 // UI에서 캐시샵의 특정탭으로 바로 가기 위해 추가
 
@@ -1219,6 +1224,9 @@ class CX2CashShop : public CX2ItemSlotManager
 		//{{ kimhc // 2009-08-10 // 은행에서 캐시샵의 설치탭으로 바로 가기 위해 추가
 #ifdef	PRIVATE_BANK
 		int						m_iMenuTypeCallingCashShop;		// 캐쉬샵을 부른 UI 메뉴의 타입
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+		vector<int>				m_vecJuneOpenAtItemID;			/// June +0x338 ( vector<int>, begin / end +0x338 / +0x33c )
+#endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 		bool					m_bCheckDialogWarningPlatinumMembership;	// 플래티넘 구매시 다이얼로그로 다시 한번 확인 해야하는가?
 		//KNXBTProductInfo		m_KNXBTProductInfoForAutoPayment;			// 구입하기로 선택한 자동결제 상품
 #endif	PRIVATE_BANK

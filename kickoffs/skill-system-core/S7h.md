@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase skill-system-core S7h` |
 | Plan doc | `JUNE_SKILL_SYSTEM_PHASES.md` (branch `main`) |
-| Depends on | S7g (the HUD singleton `324943c0` this handler calls); S7 (`AddJuneAcquiredSkills`) |
+| Depends on | S7j (the HUD refresh `3235a160` this handler calls; S7g identified `324943c0` = `CX2GageManager::GetInstance`); S7 (`AddJuneAcquiredSkills`) |
 | Flag | one per logical change, `SERV_IRUHADEV_JUNE_SKILL_*` (a packet-struct change also goes in `ServerDefine.h` + `SECOND_HOMES`) |
 | Log tag | `[JUNE_SKILL] CLASS` (`python tools/logs.py --tag JUNE_SKILL`) |
 | Review | `kickoffs/skill-system-core/S7h-review.md` (the phase writes it when done) |

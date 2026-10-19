@@ -8871,3 +8871,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7g - the cash shop's open-at-item list. June 321cd390 pushes an item id into a June-only
+//              vector<int> of CX2CashShop ( +0x338 ) before ToggleCashShop; the open path 3224a680 reads it in 3224a5d0 ( buy pop-up
+//              item list 32229e00 + first page 322470a0( 1 ) ) and clears it. Ported onto March's DLG buy pop-up ( Reset / SetOpen /
+//              SetChoicedItemBuy, = March's JobChangeDirectLink tail ); callers: the skill tree's page cash button 328ec3ff ( 127273 )
+//              and the March counterparts of the other June callers. Log [JUNE_SKILL] HUD. Revert: comment out the define.
+#define SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+//////////////////////////////////////////////////////////////////////////

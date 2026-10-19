@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2cashshop.h"
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 
 #ifdef CLIENT_PURPLE_MODULE	// 임규수 일본 추가
 #include "OnlyGlobal/JP/Auth/PurpleForClient.h"
@@ -2595,6 +2598,44 @@ void CX2CashShop::MouseMove( D3DXVECTOR2 mousePos )
 	CX2SlotManager::MouseMove( mousePos );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+/** June 3224a5d0 ( no Ghidra function; raw disassembly ): when the shop's list control ( June +0x134 ) exists and the open-at-item list
+	is not empty: 3223c970( &list ) ( sorts the list, per-product pre-query REQ 0x1ed / wait 0x1ee ), 32229e00( list, 0, 1, 0 ) ( the buy
+	pop-up's item list, +0x388 ) and 322470a0( 1 ) ( shows the pop-up's first page ); then 32227a20 and a GFx refresh ( +0x358 ). The list
+	is cleared either way. March's buy pop-up is the DLG BuyItemPopup, so the three calls map onto March's own direct-link sequence
+	( JobChangeDirectLink: Reset, SetOpen( true ), SetChoicedItemBuy( false ) ). 3223c970's pre-query and the GFx calls are not ported:
+	March's pop-up runs its own per-product coupon inquiry. */
+void CX2CashShop::JuneOpenAtItemList()
+{
+	if ( NULL != m_pBuyItemPopUp && false == m_vecJuneOpenAtItemID.empty() && NULL != g_pData && NULL != g_pData->GetItemManager() )
+	{
+		/// 32229e00 keeps only items with a product ( 32807970 record, product vector of 0x4d-byte entries non-empty ); 322470a0 shows
+		/// nothing for an empty list ( @322470a0 its +0x388 != +0x38c test )
+		vector<int> vecItemID;
+		for ( UINT i = 0; i < m_vecJuneOpenAtItemID.size(); ++i )
+		{
+			const CX2ItemManager::CashItem* pCashItem = g_pData->GetItemManager()->GetCashItem( m_vecJuneOpenAtItemID[i] );
+#ifdef SERV_GLOBAL_BILLING
+			if ( NULL != pCashItem && false == pCashItem->m_vecKBillProductInfo.empty() )
+#else // SERV_GLOBAL_BILLING
+			if ( NULL != pCashItem && false == pCashItem->m_vecKNXBTProductInfo.empty() )
+#endif // SERV_GLOBAL_BILLING
+				vecItemID.push_back( m_vecJuneOpenAtItemID[i] );
+		}
+#ifdef SERV_IRUHADEV_OFFLINE
+		CX2OfflineLog::Server( L"[JUNE_SKILL] HUD shop open-at-item: %d pushed, %d with a product, first %d",
+			static_cast<int>( m_vecJuneOpenAtItemID.size() ), static_cast<int>( vecItemID.size() ), m_vecJuneOpenAtItemID[0] );
+#endif SERV_IRUHADEV_OFFLINE
+		if ( false == vecItemID.empty() )
+		{
+			m_pBuyItemPopUp->Reset( vecItemID );
+			m_pBuyItemPopUp->SetOpen( true );
+			m_pBuyItemPopUp->SetChoicedItemBuy( false );
+		}
+	}
+	m_vecJuneOpenAtItemID.clear();
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 void CX2CashShop::SetOpen( bool bOpen )
 {
 #ifdef FIX_MISSING_MAIL
@@ -2748,6 +2789,10 @@ void CX2CashShop::SetOpen( bool bOpen )
 			break;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+		/// June's open 3224a680 runs 3224a3c0 and then 3224a5d0 @3224ac87 after the menu-type tabs, before +0x31c = 0
+		JuneOpenAtItemList();
+#endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 		m_iMenuTypeCallingCashShop	= 0;	// 다시 초기화
 #else	PRIVATE_BANK
 		SetCashShopState( CX2CashShop::CSS_MAIN );

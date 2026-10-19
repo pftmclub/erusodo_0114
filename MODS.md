@@ -4275,6 +4275,13 @@ log tag `[JUNE_SKILL] MEMO room`.
   March's KStat and packet are unchanged. The emulator never sends this NOT, so nothing changes offline.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### June's cash shop open-at-item list (skill-system-core S7g, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM` in `KTDXLIB/Always.h`. Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7g"; log tag `[JUNE_SKILL] HUD`.
+- **Client.** `CX2CashShop` keeps June's open-at-item list (`m_vecJuneOpenAtItemID`, June `+0x338`); `SetOpen( true )` hands the items that have a product to the buy pop-up
+  (`JuneOpenAtItemList` = June `3224a5d0`, on March's `BuyItemPopup`) and clears the list. Pushed by the skill tree's page cash button (127273) and the quick-slot expand button (274333).
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June's running-state pointer model (skill-system-core S8, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR` in `KTDXLIB/Always.h` (`#error` guard: `_SKILL_TREE_UI`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S8"; log tag `[JUNE_SKILL] PTR`
