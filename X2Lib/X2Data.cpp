@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\x2data.h"
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#include "X2GFXEventScene.h"
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 //{{ Iruha : 2026-08-31 // offline mode
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -964,6 +967,9 @@ CX2Data::CX2Data(void)
 #ifdef EVENT_SCENE
 	m_pEventScene			= NULL;
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	m_pGFXEventScene		= NULL;
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 	m_pCX2SocketItem		= NULL;
 	m_pCX2EnchantItem		= NULL;
@@ -1131,6 +1137,9 @@ CX2Data::~CX2Data(void)
 #ifdef EVENT_SCENE
 	SAFE_DELETE( m_pEventScene );
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	SAFE_DELETE( m_pGFXEventScene );		/// before the particle systems: a scene still playing gives its black layout back
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 	//{{ 오현빈 // 2012-05-15 // 플레이 가이드 Class
 	SAFE_DELETE ( m_pPlayGuide );
@@ -1237,6 +1246,10 @@ HRESULT CX2Data::OnFrameMove( double fTime, float fElapsedTime )
 	if( NULL != m_pEventScene )
 		m_pEventScene->OnFrameMove( fTime, fElapsedTime );
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	if( NULL != m_pGFXEventScene )
+		m_pGFXEventScene->OnFrameMove( fTime, fElapsedTime );		/// June vslot 2 ( 3226c120 )
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 	if( NULL != m_pSlideShot )
 		m_pSlideShot->OnFrameMove( fElapsedTime );
@@ -2435,6 +2448,29 @@ CX2EventScene* CX2Data::ResetEventScene(const WCHAR* pSceneObjectFileName, const
 	return m_pEventScene;
 }
 #endif EVENT_SCENE
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+/// June 31edc620: the old scene goes, a new one ( 0xd8 B, ctor 3226aed0 ) is made. The startup loader then reads the scene XMLs ( 3259085e / 32590869 ).
+CX2GFXEventScene* CX2Data::ResetGFXEventScene()
+{
+	SAFE_DELETE( m_pGFXEventScene );
+	m_pGFXEventScene = new CX2GFXEventScene();
+	m_pGFXEventScene->LoadSceneInfo();
+	return m_pGFXEventScene;
+}
+
+/// June 3226a010 behind the readers' "+0x274 != 0" test. The Lua scene is asked on its own when there is no GFX scene, so a reader never sees less than before.
+bool CX2Data::JuneIsEventScenePlaying()
+{
+	if( NULL != m_pGFXEventScene && true == m_pGFXEventScene->IsPlaying() )
+		return true;
+#ifdef EVENT_SCENE
+	if( NULL != m_pEventScene && true == m_pEventScene->GetIsPlayingEventScene() )
+		return true;
+#endif EVENT_SCENE
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 CX2SlideShot* CX2Data::ResetSlideShot()
 {

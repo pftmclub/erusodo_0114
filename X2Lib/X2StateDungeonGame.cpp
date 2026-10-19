@@ -938,7 +938,13 @@ bool CX2StateDungeonGame::QuitGame()
 {
 	if( true == g_pMain->GetIsPlayingTutorial() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+		/// June 324d1580 @324d18c0: in the tutorial no exit dialog opens while an event scene plays ( June's other gates there are the tutorial plan's )
+		if( NULL == g_pData || false == g_pData->JuneIsEventScenePlaying() )
+			OpenExitDLG( GET_STRING( STR_ID_562 ) );
+#else SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		OpenExitDLG( GET_STRING( STR_ID_562 ) );
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	}
 	else
 	{

@@ -1839,7 +1839,11 @@ HRESULT	CX2TFieldGame::OnFrameMove( double fTime, float fElapsedTime )
 
 		if( m_bJoinNpc == true || m_bUserHide == true 
 #ifdef EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+			|| g_pData->JuneIsEventScenePlaying() == true		/// June 323ae6a0: 3226a010 ( the GFX scene, or the Lua scene )
+#else SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 			|| g_pData->GetEventScene()->GetIsPlayingEventScene() == true
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #endif EVENT_SCENE
 			) // && m_pMyUnit != pCX2SquareUnit)
 		{

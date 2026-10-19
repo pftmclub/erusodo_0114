@@ -13,6 +13,10 @@
 
 #include "X2StateClassChange.h"
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+class CX2GFXEventScene;		// June GFx runtime G3: X2GFXEventScene.h
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+
 
 // 게임 동작중 변하지 않는 데이터를 담아두는 구조체, 게임 동작중 변하는 데이터는 CX2InstanceData에 담아주세요~
 class CX2Data : public CKTDXStage
@@ -316,6 +320,13 @@ class CX2Data : public CKTDXStage
 		void DeleteEventScene() { SAFE_DELETE( m_pEventScene); }
 		CX2EventScene* ResetEventScene(const WCHAR* pSceneObjectFileName, const WCHAR* pEventSceneFileName);
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+		/// June GFx runtime G3: CX2GFXEventScene at June's g_pData +0x274 ( made by 31edc620 ), beside March's Lua scene ( +0x278 )
+		CX2GFXEventScene* GetGFXEventScene() { return m_pGFXEventScene; }
+		CX2GFXEventScene* ResetGFXEventScene();			/// 31edc620 + the scene XMLs ( 31eed660 / 31eed7a0 )
+		/// June's IsPlaying ( 3226a010 ) as the readers see it: the GFX scene, or the Lua scene ( the one March's readers asked alone )
+		bool JuneIsEventScenePlaying();
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 		CX2SlideShot* ResetSlideShot();
 		CX2SlideShot* GetSlideShot(){ return m_pSlideShot; }
@@ -610,6 +621,9 @@ class CX2Data : public CKTDXStage
 #ifdef EVENT_SCENE
 		CX2EventScene*			m_pEventScene;
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+		CX2GFXEventScene*		m_pGFXEventScene;		/// June +0x274
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		CX2SlideShot*			m_pSlideShot;
 		CX2SocketItem*			m_pCX2SocketItem;
 		CX2EnchantItem*			m_pCX2EnchantItem;

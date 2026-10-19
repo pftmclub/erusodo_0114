@@ -84,7 +84,11 @@ HRESULT CX2Informer::OnFrameMove( double fTime, float fElapsedTime )
 	}
 
 #ifdef EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	if(g_pData->JuneIsEventScenePlaying())		/// June 32f2b8e0: 3226a010 ( the GFX scene, or the Lua scene )
+#else SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	if(g_pData->GetEventScene()->GetIsPlayingEventScene())
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	{
 		if(m_pTalkBoxManager->GetShowTalk())
 		{

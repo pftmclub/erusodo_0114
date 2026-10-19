@@ -8789,6 +8789,29 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June GFx runtime Phase G3 - June's GFx event scenes: CX2GFXEventScene ( g_pData +0x274, ctor 3226aed0 ) as X2Lib/X2GFXEventScene.{h,cpp}
+//              beside March's Lua CX2EventScene ( June keeps both ): the region XMLs + GFXEventSceneInfo.xml ( 31eed660 / 31eed7a0 ), Play /
+//              queue / End / IsPlaying ( 3226b130 / 3226bff0 / 3226b6c0 / 3226a010 ), the movie's gameDataEventScene callbacks and the
+//              EventScene.nextScene / bExactFit data bindings ( KTDGGFXManager.cpp: dataBindingInit, createBindingImpl, the scene listener ),
+//              voice through the device manager, the Lua bindings PlayEventScene / IsRecentlyPlayedEventScene ( 327ccad0 / 327ccb20 ) and
+//              June's IsPlaying readers ( StateChange, MsgProc, TFieldGame, Informer, TalkBoxManager, StateDungeonGame::QuitGame,
+//              DungeonGame::Release ). Log tag [JUNE_GFX] SCENE. Off = March's Lua scene only.
+#define SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifndef SERV_IRUHADEV_JUNE_GFX_MANAGER
+#error SERV_IRUHADEV_JUNE_GFX_EVENTSCENE needs SERV_IRUHADEV_JUNE_GFX_MANAGER (CKTDGGFXManager, KTDGGFXManager.h)
+#endif SERV_IRUHADEV_JUNE_GFX_MANAGER
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifndef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#error SERV_IRUHADEV_JUNE_GFX_EVENTSCENE needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE (CKTDXDeviceManager::JuneCloseDeviceByPointer, the voice)
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June quest system Phase Q1: June's quest enums (QT_GUILD / QT_CHANGE_TRANSCENDENTAL_CLASS / QT_STORY, QRT_WEEK / QRT_MONTH /
 //              QRT_CHAIN_REPEAT, CJT_JOB_FOURTH, SQT 37-48), the quest parser's new keys (chain id, additional scene quests, select BGM, account /
 //              guild flags, QR_* class tail, clear-condition keys for the new sub-quest types, m_eDungeonID keeps 0, m_cDifficulty), the

@@ -67,8 +67,66 @@ public:
 	void		FirstFrameLog();
 
 private:
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	friend class CKTDGGFXEventSceneBridge;		// reaches the root movie's data-binding adapter ( KTDGGFXManager.cpp )
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	CKTDGGFXManagerImpl*	m_pImpl;
 };
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// June GFx runtime, Phase G3 ( SERV_IRUHADEV_JUNE_GFX_EVENTSCENE ): the Scaleform side of June's CX2GFXEventScene ( ctor 3226aed0 ).
+// Plain types only, so X2Lib's CX2GFXEventScene ( X2GFXEventScene.{h,cpp} ) keeps March's own include paths.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+struct KJuneGfxSceneSymbol		// one SymbolData row ( 0x28 B in June: name 0x1c, x, y, delay )
+{
+	std::string		m_strSymbolName;
+	int				m_iPosX;
+	int				m_iPosY;
+	int				m_iDelayTime;
+	KJuneGfxSceneSymbol() : m_iPosX( 0 ), m_iPosY( 0 ), m_iDelayTime( 0 ) {}
+};
+
+struct KJuneGfxSceneFrame		// one EventSceneDataList row ( 0x8c B in June ); strings are the XML's UTF-8
+{
+	int				m_iFrame;
+	std::string		m_strSoundKey;
+	std::string		m_strCharacterNameKey;
+	std::string		m_strTextKey;
+	std::string		m_strWordBalloonName;
+	int				m_iWordBalloonPosX;
+	int				m_iWordBalloonPosY;
+	std::vector< KJuneGfxSceneSymbol >	m_vecSymbol;
+	KJuneGfxSceneFrame() : m_iFrame( 0 ), m_iWordBalloonPosX( 0 ), m_iWordBalloonPosY( 0 ) {}
+};
+
+// What the movie's four ActionScript callbacks ( table 33531f58 ) ask of the scene
+class IJuneGfxEventSceneHost
+{
+public:
+	virtual ~IJuneGfxEventSceneHost() {}
+	virtual void	OnSceneAsEnd() = 0;										// endEventScene 32e597e0: End( false )
+	virtual void	OnSceneAsPlaySound( const std::wstring& wstrKey ) = 0;	// playEventSceneSound 32e59d40 / the sound of playedEventSceneAndGetMent: PlaySound 3226a050
+	virtual int		OnSceneAsGetMentID( int iFrame ) = 0;					// playedEventSceneAndGetMent 32e59e00: row 3226a2b0
+	virtual bool	OnSceneAsGetFrames( std::vector< KJuneGfxSceneFrame >& vecFrames ) = 0;	// getEventSceneData 32e59f10: 32e5aa50 + 32e5b030
+};
+
+// Made by CX2GFXEventScene's ctor ( 32e59c50 ), deleted by its dtor ( 32e5a9c0 / 32e59820 ): registers the scene's listener on the root movie's
+// adapter and the "EventScene.nextScene" ( trigger ) and "EventScene.bExactFit" ( bool ) data bindings, removes them again.
+class CKTDGGFXEventSceneBridge
+{
+public:
+	CKTDGGFXEventSceneBridge( CKTDGGFXManager* pManager, IJuneGfxEventSceneHost* pHost );
+	~CKTDGGFXEventSceneBridge();
+
+	bool	IsBound() const;			// the root movie's adapter was there ( June's adapter +8 != 0 )
+	void	FireNextScene();			// 32e59800: notify "EventScene.nextScene"
+
+private:
+	class CImpl;
+	CImpl*	m_pImpl;
+};
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
 // Dev-console hooks ( C++ Lua bindings, CKTDXApp::RegisterLuabind ): no .lua is involved.

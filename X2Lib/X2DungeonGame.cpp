@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2dungeongame.h"
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#include "X2GFXEventScene.h"
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #if defined(SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG) && defined(SERV_IRUHADEV_OFFLINE)
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_IS_VOTING_LUTO_DEBUG
@@ -303,6 +306,11 @@ CX2DungeonGame::~CX2DungeonGame(void)
 		GetMinorParticle()->DestroyInstanceHandle(m_hBossName);
 #endif SERV_IRUHADEV_JUNE_SHOW_BOSS_NAME_AT_START
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	/// June 327d2160 ( CX2DungeonGame::Release 327d2240 @327d23fb, when the tutorial is left ): 3226a260 forgets the scene played last
+	if( NULL != g_pMain && true == g_pMain->GetIsExitingTutorial() && NULL != g_pData && NULL != g_pData->GetGFXEventScene() )
+		g_pData->GetGFXEventScene()->ClearRecentlyPlayed();
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #if defined( SERV_IRUHADEV_ELYSION_SCRIPT_B ) && defined( SERV_IRUHADEV_JUNE_TUTORIAL_MODE )
 	/// Atlas E7: the same June 327d2160 clears the slide shot's scene-ended byte ( 325c4a70 @327d2187 ) before the key restore
 	if( NULL != g_pMain && true == g_pMain->GetIsExitingTutorial() && NULL != g_pData && NULL != g_pData->GetSlideShot() )

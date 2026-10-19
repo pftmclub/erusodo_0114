@@ -625,11 +625,83 @@ public:
 	virtual bool		OnExternalCall( SFG::Movie* pMovie, const char* szMethod, const SFG::Value* pArgs, unsigned uArgCount ) = 0;
 };
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Phase G3. June wraps the adapter in a second ExternalInterface ( RTTI-less, vtable 3344deb8, 0x14 B, Callback 31d20430 ): the method
+// "dataBindingInit" is answered there and everything else is forwarded to the adapter's listener walk. The adapter itself ( vtable 3344deec,
+// ctor 31d1f7b0 ) also owns the binding table the AS3 class gfxAS3.gameData.DataBinding talks to: name -> { value object, observers }.
+//   dataBindingInit( obj )       : obj.createBindingImpl / obj.deleteBindingImpl = native functions ( 31d1f0a0 / 31d1f3a0 ), table 3344de9c
+//   createBindingImpl( name, a, b ): a known name gets the observer ( a, b ) appended ( 31d1fb40 pair, 31d1f000 ), then the listeners are told
+//   deleteBindingImpl( name, a, b ): removes the observer whose two Values equal ( a, b ) ( 31d1f230 )
+//   Notify( name )               : the value object's current value ( trigger = null, bool ) is passed to every observer's closure
+//                                  ( 31d1ee10 -> 31d1ec40: ObjectInterface slot 7 = InvokeClosure on the first Value )
+// The two value objects the event scene registers: "EventScene.nextScene" ( vtable 33471e28, GetValue 31fc76f0 = Null ) and
+// "EventScene.bExactFit" ( vtable 334c9084, GetValue 32948f70 = Boolean at +8 ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+enum JUNE_GFX_BINDING_KIND
+{
+	JGBK_TRIGGER	= 0,
+	JGBK_BOOL		= 1,
+};
+
+struct KJuneGfxBindingObserver
+{
+	SFG::Value	m_kClosure;		// record +0x00: the Value the notify invokes
+	SFG::Value	m_kExtra;		// record +0x18: compared on delete only
+};
+
+struct KJuneGfxBinding
+{
+	int			m_iKind;
+	bool		m_bValue;
+	std::vector< KJuneGfxBindingObserver >	m_vecObserver;
+	KJuneGfxBinding() : m_iKind( JGBK_TRIGGER ), m_bValue( false ) {}
+};
+
+// The link a native function keeps to its owner: the movie can outlive the C++ object that registered the function, a late call is dropped
+class CJuneGfxOwnerLink : public SF::RefCountBase< CJuneGfxOwnerLink, SF::Stat_Default_Mem >
+{
+public:
+	explicit CJuneGfxOwnerLink( void* pOwner ) : m_pOwner( pOwner ) {}
+	void*	m_pOwner;
+};
+
+// June's 0xc B function objects ( vtable 3344ded0 / 33531fc8, Call 32eee800 ): the Params go to a plain function with the owner
+class CJuneGfxFunctionHandler : public SFG::FunctionHandler
+{
+public:
+	typedef void ( *PFN_CALLBACK )( void* pOwner, int iID, const SFG::FunctionHandler::Params& kParams );
+	CJuneGfxFunctionHandler( CJuneGfxOwnerLink* pLink, PFN_CALLBACK pfn, int iID ) : m_pLink( pLink ), m_pfn( pfn ), m_iID( iID ) {}
+	virtual void Call( const Params& kParams )
+	{
+		if ( m_pLink && m_pLink->m_pOwner != NULL && m_pfn != NULL )
+			m_pfn( m_pLink->m_pOwner, m_iID, kParams );
+	}
+private:
+	SF::Ptr< CJuneGfxOwnerLink >	m_pLink;
+	PFN_CALLBACK					m_pfn;
+	int								m_iID;
+};
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+
 class CLIKDataBindingAdapter : public SFG::ExternalInterface
 {
 public:
 	virtual void Callback( SFG::Movie* pmovieView, const char* methodName, const SFG::Value* args, unsigned argCount )
 	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+		// 31d20430: "dataBindingInit" is answered by the wrapper ( June does not check the argument count or type )
+		if ( methodName != NULL && strcmp( methodName, "dataBindingInit" ) == 0 )
+		{
+			if ( argCount >= 1 && pmovieView != NULL && ( args[0].IsObject() || args[0].IsDisplayObject() ) )
+			{
+				SFG::Value kObject( args[0] );
+				AttachBindingFunction( pmovieView, kObject, "createBindingImpl", 0 );
+				AttachBindingFunction( pmovieView, kObject, "deleteBindingImpl", 1 );
+			}
+			return;
+		}
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		for ( std::map< std::string, IJuneGfxListener* >::iterator it = m_mapListener.begin(); it != m_mapListener.end(); ++it )
 		{
 			if ( it->second != NULL && it->second->OnExternalCall( pmovieView, methodName, args, argCount ) == true )
@@ -642,8 +714,116 @@ public:
 			return;
 		m_mapListener[ pListener->GetListenerName() ] = pListener;
 	}
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	CLIKDataBindingAdapter() : m_pOwnerLink( *new CJuneGfxOwnerLink( this ) ) {}
+	~CLIKDataBindingAdapter() { m_pOwnerLink->m_pOwner = NULL; }
+
+	void RemoveListener( const std::string& strName )		// 31d1f550
+	{
+		m_mapListener.erase( strName );
+	}
+
+	void AddBinding( const std::string& strName, int iKind )	// 31d1f900: the table takes a fresh record for the name
+	{
+		KJuneGfxBinding kBinding;
+		kBinding.m_iKind = iKind;
+		m_mapBinding[ strName ] = kBinding;
+	}
+	void RemoveBinding( const std::string& strName )		// 31d1f600
+	{
+		m_mapBinding.erase( strName );
+	}
+	bool HasBinding( const std::string& strName ) const
+	{
+		return m_mapBinding.find( strName ) != m_mapBinding.end();
+	}
+	void SetBindingBool( const std::string& strName, bool bValue )		// the bool value object's +8 ( 32e59900 @32e59a8a )
+	{
+		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		if ( it != m_mapBinding.end() )
+			it->second.m_bValue = bValue;
+	}
+	void ClearBindings()
+	{
+		m_mapBinding.clear();
+	}
+	// 31d1ee10 + 31d1ec40. June walks the live vector; a copy is walked here so an AS callback that deletes its binding cannot invalidate it.
+	void NotifyBinding( const std::string& strName )
+	{
+		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		if ( it == m_mapBinding.end() )
+			return;
+		SFG::Value kValue;
+		if ( it->second.m_iKind == JGBK_BOOL )
+			kValue = SFG::Value( it->second.m_bValue );
+		else
+			kValue.SetNull();
+		std::vector< KJuneGfxBindingObserver > vecObserver = it->second.m_vecObserver;
+		for ( size_t i = 0; i < vecObserver.size(); ++i )
+		{
+			if ( vecObserver[i].m_kClosure.IsClosure() )
+				vecObserver[i].m_kClosure.InvokeSelf( NULL, &kValue, 1 );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 private:
 	std::map< std::string, IJuneGfxListener* >	m_mapListener;	// +0x18
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	std::map< std::string, KJuneGfxBinding >	m_mapBinding;	// +0xc
+	SF::Ptr< CJuneGfxOwnerLink >				m_pOwnerLink;
+
+	// the table 3344de9c: ( name, native function ) pairs, set on the object dataBindingInit hands over
+	void AttachBindingFunction( SFG::Movie* pMovie, SFG::Value& kObject, const char* szName, int iID )
+	{
+		SF::Ptr< CJuneGfxFunctionHandler > pHandler = *new CJuneGfxFunctionHandler( m_pOwnerLink.GetPtr(), &CLIKDataBindingAdapter::OnBindingFunction, iID );
+		SFG::Value kFunction;
+		pMovie->CreateFunction( &kFunction, pHandler );
+		kObject.SetMember( szName, kFunction );
+	}
+
+	static void OnBindingFunction( void* pOwner, int iID, const SFG::FunctionHandler::Params& kParams )
+	{
+		CLIKDataBindingAdapter* pAdapter = static_cast< CLIKDataBindingAdapter* >( pOwner );
+		if ( iID == 0 )
+			pAdapter->CreateBindingImpl( kParams );
+		else
+			pAdapter->DeleteBindingImpl( kParams );
+	}
+
+	// 31d1f0a0: args ( name, a, b ). June reads the three Values without a count or type test.
+	void CreateBindingImpl( const SFG::FunctionHandler::Params& kParams )
+	{
+		if ( kParams.ArgCount < 3 || kParams.pArgs == NULL || kParams.pArgs[0].IsString() == false )
+			return;
+		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( kParams.pArgs[0].GetString() );
+		if ( it == m_mapBinding.end() )
+			return;
+		KJuneGfxBindingObserver kObserver;
+		kObserver.m_kClosure	= kParams.pArgs[1];
+		kObserver.m_kExtra		= kParams.pArgs[2];
+		it->second.m_vecObserver.push_back( kObserver );
+		// 31d1ed90: the listeners are told the name; the scene's ( 32e597d0 ) and the manager's answer false, so nothing follows from it
+	}
+
+	// 31d1f3a0 / 31d1f230: the first observer whose two Values equal ( a, b ) goes
+	void DeleteBindingImpl( const SFG::FunctionHandler::Params& kParams )
+	{
+		if ( kParams.ArgCount < 3 || kParams.pArgs == NULL || kParams.pArgs[0].IsString() == false )
+			return;
+		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( kParams.pArgs[0].GetString() );
+		if ( it == m_mapBinding.end() )
+			return;
+		std::vector< KJuneGfxBindingObserver >& vecObserver = it->second.m_vecObserver;
+		for ( size_t i = 0; i < vecObserver.size(); ++i )
+		{
+			if ( vecObserver[i].m_kExtra == kParams.pArgs[2] && vecObserver[i].m_kClosure == kParams.pArgs[1] )
+			{
+				vecObserver.erase( vecObserver.begin() + i );
+				break;
+			}
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 };
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -660,6 +840,10 @@ public:
 	}
 	~CKTDGGFXUI()
 	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+		if ( m_pAdapter )
+			m_pAdapter->ClearBindings();	// the observers' closure Values go before their movie
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		m_RootValue.SetUndefined();		// a managed Value goes before its movie
 		m_hDisplay.Clear();
 		m_pMovie = NULL;
@@ -739,6 +923,9 @@ public:
 	}
 
 	void SetRootValue( const SFG::Value& kValue ) { m_RootValue = kValue; }		// 31c3f650 ( AS RegisterMainUI )
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	CLIKDataBindingAdapter* GetAdapter() const { return m_pAdapter.GetPtr(); }			// vslot 1 of the wrapper ( 3226aed0: mgr +0x98 vslot 1 )
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 private:
 	SFG::Loader*						m_pLoader;			// +0x40 ( June keeps the manager; the loader is its +8 )
@@ -1358,6 +1545,234 @@ public:
 	// +0x18 ( 9 dwords, copied out by vslot 2 31c431a0 ) and +0xd8 ( a String read by the clipboard path ) have no other reader in June;
 	// +0x8c ( a std::map, ctor only ) has none: not carried.
 };
+
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// CKTDGGFXEventSceneBridge ( Phase G3 ): June's CX2GFXEventSceneAdapter ( RTTI .?AVCX2GFXEventSceneAdapter@@, 0x10 B, ctor 32e59c50, vtable
+// 33531fb4 ). It is a listener on the root movie's adapter named "EventScene" ( 32e5aa80 ) whose OnExternalCall ( 32e59900 ) answers the
+// AS call "gameDataEventScene( obj )" by putting four native functions on obj ( table 33531f58 ), and it owns the data bindings
+// "EventScene.nextScene" / "EventScene.bExactFit" ( ctor @32e59ca7..32e59d2a, dtor 32e59820 ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+namespace
+{
+	const char*	JGES_BINDING_NEXT_SCENE	= "EventScene.nextScene";
+	const char*	JGES_BINDING_EXACT_FIT	= "EventScene.bExactFit";
+
+	void JuneGfxSceneLog( const char* szFormat, ... )
+	{
+		char szBuf[2048] = { 0, };
+		va_list args;
+		va_start( args, szFormat );
+		_vsnprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, szFormat, args );
+		va_end( args );
+		JuneGfxLogLine( std::string( "[JUNE_GFX] SCENE " ) + szBuf );
+	}
+}
+
+class CKTDGGFXEventSceneBridge::CImpl : public IJuneGfxListener
+{
+public:
+	CImpl( CKTDGGFXManagerImpl* pMgrImpl, IJuneGfxEventSceneHost* pHost )
+		: m_pHost( pHost ), m_pLink( *new CJuneGfxOwnerLink( this ) )
+	{
+		if ( pMgrImpl != NULL && pMgrImpl->m_pUI != NULL )
+			m_pAdapter = pMgrImpl->m_pUI->GetAdapter();
+		if ( m_pAdapter )
+		{
+			m_pAdapter->AddListener( this );													// 32e59c50 -> 31d1f690
+			m_pAdapter->AddBinding( JGES_BINDING_NEXT_SCENE, JGBK_TRIGGER );					// @32e59cc1: the 8 B trigger object
+			m_pAdapter->AddBinding( JGES_BINDING_EXACT_FIT, JGBK_BOOL );						// @32e59d2a: the 0xc B bool object, false
+		}
+		JuneGfxSceneLog( "bridge: %s", m_pAdapter ? "listener + 2 bindings on the root movie's adapter" : "no root movie ( GFx scenes cannot play )" );
+	}
+
+	~CImpl()
+	{
+		m_pLink->m_pOwner = NULL;
+		if ( m_pAdapter )		// 32e59820 / 32e5a9c0: 31d1f550 ( the listener ), 31d1f600 x 2
+		{
+			m_pAdapter->RemoveListener( GetListenerName() );
+			m_pAdapter->RemoveBinding( JGES_BINDING_NEXT_SCENE );
+			m_pAdapter->RemoveBinding( JGES_BINDING_EXACT_FIT );
+		}
+	}
+
+	// ---- IJuneGfxListener ------------------------------------------------------------------------------------------------------------
+	virtual std::string GetListenerName() const { return "EventScene"; }		// 32e5aa80: the 10 chars of 3345c3ec
+
+	// 32e59900
+	virtual bool OnExternalCall( SFG::Movie* pMovie, const char* szMethod, const SFG::Value* pArgs, unsigned uArgCount )
+	{
+		if ( szMethod == NULL || strcmp( szMethod, "gameDataEventScene" ) != 0 )
+			return false;					// 32e59900 returns 0 for every other name
+
+		// table 33531f58, in June's order
+		static const char* const s_aszFunction[ 4 ] = { "endEventScene", "playEventSceneSound", "getEventSceneData", "playedEventSceneAndGetMent" };
+		if ( pMovie == NULL || uArgCount < 1 || ( pArgs[0].IsObject() == false && pArgs[0].IsDisplayObject() == false ) )
+			return true;
+
+		SFG::Value kObject( pArgs[0] );
+		for ( int i = 0; i < 4; ++i )
+		{
+			SFG::Value kCurrent;
+			kObject.GetMember( s_aszFunction[ i ], &kCurrent );
+			if ( kCurrent.IsObject() == false && kCurrent.IsArray() == false && kCurrent.IsDisplayObject() == false )		// @32e59a20: types 8 / 9 / 10 are left alone
+			{
+				SF::Ptr< CJuneGfxFunctionHandler > pHandler = *new CJuneGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
+				SFG::Value kFunction;
+				pMovie->CreateFunction( &kFunction, pHandler );
+				kObject.SetMember( s_aszFunction[ i ], kFunction );
+			}
+
+			// @32e59b45: inside June's loop, so the binding is pushed four times ( an idempotent setExactFit )
+			if ( m_pAdapter && m_pAdapter->HasBinding( JGES_BINDING_EXACT_FIT ) )
+			{
+				const bool bExactFit = ( g_pKTDXApp->GetResolutionScaleY() < 1.0f || g_pKTDXApp->GetResolutionScaleX() < 1.0f );
+				m_pAdapter->SetBindingBool( JGES_BINDING_EXACT_FIT, bExactFit );
+				m_pAdapter->NotifyBinding( JGES_BINDING_EXACT_FIT );
+			}
+		}
+		return true;
+	}
+
+	void FireNextScene()		// 32e59800
+	{
+		if ( m_pAdapter )
+			m_pAdapter->NotifyBinding( JGES_BINDING_NEXT_SCENE );
+	}
+
+	bool IsBound() const { return m_pAdapter.GetPtr() != NULL; }
+
+private:
+	static void OnFunction( void* pOwner, int iID, const SFG::FunctionHandler::Params& kParams )
+	{
+		static_cast< CImpl* >( pOwner )->DoFunction( iID, kParams );
+	}
+
+	void DoFunction( int iID, const SFG::FunctionHandler::Params& kParams )
+	{
+		switch ( iID )
+		{
+		case 0:		// endEventScene 32e597e0
+			if ( m_pHost != NULL )
+				m_pHost->OnSceneAsEnd();
+			break;
+
+		case 1:		// playEventSceneSound 32e59d40: a String argument, UTF-8, at most 0xff wide characters
+			if ( m_pHost != NULL && kParams.pArgs != NULL && kParams.ArgCount >= 1 && kParams.pArgs[0].IsString() )
+			{
+				std::wstring wstrKey = JuneGfxFromUTF8( kParams.pArgs[0].GetString() );
+				if ( wstrKey.size() > 0xfe )
+					wstrKey.resize( 0xfe );
+				m_pHost->OnSceneAsPlaySound( wstrKey );
+			}
+			break;
+
+		case 2:		// getEventSceneData 32e59f10
+			DoGetEventSceneData( kParams );
+			break;
+
+		case 3:		// playedEventSceneAndGetMent 32e59e00
+			DoPlayedEventSceneAndGetMent( kParams );
+			break;
+		}
+	}
+
+	// 32e59e00: ( frame ) -> the scene's ment id for that frame ( 3226a2b0 ), its voice GFX_ID_<id>.ogg, and the text key "GFX_ID_<id>" returned
+	void DoPlayedEventSceneAndGetMent( const SFG::FunctionHandler::Params& kParams )
+	{
+		if ( kParams.pArgs == NULL || kParams.ArgCount < 1 || kParams.pMovie == NULL || kParams.pRetVal == NULL )
+			return;
+		const SFG::Value& kArg = kParams.pArgs[0];
+		int iFrame = 0;
+		if ( kArg.IsInt() )
+			iFrame = kArg.GetInt();
+		else if ( kArg.IsUInt() )
+			iFrame = (int)kArg.GetUInt();
+		else if ( kArg.IsNumber() )
+		{
+			double dNumber = kArg.GetNumber();
+			memcpy( &iFrame, &dNumber, sizeof( iFrame ) );		// June reads the data word whatever the type ( @32e59e45 )
+		}
+		else
+			return;
+
+		int iMentID = 0;
+		wchar_t wszBuf[ 256 ] = { 0, };
+		if ( m_pHost != NULL )
+		{
+			iMentID = m_pHost->OnSceneAsGetMentID( iFrame );
+			swprintf_s( wszBuf, 256, L"GFX_ID_%d.ogg", iMentID );		// 33531ff8
+			m_pHost->OnSceneAsPlaySound( wszBuf );
+		}
+		swprintf_s( wszBuf, 256, L"GFX_ID_%d", iMentID );				// 33531fe4
+		kParams.pMovie->CreateStringW( kParams.pRetVal, wszBuf );		// Movie slot 0x88
+	}
+
+	// 32e59f10: returns { arrEventSceneData: [ { frame, soundKey, characterNameKey, textKey, wordBalloonName, wordBalloonPosX, wordBalloonPosY,
+	// arrSymbolData: [ { symbolName, posX, posY, delayTime } ] } ] }
+	void DoGetEventSceneData( const SFG::FunctionHandler::Params& kParams )
+	{
+		if ( m_pHost == NULL || kParams.pMovie == NULL || kParams.pRetVal == NULL )
+			return;
+		SFG::Movie* pMovie = kParams.pMovie;
+		pMovie->CreateObject( kParams.pRetVal );			// @32e59f7f
+		std::vector< KJuneGfxSceneFrame > vecFrame;
+		if ( m_pHost->OnSceneAsGetFrames( vecFrame ) == false )
+			return;											// June returns the empty object
+
+		SFG::Value kArray;
+		pMovie->CreateArray( &kArray );
+		for ( size_t i = 0; i < vecFrame.size(); ++i )
+		{
+			const KJuneGfxSceneFrame& kFrame = vecFrame[ i ];
+			SFG::Value kFrameObject;
+			pMovie->CreateObject( &kFrameObject );
+			kFrameObject.SetMember( "frame",			SFG::Value( (SF::SInt32)kFrame.m_iFrame ) );
+			kFrameObject.SetMember( "soundKey",			SFG::Value( kFrame.m_strSoundKey.c_str() ) );
+			kFrameObject.SetMember( "characterNameKey",	SFG::Value( kFrame.m_strCharacterNameKey.c_str() ) );
+			kFrameObject.SetMember( "textKey",			SFG::Value( kFrame.m_strTextKey.c_str() ) );
+			kFrameObject.SetMember( "wordBalloonName",	SFG::Value( kFrame.m_strWordBalloonName.c_str() ) );
+			kFrameObject.SetMember( "wordBalloonPosX",	SFG::Value( (SF::SInt32)kFrame.m_iWordBalloonPosX ) );
+			kFrameObject.SetMember( "wordBalloonPosY",	SFG::Value( (SF::SInt32)kFrame.m_iWordBalloonPosY ) );
+
+			SFG::Value kSymbolArray;
+			pMovie->CreateArray( &kSymbolArray );
+			for ( size_t j = 0; j < kFrame.m_vecSymbol.size(); ++j )
+			{
+				const KJuneGfxSceneSymbol& kSymbol = kFrame.m_vecSymbol[ j ];
+				SFG::Value kSymbolObject;
+				pMovie->CreateObject( &kSymbolObject );
+				kSymbolObject.SetMember( "symbolName",	SFG::Value( kSymbol.m_strSymbolName.c_str() ) );
+				kSymbolObject.SetMember( "posX",		SFG::Value( (SF::SInt32)kSymbol.m_iPosX ) );
+				kSymbolObject.SetMember( "posY",		SFG::Value( (SF::SInt32)kSymbol.m_iPosY ) );
+				kSymbolObject.SetMember( "delayTime",	SFG::Value( (SF::SInt32)kSymbol.m_iDelayTime ) );
+				kSymbolArray.PushBack( kSymbolObject );
+			}
+			kFrameObject.SetMember( "arrSymbolData", kSymbolArray );
+			kArray.PushBack( kFrameObject );
+		}
+		kParams.pRetVal->SetMember( "arrEventSceneData", kArray );		// @32e5a8eb
+	}
+
+	IJuneGfxEventSceneHost*				m_pHost;
+	SF::Ptr< CJuneGfxOwnerLink >		m_pLink;
+	SF::Ptr< CLIKDataBindingAdapter >	m_pAdapter;
+};
+
+CKTDGGFXEventSceneBridge::CKTDGGFXEventSceneBridge( CKTDGGFXManager* pManager, IJuneGfxEventSceneHost* pHost )
+	: m_pImpl( new CImpl( pManager != NULL ? pManager->m_pImpl : NULL, pHost ) )
+{
+}
+
+CKTDGGFXEventSceneBridge::~CKTDGGFXEventSceneBridge()
+{
+	SAFE_DELETE( m_pImpl );
+}
+
+bool CKTDGGFXEventSceneBridge::IsBound() const			{ return m_pImpl->IsBound(); }
+void CKTDGGFXEventSceneBridge::FireNextScene()			{ m_pImpl->FireNextScene(); }
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // CKTDGGFXManager

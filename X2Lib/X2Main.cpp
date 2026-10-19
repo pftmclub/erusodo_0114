@@ -22,6 +22,9 @@ using boost::bind;
 	#include <fstream>
 	#include "direct.h"
 #endif IN_HOUSE_PLAY_LOG_TEST
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#include "X2GFXEventScene.h"
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 
 #ifdef	CHECK_KOM_FILE_ON_LOAD
 #include <libxml/parser.h>
@@ -3128,6 +3131,14 @@ bool CX2Main::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	}
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	/// June 31d8e280 @31d8e584: the GFX scene's MsgProc ( vslot 3 ) first, then the Lua scene's ( +0x278 )
+	if( NULL != g_pData && NULL != g_pData->GetGFXEventScene() &&
+		true == g_pData->GetGFXEventScene()->MsgProc( hWnd, uMsg, wParam, lParam ) )
+	{
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #ifdef EVENT_SCENE
 // oasis907 : 김상윤 [2010.6.17] //  테스트용 임시 위치 지우겠습니다.
 	if( NULL != g_pData->GetEventScene() && 
@@ -5544,6 +5555,11 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddNewSkillNoteTemplet",	&CX2SkillNoteManager::AddNewSkillNoteTemplet_LUA );
 	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddRemovableMemoItemID",	&CX2SkillNoteManager::AddRemovableMemoItemID_LUA );
 #endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+	// June2017 31d95080 @31de31c0 / @31de342a: the global Lua functions PlayEventScene( name ) and IsRecentlyPlayedEventScene( name ) ( 327ccad0 / 327ccb20 )
+	lua_tinker::def( L, "PlayEventScene",				&JuneGfxPlayEventScene_LUA );
+	lua_tinker::def( L, "IsRecentlyPlayedEventScene",	&JuneGfxIsRecentlyPlayedEventScene_LUA );
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #ifdef REFORM_SKILL_NOTE_UI
 	lua_tinker::class_add<CX2SkillNoteManager>( L, "CX2SkillNoteManager" );
 	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddSkillNoteTemplet",						&CX2SkillNoteManager::AddSkillNoteTemplet_LUA);
@@ -5560,6 +5576,11 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 	{
 
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+		/// June 31d88bf0 @31d88c45: a state change ends the GFX scene ( 3226b6c0( 1 ) ) when it or the Lua scene plays, before the Lua scene's own end below
+		if( NULL != g_pData->GetGFXEventScene() && true == g_pData->GetGFXEventScene()->IsPlaying() )
+			g_pData->GetGFXEventScene()->End( true );
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #ifdef EVENT_SCENE
 		if(g_pData->GetEventScene() != NULL &&
 			g_pData->GetEventScene()->GetIsPlayingEventScene() == true)
