@@ -148,6 +148,9 @@ m_byNumOfItemThatICanGet( 0 )	// kimhc // 2009-12-18 // 가질수 있는 선택 보상 아
 	}
 
 	m_pCheckListQuickQuest = static_cast< CKTDGUICheckBox* >( m_pDLGUIQuestList->GetControl( L"CheckBox_QuickQuest" ) );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneHideMovieTab();		// June 323d0ca0 @323d0cd4 ( window creation ): hide the scenario-movie tab's controls
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 	//m_pDLGUIQuestDetail
 

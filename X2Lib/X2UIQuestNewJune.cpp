@@ -896,6 +896,7 @@ void CX2UIQuestNew::JuneResetQuestUI( bool bUpdateNavi, bool bResetExpand, bool 
 	if( true == bUpdateNavi )
 		UpdateNavi();
 
+	JuneHideMovieTab();		// June 323e1bf0 / 323e5340: every reset ends with the movie-tab hide
 	UpdateQuickQuestDLG( bResetExpand, false );
 
 #ifdef GUIDE_QUICK_QUEST_COMPLETE
@@ -910,6 +911,43 @@ void CX2UIQuestNew::JuneResetQuestUI( bool bUpdateNavi, bool bResetExpand, bool 
 	}
 }
 
+/// June 323ca6d0: hide the scenario-movie tab's controls ( DLG_UI_NEW_Quest_List.lua builds 12 Button_Movie_N / NewTexture_N,
+/// g_pStatic_HorizonLine, Village and RadioButton_Area; the tab itself is Q8 ). Without this they draw over every quest tab.
+void CX2UIQuestNew::JuneHideMovieTab()
+{
+	if( NULL == m_pDLGUIQuestList )
+		return;
+
+	int iMovieCount = m_pDLGUIQuestList->GetDummyInt( 4 );		// Lua AddDummyInt( 12 ), June reads dummy int #4
+	for( int i = 1; i <= iMovieCount; ++i )
+	{
+		WCHAR wszName[256];
+		wsprintf( wszName, L"Button_Movie_%d", i );
+		CKTDGUIControl* pControl = m_pDLGUIQuestList->GetControl( wszName );
+		if( NULL != pControl )
+			pControl->SetShowEnable( false, false );
+
+		wsprintf( wszName, L"NewTexture_%d", i );
+		pControl = m_pDLGUIQuestList->GetControl( wszName );
+		if( NULL != pControl )
+			pControl->SetShowEnable( false, false );
+	}
+
+	CKTDGUIControl* pControl = m_pDLGUIQuestList->GetControl( L"g_pStatic_HorizonLine" );
+	if( NULL != pControl )
+		pControl->SetShowEnable( false, false );
+
+	CKTDGUIRadioButton* pArea = (CKTDGUIRadioButton*) m_pDLGUIQuestList->GetControl( L"RadioButton_Area" );
+	if( NULL != pArea )
+	{
+		pArea->SetShowEnable( false, false );
+		pArea->SetChecked( true, false, false );		// June 323ca81f: checked in its own group 3, so no tab changes
+	}
+
+	pControl = m_pDLGUIQuestList->GetControl( L"Village" );
+	if( NULL != pControl )
+		pControl->SetShowEnable( false, false );
+}
 /// June 323d9400
 void CX2UIQuestNew::JuneResetQuestList( QUEST_UI_MODE eQuestUIMode )
 {

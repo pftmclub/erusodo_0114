@@ -839,6 +839,7 @@ private:
 	void	JuneSelectTab( QUEST_UI_MODE eMode );
 	void	JuneOpenSkipEpicMsgBox();
 	void	JuneSkipEpicQuestOk();
+	void	JuneHideMovieTab();
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 };
 #endif SERV_EPIC_QUEST
