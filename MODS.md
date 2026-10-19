@@ -4528,16 +4528,6 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_GATE` in `KTDXLIB/Always.h` (no dependency). Plan
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; comment out `m_iRequireCompleteQuestID = 22218,` in `DungeonData.lua` (data035), `luasrc.py refresh data035 DungeonData.lua`, pack and copy data035.
   No save change.
 
-### June quest system: quest scenes and the clear window (quest-system Q5b, 2026-10-19)
-
-Flag `SERV_IRUHADEV_JUNE_QUEST_SCENE` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_UI` and `JUNE_GFX_EVENTSCENE`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q5b - Done"; log tag `[JUNE_QUEST] SCENE`.
-- **Client.** `X2UIQuestNewJune.cpp`: `CX2UIQuestNew::JunePlayQuestScene( quest, mode )` (June `323cb2e0`, row lookup `323cb190`) and `JunePlayDeferredQuestScene`. `X2UIQuestNew.cpp`: the four live `PlayEventScene( m_wstrStartScene / m_wstrEndScene )` sites
-  (Remind, NEW_QUEST_NOT, QUEST_COMPLETE_ACK, ALL_COMPLETED) go to the new call; their Lua calls stay in the `#else`. `X2Main.cpp`: StateChange's village and battle-field blocks play the scene NEW_QUEST_NOT deferred in state 5
-  (`X2InstanceData.h/.cpp`: `SetJuneDeferredQuestScene`). `X2QuestManager.h/.cpp`: the quest BGM (`3232df20` / `3232e000`). `X2GFXEventScene.h/.cpp`: `RegisterMent` (`3226ac80`) and the BGM restore in `End`.
-- **What changes in game.** A quest with no `Quest_Event_Scene_Info` row plays no scene (June has no Lua fallback; the log names the quest). An epic quest sets the GFX scene's new-epic flag. The clear window's DLG is June's.
-- **Data.** data034 `DLG_UI_NEW_Quest_Clear.lua` = June's `ljconv` bytecode (backup `kom_backup_stage_june61019_150631`).
-- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; restore the DLG from `24965799\kom_contents_bytecode\data034_kom\` (or the backup above), `kom.py pack data034`, ask, copy. No save change.
-
 ### June GFx runtime: event scenes (june-gfx G3, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_GFX_EVENTSCENE` in `KTDXLIB/Always.h` (client only; `#error`s without `JUNE_GFX_MANAGER` and `JUNE_SOUND_AUTO_RELEASE`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G3"; log tag `[JUNE_GFX] SCENE`.
