@@ -3266,6 +3266,119 @@ void CX2SkillTree::JuneAutoEquipOnLevelUp()
 		g_pData->GetUIManager()->GetUISkillTree()->JuneAutoEquipNewSkills( vecSkillID );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+/// June 3220d2b0 ( filter { skill 0, level, class, memo 0 } ): for every tree skill of the class, type 1 ( no base skill ) or 3 ( +0x178
+/// set ) when its first required level is the level, 4 when a later required level is, and 2 for each memo row of the level whose
+/// skill is this one ( 32451250 ). A hyper-class row ( +0x174 == 5 ) is skipped unless my unit is transcendent ( CX2Unit +0x3c ),
+/// which March has no field for ( as 32206d30 ).
+void CX2SkillTree::JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const
+{
+	UnitSkillTreeTempletMap::const_iterator mitClass = m_mapUnitSkillTreeTemplet.find( iUnitClass_ );
+	if( mitClass == m_mapUnitSkillTreeTemplet.end() )
+		return;
+
+	SkillTreeTempletMap::const_iterator mitRow;
+	for( mitRow = mitClass->second.begin(); mitRow != mitClass->second.end(); ++mitRow )
+	{
+		const SkillTemplet* pTemplet = GetSkillTemplet( mitRow->first );
+		if( NULL == pTemplet )
+			continue;
+
+		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
+			continue;
+
+		const int iFirstLevel = ( true == pTemplet->m_vecRequireCharacterLevel.empty() ) ? 0 : pTemplet->m_vecRequireCharacterLevel[0];
+		if( iLevel_ == iFirstLevel )
+			JuneAddNewSkillOrMemo( ( pTemplet->m_iDeleteSkillIDByUpgrade < 1 ) ? 1 : 3, pTemplet, mapNew_ );
+
+		for( UINT i = 0; i < pTemplet->m_vecRequireCharacterLevel.size(); ++i )
+		{
+			if( iLevel_ == pTemplet->m_vecRequireCharacterLevel[i] )
+			{
+				if( 0 < i )
+					JuneAddNewSkillOrMemo( 4, pTemplet, mapNew_ );
+				break;
+			}
+		}
+
+		/// @3220d4a0: the memo rows are re-read for every skill ( June )
+		std::vector<const SJuneSkillMemoTemplet*> vecMemo;
+		CX2SkillNoteManager::GetInstance()->GetJuneMemoList( 0, iLevel_, iUnitClass_, 0, vecMemo );
+		for( UINT i = 0; i < vecMemo.size(); ++i )
+		{
+			if( NULL != vecMemo[i] && vecMemo[i]->m_iSkillID == static_cast<int>( pTemplet->m_eID ) )
+				JuneAddNewSkillOrMemo( 2, pTemplet, mapNew_ );
+		}
+	}
+}
+
+/// June 3220b990: add the templet under its type unless a templet with the same id ( +8 ) is there already
+/*static*/ void CX2SkillTree::JuneAddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ )
+{
+	if( NULL == pTemplet_ )
+		return;
+
+	JuneNewSkillOrMemoMap::iterator mit = mapNew_.find( iType_ );
+	if( mit == mapNew_.end() )
+	{
+		std::vector< const SkillTemplet* > vecTemplet;
+		vecTemplet.push_back( pTemplet_ );
+		mapNew_.insert( std::make_pair( iType_, vecTemplet ) );
+		return;
+	}
+
+	for( UINT i = 0; i < mit->second.size(); ++i )
+	{
+		if( NULL != mit->second[i] && mit->second[i]->m_eID == pTemplet_->m_eID )
+			return;
+	}
+	mit->second.push_back( pTemplet_ );
+}
+
+/// June 31d885e0 ( a CX2Main method in June; called for my own unit by 323ae130 @323ae277, 32473f70 @324744af, 325346e0 @32534832 ):
+/// only for a class with memo rows ( 324511a0 ), what opens at my unit's level goes to the emblem manager's +0x64 rows
+/// ( skill id, type, 1 ) in type order, and emblem 17 is shown again ( 32447d70( 0x11, true ) ) when anything opened
+void CX2SkillTree::JuneShowNewSkillOrMemoEmblem() const
+{
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	const CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	const int iUnitClass = static_cast<int>( pUnit->GetClass() );
+	if( false == CX2SkillNoteManager::GetInstance()->HasJuneMemoClass( iUnitClass ) )
+		return;
+
+	const int iLevel = pUnit->GetUnitData().m_Level;
+	JuneNewSkillOrMemoMap mapNew;
+	JuneGetNewSkillOrMemoByLevel( iLevel, iUnitClass, mapNew );
+
+	int iRows = 0;
+	for( JuneNewSkillOrMemoMap::const_iterator mit = mapNew.begin(); mit != mapNew.end(); ++mit )
+	{
+		for( UINT i = 0; i < mit->second.size(); ++i )
+		{
+			if( NULL == mit->second[i] )
+				continue;
+
+			CX2EmblemManager::GetInstance()->JunePushNewSkillOrMemo(
+				D3DXVECTOR3( static_cast<float>( mit->second[i]->m_eID ), static_cast<float>( mit->first ), 1.f ) );
+			++iRows;
+#ifdef SERV_IRUHADEV_OFFLINE
+			CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM row: skill %d type %d", static_cast<int>( mit->second[i]->m_eID ), mit->first );
+#endif SERV_IRUHADEV_OFFLINE
+		}
+	}
+
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM level-up L=%d class %d: %d type(s), %d row(s)", iLevel, iUnitClass,
+		static_cast<int>( mapNew.size() ), iRows );
+#endif SERV_IRUHADEV_OFFLINE
+
+	if( false == mapNew.empty() )
+		CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_GET_NEW_SKILL_OR_MEMO, true );
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+
 /// June's server-pushed skill grant. June handles it in its states ( village 323b0770, menu 324631a0, 32535be0 ); March routes skill
 /// packets here from every state ( CX2State::UIServerEventProc ).
 bool CX2SkillTree::Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )

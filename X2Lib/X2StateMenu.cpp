@@ -4921,6 +4921,11 @@ bool CX2StateMenu::Hander_EGS_ZERO_ENDURANCE_ITEM_IN_ROOM_NOT( HWND hWnd, UINT u
 		pUser->SetNowHp( pUser->GetMaxHp() );
 		pUser->SetNowMp( pUser->GetMaxMp() );
 		pUser->GetUnit()->SetIsLevelUp( true );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+		/// June 32473f70 @324744a5: after the level-up flag, the NOT for my own unit ( vtable +0x198 ) feeds the "new skill or memo" emblem
+		if( true == pUser->IsMyUnit() && NULL != g_pData->GetSkillTree() )
+			g_pData->GetSkillTree()->JuneShowNewSkillOrMemoEmblem();
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 
 		DisplayLevelUpEffect( pUser );
 

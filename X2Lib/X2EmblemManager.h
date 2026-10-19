@@ -38,6 +38,30 @@ public:
 // #endif FIX_REFORM_ENTRY_POINT_7TH		// 김종훈, 귀환자 엠블렘 출력 부분 Emblem Manager 로 변경
 
 		EI_NAVER_EVENT,						// 네이버 채널링 이벤트
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+		/// June Enum.lua EMBLEM_ID 14-34 ( June's Emblem_Manager.lua names them; only 17 has a path in March )
+		EI_BURNING_EVENT_1,					// 14
+		EI_BURNING_EVENT_2,					// 15
+		EI_OPEN_LONG_TIME_BOSS_RAID,		// 16
+		EI_GET_NEW_SKILL_OR_MEMO,			// 17
+		EI_NEW_TITLE_INFO_NOTICE,			// 18
+		EI_2017_ERDA_OPEN_NOTICE,			// 19
+		EI_ACHIEVEMENT_COMPLETE_NOTICE,		// 20
+		EI_EVERYDAY_BUFF,					// 21
+		EI_BOSSRAID_EVENT,					// 22
+		EI_BOSSRAID_EVENT_DRABAKI_G1,		// 23
+		EI_BOSSRAID_EVENT_DRABAKI_G2,		// 24
+		EI_GUILD_PVP_EVENT_START,			// 25
+		EI_GUILD_PVP_EVENT_CLOSE,			// 26
+		EI_2015_7THJULY_DAY_EVENT,			// 27
+		EI_EVENT_MONSTER_EMBLEM,			// 28
+		EI_GUILD_PVE_EVENT_START,			// 29
+		EI_GUILD_PVE_EVENT_CLOSE,			// 30
+		EI_EL_BUFF_EVENT,					// 31
+		EI_CHALLENGE_EL_MISSION_EVENT,		// 32
+		EI_LUCKY_TIMING_EVENT,				// 33
+		EI_ROSE_EVENT_INT,					// 34
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	};
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP 		// 김종훈, 엠블렘 등장 시, 사운드 출력 기능 추가
 
@@ -137,6 +161,9 @@ public:
 		bool		m_bShowDungeon;
 
 		bool		m_bIsAlreadyShow;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+		wstring		m_wstrJuneLuaFileName;	/// June +0x84 LUA_FILE_NAME: the emblem's dialog ( L"" = none )
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP 	// 김종훈, 엠블렘 등장 시, 사운드 출력 기능 추가
 		vector<EmblemPopupSound>		m_vecPlayEmblemSoundTemplet;		// 첫번째 엠블렘 등장 시, 사운드 파일 이름
@@ -203,6 +230,9 @@ public:
 	bool HasEmblem( EMBLEM_ID eEmblemID_ );
 
 	void SetTexture2ndName( EMBLEM_ID eEmblemID_, const wstring& wstrTextureName );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+	void JunePushNewSkillOrMemo( const D3DXVECTOR3& vRow_ );	/// June 324486b0: +0x64 push ( skill id, type, 1 = not shown yet )
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 
 #ifdef EVENT_NEW_HENIR
 	bool IsBurningEventTime() const;
@@ -222,6 +252,17 @@ private:
 	void PlayEmblemEffect( const EmblemTemplet& sEmblemTemplet_ );
 	void PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTemplet_ );
 	void CheckNextPlayingEmblem();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+	bool JuneIsEmblemPlaying() const;									/// June 32447870
+	void JuneCloseEmblemDialog();										/// June 32447760
+	void JuneFadeEmblemDialog( float fElapsedTime_ );					/// June 3244c8c0 @3244cb66-3244cce2
+	D3DXVECTOR3 JuneGetNewSkillOrMemo( int iIndex_ ) const;				/// June's inlined +0x64 read ( 0, 0, 0 out of range )
+	bool JuneHasNewSkillOrMemoToShow() const;							/// June 32447a20
+	void JuneShowNewSkillOrMemo();										/// June 32448b20
+	void JuneShowNewSkillOrMemoRows( bool bShow_ );						/// June 32447aa0
+	void JuneSetNewSkillOrMemoIcon( int iIndex_, int iSkillID_ );		/// June 32447c00
+	void JuneSetNewSkillOrMemoText( int iIndex_, int iSkillID_, int iType_ );	/// June 324486c0
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 
 private:
 	CX2EmblemManager();
@@ -234,6 +275,12 @@ private:
 	float m_fWaitTime; // 출력 전 대기 시간
 	CKTDGParticleSystem::CParticleEventSequenceHandle m_hCurrentEmblem;
 	CKTDGParticleSystem::CParticleEventSequenceHandle m_hCurrentEmblem2nd;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+	CKTDGUIDialogType			m_hJuneEmblemDialog;		/// June +0x54 / +0x58: the LUA_FILE_NAME dialog
+	float						m_fJuneEmblemDialogTime;	/// June +0x5c
+	EMBLEM_ID					m_eJuneNowEmblemID;			/// June +0x60: the emblem PlayEmblemEffect showed last ( EI_NONE when idle )
+	std::vector<D3DXVECTOR3>	m_vecJuneNewSkillOrMemo;	/// June +0x64: ( skill id, type, 1 = not shown yet / 0 = shown )
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP		// 김종훈, 엠블렘 등장 시, 사운드 출력 기능 추가
 	float m_fSoundPlayingCheckTime;
 	vector<EmblemPopupSound>	m_vecNowPlayEmblemSound;

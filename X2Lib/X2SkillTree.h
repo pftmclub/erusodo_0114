@@ -2627,6 +2627,14 @@ public:
 	void JuneAutoEquipOnLevelUp();
 	bool Handler_EGS_JUNE_ACQUIRE_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+	/// S7i: what opens at a level, by type ( 1 new skill, 2 a memo, 3 new upgraded skill, 4 next skill level ), June 3220d2b0
+	typedef std::map< int, std::vector< const SkillTemplet* > > JuneNewSkillOrMemoMap;
+	void JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, OUT JuneNewSkillOrMemoMap& mapNew_ ) const;
+	static void JuneAddNewSkillOrMemo( int iType_, const SkillTemplet* pTemplet_, IN OUT JuneNewSkillOrMemoMap& mapNew_ );	/// June 3220b990
+	/// June 31d885e0 ( a CX2Main method in June ): my unit's level-up feeds the emblem manager and plays emblem 17
+	void JuneShowNewSkillOrMemoEmblem() const;
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	/// S7e: the data behind June's tree panels. JuneSkillCommandDesc is the tree UI's +0x3c block ( 0x50 bytes, reset by 328ee430 );
 	/// a combo row is June's 0x34-byte record ( 328df4c0 / 3220d4d0 ); a command icon is one CommandIconData.lua row ( map +0xc4 ).

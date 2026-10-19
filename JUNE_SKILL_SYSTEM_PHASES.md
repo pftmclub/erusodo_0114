@@ -1746,6 +1746,36 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). June's `31d885e0` (called by the three level-up handlers), `CX2SkillTree 3220d2b0 /
 3220b990`, and `CX2EmblemManager`'s emblem 17 `EI_GET_NEW_SKILL_OR_MEMO` (`+0x64` list, `32447d70`, parser `32449000`). Kickoff `kickoffs/skill-system-core/S7i.md`.
 
+### Phase S7i - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` (`Always.h` only; `#error` guards `NEW_EMBLEM_MANAGER`, `_SKILL_NOTE`, `_SKILL_TEMPLET`, `_SOCKET_PARITY`, all ON by
+`flagprobe.py`). Funcmap tag `Skill S7i`. JUNE_BUGS 334-335. Revert: `MODS.md` "June's level-up new-skill emblem".
+- **The feed** (`X2SkillTree.cpp`): `JuneShowNewSkillOrMemoEmblem` = `31d885e0` (a CX2Main method in June): only for a class with memo rows (`324511a0`), what opens at
+  my unit's level goes to the emblem manager as rows ( skill id, type, 1 ) in type order (`324486b0`, `+0x64`), then `PlayEmblem( EI_GET_NEW_SKILL_OR_MEMO, true )`
+  (`32447d70( 0x11, 1 )`). `JuneGetNewSkillOrMemoByLevel` = `3220d2b0` (type 1 first required level + no base, 3 first level + `+0x178`, 4 a later level, 2 per memo
+  row of the level, the S3b list re-read per skill; hyper rows skipped as in S7's `32206d30`), `JuneAddNewSkillOrMemo` = `3220b990` (unique by id per type).
+  Called for my own unit from `X2TFieldGame.cpp` (end of the my-unit block, `323ae277`) and `X2StateMenu.cpp` (after `SetIsLevelUp`, `324744a5` IsMyUnit). The third
+  handler `325346e0` has no March site (as in S7).
+- **The emblem** (`X2EmblemManager.*`): emblem 17 is a dialog. Ported whole: `PlayEmblemEffect` = `3244b780` (a texture only when named, the 2nd only with a 1st, the
+  `LUA_FILE_NAME` dialog @3244b91a, the sound pick, the shown id `+0x60`; March's body and open-time check in `#else`); the parser reads `LUA_FILE_NAME` (`32449000`
+  @32449c10); `JuneFadeEmblemDialog` = `3244c8c0` @3244cb66-3244cce2 (alpha over FADE_IN / FADE_OUT, closed at DURATION); "playing" = `32447870` (1st texture alive
+  or dialog shown); close `32447760` from `InitEmbelmPlayInfo` (`324485d0`), the cash-shop branch and before each pick (@3244cd72); case 17 of
+  `PlayEmblemOtherProcess` = `3244c4b0` case 0x11 with `32448b20` / `32447aa0` / `32447c00` / `324486c0` (two rows per pop: icon from the templet, text 35571 / 35572
+  / 35573 ( base skill's name ) / 35745, wrapped at 340 px and raised 8 px), shown again while rows are left, else the list is cleared. Enum + EMBLEM_ID 14-34.
+- **Data** (PACK OK; COPY owed): data036 `Emblem_Manager.lua` = June's (same-name rule; ljconv bytecode, 20 emblems, all `CHECK_CONDITION = TRUE`, so none shows
+  unprompted), `Enum.lua` + EMBLEM_ID 14-34 (core list, `refresh` + ledger PASS); data217 `DLG_Get_New_Skill_or_Memo.lua` (June, ljconv); data053 `DLG_Ui_Guild_01.tga`
+  / `.TET` (June, the dialog's placeholder icon). Backups `kom_backup_stage_june\20261019_090743` / `_090747`. Strings 35571-35573 / 35745: June's `general.ess`.
+- **Not ported -> new phase S7l** (unowned-branch rule): the rest of June's emblem manager (`EXPAND_TEXTURE_FILE_NAME` + `32448ce0`, no `OPEN_TIME_SETTING`, June's
+  OnFrameMove state switch and `+0x44` follow loop, cases 5 / 7 / 8 / 0x12 / 0x14, the other `PlayEmblem` callers). Kickoff `kickoffs/skill-system-core/S7l.md`.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM --worktree --files <7 files>`: `files: 5 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`
+  (OTHER = peers' G4 / S7j blocks in `Always.h`; PASS~ = one blank line before the block in `X2SkillTree.cpp`).
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,316,864 B, dated 2026-10-19 09:28:45, md5 d0db73136b0eb15d5748e27d44b38816, equal to X2/US_SERVICE/x2.exe (2026-10-19 09:28:36); built at main 96de98f4 + 9 uncommitted code file(s).` The first run failed on a missing `Offline/X2OfflineLog.h` include in `X2EmblemManager.cpp` (mine, fixed). The `[JUNE_SKILL] EMBLEM` strings
+  are in the exe. Save: `elsdb setchar` unit 44 EXP 38700 (L11 at 38800), unit 23 L67 -> 71, EXP 39133600 (L72 at 39133700; SP 462 -> 504); backups `db_backup\els_db_20261019_09290[67]_pre_setchar.sql`.
+- **How to see it.** Unit 44 arishiaaa (Violet Mage) L10 -> 11: one row "Chain Fireball's new trait can be learned." (memo MI_ENHANCE). Unit 23 ravbe (Blade Master)
+  L71 -> 72: two rows "[Enhanced] ... skill has became [Enhanced]" with the base names (24026 Cannon Blade, 24217 Shadow Step). Log `[JUNE_SKILL] EMBLEM`.
+- **Open questions:** none.
+
 ## Phase S7j - June's max MP / max HP: ResetMaxMp, the unit's socket aggregate, the HUD refresh
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7g (2026-10-19, unowned-branch rule). June's `ResetMaxMp` `3234b9d0` (17 June-only skill ids; in-game max MP
@@ -1786,6 +1816,12 @@ which carries everything decoded here). S7h now waits on S7k. Flag `SERV_IRUHADE
 **Run with:** Opus 5.5 high, then user play-test. Split from S7j by the user (2026-10-19). The CX2Unit-owned socket aggregate (`+0xe1c`, a `CX2SocketItem::SocketData`
 filled by CX2Unit vtable slots 1 / 2 = `32365d30` / `323652b0` and the unit-side sum `32364790`), June's HUD max MP / max HP refresh `3235a160` (decoded in S7j) and its
 23 callers; the village HUD then shows June's maxima instead of the emulator's `KGamePlayStatus`. Kickoff `kickoffs/skill-system-core/S7k.md`.
+
+## Phase S7l - The rest of June's emblem manager
+
+**Run with:** Opus 5.5 high, then user play-test. Added by S7i (2026-10-19, unowned-branch rule). June's parser `32449000` whole (`EXPAND_TEXTURE_FILE_NAME`, no
+`OPEN_TIME_SETTING`), `32448ce0` (expand textures, second sound pick), `OnFrameMove` `3244c8c0` / `InitEmbelmPlayInfo` `324485d0` / `32447d40` whole, the other cases
+of `3244c4b0` (5, 7, 8, 0x12 title notice, 0x14 achievement notice) and June's `PlayEmblem` callers. Kickoff `kickoffs/skill-system-core/S7l.md`.
 
 ## Phase S8 - Running state data: June's pointer model
 

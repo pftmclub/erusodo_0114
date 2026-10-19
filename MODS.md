@@ -4282,6 +4282,17 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MAX_MP` in `KTDXLIB/Always.h` (`#error` guard: `_
   from June's skill data); its equipment term `CX2Inventory::JuneGetAddMaxMPValue` = June `32869f80`; `CX2GUUser::ResetMaxMP` = June `31fd2810`.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### June's level-up new-skill emblem (skill-system-core S7i, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` in `KTDXLIB/Always.h` (`#error` guards: `NEW_EMBLEM_MANAGER`, `_SKILL_NOTE`, `_SKILL_TEMPLET`, `_SOCKET_PARITY`). Plan
+`JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7i"; log tag `[JUNE_SKILL] EMBLEM`.
+- **Client.** My unit's level-up (`X2TFieldGame.cpp`, `X2StateMenu.cpp`) feeds `CX2SkillTree::JuneShowNewSkillOrMemoEmblem` (June `31d885e0`), which queues what opens at the level
+  in `CX2EmblemManager` and plays emblem 17 `EI_GET_NEW_SKILL_OR_MEMO`: a `LUA_FILE_NAME` dialog opened by June's `PlayEmblemEffect`, faded / closed in `OnFrameMove`, two icon rows per pop.
+- **Data.** data036 `Emblem_Manager.lua` (June's), `Enum.lua` (+ EMBLEM_ID 14-34); data217 `DLG_Get_New_Skill_or_Memo.lua`; data053 `DLG_Ui_Guild_01.tga` / `.TET`.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; restore data036 / data053 / data217 from
+  `kom_backup_stage_june\20261019_090743` / `_090747` (Emblem_Manager.lua) and remove the three new files, take EMBLEM_ID 14-34 out of `Enum.lua`, re-pack and copy.
+  No save change.
+
 ### June's cash shop open-at-item list (skill-system-core S7g, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM` in `KTDXLIB/Always.h`. Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7g"; log tag `[JUNE_SKILL] HUD`.

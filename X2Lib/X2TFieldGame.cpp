@@ -4747,6 +4747,11 @@ bool CX2TFieldGame::Handler_EGS_CHAR_LEVEL_UP_NOT( HWND hWnd, UINT uMsg, WPARAM 
 				}
 			}
 		}
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+		/// June 323ae130 @323ae277: my own unit's level-up feeds the "new skill or memo" emblem
+		if( NULL != g_pData->GetSkillTree() )
+			g_pData->GetSkillTree()->JuneShowNewSkillOrMemoEmblem();
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	}
 	// 던전 라운지 이면
 	else if ( g_pData->GetLocationManager()->IsDungeonLounge( g_pData->GetLocationManager()->GetCurrentVillageID() ) == true )

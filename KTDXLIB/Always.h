@@ -8909,6 +8909,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June skill system Phase S7i - the level-up "new skill or memo" emblem. On my unit's level-up June 31d885e0
+//              ( a CX2Main method, from the level-up handlers 323ae130 / 32473f70 / 325346e0 ) collects what opens at the new
+//              level ( CX2SkillTree 3220d2b0 + 3220b990: 1 new skill, 3 new upgraded skill, 4 next skill level, 2 a memo ) into
+//              CX2EmblemManager +0x64 ( vector<D3DXVECTOR3>: skill id, type, 1 ) and plays emblem 17 EI_GET_NEW_SKILL_OR_MEMO.
+//              That emblem is a dialog ( LUA_FILE_NAME = DLG_Get_New_Skill_or_Memo.lua ): June's PlayEmblemEffect 3244b780
+//              opens it, OnFrameMove 3244c8c0 fades / closes it and counts it as playing ( 32447870 ), PlayEmblemOtherProcess
+//              3244c4b0 case 0x11 fills two rows per pop ( 32448b20 / 32447c00 / 324486c0 ) and shows the emblem again while rows
+//              are left. Data: data036 Emblem_Manager.lua = June's, Enum.lua + EMBLEM_ID 14-34; data217 DLG_Get_New_Skill_or_Memo.lua;
+//              data053 DLG_Ui_Guild_01. The rest of June's emblem manager is Phase S7l. Log [JUNE_SKILL] EMBLEM.
+//              Revert: comment out the define and restore data036 / data053 / data217 ( MODS.md ).
+#define SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifndef NEW_EMBLEM_MANAGER
+#error SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM needs NEW_EMBLEM_MANAGER ( CX2EmblemManager )
+#endif NEW_EMBLEM_MANAGER
+#ifndef SERV_IRUHADEV_JUNE_SKILL_NOTE
+#error SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM needs SERV_IRUHADEV_JUNE_SKILL_NOTE ( CX2SkillNoteManager::GetJuneMemoList = June 32451250 )
+#endif SERV_IRUHADEV_JUNE_SKILL_NOTE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( SkillTemplet::m_iDeleteSkillIDByUpgrade = June +0x178 )
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM needs SERV_IRUHADEV_JUNE_SOCKET_PARITY ( SkillTemplet::m_eJunePowerRateType = June +0x174 )
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June skill system Phase S7j - June's max MP. CX2Unit::ResetMaxMp = June 3234b9d0 ( SA_MAX_MP_ABS of 19 passives,
 //              17 of them June-only RNSI_* ids: March's 2402 / 5402 / 5410 / 7402 are gone from June's skill data, so in-game max MP
 //              from those passives was lost ), its equipment term CX2Inventory::JuneGetAddMaxMPValue = June 32869f80 ( slot filter ),
