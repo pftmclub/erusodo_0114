@@ -1851,6 +1851,8 @@ Four flags (revert: `MODS.md` "June's class-change notice"; funcmap tag `Skill S
   - OTHER = peers' blocks in `Always.h`.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 25,389,568 B, dated 2026-10-19 14:15:23, md5 5b3e8252d9fd53faffc492745a69ed5f, equal to X2/US_SERVICE/x2.exe (2026-10-19 14:15:15); built at main d3c30f58 + 21 uncommitted code file(s).`
   The build was coalesced into a peer's run. `[JUNE_SKILL] CLASS NOT unitUID`, `CLASS NOT build`, `DLG_Class_Change_Rose_BD.lua` and `Voice_ClassUpFinish0` are in the exe.
+- **Commits:** `1dd50d30` (phase); `cb1f79d7` + `041784ad` re-did `X2State.cpp` (hunk staging had misplaced the handler's `#else` / `#endif`; the first fix dropped S7n's
+  committed block, the second restored it). Net: `flagcheck CLASS_CHANGE --with TITLE_NOTICE --base 1dd50d30^ --at HEAD --files X2Lib/X2State.cpp`: `1 PASS`, `RESULT: PASS`.
 - **How to see it:** unit 32 MagicKnightT (Magic Knight, L70) buys `Sword Knight Class Change Ticket` (241950).
   - The popup shows Sword Knight with Elsword's voice; both bars are empty; the tree is Sword Knight's.
   - The log has `CLASS NOT build ... N acquired skill(s)` followed by `CLASS NOT unitUID=32 class 10: N acquired ...`. After a relog the tree is the same.
