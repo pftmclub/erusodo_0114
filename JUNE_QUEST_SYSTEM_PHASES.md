@@ -1355,6 +1355,28 @@ other windows still take clicks with the quest window open. Log: tab open x3, 56
 ( 22:15:00 ) and refilled from completed quests ( 1 seen on the next character ); 0 UNHANDLED, 0 EXCEPTION, ErrorLog 0 lines for the tag. JUNE_BUGS 362's
 reach corrected to latent offline ( the entry-point character list does not reset each listed unit ).
 
+**Review (PASS with 1 fix, 2026-10-19, Opus 5.5 high).** Raw disassembly (`disasm_range.py`) against the port:
+- *Match, no change:* list `323dfc00` (slot loop, no id step without a button, id-10 skip on codes 0x8d4 / 0x8d5, seen branch with the
+  ScenarioMovie_01 default / key / `"_Overlay"` Over + Down / `+0x1d0` = L"" / `+0x35e` = 1, NEW mark `ChangeSequence( 1 )` + `SetFlicker( 1, 1, 0, 1 )`,
+  locked branch Normal + Over only and 31168 / `323ddb00` / hide, HorizonLine ceil( rows / 3 ), Village icon + name with id 1 as the default,
+  RadioButton_Area; every string constant decoded); lock text `323ddb00` (Henir `+0x184 == 2`, 33030 / 33031, `"LL"` = area then dungeon,
+  `"iL"` = episode / 10 then title); cases 41038-41042 (`32481fa0` -> false with no box; `32482650` is itself gated on June's battle-field state,
+  so March's `GetIsBossRaidCurrentField` is equal; box 4495 at ( 250, 300 ), time -1; every other path returns true; hover slot maths); buttons
+  (> 13, clamps 1 / rows), navi (> 12, `-0.68` double, `_ftol`, list( 0 ) only on a change), wheel `323e45c0` (> 12, the delta is used up either
+  way), UpdateNavi (< 13 hide, ( start / 3 ) * 0.68 / ( steps - 1 )), ResetQuestUI `@323dfab2`, ctor `323d1638-323d1684`, SetShow `@323e53e6`;
+  MsgProc `323e5690` (modal tests on `+0x508` / `+0x510`, jump table 0x200-0x20c, MOUSEMOVE store + vslot 0x58, wheel when mode != 3 =
+  QUM_QUEST_DETAIL; no guard for other windows in June either, none needed per play-test 2); seen list (`31d78bf0` dedupes and appends,
+  `31d79ac0`, `31d758c0`, `31d75b00`, Reset `@323629d7` after the clear merge, the clear `@32462657` between the guild delete and the global
+  mission reset, battle-field override calls the base). Hide `323ca6d0` / list / `31d884f0` xrefs all accounted for; the two other `31d78bf0`
+  callers (`32434710`, `324db6b0`) are Stage 26's. `+0x84c` sweep reproduced: no other writer.
+- *Fix (same flag):* the shared tab tail `323e1dc3` has six callers, not five: case 41023 `UQNCM_BACK_TO_QUEST_LIST` (`@323e2201`:
+  `323ca520` ReturnToQuestListUI, then the tail) also clears `+0x774`. The port's Back now does (`X2UIQuestNew.cpp`); latent, since Back sits in the
+  detail window the list tabs hide. funcmap row `(Quest Q8b review)`.
+- *Hygiene:* range `fd56d901^..fd56d901` 7 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, RESULT PASS; `JUNE_QUEST_MSGPROC` `92204586^..92204586` 1 PASS, 1 DEFINE,
+  RESULT PASS; fix worktree 1 PASS, 0 deleted lines, RESULT PASS.
+- `DEPLOY OK: X2_offline.exe is 25,505,792 B, dated 2026-10-19 22:38:38, md5 7a90cdc212b75d93e03932d1f90c70eb, equal to X2/US_SERVICE/x2.exe (2026-10-19 22:38:30); built at main 63599d9e + 3 uncommitted code file(s).`
+- User owes nothing (no play-test: the fix is not reachable from the Video tab).
+
 ## Phase RM1 - Random mission port
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION`. Sub-tag `RM`.

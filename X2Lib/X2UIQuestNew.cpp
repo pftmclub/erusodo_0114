@@ -813,6 +813,9 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 			ReturnToQuestListUI();
 			m_iTopQuestSlotIndex = 0;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
+			m_bJuneMovieTab = false;		// June 323e2201 -> tail @323e1dd0: Back closes the Video tab before the reset, as the tabs do ( Q8b review )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB
 			ResetQuestUI();
 		}
 		return true;
