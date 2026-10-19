@@ -1856,6 +1856,37 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` (`Always.h` only; `#error` guards `
   scrolls L10 -> 16: L11 and L12 each one row at once, L13-16 queued 4 rows during L12's pop, then two pops 2 + 2 (`more to show = 1`, then `0`, ~5 s apart);
   unit 23 L71 -> 72: one pop with two type-3 rows (24026, 24217).
 
+### Phase S7i -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe stays 2a1c1d3e).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM --range 7363a324^..HEAD` (11 revision pairs):
+  `files: 6 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 5 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 9 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  OTHER = peers' commits in the range (`8904dbb` S8b `JUNE_SKILL_STATE_ULTIMATE` in `Always.h` / `X2GUUser.*`, `ed23e99` G4 review in `Always.h` (its one `-1`) / `KTDGGFXManager.cpp`); PASS~ = the
+  blank line before the block in `X2SkillTree.cpp`. The 9 EOL lines are `98349390`'s EndTable block in `X2EmblemManager.cpp`: it sits between a CRLF line and a bare-LF line and took LF.
+  The file was already mixed (71 bare-LF lines at `7363a324^`); whitespace only, the code is unchanged, so it is left as is. `05e10415` is empty (its message says so: a temp-index slip).
+- **Data.** `ledger --check` PASS (26 rows), `core --check` PASS (24 rows); `kom.py status` data036 / data053 / data217 in sync, 0 changes against the live koms (data036's stale-sidecar marker
+  is 23 old 2026-10-10 sidecars, none of this phase). `Emblem_Manager.lua` and `DLG_Get_New_Skill_or_Memo.lua` = `ljconv(June)` byte for byte (sha1 `33b3f9df` / `af2546e4`);
+  `DLG_Ui_Guild_01.tga` / `.TET` = June's (`d36451dd` / `e8087b03`). `Enum.lua` EMBLEM_ID: the name-to-value map is June's for -1..34; only the line order differs (March lists 4 before 3).
+- **The feed** (Ghidra + capstone, read-only). `31d885e0`: g_pData `+0x68 +0x90` my unit, `+0x50` tree, `324511a0` class gate = `HasJuneMemoClass`, filter `{ 0, level ( +0xb4 XOR +0xb8 / +0xbc ), class +0x38, 0 }`,
+  rows `( float( templet +8 ), float( key ), 1.0 )` in map order, `32447d70( 0x11, 1 )` when the map has entries. **Match.** `3220d2b0`: class tree find on filter `+8`, `32206450( key, 1 )`,
+  `+0x174 == 5` skipped unless my unit `+0x3c` (S7's rule), first level of `+0x150` (empty = 0) -> `+0x178 < 1 ? 1 : 3`, the level scan breaks on the first equal level and adds 4 only when `i > 0`,
+  memo list `32451250` re-read per skill, `memo +4 == templet +8` -> 2. **Match** (`+0x178` = `m_iDeleteSkillIDByUpgrade`, `+0x174` = `m_eJunePowerRateType`, as their header comments).
+  `3220b990`: insert `( type, { templet } )` or push unless an id-equal templet is there. **Match.**
+- **Call sites.** `323ae130`: the feed is the last statement of the my-unit branch (after `+0xaf4 = 1` and the cut-in block); March's is the last statement of its my-unit block. `32473f70`:
+  `+0xaf4 = 1`, vtable `+0x198` (IsMyUnit) -> feed, then `324685c0`; March: `SetIsLevelUp`, `IsMyUnit` -> feed, `DisplayLevelUpEffect`. **Match.** **The third handler `325346e0` is
+  `CX2StatePVPRoom`'s** (RTTI: vtable `334a413c` slot 151, `.?AVCX2StatePVPRoom@@`; its body is `323ae130`'s my-unit branch). March's `CX2StatePVPRoom` has no override (it inherits
+  `CX2StateMenu`'s, which needs `g_pX2Game`), and the offline client has no PvP room, so nothing is ported. funcmap row added.
+- **The emblem.** `3244b780`: `31d03920` hide-dialog test (March's `DIALOG_SHOW_TOGGLE` return), textures by name size `+0x1c` / `+0x44` with the 2nd inside the 1st, dialog by `+0x94`
+  (`LUA_FILE_NAME` at `+0x84`): close, `new 0x204`, ctor `( g_pMain +0x90, name, 0.07f ( 3344b78c ), 0 )` = March's defaults, AddDlg, `+0x5c = 0`; sound pick (types 0 / 1, `rand % n`); `+0x60 = id`. **Match.**
+  `32447870` / `32447760`: **match.** Fade `3244cb66-3244cce2` (x87 read from the bytes): timer `+0x5c += dt` before the `+0x60 == -1` test; close when `!( dur > t )`; fade in when `t >= 0` and `FADE_IN > t`
+  (alpha `t / FADE_IN` into dialog `+0x44`); fade out when `t >= dur - FADE_OUT` and `dur > t` (alpha `1 - ( t - s ) / ( dur - s )`). **Match.** Pick: `+0x18` / `+0x1c` = -1, close @3244cd72, `+0x60 = -1`. **Match.**
+  Parser: `LUA_FILE_NAME` @32449c10 sits between `TEXTUR_FILE_NAME` and `DURATION_TIME` (xorstrings); the sound loop is followed by an unconditional `EndTable` @3244acef, then the push. **Match.**
+  Case 0x11: dialog valid -> `32448b20`, `32447a20` -> `+0x63 = 0`, `+6 = 1` (@3244c860), else `324483e0`. **Match.** `32447a20` reads out-of-range rows as 0 (`fldz` @32447a20, JUNE_BUGS 334).
+  `32448b20` / `32447aa0` / `32447c00`: **match.** `324486c0`: ids 0x8af3 / 0x8af4 / 0x8af5 / 0x8ba1, format "L", case 3 base name from `+0x178`; empty text skips; width `/ +0x1b8` > 0x154 (340) in font 1 ->
+  `31d43ef0( text, 340, 1 )`, and only a non-empty result replaces the text and lowers string 0's `+0x28` (pos.y) by the double 8.0 at `33439cb0`; then string 0 `+8` (msg) and SetShow( 1 ). **Match.**
+- **Open questions:** none. Next: `/x2-phase skill-system-core S7l`.
+
 ## Phase S7j - June's max MP / max HP: ResetMaxMp, the unit's socket aggregate, the HUD refresh
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7g (2026-10-19, unowned-branch rule). June's `ResetMaxMp` `3234b9d0` (17 June-only skill ids; in-game max MP

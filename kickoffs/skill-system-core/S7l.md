@@ -12,7 +12,7 @@
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh
-python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "Rules" "Starting context" "Phase S7i - Done (2026-10-19, Opus 5.5 high)"
+python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "Rules" "Starting context" "Phase S7i - Done (2026-10-19, Opus 5.5 high)" "Phase S7i -- Review (2026-10-19, Opus 5.5 high)"
 ```
 `june2017_re/funcmap.tsv` rows tagged `Skill S7i` and `S7l`; `june2017_re/xorstrings.tsv` rows of `32449000` (the parser's 17 keys).
 
