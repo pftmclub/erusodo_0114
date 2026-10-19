@@ -13131,7 +13131,11 @@ void CX2GUChung::CSI_SI_A_CHUNG_RELOAD_CANNON_Start()
 {
 	CommonStateStart();
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	m_fNowStatePowerRate					*= GetDamageRelByCannonBallMastery();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_NowStateData.m_fPowerRate					*= GetDamageRelByCannonBallMastery();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_DamageData.damage.fPhysic					*= GetDamageRelByCannonBallMastery();
 	m_DamageData.damage.fMagic					*= GetDamageRelByCannonBallMastery();		
 	m_DamageData.m_ExtraDamage.m_DamagePerSec	*= GetDamageRelByCannonBallMastery();
@@ -13373,7 +13377,11 @@ void CX2GUChung::CSI_SI_SA_CHUNG_BRUTAL_SWING_FrameMove()
 		if( GetEqippedSkillMemo( CX2SkillTree::SMI_CHUNG_MEMO9 ) == true )
 		{			
 #ifdef MEMO_FIX_PUSH_AND_PUSH
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			m_fNowStatePowerRate *= 1.2f;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			m_NowStateData.m_fPowerRate *= 1.2f;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			m_DamageData.damage.fPhysic	*= 1.2f;
 			m_DamageData.damage.fMagic	*= 1.2f;
 			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_SI_SA_CHUNG_BRUTAL_SWING_MEMO", this, NULL, false, GetPowerRate() );
@@ -13785,7 +13793,11 @@ void CX2GUChung::CSI_SI_SA_CFG_STEEL_EDGE_FrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.7f ) && true == EventCheck( 0.7f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -14200,7 +14212,11 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.03f ) && true == EventCheck( 0.03f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -14221,7 +14237,11 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.06f ) && true == EventCheck( 0.06f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -14242,7 +14262,11 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.09f ) && true == EventCheck( 0.09f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -14263,7 +14287,11 @@ void CX2GUChung::CSI_SI_A_CFG_LEAP_ATTACK_JUMP_FrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.12f ) && true == EventCheck( 0.12f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15950,7 +15978,11 @@ void CX2GUChung::CDCComboXXFrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 1.232f ) && true == EventCheck( 1.232f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -19309,7 +19341,11 @@ void CX2GUChung::ComboXXFrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.466f ) && true == EventCheck( 0.466f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -19475,7 +19511,11 @@ void CX2GUChung::CFGComboZZXFrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.633f ) && true == EventCheck( 0.633f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -19496,7 +19536,11 @@ void CX2GUChung::CFGComboZZXFrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.84f ) && true == EventCheck( 0.84f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{

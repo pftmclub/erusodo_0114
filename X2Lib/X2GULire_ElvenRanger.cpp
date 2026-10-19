@@ -4944,7 +4944,11 @@ void CX2GULire_ElvenRanger::CommonStateStart()
 	//하나의 스킬이 끝나고 스킬 캔슬로 인해 바로 연속적으로 전과 같은 스킬이 실행되는 경우는 고려하지 않음.(쿨타임이 존재하므로)
 	//wait, walk, dash에서 초기화 함. (스킬이 끝난후에 넘어갈 수 있는 state라고 생각)
 	//시즈모드일 경우 바로 연속적으로 사용이 가능하므로 SiegeReadyStateStart함수에 예외처리 추가
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if( m_itNowStateData->second.m_SPLevel > 0 )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	if( m_NowStateData.m_SPLevel > 0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	{
 		CX2SkillTree::SKILL_ID eNowStateSkillId = GetNowStateSkillID();
 
@@ -13511,7 +13515,11 @@ void CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -13536,7 +13544,11 @@ void CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_FrameMove()
 	else if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime1 ) == true && EventCheck( m_fDamageDataChangeTime1, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -13565,7 +13577,11 @@ void CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_FrameMove()
 		//오른발로 띄운다.
 		SetEnableAttackBox( L"Rfoot", true );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -18046,7 +18062,11 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -19167,7 +19187,11 @@ void CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateStart()
 
 	//	데미지 세팅
 	SetFatalityData();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	m_fNowStatePowerRate *= m_sFatalityData.GetPowerRate();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_NowStateData.m_fPowerRate *= m_sFatalityData.GetPowerRate();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 }
 
 void CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateStartFuture()
@@ -19560,7 +19584,11 @@ void CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -19580,7 +19608,11 @@ void CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime2 ) == true && EventCheck( m_fDamageDataChangeTime2, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{

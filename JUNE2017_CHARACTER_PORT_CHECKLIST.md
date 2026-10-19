@@ -404,8 +404,13 @@ class scripts carry, so the character ports bring them (D8, no question). Funcma
 
 Every June class's `SetEquippedSkillFuncBySkillSlotIndex` (vslot `0x7b4`, slot 493) calls `31fd2af0( normal state )` before the slot
 state's `Init()`. **Drop that call when porting the function.** June needs it because its running state data are pointers into the
-state vector. March copies the running state by value (`m_NowStateData = m_StateList[...]`), so the copy already keeps the old
-delegates, and March has no `31fd2af0`. Funcmap rows `Effect C9h-6`.
+state vector. Since skill-system-core S8 (2026-10-19, flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`) March has the same model
+(`m_itNowStateData` / `m_itFutureStateData` into `m_StateList`) and the setter (`CX2GUUser::JuneSnapshotRunningStateFunc`), and the
+engine makes June's call itself: `JuneSnapshotBeforeSlotRebind( slot, bSlotB )` runs right before both `SetEquippedSkillFuncBySkillSlotIndex`
+call sites (`ChangeEquippedSkillState`, `SetEquippedSkillFunc`), on the same normal-state entry the class picks. So the class port still
+drops the call (a second one would only re-read the same delegates). A class port that adds a new caller of
+`SetEquippedSkillFuncBySkillSlotIndex` calls `JuneSnapshotBeforeSlotRebind` first. Class code multiplies `m_fNowStatePowerRate`
+(June `+0x7cc8`), never the entry's `m_fPowerRate`. Funcmap rows `Effect C9h-6`, `Skill S8`.
 
 | June | Class | What the port must bring |
 |---|---|---|

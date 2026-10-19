@@ -8542,7 +8542,11 @@ void CX2GURaven::RSI_DASH_COMBO_X_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -14715,7 +14719,11 @@ void CX2GURaven::RSI_SHADOW_STEP_THRUST_Start()
 {
 	CommonStateStart();
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	m_fNowStatePowerRate = m_fAttackPowerRateShadowStepThrust;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_NowStateData.m_fPowerRate = m_fAttackPowerRateShadowStepThrust;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 	m_DamageData.damage.fPhysic					*= m_fAttackPowerRateShadowStepThrust;
 	m_DamageData.damage.fMagic					*= m_fAttackPowerRateShadowStepThrust;		
@@ -18116,7 +18124,11 @@ void CX2GURaven::RSI_SA_RWT_BURSTING_BLADE_ATTACK_FrameMove()
 	if( true == m_pXSkinAnim->EventTimer( 0.8f ) && true == EventCheck( 0.8f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -18149,7 +18161,11 @@ void CX2GURaven::RSI_SA_RWT_BURSTING_BLADE_ATTACK_FrameMove()
 	else if( true == m_pXSkinAnim->EventTimer( 1.2f ) && true == EventCheck( 1.2f, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -20879,7 +20895,11 @@ void CX2GURaven::RVC_SI_P_SHADOW_BUSTER_Start()
 {
 	CommonStateStart();
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	m_fNowStatePowerRate = m_fShadowBusterPowerRate;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_NowStateData.m_fPowerRate = m_fShadowBusterPowerRate;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 }
 
 void CX2GURaven::RVC_SI_P_SHADOW_BUSTER_FrameMove()
@@ -21871,7 +21891,11 @@ void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_FrameMove()
 	else if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -22917,7 +22941,11 @@ void CX2GURaven::RSI_P_RRF_SHADOW_PUNISHER_Start()
 {
 	CommonStateStart();
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	m_fNowStatePowerRate = m_fAttackPowerRateShadowStepPunisher;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_NowStateData.m_fPowerRate = m_fAttackPowerRateShadowStepPunisher;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 	m_DamageData.damage.fPhysic					*= m_fAttackPowerRateShadowStepPunisher;
 	m_DamageData.damage.fMagic					*= m_fAttackPowerRateShadowStepPunisher;		

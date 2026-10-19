@@ -1663,6 +1663,45 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; 
 - **Play-test:** re-equip a slot while its skill is running, at the three points C9h-6 names (null delegate, new entry's skill
   id / hyper byte, a second re-equip). The `PTR` lines show the snapshot taken and consumed.
 
+### S8 - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR` (Always.h; `#error` without `_SKILL_TREE_UI`), debug lines under `SERV_IRUHADEV_JUNE_SKILL_DEBUG`. `cl` probe: PTR, TREE_UI, SKILL_DEBUG,
+OFFLINE, NEW_SKILL_TREE all ON. Funcmap rows `Skill S8` (4); JUNE_BUGS 327; checklist 7i rewritten; MODS.md entry.
+
+**Decision (S0b amendment): iterators into March's map, not June's vector.** `m_StateList` is node based and only the dtor clears it, so
+`m_itFutureStateData` / `m_itNowStateData` never dangle and `->first` is the state id, derived from the position like June's `(ptr - base) / 100`.
+`JuneGetStateDataIterator( id )` = `insert( id, default ).first`: an id with no entry gets a default one, which is what March's `m_StateList[ id ]` copy
+read (June: an id past the vector's end -> entry 0; not reproducible on a map, and no registered state reaches it).
+
+**What landed (all under the flag, `#else` = March's by-value copy):**
+- Ctor (June `3203e850`): Future = Now = entry 0 (`@32042125` / `@3204213c` / `@320421af`), running rate 1 (`@3203ed10`), snapshot empty.
+- DoStateEndStartFuture (`31fe6a40`): StateEndFuture = snapshot, else the entry's, else Common; store; Future triple cleared before StateStartFuture.
+- DoStateEndStart (`3203c3a0`): StateEnd the same way; store (no copy, no `stateID` stamp); `m_fNowStatePowerRate` seeded from the entry (`@3203c75e`), Phase 6b's
+  89/90 and 98 terms now multiply it; Now pair cleared (`@3203c907`) before StateStart.
+- DoFrameMoveFuture (`320347d0`, `@3203480e` / `@32034879`) and DoFrameMove (`31fd6b80`): snapshot first, then the entry's delegate, then Common.
+- `JuneSnapshotRunningStateFunc` = `31fd2af0` (offsets `@31fd2b40-@31fd2b9b`); the gate `31edf580` -> `322074e0` reuses S7b's `CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill`.
+- **Hazard 1 (power rate):** June keeps the running rate at `+0x7cc8` and class code multiplies that (byte scan: 24 `lea [reg+0x7cc8]`, 14 in class code, e.g. `32bf2e37`,
+  Raven `32c42cee`). So the 12 `m_fPowerRate` sites (GetPowerRate, the 6b terms, Chung x2, Elsword x2, Lire, Raven x3) use `m_fNowStatePowerRate`; the entry never compounds.
+- **Hazard 2 (re-bind):** June keeps only the five delegates; everything else in the running entry (skill id, hyper flag, SP level, StateStart, OnCameraMove, chain
+  info) is rewritten by the Init + re-bind, and now is in March too (verbatim). The class-side `31fd2af0` call stays checklist 7i, but March's nine class functions
+  are March's own, so the engine makes June's call: `JuneSnapshotBeforeSlotRebind( slot, bSlotB )` (same range check and A / B normal-state table as the class,
+  June `32d223e0 @32d2247d`) right before both `SetEquippedSkillFuncBySkillSlotIndex` call sites (`ChangeEquippedSkillState`, `SetEquippedSkillFunc`).
+- **Hazard 3 (Ara chain info):** unchanged, already shared through the `shared_ptr`.
+- **Readers:** 131 live sites, all converted by rule (`.stateID` -> `->first`, fields -> `->second.`, power rate -> the cache) in X2GUUser.h (7), X2GUUser.cpp (75),
+  Add 1, Ara 11, Arme 3, Chung 11, Elsword 15, Lire 9, Raven 7; X2GUEL / X2GuEve have none. Original lines untouched (insert-only). Generator + spec kept out of the tree.
+- **JUNE_BUGS 327:** a second re-equip inside one skill state re-snapshots the first replacement's delegates (the gate reads the rewritten entry). Verbatim.
+- **Not ported:** June's per-class hook vslot `0x78c` (empty in CX2GUUser, Phase 6b note) and the anti-hack protected copies (`+0x7e6c` / `+0x7e78`).
+- **Debug lines** (`[JUNE_SKILL] PTR`): `snapshot taken` / `skipped`, `snapshot consumed (Future)` / `(Now)` (frames the delegates ran, the old entry's skill / hyper
+  after the re-bind), `power rate` (entry vs running, first 20 skill states), one `running state data are map positions` line.
+
+**Hygiene:** `flagcheck --worktree --files` (10 files): `files: 9 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s),
+0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The OTHER row is Always.h
+(peers' S7f / Q1 blocks in the worktree).
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,127,424 B, dated 2026-10-19 07:16:44, md5 39cea8d40f2459fd8da4b5677872d647, equal to X2/US_SERVICE/x2.exe (2026-10-19 07:16:37)`;
+the three PTR strings are in the exe.
+
+**How to see it in game:** the hand-off below (unit 25 jtLordKnight, page switch while Impact Smash runs; Kick for the power rate). **User owes:** the play-test.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.

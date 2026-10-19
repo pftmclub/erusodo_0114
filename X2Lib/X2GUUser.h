@@ -1813,14 +1813,36 @@ public:
 		void						SetRebirthTime( float fRebirthTime ){ m_fRebirthTime = fRebirthTime; }
 		float						GetRebirthTime(){ return m_fRebirthTime; }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		virtual int					GetNowStateID() const { return m_itNowStateData->first; }
+		int							GetFutureStateID() const { return m_itFutureStateData->first; }
+		CX2SkillTree::SKILL_ID		GetNowStateSkillID() const { return m_itNowStateData->second.m_eSkillID; }
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		virtual int					GetNowStateID() const { return m_NowStateData.stateID; }
 		int							GetFutureStateID() const { return m_FutureStateData.stateID; }
 		CX2SkillTree::SKILL_ID		GetNowStateSkillID() const { return m_NowStateData.m_eSkillID; }
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		CX2SkillTree::SKILL_ID		GetFutureStateSkillID() const { return m_itFutureStateData->second.m_eSkillID; }
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		CX2SkillTree::SKILL_ID		GetFutureStateSkillID() const { return m_FutureStateData.m_eSkillID; }
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif //SERV_ADD_LUNATIC_PSYKER
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool IsHyperState() { return m_itNowStateData->second.m_bHyperState; }
+
+		/// June S8: the running state data are a position in the state list ( June 31fe6a40 / 3203c3a0 store list base + id x 100 ).
+		/// An id with no entry gets a default one, as March's m_StateList[ id ] copy did ( June: an id past the vector's end -> entry 0 ).
+		UserUnitStateDataMap::iterator	JuneGetStateDataIterator( const int iStateID_ );
+		/// June 31fd2af0: keep the running state's five delegates before a slot state's Init() and re-bind
+		void							JuneSnapshotRunningStateFunc( const UserUnitStateData& slotStateData_ );
+		/// the 31fd2af0 call June's 12 SetEquippedSkillFuncBySkillSlotIndex make first, made by the engine before March's class functions
+		void							JuneSnapshotBeforeSlotRebind( const int iSlotIndex_, const bool bSlotB_ );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool IsHyperState() { return m_NowStateData.m_bHyperState; }
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		virtual void				RenderName();
 
@@ -3995,8 +4017,29 @@ public:
 #endif // CRAYONPOP_EMOTION_WITH_MUSIC	// 크래용 팝 한벌 아바타 이모션, 사운드가 출력됨
 	protected:
 		//{{ Protected Variable Start
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		/// June S8: +0x7cb0 ( Future ) / +0x7cbc ( Now ) point INTO the state vector +0x7cec ( 100-byte entries, the state id is
+		/// ( ptr - base ) / 100 ), so a slot's Init() and re-bind rewrite the state that is running. March's m_StateList is a node-based
+		/// map with no erase before the dtor ( X2GUUser.cpp m_StateList.clear() ), so an iterator never dangles and ->first is the id.
+		UserUnitStateDataMap::iterator					m_itFutureStateData;	/// June +0x7cb0
+		UserUnitStateDataMap::iterator					m_itNowStateData;		/// June +0x7cbc
+		/// June +0x7cc8 ( GetPowerRate, slot 129 31fcb230 ): the Now entry's rate x 89/90 x 98 ( 3203c3a0 ); class code multiplies this,
+		/// never the entry ( e.g. 32bf2e37, 32c42cee )
+		float											m_fNowStatePowerRate;
+		/// June +0x9544..+0x9568 ( set by 31fd2af0 only ): preferred over the state's own delegate while set, cleared at the next state change
+		GUStateCBFunc									m_JuneSnapOnFrameMoveFuture;	/// +0x9544 <- Future +0x2c ( 320347d0 )
+		GUStateCBFunc									m_JuneSnapOnEventProcess;		/// +0x954c <- Future +0x44 ( 320347d0 )
+		GUStateCBFunc									m_JuneSnapStateEndFuture;		/// +0x9554 <- Future +0x4c ( 31fe6a40 )
+		GUStateCBFunc									m_JuneSnapOnFrameMove;			/// +0x955c <- Now +0x34 ( 31fd6b80 )
+		GUStateCBFunc									m_JuneSnapStateEnd;				/// +0x9564 <- Now +0x54 ( 3203c3a0 )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+		int												m_iJuneSnapDebugFramesFuture;	/// [JUNE_SKILL] PTR: frames a Future snapshot delegate ran
+		int												m_iJuneSnapDebugFramesNow;		/// [JUNE_SKILL] PTR: frames a Now snapshot delegate ran
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		UserUnitStateData								m_FutureStateData;	/// Future의 StateData
 		UserUnitStateData								m_NowStateData;	/// Now의 StateData
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		UserUnitStateDataMap							m_StateList;	///Key: StateID, Value: UserUnitStateData
 		
 		int												m_MachineGunWaitState;	/// 이거 안쓰면 그냥 삭제 하는게... 엘소드만 있고 다른건 없군...

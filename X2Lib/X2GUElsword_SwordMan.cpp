@@ -13198,12 +13198,20 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_ES_KICK_Start()
 	if( GetEqippedSkillMemo( CX2SkillTree::SMI_ELSWORD_MEMO7 ) == true )
 	{
 #ifdef UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		m_fNowStatePowerRate *= 1.1f;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_NowStateData.m_fPowerRate *= 1.1f;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_DamageData.damage.fPhysic	*= 1.1f;
 		m_DamageData.damage.fMagic	*= 1.1f;
 		m_DamageData.m_bNoDetonation = true;
 #else // UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		m_fNowStatePowerRate *= 4.0f;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_NowStateData.m_fPowerRate *= 4.0f;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_DamageData.damage.fPhysic	*= 4.0f;
 		m_DamageData.damage.fMagic	*= 4.0f;
 #endif // UPGRADE_SKILL_SYSTEM_2013
@@ -15530,7 +15538,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15588,7 +15600,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15647,7 +15663,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_COMBO_ZZZZZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15722,7 +15742,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XX_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15776,7 +15800,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_LOOP_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15825,7 +15853,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXXZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15879,7 +15911,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_COMBO_XXX_END_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15950,7 +15986,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -15970,7 +16010,11 @@ void CX2GUElsword_SwordMan::ESSI_ETK_DASH_COMBO_ZZ_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime2 ) == true && EventCheck( m_fDamageDataChangeTime2, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -16371,7 +16415,11 @@ void CX2GUElsword_SwordMan::CompactCounterAttackFrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -16509,7 +16557,11 @@ void CX2GUElsword_SwordMan::CompactCounterGuardAttackFrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -17617,7 +17669,11 @@ void CX2GUElsword_SwordMan::ESSI_EIS_DASHJUMP_COMBO_XXX_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{
@@ -17661,7 +17717,11 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_EIS_SPIRAL_STING_FrameMove()
 	if( m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) == true && EventCheck( m_fDamageDataChangeTime, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen)
 		{

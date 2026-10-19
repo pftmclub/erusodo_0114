@@ -1924,8 +1924,20 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 	m_adwInitFrameMoveCount[1] = 0;
 //#endif  SERV_KTDX_OPTIMIZE_UDP_PACKET_PACK
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	/// June S8: the ctor 3203e850 gives the state vector at least one entry ( @32042125 ) and points Future, then Now, at entry 0
+	/// ( @3204213c / @320421af ); the power rate +0x7cc8 starts at 1 ( @3203ed10 ); the five snapshot delegates start empty ( @32041ff6 ).
+	m_itFutureStateData		= JuneGetStateDataIterator( 0 );
+	m_itNowStateData		= m_itFutureStateData;
+	m_fNowStatePowerRate	= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+	m_iJuneSnapDebugFramesFuture	= 0;
+	m_iJuneSnapDebugFramesNow		= 0;
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_FutureStateData.Init();
 	m_NowStateData.Init();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 
 	//m_FrameDataFutureBefore.Init();
@@ -6411,6 +6423,9 @@ void CX2GUUser::ChangeEquippedSkillState( CX2Unit::UnitData& kUnitData_, const C
 	CalcEquippedSkillLevelPlusAndMPCostBySlotID( kUnitData_.m_UserSkillTree, iSlotIndex_, bSlotB_ );
 
 	// 스킬 장착 처리
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneSnapshotBeforeSlotRebind( iSlotIndex_, bSlotB_ );	/// June: the class's slot 493 calls 31fd2af0 first ( 32d223e0 @32d2247d )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	SetEquippedSkillFuncBySkillSlotIndex( eSkillId_, iSlotIndex_, bSlotB_ );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
 	JuneLogNoStateSkill( this, eSkillId_, iSlotIndex_, bSlotB_ );
@@ -6928,6 +6943,63 @@ bool CX2GUUser::CheckSkillUsePVPOfficial( CX2SkillTree::SKILL_ID eSkill_ID_ )
 	return bCheck;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+/// June S8 ( JUNE_SKILL_SYSTEM_PHASES.md ): 31fe6a40 / 3203c3a0 point the running state at list base + id x 100 when id < size, else at
+/// entry 0. March's map has no size: an id with no entry gets a default one, which is what March's m_StateList[ id ] copy read.
+CX2GUUser::UserUnitStateDataMap::iterator CX2GUUser::JuneGetStateDataIterator( const int iStateID_ )
+{
+	return m_StateList.insert( UserUnitStateDataMap::value_type( static_cast<UserUnitStateDataMap::key_type>( iStateID_ ), UserUnitStateData() ) ).first;
+}
+
+/// June 31fd2af0 ( this, slot state ): when the running skill ( vslot 0x524 GetNowStateSkillID ) is > 0 and 31edf580 calls it the same
+/// skill as the slot state's ( g_pData's skill tree +0x50, null -> false, else 322074e0( now skill, slot skill ) ), keep the Future
+/// state's OnFrameMoveFuture / OnEventProcess / StateEndFuture and the Now state's OnFrameMove / StateEnd. Nothing else is kept: the
+/// slot's Init() and re-bind that follow rewrite the rest of the running entry ( skill id, hyper flag, StateStart, OnCameraMove, ... ).
+void CX2GUUser::JuneSnapshotRunningStateFunc( const UserUnitStateData& slotStateData_ )
+{
+	if ( GetNowStateSkillID() <= 0 )
+		return;
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return;
+	if ( false == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( GetNowStateSkillID() ), static_cast<int>( slotStateData_.m_eSkillID ) ) )
+	{
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		static int s_iJunePtrSkipLogs = 0;
+		if ( s_iJunePtrSkipLogs++ < 20 )
+			CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot skipped: Now state %d runs skill %d, the re-bound slot state %d had skill %d (31edf580 false)",
+				static_cast<int>( m_itNowStateData->first ), static_cast<int>( GetNowStateSkillID() ), static_cast<int>( slotStateData_.stateID ), static_cast<int>( slotStateData_.m_eSkillID ) );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+		return;
+	}
+
+	m_JuneSnapOnFrameMoveFuture	= m_itFutureStateData->second.OnFrameMoveFuture;	/// @31fd2b40
+	m_JuneSnapOnEventProcess	= m_itFutureStateData->second.OnEventProcess;		/// @31fd2b52
+	m_JuneSnapStateEndFuture	= m_itFutureStateData->second.StateEndFuture;		/// @31fd2b64
+	m_JuneSnapOnFrameMove		= m_itNowStateData->second.OnFrameMove;				/// @31fd2b89
+	m_JuneSnapStateEnd			= m_itNowStateData->second.StateEnd;				/// @31fd2b9b
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	static int s_iJunePtrTakeLogs = 0;
+	if ( s_iJunePtrTakeLogs++ < 40 )
+		CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot taken: Now state %d skill %d hyper %d, Future state %d, re-bound slot state %d skill %d; set FMF %d EP %d SEF %d FM %d SE %d (0 = null delegate)",
+			static_cast<int>( m_itNowStateData->first ), static_cast<int>( GetNowStateSkillID() ), m_itNowStateData->second.m_bHyperState ? 1 : 0,
+			static_cast<int>( m_itFutureStateData->first ), static_cast<int>( slotStateData_.stateID ), static_cast<int>( slotStateData_.m_eSkillID ),
+			m_JuneSnapOnFrameMoveFuture != NULL ? 1 : 0, m_JuneSnapOnEventProcess != NULL ? 1 : 0, m_JuneSnapStateEndFuture != NULL ? 1 : 0,
+			m_JuneSnapOnFrameMove != NULL ? 1 : 0, m_JuneSnapStateEnd != NULL ? 1 : 0 );
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+}
+
+/// June's 12 SetEquippedSkillFuncBySkillSlotIndex ( vslot 0x7b4, e.g. Elsword 32d223e0 @32d2247d ) check the slot ( 0..4 ), pick its
+/// normal state ( A table 33521204 / B 3352132c ) and pass it to 31fd2af0 before that state's Init(). March's nine class functions are
+/// March's own ( the class-side call is checklist 7i ), so the engine makes the same call just before them: the same entry ( March's
+/// aNormalSkillStateID / ...SlotB, the class's own range check ), and nothing between this call and the class's Init() touches state data.
+void CX2GUUser::JuneSnapshotBeforeSlotRebind( const int iSlotIndex_, const bool bSlotB_ )
+{
+	if ( iSlotIndex_ < 0 || iSlotIndex_ >= ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ) )
+		return;
+	const int iNormalStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_] );
+	JuneSnapshotRunningStateFunc( JuneGetStateDataIterator( iNormalStateID )->second );
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 void CX2GUUser::DoStateEndStartFuture()
 {
 	KTDXPROFILE();
@@ -6935,14 +7007,26 @@ void CX2GUUser::DoStateEndStartFuture()
 	if( m_FrameDataFuture.syncData.stateChangeNum != m_FrameDataFuture.unitCondition.stateChangeNum )
 	{
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itFutureStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_FutureStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		{
 			m_FrameDataFuture.syncData.stateChangeNum = m_FrameDataFuture.unitCondition.stateChangeNum ;
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 			m_FrameDataFuture.syncData.bJuneStateSkipped = false;	/// C3e-4: June 31fe6a40 @31fe6aab clears A right after storing the new stateChangeNum
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			/// June 31fe6a40: the snapshot ( +0x9554 ) first, then the state's own StateEndFuture ( +0x4c ), else vslot 0x7d8
+			if( m_JuneSnapStateEndFuture != NULL )
+				m_JuneSnapStateEndFuture();
+			else if( m_itFutureStateData->second.StateEndFuture != NULL )
+				m_itFutureStateData->second.StateEndFuture();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if( m_FutureStateData.StateEndFuture != NULL )
 				m_FutureStateData.StateEndFuture();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			else
 				CommonStateEndFuture();
 
@@ -6957,17 +7041,46 @@ void CX2GUUser::DoStateEndStartFuture()
 		m_FrameDataFuture.syncData.nowSubState		= m_FrameDataFuture.unitCondition.nextSubState;
 		//m_FrameDataFuture.unitCondition.nextState	= GUSI_NONE;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		/// June 31fe6a40: Future = list base + nowState x 100 ( entry 0 past the end ), then the Future snapshot triple is cleared before
+		/// StateStartFuture. No copy: a later Init() of this entry is what the running state reads.
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		if( m_JuneSnapOnFrameMoveFuture != NULL || m_JuneSnapOnEventProcess != NULL || m_JuneSnapStateEndFuture != NULL )
+		{
+			static int s_iJunePtrFutureLogs = 0;
+			if( s_iJunePtrFutureLogs++ < 40 )
+				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot consumed (Future): state %d -> %d, FMF/EP ran %d frame(s), StateEndFuture %s; triple cleared",
+					static_cast<int>( m_itFutureStateData->first ), static_cast<int>( m_FrameDataFuture.syncData.nowState ), m_iJuneSnapDebugFramesFuture,
+					m_JuneSnapStateEndFuture != NULL ? L"from the snapshot" : L"null in the snapshot -> the entry's / Common" );
+		}
+		m_iJuneSnapDebugFramesFuture = 0;
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+		m_itFutureStateData			= JuneGetStateDataIterator( m_FrameDataFuture.syncData.nowState );
+		m_JuneSnapOnFrameMoveFuture	= GUStateCBFunc();
+		m_JuneSnapOnEventProcess	= GUStateCBFunc();
+		m_JuneSnapStateEndFuture	= GUStateCBFunc();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_FutureStateData			= m_StateList[m_FrameDataFuture.syncData.nowState];
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		//m_FutureStateData.stateID	= m_FrameDataFuture.syncData.nowState;	/// FieldFix: 이게 필요 한가?? 이것만 없으면 그냥 포인터 형식으로 사용해도 될듯.
 		//{{ robobeg : 2008-10-28
 		//m_StateTableNameFuture		= m_FutureStateData.stateTable;
 		//}} robobeg : 2008-10-28
 
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bTableOpen = m_LuaManager.BeginTableByReference( m_itFutureStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bTableOpen = m_LuaManager.BeginTableByReference( m_FutureStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			if( m_itFutureStateData->second.StateStartFuture != NULL )
+				m_itFutureStateData->second.StateStartFuture();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if( m_FutureStateData.StateStartFuture != NULL )
 				m_FutureStateData.StateStartFuture();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			else
 				CommonStateStartFuture();
 		}
@@ -6986,21 +7099,41 @@ void CX2GUUser::DoStateEndStart()
 	{
 		m_FrameDataNow.unitCondition.stateChangeNum = m_FrameDataNow.syncData.stateChangeNum;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		{
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 			/// June buff port 16-step3b4: the die states' StateEnd (3202a7d0) plays SIEE 18 (@3202a7e1) before its clear-all
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			if ( USI_DIE_FRONT == m_itNowStateData->first || USI_DIE_BACK == m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if ( USI_DIE_FRONT == m_NowStateData.stateID || USI_DIE_BACK == m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				ProcessSocketEffectEx( CX2SocketItem::SIEE_PLAY_EFFECTSET_WHEN_DIE, this );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
 			/// June 3202a7d0 is the StateEnd of every class's DIE_FRONT / DIE_BACK (thunk 329cada0, delegate +0x54,
 			/// e.g. @329b8140): clear-all(false) @3202a7ea, then CommonStateEnd. March's die states register no StateEnd.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			if ( USI_DIE_FRONT == m_itNowStateData->first || USI_DIE_BACK == m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if ( USI_DIE_FRONT == m_NowStateData.stateID || USI_DIE_BACK == m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				FinishAndClearAllBuff();
 #endif SERV_IRUHADEV_JUNE_BUFF_DEATH_CLEAR
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			/// June 3203c3a0: the snapshot ( +0x9564 ) first, then the state's own StateEnd ( +0x54 ), else vslot 0x7dc
+			if( m_JuneSnapStateEnd != NULL )
+				m_JuneSnapStateEnd();
+			else if( m_itNowStateData->second.StateEnd != NULL )
+				m_itNowStateData->second.StateEnd();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if( m_NowStateData.StateEnd != NULL )
 				m_NowStateData.StateEnd();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			else
 				CommonStateEnd();
 
@@ -7019,10 +7152,41 @@ void CX2GUUser::DoStateEndStart()
 
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		/// June buff port Phase 6b: June 3203c3a0 compares the old state's skill with the new one's (@3203c5f7); the copy below overwrites the old one
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		const CX2SkillTree::SKILL_ID eJuneBuffOldStateSkillID = m_itNowStateData->second.m_eSkillID;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		const CX2SkillTree::SKILL_ID eJuneBuffOldStateSkillID = m_NowStateData.m_eSkillID;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		/// June 3203c3a0 @3203c536: Now = list base + nowState x 100 ( entry 0 past the end ); no copy, no stateID stamp ( the id is the
+		/// position ). The power rate +0x7cc8 starts from the entry's rate ( @3203c75e ); the buff terms below multiply it, not the entry.
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		if( m_JuneSnapOnFrameMove != NULL || m_JuneSnapStateEnd != NULL )
+		{
+			static int s_iJunePtrNowLogs = 0;
+			if( s_iJunePtrNowLogs++ < 40 )
+				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot consumed (Now): state %d -> %d, the old entry now reads skill %d hyper %d, FM ran %d frame(s), StateEnd %s",
+					static_cast<int>( m_itNowStateData->first ), static_cast<int>( m_FrameDataNow.syncData.nowState ), static_cast<int>( m_itNowStateData->second.m_eSkillID ),
+					m_itNowStateData->second.m_bHyperState ? 1 : 0, m_iJuneSnapDebugFramesNow, m_JuneSnapStateEnd != NULL ? L"from the snapshot" : L"null in the snapshot -> the entry's / Common" );
+		}
+		m_iJuneSnapDebugFramesNow = 0;
+		{
+			static bool s_bJunePtrSeen = false;
+			if( false == s_bJunePtrSeen && NULL != GetUnit() )
+			{
+				s_bJunePtrSeen = true;
+				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR running state data are map positions (31fe6a40 / 3203c3a0): first Now change %d -> %d, entry rate %g",
+					static_cast<int>( m_itNowStateData->first ), static_cast<int>( m_FrameDataNow.syncData.nowState ), m_StateList[ m_FrameDataNow.syncData.nowState ].m_fPowerRate );
+			}
+		}
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+		m_itNowStateData		= JuneGetStateDataIterator( m_FrameDataNow.syncData.nowState );
+		m_fNowStatePowerRate	= m_itNowStateData->second.m_fPowerRate;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_NowStateData			= m_StateList[m_FrameDataNow.syncData.nowState];
 		m_NowStateData.stateID	= m_FrameDataNow.syncData.nowState;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		{
 			/// June buff port Phase 6b: the buff terms of June's CX2GUUser::DoStateEndStart (3203c3a0), in June's order and before StateStart below.
@@ -7032,14 +7196,27 @@ void CX2GUUser::DoStateEndStart()
 			/// Not ported (user decision, Phase 6b): the random START / WIN / LOSE state table pick (31fd65f0, lists +0x229f/+0x22a3/+0x22a7), the one-shot
 			/// StateEnd override and its resets (+0x2557..+0x255a), and the per-class hook at vtable +0x78c (empty in CX2GUUser, 31f3f070).
 			/// June passes the skill through the skill templet's +0x178 field (32207210) for the summon test; March has no such field, so the plain ID is used.
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			const int iJuneBuffSkillID = static_cast<int>( m_itNowStateData->second.m_eSkillID );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			const int iJuneBuffSkillID = static_cast<int>( m_NowStateData.m_eSkillID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if ( true == IsSummonSkillByJune( iJuneBuffSkillID ) )		/// @3203c586: kept until the next summon skill, not reset by others
 				m_fSkillDamageRateBySlotTypeForSummon = GetSkillDamageRateBySlotType( iJuneBuffSkillID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			if ( eJuneBuffOldStateSkillID != m_itNowStateData->second.m_eSkillID )	/// @3203c649: recomputed only when the skill changes
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if ( eJuneBuffOldStateSkillID != m_NowStateData.m_eSkillID )	/// @3203c649: recomputed only when the skill changes
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				m_fSkillDamageRateBySlotType = GetSkillDamageRateBySlotType( iJuneBuffSkillID );
 			const float fJuneBuffSkillDamageRate = GetSkillDamageRateByBuff( iJuneBuffSkillID );	/// @3203c7de: 89 x 90 (31fd7cc0)
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			m_fNowStatePowerRate *= fJuneBuffSkillDamageRate;
+			m_fNowStatePowerRate *= m_fSkillDamageRateBySlotType;	/// @3203c801: 98
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			m_NowStateData.m_fPowerRate *= fJuneBuffSkillDamageRate;
 			m_NowStateData.m_fPowerRate *= m_fSkillDamageRateBySlotType;							/// @3203c801: 98
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 			if ( 1.0f != fJuneBuffSkillDamageRate || 1.0f != m_fSkillDamageRateBySlotType )
 			{
@@ -7048,7 +7225,11 @@ void CX2GUUser::DoStateEndStart()
 				{
 					s_bSeenHost = true;
 					CX2JuneBuffCapture::Line( "first host BBT 89/90/98 DoStateEndStart: state %d skill %d power rate x %g (89 x 90) x %g (98) = %g",
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+						static_cast<int>( m_itNowStateData->first ), iJuneBuffSkillID, fJuneBuffSkillDamageRate, m_fSkillDamageRateBySlotType, m_fNowStatePowerRate );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 						static_cast<int>( m_NowStateData.stateID ), iJuneBuffSkillID, fJuneBuffSkillDamageRate, m_fSkillDamageRateBySlotType, m_NowStateData.m_fPowerRate );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				}
 			}
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
@@ -7058,16 +7239,40 @@ void CX2GUUser::DoStateEndStart()
 		//m_StateTableName		= m_NowStateData.stateTable;
 		//}} robobeg : 2008-10-28
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		/// June 3203c3a0 @3203c907: the Now snapshot pair is cleared after the power rate, before StateStart
+		m_JuneSnapOnFrameMove	= GUStateCBFunc();
+		m_JuneSnapStateEnd		= GUStateCBFunc();
+		bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			if( m_itNowStateData->second.StateStart != NULL )
+				m_itNowStateData->second.StateStart();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if( m_NowStateData.StateStart != NULL )
 				m_NowStateData.StateStart();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			else
 				CommonStateStart();
 
 		}
 		if( true == bTableOpen )
 			m_LuaManager.EndTable();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+		/// S8 hazard 1: class StateStart code multiplies the running rate ( +0x7cc8 ), so the entry's rate must read the same on every entry
+		if( CX2SkillTree::SI_NONE != m_itNowStateData->second.m_eSkillID )
+		{
+			static int s_iJunePtrRateLogs = 0;
+			if( s_iJunePtrRateLogs++ < 20 )
+				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR power rate: state %d skill %d, entry %g (never multiplied), running %g after StateStart (+0x7cc8)",
+					static_cast<int>( m_itNowStateData->first ), static_cast<int>( m_itNowStateData->second.m_eSkillID ), m_itNowStateData->second.m_fPowerRate, m_fNowStatePowerRate );
+		}
+#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 	}
 }
@@ -7077,10 +7282,27 @@ void CX2GUUser::DoFrameMoveFuture()
 	KTDXPROFILE();
 
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	bool bTableOpen = m_LuaManager.BeginTableByReference( m_itFutureStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	bool bTableOpen = m_LuaManager.BeginTableByReference( m_FutureStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		/// June 320347d0 @3203480e: the snapshot ( +0x9544 ) first, then the state's own OnFrameMoveFuture ( +0x2c ), else vslot 0x7c8
+		if( m_JuneSnapOnFrameMoveFuture != NULL )
+		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+			++m_iJuneSnapDebugFramesFuture;
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
+			m_JuneSnapOnFrameMoveFuture();
+		}
+		else if( m_itFutureStateData->second.OnFrameMoveFuture != NULL )
+			m_itFutureStateData->second.OnFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		if( m_FutureStateData.OnFrameMoveFuture != NULL )
 			m_FutureStateData.OnFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		else
 			CommonFrameMoveFuture();
 
@@ -7098,11 +7320,26 @@ void CX2GUUser::DoFrameMoveFuture()
 			RidingAttackZEventProcess();
 		else
 #endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		/// June 320347d0 @32034879: the snapshot ( +0x954c ) first, then the state's own OnEventProcess ( +0x44 )
+		if( false == bJuneRidingPetSkipEvent && m_JuneSnapOnEventProcess != NULL )
+			m_JuneSnapOnEventProcess();
+		else if( false == bJuneRidingPetSkipEvent && m_itFutureStateData->second.OnEventProcess != NULL )
+			m_itFutureStateData->second.OnEventProcess();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		if( false == bJuneRidingPetSkipEvent && m_FutureStateData.OnEventProcess != NULL )
 			m_FutureStateData.OnEventProcess();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #else
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		if( m_JuneSnapOnEventProcess != NULL )
+			m_JuneSnapOnEventProcess();
+		else if( m_itFutureStateData->second.OnEventProcess != NULL )
+			m_itFutureStateData->second.OnEventProcess();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		if( m_FutureStateData.OnEventProcess != NULL )
 			m_FutureStateData.OnEventProcess();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_RIDINGPET_STATE
 	}
 
@@ -7116,10 +7353,27 @@ void CX2GUUser::DoFrameMove()
 	KTDXPROFILE();
 
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		/// June 31fd6b80: the snapshot ( +0x955c ) first, then the state's own OnFrameMove ( +0x34 ), else vslot 0x7cc
+		if( m_JuneSnapOnFrameMove != NULL )
+		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
+			++m_iJuneSnapDebugFramesNow;
+#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
+			m_JuneSnapOnFrameMove();
+		}
+		else if( m_itNowStateData->second.OnFrameMove != NULL )
+			m_itNowStateData->second.OnFrameMove();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		if( m_NowStateData.OnFrameMove != NULL )
 			m_NowStateData.OnFrameMove();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		else
 			CommonFrameMove();
 	}
@@ -7304,7 +7558,11 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 #endif // VERIFY_STAT_BY_BUFF
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if( m_itNowStateData->first == GUSI_DIE )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	if( m_NowStateData.stateID == GUSI_DIE )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	{
 		return S_OK;
 	}
@@ -7734,12 +7992,24 @@ HRESULT CX2GUUser::OnCameraMove()
 		}
 		else
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			if( true == m_LuaManager.BeginTableByReference( m_itNowStateData->first ) )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			if( true == m_LuaManager.BeginTableByReference( m_NowStateData.stateID ) )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			{
 				// 다른 카메라 무브가 있는 경우 자신의 유닛 또는 거리가 일정거리 내에 있는 유닛이 아니면 카메라 발동 안함
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+				if( m_itNowStateData->second.OnCameraMove != NULL )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				if( m_NowStateData.OnCameraMove != NULL )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 					//&& ( IsMyUnit() || GetDistance3Sq( g_pX2Game->GetMyUnit()->GetPos(), GetPos() ) ) )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+					m_itNowStateData->second.OnCameraMove();
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 					m_NowStateData.OnCameraMove();
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				else
 #ifdef RIDING_SYSTEM
 				{
@@ -7775,7 +8045,11 @@ RENDER_HINT CX2GUUser::OnFrameRender_Prepare()
 	RENDER_HINT renderHint;
 	//{{ robobeg : 2008-10-28
 	//bTableOpen = m_LuaManager.BeginTable( m_StateTableName.c_str() );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	//}} robobeg : 2008-10-28
 	{
 		renderHint = CommonRender_Prepare();
@@ -15399,7 +15673,11 @@ void CX2GUUser::CommonStateStartFuture()
 	LUA_GET_VALUE( m_LuaManager, "ANIM_NAME", animName, L"" );
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	SetCustomAnimName( m_itFutureStateData->second, animName );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	SetCustomAnimName( m_FutureStateData, animName );		/// 특정 상태일 때, 애니메이션을 바꾸는 함수
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif //SERV_9TH_NEW_CHARACTER
 
 #ifdef RIDING_SYSTEM
@@ -15791,19 +16069,35 @@ void CX2GUUser::CommonStateStartFuture()
 #endif SERV_IRUHADEV_JUNE_COMMON_CANCEL
 #ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 	/// June 320506f0 @320568d3: the clamp follows the last read
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneClampCancelAfters( m_itFutureStateData->first, true );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneClampCancelAfters( m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 #ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
 	/// June 320506f0 @32056a15: right after the clamp, the Future set
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneParseUsefulValue( m_afJuneUsefulValueFuture, m_itFutureStateData->first, true );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneParseUsefulValue( m_afJuneUsefulValueFuture, m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 #ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
 	/// June 320506f0 @32056b0e-32056bf2: right after the USEFUL_VALUE set
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneParseUsefulString( m_vecJuneUsefulStringFuture, m_itFutureStateData->first, true );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneParseUsefulString( m_vecJuneUsefulStringFuture, m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_USEFUL_STRING
 #ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 	/// June 320506f0 @32056bf2-32056edd: right after USEFUL_STRING
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneParseNotSelectUnitOffset( m_itFutureStateData->first, true );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneParseNotSelectUnitOffset( m_FutureStateData.stateID, true );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 
 #ifdef LINKED_LINEMAP_JUMP_USER_TEST
@@ -16132,7 +16426,11 @@ void CX2GUUser::CommonStateStart()
 	LUA_GET_VALUE( m_LuaManager, "ANIM_NAME", animName, L"" );
 
 #ifdef SERV_9TH_NEW_CHARACTER // 김태환
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	SetCustomAnimName( m_itNowStateData->second, animName );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	SetCustomAnimName( m_NowStateData, animName );		/// 특정 상태일 때, 애니메이션을 바꾸는 함수
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif //SERV_9TH_NEW_CHARACTER
 
 #ifdef RIDING_SYSTEM
@@ -17077,19 +17375,35 @@ void CX2GUUser::CommonStateStart()
 #endif SERV_IRUHADEV_JUNE_UPDOWN_CANCEL
 #ifdef SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 	/// June 32057b80 @3205fa38: the clamp follows the last read
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneClampCancelAfters( m_itNowStateData->first, false );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneClampCancelAfters( m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_CANCEL_CLAMP
 #ifdef SERV_IRUHADEV_JUNE_USEFUL_VALUE
 	/// June 32057b80 @32060cd9-32060dd5: the Now set ( June reads it after its other state keys; March has none of them in between )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneParseUsefulValue( m_afJuneUsefulValueNow, m_itNowStateData->first, false );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneParseUsefulValue( m_afJuneUsefulValueNow, m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_USEFUL_VALUE
 #ifdef SERV_IRUHADEV_JUNE_USEFUL_STRING
 	/// June 32057b80 @32060dda-32060e5e: right after the USEFUL_VALUE set
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneParseUsefulString( m_vecJuneUsefulStringNow, m_itNowStateData->first, false );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneParseUsefulString( m_vecJuneUsefulStringNow, m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_USEFUL_STRING
 #ifdef SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 	/// June 32057b80 @32060e5e-32061149: right after USEFUL_STRING, into the same members the Future parse wrote
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	JuneParseNotSelectUnitOffset( m_itNowStateData->first, false );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	JuneParseNotSelectUnitOffset( m_NowStateData.stateID, false );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_NOT_SELECT_UNIT_OFFSET
 
 #ifdef SERV_EVE_BATTLE_SERAPH
@@ -23468,7 +23782,11 @@ void CX2GUUser::CommonStateEnd()
 #endif // SERV_ELESIS_SECOND_CLASS_CHANGE // 김종훈, 엘리시스 1-2 그랜드 마스터, 2-2 블레이징 하트
 
 #ifdef SERV_ELSWORD_INFINITY_SWORD
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	m_OldStateId = m_itNowStateData->first;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_OldStateId = m_NowStateData.stateID;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif
 
 
@@ -24388,7 +24706,11 @@ void CX2GUUser::PhysicProcess()
 	int lastTouchLineIndex		= m_FrameDataFuture.syncData.lastTouchLineIndex;
 	D3DXVECTOR3 landPosition	= m_FrameDataFuture.unitCondition.landPosition;
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if ( CX2Unit::UC_EVE_BATTLE_SERAPH == GetUnitClass() && CX2GUEve::ENSI_EBS_BOOST_DASH == m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	if ( CX2Unit::UC_EVE_BATTLE_SERAPH == GetUnitClass() && CX2GUEve::ENSI_EBS_BOOST_DASH == m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bTouch = pLineMap->IsOnLine( position, 51.f, &landPosition, &lastTouchLineIndex );
 // #ifdef RIDING_SYSTEM //JHKang
 // 	else if ( GetRidingOn() )
@@ -24771,12 +25093,23 @@ void CX2GUUser::PhysicProcess_Jumping( CKTDGLineMap* pLineMap )
 			{
 			case CKTDGLineMap::LT_JUMP_UP_REL:
 				{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+					if( USI_DAMAGE_DOWN_FRONT	!= (int) m_itNowStateData->first &&
+						USI_DAMAGE_DOWN_BACK	!= (int) m_itNowStateData->first &&
+						USI_DAMAGE_AIR_FALL			!= (int) m_itNowStateData->first &&
+						USI_DAMAGE_AIR_DOWN_LANDING	!= (int) m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 					if( USI_DAMAGE_DOWN_FRONT	!= (int) m_NowStateData.stateID &&
 						USI_DAMAGE_DOWN_BACK	!= (int) m_NowStateData.stateID &&
 						USI_DAMAGE_AIR_FALL			!= (int) m_NowStateData.stateID &&
 						USI_DAMAGE_AIR_DOWN_LANDING	!= (int) m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 					{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+						if( USI_JUMP_DOWN == (int) m_itNowStateData->first &&
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 						if( USI_JUMP_DOWN == (int) m_NowStateData.stateID &&
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 							true == m_InputData.pureDown &&
 							true == pLineMap->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
 						{
@@ -24813,12 +25146,23 @@ void CX2GUUser::PhysicProcess_Jumping( CKTDGLineMap* pLineMap )
 
 			case CKTDGLineMap::LT_JUMP_UP_ABS:
 				{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+					if( USI_DAMAGE_DOWN_FRONT	!= (int) m_itNowStateData->first &&
+						USI_DAMAGE_DOWN_BACK	!= (int) m_itNowStateData->first &&
+						USI_DAMAGE_AIR_FALL			!= (int) m_itNowStateData->first &&
+						USI_DAMAGE_AIR_DOWN_LANDING	!= (int) m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 					if( USI_DAMAGE_DOWN_FRONT	!= (int) m_NowStateData.stateID &&
 						USI_DAMAGE_DOWN_BACK	!= (int) m_NowStateData.stateID &&
 						USI_DAMAGE_AIR_FALL			!= (int) m_NowStateData.stateID &&
 						USI_DAMAGE_AIR_DOWN_LANDING	!= (int) m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 					{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+						if( USI_JUMP_DOWN == (int) m_itNowStateData->first &&
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 						if( USI_JUMP_DOWN == (int) m_NowStateData.stateID &&
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 							true == m_InputData.pureDown &&
 							true == pLineMap->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
 						{
@@ -27786,7 +28130,11 @@ void CX2GUUser::ForceChangeHyperModeWithoutMotion( float fAddTime_ )
 		return; 
 
 #ifdef SUPERPOSITION_HYPER_MODE_BUG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	IF_HYPER_MODE_STATE( m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	IF_HYPER_MODE_STATE( m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		return;
 #endif // SUPERPOSITION_HYPER_MODE_BUG
 
@@ -28112,7 +28460,11 @@ float CX2GUUser::GetEvadeUpPerBySMA( int npcID )
 
 /*virtual*/ float CX2GUUser::GetPowerRate()
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	return m_fNowStatePowerRate;
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	return m_NowStateData.m_fPowerRate;
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 }
 
 /** @function : CX2GUUser::ActiveSkillShow
@@ -37524,7 +37876,11 @@ bool CX2GUUser::GetSkillSlotIndexUsed( OUT int& iSkillSlotIndex_, OUT bool& bSlo
 	//const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
 
 	//현재 사용된 스킬이 뭔지 알아낸다
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	switch( m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	switch( m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	{
 	case USI_SPECIAL_ATTACK_1:
 	case USI_SPECIAL_ATTACK_HYPER_1:
@@ -39281,6 +39637,10 @@ void CX2GUUser::SetEquippedSkillFunc( const CX2Unit::UnitData& kUnitData_, const
 	{
 		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = kUnitData_.m_UserSkillTree.GetSkillSlot( i, bSlotB_ );
 		ASSERT( pSkillSlotData != NULL );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		if( NULL != pSkillSlotData )
+			JuneSnapshotBeforeSlotRebind( i, bSlotB_ );	/// June: the class's slot 493 calls 31fd2af0 first ( 32d223e0 @32d2247d )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		if( NULL != pSkillSlotData )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_REFORM
 		{
@@ -43347,7 +43707,11 @@ void CX2GUUser::Send_SKILL_USE_REQ( CX2SkillTree::SKILL_ID eSkillID )
 #ifdef FIX_FORCE_DOWN_AND_DETONATION_BUG
 void CX2GUUser::ForceDownAndDetonationProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	switch ( m_itNowStateData->first )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	switch ( m_NowStateData.stateID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	{
 	case USI_DAMAGE_DOWN_FRONT:
 	case USI_DAMAGE_DOWN_BACK:
@@ -43369,7 +43733,11 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 			if ( true == bJuneForceDown )
 				/// JUNE_FX C3f-1 flag set: one line per state start that sees the flag set
 				CX2OfflineLog::Server( L"JUNE_FX C3f-1 flag set: unit %I64d ( %s ) entered state %d, gage %.1f, detonated %d",
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+					GetUnitUID(), GetUnit()->GetNickName(), (int) m_itNowStateData->first, m_pGageData->GetNowForceDown(), bJuneDetonated ? 1 : 0 );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 					GetUnitUID(), GetUnit()->GetNickName(), (int) m_NowStateData.stateID, m_pGageData->GetNowForceDown(), bJuneDetonated ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 #endif SERV_IRUHADEV_JUNE_FORCE_DOWN_FLUSH_DEBUG
 			if ( true == bJuneForceDown || true == bJuneDetonated )
 			{
@@ -43419,7 +43787,11 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 	if( true == m_pXSkinAnim->EventTimer( m_fCommonDamageChangeTime ) && true == EventCheck( m_fCommonDamageChangeTime, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -44914,7 +45286,11 @@ void CX2GUUser::LoadEffectSetFromScript( IN KLuaManager& luaManager )
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 	/// June 32024ff0, the last block: when the now state is a hyper state ( UserUnitStateData +0x10 = m_bHyperState, via the now-state pointer
 	/// +0x7cbc ) and HYPER_EFFECT_SET is false, SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE is read into the same flag ( a miss stores 0 )
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if( true == m_itNowStateData->second.m_bHyperState && false == m_bHyperEffectSet )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	if( true == m_NowStateData.m_bHyperState && false == m_bHyperEffectSet )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		LUA_GET_VALUE( m_LuaManager, "SET_HYPER_EFFECT_SET_CHECK_HYPER_STATE",	m_bHyperEffectSet,	false );
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_DELETE
 

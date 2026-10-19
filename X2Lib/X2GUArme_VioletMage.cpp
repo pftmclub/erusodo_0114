@@ -11292,7 +11292,11 @@ void CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_FrameMove()
 			}			
 		}
 #else // BALANCE_PATCH_20131107					// ±èÁ¾ÈÆ / 13-10-16, 2013³â ÈÄ¹Ý±â ¹ë·±½º °³Æí
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		switch( m_itNowStateData->second.m_SPLevel )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		switch( m_NowStateData.m_SPLevel )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		{
 		case 1:
 			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_BINDING_CIRCLE_LEVEL_01", this );
@@ -11351,7 +11355,11 @@ void CX2GUArme_VioletMage::AVSI_SI1_AV_BINDING_CIRCLE_FrameMove()
 				fLength *= fLength;
 			}
 #else // BALANCE_PATCH_20131107					// ±èÁ¾ÈÆ / 13-10-16, 2013³â ÈÄ¹Ý±â ¹ë·±½º °³Æí
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+			switch( m_itNowStateData->second.m_SPLevel )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			switch( m_NowStateData.m_SPLevel )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 			{
 			case 1:
 				fLength = 500.0f;

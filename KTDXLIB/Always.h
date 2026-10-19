@@ -8797,3 +8797,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              [JUNE_QUEST] LOAD census line in offline_server.log. Off = the March loader.
 #define SERV_IRUHADEV_JUNE_QUEST_LOAD
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S8 - June's pointer model for the running state data. m_FutureStateData / m_NowStateData
+//              become positions in m_StateList ( m_itFutureStateData / m_itNowStateData; June +0x7cb0 / +0x7cbc point into the state
+//              vector +0x7cec, stored by 31fe6a40 / 3203c3a0; the id is the position ); the running power rate is its own member
+//              ( m_fNowStatePowerRate, June +0x7cc8, seeded from the entry @3203c75e, multiplied by the buff terms and class code );
+//              the 31fd2af0 snapshot ( +0x9544..+0x9568, gate 31edf580 -> 322074e0 ) is taken before a slot state's re-bind and
+//              preferred by 320347d0 / 31fe6a40 / 31fd6b80 / 3203c3a0 until the next state change. Every March reader converted
+//              ( X2GUUser + 7 class files ). Log [JUNE_SKILL] PTR ( with SERV_IRUHADEV_JUNE_SKILL_DEBUG ). Revert: comment out the define.
+#define SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#error SERV_IRUHADEV_JUNE_SKILL_STATE_PTR needs SERV_IRUHADEV_JUNE_SKILL_TREE_UI ( CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill = June 322074e0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+//////////////////////////////////////////////////////////////////////////

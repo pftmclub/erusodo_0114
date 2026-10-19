@@ -3443,13 +3443,23 @@ void CX2GUAra::CommonFrameMoveFuture()
 	// 기력 동기화 코드
 	m_FrameDataFuture.syncData.m_CannonBallCount= GetForcePower();
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if ( NULL == m_itFutureStateData->second.m_ptrComboAndSkillChainInfo )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	if ( NULL == m_FutureStateData.m_ptrComboAndSkillChainInfo )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_ComboAndSkillChainSystem.ResetChaining();
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		m_itFutureStateData->second.m_ptrComboAndSkillChainInfo->SetChaining( true );
+		m_itFutureStateData->second.m_ptrComboAndSkillChainInfo->ResetChainingFromNext();
+		m_ComboAndSkillChainSystem.ResetOtherListChaining( m_itFutureStateData->second.m_ptrComboAndSkillChainInfo );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		m_FutureStateData.m_ptrComboAndSkillChainInfo->SetChaining( true );
 		m_FutureStateData.m_ptrComboAndSkillChainInfo->ResetChainingFromNext();
 		m_ComboAndSkillChainSystem.ResetOtherListChaining( m_FutureStateData.m_ptrComboAndSkillChainInfo );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	}
 		
 }
@@ -8230,7 +8240,11 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	if( true == m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) && true == EventCheck( m_fDamageDataChangeTime, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -8594,7 +8608,11 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	if( true == m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) && true == EventCheck( m_fDamageDataChangeTime, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -8655,7 +8673,11 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	if( true == m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) && true == EventCheck( m_fDamageDataChangeTime, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -8715,7 +8737,11 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	if( true == m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) && true == EventCheck( m_fDamageDataChangeTime, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -8804,7 +8830,11 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	if( true == m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) && true == EventCheck( m_fDamageDataChangeTime, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -13600,7 +13630,11 @@ void CX2GUAra::ASI_A_ARA_Quick_Piercing_FrameMove()
 	if( true == m_pXSkinAnim->EventTimer( m_fDamageDataChangeTime ) && true == EventCheck( m_fDamageDataChangeTime, false ) )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 		if ( true == bTableOpen )
 		{
@@ -17068,7 +17102,11 @@ bool CX2GUAra::IsNoStageChangeSkill( IN const CX2SkillTree::SkillTemplet* pSkill
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	CX2GUUser::AttackResultByType( pDamageData );	/// June 32bceca0 @32bcece3 calls the base first, as Add, Eve, Raven and Lire do in March
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if( CX2SkillTree::SI_A_AM_GAIN_FORCE == m_itNowStateData->second.m_eSkillID )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	if( CX2SkillTree::SI_A_AM_GAIN_FORCE == m_NowStateData.m_eSkillID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	{
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 		if( m_hGainForceIntakeEffect == pDamageData.hAttackerEffect )

@@ -8925,7 +8925,11 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GUAdd::GetSkillUseCondition( I
 		{
 			// 스테이시스 필드 예외처리
 			if( true == m_StasisfieldData.GetIsActiveStasisfield() &&
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+				CX2SkillTree::SI_SA_APT_STASIS_FIELD != m_itFutureStateData->second.m_eSkillID )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				CX2SkillTree::SI_SA_APT_STASIS_FIELD != m_FutureStateData.m_eSkillID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 				eActiveSkillUseCondition = CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR;
 		} break;
 	}

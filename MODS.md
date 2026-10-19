@@ -4275,6 +4275,18 @@ log tag `[JUNE_SKILL] MEMO room`.
   March's KStat and packet are unchanged. The emulator never sends this NOT, so nothing changes offline.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### June's running-state pointer model (skill-system-core S8, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR` in `KTDXLIB/Always.h` (`#error` guard: `_SKILL_TREE_UI`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S8"; log tag `[JUNE_SKILL] PTR`
+(with `SERV_IRUHADEV_JUNE_SKILL_DEBUG`).
+- **Client.** `CX2GUUser::m_FutureStateData` / `m_NowStateData` (by-value copies) become `m_itFutureStateData` / `m_itNowStateData`, iterators into `m_StateList` (June `+0x7cb0` /
+  `+0x7cbc` point into the state vector; the state id is the key); the running power rate is `m_fNowStatePowerRate` (June `+0x7cc8`); June's five-delegate snapshot (`31fd2af0`,
+  `+0x9544..+0x9568`) is taken by `JuneSnapshotBeforeSlotRebind` before every `SetEquippedSkillFuncBySkillSlotIndex` call and preferred by DoFrameMoveFuture / DoStateEndStartFuture /
+  DoFrameMove / DoStateEndStart until the next state change. Every reader converted under the flag: `X2GUUser.h/.cpp` and the Add, Ara, Arme, Chung, Elsword, Lire, Raven class files.
+- **What changes in game:** re-equipping a slot (slot drop, page switch, another user's slot change) while that slot's skill runs now rewrites the running state as June does, except the
+  five snapshot delegates; class code's power-rate multiplications go to the running rate, not the state's entry. JUNE_BUGS 327.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June GFx runtime: SDK link and system init (june-gfx G1, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_GFX_RUNTIME` in `KTDXLIB/Always.h` (client only). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G1"; log tag `[JUNE_GFX] RUNTIME`.
