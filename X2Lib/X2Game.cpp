@@ -3853,9 +3853,6 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 		if ( m_fJuneStateStringTime <= 0.0f )
 		{
 			SetStateString( L"", 0.0f );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] SSTR display time ran out: state string cleared (32308c20 @3230a80b)" );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 		}
 	}
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME

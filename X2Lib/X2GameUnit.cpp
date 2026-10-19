@@ -1,9 +1,6 @@
 
 #include "StdAfx.h"
 #include ".\x2gameunit.h"
-#if defined( SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-#include "Offline/X2OfflineLog.h"
-#endif // SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF && SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -3433,16 +3430,6 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		/// S3d, June2017 GetFinalDamage 32284aa0 @32285ecf-32285efe: the level-damage power rate (the attacker's GetPowerRate, slot 129, for a
 		/// user; else 1) is multiplied by DamageData +0x5e4 (1.0 unless the skill-memo tail of 3202ac40 scaled it)
 		fEnergySpurtPowerRate = pAttDamageData->m_fJuneMemoLvDamagePowerRate * fEnergySpurtPowerRate;
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		if ( 1.f != pAttDamageData->m_fJuneMemoLvDamagePowerRate )
-		{
-			static int s_iJuneMemoLogs = 0;
-			static DWORD s_dwJuneMemoLog = 0;
-			if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-				CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO lv-damage APPLIED_SKILL_ID=%d power rate x%.3f -> %.3f (32284aa0 @32285eef)",
-					pAttDamageData->m_iAppliedSkillID, pAttDamageData->m_fJuneMemoLvDamagePowerRate, fEnergySpurtPowerRate );
-		}
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 #endif
 
@@ -13249,13 +13236,6 @@ static BUFF_TEMPLET_ID JuneBuffTempletIDOfFactor( const UINT uiBuffFactorId_ )
 		{
 			const int iJuneAdjustSkillID = ( 0 != iAdjustSkillID_ ) ? iAdjustSkillID_ : static_cast<CX2GUUser*>( this )->GetJuneStateBuffSkillID();
 			AdjustBuffFactorByIndex( ptrBuffFactorClone, iJuneAdjustSkillID );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-			static int s_iJuneStateBuffLogs = 0;
-			static DWORD s_dwJuneStateBuffLog = 0;
-			if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
-				CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF bybfi BFI %u level %u -> slot 476 with skill %d (%s) (322a6a65)", uiBuffFactorId_, uiLevel_,
-					iJuneAdjustSkillID, ( 0 != iAdjustSkillID_ ) ? L"the caller's" : L"+0x9274, the state's" );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 		}
 		OnBuffAccumulationFactorReady( ptrBuffFactorClone, 0 );
 	}

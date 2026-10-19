@@ -232,6 +232,14 @@ framework; the effect-engine check is pending june-effect C11 (phase Z records i
 - Fact 2: effect C1a already identified the override's callees (funcmap 1302-1306).
 - Fact 3: the macro is at `CommonPacket.h:6411`, and `KUserSkillPageData` carries slot arrays too.
 
+**Stage 3 closed (2026-10-19, skill-system-core Z).** Sub-steps 3a-3f are done: 3a = S1, 3b = S4, 3c = S2 / S3 / S3b / S3c, 3d = S5 / S6 / S6b,
+3e = S7 / S7b-S7f, 3f = S8 (all play-tested; the two `Review PASS` rows are in the plan doc). Facts 1-3 above stand as corrected. What the plan added or routed:
+- Playable-path phases kept in the plan: S3d-S3f (skill state), S7h (class change resets the tree), S7j / S7k / S7m (max MP / HP, socket aggregate, extra damage).
+- Done before the 2026-10-19 scope rule and left done, but Stage 9 / Stage 16 territory: S7g (HUD stat singleton, cash-shop open-at-item list), S7i / S7l / S7n (level-up and new-title emblems).
+- Routed, not run in the plan: S7o (boss-raid enter UI) -> june-dungeons C3z-8; S7p (character-window socket total `3291ba40`) -> Stage 9 (below); S7m's June-only item socket vectors -> Stage 16.
+- Class states for the reform IDs are character-port rows (checklist 7ae, census `june2017_re/s3_reform_ids_no_state.tsv`: 1,989 of 2,044 reform rows of March's 55 classes have no state); the memo consumers (S3d) and the numerical override (S4) show their numbers only once a class port gives a skill a state.
+- `MODS.md` carries the flag lines and revert steps; the exe, `data036` and the save (v17-v19) revert together. `SERV_IRUHADEV_JUNE_SKILL_DEBUG` was retired in Z (its MEMO lines never ran in a play-test; no behaviour change).
+
 ### Stage 4: quest system (including the deferred region quests)
 
 This is the "later quest plan" that the Atlas/Elysion docs defer to.
@@ -573,6 +581,11 @@ Routed elsewhere:
 
 **Depends on:** Stage 13 (K2).
 
+- **June-only item socket vectors** (routed from skill-system-core S7m, 2026-10-19). `31ed7e90` (from `KInventoryItemInfo`; `32887100` from a packed record) fills the
+  item's `+0x8c` / `+0x9c` / `+0xac` lists from three June-only `KItemInfo` socket-id vectors (`+0x48` / `+0x58` / `+0x68`); `+0xac` counts only when `32883300`'s apply condition
+  is met by the set's equipped parts. They belong to June's socket extraction / apply system (`m_bSocketExtraction` / `m_iSocketApply` / `m_iSocketCondition`, `32883300` /
+  `32883450`, item socket count `328836c0`); March's `KItemInfo` has no such fields and the emulator no source. Also here: the usable-expiry part `328823d0` and the equip-group
+  set at unit `+0xe40`. Identify and port whole with the socket extraction system; the combat sums already ignore these lists (S7k / S7m).
 ---
 
 ### Stage 17: Pet and riding-pet remainder (june-effect C9h, 2026-10-07)

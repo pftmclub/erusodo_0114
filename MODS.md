@@ -4474,6 +4474,30 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` in `KTDXLIB/Always.h` (needs `OFFLIN
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Ranks go back to F, quests back to RT_NONE at end game. No save change (rank bonus EXP already paid stays).
 - **Found by its play-test, own flag `SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END`** (needs `OFFLINE`): a solo dungeon death ends the run as the room did (15 s timer from the die REQ, X = `EGS_SKIP_CONTINUE_DUNGEON_NOT` ends at once, 11 s cash-revive window, a revive cancels). `Handlers_Room.cpp` (die / resurrect / stop-continue / skip handlers, `EndDungeonGame` = `Handler_EGS_END_GAME_REQ`'s body after its ACK), `Handlers_Field.cpp` (the beat), `X2OfflineServer.h/.cpp`. Revert: comment out the define and rebuild; a dead solo run then never ends.
 
+### June skill system: flags without a section above, and the close-out (skill-system-core S3 / S3b / S3c / Z, 2026-10-19)
+
+Plan `JUNE_SKILL_SYSTEM_PHASES.md`; log tag `[JUNE_SKILL]`. The other `SERV_IRUHADEV_JUNE_SKILL_*` flags have their own section above (S2 TEMPLET, S4 NUMERICAL, S3d MEMO_*, S5 SLOT_10, S6 SLOT_UI,
+S6b KEYCONFIG, S3e STATE_BUFF / STATE_STRING_TIME, S7 ACQUIRE, S7b TREE_UI, S7c MEMO_PACKET, S7d PAGE, S7e TREE_PANELS, S7f MEMO_RESYNC, S7g CASH_OPEN_ITEM / HUD_MAXHPMP, S7h CLASS_CHANGE / CLASS_POPUP /
+CLASS_ITEM_CHOICE, S7i / S7l / S7n emblems and notices, S7j MAX_MP, S7k UNIT_SOCKET / STAT_GETTERS, S7m UNIT_SOCKET_EDT / PARTY_SOCKET, S8 STATE_PTR, S3f STATE_ULTIMATE).
+These three had none:
+- **`SERV_IRUHADEV_JUNE_SKILL_REFORM`** + **`_REFORM_AUTOLEARN`** (S3, `KTDXLIB/Always.h`; the flip). Loader supersets (`X2SkillTree.cpp`: preceding-skill read, seal-skill scalar item id), June `GetSkillLevel 32890620`
+  whole (`X2UserSkillTree.cpp`), save v17 (`X2OfflineDB::MigrateSkillsToJuneTree`: every `unit_skill` / `unit_skill_unsealed` / `unit_skill_note` row goes, SP = June init SP, CSP 0), auto-learn of each class's free
+  rows (`X2OfflineJuneSkillAutoLearn.h`, generated; labelled stand-in), emulator seeds on create / job change / reset, level-0 rows neither loaded nor sent, ACK pages clamped to >= 1, a no-state skill slot logs once
+  (`MIG no-state skill`) and `StateChange` refuses the blank state. Data: `data036` carries June's `SkillData.lua` + `NewSkillTempletVer2.lua` (ljconv) and the core `Enum.lua` (31 June `UNIT_CLASS` names,
+  `SPRT_HYPER_CLASS`). JUNE_BUGS 279. **Revert:** the exe, `data036` and the save move together (K2 rule) and the save is forward-only. Comment out both flags only together with restoring the pre-S3 snapshot
+  `db_backup\els_db_20261018_070707_pre_S3_skill_reform.sql` (v16, **loses everything saved since**) and the pre-S3 `data036.kom` (the copy tool's backup of the live archive, game directory); every later skill flag (SLOT_10 v18, MEMO_PACKET / PAGE v19, ...)
+  needs REFORM, so they revert with it. No partial revert is supported.
+- **`SERV_IRUHADEV_JUNE_SKILL_NOTE`** (S3b). June's skill-note (memo) manager is added because the US build compiles March's out (`Always_Global.h:39`): manager, Lua binders and readers, the user-tree memo multimap,
+  June `31fdbbb0` / `31fdbcc0`. JUNE_BUGS 286. Needs TEMPLET. Everything memo-related (`MEMO_*`, `MEMO_PACKET`, `MEMO_RESYNC`, `LEVEL_EMBLEM`) is guarded on it. **Revert:** comment out the define (and the dependants),
+  `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
+- **`SERV_IRUHADEV_JUNE_SKILL_TYPE`** (S3c). `SKILL_TYPE` enumerators 14-18, `RESET_SKILL_ACK` clears the type 14-16 slots (June `322112d0`; unreachable offline), the `[JUNE_SKILL] TYPE` census at load.
+  **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, save or kom changes.
+
+**Retired in Z: `SERV_IRUHADEV_JUNE_SKILL_DEBUG`.** Its define, the `#if ... JUNE_SKILL_DEBUG` blocks (41 in `X2GUUser.cpp/.h`, `X2SkillTree.cpp/.h`, `X2GameUnit.cpp`, `X2DamageEffect.cpp`, `X2EffectSet.cpp`, `X2Game.cpp`,
+`X2SkillNoteManager.h`, `X2OfflineSkill.cpp`) and its `#error` guard are gone: no play-test ever showed the S3d `MEMO` lines (they need a class with a state for a memo skill), the S8 `PTR` lines cannot run offline, and
+S2's march-vs-june scratch parser compare was noise since S3. Diagnostics only, so no behaviour changed. Where a revert line above says "(and `_DEBUG`)" or a log tag "with `_DEBUG`", read that as history.
+Left as empty bodies (still called): `CX2SkillTree::JuneLogShortArray` / `JuneLogShortArrayReach`. S3's `MIG autolearn check` (a `_DEBUG` block) went with it; the generated table was verified by the S3 play-test (`only generated 0, only loaded 0`). `SERV_IRUHADEV_JUNE_SKILL_SLOT_10_DEBUG` and `_NUMERICAL_DEBUG` are separate flags and stay.
+
 ## Known deviations to clean up
 
 **Resolved 2026-09-09 (March migration, Phase 1):** `STATIC_AUTO_LOGIN` used

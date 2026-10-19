@@ -2176,10 +2176,6 @@ public:
 			const int iIndex = iLevel - 1;
 			if ( 0 <= iIndex && static_cast<int>( m_vecRequireCharacterLevel.size() ) > iIndex )
 				return m_vecRequireCharacterLevel[iIndex]; 
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			if ( false == m_vecRequireCharacterLevel.empty() )
-				CX2SkillTree::JuneLogShortArrayReach( static_cast<int>( m_eID ), 2, iLevel, static_cast<int>( m_vecRequireCharacterLevel.size() ) );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 			return 0;
 		}
@@ -2248,10 +2244,6 @@ public:
 			const int iIndex = iLevel - 1;
 			if ( 0 <= iIndex && static_cast<int>( m_vecMPConsumption.size() ) > iIndex )
 				return m_vecMPConsumption[iIndex];
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			if ( false == m_vecMPConsumption.empty() )
-				CX2SkillTree::JuneLogShortArrayReach( static_cast<int>( m_eID ), 1, iLevel, static_cast<int>( m_vecMPConsumption.size() ) );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 			return 0.f;
 		}
@@ -2264,10 +2256,6 @@ public:
 			const int iIndex = iLevel - 1;
 			if ( 0 <= iIndex && static_cast<int>( m_vecSkillCoolTime.size() ) > iIndex )
 				return m_vecSkillCoolTime[iIndex];
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			if ( false == m_vecSkillCoolTime.empty() )
-				CX2SkillTree::JuneLogShortArrayReach( static_cast<int>( m_eID ), 0, iLevel, static_cast<int>( m_vecSkillCoolTime.size() ) );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 			return 0.f;
 		}
@@ -2565,10 +2553,6 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
 	void    JuneNumericalSelfCheck() const;
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	void    JuneScratchLoad( const WCHAR* pFileName_, const WCHAR* pSkillDataFileName_ );
-	void    JuneCompareTrees( CX2SkillTree& marchTree_ );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	int GetMaxSkillLevel( int iUnitClass, SKILL_ID eSkillID );
@@ -2930,9 +2914,6 @@ private:
 	std::map<int, int>  m_mapUpgradeSkill;      /// June CX2SkillTree +0x20: base skill id -> "[Enhanced]" skill id ( filled by m_DeleteSkillIDByUpgrade )
 	JuneLoadStats       m_JuneLoadStats;
 	bool                m_bJuneScratch;         /// a throw-away debug tree: no buff factor parse
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	bool                m_bJuneMarchParser;     /// debug: this tree runs March's AddSkillTemplet_LUA body
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS
 	std::map< int, JuneCommandIconData >	m_mapJuneCommandIcon;	/// June CX2SkillTree +0xc4: CommandIconData.lua by COMBO_TREE_ICON

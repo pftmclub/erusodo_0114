@@ -3380,13 +3380,6 @@ CX2EffectSet::Handle CX2EffectSet::PlayEffectSet( const wstring& wstrEffectSetNa
 				{
 					const float fJuneMemoScale = pJuneMemo->m_vecValue[0];
 					pEffectSetData->m_vJuneMemoScale = D3DXVECTOR3( fJuneMemoScale, fJuneMemoScale, fJuneMemoScale );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-					static int s_iJuneMemoLogs = 0;
-					static DWORD s_dwJuneMemoLog = 0;
-					if( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-						CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO effectset %s APPLIED_SKILL_ID=%d MI_HUGE v0=%.3f -> templet memo scale (321e1e60)",
-							pEffectSetData->m_wstrEffectSetName.c_str(), pEffectSetData->m_iAppliedSkillID, fJuneMemoScale );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 				}
 			}
 #else SERV_IRUHADEV_JUNE_SKILL_MEMO_FX

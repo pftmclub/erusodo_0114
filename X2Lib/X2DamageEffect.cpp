@@ -1870,16 +1870,6 @@ CX2DamageEffect::CEffect::CEffect( CX2DamageEffect* pManager, KLuaManager* pLuaM
 			}
 		}
 	}
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	if( 1.f != m_DamageData.m_fJuneMemoHugeScale || 1.f != m_DamageData.m_fJuneMemoLongshotRate )
-	{
-		static int s_iJuneMemoLogs = 0;
-		static DWORD s_dwJuneMemoLog = 0;
-		if( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO damageeffect %s ctor: MI_HUGE s=%.3f%s MI_LONGSHOT life x%.3f (31f7aab0)", m_Name.c_str(),
-				m_DamageData.m_fJuneMemoHugeScale, m_bIgnoreMIHuge ? L" (IGNORE_MI_HUGE: spheres only)" : L"", m_DamageData.m_fJuneMemoLongshotRate );
-	}
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_FX
 
 	

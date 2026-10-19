@@ -7977,22 +7977,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-18
-// Description: June skill system core, Phase S2, short-lived debug. "[JUNE_SKILL] LOAD" lines: padding differences, runtime reads past a
-//              short array, a scratch load of March's file through March's parser (compared with the real June-parser tree) and of June's
-//              own NewSkillTempletVer2.src.lua (2,346 / 3,360 / 12). Since S3d it also carries the "[JUNE_SKILL] MEMO" consumer lines
-//              (effectset / damageeffect / attack box). Kept (S7c review, 2026-10-18) until a play-test shows those lines: the first
-//              class whose memo skill plays (Elsword's skill state waits for his class port). Remove it then.
-#define SERV_IRUHADEV_JUNE_SKILL_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-#error SERV_IRUHADEV_JUNE_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
-//////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////
-// Author: Iruha
-// Date: 2026-10-18
 // Description: June skill system core, Phase S3 (JUNE_SKILL_SYSTEM_PHASES.md "Phase S3"). The flip: data036 carries June's SkillData.lua
 //              and NewSkillTempletVer2.lua, and the save moves with them (schema v17, [JUNE_SKILL] MIG: skills, unseals and notes reset,
 //              SP = June GetCalcInitSkillPoint 32205790). June's CX2UserSkillTree::GetSkillLevel 32890620 whole (non-guild: stored level,

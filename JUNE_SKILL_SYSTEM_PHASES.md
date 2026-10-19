@@ -2571,6 +2571,23 @@ The snapshot and its four consumers are left to the S8 review's Ghidra compariso
 - Check that every row of "Phase list as run" is done or routed (Rule 9), and that each routed item appears in its target
   stage (S7o in june-dungeons C3z-8, S7p in backlog Stage 9, S7m's item vectors in Stage 16).
 
+**Done note (2026-10-19, Sonnet 5.5 medium): Phase Z closed Stage 3. No flag, no play-test; one rebuild (a diagnostics-only change).**
+- **`MODS.md`.** New section "June skill system: flags without a section above, and the close-out": REFORM + REFORM_AUTOLEARN (S3), NOTE (S3b), TYPE (S3c) were the only
+  `SERV_IRUHADEV_JUNE_SKILL_*` flags with no line; every other flag already had one (checked flag by flag against `Always.h`). Revert rule: exe + `data036` + save (v17-v19,
+  forward-only) revert together, to the pre-S3 snapshot; no partial revert.
+- **Backlog.** `JUNE_PORT_BACKLOG_ORDER.md` Stage 3 has the dated closing note (3a-3f mapped to phases, facts 1-3 stand); Stage 16 gained the June-only item socket vectors
+  bullet (`31ed7e90` `+0x8c` / `+0x9c` / `+0xac`, socket extraction / apply system), which S7m had noted only in the funcmap. S7p is a bullet in Stage 9 (line ~398) and S7o is
+  `C3z-8` in `STATUS.md` / `JUNE_DUNGEONS_PHASES.md`: all three routes confirmed present.
+- **Checklist.** 7ae (S3: 1,989 of 2,044 reform rows of March's 55 classes have no state; `june2017_re/s3_reform_ids_no_state.tsv`) and the S4 numerical-override lines (section 1) are in place.
+- **Phase list as run:** all 33 rows done, or routed (S7o, S7p, S7m item vectors).
+- **`SERV_IRUHADEV_JUNE_SKILL_DEBUG` retired.** `logs.py --grep "JUNE_SKILL] MEMO"` still finds nothing in any current log, so the S3d `MEMO` lines never ran (they need a class
+  with a state for a memo skill) and the S8 `PTR` lines cannot run offline. The define and its `#error` guard in `Always.h`, and all 41 `#if ... JUNE_SKILL_DEBUG` blocks (X2GUUser.cpp/.h, X2SkillTree.cpp/.h,
+  X2GameUnit.cpp, X2DamageEffect.cpp, X2EffectSet.cpp, X2Game.cpp, X2SkillNoteManager.h, X2OfflineSkill.cpp; no `#else` in any of them) are removed with a line-exact script, so every other byte is unchanged.
+  `JuneLogShortArray` / `JuneLogShortArrayReach` stay as empty bodies (still called). Comments that mention `_DEBUG` (Always.h history, `X2OfflineJuneSkillAutoLearn.h` header, MODS.md revert lines) are left as history.
+- **Memory:** `skill-system-core-plan` rewritten to the closed state.
+- **Hand-off:** nothing to play-test: the removed code only logged. Build and deploy result is on the Z row in `STATUS.md`.
+
+
 ## Open questions (planning, 2026-10-17)
 
 Decided in planning (above): flip everything in Stage 3; adopt June's pointer model; S2-S5 and S8 do not wait for Stage 2.

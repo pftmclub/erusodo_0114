@@ -92,9 +92,6 @@ CX2SkillTree::CX2SkillTree(void)
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	m_bJuneScratch = false;
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	m_bJuneMarchParser = false;
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 }
 
@@ -161,9 +158,6 @@ bool CX2SkillTree::OpenScriptFile( const WCHAR* pFileName, const WCHAR* pSkillDa
 #ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
 	JuneNumericalSelfCheck();
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	JuneScratchLoad( pFileName, pSkillDataFileName );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	return true;
@@ -363,9 +357,6 @@ bool CX2SkillTree::AddSkillTemplet_LUA()
 {
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	/// Phase S2: June's loader (32216320). Under _DEBUG the scratch load can still run March's body (m_bJuneMarchParser) to compare the two.
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	if ( false == m_bJuneMarchParser )
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 		return AddSkillTemplet_JuneLUA();
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
@@ -5838,30 +5829,11 @@ bool CX2SkillTree::AddSkillTemplet_JuneLUA()
 /// the padding difference, logged for the first 25 skills of each array and counted for the summary
 void CX2SkillTree::JuneLogShortArray( int iSkillID_, int iKind_, int iSize_ )
 {
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	static const WCHAR* s_apwszKind[] = { L"cool_time", L"mp", L"req_level" };
-	static int s_aiLogged[ 3 ] = { 0, 0, 0 };
-	if( false == m_bJuneScratch && s_aiLogged[ iKind_ ] < 25 )
-	{
-		++s_aiLogged[ iKind_ ];
-		CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD pad id=%d %s n=%d ( March pads to %d, June does not )", iSkillID_, s_apwszKind[ iKind_ ], iSize_, MAX_LIMITED_SKILL_LEVEL );
-	}
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 }
 
 /// debug: a runtime read past the end of a short array ( level above the raw size ), once per skill and array
 /*static*/ void CX2SkillTree::JuneLogShortArrayReach( int iSkillID_, int iKind_, int iLevel_, int iSize_ )
 {
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	static const WCHAR* s_apwszKind[] = { L"cool_time", L"mp", L"req_level" };
-	static std::set<int> s_setLogged;
-	const int iKey = iSkillID_ * 4 + iKind_;
-	if( iSize_ >= MAX_LIMITED_SKILL_LEVEL || iLevel_ <= iSize_ || true == s_setLogged.count( iKey ) )
-		return;
-
-	s_setLogged.insert( iKey );
-	CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD reach id=%d %s level=%d size=%d -> 0 ( March would have padded )", iSkillID_, s_apwszKind[ iKind_ ], iLevel_, iSize_ );
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 }
 
 void CX2SkillTree::JuneLogLoadSummary()
@@ -6045,267 +6017,5 @@ void CX2SkillTree::JuneNumericalSelfCheck() const
 }
 //////////////////////////////////////////////////////////////////////////
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-//////////////////////////////////////////////////////////////////////////
-// Debug scratch loads ( once per run ), both into throw-away trees so the real tree is never touched:
-//  A. March's file through March's own parser ( m_bJuneMarchParser ), compared with the real tree June's parser just filled;
-//  B. June's NewSkillTempletVer2.src.lua ( june_src_fixed, read from disk, an existing file ) through June's parser: 2,346 / 3,360 / 12.
-void CX2SkillTree::JuneScratchLoad( const WCHAR* pFileName_, const WCHAR* pSkillDataFileName_ )
-{
-#ifdef SERV_IRUHADEV_OFFLINE
-	static bool s_bDone = false;
-	if( true == s_bDone || true == m_bJuneScratch )
-		return;
-	s_bDone = true;
-
-	lua_State* pLuaState = g_pKTDXApp->GetLuaBinder()->GetLuaState();
-
-	/// A. March file, March parser
-	{
-		CX2SkillTree* pMarchTree = new CX2SkillTree();
-		pMarchTree->m_bJuneScratch = true;
-		pMarchTree->m_bJuneMarchParser = true;
-		lua_tinker::decl( pLuaState, "g_pSkillTree", pMarchTree );
-		const bool bOkData = g_pKTDXApp->LoadLuaTinker( pSkillDataFileName_ );
-		const bool bOkTemplet = g_pKTDXApp->LoadLuaTinker( pFileName_ );
-		lua_tinker::decl( pLuaState, "g_pSkillTree", this );
-
-		if( false == bOkData || false == bOkTemplet )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD cmp scratch A failed to load ( data %d templet %d )", bOkData ? 1 : 0, bOkTemplet ? 1 : 0 );
-		else
-		{
-			pMarchTree->OpenScriptFilePostProcess();	/// the real tree has had its post-process
-			JuneCompareTrees( *pMarchTree );
-		}
-		delete pMarchTree;
-	}
-
-	/// B. June's file, June parser ( SkillData stays March's )
-	{
-		CX2SkillTree* pJuneTree = new CX2SkillTree();
-		pJuneTree->m_bJuneScratch = true;
-		lua_tinker::decl( pLuaState, "g_pSkillTree", pJuneTree );
-		bool bOk = g_pKTDXApp->LoadLuaTinker( pSkillDataFileName_ );
-
-		std::vector<char> vecBuffer;
-		if( true == bOk )
-		{
-			HANDLE hFile = CreateFileW( L"F:\\elsword stuff\\elsword_2014\\els_2014\\ElswordFiles\\ready_and_built\\ProjectX2_SVN\\ProjectX2_SVN\\source\\EU_CN_US\\Trunk\\june_src_fixed\\data036_kom\\NewSkillTempletVer2.src.lua",
-				GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-			if( INVALID_HANDLE_VALUE == hFile )
-			{
-				CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD june-file scratch: june_src_fixed NewSkillTempletVer2.src.lua not found on disk" );
-				bOk = false;
-			}
-			else
-			{
-				const DWORD dwSize = GetFileSize( hFile, NULL );
-				vecBuffer.resize( dwSize );
-				DWORD dwRead = 0;
-				if( 0 == dwSize || FALSE == ReadFile( hFile, &vecBuffer[0], dwSize, &dwRead, NULL ) || dwRead != dwSize )
-					bOk = false;
-				CloseHandle( hFile );
-			}
-		}
-
-		if( true == bOk && ( vecBuffer.size() < 3 || 0xEF != static_cast<unsigned char>( vecBuffer[0] ) ) )
-		{
-			/// june_src_fixed files carry no BOM; the binder wants BOM + UTF-8 text
-			static const char s_abyBom[] = { (char)0xEF, (char)0xBB, (char)0xBF };
-			vecBuffer.insert( vecBuffer.begin(), s_abyBom, s_abyBom + 3 );
-		}
-		if( true == bOk && false == g_pKTDXApp->GetLuaBinder()->DoMemoryNotEncrypt( &vecBuffer[0], static_cast<long>( vecBuffer.size() ) ) )
-		{
-			CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD june-file scratch: the Lua chunk failed to run" );
-			bOk = false;
-		}
-		lua_tinker::decl( pLuaState, "g_pSkillTree", this );
-
-		if( true == bOk )
-		{
-			int iTreeRows = 0;
-			for( UnitSkillTreeTempletMap::const_iterator itClass = pJuneTree->m_mapUnitSkillTreeTemplet.begin(); itClass != pJuneTree->m_mapUnitSkillTreeTemplet.end(); ++itClass )
-				iTreeRows += static_cast<int>( itClass->second.size() );
-			int iGuildRows = 0;
-			for( GuildSkillTreeTempletMap::const_iterator itGuild = pJuneTree->m_mapGuildSkillTreeTemplet.begin(); itGuild != pJuneTree->m_mapGuildSkillTreeTemplet.end(); ++itGuild )
-				iGuildRows += static_cast<int>( itGuild->second.size() );
-
-			CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD june-file templets=%d tree_rows=%d guild_rows=%d upgrade_map=%d numerical_blocks=%d extra_icons=%d ( expected 2346 / 3360 / 12 )",
-				static_cast<int>( pJuneTree->m_mapSkillTemplet.size() ), iTreeRows, iGuildRows, static_cast<int>( pJuneTree->m_mapUpgradeSkill.size() ),
-				pJuneTree->m_JuneLoadStats.m_iNumericalBlock, pJuneTree->m_JuneLoadStats.m_iExtraIcon );
-			CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD june-file rules: empty_sa_skipped=%d duplicate_ids=%d inhouse_dropped=%d short_arrays cool_time/mp/req_level=%d/%d/%d sa_keys_seen=%d",
-				pJuneTree->m_JuneLoadStats.m_iEmptySASkipped, pJuneTree->m_JuneLoadStats.m_iDuplicate, pJuneTree->m_JuneLoadStats.m_iInHouseDropped,
-				pJuneTree->m_JuneLoadStats.m_iShortCoolTime, pJuneTree->m_JuneLoadStats.m_iShortMP, pJuneTree->m_JuneLoadStats.m_iShortReqLevel,
-				static_cast<int>( pJuneTree->m_JuneLoadStats.m_setKeysSeen.size() ) );
-		}
-		delete pJuneTree;
-	}
-#endif SERV_IRUHADEV_OFFLINE
-}
-
-/// March parser's tree ( rhs ) against this tree ( June parser, same March file ). Expected differences only: arrays shorter than 30
-/// ( the padding ), and SA tables March filled with { 0.f } where the table was empty. Everything else counts as unexpected.
-void CX2SkillTree::JuneCompareTrees( CX2SkillTree& marchTree_ )
-{
-#ifdef SERV_IRUHADEV_OFFLINE
-	int iBoth = 0, iOnlyMarch = 0, iOnlyJune = 0, iUnexpected = 0, iPad = 0, iSaEmpty = 0, iLogged = 0;
-
-#define JUNE_SKILL_CMP_FAIL( what ) { ++iUnexpected; if( iLogged < 25 ) { ++iLogged; CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD cmp UNEXPECTED id=%d %s", iId, L##what ); } }
-#define JUNE_SKILL_CMP_EQ( a, b, what ) if( !( (a) == (b) ) ) JUNE_SKILL_CMP_FAIL( what )
-
-	for( SkillTempletMap::const_iterator itM = marchTree_.m_mapSkillTemplet.begin(); itM != marchTree_.m_mapSkillTemplet.end(); ++itM )
-	{
-		const int iId = static_cast<int>( itM->first );
-		SkillTempletMap::const_iterator itJ = m_mapSkillTemplet.find( itM->first );
-		if( m_mapSkillTemplet.end() == itJ )
-		{
-			++iOnlyMarch;
-			continue;
-		}
-		++iBoth;
-
-		const SkillTemplet& m = *itM->second;
-		const SkillTemplet& j = *itJ->second;
-		JUNE_SKILL_CMP_EQ( m.m_eType, j.m_eType, "type" );
-		JUNE_SKILL_CMP_EQ( m.m_bGuildSkill, j.m_bGuildSkill, "guild flag" );
-		JUNE_SKILL_CMP_EQ( m.m_wstrName, j.m_wstrName, "name" );
-		JUNE_SKILL_CMP_EQ( m.m_wstrMainDesc, j.m_wstrMainDesc, "main desc" );
-		JUNE_SKILL_CMP_EQ( m.m_bBornSealed, j.m_bBornSealed, "born sealed" );
-		JUNE_SKILL_CMP_EQ( m.m_wstrIconName, j.m_wstrIconName, "icon" );
-		JUNE_SKILL_CMP_EQ( m.m_wstrIconPieceName, j.m_wstrIconPieceName, "icon piece" );
-		JUNE_SKILL_CMP_EQ( m.m_wstrImageName, j.m_wstrImageName, "image" );
-		JUNE_SKILL_CMP_EQ( m.m_wstrImagePieceName, j.m_wstrImagePieceName, "image piece" );
-		JUNE_SKILL_CMP_EQ( m.m_eActiveSkillUseCondtion, j.m_eActiveSkillUseCondtion, "use condition" );
-		JUNE_SKILL_CMP_EQ( m.m_bShowSkillLevel, j.m_bShowSkillLevel, "show level" );
-		JUNE_SKILL_CMP_EQ( m.m_iRequireLearnSkillPoint, j.m_iRequireLearnSkillPoint, "learn sp" );
-		JUNE_SKILL_CMP_EQ( m.m_iRequireUpgradeSkillPoint, j.m_iRequireUpgradeSkillPoint, "upgrade sp" );
-		JUNE_SKILL_CMP_EQ( m.m_iWOSType, j.m_iWOSType, "wos type" );
-		JUNE_SKILL_CMP_EQ( m.m_vecEffectiveDesc, j.m_vecEffectiveDesc, "effective desc" );
-		JUNE_SKILL_CMP_EQ( m.m_vecPowerRate, j.m_vecPowerRate, "power rate" );
-		JUNE_SKILL_CMP_EQ( m.m_vecStat.size(), j.m_vecStat.size(), "stat size" );
-		if( m.m_vecStat.size() == j.m_vecStat.size() )
-		{
-			/// the stat floats are KProtectedType ( a per-instance key ): compare the values, not the bytes
-			for( size_t iStat = 0; iStat < m.m_vecStat.size(); ++iStat )
-			{
-				const CX2Stat::Stat& sm = m.m_vecStat[ iStat ];
-				const CX2Stat::Stat& sj = j.m_vecStat[ iStat ];
-				if( static_cast<float>( sm.m_fBaseHP ) != static_cast<float>( sj.m_fBaseHP ) || static_cast<float>( sm.m_fAtkPhysic ) != static_cast<float>( sj.m_fAtkPhysic )
-					|| static_cast<float>( sm.m_fAtkMagic ) != static_cast<float>( sj.m_fAtkMagic ) || static_cast<float>( sm.m_fDefPhysic ) != static_cast<float>( sj.m_fDefPhysic )
-					|| static_cast<float>( sm.m_fDefMagic ) != static_cast<float>( sj.m_fDefMagic ) )
-				{
-					JUNE_SKILL_CMP_FAIL( "stat" );
-					break;
-				}
-			}
-		}
-#ifdef NEW_CHARACTER_CHUNG
-		JUNE_SKILL_CMP_EQ( m.m_usCBConsumption, j.m_usCBConsumption, "cb" );
-#endif NEW_CHARACTER_CHUNG
-#ifdef ARA_CHARACTER_BASE
-		JUNE_SKILL_CMP_EQ( m.m_usFPGainCount, j.m_usFPGainCount, "fp gain" );
-		JUNE_SKILL_CMP_EQ( m.m_usFPConsumtion, j.m_usFPConsumtion, "fp use" );
-#endif
-
-		/// the padding: March pads these to 30, June keeps what the file has ( the raw array must be the head of March's )
-		const bool bCoolSame = m.m_vecSkillCoolTime == j.m_vecSkillCoolTime;
-		const bool bMpSame = m.m_vecMPConsumption == j.m_vecMPConsumption;
-		const bool bReqSame = m.m_vecRequireCharacterLevel == j.m_vecRequireCharacterLevel;
-		if( false == bCoolSame )
-		{
-			if( j.m_vecSkillCoolTime.size() < m.m_vecSkillCoolTime.size() && j.m_vecSkillCoolTime.size() < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL )
-				&& std::equal( j.m_vecSkillCoolTime.begin(), j.m_vecSkillCoolTime.end(), m.m_vecSkillCoolTime.begin() ) )
-				++iPad;
-			else
-				JUNE_SKILL_CMP_FAIL( "cool time" );
-		}
-		if( false == bMpSame )
-		{
-			if( j.m_vecMPConsumption.size() < m.m_vecMPConsumption.size() && j.m_vecMPConsumption.size() < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL )
-				&& std::equal( j.m_vecMPConsumption.begin(), j.m_vecMPConsumption.end(), m.m_vecMPConsumption.begin() ) )
-				++iPad;
-			else
-				JUNE_SKILL_CMP_FAIL( "mp" );
-		}
-		if( false == bReqSame )
-		{
-			if( j.m_vecRequireCharacterLevel.size() < m.m_vecRequireCharacterLevel.size() && j.m_vecRequireCharacterLevel.size() < static_cast<size_t>( MAX_LIMITED_SKILL_LEVEL )
-				&& std::equal( j.m_vecRequireCharacterLevel.begin(), j.m_vecRequireCharacterLevel.end(), m.m_vecRequireCharacterLevel.begin() ) )
-				++iPad;
-			else
-				JUNE_SKILL_CMP_FAIL( "req level" );
-		}
-
-		/// the SA maps: a table March filled with { 0.f } because it was empty is absent in June
-		for( std::map< SKILL_ABILITY_TYPE, vector<float> >::const_iterator itSa = m.m_mapSkillAbility.begin(); itSa != m.m_mapSkillAbility.end(); ++itSa )
-		{
-			std::map< SKILL_ABILITY_TYPE, vector<float> >::const_iterator itSaJ = j.m_mapSkillAbility.find( itSa->first );
-			if( j.m_mapSkillAbility.end() == itSaJ )
-			{
-				if( 1 == itSa->second.size() && 0.f == itSa->second[0] )
-					++iSaEmpty;
-				else
-					JUNE_SKILL_CMP_FAIL( "sa missing in June" );
-			}
-			else if( itSa->second != itSaJ->second )
-				JUNE_SKILL_CMP_FAIL( "sa values" );
-		}
-		for( std::map< SKILL_ABILITY_TYPE, vector<float> >::const_iterator itSaJ = j.m_mapSkillAbility.begin(); itSaJ != j.m_mapSkillAbility.end(); ++itSaJ )
-		{
-			if( m.m_mapSkillAbility.end() == m.m_mapSkillAbility.find( itSaJ->first ) )
-				JUNE_SKILL_CMP_FAIL( "sa only in June" );
-		}
-
-		/// fields March has no key for must stay at their defaults
-		if( 0 != j.m_iDeleteSkillIDByUpgrade || false == j.m_vecJuneNumericalData.empty() || false == j.m_vecExtraIconInfo.empty() )
-			JUNE_SKILL_CMP_FAIL( "new June field set by March data" );
-	}
-	for( SkillTempletMap::const_iterator itJ = m_mapSkillTemplet.begin(); itJ != m_mapSkillTemplet.end(); ++itJ )
-	{
-		if( marchTree_.m_mapSkillTemplet.end() == marchTree_.m_mapSkillTemplet.find( itJ->first ) )
-			++iOnlyJune;
-	}
-
-	/// the tree rows, guild rows, power-rate rows, default skills, seal items
-	int iRowsMarch = 0, iRowsJune = 0, iRowDiff = 0;
-	for( UnitSkillTreeTempletMap::const_iterator itClass = marchTree_.m_mapUnitSkillTreeTemplet.begin(); itClass != marchTree_.m_mapUnitSkillTreeTemplet.end(); ++itClass )
-	{
-		UnitSkillTreeTempletMap::const_iterator itClassJ = m_mapUnitSkillTreeTemplet.find( itClass->first );
-		iRowsMarch += static_cast<int>( itClass->second.size() );
-		if( m_mapUnitSkillTreeTemplet.end() == itClassJ )
-		{
-			++iRowDiff;
-			continue;
-		}
-		for( SkillTreeTempletMap::const_iterator itRow = itClass->second.begin(); itRow != itClass->second.end(); ++itRow )
-		{
-			SkillTreeTempletMap::const_iterator itRowJ = itClassJ->second.find( itRow->first );
-			if( itClassJ->second.end() == itRowJ || itRow->second.m_iMaxSkillLevel != itRowJ->second.m_iMaxSkillLevel || itRow->second.m_iTier != itRowJ->second.m_iTier
-				|| itRow->second.m_iIndexInTier != itRowJ->second.m_iIndexInTier || itRow->second.m_iPrecedingSkill != itRowJ->second.m_iPrecedingSkill
-				|| itRow->second.m_iFollowingSkill != itRowJ->second.m_iFollowingSkill )
-				++iRowDiff;
-		}
-	}
-	for( UnitSkillTreeTempletMap::const_iterator itClassJ = m_mapUnitSkillTreeTemplet.begin(); itClassJ != m_mapUnitSkillTreeTemplet.end(); ++itClassJ )
-		iRowsJune += static_cast<int>( itClassJ->second.size() );
-
-	int iGuildMarch = 0, iGuildJune = 0;
-	for( GuildSkillTreeTempletMap::const_iterator it = marchTree_.m_mapGuildSkillTreeTemplet.begin(); it != marchTree_.m_mapGuildSkillTreeTemplet.end(); ++it )
-		iGuildMarch += static_cast<int>( it->second.size() );
-	for( GuildSkillTreeTempletMap::const_iterator it = m_mapGuildSkillTreeTemplet.begin(); it != m_mapGuildSkillTreeTemplet.end(); ++it )
-		iGuildJune += static_cast<int>( it->second.size() );
-
-	CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD cmp march-parser vs june-parser on March data: templets %d / %d ( both %d, only march %d, only june %d ) unexpected=%d; expected diffs: padded arrays=%d, empty SA tables=%d",
-		static_cast<int>( marchTree_.m_mapSkillTemplet.size() ), static_cast<int>( m_mapSkillTemplet.size() ), iBoth, iOnlyMarch, iOnlyJune, iUnexpected, iPad, iSaEmpty );
-	CX2OfflineLog::Server( L"[JUNE_SKILL] LOAD cmp tree rows %d / %d ( row diffs %d ), guild rows %d / %d, power-rate rows %d / %d, default-skill classes %d / %d, seal items %d / %d",
-		iRowsMarch, iRowsJune, iRowDiff, iGuildMarch, iGuildJune, static_cast<int>( marchTree_.m_mapSkillPowerRateType.size() ), static_cast<int>( m_mapSkillPowerRateType.size() ),
-		static_cast<int>( marchTree_.m_mapDefaultSkill.size() ), static_cast<int>( m_mapDefaultSkill.size() ),
-		static_cast<int>( marchTree_.m_mapSealSkillItemTemplet.size() ), static_cast<int>( m_mapSealSkillItemTemplet.size() ) );
-
-#undef JUNE_SKILL_CMP_EQ
-#undef JUNE_SKILL_CMP_FAIL
-#endif SERV_IRUHADEV_OFFLINE
-}
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET

@@ -16,64 +16,6 @@
 
 CX2OfflineSkill* CX2OfflineSkill::ms_pInstance = NULL;
 
-#if defined( SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG )
-/// June skill system S3, short-lived: the generated auto-learn table (built from june_src_fixed under kom_contents' Enum.lua)
-/// against the tree the client actually loaded from data036, once, at the first unit load.
-static void JuneCheckAutoLearnTable()
-{
-	static bool s_bChecked = false;
-	if( true == s_bChecked || NULL == g_pData || NULL == g_pData->GetSkillTree() )
-		return;
-	s_bChecked = true;
-
-	using namespace X2OfflineJuneSkillAutoLearn;
-	CX2SkillTree* pTree = g_pData->GetSkillTree();
-
-	std::set< std::pair<int, int> > setHeader;
-	std::set< int > setClass;
-	int iRequireDiff = 0;
-	for( int r = 0; r < ROW_COUNT; ++r )
-	{
-		setHeader.insert( std::make_pair( ROWS[r].m_iUnitClass, ROWS[r].m_iSkillID ) );
-		setClass.insert( ROWS[r].m_iUnitClass );
-
-		const CX2SkillTree::SkillTemplet* pTemplet = pTree->GetSkillTemplet( (CX2SkillTree::SKILL_ID)ROWS[r].m_iSkillID );
-		const int iLiveRequire = ( NULL != pTemplet && false == pTemplet->m_vecRequireCharacterLevel.empty() ) ? pTemplet->m_vecRequireCharacterLevel[0] : 0;
-		if( iLiveRequire != ROWS[r].m_iRequireLevel )
-			++iRequireDiff;
-	}
-
-	int iLive = 0;
-	int iOnlyLive = 0;
-	int iOnlyHeader = 0;
-	std::set< int >::const_iterator cit;
-	for( cit = setClass.begin(); cit != setClass.end(); ++cit )
-	{
-		const CX2SkillTree::SkillTreeTempletMap& mapRow = pTree->GetSkillTreeTempletMap( *cit );
-		CX2SkillTree::SkillTreeTempletMap::const_iterator mit;
-		for( mit = mapRow.begin(); mit != mapRow.end(); ++mit )
-		{
-			const CX2SkillTree::SkillTemplet* pTemplet = pTree->GetSkillTemplet( mit->first );
-			if( NULL == pTemplet || 1 != mit->second.m_iMaxSkillLevel || 0 != pTemplet->m_iRequireLearnSkillPoint ||
-				true == pTemplet->m_bBornSealed || 0 != pTemplet->m_iDeleteSkillIDByUpgrade )
-				continue;
-
-			++iLive;
-			if( setHeader.end() == setHeader.find( std::make_pair( *cit, (int)mit->first ) ) )
-				++iOnlyLive;
-		}
-	}
-	std::set< std::pair<int, int> >::const_iterator hit;
-	for( hit = setHeader.begin(); hit != setHeader.end(); ++hit )
-	{
-		if( NULL == pTree->GetSkillTreeTemplet( hit->first, (CX2SkillTree::SKILL_ID)hit->second ) )
-			++iOnlyHeader;
-	}
-
-	CX2OfflineLog::Server( L"[JUNE_SKILL] MIG autolearn check: generated %d rows in %u classes, loaded tree %d; only generated %d,"
-		L" only loaded %d, require-level diffs %d", (int)ROW_COUNT, (unsigned int)setClass.size(), iLive, iOnlyHeader, iOnlyLive, iRequireDiff );
-}
-#endif // SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN && SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 /*static*/ const wchar_t* CX2OfflineSkill::SLOT_B_END_DATE = L"2049-12-31 23:59:00";
 
@@ -163,9 +105,6 @@ bool CX2OfflineSkill::Load( UidType nUnitUID )
 	std::vector< KOfflineSkillRow > vecRow;
 	CX2OfflineDB::Instance()->LoadSkills( nUnitUID, vecRow );
 
-#if defined( SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG )
-	JuneCheckAutoLearnTable();
-#endif // SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN && SERV_IRUHADEV_JUNE_SKILL_DEBUG
 
 	for( size_t i = 0; i < vecRow.size(); ++i )
 	{

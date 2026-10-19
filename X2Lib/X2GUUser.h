@@ -4045,10 +4045,6 @@ public:
 		GUStateCBFunc									m_JuneSnapStateEndFuture;		/// +0x9554 <- Future +0x4c ( 31fe6a40 )
 		GUStateCBFunc									m_JuneSnapOnFrameMove;			/// +0x955c <- Now +0x34 ( 31fd6b80 )
 		GUStateCBFunc									m_JuneSnapStateEnd;				/// +0x9564 <- Now +0x54 ( 3203c3a0 )
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-		int												m_iJuneSnapDebugFramesFuture;	/// [JUNE_SKILL] PTR: frames a Future snapshot delegate ran
-		int												m_iJuneSnapDebugFramesNow;		/// [JUNE_SKILL] PTR: frames a Now snapshot delegate ran
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		UserUnitStateData								m_FutureStateData;	/// FutureÀÇ StateData
 		UserUnitStateData								m_NowStateData;	/// NowÀÇ StateData

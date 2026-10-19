@@ -1395,10 +1395,6 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_itFutureStateData		= JuneGetStateDataIterator( 0 );
 	m_itNowStateData		= m_itFutureStateData;
 	m_fNowStatePowerRate	= 1.f;
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	m_iJuneSnapDebugFramesFuture	= 0;
-	m_iJuneSnapDebugFramesNow		= 0;
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 }
 
@@ -1945,10 +1941,6 @@ void CX2GUUser::ReInit( bool bUseTeamPos, int startPosIndex )
 	m_itFutureStateData		= JuneGetStateDataIterator( 0 );
 	m_itNowStateData		= m_itFutureStateData;
 	m_fNowStatePowerRate	= 1.f;
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-	m_iJuneSnapDebugFramesFuture	= 0;
-	m_iJuneSnapDebugFramesNow		= 0;
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 	m_FutureStateData.Init();
 	m_NowStateData.Init();
@@ -6134,13 +6126,6 @@ static void JuneMemoRescaleDamageDataBuffFactors( CX2DamageManager::DamageData* 
 		JuneMemoRescaleTimeFinalizer( *ptrBuffFactor_, fJuneValue0 );
 	else
 		JuneMemoRescaleBehaviors( *ptrBuffFactor_, fJuneValue0 );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	static int s_iJuneMemoLogs = 0;
-	static DWORD s_dwJuneMemoLog = 0;
-	if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO buff skill=%d memo=%d v0=%.3f -> %s x v0 (BTI %d, slot 476 32028250)", iAdjustIndex_, pJuneMemo->m_iType,
-			fJuneValue0, ( 0xf == pJuneMemo->m_iType ) ? L"time finalizer" : L"behaviors", static_cast<int>( ptrBuffFactor_->GetBuffTempletID() ) );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 #else SERV_IRUHADEV_JUNE_SKILL_MEMO_BUFF
 	static bool s_bLogged = false;
 	if ( false == s_bLogged && 0 <= iAdjustIndex_ )
@@ -6988,12 +6973,6 @@ void CX2GUUser::JuneSnapshotRunningStateFunc( const UserUnitStateData& slotState
 		return;
 	if ( false == CX2UISkillTreeNew::JuneIsSameOrUpgradeSkill( static_cast<int>( GetNowStateSkillID() ), static_cast<int>( slotStateData_.m_eSkillID ) ) )
 	{
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		static int s_iJunePtrSkipLogs = 0;
-		if ( s_iJunePtrSkipLogs++ < 20 )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot skipped: Now state %d runs skill %d, the re-bound slot state %d had skill %d (31edf580 false)",
-				static_cast<int>( m_itNowStateData->first ), static_cast<int>( GetNowStateSkillID() ), static_cast<int>( slotStateData_.stateID ), static_cast<int>( slotStateData_.m_eSkillID ) );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 		return;
 	}
 
@@ -7002,15 +6981,6 @@ void CX2GUUser::JuneSnapshotRunningStateFunc( const UserUnitStateData& slotState
 	m_JuneSnapStateEndFuture	= m_itFutureStateData->second.StateEndFuture;		/// @31fd2b64
 	m_JuneSnapOnFrameMove		= m_itNowStateData->second.OnFrameMove;				/// @31fd2b89
 	m_JuneSnapStateEnd			= m_itNowStateData->second.StateEnd;				/// @31fd2b9b
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	static int s_iJunePtrTakeLogs = 0;
-	if ( s_iJunePtrTakeLogs++ < 40 )
-		CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot taken: Now state %d skill %d hyper %d, Future state %d, re-bound slot state %d skill %d; set FMF %d EP %d SEF %d FM %d SE %d (0 = null delegate)",
-			static_cast<int>( m_itNowStateData->first ), static_cast<int>( GetNowStateSkillID() ), m_itNowStateData->second.m_bHyperState ? 1 : 0,
-			static_cast<int>( m_itFutureStateData->first ), static_cast<int>( slotStateData_.stateID ), static_cast<int>( slotStateData_.m_eSkillID ),
-			m_JuneSnapOnFrameMoveFuture != NULL ? 1 : 0, m_JuneSnapOnEventProcess != NULL ? 1 : 0, m_JuneSnapStateEndFuture != NULL ? 1 : 0,
-			m_JuneSnapOnFrameMove != NULL ? 1 : 0, m_JuneSnapStateEnd != NULL ? 1 : 0 );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 }
 
 /// June's 12 SetEquippedSkillFuncBySkillSlotIndex ( vslot 0x7b4, e.g. Elsword 32d223e0 @32d2247d ) check the slot ( 0..4 ), pick its
@@ -7069,17 +7039,6 @@ void CX2GUUser::DoStateEndStartFuture()
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		/// June 31fe6a40: Future = list base + nowState x 100 ( entry 0 past the end ), then the Future snapshot triple is cleared before
 		/// StateStartFuture. No copy: a later Init() of this entry is what the running state reads.
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		if( m_JuneSnapOnFrameMoveFuture != NULL || m_JuneSnapOnEventProcess != NULL || m_JuneSnapStateEndFuture != NULL )
-		{
-			static int s_iJunePtrFutureLogs = 0;
-			if( s_iJunePtrFutureLogs++ < 40 )
-				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot consumed (Future): state %d -> %d, FMF/EP ran %d frame(s), StateEndFuture %s; triple cleared",
-					static_cast<int>( m_itFutureStateData->first ), static_cast<int>( m_FrameDataFuture.syncData.nowState ), m_iJuneSnapDebugFramesFuture,
-					m_JuneSnapStateEndFuture != NULL ? L"from the snapshot" : L"null in the snapshot -> the entry's / Common" );
-		}
-		m_iJuneSnapDebugFramesFuture = 0;
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 		m_itFutureStateData			= JuneGetStateDataIterator( m_FrameDataFuture.syncData.nowState );
 		m_JuneSnapOnFrameMoveFuture	= GUStateCBFunc();
 		m_JuneSnapOnEventProcess	= GUStateCBFunc();
@@ -7186,26 +7145,6 @@ void CX2GUUser::DoStateEndStart()
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 		/// June 3203c3a0 @3203c536: Now = list base + nowState x 100 ( entry 0 past the end ); no copy, no stateID stamp ( the id is the
 		/// position ). The power rate +0x7cc8 starts from the entry's rate ( @3203c75e ); the buff terms below multiply it, not the entry.
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		if( m_JuneSnapOnFrameMove != NULL || m_JuneSnapStateEnd != NULL )
-		{
-			static int s_iJunePtrNowLogs = 0;
-			if( s_iJunePtrNowLogs++ < 40 )
-				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR snapshot consumed (Now): state %d -> %d, the old entry now reads skill %d hyper %d, FM ran %d frame(s), StateEnd %s",
-					static_cast<int>( m_itNowStateData->first ), static_cast<int>( m_FrameDataNow.syncData.nowState ), static_cast<int>( m_itNowStateData->second.m_eSkillID ),
-					m_itNowStateData->second.m_bHyperState ? 1 : 0, m_iJuneSnapDebugFramesNow, m_JuneSnapStateEnd != NULL ? L"from the snapshot" : L"null in the snapshot -> the entry's / Common" );
-		}
-		m_iJuneSnapDebugFramesNow = 0;
-		{
-			static bool s_bJunePtrSeen = false;
-			if( false == s_bJunePtrSeen && NULL != GetUnit() )
-			{
-				s_bJunePtrSeen = true;
-				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR running state data are map positions (31fe6a40 / 3203c3a0): first Now change %d -> %d, entry rate %g",
-					static_cast<int>( m_itNowStateData->first ), static_cast<int>( m_FrameDataNow.syncData.nowState ), m_StateList[ m_FrameDataNow.syncData.nowState ].m_fPowerRate );
-			}
-		}
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 		m_itNowStateData		= JuneGetStateDataIterator( m_FrameDataNow.syncData.nowState );
 		m_fNowStatePowerRate	= m_itNowStateData->second.m_fPowerRate;
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
@@ -7287,16 +7226,6 @@ void CX2GUUser::DoStateEndStart()
 		if( true == bTableOpen )
 			m_LuaManager.EndTable();
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		/// S8 hazard 1: class StateStart code multiplies the running rate ( +0x7cc8 ), so the entry's rate must read the same on every entry
-		if( CX2SkillTree::SI_NONE != m_itNowStateData->second.m_eSkillID )
-		{
-			static int s_iJunePtrRateLogs = 0;
-			if( s_iJunePtrRateLogs++ < 20 )
-				CX2OfflineLog::Server( L"[JUNE_SKILL] PTR power rate: state %d skill %d, entry %g (never multiplied), running %g after StateStart (+0x7cc8)",
-					static_cast<int>( m_itNowStateData->first ), static_cast<int>( m_itNowStateData->second.m_eSkillID ), m_itNowStateData->second.m_fPowerRate, m_fNowStatePowerRate );
-		}
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
 
 	}
@@ -7317,9 +7246,6 @@ void CX2GUUser::DoFrameMoveFuture()
 		/// June 320347d0 @3203480e: the snapshot ( +0x9544 ) first, then the state's own OnFrameMoveFuture ( +0x2c ), else vslot 0x7c8
 		if( m_JuneSnapOnFrameMoveFuture != NULL )
 		{
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			++m_iJuneSnapDebugFramesFuture;
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 			m_JuneSnapOnFrameMoveFuture();
 		}
 		else if( m_itFutureStateData->second.OnFrameMoveFuture != NULL )
@@ -7388,9 +7314,6 @@ void CX2GUUser::DoFrameMove()
 		/// June 31fd6b80: the snapshot ( +0x955c ) first, then the state's own OnFrameMove ( +0x34 ), else vslot 0x7cc
 		if( m_JuneSnapOnFrameMove != NULL )
 		{
-#ifdef SERV_IRUHADEV_JUNE_SKILL_DEBUG
-			++m_iJuneSnapDebugFramesNow;
-#endif SERV_IRUHADEV_JUNE_SKILL_DEBUG
 			m_JuneSnapOnFrameMove();
 		}
 		else if( m_itNowStateData->second.OnFrameMove != NULL )
@@ -16299,16 +16222,6 @@ void CX2GUUser::CommonStateStart()
 	{
 		const int iJuneMemoSkillID = GetJuneTranscendenceMemoSkillID( static_cast<int>( GetNowStateSkillID() ) );
 		pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( ( 0 != iJuneMemoSkillID ) ? static_cast<CX2SkillTree::SKILL_ID>( iJuneMemoSkillID ) : GetNowStateSkillID() );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		if ( 0 != iJuneMemoSkillID )
-		{
-			static int s_iJuneMemoLogs = 0;
-			static DWORD s_dwJuneMemoLog = 0;
-			if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-				CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO state %d skill %d -> transcendence skill %d (%s), state string (32058444)", GetNowStateID(),
-					static_cast<int>( GetNowStateSkillID() ), iJuneMemoSkillID, ( NULL != pSkillTemplet ) ? L"templet found" : L"no templet: string unchanged" );
-		}
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 	}
 	if( pSkillTemplet != NULL )
 	{
@@ -16783,17 +16696,6 @@ void CX2GUUser::CommonStateStart()
 		bJuneUltimateDamageData = SetDamageData( "DAMAGE_DATA_ULTIMATE" );
 	if( false == bJuneUltimateDamageData )
 		SetDamageData( "DAMAGE_DATA" );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	if( true == bJuneUpgradedStateSkill || CX2SkillTree::SI_NONE != GetNowStateSkillID() )
-	{
-		static int s_iJuneStateUltimateLogs = 0;
-		static DWORD s_dwJuneStateUltimateLog = 0;
-		if ( true == JuneSkillMemoLogDue( s_iJuneStateUltimateLogs, s_dwJuneStateUltimateLog ) )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] SULT state %d skill %d: upgraded %d -> %s, effect-set memo 0 (3205c865)", GetNowStateID(),
-				static_cast<int>( GetNowStateSkillID() ), ( true == bJuneUpgradedStateSkill ) ? 1 : 0,
-				( true == bJuneUltimateDamageData ) ? L"DAMAGE_DATA_ULTIMATE" : L"DAMAGE_DATA" );
-	}
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 #else SERV_IRUHADEV_JUNE_SKILL_STATE_ULTIMATE
 #ifdef ADD_MEMO_1ST_CLASS
 	if( true == m_bApplyMemo )
@@ -21343,13 +21245,6 @@ void CX2GUUser::CommonFrameMove_TimedEvent()
 				if ( NULL != pJuneMemo && 2 == pJuneMemo->m_iType )
 				{
 					fJuneMemoHuge = pJuneMemo->m_vecValue.empty() ? 0.f : pJuneMemo->m_vecValue[0];
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-					static int s_iJuneMemoLogs = 0;
-					static DWORD s_dwJuneMemoLog = 0;
-					if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-						CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO attack box state %d skill %d MI_HUGE v0=%.3f: radius x v0 for the timed DamageCheck (31ff27c0)",
-							GetNowStateID(), static_cast<int>( GetNowStateSkillID() ), fJuneMemoHuge );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 				}
 			}
 			if ( 0.f < fJuneMemoHuge )
@@ -25660,12 +25555,6 @@ float CX2GUUser::GetJuneSkillMemoMPRate( const int iSkillID_ ) const
 	if ( NULL == pJuneMemo || ( 3 != pJuneMemo->m_iType && 7 != pJuneMemo->m_iType && 8 != pJuneMemo->m_iType ) )
 		return 1.f;
 	const float fJuneValue0 = pJuneMemo->m_vecValue.empty() ? 0.f : pJuneMemo->m_vecValue[0];
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	static int s_iJuneMemoLogs = 0;
-	static DWORD s_dwJuneMemoLog = 0;
-	if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-		CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO mp skill=%d memo=%d rate x%.3f (vslot 471 31fdbe20)", iSkillID_, pJuneMemo->m_iType, fJuneValue0 );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 	return fJuneValue0;
 }
 
@@ -25745,12 +25634,6 @@ float CX2GUUser::GetActualMPConsumeJune( const CX2SkillTree::SKILL_ID eSkillID_,
 			const CX2SkillTree::SkillTemplet* pJuneAltTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iJuneAltSkillID ) );
 			if ( NULL != pJuneAltTemplet )
 			{
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-				static int s_iJuneMemoLogs = 0;
-				static DWORD s_dwJuneMemoLog = 0;
-				if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-					CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO mp skill %d -> transcendence templet %d (323511f0, my unit's memo)", static_cast<int>( eSkillID_ ), iJuneAltSkillID );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 				pSkillTemplet = pJuneAltTemplet;
 			}
 		}
@@ -41498,16 +41381,6 @@ const CX2GUUser::JuneSkillMemoEntry* CX2GUUser::GetJuneSkillMemoEntry( const int
 	/// @3202aca9-3202acbf: DamageData +0x5c8 (APPLIED_MEMO_ID, C3) set and not the entry's type -> return
 	if ( 0 != pDamageData_->m_iAppliedMemoID && pEntry->m_iType != pDamageData_->m_iAppliedMemoID )
 		return;
-#if defined( SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE ) && defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	/// S3d: one "[JUNE_SKILL] MEMO" line per use of the switch (throttled), whichever case runs
-	{
-		static int s_iJuneMemoLogs = 0;
-		static DWORD s_dwJuneMemoLog = 0;
-		if ( true == JuneSkillMemoLogDue( s_iJuneMemoLogs, s_dwJuneMemoLog ) )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO damage APPLIED_SKILL_ID=%d memo=%d v=%.3f/%.3f/%.3f (3202ac40)", pDamageData_->m_iAppliedSkillID,
-				pEntry->m_iType, fValue0, fValue1, fValue2 );
-	}
-#endif // SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE && SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 
 	/// June EDT 0x10 is March's EDT_MANA_DAMAGE (case 0xd writes it); the compile breaks here if the enums ever stop agreeing
 	typedef char JuneMemoEdtCheck[ ( CX2DamageManager::EDT_MANA_DAMAGE == 0x10 ) ? 1 : -1 ];
@@ -44035,9 +43908,6 @@ void CX2GUUser::ForceDownAndDetonationProcess()
 	if ( NULL == pSkillTemplet )
 		return;
 	g_pX2Game->SetStateString( pSkillTemplet->m_wstrName, 3.0f );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	CX2OfflineLog::Server( L"[JUNE_SKILL] SSTR skill %d name shown for 3 s (3200ab60)", iSkillID_ );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
@@ -44103,14 +43973,6 @@ static void JuneParseStateInsertBuffFactorTable( KLuaManager& luaManager_, std::
 	bool bCheckSkillLevel = false;
 	LUA_GET_VALUE( luaManager_, "RELATIVE_SKILL_LEARN_CHECK", bCheckSkillLevel, false );
 
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	static int s_iJuneStateBuffLogs = 0;
-	static DWORD s_dwJuneStateBuffLog = 0;
-	if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
-		CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF parse state %d: %u row(s) from %s, skill %d level %u, learn check %d (31fe32d0)", GetNowStateID(),
-			static_cast<UINT>( m_vecJuneStateInsertBuffFactor.size() ), ( true == bJuneUltimateTable ) ? L"_ULTIMATE" : L"the base table",
-			m_iJuneStateBuffSkillID, m_uiNowStateSkillLevel, ( true == bCheckSkillLevel ) ? 1 : 0 );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 
 	if ( true == bCheckSkillLevel && 0 == m_uiNowStateSkillLevel )
 	{
@@ -44148,13 +44010,6 @@ void CX2GUUser::CommonFrameMove_InsertBuffFactor()
 			const UINT uiJuneBuffFactorID = m_vecJuneStateInsertBuffFactor[uiIndex].first;
 			SetBuffFactorToGameUnitByBuffFactorID( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ), NULL, 0, false );
 			JuneOnStateInsertBuffFactorApplied( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ) );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-			static int s_iJuneStateBuffLogs = 0;
-			static DWORD s_dwJuneStateBuffLog = 0;
-			if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
-				CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF frame state %d: BFI %u at anim time %.3f, level %u (31fdf4c0)", GetNowStateID(), uiJuneBuffFactorID,
-					m_pXSkinAnim->GetNowAnimationTime(), m_uiNowStateSkillLevel );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 			if ( uiIndex < m_vecJuneStateInsertBuffFactor.size() )
 				m_vecJuneStateInsertBuffFactor.erase( m_vecJuneStateInsertBuffFactor.begin() + uiIndex );
 		}
@@ -44174,13 +44029,6 @@ void CX2GUUser::JuneApplyAllStateInsertBuffFactor()
 		const UINT uiJuneBuffFactorID = m_vecJuneStateInsertBuffFactor.front().first;
 		SetBuffFactorToGameUnitByBuffFactorID( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ), NULL, 0, false );
 		JuneOnStateInsertBuffFactorApplied( uiJuneBuffFactorID, max( m_uiNowStateSkillLevel, 1 ) );
-#if defined( SERV_IRUHADEV_JUNE_SKILL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		static int s_iJuneStateBuffLogs = 0;
-		static DWORD s_dwJuneStateBuffLog = 0;
-		if ( true == JuneSkillMemoLogDue( s_iJuneStateBuffLogs, s_dwJuneStateBuffLog ) )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] SBUF state end %d: BFI %u applied before its time, level %u (32015284)", GetNowStateID(), uiJuneBuffFactorID,
-				m_uiNowStateSkillLevel );
-#endif // SERV_IRUHADEV_JUNE_SKILL_DEBUG && SERV_IRUHADEV_OFFLINE
 		if ( false == m_vecJuneStateInsertBuffFactor.empty() )
 			m_vecJuneStateInsertBuffFactor.erase( m_vecJuneStateInsertBuffFactor.begin() );
 	}
