@@ -40,12 +40,18 @@ Look for: a "new quest" notice for **22160 What happened in Lanox?**; quest wind
 "Visit the Fire Priestess 'Ignia' in 'Lanox'" already done (standing in the village does it). Log: `QUEST    auto-open by village 20008 ... 1 opened`,
 `[JUNE_QUEST] SCENE quest 22160 mode 0`. If not: no quest appears -> Q4 follow-up (auto-open / prerequisite).
 
+**A1/A2 as played (2026-10-19):** arriving in the village completed 22160 by itself (the client sent the complete request right after the visit sub-quest
+was done, no hand-in to Ignia), and the same sweep also opened and completed **22209** (level-80 epic with an empty before-list) and opened 22216, out of chain
+order. Treated as June's data behaviour, recorded as a Q4 follow-up question, not a failure. Jumps into Lanox below 22209 will repeat it; ignore the extra 22216.
+
 **A2 Hand-in, reward, next quest.** Talk to **Ignia** (Fire Priestess) -> quest -> complete. June's clear window shows the reward
 (ED 729,400; EXP does nothing at 99). Note ED before (1,186,530) and after: about +729,400. Then **22162 Burnt Forest Investigation** opens by itself.
 Log: `QUEST_COMPLETE_REQ HANDLED`, `SCENE quest 22160 mode 1`, `SCENE quest 22162 mode 0` (no movie). If the reward window is empty or
 22162 does not open -> Q4 / Q5b follow-up.
 
-**A3 Dungeon sub-quests.** Dungeon: **Burnt Forest, Normal** (from the Lanox dungeon gate). Enter: tracker shows "Enter Burnt Forest" done.
+**A3 Dungeon sub-quests.** Dungeon: **Burnt Forest, NORMAL only** (dungeon 33270): sub-quest 22182 "Enter Burnt Forest" matches that exact
+difficulty (June's row has no upper-difficulty flag); entering Hard or Expert does not count (first play-test, 33272: log `VISIT quest 22162 sub 22182 wants
+dungeon 33270 ... got 33272 - no match`). The clear sub-quest 22183 does accept higher difficulties. Enter: tracker shows "Enter Burnt Forest" done.
 Clear it: "Clear Burnt Forest 1/1" done. Walk back to Lanox, talk to **Edel** (village chief), complete 22162 (ED +729,400).
 **22163 Inextinguishable Fire 1/2** opens. If the clear is not counted: `grep "OFF" offline_server.log` for the dungeon clear line -> Q4.
 
