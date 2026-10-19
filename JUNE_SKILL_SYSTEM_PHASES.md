@@ -1563,8 +1563,8 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM` (`Always.h` only). Funcmap rows `
   Ported where March has the UI: the skill tree's page cash button `328ec476` (127273, `X2UISkillTreeNew2015.cpp`) and the quick-slot expand button
   `32478410` (`CX2StateMenu::UICustomEventProc 32476050` case 0xa5, 274333 Extended Quick Slot, `X2StateMenu.cpp` `SMUCM_DISABLE_QUICK_SLOT_MOUSE_UP`).
   No March UI: the profession manager `32398159` (280943), the PvP-lobby confirm `324a6fbf` (288494), the Resonance UI `3260d801` / `3260dff1` (data-driven ids).
-- **Emulator.** 127273 is sold (cash category 33, S7d); 274333 is not in `cash_product`, so the quick-slot button opens the shop on the install tab as
-  before and the log says "0 with a product" (June shows nothing for an item without a product).
+- **Emulator.** 127273 is sold (cash category 33, S7d); 274333 is not in `cash_product`, (June shows nothing for an item without a product). The quick-slot site is unreachable in this build anyway: `SERV_IRUHADEV_QUICK_SLOT_FULL_FREE`
+  opens every quick slot (`X2Unit.cpp:110`), so the case returns at its `IsExpandQuickSlot()` test; kept because it matches June and wakes up if that flag is reverted.
 - **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM --worktree --files <5 files>`: `files: 4 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR` (the OTHER is `Always.h`:
   peers' uncommitted `JUNE_GFX_JPEG8` / `JUNE_QUEST_DATA` blocks beside this define) / `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 25,305,600 B, dated 2026-10-19 08:03:19, md5 99d486a17048b2581a4ad98c302bc0f3, equal to X2/US_SERVICE/x2.exe (2026-10-19 08:03:12); built at main 4c96fcc5 + 10 uncommitted code file(s).`
