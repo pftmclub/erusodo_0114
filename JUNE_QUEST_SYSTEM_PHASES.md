@@ -850,6 +850,45 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` (needs `OFFLINE_MONSTER_GRADE`, `OFF
   `continue skipped: the run ends now as a fail ( TN_MONSTER )`, `dungeonID=33330 FAILED in 20s`, `RANK combo F tech F damaged F time F total F
   ( the unit died, ResultProcess.cpp:1696 )`; 0 EXCEPTION, UNHANDLED = baseline only. Q4c done; 35365 -> 5 / 5 stays optional (needs an SS total). Review next.
 
+### Q4c - Review (2026-10-19, Opus 5.5 high): PASS, no transcription error, 1 comment fix
+
+Against March's server (no June code involved), every cited range re-read.
+- **Result_DUNGEON** (ResultProcess.cpp:1355-2063): the four axis calls in order with the server's argument lists (`iDungeonID + cDifficulty`,
+  the monster manager, `iEndNumMember`, `iPartyTotalGivenDamage`; time takes `kUnitInfoNot.m_nSec`), each read back by `GetPercent` / `GetRank`
+  (:1951-2007); the total, its clamps (:2014-2023), the 0.15 cap (:2046-2048), `m_nRankBonusEXP` (:2063): all match. The dead branch
+  (:1696-1783) `continue`s past the rank code (all F, no rank bonus): match. A living unit is ranked win or lose (no `bIsWin` gate): same in the port.
+- **Bindings** (:54-101): the server binds 7 more (`GetUnitClass`, `GetKillNPC`, `GetDamageNum`, `GetTotalSumNpcHP`, `GetCommandTechScore`,
+  `GetSkillTechScore`, `PrintLuaLog`); the file names three of them only in `--` comments (:163, :234, :313, :317-318) and the rest nowhere. Every
+  call it makes is bound to the server's field (RoomUser.h:128, :251-262, :286; DungeonMonsterManager.h:65-69). All four axis functions reach
+  `SetResultData` unconditionally (:139, :205, :293, :416), so `m_bSet` false means a Lua error only; there the server would read the previous
+  axis's percent / rank (KRoomUser members, RoomUser.h:677-678) and the port gives F, a degrade path only. `RANK_TYPE` is reassigned with the same 9
+  values as data036 Enum.lua:5088; a `DUNGEON_ID[...]` name missing from the client is nil and compares false, no error.
+- **Die count** (DungeonRoom.cpp:6171-6244): not NO_DROP, `IsDropDieState` (:2576-2595), `m_bIsNPC`, active, no attacker test: same gate (the
+  port adds "dungeon, known templet"; the server returned earlier without one). `GetMonsterTypeFactor` (XSLUnitManager.cpp:238-269); MG 1 / 2 agree
+  (XSLUnitManager.h:2876-2877, X2GUNPC.h:234-235). The counts clear at StartGame / EndGame / OnCloseRoom (DungeonMonsterManager.cpp:21 / 29 / 37);
+  EndGame runs from CheckResultSuccess (Room.cpp:580), after the result, so ClearPlayRun at game start matches. Inherited, not Q4c's: the emulator has
+  no IsMonsterAlive gate, so a repeated die REQ for one UID would count twice (its reward path already does).
+- **Play time:** `ComputeTotalPlayTime` at EndPlay (:1089-1095, :2632-2634) = TM_PLAY (StartGame, Room.cpp:661) less m_fLoadingTime (StartPlay
+  :1065-1070, each stage load :3643, ended at the sub-stage start :2189-2190). m_fPoisonLoadingSec uses the same three sites (Handlers_Room.cpp:2100
+  via StartSecretPoison, called for every dungeon at :1738; :2590; :2702), none gated on a secret dungeon. Taken at END_GAME as EndPlay takes it.
+- **Quest move:** the GameServer gates on `m_bIsWin` and a dungeon room only (GSUserDungeon.cpp:435, :452; no `m_bIsDie` test), then the quest hook
+  (:601), title hook (:649) with `m_cTotalRank`, `m_nSec`, `m_nDamaged`, `m_mapHaveExpInDungeon`, then the send (:719): same gate, order and figures.
+  Nothing left in `Handler_EGS_END_GAME_REQ` used the old call. Both callers of `SendDungeonResultData` (:1783 play result, :4795 result state) run
+  with the room open; `m_bResultDataPending` keeps it to one.
+- **Rank bonus payout:** the server banks it in `ERM_UPDATE_DUNGEON_UNIT_INFO_NOT` (ResultProcess.cpp:2172, after the result DungeonRoom.cpp:1767-1770).
+  The second `EGS_UPDATE_UNIT_INFO_NOT` is idempotent on the client: `m_bGameEnd`, item box reset and refilled (X2StateDungeonGame.cpp:3217-3290), unit
+  `Reset`, `m_GetEXPInGame` zeroed (X2Game.cpp:9740-9760). Level-up: PushLevelUp + QuestOnLevelUp, as the clear bonus does.
+- **lua_tinker (the fix):** the comments at X2OfflineDungeonRank.h:123 / .cpp:233 (and the Done note's Degrade line) said `call`'s error path removes
+  a slot below it. That is KNCSDK's lua_tinker, the server's. The client compiles LuaCommon/lua_tinker.h (KTDX.h:1213), whose every overload pushes nil
+  after the error pop and on the not-a-function path (:1015-1300), so the stack stays balanced. The pad and `lua_settop` are kept (harmless); both
+  comments now say so. A failed total returns `pop<int>` of nil = 0 and clamps to F, as on the server.
+- **Hygiene** (`flagcheck --range e2b8f21d^..e2b8f21d`): `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 2 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
+  0 encoding change(s)`; `RESULT: FAIL` from the 2 expected rows only (the new files' `#include "stdafx.h"` / `#pragma once`). No OTHER rows.
+- **Deploy** (comment-only change; the build carries peers' uncommitted files too): `DEPLOY OK: X2_offline.exe is 25,420,288 B, dated 2026-10-19
+  17:39:22, md5 82ec74d235280a818e541e214ee4a713` (main f743a5e2 + 18 uncommitted code files).
+- Not in this review: `SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END` (`4e3fefed`), its own flag, play-tested. User owes nothing.
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.

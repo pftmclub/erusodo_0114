@@ -120,8 +120,9 @@ private:
 	bool	EnsureLoaded();
 	bool	HasFunctions( lua_State* pLuaState ) const;
 
-	/// One axis: lua_tinker::call guarded so its error path ( lua_pop + lua_remove(-2), lua_tinker.h:860-879 )
-	/// cannot eat a slot below it. Returns the rank SetResultData set, or RT_F with a log line.
+	/// One axis. The client's lua_tinker::call ( LuaCommon/lua_tinker.h:1015-1300 ) pushes nil on both error paths, so
+	/// the stack stays balanced; the pad and lua_settop are a belt only ( KNCSDK's copy, the server's, is the one whose
+	/// error path eats a slot ). Returns the rank SetResultData set, or RT_F with a log line.
 	int		CallAxis( lua_State* pLuaState, AXIS eAxis, CX2OfflineRankUnit& kUnit,
 					  CX2OfflineRankMonsters& kMonsters, int iDungeonIDAndDif, int iPlaySec,
 					  int iEndNumMember, int iPartyTotalGivenDamage, OUT float& fPercent );

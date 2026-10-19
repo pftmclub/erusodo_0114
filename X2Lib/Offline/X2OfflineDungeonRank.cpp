@@ -230,8 +230,8 @@ int CX2OfflineDungeonRank::CallAxis( lua_State* pLuaState, AXIS eAxis, CX2Offlin
 									 CX2OfflineRankMonsters& kMonsters, int iDungeonIDAndDif, int iPlaySec,
 									 int iEndNumMember, int iPartyTotalGivenDamage, OUT float& fPercent )
 {
-	// The pad keeps lua_tinker::call's error path ( lua_pop then lua_remove(-2) ) off the caller's slots; settop puts the
-	// stack back whichever path it took.
+	// The client's lua_tinker::call pushes nil on its error paths ( LuaCommon/lua_tinker.h:1177-1190 ), so the stack is
+	// balanced already; the pad and settop are a belt only.
 	const int iTop = lua_gettop( pLuaState );
 	lua_pushnil( pLuaState );
 
