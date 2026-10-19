@@ -1574,6 +1574,40 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM` (`Always.h` only). Funcmap rows `
 - **Play-test 2026-10-19 (user: passed; log, exe 99d486a1, 0 EXCEPTION).** The cash button opened the buy pop-up on Skill Tree Page Expansion;
   `[08:34:50] [JUNE_SKILL] HUD shop open-at-item: 1 pushed, 1 with a product, first 127273`. Unrelated: 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only.
 
+### Phase S7g -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS. No code change, no rebuild** (the deployed exe 99d486a1 stays). One census correction, below. Funcmap rows `(S7g review)` (2).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM --range db6b2a43^..db6b2a43` (the phase's only code commit; f30af0e7 / fbf45782 are docs):
+  `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` /
+  `RESULT: PASS`.
+- **`3224a5d0` (raw, `disasm_range.py 3224a5d0 3224a67b`) = `JuneOpenAtItemList`.** `+0x134 == 0` skips straight to the clear; list non-empty ->
+  `3223c970( &list )`, `32229e00( copy of list, 0, 1, 0 )`, `322470a0( 1 )`; then (`+0x134` set, list empty or not) `32227a20` and `32e3f5e0( 0xc, +0x134 )`;
+  the erase at `3224a644` runs on every path. `32227a20` is GFx-only (`+0x358` movie, slots 9 / 0xa / 0xb from `+0x128` / `+0x12c` / `+0x130`), so
+  leaving it out is right. The guard `+0x134` is a shop-side list object (its `+4` / `+8` feed GFx slot 0xc), not a pop-up; `m_pBuyItemPopUp` is
+  the March null guard for the pop-up the port drives. Accepted as the smallest safe mapping.
+- **Placement.** `3224a680` @3224ac7e `3224a3c0`, @3224ac87 `3224a5d0`, @3224ac92 `+0x31c = ebp (0)`. March: inside `if ( bOpen )`, after the
+  menu-type switch, before `m_iMenuTypeCallingCashShop = 0`. Matches. Nothing later in March's `SetOpen` touches the buy pop-up (the play-test showed it).
+  `DIRECT_OPEN_BUY_DIALOG` (Always.h:630) only sets the menu type in March, so the push does not double up with a March direct-buy path.
+- **Mapping onto March's pop-up.** Port filters to items with a product, then `Reset` / `SetOpen( true )` / `SetChoicedItemBuy( false )` only when
+  the filtered list is not empty; June's `322470a0` shows nothing for an empty `+0x388` list. Equivalent. Nit: `3223c970` sorts the list first,
+  the port keeps push order; every March caller pushes one id per open, so this cannot show.
+- **Call sites.** `328ec476`: `+0x31c = 0x11`, push `0x1f129` (127273), vslot 0xac. Case `0xa5` of `32476050`: June's jump table (`3247b204` /
+  `3247b0e8`, `ecx - 0x64`) sends 0xa5, and only 0xa5, to `32478227` (`+0xdba` IsExpandQuickSlot, field / state-0x15 test, `+0x31c = 1`, push
+  `0x42f9d` 274333 @32478410, ToggleCashShop @3247841f). `cl /EP` of `X2StateMenu.cpp` (US_SERVICE): `SMUCM_DISABLE_QUICK_SLOT_MOUSE_UP` = 165 (0xa5),
+  `UI_MENU_QUICK_SLOT` = 1. Matches. The four no-March-UI sites push `0x4496f` (280943) @32398159, `0x466ee` (288494) @324a6fbf, data-driven @3260d801 / @3260dff1.
+- **Finding: census correction, eight inline sites, not six.** A byte scan of `.text` for `add ecx, 0x338` + `call 31f8b860` finds `321cd39b` (the
+  setter), the six above and two more, both with no March UI:
+  `32905122` = `CX2UIPetInfo::UICustomEventProc` case 44044 `PLUCM_AUTO_USE_QUICK_PET_SLOT_TO_CASHSHOP` (June Enum; March's PLUCM enum ends below 44038),
+  pushes 164566 "Pet Auto Consume Quick Slot Expansion" (sent by June's `DLG_UI_PET_GAGE_BAR_NEW` / `DLG_UI_Pet_List`; March has no pet auto-consume slot);
+  `32dad484` in `32dace80` = `CX2UIMagicalCloset` vslot 55 (RTTI of vtable `3352a764`; no such class in March), pushes the closet's item when it has a product.
+  Nothing to port in S7g. The pet auto-consume quick slot is a June pet feature no STATUS row owns. It is outside the skill system, so it is noted here and not asked.
+- **Item 1 / S7j routing.** `324943c0`: static `337a378c`, `new( 0xd4 )` = a singleton GetInstance, consistent with March `CX2GageManager`. `3234b9d0` pushes
+  0x5781 / 0x633d / 0x6346 / 0x6b08 / 0x96b / 0x96f / 0x6b12 / 0x76c2 / 0x72de / 0x72e2 / 0x7ab7 / 0x5b69 / 0x5b6e / 0x5b70 ... = 22401 25405 25414 27400 2411 2415
+  27410 30402 29406 29410 31415 23401 23406 23408, the funcmap row's order; none of March's 2402 / 5402 / 5410 / 7402. S7j's kickoff stands as written.
+- **Nit.** Always.h's comment names the skill-page site `328ec3ff` (the case entry); the push is `328ec476`. Left as is (comment only).
+- `SERV_IRUHADEV_JUNE_SKILL_DEBUG`: untouched; its retire note stays in `S8-review.md`.
+
 ## Phase S7e - Description panels: major skills and the command tab
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS`. Sub-tag `[JUNE_SKILL] UI`. Split out of S7b (2026-10-18, unowned June branch).

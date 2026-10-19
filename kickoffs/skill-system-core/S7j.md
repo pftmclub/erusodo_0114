@@ -12,7 +12,7 @@
 ## Read first (and nothing else from the plan doc unless you need it)
 
 ```sh
-python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "Rules" "Starting context" "Phase S7g - Done (2026-10-19, Opus 5.5 high)"
+python tools/docsection.py JUNE_SKILL_SYSTEM_PHASES.md "Rules" "Starting context" "Phase S7g - Done (2026-10-19, Opus 5.5 high)" "Phase S7g -- Review (2026-10-19, Opus 5.5 high)"
 ```
 `june2017_re/funcmap.tsv` rows tagged `Skill S7g`, and the Buff Phase 16 rows for `32091080` (SocketData), `32364790` (the CX2Unit aggregate +0xe1c),
 `3204b4c0` / `3204f190` (the user-side sum this mirrors).
