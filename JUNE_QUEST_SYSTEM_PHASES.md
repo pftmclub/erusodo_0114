@@ -981,6 +981,36 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_GATE` (`Always.h`, no dependency). Client only; n
 - **How to see it.** No unit has 22218. Auth level is 3 in this save and a GM sees every tab (as in June), so the tab check needs `python tools/elsdb.py setting auth_level 0`.
   Play-test hand-off is in the Q6 hand-off message; log `python tools/logs.py --tag JUNE_QUEST --grep "GATE"`.
 
+### Q6 - Review (2026-10-19, Opus 5.5 high): PASS, no findings
+
+No code change, no rebuild; the deployed exe stays Q6's (md5 e310d7d4, play-test PASSED).
+- **Parser.** XOR table row `32502b6a 32501bb0 ... RequireCompletedQuestID` (reg 337a3fe8:40) inside EnterCondition after `RequireUnitLevel`; templet `+0x70`, default 0. March parses it in
+  the same table, after `RequireUnitLevel`, ctor default 0. Match.
+- **Readers, all seven in Ghidra** (each tests `+0x70` through `32322260`):
+  - tab `3293c6f0`: the GM branch (`+0x43c +0xf8`) skips level and quest. Otherwise the level test, then `+0x70 < 1` or complete leads to the marks, and closed
+    is `vtbl+0x78` (SetShowEnable false, false) with no marks. March sets `bShowRadioButton = false`, which is read only by the mark block. Match.
+  - `IsActiveDungeon` `327da190`: after the level + `+0x1cc` quest test, only when `g_pData +0x268` is set, `324f25f0( row +0x10, 0 )` -> `324f2360`, `0 < +0x70` and not complete
+    returns 0. March is the same; `WMI_INVALID` = 0. Match.
+  - warp item `32173120` (`PUSH 0x2719` = Elysion, level and `+0x70 == 0` or complete) and Cobo `324627f0` (`PUSH 0x2719` @32462fcd, level fails or `+0x70 != 0` and
+    not complete, then the list-index switch). Match.
+  - world map `3225d340` hides on level or quest. Its third term `cStack_5d` (code event 0x90f and control 40037) is a June-only event and not this flag's.
+    Field map `3225d970`: SetEnable( level and quest ). Match.
+  - quest notice `323d4390`: `size == 0 || ( clear && level && ( +0x70 < 1 || complete ) )`. March puts the quest test inside the `size > 0` branch. Match.
+    `X2UIQuestReceive.cpp` carries the same filter in March's own copy.
+- **Data.** data035 `DungeonData.lua` is BOM + CRLF. It has one live `m_iRequireCompleteQuestID = 22218` (AD Normal, :16791) plus the revert comment. `luasrc.py ledger --check`: LEDGER CHECK PASS.
+  The pack gate (`luasrc.gate` on data035_kom): 0 refusals, 0 warnings.
+- **No stand-in, re-confirmed.** `xorstrings.tsv` (6,241 rows) has `RequireCompletedQuestID` (the positive control). None of these appear in it or among Ghidra's plain strings:
+  `NEED_ONGOING_QUEST_ID`, `BATTLE_FIELD_DIRECTION_INFO`, `REQUIRE_COMPLETE_QUEST_ID` / `_SUB_QUEST_ID`, `AddMapData`. They are server keys, so the user's decision stands.
+- **flag-off.** Every site keeps March's line in `#else` or is insert-only, so flag-off = the Q5a build.
+- **Hygiene.** `flagcheck JUNE_QUEST_GATE --range d3c30f58^..d3c30f58`:
+  `files: 8 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`. `git log -S` finds no later commit touching the flag.
+- **Left as is (cosmetic):**
+  - The `Always.h` block opens with two short `//////` lines and borrows the STANDIN block's closing rule. It is comment-only, and a PCH-wide rebuild is not worth it.
+  - The `X2DungeonManager.cpp:744-748` comment (SUITABLE_LEVEL flag) still says March's templet lacks `+0x70`.
+- **Q9.** Its section and kickoff cover "gates opening" (22160 -> 22218). Nothing to add.
+
 ## Phase Q7 - Quest NPCs and houses
 
 **Run with:** Sonnet 5.5 high. Flag `SERV_IRUHADEV_JUNE_QUEST_NPC` (only if C++ changes). Sub-tag `NPC`.
