@@ -2216,6 +2216,9 @@ Revert: `MODS.md` "June's new-title notice". Log `[JUNE_SKILL] EMBLEM title ...`
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 25,389,568 B, dated 2026-10-19 14:15:23, md5 5b3e8252d9fd53faffc492745a69ed5f, equal to X2/US_SERVICE/x2.exe (2026-10-19 14:15:15); built at main d3c30f58 + 21 uncommitted code file(s).`
   (COALESCED into a peer's build that started after the S7n edits.) The `[JUNE_SKILL] EMBLEM title queued / row / notice` strings are in the exe.
 - **Open questions:** none. Not ported (no March home): the event-map auto-equip (0x834 / 0x835) and emblem 0x14 (achievements, S7l).
+- **How to see it:** unit 24 "arasss" (save edit, backup `db_backup\els_db_20261019_142504_pre_sql.sql`: mission 150 "Bat King" sub 150 `clear_data` 0 -> 1 of 2) kills Bat King
+  (NPC 74) in Elder Bender's Cave Hard (the sub-mission takes any difficulty of 30050): title 150 is granted, emblem 18 shows its icon + 17352 row in the dungeon.
+  Title 10's "Apply title now?" box is not reachable offline: March's data036 sub-mission 10 asks for quest 11040 (June's: 11010), a sub-quest id, so mission 10 never completes.
 
 
 ## Phase S8 - Running state data: June's pointer model
