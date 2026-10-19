@@ -968,6 +968,17 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF` (needs `JUNE_QUEST_OFFLINE`; `#error`
 - **Not play-tested:** "a sub-quest without the flag still refuses Hard" holds by construction (`IsExistDungeonInSub` unchanged); it is not walked.
 - **Play-test = Q9 A3** (`june2017_re/quest_plan/q9_walk_checklist.md`): Burnt Forest Expert, 22182 then 22183; log `grep "VISIT quest 22162|upperDiff" offline_server.log`.
 
+## Phase Q4e - Visit-quest auto-complete refusal
+
+**Run with:** Opus 5.5 high. Found by Q9 play-test (user, 2026-10-19): after Q4d ticked "Enter Burnt Forest", a message box "the completion requirement is not met" appeared.
+
+- Cause (read from the log and `X2State.cpp:5044-5051`): a completed `VISIT_DUNGEON` / `VISIT_FIELD` sub-quest makes the client send `EGS_QUEST_COMPLETE_REQ` for the
+  whole quest at once (`CompleteQuestToVisitVillage`, gated by `IsCompleteVisitQuest`, June `3232c750` since Q3: no "last sub-quest" rule). 22162's visit is its first
+  sub-quest, the clear (22183) is open, so the emulator refuses with `ERR_QUEST_09` (as the March server does) and the client shows the box. Not Q4d's subject; it
+  was invisible before because the visit never ticked.
+- Harmless to play (sub-quest stays done, the clear counts, 22162 completes at Edel). Scope rule: own phase, not a Q4d reopening.
+- Task: read June's ACK handler and the caller; keep verbatim (JUNE_BUGS row) or port June's answer. Kickoff `kickoffs/quest-system/Q4e.md`.
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.
