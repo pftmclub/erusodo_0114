@@ -354,7 +354,6 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     `g_pInstanceData +0xabd = 0` (`32478ecc`). The `Story_New` mark: `324708c0` @32471129 shows it from `+0xabd` (hidden in state 0xb); placed by
     `3245cba0`, the bar layout `3245bb70`. Quest-system Q10 writes `+0xabd` (`CX2InstanceData::m_bJuneStoryBookNew`).
 
-
 - **Effect-alpha option UI** (handed here by june-effect D9, user 2026-10-06).
   - June-effect C10b-2 builds the engine: the three values in `GameOptions.lua` under June's keys (`MY_EFFECT_ALPHA`,
     `MY_TEAM_EFFECT_ALPHA`, `ANOTHER_TEAM_EFFECT_ALPHA`), and `CKTDXApp::SetEffectAlpha` / `GetEffectAlpha`.
@@ -582,6 +581,11 @@ the record itself and every field March already reads. The rest has no March own
 - **Ice-heater preview rewrite** (june-effect C9h-2c, 2026-10-08): loader `3281a0d0` (`AddIceHeaterItemData`, rows into map
   `+0x1b0`) and lookup `328136f0` (date windows or the code-event set `g_pInstanceData+0xaa4` pick a second id, then two
   `std::set`s and a `rand()` pick). Same 0x4c row as the pet preview (C9h-2d); June's 9,545 IceHeaterPreView rows all pass 4 args.
+- **June-only item socket vectors** (routed from skill-system-core S7m, 2026-10-19). `31ed7e90` (from `KInventoryItemInfo`; `32887100` from a packed record) fills the
+  item's `+0x8c` / `+0x9c` / `+0xac` lists from three June-only `KItemInfo` socket-id vectors (`+0x48` / `+0x58` / `+0x68`); `+0xac` counts only when `32883300`'s apply condition
+  is met by the set's equipped parts. They belong to June's socket extraction / apply system (`m_bSocketExtraction` / `m_iSocketApply` / `m_iSocketCondition`, `32883300` /
+  `32883450`, item socket count `328836c0`); March's `KItemInfo` has no such fields and the emulator no source. Also here: the usable-expiry part `328823d0` and the equip-group
+  set at unit `+0xe40`. Identify and port whole with the socket extraction system; the combat sums already ignore these lists (S7k / S7m).
 
 Routed elsewhere:
 - the division and render-division tables go to Stage 11;
@@ -590,11 +594,6 @@ Routed elsewhere:
 
 **Depends on:** Stage 13 (K2).
 
-- **June-only item socket vectors** (routed from skill-system-core S7m, 2026-10-19). `31ed7e90` (from `KInventoryItemInfo`; `32887100` from a packed record) fills the
-  item's `+0x8c` / `+0x9c` / `+0xac` lists from three June-only `KItemInfo` socket-id vectors (`+0x48` / `+0x58` / `+0x68`); `+0xac` counts only when `32883300`'s apply condition
-  is met by the set's equipped parts. They belong to June's socket extraction / apply system (`m_bSocketExtraction` / `m_iSocketApply` / `m_iSocketCondition`, `32883300` /
-  `32883450`, item socket count `328836c0`); March's `KItemInfo` has no such fields and the emulator no source. Also here: the usable-expiry part `328823d0` and the equip-group
-  set at unit `+0xe40`. Identify and port whole with the socket extraction system; the combat sums already ignore these lists (S7k / S7m).
 ---
 
 ### Stage 17: Pet and riding-pet remainder (june-effect C9h, 2026-10-07)
