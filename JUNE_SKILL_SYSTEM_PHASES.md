@@ -2054,6 +2054,9 @@ Funcmap tag `Skill S7l`. JUNE_BUGS 344-346. Revert: `MODS.md` "The rest of June'
   (OTHER = peers' blocks in `Always.h` and the `_DEBUG` hook in `X2EmblemManager.cpp`; the parser block took LF like S7i's LF block it sits on). `_DEBUG`: `RESULT: PASS`.
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 25,383,936 B, dated 2026-10-19 12:30:46, md5 2b7944e2f16d3906e1d14db3280cb741, equal to X2/US_SERVICE/x2.exe (2026-10-19 12:30:38); built at main 74719292 + 9 uncommitted code file(s).` The `[JUNE_SKILL] EMBLEM expand` / `debug` strings, `JuneEmblem` and `RaidField_Area_0.dds` are in the exe.
 - **Open questions:** none.
+- **Play-test PASSED 2026-10-19** (user 4 / 4 + log; exe 642e712f = `main f2bc9cc8`, which contains S7l; 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`; data063 `COPY OK` md5 fca5c094):
+  `EMBLEM parsed 20 of 20`; unit 44 L15 -> 16: emblem 17 dialog, 1 row (skill 22003 type 2), `more to show = 0`; `JuneEmblem( 7 )` x5: `shows 3 expand texture(s), 2 one-shot row(s) erased,
+  3 live handle(s)` each time; `JuneEmblem( 7 ) JuneEmblem( 2 )`: emblem 2 shown after the expand textures (user); cash shop closed them (user).
 
 ## Phase S7n - June's new-title notice (emblem 18)
 
