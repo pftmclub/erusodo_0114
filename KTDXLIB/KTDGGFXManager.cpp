@@ -1957,6 +1957,16 @@ bool CKTDGGFXManager::closeToTopZorder()
 		return false;
 	SFG::Value kResult;
 	m_pImpl->m_pUI->Invoke( "closeToTopZorder", &kResult, NULL, 0 );
+#ifdef SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
+	// G5 play-test 1: ESC never got a true with UI 0xb open. What the call really returned ( the type is the GFx Value type: 2 = Boolean )
+	{
+		char szJuneBuf[200] = { 0, };
+		_snprintf( szJuneBuf, sizeof( szJuneBuf ) - 1, "[JUNE_GFX] GATE closeToTopZorder raw: type %d isBool %d bool %d, isOpenUI( 0xb ) %d, isVisibleI( 0xb ) %d",
+			static_cast< int >( kResult.GetType() ), kResult.IsBool() ? 1 : 0, ( kResult.IsBool() && kResult.GetBool() ) ? 1 : 0,
+			isOpenUI( 0xb ) ? 1 : 0, isVisibleI( 0xb ) ? 1 : 0 );
+		JuneGfxLogLine( szJuneBuf );
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG
 	return kResult.IsBool() ? kResult.GetBool() : false;
 }
 

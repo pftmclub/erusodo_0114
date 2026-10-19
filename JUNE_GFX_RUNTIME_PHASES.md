@@ -574,6 +574,11 @@ widget open, ESC and cut-ins behave as before.
 **Debug on until the G5 review:** `SERV_IRUHADEV_JUNE_GFX_GATES_DEBUG`, `SERV_IRUHADEV_JUNE_GFX_DEBUG`.
 **Open:** if `openUI( 11 )` reports `isOpenUI -> 0` (main.gfx has no widget for UI 0xb without the cash shop), the cut-in term cannot be shown in game; the review then reads it from Ghidra only. No question for the user.
 
+**Play-test, part 1 (2026-10-19, user + log; exe b5a84db2, then diagnostic exe 642e712f):**
+- Cut-in term PASSED: with `JuneGfxOpenUI( 11 )` the June cash shop (Item Mall, GFx) opened over the field; `isOpenUI( 0xb ) = 1` and two `GATE cutin ... show 1 becomes 0` lines for the Eve cast (no cut-in).
+- ESC with UI 0xb open: March's menu opened every time (`closeToTopZorder -> 0` x5). Diagnostic (debug-only line in `CKTDGGFXManager::closeToTopZorder`): `type 2 isBool 1 bool 0, isOpenUI( 0xb ) 1, isVisibleI( 0xb ) 1`, i.e. the AS returns a real Boolean false for UI 0xb, so the port reads it right. June closes this shop through `unloadWidget( 0xb )` / its own C++ (`32228498`), so the false branch is June-faithful. The true branch (ESC taken) is still unproven in game: no closeable widget was tried.
+- DELETE toggle (`GATE hide` lines) not exercised yet; only the `SetShow( 1, 0 ) -> mode 0` lines of state entries.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
