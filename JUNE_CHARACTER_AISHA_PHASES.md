@@ -425,6 +425,44 @@ and the cut-in light).
 No `JUNE_BUGS` row (no June bug found). No drift: every branch found is Aisha's class core. Checklist rows: none of the 40 functions multiplies `m_fNowStatePowerRate` or reads
 `USEFUL_VALUE` (§7 l.243, §7h stay with CH1b+). **In game:** nothing to see (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1a-review.md`.
 
+### CH1a -- Review (2026-10-20, Opus)
+
+**Verdict: PASS with one fix.** All 40 functions read against June's decompile, and against the listing where the kickoff named a risk. State ids were checked through
+`ch0_state_skill.tsv`, InputData bytes against March's member order (`+0x8722` = `pureLCtr`, after LShift / LAlt / Space), and every compare direction from the
+`fnstsw` / `test ah` / `jp` triple. Spot-checked in depth: `32cd0200`, `32cc60a0`, `32cd1830`.
+- **Branch structure holds.** `32cc60a0`: the `@32cc62fd` tail runs after every branch, on the ground too, and the turn-around matches (both keys held: a new
+  press against the facing). `32cb9ce0`: the `pureUp == false -> USI_DASH_JUMP` test runs after the whole chain. `32cb9a70` / `32cb9ba0`: `0 <= nowSpeed.y`.
+  `32cd0200` / `32cd21d0`: the MP-full test only at `+0x9770 >= 3`, the slide show, and the `+0xc20` polarity (entry needs 0, exit needs 1).
+- **Compares.** `0.5 <= m_fMPChargeWaitTime`, `fStateTime < 0.36`, `now <= (max - transition) / 3` (= March's `>` with the branches swapped), `now <= max * 0.5`,
+  `pos.y - landPos.y < 60.0`, and the `GetJumpSpeed() < nowSpeed.y` cap.
+- **Constants.** Re-read from the file bytes: `33472998` = 45.0 (qword), `334411a8` = 0.2f widened (qword), `33457f50` = 60.0, `3343777c` = 0.5 (dword),
+  `3351aff0` = 2.8f (the by-pointer argument of `322cc030`). The 0.1 that `charport_consts.py` lists under `32cd1280` belongs to the next function, `32cd1470`.
+- **15-key condition** of `32cd07e0`: Up, Down, Right, Left, Z, X, A, S, D, C, Q, W, E, R, LCtr and the animation end. It matches.
+
+**Fixed (under the same flag).** `32cd1830 @32cd217d-32cd2197`: after `PlayEffectSet`, June pushes the MemoRise loop handle into `+0x3ec0` (`32a2dec0` =
+`vector::push_back`; `+0x3ec0` is the STATE_END list, funcmap `3227a570`). The port had dropped that push, so the loop would have outlived the charge state. It now
+calls `m_vecEffectSetToDeleteOnStateEnd.push_back( m_hJuneMemoRiseLoop )`. Two stand-in comments were reworded, a review rule went into the CH1b kickoff, and 5 funcmap rows
+`Char CH1a review` were added.
+
+**Open items, decided:**
+1. CX2Game `+0xc20` is **settled**. Only the constructor writes it: the byte, setcc, word and dword encodings at `+0xc20` were scanned over all of `.text`, and the other hits
+   are another class or game-unit / NPC objects. `June_GameByteC20()` = false is June's value; nothing is owed.
+2. `322cc030` / `+0xb38` -> **CH1i**. The reader `322f4740` is CX2Game's per-frame MemoRise slot timer for the own user: it accumulates elapsed time and makes a 10-slot
+   pass at 2.8 s. The 2.8 forces the first pass at 1.5 s into the charge. If the pass draws the HUD, the drawing goes to CH5.
+3. `+0x9770` is the **size of a container at `+0x9760`** (MemoRise entries), not a scalar. CH1h constructs it (with `+0x9778` / `+0x977c` = -1). CH1i fills it
+   (`32ccf4e0`, `32ced640`, `32cc7f10`, `32ce15a0`; the last is missing from the class map) and replaces `m_iJune9770` with its `size()`.
+4. vslot `0x718` (`32cc7b30`) is read from the listing: size < 3, state `AVSI_CHARGE_MP`, Now `fStateTime >= 1.5`. No skill or job gate. Its body is CH1i's.
+5. **Not a June bug.** Below 3 entries June lets the charge start and continue on a full MP bar on purpose (`jb` past the MP test). That is the MemoRise mechanic's
+   input. No `JUNE_BUGS` row. CH1 wires these events only after CH1i (kickoff note).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --range ab13f4e0^..ab13f4e0`: `files: 0 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. Fix, `--worktree --files X2GUArme_VioletMage.cpp .h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `4 deleted line(s)`, all of them CH1a's own comment lines
+inside the flag, reworded (2 stand-in comments, 1 MemoRise comment, the `m_iJune9770` comment); `RESULT: PASS`. Build: `DEPLOY OK: X2_offline.exe is 25,518,592 B, dated 2026-10-20 06:56:10, md5 4b6543895215ee7b47b59d2d71a09316, equal to X2/US_SERVICE/x2.exe (2026-10-20 06:56:02); built at main ab13f4e0 + 2 uncommitted code file(s).`
+
+No drift: the MemoRise container, timer and slot pass are Aisha's class mechanic, owned by CH1h / CH1i (and CH5 for any HUD drawing). **In game:** nothing (inert code).
+Next: CH1b (`kickoffs/pilot-char-revamp/CH1b.md`, unchanged apart from the review note).
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

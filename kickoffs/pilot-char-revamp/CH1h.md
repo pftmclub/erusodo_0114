@@ -40,3 +40,10 @@ listing with `june2017_re/funcdis.py` where the decompile is unclear), **whole**
 
 Written by CH0 (2026-10-20). Counts are from `ch0_class_map.tsv`. CH1's class core is about 370 functions, so CH0 split the transcription
 into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test to CH1 (Opus).
+
+## From the CH1a review (2026-10-20)
+
+- The constructor `32cc99d0` builds a container at `+0x9760` (`31c265f0` @ the ctor; size at `+0x9770`, CH1a's stand-in `m_iJune9770`) and sets
+  `+0x9778` (`m_hJuneMemoRiseLoop`) and `+0x977c` (a second effect-set handle, used by `32cd86cf` / `32cd8900`) to -1 (`@32ccb01c` / `@32ccb022`;
+  again `@32ccb7c3` / `@32ccb7cb`). Identify the element type (its users: `32ce15a0`, `32ce4180`, `32ce1900`, `32cc7f10`, `32ccf4e0`, `32ced640`,
+  `32ceca70`) and declare the container; CH1i fills it and retires `m_iJune9770`.

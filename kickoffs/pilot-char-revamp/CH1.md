@@ -59,3 +59,10 @@ What CH1 itself does:
    `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME`): confirm each against March's preprocessed reader, port the missing reader or route it.
 6. **Script:** `luasrc.py adopt-june data036 Arme_VioletMage.lua` (June bytecode); then `charport_scan.py` and `charport_keys.py
    Arme_VioletMage` show nothing new.
+
+## From the CH1a review (2026-10-20)
+
+- Wiring CH1a's `June_WaitEventProcess` / `June_ChargeMPEventProcess` is safe only after CH1i retires `m_iJune9770` (June's rule: below 3 MemoRise
+  entries the wait state enters the charge, and stays in it, on a full MP bar). The constructor must set `m_hJuneMemoRiseLoop` to
+  `INVALID_EFFECTSET_HANDLE` (`32cc99d0 @32ccb01c`).
+- `June_GameByteC20()` (CX2Game `+0xc20`) is June's value (false), not a pending stand-in.

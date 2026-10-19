@@ -21232,8 +21232,8 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GUArme_VioletMage::GetSkillUse
 
 namespace
 {
-	/// June CX2Game +0xc20 ( one byte; its constructor 32306600 @323077a6 clears it, nothing in the class code scanned writes it ) has no
-	/// March member. It reads as its constructor default until the engine side is identified ( CH1 / Opus ). Read by 32cd0200, 32cd21d0.
+	/// June CX2Game +0xc20 ( one byte ) has no March member. Its constructor 32306600 @323077a6 clears it and nothing else in June writes it
+	/// ( CH1a review: byte, setcc, word and dword writes at +0xc20 scanned over all of .text ), so false is June's value. Read by 32cd0200, 32cd21d0.
 	bool June_GameByteC20()
 	{
 		return false;
@@ -22462,7 +22462,7 @@ void CX2GUArme_VioletMage::June_ChargeMPFrameMove()
 	}
 
 	// June @32cd1ffe-32cd21a8: the MemoRise charge boost ( vslot 0x718 ) adds a one-shot game float for the local player at 1.5 s
-	// and plays EffectSet_AIsha_MemoRise_Loop once.
+	// and plays EffectSet_AIsha_MemoRise_Loop once, handing it to the state-end list.
 	if( true == June_IsMemoRiseChargeActive() )
 	{
 		if( EventTimer( 1.5f, false ) == true )
@@ -22476,6 +22476,7 @@ void CX2GUArme_VioletMage::June_ChargeMPFrameMove()
 		if( NULL != g_pX2Game->GetEffectSet() && m_hJuneMemoRiseLoop == INVALID_EFFECTSET_HANDLE )
 		{
 			m_hJuneMemoRiseLoop = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AIsha_MemoRise_Loop", this );
+			m_vecEffectSetToDeleteOnStateEnd.push_back( m_hJuneMemoRiseLoop );		// June @32cd217d-32cd2197: 32a2dec0 ( push_back ) on +0x3ec0 ( CH1a review )
 		}
 	}
 

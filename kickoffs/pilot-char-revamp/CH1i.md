@@ -40,3 +40,15 @@ listing with `june2017_re/funcdis.py` where the decompile is unclear), **whole**
 
 Written by CH0 (2026-10-20). Counts are from `ch0_class_map.tsv`. CH1's class core is about 370 functions, so CH0 split the transcription
 into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test to CH1 (Opus).
+
+## From the CH1a review (2026-10-20): the MemoRise mechanic is yours
+
+- vslot `0x718` `32cc7b30` (read from the listing; the decompile fails): `+0x9770 < 3` (unsigned) and the decoded state id == 157 (`AVSI_CHARGE_MP`) and
+  `1.5 <= m_FrameDataNow.unitCondition.fStateTime`. It replaces `June_IsMemoRiseChargeActive`.
+- The `+0x9760` container (CH1h declares it): filled / consumed by `32ccf4e0` (0x800), `32ced640` (0x7fc), `32cc7f10` (0x880) and `32ce15a0` (not in the
+  class map: erase entry `i` if `i < size`, then for the own unit `IsMyUnit` g_pX2Game `322deb80`). Replace every `m_iJune9770` read in CH1a's
+  `June_WaitEventProcess` / `June_ChargeMPEventProcess` with its `size()` and delete the stand-in member.
+- `322cc030` (CX2Game `+0xb38` = *arg) and its reader `322f4740` (CX2Game per frame, own user only, gated on unit `+0x867c` -> `+0xaf0` == 2 and vslot
+  0x718: `+0xb38` += elapsed; at >= 2.8 (`3351aff0`) a 10-slot pass `322eca50` / `322f4480`, then reset). Port both under the flag and replace the no-op
+  `June_SetGameFloatB38`. If the 10-slot pass is skill-slot HUD drawing, the drawing goes to CH5 as a bullet; the timer stays here.
+- CX2Game `+0xc20` is settled: only its constructor writes it, `June_GameByteC20()` stays false.

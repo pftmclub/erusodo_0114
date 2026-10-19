@@ -838,7 +838,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 
 		/// June-only members the functions above read. The constructor does not set them yet ( CH1 does ); the June constructor
 		/// 32cc99d0 sets +0x9778 to -1 @32ccb01c and leaves +0x9770 as its container's size.
-		int							m_iJune9770;				/// June +0x9770: unsigned-compared with 3 by the wait, charge-MP and 0x718 code ( owner not identified; CH1h / CH1i )
+		int							m_iJune9770;				/// June +0x9770: the size of a container at +0x9760 ( MemoRise entries; CH1h constructs it, CH1i fills it and replaces this member with its size() )
 		CX2EffectSet::Handle		m_hJuneMemoRiseLoop;		/// June +0x9778: the EffectSet_AIsha_MemoRise_Loop handle ( -1 = none ), played by ChargeMPFrameMove, stopped by ChargeMPStart
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE

@@ -40,3 +40,11 @@ listing with `june2017_re/funcdis.py` where the decompile is unclear), **whole**
 
 Written by CH0 (2026-10-20). Counts are from `ch0_class_map.tsv`. CH1's class core is about 370 functions, so CH0 split the transcription
 into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test to CH1 (Opus).
+
+## From the CH1a review (2026-10-20)
+
+- After every `PlayEffectSet` (`321e1e60`), read on in the listing: June often hands the handle to a unit list with `32a2dec0`
+  (`vector::push_back`) on `+0x3e90..+0x3ef0` (`+0x3eb0` DAMAGE_REACT, `+0x3ec0` STATE_END = `m_vecEffectSetToDeleteOnStateEnd`, `+0x3ed0` DIE;
+  funcmap rows `3227a570` / `32007570`). CH1a missed one (`32cd217d`); the decompile hides it behind the handle store.
+- `charport_consts.py` merges a function with its neighbour when no int3 padding separates them: check the address column before chasing a
+  constant the function does not use.
