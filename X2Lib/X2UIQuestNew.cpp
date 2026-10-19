@@ -2040,9 +2040,10 @@ bool CX2UIQuestNew::Handler_EGS_NEW_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wPar
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 	if( NULL != pQuestTemplet )
 	{
-		// June 323e4cb0 @323e4e0b..323e4e39: in state 5 ( June's beginning; March's XS_SERVER_SELECT slot ) the start scene waits for the village that follows
-		// ( g_pInstanceData +0xaf8 / +0xafc, played by StateChange ), in any other state it plays now ( 323cb2e0( id, 0 ) ).
-		if( 5 != static_cast<int>( g_pMain->GetNowStateID() ) )
+		// June 323e4cb0 @323e4e0b..323e4e39: in state 5 the start scene waits for the village / battle field that follows ( g_pInstanceData +0xaf8 / +0xafc,
+		// played by StateChange ), in any other state it plays now ( 323cb2e0( id, 0 ) ). June's state 5 is XS_SERVER_SELECT ( StateChange 31d88bf0 case 5
+		// builds CX2StateServerSelect, ctor 32576ff0; Q5b review ), the same slot as March's.
+		if( CX2Main::XS_SERVER_SELECT != g_pMain->GetNowStateID() )
 			JunePlayQuestScene( pQuestTemplet->m_iID, 0 );
 		else if( NULL != g_pInstanceData )
 			g_pInstanceData->SetJuneDeferredQuestScene( pQuestTemplet->m_iID, 0 );

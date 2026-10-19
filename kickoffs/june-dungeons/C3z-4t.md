@@ -29,3 +29,12 @@ running (`31fbda90`, `[+0x14] != 0`) and `31fbdb20` (`[+0x66] != 1`) -> the ESC 
 insertion point the C3p-2 Done note names (`python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)"`).
 While there (C3p-2 review): the comment in C3p's `SERV_IRUHADEV_JUNE_SKIP_START` block in `CX2State::HandleMsgByESC` lists "the chat box" among
 June's earlier gates; the gate is GFx `closeToTopZorder` (`31c43bb0`). Fix the comment with the bytepatch that adds the guide gate.
+
+Also owed (quest-system Q5b review, 2026-10-19), two quest gates the manager drives:
+- The guide step `31fc4060` (13 callers `31fc4c30`..`31fc6320`) writes the dialog manager's byte `+0x111` (`g_pKTDXApp +0x1fc +0x38c`; ctor
+  `31d067e0` zeroes it): 0 when the guide's `+0x8c == 1`, else 1 (@31fc42a8-31fc42cb). June's clear window `CX2UIQuestNew::OpenQuestRewardWindow`
+  `323d2c60` returns at once while it is 1 (@323d2cb1-323d2ccb, before the sound). Port the byte, its writer and that gate together
+  (March `X2UIQuestNew.cpp` `OpenQuestRewardWindow`, under your flag).
+- StateChange `31d88bf0` skips quest-system Q5b's deferred quest scene while a guide runs (`31fbda90` @31d896aa-31d896b7; in the state-14
+  village block @31d8946f-31d89493 it calls `31fbdfa0` instead). Q5b's `CX2UIQuestNew::JunePlayDeferredQuestScene` (`X2UIQuestNewJune.cpp`) plays it
+  unconditionally because March has no manager: add the `31fbda90` test there.

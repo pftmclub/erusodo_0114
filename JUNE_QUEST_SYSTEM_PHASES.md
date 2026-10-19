@@ -950,6 +950,41 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_SCENE` (Always.h, needs `JUNE_QUEST_UI` + `JUNE_G
 - **Play-test (user + log, unit 12 reyaa).** Admin-complete is `IGNORED` by the emulator (no `EGS_ADMIN_QUEST_COMPLETE_REQ` handler; pre-existing), so 22328's sub-quest was set cleared in the save and the normal Complete button used: `QUEST_COMPLETE_REQ` -> clear window (June DLG) -> `SCENE quest 22328 mode 1` -> `NEW_QUEST_NOT` 22329 -> `SCENE quest 22329 mode 0` -> `Play Quest_22329_Start ( Elysion7.swf )`, 25 frames, ended cleanly; Remind (mode 2) on 22328 played `Quest_22328_Start` twice (forced End by the next Play). 0 EXCEPTION. Side effect of the save setup: 22331 complete made the emulator auto-open 22332 at login.
 - **User observation, not Q5b's:** the software cursor draws IN FRONT of the GFX scene; the user wonders whether June draws it behind. G3 left the cursor to R4f (`CX2Cursor XCS_EVENT_SCENE`, June `3226c250` / `31ce50d0` / `32868250`); the render order of the Scaleform layer vs the cursor has not been read in June. Routed to a new phase, `/x2-phase june-gfx G6` (Opus; map June's draw order, port only if it differs; the `CKTDXCursor` class stays R4f's).
 
+### Q5b - Review (2026-10-19, Opus 5.5 high): PASS, 1 fix, 2 corrections routed
+
+All re-read in Ghidra from the raw disassembly. Rows `(Quest Q5b review)` in `june2017_re/funcmap.tsv`.
+- **`323cb2e0`** matches: `+0xaf8 / +0xafc` cleared before the templet test. Each mode block is non-empty test (`31c1c1a0` vs L"") -> RegisterMent ->
+  `Play( name, frame, 0 )` -> BGM, inside the branch (the port's unconditional `JunePlayQuestSelectBGM` call is equivalent: it tests the name itself).
+  The additional loop matches too: names and ment vectors cleared, frames kept, then both registered, both played, BGM. A missing row still runs it.
+- **`323cb190`** matches. The key is the unit templet's first dword (unit type; null templet = 0). DEFAULT_* go out first, then the type row's start triple
+  only if its start name is non-empty, and its end triple only if its end name is. Value layout: name, name, vec, vec, int, int (row and DEFAULT alike).
+- **`3226ac80`** = lower_bound + `!(key < node)` -> keep, else insert at the hint, so map::insert is right. Other `+0xc0` users in the class:
+  erase `3226ade0` (End @3226b807), forced clear `3226ccb0`, GetMentID `3226a2b0` (frame - 1, bounds-checked). G3 had already ported the first two.
+  The stale header comment "( no writer in June )" is fixed (`X2GFXEventScene.h`, comment only).
+- **BGM** `3232df20` / `3232e000`: `33775870` is `g_pTFieldGame`. The getter `323458d0` copies world `+0x44`, and `327fc950` is March's `PlayBGM`
+  (`+0x54` non-empty, same-name skip). Only callers: `323cb2e0` x3 and End @3226b734 (after the cursor reset, before `31ce50d0`; March's order too).
+- **Call sites** match: NEW_QUEST_NOT (`templet+8 == 5` = `QT_EPIC` -> `+0x70`, JUNE_BUGS 352), COMPLETE_ACK and ALL_COMPLETED (mode 1, after
+  `323ca520` / `323dfa80( 1, 1, 1 )`), and Remind (`+0x750 != -1`, templet, mode 2, then the story test -> Q10).
+- **Fix: June's state 5 is `XS_SERVER_SELECT`**, not a beginning state. StateChange case 5 (table `31d89ca4`, index = state - 1) builds `CX2StateServerSelect`
+  (0x4b8, ctor `32576ff0`). The code now compares with `CX2Main::XS_SERVER_SELECT` and its comment says so (same value; flag `JUNE_QUEST_SCENE`).
+  Offline the deferral never fires: the emulator sends the enter-village NEW_QUEST_NOT at `EGS_FIELD_LOADING_COMPLETE` (`Handlers_Field.cpp`), inside the village.
+- **Correction: the deferred reader's blocks.** State 14 (0x5f8 state + 0x630 TFieldGame = village) reaches it @31d8947c. State 15 (0x5f8 + 0x680, June-only,
+  no March state) and state 21 (0x5d0 = battle field) reach it @31d896aa. Q5b's row took the 0x680 block for the battle field. March's two sites are still right.
+- **Lua scenes dropped: verdict stands.** Re-ran `dispsweep.py` on `1d8 1f4` (69 functions intersect) and on the size / capacity fields `1e8 1ec 204 208`, against
+  all 59 named + 5 unnamed callers of `GetQuestTemplet`. The `1d8 / 1f4` hits are the device manager (`g_pKTDXApp +0x1f4`), vtable slot `0x1f4`, a UI
+  member (`323d8be0`) or `this` (`32691a80`). The templet copies (`3234xxxx`) only copy.
+- **Correction: the clear-window gate has a writer.** `323d2c60` otherwise matches March `OpenQuestRewardWindow` line for line: the 3 + 3 slots, unit type
+  `+0xd2` / class `+0xd3` filters with no SlotIndex step, dummy ints id / socket `+0xc` / period `+8` (`QUEST_REWARD_PERIOD` and `_CLASS_TYPE_CHECK` are top-level
+  in `Always.h`), the `%d` format, and the slot-1 check. But `+0x111` (`g_pKTDXApp +0x1fc +0x38c`) is written by June's tutorial-guide step `31fc4060`
+  (= 1 unless guide `+0x8c == 1`), so June hides the clear window while a guide runs. March has no guide manager, so the gate stays unported. It moves,
+  with the deferred scene's guide skip, to `june-dungeons C3z-4t` (kickoff amended).
+- **Hygiene.** `flagcheck JUNE_QUEST_SCENE --range 012cee73^..012cee73`: 8 PASS, 1 PASS~, 1 DEFINE, 1 OTHER (`X2UIQuestNewJune.cpp`, the `JUNE_QUEST_UI` file), 0 FAIL;
+  0 deleted, RESULT: PASS. Review fix `--worktree --files X2UIQuestNew.cpp X2GFXEventScene.h`: 1 PASS, 1 OTHER (the comment in G3's file), RESULT: PASS. The 3 deleted
+  lines are Q5b's own lines, rewritten inside its `#ifdef`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,415,168 B, dated 2026-10-19 17:08:42, md5 cad1ab82212b7fc4806800ba17607729, equal to X2/US_SERVICE/x2.exe (2026-10-19 17:08:33); built at main 4edc83db + 10 uncommitted code file(s).` The exe also carries peers' uncommitted work.
+- **Logs** (the play-test run, 15:41-15:44): `[JUNE_QUEST] SCENE` 22328 mode 1, 22329 mode 0, 22328 mode 2 x2. `[JUNE_GFX] SCENE` Play / End lines. 0 EXCEPTION,
+  UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`. No new play-test needed: the fix does not change behaviour.
+
 ## Phase Q6 - Quest gates: the inert keys and their readers
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_GATE`. Sub-tag `GATE`.

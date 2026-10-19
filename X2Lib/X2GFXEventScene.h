@@ -82,7 +82,7 @@ private:
 	CKTDXDeviceSound*	m_pSound;				// +0xb0
 	CKTDGGFXEventSceneBridge*	m_pBridge;		// +0xb4 ( June: the adapter, 32e59c50 )
 	CKTDGParticleSystem::CParticleEventSequenceHandle	m_hBlackLayOut;		// +0xd0
-	std::map< std::wstring, std::vector< int > >	m_mapMent;		// +0xc0: name -> GFX_ID per frame ( no writer in June: always empty )
+	std::map< std::wstring, std::vector< int > >	m_mapMent;		// +0xc0: name -> GFX_ID per frame ( written by RegisterMent 3226ac80 from the quest UI 323cb2e0, quest-system Q5b; erased by End )
 };
 
 // Lua bindings, June's CX2Main::RegisterLuabind 31d95080 ( @31de31c0 / @31de342a )
