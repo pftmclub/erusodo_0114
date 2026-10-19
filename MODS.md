@@ -4295,7 +4295,7 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MAX_MP` in `KTDXLIB/Always.h` (`#error` guard: `_
 ### The rest of June's emblem manager (skill-system-core S7l, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` in `KTDXLIB/Always.h` (`#error` guards: `_LEVEL_EMBLEM`, `ADD_PLAY_MUSIC_WHEN_EMBLEM_POP`, `DIALOG_SHOW_TOGGLE`, `FIELD_BOSS_RAID`,
-`_RANOX_PORT`, `_SOUND_AUTO_RELEASE`, `_SKILL_STATE_BUFF`); debug `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` (dev console `JuneEmblem( id )`, off after the review). Plan
+`_RANOX_PORT`, `_SOUND_AUTO_RELEASE`, `_SKILL_STATE_BUFF`); debug `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` (dev console `JuneEmblem( id )`, off since the S7l review, 2026-10-19). Plan
 `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7l"; log tag `[JUNE_SKILL] EMBLEM`.
 - **Client.** `X2EmblemManager.*`: `EXPAND_TEXTURE_FILE_NAME` rows become UI particles that follow the camera and hold the next emblem, June's `OnFrameMove` / `InitEmbelmPlayInfo`
   whole (hide-dialog gate in the pick), cases 5 / 7; `X2BossRaidManager.cpp`: the gate-open emblem gets two one-shot rows instead of the 2nd texture, Ranox open textures;

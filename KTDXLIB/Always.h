@@ -9185,7 +9185,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-10-19
 // Description: June skill system Phase S7l debug ( short-lived, off after the review ): the dev console's JuneEmblem( id ) plays an
 //              emblem ( for 7 also the two boss-gate rows ), so the expand textures can be seen offline, where no gate opens.
-#define SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
+//#define SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG		// off since the S7l review ( 2026-10-19 )
 #ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG needs SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER

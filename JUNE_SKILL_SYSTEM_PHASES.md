@@ -2058,6 +2058,38 @@ Funcmap tag `Skill S7l`. JUNE_BUGS 344-346. Revert: `MODS.md` "The rest of June'
   `EMBLEM parsed 20 of 20`; unit 44 L15 -> 16: emblem 17 dialog, 1 row (skill 22003 type 2), `more to show = 0`; `JuneEmblem( 7 )` x5: `shows 3 expand texture(s), 2 one-shot row(s) erased,
   3 live handle(s)` each time; `JuneEmblem( 7 ) JuneEmblem( 2 )`: emblem 2 shown after the expand textures (user); cash shop closed them (user).
 
+### Phase S7l -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error. The only change is that `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` is commented out (play-test passed), so the dev console's `JuneEmblem` is gone.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER --range 3d91f9d8^..3d91f9d8` (45e9abb4's tree is empty; `git log -S` after it: only 65af3b01, MODS.md):
+  `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  OTHER = the `_DEBUG` block in `Always.h` and `X2EmblemManager.cpp`, which also carries `_DEBUG` lines. Its `eol! 20` are the parser block's LF lines next to S7i's LF block (the Done note says so). `_DEBUG` alone: `RESULT: PASS`.
+- **Data.** `kom.py status data063`: in sync, 0 changes against the live kom. `RaidField_Area_0.dds` / `_1.dds` = June's bytes (`junekom.py extract`, sha1 `53b09e3d` / `fef4db74`).
+  The four `RaidField_Open_Ranox_0..3.dds` that `3269ece0` names are in kom_contents.
+- **Parser `32449000`.** After the sound loop (no EndTable), `EXPAND_TEXTURE_FILE_NAME` is looked up inside the open sound table. Rows are `{ 32feafd0 name, 32fea820 x, 32fea820 y }`, the row's `+0x24` = 0, they go to `3244f6f0`, and each row is closed.
+  Then come EndTable, push, EndTable. **Match** (the bug is JUNE_BUGS row 344).
+- **`32448ce0`** (disassembled): `31d03920` hidden -> return. Per row: `32447e50( name, entry +0x28 )`, `+0x170 = 1` (= `SetOverUI`, as in `3244b780`), `31cf71f0( seq, ( x, y, 0 ), 4 x [334380f0] = -1.0 )`,
+  then a push into `+0x44`. A row with `+0x24 == 1` is erased. Sound pick @32448e4d: `+0x24` is cleared and `+0x20 = 0`, type 0 goes into `+0x24` (ECX = `EBP+0x24`), a type 1 row of my unit type (`+0x68 +0x90 +0xaf0`) goes into a local vector,
+  then `srand( time )`, `rand % n`, and that row is pushed into `+0x24`. **Match.**
+- **`OnFrameMove` `3244c8c0`.** The sound loop = March. The follow loop counts only live handles with a sequence: index 0 -> z = eye.z (`DGManager +0x1c8`); later handles -> `sqrt( ( |ex| + x )^2 + ( |ey| + y )^2 )`,
+  added as `+ eye.z + 1.0` or `eye.z - len - 1.0` (`334355b0` = double 1.0), then `31cf1a40( p, 0, 0 )`. When the cash shop is open (`+0x290 +0xd8 == 1`), with the UI particle system present: destroy `+0x18` / `+0x1c`, `32447760`, destroy `+0x44` and clear it, return.
+  Then fade, wait, `+0x7c && +0x10 && !32447870`, a live `+0x44` returns, reset, then the switch: `0xb / 0x17` (`+0x62`, tutorial `+0x16a` -> `+0x63 = 1`), `0xe / 0xf` (`+0x60`),
+  `0x15` (`+0x61`, `32482650` 2 / 3 skip), default return. The pick @3244ce15 is `!+0x63 && +6 && !31d03920`, then `3244b780`, `32448ce0`, `3244c4b0`, `32447d40`, break. **Match.**
+  `32482650` returns the field's `BATTLE_FIELD_TYPE` (`+0x9c`). June skips `BFT_BOSS_RAID` (2) / `BFT_EVENT` (3). March's merged `BattleFieldData.lua` (core list) flags `IS_BOSS_RAID_FIELD` only on
+  `VMI_FIELD_BOSSRAID_KINGDOM_OF_NASOD`, June's one type-2 field it defines, and defines no type-3 field. So `GetIsBossRaidCurrentField` gives the same answer on the loaded data (funcmap row 171 stays candidate for LOCK_ON).
+- **`324485d0`**: matches March plus the `+0x44` destroy; the wait is `33436700` = 3.0. **Match.**
+- **`3244c4b0` case 5** @3244c584: the vslot 0x98 my-unit test, then vslot 0x21c `( 0x9a, creator 0, level 1, 0, 0 )`. June's order is (BFI, creator, level, adjust, skip), so this is
+  March's `( BFI_EMPTY_EXP_BUFF, 1, NULL, 0, false )`. **Match.** **Case 7** @3244c5a0-3244c6b4: `g_pChatBox`, creator `+8 != 0` (`VMI_INVALID` = 0), `0x7d9f` "SS"( name( +8 ), name( +4 ) ),
+  `31ea8780( text, 2 = CPT_SYSTEM, ( 1, 1, 0, 1 ), "#CFF0000" )`, sound `( ES_FieldRaidBoss_Gate_Notice.ogg, 0, 0, 1 )`. **Match.**
+- **Callers.** `3269f940`: `PlayEmblem( 7, 1 )`. The open texture (`3269ece0( +8 )`) is the first row at ( `33491cc8` = 570, `33491d5c` = 265 ). The area row is second at ( 570, `33491d40` = 295 ):
+  `+4` `0x9c5a` / `0x9c5b` -> `_Area_0` / `_1`, else L"". Both rows are one-shot, then `EndEmblem( 8 )`. **Match.** `3269ece0`: Ranox `0x9c5d..0x9c60` = 40029..40032 -> `_Ranox_0..3`. **Match.**
+  `326c9030` @326c92c9: `[EBP] == 0x274c` (10060) -> `PlayEmblem( 0x22, 0 )`, after the BFI 500 read. **Match.**
+- **Debug off.** In `Always.h`: `//#define SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG // off since the S7l review` (bytepatch, one line, CRLF; peers' Always.h edits left alone).
+  `DEPLOY OK: X2_offline.exe is 25,378,304 B, dated 2026-10-19 13:32:18, md5 d6d5904ead27d67a1a21bf16e78a9b94, equal to X2/US_SERVICE/x2.exe (2026-10-19 13:32:11); built at main 6785efa9 + 5 uncommitted code file(s).`
+  The exe has no `JuneEmblem` / `EMBLEM debug` string; `EMBLEM expand` and `RaidField_Area_0.dds` are still in it.
+- **Open questions:** none. Next: **S7n**; its kickoff is checked and needs no change.
+
 ## Phase S7n - June's new-title notice (emblem 18)
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7l (2026-10-19, unowned-branch rule). June's title feed `32701960` (from `CX2State::OnFrameMove`),
