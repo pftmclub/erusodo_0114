@@ -1762,7 +1762,7 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` (`Always.h` only; `#error` guards `
   or dialog shown); close `32447760` from `InitEmbelmPlayInfo` (`324485d0`), the cash-shop branch and before each pick (@3244cd72); case 17 of
   `PlayEmblemOtherProcess` = `3244c4b0` case 0x11 with `32448b20` / `32447aa0` / `32447c00` / `324486c0` (two rows per pop: icon from the templet, text 35571 / 35572
   / 35573 ( base skill's name ) / 35745, wrapped at 340 px and raised 8 px), shown again while rows are left, else the list is cleared. Enum + EMBLEM_ID 14-34.
-- **Data** (PACK OK; COPY owed): data036 `Emblem_Manager.lua` = June's (same-name rule; ljconv bytecode, 20 emblems, all `CHECK_CONDITION = TRUE`, so none shows
+- **Data** (PACK OK; COPY OK data036 md5 90ccf05c, data053 f93a4412, data217 81ec84af, user OK): data036 `Emblem_Manager.lua` = June's (same-name rule; ljconv bytecode, 20 emblems, all `CHECK_CONDITION = TRUE`, so none shows
   unprompted), `Enum.lua` + EMBLEM_ID 14-34 (core list, `refresh` + ledger PASS); data217 `DLG_Get_New_Skill_or_Memo.lua` (June, ljconv); data053 `DLG_Ui_Guild_01.tga`
   / `.TET` (June, the dialog's placeholder icon). Backups `kom_backup_stage_june\20261019_090743` / `_090747`. Strings 35571-35573 / 35745: June's `general.ess`.
 - **Not ported -> new phase S7l** (unowned-branch rule): the rest of June's emblem manager (`EXPAND_TEXTURE_FILE_NAME` + `32448ce0`, no `OPEN_TIME_SETTING`, June's
