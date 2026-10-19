@@ -926,7 +926,7 @@ Same flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Second reading against Ghidra (raw disa
 
 **Done gate:** accepting Elysion quest 22329 plays `Quest_22329_Start` (GFx). A pre-Elysion quest with a Lua scene still plays that scene.
 
-### Q5b - Done (2026-10-19, Sonnet 5.5 high; play-test pending)
+### Q5b - Done (2026-10-19, Sonnet 5.5 high; play-test PASSED 2026-10-19, review next)
 
 Flag `SERV_IRUHADEV_JUNE_QUEST_SCENE` (Always.h, needs `JUNE_QUEST_UI` + `JUNE_GFX_EVENTSCENE`). Log `[JUNE_QUEST] SCENE`. `DEPLOY OK: X2_offline.exe is 25,414,144 B, dated 2026-10-19 15:19:25, md5 6efbeb9aa7fec6efe7d770e0a1a8168f` (strings in the exe checked). First build failed on a missing `#include "X2GFXEventScene.h"` in `X2UIQuestNew.cpp` (fixed, second build OK).
 - **Scene starter** `CX2UIQuestNew::JunePlayQuestScene( quest, mode )` = June `323cb2e0` (read from the disassembly): clears `g_pInstanceData +0xaf8/+0xafc`, templet test, row lookup `323cb190`, then per mode: ment register (`3226ac80` = `CX2GFXEventScene::RegisterMent`, map::insert) -> `Play( name, end frame, 0 )` -> quest BGM, all inside "name non-empty". Mode 1/2 then plays every `m_vecAdditionalSceneQuestID`'s start and end (names / ments cleared, frames not reset, both registered then both played). Row lookup: DEFAULT_* first, then the select unit's TYPE row (`CHAR = UNIT_TYPE.*`) overrides start / end only when its own name is non-empty.
@@ -938,6 +938,8 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_SCENE` (Always.h, needs `JUNE_QUEST_UI` + `JUNE_G
 - **Epic effect hook:** G3 left `m_mapMent` "writer-less" (comment in `X2GFXEventScene.h` stays; the writer is `RegisterMent`).
 - **Hygiene** (`flagcheck JUNE_QUEST_SCENE --worktree --files` 11 files): `8 PASS, 1 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (Always.h OTHER = another phase's hunk; `X2UIQuestNewJune.cpp` OTHER = inside the `JUNE_QUEST_UI` file). Rows: `funcmap.tsv` 10 `(Quest Q5b)`, JUNE_BUGS 352-353.
 - **Save (for the play-test, snapshot `db_backup\els_db_20261019_151944_pre_sql.sql`):** unit 12 reyaa: 22328 ongoing (sub-quest 22337 open), 22330 and 22331 complete.
+- **Play-test (user + log, unit 12 reyaa).** Admin-complete is `IGNORED` by the emulator (no `EGS_ADMIN_QUEST_COMPLETE_REQ` handler; pre-existing), so 22328's sub-quest was set cleared in the save and the normal Complete button used: `QUEST_COMPLETE_REQ` -> clear window (June DLG) -> `SCENE quest 22328 mode 1` -> `NEW_QUEST_NOT` 22329 -> `SCENE quest 22329 mode 0` -> `Play Quest_22329_Start ( Elysion7.swf )`, 25 frames, ended cleanly; Remind (mode 2) on 22328 played `Quest_22328_Start` twice (forced End by the next Play). 0 EXCEPTION. Side effect of the save setup: 22331 complete made the emulator auto-open 22332 at login.
+- **User observation, not Q5b's:** the software cursor draws IN FRONT of the GFX scene; the user wonders whether June draws it behind. G3 left the cursor to R4f (`CX2Cursor XCS_EVENT_SCENE`, June `3226c250` / `31ce50d0` / `32868250`); the render order of the Scaleform layer vs the cursor has not been read in June. Routed to the G3 / R4f owner.
 
 ## Phase Q6 - Quest gates: the inert keys and their readers
 
