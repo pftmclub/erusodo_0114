@@ -1858,6 +1858,9 @@ Four flags (revert: `MODS.md` "June's class-change notice"; funcmap tag `Skill S
   - The log has `CLASS NOT build ... N acquired skill(s)` followed by `CLASS NOT unitUID=32 class 10: N acquired ...`. After a relog the tree is the same.
   - **Data owed:** `/x2-kom-packed copy data095` (asked in the hand-off).
 - **Open question:** JUNE_BUGS 348 (port June's square line, which crashes, or keep March's).
+- **Play-test PASSED 2026-10-19** (user: all checks; data095 `COPY OK ... 2258052 bytes, 121 entries, md5 a0c1c9a3164c4344d1fffa53f5c28a8a`; log, exe 5b3e8252, 0 EXCEPTION).
+  Unit 32 went 11 -> 10 at 14:31:53: grant 2 rows, `CLASS NOT build ... 13 acquired skill(s) sent`, then `CLASS NOT unitUID=32 class 10: 13 acquired skill(s) into page 1, 0 unsealed,
+  both bars emptied`. Relog: grant 0 rows. Back to 11 at 14:32:37: the same chain. The 3 UNHANDLED `E_DISABLE_HB_CHECK_REQ` are outside this phase.
 
 ## Phase S7i - The level-up "new skill or memo" emblem
 
