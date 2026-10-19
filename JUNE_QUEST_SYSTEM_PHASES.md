@@ -1501,6 +1501,13 @@ The exe holds `[JUNE_QUEST] STORY PLAY start`, `... cut`, `STORY PLAY message`, 
 **How to see it** (after the deploy and the data048 / ogg copy): complete a story quest in a village (or press Remind on one completed); `logs.py --grep "STORY PLAY"`
 shows `start: quest N, K cut scene(s)`, one `cut i / K` per cut, `end` and, after a completion, `message: ... Story has been added to Media Gallery.`
 
+**Play-test (2026-10-19, user + log; exe 2a733690, then 4de4ec93 with a one-off `_DEBUG` flag) PASSED.** Completing 42730 "Lost Power 2" (unit 44, save seeded:
+`unit_quest` 42730 + sub-quest 41990 5 / 5, backup `db_backup\els_db_20261019_213700_pre_manual.sql`) played the show (`start: quest 42730, 19 cut scene(s), state 14,
+saved BGM 'Village_Ruben.ogg'`), Enter / auto-advance, ESC skip, `message: Lost Power 2 Story has been added to Media Gallery.`; Remind replays it. "All black" in the
+first runs was the data: 42730's only pictures are cut 13 / cut 17 (42720 has none), and both runs stopped earlier. The third run reached cut 13: `scene
+'StoryQuest_3_1_1' key 13_0 created 1`, `layer 15 overUI 1 show 1 particles 1`, and the picture drew over the layer-100 black (user). 0 EXCEPTION, ErrorLog 0.
+COPY OK data048 (md5 4c9a4baf); the ogg in `data\music\` (md5 = June's). The `_DEBUG` flag is removed from the tree (never committed); the next build drops its lines.
+
 ## Phase Q10c - Story book UI
 
 **Routed to backlog Stage 9 (user, 2026-10-19).** June opens the book only from the menu-bar StoryBook button, which Stage 9 owns, so the
