@@ -6359,6 +6359,11 @@ void CX2QuestManager::CompleteQuestToVisitVillage()
 			const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_vecCompletedQuestID[i] );
 			if( NULL != pQuestTemplet )
 			{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
+				// June 32337520: templet +0 server group must be -1 or g_pInstanceData +0x120 ( the current server group )
+				if( -1 != pQuestTemplet->m_iServerGroupID && g_pInstanceData->GetServerGroupID() != pQuestTemplet->m_iServerGroupID )
+					continue;
+#endif SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
 				CX2State* pState = static_cast< CX2State* >( g_pMain->GetNowState() );
 				if( NULL != pState )
 				{

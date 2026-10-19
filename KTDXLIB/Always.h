@@ -9605,3 +9605,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 #endif SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q4e - a completed visit sub-quest ( SQT_VISIT_VILLAGE / FIELD / DUNGEON ) no longer sends
+//              EGS_QUEST_COMPLETE_REQ for its whole quest. June's live progress handler ( 323e08c0, the quest window ) flushes the
+//              quest manager's completed-visit list instead ( 32337520 = CX2QuestManager::CompleteQuestToVisitVillage(), which only
+//              holds one-sub-quest visit quests ), and that flush skips quests of another server group. March's CX2State copy
+//              ( June keeps it at 31f09b50 for event 0x167 ) sent the request at once, so a first-position visit ( 22182 in 22162 )
+//              was refused ERR_QUEST_09 with a message box. Revert: JUNE_QUEST_VISIT_FLUSH in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
+//////////////////////////////////////////////////////////////////////////

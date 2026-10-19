@@ -4691,3 +4691,10 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF` in `KTDXLIB/Always.h` (`#error`s with
 - **Client.** `X2QuestManager.cpp` `LoadClearCondition`: reads the optional key `m_bUpperDifficulty` (default false) for `SQT_VISIT_DUNGEON`, `SQT_FIND_NPC` and `SQT_ITEM_USE`, as `CXSLQuestManager::LoadClearCondition` does (`XSLQuestManager.cpp:1318 / 1353 / 1437`). The Jan-source read of offline phase 30 (`2e63a803`, flag `SERV_IRUHADEV_OFFLINE`) was overwritten by the March snapshot and never re-applied. No `#else`: the original had no read.
 - **What changes in game.** 101 of June's 136 `VISIT_DUNGEON` and 41 of its 49 `FIND_NPC` sub-quests carry the flag; they now accept the named dungeon at the same or a harder difficulty (22182 "Enter Burnt Forest" counts Expert). `ITEM_USE`: 0 of 14 carry it, no change. The emulator's `IsExistDungeonInSub` is unchanged.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### June quest system: visit sub-quests flush the completed-visit list (quest-system Q4e, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q4e - Done"; the proof is the absence of `QUEST    complete <id> refused` after a visit sub-quest ticks.
+- **Client.** `X2State.cpp` `Handler_EGS_UPDATE_QUEST_NOT`: a completed `VISIT_FIELD` / `VISIT_DUNGEON` (in game) or `VISIT_VILLAGE` (out of game) sub-quest calls `CX2QuestManager::CompleteQuestToVisitVillage()` (the completed-visit list, one-sub-quest quests only) as June's quest-window handler `323e08c0` does, instead of sending `EGS_QUEST_COMPLETE_REQ` for the whole quest (`#else`). `X2QuestManager.cpp` `CompleteQuestToVisitVillage()`: skips quests of another server group (June `32337520`).
+- **What changes in game.** No "completion requirement is not met" box when a visit sub-quest that is not the quest's last one ticks (22182 in 22162). The quest completes at its NPC as before.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

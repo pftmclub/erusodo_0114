@@ -5046,7 +5046,13 @@ bool CX2State::Handler_EGS_UPDATE_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wParam
 						if( NULL != pQuestInst 
 							&& true == pQuestInst->IsCompleteVisitQuest(pSubQuestTemplet->m_iID) )
 						{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
+							// June 323e08c0 (live UPDATE_QUEST_NOT, quest window) @323e0ff9-323e1021: SQT 0x19 / 0x1a flush the
+							// quest manager's completed-visit list (32337520), no whole-quest complete request for this quest
+							g_pData->GetQuestManager()->CompleteQuestToVisitVillage();
+#else
 							CompleteQuestToVisitVillage( pQuestTemplet );
+#endif SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
 						}
 					} break;
 #endif //REFORM_QUEST
@@ -5181,7 +5187,12 @@ bool CX2State::Handler_EGS_UPDATE_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wParam
 						if( NULL != pQuestInst && true == pQuestInst->IsCompleteVisitQuest(pSubQuestTemplet->m_iID) )
 #endif //REFORM_QUEST
 						{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
+							// June 323e08c0 out-of-game switch, SQT 0x18: the same flush (32337520)
+							g_pData->GetQuestManager()->CompleteQuestToVisitVillage();
+#else
 							CompleteQuestToVisitVillage( pQuestTemplet );
+#endif SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH
 						}
 					} break;
 #endif	SERV_ENTER_FIELD_QUEST_CLEAR

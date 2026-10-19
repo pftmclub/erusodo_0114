@@ -1001,6 +1001,38 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF` (needs `JUNE_QUEST_OFFLINE`; `#error`
 - Harmless to play (sub-quest stays done, the clear counts, 22162 completes at Edel). Scope rule: own phase, not a Q4d reopening.
 - Task: read June's ACK handler and the caller; keep verbatim (JUNE_BUGS row) or port June's answer. Kickoff `kickoffs/quest-system/Q4e.md`.
 
+### Q4e - Done (2026-10-19, Opus 5.5 high)
+
+Verdict: **June answers differently, ported** (no JUNE_BUGS row). Flag `SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH` (no dependency guard).
+- **The box is June's too, on March's path.** June's ACK `323e57e0` runs `DeleteServerPacket( 0xf1 )` (or quest 11000) then `IsValidPacket` `31d91680`.
+  Its silent list is March's (low NetError ids match: 6 / 7 / 0x38 / 0x48 / 0x69 / 0xb0 / 0xd1 / 0xed / 0x100), and `ERR_QUEST_09` = 0xa1 (`NetError_def.h`
+  ordinal, no `#if`s) falls through to the default OK box (`@31d92fde`). June's state copy of the progress handler, `31f09b50` (`CX2State` vtable slot
+  0x160, state dispatcher `31f2ab80` case **0x167**), still does what March does: SQT 0x19 / 0x1a (byte table `31f0af54`, bias 2) -> `@31f0a35f`
+  `IsCompleteVisitQuest` -> `31eff0f0` (= `CX2State::CompleteQuestToVisitVillage( templet )`: reward map, then `323d24f0` REQ, no gate). The March
+  server refuses the same way (`UserQuestManager.cpp:4401-4416`).
+- **June's live handler does not send it.** The quest window's copy `323e08c0` (UI dispatcher `323e5fb0` case 0x27c; Q0b: "June moved UPDATE_QUEST_NOT
+  into the window") has, out of game, SQT 0x18 and, in game, SQT 0x19 / 0x1a -> `IsCompleteVisitQuest` -> `32337520` on the quest manager (one call site
+  `@323e101c`, the two cases merged). `32337520` = March `CX2QuestManager::CompleteQuestToVisitVillage()` (`X2QuestManager.cpp:6351`): the
+  completed-visit list, filled only by `InsertCompletedVisitQuestID` (`3232c8f0`, one sub-quest only, as March `:6384`), packed with `31effd10` and sent
+  as one `ALL_COMPLETED` REQ (`323d2c20`). So a first-position visit (22182 in 22162) sends nothing; June's dropping of March's "last sub-quest" rule
+  in `3232c750` only makes sense with this flush.
+- **Event ids.** June's state dispatcher sends 0xef (March `UPDATE_QUEST_NOT` 0xF8 - 9) to slot 0x15c `31f1d020`, which is not a quest handler, so
+  the "- 9" rule breaks here; which of 0x167 / 0x27c June's server sends is not provable without June's event names. Taken: 0x27c, the quest-window
+  copy, because June moved every other quest packet there and because only the flush fits `3232c750`. Q5c re-diffs the whole handler.
+- **Ported.** `X2State.cpp` `Handler_EGS_UPDATE_QUEST_NOT`: both visit sites (in-game `VISIT_FIELD / DUNGEON`, out-of-game `VISIT_VILLAGE`) call
+  `g_pData->GetQuestManager()->CompleteQuestToVisitVillage()`; March's `CompleteQuestToVisitVillage( pQuestTemplet )` is the `#else`.
+  `X2QuestManager.cpp` `CompleteQuestToVisitVillage()`: June's added test, templet `m_iServerGroupID` -1 or `g_pInstanceData->GetServerGroupID()`
+  (`+0x120`), else skip (June also tests `g_pMain +0x90`, March's existing `pState` test).
+- **Moot.** June's `31eff0f0` has no `QT_EVENT` early return (March `NO_FINISH_EVENT_VISIT_QUEST`, `Always_Global.h:479`); with the flag on, nothing
+  calls March's `CX2State::CompleteQuestToVisitVillage( templet )` any more.
+- **Hygiene** (`flagcheck --worktree --files X2Lib/X2State.cpp X2Lib/X2QuestManager.cpp KTDXLIB/Always.h`): `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE,
+  0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag
+  token, 0 encoding change(s)`; `RESULT: PASS` (the 2 are the bare house-style `#else`).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,505,792 B, dated 2026-10-19 23:36:24, md5 a57b212ae55dcdbf1b80c6f27d98a32e, equal to X2/US_SERVICE/x2.exe (2026-10-19 23:36:16); built at main 63ef7679 + 3 uncommitted code file(s).`
+- **In game:** Q9 A3 again: Burnt Forest Expert ticks 22182 with no message box; 22162 completes at Edel after 22183. Log: no
+  `QUEST    complete 22162 refused`. One-sub-quest visit quests still complete on field entry (`X2StateField.cpp:1522`, unchanged).
+- **Revert:** `MODS.md` "visit sub-quests flush the completed-visit list". No data, no save change. Review: none; Q5c covers it.
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.
@@ -1138,6 +1170,15 @@ All re-read in Ghidra from the raw disassembly. Rows `(Quest Q5b review)` in `ju
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 25,415,168 B, dated 2026-10-19 17:08:42, md5 cad1ab82212b7fc4806800ba17607729, equal to X2/US_SERVICE/x2.exe (2026-10-19 17:08:33); built at main 4edc83db + 10 uncommitted code file(s).` The exe also carries peers' uncommitted work.
 - **Logs** (the play-test run, 15:41-15:44): `[JUNE_QUEST] SCENE` 22328 mode 1, 22329 mode 0, 22328 mode 2 x2. `[JUNE_GFX] SCENE` Play / End lines. 0 EXCEPTION,
   UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`. No new play-test needed: the fix does not change behaviour.
+
+## Phase Q5c - UPDATE_QUEST_NOT: June's quest-window handler vs March's state handler
+
+**Run with:** Opus 5.5 high (Ghidra). Found by Q4e (2026-10-19). Q5a kept `Handler_EGS_UPDATE_QUEST_NOT` in `CX2State` and called June's quest-window
+copy "behaviour equal"; Q4e found they differ at the visit cases (June `323e08c0` flushes the completed-visit list, March sent a single REQ).
+- Scope: line-by-line diff of `323e08c0` (UI dispatcher case 0x27c) against March `X2State.cpp:4859` (as it now stands, with Q3 / Q4 / Q4e flags),
+  per SQT case, in game and out; also June's state copy `31f09b50` (event 0x167) for anything only it does. Port each June difference under its own
+  flag (one flag per logical change), or record "equal". Settle, if any evidence exists, which of 0x167 / 0x27c June's server sent (Q4e took 0x27c).
+- No data, no emulator change unless a difference needs one. Kickoff `kickoffs/quest-system/Q5c.md`.
 
 ## Phase Q6 - Quest gates: the inert keys and their readers
 
