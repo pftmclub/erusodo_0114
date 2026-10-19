@@ -209,6 +209,19 @@ or compile by hand.
    tier, source sha1, phase, date, reason, state); `luasrc.py ledger --check` must stay PASS, and `luasrc.py refresh` re-records a file
    after a deliberate text edit.
 
+## Rule: a plan keeps to its subject; drift gets its own plan (user, 2026-10-19)
+
+The skill plan grew from 12 phases to 33 by chasing June's call graph into the HUD, emblems, titles and sockets. To stop that:
+- A June branch a phase finds becomes a phase in the **current** plan only if it is that plan's subject, or the game is not
+  playable without it (crash, softlock, blocked progression, wrong combat numbers on a path the player hits).
+- **Anything else has drifted. Identify it** (June addresses, the March counterpart, offline reach, related branches) and give it
+  **its own plan in the same session**: a bullet and brief in the stage that owns it, or a new backlog stage with a planning brief.
+  Deferred, never dropped.
+- Priority: Stage 4 quests, then character revamp (5), transcendence (6), the remaining characters (7), new characters (8), and
+  the UI sweep (9). Scattered systems come after that, unless one blocks play.
+- The details are in `JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules", *Scope*. "No partial updates" still means a ported function's
+  whole body, not its callees.
+
 ## Rule: a March asset with the same name as a June asset is replaced by June's (user, 2026-10-19)
 
 When June has a file with the same name as a March file (texture, `.tet`, mesh, sound, dialog or data `.lua`, anything in a kom or loose in

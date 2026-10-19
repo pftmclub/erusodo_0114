@@ -44,6 +44,14 @@ the tree rows use reform IDs (21000-32606), and only 123 use March-range IDs. 45
    code, and no desync questions.
 7. **Opus phases delegate** reads, greps, builds and log reads (memory `opus-phases-delegate-mundane-work`).
 8. **Never launch `X2_offline.exe`**: ask the user.
+9. **Scope: the skill system and the playable path, not the whole call graph (user, 2026-10-19).** The plan grew from 12 phases to
+   33 because every June callee a phase found became a new phase here (S7g-S7p drifted into the HUD, emblems, titles, sockets
+   and the character window). From now on the backlog's scope rule applies (`JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules",
+   *Scope*). A branch a phase finds becomes a phase **in this plan** only if it is skill work (templets, tree, slots, memos,
+   pages, skill state, skill numbers) or the game is not playable without it. Anything else is identified and given a plan
+   of its own: the stage that already owns it, or a new backlog stage with its planning brief, together with its related
+   branches. It is never dropped. Rows in the phase list below marked *would be parked* show what the rule would have
+   routed elsewhere. That work is done and stays done.
 
 Flag family `SERV_IRUHADEV_JUNE_SKILL_*` (debug: `SERV_IRUHADEV_JUNE_SKILL_DEBUG`). Log tag **`[JUNE_SKILL]`**, with a sub-tag per
 phase (`LOAD`, `MIG`, `NUM`, `SLOT`, `UI`, `PTR`): `python tools/logs.py --tag JUNE_SKILL`. Funcmap tag `Skill <phase>`.
@@ -122,6 +130,47 @@ Facts re-checked against the backlog's Stage 3 facts 1-3 (measured 2026-10-03):
   The backlog's `DLG_SkillTree_*` / `DLG_Skill_Tree_Main` names are unconfirmed: S0b finds June's real ones.
 
 ## Phases
+
+### Phase list as run (reconciled 2026-10-19, Rule 9)
+
+12 phases were planned and 21 were added along the way. Each added phase was written by the phase in the Origin column.
+
+| Phase | What | Origin | Under Rule 9 | State |
+|---|---|---|---|---|
+| S0a | RE: templet and tree loader, data closure | planned | skill | done |
+| S0b | RE: slots, pages, slot and tree UI, packets | planned | skill | done |
+| S1 | Extract `NewSkillTempletVer2(_LA)` | planned | skill | done |
+| S2 | Templet loader and skill tree to June | planned | skill | done |
+| S3 | The flip: June skill data, save v17 | planned | skill | done, PASSED |
+| S3b | Skill notes (memos) | S0a | skill | done, PASSED |
+| S3c | Skill types 14-18 | S3 | skill | done, PASSED |
+| S3d | Memo consumers | S3b | skill | done; play-test waits on class ports |
+| S3e | State buff-factor path, state-string timer | S3d | skill (skill state) | done, check 1 PASSED |
+| S3f | `CommonStateStart`'s upgraded-skill flag | S3e review | skill (skill state) | done, PASSED |
+| S4 | Numerical skill data override | planned | skill | done |
+| S5 | Slots 4+4 -> 5+5, save v18 | planned | skill | done, PASSED |
+| S6 | Slot UI | planned | skill | done, PASSED |
+| S6b | Key config for the fifth skill keys | S6 | skill (slots) | done, PASSED |
+| S7 | Skill tree UI and learn logic | planned | skill | done, PASSED |
+| S7b | June's tree UI `CX2UISkillTreeNew2015` | split from S7 (user) | skill | done, play-test fixes PASSED |
+| S7c | Memo popups, packets, emulator, save v19 | split from S7b (user) | skill | done, PASSED |
+| S7d | Skill pages, reset item UI, HUD refresh | split from S7b (user) | skill | done, PASSED |
+| S7e | Description panels, command tab | split from S7b | skill | done, PASSED |
+| S7f | Memo resync in other ACKs | S7c | skill | done |
+| S7g | HUD stat singleton, cash shop open-at-item list | S7d | *would be parked* (Stage 9) | done, PASSED |
+| S7h | Class-change notice | S7f | playable (class change resets the tree) | done, PASSED |
+| S7i | Level-up "new skill or memo" emblem | S7f | *would be parked* (Stage 9) | done, PASSED |
+| S7j | `ResetMaxMp`, max MP / HP | S7g | playable (skill passives' max MP was lost) | done, PASSED |
+| S7k | Unit socket aggregate, HUD max MP / HP | split from S7j (user) | playable (combat numbers) | done, PASSED |
+| S7l | Rest of the emblem manager | S7i | *would be parked* (Stage 9) | done, PASSED |
+| S7m | Socket sources the aggregate skipped | S7k | playable in part (extra damage); item vectors parked to Stage 16 | done, review PASS |
+| S7n | New-title notice (emblem 18) | S7l | *would be parked* (Stage 9) | done, PASSED |
+| S7o | Boss-raid enter UI | S7h review | routed: june-dungeons C3z-8 | identified only |
+| S7p | Character-window socket total | S7m | **routed: backlog Stage 9** (Rule 9, 2026-10-19) | not run here |
+| S8 | Running state data: June's pointer model | planned | skill | done, PASSED |
+| Z | Close-out | planned | - | **next** |
+
+### As planned (2026-10-17)
 
 | Phase | What | Run with | Code | Play-test |
 |---|---|---|---|---|
@@ -2410,6 +2459,11 @@ March has no such object and no row owned it. Identify the object, its setters a
 `CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`): an equip-group filter, riding pet, title, sets and the party pass (`31ed40c0 @3291c355`) through `3291b4b0`.
 Identify and port it whole. Kickoff `kickoffs/skill-system-core/S7p.md`.
 
+- **Routed (user, 2026-10-19, Rule 9):** this is not run in the skill plan. It is the character window's display total. The
+  combat sums (S7k unit aggregate, S7m sources) are already June's, so what remains is a UI reader, and it goes to backlog
+  **Stage 9 (UI sweep)**. The kickoff stays as the brief for that stage, including the S7m review's `32350b80` group-test note.
+  The skill plan owes nothing here.
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.
@@ -2514,6 +2568,8 @@ The snapshot and its four consumers are left to the S8 review's Ghidra compariso
 - Make sure the checklist rows from S3 and S4 are in place.
 - Update memory.
 - Turn `SERV_IRUHADEV_JUNE_SKILL_DEBUG` off, unless a phase recorded a reason to keep it.
+- Check that every row of "Phase list as run" is done or routed (Rule 9), and that each routed item appears in its target
+  stage (S7o in june-dungeons C3z-8, S7p in backlog Stage 9, S7m's item vectors in Stage 16).
 
 ## Open questions (planning, 2026-10-17)
 

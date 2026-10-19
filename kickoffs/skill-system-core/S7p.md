@@ -1,5 +1,8 @@
 # June skill system core - Phase S7p - June's character-window socket total ( GetMyEquippedSocketData )
 
+> **Routed (user, 2026-10-19, scope rule): not run in skill-system-core.** This is the brief for backlog **Stage 9 (UI sweep)**
+> (`JUNE_PORT_BACKLOG_ORDER.md`, Stage 9, "June's character-window socket total"). Run it when Stage 9 is planned, not as `/x2-phase skill-system-core S7p`.
+
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase skill-system-core S7p` |

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase skill-system-core Z` |
 | Plan doc | `JUNE_SKILL_SYSTEM_PHASES.md` (branch `main`) |
-| Depends on | S0a-S8 done or routed |
+| Depends on | S0a-S8 done or routed (all are, 2026-10-19: S7o -> june-dungeons C3z-8, S7p -> backlog Stage 9) |
 | Flag | none (turns `SERV_IRUHADEV_JUNE_SKILL_DEBUG` off unless a phase kept it) |
 | Log tag | `[JUNE_SKILL]` (`python tools/logs.py --tag JUNE_SKILL`) |
 | Review | none |

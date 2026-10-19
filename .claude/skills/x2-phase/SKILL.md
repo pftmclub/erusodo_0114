@@ -115,6 +115,11 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    from flagcheck, the deploy line, per-item "how to see it in game", open questions for the
    user. **Keep it under ~60 lines**; long RE tables go to a
    `.tsv` (e.g. `june2017_re/funcmap.tsv`) or the plan's archive file, and the note links them.
+   **Branches you found but did not port**: apply the scope rule (`JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules",
+   *Scope*; user 2026-10-19). Add a new phase to *this* plan only if the branch is the plan's subject or playability
+   needs it. Anything that drifts is identified in the note, together with its related branches, and gets its own plan
+   in this session: a bullet and brief in the stage that owns it, or a new backlog stage with
+   `kickoffs/june-backlog/stageN-plan.md`. Never chase the call graph phase after phase, and never drop a branch.
 4. **STATUS.md**: update this phase's row (state, commit, what the user owes) in the same commit.
 5. **Review kickoff**: if the phase needs a review and `kickoffs/<plan>/<phase>-review.md` does
    not exist, write it from `kickoffs/TEMPLATE-review.md`. After a review, write or check the

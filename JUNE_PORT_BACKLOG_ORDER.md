@@ -75,6 +75,16 @@ Planning sessions are read-only, and can run any time. Stage 2 *planning* can st
 
 Stages 5–8 are the long pole. Stages 0–4 are prerequisites or self-contained content, so finishing them first means the character work is pure repetition and not discovery.
 
+**Priority (user, 2026-10-19).** Once Stage 3 closes and the quest system (Stage 4) finishes, the order is:
+1. pilot character revamp (5);
+2. transcendence (6);
+3. the remaining March characters (7);
+4. the new characters (8);
+5. the UI sweep (9).
+
+The scattered systems (Stages 10-26, and any stage the scope rule adds) come after. They stay in reach because each has a
+brief, and one moves earlier only when it blocks playability. See *Scope* under "Standing rules".
+
 ---
 
 ## Facts behind the order
@@ -377,6 +387,10 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   that `CKTDGGFXManager` already carries (`openUI`, `ShowUI`, `HideUI`, `loadUserWidget`, `unloadWidget`, `showOkPopup`, `changeCharacter`, `clearFocus`, ...): June uses 13 adapter / callback pairs and about 39 `DW_*` wrappers,
   none ported (`june2017_re/g0_gfx_map.tsv`, funcmap `GFx G0` / `GFx G2`). The runtime pieces a screen needs are there: loader, kom-first opener, font config "US", data bindings (G3's wrapper), listener / adapter table, `SimpleWidgetPlayer`.
   The IME text field stand-in (id 0) and the resize path (DXUT reset) are G2's placeholders for the first screen that needs them.
+- **June's character-window socket total** (handed here by skill-system-core S7p, user 2026-10-19, scope rule). June `3291ba40( out, group )` / `3291cee0` / `3291cfb0` / `3291b4b0`
+  are June's form of March's `CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`, read at `:1423`): an equip-group filter (`3286a4b0`; `32350b80`'s group test, S7m review), riding pet, title,
+  sets and the party pass (`31ed40c0`, already ported as `CX2Unit::JuneGetPartyShareSocketOptions`). The combat sums are June's since S7k / S7m; only this display total is March-shaped.
+  Brief: `kickoffs/skill-system-core/S7p.md` (identify, then port whole; June-only item data `+0x8c` / `+0x9c` / `+0xac` stays with Stage 16).
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
@@ -812,6 +826,24 @@ ORDER  BY UnitClass;
 
 - **Sources.** Read June Lua only from `june_src_fixed/`. Use the `june2017_re/` tools only to extract files missing there ([[june-lua-from-june-src-fixed]]). June C++ behaviour comes from the binary in Ghidra and cites the function address. Never port raw offsets.
 - **No partial June updates** ([[no-partial-june-updates]]). If June changed a function March already has, port June's whole version in the same pass.
+  This covers the function's own body. Its callees are separate functions, and the scope rule below decides each one.
+- **Scope: the plan's subject and the playable path, not the whole call graph (user, 2026-10-19).** When a phase finds a June
+  branch it does not own:
+  1. **Port it in this phase** if it is part of the function being ported, or if this phase's feature does not work without it.
+  2. **Give it a phase in the current plan** only if it is the plan's subject, or if the game is not playable without it:
+     a crash, a softlock, blocked progression, or wrong combat numbers on a path the player hits.
+  3. **Otherwise it has drifted.** Do not add it to the current plan. Instead:
+     - **Identify it.** In the Done note, give its June addresses, what it is, which March code it maps to, whether it is
+       reachable offline, and the branches that belong with it (its related callers, data and UI). Add funcmap rows.
+     - **Give it a plan of its own, in the same session.** If an existing stage or plan owns the subject (UI -> Stage 9,
+       item data -> Stage 16, dungeons -> june-dungeons, character material -> the checklist), add a bullet to that stage's
+       section with the addresses and a brief. If none does, add a **new backlog stage**: a row in "The order at a glance",
+       a "Stage N" section, and a planning brief `kickoffs/june-backlog/stageN-plan.md` (`/x2-phase new-plan <key>`).
+       Group related findings into one stage, not one stage per function.
+     - **Leave the call site honest.** Keep March's behaviour there, or stub it with a log line. Never use a guessed value.
+  4. Drifted work is deferred, never dropped: each item has an owner and a brief, so it gets done in its stage's turn.
+     Choose the bucket yourself and say so in the hand-off. Ask the user only when you cannot tell whether an item
+     affects playability.
 - **June wins, even when it removes a feature** ([[june-behaviour-wins-even-when-it-removes-features]]), and June's asset wins at the same filename ([[june-asset-wins-over-march-at-same-filename]]).
 - **Flags.** Every client change is behind a `SERV_IRUHADEV_` flag in `KTDXLIB/Always.h`, with the original code kept in `#else` and the `#endif FLAG` style. Shared-header changes are flag-gated and offline-only (decision above).
 - **Shared-struct flags must reach every project that sees the struct.**
