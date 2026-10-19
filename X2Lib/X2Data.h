@@ -331,6 +331,12 @@ class CX2Data : public CKTDXStage
 		CX2SlideShot* ResetSlideShot();
 		CX2SlideShot* GetSlideShot(){ return m_pSlideShot; }
 		void DeleteSlideShot() { SAFE_DELETE( m_pSlideShot); }
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+		/// quest-system Q10: June g_pData +0x570, { m_iEpisodeGroupID: { completed quest id that has a story } }, rebuilt by
+		/// CX2QuestManager::JuneRebuildStoryBookQuest ( 32335f50 ) and read by the story book ( CX2UIStoryBook, Q10c )
+		const std::map< int, std::set<int> >& GetJuneStoryBookQuestMap() const { return m_mapJuneStoryBookQuest; }
+		void SetJuneStoryBookQuestMap( const std::map< int, std::set<int> >& mapStoryBook_ ) { m_mapJuneStoryBookQuest = mapStoryBook_; }
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 
 		//{{ kimhc // 2011-07-05 // 옵션데이타 수치화 작업
 		CX2SocketItem* ResetSocketItem( const WCHAR* pFileName, const WCHAR* pFormulaFileName_ );
@@ -625,6 +631,9 @@ class CX2Data : public CKTDXStage
 		CX2GFXEventScene*		m_pGFXEventScene;		/// June +0x274
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 		CX2SlideShot*			m_pSlideShot;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+		std::map< int, std::set<int> >	m_mapJuneStoryBookQuest;		/// June +0x570
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 		CX2SocketItem*			m_pCX2SocketItem;
 		CX2EnchantItem*			m_pCX2EnchantItem;
 

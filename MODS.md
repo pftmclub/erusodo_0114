@@ -4561,6 +4561,15 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UI` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD
 - **Review (2026-10-19).** June's developer suffix on the detail title (auth >= 2); NEW_QUEST_NOT without March's forbidden-quest give-up (`#else` of the flag in `X2UIQuestNew.cpp`). Same revert.
 - **Revert:** comment out the define, restore the three DLGs from `24965799\kom_contents_bytecode\data034_kom\` (or the backup above), drop the 10 `UQNCM_*` lines from `Enum.lua` (`luasrc.py refresh`), `kom.py pack` data034 / data036, ask, copy; `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No save change.
 
+### June quest system: story book data (quest-system Q10, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_STORY` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD`, `JUNE_QUEST_RUNTIME`, `JUNE_QUEST_UI`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q10 - Done"; log tag `[JUNE_QUEST] STORY`.
+- **Client.** New `X2Lib/X2SlideShotScriptedManager.{h,cpp}` (June `CX2SlideShotScriptedManager`, Lua `g_pSlideShotManager`; listed in `X2Lib_2010.vcxproj`, inert with the flag off), bound in `X2Main.cpp`
+  (`AddStory`, `AddMediaInfo`), loaded by `X2Data::ResetQuestManager` and destroyed in `~CX2Data`. `X2QuestManager.h/.cpp`: `JuneRebuildStoryBookQuest` (June `32335f50`), called at the end of `SetUnitQuest`.
+  `X2Data.h`: `m_mapJuneStoryBookQuest`; `X2InstanceData.h/.cpp`: `m_bJuneStoryBookNew`. `X2UIQuestNew.cpp`: the complete ACK's story rebuild; `X2UIQuestNewJune.cpp`: the story Remind button.
+- **Data.** data036 `MediaInfoScript.lua` / `SlideShotScript.lua` = June's `ljconv` bytecode (new); core `Enum.lua` + June's `MEDIA_TYPE` table (`luasrc.py refresh`).
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The two Lua files and `MEDIA_TYPE` may stay (nothing reads them with the flag off). No save change.
+
 ### June quest system: region quest gates (quest-system Q6, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_QUEST_GATE` in `KTDXLIB/Always.h` (no dependency). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q6 - Done"; log tag `[JUNE_QUEST] GATE`.

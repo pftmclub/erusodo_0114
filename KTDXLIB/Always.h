@@ -9447,3 +9447,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_RENDER_STAGE_SPLIT
 #endif SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q10 - the story book's data. June's CX2SlideShotScriptedManager ( Lua g_pSlideShotManager,
+//              singleton 326ab210 ): MediaInfoScript.lua ( AddMediaInfo 326a8e10, the book's rows ) and SlideShotScript.lua
+//              ( AddStory 326a9890, each story quest's cut scenes ), loaded after the quest scene data ( 3258c470 @32590879 ); the
+//              rebuild 32335f50 ( g_pData +0x570 = completed quests with a story by episode group, g_pInstanceData +0xabd = the
+//              Story_New mark ) at SetUnitQuest and a story quest's complete ACK; the quest window's story Remind button ( 323ccbc0
+//              case 6 ). New files X2SlideShotScriptedManager.*. The slide-show player is Q10b, the book UI Q10c, the menu-bar
+//              button Stage 9. Revert: comment out this define.
+#define SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+#ifndef SERV_IRUHADEV_JUNE_QUEST_LOAD
+#error SERV_IRUHADEV_JUNE_QUEST_STORY needs SERV_IRUHADEV_JUNE_QUEST_LOAD ( QT_STORY, m_iEpisodeGroupID, the quest loader it extends )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifndef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+#error SERV_IRUHADEV_JUNE_QUEST_STORY needs SERV_IRUHADEV_JUNE_QUEST_RUNTIME ( June's SetUnitQuest, where the rebuild runs )
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+#ifndef SERV_IRUHADEV_JUNE_QUEST_UI
+#error SERV_IRUHADEV_JUNE_QUEST_STORY needs SERV_IRUHADEV_JUNE_QUEST_UI ( QSS_COMPLETE_STORY and the June Remind button )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
+//////////////////////////////////////////////////////////////////////////

@@ -25,6 +25,9 @@ using boost::bind;
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #include "X2GFXEventScene.h"
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+#include "X2SlideShotScriptedManager.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 void JuneGfxCutIn_LUA( const char* szName );	/// X2GUUser.cpp
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
@@ -3594,6 +3597,12 @@ void CX2Main::RegisterLuabind()
 #ifdef DAY_OF_THE_WEEK_QUEST
 	lua_tinker::class_def<CX2QuestManager>( L, "AddAccountQuestDate",					&CX2QuestManager::AddAccountQuestDate_LUA );
 #endif //DAY_OF_THE_WEEK_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+	/// quest-system Q10: June 31d95080 @31e44321 ( class name ), AddStory @31e44599 ( 326a9890 ), AddMediaInfo @31e446e1 ( 326a8e10 )
+	lua_tinker::class_add<CX2SlideShotScriptedManager>( L, "CX2SlideShotScriptedManager" );
+	lua_tinker::class_def<CX2SlideShotScriptedManager>( L, "AddStory",		&CX2SlideShotScriptedManager::AddStory_LUA );
+	lua_tinker::class_def<CX2SlideShotScriptedManager>( L, "AddMediaInfo",	&CX2SlideShotScriptedManager::AddMediaInfo_LUA );
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 
 #ifdef	X2OPTIMIZE_ITEM_TEMPLET_PREPROCESSING
     // 아이템 데이타 전처리용 proxy 루아함수 바인드, robobeg

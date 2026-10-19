@@ -3,6 +3,9 @@
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #include "X2GFXEventScene.h"
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+#include "X2SlideShotScriptedManager.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 
 //{{ Iruha : 2026-08-31 // offline mode
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -1137,6 +1140,9 @@ CX2Data::~CX2Data(void)
 #ifdef EVENT_SCENE
 	SAFE_DELETE( m_pEventScene );
 #endif EVENT_SCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+	CX2SlideShotScriptedManager::DestroyInstance();		/// June 31eee020
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 	SAFE_DELETE( m_pGFXEventScene );		/// before the particle systems: a scene still playing gives its black layout back
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
@@ -1951,6 +1957,13 @@ CX2QuestManager* CX2Data::ResetQuestManager( const WCHAR* pQuestFileName, const 
 	// The census line goes last. ChainCashItem.lua is cash-shop data ( backlog Stage 16 ), not loaded here.
 	m_pQuestManager->LoadChainQuestInfo();
 	m_pQuestManager->LoadQuestEventSceneInfo();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+	// June 3258c470 @32590879..32590885, after the scene data: the story-book data is destroyed ( 326ab290 ), made ( 326ab210 ) and loaded
+	// ( 326a8d40: MediaInfoScript.lua, then SlideShotScript.lua )
+	CX2SlideShotScriptedManager::DestroyInstance();
+	CX2SlideShotScriptedManager::GetInstance()->Load();
+	CX2SlideShotScriptedManager::GetInstance()->LogLoadCensus();
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 	m_pQuestManager->LogLoadCensus( NULL != m_pGuildManager ? m_pGuildManager->GetGuildCoopQuestRewardRowCount() : 0 );
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 	return m_pQuestManager;

@@ -1844,6 +1844,7 @@
     <ClInclude Include="X2Eqip.h" />
     <ClInclude Include="X2EventScene.h" />
     <ClInclude Include="X2GFXEventScene.h" />
+    <ClInclude Include="X2SlideShotScriptedManager.h" />
     <ClInclude Include="X2EXPTable.h" />
     <ClInclude Include="X2BattleFieldManager.h" />
     <ClInclude Include="X2FieldMapBase.h" />
@@ -2802,6 +2803,7 @@
     <ClCompile Include="X2Eqip.cpp" />
     <ClCompile Include="X2EventScene.cpp" />
     <ClCompile Include="X2GFXEventScene.cpp" />
+    <ClCompile Include="X2SlideShotScriptedManager.cpp" />
     <ClCompile Include="X2EXPTable.cpp" />
     <ClCompile Include="X2BattleFieldManager.cpp" />
     <ClCompile Include="X2FieldMapBase.cpp" />

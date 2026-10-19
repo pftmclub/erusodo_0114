@@ -9,6 +9,9 @@
 #ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
 #include "X2GFXEventScene.h"
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+#include "X2SlideShotScriptedManager.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 
 //{{ Iruha : 2026-09-04 // HUD portrait after a quest job change
 #ifdef SERV_IRUHADEV_JOBCHANGE_PORTRAIT
@@ -1648,6 +1651,19 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 				g_pData->GetEventScene()->PlayEventScene(wstrEndSceneID);
 			}
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+			// June 323e57e0 @323e5a03..323e5a6d: a completed QT_STORY quest that has a story ( 326a7d50 ) rebuilds the story book with the
+			// Story_New mark on ( 32335f50( 1 ) ). June then starts the story's slide show ( g_pData +0x288 328c3750 ) and, when it started,
+			// sets g_pInstanceData +0xabc ( the end message ): Phase Q10b ports the player.
+			{
+				const CX2QuestManager::QuestTemplet* pJuneStoryTemplet = g_pData->GetQuestManager()->GetQuestTemplet( kEvent.m_kCompleteQuestInfo.m_iQuestID );
+				if( NULL != pJuneStoryTemplet && CX2QuestManager::QT_STORY == pJuneStoryTemplet->m_eQuestType &&
+					true == CX2SlideShotScriptedManager::GetInstance()->HasStory( pJuneStoryTemplet->m_iID ) )
+				{
+					g_pData->GetQuestManager()->JuneRebuildStoryBookQuest( true );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 
 			// 미니맵 아이콘 업뎃해주고
 			UpdateNewQuestNotice();

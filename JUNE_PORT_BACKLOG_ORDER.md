@@ -346,6 +346,15 @@ Everything from Stages 5 and 6, plus:
 
 Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.
 
+- **June's menu bar and its StoryBook button** (handed here by quest-system Q10, user 2026-10-19: "no opener; Stage 9 owns it").
+  - June opens the story book (quest-system Q10c's `CX2UIStoryBook`, UI manager menu 0x2f) only from the `StoryBook` button of June's own
+    `DLG_Menu_Button_NEW.lua` (data034; `DLG_UI_Button27` sheet, slot layout `MBW_GET_SLOT_LEFT_TOP`, 18 `STATE_MENU_UI_CUSTOM_MSG` ids, the
+    `EXP_Y` gauge skill S7i held back). March still runs its own bar, so the book has only a dev-console opener until this lands.
+  - The button: `SMUCM_STORY_BOOK` 181 -> state-menu handler `32478e90` (in `32476050`): `ToggleUI( 0x2f, !IsShow( 0x2f ), 0, 0 )`, then
+    `g_pInstanceData +0xabd = 0` (`32478ecc`). The `Story_New` mark: `324708c0` @32471129 shows it from `+0xabd` (hidden in state 0xb); placed by
+    `3245cba0`, the bar layout `3245bb70`. Quest-system Q10 writes `+0xabd` (`CX2InstanceData::m_bJuneStoryBookNew`).
+
+
 - **Effect-alpha option UI** (handed here by june-effect D9, user 2026-10-06).
   - June-effect C10b-2 builds the engine: the three values in `GameOptions.lua` under June's keys (`MY_EFFECT_ALPHA`,
     `MY_TEAM_EFFECT_ALPHA`, `ANOTHER_TEAM_EFFECT_ALPHA`), and `CKTDXApp::SetEffectAlpha` / `GetEffectAlpha`.

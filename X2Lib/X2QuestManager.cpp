@@ -3,6 +3,9 @@
 #if defined(SERV_IRUHADEV_JUNE_QUEST_LOAD) && defined(SERV_IRUHADEV_OFFLINE)
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+#include "X2SlideShotScriptedManager.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 
 //{{ √÷πŒ√∂ [2013/1/4]  ∞‘¿”≥ª ¡§∫∏ Ω∫∆Æ∏µ¿ª ø¢ºø∆ƒ¿œ∑Œ √‚∑¬
 #ifdef PRINT_INGAMEINFO_TO_EXCEL
@@ -1191,6 +1194,10 @@ void CX2QuestManager::SetUnitQuest( const std::vector<KQuestInstance>& vecQuestI
 	// June 32336e80 @32337287: the chain startable map is rebuilt once the completed list is known ( 32335f50, the story-book rebuild that follows it, is not ported: no consumer )
 	RebuildChainQuestStartable();
 #endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+	// June 32336e80 @3233728c..32337290: then the story-book rebuild, with the Story_New mark off ( quest-system Q10 )
+	JuneRebuildStoryBookQuest( false );
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef REFORM_NOVICE_GUIDE
 	if( NULL != g_pData && NULL != g_pData->GetPlayGuide() &&
 		NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit())
@@ -3716,6 +3723,37 @@ void CX2QuestManager::LogLoadCensus( int iGuildCoopRows_ ) const
 #endif SERV_IRUHADEV_OFFLINE
 }
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+/// Q10. June 32335f50 ( SetUnitQuest 32336e80 @32337290 passes false, the complete ACK 323e57e0 @323e5a45 true ). The story book's map
+/// g_pData +0x570 = { m_iEpisodeGroupID ( templet +0x1b4 ): { quest id } } is rebuilt from every completed quest ( +0x38 ) whose templet is in
+/// the manager's own map ( +0x08, not GetQuestTemplet ), passes the server-group test ( -1 or the instance's group ) and has a story
+/// ( 326ab090 ). Then g_pInstanceData +0xabd = bNewStory_. The book shows a group's thumbnails from this map ( Q10c ).
+void CX2QuestManager::JuneRebuildStoryBookQuest( bool bNewStory_ )
+{
+	std::map< int, std::set<int> > mapStoryBook;
+	const CX2SlideShotScriptedManager* pSlideShotManager = CX2SlideShotScriptedManager::GetInstance();
+	int iQuest = 0;
+	for( map<int,int>::const_iterator cit = m_mapCompleteQuest.begin(); cit != m_mapCompleteQuest.end(); ++cit )
+	{
+		map<int,QuestTemplet*>::const_iterator tit = m_mapQuestTemplet.find( cit->first );
+		if( m_mapQuestTemplet.end() == tit || NULL == tit->second )
+			continue;
+		const QuestTemplet* pQuestTemplet = tit->second;
+		if( -1 != pQuestTemplet->m_iServerGroupID && g_pInstanceData->GetServerGroupID() != pQuestTemplet->m_iServerGroupID )
+			continue;
+		if( NULL == pSlideShotManager->GetStory( pQuestTemplet->m_iID ) )
+			continue;
+		mapStoryBook[ pQuestTemplet->m_iEpisodeGroupID ].insert( pQuestTemplet->m_iID );
+		++iQuest;
+	}
+	g_pData->SetJuneStoryBookQuestMap( mapStoryBook );		// @323361ff
+	g_pInstanceData->SetJuneStoryBookNew( bNewStory_ );		// @32336268
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_QUEST] STORY rebuild: completed quests %d, with a story %d, episode groups %d, Story_New mark %d",
+		static_cast<int>( m_mapCompleteQuest.size() ), iQuest, static_cast<int>( mapStoryBook.size() ), bNewStory_ ? 1 : 0 );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 //////////////////////////////////////////////////////////////////////////
 // Q3. June's quest manager runtime: the chain rule, the week / month repeat expiry, the any-dungeon test and the class-up quest state.

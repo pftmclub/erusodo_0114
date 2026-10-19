@@ -1,0 +1,45 @@
+function	order	use_va	key	string_kind	reader	type	default	stored_at	note
+AddMediaInfo 326a8e10	0	326a8e4f	(arg table)	Lua stack idx 1 via 32fead40(L,1,0); ECX=this (manager) saved at ESP+0x18		table		local MediaInfo S at ESP+0x48 built by ctor 326af8b0	S = {byte IsCategory@+0, MediaType@+4, UnitType@+8, MediaGroup@+0xc, Title@+0x10, map<int,MediaFile>@+0x14 (proxy +0x14, head +0x18, size +0x1c)}
+AddMediaInfo 326a8e10	1	326a8eaf	Title	XOR	32fe9fd0 (lua isnumber -> tonumber -> ftol)	int	-1	S+0x10 -> elem+0x10 (ESP+0x58)	STR_ID
+AddMediaInfo 326a8e10	2	326a8f64	IsCategory	XOR	32fe9e40 (isnumber, value != 0)	bool (byte)	false	S+0 -> elem+0	True/False are Lua numbers; a real boolean is not isnumber so reads as default false. If nonzero: MediaGroup and MediaFile are NOT read (jump 326a980d at 326a920a)
+AddMediaInfo 326a8e10	3	326a9065	MediaType	XOR	32fe9fd0	int	0	S+4 -> elem+4 (ESP+0x4c)	MEDIA_TYPE.STORY_BOOK
+AddMediaInfo 326a8e10	4	326a9158	UnitType	XOR	32fe9fd0	int	0	S+8 -> elem+8 (ESP+0x50)	read before the IsCategory test
+AddMediaInfo 326a8e10	5	326a924a	MediaGroup	XOR	32fe9fd0	int	0	S+0xc -> elem+0xc (ESP+0x54)	only when IsCategory==0
+AddMediaInfo 326a8e10	6	326a9352 (plain 334b33b8)	MediaFile	plain ASCII	32fe9940 (push field, must be table)	table (array)	absent -> no entries		only when IsCategory==0; array i=1..n via 32fe99b0(i); loop stops at the first non-table element
+AddMediaInfo 326a8e10	6.1	326a9442	MediaFile[i].QuestID	XOR	32fe9fd0	int	0	map key (node+0xc) of map<int,MediaFile> at elem+0x14	insert 326ae600; duplicate QuestID: new node destroyed+freed, FIRST wins
+AddMediaInfo 326a8e10	6.2	326a9505	MediaFile[i].Title	XOR	32fe9fd0	int	-1	node+0x48 (MediaFile+0x38)	STR_ID
+AddMediaInfo 326a8e10	6.3	326a95ab	MediaFile[i].Tga	XOR	32feae90 (isstring; Lua UTF-8 -> wide, codepage 0xfde9)	wstring	empty	node+0x10 (MediaFile+0x00)
+AddMediaInfo 326a8e10	6.4	326a9628	MediaFile[i].Tet	XOR	32feae90	wstring	empty	node+0x2c (MediaFile+0x1c)
+AddMediaInfo 326a8e10	7	326a9812	(store)		326b0660 push_back (ECX = this+0x10)			manager+0x10 vector<MediaInfo> stride 0x24 (first/last/end at +0x10/+0x14/+0x18); element +0x20 unused; map deep-copied by 326af660/326aed70	accessor 326a7cd0 returns manager+0x10. Dead: a 0x38-byte tree head is allocated at 326a9317 inside the non-category branch, never filled, cleared at 326a97c1
+AddStory 326a9890	0	326a98ec	(arg table)	Lua stack idx 1 via 32fead40		table		this = EDI
+AddStory 326a9890	1	326a9924	Quest_ID	XOR	32fe9fd0	int	-1	map key (node+0xc) of manager+4 map<int, vector<CutScene>>
+AddStory 326a9890	2	326a99cd (plain 334b3424)	Cut_Scene_List	plain ASCII	32fe9940	table	absent -> story still stored with an EMPTY vector
+AddStory 326a9890	3	326a9a0e (plain 334b3418, fmt 33449104)	Cut_Scene<i>	plain; key built by 31c7b920(buf,0xff,"%s%d","Cut_Scene",i)	32fe9940	table			one CutScene (0x88 B) per index; i starts at 0; loop ends at the FIRST missing index; the entries are string-named, not an array
+AddStory 326a9890	3.0	326a9a50	(CutScene ctor 326af720)				cs+0x00..0x10 = 0, cs+0x14 = -1, cs+0x18 = -1, cs+0x1c wstring empty, vectors +0x38/+0x48/+0x58/+0x68/+0x78 empty	CutScene base B (ESP+0x13c)	size 0x88
+AddStory 326a9890	3.1	326a9aa2	Scene_Duration	XOR	32fea370 (isnumber -> tonumber -> float)	float	7.0 (_DAT_334729f0 = 0x40e00000)	cs+0x00	absent in 225 of 1655 scenes in the shipped file -> 7.0
+AddStory 326a9890	3.2	326a9bbf (plain 334b3408)	Scene_BGM_List	plain	32fe9940 + array i=1..	array of table	absent -> none	cs+0x58 vector<{float,wstring}> stride 0x20 via 326aefb0 (ECX = ESP+0x194)
+AddStory 326a9890	3.2.1	326a9c50	Scene_BGM_List[i].BGM_Name	XOR	32feae90	wstring	empty	elem+4	read before BGM_Time
+AddStory 326a9890	3.2.2	326a9d31	Scene_BGM_List[i].BGM_Time	XOR	32fea370	float	0.0	elem+0
+AddStory 326a9890	3.3	326a9e50 (plain 334b33f8)	Background_List	plain	32fe9940 + array	array of table	absent -> none	cs+0x38 vector<{float,wstring}> stride 0x20 via 326aefb0 (ECX = ESP+0x174)
+AddStory 326a9890	3.3.1	326a9eef	Background_List[i].BG_Name	XOR	32feae90	wstring	empty	elem+4	particle sequence name
+AddStory 326a9890	3.3.2	326a9fcb	Background_List[i].Start_Time	XOR	32fea370	float	0.0	elem+0
+AddStory 326a9890	3.4	326aa0f1 (plain 334b33ec)	Sound_List	plain	32fe9940 + array	array of table	absent -> none	cs+0x48 vector<{float,wstring,byte}> stride 0x24 via 326af070 (ECX = ESP+0x184)	NOT used by the shipped SlideShotScript.lua
+AddStory 326a9890	3.4.1	326aa19a	Sound_List[i].Sound_Name	XOR	32feae90	wstring	empty	elem+4	unused by file
+AddStory 326a9890	3.4.2	326aa2a6	Sound_List[i].Start_Time	XOR	32fea370	float	0.0	elem+0	unused by file
+AddStory 326a9890	3.4.3	326aa3a2	Sound_List[i].Stop_All	XOR	32fe9e40	bool	false	elem+0x20 (byte)	unused by file
+AddStory 326a9890	3.5	326aa782 (plain 334b33e0)	Scene_List	plain	32fe9940 + array	array of table	absent -> none	cs+0x78 vector<{float,wstring}> stride 0x20 via 326aefb0 (ECX = ESP+0x1b4)
+AddStory 326a9890	3.5.1	326aa54d	Scene_List[i].Scene_Name	XOR	32feae90	wstring	empty	elem+4	particle sequence name; runtime key "<cutIdx>_<listIdx>"
+AddStory 326a9890	3.5.2	326aa65c	Scene_List[i].Start_Time	XOR	32fea370	float	0.0	elem+0
+AddStory 326a9890	3.6	326aad76 area (plain 334b33d4)	Scene_Text	plain	32fe9940 (single table, not an array)	table	absent -> cs defaults (Speaker -1, Text -1, floats 0, Color empty)
+AddStory 326a9890	3.6.1	326aa821	Scene_Text.Name_Left	XOR	32fe9e40	bool	false	cs+0x10
+AddStory 326a9890	3.6.2	326aa90c	Scene_Text.Speaker	XOR	32fe9fd0	int	-1	cs+0x14	-1 = no speaker name (745 scenes in the file)
+AddStory 326a9890	3.6.3	326aa9bd	Scene_Text.Text	XOR	32fe9fd0	int	-1	cs+0x18	-1 = no text; STR_ID
+AddStory 326a9890	3.6.4	326aaa62	Scene_Text.Spread_Rate	XOR	32fea370	float	0.0	cs+0x0c
+AddStory 326a9890	3.6.5	326aab66	Scene_Text.Color	XOR	32feae90	wstring	empty	cs+0x1c (assigned by 31f54910)
+AddStory 326a9890	3.6.6	326aac22	Scene_Text.Start_Time	XOR	32fea370	float	0.0	cs+0x04	cs+0x08 is copied from a zero local and never read
+AddStory 326a9890	3.7	326aad76 area (plain 334b33c4)	Scene_Delete	plain	32fe9940 + array	array of table	absent -> none	cs+0x68 vector<{float,std::string}> stride 0x20 via 326af180
+AddStory 326a9890	3.7.1	326aadff	Scene_Delete[i].Key	XOR	32feb110 (isstring -> narrow std::string)	string	empty	elem+4	names the runtime key of a Scene_List entry: "<cutIdx>_<listIdx>" (e.g. 3_0)
+AddStory 326a9890	3.7.2	326aae7c	Scene_Delete[i].Time	XOR	32fea370	float	0.0	elem+0
+AddStory 326a9890	3.8	326aaf4c	(post-process)		326a8d70			std::sort ascending on the leading float of every vector: 326af240 (+0x68), 326af330 (+0x38,+0x58,+0x78), 326af420 (+0x48); compare funcs 326ac130 / 326ac530	then 326b0320 push_back into the story vector (stride 0x88)
+AddStory 326a9890	4	326aaffc..326ab020	(store)		326b0760 (copy vector), 326b0a90 (alloc 0x24 node), 326b0ea0 (unique insert)			manager+4 map<int QuestID, vector<CutScene>> (value at node+0x10: first/last/end at +0x10/+0x14/+0x18); duplicate Quest_ID dropped, FIRST wins	lookup 326ab090 -> 326b10e0 returns node+0x10, or 0 when not found; 326a7d50 is the exists() test
+NOT READ by AddStory	-	(no plain string in the exe, no XOR entry)	BlackLayoutMove (and its Time / Duration)						none	present in 82 of 82 stories of the shipped file, ignored by the reader

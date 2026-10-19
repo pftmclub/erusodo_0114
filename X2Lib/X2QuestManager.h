@@ -953,6 +953,9 @@ class CX2QuestManager
 
 		const QuestTemplet*		GetQuestTemplet( int questID );
 		const SubQuestTemplet*	GetSubQuestTemplet( int subQuestID );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+		void	JuneRebuildStoryBookQuest( bool bNewStory_ );		// 32335f50: g_pData +0x570 from the completed quests that have a story, +0xabd = bNewStory_
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
 		/// Q3. June's chain rule ( ChainQuestInfo AllowFewDays / TestMinute ), the week / month repeat expiry and two small predicates. June addresses on each line.
 		bool	IsChainQuestInProgress( int iChainID_ );					// 323229d0: a quest of the chain is in progress

@@ -25,6 +25,9 @@
 
 #include ".\X2UIQuestNew.h"
 #include "Offline/X2OfflineLog.h"
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+#include "X2SlideShotScriptedManager.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 
 // ---------------------------------------------------------------------------------------------------------------------
 // small helpers
@@ -1551,8 +1554,24 @@ void CX2UIQuestNew::JuneUpdateQuestButton()
 		pButtonAccept->RequestFocus();
 		break;
 	case QSS_COMPLETE_STORY:
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+		// June 323ccbc0 case 6 ( @323cd3a7..323cd409, quest-system Q10 ): a story quest with a story ( 326ab210 -> 326ab090 ) shows the remind
+		// button, enabled and focused in a village / field ( June's states 0xe..0xf / 0x15; 0xf is the guild agit, which March lacks ), shown
+		// disabled and still focused elsewhere; no story = hidden. The button replays the story ( UQNCM_QUEST_REMIND, Phase Q10b ).
+		if( NULL != CX2SlideShotScriptedManager::GetInstance()->GetStory( m_iSelectedQuestID ) )
+		{
+			if( true == JuneIsVillageOrBattleFieldState() )
+				pButtonRemind->SetShowEnable( true, true );
+			else
+				pButtonRemind->SetShowEnable( true, false );
+			pButtonRemind->RequestFocus();
+		}
+		else
+			pButtonRemind->SetShowEnable( false, false );
+#else SERV_IRUHADEV_JUNE_QUEST_STORY
 		// June 323ccbc0 case 6 ( @323cd3a7 ): the remind button needs the story-book singleton 326ab210 / 326ab090 ( Q10 ); until then it
 		// stays hidden, as June has it for a quest with no book entry
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 		break;
 	}
 }

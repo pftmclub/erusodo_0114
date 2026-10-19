@@ -934,6 +934,14 @@ public:
 		int		m_iJuneDeferredSceneQuestID;
 		int		m_iJuneDeferredSceneMode;
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+		/// Q10. June g_pInstanceData +0xabd: the menu bar's Story_New mark. Set by the story-book rebuild ( 32335f50 @32336268: true after a story
+		/// quest's complete ACK, false at SetUnitQuest ); the menu bar shows it ( 324708c0 @32471129 ) and its StoryBook button clears it
+		/// ( 32478ecc ): both are Stage 9's ( June's menu bar ).
+		void	SetJuneStoryBookNew( bool bNew_ ) { m_bJuneStoryBookNew = bNew_; }
+		bool	GetJuneStoryBookNew() const { return m_bJuneStoryBookNew; }
+		bool	m_bJuneStoryBookNew;
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 #ifdef SERV_4TH_ANNIVERSARY_EVENT
 		K4ThAnnivEventInfo					m_k4ThAnnivEventInfo;
 		std::vector< bool >					m_vec4ThAnnivEventRewardInfo;

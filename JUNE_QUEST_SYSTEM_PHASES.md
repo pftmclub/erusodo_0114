@@ -1186,6 +1186,72 @@ clean `ErrorLog.txt` (below). Sonnet did everything here.
 
 **Done gate:** completing a story quest adds it to the book; the book opens and lists the completed episodes. 0 EXCEPTION.
 
+**Split (2026-10-19, Q10's map):** Q10 = the data, the rebuild and the Remind button; the player is Q10b, the book UI Q10c, the menu-bar opener Stage 9 (user). The gate above is Q10c's.
+
+### Q10 - Done (2026-10-19, Opus 5.5 high)
+
+**Map (read-only).** The "story book" is three June pieces plus a menu button; the evidence is `june2017_re/quest_plan/q10_story_map.tsv` (85 rows),
+`q10_story_keys.tsv` (both parsers, key by key) and `q10_story_assets.tsv` (every file the data and dialogs name, June / March).
+- **Data:** `CX2SlideShotScriptedManager` (Lua `g_pSlideShotManager`, singleton `326ab210`, 0x20 B): `MediaInfoScript.lua` (AddMediaInfo `326a8e10`: 24 rows,
+  1 category + 23 episode groups, 81 files) and `SlideShotScript.lua` (AddStory `326a9890`: 82 calls, 81 stories, 1,655 cut scenes). Neither file was in March.
+- **Player:** an unnamed KTDGUI + particle class at `CX2Data +0x288` (ctor `328c34b0`, `DLG_NewSlideShot.lua`), started by the complete ACK, the Remind
+  handler and the book; not GFx. -> **Q10b**.
+- **Book:** `CX2UIStoryBook` (`32d75370`, `DLG_Story_Book.lua`), UI-manager menu 0x2f. -> **Q10c**.
+- **Opener:** only the `StoryBook` button of June's own menu bar (`SMUCM_STORY_BOOK` 181, `32478e90`) with the `Story_New` mark (`g_pInstanceData +0xabd`).
+  **User 2026-10-19: no opener here; Stage 9 owns June's menu bar** (handed in `JUNE_PORT_BACKLOG_ORDER.md` Stage 9). Q10c adds a dev-console opener.
+- **Overlap with Q0b / Q5a:** none in code. Q5a's Story tab lists story quests from Q1's `m_mapStoryQuest`; the book is keyed by the same `m_iEpisodeGroupID`
+  (June templet `+0x1b4`, = MediaInfo `MediaGroup`). Q5a's empty `QSS_COMPLETE_STORY` Remind case and Q5b's Remind note (@323e293d) are filled here / in Q10b.
+
+**Landed (this phase = the data side; flag `SERV_IRUHADEV_JUNE_QUEST_STORY`, needs `_LOAD` / `_RUNTIME` / `_UI`, all four ON by `flagprobe`).**
+- New `X2SlideShotScriptedManager.h/.cpp`: both parsers as June reads them (defaults Title / Speaker / Text -1, Scene_Duration 7.0, IsCategory rows skip
+  MediaGroup / MediaFile but are kept, `Cut_Scene%d` from 0 to the first gap, the five time sorts of `326a8d70`, first-wins inserts), `GetStory` (`326ab090`),
+  `HasStory` (`326a7d50`), the bindings `AddStory` / `AddMediaInfo` (`X2Main.cpp`, June 31d95080 @31e44599 / @31e446e1).
+- Load (`X2Data::ResetQuestManager`, June 3258c470 @32590879..32590885): destroy, make, `MediaInfoScript.lua` then `SlideShotScript.lua`; destroyed in `~CX2Data`.
+- `CX2QuestManager::JuneRebuildStoryBookQuest( bNew )` (`32335f50`) -> `CX2Data::m_mapJuneStoryBookQuest` (June `+0x570`) and
+  `CX2InstanceData::m_bJuneStoryBookNew` (June `+0xabd`, read only by Stage 9's menu bar); called from `SetUnitQuest` (false, @32337290) and the complete ACK
+  for a QT_STORY quest with a story (true, @323e5a45).
+- Remind button (`323ccbc0` case 6): a completed story quest with a story shows it (enabled in a village / field, disabled elsewhere, focused); none = hidden.
+  June's state 0xf there is the guild agit (March has none), so Q5a's village / field helper is used.
+- Lua: June's `MEDIA_TYPE` table added to core `Enum.lua` (data036, `luasrc.py refresh`); `MediaInfoScript.lua` / `SlideShotScript.lua` adopted as June's
+  ljconv bytecode (`adopt-june`, data036). `PACK OK data036` (+2 added, Enum changed). JUNE_BUGS 356 (BlackLayoutMove never read), 357 (43430 twice).
+- Not in Q10 (owned): the player and its starts, `+0xabc`, `DLG_NewSlideShot.lua`, 69 scene `.dds`, 1 BGM (Q10b); the book, menu 0x2f, `DLG_Story_Book.lua`,
+  `UI_STORY_BOOK_CUSTOM_MESSAGE`, Storycut / NoteOfSkill / Button20 textures (Q10c); the menu bar button and `Story_New` (Stage 9).
+
+**Hygiene.** `flagcheck JUNE_QUEST_STORY --worktree --files <12 files>`: `files: 10 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 1 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+The FAIL is `X2SlideShotScriptedManager.cpp`'s `#include "StdAfx.h"` (outside the flag for the PCH, as G3's new file). `luasrc.py ledger --check`: PASS.
+
+**Deploy.** `DEPLOY OK: X2_offline.exe is 25,446,400 B, dated 2026-10-19 18:00:54, md5 36fbf5def5d982244a330e179b7837dd, equal to X2/US_SERVICE/x2.exe (2026-10-19 18:00:46); built at main 14420b7d + 30 uncommitted code file(s).` (a peer's run at 18:00 compiled this phase's last edit; my run found nothing to relink). The exe holds `[JUNE_QUEST] STORY LOAD media rows`, `[JUNE_QUEST] STORY rebuild`, `MediaInfoScript.lua`, `SlideShotScript.lua`, `CX2SlideShotScriptedManager`. First run failed on my `Scene_Delete.Key` read (no `std::string` reader in the client's KLuaManager: read wide, narrowed) and on a peer's half-saved Q4b header (not touched).
+
+**How to see it.** Copy data036 (the game closed), log in with any unit and read `python tools/logs.py --grep "JUNE_QUEST\] STORY"`:
+`STORY LOAD media rows 24 ( ... 1 categories, 23 groups, 81 files, 81 with a story ) stories 81 ( AddStory calls 82 ) cut scenes 1655`, then one
+`STORY rebuild: ... Story_New mark 0` per SetUnitQuest. A completed story quest in the quest window's Story tab shows the Remind button (the replay is Q10b).
+Completing a story quest logs `STORY rebuild ... mark 1`.
+
+
+## Phase Q10b - Story slide-show player
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_STORY_PLAYER`. Sub-tag `STORY`. Split out of Q10 (2026-10-19): the map showed three classes.
+
+- Port June's player at `CX2Data +0x288` whole (reset `31edee40`, ctor `328c34b0`, Start `328c3750`, OnFrameMove `328c41f0`, next cut `328c3210`, End `328c3ae0`,
+  text `328c27d0`, the particle-key map), its starts (complete ACK @323e5a4a, Remind @323e293d), the end message (`g_pInstanceData +0xabc`) and the forced Ends
+  (`3243cec0`, `3243d1d0`, `3243d4e0`, `323080c0`). Rows: `q10_story_map.tsv` "manager+player".
+- Data: June's `DLG_NewSlideShot.lua` (data034, replaces March's; the tutorial `CX2SlideShot` shares it), the 69 `StoryQuest_*.dds` (data048), one BGM.
+
+**Done gate:** completing a story quest in a village plays its slide show and the end message; Remind on a completed story quest replays it. 0 EXCEPTION.
+
+## Phase Q10c - Story book UI
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_STORY_BOOK` (+ `_DEBUG` dev-console opener). Sub-tag `STORY`. Split out of Q10.
+
+- Port `CX2UIStoryBook` whole (`32d73c10`..`32d757a0`) and UI-manager menu 0x2f (`32158070`, `3214f1c0`, `3215a0d0`, `321524d0`, close-all, layer, dispatch).
+  Rows: `q10_story_map.tsv` "book UI".
+- Data: `DLG_Story_Book.lua` (data034), `UI_STORY_BOOK_CUSTOM_MESSAGE` into core `Enum.lua`, Storycut 01-05 (data057), June's NoteOfSkill_01 (data057) and
+  Button20 (data056) sheets.
+- The menu-bar button is Stage 9's (user, 2026-10-19).
+
+**Done gate:** the book opens from the dev console, lists the unit's episode groups, and a completed story quest's thumbnail plays its story. 0 EXCEPTION.
+
 ## Phase Q9 - Region walk
 
 **Run with:** Sonnet 5.5 medium, then a user play-test (batched).

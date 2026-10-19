@@ -118,6 +118,9 @@ m_bFirstJoinVillage(false)
 ,m_iJuneDeferredSceneQuestID(0)
 ,m_iJuneDeferredSceneMode(0)
 #endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
+,m_bJuneStoryBookNew(false)
+#endif SERV_IRUHADEV_JUNE_QUEST_STORY
 {
 
 #if defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ ) || defined( _OPEN_TEST_2_ )
