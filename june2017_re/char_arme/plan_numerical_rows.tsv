@@ -1,0 +1,111 @@
+c1a_numerical_blocks.tsv_line	file	templet	block	skill_id	june_skill_name	lookup	result	L1_value	L1_x0.01	L1_pvp_rate	L1_tech_point	L1_hit_add_mp	skill_in_march_templets
+4	DamageEffect.lua	AISHA_ELEMENTAL_MASTER_CYCLONE_OUTSIDE	DAMAGE_DATA	22011	Cyclone	INDEX 1	ok	208	2.08	0.4	75	1	False
+44	DamageEffect.lua	DAMAGE_EFFECT_ADW_MORNING_STAR_HIT	DAMAGE_DATA	22029	Impact Hammer	INDEX 1	ok	1246	12.46	0.26	750	10	False
+45	DamageEffect.lua	DAMAGE_EFFECT_ADW_SCREWDRIVER_FINISH	DAMAGE_DATA	22028	Screw Driver	INDEX 2	ok	178	1.78	0.4	63	0.83	False
+46	DamageEffect.lua	DAMAGE_EFFECT_ADW_SCREWDRIVER_Main	DAMAGE_DATA	22028	Screw Driver	INDEX 1	ok	2469	24.69	0.4	938	12.5	False
+47	DamageEffect.lua	DAMAGE_EFFECT_ADW_SCREWDRIVER_Sub	DAMAGE_DATA	22028	Screw Driver	INDEX 2	ok	178	1.78	0.4	63	0.83	False
+229	DamageEffect.lua	DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_ICE	DAMAGE_DATA	22600	Elemental Storm	INDEX 1	ok	951	9.51	0.24	234	3.13	False
+230	DamageEffect.lua	DAMAGE_EFFECT_SA_AEM_ELEMENTAL_STORM_LIGHTNING	DAMAGE_DATA	22600	Elemental Storm	INDEX 2	ok	735	7.35	0.24	170	2.27	False
+239	DamageEffect.lua	DAMAGE_EFFECT_SA_AVP_ABYSS_ANGOR_BEAM	DAMAGE_DATA	22601	Abyss Angkor	INDEX 1	ok	1099	10.99	0.24	268	3.57	False
+351	DamageEffect.lua	DamageEffect_ABM_Enegry_Drain_Hand_Attack	DAMAGE_DATA	22213	Energy Drain	INDEX 1	ok	646	6.46	0.4	100	0	False
+391	DamageEffect.lua	DamageEffect_AHM_Chain_Lightning	DAMAGE_DATA	22009	Chain Lightning	INDEX 1	ok	650	6.5	0.36	300	3.33	False
+527	DamageEffect.lua	DamageEffect_A_ABM_EnergyRoad	DAMAGE_DATA	22211	Energy Wave	INDEX 1	ok	997	9.97	0.36	200	0.67	False
+529	DamageEffect.lua	DamageEffect_A_ADM_DarkRoad	DAMAGE_DATA	22206	Dark Wave	INDEX 1	ok	997	9.97	0.36	200	0.67	False
+530	DamageEffect.lua	DamageEffect_A_ADM_DarkRoad	DAMAGE_DATA_ULTIMATE	22206	Dark Wave	INDEX 1	ok	997	9.97	0.36	200	0.67	False
+531	DamageEffect.lua	DamageEffect_A_AEM_CircleFlame	DAMAGE_DATA	22204	Circle Flame	INDEX 1	ok	138	1.38	0.4	67	0.22	False
+532	DamageEffect.lua	DamageEffect_A_AEM_CircleFlame	DAMAGE_DATA_NEXT	22204	Circle Flame	INDEX 2	ok	405	4.05	0.4	67	0.22	False
+533	DamageEffect.lua	DamageEffect_A_AEM_DarkRing_Explosion	DAMAGE_DATA	22225	Ring of Darkness	INDEX 1	ok	1898	18.98	0.36	250	2.5	False
+534	DamageEffect.lua	DamageEffect_A_AEM_EnergyRing_Explosion	DAMAGE_DATA	22226	Ring of Energy	INDEX 1	ok	1898	18.98	0.36	250	2.5	False
+535	DamageEffect.lua	DamageEffect_A_AEM_FireRing_Explosion	DAMAGE_DATA	22224	Ring of Fire	INDEX 1	ok	1898	18.98	0.36	250	2.5	False
+536	DamageEffect.lua	DamageEffect_A_AHM_FireRoad	DAMAGE_DATA	22201	Flame Wave	INDEX 1	ok	997	9.97	0.36	200	0.67	False
+733	DamageEffect.lua	DamageEffect_Elemental_Storm_Gust_Storm	DAMAGE_DATA	22600	Elemental Storm	INDEX 3	ok	1384	13.84	0.24	375	5	False
+738	DamageEffect.lua	DamageEffect_Fate_Space_Attack01	DAMAGE_DATA	22602	Fate Space	INDEX 1	ok	4440	44.4	0.24	1125	15	False
+739	DamageEffect.lua	DamageEffect_Fate_Space_Attack02	DAMAGE_DATA	22602	Fate Space	INDEX 2	ok	5920	59.2	0.24	1500	20	False
+740	DamageEffect.lua	DamageEffect_Fate_Space_Attack03	DAMAGE_DATA	22602	Fate Space	INDEX 3	ok	4096	40.96	0.24	1000	13.33	False
+893	DamageEffect.lua	DamageEffect_Lightning_Shower	DAMAGE_DATA	22012	Lightning Shower	INDEX 1	ok	735	7.35	0.26	281	2.5	False
+989	DamageEffect.lua	DamageEffect_SA_ABM_Guillotine_Press_Damage01	DAMAGE_DATA	22024	Guillotine Press	INDEX 1	ok	738	7.38	0.4	375	5	False
+990	DamageEffect.lua	DamageEffect_SA_ABM_Guillotine_Press_Damage02	DAMAGE_DATA	22024	Guillotine Press	INDEX 2	ok	2217	22.17	0.26	1125	15	False
+991	DamageEffect.lua	DamageEffect_SA_ABM_Heavy_Press_01	DAMAGE_DATA	22026	Heavy Press	INDEX 1	ok	605	6.05	0.3	225	3.3	False
+992	DamageEffect.lua	DamageEffect_SA_ABM_Heavy_Press_02	DAMAGE_DATA	22026	Heavy Press	INDEX 2	ok	727	7.27	0.3	300	3.4	False
+1000	DamageEffect.lua	DamageEffect_SA_ADM_DarkCloud	DAMAGE_DATA	22014	Poisonous Cloud	INDEX 1	ok	2414	24.14	0.32	900	12.5	False
+1001	DamageEffect.lua	DamageEffect_SA_ADM_DarkCloud	DAMAGE_DATA_NEXT	22014	Poisonous Cloud	INDEX 2	ok	128	1.28	0.32	56	0.63	False
+1002	DamageEffect.lua	DamageEffect_SA_ADM_DarkCloud_Ultimate	DAMAGE_DATA	22014	Poisonous Cloud	INDEX 1	ok	2414	24.14	0.32	900	12.5	False
+1003	DamageEffect.lua	DamageEffect_SA_ADM_DarkCloud_Ultimate	DAMAGE_DATA_NEXT	22014	Poisonous Cloud	INDEX 2	ok	128	1.28	0.32	56	0.63	False
+1004	DamageEffect.lua	DamageEffect_SA_ADM_Death_Field	DAMAGE_DATA	22016	Death Field	INDEX 1	ok	2013	20.13	0.4	1200	17.5	False
+1005	DamageEffect.lua	DamageEffect_SA_ADM_Death_Field_Explosion	DAMAGE_DATA	22016	Death Field	INDEX 2	ok	983	9.83	0.4	300	5	False
+1006	DamageEffect.lua	DamageEffect_SA_ADM_Hell_Stone	DAMAGE_DATA	22017	Hell Stone	INDEX 1	ok	504	5.04	0.4	175	1.17	False
+1007	DamageEffect.lua	DamageEffect_SA_ADM_Hell_Stone	DAMAGE_DATA_NEXT	22017	Hell Stone	INDEX 2	ok	268	2.68	0.4	94	0.63	False
+1008	DamageEffect.lua	DamageEffect_SA_ADM_Hell_Stone_Hyper	DAMAGE_DATA	22017	Hell Stone	INDEX 3	ok	561	5.61	0.4	175	1.17	False
+1009	DamageEffect.lua	DamageEffect_SA_ADM_Hell_Stone_Hyper	DAMAGE_DATA_NEXT	22017	Hell Stone	INDEX 4	ok	342	3.42	0.4	94	0.63	False
+1010	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Hyper_Main	DAMAGE_DATA	22018	Plasma Cutter	INDEX 2	ok	83	0.83	0.4	30	0.4	False
+1011	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Hyper_Sub1	DAMAGE_DATA	22018	Plasma Cutter	INDEX 2	ok	83	0.83	0.4	30	0.4	False
+1012	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Hyper_Sub2	DAMAGE_DATA	22018	Plasma Cutter	INDEX 2	ok	83	0.83	0.4	30	0.4	False
+1013	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Hyper_Sub3	DAMAGE_DATA	22018	Plasma Cutter	INDEX 2	ok	83	0.83	0.4	30	0.4	False
+1014	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Hyper_Sub4	DAMAGE_DATA	22018	Plasma Cutter	INDEX 2	ok	83	0.83	0.4	30	0.4	False
+1015	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Main	DAMAGE_DATA	22018	Plasma Cutter	INDEX 1	ok	108	1.08	0.4	50	0.67	False
+1016	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Sub1	DAMAGE_DATA	22018	Plasma Cutter	INDEX 1	ok	108	1.08	0.4	50	0.67	False
+1017	DamageEffect.lua	DamageEffect_SA_ADM_Plasma_Cutter_Sub2	DAMAGE_DATA	22018	Plasma Cutter	INDEX 1	ok	108	1.08	0.4	50	0.67	False
+1018	DamageEffect.lua	DamageEffect_SA_ADW_Air_Stunner_Fire	DAMAGE_DATA	22045	Air Stunner	INDEX 1	ok	2052	20.52	0.3	750	10	False
+1019	DamageEffect.lua	DamageEffect_SA_ADW_Crazy_Worm_BlackHole	DAMAGE_DATA	22046	Crazy Worm	INDEX 1	ok	398	3.98	0.32	120	1.6	False
+1020	DamageEffect.lua	DamageEffect_SA_ADW_Crazy_Worm_BlackHole_Explosion	DAMAGE_DATA	22046	Crazy Worm	INDEX 2	ok	720	7.2	0.32	225	3	False
+1021	DamageEffect.lua	DamageEffect_SA_ADW_Energy_Spurt	DAMAGE_DATA	22025	Energy Spurt	INDEX 1	ok	4856	48.56	0.36	1875	25	False
+1022	DamageEffect_Character.lua	DamageEffect_SA_ADW_IMPACT_ZONE_Projectile	DAMAGE_DATA	22070	Impact Zone	INDEX 1	ok	813	8.13	0.28	281	3.75	False
+1023	DamageEffect.lua	DamageEffect_SA_AEM_BlazeStep_Main	DAMAGE_DATA	22010	Blaze Step	INDEX 1	ok	3707	37.07	0.32	1500	20	False
+1024	DamageEffect.lua	DamageEffect_SA_AEM_BlazeStep_Main	DAMAGE_DATA_NEXT	22010	Blaze Step	INDEX 2	ok	1854	18.54	0.32	750	10	False
+1025	DamageEffect.lua	DamageEffect_SA_AEM_BlazeStep_Main	DAMAGE_DATA_NEXT2	22010	Blaze Step	INDEX 3	ok	927	9.27	0.32	375	5	False
+1026	DamageEffect.lua	DamageEffect_SA_AEM_BlazeStep_Sub	DAMAGE_DATA	22010	Blaze Step	INDEX 4	ok	161	1.61	0.32	50	0.67	False
+1027	DamageEffect.lua	DamageEffect_SA_AEM_ChainBurst_Big	DAMAGE_DATA	22013	Chain Burst	INDEX 1	ok	281	2.81	0.32	107	1.43	False
+1028	DamageEffect.lua	DamageEffect_SA_AEM_ChainBurst_Big_Upgrade	DAMAGE_DATA	22013	Chain Burst	INDEX 1	ok	281	2.81	0.32	107	1.43	False
+1029	DamageEffect.lua	DamageEffect_SA_AEM_ChainBurst_Small	DAMAGE_DATA	22013	Chain Burst	INDEX 1	ok	281	2.81	0.32	107	1.43	False
+1030	DamageEffect.lua	DamageEffect_SA_AEM_Circle_Elemental_FireAttack	DAMAGE_DATA	22041	Circle of Elements	INDEX 2	ok	224	2.24	0.36	60	0.8	False
+1031	DamageEffect.lua	DamageEffect_SA_AEM_Circle_Elemental_IceAttack	DAMAGE_DATA	22041	Circle of Elements	INDEX 3	ok	213	2.13	0.36	50	0.67	False
+1032	DamageEffect.lua	DamageEffect_SA_AEM_Circle_Elemental_LightningAttack	DAMAGE_DATA	22041	Circle of Elements	INDEX 1	ok	280	2.8	0.3	150	2	False
+1033	DamageEffect.lua	DamageEffect_SA_AEM_Frozen_Edge_Projectile_Damage	DAMAGE_DATA	22042	Frost Barrage	INDEX 1	ok	333	3.33	0.36	88	0.83	False
+1034	DamageEffect_Character.lua	DamageEffect_SA_AEM_ICICLE_SPEAR_ExplosionFX	DAMAGE_DATA	22068	Icicle Spear	INDEX 2	ok	4778	47.78	0.4	1500	20	False
+1035	DamageEffect_Character.lua	DamageEffect_SA_AEM_ICICLE_SPEAR_Projectile	DAMAGE_DATA	22068	Icicle Spear	INDEX 1	ok	3742	37.42	0.4	750	10	False
+1042	DamageEffect.lua	DamageEffect_SA_AHM_BlizzardShower	DAMAGE_DATA	22008	Blizzard Shower	INDEX 1	ok	62	0.62	0.4	38	0.5	False
+1043	DamageEffect.lua	DamageEffect_SA_AHM_BlizzardShower_Explosion	DAMAGE_DATA	22008	Blizzard Shower	INDEX 2	ok	716	7.16	0.26	366	5	False
+1044	DamageEffect.lua	DamageEffect_SA_AHM_BlizzardShower_Hyper	DAMAGE_DATA	22008	Blizzard Shower	INDEX 3	ok	80	0.8	0.4	38	0.5	False
+1045	DamageEffect.lua	DamageEffect_SA_AHM_BlizzardShower_Hyper_Explosion	DAMAGE_DATA	22008	Blizzard Shower	INDEX 4	ok	917	9.17	0.26	366	5	False
+1046	DamageEffect.lua	DamageEffect_SA_AHM_MagicMissile	DAMAGE_DATA	22006	Magic Missile	INDEX 1	ok	490	4.9	0.28	188	2.5	False
+1047	DamageEffect.lua	DamageEffect_SA_AHM_MagicMissile	DAMAGE_DATA_NEXT	22006	Magic Missile	INDEX 1	ok	490	4.9	0.28	188	2.5	False
+1048	DamageEffect.lua	DamageEffect_SA_AHM_MagicMissile_Hyper	DAMAGE_DATA	22006	Magic Missile	INDEX 1	ok	490	4.9	0.28	188	2.5	False
+1049	DamageEffect.lua	DamageEffect_SA_AHM_MagicMissile_Hyper	DAMAGE_DATA_NEXT	22006	Magic Missile	INDEX 1	ok	490	4.9	0.28	188	2.5	False
+1050	DamageEffect.lua	DamageEffect_SA_AHM_MeteoShower_Attack	DAMAGE_DATA	22007	Meteor Shower	INDEX 1	ok	72	0.72	0.4	38	0.5	False
+1051	DamageEffect.lua	DamageEffect_SA_AHM_MeteoShower_Explosion	DAMAGE_DATA	22007	Meteor Shower	INDEX 2	ok	244	2.44	0.32	91	1	False
+1151	DamageEffect_Character.lua	DamageEffect_SA_AVP_ABYSS_FIELD_Projectile	DAMAGE_DATA	22069	Abysmal Field	INDEX 1	ok	1291	12.91	0.4	375	5	False
+1152	DamageEffect.lua	DamageEffect_SA_AVP_Aging_Explosion	DAMAGE_DATA	22015	Aging	INDEX 2	ok	384	3.84	0.28	246	3.33	False
+1153	DamageEffect.lua	DamageEffect_SA_AVP_Aging_Hyper_Explosion	DAMAGE_DATA	22015	Aging	INDEX 4	ok	491	4.91	0.28	246	3.33	False
+1154	DamageEffect.lua	DamageEffect_SA_AVP_Aging_Hyper_Throw	DAMAGE_DATA	22015	Aging	INDEX 3	ok	91	0.91	0.28	38	0.5	False
+1155	DamageEffect.lua	DamageEffect_SA_AVP_Aging_Throw	DAMAGE_DATA	22015	Aging	INDEX 1	ok	71	0.71	0.28	38	0.5	False
+1156	DamageEffect.lua	DamageEffect_SA_AVP_DarkBurst_Big	DAMAGE_DATA	22021	Dark Burst	INDEX 1	ok	281	2.81	0.32	107	1.43	False
+1157	DamageEffect.lua	DamageEffect_SA_AVP_DarkBurst_Big_Upgrade	DAMAGE_DATA	22021	Dark Burst	INDEX 1	ok	281	2.81	0.32	107	1.43	False
+1158	DamageEffect.lua	DamageEffect_SA_AVP_DarkBurst_Small	DAMAGE_DATA	22021	Dark Burst	INDEX 1	ok	281	2.81	0.32	107	1.43	False
+1159	DamageEffect.lua	DamageEffect_SA_AVP_Destruction_BlackHole	DAMAGE_DATA	22044	Ruin	INDEX 1	ok	615	6.15	0.32	150	2	False
+1160	DamageEffect.lua	DamageEffect_SA_AVP_Destruction_End	DAMAGE_DATA	22044	Ruin	INDEX 2	ok	3431	34.31	0.32	900	12	False
+1161	DamageEffect.lua	DamageEffect_SA_AVP_Hell_Drop_Invisible	DAMAGE_DATA	22020	Hell Drop	INDEX 2	ok	213	2.13	0.38	66	1.25	False
+1162	DamageEffect.lua	DamageEffect_SA_AVP_Hell_Drop_Stone	DAMAGE_DATA	22020	Hell Drop	INDEX 1	ok	91	0.91	0.38	28	0.63	False
+1163	DamageEffect.lua	DamageEffect_SA_AVP_Petit_Angor_Bite	DAMAGE_DATA	22209	Petit Angkor	INDEX 2	ok	143	1.43	0.32	20	0.3	False
+1164	DamageEffect.lua	DamageEffect_SA_AVP_Petit_Angor_Explosion	DAMAGE_DATA	22209	Petit Angkor	INDEX 1	ok	330	3.3	0.4	50	0.75	False
+1165	DamageEffect.lua	DamageEffect_SA_AVP_Petit_Angor_First_Bite	DAMAGE_DATA	22209	Petit Angkor	INDEX 2	ok	143	1.43	0.32	20	0.3	False
+1166	DamageEffect.lua	DamageEffect_SA_AVP_Phantom_Breathing_Attack	DAMAGE_DATA	22019	Phantom Breath	INDEX 1	ok	222	2.22	0.28	125	1.67	False
+1167	DamageEffect.lua	DamageEffect_SA_AVP_Summon_Bat_Millions_Bite	DAMAGE_DATA	22043	Petit Angkor'- Millions	INDEX 2	ok	45	0.45	0.4	8	0.1	False
+1168	DamageEffect.lua	DamageEffect_SA_AVP_Summon_Bat_Millions_Explosion	DAMAGE_DATA	22043	Petit Angkor'- Millions	INDEX 1	ok	283	2.83	0.36	53	0.7	False
+1169	DamageEffect.lua	DamageEffect_SA_AVP_Summon_Bat_Millions_First_Bite	DAMAGE_DATA	22043	Petit Angkor'- Millions	INDEX 2	ok	45	0.45	0.4	8	0.1	False
+1183	DamageEffect.lua	DamageEffect_SA_Aisha_ChainFireBall_Big	DAMAGE_DATA	22000	Chain Fireball	INDEX 2	ok	523	5.23	0.28	255	1.13	False
+1184	DamageEffect.lua	DamageEffect_SA_Aisha_ChainFireBall_Small	DAMAGE_DATA	22000	Chain Fireball	INDEX 1	ok	576	5.76	0.4	248	1.1	False
+1185	DamageEffect.lua	DamageEffect_SA_Aisha_GustScrew	DAMAGE_DATA	22001	Gust Screw	INDEX 1	ok	468	4.68	0.4	214	2.86	False
+1186	DamageEffect.lua	DamageEffect_SA_Aisha_GustScrew_Hyper	DAMAGE_DATA	22001	Gust Screw	INDEX 2	ok	495	4.95	0.4	167	2.22	False
+1187	DamageEffect.lua	DamageEffect_SA_Aisha_GustStorm_LOW	DAMAGE_DATA	22002	Gust Storm	INDEX 1	ok	415	4.15	0.28	234	3.13	False
+1188	DamageEffect.lua	DamageEffect_SA_Aisha_GustStorm_TOWER	DAMAGE_DATA	22002	Gust Storm	INDEX 2	ok	375	3.75	0.28	146	1.94	False
+1189	DamageEffect.lua	DamageEffect_SA_Aisha_LightningBolt_Fire_Damage	DAMAGE_DATA	22003	Lightning Bolt	INDEX 1	ok	243	2.43	0.3	125	1.67	False
+1190	DamageEffect.lua	DamageEffect_SA_Aisha_LightningBolt_Fire_Damage	DAMAGE_DATA_NEXT	22003	Lightning Bolt	INDEX 1	ok	243	2.43	0.3	125	1.67	False
+1191	DamageEffect.lua	DamageEffect_SA_Aisha_LightningBolt_Hyper_Fire_Damage	DAMAGE_DATA	22003	Lightning Bolt	INDEX 2	ok	311	3.11	0.3	125	1.67	False
+1192	DamageEffect.lua	DamageEffect_SA_Aisha_LightningBolt_Hyper_Fire_Damage	DAMAGE_DATA_NEXT	22003	Lightning Bolt	INDEX 2	ok	311	3.11	0.3	125	1.67	False
+1193	DamageEffect.lua	DamageEffect_SA_Aisha_MeteoCall	DAMAGE_DATA	22004	Meteor Call	INDEX 1	ok	961	9.61	0.36	375	5	False
+1194	DamageEffect.lua	DamageEffect_SA_Aisha_MeteoCall_Explosion	DAMAGE_DATA	22004	Meteor Call	INDEX 2	ok	514	5.14	0.4	281	3.75	False
+1725	DamageEffect.lua	DamageEffect_Summon_Bat_Heavy_First_Bite	DAMAGE_DATA	22209	Petit Angkor	INDEX 3	ok	649	6.49	0.32	150	1.5	False
+1739	DamageEffect.lua	DamageEffect_Worm_Hole	DAMAGE_DATA	22214	Worm Hole	INDEX 1	ok	220	2.2	0.32	42	0.16	False
+1740	DamageEffect.lua	DamageEffect_Worm_Hole	DAMAGE_DATA_NEXT	22214	Worm Hole	INDEX 1	ok	220	2.2	0.32	42	0.16	False
+1753	DamageEffect.lua	Damageeffect_SA_ABM_Super_Nova	DAMAGE_DATA	22023	Super Nova	INDEX 1	ok	338	3.38	0.32	161	3.75	False
+1754	DamageEffect.lua	Damageeffect_SA_ABM_Super_Nova	DAMAGE_DATA_NEXT	22023	Super Nova	INDEX 2	ok	2521	25.21	0.32	1125	3.75	False

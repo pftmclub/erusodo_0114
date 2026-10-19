@@ -625,6 +625,7 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 | stage26-plan | **ready** (start: `/x2-phase new-plan june-movies`, after quest-system Q8 review): June AVI movie system remainder - dungeon first-clear / intro movies, the field / battle-field starts, the other `+0x80a` readers, `31d87560`'s bodies (Q8 built the table, player and quest movie) -> `JUNE_MOVIES_PHASES.md` + `kickoffs/june-movies/` | Opus 5.5 / high | dep: quest-system Q8 review | docs, kickoffs, funcmap | `stage26-plan.md` |
 | stage27-plan | **ready** (start: `/x2-phase new-plan june-lua-scenes`): June Lua event scenes - adopt `EventScene.lua` / `EventSceneObject.lua` with June's DUO keys (`325b1f40` / `325b0020` / `325b0c70`), find the Lua-scene callers (found by quest-system Q8) -> `JUNE_LUA_SCENES_PHASES.md` + `kickoffs/june-lua-scenes/` | Opus 5.5 / high | - | docs, kickoffs, funcmap | `stage27-plan.md` |
 | stage28-plan | **ready** (start: `/x2-phase new-plan june-party`): June party-manager handlers - diff June's `CX2PartyManager` packet handler `3243ee30` against March's (the ready-check's June-only branch `3243cec0`, the auto-party success tail of `3243d4e0`; found by quest-system Q10b) -> `JUNE_PARTY_PHASES.md` + `kickoffs/june-party/` | Opus 5.5 / high | - | docs, kickoffs, funcmap | `stage28-plan.md` |
+| stage5-plan | **done 2026-10-20**: pilot = **Aisha** (user, from the gap scan: numerical-only attacks Aisha 1 / Eve 3 / Rena 12 / Ara 14 / Chung 15 / Elsword 20 / Elesis 20 / Raven 25, Add a skeleton); `JUNE_CHARACTER_AISHA_PHASES.md` (CH0-CH6, the CH-N class-path template, Z, the Stage 7 template) + `kickoffs/pilot-char-revamp/` + the `pilot-char-revamp` block; evidence `june2017_re/char_arme/plan_*` | Opus 5.5 / high | - | docs, kickoffs | inline brief (`JUNE_PORT_BACKLOG_ORDER.md` "Stages 3–9 (short)") |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
 
@@ -796,6 +797,28 @@ class Q5b builds on). Decisions still to come, each inside its phase: Q2 old-sav
 | Z | waiting (all; Q10c routed to Stage 9) | Sonnet 5.5 / medium | all except Q10c | `MODS.md`, backlog, memory, Always.h (`_DEBUG` off) | `Z.md` |
 
 Running together: Q0a, Q0b and RM0 now (read-only, alongside anything). Later: Q4 with Q3 or Q5a; Q7 with any code phase.
+
+## pilot-char-revamp - June character port, Stage 5 pilot: Aisha (and the template for Stage 7)
+
+Plan `JUNE_CHARACTER_AISHA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `ARME <sub>`: `DATA`, `CORE`, `SKILL`, `MEMO`, `UI`,
+`NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_ARME_*` (class code), `SERV_IRUHADEV_JUNE_CHAR_*` (class-agnostic, + `_DEBUG`) · kickoffs
+`kickoffs/pilot-char-revamp/` · backlog Stage 5 · created 2026-10-20.
+
+**User decision (2026-10-20):** the pilot is Aisha (smallest gap). She has no June-only class path (153-155 are enum-only in June), so CH-N is a
+template block, first run by Ara / Elesis / Add in Stage 7. Priority (user 2026-10-19): this plan follows the quest system and comes before Stage 6.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| CH0 | **ready** (read-only: no code, no build) | Opus 5.5 / high | -; runs with anything | `june2017_re/char_arme/`, `june2017_re/charport_keys.py` (new), funcmap, plan doc, kickoffs | `CH0.md` |
+| CH1 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH0 | `X2GUArme_VioletMage.*`, `X2GUUser.*` (decode / hooks), Always.h, data036 `Arme_VioletMage.lua`, motion kom(s) | `CH1.md`, review `CH1-review.md` (CH1 writes it) |
+| CH2 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH2.md` |
+| CH3 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2 review; not with CH4 | `X2GUArme_VioletMage.*`, Always.h | `CH3.md` |
+| CH4 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH2 review; not with CH3 | `X2GUArme_VioletMage.*`, skill-tree / slot UI (memorize), Always.h | `CH4.md` |
+| CH5 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review; may run beside CH2-CH4 | `UnitTemplet.lua` + its reader, cut-in table, 10-slot dialog / tree-UI class pieces, Always.h | `CH5.md` |
+| CH6 | waiting | Sonnet 5.5 / medium, then user walk | CH3, CH4, CH5 reviews | save (test characters), plan doc | `CH6.md` |
+| Z | waiting | Sonnet 5.5 / medium | CH6 | `MODS.md`, checklist, plan doc, backlog, `kickoffs/june-backlog/stage6-plan.md` + `stage7-plan.md` | `Z.md` |
+
+Running together: CH0 now, alongside anything. Later: CH5 beside CH2 / CH3 / CH4; CH3 and CH4 one at a time (same class files).
 
 ## Other plans
 

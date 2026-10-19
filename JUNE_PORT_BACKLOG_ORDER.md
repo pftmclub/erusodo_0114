@@ -297,6 +297,17 @@ mission system (carried in from skill S3c) is RM0 / RM1.
 
 **Why a pilot:** every character repeats the same pipeline. Discovering a pipeline defect once, on one character, is far cheaper than discovering it across seven.
 
+**Planned 2026-10-20 (`/x2-phase new-plan pilot-char-revamp`): the pilot is Aisha (user).** The plan is `JUNE_CHARACTER_AISHA_PHASES.md`, with
+kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revamp`.
+- **Phases:** CH0 map, CH1 script + motions + class core, CH2 / CH3 skills by job tier, CH4 passives + memorize, CH5 `UnitTemplet` + cut-ins + UI pieces, CH6 walk, Z.
+- **Gap scan** (`charport_scan.py`, attacks whose damage is numerical-only): Aisha 1, Eve 3, Rena 12, Ara 14, Chung 15, Elsword 20, Elesis 20, Raven 25. Add's March kit is a skeleton.
+- **Model diff (M3):** no new Aisha motion file, no renamed animation.
+- **The class-path step is not exercised.** Aisha has no June-only class path: `UC_ARME_*` 153-155 have no June `UnitTemplet` row. That step is
+  written as the template block CH-N, and Ara, Elesis or Add runs it first in Stage 7.
+- **Stat rows:** every Aisha class already has rows 1-99.
+- **`ADD_RENA_SYSTEM`:** waits for Rena in Stage 7.
+- **The Stage 7 template** is a section of that plan, and its Z rewrites it from what the pilot took.
+
 ### Stage 6: transcendence system, on the pilot
 
 - Transcended classes (decide how June represents them: `UC_*_2` or a flag; RE first).
@@ -858,7 +869,7 @@ plan's subject (scope rule). Brief: `kickoffs/june-backlog/stage28-plan.md`. Pla
 | **Guild quests offline** | 4 | Ask: parse-and-log or a real port. **Answered 2026-10-17: parse-and-log.** |
 | **Scaleform/GFx runtime** for EventScene and quest movies | 4 | Ask: a runtime, or skip with a log line. **Answered 2026-10-17: a runtime, plan `june-gfx` (`JUNE_GFX_RUNTIME_PHASES.md`); its G0 assigns the owed gates below, G5 ports the GFx ones, the rest go to Stage 9.** Whichever lands also owes June's two cut-in hide terms in `GetShowActiveSkillShow` (`31fd3180 @31fd3228`, left out by effect C3t-1): GFx UI `0xb` open (`[g_pKTDXApp+0x1c8]`, `isOpenUI` `31c44710`), and a movie playing (`g_pMain +0x80a`, June's movie table `+0x7f8`; funcmap `(C3t-1)`). Also owes June's ESC gates from effect C3p-2 (`31f1e1a0`, funcmap `(C3p-2)`): the result-UI mode `+0x210` switch (`@31f1e214`, with its setter `31ef7be0` and exit box `31f1dd70`), `closeToTopZorder` + the `CX2UIProfessionManager` close (`@31f1e262`), and the dialog manager's hide modes 2-4 (`31d03a10` / `31d05af0`). Insertion point: the C3p-2 Done note (`python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)"`); the C3p-2 review adds that June's end-of-game handlers (`324db6b0`, `3252ba10`) open the mode-1 window when result info exists, so ESC is eaten from the end packet until the result UI moves on, where March's ESC still works during the `m_bGameEnd` wait: that comes with this port. |
 | **`ADD_RENA_SYSTEM`** (Rena's natural force) | 5 or 7 | Ask when Rena is next. |
-| **Pilot character** | 5 | Chosen by data (`charport_scan.py` gap plus Stage 2's model diff); the user confirms. |
+| **Pilot character** | 5 | Chosen by data (`charport_scan.py` gap plus Stage 2's model diff); the user confirms. **Answered 2026-10-20: Aisha** (`JUNE_CHARACTER_AISHA_PHASES.md`). |
 
 ```sql
 -- which classes have starter-item rows, and how many each
