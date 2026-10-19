@@ -96,6 +96,9 @@ void CX2OfflineServer::Release()
 	CX2OfflineAttribTable::Release();
 	CX2OfflineSocketTable::Release();
 	CX2OfflineStatTable::Release();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+	CX2OfflineDungeonRank::Release();
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 	CX2OfflineDB::Release();
 	CX2OfflineLog::Close();
 }

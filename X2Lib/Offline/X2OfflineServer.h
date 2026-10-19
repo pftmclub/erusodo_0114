@@ -43,6 +43,9 @@
 #ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
 #include "X2OfflineBuff.h"
 #endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+#include "X2OfflineDungeonRank.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 
 class CX2OfflineServer : public IX2OfflineHook
 {
@@ -344,6 +347,12 @@ public:
 		std::set< int >			m_setMiddleBossAlive;
 #endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
 		DWORD			m_dwPlayStartTick;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+		/// Quest Q4c. KDungeonMonsterManager::m_kNpcDieCount (DungeonMonsterManager.h:12-33), indexed by
+		/// CX2OfflineRankMonsters::DIE_TYPE: zeroed at StartGame (DungeonMonsterManager.cpp:21), counted in the
+		/// NPC die handler (DungeonRoom.cpp:6240-6244), read by ResultData_new.lua through the result's ranks.
+		int				m_aiRankDieCount[ CX2OfflineRankMonsters::DT_END ];
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 
 #if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
 		/// June effect C3z-6. KDungeonRoom::m_iExtraStageLoadCount: zeroed at StartGame (DungeonRoom.cpp:756),
@@ -453,6 +462,10 @@ public:
 			m_bPoisonLoading		= false;
 			m_dwPoisonLoadingTick	= 0;
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+			for( int iDie = 0; iDie < CX2OfflineRankMonsters::DT_END; ++iDie )
+				m_aiRankDieCount[ iDie ] = 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 		}
 
 		void Clear()
@@ -1024,6 +1037,11 @@ private:
 	/// is safe to call from every place that might be the last chance to send
 	/// it. No-op and harmless if the run had no result to report.
 	void SendDungeonResultData( KOfflineSession& kSes );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+	/// Quest Q4c. Result_DUNGEON's rank step for the pending unit ( ResultProcess.cpp:1696-1703 dead branch, :1944-2048
+	/// alive ): sets the five ranks and m_nRankBonusEXP, and returns the rank bonus EXP to pay ( :2063 ).
+	int  ComputeDungeonResultRank( KDungeonUnitResultInfo& kUnitResult );
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 
 	/// Announce a level-up: the packet that plays the effect.
 	///

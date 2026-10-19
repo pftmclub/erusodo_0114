@@ -1739,6 +1739,7 @@
     <ClInclude Include="Offline\X2OfflineLog.h" />
     <ClInclude Include="Offline\X2OfflineServer.h" />
     <ClInclude Include="Offline\X2OfflineStatTable.h" />
+    <ClInclude Include="Offline\X2OfflineDungeonRank.h" />
     <ClInclude Include="X2BossRaidManager.h" />
     <ClInclude Include="X2GlobalMissionManager.h" />
     <ClInclude Include="X2GUAdd.h" />
@@ -2648,6 +2649,7 @@
     <ClCompile Include="Offline\X2OfflineLog.cpp" />
     <ClCompile Include="Offline\X2OfflineServer.cpp" />
     <ClCompile Include="Offline\X2OfflineStatTable.cpp" />
+    <ClCompile Include="Offline\X2OfflineDungeonRank.cpp" />
     <ClCompile Include="base64.cpp" />
     <ClCompile Include="BasicExcel.cpp" />
     <ClCompile Include="HttpSession.cpp" />

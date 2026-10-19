@@ -973,11 +973,24 @@ void CX2OfflineServer::QuestOnDungeonClear( KOfflineSession& kSes, char cRank,
 #ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	// Quest Q4: the room's suitable-level answer ( decided at loading 100, Handler_EGS_GAME_LOADING_REQ ) and the run's EXP
 	// figure, the one Handler_EGS_END_GAME_REQ writes into m_mapHaveExpInDungeon ( iAddEXP > 0; this is only called on a win ).
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+	// Quest Q4c: called from SendDungeonResultData now, after Handler_EGS_END_GAME_REQ has zeroed m_iRewardEXP, so the
+	// map itself is read, as the GameServer reads kPacket_.m_mapHaveExpInDungeon ( GSUserDungeon.cpp:611 ).
+	std::map< UidType, bool >::const_iterator mitHaveExp = m_kRoom.m_kResultData.m_mapHaveExpInDungeon.find( m_kRoom.m_nUnitUID );
+	const bool bHaveExp = ( mitHaveExp != m_kRoom.m_kResultData.m_mapHaveExpInDungeon.end() && true == mitHaveExp->second );
+
+	CX2OfflineQuest::Instance()->OnDungeonClear( m_kRoom.m_kInfo.m_iDungeonID,
+												 m_kRoom.m_kInfo.m_DifficultyLevel,
+												 cRank, iPlayTime, iDamage,
+												 m_kRoom.m_bSuitableLevel, bHaveExp,
+												 kRow, vecChanged );
+#else SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 	CX2OfflineQuest::Instance()->OnDungeonClear( m_kRoom.m_kInfo.m_iDungeonID,
 												 m_kRoom.m_kInfo.m_DifficultyLevel,
 												 cRank, iPlayTime, iDamage,
 												 m_kRoom.m_bSuitableLevel, ( m_kRoom.m_iRewardEXP > 0 ),
 												 kRow, vecChanged );
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 #else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 	CX2OfflineQuest::Instance()->OnDungeonClear( m_kRoom.m_kInfo.m_iDungeonID,
 												 m_kRoom.m_kInfo.m_DifficultyLevel,

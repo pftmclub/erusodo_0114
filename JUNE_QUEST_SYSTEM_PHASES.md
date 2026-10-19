@@ -804,6 +804,39 @@ The user's answers to the two open questions: "1: stand-in" (the strict reading 
 **Done gate:** a good run shows a rank above F on the screen and in `[JUNE_QUEST] RANK`, and a run where the unit died shows F. Unit 25's
 35363 then counts 35365 to 5 / 5 with an SS clear.
 
+### Q4c - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` (needs `OFFLINE_MONSTER_GRADE`, `OFFLINE_SECRET_POISON`; `#error` guards), emulator only.
+- **Server flow (the reference).** `Result_DUNGEON` (ResultProcess.cpp:1355) is the dungeon result; `Result_DefenceDUNGEON` (:2820) is the same four
+  calls for the Defence dungeon (unreachable offline); `LeaveRoomResultRank` (:3503) only logs a leaver's ranks to the DB. The Lua is
+  `ResultData_new.lua` (CnSimLayer.cpp:371, `SERV_DUNGEON_RANK_NEW`). Per axis, C++ calls the function and reads `GetPercent` / `GetRank`, which
+  `SetResultData` set (:1951-2007; `DUNGEON_TECHNICAL_RESULT` returns its score, not a rank, and that return is ignored). Total = Lua
+  `DUNGEON_TOTAL_RANK_RESULT`, clamped `<= RT_NONE -> F`, `> SS -> SS` (:2014-2023). Dead unit: all F, no rank bonus (:1696-1703). Rank bonus EXP
+  = `(EXP + party EXP) * min(sum of the 4 percents, 0.15)` (:2046-2063). The `SUB_STAGE_*` pair feeds only `BadAttitudeManager` (party vote kick).
+- **Bindings** (`ResultProcess.cpp:54-101`): `ResultProcess` with the 3 `Add*` calls the file makes at load (party bonus rates; logged, unused
+  by a party of one); `pUnitInfo` = `GetComboScore`, `GetTechnicalScore`, `GetBaseHP`, `GetTotalGivenDamamge`, `GetTotalAttackedDamage`,
+  `GetTotalRecoveryHP`, `GetUsingKindOfSkill`, `SetResultData`; `pMonsterManager` = the 5 `Get*DieCount`. All fields come from the client's
+  `KDungeonPlayResultInfo` (as KRoomUser holds it, RoomUser.cpp:421) except `GetBaseHP` = game stat HP (RoomUser.h:128) = `MakeGameStat`.
+  `iEndNumMember` 1, `iPartyTotalGivenDamage` = own given damage. `DUNGEON_ID` / `RANK_TYPE` already exist in the client state (DungeonEnum.lua /
+  Enum.lua); the file reassigns `RANK_TYPE` with the same values.
+- **Die counts** (DungeonRoom.cpp:6240-6244): not NO_DROP, drop die state, `m_bIsNPC`, active; any attacker. Type = `GetMonsterTypeFactor`
+  (grade 2 middle boss, 1 boss, else normal); attribute monsters (low / high elite) are never placed offline.
+- **Play time** (`ComputeTotalPlayTime` :2632): start-game clock less the room's loading time, which the secret-poison port already keeps as
+  `m_fPoisonLoadingSec` (same LOADING_TIMER, same start / end sites). It now feeds the screen, the time rank and the clear-time sub-quests.
+- **Quests move** to `SendDungeonResultData`, before the result is sent, as GSUserDungeon.cpp:601-719 does: real total rank, `m_nSec`,
+  `m_nDamaged` (was RT_NONE, play time with loading, damage 0); `bHaveExp` from `m_mapHaveExpInDungeon` (`m_iRewardEXP` is zeroed by then).
+- **Rank bonus** is paid after the result (`ERM_UPDATE_DUNGEON_UNIT_INFO_NOT` order, DungeonRoom.cpp:1767-1770): `ApplyDungeonReward`, level-up push,
+  then `EGS_UPDATE_UNIT_INFO_NOT` again with the item box (the client handler is idempotent).
+- **Degrade:** file missing -> `[JUNE_QUEST] RANK ERROR 'ResultData_new.lua' not found ...` once, every rank F. No play result -> F, logged. A Lua error
+  in one axis -> that axis F, logged. `lua_tinker::call`'s error path removes a stack slot below it, so each call is padded and `lua_settop` restores.
+- **Not changed, noted once:** the emulator still pays the clear bonus and records the clear for a unit that died in a won run (server: neither).
+- **Hygiene** (`flagcheck --worktree --files`, 7 files): `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 2 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+  The 2 FAIL rows are the new files' `#pragma once` / `#include "stdafx.h"`. `X2Lib_2010.vcxproj` +2 lines.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,409,024 B, dated 2026-10-19 15:08:51, md5 b304f50635a14b1de34766fd916bc0c4` (main c152c92c + this
+  phase's files); the `RANK combo`, `RANK bonus` and `ResultData_new.lua` strings are in the exe.
+- **User owes:** XOR-encrypt `KncWX2Server/ServerResource/US/ResultData_new.lua` and pack it into data036.kom, then the play-test.
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.

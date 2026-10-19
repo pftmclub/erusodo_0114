@@ -9348,3 +9348,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q4c - dungeon result ranks offline, as March's room server makes them. Result_DUNGEON
+//              ( CenterServer/ResultProcess.cpp:1944-2048 ) runs ResultData_new.lua's DUNGEON_COMBO / TECHNICAL / DAMAGE / TIME
+//              _RESULT and DUNGEON_TOTAL_RANK_RESULT; the emulator loads that same server Lua ( X2OfflineDungeonRank, LoadDataFile +
+//              LoadAndDoMemory, plaintext fallback ) and binds the getters it calls by their server names. The play time leaves
+//              loading out ( DungeonRoom.cpp:2632 ), dungeon kills are counted by monster type ( :6240 ), a dead unit is all F
+//              ( :1696 ), the rank EXP bonus is paid ( :2046-2063 ), and the quest / title dungeon-clear hooks move to the result
+//              with the real total rank, m_nSec and damage ( GSUserDungeon.cpp:601-649; was RT_NONE ). File missing = every rank F,
+//              logged. The user packs KncWX2Server/ServerResource/US/ResultData_new.lua into data036.kom.
+//              Log [JUNE_QUEST] RANK. Revert: JUNE_QUEST_RESULT_RANK in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+#ifndef SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+#error SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK needs SERV_IRUHADEV_OFFLINE_MONSTER_GRADE ( m_mapNpcGrade and the die-state gates )
+#endif SERV_IRUHADEV_OFFLINE_MONSTER_GRADE
+#ifndef SERV_IRUHADEV_OFFLINE_SECRET_POISON
+#error SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK needs SERV_IRUHADEV_OFFLINE_SECRET_POISON ( the room's loading timer, m_fPoisonLoadingSec )
+#endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+//////////////////////////////////////////////////////////////////////////

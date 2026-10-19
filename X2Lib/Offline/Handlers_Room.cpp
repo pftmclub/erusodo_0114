@@ -3161,6 +3161,28 @@ bool CX2OfflineServer::Handler_EGS_NPC_UNIT_DIE_REQ( KOfflineSession& kSes, cons
 	// ALLY, and a quest count that QuestOnNpcDie dropped for an unknown NPC.
 	const bool bOldQuest = ( true == bOldGate && iNpcID > 0 );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+	// Quest Q4c. The dungeon room's die count for the result ranks (DungeonRoom.cpp:6240-6244): not NO_DROP, a drop die
+	// state ( KILL_BY_USER / KILL_SELF / BONUS_DROP, :2576-2595 ), an NPC templet and an active NPC - whoever killed it.
+	// The type is GetMonsterTypeFactor's ( :6177 ), see CX2OfflineRankMonsters::DieTypeOfGrade.
+	if( false == bDieOnField && true == bKnownNpc && false == bNoDropNpc && true == bDropDieState &&
+		true == pDieTemplet->m_bIsNPC )
+	{
+		std::map< int, bool >::const_iterator mitAct = m_kRoom.m_mapNpcActive.find( kReq.m_nDieNPCUID );
+		const bool bActiveNpc = ( mitAct == m_kRoom.m_mapNpcActive.end() ) ? true : mitAct->second;
+
+		if( true == bActiveNpc )
+		{
+			char cRankGrade = 0;
+			std::map< int, char >::const_iterator mitRG = m_kRoom.m_mapNpcGrade.find( kReq.m_nDieNPCUID );
+			if( mitRG != m_kRoom.m_mapNpcGrade.end() )
+				cRankGrade = mitRG->second;
+
+			++m_kRoom.m_aiRankDieCount[ CX2OfflineRankMonsters::DieTypeOfGrade( cRankGrade ) ];
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+
 	if( KEGS_NPC_UNIT_DIE_REQ::NDS_KILL_BY_USER != cDieState ||
 		bOldGate != bPayReward || bOldQuest != bCountQuest || bOldGate != bCountKill )
 	{
@@ -4401,8 +4423,105 @@ void CX2OfflineServer::SendDungeonResultData( KOfflineSession& kSes )
 			L" so combo/technical/damage are reported as zero" );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+	// Quest Q4c. The ranks need the play result, so they are made here, where the room server makes them: Result_DUNGEON
+	// runs once every user's ERM_MY_USER_UNIT_INFO_TO_SERVER_REQ is in (DungeonRoom.cpp:1584).
+	const int iRankBonusEXP = ComputeDungeonResultRank( kUnitResult );
+
+	// The GameServer's order for ERM_END_GAME_DUNGEON_RESULT_DATA_NOT (GSUserDungeon.cpp:365-719): on a win, the quest and
+	// title dungeon-clear hooks with the unit's m_cTotalRank, the result's m_nSec and m_nDamaged (:601-608, :649), and only
+	// then the result to the client (:719). Handler_EGS_END_GAME_REQ used to call them, before any play result existed.
+	if( true == m_kRoom.m_kResultData.m_bIsWin && 0 != m_kRoom.m_kInfo.m_iDungeonID )
+	{
+		QuestOnDungeonClear( kSes, kUnitResult.m_cTotalRank, m_kRoom.m_kResultData.m_nSec, kUnitResult.m_nDamaged );
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+
 	Reply( kSes, EGS_END_GAME_DUNGEON_RESULT_DATA_NOT, m_kRoom.m_kResultData );
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+	// ERM_UPDATE_DUNGEON_UNIT_INFO_NOT follows the result (DungeonRoom.cpp:1767-1770) and banks the bonus EXP, the rank bonus
+	// among it (ResultProcess.cpp:2172). The character went out with Handler_EGS_END_GAME_REQ's clear bonus already, so it
+	// goes out again: the result screen is built later, from the unit as it stands then.
+	if( iRankBonusEXP > 0 )
+	{
+		int iOldLevel = 0;
+		const int iNewLevel = ApplyDungeonReward( m_kRoom.m_nUnitUID, iRankBonusEXP, 0, &iOldLevel );
+		if( iNewLevel > iOldLevel )
+		{
+			PushLevelUp( kSes, m_kRoom.m_nUnitUID );
+			QuestOnLevelUp( kSes );
+		}
+
+		KOfflineUnitRow kAfter;
+		if( true == CX2OfflineDB::Instance()->LoadUnit( m_kRoom.m_nUnitUID, kAfter ) )
+		{
+			KEGS_UPDATE_UNIT_INFO_NOT kUpdate;
+			MakeUnitInfoFromRow( kUpdate.m_kUnitInfo, kAfter );
+			kUpdate.m_bGameEnd = true;
+			kUpdate.m_vecKInventorySlotInfo.clear();
+			kUpdate.m_mapItemObtained = m_kRoom.m_mapObtainedItem;	///< the handler refills the item box from it every time
+
+			Reply( kSes, EGS_UPDATE_UNIT_INFO_NOT, kUpdate );
+		}
+
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RANK bonus +%d exp paid ( lv %d -> %d )", iRankBonusEXP, iOldLevel, iNewLevel );
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 }
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+int CX2OfflineServer::ComputeDungeonResultRank( KDungeonUnitResultInfo& kUnitResult )
+{
+	// Without the play result there is nothing to rank; the constructor's RT_F stays ( every rank, the total included ).
+	if( false == m_kRoom.m_bHavePlayResult )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RANK no play result arrived - every rank stays F" );
+		return 0;
+	}
+
+	// ResultProcess.cpp:1696-1703: a unit that died is ranked F on every axis and gets no rank bonus.
+	if( true == kUnitResult.m_bIsDie )
+	{
+		kUnitResult.m_cTotalRank		= (char)CX2DungeonRoom::RT_F;
+		kUnitResult.m_cComboRank		= (char)CX2DungeonRoom::RT_F;
+		kUnitResult.m_cDamagedRank		= (char)CX2DungeonRoom::RT_F;
+		kUnitResult.m_cTechnicalRank	= (char)CX2DungeonRoom::RT_F;
+		kUnitResult.m_cTimeRank			= (char)CX2DungeonRoom::RT_F;
+
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RANK combo F tech F damaged F time F total F ( the unit died, ResultProcess.cpp:1696 )" );
+		return 0;
+	}
+
+	// GetBaseHP is the room user's game stat ( RoomUser.h:128 ), base + gear: what MakeGameStat sends as m_kGameStat.
+	int iBaseHP = 0;
+	{
+		KOfflineUnitRow kRow;
+		if( true == CX2OfflineDB::Instance()->LoadUnit( m_kRoom.m_nUnitUID, kRow ) )
+		{
+			KStat kStat;
+			MakeGameStat( kRow, kStat );
+			iBaseHP = kStat.m_iBaseHP;
+		}
+	}
+
+	// iDungeonID + cDifficulty, as every call passes it ( :1954 ).
+	const int iDungeonIDAndDif = m_kRoom.m_kInfo.m_iDungeonID + (int)m_kRoom.m_kInfo.m_DifficultyLevel;
+
+	float fRankBonusRate = 0.0f;
+	if( false == CX2OfflineDungeonRank::Instance()->Compute( iDungeonIDAndDif, m_kRoom.m_kResultData.m_nSec,
+			m_kRoom.m_kPlayResult, iBaseHP, m_kRoom.m_aiRankDieCount, kUnitResult, fRankBonusRate ) )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] RANK ResultData_new.lua is not loaded - every rank stays F ( dungeon %d )",
+			iDungeonIDAndDif );
+		return 0;
+	}
+
+	// :2063
+	kUnitResult.m_nRankBonusEXP = (int)( ( kUnitResult.m_nEXP + kUnitResult.m_nPartyBonusEXP ) * fRankBonusRate );
+	return kUnitResult.m_nRankBonusEXP;
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 
 bool CX2OfflineServer::Handler_EGS_END_GAME_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
@@ -4484,12 +4603,16 @@ bool CX2OfflineServer::Handler_EGS_END_GAME_REQ( KOfflineSession& kSes, const KE
 		//
 		// The play time is the same figure the result screen shows, and the
 		// damage is the hit count the client reported for itself.
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+		// Quest Q4c: moved to SendDungeonResultData, after the play result, with the run's rank ( GSUserDungeon.cpp:601-608 ).
+#else SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 		const int iPlayTime = ( 0 != m_kRoom.m_dwPlayStartTick )
 								? (int)( ( ::GetTickCount() - m_kRoom.m_dwPlayStartTick ) / 1000 )
 								: 0;
 
 		QuestOnDungeonClear( kSes, (char)CX2DungeonRoom::RT_NONE, iPlayTime,
 							 m_kRoom.m_kPlayResult.m_nDamageCount );
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -4515,9 +4638,19 @@ bool CX2OfflineServer::Handler_EGS_END_GAME_REQ( KOfflineSession& kSes, const KE
 	kResult.m_bSpecChar1		= false;
 	kResult.m_bSpecChar2		= false;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
+	// Quest Q4c. KDungeonRoom::ComputeTotalPlayTime (DungeonRoom.cpp:2632-2634): TM_PLAY, restarted at StartGame
+	// (Room.cpp:661, m_dwPlayStartTick here), less the room's loading time m_fLoadingTime - the LOADING_TIMER the secret
+	// poison port already keeps ( m_fPoisonLoadingSec: StartPlay and each stage load to the sub-stage start ). The time
+	// rank, the result screen and the clear-time sub-quests all read this figure ( :1387, :1999; GSUserDungeon.cpp:607 ).
+	kResult.m_nSec = ( 0 != m_kRoom.m_dwPlayStartTick )
+						? (int)( (double)( ::GetTickCount() - m_kRoom.m_dwPlayStartTick ) / 1000.0 - (double)m_kRoom.m_fPoisonLoadingSec )
+						: 0;
+#else SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 	kResult.m_nSec = ( 0 != m_kRoom.m_dwPlayStartTick )
 						? (int)( ( ::GetTickCount() - m_kRoom.m_dwPlayStartTick ) / 1000 )
 						: 0;
+#endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 
 	KDungeonUnitResultInfo kUnitResult;
 	kUnitResult.m_UnitUID			= m_kRoom.m_nUnitUID;
