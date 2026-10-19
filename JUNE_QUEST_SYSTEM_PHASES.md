@@ -402,6 +402,7 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_LOAD` (`Always.h`; `MODS.md` has the file list an
   The exe holds the `[JUNE_QUEST] LOAD quests` string and the three binder names.
 - **To see it.** Start the game (any character, reach the village). `python tools/logs.py --tag JUNE_QUEST` should show one `LOAD quests 1460 sub-quests 1733 guild skipped 15` census line,
   `LOAD guild quest <id> skipped` x15, `LOAD ChainQuestInfo.lua loaded 0 ... calls 5 applied 0`, `scene-info 268 coop 45`. No new `XEM_ERROR79/80` against a pre-Q1 ErrorLog.
+- **Play-test (user, 2026-10-19).** The first exe closed before character select: `LoadQuestEventSceneInfo` used a default `KLuaManager` at root, which reads the table on top of the Lua stack. Fixed with `KLuaManager( L, 0, true )` + `LoadAndDoMemory` (the `CX2Book::SetBookTable` form). Second run, log: `LOAD quests 1460 sub-quests 1733 guild skipped 15 chain entries 0 ( calls 5 applied 0 ) groups 0 story groups 0 scene-info 268 coop 45`, 15 guild-skip lines, `ChainQuestInfo.lua loaded 0` (the expected JUNE_BUGS 320 Lua error), 0 XEM_ERROR79/80, 0 EXCEPTION; the 2 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`. Done gate met.
 - **Open for the user.** Nothing. The review is `kickoffs/quest-system/Q1-review.md`.
 
 ## Phase Q2 - Data flip and old-save migration

@@ -3373,13 +3373,15 @@ void CX2QuestManager::LoadQuestEventSceneInfo()
 {
 	m_mapQuestEventSceneInfo.clear();
 
-	if( false == g_pKTDXApp->LoadLuaTinker( L"Quest_Event_Scene_Info.lua" ) )
+	// A default-constructed KLuaManager reads the table on top of the Lua stack ( the call argument in AddQuestTemplet_LUA ); a file that defines a
+	// global table is read through ( L, 0, true ) after LoadAndDoMemory, as CX2Book::SetBookTable does. The first version used the default
+	// constructor at root and the client died right here.
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, true );
+	if( false == g_pKTDXApp->LoadAndDoMemory( &luaManager, L"Quest_Event_Scene_Info.lua" ) )
 	{
 		ErrorLogMsg( XEM_ERROR142, L"[JUNE_QUEST] LOAD Quest_Event_Scene_Info.lua did not load: no quest scene rows. Stage June's file into data036.kom ( quest-system Q1 )." );
 		return;
 	}
-
-	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
 	if( luaManager.BeginTable( "QUEST_EVENT_SCENE_INFO" ) == false )
 		return;
 
