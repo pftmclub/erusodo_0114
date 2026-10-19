@@ -4292,6 +4292,17 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MAX_MP` in `KTDXLIB/Always.h` (`#error` guard: `_
   from June's skill data); its equipment term `CX2Inventory::JuneGetAddMaxMPValue` = June `32869f80`; `CX2GUUser::ResetMaxMP` = June `31fd2810`.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### The rest of June's emblem manager (skill-system-core S7l, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` in `KTDXLIB/Always.h` (`#error` guards: `_LEVEL_EMBLEM`, `ADD_PLAY_MUSIC_WHEN_EMBLEM_POP`, `DIALOG_SHOW_TOGGLE`, `FIELD_BOSS_RAID`,
+`_RANOX_PORT`, `_SOUND_AUTO_RELEASE`, `_SKILL_STATE_BUFF`); debug `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` (dev console `JuneEmblem( id )`, off after the review). Plan
+`JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7l"; log tag `[JUNE_SKILL] EMBLEM`.
+- **Client.** `X2EmblemManager.*`: `EXPAND_TEXTURE_FILE_NAME` rows become UI particles that follow the camera and hold the next emblem, June's `OnFrameMove` / `InitEmbelmPlayInfo`
+  whole (hide-dialog gate in the pick), cases 5 / 7; `X2BossRaidManager.cpp`: the gate-open emblem gets two one-shot rows instead of the 2nd texture, Ranox open textures;
+  `X2PremiumBuffManager.cpp`: BFI 10060 in a room plays `EI_ROSE_EVENT_INT`.
+- **Data.** data063 + June's `RaidField_Area_0.dds` / `_1.dds` (new; nothing replaced).
+- **Revert:** comment out both defines, `python tools/build.py --deploy`; optionally remove the two data063 files and re-pack / copy (harmless if left). No save change.
+
 ### June's level-up new-skill emblem (skill-system-core S7i, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` in `KTDXLIB/Always.h` (`#error` guards: `NEW_EMBLEM_MANAGER`, `_SKILL_NOTE`, `_SKILL_TEMPLET`, `_SOCKET_PARITY`). Plan
@@ -4457,3 +4468,10 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RUNTIME` in `KTDXLIB/Always.h` (needs `JUNE_QUEST
 - **Not ported (owners in the plan doc):** `32335f50` (story-book rebuild, new phase Q10), `32344ab0` and the class step `31edf870` (Stage 9 class-up notice UI), `31d79ac0` (Q8), the
   server-fed gates of `IsForbiddenQuest`.
 - **Revert:** comment out the define (and the `_DEBUG` one), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
+### June quest system: June's quest window (quest-system Q5a, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_UI` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_LOAD`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q5a - Done"; log tag `[JUNE_QUEST] UI`.
+- **Client.** New `X2Lib/X2UIQuestNewJune.cpp` (listed in `X2Lib_2010.vcxproj`): June's tabs (Request / Scenario / Event / Guild / Story), list builders, slot rows, buttons incl. skip-epic, detail title, NPC face keys. `X2UIQuestNew.cpp/.h`: dispatches, enums, members.
+- **Data.** data034 `DLG_UI_NEW_Quest_List` / `_Detail` / `DLG_UI_Quest_Clear` = June's (backup `kom_backup_stage_june\20261019_115132`); data036 `Enum.lua` + 10 UQNCM ids (core list, `luasrc refresh`).
+- **Revert:** comment out the define, restore the three DLGs from `24965799\kom_contents_bytecode\data034_kom\` (or the backup above), drop the 10 `UQNCM_*` lines from `Enum.lua` (`luasrc.py refresh`), `kom.py pack` data034 / data036, ask, copy; `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No save change.

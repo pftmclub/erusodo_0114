@@ -8913,6 +8913,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June quest system Phase Q5a - June's quest window ( CX2UIQuestNew ) onto March's class. New X2UIQuestNewJune.cpp holds June's
+//              323c8da0-323e5fb0 bodies ( tabs Request / Scenario / Event / Guild / Story, the list builders with the story index and the chain
+//              wait, the slot rows with June's picture numbers, Button_Skip_Epic_Quest, the talk-ACK tab rule ); X2UIQuestNew.cpp sends its
+//              callers there. Not in this flag: scenes ( Q5b ), the scenario-movie tab ( Q8 ), the friendship manager ( Stage 18 ), the story
+//              helper object ( Q3 / Q4 ), the tutorial guide and the menu marks ( Stage 9 ). Log [JUNE_QUEST] UI. Revert: comment out the
+//              define ( the data034 DLG_UI_NEW_Quest_List / _Detail / _Quick go back with it: kom_contents_bytecode ).
+#define SERV_IRUHADEV_JUNE_QUEST_UI
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+#ifndef SERV_IRUHADEV_JUNE_QUEST_LOAD
+#error SERV_IRUHADEV_JUNE_QUEST_UI needs SERV_IRUHADEV_JUNE_QUEST_LOAD ( June's quest enums, the story index, Quest_Event_Scene_Info )
+#endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June quest system Phase Q3 - the quest manager's runtime to June. Chain quests ( ChainQuestInfo AllowFewDays / TestMinute, the in-progress block, per-chain
 //              completion times, the startable map: 323229d0 / 32322ad0 / 3232caf0 / 3232ef70 / 3232de60 ), QRT_WEEK / QRT_MONTH expiry ( 32322050 / 32321d10 ),
 //              SetUnitQuest's bClear and purge, GetStartQuestList ( class-change quests at every NPC, guild gate ), GetAvailableQuest ( chain flag, QT_GUILD ),

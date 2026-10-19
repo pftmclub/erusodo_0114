@@ -696,6 +696,29 @@ no save rung. MODS.md "offline completion of every sub-quest type".
 
 **Done gate:** the window opens on every tab, accepts and completes a quest, and gives one up, with June's layout. 0 EXCEPTION.
 
+### Q5a - Done (2026-10-19, Sonnet 5.5 high; built + deployed, play-test pending)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_UI` (Always.h, needs `JUNE_QUEST_LOAD`). Log `[JUNE_QUEST] UI`. Deploy: `DEPLOY OK: X2_offline.exe is 25,383,936 B, md5 2b7944e2f16d3906e1d14db3280cb741, built at main 74719292 + 9 uncommitted code files` (a peer's build compiled these edits; the Q5a strings are in the exe).
+- **Design.** June's bodies live in the new `X2Lib/X2UIQuestNewJune.cpp` (June* members; `X2Lib_2010.vcxproj` lists it). `X2UIQuestNew.cpp` only gained one early-return dispatch per replaced function plus a few in-place cases, so flag-off is March. Header: enums (`QUM_GUILD_QUEST` 5, `QUM_STORY_QUEST` 6, `QSS_COMPLETE_STORY` 6, `QSS_CHAIN_WAIT` 7, `QTS_GUILD/STORY/TRANSCEND` 7-9, `RTS_WEEK/MONTH`, UQNCM 41038-41047), 10 members, 25 declarations.
+- **Ported (June address).**
+  - Tabs and modes `323c9e80` / `323ca520` / `323c9250`: the request tab always lists the board, because June runs `MODIFY_ACCEPT_QUEST`. March's global define is NOT turned on: `X2StateMenu` dereferences a `Quest_New` control unguarded.
+  - List data `323cf570` `323cf250` `323cf3e0` `323d0770` `323d5650` `323d4910` `323d4ae0` `323cab40` `323ca300`: story first/next quests from the Q1 story index, chain wait from Q3's `GetChainQuestStartable`.
+  - List UI `323d9400` (7 tabs) `323dfa80` `323d80d0` `323d8be0`: June picture numbers 0-23, done/going marks, "Lv" and wait text.
+  - `323ccbc0` buttons + `323ca880` skip rule + the skip flow (`323e1bf0` 0xa055/0xa056 = a plain QUEST_COMPLETE_REQ after a message box).
+  - `323ce6f0` detail title (own picture map, event-NPC face), `323cc280` face keys (Edel, Ignia, Hugo, Pane, Story, Trans ...).
+  - `323e4930` talk-ACK tab rule; `323e4aa0` OK 154 dropped; `323d2b40` board default; `323e57e0` quest 11000; `323e5c10` no relation refresh (the Atlas E1c citation fixed); `323cdfe0` play-together filter; category/scroll cases of `323e1bf0`; Enum.lua + the 10 UQNCM ids.
+- **DLGs (data034, `adopt-june`).** List and Detail replaced; `DLG_UI_Quest_Clear` replaced (dead reader); Quick, Quest, Restor, Request, Guide, Guide_Quest01/02 were already byte-equal to June (Q0b's "never staged" was wrong). `PACK OK` data034 + data036 (Enum.lua). **Copy pending the user's yes.**
+- **Not ported, owner.**
+  - Scene calls (Q5b). Movie tab `323ca6d0`/`323dfc00` and the complete-REQ clear movie `31d7a240` (Q8; the movie UQNCM ids are logged and ignored).
+  - Friendship manager hide (Stage 18; `JuneIsFriendshipQuest` = false, what June returns for an empty manager).
+  - Story helper object `326ab210` family and the story remind button (Q3/Q4; the button stays hidden). Guild reward rows `323cdbc0` (guild quests are not loaded offline, Q1).
+  - Tutorial guide `31d70b00`/`31fc5920`, the menu mark refresh (state vtable +0x104) and the New mark (Stage 9). Class-built sound names in `PlayQuestCompleteSound` (March's file names stay). Complete-REQ transcend guard + movie (`323d24f0`, Stage 6/Q8).
+  - The four June-only server pushes `0x27b/0x27d/0x593/0x605` and the NEW_QUEST_NOT +2 int32 / KQuestInstance int64 fields: nothing sends them, Q4 decides, so **no shared struct and no ServerDefine.h change in Q5a**.
+  - `UPDATE_QUEST_NOT` stays in `CX2State` (June moved the same loop into this window; behaviour equal; widening the count to short is Q4's struct call). Quests 208020-208060 (premium-manager gate): not in June's FieldQuest, nothing to gate.
+- **JUNE_BUGS 341-343:** available-list comparator, story flags never reset, scroll-down at 14 rows.
+- **Open points for the review.** `323ccbc0`'s register-lost buttons were assigned by meaning (see Q5a-review). GET_STRING ids 40047 / 43475 may be missing from the string table (empty text then). June state numbers 0xe/0xf/0x15 are mapped to March's `XS_VILLAGE_MAP` / `XS_BATTLE_FIELD`; June's 0x17/0x1a game states have no March name and are left out. The emulator must accept a QUEST_COMPLETE_REQ for a skipped epic (Q4).
+- **Hygiene.** `flagcheck JUNE_QUEST_UI --worktree --files ...`: `X2UIQuestNew.h` PASS (+71); `X2UIQuestNew.cpp` OTHER (+170, 0 deleted: two inserts sit inside the Elysion `#ifdef`); `Always.h` OTHER (define); the new `X2UIQuestNewJune.cpp` FAILs only on its first line `#include "StdAfx.h"` (a new file, same shape as `X2GFXEventScene.cpp`). 0 deleted, 0 non-ASCII, 0 EOL mismatches.
+
 ## Phase Q5b - Quest UI: scenes, clear window, scene info
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_SCENE`. Sub-tag `SCENE`. Needs june-gfx G3.

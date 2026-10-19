@@ -3,6 +3,9 @@
 
 #ifdef SERV_EPIC_QUEST
 #include ".\X2UIQuestNew.h"
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 //{{ Iruha : 2026-09-04 // HUD portrait after a quest job change
 #ifdef SERV_IRUHADEV_JOBCHANGE_PORTRAIT
@@ -88,6 +91,9 @@ m_byNumOfItemThatICanGet( 0 )	// kimhc // 2009-12-18 // 가질수 있는 선택 보상 아
 	m_vecNotAssignedQuestID.clear();
 	m_vecAvailableQuestID.clear();
 	m_vQuestList.clear();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneInitMembers();
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	m_mapNewQuest.clear();					// 새로 생긴 퀘스트 목록
 
 	//////////////////////////////////////////////////////////////////////////
@@ -807,6 +813,9 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		{
 			CKTDGUIButton* pButton = (CKTDGUIButton*) lParam;
 			m_iSelectedQuestSlotIndex = pButton->GetDummyInt(0);
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+			const int iJuneKeepTop = m_iTopQuestSlotIndex;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 #ifdef MODIFY_ACCEPT_QUEST
 			bool bIsChangeReceiveTab = false;
 #endif // MODIFY_ACCEPT_QUEST
@@ -855,6 +864,23 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 
 				m_vecUIQuestSlotInfo[m_iSelectedQuestSlotIndex].m_bIsCategoryOpen = m_bIsOpenEventCategory;
 			}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+			else if( m_eNowQuestUIMode == QUM_GUILD_QUEST )
+			{
+				if(	m_vecUIQuestSlotInfo[m_iSelectedQuestSlotIndex].m_QuestID == 1)
+				{
+					m_bIsOpenGuildCategory = !m_bIsOpenGuildCategory;
+				}
+				m_vecUIQuestSlotInfo[m_iSelectedQuestSlotIndex].m_bIsCategoryOpen = m_bIsOpenGuildCategory;
+			}
+			else if( m_eNowQuestUIMode == QUM_STORY_QUEST )
+			{
+				if( m_iOpenStoryCategory == m_vecUIQuestSlotInfo[m_iSelectedQuestSlotIndex].m_QuestID )
+					m_iOpenStoryCategory = -1;
+				else
+					m_iOpenStoryCategory = m_vecUIQuestSlotInfo[m_iSelectedQuestSlotIndex].m_QuestID;
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 #ifdef MODIFY_ACCEPT_QUEST
 			// 수행 중 의뢰 카테고리를 열 때
 			// 스크롤 초기화되어, 사용이  불펺나 점 개선
@@ -863,6 +889,11 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			{
 				m_iTopQuestSlotIndex = 0;
 			}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+			// the request tab keeps its first row when a category opens or closes ( June 323e1bf0 case 0xa03e, mode 1 )
+			if( QUM_QUEST_RECEIVE == m_eNowQuestUIMode )
+				m_iTopQuestSlotIndex = iJuneKeepTop;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 			ResetQuestUI();
 
 
@@ -1163,6 +1194,11 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	case UQNCM_SCROOL_DOWN:
 		{
 			m_iTopQuestSlotIndex++;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+			// June 323e1bf0 case 0xa030: no scrolling down while 14 rows or fewer are listed
+			if( false == m_vecQuestInfoList.empty() && m_vecQuestInfoList.size() <= 14 )
+				m_iTopQuestSlotIndex--;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 			ResetQuestUI();
 
 		}
@@ -1288,6 +1324,38 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			ResetQuestUI();
 		}
 		return true;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	case UQNCM_SELECT_QUEST_GUILD_TAB:
+		{
+			JuneSelectTab( QUM_GUILD_QUEST );
+		}
+		return true;
+	case UQNCM_SELECT_QUEST_STORY_TAB:
+		{
+			JuneSelectTab( QUM_STORY_QUEST );
+		}
+		return true;
+	case UQNCM_SKIP_EPIC_QUEST:
+		{
+			JuneOpenSkipEpicMsgBox();
+		}
+		return true;
+	case UQNCM_SKIP_EPIC_QUEST_OK:
+		{
+			JuneSkipEpicQuestOk();
+		}
+		return true;
+	case UQNCM_SELECT_SCENARIO_MOVIE_TAB:
+	case UQNCM_SELECT_SCENARIO_MOVIE_PLAY:
+	case UQNCM_SELECT_SCENARIO_MOVIE_AREA_TAB:
+	case UQNCM_SELECT_SCENARIO_MOVIE_BUTTON_OVER:
+	case UQNCM_SELECT_SCENARIO_MOVIE_BUTTON_OUT:
+		{
+			// the scenario-movie tab ( June 323ca6d0 / 323dfc00 ) is Q8's: nothing to show yet
+			CX2OfflineLog::Server( L"[JUNE_QUEST] UI scenario-movie message %d ignored ( Q8 owns the movie tab )", (int)wParam );
+		}
+		return true;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	case UQNCM_QUEST_INSTANTLY_COMPLETE:
 		{			
 			if( CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() ||
@@ -1424,6 +1492,9 @@ bool CX2UIQuestNew::Handler_EGS_TALK_WITH_NPC_REQ( CX2UnitManager::NPC_UNIT_ID q
 
 bool CX2UIQuestNew::Handler_EGS_TALK_WITH_NPC_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return JuneHandler_EGS_TALK_WITH_NPC_ACK( hWnd, uMsg, wParam, lParam );		// June 323e4930
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_TALK_WITH_NPC_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
@@ -1486,7 +1557,12 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 	KEGS_QUEST_COMPLETE_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	// June 323e57e0: quest 11000 is accepted even when no request is waiting for it
+	if( g_pMain->DeleteServerPacket( EGS_QUEST_COMPLETE_ACK ) == true || 11000 == kEvent.m_kCompleteQuestInfo.m_iQuestID )
+#else SERV_IRUHADEV_JUNE_QUEST_UI
 	if( g_pMain->DeleteServerPacket( EGS_QUEST_COMPLETE_ACK ) == true )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	{
 		if( g_pMain->IsValidPacket( kEvent.m_iOK ) == true )
 		{
@@ -1762,6 +1838,10 @@ bool CX2UIQuestNew::Handler_EGS_GIVE_UP_QUEST_ACK( HWND hWnd, UINT uMsg, WPARAM 
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_GIVE_UP_QUEST_ACK kEvent;
 	DeSerialize( pBuff, &kEvent );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	if( 154 == kEvent.m_iOK )		// June 323e4aa0: this OK is dropped before IsValidPacket
+		return false;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 #ifdef SERV_SHARING_BANK_QUEST_CASH		// 지헌 : 임시 예외 처리 하자
 	if(g_pData->GetMyUser()->IsSharingBankOpen() == true)
@@ -1842,6 +1922,11 @@ bool CX2UIQuestNew::Handler_EGS_NEW_QUEST_REQ( int iQuestID )
 		kPacket.m_iTalkNPCID = CX2UnitManager::NUI_BILLBOARD;
 #endif // MODIFY_ACCEPT_QUEST
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	// June 323d2b40: no NPC = the board, everywhere ( MODIFY_ACCEPT_QUEST is on in June, off in March )
+	if( 0 == kPacket.m_iTalkNPCID )
+		kPacket.m_iTalkNPCID = CX2UnitManager::NUI_BILLBOARD;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	kPacket.m_iQuestID		= iQuestID;
 
 	g_pData->GetServerProtocol()->SendPacket( EGS_NEW_QUEST_REQ, kPacket );
@@ -2060,7 +2145,10 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 			{
 				g_pData->GetQuestManager()->RemoveUnitQuest( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID, true );
 #ifdef SERV_IRUHADEV_ELYSION_VILLAGE
+#ifndef SERV_IRUHADEV_JUNE_QUEST_UI
 				g_pData->GetQuestManager()->RefreshVillageNpcRelationDataByQuest( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID );	// June 323e1710 @323e1864 (Atlas E1c)
+	// ( June's ALL_COMPLETED 323e5c10 has no relation refresh: 323e1710 is the batch handler, JUNE_QUEST_UI keeps the call out )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 #endif SERV_IRUHADEV_ELYSION_VILLAGE
 
 				g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_vecQuestCompleteAck[i].m_kUpdateUnitInfo.m_kUnitInfo );
@@ -3861,6 +3949,23 @@ wstring CX2UIQuestNew::CreateStringQuestClearCondition()
 	{
 		// 선택된 퀘가 있으면~
 		bool bThereWasNPCTalkSubQuest = false;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+		// June 323cdfe0: one group holding a "play together" sub-quest lists only the play-together ones
+		bool bJuneTogetherOnly = false;
+		if( 1 == pQuestTemplet->m_mapSubQuestGroup.size() )
+		{
+			const std::vector<int>& vecJuneGroup = pQuestTemplet->m_mapSubQuestGroup.begin()->second;
+			for( UINT k = 0; k < vecJuneGroup.size(); ++k )
+			{
+				const CX2QuestManager::SubQuestTemplet* pJuneSub = g_pData->GetQuestManager()->GetSubQuestTemplet( vecJuneGroup[k] );
+				if( NULL != pJuneSub && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR == pJuneSub->m_eClearType )
+				{
+					bJuneTogetherOnly = true;
+					break;
+				}
+			}
+		}
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 #ifdef REFORM_QUEST
 		// sub-quest
@@ -3875,6 +3980,10 @@ wstring CX2UIQuestNew::CreateStringQuestClearCondition()
 					continue;
 
 				const CX2QuestManager::ClearCondition& clearCond = pSubQuestTemplet->m_ClearCondition;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+				if( true == bJuneTogetherOnly && CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR != pSubQuestTemplet->m_eClearType )
+					continue;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 				if( CX2QuestManager::SQT_NPC_TALK == pSubQuestTemplet->m_eClearType )
 				{
 					bThereWasNPCTalkSubQuest = true;
@@ -4212,6 +4321,9 @@ void CX2UIQuestNew::UpdateNPCQuestDescription()
 
 wstring CX2UIQuestNew::GetNPCFaceTextureKey(CX2UnitManager::NPC_UNIT_ID NpcID)
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return JuneGetNPCFaceTextureKey( (int)NpcID );		// June 323cc280
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	wstring wstrKey;
 
 	switch( NpcID )
@@ -4285,6 +4397,10 @@ wstring CX2UIQuestNew::GetNPCFaceTextureKey(CX2UnitManager::NPC_UNIT_ID NpcID)
 
 void CX2UIQuestNew::UpdateDetailQuestTitle()
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneUpdateDetailQuestTitle();		// June 323ce6f0
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
 	const CX2QuestManager::QuestInst* pQuestInst = g_pData->GetQuestManager()->GetUnitQuest( m_iSelectedQuestID );
 
@@ -4461,6 +4577,10 @@ void CX2UIQuestNew::UpdateRewardInfo()
 
 void CX2UIQuestNew::UpdateQuestButton()
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneUpdateQuestButton();		// June 323ccbc0
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	CKTDGUIButton* pButtonGiveup = (CKTDGUIButton*) m_pDLGUIQuestDetail->GetControl( L"Button_Giveup" );
 	CKTDGUIButton* pButtonAccept = (CKTDGUIButton*) m_pDLGUIQuestDetail->GetControl( L"Button_Accept" );
 	CKTDGUIButton* pButtonComplete = (CKTDGUIButton*) m_pDLGUIQuestDetail->GetControl( L"Button_Complete" );
@@ -4576,6 +4696,9 @@ void CX2UIQuestNew::UpdateQuestButton()
 
 CX2UIQuestNew::QUEST_TYPE_SORT CX2UIQuestNew::ConvertToQuestTypeSort( int _eQuestType )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return JuneConvertToQuestTypeSort( _eQuestType );
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	QUEST_TYPE_SORT eQuestTypeSort = QTS_NORMAL;
 
 	switch( _eQuestType )
@@ -4592,6 +4715,9 @@ CX2UIQuestNew::QUEST_TYPE_SORT CX2UIQuestNew::ConvertToQuestTypeSort( int _eQues
 }
 CX2UIQuestNew::REPEAT_TYPE_SORT CX2UIQuestNew::ConvertToRepeatTypeSort( int _eQuestRepeatType )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return JuneConvertToRepeatTypeSort( _eQuestRepeatType );
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	REPEAT_TYPE_SORT eRepeatTypeSort = RTS_NORMAL;
 
 	switch( _eQuestRepeatType )
@@ -4607,6 +4733,10 @@ CX2UIQuestNew::REPEAT_TYPE_SORT CX2UIQuestNew::ConvertToRepeatTypeSort( int _eQu
 
 void CX2UIQuestNew::UpdateAvailQuestInfo( CX2UnitManager::NPC_UNIT_ID eNPCID )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneUpdateAvailQuestInfo( eNPCID );		// June 323d0770
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	if( CX2UnitManager::NUI_NONE == eNPCID )
 	{
 #ifdef MODIFY_ACCEPT_QUEST // 기본 수락 NPC를 게시판으로 설정
@@ -4697,6 +4827,9 @@ void CX2UIQuestNew::UpdateAvailQuestInfo( CX2UnitManager::NPC_UNIT_ID eNPCID )
 
 bool CX2UIQuestNew::GetUnitQuest( std::vector<int>& vecQuestID )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return JuneGetUnitQuest( vecQuestID );		// June 323cf570
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 	vecQuestID.clear();
 
@@ -4785,6 +4918,10 @@ void CX2UIQuestNew::EpicQuestSort( std::vector<QuestInfo>& vecEpicQuestInfo)
 
 void CX2UIQuestNew::UpdateOngoingQuestInfo()
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneUpdateOngoingQuestInfo();		// June 323d5650
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 	vector<int> vecOnGoingQuestID;
 	vector<int> vecCompleteEpicQuestID;
@@ -5007,6 +5144,9 @@ void CX2UIQuestNew::UpdateOngoingQuestInfo()
 
 int CX2UIQuestNew::GetQuestPictureNumber(QUEST_TYPE_SORT _eQuestTypeSort, REPEAT_TYPE_SORT _eRepeatTypeSort)
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return JuneGetQuestPictureNumber( _eQuestTypeSort, _eRepeatTypeSort );		// June 323c86f0
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	int iRet = 0;
 	switch(_eQuestTypeSort)
 	{
@@ -5057,6 +5197,10 @@ void CX2UIQuestNew::SetUIQuestSlotInfoToEpicCategory( UINT iQuestSlotInfoIndex, 
 
 void CX2UIQuestNew::SetUIQuestSlotInfoToCategory( UINT iQuestSlotInfoIndex,  QuestInfo& QuestInfo )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneSetUIQuestSlotInfoToCategory( iQuestSlotInfoIndex, QuestInfo );		// June 323d80d0
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	UINT i = iQuestSlotInfoIndex;
 
 	wstring wstrTextureName = L"DLG_UI_BUTTON01.tga";
@@ -5248,6 +5392,10 @@ void CX2UIQuestNew::SetUIQuestSlotInfoToCategory( UINT iQuestSlotInfoIndex,  Que
 
 void CX2UIQuestNew::UpdateUIQuestSlotInfo( UINT iQuestSlotInfoIndex,  QuestInfo& QuestInfo )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneUpdateUIQuestSlotInfo( iQuestSlotInfoIndex, QuestInfo );		// June 323d8be0
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	if(false == m_bShow)
 		return;
 
@@ -5448,6 +5596,10 @@ void CX2UIQuestNew::HideUIQuestSlotInfo()
 
 void CX2UIQuestNew::ResetQuestList(QUEST_UI_MODE eQuestUIMode)
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneResetQuestList( eQuestUIMode );		// June 323d9400
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	m_vecQuestInfoList.clear();
 
 	SetNowQuestUIMode(eQuestUIMode);
@@ -5841,6 +5993,9 @@ void CX2UIQuestNew::ResetTabPriorityFactor()
 
 CX2UIQuestNew::QUEST_UI_MODE CX2UIQuestNew::DetermineUIModeWithTabPriority()
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return JuneDetermineUIModeWithTabPriority();		// June 323c9250
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	QUEST_UI_MODE eQuestUIMode;
 	// oasis907 : 김상윤 [2010.7.12] // 퀘스트창 열었을시 우선 순위에 따라 시나리오 또는 의뢰탭 결정
 	if(m_bCompleteQuestInEpicTab)
@@ -5884,6 +6039,10 @@ CX2UIQuestNew::QUEST_UI_MODE CX2UIQuestNew::DetermineUIModeWithTabPriority()
 
 void CX2UIQuestNew::ResetQuestUI( bool bUpdateNavi, bool bResetExpand, bool bIgnoreTabPriority )
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneResetQuestUI( bUpdateNavi, bResetExpand, bIgnoreTabPriority );		// June 323dfa80
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 	// 
 #ifndef MODIFY_ACCEPT_QUEST
@@ -6748,6 +6907,10 @@ void CX2UIQuestNew::InitUserShowQuickQuestDLG( bool forOpen )
 
 void CX2UIQuestNew::ReturnToQuestListUI()
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneReturnToQuestListUI();		// June 323ca520
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	if( QUM_EPIC_QUEST == m_eLastQuestUIMode)
 	{
 		SetNowQuestUIMode(QUM_EPIC_QUEST);
@@ -6796,6 +6959,9 @@ void CX2UIQuestNew::SetTalkingQuestNPC(bool bVal, CX2UnitManager::NPC_UNIT_ID Np
 
 bool CX2UIQuestNew::IsTalkingQuestNPC()
 {
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	return true;		// June ResetQuestUI 323dfa80 / TALK ACK never ask: the request tab always lists the board's quests
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 #ifdef MODIFY_ACCEPT_QUEST
 	return true;
 #endif // MODIFY_ACCEPT_QUEST
@@ -6811,6 +6977,10 @@ bool CX2UIQuestNew::IsTalkingQuestNPC()
 
 void CX2UIQuestNew::SetNowQuestUIMode(QUEST_UI_MODE _eNowQuestUIMode)
 { 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	JuneSetNowQuestUIMode( _eNowQuestUIMode );		// June 323c9e80
+	return;
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	m_eNowQuestUIMode = _eNowQuestUIMode;
 
 	if( NULL != m_pDLGUIQuestList )

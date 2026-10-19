@@ -1,0 +1,13 @@
+# adopt-june --bytecode run 2026-10-19 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+DLG_UI_Guide_Quest01.lua	data034	same	data034	1240	584b3143a206fdf148d592f7f0a2277f94fb45f1	bytecode		ljconv
+DLG_UI_Guide_Quest02.lua	data034	same	data034	1240	4bcaa8fb6c109f7f34bc7eb0a589c6c6f4cdb575	bytecode		ljconv
+DLG_UI_NEW_Quest_Detail.lua	data034	replace	data034	19664	9042169c907a7f4c6c6c7331a984365e4eff8966	bytecode		ljconv
+DLG_UI_NEW_Quest_List.lua	data034	replace	data034	18437	80a9a6ec89abcfe867d2d0e6700b7acb43fc6305	bytecode		ljconv
+DLG_UI_NEW_Quest_Quick.lua	data034	same	data034	4696	4b3a829da0bf233cef78748250457f743db3ff38	bytecode		ljconv
+DLG_UI_Quest.lua	data034	same	data034	17389	4b274f9469edac282ed1ee47da91f492ce6531cf	bytecode		ljconv
+DLG_UI_Quest_Clear.lua	data034	replace	data034	11106	9616c4cb5b7e7474cbbc5dbca86e3d501028c490	bytecode		ljconv
+DLG_UI_Quest_Guide.lua	data034	same	data034	3038	9384762382ea626a27841c1d8b905c1289f480dc	bytecode		ljconv
+DLG_UI_Quest_Restor.lua	data034	same	data034	2187	2f0e948f981b4ab321bd6fa8d8c847ebaddfd16b	bytecode		ljconv
+DLG_UI_Request.lua	data034	same	data034	15578	d968bfed8e61d9bb20184b33b9f2c2412f3aa480	bytecode		ljconv

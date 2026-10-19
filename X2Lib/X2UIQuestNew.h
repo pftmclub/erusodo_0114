@@ -74,6 +74,19 @@ class CX2UIQuestNew : public CX2ItemSlotManager
 		UQNCM_SELECT_QUEST_EVENT_TAB,
 		UQNCM_QUEST_INSTANTLY_COMPLETE,
 //#endif //REFORM_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+		// June Enum.lua UI_QUEST_NEW_CUSTOM_MSG 41038-41047 ( 323e1bf0 cases 0xa04e-0xa056 ): the scenario-movie tab ( Q8 ) and the Guild / Story tabs, skip epic
+		UQNCM_SELECT_SCENARIO_MOVIE_TAB,			// 41038
+		UQNCM_SELECT_SCENARIO_MOVIE_PLAY,			// 41039
+		UQNCM_SELECT_SCENARIO_MOVIE_AREA_TAB,		// 41040
+		UQNCM_SELECT_SCENARIO_MOVIE_BUTTON_OVER,	// 41041
+		UQNCM_SELECT_SCENARIO_MOVIE_BUTTON_OUT,	// 41042
+		UQNCM_SELECT_QUEST_GUILD_TAB,		// 41043
+		UQNCM_SELECT_QUEST_STORY_TAB,		// 41044
+		UQNCM_SKIP_EPIC_QUEST,				// 41045
+		UQNCM_SKIP_EPIC_QUEST_OK,			// 41046
+		UQNCM_SKIP_EPIC_SCENE,				// 41047
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 
 	};
 
@@ -252,6 +265,10 @@ public:
 #ifdef ACCEPT_QUEST_TAB_FIX
 		QUM_EVENT_QUEST_RECEIVE,
 #endif // ACCEPT_QUEST_TAB_FIX
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+		QUM_GUILD_QUEST = 5,		// June 323c9e80 case 5 ( RadioButton_Guild )
+		QUM_STORY_QUEST = 6,		// June 323c9e80 case 6 ( RaidoButton_Story, June's own spelling )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	};
 
 
@@ -263,6 +280,10 @@ public:
 		QSS_FAILED,
 		QSS_ONGOING,
 		QSS_AVAILABLE,
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+		QSS_COMPLETE_STORY,		// June 6: a completed story quest ( 323d5650 )
+		QSS_CHAIN_WAIT,			// June 7: a story quest whose chain is not startable yet ( 323d5650, 32322ad0 )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 		QSS_END,
 	};
 
@@ -275,6 +296,11 @@ public:
 		QTS_CHANGE_JOB,
 		QTS_SKILL,
 		QTS_NORMAL,
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+		QTS_GUILD,				// June 7 ( QT_GUILD 8 )
+		QTS_STORY,				// June 8 ( QT_STORY 10 )
+		QTS_TRANSCEND,			// June 9 ( QT_CHANGE_TRANSCENDENTAL_CLASS 9 )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	};
 
 	enum REPEAT_TYPE_SORT
@@ -282,6 +308,10 @@ public:
 		RTS_NORMAL,
 		RTS_REPEAT,
 		RTS_DAY,
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+		RTS_WEEK,				// June 3 ( QRT_WEEK )
+		RTS_MONTH,				// June 4 ( QRT_MONTH )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 	};
 
 	struct UIQuickQuestInfo
@@ -769,5 +799,46 @@ private:
 	// 요일 퀘스트가 아니라면 무조건 treu 반환.
 	bool GetIsValidDayTheWeekQuest( int iQuestID_ ) ;
 #endif //DAY_OF_THE_WEEK_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UI
+	// June quest system Phase Q5a: June's quest window ( X2UIQuestNewJune.cpp ). June offsets in the comments ( 323d0ca0 ctor ).
+	CKTDGUIButton*		m_pButtonSkipEpicQuest;			// +0x1c4 Button_Skip_Epic_Quest of the detail window
+	vector<QuestInfo>	m_vecOnGoingGuildQuestInfo;		// +0x488
+	vector<QuestInfo>	m_vecOnGoingStoryQuestInfo;		// +0x498
+	std::map<int, int>	m_mapStoryQuestProgressInfo;	// +0x4b8: story group -> 0 not started, 1 going
+	bool				m_bIsOpenGuildCategory;			// +0x720
+	int					m_iOpenStoryCategory;			// +0x75c
+	bool				m_bCompleteQuestInStoryTab;		// +0x758
+	bool				m_bOngoingQuestInStoryTab;		// +0x759
+	int					m_iCompleteStoryCategory;		// +0x760
+	int					m_iOngoingStoryCategory;		// +0x764
+
+	void	JuneInitMembers();
+	void	JuneSetNowQuestUIMode( QUEST_UI_MODE eMode );
+	void	JuneReturnToQuestListUI();
+	QUEST_UI_MODE	JuneDetermineUIModeWithTabPriority();
+	QUEST_TYPE_SORT	JuneConvertToQuestTypeSort( int iQuestType );
+	REPEAT_TYPE_SORT	JuneConvertToRepeatTypeSort( int iQuestRepeatType );
+	int		JuneGetQuestPictureNumber( QUEST_TYPE_SORT eTypeSort, REPEAT_TYPE_SORT eRepeatSort );
+	wstring	JuneGetNPCFaceTextureKey( int iNpcID );
+	bool	JuneGetUnitQuest( std::vector<int>& vecQuestID );
+	bool	JuneGetCompleteQuestOfType( std::vector<int>& vecQuestID, int iQuestType );
+	bool	JuneIsQuestStartable( int iQuestID );
+	void	JuneAddFirstStoryQuests( std::vector<int>& vecOngoing, const std::vector<int>& vecCompleteStory );
+	void	JuneAddNextStoryQuests( std::vector<int>& vecOngoing, const std::vector<int>& vecCompleteStory );
+	void	JuneSetOpenStoryCategory();
+	void	JuneUpdateAvailQuestInfo( CX2UnitManager::NPC_UNIT_ID eNPCID = CX2UnitManager::NUI_NONE );
+	void	JuneUpdateOngoingQuestInfo();
+	void	JuneFillQuestSlots();
+	void	JuneResetQuestUI( bool bUpdateNavi, bool bResetExpand, bool bIgnoreTabPriority );
+	void	JuneResetQuestList( QUEST_UI_MODE eQuestUIMode );
+	void	JuneSetUIQuestSlotInfoToCategory( UINT iQuestSlotInfoIndex, QuestInfo& kQuestInfo );
+	void	JuneUpdateUIQuestSlotInfo( UINT iQuestSlotInfoIndex, QuestInfo& kQuestInfo );
+	void	JuneUpdateQuestButton();
+	void	JuneUpdateDetailQuestTitle();
+	bool	JuneHandler_EGS_TALK_WITH_NPC_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	void	JuneSelectTab( QUEST_UI_MODE eMode );
+	void	JuneOpenSkipEpicMsgBox();
+	void	JuneSkipEpicQuestOk();
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
 };
 #endif SERV_EPIC_QUEST
