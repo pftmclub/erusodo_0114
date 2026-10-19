@@ -249,10 +249,28 @@ bool CX2BossRaidManager::Handler_EGS_BATTLE_FIELD_BOSS_GATE_OPEN_NOT( HWND hWnd,
 	UpdateLinemapPortalEffect();
 
 	// 입구 오픈 엠블럼 설정
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+	/// June 3269f940: instead of March's 2nd texture the gate-open emblem gets two one-shot expand rows ( 32448fd0 ): the field that
+	/// opened the gate ( 3269ece0 ) at ( 570, 265 ) and the raid field's area ( 0x9c5a / 0x9c5b, else L"" ) at ( 570, 295 )
+	/// ( 33491cc8 / 33491d5c / 33491d40 )
+	CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID, true );
+	wstring wstrFieldOpenTextureName = L"";
+	GetFieldOpenTextureName( m_eBossRaidCreatorMapID, wstrFieldOpenTextureName );
+	wstring wstrAreaTextureName = L"";
+	if( SEnum::VMI_FIELD_BOSSRAID_KINGDOM_OF_NASOD == m_eCurrentRaidMapID )
+		wstrAreaTextureName = L"RaidField_Area_0.dds";
+	else if( SEnum::VMI_FIELD_BOSSRAID_VALLEY_OF_ABYSS == m_eCurrentRaidMapID )
+		wstrAreaTextureName = L"RaidField_Area_1.dds";
+	CX2EmblemManager::GetInstance()->JuneAddExpandTexture( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID,
+		CX2EmblemManager::EmblemExpandTexture( wstrFieldOpenTextureName, 570.f, 265.f, true ) );
+	CX2EmblemManager::GetInstance()->JuneAddExpandTexture( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID,
+		CX2EmblemManager::EmblemExpandTexture( wstrAreaTextureName, 570.f, 295.f, true ) );
+#else SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 	CX2EmblemManager::GetInstance()->PlayEmblem(CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID, true);
 	wstring wstrFieldOpenTextureName = L"";
 	GetFieldOpenTextureName(m_eBossRaidCreatorMapID, wstrFieldOpenTextureName);
 	CX2EmblemManager::GetInstance()->SetTexture2ndName(CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID, wstrFieldOpenTextureName );
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 
 	// 입구 클로즈 엠블럼 설정
 	CX2EmblemManager::GetInstance()->EndEmblem(CX2EmblemManager::EI_CLOSE_FIELD_BOSS_RAID);
@@ -426,6 +444,13 @@ void CX2BossRaidManager::GetFieldOpenTextureName( IN SEnum::VILLAGE_MAP_ID eBoss
 	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_02:	wstrOpenTextureName_ = L"RaidField_Open_Sander_1.dds"; break;
 	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_03:	wstrOpenTextureName_ = L"RaidField_Open_Sander_2.dds"; break;
 	case SEnum::VMI_BATTLE_FIELD_SANDER_FIELD_04:	wstrOpenTextureName_ = L"RaidField_Open_Sander_3.dds"; break;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+	/// June 3269ece0 adds the Ranox fields ( 0x9c5d - 0x9c60 )
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_01:	wstrOpenTextureName_ = L"RaidField_Open_Ranox_0.dds"; break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_02:	wstrOpenTextureName_ = L"RaidField_Open_Ranox_1.dds"; break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_03:	wstrOpenTextureName_ = L"RaidField_Open_Ranox_2.dds"; break;
+	case SEnum::VMI_BATTLE_FIELD_RANOX_FIELD_04:	wstrOpenTextureName_ = L"RaidField_Open_Ranox_3.dds"; break;
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 	default:
 		break;
 	}

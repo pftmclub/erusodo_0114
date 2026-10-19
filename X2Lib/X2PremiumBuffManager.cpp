@@ -555,6 +555,10 @@ bool CX2PremiumBuffManager::Handler_EGS_UPDATE_BUFF_INFO_IN_ROOM_NOT( IN HWND hW
 
 				if ( BFI_BUFF_RETURN_OF_HERO_GLOBAL == iFactorID )		/// June @326c92b4: before the factor check
 					m_iComeBackBuffEnd = kBuffInfo.m_iBuffEndTime;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+				if ( BFI_BUFF_ROSE_EVENT_INT == iFactorID )		/// June @326c92dd ( S7l ): in a room BFI 10060 plays EI_ROSE_EVENT_INT ( 34 )
+					CX2EmblemManager::GetInstance()->PlayEmblem( CX2EmblemManager::EI_ROSE_EVENT_INT, false );
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 
 				CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( static_cast<UINT>( iFactorID ) );
 				if ( NULL == ptrBuffFactor )

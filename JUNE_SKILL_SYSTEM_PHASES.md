@@ -2018,6 +2018,44 @@ of `3244c4b0` (5, 7, 8, 0x12 title notice, 0x14 achievement notice) and June's `
 and unit `32364af3`), party members' shared sockets `31ed40c0` (user `3206df3e`, unit `323667bd`) and the item socket lists `+0x8c` / `+0x9c` / `+0xac`: identify, then port
 where March can carry them. Kickoff `kickoffs/skill-system-core/S7m.md`.
 
+### Phase S7l - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` (`Always.h` only; `#error` guards `_LEVEL_EMBLEM`, `ADD_PLAY_MUSIC_WHEN_EMBLEM_POP`, `DIALOG_SHOW_TOGGLE`, `FIELD_BOSS_RAID`, `_RANOX_PORT`,
+`_SOUND_AUTO_RELEASE`, `_SKILL_STATE_BUFF`, all ON by `flagprobe.py`); debug `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` (dev console `JuneEmblem( id )`; off in the review).
+Funcmap tag `Skill S7l`. JUNE_BUGS 344-346. Revert: `MODS.md` "The rest of June's emblem manager".
+- **Parser `32449000`** (key by key): March's keys and defaults, S7i's `LUA_FILE_NAME`, and `EXPAND_TEXTURE_FILE_NAME` after the sound loop (rows `{ name, x, y }` -> `+0x74`,
+  one-shot byte 0). June reads no `OPEN_TIME_SETTING`; March's block is `ADD_2013_CHARACTER_ADD_EVENT` (OFF), so it stays as is. Sort = `std::sort` by `SHOW_ORDER` (= March).
+- **`32448ce0`** = `JunePlayExpandTextureAndSound`: each row -> a UI particle at `( x, y, 0 )` (`32447e50`, OverUI, `CreateInstanceNonTemplet`) in `+0x44`; one-shot rows erased;
+  then June's second sound pick (`JunePickEmblemSound`, JUNE_BUGS).
+- **`OnFrameMove` `3244c8c0` whole** (March's body in `#else`): the follow loop (camera = DGManager `+0x17c`, eye `+0x44`; first z = eye.z, later ones `eye.z +/- ( |( |ex| + x, |ey| + y )| + 1.0 )`),
+  cash shop also destroys `+0x44`, a live `+0x44` handle holds the next emblem, the pick is gated by `GetHideDialog` (`31d03920`: a hidden emblem stays pending).
+  June's states: `0xb` / `0x17` dungeon (`0x17` = `XS_PVE_GAME`, no March state), `0xe` / `0xf` village (`0xf` = `XS_GUILD_AGIT_GAME`, none), `0x15` battle field
+  (`32482650` type 2 / 3 -> skip, re-expressed as March's `GetIsBossRaidCurrentField`, as funcmap row 171); `g_pMain +0x16a` = tutorial (= March).
+- **`InitEmbelmPlayInfo` `324485d0` whole** = March + the `+0x44` destroy; wait `33436700` = 3.0 (= March). **`CheckNextPlayingEmblem` `32447d40`** = March (false when all shown).
+- **`3244c4b0`**: case 5 also tests my unit; case 7 = string 32159 ( "SS": the field that opened the gate, the raid field; March: 29332, one name ), sound 4th arg 1;
+  case 8 = March. **Not ported:** case 0x12 (title notice) -> new **S7n** (unowned-branch rule; feed `32701960` from `CX2State::OnFrameMove`, `3244adb0`, map `+0x78`);
+  case 0x14 (achievement notice, `32600190`, deque `+0x84`): June's achievement system, none in March, no owner (a system port, not a phase).
+- **`PlayEmblem` callers** (`32447d70` xrefs): `31ef7ad0` / `31f06000` = `CX2State::OpenStartMission` / `OpenResultMission` (match); `3269f940` gate open: June adds two
+  one-shot rows ( open texture `3269ece0` at ( 570, 265 ), `RaidField_Area_0/1.dds` by raid field 40026 / 40027 at ( 570, 295 ) ) instead of `SetTexture2ndName` -> **ported**,
+  with `3269ece0`'s Ranox cases; `3269fc90` gate close (match); `326c9530` x2 = `EI_RETURN_OF_HERO` (buff phases, match); `326c9030 @326c92dd` in-room BFI 10060 ->
+  `EI_ROSE_EVENT_INT` -> **ported** (the buff plan parked it for lack of an enum; S7i added it); `31d885e0` S7i. June-only (no March home): `31f0bdd0` (CX2State ctor,
+  June's event map: 0 / 22 / 27 / 31 / 32 / 33), `31ef9bc0` (ERDA 19), `31efd850` (guild PvP 25 / 26), `32161070` (16), `32701960` (18, S7n), `32600190` (20).
+  March's `EI_WEEKEND_BURNING_EVENT` call (`X2State.cpp:249`) is `EVENT_NEW_HENIR` (OFF) and June's data does not list emblem 6.
+- **Data** (PACK OK data063, `COPY` asked): June's `RaidField_Area_0.dds` / `_1.dds` (June-only, new; the gate rows name them). Backup dir `kom_backup_stage_june\20261019_121056` (nothing replaced).
+- **What cannot be shown offline:** the gate open / close, defence missions, burning / event emblems, the in-room rose buff: they need server events. The debug
+  `JuneEmblem( 7 )` drives the same path the gate handler does (two rows + June's `DLG_Emblem_08` row).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER --worktree --files <5 files>`: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`
+  (OTHER = peers' blocks in `Always.h` and the `_DEBUG` hook in `X2EmblemManager.cpp`; the parser block took LF like S7i's LF block it sits on). `_DEBUG`: `RESULT: PASS`.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,383,936 B, dated 2026-10-19 12:30:46, md5 2b7944e2f16d3906e1d14db3280cb741, equal to X2/US_SERVICE/x2.exe (2026-10-19 12:30:38); built at main 74719292 + 9 uncommitted code file(s).` The `[JUNE_SKILL] EMBLEM expand` / `debug` strings, `JuneEmblem` and `RaidField_Area_0.dds` are in the exe.
+- **Open questions:** none.
+
+## Phase S7n - June's new-title notice (emblem 18)
+
+**Run with:** Opus 5.5 high, then user play-test. Added by S7l (2026-10-19, unowned-branch rule). June's title feed `32701960` (from `CX2State::OnFrameMove`),
+the manager's map `+0x78` push `3244adb0`, and case 0x12 of `3244c4b0` (`3244c2b0` / `32447b50` / `32448420` / `3244bfb0`), on March's title system.
+Kickoff `kickoffs/skill-system-core/S7n.md`.
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.

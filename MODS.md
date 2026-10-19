@@ -4303,6 +4303,17 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` in `KTDXLIB/Always.h` (`#error` g
 - **Data.** data063 + June's `RaidField_Area_0.dds` / `_1.dds` (new; nothing replaced).
 - **Revert:** comment out both defines, `python tools/build.py --deploy`; optionally remove the two data063 files and re-pack / copy (harmless if left). No save change.
 
+### The rest of June's emblem manager (skill-system-core S7l, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` in `KTDXLIB/Always.h` (`#error` guards: `_LEVEL_EMBLEM`, `ADD_PLAY_MUSIC_WHEN_EMBLEM_POP`, `DIALOG_SHOW_TOGGLE`, `FIELD_BOSS_RAID`,
+`_RANOX_PORT`, `_SOUND_AUTO_RELEASE`, `_SKILL_STATE_BUFF`); debug `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG` (dev console `JuneEmblem( id )`, off after the review). Plan
+`JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7l"; log tag `[JUNE_SKILL] EMBLEM`.
+- **Client.** `X2EmblemManager.*`: `EXPAND_TEXTURE_FILE_NAME` rows become UI particles that follow the camera and hold the next emblem, June's `OnFrameMove` / `InitEmbelmPlayInfo`
+  whole (hide-dialog gate in the pick), cases 5 / 7; `X2BossRaidManager.cpp`: the gate-open emblem gets two one-shot rows instead of the 2nd texture, Ranox open textures;
+  `X2PremiumBuffManager.cpp`: BFI 10060 in a room plays `EI_ROSE_EVENT_INT`.
+- **Data.** data063 + June's `RaidField_Area_0.dds` / `_1.dds` (new; nothing replaced).
+- **Revert:** comment out both defines, `python tools/build.py --deploy`; optionally remove the two data063 files and re-pack / copy (harmless if left). No save change.
+
 ### June's level-up new-skill emblem (skill-system-core S7i, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` in `KTDXLIB/Always.h` (`#error` guards: `NEW_EMBLEM_MANAGER`, `_SKILL_NOTE`, `_SKILL_TEMPLET`, `_SOCKET_PARITY`). Plan

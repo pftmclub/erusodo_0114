@@ -134,6 +134,28 @@ public:
 
 #endif // ADD_2013_CHARACTER_ADD_EVENT 	// ±èÁ¾ÈÆ, 2013 ¾Öµå Ãß°¡ ±â³ä ¹ö´× ÀÌº¥Æ®
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+	/// June EXPAND_TEXTURE_FILE_NAME row ( entry +0x74, stride 0x28, 3244f6f0 ): texture +0, position +0x1c / +0x20, one-shot +0x24
+	struct EmblemExpandTexture
+	{
+		wstring		m_wstrTextureFileName;
+		D3DXVECTOR2	m_vPos;
+		bool		m_bOneShot;		/// erased once shown ( 32448ce0 ); the script's rows are 0, the boss-raid gate rows 1 ( 3269f940 )
+
+		EmblemExpandTexture() :
+			m_wstrTextureFileName( L"" ),
+			m_vPos( 0.f, 0.f ),
+			m_bOneShot( false )
+		{}
+
+		EmblemExpandTexture( const wstring& wstrTextureFileName_, float fX_, float fY_, bool bOneShot_ ) :
+			m_wstrTextureFileName( wstrTextureFileName_ ),
+			m_vPos( fX_, fY_ ),
+			m_bOneShot( bOneShot_ )
+		{}
+	};
+
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 	struct EmblemTemplet
 	{
 		EMBLEM_ID	m_eEmblemID;			// ID
@@ -164,6 +186,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 		wstring		m_wstrJuneLuaFileName;	/// June +0x84 LUA_FILE_NAME: the emblem's dialog ( L"" = none )
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+		vector<EmblemExpandTexture>	m_vecJuneExpandTexture;	/// June +0x74 EXPAND_TEXTURE_FILE_NAME rows ( + the boss-raid gate rows )
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP 	// ±èÁ¾ÈÆ, ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå Ãâ·Â ±â´É Ãß°¡
 		vector<EmblemPopupSound>		m_vecPlayEmblemSoundTemplet;		// Ã¹¹øÂ° ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå ÆÄÀÏ ÀÌ¸§
@@ -233,6 +258,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 	void JunePushNewSkillOrMemo( const D3DXVECTOR3& vRow_ );	/// June 324486b0: +0x64 push ( skill id, type, 1 = not shown yet )
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+	void JuneAddExpandTexture( EMBLEM_ID eEmblemID_, const EmblemExpandTexture& sExpandTexture_ );	/// June 32448fd0
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 
 #ifdef EVENT_NEW_HENIR
 	bool IsBurningEventTime() const;
@@ -263,6 +291,13 @@ private:
 	void JuneSetNewSkillOrMemoIcon( int iIndex_, int iSkillID_ );		/// June 32447c00
 	void JuneSetNewSkillOrMemoText( int iIndex_, int iSkillID_, int iType_ );	/// June 324486c0
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+	void JunePlayExpandTextureAndSound( EmblemTemplet& sEmblemTemplet_ );	/// June 32448ce0
+	void JunePickEmblemSound( const EmblemTemplet& sEmblemTemplet_ );		/// June 32448ce0 @32448e4d
+	void JuneFollowExpandTexture();											/// June 3244c8c0 @3244c937
+	bool JuneIsExpandTextureLive() const;									/// June 3244c8c0 ( the +0x44 alive test before the pick )
+	void JuneDestroyExpandTexture();										/// June 324485d0 / 3244c8c0 ( the +0x44 destroy loop )
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 
 private:
 	CX2EmblemManager();
@@ -281,6 +316,9 @@ private:
 	EMBLEM_ID					m_eJuneNowEmblemID;			/// June +0x60: the emblem PlayEmblemEffect showed last ( EI_NONE when idle )
 	std::vector<D3DXVECTOR3>	m_vecJuneNewSkillOrMemo;	/// June +0x64: ( skill id, type, 1 = not shown yet / 0 = shown )
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+	std::vector<CKTDGParticleSystem::CParticleEventSequenceHandle>	m_vecJuneExpandHandle;	/// June +0x44: the shown expand textures
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP		// ±èÁ¾ÈÆ, ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå Ãâ·Â ±â´É Ãß°¡
 	float m_fSoundPlayingCheckTime;
 	vector<EmblemPopupSound>	m_vecNowPlayEmblemSound;

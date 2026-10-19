@@ -9143,3 +9143,52 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7l - the rest of June's emblem manager. The parser reads EXPAND_TEXTURE_FILE_NAME ( 32449000 );
+//              a shown emblem turns those rows into UI particles that follow the camera and hold the next emblem ( 32448ce0, OnFrameMove
+//              3244c8c0 whole, InitEmbelmPlayInfo 324485d0 ), and June's second sound pick; the hide-dialog test gates the pick. In
+//              PlayEmblemOtherProcess 3244c4b0 case 5 tests my unit and case 7 names both raid fields ( string 32159 ). The boss-gate
+//              open handler 3269f940 adds two one-shot rows instead of March's 2nd texture ( + June's Ranox fields, 3269ece0 ); the
+//              in-room buff handler 326c9030 plays EI_ROSE_EVENT_INT. Not here: case 0x12 ( titles, Phase S7n ), case 0x14 ( June's
+//              achievement system, none in March ). Log [JUNE_SKILL] EMBLEM. Revert: comment out the define.
+#define SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#ifndef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER needs SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM ( S7i's dialog fade / close / playing test )
+#endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifndef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER needs ADD_PLAY_MUSIC_WHEN_EMBLEM_POP ( the emblem sound members )
+#endif ADD_PLAY_MUSIC_WHEN_EMBLEM_POP
+#ifndef DIALOG_SHOW_TOGGLE
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER needs DIALOG_SHOW_TOGGLE ( GetHideDialog = June 31d03920 )
+#endif DIALOG_SHOW_TOGGLE
+#ifndef FIELD_BOSS_RAID
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER needs FIELD_BOSS_RAID ( CX2BossRaidManager, emblems 7 / 8 )
+#endif FIELD_BOSS_RAID
+#ifndef SERV_IRUHADEV_RANOX_PORT
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER needs SERV_IRUHADEV_RANOX_PORT ( VMI_BATTLE_FIELD_RANOX_FIELD_01 - 04 )
+#endif SERV_IRUHADEV_RANOX_PORT
+#ifndef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE ( PlaySound's 4th argument )
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER needs SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ( the 5-argument SetBuffFactorToGameUnitByBuffFactorID )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7l debug ( short-lived, off after the review ): the dev console's JuneEmblem( id ) plays an
+//              emblem ( for 7 also the two boss-gate rows ), so the expand textures can be seen offline, where no gate opens.
+#define SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#error SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG needs SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
+//////////////////////////////////////////////////////////////////////////

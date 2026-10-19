@@ -9,6 +9,24 @@
 #ifdef NEW_EMBLEM_MANAGER
 
 CX2EmblemManager* CX2EmblemManager::m_pEmblemManager = NULL;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
+/// S7l debug: the dev console's JuneEmblem( id ) = PlayEmblem( id, true ); for 7 ( EI_OPEN_FIELD_BOSS_RAID ) also the two one-shot
+/// rows the boss-gate open handler adds ( 3269f940; Hamel field 1 / raid field 40026 textures ), since offline no gate opens
+static void JuneEmblem_LUA( int iEmblemID_ )
+{
+	CX2EmblemManager* pManager = CX2EmblemManager::GetInstance();
+	const CX2EmblemManager::EMBLEM_ID eEmblemID = static_cast<CX2EmblemManager::EMBLEM_ID>( iEmblemID_ );
+	if( CX2EmblemManager::EI_OPEN_FIELD_BOSS_RAID == eEmblemID )
+	{
+		pManager->JuneAddExpandTexture( eEmblemID, CX2EmblemManager::EmblemExpandTexture( L"RaidField_Open_Hamel_0.dds", 570.f, 265.f, true ) );
+		pManager->JuneAddExpandTexture( eEmblemID, CX2EmblemManager::EmblemExpandTexture( L"RaidField_Area_0.dds", 570.f, 295.f, true ) );
+	}
+	pManager->PlayEmblem( eEmblemID, true );
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM debug: JuneEmblem( %d ), listed = %d", iEmblemID_, pManager->HasEmblem( eEmblemID ) ? 1 : 0 );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
 /*static */CX2EmblemManager* CX2EmblemManager::GetInstance()
 {
 	if( NULL == m_pEmblemManager)
@@ -69,6 +87,9 @@ bool CX2EmblemManager::OpenScriptFile( IN const WCHAR* pFileName_ )
 {
 	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState(), 0, false );
 	lua_tinker::decl( g_pKTDXApp->GetLuaBinder()->GetLuaState(),  "g_pEmblemManager", this );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
+	lua_tinker::def( g_pKTDXApp->GetLuaBinder()->GetLuaState(), "JuneEmblem", &JuneEmblem_LUA );	/// S7l debug: JuneEmblem( 7 )
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
 
 
     if ( g_pKTDXApp->LoadLuaTinker( pFileName_ ) == false )
@@ -203,6 +224,26 @@ void CX2EmblemManager::ParsingEmblemTemplet( KLuaManager& luaManager )
 			luaManager.EndTable();
 #endif // ADD_2013_CHARACTER_ADD_EVENT	// ±èÁ¾ÈÆ, 2013 ¾Öµå Ãß°¡ ±â³ä ¹ö´× ÀÌº¥Æ®
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+			/// June 32449000: EXPAND_TEXTURE_FILE_NAME rows { name, x, y } -> entry +0x74 ( 3244f6f0 ), the one-shot byte 0. June looks the
+			/// table up right after the sound loop, while PLAY_SOUND_FILE_NAME_EMBLEM ( when present ) is still open, so an entry with both
+			/// gets no expand rows ( JUNE_BUGS; no June entry has both ). Each row is closed; the table itself is closed by the EndTable
+			/// before the push ( @3244acef ). June reads no OPEN_TIME_SETTING ( March's block above is ADD_2013_CHARACTER_ADD_EVENT, OFF ).
+			if( true == luaManager.BeginTable( "EXPAND_TEXTURE_FILE_NAME" ) )
+			{
+				int iIndex = 1;
+				while( true == luaManager.BeginTable( iIndex++ ) )
+				{
+					EmblemExpandTexture sExpandTexture;
+					luaManager.GetValue( 1, sExpandTexture.m_wstrTextureFileName, L"" );
+					luaManager.GetValue( 2, sExpandTexture.m_vPos.x, 0.f );
+					luaManager.GetValue( 3, sExpandTexture.m_vPos.y, 0.f );
+					sExpandTexture.m_bOneShot = false;
+					pEmblemTemplet->m_vecJuneExpandTexture.push_back( sExpandTexture );
+					luaManager.EndTable();
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 #ifndef ADD_2013_CHARACTER_ADD_EVENT
 			/// June 32449000 @3244acef: the EndTable before the push is unconditional in June ( it closes the PLAY_SOUND_FILE_NAME_EMBLEM
@@ -540,11 +581,124 @@ void CX2EmblemManager::InitEmbelmPlayInfo( bool bCharChange /*= false */)
 #ifdef SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
 		JuneCloseEmblemDialog();	/// June 324485d0 @3244864c
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+		JuneDestroyExpandTexture();	/// June 324485d0: then the +0x44 expand textures ( the wait stays 3.0, 33436700 )
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 	}
 
 	m_fWaitTime = 3.f;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+/// June 3244c8c0 ( whole ). Beyond S7i's dialog fade: the expand textures ( +0x44 ) follow the camera every frame, the cash shop
+/// closes them too, a live one holds the next emblem, the hide-dialog test ( 31d03920 ) gates the pick ( a hidden emblem stays
+/// pending instead of being spent ), and the state switch runs on June's ids: 0xb / 0x17 dungeon ( 0x17 = XS_PVE_GAME, no March
+/// state ), 0xe / 0xf village ( 0xf = XS_GUILD_AGIT_GAME, no March state ), 0x15 battle field minus June's raid fields ( 32482650
+/// type 2 / 3, = March's GetIsBossRaidCurrentField ), anything else returns.
+void CX2EmblemManager::OnFrameMove( float fElpaseTime )
+{
+	/// the sounds start on time ( = March )
+	m_fSoundPlayingCheckTime += fElpaseTime;
+	BOOST_FOREACH( EmblemPopupSound& sEmblemPopupSound, m_vecNowPlayEmblemSound )
+	{
+		if( m_fSoundPlayingCheckTime >= sEmblemPopupSound.m_fStartTime && false == sEmblemPopupSound.m_bIsPlaying )
+		{
+			CKTDXDeviceSound* pSound = g_pKTDXApp->GetDeviceManager()->PlaySound( sEmblemPopupSound.m_wstrSoundFileName.c_str(), false, false, false );
+			m_vecPlayingEmblemSound.push_back( pSound );
+			sEmblemPopupSound.m_bIsPlaying = true;
+		}
+	}
+
+	JuneFollowExpandTexture();	/// @3244c937
+
+	/// @3244ca9b: the cash shop is open ( g_pData +0x290, +0xd8 ): everything shown is closed
+	if( NULL != g_pData->GetCashShop() &&
+		true == g_pData->GetCashShop()->GetOpen() )
+	{
+		if( NULL != g_pData->GetUIMajorParticle() )
+		{
+			if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hCurrentEmblem )
+				g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hCurrentEmblem );
+
+			if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hCurrentEmblem2nd )
+				g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hCurrentEmblem2nd );
+			JuneCloseEmblemDialog();
+			JuneDestroyExpandTexture();
+		}
+		return;
+	}
+
+	JuneFadeEmblemDialog( fElpaseTime );	/// @3244cb66
+	if( m_fWaitTime > 0 )
+	{
+		m_fWaitTime -= fElpaseTime;
+		return;
+	}
+
+	if( NULL == g_pData->GetUIMajorParticle() || false == m_bHasNextPlayEmblem || true == JuneIsEmblemPlaying() )
+		return;
+
+	if( true == JuneIsExpandTextureLive() )
+		return;
+
+	m_hCurrentEmblem = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hCurrentEmblem2nd = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	JuneCloseEmblemDialog();
+	m_eJuneNowEmblemID = EI_NONE;
+	m_vecJuneExpandHandle.clear();
+	BOOST_FOREACH( EmblemTemplet* pEmblem, m_vecEmblemTemplet )
+	{
+		switch( g_pMain->GetNowStateID() )
+		{
+		case CX2Main::XS_DUNGEON_GAME:		/// June 0xb ( and 0x17 )
+			{
+				if( false == pEmblem->m_bShowDungeon )
+					continue;
+
+				if( true == g_pMain->GetIsPlayingTutorial() )	/// g_pMain +0x16a
+				{
+					pEmblem->m_bIsAlreadyShow = true;
+					continue;
+				}
+			}
+			break;
+		case CX2Main::XS_VILLAGE_MAP:		/// June 0xe ( and 0xf )
+			{
+				if( false == pEmblem->m_bShowVilleage )
+					continue;
+			}
+			break;
+		case CX2Main::XS_BATTLE_FIELD:		/// June 0x15
+			{
+				if( false == pEmblem->m_bShowBattleFIeld )
+					continue;
+
+				if( true == g_pData->GetBattleFieldManager().GetIsBossRaidCurrentField() )
+					continue;
+			}
+			break;
+		default:
+			return;
+			break;
+		}
+
+		/// @3244ce15
+		if( false == pEmblem->m_bIsAlreadyShow &&
+			true == pEmblem->m_bIsPassCondition &&
+			false == g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() )
+		{
+			pEmblem->m_bIsAlreadyShow = true;
+			pEmblem->m_bIsPassCondition = false;
+
+			PlayEmblemEffect(*pEmblem);
+			JunePlayExpandTextureAndSound(*pEmblem);	/// 32448ce0
+			PlayEmblemOtherProcess(*pEmblem);
+			CheckNextPlayingEmblem();
+			break;
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 void CX2EmblemManager::OnFrameMove( float fElpaseTime )
 {
 #ifdef ADD_PLAY_MUSIC_WHEN_EMBLEM_POP		// ±èÁ¾ÈÆ, ¿¥ºí·½ µîÀå ½Ã, »ç¿îµå Ãâ·Â ±â´É Ãß°¡
@@ -683,6 +837,7 @@ void CX2EmblemManager::OnFrameMove( float fElpaseTime )
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 /** @function : CheckNextPlayingEmblem
 	@brief : ´ÙÀ½¿¡ Ãâ·Â ÇÒ ¿¥ºí·³ÀÌ ÀÖ´ÂÁö Ã¼Å©
 */
@@ -734,6 +889,11 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 	{
 	case EI_EVENT_ELESIS:
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+			/// June 3244c4b0 case 5: my unit is tested too ( g_pX2Game vslot 0x98 ), then vslot 0x21c( 0x9a, ... ) = S3e's call
+			if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() )
+				g_pX2Game->GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF, 1, NULL, 0, false );
+#else SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 			if ( NULL != g_pX2Game )
 			{
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
@@ -742,6 +902,7 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 				g_pX2Game->GetMyUnit()->SetBuffFactorToGameUnitByBuffFactorID( BFI_EMPTY_EXP_BUFF );
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
 			}
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 		} break;
 
 #ifdef EVENT_NEW_HENIR
@@ -758,6 +919,24 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 #ifdef FIELD_BOSS_RAID
 	case EI_OPEN_FIELD_BOSS_RAID:
 		{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+			/// June 3244c4b0 case 7: string 32159 ( 0x7d9f, "SS" ) names the field that opened the gate ( +8 ) and the raid field ( +4 )
+			/// ( March: 29332 with the first only ); the system line's colours as March's, the sound auto-released ( 4th argument 1 )
+			if( NULL != g_pChatBox )
+			{
+				const SEnum::VILLAGE_MAP_ID eBossFieldMapId = CX2BossRaidManager::GetInstance()->GetBossRaidCreatorMapID();
+				if( eBossFieldMapId != SEnum::VMI_INVALID )
+				{
+					const SEnum::VILLAGE_MAP_ID eRaidFieldMapId = CX2BossRaidManager::GetInstance()->GetBossRaidMapID();
+					const int iStringID = 32159;
+					g_pChatBox->AddChatLog( GET_REPLACED_STRING( ( iStringID, "SS",
+						g_pData->GetBattleFieldManager().GetBattleFieldNameByBattleFieldId( eBossFieldMapId ),
+						g_pData->GetBattleFieldManager().GetBattleFieldNameByBattleFieldId( eRaidFieldMapId ) ) ),
+						KEGS_CHAT_REQ::CPT_SYSTEM, D3DXCOLOR(1,1,0,1), L"#CFF0000" );
+				}
+			}
+			g_pKTDXApp->GetDeviceManager()->PlaySound( L"ES_FieldRaidBoss_Gate_Notice.ogg", false, false, true );
+#else SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 			if( NULL != g_pChatBox )
 			{
 				const SEnum::VILLAGE_MAP_ID eBossFieldMapId = CX2BossRaidManager::GetInstance()->GetBossRaidCreatorMapID();
@@ -768,6 +947,7 @@ void CX2EmblemManager::PlayEmblemOtherProcess( const EmblemTemplet& sEmblemTempl
 				}
 			}
 			g_pKTDXApp->GetDeviceManager()->PlaySound( L"ES_FieldRaidBoss_Gate_Notice.ogg", false, false );
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 		} break; 
 	case EI_CLOSE_FIELD_BOSS_RAID:
 		{
@@ -1119,6 +1299,165 @@ void CX2EmblemManager::JuneSetNewSkillOrMemoText( int iIndex_, int iSkillID_, in
 	pStatic->SetShow( true );
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM
+#ifdef SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
+/// June 32448fd0: an expand row for every entry with this id ( the boss-raid gate rows, 3269f940 )
+void CX2EmblemManager::JuneAddExpandTexture( EMBLEM_ID eEmblemID_, const EmblemExpandTexture& sExpandTexture_ )
+{
+	BOOST_FOREACH( EmblemTemplet* pEmblem, m_vecEmblemTemplet )
+	{
+		if( eEmblemID_ == pEmblem->m_eEmblemID )
+			pEmblem->m_vecJuneExpandTexture.push_back( sExpandTexture_ );
+	}
+}
+
+/// June 32448ce0 ( after PlayEmblemEffect ): unless dialogs are hidden, each expand row becomes a particle over the UI at ( x, y, 0 )
+/// ( 32447e50 with the entry's times, +0x170 = 1, CreateInstanceNonTemplet ) kept in +0x44; a one-shot row ( +0x24 ) is erased once
+/// shown. Then the sounds PlayEmblemEffect picked are cleared and picked again ( JUNE_BUGS ).
+void CX2EmblemManager::JunePlayExpandTextureAndSound( EmblemTemplet& sEmblemTemplet_ )
+{
+	if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() )
+		return;
+	if( NULL == g_pData || NULL == g_pData->GetUIMajorParticle() )
+		return;
+
+	int iShown = 0;
+	int iErased = 0;
+	vector<EmblemExpandTexture>::iterator vIt = sEmblemTemplet_.m_vecJuneExpandTexture.begin();
+	while( vIt != sEmblemTemplet_.m_vecJuneExpandTexture.end() )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSequence =
+			CreateEventSequence( vIt->m_wstrTextureFileName.c_str(), sEmblemTemplet_.m_vecTime );
+		if( NULL != pSequence )
+		{
+			pSequence->SetOverUI( true );
+			m_vecJuneExpandHandle.push_back( g_pData->GetUIMajorParticle()->CreateInstanceNonTemplet( pSequence,
+				D3DXVECTOR3( vIt->m_vPos.x, vIt->m_vPos.y, 0.f ), D3DXVECTOR2( -1, -1 ), D3DXVECTOR2( -1, -1 ) ) );
+			++iShown;
+		}
+
+		if( true == vIt->m_bOneShot )
+		{
+			vIt = sEmblemTemplet_.m_vecJuneExpandTexture.erase( vIt );
+			++iErased;
+		}
+		else
+			++vIt;
+	}
+#ifdef SERV_IRUHADEV_OFFLINE
+	if( 0 < iShown || 0 < iErased )
+		CX2OfflineLog::Server( L"[JUNE_SKILL] EMBLEM expand: emblem %d shows %d expand texture(s), %d one-shot row(s) erased, %d live handle(s)",
+			static_cast<int>( sEmblemTemplet_.m_eEmblemID ), iShown, iErased, static_cast<int>( m_vecJuneExpandHandle.size() ) );
+#endif SERV_IRUHADEV_OFFLINE
+
+	JunePickEmblemSound( sEmblemTemplet_ );
+}
+
+/// June 32448ce0 @32448e4d: the pick again ( = March's in PlayEmblemEffect ): list and timer cleared, every type 0 row, one random
+/// type 1 row of my unit type ( srand( time ) then rand )
+void CX2EmblemManager::JunePickEmblemSound( const EmblemTemplet& sEmblemTemplet_ )
+{
+	vector<EmblemPopupSound> vecEmblemPopupSoundPickJustOneUnitType;
+	m_vecNowPlayEmblemSound.clear();
+	m_fSoundPlayingCheckTime = 0.f;
+	BOOST_FOREACH( const EmblemPopupSound& sEmblemPopupSound, sEmblemTemplet_.m_vecPlayEmblemSoundTemplet )
+	{
+		switch( sEmblemPopupSound.m_eEmblemPopupSoundType )
+		{
+		case EPST_NONE:
+			{
+				m_vecNowPlayEmblemSound.push_back( sEmblemPopupSound );
+			}
+			break;
+
+		case EPST_RELATIVE_UNIT_TYPE_RANDOM:
+			{
+				if( NULL != g_pData->GetMyUser() &&
+					NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+					NULL != g_pData->GetMyUser()->GetSelectUnit()->GetUnitTemplet() &&
+					g_pData->GetMyUser()->GetSelectUnit()->GetType() == sEmblemPopupSound.m_eUnitType )
+				{
+					vecEmblemPopupSoundPickJustOneUnitType.push_back( sEmblemPopupSound );
+				}
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	const int iArraySize = static_cast<int>( vecEmblemPopupSoundPickJustOneUnitType.size() );
+	if( iArraySize > 0 )
+	{
+		srand( (unsigned) time( NULL ) );
+		const int iRandomArray = rand() % iArraySize;
+		if( iArraySize > iRandomArray )
+			m_vecNowPlayEmblemSound.push_back( vecEmblemPopupSoundPickJustOneUnitType[iRandomArray] );
+	}
+}
+
+/// June 3244c8c0 @3244c937: each live expand texture is placed by the camera eye ( g_pKTDXApp +0x1fc DGManager, camera +0x17c, eye
+/// +0x44 ): the first at the eye's z, each later one further out by the length of ( |eye.x| + x, |eye.y| + y ) plus 1.0 ( 334355b0 ),
+/// on the eye's side of 0; then SetPosition( pos, false, false ) ( 31cf1a40 )
+void CX2EmblemManager::JuneFollowExpandTexture()
+{
+	if( true == m_vecJuneExpandHandle.empty() || NULL == g_pData->GetUIMajorParticle() )
+		return;
+
+	const D3DXVECTOR3 vEye = g_pKTDXApp->GetDGManager()->GetCamera().GetEye();
+	int iIndex = 0;
+	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecJuneExpandHandle )
+	{
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE == hHandle ||
+			false == g_pData->GetUIMajorParticle()->IsLiveInstanceHandle( hHandle ) )
+			continue;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSequence = g_pData->GetUIMajorParticle()->GetInstanceSequence( hHandle, true );
+		if( NULL == pSequence )
+			continue;
+
+		D3DXVECTOR3 vPos = pSequence->GetPosition();
+		if( 0 == iIndex )
+			vPos.z = vEye.z;
+		else
+		{
+			const float fX = fabs( vEye.x ) + vPos.x;
+			const float fY = fabs( vEye.y ) + vPos.y;
+			const float fSquare = fY * fY + fX * fX;
+			const float fLength = static_cast<float>( sqrt( fSquare ) );
+			if( 0.f <= vEye.z )
+				vPos.z = fLength + vEye.z + 1.f;
+			else
+				vPos.z = vEye.z - fLength - 1.f;
+		}
+		pSequence->SetPosition( vPos );
+		++iIndex;
+	}
+}
+
+/// June 3244c8c0: an expand texture still alive keeps the next emblem waiting ( after the 32447870 test )
+bool CX2EmblemManager::JuneIsExpandTextureLive() const
+{
+	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecJuneExpandHandle )
+	{
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE != hHandle &&
+			true == g_pData->GetUIMajorParticle()->IsLiveInstanceHandle( hHandle ) )
+			return true;
+	}
+	return false;
+}
+
+/// June 324485d0 / 3244c8c0 ( both with the UI particle system present ): destroy every expand texture, then clear the list
+void CX2EmblemManager::JuneDestroyExpandTexture()
+{
+	BOOST_FOREACH( CKTDGParticleSystem::CParticleEventSequenceHandle hHandle, m_vecJuneExpandHandle )
+	{
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE != hHandle )
+			g_pData->GetUIMajorParticle()->DestroyInstanceHandle( hHandle );
+	}
+	m_vecJuneExpandHandle.clear();
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #endif // NEW_EMBLEM_MANAGER
 
 #ifdef ADD_2013_CHARACTER_ADD_EVENT		// 2013 ¾Öµå Ãß°¡ ±â³ä ¹ö´× ÀÌº¥Æ®
