@@ -500,7 +500,17 @@ its 10 sites were re-read before the guards went in.
 - Hygiene: `flagcheck JUNE_QUEST_DATA --worktree`: 2 PASS, 2 PASS~ (blank/marker only), 1 OTHER (Always.h), 0 FAIL, 0 deleted lines, 0 encoding changes, RESULT: PASS.
 - Deploy: `DEPLOY OK: X2_offline.exe is 25,305,088 B, dated 2026-10-19 08:02:40, md5 134d1b2edaaba175e675fe62d91841d1` (main 4c96fcc5 + uncommitted;
   the `MIG v21 done` and guard strings are in the exe).
-- **How to see it:** the hand-off below. Open for the user: nothing.
+- **Play-test (user, 2026-10-19): PASSED.** Log of the deployed exe:
+  - `MIG v21 done: 25 unit(s); in-progress dropped 16, epic next accepted 5, progress reset 42, completed dropped 19`; the 38 per-unit lines equal
+    `q2_expected_mig.txt` line for line.
+  - The save is v21 and holds the accepted epics (12: 18030 / 21920; 19: 14010; 24 / 43: 12020). None of the dropped ids remain.
+  - LOAD: `quests 1635 sub-quests 3218 guild skipped 18 chain entries 1 ( AddChainQuestDays calls 5 applied 1 )`.
+    - 1,635 = 1,638 June ids minus the 3 guild quests in FieldQuest (35600 / 35610 / 35620). Guild skipped 18 = those 3 plus GuildQuest's 15.
+    - 3,218 = 3,219 minus sub-quest 205680, a June dev test that names the nil `NPC_UNIT_ID.NUI_` (`SubQuestTempletLoadFail_205680`, JUNE_BUGS 331).
+      No quest uses it. The ErrorLog writes XEM_ERROR80 as `ErrorEnum(10080)`; grep that.
+    - Chain: all 91 June chain quests carry `m_iChainID = 1`, so only 1 of ChainQuestInfo's 5 rows can apply. That is June's data. No chain quest
+      failed to load, so the Q1-review difference (chain index written only for a stored quest) does not show.
+  - 0 EXCEPTION. The 6 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, outside this phase. No guard fired.
 
 ## Phase Q3 - Quest manager runtime to June
 

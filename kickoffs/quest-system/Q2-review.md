@@ -30,6 +30,8 @@ Review Q2's commits against the census and the user's four answers (Done note). 
 - **The guards** in `X2UIQuestNew.cpp`: the two complete-ack handlers (1468 / 2017) and the four stored-id readers
   (`GetPartyUIQuestIcon`, `GetLocalMapQuestDesc`, `UpdateUIQuestSlotInfo`, `SetUIQuickQuestSlotInfo`). The survey that chose them is
   in the Done note; check that no other live unchecked reader can see a quest id with no templet.
+- **Sub-quest 205680** (JUNE_BUGS 331): read the `SQT_NPC_TALK` case of `32323ad0` in Ghidra and settle whether June's own reader refuses a nil
+  `m_eTalkNPCID`, as the port does. If it does not, the port differs from June: fix it under `JUNE_QUEST_LOAD`. Then update row 331 either way.
 - **The flip.** `data036` ships June's three files byte-exact (`luasrc.py ledger --check`, the adopt record `june2017_re/june_adopt_20261019_074358.tsv`);
   the load census moved off March's 1,460 / 1,733.
 
