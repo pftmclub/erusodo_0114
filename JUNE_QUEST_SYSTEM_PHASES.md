@@ -1173,7 +1173,7 @@ clean `ErrorLog.txt` (below). Sonnet did everything here.
 
 **Done gate:** completing 22336 (dev console) plays the Elysion clear movie with subtitles, then returns to the game.
 
-### Q8 - Done (2026-10-19, Opus 5.5 high; built + deployed, play-test pending)
+### Q8 - Done (2026-10-19, Opus 5.5 high; built + deployed, play-test PASSED 2026-10-19)
 
 **Landed:** flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE` (Always.h; needs `JUNE_QUEST_UI`, `REFORM_ENTRY_POINT`, `MOVIE_TEST_BASE`, all confirmed ON by `flagprobe.py`).
 19 funcmap rows `(Quest Q8)`; JUNE_BUGS 358-359.
@@ -1220,10 +1220,12 @@ full build at 14420b7d + 30 uncommitted files, started after this request). The 
 **How to see it in game:** complete quest 22336 at its NPC. The Elysion movie plays full screen with subtitles, sound off, UI hidden. At its end (or skip -> OK)
 the game returns and the reward arrives; `offline_packets.log` shows QUEST_COMPLETE_REQ only after the movie.
 
-**Open for the user:**
-- Copy the four koms.
-- Copy June's movie files into the game's `data\movie\`. Without a file the movie never reaches PLAYING; the log says so, and the skip still ends it
-  (June's behaviour).
+**Play-test (PASSED, user + log):** quest 22336 normal complete -> the movie played (status 3), skip OK -> stop -> QUEST_COMPLETE_REQ HANDLED, quest complete,
+22337 granted; an earlier run played to the end (status 5). 0 EXCEPTION. Test setup: unit 41 to level 90 (epic play level 90 = `QSS_WAIT_EPIC` below it, June's rule).
+The admin Complete button sends `EGS_ADMIN_QUEST_COMPLETE_REQ`, which the emulator ignores (pre-existing, left as is). Koms copied (data036 was already live);
+all 31 missing June movies copied loose into `data\movie\`. The "ui mode" log line names Q8b for `31d87560`'s bodies; they are Stage 26's (review fixes the string).
+
+**Open for the user:** none.
 
 ## Phase Q8b - The quest window's scenario-movie tab
 
