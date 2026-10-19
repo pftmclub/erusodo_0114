@@ -2064,25 +2064,6 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				g_pKTDXApp->SendGameMessage( XGM_QUIT_GAME, NULL, NULL, false );
 			}break;
 #endif //SERV_ACCOUNT_BLOCK_MESSAGE_RENEWAL // ACCOUNT_BLOCK_MESSAGE_RENEWAL_KR
-#ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
-	case SUCM_JUNE_TITLE_TEN_OK:
-		{
-			/// June 31f26bfb: close the box ( 31be4210( 0x472 = XGM_DELETE_DIALOG ) on the control's dialog ), then 327009b0
-			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
-			if( NULL != pControl )
-				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pControl->GetDialog(), NULL, false );
-			if( NULL != g_pData->GetTitleManager() )
-				g_pData->GetTitleManager()->JuneEquipTitleTen();
-		} break;
-	case SUCM_JUNE_TITLE_TEN_CANCEL:
-		{
-			/// June 31f26c45: close the box, then title manager +0xac = 0 ( June does not test the manager for null )
-			CKTDGUIControl* pControl = (CKTDGUIControl*)lParam;
-			if( NULL != pControl )
-				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, pControl->GetDialog(), NULL, false );
-			g_pData->GetTitleManager()->JuneCancelTitleTen();
-		} break;
-#endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 	}
 
 
@@ -9001,25 +8982,6 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_BUY_UNIT_CLASS_CHANGE_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
-	
-#pragma region 유닛 전직
-	if( NULL != g_pData->GetMyUser()->GetSelectUnit() )
-	{
-		g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_kUnitInfo );
-	}
-
-#ifdef SERV_GLOBAL_BILLING
-	// 해외는 CHANGE JOB CASH ITEM 사용 시 캐시샵을 닫는다
-	if (g_pData->GetCashShop() != NULL && g_pData->GetCashShop()->GetOpen() == true)
-	{
-		CX2StateMenu* pStateMenu = (CX2StateMenu*) this;
-		if(NULL != pStateMenu)
-			pStateMenu->ToggleCashShop();
-	}
-#endif //SERV_GLOBAL_BILLING
-
-	g_pData->GetClassChangePopup().SetShow( true );
-
 #ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	/// June skill system S7h: June's handler 31f276b0 ( dispatcher 31f2ab80 case 0x363 ), whole. June keeps no memo map and sets no
 	/// per-page default skills: both bars are emptied and the acquired map takes the packet's list.
@@ -9139,6 +9101,25 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 #endif SERV_IRUHADEV_OFFLINE
 	return true;
 #else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+	
+#pragma region 유닛 전직
+	if( NULL != g_pData->GetMyUser()->GetSelectUnit() )
+	{
+		g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_kUnitInfo );
+	}
+
+#ifdef SERV_GLOBAL_BILLING
+	// 해외는 CHANGE JOB CASH ITEM 사용 시 캐시샵을 닫는다
+	if (g_pData->GetCashShop() != NULL && g_pData->GetCashShop()->GetOpen() == true)
+	{
+		CX2StateMenu* pStateMenu = (CX2StateMenu*) this;
+		if(NULL != pStateMenu)
+			pStateMenu->ToggleCashShop();
+	}
+#endif //SERV_GLOBAL_BILLING
+
+	g_pData->GetClassChangePopup().SetShow( true );
+
 	switch ( g_pMain->GetNowStateID() )
 	{
 	case CX2Main::XS_BATTLE_FIELD:
@@ -9327,6 +9308,7 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 #endif //ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 }
 #endif
 
@@ -9346,7 +9328,6 @@ bool CX2State::Handler_EGS_UPDATE_EVENT_MONEY_NOT(HWND hWnd, UINT uMsg, WPARAM w
 		g_pInstanceData->GetMiniMapUI()->UpdateAngelsFeatherCount(kEvent.m_iEventMoney);
 	}
 	return true;
-#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 }
 #endif //SERV_EVENT_MONEY
 
