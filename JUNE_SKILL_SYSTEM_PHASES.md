@@ -2088,6 +2088,8 @@ Funcmap tag `Skill S7l`. JUNE_BUGS 344-346. Revert: `MODS.md` "The rest of June'
 - **Debug off.** In `Always.h`: `//#define SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG // off since the S7l review` (bytepatch, one line, CRLF; peers' Always.h edits left alone).
   `DEPLOY OK: X2_offline.exe is 25,378,304 B, dated 2026-10-19 13:32:18, md5 d6d5904ead27d67a1a21bf16e78a9b94, equal to X2/US_SERVICE/x2.exe (2026-10-19 13:32:11); built at main 6785efa9 + 5 uncommitted code file(s).`
   The exe has no `JuneEmblem` / `EMBLEM debug` string; `EMBLEM expand` and `RaidField_Area_0.dds` are still in it.
+  `flagcheck SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG --range 013e9681^..013e9681`: `1 DEFINE`, `1 deleted line(s)`, `RESULT: FAIL` ("not #defined anywhere tracked"). That is the intended debug-off:
+  the deleted line is the define, now commented out. `JUNE_SKILL_EMBLEM_MANAGER` is unchanged.
 - **Open questions:** none. Next: **S7n**; its kickoff is checked and needs no change.
 
 ## Phase S7n - June's new-title notice (emblem 18)
