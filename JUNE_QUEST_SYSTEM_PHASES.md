@@ -940,6 +940,34 @@ difficulty?" - no: the data carries `m_bUpperDifficulty`, the server reads it, t
 - Task: audit, parse the flag for those types (optional, default false), check what else reads the struct, play-test Expert on 22182 / 22183.
 - Kickoff: `kickoffs/quest-system/Q4d.md`. Q4 itself stays done (review PASS); this is a new phase of the same subject, not a reopening.
 
+### Q4d - Done (2026-10-19, Sonnet 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF` (needs `JUNE_QUEST_OFFLINE`; `#error` guard). Client parser only; the emulator is unchanged.
+- **Audit.** Server reads `m_bUpperDifficulty` at `XSLQuestManager.cpp` 883, 943, 1013, 1039, 1065, 1096, 1142, 1200, 1318, 1353, 1437. The client
+  parser (`X2QuestManager.cpp` `LoadClearCondition`) already reads it at the matching types (`NPC_HUNT`, `QUEST_ITEM_COLLECTION`, `DUNGEON_TIME / RANK /
+  DAMAGE`, the `DUNGEON_CLEAR_COUNT` body shared with `SUITABLE_LEVEL_DUNGEON_CLEAR` and `HAS_EXP_DUNGEON_CLEAR`, `WITH_DIF_SERV_USER`,
+  `ITEM_EQUIP_DUNGEON_CLEAR`, `PVE_WIN`). **Missing: exactly `VISIT_DUNGEON` (26), `FIND_NPC` (27), `ITEM_USE` (22).** The plan's lead listed two more
+  (`DUNGEON_CLEAR_COUNT`, `SUITABLE_LEVEL_DUNGEON_CLEAR`); the client reads both. Cause: offline phase 30 (`2e63a803`, Jan source) had added these three
+  reads under `SERV_IRUHADEV_OFFLINE`; the March snapshot overwrote them and the migration never re-applied them.
+- **Fix.** Three optional `LUA_GET_VALUE( ..., false )` reads, one per case, no `#else` (the original had no read). The emulator's
+  `IsExistDungeonInSub` (dungeon*10+difficulty half-compare) already does the rest; its VISIT / FIND / ITEM_USE call sites (`X2OfflineQuest.cpp`
+  2551, 2619, 2976) all pass `iDungeonID + cDifficulty`.
+- **Dry check (June `FieldSubQuest`).** Flagged `m_bUpperDifficulty = True`: `VISIT_DUNGEON` 101 of 136, `FIND_NPC` 41 of 49, `ITEM_USE` 0 of 14. So 142
+  sub-quests change behaviour (accept the named dungeon at its difficulty or harder); the other 36 + 8 + 14 stay exact-match. `SUITABLE_LEVEL_DUNGEON_CLEAR`
+  has 0 flagged of 138, `DUNGEON_CLEAR_COUNT` 187 of 501 (already read).
+- **Other readers of the struct (no label or gate changes for these types).** `GetPartyUIQuestIcon` (`X2UIQuestNew.cpp:3828`) already forces upper for
+  VISIT / FIND; `GetLocalMapQuestDesc` is the `#else` of `REFORM_QUEST`; `SetQuestMonsterByQuestInfo` needs kill NPCs (not these types);
+  `X2DungeonGame` 2947-3012 reads it for `DUNGEON_TIME` only; the auto-description cases in `X2QuestManager.cpp` (4301...) are in `#ifndef REFORM_QUEST`
+  and have no VISIT / FIND / ITEM_USE case. `X2TitleManager` has its own struct. The Q4 census now prints `upperDiff=1` counts for types 26 / 27 (expect
+  about 88 of 121 and 39 of 47 after the server-group filter, as phase 30 recorded).
+- **Hygiene** (`flagcheck --worktree --files X2Lib/X2QuestManager.cpp KTDXLIB/Always.h`): `files: 1 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other
+  flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,505,792 B, dated 2026-10-19 22:51:24, md5 c700eef78e9f305e5217ce64b924316d, equal to X2/US_SERVICE/x2.exe (2026-10-19 22:51:17); built at main 545a5aeb + 2 uncommitted code file(s).`
+- **No data, no pack, no save change.** Revert line: `MODS.md` "sub-quest 'or harder difficulty' flag".
+- **Not play-tested:** "a sub-quest without the flag still refuses Hard" holds by construction (`IsExistDungeonInSub` unchanged); it is not walked.
+- **Play-test = Q9 A3** (`june2017_re/quest_plan/q9_walk_checklist.md`): Burnt Forest Expert, 22182 then 22183; log `grep "VISIT quest 22162|upperDiff" offline_server.log`.
+
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_UI`. Sub-tag `UI`.

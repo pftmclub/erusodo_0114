@@ -9589,3 +9589,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 #endif SERV_IRUHADEV_JUNE_QUEST_MSGPROC
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q4d - the client quest parser reads m_bUpperDifficulty ( "this dungeon at this difficulty or harder" )
+//              for SQT_VISIT_DUNGEON, SQT_FIND_NPC and SQT_ITEM_USE, as the server parser does. The March client dropped the key for those
+//              three types ( the Jan-source read of offline phase 30 was overwritten by the March snapshot ), so the emulator, which copies
+//              the client's parsed struct, matched the exact dungeon id only: Burnt Forest Expert did not count for 22182 "Enter Burnt Forest".
+//              Optional key, default false, so no load can start failing. Revert: JUNE_QUEST_UPPER_DIFF in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
+#ifndef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#error SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF needs SERV_IRUHADEV_JUNE_QUEST_OFFLINE ( the emulator whose dungeon match reads the flag )
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#endif SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
+//////////////////////////////////////////////////////////////////////////

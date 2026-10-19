@@ -4684,3 +4684,10 @@ Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION` in `KTDXLIB/Always.h` **and** at the en
 - **What changes in game.** Nothing in normal play. With auth level 3, the console command `Slash_rm( type, goal, seconds )` sets a mission that starts with the next stage; `Slash_rmexp( n )` / `Slash_rmbuff( n )` grant EXP / a buff.
 - **Data.** June `DLG_UI_Random_Mission.lua`, `DLG_UI_Random_Mission_PopUp.lua` added to data034 and **June's `GameEditCommandList.lua` replaced March's in data036** (same-name rule; +119 Slash functions, backup in `kom_backup_stage_june`); June `DLG_UI_Common_Texture83_NEW` / `84_NEW` `.tga/.TET` added to data057. Packed, copy asked.
 - **Revert:** comment out both defines, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The koms can stay (the new dialogs are never created; March's `GameEditCommandList` is in the backup folder). No save change.
+
+### June quest system: the sub-quest "or harder difficulty" flag (quest-system Q4d, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF` in `KTDXLIB/Always.h` (`#error`s without `JUNE_QUEST_OFFLINE`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q4d - Done"; log lines `QUEST    VISIT` / `FINDNPC` (they print `upperDiff=`) and the `CENSUS` rows for clear types 26 / 27.
+- **Client.** `X2QuestManager.cpp` `LoadClearCondition`: reads the optional key `m_bUpperDifficulty` (default false) for `SQT_VISIT_DUNGEON`, `SQT_FIND_NPC` and `SQT_ITEM_USE`, as `CXSLQuestManager::LoadClearCondition` does (`XSLQuestManager.cpp:1318 / 1353 / 1437`). The Jan-source read of offline phase 30 (`2e63a803`, flag `SERV_IRUHADEV_OFFLINE`) was overwritten by the March snapshot and never re-applied. No `#else`: the original had no read.
+- **What changes in game.** 101 of June's 136 `VISIT_DUNGEON` and 41 of its 49 `FIND_NPC` sub-quests carry the flag; they now accept the named dungeon at the same or a harder difficulty (22182 "Enter Burnt Forest" counts Expert). `ITEM_USE`: 0 of 14 carry it, no change. The emulator's `IsExistDungeonInSub` is unchanged.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.

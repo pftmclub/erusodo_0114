@@ -3238,6 +3238,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					}
 					luaManager.EndTable();
 				}
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
+				// server CXSLQuestManager::LoadClearCondition:1318 reads the flag for this type; the March client never did ( q4d: "this dungeon or harder" )
+				LUA_GET_VALUE( luaManager, "m_bUpperDifficulty", pSubQuestTemplet->m_ClearCondition.m_bUpperDifficulty, false );
+#endif SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
 			}
 			break;
 		case SQT_FIND_NPC:
@@ -3274,6 +3278,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 					luaManager.EndTable();
 				}
 				LUA_GET_VALUE_RETURN_ENUM(	luaManager, "m_iFindNPCID",	pSubQuestTemplet->m_ClearCondition.m_iFindNPCID, CX2UnitManager::NPC_UNIT_ID, CX2UnitManager::NUI_NONE, goto error_proc; );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
+				// server CXSLQuestManager::LoadClearCondition:1353 ( q4d )
+				LUA_GET_VALUE( luaManager, "m_bUpperDifficulty", pSubQuestTemplet->m_ClearCondition.m_bUpperDifficulty, false );
+#endif SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
 			}
 			break;
 	#endif //REFORM_QUEST
@@ -3366,6 +3374,10 @@ bool CX2QuestManager::LoadClearCondition( KLuaManager& luaManager, SubQuestTempl
 				}
 
 				LUA_GET_VALUE_RETURN(		luaManager, "m_iUseItemCnt",	pSubQuestTemplet->m_ClearCondition.m_iUseItemNum,	0, goto error_proc; );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
+				// server CXSLQuestManager::LoadClearCondition:1437 ( q4d )
+				LUA_GET_VALUE( luaManager, "m_bUpperDifficulty", pSubQuestTemplet->m_ClearCondition.m_bUpperDifficulty, false );
+#endif SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF
 			}
 			break;
 #endif SERV_SUB_QUEST_USE_ITEM
