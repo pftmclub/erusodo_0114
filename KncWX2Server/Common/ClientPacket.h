@@ -7768,6 +7768,18 @@ DECL_PACKET( ECH_NEW_SERVER_SN_NOT )
 #ifdef SERV_UNIT_CLASS_CHANGE_ITEM
 DECL_PACKET( EGS_BUY_UNIT_CLASS_CHANGE_NOT )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+	// June 2017 layout ( Get 320ed4e0 ): the class is a short ( +8 ), no memo map, and the unit's acquired skills follow the unit info
+	// ( +0x3bf, handed to 328929e0 = clear + AddJuneAcquiredSkills )
+	UidType									m_iUnitUID;
+	short									m_sNewUnitClass;
+	std::vector< short >					m_vecSkillUnsealed;
+	std::vector< KInventoryItemInfo >		m_vecChangeItem;
+	std::vector< KCompleteQuestInfo >		m_vecChangeCompleteQuest;
+	std::vector< KQuestInstance >			m_vecChangeInProgressQuest;
+	KUnitInfo								m_kUnitInfo;
+	std::vector< KSkillData >				m_vecJuneAcquiredSkill;
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	UidType									m_iUnitUID;
 	int										m_iNewUnitClass;
 	std::vector< short >					m_vecSkillUnsealed;   // 봉인해제된 스킬 리스트
@@ -7781,6 +7793,7 @@ DECL_PACKET( EGS_BUY_UNIT_CLASS_CHANGE_NOT )
 	std::vector< KCompleteQuestInfo >		m_vecChangeCompleteQuest;
 	std::vector< KQuestInstance >			m_vecChangeInProgressQuest;
 	KUnitInfo								m_kUnitInfo;
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 };
 #endif SERV_UNIT_CLASS_CHANGE_ITEM
 //}}

@@ -275,6 +275,9 @@ public:		/// public function
 	CX2SkillTree::SKILL_ID GetUpgradeSwappedSkillID( CX2SkillTree::SKILL_ID eSkillID ) const;                                       /// June 328905b0
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 	void AddJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ );                                           /// June 328924c0
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+	void ResetJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ );                                         /// June 328929e0
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	void GetJuneEmptySlotIndexList( OUT std::vector< int >& vecSlotIndex_, const bool bSlotB_, const bool bWithTC_ ) const;   /// June 328920d0
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 #else SERV_IRUHADEV_JUNE_SKILL_TEMPLET

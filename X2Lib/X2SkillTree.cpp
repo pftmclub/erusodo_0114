@@ -4684,6 +4684,25 @@ bool CX2SkillTree::GetUnsealSkillItemInfo( int iItemID, int& iSkillID, char& cUn
 */
 void CX2SkillTree::UnequipRelationSkill()
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP
+	/// June 3220f740: the couple skill ( 900 ) on bar A ( 32890070( 900, 0 ) ), else on bar B as its ten-slot index ( + 5 ), is taken
+	/// off through the slot REQ ( 3220e3b0( index, 0 ) ); not equipped -> nothing
+	if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+	{
+		const CX2Unit::UnitData* pUnitData = &g_pData->GetMyUser()->GetSelectUnit()->GetUnitData();
+		int iSlotIndex = pUnitData->m_UserSkillTree.GetSkillEquippedSlotIndex( CX2SkillTree::SI_ETC_WS_COMMON_LOVE, false );
+		if( -1 == iSlotIndex )
+		{
+			iSlotIndex = pUnitData->m_UserSkillTree.GetSkillEquippedSlotIndex( CX2SkillTree::SI_ETC_WS_COMMON_LOVE, true );
+			if( -1 == iSlotIndex )
+				return;
+
+			iSlotIndex += 5;
+		}
+
+		Handler_EGS_CHANGE_SKILL_SLOT_REQ( iSlotIndex, CX2SkillTree::SI_NONE );
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP
 	// 인연 스킬 장착 해제
 	if( NULL != g_pData && 
 		NULL != g_pData->GetMyUser() &&
@@ -4705,6 +4724,7 @@ void CX2SkillTree::UnequipRelationSkill()
 			Handler_EGS_CHANGE_SKILL_SLOT_REQ( iSlotIndex, CX2SkillTree::SI_NONE );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP
 }
 #endif ADDED_RELATIONSHIP_SYSTEM
 

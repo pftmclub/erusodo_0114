@@ -277,6 +277,92 @@ bool CX2ClassChangePopup::SetShow( bool bShow, int iType )
 }
 #endif // SERV_SHARING_BANK_QUEST_CASH
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+/// June 32486e60 ( called by 324886b0 ): the class-change dialog by unit class; class - 10 above 0x7e, or below 10, takes the Knight dialog
+static const WCHAR* JuneGetClassChangeDialogName( const int iUnitClass_ )
+{
+	switch( iUnitClass_ )
+	{
+	case 10:	return L"DLG_Class_Change_Knight.lua";
+	case 11:	return L"DLG_Class_Change_Magic_Knight.lua";
+	case 12:	return L"DLG_Class_Change_Combat_Ranger.lua";
+	case 13:	return L"DLG_Class_Change_Sniping_Ranger.lua";
+	case 14:	return L"DLG_Class_Change_High_Magician.lua";
+	case 15:	return L"DLG_Class_Change_Dark_Magician.lua";
+	case 16:	return L"DLG_Class_Change_SwordTaker.lua";
+	case 17:	return L"DLG_Class_Change_OverTaker.lua";
+	case 18:	return L"DLG_Class_Change_CodeExotic.lua";
+	case 19:	return L"DLG_Class_Change_CodeArchitecture.lua";
+	case 20:	return L"DLG_Class_Change_Chung_FG.lua";
+	case 21:	return L"DLG_Class_Change_Chung_SG.lua";
+	case 22:	return L"DLG_Class_Change_SheathKnight.lua";
+	case 23:	return L"DLG_Class_Change_Battle_Magician.lua";
+	case 24:	return L"DLG_Class_Change_TrappingRanger.lua";
+	case 25:	return L"DLG_Class_Change_WeaponTaker.lua";
+	case 26:	return L"DLG_Class_Change_Electra.lua";
+	case 27:	return L"DLG_Class_Change_Shelling_Guardian.lua";
+	case 28:	return L"DLG_Class_Change_Ara_LH.lua";
+	case 29:	return L"DLG_Class_Change_Elesis_SK.lua";
+	case 30:	return L"DLG_Class_Change_Elesis_PK.lua";
+	case 31:	return L"DLG_Class_Change_Ara_LD.lua";
+	case 32:	return L"DLG_Class_Change_Add_PT.lua";
+	case 33:	return L"DLG_Class_Change_Add_AT.lua";
+	case 34:	return L"DLG_Class_Change_Ara_LS.lua";
+	case 35:	return L"DLG_Class_Change_Elesis_DK.lua";
+	case 36:	return L"DLG_Class_Change_Add_TT.lua";
+	case 37:	return L"DLG_Class_Change_Luciel_LC.lua";
+	case 38:	return L"DLG_Class_Change_Luciel_CG.lua";
+	case 39:	return L"DLG_Class_Change_Luciel_DB.lua";
+	case 40:	return L"DLG_Class_Change_Rose_BD.lua";
+	case 41:	return L"DLG_Class_Change_Rose_HB.lua";
+	case 42:	return L"DLG_Class_Change_Rose_MH.lua";
+	case 43:	return L"DLG_Class_Change_Rose_VK.lua";
+	case 44:	return L"DLG_Class_Change_Ain_LE.lua";
+	case 45:	return L"DLG_Class_Change_Ain_LA.lua";
+	case 46:	return L"DLG_Class_Change_Ain_LW.lua";
+	case 100:	return L"DLG_Class_Change_Lord_Knight.lua";
+	case 101:	return L"DLG_Class_Change_Rune_Slayer.lua";
+	case 102:	return L"DLG_Class_Change_Rena_WS.lua";
+	case 103:	return L"DLG_Class_Change_Rena_GA.lua";
+	case 104:	return L"DLG_Class_Change_Aisha_EM.lua";
+	case 105:	return L"DLG_Class_Change_Aisha_VP.lua";
+	case 106:	return L"DLG_Class_Change_Raven_BM.lua";
+	case 107:	return L"DLG_Class_Change_Raven_RF.lua";
+	case 108:	return L"DLG_Class_Change_Eve_CN.lua";
+	case 109:	return L"DLG_Class_Change_Eve_CE.lua";
+	case 110:	return L"DLG_Class_Change_Chung_IP.lua";
+	case 111:	return L"DLG_Class_Change_Chung_DC.lua";
+	case 112:	return L"DLG_Class_Change_Elsword_IS.lua";
+	case 113:	return L"DLG_Class_Change_Aisha_DW.lua";
+	case 114:	return L"DLG_Class_Change_Night_Watcher.lua";
+	case 115:	return L"DLG_Class_Change_VeteranCommander.lua";
+	case 116:	return L"DLG_Class_Change_Battle_Seraph.lua";
+	case 117:	return L"DLG_Class_Change_Chung_TT.lua";
+	case 118:	return L"DLG_Class_Change_Ara_SD.lua";
+	case 119:	return L"DLG_Class_Change_Ara_YR.lua";
+	case 120:	return L"DLG_Class_Change_Elesis_GM.lua";
+	case 121:	return L"DLG_Class_Change_Elesis_BH.lua";
+	case 122:	return L"DLG_Class_Change_Add_LP.lua";
+	case 123:	return L"DLG_Class_Change_Add_MM.lua";
+	case 124:	return L"DLG_Class_Change_Ara_AS.lua";
+	case 125:	return L"DLG_Class_Change_Elesis_CA.lua";
+	case 126:	return L"DLG_Class_Change_Add_DE.lua";
+	case 127:	return L"DLG_Class_Change_Luciel_LD.lua";
+	case 128:	return L"DLG_Class_Change_Luciel_CN.lua";
+	case 129:	return L"DLG_Class_Change_Luciel_DN.lua";
+	case 130:	return L"DLG_Class_Change_Rose_CR.lua";
+	case 131:	return L"DLG_Class_Change_Rose_ST.lua";
+	case 132:	return L"DLG_Class_Change_Rose_OM.lua";
+	case 133:	return L"DLG_Class_Change_Rose_FY.lua";
+	case 134:	return L"DLG_Class_Change_Ain_AT.lua";
+	case 135:	return L"DLG_Class_Change_Ain_EE.lua";
+	case 136:	return L"DLG_Class_Change_Ain_AP.lua";
+	default:	break;
+	}
+	return L"DLG_Class_Change_Knight.lua";
+}
+
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 void CX2ClassChangePopup::SetShow( bool bShow )
 {
 	m_bShow = bShow;
@@ -307,6 +393,11 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 #endif
 
 		// note!! 전직 추가되면 수정
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+		/// June 324886b0 mode 0 -> 32486e60: June names March's file for every March class, adds UC_ADD_PSYCHIC_TRACER ( 32 ) and the June-only classes
+		m_pDLGClassChange = new CKTDGUIDialog( g_pMain->GetNowState(),
+			JuneGetClassChangeDialogName( static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass ) ) );
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 		switch(g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass)
 		{
 		case CX2Unit::UC_ELSWORD_KNIGHT:
@@ -566,6 +657,7 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 				m_pDLGClassChange = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_Class_Change_Knight.lua" );
 			} break;
 		}
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 
 		if ( m_pDLGClassChange != NULL )
 		{
@@ -595,7 +687,16 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 		D3DXVECTOR3 vUnitPos = m_pDLGClassChange->GetDummyPos(0);
 		m_pUnitViewerUI->SetPositionOnScr( vUnitPos.x, vUnitPos.y, vUnitPos.z, 1.5f );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+		{
+			/// June @32488b01: 1.4 when my unit is UC_CHUNG_TACTICAL_TROOPER ( 117 ), else 1.5, through the viewer's scale ( 31f969a0, which also
+			/// scales June's duo skin anim ); June then writes 1.5 to viewer +0xd84, a June-only viewer member March's viewer does not have
+			const float fJuneScale = ( 117 == static_cast<int>( g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UnitClass ) ) ? 1.4f : 1.5f;
+			m_pUnitViewerUI->GetMatrix().Scale( D3DXVECTOR3( fJuneScale, fJuneScale, fJuneScale ) );
+		}
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 		m_pUnitViewerUI->GetMatrix().Scale( D3DXVECTOR3( 1.5f, 1.5f, 1.5f ) );
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 		m_pUnitViewerUI->GetMatrix().Rotate(D3DXToRadian(0),D3DXToRadian(0),D3DXToRadian(0));
 		//m_pUnitViewerUI->GetXSkinAnim()->SetApplyMotionOffset( false );
 			
@@ -619,6 +720,33 @@ void CX2ClassChangePopup::SetShow( bool bShow )
 #ifdef ADD_PLAY_SOUND //김창한
 void CX2ClassChangePopup::PlaySoundChangeClass( CX2Unit::UNIT_TYPE eUnitType )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+	/// June 32486c10: <prefix 32486ae0> + "Voice_ClassUpFinish0" + "%d.ogg" for unit types 1-12 when the device manager exists; types 1, 6-10
+	/// and 12 take rand() % 100 & 1 ( + 1 ), the others 1; PlaySound( name, false, false, 1 ) ( 31ce0e10 ) when the name is not empty
+	if( NULL == g_pKTDXApp->GetDeviceManager() )
+		return;
+
+	const int iJuneType = static_cast<int>( eUnitType );
+	if( static_cast<unsigned int>( iJuneType - 1 ) >= 12 )
+		return;
+
+	static const WCHAR* s_apwszJunePrefix[12] = { L"Elsword", L"Aisha", L"Rena", L"Raven", L"Eve", L"Chung", L"Ara", L"Elesis", L"Add", L"Luciel", L"Rose", L"Ain" };
+	int iJuneNumber = 1;
+	switch( iJuneType )
+	{
+	case 1: case 6: case 7: case 8: case 9: case 10: case 12:
+		iJuneNumber = ( ( rand() % 100 ) & 1 ) + 1;
+		break;
+	default:
+		break;
+	}
+
+	WCHAR wszJuneNumber[6];
+	StringCchPrintfW( wszJuneNumber, ARRAY_SIZE( wszJuneNumber ), L"%d.ogg", iJuneNumber );
+	const std::wstring wstrJuneSoundName = std::wstring( s_apwszJunePrefix[ iJuneType - 1 ] ) + L"Voice_ClassUpFinish0" + wszJuneNumber;
+	if( false == wstrJuneSoundName.empty() )
+		g_pKTDXApp->GetDeviceManager()->PlaySound( wstrJuneSoundName.c_str(), false, false, true );
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 	if( g_pKTDXApp->GetDeviceManager() == NULL )
 		return;
 
@@ -693,5 +821,6 @@ void CX2ClassChangePopup::PlaySoundChangeClass( CX2Unit::UNIT_TYPE eUnitType )
 
 	if( wstrSoundName.compare(L"") != 0 )
 		g_pKTDXApp->GetDeviceManager()->PlaySound(wstrSoundName.c_str(), false, false );
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
 }
 #endif //ADD_PLAY_SOUND

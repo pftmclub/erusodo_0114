@@ -841,6 +841,20 @@ void CX2UserSkillTree::AddJuneAcquiredSkills( const std::vector< KSkillData >& v
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+/** @function	ResetJuneAcquiredSkills
+	@brief		June 328929e0 ( the class-change notice, 31f276b0 @31f2795c ): the acquired map ( +0x4a8, March: the page in use ) is
+				emptied ( 31d06e90 ), then takes the pushed skills ( 328924c0 ). The other pages are not touched.
+*/
+void CX2UserSkillTree::ResetJuneAcquiredSkills( const std::vector< KSkillData >& vecSkillData_ )
+{
+	if( m_usUsingPage < m_vecSkillDataMap.size() )
+		m_vecSkillDataMap[ m_usUsingPage ].clear();
+
+	AddJuneAcquiredSkills( vecSkillData_ );
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+
 /** @function	GetJuneEmptySlotIndexList
 	@brief		June 328920d0: the empty slot indices ( 0-4 ) of bar A or B; the transcendence slot ( 3214f3d0( i ) == 3, index 4 ) only
 				when bWithTC_

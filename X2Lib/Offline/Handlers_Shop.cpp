@@ -748,7 +748,11 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 
 		KEGS_BUY_UNIT_CLASS_CHANGE_NOT kNot;
 		kNot.m_iUnitUID		= (UidType)kAfter.m_nUnitUID;
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+		kNot.m_sNewUnitClass	= static_cast<short>( iNewClass );	// June's layout: a short ( Get 320ed4e0 +8 )
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 		kNot.m_iNewUnitClass	= iNewClass;
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 		MakeUnitInfoFromRow( kNot.m_kUnitInfo, kAfter );
 
 		// The quest lists are NOT optional and NOT "the ones that changed",
@@ -766,6 +770,25 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 		CX2OfflineQuest::Instance()->Load( kAfter.m_nUnitUID );
 		CX2OfflineQuest::Instance()->GetQuestInstances( kNot.m_vecChangeInProgressQuest );
 		CX2OfflineQuest::Instance()->GetCompleteQuests( kNot.m_vecChangeCompleteQuest );
+
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+		// June skill system S7h: June's handler (31f276b0) empties the acquired map and refills it from this
+		// list (328929e0), and SetUnsealedSkill replaces the unsealed set with m_vecSkillUnsealed - so both
+		// go out whole. The new class's level-earned skills are granted first (the S7 stand-in, as the
+		// job-change quest does); the tree was reset and seeded by InitSkillTree above, the bars emptied.
+		{
+			CX2OfflineSkill* pSkill = CX2OfflineSkill::Instance();
+			std::vector< KSkillData > vecGranted;
+			const int iRaised = pSkill->GrantJuneSkillsByLevel( iNewClass, kAfter.m_iLevel, vecGranted );
+			pSkill->GetJuneAcquiredSkillData( kNot.m_vecJuneAcquiredSkill );
+			pSkill->GetUnsealedSkills( kNot.m_vecSkillUnsealed );
+
+			CX2OfflineLog::Server( L"[JUNE_SKILL] CLASS NOT build unitUID=%I64d class %d L%d: %d acquired skill(s)"
+				L" sent (%d row(s) raised by the grant), %d unsealed",
+				(__int64)kAfter.m_nUnitUID, iNewClass, kAfter.m_iLevel,
+				(int)kNot.m_vecJuneAcquiredSkill.size(), iRaised, (int)kNot.m_vecSkillUnsealed.size() );
+		}
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 
 		Reply( kSes, EGS_BUY_UNIT_CLASS_CHANGE_NOT, kNot );
 

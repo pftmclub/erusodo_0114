@@ -1812,6 +1812,51 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). Depends on S7k (`3235a160`, moved from S7j by the user 2026-10-19; S7g: `324943c0` = `CX2GageManager::GetInstance`). June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler `31f276b0`
 (Get `320ed4e0`: short class, no memo map, trailing acquired-skill vector -> `328929e0`) and the emulator's sender (`Handlers_Shop.cpp`). Kickoff `kickoffs/skill-system-core/S7h.md`.
 
+### Phase S7h - Done (2026-10-19, Opus 5.5 high)
+
+Four flags (revert: `MODS.md` "June's class-change notice"; funcmap tag `Skill S7h`, 19 rows; JUNE_BUGS 347-348):
+- **`SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE`** (`Always.h` + `ServerDefine.h`, `SECOND_HOMES`; `#error` guards `UNIT_CLASS_CHANGE_ITEM`, `_SLOT_10`, `_ACQUIRE`, `_MEMO_PACKET`,
+  `_TREE_UI`, `_HUD_MAXHPMP`, `ADDED_RELATIONSHIP_SYSTEM`).
+  - **Packet confirmed.** Dispatcher `31f2ab80` case 0x363 -> `31f276b0`. Its Get `320ed4e0` and its body are March's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler (March's id is 875).
+    Struct (`ClientPacket.h/.cpp`): UID, `short m_sNewUnitClass`, unsealed, items, complete (+0x2a), in progress (+0x3a), KUnitInfo, `vector< KSkillData > m_vecJuneAcquiredSkill`.
+  - **Handler** `CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT` = `31f276b0` whole, in June's order:
+    - `Reset( info, false )`, then the cash-shop close twice (JUNE_BUGS 347), the popup, and the gage image (field) or the square viewer reset.
+    - The tree (`+0x494`): memo merge `32892410`, unsealed `32891560`, `32895c40( 0, 1, 0, 0 )` = both bars only (June's Reset args: tree, slots, unsealed, ...).
+      Then `ResetJuneAcquiredSkills` (`328929e0`: the page in use is cleared, then `AddJuneAcquiredSkills`), and unsealed again.
+    - `3220f740`, then `32892370( { 900, relation state } )`, then the UI: `CreateUISkillTree`, `InitSkillTreeUI`, `SetSkillUIType( g_pMain +0x278 )` and
+      `UpdateSkillSlotString`.
+    - Inventory, `SetUnitQuest( .., true )`, quick quest, tree `UpdateUI( 1, 1, 0 )`, char info.
+    - Gage 0x4c / 0x58 with the packet class, then `RemoveUnitClassChangeItemInChoice` (now before the HUD), then `3235a160`.
+    - June drops March's per-page `SetDefaultSkill`, the skill-note map and `SetEqipSkillMemo`. June state / UI numbers are mapped by name (June 0x15 state = BATTLE_FIELD).
+  - **Not ported (June-only, no March home):** g_pMain `+0xd80` `32161070` (emblem 16, S7l) and the state's vslot 0x104 `3245abd0` (class-up notice buttons, backlog Stage 9).
+  - **Emulator** (`Handlers_Shop.cpp`): after `InitSkillTree` it runs the S7 grant for the new class, then sends `GetJuneAcquiredSkillData` and `GetUnsealedSkills`. Before, the
+    unsealed list went out empty and the client's `SetUnsealedSkill` wiped the set. Log line: `[JUNE_SKILL] CLASS NOT build`.
+- **The handler's callees that June changed (rule: no partial updates), each behind its own flag:**
+  - `_RELATION_UNEQUIP`: `UnequipRelationSkill` = `3220f740`. March dropped the bar-B search result; June unequips bar B as index + 5.
+  - `_CLASS_POPUP`: `CX2ClassChangePopup::SetShow` mode 0 = `324886b0`.
+    - Dialog table `32486e60` (`JuneGetClassChangeDialogName`): June names March's file for every March class and adds 32 `Add_PT` plus the June-only classes.
+    - Scale 1.4 when my class is 117 (Chung Tactical Trooper).
+    - Voice `32486c10`: 12 types, "Rena", rand for types 1, 6-10, 12, played with PlaySound's 4th argument 1.
+    - Data: June's `RenaVoice_ClassUpFinish01.ogg` staged into data095 (new; `PACK OK data095`; the other 112 "changed" entries are recompression only: same size and algo).
+    - Left out: viewer `+0xd84` = 1.5 and `31f969a0`'s duo-anim scaling (June-only viewer members). Mode 1 (transcendence guide; only caller `31ef82f0`, June's transcendence NOT)
+      goes to backlog Stage 6.
+  - `_CLASS_ITEM_CHOICE`: `RemoveUnitClassChangeItemInChoice` = `3223c7f0`. It covers both tables: `32227080` (58 cases, June ids, e.g. 122 -> 273233, 32 -> 273863) and
+    `32226c60` (60 cases, none in March).
+  - `ResetUnitViewerInFieldSquare` (`31efd510`) is **not changed**. It equals March except for June's guild-agit state, which March lacks, and one line in the square branch:
+    `InitWaitMotion` goes through the field game, which is NULL in the square. That would crash March (the emulator serves squares). JUNE_BUGS 348; **question for the user**.
+- **Hygiene:** `flagcheck --worktree` for each flag:
+  - `CLASS_CHANGE`: `files: 4 PASS, 2 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` / `0 deleted line(s), 0 non-ASCII inserted line(s),
+    0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  - `RELATION_UNEQUIP`, `CLASS_POPUP`, `CLASS_ITEM_CHOICE`: the same zero line and `RESULT: PASS`.
+  - OTHER = peers' blocks in `Always.h`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,389,568 B, dated 2026-10-19 14:15:23, md5 5b3e8252d9fd53faffc492745a69ed5f, equal to X2/US_SERVICE/x2.exe (2026-10-19 14:15:15); built at main d3c30f58 + 21 uncommitted code file(s).`
+  The build was coalesced into a peer's run. `[JUNE_SKILL] CLASS NOT unitUID`, `CLASS NOT build`, `DLG_Class_Change_Rose_BD.lua` and `Voice_ClassUpFinish0` are in the exe.
+- **How to see it:** unit 32 MagicKnightT (Magic Knight, L70) buys `Sword Knight Class Change Ticket` (241950).
+  - The popup shows Sword Knight with Elsword's voice; both bars are empty; the tree is Sword Knight's.
+  - The log has `CLASS NOT build ... N acquired skill(s)` followed by `CLASS NOT unitUID=32 class 10: N acquired ...`. After a relog the tree is the same.
+  - **Data owed:** `/x2-kom-packed copy data095` (asked in the hand-off).
+- **Open question:** JUNE_BUGS 348 (port June's square line, which crashes, or keep March's).
+
 ## Phase S7i - The level-up "new skill or memo" emblem
 
 **Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). June's `31d885e0` (called by the three level-up handlers), `CX2SkillTree 3220d2b0 /

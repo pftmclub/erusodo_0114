@@ -848,6 +848,9 @@ class CX2CashShop : public CX2ItemSlotManager
 		void RemoveUnitClassChangeItemInChoice( const CX2Unit::UNIT_CLASS eUnitClass_ );
 		// 해당 유닛에 해당하는 전직 아이템 ID를 받아옴.
 		const int GetUnitClassChangeItemID( const CX2Unit::UNIT_CLASS eUnitClass_ );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
+		const int JuneGetUnitClassChangeItemID2( const int iUnitClass_ );	/// June 32226c60
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 #endif //ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
 		
 #ifdef REFORM_SKILL_NOTE_UI

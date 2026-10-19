@@ -52,6 +52,7 @@ SECOND_HOMES = {
     "SERV_IRUHADEV_JUNE_SKILL_ACQUIRE": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
     "SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
     "SERV_IRUHADEV_JUNE_SKILL_PAGE": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket.h precedes Always.h
+    "SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket.h precedes Always.h
 }
 
 

@@ -11377,6 +11377,17 @@ SERIALIZE_DEFINE_GET( KECH_NEW_SERVER_SN_NOT, obj, ks )
 #ifdef SERV_UNIT_CLASS_CHANGE_ITEM
 SERIALIZE_DEFINE_PUT( KEGS_BUY_UNIT_CLASS_CHANGE_NOT, obj, ks )
 { 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+	return PUT( m_iUnitUID )
+		&& PUT( m_sNewUnitClass )
+		&& PUT( m_vecSkillUnsealed )
+		&& PUT( m_vecChangeItem )
+		&& PUT( m_vecChangeCompleteQuest )
+		&& PUT( m_vecChangeInProgressQuest )
+		&& PUT( m_kUnitInfo )
+		&& PUT( m_vecJuneAcquiredSkill )
+		;
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	return PUT( m_iUnitUID )
 		&& PUT( m_iNewUnitClass )
 		&& PUT( m_vecSkillUnsealed )
@@ -11390,10 +11401,22 @@ SERIALIZE_DEFINE_PUT( KEGS_BUY_UNIT_CLASS_CHANGE_NOT, obj, ks )
 		&& PUT( m_vecChangeInProgressQuest )
 		&& PUT( m_kUnitInfo )
 		;
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 }
 
 SERIALIZE_DEFINE_GET( KEGS_BUY_UNIT_CLASS_CHANGE_NOT, obj, ks )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+	return GET( m_iUnitUID )
+		&& GET( m_sNewUnitClass )
+		&& GET( m_vecSkillUnsealed )
+		&& GET( m_vecChangeItem )
+		&& GET( m_vecChangeCompleteQuest )
+		&& GET( m_vecChangeInProgressQuest )
+		&& GET( m_kUnitInfo )
+		&& GET( m_vecJuneAcquiredSkill )
+		;
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	return GET( m_iUnitUID )
 		&& GET( m_iNewUnitClass )
 		&& GET( m_vecSkillUnsealed )
@@ -11408,6 +11431,7 @@ SERIALIZE_DEFINE_GET( KEGS_BUY_UNIT_CLASS_CHANGE_NOT, obj, ks )
 		&& GET( m_vecChangeInProgressQuest )
 		&& GET( m_kUnitInfo )
 		;
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 }
 #endif SERV_UNIT_CLASS_CHANGE_ITEM
 //}}

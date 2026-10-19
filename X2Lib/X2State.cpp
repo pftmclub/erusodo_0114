@@ -9001,6 +9001,125 @@ bool CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT( HWND hWnd, UINT uMsg
 
 	g_pData->GetClassChangePopup().SetShow( true );
 
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+	/// June skill system S7h: June's handler 31f276b0 ( dispatcher 31f2ab80 case 0x363 ), whole. June keeps no memo map and sets no
+	/// per-page default skills: both bars are emptied and the acquired map takes the packet's list.
+	if( NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		g_pData->GetMyUser()->GetSelectUnit()->Reset( kEvent.m_kUnitInfo, false );		/// 32362730
+
+	/// June tests the open cash shop twice ( @31f2778e, @31f277b7; vslot 0xac ); the second test finds it closed ( JUNE_BUGS )
+	for( int iJuneTwice = 0; iJuneTwice < 2; ++iJuneTwice )
+	{
+		if( NULL != g_pData->GetCashShop() && true == g_pData->GetCashShop()->GetOpen() )
+		{
+			CX2StateMenu* pStateMenu = (CX2StateMenu*) this;
+			if( NULL != pStateMenu )
+				pStateMenu->ToggleCashShop();
+		}
+	}
+
+	g_pData->GetClassChangePopup().SetShow( true );		/// 324886b0( 1, 0 ) on g_pData +0x30c
+
+	if( CX2Main::XS_BATTLE_FIELD == g_pMain->GetNowStateID() )		/// state 0x15
+	{
+		/// the gage's character image ( 324943c0 +4, vslot 0x4c ) from the unit info's class
+		if( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() && true == g_pX2Game->GetMyUnit()->IsMyUnit() )
+			CX2GageManager::GetInstance()->SetCharacterImage( static_cast<CX2Unit::UNIT_CLASS>( kEvent.m_kUnitInfo.m_cUnitClass ) );
+	}
+	else
+	{
+		ResetUnitViewerInFieldSquare( g_pData->GetMyUser()->GetSelectUnit()->GetUID(), g_pData->GetMyUser()->GetSelectUnit()->GetClass() );	/// 31efd510
+	}
+
+	/// the skill tree ( unit data +0x46c, unit +0x494 ); June reads the unit without a test, as March
+	CX2Unit* pUnit = g_pData->GetMyUser()->GetSelectUnit();
+	CX2UserSkillTree& refJuneTree = pUnit->AccessUnitData().m_UserSkillTree;
+	{
+		/// @31f2791a: the unit info's active memos ( KUnitInfo +0x1ce ) merge again ( Reset's SetKUnitInfo has merged them once )
+		const std::map< int, int >& mapJuneMemo = kEvent.m_kUnitInfo.m_UnitSkillData.m_kJuneSkillExtraData.m_mapIntInt;
+		refJuneTree.MergeJuneActiveMemo( std::multimap< int, int >( mapJuneMemo.begin(), mapJuneMemo.end() ) );	/// 32892410
+	}
+	refJuneTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560
+	refJuneTree.Reset( false, false, true, false, false );						/// 32895c40( 0, 1, 0, 0 ): both bars' slots only
+	refJuneTree.ResetJuneAcquiredSkills( kEvent.m_vecJuneAcquiredSkill );		/// 328929e0
+	refJuneTree.SetUnsealedSkill( kEvent.m_vecSkillUnsealed );					/// 32891560, a second time
+
+	if( NULL != g_pData->GetSkillTree() )
+		g_pData->GetSkillTree()->UnequipRelationSkill();						/// 3220f740
+
+	if( NULL != g_pData->GetRelationshipManager() && NULL != g_pData->GetRelationshipManager()->GetMyRelationshipInfo() )
+	{
+		/// 32892370( { 900, relation state, 0 } ): the couple skill takes the relation state ( RT_SOLO 0 / RT_COUPLE 1 / RT_MARRIED 2 ) as
+		/// its level, one entry of 328924c0's rule ( found -> level; else its base erased, then inserted )
+		std::vector< KSkillData > vecJuneLove( 1 );
+		vecJuneLove[0].Init();
+		vecJuneLove[0].m_iSkillID		= static_cast<short>( 900 );	/// SI_ETC_WS_COMMON_LOVE
+		vecJuneLove[0].m_cSkillLevel	= static_cast<UCHAR>( g_pData->GetRelationshipManager()->GetMyRelationshipInfo()->m_eRelationStateType );
+		refJuneTree.AddJuneAcquiredSkills( vecJuneLove );
+	}
+
+	if( NULL != g_pData->GetUIManager() )
+	{
+		g_pData->GetUIManager()->CreateUISkillTree();								/// 32150380
+		g_pData->GetUIManager()->GetUISkillTree()->InitSkillTreeUI();				/// 328ed890
+		if( NULL != g_pMain )
+		{
+			g_pData->GetUIManager()->GetUISkillTree()->SetSkillUIType( g_pMain->GetGameOption().GetIsSkillUITypeA() );	/// 328e1680( g_pMain +0x278 )
+			g_pData->GetUIManager()->GetUISkillTree()->UpdateSkillSlotString();	/// 328e1170
+		}
+	}
+
+	/// June tests the inventory UI, not the UI manager ( as March )
+	if( NULL != g_pData->GetUIManager()->GetUIInventory() )
+		g_pData->GetUIManager()->GetUIInventory()->UpdateInventorySlotList( kEvent.m_vecChangeItem );	/// 32196a00( vec, 1, 1 )
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	g_pData->GetQuestManager()->SetUnitQuest( kEvent.m_vecChangeInProgressQuest, kEvent.m_vecChangeCompleteQuest, true );	/// 32336e80( +0x3a, +0x2a, 1 )
+#else SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+	g_pData->GetQuestManager()->SetUnitQuest( kEvent.m_vecChangeInProgressQuest, kEvent.m_vecChangeCompleteQuest );
+#endif SERV_IRUHADEV_JUNE_QUEST_RUNTIME
+
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUIQuestNew() )
+		g_pData->GetUIManager()->GetUIQuestNew()->InitUserShowQuickQuestDLG( true );		/// 323c9e40( 1 )
+
+	if( NULL != g_pData->GetUIManager() )
+	{
+		if( true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_SKILL ) )			/// 321524d0( 0x15 )
+			g_pData->GetUIManager()->GetUISkillTree()->UpdateUI( true, true, true, false );	/// 328e7b70( 1, 1, 0 )
+
+		if( true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_CHARINFO ) )		/// 321524d0( 0x13 )
+			g_pData->GetUIManager()->GetUICharInfo()->ResetStat();								/// 3291cfb0( 0 )
+	}
+
+	if( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+		g_pData->GetMyUser()->GetSelectUnit()->GetUID() == kEvent.m_iUnitUID )
+	{
+		/// 324943c0 +4: vslot 0x4c, then 0x58, both with the packet's class ( +8 )
+		CX2GageManager::GetInstance()->SetCharacterImage( static_cast<CX2Unit::UNIT_CLASS>( kEvent.m_sNewUnitClass ) );
+#ifdef FIX_CHUNG_GAGE_UI_UPDATE_BUG
+		CX2GageManager::GetInstance()->ResetGageUIEtc( static_cast<CX2Unit::UNIT_CLASS>( kEvent.m_sNewUnitClass ) );
+#endif // FIX_CHUNG_GAGE_UI_UPDATE_BUG
+	}
+
+#ifdef ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
+	/// June moved it before the HUD refresh ( 3223c7f0 @31f27bb2 )
+	if( NULL != g_pData->GetCashShop() && NULL != pUnit )
+		g_pData->GetCashShop()->RemoveUnitClassChangeItemInChoice( pUnit->GetClass() );
+#endif //ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
+
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();				/// 3235a160 @31f27bd2
+
+	/// Not ported, June-only with no March home: in the village / square / field ( states 0xe / 0xf / 0x15 ) with a job class ( 10 - 199 ),
+	/// g_pMain +0xd80 32161070 ( emblem 16, the long-time boss raid UI; S7l ), and last the state's vslot 0x104 ( 3245abd0, the class-up
+	/// notice buttons, given 31edf870 > 0; JUNE_PORT_BACKLOG_ORDER Stage 9 ).
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_SKILL] CLASS NOT unitUID=%I64d class %d: %d acquired skill(s) into page %d, %d unsealed, both bars emptied",
+		(__int64)kEvent.m_iUnitUID, static_cast<int>( kEvent.m_sNewUnitClass ), static_cast<int>( kEvent.m_vecJuneAcquiredSkill.size() ),
+		static_cast<int>( refJuneTree.GetUsingPage() ) + 1, static_cast<int>( kEvent.m_vecSkillUnsealed.size() ) );
+#endif SERV_IRUHADEV_OFFLINE
+	return true;
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 	switch ( g_pMain->GetNowStateID() )
 	{
 	case CX2Main::XS_BATTLE_FIELD:
@@ -9208,6 +9327,7 @@ bool CX2State::Handler_EGS_UPDATE_EVENT_MONEY_NOT(HWND hWnd, UINT uMsg, WPARAM w
 		g_pInstanceData->GetMiniMapUI()->UpdateAngelsFeatherCount(kEvent.m_iEventMoney);
 	}
 	return true;
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
 }
 #endif //SERV_EVENT_MONEY
 

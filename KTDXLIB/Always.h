@@ -9206,3 +9206,83 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER
 #endif SERV_IRUHADEV_JUNE_SKILL_EMBLEM_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7h: June's class-change notice. KEGS_BUY_UNIT_CLASS_CHANGE_NOT takes June's layout ( Get
+//              320ed4e0: short class, no memo map, a trailing acquired-skill vector ) and CX2State's handler is June's 31f276b0 whole
+//              ( both bars emptied, the acquired map replaced by the packet's list, the couple skill 900, June's refresh order ); the
+//              emulator sends the unit's acquired and unsealed lists. Also defined in KncWX2Server/Common/ServerDefine.h ( ClientPacket.h
+//              is compiled before Always.h is reachable ). Comment out both together.
+#define SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+#ifndef UNIT_CLASS_CHANGE_ITEM
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs UNIT_CLASS_CHANGE_ITEM ( CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT )
+#endif UNIT_CLASS_CHANGE_ITEM
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( June's KSkillData, the packet's last vector )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifndef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( AddJuneAcquiredSkills 328924c0, the emulator's acquired list )
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET ( MergeJuneActiveMemo 32892410 )
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_TREE_UI ( June's UpdateUI 328e7b70 arguments )
+#endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI
+#ifndef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP ( JuneResetHudMaxHpMp = 3235a160 )
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+#ifndef ADDED_RELATIONSHIP_SYSTEM
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE needs ADDED_RELATIONSHIP_SYSTEM ( the couple skill 900 takes the relation state )
+#endif ADDED_RELATIONSHIP_SYSTEM
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7h: CX2SkillTree::UnequipRelationSkill is June's 3220f740: a B-bar hit is kept and sent as
+//              its ten-slot index ( + 5 ); March dropped the B-bar search result, so a couple skill on bar B was never taken off.
+#define SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP
+#ifdef SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP
+#ifndef SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#error SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( B slots 5-9 )
+#endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifndef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#error SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( June's slot REQ 3220e3b0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
+#endif SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7h: CX2ClassChangePopup is June's 324886b0 ( mode 0 ): June's dialog table 32486e60
+//              ( + UC_ADD_PSYCHIC_TRACER -> DLG_Class_Change_Add_PT.lua ), scale 1.4 for UC_CHUNG_TACTICAL_TROOPER, and June's voice
+//              32486c10 ( 12 unit types, Rena not Lena, auto-release PlaySound ). Data: June's RenaVoice_ClassUpFinish01.ogg in data095.
+#define SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+#ifndef ADD_PLAY_SOUND
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP needs ADD_PLAY_SOUND ( CX2ClassChangePopup::PlaySoundChangeClass )
+#endif ADD_PLAY_SOUND
+#ifndef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP needs SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE ( PlaySound's 4th argument )
+#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7h: CX2CashShop::RemoveUnitClassChangeItemInChoice is June's 3223c7f0: the class's change
+//              item ( June's table 32227080 ) and its second item ( 32226c60, none in March ) both leave the wish list.
+#define SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
+#ifndef ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
+#error SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE needs ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
+#endif ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
+//////////////////////////////////////////////////////////////////////////

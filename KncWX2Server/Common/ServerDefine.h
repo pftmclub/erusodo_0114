@@ -4711,3 +4711,13 @@
 //              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
 #define SERV_IRUHADEV_JUNE_SKILL_PAGE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June skill system Phase S7h ( June's class-change notice ), client flag ( offline only ). Also defined in
+//              KTDXLIB/Always.h; this second home exists because ClientPacket.h
+//              ( KEGS_BUY_UNIT_CLASS_CHANGE_NOT ) is compiled before Always.h is reachable
+//              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
+#define SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE
+//////////////////////////////////////////////////////////////////////////

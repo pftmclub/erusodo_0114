@@ -4303,6 +4303,23 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_EMBLEM_MANAGER` in `KTDXLIB/Always.h` (`#error` g
 - **Data.** data063 + June's `RaidField_Area_0.dds` / `_1.dds` (new; nothing replaced).
 - **Revert:** comment out both defines, `python tools/build.py --deploy`; optionally remove the two data063 files and re-pack / copy (harmless if left). No save change.
 
+### June's class-change notice (skill-system-core S7h, 2026-10-19)
+
+Flags `SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE` in `KTDXLIB/Always.h` **and** `KncWX2Server/Common/ServerDefine.h` (`ClientPacket.h` precedes `Always.h`; `#error` guards:
+`UNIT_CLASS_CHANGE_ITEM`, `_SLOT_10`, `_ACQUIRE`, `_MEMO_PACKET`, `_TREE_UI`, `_HUD_MAXHPMP`, `ADDED_RELATIONSHIP_SYSTEM`) and `SERV_IRUHADEV_JUNE_SKILL_RELATION_UNEQUIP`
+(`Always.h` only). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7h"; log tag `[JUNE_SKILL] CLASS`.
+- **Packet.** `KEGS_BUY_UNIT_CLASS_CHANGE_NOT` takes June's layout (Get `320ed4e0`): `short` class, no memo map, a trailing `vector< KSkillData >` (`ClientPacket.h/.cpp`).
+- **Client.** `CX2State::Handler_EGS_UNIT_CLASS_CHANGE_CASH_ITEM_NOT` = June `31f276b0` whole: both bars emptied, the page in use takes the packet's acquired list
+  (`CX2UserSkillTree::ResetJuneAcquiredSkills` = `328929e0`), the couple skill 900 takes the relation state, no per-page default skills, no skill-note map, June's refresh order.
+  `CX2SkillTree::UnequipRelationSkill` = June `3220f740` (a bar-B hit is unequipped as slot index + 5).
+- **Emulator.** `Handlers_Shop.cpp`: the class-change NOT carries the unit's whole acquired list (after the S7 grant for the new class) and its unsealed list.
+- **Callees June changed (own flags, `Always.h` only):** `SERV_IRUHADEV_JUNE_SKILL_CLASS_POPUP` (`X2StateClassChange.cpp`: June's dialog table `32486e60`, scale 1.4 for
+  Chung Tactical Trooper, June's voice `32486c10`, needs `ADD_PLAY_SOUND` + `_SOUND_AUTO_RELEASE`); `SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE` (`X2CashShop.*`: June's two
+  class-change item tables, needs `ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION`).
+- **Data.** data095 + June's `RenaVoice_ClassUpFinish01.ogg` (new, nothing replaced; the popup voice names Rena where March named Lena).
+- **Revert:** comment out both `CLASS_CHANGE` defines together (and/or `RELATION_UNEQUIP`, `CLASS_POPUP`, `CLASS_ITEM_CHOICE`), `touch X2Lib/stdafx.cpp`,
+  `python tools/build.py --deploy`. The data095 file is harmless if left (or remove it, `kom.py pack data095`, ask, copy). No save change.
+
 ### June's level-up new-skill emblem (skill-system-core S7i, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_SKILL_LEVEL_EMBLEM` in `KTDXLIB/Always.h` (`#error` guards: `NEW_EMBLEM_MANAGER`, `_SKILL_NOTE`, `_SKILL_TEMPLET`, `_SOCKET_PARITY`). Plan

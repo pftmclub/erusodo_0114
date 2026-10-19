@@ -13729,6 +13729,19 @@ bool CX2CashShop::Handler_EGS_DISCOUNT_COUPON_LIST_INQUIRY_ACK( HWND hWnd, UINT 
 // 해당 유닛의 전직 아이템을 찜하기 목록에서 삭제함.
 void CX2CashShop::RemoveUnitClassChangeItemInChoice( const CX2Unit::UNIT_CLASS eUnitClass_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
+	/// June 3223c7f0: the class's change item ( 32227080 ), then its second item ( 32226c60 ); each listed one leaves the wish list
+	/// ( 3223c4d0 = RemoveChoicedItem )
+	const int aiJuneItemID[2] = { GetUnitClassChangeItemID( eUnitClass_ ), JuneGetUnitClassChangeItemID2( static_cast<int>( eUnitClass_ ) ) };
+	for( int i = 0; i < 2; ++i )
+	{
+		if( 0 < aiJuneItemID[i] &&
+			std::find( m_vecChoicedItemID.begin(), m_vecChoicedItemID.end(), aiJuneItemID[i] ) != m_vecChoicedItemID.end() )
+		{
+			RemoveChoicedItem( aiJuneItemID[i] );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 	const int ItemID = GetUnitClassChangeItemID( eUnitClass_ );
 
 	if( 0 < ItemID )
@@ -13738,10 +13751,77 @@ void CX2CashShop::RemoveUnitClassChangeItemInChoice( const CX2Unit::UNIT_CLASS e
 			RemoveChoicedItem( ItemID );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 }
 // 전직에 해당하는 전직 아이템 ID를 반환함.
 const int CX2CashShop::GetUnitClassChangeItemID( const CX2Unit::UNIT_CLASS eUnitClass_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
+	/// June 32227080: the class-change item by class ( June's ids; June-only classes included ), else -1
+	switch( static_cast<int>( eUnitClass_ ) )
+	{
+	case 10:	return 241950;
+	case 11:	return 241960;
+	case 12:	return 242010;
+	case 13:	return 242020;
+	case 14:	return 241980;
+	case 15:	return 241990;
+	case 16:	return 242040;
+	case 17:	return 242050;
+	case 18:	return 242070;
+	case 19:	return 242080;
+	case 20:	return 242100;
+	case 21:	return 242110;
+	case 22:	return 241970;
+	case 23:	return 242000;
+	case 24:	return 242030;
+	case 25:	return 242060;
+	case 26:	return 242090;
+	case 27:	return 242120;
+	case 28:	return 252757;
+	case 29:	return 252754;
+	case 30:	return 252755;
+	case 31:	return 252756;
+	case 32:	return 273863;
+	case 33:	return 273864;
+	case 34:	return 252758;
+	case 35:	return 276300;
+	case 36:	return 276302;
+	case 37:	return 276955;
+	case 38:	return 276956;
+	case 100:	return 242130;
+	case 101:	return 242140;
+	case 102:	return 242190;
+	case 103:	return 242200;
+	case 104:	return 242170;
+	case 105:	return 242160;
+	case 106:	return 242220;
+	case 107:	return 242230;
+	case 108:	return 242250;
+	case 109:	return 242260;
+	case 110:	return 242280;
+	case 111:	return 242290;
+	case 112:	return 242150;
+	case 113:	return 242180;
+	case 114:	return 242210;
+	case 115:	return 242240;
+	case 116:	return 242270;
+	case 117:	return 242300;
+	case 118:	return 252751;
+	case 119:	return 252752;
+	case 120:	return 272171;
+	case 121:	return 272172;
+	case 122:	return 273233;
+	case 123:	return 273861;
+	case 124:	return 252753;
+	case 125:	return 276301;
+	case 126:	return 276303;
+	case 127:	return 276957;
+	case 128:	return 276958;
+	default:	break;
+	}
+	return -1;
+#else SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 	int ItemId = -1;
 
 	switch( eUnitClass_ )
@@ -14055,8 +14135,80 @@ const int CX2CashShop::GetUnitClassChangeItemID( const CX2Unit::UNIT_CLASS eUnit
 	}
 
 	return ItemId;
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 }
 #endif //ADJUST_UNIT_CLASS_CHANGE_ITEM_REPETITION
+#ifdef SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
+/// June 32226c60: the class's second change item ( none in March; 135549 - 135551 are not in item.kim ), else -1
+const int CX2CashShop::JuneGetUnitClassChangeItemID2( const int iUnitClass_ )
+{
+	switch( iUnitClass_ )
+	{
+	case 10:	return 135549;
+	case 11:	return 135550;
+	case 12:	return 135555;
+	case 13:	return 135556;
+	case 14:	return 135552;
+	case 15:	return 135553;
+	case 16:	return 135558;
+	case 17:	return 135559;
+	case 18:	return 135561;
+	case 19:	return 135562;
+	case 20:	return 135564;
+	case 21:	return 135565;
+	case 22:	return 135551;
+	case 23:	return 135554;
+	case 24:	return 135557;
+	case 25:	return 135560;
+	case 26:	return 135563;
+	case 27:	return 135566;
+	case 28:	return 135591;
+	case 29:	return 135588;
+	case 30:	return 135589;
+	case 31:	return 135590;
+	case 32:	return 135597;
+	case 33:	return 135598;
+	case 34:	return 135592;
+	case 35:	return 135599;
+	case 36:	return 135601;
+	case 37:	return 135635;
+	case 38:	return 135636;
+	case 40:	return 135807;
+	case 41:	return 135809;
+	case 100:	return 135567;
+	case 101:	return 135568;
+	case 102:	return 135573;
+	case 103:	return 135574;
+	case 104:	return 135571;
+	case 105:	return 135570;
+	case 106:	return 135576;
+	case 107:	return 135577;
+	case 108:	return 135579;
+	case 109:	return 135580;
+	case 110:	return 135582;
+	case 111:	return 135583;
+	case 112:	return 135569;
+	case 113:	return 135572;
+	case 114:	return 135575;
+	case 115:	return 135578;
+	case 116:	return 135581;
+	case 117:	return 135584;
+	case 118:	return 135585;
+	case 119:	return 135586;
+	case 120:	return 135593;
+	case 121:	return 135594;
+	case 122:	return 135595;
+	case 123:	return 135596;
+	case 124:	return 135587;
+	case 125:	return 135600;
+	case 126:	return 135602;
+	case 130:	return 135808;
+	case 131:	return 135810;
+	default:	break;
+	}
+	return -1;
+}
+#endif SERV_IRUHADEV_JUNE_SKILL_CLASS_ITEM_CHOICE
 
 #ifdef REFORM_SKILL_NOTE_UI
 /** @function : OpenBuyPopupByReserve
