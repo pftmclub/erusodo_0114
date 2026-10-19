@@ -2009,7 +2009,7 @@ JUNE_BUGS 339 (the unit's summon list `+0xe20` is never cleared) and 340 (the HU
   - Unit 19: `[12:42:18] HUD uid 19: max MP 425.0 ( ResetMaxMp 425.0, socket rate 0.000, add 0 ), max HP 137431.7`. Equip changes moved max HP 137431.7 / 137964.7 / 138421.7, one line each.
   - The dungeon `MAXMP uid 19 ... -> max MP 425.0` agrees.
   - Unit 12 shows the aggregate's socket terms: `max MP 345.0 ( ResetMaxMp 300.0, socket rate 0.050, add 30 ), max HP 252370.3 ( base 185045.3, socket cap 67325.0 )`, later cap 72035.0.
-  - Unrelated: 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only. The review should compare one HUD max HP with the in-game max HP.
+  - Unrelated: 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only. User (2026-10-19): the HUD max HP equals the in-game max HP.
 
 ## Phase S7l - The rest of June's emblem manager
 
