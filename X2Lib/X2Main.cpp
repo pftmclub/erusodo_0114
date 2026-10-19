@@ -11828,7 +11828,7 @@ void CX2Main::JuneStopClearMovie()
 	JuneResetClearMovieState();
 	JuneSetClearMovieUIMode( false );
 	// June then runs the party manager's reserved request ( g_pData +0x5c -> 32438fa0: the dungeon-start request an intro movie parked,
-	// 32434710 ). March has no intro-movie park; that path is quest-system Q8b's.
+	// 32434710 ). March has no intro-movie park; that path is backlog Stage 26's ( june-movies ).
 }
 
 /// June 31d822b0: a reserved request ( quest id != 0 ) goes out as ADMIN_QUEST_COMPLETE_REQ ( 0xf2, +0x842 then cleared ) or
@@ -11853,11 +11853,11 @@ void CX2Main::JuneSendReservedQuestComplete()
 
 /// June 31d87560( bool playing ): mode = playing ? 2 : 0 goes to the now state's vslot 0xb4 ( a no-op in June's field state 3208ddc0; the
 /// battle field 324bafc0 sends June event 0x3af ) and, with g_pX2Game and my unit, to its user ( 32044a80 = the busy emotion 0x11 shown over
-/// the head ). Both bodies are battle-field / game-side and belong to quest-system Q8b; March has neither, so this keeps June's call shape only.
+/// the head ). Both bodies are battle-field / game-side and belong to backlog Stage 26 ( june-movies ); March has neither, so this keeps June's call shape only.
 void CX2Main::JuneSetClearMovieUIMode( bool bPlaying_ )
 {
 	const int iMode = ( true == bPlaying_ ) ? 2 : 0;
-	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE ui mode %d ( state %d; the battle-field notify and the user emotion are Q8b's )", iMode, (int)GetNowStateID() );
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE ui mode %d ( state %d; the battle-field notify and the user emotion are backlog Stage 26's )", iMode, (int)GetNowStateID() );
 }
 
 /// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419: while the movie dialog lives, its "DungeonClearMovie" static's movie 0 is

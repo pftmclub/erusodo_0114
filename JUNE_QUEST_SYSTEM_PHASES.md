@@ -1240,6 +1240,46 @@ all 31 missing June movies copied loose into `data\movie\`. The "ui mode" log li
 
 **Open for the user:** none.
 
+### Q8 review - Done (2026-10-19, Opus 5.5 high): PASS, 1 wording fix, no logic change
+
+Re-read in Ghidra (raw disassembly; decompile only for the switch and the setters). Everything Q8 transcribed matches:
+- **Parser `31d8cb90`:** `m_dungeonName` -1 when absent (with June's `[S%1%]%2%` debug branch), `m_eMovieCategory` = `-(found) & value`, `m_iQuestID` 0,
+  `m_eDungeonID` pushed unfiltered (the aliasing branch is push_back's own); `31e93c70` is a plain push_back of a 0xc4 record (`RET 4`).
+- **`31d7a240`:** 0x24 bytes of prologue, so the request's 7 dwords sit at `[esp+0x28..0x40]` and the admin bool at `[esp+0x44]`; `RET 0x20`. `31d79960` first;
+  row test = `31c1c1a0` (compare with `L""`, i.e. name non-empty) then quest == `+0xc0`. Only a match sets `+0x80a`, the name (`31e6e930`), parks the
+  request (`31e87cc0`) and writes `+0x842`. Normal caller pushes admin 0, admin caller 1.
+- **`31d79960`:** `+0x808` = `g_pMain +0x1c1`, `+0x809` = `+0x1c0` (only with `g_pMain`), clears `+0x80a`, the name, quest / NPC / map / both bools; `+0x842`
+  untouched. March's option list is `m_bMusic` (+0x40) then `m_bSound` (+0x41); `32420aa0` writes +0x41 and mutes sound (`SetSound`), `3241dba0` writes
+  +0x40 and resumes BGM (`SetMusic`).
+- **Start `31d880b0`:** options saved and both set 0 before the `g_pMain` / name test (early return keeps the name, no UI-mode call); old dialog deleted;
+  `CKTDGUIDialog( state, 33457d9c, 0.07f, 0 )` (0x3344b78c = 0.07); `SetShowUI( 0, 1 )` only with `g_pData +0x2cc`; `31c9c250` opens (and itself plays,
+  vslot 0x1c), then vslot 0x1c again and `+0x8c` = 1 - March's `SetMovieFileName` also plays on open, so the double Play is the same in both.
+- **Stop `31d883a0`:** restore + UI only when the handle is valid; jump table (file bytes `00 00 02 02 02 02 02 01 01` for states 7..15): 7 / 8 no UI,
+  14 / 15 UI unless no `g_pTFieldGame` (0x33775870) or `GetJoinNpc`, else shown. Then delete, `31d822b0`, `31d79960`, `31d87560( 0 )`, tail-jump `32438fa0`.
+- **`31d822b0`:** `+0x828` != 0; `+0x842` == 1 -> clear, 0xf2, else 0xf0; ACK 0xf1 with `g_pMain +0x144` (March `AddServerPacket` default = `m_fServerTimeOut`);
+  then `32396dc0( 1 ) -> 3239d810` (left out, Stage 9).
+- **End check `@31d91398-31d91419`:** handle != 0 and not == 0 (`31d41cd0` / `31d41d50`, the same test twice), static, movie 0, `31c936e0` true on status 5 / 2.
+- **Skip box `31f23e70`:** 0xbd8 opens only when `+0x1e4` is empty, at (250, 300) (0x334577b8 / 0x3344f348), string 0x7797, OK 0xbd9, Cancel -1; 0xbd9 closes
+  the box, resets `+0x1e4`, then `31d883a0` with `g_pMain`.
+- **Callers `323d24f0` / `323d1fc0`:** `31d7a240`, `31d75950` -> `31d78bf0( id, 1 )`, start, stop on failure, re-test `+0x80a` (JUNE_BUGS 358's double send
+  confirmed); the admin path clears `+0x178` (`m_bAdminQuestComplete`) before returning true. JUNE_BUGS 359 confirmed (restore gated on the handle).
+- **`31d87560`:** mode = playing ? 2 : 0; vslot 0xb4 is the shared `RET 4` stub `3208ddc0` in every state vtable but `CX2StateBattleField` (`3349d88c`,
+  slot `3349d940` = `324bafc0`, sends 0x3af); the emotion `32044a80` needs a game (`0x3372c0fc`), which the village does not have. Neither body runs in
+  states 14 / 15. Hide term `31fd324c` and the dungeon ctor clear `324d9f80 @324dadc2` match March.
+- **Census:** a capstone scan of every `[reg+0x80a]` operand gives 29 decodes = 28 patterns (323aad40 / 41 is one instruction), 8 `[esp]` locals; every
+  g_pMain reader is in the funcmap census row / Stage 26 brief.
+
+**Fix:** three strings in `X2Main.cpp` (the "ui mode" log line, the `31d87560` and `32438fa0` comments) named Q8b; they now name backlog Stage 26.
+Not edited: the C3t-1 / G5 comments in `X2GUUser.cpp` above the Q8 block still say the `+0x80a` term is "left out" (other flags' blocks; Q8's block below them is right).
+
+**Hygiene:** `flagcheck --worktree --files X2Lib/X2Main.cpp`: 1 PASS, 3 deleted lines = the three replaced lines inside this flag's own block, RESULT PASS.
+Range `a2a1f29b^..a2a1f29b`: 7 PASS, 1 DEFINE, 0 deleted, RESULT PASS.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,447,424 B, dated 2026-10-19 20:38:03, md5 e25530a06215ad01403f308abb4e5155` (main 51b1a4e0 + this file);
+the new log string is in the exe.
+**Log (last Q8 run, 20:23):** 22336 request -> table 13 rows, Movie_Elysion_Clear.avi -> start status 3 -> stop -> one QUEST_COMPLETE_REQ HANDLED after the stop;
+30340 (no row) sent at once. 0 EXCEPTION.
+**Open for the user:** none. No play-test needed (string-only change).
+
 ## Phase Q8b - The quest window's scenario-movie tab
 
 **Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB`. Sub-tag `MOVIE`. Added by Q8 (2026-10-19): Q5a left the tab hidden
