@@ -99,6 +99,7 @@ Flags (debug: `SERV_IRUHADEV_JUNE_GFX_DEBUG`): `_JUNE_GFX_RUNTIME` (G1), `_JUNE_
 | G4 | Talk cut-ins: `31d76b40` and its callers, `playSimpleWidget` | Sonnet 5.5 high + Opus review | yes | yes |
 | G5 | The gates the backlog owes: `GetShowActiveSkillShow`'s GFx term, C3p-2's ESC gates that read the manager | Sonnet 5.5 high + Opus review | yes | yes |
 | Z | Close-out | Sonnet 5.5 medium | no | no |
+| G6 | Cursor vs the GFx layer: June's per-frame draw order (dialogs, GFx display, `CKTDXCursor`, the scene's cursor) against March's; port only if they differ (added 2026-10-19 from the quest-system Q5b play-test) | Opus 5.5 high + review | maybe | yes if code |
 
 **Model choice.** Opus for G0 (a wrong reading of the render or input order costs every later phase) and for G2 (a new engine
 mechanism on the shared D3D9 device: render-state leaks and device-reset crashes are the failure mode). Sonnet for G1 / GA (mechanical,
@@ -596,6 +597,15 @@ widget open, ESC and cut-ins behave as before.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,381,376 B, dated 2026-10-19 13:10:38, md5 01c5f8d1bdcb1c04c201029a1384fe1d, equal to X2/US_SERVICE/x2.exe (2026-10-19 13:10:30); built at main e3a34f3b + 3 uncommitted code file(s).` (`JuneGfxOpenUI` / `GATE ESC closeToTopZorder` no longer in the exe.)
 **Follow-up (user: ESC does not close the hand-opened GFx shop):** June does not close it with ESC either. `closeToTopZorder` is false for `0xb`; the field states' ESC handler `32464b20` (vslot 0x1ec) sees `CX2CashShop` open, closes only an inner popup (`322273f0`) and swallows ESC; the shop closes through `CX2CashShop::SetOpen( false )` (`3223d680` -> `unloadWidget( 0xb )`). Our build opens March's menu instead because the debug command opened the widget with no June cash shop behind it. Stage 9 note extended; funcmap rows `GFx G5 review`. Not a G5 defect.
 **Owes:** nothing (debug-off only; no play-test). The ESC-true branch and hide modes 2-4 stay unproven in game until Stage 9 brings a closeable widget and the result UI. Next: `/x2-phase june-gfx Z` on Sonnet 5.5 medium.
+
+## Phase G6 - Cursor and the GFx layer
+
+**Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER` (only if code is needed). Sub-tag `SCENE`. Added after the Z close-out.
+
+- **Why.** quest-system Q5b's play-test (user, 2026-10-19): in a GFx event scene the cursor draws in front of the Scaleform layer; the user asked whether June draws it behind. G3 reused March's `CX2Cursor` (`XCS_EVENT_SCENE`) and never compared the order with June's.
+- Map June's per-frame order: dialog passes, `CKTDGGFXManager` display (`31be3800` frame split), `CKTDXApp +0x290` `CKTDXCursor` (`31ce5400( 0 )` @`31be3c7c`), the scene's Play / End cursor calls (`32868250` / `32868790` / `31ce50d0`). Compare with March. Equal: write the map, no code. Different: port the order under the flag; the `CKTDXCursor` class stays R4f's.
+
+**Done gate:** the map (addresses + order) in this section and `(GFx G6)` funcmap rows; with code, build + deploy and the user sees the cursor where June puts it with a click still advancing the scene.
 
 ## Phase Z - Close-out
 
