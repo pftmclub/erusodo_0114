@@ -846,6 +846,9 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` (needs `OFFLINE_MONSTER_GRADE`, `OFF
   cash-revive pause = 11 s window (:1398); a revive cancels (:8939). The end = `EGS_END_GAME_NOT` TN_MONSTER through `Handler_EGS_END_GAME_REQ`'s
   body, split after its ACK as `EndDungeonGame`. flagcheck worktree `files: 2 PASS, 2 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, 0 deleted;
   `DEPLOY OK: X2_offline.exe is 25,415,168 B, dated 2026-10-19 16:54:59, md5 927febd35036f48435f7821e0bc95fea`. User owes check 2 again.
+- **Play-test 2 PASSED (2026-10-19, user + log, exe cad1ab82):** unit 12 died in AD Expert, `continue: the run ends in 15s`, X ->
+  `continue skipped: the run ends now as a fail ( TN_MONSTER )`, `dungeonID=33330 FAILED in 20s`, `RANK combo F tech F damaged F time F total F
+  ( the unit died, ResultProcess.cpp:1696 )`; 0 EXCEPTION, UNHANDLED = baseline only. Q4c done; 35365 -> 5 / 5 stays optional (needs an SS total). Review next.
 
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
