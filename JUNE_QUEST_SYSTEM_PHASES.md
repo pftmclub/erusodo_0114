@@ -767,6 +767,7 @@ no save rung. MODS.md "offline completion of every sub-quest type".
   fa78aa92 + the 3 review files + peers' Always.h / X2Unit.cpp); the new SQT 44 reason string is in the exe and the old one is gone.
 - **Play-test (optional, log only):** load any field: no `dungeon 0 has no DungeonData row` line. Next load of a save: the census line still reads
   `SQT coverage 0-48: 21 driven, 28 undriven, unclassified [none], both [none]`.
+
 ### Q4 - Review stand-ins (2026-10-19, user answers)
 
 The user's answers to the two open questions: "1: stand-in" (the strict reading was taken, as recommended) and "2: let Ranox secret count".
@@ -798,7 +799,6 @@ The user's answers to the two open questions: "1: stand-in" (the strict reading 
 
 **Done gate:** a good run shows a rank above F on the screen and in `[JUNE_QUEST] RANK`, and a run where the unit died shows F. Unit 25's
 35363 then counts 35365 to 5 / 5 with an SS clear.
-
 
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
