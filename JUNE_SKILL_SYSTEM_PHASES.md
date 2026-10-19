@@ -2222,6 +2222,8 @@ Revert: `MODS.md` "June's new-title notice". Log `[JUNE_SKILL] EMBLEM title ...`
 - **How to see it:** unit 24 "arasss" (save edit, backup `db_backup\els_db_20261019_142504_pre_sql.sql`: mission 150 "Bat King" sub 150 `clear_data` 0 -> 1 of 2) kills Bat King
   (NPC 74) in Elder Bender's Cave Hard (the sub-mission takes any difficulty of 30050): title 150 is granted, emblem 18 shows its icon + 17352 row in the dungeon.
   Title 10's "Apply title now?" box is not reachable offline: March's data036 sub-mission 10 asks for quest 11040 (June's: 11010), a sub-quest id, so mission 10 never completes.
+- **Play-test PASSED 2026-10-19** (user + log; exe 5b3e8252, 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`): `TITLE mission 150 complete -> title 150 awarded`
+  (14:39:45.078), `EMBLEM title queued: key 1, title 150`, `row 0: key 1, title 150`, `notice: dialog 1, left key 1 = 0, key 0 = -1`; the popup showed icon + text (user).
 
 ## Phase S8 - Running state data: June's pointer model
 
