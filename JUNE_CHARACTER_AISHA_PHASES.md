@@ -322,6 +322,30 @@ animations (Rena, Elesis, Raven, Add, Ara: checklist 7ad), CH0b and CH1 deploy t
   against a pre-CH0b `ErrorLog.txt`.
 - Her body, equipment and effects render (the hand-off names a costume, a weapon and three skills to look at).
 
+### CH0b - Done (2026-10-20)
+
+Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets only; nothing under the Trunk changed but this doc,
+`STATUS.md` and the CH1 pointers.
+- **Reference:** `ErrorLog.txt` (1,394,741 B, last run 2026-10-19 23:11) saved as `data\ErrorLog_pre_CH0b.txt` before the copy.
+- **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_arme/ch0b_stage_list.tsv`:
+  `STAGE-JUNE OK: 53 kom(s), 5688 staged (5302 new, 386 replaced, 0 identical), 0 refused, 34s`. Replaced March files are backed up under
+  `24965799\kom_backup_stage_june61020_055218`. 53 koms, not 54: the list's 54th was CH0's count of koms before cross-kom moves merged.
+- **Packed:** `kom.py pack` x53, 53 `PACK OK`, 0 refusals (every `.lua` gate clear: the list stages no Lua).
+- **Copied (user approved all 53, 2026-10-20):** `kom.py copy` x53, 53 `COPY OK` (data002 52,471,266 B / 2,623 entries md5 09a8309c...; data015 89,258,122 B /
+  5,801 entries; data016 25,522,439 B / 2,078 entries). Backups in `kom_backup_tools`. Four koms are new archives with no live file: data198 (289),
+  data226 (39), datai025 (1), datai031 (92). `X2Main.cpp:809-835` mounts `data001-226` and `datai001-032` (`SERV_IRUHADEV_KOM_FILE_COUNT_226`,
+  `Always.h:3913`), so all four are mounted.
+- **Done-gate re-run:** `kom.py stage-june --dry-run` over the same list after staging: `5688 staged (0 new, 0 replaced, 5688 identical), 0 refused`.
+  Every row of `ch0b_stage_list.tsv` is June's bytes in `kom_contents`; 0 stay `missing` or `march-copy`. The 7,975 rows that were June's already, the 99
+  `dangling` rows and the 3 name false positives need nothing. `elsword_SA_SwordBlastiong_slash.dds` stays March's (absent from June; CH1-CH3 remove its C++).
+- **Stage together:** `Motion_Arme_EM.x` + `Motion_Arme_HM.x` (Meteor Shower Start / Loop / End moved to HM) both packed in the same run (data033 via the
+  data200 -> data033 move); `Motion_Arme_Common.x` has 34 changed bind-pose frames (Bip01 y +8.6), so look at her standing.
+- **Not done here:** no save changes. `createchar.py` / `elsdb.py addchar` refuse because the save has no level-1 unit to copy inventory sizes from;
+  the hand-off asks the user for one throwaway level-1 character, after which the other job tiers are added in one command.
+- **Play-test (user) is the gate.** Log tag `[JUNE_CHAR]` has no lines yet (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b.txt`
+  (`KEM_ERROR`, `Motion Error`, missing texture / mesh lines).
+- **No new drift.** `Motion_Arme_Emotion_Cash25.x` is staged (file only); its behaviour is Stage 10's.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (one flag per logical change
