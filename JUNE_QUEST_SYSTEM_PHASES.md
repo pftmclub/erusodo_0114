@@ -1291,7 +1291,7 @@ and its five messages logged, and Q8 routed it here (quest UI = this plan's subj
 
 **Done gate:** the Video tab lists the movies by area, seen ones unlocked; pressing one plays it and returns to the window.
 
-### Q8b - Done (2026-10-19, Opus 5.5 high; compiles, deploy pending on RM1's build break)
+### Q8b - Done (2026-10-19, Opus 5.5 high; built + deployed, play-test pending)
 
 **Landed:** flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB` (Always.h; `#error`s without `JUNE_QUEST_MOVIE` / `JUNE_QUEST_UI`). 12 funcmap rows `(Quest Q8b)`;
 JUNE_BUGS 360-365. Q5a's log-only stub for cases 41038-41042 is the `#else`.
@@ -1319,7 +1319,7 @@ identical. PACK OK data057 / data063; copy not done (ask). Strings 4495 / 31167 
 
 **Hygiene:** `flagcheck JUNE_QUEST_MOVIE_TAB --worktree --files` (9 files): 7 PASS, 1 PASS~ (one blank line, X2UIQuestNewJune.cpp), 1 DEFINE, 0 OTHER, 0 FAIL; 0 deleted lines, 0 non-ASCII, 0 EOL mismatches, RESULT: PASS.
 
-**Deploy:** PENDING. The first full build (`.build/logs/20261019-210459`) compiled all six Q8b files with no error and failed only in RM1's uncommitted `JUNE_RANDOM_MISSION` hunks (X2UIManager.cpp:4205-4208, X2UIQuickSlot.cpp:987-988, `CX2RandomMissionManager` undeclared). Rebuild once RM1 has fixed it.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,504,768 B, dated 2026-10-19 21:27:29, md5 2a7336901851f465dd7eca7624dedbd1` (main `fd56d901` + peers' uncommitted files; two earlier runs failed only in RM1's then-unfinished `JUNE_RANDOM_MISSION` files, all Q8b files compiled clean). The exe holds `[JUNE_QUEST] MOVIE tab open`, `... list from`, `... tab play`, `... seen list cleared`. Range flagcheck `fd56d901^..fd56d901`: 7 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, RESULT: PASS.
 
 **How to see it in game:** open the quest window, press Video (top-right tab). 13 movie buttons by area; seen ones show their picture and play on
 click (Q8's player, subtitles where `datai015` has them), the rest show the lock picture and a description on hover. The wheel scrolls three
