@@ -1571,6 +1571,8 @@ Flag `SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM` (`Always.h` only). Funcmap rows `
   (COALESCED with a peer's build that started after this request.) The `shop open-at-item` string is in the exe.
 - **How to see it.** In a village, skill window -> the cash button beside the page radios: the shop opens and the buy pop-up shows "Skill Tree Page
   Expansion". Log `[JUNE_SKILL] HUD shop open-at-item: 1 pushed, 1 with a product, first 127273`.
+- **Play-test 2026-10-19 (user: passed; log, exe 99d486a1, 0 EXCEPTION).** The cash button opened the buy pop-up on Skill Tree Page Expansion;
+  `[08:34:50] [JUNE_SKILL] HUD shop open-at-item: 1 pushed, 1 with a product, first 127273`. Unrelated: 2 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only.
 
 ## Phase S7e - Description panels: major skills and the command tab
 
