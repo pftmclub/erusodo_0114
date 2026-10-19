@@ -1291,6 +1291,8 @@ The FAIL is `X2SlideShotScriptedManager.cpp`'s `#include "StdAfx.h"` (outside th
 `STORY rebuild: ... Story_New mark 0` per SetUnitQuest. A completed story quest in the quest window's Story tab shows the Remind button (the replay is Q10b).
 Completing a story quest logs `STORY rebuild ... mark 1`.
 
+**Play-test (2026-10-19, user + log; exe 36fbf5de, data036 md5 5a334071) PASSED.** `STORY LOAD media rows 24 ( 1 categories, 23 groups, 81 files, 81 with a story ) stories 81 ( AddStory calls 82 ) cut scenes 1643` (= 1,655 less 43430's second copy of 12, JUNE_BUGS 357); unit 44 at login `with a story 0`, then completing 42720 "Lost Power 1" from the Story tab `completed quests 4, with a story 1, episode groups 1, Story_New mark 1`; the Remind button showed enabled in the village and does nothing on click (user), as expected: 42720 has no `Quest_Event_Scene_Info` row and the story replay is Q10b. 0 EXCEPTION, ErrorLog 0, UNHANDLED = baseline E_DISABLE_HB_CHECK_REQ. Save: unit 44's 41990 set to 5 / 5 for the test (backup `db_backup\els_db_20261019_180618_pre_sql.sql`).
+
 
 ## Phase Q10b - Story slide-show player
 
