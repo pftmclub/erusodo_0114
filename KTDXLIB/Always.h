@@ -9392,3 +9392,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_OFFLINE_SECRET_POISON
 #endif SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: Offline emulator - a solo dungeon death ends the run the way March's room did. The die REQ reserves the end
+//              ( KRoomUser::ReserveEndPlay, 15 s, RoomUser.cpp:1371 ); X ( EGS_SKIP_CONTINUE_DUNGEON_NOT, was UNHANDLED ) ends it at
+//              once ( DungeonRoom.cpp:8943 ); otherwise the play-status beat ends it when the timer runs out ( Tick :250 ), the cash
+//              revive pause gives 11 s ( :1398 ), a revive cancels it ( :8939 ). The end is EGS_END_GAME_NOT with TN_MONSTER through
+//              Handler_EGS_END_GAME_REQ's own body ( split after its ACK as EndDungeonGame ). Off = a dead solo run never ends.
+//              Log GAME continue. Revert: OFFLINE_DUNGEON_CONTINUE_END in MODS.md.
+#define SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END
+#ifdef SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END needs SERV_IRUHADEV_OFFLINE ( the emulator )
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END
+//////////////////////////////////////////////////////////////////////////

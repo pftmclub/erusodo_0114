@@ -4453,6 +4453,7 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` in `KTDXLIB/Always.h` (needs `OFFLIN
 - **Emulator only.** New `X2Lib/Offline/X2OfflineDungeonRank.h/.cpp` (listed in `X2Lib_2010.vcxproj`) loads the server's `ResultData_new.lua` and binds `ResultProcess` and the two argument objects. `Handlers_Room.cpp`: die counts by monster type, `m_nSec` less loading, ranks + rank bonus EXP in `SendDungeonResultData`, `QuestOnDungeonClear` moved there from `Handler_EGS_END_GAME_REQ`. `Handlers_Quest.cpp`: `bHaveExp` read from `m_mapHaveExpInDungeon`. `X2OfflineServer.h/.cpp`: room counters, declaration, `Release`.
 - **Data.** `KncWX2Server/ServerResource/US/ResultData_new.lua` XOR-packed into data036.kom by the user (server-only Lua). Without it every rank is F and the log says so.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Ranks go back to F, quests back to RT_NONE at end game. No save change (rank bonus EXP already paid stays).
+- **Found by its play-test, own flag `SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END`** (needs `OFFLINE`): a solo dungeon death ends the run as the room did (15 s timer from the die REQ, X = `EGS_SKIP_CONTINUE_DUNGEON_NOT` ends at once, 11 s cash-revive window, a revive cancels). `Handlers_Room.cpp` (die / resurrect / stop-continue / skip handlers, `EndDungeonGame` = `Handler_EGS_END_GAME_REQ`'s body after its ACK), `Handlers_Field.cpp` (the beat), `X2OfflineServer.h/.cpp`. Revert: comment out the define and rebuild; a dead solo run then never ends.
 
 ## Known deviations to clean up
 
@@ -4535,7 +4536,7 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_SCENE` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_U
   (Remind, NEW_QUEST_NOT, QUEST_COMPLETE_ACK, ALL_COMPLETED) go to the new call; their Lua calls stay in the `#else`. `X2Main.cpp`: StateChange's village and battle-field blocks play the scene NEW_QUEST_NOT deferred in state 5
   (`X2InstanceData.h/.cpp`: `SetJuneDeferredQuestScene`). `X2QuestManager.h/.cpp`: the quest BGM (`3232df20` / `3232e000`). `X2GFXEventScene.h/.cpp`: `RegisterMent` (`3226ac80`) and the BGM restore in `End`.
 - **What changes in game.** A quest with no `Quest_Event_Scene_Info` row plays no scene (June has no Lua fallback; the log names the quest). An epic quest sets the GFX scene's new-epic flag. The clear window's DLG is June's.
-- **Data.** data034 `DLG_UI_NEW_Quest_Clear.lua` = June's `ljconv` bytecode (backup `kom_backup_stage_june‚61019_150631`).
+- **Data.** data034 `DLG_UI_NEW_Quest_Clear.lua` = June's `ljconv` bytecode (backup `kom_backup_stage_june\20261019_150631`).
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; restore the DLG from `24965799\kom_contents_bytecode\data034_kom\` (or the backup above), `kom.py pack data034`, ask, copy. No save change.
 
 ### June GFx runtime: event scenes (june-gfx G3, 2026-10-19)

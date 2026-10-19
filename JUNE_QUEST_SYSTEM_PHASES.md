@@ -837,6 +837,15 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` (needs `OFFLINE_MONSTER_GRADE`, `OFF
   phase's files); the `RANK combo`, `RANK bonus` and `ResultData_new.lua` strings are in the exe.
 - **Data (user asked, 2026-10-19):** `ResultData_new.lua` staged byte-exact as BOM source in `data036_kom` (manifest 2, ledger row tier SRV, `8590148f`);
   `PACK OK data036` (+1 entry), `COPY OK data036: ... 13950416 bytes, 263 entries, md5 086cf5fc5a330bcf8dffc4fb54c8fb32`. User owes the play-test.
+- **Play-test 1 (2026-10-19, exe 6efbeb9a):** check 1 PASSED (user + log): unit 12 in Atlas Development Expert, `RANK combo F tech C damaged SS
+  time A total B`, screen total B; level 99 so the 0.04 rate paid 0 EXP. Given damage arrived as `-1402157266` (the client's int counter wrapped;
+  only the Lua's unused IndexC reads it). Check 2 could not run: a solo death never ended (below).
+- **Death fix, own flag `SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END`** (user: "no countdown ... need investigate"): the countdown is the client's
+  (`NoticeContinue`, 10 s), the end is the room's, and the emulator had none. Now: die REQ reserves the end (15 s, RoomUser.cpp:1371); X
+  (`EGS_SKIP_CONTINUE_DUNGEON_NOT`, was UNHANDLED) ends at once (DungeonRoom.cpp:8943); the play-status beat ends it on timeout (Tick :250); the
+  cash-revive pause = 11 s window (:1398); a revive cancels (:8939). The end = `EGS_END_GAME_NOT` TN_MONSTER through `Handler_EGS_END_GAME_REQ`'s
+  body, split after its ACK as `EndDungeonGame`. flagcheck worktree `files: 2 PASS, 2 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, 0 deleted;
+  `DEPLOY OK: X2_offline.exe is 25,415,168 B, dated 2026-10-19 16:54:59, md5 927febd35036f48435f7821e0bc95fea`. User owes check 2 again.
 
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 

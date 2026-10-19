@@ -662,6 +662,10 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 											return Handler_EGS_RESURRECT_TO_CONTINUE_DUNGEON_REQ( kSes, kEvent );
 	case EGS_STOP_DUNGEON_CONTINUE_TIME_REQ:
 											return Handler_EGS_STOP_DUNGEON_CONTINUE_TIME_REQ( kSes, kEvent );
+#ifdef SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END
+	case EGS_SKIP_CONTINUE_DUNGEON_NOT:
+											return Handler_EGS_SKIP_CONTINUE_DUNGEON_NOT( kSes, kEvent );
+#endif SERV_IRUHADEV_OFFLINE_DUNGEON_CONTINUE_END
 	case EGS_DUNGEON_SECRET_STAGE_ENTER_CHECK_REQ:
 											return Handler_EGS_DUNGEON_SECRET_STAGE_ENTER_CHECK_REQ( kSes, kEvent );
 	case EGS_START_REWARD_BOX_SELECT_REQ:	return Handler_EGS_START_REWARD_BOX_SELECT_REQ( kSes, kEvent );
