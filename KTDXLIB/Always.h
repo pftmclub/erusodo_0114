@@ -8812,6 +8812,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June GFx runtime Phase G3 fix - Scaleform's libgfx was built against libjpeg 8d, the client links CxImage's libjpeg 6b under the same
+//              names: the first JPEG inside a scene .swf ( Elysion7.swf, DefineBitsJPEG3 ) died in 6b's "Wrong JPEG library version" path. Links
+//              KTDXLIB/sfjpeg.lib ( tools/sfjpeg.py: the SDK's libjpeg 8d + the three libgfx JPEG members, symbols renamed _jpeg_ -> _Jpeg_ ) before
+//              libgfx.lib so GFx uses its own 8d; CxImage keeps 6b. Off = libgfx calls 6b ( JPEG in a .swf crashes ).
+#define SERV_IRUHADEV_JUNE_GFX_JPEG8
+#ifdef SERV_IRUHADEV_JUNE_GFX_JPEG8
+#ifndef SERV_IRUHADEV_JUNE_GFX_RUNTIME
+#error SERV_IRUHADEV_JUNE_GFX_JPEG8 needs SERV_IRUHADEV_JUNE_GFX_RUNTIME (the libgfx pragmas in KTDXApp.cpp)
+#endif SERV_IRUHADEV_JUNE_GFX_RUNTIME
+#endif SERV_IRUHADEV_JUNE_GFX_JPEG8
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June quest system Phase Q1: June's quest enums (QT_GUILD / QT_CHANGE_TRANSCENDENTAL_CLASS / QT_STORY, QRT_WEEK / QRT_MONTH /
 //              QRT_CHAIN_REPEAT, CJT_JOB_FOURTH, SQT 37-48), the quest parser's new keys (chain id, additional scene quests, select BGM, account /
 //              guild flags, QR_* class tail, clear-condition keys for the new sub-quest types, m_eDungeonID keeps 0, m_cDifficulty), the

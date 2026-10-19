@@ -60,6 +60,10 @@
 #ifdef SERV_IRUHADEV_JUNE_GFX_RUNTIME
 #include "KTDGFXRuntime.h"
 // Scaleform 4.2.22 ( Libs\ExternalLib\Scaleform\Lib\Win32\Msvc10\Release ). June registers AS2 and AS3 support ( G0 item 1 )
+#ifdef SERV_IRUHADEV_JUNE_GFX_JPEG8
+// before libgfx: its JPEG classes come from here and call the renamed libjpeg 8d ( tools/sfjpeg.py ); libgfx's own copies would call jpeg.lib's 6b
+#pragma comment( lib, "sfjpeg.lib" )
+#endif SERV_IRUHADEV_JUNE_GFX_JPEG8
 #pragma comment( lib, "libgfx.lib" )
 #pragma comment( lib, "libgfx_as2.lib" )
 #pragma comment( lib, "libgfx_as3.lib" )

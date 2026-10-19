@@ -438,6 +438,10 @@ def main():
                 (": " + ", ".join(dirty[:12]) + (" ..." if len(dirty) > 12 else "")) if dirty else ""))
             if dirty:
                 p("  (other sessions share this tree: anything listed that is not yours is built in too)")
+            if not a.dry_run and not os.path.exists(tp("KTDXLIB/sfjpeg.lib")):
+                # june-gfx G3: Scaleform's libjpeg 8d under private names (git-ignored *.lib); the client's jpeg.lib is 6b
+                p("KTDXLIB/sfjpeg.lib is missing: running tools/sfjpeg.py")
+                subprocess.run([sys.executable, tp("tools/sfjpeg.py")])
             build_start = time.time()
             rec = {"pid": os.getpid(), "what": label, "tree": TRUNK, "config": a.config, "started": build_start,
                    "full": not only, "deps": a.deps, "head": git("rev-parse", "--short", "HEAD"), "ok": False}
