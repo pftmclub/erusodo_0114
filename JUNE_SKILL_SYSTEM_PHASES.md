@@ -1602,6 +1602,55 @@ Funcmap rows `Skill S7e` (35). JUNE_BUGS 315-319. Checklist 7aj (Luciel's comman
 - **`SERV_IRUHADEV_JUNE_SKILL_DEBUG`: kept.** The last run (06:32) has no `[JUNE_SKILL] MEMO` line in `offline_server.log` or `ErrorLog.txt`. The retire note moves to `kickoffs/skill-system-core/S8-review.md` (Z retires the flag at the latest).
 - **User owes:** nothing. Next: `/x2-phase skill-system-core S7f` (or S7g / S8).
 
+## Phase S7f - Memo resync in other ACKs
+
+**Run with:** Opus 5.5 high, then an Opus review. Added by S7c (2026-10-18, unowned-branch rule). The four other callers of June's memo merge `32892410` and the "item tooltip"
+skill lists `3220d2b0` / `3220b990`. Kickoff `kickoffs/skill-system-core/S7f.md`.
+
+### Phase S7f - Done (2026-10-19, Opus 5.5 high)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` (`Always.h` only: no packet change; `#error` guards `_MEMO_PACKET`, `SERV_IRUHADEV_OFFLINE`). Revert: `MODS.md` "June's in-room skill-info notice". Funcmap tag `Skill S7f`.
+- **The four merge callers, identified** (the kickoff's names were guesses; the June readers settle them):
+  - `31ed4c80` is **not** the slot-change ACK: it is `CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT` (dispatcher `31f04cf0`, Get `31f2f1a0`; packet { UID, byte, KStat +9, KStat +0x25, KUnitSkillData +0x41 }).
+    **Ported whole** (`X2Room.cpp`): the unit from the game user, else the room slot's (`31ed18b0`, no game needed); one KStat (below); for another user the guild / passive trees, then the
+    room slot's unit takes `m_vecSkillNote` (`32853ff0` into `+0x8dc`) and its active memos (Clear `32892050`, Merge from `+0xe9` = `m_kJuneSkillExtraData.m_mapIntInt`); the ten slots set with **no**
+    changed-slot check (`32895d20`, then `31fd84c0` only with a game user); socket + skill state; then June's `31ed3f90` (none in March): every occupied slot (`31ed23a0`: state not 1 / 2 =
+    `SS_EMPTY` / `SS_CLOSE`) re-reads its user's state. The emulator never sends this NOT (0 hits in `X2Lib/Offline/`), so offline it is code-read only; log `[JUNE_SKILL] MEMO room`.
+  - `3220f2b0` (@3220f416): the page decide ACK, **done in S7d**.
+  - `31f276b0` (@31f2791a; dispatcher `31f2ab80`) = June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler, by layout (Get `320ed4e0`: UID, class, unsealed skills, items, completed / running quests,
+    KUnitInfo; the event id is S7h's to confirm). June's layout differs from March's: class is a `short` (+8), no `m_mapChangeMemo`, and a trailing
+    acquired-skill vector (+0x3bf -> `328929e0` = clear + `AddJuneAcquiredSkills 328924c0`); the handler also uses S7g's HUD singleton `324943c0`. A whole-handler port with a wire and emulator
+    change -> **new phase S7h**. Memos already survive it: March's handler calls `Reset( m_kUnitInfo )` -> `SetKUnitInfo`, which runs S7c's merge (`X2Unit.cpp:3618`), the same merge June repeats.
+  - `3257b610` (@3257b8d9) = June's `EGS_SELECT_UNIT_ACK` handler (finds the unit `3264ac70`, `SetKUnitInfo`, notes, merge). The US build splits that ACK (`SERV_SELECT_UNIT_PACKET_DIVISION`):
+    the live `Handler_EGS_SELECT_UNIT_1_NOT` (`X2StateServerSelect.cpp:3637`) reaches the same merge through `Reset` -> `SetKUnitInfo`, and S7c's relog play-test showed it. Not ported: the
+    division is March's server-select design, not a skill-plan change.
+- **Not in the kickoff:** `31f05790` also writes my unit's `+0x8dc` (notes only, no merge; next to the inventory update): left as is, the note list has no reader (item 3).
+- **KStat:** June's `323571c0` takes two 7-field KStats ( `{ float hp; int atkP, atkM, rangeP, rangeM, defP, defM }`, funcmap Buff 5c ); March's packet keeps one 5-field KStat, as Buff 5c / 11 did.
+- **Item 2 is not an item tooltip.** `31d885e0`'s callers are the three level-up handlers (`323ae130` / `32473f70` / `325346e0`, S7 ported only their closing block). It builds the filter
+  { skill 0, level = my unit's level ( +0xb4 XOR ), class = unit +0x38, memo 0 } and `3220d2b0` returns map< type, vector< templet > >: type 1 / 3 ( `+0x178` upgrade ) for a skill whose first
+  required level ( templet `+0x150[0]` ) is this level, 4 when a later index matches, 2 for a memo row at this level ( `32451250`, row `+8` level ); `3220b990` adds without duplicates. Each
+  templet goes to `CX2EmblemManager` ( `3244be60` ) `+0x64` as ( skill id, type, 1.0 ) (`324486b0`) and emblem **17 = `EI_GET_NEW_SKILL_OR_MEMO`** ( June `Enum.lua` `EMBLEM_ID` ) is shown
+  ( `32447d70( 0x11, true )` ). March's `EMBLEM_ID` ends at `EI_NAVER_EVENT` 13 and its manager has no such list, and June's parser `32449000` has keys March lacks (`EXPAND_TEXTURE_FILE_NAME`).
+  -> **new phase S7i** (June's emblem 17 path, whole).
+- **Item 3:** June `+0x8b4` (UnitData) = `+0x8dc` (CX2Unit; UnitData sits at `+0x28`) = `CX2UserSkillTree +0x448` (the tree is UnitData `+0x46c`; Clear `32892050` adds `0x458`) =
+  March's `m_vecSkillNote` (`SetEqipSkillMemo`). Writers: `3235eb20`, `32360090`, `31ed4c80`, `3257b610`, `31f05790`. Its only reader is `32890100` = March's `GetEqipSkillMemo`, which has
+  **no caller** in June (Ghidra xrefs empty; `.text` byte scan: 0 calls, 0 absolute refs). March's own `GetEqipSkillMemo` callers stay as they are.
+- **Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC --worktree --files KTDXLIB/Always.h X2Lib/X2Room.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS` (OTHER = a peer's Q1 block in `Always.h`).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,126,912 B, dated 2026-10-19 07:15:31, md5 0fcefb7768a17ecf4ef9d447694d73e8, equal to X2/US_SERVICE/x2.exe (2026-10-19 07:15:23); built at main be8ba59a + 12 uncommitted code file(s).` (COALESCED into a peer build started 07:05:04, after this request; `[JUNE_SKILL] MEMO room unit` is in the exe)
+- **How to see it:** nothing changes offline (the emulator never sends this NOT). Regression only: the memos survive a relog, a page switch and a dungeon entry.
+- **Open questions:** none.
+
+## Phase S7h - June's class-change notice
+
+**Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). Depends on S7g (`324943c0`). June's `EGS_BUY_UNIT_CLASS_CHANGE_NOT` handler `31f276b0`
+(Get `320ed4e0`: short class, no memo map, trailing acquired-skill vector -> `328929e0`) and the emulator's sender (`Handlers_Shop.cpp`). Kickoff `kickoffs/skill-system-core/S7h.md`.
+
+## Phase S7i - The level-up "new skill or memo" emblem
+
+**Run with:** Opus 5.5 high, then user play-test. Added by S7f (2026-10-19, unowned-branch rule). June's `31d885e0` (called by the three level-up handlers), `CX2SkillTree 3220d2b0 /
+3220b990`, and `CX2EmblemManager`'s emblem 17 `EI_GET_NEW_SKILL_OR_MEMO` (`+0x64` list, `32447d70`, parser `32449000`). Kickoff `kickoffs/skill-system-core/S7i.md`.
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.

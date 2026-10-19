@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\x2room.h"
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
 
 #ifdef HEAP_BROKEN_BY_ROOM
 CX2Room::ROOM_PACKET_DATA CX2Room::RoomPacketData;
@@ -1631,6 +1634,98 @@ bool CX2Room::Handler_EGS_BAN_USER_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 // 구현 완료 (6. 게임중에 스킬 정보가 변경되었을경우 방안의 유저들에게 변경된 스킬 정보를 브로드캐스팅함)
 bool CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT( KEGS_CHANGE_SKILL_INFO_IN_ROOM_NOT& kEvent_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
+	// June 31ed4c80. The user in the game ( vslot 0xa0 ) and its unit ( +0x867c ); without one, the room slot's unit
+	CX2GUUser* pUser = NULL;
+	CX2Unit* pUnit = NULL;
+	if ( NULL != g_pX2Game )
+	{
+		pUser = g_pX2Game->GetUserUnitByUID( kEvent_.m_iUnitUID );
+		if ( NULL != pUser )
+		{
+			pUnit = pUser->GetUnit();
+			pUser->SetGameStat( kEvent_.m_kGameStat );
+		}
+	}
+	if ( NULL == pUnit )
+	{
+		CX2Room::SlotData* pSlotData = GetSlotDataByUnitUID( kEvent_.m_iUnitUID );
+		if ( NULL == pSlotData || NULL == pSlotData->m_pUnit )
+			return false;
+		pUnit = pSlotData->m_pUnit;
+	}
+
+	CX2Unit::UnitData& kUnitData = pUnit->AccessUnitData();
+	// June 323571c0 takes a second KStat ( packet +0x25 ); March's packet has one, March's KStat 5 fields
+	kUnitData.m_GameStat.SetKStat( kEvent_.m_kGameStat );
+	kUnitData.m_byMemberShipGrade = kEvent_.m_ucMemberShipGrade;
+
+	if ( g_pData->GetMyUser()->GetSelectUnit()->GetUID() != kEvent_.m_iUnitUID )
+	{
+		CX2UserSkillTree& userSkillTree = kUnitData.m_UserSkillTree;
+		userSkillTree.ConstructGuildSkillTreeNotMyUnit( kEvent_.m_UnitSkillData.m_vecGuildPassiveSkill );
+		userSkillTree.ConstructSkillTreeNotMyUnit( kEvent_.m_UnitSkillData.m_vecPassiveSkill, kEvent_.m_UnitSkillData.m_aEquippedSkill, kEvent_.m_UnitSkillData.m_aEquippedSkillSlotB );
+
+		// June @31ed4df0: the room slot's unit takes the note list ( 32853ff0 into +0x8dc ) and the active memos ( Clear, then Merge )
+		CX2Room::SlotData* pMemoSlot = GetSlotDataByUnitUID( kEvent_.m_iUnitUID );
+		if ( NULL != pMemoSlot && NULL != pMemoSlot->m_pUnit )
+		{
+			CX2UserSkillTree& kSlotSkillTree = pMemoSlot->m_pUnit->AccessUnitData().m_UserSkillTree;
+			kSlotSkillTree.SetEqipSkillMemo( kEvent_.m_UnitSkillData.m_vecSkillNote );
+			kSlotSkillTree.ClearJuneActiveMemo();
+			const std::map<int, int>& mapJuneMemo = kEvent_.m_UnitSkillData.m_kJuneSkillExtraData.m_mapIntInt;
+			kSlotSkillTree.MergeJuneActiveMemo( std::multimap<int, int>( mapJuneMemo.begin(), mapJuneMemo.end() ) );
+			CX2OfflineLog::Server( L"[JUNE_SKILL] MEMO room unit %I64d: %d note(s), %d active memo(s) merged", kEvent_.m_iUnitUID,
+				(int)kEvent_.m_UnitSkillData.m_vecSkillNote.size(), (int)mapJuneMemo.size() );
+		}
+
+		// June @31ed4e31: each slot is set ( 32895d20 ) with no changed-slot check; the user's state follows ( 31fd84c0 )
+		for ( int i = 0; i < EQUIPPED_SKILL_SLOT_COUNT; ++i )
+		{
+			const KSkillData& skillDataInSlotA = kEvent_.m_UnitSkillData.m_aEquippedSkill[i];
+			userSkillTree.SetEquippedSkill( i, false, skillDataInSlotA );
+			if ( NULL != pUser )
+				pUser->ChangeEquippedSkillState( kUnitData, static_cast<CX2SkillTree::SKILL_ID>( skillDataInSlotA.m_iSkillID ), i, false );
+
+			const KSkillData& skillDataInSlotB = kEvent_.m_UnitSkillData.m_aEquippedSkillSlotB[i];
+			userSkillTree.SetEquippedSkill( i, true, skillDataInSlotB );
+			if ( NULL != pUser )
+				pUser->ChangeEquippedSkillState( kUnitData, static_cast<CX2SkillTree::SKILL_ID>( skillDataInSlotB.m_iSkillID ), i, true );
+		}
+	}
+
+	if ( NULL != pUser )
+	{
+		pUser->UpdateSocketDataAndEnchantData();
+		pUser->UpdatePassiveAndActiveSkillState();
+	}
+
+	// June 31ed3f90 ( none in March ): every occupied slot of the room ( 31ed23a0: not SS_EMPTY / SS_CLOSE ) re-reads its user's
+	// socket and skill state
+	if ( NULL != g_pX2Room )
+	{
+		std::vector<UidType> vecRoomUnitUID;
+		for ( int i = 0; i < (int)g_pX2Room->m_SlotDataList.size(); ++i )
+		{
+			const SlotData* pRoomSlot = g_pX2Room->m_SlotDataList[i];
+			if ( NULL != pRoomSlot && SS_EMPTY != pRoomSlot->m_SlotState && SS_CLOSE != pRoomSlot->m_SlotState )
+				vecRoomUnitUID.push_back( pRoomSlot->m_UnitUID );
+		}
+		for ( int i = 0; i < (int)vecRoomUnitUID.size(); ++i )
+		{
+			if ( NULL == g_pX2Game )
+				continue;
+			CX2GUUser* pRoomUser = g_pX2Game->GetUserUnitByUID( vecRoomUnitUID[i] );
+			if ( NULL != pRoomUser )
+			{
+				pRoomUser->UpdateSocketDataAndEnchantData();
+				pRoomUser->UpdatePassiveAndActiveSkillState();
+			}
+		}
+	}
+
+	return true;
+#else SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
 	if(g_pX2Game == NULL)
 		return false;
 
@@ -1688,6 +1783,7 @@ bool CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT( KEGS_CHANGE_SKILL_INFO_
 	
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
 }
 //}} oasis907 : 김상윤 [2009.11.19] //
 

@@ -4266,6 +4266,15 @@ log tag `[JUNE_SKILL] UI`.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`, and restore data036 from `kom_backup_tools/` (March's `ComboTree.lua` is needed again by the
   `#else`'s `ResetComboTree`). No save change.
 
+### June's in-room skill-info notice (skill-system-core S7f, 2026-10-19)
+
+Flag `SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC` in `KTDXLIB/Always.h` (`#error` guards: `_SKILL_MEMO_PACKET`, `SERV_IRUHADEV_OFFLINE`). Plan `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7f";
+log tag `[JUNE_SKILL] MEMO room`.
+- **Client.** `CX2Room::Handler_EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT` (`X2Room.cpp`) is June's `31ed4c80`: the unit from the game user or else the room slot, another user's note list and
+  active memos (clear + merge from `m_kJuneSkillExtraData`), the ten slots set without the changed-slot check, then every occupied slot's user re-reads its socket and skill state (`31ed3f90`).
+  March's KStat and packet are unchanged. The emulator never sends this NOT, so nothing changes offline.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June GFx runtime: SDK link and system init (june-gfx G1, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_GFX_RUNTIME` in `KTDXLIB/Always.h` (client only). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G1"; log tag `[JUNE_GFX] RUNTIME`.

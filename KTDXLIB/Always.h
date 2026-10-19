@@ -8742,6 +8742,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June skill system Phase S7f - the in-room skill-info notice as June has it ( CX2Room 31ed4c80, packet
+//              EGS_CHANGE_SKILL_INFO_IN_ROOM_NOT ): the unit comes from the game user, else from the room slot ( no game needed );
+//              for another user the room slot's unit takes the note list ( KUnitSkillData m_vecSkillNote ) and its active memos
+//              ( Clear 32892050, then Merge 32892410 from m_kJuneSkillExtraData ); the ten slots are set without March's changed-slot
+//              check; then every occupied slot's user re-reads its socket and skill state ( 31ed3f90 ). March's KStat and packet
+//              stay ( June's packet carries two 7-field KStats, as Buff 5c / 11 found ). Log [JUNE_SKILL] MEMO room.
+//              Revert: JUNE_SKILL_MEMO_RESYNC in MODS.md ( comment out the define ).
+#define SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
+#ifndef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC needs SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET (the active-memo multimap, KJuneSkillExtraData)
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+#ifndef SERV_IRUHADEV_OFFLINE
+#error SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC needs SERV_IRUHADEV_OFFLINE (CX2OfflineLog)
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_RESYNC
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June GFx runtime Phase G2 - June's GFx manager ( CKTDGGGFXManager, g_pKTDXApp +0x1c8 ) as KTDXLIB/KTDGGFXManager.{h,cpp}:
 //              loader states ( r3dGFXFileOpener over the koms, FxPlayer clipboard / log, AS2 + AS3, image handlers, Win32 font provider,
 //              FMOD sound on KTDS = KTDGFXSound.cpp, fontconfig.font "US" ), the D3D9 HAL + Renderer2D, main.gfx as the root movie, the 14
