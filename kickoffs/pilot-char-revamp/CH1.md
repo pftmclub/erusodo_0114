@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase pilot-char-revamp CH1` |
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
-| Depends on | CH0 |
+| Depends on | CH0, CH0b (Aisha's assets are already June's when CH1 starts) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (+ `SERV_IRUHADEV_JUNE_CHAR_DEBUG` if the phase logs per frame) |
 | Log tag | `[JUNE_CHAR]` (`python tools/logs.py --tag JUNE_CHAR`; lines `ARME DATA` / `ARME CORE`) |
 | Review | `kickoffs/pilot-char-revamp/CH1-review.md` (the phase writes it when done) |
@@ -19,9 +19,9 @@ Then CH0's Done note and the `ch1` rows of `june2017_re/char_arme/ch0_class_map.
 
 ## Task
 
-Do "Phase CH1". The script, the motions and the C++ go live together:
+Do "Phase CH1". Her assets are June's since CH0b, and the script and the C++ go live together:
 1. Build the code.
-2. Stage, pack and ask before each copy.
+2. Adopt the script, pack and ask before each copy.
 3. Hand the play-test over only once both the exe and the koms are deployed.
 
 - `X2GUArme_VioletMage.*` and `X2GUUser.*` are CP949: edit them with `bytepatch.py` only.

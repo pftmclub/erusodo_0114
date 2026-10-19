@@ -29,6 +29,11 @@ assignment for yourself.
 - The effect closure (item 5b) is a requirement from the user: every particle, mesh-player entry, texture, mesh and sound Aisha's June states
   reach, including run-time-built names. Make the closure walker reusable, because Stage 7 runs it for every character.
 - Third jobs (`UC_150`-`UC_186`) are out of scope: skip them.
+- **The asset list (item 5) is the top priority (user):** CH0b stages it whole right after you, so Aisha is never half March, half June.
+  - It must be complete. Union the name route (all June koms), the data route (script, `UnitTemplet`, effect closure) and the equipment
+    route (June `item.kim` items of her classes).
+  - It covers motions, models, faces, hair, equipment, textures, effects, particle definitions, sounds and cut-in art.
+  - Write CH0b's "Amended by CH0" section too.
 - Write the Done note under the phase (at most ~60 lines; the tables live in the tsvs).
 - Amend `kickoffs/pilot-char-revamp/CH1.md`-`CH5.md`: each has an "Amended by CH0" section; fill it with the tsv filter, the addresses and
   any split you made (e.g. CH2a / CH2b, with new kickoff files and STATUS rows).

@@ -75,14 +75,19 @@ one: Ara (34 Little Specter, 124 Asura), Elesis (35 Dark Knight, 125 Crimson Ave
   - `Enum.lua` is core source: edit it as text and run `luasrc.py refresh`.
 - **Assets.** June's same-name files replace March's, byte-exact, through `kom.py stage-june` (motions, meshes, textures, `.gfx` cut-ins).
   Pack them yourself; ask before every `/x2-kom-packed copy`.
-- **Effects and particles come with the skill (user, 2026-10-20).** Each phase that ports a state also brings in that state's whole effect
-  closure (CH0 item 5b). That closure covers:
-  - every damage-effect and effect-set templet it names;
-  - the particle sequences and mesh-player entries those templets play;
-  - the textures, meshes and sounds behind them.
+- **The character's June assets come first, whole: no half-March, half-June character (user, 2026-10-20).** Every non-Lua asset that is Aisha's
+  becomes June's, byte-exact, in one deploy (CH0b), before any code phase. That covers:
+  - motions;
+  - body, face and hair models and their textures;
+  - equipment meshes and textures;
+  - skill effects (effect meshes, particle and mesh-player `.txt` definitions, their textures);
+  - sounds;
+  - cut-in art and UI portraits.
 
-  Do not wait for the asset-port plan (Stage 15, not started). Its waves later carry the same bytes, so nothing collides. Names built at run
-  time (string concatenation in C++ or Lua) are part of the closure ([[lanox-fix-effect-data-closure]]).
+  CH0 lists them, and CH0b stages, packs and copies them. Nothing is left on March's copy "until its skill is ported". The asset-port plan
+  (Stage 15, not started) is not waited for; its waves later carry the same bytes, so nothing collides. Names built at run time are part of the
+  set ([[lanox-fix-effect-data-closure]]). If a March reader breaks on a June asset, the fix is code (the same-name rule), never keeping
+  March's file.
 - **CP949.** `X2GUArme_VioletMage.*` and most `X2Lib` sources are CP949: edit them with `bytepatch.py` only.
 - **Damage numbers.** June's numerical scale differs from March's (checklist §1). Record both values in `MODS.md` for every Aisha skill whose
   damage changes.
@@ -133,8 +138,9 @@ Kept in `june2017_re/char_arme/` (digests written by Sonnet subagents, spot-chec
 
 | Phase | What | Model | Depends |
 |---|---|---|---|
-| CH0 | Aisha map: June class vs March class, state and skill table, checklist rows per phase, assets per owner (read-only) | Opus high | - |
-| CH1 | Deploy unit: June script + motions + class core (states, common moves, hooks) | Opus high, Opus review, user play-test | CH0 |
+| CH0 | Aisha map: June class vs March class, state and skill table, checklist rows per phase, every Aisha asset (read-only) | Opus high | - |
+| CH0b | **Every June Aisha asset, whole, first** (motions, models, textures, equipment, effects, particles, sounds, cut-in art) | Sonnet high, user play-test | CH0 |
+| CH1 | Deploy unit: June script + class core (states, common moves, hooks) | Opus high, Opus review, user play-test | CH0b |
 | CH2 | Skills: Violet Mage + first jobs (classes 2, 14, 15, 23) | Sonnet high, Opus review, user play-test | CH1 review |
 | CH3 | Skills: second jobs (104, 105, 113) + hyper actives | Sonnet high, Opus review, user play-test | CH2 review |
 | CH4 | Passives and class mechanics (memorize, passive state data, cool-time rules, buff rows) | Opus high, Opus review, user play-test | CH2 review |
@@ -143,7 +149,7 @@ Kept in `june2017_re/char_arme/` (digests written by Sonnet subagents, spot-chec
 | CH6 | Whole-character walk + gap reruns | Sonnet medium, user play-test | CH3, CH4, CH5 reviews |
 | Z | Close-out: MODS, checklist marks, the Stage 7 template, Stage 6 / 7 briefs | Sonnet medium | CH6 |
 
-CH0 runs now, alongside anything (read-only). CH3 and CH4 both edit `X2GUArme_VioletMage.*`: one at a time. CH5 runs beside CH2-CH4.
+CH0 runs now, alongside anything (read-only). CH0b follows straight after it: the assets are the top priority. CH3 and CH4 both edit `X2GUArme_VioletMage.*`: one at a time. CH5 runs beside CH2-CH4.
 
 ## Phase CH0 - Aisha map (read-only)
 
@@ -175,15 +181,33 @@ CH0 runs now, alongside anything (read-only). CH3 and CH4 both edit `X2GUArme_Vi
    - 7ae (260 rows); 7ag (decode `:5232-5257`); 7ah / 7aj (memorize slots, slot-data type 5 `328d9ac0`, tooltip `328e9160`); 7ai (`s3e_bybfi_callers.tsv` l.309-312);
    - 7ak (`32ce1770`).
    - Output: a "CH0 checklist map" table in this doc's Done note, and the rows in `ch0_checklist_rows.tsv`.
-5. **Assets per owner.** Classify every June Aisha file:
-   - 64 Lua (`plan_june_side.md` §4); 69 motions; effect meshes and textures named in the script's `INIT_DEVICE` / state tables.
-   - **Aisha's** (CH1 / CH5 take them): the class script, her skill NPC / summon scripts (e.g. `Aisha_PigBat`, `Aisha_StoneWall`, `Ufo_Aisha`,
-     `Ufo_Aisha_Droper_Memo`), motions, effect meshes, sounds.
+5. **Every Aisha asset, and its owner.** This is the list CH0b stages. It must be complete (user: no half-March, half-June character). Find
+   every June file that is Aisha's, by three routes, and union them:
+   - (a) by name: `Arme` / `Aisha` (and her job abbreviations) over all 260 June koms with `junekom.py list`;
+   - (b) by reference from her data: her script's `INIT_DEVICE` / `INIT_MOTION` / `INIT_COMPONENT` tables, her June `UnitTemplet` rows (body
+     motion files, part meshes, face / hair), and the 5b closure;
+   - (c) by reference from her equipment: the mesh and texture names of every June `item.kim` item whose class is Aisha's (`tools/kim.py`;
+     costumes, weapons, armour and accessories).
+
+   For each file, give:
+   - its March state: missing, March's copy, or already June's bytes;
+   - its June kom;
+   - its March placement (`stage-june` rules).
+
+   Classify each file:
+   - **Aisha's non-Lua assets** (CH0b takes all of them, whole): motions (69), body / face / hair models and their `.xet` / textures,
+     equipment meshes and textures, effect meshes, particle and mesh-player `.txt` definitions and their textures, sounds, cut-in `.gfx` / art,
+     UI portraits.
+   - **Aisha's Lua** (CH1 takes it): the class script and her skill NPC / summon scripts (e.g. `Aisha_PigBat`, `Aisha_StoneWall`, `Ufo_Aisha`,
+     `Ufo_Aisha_Droper_Memo`).
+   - 64 June Lua files match her name (`plan_june_side.md` §4).
    - **Owned elsewhere** (owner + one-line brief, scope rule): class-change guides `DLG_1ST/2ND_Class_Change_Guide_Aisha` and jumping-system
      dialogs (Stage 9); `DLG_Transcendental_Change_Guide_Aisha` (Stage 6); `Tutorial_Aisha_Stage0` (june-dungeons); `PET_Mystic_ARME_3` (Stage 17);
      `Ain_Arme_Thaumaturgy` (Stage 8); boss / shadow / event NPC scripts (whichever plan already adopted June's NPC Lua: check the ledger
      and `adopt-june` records).
-   - Output: `ch0_assets.tsv` (file, kom, June size, March size, owner, phase).
+   - Output: `ch0_assets.tsv` (file, kind, route a/b/c, June kom, June size, March kom, March size, March state, owner, phase), with totals
+     per kind and per March state. Also list any March reader that a June asset could break: a renamed animation (none for Aisha per
+     `r12b_anim_loss.tsv`), a frame-count or bone change, a texture name the C++ hard-codes. Each one becomes a CH0b or CH1 item.
 
    5b. **Effect and particle closure, per state.** Walk out from each of Aisha's 313 June states and her C++ functions:
    - **Templets.** The `DamageEffect` / `EffectSet` templet names they use, including names built at run time.
@@ -197,8 +221,8 @@ CH0 runs now, alongside anything (read-only). CH3 and CH4 both edit `X2GUArme_Vi
    Output: `ch0_effect_closure.tsv` (state, kind, name, March status, June kom, phase), with a count of missing / March-copy / already-June.
 
    Also find out where June's particle and mesh-player `.txt` definitions stand in March today: June's, merged, or March's (the effect plan's
-   Phase 10 ported the keys; the asset-port plan leaves `.txt` with the effect plan). If Aisha's definitions are still March's, the
-   definitions her states need become CH1-CH3 items.
+   Phase 10 ported the keys; the asset-port plan leaves `.txt` with the effect plan). Aisha's definitions go in with CH0b. If a definitions
+   file is shared by every character, say how CH0b takes June's file whole without breaking the others.
 6. **Shared data decisions** (write them down; ask the user only for real choices):
    - **June's `UnitTemplet.lua`.** It is March bytecode now; June's adds `m_HyperCutIn` / `m_BerserkCutIn` / `_Trans` keys and rows for classes
      March's C++ lacks (Lu/Ciel, Rose, Ain, and the third-job placeholder `UC_150`, out of scope). Say what March's reader does with each (a nil
@@ -207,10 +231,34 @@ CH0 runs now, alongside anything (read-only). CH3 and CH4 both edit `X2GUArme_Vi
      from the core `Enum.lua`.
    - **The slot-5 gap.** `X2GUUser.cpp:25500-25510` returns slot data for `oneSkill5` / `oneSkillEx5` without setting `iSkillSlotIndexPressed_`.
      Confirm it is Stage 6's (TC slot, refused today), or a CH1 item if June sets it there.
-7. **Amend the kickoffs.** Rewrite CH1-CH5's "Amended by CH0" sections with the tsv filters, addresses and splits.
+7. **Amend the kickoffs.** Rewrite CH0b-CH5's "Amended by CH0" sections with the tsv filters, addresses and splits.
 
 **Done gate:** the six tsvs exist (with `ch0_effect_closure.tsv`); every Aisha checklist row has a phase or an n/a reason; `ch0_state_skill.tsv` covers 313 / 313 states and
-130 / 130 skill ids; the CH1-CH5 kickoffs are amended; funcmap rows written; open questions listed for the user.
+130 / 130 skill ids; `ch0_assets.tsv` unions routes a, b and c; the CH0b-CH5 kickoffs are amended; funcmap rows written; open questions
+listed for the user.
+
+## Phase CH0b - Every June Aisha asset, whole, first
+
+**Run with:** Sonnet 5.5 high (mechanical staging from CH0's list), then a user play-test. No C++ unless CH0 found a March reader that a June
+asset breaks: then that fix comes here, under `SERV_IRUHADEV_JUNE_CHAR_ARME_ASSET`. Sub-tag `DATA`.
+
+**Scope:** every row of `ch0_assets.tsv` whose owner is Aisha and whose kind is not Lua:
+- motions, models, faces, hair, equipment, textures, effect meshes, particle / mesh-player definitions, sounds, cut-in art, portraits.
+
+How:
+- Stage them byte-exact with `kom.py stage-june` (June wins at the same name; June-only files are added).
+- Pack each touched kom, then ask before each copy.
+- One deploy, so Aisha is never half March, half June.
+
+**Why before the code:** for Aisha it is safe. M3 and `r12b_anim_loss.tsv` show June's motion files keep every animation March's script plays,
+with the same bones, so her March script keeps working on June's assets until CH1 swaps the script. For a Stage 7 character with renamed
+animations (Rena, Elesis, Raven, Add, Ara: checklist 7ad), CH0b and CH1 deploy together instead. The assets still all go in at once.
+
+**Done gate:**
+- `ch0_assets.tsv` re-run shows 0 Aisha non-Lua rows that are missing or still March's copy.
+- In game, Aisha (one save per job tier) in village and dungeon shows no new `KEM_ERROR` / `Motion Error` / missing-texture / missing-mesh line
+  against a pre-CH0b `ErrorLog.txt`.
+- Her body, equipment and effects render (the hand-off names a costume, a weapon and three skills to look at).
 
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
@@ -219,9 +267,8 @@ if CH0 splits it). Sub-tags `CORE`, `DATA`.
 
 **Scope** (CH0's `ch1` rows decide the detail):
 - **Data in one unit.** Adopt June's `Arme_VioletMage.lua` (`adopt-june`, bytecode unless an edit is needed). Adopt her skill NPC / summon
-  scripts that CH0 marked CH1. Stage June's `Motion_Arme*` (data200 -> March's placement via `kom.py stage-june`), the script's
-  `INIT_DEVICE` assets, and the effect closure of the common states (`ch0_effect_closure.tsv`, phase `ch1`: particles, mesh-player
-  entries, textures, meshes, sounds). Pack them, then ask before the copy.
+  scripts that CH0 marked CH1. Her non-Lua assets are already June's (CH0b); stage only what CH0b's play-test or a run-time name found
+  missing. Pack, then ask before the copy.
 - **Class core.** June's state registration and `InitState` order; the common states (wait, walk, dash, jump, combos, dash combos, damage,
   bounding, win / lose, the job start / win / lose blocks) as June has them; the class `CommonSpecialAttackEventProcess` decode, converted to
   June's pressed-index space with every `> 3` / `- 4` site together (7ag; Aisha `:5232-5257`, `:5072`).
@@ -245,8 +292,8 @@ user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH0 may split by job)
 - add its case in `SetEquippedSkillFuncBySkillSlotIndex`, with June's state functions whole;
 - carry the checklist rows attached to that skill: 7b (the `32cccc70` block + D8 swap), 7c alpha-tag calls, 7u effect-name swaps, 7ai BFI
   arguments, 7ac (Hell Drop), 7p (binding circle).
-- bring in the skill's effect closure (`ch0_effect_closure.tsv`, phase `ch2`): June's particle sequences, mesh-player entries, textures,
-  meshes and sounds, staged byte-exact, packed, then copied after asking.
+- check the skill's effect closure (`ch0_effect_closure.tsv`): CH0b already staged it. A name found only now (a run-time-built name the map
+  missed) is staged here, byte-exact, and added to `ch0_assets.tsv`.
 - **Numerical damage, first live class:** checklist §1's gate.
   - Show `[JUNE_SKILL] NUM use ...` for an Aisha skill (`logs.py --tag JUNE_SKILL --grep NUM`).
   - Retire `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` in the same phase.
@@ -341,8 +388,21 @@ candidates are Ara 34 / 124, Elesis 35 / 125 and Add 33 / 36 / 123 / 126. Third 
 ## Template for Stage 7
 
 Stage 7 repeats this doc per character: `JUNE_CHARACTER_<NAME>_PHASES.md`, plan key `char-<name>`, tag `[JUNE_CHAR] <PREFIX>`, flags
-`SERV_IRUHADEV_JUNE_CHAR_<PREFIX>_*`. The phase skeleton is CH0 -> CH1 -> CH2 / CH3 (skills by job tier) -> CH4 -> CH5 -> CH-N (if the character
-has a templet-backed June-only class) -> CH6 -> Z. Z of this plan rewrites this section from what the pilot took.
+`SERV_IRUHADEV_JUNE_CHAR_<PREFIX>_*`.
+
+The phase skeleton is:
+- CH0;
+- CH0b (every June asset of the character, whole, first; deployed together with CH1 when the character has renamed animations, checklist 7ad);
+- CH1;
+- CH2 / CH3 (skills by job tier);
+- CH4;
+- CH5;
+- CH-N (only if the character has a templet-backed June-only class);
+- CH6;
+- Z.
+
+The new characters (Stage 8) follow the same asset rule: every June asset of the character, whole, before their code. Z of this plan rewrites
+this section from what the pilot took.
 
 What differs per character, as known on 2026-10-20 (gap = June attacks whose damage is numerical-only; `l.` = checklist line):
 

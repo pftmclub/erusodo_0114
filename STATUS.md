@@ -810,7 +810,8 @@ template block, first run by Ara / Elesis / Add in Stage 7. Priority (user 2026-
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0 | **ready** (read-only: no code, no build) | Opus 5.5 / high | -; runs with anything | `june2017_re/char_arme/`, `june2017_re/charport_keys.py` (new), funcmap, plan doc, kickoffs | `CH0.md` |
-| CH1 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH0 | `X2GUArme_VioletMage.*`, `X2GUUser.*` (decode / hooks), Always.h, data036 `Arme_VioletMage.lua`, motion kom(s) | `CH1.md`, review `CH1-review.md` (CH1 writes it) |
+| CH0b | waiting (top priority after CH0, user 2026-10-20: every June Aisha asset whole, no half-March, half-June character) | Sonnet 5.5 / high, then user play-test | CH0 | Aisha's motions / models / textures / equipment / effects / particle defs / sounds / cut-in art in `kom_contents/*_kom` + game-dir koms | `CH0b.md` |
+| CH1 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH0b | `X2GUArme_VioletMage.*`, `X2GUUser.*` (decode / hooks), Always.h, data036 `Arme_VioletMage.lua`, script kom | `CH1.md`, review `CH1-review.md` (CH1 writes it) |
 | CH2 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH2.md` |
 | CH3 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH2 review; not with CH4 | `X2GUArme_VioletMage.*`, Always.h | `CH3.md` |
 | CH4 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH2 review; not with CH3 | `X2GUArme_VioletMage.*`, skill-tree / slot UI (memorize), Always.h | `CH4.md` |
@@ -818,7 +819,7 @@ template block, first run by Ara / Elesis / Add in Stage 7. Priority (user 2026-
 | CH6 | waiting | Sonnet 5.5 / medium, then user walk | CH3, CH4, CH5 reviews | save (test characters), plan doc | `CH6.md` |
 | Z | waiting | Sonnet 5.5 / medium | CH6 | `MODS.md`, checklist, plan doc, backlog, `kickoffs/june-backlog/stage6-plan.md` + `stage7-plan.md` | `Z.md` |
 
-Running together: CH0 now, alongside anything. Later: CH5 beside CH2 / CH3 / CH4; CH3 and CH4 one at a time (same class files).
+Running together: CH0 now, alongside anything; CH0b straight after it. Later: CH5 beside CH2 / CH3 / CH4; CH3 and CH4 one at a time (same class files).
 
 ## Other plans
 

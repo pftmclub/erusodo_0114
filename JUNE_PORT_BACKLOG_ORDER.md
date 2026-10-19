@@ -909,6 +909,11 @@ ORDER  BY UnitClass;
   4. Drifted work is deferred, never dropped: each item has an owner and a brief, so it gets done in its stage's turn.
      Choose the bucket yourself and say so in the hand-off. Ask the user only when you cannot tell whether an item
      affects playability.
+- **A character's June assets come first and whole (user, 2026-10-20; Stages 5, 7 and 8).** Every non-Lua asset of the character becomes June's,
+  byte-exact, in one deploy before that character's code phases. For March characters this is their revamp; for the new characters it is their
+  whole set. It covers motions, models, faces, hair, equipment, textures, effects, particle definitions, sounds and cut-in art. No character runs
+  half-March, half-June. A March reader that breaks on a June asset gets a code fix, never March's file back. See `JUNE_CHARACTER_AISHA_PHASES.md`
+  CH0 / CH0b, the pattern.
 - **June wins, even when it removes a feature** ([[june-behaviour-wins-even-when-it-removes-features]]), and June's asset wins at the same filename ([[june-asset-wins-over-march-at-same-filename]]).
 - **Flags.** Every client change is behind a `SERV_IRUHADEV_` flag in `KTDXLIB/Always.h`, with the original code kept in `#else` and the `#endif FLAG` style. Shared-header changes are flag-gated and offline-only (decision above).
 - **Shared-struct flags must reach every project that sees the struct.**
