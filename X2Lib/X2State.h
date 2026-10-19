@@ -85,6 +85,10 @@ class CX2State : public CKTDXStage
 			SUCM_JUNE_TITLE_TEN_OK		= 3085,		/// June CX2State::UICustomEventProc ( switch @31f242cb ) 3085: title 10's "apply title now?" OK
 			SUCM_JUNE_TITLE_TEN_CANCEL	= 3086,		/// 3086: its Cancel
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+			SUCM_CLOSE_DUNGEON_CLEAR_MOVIE			= 3032,	/// June Enum.lua :918: DLG_Dungeon_Clear_Movie's skip button and close event ( 31f23e70 case 0xbd8 )
+			SUCM_CLOSE_DUNGEON_CLEAR_MOVIE_OK_MSG	= 3033,	/// June Enum.lua :888: the skip box's OK ( case 0xbd9 )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 		};
 
 	
@@ -958,6 +962,9 @@ class CX2State : public CKTDXStage
 		bool			m_bEnableQuitGame;
 
 		CKTDGUIDialogType	m_pDLGMsgBox;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+		CKTDGUIDialogType	m_pDLGJuneClearMovieSkip;	/// June CX2State +0x1e4: the "stop the video?" box
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 
 
 		bool			m_bOneTimeProcAfterContructor;

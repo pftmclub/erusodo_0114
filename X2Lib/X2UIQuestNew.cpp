@@ -1546,6 +1546,26 @@ bool CX2UIQuestNew::Handler_EGS_ADMIN_QUEST_COMPLETE_REQ( CX2UnitManager::NPC_UN
 	kPacket.m_iQuestID		= questID;
 	kPacket.m_mapSelectItemID	= mapSelectItemID;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	// June 323d1fc0 @323d206f-323d2183: the quest's clear movie first ( 31d7a240, admin 1 ), then the seen list ( 31d75950 -> 31d78bf0( id, 1 ) ).
+	// A movie that starts ( 31d880b0 ) parks this request: it is sent when the movie ends ( 31d883a0 -> 31d822b0 ) and +0x178
+	// ( m_bAdminQuestComplete ) is cleared now. One that fails to start is stopped at once, which sends it; the plain send below then
+	// sends it again ( JUNE_BUGS ). June reads g_pMain +0x80a without its own null test.
+	if( NULL != g_pMain )
+	{
+		g_pMain->JunePlayQuestClearMovie( kPacket, true );
+		int iJuneMovieID = 0;
+		if( true == g_pMain->JuneGetClearMovieIDByQuest( questID, iJuneMovieID ) )
+			g_pMain->JuneAddSeenClearMovie( iJuneMovieID, true );
+		if( true == g_pMain->JuneIsClearMoviePlaying() && false == g_pMain->JuneStartClearMovie() )
+			g_pMain->JuneStopClearMovie();
+		if( true == g_pMain->JuneIsClearMoviePlaying() )
+		{
+			m_bAdminQuestComplete = false;
+			return true;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	g_pData->GetServerProtocol()->SendPacket( EGS_ADMIN_QUEST_COMPLETE_REQ, kPacket );
 	g_pMain->AddServerPacket( EGS_QUEST_COMPLETE_ACK );
 
@@ -1562,6 +1582,21 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_REQ( CX2UnitManager::NPC_UNIT_ID 
 	kPacket.m_iQuestID		= questID;
 	kPacket.m_mapSelectItemID	= mapSelectItemID;
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	// June 323d24f0 @323d259c-323d26b2: as the admin request above ( 31d7a240 with admin 0, the seen list, start or stop ), with no +0x178
+	// write. A started movie parks the request; quest 22336 -> Movie_Elysion_Clear.avi, 22236 -> Movie_Atlas_Clear.avi.
+	if( NULL != g_pMain )
+	{
+		g_pMain->JunePlayQuestClearMovie( kPacket, false );
+		int iJuneMovieID = 0;
+		if( true == g_pMain->JuneGetClearMovieIDByQuest( questID, iJuneMovieID ) )
+			g_pMain->JuneAddSeenClearMovie( iJuneMovieID, true );
+		if( true == g_pMain->JuneIsClearMoviePlaying() && false == g_pMain->JuneStartClearMovie() )
+			g_pMain->JuneStopClearMovie();
+		if( true == g_pMain->JuneIsClearMoviePlaying() )
+			return true;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	g_pData->GetServerProtocol()->SendPacket( EGS_QUEST_COMPLETE_REQ, kPacket );
 	g_pMain->AddServerPacket( EGS_QUEST_COMPLETE_ACK );
 

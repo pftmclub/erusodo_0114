@@ -25,6 +25,9 @@ using boost::bind;
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
 #include "X2GFXEventScene.h"
 #endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_STORY
 #include "X2SlideShotScriptedManager.h"
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
@@ -1583,6 +1586,16 @@ m_pMemoryHolder( NULL )
 	}
 #endif CLIENT_USE_NATION_FLAG
 #endif SERV_IRUHADEV_JUNE_UI_NATION_KEYS
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	// June CX2Main ctor 31e46300 @31e4b302-31e4b94e: after the config script and the nation name, DungeonClearMovieTemplet.lua ( 33458124 )
+	// is read through the mass-file manager and run; each row calls g_pMain:AddDungeonClearMovieTemplet_LUA. The play state starts cleared.
+	m_bJuneClearMovieOrgSound		= false;
+	m_bJuneClearMovieOrgMusic		= false;
+	m_bJuneReservedAdminComplete	= false;
+	m_pDLGJuneClearMovie			= NULL;
+	JuneResetClearMovieState();
+	OpenScriptFile( L"DungeonClearMovieTemplet.lua" );
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #if defined(CHECK_KOM_EU)
 //네셔널 플래그 파싱 한 후에 체크콤 로드하게 합니다. 
 #ifdef	CHECK_KOM_FILE_ON_LOAD
@@ -2983,6 +2996,9 @@ HRESULT CX2Main::OnFrameMove( double fTime, float fElapsedTime )
 	}	
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	JuneCheckClearMovieEnd();	// June 31d90300 @31d91398-31d91419, after the info-box lifetime block
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef BANDICAM_CAPTURE
 	m_fCaptureDelay -= fElapsedTime;
 	if( m_fCaptureDelay < 0.0f )
@@ -3567,6 +3583,9 @@ void CX2Main::RegisterLuabind()
 #ifdef TOGGLE_UNLIMITED_SKILL_USE
 	lua_tinker::class_def<CX2Main>( L, "ToggleUnlimitedSkillUse",       &CX2Main::ToggleUnlimitedSkillUse );
 #endif //TOGGLE_UNLIMITED_SKILL_USE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	lua_tinker::class_def<CX2Main>( L, "AddDungeonClearMovieTemplet_LUA",	&CX2Main::AddDungeonClearMovieTemplet_LUA );	/// June 31d95080 @31dab9e5 ( 31d8cb90 )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 
 
 	lua_tinker::class_add<CX2QuestManager>( L, "CX2QuestManager" );
@@ -11605,6 +11624,267 @@ void CX2Main::DeleteNMCachData()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+/// June 31d8cb90 ( AddDungeonClearMovieTemplet_LUA, bound by 31d95080 ): one DungeonClearMovieTemplet.lua row. Keys in June's order
+/// ( xorstrings.tsv 31d8cc52..31d8daaa ); the record is pushed onto +0x7f8 ( 31e93c70 ) with no check of its own.
+bool CX2Main::AddDungeonClearMovieTemplet_LUA()
+{
+	KLuaManager luaManager( g_pKTDXApp->GetLuaBinder()->GetLuaState() );
+	JuneClearMovieTemplet kTemplet;
+
+	LUA_GET_VALUE( luaManager, "m_wstrMovieFileName",			kTemplet.m_wstrMovieFileName,		L"" );
+	LUA_GET_VALUE( luaManager, "m_bIntroMovie",				kTemplet.m_bIntroMovie,				false );
+	LUA_GET_VALUE( luaManager, "m_wstrIconTextureFileName",	kTemplet.m_wstrIconTextureFileName,	L"" );
+	LUA_GET_VALUE( luaManager, "m_wstrIconTextureKeyName",		kTemplet.m_wstrIconTextureKeyName,	L"" );
+
+	// m_dungeonName: a string id ( absent = -1 ) kept as its text ( 31c30d30; March's GET_STRING carries June's "[S%1%]%2%" debug branch )
+	int iDungeonNameStrID = -1;
+	LUA_GET_VALUE( luaManager, "m_dungeonName",				iDungeonNameStrID,					-1 );
+	kTemplet.m_wstrDungeonName = GET_STRING( iDungeonNameStrID );
+
+	if( true == luaManager.BeginTable( "m_eDungeonID" ) )
+	{
+		int iIndex		= 1;
+		int iDungeonID	= 0;
+		while( true == luaManager.GetValue( iIndex, iDungeonID ) )
+		{
+			kTemplet.m_vecDungeonID.push_back( iDungeonID );
+			++iIndex;
+		}
+		luaManager.EndTable();
+	}
+
+	LUA_GET_VALUE( luaManager, "m_eMovieCategory",				kTemplet.m_eMovieCategory,			0 );
+	LUA_GET_VALUE( luaManager, "m_wstrMovieTextureName",		kTemplet.m_wstrMovieTextureName,	L"" );
+	LUA_GET_VALUE( luaManager, "m_wstrMovieTextureKeyName",	kTemplet.m_wstrMovieTextureKeyName,	L"" );
+	LUA_GET_VALUE( luaManager, "m_iQuestID",					kTemplet.m_iQuestID,				0 );
+
+	m_vecJuneClearMovieTemplet.push_back( kTemplet );
+	return true;
+}
+
+/// June 31d79960 ( ecx = this +0x808 ): with g_pMain, +0x808 = option +0x41 ( m_bSound ) and +0x809 = option +0x40 ( m_bMusic ); then the
+/// playing flag, the movie name and the reserved complete request ( quest 0, NPC 0, empty map, both bools ) are cleared. The admin flag
+/// ( +0x842 ) and the dialog ( +0x844 ) are left as they are.
+void CX2Main::JuneResetClearMovieState()
+{
+	if( NULL != g_pMain )
+	{
+		m_bJuneClearMovieOrgSound = m_GameOption.GetOptionList().m_bSound;
+		m_bJuneClearMovieOrgMusic = m_GameOption.GetOptionList().m_bMusic;
+	}
+	m_bJuneClearMoviePlaying = false;
+	m_wstrJuneClearMovieFileName = L"";
+	m_kJuneReservedQuestComplete = KEGS_QUEST_COMPLETE_REQ();
+}
+
+/// June 31d7a240 ( the complete request by value, bool admin ): called first by the quest window's complete requests ( 323d24f0 normal,
+/// 323d1fc0 admin ). The first row with a movie file whose m_iQuestID is the request's quest: its file becomes the next movie ( +0x80c ),
+/// the playing flag is set and the request is kept to be sent when the movie ends ( 31e87cc0 into +0x828, admin into +0x842 ).
+void CX2Main::JunePlayQuestClearMovie( const KEGS_QUEST_COMPLETE_REQ& kReq_, bool bAdmin_ )
+{
+	JuneResetClearMovieState();
+
+	vector<JuneClearMovieTemplet>::const_iterator it;
+	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
+	{
+		if( false == it->m_wstrMovieFileName.empty() && kReq_.m_iQuestID == it->m_iQuestID )
+		{
+			m_wstrJuneClearMovieFileName	= it->m_wstrMovieFileName;
+			m_bJuneClearMoviePlaying		= true;
+			m_kJuneReservedQuestComplete	= kReq_;
+			m_bJuneReservedAdminComplete	= bAdmin_;
+			break;
+		}
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE quest %d complete request ( admin %d ): table %d row(s), %s", kReq_.m_iQuestID, ( true == bAdmin_ ) ? 1 : 0,
+		(int)m_vecJuneClearMovieTemplet.size(), ( true == m_bJuneClearMoviePlaying ) ? m_wstrJuneClearMovieFileName.c_str() : L"no movie" );
+}
+
+/// June 31d75950 ( quest id, out id ): with rows and the quest manager ( g_pData +0x4c ), the first row whose m_iQuestID matches gives
+/// its m_eMovieCategory ( +0x2c ). No movie-file test here.
+bool CX2Main::JuneGetClearMovieIDByQuest( int iQuestID_, int& iMovieID_ ) const
+{
+	if( true == m_vecJuneClearMovieTemplet.empty() || NULL == g_pData || NULL == g_pData->GetQuestManager() )
+		return false;
+
+	vector<JuneClearMovieTemplet>::const_iterator it;
+	for( it = m_vecJuneClearMovieTemplet.begin(); it != m_vecJuneClearMovieTemplet.end(); ++it )
+	{
+		if( iQuestID_ == it->m_iQuestID )
+		{
+			iMovieID_ = it->m_eMovieCategory;
+			return true;
+		}
+	}
+	return false;
+}
+
+/// June 31d78bf0 ( id, bool ): +0x84c gets { id, bool } unless the id is already there.
+void CX2Main::JuneAddSeenClearMovie( int iMovieID_, bool bValue_ )
+{
+	vector< std::pair<int, bool> >::const_iterator it;
+	for( it = m_vecJuneSeenClearMovie.begin(); it != m_vecJuneSeenClearMovie.end(); ++it )
+	{
+		if( iMovieID_ == it->first )
+			return;
+	}
+	m_vecJuneSeenClearMovie.push_back( std::make_pair( iMovieID_, bValue_ ) );
+}
+
+/// June 31d880b0: keeps the sound and music options ( +0x808 / +0x809 ) and turns both off ( 32420aa0 / 3241dba0 = SetSound / SetMusic,
+/// on g_pMain +0x180 = the game option ), BEFORE the name test. With a name: an old movie dialog is deleted, DLG_Dungeon_Clear_Movie.lua
+/// ( 33457d9c ) is created on the now state ( 0.07, layer 0 ) and added, the UI is hidden ( SetShowUI( false, true ) ), and the
+/// "DungeonClearMovie" static's movie 0 opens the file ( 31c9c250 ), plays ( vslot 0x1c ) and shows ( +0x8c ). The name is cleared
+/// either way, then the UI mode is set ( 31d87560 ). Returns whether the movie started.
+bool CX2Main::JuneStartClearMovie()
+{
+	bool bStarted = false;
+	BVL_STATUS eStatus = BVL_STATUS_CLOSED;
+
+	m_bJuneClearMovieOrgMusic = m_GameOption.GetOptionList().m_bMusic;
+	m_bJuneClearMovieOrgSound = m_GameOption.GetOptionList().m_bSound;
+	m_GameOption.SetSound( false );
+	m_GameOption.SetMusic( false );
+
+	if( NULL == g_pMain || true == m_wstrJuneClearMovieFileName.empty() )
+		return false;
+
+	if( NULL != m_pDLGJuneClearMovie )
+	{
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->DeleteDlg( m_pDLGJuneClearMovie );
+		m_pDLGJuneClearMovie = NULL;
+	}
+
+	m_pDLGJuneClearMovie = new CKTDGUIDialog( GetNowState(), L"DLG_Dungeon_Clear_Movie.lua", 0.07f, 0 );
+	if( NULL != m_pDLGJuneClearMovie )
+	{
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGJuneClearMovie );
+
+		if( NULL != g_pData && NULL != g_pData->GetUIManager() )
+			g_pData->GetUIManager()->SetShowUI( false, true );
+
+		CKTDGUIStatic* pStaticMovie = static_cast<CKTDGUIStatic*>( m_pDLGJuneClearMovie->GetControl( L"DungeonClearMovie" ) );
+		if( NULL != pStaticMovie )
+		{
+			CKTDGUIControl::CMovieData* pMovieData = pStaticMovie->GetMovie( 0 );
+			if( NULL != pMovieData )
+			{
+				pMovieData->SetMovieFileName( m_wstrJuneClearMovieFileName.c_str() );
+				pMovieData->m_Bvl.Play();
+				pMovieData->SetShow( true );
+				bStarted = true;
+				pMovieData->m_Bvl.GetStatus( eStatus );	// log only
+			}
+		}
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE start %s: dialog %d, started %d, video status %d ( %s )", m_wstrJuneClearMovieFileName.c_str(),
+		( NULL != m_pDLGJuneClearMovie ) ? 1 : 0, ( true == bStarted ) ? 1 : 0, (int)eStatus,
+		( BVL_STATUS_PLAYING == eStatus ) ? L"playing" : L"not playing: is the file in data\\movie\\ ? the skip button still ends it" );
+
+	m_wstrJuneClearMovieFileName = L"";
+	JuneSetClearMovieUIMode( bStarted );
+	return bStarted;
+}
+
+/// June 31d883a0: with the movie dialog, the sound and music options come back ( +0x808 / +0x809 ) and the UI is shown again
+/// ( SetShowUI( true, true ) ) except in June states 7 / 8 ( PvP lobby / room ) and, in states 14 / 15 ( village; 15 is June's guild agit,
+/// none in March ), when there is no field game or an NPC is joined ( 323a91b0 = CX2TFieldGame::GetJoinNpc ). The dialog is deleted, the
+/// reserved complete request is sent ( 31d822b0 ), the state is reset ( 31d79960 ) and the UI mode cleared ( 31d87560( 0 ) ).
+void CX2Main::JuneStopClearMovie()
+{
+	// June tests the dialog handle ( 31d41cd0 resolves it ); March holds a pointer, so the dialog manager is asked whether it still lives
+	if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovie ) )
+	{
+		m_GameOption.SetSound( m_bJuneClearMovieOrgSound );
+		m_GameOption.SetMusic( m_bJuneClearMovieOrgMusic );
+
+		bool bShowUI = true;
+		switch( GetNowStateID() )
+		{
+		case XS_PVP_LOBBY:
+		case XS_PVP_ROOM:
+			bShowUI = false;
+			break;
+		case XS_VILLAGE_MAP:
+			if( NULL == g_pTFieldGame || true == g_pTFieldGame->GetJoinNpc() )
+				bShowUI = false;
+			break;
+		default:
+			break;
+		}
+		if( true == bShowUI && NULL != g_pData && NULL != g_pData->GetUIManager() )
+			g_pData->GetUIManager()->SetShowUI( true, true );
+
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->DeleteDlg( m_pDLGJuneClearMovie );
+		m_pDLGJuneClearMovie = NULL;
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE stop: reserved complete request for quest %d", m_kJuneReservedQuestComplete.m_iQuestID );
+
+	JuneSendReservedQuestComplete();
+	JuneResetClearMovieState();
+	JuneSetClearMovieUIMode( false );
+	// June then runs the party manager's reserved request ( g_pData +0x5c -> 32438fa0: the dungeon-start request an intro movie parked,
+	// 32434710 ). March has no intro-movie park; that path is quest-system Q8b's.
+}
+
+/// June 31d822b0: a reserved request ( quest id != 0 ) goes out as ADMIN_QUEST_COMPLETE_REQ ( 0xf2, +0x842 then cleared ) or
+/// QUEST_COMPLETE_REQ ( 0xf0 ), and QUEST_COMPLETE_ACK ( 0xf1 ) is waited for with g_pMain +0x144's time-out. June then calls the
+/// profession manager ( 32396dc0 -> 3239d810( 1 ) ), which March does not have ( Stage 9 ).
+void CX2Main::JuneSendReservedQuestComplete()
+{
+	if( 0 == m_kJuneReservedQuestComplete.m_iQuestID )
+		return;
+
+	if( true == m_bJuneReservedAdminComplete )
+	{
+		m_bJuneReservedAdminComplete = false;
+		g_pData->GetServerProtocol()->SendPacket( EGS_ADMIN_QUEST_COMPLETE_REQ, m_kJuneReservedQuestComplete );
+	}
+	else
+	{
+		g_pData->GetServerProtocol()->SendPacket( EGS_QUEST_COMPLETE_REQ, m_kJuneReservedQuestComplete );
+	}
+	AddServerPacket( EGS_QUEST_COMPLETE_ACK );
+}
+
+/// June 31d87560( bool playing ): mode = playing ? 2 : 0 goes to the now state's vslot 0xb4 ( a no-op in June's field state 3208ddc0; the
+/// battle field 324bafc0 sends June event 0x3af ) and, with g_pX2Game and my unit, to its user ( 32044a80 = the busy emotion 0x11 shown over
+/// the head ). Both bodies are battle-field / game-side and belong to quest-system Q8b; March has neither, so this keeps June's call shape only.
+void CX2Main::JuneSetClearMovieUIMode( bool bPlaying_ )
+{
+	const int iMode = ( true == bPlaying_ ) ? 2 : 0;
+	CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE ui mode %d ( state %d; the battle-field notify and the user emotion are Q8b's )", iMode, (int)GetNowStateID() );
+}
+
+/// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419: while the movie dialog lives, its "DungeonClearMovie" static's movie 0 is
+/// asked for its status ( 31c936e0: Bandi GetStatus, vslot 0x38 ); READY ( 2 ) or PLAYEND ( 5 ) ends the movie ( 31d883a0 ).
+/// March's CMovieData::OnFrameMove stops a finished movie, which leaves it READY.
+void CX2Main::JuneCheckClearMovieEnd()
+{
+	if( false == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovie ) )
+		return;
+
+	CKTDGUIStatic* pStaticMovie = static_cast<CKTDGUIStatic*>( m_pDLGJuneClearMovie->GetControl( L"DungeonClearMovie" ) );
+	if( NULL == pStaticMovie )
+		return;
+
+	CKTDGUIControl::CMovieData* pMovieData = pStaticMovie->GetMovie( 0 );
+	if( NULL == pMovieData )
+		return;
+
+	BVL_STATUS eStatus = BVL_STATUS_CLOSED;
+	pMovieData->m_Bvl.GetStatus( eStatus );
+	if( BVL_STATUS_PLAYEND == eStatus || BVL_STATUS_READY == eStatus )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] MOVIE end ( video status %d )", (int)eStatus );
+		JuneStopClearMovie();
+	}
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 void CX2Main::LoadLuaEnum()
 {
 	// luamanager에 enum.lua 등 전역에서 사용되는 스크립트 로딩은 CKTDXApp::loadkluamanagertemplate() 함수에서

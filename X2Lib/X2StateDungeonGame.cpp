@@ -348,6 +348,11 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 	}
 #endif // SERV_NEW_DEFENCE_DUNGEON
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	// June dungeon game ctor 324d9f80 @324dadb9-324dadc2: after the defence-dungeon quick-slot block, g_pMain +0x80a ( clear movie playing ) = 0
+	if( NULL != g_pMain )
+		g_pMain->JuneClearClearMoviePlaying();
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	DialogLog( "\nCX2StateDungeonGame::CX2StateDungeonGame End\n" );
 
 }

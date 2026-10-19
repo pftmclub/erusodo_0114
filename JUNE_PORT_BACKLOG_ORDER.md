@@ -814,12 +814,31 @@ Scope:
 
 June plays AVI movies for dungeon clears and quests. March has only `PLAY_PROMOTION_MOVIE` and the server-select intro flag.
 
-What June has (june-gfx G0 row `g_pMain +0x80a`, funcmap `GFx G0` / `GFx G5`):
-- Data: `DungeonClearMovieTemplet` and `Movie.lua`; table at `g_pMain +0x7f8..+0x7fc` (0xc4-byte records parsed by `31d8cb90`: file name, intro flag, category, quest id ...).
-- State: `g_pMain +0x808` movie name, `+0x80a` movie playing; writers `31d7a150` (by quest), `31d7a240`, `31d884f0` (by id), cleared at `324dadc2` / `324d9f80`.
-- Readers that need it: `GetShowActiveSkillShow` (`31fd3180 @31fd324c`: no cut-ins while a movie plays; left out in C3t-1 and G5), `31d71810` (the scene gate, G3 open row), the quest-system Elysion clear movie (quest 22336).
+**quest-system Q8 built the core (2026-10-19, flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE`):**
+- the table (`DungeonClearMovieTemplet.lua`, parser `31d8cb90`) and the play state on `CX2Main` (`+0x7f8..+0x84c`);
+- start / stop (`31d880b0` / `31d883a0`), the end check in `OnFrameMove`, and the skip box (CX2State 3032 / 3033);
+- the quest-driven movie (22236 / 22336, `31d7a240`), the cut-in term (`31fd324c`) and the dungeon-ctor clear (`324dadc2`).
 
-Scope: identify the player (`31d7a150` onward), port the table parser and the player behind a new flag, then add the two terms above. Depends on: quest-system (the quest-driven movies) and Stage 14's extractor for the movie files. Not started.
+The quest window's Video tab is quest-system Q8b.
+
+What is left here (brief: `kickoffs/june-backlog/stage26-plan.md`, funcmap rows `(Quest Q8)`):
+- **Dungeon movies:**
+  - first clear: `31d7a150` from END_GAME `324db6b0`, = March `X2StateDungeonGame.cpp:3179`;
+  - the field and battle-field starts `32507840` / `324bb780`;
+  - the intro movies (Elder Secret, Henir) on the party manager's dungeon start `32434710`, resumed by `32438fa0`.
+- **The other readers of `+0x80a`:** CX2Game::KeyProcess's head (`322f7200`), the game render's state string (`3230ada5`), the field and battle-field titles
+  (`323b7da1` / `32d54ff3`, opened only with no movie), and CX2StateField::OnFrameMove (`32508736`).
+- **`31d87560`'s bodies:** battle-field event 0x3af (`324bafc0`) and the user's busy emotion 0x11 (`32044a80`).
+- **Stops:** `31f06e60` and `32db33e0`.
+
+Depends on: quest-system Q8 review. Planning: `/x2-phase new-plan june-movies`.
+
+### Stage 27: June Lua event scenes (added 2026-10-19, quest-system Q8)
+
+June's `EventScene.lua` / `EventSceneObject.lua` (data036) parse with March's two binders. June's parser also reads `SCENE_OBJECT_DUO_TYPE` (`325b1f40`,
+`325b0020`; 113 uses) and `OBJECT_TEXT_TAG_NAME_DUO_TYPE` (`325b0c70`; 17 uses), which March ignores. So the files are adopted together with the DUO keys,
+never alone. No quest plays a Lua scene (Q0b, re-proved by Q5b), so this is not the quest plan's. Brief: `kickoffs/june-backlog/stage27-plan.md`.
+Planning: `/x2-phase new-plan june-lua-scenes`. Not started.
 
 ## Open decisions that gate stages
 

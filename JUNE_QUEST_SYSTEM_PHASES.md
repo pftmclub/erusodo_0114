@@ -1167,6 +1167,69 @@ clean `ErrorLog.txt` (below). Sonnet did everything here.
 
 **Done gate:** completing 22336 (dev console) plays the Elysion clear movie with subtitles, then returns to the game.
 
+### Q8 - Done (2026-10-19, Opus 5.5 high; built + deployed, play-test pending)
+
+**Landed:** flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE` (Always.h; needs `JUNE_QUEST_UI`, `REFORM_ENTRY_POINT`, `MOVIE_TEST_BASE`, all confirmed ON by `flagprobe.py`).
+19 funcmap rows `(Quest Q8)`; JUNE_BUGS 358-359.
+- **Table:** `CX2Main::AddDungeonClearMovieTemplet_LUA` = `31d8cb90` (9 keys, June's defaults). It is loaded in the ctor where June loads it (`31e46300 @31e4b302`,
+  after the config and nation name). The play state is on `CX2Main`, as June's `+0x7f8..+0x84c`.
+- **Quest movie:** both complete requests (`323d24f0` / `323d1fc0`) call `31d7a240` first. It matches `m_iQuestID`, parks the request, and adds the seen id
+  (`31d75950` / `31d78bf0`). Then they start (`31d880b0`) or stop on failure.
+- **Start** (`31d880b0`): sound and music off, then June's `DLG_Dungeon_Clear_Movie.lua` and the UI hidden. March's Bandi `CMovieData` opens and plays the
+  file, with June's subtitles (U1) from `datai015 Movie_Elysion_Clear.lua`.
+- **End** (`CX2Main::OnFrameMove 31d91398`): status READY or PLAYEND stops the movie (`31d883a0`). The stop restores sound and music, shows the UI by June's
+  state rule, deletes the dialog and sends the parked request (`31d822b0`, ADMIN or normal, then the ACK wait).
+- **Skip:** the dialog's button and ESC send `SUCM_CLOSE_DUNGEON_CLEAR_MOVIE` 3032 (`31f23e70` 0xbd8). It opens an OK / Cancel box with string 30615 at
+  (250, 300). OK sends 3033 (0xbd9): the box closes and the movie stops.
+- **Hide terms:** no cut-ins while a movie plays (`31fd324c`, closing C3t-1 / G5's left-out term). The dungeon-game ctor clears the flag (`324dadc2`).
+- **Handles:** `DIALOG_HANDLE_TEST` is ON, so the dialogs are `CKTDGUIDialogHandle`s, which validate as June's `31d41cd0` does.
+  `CheckDlg` guards the per-frame read.
+
+**Data:**
+- data036 `Enum.lua` (core source, refreshed): `SUCM_CLOSE_DUNGEON_CLEAR_MOVIE_OK_MSG` 3033 / `_MOVIE` 3032 and `SCENARIO_MOVIE_CATEGORY` (June `:888`,
+  `:918`, `:17316`).
+- `adopt-june` (ljconv, `june_adopt_20261019_174523.tsv`): data036 `DungeonClearMovieTemplet.lua` (13 rows) and data034 `DLG_Dungeon_Clear_Movie.lua`.
+- Same-name rule: June's `DLG_UI_Button20.tga/.TET` (data056; the skip button `BG_ESC_SKIP`) and `DLG_UI_Common_Texture_GUI_FLOW_01.tga/.TET` (data057)
+  replace March's. Backup: `kom_backup_stage_june\20261019_174605`.
+- PACK OK data034 / data036 / data056 / data057; copy not yet done (ask). Every name and string id the two Lua files use resolves in March (checked).
+- The `.avi` files are loose in June's `14JUN17\data\movie\` (13 files; `movie_elysion_clear` 43.6 MB). March has only `movie_ranox_clear`. The user copies them.
+
+**Hygiene:** `flagcheck JUNE_QUEST_MOVIE --worktree --files` (8 files): 4 PASS. The 4 OTHER rows are peers' uncommitted hunks: Q10's `QUEST_STORY` in
+X2Main.cpp / X2UIQuestNew.cpp, the skill session in X2GUUser.cpp, and Always.h defines. 0 deleted lines in this flag's files, RESULT: PASS. Range line after the commit: see STATUS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,446,400 B, dated 2026-10-19 18:00:54, md5 36fbf5def5d982244a330e179b7837dd` (COALESCED into a peer's
+full build at 14420b7d + 30 uncommitted files, started after this request). The exe holds `DLG_Dungeon_Clear_Movie.lua`, `DungeonClearMovieTemplet.lua`,
+`[JUNE_QUEST] MOVIE start` and `AddDungeonClearMovieTemplet_LUA`.
+
+**Routed (scope rule, user 2026-10-19), not ported here:**
+- The quest window's Video tab (`323ca6d0` / `323dfc00` / play by id `31d884f0`, cases 41038-41042, the seen list's source) -> new **Q8b** (quest UI).
+- The dungeon movies and the other `+0x80a` readers -> backlog **Stage 26** (`kickoffs/june-backlog/stage26-plan.md`):
+  - first clear `31d7a150` from END_GAME `324db6b0`, the field / battle-field starts `32507840` / `324bb780`, and the intro `32434710` / `32438fa0`;
+  - `31d87560`'s bodies: battle-field event 0x3af and the user emotion 0x11 (Q8 keeps the call as a log line);
+  - the readers in KeyProcess, the game render, the field and battle-field titles and the field state; the stops `31f06e60` / `32db33e0`.
+  - Census: 28 `[reg + 0x80a]` patterns, listed in the funcmap row.
+- `EventScene.lua` is not adopted. June's parser reads `SCENE_OBJECT_DUO_TYPE` / `OBJECT_TEXT_TAG_NAME_DUO_TYPE` (`325b1f40` / `325b0020` / `325b0c70`),
+  and no quest plays a Lua scene. It goes to new backlog **Stage 27** (`stage27-plan.md`). The profession-manager call in `31d822b0` -> Stage 9.
+
+**How to see it in game:** complete quest 22336 at its NPC. The Elysion movie plays full screen with subtitles, sound off, UI hidden. At its end (or skip -> OK)
+the game returns and the reward arrives; `offline_packets.log` shows QUEST_COMPLETE_REQ only after the movie.
+
+**Open for the user:**
+- Copy the four koms.
+- Copy June's movie files into the game's `data\movie\`. Without a file the movie never reaches PLAYING; the log says so, and the skip still ends it
+  (June's behaviour).
+
+## Phase Q8b - The quest window's scenario-movie tab
+
+**Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE_TAB`. Sub-tag `MOVIE`. Added by Q8 (2026-10-19): Q5a left the tab hidden
+and its five messages logged, and Q8 routed it here (quest UI = this plan's subject).
+
+- Identify the tab `323ca6d0` / list `323dfc00` / `UICustomEventProc` cases 41038-41042 / play by id `31d884f0`, and every writer of the seen list
+  `g_pMain +0x84c` (a login packet? then the offline source is the user's decision).
+- Port the tab whole on Q8's table and player.
+
+**Done gate:** the Video tab lists the movies by area, seen ones unlocked; pressing one plays it and returns to the window.
+
 ## Phase RM1 - Random mission port
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION`. Sub-tag `RM`.

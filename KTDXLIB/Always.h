@@ -9471,3 +9471,30 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 #endif SERV_IRUHADEV_JUNE_QUEST_STORY
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Phase Q8 - the quest clear movies. June's movie table ( DungeonClearMovieTemplet.lua, data036, parser
+//              31d8cb90 bound as g_pMain:AddDungeonClearMovieTemplet_LUA, loaded in the CX2Main ctor ) and its play state on CX2Main
+//              ( +0x7f8..+0x84c ): completing a quest whose row has m_iQuestID ( 22236 Atlas, 22336 Elysion ) plays the movie first
+//              ( 31d7a240 from the quest window's complete requests 323d24f0 / 323d1fc0 ) in June's DLG_Dungeon_Clear_Movie.lua ( data034 )
+//              through March's Bandi CMovieData, sound and music off, UI hidden; the request is parked and sent when the movie ends
+//              ( OnFrameMove 31d91398 status READY / PLAYEND -> 31d883a0 -> 31d822b0 ) or is skipped ( button / ESC -> CX2State 3032 ->
+//              "stop the video?" box, string 30615 -> 3033 ). No cut-ins while a movie plays ( 31fd324c ); the dungeon game ctor clears
+//              the flag ( 324dadc2 ). The movie files are loose in data\movie\ ( copied from June's ). Dungeon first-clear / intro
+//              movies and the other +0x80a readers are backlog Stage 26; the quest window's movie tab is quest-system Q8b.
+//              Log [JUNE_QUEST] MOVIE. Revert: JUNE_QUEST_MOVIE in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifndef SERV_IRUHADEV_JUNE_QUEST_UI
+#error SERV_IRUHADEV_JUNE_QUEST_MOVIE needs SERV_IRUHADEV_JUNE_QUEST_UI ( the June quest window whose complete requests start the movie )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
+#ifndef REFORM_ENTRY_POINT
+#error SERV_IRUHADEV_JUNE_QUEST_MOVIE needs REFORM_ENTRY_POINT ( with MOVIE_TEST_BASE: CKTDGUIControl::CMovieData, the Bandi player )
+#endif REFORM_ENTRY_POINT
+#ifndef MOVIE_TEST_BASE
+#error SERV_IRUHADEV_JUNE_QUEST_MOVIE needs MOVIE_TEST_BASE ( CKTDGUIControl::CMovieData, the Bandi player )
+#endif MOVIE_TEST_BASE
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+//////////////////////////////////////////////////////////////////////////

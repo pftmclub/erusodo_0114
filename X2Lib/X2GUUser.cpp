@@ -39577,6 +39577,11 @@ bool CX2GUUser::GetShowActiveSkillShow() const
 		bShowActiveSkillShow = false;
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	/// @31fd3241-31fd3259 ( quest-system Q8 ): then, with g_pMain, a clear movie playing ( g_pMain +0x80a == 1 ) also answers false.
+	if( NULL != g_pMain && true == g_pMain->JuneIsClearMoviePlaying() )
+		bShowActiveSkillShow = false;
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 #ifdef SERV_IRUHADEV_JUNE_CUTIN_SHOW_OPTION_DEBUG
 	CX2OfflineLog::Server( L"JUNE_FX C3t-1 unit %I64d ( %s ) my %d: option %d -> june %d, now skill %d hyper %d -> show %d",
 		m_UnitUID, ( NULL != m_pUnit ) ? m_pUnit->GetNickName() : L"?", ( true == IsMyUnit() ) ? 1 : 0,

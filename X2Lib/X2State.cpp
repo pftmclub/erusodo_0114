@@ -38,6 +38,9 @@ m_pMsgBoxQuitGame( NULL ),
 m_bOpenMsgBoxQuitGame( false ),
 m_bEnableQuitGame( true ),
 m_pDLGMsgBox( NULL ),
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+m_pDLGJuneClearMovieSkip( NULL ),
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 m_bOneTimeProcAfterContructor( false ),
 m_bIgnoreAllUIEvent( true ),
 m_fIgnoreTime( 0.f ),
@@ -397,6 +400,9 @@ CX2State::~CX2State(void)
 
 	SAFE_DELETE_DIALOG( m_pDLGMsgBox );
 	SAFE_DELETE(m_pCursor);
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	SAFE_DELETE_DIALOG( m_pDLGJuneClearMovieSkip );
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	SAFE_DELETE_DIALOG(m_pMsgOkFailToConnectServer);
 	SAFE_DELETE_DIALOG( m_pDLGLastMsgPopUp );
 	SAFE_DELETE_DIALOG( m_pDLGUserInfo );
@@ -2088,6 +2094,30 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			g_pData->GetTitleManager()->JuneCancelTitleTen();
 		} break;
 #endif SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+	case SUCM_CLOSE_DUNGEON_CLEAR_MOVIE:
+		{
+			/// June 31f23e70 case 0xbd8: with g_pMain and no box open ( +0x1e4, 31d41d50 ), an OK / Cancel box at ( 250, 300 ) with string
+			/// 30615 ( 0x7797; March's GET_STRING carries June's "[S%1%]%2%" debug branch ), OK = 3033, Cancel = -1 ( the box just closes ).
+			if( NULL != g_pMain &&
+				false == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovieSkip ) )
+			{
+				const int iJuneSkipStrID = 30615;
+				m_pDLGJuneClearMovieSkip = g_pMain->KTDGUIOkAndCancelMsgBox( D3DXVECTOR2( 250, 300 ), GET_STRING( iJuneSkipStrID ),
+					SUCM_CLOSE_DUNGEON_CLEAR_MOVIE_OK_MSG, this, -1 );
+			}
+		} break;
+	case SUCM_CLOSE_DUNGEON_CLEAR_MOVIE_OK_MSG:
+		{
+			/// June 31f23e70 case 0xbd9: the box is deleted ( 31be4210( 0x472 = XGM_DELETE_DIALOG ) ), +0x1e4 cleared, then the movie stops
+			/// ( 31d883a0, which sends the reserved quest-complete request )
+			if( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneClearMovieSkip ) )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneClearMovieSkip, NULL, false );
+			m_pDLGJuneClearMovieSkip = NULL;
+			if( NULL != g_pMain )
+				g_pMain->JuneStopClearMovie();
+		} break;
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	}
 
 

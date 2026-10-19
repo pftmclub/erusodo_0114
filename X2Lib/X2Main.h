@@ -2760,6 +2760,50 @@ public:
 	bool	m_bPlayIntroMovie;
 #endif //PLAY_PROMOTION_MOVIE
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
+public:
+	/// June 2017 dungeon / quest clear movies ( quest-system Q8 ). June keeps the table and the play state on CX2Main:
+	/// table g_pMain +0x7f8 ( 0xc4-byte records, parser 31d8cb90 ), state +0x808..+0x848, seen list +0x84c.
+	struct JuneClearMovieTemplet
+	{
+		wstring			m_wstrMovieFileName;		/// m_wstrMovieFileName ( record +0x00 ), default L""
+		vector<int>		m_vecDungeonID;				/// m_eDungeonID ( +0x1c ), every positional value pushed as is
+		int				m_eMovieCategory;			/// m_eMovieCategory ( +0x2c ): the id 31d884f0 / 31d75950 / 31d758c0 use, default 0
+		bool			m_bIntroMovie;				/// m_bIntroMovie ( +0x68 ), default false
+		wstring			m_wstrIconTextureFileName;	/// default L""
+		wstring			m_wstrIconTextureKeyName;
+		wstring			m_wstrMovieTextureName;
+		wstring			m_wstrMovieTextureKeyName;
+		wstring			m_wstrDungeonName;			/// m_dungeonName: a string id ( default -1 ) stored as GET_STRING's text
+		int				m_iQuestID;					/// m_iQuestID ( +0xc0 ), default 0
+
+		JuneClearMovieTemplet() : m_eMovieCategory( 0 ), m_bIntroMovie( false ), m_iQuestID( 0 ) {}
+	};
+
+	bool			AddDungeonClearMovieTemplet_LUA();									/// June 31d8cb90 ( bound by 31d95080 )
+	void			JuneResetClearMovieState();											/// June 31d79960 ( ecx = +0x808 )
+	void			JunePlayQuestClearMovie( const KEGS_QUEST_COMPLETE_REQ& kReq_, bool bAdmin_ );	/// June 31d7a240
+	bool			JuneGetClearMovieIDByQuest( int iQuestID_, int& iMovieID_ ) const;	/// June 31d75950
+	void			JuneAddSeenClearMovie( int iMovieID_, bool bValue_ );				/// June 31d78bf0
+	bool			JuneStartClearMovie();												/// June 31d880b0
+	void			JuneStopClearMovie();												/// June 31d883a0
+	void			JuneSendReservedQuestComplete();									/// June 31d822b0
+	void			JuneSetClearMovieUIMode( bool bPlaying_ );							/// June 31d87560
+	void			JuneCheckClearMovieEnd();											/// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419
+	bool			JuneIsClearMoviePlaying() const { return m_bJuneClearMoviePlaying; }	/// June g_pMain +0x80a
+	void			JuneClearClearMoviePlaying() { m_bJuneClearMoviePlaying = false; }		/// June 324d9f80 @324dadc2 ( dungeon game ctor )
+
+private:
+	vector<JuneClearMovieTemplet>	m_vecJuneClearMovieTemplet;		/// +0x7f8
+	bool							m_bJuneClearMovieOrgSound;		/// +0x808: option +0x41 ( m_bSound ) kept while the movie plays
+	bool							m_bJuneClearMovieOrgMusic;		/// +0x809: option +0x40 ( m_bMusic )
+	bool							m_bJuneClearMoviePlaying;		/// +0x80a
+	wstring							m_wstrJuneClearMovieFileName;	/// +0x80c: the movie the next start opens
+	KEGS_QUEST_COMPLETE_REQ			m_kJuneReservedQuestComplete;	/// +0x828: the complete request sent when the movie ends ( quest id 0 = none )
+	bool							m_bJuneReservedAdminComplete;	/// +0x842: send it as the admin request
+	CKTDGUIDialogType				m_pDLGJuneClearMovie;			/// +0x844: DLG_Dungeon_Clear_Movie.lua
+	vector< std::pair<int, bool> >	m_vecJuneSeenClearMovie;		/// +0x84c: { movie id, true } per movie played ( reader: the scenario-movie tab, Q8c )
+#endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
 }; // CX2Main
 
 extern CX2Data*			g_pData;
