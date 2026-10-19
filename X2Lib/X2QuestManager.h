@@ -807,6 +807,14 @@ class CX2QuestManager
 		const std::map<int, QuestEventSceneInfo>&		GetQuestEventSceneInfoMap() const { return m_mapQuestEventSceneInfo; }
 		int												GetSubQuestTempletCount() const { return static_cast<int>( m_mapSubQuestTemplet.size() ); }
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+		/// Q5b. June 3232df20: a quest scene's own BGM ( the templet's m_fSelectBGM, a wstring ). In a village / field world the world's BGM name is saved
+		/// ( manager +0x12c ), the quest's takes its place and plays ( CX2World::PlayBGM 327fc950 ), and +0x148 says so. One override at a time.
+		void	JunePlayQuestSelectBGM( const std::wstring& wstrBGM );
+		/// Q5b. June 3232e000, called by CX2GFXEventScene::End ( @3226b734 ) when +0x148 is set: the saved name goes back and plays.
+		void	JuneRestoreQuestSelectBGM();
+		bool	IsJuneQuestSelectBGMActive() const { return m_bJuneSelectBGMActive; }
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef LUA_TRANS_DEVIDE
 		bool	AddQuestTempletTrans_LUA();
 		bool	AddSubQuestTempletTrans_LUA();
@@ -1055,6 +1063,10 @@ class CX2QuestManager
 		int									m_iChainQuestDaysApplied;		/// ... that found an existing chain entry
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+		std::wstring						m_wstrJuneSavedBGM;				/// June manager +0x12c: the world's BGM name before the quest's replaced it
+		bool								m_bJuneSelectBGMActive;			/// June manager +0x148
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 		map<int,QuestInst*>					m_mapUnitQuest;
 		map<int,int>						m_mapCompleteQuest;
 #ifdef SERV_IRUHADEV_JUNE_QUEST_RUNTIME

@@ -22,6 +22,9 @@ m_bUpdateQuest(false)
 	m_iChainQuestDaysCalls		= 0;
 	m_iChainQuestDaysApplied	= 0;
 #endif SERV_IRUHADEV_JUNE_QUEST_LOAD
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+	m_bJuneSelectBGMActive		= false;
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 }
 
 CX2QuestManager::~CX2QuestManager(void)
@@ -3629,6 +3632,43 @@ bool CX2QuestManager::LoadChainQuestInfo()
 #endif SERV_IRUHADEV_OFFLINE
 	return bLoaded;
 }
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+/// Q5b. June 3232df20 ( ECX = the quest manager ): the quest's own BGM name. Needs the field game's world ( g_pTFieldGame +0xa8 ), a non-empty name and no
+/// override running ( +0x148 ). The world's current BGM name is saved ( +0x12c = world +0x44 ), the quest's is set and played.
+void CX2QuestManager::JunePlayQuestSelectBGM( const std::wstring& wstrBGM )
+{
+	// @3232df50..3232df75
+	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == wstrBGM.empty() || true == m_bJuneSelectBGMActive )
+		return;
+
+	CX2World* pWorld = g_pTFieldGame->GetWorld();
+	m_wstrJuneSavedBGM = pWorld->GetBGMName();		// @3232df82..3232df96
+	pWorld->SetBGMName( wstrBGM );					// @3232dfc0
+	pWorld->PlayBGM();								// @3232dfd1: 327fc950
+	m_bJuneSelectBGMActive = true;					// @3232dfd6
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest BGM %s plays ( the world's %s is saved )", wstrBGM.c_str(), m_wstrJuneSavedBGM.c_str() );
+#endif SERV_IRUHADEV_OFFLINE
+}
+
+/// Q5b. June 3232e000: the scene that set the BGM has ended ( CX2GFXEventScene::End @3226b734 only ). Needs the world, a saved name ( +0x13c = the saved wstring's
+/// size ) and the flag. When the saved name was empty ( a world with no BGM ) the flag stays set and nothing is restored: kept as June has it ( JUNE_BUGS ).
+void CX2QuestManager::JuneRestoreQuestSelectBGM()
+{
+	// @3232e000..3232e01f
+	if( NULL == g_pTFieldGame || NULL == g_pTFieldGame->GetWorld() || true == m_wstrJuneSavedBGM.empty() || false == m_bJuneSelectBGMActive )
+		return;
+
+	CX2World* pWorld = g_pTFieldGame->GetWorld();
+	pWorld->SetBGMName( m_wstrJuneSavedBGM );		// @3232e037
+	pWorld->PlayBGM();								// @3232e047
+	m_bJuneSelectBGMActive = false;					// @3232e04c
+	m_wstrJuneSavedBGM.clear();						// @3232e053..3232e064
+#ifdef SERV_IRUHADEV_OFFLINE
+	CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest BGM restored ( the world's BGM plays again )" );
+#endif SERV_IRUHADEV_OFFLINE
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 /// Q1. One line per quest load, after the last file ( CX2Data::ResetQuestManager ): offline_server.log, tag [JUNE_QUEST] LOAD.
 void CX2QuestManager::LogLoadCensus( int iGuildCoopRows_ ) const
 {

@@ -9352,6 +9352,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-19
+// Description: June quest system Phase Q5b: quest scenes on june-gfx G3's CX2GFXEventScene. CX2UIQuestNew::JunePlayQuestScene is June's
+//              323cb2e0 ( the Quest_Event_Scene_Info row of the quest, the unit type's row over DEFAULT_*, the scene's ment ids 3226ac80,
+//              the quest BGM 3232df20 / 3232e000, the additional scene quests ). It replaces March's Lua PlayEventScene of m_wstrStartScene /
+//              m_wstrEndScene at the four live call sites ( Remind, NEW_QUEST_NOT, QUEST_COMPLETE_ACK, ALL_COMPLETED ): a quest with no
+//              scene row plays no scene ( June has no Lua fallback, re-proved by a whole-image sweep ). NEW_QUEST_NOT in state 5 defers
+//              the start scene to the next village / battle field ( g_pInstanceData +0xaf8 / +0xafc, StateChange 31d88bf0 ) and every epic
+//              quest sets the GFX scene's +0x70. Log [JUNE_QUEST] SCENE. Revert: JUNE_QUEST_SCENE in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifndef SERV_IRUHADEV_JUNE_QUEST_UI
+#error SERV_IRUHADEV_JUNE_QUEST_SCENE needs SERV_IRUHADEV_JUNE_QUEST_UI ( the June quest window it extends, the Remind button )
+#endif SERV_IRUHADEV_JUNE_QUEST_UI
+#ifndef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#error SERV_IRUHADEV_JUNE_QUEST_SCENE needs SERV_IRUHADEV_JUNE_GFX_EVENTSCENE ( CX2GFXEventScene, g_pData->GetGFXEventScene() )
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
 // Description: June quest system Phase Q4c - dungeon result ranks offline, as March's room server makes them. Result_DUNGEON
 //              ( CenterServer/ResultProcess.cpp:1944-2048 ) runs ResultData_new.lua's DUNGEON_COMBO / TECHNICAL / DAMAGE / TIME
 //              _RESULT and DUNGEON_TOTAL_RANK_RESULT; the emulator loads that same server Lua ( X2OfflineDungeonRank, LoadDataFile +

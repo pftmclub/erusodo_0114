@@ -34,6 +34,9 @@ public:
 	void	ClearRecentlyPlayed() { m_wstrRecent.clear(); }			// 3226a260
 	void	SetSkipRequested() { m_bSkipRequested = true; }			// 32269e60 ( June's tutorial-skip ACK handler 31efccf0 )
 	void	SetNotifyNewEpicQuest( bool bNotify ) { m_bNotifyNewEpicQuest = bNotify; }		// +0x70: written by the quest UI ( 323e4cb0 )
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+	void	RegisterMent( const std::wstring& wstrName, const std::vector< int >& vecMent );		// 3226ac80 ( quest-system Q5b ): map::insert into +0xc0
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 	void	OnFrameMove( double fTime, float fElapsedTime );		// vslot 2 ( 3226c120 )
 	bool	MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );		// vslot 3 ( 32269e00 )

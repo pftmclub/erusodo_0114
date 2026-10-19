@@ -422,6 +422,11 @@ void CX2GFXEventScene::End( bool bForce )
 	}
 	// not ported here: the quest manager's pending-scene reset ( 3232e000, quest manager +0x148 ) is the quest-system plan's; the software cursor
 	// reset ( 31ce50d0 ) is R4f's
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+	// quest-system Q5b @3226b722..3226b734: a quest scene's BGM override ends with the scene ( 3232e000, only while manager +0x148 == 1 )
+	if ( g_pData != NULL && g_pData->GetQuestManager() != NULL && g_pData->GetQuestManager()->IsJuneQuestSelectBGMActive() == true )
+		g_pData->GetQuestManager()->JuneRestoreQuestSelectBGM();
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 	CKTDGGFXManager* pManager = ( g_pKTDXApp != NULL ) ? g_pKTDXApp->GetJuneGFXManager() : NULL;
 	if ( pManager != NULL )
@@ -564,6 +569,15 @@ int CX2GFXEventScene::OnSceneAsGetMentID( int iFrame )
 {
 	return GetMentID( iFrame );
 }
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+// 3226ac80 ( quest-system Q5b ): the quest UI registers the ment ids of a scene by its name just before it plays it ( 323cb2e0 ). map::insert: a name that is
+// already there keeps its ids ( @3226acc3..3226ad11 ). G3 read this map as having no writer; the writer is this call.
+void CX2GFXEventScene::RegisterMent( const std::wstring& wstrName, const std::vector< int >& vecMent )
+{
+	m_mapMent.insert( std::make_pair( wstrName, vecMent ) );
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 // 32e5aa50 ( the name at +0x78 ) + 32e5b030 ( the map row, a copy )
 bool CX2GFXEventScene::OnSceneAsGetFrames( std::vector< KJuneGfxSceneFrame >& vecFrames )

@@ -783,6 +783,12 @@ public:
 	bool GetIsQuestMonster( CX2UnitManager::NPC_UNIT_ID eNPCUnitID_ ){ return (m_setQuestNPCList.find(eNPCUnitID_) != m_setQuestNPCList.end()); }
 #endif //GUIDE_QUEST_MONSTER
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+	/// Q5b. June 323cb2e0( quest, mode ): mode 0 the start scene, 1 the end scene ( + every additional scene quest's ), 2 both. 323cb190 is the row lookup.
+	void		JunePlayQuestScene( int iQuestID, int iMode );
+	/// Q5b. June StateChange 31d88bf0 @31d896bd..31d896fb: the scene NEW_QUEST_NOT deferred in state 5.
+	static void	JunePlayDeferredQuestScene();
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 	void UpdateQuestMonster();
 private:
 #ifdef REFORM_QUEST

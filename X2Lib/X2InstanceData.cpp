@@ -114,6 +114,10 @@ m_bFirstJoinVillage(false)
 #ifdef SERV_ELISIS_PREVIOUS_SIS_EVENT
 ,m_iPreEventElesisUID(0)
 #endif // SERV_ELISIS_PREVIOUS_SIS_EVENT
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+,m_iJuneDeferredSceneQuestID(0)
+,m_iJuneDeferredSceneMode(0)
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 {
 
 #if defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ ) || defined( _OPEN_TEST_2_ )

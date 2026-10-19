@@ -925,6 +925,15 @@ public:
 		bool								m_bScreenShotTest;
 #endif ALWAYS_SCREEN_SHOT_TEST
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+		/// Q5b. June g_pInstanceData +0xaf8 / +0xafc: a quest scene deferred by NEW_QUEST_NOT in state 5 ( quest id, mode ), played by StateChange when the
+		/// next village / battle field has been built ( June 31d88bf0 @31d896bd ) and cleared by CX2UIQuestNew::JunePlayQuestScene ( 323cb2e0 ).
+		void	SetJuneDeferredQuestScene( int iQuestID_, int iMode_ ) { m_iJuneDeferredSceneQuestID = iQuestID_; m_iJuneDeferredSceneMode = iMode_; }
+		int		GetJuneDeferredSceneQuestID() const { return m_iJuneDeferredSceneQuestID; }
+		int		GetJuneDeferredSceneMode() const { return m_iJuneDeferredSceneMode; }
+		int		m_iJuneDeferredSceneQuestID;
+		int		m_iJuneDeferredSceneMode;
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef SERV_4TH_ANNIVERSARY_EVENT
 		K4ThAnnivEventInfo					m_k4ThAnnivEventInfo;
 		std::vector< bool >					m_vec4ThAnnivEventRewardInfo;

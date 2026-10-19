@@ -1721,5 +1721,178 @@ void CX2UIQuestNew::JuneSkipEpicQuestOk()
 	}
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// quest scenes ( quest-system Q5b, SERV_IRUHADEV_JUNE_QUEST_SCENE ): June 323cb2e0 / 323cb190 on june-gfx G3's CX2GFXEventScene
+// ---------------------------------------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+#ifndef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#error SERV_IRUHADEV_JUNE_QUEST_SCENE needs SERV_IRUHADEV_JUNE_GFX_EVENTSCENE ( CX2GFXEventScene )
+#endif SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+
+#include "X2GFXEventScene.h"
+
+/// [JUNE_QUEST] SCENE lines are few ( one per scene call ), but a quest list refresh must not flood the log: the first 300 are written.
+static bool JuneQuestSceneLogOk()
+{
+	static int s_iLines = 0;
+	if( s_iLines >= 300 )
+		return false;
+	++s_iLines;
+	return true;
+}
+
+/// June 323cb190( quest, out start, out end, out start ment, out end ment, out start end frame, out end end frame ): the quest's Quest_Event_Scene_Info row
+/// ( g_pData +0x498, here the quest manager's map ). The DEFAULT_* values go out first; then the selected unit's row ( the unit TYPE: the first dword of
+/// the unit templet, @323cb1b1 ) overrides the start values when its start scene is non-empty and the end values when its end scene is.
+/// False when the quest has no row, or no selected unit ( @323cb1a4 ).
+static bool JuneGetQuestEventSceneInfo( int iQuestID, std::wstring& wstrStart, std::wstring& wstrEnd, std::vector<int>& vecStartMent,
+	std::vector<int>& vecEndMent, int& iStartEndFrame, int& iEndEndFrame )
+{
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return false;
+
+	const CX2Unit::UnitTemplet* pUnitTemplet = g_pData->GetMyUser()->GetSelectUnit()->GetUnitTemplet();
+	const int iUnitType = ( NULL != pUnitTemplet ) ? static_cast<int>( pUnitTemplet->m_UnitType ) : 0;
+
+	const std::map<int, CX2QuestManager::QuestEventSceneInfo>& mapInfo = g_pData->GetQuestManager()->GetQuestEventSceneInfoMap();
+	std::map<int, CX2QuestManager::QuestEventSceneInfo>::const_iterator itInfo = mapInfo.find( iQuestID );
+	if( mapInfo.end() == itInfo )
+		return false;
+
+	const CX2QuestManager::QuestEventSceneInfo& kInfo = itInfo->second;
+	wstrStart		= kInfo.m_wstrDefaultStartScene;
+	wstrEnd			= kInfo.m_wstrDefaultEndScene;
+	vecStartMent	= kInfo.m_vecDefaultStartSceneMent;
+	vecEndMent		= kInfo.m_vecDefaultEndSceneMent;
+	iStartEndFrame	= kInfo.m_iDefaultStartSceneEndFrame;
+	iEndEndFrame	= kInfo.m_iDefaultEndSceneEndFrame;
+
+	std::map<int, CX2QuestManager::QuestEventSceneChar>::const_iterator itChar = kInfo.m_mapChar.find( iUnitType );
+	if( kInfo.m_mapChar.end() != itChar )
+	{
+		const CX2QuestManager::QuestEventSceneChar& kChar = itChar->second;
+		if( false == kChar.m_wstrStartScene.empty() )
+		{
+			wstrStart		= kChar.m_wstrStartScene;
+			vecStartMent	= kChar.m_vecStartSceneMent;
+			iStartEndFrame	= kChar.m_iStartSceneEndFrame;
+		}
+		if( false == kChar.m_wstrEndScene.empty() )
+		{
+			wstrEnd			= kChar.m_wstrEndScene;
+			vecEndMent		= kChar.m_vecEndSceneMent;
+			iEndEndFrame	= kChar.m_iEndSceneEndFrame;
+		}
+	}
+	return true;
+}
+
+/// June 323cb2e0( quest, mode ): 0 the start scene, 1 the end scene and every additional scene quest's start and end, 2 both ( the Remind button ).
+/// Each scene is registered ( its ment ids, 3226ac80 ) and played ( 3226b130( name, end frame, 0 ) ); a scene with a BGM name starts the quest BGM
+/// ( 3232df20 ). The quest's Lua scenes ( m_wstrStartScene / m_wstrEndScene ) are not played: June never reads them, so a quest with no row plays nothing.
+void CX2UIQuestNew::JunePlayQuestScene( int iQuestID, int iMode )
+{
+	// @323cb31f..323cb339: whatever follows, the deferred scene is cleared first
+	if( NULL != g_pInstanceData )
+		g_pInstanceData->SetJuneDeferredQuestScene( 0, 0 );
+
+	if( NULL == g_pData || NULL == g_pData->GetQuestManager() || NULL == g_pData->GetGFXEventScene() )
+		return;
+
+	// @323cb342..323cb34b
+	const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( iQuestID );
+	if( NULL == pQuestTemplet )
+		return;
+
+	CX2GFXEventScene* pScene = g_pData->GetGFXEventScene();
+	CX2QuestManager* pQuestManager = g_pData->GetQuestManager();
+
+	std::wstring		wstrStart;
+	std::wstring		wstrEnd;
+	std::vector<int>	vecStartMent;
+	std::vector<int>	vecEndMent;
+	int					iStartFrame = -1;
+	int					iEndFrame = -1;
+
+	if( true == JuneGetQuestEventSceneInfo( iQuestID, wstrStart, wstrEnd, vecStartMent, vecEndMent, iStartFrame, iEndFrame ) )
+	{
+		if( true == JuneQuestSceneLogOk() )
+			CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest %d mode %d: row start '%s' frame %d end '%s' frame %d", iQuestID, iMode, wstrStart.c_str(), iStartFrame, wstrEnd.c_str(), iEndFrame );
+
+		if( 0 == iMode || 2 == iMode )		// @323cb3e6..323cb4a2
+		{
+			if( false == wstrStart.empty() )
+			{
+				pScene->RegisterMent( wstrStart, vecStartMent );
+				pScene->Play( wstrStart, iStartFrame, 0 );
+				pQuestManager->JunePlayQuestSelectBGM( pQuestTemplet->m_wstrSelectBGM );
+			}
+		}
+		if( 1 == iMode || 2 == iMode )		// @323cb4a7..323cb55e
+		{
+			if( false == wstrEnd.empty() )
+			{
+				pScene->RegisterMent( wstrEnd, vecEndMent );
+				pScene->Play( wstrEnd, iEndFrame, 0 );
+				pQuestManager->JunePlayQuestSelectBGM( pQuestTemplet->m_wstrSelectBGM );
+			}
+		}
+	}
+	else
+	{
+		if( true == JuneQuestSceneLogOk() )
+			CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest %d mode %d: no Quest_Event_Scene_Info row, no scene plays ( the Lua scenes start '%s' end '%s' are not played: June has no Lua fallback )",
+				iQuestID, iMode, pQuestTemplet->m_wstrStartScene.c_str(), pQuestTemplet->m_wstrEndScene.c_str() );
+	}
+
+	if( 1 == iMode || 2 == iMode )			// @323cb563..323cb771: the additional scene quests ( 32079c50 copies the vector )
+	{
+		const std::vector<int> vecAdditional = pQuestTemplet->m_vecAdditionalSceneQuestID;
+		for( std::vector<int>::const_iterator it = vecAdditional.begin(); it != vecAdditional.end(); ++it )
+		{
+			// @323cb5a3..323cb5fd: names and ment vectors start empty for each; the end frames are overwritten by a row
+			wstrStart.clear();
+			wstrEnd.clear();
+			vecStartMent.clear();
+			vecEndMent.clear();
+
+			if( true == JuneGetQuestEventSceneInfo( *it, wstrStart, wstrEnd, vecStartMent, vecEndMent, iStartFrame, iEndFrame ) )
+			{
+				if( true == JuneQuestSceneLogOk() )
+					CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE quest %d mode %d: additional quest %d row start '%s' end '%s'", iQuestID, iMode, *it, wstrStart.c_str(), wstrEnd.c_str() );
+
+				// both are registered, then both are played ( an empty name is dropped by Play ), then the BGM
+				pScene->RegisterMent( wstrStart, vecStartMent );
+				pScene->RegisterMent( wstrEnd, vecEndMent );
+				pScene->Play( wstrStart, iStartFrame, 0 );
+				pScene->Play( wstrEnd, iEndFrame, 0 );
+				pQuestManager->JunePlayQuestSelectBGM( pQuestTemplet->m_wstrSelectBGM );
+			}
+		}
+	}
+}
+
+/// June StateChange 31d88bf0 @31d896bd..31d896fb, at the end of the village and the battle field blocks: the scene NEW_QUEST_NOT deferred in state 5.
+/// June skips it while a tutorial guide runs ( 31fbda90 on g_pMain +0x8c4 ): March has no tutorial-guide manager ( Stage 9 ), so it is never skipped.
+void CX2UIQuestNew::JunePlayDeferredQuestScene()
+{
+	if( NULL == g_pInstanceData || NULL == g_pData || NULL == g_pData->GetUIManager() )
+		return;
+
+	const int iQuestID = g_pInstanceData->GetJuneDeferredSceneQuestID();
+	const int iMode = g_pInstanceData->GetJuneDeferredSceneMode();
+	if( iQuestID <= 0 )
+		return;
+
+	CX2UIQuestNew* pUIQuestNew = g_pData->GetUIManager()->GetUIQuestNew();
+	if( NULL == pUIQuestNew )
+		return;
+
+	if( true == JuneQuestSceneLogOk() )
+		CX2OfflineLog::Server( L"[JUNE_QUEST] SCENE deferred scene of quest %d ( mode %d ) plays now", iQuestID, iMode );
+	pUIQuestNew->JunePlayQuestScene( iQuestID, iMode );
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
+
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
 #endif SERV_EPIC_QUEST

@@ -6,6 +6,9 @@
 #ifdef SERV_IRUHADEV_JUNE_QUEST_UI
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_QUEST_UI
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+#include "X2GFXEventScene.h"
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 //{{ Iruha : 2026-09-04 // HUD portrait after a quest job change
 #ifdef SERV_IRUHADEV_JOBCHANGE_PORTRAIT
@@ -979,6 +982,16 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		return true;
 	case UQNCM_QUEST_REMIND:
 		{
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+			// June 323e1bf0 case 0xa046 @323e2908..323e2938: the selected quest's scenes again ( 323cb2e0( id, 2 ) ). A story quest then opens the story book
+			// ( @323e293d: Q10 ). March's Lua scenes stay in the #else.
+			if( m_iSelectedQuestID != -1 )
+			{
+				const CX2QuestManager::QuestTemplet* pJuneSceneTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
+				if( NULL != pJuneSceneTemplet )
+					JunePlayQuestScene( pJuneSceneTemplet->m_iID, 2 );
+			}
+#else SERV_IRUHADEV_JUNE_QUEST_SCENE
 			if( m_iSelectedQuestID != -1 )
 			{
 				const CX2QuestManager::QuestTemplet* pQuestTemplet = g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
@@ -988,6 +1001,7 @@ bool CX2UIQuestNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 					g_pData->GetEventScene()->PlayEventScene(pQuestTemplet->m_wstrEndScene);
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 		}
 		return true;
 	case UQNCM_QUEST_COMPLETE:
@@ -1619,6 +1633,10 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 			ReturnToQuestListUI();
 			ResetQuestUI(true, true);
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+			// June 323e57e0 @323e599e..323e59fe: the quest's end scene ( 323cb2e0( id, 1 ) ). The Lua scene of m_wstrEndScene is not played ( JUNE_QUEST_SCENE ).
+			JunePlayQuestScene( kEvent.m_kCompleteQuestInfo.m_iQuestID, 1 );
+#else SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
 			wstring wstrEndSceneID = ( NULL != pJuneQuestTemplet ) ? pJuneQuestTemplet->m_wstrEndScene : wstring();
 #else SERV_IRUHADEV_JUNE_QUEST_DATA
@@ -1629,6 +1647,7 @@ bool CX2UIQuestNew::Handler_EGS_QUEST_COMPLETE_ACK( HWND hWnd, UINT uMsg, WPARAM
 			{
 				g_pData->GetEventScene()->PlayEventScene(wstrEndSceneID);
 			}
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 			// 미니맵 아이콘 업뎃해주고
 			UpdateNewQuestNotice();
@@ -2018,6 +2037,22 @@ bool CX2UIQuestNew::Handler_EGS_NEW_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wPar
 	const CX2QuestManager::QuestTemplet* pQuestTemplet 
 		= g_pData->GetQuestManager()->GetQuestTemplet( m_iSelectedQuestID );
 	
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+	if( NULL != pQuestTemplet )
+	{
+		// June 323e4cb0 @323e4e0b..323e4e39: in state 5 ( June's beginning; March's XS_SERVER_SELECT slot ) the start scene waits for the village that follows
+		// ( g_pInstanceData +0xaf8 / +0xafc, played by StateChange ), in any other state it plays now ( 323cb2e0( id, 0 ) ).
+		if( 5 != static_cast<int>( g_pMain->GetNowStateID() ) )
+			JunePlayQuestScene( pQuestTemplet->m_iID, 0 );
+		else if( NULL != g_pInstanceData )
+			g_pInstanceData->SetJuneDeferredQuestScene( pQuestTemplet->m_iID, 0 );
+
+		// @323e4e43..323e4e54: EVERY epic quest sets the GFX scene's +0x70, whether a scene played or not ( the new-epic effect then fires when the next GFX
+		// scene ends: JUNE_BUGS ). March set its Lua scene's flag only inside the start-scene branch.
+		if( CX2QuestManager::QT_EPIC == pQuestTemplet->m_eQuestType && NULL != g_pData->GetGFXEventScene() )
+			g_pData->GetGFXEventScene()->SetNotifyNewEpicQuest( true );
+	}
+#else SERV_IRUHADEV_JUNE_QUEST_SCENE
 	wstring wstrStartSceneID = ( NULL != pQuestTemplet ? pQuestTemplet->m_wstrStartScene : L"" );
 	
 	if ( !wstrStartSceneID.empty() )
@@ -2027,6 +2062,7 @@ bool CX2UIQuestNew::Handler_EGS_NEW_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wPar
 		if ( CX2QuestManager::QT_EPIC == pQuestTemplet->m_eQuestType )
 			g_pData->GetEventScene()->NotifyNewEpicQuest();
 	}
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 	if( NULL != pQuestTemplet && CX2QuestManager::QT_EPIC == pQuestTemplet->m_eQuestType )
 	{
@@ -2193,6 +2229,10 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 				ReturnToQuestListUI();
 				ResetQuestUI(true, true);
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+				// June 323e5c10 @323e5dc7..323e5de6: the end scene of each completed quest ( 323cb2e0( id, 1 ) )
+				JunePlayQuestScene( kEvent.m_vecQuestCompleteAck[i].m_kCompleteQuestInfo.m_iQuestID, 1 );
+#else SERV_IRUHADEV_JUNE_QUEST_SCENE
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
 				wstring wstrEndSceneID = ( NULL != pJuneQuestTemplet ) ? pJuneQuestTemplet->m_wstrEndScene : wstring();
 #else SERV_IRUHADEV_JUNE_QUEST_DATA
@@ -2203,6 +2243,7 @@ bool CX2UIQuestNew::Handler_EGS_ALL_COMPLETED_QUEST_COMPLETE_ACK( HWND hWnd, UIN
 				{
 					g_pData->GetEventScene()->PlayEventScene(wstrEndSceneID);
 				}
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 				// 미니맵 아이콘 업뎃해주고
 				UpdateNewQuestNotice();

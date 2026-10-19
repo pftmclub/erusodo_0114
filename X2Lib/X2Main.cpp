@@ -5824,6 +5824,11 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 
 					if( NULL != g_pData && NULL != g_pData->GetUIManager() )
 						g_pData->GetUIManager()->SetShowUI(true, true);				
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+					// June StateChange 31d88bf0 @31d896bd..31d896fb ( the village block ): the quest scene NEW_QUEST_NOT deferred in state 5. June skips it while a
+					// tutorial guide runs ( 31fbda90 on g_pMain +0x8c4 ): March has no tutorial-guide manager ( Stage 9 ).
+					CX2UIQuestNew::JunePlayDeferredQuestScene();
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 
 				}
 				break;
@@ -5900,6 +5905,10 @@ bool CX2Main::StateChange( int stateID, int iDetailStateID )
 						g_pData->GetUIManager()->SetShowUI(true, true);		
 
 					m_pNowState = new CX2StateBattleField();
+#ifdef SERV_IRUHADEV_JUNE_QUEST_SCENE
+					// June StateChange 31d88bf0 @31d896bd..31d896fb ( the battle field block ): the same deferred quest scene
+					CX2UIQuestNew::JunePlayDeferredQuestScene();
+#endif SERV_IRUHADEV_JUNE_QUEST_SCENE
 				} break;
 
 #ifdef ADDED_RELATIONSHIP_SYSTEM // 마을 객체를 없애줘야할지..확인필요.
