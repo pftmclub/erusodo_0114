@@ -1520,6 +1520,34 @@ book UI moves there whole. Not a quest-system phase any more; Phase Z does not w
   gates opening, scenes, the clear movies and the board.
 - Fix nothing here: findings go to the owning phase as a follow-up.
 
+### Q9 - Prepared (2026-10-19, Sonnet 5.5 medium; no code, no flag, no build, no pack)
+
+The checklist and its tooling are written; the user's play-test is the rest of the phase. Everything is in `june2017_re/quest_plan/`:
+- `q9_walk_checklist.md`: 3 sessions, 15 checks, each with where / what to do / look for / if not and the owning phase.
+  - **A Lanox:** chain start auto-opens (22160), hand-ins + rewards, a dungeon clear and a quest-item collection, Steel and Ignia relation swaps
+    (22183 / 22188), the village board, the Q6 gate (22218 ongoing: Elysion tab and Diceon Mines Normal closed, open after the hand-in).
+  - **B Atlas:** talk + field item drops (22219 / 22220), Yuno -> Hyper Yuno (22227) -> Nono (22231) live and on load, the Atlas clear movie (22236).
+  - **C Elysion:** talk sub-quests (22243 / 22245), the GFX scene pairs 22329-22335, the 22336 movie again from a chain-built state.
+  - "Not expected" list: no Lanox / Atlas GFX movies (rows exist, movies do not), no dungeon intro movies (Stage 26), 22337 unreachable (its talk
+    target `NUI_EVENT_APINK_ARCHANGEL` is in no village list, in June or March).
+- `q9_chain.tsv` + `q9_chain.py`: 121 quests 22100-22340 from June's FieldQuest / FieldSubQuest (type, play level, NPCs, after-link, sub-quests with
+  types and needed counts, dungeon ids). Epic order = ascending id (after-links checked).
+- `q9_jump.py <unit> <epic> [--open-by-play] [--cleared] [--village N]`: puts a test unit at any chain epic through `elsdb.py x` (backup, one
+  transaction, integrity check, refuses while the game runs). Tested on a scratch copy of the save (4 jumps, integrity ok). `--cleared` is the Q5b / Q8
+  hand trick (sub-quest `success = 1`, `clear_data` = needed count) as a switch.
+- **Why no dev console:** June's `/q` cheat is not bound in March and the admin Complete button is IGNORED by the emulator (pre-existing), so
+  progress is moved by save jumps. Auth level 0 for the walk so the gates act as for a player.
+- **Character:** unit 25 `jtLordKnight` (Elsword, Lord Knight, GM weapon, 29 skills) rather than a fresh `/x2-create-char` unit: createchar seeds
+  no gear or skills and stops at level 80. To be set to level 99 (`elsdb setchar`), 22140 complete, standing in Lanox village (20008).
+- **Dungeon gates** read from data035 `DungeonData.lua`: Ranox / Atlas / Elysion dungeons chain by `EXTRA_REQUIRE_DUNGEON_ID` (normal clears; the jump
+  marks them); item level is only a UI hint (`UpdateAdequateItemLevel`), not a gate; AD Normal also needs quest 22218 (Q6).
+- NPC swap triggers: `DLG_Map_House_NPC_RelationData.lua` rows are keyed on a **completed** quest: 22183 Steel, 22188 Ignia hidden, 22227 Hyper
+  Yuno, 22231 Nono (Yuno's house `HI_YUNO` exists only in village 1008).
+- **Save:** snapshot `db_backup\els_db_20261019_220015_pre_q9_pre_walk.sql` (taken while a game was running; every later write backs up again).
+  **No save write has been done yet: a game session (pid 1960, started 21:57) was running, and `elsdb x` refuses while it runs.**
+- **User owes:** close the game, run the 3 setup lines at the top of the checklist (or say "closed" and the next session runs them), then play-test
+  A, B and C in any order and say "check logs A/B/C". Findings are recorded as follow-ups on the owning phase's STATUS row; Q9 fixes nothing.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
