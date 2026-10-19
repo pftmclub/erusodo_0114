@@ -1403,7 +1403,7 @@ Built and deployed; play-test PASSED. Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION` (
   0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif
   without the flag token, 0 encoding change(s)` / `RESULT: FAIL` = the expected new files' `#include "StdAfx.h"` / `#pragma once`.
   Fix worktree: `2 PASS`, `RESULT: PASS` (the 15 deleted lines are inside the flag-only new file).
-- **Build.** `BUILD OK: X2/US_SERVICE/x2.exe 25,506,816 B, 2026-10-19 22:21:31` (HEAD 9ac698d8 + this fix; peers' uncommitted Always.h / X2SlideShotScripted.cpp built in). Deploy refused: the game was running; `build.py --deploy-only` owed after the user closes it.
+- **Build.** `BUILD OK: X2/US_SERVICE/x2.exe 25,506,816 B, 2026-10-19 22:21:31` (HEAD 9ac698d8 + this fix; peers' uncommitted Always.h / X2SlideShotScripted.cpp built in). Deployed after the user closed the game: `DEPLOY OK: X2_offline.exe is 25,506,816 B, dated 2026-10-19 22:26:23, md5 50cb136de1867ceee6d0a03f2f10a2a7, equal to X2/US_SERVICE/x2.exe (2026-10-19 22:21:31); built at main 889e63f2.`
 - **User owes:** nothing required. Optional look: `/rm 1 5 60` in a dungeon; the popup's mission line now wraps inside the panel.
 
 ## Phase Q10 - Story book (QT_STORY)
