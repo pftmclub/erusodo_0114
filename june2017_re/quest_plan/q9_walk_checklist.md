@@ -49,12 +49,10 @@ order. Treated as June's data behaviour, recorded as a Q4 follow-up question, no
 Log: `QUEST_COMPLETE_REQ HANDLED`, `SCENE quest 22160 mode 1`, `SCENE quest 22162 mode 0` (no movie). If the reward window is empty or
 22162 does not open -> Q4 / Q5b follow-up.
 
-**A3 Dungeon sub-quests.** Dungeon: **Burnt Forest, NORMAL only** (dungeon 33270): sub-quest 22182 "Enter Burnt Forest" matches that exact
-difficulty in the emulator, but that is an emulator BUG, not June's rule: June's row carries `m_bUpperDifficulty = True` and the server's own parser
-(`XSLQuestManager.cpp:1293-1316`, SQT_VISIT_DUNGEON) reads it and matches via `IsExistDungeonInSubQuest` (this dungeon at this difficulty or harder). The client
-loader skips the key for this type (q0a_june_clearcond.md), and the emulator copied the client struct. Q4 follow-up (fix: parse the flag for VISIT_DUNGEON /
-FIND_NPC); until then entering Hard or Expert does not count (first play-test, 33272: log `VISIT quest 22162 sub 22182 wants
-dungeon 33270 ... got 33272 - no match`). The clear sub-quest 22183 does accept higher difficulties. Enter: tracker shows "Enter Burnt Forest" done.
+**A3 Dungeon sub-quests (PAUSED until Q4d).** Burnt Forest can only be entered at Expert: June sets `FixMaximumDifficulty` on the pre-Elysion
+dungeons, so Normal is not selectable (room log `dungeonID=33270 dif=2`). Sub-quest 22182 "Enter Burnt Forest" names 33270 with June's
+`m_bUpperDifficulty = True`, which the server reads, but the emulator's copy of the client parse drops the flag for visit-dungeon, so it never ticks
+(`VISIT ... upperDiff=0, exact match only, got 33272`), and 22183 waits behind it in the sub-quest group. Fix: phase **Q4d**. After Q4d: Enter: tracker shows "Enter Burnt Forest" done.
 Clear it: "Clear Burnt Forest 1/1" done. Walk back to Lanox, talk to **Edel** (village chief), complete 22162 (ED +729,400).
 **22163 Inextinguishable Fire 1/2** opens. If the clear is not counted: `grep "OFF" offline_server.log` for the dungeon clear line -> Q4.
 

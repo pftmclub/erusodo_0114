@@ -934,7 +934,9 @@ difficulty?" - no: the data carries `m_bUpperDifficulty`, the server reads it, t
 - Quest 22162 sub 22182 (visit Burnt Forest, `m_bUpperDifficulty = True`) refused Burnt Forest Expert: the client parser does not read the key for
   `SQT_VISIT_DUNGEON`, so the emulator (which copies the client's parsed struct) matched the exact dungeon id only.
 - Server parser (`XSLQuestManager.cpp:1293-1318`) reads the key and `IsExistDungeonInSubQuest` (:2158) accepts the same dungeon at the same or harder difficulty.
-- Scan lead: server-only reads for `DUNGEON_CLEAR_COUNT`, `FIND_NPC`, `ITEM_USE`, `SUITABLE_LEVEL_DUNGEON_CLEAR`, `VISIT_DUNGEON`. Read each case.
+- **Why it blocks play:** June sets `FixMaximumDifficulty` on 54 pre-Elysion dungeon rows (ported in C3z-5), so those dungeons only run at their top
+  difficulty (room log `dungeonID=33270 dif=2`); sub-quests naming Normal rely on the flag. The emulator's load census shows 0 upperDiff for types 22 / 26 / 27 / 32,
+  and 22162's sub-quest group puts the visit before the clear, so the clear waits too. Q9 is paused at A3 (details in the kickoff).
 - Task: audit, parse the flag for those types (optional, default false), check what else reads the struct, play-test Expert on 22182 / 22183.
 - Kickoff: `kickoffs/quest-system/Q4d.md`. Q4 itself stays done (review PASS); this is a new phase of the same subject, not a reopening.
 
