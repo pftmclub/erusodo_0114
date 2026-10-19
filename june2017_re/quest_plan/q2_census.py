@@ -49,10 +49,20 @@ def june():
         a, b = load(qlib.parse_june(os.path.join(JUNE, f + ".src.lua")), f); q.update(a); s.update(b)
     return q, s
 
-def subsig(t):
+def dungeon_set(cc, march):
+    # The set each loader stores for m_eDungeonID: March keeps ids > 0 (X2QuestManager.cpp:2384), June >= 0
+    # (32323ad0, Q0a engine map row 74). March's {0} and June's missing key are both the empty set (Q2 review).
+    v = cc.get("m_eDungeonID") if isinstance(cc, qlib.T) else None
+    vals = v.arr if isinstance(v, qlib.T) else ([v] if isinstance(v, int) else [])
+    return tuple(sorted(set(x for x in vals if isinstance(x, int) and (x > 0 if march else x >= 0))))
+
+def subsig(t, march=False):
     if t is None: return None
     cc = t.get("m_ClearCondition")
-    return (r(t.get("m_eClearType")), qlib.show(cc) if cc is not None else "")
+    if isinstance(cc, qlib.T):
+        rest = qlib.T(); rest.arr = cc.arr; rest.h = [(k, v) for k, v in cc.h if k != "m_eDungeonID"]
+        return (r(t.get("m_eClearType")), qlib.show(rest), dungeon_set(cc, march))
+    return (r(t.get("m_eClearType")), qlib.show(cc) if cc is not None else "", ())
 
 def title(t): return (t.get("m_wstrTitle") or "").strip()
 
@@ -89,7 +99,7 @@ def main():
             if mv != jv: changed.append("subs march=%s june=%s" % (mv, jv))
             for sid, cd, ok in subs:
                 if sid not in jv: changed.append("saved sub %d (cd=%d ok=%d) not in June" % (sid, cd, ok))
-                elif subsig(ms.get(sid)) != subsig(js.get(sid)): changed.append("sub %d condition differs (%s -> %s)" % (sid, subsig(ms.get(sid))[0] if ms.get(sid) else "-", subsig(js.get(sid))[0]))
+                elif subsig(ms.get(sid), True) != subsig(js.get(sid)): changed.append("sub %d condition differs (%s -> %s)" % (sid, subsig(ms.get(sid))[0] if ms.get(sid) else "-", subsig(js.get(sid))[0]))
             prog_any = any(cd or ok for _, cd, ok in subs)
             if changed: add(u, "P_SUBS_CHANGED", qid, info + (" [has progress]" if prog_any else " [no progress]") + " ; " + " ; ".join(changed))
             else: add(u, "P_KEEP", qid, info)

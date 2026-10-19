@@ -512,6 +512,54 @@ its 10 sites were re-read before the guards went in.
       failed to load, so the Q1-review difference (chain index written only for a stored quest) does not show.
   - 0 EXCEPTION. The 6 UNHANDLED are `E_DISABLE_HB_CHECK_REQ`, outside this phase. No guard fired.
 
+### Q2 - Review (2026-10-19, Opus)
+
+**PASS, with one generator fix** (flag `SERV_IRUHADEV_JUNE_QUEST_DATA`; reader survey by a Sonnet subagent, two of its citations re-read).
+- **Tables.** At review start `q2_gen.py --check` passed. Hand-derived EPIC_NEXT rows:
+  - 12005 -> 12020: March has 12000 -> 12005 -> 12010 -> 12020. June's 12000 opens 12020 directly (June keeps 12010, but nothing opens it from 12000).
+  - 15020 -> 15030: March's 14060 / 14070 open 15020, which opens 15030. June drops 15020 and has the predecessor open 15030.
+  - Both match the after-lists.
+- **Fix: the RESET definition counted a parse artefact as a change.**
+  - March writes `m_eDungeonID = {0}` and June leaves the key out. March's loader keeps only ids > 0 (`X2QuestManager.cpp:2384`); June's
+    `32323ad0` keeps ids >= 0 (Q0a map row 74). Both store the same empty set, but `subsig` compared the text.
+  - `q2_census.subsig` now compares `m_eDungeonID` as the set each loader stores (`march=True` on the March side, also used by `q2_gen.py`).
+  - RESET drops from 833 to 758: 75 false ids removed, 0 added. The header was regenerated (`--check` PASS) and rebuilt.
+  - The save is already v21, so the fix only affects a save that has not migrated yet.
+  - One of the 42 resets in this save was false: unit 18 (Freils), quest 13000. Its subs 12090 / 13000 match June's apart from the `{0}`. The reset deleted
+    `(12090, clear 1, success 1)` and `(13000, 0, 0)`. Restoring those two rows is offered to the user. `q2_census.tsv` and `q2_expected_mig.txt` stay unchanged as the record of what ran.
+  - The other 41 resets are real changes: a new or removed sub-quest (11005, 11010, 11030, 12020), a new `m_cDifficulty` (7780), a changed count or rate (12040, 14010),
+    or a changed NPC id (9501 / 12020: 78 -> 1613).
+- **Latent, not fixed:** 58 of March's 110 dropped epics have no EPIC_NEXT link.
+  - In 30 of them the predecessor was dropped too: a run of dropped epics, and the rule only looks one step back.
+  - The other 28 have no March after-list predecessor.
+  - The only save is already past v21 and held none of these, so nothing is stuck. A future pre-v21 save would need the link to walk back to the nearest kept predecessor.
+- **Rung.** Checked:
+  - order: drop in-progress, then accept the next epic only when the unit neither holds nor completed it (checked against the live set, so 17050 / 17080 -> 18000
+    cannot accept 18000 twice), then reset only quests with sub rows, then drop completed;
+  - one `BEGIN` / `COMMIT`, with `ROLLBACK` on any failed step, the same shape as the v9-v20 rungs; the logs are written only after `COMMIT`;
+  - the insert matches the emulator's accept (`X2OfflineDB.cpp:3517`, `state 0`);
+  - the v21 enum branch replaces v20 wholesale (`SCHEMA_VERSION`, `DEFAULT_RESURRECTION_STONE`, as every earlier branch does), and the `#error` on missing `JUNE_SKILL_PAGE` is in place.
+  - Side note: `JUNE_QUEST_IDS` includes FieldQuest's 3 guild quests, which the loader skips. A saved guild quest would be kept and then skipped by the guards. The save has none.
+- **Play-test log and save.** The 38 MIG lines equal `q2_expected_mig.txt` (Done note). The save holds 18030 / 21920 (unit 12), 14010 (12 / 19),
+  12020 (19 / 24 / 25 / 43) and 13000 (18), all `state 0`.
+- **Guards.** 94 `GetQuestTemplet` call sites in X2Lib: 34 dead, 60 live. 55 of the live sites check NULL at the call, including the six Q2 guards. The other 5
+  (`X2UIQuestNew.cpp:4644 / 4815 / 4959`, `X2WorldMapUI.cpp:2143 / 2194`) get ids that are already NULL-filtered upstream (`X2QuestManager.cpp:1833`,
+  `X2UIQuestNew.cpp:4720`, `:4762`, `X2WorldMapUI.cpp:1877`). No other live, unchecked reader can see a saved id that has no templet.
+- **Sub-quest 205680:** June refuses it too.
+  - In the `SQT_NPC_TALK` case of `32323ad0`, the key is read by `32fe9fd0`, a number test that fails on nil. On failure it sets `m_eTalkNPCID` to 0 and returns false
+    (`3232c537`).
+  - `AddSubQuestTemplet_LUA` `32330ff0` (@`3233161d`) then logs 0x2760 (10080) and frees the templet without inserting it.
+  - So the port matches June, and JUNE_BUGS row 331 is updated to "June refuses it too".
+- **Flip.** `luasrc.py ledger --check` reports LEDGER CHECK PASS (0 FAIL, 0 WARN). The adopt record lists the three files as `replace` / ljconv bytecode, and LOAD moved to 1635 / 3218
+  from March's 1,460 / 1,733.
+- **Hygiene.** `flagcheck JUNE_QUEST_DATA --range 8be95c0a^..HEAD`: `files: 2 PASS, 2 PASS~ (blank/marker only), 2 DEFINE, 7 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  `RESULT: PASS`.
+  - The OTHER rows are peers' commits in the range (G3 JPEG8, S7g) and Always.h.
+  - The 1 deleted line is the user's `3b6408ca`, which moved a `////` separator between the GFX_EVENTSCENE and GFX_JPEG8 blocks; it is not this flag's.
+  - Review fix, `--worktree --files X2OfflineJuneQuestMig.h`: 1 PASS, RESULT: PASS. Its 66 deleted lines are the regenerated RESET array, inside the file's own `#ifdef`.
+- Deploy: `DEPLOY OK: X2_offline.exe is 25,305,600 B, dated 2026-10-19 09:04:58, md5 23214a712a98e1cf2726593bc2c1472c` (main 96bfd4fe + uncommitted; includes peers' edits). Nothing new to play-test: the rung already ran on this save.
+
 ## Phase Q3 - Quest manager runtime to June
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_RUNTIME`. Sub-tag `RUN`.

@@ -15,10 +15,11 @@ def build():
     june_ids = sorted(jq)
     # Reset: a quest both sides have whose sub-quest list, or any sub-quest's clear type / condition, differs
     # (the census's P_SUBS_CHANGED test, applied to every common quest, not only the save's).
+    # m_eDungeonID is compared as the set each loader stores (Q2 review: March's {0} = June's absent key = empty).
     reset = []
     for q in sorted(set(mq) & set(jq)):
         mv, jv = c.ints(mq[q].get("m_vecSubQuest")), c.ints(jq[q].get("m_vecSubQuest"))
-        if mv != jv or any(c.subsig(ms.get(s)) != c.subsig(js.get(s)) for s in jv):
+        if mv != jv or any(c.subsig(ms.get(s), True) != c.subsig(js.get(s)) for s in jv):
             reset.append(q)
     # Epic next link: a March epic June dropped -> the epics June's after-list opens from the same March
     # predecessor instead (12005 sat between 12000 and 12010; June's 12000 opens 12020).
