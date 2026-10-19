@@ -1837,6 +1837,33 @@ which carries everything decoded here). S7h now waits on S7k. Flag `SERV_IRUHADE
   unit 27 (planned as the control) logged the same: the save now gives her the same 28 skills as unit 19, 25405 lv 3 included, and no equipment. Unit 25 (Lord Knight, none of
   the 19 ids) logged `0.0 -> 300.0`. Unrelated: 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, noted only.
 
+### Phase S7j -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS.** No transcription error, no code change, no rebuild (the deployed exe stays 3aad257b).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_SKILL_MAX_MP --range 5624400b^..5624400b` (the flag's only code commit):
+  `files: 5 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` /
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)` / `RESULT: PASS`.
+  No OTHER rows, no deleted lines. March's `ResetMaxMp` / `ResetMaxMP` bodies are whole in the `#else`.
+- **`3234b9d0`, from the raw pushes** (capstone `disasm_range.py`, Ghidra read-only): the ids are 0x5781 0x633d 0x6346 0x6b08 0x96b 0x96f 0x6b12, then `31d717d0` on `[3377585c]`
+  (`jne` past the term), `32869f80( arg2 )` on `+0x2a4`, then 0x76c2 0x72de 0x72e2 0x7ab7 0x5b69 0x5b6e 0x5b70 0x76cc 0x5788 0x7e91 0x7e98 0x7e9e. That is the port's 7 + item + 12,
+  in its order. Each block: `32890620( id, 1, 0, 1 )` on `+0x494`, `jle` = level <= 0 skips; `32206450( id, 1 )` on `g_pData +0x50`, NULL skips; `32206e50( 0x15, level, 0, 0.0 )`. The sum starts at arg1 and
+  `ret 8`. **Match.**
+  - `32206e50`'s 4th argument is the value returned on a miss (`fld [esp+0x60]` on the not-found path). June passes 0.0; March's 3-argument `GetSkillAbilityValue` returns 0 on a miss. **Match.**
+  - `31d717d0` = `( g_pMain +0x8c ) - 0x17 <= 1`, i.e. states 23 / 24 (XS_PVE_GAME / XS_PVE_RESULT, funcmap `31d6fd60`). March has no PVE state, so dropping the test is exact.
+- **`32869f80`.** The jump tables were read from the exe: slot 1..9 byte table `0 1 0 1 0 1 0 1 0` (1 / 3 / 5 / 7 / 9 -> count, even -> filter). After `cwde`, the `(short)slot - 0x14` table
+  sets 0x14..0x22 and 0x24 / 0x26 / 0x28 / 0x2a, and leaves 0x23 / 0x25 / 0x27 / 0x29 unset. `setne` on the group, `jne` = skip when the two differ. Node `+0x10` = InvenSlotData (`+4` slot, `+8` item),
+  item `+0xc0`, templet `+0x28`, NULL tests on the slot data, the item and the templet. **Match.**
+  - `+0xf4` is `m_ItemMap[ST_E_EQUIP]`: June's neighbour `3286a6b0` walks the same `+0xf4` and counts items whose templet `+0x24` equals a set id, which is March's set counter over
+    `m_ItemMap[ST_E_EQUIP]` (`X2Inventory.cpp:954`). The odd-real / even-fashion slot layout of category 9 (live DB) agrees with the 1 / 3 / 5 / 7 / 9 rule.
+- **`31fd2810`.** Constants: `3344f348` = 300.0f, `334436a0` = 0.01 (double), `334577c8` = 300.0 (double). The x87 order: `fld rate; fld r; fld st0; fmulp st2; fild +0x22c; faddp st2; faddp st1` = `r + ( r x rate + add )`,
+  stored as a float, then `- 300.0`, giving `3236cb20` (SetOptionValue), `3236d350` (CheckAndUpdateResultValue), and the result `+0x63d8` -> vslot 0xe0. rate = `32358970( 5 ) x 0.01 + [+0x87b4]+0x2f0` stat dword [1]
+  (= `ExtraStat::m_fIncreaseMPRate`, second member under `PET_AURA_SKILL`). The port's `fJuneAbilityRate = 0` stands (June-only ability map). **Match.**
+- **Callers.** A rel32 scan of `.text` finds 5 calls to `3234b9d0`: `31fd2849` (ported), `3235a223` / `3235a2c3` (S7k), and `32b0fabf` ( group 0 ) / `32b0fb8e` ( group 1 ). `32869f80` has one caller, @3234bc78.
+  `32b0fa90` sits at the same relative slot as `31fd2810` in a sibling vtable (236 of the 400 neighbouring dwords are equal), so it is a CX2GUUser-derived override. No March class has it, so group 1 is never passed in March.
+- **Kickoffs checked:** `S7k.md` exists and carries the decoded `3235a160`; it matches its STATUS row. S7h waits on S7k.
+- **`SERV_IRUHADEV_JUNE_SKILL_DEBUG`:** not touched; its retire note stays in `S8-review.md`.
+- **Nit (no change):** the `[JUNE_SKILL] MAXMP` line is the port's own (June logs nothing). It fires on every `ResetMaxMP` call. The 11 March call sites are event-driven (init, pets, menu / dungeon state, two VioletMage skills), and the play-test run logged it 6 times.
+
 ## Phase S7k - The unit's socket aggregate and June's HUD max MP / max HP refresh
 
 **Run with:** Opus 5.5 high, then user play-test. Split from S7j by the user (2026-10-19). The CX2Unit-owned socket aggregate (`+0xe1c`, a `CX2SocketItem::SocketData`
