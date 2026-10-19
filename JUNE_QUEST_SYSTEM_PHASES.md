@@ -835,7 +835,8 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK` (needs `OFFLINE_MONSTER_GRADE`, `OFF
   The 2 FAIL rows are the new files' `#pragma once` / `#include "stdafx.h"`. `X2Lib_2010.vcxproj` +2 lines.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 25,409,024 B, dated 2026-10-19 15:08:51, md5 b304f50635a14b1de34766fd916bc0c4` (main c152c92c + this
   phase's files); the `RANK combo`, `RANK bonus` and `ResultData_new.lua` strings are in the exe.
-- **User owes:** XOR-encrypt `KncWX2Server/ServerResource/US/ResultData_new.lua` and pack it into data036.kom, then the play-test.
+- **Data (user asked, 2026-10-19):** `ResultData_new.lua` staged byte-exact as BOM source in `data036_kom` (manifest 2, ledger row tier SRV, `8590148f`);
+  `PACK OK data036` (+1 entry), `COPY OK data036: ... 13950416 bytes, 263 entries, md5 086cf5fc5a330bcf8dffc4fb54c8fb32`. User owes the play-test.
 
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
