@@ -464,6 +464,30 @@ keys are ignored while it plays, it ends cleanly, and the Lua scenes March alrea
 
 **G3 fix 1 (2026-10-19, after the first play-test): crash on `PlayEventScene`.** Minidump (`tools/mdscan.py`): AV in `JPEGInputImpl_jpeglib` ~ `CreateSwfJpeg2HeaderOnly` <- `GFx_DefineBitsJpeg3Loader` while loading `Elysion7.swf`. Cause: the SDK's `libgfx.lib` is built on **libjpeg 8d** (`JPEG_LIB_VERSION` 80), the client links CxImage's **6b** (`jpeg.lib`) under the same names, so the first JPEG in a .swf took 6b's "Wrong JPEG library version" path (G1 kept "the client's jpeg" as the one copy; G2's widgets had no JPEG). Fix, flag `SERV_IRUHADEV_JUNE_GFX_JPEG8`: `tools/sfjpeg.py` writes `KTDXLIB/sfjpeg.lib` = the SDK's libjpeg 8d (46 objects) plus libgfx's `JPEG_ImageReader/Writer/Common` with every `_jpeg_*` symbol renamed `_Jpeg_*` (same-length COFF edit, 168 names / 355 entries); `KTDXApp.cpp` links it before `libgfx.lib`; `build.py` regenerates it when missing (`*.lib` is git-ignored). Map check: `_Jpeg_CreateDecompress` from `sfjpeg:jpeg8_jdapimin.obj`, GFx JPEG classes from `sfjpeg:gfx_JPEG_ImageReader.obj`, CxImage still on `jpeg:Jdapimin.obj`. `DEPLOY OK: X2_offline.exe is 25,305,600 B, dated 2026-10-19 08:03:19, md5 99d486a17048b2581a4ad98c302bc0f3` (a peer's build compiled the tree).
 
+### Phase G3 - Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS. No code change, no rebuild** (the deployed exe stays md5 `99d486a1`).
+
+**Checked against June in Ghidra (read-only):**
+- **XML loaders.** `31eecc40` (region files) reads `xPos` / `yPos` / `wordBalloonPosX` / `wordBalloonPosY`; `31eed7a0` (`GFXEventSceneInfo.xml`) reads none of them; both read `questID` / `swfFileName` / `frame` / `soundKey` / `characterNameKey` / `textKey` / `wordBalloonName` / `symbolName` / `delayTime`. Same in `LoadSceneXml( bRegion )`.
+- **Play `3226b130`.** Size 0 / 1 name dropped; while playing: queued once by name with the frame (`3226c8f0`); name to `+0x78` before the path test; `31ee3160` / `31ee3250` -> `"%s.swf"`; `GetPullPath` miss = return; `Tutorial_Back.swf` -> `0x2712`; frame -1 -> `loadUserWidget( 0x2711 )`, else `loadEventSceneEndFrame`; `+4`, `+0x115`, `+0xb8` / `+0xbc`, `32269f20`, black layout to `+0xd0`, `unloadWidget( 3 )`. Matches.
+- **End `3226b6c0`.** Cursor, `+0x115 = 0`, both unloads, `+4 = 0`, UI show, black layout off, `3226ade0` ment erase; bool: queue (`327464a0`) + `+0xc0` map (`3226ccb0`) dropped; queue not empty -> pop + `Play( name, frame )` and return; else epic-quest `+0x70` -> `323ca640`, `+0x94 = +0x78`, `+0x78` cleared, sound Stop + close. Matches. The unported calls are the ones the Done note names.
+- **Frame move `3226c120`.** Five `31c48870` (GA 0x23..0x26 = UP / DOWN / LEFT / RIGHT, 0 = ATTACK_FAST) and two `31d24fb0` (`DIK_F1`, `DIK_F8`) eaten, `DIK_RETURN` -> `32e59800`, `DIK_ESCAPE` -> `+0xb8`, `> _DAT_3344930c` -> `End( 1 )`. Matches.
+- **MsgProc `32269e00`** (not a Ghidra function; read raw with `disasm_range.py`): `0x202` -> next scene, true; `0x204` -> true; `0x205` -> `+0xb8 = 1`, false. Matches.
+- **IsRecentlyPlayed `3226a130` / `325aece0`.** The Lua half compares `CX2EventScene +0xe0` and clears it on a match. JUNE_BUGS 330 stands.
+- **Bridge.** `32e59900`: types 8 / 9 / 10 are left alone; `bExactFit` = app `+0x1bc < 1 || +0x1b8 < 1`, pushed inside the loop. `32e59f10` key names (`frame` ... `wordBalloonPosY`, `symbolName`, `posX` / `posY` at `33532040` / `33532038`, `delayTime`, `arrSymbolData`, `arrEventSceneData`) match the strings in June's exe byte for byte.
+- **Readers** (every G0 row targeted G3): StateChange `31d88bf0` (End(1) on IsPlaying, then the Lua scene's own end), MsgProc `31d8e280` (`+0x274` vslot 3 before `+0x278`), TFieldGame `323ae6a0`, Informer `32f2b8e0`, TalkBox `32e90640` (`+0x198 = 0`, return; `+0x288` gate not in March), QuitGame `324d1580` (tutorial branch: the `3226a010` term only, string `0x232`; the other terms and the `0xa931` string belong to the tutorial work), DungeonGame `327d2160` (`g_pMain +0x16c` -> `3226a260`). Nothing missed and nothing extra: `31d71810`, `32ab4480`, `31efccf0`, `31f0bdd0` are closed in the Done note with reasons. Quest-UI callers (`323cb2e0`, `323e4cb0` = the `+0x70` writer) were left alone.
+
+**Notes (no action):**
+- June zeroes `+0x68` / `+0x6c` (two dwords after the `+0x4c` narrow string) in the ctor and in End. None of the class's 97 decompiled functions read them, so they were not ported. G0's ctor row says "`+0x58` wstring"; it is a `std::string` at `+0x4c`.
+- Two lines are not June's, both deliberate and harmless: Play refuses when `main.gfx` did not load, and End clears `m_bSkipRequested` (`+0xd4`). The second is dead, because March never calls `SetSkipRequested`.
+
+**Hygiene** (`flagcheck SERV_IRUHADEV_JUNE_GFX_EVENTSCENE --range 3dde2b24^..3dde2b24 --with SERV_IRUHADEV_JUNE_GFX_DEBUG`; no later commit touches the flag):
+`files: 7 PASS, 5 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 1 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: FAIL`. The FAIL is `X2GFXEventScene.cpp`'s PCH line `#include "StdAfx.h"`, outside the guard of a new file (the same as G1 / G2), so it is not a finding.
+Fix 1 (`SERV_IRUHADEV_JUNE_GFX_JPEG8`, `3b566a1f^..3b566a1f`): `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+
 ## Phase G4 - Talk cut-ins
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN`. Sub-tag `CUTIN`.
