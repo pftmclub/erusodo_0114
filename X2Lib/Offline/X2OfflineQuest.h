@@ -365,6 +365,13 @@ private:
 	/// Quest Q4 review. CXSLDungeon::IsTutorialDungeon ( XSLDungeon.cpp:820 ): the 15 tutorial ids.
 	static bool	IsQuestTutorialDungeon( int iDungeonID );
 
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+	/// Q4 review stand-in for SQT_TOGETHER_SUBQUEST_CLEAR. True when this run meets every OTHER dungeon step of the quest
+	/// ( types 5 / 6 / 7 / 8 / 32 / 48, each with its own dungeon filter and rule ), and the quest has at least one.
+	static bool	IsTogetherRunMet( const CX2QuestManager::QuestTemplet* pTemplet, int iSelfSubID, int iDungeonID, char cDifficulty,
+								  char cRank, int iPlayTime, int iDamage, bool bSuitableLevel, bool bHaveExp );
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+
 	/// Quest Q4. QRT_WEEK / QRT_MONTH expiry ( June 32322050 / 32321d10 ) and the chain-day rule ( 3232caf0 ), NET_OK or ERR_QUEST_04.
 	int		CheckJuneRepeat( const CX2QuestManager::QuestTemplet* pTemplet, bool bQuiet ) const;
 

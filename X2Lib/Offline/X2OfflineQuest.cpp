@@ -316,6 +316,9 @@ void CX2OfflineQuest::Release()
 #ifdef SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
 			CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR,
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+			CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR,
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 		};
 		const int iDrivenNum = (int)( sizeof( aiDriven ) / sizeof( aiDriven[0] ) );
 
@@ -773,8 +776,10 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 	case CX2QuestManager::SQT_ITEM_EXCHANGE:
 		return L"no June quest uses it ( 3 orphan sub-quests ) and the item workshop is not implemented offline";
 
+#ifndef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 	case CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR:
 		return L"a June-server-only rule ( its one sub-quest 35365, quest 35363, counts runs that clear the quest's other steps together ) with no March server code";
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 
 	case CX2QuestManager::SQT_PVP_RANK:
 		return L"no PvP offline";
@@ -933,6 +938,15 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 	// CXSLDungeon::IsTCDungeon ( XSLDungeon.cpp:845-854 ): DI_TRAINING_FREE <= id < DI_END. That takes in every event dungeon
 	// above 39000 too, and DI_RANOX_SECRET_COMMON / _HELL ( 41270 / 41271 ). DI_END is 41530 here ( Elysion port ) and in June's
 	// DungeonEnum.lua; the March server's 41311 names the same live ids.
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET
+	// Q4 review stand-in ( user 2026-10-19 ): June's Ranox secret dungeon is a real dungeon, not training camp. 41270 is June's
+	// DI_RANOX_SECRET_COMMON ( DungeonEnum.lua:36; no March enumerator ), the hell id - 1.
+	if( (int)SEnum::DI_RANOX_SECRET_HELL == iDungeonID ||
+		(int)SEnum::DI_RANOX_SECRET_HELL - 1 == iDungeonID )
+	{
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET
 	if( iDungeonID >= (int)SEnum::DI_TRAINING_FREE &&
 		iDungeonID <  (int)SEnum::DI_END )
 	{
@@ -941,6 +955,84 @@ int CX2OfflineQuest::GetCompleteCount( int iQuestID ) const
 
 	return true;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+/*static*/ bool CX2OfflineQuest::IsTogetherRunMet( const CX2QuestManager::QuestTemplet* pTemplet, int iSelfSubID, int iDungeonID,
+												   char cDifficulty, char cRank, int iPlayTime, int iDamage, bool bSuitableLevel,
+												   bool bHaveExp )
+{
+	if( NULL == pTemplet )
+		return false;
+
+	// Each other dungeon step is judged on this run by the same filter and rule OnDungeonClear applies to it, its done state ignored.
+	int iSteps = 0;
+
+	for( size_t i = 0; i < pTemplet->m_vecSubQuest.size(); ++i )
+	{
+		if( iSelfSubID == pTemplet->m_vecSubQuest[i] )
+			continue;
+
+		const CX2QuestManager::SubQuestTemplet* pOther = SubTemplet( pTemplet->m_vecSubQuest[i] );
+		if( NULL == pOther )
+			continue;
+
+		bool bMet = false;
+
+		switch( pOther->m_eClearType )
+		{
+		case CX2QuestManager::SQT_DUNGEON_TIME:
+			bMet = ( pOther->m_ClearCondition.m_iDungeonClearTime >= iPlayTime );
+			break;
+
+		case CX2QuestManager::SQT_DUNGEON_RANK:
+			bMet = ( (char)pOther->m_ClearCondition.m_eDungeonRank <= cRank );
+			break;
+
+		case CX2QuestManager::SQT_DUNGEON_DAMAGE:
+			bMet = ( pOther->m_ClearCondition.m_iDungeonDamage >= iDamage );
+			break;
+
+		case CX2QuestManager::SQT_DUNGEON_CLEAR_COUNT:
+			if( CX2QuestManager::QT_EVENT == pTemplet->m_eQuestType || CX2QuestManager::QT_PCBANG == pTemplet->m_eQuestType )
+				bMet = ( true == IsQuestCountedDungeon( iDungeonID ) && ( true == HasDungeonFilter( pOther ) || true == bHaveExp ) );
+			else
+				bMet = ( (int)SEnum::DI_EL_FOREST_GATE_NORMAL != iDungeonID && false == IsQuestTutorialDungeon( iDungeonID ) );
+			break;
+
+		case CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR:
+			bMet = ( true == IsQuestCountedDungeon( iDungeonID ) && true == bSuitableLevel );
+			break;
+
+		case CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR:
+			bMet = bHaveExp;
+			break;
+
+		default:
+			continue;		///< not a dungeon step ( talk, hunt, collect ... ): not part of "together"
+		}
+
+		++iSteps;
+
+		if( true == HasDungeonFilter( pOther ) && false == IsExistDungeonInSub( pOther, iDungeonID + (int)cDifficulty ) )
+			bMet = false;
+
+		if( false == bMet )
+		{
+			CX2OfflineLog::Server( L"[JUNE_QUEST] OFF together %d: step %d ( type %d ) not met this run ( dungeon %d rank %d suitable %d )",
+				iSelfSubID, pTemplet->m_vecSubQuest[i], (int)pOther->m_eClearType, iDungeonID, (int)cRank, bSuitableLevel ? 1 : 0 );
+			return false;
+		}
+	}
+
+	if( 0 == iSteps )
+	{
+		CX2OfflineLog::Server( L"[JUNE_QUEST] OFF together %d: quest %d has no other dungeon step - not counted", iSelfSubID, pTemplet->m_iID );
+		return false;
+	}
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 
 /*static*/ bool CX2OfflineQuest::IsSuitableLevel( int iDungeonIDAndDif, int iUnitLevel )
 {
@@ -2039,6 +2131,13 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 				bHit = bHaveExp;
 				break;
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+			case CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR:
+				// Q4 review stand-in ( June's server only; user 2026-10-19 ): the run also meets the quest's other dungeon steps.
+				bHit = IsTogetherRunMet( pTemplet, iSubQuestID, iDungeonID, cDifficulty, cRank, iPlayTime, iDamage,
+										 bSuitableLevel, bHaveExp );
+				break;
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 #else SERV_IRUHADEV_JUNE_QUEST_OFFLINE
 			case CX2QuestManager::SQT_DUNGEON_CLEAR_COUNT:
 				bHit = true;
@@ -2083,6 +2182,10 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 				CX2QuestManager::SQT_SUITABLE_LEVEL_DUNGEON_CLEAR == pSub->m_eClearType ||
 				CX2QuestManager::SQT_HAS_EXP_DUNGEON_CLEAR == pSub->m_eClearType ||
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+				// June's client shows 44 with case 8's cur / need body ( 32337db0 case 0x2c ): a running total of m_iDungeonClearCount.
+				CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR == pSub->m_eClearType ||
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 				CX2QuestManager::SQT_DUNGEON_RANK == pSub->m_eClearType )
 			{
 				if( pSub->m_ClearCondition.m_iDungeonClearCount >
@@ -2121,6 +2224,15 @@ void CX2OfflineQuest::OnDungeonClear( int iDungeonID, char cDifficulty, char cRa
 					kInst.m_vecSubQuestInstance[i].m_bIsSuccess ? 1 : 0 );
 			}
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+			if( CX2QuestManager::SQT_TOGETHER_SUBQUEST_CLEAR == pSub->m_eClearType )
+			{
+				CX2OfflineLog::Server( L"[JUNE_QUEST] OFF together %d ( quest %d ) counted %d / %d, done=%d",
+					iSubQuestID, mit->first,
+					(int)kInst.m_vecSubQuestInstance[i].m_ucClearData, pSub->m_ClearCondition.m_iDungeonClearCount,
+					kInst.m_vecSubQuestInstance[i].m_bIsSuccess ? 1 : 0 );
+			}
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
 
 			Save( mit->first );
 			MarkChanged( kInst, vecChanged );

@@ -767,6 +767,38 @@ no save rung. MODS.md "offline completion of every sub-quest type".
   fa78aa92 + the 3 review files + peers' Always.h / X2Unit.cpp); the new SQT 44 reason string is in the exe and the old one is gone.
 - **Play-test (optional, log only):** load any field: no `dungeon 0 has no DungeonData row` line. Next load of a save: the census line still reads
   `SQT coverage 0-48: 21 driven, 28 undriven, unclassified [none], both [none]`.
+### Q4 - Review stand-ins (2026-10-19, user answers)
+
+The user's answers to the two open questions: "1: stand-in" (the strict reading was taken, as recommended) and "2: let Ranox secret count".
+- **`SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER`**: SQT 44 is driven. In `OnDungeonClear`, a clear counts toward 35365 when the same run meets every
+  other dungeon step of its quest (`IsTogetherRunMet`; types 5 / 6 / 7 / 8 / 32 / 48 with their own filter and rule; done state ignored). For 35363
+  that means SS rank and inside the level band. It is a running total of `m_iDungeonClearCount` (5), as June's client draws it (case 0x2c = case 8's body).
+  The census now reads `SQT coverage 0-48: 22 driven, 27 undriven, unclassified [none], both [none]`.
+- **`SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET`** (needs `RANOX_PORT`, top-level at Always.h:3900; `DungeonEnum.h` is first read at X2Main.h:9,
+  after KTDX.h): `IsQuestCountedDungeon` returns true for 41271 (`DI_RANOX_SECRET_HELL`) and 41270 (June's `DI_RANOX_SECRET_COMMON`) before the TC
+  test. This covers SQT 32 and event SQT 8 (208480, 43710). Sander's secret dungeon (41140 / 41141) has no enumerator and no March DungeonData row.
+- **Hygiene** (`flagcheck --worktree`): `TOGETHER`: `files: 0 PASS, 1 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`; `RANOX_SECRET`:
+  `files: 0 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS` (OTHER = each other's lines and a peer's Always.h edit); 0 deleted lines.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,389,568 B, dated 2026-10-19 14:15:23, md5 5b3e8252d9fd53faffc492745a69ed5f` (main d3c30f58 + peers'
+  uncommitted files); both new `together` log strings are in the exe.
+- **Save:** unit 25 (jtLordKnight, Lord Knight Lv 80) got 35360-35362 completed and 35363 in progress, with 35365 at 4 / 5 (backup
+  `db_backup\els_db_20261019_135418_pre_sql.sql`).
+- **Blocked on ranks (user, 2026-10-19):** every offline result is rank F. The emulator passes RT_NONE to the quest hooks and sends RT_F
+  to the screen. So SQT_DUNGEON_RANK, and with it this stand-in for 35363, cannot complete until Phase Q4c. Q4c was added for that.
+
+## Phase Q4c - Dungeon result ranks offline
+
+**Run with:** Opus 5.5 high, then a review. Flag `SERV_IRUHADEV_JUNE_QUEST_RESULT_RANK`. Sub-tag `RANK`. Kickoff `kickoffs/quest-system/Q4c.md`.
+
+- Compute the combo / technical / damaged / time / total ranks as March's room server does (`CenterServer/ResultProcess.cpp` ~1696-2040),
+  with its own `ServerResource/US/ResultData_new.lua`. That is server Lua the user packs into data036; load it the shipped way and degrade
+  visibly. Bind the objects its functions read, with the server's method names.
+- Feed the ranks to `SendDungeonResultData` (the result screen) and the total rank to `QuestOnDungeonClear` (it was RT_NONE). Pay the rank EXP
+  bonus if March's server pays one.
+
+**Done gate:** a good run shows a rank above F on the screen and in `[JUNE_QUEST] RANK`, and a run where the unit died shows F. Unit 25's
+35363 then counts 35365 to 5 / 5 with an SS clear.
+
 
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 

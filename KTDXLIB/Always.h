@@ -9144,6 +9144,41 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE_STANDIN
 //////
 
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Q4 review stand-in ( user 2026-10-19: "stand-in" ). SQT_TOGETHER_SUBQUEST_CLEAR ( 44 ) was a rule only
+//              June's server had; its one live sub-quest is 35365 in 35363 'The Ultimate Road 4/5' ( count 5 ). Stand-in: a dungeon
+//              clear counts when the same run also meets every other dungeon step of the quest ( 35363: SS rank, inside the level
+//              band ), whether or not those steps are already done. Off = type 44 undriven, the chain stops at 4/5.
+//              Log [JUNE_QUEST] OFF. Revert: JUNE_QUEST_STANDIN_TOGETHER in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+#ifndef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#error SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER needs SERV_IRUHADEV_JUNE_QUEST_OFFLINE ( the dungeon-clear rules it combines )
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-19
+// Description: June quest system Q4 review stand-in ( user 2026-10-19: "let lanox secret counted too" ). March's server treats every
+//              dungeon id from DI_TRAINING_FREE ( 39000 ) up as training camp ( CXSLDungeon::IsTCDungeon ), which swallows June's
+//              Ranox secret dungeon ( 41270 common / 41271 hell ). Stand-in: those two are not training camp, so they count for
+//              SQT_SUITABLE_LEVEL_DUNGEON_CLEAR and event SQT_DUNGEON_CLEAR_COUNT ( e.g. 208480 ). Off = March's rule.
+//              Log [JUNE_QUEST] OFF. Revert: JUNE_QUEST_STANDIN_RANOX_SECRET in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET
+#ifdef SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET
+#ifndef SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#error SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET needs SERV_IRUHADEV_JUNE_QUEST_OFFLINE ( IsQuestCountedDungeon )
+#endif SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#ifndef SERV_IRUHADEV_RANOX_PORT
+#error SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET needs SERV_IRUHADEV_RANOX_PORT ( SEnum::DI_RANOX_SECRET_HELL )
+#endif SERV_IRUHADEV_RANOX_PORT
+#endif SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET
+//////////////////////////////////////////////////////////////////////////
+
 //////
 // Author: Iruha
 // Date: 2026-10-19

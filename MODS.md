@@ -4440,6 +4440,11 @@ Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q4 - Done"; log tag `[JUNE_QUEST] OFF` (offl
   (backup `db_backup\els_db_20261019_113906_pre_sql.sql`).
 - **Revert:** comment out both defines (the stand-in first), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. An old exe ignores the negative-`unit_uid` account rows;
   `DELETE FROM unit_quest WHERE unit_uid < 0` (and the two sibling tables) removes them.
+- **Q4 review (2026-10-19), same flag:** `IsQuestCountedDungeon` = `XSLDungeon.cpp` (`IsQuestTutorialDungeon`, the full TC range); field loads skip `IsSuitableLevel`.
+- **Q4 review stand-ins (user 2026-10-19), two more flags (both need `_OFFLINE`):**
+  - `SERV_IRUHADEV_JUNE_QUEST_STANDIN_TOGETHER`: SQT 44 (35365 in 35363 'The Ultimate Road 4/5') counts a clear that also meets the quest's other dungeon steps
+    (`IsTogetherRunMet`). Revert: comment out the define; the quest stops at 4/5 again (progress already saved stays).
+  - `SERV_IRUHADEV_JUNE_QUEST_STANDIN_RANOX_SECRET` (needs `RANOX_PORT`): 41270 / 41271 are not training camp in `IsQuestCountedDungeon`. Revert: comment out the define.
 
 ## Known deviations to clean up
 
