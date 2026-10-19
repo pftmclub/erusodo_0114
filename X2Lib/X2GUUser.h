@@ -3620,15 +3620,15 @@ public:
 		void						ActiveSkillShow( const WCHAR* pBoneName, const SkillCutInSet *s_SkillCutInSet, int iCutInSet, int iCutIn, bool bHyper, bool bOnlyLight = false);
 		void						ActiveSkillShow( const WCHAR* pBoneName, const WCHAR* pBackFaceTexName, D3DXVECTOR2 size, D3DXVECTOR3 pos, bool bHyper, bool bOnlyLight = false );
 		void						ActiveSkillShow( D3DXVECTOR3 bonePos, const WCHAR* pBackFaceTexName, D3DXVECTOR2 size, D3DXVECTOR3 pos, bool bHyper, bool bOnlyLight = false );
-
-		bool						CheckDashAngleChangeTime();
-		float						GetDashCameraAngleDegree();
-
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 	public:
 		void						JuneDebugCutIn( const WCHAR* wszName_ );	/// G4 debug: the dev console's JuneGfxCutIn
 	protected:
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+
+		bool						CheckDashAngleChangeTime();
+		float						GetDashCameraAngleDegree();
+
 		virtual float				GetBasicReducedDamagePercent();
 
 
