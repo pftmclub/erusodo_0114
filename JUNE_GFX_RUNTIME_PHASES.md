@@ -523,6 +523,8 @@ variants, and closes.
 **How to see it:** dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` in a dungeon / field: frame, balloon and the cut-in. Log: `python tools/logs.py --grep "JUNE_GFX CUTIN"` (one `play ui=0xc <name>.gfx side=L|R` line per cut-in).
 **Replaces** March's particle cut-in for users: tell the play-tester. **Open (user):** none blocking; the table rename waits for the class ports.
 
+**Play-test PASSED (2026-10-19, user + log):** (1) `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` showed the frame, the balloon and the art; (2) a real Eve skill showed frame + balloon only (the name was `HQ_CutIn_Eve_EP_1.dds.gfx`: March's `.dds` table name, the checklist item, not a bug of this phase); (3) dialog hide showed nothing. Log: 4 + 3 `[JUNE_GFX] CUTIN play` lines, 0 EXCEPTION, UNHANDLED = baseline `E_DISABLE_HB_CHECK_REQ`. **The frame is black by design:** `Common_CutIn_Frame_I1/I8.dds` are black DXT3 with alpha (a slanted band, a wedge, dark radial lines), so there is no colour to lose. **Not exercised:** the left-facing variant (all 7 plays were `side=R`); the review checks `L_` against June's strings `33456858` / `3345685c` in Ghidra instead.
+
 ## Phase G5 - Owed gates
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_GATES`. Sub-tag `GATE`.
