@@ -69,11 +69,20 @@ public:
 	int		GetGoal() const						{ return m_iGoal; }
 
 private:
-	std::wstring	BuildText() const;			/// 32677020 / 326768b0: the time limit and the description
+	/// the three June writers of the small panel ( RM1 review ): they differ in line 0 and in when / with what the tooltip is written
+	enum SMALL_TEXT_WRITER
+	{
+		STW_CREATE	= 0,	/// 32678910: line 0, the tooltip always, "Mission Success" ( 30746 )
+		STW_COUNTER	= 1,	/// 32677f90: line 0, the tooltip only when the text was cut with an ellipsis, "Mission Success"
+		STW_RESULT	= 2,	/// 326791c0: no line 0 ( broken and dropped ), the tooltip always, an empty string ( 3344f1f4 )
+	};
+
+	std::wstring	BuildText() const;			/// 32677020: the time limit and the description
+	std::wstring	BuildPopupText() const;		/// 326768b0: the same text broken at 135 ( 31d79390 ), the popup's line 0
 	std::wstring	BuildTooltipPrefix() const;	/// 32677740: the same text with the red colour code swapped, plus a newline
 	std::wstring	BuildRewardText() const;	/// 326784b0: the popup's reward lines
 	std::wstring	BuildRewardTip( const WCHAR* wszPrefix_ ) const;	/// the 30745 line ( the reward button's tooltip )
-	void			RefreshSmallText();			/// the StaticInfo line 0 and the reward button's tooltip, shared by 32678910 / 326791c0 / 32677f90
+	void			RefreshSmallText( SMALL_TEXT_WRITER eWriter_ );	/// the StaticInfo line 0 and the reward button's tooltip, as 32678910 / 32677f90 / 326791c0 write them
 
 	int				m_iMissionID;				/// +4
 	int				m_iResult;					/// +8

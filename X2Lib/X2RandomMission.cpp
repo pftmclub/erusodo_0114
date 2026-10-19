@@ -81,8 +81,8 @@ CX2RandomMission::~CX2RandomMission()
 	}
 }
 
-/// 32677020 / 326768b0 ( both build the same text ): "Within [N seconds] " when there is a time limit, then the description with
-/// ( counter, goal ), the three skill types with their type name first.
+/// 32677020: "Within [N seconds] " when there is a time limit, then the description with ( counter, goal ), the three skill types
+/// with their type name first.
 std::wstring CX2RandomMission::BuildText() const
 {
 	std::wstringstream wstm;
@@ -119,6 +119,14 @@ std::wstring CX2RandomMission::BuildText() const
 	}
 
 	return wstm.str();
+}
+
+/// 326768b0 ( RM1 review ): 32677020's text, every type then broken at the panel's width by 31d79390( text, 0x87, 0 ) @32676b16,
+/// the helper 326784b0 also uses. The popup's line 0 ( 32678910 @32679111, 326791c0 @326796da ).
+std::wstring CX2RandomMission::BuildPopupText() const
+{
+	const std::wstring wstrText = BuildText();
+	return CWordLineHandler::GetStrByLineBreakInX2Main( wstrText.c_str(), RM_TEXT_WIDTH, RM_TEXT_FONT );
 }
 
 /// 32677740: the same text with the red colour code #C600000 swapped for #CED3131, then one newline ( the tooltip's first part )
@@ -174,26 +182,33 @@ std::wstring CX2RandomMission::BuildRewardText() const
 
 /// the block 32678910 ( create ), 32677f90 ( counter ) and 326791c0 ( result ) share: StaticInfo line 0 = the text broken to two
 /// lines at 135, and the reward button's tooltip. An ellipsis in the text puts the whole text ahead of the reward line.
-void CX2RandomMission::RefreshSmallText()
+/// RM1 review: the three differ ( see SMALL_TEXT_WRITER ). The result's line 0 is broken only for its ellipsis flag
+/// ( @3267930c, the string is dropped ); the counter writes the tooltip only with an ellipsis ( @3267818a, button +0x1d0
+/// @3267842b ), so after a success ( AddEvent 32679820 runs the result, then the counter ) an ellipsed text ends with
+/// "Mission Success" again and a short one keeps the result's empty string.
+void CX2RandomMission::RefreshSmallText( SMALL_TEXT_WRITER eWriter_ )
 {
 	if( m_hDlgSmall == NULL )
 		return;
 
 	CKTDGUIStatic* pStaticInfo = static_cast<CKTDGUIStatic*>( m_hDlgSmall->GetControl( L"StaticInfo" ) );
 	bool bEllipse = false;
-	if( NULL != pStaticInfo )
+	if( NULL != pStaticInfo || STW_RESULT == eWriter_ )
 	{
 		const std::wstring wstrText = BuildText();
 		const std::wstring wstrBroken = CWordLineHandler::GetStrByLineBreakInX2MainWithEllipse( wstrText.c_str(), RM_TEXT_WIDTH, RM_TEXT_FONT, RM_TEXT_LINES, bEllipse );
-		pStaticInfo->SetString( 0, wstrBroken.c_str() );
+		if( NULL != pStaticInfo && STW_RESULT != eWriter_ )
+			pStaticInfo->SetString( 0, wstrBroken.c_str() );
 	}
+
+	if( STW_COUNTER == eWriter_ && false == bEllipse )
+		return;
 
 	CKTDGUIControl* pReward = m_hDlgSmall->GetControl( L"RewardButton" );
 	if( NULL != pReward )
 	{
-		/// result ( 326791c0 ) passes an empty third argument where create / counter pass "Mission Success"; UpdateUI sets
-		/// the member below so the one function serves all three
-		const std::wstring wstrPrefix = ( MR_SUCCESS == m_iResult ) ? std::wstring() : std::wstring( GET_STRING( RM_STR_MISSION_SUCCESS ) );
+		/// result ( 326791c0 ) passes an empty first argument ( 3344f1f4 ) where create / counter pass "Mission Success"
+		const std::wstring wstrPrefix = ( STW_RESULT == eWriter_ ) ? std::wstring() : std::wstring( GET_STRING( RM_STR_MISSION_SUCCESS ) );
 		std::wstring wstrTip = BuildRewardTip( wstrPrefix.c_str() );
 		if( false == wstrTip.empty() )
 		{
@@ -213,7 +228,7 @@ void CX2RandomMission::CreateUI()
 	{
 		m_hDlgSmall->SetShow( false );
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_hDlgSmall );
-		RefreshSmallText();
+		RefreshSmallText( STW_CREATE );
 	}
 
 	m_hDlgPopup = new CKTDGUIDialog( g_pMain->GetNowState(), L"DLG_UI_Random_Mission_PopUp.lua", RM_DIALOG_Z );
@@ -226,7 +241,7 @@ void CX2RandomMission::CreateUI()
 		CKTDGUIStatic* pStaticInfo = static_cast<CKTDGUIStatic*>( m_hDlgPopup->GetControl( L"StaticInfo" ) );
 		if( NULL != pStaticInfo )
 		{
-			pStaticInfo->SetString( 0, BuildText().c_str() );
+			pStaticInfo->SetString( 0, BuildPopupText().c_str() );
 			pStaticInfo->SetString( 1, BuildRewardText().c_str() );
 		}
 	}
@@ -251,7 +266,7 @@ void CX2RandomMission::UpdateUI()
 	}
 
 	pBG->GetPicture( 0 )->SetTex( L"DLG_UI_Common_Texture83_NEW.TGA", L"RANDOM_MISSION_UI_03" );
-	RefreshSmallText();
+	RefreshSmallText( STW_RESULT );
 
 	if( m_hDlgPopup != NULL )
 	{
@@ -266,7 +281,7 @@ void CX2RandomMission::UpdateUI()
 		CKTDGUIStatic* pStaticInfo = static_cast<CKTDGUIStatic*>( m_hDlgPopup->GetControl( L"StaticInfo" ) );
 		if( NULL != pStaticInfo )
 		{
-			pStaticInfo->SetString( 0, BuildText().c_str() );
+			pStaticInfo->SetString( 0, BuildPopupText().c_str() );
 			pStaticInfo->SetString( 1, BuildRewardText().c_str() );
 		}
 	}
@@ -277,7 +292,7 @@ void CX2RandomMission::UpdateUI()
 /// 32677f90
 void CX2RandomMission::UpdateCounterText()
 {
-	RefreshSmallText();
+	RefreshSmallText( STW_COUNTER );
 }
 
 /// 32676660: "mm : ss" of the seconds left, in the panel's red line 2, once a second

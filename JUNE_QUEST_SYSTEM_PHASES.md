@@ -1372,6 +1372,40 @@ Built and deployed; play-test PASSED. Flag `SERV_IRUHADEV_JUNE_RANDOM_MISSION` (
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 25,504,768 B, dated 2026-10-19 21:27:29, md5 2a7336901851f465dd7eca7624dedbd1, equal to X2/US_SERVICE/x2.exe` (built at main fd56d901 + the then-uncommitted tree). Evidence rows: funcmap `(Quest RM1)`.
 - **Play-test hand-off** is in the chat reply of the session that ran RM1 (auth level 3, console `Slash_rm 1 5 60`). Review: `kickoffs/quest-system/RM1-review.md`.
 
+### RM1 - Review (2026-10-19, Opus 5.5 high)
+
+**PASS with 2 fixes** (same flag, `X2Lib/X2RandomMission.h/.cpp` only). Ghidra read-only; evidence rows funcmap `(Quest RM1 review)`.
+- **Fix 1 - the popup's first line is word-wrapped.** RM1 took `326768b0` for `32677020` ("both build the same text"). It is not: every
+  type joins @32676ae4 and is broken at 135 by `31d79390( text, 0x87, 0 )` @32676b16, the helper `326784b0` uses for the reward lines.
+  New `BuildPopupText()` feeds the popup's StaticInfo line 0 in `CreateUI` (June @32679111) and `UpdateUI` (@326796da). Before, a long
+  description ran past the popup panel.
+- **Fix 2 - the reward tooltip's three writers.** RM1 chose the 30745 first argument by `m_iResult` and wrote the tooltip on every
+  counter change. June: create `32678910` writes it always with 30746 "Mission Success"; the counter `32677f90` writes it **only when the
+  text was cut with an ellipsis** (@3267818a; button +0x1d0 @3267842b), with 30746; the result `326791c0` writes it always with
+  `3344f1f4` = `L""`, and only breaks line 0 for the ellipsis flag (@3267930c, string dropped). `AddEvent 32679820` runs the result and
+  then the counter, so a success with an ellipsed text ends on "Mission Success" again. `RefreshSmallText( STW_CREATE / STW_COUNTER /
+  STW_RESULT )` now does exactly that. Visible only on the reward button's tooltip of a long mission text.
+- **Confirmed (no change).** `AddEvent 32679820` (type 3 stores and fails above the goal; 4, 7-12 add; others store), `OnDungeonEnd
+  326797a0` (3 / 5 succeed), `326799a0` (accumulator, tick order, failed flip at 0 even after success), `32679970` / `32679a20` (1 -> 3,
+  2 -> 4), `32679a50` (popup timer, bytes 0x101, both Moves to alpha 0, reset to -1.0 = `334380f0`), fade `326762d0` (2.5 / 0.5 doubles,
+  0.5 s Moves; its `timer < 0` arm is dead inside `timer >= 0`), `RefreshUI 326765f0`, `StageStart @327d1b8a` (index > 0; 1 -> 2 + timer,
+  4 -> destroy), tick `@327d3bfb` (state >= 2), reset `@31f06ebf` (count 3; `327d2240` / `324d92ba` not re-read), end `@324db1ac`
+  (state 2), Tab `@324d3e02`
+  (state 1-4, quick-quest byte `+0x79d`), reader `31f312d0` / `320db120` / `320d6b20` = the March Get order, ACK `324c94d0`, wait
+  `0x494` 10.0 s, constants 3.0 / 5.0 / 0.5 / 0.07 read from the exe, countdown `32676660` (`" : "`, zero padding, line 2), format
+  strings `ii` / `Sii` / `i` / `SiS`, colour swap strings `#C600000` / `#CED3131`, skill hook `31fcd3d0` (6 -> 10, 7 / 14-16 -> 11, 13 ->
+  12 = March `ST_*` values) after the cool-time set (Add @32a07f98).
+- **Event 2 settled.** `+0x8aeb` and the max HP belong to the **damaged NPC** (`pDamageData +0x470`; the writer @327ef786 sets the NPC
+  data's `m_bHasBossGage`), as RM1 ported. `rm0_map.tsv`'s "attacker user" reading of that row was wrong (funcmap row says so).
+- **Emulator stand-in** labelled as not June's (description table, +10% EXP word, 0x493 pays nothing). **#else paths:** range flagcheck
+  0 deleted lines in the flag's files, so flag-off = the Q4c build.
+- **Hygiene.** Range `fbd9d73f^..f149c467`: `files: 31 PASS, 5 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 2 FAIL,
+  0 ERROR` / `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif
+  without the flag token, 0 encoding change(s)` / `RESULT: FAIL` = the expected new files' `#include "StdAfx.h"` / `#pragma once`.
+  Fix worktree: `2 PASS`, `RESULT: PASS` (the 15 deleted lines are inside the flag-only new file).
+- **Build.** `BUILD OK: X2/US_SERVICE/x2.exe 25,506,816 B, 2026-10-19 22:21:31` (HEAD 9ac698d8 + this fix; peers' uncommitted Always.h / X2SlideShotScripted.cpp built in). Deploy refused: the game was running; `build.py --deploy-only` owed after the user closes it.
+- **User owes:** nothing required. Optional look: `/rm 1 5 60` in a dungeon; the popup's mission line now wraps inside the panel.
+
 ## Phase Q10 - Story book (QT_STORY)
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_STORY`. Sub-tag `STORY`. Added by Q3 (2026-10-19): no earlier phase owned it.
