@@ -38098,8 +38098,8 @@ bool CX2GUUser::GetSkillSlotIndexUsed( OUT int& iSkillSlotIndex_, OUT bool& bSlo
 /// S3f, June2017 31fcd280 ( one argument, RET 4 ): SetDamageDataFromLUA 32632390( &m_DamageData +0x3a0, m_LuaManager +0x2b4, name,
 /// GetPowerRate vslot 0x204 ), no memo argument. Then, for a damage data that is not AT_SPECIAL ( +0x3a8 != 1 ), whose FORCE_DOWN ( +0x790 )
 /// is not 0 ( fabs > FLT_EPSILON 334490f8 ) and with a melee force-down rate ( +0x4058 ) other than 1: a positive value is multiplied as
-/// March does; a negative one ( June-only ) moves away from 0 by the rate's distance from 1 ( rate > 1: v - ( rate - 1 ) v, else
-/// ( ( 1 - rate ) + 1 ) v ). ChangeDamageData ( vslot 0x83c: empty in CX2GUUser 31f3f070, overridden by CX2GUEL 32b732e0 and
+/// March does; a negative one ( June-only ) becomes v * ( 2 - rate ) ( rate > 1: v - ( rate - 1 ) v @31fcd382, toward 0; else
+/// ( ( 1 - rate ) + 1 ) v @31fcd343, away from 0 ). ChangeDamageData ( vslot 0x83c: empty in CX2GUUser 31f3f070, overridden by CX2GUEL 32b732e0 and
 /// CX2GUAin 32a3d1b0 ) runs every time.
 bool CX2GUUser::SetDamageData( const char* pszTableNameUTF8_ )
 {

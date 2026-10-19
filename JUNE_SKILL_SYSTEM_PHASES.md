@@ -1020,6 +1020,51 @@ Funcmap: the two `(S3f)` rows flipped to ported, plus `31fcd280`, `320454a0`, `3
 - **Play-test PASSED 2026-10-19** (user + log, exe d0db7313, 0 EXCEPTION): unit 25 jtLordKnight, 7 `SULT` lines: Kick 21202 (state 55) and Impact Smash 21203
   (state 51) `upgraded 0 -> DAMAGE_DATA`; skill 21217 (state 63) `upgraded 1 -> DAMAGE_DATA`, the upgraded path live with the base fallback.
 
+### Phase S3f -- Review (2026-10-19, Opus 5.5 high)
+
+**Verdict: PASS. One comment fixed, no code change, no rebuild** (the deployed exe d0db7313 has the same object code). Commit 8904dbba checked against
+June's binary, read-only (Ghidra; `disasm_range.py` with raw bytes for the x87 forms).
+- **The flag, one computation.** `@32057c03` pushes 1 and calls vslot 0x524 with no args. Then it calls `31fca8e0` (`RET 8`), so this is
+  `31fca8e0( GetNowStateSkillID(), 1 )`, and the templet goes to `[esp+0x34]` `@32057c1d`. `@3205ad66-3205ad82` turns `+0x178 > 0` into byte `[esp+0x40]`.
+  - A depth-checked scan of every `[esp+N]` write from `@32057c1d` to `@32060693` finds no write to base `+0x34` before `@3205ad66`.
+    - The four apparent hits are other slots: `@32058223` (one push: `+0x30`), `@3205847c` (`sub esp,0x20`: `+0x14`), `@3205ba4d` (one push: `+0x3c`),
+      and `@3205d1d7` (three pushes: `+0x34`, after the read).
+  - Base `+0x40` is written only at `@32059ed9` / `@32059eea` (before `@3205ad70`, which overwrites them) and at `@3205ad70` / `@3205ad82`.
+- **The three readers are at base depth.**
+  - `@3205ad87`: pushes `[esp+0x40]`, then eax (decide), then esi, into `32024ff0( lua, memo, upgraded )`.
+  - `@3205c865`: the pending `push edi` is consumed by `31e56b80` (`RET 4`).
+  - `@32060693`: preceded by three no-argument calls.
+- **The hoist is safe.** June keeps the templet pointer from `@32057c1d` and reads only its `+0x178` (templet data) at `@3205ad79`, so computing the byte
+  at the top changes nothing. The port's `GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true )` is S3e's reviewed lookup.
+- **`@3205c865-3205c883`** matches. The strings `3346f12c` = `DAMAGE_DATA_ULTIMATE` and `3346f158` = `DAMAGE_DATA`. `31fcd280` runs again on a false return.
+- **`31fcd280` vs the new `SetDamageData`** matches.
+  - Arguments: `32632390( +0x3a0, +0x2b4, name, vslot 0x204 )`. `RET 4`, one argument, and it returns the loader's bool (`bl`).
+  - Gate: `+0x3a8 == 1` skips; `fabs( v - 0.0 (334350e8) ) <= 1.1920929e-7 (334490f8, FLT_EPSILON)` skips. This is `IsSamef` (`KTDXCommonFunc.h:1449`).
+  - Rate check: `fucomp` / `test ah,0x44` / `jnp` skips when the rate is 1 (NaN goes on, as with `1.f != rate`).
+  - `test ah,0x41` / `jp`: v > 0 multiplies. v < 0 (and NaN) goes to `@31fcd343`.
+  - Bytes `d8 e9` (`fsubr st0,st1` = 1 - rate), `de e2` (`fsubrp st2,st0` = rate - 1) and `dc c9` (`fmul st1,st0`) settle the two branches.
+    - `@31fcd343` (rate < 1): ((1 - rate) + 1) v. `@31fcd382` (rate > 1): v - (rate - 1) v. Both are v (2 - rate), as ported.
+    - **Fixed:** the port's comment said a negative value "moves away from 0". With rate > 1 it moves toward 0. The comment now gives v (2 - rate) and both
+      addresses. This was a comment only; the code was right.
+  - Vslot `0x83c` (ChangeDamageData) runs on every exit path. March's guard `SERV_ELESIS_SECOND_CLASS_CHANGE` is defined (`ServerDefine.h:4117`).
+- **MemoCondition.** RTTI has exactly 13 `MemoCondition*` types. Base vtable `334720bc`: slot 1 `31fd4450` = `xor al,al; ret 4`.
+  - The 12 class vtables (the funcmap row's addresses) each decide `push [esp+4]; call 31fd4450; test al,al; setne al; ret 4`, and each parse is
+    `jmp 31fc8cf0`. So `+0x9284` is always 0 and `m_bApplyMemo = false` is right (JUNE_BUGS 332).
+  - Parse `31fc8cf0` makes only `GetValue` calls (`32fe9fd0`, 4 x `32fe9e40`) and no Begin/EndTable, so skipping it leaves the Lua stack as June has it.
+- **`LoadEffectSetFromScript`**: the diff adds only the unread third argument `bJuneUltimate_` (default false). The body is untouched, so none of row 397's list
+  choices were ported.
+- **`DAMAGE_DATA_NEXT` (`320454a0`)**, whole:
+  - `+0x851c == -1` returns. Then the one-shot timer test, the state table, SimpleInit (`31f8ee50`), `+0x3a4` = 0, `31e56b80( this )`,
+    `31fcd280( DAMAGE_DATA_NEXT 3346f050 )` and EndTable `32fe9a10` only when the table opened. This is the port line by line.
+  - `DAMAGE_DATA_NEXT_ULTIMATE` (`3346f064`) is not read here.
+- **`DAMAGE_DATA(_NEXT)_MEMO`**: S3f's absence check stands; the `#else` keeps March's memo path intact (flagcheck: 0 deleted lines in 8904dbba).
+- **Hygiene.**
+  - `flagcheck --range 8904dbba^..8904dbba`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+    `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token,
+    0 encoding change(s)`; `RESULT: PASS`. `git log -S` finds no later commit touching the flag.
+  - The comment fix: `--worktree --files X2Lib/X2GUUser.cpp` PASS. Its 2 deleted lines are this review's rewrite of S3f's own comment.
+- **Play-test:** already PASSED (Done note above). Nothing new to test.
+
 ## Phase S4 - Numerical skill data override
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL`. Sub-tag `[JUNE_SKILL] NUM`.
