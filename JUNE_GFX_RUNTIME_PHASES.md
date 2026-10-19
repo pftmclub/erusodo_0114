@@ -605,6 +605,15 @@ widget open, ESC and cut-ins behave as before.
   screens, wrappers' callers and any gate G5 routed; Stage 12 gets `GFX_SKILL_CUT`; Stage 6 / 8 know the cut-in kom `data195`.
 - Memory, and `SERV_IRUHADEV_JUNE_GFX_DEBUG` off unless a phase recorded a reason to keep it.
 
+### Phase Z - Done (2026-10-19, Sonnet 5.5 medium; docs only: no code, no flag change, no build)
+
+- `MODS.md`: entries for G3 (`JUNE_GFX_EVENTSCENE`), G3 fix 1 (`JUNE_GFX_JPEG8`), G5 (`JUNE_GFX_GATES`) and a close-out entry with the flag dependency order and every `.vcxproj` hunk (G1, G2, G3). G1 / G2 / G4 already had theirs.
+- `JUNE_PORT_BACKLOG_ORDER.md` dated notes: Stage 4 (Scaleform runtime done, what quest-system calls and owns), Stage 6 and 8 (cut-in art `.gfx` in data152 / data195, names via the character checklist; Stage 8 also the Rose / Ain scenes),
+  Stage 9 (root-UI screens and the unported wrapper callers; G5's gate note was already there), Stage 12 (`GFX_SKILL_CUT`).
+- Memory `june-gfx-runtime-plan` rewritten: plan complete; corrects the stale "skill cut-ins stay textures" line (June's user skill cut-in is a GFx widget set, G4).
+- `_DEBUG`: `JUNE_GFX_DEBUG`, `JUNE_GFX_TALK_CUTIN_DEBUG`, `JUNE_GFX_GATES_DEBUG` are all commented in `Always.h`; the deployed exe (G5 review, md5 01c5f8d1) already has them off, so no build or deploy.
+- Still unproven in game, with owners: ESC-true branch and hide modes 2-5 (Stage 9), the left-facing cut-in `L_` variant (checked in Ghidra only), black layout layer (asset port). Next for the owner of each: see the notes above.
+
 ## Open questions (planning, 2026-10-17)
 
 None block G0 / G1 / GA. G0 may raise one: if `CX2GFXEventScene` needs a packet or server value for a scene (none seen), it goes to

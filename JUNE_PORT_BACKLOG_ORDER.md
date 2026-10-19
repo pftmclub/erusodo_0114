@@ -252,6 +252,11 @@ Ask both before planning past the parser.
 (`JUNE_GFX_RUNTIME_PHASES.md`, key `june-gfx`; user-supplied GFx 4.2.22, June ran 4.0.15), scope event scenes + talk cut-ins, root-UI
 screens stay Stage 9. The quest plan itself waits for Stage 1, skill S1 and june-gfx G0: brief `kickoffs/june-backlog/stage4-plan.md`.
 
+**Scaleform runtime done (june-gfx, 2026-10-19; Z closed it):** G1-G5 and their reviews are PASS. The quest plan can call `PlayEventScene( name )` / `IsRecentlyPlayedEventScene( name )`
+(`X2GFXEventScene`, flag `SERV_IRUHADEV_JUNE_GFX_EVENTSCENE`) and the scene's `GetGFXEventScene()` on `CX2Data`; 439 of the 493 scenes are Rose, 21 Ain, the Elysion quests 22329-22340 are the ones that reach today's
+characters. Not ported by june-gfx and owned here: the quest UI callers `323cb2e0` / `323e4cb0` (`SetNotifyNewEpicQuest` is the hook for `+0x70`). The black dimming layer needs June's `GameMajorParticle_INT.txt` (asset port).
+See `MODS.md` "June GFx runtime: close-out".
+
 **Planned (2026-10-19):** `JUNE_QUEST_SYSTEM_PHASES.md`, key `quest-system`, phases Q0a-Q9 + RM0 / RM1 + Z (`kickoffs/quest-system/`).
 The planning census (`june2017_re/quest_plan/`) found June's data replaces March's wholesale (430 June-only and 257 March-only quests,
 8 new sub-quest types), so the plan flips the data in one phase (Q2) with an old-save migration, as skill S3 did. June's random
@@ -280,6 +285,8 @@ mission system (carried in from skill S3c) is RM0 / RM1.
 - The class-change quest (`QT_CHANGE_TRANSCENDENTAL_CLASS`), `TranscendentalClassItem`, and the guide UI.
 - Unlocking the TC slot, `TRANSCENDENTAL_SKILL_DATA`, and `USI_TRANSCENDENTAL_HYPER_MODE`.
 - Transcendence sockets (`SDT_*_TRANSCEND*`) and emulator support.
+- **Skill cut-in art** (june-gfx Z, 2026-10-19): the user skill cut-in is June's GFx widget set (flag `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN`); the `HQ_CutIn_*.gfx` art ships in the staged data152 / data195. A transcended class's cut-in
+  names must be June's `.gfx` names, like any class port (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`, after 7t; candidates per prefix in `june2017_re/g4_cutin_names.tsv`).
 
 **Live-DB gate:** if transcendence uses new class IDs, see the open decision on `GBase_Item` below.
 
@@ -312,6 +319,8 @@ Everything from Stages 5 and 6, plus:
   and their item-type and unit-class guards from K2 (character-port checklist 7g).
 - Ain's SetStopTime / SetStop2Time overrides (june-effect C3e-3, funcmap `32a38e70 / 32a38ea0 (C3e-3)`): the stop time times Ain's
   `+0x97ac`, then the user's 4-argument setters that C3e-4 ports.
+- **Event scenes and cut-in art** (june-gfx Z, 2026-10-19): 439 of the 493 GFx event scenes are Rose quests and 21 are Ain (`GFXEventSceneInfo.xml`, scene `.swf` loose in `data\eventscene\`, all staged); they play once the quest
+  system and these classes exist. Rose / Ain / Lu-Ciel cut-in names are June `.gfx` names in data152 / data195 (staged by june-gfx GA); name them in the class tables when the classes are ported.
 
 **Hard gate:** the live-DB starter-item rows (below).
 
@@ -363,6 +372,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   - **Hide modes 2-5 are entered only by June's result-UI / presentation code**: `31f14e40`, `324c95b0`, `324d8600`, `3243be8b` (mode 2), `324ac353` (mode 4), `328c3750` (mode 5, `PresentProlBlackBack`). Each calls `CKTDGUIDialogManager::JuneSetShow( false, mode )`; the lists are ready (March has no caller). `31f02f50`'s toggle and `31d03a10`'s ESC rule already handle them.
   - **The result-UI mode `+0x210`** at `31f1e214` (setter `31ef7be0`, exit box `31f1dd70`, writers listed in the C3p-2 Done note) and the **profession-manager close** at `31f1e27a` (`CX2UIProfessionManager` `32396dc0`, SetShow `3239d190`).
   - **The tutorial guide ESC gate** stays with C3z-4t (june-dungeons). **The GFx show byte `+0x108`** is already written by the toggle; the other writers (`31f25112`, state dtors `324ad780` / `324d5670` / `32520d70`) come with their states.
+- **June's GFx root-UI screens and the other wrapper callers** (handed here by june-gfx Z, 2026-10-19). june-gfx loads `main.gfx` as the host of event scenes and cut-ins and ports no screen. What is left in June's `main.gfx`:
+  the cash shop (UI `0xb`), the option window (effect-alpha item above), the PvE / PvP result screens, bingo, the job-professional manager and the tutorial guide. Most of them bypass the 14 AS wrappers
+  that `CKTDGGFXManager` already carries (`openUI`, `ShowUI`, `HideUI`, `loadUserWidget`, `unloadWidget`, `showOkPopup`, `changeCharacter`, `clearFocus`, ...): June uses 13 adapter / callback pairs and about 39 `DW_*` wrappers,
+  none ported (`june2017_re/g0_gfx_map.tsv`, funcmap `GFx G0` / `GFx G2`). The runtime pieces a screen needs are there: loader, kom-first opener, font config "US", data bindings (G3's wrapper), listener / adapter table, `SimpleWidgetPlayer`.
+  The IME text field stand-in (id 0) and the resize path (DXUT reset) are G2's placeholders for the first screen that needs them.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
@@ -444,6 +458,9 @@ rule that an unowned June system gets its own stage. What it covers:
   vectors that C9d listed under Stage 10 (`3203e1b0`, `+0x93dc`/`+0x93ec`/`+0x940c`, square `+0x714`/`+0x724`).
 - **The UI:** the customize preview dialogs. `3224b340` / `3224d0f0` play group 3; `32d77220` plays groups 3 and 4 (`3264f350`,
   `3264f080`). Groups 3 and 4 are used only here.
+- **`GFX_SKILL_CUT`** (handed here by june-gfx Z, 2026-10-19). `CharCustomData`'s parser `326525d0` stores a `GFX_SKILL_CUT` key whose consumer june-gfx G0 / G4 did not find. June's user skill cut-in itself
+  is a GFx widget set (`ActiveSkillShow` leaf `31fd95a0` -> `CX2Main::JunePlayCutInWidget`, ported by june-gfx G4); the customize skill cut-in (`AddFreeSkillCutIn`, item type 14) is this stage's data, and its cut-in name must be a June
+  `.gfx` name (no `.dds`). Find the `GFX_SKILL_CUT` reader before porting the block.
 
 - **The custom-sit / two-seater sync** (june-effect C3e): user-sync bits `0x2000000` / `0x4000000`. `320455e0` writes the customize
   manager's sit id (`32363280`, map key 7) and the pending emotion byte `+0x94b0`. `320458f0` plays them on other players
