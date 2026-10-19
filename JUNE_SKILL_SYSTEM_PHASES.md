@@ -2307,6 +2307,38 @@ Found by the S7h review: June's class-change NOT calls `32161070` on `g_pMain +0
 March has no such object and no row owned it. Identify the object, its setters and reach; port it whole if the offline client can show it (may need A6b's
 `BFT_BOSS_RAID`), else leave `not ported` funcmap rows naming the blocker. Run with Opus 5.5 / high; kickoff `kickoffs/skill-system-core/S7o.md`.
 
+### Phase S7o - Done (2026-10-19, Opus 5.5 high)
+
+**Verdict: identified, not reachable offline, not ported.** No code change, no flag, no rebuild (the deployed exe stays). Funcmap rows tagged `Skill S7o`.
+- **The object.** `g_pMain +0xd80` is an embedded **`CX2BossRaidLongTimeEvent`** (RTTI read from vtable `3347ae7c` - 4, COL `33616464`, TD `33732f8c`).
+  CX2Main's ctor builds it @31e46a4c (`lea ecx,[esi+0xd80]; call 32163f30`); it spans `+0xd80..+0x1058`. Getter `31d70d70` = `this + 0xd80`.
+  Its vtable has one slot (dtor `32166970`). March has no such class, no event ids for it and no `DLG_BossRaid_*` dialog (grep of `X2Lib` and `EventID_*.h`: none).
+- **`32161070` = rebuild the enter UI.** If handle `+4 / +8` is valid, DeleteDlg and clear. If any of `+0x124`, `+0x125`, `+0x11c`, `+0x120` is nonzero:
+  - new 0x204 + `31cd9230( g_pMain +0x90, "DLG_BossRaid_Enter.lua", 0.07, 0 )`, AddDlg;
+  - `Active_Enter_Button` vslot 0x68( `+0x124` ) and `Deactive_Enter_Button` vslot 0x68( !`+0x124` ); both get 1 / 0 when `31d70d80 -> 3266cea0` is true;
+  - `+0xc` = `g_pStatic_Enter_UI`, `+0x168` = 1.0, `+0x170` = -1, `+0x2c8` = 1;
+  - when `+0x124 == 1`: `PlayEmblem( 16, 1 )` (`3244be60` / `32447d70`; this is the "long-time boss raid UI 16" of the S7l row).
+- **Members and their only writer.**
+  - The ctor `32163f30` zeroes all four (@321642b4 `word [+0x124] = 0`, @321642bb / @321642c1 `+0x11c` / `+0x120` = 0; EBX = 0 from @32163f63).
+  - The only other writer is the class's packet handler **`32163bb0`** (from CX2State dispatch `31f2ab80` @31f2af5c), case **0x526**:
+    Get `32165010` -> `+0x124` = open byte, `+0x11c / +0x120` = one of two int64 times picked by that byte, `+0x125` = second byte (1 -> `3215f630`).
+    Scan: every class method reached by the getter's 15 call sites + the handler's callees. The only stores to the four offsets are in `32163bb0` and the ctor.
+  - Readers: `32161070`, OnFrameMove `32162f80` (count-down to the int64 via `3215f630` while `+0x125 == 0`).
+  - The handler's other cases are server NOTs too: 0x525 (`+0x128` / `+0x12c`, `+0x130` / `+0x134`), 0x52e (`+0x1f0`), 0x534 (`+0x2cc`), 0x574 / 0x575 / 0x576.
+- **The four callers** (each `guard -> getter -> 32161070`; class = `31edf060`):
+  - `31f276b0` @31f27c17, class-change NOT (S7h): state 0xe / 0xf / 0x15 and `( class - 10 ) <= 0xbd`.
+  - `31f08290` @31f08513, the 0x43b handler (S7d candidate): same state test, but the class test is `jbe` skip, i.e. it calls when `( class - 10 ) > 0xbd`. The guard is inverted against the other three.
+  - `324bbe50` @324bc218: **CX2StateBattleField ctor** (vtable `3349d88c`), when `32481fa0( g_pData +0x124 )` is false and `( class - 10 ) <= 0xbd`.
+  - `32509d30` @3250a236: **CX2StateField ctor** (vtable `334a151c`), when `( class - 10 ) <= 0xbd`.
+- **Data.** `DLG_BossRaid_Enter.lua` is June `data034` only (`june_src_fixed/data034_kom/DLG_BossRaid_Enter.src.lua`); not in March's kom_contents.
+- **Reach: none.**
+  - The four members are set only by June server NOT 0x526. The emulator has no such event, and the tree has no data for a long-time boss-raid event schedule.
+  - With them zero (June's own absent-value default, i.e. a June client whose server never sends 0x526), `32161070` builds nothing. Its delete branch has nothing to delete: `DLG_BossRaid_Enter.lua` is referenced only from `32161070`.
+  - So every caller is a no-op offline. Porting the class would add code that never shows. Inventing the NOT would be a designed server event (not June's).
+  - Per the kickoff, stop at identification. A6b is not needed for this.
+- **Gate:** every `32161070` caller has a `not ported` funcmap row naming the blocker. No port, so no play-test line.
+- **Open questions:** none. If a boss-raid event schedule is ever wanted offline, it is a new emulator feature (a 0x526 sender) plus this class whole. That is a design task, not owed here.
+
 ## Phase S8 - Running state data: June's pointer model
 
 **Run with:** Opus 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`. Sub-tag `[JUNE_SKILL] PTR`.
