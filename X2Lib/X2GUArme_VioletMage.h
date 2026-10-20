@@ -946,7 +946,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_DashComboZ1EventProcess();							/// June 32cbd7b0
 		void June_DashComboZ2StartFuture();								/// June 32cc6980
 		void June_DashComboZ2EventProcess();							/// June 32cbdc40
-		void June_DashComboZ2aStartFuture();							/// June 32cd4830: declared only, body needs Opus ( calls the unmapped 32293f80 )
+		void June_DashComboZ2aStartFuture();							/// June 32cd4830
 		void June_DashComboZ2aFrameMove();								/// June 32cd4df0
 		void June_DashComboZ2aEventProcess();							/// June 32cbdd20
 		void June_DashAttackXStartFuture();								/// June 32cc6a50

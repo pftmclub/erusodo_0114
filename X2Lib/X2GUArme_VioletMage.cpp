@@ -24788,7 +24788,89 @@ void CX2GUArme_VioletMage::June_DashComboZ2EventProcess()
 }
 
 //AVSI_DASH_COMBO_Z2a
-// June 32cd4830: StartFuture body needs Opus ( the new target pick calls the unmapped CX2GameUnit 32293f80 )
+#if !defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) || !defined( SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE ) || !defined( SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE ) || !defined( SERV_IRUHADEV_JUNE_BUFF_ENUM )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_CORE needs JUNE_DAMAGEDATA, JUNE_LINEMAP_CANDOWN_SIGNATURE, ELYSION_INVINCIBLE_ATTACK_TYPE and JUNE_BUFF_ENUM
+#endif
+// June 32cd4830: nearest landable enemy within 700 ( a facing one first ), landing 20 above its line; no target, no lift
+void CX2GUArme_VioletMage::June_DashComboZ2aStartFuture()
+{
+	CommonStateStartFuture();
+
+	const D3DXVECTOR3 vMyPos = GetPos( false );
+	const int iMyLineIndex = GetLastTouchLineIndex( false );
+	CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
+
+	float fBestDistance = -1.f;
+	CX2GameUnit* pBestUnit = NULL;
+	bool bBestAlong = false;
+	int iBestLineIndex = 0;
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( pUnit->GetTeam() == GetTeam() )
+			continue;
+
+		// June slot 94 with AT_COMMAND
+		const bool bInvincible = ( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() ) ?
+			static_cast<CX2GUNPC*>( pUnit )->JuneGetInvincibleByAttackTypeId( CX2DamageManager::AT_COMMAND ) : pUnit->GetInvincible();
+		if( true == bInvincible )
+			continue;
+
+		if( pUnit->GetNowHp() <= 0.f )
+			continue;
+
+		if( true == pUnit->GetIsBosRaidNPC() )
+			continue;
+
+		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( pUnit->GetLastTouchLineIndex( false ) );
+		if( NULL == pLineData || CKTDGLineMap::LT_NORMAL != pLineData->lineType || false == pLineData->bEnable )
+			continue;
+
+		const D3DXVECTOR3 vLandPos = pUnit->JuneGetBoneLinePos( vMyPos );
+		if( true != pLineMap->CanDown( vLandPos, LINE_RADIUS, NULL, NULL, NULL, false, false, true, false ) )
+			continue;
+
+		const float fDistance = GetDistance( vMyPos, vLandPos );
+		if( false == ( fDistance < 700.f ) )
+			continue;
+
+		const bool bAlong = ( JuneIsPosAlongLastTouchLine( vLandPos ) == GetIsRight() );
+		const int iLineIndex = pUnit->GetLastTouchLineIndex( false );
+		bool bPick = ( fDistance < fBestDistance && bBestAlong == bAlong && ( iMyLineIndex == iLineIndex || iBestLineIndex != iMyLineIndex ) );
+		if( false == bBestAlong && true == bAlong )
+			bPick = true;
+		if( -1.f != fBestDistance && false == bPick )
+			continue;
+
+		pBestUnit = pUnit;
+		fBestDistance = fDistance;
+		iBestLineIndex = iLineIndex;
+		bBestAlong = bAlong;
+	}
+
+	if( NULL != pBestUnit )
+	{
+		if( false == bBestAlong )
+			m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+
+		m_FrameDataFuture.syncData.position = pBestUnit->GetPos( false );
+		const CKTDGLineMap::LineData* pBestLineData = g_pX2Game->GetWorld()->GetLineMap()->GetLineData( iBestLineIndex );
+		if( NULL != pBestLineData )
+			m_FrameDataFuture.syncData.position.y = pBestLineData->startPos.y + 20.f;
+	}
+
+	m_FrameDataFuture.stateParam.bCanPushUnit = false;
+	m_FrameDataFuture.stateParam.bCanPassUnit = true;
+
+	for( int i = 0; i < 4; i++ )
+	{
+		m_PhysicParam.nowSpeed.x = -700.f;
+		CX2GUUser::PhysicProcess();
+	}
+
+	m_FrameDataFuture.stateParam.bCanPushUnit = true;
+	m_FrameDataFuture.stateParam.bCanPassUnit = false;
+}
 // June 32cd4df0: March's DashComboZ2aFrameMove, the ArmeEvasion mesh tagged with the effect-alpha category ( checklist 7c, 32296ee0 @32cd4f03 )
 void CX2GUArme_VioletMage::June_DashComboZ2aFrameMove()
 {

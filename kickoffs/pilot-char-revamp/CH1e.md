@@ -57,3 +57,8 @@ CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / j
 
 - `AVSI_AEM_DASH_JUMP_X3` (June id 232) is already a member of `ARME_VIOLEMAGE_STATE_ID` (CH1d added it for `June_DashJumpAttackX2EventProcess`, with `AVSI_AHM_DASH_JUMP_ZX` for id 228); do not add it again. Its Start-side functions (`32cb8bd0`, `32cc3ea0`) are yours.
 - CH1d's block defines and `#undef`s its own `JUNE_ARME_ANY_KEY_C` / `_ZXC` / `FLAG_DUE` / `IN_WINDOW`; copy them into your block the same way. `June_AVP_DashAttackXEventProcess` (`32cc4180`) is the Void Princess re-registration of `AVSI_DASH_ATTACK_X`.
+
+## From CH1d review (2026-10-20)
+
+- New helpers you may call (flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`): `CX2GameUnit::JuneGetBoneLinePos` (June `32293f80`), `CX2GameUnit::JuneIsPosAlongLastTouchLine` (`32293b80`), `CX2GUNPC::JuneGetInvincibleByAttackTypeId` (slot 94 `3275bc30`; on a user, slot 94 is plain `GetInvincible`). `June_DashComboZ2aStartFuture` shows the target-pick loop.
+- The decompile can drop a float op (it hid `32cb74a0`'s `dirDegree.y += 180`): read short functions in the listing (`funcdis.py --func`) before calling a March line "dropped".

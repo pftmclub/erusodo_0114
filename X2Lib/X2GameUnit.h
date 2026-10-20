@@ -3196,6 +3196,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// Outside SERV_IRUHADEV_JUNE_BUFF_BINDING (C5 review): it has no buff dependency and X2EffectSet.cpp calls it.
 		std::wstring JuneGetNearestCollisionFrameName( IN const D3DXVECTOR3& vPos_ ) const;
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+		D3DXVECTOR3 JuneGetBoneLinePos( IN const D3DXVECTOR3& vPos_ ) const;			/// June 32293f80
+		bool JuneIsPosAlongLastTouchLine( IN const D3DXVECTOR3& vPos_ ) const;		/// June 32293b80
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
 		/// June effect completion C4 (renamed from CheckDamageDataKeyName): the DIVISION window gate and its tick / re-arm, see X2GameUnit.cpp.
 		struct JuneDivisionKey

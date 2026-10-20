@@ -12734,6 +12734,61 @@ static bool JuneCollectIsPosAlongLastTouchLine( const CX2GameUnit* pUnit_, const
 	return 0.0f < D3DXVec3Dot( &vToPos, &vLineDir );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+bool CX2GameUnit::JuneIsPosAlongLastTouchLine( IN const D3DXVECTOR3& vPos_ ) const
+{
+	return JuneCollectIsPosAlongLastTouchLine( this, vPos_ );
+}
+
+/// June 32293f80: my collision bone nearest vPos_, moved in x / z to the nearest point of an enabled line other than LT_WALL / LT_MONSTER_ROAD.
+D3DXVECTOR3 CX2GameUnit::JuneGetBoneLinePos( IN const D3DXVECTOR3& vPos_ ) const
+{
+	D3DXVECTOR3 vOut = vPos_;
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetWorld() || NULL == g_pX2Game->GetWorld()->GetLineMap() )
+		return vOut;
+
+	const std::wstring wstrBoneName = JuneGetNearestCollisionFrameName( vPos_ );
+	if ( false == GetBonePos( wstrBoneName.c_str(), vOut ) )
+		return GetPos( false );
+
+	CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
+	float fNearest = 9999999.f;
+	D3DXVECTOR3 vNearest = vOut;		// June leaves this uninitialised when no line qualifies
+	for ( int i = 0; i < pLineMap->GetNumLineData(); ++i )
+	{
+		const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( i );
+		if ( NULL == pLineData || false == pLineData->bEnable ||
+			CKTDGLineMap::LT_WALL == pLineData->lineType || CKTDGLineMap::LT_MONSTER_ROAD == pLineData->lineType )
+			continue;
+
+		D3DXVECTOR3 vDir = pLineData->endPos - pLineData->startPos;
+		const float fLength = D3DXVec3Length( &vDir );
+		D3DXVec3Normalize( &vDir, &vDir );
+		const D3DXVECTOR3 vRel = vOut - pLineData->startPos;
+		const float fT = D3DXVec3Dot( &vRel, &vDir );
+
+		D3DXVECTOR3 vPoint;
+		if ( fT <= 0.f )
+			vPoint = pLineData->startPos;
+		else if ( fLength <= fT )
+			vPoint = pLineData->endPos;
+		else
+			vPoint = pLineData->startPos + vDir * fT;
+
+		const D3DXVECTOR3 vToPoint = vPoint - vOut;
+		const float fDistance = D3DXVec3Length( &vToPoint );
+		if ( fDistance <= fNearest )
+		{
+			fNearest = fDistance;
+			vNearest = vPoint;
+		}
+	}
+
+	vOut.x = vNearest.x;
+	vOut.z = vNearest.z;
+	return vOut;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 static bool JuneCollectUnitNearer( const std::pair<CX2GameUnit*, float>& lhs_, const std::pair<CX2GameUnit*, float>& rhs_ )
 {
 	return lhs_.second < rhs_.second;

@@ -746,6 +746,34 @@ Build: `DEPLOY OK: X2_offline.exe is 25,553,408 B, dated 2026-10-20 10:12:51, md
 No `JUNE_BUGS` row (the dropped speed-zero window and the `m_bDashJumpZ` gate are June changes, not mistakes; the `MagicFail` sequence is not NULL-tested in March either). No drift: every branch found is Aisha's class core. **In game:** nothing (the flag adds unreferenced members).
 Review: `kickoffs/pilot-char-revamp/CH1d-review.md` (it also owns `32cd4830`). Next: CH1e after the review.
 
+### CH1d -- Review (2026-10-20, Opus)
+
+**Verdict: PASS, no transcription fix; the review wrote the 26th function.** All 25 were read against June: Ghidra decompiles, plus listings (`funcdis.py`) of `32cb7550` / `32cb7560` / `32cc6a50`, the four fireballs and `32cb74a0`.
+Spot-checked in depth: `32cbd7b0` (Z1 EventProcess), `32ce61f0` (DashAttackX FrameMove), `32cd4830`.
+- **Z1 EventProcess.** The chain matches: flag 0 -> `0xaf`, window 0 (oneZ, on something); flag 1 -> `0xcc`, window 1 (BM `0x17` / ADW `0x71`); flag 2 -> `0xdc` (AEM `0x68`); flag 3 -> `0xb0`; then the 12-key `0.65` rule; then the animation-end tail. Key offsets: `+0x86da` left ... `+0x8712` R, so `_C` is 12 keys and `_ZXC` is 14.
+- **`32cbe360` / `32cbe480` / `32cbe510` / `32cc4180`.** Order, gates (`+0x9599`, class `!= 2` with a NULL templet passing, `0x68`), ids `0xe4` / `0xb8` / `0xe8` / `0xb3`, and landing `0x16` all match. `32cbe480`'s `0.4` is a double (`(double)0.4f`).
+- **Fireballs.** Type slot `0` / `1` / `0` / `7`; `32ce61f0` adds 180 to `angle.y`; `32ce6830` / `32ce69b0` *set* `angle.z = -30`; the failures are `(0, 180, 0)` and `(0, 0, -30)`; bone `Dummy2_Lhand` (`3345bb08`); cost `4.0 x +0x95bc`.
+- **`32cb74a0`.** The decompile drops the `+0x7e08 += 180.0` (`fadd [33438080]`); the listing has it, so the port's March body is right.
+- **Speeds, constants.** Walk / dash speeds, the `0.13` / `0.26` window and the two bare `CommonFrameMoveFuture` jumps match. All 13 constants (`charport_consts.py CH1d`) match. The alpha tag is `32296ee0` after `CreateInstance`.
+- **Enum.** `AVSI_AHM_DASH_JUMP_ZX` for the shared id 228 is fine: June's script lists AHM first, ADM / ABM reuse 228, and CH1 numbers the ids.
+
+**`32cd4830`, written** (`June_DashComboZ2aStartFuture`; funcmap rows `32cd4830`, `32293f80`, `3275bc30`):
+- Unit loop. It skips my team, `GetInvincible( AT_COMMAND )` (slot 94), hp <= 0, `GetIsBosRaidNPC` (slot `0x3c8`), and a last line that is not enabled `LT_NORMAL`.
+- Landing point. `land = target->JuneGetBoneLinePos( my pos )`, then the 11-argument `CanDown( land, 30, NULL x3, false, false, true, false )`, `GetDistance < 700`, and `along = ( JuneIsPosAlongLastTouchLine( land ) == GetIsRight() )`. The pick rule is `@32cd4ae2-32cd4b2d`, verbatim.
+- After the loop. A non-facing best flips Future `bIsRight`. The position is the target's, with `y = line startPos.y + 20`. With no target there is no lift (March added 350), and the `FIX_AISHA_TELEPORT_POSITON` test is gone. Then 4 push / pass steps at `-700`.
+- New callees under the same flag:
+  - `CX2GameUnit::JuneGetBoneLinePos` (`32293f80`, `X2GameUnit.cpp`): the target's nearest collision bone (`JuneGetNearestCollisionFrameName`, `GetBonePos`), moved in x / z to the nearest point of an enabled line that is not `LT_WALL` / `LT_MONSTER_ROAD`. None of its 8 other callers is ported.
+  - `CX2GameUnit::JuneIsPosAlongLastTouchLine`, a member over the file's existing `32293b80` static.
+  - `CX2GUNPC::JuneGetInvincibleByAttackTypeId` (slot 94 `3275bc30`; the user's slot 94 is plain `GetInvincible`).
+- **JUNE_BUGS 374:** when no line qualifies, `32293f80` reads an uninitialised point. C++ cannot copy that read, so the port starts the point at the bone position.
+- `#error` guard: the body needs `JUNE_DAMAGEDATA`, `JUNE_LINEMAP_CANDOWN_SIGNATURE`, `ELYSION_INVINCIBLE_ATTACK_TYPE` and `JUNE_BUFF_ENUM`. All four resolve ON (`flagprobe.py`, plus `FIELD_BOSS_RAID`).
+
+**Hygiene.** CH1d commit, `flagcheck.py JUNE_CHAR_ARME_CORE --range 699c3f84^..699c3f84`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Review edits, `--worktree` over the 5 code files: `files: 5 PASS, ... 0 FAIL, 0 ERROR`; `2 deleted line(s)`, which are CH1d's own two placeholder comments; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,555,968 B, dated 2026-10-20 10:37:25, md5 4a9e6e97aca08838eb4f83cef7b6bbc9, equal to X2/US_SERVICE/x2.exe (2026-10-20 10:37:18); built at main 699c3f84 + 5 uncommitted code file(s).`
+No drift: every branch is Aisha's class core or an engine callee it needs. **In game:** nothing (inert). Next: CH1e (`kickoffs/pilot-char-revamp/CH1e.md`, note "From CH1d review").
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

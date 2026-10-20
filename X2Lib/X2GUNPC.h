@@ -2054,6 +2054,18 @@ class CX2GUNPC : public CX2GameUnit
 			}
 			return GetInvincible();
 		}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+		/// June CX2GUNPC slot 94 3275bc30 ( the user's slot 94 is plain GetInvincible )
+		bool						JuneGetInvincibleByAttackTypeId( const int iAttackType_ ) const
+		{
+			for ( UINT i = 0; i < m_vecJuneInvincibleAttackTypeNow.size(); i++ )
+			{
+				if ( m_vecJuneInvincibleAttackTypeNow[i] == iAttackType_ )
+					return true;
+			}
+			return GetInvincible();
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif SERV_IRUHADEV_ELYSION_INVINCIBLE_ATTACK_TYPE
 		virtual bool				GetIsFallDownState()						
         { 
