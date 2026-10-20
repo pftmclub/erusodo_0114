@@ -1222,6 +1222,37 @@ Verdict: **two differences ported, one routed, the rest equal.** Read from `323e
 - **Revert:** `MODS.md` "UPDATE_QUEST_NOT in-game progress text". No data. The only save change is the test quest.
 - **Review:** `kickoffs/quest-system/Q5c-review.md` (two differences ported).
 
+### Q5c - Review (2026-10-20, Opus 5.5 high): PASS, no findings
+
+No code change, no rebuild (deployed exe stays md5 dd005622). Read from `323e08c0`'s disassembly (Ghidra), the out-of-game case bodies with
+`disasm_range.py` (Ghidra's listing skips `323e122d`..`323e129a`), both tables decoded from `unpacked_x2.exe`. funcmap rows `(Quest Q5c review)`.
+- **In-game table** `323e15a0` / `323e1584` (SQT - 2, `JA` at 0x1a): 2 -> `0ca3`, 8 -> `1026`, 0xb -> `0dec`, 0xc -> `0ef1`, 0x19 / 0x1a -> `0ff9`, 0x1c -> `0b3c`;
+  every other index, 0x16 / 0x17 among them, -> `116a`; 0x24 fails the bound. **Out of game** `323e15c8` / `323e15bc` (SQT - 0xd, bound 0x12): 0xd-0x12 / 0x1c / 0x1f
+  -> `122d` (`ResetQuestUI( 1, 0, 1 )` @`323e1267`, only when `+0xdc` = 1), 0x18 -> `127b` (flush), rest -> `129b`. All as Q5c recorded.
+- **Count fields** checked against June's loader `32323ad0`, whose EBP is the same sub templet (type `+0x20` @`32323b0e`): `LEA EDI,[EBP+0x34]` @`323241d4` (NPC_HUNT
+  `m_iKillNum`), `+0x80` @`32326a9f` (DUNGEON_CLEAR_COUNT), `+0x6c` @`32327327` (PVP_PLAY), `+0x74` @`32327af0` (PVP_KILL); 0xc / 0x1c from Q0a's table (`+0x80` / `+0x6c`).
+  March compares the same members, all guards on (`cl /EP`, X2Lib US_SERVICE: `PVP_SEASON2`, `SERV_INTEGRATION`, `REFORM_QUEST`, `SERV_EPIC_QUEST`, `NEW_VILLAGE_UI`,
+  `SERV_QUEST_CLEAR_EXPAND`, `SERV_ENTER_FIELD_QUEST_CLEAR`, `SERV_ACCOUNT_MISSION_SYSTEM`, `QUEST_GUIDE`, both Q5c flags). June's `Enum.lua` SQT 0-36 = March's enum.
+- **Case 8** `@323e1026`: `32337db0`, `PushText` `322db770`, free `32fe2300`, back to the loop; no `3214f020` / `32150230`. JUNE_BUGS 373 stands.
+- **NPC_HUNT** `@323e0ca3`: between `32337db0` (`0ccc`) and `322db770` (`0d97`) only colour stores, `type_info::operator==` (import `344c0044`, the handle's
+  cast check) and `31aad500` (handle read). JUNE_BUGS 372 stands.
+- **Equal rows confirmed:** `MakeSubQuestString( auto +0x140, templet, inst, 1 )` (after the hidden return pointer) = March `:1000` `bShowCount = true`;
+  `PushText( 3, white, black, 1, 1.0f, 5.0f )` (colour blocks traced through the stack, `33443804` = 5.0f; `XUF_DODUM_20_BOLD` = 3, `DT_CENTER` = 1);
+  `UpdateQuickQuestDLG( 0, 1 )` = March defaults `( false, true )`; `ResetQuestUI` defaults `( true, false, true )`; quest manager `+0x54` = `m_bUpdateQuest`
+  (layout-consistent only: vptr + March's five maps before it, at June's 0x10 B map stride, = 0x54; no June reader traced). Tail: 0xe is March `XS_VILLAGE_MAP` (14); 0x15 is not March's `XS_BATTLE_FIELD` (24) by number,
+  the `dynamic_cast` to `CX2BattleFieldGame` (`32fe2daa`, type `3372c6e0`) is what makes it the battle field.
+- **Tutorial-guide step:** carried by the june-dungeons `C3z-4t` STATUS row ("Also owes (quest-system Q5c ...)"). OK.
+- **0x167 / 0x27c: unchanged, Q4e's 0x27c kept.** Three new readings:
+  - Enum order (Q0b: the window's quest block is March - 9 from `NEW_QUEST_ACK` 0xeb to `TALK_WITH_NPC_ACK` 0xfa) puts the old `UPDATE_QUEST_NOT` slot at 0xef.
+    Neither copy is registered there, so both run on re-registered ids and the order test decides nothing.
+  - For 0x27c: it is the middle of a June-only trio of server pushes in the same window, 0x27b add (`323e05f0`), 0x27c update, 0x27d complete (`323e15e0`).
+    The ids are contiguous and the three functions are adjacent.
+  - For 0x167: the state copy was edited late. Its 8 / 0x20 / 0x30 line is gated on June's NPC-friendship manager (`32696fa0` -> `3267b440`), and 25
+    hard-coded field sub-quests bypass the gate (203600 .. 205741, all in June's `FieldSubQuest.lua`). That shows the copy is compiled and maintained, not
+    which event the server sent.
+  The functional argument (June's `3232c750` needs the flush) still decides.
+- **Hygiene:** no file under `X2/`, `X2Lib/`, `KTDXLIB/` changed, so no flagcheck or build was needed. Q5c's PASS lines stand.
+
 ## Phase Q6 - Quest gates: the inert keys and their readers
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_GATE`. Sub-tag `GATE`.
