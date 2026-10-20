@@ -419,7 +419,7 @@ CH1i 41, CH1 29 -> 28. Each kickoff's "From CH0c" section lists its ins and outs
 **Hygiene.** `flagcheck.py SERV_IRUHADEV_JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`:
 `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 13 deleted line(s), 0 non-ASCII
 inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 13 deleted lines
-are the 13 replaced comment lines, each inside this flag's own block. Build (comments only, a compile check): `BUILD OK: X2/US_SERVICE/x2.exe 25,526,784 B, 2026-10-20 08:57:28`; the deploy was refused (`X2_offline.exe` was running). Nothing to deploy for: the code is unchanged, so the game-dir exe stays CH1b's (`build.py --deploy-only` copies it later if wanted).
+are the 13 replaced comment lines, each inside this flag's own block. Build (comments only, a compile check): `BUILD OK: X2/US_SERVICE/x2.exe 25,526,784 B, 2026-10-20 08:57:28`; the deploy was first refused (the game was running), then `--deploy-only`: `DEPLOY OK: X2_offline.exe is 25,526,784 B, dated 2026-10-20 09:00:03, md5 3be06d4f402f411062dffa0badcedcb3, equal to X2/US_SERVICE/x2.exe (2026-10-20 08:57:28); built at main 86b78004.`
 **In game:** nothing (comments and RE data). Next: CH1c.
 
 ## Phase CH1 - Deploy unit: June script, motions and the class core
