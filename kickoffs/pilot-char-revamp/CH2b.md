@@ -43,3 +43,7 @@ Written by CH0 (2026-10-20): the split keeps each skill phase near the plan's ~4
 ## From CH1h (2026-10-20)
 
 The class map now lists `32cdcac0` (Energy Drain FrameMove, state 207, thunk `32cf2be0`, registered in `32cede00` @`32ceff5d`), which CH1h found under the default bucket.
+
+## From the CH1i review (2026-10-21)
+
+- `June_UpdateEquipViewListInfo` (`32cc9950`, vslot `0x644`) drops the view-list change while transformed. June queues it (`3207b5d0`, with 8-byte objects and a third int); port the queue with TransformStart / End.

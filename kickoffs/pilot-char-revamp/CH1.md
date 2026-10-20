@@ -117,3 +117,9 @@ Done notes, whose "Registration notes for CH1" were written from the old map. Wh
 - **User action ids** `0x24` ( MemoRise start ), `0x25`, `0x29`, `0x36`-`0x39` have no March enumerator; the code uses `JUNE_CH1I_UAI_*` constants. The state ids 246-248 ( Ruin loop / end, Air Stunner end ) are enumerators now ( CH3a / CH3b register them ).
 - **Not ported ( Done note, gaps 1-9 ):** `June_Vslot828` ( `31fd7640` ), the riding pet part of `June_UpdateEquipCollisionData`, the view-list queue, the cut-in item override, `3202d3c0`'s dungeon bit, NPC `+0x874c`. `June_UnitFlag3c` is still the stand-in.
 - `June_ChangeWeapon` is March's `ChangeWeapon` ( `32cc8980` ); `32cc91b0` / `32cdbd00` ( TransformStart / End, CH2b ) call it.
+
+## From the CH1i review (2026-10-21)
+
+- **Yours from CH1i's gaps:** `31fd7640`, the user-base test behind vslot `0x828` (the common wait / walk / dash / jump / riding state list and the `+0x7d04` member), which `June_Vslot828` needs. Also the Future -> Now copy of the synced skill id (`+0x7ec0` -> `+0x8160`), and NPC `+0x874c`, a "skip if non-zero" gate in `32ccdae0`: identify it while wiring vslot `0x860`. Then the dirty-state batch `3207c1a0` / `31fdf970` around `SetEquippedSkillLevel`, and the item-type anim array choice (equip `+0x544` / `+0x584`) in `June_UpdateEquipCollisionData`.
+- `June_SetEquippedSkillLevel` finds states (`32028190`'s form) where June's first seven blocks use `&m_StateList[ id ]` (`31fd88f0`). They differ only for an unregistered state; register all of them.
+- `June_PushInfoText` is the service form: June's in-house build (global `+0x40`) also shows the text id in front of the text.

@@ -785,6 +785,12 @@ ones became their own plan: `JUNE_DUNGEONS_PHASES.md`, kickoffs `kickoffs/june-d
 - **June's village world Lua (W3)**, moved here from june-engine by its scope audit (2026-10-20): every village world script and line map in
   data040 replaced by June's (ljconv), with its asset closure. Kickoff `kickoffs/june-dungeons/W3.md`.
 
+- **The per-dungeon attribute set** *(from pilot-char-revamp CH1i review, 2026-10-21)*: June's `CX2DungeonManager` (g_pData `+0x44`) keeps a
+  15-bit attribute set per dungeon. The reader is `31edf8f0( dungeon id, bit )` -> `327d9df0` (map find, data `+0x10`, `327e6d20( bit )`), and
+  its loader is not mapped yet. Bit 13 makes `3202d3c0` (every class's skill lookup) refuse the common skill 900 `SI_ETC_WS_COMMON_LOVE` in that
+  dungeon. March has no counterpart; Aisha's port reads the bit as false. Related: `3202d140` refuses skill 900 in June's PVE game type 4,
+  which March lacks. Scope it with the DungeonData readers (C3z-5b).
+
 **Depends on:** june-effect C3x-C3z-6 (done). Stage 14/15 for C3z-1b only.
 
 

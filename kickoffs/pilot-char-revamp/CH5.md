@@ -45,3 +45,7 @@ Written by CH0 (2026-10-20).
   `32078b70`); the `.gfx` files come with CH0b. `g4_cutin_names.tsv` l.4-10 lists March's 7 names (none has a June `.gfx`).
 - **Hyper cut-in:** `SHOW_HYPER_CUT_IN_TIME` (3 states) arrives with the script in CH1; CH5 checks it shows for 104 / 105 / 113 once the
   UnitTemplet rows are June's.
+
+## From the CH1i review (2026-10-21)
+
+- `June_ShowActiveSkillCutInAndLight` (`32cc9680`) lacks the cut-in item override (`31fd8a50`, unit map `+0x8e58`) and the event `0x8b3` swap; they belong with the cut-in table.

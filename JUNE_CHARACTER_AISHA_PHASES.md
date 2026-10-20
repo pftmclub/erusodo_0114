@@ -1070,6 +1070,60 @@ Build: `DEPLOY OK: X2_offline.exe is 25,635,840 B, dated 2026-10-21 01:59:05, md
 
 **In game:** nothing ( inert ). Review: `kickoffs/pilot-char-revamp/CH1i-review.md` ( Opus ). Next: the CH1i review, then CH1.
 
+### CH1i -- Review (2026-10-21, Opus)
+
+**Verdict: PASS, no code fix.** I read each function against June's listing (`disasm_range.py` / `funcdis.py`) or a Ghidra decompile: `32cebe80`, `32ccf4e0`, `32ced640`, `32cce4b0`, `32ce7480`, `32ccf9f0`, `32008e40`, `32ccb830`, `31fd32e0`, `31fc86e0`, `32cb8af0`, `31fdaa70`, `31fdbf50`, `32ccdae0`, `3202d140`, `3202d3c0`, and the sweep loop of `32ce1770`. Every port matches its June function.
+
+**1. The 510 lookup `32cebe80`.**
+- The gates run in this order: quick-slot wait `+0x8d78`, then `31fcadd0`, then the kind `32cc7e60`.
+- Kind 2: vslot `0x880` contains -> kind 1. Otherwise `32cb8af0` (= `0 < +0x9758`) refuses, `+0x9758` = 0.1 (`334395e0`), and if `31fcec40` fails, text `0x7697`.
+- Then the slot / templet id mismatch (text `0x8bae`). Teleport 22200 / 22216 with 22417 learned widens the condition to 5 (`ASUT_ANYTIME_EXCEPT_AIR`) in the states of vslots `0x114` / `0x118` / `0x490` (DOWN_FRONT / DOWN_BACK / AIR_DOWN_LANDING, C3d-1).
+- Then `31fca9f0` and `3202daf0` (both waived for kind 2), `3202cba0`, `3202d140`, `3202d3c0`, `329cc370` and vslot `0x818`.
+- The MP-cost call is vslot `0x6a0` with `( id, level, 1 )`, which is March's `GetActualMPConsume` (it passes `true`, X2GUUser.cpp:25618).
+- Sync field: cleared, then set to the skill in kind 3. Open Mind uses SA `0x96` (`SA_COOLTIME_3`). Vslot `0x82c` is `31fdaa70`, which always answers false.
+- The clamp `fcomp st(1)` + `test ah, 0x41` is `min( slot cool time, actual cool time )`. The MP test is `fcompp` on `ea8 + eb0` against vslot `0xd8`.
+- The hyper stone test is type 13 with `31fd0570` false and `GetNumItemByTID( 130208 ) <= 0`.
+- The texts `0xe2` / `0x9f5` / `0x6607` are 226 / 2549 / 26119. When the global `+0x40` flag is set (in-house), June also shows each text's id in front of the text; `June_PushInfoText` shows the text alone, which is the service form.
+
+**2. Use and cooldown.**
+- `32ced640`: mode 2 runs `32ceca70` -> cooldown, action 0x24, `AISHA_Memorize_System.ogg`, and the `+0x9778` stop at 3 or more entries. The other modes use type 7 / 14-16 for Elemental Friendship (action 9), then vslot `0x810` -> `0x800` + `0x764( id, 1, eb0 )`, else `0x804` + `31fd32e0`.
+- `31fd32e0` tables at `33472040` are 50.. / 51.. / 60.. / 61.. (A, hyper A, B, hyper B): March's `aNormal` / `aHyper` / `SlotB` arrays by name.
+- `32ccf4e0`: the Strong Mind rates are type 5 / 7 / 14-16 -> `+8` and type 6 -> `+0xc`. The timer is 3.0 (`33436700`), the restore uses `+0x14` x MP, and the text sits at y + 50.0 (`33449120`, AT_CENTER = 2). Open Mind is `322cc1a0` ? `0x95` : `0x94`.
+- `31fc86e0` sets `+0x90d3 + slot` for slots 0-9 (both branches write 1).
+
+**3. `32cce4b0` frame move.**
+- The `+0x95f0` fade is min( t, 0.33 ) / 0.33 (`3351b030` float / `3343bd70` double).
+- The UFO test `31fdbf50( 22020 )` is `22020 != 31fdbcc0( 22020 )`, which is the same test as the port's `GetJuneTranscendenceMemoSkillID`. The state switch skips the 20 slot states (50-69) and Hell Drop 187-196.
+- The MP-charge, staff and hammer blocks match, and so does the `+0x9754` <- Now `+0x8160` copy.
+
+**4. State start and actions.**
+- `32ce7480`: the nine states are ids 162-165 / 174-176 / 180 / 200. ABM_COMBO_Z1-Z3 and DARK_MAGICIAN_DASH_COMBO_Z2a register under the same ids, so the port's names cover them.
+- The Hell Drop timer covers 187-195 (not FIRE), with `+0x974c` = 1.0. The empowered cast is ( spec A `+0x6c50` + 1.0 ) x 0.7.
+- `32ccf9f0`: the cases are 2 / 3 / 9 / 0x14-0x16 / 0x24, the same as March's `UAI_*` values. March's highest is 0x1d, so June's 0x24+ ids collide with nothing.
+- `32008e40`: in case 0x29, Arme's vslot `0x854` is the empty `ret` stub `31f3f070`, so the port is right to leave it out. Vslot `0x11c` is `SetForceInvincible`. The buff factors are 824 / 825 / 827.
+
+**5. `32ccb830`.**
+- The nine skill ids and the state ids 186, 217 / 218, 221 / 222, 207, 209 / 210, 187-196, 246-248 match. 218 / 222 are June's hyper copies registered under the LOOP names (`32cee46d`, `32ceebc0`), which are March's `_HYPER_LOOP` enumerators.
+- Meditation reads SA 43 (`SA_MP_REGENERATION_ABS`).
+- June reaches the first seven blocks through `31fd88f0`, which is `&m_StateList[ id ]` (insert). The port finds the state instead (`32028190`'s form). The two differ only for a state that is not registered, where June would insert an empty one. Kept.
+
+**6. Owners of the Done note's gaps.** All are real.
+- **CH1:** gap 1, `31fd7640` (the user-base test behind vslot `0x828`, with the `+0x7d04` member). Gap 6, the Future -> Now copy of `+0x7ec0` / `+0x8160`. Gap 7, NPC `+0x874c`: in `32ccdae0` it is a "skip if non-zero" gate, so CH1 identifies it while wiring vslot `0x860`. Gap 8, the dirty-state batch `3207c1a0` / `31fdf970` around `SetEquippedSkillLevel`. Also the item-type anim array choice (equip `+0x544` / `+0x584`) of gap 2.
+- **Stage 17:** the riding pet half of gap 2 (`32d2eb50`).
+- **CH2b:** gap 3, the transformed view-list queue `3207b5d0`.
+- **CH5:** gap 4, the cut-in item override `31fd8a50` (`+0x8e58`) and the event `0x8b3` swap.
+- **Stage 6:** `June_UnitFlag3c`.
+- **CH4:** gap 9.
+- **Drift -> Stage 22:** gap 5. It is the `CX2DungeonManager` (g_pData `+0x44`) per-dungeon 15-bit attribute set (`31edf8f0` -> `327d9df0`: map find, data `+0x10`, `327e6d20( bit )`). Bit 13 refuses the common skill 900 in that dungeon, for every class. Its partner is `3202d140`'s PVE test (game type 4, absent here).
+
+**7. Skill 900.** Game type 4 is June's PVE type, which March lacks; game type 2 is `GT_DUNGEON`. Both checks follow X2Unit.cpp:5170's precedent.
+
+**Hygiene.** CH1i commit, `flagcheck.py JUNE_CHAR_ARME_CORE --range 4da003e7^..4da003e7`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 31 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 31 deleted lines are CH1a / CH1b / CH1h stand-ins, as the Done note says.
+No code change, so no build. The CH1i deploy (`md5 15bef827...`) stands.
+
+Records: "From the CH1i review" notes in `CH1.md`, `CH2b.md` and `CH5.md`; a Stage 22 bullet in `JUNE_PORT_BACKLOG_ORDER.md`. No JUNE_BUGS row. **In game:** nothing (inert). Next: CH1.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
