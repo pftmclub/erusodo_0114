@@ -346,6 +346,7 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
 - **Play-test (user) is the gate.** Log tag `[JUNE_CHAR]` has no lines yet (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b.txt`
   (`KEM_ERROR`, `Motion Error`, missing texture / mesh lines).
 - **No new drift.** `Motion_Arme_Emotion_Cash25.x` is staged (file only); its behaviour is Stage 10's.
+- **Play-test PASSED (user, 2026-10-20: "nothing wrong").** ErrorLog run 05:57-06:04, after the 05:52 copy, against `ErrorLog_pre_CH0b.txt`: no `Motion Error`, no missing Aisha file that June has. The new Aisha lines are all June's own: KEM 433 / 209 (anim 76 vs mesh 75 frames on `Mesh_Arme_Event_LowBody11` / `Content_Onepiece10`, both June-byte); KEM 429 / 428 on `ARME_BASIC_FACE_02.TGA`, `..._VP.TGA.TGA`, `..._EYECLOSE3 .TGA`, `Weapon08 / 09Effect` (named inside June files, in no June kom: the `dangling` rows); KEM 381 result 47 on `flame.ogg` (same bytes as March's) and `Aisha_VP_DashJumpAttackX.ogg` (engine 3D-position call, not the file). `HQ_CutIn_Aisha_VP_1.dds.gfx` (KEM 135) is the GFx lookup of the script's `.dds` name, which June has no `.gfx` for either: the cut-in table is CH5's.
 
 ## Phase CH0c - Registration map correction
 
