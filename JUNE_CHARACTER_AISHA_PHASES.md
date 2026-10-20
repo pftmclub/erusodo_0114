@@ -681,6 +681,33 @@ The source comments were then cut to one line each (CLAUDE.md, *Rule: a code com
 No `JUNE_BUGS` row (Z3's animation-end-first order is March's too; the other oddities are June changes, not mistakes). No drift: the refund passive, the element ball and the combo windows are Aisha's class mechanics (CH4 / CH1). Checklist row 396 (UPDOWN branches in class states): Z1 carries it;
 the row is annotated when CH1 closes the combo set. **In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1c-review.md`. Next: CH1d after the review.
 
+### CH1c -- Review (2026-10-20, Opus)
+
+**Verdict: PASS, no code fix.** All 30 functions were read against June: 28 Ghidra decompiles, plus the listings of `32cbafb0` / `32ce5970` (`funcdis.py --func`). Compare directions were read
+from the `fnstsw` / `test ah` / `jp` triples where the decompile hides them (X2 EventProcess / FrameMove, `32cc2b90`). Constants are from `charport_consts.py CH1c`. Spot-checked in depth: `32cba3e0` (Z2), `32cbafb0` (X2), `32cbacd0` / `32ce5780` (X1).
+- **Cancel template.** The else-if order matches June in every EventProcess: Z1 is UPDOWN, SKILL, BWALK, WALK, DASH, Z, X, flag, window, last key. X2 / X3 are the flags, then WALK, SKILL, DASH, anim end.
+  `SKILL_CANCEL_AFTER` (AWAKE_LOCK form) is June's test set exactly: `0x7f4( 1 )` with on-ground, then black hole `322731a0`, oneLCtr, count > 0, `0x560`, time, `32070d60`, then `+0x8d4c = 1`.
+  The flag consume reads `!( t <= stateChange && !end )`; the window `start <= t < end`. Last-key times: Z1 `0.5` -> `0.2` / `0.1`, Z2 `0.6` / `0.2`, Z3 `0.65`, Z3up `0.7`, Z4up / X3front `1.4` (14 keys).
+- **Indices.** `m_fEventTime[ i ]` = `+0x8c10 + 12 i` (X2 reads `[2]` at `+0x8c28` / `2c` / `30`); `+0x8c0c` = `m_bIsTransformed` (the member before `m_fEventTime`, `X2GUUser.h:4577`); `+0x8c98` / `+0x8c9c` = Walk / Dash.
+  `+0x96f0` = `m_bCanChangeState` (X2 tail, X3 window, X3 End). `+0x96f4` = `m_fPushXChargeTime`. `+0x80c4` = `landPosition.y` (it ends at `bHit` `+0x80cc`). State and class ids are as tabled.
+- **`32ce4180`.** The name table, the type 1 -> 7 fall-through, types 5 / 6, the empty-name test and every string (the three truncated in Ghidra were read in full) match. Power is `GetPowerRate() x ( +0x9634 | +0x9640 gravity )`,
+  and with Magical Makeup it is x `32007c40( 0xf, 22040 )` behind `31fcf3e0( 22022 )` (= `IsUpgradedSkillLearned`). `CreateInstance`'s trailing arguments are all March's defaults; June's `fLifeTimeRate` slot carries `+0x95c8`.
+- **`32cc2b90`.** The roll is `rand < +0x10` (`fcompp`, `test ah, 0x41`), the amount is protected `+0x20` x the argument (`fmul [esp+0xc]`). `32ced2a3-32ced2c3`: `32007b10( 5, 0x578f )` -> `+0x10`,
+  `32007b10( 0x42, 0x578f )` -> `+0x20` (skill 22415). **One gap, routed to CH4:** June calls `32278070` (UpNowMp, then `amount + 0.005` onto the unit's MP-text queue `+0x68ac`, June's "MP +N" text),
+  not bare vslot `0xf0`. The port calls `UpNowMp`, so no MP text appears when the refund fires. This is inert until CH4 gives the object its data. The queue is the unported MP half of `3229ecc0`
+  (`JuneFrameMoveHpChangeText` names it). CH4 ports it (kickoff "From CH1c review"); funcmap row `32278070`.
+- **Constants** all match: 0.3 / 0.53 / 0.382 / 0.033 / 0.35 / 0.47 / 0.82 / 0.83 / 0.71, MP x4 (X1, X2) and x6 (X3, X4, X4 fire), X1's `100` offset, scale `x 0.5 + 1`, and the 20 / 50 / 20 offsets in X3front.
+  June's X4-fire also calls `0x204` and drops the result; it is a getter, so it is not ported.
+
+**Decisions:**
+1. **Confirmed:** `GetUnit()->GetClass()` for the class tests. June reads the class two ways: `[ unit +0xaf0 ]->[ 4 ]` (`m_pUnitTemplet->m_UnitClass`, which is exactly March's `GetClass`) and unit `+0x38` (Z2 AVP, X1 AEM, X3down ADW).
+   For the player's own unit both hold the same class. June does not NULL-test the unit; the port does, which is harmless.
+2. **Confirmed:** `m_pXSkinAnimFuture` for June's `+0x8e90 ? +0x8e84 : +0x87d0` (Luciel's second body, checklist 7o). June's direct `+0x87d0` reads are the same object.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --range 0bb5cd02^..0bb5cd02`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+No code changed in the review, so there was no build; the deployed exe is CH1c's. **In game:** nothing (inert code). Next: CH1d (`kickoffs/pilot-char-revamp/CH1d.md`).
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

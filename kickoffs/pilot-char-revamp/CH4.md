@@ -43,3 +43,9 @@ types 1 / 5 / 8), `awk -F'\t' '$5 ~ /CH4/' ch0_checklist_rows.tsv`.
 - `InitPassiveSkillState` (`32cecd70`) builds the object at `+0x96ac` (`32cf2190`, 0x2c bytes: chance at `+0x10` = skill 22415 `SA_EFFECTIVE_RATE`, the refund rate = a protected float at `+0x20` = its ability `0x42`; the 22405 values sit in the container at `+0x14`)
   and sets the combo fireball element (`+0x9630`: `32ced3dc` 0, `32ced402` 2; where it becomes 1 (ice) was not found in CH1c's scan of the class range: find it), `+0x9634` (ball power), `+0x9638`, `+0x963c` / `+0x9640` (gravity). CH1c's inert `m_pJuneMpRefund` (`JuneMpRefundData { m_fChance, m_fRate }`) and
   `m_iJuneBallElement` are the stand-ins to replace; `June_FlushMpWithRefund` (`32cc2b90`) and `June_CreateComboFireBall` (`32ce4180`) read them.
+
+## From CH1c review (2026-10-20)
+
+- **The refund's MP text.** June `32cc2b90` refunds through `32278070`, not bare UpNowMp: `UpNowMp( x )` (vslot `0xf0`), then `x + 0.005` is pushed onto the unit's MP-text queue `+0x68ac` (timer `+0x68a8`).
+  `3229ecc0` shows the queue as "MP +N" before the HP queue, and when it showed text that frame it only restarts the HP timer (see `JuneFrameMoveHpChangeText`, `X2GameUnit.cpp`, and the HP twin `322780b0`, Atlas E7).
+  When the refund object goes live, port `32278070` and the MP half of `3229ecc0` (read the display branch in Ghidra: picture and text), and switch `June_FlushMpWithRefund`'s `UpNowMp` to it. `32278070` has more than 20 callers in other classes' code, so it is an engine member of `CX2GameUnit`.

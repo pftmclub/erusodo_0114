@@ -55,3 +55,9 @@ CH1c (done, review pending) is the pattern for the combo / dash-combo states; re
 - A function Ghidra has not carved ("No function found") is read with `python june2017_re/funcdis.py --func <va>` (CH1c: `32cbafb0`, `32ce5970`).
 - The fireball helpers exist: `June_FlushMpWithRefund( fMp )` (June `32cc2b90`, every fireball MP spend) and `June_CreateComboFireBall( type, pos, rot )` (June `32ce4180`, types 0..7; type 6 is the High Magician dash combo XX, 5 the High Magician big ball).
 - State ids are shared by the job variants (see the CH1c note): write the base state's name for a shared id, and a new `ARME_VIOLEMAGE_STATE_ID` member only for a June-only id (as CH1b / CH1c did).
+
+## From CH1c review (2026-10-20)
+
+CH1c passed review with no fix. Two readings to reuse:
+- Class tests: June reads `[ unit +0xaf0 ]->[ 4 ]` or unit `+0x38`; both are `GetUnit()->GetClass()`.
+- A direct call to `32278070` is UpNowMp plus the MP-text queue, which CH4 ports. Call `UpNowMp` and add the comment `// June 32278070: MP text in CH4` so CH4 can find the call.
