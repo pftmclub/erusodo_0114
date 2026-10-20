@@ -145,6 +145,12 @@ class CX2GUArme_VioletMage : public CX2GUUser
 			AVSI_AEM_ZZX,									/// June script id 233 ( CH1e writes the state )
 			AVSI_AHM_DASH_JUMP_ZX,							/// June script id 228 ( shared by AVSI_ABM / ADM / AHM_DASH_JUMP_ZX; CH2a / CH2b write the states )
 			AVSI_AEM_DASH_JUMP_X3,							/// June script id 232 ( CH1e writes the state )
+			AVSI_AHM_DASH_JUMP_ZXX_START,					/// June script id 229
+			AVSI_AHM_DASH_JUMP_ZXX_CHARGE,					/// June script id 230
+			AVSI_AHM_DASH_JUMP_ZXX_FINISH,					/// June script id 231
+			AVSI_AEM_ZZXX_START,							/// June script id 234
+			AVSI_AEM_ZZXX_LOOP,								/// June script id 235
+			AVSI_AEM_ZZXX_END,								/// June script id 236
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -968,6 +974,63 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_DashJumpAttackX2FrameMove();							/// June 32ce69b0
 		void June_DashJumpAttackX2EventProcess();						/// June 32cbe510
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1d
+		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1e ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June High Magician / Elemental Master line states ( class map phase CH1e ); definitions at the end of X2GUArme_VioletMage.cpp.
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X2_FrameMove();							/// June 32ce5f10
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X3back_FrameMove();							/// June 32ce6060
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X3back_EventProcess();							/// June 32cbd040
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X3back_EndFuture();							/// June 32cb7450
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X3down_FrameMove();							/// June 32cdd4f0
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X3down_EventProcess();							/// June 32cc11f0
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X4down_FrameMove();							/// June 32cdd700
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X4down_EventProcess();							/// June 32cc1460
+		void June_AVSI_EM_DASH_COMBO_Z2a_FrameMove();							/// June 32cd4f20
+		void June_AVSI_EM_DASH_COMBO_Z2a_EventProcess();							/// June 32cbdd70
+		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_StartFuture();							/// June 32cc6ae0
+		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_FrameMove();							/// June 32ce6380
+		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_EventProcess();							/// June 32cbe0e0
+		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_EndFuture();							/// June 32cb74e0
+		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X2_FrameMove();							/// June 32ce6510
+		void June_AVSI_HIGH_MAGICION_DASH_ATTACK_X2_EventProcess();							/// June 32cbe200
+		void June_AVSI_AEM_ZZupZZ_FrameMove();							/// June 32cda260
+		void June_AVSI_AEM_ZZupZZ_EventProcess();							/// June 32cbf350
+		void June_AVSI_AEM_XXfrontX_Init();							/// June 32cb7d00
+		void June_AVSI_AEM_XXfrontX_FrameMove();							/// June 32cda550
+		void June_AVSI_AEM_XXfrontX_EventProcess();							/// June 32cbf410
+		void June_AVSI_AEM_XZ_Init();							/// June 32cb7d30
+		void June_AVSI_AEM_XZ_FrameMove();							/// June 32cda840
+		void June_AVSI_AEM_XZ_EventProcess();							/// June 32cbf4e0
+		void June_AVSI_AEM_XZZ_FrameMove();							/// June 32cdab20
+		void June_AVSI_AEM_XZZ_EventProcess();							/// June 32cbf620
+		void June_AVSI_AEM_XZZ_END_EventProcess();							/// June 32cbf7e0
+		void June_AVSI_AHM_DASH_JUMP_ZX_FrameMoveFuture();							/// June 32cb8b90
+		void June_AVSI_AHM_DASH_JUMP_ZX_FrameMove();							/// June 32ce1f50
+		void June_AVSI_AHM_DASH_JUMP_ZX_EventProcess();							/// June 32cc2c20
+		void June_AVSI_AHM_DASH_JUMP_ZXX_START_FrameMoveFuture();							/// June 32cb8ba0
+		void June_AVSI_AHM_DASH_JUMP_ZXX_START_FrameMove();							/// June 32cb8bb0
+		void June_AVSI_AHM_DASH_JUMP_ZXX_START_EventProcess();							/// June 32cc2d20
+		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_Start();							/// June 32ce2160
+		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_FrameMove();							/// June 32ce21e0
+		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_EventProcess();							/// June 32cc2d50
+		void June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_End();							/// June 32ce23f0
+		void June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMoveFuture();							/// June 32cb8bc0
+		void June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_EventProcess();							/// June 32cc3080
+		void June_AVSI_AEM_DASH_JUMP_X3_FrameMoveFuture();							/// June 32cb8bd0
+		void June_AVSI_AEM_DASH_JUMP_X3_EventProcess();							/// June 32cc3ea0
+		void June_AVSI_AEM_ZZX_FrameMove();							/// June 32ce2470
+		void June_AVSI_AEM_ZZX_EventProcess();							/// June 32cc30b0
+		void June_AVSI_AEM_ZZXX_START_EventProcess();							/// June 32cc34c0
+		void June_AVSI_AEM_ZZXX_LOOP_Start();							/// June 32cc37e0
+		void June_AVSI_AEM_ZZXX_LOOP_FrameMove();							/// June 32ce26b0
+		void June_AVSI_AEM_ZZXX_LOOP_EventProcess();							/// June 32cc3800
+		void June_AVSI_AEM_ZZXX_LOOP_End();							/// June 32cc3b70
+		void June_AVSI_AEM_ZZXX_END_FrameMove();							/// June 32ce28f0
+		void June_AVSI_AEM_ZZXX_END_EventProcess();							/// June 32cc3b90
+		float June_GetSpecialOptionValue( const int iIndex_ ) const;		/// June 31fd6230 ( reads m_vecJuneSpecialOptionValue )
+		std::vector<float>			m_vecJuneSpecialOptionValue;		/// June CX2GUUser +0x93a8: the state's SPECIAL_OPTION_VALUE ( CH1 parses it in CommonStateStart, 32057b80 @320608c8 )
+		float						m_fJuneZZXXLoopTime;				/// June +0x9784 ( constructor 0, 32ccb02e )
+		CX2EffectSet::Handle		m_hJuneDashJumpChargeEffect;		/// June +0x9788 ( constructor -1, 32ccb034 ): EffectSet_AHM_DashJumpAttackZXX_Loop
+		//}} Iruha : 2026-10-20 // June character pilot Phase CH1e
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

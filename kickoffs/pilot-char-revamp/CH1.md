@@ -88,3 +88,11 @@ Done notes, whose "Registration notes for CH1" were written from the old map. Wh
   CH4 fills both (the passive object, the element) and replaces `JuneMpRefundData` with the real layout.
 - **Shared state ids:** the job variants share one id (0xaa = `AVSI_COMBO_X3front` / `AVSI_AEM_XXfrontX`, 0xab = `AVSI_COMBO_X3down` / the High and Dark Magician `X3down`, 0xa8 = X2 / the High and Dark Magician X2 ...). CH1c's `StateChange` calls name the base state; the numbering decision is yours.
 - `AVSI_AEM_ZZX` (233) exists as an enum member; its state functions are CH1e's. The CH1c functions' registered states are in `ch0_state_skill.tsv` (`phase` CH1c).
+
+## From CH1e (2026-10-20)
+
+- **Constructor:** `m_fJuneZZXXLoopTime` (June `+0x9784`) = 0 (`32ccb02e`), `m_hJuneDashJumpChargeEffect` (`+0x9788`) = `INVALID_EFFECTSET_HANDLE` (`32ccb034`); the destructor does not touch them.
+- **`SPECIAL_OPTION_VALUE` reader (item 5):** June `CommonStateStart` `32057b80` clears the user float list at `+0x93a8` (`31f8b7e0( 0 )` @320608a9-320608c1), then, if the state has the key (`@320608c8`), pushes its values from index 1 on (`31fac820` per value).
+  CH1e's `June_AVSI_AEM_XZZ_FrameMove` reads it through `June_GetSpecialOptionValue( 0..5 )` over the stand-in `m_vecJuneSpecialOptionValue` (Arme class); CH1 parses the key (CX2GUUser, `CommonStateStart`) and points the getter at the user list.
+- **Enum numbering:** six June-only ids were added after `AVSI_AEM_DASH_JUMP_X3`: `AVSI_AHM_DASH_JUMP_ZXX_START / _CHARGE / _FINISH` (229 / 230 / 231), `AVSI_AEM_ZZXX_START / _LOOP / _END` (234 / 235 / 236). CH1 decides the final numbers like every other June-only id.
+- The CH1e states' registered callbacks are in `ch0_state_skill.tsv` (`phase` CH1e); the three `EventProcess` of the `ZXX` / `ZZXX` families chain several `StateChange` calls in one frame on purpose (June structure).

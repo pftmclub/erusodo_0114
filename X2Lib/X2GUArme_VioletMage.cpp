@@ -25241,5 +25241,1072 @@ void CX2GUArme_VioletMage::June_DashJumpAttackX2EventProcess()
 #undef JUNE_ARME_FLAG_DUE
 #undef JUNE_ARME_IN_WINDOW
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1d
+//{{ Iruha : 2026-10-20 // June character pilot Phase CH1e ( JUNE_CHARACTER_AISHA_PHASES.md )
+/// Inert June High Magician / Elemental Master line states ( class map phase CH1e ); nothing registers or calls them.
+#define JUNE_ARME_ANY_KEY_C \
+	( m_InputData.pureUp == true || m_InputData.pureDown == true || m_InputData.pureRight == true || m_InputData.pureLeft == true \
+	|| m_InputData.pureA == true || m_InputData.pureS == true || m_InputData.pureD == true || m_InputData.pureC == true \
+	|| m_InputData.pureQ == true || m_InputData.pureW == true || m_InputData.pureE == true || m_InputData.pureR == true )
+
+#define JUNE_ARME_ANY_KEY_ZXC \
+	( m_InputData.pureUp == true || m_InputData.pureDown == true || m_InputData.pureRight == true || m_InputData.pureLeft == true \
+	|| m_InputData.pureZ == true || m_InputData.pureX == true \
+	|| m_InputData.pureA == true || m_InputData.pureS == true || m_InputData.pureD == true || m_InputData.pureC == true \
+	|| m_InputData.pureQ == true || m_InputData.pureW == true || m_InputData.pureE == true || m_InputData.pureR == true )
+
+/// June: a set flag fires once now > stateChange or the animation ended.
+#define JUNE_ARME_FLAG_DUE( iTime_ ) \
+	( false == ( m_pXSkinAnimFuture->GetNowAnimationTime() <= m_fEventTime[iTime_].stateChange && false == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+
+/// The key window of m_fEventTime[ i ]: keyInputStart <= animation time < keyInputEnd.
+#define JUNE_ARME_IN_WINDOW( iTime_ ) \
+	( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[iTime_].keyInputEnd && m_fEventTime[iTime_].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+
+/// June's cancels in these states also test IsOnSomethingFuture(); the hyper cancel is the second half of SKILL_CANCEL_AFTER.
+#define JUNE_ARME_G_WALK_CANCEL \
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define JUNE_ARME_G_BWALK_CANCEL \
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) || ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define JUNE_ARME_G_DASH_CANCEL \
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) ) \
+	{ StateChangeDashIfPossible(); }
+
+#define JUNE_ARME_G_ZX_CANCEL \
+	else if( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.oneZ == true ) \
+	{ StateChange( GetComboZStateID() ); } \
+	else if( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.oneX == true ) \
+	{ StateChange( GetComboXStateID() ); }
+
+#define JUNE_ARME_HYPER_CANCEL( fTime_ ) \
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true && m_FrameDataFuture.syncData.m_HyperModeCount > 0 && \
+		true == CanHyperMode() && 0.f <= (fTime_) && (fTime_) < m_pXSkinAnimFuture->GetNowAnimationTime() && false == IsQuickSlotSpecialItemWaiting() ) \
+	{ m_bHyperModeStartedByInput = true; StateChange( GetHypetMpdeStateID() ); }
+
+/// June CX2GUUser +0x93a8: the state's SPECIAL_OPTION_VALUE list ( June 31fd6230, read 0 when out of range ); CH1 parses the key ( 32057b80 @320608c8 ).
+float CX2GUArme_VioletMage::June_GetSpecialOptionValue( const int iIndex_ ) const
+{
+	if( 0 <= iIndex_ && iIndex_ < static_cast<int>( m_vecJuneSpecialOptionValue.size() ) )
+		return m_vecJuneSpecialOptionValue[iIndex_];
+
+	return 0.f;
+}
+
+//AVSI_HIGH_MAGICIAN_COMBO_X2
+// June 32ce5f10
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X2_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.53f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.53f ) == true && EventCheck( 0.53f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( June_FlushMpWithRefund( 4.0f * m_fMPConsumeRateFireBall ) == true )
+		{
+			const D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			June_CreateComboFireBall( 2, posR, GetRotateDegree() );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+//AVSI_HIGH_MAGICIAN_COMBO_X3back
+// June 32ce6060
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X3back_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.34f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.34f ) == true && EventCheck( 0.34f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( June_FlushMpWithRefund( 6.0f * m_fMPConsumeRateFireBall ) == true )
+		{
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.y += 180.0f;
+			const D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			June_CreateComboFireBall( 5, posR, angle );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 180.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbd040: the animation end first, then any key after 1.4 s
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X3back_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( JUNE_ARME_ANY_KEY_ZXC && 1.4f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cb7450
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X3back_EndFuture()
+{
+	CommonStateEndFuture();
+
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+}
+
+//AVSI_HIGH_MAGICIAN_COMBO_X3down
+// June 32cdd4f0
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X3down_FrameMove()
+{
+	if( m_pComboX3Up1->GetState() == CKTDGXSkinAnim::XAS_PLAYING )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.06f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.06f ) == true && EventCheck( 0.06f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 10.0f ) == true )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ComboXXDownX", this );
+		}
+		else
+		{
+			CreateStepDust();
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc11f0: oneX after 0.6 s arms the X4down hand-off ( state 0xac )
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X3down_EventProcess()
+{
+	if( m_InputData.oneX == true && 0.6f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	if( 0.6f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+	{
+		StateChange( AVSI_COMBO_X4down );
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	JUNE_ARME_G_WALK_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_DASH_CANCEL
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_HIGH_MAGICIAN_COMBO_X4down
+// June 32cdd700
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X4down_FrameMove()
+{
+	if( m_pComboX3Up1->GetState() == CKTDGXSkinAnim::XAS_PLAYING )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.35f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.35f ) == true && EventCheck( 0.35f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 10.0f ) == true )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ComboXXDownXX", this );
+		}
+		else
+		{
+			CreateStepDust();
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc1460: any key after 0.8333 s ends the state; no skill cancel
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X4down_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( 0.8333 < m_pXSkinAnimFuture->GetNowAnimationTime() && JUNE_ARME_ANY_KEY_ZXC )
+	{
+		StateChange( USI_WAIT );
+	}
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_EM_DASH_COMBO_Z2a
+// June 32cd4f20
+void CX2GUArme_VioletMage::June_AVSI_EM_DASH_COMBO_Z2a_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.03f ) == true && EventCheck( 0.03f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01" );
+		pos.y -= 200.0f;
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMinorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"ArmeEvasion",
+			pos,
+			m_FrameDataNow.unitCondition.dirDegree,
+			m_FrameDataNow.unitCondition.dirDegree,
+			XL_EFFECT_0 );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbdd70: oneX in window 0 hands off to X3down ( state 0xab )
+void CX2GUArme_VioletMage::June_AVSI_EM_DASH_COMBO_Z2a_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_COMBO_X3down );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_HIGH_MAGICION_DASH_ATTACK_X
+// June 32cc6ae0
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_StartFuture()
+{
+	CommonStateStartFuture();
+
+	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+}
+
+// June 32ce6380
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.3f ) && EventCheck( 0.3f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( June_FlushMpWithRefund( 5.0f * m_fMPConsumeRateFireBall ) == true )
+		{
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.y += 180.0f;
+			const D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			June_CreateComboFireBall( 0, posR, angle );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 180.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbe0e0: oneX in window 0 hands off to DASH_ATTACK_X2 ( state 0xb3 )
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_DASH_ATTACK_X2 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cb74e0
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICION_DASH_ATTACK_X_EndFuture()
+{
+	CommonStateEndFuture();
+
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+}
+
+//AVSI_HIGH_MAGICION_DASH_ATTACK_X2
+// June 32ce6510
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICION_DASH_ATTACK_X2_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.27f ) == true && EventCheck( 0.27f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( June_FlushMpWithRefund( 10.0f * m_fMPConsumeRateFireBall ) == true )
+		{
+			const D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			June_CreateComboFireBall( 6, posR, GetRotateDegree() );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbe200: on the ground any key ends the state after 0.9 s, else the animation end does
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICION_DASH_ATTACK_X2_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else
+	{
+		bool bLeave;
+		if( JUNE_ARME_ANY_KEY_ZXC )
+			bLeave = ( 0.9f < m_pXSkinAnimFuture->GetNowAnimationTime() );
+		else
+			bLeave = m_pXSkinAnimFuture->IsAnimationEnd();
+
+		if( true == bLeave )
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_ZZupZZ
+// June 32cda260
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZupZZ_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.1f ) == true && EventCheck( 0.1f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 10.f ) == true )
+		{
+			CX2EffectSet::Handle hEffSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_EM_ZZupZZ", this );
+
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffSet );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			if( true == GetIsRight() )
+				pos += GetDirVector() * 100.f;
+			else
+				pos -= GetDirVector() * 100.f;
+
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbf350
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZupZZ_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() || ( 1.4f < m_pXSkinAnimFuture->GetNowAnimationTime() && JUNE_ARME_ANY_KEY_C ) )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_XXfrontX
+// June 32cb7d00
+void CX2GUArme_VioletMage::June_AVSI_AEM_XXfrontX_Init()
+{
+	XSkinMeshReadyInBackground( L"Arme_EM_Combo_X2F_Mesh01.X" );
+	TextureReadyInBackground( L"Arme_Ice_Spiner01.tga" );
+	XSkinMeshReadyInBackground( L"Arme_EM_Combo_Z4UP_Mesh01.X" );
+}
+
+// June 32cda550
+void CX2GUArme_VioletMage::June_AVSI_AEM_XXfrontX_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.3f ) == true && EventCheck( 0.3f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 10.f ) == true )
+		{
+			CX2EffectSet::Handle hEffSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_EM_XXfrontX", this );
+
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffSet );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			if( true == GetIsRight() )
+				pos += GetDirVector() * 150.f;
+			else
+				pos -= GetDirVector() * 150.f;
+
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbf410: off the ground leaves, else any key after 1.33 s
+void CX2GUArme_VioletMage::June_AVSI_AEM_XXfrontX_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( 1.33f < m_pXSkinAnimFuture->GetNowAnimationTime() && JUNE_ARME_ANY_KEY_C )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_XZ
+// June 32cb7d30
+void CX2GUArme_VioletMage::June_AVSI_AEM_XZ_Init()
+{
+	XSkinMeshReadyInBackground( L"Arme_EM_Combo_XZZ_Mesh01.X" );
+	XSkinMeshReadyInBackground( L"Wind_Liner03.X" );
+	TextureReadyInBackground( L"Arme_Lightning01.tga" );
+}
+
+// June 32cda840
+void CX2GUArme_VioletMage::June_AVSI_AEM_XZ_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.3f ) == true && EventCheck( 0.3f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 3.f ) == true )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_Elemental_Master_XZ", this );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			if( true == GetIsRight() )
+				pos += GetDirVector() * 120.f;
+			else
+				pos -= GetDirVector() * 120.f;
+			pos.y += 40.f;
+
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbf4e0: oneX in window 0 hands off to XZZ ( state 0xc7 )
+void CX2GUArme_VioletMage::June_AVSI_AEM_XZ_EventProcess()
+{
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
+
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_AEM_XZZ );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_XZZ
+// June 32cdab20: the six hit times are the state's SPECIAL_OPTION_VALUE[ 0..5 ]
+void CX2GUArme_VioletMage::June_AVSI_AEM_XZZ_FrameMove()
+{
+	const float fTime0 = June_GetSpecialOptionValue( 0 );
+	const float fTime1 = June_GetSpecialOptionValue( 1 );
+	const float fTime2 = June_GetSpecialOptionValue( 2 );
+	const float fTime3 = June_GetSpecialOptionValue( 3 );
+	const float fTime4 = June_GetSpecialOptionValue( 4 );
+	const float fTime5 = June_GetSpecialOptionValue( 5 );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( fTime0 ) == true || m_pXSkinAnim->EventTimerOneshot( fTime1 ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( fTime2 ) == true || m_pXSkinAnim->EventTimerOneshot( fTime3 ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( fTime4 ) == true || m_pXSkinAnim->EventTimerOneshot( fTime5 ) == true )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( ( m_pXSkinAnim->EventTimer( fTime0 ) == true && EventCheck( fTime0, false ) == true ) ||
+		( m_pXSkinAnim->EventTimer( fTime1 ) == true && EventCheck( fTime1, false ) == true ) ||
+		( m_pXSkinAnim->EventTimer( fTime2 ) == true && EventCheck( fTime2, false ) == true ) ||
+		( m_pXSkinAnim->EventTimer( fTime3 ) == true && EventCheck( fTime3, false ) == true ) ||
+		( m_pXSkinAnim->EventTimer( fTime4 ) == true && EventCheck( fTime4, false ) == true ) ||
+		( m_pXSkinAnim->EventTimer( fTime5 ) == true && EventCheck( fTime5, false ) == true ) )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 3.f ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_ELEMENTAL_MASTER_XXZ_INVISIBLE_ATTACKBOX", GetPowerRate(), GetPos(), GetRotateDegree(), GetRotateDegree(), GetLandPos().y );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			if( true == GetIsRight() )
+				pos += GetDirVector() * 100.f;
+			else
+				pos -= GetDirVector() * 100.f;
+
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbf620: the animation end, or keyInputStart of window 0 with Z released, ends in XZZ_END ( state 0xd8 )
+void CX2GUArme_VioletMage::June_AVSI_AEM_XZZ_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() ||
+		( m_fEventTime[0].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() && false == m_InputData.pureZ ) )
+	{
+		StateChange( AVSI_AEM_XZZ_END );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_XZZ_END
+// June 32cbf7e0
+void CX2GUArme_VioletMage::June_AVSI_AEM_XZZ_END_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+		StateChange( USI_JUMP_LANDING );
+	else
+		StateChange( USI_WAIT );
+
+	CommonEventProcess();
+}
+
+//AVSI_AHM_DASH_JUMP_ZX ( June-only )
+// June 32cb8b90: bare jump to CommonFrameMoveFuture
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZX_FrameMoveFuture()
+{
+	CommonFrameMoveFuture();
+}
+
+// June 32ce1f50
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZX_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.27f ) == true && EventCheck( 0.27f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 5.0f ) == true )
+		{
+			if( NULL != g_pX2Game->GetEffectSet() )
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AHM_DashJumpAttackZX", this );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, -30.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc2c20: landing, else oneX in window 0 hands off to ZXX_START ( state 0xe5 )
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZX_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_AHM_DASH_JUMP_ZXX_START );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AHM_DASH_JUMP_ZXX_START ( June-only )
+// June 32cb8ba0: bare jump to CommonFrameMoveFuture
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_START_FrameMoveFuture()
+{
+	CommonFrameMoveFuture();
+}
+
+// June 32cb8bb0: bare jump to CommonFrameMove
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_START_FrameMove()
+{
+	CommonFrameMove();
+}
+
+// June 32cc2d20: the animation end goes to ZXX_CHARGE ( state 0xe6 )
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_START_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( AVSI_AHM_DASH_JUMP_ZXX_CHARGE );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AHM_DASH_JUMP_ZXX_CHARGE ( June-only )
+// June 32ce2160
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_Start()
+{
+	CommonStateStart();
+
+	m_fPushXChargeTime = 0.f;
+#ifdef NO_DETONATION
+	SetNoDetonation( true );
+#endif NO_DETONATION
+
+	if( NULL != g_pX2Game->GetEffectSet() )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hJuneDashJumpChargeEffect );
+}
+
+// June 32ce21e0
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.01f ) == true && EventCheck( 0.01f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 5.0f ) == true )
+		{
+			if( NULL != g_pX2Game->GetEffectSet() && INVALID_EFFECTSET_HANDLE == m_hJuneDashJumpChargeEffect )
+				m_hJuneDashJumpChargeEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AHM_DashJumpAttackZXX_Loop", this );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, -30.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc2d50: SetNoDetonation( true ) every frame; keyInputStart of window 0 with X released ( or keyInputEnd ) ends in ZXX_FINISH ( state 0xe7 )
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_EventProcess()
+{
+#ifdef NO_DETONATION
+	SetNoDetonation( true );
+#endif NO_DETONATION
+
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	else if( m_fEventTime[0].keyInputStart <= m_FrameDataFuture.unitCondition.fStateTime &&
+		( false == m_InputData.pureX || m_fEventTime[0].keyInputEnd <= m_FrameDataFuture.unitCondition.fStateTime ) )
+	{
+		StateChange( AVSI_AHM_DASH_JUMP_ZXX_FINISH );
+	}
+	JUNE_ARME_HYPER_CANCEL( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ce23f0
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_CHARGE_End()
+{
+	CommonStateEnd();
+
+#ifdef NO_DETONATION
+	SetNoDetonation( false );
+#endif NO_DETONATION
+
+	if( NULL != g_pX2Game->GetEffectSet() )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hJuneDashJumpChargeEffect );
+}
+
+//AVSI_AHM_DASH_JUMP_ZXX_FINISH ( June-only )
+// June 32cb8bc0: bare jump to CommonFrameMoveFuture
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMoveFuture()
+{
+	CommonFrameMoveFuture();
+}
+
+// June 32cc3080
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_DASH_JUMP_X3 ( June-only )
+// June 32cb8bd0: bare jump to CommonFrameMoveFuture
+void CX2GUArme_VioletMage::June_AVSI_AEM_DASH_JUMP_X3_FrameMoveFuture()
+{
+	CommonFrameMoveFuture();
+}
+
+// June 32cc3ea0
+void CX2GUArme_VioletMage::June_AVSI_AEM_DASH_JUMP_X3_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_ZZX ( June-only )
+// June 32ce2470
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZX_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.3f ) == true && EventCheck( 0.3f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 4.0f ) == true )
+		{
+			if( NULL != g_pX2Game->GetEffectSet() )
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AHM_ComboZZX", this );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc30b0: oneX in window 0 hands off to ZZXX_START ( state 0xea ), then the cancels
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZX_EventProcess()
+{
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
+
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_AEM_ZZXX_START );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_ZZXX_START ( June-only )
+// June 32cc34c0: the animation end resets the loop timer and goes to ZZXX_LOOP ( state 0xeb )
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_START_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_fJuneZZXXLoopTime = 0.f;
+		StateChange( AVSI_AEM_ZZXX_LOOP );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+//AVSI_AEM_ZZXX_LOOP ( June-only )
+// June 32cc37e0
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_LOOP_Start()
+{
+	CommonStateStart();
+
+#ifdef NO_DETONATION
+	SetNoDetonation( true );
+#endif NO_DETONATION
+}
+
+// June 32ce26b0: CommonFrameMove first; m_fJuneZZXXLoopTime counts the seconds in the loop
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_LOOP_FrameMove()
+{
+	CommonFrameMove();
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.1f ) == true && EventCheck( 0.1f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 4.0f ) == true )
+		{
+			if( NULL != g_pX2Game->GetEffectSet() )
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AHM_ComboZZXX_Loop", this );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	m_fJuneZZXXLoopTime += m_fElapsedTime;
+}
+
+// June 32cc3800: three plain ifs ( no else ) then the cancels; the loop ends in ZZXX_END ( state 0xec ) once X is released past keyInputStart or past keyInputEnd
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_LOOP_EventProcess()
+{
+	if( m_fEventTime[0].keyInputStart < m_fJuneZZXXLoopTime && false == m_InputData.pureX )
+	{
+		StateChange( AVSI_AEM_ZZXX_END );
+	}
+	if( m_fEventTime[0].keyInputEnd < m_fJuneZZXXLoopTime )
+	{
+		StateChange( AVSI_AEM_ZZXX_END );
+	}
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( AVSI_AEM_ZZXX_LOOP );
+	}
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32cc3b70
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_LOOP_End()
+{
+	CommonStateEnd();
+
+#ifdef NO_DETONATION
+	SetNoDetonation( false );
+#endif NO_DETONATION
+}
+
+//AVSI_AEM_ZZXX_END ( June-only )
+// June 32ce28f0: CommonFrameMove first
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_END_FrameMove()
+{
+	CommonFrameMove();
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.01f ) == true && EventCheck( 0.01f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 4.0f ) == true )
+		{
+			if( NULL != g_pX2Game->GetEffectSet() )
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AHM_ComboZZXX_Last", this );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+}
+
+// June 32cc3b90: off the ground lands ( state 0x12 )
+void CX2GUArme_VioletMage::June_AVSI_AEM_ZZXX_END_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+#undef JUNE_ARME_ANY_KEY_C
+#undef JUNE_ARME_ANY_KEY_ZXC
+#undef JUNE_ARME_FLAG_DUE
+#undef JUNE_ARME_IN_WINDOW
+#undef JUNE_ARME_G_WALK_CANCEL
+#undef JUNE_ARME_G_BWALK_CANCEL
+#undef JUNE_ARME_G_DASH_CANCEL
+#undef JUNE_ARME_G_ZX_CANCEL
+#undef JUNE_ARME_HYPER_CANCEL
+//}} Iruha : 2026-10-20 // June character pilot Phase CH1e
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

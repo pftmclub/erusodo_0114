@@ -46,3 +46,9 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
 CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
 - in: 32cb7400, 32cb7d60, 32cbc930 from CH1d; 32cb7db0, 32cb8be0, 32cc6a30 from CH1e; 32cb7de0 / 32ce6b30 (`AVP_DASH_JUMP_X` Init / FrameMove, shared with ABM) from CH1g; 32cbfaa0 (`AVP_DASH_JUMP_X` EventProcess) from CH1h
 - out: 32cbe510 to CH1d
+
+## From CH1e (2026-10-20)
+
+- Copy CH1e's block shape: its macros `JUNE_ARME_ANY_KEY_C` / `_ZXC`, `JUNE_ARME_FLAG_DUE`, `JUNE_ARME_IN_WINDOW` plus the ground cancels `JUNE_ARME_G_WALK_CANCEL` / `_BWALK_` / `_DASH_` / `_ZX_CANCEL` and `JUNE_ARME_HYPER_CANCEL( t )` (the second half of `SKILL_CANCEL_AFTER`), all `#undef`d at the end of the block; the cancels carry June's `IsOnSomethingFuture()` test.
+- `June_AVSI_AEM_XXfrontX_FrameMove` and the other CH1e `FrameMove`s show the two fireball / effect-set patterns ( `June_FlushMpWithRefund` + `June_CreateComboFireBall( type, pos, rot )`; `FlushMp` + `PlayEffectSet` ), and `GetWeaponBonePos( 0, L"TRACE_START0", 0 )` for the failure position of the dash-jump states.
+- The `SPECIAL_OPTION_VALUE` list (June user `+0x93a8`, accessor `31fd6230`) is a stand-in: `June_GetSpecialOptionValue( i )` over `m_vecJuneSpecialOptionValue`. Use it if a CH1f function reads `31fd6230`; do not add another.

@@ -774,6 +774,40 @@ Review edits, `--worktree` over the 5 code files: `files: 5 PASS, ... 0 FAIL, 0 
 Build: `DEPLOY OK: X2_offline.exe is 25,555,968 B, dated 2026-10-20 10:37:25, md5 4a9e6e97aca08838eb4f83cef7b6bbc9, equal to X2/US_SERVICE/x2.exe (2026-10-20 10:37:18); built at main 699c3f84 + 5 uncommitted code file(s).`
 No drift: every branch is Aisha's class core or an engine callee it needs. **In game:** nothing (inert). Next: CH1e (`kickoffs/pilot-char-revamp/CH1e.md`, note "From CH1d review").
 
+### CH1e - Done (2026-10-20, Sonnet 5.5)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`, the commit "Character pilot Phase CH1e". **All 50 class-map rows of phase CH1e are new `CX2GUArme_VioletMage::June_AVSI_<state>_<Slot>` members** (declared after CH1d's in the header,
+bodies in a fifth block at the end of the `.cpp`, each with its June address), six enum members after `AVSI_AEM_DASH_JUMP_X3` (June ids 229 / 230 / 231 `AVSI_AHM_DASH_JUMP_ZXX_START / _CHARGE / _FINISH`, 234 / 235 / 236 `AVSI_AEM_ZZXX_START / _LOOP / _END`)
+and three stand-in members. Nothing registers or calls them. 52 funcmap rows `Char CH1e` (50 functions + `31fd6230`, `32272f50`). Addresses are in the source comments and `funcmap.tsv`; the groups:
+- **High Magician combos / dash attacks:** X2, X3back (FrameMove / EventProcess / EndFuture), X3down, X4down, DASH_ATTACK_X (StartFuture / FrameMove / EventProcess / EndFuture), DASH_ATTACK_X2, EM_DASH_COMBO_Z2a.
+- **Elemental Master combos:** ZZupZZ, XXfrontX, XZ, XZZ, XZZ_END.
+- **June-only states:** AHM_DASH_JUMP_ZX / ZXX_START / ZXX_CHARGE / ZXX_FINISH (12 functions), AEM_DASH_JUMP_X3 (2), AEM_ZZX / ZZXX_START / ZZXX_LOOP / ZZXX_END (9).
+
+**Same as March** (body copied, checked against the listing): the two `Init`s, the ZZupZZ / XXfrontX / XZ / X3down / X4down / Z2a `FrameMove`s, both `EndFuture`s, and `32cc6ae0` (= CH1d's `32cc6a50`).
+**What differs from March:**
+- **Fireballs.** The X2 / X3back / DASH_ATTACK_X / X2 `FrameMove`s spend `4 / 6 / 5 / 10 x m_fMPConsumeRateFireBall` through `June_FlushMpWithRefund` and create types 2 / 5 / 0 / 6 through `June_CreateComboFireBall` (March: flat `FlushMp` and fixed names). Failure args `( 0, 180, 0 )` for X3back and DASH_ATTACK_X, `( 0, 0, 0 )` for X2 and DASH_ATTACK_X2.
+- **Cancels.** Every June `EventProcess` here is the data-driven template (`m_fEventTime[ 0 ]` window + flag 0, `m_fSkillCancelAfter` / `BWalk` / `Walk` / `Dash` / `AttackCancelAfterEx`) and the walk / bwalk / dash / ZX cancels also test `IsOnSomethingFuture()`; March used fixed times.
+  X3back ends on the animation end first, then any ZXC key after 1.4 s (March's leading off-the-ground branch is gone). X4down uses 0.8333 and the ZXC key set. DASH_ATTACK_X2 leaves on 0.9 s with a key, else on the animation end.
+- **XZ / XZZ.** XZ -> XZZ is the window + flag (March: `ELSE_IF_STATE_CHANGE_ON_ 0.89`); XZZ ends when Z is released past `keyInputStart` (March: a skill cancel).
+- **XZZ `FrameMove` (`32cdab20`).** Six `EventTimerOneshot` times from the state's `SPECIAL_OPTION_VALUE[ 0..5 ]` (March: 0.333 / 1.133 / 1.933).
+- **ZXX family.** `CHARGE` writes `+0x6890` (`SetNoDetonation`) every frame and has no SpecialAttack half in its skill cancel; it owns the effect handle `+0x9788`.
+- **ZZXX family.** `LOOP`'s `EventProcess` is three plain `if`s (end of the loop, end of the animation = `StateChange` to itself, off the ground), not an else chain; `LOOP` / `END` `FrameMove` call `CommonFrameMove` first; `+0x9784` counts the loop seconds.
+- ZZX `EventProcess` JUMP_DOWN has no `y` shift; Z2a's alpha tag (checklist 7c) is in `June_AVSI_EM_DASH_COMBO_Z2a_FrameMove`.
+
+**Stand-ins (June layout owned by CH1; inert until then):**
+1. `m_vecJuneSpecialOptionValue` + `June_GetSpecialOptionValue( i )` (June `31fd6230`: bounds-checked read of a float list at **user `+0x93a8`**, 0 out of range). The list is cleared (`31f8b7e0( 0 )` @320608a9) and filled by `CommonStateStart` `32057b80 @320608c8`
+   from the state key `SPECIAL_OPTION_VALUE` (xorstr `0x33478eb4`; values from index 1 on, each pushed by `31fac820`). `ch0_keys.tsv` / CH1 item 5 already own the key; CH1 moves the list to `CX2GUUser` and parses it. Until then all six XZZ times read 0.
+2. `m_fJuneZZXXLoopTime` (`+0x9784`) and `m_hJuneDashJumpChargeEffect` (`+0x9788`): the constructor sets them (`32ccb02e` 0, `32ccb034` -1); CH1 initialises them like CH1a's `m_hJuneMemoRiseLoop`.
+- No unmapped engine callee remains (`32272f50` is `GetWeaponBonePos( 0, name, 0 )`, `321dafb0` `StopEffectSet( Handle& )`, `31d28e10` / `31e4c230` the anim `EventTimer` / `EventTimerOneshot`).
+- `0.8333` and `0.9` read as qwords ( `0.8333`, `(double)0.9f` ); every constant is in `charport_consts.py CH1e`.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl /Zs` of the class file under the US_SERVICE defines: 0 errors.
+Build: `DEPLOY OK: X2_offline.exe is 25,575,936 B, dated 2026-10-20 11:11:20, md5 009aac7fe8bd35a886752d776fc67dec, equal to X2/US_SERVICE/x2.exe (2026-10-20 11:11:12); built at main 36bc1d22 + 2 uncommitted code file(s).`
+
+No `JUNE_BUGS` row (the self-transition of `ZZXX_LOOP` and the per-frame `+0x6890` write are June structure, not mistakes). **Drift:** none. Checklist rows: 7c (Z2a tag) lands here; the 7ac row that `ch0_checklist_rows.tsv` assigns to CH1e (`32021390`, called from `32cb8bf0`) is **CH1g's** since CH0c moved `32cb8bf0`. None of the 50 functions multiplies `m_fNowStatePowerRate` or passes a BFI.
+**In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1e-review.md`. Next: CH1f after the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
