@@ -869,6 +869,37 @@ Build: `DEPLOY OK: X2_offline.exe is 25,590,784 B, dated 2026-10-20 19:57:25, md
 No `JUNE_BUGS` row (no June bug found). No drift. Checklist rows: 7c (Z2a tag) lands here; none of the 31 functions multiplies `m_fNowStatePowerRate` or passes a BFI.
 **In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1f-review.md`. Next: CH1g after the review.
 
+### CH1f -- Review (2026-10-20, Opus)
+
+**Verdict: PASS, no code fix.** All 31 functions were read against `funcdis.py` listings of the whole function. Spot-checked in Ghidra against the listings: `32cc3ed0`, `32cbf810` and `32ce1950`, which agree.
+- **`32cbd120` (X2 EventProcess).**
+  - `32cbd152-32cbd21d` is the `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK` `SKILL_CANCEL_AFTER( 0.01 )` expansion. The skill half is `0.01 < t`, ground, then vslot `0x7f4`. The awakening half is `322731a0`, oneLCtr, count > 0, slot `0x560`, `32070d60`, `+0x8d4c`, then slot `0x6b8`.
+  - The windows are `+0x8c10 + 12 i`, the flags `+0x7d85..88`, the states `0xab` / `0xaa` / `0xad` / `0xa9`.
+  - The keys are pureDown, forward and back as kicked off; the window tests are `start <= t < end` and the flag tests `t > stateChange || end`.
+  - The 12-key tail is `0.966` (qword) with `!ground` -> `JUMP_DOWN` -45, else `WAIT`. The animation end comes only when no key is down.
+  - `+0x96f0` is set from flag 3 on every path, including the first `JUMP_DOWN`.
+- **Fireballs.**
+  - Calls: X2 is `32cc2b90( 7 x +0x95bc )` with `FIREBALL_SHORT`, range `+0x95c8`. X3back and ZXX (byte-identical listings) are flat 6 with `DARK_SHOCK_BALL`, range 1. ZZupZZ is flat 6 with `DARK_SHOCK_BALL_AIR` at `+-87 x GetDirVector()` (slots `0x170` / `0x16c`), range 1.
+  - Arguments: `CreateInstance( this, name, slot 0x204, pos, rot, rot, +0x80c4, 0, -1, 1, range, -1, -1, 0, -1, 0, 0 )`. Failures are `(0, 0, 0)`.
+- **`32ce6b30` / `32ce2b20`.**
+  - The class test reads `[[this+0x867c]+0xaf0]+4` (`0x17` / `0x71` = BM 23 / ADW 113); `+0x8c0c` is `m_bIsTransformed`.
+  - Non-transformed is `32ce4180( &0, &pos, &angle )` with `z = -30`. Other classes always get `AISHA_GRAVITY_BALL` (June drops March's ice-ball / research test).
+  - ADM ZX is `FlushMp( 5 )`, `GetWeaponBonePos( 0, TRACE_START0, 0 )`, `z = -30`, failure `(0, 0, -30)`.
+  - **`+0x9640` = `m_fGravityBallPower`, confirmed by its writer.** `32ced341-32ced39b` (passive init) is March's Gravity Ball Research block (`X2GUArme_VioletMage.cpp:2818-2830`): skill `0x5784`, `+0x9640 = 1`, `+0x963c` (`m_bResearchGravityBall`) `= 0/1`, `*= GetSkillAbilityValue( 6 = SA_ATK_REL )`.
+  - **Accepted deviation:** June null-checks the templet and not the unit; the port null-checks `GetUnit()` and reads `GetClass()`. That only differs when a `CX2GUUser` has no unit or templet.
+- **`32cdfb70`.**
+  - `GetSkillTemplet( 0x56c9, 1 )` on `[g_pData+0x50]`. A NULL unit jumps past `CommonFrameMove` (`32cdffe0`).
+  - The level is `max( 1, 32890620( id, 0, 0, 1 ) )` and the lifetime `32206e50( 1, lv, 0, 0.0 )`.
+  - Both `PlayEffectSet` calls carry March's defaults plus the trailing `1.0`, which is `321e1e60`'s own default (funcmap). The inlined Z vector matches `CX2GameUnit::GetZVector`.
+- **`32cc3ed0`.** Landing `0x16` leads; the skill half is dead after it (the compiler dropped it, leaving one dangling `fcomp`). Walk `+0x8c98`, bwalk `+0x8c94`, dash `+0x8c9c` and ZX `+0x8c88` each require `+0x7e1c` (Ghidra agrees).
+- **`32cbf810` / `32cbf9a0`.** The direction change clears flag 0; then end, air (`0x11`, no y shift), flag (`> 0.8` or end) -> `0xc9`, arm (`< 0.8`, oneZ), `> 0.94` 12-key. ZZfrontZZ is end or (`> 1.65` and 12 keys), then air `0xca` / `WAIT`.
+- **Rest.** X3down (`< 0.85` arm, `> 0.85` -> `0xac`, then plain ifs), X4down = X3back (byte-identical; 14 keys incl. pureZ / pureX `+0x86ea` / `+0x86ee`), Z2a (end leads, `0xb1` = the `AVSI_DASH_COMBO_Z3up` slot), ZZupZZ `FrameMoveFuture` (`+0x304` / `+0x308`), the small Start / EventProcess bodies, and every Init (names and counts, 23 + 6 for Abyss Angor) match June.
+- **Constants, strings, state ids.** All `charport_consts.py CH1f` rows match. The names `FIREBALL_SHORT` / `DARK_SHOCK_BALL(_AIR)` / `DamageEffect_ADM_DashJumpZX` / `AISHA_GRAVITY_BALL` / `ARME_ACTIVE_MAGIC_BALL2` / `TRACE_START0` / both effect sets are read from June. The ids `0xa9`..`0xad`, `0xb1` and `0xc9` / `0xca` fit `ch0c_reg.tsv`.
+
+**Hygiene.** CH1f commit, `flagcheck.py JUNE_CHAR_ARME_CORE --range 74c6bee4^..74c6bee4`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+No code change, so no build. The CH1f deploy (`X2_offline.exe` md5 `2c9d7125...`, 19:57:25) stands. No drift. **In game:** nothing (inert). Next: CH1g (`kickoffs/pilot-char-revamp/CH1g.md`; still matches, plus a From-CH1f-review note).
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

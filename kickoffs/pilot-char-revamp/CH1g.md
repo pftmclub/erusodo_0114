@@ -46,3 +46,8 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
 CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
 - in: 32cb8bf0 from CH1e; 32cb8d10, 32cc73e0 from CH1d; 32cc0390 (`ABM_COMBO_Z4` EventProcess; also called by 32cede00) from CH1
 - out: 32cb7de0, 32ce6b30 to CH1f
+
+## From CH1f review (2026-10-20)
+
+- The `JUNE_ARME_*` key / window / cancel macros are `#undef`'d at the end of CH1f's block; define what you need in your own block.
+- June's BM / ADW test reads `[[this+0x867c]+0xaf0]+4` (`0x17` / `0x71`) and treats a NULL templet as "not BM"; CH1f ported it as `GetUnit()->GetClass()`.
