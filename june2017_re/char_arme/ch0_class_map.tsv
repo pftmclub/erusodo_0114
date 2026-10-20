@@ -346,7 +346,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32cc9160	state-fn	AVSI_TELEPORT_STAND_UP_START.Start AVSI_TELEPORT_STAND_UP_START_UPGRADE.Start	-	june-only	CH1b	
 32cc91b0	helper	called by 32cc91b0 32cddec0	-	-	CH4	
 32cc95b0	state-fn	AVSI_SI_SA_ABM_MAGICAL_MAKEUP.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove	pair	CH2b	
-32cc9680	helper	called only from outside the class (or from an unmapped caller): 32cc98c9	-	-	CH1h	
+32cc9680	helper	called only from outside the class (or from an unmapped caller): 32cc98c9	-	-	CH1i	CH1h: caller or container owner is a CH1i function (32cc98b0, 32ce7480, 32ce15a0 / MemoRise container)
 32cc98b0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GUArme_VioletMage.h:1456 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	pair	CH1i	name: CONF
 32cc98e0	helper	called only from outside the class (or from an unmapped caller): 3230c59a	-	-	CH1h	
 32cc9950	override 0x644	UpdateEquipViewListInfo	-	june-only (base virtual exists in March)	CH1i	name: HINT
@@ -358,15 +358,15 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32ccc130	state-fn	AVSI_TELEPORT_START_UPGRADE.FrameMoveFuture	-	june-only	CH2a	
 32ccc5a0	state-fn	AVSI_TELEPORT_STAND_UP_START.FrameMoveFuture AVSI_TELEPORT_STAND_UP_START_UPGRADE.FrameMoveFuture	-	june-only	CH1b	
 32ccc990	state-fn	AVSI_SA_AHM_METEOSHOWER.Start AVSI_SA_AHM_METEOSHOWER.Start AVSI_SA_AHM_METEOSHOWER_HYPER.Start AVSI_SA_AHM_METEOSHOWER_HYPER.Start +4	CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_LOOP_StateStart / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_StateStart	pair	CH2a	
-32cccb40	helper	called only from outside the class (or from an unmapped caller): 32cf2600	-	-	CH1h	
+32cccb40	helper	called only from outside the class (or from an unmapped caller): 32cf2600	-	-	CH2a	CH1h review: skill-state callback of Meteo Shower / Fire Road (registered in 32cede00), routed by CH1h
 32cccc20	state-fn	AVSI_SI_SA_ABM_HEAVY_PRESS.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_HEAVY_PRESS_FrameMove	pair	CH2b	
 32cccc70	override 0x2b8	SetDamageExceptionProcess	X2GUArme_VioletMage.h:525 virtual void SetDamageExceptionProcess( DamageData*, OUT float& fPowerRate );	pair	CH4	passive blocks keyed on RNSI_* (checklist 7b, D8 Fitness -> Magical Staff); name: CONF
 32ccce90	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32cccfe0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32ccd0b0	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32ccd170	state-fn	AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.Start AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.Start AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.Start AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.Start +2	CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_Loop_StateStart / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_StateStart	pair	CH3a	
-32ccd320	helper	called only from outside the class (or from an unmapped caller): 32cf2620	-	-	CH1h	
-32ccd400	helper	called only from outside the class (or from an unmapped caller): 32cf2630	-	-	CH1h	
+32ccd320	helper	called only from outside the class (or from an unmapped caller): 32cf2620	-	-	CH3a	CH1h: Lightning Shower / Circle Flame / Hell Drop skill-state callback or helper (32cede00 registration), routed by CH1h
+32ccd400	helper	called only from outside the class (or from an unmapped caller): 32cf2630	-	-	CH3a	CH1h: Lightning Shower / Circle Flame / Hell Drop skill-state callback or helper (32cede00 registration), routed by CH1h
 32ccd4a0	helper	called by 32ccda40 32ccda90 32ce12c0	-	-	CH1b	
 32ccda40	override 0x608	?	-	unnamed	CH1i	name: -
 32ccda90	override 0x604	?	-	unnamed	CH1i	name: -
@@ -425,8 +425,8 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32cd6e50	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32cd7160	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32cd7470	state-fn	AVSI_SI_A_AV_CIRCLE_FLAME_READY.FrameMove AVSI_SI_A_AV_CIRCLE_FLAME.FrameMove	CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_READY_FrameMove	pair	CH3a	
-32cd75f0	helper	called only from outside the class (or from an unmapped caller): 32cf2b60	-	-	CH1h	
-32cd7800	helper	called only from outside the class (or from an unmapped caller): 32cf2b70	-	-	CH1h	
+32cd75f0	helper	called only from outside the class (or from an unmapped caller): 32cf2b60	-	-	CH3a	CH1h: Lightning Shower / Circle Flame / Hell Drop skill-state callback or helper (32cede00 registration), routed by CH1h
+32cd7800	helper	called only from outside the class (or from an unmapped caller): 32cf2b70	-	-	CH3a	CH1h: Lightning Shower / Circle Flame / Hell Drop skill-state callback or helper (32cede00 registration), routed by CH1h
 32cd78b0	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.FrameMove AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove	pair	CH2a	
 32cd7a50	state-fn	AVSI_SA_AHM_BLIZZARDSHOWER.FrameMove AVSI_SA_AHM_BLIZZARDSHOWER_HYPER.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove	pair	CH2a	
 32cd7bf0	state-fn	AVSI_SA_ADM_DEATHFIELD.FrameMove AVSI_SA_ADM_DEATHFIELD.FrameMove	CX2GUArme_VioletMage::AVSI_SA_ADM_DEATHFIELD_FrameMove	pair	CH2b	
@@ -438,20 +438,20 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32cd8ea0	state-fn	AVSI_A_AVP_SUMMON_BAT.FrameMove AVSI_A_AVP_SUMMON_BAT.FrameMove	CX2GUArme_VioletMage::AVSI_A_AVP_SUMMON_BAT_FrameMove	pair	CH3a	
 32cd9340	state-fn	AVSI_SA_AEM_CYCLONE.FrameMove AVSI_SA_AEM_CYCLONE.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AEM_CYCLONE_FrameMove	pair	CH3a	
 32cd95d0	state-fn	AVSI_SA_AVP_HELL_DROP.FrameMove AVSI_SA_AVP_HELL_DROP.FrameMove AVSI_HELL_DROP_CONTROL_IDLE.FrameMove AVSI_HELL_DROP_CONTROL_IDLE.FrameMove +20	CX2GUArme_VioletMage::AVSI_HELL_DROP_CONTROL_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AVP_HELL_DROP_FrameMove	pair	CH3a	
-32cd9af0	helper	called only from outside the class (or from an unmapped caller): 32cf2ad0	-	-	CH1h	
+32cd9af0	helper	called only from outside the class (or from an unmapped caller): 32cf2ad0	-	-	CH3a	CH1h: Lightning Shower / Circle Flame / Hell Drop skill-state callback or helper (32cede00 registration), routed by CH1h
 32cda260	state-fn	AVSI_AEM_ZZupZZ.FrameMove	CX2GUArme_VioletMage::AVSI_AEM_ZZupZZ_FrameMove	pair	CH1e	
 32cda550	state-fn	AVSI_AEM_XXfrontX.FrameMove	CX2GUArme_VioletMage::AVSI_AEM_XXfrontX_FrameMove	pair	CH1e	
 32cda840	state-fn	AVSI_AEM_XZ.FrameMove	CX2GUArme_VioletMage::AVSI_AEM_XZ_FrameMove	pair	CH1e	
 32cdab20	state-fn	AVSI_AEM_XZZ.FrameMove	CX2GUArme_VioletMage::AVSI_AEM_XZZ_FrameMove	pair	CH1e	
 32cdae90	state-fn	AVSI_SA_AHM_METEOSHOWER.FrameMove AVSI_SA_AHM_METEOSHOWER.FrameMove AVSI_SA_AHM_METEOSHOWER_HYPER.FrameMove AVSI_SA_AHM_METEOSHOWER_HYPER.FrameMove +4	CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_METEOSHOWER_LOOP_FrameMove	pair	CH2a	
-32cdb5e0	helper	called only from outside the class (or from an unmapped caller): 32cf29f0	-	-	CH1h	
-32cdbb70	helper	called only from outside the class (or from an unmapped caller): 32cf2a00	-	-	CH1h	
+32cdb5e0	helper	called only from outside the class (or from an unmapped caller): 32cf29f0	-	-	CH2a	CH1h review: skill-state callback of Meteo Shower / Fire Road (registered in 32cede00), routed by CH1h
+32cdbb70	helper	called only from outside the class (or from an unmapped caller): 32cf2a00	-	-	CH2a	CH1h review: skill-state callback of Meteo Shower / Fire Road (registered in 32cede00), routed by CH1h
 32cdbd00	helper	called by 32cddec0	-	-	CH4	
 32cdc0f0	state-fn	AVSI_ABM_DASH_COMBO_Z2a.FrameMove	CX2GUArme_VioletMage::AVSI_ABM_DASH_COMBO_Z2a_FrameMove	pair	CH1g	
 32cdc270	state-fn	AVSI_A_AV_FIRE_ROAD.FrameMove	CX2GUArme_VioletMage::AVSI_A_AV_FIRE_ROAD_FrameMove	pair	CH2a	
-32cdc4a0	helper	called only from outside the class (or from an unmapped caller): 32cf2b30	-	-	CH1h	
+32cdc4a0	helper	called only from outside the class (or from an unmapped caller): 32cf2b30	-	-	CH2a	CH1h review: skill-state callback of Meteo Shower / Fire Road (registered in 32cede00), routed by CH1h
 32cdc6f0	state-fn	AVSI_A_ABM_ENERGY_DRAIN_READY.FrameMove AVSI_A_ABM_ENERGY_DRAIN_SUCCESS.FrameMove AVSI_A_ABM_ENERGY_DRAIN_FAIL.FrameMove	CX2GUArme_VioletMage::AVSI_A_ABM_ENERGY_DRAIN_READY_FrameMove / CX2GUArme_VioletMage::AVSI_A_ABM_ENERGY_DRAIN_SUCCESS_FrameMove	pair	CH2b	
-32cdcac0	helper	called only from outside the class (or from an unmapped caller): 32cf2be0	-	-	CH1h	
+32cdcac0	helper	called only from outside the class (or from an unmapped caller): 32cf2be0	-	-	CH2b	CH1h: Energy Drain skill-state callback (32cede00 registration)
 32cdcef0	state-fn	AVSI_SI_SA_ABM_SUPER_NOVA.FrameMove	CX2GUArme_VioletMage::AVSI_SI_SA_ABM_SUPER_NOVA_FrameMove	pair	CH2b	
 32cdd4e0	override 0x4c	DeleteMinorParticle	X2GUArme_VioletMage.h:418 virtual void DeleteMinorParticle();	pair	CH1h	name: HINT
 32cdd4f0	state-fn	AVSI_HIGH_MAGICIAN_COMBO_X3down.FrameMove	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X3down_FrameMove	pair	CH1e	
@@ -466,7 +466,7 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32cde800	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32cdea30	dead	-	-	june-dead-code (no pointer, call, jmp or thunk anywhere in the exe)	n/a	
 32cdebd0	state-fn	AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.FrameMove AVSI_SA_AHM_AHM_LIGHTNING_SHOWER.FrameMove AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.FrameMove AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.FrameMove +2	CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_FrameMove / CX2GUArme_VioletMage::AVSI_SA_AHM_Lightning_Shower_Loop_FrameMove	pair	CH3a	
-32cdf240	helper	called only from outside the class (or from an unmapped caller): 32cf2a90	-	-	CH1h	
+32cdf240	helper	called only from outside the class (or from an unmapped caller): 32cf2a90	-	-	CH3a	CH1h: Lightning Shower / Circle Flame / Hell Drop skill-state callback or helper (32cede00 registration), routed by CH1h
 32cdf7f0	state-fn	AVSI_SA_AEM_CHAIN_LIGHTNING.FrameMove	CX2GUArme_VioletMage::AVSI_SA_AEM_Chain_Lightning_FrameMove	pair	CH2a	
 32cdfb70	state-fn	AVSI_A_AVP_SUMMON_BAT_HEAVY.FrameMove AVSI_A_AVP_SUMMON_BAT_HEAVY.FrameMove	CX2GUArme_VioletMage::AVSI_A_AVP_Summon_Bat_Heavy_FrameMove	pair	CH1f	
 32ce0010	dead	-	-	june-dead-code (no reference in the exe)	n/a	alpha-tag site 32ce0615 (7c) never runs
@@ -477,8 +477,8 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32ce12c0	helper	called by 32ce5700 32ce6f20	-	-	CH1b	
 32ce1590	state-fn	AVSI_RIDING_HYPER_MODE.CameraMove	CX2GUArme_VioletMage::RidingHyperModeCameraMove	pair	CH1b	
 32ce1650	helper	called from 328dfaa0	-	-	CH4	outside caller (skill-slot UI, memorize: checklist 7aj)
-32ce16d3	helper	called only from outside the class (or from an unmapped caller): 32ce16b3	-	-	CH1h	
-32ce1770	helper	called only from outside the class (or from an unmapped caller): 3220f4dc 3220e995 328df9db	-	-	CH1h	
+32ce16d3	helper	called only from outside the class (or from an unmapped caller): 32ce16b3	-	-	CH1i	CH1h: caller or container owner is a CH1i function (32cc98b0, 32ce7480, 32ce15a0 / MemoRise container)
+32ce1770	helper	called only from outside the class (or from an unmapped caller): 3220f4dc 3220e995 328df9db	-	-	CH1i	CH1h: caller or container owner is a CH1i function (32cc98b0, 32ce7480, 32ce15a0 / MemoRise container)
 32ce1900	helper	called by 32ce4600	-	-	CH1h	
 32ce1950	state-fn	AVSI_ADM_ZZupZZ.FrameMove	-	june-only	CH1f	
 32ce1ba0	registrar	InitState tail (AVP Angor hammer mesh load)	-	differs (June state set)	CH1	
@@ -520,11 +520,11 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32ce69b0	state-fn	AVSI_DASH_JUMP_ATTACK_X2.FrameMove AVSI_DASH_JUMP_ATTACK_X2.FrameMove	CX2GUArme_VioletMage::DashJumpAttackX2FrameMove	pair	CH1d	
 32ce6b30	state-fn	AVSI_AVP_DASH_JUMP_X.FrameMove AVSI_ABM_DASH_JUMP_ATTACK_X.FrameMove AVSI_ABM_DASH_JUMP_ATTACK_X.FrameMove	CX2GUArme_VioletMage::AVSI_AVP_DASH_JUMP_X_FrameMove	pair	CH1f	
 32ce6f20	state-fn	AVSI_RIDING_HYPER_MODE.FrameMove	CX2GUArme_VioletMage::RidingHyperModeFrameMove	pair	CH1b	
-32ce6f40	helper	called from 32ce74f5	-	-	CH1h	
+32ce6f40	helper	called from 32ce74f5	-	-	CH1i	CH1h: caller or container owner is a CH1i function (32cc98b0, 32ce7480, 32ce15a0 / MemoRise container)
 32ce72f0	state-fn	AVSI_ADW_ZZZBackZ.FrameMove	-	june-only	CH1g	
 32ce7480	override 0x7c4	CommonStateStart	X2GUArme_VioletMage.h:492 virtual void CommonStateStart();	pair	CH1i	name: CONF
 32ce77b0	registrar	InitStateCommon	CX2GUArme_VioletMage::InitStateCommon (X2GUArme_VioletMage.cpp:1637)	differs (June state set)	CH1	
-32ce9f90	helper	called by 32cf2d50	-	-	CH1h	
+32ce9f90	helper	called by 32cf2d50	-	-	CH4	CH1h: callback of the skill 22416 passive, registered by 32cecd70 @32ced61f
 32cea0c0	override 0x7a4 + registrar	InitState	X2GUArme_VioletMage.h:474 virtual void InitState();	pair	CH1	name: CONF
 32cebe80	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	X2GUArme_VioletMage.h:503 (home of the lookup: top of SpecialAttackEventProcess)	pair	CH1i	name: CONF
 32ceca70	helper	called by 32cecd70	-	-	CH4	
@@ -534,31 +534,31 @@ june_fn	kind	name_or_states	march_pair	verdict	phase	note
 32cede00	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GUArme_VioletMage.h:485 virtual void SetEquippedSkillFuncBySkillSlotIndex( SKILL_ID, int iSlotIndex, bool bSlotB );	pair	CH1	name: CONF
 32cf0f90	state-fn	AVSI_RIDING_OFF.Start	-	june-only	CH1b	
 32cf0fa0	state-fn	AVSI_RIDING_HYPER_MODE.End	CX2GUUser::RidingHyperModeEnd	pair	CH1b	
-32cf1a80	helper	called only from outside the class (or from an unmapped caller): 32cd9e80	-	-	CH1h	
-32cf1ab0	helper	called only from outside the class (or from an unmapped caller): 3220e569 33231b88 33231bb8 33231996	-	-	CH1h	
+32cf1a80	helper	called only from outside the class (or from an unmapped caller): 32cd9e80	-	-	CH3a	CH1h: Lightning Shower / Circle Flame / Hell Drop skill-state callback or helper (32cede00 registration), routed by CH1h
+32cf1ab0	helper	called only from outside the class (or from an unmapped caller): 3220e569 33231b88 33231bb8 33231996	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
 32cf1b10	helper	called by 32cc7df0 32ce1770	-	-	CH1	also called from outside the class: 31be549e 31c17b9d 31c97c1a 31cda667
-32cf1bd0	helper	called only from outside the class (or from an unmapped caller): 32cf1f24	-	-	CH1h	
+32cf1bd0	helper	called only from outside the class (or from an unmapped caller): 32cf1f24	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
 32cf1c20	helper	called by 32cc7f10	-	-	CH1i	
 32cf1c40	helper	called by 32cc7f10	-	-	CH1i	
-32cf1c60	helper	called only from outside the class (or from an unmapped caller): 32efc3a1	-	-	CH1h	
+32cf1c60	helper	called only from outside the class (or from an unmapped caller): 32efc3a1	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
 32cf1d80	helper	called by 32cf1e60	-	-	CH4	
 32cf1da0	helper	called by 32cf1e80	-	-	CH4	
-32cf1dc0	helper	called only from outside the class (or from an unmapped caller): 32cf1f44	-	-	CH1h	
+32cf1dc0	helper	called only from outside the class (or from an unmapped caller): 32cf1f44	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
 32cf1e60	helper	called by 32cf1fa0	-	-	CH4	
 32cf1e80	helper	called by 32cf2010	-	-	CH4	
-32cf1eb0	helper	called only from outside the class (or from an unmapped caller): 32cf20f5	-	-	CH1h	
+32cf1eb0	helper	called only from outside the class (or from an unmapped caller): 32cf20f5	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
 32cf1fa0	helper	called by 32ceca70	-	-	CH4	
 32cf2010	helper	called by 32ceca70	-	-	CH4	
-32cf20a0	helper	called only from outside the class (or from an unmapped caller): 32cf2120 32cf2135	-	-	CH1h	
-32cf2100	helper	called only from outside the class (or from an unmapped caller): 32cc9936	-	-	CH1h	
+32cf20a0	helper	called only from outside the class (or from an unmapped caller): 32cf2120 32cf2135	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
+32cf2100	helper	called only from outside the class (or from an unmapped caller): 32cc9936	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
 32cf2190	helper	called by 32cecd70	-	-	CH4	
-32cf2550	helper	called only from outside the class (or from an unmapped caller): 3351d090	-	-	CH1h	
+32cf2550	helper	called only from outside the class (or from an unmapped caller): 3351d090	-	-	n/a	CH1h: STL / compiler instantiation (vector of StoneWallData, iterator copy), no source to transcribe
 32cf25a0	override 0x680	?	-	unnamed	CH1i	name: -
 32cf2d50	override 0x0	~CX2GUArme_VioletMage (scalar deleting dtor)	X2GUArme_VioletMage.h:326 virtual ~CX2GUArme_VioletMage(void);	pair	CH1h	name: CONF
-32cf2d90	helper	called only from outside the class (or from an unmapped caller): 31fca1a2	-	-	CH1h	
-32cf2da0	helper	called only from outside the class (or from an unmapped caller): 33522de4	-	-	CH1h	
-32cf2e70	helper	called only from outside the class (or from an unmapped caller): 31fedfdc	-	-	CH1h	
-32cf2e90	helper	called only from outside the class (or from an unmapped caller): 335230d8	-	-	CH1h	
+32cf2d90	helper	called only from outside the class (or from an unmapped caller): 31fca1a2	-	-	n/a	CH1h: past the Aisha range end (Elsword starts 32cf2da0) or a shared empty function
+32cf2da0	helper	called only from outside the class (or from an unmapped caller): 33522de4	-	-	n/a	CH1h: past the Aisha range end (Elsword starts 32cf2da0) or a shared empty function
+32cf2e70	helper	called only from outside the class (or from an unmapped caller): 31fedfdc	-	-	n/a	CH1h: past the Aisha range end (Elsword starts 32cf2da0) or a shared empty function
+32cf2e90	helper	called only from outside the class (or from an unmapped caller): 335230d8	-	-	n/a	CH1h: past the Aisha range end (Elsword starts 32cf2da0) or a shared empty function
 # march-only virtuals (no June override): ParseCommonRandomState (.h:472, June rolls in CX2GUUser 31fe22d0), ApplyAuraAcceleratorBuffToGameUnit (.h:424): June wins, CH1 drops them; CreateNotEnoughMPEffect (.h:512) is not compiled
 # totals kind/phase: dead/n/a=37, helper/CH1=23, helper/CH1b=4, helper/CH1c=2, helper/CH1h=43, helper/CH1i=8, helper/CH4=11, override/CH1=2, override/CH1h=19, override/CH1i=33, override/CH4=9, registrar/CH1=2, state-fn/CH1=1, state-fn/CH1a=40, state-fn/CH1b=34, state-fn/CH1c=28, state-fn/CH1d=26, state-fn/CH1e=50, state-fn/CH1f=31, state-fn/CH1g=23, state-fn/CH2a=49, state-fn/CH2b=34, state-fn/CH3a=36, state-fn/CH3b=15; thunks skipped: 0; functions in range: 429
 # totals per phase (functions to transcribe): CH1a=40, CH1b=38, CH1c=30, CH1d=26, CH1e=50, CH1f=31, CH1g=23, CH1h=62, CH1i=41, CH1=28, CH2a=49, CH2b=34, CH3a=36, CH3b=15, CH4=20, n/a=37

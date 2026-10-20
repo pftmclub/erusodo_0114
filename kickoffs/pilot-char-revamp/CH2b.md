@@ -39,3 +39,7 @@ and effect, and deals damage; casting adds no missing particle / mesh / texture 
 ## Amended by CH0
 
 Written by CH0 (2026-10-20): the split keeps each skill phase near the plan's ~40-state-function limit.
+
+## From CH1h (2026-10-20)
+
+The class map now lists `32cdcac0` (Energy Drain FrameMove, state 207, thunk `32cf2be0`, registered in `32cede00` @`32ceff5d`), which CH1h found under the default bucket.

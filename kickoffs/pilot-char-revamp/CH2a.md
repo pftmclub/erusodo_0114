@@ -40,3 +40,7 @@ and effect, and deals damage; casting adds no missing particle / mesh / texture 
 ## Amended by CH0
 
 Written by CH0 (2026-10-20): the split keeps each skill phase near the plan's ~40-state-function limit.
+
+## From CH1h (2026-10-20)
+
+The class map now lists four skill-state callbacks CH1h found under the default bucket: `32cccb40` (Meteo Shower Start, thunk `32cf2600`), `32cdb5e0` (its FrameMove, `32cf29f0`), `32cdbb70` (its End, `32cf2a00`; registered in `32cede00` @`32cee3c0`, states 217 / 218) and `32cdc4a0` (Fire Road FrameMove, `32cf2b30`, @`32cefbe1`). The fire-count members they read are the plain C++ ones: `+0x96f8` `m_iMaxFireCount`, `+0x9704` `m_iMaxFireCountByLoopState`, `+0x9710` `m_iElapsedFireCount`, `+0x971c` `m_fUseMPConsume`, `+0x9728` `m_fFireGap` (protected in June).

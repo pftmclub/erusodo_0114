@@ -217,6 +217,11 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		{
 			EffSetID_Elemental_Friendship,
 			EffSetID_Wing,
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+			EffSetID_June2,						/// June's effect-set handle array has five slots ( constructor 32cc99d0 ); roles unknown
+			EffSetID_June3,
+			EffSetID_June4,
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 			EffSetID_END,
 		};
 #ifdef SKILL_CASH_10_TEST
@@ -1098,6 +1103,68 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_ABM_DASH_JUMP_ZX_StartFuture();							/// June 32cb8bf0
 		void June_AVSI_ADW_DASH_JUMP_X2_StartFuture();							/// June 32cb8c80
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1g
+		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1h ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June lifecycle, render and reaction overrides and their helpers ( class map phase CH1h ); definitions at the end of
+		/// X2GUArme_VioletMage.cpp with the June address of each.
+		void June_ConstructorInit();										/// June 32cc99d0
+		void June_Destructor();												/// June 32ce4600 ( body of the scalar deleting destructor 32cf2d50 )
+		void June_DamageReact( CX2DamageManager::DamageData* pDamageData_ );	/// June 32cb6e00 ( vslot 0x60 )
+		void June_InitEffect();												/// June 32cb6e50 ( vslot 0x48 )
+		HRESULT June_OnFrameMove( double fTime, float fElapsedTime );		/// June 32cb7eb0 ( vslot 0x4 )
+		void June_NotifyDGManagerChanged( CKTDGManager& refInManager_ );	/// June 32cb7ef0 ( vslot 0x30 )
+		void June_Win();													/// June 32cb8fd0 ( vslot 0x90 )
+		void June_Lose();													/// June 32cc5ca0 ( vslot 0x94 )
+		void June_Draw();													/// June 32cb9010 ( vslot 0x98 )
+		void June_InitEnchantWeaponEffectUnitSpecific();					/// June 32cb9110 ( vslot 0x54c )
+		void June_InitEtc();												/// June 32cb96b0 ( vslot 0x33c )
+		void June_ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );	/// June 32cc1c50 ( vslot 0x314 )
+		void June_COMMON_BUFF_FrameMove();									/// June 32cc6e50 ( vslot 0x5f0 )
+		void June_InitDevice();												/// June 32cc7fa0 ( vslot 0x38 )
+		void June_InitComponent();											/// June 32ccdb70 ( vslot 0x3c )
+		void June_DeleteMinorParticle();									/// June 32cdd4e0 ( vslot 0x4c )
+		void June_DeleteArmeMinorParticle();								/// June 32cce090
+		void June_HyperModeBuffEffectStart();								/// June 32cddcc0 ( vslot 0xc4 )
+		void June_ReInit( bool bRandom, int startPosIndex );				/// June 32ce4db0 ( vslot 0x44 )
+		void June_CreateMajorParticleArray();								/// June 32ce4e80 ( vslot 0x540 )
+		void June_CreateMinorParticleArray();								/// June 32ce55e0 ( vslot 0x548 )
+		void June_ClearMemoRise( const bool* pbRefresh_ );					/// June 32ce1900
+		bool June_IsMemoRiseEmpty() const;									/// June 32cc2880
+		void June_AddStoneWall( UidType uid, float fTimeLeft );				/// June 32cc98e0
+		void June_InitializeArmeMajorParticleArray();						/// June 32cb9160
+		CKTDGParticleSystem::CParticleEventSequence* June_SetAishaMajorParticleByEnum( AISHA_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ );	/// June 32cce230
+		CKTDGParticleSystem::CParticleEventSequence* June_SetAishaMinorParticleByEnum( AISHA_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ );	/// June 32cce370
+#ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+		static void June_AppendComponentToDeviceList( CKTDXDeviceDataList& listInOut_ );		/// June 32cb9050
+		static void June_AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ );	/// June 32cb9220
+		static void June_AppendMinorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ );	/// June 32cb95c0
+		static void June_AppendMeshToDeviceList( CKTDXDeviceDataList& listInOut_ );				/// June 32cb96c0
+		static void June_AppendEffectToDeviceList( CKTDXDeviceDataList& listInOut_, CX2DamageManager::EXTRA_DAMAGE_TYPE eDamageType_ );	/// June 32cc5d30
+#endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+
+		/// June-only members the constructor 32cc99d0 sets, named by their June offset ( roles unknown ); CH1 gives them a source or drops them.
+		CKTDGXMeshPlayer::CXMeshInstanceHandle	m_hJune96dc;		/// -1; destroyed through the major mesh player like m_hMagicalStaff
+		int							m_iJune96e4;			/// 0
+		int							m_iJune96e8;			/// 0
+		int							m_iJune96ec;			/// 0
+		float						m_fJune9734;			/// 0 ( a protected float in June )
+		float						m_fJune9740;			/// 0 ( a protected float in June )
+		int							m_iJune9754;			/// 0
+		int							m_iJune9758;			/// 0
+		int							m_iJune975c;			/// 0
+		CX2EffectSet::Handle		m_hJune977c;			/// -1 ( next to m_hJuneMemoRiseLoop )
+		int							m_iJune9780;			/// 0
+		short						m_wJune978c;			/// 0
+		float						m_fJune9790;			/// 1.0
+		float						m_fJune9794;			/// 1.0
+		float						m_fJune9798;			/// 0
+		float						m_fJune979c;			/// 1.0
+		float						m_fJune97a0;			/// 1.0
+		int							m_aiJune97a4[5];		/// 0
+		int							m_iJune983c;			/// 0 ( a protected int in June )
+		std::vector<int>			m_vecJune9848;			/// empty ( element type unknown, freed by the destructor )
+		float						m_fJune8fb8;			/// 1.1: a CX2GUUser member in June, set by this constructor
+		float						m_fJune8fbc;			/// 1.2: a CX2GUUser member in June, set by this constructor
+		//}} Iruha : 2026-10-20 // June character pilot Phase CH1h
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

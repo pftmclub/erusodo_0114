@@ -27866,5 +27866,872 @@ void CX2GUArme_VioletMage::June_AVSI_SI_SA_ADW_Screwdriver_Driller_FrameMove()
 #undef JUNE_ARME_G_ZX_PURE_CANCEL
 #undef JUNE_ARME_END_WALK_SKILL_DASH
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1g
+//{{ Iruha : 2026-10-20 // June character pilot Phase CH1h ( JUNE_CHARACTER_AISHA_PHASES.md )
+// Inert June lifecycle, render and reaction overrides ( class map phase CH1h ); nothing calls them until CH1.
+
+namespace
+{
+	/// June CX2Unit +0x3c ( read by 31fceab0 as the transcended test ): Transcendence has no source yet ( Stage 6 ), so June's empty value.
+	bool June_UnitFlag3c( const CX2Unit* pUnit_ )
+	{
+		UNREFERENCED_PARAMETER( pUnit_ );
+		return false;
+	}
+
+	/// June 322deb80: CX2Game redraws the MemoRise slots ( unmapped engine callee ); a no-op until it is ported ( CH1 / Opus ).
+	void June_GameRefreshMemoRise()
+	{
+	}
+}
+
+// June 32cb6e00
+void CX2GUArme_VioletMage::June_DamageReact( CX2DamageManager::DamageData* pDamageData_ )
+{
+	CX2GUUser::DamageReact( pDamageData_ );
+	CX2GUUser::DamageReactStateChange( pDamageData_, -1, -1 );
+
+	if( true == m_bInMeditation && false == pDamageData_->m_bNoDamage )
+	{
+		EraseBuffTempletFromGameUnit( BTI_BUFF_SI_A_AHM_MEDITATION );
+		EraseBuffTempletFromGameUnit( BTI_DEBUF_SI_A_AHM_MEDITATION );
+	}
+}
+
+// June 32cb6e50: the two array builders are virtual calls, as in June
+void CX2GUArme_VioletMage::June_InitEffect()
+{
+	CX2GUUser::InitEffect();
+
+	CreateMajorParticleArray();
+	CreateMinorParticleArray();
+}
+
+// June 32cb7eb0
+HRESULT CX2GUArme_VioletMage::June_OnFrameMove( double fTime, float fElapsedTime )
+{
+	CX2GUUser::OnFrameMove( fTime, fElapsedTime );
+
+	if( m_bNeedToUpdateWeaponEffect == true )
+	{
+		UpdateWeaponEnchantEffectAndExtraDamageType();
+		m_bNeedToUpdateWeaponEffect = false;
+	}
+
+	return S_OK;
+}
+
+// June 32cb7ef0: a bare jump to the base ( March's commented-out transform weapon chain is gone )
+void CX2GUArme_VioletMage::June_NotifyDGManagerChanged( CKTDGManager& refInManager_ )
+{
+	CX2GUUser::NotifyDGManagerChanged( refInManager_ );
+}
+
+// June 32cb8fd0
+void CX2GUArme_VioletMage::June_Win()
+{
+	CX2GUUser::Win();
+
+	if( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+}
+
+// June 32cc5ca0: the HP test is skipped when there is no gage ( June reads the gage inline )
+void CX2GUArme_VioletMage::June_Lose()
+{
+	CX2GUUser::Lose();
+
+	if( IsMyUnit() == true && ( NULL == GetGageData() || GetNowHp() > 0.0f ) )
+	{
+		if( true == GetRidingOn() && NULL != m_ptrRidingPet )
+			StateChange( USI_RIDING_WAIT );
+		else
+			StateChange( USI_LOSE );
+	}
+}
+
+// June 32cb9010
+void CX2GUArme_VioletMage::June_Draw()
+{
+	CX2GUUser::Draw();
+
+	if( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+}
+
+// June 32cb9110: = March
+void CX2GUArme_VioletMage::June_InitEnchantWeaponEffectUnitSpecific()
+{
+	for( UINT i=0; i<m_vecpWeapon.size(); ++i )
+	{
+		Weapon* pWeapon = m_vecpWeapon[i];
+		pWeapon->InitEnchantParticleForSword();
+	}
+}
+
+// June 32cb96b0: an empty override ( March calls the base )
+void CX2GUArme_VioletMage::June_InitEtc()
+{
+}
+
+// June 32cc1c50: = March ( the Magical Makeup fade divides by 1.3 ); the pass-dash test comes first
+void CX2GUArme_VioletMage::June_ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ )
+{
+#ifdef RIDING_SYSTEM
+	if ( m_bPassDash )
+		return;
+#endif //RIDING_SYSTEM
+
+	if( GetTransformTime() > 0 )
+	{
+		float fAlpha = GetTransformTime() / _CONST_AISHA_::MAGICAL_MAKEUP_TRANSFORMING_TIME;
+		m_RenderParam.renderType			= CKTDGXRenderer::RT_CARTOON_FADE;
+		m_RenderParam.color = D3DXCOLOR( 1.f, 1.f, 1.f, fAlpha );
+	}
+	else
+	{
+		CX2GameUnit::ApplyRenderParamOnEmptyRenderParamByBuff( pRenderParam_ );
+	}
+}
+
+// June 32cc6e50 ( vslot 0x5f0 ): March's body without the #ifndef UPGRADE_SKILL_SYSTEM_2013 head
+void CX2GUArme_VioletMage::June_COMMON_BUFF_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.63f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.63f ) == true && EventCheck( 0.63f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		PlayCommonBuffMinorParticle();
+		UpDownCrashCamera( 20.0f, 0.3f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+	}
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.65f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if( m_pXSkinAnim->EventTimer( 0.65f ) == true && EventCheck( 0.65f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		int	iSkillSlotIndex = 0;
+		bool bSlotB = false;
+
+		if ( true == GetSkillSlotIndexUsed( iSkillSlotIndex, bSlotB ) )
+		{
+			const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
+
+			const CX2UserSkillTree::SkillSlotData* pSkillSlotData = pUnitData->m_UserSkillTree.GetSkillSlot( iSkillSlotIndex, bSlotB );
+			CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+
+			if( NULL != pSkillSlotData )
+				eSkillID = pSkillSlotData->m_eID;
+
+			ProcessAcceleraterBuff( eSkillID, IsHyperState() );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc7fa0: = March ( June has no m_pLightningBolt block )
+void CX2GUArme_VioletMage::June_InitDevice()
+{
+	CX2GUUser::InitDevice();
+
+	CKTDXDeviceXSkinMesh* pMesh1 = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Arme_ComboX3Up-1.X" );
+	CKTDXDeviceXSkinMesh* pMesh2 = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Arme_ComboX3Up-2.X" );
+	CKTDXDeviceXSkinMesh* pMesh3 = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Arme_ComboX3Up-3.X" );
+	DeviceReady( pMesh1 );
+	DeviceReady( pMesh2 );
+	DeviceReady( pMesh3 );
+
+	m_pComboX3Up1			= CKTDGXSkinAnim::CreateSkinAnim();
+	m_pComboX3Up2			= CKTDGXSkinAnim::CreateSkinAnim();
+	m_pComboX3Up3			= CKTDGXSkinAnim::CreateSkinAnim();
+
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pComboX3Up1 );
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pComboX3Up2 );
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pComboX3Up3 );
+
+	m_pComboX3Up1->SetAnimXSkinMesh( pMesh1 );
+	m_pComboX3Up1->AddModelXSkinMesh( pMesh1 );
+	m_pComboX3Up2->SetAnimXSkinMesh( pMesh2 );
+	m_pComboX3Up2->AddModelXSkinMesh( pMesh2 );
+	m_pComboX3Up3->SetAnimXSkinMesh( pMesh3 );
+	m_pComboX3Up3->AddModelXSkinMesh( pMesh3 );
+
+	m_pComboX3Up1->SetAlphaObject( true );
+	m_pComboX3Up1->SetLayer( XL_EFFECT_0 );
+	m_pComboX3Up2->SetAlphaObject( true );
+	m_pComboX3Up2->SetLayer( XL_EFFECT_0 );
+	m_pComboX3Up3->SetAlphaObject( true );
+	m_pComboX3Up3->SetLayer( XL_EFFECT_0 );
+
+	m_pComboX3Up1->GetRenderParam()->bAlphaBlend	= true;
+	m_pComboX3Up1->GetRenderParam()->bZWriteEnable	= false;
+	m_pComboX3Up1->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pComboX3Up1->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pComboX3Up1->GetRenderParam()->destBlend		= D3DBLEND_DESTALPHA;
+
+	m_pComboX3Up2->GetRenderParam()->bAlphaBlend	= true;
+	m_pComboX3Up2->GetRenderParam()->bZWriteEnable	= false;
+	m_pComboX3Up2->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pComboX3Up2->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pComboX3Up2->GetRenderParam()->destBlend		= D3DBLEND_DESTALPHA;
+
+	m_pComboX3Up3->GetRenderParam()->bAlphaBlend	= true;
+	m_pComboX3Up3->GetRenderParam()->bZWriteEnable	= false;
+	m_pComboX3Up3->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pComboX3Up3->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pComboX3Up3->GetRenderParam()->destBlend		= D3DBLEND_DESTALPHA;
+}
+
+// June 32ccdb70: March's InitComponent; June reads the game type without using it ( the PVP initial MP is gone ) and tags the eight handles
+void CX2GUArme_VioletMage::June_InitComponent()
+{
+	CX2GUUser::InitComponent();
+
+	if ( IsMyUnit() )
+	{
+		ASSERT( NULL != g_pX2Game );
+		g_pX2Game->GetGameType();
+	}
+
+	m_hSeqArmeAirStepRight	= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"ArmeAirStep", 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
+	m_hSeqArmeAirStepLeft	= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"ArmeAirStep", 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
+
+	m_hSeqMPEnergy			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPEnergyArme", 0,0,0, 0,0 );
+	m_hSeqMPEnergyCenter	= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPEnergyCenter", 0,0,0, 0,0 );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+	if( NULL != pSeq )
+	{
+		pSeq->UseLookPoint( true );
+	}
+
+	m_hSeqMPChargeWave			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPChargeWave", 0,0,0, 0,0 );
+
+	m_hSeqMPCharge2MagicCircle	= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2MagicCircle", 0,0,0, 0,0 );
+	m_hSeqMPCharge2Up			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2Up", 0,0,0, 0,0 );
+	m_hSeqMPCharge2Up2			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2Up2", 0,0,0, 0,0 );
+
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqArmeAirStepRight, true );
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqArmeAirStepLeft, true );
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPEnergy, true );
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPEnergyCenter, true );
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPChargeWave, true );
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPCharge2MagicCircle, true );
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPCharge2Up, true );
+	g_pX2Game->JuneTagEffectAlphaParticleHandle( this, m_hSeqMPCharge2Up2, true );
+}
+
+// June 32cdd4e0: the base, then the Arme minor handles
+void CX2GUArme_VioletMage::June_DeleteMinorParticle()
+{
+	CX2GUUser::DeleteMinorParticle();
+
+	June_DeleteArmeMinorParticle();
+}
+
+// June 32cce090: the five Arme minor handles ( base 31fefc00 first )
+void CX2GUArme_VioletMage::June_DeleteArmeMinorParticle()
+{
+	CX2GUUser::DeleteGUUserMinorParticle();
+
+	CKTDGParticleSystem* pMinorParticleSystem = g_pX2Game->GetMinorParticle();
+
+	for ( int index = 0; index < AISHA_PII_MINOR_END; index++ )
+	{
+		pMinorParticleSystem->DestroyInstanceHandle( m_ahAishaMinorParticleInstance[index] );
+	}
+}
+
+// June 32cddcc0: March's four hyper boost handles, skipped for a transcended unit or when the awakening effect set exists
+void CX2GUArme_VioletMage::June_HyperModeBuffEffectStart()
+{
+	CX2GUUser::HyperModeBuffEffectStart();
+
+	if( NULL != GetUnit() && true == June_UnitFlag3c( GetUnit() ) )
+		return;
+
+	if( true == June_AwakeningEffectSetPresent() )
+		return;
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
+		m_hHyperBoostRFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightViolet",	0,0,0, 0, 0 );
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLFoot )
+		m_hHyperBoostLFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftViolet",	0,0,0, 0, 0 );
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRArm )
+		m_hHyperBoostRArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightViolet",	0,0,0, 0, 0 );
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
+		m_hHyperBoostLArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftViolet",	0,0,0, 0, 0 );
+}
+
+// June 32ce4db0: June has no initial-MP floor in PVP; it clears the Z4up flag, then the MemoRise entries in game types 1 and 4
+void CX2GUArme_VioletMage::June_ReInit( bool bRandom, int startPosIndex )
+{
+	CX2GUUser::ReInit( bRandom, startPosIndex );
+
+	if( GetNowMp() < 50.0 && CX2Game::GT_PVP != g_pX2Game->GetGameType() )
+		SetNowMp( 50.f );
+
+	m_bZ4up					= false;
+
+	if( IsMyUnit() == true )
+	{
+		const int iGameType = (int) g_pX2Game->GetGameType();
+		if( 1 == iGameType || 4 == iGameType )
+		{
+			bool bRefresh = true;
+			June_ClearMemoRise( &bRefresh );
+		}
+	}
+}
+
+// June 32ce1900: clears the MemoRise container ( +0x9760 ), then redraws the slots for my unit
+void CX2GUArme_VioletMage::June_ClearMemoRise( const bool* pbRefresh_ )
+{
+	m_iJune9770 = 0;
+
+	if( true == *pbRefresh_ && true == IsMyUnit() )
+		June_GameRefreshMemoRise();
+}
+
+// June 32cc2880: the MemoRise container is empty ( read by 322deb80 )
+bool CX2GUArme_VioletMage::June_IsMemoRiseEmpty() const
+{
+	return 0 == m_iJune9770;
+}
+
+// June 32cc98e0: March's AddStoneWall, the record built field by field ( uid, then the time left )
+void CX2GUArme_VioletMage::June_AddStoneWall( UidType uid, float fTimeLeft )
+{
+	StoneWallData stoneWallData;
+	stoneWallData.m_NPCUID = uid;
+	stoneWallData.m_fTimeLeft = fTimeLeft;
+
+	m_vecStoneWallData.push_back( stoneWallData );
+}
+
+// June 32cb9160: base 31fca420, then the 28 Arme major handles ( = March InitializeArmeMajorParticleArray )
+void CX2GUArme_VioletMage::June_InitializeArmeMajorParticleArray()
+{
+	CX2GUUser::InitializeGUUserMajorParticleArray();
+
+	for ( int index = 0; index < AISHA_PII_MAJOR_END; index++ )
+	{
+		m_ahAishaMajorParticleInstance[index] = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	}
+}
+
+// June 32cce230: March's SetAishaMajorParticleByEnum, the new handle tagged with the effect-alpha category ( 32296da0 )
+CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::June_SetAishaMajorParticleByEnum( AISHA_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ )
+{
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleAishaMajorParticleByEnum( eVal_ ) )
+	{
+		ParticleEventSequenceHandle hHandle =
+			g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), D3DXVECTOR3( 0.0f, 0.0f, 0.0f ), 0, 0, iDrawCount_ );
+
+		SetHandleAishaMajorParticleByEnum( eVal_, hHandle );
+		g_pX2Game->JuneTagEffectAlphaParticleHandle( this, hHandle, false );
+	}
+
+	return g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleAishaMajorParticleByEnum( eVal_ ) );
+}
+
+// June 32cce370: the minor twin ( minor system, tag with bMinor )
+CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::June_SetAishaMinorParticleByEnum( AISHA_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ )
+{
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleAishaMinorParticleByEnum( eVal_ ) )
+	{
+		ParticleEventSequenceHandle hHandle =
+			g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), D3DXVECTOR3( 0.0f, 0.0f, 0.0f ), 0, 0, iDrawCount_ );
+
+		SetHandleAishaMinorParticleByEnum( eVal_, hHandle );
+		g_pX2Game->JuneTagEffectAlphaParticleHandle( this, hHandle, true );
+	}
+
+	return g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleAishaMinorParticleByEnum( eVal_ ) );
+}
+
+// June 32ce4e80: = March ( same names, ids and draw counts ), through June's tagging setters
+void CX2GUArme_VioletMage::June_CreateMajorParticleArray()
+{
+	CX2GUUser::CreateMajorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT,			L"FireDamageImpact",			2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE,		L"FireDamageImpactCore",		2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH,		L"FireDamageImpactSlash",		2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RED,		L"FireDamageImpactRed",			2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RING_RED,	L"FireDamageImpactRingRed",		1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE_RED,	L"FireDamageImpactCoreRed",		1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,	L"FireDamageImpactSlashRed",	1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_AIR_SHOCK_RING, L"ArmeAirShockRing", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_AIR_SHOCK_CENTER, L"ArmeAirShockCenter", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_AIR_BLAST_CENTER, L"ArmeAirBlastCenter", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_01, L"LightningBolt1", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_02, L"LightningBolt2", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_03, L"LightningBolt3", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_04, L"LightningBolt4", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_05, L"LightningBolt5", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_06, L"LightningBolt6", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_07, L"LightningBolt7", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_08, L"LightningBolt8", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_09, L"LightningBolt9", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_10, L"LightningBolt10", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_11, L"LightningBolt11", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_12, L"LightningBolt12", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_CORE, L"LightningBoltCore", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_01, L"LightningBolt1Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_02, L"LightningBolt2Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_03, L"LightningBolt3Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_04, L"LightningBolt4Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_05, L"LightningBolt5Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_06, L"LightningBolt6Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_07, L"LightningBolt7Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_08, L"LightningBolt8Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_09, L"LightningBolt9Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_10, L"LightningBolt10Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_11, L"LightningBolt11Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMajorParticleByEnum( AISHA_PII_MAJOR_LIGHTNING_BOLT_RED_12, L"LightningBolt12Red", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+}
+
+// June 32ce55e0: = March ( five minor particles, draw count 1 ), through the tagging setter
+void CX2GUArme_VioletMage::June_CreateMinorParticleArray()
+{
+	CX2GUUser::CreateMinorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = June_SetAishaMinorParticleByEnum( AISHA_PII_MINOR_AIR_BLAST_RING,	L"ArmeAirBlastRing", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMinorParticleByEnum( AISHA_PII_MINOR_TIME_STOP_01,		L"TimeStop1", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMinorParticleByEnum( AISHA_PII_MINOR_TIME_STOP_02,		L"TimeStop2", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMinorParticleByEnum( AISHA_PII_MINOR_TIME_STOP_03,		L"TimeStop3", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = June_SetAishaMinorParticleByEnum( AISHA_PII_MINOR_TIME_STOP_RED,		L"TimeStopRed", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+}
+
+#ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+// June 32cb9050: = March AppendComponentToDeviceList
+/*static*/ void CX2GUArme_VioletMage::June_AppendComponentToDeviceList( CKTDXDeviceDataList& listInOut_ )
+{
+	if ( g_pData->GetGameMinorParticle() != NULL )
+	{
+		g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_,  L"ArmeAirStep" );
+		g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_,  L"MPEnergyArme" );
+		g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_,  L"MPEnergyCenter" );
+		g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_,  L"MPChargeWave" );
+		g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_,  L"MPCharge2MagicCircle" );
+		g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_,  L"MPCharge2Up" );
+		g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_,  L"MPCharge2Up2" );
+	}
+}
+
+// June 32cb9220: = March AppendMajorParticleToDeviceList ( same 34 names, LightningBolt10Red is not in the list )
+/*static*/ void CX2GUArme_VioletMage::June_AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ )
+{
+	if ( g_pData->GetGameMajorParticle() == NULL )
+		return;
+
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"FireDamageImpact" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"FireDamageImpactCore" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"FireDamageImpactSlash" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"FireDamageImpactRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"FireDamageImpactRingRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"FireDamageImpactCoreRed" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"FireDamageImpactSlashRed" );
+
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"ArmeAirShockRing" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"ArmeAirShockCenter" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"ArmeAirBlastCenter" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt1" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt2" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt3" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt4" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt5" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt6" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt7" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt8" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt9" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt10" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt11" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt12" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBoltCore" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt1Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt2Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt3Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt4Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt5Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt6Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt7Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt8Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt9Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt11Red" );
+	g_pData->GetGameMajorParticle()->AppendToDeviceList( listInOut_, L"LightningBolt12Red" );
+}
+
+// June 32cb95c0: = March AppendMinorParticleToDeviceList
+/*static*/ void CX2GUArme_VioletMage::June_AppendMinorParticleToDeviceList( CKTDXDeviceDataList& listInOut_ )
+{
+	if ( g_pData->GetGameMinorParticle() == NULL )
+		return;
+
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"ArmeAirBlastRing" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"TimeStop1" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"TimeStop2" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"TimeStop3" );
+	g_pData->GetGameMinorParticle()->AppendToDeviceList( listInOut_, L"TimeStopRed" );
+}
+
+// June 32cb96c0: June-only, the three Combo X3 up meshes ( March opens them in InitDevice only )
+/*static*/ void CX2GUArme_VioletMage::June_AppendMeshToDeviceList( CKTDXDeviceDataList& listInOut_ )
+{
+	g_pKTDXApp->GetDeviceManager()->AppendXSkinMesh( listInOut_, L"Arme_ComboX3Up-1.X" );
+	g_pKTDXApp->GetDeviceManager()->AppendXSkinMesh( listInOut_, L"Arme_ComboX3Up-2.X" );
+	g_pKTDXApp->GetDeviceManager()->AppendXSkinMesh( listInOut_, L"Arme_ComboX3Up-3.X" );
+}
+
+// June 32cc5d30: = March AppendEffectToDeviceList ( major, minor, then the enchant particles )
+/*static*/ void CX2GUArme_VioletMage::June_AppendEffectToDeviceList( CKTDXDeviceDataList& listInOut_, CX2DamageManager::EXTRA_DAMAGE_TYPE eDamageType_ )
+{
+	CX2GUArme_VioletMage::June_AppendMajorParticleToDeviceList( listInOut_ );
+	CX2GUArme_VioletMage::June_AppendMinorParticleToDeviceList( listInOut_ );
+	CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList( listInOut_, eDamageType_);
+}
+#endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+
+// June 32cc99d0: the constructor's initial values; m_fElementalResearchRate starts at 1.0 where March has 0
+void CX2GUArme_VioletMage::June_ConstructorInit()
+{
+	m_hSeqArmeAirStepRight	= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqArmeAirStepLeft	= INVALID_PARTICLE_SEQUENCE_HANDLE;
+
+	m_fMPConsumeRateTeleport 	= 1.f;
+	m_fMPConsumeRateFireBall 	= 1.f;
+	m_fFireBallRangeRate		= 1.f;
+	m_bInMeditation				= false;
+	m_fMeditationMPChangeRate	= 0.f;
+	m_fAddMPChangeRate			= 0.f;
+
+	for( int i=0; i<EffSetID_END; i++ )
+	{
+		m_ahEffectSet[i] = INVALID_EFFECTSET_HANDLE;
+	}
+
+	m_iHyperAddMP = 0.f;
+	m_iHyperChargeMP = 100.f;
+	m_fRateLimitManaManagement = 0.f;
+	m_bIsOnSomethingStart = false;
+	m_bIsSummoningUFO = false;
+
+	m_iJuneBallElement = 0;
+	m_fIceBallPower = 1.f;
+	m_fElementalResearchRate = 1.f;
+	m_bResearchGravityBall = false;
+	m_fGravityBallPower = 1.f;
+
+	m_pMPChargeA			= NULL;
+	m_pMPChargeB			= NULL;
+	m_pMPChargeC			= NULL;
+	m_pEvasionAttackAnim	= NULL;
+	m_pComboX3Up1			= NULL;
+	m_pComboX3Up2			= NULL;
+	m_pComboX3Up3			= NULL;
+
+	m_fMPChargeWaitTime = 0.f;
+	m_fMPChargeSoundTime = 0.f;
+
+	m_hSeqMPEnergy				= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqMPEnergyCenter		= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqMPChargeWave			= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqMPCharge2MagicCircle	= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqMPCharge2Up			= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqMPCharge2Up2			= INVALID_PARTICLE_SEQUENCE_HANDLE;
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	m_hHellStoneEffect		    = INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hCatastropheLaser			= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hCatastropheLaser1		= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hCatastropheLaser2		= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hCatastropheLaser3		= INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hCatastropheLaser4		= INVALID_DAMAGE_EFFECT_HANDLE;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+
+#ifdef SKILL_CASH_10_TEST
+	m_hSeqLight_Arme_Aging1				= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqLight_Arme_Aging2				= INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_hSeqLight_Arme_Aging3				= INVALID_PARTICLE_SEQUENCE_HANDLE;
+#endif
+
+	m_bElementalFriendShip = false;
+	m_pJuneMpRefund = NULL;
+	m_iDrainEnergyTarget = -1;
+	m_ptrTransformWeapon = CX2EqipPtr();
+	m_fTransformTime = 0.f;
+	m_hEffectMorningStar = INVALID_EFFECTSET_HANDLE;
+	m_fMagicStaffExtraRate = 0.f;
+	m_fMagicStaffSize = 0.f;
+	m_hMagicalStaff	= INVALID_MESH_INSTANCE_HANDLE;
+	m_hJune96dc = INVALID_MESH_INSTANCE_HANDLE;
+	m_fLevitationElapsedTime = 0.f;
+	m_iJune96e4 = 0;
+	m_iJune96e8 = 0;
+	m_iJune96ec = 0;
+
+	m_bCanChangeState = false;
+	m_fPushXChargeTime = 0.f;
+	m_iMaxFireCount = 10;
+	m_iMaxFireCountByLoopState = 10;
+	m_iElapsedFireCount = 0;
+	m_fUseMPConsume = 5.f;
+	m_fFireGap = 0.2f;
+	m_fJune9734 = 0.f;
+	m_fJune9740 = 0.f;
+	m_fHellDropCreateEffectCooltime = 0.f;
+	m_bIsHellDropTimerStart = false;
+	m_iJune9754 = 0;
+	m_iJune9758 = 0;
+	m_iJune975c = 0;
+
+	m_iJune9770 = 0;
+	m_hJuneMemoRiseLoop = INVALID_EFFECTSET_HANDLE;
+	m_hJune977c = INVALID_EFFECTSET_HANDLE;
+	m_iJune9780 = 0;
+	m_fJuneZZXXLoopTime = 0.f;
+	m_hJuneDashJumpChargeEffect = INVALID_EFFECTSET_HANDLE;
+	m_wJune978c = 0;
+	m_fJune9790 = 1.f;
+	m_fJune9794 = 1.f;
+	m_fJune9798 = 0.f;
+	m_fJune979c = 1.f;
+	m_fJune97a0 = 1.f;
+	for( int i=0; i<5; i++ )
+		m_aiJune97a4[i] = 0;
+
+	June_InitializeArmeMajorParticleArray();
+	CX2GUUser::InitializeGUUserMinorParticleArray();
+	for ( int index = 0; index < AISHA_PII_MINOR_END; index++ )
+	{
+		m_ahAishaMinorParticleInstance[index] = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	}
+	m_hSeqLight_Arme_Circle_Flame = INVALID_PARTICLE_SEQUENCE_HANDLE;
+
+	m_iJune983c = 0;
+	m_vecJune9848.clear();
+
+	m_bZ4up = false;
+	m_bDashJumpZ = false;
+
+#ifdef SPECIAL_USE_ITEM
+	m_fThrowStartTime		= 0.6666f;
+	m_vThrowStartPosOffset	= D3DXVECTOR3(40.f, 130.f, 0.f);
+	m_vThrowStartVelocity	= D3DXVECTOR3(1600.f, 200.f, 0.f);
+#endif SPECIAL_USE_ITEM
+
+	m_fJune8fb8 = 1.1f;
+	m_fJune8fbc = 1.2f;
+}
+
+// June 32ce4600: the destructor body ( 32cf2d50 is only its scalar deleting wrapper ); the implicit member destructors are not repeated
+void CX2GUArme_VioletMage::June_Destructor()
+{
+	SAFE_DELETE( m_pJuneMpRefund );
+
+	if( NULL != g_pX2Game )
+	{
+		BOOST_TEST_FOREACH( StoneWallData&, stoneWallData, m_vecStoneWallData )
+		{
+			CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( (int) stoneWallData.m_NPCUID );
+			if( NULL != pNPC )
+			{
+				pNPC->SetNowHp( 0.f );
+			}
+		}
+	}
+
+	for( int i=0; i<EffSetID_END; i++ )
+	{
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_ahEffectSet[i] );
+	}
+
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqArmeAirStepRight );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqArmeAirStepLeft );
+
+	SAFE_DELETE_KTDGOBJECT( m_pMPChargeA );
+	SAFE_DELETE_KTDGOBJECT( m_pMPChargeB );
+	SAFE_DELETE_KTDGOBJECT( m_pMPChargeC );
+	SAFE_DELETE_KTDGOBJECT( m_pEvasionAttackAnim );
+
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPEnergy );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPEnergyCenter );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPChargeWave );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPCharge2MagicCircle );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPCharge2Up );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPCharge2Up2 );
+
+	SAFE_DELETE_KTDGOBJECT( m_pComboX3Up1 );
+	SAFE_DELETE_KTDGOBJECT( m_pComboX3Up2 );
+	SAFE_DELETE_KTDGOBJECT( m_pComboX3Up3 );
+
+	CX2GUUser::DeleteGUUserMajorParticle();
+	{
+		CKTDGParticleSystem* pMajorParticleSystem = g_pX2Game->GetMajorParticle();
+
+		for ( int index = 0; index < AISHA_PII_MAJOR_END; index++ )
+		{
+			pMajorParticleSystem->DestroyInstanceHandle( m_ahAishaMajorParticleInstance[index] );
+		}
+	}
+
+	June_DeleteArmeMinorParticle();
+
+#ifdef SKILL_CASH_10_TEST
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqLight_Arme_Aging1 );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqLight_Arme_Aging2 );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqLight_Arme_Aging3 );
+#endif
+
+	if( m_hMagicalStaff != INVALID_MESH_INSTANCE_HANDLE )
+	{
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hMagicalStaff );
+		m_SubAttackListSet.clear();
+	}
+
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqLight_Arme_Circle_Flame );
+	m_SubAttackListSet.clear();
+
+	if( m_hJune96dc != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hJune96dc );
+
+	m_vecJune9848.clear();
+	m_iJune9770 = 0;
+}
+
+//}} Iruha : 2026-10-20 // June character pilot Phase CH1h
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

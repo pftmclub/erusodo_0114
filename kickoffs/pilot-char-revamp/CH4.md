@@ -49,3 +49,7 @@ types 1 / 5 / 8), `awk -F'\t' '$5 ~ /CH4/' ch0_checklist_rows.tsv`.
 - **The refund's MP text.** June `32cc2b90` refunds through `32278070`, not bare UpNowMp: `UpNowMp( x )` (vslot `0xf0`), then `x + 0.005` is pushed onto the unit's MP-text queue `+0x68ac` (timer `+0x68a8`).
   `3229ecc0` shows the queue as "MP +N" before the HP queue, and when it showed text that frame it only restarts the HP timer (see `JuneFrameMoveHpChangeText`, `X2GameUnit.cpp`, and the HP twin `322780b0`, Atlas E7).
   When the refund object goes live, port `32278070` and the MP half of `3229ecc0` (read the display branch in Ghidra: picture and text), and switch `June_FlushMpWithRefund`'s `UpNowMp` to it. `32278070` has more than 20 callers in other classes' code, so it is an engine member of `CX2GameUnit`.
+
+## From CH1h (2026-10-20)
+
+The class map now lists `32ce9f90`, the callback of the skill 22416 passive (skill level via `31fceab0( 0x5790 )`, damage trigger 0x11 via `32610fb0`): its thunk `32cf2d70` is stored inside `InitPassiveSkillState` `32cecd70` @`32ced61f`.

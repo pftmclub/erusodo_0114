@@ -964,6 +964,44 @@ Build: `DEPLOY OK: X2_offline.exe is 25,601,536 B, dated 2026-10-20 20:59:58, md
 
 Records: funcmap `32cb8bf0` PORTED, new rows `32cb8c80` and `32021390`, note on `32cc0b80`; checklist 7ac L747 annotated, its `ch0_checklist_rows.tsv` row moved to "CH1g review"; `JUNE_BUGS` 375. No drift. **In game:** nothing (inert). Next: CH1h (its kickoff still matches; a From-CH1g-review note was added).
 
+### CH1h - Done (2026-10-20, Sonnet 5.5)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`, the commit "Character pilot Phase CH1h". **33 of the 62 class-map rows became `CX2GUArme_VioletMage::June_*` members** (declared after CH1g's in the header, bodies in an eighth block at the end of the `.cpp`, each with its June address); the other 29 were **not CH1h's** and moved (below). Three enum members `EffSetID_June2..4` were added (June's `m_ahEffectSet` has five slots, March two). 47 funcmap rows `Char CH1h`.
+
+| Group | June functions |
+|---|---|
+| Lifecycle | ctor `32cc99d0` (`June_ConstructorInit`, the initial values), dtor body `32ce4600` (`June_Destructor`; `32cf2d50` is the scalar deleting wrapper), `ReInit` `32ce4db0` |
+| Overrides | `DamageReact` `32cb6e00`, `InitEffect` `32cb6e50`, `OnFrameMove` `32cb7eb0`, `NotifyDGManagerChanged` `32cb7ef0`, `Win` `32cb8fd0`, `Lose` `32cc5ca0`, `Draw` `32cb9010`, `InitEnchantWeaponEffectUnitSpecific` `32cb9110`, `InitEtc` `32cb96b0`, `ApplyRenderParamOnEmptyRenderParamByBuff` `32cc1c50`, `COMMON_BUFF_FrameMove` `32cc6e50`, `InitDevice` `32cc7fa0`, `InitComponent` `32ccdb70`, `DeleteMinorParticle` `32cdd4e0`, `HyperModeBuffEffectStart` `32cddcc0`, `CreateMajor / MinorParticleArray` `32ce4e80` / `32ce55e0` |
+| Helpers | `32cce090` Delete Arme minor, `32cce230` / `32cce370` set Aisha major / minor by enum, `32cb9160` init major array, `32cc98e0` AddStoneWall, `32cc2880` MemoRise empty, `32ce1900` clear MemoRise, and five static device-list builders `32cb9050` `32cb9220` `32cb95c0` `32cb96c0` `32cc5d30` |
+
+**Same as March:** `32cb9110`, `32cc1c50`, `32cc6e50` (minus its `#ifndef UPGRADE_SKILL_SYSTEM_2013` head), `32cc7fa0` (June has no `m_pLightningBolt` block), both particle-array builders (names, ids, draw counts), `32cb9050` / `32cb9220` / `32cb95c0` / `32cc5d30`, `32cc98e0` (= `AddStoneWall`).
+**What differs from March:**
+- **`InitComponent`.** The PVP initial MP is gone (`GetGameType` is called and the result dropped); the eight minor handles are tagged with the effect-alpha category (`32296da0`). The two setters `32cce230` / `32cce370` tag their new handle the same way (checklist 7c).
+- **`ReInit`.** `MP < 50.0` and game type != PVP -> `SetNowMp( 50 )`; in game types 1 and 4 (4 has no March value) it clears the MemoRise entries.
+- **`DamageReact`.** After `DamageReactStateChange( pDD, -1, -1 )`, meditation + `DD.m_bNoDamage` false erases BTI 35 and BTI 107 (March tests memo 11 and erases 35 only).
+- **`Win` / `Draw` / `Lose`.** June's riding states are ids `0x4b` / `0x4c`, the names `USI_RIDING_WAIT_HABIT` / `USI_RIDING_WAIT` (June `GUSI_END + 70 / 71`; March's enum is 74 / 75). `Lose` skips the HP test when there is no gage.
+- **`HyperModeBuffEffectStart`.** Returns before the four boost handles when CX2Unit `+0x3c` is set (June reads it as "transcended") or the awakening effect set exists; both are stand-ins (false).
+- **`InitEtc`** is an empty override. **The constructor** sets `m_fElementalResearchRate` to 1.0 (March 0), has no `m_pLightningBolt`, and sets the June-only fields to the values in the header comments (named by offset, `m_iJune96e4` .. `m_vecJune9848`, `m_fJune8fb8` 1.1 and `m_fJune8fbc` 1.2 are CX2GUUser members). `+0x7d10` is the Aisha `MemoCondition` (funcmap `334720bc`, not ported); the base ctor gets a sixth argument `0xf9`, not ported.
+- **Destructor.** Explicit releases only; `m_SubAttackListSet` is cleared a second time without the staff test.
+
+**Moved (scope rule; the class-map filter and funcmap rows carry them):** these were bucketed CH1h because the map found no registration. They are skill-state callbacks registered inside `32cede00` (thunks `32cf2600` .. `32cf2be0`), or helpers of a later phase's function.
+- **CH2a:** `32cccb40` `32cdb5e0` `32cdbb70` (Meteo Shower Start / FrameMove / End), `32cdc4a0` (Fire Road). **CH2b:** `32cdcac0` (Energy Drain). **CH3a:** `32ccd320` `32ccd400` `32cdf240` (Lightning Shower), `32cd75f0` `32cd7800` (Circle Flame), `32cd9af0` + `32cf1a80` (Hell Drop, UFO getter).
+- **CH4:** `32ce9f90` (skill 22416 passive callback). **CH1i:** `32cc9680` (helper of `32cc98b0`), `32ce6f40` (helper of `32ce7480`), `32ce16d3` (tail of `32ce15a0`), `32ce1770` (container sweep, checklist 7ak).
+- **n/a:** `32cf1ab0` `32cf1bd0` `32cf1c60` `32cf1dc0` `32cf1eb0` `32cf20a0` `32cf2100` `32cf2550` (STL instantiations for `m_vecStoneWallData`), and `32cf2d90` `32cf2da0` `32cf2e70` `32cf2e90` (past Aisha's end: Elsword starts at `32cf2da0`).
+The five kickoffs got a "From CH1h" note.
+
+**Open for the review (stand-ins, not guessed; all need Opus).**
+1. The MemoRise container at `+0x9760` (element type; the entries look like skill ids) is still `m_iJune9770`; `June_ClearMemoRise` and `June_IsMemoRiseEmpty` sit on it.
+2. CX2Game `322deb80` (redraws the MemoRise slots) is the no-op `June_GameRefreshMemoRise`; CX2Unit `+0x3c` is `June_UnitFlag3c` (false).
+3. The June-only constructor fields (roles unread) and `EffSetID_June2..4`.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl -Zs` of the `.cpp` under the US_SERVICE defines: 0 errors, the block is in the preprocessed unit.
+Build: `DEPLOY OK: X2_offline.exe is 25,616,384 B, dated 2026-10-20 21:40:54, md5 e4a46981038d8dd7cdc3b1cd6aee3830, equal to X2/US_SERVICE/x2.exe (2026-10-20 21:40:47); built at main ff568169 + 2 uncommitted code file(s).`
+
+No `JUNE_BUGS` row (the dropped PVP initial MP and the null-gage `Lose` are June behaviour, not defects). Checklist rows touched: 7 l.266 (`32cc98e0`, ported here) and 7c (`InitComponent` / setter tags, ported here).
+**In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1h-review.md` (Opus). Next: CH1i after the review.
+
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

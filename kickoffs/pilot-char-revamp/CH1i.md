@@ -58,3 +58,10 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
 CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
 - in: none
 - out: none
+
+## From CH1h (2026-10-20)
+
+- The class map now lists four more CH1i functions: `32cc9680` (helper of `32cc98b0`, vslot 0x834), `32ce6f40` (Angor Hammer mesh, helper of `32ce7480`), `32ce16d3` (the tail of `32ce15a0`) and `32ce1770` (MemoRise container sweep, checklist 7ak; callers `3220f4dc` `3220e995` `328df9db`).
+- CH1h wrote `June_ClearMemoRise( const bool* )` (`32ce1900`) and `June_IsMemoRiseEmpty()` (`32cc2880`) on the `m_iJune9770` stand-in. The container's element type is still open: `32ce1770` / `32ce15a0` test each entry with `3288ff80` (a user-skill-tree call), so the entries look like skill ids. Replace the stand-in when you write the filler (`32ccf4e0`, `32ced640`).
+- `322deb80` (CX2Game redraws the MemoRise slots; it tests the unit's templet class == 2 and `32cc2880`) is the no-op `June_GameRefreshMemoRise` in the CH1h block's anonymous namespace. Port it here if the memorize UI needs it (else CH4).
+- `m_pJuneMpRefund` (`+0x96ac`) is June's slot for what March calls `m_pStrongMindData`.
