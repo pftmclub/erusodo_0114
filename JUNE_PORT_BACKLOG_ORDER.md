@@ -318,6 +318,7 @@ kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revam
 - The class-change quest (`QT_CHANGE_TRANSCENDENTAL_CLASS`), `TranscendentalClassItem`, and the guide UI.
 - Unlocking the TC slot, `TRANSCENDENTAL_SKILL_DATA`, and `USI_TRANSCENDENTAL_HYPER_MODE`.
 - Transcendence sockets (`SDT_*_TRANSCEND*`) and emulator support.
+- **Awakening effect-set family** (pilot CH1b, 2026-10-20; drift, not Aisha's alone): June's data-driven awakening effects. `32011d20` (equipped-item lookup, CX2Unit `+0xa48` key 15), `31fd66b0` (unit `+0x9578` map find), `32011f50` (stores the effect-set handle at unit `+0x9f4`), `3204b5e0`, `32298590` (`Effectset_TRANScendence_WakeUp_FX` -> `+0x9f8`), stop `32296cb0`. No March member (funcmap `32296cb0`, `32298590`). Every class's awakening frame-move calls them (Aisha's `June_CommonHyperModeFrameMove` `32ce12c0` carries three file-local stand-ins with June's empty-map default). RE first (Opus): what the +0x9578 map holds and who fills it; offline reach = every awakening.
 - **Skill cut-in art** (june-gfx Z, 2026-10-19): the user skill cut-in is June's GFx widget set (flag `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN`); the `HQ_CutIn_*.gfx` art ships in the staged data152 / data195. A transcended class's cut-in
   names must be June's `.gfx` names, like any class port (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`, after 7t; candidates per prefix in `june2017_re/g4_cutin_names.tsv`).
 

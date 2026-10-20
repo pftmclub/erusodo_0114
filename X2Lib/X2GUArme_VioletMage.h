@@ -139,6 +139,11 @@ class CX2GUArme_VioletMage : public CX2GUUser
 
 			AVSI_TRANSFORMED,
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+			AVSI_TELEPORT_STAND_UP_START_UPGRADE,			/// June script id 242 ( CH1b: chosen by June_DamageDown*EventProcess; CH2a registers the state )
+			AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE,			/// June script id 243
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+
 //#ifdef PVP_BOSS_COMBAT_TEST
 //			AVSI_FROZEN,
 //#endif PVP_BOSS_COMBAT_TEST
@@ -841,6 +846,51 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		int							m_iJune9770;				/// June +0x9770: the size of a container at +0x9760 ( MemoRise entries; CH1h constructs it, CH1i fills it and replaces this member with its size() )
 		CX2EffectSet::Handle		m_hJuneMemoRiseLoop;		/// June +0x9778: the EffectSet_AIsha_MemoRise_Loop handle ( -1 = none ), played by ChargeMPFrameMove, stopped by ChargeMPStart
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1a
+
+		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1b ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June transcriptions of Aisha's reaction / riding / event states ( class map phase CH1b ), definitions at the end of
+		/// X2GUArme_VioletMage.cpp with the June address of each.
+		void June_DieFrontFrameMove();									/// June 32cb6ed0
+		void June_DieFrontEventProcess();								/// June 32cb6ef0
+		void June_DieBackFrameMove();									/// June 32cb6f20
+		void June_DieBackEventProcess();								/// June 32cb6f40
+		void June_DieFrontStartFuture();								/// June 32cb98a0
+		void June_DieFrontStart();										/// June 32cb9900
+		void June_DieBackStartFuture();									/// June 32cb9970
+		void June_DieBackStart();										/// June 32cb99d0
+		void June_DamageAirDownLandingInit();							/// June 32cb7170
+		void June_DamageDownFrontFrameMove();							/// June 32cb9d90
+		void June_DamageDownBackFrameMove();							/// June 32cb9de0
+		bool June_IsTeleportUpgradeAcquired();							/// June 32cc5ae0 ( helper )
+		void June_DamageDownFrontEventProcess();						/// June 32cc6520
+		void June_DamageDownBackEventProcess();							/// June 32cc66a0
+		void June_DamageAirDownLandingEventProcess();					/// June 32cc6820
+		void June_AVSI_TELEPORT_STAND_UP_START_Start();					/// June 32cc9160
+		void June_AdaptAdvancedTeleportationBuff();						/// June 32cc1cd0 ( helper )
+		void June_AVSI_TELEPORT_STAND_UP_START_FrameMoveFuture();		/// June 32ccc5a0
+		void June_AVSI_TELEPORT_STAND_UP_START_EventProcess();			/// June 32cb7210
+		void June_EvasionEndFrameMove();								/// June 32cd2740
+		void June_EvasionEndEventProcess();								/// June 32cb9e30
+		void June_EvasionStandupAttackStart();							/// June 32cb7240
+		void June_EvasionStandupAttackEnd();							/// June 32cb7270
+		void June_EvasionStandupAttackFrameMove();						/// June 32cd2870
+		void June_EvasionStandupAttackEventProcess();					/// June 32cb9e90
+		void June_DashJumpAttackZStartFuture();							/// June 32cb7530
+		void June_DashJumpAttackZFrameMoveFuture();						/// June 32cc6ca0
+		void June_DashJumpAttackZFrameMove();							/// June 32cd5360
+		void June_ComboX4ChargeStateStart();							/// June 32cbb8d0
+		void June_ComboX4ChargeStateEnd();								/// June 32cbba10
+		void June_RidingHyperModeInit();								/// June 32cb8a50
+		void June_RidingHyperModeFrameMove();							/// June 32ce6f20
+		void June_RidingHyperModeCameraMove();							/// June 32ce1590
+		void June_HyperModeCameraMove();								/// June 32cd1470 ( helper )
+		void June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ );	/// June 32ce12c0 ( helper )
+		void June_ApplyLimitedManaManagement();							/// June 32ccd4a0 ( helper )
+		void June_Vslot60c();											/// June 32cb8b60 ( vslot 0x60c ): body in CH1i
+		void June_Vslot608();											/// June 32ccda40 ( vslot 0x608 ): body in CH1i
+		void June_RidingOffStart();										/// June 32cf0f90
+		void June_RidingHyperModeEnd();									/// June 32cf0fa0
+		//}} Iruha : 2026-10-20 // June character pilot Phase CH1b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

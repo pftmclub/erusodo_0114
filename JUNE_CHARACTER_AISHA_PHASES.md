@@ -463,6 +463,53 @@ inside the flag, reworded (2 stand-in comments, 1 MemoRise comment, the `m_iJune
 No drift: the MemoRise container, timer and slot pass are Aisha's class mechanic, owned by CH1h / CH1i (and CH5 for any HUD drawing). **In game:** nothing (inert code).
 Next: CH1b (`kickoffs/pilot-char-revamp/CH1b.md`, unchanged apart from the review note).
 
+### CH1b - Done (2026-10-20)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`, the commit "Character pilot Phase CH1b". The 38 class-map rows of phase CH1b are 38 new `CX2GUArme_VioletMage::June_*`
+members (declared after CH1a's in `X2GUArme_VioletMage.h`, bodies in a second block at the end of the `.cpp`, each with its June address), plus two new `ARME_VIOLEMAGE_STATE_ID` members
+(`AVSI_TELEPORT_STAND_UP_START_UPGRADE`, `AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE`, June ids 242 / 243, appended after `AVSI_TRANSFORMED`) and 3 file-local stand-ins. Nothing registers or calls them.
+41 funcmap rows `Char CH1b` (38 ported, 3 stand-ins). One `JUNE_BUGS.md` row (371).
+
+| June | Member (`June_` prefix) | June | Member |
+|---|---|---|---|
+| `32cb6ed0` / `32cb6ef0` | DieFrontFrameMove / EventProcess | `32cb6f20` / `32cb6f40` | DieBackFrameMove / EventProcess |
+| `32cb98a0` / `32cb9900` | DieFrontStartFuture / Start | `32cb9970` / `32cb99d0` | DieBackStartFuture / Start |
+| `32cb7170` | DamageAirDownLandingInit | `32cb8a50` | RidingHyperModeInit |
+| `32cb9d90` / `32cb9de0` | DamageDownFront / BackFrameMove | `32cc5ae0` | IsTeleportUpgradeAcquired (helper) |
+| `32cc6520` / `32cc66a0` | DamageDownFront / BackEventProcess | `32cc6820` | DamageAirDownLandingEventProcess |
+| `32cc9160` | AVSI_TELEPORT_STAND_UP_START_Start | `32cc1cd0` | AdaptAdvancedTeleportationBuff (helper) |
+| `32ccc5a0` | AVSI_TELEPORT_STAND_UP_START_FrameMoveFuture | `32cb7210` | AVSI_TELEPORT_STAND_UP_START_EventProcess |
+| `32cd2740` | EvasionEndFrameMove | `32cb9e30` | EvasionEndEventProcess |
+| `32cb7240` / `32cb7270` | EvasionStandupAttackStart / End | `32cd2870` / `32cb9e90` | EvasionStandupAttackFrameMove / EventProcess |
+| `32cb7530` | DashJumpAttackZStartFuture | `32cc6ca0` / `32cd5360` | DashJumpAttackZFrameMoveFuture / FrameMove |
+| `32cbb8d0` / `32cbba10` | ComboX4ChargeStateStart / End | `32cd1470` / `32ce1590` | HyperModeCameraMove (helper) / RidingHyperModeCameraMove |
+| `32ce12c0` | CommonHyperModeFrameMove (helper) | `32ce6f20` | RidingHyperModeFrameMove |
+| `32ccd4a0` | ApplyLimitedManaManagement (helper) | `32cf0f90` / `32cf0fa0` | RidingOffStart / RidingHyperModeEnd (bare jumps to vslots `0x60c` / `0x608`) |
+
+**What differs from March** (the rest is March's body): the three damage-down event processes pick the new `_UPGRADE` stand-up states by `32cc5ae0` (skill 22216 acquired) and draw an ignored `GetRandomInt( 0 )` in the
+`[4]` branch; the teleport stand-up start adds a 1.1 s super-armor window and `32cc1cd0`, then follows to `AVSI_TELEPORT_STAND_UP_END`; Air Blast's centre sequence comes from the Major particle system (March: the minor one);
+the Air Blast / Evasion meshes are tagged for the effect-alpha option (`JuneTagEffectAlphaMesh`, checklist 7c, `c10a_alpha_sites.tsv` `32cd2853` / `32cd29bf`); `CommonHyperModeFrameMove` carries the June-only
+awakening effect-set calls and a mana chance of 0.25 / 0.5 / 1.0 (March `0.33 * count`), now its own function `32ccd4a0`.
+
+**Decoded by structure, not by a table** (worth one check in the review): `+0x2480` / `+0x1730` are `m_ExtraDamagePack.m_EnchantShock` / `m_Frozen` times (order of March's test, offsets differ by 0xd50 = 12 entries);
+the `0x4f` / `0x15` ability types of `32206e50` are `SA_RECOVER_MP_ABS` / `SA_MAX_MP_ABS` (`s0a_templet_keys.tsv`); `322ceaa0` / `322ceab0` / `322cead0` are `g_pData +0x84 / +0x88 / +0x98` (major / minor particle, minor mesh player).
+
+**Stand-ins (need Opus; June's absent-value default, announced nowhere because nothing calls them yet):** `32011d20`, `31fd66b0`, `32011f50` (the June-only awakening effect-set family: unit `+0x9578` map, handle `+0x9f4`,
+a CX2Unit `+0xa48` lookup). No March member (funcmap `32296cb0`, `32298590`: "ported with its host"). They are file-local no-ops, `31fd66b0` answers false, so the March trace shows. `June_Vslot60c` / `June_Vslot608` are
+empty until CH1i writes the overrides `32cb8b60` / `32ccda40`.
+
+**Drift (scope rule):** the awakening effect-set family is not Aisha's alone (every class's `CommonHyperModeFrameMove` / `ApplyHyperModeBuff` calls it). Identified, not planned here: June `32011d20` / `32011f50` /
+`31fd66b0` / `3204b5e0` / `32298590`, March counterpart none, offline reach = every awakening; owner: Stage 6 (bullet "Awakening effect-set family" added to `JUNE_PORT_BACKLOG_ORDER.md`). CH1 needs only the stand-ins.
+
+**Registration notes for CH1:** the `_UPGRADE` states 242 / 243 and `AVSI_TELEPORT_START_UPGRADE` (CH2a) are June-only; June shares `32cb7240` / `32cb7270` / `32cbb8d0` / `32cbba10` across 12 / 11 / 59 states (ch0_state_skill.tsv), and
+registers the Die `FrameMove` for `AVSI_RIDING_ATTACK_Z` / `AVSI_RIDING_JUMP_ATTACK_Z` (JUNE_BUGS 371).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build (the first run failed on the enum members only: my spec repeated an `@@ file` section for the header and the first section was dropped; 11 `C2065`, nothing else): `DEPLOY OK: X2_offline.exe is 25,527,296 B, dated 2026-10-20 07:37:35, md5 137df3179a550733b26a02c8b5d38a19, equal to X2/US_SERVICE/x2.exe (2026-10-20 07:37:28); built at main dd0c90dc + 2 uncommitted code file(s).`
+
+**In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1b-review.md`. Next: CH1c (`kickoffs/pilot-char-revamp/CH1c.md`) after the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

@@ -22652,5 +22652,891 @@ bool CX2GUArme_VioletMage::June_IsMemoRiseChargeActive()
 	return false;
 }
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1a
+
+//{{ Iruha : 2026-10-20 // June character pilot Phase CH1b ( JUNE_CHARACTER_AISHA_PHASES.md )
+// Inert June transcriptions of Aisha's reaction / riding / event states ( class map phase CH1b, 38 June functions in
+// june2017_re/char_arme/ch0_class_map.tsv ). Nothing registers or calls them until CH1 wires them in. Conventions of CH1a above.
+// Further decoding notes ( June byte offsets of CX2GUUser, all read in Ghidra ):
+//   - Future-frame stateParam.bEventFlagList[0..4] = bytes +0x7d85..+0x7d89, Future syncData.bIsRight = +0x7e56. The key bytes are
+//     oneX +0x86ef, oneZ +0x86eb, pureRight +0x86de, pureLeft +0x86da ( the order of March's m_InputData ).
+//   - June state ids passed to StateChange: 0x4 GUSI_DIE, 0xd USI_WAIT, 0x11 USI_JUMP_DOWN, 0x20 / 0x21 USI_DAMAGE_STANDUP_FRONT / BACK,
+//     0x26 USI_DAMAGE_AIR_FALL, 0x9f / 0xf2 AVSI_TELEPORT_STAND_UP_START / _UPGRADE, 0xa0 AVSI_TELEPORT_STAND_UP_END,
+//     0xa1 / 0xf3 AVSI_TELEPORT_STANDUP_ATTACK / AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE ( ids of ch0_state_skill.tsv ).
+//   - The two June-only _UPGRADE states are new members of ARME_VIOLEMAGE_STATE_ID ( X2GUArme_VioletMage.h ), appended after AVSI_TRANSFORMED.
+//   - The inlined XOR-protected values of June ( a ^ b ^ &a ) are read as plain members: GetDashSpeed() ( +0x423c * +0x49c4 ), GetJumpSpeed()
+//     ( +0x4978 ) and the two m_ExtraDamagePack times ( +0x2480 = m_EnchantShock, +0x1730 = m_Frozen: the order of March's test ).
+
+namespace
+{
+	/// June RNSI_A_AISHA_TELEPORT_UPGRADE ( 0x56c8 ), RNSI_P_AVP_LIMITED_MANA_MANAGEMENT ( 0x5787 ), RNSI_P_ADW_ADVANCED_TELEPORTATION ( 0x578b ):
+	/// June's Enum.lua ids ( the C++ SKILL_ID enum is March's numbering ).
+	const int JUNE_RNSI_A_AISHA_TELEPORT_UPGRADE				= 22216;
+	const int JUNE_RNSI_P_AVP_LIMITED_MANA_MANAGEMENT			= 22407;
+	const int JUNE_RNSI_P_ADW_ADVANCED_TELEPORTATION			= 22411;
+
+	/// June 32011d20 ( CX2GUUser, thiscall ), 31fd66b0 and 32011f50: the June-only awakening effect-set family ( unit +0x9578 map, handles
+	/// +0x9f4 / +0x9f8, an equipped-item lookup in CX2Unit +0xa48 ). funcmap: "no March member ... each is ported with its host" ( rows 32296cb0,
+	/// 32298590 ). CommonHyperModeFrameMove 32ce12c0 calls all three, so they exist here as inert stand-ins with June's absent-value default
+	/// ( the map is empty: 31fd66b0 answers false, the other two do nothing ). Their bodies need a reader ( "this needs Opus", CH1 / its own plan ).
+	void June_AwakeningEffectBegin()					/// June 32011d20
+	{
+	}
+
+	bool June_AwakeningEffectSetPresent()				/// June 31fd66b0: a map find of one key in the unit's +0x9578 map != end
+	{
+		return false;
+	}
+
+	void June_AwakeningEffectPlay()						/// June 32011f50
+	{
+	}
+}
+
+//AVSI_DIE_FRONT / AVSI_DIE_BACK ( also AVSI_RIDING_DIE, and June registers 32cb6ed0 as FrameMove of AVSI_RIDING_ATTACK_Z / AVSI_RIDING_JUMP_ATTACK_Z )
+// June 32cb6ed0: DieFrameMove 31ffcba0( 0.19, 1.12 )
+void CX2GUArme_VioletMage::June_DieFrontFrameMove()
+{
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+}
+
+// June 32cb6ef0
+void CX2GUArme_VioletMage::June_DieFrontEventProcess()
+{
+	if( EventTimer( 4.0f, true ) == true )
+	{
+		StateChange( GUSI_DIE );
+	}
+}
+
+// June 32cb6f20
+void CX2GUArme_VioletMage::June_DieBackFrameMove()
+{
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+}
+
+// June 32cb6f40
+void CX2GUArme_VioletMage::June_DieBackEventProcess()
+{
+	if( EventTimer( 4.0f, true ) == true )
+	{
+		StateChange( GUSI_DIE );
+	}
+}
+
+// June 32cb98a0
+void CX2GUArme_VioletMage::June_DieFrontStartFuture()
+{
+	CommonStateStartFuture();
+
+	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+}
+
+// June 32cb9900: vslot 0x338 is DyingStart ( 32014810 )
+void CX2GUArme_VioletMage::June_DieFrontStart()
+{
+	CommonStateStart();
+	DyingStart();
+
+	m_pXSkinAnim->SetPlaySpeed( 0.5f );
+}
+
+// June 32cb9970
+void CX2GUArme_VioletMage::June_DieBackStartFuture()
+{
+	CommonStateStartFuture();
+
+	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+}
+
+// June 32cb99d0
+void CX2GUArme_VioletMage::June_DieBackStart()
+{
+	CommonStateStart();
+	DyingStart();
+
+	m_pXSkinAnim->SetPlaySpeed( 0.5f );
+}
+
+//AVSI_DAMAGE_AIR_DOWN_LANDING ( the Init of 10 damage / teleport states )
+// June 32cb7170
+void CX2GUArme_VioletMage::June_DamageAirDownLandingInit()
+{
+	TextureReadyInBackground( L"stone.dds" );
+	XSkinMeshReadyInBackground( L"Effect_ElSword_dropdown.X" );
+}
+
+//AVSI_DAMAGE_DOWN_FRONT
+// June 32cb9d90: the oneshot gate is June's `+0x24c < t && EventTimer( t )` = EventTimerOneshot
+void CX2GUArme_VioletMage::June_DamageDownFrontFrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.19f ) == true && EventCheck( 0.19f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+}
+
+//AVSI_DAMAGE_DOWN_BACK ( June also registers it for AVSI_DAMAGE_STANDUP_FRONT / _BACK and the AIR damage states )
+// June 32cb9de0
+void CX2GUArme_VioletMage::June_DamageDownBackFrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.32f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.32f ) == true && EventCheck( 0.32f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc5ae0: the unit exists and RNSI_A_AISHA_TELEPORT_UPGRADE is acquired ( CX2UserSkillTree::IsSkillAcquired 328914b0( id, 0 ) = GetUserSkillTemplet != NULL )
+bool CX2GUArme_VioletMage::June_IsTeleportUpgradeAcquired()
+{
+	if( NULL == GetUnit() )
+		return false;
+
+	return NULL != GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_RNSI_A_AISHA_TELEPORT_UPGRADE ), false );
+}
+
+// June 32cc6520: March's DamageDownFrontEventProcess with the _UPGRADE states chosen by 32cc5ae0. The [4] branch draws vslot 0x1c8 GetRandomInt( 0 )
+// and ignores the roll ( March compares it with m_iNoDownDamageAtStandUpAttackPercent and takes the same state either way ).
+void CX2GUArme_VioletMage::June_DamageDownFrontEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+		{
+			GetRandomInt( 0 );
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STANDUP_ATTACK );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+		{
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STANDUP_ATTACK );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = true;
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_START_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STAND_UP_START );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = false;
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_START_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STAND_UP_START );
+		}
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66f )
+	{
+		if( m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+		}
+		else if( m_InputData.oneZ == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cc66a0: as 32cc6520 with USI_DAMAGE_STANDUP_BACK
+void CX2GUArme_VioletMage::June_DamageDownBackEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+		{
+			GetRandomInt( 0 );
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STANDUP_ATTACK );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+		{
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STANDUP_ATTACK );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = true;
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_START_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STAND_UP_START );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = false;
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_START_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STAND_UP_START );
+		}
+		else
+			StateChange( USI_DAMAGE_STANDUP_BACK );
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66f )
+	{
+		if( m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+		}
+		else if( m_InputData.oneZ == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cc6820: AVSI_DAMAGE_AIR_DOWN_LANDING ( no [4] flag and no roll; the [1] branch tests 32cc5ae0 inline )
+void CX2GUArme_VioletMage::June_DamageAirDownLandingEventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+		{
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STANDUP_ATTACK );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = true;
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_START_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STAND_UP_START );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+		{
+			m_FrameDataFuture.syncData.bIsRight = false;
+
+			if( true == June_IsTeleportUpgradeAcquired() )
+				StateChange( AVSI_TELEPORT_STAND_UP_START_UPGRADE );
+			else
+				StateChange( AVSI_TELEPORT_STAND_UP_START );
+		}
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66f )
+	{
+		if( m_InputData.oneZ == true || m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+		}
+		else if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+		}
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_TELEPORT_STAND_UP_START ( and _UPGRADE )
+// June 32cc9160
+void CX2GUArme_VioletMage::June_AVSI_TELEPORT_STAND_UP_START_Start()
+{
+	CommonStateStart();
+
+	D3DXVECTOR2 superArmorTime( 0.0f, 0.6f + 0.5f );
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	AccessVecNowSuperArmorTime().push_back( superArmorTime );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_FrameDataNow.stateParam.m_vecSuperArmorTime.push_back( superArmorTime );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	June_AdaptAdvancedTeleportationBuff();
+}
+
+// June 32cc1cd0: AdaptAdvancedTeleportationBuff on June's ids ( skill level read with the upgrade swap, the templet likewise )
+void CX2GUArme_VioletMage::June_AdaptAdvancedTeleportationBuff()
+{
+	if( 0 < m_iAdvancedTeleportationLv )
+	{
+		const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_RNSI_P_ADW_ADVANCED_TELEPORTATION );
+		const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, true, 0, true );
+
+		if( iSkillLevel > 0 )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet
+				= GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( eSkillID, true );
+
+			if( NULL != pSkillTemplet )
+				SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+		}
+	}
+}
+
+// June 32ccc5a0: March's AVSI_EVASION_STAND_UP_START_FrameMoveFuture ( vslot 0x7c8 = CommonFrameMoveFuture )
+void CX2GUArme_VioletMage::June_AVSI_TELEPORT_STAND_UP_START_FrameMoveFuture()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true
+		&& m_ExtraDamagePack.m_EnchantShock.m_fTime <= 0.f
+		&& m_ExtraDamagePack.m_Frozen.m_fTime <= 0.f )
+	{
+		m_FrameDataFuture.stateParam.bCanPushUnit = false;
+		m_FrameDataFuture.stateParam.bCanPassUnit = true;
+
+		float fMoveTime;
+		LUA_GET_VALUE( m_LuaManager, "MOVE_TIME", fMoveTime, 0.0f );
+
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS * 1.5f;
+		float y = m_FrameDataFuture.syncData.position.y;
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+		for( int i = 0; i < (int)(fMoveTime * 85.0f); i++ )
+		{
+			m_PhysicParam.nowSpeed.x = 700.f;
+			CX2GUUser::PhysicProcess();
+
+			if( true == IsOnSomethingFuture() )
+				m_FrameDataFuture.syncData.position.y = m_FrameDataFuture.unitCondition.landPosition.y + LINE_RADIUS * 1.5f;
+		}
+
+		if( m_FrameDataFuture.syncData.position.y <= y )
+			m_FrameDataFuture.syncData.position.y = y + 100.0f;
+		m_PhysicParam.nowSpeed.x = 0.0f;
+
+		m_FrameDataFuture.stateParam.bCanPushUnit = true;
+		m_FrameDataFuture.stateParam.bCanPassUnit = false;
+
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32cb7210: the follow-up state is AVSI_TELEPORT_STAND_UP_END ( 0xa0 ), not March's AVSI_TELEPORT_END
+void CX2GUArme_VioletMage::June_AVSI_TELEPORT_STAND_UP_START_EventProcess()
+{
+	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+	{
+		StateChange( AVSI_TELEPORT_STAND_UP_END );
+	}
+	CommonEventProcess();
+}
+
+//AVSI_A_AV_TELEPORT_END / AVSI_TELEPORT_STAND_UP_START / _UPGRADE / AVSI_TELEPORT_STAND_UP_END ( FrameMove )
+// June 32cd2740: March's EvasionEndFrameMove, the ArmeEvasion mesh tagged with the effect-alpha category ( checklist 7c, 32296ee0 @32cd2853 )
+void CX2GUArme_VioletMage::June_EvasionEndFrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.03f ) == true && EventCheck( 0.03f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01" );
+		pos.y -= 200.0f;
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMinorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"ArmeEvasion",
+			pos,
+			m_FrameDataNow.unitCondition.dirDegree,
+			m_FrameDataNow.unitCondition.dirDegree,
+			XL_EFFECT_0 );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+	}
+
+	CommonFrameMove();
+}
+
+//AVSI_A_AV_TELEPORT_END / AVSI_TELEPORT_STAND_UP_END ( EventProcess )
+// June 32cb9e30: March's EvasionEndEventProcess ( the two branches have the same body )
+void CX2GUArme_VioletMage::June_EvasionEndEventProcess()
+{
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.4f || m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	CommonEventProcess();
+}
+
+//AVSI_TELEPORT_STANDUP_ATTACK ( and _UPGRADE; June registers 32cb7240 / 32cb7270 as Start / End of 12 / 11 states )
+// June 32cb7240
+void CX2GUArme_VioletMage::June_EvasionStandupAttackStart()
+{
+	CommonStateStart();
+
+	m_DamageData.attackerType	= CX2DamageManager::AT_MESH;
+	m_DamageData.pAttackerAnim	= m_pEvasionAttackAnim;
+}
+
+// June 32cb7270
+void CX2GUArme_VioletMage::June_EvasionStandupAttackEnd()
+{
+	CommonStateEnd();
+
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+}
+
+// June 32cd2870: March's EvasionStandupAttackFrameMove, the ArmeEvasion mesh tagged ( checklist 7c, 32296ee0 @32cd29bf )
+void CX2GUArme_VioletMage::June_EvasionStandupAttackFrameMove()
+{
+	if( m_pEvasionAttackAnim->GetState() == CKTDGXSkinAnim::XAS_PLAYING )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataFuture.unitCondition.bHit = true;
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.03f ) == true && EventCheck( 0.03f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01" );
+		pos.y -= 200.0f;
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMinorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"ArmeEvasion",
+			pos,
+			m_FrameDataNow.unitCondition.dirDegree,
+			m_FrameDataNow.unitCondition.dirDegree,
+			XL_EFFECT_0 );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+
+		m_pEvasionAttackAnim->GetMatrix().Move( pos );
+		m_pEvasionAttackAnim->GetMatrix().RotateDegree( m_FrameDataNow.unitCondition.dirDegree );
+		m_pEvasionAttackAnim->ChangeAnim( L"EvasionAttack", false );
+		m_pEvasionAttackAnim->SetPlaySpeed( 2.0f );
+		m_pEvasionAttackAnim->Play( CKTDGXSkinAnim::XAP_ONE );
+	}
+
+	m_pEvasionAttackAnim->OnFrameMove( m_fTime, m_fElapsedTime );
+	CommonFrameMove();
+}
+
+// June 32cb9e90
+void CX2GUArme_VioletMage::June_EvasionStandupAttackEventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	CommonEventProcess();
+}
+
+//AVSI_DASH_JUMP_ATTACK_Z ( also AVSI_WALL_LANDING and the PEPPER_RUN_READY / PEPPER_RUN states )
+// June 32cb7530: m_bDashJumpZ ( +0x9599 ) is cleared before the jump to CommonStateStartFuture
+void CX2GUArme_VioletMage::June_DashJumpAttackZStartFuture()
+{
+	m_bDashJumpZ = false;
+	CommonStateStartFuture();
+}
+
+// June 32cc6ca0: March's DashJumpAttackZFrameMoveFuture ( the dash speed is GetDashSpeed(), the y speed half the jump speed )
+void CX2GUArme_VioletMage::June_DashJumpAttackZFrameMoveFuture()
+{
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.26f && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.4f )
+	{
+		m_PhysicParam.nowSpeed.x = 0.0f;
+		m_PhysicParam.nowSpeed.y = 0.0f;
+	}
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if( m_pXSkinAnimFuture->EventTimerOneshot( 0.41f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	else if( m_pXSkinAnimFuture->EventTimer( 0.41f ) == true && EventCheck( 0.41f, true) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		m_PhysicParam.nowSpeed.x -= GetDashSpeed();
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed() * 0.5f;
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32cd5360: March's DashJumpAttackZFrameMove. The centre sequence is taken from the MAJOR particle system ( 322ceaa0, g_pData +0x84 ),
+// March takes it from the minor one ( 322ceab0, +0x88 ), which June keeps for the ring
+void CX2GUArme_VioletMage::June_DashJumpAttackZFrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.27f ) && EventCheck( 0.27f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 5.0f ) == true )
+		{
+			PlaySound( L"flame.ogg" );
+			PlaySound( L"Sound_Arme_shout2.ogg" );
+
+			D3DXVECTOR3 pos = GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleAishaMinorParticleByEnum( AISHA_PII_MINOR_AIR_BLAST_RING ) );
+			if( NULL != pSeq )
+			{
+				PlaySequenceByTriggerCount( pSeq, pos, 1000, 1000,  1 );
+
+				if( GetIsRight() == true )
+					pSeq->SetAddRotate( D3DXVECTOR3( 30.0f, m_FrameDataNow.unitCondition.dirDegree.y + 70.0f, 0.0f ) );
+				else
+					pSeq->SetAddRotate( D3DXVECTOR3( -30.0f, m_FrameDataNow.unitCondition.dirDegree.y - 70.0f, 0.0f ) );
+			}
+
+			pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleAishaMajorParticleByEnum( AISHA_PII_MAJOR_AIR_BLAST_CENTER ) );
+			if( NULL != pSeq )
+			{
+				PlaySequenceByTriggerTime( pSeq, pos, 10, 20, 0.4f );
+			}
+
+			m_bDashJumpZ = true;
+			m_bDashJumpZPos = pos;
+		}
+		else
+		{
+			D3DXVECTOR3 pos = GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, -30.f );
+
+			m_bDashJumpZ = false;
+		}
+	}
+
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.28f && m_pXSkinAnim->GetNowAnimationTime() < 0.7f && m_bDashJumpZ == true )
+	{
+		m_DamageData.attackerType	= CX2DamageManager::AT_MANUAL_COLLISION_DATA;
+		m_DamageData.bCanRevenge	= false;
+		CKTDXCollision::CollisionData data;
+		data.m_fRadius = 100.0f;
+
+		D3DXMATRIX mat;
+		D3DXMatrixIdentity( &mat );
+		mat._41 = m_bDashJumpZPos.x;
+		mat._42 = m_bDashJumpZPos.y;
+		mat._43 = m_bDashJumpZPos.z;
+		data.m_pCombineMatrix = &mat;
+		m_DamageData.pCollisionData = &data;
+
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+			m_FrameDataFuture.unitCondition.bHit = m_FrameDataNow.unitCondition.bHit;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+//AVSI_DAMAGE_BOUNDING_DOWN ... ( June registers 32cbb8d0 / 32cbba10 as Start / End of 59 states, March's COMBO_X4_CHARGE pair )
+// June 32cbb8d0
+void CX2GUArme_VioletMage::June_ComboX4ChargeStateStart()
+{
+	CommonStateStart();
+
+	m_fPushXChargeTime = 0.f;
+	SetNoDetonation( true );
+}
+
+// June 32cbba10
+void CX2GUArme_VioletMage::June_ComboX4ChargeStateEnd()
+{
+	CommonStateEnd();
+
+	SetNoDetonation( false );
+}
+
+//AVSI_RIDING_HYPER_MODE / AVSI_RIDING_SPECIFIC / AVSI_RIDING_ATTACK_X_READY / _READY_2 / AVSI_RIDING_ATTACK_X_END
+// June 32cb8a50: March's HyperModeInit inlined
+void CX2GUArme_VioletMage::June_RidingHyperModeInit()
+{
+	TextureReadyInBackground( L"ColorBallBlue.dds" );
+	TextureReadyInBackground( L"GroundShockWave.dds" );
+	TextureReadyInBackground( L"WhiteCircle.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"ToKang.dds" );
+	TextureReadyInBackground( L"Energy_Violet.dds" );
+}
+
+// June 32ce6f20 ( a bare jump to 32ce12c0 with 0, 0.1, true )
+void CX2GUArme_VioletMage::June_RidingHyperModeFrameMove()
+{
+	June_CommonHyperModeFrameMove( 0.f, 0.1f, true );
+}
+
+// June 32ce1590: a bare jump to 32cd1470
+void CX2GUArme_VioletMage::June_RidingHyperModeCameraMove()
+{
+	June_HyperModeCameraMove();
+}
+
+// June 32cd1470: March's HyperModeCameraMove
+void CX2GUArme_VioletMage::June_HyperModeCameraMove()
+{
+	CommonCameraMove();
+
+	if( 1 == m_FrameDataNow.stateParam.normalCamera )
+	{
+		if( 0.1f <= m_pXSkinAnim->GetNowAnimationTime() )
+		{
+			if( m_LuaManager.BeginTable( "CAMERA", m_FrameDataNow.stateParam.normalCamera ) == true )
+			{
+				g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, "SUB_CAMERA1" );
+				m_LuaManager.EndTable();
+			}
+		}
+		else
+		{
+			if( m_LuaManager.BeginTable( "CAMERA", m_FrameDataNow.stateParam.normalCamera ) == true )
+			{
+				g_pX2Game->GetX2Camera()->PlayLuaCamera( this, m_LuaManager, "SUB_CAMERA0" );
+				m_LuaManager.EndTable();
+			}
+		}
+	}
+}
+
+// June 32ce12c0: March's CommonHyperModeFrameMove. June adds the awakening effect-set calls ( 32011d20, 31fd66b0, 32011f50: stand-ins above ),
+// shows the trace only when 31fd66b0 is false, and moves the mana-management block into 32ccd4a0.
+void CX2GUArme_VioletMage::June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ )
+{
+	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( fTime1_ ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( fTime1_ ) == true && EventCheck( fTime1_, false) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		ShowMinorParticleHyperModeChange();
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Stickslash1.ogg" );
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( fTime2_ ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( fTime2_ ) == true && EventCheck( fTime2_ , false) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		June_AwakeningEffectBegin();
+		if( true == June_AwakeningEffectSetPresent() )
+			June_AwakeningEffectPlay();
+
+		ShowMinorParticleHyperModeShock();
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Energy.ogg" );
+			PlaySound( L"Break.ogg" );
+			PlaySound( L"Change.ogg" );
+		}
+
+		UpDownCrashCamera( 20.0f, 0.3f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		if( false == June_AwakeningEffectSetPresent() )
+			ShowMinorParticleHyperModeTrace();
+		ApplyHyperModeBuff();
+
+		June_ApplyLimitedManaManagement();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32ccd4a0: the mana-management block of March's CommonHyperModeFrameMove / HyperModeFrameMove. June's chance table is 0.25 / 0.5 / 1.0
+// by the last hyper-mode count ( 1 / 2 / other ) where March uses 0.33 * count; only the FIX_LIMITED_MANA_MANAGEMENT path exists.
+void CX2GUArme_VioletMage::June_ApplyLimitedManaManagement()
+{
+	const int iHyperModeCount = GetLastStateHyperModeCount();
+	if( 1 == iHyperModeCount )
+		m_fRateLimitManaManagement = 0.25f;
+	else if( 2 == iHyperModeCount )
+		m_fRateLimitManaManagement = 0.5f;
+	else
+		m_fRateLimitManaManagement = 1.0f;
+
+	const float rdf = GetRandomFloat( 0 );
+	if( rdf <= m_fRateLimitManaManagement )
+	{
+		const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_RNSI_P_AVP_LIMITED_MANA_MANAGEMENT );
+		const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, true, 0, true );
+
+		if( iSkillLevel > 0 )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+
+			if( NULL != pSkillTemplet )
+			{
+				m_iHyperChargeMP = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_RECOVER_MP_ABS, iSkillLevel );	/// June SA type 0x4f
+				m_iHyperAddMP = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MAX_MP_ABS, iSkillLevel );		/// June SA type 0x15
+
+				SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+				UpNowMp( m_iHyperChargeMP );
+
+				std::wstringstream strStream;
+				std::wstringstream strStream2;
+				strStream << L"MAXMP+ "<< static_cast<int>(m_iHyperAddMP);
+				D3DXVECTOR3 pos = GetPos();
+				pos.y += 50.0f;
+				if( NULL != g_pData->GetPicCharBlue() )
+					g_pData->GetPicCharBlue()->DrawText( strStream.str().c_str(), pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+
+				pos.y += 30.0f;
+				strStream2 <<  "MP+ " << static_cast< int >( m_iHyperChargeMP );
+				if( NULL != g_pData->GetPicCharBlue() )
+					g_pData->GetPicCharBlue()->DrawText( strStream2.str().c_str(), pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+			}
+		}
+	}
+}
+
+// June 32cb8b60 ( vslot 0x60c ) and 32ccda40 ( vslot 0x608 ): Aisha's own virtuals, class map phase CH1i. Empty until then.
+void CX2GUArme_VioletMage::June_Vslot60c()
+{
+}
+
+void CX2GUArme_VioletMage::June_Vslot608()
+{
+}
+
+//AVSI_RIDING_OFF
+// June 32cf0f90: a bare jump to vslot 0x60c
+void CX2GUArme_VioletMage::June_RidingOffStart()
+{
+	June_Vslot60c();
+}
+
+//AVSI_RIDING_HYPER_MODE / AVSI_RIDING_SPECIFIC / AVSI_RIDING_ATTACK_X_READY ... ( End )
+// June 32cf0fa0: a bare jump to vslot 0x608
+void CX2GUArme_VioletMage::June_RidingHyperModeEnd()
+{
+	June_Vslot608();
+}
+//}} Iruha : 2026-10-20 // June character pilot Phase CH1b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS
