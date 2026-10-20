@@ -480,6 +480,11 @@ which this stage widens). Lu/Ciel, Rose and Ain rows stay inert until Stage 8, a
   pet's clock (3D forced on, loop off, records not erased) and attaches their delete conditions (`3227a740`). Depends on june-effect
   C9h-4a (the record and the attach).
 
+- **The dance states** (pilot-char-revamp CH1j, 2026-10-21). Every June class InitState registers `<prefix>DANCE_Z` / `_X` / `_WAIT` (June user
+  ids 0x7f-0x81, funcmap row "June user state ids 0x7b..0x81"). Their callbacks are June CX2GUUser functions March lacks: thunks `329cc140` /
+  `329cc1d0` / `329cc040` (EventProcess). March reserves no state id for them. Aisha's `June_InitStateCommon` leaves them out with a note. This
+  stage gives them ids and their CX2GUUser callbacks, then adds the registration to each ported class. First find what enters them (emotion or item).
+
 ### Stage 11: division item templets (june-effect C9f, 2026-10-07)
 
 Found by june-effect C9f (`JUNE2017_EFFECT_COMPLETION_PHASES.md`, "C9f - Done"; funcmap rows `Effect C9f`). June's
@@ -694,6 +699,12 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
   `ENABLE_RIDING_PET_COLLISION_BOX` (a bone-name list) in 5 of March's riding-pet scripts (GodBeast_Fire, the three Oberon 650s, Scorpion Type R; the other June pets were not counted).
   March has no reader (inert), and June's version of all 14 adopted pets dropped `CAN_PUSH_UNIT` / `CAN_PASS_UNIT` (Scorpion's `PASS_DASH` no longer passes through
   monsters). Identify the reader (Ghidra: the `INIT_SYSTEM` loader of `CX2RidingPet`) and port it with the pets.
+
+- **June-only riding user states** (pilot-char-revamp CH1j, 2026-10-21). Every June class InitStateCommon registers `<prefix>RIDING_SPECIFIC`,
+  `_ATTACK_X_READY`, `_ATTACK_X_READY_2` and `_ATTACK_X_END` (June ids 93-96). Their callbacks are CX2GUUser functions March lacks
+  (`31fce380` / `31fce3b0` / `31fd40b0`, `31fce410` / `31fce3e0` / `31fd41a0`, `31fce4d0` / `31fce4a0` / `320343e0`, `31fce470` / `31fce440` /
+  `32033fe0`). June also gives `<prefix>RIDING_ATTACK_X` a FrameMove, `32002f70`. Aisha's registration leaves all of these out with a note. This stage
+  ports the states with the riding code that enters them, then adds them to each ported class (`june2017_re/char_arme/ch1j_reg_by_class.tsv` has Aisha's rows).
 
 ### Stage 18: NPC friendship system (june-effect C9h-5, 2026-10-08)
 

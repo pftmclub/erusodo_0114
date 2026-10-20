@@ -4,10 +4,21 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase pilot-char-revamp CH1` |
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
-| Depends on | CH0, CH0b (Aisha's assets are already June's when CH1 starts), CH1a-CH1i and their reviews (amended by CH0) |
+| Depends on | CH0, CH0b (Aisha's assets are already June's when CH1 starts), CH1a-CH1i and their reviews (amended by CH0); since the split, CH1j-CH1m and their reviews |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (+ `SERV_IRUHADEV_JUNE_CHAR_DEBUG` if the phase logs per frame) |
 | Log tag | `[JUNE_CHAR]` (`python tools/logs.py --tag JUNE_CHAR`; lines `ARME DATA` / `ARME CORE`) |
 | Review | `kickoffs/pilot-char-revamp/CH1-review.md` (the phase writes it when done) |
+
+## Split (2026-10-21, user): this file is now the final sub-phase
+
+The CH1 session split the work (plan doc "CH1 split"): CH1j did item 1, CH1j2 the five missed callbacks, CH1k item 2 and the base callbacks,
+CH1l item 3 and the CH1i-review gaps, CH1m items 4 and 5. All of it is behind `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE`, which is undefined.
+**The final CH1 does:**
+1. Define `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE` in `Always.h` (`//#define` since CH1j). Run `flagcheck.py JUNE_CHAR_ARME_LIVE` (it FAILs until it is defined).
+2. Item 6: adopt the script, and `charport_scan.py` / `charport_keys.py Arme_VioletMage` show nothing new.
+3. Build, pack, ask before the copy, and hand over the play-test, with the Done gate of the plan doc's "Phase CH1".
+Also check two notes from CH1j. First, March's `CommonStateStart` must accept June's empty `ANIM_NAME` of `AVSI_WAIT_STATE_CHANGE` (checklist 7h).
+Second, JUNE_BUGS 379: `AVSI_RIDING_DAMAGE_BACK` has no table in June's script. The items below are kept as the record of what the sub-phases took.
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

@@ -2501,6 +2501,15 @@ public:
 		void JuneInitWaitStateChange( IN const char* pszTableName_ );
 		void JuneWaitStateChangeEventProcess();
 #endif SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+		/// Character pilot CH1j: June state callbacks that March writes per class
+		std::string JuneGetHyperModeTableName( IN bool bCiel_ ) const;	/// June 31fdd490
+		void JuneDashJumpStartFuture();		/// June 31fc7f50
+		void JuneDashJumpStart();			/// June 31fcbdf0
+		void JuneDashJumpFrameMoveFuture();	/// June 31fd2520
+		void JuneDashJumpEndFuture();		/// June 31fc7f80
+		void JuneDamageBigStart();			/// June 31fc7fd0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
 		/// C9h-4h: June's "Heavenly Combat Support Kit" event states ( USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT ), registered for every class ( June 3202b110 ).
 		/// The two event NPCs ( June Enum NUI_NEIL_THE_SNIPER_EVENT / NUI_PROTON_BOMB_EVENT; March has no NPC_UNIT_ID for them ).
@@ -4684,6 +4693,10 @@ public:
 	float m_fJuneCommandHitTime;	/// June +0x9478, 16-step3c2 (ctor 0 @32041e26; a float copy of g_pKTDXApp->GetTime())
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+	float m_fJuneDashJumpDownAccelRate;	/// June +0x8fb8 ( 1.2; Aisha's constructor sets 1.1 )
+	float m_fJuneDashJumpSpeedRate;		/// June +0x8fbc ( 1.6; Aisha's constructor sets 1.2 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_INSTANCE_KILL
 	/// June buff port Phase 14b: June +0x6ba4 (a protected bool; ctor 322a2700, setter 32082710), written by DamageReact
 	/// from HaveInstanceKillDebuff and consumed (cleared, HP to 0) after UpNowHp in the same function

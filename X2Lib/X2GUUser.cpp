@@ -797,6 +797,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 , m_fJuneCommandHitTime( 0.f )
 #endif SERV_IRUHADEV_JUNE_SOCKET_EDT
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+, m_fJuneDashJumpDownAccelRate( 1.2f )		/// June @32040f01
+, m_fJuneDashJumpSpeedRate( 1.6f )			/// June @32040f15
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE //김창한
 , m_bSetCustomRenderParam( false )
 #endif //SERV_ELESIS_SECOND_CLASS_CHANGE
@@ -31501,6 +31505,132 @@ void CX2GUUser::JuneInitBoundingStates( const char* pszPrefix_ )
 			pszPrefix_, static_cast<int>( USI_BOUNDING_DOWN ), static_cast<int>( USI_BOUNDING_LANDCRASH ), static_cast<int>( USI_BOUNDING_UP ) );
 }
 #endif SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j ( JUNE_CHARACTER_AISHA_PHASES.md )
+namespace
+{
+	/// June CX2Unit +0x3c ( transcended ); March has no transcendence before Stage 6
+	bool JuneIsUnitTranscended( const CX2Unit* pUnit_ )
+	{
+		UNREFERENCED_PARAMETER( pUnit_ );
+		return false;
+	}
+}
+
+// June 31fdd490: the table by unit type, then by class for a transcended unit
+std::string CX2GUUser::JuneGetHyperModeTableName( IN bool bCiel_ ) const
+{
+	std::string strName;
+	CX2Unit* pUnit = GetUnit();
+	const int iUnitType = ( NULL != pUnit && NULL != pUnit->GetUnitTemplet() ) ? static_cast<int>( pUnit->GetUnitTemplet()->m_UnitType ) : 0;
+
+	switch( iUnitType )
+	{
+	case 1:		strName = "ESSI_HYPER_MODE";	break;
+	case 2:		strName = "AVSI_HYPER_MODE";	break;
+	case 3:		strName = "LESI_HYPER_MODE";	break;
+	case 4:
+	case 11:	strName = "RSI_HYPER_MODE";		break;
+	case 5:		strName = "ENSI_HYPER_MODE";	break;
+	case 6:		strName = "CSI_HYPER_MODE";		break;
+	case 7:		strName = "ASI_HYPER_MODE";		break;
+	case 8:		strName = "ESI_HYPER_MODE";		break;
+	case 9:		strName = "ANSI_HYPER_MODE";	break;
+	case 10:	strName = ( true == bCiel_ ? "LSI_CIEL_HYPER_MODE" : "LSI_LU_HYPER_MODE" );	break;
+	case 12:	strName = "AASI_HYPER_MODE";	break;
+	default:	break;
+	}
+
+	if( NULL != pUnit && true == JuneIsUnitTranscended( pUnit ) )
+	{
+		switch( static_cast<int>( pUnit->GetUnitData().m_UnitClass ) )
+		{
+		case 100:	strName = "ESSI_ELK_HYPER_MODE";	break;
+		case 101:	strName = "ESSI_ERS_HYPER_MODE";	break;
+		case 102:	strName = "LESI_LWS_HYPER_MODE";	break;
+		case 103:	strName = "LESI_LGA_HYPER_MODE";	break;
+		case 104:	strName = "AVSI_AEM_HYPER_MODE";	break;
+		case 105:	strName = "AVSI_AVP_HYPER_MODE";	break;
+		case 106:	strName = "RSI_RBM_HYPER_MODE";		break;
+		case 107:	strName = "RSI_RRF_HYPER_MODE";		break;
+		case 108:	strName = "ENSI_ECN_HYPER_MODE";	break;
+		case 109:	strName = "ENSI_ECE_HYPER_MODE";	break;
+		case 110:	strName = "CSI_CIP_HYPER_MODE";		break;
+		case 111:	strName = "CSI_CDC_HYPER_MODE";		break;
+		case 112:	strName = "ESSI_EIS_HYPER_MODE";	break;
+		case 113:	strName = "AVSI_ADW_HYPER_MODE";	break;
+		case 114:	strName = "LESI_LNW_HYPER_MODE";	break;
+		case 115:	strName = "RSI_RVC_HYPER_MODE";		break;
+		case 116:	strName = "ENSI_ECB_HYPER_MODE";	break;
+		case 117:	strName = "CSI_CTT_HYPER_MODE";		break;
+		case 118:	strName = "ASI_ASD_HYPER_MODE";		break;
+		case 119:	strName = "ASI_AYR_HYPER_MODE";		break;
+		case 120:	strName = "ESI_EGM_HYPER_MODE";		break;
+		case 121:	strName = "ESI_EBH_HYPER_MODE";		break;
+		case 122:	strName = "ANSI_ALP_HYPER_MODE";	break;
+		case 123:	strName = "ANSI_AMM_HYPER_MODE";	break;
+		case 124:	strName = "ASI_AA_HYPER_MODE";		break;
+		case 125:	strName = "ESI_ECA_HYPER_MODE";		break;
+		case 126:	strName = "ANSI_ADE_HYPER_MODE";	break;
+		case 127:	strName = ( true == bCiel_ ? "LSI_LLD_CIEL_HYPER_MODE" : "LSI_LLD_LU_HYPER_MODE" );	break;
+		case 128:	strName = ( true == bCiel_ ? "LSI_LCN_CIEL_HYPER_MODE" : "LSI_LCN_LU_HYPER_MODE" );	break;
+		case 129:	strName = ( true == bCiel_ ? "LSI_LDN_CIEL_HYPER_MODE" : "LSI_LDN_LU_HYPER_MODE" );	break;
+		case 130:	strName = "RSI_RCR_HYPER_MODE";		break;
+		case 131:	strName = "RSI_RSR_HYPER_MODE";		break;
+		case 132:	strName = "RSI_ROM_HYPER_MODE";		break;
+		case 133:	strName = "RSI_RFY_HYPER_MODE";		break;
+		case 134:	strName = "AASI_AAH_HYPER_MODE";	break;
+		case 135:	strName = "AASI_AEE_HYPER_MODE";	break;
+		case 136:	strName = "AASI_AAP_HYPER_MODE";	break;
+		default:	break;
+		}
+	}
+	return strName;
+}
+
+// June 31fc7f50
+void CX2GUUser::JuneDashJumpStartFuture()
+{
+	CommonStateStartFuture();
+	m_bDownForce = false;
+	m_PhysicParam.fDownAccel = m_fJuneDashJumpDownAccelRate * m_PhysicParam.fGAccel;
+}
+
+// June 31fcbdf0
+void CX2GUUser::JuneDashJumpStart()
+{
+	CommonStateStart();
+	if( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
+		CreateStepDust();
+}
+
+// June 31fd2520: no down-force branch ( March's class copies had one )
+void CX2GUUser::JuneDashJumpFrameMoveFuture()
+{
+	if( ( true == m_InputData.pureRight && true == m_InputData.pureLeft )
+		|| ( true == m_InputData.pureRight && true == m_FrameDataNow.syncData.bIsRight )
+		|| ( true == m_InputData.pureLeft && false == m_FrameDataNow.syncData.bIsRight ) )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed() * m_fJuneDashJumpSpeedRate;
+	}
+	CommonFrameMoveFuture();
+}
+
+// June 31fc7f80
+void CX2GUUser::JuneDashJumpEndFuture()
+{
+	CommonStateEnd();
+	m_PhysicParam.fDownAccel = 0.0f;
+}
+
+// June 31fc7fd0
+void CX2GUUser::JuneDamageBigStart()
+{
+	CommonStateStart();
+	CreateStepDust();
+}
+//}} Iruha : 2026-10-21 // June character pilot Phase CH1j
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 /** @function : DamageAirFlyEventProcess
 	@brief : Fly Type의 공격을 받은 상태의 EventProcess
 */

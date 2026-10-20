@@ -1124,6 +1124,65 @@ No code change, so no build. The CH1i deploy (`md5 15bef827...`) stands.
 
 Records: "From the CH1i review" notes in `CH1.md`, `CH2b.md` and `CH5.md`; a Stage 22 bullet in `JUNE_PORT_BACKLOG_ORDER.md`. No JUNE_BUGS row. **In game:** nothing (inert). Next: CH1.
 
+### CH1 split (2026-10-21, user)
+
+CH1 started on Opus and found the wiring larger than its kickoff: June moved ~20 common state callbacks (damage small / big, dash jump, START / WIN / LOSE)
+from each class into CX2GUUser, and five registered Arme callbacks were never transcribed. The user chose to split CH1 behind a second flag,
+`SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE`, which stays undefined until the last sub-phase. Until then the wiring is compiled but never runs, so the
+one-deploy-unit rule holds: the C++ and June's script go live together in the final CH1.
+
+| Sub-phase | Run with | Scope (kickoff items of `CH1.md`) |
+|---|---|---|
+| CH1j | Opus 5.5 high, Opus review | Item 1: June's `InitState` / `InitStateCommon` registration, the hyper-mode table name, the dash-jump base callbacks, the LIVE gate |
+| CH1j2 | Sonnet 5.5 high, Opus review | The five never-transcribed callbacks CH1j left empty or on a stand-in |
+| CH1k | Opus 5.5 high, Opus review | The six June CX2GUUser base callbacks CH1j left on stand-ins; item 2 (`SetEquippedSkillFuncBySkillSlotIndex` head and its CH1 helpers) |
+| CH1l | Opus 5.5 high, Opus review | Item 3 (the virtuals, under LIVE); the CH1i-review gaps; the CX2GUUser hoists of the CH1i notes |
+| CH1m | Opus 5.5 high, Opus review | Item 4 (7ag pressed-index space); item 5 (hooks and the 7 June-only script keys) |
+| CH1 (final) | Opus 5.5 high, Opus review, then user play-test | Define LIVE; item 6 (adopt the script, scans); pack, copy, build, the play-test and the Done gate above |
+
+### CH1j - Done (2026-10-21, Opus)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`; the call sits behind the new, undefined `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE`):
+- `June_InitStateCommon` (`32ce77b0`) and `June_InitState` (`32cea0c0`), whole, at the end of `X2GUArme_VioletMage.cpp` (block `//{{ ... CH1j`).
+  `InitState` runs `June_InitState()` under LIVE, March's body in the `#else`.
+- **How the registration was derived.** `june2017_re/charport_regsim.py` walks each decompile once per job class (2, 14, 15, 23, 104, 105, 113), taking the
+  branch each class takes at every class test (switch, `if`, the copied class register, InitStateCommon's templet test). Its 830 registrations
+  (`char_arme/ch1j_reg_by_class.tsv`) reach every one of CH0c's 167 `ch0c_reg.tsv` rows and add none. The code keeps June's order: a registration
+  reached by every class is plain, the others sit in a `switch( eClass )` with the classes that reach them.
+- **State ids by name.** June's numeric ids map to March enumerators through March's own registration of the same table. Two exceptions: 177 is
+  `AVSI_DASH_COMBO_Z3up` (CH1f's choice), and 237 gets a new enumerator `AVSI_DIMENSION_WITCH_DASH_ATTACK_X`, since June registers the Dimension
+  Witch dash attack X twice (178 and 237). June-only ids keep the enumerators that CH1b-CH1i appended. The numbers stay March's, because offline nothing
+  reads them.
+- **Callbacks.** 227 targets resolve to `June_*` members (header `/// June <addr>`). 125 resolve to March members, or to the new CX2GUUser ones below.
+  Each CX2GUUser target pairs with March's registration of the same table and slot, and every pair holds over all its states (funcmap rows
+  `Char CH1j`). 13 targets are left empty or on a stand-in (see "Left for later"). Hooks replace three blocks:
+  `JuneInitBoundingStates( "AVSI_" )` (ids 120-122, 7l), `JuneInitWaitStateChange( "AVSI_WAIT_STATE_CHANGE" )` (0x82, 7h), and WIN's OnEventProcess
+  = `JuneRandomLoseEventProcess` (7h). The die states' StateEnd `3202a7d0` is left empty, because `CX2GUUser::StateChange` already runs it for DIE_FRONT / BACK.
+- **New CX2GUUser pieces:** `JuneGetHyperModeTableName` (`31fdd490`, whole; its transcended branch is off until Stage 6, so Aisha gets `AVSI_HYPER_MODE`),
+  `JuneDashJumpStartFuture` / `Start` / `FrameMoveFuture` / `EndFuture` (`31fc7f50` / `31fcbdf0` / `31fd2520` / `31fc7f80`), `JuneDamageBigStart` (`31fc7fd0`).
+  The members `+0x8fb8` / `+0x8fbc` move up from the Arme class as `m_fJuneDashJumpDownAccelRate` (1.2) / `m_fJuneDashJumpSpeedRate` (1.6). Aisha's
+  constructor sets them to 1.1 / 1.2. June's dash-jump FrameMoveFuture has no down-force branch, and both keys held counts as forward.
+- `32cb7110` = March `HyperModeInit` (same six textures). `32ce1ba0` = `June_LoadAngorHammerMesh` (major mesh player `AppendToDeviceList` of
+  `Mesh_AVP_AngorHammer`). The tail is June's: `InitPassiveSkillState`, `InitEquippedActiveSkillState( false )`, `CX2GUUser::InitState`.
+
+**Left for later sub-phases (stand-ins, inert while LIVE is off; funcmap `ROUTED`):** CH1k ports `31fcbed0` / `31fcbf80` (damage small / big
+EventProcess; they call `SpecialAttackEventProcess( 7 )`, a use condition March lacks), `31ffbd70` / `3201b390` (START), `320004b0` (WIN Start) and
+`320007e0` (LOSE Start). CH1j2 transcribes `32cbca20` (HM COMBO_X2 EventProcess), `32cc3040` (AHM_DASH_JUMP_ZXX_FINISH FrameMove), `32ce7170`
+(AEM_DASH_JUMP_X3 FrameMove), `32cc42a0` / `32ce2cc0` (AVP_DASH_ATTACK_X2). CH0c's map rebuild attached these five to states after CH1e / CH1f had run.
+**Not registered (drift, routed):** the riding June-only states 93-96 and the `AVSI_RIDING_ATTACK_X` FrameMove `32002f70` go to Stage 17. The dance
+states 127-129 go to Stage 10 (a bullet is added). The phoenix-run states 123-126 are PvP's amusement mode, and there is no PvP offline.
+JUNE_BUGS 379: June registers `AVSI_RIDING_DAMAGE_BACK`, but June's script has no table for it.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files <5 files>`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. OTHER is the LIVE gate in `InitState`. The deleted lines are CH1h's two Arme members and their constructor lines, now hoisted. For LIVE,
+flagcheck reports `FAIL: the flag is not #defined anywhere tracked`: that is by design, and its check runs in the final CH1. A `cl /Zs` probe of
+both changed TUs passed before the build.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,668,608 B, dated 2026-10-21 05:27:23, md5 a7ed9dd0fda350ebbce60c664b46e305, equal to X2/US_SERVICE/x2.exe (2026-10-21 05:27:16); built at main e93a6cb6 + 5 uncommitted code file(s).`
+
+**In game:** nothing changes (LIVE is undefined). Next: `/x2-phase pilot-char-revamp CH1j review` (Opus 5.5 high). CH1j2 may follow the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

@@ -4186,3 +4186,142 @@ CX2Game +0xc20 (CH1a review)	none in March: CX2Game byte read by the Arme wait /
 31fcec40	CX2GUArme_VioletMage::June_IsMemorizableSkill	PORTED	Char CH1i: Arme-local; unit type Aisha and skill templet +0x170 ( m_iWOSType ) == 3 ( 32205af0 )
 322f4740	CX2Game MemoRise slot HUD per frame ( +0xb38 timer )	ROUTED	Char CH1i: the reader of 322cc030's +0xb38 is the memorize-slot HUD pass ( Aisha_Memorise_P0n particles, Static_Skill_Cool_Time_Fade ); with 322deb80 it goes to CH4, June_SetGameFloatB38 stays a no-op
 3244d1e0	std::deque<int>::pop_front	N/A	Char CH1i: the container at +0x9760 ( June_SpecialAttackCooldown, mode 3 )
+32ce77b0	CX2GUArme_VioletMage::June_InitStateCommon	PORTED	Char CH1j: whole; registrations per unit class from a path simulation of the decompile ( charport_regsim.py, all 167 ch0c_reg rows reached ); bounding ids 120-122 -> JuneInitBoundingStates( "AVSI_" ), hyper-mode name 31fdd490, riding June-only ids 93-96 and the amusement / dance ids 123-129 not registered
+32cea0c0	CX2GUArme_VioletMage::June_InitState	PORTED	Char CH1j: whole; cut-in indexes, InitStateID ( @32cea176 / @32cea180 ), June_InitStateCommon, InitStateCommonRandom ( 3202b110 + 31fe22d0 ), START / WIN / LOSE, JuneInitWaitStateChange, per-class blocks, 0x690 / 0x684( 0 ), 31fd8f00, 32ce1ba0; called from InitState under SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+32ce1ba0	CX2GUArme_VioletMage::June_LoadAngorHammerMesh	PORTED	Char CH1j: g_pX2Game major mesh player ( 322ceac0 ) AppendToDeviceList ( 31c8a5c0 ) of Mesh_AVP_AngorHammer into the unit's ready list ( +0x194 ), PRIORITY_HIGH
+31fdd490	CX2GUUser::JuneGetHyperModeTableName( bool bCiel )	PORTED	Char CH1j: whole; by unit type ( templet +0 ), then by class when CX2Unit +0x3c ( transcended ) is set: no transcendence before Stage 6, so Aisha gets AVSI_HYPER_MODE
+31fd8f00	CX2GUUser::InitState	confirmed	Char CH1j: +0x7cfc = 1, then every state's StateInit ( +0x18 ) over the state list = March X2GUUser.cpp:5862 ( June adds the protect-registry flag )
+32cb7110	CX2GUArme_VioletMage::HyperModeInit	confirmed	Char CH1j: the same six TextureReadyInBackground calls as March X2GUArme_VioletMage.cpp:6748
+329cc0e0	CX2GUUser USI_HYPER_MODE StateEnd = jmp vslot 0x604	confirmed	Char CH1j: tail jump; Aisha's registration points at June_Vslot604
+32adf320	CX2GUUser USI_HYPER_MODE FrameMove = jmp vslot 0x600	confirmed	Char CH1j: bytes 8b 01 ff a0 00 06 00 00 ( thunk 32bd5f20 ); Aisha's registration points at June_HyperModeFrameMove
+31fc7e20	CX2GUUser::THROW_ITEM_StateStart	confirmed	Char CH1j: June registers it for AVSI_THROW_ITEM.Start; March's Arme registers the same table and slot with this member
+31fc7e40	CX2GUUser::THROW_ITEM_FrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_THROW_ITEM.FrameMoveFuture; March's Arme registers the same table and slot with this member
+31fc7e50	CX2GUUser::THROW_ITEM_CameraMove	confirmed	Char CH1j: June registers it for AVSI_THROW_ITEM.CameraMove; March's Arme registers the same table and slot with this member
+31fc7f30	CX2GUUser::JumpLandingStart	confirmed	Char CH1j: June registers it for AVSI_DASH_JUMP_LANDING.Start, AVSI_JUMP_LANDING.Start; March's Arme registers the same table and slot with this member
+31fc7f50	CX2GUUser::JuneDashJumpStartFuture	PORTED	Char CH1j: registered for AVSI_DASH_JUMP.StartFuture
+31fc7f80	CX2GUUser::JuneDashJumpEndFuture	PORTED	Char CH1j: registered for AVSI_DASH_JUMP.EndFuture
+31fc7fa0	CX2GUUser::DashStart	confirmed	Char CH1j: June registers it for AVSI_DASH.Start; March's Arme registers the same table and slot with this member
+31fc7fd0	CX2GUUser::JuneDamageBigStart	PORTED	Char CH1j: registered for AVSI_DAMAGE_BIG_BACK.Start, AVSI_DAMAGE_BIG_FRONT.Start
+31fc7ff0	CX2GUUser::DamageStandUpEnd	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_STANDUP_BACK.End, AVSI_DAMAGE_STANDUP_FRONT.End, AVSI_TELEPORT_STAND_UP_END.End; March's Arme registers the same table and slot with this member
+31fc8030	CX2GUUser::WallLandingEndFuture	confirmed	Char CH1j: June registers it for AVSI_WALL_LANDING.EndFuture; March's Arme registers the same table and slot with this member
+31fc8050	CX2GUUser::HyperModeStartFuture	confirmed	Char CH1j: June registers it for USI_HYPER_MODE.StartFuture; March's Arme registers the same table and slot with this member
+31fc8810	CX2GUUser::RidingOnEnd	confirmed	Char CH1j: June registers it for AVSI_RIDING_ON.End; March's Arme registers the same table and slot with this member
+31fc8830	CX2GUUser::RidingOffEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_OFF.EventProcess; March's Arme registers the same table and slot with this member
+31fc8850	CX2GUUser::RidingDashJumpStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_JUMP.StartFuture; March's Arme registers the same table and slot with this member
+31fc8880	CX2GUUser::RidingDashJumpEndFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_JUMP.EndFuture; March's Arme registers the same table and slot with this member
+31fc88a0	CX2GUUser::RidingJumpAttackZFrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_ATTACK_Z.FrameMoveFuture; March's Arme registers the same table and slot with this member
+31fc88e0	CX2GUUser::RidingSpecialMoveFrameMove	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.FrameMove; March's Arme registers the same table and slot with this member
+31fc8ae0	CX2GUUser::RidingHyperModeStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_HYPER_MODE.StartFuture; March's Arme registers the same table and slot with this member
+31fcbc10	CX2GUUser::THROW_ITEM_EventProcess	confirmed	Char CH1j: June registers it for AVSI_THROW_ITEM.EventProcess; March's Arme registers the same table and slot with this member
+31fcbdb0	CX2GUUser::StartIntrudeEventProcess	confirmed	Char CH1j: June registers it for AVSI_START_INTRUDE.EventProcess; March's Arme registers the same table and slot with this member
+31fcbdf0	CX2GUUser::JuneDashJumpStart	PORTED	Char CH1j: registered for AVSI_DASH_JUMP.Start
+31fcbe40	CX2GUUser::DashJumpLandingStartFuture	confirmed	Char CH1j: June registers it for AVSI_DASH_JUMP_LANDING.StartFuture, AVSI_RIDING_DASH_JUMP_LANDING.StartFuture; March's Arme registers the same table and slot with this member
+31fcbed0	CX2GUArme_VioletMage::DamageSmallFrontEventProcess ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 31fcbed0; registered for AVSI_DAMAGE_SMALL_BACK.EventProcess, AVSI_DAMAGE_SMALL_FRONT.EventProcess
+31fcbf80	CX2GUArme_VioletMage::DamageBigFrontEventProcess ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 31fcbf80; registered for AVSI_DAMAGE_BIG_BACK.EventProcess, AVSI_DAMAGE_BIG_FRONT.EventProcess
+31fcc0e0	CX2GUUser::DamageStandUpEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_STANDUP_BACK.EventProcess, AVSI_DAMAGE_STANDUP_FRONT.EventProcess; March's Arme registers the same table and slot with this member
+31fcc150	CX2GUUser::DamageAirSmallEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_SMALL.EventProcess; March's Arme registers the same table and slot with this member
+31fcc180	CX2GUUser::DamageAirDownEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_DOWN.EventProcess; March's Arme registers the same table and slot with this member
+31fcc1b0	CX2GUUser::DamageAirDownInvincibleEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_DOWN_INVINCIBLE.EventProcess; March's Arme registers the same table and slot with this member
+31fcc1e0	CX2GUUser::DamageAirFallEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_FALL.EventProcess; March's Arme registers the same table and slot with this member
+31fcc220	CX2GUUser::DamageAirUpEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_UP.EventProcess; March's Arme registers the same table and slot with this member
+31fcc260	CX2GUUser::DamageAirFlyEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_FLY_BACK.EventProcess, AVSI_DAMAGE_AIR_FLY_FRONT.EventProcess; March's Arme registers the same table and slot with this member
+31fcc2b0	CX2GUUser::DamageRevengeEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_REVENGE.EventProcess; March's Arme registers the same table and slot with this member
+31fcc300	CX2GUUser::HyperModeEventProcess	confirmed	Char CH1j: June registers it for USI_HYPER_MODE.EventProcess; March's Arme registers the same table and slot with this member
+31fcd0b0	CX2GUUser::JuneRandomLoseEventProcess	PORTED	Char CH1j: registered for USI_START / WIN / LOSE.EventProcess
+31fcdc80	CX2GUUser::RidingStartStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_START.StartFuture; March's Arme registers the same table and slot with this member
+31fcdcb0	CX2GUUser::RidingStartStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_START.Start; March's Arme registers the same table and slot with this member
+31fcdd20	CX2GUUser::RidingOnStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_ON.StartFuture; March's Arme registers the same table and slot with this member
+31fcdd50	CX2GUUser::RidingOnStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_ON.Start; March's Arme registers the same table and slot with this member
+31fcdea0	CX2GUUser::RidingWaitStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT.StartFuture; March's Arme registers the same table and slot with this member
+31fcded0	CX2GUUser::RidingWalkStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_WALK.StartFuture; March's Arme registers the same table and slot with this member
+31fcdf00	CX2GUUser::RidingJumpUpStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_UP.StartFuture; March's Arme registers the same table and slot with this member
+31fcdf30	CX2GUUser::RidingJumpUpStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_UP.Start; March's Arme registers the same table and slot with this member
+31fcdf60	CX2GUUser::RidingJumpDownStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_DOWN.StartFuture; March's Arme registers the same table and slot with this member
+31fcdf90	CX2GUUser::RidingJumpDownStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_DOWN.Start; March's Arme registers the same table and slot with this member
+31fcdfc0	CX2GUUser::RidingJumpLandingStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_LANDING.StartFuture; March's Arme registers the same table and slot with this member
+31fcdff0	CX2GUUser::RidingJumpLandingStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_LANDING.Start; March's Arme registers the same table and slot with this member
+31fce040	CX2GUUser::RidingDashStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH.Start; March's Arme registers the same table and slot with this member
+31fce080	CX2GUUser::RidingDashEndStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_END.Start; March's Arme registers the same table and slot with this member
+31fce0b0	CX2GUUser::RidingDashJumpStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_JUMP.Start; March's Arme registers the same table and slot with this member
+31fce110	CX2GUUser::RidingDashJumpLandingStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_JUMP_LANDING.Start; March's Arme registers the same table and slot with this member
+31fce160	CX2GUUser::RidingDamageFrontStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_DAMAGE_FRONT.StartFuture; March's Arme registers the same table and slot with this member
+31fce1a0	CX2GUUser::RidingDamageFrontStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_DAMAGE_FRONT.Start; March's Arme registers the same table and slot with this member
+31fce1e0	CX2GUUser::RidingDamageBackStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_DAMAGE_BACK.StartFuture; March's Arme registers the same table and slot with this member
+31fce220	CX2GUUser::RidingDamageBackStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_DAMAGE_BACK.Start; March's Arme registers the same table and slot with this member
+31fce260	CX2GUUser::RidingAttackZStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_Z.StartFuture; March's Arme registers the same table and slot with this member
+31fce290	CX2GUUser::RidingJumpAttackZStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_ATTACK_Z.StartFuture; March's Arme registers the same table and slot with this member
+31fce2c0	CX2GUUser::RidingAttackXStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_X.StartFuture; March's Arme registers the same table and slot with this member
+31fce2f0	CX2GUUser::RidingSpecialAttackStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_SPECIAL.StartFuture; March's Arme registers the same table and slot with this member
+31fce320	CX2GUUser::RidingSpecialAttackStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_SPECIAL.Start; March's Arme registers the same table and slot with this member
+31fce350	CX2GUUser::RidingWaitHabitStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT_HABIT.StartFuture; March's Arme registers the same table and slot with this member
+31fd23e0	CX2GUUser::WalkFrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_WALK.FrameMoveFuture, AVSI_WALK.FrameMoveFuture; March's Arme registers the same table and slot with this member
+31fd2470	CX2GUUser::JumpFrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_JUMP_DOWN.FrameMoveFuture, AVSI_JUMP_UP.FrameMoveFuture, AVSI_RIDING_JUMP_DOWN.FrameMoveFuture, AVSI_RIDING_JUMP_UP.FrameMoveFuture; March's Arme registers the same table and slot with this member
+31fd2520	CX2GUUser::JuneDashJumpFrameMoveFuture	PORTED	Char CH1j: registered for AVSI_DASH_JUMP.FrameMoveFuture
+31fd25e0	CX2GUUser::DashFrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_DASH.FrameMoveFuture, AVSI_RIDING_DASH.FrameMoveFuture; March's Arme registers the same table and slot with this member
+31fd26c0	CX2GUUser::DamageAirSmallStartFuture	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_SMALL.StartFuture; March's Arme registers the same table and slot with this member
+31fd2760	CX2GUUser::WallLandingEventProcess	confirmed	Char CH1j: June registers it for AVSI_WALL_LANDING.EventProcess; March's Arme registers the same table and slot with this member
+31fd3400	CX2GUUser::RidingDashEndStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_END.StartFuture; March's Arme registers the same table and slot with this member
+31fd3460	CX2GUUser::RidingDashEndFrameMove	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_END.FrameMove; March's Arme registers the same table and slot with this member
+31fd3570	CX2GUUser::RidingDashJumpFrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_JUMP.FrameMoveFuture; March's Arme registers the same table and slot with this member
+31fd3630	CX2GUUser::RidingDamageFrontEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_DAMAGE_FRONT.EventProcess; March's Arme registers the same table and slot with this member
+31fd3760	CX2GUUser::RidingDamageBackEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_DAMAGE_BACK.EventProcess; March's Arme registers the same table and slot with this member
+31fd3890	CX2GUUser::RidingJumpAttackZEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_ATTACK_Z.EventProcess; March's Arme registers the same table and slot with this member
+31fd3950	CX2GUUser::RidingSpecialMoveFrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.FrameMoveFuture; March's Arme registers the same table and slot with this member
+31fd3eb0	CX2GUUser::RidingSpecialMoveEndFutrue	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.EndFuture; March's Arme registers the same table and slot with this member
+31fd4000	CX2GUUser::RidingSpecialMoveEnd	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.End; March's Arme registers the same table and slot with this member
+31fe93f0	CX2GUUser::RidingAttackXStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_X.Start; March's Arme registers the same table and slot with this member
+31fe94e0	CX2GUUser::RidingSpecialMoveStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.StartFuture; March's Arme registers the same table and slot with this member
+31ff92d0	CX2GUUser::THROW_ITEM_FrameMove	confirmed	Char CH1j: June registers it for AVSI_THROW_ITEM.FrameMove; March's Arme registers the same table and slot with this member
+31ffbd70	none in March ( Aisha registration slot left empty )	ROUTED	Char CH1j: CH1k ports June 31ffbd70 ( StateStart ); USI_START / WIN / LOSE.Start
+31ffc280	CX2GUUser::StartIntrudeStart	confirmed	Char CH1j: June registers it for AVSI_START_INTRUDE.Start; March's Arme registers the same table and slot with this member
+31ffc5c0	CX2GUUser::StartIntrudeFrameMove	confirmed	Char CH1j: June registers it for AVSI_START_INTRUDE.FrameMove; March's Arme registers the same table and slot with this member
+31ffcee0	CX2GUUser::DamageAirDownLandingStart	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_DOWN_LANDING.Start; March's Arme registers the same table and slot with this member
+31ffd160	CX2GUUser::DamageAirDownLandingFrameMove	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_DOWN_LANDING.FrameMove; March's Arme registers the same table and slot with this member
+31ffd310	CX2GUUser::DamageRevengeStart	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_REVENGE.Start; March's Arme registers the same table and slot with this member
+31ffd390	CX2GUUser::DamageRevengeCameraMove	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_REVENGE.CameraMove; March's Arme registers the same table and slot with this member
+320004b0	CX2GUUser::WinStateStart ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 320004b0; registered for USI_START / WIN / LOSE.Start
+320007e0	CX2GUUser::LoseStateStart ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 320007e0; registered for USI_START / WIN / LOSE.Start
+32001c10	CX2GUUser::RidingWaitStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT.Start; March's Arme registers the same table and slot with this member
+32001dc0	CX2GUUser::RidingWalkStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_WALK.Start; March's Arme registers the same table and slot with this member
+32001f70	CX2GUUser::RidingAttackZStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_Z.Start; March's Arme registers the same table and slot with this member
+32002c60	CX2GUUser::RidingJumpAttackZStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_ATTACK_Z.Start; March's Arme registers the same table and slot with this member
+32002f70	none in March ( Aisha registration slot left empty )	ROUTED	Char CH1j: June 32002f70 ( OnFrameMove ) is riding, Stage 17; AVSI_RIDING_ATTACK_X.FrameMove
+32003ea0	CX2GUUser::RidingSpecialAttackFrameMove	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_SPECIAL.FrameMove; March's Arme registers the same table and slot with this member
+32004760	CX2GUUser::RidingWaitHabitStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT_HABIT.Start; March's Arme registers the same table and slot with this member
+32004950	CX2GUUser::RidingSpecialMoveStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.Start; March's Arme registers the same table and slot with this member
+32006b90	CX2GUUser::RidingHyperModeEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_HYPER_MODE.EventProcess; March's Arme registers the same table and slot with this member
+3201b390	CX2GUUser::StartEventProcess ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 3201b390; registered for USI_START / WIN / LOSE.EventProcess
+3201f780	CX2GUUser::RidingStartEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_START.EventProcess; March's Arme registers the same table and slot with this member
+32030580	CX2GUUser::RidingOnEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_ON.EventProcess; March's Arme registers the same table and slot with this member
+32030d50	CX2GUUser::RidingJumpUpEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_UP.EventProcess; March's Arme registers the same table and slot with this member
+32030e70	CX2GUUser::RidingJumpDownEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_DOWN.EventProcess; March's Arme registers the same table and slot with this member
+32031860	CX2GUUser::RidingDashJumpEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_JUMP.EventProcess; March's Arme registers the same table and slot with this member
+320322e0	CX2GUUser::RidingAttackXEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_X.EventProcess; March's Arme registers the same table and slot with this member
+320327f0	CX2GUUser::RidingSpecialAttackEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_SPECIAL.EventProcess; March's Arme registers the same table and slot with this member
+32032bb0	CX2GUUser::RidingWaitHabitEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT_HABIT.EventProcess; March's Arme registers the same table and slot with this member
+32032e70	CX2GUUser::RidingSpecialMoveEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.EventProcess; March's Arme registers the same table and slot with this member
+329cbff0	CX2GUUser::PEPPER_RUN_FrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN.FrameMoveFuture; March's Arme registers the same table and slot with this member
+329cc000	CX2GUUser::RidingJumpLandingEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_LANDING.EventProcess; March's Arme registers the same table and slot with this member
+329cc010	CX2GUUser::PEPPER_RUN_JUMP_UP_StateStartFuture	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_JUMP_UP.StartFuture; March's Arme registers the same table and slot with this member
+329cc020	CX2GUUser::PEPPER_RUN_JUMP_DOWN_FrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_JUMP_DOWN.FrameMoveFuture; March's Arme registers the same table and slot with this member
+329cc060	CX2GUUser::RidingOffEnd	confirmed	Char CH1j: June registers it for AVSI_RIDING_OFF.End; March's Arme registers the same table and slot with this member
+329cc070	CX2GUUser::PEPPER_RUN_EventProcess	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN.EventProcess; March's Arme registers the same table and slot with this member
+329cc080	CX2GUUser::RidingDashEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH.EventProcess; March's Arme registers the same table and slot with this member
+329cc090	CX2GUUser::PEPPER_RUN_JUMP_UP_FrameMoveFuture	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_JUMP_UP.FrameMoveFuture; March's Arme registers the same table and slot with this member
+329cc0a0	CX2GUUser::PEPPER_RUN_JUMP_DOWN_EventProcess	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_JUMP_DOWN.EventProcess; March's Arme registers the same table and slot with this member
+329cc0f0	CX2GUUser::RidingWaitEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT.EventProcess; March's Arme registers the same table and slot with this member
+329cc100	CX2GUUser::PEPPER_RUN_END_FrameMove	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_END.FrameMove; March's Arme registers the same table and slot with this member
+329cc110	CX2GUUser::RidingDashEndEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_DASH_END.EventProcess; March's Arme registers the same table and slot with this member
+329cc120	CX2GUUser::PEPPER_RUN_JUMP_UP_EventProcess	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_JUMP_UP.EventProcess; March's Arme registers the same table and slot with this member
+329cc160	CX2GUUser::DAMAGE_GROGGY_EventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_GROGGY.EventProcess; March's Arme registers the same table and slot with this member
+329cc180	CX2GUUser::PEPPER_RUN_READY_EventProcess	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_READY.EventProcess; March's Arme registers the same table and slot with this member
+329cc190	CX2GUUser::RidingWalkEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_WALK.EventProcess; March's Arme registers the same table and slot with this member
+329cc1a0	CX2GUUser::PEPPER_RUN_END_EventProcess	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_END.EventProcess; March's Arme registers the same table and slot with this member
+329cc1b0	CX2GUUser::PEPPER_RUN_JUMP_DOWN_StateStartFuture	confirmed	Char CH1j: June registers it for AVSI_PEPPER_RUN_JUMP_DOWN.StartFuture; March's Arme registers the same table and slot with this member
+329cc1f0	CX2GUUser::DashStartFuture	confirmed	Char CH1j: June registers it for AVSI_DASH.StartFuture, AVSI_RIDING_DASH.StartFuture; March's Arme registers the same table and slot with this member
+32cb7110	CX2GUArme_VioletMage::HyperModeInit	confirmed	Char CH1j: June registers it for USI_HYPER_MODE.Init; March's Arme registers the same table and slot with this member
+32cbca20	CX2GUArme_VioletMage::AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess ( stand-in )	ROUTED	Char CH1j: stand-in until CH1j2 transcribes June 32cbca20; registered for AVSI_HIGH_MAGICIAN_COMBO_X2.EventProcess
+32cc3040	none in March ( Aisha registration slot left empty )	ROUTED	Char CH1j: CH1j2 transcribes June 32cc3040 ( OnFrameMove ); AVSI_AHM_DASH_JUMP_ZXX_FINISH.FrameMove
+32cc42a0	none in March ( Aisha registration slot left empty )	ROUTED	Char CH1j: CH1j2 transcribes June 32cc42a0 ( OnEventProcess ); AVSI_AVP_DASH_ATTACK_X2.EventProcess
+32ce2cc0	none in March ( Aisha registration slot left empty )	ROUTED	Char CH1j: CH1j2 transcribes June 32ce2cc0 ( OnFrameMove ); AVSI_AVP_DASH_ATTACK_X2.FrameMove
+32ce7170	none in March ( Aisha registration slot left empty )	ROUTED	Char CH1j: CH1j2 transcribes June 32ce7170 ( OnFrameMove ); AVSI_AEM_DASH_JUMP_X3.FrameMove

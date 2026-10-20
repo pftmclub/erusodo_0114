@@ -158,6 +158,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 			AVSI_SA_AVP_RUIN_LOOP,							/// June script id 246 ( CH1i names it in June_SetEquippedSkillLevel; its skill phase registers the state )
 			AVSI_SA_AVP_RUIN_END,							/// June script id 247
 			AVSI_SA_ADW_AIR_STUNNER_END,					/// June script id 248
+			AVSI_DIMENSION_WITCH_DASH_ATTACK_X,				/// June script id 237 ( June registers the Dimension Witch dash attack X as 178 and as 237 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -1166,8 +1167,6 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		float						m_fJune97a0;			/// 1.0
 		float						m_afJune97a4[5];		/// 0
 		std::vector<int>			m_vecJune9848;			/// empty ( element type unknown, freed by the destructor )
-		float						m_fJune8fb8;			/// 1.1: a CX2GUUser member in June, set by this constructor
-		float						m_fJune8fbc;			/// 1.2: a CX2GUUser member in June, set by this constructor
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1h
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June class overrides from vslot 0x600 and their helpers ( class map phase CH1i ); definitions at the end of
@@ -1241,6 +1240,11 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		bool						m_abJune90d0[3];		/// false
 		bool						m_bJuneAfterImageSaved;	/// false; June after-image +0x1d1 ( 32cc7c30 )
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1i
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j ( JUNE_CHARACTER_AISHA_PHASES.md )
+		void June_InitState();											/// June 32cea0c0 ( vslot 0x7a4 ); InitState calls it under SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		void June_InitStateCommon();									/// June 32ce77b0
+		void June_LoadAngorHammerMesh();								/// June 32ce1ba0
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH1j
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

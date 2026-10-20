@@ -9645,3 +9645,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ( 323e08c0 ) does; March wrapped it at 500 px ( CLIENT_SUBQUEST_POPUP_LINEBREAK ). Revert: JUNE_QUEST_NOT_NO_LINEBREAK in MODS.md.
 #define SERV_IRUHADEV_JUNE_QUEST_NOT_NO_LINEBREAK
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
+// Description: June character pilot ( Aisha ) Phase CH1 - Aisha runs on June's class core: InitState calls June_InitState ( June's
+//              registration, CH1j ) and the later CH1 sub-phases switch the virtuals over. Stays undefined until CH1's final sub-phase
+//              ships it with June's Arme_VioletMage.lua ( one deploy unit ). Needs SERV_IRUHADEV_JUNE_CHAR_ARME_CORE.
+//              Revert: undefine the flag ( JUNE_CHAR_ARME_LIVE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+//////////////////////////////////////////////////////////////////////////
