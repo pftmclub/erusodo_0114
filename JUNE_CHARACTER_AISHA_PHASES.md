@@ -808,6 +808,33 @@ Build: `DEPLOY OK: X2_offline.exe is 25,575,936 B, dated 2026-10-20 11:11:20, md
 No `JUNE_BUGS` row (the self-transition of `ZZXX_LOOP` and the per-frame `+0x6890` write are June structure, not mistakes). **Drift:** none. Checklist rows: 7c (Z2a tag) lands here; the 7ac row that `ch0_checklist_rows.tsv` assigns to CH1e (`32021390`, called from `32cb8bf0`) is **CH1g's** since CH0c moved `32cb8bf0`. None of the 50 functions multiplies `m_fNowStatePowerRate` or passes a BFI.
 **In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1e-review.md`. Next: CH1f after the review.
 
+### CH1e -- Review (2026-10-20, Opus)
+
+**Verdict: PASS, no code fix.** All 50 functions were read against June: Ghidra decompiles, plus `funcdis.py` listings of every function that is not carved and of every cancel chain.
+Spot-checked in depth in Ghidra: `32cdab20` (XZZ FrameMove), `32cc2d50` (ZXX_CHARGE EventProcess), `32cbf620` (XZZ EventProcess).
+- **Cancel chains.**
+  - The else-if order matches the listings in all eight chains: `32cc30b0`, `32cc34c0`, `32cc3800`, `32cc3b90`, `32cc2d50`, `32cc11f0`, `32cc1460`, `32cbf620`.
+  - The order is skill / awakening, walk (`+0x8c98`), bwalk (`+0x8c94`), dash (`+0x8c9c`), then ZX (`+0x8c88`, oneZ -> vslot `0x4b0`, oneX -> `0x4b4`).
+  - Each test is `0 <= f` and `f < now`, and each cancel requires `+0x7e1c` (on the ground); the bwalk test is `pureLeft && bIsRight || pureRight && !bIsRight`.
+  - `32cc2d50` has only the awakening half; it sets `+0x8d4c`, then calls vslot `0x6b8`. `32cc11f0` is two plain `if`s (`0.6 <= now`, X4down `0xac`) ahead of the ground chain, and every chain ends with the animation-end test. `32cc1460` uses `0.8333` (qword, `now > 0.8333`) and has no skill cancel.
+- **`32cc3800`.**
+  - Three plain `if`s on `+0x9784`: `keyInputStart < t && !pureX` -> `0xec`; `keyInputEnd < t` -> `0xec`; animation end -> `0xeb` (the state's own id).
+  - Then `!ground` -> `JUMP_DOWN`, with no y shift, which leads the cancels.
+  - `32cc34c0` zeroes `+0x9784` before `0xeb`; `32cc37e0` / `32cc3b70` set and clear `+0x6890`, which is `SetNoDetonation` -> `SetNoDetonationByState`.
+- **`32cdab20`.**
+  - Six `31fd6230( 0..5 )` reads (bounds-checked, list at `+0x93a8`, confirmed). Times 0-2 are the inlined one-shot, 3-5 call `31e4c230`, short-circuit OR.
+  - `FlushMp( 3 )`. The hit is `CreateInstance( this, XXZ_INVISIBLE_ATTACKBOX, GetPowerRate(), GetPos( 0 ) (slot 0x138), rot, rot, GetLandPos( 0 ).y (slot 0x134) )` with March's defaults verbatim (`0, -1, 1, 1, -1, -1, 0, -1, 0, 0`).
+  - The failure path is `Dummy2_Lhand` +/- dir x 100.
+  - **Stand-in accepted:** `m_vecJuneSpecialOptionValue` stays until CH1 parses the key in `CommonStateStart` (CH1 item 5, written into the CH1 kickoff by CH1e).
+- **Fireballs.** Types `2` / `5` / `0` / `6` (`mov [esp+8], N`); cost `4` / `6` / `5` / `10` x `+0x95bc`; `+180` on `angle.y` for X3back and DASH_ATTACK_X; failures `(0, 0, 0)` / `(0, 180, 0)` / `(0, 180, 0)` / `(0, 0, 0)`.
+- **State ids.** `0xac`, `0xab`, `0xb3`, `0xc7`, `0xd8`, `0xe5` / `0xe6` / `0xe7`, `0xea` / `0xeb` / `0xec`, landings `0x16` (DASH_JUMP_LANDING) and `0x12` (JUMP_LANDING). The six new enum names fit; CH1 numbers them.
+- **Constants, strings.** All 82 rows of `charport_consts.py CH1e` match. The five `EffectSet_AHM_*`, both `EffectSet_Aisha_EM_*`, `ComboXXDownX` / `XX`, `Elemental_Master_XZ` and the six Init resource names match June's strings. The ZZupZZ / XXfrontX handles go to `+0x3eb0` (`32a2dec0` push_back).
+- **Not ported, no effect:** `32ce26b0` calls vslot `0x150` (`GetRotateDegree`) before `FlushMp` and discards the result. It is a getter, so nothing is lost.
+
+**Hygiene.** CH1e commit, `flagcheck.py JUNE_CHAR_ARME_CORE --range f65098ac^..f65098ac`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+No code change, so no build. The CH1e deploy (`X2_offline.exe` md5 `009aac7f...`, 11:11:20) stands. No drift. **In game:** nothing (inert). Next: CH1f (`kickoffs/pilot-char-revamp/CH1f.md`; still matches).
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
