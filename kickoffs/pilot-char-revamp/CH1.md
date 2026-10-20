@@ -96,3 +96,10 @@ Done notes, whose "Registration notes for CH1" were written from the old map. Wh
   CH1e's `June_AVSI_AEM_XZZ_FrameMove` reads it through `June_GetSpecialOptionValue( 0..5 )` over the stand-in `m_vecJuneSpecialOptionValue` (Arme class); CH1 parses the key (CX2GUUser, `CommonStateStart`) and points the getter at the user list.
 - **Enum numbering:** six June-only ids were added after `AVSI_AEM_DASH_JUMP_X3`: `AVSI_AHM_DASH_JUMP_ZXX_START / _CHARGE / _FINISH` (229 / 230 / 231), `AVSI_AEM_ZZXX_START / _LOOP / _END` (234 / 235 / 236). CH1 decides the final numbers like every other June-only id.
 - The CH1e states' registered callbacks are in `ch0_state_skill.tsv` (`phase` CH1e); the three `EventProcess` of the `ZXX` / `ZZXX` families chain several `StateChange` calls in one frame on purpose (June structure).
+
+## From CH1f (2026-10-20)
+
+- **`m_fGravityBallPower` = June `+0x9640`** (constructor 1.0 at `32ccb7b8`; March's constructor already sets 1.0). CH1f's `June_AVSI_AVP_DASH_JUMP_X_FrameMove` (`32ce6b30`) and `June_AVSI_ADM_DASH_JUMP_ZX_FrameMove` (`32ce2b20`) use it as the power rate; the CH4 writers are `32ced357` / `32ced395`.
+- **Summon Bat Heavy** (`32cdfb70`) looks the skill up with `CX2SkillTree::GetSkillTemplet( 22217 )` (June passes level 1; the live build has the one-argument form) (a file-local `JUNE_RNSI_A_AVP_SUMMON_BAT_HEAVY`), not through the equipped skills; the registration that enters the state is `32cede00` case 22217.
+- **`32cbd120`** (DM / HM `COMBO_X2` EventProcess) writes `m_bCanChangeState` (`+0x96f0`) from flag 3 after its chain; `June_ComboX3StateEnd` (CH1c) clears it.
+- No new enum member and no new stand-in in CH1f; `32cb7de0` / `32ce6b30` (shared `AVP` / `ABM` `DASH_JUMP_X`) are CH1f's, so CH1g does not repeat them.

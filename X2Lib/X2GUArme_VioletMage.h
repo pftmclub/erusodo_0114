@@ -1031,6 +1031,40 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		float						m_fJuneZZXXLoopTime;				/// June +0x9784 ( constructor 0, 32ccb02e )
 		CX2EffectSet::Handle		m_hJuneDashJumpChargeEffect;		/// June +0x9788 ( constructor -1, 32ccb034 ): EffectSet_AHM_DashJumpAttackZXX_Loop
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1e
+		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1f ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June Dark Magician / Void Princess line states ( class map phase CH1f ); definitions at the end of X2GUArme_VioletMage.cpp.
+		void June_AVSI_DARK_MAGICIAN_COMBO_X2_FrameMove();							/// June 32cd4450
+		void June_AVSI_DARK_MAGICIAN_COMBO_X2_EventProcess();							/// June 32cbd120
+		void June_AVSI_DARK_MAGICIAN_COMBO_X3down_FrameMove();							/// June 32cbc520
+		void June_AVSI_DARK_MAGICIAN_COMBO_X3down_EventProcess();							/// June 32cbc880
+		void June_AVSI_DARK_MAGICIAN_COMBO_X4down_Start();							/// June 32cb7400
+		void June_AVSI_DARK_MAGICIAN_COMBO_X4down_FrameMove();							/// June 32cd3be0
+		void June_AVSI_DARK_MAGICIAN_COMBO_X4down_EventProcess();							/// June 32cbc930
+		void June_AVSI_DARK_MAGICIAN_COMBO_X3back_FrameMove();							/// June 32cd4650
+		void June_AVSI_DARK_MAGICIAN_COMBO_X3back_EventProcess();							/// June 32cbd670
+		void June_AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_Start();							/// June 32cc6a30
+		void June_AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_FrameMove();							/// June 32cd5050
+		void June_AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a_EventProcess();							/// June 32cbde90
+		void June_AVSI_ADM_DASH_COMBO_ZXX_FrameMove();							/// June 32cd5180
+		void June_AVSI_ADM_DASH_COMBO_ZXX_EventProcess();							/// June 32cbdfb0
+		void June_AVSI_ADM_ZZupZZ_FrameMoveFuture();							/// June 32cc2950
+		void June_AVSI_ADM_ZZupZZ_FrameMove();							/// June 32ce1950
+		void June_AVSI_ADM_ZZupZZ_EventProcess();							/// June 32cc29a0
+		void June_AVSI_ADM_DASH_JUMP_ZX_FrameMoveFuture();							/// June 32cb8be0
+		void June_AVSI_ADM_DASH_JUMP_ZX_FrameMove();							/// June 32ce2b20
+		void June_AVSI_ADM_DASH_JUMP_ZX_EventProcess();							/// June 32cc3ed0
+		void June_AVSI_AVP_ZZfrontZ_EventProcess();							/// June 32cbf810
+		void June_AVSI_AVP_ZZfrontZZ_Init();							/// June 32cb7d60
+		void June_AVSI_AVP_ZZfrontZZ_StateStartFuture();							/// June 32cb7db0
+		void June_AVSI_AVP_ZZfrontZZ_EventProcess();							/// June 32cbf9a0
+		void June_AVSI_AVP_ZZfrontZZ_FALL_EventProcess();							/// June 32cbfa70
+		void June_AVSI_AVP_DASH_JUMP_X_Init();							/// June 32cb7de0
+		void June_AVSI_AVP_DASH_JUMP_X_FrameMove();							/// June 32ce6b30
+		void June_AVSI_AVP_DASH_JUMP_X_EventProcess();							/// June 32cbfaa0
+		void June_AVSI_A_AVP_Summon_Bat_Heavy_Init();							/// June 32cb8450
+		void June_AVSI_A_AVP_Summon_Bat_Heavy_FrameMove();							/// June 32cdfb70
+		void June_AVSI_HA_AVP_Abyss_Angor_Init();							/// June 32cb8840
+		//}} Iruha : 2026-10-20 // June character pilot Phase CH1f
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

@@ -835,6 +835,40 @@ Spot-checked in depth in Ghidra: `32cdab20` (XZZ FrameMove), `32cc2d50` (ZXX_CHA
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 No code change, so no build. The CH1e deploy (`X2_offline.exe` md5 `009aac7f...`, 11:11:20) stands. No drift. **In game:** nothing (inert). Next: CH1f (`kickoffs/pilot-char-revamp/CH1f.md`; still matches).
 
+### CH1f - Done (2026-10-20, Sonnet 5.5)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`, the commit "Character pilot Phase CH1f". **All 31 class-map rows of phase CH1f are new `CX2GUArme_VioletMage::June_AVSI_*` members** (declared after CH1e's in the header, bodies in a sixth block at the end of the `.cpp`, each with its June address). No enum member, no stand-in. Nothing registers or calls them.
+31 funcmap rows `Char CH1f` (`june2017_re/funcmap.tsv`). Eight of the functions are not carved in Ghidra and were read from `funcdis.py` listings (`32cb7de0`, `32cb8840`, `32cb8be0`, `32cbc880`, `32cbd120`, `32cd4450` / `32cd4650`, `32cd5180`, `32ce6b30`), and so was `32cdfb70` (its decompile does not settle).
+
+| Group | June functions |
+|---|---|
+| DM `COMBO_X2` | `32cd4450` FrameMove, `32cbd120` EventProcess (shared with HM X2) |
+| DM `COMBO_X3down` / `X4down` | `32cbc520`, `32cbc880`; `32cb7400`, `32cd3be0`, `32cbc930` |
+| DM `COMBO_X3back` | `32cd4650`, `32cbd670` |
+| DM `DASH_COMBO_Z2a` | `32cc6a30` Start, `32cd5050` FrameMove, `32cbde90` EventProcess |
+| ADM (June-only) `DASH_COMBO_ZXX` / `ZZupZZ` / `DASH_JUMP_ZX` | `32cd5180`, `32cbdfb0`; `32cc2950`, `32ce1950`, `32cc29a0`; `32cb8be0`, `32ce2b20`, `32cc3ed0` |
+| AVP `ZZfrontZ` / `ZZfrontZZ` / `_FALL` / `DASH_JUMP_X` | `32cbf810`; `32cb7d60`, `32cb7db0`, `32cbf9a0`; `32cbfa70`; `32cb7de0`, `32ce6b30`, `32cbfaa0` |
+| AVP skills | Summon Bat Heavy `32cb8450`, `32cdfb70`; Abyss Angor `32cb8840` |
+
+**Same as March:** `32cbc520`, `32cbc880`, `32cb7400`, `32cd3be0` (constants checked), `32cbfa70`, `32cbfaa0`, `32cb7db0`, the Inits, and the Summon Bat body apart from the skill lookup below.
+**What differs from March:**
+- **X2 `EventProcess` (`32cbd120`).** Four X windows from `m_fEventTime` (X3down with pureDown, X3front forward, X3back back key, X3 plain); `SKILL_CANCEL_AFTER( 0.01 )`; the 12-key tail at `0.966`; `m_bCanChangeState` from flag 3. March used fixed `0.9`.
+- **Fireballs.** X2: `32cc2b90( 7 x rate )`, FIREBALL_SHORT, range `+0x95c8`. X3back and ADM ZXX: flat 6 MP, DARK_SHOCK_BALL, range 1. ADM ZZupZZ: flat 6 MP, DARK_SHOCK_BALL_AIR, +-87 along the facing. March paid 7 / 10 / 20 through `FlushMp`.
+- **`32ce6b30` / `32ce2b20`.** Power is `+0x9640`, read as `m_fGravityBallPower` (constructor 1.0; the only other reader is the gravity-ball scale inside the `32ce4180` helper). BM / ADW: transformed ARME_ACTIVE_MAGIC_BALL2, else `June_CreateComboFireBall( 0 )` with z -30; other classes AISHA_GRAVITY_BALL.
+- **Cancels.** `X3back` / `X4down` / ZXX / ZZupZZ: ground test first, then keys after 1.4 s, then the animation end as a plain `if` or the same `if`; no skill cancel. `32cc3ed0`: landing, then the hyper half only and the ground-only walk / bwalk / dash / ZX cancels (dead in the air, kept as June has them).
+- **`ZZfrontZ` / `ZZfrontZZ`.** The flag also fires on the animation end; the 12-key exits are `0.94` / `1.65` (March: `ASDC_PRESSED_AFTER`).
+- **Summon Bat Heavy.** The templet comes from the whole tree (`GetSkillTemplet( 22217 )`; June passes level 1, the live build has the one-argument form), not from the equipped skills. A NULL unit returns before `CommonFrameMove`, as March.
+- ADM `ZZupZZ` `FrameMoveFuture` zeroes `nowSpeed` between 0.2 s and 0.8 s; DM Z2a `Start` calls `June_AdaptAdvancedTeleportationBuff`; Z2a `FrameMove` carries the alpha tag (7c).
+
+**Build note.** The first build failed (`C2660`): the live build compiles the one-argument `GetSkillTemplet` (`UPGRADE_SKILL_SYSTEM_2013`). Fixed in the same flag; the second build passed.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,590,784 B, dated 2026-10-20 19:57:25, md5 2c9d7125bd7bf83a5f23a210dc4d4033, equal to X2/US_SERVICE/x2.exe (2026-10-20 19:57:17); built at main 7b9d62fa + 2 uncommitted code file(s).`
+
+No `JUNE_BUGS` row (no June bug found). No drift. Checklist rows: 7c (Z2a tag) lands here; none of the 31 functions multiplies `m_fNowStatePowerRate` or passes a BFI.
+**In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1f-review.md`. Next: CH1g after the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
