@@ -197,6 +197,14 @@ framework; the effect-engine check is pending june-effect C11 (phase Z records i
 
 **Why here:** the render types are a hard dependency of June character effects, and the measurements turn guesses about Stages 5, 8 and 9 into numbers. Both are cheap compared with discovering them mid-character. Atlas/Elysion doesn't need them, which is why Stage 1 can go first.
 
+**Scope audit (2026-10-20, june-engine).** The plan grew from 13 phases to 45 on 2026-10-16..18, before the scope rule. Checked against
+the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
+- Done before the rule and left done, but outside the subject: R12b's cash-emotion half, R13c (camera tracking / roll), R14 / R14b (equipment skins,
+  attach-anim; Stage 11 / 16 territory), W1c-W1g (line-map `CanDown` / land-position callers, pet-AI re-seat, pathfinder fly).
+- Moved: R4f (software cursor), R4h's notice text manager and R13d (camera callers outside the camera classes) -> Stage 9; W3 (village world Lua)
+  -> june-dungeons (Stage 22).
+- Left in the plan: R4c2 -> R4d, R4g, R4h (pass arguments), R4i, R4j, R5, R6, R7, R9, W2, Z.
+
 ### Stage 3: skill system core (skill tree engine + skill slots)
 
 **Sub-steps, in order:**
@@ -425,6 +433,21 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   are June's form of March's `CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`, read at `:1423`): an equip-group filter (`3286a4b0`; `32350b80`'s group test, S7m review), riding pet, title,
   sets and the party pass (`31ed40c0`, already ported as `CX2Unit::JuneGetPartyShareSocketOptions`). The combat sums are June's since S7k / S7m; only this display total is March-shaped.
   Brief: `kickoffs/skill-system-core/S7p.md` (identify, then port whole; June-only item data `+0x8c` / `+0x9c` / `+0xac` stays with Stage 16).
+
+- **June's software cursor `CKTDXCursor`** (handed here by the june-engine scope audit, 2026-10-20; was june-engine R4f). KTDXApp `+0x290`
+  (vtable `3344c980`, ctor `31ce50e0`, dtor `31ce5090`, draw `31ce5260`), drawn last in the frame by `31ce5400( 0 )` (`31be3800 @31be3c7c`); March has
+  no such class. Its only writer is the GFx event scene's Play (`3226b130 @3226b56b` -> `31ce5520( 1 )`), so june-gfx G6's
+  `SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER` stand-in covers play until it lands; the port retires that flag. Brief: `kickoffs/june-engine/R4f.md`.
+- **June's notice text manager** (handed here by the june-engine scope audit, 2026-10-20; was half of june-engine R4h). June's second
+  `CX2TextManager` at `g_pMain +0x444` (made @31e4abb5, freed @31d93b3f, frame-moved @31f0d945), written only by `CX2NoticeManager` (`+0x448`, ctor
+  `325ad9a0`, `325acf90` / `325ad410`) and drawn after the frame by `CX2State`'s `0x18` slot (`31ef76b0`, `32744860( 0 )`). Map the notice manager
+  against March's `X2NoticeManager.cpp` and port what differs whole. The pass argument of `32744860` stays with june-engine R4h. Brief:
+  `JUNE_ENGINE_REMAINDER_PHASES.md` "Phase R4h - ..." (the notice bullet) and `kickoffs/june-engine/R4h.md`.
+- **June's camera callers outside the camera classes** (handed here by the june-engine scope audit, 2026-10-20; was june-engine R13d). R13c
+  ported `CKTDGCamera` whole; its new members have outside callers: the shake lock set by `CX2CashShop::SetOpen` `3223d680` (`@3223e0a5`,
+  `@3223e144`; goes with the cash-shop screen bullet above) and cleared at the game-camera creation `322dfed2 @322dfedb`; `PointAndUpdateViewTransform`
+  (`31d01640`) from `324ba910 @324baa7c` / `328c41f0` (candidates: March's Field / BattleField `SetShowStateDLG( false )` view); the camera
+  sequencers `3276c6f0` / `32d2e520` (name them; class-only ones go to checklist 7af). Brief: `kickoffs/june-engine/R13d.md`.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
@@ -758,6 +781,9 @@ ones became their own plan: `JUNE_DUNGEONS_PHASES.md`, kickoffs `kickoffs/june-d
 - **Overlap with other stages:** Atlas / Elysion own their dungeons (A8-A10, E8-E11) and reuse the 4 Henir boss worlds C3y-1b ports; Stage 19 owns the
   event dungeons. All three edit the core registries (data036 `Enum.lua` + `DungeonEnum.lua`, data035 `DungeonData.lua`, data040 `WorldData.lua`,
   data037 `NPCTemplet.lua`): one port half at a time.
+
+- **June's village world Lua (W3)**, moved here from june-engine by its scope audit (2026-10-20): every village world script and line map in
+  data040 replaced by June's (ljconv), with its asset closure. Kickoff `kickoffs/june-dungeons/W3.md`.
 
 **Depends on:** june-effect C3x-C3z-6 (done). Stage 14/15 for C3z-1b only.
 

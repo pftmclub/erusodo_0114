@@ -1,5 +1,8 @@
 # June engine remainder - Phase R4f - Software cursor (CKTDXCursor)
 
+> **Routed (scope audit 2026-10-20): not run in june-engine.** This is the brief for backlog **Stage 9 (UI sweep)**
+> (`JUNE_PORT_BACKLOG_ORDER.md`, Stage 9, "June's software cursor"). Run it when Stage 9 is planned, not as `/x2-phase june-engine R4f`.
+
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort (map, then port), then a user play-test; type `/x2-phase june-engine R4f` |

@@ -237,6 +237,28 @@ U1 runs after U0, independent of the R chain apart from the build lock and `KTDX
 Touches). W1 after W0. W1, W1b and W2 (added by W0) share `X2World.cpp` / `KTDGLineMap.*`: one at a time, and none alongside
 atlas E5.
 
+## Scope audit (2026-10-20)
+
+Checked against the scope rule (user, 2026-10-19; `JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules", *Scope*). The plan grew from 13 phases
+(R0-R6, U0-U1, W0-W2, Z) to 45 between 2026-10-16 and 2026-10-18, before the rule existed, by following June's callers. Its subject is the
+renderer contract plus the render / skin-mesh code March already has (Stage 2 brief, "Build"), the UI framework, and the world-event timeline.
+- **Kept (subject):** R0-R3, R4, R4a-R4e, R4g, R4i, R4j, R5-R12, R13, R13b, U0, U1, W0, W1, W1b, W2, Z. R4i stays: it is `CKTDGObject`'s pass
+  contract (vslots `0x10` / `0x2c`) on the classes that override it.
+- **Drifted, done before the rule, left done** (as Stage 3 left S7g / S7i): R12b's cash-emotion half (`JUNE_RENDER_MOTION_CASH_EMOTION`, inert;
+  Stage 10 / 12 territory; the motion-collision half is combat on the playable path and is in scope), R13c (engine camera tracking and roll), R14 /
+  R14b (equipment enchant skins and attach-anim init; Stage 11 / 16 territory), W1c-W1g (line-map `GetLandPosition` / `CanDown`, the pet-AI
+  re-seat, the pathfinder fly-down: line-map physics found through `CanDown`'s callers, not the timeline). Their flags stay; nothing is reverted.
+- **Moved out (not run in this plan):**
+  - **R4f** (June's software cursor `CKTDXCursor`, app `+0x290`) -> backlog Stage 9 (UI sweep). Its only writer is the GFx event scene, where
+    june-gfx G6's `SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER` stand-in already draws March's cursor, so play is not blocked. Brief: `kickoffs/june-engine/R4f.md`.
+  - **R4h's notice half** (June's second `CX2TextManager`, `g_pMain +0x444`, and the `CX2NoticeManager` port) -> backlog Stage 9. R4h stays here
+    for the slot callees' pass argument only (render contract).
+  - **R13d** (the camera members' callers outside the camera classes: shake-lock writers in `CX2CashShop::SetOpen` `3223d680` and the game-camera
+    creation `322dfed2`, the Point-and-view callers `324ba910` / `328c41f0` (candidates: March's Field / BattleField `SetShowStateDLG( false )`), the
+    camera sequencers `3276c6f0` / `32d2e520`) -> backlog Stage 9, beside the cash-shop screen whose `SetOpen` it shares. Brief: `kickoffs/june-engine/R13d.md`.
+  - **W3** (June village world Lua) -> plan `june-dungeons` (worlds), same ID, kickoff `kickoffs/june-dungeons/W3.md`. Its phase text stays below.
+- **Left in this plan:** R4c2 -> R4d, R4g, R4h (pass arguments), R4i, R4j, R5, R6, R7, R9, W2, then Z.
+
 ## Phase R0 - Renderer contract RE
 
 **Run with:** Opus 5.5 high. No code. Funcmap rows `Engine R0`.
@@ -1141,6 +1163,9 @@ User owes nothing. R4i (needs this review) and R4j are ready.
 
 ## Phase R4f - Software cursor (CKTDXCursor)
 
+**Moved to backlog Stage 9 (UI sweep) by the scope audit (2026-10-20).** Not run in this plan; the text below and `kickoffs/june-engine/R4f.md` are
+Stage 9's brief.
+
 **Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_CURSOR` (proposed).
 Added by R4b (2026-10-18). Depends on R4b. KTDXApp `+0x290` is an embedded `CKTDXCursor` (RTTI, vtable `3344c980`, ctor `31ce50e0`, dtor
 `31ce5090`), drawn last in every frame by `31ce5400( 0 )` (`31be3800 @31be3c7c`); March has no such class. Map every slot and every writer
@@ -1157,6 +1182,9 @@ March's defaults (own depth, no multisample, `BeginRender( bClear )`); June pass
 Gate: minimap, last-kill shot (also at level 2), colour grading and UI move data look as before.
 
 ## Phase R4h - Notice text manager and the slot callees' pass argument
+
+**Split by the scope audit (2026-10-20).** The notice-text-manager bullet moved to backlog Stage 9 (UI sweep) and is not run here. This phase
+ports the pass arguments only (flag `SERV_IRUHADEV_JUNE_RENDER_SLOT_PASS`, proposed); its gate is "UI unchanged".
 
 **Run with:** Opus 5.5 high (map, then port), then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_RENDER_NOTICE_TEXT`
 (proposed; a second flag for the pass arguments if they split cleanly). Added by R4c (2026-10-18). Depends on R4c; not alongside another
@@ -2242,6 +2270,9 @@ over `31d01310..31d03570` and `31fb5800..31fb5915`, where Ghidra has no function
 
 ## Phase R13d - Camera members' outside callers (shake lock, Point-and-view)
 
+**Moved to backlog Stage 9 (UI sweep) by the scope audit (2026-10-20).** Not run in this plan; the text below and `kickoffs/june-engine/R13d.md`
+are Stage 9's brief.
+
 **Run with:** Opus 5.5 high (map, then port), then a user play-test and an Opus review. Added by R13c, which ported `CKTDGCamera` whole; these are
 June's callers of its new members that live outside the camera classes (plan rule 1: the June functions they sit in differ from March's there).
 Not alongside a session editing `X2CashShop.cpp`, `X2Game.cpp`, `X2StateField.cpp` or `X2StateBattleField.cpp`.
@@ -3046,6 +3077,9 @@ If the keeper consumers turn out to be Erda-only gameplay, route them to backlog
 `Ranox_Secret_Stage2` (retype) and any dungeon's portal line.
 
 ## Phase W3 - June village world Lua
+
+**Moved to plan `june-dungeons` by the scope audit (2026-10-20)**, same ID: run `/x2-phase june-dungeons W3` (kickoff
+`kickoffs/june-dungeons/W3.md`). The text stays here; the Done note goes into `JUNE_DUNGEONS_PHASES.md`.
 
 **Run with:** Sonnet 5.5 high (census, then adopt), then a user play-test; say "this needs a higher model" and stop if a June world-object method or key has
 no March binding. Log tag `[JUNE_ENGINE] WVIL`. No code flag unless the census routes one (then a separate engine phase, never a Lua edit).
