@@ -46,3 +46,9 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
 Written 2026-10-20. CH0's state map carried callbacks from one registration into the next (`charport_states.py` ignored the `FUN_320775a0()` Init call), so the
 `states` column and the June callbacks in `ch0_state_skill.tsv` named states a function is not registered for. CH0c rebuilds both; read them after CH0c, and
 take any "June registers X for N states" comment from the corrected map only. The class-map function list for CH1c may change in CH0c (its Done note lists moves).
+
+## From CH0c (2026-10-20)
+
+CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
+- in: 32cbc3e0 (`AVSI_COMBO_X3down` EventProcess, from CH1h)
+- out: 32cb7d00 (`AVSI_AEM_XXfrontX` Init only, to CH1e)

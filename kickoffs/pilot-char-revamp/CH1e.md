@@ -21,7 +21,7 @@ Then CH0's Done note. Pull a checklist section by its heading only when a row ab
 
 ## Task
 
-Transcribe every function the class map gives phase `CH1e` (the HM and AEM job states of InitState 32cea0c0 and the HM / AEM-named common states; 46 functions) from Ghidra (`decompile_function` at its `june_fn`; read the
+Transcribe every function the class map gives phase `CH1e` (the HM and AEM job states of InitState 32cea0c0 and the HM / AEM-named common states; 50 functions after CH0c) from Ghidra (`decompile_function` at its `june_fn`; read the
 listing with `june2017_re/funcdis.py` where the decompile is unclear), **whole**, as a new member of `CX2GUArme_VioletMage` named
 `June_<March name>` (or `June_<STATE>_<Slot>` where March has no pair), declared and defined under `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`.
 - **Inert by design.** Nothing calls the new members yet and March's functions stay untouched; CH1 switches the registration and the
@@ -40,3 +40,9 @@ listing with `june2017_re/funcdis.py` where the decompile is unclear), **whole**
 
 Written by CH0 (2026-10-20). Counts are from `ch0_class_map.tsv`. CH1's class core is about 370 functions, so CH0 split the transcription
 into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test to CH1 (Opus).
+
+## From CH0c (2026-10-20)
+
+CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
+- in: 32cb7450 (`HIGH_MAGICIAN_COMBO_X3back` EndFuture), 32cbe200 (`HIGH_MAGICION_DASH_ATTACK_X2` EventProcess), 32cc3080 (`AHM_DASH_JUMP_ZXX_FINISH` EventProcess), 32cc3ea0 (`AEM_DASH_JUMP_X3` EventProcess) from CH1h; 32cb7d00 from CH1c; 32cb8bd0, 32cc37e0, 32cc3b70 from CH1d
+- out: 32cb7db0 (`AVP_ZZfrontZZ` StartFuture), 32cb8be0 (`ADM_DASH_JUMP_ZX` FrameMoveFuture), 32cc6a30 (`DARK_MAGICIAN_DASH_COMBO_Z2a` / `ABM_DASH_COMBO_Z2a` Start) to CH1f; 32cb8bf0 (`ABM_DASH_JUMP_ZX` StartFuture) to CH1g

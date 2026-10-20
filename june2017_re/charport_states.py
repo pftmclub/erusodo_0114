@@ -10,6 +10,7 @@ init:  every UpdateUserUnitStateData (31fd89b0) call: state id, table name, and 
        UserUnitStateData before it (the Init clears them: inlined as explicit zero stores, or the call `FUN_320775a0();`,
        which Ghidra prints without arguments; CH1b review fix, before it every slot carried into the next state). The local's fields are found by their Ghidra stack
        names: `local_N` / `xStack_N` sit at offset (base - N), base = the local passed as the 3rd argument.
+       A name held in a variable (a per-class switch or if / else, a `~` row) is read along its own path: see cmd_init (CH0c).
 skill: the skill switch. For every case group: the skill ids, the table names passed to MakeTableReference (32fe9a40)
        for the normal and hyper state, and the callback slots written through the two state pointers (index k = byte
        offset 4k), following goto tails. Extra states a case registers through 31fd89b0 are listed with their ids.
@@ -53,7 +54,7 @@ def decompile(va):
 
 def fnval(rhs):
     rhs = re.sub(r'^\([^)]*\)\s*', '', rhs.strip().rstrip(';').strip())
-    m = re.match(r'^&?(?:LAB|FUN|PTR_FUN)_([0-9a-f]{8})$', rhs) or re.match(r'^0x(3[0-9a-f]{7})$', rhs)
+    m = re.match(r'^&?(?:LAB|FUN|PTR_FUN|DAT)_([0-9a-f]{8})$', rhs) or re.match(r'^0x(3[0-9a-f]{7})$', rhs)
     return int(m.group(1), 16) if m else None
 
 
@@ -81,45 +82,138 @@ def strat(tok):
     return sname(tok)
 
 
+STORE = re.compile(r'\s*(?:local|[a-z]+Stack)_([0-9a-f]+)\s*=\s*(.+);')
+IDSET = re.compile(r'\s*(uVar\d+) = (0x[0-9a-f]+|\d+);')
+NAMESET = re.compile(r'\s*(pcVar\d+) = (s_\w+|(?:\([^)]*\))?0x3[0-9a-f]{7});')
+REGCALL = re.compile(REG + r'\(([^,]+),([^,]+),\s*&?(?:local|[a-z]+Stack)_([0-9a-f]+)')
+
+
+def ind(ln):
+    return len(ln) - len(ln.lstrip(' '))
+
+
+def apply(ln, cur, ids):
+    """One line's effect on the local UserUnitStateData (cur: stack offset -> fn or None) and the id variables."""
+    if 'FUN_320775a0(' in ln:          # UserUnitStateData::Init on the local (zeroes +0x14..+0x5c, every slot)
+        cur.clear()
+    m = STORE.match(ln)
+    if m:
+        cur[int(m.group(1), 16)] = fnval(m.group(2))
+    m = IDSET.match(ln)
+    if m:
+        ids[m.group(1)] = str(int(m.group(2), 0))
+
+
+def close_of(L, i):
+    """The line of the `}` that closes the block opened on line i (same indent)."""
+    k = ind(L[i])
+    for j in range(i + 1, len(L)):
+        if ind(L[j]) == k and L[j].strip() == '}':
+            return j
+    return len(L) - 1
+
+
+def walk(L, a, cur, ids, pc, labels):
+    """Follow the path from line a (where pc gets its name) to the 31fd89b0 call that consumes pc: the rest of the branch
+    up to break / goto / its closing brace, then the merge, skipping sibling cases and else blocks. Returns
+    (call line, id token, cur, ids, flags); flags notes slot stores made inside a nested block (read the listing)."""
+    cur, ids, flags = dict(cur), dict(ids), set()
+    lvl, i, steps = ind(L[a]), a + 1, 0
+    while i < len(L) and steps < 4000:
+        steps += 1
+        ln, s = L[i], L[i].strip()
+        c = REGCALL.search(ln)
+        if c and c.group(2).strip() == pc:
+            return i, c.group(1).strip(), cur, ids, flags
+        g = re.match(r'goto (\w+);$', s)
+        if g:
+            if g.group(1) not in labels:
+                return None
+            i = labels[g.group(1)] + 1
+            lvl = ind(L[i])
+            continue
+        if s == 'break;':
+            sw = next((j for j in range(i - 1, -1, -1) if L[j].strip().startswith('switch(') and ind(L[j]) < ind(ln)
+                       and close_of(L, j) > i), None)
+            if sw is None:
+                return None
+            i, lvl = close_of(L, sw) + 1, ind(L[sw])
+            continue
+        if s == '}' and ind(ln) < lvl:
+            j, lvl = i, ind(ln)
+            while j + 1 < len(L) and L[j + 1].strip().startswith('else') and ind(L[j + 1]) == lvl:
+                j = close_of(L, j + 1)
+            i = j + 1
+            continue
+        if re.match(r'(case [^:]+|default):$', s):   # fall through into the next case label
+            i += 1
+            continue
+        if STORE.match(ln) and ind(ln) > lvl and fnval(STORE.match(ln).group(2)) is not None:
+            flags.add('nested store @%d' % (i + 1))
+        apply(ln, cur, ids)
+        i += 1
+    return None
+
+
 def cmd_init(vas):
-    """Rows marked '~' come from a name held in a variable (a per-class switch): one row per name assigned since the
-    previous registration, with the callbacks as they stood at that assignment (read the branch to confirm).
-    KNOWN DEFECT (pilot-char-revamp CH1b review; CH0c fixes it): Ghidra may print the name assignment before the branch's
-    stores, so a '~' row can come out empty, and its id is the last uVar seen (e.g. AVSI_ABM_COMBO_Z4 reads 164, the
-    branch sets 0xcb). Never trust a '~' row without the listing."""
+    """Rows marked '~' come from a name held in a variable (a per-class switch or if / else): one row per name assignment.
+    CH0c fix (pilot-char-revamp; the CH1b review found it): a '~' row is read along its own path. The state at the start of
+    a case / else is the state at its switch / if, not the previous sibling's. From the name assignment the path takes the
+    rest of that branch (up to break, goto or its closing brace), then the stores after the merge, up to the 31fd89b0 call
+    that consumes the name; the id is the variable's value on that path. A '?' after the line number means a slot store
+    sat in a nested block on that path (both arms applied): check it against the listing (funcdis.py)."""
     print('fn	line	state_id	table	callbacks')
     for fva in vas:
         L = decompile(fva)
-        cur, cand, ids = {}, {}, {}
+        labels = {}
         for i, ln in enumerate(L):
-            if 'FUN_320775a0(' in ln:          # UserUnitStateData::Init on the local (zeroes +0x14..+0x5c, every slot)
-                cur = {}
-            m = re.match(r'\s*(?:local|[a-z]+Stack)_([0-9a-f]+)\s*=\s*(.+);', ln)
+            m = re.match(r'\s*(LAB_[0-9a-f]+|code_r0x[0-9a-f]+):', ln)
             if m:
-                cur[int(m.group(1), 16)] = fnval(m.group(2))
-            m = re.match(r'\s*(uVar\d+) = (0x[0-9a-f]+|\d+);', ln)
+                labels[m.group(1)] = i
+        cur, ids, frames, out = {}, {}, [], []
+        for i, ln in enumerate(L):
+            s = ln.strip()
+            # branch entry: a case / else starts from the state at its switch / if (CH0c)
+            while frames and ind(ln) < frames[-1][0]:
+                frames.pop()
+            if frames and ind(ln) == frames[-1][0]:
+                k, kind, scur, sids = frames[-1]
+                if (kind == 'switch' and re.match(r'(case [^:]+|default):$', s)) or (kind == 'if' and s.startswith('else')):
+                    cur, ids = dict(scur), dict(sids)
+                elif s == '}':
+                    if not (i + 1 < len(L) and L[i + 1].strip().startswith('else') and ind(L[i + 1]) == k):
+                        frames.pop()
+            if re.match(r'(switch\(|if \().*\{$', s):
+                frames.append((ind(ln), 'switch' if s.startswith('switch') else 'if', dict(cur), dict(ids)))
+            apply(ln, cur, ids)
+            m = NAMESET.match(ln)
             if m:
-                ids[m.group(1)] = str(int(m.group(2), 0))
-            m = re.match(r'\s*(pcVar\d+) = (s_\w+|(?:\([^)]*\))?0x3[0-9a-f]{7});', ln)
-            if m:
-                cand.setdefault(m.group(1), []).append((i + 1, strat(m.group(2)), dict(cur), dict(ids)))
-            c = re.search(REG + r'\(([^,]+),([^,]+),\s*&?(?:local|[a-z]+Stack)_([0-9a-f]+)', ln)
-            if c:
+                w = walk(L, i, cur, ids, m.group(1), labels)
+                if w is None:
+                    out.append((i, '%s	~%d!	?	%s	(no consuming 31fd89b0 call found: read the listing)' % (fva, i + 1, strat(m.group(2)))))
+                    continue
+                cl, sid, wcur, wids, flags = w
+                base = int(REGCALL.search(L[cl]).group(3), 16)
+                sv = wids.get(sid, sid)
+                try:
+                    sv = str(int(sv, 0))
+                except ValueError:
+                    pass
+                fields = {base - n: v for n, v in wcur.items() if v is not None and base - n > 0}
+                out.append((i, '%s	~%d%s	%s	%s	%s' % (fva, i + 1, '?' if flags else '', sv, strat(m.group(2)), slotstr(fields))))
+                continue
+            c = REGCALL.search(ln)
+            if c and not re.match(r'pcVar\d+$', c.group(2).strip()):
                 base = int(c.group(3), 16)
-                sid, arg = c.group(1).strip(), c.group(2).strip()
-                rows = []
-                if arg in cand:
-                    for (cl, nm, snap, idsnap) in cand.pop(arg):
-                        rows.append(('~%d' % cl, idsnap.get(sid, sid), nm, snap))
-                else:
-                    rows.append((str(i + 1), sid, strat(arg), cur))
-                for (lno, sv, nm, snap) in rows:
-                    try:
-                        sv = str(int(sv, 0))
-                    except ValueError:
-                        pass
-                    fields = {base - n: v for n, v in snap.items() if v is not None and base - n > 0}
-                    print('%s	%s	%s	%s	%s' % (fva, lno, sv, nm, slotstr(fields)))
+                sv = c.group(1).strip()
+                try:
+                    sv = str(int(sv, 0))
+                except ValueError:
+                    pass
+                fields = {base - n: v for n, v in cur.items() if v is not None and base - n > 0}
+                out.append((i, '%s	%d	%s	%s	%s' % (fva, i + 1, sv, strat(c.group(2).strip()), slotstr(fields))))
+        for _, row in sorted(out):
+            print(row)
 
 
 def cmd_skill(fva):

@@ -35,7 +35,7 @@ Do "Phase CH1". Her assets are June's since CH0b, and the script and the C++ go 
 Written by CH0 (2026-10-20). **CH1 now depends on CH1a-CH1i and their reviews**: those Sonnet phases transcribe the ~340 class functions as
 inert `June_*` members; CH1 (Opus) wires them, adopts the script and hands over the play-test.
 
-Filters: `awk -F'\t' '$6=="CH1"' ch0_class_map.tsv` (29 functions: the registrars and what only they call), `awk -F'\t' 'NF==8 && $8 ~ /^CH1/'
+Filters: `awk -F'\t' '$6=="CH1"' ch0_class_map.tsv` (28 functions after CH0c: the registrars, what only they call, and 32cb7110), `awk -F'\t' 'NF==8 && $8 ~ /^CH1/'
 ch0_state_skill.tsv` (the 204 states CH1a-CH1i serve), `awk -F'\t' '$5 ~ /CH1( |$)/' ch0_checklist_rows.tsv`.
 
 What CH1 itself does:
@@ -66,3 +66,18 @@ What CH1 itself does:
   entries the wait state enters the charge, and stays in it, on a full MP bar). The constructor must set `m_hJuneMemoRiseLoop` to
   `INVALID_EFFECTSET_HANDLE` (`32cc99d0 @32ccb01c`).
 - `June_GameByteC20()` (CX2Game `+0xc20`) is June's value (false), not a pending stand-in.
+
+## From CH0c (2026-10-20)
+
+CH0c corrected the registration map; wire every state from `ch0_state_skill.tsv` (june_registration, june_callbacks), never from the CH1a / CH1b
+Done notes, whose "Registration notes for CH1" were written from the old map. What changed for CH1 itself:
+- **Every registration row now matches the listing** (172 rows: 163 read from the name push along the branch path, all 33 per-class `~` rows among them; 9 from the call back: 4 std::string names and the 5 of `3202b110`).
+  A state gets exactly the slots its row lists; no state shares a callback it was not registered with.
+- **USI_HYPER_MODE** (`32ce77b0` id 0x17, `@32ce8674`): its name is the std::string `31fdd490( job )` returns, so the four hyper-mode rows
+  now carry Init `32cb7110` (state-fn, CH1: yours), StartFuture `329caf10`, Start `329caef0`, FrameMove `32bd5f20`, CameraMove `32cd1470`
+  (`June_HyperModeCameraMove`, ported in CH1b), EventProcess `329caf00`, End `329cc5a0`.
+- **USI_START / USI_WIN / USI_LOSE** (`32cea0c0` ids 9 / 0xb / 0xc): the rolled names of `31fe22d0`; callbacks are CX2GUUser's (funcmap
+  `32cea0c0 @32cea2f5`), now on the rolled `_START` / `_WIN` / `_LOSE` rows.
+- Ported functions whose state set shrank keep their phase and member: `32cc8800` (Init of the two TELEPORT_STANDUP_ATTACK states, CH1a),
+  `32cbb8d0` / `32cbba10` (COMBO_X4_CHARGE only), `32cb7530` / `32cc6ca0` / `32cd5360` (DASH_JUMP_ATTACK_Z only), the riding hyper set
+  `32cb8a50` / `32ce6f20` / `32ce1590` / `32cf0fa0` (AVSI_RIDING_HYPER_MODE only), `32cd1470` (CH1b). Point only those states at them.

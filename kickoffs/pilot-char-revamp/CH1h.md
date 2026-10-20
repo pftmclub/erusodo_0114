@@ -21,7 +21,7 @@ Then CH0's Done note. Pull a checklist section by its heading only when a row ab
 
 ## Task
 
-Transcribe every function the class map gives phase `CH1h` (the lifecycle, render and reaction overrides (dtor, Init*, Create*ParticleArray, OnFrameMove, DamageReact, Win / Lose / Draw, HyperModeBuffEffectStart, ...) and the helpers only they call; 69 functions) from Ghidra (`decompile_function` at its `june_fn`; read the
+Transcribe every function the class map gives phase `CH1h` (the lifecycle, render and reaction overrides (dtor, Init*, Create*ParticleArray, OnFrameMove, DamageReact, Win / Lose / Draw, HyperModeBuffEffectStart, ...) and the helpers only they call; 62 functions after CH0c) from Ghidra (`decompile_function` at its `june_fn`; read the
 listing with `june2017_re/funcdis.py` where the decompile is unclear), **whole**, as a new member of `CX2GUArme_VioletMage` named
 `June_<March name>` (or `June_<STATE>_<Slot>` where March has no pair), declared and defined under `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`.
 - **Inert by design.** Nothing calls the new members yet and March's functions stay untouched; CH1 switches the registration and the
@@ -47,3 +47,9 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
   `+0x9778` (`m_hJuneMemoRiseLoop`) and `+0x977c` (a second effect-set handle, used by `32cd86cf` / `32cd8900`) to -1 (`@32ccb01c` / `@32ccb022`;
   again `@32ccb7c3` / `@32ccb7cb`). Identify the element type (its users: `32ce15a0`, `32ce4180`, `32ce1900`, `32cc7f10`, `32ccf4e0`, `32ced640`,
   `32ceca70`) and declare the container; CH1i fills it and retires `m_iJune9770`.
+
+## From CH0c (2026-10-20)
+
+CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
+- in: none
+- out: 32cb7450, 32cbe200, 32cc3080, 32cc3ea0 to CH1e; 32cbc3e0 to CH1c; 32cbdd20 to CH1d; 32cbfaa0 to CH1f (the seven "job branch the extractor skips" state callbacks; they were never yours)

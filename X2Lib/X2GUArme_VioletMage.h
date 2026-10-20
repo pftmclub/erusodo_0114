@@ -883,7 +883,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_RidingHyperModeInit();								/// June 32cb8a50
 		void June_RidingHyperModeFrameMove();							/// June 32ce6f20
 		void June_RidingHyperModeCameraMove();							/// June 32ce1590
-		void June_HyperModeCameraMove();								/// June 32cd1470 ( helper )
+		void June_HyperModeCameraMove();								/// June 32cd1470 ( USI_HYPER_MODE CameraMove; 32ce1590 calls it )
 		void June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ );	/// June 32ce12c0 ( helper )
 		void June_ApplyLimitedManaManagement();							/// June 32ccd4a0 ( helper )
 		void June_Vslot60c();											/// June 32cb8b60 ( vslot 0x60c ): body in CH1i

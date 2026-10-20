@@ -374,6 +374,54 @@ stores. All 33 such rows are unreliable (e.g. `AVSI_ABM_COMBO_Z4` reads id 164, 
 **Done gate:** every registration row matches the listing (all `~` rows checked by hand, a sample of 10 plain rows); the class map's phase column changes
 only for unported rows, each listed; the code comments and funcmap rows name June's real state sets.
 
+### CH0c - Done (2026-10-20)
+
+**Tool.** `charport_states.py init` now reads a `~` row (a name held in a variable) along its own path: a case or else starts from the state at
+its switch / if, not from the previous sibling's. From the name assignment it takes the rest of the branch (to `break`, `goto` or the closing
+brace), then the stores after the merge, up to the `31fd89b0` call that uses the name. The id is the variable's value on that path. `fnval`
+also accepts `DAT_` labels: `AVSI_RIDING_SPECIAL_MOVE` had lost EndFuture `329cb580`, a thunk Ghidra had not carved. `skill 32cede00` is unchanged.
+**Proof:** `ch0c_rebuild_reg_columns.py` fed the CH0 `reg.tsv` (`ch1b_review_reg_old.tsv`) and today's `skill.tsv` reproduces HEAD's
+two maps with 0 changes.
+**Listing check (every row, not a sample of 10).** `ch0c_listing_check.py` (new; Stage 7's step 0 can reuse it) walks the raw listing (esp depth, `mov reg, imm`, slot stores, the three
+pushes): 170 / 170 distinct rows of the new `reg.tsv`, while the CH1b review's output fails 30. It goes back from each name push to the branch's `Init` and then forward through `jmp` to the call. Result: 163 / 163 literal-name
+registrations equal the new `reg.tsv`, all 33 `~` rows among them (e.g. `AVSI_ABM_COMBO_Z4` id 203 = `0xcb`, EventProcess `32cc0390`; `AVSI_COMBO_X3front`
+loses the Init `32cb7d00` it took from its AEM sibling). A walk back from the call matches the other 9 (4 std::string names and the 5 of `3202b110`). Every block
+that starts right after the previous registration has June's inlined Init (fld1 + zero stores), so nothing carries over.
+**Found, Aisha's, fixed here:** four registrations take their table name from a std::string, so CH0 attached no callbacks to them.
+- `USI_HYPER_MODE` (`32ce77b0` id 0x17, name `31fdd490( job )`): its callbacks now sit on the four hyper-mode rows. Init `32cb7110` was a helper
+  and is now a CH1 state function; CameraMove `32cd1470` is ported in CH1b.
+- `USI_START / WIN / LOSE` (`32cea0c0` ids 9 / 0xb / 0xc, the roll `31fe22d0`): CX2GUUser callbacks, now on the rolled rows.
+- Two new funcmap rows: `32ce77b0 @32ce8674` and `32cea0c0 @32cea2f5`. Nothing drifts: both are CH1's registration.
+
+**Maps** (`ch0c_rebuild_reg_columns.py <S> --write` on `ch0c_reg.tsv` / `ch0c_skill.tsv`, saved beside them; it also recomputes the totals lines):
+- `ch0_state_skill.tsv`: 162 state rows change (june_registration ids and paths, june_callbacks).
+- `ch0_class_map.tsv`: 77 rows change.
+- Helper phases re-run with the builder's fixed point; none moves because of the fix. 11 helpers disagree with the builder on the old map
+  too (its order), so they are left alone.
+
+**Phase moves**, functions to transcribe after CH0c: CH1c 30, CH1d 32 -> 26, CH1e 46 -> 50, CH1f 23 -> 31, CH1g 21 -> 23, CH1h 69 -> 62,
+CH1i 41, CH1 29 -> 28. Each kickoff's "From CH0c" section lists its ins and outs.
+- The seven state callbacks CH1h held as "job branch the extractor skips" go to their states' phases (c / d / e / f).
+- `32cc0390` (`ABM_COMBO_Z4` EventProcess) moves CH1 -> CH1g.
+- **Kept (ported):** 11 functions whose map phase would change keep their phase and member. `32cc8800` (CH1a); `32cbb8d0` / `32cbba10`;
+  `32cb7530` / `32cc6ca0` / `32cd5360`; `32cb8a50` / `32ce6f20` / `32ce1590` / `32cf0fa0` / `32cd1470` (all CH1b).
+
+**Corrections to what the old map wrote** (the CH1a / CH1b Done notes stay as history and are superseded here):
+- 12 comments under the flag in `X2GUArme_VioletMage.cpp`, 1 in `.h` (`bytepatch.py`):
+  - `32cc8800` is the Init of the two TELEPORT_STANDUP_ATTACK states, not of 59 states;
+  - DIE (no riding-attack FrameMove), AIR_DOWN_LANDING Init, DAMAGE_DOWN_BACK FrameMove and DASH_JUMP_ATTACK_Z each serve their own state only;
+  - STANDUP_ATTACK Start / End serve the 2 states, not 12 / 11; `32cbb8d0` / `32cbba10` serve COMBO_X4_CHARGE only;
+  - the riding hyper set serves RIDING_HYPER_MODE only; TELEPORT_END FrameMove has no STAND_UP_START;
+  - `32cd1470` is also the USI_HYPER_MODE CameraMove; `GetJumpSpeed()` is `+0x4a78`.
+- funcmap: the same claims in rows `32cc8800`, `32cb9de0`, `32cb7240`, `32cb7530`, `32cbb8d0` and `32cd1470`.
+- CH1 kickoff: wire from `ch0_state_skill.tsv` only; the hyper-mode / roll rows; the kept-phase list.
+
+**Hygiene.** `flagcheck.py SERV_IRUHADEV_JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`:
+`files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 13 deleted line(s), 0 non-ASCII
+inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 13 deleted lines
+are the 13 replaced comment lines, each inside this flag's own block. Build (comments only, a compile check): `BUILD OK: X2/US_SERVICE/x2.exe 25,526,784 B, 2026-10-20 08:57:28`; the deploy was refused (`X2_offline.exe` was running). Nothing to deploy for: the code is unchanged, so the game-dir exe stays CH1b's (`build.py --deploy-only` copies it later if wanted).
+**In game:** nothing (comments and RE data). Next: CH1c.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (one flag per logical change

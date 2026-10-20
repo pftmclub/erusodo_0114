@@ -52,3 +52,9 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
   0x718: `+0xb38` += elapsed; at >= 2.8 (`3351aff0`) a 10-slot pass `322eca50` / `322f4480`, then reset). Port both under the flag and replace the no-op
   `June_SetGameFloatB38`. If the 10-slot pass is skill-slot HUD drawing, the drawing goes to CH5 as a bullet; the timer stays here.
 - CX2Game `+0xc20` is settled: only its constructor writes it, `June_GameByteC20()` stays false.
+
+## From CH0c (2026-10-20)
+
+CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
+- in: none
+- out: none

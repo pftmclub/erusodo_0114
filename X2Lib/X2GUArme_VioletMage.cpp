@@ -22593,7 +22593,7 @@ void CX2GUArme_VioletMage::June_ChargeMPEnd()
 	m_RenderParam.cartoonTexType	= CKTDGXRenderer::CTT_NORMAL;
 }
 
-// June 32cc8800 ( the same body as March's EvasionStandupAttackInit; June registers it as the Init of 59 states )
+// June 32cc8800 ( the same body as March's EvasionStandupAttackInit; June registers it as the Init of AVSI_TELEPORT_STANDUP_ATTACK and _UPGRADE only, CH0c map )
 void CX2GUArme_VioletMage::June_EvasionStandupAttackInit()
 {
 	CKTDXDeviceXSkinMesh* pEvasionAttackMesh = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Arme_EvasionAttack.X" );
@@ -22664,7 +22664,7 @@ bool CX2GUArme_VioletMage::June_IsMemoRiseChargeActive()
 //     0xa1 / 0xf3 AVSI_TELEPORT_STANDUP_ATTACK / AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE ( ids of ch0_state_skill.tsv ).
 //   - The two June-only _UPGRADE states are new members of ARME_VIOLEMAGE_STATE_ID ( X2GUArme_VioletMage.h ), appended after AVSI_TRANSFORMED.
 //   - The inlined XOR-protected values of June ( a ^ b ^ &a ) are read as plain members: GetDashSpeed() ( +0x423c * +0x49c4 ), GetJumpSpeed()
-//     ( +0x4978 ) and the two m_ExtraDamagePack times ( +0x2480 = m_EnchantShock, +0x1730 = m_Frozen: the order of March's test ).
+//     ( +0x4a78 ) and the two m_ExtraDamagePack times ( +0x2480 = m_EnchantShock, +0x1730 = m_Frozen: the order of March's test ).
 
 namespace
 {
@@ -22692,7 +22692,7 @@ namespace
 	}
 }
 
-//AVSI_DIE_FRONT / AVSI_DIE_BACK ( also AVSI_RIDING_DIE, and June registers 32cb6ed0 as FrameMove of AVSI_RIDING_ATTACK_Z / AVSI_RIDING_JUMP_ATTACK_Z )
+//AVSI_DIE_FRONT / AVSI_DIE_BACK ( June registers the four DIE_FRONT callbacks for AVSI_RIDING_DIE too; the riding attacks register no FrameMove, CH0c map )
 // June 32cb6ed0: DieFrameMove 31ffcba0( 0.19, 1.12 )
 void CX2GUArme_VioletMage::June_DieFrontFrameMove()
 {
@@ -22763,7 +22763,7 @@ void CX2GUArme_VioletMage::June_DieBackStart()
 	m_pXSkinAnim->SetPlaySpeed( 0.5f );
 }
 
-//AVSI_DAMAGE_AIR_DOWN_LANDING ( the Init of 10 damage / teleport states )
+//AVSI_DAMAGE_AIR_DOWN_LANDING ( June registers 32cb7170 as the Init of this state only, CH0c map )
 // June 32cb7170
 void CX2GUArme_VioletMage::June_DamageAirDownLandingInit()
 {
@@ -22787,7 +22787,7 @@ void CX2GUArme_VioletMage::June_DamageDownFrontFrameMove()
 	CommonFrameMove();
 }
 
-//AVSI_DAMAGE_DOWN_BACK ( June also registers it for AVSI_DAMAGE_STANDUP_FRONT / _BACK and the AIR damage states )
+//AVSI_DAMAGE_DOWN_BACK ( June registers 32cb9de0 as the FrameMove of this state only, CH0c map )
 // June 32cb9de0
 void CX2GUArme_VioletMage::June_DamageDownBackFrameMove()
 {
@@ -23125,7 +23125,7 @@ void CX2GUArme_VioletMage::June_AVSI_TELEPORT_STAND_UP_START_EventProcess()
 	CommonEventProcess();
 }
 
-//AVSI_A_AV_TELEPORT_END / AVSI_TELEPORT_STAND_UP_START / _UPGRADE / AVSI_TELEPORT_STAND_UP_END ( FrameMove )
+//AVSI_A_AV_TELEPORT_END / AVSI_TELEPORT_STAND_UP_END ( FrameMove; CH0c map )
 // June 32cd2740: March's EvasionEndFrameMove, the ArmeEvasion mesh tagged with the effect-alpha category ( checklist 7c, 32296ee0 @32cd2853 )
 void CX2GUArme_VioletMage::June_EvasionEndFrameMove()
 {
@@ -23170,7 +23170,7 @@ void CX2GUArme_VioletMage::June_EvasionEndEventProcess()
 	CommonEventProcess();
 }
 
-//AVSI_TELEPORT_STANDUP_ATTACK ( and _UPGRADE; June registers 32cb7240 / 32cb7270 as Start / End of 12 / 11 states )
+//AVSI_TELEPORT_STANDUP_ATTACK ( and _UPGRADE; June registers 32cb7240 / 32cb7270 as Start / End of these two states only, CH0c map )
 // June 32cb7240
 void CX2GUArme_VioletMage::June_EvasionStandupAttackStart()
 {
@@ -23248,7 +23248,7 @@ void CX2GUArme_VioletMage::June_EvasionStandupAttackEventProcess()
 	CommonEventProcess();
 }
 
-//AVSI_DASH_JUMP_ATTACK_Z ( also AVSI_WALL_LANDING and the PEPPER_RUN_READY / PEPPER_RUN states )
+//AVSI_DASH_JUMP_ATTACK_Z ( June registers 32cb7530 / 32cc6ca0 / 32cd5360 for this state only, CH0c map )
 // June 32cb7530: m_bDashJumpZ ( +0x9599 ) is cleared before the jump to CommonStateStartFuture
 void CX2GUArme_VioletMage::June_DashJumpAttackZStartFuture()
 {
@@ -23348,7 +23348,7 @@ void CX2GUArme_VioletMage::June_DashJumpAttackZFrameMove()
 	CommonFrameMove();
 }
 
-//AVSI_DAMAGE_BOUNDING_DOWN ... ( June registers 32cbb8d0 / 32cbba10 as Start / End of 59 states, March's COMBO_X4_CHARGE pair )
+//AVSI_COMBO_X4_CHARGE ( June registers 32cbb8d0 / 32cbba10 as its Start / End only, March's COMBO_X4_CHARGE pair; CH0c map )
 // June 32cbb8d0
 void CX2GUArme_VioletMage::June_ComboX4ChargeStateStart()
 {
@@ -23366,7 +23366,7 @@ void CX2GUArme_VioletMage::June_ComboX4ChargeStateEnd()
 	SetNoDetonation( false );
 }
 
-//AVSI_RIDING_HYPER_MODE / AVSI_RIDING_SPECIFIC / AVSI_RIDING_ATTACK_X_READY / _READY_2 / AVSI_RIDING_ATTACK_X_END
+//AVSI_RIDING_HYPER_MODE ( June registers these callbacks for this state only, CH0c map )
 // June 32cb8a50: March's HyperModeInit inlined
 void CX2GUArme_VioletMage::June_RidingHyperModeInit()
 {
@@ -23390,7 +23390,7 @@ void CX2GUArme_VioletMage::June_RidingHyperModeCameraMove()
 	June_HyperModeCameraMove();
 }
 
-// June 32cd1470: March's HyperModeCameraMove
+// June 32cd1470: March's HyperModeCameraMove ( also the CameraMove of USI_HYPER_MODE, 32ce77b0 id 0x17, CH0c map )
 void CX2GUArme_VioletMage::June_HyperModeCameraMove()
 {
 	CommonCameraMove();
@@ -23531,7 +23531,7 @@ void CX2GUArme_VioletMage::June_RidingOffStart()
 	June_Vslot60c();
 }
 
-//AVSI_RIDING_HYPER_MODE / AVSI_RIDING_SPECIFIC / AVSI_RIDING_ATTACK_X_READY ... ( End )
+//AVSI_RIDING_HYPER_MODE ( End )
 // June 32cf0fa0: a bare jump to vslot 0x608
 void CX2GUArme_VioletMage::June_RidingHyperModeEnd()
 {
