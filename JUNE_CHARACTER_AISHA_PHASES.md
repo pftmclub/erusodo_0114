@@ -1257,6 +1257,39 @@ The 5 deleted lines are CH1j's own stand-in line and four "CH1j2 transcribes" co
 
 No drift, no new branch found. **In game:** nothing (the members are unreferenced until `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE`). Next: `/x2-phase pilot-char-revamp CH1j2 review` (Opus 5.5 high); CH1k follows the review.
 
+### CH1j2 -- Review (2026-10-21, Opus)
+
+**Verdict: PASS, no code change.** All five read instruction by instruction from `funcdis.py` listings (none is carved in Ghidra), with constants
+from `charport_consts.py` (operand width) and strings decoded from the image.
+
+1. **`32cbca20`** (tail `32cbcff0`). Fall -> `USI_JUMP_DOWN`, y -45 (qword `33472998`). `SKILL_CANCEL_AFTER( 0.01 )`: both halves, including the
+   `+0x8d4c` hyper latch and `32070d60`, are the AWAKE_LOCK macro. Windows `+0x8c10 + 12 * i`: start / end / stateChange are `+0 / +4 / +8`, and the flags
+   are `+0x7d85..+0x7d89` = `bEventFlagList[0..4]`. The due test is `now > stateChange || animEnd`. Ids 0xab / 0xaa / 0xad / 0xa9 / 0xc6.
+   Input bytes against `InputData` (X2GameUnit.h:170, base `+0x86da` = pureLeft): oneX `+0x86ef`, oneZ `+0x86eb`, pureDown `+0x86e6`, forward / back from
+   `+0x7e56` bIsRight. Windows 2 and 4 test `[[+0x867c]+0xaf0]+4 == 0x68`, i.e. `m_pUnitTemplet->m_UnitClass` = `GetUnit()->GetClass()` (X2Unit.h:689),
+   class 104. The 12 keys (`+0x86e2 .. +0x8712`) feed the tail: `now > 0.966` (a qword equal to `(double)0.966f`), then ground ? WAIT : JUMP_DOWN; at or
+   below 0.966, nothing. Anim-end WAIT reads `[+0x87d0]` directly. `+0x96f0 = 1` while flag 3, then CommonEventProcess (vslot 0x7d4). All match.
+2. **`32cc42a0`**: fall, then anim-end WAIT (ground only), `SKILL_CANCEL_AFTER( +0x8c90 )`, WALK `+0x8c98` (either arrow), BWALK `+0x8c94`, DASH `+0x8c9c`
+   (pureDouble `+0x86dc` / `+0x86e0` -> vslot 0x668), Z / X on `+0x8c88` = `m_fAttackCancelAfterEx` with oneZ / oneX (vslot 0x4b0 / 0x4b4).
+   Every cancel tests `+0x7e1c` (ground) and `0 <= t`. The order is the listing's.
+3. **`32ce2cc0`** vs `32ce2b20`: 0.27 oneshot; vslot 0xe4 `( 10.0, 0 )`, which is plain `FlushMp`, not the refund helper; bone `3345bb08` = `Dummy2_Lhand`
+   through `m_pXSkinAnim` (`+0x87d4`), not `TRACE_START0`; the vslot 0x150 rotation goes in untouched; power `+0x9640`, range `+0x95c8`, land y `+0x80c4`;
+   `3351ee64` = `DamageEffect_ADM_DashJumpZX`. The failure path is `32007d80( pos, 0, 0, 0 )`. JUNE_BUGS 380 stands.
+4. **`32ce7170`**: 0.16 (dword) oneshot; `32cc2b90( 4.0 * protected +0x95bc )`; type 1 is stored in the local the helper receives by pointer; z -30 (`3350ad60`);
+   failure `( 0, 0, -30 )`. The function ends at `32ce72ee`: the 0.3 / 5.0 / 180 constants `charport_consts.py` prints belong to the merged neighbour.
+5. **`32cc3040`** is June's inlined `EventTimerOneshot( 0.27 )` (`+0x24c` = `m_fAnimOneshotTimer` guard, KTDGXSkinAnim.h:258) with the result dropped,
+   then CommonFrameMove (vslot 0x7cc). The C++ calls `EventTimer( 0.27f )` alone. Both are pure queries (Ghidra `31d28e10` reads `+0x21c` / `+0x214` and
+   writes nothing), so the outcome is the same; noted in funcmap, no code change.
+
+**Ghidra spot-check** (read-only; the five are not carved, so the callees were checked instead): `31d28e10` EventTimer
+(`before < t <= curr`, no writes); `32cc2b90` is vslot 0xe4 `( mp, 0 )` plus the `+0x96ac` refund; `32007d80` takes `( pos, x, y, z )` =
+CreateNotEnoughMPEffect. All agree with the transcription.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --range e0ddb88e^..e0ddb88e`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 5 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The 5 deletions are the stand-in line and four "CH1j2 transcribes" comments. `ch1j_review_regcheck.py`: none of the five is MISSING (35 left, all routed).
+No build: nothing changed in code. `CH1k.md` checked: it still matches (depends on this review; scope unchanged). No drift found.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
