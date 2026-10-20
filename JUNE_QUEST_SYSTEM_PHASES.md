@@ -1001,7 +1001,7 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_UPPER_DIFF` (needs `JUNE_QUEST_OFFLINE`; `#error`
 - Harmless to play (sub-quest stays done, the clear counts, 22162 completes at Edel). Scope rule: own phase, not a Q4d reopening.
 - Task: read June's ACK handler and the caller; keep verbatim (JUNE_BUGS row) or port June's answer. Kickoff `kickoffs/quest-system/Q4e.md`.
 
-### Q4e - Done (2026-10-19, Opus 5.5 high)
+### Q4e - Done (2026-10-19, Opus 5.5 high; play-test PASSED 2026-10-20)
 
 Verdict: **June answers differently, ported** (no JUNE_BUGS row). Flag `SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH` (no dependency guard).
 - **The box is June's too, on March's path.** June's ACK `323e57e0` runs `DeleteServerPacket( 0xf1 )` (or quest 11000) then `IsValidPacket` `31d91680`.
@@ -1032,6 +1032,8 @@ Verdict: **June answers differently, ported** (no JUNE_BUGS row). Flag `SERV_IRU
 - **In game:** Q9 A3 again: Burnt Forest Expert ticks 22182 with no message box; 22162 completes at Edel after 22183. Log: no
   `QUEST    complete 22162 refused`. One-sub-quest visit quests still complete on field entry (`X2StateField.cpp:1522`, unchanged).
 - **Revert:** `MODS.md` "visit sub-quests flush the completed-visit list". No data, no save change. Review: none; Q5c covers it.
+- **Play-test PASSED** (user, 2026-10-20: Q9 A3, no message box at 22182). The A3 run's logs were overwritten by a later launch (exe of main
+  6b37c126, which contains ce91c031); that run has 0 UNHANDLED / 0 EXCEPTION and no `refused` line.
 
 ## Phase Q5a - Quest UI: window, tabs, list / detail / quick, accept / complete / give-up
 
