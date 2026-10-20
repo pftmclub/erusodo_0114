@@ -58,3 +58,9 @@ CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / j
 
 - CH1g wrote the `June_AVSI_ABM_*` / `ADW_*` members; `JUNE_ARME_*` macros are `#undef`'d at the end of its block, define what you need in your own.
 - `32021390` (landing prediction) is the CH1g review's; a CH1h function that calls it uses the member the review writes.
+
+## From the CH1g review (2026-10-20)
+
+- `32021390` is `JuneLandingPrediction( float fSpeedXAdd, float fMinYOffset, D3DXVECTOR3* pOut, int iStep )`, a VioletMage member (June: a CX2GUUser method). It steps `nowSpeed.x` (June `+0x304` is `.x`; `+0x308` is `.y`), not `.y`.
+- June PhysicParam has a leading byte at `+0x300`: `nowSpeed` `+0x304`, `passiveSpeed` `+0x30c`, `fReloadAccel` `+0x318`, `fWalkSpeed` `+0x324`.
+- A unit class test reads either `[[this+0x867c]+0xaf0]+4` (`GetClass()`, the templet) or `[this+0x867c]+0x38` (`GetUnitData().m_UnitClass`); transcribe the one June reads.

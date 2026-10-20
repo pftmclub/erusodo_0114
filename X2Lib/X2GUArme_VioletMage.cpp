@@ -27526,7 +27526,7 @@ void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXXX_FrameMove()
 // June 32cc0b80: = March ( the Dimension Witch X window 0.6-1.014 s leads to COMBO_ADD_X2 )
 void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXXX_EventProcess()
 {
-	if( NULL != GetUnit() && GetUnit()->GetClass() == CX2Unit::UC_ARME_DIMENSION_WITCH )
+	if( GetUnit()->GetUnitData().m_UnitClass == CX2Unit::UC_ARME_DIMENSION_WITCH )
 	{
 		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && 1.014f < m_pXSkinAnimFuture->GetNowAnimationTime() )
 		{
@@ -27597,6 +27597,64 @@ void CX2GUArme_VioletMage::June_AVSI_ADW_COMBO_ADD_X_EventProcess()
 	CommonEventProcess();
 }
 
+// June 32021390: steps the unit iStep_ times at +fSpeedXAdd_ x speed, lands the result, then restores position and x speed
+void CX2GUArme_VioletMage::JuneLandingPrediction( float fSpeedXAdd_, float fMinYOffset_, D3DXVECTOR3* pOutPos_, int iStep_ )
+{
+	const D3DXVECTOR3 vStartPos = m_FrameDataFuture.syncData.position;
+	for( int i = 0; i < iStep_; ++i )
+	{
+		m_PhysicParam.nowSpeed.x += fSpeedXAdd_;
+		CX2GUUser::PhysicProcess();
+	}
+
+	int iLineIndex = 0;
+	D3DXVECTOR3 vLandPos( 0.f, 0.f, 0.f );
+	bool bLanded = false;
+	if( NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() )
+	{
+		CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
+		if( true == pLineMap->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &vLandPos, NULL, &iLineIndex, false, false, true, false ) )
+		{
+			const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLineIndex );
+			if( NULL != pLineData && CKTDGLineMap::LT_NORMAL == pLineData->lineType && true == pLineData->bEnable )
+			{
+				if( vLandPos.y < vStartPos.y + fMinYOffset_ )
+					vLandPos.y = vStartPos.y + fMinYOffset_;
+				*pOutPos_ = vLandPos;
+				bLanded = true;
+			}
+		}
+	}
+
+	if( false == bLanded )
+	{
+		// June queries the line map here without the world / line-map NULL test above ( JUNE_BUGS )
+		if( true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( vStartPos, LINE_RADIUS, &vLandPos, NULL, NULL, false, false, true, false ) )
+		{
+			if( vLandPos.y < vStartPos.y + fMinYOffset_ )
+				vLandPos.y = vStartPos.y + fMinYOffset_;
+			*pOutPos_ = vLandPos;
+		}
+		else
+		{
+			*pOutPos_ = vStartPos;
+			pOutPos_->y = m_FrameDataFuture.unitCondition.landPosition.y;
+		}
+	}
+
+	m_FrameDataFuture.syncData.position = vStartPos;
+	m_PhysicParam.nowSpeed.x = 0.f;
+}
+
+// June 32cb8bf0: teleports to the predicted landing point ( 1000, -600, 5 steps )
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ZX_StartFuture()
+{
+	D3DXVECTOR3 vPos = m_FrameDataFuture.syncData.position;
+	JuneLandingPrediction( 1000.f, -600.f, &vPos, 5 );
+	m_FrameDataFuture.syncData.position = vPos;
+
+	CommonStateStartFuture();
+}
 //AVSI_ABM_DASH_JUMP_ZX ( June-only; id shared with AVSI_AHM_DASH_JUMP_ZX )
 // June 32cc45c0: the animation end only waits ( no fall ); X window 0 leads to DASH_JUMP_ZXX ( state 0xee ); ground cancels as in CH1f's ADM dash-jump ZX
 void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ZX_EventProcess()
@@ -27653,6 +27711,15 @@ void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ATTACK_X_EventProcess()
 	CommonEventProcess();
 }
 
+// June 32cb8c80: = 32cb8bf0
+void CX2GUArme_VioletMage::June_AVSI_ADW_DASH_JUMP_X2_StartFuture()
+{
+	D3DXVECTOR3 vPos = m_FrameDataFuture.syncData.position;
+	JuneLandingPrediction( 1000.f, -600.f, &vPos, 5 );
+	m_FrameDataFuture.syncData.position = vPos;
+
+	CommonStateStartFuture();
+}
 //AVSI_ADW_DASH_JUMP_X2 ( June-only )
 // June 32cc4c90: as 32cc45c0, but the window key is Z and it leads to ADW_DASH_JUMP_X3 ( state 0xf0 )
 void CX2GUArme_VioletMage::June_AVSI_ADW_DASH_JUMP_X2_EventProcess()

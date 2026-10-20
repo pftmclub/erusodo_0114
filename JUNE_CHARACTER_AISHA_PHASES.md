@@ -933,6 +933,37 @@ Build: `DEPLOY OK: X2_offline.exe is 25,601,024 B, dated 2026-10-20 20:36:14, md
 No `JUNE_BUGS` row (no June bug found). No drift beyond the two unowned callbacks, which were taken in. None of the functions multiplies `m_fNowStatePowerRate` or passes a BFI. Checklist row 7ac L747 stays open until the review ports `32021390`; 7c (Z2a tag) lands here.
 **In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1g-review.md` (Opus; Part 1 is the two StartFutures). Next: CH1h after the review.
 
+### CH1g -- Review (2026-10-20, Opus)
+
+**Verdict: PASS with one fix; Part 1 written.** All 23 functions were read against `funcdis.py` listings of the whole function. Spot-checked in Ghidra against the listings: `32cc00f0`, `32cc1900` and `32cb8d10`, which agree.
+
+**Part 1 - the landing prediction and the two StartFutures.**
+- `32021390` -> `CX2GUArme_VioletMage::JuneLandingPrediction( fSpeedXAdd, fMinYOffset, pOut, iStep )`. In June it is a CX2GUUser method (other callers `329d22b0`, `329d2340`, `329f092b`, `32ae9b40`, `32b93fe0`); it stays in the class files until one of those ports moves it (funcmap row).
+- **It steps `nowSpeed.x`, not `.y`.** June's PhysicParam starts with a byte at `+0x300`, so `+0x304` / `+0x308` are `nowSpeed.x` / `.y` (funcmap's SPEED_X/Y row; `fReloadAccel +0x318` and `fWalkSpeed +0x324` fit). The kickoff and checklist 7ac said `.y`.
+- Body: save `syncData.position`; `iStep` x { `nowSpeed.x += fSpeedXAdd`; `CX2GUUser::PhysicProcess()` (`32015b30`, a direct call) }.
+- Then `CanDown( moved pos, LINE_RADIUS, &out, NULL, &idx, false, false, true, false )` on `GetWorld()->GetLineMap()` (vslot `0x90`, `+0x34`). The hit counts only on an `LT_NORMAL`, enabled line (`GetLineData` = June's inline bounds test).
+- Otherwise `CanDown( start pos, ..., NULL, NULL, ... )`. Either hit clamps `y = max( out.y, start.y + fMinYOffset )`; a miss returns the start with `y = landPosition.y` (`+0x7e24`; June's PhysicParam writes `+0x7e20..28` on landing). Every path restores the position and sets `nowSpeed.x = 0`.
+- The fallback query has no world / line-map NULL test: kept verbatim, `JUNE_BUGS` 375 (latent).
+- `32cb8bf0` / `32cb8c80` (byte-equal): `JuneLandingPrediction( 1000 (33437b40), -600 (33483508), &pos, 5 )` on a copy of `syncData.position`, write back, then `CommonStateStartFuture` (vslot `0x7c0`). Both states start by teleporting to a landing point ahead.
+
+**Part 2 - the 23 functions.**
+1. Z1 / Z3 are as the Done note says. Z3's `fcom`s give `0.251 <= t <= 0.466` for the `0xf4` branch and the window, `t > 0.466` for Z4, and `0.647 <= t` for walk. Z4 / walk / dash clear the flag, `0xf4` does not. The skill / hyper cancel and the end are the last `else`.
+2. The shared bodies `32cc16f0` = `32cc1900` = `32cc4980` = `32cc5050` (0 diff lines after normalising jump targets). `+0x8c98` walk (-> `WAIT 0xd`), `+0x8c90` skill, `+0x8c9c` dash; `+0x8c88..0x8c9c` follow `X2GUUser.h:4582-4587`.
+3. `32cc45c0` / `32cc4c90` differ only in `0xee` / `0xf0` and oneX `+0x86ef` / oneZ `+0x86eb`. Flag test `t > stateChange (+0x8c18) || end`, window `start <= t < end`; then skill, walk, bwalk, dash, oneZ / oneX.
+4. `32cc5260`: end, skill, bwalk, walk, dash, pureZ `+0x86ea` / pureX `+0x86ee` on `+0x8c8c`.
+5. `32ce72f0`: `0.3` timer, `5.0 x` protected `+0x95bc`, angle + 180, bone `Dummy2_Lhand` (`3345bb08`), failure `( pos, 0, 180, 0 )`. `32cc73e0`: start future first, then `+0x304 = GetDashSpeed()` (`nowSpeed.x`, as written). `32cb8d10`: end future, `+0x7e08 += 180`, `bIsRight` flipped.
+6. `32cdc0f0`: `+0x983c > 0` and `31fca9e0( 0x92f95 = 602005 = SMI_AISHA_MEMO5 )` (June's `GetEqippedSkillMemo` stub, always 0), super armor `( 0, 0.5 )`, `+0x8040 = 0`.
+7. The `= March` bodies: constants match `charport_consts.py CH1g`; Driller Init's 16 names are in June's order (June's duplicate `screw.dds` kept).
+
+**Fix (transcription).** `32cc0b80` tests `[this+0x867c]+0x38` = `GetUnitData().m_UnitClass`, as March's own ZXXX EventProcess does. CH1g had `NULL != GetUnit() && GetClass()` (the templet's class). It now reads `GetUnit()->GetUnitData().m_UnitClass`.
+
+**Hygiene.** CH1g commit, `flagcheck.py JUNE_CHAR_ARME_CORE --range 4ec278df^..4ec278df`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Review edits, `--worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `+68 -1` / `+3`, `files: 2 PASS`, `1 deleted line(s)` (CH1g's own ZXXX test, inside the flag), `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,601,536 B, dated 2026-10-20 20:59:58, md5 cd64689565df16404aeff65bcbb53d33, equal to X2/US_SERVICE/x2.exe (2026-10-20 20:59:51); built at main 4ec278df + 2 uncommitted code file(s).`
+
+Records: funcmap `32cb8bf0` PORTED, new rows `32cb8c80` and `32021390`, note on `32cc0b80`; checklist 7ac L747 annotated, its `ch0_checklist_rows.tsv` row moved to "CH1g review"; `JUNE_BUGS` 375. No drift. **In game:** nothing (inert). Next: CH1h (its kickoff still matches; a From-CH1g-review note was added).
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

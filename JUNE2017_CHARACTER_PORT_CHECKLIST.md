@@ -746,7 +746,7 @@ bOnLine, bDroppable )`; March's 7-arg form forwards (index twice, `false`). Clas
   index and a NULL out index; March's out local is unread, so nothing changes. Aisha's June state always creates `NUI_UFO_AISHA_DROPPER_MEMO` (0x627).
 - June-only helpers with `NULL, &idx`: user landing prediction `32021390` (Add / Luciel / Arme callers), target-follow prediction `3200eeb0`, line clamp
   `32294530` (Add), Ara landing helper `32bc0420`, Rena Grand Archer `LESI_RGA_GUNGNIR_READY` (`@32ca111a`); Luciel's states (`@32b2fd79`, `@32b33fb7`,
-  `@32b33d09`) come with the class.
+  `@32b33d09`) come with the class. (Aisha: CH1g review, `32021390` only, as `CX2GUArme_VioletMage::JuneLandingPrediction`; it steps nowSpeed.x, not y)
 
 ### 7af. Camera linear tracking and view roll that only class code drives (from June engine R13c)
 
