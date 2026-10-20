@@ -53,3 +53,8 @@ types 1 / 5 / 8), `awk -F'\t' '$5 ~ /CH4/' ch0_checklist_rows.tsv`.
 ## From CH1h (2026-10-20)
 
 The class map now lists `32ce9f90`, the callback of the skill 22416 passive (skill level via `31fceab0( 0x5790 )`, damage trigger 0x11 via `32610fb0`): its thunk `32cf2d70` is stored inside `InitPassiveSkillState` `32cecd70` @`32ced61f`.
+
+## From the CH1h review (2026-10-21)
+
+- **`322deb80` is yours: the CX2Game memorize-slot HUD.** For the own unit, with CX2Unit `+0xaf0` unit type 2 and a non-empty MemoRise list (`32cc2880`), it sets up `Memorize_Slot_%d_TypeA` / `_TypeB` (game option `+0x278` picks the set) and `UseMemorizedSkillHotKey_A` / `_B` for each entry. An entry's skill id (`32cc7df0`) below 1 hides the slot, otherwise `3288fff0` looks the slot up. These are the 10-slot dialog's memorize statics (7ah). Port it with them and replace the no-op `June_GameRefreshMemoRise` in the CH1h block. Callers: `328e0ff0`, `32ce1770`, `32ccf4e0`, `32ce16d3`, `32ce1900`, `32ceca70`, `31f5ea00`.
+- June-only members your overrides write: `+0x9780` float (SetDamageExceptionProcess `32cccc70`); `+0x9790` / `+0x9794` / `+0x97a0` floats (InitPassiveSkillState `32cecd70`, GetActualMPConsume reads `+0x97a0`); the `+0x9848` vector (helpers `32cc91b0`, `32cdbd00`: settle its element type there).

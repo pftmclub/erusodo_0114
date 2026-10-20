@@ -1143,24 +1143,23 @@ class CX2GUArme_VioletMage : public CX2GUUser
 
 		/// June-only members the constructor 32cc99d0 sets, named by their June offset ( roles unknown ); CH1 gives them a source or drops them.
 		CKTDGXMeshPlayer::CXMeshInstanceHandle	m_hJune96dc;		/// -1; destroyed through the major mesh player like m_hMagicalStaff
-		int							m_iJune96e4;			/// 0
-		int							m_iJune96e8;			/// 0
-		int							m_iJune96ec;			/// 0
+		float						m_fJune96e0;			/// 0; Hell Stone recast window, 5.0 at the first cast ( 32cc6d70 )
+		int							m_iJune96e4;			/// 0; Hell Stone casts in the window, the third ends it ( 32cc2ab0 )
+		int							m_iJune96e8;			/// 0; a mode tested for 1 / 2 / 3, 1 enables the Hell Stone recast
 		float						m_fJune9734;			/// 0 ( a protected float in June )
 		float						m_fJune9740;			/// 0 ( a protected float in June )
 		int							m_iJune9754;			/// 0
-		int							m_iJune9758;			/// 0
+		float						m_fJune9758;			/// 0
 		int							m_iJune975c;			/// 0
 		CX2EffectSet::Handle		m_hJune977c;			/// -1 ( next to m_hJuneMemoRiseLoop )
-		int							m_iJune9780;			/// 0
+		float						m_fJune9780;			/// 0
 		short						m_wJune978c;			/// 0
 		float						m_fJune9790;			/// 1.0
 		float						m_fJune9794;			/// 1.0
 		float						m_fJune9798;			/// 0
 		float						m_fJune979c;			/// 1.0
 		float						m_fJune97a0;			/// 1.0
-		int							m_aiJune97a4[5];		/// 0
-		int							m_iJune983c;			/// 0 ( a protected int in June )
+		float						m_afJune97a4[5];		/// 0
 		std::vector<int>			m_vecJune9848;			/// empty ( element type unknown, freed by the destructor )
 		float						m_fJune8fb8;			/// 1.1: a CX2GUUser member in June, set by this constructor
 		float						m_fJune8fbc;			/// 1.2: a CX2GUUser member in June, set by this constructor

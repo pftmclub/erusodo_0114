@@ -1001,6 +1001,43 @@ Build: `DEPLOY OK: X2_offline.exe is 25,616,384 B, dated 2026-10-20 21:40:54, md
 No `JUNE_BUGS` row (the dropped PVP initial MP and the null-gage `Lose` are June behaviour, not defects). Checklist rows touched: 7 l.266 (`32cc98e0`, ported here) and 7c (`InitComponent` / setter tags, ported here).
 **In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1h-review.md` (Opus). Next: CH1i after the review.
 
+### CH1h -- Review (2026-10-21, Opus)
+
+**Verdict: PASS with one fix (member map).** Read in Ghidra and in `funcdis.py` listings: the constructor `32cc99d0` (whole store sequence plus the constants), the destructor `32ce4600`, `Win` / `Draw` / `Lose`, `ReInit`, `InitComponent`, `HyperModeBuffEffectStart`, `DamageReact`, `ApplyRenderParam...`, `32ce1900`, both particle arrays and the five device lists. All of them match June apart from the member map below.
+
+**1. Constructor.** I re-derived the map from `+0x9598` (`m_bZ4up`) to `+0x9854`; June keeps March's declaration order.
+- All values check out, read from the exe: `5.0` / `0.2` (`3351b044` / `3351aff8`, protected `+0x971c` / `+0x9728`), `m_iHyperChargeMP` 100, `m_fElementalResearchRate` 1.0, the throw values, `+0x8fb8` / `+0x8fbc` = 1.1 / 1.2.
+- **Fix:** `+0x96ec` is `m_fLevitationElapsedTime`, because CH1a's ported JumpLevitation StartFuture / FrameMoveFuture read and write it there. `+0x96e0` is the June-only float. CH1h had the two swapped.
+- **Fix:** `+0x9758`, `+0x9780` and `+0x97a4[5]` are floats (`fld` / `fadd` / `fstp` in their readers). CH1h declared them `int`.
+- **Fix:** `+0x983c` is March's `m_iAdvancedTeleportationLv`, which March keeps in CX2GUUser; `32cc1cd0`, ported by CH1b, reads it. CH1h's duplicate `m_iJune983c` is gone, and the constructor sets the March member to 0.
+- All three fixes change names and types only: every value is 0, so nothing behaves differently.
+- **Roles found:** `+0x96e0` is a Hell Stone recast window. It is set to 5.0 at the first cast (`32cc6d70`), and `+0x96e4` counts casts. On the third cast, `32cc2ab0` resets both and starts skill 22017's cooldown. `+0x96e8` is a mode tested for 1 / 2 / 3. The other June-only fields go to their readers' phases (CH1i, CH4 notes).
+- **The MemoRise container (`+0x9760`) is a VS2010 `std::deque<int>` of skill ids:** proxy / map / map size / offset / size `+0x9770`, entry `32cc7df0`. CH1i replaces `m_iJune9770` with it.
+
+**2. Destructor.** The release order and the two `SubAttackListSet` clears (one with the staff test, one without) match June, and so does the `+0x96dc` mesh destroy. `322ceab0` / `322ceaa0` are the minor / major getters, as used.
+
+**3. Lifecycle.** `Win` / `Draw` push `0x4b`, `Lose` pushes `0x4c`. June's `GUSI_END` is 5, so these are `USI_RIDING_WAIT_HABIT` / `USI_RIDING_WAIT` by name; `0xb` / `0xc` are `USI_WIN` / `USI_LOSE`.
+- **Correction to the Done note:** `Lose`'s gage test is March's `GetNowHp()` inlined (a null gage gives 1, a null HP gage gives 0). The body is therefore the same as March's, not a June difference; the code is equivalent and stays.
+- `ReInit`: `MP < 50.0` and game type != 1 (`GT_PVP`) -> `SetNowMp( 50 )`; the MemoRise clear runs in game types 1 (PVP) and 4.
+- `InitComponent`: the eight `32296da0( h, 1 )` tags match. `HyperModeBuffEffectStart`: unit `+0x867c` -> `+0x3c`, then `31fd66b0`. `DamageReact`: `( pDD, -1, -1 )`, `DD+0x4dc` is `m_bNoDamage`, BTI 35 and 107.
+
+**4. Stand-ins.**
+- `June_UnitFlag3c` is confirmed as the transcendence flag. The skill plan's S7 rows use the same no-field stand-in; Stage 6 owns it.
+- `322deb80` is the **CX2Game memorize-slot HUD**: `Memorize_Slot_%d_TypeA/B` and `UseMemorizedSkillHotKey_A/B` per entry, for unit type 2 with a non-empty list. It goes to **CH4** (memorize statics, 7ah); `June_GameRefreshMemoRise` stays a no-op until then.
+
+**5. Routing.**
+- Checked registrations in `32cede00`: `32cccb40` / `32cdb5e0` / `32cdbb70` at `32cee3bf` (`AVSI_SA_AHM_METEOSHOWER_LOOP`, `0xd9`); `32cdf240` at `32ceeb1b` / `32ceeb7a` (`AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP`, `0xdd` / `0xde`); `32cd9af0` at `32cef318..` (`AVSI_HELL_DROP_CONTROL_*`, `0xbb..`).
+- `32cf2da0` is referenced from `33522de4` in Elsword's SwordMan vtable (`33522914`), and `32cf2e90` from `335230d8`: both are past Aisha's end.
+
+**6. `= March` bodies.** Names and order match, including the common slots 5-11 and the draw counts 2,2,2,2,1,1,1 / 2, then -1 / 1. `LightningBolt10Red` is missing from both append lists.
+
+**Hygiene.** CH1h commit, `flagcheck.py JUNE_CHAR_ARME_CORE --range a1314641^..a1314641`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Review edits, `--worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS`, `13 deleted line(s)` (CH1h's own lines, inside the flag), `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,616,384 B, dated 2026-10-21 00:39:09, md5 d8f5541642038731e232ea2dba5c8918, equal to X2/US_SERVICE/x2.exe (2026-10-21 00:39:03); built at main a1314641 + 2 uncommitted code file(s).`
+
+Records: funcmap `32cc5ca0`, `322deb80` (ROUTED CH4) and `32cc99d0` amended, new row `32cc7df0`; "From the CH1h review" notes in `CH1i.md` and `CH4.md`. No JUNE_BUGS row. No drift. **In game:** nothing (inert). Next: CH1i.
+
 
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 

@@ -63,5 +63,12 @@ CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / j
 
 - The class map now lists four more CH1i functions: `32cc9680` (helper of `32cc98b0`, vslot 0x834), `32ce6f40` (Angor Hammer mesh, helper of `32ce7480`), `32ce16d3` (the tail of `32ce15a0`) and `32ce1770` (MemoRise container sweep, checklist 7ak; callers `3220f4dc` `3220e995` `328df9db`).
 - CH1h wrote `June_ClearMemoRise( const bool* )` (`32ce1900`) and `June_IsMemoRiseEmpty()` (`32cc2880`) on the `m_iJune9770` stand-in. The container's element type is still open: `32ce1770` / `32ce15a0` test each entry with `3288ff80` (a user-skill-tree call), so the entries look like skill ids. Replace the stand-in when you write the filler (`32ccf4e0`, `32ced640`).
-- `322deb80` (CX2Game redraws the MemoRise slots; it tests the unit's templet class == 2 and `32cc2880`) is the no-op `June_GameRefreshMemoRise` in the CH1h block's anonymous namespace. Port it here if the memorize UI needs it (else CH4).
+- `322deb80` (CX2Game redraws the MemoRise slots; it tests the unit's templet class == 2 and `32cc2880`) is the no-op `June_GameRefreshMemoRise` in the CH1h block's anonymous namespace. The CH1h review identified it as the memorize-slot HUD and gave it to CH4: leave the no-op here.
 - `m_pJuneMpRefund` (`+0x96ac`) is June's slot for what March calls `m_pStrongMindData`.
+
+## From the CH1h review (2026-10-21)
+
+- **The MemoRise container is a VS2010 `std::deque<int>` of skill ids.** `+0x9760` proxy, `+0x9764` map, `+0x9768` map size, `+0x976c` offset, `+0x9770` size (four ints per block); ctor `31c265f0`, clear `3221d960`, entry `i` = `32cc7df0` (0 past the end). Declare it as `std::deque<int>` when you write the filler, point `June_ClearMemoRise` (`clear()`) and `June_IsMemoRiseEmpty` (`empty()`) at it, and delete `m_iJune9770`.
+- **June-only members your functions use** (CH1h declared them by offset; rename one when its role is clear): `+0x9754` int, `+0x9758` float, `+0x975c` int (CommonStateStartFuture `32cb9720`, CommonFrameMoveFuture `32cb9750`, CommonStateStart `32ce7480`, slot 510 `32cebe80`); `+0x9780` float (CommonFrameMove `32cce4b0`).
+- **Hell Stone recast** (`m_fJune96e0` window, `m_iJune96e4` cast count, `m_iJune96e8` mode): CommonFrameMove counts `+0x96e0` down and SpecialAttackEventProcess (`32cb97a0`, `32ccf4e0`) tests `+0x96e8` for 1 / 2 / 3. The helper `32cc2ab0` ends the window and starts skill 22017's cooldown.
+- **`+0x983c` is March's `m_iAdvancedTeleportationLv`** (a CX2GUUser member in March), not a June-only field.

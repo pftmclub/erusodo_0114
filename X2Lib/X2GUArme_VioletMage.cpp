@@ -28598,10 +28598,10 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 	m_fMagicStaffSize = 0.f;
 	m_hMagicalStaff	= INVALID_MESH_INSTANCE_HANDLE;
 	m_hJune96dc = INVALID_MESH_INSTANCE_HANDLE;
-	m_fLevitationElapsedTime = 0.f;
+	m_fJune96e0 = 0.f;
 	m_iJune96e4 = 0;
 	m_iJune96e8 = 0;
-	m_iJune96ec = 0;
+	m_fLevitationElapsedTime = 0.f;
 
 	m_bCanChangeState = false;
 	m_fPushXChargeTime = 0.f;
@@ -28615,13 +28615,13 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 	m_fHellDropCreateEffectCooltime = 0.f;
 	m_bIsHellDropTimerStart = false;
 	m_iJune9754 = 0;
-	m_iJune9758 = 0;
+	m_fJune9758 = 0.f;
 	m_iJune975c = 0;
 
 	m_iJune9770 = 0;
 	m_hJuneMemoRiseLoop = INVALID_EFFECTSET_HANDLE;
 	m_hJune977c = INVALID_EFFECTSET_HANDLE;
-	m_iJune9780 = 0;
+	m_fJune9780 = 0.f;
 	m_fJuneZZXXLoopTime = 0.f;
 	m_hJuneDashJumpChargeEffect = INVALID_EFFECTSET_HANDLE;
 	m_wJune978c = 0;
@@ -28631,7 +28631,7 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 	m_fJune979c = 1.f;
 	m_fJune97a0 = 1.f;
 	for( int i=0; i<5; i++ )
-		m_aiJune97a4[i] = 0;
+		m_afJune97a4[i] = 0.f;
 
 	June_InitializeArmeMajorParticleArray();
 	CX2GUUser::InitializeGUUserMinorParticleArray();
@@ -28641,7 +28641,7 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 	}
 	m_hSeqLight_Arme_Circle_Flame = INVALID_PARTICLE_SEQUENCE_HANDLE;
 
-	m_iJune983c = 0;
+	m_iAdvancedTeleportationLv = 0;	// June +0x983c: March keeps this member in CX2GUUser
 	m_vecJune9848.clear();
 
 	m_bZ4up = false;
