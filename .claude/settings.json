@@ -1,6 +1,9 @@
 {
+  "env": { "PYTHON_BASIC_REPL": "1" },
   "hooks": {
-    "PreToolUse":  [{ "matcher": "Edit|MultiEdit|Write", "hooks": [{ "type": "command", "command": "python \"F:/elsword stuff/elsword_2014/els_2014/ElswordFiles/ready_and_built/ProjectX2_SVN/ProjectX2_SVN/source/EU_CN_US/Trunk/.claude/hooks/encoding_guard.py\" pre", "timeout": 20 }] }],
-    "PostToolUse": [{ "matcher": "Edit|MultiEdit|Write", "hooks": [{ "type": "command", "command": "python \"F:/elsword stuff/elsword_2014/els_2014/ElswordFiles/ready_and_built/ProjectX2_SVN/ProjectX2_SVN/source/EU_CN_US/Trunk/.claude/hooks/encoding_guard.py\" post", "timeout": 20 }] }]
+    "PreToolUse":  [{ "matcher": "Edit|MultiEdit|Write", "hooks": [{ "type": "command", "command": "python \"F:/elsword stuff/elsword_2014/els_2014/ElswordFiles/ready_and_built/ProjectX2_SVN/ProjectX2_SVN/source/EU_CN_US/Trunk/.claude/hooks/encoding_guard.py\" pre", "timeout": 20 }] },
+                    { "matcher": "Bash", "hooks": [{ "type": "command", "command": "python \"F:/elsword stuff/elsword_2014/els_2014/ElswordFiles/ready_and_built/ProjectX2_SVN/ProjectX2_SVN/source/EU_CN_US/Trunk/.claude/hooks/runaway_guard.py\" bash", "timeout": 10 }] }],
+    "PostToolUse": [{ "matcher": "Edit|MultiEdit|Write", "hooks": [{ "type": "command", "command": "python \"F:/elsword stuff/elsword_2014/els_2014/ElswordFiles/ready_and_built/ProjectX2_SVN/ProjectX2_SVN/source/EU_CN_US/Trunk/.claude/hooks/encoding_guard.py\" post", "timeout": 20 }] }],
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "python \"F:/elsword stuff/elsword_2014/els_2014/ElswordFiles/ready_and_built/ProjectX2_SVN/ProjectX2_SVN/source/EU_CN_US/Trunk/.claude/hooks/runaway_guard.py\" sweep", "timeout": 20 }] }]
   }
 }
