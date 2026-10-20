@@ -21,6 +21,10 @@ Every session builds the same tree through one lock, and a full build takes abou
 3. **Keep the tree compiling.** Before saving a new `Always.h` define or a dependency guard (`#error X needs Y`), confirm `Y` really is defined at that line: resolve it with `cl /EP` (see *Toolchains*), not by reading `#ifdef`s. If your own edit breaks the build, fixing or backing it out comes before anything else.
 4. **A build that fails in someone else's edit is not yours to fix.** Do not edit that file and do not keep re-running. Report the error line and its owner (the flag's `Always.h` comment names the phase), then wait. Re-run once the owner has fixed it.
 
+## Rule: a code comment is one short line (user, 2026-10-20)
+
+A comment in source says one thing in one line, and only what the code cannot show: the June address, a stand-in, a quirk kept on purpose, or why June differs from March. No comment blocks, no offset / vslot / state-id / key-byte tables, no retelling of the code. The detail belongs in the Done note, `funcmap.tsv` or `JUNE_BUGS.md`, never in the source. This applies to every file and every plan; it does not ask you to rewrite old comments.
+
 ## Workflow automation: use `tools/` and the `x2-*` skills, not hand-typed commands
 
 Added 2026-10-04. Every repeated step of the phase loop is a script. A session that types msbuild, writes a throwaway byte-patch or unifdef script, or reads a plan doc "in full" is doing by hand what these already do and have been validated to do. See `tools/README.md`.
