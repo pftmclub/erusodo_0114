@@ -4053,3 +4053,26 @@ CX2Game +0xc20 (CH1a review)	none in March: CX2Game byte read by the Arme wait /
 32cb8450	CX2GUArme_VioletMage::June_AVSI_A_AVP_Summon_Bat_Heavy_Init	PORTED	Char CH1f: inert; = March ( AVP_SUMMON_BAT_MESH_EFFECT.X, AVP_Effect128.tga )
 32cdfb70	CX2GUArme_VioletMage::June_AVSI_A_AVP_Summon_Bat_Heavy_FrameMove	PORTED	Char CH1f: inert; March body; templet = CX2SkillTree::GetSkillTemplet( 22217 ) ( June passes level 1; the live build has the one-argument form; whole tree, not the equipped skills ); lifetime = SA_EFFECTIVE_TIME; null unit returns before CommonFrameMove
 32cb8840	CX2GUArme_VioletMage::June_AVSI_HA_AVP_Abyss_Angor_Init	PORTED	Char CH1f: inert; not carved; 23 textures then 6 meshes ( listing )
+32cbfe50	CX2GUArme_VioletMage::June_ABM_ComboZ1EventProcess	PORTED	Char CH1g: inert; ground test, window 0..0.43 (oneZ), flag -> Z2 0xa3, animation end 0.1 / WAIT, then SKILL_CANCEL_AFTER( 0.01 ) (March: skill first)
+32cc0000	CX2GUArme_VioletMage::June_ABM_ComboZ2EventProcess	PORTED	Char CH1g: inert; = March ( window 0..0.433 -> Z3up 0xa5 with pureUp else Z3 0xa4; end 0.1 / WAIT )
+32cc00f0	CX2GUArme_VioletMage::June_ABM_ComboZ3EventProcess	PORTED	Char CH1g: inert; ADW + back key in 0.251..0.466 -> ADW_ZZZBackZ 0xf4; flag -> Z4 0xcb; walk 0xe at 0.647 + back; dash; SKILL_CANCEL_AFTER( 0.01 ) then end 0.1 / WAIT
+32cc0390	CX2GUArme_VioletMage::June_ABM_ComboZ4EventProcess	PORTED	Char CH1g: inert; = March ( end / fall; walk 0xe at 1.133 + back; SKILL_CANCEL_AFTER( 1.345 ) )
+32cdc0f0	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_Z2a_FrameMove	PORTED	Char CH1g: inert; = March ArmeEvasion at 0.03 oneshot + alpha tag; Advanced Teleportation memo ( 602005 ) super armor ( 0, 0.5 ) kept in this FrameMove
+32cc0500	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_Z2a_EventProcess	PORTED	Char CH1g: inert; = March ( oneX arms, > 0.633 -> ZXX 0xcd; end )
+32cc05a0	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXX_EventProcess	PORTED	Char CH1g: inert; = March ( window 0.26..0.566 -> ZXXX 0xce; back + 0.466 walk 0xe; dash + 0.39 )
+32cc06e0	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXXX_FrameMove	PORTED	Char CH1g: inert; = March ( 0.833 oneshot, FlushMp( 10 ), three ComboX3Up meshes, scale 2,1,2 for a transformed BM / ADW )
+32cc0b80	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXXX_EventProcess	PORTED	Char CH1g: inert; = March ( ADW: window 0.6..1.014 -> ADW_COMBO_ADD_X2 0xd5; end )
+32cc1620	CX2GUArme_VioletMage::June_AVSI_DIMENSION_WITCH_DASH_ATTACK_X_EventProcess	PORTED	Char CH1g: inert; = March ( window 0.3..0.604 -> DASH_ATTACK_X2 0xb3; end )
+32cc16f0	CX2GUArme_VioletMage::June_AVSI_DIMENSION_WITCH_DASH_ATTACK_X2_EventProcess	PORTED	Char CH1g: inert; end, ground walk, SKILL_CANCEL_AFTER( m_fSkillCancelAfter ), ground dash; same body as 32cc1900 / 32cc4980 / 32cc5050
+32cc1900	CX2GUArme_VioletMage::June_AVSI_ADW_COMBO_ADD_X_EventProcess	PORTED	Char CH1g: inert; registered for COMBO_ADD_X and X2; same body as 32cc16f0
+32cc45c0	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ZX_EventProcess	PORTED	Char CH1g: inert; June-only; end -> WAIT; X window 0 -> ABM_DASH_JUMP_ZXX 0xee; skill, walk, bwalk, dash, oneZ / oneX cancels (ground)
+32cc4980	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ZXX_EventProcess	PORTED	Char CH1g: inert; June-only; not in the class map ( state table gives it to CH1g ); same body as 32cc16f0
+32cc4b90	CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ATTACK_X_EventProcess	PORTED	Char CH1g: inert; landing 0x16; Z window 0 -> ADW_DASH_JUMP_X2 0xef
+32cc4c90	CX2GUArme_VioletMage::June_AVSI_ADW_DASH_JUMP_X2_EventProcess	PORTED	Char CH1g: inert; June-only; as 32cc45c0 with oneZ and ADW_DASH_JUMP_X3 0xf0
+32cc5050	CX2GUArme_VioletMage::June_AVSI_ADW_DASH_JUMP_X3_EventProcess	PORTED	Char CH1g: inert; June-only; not in the class map ( state table gives it to CH1g ); same body as 32cc16f0
+32cc73e0	CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_StartFuture	PORTED	Char CH1g: inert; June-only; CommonStateStartFuture, then nowSpeed.x = GetDashSpeed() when the held key faces the facing
+32ce72f0	CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_FrameMove	PORTED	Char CH1g: inert; June-only; 0.3 oneshot, 32cc2b90( 5 x +0x95bc ), 32ce4180 type 0 at Dummy2_Lhand turned 180; failure ( 0, 180, 0 )
+32cc5260	CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_EventProcess	PORTED	Char CH1g: inert; June-only; end, SKILL_CANCEL_AFTER, ground bwalk / walk / dash, pureZ / pureX attack cancels (+0x8c8c)
+32cb8d10	CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_EndFuture	PORTED	Char CH1g: inert; June-only; = AVSI_HIGH_MAGICIAN_COMBO_X3back_EndFuture ( dirDegree.y + 180, bIsRight toggled )
+32cb8570	CX2GUArme_VioletMage::June_AVSI_SI_SA_ADW_Screwdriver_Driller_Init	PORTED	Char CH1g: inert; = March ( 5 meshes, 11 textures )
+32cb8640	CX2GUArme_VioletMage::June_AVSI_SI_SA_ADW_Screwdriver_Driller_FrameMove	PORTED	Char CH1g: inert; a bare jump to CommonFrameMove ( March: world colour and cut-in light )

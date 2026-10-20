@@ -27170,5 +27170,634 @@ void CX2GUArme_VioletMage::June_AVSI_HA_AVP_Abyss_Angor_Init()
 #undef JUNE_ARME_G_ZX_CANCEL
 #undef JUNE_ARME_HYPER_CANCEL
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1f
+//{{ Iruha : 2026-10-20 // June character pilot Phase CH1g ( JUNE_CHARACTER_AISHA_PHASES.md )
+/// Inert June Battle Magician / Dimension Witch line states ( class map phase CH1g ); nothing registers or calls them.
+#define JUNE_ARME_FLAG_DUE( iTime_ ) \
+	( false == ( m_pXSkinAnimFuture->GetNowAnimationTime() <= m_fEventTime[iTime_].stateChange && false == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+
+#define JUNE_ARME_IN_WINDOW( iTime_ ) \
+	( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[iTime_].keyInputEnd && m_fEventTime[iTime_].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+
+#define JUNE_ARME_BACK_KEY \
+	( ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) || ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) )
+
+#define JUNE_ARME_G_WALK_CANCEL \
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define JUNE_ARME_G_BWALK_CANCEL \
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) || ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define JUNE_ARME_G_DASH_CANCEL \
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) ) \
+	{ StateChangeDashIfPossible(); }
+
+#define JUNE_ARME_G_ZX_CANCEL \
+	else if( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.oneZ == true ) \
+	{ StateChange( GetComboZStateID() ); } \
+	else if( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.oneX == true ) \
+	{ StateChange( GetComboXStateID() ); }
+
+#define JUNE_ARME_G_ZX_PURE_CANCEL \
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.pureZ == true ) \
+	{ StateChange( GetComboZStateID() ); } \
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.pureX == true ) \
+	{ StateChange( GetComboXStateID() ); }
+
+/// The animation end, the walk / skill / dash cancels: June 32cc16f0, 32cc1900, 32cc4980 and 32cc5050 are one body.
+#define JUNE_ARME_END_WALK_SKILL_DASH \
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() ) \
+	{ \
+		if( false == IsOnSomethingFuture() ) \
+		{ \
+			StateChange( USI_JUMP_DOWN ); \
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f; \
+		} \
+		else \
+			StateChange( USI_WAIT ); \
+	} \
+	JUNE_ARME_G_WALK_CANCEL \
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter ) \
+	JUNE_ARME_G_DASH_CANCEL
+
+//AVSI_ABM_COMBO_Z1
+// June 32cbfe50: the animation end comes before the skill cancel ( March: after )
+void CX2GUArme_VioletMage::June_ABM_ComboZ1EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && 0.f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.43f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && 0.43f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( AVSI_COMBO_Z2 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_fCanNotAttackTime = 0.1f;
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_COMBO_Z2
+// June 32cc0000: = March
+void CX2GUArme_VioletMage::June_ABM_ComboZ2EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && 0.f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.433f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && 0.433f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( m_InputData.pureUp == true )
+			StateChange( AVSI_COMBO_Z3up );
+		else
+			StateChange( AVSI_COMBO_Z3 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_fCanNotAttackTime = 0.1f;
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_COMBO_Z3
+// June 32cc00f0: Dimension Witch + the back key in the Z window goes to ZZZBackZ ( state 0xf4 ); walk and dash cancels; the dash / walk clear the flag
+void CX2GUArme_VioletMage::June_ABM_ComboZ3EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && 0.251f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.466f &&
+		JUNE_ARME_BACK_KEY && NULL != GetUnit() && GetUnit()->GetClass() == CX2Unit::UC_ARME_DIMENSION_WITCH )
+	{
+		StateChange( AVSI_ADW_ZZZBackZ );
+	}
+	else if( m_InputData.oneZ == true && 0.251f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.466f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && 0.466f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( AVSI_COMBO_Z4 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( 0.647f <= m_pXSkinAnimFuture->GetNowAnimationTime() && JUNE_ARME_BACK_KEY )
+	{
+		StateChange( USI_WALK );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else
+	{
+		IF_SKILL_CANCEL_AFTER( 0.01f )
+		else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_COMBO_Z4
+// June 32cc0390: = March
+void CX2GUArme_VioletMage::June_ABM_ComboZ4EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else if( 1.133f <= m_pXSkinAnimFuture->GetNowAnimationTime() && JUNE_ARME_BACK_KEY )
+	{
+		StateChange( USI_WALK );
+	}
+	SKILL_CANCEL_AFTER( 1.345f )
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_DASH_COMBO_Z2a
+// June 32cdc0f0: = March, with the alpha tag ( checklist 7c ); the Advanced Teleportation memo super armor stays here
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_Z2a_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.03f ) == true && EventCheck( 0.03f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01" );
+		pos.y -= 200.0f;
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMinorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"ArmeEvasion",
+			pos,
+			m_FrameDataNow.unitCondition.dirDegree,
+			m_FrameDataNow.unitCondition.dirDegree,
+			XL_EFFECT_0 );
+#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+		g_pX2Game->JuneTagEffectAlphaMesh( this, pMeshInst );
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+
+		if( m_iAdvancedTeleportationLv > 0 && GetEqippedSkillMemo( CX2SkillTree::SMI_AISHA_MEMO5 ) == true )
+		{
+			D3DXVECTOR2 superArmorTime( 0.0f, 0.5f );
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+			AccessVecNowSuperArmorTime().push_back( superArmorTime );
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+			m_FrameDataNow.stateParam.m_vecSuperArmorTime.push_back( superArmorTime );
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+			m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc0500: = March
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_Z2a_EventProcess()
+{
+	if( m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && 0.633f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( ABM_DASH_COMBO_ZXX );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_DASH_COMBO_ZXX
+// June 32cc05a0: = March
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXX_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else
+	{
+		if( m_InputData.oneX == true && 0.26f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.566f )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+		}
+
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && 0.566f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( ABM_DASH_COMBO_ZXXX );
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		}
+		else if( JUNE_ARME_BACK_KEY && 0.466f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+			StateChange( USI_WALK );
+		}
+		else if( ( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) && 0.39f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+			StateChangeDashIfPossible();
+		}
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_DASH_COMBO_ZXXX
+// June 32cc06e0: = March ( the scale is 2, 1, 2 for a transformed Battle Magician / Dimension Witch )
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXXX_FrameMove()
+{
+	if( m_pComboX3Up1->GetState() == CKTDGXSkinAnim::XAS_PLAYING )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.833f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.833f ) == true && EventCheck( 0.833f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 10.0f ) == true )
+		{
+			if( NULL != GetUnit() && ( GetUnit()->GetClass() == CX2Unit::UC_ARME_BATTLE_MAGICIAN || GetUnit()->GetClass() == CX2Unit::UC_ARME_DIMENSION_WITCH ) &&
+				IsTransformed() )
+			{
+				m_pComboX3Up1->SetScale( D3DXVECTOR3( 2.f, 1.f, 2.f ) );
+				m_pComboX3Up2->SetScale( D3DXVECTOR3( 2.f, 1.f, 2.f ) );
+				m_pComboX3Up3->SetScale( D3DXVECTOR3( 2.f, 1.f, 2.f ) );
+			}
+			else
+			{
+				m_pComboX3Up1->SetScale( D3DXVECTOR3( 1.f, 1.f, 1.f ) );
+				m_pComboX3Up2->SetScale( D3DXVECTOR3( 1.f, 1.f, 1.f ) );
+				m_pComboX3Up3->SetScale( D3DXVECTOR3( 1.f, 1.f, 1.f ) );
+			}
+			m_pComboX3Up1->GetRenderParam()->color = 0xffffffff;
+			m_pComboX3Up2->GetRenderParam()->color = 0xffffffff;
+			m_pComboX3Up3->GetRenderParam()->color = 0xffffffff;
+
+			D3DXVECTOR3 pos = GetPos();
+			pos.y += 5.0f;
+			m_pComboX3Up1->GetMatrix().Move( pos );
+			m_pComboX3Up1->GetMatrix().RotateDegree( GetRotateDegree() );
+			m_pComboX3Up2->GetMatrix().Move( pos );
+			m_pComboX3Up2->GetMatrix().RotateDegree( GetRotateDegree() );
+			m_pComboX3Up3->GetMatrix().Move( pos );
+			m_pComboX3Up3->GetMatrix().RotateDegree( GetRotateDegree() );
+
+			m_pComboX3Up1->ChangeAnim( L"ComboX3Up-1", false );
+			m_pComboX3Up2->ChangeAnim( L"ComboX3Up-2", false );
+			m_pComboX3Up3->ChangeAnim( L"ComboX3Up-3", false );
+
+			m_pComboX3Up1->Play( CKTDGXSkinAnim::XAP_ONE );
+			m_pComboX3Up2->Play( CKTDGXSkinAnim::XAP_ONE );
+			m_pComboX3Up3->Play( CKTDGXSkinAnim::XAP_ONE );
+			m_pComboX3Up3->SetPlaySpeed( 0.8f );
+
+			m_DamageData.attackerType	= CX2DamageManager::AT_MESH;
+			m_DamageData.bCanRevenge	= false;
+			m_DamageData.pAttackerAnim	= m_pComboX3Up1;
+		}
+		else
+		{
+			CreateStepDust();
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc0b80: = March ( the Dimension Witch X window 0.6-1.014 s leads to COMBO_ADD_X2 )
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_COMBO_ZXXX_EventProcess()
+{
+	if( NULL != GetUnit() && GetUnit()->GetClass() == CX2Unit::UC_ARME_DIMENSION_WITCH )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && 1.014f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			StateChange( AVSI_ADW_COMBO_ADD_X2 );
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		}
+		else if( m_InputData.oneX == true && 0.6f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_pXSkinAnimFuture->GetNowAnimationTime() <= 1.014f )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+		}
+	}
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_DIMENSION_WITCH_DASH_ATTACK_X
+// June 32cc1620: = March ( the X window 0.3-0.604 s leads to DASH_ATTACK_X2, state 0xb3 )
+void CX2GUArme_VioletMage::June_AVSI_DIMENSION_WITCH_DASH_ATTACK_X_EventProcess()
+{
+	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && 0.604f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( AVSI_DASH_ATTACK_X2 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( m_InputData.oneX == true && 0.3f <= m_pXSkinAnimFuture->GetNowAnimationTime() && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.604f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cc16f0: the end, then the ground walk / skill / dash cancels ( same body as 32cc1900, 32cc4980, 32cc5050 )
+void CX2GUArme_VioletMage::June_AVSI_DIMENSION_WITCH_DASH_ATTACK_X2_EventProcess()
+{
+	JUNE_ARME_END_WALK_SKILL_DASH
+
+	CommonEventProcess();
+}
+
+//AVSI_ADW_COMBO_ADD_X ( and _X2 )
+// June 32cc1900
+void CX2GUArme_VioletMage::June_AVSI_ADW_COMBO_ADD_X_EventProcess()
+{
+	JUNE_ARME_END_WALK_SKILL_DASH
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_DASH_JUMP_ZX ( June-only; id shared with AVSI_AHM_DASH_JUMP_ZX )
+// June 32cc45c0: the animation end only waits ( no fall ); X window 0 leads to DASH_JUMP_ZXX ( state 0xee ); ground cancels as in CH1f's ADM dash-jump ZX
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ZX_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_ABM_DASH_JUMP_ZXX );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_DASH_JUMP_ZXX ( June-only; the class map has no row for 32cc4980, the state table gives it to CH1g )
+// June 32cc4980
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ZXX_EventProcess()
+{
+	JUNE_ARME_END_WALK_SKILL_DASH
+
+	CommonEventProcess();
+}
+
+//AVSI_ABM_DASH_JUMP_ATTACK_X ( the Battle Magician / Dimension Witch registration )
+// June 32cc4b90: landing leads; Z window 0 leads to ADW_DASH_JUMP_X2 ( state 0xef )
+void CX2GUArme_VioletMage::June_AVSI_ABM_DASH_JUMP_ATTACK_X_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_ADW_DASH_JUMP_X2 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+}
+
+//AVSI_ADW_DASH_JUMP_X2 ( June-only )
+// June 32cc4c90: as 32cc45c0, but the window key is Z and it leads to ADW_DASH_JUMP_X3 ( state 0xf0 )
+void CX2GUArme_VioletMage::June_AVSI_ADW_DASH_JUMP_X2_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_ADW_DASH_JUMP_X3 );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+//AVSI_ADW_DASH_JUMP_X3 ( June-only; the class map has no row for 32cc5050, the state table gives it to CH1g )
+// June 32cc5050
+void CX2GUArme_VioletMage::June_AVSI_ADW_DASH_JUMP_X3_EventProcess()
+{
+	JUNE_ARME_END_WALK_SKILL_DASH
+
+	CommonEventProcess();
+}
+
+//AVSI_ADW_ZZZBackZ ( June-only )
+// June 32cc73e0: the dash speed is set when the held key faces the facing
+void CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_StartFuture()
+{
+	CommonStateStartFuture();
+
+	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+}
+
+// June 32ce72f0: the fireball is type 0 of June_CreateComboFireBall, turned 180 degrees ( as 32ce61f0, 5 MP )
+void CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.3f ) == true && EventCheck( 0.3f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( June_FlushMpWithRefund( 5.0f * m_fMPConsumeRateFireBall ) == true )
+		{
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.y += 180.0f;
+			const D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			June_CreateComboFireBall( 0, posR, angle );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 180.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc5260: the animation end, then skill, bwalk, walk, dash and the pure Z / X ground cancels
+void CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_PURE_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32cb8d10: turns the facing around
+void CX2GUArme_VioletMage::June_AVSI_ADW_ZZZBackZ_EndFuture()
+{
+	CommonStateEndFuture();
+
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+}
+
+//AVSI_SI_SA_ADW_SCREWDRIVER_DRILLER
+// June 32cb8570: = March
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ADW_Screwdriver_Driller_Init()
+{
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_AttackSphere.X" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.X" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_screw.X" );
+	XSkinMeshReadyInBackground( L"elsword_SA_SwordBlastiong_slash.X" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_weaponCircle.X" );
+	TextureReadyInBackground( L"aisha_SA_SCREWDRIVER_screw.dds" );
+	TextureReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.dds" );
+	TextureReadyInBackground( L"aisha_SA_SCREWDRIVER_screw.dds" );
+	TextureReadyInBackground( L"elsword_SA_SwordBlastiong_slash.dds" );
+	TextureReadyInBackground( L"Mesh_Common_AC_Face1_81160_Sorted_P02.dds" );
+	TextureReadyInBackground( L"Explosion_Sphere.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"aisha_SA_SCREWDRIVER_weaponCircle.dds" );
+	TextureReadyInBackground( L"soket_earth_quake_smoke02.dds" );
+	TextureReadyInBackground( L"stone.dds" );
+	TextureReadyInBackground( L"rena_A_fatality_moveSpark.dds" );
+}
+
+// June 32cb8640: a bare jump to CommonFrameMove ( March: world colour and cut-in light )
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ADW_Screwdriver_Driller_FrameMove()
+{
+	CommonFrameMove();
+}
+
+#undef JUNE_ARME_FLAG_DUE
+#undef JUNE_ARME_IN_WINDOW
+#undef JUNE_ARME_BACK_KEY
+#undef JUNE_ARME_G_WALK_CANCEL
+#undef JUNE_ARME_G_BWALK_CANCEL
+#undef JUNE_ARME_G_DASH_CANCEL
+#undef JUNE_ARME_G_ZX_CANCEL
+#undef JUNE_ARME_G_ZX_PURE_CANCEL
+#undef JUNE_ARME_END_WALK_SKILL_DASH
+//}} Iruha : 2026-10-20 // June character pilot Phase CH1g
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

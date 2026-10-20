@@ -103,3 +103,9 @@ Done notes, whose "Registration notes for CH1" were written from the old map. Wh
 - **Summon Bat Heavy** (`32cdfb70`) looks the skill up with `CX2SkillTree::GetSkillTemplet( 22217 )` (June passes level 1; the live build has the one-argument form) (a file-local `JUNE_RNSI_A_AVP_SUMMON_BAT_HEAVY`), not through the equipped skills; the registration that enters the state is `32cede00` case 22217.
 - **`32cbd120`** (DM / HM `COMBO_X2` EventProcess) writes `m_bCanChangeState` (`+0x96f0`) from flag 3 after its chain; `June_ComboX3StateEnd` (CH1c) clears it.
 - No new enum member and no new stand-in in CH1f; `32cb7de0` / `32ce6b30` (shared `AVP` / `ABM` `DASH_JUMP_X`) are CH1f's, so CH1g does not repeat them.
+
+## From CH1g (2026-10-20)
+
+- **Four enum members** were added after `AVSI_AEM_ZZXX_END`: `AVSI_ABM_DASH_JUMP_ZXX` (238), `AVSI_ADW_DASH_JUMP_X2` (239), `AVSI_ADW_DASH_JUMP_X3` (240), `AVSI_ADW_ZZZBackZ` (244); CH1 decides the final numbers.
+- **Two callbacks the class map lacks** are written by CH1g: `32cc4980` (ABM_DASH_JUMP_ZXX) and `32cc5050` (ADW_DASH_JUMP_X3). The StartFutures `32cb8bf0` / `32cb8c80` (they call `32021390`) are written by the CH1g review; register them with the others.
+- Z3 (`32cc00f0`) enters `ADW_ZZZBackZ` for a Dimension Witch with the back key; `32cc4b90` enters `ADW_DASH_JUMP_X2`.

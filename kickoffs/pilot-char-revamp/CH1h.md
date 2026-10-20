@@ -53,3 +53,8 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
 CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
 - in: none
 - out: 32cb7450, 32cbe200, 32cc3080, 32cc3ea0 to CH1e; 32cbc3e0 to CH1c; 32cbdd20 to CH1d; 32cbfaa0 to CH1f (the seven "job branch the extractor skips" state callbacks; they were never yours)
+
+## From CH1g (2026-10-20)
+
+- CH1g wrote the `June_AVSI_ABM_*` / `ADW_*` members; `JUNE_ARME_*` macros are `#undef`'d at the end of its block, define what you need in your own.
+- `32021390` (landing prediction) is the CH1g review's; a CH1h function that calls it uses the member the review writes.

@@ -900,6 +900,39 @@ No `JUNE_BUGS` row (no June bug found). No drift. Checklist rows: 7c (Z2a tag) l
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 No code change, so no build. The CH1f deploy (`X2_offline.exe` md5 `2c9d7125...`, 19:57:25) stands. No drift. **In game:** nothing (inert). Next: CH1g (`kickoffs/pilot-char-revamp/CH1g.md`; still matches, plus a From-CH1f-review note).
 
+### CH1g - Done (2026-10-20, Sonnet 5.5)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`, the commit "Character pilot Phase CH1g". **23 new `CX2GUArme_VioletMage::June_*` members** (declared after CH1f's in the header, bodies in a seventh block at the end of the `.cpp`, each with its June address): 21 of the 23 class-map rows, plus **two callbacks the class map lacks** (`32cc4980` ABM_DASH_JUMP_ZXX and `32cc5050` ADW_DASH_JUMP_X3 EventProcess; `ch0_state_skill.tsv` gives both states to CH1g, no phase owns them otherwise).
+23 funcmap rows `Char CH1g`. Eleven functions are not carved in Ghidra and were read from `funcdis.py` listings (`32cb8570`, `32cb8640`, `32cc1620`, `32cc16f0`, `32cc45c0`, `32cc4980`, `32cc4c90`, `32cc5050`, `32cc5260`, `32cc73e0`, `32ce72f0`).
+Four enum members were added after `AVSI_AEM_ZZXX_END`: `AVSI_ABM_DASH_JUMP_ZXX` (238), `AVSI_ADW_DASH_JUMP_X2` (239), `AVSI_ADW_DASH_JUMP_X3` (240), `AVSI_ADW_ZZZBackZ` (244); CH1 decides the final numbers.
+
+**NOT written - this needs Opus (2 rows):** `32cb8bf0` (`AVSI_ABM_DASH_JUMP_ZX.StartFuture`) and `32cb8c80` (`AVSI_ADW_DASH_JUMP_X2.StartFuture`). Both copy `syncData.position`, call **`32021390( 1000.0, -600.0, &pos, 5 )`** and write it back. `32021390` is the unmapped CX2GUUser "landing prediction" helper (checklist 7ac, `ch0_checklist_rows.tsv` L747; a physics-step loop plus a line-map query). The kickoff stops on an unmapped engine callee, so the CH1g review ports the helper and the two StartFutures (Part 1 of `CH1g-review.md`).
+
+| Group | June functions |
+|---|---|
+| ABM `COMBO_Z1..Z4` | `32cbfe50`, `32cc0000`, `32cc00f0`, `32cc0390` |
+| ABM `DASH_COMBO_Z2a` / `ZXX` / `ZXXX` | `32cdc0f0`, `32cc0500`; `32cc05a0`; `32cc06e0`, `32cc0b80` |
+| DW `DASH_ATTACK_X` / `X2`, `ADW_COMBO_ADD_X` | `32cc1620`; `32cc16f0`; `32cc1900` |
+| ABM / ADW dash jump | `32cc45c0`, `32cc4980`; `32cc4b90`; `32cc4c90`, `32cc5050` |
+| ADW `ZZZBackZ` (June-only) | `32cc73e0`, `32ce72f0`, `32cc5260`, `32cb8d10` |
+| ADW Screwdriver Driller | `32cb8570` Init, `32cb8640` FrameMove |
+
+**Same as March:** `32cc0000`, `32cc0390`, `32cc0500`, `32cc05a0`, `32cc06e0`, `32cc0b80`, `32cc1620`, `32cdc0f0` (plus the alpha tag, 7c), `32cb8570`.
+**What differs from March:**
+- **Z1.** The animation end (`m_fCanNotAttackTime` 0.1, WAIT) now comes before `SKILL_CANCEL_AFTER( 0.01 )`.
+- **Z3.** Dimension Witch + the back key inside 0.251-0.466 s goes to `ADW_ZZZBackZ` (`0xf4`, flag kept). Then flag -> Z4 `0xcb`; back + 0.647 s -> walk; double tap -> dash (both clear the flag); last the skill / hyper cancel and the end. The cancel chain is new; March had a plain window and the flag only.
+- **Four identical bodies.** `32cc16f0`, `32cc1900`, `32cc4980`, `32cc5050` are byte-equal after normalising jump targets: end, ground walk, `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, ground dash (March has the same four without the ground test). One file-local macro serves all four.
+- **`32cc45c0` / `32cc4c90`.** The end only waits; X (or Z for X2) window 0 -> next state `0xee` / `0xf0`; then skill, walk, bwalk, dash, oneZ / oneX cancels. **`32cc4b90`:** landing `0x16`, Z window 0 -> `0xef`.
+- **`ZZZBackZ`.** `StartFuture` sets `nowSpeed.x = GetDashSpeed()` when the held key faces the facing; `FrameMove` is the `32ce61f0` fireball with 5 MP; `EventProcess` ends with the pure Z / X attack cancels (`+0x8c8c`); `EndFuture` turns the facing (as `32cb7450`).
+- `32cb8640` is a bare jump to `CommonFrameMove` (March: world colour and cut-in light).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Build: `DEPLOY OK: X2_offline.exe is 25,601,024 B, dated 2026-10-20 20:36:14, md5 e1a55a7bf3eec14f7005282661fffa52, equal to X2/US_SERVICE/x2.exe (2026-10-20 20:36:06); built at main a964e5db + 2 uncommitted code file(s).`
+
+No `JUNE_BUGS` row (no June bug found). No drift beyond the two unowned callbacks, which were taken in. None of the functions multiplies `m_fNowStatePowerRate` or passes a BFI. Checklist row 7ac L747 stays open until the review ports `32021390`; 7c (Z2a tag) lands here.
+**In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1g-review.md` (Opus; Part 1 is the two StartFutures). Next: CH1h after the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
