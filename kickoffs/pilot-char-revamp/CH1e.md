@@ -52,3 +52,8 @@ CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / j
 - `AVSI_AEM_ZZX` (June id 233) is already a member of `ARME_VIOLEMAGE_STATE_ID` (CH1c added it for `June_ComboZ2EventProcess`); do not add it again. Its FrameMove / EventProcess (`32ce2470`, `32cc30b0`) are yours.
 - `AVSI_AEM_XZ` (198) and `AVSI_AEM_XXfrontX` (id 170, shared with `AVSI_COMBO_X3front`) are the targets of CH1c's X1 / X2 EventProcess; CH1c names the base state for a shared id.
 - The combo template and its macros: see the CH1c Done note and the start of the CH1c block (same advice as CH1d's "From CH1c").
+
+## From CH1d (2026-10-20)
+
+- `AVSI_AEM_DASH_JUMP_X3` (June id 232) is already a member of `ARME_VIOLEMAGE_STATE_ID` (CH1d added it for `June_DashJumpAttackX2EventProcess`, with `AVSI_AHM_DASH_JUMP_ZX` for id 228); do not add it again. Its Start-side functions (`32cb8bd0`, `32cc3ea0`) are yours.
+- CH1d's block defines and `#undef`s its own `JUNE_ARME_ANY_KEY_C` / `_ZXC` / `FLAG_DUE` / `IN_WINDOW`; copy them into your block the same way. `June_AVP_DashAttackXEventProcess` (`32cc4180`) is the Void Princess re-registration of `AVSI_DASH_ATTACK_X`.

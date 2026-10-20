@@ -3941,3 +3941,31 @@ CX2Game +0xc20 (CH1a review)	none in March: CX2Game byte read by the Arme wait /
 32007c40	June_TryGetAcquiredSkillAbilityValue (file-local)	PORTED	Char CH1c: CX2GUUser( type, skill, memo swap, float* out ): no unit -> false; GetSkillLevel( id, false, 0, true ) <= 0 -> false; GetUserSkillTemplet( id, swap ) null -> false; else 32206fb0 = SkillTemplet::JuneTryGetSkillAbilityValue( type, level, IsPvpOrPve = false offline, out )
 32ce4180 @32ce45c0	jump table of 32ce4180	confirmed	Char CH1c: 8 entries for the transformed switch (types 0..7); types 5 / 6 name nothing there. The code after 32ce4602 is the class destructor, not part of 32ce4180 (no int3 padding between them)
 32278070	none in March: CX2GameUnit UpNowMp with text ( delta )	confirmed	CH1c review: UpNowMp( delta ) vslot 0xf0, then delta + 0.005 ( 33438ad8 ) pushed onto +0x68ac ( 31fac820 ); the MP twin of 322780b0. 3229ecc0 shows +0x68ac before the HP queue (timer +0x68a8). Callers: 32cc2b90 (Aisha refund) and 20+ class functions. Not ported: CH4 ports it with the refund
+32cbd760	June_DashComboZ1StartFuture	PORTED	Char CH1d: CommonStateStartFuture; BM / ADW and transformed (+0x8c0c) -> nowSpeed.x = 1000.0 (March has the same block)
+32cb7490	June_DashComboZ1FrameMove	PORTED	Char CH1d: bare jump to CommonFrameMove (vslot 0x7cc)
+32cbd7b0	June_DashComboZ1EventProcess	PORTED	Char CH1d: m_fEventTime[ 0..3 ] windows + flags 0..3: Z -> 0xaf Z2; X (BM / ADW) -> 0xcc; X (EM) -> 0xdc; X (any, flag 3) -> 0xb0 Z2a; any C key and now > 0.65 or animation end -> JUMP_DOWN (y -= 45) / WAIT
+32cc6980	June_DashComboZ2StartFuture	PORTED	Char CH1d: right + facing right or left + facing left -> nowSpeed.x = GetDashSpeed() * 1.2 (March the same)
+32cbdc40	June_DashComboZ2EventProcess	PORTED	Char CH1d: animation end or (any ZXC key and now > 0.55) -> JUMP_DOWN / WAIT (March: end first, then the key test)
+32cd4830	June_DashComboZ2aStartFuture	NOT PORTED	Char CH1d: needs Opus. June picks the target with a new line-map pass: unit loop (enemy, not invincible, hp > 0, line enabled and LT_NORMAL), CanDown( pos, 30.0 ... ) 11-arg, GetDistance < 700, 32293b80 vs GetIsRight, best by distance; the landing point comes from the unmapped CX2GameUnit 32293f80 (copy, vslot 0x80 test, then the nearest point over all enabled lines of type != 7 / 1)
+32293f80	none in March: CX2GameUnit nearest line point (out pos, in pos)	candidate	Char CH1d: copies in -> out; with game + world + line map and unit vslot 0x80( wstring from in, out ) true, walks every enabled line (type != 7, != 1) for the closest point on the segment and writes it; else out = GetPos( false ). 8 other callers (3200eeb0, 329edde0, 329ef130, 329fa620, 329faa80, 32a00130, 32b2ac20, 32b6f8b0). Not read further
+32cd4df0	June_DashComboZ2aFrameMove	PORTED	Char CH1d: 0.03 timer; Bip01 y - 200 ArmeEvasion mesh (XL_EFFECT_0) then 32296ee0 alpha tag @32cd4f03; CommonFrameMove
+32cbdd20	June_DashComboZ2aEventProcess	PORTED	Char CH1d: animation end -> JUMP_DOWN (y -= 45) / WAIT; CommonEventProcess
+32cc6a50	June_DashAttackXStartFuture	PORTED	Char CH1d: right + facing right or left + facing left -> nowSpeed.x = GetDashSpeed() (triple +0x49c4)
+32ce61f0	June_DashAttackXFrameMove	PORTED	Char CH1d: 0.3 timer; 32cc2b90( 4.0 * +0x95bc ); type 0 of 32ce4180 with rotate.y + 180; failure CreateNotEnoughMPEffect( pos, 0, 180, 0 ) (32007d80)
+32cbe090	June_DashAttackXEventProcess	PORTED	Char CH1d: animation end -> JUMP_DOWN / WAIT (base + Dimension Witch dash attack X)
+32cc4180	June_AVP_DashAttackXEventProcess	PORTED	Char CH1d: Void Princess re-registration (InitState @1163): animation end -> JUMP_DOWN / WAIT, else flag 0 + m_fEventTime[ 0 ] -> 0xb3 (AVSI_DASH_ATTACK_X2)
+32cb74a0	June_DashAttackXEndFuture	PORTED	Char CH1d: CommonStateEndFuture (vslot 0x7d8); dirDegree.y += 180; bIsRight flipped
+32cc6b70	June_JumpAttackZFrameMoveFuture	PORTED	Char CH1d: walk speed on a forward key; down without up -> flag 0 and nowSpeed.y -= fGAccel * elapsed; CommonFrameMoveFuture
+32cb7520	June_JumpAttackZFrameMove	PORTED	Char CH1d: bare jump to CommonFrameMove
+32cbe2f0	June_JumpAttackZEventProcess	PORTED	Char CH1d: on something: flag 0 -> m_fCanNotJumpTime 0.2; JUMP_LANDING (0x12)
+32cc6c00	June_JumpAttackXFrameMoveFuture	PORTED	Char CH1d: now < 0.13 or > 0.26 -> walk speed on a forward key; else nowSpeed x = y = 0
+32ce6660	June_JumpAttackXFrameMove	PORTED	Char CH1d: 0.16 timer; 32cc2b90( 4.0 * +0x95bc ); type 1 of 32ce4180; failure MagicFail on the major particle system (axis angle and add rotate = rotate degrees)
+32cbe330	June_JumpAttackXEventProcess	PORTED	Char CH1d: on something -> JUMP_LANDING (0x12)
+32cbe360	June_DashJumpAttackZEventProcess	PORTED	Char CH1d: on something -> DASH_JUMP_LANDING (0x16); else flag 0 + m_fEventTime[ 0 ] -> 0xe4 (the job ZX); the flag is set by X in the window when m_bDashJumpZ (+0x9599) and the class is not UC_ARME_VIOLET_MAGE
+32cb7550	June_DashJumpAttackXFrameMoveFuture	PORTED	Char CH1d: bare jump to CommonFrameMoveFuture (no speed-zero window; March has one at 0.13-0.27)
+32ce6830	June_DashJumpAttackXFrameMove	PORTED	Char CH1d: 0.16 timer; 32cc2b90( 4.0 * +0x95bc ); type 0 of 32ce4180 with rotate.z = -30; failure CreateNotEnoughMPEffect( pos, 0, 0, -30 )
+32cbe480	June_DashJumpAttackXEventProcess	PORTED	Char CH1d: flag 0 and now > 0.4 -> 0xb8 (AVSI_DASH_JUMP_ATTACK_X2); else oneX and now != 0 -> flag 0; on something -> DASH_JUMP_LANDING
+32cb7560	June_DashJumpAttackX2FrameMoveFuture	PORTED	Char CH1d: bare jump to CommonFrameMoveFuture (no speed-zero window)
+32ce69b0	June_DashJumpAttackX2FrameMove	PORTED	Char CH1d: 0.16 timer; 32cc2b90( 4.0 * +0x95bc ); type 7 of 32ce4180 with rotate.z = -30; failure CreateNotEnoughMPEffect( pos, 0, 0, -30 )
+32cbe510	June_DashJumpAttackX2EventProcess	PORTED	Char CH1d: on something -> DASH_JUMP_LANDING; else flag 0 + m_fEventTime[ 0 ] -> 0xe8 (AEM_DASH_JUMP_X3); the flag is set by X in the window for the Elemental Master only
+32070cf0	none in March: the future animation accessor (Luciel second body)	confirmed	Char CH1d: +0x8e90 ? +0x8e84 : +0x87d0 (m_pXSkinAnimFuture); read as m_pXSkinAnimFuture for Aisha

@@ -708,6 +708,44 @@ from the `fnstsw` / `test ah` / `jp` triples where the decompile hides them (X2 
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 No code changed in the review, so there was no build; the deployed exe is CH1c's. **In game:** nothing (inert code). Next: CH1d (`kickoffs/pilot-char-revamp/CH1d.md`).
 
+### CH1d - Done (2026-10-20, Sonnet 5.5)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`, the commit "Character pilot Phase CH1d". **25 of the 26 class-map rows are new `CX2GUArme_VioletMage::June_*` members** (declared after CH1c's in the header,
+bodies in a fourth block at the end of the `.cpp`), plus two enum members. Nothing registers or calls them. **One row is not transcribed and needs Opus (below).** 28 funcmap rows `Char CH1d`.
+
+| June | Member (`June_` prefix) | June | Member |
+|---|---|---|---|
+| `32cbd760` / `32cb7490` / `32cbd7b0` | DashComboZ1 StartFuture / FrameMove / EventProcess | `32cc6980` / `32cbdc40` | DashComboZ2 StartFuture / EventProcess |
+| `32cd4df0` / `32cbdd20` | DashComboZ2a FrameMove / EventProcess | `32cc6a50` / `32ce61f0` | DashAttackX StartFuture / FrameMove |
+| `32cbe090` / `32cc4180` | DashAttackX EventProcess / `AVP_DashAttackXEventProcess` (the Void Princess re-registration) | `32cb74a0` | DashAttackX EndFuture |
+| `32cc6b70` / `32cb7520` / `32cbe2f0` | JumpAttackZ FrameMoveFuture / FrameMove / EventProcess | `32cc6c00` / `32ce6660` / `32cbe330` | JumpAttackX FrameMoveFuture / FrameMove / EventProcess |
+| `32cbe360` | DashJumpAttackZ EventProcess | `32cb7550` / `32ce6830` / `32cbe480` | DashJumpAttackX FrameMoveFuture / FrameMove / EventProcess |
+| `32cb7560` / `32ce69b0` / `32cbe510` | DashJumpAttackX2 FrameMoveFuture / FrameMove / EventProcess | `32cd4830` | **DashComboZ2aStartFuture: declared only** |
+
+**Not transcribed - needs Opus: `32cd4830` (`AVSI_DASH_COMBO_Z2a` StartFuture).** June rebuilt the teleport target pick: the enemy loop (not invincible, hp > 0, line enabled and `LT_NORMAL`) now also runs an 11-argument `CanDown` at the enemy's position, `GetDistance < 700`,
+`32293b80` (pos along my last touched line, ported as `JuneIsPosAlongLastTouchLine`) against `GetIsRight`, and keeps the best by distance; the landing point then comes from **`32293f80`, a CX2GameUnit method that funcmap does not map** (copies `in` to `out`; with a line map and a
+vslot `0x80` test it walks every enabled line of type other than 7 / 1 for the nearest point, else `out = GetPos( false )`; 8 other callers). Read both in Ghidra (`decompile_function` at `0x32cd4830` and `0x32293f80`). The review (Opus) maps `32293f80`, transcribes the function whole and writes the body; the
+declaration `June_DashComboZ2aStartFuture` is already in the header. Rule: no partial update and no guess, so no stand-in body was written.
+
+**What differs from March** (the rest is March's body):
+- Z1 `EventProcess` is the m_fEventTime cancel chain (four windows, flags 0..3): Z -> Z2; X -> ABM / ADW Z2a (`0xcc`), EM Z2a (`0xdc`), any other class Z2a (`0xb0`, flag 3); March used fixed 0.46 s. Z2 ends on animation end or any ZXC key after 0.55 s (March: end first, 0.55 on keys).
+- `DashAttackX` has two registered EventProcess: `32cbe090` (end only) and the Void Princess `32cc4180` (X in the `m_fEventTime[ 0 ]` window -> `0xb3` `AVSI_DASH_ATTACK_X2`). The jump / dash-jump attack events are March's, except the new hand-offs below.
+- `DashJumpAttackZ` `EventProcess` (`32cbe360`): X inside the window, once the Z blast was spent (`m_bDashJumpZ`, June `+0x9599`) and the class is not `UC_ARME_VIOLET_MAGE`, chains to the job's dash-jump ZX (`0xe4`). `DashJumpAttackX2` `EventProcess` (`32cbe510`): the Elemental Master's X chains to `0xe8`.
+- The four fireballs (`32ce61f0`, `32ce6660`, `32ce6830`, `32ce69b0`) spend `4.0 x m_fMPConsumeRateFireBall` through `June_FlushMpWithRefund` and create types 0 (+180 on y), 1, 0 (z = -30) and 7 (z = -30) through `June_CreateComboFireBall`. The failure effects are March's (`CreateNotEnoughMPEffect`; `MagicFail` for JumpAttackX).
+- `DashJumpAttackX` / `X2` `FrameMoveFuture` are bare jumps to `CommonFrameMoveFuture`: June dropped March's speed-zero window (0.13-0.27 s). `DashAttackX`'s `EndFuture` is March's.
+- `32cd4df0` (Z2a `FrameMove`): the ArmeEvasion mesh is tagged with the effect-alpha category (`JuneTagEffectAlphaMesh`, checklist 7c, `32296ee0 @32cd4f03`, under `SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION`).
+
+**Enum:** two June-only ids added after `AVSI_AEM_ZZX` - `AVSI_AHM_DASH_JUMP_ZX` (June 228 / `0xe4`, shared by the ABM / ADM / AHM `DASH_JUMP_ZX` states) and `AVSI_AEM_DASH_JUMP_X3` (232 / `0xe8`). CH1e's `32cb8bd0` (`AEM_DASH_JUMP_X3`) must not add the second one again. Other ids use March's names:
+`0xaf` `AVSI_DASH_COMBO_Z2`, `0xb0` `AVSI_DASH_COMBO_Z2a`, `0xb3` `AVSI_DASH_ATTACK_X2`, `0xb8` `AVSI_DASH_JUMP_ATTACK_X2`, `0xcc` `AVSI_ABM_DASH_COMBO_Z2a`, `0xdc` `AVSI_EM_DASH_COMBO_Z2a`, `0x12` / `0x16` `USI_JUMP_LANDING` / `USI_DASH_JUMP_LANDING`.
+Decoded: `m_fEventTime[ i ]` = start / end / stateChange at `+0x8c10 + 12 i`; `32070cf0` is the future-animation accessor (`+0x8e90 ? +0x8e84 : +0x87d0`), read as `m_pXSkinAnimFuture`; `+0x8c0c` is `m_bIsTransformed`.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl /Zs` of the class file under the US_SERVICE defines: 0 errors.
+Build: `DEPLOY OK: X2_offline.exe is 25,553,408 B, dated 2026-10-20 10:12:51, md5 b52ea1fdf30d016a7ceb9d1af3041ae3, equal to X2/US_SERVICE/x2.exe (2026-10-20 10:12:44); built at main 5877e338 + 2 uncommitted code file(s).`
+
+No `JUNE_BUGS` row (the dropped speed-zero window and the `m_bDashJumpZ` gate are June changes, not mistakes; the `MagicFail` sequence is not NULL-tested in March either). No drift: every branch found is Aisha's class core. **In game:** nothing (the flag adds unreferenced members).
+Review: `kickoffs/pilot-char-revamp/CH1d-review.md` (it also owns `32cd4830`). Next: CH1e after the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

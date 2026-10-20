@@ -143,6 +143,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 			AVSI_TELEPORT_STAND_UP_START_UPGRADE,			/// June script id 242 ( CH1b: chosen by June_DamageDown*EventProcess; CH2a registers the state )
 			AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE,			/// June script id 243
 			AVSI_AEM_ZZX,									/// June script id 233 ( CH1e writes the state )
+			AVSI_AHM_DASH_JUMP_ZX,							/// June script id 228 ( shared by AVSI_ABM / ADM / AHM_DASH_JUMP_ZX; CH2a / CH2b write the states )
+			AVSI_AEM_DASH_JUMP_X3,							/// June script id 232 ( CH1e writes the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -936,6 +938,36 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		JuneMpRefundData*			m_pJuneMpRefund;			/// June +0x96ac ( NULL = no passive )
 		int							m_iJuneBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1c
+
+		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1d ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June dash combos, dash attacks and jump attacks ( class map phase CH1d ); definitions at the end of X2GUArme_VioletMage.cpp.
+		void June_DashComboZ1StartFuture();								/// June 32cbd760
+		void June_DashComboZ1FrameMove();								/// June 32cb7490
+		void June_DashComboZ1EventProcess();							/// June 32cbd7b0
+		void June_DashComboZ2StartFuture();								/// June 32cc6980
+		void June_DashComboZ2EventProcess();							/// June 32cbdc40
+		void June_DashComboZ2aStartFuture();							/// June 32cd4830: declared only, body needs Opus ( calls the unmapped 32293f80 )
+		void June_DashComboZ2aFrameMove();								/// June 32cd4df0
+		void June_DashComboZ2aEventProcess();							/// June 32cbdd20
+		void June_DashAttackXStartFuture();								/// June 32cc6a50
+		void June_DashAttackXFrameMove();								/// June 32ce61f0
+		void June_DashAttackXEventProcess();							/// June 32cbe090
+		void June_AVP_DashAttackXEventProcess();						/// June 32cc4180
+		void June_DashAttackXEndFuture();								/// June 32cb74a0
+		void June_JumpAttackZFrameMoveFuture();							/// June 32cc6b70
+		void June_JumpAttackZFrameMove();								/// June 32cb7520
+		void June_JumpAttackZEventProcess();							/// June 32cbe2f0
+		void June_JumpAttackXFrameMoveFuture();							/// June 32cc6c00
+		void June_JumpAttackXFrameMove();								/// June 32ce6660
+		void June_JumpAttackXEventProcess();							/// June 32cbe330
+		void June_DashJumpAttackZEventProcess();						/// June 32cbe360
+		void June_DashJumpAttackXFrameMoveFuture();						/// June 32cb7550
+		void June_DashJumpAttackXFrameMove();							/// June 32ce6830
+		void June_DashJumpAttackXEventProcess();						/// June 32cbe480
+		void June_DashJumpAttackX2FrameMoveFuture();					/// June 32cb7560
+		void June_DashJumpAttackX2FrameMove();							/// June 32ce69b0
+		void June_DashJumpAttackX2EventProcess();						/// June 32cbe510
+		//}} Iruha : 2026-10-20 // June character pilot Phase CH1d
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY
