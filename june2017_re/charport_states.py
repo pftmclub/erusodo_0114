@@ -7,7 +7,8 @@ Needs Ghidra's HTTP server (decompile_function). Reads the decompile text, not t
 against the listing (funcdis.py).
 
 init:  every UpdateUserUnitStateData (31fd89b0) call: state id, table name, and the callbacks stored into the local
-       UserUnitStateData before it (the inlined Init clears them). The local's fields are found by their Ghidra stack
+       UserUnitStateData before it (the Init clears them: inlined as explicit zero stores, or the call `FUN_320775a0();`,
+       which Ghidra prints without arguments; CH1b review fix, before it every slot carried into the next state). The local's fields are found by their Ghidra stack
        names: `local_N` / `xStack_N` sit at offset (base - N), base = the local passed as the 3rd argument.
 skill: the skill switch. For every case group: the skill ids, the table names passed to MakeTableReference (32fe9a40)
        for the normal and hyper state, and the callback slots written through the two state pointers (index k = byte
@@ -82,12 +83,17 @@ def strat(tok):
 
 def cmd_init(vas):
     """Rows marked '~' come from a name held in a variable (a per-class switch): one row per name assigned since the
-    previous registration, with the callbacks as they stood at that assignment (read the branch to confirm)."""
+    previous registration, with the callbacks as they stood at that assignment (read the branch to confirm).
+    KNOWN DEFECT (pilot-char-revamp CH1b review; CH0c fixes it): Ghidra may print the name assignment before the branch's
+    stores, so a '~' row can come out empty, and its id is the last uVar seen (e.g. AVSI_ABM_COMBO_Z4 reads 164, the
+    branch sets 0xcb). Never trust a '~' row without the listing."""
     print('fn	line	state_id	table	callbacks')
     for fva in vas:
         L = decompile(fva)
         cur, cand, ids = {}, {}, {}
         for i, ln in enumerate(L):
+            if 'FUN_320775a0(' in ln:          # UserUnitStateData::Init on the local (zeroes +0x14..+0x5c, every slot)
+                cur = {}
             m = re.match(r'\s*(?:local|[a-z]+Stack)_([0-9a-f]+)\s*=\s*(.+);', ln)
             if m:
                 cur[int(m.group(1), 16)] = fnval(m.group(2))

@@ -141,6 +141,7 @@ Kept in `june2017_re/char_arme/` (digests written by Sonnet subagents, spot-chec
 |---|---|---|---|
 | CH0 | Aisha map: June class vs March class, state and skill table, checklist rows per phase, every Aisha asset (read-only) | Opus high | - |
 | CH0b | **Every June Aisha asset, whole, first** (motions, models, textures, equipment, effects, particles, sounds, cut-in art) | Sonnet high, user play-test | CH0 |
+| CH0c | Registration map correction: `charport_states.py` carry-over (found by the CH1b review), state / class maps rebuilt, CH1a / CH1b registration claims corrected | Opus high | CH1b review |
 | CH1 | Deploy unit: June script + class core (states, common moves, hooks) | Opus high, Opus review, user play-test | CH0b |
 | CH2 | Skills: Violet Mage + first jobs (classes 2, 14, 15, 23) | Sonnet high, Opus review, user play-test | CH1 review |
 | CH3 | Skills: second jobs (104, 105, 113) + hyper actives | Sonnet high, Opus review, user play-test | CH2 review |
@@ -346,6 +347,32 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
   (`KEM_ERROR`, `Motion Error`, missing texture / mesh lines).
 - **No new drift.** `Motion_Arme_Emotion_Cash25.x` is staged (file only); its behaviour is Stage 10's.
 
+## Phase CH0c - Registration map correction
+
+**Run with:** Opus 5.5 high (RE data that CH1's wiring is built on). No play-test. Found by the CH1b review (its note says how). Runs before CH1c.
+
+**Why.** June's registrar calls `UserUnitStateData::Init` (`320775a0`) between registrations, and Ghidra prints it as `FUN_320775a0();`. `charport_states.py`
+cleared its slot table only on inlined zero stores, so each state inherited the previous state's callbacks. The CH1b review fixed that (the tool now clears on
+the call). Old and fixed outputs: `june2017_re/char_arme/ch1b_review_reg_old.tsv` / `ch1b_review_reg_fixed.tsv`. 99 of 139 plain rows change. A second defect
+remains: a `~` row (a name set inside a per-class branch) takes its callbacks and id when the name is assigned, and Ghidra prints that before the branch's
+stores. All 33 such rows are unreliable (e.g. `AVSI_ABM_COMBO_Z4` reads id 164, but the branch sets `0xcb`).
+
+**Scope:**
+1. Fix the `~` rows in `charport_states.py`. A branch's row takes what that branch stores up to its closing brace, plus the stores after the merge and
+   before the `31fd89b0` call. Check every `~` row against the listing (`funcdis.py`: the pushed id, the table, the slot stores before the call).
+2. Re-run `init 32ce77b0 32cea0c0 3202b110`; re-run `skill 32cede00` and confirm it is unchanged. Rewrite `ch0_state_skill.tsv` part 1 (june_callbacks) and
+   the `states` column of `ch0_class_map.tsv` from it. Re-run a builder whole only if its scratch inputs are rebuilt and the diff stays in those columns
+   (`ch0_build_class_map.py` also rewrites checklist rows).
+3. Phases. A row CH1a or CH1b already ported keeps its phase (e.g. `32cbb8d0` / `32cbba10` are `AVSI_COMBO_X4_CHARGE` only, ported in CH1b). List every
+   function whose phase would move among CH1c-CH1i, and move it only if no phase has ported it yet. Check `CH1c.md`-`CH1i.md` against the result.
+4. Correct what was written from the old map. Registration claims in the CH1a / CH1b code comments (under the flag, `bytepatch.py`); the CH1b list is in
+   the CH1b review. The `Char CH1a` / `Char CH1b` funcmap rows. The CH1 kickoff (registration notes). The CH1a / CH1b Done notes stay as history; the
+   correction goes in this phase's Done note.
+5. Finish: `flagcheck.py JUNE_CHAR_ARME_CORE --worktree`, `build.py --deploy` (comments only: a compile check), Done note, STATUS row, commit.
+
+**Done gate:** every registration row matches the listing (all `~` rows checked by hand, a sample of 10 plain rows); the class map's phase column changes
+only for unported rows, each listed; the code comments and funcmap rows name June's real state sets.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Run with:** Opus 5.5 high, then an Opus review, then a user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (one flag per logical change
@@ -509,6 +536,48 @@ registers the Die `FrameMove` for `AVSI_RIDING_ATTACK_Z` / `AVSI_RIDING_JUMP_ATT
 Build (the first run failed on the enum members only: my spec repeated an `@@ file` section for the header and the first section was dropped; 11 `C2065`, nothing else): `DEPLOY OK: X2_offline.exe is 25,527,296 B, dated 2026-10-20 07:37:35, md5 137df3179a550733b26a02c8b5d38a19, equal to X2/US_SERVICE/x2.exe (2026-10-20 07:37:28); built at main dd0c90dc + 2 uncommitted code file(s).`
 
 **In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1b-review.md`. Next: CH1c (`kickoffs/pilot-char-revamp/CH1c.md`) after the review.
+
+### CH1b -- Review (2026-10-20, Opus)
+
+**Verdict: PASS, no code fix.** All 38 functions were read against June's decompile (dumps of the 38 + the 3 stand-ins + the registrar), and against the
+listing where the kickoff named a risk. Compare directions were read from the `fnstsw` / `test ah` / `jp` triples. Constants are from `charport_consts.py CH1b`.
+Spot-checked in depth: `32cc6520`, `32cd5360`, `32ccc5a0`. The front / back twins (`32cb6ed0`/`6f20`, `6ef0`/`6f40`, `98a0`/`9970`, `9900`/`99d0`) are identical
+apart from their constants, and `32cc66a0` = `32cc6520` with `0x21`.
+- **Branch structure.** `32cc6520` / `32cc66a0`: the order is `[4]` (`+0x7d89`: vslot `0x1c8( 0 )`, result dropped `@32cc6577`, then the attack choice), `[1]`, `[2]`, `[3]`,
+  then STANDUP. The `undefined2` stores at `+0x7d87` / `+0x7d86` / `+0x1f62*4` clear the same flag pairs as the port. `32cc6820` inlines `32cc5ae0` in `[1]`, with Z or X.
+- **`32ccc5a0`.** `+0x2480` / `+0x1730` are `m_EnchantShock` / `m_Frozen`: `m_Frozen` + 12 entries x `0x11c` (the ExtraDamageData stride, funcmap `32273480`)
+  = `m_EnchantShock`, and 2 more = `m_StigmaDebuff` `+0x26b8`. Then the push / pass bools, MOVE_TIME (default 0), `+45`, the loop `(int)( t * 85 )` re-evaluated,
+  `700`, `+100`, `[0]`. As ported.
+- **`32cd5360`.** The ring is handle `+0x9828` into `322ceab0` (minor), the centre `+0x97c0` into `322ceaa0` (major). With March's arrays (28 major, then 5 minor;
+  base `+0x97b8`) these are `AIR_BLAST_RING` and `AIR_BLAST_CENTER` (funcmap row). The window is `0.28 < t < 0.7` and `+0x9599`.
+- **Constants and compares.** `32cc6ca0`: `0.26 <= t <= 0.4` -> stop, else the `0.41` oneshot (qword compare, dword timer). `0.66 < t` in the three event
+  processes. `32ccd4a0`: 0.25 / 0.5 / 1.0 by vslot `0xb0`, `rand <= rate`, SA `0x4f` / `0x15`, text offsets +50 / +30. `32ce12c0`: world colour 0.1333 = `0xff222222`,
+  `UpDownCrashCamera( 20, 0.3 )`, `ClearScreen` inlined.
+- **One comment slip** (no code effect, CH0c fixes it in its comment pass): the block header gives `GetJumpSpeed()` as `+0x4978`. June reads `+0x4a78` (`param_1[0x129e]`).
+
+**Decisions:**
+1. Awakening effect-set stand-ins: **owner stays Stage 6** (the backlog bullet). `32011d20` plays a set named by the item equipped at position 15 (CX2Unit `+0xa48`; an
+   `_Add` suffix for unit type 9) into the map `+0x9578`. With no such item the map stays empty, `31fd66b0` is false and the trace shows: that is June's own path,
+   so the stand-ins are exact for an unequipped character. Not Aisha's, and play does not need it.
+2. `June_Vslot60c` / `June_Vslot608` -> CH1i writes `32cb8b60` / `32ccda40`. CH1 points `June_RidingOffStart` / `June_RidingHyperModeEnd` at them.
+3. **Confirmed.** `32cc5ae0 @32cc5ae0-32cc5afc`: `+0x867c` -> `lea ecx, [eax + 0x494]` -> `328914b0( 0x56c8, 0 )`, the acquired-map find at tree `+0x4a8`. The same
+   reading as `JuneIsSkillAcquired`.
+4. The `_UPGRADE` ids stay symbolic. CH1 decides the numbering when it registers them (CH2a registers the states).
+5. **JUNE_BUGS 371 withdrawn: a CH0 mapping error.** The registrar calls `UserUnitStateData::Init` `320775a0` between `AVSI_RIDING_DIE` and `AVSI_RIDING_ATTACK_Z`
+   (`@32ce9b61`), and `32cf0ab0` occurs twice in the whole image (`AVSI_DIE_FRONT`, `AVSI_RIDING_DIE`). The riding attacks register no FrameMove.
+
+**Found: `charport_states.py` carried callbacks across states.** See the funcmap row `32ce77b0 @32ce9b5d-32ce9ba4`. The tool now clears its slot table on the `Init`
+call (docstring updated). The `~` per-class rows keep a second defect, flagged in the tool. The fix and the map rebuild are **Phase CH0c** (the scope rule: CH0's own
+deliverable, so it stays in this plan). Effect on CH1a / CH1b: the code is right, the function sets do not change, but the registration claims written from the map are
+wrong. In the CH1b block (sets from the fixed plain rows; CH0c adds any `~` row): `32cb6ed0` (die states only), `32cb7170` (`AVSI_DAMAGE_AIR_DOWN_LANDING` only, not 10 states), `32cb9de0` (`DAMAGE_DOWN_BACK` only), `32cd2740`
+(`A_AV_TELEPORT_END` / `TELEPORT_STAND_UP_END`), `32cc9160` / `32ccc5a0` (the two `STAND_UP_START` states), `32cb7240` / `32cb7270` (the two `STANDUP_ATTACK` states, not 12 / 11),
+`32cb7530` / `32cc6ca0` / `32cd5360` (`DASH_JUMP_ATTACK_Z` only), `32cbb8d0` / `32cbba10` (`COMBO_X4_CHARGE` only, not 59), and the riding hyper set
+(`AVSI_RIDING_HYPER_MODE` only). The CH1b Done note's "Registration notes for CH1" are superseded the same way.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --range dee57cb6^..dee57cb6`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. No code changed in the review, so no build (the deployed exe is CH1b's). **In game:** nothing (inert code). Next: CH0c (`kickoffs/pilot-char-revamp/CH0c.md`),
+then CH1c (its kickoff now depends on CH0c).
 
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 

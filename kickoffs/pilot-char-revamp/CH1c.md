@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase pilot-char-revamp CH1c` |
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
-| Depends on | CH1b done (one at a time: CH1a-CH1i all edit `X2GUArme_VioletMage.*`) |
+| Depends on | CH1b review and **CH0c** (the corrected registration map; one at a time: CH1a-CH1i all edit `X2GUArme_VioletMage.*`) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (defined from CH1a on; what it guards stays unreferenced until CH1 wires it) |
 | Log tag | none (inert code, no play-test) |
 | Review | `kickoffs/pilot-char-revamp/CH1c-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -40,3 +40,9 @@ listing with `june2017_re/funcdis.py` where the decompile is unclear), **whole**
 
 Written by CH0 (2026-10-20). Counts are from `ch0_class_map.tsv`. CH1's class core is about 370 functions, so CH0 split the transcription
 into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test to CH1 (Opus).
+
+## Amended by the CH1b review
+
+Written 2026-10-20. CH0's state map carried callbacks from one registration into the next (`charport_states.py` ignored the `FUN_320775a0()` Init call), so the
+`states` column and the June callbacks in `ch0_state_skill.tsv` named states a function is not registered for. CH0c rebuilds both; read them after CH0c, and
+take any "June registers X for N states" comment from the corrected map only. The class-map function list for CH1c may change in CH0c (its Done note lists moves).
