@@ -1227,6 +1227,36 @@ the C++ comment there was wrong. It now says so, and the riding die is added to 
 
 **Next:** `/x2-phase pilot-char-revamp CH1j2` (Sonnet 5.5 high). It should re-run `ch1j_review_regcheck.py` after it repoints the five slots.
 
+### CH1j2 - Done (2026-10-21, Sonnet 5.5)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`. **Five new `June_*` members** (block `//{{ ... CH1j2` at the end of `X2GUArme_VioletMage.cpp`, declared after
+the CH1j block in the header), and `June_InitState` now registers them. None of the five has a Ghidra function; all were read from `funcdis.py` listings.
+
+| June | Member | Replaces |
+|---|---|---|
+| `32cbca20` | `June_AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess` | the stand-in (March's `AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess`) |
+| `32cc3040` | `June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMove` | empty slot |
+| `32ce7170` | `June_AVSI_AEM_DASH_JUMP_X3_FrameMove` | empty slot |
+| `32ce2cc0` | `June_AVSI_AVP_DASH_ATTACK_X2_FrameMove` | empty slot |
+| `32cc42a0` | `June_AVSI_AVP_DASH_ATTACK_X2_EventProcess` | empty slot |
+
+- **`32cbca20`** is not the Dark Magician's `32cbd120`: it has a fifth window (`m_fEventTime[ 4 ]`, `oneZ` -> `AVSI_AEM_XZ`), and the back-X3 (window 2) and XZ (window 4)
+  chains exist only for the Elemental Master (`[[user+0x867c]+0xaf0]+4 == 0x68`; a High Magician gets X3down / X3front / X3 only). The tail is `32cbcff0`
+  (12 keys after 0.966 s) and `+0x96f0` (`m_bCanChangeState`) while flag 3.
+- **`32cc3040`** only evaluates `EventTimer( 0.27 )` and drops the result, then `CommonFrameMove`.
+- **`32ce7170`**: 0.16 s timer, `June_FlushMpWithRefund( 4 x rate )`, combo fireball type 1 at `Dummy2_Lhand` with rotation z -30; failure ( 0, 0, -30 ).
+- **`32ce2cc0`** is `32ce2b20` (ADM dash-jump ZX) with `FlushMp( 10 )`, `Dummy2_Lhand` and the rotation unturned. **JUNE_BUGS 380:** the Void Princess fires `DamageEffect_ADM_DashJumpZX`.
+- **`32cc42a0`**: fall -> `USI_JUMP_DOWN` (y -45), animation end -> WAIT, `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, then walk / bwalk / dash / Z X cancels (ground-only, as in CH1f).
+- funcmap: the five `ROUTED` rows are now `PORTED` (`Char CH1j2`). `ch1j_review_regcheck.py` prints no MISSING for the five; the 35 left are `31ffbd70` (CH1k), `32002f70` and `3202a7d0` (Stage 17 / base, routed in the CH1j review).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 5 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The 5 deleted lines are CH1j's own stand-in line and four "CH1j2 transcribes" comment lines in `June_InitState`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,672,704 B, dated 2026-10-21 06:28:39, md5 744259defe74a2c43e46cbfcd7e33a0a, equal to X2/US_SERVICE/x2.exe (2026-10-21 06:28:33); built at main ea0b49ea + 2 uncommitted code file(s).`
+
+No drift, no new branch found. **In game:** nothing (the members are unreferenced until `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE`). Next: `/x2-phase pilot-char-revamp CH1j2 review` (Opus 5.5 high); CH1k follows the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

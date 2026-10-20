@@ -1245,6 +1245,13 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_InitStateCommon();									/// June 32ce77b0
 		void June_LoadAngorHammerMesh();								/// June 32ce1ba0
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1j
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j2 ( JUNE_CHARACTER_AISHA_PHASES.md )
+		void June_AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess();						/// June 32cbca20
+		void June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMove();						/// June 32cc3040
+		void June_AVSI_AEM_DASH_JUMP_X3_FrameMove();								/// June 32ce7170
+		void June_AVSI_AVP_DASH_ATTACK_X2_FrameMove();								/// June 32ce2cc0
+		void June_AVSI_AVP_DASH_ATTACK_X2_EventProcess();							/// June 32cc42a0
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH1j2
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

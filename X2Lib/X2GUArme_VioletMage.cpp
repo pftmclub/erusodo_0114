@@ -31373,7 +31373,7 @@ void CX2GUArme_VioletMage::June_InitState()
 			stateData.stateID			= AVSI_COMBO_X2;
 			m_LuaManager.MakeTableReference( "AVSI_HIGH_MAGICIAN_COMBO_X2", stateData.stateID );
 			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_HIGH_MAGICIAN_COMBO_X2_FrameMove );
-			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess );	/// stand-in until CH1j2 transcribes June 32cbca20
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess );
 			m_StateList[stateData.stateID] = stateData;
 
 			stateData.Init();
@@ -32014,7 +32014,7 @@ void CX2GUArme_VioletMage::June_InitState()
 			stateData.stateID			= AVSI_AHM_DASH_JUMP_ZXX_FINISH;
 			m_LuaManager.MakeTableReference( "AVSI_AHM_DASH_JUMP_ZXX_FINISH", stateData.stateID );
 			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMoveFuture );
-			/// CH1j2 transcribes June 32cc3040 ( OnFrameMove )
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMove );
 			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_EventProcess );
 			m_StateList[stateData.stateID] = stateData;
 
@@ -32116,7 +32116,7 @@ void CX2GUArme_VioletMage::June_InitState()
 			stateData.stateID			= AVSI_AEM_DASH_JUMP_X3;
 			m_LuaManager.MakeTableReference( "AVSI_AEM_DASH_JUMP_X3", stateData.stateID );
 			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AEM_DASH_JUMP_X3_FrameMoveFuture );
-			/// CH1j2 transcribes June 32ce7170 ( OnFrameMove )
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AEM_DASH_JUMP_X3_FrameMove );
 			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AEM_DASH_JUMP_X3_EventProcess );
 			m_StateList[stateData.stateID] = stateData;
 		} break;
@@ -32131,8 +32131,8 @@ void CX2GUArme_VioletMage::June_InitState()
 			stateData.Init();
 			stateData.stateID			= AVSI_DASH_ATTACK_X2;
 			m_LuaManager.MakeTableReference( "AVSI_AVP_DASH_ATTACK_X2", stateData.stateID );
-			/// CH1j2 transcribes June 32ce2cc0 ( OnFrameMove )
-			/// CH1j2 transcribes June 32cc42a0 ( OnEventProcess )
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AVP_DASH_ATTACK_X2_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_AVP_DASH_ATTACK_X2_EventProcess );
 			m_StateList[stateData.stateID] = stateData;
 		} break;
 	default:
@@ -32152,5 +32152,221 @@ void CX2GUArme_VioletMage::June_LoadAngorHammerMesh()
 }
 
 //}} Iruha : 2026-10-21 // June character pilot Phase CH1j
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH1j2 ( JUNE_CHARACTER_AISHA_PHASES.md )
+// The five callbacks CH1j left on a stand-in or empty; June_InitState registers them (inert until SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE).
+#define JUNE_ARME_ANY_KEY_C \
+	( m_InputData.pureUp == true || m_InputData.pureDown == true || m_InputData.pureRight == true || m_InputData.pureLeft == true \
+	|| m_InputData.pureA == true || m_InputData.pureS == true || m_InputData.pureD == true || m_InputData.pureC == true \
+	|| m_InputData.pureQ == true || m_InputData.pureW == true || m_InputData.pureE == true || m_InputData.pureR == true )
+
+#define JUNE_ARME_FLAG_DUE( iTime_ ) \
+	( false == ( m_pXSkinAnimFuture->GetNowAnimationTime() <= m_fEventTime[iTime_].stateChange && false == m_pXSkinAnimFuture->IsAnimationEnd() ) )
+
+#define JUNE_ARME_IN_WINDOW( iTime_ ) \
+	( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[iTime_].keyInputEnd && m_fEventTime[iTime_].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+
+#define JUNE_ARME_FORWARD_KEY \
+	( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false ) || ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true ) )
+
+#define JUNE_ARME_BACK_KEY \
+	( ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) || ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) )
+
+#define JUNE_ARME_G_WALK_CANCEL \
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define JUNE_ARME_G_BWALK_CANCEL \
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) || ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define JUNE_ARME_G_DASH_CANCEL \
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) ) \
+	{ StateChangeDashIfPossible(); }
+
+#define JUNE_ARME_G_ZX_CANCEL \
+	else if( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.oneZ == true ) \
+	{ StateChange( GetComboZStateID() ); } \
+	else if( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && m_InputData.oneX == true ) \
+	{ StateChange( GetComboXStateID() ); }
+
+//AVSI_HIGH_MAGICIAN_COMBO_X2
+// June 32cbca20: five key windows ( X3down, X3front, X3back, X3, AEM_XZ ); X3back and XZ only for the Elemental Master; +0x96f0 while flag 3
+void CX2GUArme_VioletMage::June_AVSI_HIGH_MAGICIAN_COMBO_X2_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && JUNE_ARME_FLAG_DUE( 0 ) )
+	{
+		StateChange( AVSI_COMBO_X3down );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 0 ) && m_InputData.oneX == true && m_InputData.pureDown == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[1] && JUNE_ARME_FLAG_DUE( 1 ) )
+	{
+		StateChange( AVSI_COMBO_X3front );
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 1 ) && m_InputData.oneX == true && JUNE_ARME_FORWARD_KEY )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[2] && JUNE_ARME_FLAG_DUE( 2 ) )
+	{
+		StateChange( AVSI_COMBO_X3back );
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 2 ) && JUNE_ARME_BACK_KEY && m_InputData.oneX == true
+		&& NULL != GetUnit() && CX2Unit::UC_ARME_ELEMENTAL_MASTER == GetUnit()->GetClass() )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = true;
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[3] && JUNE_ARME_FLAG_DUE( 3 ) )
+	{
+		StateChange( AVSI_COMBO_X3 );
+		m_FrameDataFuture.stateParam.bEventFlagList[3] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 3 ) && m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[3] = true;
+	}
+	else if( true == m_FrameDataFuture.stateParam.bEventFlagList[4] && JUNE_ARME_FLAG_DUE( 4 ) )
+	{
+		StateChange( AVSI_AEM_XZ );
+		m_FrameDataFuture.stateParam.bEventFlagList[4] = false;
+	}
+	else if( JUNE_ARME_IN_WINDOW( 4 ) && m_InputData.oneZ == true
+		&& NULL != GetUnit() && CX2Unit::UC_ARME_ELEMENTAL_MASTER == GetUnit()->GetClass() )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[4] = true;
+	}
+	else if( JUNE_ARME_ANY_KEY_C )
+	{
+		if( 0.966f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+		{
+			if( false == IsOnSomethingFuture() )
+			{
+				StateChange( USI_JUMP_DOWN );
+				m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+			}
+			else
+				StateChange( USI_WAIT );
+		}
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	if( true == m_FrameDataFuture.stateParam.bEventFlagList[3] )
+		m_bCanChangeState = true;
+
+	CommonEventProcess();
+}
+
+//AVSI_AHM_DASH_JUMP_ZXX_FINISH
+// June 32cc3040: the 0.27 s timer is evaluated and its result dropped
+void CX2GUArme_VioletMage::June_AVSI_AHM_DASH_JUMP_ZXX_FINISH_FrameMove()
+{
+	m_pXSkinAnim->EventTimer( 0.27f );
+
+	CommonFrameMove();
+}
+
+//AVSI_AEM_DASH_JUMP_X3
+// June 32ce7170: 4 x m_fMPConsumeRateFireBall; fireball type 1 at Dummy2_Lhand, rotation z -30; failure ( 0, 0, -30 )
+void CX2GUArme_VioletMage::June_AVSI_AEM_DASH_JUMP_X3_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.16f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.16f ) == true && EventCheck( 0.16f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( June_FlushMpWithRefund( 4.0f * m_fMPConsumeRateFireBall ) == true )
+		{
+			const D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.z = -30.0f;
+			June_CreateComboFireBall( 1, posR, angle );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, -30.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+//AVSI_AVP_DASH_ATTACK_X2
+// June 32ce2cc0: = ADM_DASH_JUMP_ZX ( 32ce2b20 ) with FlushMp( 10 ), Dummy2_Lhand and the rotation unturned; the Void Princess fires the ADM effect
+void CX2GUArme_VioletMage::June_AVSI_AVP_DASH_ATTACK_X2_FrameMove()
+{
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.27f ) == true && EventCheck( 0.27f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( FlushMp( 10.0f ) == true )
+		{
+			const D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			const D3DXVECTOR3 angle = GetRotateDegree();
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_ADM_DashJumpZX", m_fGravityBallPower, posR, angle, angle,
+				m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, 1.f, m_fFireBallRangeRate );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc42a0: fall, animation end, then the data-driven cancels ( all ground-only here )
+void CX2GUArme_VioletMage::June_AVSI_AVP_DASH_ATTACK_X2_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	JUNE_ARME_G_WALK_CANCEL
+	JUNE_ARME_G_BWALK_CANCEL
+	JUNE_ARME_G_DASH_CANCEL
+	JUNE_ARME_G_ZX_CANCEL
+
+	CommonEventProcess();
+}
+
+#undef JUNE_ARME_ANY_KEY_C
+#undef JUNE_ARME_FLAG_DUE
+#undef JUNE_ARME_IN_WINDOW
+#undef JUNE_ARME_FORWARD_KEY
+#undef JUNE_ARME_BACK_KEY
+#undef JUNE_ARME_G_WALK_CANCEL
+#undef JUNE_ARME_G_BWALK_CANCEL
+#undef JUNE_ARME_G_DASH_CANCEL
+#undef JUNE_ARME_G_ZX_CANCEL
+//}} Iruha : 2026-10-21 // June character pilot Phase CH1j2
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS
