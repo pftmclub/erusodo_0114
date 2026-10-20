@@ -1217,6 +1217,8 @@ Verdict: **two differences ported, one routed, the rest equal.** Read from `323e
 - **In game** (play-test hand-off below): Tree of El Normal as unit 20 `wewe`. The Banthus kill shows "Banthus (Tree of El) 1/1" (quest 160, put in the save,
   backup `db_backup/els_db_20261020_080340_pre_sql.sql`). The clear shows the 11010 line "Defeat Banthus (Tree of El)" before the result screen. Before Q5c the
   clear line did not exist. The hunt line did, wrapped at 500 px, which looks the same for a line this short.
+- **Play-test 2026-10-20: PASSED** (user: both lines seen). Log on md5 dd005622: `QUEST    160 sub 160 NPC_HUNT 1/1 (NPC 5)`, `QUEST    11010 sub 40997 dungeon clear
+  type 8 -> 1, done=1`, then 11010 and 160 completed at Hagers; 0 UNHANDLED, 0 EXCEPTION.
 - **Revert:** `MODS.md` "UPDATE_QUEST_NOT in-game progress text". No data. The only save change is the test quest.
 - **Review:** `kickoffs/quest-system/Q5c-review.md` (two differences ported).
 
