@@ -31180,7 +31180,7 @@ void CX2GUArme_VioletMage::June_InitStateCommon()
 	stateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_DieFrontStart );
 	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_DieFrontFrameMove );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_DieFrontEventProcess );
-	/// June 3202a7d0 ( StateEnd ) runs in CX2GUUser::StateChange for the die states
+	/// June 3202a7d0 ( StateEnd ): DoStateEndStart runs it only for DIE_FRONT / BACK; the riding die is Stage 17
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();

@@ -703,7 +703,8 @@ half is planned there (C9h-2a/2b/3). Two pieces are not effect work and have no 
 - **June-only riding user states** (pilot-char-revamp CH1j, 2026-10-21). Every June class InitStateCommon registers `<prefix>RIDING_SPECIFIC`,
   `_ATTACK_X_READY`, `_ATTACK_X_READY_2` and `_ATTACK_X_END` (June ids 93-96). Their callbacks are CX2GUUser functions March lacks
   (`31fce380` / `31fce3b0` / `31fd40b0`, `31fce410` / `31fce3e0` / `31fd41a0`, `31fce4d0` / `31fce4a0` / `320343e0`, `31fce470` / `31fce440` /
-  `32033fe0`). June also gives `<prefix>RIDING_ATTACK_X` a FrameMove, `32002f70`. Aisha's registration leaves all of these out with a note. This stage
+  `32033fe0`). June also gives `<prefix>RIDING_ATTACK_X` a FrameMove, `32002f70`, and `<prefix>RIDING_DIE` the die states' StateEnd `3202a7d0`
+  (SIEE 18 + clear-all, then `CommonStateEnd`), which March's `DoStateEndStart` copy runs only for DIE_FRONT / BACK (CH1j review). Aisha's registration leaves all of these out with a note. This stage
   ports the states with the riding code that enters them, then adds them to each ported class (`june2017_re/char_arme/ch1j_reg_by_class.tsv` has Aisha's rows).
 
 ### Stage 18: NPC friendship system (june-effect C9h-5, 2026-10-08)

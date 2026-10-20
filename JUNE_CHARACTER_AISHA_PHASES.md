@@ -1183,6 +1183,50 @@ both changed TUs passed before the build.
 
 **In game:** nothing changes (LIVE is undefined). Next: `/x2-phase pilot-char-revamp CH1j review` (Opus 5.5 high). CH1j2 may follow the review.
 
+### CH1j -- Review (2026-10-21, Opus)
+
+**Verdict: PASS, one comment fixed.** Read against fresh Ghidra decompiles and listings of `32cea0c0`, `32ce77b0`, `31fdd490`, `31fc7f50`,
+`31fcbdf0`, `31fd2520`, `31fc7f80`, `31fc7fd0`, `3202a7d0` and six CX2GUUser pairs.
+
+**1. Path simulation.** `charport_regsim.py` on fresh decompiles of both registrars reproduces `ch1j_reg_by_class.tsv` exactly (830 = 830 rows, no diff).
+The new `june2017_re/char_arme/ch1j_review_regcheck.py` parses the C++ per class and matches every June row to the C++ registration of the same table,
+slot by slot, through funcmap and the header's `/// June` comments. Everything matches except the routed gaps listed in item 5. Only two orders differ,
+VP `AVP_ZZfrontZZ_FALL` and DW `ADW_COMBO_ADD_X` / `_X2`; they are distinct ids, so the result is the same.
+- `@32ce8eb0`: unit `+0xaf0` (templet) `+4` = `m_UnitClass` (X2Unit.h:291), compared with 0x17 / 0x71; a NULL templet takes the non-ABM path, the
+  same as the port for any real unit.
+- `@32ceae8b` / `@32ceae9b`: class - 15 == 0 and class - 105 == 0 both jump to `32ceb027`, and 104 goes to `32ceaf6d`, so the Void Princess shares the DM block.
+- `@32ceb6bb`: classes 14 / 104, 105 and 113 have blocks (232-236; 178 + 179; 237, 183, 239, 240). The default (2, 15, 23) goes to `32ceb989`. Each class's last write is June's.
+- The head matches: the cut-in index switch and the sub-index chain. `31fc93d0` is an empty stub.
+
+**2. Ids.** The id -> enumerator map is one-to-one over all 127 ids. 72 = `USI_RIDING_START`. 177 is DM / VP `AVSI_ADM_DASH_COMBO_ZXX` in March's
+`AVSI_DASH_COMBO_Z3up` slot (March X2GUArme_VioletMage.cpp:1231). 237 is DW only and is appended inside the CORE enum block. The shared ids hold:
+166 = `COMBO_Z4up` / `ADM_ZZupZZ` / `AEM_ZZupZZ`, 168 and 171 = the three COMBO_X2 / X3down tables, 178 = `DASH_ATTACK_X` (DW: its own table),
+183 = `DASH_JUMP_ATTACK_X` / `ABM_` / `AVP_DASH_JUMP_X`.
+
+**3. CX2GUUser pairs (June body vs March body).** `31fcc0e0` DamageStandUpEventProcess, `31fc8050` HyperModeStartFuture (`+0x9176`),
+`32030580` RidingOnEventProcess (every branch and state id), `31fcc2b0` DamageRevengeEventProcess and `31fcc260` DamageAirFlyEventProcess are
+identical. `329cc1f0` DashStartFuture is the vcall thunk to vslot `0x5fc`, the same as March's virtual (Arme overrides go to CH1l). `31fd23e0`
+WalkFrameMoveFuture has no Ghidra function and was not read; the other five stand in for it.
+
+**4. New members.** `31fc7f50`: `+0x8bf8` = `m_bDownForce`, `+0x314` = `fDownAccel` = `+0x8fb8` x `+0x31c` `fGAccel`. `31fd2520`: both keys
+held, or the key matching `+0x80f6` bIsRight (Now) -> `nowSpeed.x` = dash speed x `+0x8fbc`; no down-force branch. `31fc7f80` tail
+vslot `0x7dc` = `CommonStateEnd` (March's Arme copy calls the same). `31fcbdf0` / `31fc7fd0` = CommonStateStart + `0x7ec` CreateStepDust.
+`31fdd490` is identical: type 11 shares RSI, the 37-case transcended table, CX2Unit `+0x3c`. Arme's constructor sets 1.1 / 1.2.
+
+**5. What was left out.** All 13 slots have owners: CH1k (`31fcbed0`, `31fcbf80`, `31ffbd70`, `3201b390`, `320004b0`, `320007e0`), CH1j2 (the five
+in its kickoff, which still matches), and Stage 17 (`32002f70`, ids 93-96). Stage 10 has the dance states, and the phoenix run is PvP. **Fix:** June also registers
+`3202a7d0` as `AVSI_RIDING_DIE`'s StateEnd, but `DoStateEndStart` (X2GUUser.cpp:7097-7117) emulates it only for DIE_FRONT / BACK, so
+the C++ comment there was wrong. It now says so, and the riding die is added to the Stage 17 riding-states bullet (the gap is common to every class).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --range 3d0a3c3c^..3d0a3c3c`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. OTHER is the LIVE gate; the deleted lines are CH1h's members (2 in the .h, 2 constructor lines in the .cpp). The comment fix:
+`--worktree --files X2Lib/X2GUArme_VioletMage.cpp`: `1 PASS`, `1 deleted line(s)` (the replaced comment), `RESULT: PASS`.
+
+**Deploy:** none. The fix changes one comment line and leaves the line count the same, so the code CH1j deployed (md5 `a7ed9dd0...`) is unchanged. No build was queued.
+
+**Next:** `/x2-phase pilot-char-revamp CH1j2` (Sonnet 5.5 high). It should re-run `ch1j_review_regcheck.py` after it repoints the five slots.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

@@ -30,6 +30,7 @@ Transcribe five June class callbacks as inert `June_*` members, the CH1e / CH1f 
 | `32ce2cc0` | `AVSI_AVP_DASH_ATTACK_X2` | FrameMove | empty |
 
 None has a Ghidra function: read them with `python june2017_re/funcdis.py --func <va>` (its bounds can merge a neighbour; stop at the first `ret`).
-Then point the registration in `June_InitState` at the new members, replacing the stand-in and the three empty-slot comment lines. Edit with
+Then point the registration in `June_InitState` at the new members, replacing the stand-in and the comment lines for the empty slots (the four in the table). After that,
+`python june2017_re/char_arme/ch1j_review_regcheck.py` must no longer print a MISSING line for any of the five. Edit with
 `bytepatch.py`; the file is CP949. Add funcmap rows (`Char CH1j2`, PORTED) and flip the five `ROUTED` rows. A June quirk gets a JUNE_BUGS row.
 Finish as usual: flagcheck, `build.py --deploy`, Done note, STATUS row, the CH1j2 review kickoff.
