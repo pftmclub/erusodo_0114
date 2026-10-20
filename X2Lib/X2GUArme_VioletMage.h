@@ -155,6 +155,9 @@ class CX2GUArme_VioletMage : public CX2GUUser
 			AVSI_ADW_DASH_JUMP_X2,							/// June script id 239
 			AVSI_ADW_DASH_JUMP_X3,							/// June script id 240
 			AVSI_ADW_ZZZBackZ,								/// June script id 244
+			AVSI_SA_AVP_RUIN_LOOP,							/// June script id 246 ( CH1i names it in June_SetEquippedSkillLevel; its skill phase registers the state )
+			AVSI_SA_AVP_RUIN_END,							/// June script id 247
+			AVSI_SA_ADW_AIR_STUNNER_END,					/// June script id 248
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -855,13 +858,11 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_SI_AV_POWER_ATTACK_EventProcess();				/// June 32cbe620
 		void June_AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove();			/// June 32cb7580 ( a bare jump to CommonFrameMove )
 		void June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess();			/// June 32cbe660
-		/// June 32cc7b30 ( vslot 0x718, class map phase CH1i ): body in CH1i. Until then it answers false, so the MemoRise branch of
-		/// June_ChargeMPFrameMove stays off.
+		/// June 32cc7b30 ( vslot 0x718 ): the MemoRise charge test; the body is in the CH1i block
 		bool June_IsMemoRiseChargeActive();
 
-		/// June-only members the functions above read. The constructor does not set them yet ( CH1 does ); the June constructor
-		/// 32cc99d0 sets +0x9778 to -1 @32ccb01c and leaves +0x9770 as its container's size.
-		int							m_iJune9770;				/// June +0x9770: the size of a container at +0x9760 ( MemoRise entries; CH1h constructs it, CH1i fills it and replaces this member with its size() )
+		/// June-only members the functions above read ( the June constructor 32cc99d0 sets +0x9778 to -1 )
+		std::deque<int>				m_deqJuneMemoRise;			/// June +0x9760: the memorized skill ids ( a VS2010 std::deque<int>; its size is at +0x9770 )
 		CX2EffectSet::Handle		m_hJuneMemoRiseLoop;		/// June +0x9778: the EffectSet_AIsha_MemoRise_Loop handle ( -1 = none ), played by ChargeMPFrameMove, stopped by ChargeMPStart
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1a
 
@@ -904,8 +905,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_HyperModeCameraMove();								/// June 32cd1470 ( USI_HYPER_MODE CameraMove; 32ce1590 calls it )
 		void June_CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ );	/// June 32ce12c0 ( helper )
 		void June_ApplyLimitedManaManagement();							/// June 32ccd4a0 ( helper )
-		void June_Vslot60c();											/// June 32cb8b60 ( vslot 0x60c ): body in CH1i
-		void June_Vslot608();											/// June 32ccda40 ( vslot 0x608 ): body in CH1i
+		void June_Vslot60c();											/// June 32cb8b60 ( vslot 0x60c )
+		void June_Vslot608();											/// June 32ccda40 ( vslot 0x608 )
 		void June_RidingOffStart();										/// June 32cf0f90
 		void June_RidingHyperModeEnd();									/// June 32cf0fa0
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1b
@@ -943,12 +944,15 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		bool June_FlushMpWithRefund( const float fMp_ );				/// June 32cc2b90 ( helper )
 		CX2DamageEffect::CEffect* June_CreateComboFireBall( const int iType_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vRotateDegree_ );	/// June 32ce4180 ( helper )
 
-		/// June +0x96ac: the passive object CH4 builds; only the two values 32cc2b90 reads, CH4 replaces this struct.
-		struct JuneMpRefundData
+		/// June +0x96ac: the passive object CH4 builds ( June's Strong Mind data ); the values 32cc2b90 ( chance, rate ) and 32cce4b0 / 32ccf4e0 read
+		struct JuneMpRefundData : public TimeLimited
 		{
+			float	m_fSpecialActiveSkillRate;
+			float	m_fActiveSkillRate;
 			float	m_fChance;
+			float	m_fMPRestoreRate;
 			float	m_fRate;
-			JuneMpRefundData() : m_fChance( 0.f ), m_fRate( 0.f ) {}
+			JuneMpRefundData() : m_fSpecialActiveSkillRate( 0.f ), m_fActiveSkillRate( 0.f ), m_fChance( 0.f ), m_fMPRestoreRate( 0.f ), m_fRate( 0.f ) { m_fTimeLeft = 0.f; }
 		};
 		JuneMpRefundData*			m_pJuneMpRefund;			/// June +0x96ac ( NULL = no passive )
 		int							m_iJuneBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
@@ -1153,7 +1157,8 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		int							m_iJune975c;			/// 0
 		CX2EffectSet::Handle		m_hJune977c;			/// -1 ( next to m_hJuneMemoRiseLoop )
 		float						m_fJune9780;			/// 0
-		short						m_wJune978c;			/// 0
+		bool						m_bJune978c;			/// 0
+		bool						m_bJune978d;			/// 0; the Mana Flow Overdrive passive is on ( 32cc5b20 )
 		float						m_fJune9790;			/// 1.0
 		float						m_fJune9794;			/// 1.0
 		float						m_fJune9798;			/// 0
@@ -1164,6 +1169,78 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		float						m_fJune8fb8;			/// 1.1: a CX2GUUser member in June, set by this constructor
 		float						m_fJune8fbc;			/// 1.2: a CX2GUUser member in June, set by this constructor
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1h
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June class overrides from vslot 0x600 and their helpers ( class map phase CH1i ); definitions at the end of
+		/// X2GUArme_VioletMage.cpp with the June address of each.
+		void June_CommonStateEndFuture();								/// June 32cb6ea0 ( vslot 0x7d8 )
+		RENDER_HINT June_CommonRender_Prepare();						/// June 32cb6eb0 ( vslot 0x7e8 )
+		bool June_IsValideSkillRidingOn( CX2SkillTree::SKILL_ID eSkill_ID_ );	/// June 32cb8ab0 ( vslot 0x818 )
+		void June_InitEquippedActiveSkillState( bool bOnlySkillLevel );	/// June 32cb9650 ( vslot 0x684 )
+		void June_CommonStateStartFuture();								/// June 32cb9720 ( vslot 0x7c0 )
+		void June_CommonFrameMoveFuture();								/// June 32cb9750 ( vslot 0x7c8 )
+		void June_CommonStateStart();									/// June 32ce7480 ( vslot 0x7c4 )
+		void June_CommonFrameMove();									/// June 32cce4b0 ( vslot 0x7cc )
+		void June_CommonStateEnd();										/// June 32ce5700 ( vslot 0x7dc )
+		void June_HyperModeFrameMove();									/// June 32ce5760 ( vslot 0x600 )
+		void June_Vslot604();											/// June 32ccda90 ( vslot 0x604 ); 32ccda40 ( 0x608 ) is the same body
+		void June_SetShowViewList( bool bShow_ );						/// June 32cc5b00 ( vslot 0x63c )
+		CX2EqipPtr June_GetTransformWeapon() const;						/// June 32cf25a0 ( vslot 0x680 )
+		bool June_CanRidingState();										/// June 32cc7a40 ( vslot 0x628 )
+		bool June_Vslot828();											/// June 32cc7b90 ( vslot 0x828 ): base test 31fd7640 is a stand-in
+		void June_Vslot850();											/// June 32cc7c30 ( vslot 0x850 )
+		void June_Vslot860( CX2GUNPC* pNPC );							/// June 32ccdae0 ( vslot 0x860 )
+		void June_ChangeWeapon( CX2EqipPtr ptrWeapon );					/// June 32cc8980 ( = March ChangeWeapon )
+		void June_RidingOffEnd();										/// June 32cc8ae0 ( vslot 0x610 )
+		void June_Vslot654();											/// June 32cc8cf0 ( vslot 0x654 )
+		void June_UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ );	/// June 32cc8d30 ( vslot 0x638 ), partial
+		bool June_UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList_, CX2Item* const pItemToRemoveInViewList_ );	/// June 32cc9950 ( vslot 0x644 ), partial
+		void June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ );	/// June 32cc9680, partial
+		void June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	/// June 32cc98b0 ( vslot 0x834 )
+		void June_AngorHammerMesh();									/// June 32ce6f40
+		void June_EndHellStoneWindow();									/// June 32cc2ab0
+		void June_ManaflowOverdriveFrameMove();							/// June 32cc5b20
+		void June_ProcessShiningBodySkill();							/// June 32cc26f0
+		void June_ProcessShadowBodySkill();								/// June 32cc2740
+		void June_ProcessEnergeticBodySkill();							/// June 32cc2790
+		bool June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ );	/// June 31fcac90 ( CX2GUUser vslot 0x23c )
+		int June_GetSkillLevel( const int iSkillID_ ) const;			/// June 31fceab0 ( CX2GUUser )
+		const CX2SkillTree::SkillTemplet* June_GetLearnedSkillTemplet( const int iSkillID_ ) const;	/// June 31fcad70 ( CX2GUUser )
+		float June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10 ( CX2GUUser )
+		bool June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 3202d140 ( CX2GUUser )
+		bool June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ );	/// June 3202d3c0 ( CX2GUUser )
+		void June_UserNoStateChangeActionFrameMove();					/// June 32008e40 ( CX2GUUser; March's is pure virtual )
+		void June_NoStateChangeActionFrameMove();						/// June 32ccf9f0 ( vslot 0x80c )
+		bool June_SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	/// June 32ccbca0 ( vslot 0x810 )
+		void June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ );	/// June 3201f850 ( CX2GUUser )
+		void June_SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ );	/// June 32028190 ( CX2GUUser vslot 0x7a8 )
+		void June_SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	/// June 32ccb830 ( vslot 0x7b8 )
+		bool June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32cb97a0 ( vslot 0x7f4, step 509 )
+		bool June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32cebe80 ( vslot 0x7f8, step 510 )
+		void June_SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32ced640 ( vslot 0x7fc, step 511 )
+		void June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32ccf4e0 ( vslot 0x800, step 512 )
+		void June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0 ( CX2GUUser )
+		void June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ );		/// June 31fc93e0 ( CX2GUUser vslot 0x804 )
+		void June_StateChangeBySkillSlot( const int iSlotIndex_ );		/// June 31fd32e0 ( CX2GUUser )
+		void June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ );	/// June 31fdbe70 ( CX2GUUser vslot 0x764 )
+		int June_SelectSkillSlotKind( const CX2UserSkillTree& userSkillTree_, const CX2UserSkillTree::SkillSlotData** ppSlot_, int* piIndex_ );	/// June 32cc7e60 ( class map CH1 )
+		int June_GetMemoRiseEntry( const int* piIndex_ ) const;			/// June 32cc7df0 ( class map CH1 )
+		bool June_MemoRiseContains( const int* piSkillID_ ) const;		/// June 32cc7f10 ( vslot 0x880 )
+		bool June_IsMemorizableSkill( const int* piSkillID_ ) const;	/// June 31fcec40 ( CX2GUUser )
+		bool June_AddMemoRise( const int* piSkillID_, const bool* pbRefresh_ );		/// June 32ceca70 ( class map CH4 )
+		bool June_EraseMemoRise( const int* piIndex_, const bool* pbRefresh_ );		/// June 32ce15a0
+		void June_SweepMemoRise( const bool* pbRefresh_ );				/// June 32ce1770
+
+		/// June-only members the functions above use, named by their June offset ( CX2GUUser members in June unless noted )
+		int							m_iJune8ea0;			/// 0; the skill the lookup chose ( 32cebe80 )
+		int							m_iJune8ea4;			/// 0; its slot index
+		float						m_fJune8ea8;			/// 0; the MP a reserved skill keeps until its state starts
+		float						m_fJune8eb0;			/// 0; the MP the chosen skill costs
+		int							m_iJune7ec0;			/// 0; the Future frame's synced skill id ( +0x8160 in the Now frame )
+		int							m_iJune8160;			/// 0; the Now frame's synced skill id; nothing copies the Future value yet
+		bool						m_abJune90d3[10];		/// false; slot used marks ( 31fc86e0 )
+		bool						m_abJune90d0[3];		/// false
+		bool						m_bJuneAfterImageSaved;	/// false; June after-image +0x1d1 ( 32cc7c30 )
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH1i
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

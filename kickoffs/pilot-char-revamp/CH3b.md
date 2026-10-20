@@ -40,3 +40,7 @@ and effect, and deals damage; casting adds no missing particle / mesh / texture 
 ## Amended by CH0
 
 Written by CH0 (2026-10-20): the split keeps each skill phase near the plan's ~40-state-function limit.
+
+## From CH1i (2026-10-21)
+
+- The enumerator `AVSI_SA_ADW_AIR_STUNNER_END` ( June script id 248 ) exists since CH1i ( `June_SetEquippedSkillLevel` names it ); register the state, do not add the enumerator again.

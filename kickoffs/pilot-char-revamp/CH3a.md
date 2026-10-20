@@ -43,3 +43,7 @@ Written by CH0 (2026-10-20): the split keeps each skill phase near the plan's ~4
 ## From CH1h (2026-10-20)
 
 The class map now lists seven functions CH1h found under the default bucket: Lightning Shower `32ccd320` (Start, thunk `32cf2620`), `32ccd400` (End, `32cf2630`), `32cdf240` (FrameMove, `32cf2a90`; states 221 / 222, @`32ceeb13`); Circle Flame `32cd75f0` / `32cd7800` (FrameMove / End, `32cf2b60` / `32cf2b70`, state 186 @`32cefcbb`); Hell Drop `32cd9af0` (control FrameMove, `32cf2ad0`, states 187..195 @`32cef319`) and `32cf1a80` (its UFO `KObserverPtr` getter: `m_optrUFOGameUnit.GetObservable()`, no port).
+
+## From CH1i (2026-10-21)
+
+- The enumerators `AVSI_SA_AVP_RUIN_LOOP` and `AVSI_SA_AVP_RUIN_END` ( June script ids 246 / 247 ) exist since CH1i ( `June_SetEquippedSkillLevel` names them ); register the states, do not add the enumerators again. Lightning Shower's two loop states are the March enumerators `AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP / _HYPER_LOOP` ( June ids 221 / 222 ).

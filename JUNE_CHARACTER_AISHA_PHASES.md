@@ -1038,6 +1038,37 @@ Build: `DEPLOY OK: X2_offline.exe is 25,616,384 B, dated 2026-10-21 00:39:09, md
 
 Records: funcmap `32cc5ca0`, `322deb80` (ROUTED CH4) and `32cc99d0` amended, new row `32cc7df0`; "From the CH1h review" notes in `CH1i.md` and `CH4.md`. No JUNE_BUGS row. No drift. **In game:** nothing (inert). Next: CH1i.
 
+### CH1i - Done (2026-10-21, Sonnet 5.5)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (no new flag; `Always.h` untouched), the commit "Character pilot Phase CH1i". **Of the 45 class-map rows, 38 became `CX2GUArme_VioletMage::June_*` members, 4 are partial or stand-ins (below), 3 are n/a** (`32ce16d3` is a decompiler split of `32ce15a0`'s tail; `32cf1c20` / `32cf1c40` are deque iterator constructors). Also ported because the rows call them: the class helpers `32ce15a0` (erase entry), `32cc7e60` (pressed-slot kind, CH1), `32cc7df0` (entry i, CH1), `32ceca70` (memorize a skill, CH4), and the CX2GUUser pieces June's class code reaches, as Arme-local members (the base has no March host): `31fcac90` `31fceab0` `31fcad70` `32007b10` `3202d140` `3202d3c0` `32008e40` `3201f850` / `32028190` `31fd32e0` `31fdbe70` `31fc86e0` `31fc93e0` `31fcec40`. 60 funcmap rows `Char CH1i`.
+
+| Group | June functions |
+|---|---|
+| Skill use ( the 509-512 split ) | `32cb97a0` event process, `32cebe80` lookup, `32ced640` use, `32ccf4e0` cooldown / MP, `32ccbca0` no-stage-change, `32ccf9f0` action frame move, `32ccb830` skill levels |
+| Common overrides | `32ce7480` start, `32cce4b0` frame move, `32ce5700` end, `32cb9720` start future, `32cb9750` frame move future, `32cb6ea0` end future, `32cb6eb0` render prepare, `32ce5760` hyper frame move, `32cb9650` equipped skill state |
+| MemoRise | `32cc7b30` charge test, `32cc7f10` contains, `32ce1770` sweep, plus the four above; **`m_iJune9770` is gone: `std::deque<int> m_deqJuneMemoRise`** |
+| Transform weapon / riding | `32cc8980` `32cc8ae0` `32cc8cf0` `32cc8d30` `32cc9950` `32cc5b00` `32cf25a0` `32cb8b60` / ( `32ccda90` = `32ccda40` ) `32cc7a40` `32cb8ab0` |
+| Other | `32cc2ab0` Hell Stone window, `32cc5b20` Mana Flow Overdrive, `32cc26f0` / `2740` / `2790` bodies, `32ce6f40` Angor Hammer, `32cc7c30` after-image, `32ccdae0` UFO factor, `32cc9680` / `32cc98b0` cut-in, `32cc7b90` |
+
+**What the transcription settled** (each with its June address in the code): the lookup keeps March's checks in March's order and adds June's kind (`32cc7e60`), two skill-900 checks, the clamped cool time (`min( slot cool time, actual cool time )`) and `m_fJune8ea8 + m_fJune8eb0 > NowMp`. Mode `+0x96e8` is the skill-use kind: 1 slot, 2 memorize (cost x skill 22412's `SA_COOLTIME_3`), 3 cast the first memorized skill (Skill5 key on an empty slot). `+0x8ea0 / 4 / 8`, `+0x8eb0` are the chosen skill, its slot, the reserved MP and the MP to spend. State ids of `SetEquippedSkillLevel` were read from `32cede00` (`june2017_re` scan: `push name; push id; call 31fd89b0`): 186 `CIRCLE_FLAME`, 187-196 `HELL_DROP_CONTROL_IDLE..FIRE`, 207 `ENERGY_DRAIN_SUCCESS`, 209 / 210 `GUILLOTINE_PRESS_LOOP / END`, 217 / 218 and 221 / 222 the Meteor / Lightning Shower loops, 246 / 247 / 248 `RUIN_LOOP / END`, `AIR_STUNNER_END`. **Three enumerators were added** for the last three, which March has not got (`AVSI_SA_AVP_RUIN_LOOP`, `_RUIN_END`, `AVSI_SA_ADW_AIR_STUNNER_END`, script ids 246-248): CH3a / CH3b register the states and must not add them again. `JuneMpRefundData` (CH1c) now is June's Strong Mind object: it derives `TimeLimited` and has the rate fields `32cce4b0` / `32ccf4e0` read.
+
+**Stand-ins and gaps (all need Opus; nothing guessed):**
+1. `June_Vslot828` ( `32cc7b90` ): its base test `31fd7640` ( the common wait / move / jump / riding state list, with an unidentified member at `+0x7d04` ) is not ported, so it answers false.
+2. `June_UpdateEquipCollisionData` ( `32cc8d30` ): March's walk plus the transform weapon's boxes; June's riding pet part ( `32d2eb50`, pet `+0x1bc / +0x238 / +0x478` ) and the item-type anim array choice ( equip `+0x544 / +0x584` ) are missing.
+3. `June_UpdateEquipViewListInfo` ( `32cc9950` ): while transformed June queues the change ( `3207b5d0` ); here it is dropped. June's signature takes 8-byte objects and a third int.
+4. `June_ShowActiveSkillCutInAndLight` ( `32cc9680` ): the cut-in item override ( `31fd8a50`, a unit map at `+0x8e58` ) and the event `0x8b3` swap are missing.
+5. `3202d3c0`: the dungeon attribute bit `0xd` ( `327d9df0` ) has no March home; read as false.
+6. The June sync field ( Now `+0x8160`, Future `+0x7ec0` ) is `m_iJune8160` / `m_iJune7ec0`: nothing copies Future to Now yet ( the frame data is March's ).
+7. `June_Vslot860` reads NPC `+0x874c` as 0; `June_UnitFlag3c` is still the stand-in.
+8. `SetEquippedSkillLevel` writes the state data directly; June's dirty-state batch ( `3207c1a0` / `31fdf970` ) has no map form.
+9. **Not ported, routed to CH4 with `322deb80`:** `322f4740`, the CX2Game per-frame memorize-slot HUD whose throttle is the `+0xb38` float that `322cc030` sets ( `June_SetGameFloatB38` stays a no-op ).
+
+**Findings.** JUNE_BUGS 376 ( Shadow Body shows skill 2218's name ), 377 ( the MemoRise sweep skips the entry after an erase ), 378 ( negative MemoRise index ). `32ccda90` is the checklist's "spec A reader"; the real reader is `32ccdae0`.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 31 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. The 31 deleted lines are CH1a / CH1b / CH1h's own stand-ins, inside the flag ( `June_IsMemoRiseChargeActive`, the empty `June_Vslot60c / 608`, `m_iJune9770` and its five uses, `m_wJune978c` -> two bools, the `JuneMpRefundData` struct ). `cl -Zs` of the `.cpp` under the US_SERVICE defines: 0 errors, 0 warnings in the file.
+Build: `DEPLOY OK: X2_offline.exe is 25,635,840 B, dated 2026-10-21 01:59:05, md5 15bef82779c9dc7af89a74fcf127fcd0, equal to X2/US_SERVICE/x2.exe (2026-10-21 01:58:58); built at main 567de9f7 + 2 uncommitted code file(s).`
+
+**In game:** nothing ( inert ). Review: `kickoffs/pilot-char-revamp/CH1i-review.md` ( Opus ). Next: the CH1i review, then CH1.
 
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 

@@ -21311,7 +21311,7 @@ void CX2GUArme_VioletMage::June_WaitEventProcess()
 		bool bChargeTest = false;
 		if( 0.5f <= m_fMPChargeWaitTime )
 		{
-			if( (unsigned int)m_iJune9770 > 2 && GetNowMp() == GetMaxMp() )
+			if( m_deqJuneMemoRise.size() > 2 && GetNowMp() == GetMaxMp() )
 			{
 			}
 			else if( g_pX2Game->GetSlideShot()->IsPresentNow() == false )
@@ -22519,7 +22519,7 @@ void CX2GUArme_VioletMage::June_ChargeMPEventProcess()
 	{
 		// Stay in the charge only while MP is not full ( or +0x9770 is below 3 ) and no slide show plays; the CX2Game +0xc20 byte ends it too.
 		bool bLeave = true;
-		if( GetNowMp() != GetMaxMp() || (unsigned int)m_iJune9770 < 3 )
+		if( GetNowMp() != GetMaxMp() || m_deqJuneMemoRise.size() < 3 )
 		{
 			if( g_pX2Game->GetSlideShot()->IsPresentNow() == false )
 			{
@@ -22646,11 +22646,7 @@ void CX2GUArme_VioletMage::June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess()
 	CommonEventProcess();
 }
 
-// June 32cc7b30 ( vslot 0x718 ): body in CH1i. False until then.
-bool CX2GUArme_VioletMage::June_IsMemoRiseChargeActive()
-{
-	return false;
-}
+// June 32cc7b30 ( vslot 0x718 ): the body is in the CH1i block at the end of the file
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1a
 
 //{{ Iruha : 2026-10-20 // June character pilot Phase CH1b ( JUNE_CHARACTER_AISHA_PHASES.md )
@@ -23515,14 +23511,7 @@ void CX2GUArme_VioletMage::June_ApplyLimitedManaManagement()
 	}
 }
 
-// June 32cb8b60 ( vslot 0x60c ) and 32ccda40 ( vslot 0x608 ): Aisha's own virtuals, class map phase CH1i. Empty until then.
-void CX2GUArme_VioletMage::June_Vslot60c()
-{
-}
-
-void CX2GUArme_VioletMage::June_Vslot608()
-{
-}
+// June 32cb8b60 ( vslot 0x60c ) and 32ccda40 ( vslot 0x608 ): the bodies are in the CH1i block at the end of the file
 
 //AVSI_RIDING_OFF
 // June 32cf0f90: a bare jump to vslot 0x60c
@@ -28197,7 +28186,7 @@ void CX2GUArme_VioletMage::June_ReInit( bool bRandom, int startPosIndex )
 // June 32ce1900: clears the MemoRise container ( +0x9760 ), then redraws the slots for my unit
 void CX2GUArme_VioletMage::June_ClearMemoRise( const bool* pbRefresh_ )
 {
-	m_iJune9770 = 0;
+	m_deqJuneMemoRise.clear();
 
 	if( true == *pbRefresh_ && true == IsMyUnit() )
 		June_GameRefreshMemoRise();
@@ -28206,7 +28195,7 @@ void CX2GUArme_VioletMage::June_ClearMemoRise( const bool* pbRefresh_ )
 // June 32cc2880: the MemoRise container is empty ( read by 322deb80 )
 bool CX2GUArme_VioletMage::June_IsMemoRiseEmpty() const
 {
-	return 0 == m_iJune9770;
+	return m_deqJuneMemoRise.empty();
 }
 
 // June 32cc98e0: March's AddStoneWall, the record built field by field ( uid, then the time left )
@@ -28618,13 +28607,14 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 	m_fJune9758 = 0.f;
 	m_iJune975c = 0;
 
-	m_iJune9770 = 0;
+	m_deqJuneMemoRise.clear();
 	m_hJuneMemoRiseLoop = INVALID_EFFECTSET_HANDLE;
 	m_hJune977c = INVALID_EFFECTSET_HANDLE;
 	m_fJune9780 = 0.f;
 	m_fJuneZZXXLoopTime = 0.f;
 	m_hJuneDashJumpChargeEffect = INVALID_EFFECTSET_HANDLE;
-	m_wJune978c = 0;
+	m_bJune978c = false;
+	m_bJune978d = false;
 	m_fJune9790 = 1.f;
 	m_fJune9794 = 1.f;
 	m_fJune9798 = 0.f;
@@ -28655,6 +28645,17 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 
 	m_fJune8fb8 = 1.1f;
 	m_fJune8fbc = 1.2f;
+	m_iJune8ea0 = 0;
+	m_iJune8ea4 = 0;
+	m_fJune8ea8 = 0.f;
+	m_fJune8eb0 = 0.f;
+	m_iJune7ec0 = 0;
+	m_iJune8160 = 0;
+	for( int iJuneSlot = 0; iJuneSlot < 10; ++iJuneSlot )
+		m_abJune90d3[iJuneSlot] = false;
+	for( int iJuneSlot = 0; iJuneSlot < 3; ++iJuneSlot )
+		m_abJune90d0[iJuneSlot] = false;
+	m_bJuneAfterImageSaved = false;
 }
 
 // June 32ce4600: the destructor body ( 32cf2d50 is only its scalar deleting wrapper ); the implicit member destructors are not repeated
@@ -28729,9 +28730,1750 @@ void CX2GUArme_VioletMage::June_Destructor()
 		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hJune96dc );
 
 	m_vecJune9848.clear();
-	m_iJune9770 = 0;
+	m_deqJuneMemoRise.clear();
 }
 
 //}} Iruha : 2026-10-20 // June character pilot Phase CH1h
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
+// Inert June class overrides from vslot 0x600 and their helpers ( class map phase CH1i ); nothing calls them until CH1.
+
+namespace
+{
+	// June skill ids ( june2017_re/char_arme/ch0_state_skill.tsv )
+	const int JUNE_CH1I_ETC_WS_COMMON_LOVE					= 900;
+	const int JUNE_CH1I_SA_AHM_METEOR_SHOWER				= 22007;
+	const int JUNE_CH1I_SA_AEM_BLAZE_STEP					= 22010;
+	const int JUNE_CH1I_SA_AEM_LIGHTNING_SHOWER				= 22012;
+	const int JUNE_CH1I_SA_ADM_HELL_STONE					= 22017;
+	const int JUNE_CH1I_SA_AVP_HELL_DROP					= 22020;
+	const int JUNE_CH1I_SA_ABM_GUILLOTINE_PRESS				= 22024;
+	const int JUNE_CH1I_SA_AVP_RUIN							= 22044;
+	const int JUNE_CH1I_SA_ADW_AIR_STUNNER					= 22045;
+	const int JUNE_CH1I_A_AISHA_TELEPORT					= 22200;
+	const int JUNE_CH1I_A_AHM_MEDITATION					= 22203;
+	const int JUNE_CH1I_A_AEM_CIRCLE_FLAME					= 22204;
+	const int JUNE_CH1I_A_AEM_ELEMENTAL_BODY				= 22205;
+	const int JUNE_CH1I_A_AVP_SHADOW_BODY					= 22210;
+	const int JUNE_CH1I_A_ABM_ENERGY_DRAIN					= 22213;
+	const int JUNE_CH1I_A_ADW_ENERGETIC_BODY				= 22215;
+	const int JUNE_CH1I_A_AISHA_TELEPORT_UPGRADE			= 22216;
+	const int JUNE_CH1I_P_AEM_ELEMENTAL_FRIENDSHIP			= 22402;
+	const int JUNE_CH1I_P_ADW_MANAFLOW_OVERDRIVE			= 22410;
+	const int JUNE_CH1I_P_AEM_OPEN_MIND						= 22412;
+	const int JUNE_CH1I_P_AEM_MAGICAL_BODY					= 22413;
+	const int JUNE_CH1I_P_AVP_DARK_DEAL						= 22415;
+	const int JUNE_CH1I_P_ADW_TIME_LIMIT					= 22417;
+	const int JUNE_CH1I_A_SHADOW_BODY_NAME					= 2218;		// June shows this id's name for Shadow Body ( 32ccf9f0 ), not 22210 ( JUNE_BUGS )
+
+	// June user action ids that have no March enumerator ( CX2GUUser::USER_ACTION_ID )
+	const int JUNE_CH1I_UAI_MEMO_RISE_START					= 0x24;
+	const int JUNE_CH1I_UAI_ERASE_BTI_420					= 0x25;
+	const int JUNE_CH1I_UAI_CREST_OF_TIME_REVIVAL			= 0x29;
+	const int JUNE_CH1I_UAI_MAGNIFYING_THIEF_USE_ITEM		= 0x36;
+	const int JUNE_CH1I_UAI_BUFF_FACTOR_824					= 0x37;
+	const int JUNE_CH1I_UAI_BUFF_FACTOR_825					= 0x38;
+	const int JUNE_CH1I_UAI_BUFF_FACTOR_827					= 0x39;
+
+	/// June's pop-up line: font 3, white text with a black outline, centred
+	void June_PushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+
+	/// June 31fd0570: training game ( 0x12 ) or the photo zone ( 0x1a, June-only ); the photo zone has no March state
+	bool June_IsTrainingOrPhotozone()
+	{
+		return CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID();
+	}
+
+	/// June's state-data byte +0x11 ( 3208e430 ): the skill slot states; same walk as X2GUUser.cpp IsJuneSkillSlotState
+	bool June_IsSkillSlotState( const int iStateID_ )
+	{
+		for( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+		{
+			if( _CONST_GUUSER_::aNormalSkillStateID[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateID[i] == iStateID_ ||
+				_CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iStateID_ || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iStateID_ )
+				return true;
+		}
+
+		return false;
+	}
+}
+
+// June 32cb6ea0: a bare jump to the base
+void CX2GUArme_VioletMage::June_CommonStateEndFuture()
+{
+	CX2GUUser::CommonStateEndFuture();
+}
+
+// June 32cb6eb0: the base, handed back unchanged
+RENDER_HINT CX2GUArme_VioletMage::June_CommonRender_Prepare()
+{
+	return CX2GUUser::CommonRender_Prepare();
+}
+
+// June 32cb8ab0 ( vslot 0x818 ): while riding, June's Elemental Body ( 0x56bd ) is refused; the id goes through the upgrade map first
+bool CX2GUArme_VioletMage::June_IsValideSkillRidingOn( CX2SkillTree::SKILL_ID eSkill_ID_ )
+{
+	if( true == GetRidingOn() )
+		return JUNE_CH1I_A_AEM_ELEMENTAL_BODY != static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( eSkill_ID_ ) );
+
+	return true;
+}
+
+// June 32cb9720
+void CX2GUArme_VioletMage::June_CommonStateStartFuture()
+{
+	CX2GUUser::CommonStateStartFuture();
+
+	if( 1 == m_iJune975c )
+	{
+		if( CX2SkillTree::SI_NONE == GetNowStateSkillID() )
+		{
+			m_iJune9754 = 0;
+			m_iJune975c = 0;
+		}
+	}
+}
+
+// June 32cb9750
+void CX2GUArme_VioletMage::June_CommonFrameMoveFuture()
+{
+	CX2GUUser::CommonFrameMoveFuture();
+
+	if( 0.0f < m_fJune9758 )
+		m_fJune9758 = m_fJune9758 - m_fElapsedTime;
+
+	if( m_fJune9758 < 0.0f )
+		m_fJune9758 = 0.0f;
+}
+
+// June 32ce5700: the sub attack list is cleared first, then the +0x96dc mesh is destroyed, then the base runs ( a tail jump )
+void CX2GUArme_VioletMage::June_CommonStateEnd()
+{
+	m_SubAttackListSet.clear();
+
+	if( m_hJune96dc != INVALID_MESH_INSTANCE_HANDLE )
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hJune96dc );
+
+	CX2GUUser::CommonStateEnd();
+}
+
+// June 32ce5760: March's MODIFY_RIDING_PET_AWAKE call with its default sound argument
+void CX2GUArme_VioletMage::June_HyperModeFrameMove()
+{
+	June_CommonHyperModeFrameMove( 0.47f, 0.63f, false );
+}
+
+// June 32cc5b00 ( vslot 0x63c ): a transformed Aisha keeps her view list hidden
+void CX2GUArme_VioletMage::June_SetShowViewList( bool bShow_ )
+{
+	if( true == IsTransformed() && true == bShow_ )
+		return;
+
+	CX2GUUser::SetShowViewList( bShow_ );
+}
+
+// June 32cb8b60 ( vslot 0x60c ): a state start, then the Magical Makeup transform value when the buff runs and Aisha is not transformed
+void CX2GUArme_VioletMage::June_Vslot60c()
+{
+	CommonStateStart();
+
+	if( true == HaveThisBuff( BTI_SI_SA_ABM_MAGICAL_MAKEUP ) && false == IsTransformed() )
+		SetSpecificValueByBuffTempletID( BTI_SI_SA_ABM_MAGICAL_MAKEUP );
+}
+
+// June 32ccda90 ( 0x604 ) = 32ccda40 ( 0x608 ): the +0x952c byte is read as JuneIsHyperModeState(), 31ffda00 = ShowMinorParticleHyperModeTrace
+void CX2GUArme_VioletMage::June_Vslot604()
+{
+	CommonStateEnd();
+
+	if( true == JuneIsHyperModeState() )
+	{
+		ShowMinorParticleHyperModeTrace();
+		ApplyHyperModeBuff();
+		June_ApplyLimitedManaManagement();
+	}
+
+	m_iLastStateHyperModeCount = 0;
+}
+
+void CX2GUArme_VioletMage::June_Vslot608()
+{
+	June_Vslot604();
+}
+
+// June 32cf25a0 ( vslot 0x680 ): the transform weapon, copied out
+CX2EqipPtr CX2GUArme_VioletMage::June_GetTransformWeapon() const
+{
+	return m_ptrTransformWeapon;
+}
+
+// June 32ce6f40: the Void Princess' Angor Hammer mesh in the right hand ( as March's ADW staff block )
+void CX2GUArme_VioletMage::June_AngorHammerMesh()
+{
+	if( m_hJune96dc != INVALID_MESH_INSTANCE_HANDLE )
+	{
+		m_SubAttackListSet.clear();
+		if( m_hJune96dc != INVALID_MESH_INSTANCE_HANDLE )
+			g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hJune96dc );
+	}
+
+	if( NULL != GetUnit() && CX2Unit::UC_ARME_VOID_PRINCESS == GetUnit()->GetClass() )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"Mesh_AVP_AngorHammer", GetPos(), GetRotateDegree(), GetRotateDegree() );
+		if( NULL != pMeshInst )
+		{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+			pMeshInst->SetPerFrameSimulation( true );
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+			m_hJune96dc = pMeshInst->GetHandle();
+			pMeshInst->SetBoundingRadius( 0.0f );
+
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+			pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+			pMeshInst->OnFrameMove( g_pKTDXApp->GetTime(), 0.01f );
+
+			SetSubAttackList( pMeshInst->GetXSkinAnim() );
+		}
+	}
+}
+
+// June 32ce7480 ( vslot 0x7c4 ): AVSI_ABM_COMBO_Z1..Z3 / AVSI_DARK_MAGICIAN_DASH_COMBO_Z2a are March's AVSI_COMBO_Z1..Z3 / AVSI_DASH_COMBO_Z2a
+void CX2GUArme_VioletMage::June_CommonStateStart()
+{
+	switch( GetNowStateID() )
+	{
+	case AVSI_COMBO_Z1:
+	case AVSI_COMBO_Z2:
+	case AVSI_COMBO_Z3:
+	case AVSI_COMBO_Z3up:
+	case AVSI_DASH_COMBO_Z1:
+	case AVSI_DASH_COMBO_Z2:
+	case AVSI_DASH_COMBO_Z2a:
+	case AVSI_JUMP_ATTACK_Z:
+	case AVSI_AVP_ZZfrontZ:
+		June_AngorHammerMesh();
+		break;
+	}
+
+	switch( GetNowStateID() )
+	{
+	case AVSI_HELL_DROP_CONTROL_IDLE:
+	case AVSI_HELL_DROP_CONTROL_LEFT:
+	case AVSI_HELL_DROP_CONTROL_RIGHT:
+	case AVSI_HELL_DROP_CONTROL_UP:
+	case AVSI_HELL_DROP_CONTROL_DOWN:
+	case AVSI_HELL_DROP_CONTROL_UP_LEFT:
+	case AVSI_HELL_DROP_CONTROL_UP_RIGHT:
+	case AVSI_HELL_DROP_CONTROL_DOWN_LEFT:
+	case AVSI_HELL_DROP_CONTROL_DOWN_RIGHT:
+		if( false == m_bIsHellDropTimerStart )
+		{
+			m_TimerUFOControl.restart();
+			m_bIsHellDropTimerStart = true;
+			m_fHellDropCreateEffectCooltime = _CONST_AISHA_::CREATE_HELL_DROP_DAMAGE_EFFECT_START_TIME;
+		}
+		break;
+	}
+
+	CX2GUUser::CommonStateStart();
+
+	// the other units read June's synced member ( Now +0x8160 )
+	const int iJuneMemoRiseSkillID = ( true == IsMyUnit() ) ? m_iJune9754 : m_iJune8160;
+
+	if( 0 < static_cast<int>( GetNowStateSkillID() ) && static_cast<unsigned int>( GetNowStateSkillID() ) == static_cast<unsigned int>( iJuneMemoRiseSkillID ) )
+	{
+		const float fSpecializationScale = ( GetCharacterSpecializationA() + 1.0f ) * 0.7f;
+		const float fNewPowerRate = m_fNowStatePowerRate * fSpecializationScale;
+		if( fNewPowerRate != m_fNowStatePowerRate )
+			m_fNowStatePowerRate = fNewPowerRate;
+
+		m_iJune975c = 1;
+
+		if( true == June_IsSkillSlotState( GetNowStateID() ) )
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AIsha_MemoRise_Start", this );
+	}
+}
+
+// June 32cc2ab0: the Hell Stone recast window ends and the cooldown starts, less the time the window already ran
+void CX2GUArme_VioletMage::June_EndHellStoneWindow()
+{
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_ADM_HELL_STONE );
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID, true );
+	if( NULL == pSkillTemplet || NULL == GetUnit() )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	int iSkillLevel = accessUserSkillTree.GetSkillLevel( eSkillID, false, 0, true );
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	const float fWindowUsed = static_cast<float>( 5.0 - m_fJune96e0 );
+	m_fJune96e0 = 0.0f;
+	m_iJune96e4 = 0;
+
+	float fCoolTimeLeft = GetActualCoolTime( pSkillTemplet, iSkillLevel ) - fWindowUsed;
+	if( fCoolTimeLeft < 0.0f )
+		fCoolTimeLeft = 0.0f;
+
+	accessUserSkillTree.SetSkillCoolTimeLeft( eSkillID, fCoolTimeLeft );
+}
+
+// June 32cc5b20 ( ADW Mana Flow Overdrive ): the buff's stack count follows the missing MP in tenths
+void CX2GUArme_VioletMage::June_ManaflowOverdriveFrameMove()
+{
+	if( true == m_bJune978d && 0.0078125f < GetMaxMp() )
+	{
+		const int iFilledTenths = static_cast<int>( floor( GetNowMp() / GetMaxMp() * 10.0f + 0.5f ) );
+		const char cMissingTenths = static_cast<char>( 10 - static_cast<char>( iFilledTenths ) );
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_P_ADW_MANAFLOW_OVERDRIVE ) );
+
+		BUFF_TEMPLET_ID eBuffTempletID = BTI_NONE;	// June 3229a3d0: the first buff factor's templet id
+		if( NULL != pSkillTemplet )
+		{
+			CX2BuffFactorPtr ptrBuffFactor = pSkillTemplet->GetCloneBuffFactorPtr( 0 );
+			if( NULL != ptrBuffFactor )
+				eBuffTempletID = ptrBuffFactor->GetBuffTempletID();
+		}
+
+		if( static_cast<char>( GetBuffAccumulationCountNowInFactor( eBuffTempletID ) ) != cMissingTenths &&
+			NULL != pSkillTemplet && false == pSkillTemplet->m_vecBuffFactorID.empty() )
+		{
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+			SetBuffAccumulationCount( pSkillTemplet->m_vecBuffFactorID[0], cMissingTenths, June_GetSkillLevel( JUNE_CH1I_P_ADW_MANAFLOW_OVERDRIVE ), 0 );
+		}
+	}
+}
+
+// June 32cce4b0 ( vslot 0x7cc )
+void CX2GUArme_VioletMage::June_CommonFrameMove()
+{
+	CX2GUUser::CommonFrameMove();
+
+	if( m_ahEffectSet[EffSetID_June2] != INVALID_EFFECTSET_HANDLE && 0.0f < m_fJune9780 )
+	{
+		m_fJune9780 = m_fJune9780 - m_fElapsedTime;
+
+		CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( m_ahEffectSet[EffSetID_June2] );
+		if( 0.0f <= m_fJune9780 )
+		{
+			float fPowerRateScale = 0.33f;
+			if( m_fJune9780 < 0.33f )
+				fPowerRateScale = m_fJune9780;
+
+			fPowerRateScale = fPowerRateScale / 0.33f;
+			if( NULL != pEffectSetInstance )
+				pEffectSetInstance->SetPowerRateScale( fPowerRateScale );
+		}
+		else
+		{
+			m_fJune9780 = 0.0f;
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_ahEffectSet[EffSetID_June2] );
+		}
+	}
+
+	if( NULL != m_pJuneMpRefund )
+		m_pJuneMpRefund->OnFrameMove( m_fTime, m_fElapsedTime );
+
+	for( int i = 0; i < static_cast<int>( m_vecStoneWallData.size() ); i++ )
+	{
+		StoneWallData& stoneWallData = m_vecStoneWallData[i];
+		stoneWallData.OnFrameMove( m_fTime, m_fElapsedTime );
+
+		if( stoneWallData.m_fTimeLeft <= 0.f )
+		{
+			if( NULL != g_pX2Game )
+			{
+				CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( static_cast<int>( stoneWallData.m_NPCUID ) );
+				if( NULL != pNPC )
+					pNPC->SetNowHp( 0.f );
+			}
+
+			m_vecStoneWallData.erase( m_vecStoneWallData.begin() + i );
+			--i;
+		}
+	}
+
+	// June tests the transcendence memo of Hell Drop where March tests memo 21
+	const int iHellDropSkillID = JUNE_CH1I_SA_AVP_HELL_DROP;
+	if( iHellDropSkillID != GetJuneTranscendenceMemoSkillID( iHellDropSkillID ) && NULL != GetUFO() )
+	{
+		bool bSkipUFO = June_IsSkillSlotState( GetNowStateID() );
+		switch( GetNowStateID() )
+		{
+		case AVSI_HELL_DROP_CONTROL_IDLE:
+		case AVSI_HELL_DROP_CONTROL_LEFT:
+		case AVSI_HELL_DROP_CONTROL_RIGHT:
+		case AVSI_HELL_DROP_CONTROL_UP:
+		case AVSI_HELL_DROP_CONTROL_DOWN:
+		case AVSI_HELL_DROP_CONTROL_UP_LEFT:
+		case AVSI_HELL_DROP_CONTROL_UP_RIGHT:
+		case AVSI_HELL_DROP_CONTROL_DOWN_LEFT:
+		case AVSI_HELL_DROP_CONTROL_DOWN_RIGHT:
+		case AVSI_HELL_DROP_CONTROL_FIRE:
+			bSkipUFO = true;
+			break;
+		}
+
+		if( false == bSkipUFO )
+		{
+			if( NULL == GetUFO()->GetNPCAI() || CX2NPCAI::NAT_ALLY != GetUFO()->GetNPCAI()->GetAIType() ||
+				static_cast<CX2AllyNPCAI*>( GetUFO()->GetNPCAI() )->GetAllyUnitUID() == GetUnitUID() )
+			{
+				if( NULL == GetUFO()->GetGageData() || GetUFO()->GetNowHp() > 0.f )
+					GetUFO()->StateChange( _CONST_AISHA_::UFO_DYING.c_str(), true );
+			}
+
+			ResetUFO();
+		}
+	}
+
+	if( m_pMPChargeA != NULL && m_pMPChargeB != NULL && m_pMPChargeC != NULL )
+	{
+		if( m_pMPChargeA->GetRenderParam()->color.a > 0.0f )
+		{
+			if( m_FrameDataNow.syncData.nowState == AVSI_CHARGE_MP )
+			{
+				m_pMPChargeA->GetMatrix().Move( GetMatrix().GetPos() );
+				m_pMPChargeA->GetMatrix().Rotate( GetMatrix().GetRotate() );
+			}
+			else
+			{
+				m_pMPChargeA->GetRenderParam()->color.a = m_pMPChargeA->GetRenderParam()->color.a - (m_fElapsedTime * 2.0f);
+			}
+			m_pMPChargeA->OnFrameMove( m_fTime, m_fElapsedTime );
+		}
+		else
+		{
+			m_pMPChargeA->Stop();
+		}
+		if( m_pMPChargeB->GetRenderParam()->color.a > 0.0f )
+		{
+			if( m_FrameDataNow.syncData.nowState == AVSI_CHARGE_MP )
+			{
+				m_pMPChargeB->GetMatrix().Move( GetMatrix().GetPos() );
+				m_pMPChargeB->GetMatrix().Rotate( GetMatrix().GetRotate() );
+			}
+			else
+			{
+				m_pMPChargeB->GetRenderParam()->color.a = m_pMPChargeB->GetRenderParam()->color.a - (m_fElapsedTime * 2.0f);
+			}
+			m_pMPChargeB->OnFrameMove( m_fTime, m_fElapsedTime );
+		}
+		else
+		{
+			m_pMPChargeB->Stop();
+		}
+		if( m_pMPChargeC->GetRenderParam()->color.a )
+		{
+			if( m_FrameDataNow.syncData.nowState == AVSI_CHARGE_MP )
+			{
+				m_pMPChargeC->GetMatrix().Move( GetMatrix().GetPos() );
+				m_pMPChargeC->GetMatrix().Rotate( GetMatrix().GetRotate() );
+			}
+			else
+			{
+				m_pMPChargeC->GetRenderParam()->color.a = m_pMPChargeC->GetRenderParam()->color.a - (m_fElapsedTime * 2.0f);
+			}
+			m_pMPChargeC->OnFrameMove( m_fTime, m_fElapsedTime );
+		}
+		else
+		{
+			m_pMPChargeC->Stop();
+		}
+	}
+
+	if( m_pEvasionAttackAnim != NULL )
+		m_pEvasionAttackAnim->OnFrameMove( m_fTime, m_fElapsedTime );
+
+	if( m_pComboX3Up1 != NULL )
+	{
+		float fAlpha = m_pComboX3Up1->GetMaxAnimationTime() - m_pComboX3Up1->GetNowAnimationTime();
+		fAlpha = fAlpha / m_pComboX3Up1->GetMaxAnimationTime();
+		m_pComboX3Up1->GetRenderParam()->color.a = fAlpha;
+		m_pComboX3Up1->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+	if( m_pComboX3Up2 != NULL )
+	{
+		float fAlpha = 1.0f;
+		if( m_pComboX3Up2->GetNowAnimationTime() > 0.2f )
+		{
+			fAlpha = 0.35f - 0.2f;
+			fAlpha = ( 0.35f - m_pComboX3Up2->GetNowAnimationTime() ) / fAlpha;
+		}
+		m_pComboX3Up2->GetRenderParam()->color.a = fAlpha;
+		m_pComboX3Up2->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+	if( m_pComboX3Up3 != NULL )
+	{
+		float fAlpha = 1.0f;
+		if( m_pComboX3Up3->GetNowAnimationTime() > 0.3f )
+		{
+			fAlpha = 0.5f - 0.3f;
+			fAlpha = ( 0.5f - m_pComboX3Up3->GetNowAnimationTime() ) / fAlpha;
+		}
+		m_pComboX3Up3->GetRenderParam()->color.a = fAlpha;
+		m_pComboX3Up3->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepRight = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepRight );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepLeft  = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepLeft );
+
+	if( pSeqArmeAirStepRight != NULL )
+	{
+		D3DXVECTOR3 rFoot;
+		GetFramePos( &rFoot, m_pFrame_Bip01_R_Foot );
+		pSeqArmeAirStepRight->SetPosition( rFoot );
+	}
+	if( pSeqArmeAirStepLeft != NULL )
+	{
+		D3DXVECTOR3 lFoot;
+		GetFramePos( &lFoot, m_pFrame_Bip01_L_Foot );
+		pSeqArmeAirStepLeft->SetPosition( lFoot );
+	}
+
+	if( true == IsTransformed() && m_ptrTransformWeapon != NULL )
+	{
+		m_ptrTransformWeapon->SetRenderParam( m_fTime, m_fElapsedTime, m_pXSkinAnim->GetRenderParam() );
+		m_ptrTransformWeapon->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+
+	if( GetTransformTime() > 0.f )
+	{
+		SetTransformTime( GetTransformTime() - m_fElapsedTime );
+		if( GetTransformTime() < 0.f )
+			SetTransformTime( 0.f );
+	}
+
+	if( 0.0f < m_fJune96e0 )
+	{
+		m_fJune96e0 = m_fJune96e0 - m_fElapsedTime;
+		if( m_fJune96e0 <= 0.0f )
+			June_EndHellStoneWindow();
+	}
+
+	if( m_hJune96dc != INVALID_MESH_INSTANCE_HANDLE )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hJune96dc );
+		if( NULL == pMeshInst )
+		{
+			m_hJune96dc = INVALID_MESH_INSTANCE_HANDLE;
+		}
+		else
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+			pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+	}
+
+	if( m_fMagicStaffSize > 0.f && GetNowHp() > 0.f && !IsTransformed() )
+	{
+		if( m_hMagicalStaff == INVALID_MESH_INSTANCE_HANDLE )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"aisha_P_magical_staff_M01", GetPos(), GetRotateDegree(), GetRotateDegree() );
+			if( pMeshInst != NULL )
+			{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+				pMeshInst->SetPerFrameSimulation( true );
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+				m_hMagicalStaff = pMeshInst->GetHandle();
+				pMeshInst->SetBoundingRadius( 0.0f );
+
+				CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+				pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+				pMeshInst->OnFrameMove( g_pKTDXApp->GetTime(), 0.01f );
+
+				SetSubAttackList( pMeshInst->GetXSkinAnim() );
+			}
+		}
+		else
+		{
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hMagicalStaff );
+			if( NULL != pMeshInst )
+			{
+				CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+				pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+			}
+			else
+			{
+				m_hMagicalStaff = INVALID_MESH_INSTANCE_HANDLE;
+				m_SubAttackListSet.clear();
+			}
+		}
+	}
+	else
+	{
+		if( m_hMagicalStaff != INVALID_MESH_INSTANCE_HANDLE )
+		{
+			g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hMagicalStaff );
+			m_hMagicalStaff = INVALID_MESH_INSTANCE_HANDLE;
+			m_SubAttackListSet.clear();
+		}
+	}
+
+	// the other units copy June's synced member ( Now +0x8160 )
+	if( false == IsMyUnit() )
+		m_iJune9754 = m_iJune8160;
+
+	June_ManaflowOverdriveFrameMove();
+}
+
+// June 31fcac90 ( CX2GUUser vslot 0x23c ): applies one buff factor of a skill ( iIndex_ >= 0 ) or all of them ( < 0 ); false when nothing was applied
+bool CX2GUArme_VioletMage::June_SetSkillBuffFactors( const int iSkillID_, const int iIndex_, const bool bCheckLearned_ )
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	if( true == bCheckLearned_ )
+	{
+		if( NULL == GetUnit() )
+			return false;
+
+		if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true ) <= 0 )
+			return false;
+
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == June_UnitFlag3c( GetUnit() ) )
+			return false;
+	}
+
+	const int iBuffFactorCount = static_cast<int>( pSkillTemplet->m_vecBuffFactorPtr.size() );
+	if( 0 <= iIndex_ )
+	{
+		if( iBuffFactorCount <= iIndex_ )
+			return false;
+
+		SetBuffFactorToGameUnit( pSkillTemplet, iIndex_ );
+		return true;
+	}
+
+	if( 0 == iBuffFactorCount )
+		return false;
+
+	for( int i = 0; i < iBuffFactorCount; ++i )
+		SetBuffFactorToGameUnit( pSkillTemplet, i );
+
+	return true;
+}
+
+// June 31fceab0: no unit gives 1; a hyper-class skill of a unit that is not transcended gives 0; else the learned level
+int CX2GUArme_VioletMage::June_GetSkillLevel( const int iSkillID_ ) const
+{
+	if( NULL == GetUnit() )
+		return 1;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == June_UnitFlag3c( GetUnit() ) )
+		return 0;
+
+	return GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), false, 0, true );
+}
+
+// June 32cc26f0 / 32cc2740 / 32cc2790: Shining / Shadow / Energetic Body: the passive's factor, else the skill's factor 0
+void CX2GUArme_VioletMage::June_ProcessShiningBodySkill()
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_AEM_ELEMENTAL_BODY ), true );
+	if( NULL != pSkillTemplet && false == June_SetSkillBuffFactors( JUNE_CH1I_P_AEM_MAGICAL_BODY, 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade ? 1 : 0, true ) )
+		SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+}
+
+void CX2GUArme_VioletMage::June_ProcessShadowBodySkill()
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_AVP_SHADOW_BODY ), true );
+	if( NULL != pSkillTemplet && false == June_SetSkillBuffFactors( JUNE_CH1I_P_AVP_DARK_DEAL, 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade ? 1 : 0, true ) )
+		SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+}
+
+void CX2GUArme_VioletMage::June_ProcessEnergeticBodySkill()
+{
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_ADW_ENERGETIC_BODY ), true );
+	if( NULL != pSkillTemplet && false == June_SetSkillBuffFactors( JUNE_CH1I_P_ADW_TIME_LIMIT, 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade ? 1 : 0, true ) )
+		SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+}
+
+// June 32008e40: CX2GUUser's own NoStateChangeActionFrameMove ( March's is pure virtual ); the Arme override runs it first. Action ids are June's
+void CX2GUArme_VioletMage::June_UserNoStateChangeActionFrameMove()
+{
+	switch( m_FrameDataNow.syncData.nowAction )
+	{
+	case JUNE_CH1I_UAI_ERASE_BTI_420:
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 420 ) );
+		break;
+
+	case JUNE_CH1I_UAI_CREST_OF_TIME_REVIVAL:
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ATT_Common_Crest_of_Time_Revival", this );
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 436 ) );
+		EraseBuffTempletFromGameUnit( static_cast<BUFF_TEMPLET_ID>( 926 ) );
+		SetForceInvincible( 1.0f );
+		break;
+
+	case JUNE_CH1I_UAI_MAGNIFYING_THIEF_USE_ITEM:
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AMUSEMENT_ITEM_MAGNIFYING_THIEF_Stolen_UseItem", this );
+		break;
+
+	case JUNE_CH1I_UAI_BUFF_FACTOR_824:
+		SetBuffFactorToGameUnitByBuffFactorID( 824, 1, NULL, 0, true );
+		break;
+
+	case JUNE_CH1I_UAI_BUFF_FACTOR_825:
+		SetBuffFactorToGameUnitByBuffFactorID( 825, 1, NULL, 0, true );
+		break;
+
+	case JUNE_CH1I_UAI_BUFF_FACTOR_827:
+		SetBuffFactorToGameUnitByBuffFactorID( 827, 1, NULL, 0, true );
+		break;
+	}
+}
+
+// June 32ccf9f0 ( vslot 0x80c )
+void CX2GUArme_VioletMage::June_NoStateChangeActionFrameMove()
+{
+	June_UserNoStateChangeActionFrameMove();
+
+	switch( m_FrameDataNow.syncData.nowAction )
+	{
+	case UAI_MANA_SHIELD:
+		{
+			if( false == GetRidingOn() )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_AV_MANA_SHIELD, true );
+				if( NULL != pSkillTemplet )
+				{
+					const bool bJuneMemo = false;	// June 31fca9e0: GetEqippedSkillMemo is a stub that answers 0
+					SetBuffFactorToGameUnit( pSkillTemplet, true == bJuneMemo ? 1 : 0 );
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ManaShield", this );
+					PlaySound( L"Aisha_ManaShield.ogg", true, false );
+					JuneShowSkillNameStateString( CX2SkillTree::SI_A_AV_MANA_SHIELD );
+				}
+			}
+		} break;
+
+	case UAI_AHM_MEDITATION_START:
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_AHM_MEDITATION ), true );
+			const int iGameType = static_cast<int>( g_pX2Game->GetGameType() );	// June 322cc1a0: PVP or PVE
+			SetBuffFactorToGameUnit( pSkillTemplet, ( 1 == iGameType || 4 == iGameType ) ? 2 : 0 );
+			SetBuffFactorToGameUnit( pSkillTemplet, 1 );
+			m_bInMeditation = true;
+			JuneShowSkillNameStateString( JUNE_CH1I_A_AHM_MEDITATION );
+		} break;
+
+	case UAI_ELEMENTAL_FRIENDSHIP_UP:
+		{
+			if( NULL != GetUnit() )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_P_AEM_ELEMENTAL_FRIENDSHIP ), true );
+				SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+				SetBuffFactorToGameUnit( pSkillTemplet, 1 );
+			}
+		} break;
+
+	case UAI_AHM_SHINING_BODY:
+		{
+			June_ProcessShiningBodySkill();
+			JuneShowSkillNameStateString( JUNE_CH1I_A_AEM_ELEMENTAL_BODY );
+		} break;
+
+	case UAI_AVP_SHADOW_BODY:
+		{
+			June_ProcessShadowBodySkill();
+			JuneShowSkillNameStateString( JUNE_CH1I_A_SHADOW_BODY_NAME );
+		} break;
+
+	case UAI_ADW_ENERGETIC_BODY:
+		{
+			June_ProcessEnergeticBodySkill();
+			JuneShowSkillNameStateString( JUNE_CH1I_A_ADW_ENERGETIC_BODY );
+		} break;
+
+	case JUNE_CH1I_UAI_MEMO_RISE_START:
+		{
+			if( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AIsha_MemoRise_Start", this );
+		} break;
+	}
+}
+
+// June 32ccbca0 ( vslot 0x810 ): the skill id goes through the upgrade map first
+bool CX2GUArme_VioletMage::June_SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet )
+{
+	if( NULL == pSkillTemplet )
+		return false;
+
+	switch( static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( pSkillTemplet->m_eID ) ) )
+	{
+	case CX2SkillTree::SI_A_AV_MANA_SHIELD:
+		m_FrameDataFuture.syncData.nowAction = UAI_MANA_SHIELD;
+		break;
+
+	case JUNE_CH1I_A_AHM_MEDITATION:
+		m_FrameDataFuture.syncData.nowAction = UAI_AHM_MEDITATION_START;
+		break;
+
+	case JUNE_CH1I_A_AEM_ELEMENTAL_BODY:
+		m_FrameDataFuture.syncData.nowAction = UAI_AHM_SHINING_BODY;
+		break;
+
+	case JUNE_CH1I_A_AVP_SHADOW_BODY:
+		m_FrameDataFuture.syncData.nowAction = UAI_AVP_SHADOW_BODY;
+		break;
+
+	case JUNE_CH1I_A_ADW_ENERGETIC_BODY:
+		m_FrameDataFuture.syncData.nowAction = UAI_ADW_ENERGETIC_BODY;
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
+
+// June 32cc7df0: MemoRise entry i ( 0 past the end )
+int CX2GUArme_VioletMage::June_GetMemoRiseEntry( const int* piIndex_ ) const
+{
+	if( static_cast<int>( m_deqJuneMemoRise.size() ) <= *piIndex_ )
+		return 0;
+
+	return m_deqJuneMemoRise[ *piIndex_ ];
+}
+
+// June 32cc7f10 ( vslot 0x880 ): the skill is already memorized
+bool CX2GUArme_VioletMage::June_MemoRiseContains( const int* piSkillID_ ) const
+{
+	for( std::deque<int>::const_iterator it = m_deqJuneMemoRise.begin(); it != m_deqJuneMemoRise.end(); ++it )
+	{
+		if( *it == *piSkillID_ )
+			return true;
+	}
+
+	return false;
+}
+
+// June 31fcec40: only Aisha, and only a skill of WOS type 3 ( 32205af0 ), can be memorized
+bool CX2GUArme_VioletMage::June_IsMemorizableSkill( const int* piSkillID_ ) const
+{
+	if( NULL == GetUnit() || CX2Unit::UT_ARME != GetUnit()->GetType() || NULL == g_pData->GetSkillTree() )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( *piSkillID_ ) );
+	return NULL != pSkillTemplet && 3 == pSkillTemplet->m_iWOSType;
+}
+
+// June 32ceca70: memorize a skill ( at most 3; the oldest goes first ); false and a message when it is already memorized
+bool CX2GUArme_VioletMage::June_AddMemoRise( const int* piSkillID_, const bool* pbRefresh_ )
+{
+	if( true == June_MemoRiseContains( piSkillID_ ) )
+	{
+		June_PushInfoText( 0x6219 );
+		return false;
+	}
+
+	while( m_deqJuneMemoRise.size() >= 3 )
+		m_deqJuneMemoRise.pop_front();
+
+	m_deqJuneMemoRise.push_back( *piSkillID_ );
+
+	if( true == *pbRefresh_ && true == IsMyUnit() )
+		June_GameRefreshMemoRise();
+
+	return true;
+}
+
+// June 32ce15a0: erase entry i; false when i is past the end
+bool CX2GUArme_VioletMage::June_EraseMemoRise( const int* piIndex_, const bool* pbRefresh_ )
+{
+	if( static_cast<int>( m_deqJuneMemoRise.size() ) <= *piIndex_ )
+		return false;
+
+	m_deqJuneMemoRise.erase( m_deqJuneMemoRise.begin() + *piIndex_ );
+
+	if( true == *pbRefresh_ && true == IsMyUnit() )
+		June_GameRefreshMemoRise();
+
+	return true;
+}
+
+// June 32ce1770: drop every memorized skill that is no longer in a slot
+void CX2GUArme_VioletMage::June_SweepMemoRise( const bool* pbRefresh_ )
+{
+	const CX2UserSkillTree* pUserSkillTree = ( NULL != GetUnit() ) ? &GetUnit()->GetUnitData().m_UserSkillTree : NULL;
+
+	for( unsigned int i = 0; i < m_deqJuneMemoRise.size(); ++i )
+	{
+		if( NULL == pUserSkillTree || NULL == pUserSkillTree->GetSkillSlot( static_cast<CX2SkillTree::SKILL_ID>( m_deqJuneMemoRise[i] ) ) )
+		{
+			m_deqJuneMemoRise.erase( m_deqJuneMemoRise.begin() + i );
+			if( i >= m_deqJuneMemoRise.size() )
+				break;
+		}
+	}
+
+	if( true == *pbRefresh_ && true == IsMyUnit() )
+		June_GameRefreshMemoRise();
+}
+
+// June 32cc7e60: which way the pressed key is used: 0 none, 1 the slot, 2 the slot's skill goes to the MemoRise list, 3 the first memorized skill
+int CX2GUArme_VioletMage::June_SelectSkillSlotKind( const CX2UserSkillTree& userSkillTree_, const CX2UserSkillTree::SkillSlotData** ppSlot_, int* piIndex_ )
+{
+	if( NULL == *ppSlot_ )
+	{
+		if( false == m_InputData.oneSkill5 || true == m_deqJuneMemoRise.empty() )
+			return 0;
+
+		const int iFirst = 0;
+		const int iSkillID = June_GetMemoRiseEntry( &iFirst );
+		*ppSlot_ = userSkillTree_.GetSkillSlot( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ) );	// June 3288fff0 also gives the slot index
+		if( NULL == *ppSlot_ )
+			return 0;
+
+		for( int i = 0; i < 5; ++i )
+		{
+			if( *ppSlot_ == userSkillTree_.GetSkillSlot( i, false ) )
+				*piIndex_ = i;
+			else if( *ppSlot_ == userSkillTree_.GetSkillSlot( i, true ) )
+				*piIndex_ = i;
+		}
+
+		if( static_cast<int>( (*ppSlot_)->m_eID ) <= 0 )
+			return 0;
+
+		return 3;
+	}
+
+	if( true == June_IsMemoRiseChargeActive() )
+	{
+		const int iSlotSkillID = static_cast<int>( (*ppSlot_)->m_eID );
+		return ( true == June_IsMemorizableSkill( &iSlotSkillID ) ) ? 2 : 1;
+	}
+
+	return 1;
+}
+
+// June 31fdbe70 ( vslot 0x764 ): a type 10 skill memo gives back its second value of the MP spent, with its first value as the chance
+void CX2GUArme_VioletMage::June_SkillMemoMpRefund( const int iSkillID_, const bool bEnable_, const float fMpConsume_ )
+{
+	const CX2GUUser::JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( iSkillID_ );
+	if( NULL == pMemo )
+		return;
+
+	const float fChance = ( pMemo->m_vecValue.size() > 0 ) ? pMemo->m_vecValue[0] : 0.0f;
+	const float fRate = ( pMemo->m_vecValue.size() > 1 ) ? pMemo->m_vecValue[1] : 0.0f;
+	if( 10 != pMemo->m_iType || false == bEnable_ )
+		return;
+
+	if( GetRandomFloat( 0 ) <= fChance )
+		UpNowMp( fRate * fMpConsume_ );
+}
+
+// June 31fd32e0 ( the skill slot index is June's 0-9 ): the skill state for a slot, the hyper table while awakened
+void CX2GUArme_VioletMage::June_StateChangeBySkillSlot( const int iSlotIndex_ )
+{
+	if( GetRemainHyperModeTime() > 0.f )
+	{
+		if( iSlotIndex_ >= 5 )
+			StateChange( _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_ - 5] );
+		else
+			StateChange( _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] );
+	}
+	else
+	{
+		if( iSlotIndex_ >= 5 )
+			StateChange( _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_ - 5] );
+		else
+			StateChange( _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] );
+	}
+}
+
+// June 31fc86e0: marks a skill slot ( 0-9 ) as used ( with bHyper_ the first three ); March counts uses in CountUsedSkill instead
+void CX2GUArme_VioletMage::June_MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ )
+{
+	if( false == bHyper_ )
+	{
+		if( 0 <= iSlotIndex_ && iSlotIndex_ < 10 )
+			m_abJune90d3[iSlotIndex_] = true;
+	}
+	else if( 0 <= iSlotIndex_ && iSlotIndex_ < 3 )
+	{
+		m_abJune90d0[iSlotIndex_] = true;
+	}
+}
+
+// June 31fc93e0 ( vslot 0x804 ): reserves the skill's use count and keeps its MP until the state starts
+void CX2GUArme_VioletMage::June_ReserveSkillUse( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	ReserveSkillUseCount( eSkillID_ );
+	m_fJune8ea8 = m_fJune8eb0;
+	m_fJune8eb0 = 0.0f;
+}
+
+// June 32ccf4e0 ( vslot 0x800 ): the cooldown and the MP side of a skill use ( the 512th step of June's SpecialAttackEventProcess )
+void CX2GUArme_VioletMage::June_SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
+{
+	if( false == IsMyUnit() )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if( NULL == GetUnit() || NULL == pSkillTemplet )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	June_MarkSkillSlotUsed( m_iJune8ea4, false );
+
+	if( 3 == m_iJune96e8 )
+	{
+		m_iJune9754 = iSkillID_;
+		m_iJune975c = 0;
+		m_deqJuneMemoRise.pop_front();
+		June_GameRefreshMemoRise();
+	}
+	else
+	{
+		m_iJune9754 = 0;
+		m_iJune975c = 0;
+		UpNowMp( -fMpConsume_ );
+	}
+
+	if( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == June_IsTrainingOrPhotozone() )
+	{
+		CX2Item* pItem = g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE );
+		if( NULL != pItem )
+			g_pX2Game->Handler_EGS_USE_FINALITY_SKILL_REQ( pItem->GetItemData().m_ItemUID );
+	}
+
+	int iSkillLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	float fCoolTime = GetActualCoolTime( pSkillTemplet, iSkillLevel );
+
+	if( 3 != m_iJune96e8 )
+	{
+		if( 0.0f < fCoolTime )
+		{
+			if( June_GetSkillLevel( JUNE_CH1I_P_AEM_OPEN_MIND ) > 0 && 2 == m_iJune96e8 )
+			{
+				const int iGameType = static_cast<int>( g_pX2Game->GetGameType() );	// June 322cc1a0: PVP or PVE
+				fCoolTime = June_GetLearnedSkillAbilityValue( ( 1 == iGameType || 4 == iGameType ) ? CX2SkillTree::SA_COOLTIME_2 : CX2SkillTree::SA_COOLTIME_1, JUNE_CH1I_P_AEM_OPEN_MIND ) * fCoolTime;
+			}
+
+			accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, fCoolTime );
+		}
+
+		if( NULL != GetUnit() )
+			GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+
+		if( 3 != m_iJune96e8 && NULL != m_pJuneMpRefund && m_pJuneMpRefund->m_fTimeLeft <= 0.f )
+		{
+			float fRestoreMPRate = 0.f;
+			switch( static_cast<int>( pSkillTemplet->m_eType ) )
+			{
+			case CX2SkillTree::ST_BUFF:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+				fRestoreMPRate = m_pJuneMpRefund->m_fSpecialActiveSkillRate;
+				break;
+
+			case CX2SkillTree::ST_ACTIVE:
+				fRestoreMPRate = m_pJuneMpRefund->m_fActiveSkillRate;
+				break;
+			}
+
+			if( GetRandomFloat( 0 ) < fRestoreMPRate )
+			{
+				m_pJuneMpRefund->m_fTimeLeft = 3.f;
+
+				const float fRestoredMP = m_pJuneMpRefund->m_fMPRestoreRate * fMpConsume_;
+				if( fRestoredMP > 0.f )
+				{
+					UpNowMp( fRestoredMP );
+
+					if( NULL != g_pData->GetPicCharBlue() )
+					{
+						WCHAR wszText[64] = L"";
+						StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"MP+ %d", (int) fRestoredMP );
+
+						D3DXVECTOR3 pos = GetPos();
+						pos.y += 50.f;
+
+						g_pData->GetPicCharBlue()->DrawText( wszText, pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+
+						g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_Strong_Mind_MP_Up", this );
+						PlaySound( L"AISHA_VP_STRONG_MIND.ogg", true, false );
+					}
+				}
+			}
+		}
+	}
+
+	if( 2 != m_iJune96e8 )
+	{
+		m_eSpecialAttackKeyPressed = (SPECIAL_ATTACK_KEY_PRESSED) ( m_iJune8ea4 + 1 );
+		m_iNowSpecialAttack = m_iJune8ea4 + 1;
+		CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+	}
+}
+
+// June 32ced640 ( vslot 0x7fc ): the skill use, run after the lookup ( the 511th step )
+void CX2GUArme_VioletMage::June_SpecialAttackUse( const int iSkillID_, const bool bUnused_ )
+{
+	UNREFERENCED_PARAMETER( bUnused_ );
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+
+	if( 2 != m_iJune96e8 )
+	{
+		if( NULL != pSkillTemplet && true == m_bElementalFriendShip )
+		{
+			switch( static_cast<int>( pSkillTemplet->m_eType ) )
+			{
+			case CX2SkillTree::ST_SPECIAL_ACTIVE:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+				if( UAI_ELEMENTAL_FRIENDSHIP_UP != m_FrameDataFuture.syncData.nowAction )
+					m_FrameDataFuture.syncData.nowAction = UAI_ELEMENTAL_FRIENDSHIP_UP;
+				break;
+			}
+		}
+
+		if( true == June_SpecialAttackNoStageChange( pSkillTemplet ) )
+		{
+			June_SpecialAttackCooldown( pSkillTemplet->m_eID, m_fJune8eb0 );
+			June_SkillMemoMpRefund( iSkillID_, true, m_fJune8eb0 );
+			m_fJune8eb0 = 0.0f;
+			m_bSpecialAttackEventProcessedAtThisFrame = true;
+			return;
+		}
+
+		June_ReserveSkillUse( pSkillTemplet->m_eID );
+		June_StateChangeBySkillSlot( m_iJune8ea4 );
+		m_bSpecialAttackEventProcessedAtThisFrame = true;
+		return;
+	}
+
+	const bool bRefresh = true;
+	const int iUseSkillID = static_cast<int>( pSkillTemplet->m_eID );
+	if( true == June_AddMemoRise( &iUseSkillID, &bRefresh ) )
+	{
+		June_SpecialAttackCooldown( pSkillTemplet->m_eID, m_fJune8eb0 );
+		m_fJune8eb0 = 0.0f;
+
+		if( JUNE_CH1I_UAI_MEMO_RISE_START != m_FrameDataFuture.syncData.nowAction )
+			m_FrameDataFuture.syncData.nowAction = JUNE_CH1I_UAI_MEMO_RISE_START;
+
+		PlaySound( L"AISHA_Memorize_System.ogg", true, false );
+
+		if( m_deqJuneMemoRise.size() >= 3 && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() && m_hJuneMemoRiseLoop != INVALID_EFFECTSET_HANDLE )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hJuneMemoRiseLoop );
+	}
+}
+
+// June 32cb97a0 ( vslot 0x7f4 ): the lookup, then the use; the saved values come back when the skill is a 3 / 5 condition one or the MemoRise add
+bool CX2GUArme_VioletMage::June_SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	const int iSavedMode = m_iJune96e8;
+	const float fSavedReserved = m_fJune8ea8;
+	const int iSavedIndex = m_iJune8ea4;
+	const int iSavedSkillID = m_iJune8ea0;
+
+	bool bUsed = false;
+	if( true == June_SpecialAttackLookup( eActiveSkillUseCondition ) && 0 != m_iJune8ea0 )
+	{
+		bUsed = true;
+		June_SpecialAttackUse( m_iJune8ea0, true );
+
+		if( 1 == m_iJune96e8 || 3 == m_iJune96e8 )
+			Send_SKILL_USE_REQ( static_cast<CX2SkillTree::SKILL_ID>( m_iJune8ea0 ) );
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( m_iJune8ea0 ), true );
+	if( NULL != pSkillTemplet &&
+		( CX2SkillTree::ASUT_ANYTIME == pSkillTemplet->m_eActiveSkillUseCondtion || CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR == pSkillTemplet->m_eActiveSkillUseCondtion || 2 == m_iJune96e8 ) )
+	{
+		m_fJune8ea8 = fSavedReserved;
+		m_iJune8ea0 = iSavedSkillID;
+		m_iJune8ea4 = iSavedIndex;
+		m_iJune96e8 = iSavedMode;
+	}
+
+	if( true == bUsed )
+	{
+		m_iNowSpecialAttack = m_iJune8ea4 + 1;
+		return true;
+	}
+
+	m_iJune8ea0 = iSavedSkillID;
+	return false;
+}
+
+// June 32cebe80 ( vslot 0x7f8 ): the lookup of the pressed skill and every check that lets it start ( the 510th step )
+bool CX2GUArme_VioletMage::June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	if( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+
+	if( NULL == GetUnit() )
+		return false;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
+	int iPressedSkillSlotIndex = 0;
+
+	if( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+		return false;
+
+	int iKind = June_SelectSkillSlotKind( accessUserSkillTree, &pSkillSlotData, &iPressedSkillSlotIndex );
+	if( 0 == iKind )
+		return false;
+
+	if( 2 == iKind )
+	{
+		const int iSlotSkillID = static_cast<int>( pSkillSlotData->m_eID );
+		if( true == June_MemoRiseContains( &iSlotSkillID ) )
+		{
+			iKind = 1;
+		}
+		else
+		{
+			if( 0.0f < m_fJune9758 )
+				return false;
+
+			m_fJune9758 = 0.1f;
+
+			const int iSlotSkillID2 = static_cast<int>( pSkillSlotData->m_eID );
+			if( false == June_IsMemorizableSkill( &iSlotSkillID2 ) )
+			{
+				June_PushInfoText( 0x7697 );
+				return false;
+			}
+		}
+	}
+
+	if( NULL == pSkillSlotData )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	if( pSkillTemplet->m_eID != pSkillSlotData->m_eID )
+	{
+		June_PushInfoText( 0x8bae );
+		return false;
+	}
+
+	m_iJune8ea0 = pSkillTemplet->m_eID;
+
+	CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eSkillUseCondition = pSkillTemplet->m_eActiveSkillUseCondtion;
+	const int iBaseSkillID = static_cast<int>( pSkillTemplet->m_eID );
+	if( JUNE_CH1I_A_AISHA_TELEPORT == iBaseSkillID || JUNE_CH1I_A_AISHA_TELEPORT_UPGRADE == iBaseSkillID )
+	{
+		if( NULL != June_GetLearnedSkillTemplet( JUNE_CH1I_P_ADW_TIME_LIMIT ) )
+		{
+			const int iFutureStateID = GetFutureStateID();
+			if( USI_DAMAGE_DOWN_FRONT == iFutureStateID || USI_DAMAGE_DOWN_BACK == iFutureStateID || USI_DAMAGE_AIR_DOWN_LANDING == iFutureStateID )
+				eSkillUseCondition = CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR;
+		}
+	}
+
+	if( false == CheckSkillUseCondition( eActiveSkillUseCondition, eSkillUseCondition ) && 2 != iKind )
+		return false;
+
+	if( false == CheckSummonSpecialAttack( pSkillTemplet->m_eID ) && 2 != iKind )
+		return false;
+
+	if( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
+		return false;
+
+	if( false == June_CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+		return false;
+
+	if( false == June_CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+		return false;
+
+	if( true == IsRidingKeySkillWaiting() )
+		return false;
+
+	if( false == June_IsValideSkillRidingOn( pSkillTemplet->m_eID ) )
+		return false;
+
+	m_iJune96e8 = iKind;
+
+	int iSkillTempletLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	m_fJune8eb0 = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+
+	if( 0 != m_iJune7ec0 )
+		m_iJune7ec0 = 0;
+
+	if( 3 == iKind )
+	{
+		m_fJune8eb0 = 0.0f;
+		if( m_iJune7ec0 != m_iJune8ea0 )
+			m_iJune7ec0 = m_iJune8ea0;
+	}
+	else if( 2 == iKind )
+	{
+		if( June_GetSkillLevel( JUNE_CH1I_P_AEM_OPEN_MIND ) > 0 )
+			m_fJune8eb0 = m_fJune8eb0 * June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_3, JUNE_CH1I_P_AEM_OPEN_MIND );
+	}
+
+	const bool bJuneSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
+	if( false == bJuneSkillFree && 3 != iKind )
+	{
+		float fCoolTimeLeft = pSkillSlotData->m_fCoolTimeLeft;
+		const float fActualCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel );
+		if( fCoolTimeLeft > fActualCoolTime )
+			fCoolTimeLeft = fActualCoolTime;
+
+		if( 0.0f < fCoolTimeLeft )
+		{
+			June_PushInfoText( 226 );
+			return false;
+		}
+
+		if( m_fJune8ea8 + m_fJune8eb0 > GetNowMp() )
+		{
+			June_PushInfoText( 2549 );
+			return false;
+		}
+
+		if( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == June_IsTrainingOrPhotozone() )
+		{
+			if( g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetNumItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE ) <= 0 )
+			{
+				June_PushInfoText( 26119 );
+				return false;
+			}
+		}
+	}
+
+	m_iJune8ea0 = pSkillTemplet->m_eID;
+	m_iJune8ea4 = iPressedSkillSlotIndex;
+	return true;
+}
+
+// June 31fcad70: the learned skill's templet; a hyper-class skill of a unit that is not transcended gives none
+const CX2SkillTree::SkillTemplet* CX2GUArme_VioletMage::June_GetLearnedSkillTemplet( const int iSkillID_ ) const
+{
+	if( NULL == GetUnit() )
+		return NULL;
+
+	if( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true, 0, true ) <= 0 )
+		return NULL;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return NULL;
+
+	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == June_UnitFlag3c( GetUnit() ) )
+		return NULL;
+
+	return pSkillTemplet;
+}
+
+// June 32007b10: the ability at the learned level; 1.0 when there is no tree, unit, level or templet
+float CX2GUArme_VioletMage::June_GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const
+{
+	if( NULL == g_pData || NULL == g_pData->GetSkillTree() || NULL == GetUnit() )
+		return 1.0f;
+
+	const int iLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( iLevel <= 0 )
+		return 1.0f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+	if( NULL == pSkillTemplet )
+		return 1.0f;
+
+	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
+}
+
+// June 3202d140: skill 900 ( SI_ETC_WS_COMMON_LOVE ) is refused in a PVE game or without a game
+bool CX2GUArme_VioletMage::June_CheckSkillUseNotPve( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	bool bUsable = true;
+
+	if( NULL != g_pX2Game && 4 != static_cast<int>( g_pX2Game->GetGameType() ) )
+		return true;
+
+	if( JUNE_CH1I_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )
+	{
+		bUsable = false;
+		June_PushInfoText( 0x8399 );
+	}
+
+	return bUsable;
+}
+
+// June 3202d3c0: skill 900 is refused in a dungeon game ( 2 ) whose dungeon has attribute bit 0xd ( no March home: read as false ), or without a game
+bool CX2GUArme_VioletMage::June_CheckSkillUseNotDungeon( const CX2SkillTree::SKILL_ID eSkillID_ )
+{
+	bool bUsable = true;
+
+	if( NULL != g_pX2Game && CX2Game::GT_DUNGEON != g_pX2Game->GetGameType() )
+		return true;
+
+	const bool bJuneDungeonBitD = false;	// June 31edf8f0( dungeon id, 0xd ): the dungeon data bitset has no March counterpart
+	if( true == bJuneDungeonBitD )
+		return true;
+
+	if( JUNE_CH1I_ETC_WS_COMMON_LOVE == static_cast<int>( eSkillID_ ) )
+	{
+		bUsable = false;
+		June_PushInfoText( 0xaf9a );
+	}
+
+	return bUsable;
+}
+
+// June 3201f850 ( CX2GUUser, June base form ): the state's skill level, power rate ( times the additional power rate + 1 ) and skill id
+void CX2GUArme_VioletMage::June_SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ )
+{
+	if( NULL == pSkillTemplet_ || NULL == GetUnit() )
+		return;
+
+	int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true );
+	if( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	stateData_.m_SPLevel = static_cast<char>( iSkillLevel );
+	stateData_.m_fPowerRate = pSkillTemplet_->GetSkillPowerRateValue( iSkillLevel );
+	stateData_.m_eSkillID = pSkillTemplet_->m_eID;
+	stateData_.m_fPowerRate = ( GetSkillAdditionalPowerRateJune( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.0f ) * stateData_.m_fPowerRate;
+}
+
+// June 32028190 ( vslot 0x7a8 ): the same, for the state with this id ( none when that state is not registered )
+void CX2GUArme_VioletMage::June_SetSkillLevelStateDataByID( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const int iStateID_ )
+{
+	UserUnitStateDataMap::iterator itState = JuneGetStateDataIterator( iStateID_ );
+	if( itState != m_StateList.end() )
+		June_SetSkillLevelStateData( pSkillTemplet_, itState->second );
+}
+
+// June 32cb9650 ( vslot 0x684 ): the base, then March's Blaze Step power-rate block, whose body June compiled to two skill level reads
+void CX2GUArme_VioletMage::June_InitEquippedActiveSkillState( bool bOnlySkillLevel )
+{
+	CX2GUUser::InitEquippedActiveSkillState( bOnlySkillLevel );
+
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_AEM_BLAZE_STEP );
+	if( NULL != GetEquippedActiveSkillTemplet( eSkillID, true ) && NULL != GetUnit() )
+	{
+		const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+		if( userSkillTree.GetSkillLevel( eSkillID, false, 0, true ) >= 1 )
+			userSkillTree.GetSkillLevel( eSkillID, false, 0, true );
+	}
+}
+
+// June 32ccb830 ( vslot 0x7b8 ): the skill level of every skill state that carries a level, for one skill or for all of them
+void CX2GUArme_VioletMage::June_SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
+{
+	if( NULL == GetUnit() )
+		return;
+
+	const int iSkillID = static_cast<int>( eSkillID_ );
+
+	if( true == bChangeAll_ || JUNE_CH1I_A_AEM_CIRCLE_FLAME == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_AEM_CIRCLE_FLAME ), true );
+		if( NULL != pSkillTemplet )
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SI_A_AV_CIRCLE_FLAME );
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_A_AHM_MEDITATION == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_AHM_MEDITATION ), true );
+		if( NULL != pSkillTemplet )
+		{
+			int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_AHM_MEDITATION ), false, 0, true );
+			if( iSkillLevel < 1 )
+				iSkillLevel = 1;
+
+			const float fMeditationMPChangeRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_REGENERATION_ABS, iSkillLevel );
+			if( fMeditationMPChangeRate != m_fMeditationMPChangeRate )
+				m_fMeditationMPChangeRate = fMeditationMPChangeRate;
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_SA_AHM_METEOR_SHOWER == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_AHM_METEOR_SHOWER ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SA_AHM_METEOSHOWER_LOOP );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SA_AHM_METEOSHOWER_HYPER_LOOP );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_SA_AEM_LIGHTNING_SHOWER == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_AEM_LIGHTNING_SHOWER ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SA_AHM_LIGHTNING_SHOWER_HYPER_LOOP );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_A_ABM_ENERGY_DRAIN == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_ABM_ENERGY_DRAIN ), true );
+		if( NULL != pSkillTemplet )
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_A_ABM_ENERGY_DRAIN_SUCCESS );
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_SA_ABM_GUILLOTINE_PRESS == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_ABM_GUILLOTINE_PRESS ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SI_SA_ABM_GUILLOTINE_PRESS_END );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_SA_AVP_HELL_DROP == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_AVP_HELL_DROP ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_IDLE );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_LEFT );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_RIGHT );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_UP );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_DOWN );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_UP_LEFT );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_UP_RIGHT );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_DOWN_LEFT );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_DOWN_RIGHT );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_HELL_DROP_CONTROL_FIRE );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_SA_AVP_RUIN == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_AVP_RUIN ), true );
+		if( NULL != pSkillTemplet )
+		{
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SA_AVP_RUIN_LOOP );
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SA_AVP_RUIN_END );
+		}
+	}
+
+	if( true == bChangeAll_ || JUNE_CH1I_SA_ADW_AIR_STUNNER == iSkillID )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_SA_ADW_AIR_STUNNER ), true );
+		if( NULL != pSkillTemplet )
+			June_SetSkillLevelStateDataByID( pSkillTemplet, AVSI_SA_ADW_AIR_STUNNER_END );
+	}
+}
+
+// June 32cc7a40 ( vslot 0x628 ) = March's CanRidingState
+bool CX2GUArme_VioletMage::June_CanRidingState()
+{
+	if ( GetNowStateID() == CX2GUUser::USI_WAIT || GetNowStateID() == CX2GUUser::USI_WALK ||
+		GetNowStateID() == CX2GUUser::USI_DASH || GetNowStateID() == CX2GUUser::USI_DASH_END ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT || GetNowStateID() == CX2GUUser::USI_RIDING_WALK ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT_HABIT || GetNowStateID() == CX2GUUser::USI_RIDING_DASH ||
+		GetNowStateID() == CX2GUUser::USI_RIDING_DASH_END || GetNowStateID() == CX2GUArme_VioletMage::AVSI_CHARGE_MP )
+		return true;
+
+	return false;
+}
+
+// June 32cc7b30 ( vslot 0x718 ): the MemoRise charge: fewer than 3 memorized, charging MP, and the charge state is 1.5 s old
+bool CX2GUArme_VioletMage::June_IsMemoRiseChargeActive()
+{
+	return m_deqJuneMemoRise.size() < 3 && AVSI_CHARGE_MP == GetNowStateID() && 1.5f <= m_FrameDataNow.unitCondition.fStateTime;
+}
+
+// June 32cc7b90 ( vslot 0x828 ): the base test 31fd7640 ( not a common move state ) is not ported, so it answers false
+bool CX2GUArme_VioletMage::June_Vslot828()
+{
+	const bool bJuneNotCommonState = false;	// June 31fd7640: needs the common state list ( CH1 / Opus )
+	if( true == bJuneNotCommonState )
+	{
+		const int iStateID = GetNowStateID();
+		if( AVSI_DASH_JUMP_POWER_LANDING != iStateID && AVSI_JUMP_LEVITATION != iStateID && AVSI_DASH_JUMP_LEVITATION != iStateID && AVSI_CHARGE_MP != iStateID )
+			return true;
+	}
+
+	return false;
+}
+
+// June 32cc7c30 ( vslot 0x850 ): the after-image is suspended while waiting or charging MP and restored after; it runs every frame
+void CX2GUArme_VioletMage::June_Vslot850()
+{
+	CKTDGXSkinAfterImage* pAfterImage = GetAfterImage();
+	const int iStateID = GetNowStateID();
+
+	if( USI_WAIT == iStateID || AVSI_CHARGE_MP == iStateID )
+	{
+		if( NULL != pAfterImage && true == pAfterImage->GetEnable() )
+		{
+			m_bJuneAfterImageSaved = true;
+			pAfterImage->Disable();
+		}
+	}
+	else
+	{
+		if( NULL != pAfterImage && false == pAfterImage->GetEnable() && true == m_bJuneAfterImageSaved )
+			pAfterImage->Enable();
+	}
+
+	if( NULL != pAfterImage )
+		pAfterImage->OnFrameMove( m_fTime, m_fElapsedTime );
+}
+
+// June 32ccdae0 ( vslot 0x860 ): a Hell Drop UFO's power factor x ( specialization A + 1 ) x 0.7 ( March: its default power rate )
+void CX2GUArme_VioletMage::June_Vslot860( CX2GUNPC* pNPC )
+{
+	if( NULL == pNPC )
+		return;
+
+	const int iNpcID = static_cast<int>( pNPC->GetNPCTemplet().m_nNPCUnitID );
+	if( CX2UnitManager::NUI_UFO_AISHA == iNpcID || CX2UnitManager::NUI_UFO_AISHA_DROPPER_MEMO == iNpcID )
+	{
+		const float fFactor = pNPC->GetDefaultPowerRate();
+		pNPC->SetDefaultPowerRate( ( GetCharacterSpecializationA() + 1.0f ) * 0.7f * fFactor );
+	}
+}
+
+// June 32cc8980 = March's ChangeWeapon: the old weapon goes, the new one takes its enchant level and is shown
+void CX2GUArme_VioletMage::June_ChangeWeapon( CX2EqipPtr ptrWeapon )
+{
+	CX2GameUnit::Weapon* pOldWeapon = m_vecpWeapon[0];
+
+	if ( NULL != pOldWeapon &&
+		pOldWeapon->m_pUserWeaponEquip != NULL &&
+		pOldWeapon->m_pUserWeaponEquip->GetItem() != NULL )
+	{
+		int iEnchantLevel = pOldWeapon->m_pUserWeaponEquip->GetEnchantLevel();
+		const CX2Item::ItemTemplet* pOldItemTemplet = pOldWeapon->m_pUserWeaponEquip->GetItem()->GetItemTemplet();
+
+		pOldWeapon->m_pUserWeaponEquip.reset();
+		SAFE_DELETE_KTDGOBJECT( pOldWeapon );
+		m_vecpWeapon.resize(0);
+
+		ptrWeapon->ChangeEnchantLevel( iEnchantLevel );
+		CreateWeapon( pOldItemTemplet, ptrWeapon );
+		ptrWeapon->SetShowObject(true);
+
+		m_bNeedToUpdateWeaponEffect = true;
+	}
+}
+
+// June 32cc8ae0 ( vslot 0x610 ): after riding ends, a transformed Aisha gets her transform weapon again and its boxes
+void CX2GUArme_VioletMage::June_RidingOffEnd()
+{
+	CX2GUUser::RidingOffEnd();
+
+	if( true == IsTransformed() )
+	{
+		if( NULL == m_ptrTransformWeapon )
+		{
+			if( NULL == GetUnit() || CX2Unit::UC_ARME_DIMENSION_WITCH != GetUnit()->GetClass() )
+				m_ptrTransformWeapon = CX2ItemManager::CreateDummyEquip( 40930, GetUnit(), m_pXSkinAnim );
+			else
+				m_ptrTransformWeapon = CX2ItemManager::CreateDummyEquip( 41320, GetUnit(), m_pXSkinAnim );
+
+			m_ptrTransformWeapon->SetManagerObject( this );
+			g_pKTDXApp->GetDGManager()->AddObjectChain( m_ptrTransformWeapon.get() );
+		}
+
+		June_ChangeWeapon( m_ptrTransformWeapon );
+
+		for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM; j++ )
+		{
+			CKTDGXSkinAnim* pAnim = m_ptrTransformWeapon->GetNormalAnim( j );
+			if( pAnim != NULL )
+			{
+				if( false == pAnim->GetCollisionDataList().empty() )
+					m_CollisionListSet.insert( &pAnim->GetCollisionDataList() );
+
+				if( false == pAnim->GetAttackDataList().empty() )
+					m_AttackListSet.insert( &pAnim->GetAttackDataList() );
+			}
+		}
+	}
+}
+
+// June 32cc8cf0 ( vslot 0x654 ): a transformed Aisha puts the transform weapon on again
+void CX2GUArme_VioletMage::June_Vslot654()
+{
+	if( true == IsTransformed() )
+	{
+#ifdef FIX_ENCHANT_FROZEN_TRACE_BUG_BY_MAGICAL_MAKEUP
+		SetUseChangeWeapon( true );
+#endif FIX_ENCHANT_FROZEN_TRACE_BUG_BY_MAGICAL_MAKEUP
+		June_ChangeWeapon( m_ptrTransformWeapon );
+		m_bNeedToUpdateWeaponEffect = false;
+	}
+}
+
+// June 32cc8d30 ( vslot 0x638 ): March's walk + the transform weapon boxes; June's riding pet part and item-type anim choice are not ported
+void CX2GUArme_VioletMage::June_UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ )
+{
+	CX2GUUser::UpdateEquipCollisionData( vecEquipList_ );
+
+	if( true == IsTransformed() && m_ptrTransformWeapon != NULL )
+	{
+		for( int j = 0; j < CX2Item::MAX_MODEL_COUNT_A_ITEM; j++ )
+		{
+			CKTDGXSkinAnim* pAnim = m_ptrTransformWeapon->GetNormalAnim( j );
+			if( pAnim != NULL )
+			{
+				if( false == pAnim->GetCollisionDataList().empty() )
+					m_CollisionListSet.insert( &pAnim->GetCollisionDataList() );
+
+				if( false == pAnim->GetAttackDataList().empty() )
+					m_AttackListSet.insert( &pAnim->GetAttackDataList() );
+			}
+		}
+
+		SetEnableAttackBox( L"Rfoot", false );
+		SetEnableAttackBox( L"Lfoot", false );
+	}
+}
+
+// June 32cc9950 ( vslot 0x644 ): June queues the change while transformed ( 3207b5d0 ); March has no queue, so it is dropped
+bool CX2GUArme_VioletMage::June_UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList_, CX2Item* const pItemToRemoveInViewList_ )
+{
+	if( true == IsTransformed() )
+		return true;
+
+	CX2GUUser::UpdateEquipViewListInfo( pItemToAddInViewList_, pItemToRemoveInViewList_ );
+	return true;
+}
+
+// June 32cc9680: the cut-in of a skill ( bone, delay, cut-in index ): the descriptor of the cut-in set is shown once the animation passes the delay
+void CX2GUArme_VioletMage::June_ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ )
+{
+	if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && GetShowCutInAndChangeWorldColor() && GetShowActiveSkillShow() )
+	{
+		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
+
+		// not ported: the cut-in item override ( 31fd8a50 ) and the event 0x8b3 cut-ins ( 31e5a860 )
+		ActiveSkillShow( szBoneName_, cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
+	}
+}
+
+// June 32cc98b0 ( vslot 0x834 )
+void CX2GUArme_VioletMage::June_ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ )
+{
+	June_ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", fTimeToShow_, m_iSkillCutInSetSubIndex, bOnlyLight_ );
+}
+
+//}} Iruha : 2026-10-21 // June character pilot Phase CH1i
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS
