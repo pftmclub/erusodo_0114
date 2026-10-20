@@ -9627,3 +9627,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( JUNE_CHAR_ARME_CORE ).
 #define SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-20
+// Description: June quest system Phase Q5c - EGS_UPDATE_QUEST_NOT in-game progress text takes June's case set from its live
+//              handler ( 323e08c0, the quest window ): SQT_DUNGEON_CLEAR_COUNT gains a progress line ( no quest UI create, as June ),
+//              SQT_ITEM_USE / SQT_SKILL_USE / SQT_LEARN_NEW_SKILL lose theirs. The quest still progresses either way.
+//              Revert: JUNE_QUEST_NOT_CASES in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_NOT_CASES
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-20
+// Description: June quest system Phase Q5c - the in-game SQT_NPC_HUNT progress line is pushed unwrapped, as June's live handler
+//              ( 323e08c0 ) does; March wrapped it at 500 px ( CLIENT_SUBQUEST_POPUP_LINEBREAK ). Revert: JUNE_QUEST_NOT_NO_LINEBREAK in MODS.md.
+#define SERV_IRUHADEV_JUNE_QUEST_NOT_NO_LINEBREAK
+//////////////////////////////////////////////////////////////////////////

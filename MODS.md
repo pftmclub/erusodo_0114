@@ -4698,3 +4698,10 @@ Flag `SERV_IRUHADEV_JUNE_QUEST_VISIT_FLUSH` in `KTDXLIB/Always.h`. Plan `JUNE_QU
 - **Client.** `X2State.cpp` `Handler_EGS_UPDATE_QUEST_NOT`: a completed `VISIT_FIELD` / `VISIT_DUNGEON` (in game) or `VISIT_VILLAGE` (out of game) sub-quest calls `CX2QuestManager::CompleteQuestToVisitVillage()` (the completed-visit list, one-sub-quest quests only) as June's quest-window handler `323e08c0` does, instead of sending `EGS_QUEST_COMPLETE_REQ` for the whole quest (`#else`). `X2QuestManager.cpp` `CompleteQuestToVisitVillage()`: skips quests of another server group (June `32337520`).
 - **What changes in game.** No "completion requirement is not met" box when a visit sub-quest that is not the quest's last one ticks (22182 in 22162). The quest completes at its NPC as before.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data, no save change.
+
+### June quest system: UPDATE_QUEST_NOT in-game progress text (quest-system Q5c, 2026-10-20)
+
+Flags `SERV_IRUHADEV_JUNE_QUEST_NOT_CASES` and `SERV_IRUHADEV_JUNE_QUEST_NOT_NO_LINEBREAK` in `KTDXLIB/Always.h`. Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q5c - Done".
+- **Client.** `X2State.cpp` `Handler_EGS_UPDATE_QUEST_NOT`, in-game switch, as June's live handler `323e08c0`: `_CASES` adds a `SQT_DUNGEON_CLEAR_COUNT` progress line (no quest-UI create) and puts the `SQT_ITEM_USE` / `SQT_SKILL_USE` / `SQT_LEARN_NEW_SKILL` lines in the `#else`. `_NO_LINEBREAK` puts the 500 px wrap of the `SQT_NPC_HUNT` line in the `#else`.
+- **What changes in game.** A dungeon-clear sub-quest shows its progress line when the dungeon is cleared. The ITEM_USE line of event quest 203070 is gone. Long kill-progress lines are no longer wrapped. Quest progress itself is unchanged.
+- **Revert:** comment out either define (they are independent), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data. The play-test put quest 160 into unit 20's save (backup `db_backup/els_db_20261020_080340_pre_sql.sql`).

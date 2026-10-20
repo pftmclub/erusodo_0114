@@ -4935,6 +4935,10 @@ bool CX2State::Handler_EGS_UPDATE_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wParam
 						{
 							wstring wstrSubQuestDesc = g_pData->GetQuestManager()->MakeSubQuestString( pSubQuestTemplet->m_bAutomaticDescription,
 								pSubQuestTemplet, pQuestInst );
+#ifdef SERV_IRUHADEV_JUNE_QUEST_NOT_NO_LINEBREAK
+							// June 323e08c0 in-game case 2 (@323e0ca3): MakeSubQuestString 32337db0 then PushText 322db770, no line break
+							// (June's state copy 31f09b50 still breaks at 500, 31d471f0; the window copy does not: JUNE_BUGS)
+#else
 #ifdef CLIENT_SUBQUEST_POPUP_LINEBREAK
 
 #ifdef CLIENT_GLOBAL_LINEBREAK
@@ -4947,6 +4951,7 @@ bool CX2State::Handler_EGS_UPDATE_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wParam
 #endif //CLIENT_GLOBAL_LINEBREAK
 
 #endif //CLIENT_SUBQUEST_POPUP_LINEBREAK							
+#endif SERV_IRUHADEV_JUNE_QUEST_NOT_NO_LINEBREAK
 							g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, wstrSubQuestDesc.c_str(), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 5.f );
 
 #ifdef NEW_VILLAGE_UI
@@ -5004,6 +5009,21 @@ bool CX2State::Handler_EGS_UPDATE_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wParam
 #endif
 						}
 					} break;
+#ifdef SERV_IRUHADEV_JUNE_QUEST_NOT_CASES
+				// June 323e08c0 in-game case 8 (@323e1026): progress text against m_iDungeonClearCount (+0x80);
+				// June creates no quest UI in this case, unlike its other text cases (JUNE_BUGS)
+				case CX2QuestManager::SQT_DUNGEON_CLEAR_COUNT:
+					{
+						int iCount = (int) subQuestInst.m_ucClearData;
+						if( iCount <= pSubQuestTemplet->m_ClearCondition.m_iDungeonClearCount )
+						{
+							wstring wstrSubQuestDesc = g_pData->GetQuestManager()->MakeSubQuestString( pSubQuestTemplet->m_bAutomaticDescription,
+								pSubQuestTemplet, pQuestInst );
+
+							g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, wstrSubQuestDesc.c_str(), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 5.f );
+						}
+					} break;
+#endif SERV_IRUHADEV_JUNE_QUEST_NOT_CASES
 #ifdef SERV_INTEGRATION
 				case CX2QuestManager::SQT_WITH_DIF_SERV_USER:
 					{
@@ -5056,6 +5076,10 @@ bool CX2State::Handler_EGS_UPDATE_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wParam
 						}
 					} break;
 #endif //REFORM_QUEST
+#ifdef SERV_IRUHADEV_JUNE_QUEST_NOT_CASES
+				// June 323e08c0: no in-game progress text for SQT_ITEM_USE / SQT_SKILL_USE (jump table 323e15a0 sends 0x16 / 0x17
+				// to the default @323e116a) or SQT_LEARN_NEW_SKILL (0x24 is past the table's 0x1c bound)
+#else
 #ifdef SERV_SUB_QUEST_USE_ITEM
 				case CX2QuestManager::SQT_ITEM_USE:
 					{
@@ -5125,6 +5149,7 @@ bool CX2State::Handler_EGS_UPDATE_QUEST_NOT( HWND hWnd, UINT uMsg, WPARAM wParam
 						}
 					} break;
 #endif SERV_SUB_QUEST_LEARN_NEW_SKILL
+#endif SERV_IRUHADEV_JUNE_QUEST_NOT_CASES
 				}
 			}
 		}

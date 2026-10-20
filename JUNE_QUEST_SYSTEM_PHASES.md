@@ -1180,6 +1180,46 @@ copy "behaviour equal"; Q4e found they differ at the visit cases (June `323e08c0
   flag (one flag per logical change), or record "equal". Settle, if any evidence exists, which of 0x167 / 0x27c June's server sent (Q4e took 0x27c).
 - No data, no emulator change unless a difference needs one. Kickoff `kickoffs/quest-system/Q5c.md`.
 
+### Q5c - Done (2026-10-20, Opus 5.5 high)
+
+Verdict: **two differences ported, one routed, the rest equal.** Read from `323e08c0`'s disassembly; both jump tables were decoded from the image
+(in game `323e15a0` / `323e1584`, SQT 2..0x1c; out of game `323e15c8` / `323e15bc`, SQT 0xd..0x1f). funcmap rows `(Quest Q5c)`.
+
+| Part | June `323e08c0` | March `Handler_EGS_UPDATE_QUEST_NOT` | Verdict |
+|---|---|---|---|
+| Deserialize | `323e6450` -> vector of 0x24 B quest instances | `DeSerialize` | equal |
+| Changed sub-quests | `3232e310`, push `3210a9b0` | `CheckUpdateSubQuestInst` (`SERV_EPIC_QUEST`) | equal |
+| Quest update | `32331a30` | `UpdateUnitQuest` | equal |
+| Tutorial guide | first sub-quest that is not complete (`323225e0`) and not successful -> `g_pMain +0x8c4` (`31d70b00`) `31fc5920( id )`, break | none | **routed**: June-only `CX2TutorialGuideManager`, owner june-dungeons C3z-4t (STATUS row: also owes) |
+| In game / out of game test | `g_pX2Game` handle `3372c0fc` + templet `32322310` | `NULL != g_pX2Game && pQuestTemplet` / `else if templet` | equal |
+| In-game case set | 2, 8, 0xb, 0xc, 0x19 / 0x1a, 0x1c; 0x16 / 0x17 -> default, 0x24 past the bound | + `SQT_ITEM_USE`, `SQT_SKILL_USE`, `SQT_LEARN_NEW_SKILL`; no `SQT_DUNGEON_CLEAR_COUNT` | **ported** `SERV_IRUHADEV_JUNE_QUEST_NOT_CASES` |
+| Case 8 (`DUNGEON_CLEAR_COUNT`) | count <= `+0x80` (`m_iDungeonClearCount`), text, **no** quest-UI create | none | ported (same flag), JUNE_BUGS 373 |
+| NPC_HUNT text | `32337db0` -> `322db770`, no line break | `GetStrByLineBreakInX2Main( 500 )` (`CLIENT_SUBQUEST_POPUP_LINEBREAK` + `CLIENT_GLOBAL_LINEBREAK` on) | **ported** `SERV_IRUHADEV_JUNE_QUEST_NOT_NO_LINEBREAK`, JUNE_BUGS 372 |
+| Other text cases | 0x1c `+0x6c`, 0xb `+0x74`, 0xc `+0x80`; `MakeSubQuestString(..., 1)`, `PushText( 3, white, black, 1, 1.0, 5.0 )` (`33443804` = 5.0f), then create UI | `m_iPVPPlay` / `m_iPVPKill` / `m_iDungeonClearCount`; `bShowCount` default true; same PushText | equal |
+| Count width | `MOVSX` of a short | `(int) m_ucClearData` | equal on live data (Q4 review: no live count above 255) |
+| Visit cases | 0x18 / 0x19 / 0x1a -> `32337520` | Q4e flag | equal (Q4e) |
+| Out of game | create UI per sub-quest; 0xd-0x12 / 0x1c / 0x1f -> `ResetQuestUI( 1, 0, 1 )` when shown (`+0xdc`) | same types, defaults (true, false, true) | equal |
+| Tail | `UpdateQuickQuestDLG( 0, 1 )`; quest manager `+0x54 = 1`; now-state 0xe -> field indicator `+0x3d8`, 0x15 -> `CX2BattleFieldGame` `+0xc78`, `3293f5f0` | `UpdateQuickQuestDLG()` (false, true); `UpdateQuest()` = `m_bUpdateQuest = true`; `QUEST_GUIDE` switch | equal (June's state 0x15 is the battle field: the dynamic_cast) |
+
+- **State copy `31f09b50` (event 0x167)** does more than the window copy: it keeps the 500 px line break (`31d471f0`), shows text for 0x16 / 0x17 / 0x24 and the
+  June-only 0x20 / 0x2b / 0x2c / 0x30 (0x8 / 0x20 / 0x30 share one block with an extra test `32696fa0` / `3267b440`), sends the single complete REQ
+  for visits (`31eff0f0`), and calls `31f4c3a0` / `31f4bb50` before the battle-field guide reset. Nothing of it ported: Q4e took 0x27c.
+- **0x167 or 0x27c: still not provable.** No event-name table in the image. Both deserializers are identical instantiations (`320e9e60` = `320e9c70`), and June's
+  0xef goes to slot 0x15c `31f1d020`, which is not a quest handler. New: the state copy handles June-only clear types, so it was maintained after they were
+  added, and it is not dead source. Q4e's argument still decides: with June's `IsCompleteVisitQuest` (`3232c750`, no last-sub-quest rule) the state copy would
+  send requests the server refuses.
+- **What the case set changes in June data:** 501 `DUNGEON_CLEAR_COUNT` sub-quests gain a line. Of the 14 ITEM_USE, 22 SKILL_USE and 6 LEARN_NEW_SKILL sub-quests,
+  only ITEM_USE 203070 (event quest "Unstoppable Hatchet Wielding Temptation") belongs to a quest, so that is the only line lost.
+- **Hygiene** (`flagcheck --worktree --files X2Lib/X2State.cpp KTDXLIB/Always.h`, each flag): `files: 0 PASS, 0 PASS~, 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+  (each flag's OTHER rows are the other Q5c flag's blocks in the same two files).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,526,784 B, dated 2026-10-20 08:08:13, md5 dd005622ee4aa1981175a792f3190b75, equal to X2/US_SERVICE/x2.exe (2026-10-20 08:08:07); built at main 6b37c126 + 2 uncommitted code file(s).`
+- **In game** (play-test hand-off below): Tree of El Normal as unit 20 `wewe`. The Banthus kill shows "Banthus (Tree of El) 1/1" (quest 160, put in the save,
+  backup `db_backup/els_db_20261020_080340_pre_sql.sql`). The clear shows the 11010 line "Defeat Banthus (Tree of El)" before the result screen. Before Q5c the
+  clear line did not exist. The hunt line did, wrapped at 500 px, which looks the same for a line this short.
+- **Revert:** `MODS.md` "UPDATE_QUEST_NOT in-game progress text". No data. The only save change is the test quest.
+- **Review:** `kickoffs/quest-system/Q5c-review.md` (two differences ported).
+
 ## Phase Q6 - Quest gates: the inert keys and their readers
 
 **Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_QUEST_GATE`. Sub-tag `GATE`.
