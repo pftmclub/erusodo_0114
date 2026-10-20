@@ -628,6 +628,59 @@ wrong. In the CH1b block (sets from the fixed plain rows; CH0c adds any `~` row)
 `RESULT: PASS`. No code changed in the review, so no build (the deployed exe is CH1b's). **In game:** nothing (inert code). Next: CH0c (`kickoffs/pilot-char-revamp/CH0c.md`),
 then CH1c (its kickoff now depends on CH0c).
 
+### CH1c - Done (2026-10-20)
+
+Inert transcription, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`, the commit "Character pilot Phase CH1c". The 30 class-map rows of phase CH1c are 30 new `CX2GUArme_VioletMage::June_*` members
+(declared after CH1b's in `X2GUArme_VioletMage.h`, bodies in a third block at the end of the `.cpp`, each with its June address), one new `ARME_VIOLEMAGE_STATE_ID` member
+(`AVSI_AEM_ZZX`, June id 233, after the CH1b `_UPGRADE` pair) and two June-only members (`m_pJuneMpRefund`, `m_iJuneBallElement`). Nothing registers or calls them. 32 funcmap rows `Char CH1c`.
+
+| June | Member (`June_` prefix) | June | Member |
+|---|---|---|---|
+| `32cb72b0` / `32cb9ee0` | ComboZ1FrameMove / EventProcess | `32cba3e0` | ComboZ2EventProcess |
+| `32cba970` / `32cbaa50` | ComboZ3 / Z3up EventProcess | `32cb72c0` / `32cb7310` | ComboZ4upStart / FrameMoveFuture |
+| `32cd2b10` / `32cbabf0` | ComboZ4upFrameMove / EventProcess | `32ce5780` / `32cbacd0` | ComboX1FrameMove / EventProcess |
+| `32ce5970` / `32cbafb0` | ComboX2FrameMove / EventProcess (**not carved in Ghidra: read from the listing**) | `32ce5ac0` / `32cbb520` | ComboX3FrameMove / EventProcess |
+| `32cb7320` | ComboX3StateEnd | `32cb7340` / `32cbb8f0` | ComboX4ChargeFrameMove / EventProcess |
+| `32ce5c10` / `32cbba30` | ComboX4ChargeFireFrameMove / EventProcess | `32ce5dc0` / `32cbbc40` | ComboX4FrameMove / EventProcess |
+| `32cb73a0` / `32cb73f0` | ComboX3frontStart / FrameMoveFuture | `32cd3370` / `32cbbe50` | ComboX3frontFrameMove / EventProcess |
+| `32cbbf40` / `32cbc3e0` | ComboX3downFrameMove / EventProcess | `32cc2b90` | FlushMpWithRefund (helper) |
+| `32ce4180` | CreateComboFireBall (helper) | | |
+
+**What differs from March** (the rest is March's body): every combo `EventProcess` is June's data-driven cancel template (March: fixed times) - the `m_fSkillCancelAfter` / `BWalk` / `Walk` / `Dash` / `AttackCancelAfter` / `UpDown`
+members, the four `m_fEventTime[ i ]` input windows and `bEventFlagList[ 0..3 ]` - with new hand-offs: Z2 -> Z3up / AVP_ZZfrontZ / Z3 / AEM_ZZX, X1 -> AEM_XZ, X2 -> X3down / X3front / X3, X3 -> X4_CHARGE (if `m_bCanChangeState`
+and not transformed) / X4, X3down -> ADW_COMBO_ADD_X. The Z4up / X3front `FrameMoveFuture` lose March's speed-zero window. Fireballs: X1-X4 spend MP through `32cc2b90` (a chance refund of the MP just spent,
+from the passive object at `+0x96ac`) and are created by `32ce4180` (Battle Magician / Dimension Witch magic-ball names, the ice / energy element at `+0x9630`, the gravity ball, the Magical Makeup damage
+bonus); timers X3 0.382 s (March 0.5), X4 / X4-fire 0.033 s (March 0.166); the charged ball no longer scales its power by the charge (the scale only). `Z4up` / `X3front` / `X3down` `FrameMove` equal March's.
+
+**Decoded by structure, not by a table** (one check in the review): June `+0x8c10` is `m_fEventTime[ 0 ]` (March `EventProcessTime`, 12 bytes: `keyInputStart`, `keyInputEnd`, `stateChange`; ten entries end at `m_fAttackCancelAfterEx` `+0x8c88`);
+`+0x7d85..+0x7d88` are `bEventFlagList[ 0..3 ]` (CH1b's reading); `+0x8d4c` is the awakening-by-key flag of the `SKILL_CANCEL_AFTER` expansion (March macro, AWAKE_LOCK form, used as is); `+0x95bc` is `m_fMPConsumeRateFireBall`
+(a protected float in June, `+0x95c8` `m_fFireBallRangeRate`); `+0x9634 / +0x963c / +0x9640` are `m_fIceBallPower / m_bResearchGravityBall / m_fGravityBallPower` (June applies `m_fIceBallPower` to every element);
+`+0x8e90 ? +0x8e84 : +0x87d0` is Luciel's second body (checklist 7o), false for Aisha. Skill ids 22022 / 22040 are `RNSI_SA_ABM_MAGICAL_MAKEUP` (+ `_UPGRADE`); the ability type `0xf` is March's `SA_DAMAGE_REL`.
+
+**Stand-ins (June layout owned by CH4 / CH1; need Opus if the review doubts them):**
+1. `m_pJuneMpRefund` (`JuneMpRefundData`: `m_fChance` = object `+0x10`, `m_fRate` = the protected float at `+0x20`): the passive object `InitPassiveSkillState` (`32cecd70`, CH4) builds with `32cf2190` for skills 22405 / 22415.
+   The constructor must set it to NULL (June `32cc99d0 @32cca662`), the destructor deletes it (`32ce4180 @32ce4647` is inside the destructor that follows the function). Until CH4 it is NULL, so no refund.
+2. `m_iJuneBallElement` (`+0x9630`, constructor 0; March's `m_bIceBall` is its 0 / 1 case): CH4 sets it (`32ced3dc` 0, `32ced402` 2, the ice case in the same function).
+3. `IsPvpOrPve` is false (the offline client has no PvP); the class tests read `GetUnit()->GetClass()` where June reads `[ templet +0xaf0 ]->[ 4 ]` (the same field, plus a NULL test).
+
+**Registration notes for CH1:** state ids are shared by the job variants (0xaa is `AVSI_COMBO_X3front` and the Elemental Master's `AVSI_AEM_XXfrontX`; 0xab the High / Dark Magician `X3down`); the transcription names the base state. CH1 decides the numbering; `AVSI_AEM_ZZX` (CH1e writes
+its functions) is already an enum member. The states these functions are registered for are in `ch0_state_skill.tsv` (`phase` CH1c).
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files X2Lib/X2GUArme_VioletMage.cpp X2Lib/X2GUArme_VioletMage.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `cl /Zs` of the class file under the US_SERVICE defines: 0 errors.
+Build (before the comment trim below): `DEPLOY OK: X2_offline.exe is 25,547,264 B, dated 2026-10-20 09:32:50, md5 528cf7d5eb9eb70262ce9e8573ea6fab, equal to X2/US_SERVICE/x2.exe (2026-10-20 09:32:42); built at main 03f25348 + 2 uncommitted code file(s).`
+The source comments were then cut to one line each (CLAUDE.md, *Rule: a code comment is one short line*); the code lines are identical (checked line by line), `flagcheck` and `cl /Zs` re-run clean, so the deployed exe is still this phase's code.
+
+**Decoding tables (moved out of the source):**
+- Key bytes (March `m_InputData` order): pureLeft `+0x86da`, pureDoubleLeft `+0x86dc`, pureRight `+0x86de`, pureDoubleRight `+0x86e0`, pureUp `+0x86e2`, pureDown `+0x86e6`, pureZ `+0x86ea` / oneZ `+0x86eb`, pureX `+0x86ee` / oneX `+0x86ef`,
+  pureC `+0x86f2`, pureA `+0x86f6`, pureS `+0x86fa`, pureD `+0x86fe`, pureQ `+0x8706`, pureW `+0x870a`, pureE `+0x870e`, pureR `+0x8712`, oneLCtr `+0x8723`.
+- State ids: `0xd` WAIT, `0x11` JUMP_DOWN, `0xa2` Z1, `0xa3` Z2, `0xa4` Z3, `0xa5` Z3up, `0xa6` Z4up, `0xa7` X1, `0xa8` X2, `0xa9` X3, `0xaa` X3front, `0xab` X3down, `0xd3` X4, `0xd6` X4_CHARGE, `0xd7` X4_CHARGE_FIRE, `0xc6` AEM_XZ, `0xc8` AVP_ZZfrontZ, `0xd4` ADW_COMBO_ADD_X, `0xe9` AEM_ZZX.
+- Class ids: HM `0xe`, DM `0xf`, BM `0x17`, AEM `0x68`, AVP `0x69`, ADW `0x71`. Vslots: `0x5c` StateChange, `0x668` StateChangeDashIfPossible, `0x7f4( 1 )` SpecialAttackEventProcess( ASUT_GROUND ), `0x560` CanHyperMode, `0x6b8` GetHypetMpdeStateID,
+  `0x4b0` / `0x4b4` GetComboZ / XStateID, `0xe4` FlushMp, `0xf0` UpNowMp, `0x1cc` GetRandomFloat, `0x204` GetPowerRate, `0x150` GetRotateDegree, `0x16c` GetDirVector, `0x170` GetIsRight, `0x7ec` CreateStepDust, `0x7c4`..`0x7dc` CommonState* / CommonFrameMove*.
+
+No `JUNE_BUGS` row (Z3's animation-end-first order is March's too; the other oddities are June changes, not mistakes). No drift: the refund passive, the element ball and the combo windows are Aisha's class mechanics (CH4 / CH1). Checklist row 396 (UPDOWN branches in class states): Z1 carries it;
+the row is annotated when CH1 closes the combo set. **In game:** nothing (the flag adds unreferenced members). Review: `kickoffs/pilot-char-revamp/CH1c-review.md`. Next: CH1d after the review.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

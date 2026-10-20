@@ -81,3 +81,10 @@ Done notes, whose "Registration notes for CH1" were written from the old map. Wh
 - Ported functions whose state set shrank keep their phase and member: `32cc8800` (Init of the two TELEPORT_STANDUP_ATTACK states, CH1a),
   `32cbb8d0` / `32cbba10` (COMBO_X4_CHARGE only), `32cb7530` / `32cc6ca0` / `32cd5360` (DASH_JUMP_ATTACK_Z only), the riding hyper set
   `32cb8a50` / `32ce6f20` / `32ce1590` / `32cf0fa0` (AVSI_RIDING_HYPER_MODE only), `32cd1470` (CH1b). Point only those states at them.
+
+## From CH1c (2026-10-20)
+
+- **Constructor / destructor:** `m_pJuneMpRefund` (June `+0x96ac`, `JuneMpRefundData*`) = NULL and `m_iJuneBallElement` (June `+0x9630`) = 0 in the constructor (June `32cc99d0 @32cca662`, `@32ccb794`); the destructor deletes `m_pJuneMpRefund` (June `32ce4647`, inside the destructor that follows `32ce4180`).
+  CH4 fills both (the passive object, the element) and replaces `JuneMpRefundData` with the real layout.
+- **Shared state ids:** the job variants share one id (0xaa = `AVSI_COMBO_X3front` / `AVSI_AEM_XXfrontX`, 0xab = `AVSI_COMBO_X3down` / the High and Dark Magician `X3down`, 0xa8 = X2 / the High and Dark Magician X2 ...). CH1c's `StateChange` calls name the base state; the numbering decision is yours.
+- `AVSI_AEM_ZZX` (233) exists as an enum member; its state functions are CH1e's. The CH1c functions' registered states are in `ch0_state_skill.tsv` (`phase` CH1c).

@@ -46,3 +46,9 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
 CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
 - in: 32cb7450 (`HIGH_MAGICIAN_COMBO_X3back` EndFuture), 32cbe200 (`HIGH_MAGICION_DASH_ATTACK_X2` EventProcess), 32cc3080 (`AHM_DASH_JUMP_ZXX_FINISH` EventProcess), 32cc3ea0 (`AEM_DASH_JUMP_X3` EventProcess) from CH1h; 32cb7d00 from CH1c; 32cb8bd0, 32cc37e0, 32cc3b70 from CH1d
 - out: 32cb7db0 (`AVP_ZZfrontZZ` StartFuture), 32cb8be0 (`ADM_DASH_JUMP_ZX` FrameMoveFuture), 32cc6a30 (`DARK_MAGICIAN_DASH_COMBO_Z2a` / `ABM_DASH_COMBO_Z2a` Start) to CH1f; 32cb8bf0 (`ABM_DASH_JUMP_ZX` StartFuture) to CH1g
+
+## From CH1c (2026-10-20)
+
+- `AVSI_AEM_ZZX` (June id 233) is already a member of `ARME_VIOLEMAGE_STATE_ID` (CH1c added it for `June_ComboZ2EventProcess`); do not add it again. Its FrameMove / EventProcess (`32ce2470`, `32cc30b0`) are yours.
+- `AVSI_AEM_XZ` (198) and `AVSI_AEM_XXfrontX` (id 170, shared with `AVSI_COMBO_X3front`) are the targets of CH1c's X1 / X2 EventProcess; CH1c names the base state for a shared id.
+- The combo template and its macros: see the CH1c Done note and the start of the CH1c block (same advice as CH1d's "From CH1c").

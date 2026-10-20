@@ -142,6 +142,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 			AVSI_TELEPORT_STAND_UP_START_UPGRADE,			/// June script id 242 ( CH1b: chosen by June_DamageDown*EventProcess; CH2a registers the state )
 			AVSI_TELEPORT_STAND_UP_ATTACK_UPGRADE,			/// June script id 243
+			AVSI_AEM_ZZX,									/// June script id 233 ( CH1e writes the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 //#ifdef PVP_BOSS_COMBAT_TEST
@@ -891,6 +892,50 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_RidingOffStart();										/// June 32cf0f90
 		void June_RidingHyperModeEnd();									/// June 32cf0fa0
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1b
+
+		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1c ( JUNE_CHARACTER_AISHA_PHASES.md )
+		/// Inert June ground combos ( class map phase CH1c ); definitions at the end of X2GUArme_VioletMage.cpp.
+		void June_ComboZ1FrameMove();									/// June 32cb72b0
+		void June_ComboZ1EventProcess();								/// June 32cb9ee0
+		void June_ComboZ2EventProcess();								/// June 32cba3e0
+		void June_ComboZ3EventProcess();								/// June 32cba970
+		void June_ComboZ3upEventProcess();								/// June 32cbaa50
+		void June_ComboZ4upStart();										/// June 32cb72c0
+		void June_ComboZ4upFrameMoveFuture();							/// June 32cb7310
+		void June_ComboZ4upFrameMove();									/// June 32cd2b10
+		void June_ComboZ4upEventProcess();								/// June 32cbabf0
+		void June_ComboX1FrameMove();									/// June 32ce5780
+		void June_ComboX1EventProcess();								/// June 32cbacd0
+		void June_ComboX2FrameMove();									/// June 32ce5970
+		void June_ComboX2EventProcess();								/// June 32cbafb0
+		void June_ComboX3FrameMove();									/// June 32ce5ac0
+		void June_ComboX3EventProcess();								/// June 32cbb520
+		void June_ComboX3StateEnd();									/// June 32cb7320
+		void June_ComboX4ChargeFrameMove();								/// June 32cb7340
+		void June_ComboX4ChargeEventProcess();							/// June 32cbb8f0
+		void June_ComboX4ChargeFireFrameMove();							/// June 32ce5c10
+		void June_ComboX4ChargeFireEventProcess();						/// June 32cbba30
+		void June_ComboX4FrameMove();									/// June 32ce5dc0
+		void June_ComboX4EventProcess();								/// June 32cbbc40
+		void June_ComboX3frontStart();									/// June 32cb73a0
+		void June_ComboX3frontFrameMoveFuture();						/// June 32cb73f0
+		void June_ComboX3frontFrameMove();								/// June 32cd3370
+		void June_ComboX3frontEventProcess();							/// June 32cbbe50
+		void June_ComboX3downFrameMove();								/// June 32cbbf40
+		void June_ComboX3downEventProcess();							/// June 32cbc3e0
+		bool June_FlushMpWithRefund( const float fMp_ );				/// June 32cc2b90 ( helper )
+		CX2DamageEffect::CEffect* June_CreateComboFireBall( const int iType_, const D3DXVECTOR3& vPos_, const D3DXVECTOR3& vRotateDegree_ );	/// June 32ce4180 ( helper )
+
+		/// June +0x96ac: the passive object CH4 builds; only the two values 32cc2b90 reads, CH4 replaces this struct.
+		struct JuneMpRefundData
+		{
+			float	m_fChance;
+			float	m_fRate;
+			JuneMpRefundData() : m_fChance( 0.f ), m_fRate( 0.f ) {}
+		};
+		JuneMpRefundData*			m_pJuneMpRefund;			/// June +0x96ac ( NULL = no passive )
+		int							m_iJuneBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
+		//}} Iruha : 2026-10-20 // June character pilot Phase CH1c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

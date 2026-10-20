@@ -46,3 +46,12 @@ into CH1a-CH1i (Sonnet, inert) and left the wiring, the script and the play-test
 CH0c corrected the registration map (`ch0_state_skill.tsv` june_registration / june_callbacks, the class map's states column). The awk filter above reads the corrected map; registration claims in comments come from it only. Moves for this phase:
 - in: 32cbdd20 (`AVSI_DASH_COMBO_Z2a` EventProcess, from CH1h), 32cbe510 (`AVSI_DASH_JUMP_ATTACK_X2` EventProcess, from CH1f)
 - out: 32cb7400, 32cbc930 (`DARK_MAGICIAN_COMBO_X4down`), 32cb7d60 (`AVP_ZZfrontZZ` Init) to CH1f; 32cb8bd0 (`AEM_DASH_JUMP_X3`), 32cc37e0 / 32cc3b70 (`AEM_ZZXX_LOOP`) to CH1e; 32cb8d10 / 32cc73e0 (`ADW_ZZZBackZ`) to CH1g
+
+## From CH1c (2026-10-20)
+
+CH1c (done, review pending) is the pattern for the combo / dash-combo states; read its Done note ("CH1c - Done", with the key-byte / state-id / vslot tables).
+- The combo `EventProcess` is June's cancel template, not March's fixed times: copy the block-local macros `JUNE_ARME_ANY_KEY_C` / `_ZXC`, `JUNE_ARME_FLAG_DUE`, `JUNE_ARME_IN_WINDOW`, `JUNE_ARME_FORWARD_KEY`, `JUNE_ARME_WALK_CANCEL`, `JUNE_ARME_DASH_CANCEL`
+  into your own block (`#undef` them at its end) and use the March `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`. Members: `m_fEventTime[ i ]` (+0x8c10, 12 bytes each), `bEventFlagList[ 0..3 ]` (+0x7d85..+0x7d88), `m_fUpDownCancelAfter`, `m_fAttackCancelAfter`.
+- A function Ghidra has not carved ("No function found") is read with `python june2017_re/funcdis.py --func <va>` (CH1c: `32cbafb0`, `32ce5970`).
+- The fireball helpers exist: `June_FlushMpWithRefund( fMp )` (June `32cc2b90`, every fireball MP spend) and `June_CreateComboFireBall( type, pos, rot )` (June `32ce4180`, types 0..7; type 6 is the High Magician dash combo XX, 5 the High Magician big ball).
+- State ids are shared by the job variants (see the CH1c note): write the base state's name for a shared id, and a new `ARME_VIOLEMAGE_STATE_ID` member only for a June-only id (as CH1b / CH1c did).

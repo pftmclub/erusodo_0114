@@ -37,3 +37,9 @@ types 1 / 5 / 8), `awk -F'\t' '$5 ~ /CH4/' ch0_checklist_rows.tsv`.
 - **Memorize:** 7ah (the 10-slot dialog's memorize statics), 7aj (slot data type 5 `328d9ac0`, `SESAPT_MEMORIZE` picture `328e0460`, mouse-in
   29059 `328ec719`, tooltip line `328e9160`; class helper `32ce1650` called from `328dfaa0`), 7ak (`32ce1770` on the decide-page ACK).
 - **Buff skills (type 5):** the state is the shared `AVSI_SI_AV_COMMON_BUFF` (CH1); CH4 brings the buff data rows.
+
+## From CH1c (2026-10-20)
+
+- `InitPassiveSkillState` (`32cecd70`) builds the object at `+0x96ac` (`32cf2190`, 0x2c bytes: chance at `+0x10` = skill 22415 `SA_EFFECTIVE_RATE`, the refund rate = a protected float at `+0x20` = its ability `0x42`; the 22405 values sit in the container at `+0x14`)
+  and sets the combo fireball element (`+0x9630`: `32ced3dc` 0, `32ced402` 2; where it becomes 1 (ice) was not found in CH1c's scan of the class range: find it), `+0x9634` (ball power), `+0x9638`, `+0x963c` / `+0x9640` (gravity). CH1c's inert `m_pJuneMpRefund` (`JuneMpRefundData { m_fChance, m_fRate }`) and
+  `m_iJuneBallElement` are the stand-ins to replace; `June_FlushMpWithRefund` (`32cc2b90`) and `June_CreateComboFireBall` (`32ce4180`) read them.
