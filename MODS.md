@@ -4789,3 +4789,11 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_P
 | Petit Angkor (22209) | AISHA_SUMMON_BAT_FIRST_BITE / BITE / EXPLOSION = 0.74 | Petit_Angor_Bite / First_Bite = 1.43, Explosion = 3.3 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### Offline: unsealing a skill grants it at once (OFFLINE_UNSEAL_GRANT, 2026-10-21)
+
+Flag `SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT` in `KTDXLIB/Always.h` (`#error` guard: `_JUNE_SKILL_ACQUIRE`).
+- **Bug.** A secret manual (Camilla's, 270970-270973, 271311...) only recorded the unseal. The June level grant (`GrantJuneSkillsByLevel`) skips sealed skills and ran again only at level-up,
+  job change or character select, so an unsealed skill whose level was already met stayed at level 0 (shown unlocked, not learned) until then.
+- **Fix.** `Handler_EGS_USE_ITEM_IN_INVENTORY_REQ` runs `PushJuneSkillGrant( ..., L"unseal" )` right after `EGS_UNSEAL_SKILL_NOT`; log line `[JUNE_SKILL] ACQ push (unseal)`.
+- **Revert:** comment out the flag, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change; skills already granted stay in the save (they would be granted at the next select anyway).

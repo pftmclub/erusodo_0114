@@ -1141,6 +1141,12 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 		Reply( kSes, EGS_UNSEAL_SKILL_NOT, kNot );
 
 		CX2OfflineLog::Server( L"SKILL    item %d unsealed skill %d", kRow.m_iItemID, iUnsealSkillID );
+#ifdef SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT
+		// The grant skips sealed skills, so the unsealed one waited for the next level-up / relog.
+		KOfflineUnitRow kUnseal;
+		if( true == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kUnseal ) )
+			PushJuneSkillGrant( kSes, kUnseal.m_nUnitUID, kUnseal.m_iUnitClass, kUnseal.m_iLevel, false, L"unseal" );
+#endif SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT
 	}
 
 	// Phase 22: the page count, likewise a _NOT. Without it the client leaves
