@@ -27,7 +27,8 @@ Review CH3c's commit against June, in the listing, not only the decompile:
 2. **`322ece70`** for flags 0: does anything in it other than the power rate (stat scale, hyper mode, life time) differ from March's Hell Drop case once the skill id is June's?
 3. **`32757560`** (`ScaleMoveSpeed`): the four fields `+0x324..+0x330` against March's `m_PhysicParam` walk / run / jump / dash jump speeds.
 4. **Case `0x1f5`** (`3230c585`-`3230c59a`) and `June_SetStoneWallSummonInfo`; confirm in the listing that no other caller creates NPC 501, and that no June bat case exists.
-5. March's `GetEquippedActiveSkillTemplet( ..., true )` second argument with a swapped id (as in CH3b's Distortion case).
+5. **Steering (JUNE_BUGS 394):** confirm in the listing that nothing but `32cb7cea` / `32cda131` / `32cef337` pushes state id `0xbb` in the Aisha module and that `32cd95d0` always requests `0x627`; check the memo UFO Lua binders and that its auto flight and 8 stones run.
+6. March's `GetEquippedActiveSkillTemplet( ..., true )` second argument with a swapped id (as in CH3b's Distortion case).
 
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL --range <CH3c commit>^..<CH3c commit>`; paste the `files:` /
 `in this flag's files:` / `RESULT:` lines. A FAIL is a finding.
