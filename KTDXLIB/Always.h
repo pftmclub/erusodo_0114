@@ -9748,3 +9748,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Reaches Aisha's Fire / Dark / Energy Ring ( pilot-char-revamp CH3a2 ), Chung and Rena. Revert: JUNE_AIMING_TARGET_OWN_LINE in MODS.md.
 #define SERV_IRUHADEV_JUNE_AIMING_TARGET_OWN_LINE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June's MP change text ( 32278070, 3229ecc0 ): queued MP changes show as "MP +n" / "MP -n" every 0.2 s, before the HP queue. Revert: undefine the flag ( JUNE_MP_CHANGE_TEXT ).
+#define SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+#if defined( SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT ) && !defined( SERV_IRUHADEV_ELYSION_SCRIPT_B )
+#error SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT needs SERV_IRUHADEV_ELYSION_SCRIPT_B ( JuneFrameMoveHpChangeText )
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June character pilot ( Aisha ) Phase CH4a - InitPassiveSkillState is June's ( 32cecd70 ) and the Dark Deal refund shows its MP text. Revert: undefine the flag ( JUNE_CHAR_ARME_PASSIVE ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE ) || !defined( SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE and SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+#endif
+//////////////////////////////////////////////////////////////////////////

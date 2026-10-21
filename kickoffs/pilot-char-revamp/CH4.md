@@ -65,3 +65,8 @@ The class map now lists `32ce9f90`, the callback of the skill 22416 passive (ski
 - **The memorize-slot HUD is yours, both halves:** `322deb80` ( `June_GameRefreshMemoRise`, the no-op in the CH1h block ) and `322f4740`, the CX2Game per-frame pass ( own Aisha only, vslot `0x718` true: `+0xb38` += elapsed, `Aisha_Memorise_P0n` particles, `Static_Skill_Cool_Time_Fade`; it resets `+0xb38` at 2.8 s ( `3351aff0` ) ). `322cc030` ( `June_SetGameFloatB38` ) only stores that float; nothing in `June_*` calls it yet.
 - `JuneMpRefundData` ( `+0x96ac` ) now is June's Strong Mind object: it derives `TimeLimited` ( `+4` timer ) and has `m_fSpecialActiveSkillRate` ( `+8` ), `m_fActiveSkillRate` ( `+0xc` ), `m_fChance` ( `+0x10` ), `m_fMPRestoreRate` ( `+0x14` protected ), `m_fRate` ( `+0x20` protected ). `June_SpecialAttackCooldown` and `June_CommonFrameMove` read them; you build the object.
 - `m_bJune978d` ( June `+0x978d` ) must be set by the Mana Flow Overdrive passive ( 22410 ) for `June_ManaflowOverdriveFrameMove` ( `32cc5b20` ) to run.
+
+## Split (CH4a, 2026-10-22)
+
+CH4 was split into CH4a (InitPassiveSkillState, MP text), CH4b (delegate lists, 22416), CH4c (overrides, Meditation, aura rows) and CH4d (memorize).
+See "CH4 split (2026-10-22, Opus)" in the plan doc; each has its own kickoff in this folder. This file is the shared brief.

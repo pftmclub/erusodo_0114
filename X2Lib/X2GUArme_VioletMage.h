@@ -957,6 +957,9 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		};
 		JuneMpRefundData*			m_pJuneMpRefund;			/// June +0x96ac ( NULL = no passive )
 		int							m_iJuneBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
+		void June_InitPassiveSkillState();								/// June 32cecd70 ( vslot 0x690 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1c
 
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1d ( JUNE_CHARACTER_AISHA_PHASES.md )

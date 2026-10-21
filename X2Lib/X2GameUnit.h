@@ -2502,6 +2502,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void JuneProcessThorns( CX2GameUnit* pAttacker_, float fDamage_ );	/// June 32278150 ( both DamageReacts )
 		void JuneUpNowHpWithText( float fDelta_ );		/// June 322780b0
 		void JuneFrameMoveHpChangeText();				/// June 3229ecc0 @3229f11f-3229f4e6
+#ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+		void JuneUpNowMpWithText( float fDelta_ );		/// June 32278070
+		bool JuneFrameMoveMpChangeText();				/// June 3229ecc0 @3229ed1f-3229f127
+#endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 		void StartSimpleTimerCount( float fTime_, float fOffsetX_, float fOffsetY_, float fOffsetZ_, const char* pszSoundName_ );	/// June 32299890
 		int GetSimpleTimerCount() { return m_iJuneSimpleTimerCount; }	/// June 3226e3c0
 		void StopAndDeleteSimpleTimerCount();			/// June 322963a0
@@ -4394,6 +4398,10 @@ protected:
 		/// Atlas E7: June +0x68bc / +0x68c0, the queued HP changes 322780b0 adds ( shown as HP +n / HP -n every 0.2 s )
 		float											m_fJuneHpChangeTextTime;
 		std::vector<float>								m_vecJuneHpChangeText;
+#ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+		float											m_fJuneMpChangeTextTime;	/// June +0x68a8
+		std::vector<float>								m_vecJuneMpChangeText;		/// June +0x68ac
+#endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 		/// Atlas E7: June +0x75f4 handle, +0x75f8 time, +0x75fc count ( -1 off ), +0x7600 sound, +0x761c offset ( ctor @322a5e57-322a5e74: -1, 0, -1, L"" )
 		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hJuneSimpleTimer;
 		float											m_fJuneSimpleTimerTime;

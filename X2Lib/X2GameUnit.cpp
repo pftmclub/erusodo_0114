@@ -327,6 +327,9 @@ m_fNoSkillTime( 0 )
 	m_fJuneThornsRate			= 0.f;
 	m_bJuneThornsCheckHp		= false;
 	m_fJuneHpChangeTextTime		= 0.f;
+#ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+	m_fJuneMpChangeTextTime		= 0.f;
+#endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 	m_hJuneSimpleTimer			= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_fJuneSimpleTimerTime		= 0.f;
 	m_iJuneSimpleTimerCount		= -1;
@@ -19615,6 +19618,48 @@ void CX2GameUnit::JuneUpNowHpWithText( float fDelta_ )
 	m_vecJuneHpChangeText.push_back( fDelta_ + 0.005f );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+// June 32278070
+void CX2GameUnit::JuneUpNowMpWithText( float fDelta_ )
+{
+	UpNowMp( fDelta_ );
+	m_vecJuneMpChangeText.push_back( fDelta_ + 0.005f );
+}
+
+// June 3229ecc0 @3229ed1f-3229f127: true when the MP timer fired this frame, text or not
+bool CX2GameUnit::JuneFrameMoveMpChangeText()
+{
+	if ( true == m_vecJuneMpChangeText.empty() )
+		return false;
+	m_fJuneMpChangeTextTime += m_fElapsedTime;
+	if ( m_fJuneMpChangeTextTime < 0.2f )
+		return false;
+	m_fJuneMpChangeTextTime = 0.f;
+
+	float fSum = 0.f;
+	for ( UINT i = 0; i < m_vecJuneMpChangeText.size(); i++ )
+		fSum += m_vecJuneMpChangeText[i];
+	m_vecJuneMpChangeText.clear();
+
+	D3DXVECTOR3 vPos = GetPos( false );
+	vPos.y += 50.f;
+	if ( fSum > 1.f )
+	{
+		std::wstringstream wstrmText;
+		wstrmText << L"MP +" << static_cast<int>( fSum );
+		if ( NULL != g_pData->GetPicCharBlue() )
+			g_pData->GetPicCharBlue()->DrawText( wstrmText.str().c_str(), vPos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+	}
+	else if ( fSum < 0.f )
+	{
+		std::wstringstream wstrmText;
+		wstrmText << L"MP -" << static_cast<int>( -fSum );
+		if ( NULL != g_pData->GetPicCharRed() )
+			g_pData->GetPicCharRed()->DrawText( wstrmText.str().c_str(), vPos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+	}
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 /** June 3229ecc0 @3229f11f-3229f4e6, the +0x68c0 half: while changes are queued, the timer +0x68bc runs ( += elapsed +0x2b0 ); from 0.2
 	( 334411a8 ) on it restarts at 0, the queue is summed and emptied, and a sum above 1 shows L"HP +" (int)sum in PicCharGreen
 	( g_pData +0x15c ), a sum below 0 L"HP -" (int)-sum in PicCharRed ( +0x154 ), at GetPos( false ) + ( 0, 50, 0 ) ( 33449120 ) with
@@ -19622,12 +19667,19 @@ void CX2GameUnit::JuneUpNowHpWithText( float fDelta_ )
 	showed text this frame, only restarts this timer ( cl, @3229f166 ); that queue is not ported ( no March writer ), so this one never waits. */
 void CX2GameUnit::JuneFrameMoveHpChangeText()
 {
+#ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+	const bool bMpTextFired = JuneFrameMoveMpChangeText();
+#endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 	if ( true == m_vecJuneHpChangeText.empty() )
 		return;
 	m_fJuneHpChangeTextTime += m_fElapsedTime;
 	if ( m_fJuneHpChangeTextTime < 0.2f )
 		return;
 	m_fJuneHpChangeTextTime = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+	if ( true == bMpTextFired )
+		return;	// June @3229f166: the HP queue waits for the next tick
+#endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 
 	float fSum = 0.f;
 	for ( UINT i = 0; i < m_vecJuneHpChangeText.size(); i++ )

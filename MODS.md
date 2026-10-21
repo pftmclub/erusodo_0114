@@ -4863,3 +4863,11 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_P
 - **CH3c review.** The UFOs and Distortion (`0x443`) set their stats and power rate as June's `322ece70` does (`June_SetSummonStatAndPowerRate`): the skill power rate scales the five stats, the power rate is socket x buff x `AT_SPECIAL`.
 - **Lua binders.** `GetWalkSpeedParam` / `GetJumpSpeedParam` on `CX2GameUnit` (June `31e4cfd0` / `31e4e020`): without them the memo UFO's script (`Ufo_Aisha_Droper_Memo.lua`) errors in every flight state and the UFO never moves.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (all CH2a-CH3c Aisha skill work reverts with it), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### June character pilot: Aisha's passives from June's InitPassiveSkillState (pilot-char-revamp CH4a, 2026-10-22)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (needs LIVE and the MP text flag) and `SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT` (needs `ELYSION_SCRIPT_B`) in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH4a - Done"; log line `[JUNE_CHAR] ARME SKILL passive init ( unit ... )`.
+- **Client.** `CX2GUArme_VioletMage::InitPassiveSkillState` calls the new `June_InitPassiveSkillState` (June `32cecd70`): Aisha's passives are read by their June ids (22400-22411, 22415, 22022 / 22023) into the members the June-ported code reads, and the Strong Mind / Dark Deal object is `m_pJuneMpRefund`. March's body (Sprinter, Teleport-up, Freezing Point, Shadow of Disaster, `m_pStrongMindData`) is the `#else`. `June_FlushMpWithRefund` refunds through the new MP text.
+- **Engine.** `CX2GameUnit::JuneUpNowMpWithText` / `JuneFrameMoveMpChangeText` (June `32278070`, `3229ecc0`): queued MP changes show as "MP +n" / "MP -n" every 0.2 s, ahead of the HP queue.
+- **Save.** Test rows: unit 54 `ArmeVP2` + Dark Deal 22415, unit 53 `ArmeDW` + Advanced Teleportation 22411 (both level 1); backup `db_backup/els_db_20261022_060831_pre_sql.sql`. No schema change.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (then, if wanted, `SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.

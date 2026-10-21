@@ -1951,6 +1951,39 @@ log `summon Hell Drop UFO ( ..., stat scale, power rate, move scale )` and `summ
 **Done gate:** each passive's effect shows in game (CH0 names the stat or log line per passive). Memorize stores and casts a skill as June
 does. 0 `no_state` rows left for Aisha in the S3 census, except the ones Stage 6 owns.
 
+### CH4 split (2026-10-22, Opus)
+
+CH4's map is about 15 KB of June class code (20 functions), plus a memorize HUD March never had and an engine delegate list that the 22416
+passive registers into. That is more than one phase can port and review, so CH4 is split as CH1-CH3 were. Each sub-phase is live under its own
+flag, has a review and a play-test, and touches `X2GUArme_VioletMage.*`, so they run one at a time.
+
+| Sub-phase | Run with | Scope |
+|---|---|---|
+| CH4a | Opus 5.5 high, Opus review, user play-test | `InitPassiveSkillState` `32cecd70` whole except the 22416 tail; the Strong Mind / Dark Deal object (`32cf2190`, `m_pJuneMpRefund`); June's "MP +n" text `32278070` and the MP half of `3229ecc0`, which the Dark Deal refund uses. Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`, `SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT` |
+| CH4b | Opus 5.5 high, Opus review, user play-test | June's five unit delegate lists `+0x66ac` .. `+0x66ec`, engine side: cleared by the base `InitPassiveSkillState` `31fe19d0`, run by `322752b0` / `32275280` from AttackResult / DamageReact (11 call sites). Then the 22416 tail of `32cecd70` and its callback `32ce9f90`. Other classes' registrations go to the checklist |
+| CH4c | Opus 5.5 high, Opus review, user play-test | The overrides: `SetDamageExceptionProcess` `32cccc70` (7b), `GetActualMPConsume` `32ccfe30` (reads `+0x95b0`, `+0x95bc`, `+0x97a0`), `GetActualCoolTime` `32ce1cc0` (reads `+0x9638`), `GetAdditionalAccelBuffTime` `32cc1b90`, `Set/UnSetSpecificValueByBuffTempletID` `32cddec0` / `32cde300` with `TransformStart` `32cc91b0` and `32cdbd00`, and the memo hooks `32cc28b0` / `32cc5c30`. Also Meditation and the `ADD_MEMO_1ST_CLASS` branches inside these, the type-5 aura rows, and 7ae's `32895390` rule |
+| CH4d | Opus 5.5 high, Opus review, user play-test | Memorize: the HUD `322deb80` / `322f4740` (replaces `June_GameRefreshMemoRise` / `June_SetGameFloatB38`), the 7ah statics, 7aj (`328d9ac0`, `328e0460` case 2, mouse-in 29059 `328ec719`, the tooltip line in `328e9160`, `32ce1650`) and 7ak. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE` |
+
+### CH4a - Done (2026-10-22, Opus 5.5)
+
+**Landed.** Commit: see `git log`, "Phase CH4a".
+- **`InitPassiveSkillState` is June's** (`32cecd70`), as the new `June_InitPassiveSkillState` under `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`. March's body is the `#else`.
+  - Field map (each June offset is the March member June's ported readers already use): `+0x95bc` `m_fMPConsumeRateFireBall` and `+0x95c8` `m_fFireBallRangeRate` (22400); MP regen by passive (22401 / 22402 / 22403, summed); `+0x96a8` `m_bElementalFriendShip`; `+0x9638` `m_fElementalResearchRate` (22403, `SA_DECREASE_REL`); `+0x963c` / `+0x9640` `m_bResearchGravityBall` / `m_fGravityBallPower` (22404); `+0x96d4` `m_fMagicStaffSize` (22022 / 22023, non-base level).
+  - Further fields: `+0x9630` `m_iJuneBallElement` = 2 and `+0x96d0` / `+0x41d4` / `+0x41d8` the hit-create rate and power (22409); `+0x983c` `m_iAdvancedTeleportationLv` and `+0x97a0` (22411); `+0x978d` / `+0x9790` / `+0x9794` (22410, `SA_MAX` / `MIN_INCREASE_MOVEMENT_BY_MANA`); `+0x9634` `m_fIceBallPower`, always 1.0.
+  - The **Strong Mind object** `+0x96ac` = `m_pJuneMpRefund` (`32cf2190` only builds protected zeros). It holds 22405's `SA 0x40` / `0x41` / `0x42` at its level (minimum 1), then, if `June_GetSkillLevel( 22415 ) > 0`, Dark Deal's chance (`SA_EFFECTIVE_RATE`) and rate (`SA_MP_RETAKE_ABS`). March's `m_pStrongMindData` is no longer allocated.
+  - One line per call: `[JUNE_CHAR] ARME SKILL passive init ( unit ...: ... )`.
+- **June drops these March passives** (June wins): Sprinter's move speed, Teleport-up, Freezing Point (`m_bIceBall`; no June code writes element 1, so the ice-ball names in `June_CreateComboFireBall` and the Circle Flame case are unreachable in June, too) and Shadow of Disaster (`m_fShadowOfDisasterRate`, which has no reader).
+- **MP change text, engine** (`SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT`, `X2GameUnit.*`). `CX2GameUnit::JuneUpNowMpWithText` (`32278070`) does UpNowMp, then queues `delta + 0.005`. `JuneFrameMoveMpChangeText` is the `+0x68ac` half of `3229ecc0`: every 0.2 s it shows the sum as "MP +n" (`PicCharBlue`) above 1, or "MP -n" (`PicCharRed`) below 0. On a frame where that timer fired, the HP queue only restarts its timer (`@3229f166`).
+  - `June_FlushMpWithRefund` (`32cc2b90`) now refunds through it. Strong Mind's own refund (`32ccf4e0`) draws its text directly, as CH1i has it.
+  - The other 38 callers of `32278070` are other classes' code plus `322a0180` (Lanox Secret Ammo) and `3275a120`. They now have the helper (funcmap row).
+- **Readers still on March or unported** go to CH4c: `+0x9638` (`GetActualCoolTime` `32ce1cc0`) and `+0x97a0` / `+0x95b0` (`GetActualMPConsume` `32ccfe30`). `+0x9790` / `+0x9794` have no reader in the Aisha module; CH4c checks the engine for one. The 22416 tail is CH4b's.
+- **June quirk, kept** (JUNE_BUGS 395): Dark Deal's values are read only inside Strong Mind's one-time creation.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_PASSIVE --worktree --files` (Arme `.cpp` / `.h`, `Always.h`): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `JUNE_MP_CHANGE_TEXT` (`X2GameUnit.*`): 2 PASS. Its one ERROR is `Always.h:9767`, PASSIVE's `#error` guard naming both flags in the shared hunk; it is not a hygiene fault.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,719,296 B, dated 2026-10-22 06:18:51, md5 e6190b57ebd1f32f7f6448bed1cfe5dc, equal to X2/US_SERVICE/x2.exe (2026-10-22 06:18:44); built at main 82488a7d + 5 uncommitted code file(s).` The strings `passive init`, `MP +` and `MP -` are in the deployed exe.
+**Save** (backup `db_backup/els_db_20261022_060831_pre_sql.sql`): unit 54 `ArmeVP2` gains Dark Deal 22415 (level 1), and unit 53 `ArmeDW` gains Advanced Teleportation 22411 (level 1).
+**In game:** unit 53's combo fireballs become energy balls, and its Mana Flow Overdrive buff stacks with missing MP. Unit 54 now and then shows a blue "MP +n" when a fireball combo spends MP (the Dark Deal refund). The log line gives each unit's values.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

@@ -2669,6 +2669,9 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 
 /*virtual*/ void CX2GUArme_VioletMage::InitPassiveSkillState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
+	June_InitPassiveSkillState();
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 	CX2GUUser::InitPassiveSkillState();
 	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
 
@@ -2955,6 +2958,7 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 		m_fMagicStaffSize = 1.f; //pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SIZE_ABS );
 	}
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 }
 
 
@@ -24752,7 +24756,11 @@ bool CX2GUArme_VioletMage::June_FlushMpWithRefund( const float fMp_ )
 	if( NULL != m_pJuneMpRefund )
 	{
 		if( GetRandomFloat( 0 ) < m_pJuneMpRefund->m_fChance )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
+			JuneUpNowMpWithText( m_pJuneMpRefund->m_fRate * fMp_ );
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 			UpNowMp( m_pJuneMpRefund->m_fRate * fMp_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 	}
 
 	return true;
@@ -35989,5 +35997,175 @@ void CX2GUArme_VioletMage::June_SetStoneWallSummonInfo( CX2GUNPC* pNPC_ )
 }
 //}} Iruha : 2026-10-22 // June character pilot Phase CH3c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
+//{{ Iruha : 2026-10-22 // June character pilot Phase CH4a
+namespace
+{
+	const int JUNE_CH4A_P_AHM_FIREBALL_UP				= 22400;
+	const int JUNE_CH4A_P_AEM_UNLIMIT_MANA				= 22401;
+	const int JUNE_CH4A_P_AEM_ELEMENTAL_FRIENDSHIP		= 22402;
+	const int JUNE_CH4A_P_AEM_ELEMENTAL_RESEARCH		= 22403;
+	const int JUNE_CH4A_P_ADM_GRAVITYBALL_RESEARCH		= 22404;
+	const int JUNE_CH4A_P_AVP_STRONG_MIND				= 22405;
+	const int JUNE_CH4A_P_ADW_MAGICAL_STAFF				= 22409;
+	const int JUNE_CH4A_P_ADW_MANAFLOW_OVERDRIVE		= 22410;
+	const int JUNE_CH4A_P_ADW_ADVANCED_TELEPORTATION	= 22411;
+	const int JUNE_CH4A_P_AVP_DARK_DEAL					= 22415;
+	const int JUNE_CH4A_SA_ABM_MAGICAL_MAKEUP			= 22022;
+	const int JUNE_CH4A_SA_ABM_SUPER_NOVA				= 22023;
+}
+
+// June 32cecd70; the 22416 tail ( +0x66ac delegate, 32ce9f90 ) is CH4b's
+void CX2GUArme_VioletMage::June_InitPassiveSkillState()
+{
+	CX2GUUser::InitPassiveSkillState();
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+	int iSkillLevel = 0;
+
+	SetAdditionalMPChangeRateByPassive( 0.f );
+	m_fMagicStaffSize = 0.f;
+
+	m_fMPConsumeRateFireBall = 1.f;
+	m_fFireBallRangeRate = 1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AHM_FIREBALL_UP ), true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AHM_FIREBALL_UP ) );
+		if( NULL != pSkillTemplet )
+		{
+			m_fMPConsumeRateFireBall *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel, false );
+			m_fFireBallRangeRate *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel, false );
+		}
+	}
+
+	float fAddMpChangeRate = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AEM_ELEMENTAL_FRIENDSHIP ), true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = userSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AEM_ELEMENTAL_FRIENDSHIP ), true );
+		if( NULL != pSkillTemplet )
+		{
+			fAddMpChangeRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_REGENERATION_ABS, iSkillLevel, false );
+			SetAdditionalMPChangeRateByPassive( fAddMpChangeRate );
+			if( AVSI_CHARGE_MP != GetNowStateID() )
+				ResetMPChangeRate( GetOriginalMPChangeRate() );
+			m_bElementalFriendShip = true;
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AEM_UNLIMIT_MANA ), true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = userSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AEM_UNLIMIT_MANA ), true );
+		if( NULL != pSkillTemplet )
+			fAddMpChangeRate += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_REGENERATION_ABS, iSkillLevel, false );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AEM_ELEMENTAL_RESEARCH ), true, 0, true );
+	m_fElementalResearchRate = 1.f;
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AEM_ELEMENTAL_RESEARCH ) );
+		if( NULL != pSkillTemplet )
+		{
+			m_fElementalResearchRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DECREASE_REL, iSkillLevel, false );
+			fAddMpChangeRate += pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_REGENERATION_ABS, iSkillLevel, false );
+			SetAdditionalMPChangeRateByPassive( fAddMpChangeRate );
+			if( AVSI_CHARGE_MP != GetNowStateID() )
+				ResetMPChangeRate( GetOriginalMPChangeRate() );
+		}
+	}
+
+	if( 0.f < fAddMpChangeRate )
+		SetAdditionalMPChangeRateByPassive( fAddMpChangeRate );	// June: no ResetMPChangeRate here
+
+	if( 0 < userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_SA_ABM_MAGICAL_MAKEUP ), false, 0, true ) )
+		m_fMagicStaffSize = 1.f;
+
+	pSkillTemplet = userSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AVP_STRONG_MIND ), true );
+	if( NULL != pSkillTemplet && NULL == m_pJuneMpRefund )
+	{
+		m_pJuneMpRefund = new JuneMpRefundData;
+		const int iStrongMindLevel = max( 1, userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_AVP_STRONG_MIND ), true, 0, true ) );
+		m_pJuneMpRefund->m_fActiveSkillRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_STRONG_MIND_ACTIVE_REL, iStrongMindLevel, false );
+		m_pJuneMpRefund->m_fSpecialActiveSkillRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_STRONG_MIND_SPECIAL_ACTIVE_REL, iStrongMindLevel, false );
+		m_pJuneMpRefund->m_fMPRestoreRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, iStrongMindLevel, false );
+		if( 0 < June_GetSkillLevel( JUNE_CH4A_P_AVP_DARK_DEAL ) )
+		{
+			m_pJuneMpRefund->m_fChance = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, JUNE_CH4A_P_AVP_DARK_DEAL );
+			m_pJuneMpRefund->m_fRate = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, JUNE_CH4A_P_AVP_DARK_DEAL );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADM_GRAVITYBALL_RESEARCH ), true, 0, true );
+	m_fGravityBallPower = 1.f;
+	m_bResearchGravityBall = false;
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADM_GRAVITYBALL_RESEARCH ) );
+		if( NULL != pSkillTemplet )
+		{
+			m_bResearchGravityBall = true;
+			m_fGravityBallPower *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_REL, iSkillLevel, false );
+		}
+	}
+
+	if( 0 < userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_SA_ABM_SUPER_NOVA ), false, 0, true ) )
+		m_fMagicStaffSize = 1.f;
+
+	m_fIceBallPower = 1.f;
+	m_fMagicStaffExtraRate = 0.f;
+	m_iJuneBallElement = 0;
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADW_MAGICAL_STAFF ), true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		m_fIceBallPower = 1.f;
+		m_iJuneBallElement = 2;
+		pSkillTemplet = userSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADW_MAGICAL_STAFF ), true );
+		if( NULL != pSkillTemplet )
+		{
+			m_fMagicStaffExtraRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel, false );
+			SetHitCreateDamageEffectRate( m_fMagicStaffExtraRate );
+			SetHitCreateDamageEffectPowerRate( pSkillTemplet->GetSkillPowerRateValue( iSkillLevel ) );
+		}
+	}
+
+	m_iAdvancedTeleportationLv = 0;
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADW_ADVANCED_TELEPORTATION ), true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		pSkillTemplet = userSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADW_ADVANCED_TELEPORTATION ), true );
+		if( NULL != pSkillTemplet )
+		{
+			m_iAdvancedTeleportationLv = iSkillLevel;
+			m_fJune97a0 = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel, false );
+		}
+	}
+
+	m_fJune9790 = 1.f;
+	m_fJune9794 = 1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADW_MANAFLOW_OVERDRIVE ), true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		m_bJune978d = true;
+		pSkillTemplet = userSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH4A_P_ADW_MANAFLOW_OVERDRIVE ), true );
+		if( NULL != pSkillTemplet )
+		{
+			m_fJune9790 = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MAX_INCREASE_MOVEMENT_BY_MANA, iSkillLevel, false );
+			m_fJune9794 = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MIN_INCREASE_MOVEMENT_BY_MANA, iSkillLevel, false );
+		}
+	}
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL passive init ( unit %I64d: fireball mp %.3f range %.3f, mp regen %.3f, friendship %d, research %.3f, gravity %d x%.3f, makeup size %.1f, element %d, staff rate %.3f, strong mind %s %.3f / %.3f / %.3f, dark deal %.3f / %.3f, adv teleport %d mp %.3f, overdrive %d %.3f / %.3f )",
+		GetUnitUID(), m_fMPConsumeRateFireBall, m_fFireBallRangeRate, fAddMpChangeRate, true == m_bElementalFriendShip ? 1 : 0, m_fElementalResearchRate,
+		true == m_bResearchGravityBall ? 1 : 0, m_fGravityBallPower, m_fMagicStaffSize, m_iJuneBallElement, m_fMagicStaffExtraRate,
+		NULL != m_pJuneMpRefund ? L"on" : L"off", NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fActiveSkillRate : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fSpecialActiveSkillRate : 0.f,
+		NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fMPRestoreRate : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fChance : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fRate : 0.f,
+		static_cast<int>( m_iAdvancedTeleportationLv ), m_fJune97a0, true == m_bJune978d ? 1 : 0, m_fJune9790, m_fJune9794 );
+}
+//}} Iruha : 2026-10-22 // June character pilot Phase CH4a
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS
