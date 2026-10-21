@@ -33045,7 +33045,7 @@ bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SK
 				} return false;
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 //{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
-			/// June 32cede00 cases 22014-22026, 22039 / 22040 and 22206-22220 ( Energy Drain 22213 stays on the default path: it needs the unmapped 322f0e60 )
+			/// June 32cede00 cases 22014-22026, 22039 / 22040 and 22206-22220 ( Energy Drain 22213 is CH2c's case below )
 			case JUNE_CH2B_SA_ADM_DARK_CLOUD:
 			case JUNE_CH2B_SA_ADM_DARK_CLOUD_UPGRADE:
 				{

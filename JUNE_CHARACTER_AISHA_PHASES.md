@@ -1709,6 +1709,36 @@ Teleport: cast on the review build (14:15 run), behaves as it should (user); it 
 **Save** (backup `data\db_backup`, tag `ch2c_pre`): unit 47 `ArmeBM` (Battle Magician, level 60) now has Energy Drain (22213, level 1) in slot 6 (B bar, second key) beside CH2b's skills.
 **Play-test result (user, 2026-10-21 15:33-15:35; `check logs`, exe md5 `ff50853d...`): PASSED.** `ARME SKILL registered A_ABM_ENERGY_DRAIN ( skill 22213, slot 1 B )`; SUCCESS at 15:33:43 (Energy Ball `DamageEffect_ABM_Enegry_Drain_Hand_Attack` HIT, `Energy Drain SUCCESS ( target 3 )`, `EnegryDrain01` on the user and `02` on NPC 1000014, the NPC died 0.5 s later); FAIL twice (15:33:55, 15:34:06), the next skill cast 3 s later (no stuck state). 0 `Motion Error`, 0 EXCEPTION; the `JUNE_FX unsupported APPLIED_SKILL_ID` lines are the engine's standing note for every class, not this phase.
 
+### CH2c -- Review (2026-10-21, Opus)
+
+**Verdict: PASS. No code change; one stale comment was corrected.** All five functions were read in the `funcdis.py` listing, not the decompile. Floats, strings and thunk targets were read from the image: pi (float, as a double), 180, -1.0 (two copies), ±0.1, 0.47 (float and double), 500, 0.0, 80, 40, 45, 0.25 and 0.3; the three state names, both effect-set names, and thunks `32cf2bd0 / 32cf0f00 / 32cf2be0 / 32cf18f0` -> `32cdc6f0 / 32cb7fa0 / 32cdcac0 / 32cc0d10`.
+1. **`322f0e60`, walked on the x87 stack.**
+   - Stored values: tanUp is `[B+0xc]`, -tanDown `[B+4]`, sideRad `[B+0x1c]`, lenSq `[B+0x2c]`; dy is GetPos y (target - my), squared by the pow loop into `[B+8]`. Then A = lenSq * tanUp and Bv = lenSq * -tanDown.
+   - The compares: `A < 0` (`test 5 / jnp`) or `Bv > 0` (`test 0x41 / je`) fails. `sign * dy^2 > A` or `< Bv` fails. The sign is -1 when target y < my y.
+   - Side angle: `-side > acos` or `side < acos` fails. A NaN angle passes in June and in the port alike. GetLineData's bounds check equals June's `js` / `>= size` / NULL tests. JUNE_BUGS 386 is June's: the `fmul` is by tan itself.
+   - The vslots are confirmed by June's user vtable `334781f4` order: `0x12c` GetLastTouchLineIndex (word `+0x80f4`), `0x130` SetPositionOnLine, `0x134` GetLandPos, `0x138` GetPos, `0x13c` GetXPos. That is March's declaration order.
+   - **Side finding:** funcmap row `31fcee40 / 31fcee60 (C3b)` calls `3208e120` (vslot 0x134) GetUnitCondition. It is GetLandPos. A correction note was added to that row; C3b's "+0xe" reasoning is left unverified (not this plan's subject).
+2. **READY `32cdc6f0`.**
+   - The checks run in the cited order. The NPC test is `+0x264 == 1` then `NCT_BASIC` (`+0x85f8 +4 == 0`). The band is `min = SA 0x9f (SCOPE_ABS_Z) <= deg.z <= max = SA 0x9e (SCOPE_ABS_Y)`; the enum count gives 158 / 159 once the prefix-less `HP_CONSUME_REL` (X2SkillTree.h:1699) is counted.
+   - The nearest unit wins on `<=` (`test 0x41 / jp`). A NULL CX2Unit jumps to `@32cdcab6`, past the CommonFrameMove tail.
+   - `322cc1a0` is IsPvpOrPve (type 1 or 4). March has no type 4, so `GT_PVP` is the house reading (`X2DamageManager.cpp:5082`).
+3. **SUCCESS `32cdcac0`.**
+   - The writes are DamageData `+0x3a0` plus `0xc / 0x460 / 0x470 / 0x4e0 / 0x28 <- 0x24 / 0x574 / 0x578`, the same fields March writes.
+   - `31fca9e0` is `xor al, al; ret 4`. The type 0x12 entry adds v[0] (0 when empty) to `+0x790` = `+0x3f0`, and `@3263892e` writes `lea edi, [ebp + 0x3f0]`.
+   - The effect sets pass `( this, 0, 0 )` and `( unit, unit, 0 )`. A NULL or invalid unit, or a NULL templet, sets -1; a NULL CX2Unit returns without resetting the target or calling CommonFrameMove.
+4. **EventProcess `32cc0d10`.**
+   - It starts with March's end and walk cancel.
+   - Then comes the AWAKE_LOCK `SKILL_CANCEL_AFTER` pair (`0x7f4`, then BlackHole / `+0x8723` / `0x560` / `32070d60`).
+   - Then BWALK `( pureLeft +0x86da && right ) || ( pureRight +0x86de && !right )`, WALK, DASH (`+0x86e0 / +0x86dc`, tail `0x668`), Z `+0x86ea` and X `+0x86ee`.
+   - Every time compare is a strict `<`. There is no CommonEventProcess.
+   - `32cb7fa0` is `jmp [vtable+0x7d4]`, and `X2GUUser.cpp:7316-7330` has no fallback for an unset OnEventProcess, so the forwarder is needed.
+5. **Registration `@32cefeba-32ceffa5`.** It matches the port. The hyper state copies `+0x34 / 38 / 44 / 48`. FAIL is re-`Init`ed and gets the EventProcess only. June's `NewSkillTempletVer2` gives 22234 `m_DeleteSkillIDByUpgrade = 22213`.
+
+**Comment fix (under the flag):** CH2b's case-list comment (`X2GUArme_VioletMage.cpp:33048`) still said Energy Drain "stays on the default path: it needs the unmapped 322f0e60"; it now says the case is CH2c's.
+**Hygiene:** `flagcheck.py JUNE_CHAR_ARME_SKILL --range efc57ab1^..efc57ab1`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The review's worktree run (`--files X2Lib/X2GUArme_VioletMage.cpp`) gives `RESULT: PASS`, with 1 deleted line: the replaced comment.
+**No build:** the edit is comment-only, so the code is the same as in the play-tested exe (md5 `ff50853d...`). The user owes nothing. Next: CH3a (Sonnet) or CH4 (Opus), one at a time.
+
 ## Phase CH3 - Skills: second jobs (104, 105, 113) and hyper actives
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flag as CH2 (or CH0's split). Sub-tag `SKILL`.
