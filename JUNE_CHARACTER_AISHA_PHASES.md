@@ -1933,6 +1933,7 @@ Fix, worktree `--files X2GUArme_VioletMage.cpp / .h, X2Game.cpp`: `files: 3 PASS
 **Play-test (user owes):** unit 54 `ArmeVP2` Enhanced Hell Drop 22059 (A slot 0) and unit 53 Enhanced Distortion 22065 (A slot 0): both still cast and hit;
 log `summon Hell Drop UFO ( ..., stat scale, power rate, move scale )` and `summon Distortion ( ..., stat scale, power rate, life ~10 )`.
 **Play-test PASSED (2026-10-22):** logs `summon Hell Drop UFO ( npc 1575, skill 22059, level 2, stat scale 1.045, power rate 1.000, move scale 1.200 )` (CH3c logged power rate 1.045: the skill rate moved to the stats) and `summon Distortion ( npc 1091, skill 22065, level 1, stat scale 1.000, power rate 1.000, life 10.00 )`; no ErrorLog line. User owes nothing.
+**Save correction (user, 2026-10-22):** Enhanced Hell Drop cost 0 MP with no cooldown. CH3c's test save gave unit 54 skill 22059 **level 2**, but June's templet has one level (`m_MPConsumption {100}`, `m_SkillCoolTime {13}`, `m_RequireCharacterLevel {96}`), so `GetSkillMPConsumptionValue( 2 )` / `GetSkillCoolTimeValue( 2 )` read past the table and returned 0 (the 1.045 stat scale was level 2's SPRT rate too). The emulator's own grant gives level 1; the save is now level 1 (backup `els_db_20261022_055606_pre_sql.sql`). Enhanced skills go in test saves at level 1.
 
 ## Phase CH4 - Passives and class mechanics
 
