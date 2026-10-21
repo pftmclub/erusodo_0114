@@ -205,6 +205,10 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
   -> june-dungeons (Stage 22).
 - Left in the plan: R4c2 -> R4d, R4g, R4h (pass arguments), R4i, R4j, R5, R6, R7, R9, W2, Z.
 - **Equip collision base `31fd8c00`** (pilot CH1l review, 2026-10-21): June picks each attach-anim equip's normal (`+0x544`) or hyper (`+0x584`) anim by templet `+0xd2` in {9, 11}; March always takes normal. Every class; unported (funcmap R12b). Its riding-pet branch is Stage 17's.
+- **Accelerator auras** (pilot CH1 review, 2026-10-21): June's `CX2GUUser::ApplyAuraAcceleratorBuffToGameUnit` is `32028790` (user vslot `0x7b0`, same in the
+  Arme and base vtables), March's base function's counterpart (C10b-2 called its host absent). It takes a 4th argument, the buff-factor index (`RET 0x10`; `3202c360` passes 0 or `322cc1a0`'s bool), and calls
+  vslot `0x770` (`AdjustBuffFactorByIndex`, S3d) before the unit loop; its caller `3202c360` (`ProcessAcceleraterBuff`) has June's own skill switch (`0x7a45` / `0x7a59` ->
+  `320284c0`, the `0x765d..` range re-applying skill `0x28ac`). Every class; port the pair whole with the C10b-2 site `@32028aa9`. March's Arme override (Energy of Plenty) is gone in June.
 - **Per-state immunity lists** (pilot-char-revamp CH1m, 2026-10-21). June `31fdaaa0`, called from `CX2GUUser::CommonStateStart` `@32057e68`, reads
   `IMMUNITY_LIST_AT_THIS_STATE` (ints into user `+0x8638`) and `IMMUNITY_EDT_LIST_AT_THIS_STATE` (`+0x8648`); March has neither key. Find the
   readers of `+0x8638 / +0x8648` (buff and extra-damage paths) and port the function with them. Aisha's June script has the EDT key in 12 states.
