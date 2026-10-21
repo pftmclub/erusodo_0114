@@ -1633,6 +1633,31 @@ CH0 decides the adoption needs a reader fix) and `SERV_IRUHADEV_JUNE_CHAR_ARME_U
 - **See it in game:** select screen: all nine characters' names and models; Aisha's skill cut-in shows June hero art with the frame and balloon; a transcendence hyper (104 / 105 / 113) shows `HQ_Cutin_A*_Transcendence`
   only when the class script's awakening states set `SHOW_HYPER_CUT_IN_TIME`.
 
+### CH5 - Review (2026-10-21, Opus 5.5)
+
+**PASS, one guard fix** (Always.h only, same flag `SERV_IRUHADEV_JUNE_CHAR_ARME_UI`).
+- **`UnitTemplet.lua`:** 55 blocks before and after, same classes, same order. The 48 non-Aisha blocks equal a fresh decompile of the snapshot bytecode
+  (`kom_contents_bytecode\data036_kom`), whitespace-normalised: 0 differ. The 7 `UC_ARME_*` blocks equal June's (`june_src_fixed`) per class. None of June's 32 June-only
+  classes came in. BOM + LF, like the other converted sources. `ledger --check`: PASS (0 FAIL, 0 WARN). Ledger source sha1 = the file without its BOM.
+  `kom.py status data036`: in sync, +0 / -0 / ~0 against the live kom (the copy landed). `core --check`'s one FAIL is the peer's `ResultData_new.lua` (Q4c), not CH5.
+- **Cut-in table vs June:** `333ab660` builds 12 `SkillCutIn` at `337ae9c0` (stride 0x30): `_01/_02/_03`, `EM_01` x3, `VP_01` x3, `DW_01` x3. The strings at `335210b0` ..
+  `33520fe4` are read from the exe, length 0x11 and up, no extension. `333ab4d0`: `337ae960` = `CASH_21`, `337ae990` = `CASH_22`. All match the port, in order.
+  The 12 `.gfx` are in data152 (8) / data195 (3, `HQ_Cutin_` case), and both koms are in sync with the live ones.
+- **0x8b3 branch (`32cc9680`):** `g_pInstanceData (33775864) != 0 && IsEnableCode(0x8b3) (31e5a860) == 1` = `IF_EVENT_ENABLED`. `rand() & 0x80000001`, zero (even) -> `337ae960` CASH_21.
+  It runs after the unported item override (`31fd8a50`), so June's event art wins over a custom cut-in; the port's order is the same. The port is right.
+- **Size / position:** `334367ac` = 512.0, `33435598` = 256.0 (read from the exe). `32078b70` / the inline ctor store size (512, 512), position (256, 512, z) = March's
+  `SkillCutIn( name )` (X2GUUser.h:830). The GFx path ignores both.
+- **Fix:** the Always.h comment gave the wrong reason for the dependency. The extensionless names work only because `ActiveSkillShow` appends `.gfx` under
+  `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN` (G4, X2GUUser.cpp:28581-28603). `ARME_LIVE` is needed for `June_ShowActiveSkillCutInAndLight` and the `X2OfflineLog` include.
+  The comment now says that, and a second `#error` requires `GFX_TALK_CUTIN` (a top-level `#define` at Always.h:8820, no enclosing `#if`, no `#undef`: checked by a depth scan).
+- **Routing:** the item override -> Stage 12 bullet (present). 7ah / 7aj belong to CH4 per CH0's map.
+- **Play-test legs not run:** the logs of the CH5 run (11:39-11:44) have 0 `ARME UI` lines, 0 `KEM_ERROR`, 0 `Motion Error`, 3 `ARME DATA` (2, 105, 105), 4 UNHANDLED
+  `E_DISABLE_HB_CHECK_REQ` (pre-existing). The skill cut-in needs a June skill state, and the hyper cut-in needs an awakening state. Both checks are now in the CH2a / CH3b kickoffs.
+- **Hygiene:** `flagcheck JUNE_CHAR_ARME_UI --range 3c14ac1b^..3c14ac1b`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, RESULT PASS. Review fix `--worktree --files KTDXLIB/Always.h`:
+  1 DEFINE (the 2 deleted lines are the replaced Description lines), RESULT PASS.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,654,784 B, dated 2026-10-21 11:59:12, md5 d02432b4d8c591804a7cb8d78cc85663, equal to X2/US_SERVICE/x2.exe (2026-10-21 11:59:04); built at main 40c1064f + 5 uncommitted code file(s)`
+  (the uncommitted files are the running CH2a's). User owes nothing.
+
 ## Phase CH-N - A June-only later class path (template; not run for Aisha)
 
 Written here so Stage 7 does not rediscover it. The first character with a templet-backed June-only class runs it as its own phase. The

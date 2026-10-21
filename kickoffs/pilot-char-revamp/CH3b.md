@@ -30,7 +30,8 @@ Phase CH3's work for class 113 and the hyper actives 22600-22605: 22 skill ids, 
   raw ids with an `/// RNSI_` comment, the house convention of `X2GUUser.cpp:26228` (129 of the 130 names are not in the C++ enum);
 - transcribe each listed state function whole from Ghidra under the flag (March's function stays in the `#else`);
 - carry the checklist rows attached to these skills in the same change; write the March vs June damage of each skill to `MODS.md`;
-- **First live hyper active** (checklist 7t): play-test the cut-in with the option on Hide.
+- **First live hyper active** (checklist 7t): play-test the cut-in with the option on Hide. CH5 review: the hand-off also checks
+  `logs.py --grep "ARME UI hyper cut-in"` names `HQ_Cutin_AEM/AVP/ADW_Transcendence` for classes 104 / 105 / 113 (June's `UnitTemplet` rows, CH5).
 - skills with no state (types 1 / 5 / 8, and the ids June tests in class code: Meditation and the Body skills) are CH4's / CH1i's;
 - an unmapped engine callee, or a mechanism the map does not explain, is **"this needs Opus"**: stop and say so.
 
