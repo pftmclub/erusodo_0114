@@ -1932,6 +1932,7 @@ Fix, worktree `--files X2GUArme_VioletMage.cpp / .h, X2Game.cpp`: `files: 3 PASS
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,716,224 B, dated 2026-10-22 05:48:43, md5 f08c19322238e2ddf5b4540e065b5f29, equal to X2/US_SERVICE/x2.exe (2026-10-22 05:48:36); built at main a21326a6 + 3 uncommitted code file(s).` Strings `summon Distortion` and `stat scale` are in the exe.
 **Play-test (user owes):** unit 54 `ArmeVP2` Enhanced Hell Drop 22059 (A slot 0) and unit 53 Enhanced Distortion 22065 (A slot 0): both still cast and hit;
 log `summon Hell Drop UFO ( ..., stat scale, power rate, move scale )` and `summon Distortion ( ..., stat scale, power rate, life ~10 )`.
+**Play-test PASSED (2026-10-22):** logs `summon Hell Drop UFO ( npc 1575, skill 22059, level 2, stat scale 1.045, power rate 1.000, move scale 1.200 )` (CH3c logged power rate 1.045: the skill rate moved to the stats) and `summon Distortion ( npc 1091, skill 22065, level 1, stat scale 1.000, power rate 1.000, life 10.00 )`; no ErrorLog line. User owes nothing.
 
 ## Phase CH4 - Passives and class mechanics
 
