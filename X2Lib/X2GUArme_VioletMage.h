@@ -1283,6 +1283,42 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1l
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2a ( JUNE_CHARACTER_AISHA_PHASES.md )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+		void June_AVSI_SKILL_EventProcess();								/// June 32cbe6a0 and its clones
+		void June_AVSI_SI1_AV_BINDING_CIRCLE_FrameMove();					/// June 32cd57c0
+		void June_PlayChainFireBall( const bool bHyper_ );
+		void June_AVSI_SI1_AV_CHAIN_FIRE_BALL_FrameMove();					/// June 32cd6600
+		void June_AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_FrameMove();			/// June 32cd6800
+		void June_CreateGuideFireBall( const WCHAR* pwszEffectName_ );
+		void June_AVSI_SI2_AV_GUIDE_FIRE_BALL_FrameMove();					/// June 32cd6a00
+		void June_AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_FrameMove();			/// June 32cd6b70
+		void June_AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove();					/// June 32cd78b0
+		void June_AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove();				/// June 32cd7a50
+		void June_AVSI_TELEPORT_START_UPGRADE_StartFuture();				/// June 32cb71a0
+		void June_AVSI_TELEPORT_START_UPGRADE_Start();						/// June 32cd26b0
+		void June_AVSI_SA_AEM_Chain_Lightning_Start();						/// June 32cc23c0
+		void June_AVSI_SA_AEM_Chain_Lightning_FrameMove();					/// June 32cdf7f0
+		void June_AVSI_SA_AEM_Chain_Lightning_EventProcess();				/// June 32cc2440
+		void June_RNSI_SA_AVM_METEO_CALL_NEW_FrameMove();					/// June 32ce2e90
+		void June_RNSI_SA_AVM_METEO_CALL_NEW_EventProcess();				/// June 32cc5580
+		bool June_GetPassiveSkillAbilityValue( const int iSkillID_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, float& fOut_ ) const;	/// June 31ff1e80
+		void June_SetMeteoShowerValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32cede00 @32cee4cf
+		void June_AVSI_SA_AHM_METEOSHOWER_StateStart();						/// June 32ccc990
+		void June_CreateMeteoShowerAttack();
+		void June_AVSI_SA_AHM_METEOSHOWER_FrameMove();						/// June 32cdae90
+		void June_AVSI_SA_AHM_METEOSHOWER_EventProcess();					/// June 32cbfad0
+		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateStart();				/// June 32cccb40
+		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_FrameMove();					/// June 32cdb5e0
+		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateEnd();					/// June 32cdbb70
+		void June_AVSI_A_AV_FIRE_ROAD_Init();								/// June 32cb7f00
+		bool June_PlayFireRoad();
+		void June_AVSI_A_AV_FIRE_ROAD_FrameMove();							/// June 32cdc270
+		void June_AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove();					/// June 32cdc4a0
+		void June_AVSI_A_AV_FIRE_ROAD_EventProcess();						/// June 32cc0c50
+		void June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ );	/// June 329cc2c0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

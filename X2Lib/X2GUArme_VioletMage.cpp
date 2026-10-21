@@ -32657,6 +32657,37 @@ namespace
 	const int JUNE_RNSI_HA_AEM_ELEMENTAL_STORM_UPGRADE	= 22603;
 	const int JUNE_RNSI_HA_AVP_ABYSS_ANGOR_UPGRADE		= 22604;
 	const int JUNE_RNSI_HA_ADW_FATE_SPACE_UPGRADE		= 22605;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+	/// June Enum.lua ids of CH2a's skills ( RNSI_*; the C++ SKILL_ID enum is March's numbering )
+	const int JUNE_CH2A_SA_AISHA_CHAIN_FIREBALL				= 22000;
+	const int JUNE_CH2A_SA_AISHA_GUST_SCREW					= 22001;
+	const int JUNE_CH2A_SA_AISHA_GUST_STORM					= 22002;
+	const int JUNE_CH2A_SA_AISHA_LIGHTNING_BOLT				= 22003;
+	const int JUNE_CH2A_SA_AISHA_METEOR_CALL				= 22004;
+	const int JUNE_CH2A_SA_AISHA_BINDING_CIRCLE				= 22005;
+	const int JUNE_CH2A_SA_AHM_MAGIC_MISSILE				= 22006;
+	const int JUNE_CH2A_SA_AHM_METEOR_SHOWER				= 22007;
+	const int JUNE_CH2A_SA_AHM_BLIZZARD_SHOWER				= 22008;
+	const int JUNE_CH2A_SA_AHM_CHAIN_LIGHTNING				= 22009;
+	const int JUNE_CH2A_SA_AISHA_CHAIN_FIREBALL_UPGRADE		= 22030;
+	const int JUNE_CH2A_SA_AISHA_GUST_SCREW_UPGRADE			= 22031;
+	const int JUNE_CH2A_SA_AISHA_GUST_STORM_UPGRADE			= 22032;
+	const int JUNE_CH2A_SA_AISHA_LIGHTNING_BOLT_UPGRADE		= 22033;
+	const int JUNE_CH2A_SA_AISHA_METEOR_CALL_UPGRADE		= 22034;
+	const int JUNE_CH2A_SA_AISHA_BINDING_CIRCLE_UPGRADE		= 22035;
+	const int JUNE_CH2A_SA_AHM_MAGIC_MISSILE_UPGRADE		= 22038;
+	const int JUNE_CH2A_A_AISHA_TELEPORT					= 22200;
+	const int JUNE_CH2A_A_AHM_FIRE_ROAD						= 22201;
+	const int JUNE_CH2A_A_AISHA_TELEPORT_UPGRADE			= 22216;
+	const int JUNE_CH2A_A_AHM_FIRE_ROAD_UPGRADE				= 22218;
+	const int JUNE_CH2A_P_AEM_MAGICAL_BODY					= 22413;
+
+	/// [JUNE_CHAR] ARME SKILL: one line per registered CH2a skill ( offline_server.log )
+	void June_LogArmeSkill( const WCHAR* pwszName_, const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
+	{
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL registered %s ( skill %d, slot %d%s )", pwszName_, static_cast<int>( eSkillID_ ), iSlotIndex_, true == bSlotB_ ? L" B" : L" A" );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 
 	/// June 32207210: the skill's m_iDeleteSkillIDByUpgrade when it has one, else the id itself
 	int JuneSkillIDByUpgrade( const int iSkillID_ )
@@ -32774,6 +32805,217 @@ bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SK
 					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
 				} return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH2a ( JUNE_CHARACTER_AISHA_PHASES.md )
+			/// June 32cede00 cases 22000-22009 and 22200 / 22201 ( the state table gives June's callbacks; a June clone of a March body is March's member )
+			case JUNE_CH2A_SA_AISHA_CHAIN_FIREBALL:
+			case JUNE_CH2A_SA_AISHA_CHAIN_FIREBALL_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AISHA_CHAIN_FIREBALL", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_CHAIN_FIRE_BALL", normalStateData.stateID );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI1_AV_CHAIN_FIRE_BALL_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_FrameMove );
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+				} return false;
+
+			case JUNE_CH2A_SA_AISHA_GUST_SCREW:
+			case JUNE_CH2A_SA_AISHA_GUST_SCREW_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AISHA_GUST_SCREW", eSkillID_, iSlotIndex_, bSlotB_ );
+					/// June's FrameMove 32cb76f0 only forwards to CommonFrameMove: left empty, the engine runs it
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_GUST_SCREW", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI2_AV_GUST_SCREW_Init );	/// June 32cb76c0 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_GUST_SCREW_HYPER", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2A_SA_AISHA_GUST_STORM:
+			case JUNE_CH2A_SA_AISHA_GUST_STORM_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AISHA_GUST_STORM", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI3_AV_GUST_STORM", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI3_AV_GUST_STORM_Init );	/// June 32cb7750 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI3_AV_GUST_STORM", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2A_SA_AISHA_LIGHTNING_BOLT:
+			case JUNE_CH2A_SA_AISHA_LIGHTNING_BOLT_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AISHA_LIGHTNING_BOLT", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_LIGHTNING_BOLT", normalStateData.stateID );
+					normalStateData.OnCameraMove	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI2_AV_LIGHTNING_BOLT_CameraMove );	/// June 32cd6460 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_LIGHTNING_BOLT_HYPER", hyperStateData.stateID );
+					hyperStateData.OnCameraMove		= normalStateData.OnCameraMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2A_SA_AISHA_METEOR_CALL:
+			case JUNE_CH2A_SA_AISHA_METEOR_CALL_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AISHA_METEOR_CALL", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "RNSI_SA_AVM_METEO_CALL_NEW", normalStateData.stateID );	/// June's Init 32cb8d50 is an empty function
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_SA_AVM_METEO_CALL_NEW_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_SA_AVM_METEO_CALL_NEW_EventProcess );
+
+					m_LuaManager.MakeTableReference( "RNSI_SA_AVM_METEO_CALL_NEW", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2A_SA_AISHA_BINDING_CIRCLE:
+			case JUNE_CH2A_SA_AISHA_BINDING_CIRCLE_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AISHA_BINDING_CIRCLE", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_BINDING_CIRCLE", normalStateData.stateID );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI1_AV_BINDING_CIRCLE_FrameMove );
+					normalStateData.OnCameraMove	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI1_AV_BINDING_CIRCLE_CameraMove );	/// June 32cd5c60 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_BINDING_CIRCLE", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnCameraMove		= normalStateData.OnCameraMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2A_SA_AHM_MAGIC_MISSILE:
+			case JUNE_CH2A_SA_AHM_MAGIC_MISSILE_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AHM_MAGIC_MISSILE", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_GUIDE_FIRE_BALL", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI2_AV_GUIDE_FIRE_BALL_Init );	/// June 32cb7640 = March's
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI2_AV_GUIDE_FIRE_BALL_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_FrameMove );
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+				} return false;
+
+			case JUNE_CH2A_SA_AHM_METEOR_SHOWER:
+				{
+					June_LogArmeSkill( L"SA_AHM_METEOR_SHOWER", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_METEOSHOWER", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_METEOSHOWER_Init );	/// June 32cb7e00 = March's
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_StateStart );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_EventProcess );
+					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_METEOSHOWER_StateEnd );	/// June 32cb7e30 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_METEOSHOWER_HYPER", hyperStateData.stateID );
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					hyperStateData.StateEnd			= normalStateData.StateEnd;
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SA_AHM_METEOSHOWER_LOOP;
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_METEOSHOWER_LOOP", stateData.stateID );
+					stateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateStart );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_EventProcess );
+					stateData.StateEnd			= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateEnd );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SA_AHM_METEOSHOWER_HYPER_LOOP;
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_METEOSHOWER_LOOP", stateData.stateID );
+					stateData.m_bHyperState		= true;
+					stateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateStart );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_EventProcess );
+					stateData.StateEnd			= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateEnd );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SA_AHM_METEOSHOWER_END;
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_METEOSHOWER_END", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_METEOSHOWER_END_EventProcess );
+					stateData.StateEnd			= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_METEOSHOWER_END_StateEnd );	/// June 32cdbc50 = March's
+					m_StateList[stateData.stateID] = stateData;
+
+					June_SetMeteoShowerValues( pSkillTemplet );
+				} return false;
+
+			case JUNE_CH2A_SA_AHM_BLIZZARD_SHOWER:
+				{
+					June_LogArmeSkill( L"SA_AHM_BLIZZARD_SHOWER", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_BLIZZARDSHOWER", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_BLIZZARDSHOWER_Init );	/// June 32cb7910 = March's
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_BLIZZARDSHOWER_StateStart );	/// June 32cbefb0 = March's
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_BLIZZARDSHOWER_StateEnd );	/// June 32cb7950 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_BLIZZARDSHOWER_HYPER", hyperStateData.stateID );
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					hyperStateData.StateEnd			= normalStateData.StateEnd;
+				} return false;
+
+			case JUNE_CH2A_SA_AHM_CHAIN_LIGHTNING:
+				{
+					June_LogArmeSkill( L"SA_AHM_CHAIN_LIGHTNING", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CHAIN_LIGHTNING", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AEM_Chain_Lightning_Init );	/// June 32cb83e0 = March's
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AEM_Chain_Lightning_Start );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AEM_Chain_Lightning_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AEM_Chain_Lightning_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CHAIN_LIGHTNING", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+				} return false;
+
+			case JUNE_CH2A_A_AISHA_TELEPORT:
+			case JUNE_CH2A_A_AISHA_TELEPORT_UPGRADE:
+				{
+					June_LogArmeSkill( L"A_AISHA_TELEPORT", eSkillID_, iSlotIndex_, bSlotB_ );
+					/// June keeps the old table name in an unused std::string; the table is always the _UPGRADE one
+					m_LuaManager.MakeTableReference( "AVSI_TELEPORT_START_UPGRADE", normalStateData.stateID );
+					normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_TELEPORT_START_UPGRADE_StartFuture );
+					normalStateData.StateStart			= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_TELEPORT_START_UPGRADE_Start );
+					normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AV_Teleport_FrameMoveFuture );	/// June 32ccc130 = March's
+					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_AV_Teleport_EventProcess );	/// June 32cb71d0 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_TELEPORT_START_UPGRADE", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );
+
+					if( NULL != GetUnit() )
+					{
+						const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+						m_fMPConsumeRateTeleport *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillTempletLevel );
+					}
+				} return false;
+
+			case JUNE_CH2A_A_AHM_FIRE_ROAD:
+			case JUNE_CH2A_A_AHM_FIRE_ROAD_UPGRADE:
+				{
+					June_LogArmeSkill( L"A_AHM_FIRE_ROAD", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_A_AV_FIRE_ROAD", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AV_FIRE_ROAD_Init );
+					if( true == IsEquippedSkillUpgraded( eSkillID_ ) )
+						normalStateData.OnFrameMove	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove );
+					else
+						normalStateData.OnFrameMove	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AV_FIRE_ROAD_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AV_FIRE_ROAD_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_A_AV_FIRE_ROAD", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );
+				} return false;
+//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 			default:
 				break;
 			}
@@ -33067,5 +33309,657 @@ void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_FIRE_StateStart()
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 //}} Iruha : 2026-10-21 // June character pilot Phase CH1l
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH2a ( JUNE_CHARACTER_AISHA_PHASES.md )
+/// Violet Mage / High Magician skill states ( class map phase CH2a ). A June clone that equals March's body is registered as March's member; the rest are below.
+
+/// June 32481fa0: true only in June's boss-raid battle fields ( 40033 / 40034 / 40039-40044 ), which this build does not have
+static bool June32481fa0()
+{
+	return false;
+}
+
+/// June: any of the 14 arrow / Z X A S D C Q W E R keys is pressed ( +0x86da .. +0x8712 without +0x8702 )
+#define JUNE_ARME_CH2A_ANY_KEY_ZXC \
+	( m_InputData.pureUp == true || m_InputData.pureDown == true || m_InputData.pureRight == true || m_InputData.pureLeft == true \
+	|| m_InputData.pureZ == true || m_InputData.pureX == true \
+	|| m_InputData.pureA == true || m_InputData.pureS == true || m_InputData.pureD == true || m_InputData.pureC == true \
+	|| m_InputData.pureQ == true || m_InputData.pureW == true || m_InputData.pureE == true || m_InputData.pureR == true )
+
+// June 32cbe6a0 ( and its clones 32cbe720 32cbe7e0 32cbe820 32cbe8e0 32cbe920 32cbe960 32cbe9a0 32cbf010 32cbf0b0 ): the animation end falls back to WAIT, or JUMP_DOWN in the air
+void CX2GUArme_VioletMage::June_AVSI_SKILL_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cd57c0: Binding Circle ( normal and hyper ); the effect set is scaled by SCOPE_ABS / 500, the bind buff carries June's creator and 7ai arguments, a type 18 memo fills the target's force-down gauge
+void CX2GUArme_VioletMage::June_AVSI_SI1_AV_BINDING_CIRCLE_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2A_SA_AISHA_BINDING_CIRCLE ) );
+		if( NULL != pSkillTemplet && NULL != g_pX2Game->GetEffectSet() )
+		{
+			const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+			const float fScope = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, iSkillLevel );
+			const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_Aisha_BindingCircle", this );
+			CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet );
+			if( NULL != pEffectSetInstance )
+			{
+				const float fScale = static_cast<float>( static_cast<double>( fScope ) / 500.0 );
+				pEffectSetInstance->SetEffectScale( D3DXVECTOR3( fScale, fScale, fScale ) );
+			}
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.5f ) )
+	{
+		const D3DXVECTOR3 vPos = GetPos();
+		int iCount = 0;
+		for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+		{
+			CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+			if( pUnit->GetTeam() == GetTeam() )
+				continue;
+
+			// June slot 94 with AT_SPECIAL ( 1 )
+			const bool bInvincible = ( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() ) ?
+				static_cast<CX2GUNPC*>( pUnit )->JuneGetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit->GetInvincible();
+			if( true == bInvincible )
+				continue;
+
+			float fLength = 0.f;
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2A_SA_AISHA_BINDING_CIRCLE ) );
+			if( NULL != pSkillTemplet )
+			{
+				const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+				fLength = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, iSkillLevel );
+				fLength *= fLength;
+			}
+
+			if( GetDistance3Sq( vPos, pUnit->GetPos() ) < fLength )
+			{
+				iCount++;
+				pUnit->SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_DEBUFF_BIND ), 1, this, 0, false );
+
+				const CX2GUUser::JuneSkillMemoEntry* pMemo = ( NULL != pSkillTemplet ) ? GetJuneSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) ) : NULL;
+				if( NULL != pMemo && 18 == pMemo->m_iType )
+					pUnit->AddForceDownGage( pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0] );
+			}
+		}
+
+		if( iCount > 0 )
+			PlaySound( L"Aisha_special_attack1.ogg" );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cd6600 ( normal ) / 32cd6800 ( hyper ): one effect set whose damage effects get the fire-ball range rate as modifier tag 2 ( main effect life time )
+void CX2GUArme_VioletMage::June_PlayChainFireBall( const bool bHyper_ )
+{
+	const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_Aisha_ChainFireBall", this, NULL, bHyper_, GetPowerRate() * m_fIceBallPower );
+	g_pX2Game->GetEffectSet()->AddDamageEffectModifier( hEffectSet, 2, m_fFireBallRangeRate, false );
+}
+
+void CX2GUArme_VioletMage::June_AVSI_SI1_AV_CHAIN_FIRE_BALL_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+		June_PlayChainFireBall( false );
+
+	CommonFrameMove();
+}
+
+void CX2GUArme_VioletMage::June_AVSI_SI1_AV_CHAIN_FIRE_BALL_HYPER_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+		June_PlayChainFireBall( true );
+
+	CommonFrameMove();
+}
+
+// June 32cd6a00 ( normal ) / 32cd6b70 ( hyper ): the homing missile is the one damage effect; the memo test is June data now
+void CX2GUArme_VioletMage::June_CreateGuideFireBall( const WCHAR* pwszEffectName_ )
+{
+	const D3DXVECTOR3 posR = GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+	SetLockOn( g_pX2Game->GetDamageEffect()->CreateInstance( this, pwszEffectName_, GetPowerRate(), posR, GetRotateDegree(), GetRotateDegree(),
+		m_FrameDataNow.unitCondition.landPosition.y ), 0, CX2DamageEffect::LOT_NEARST_UID_VECTOR );
+}
+
+void CX2GUArme_VioletMage::June_AVSI_SI2_AV_GUIDE_FIRE_BALL_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.55f ) )
+		June_CreateGuideFireBall( L"DamageEffect_SA_AHM_MagicMissile" );
+
+	CommonFrameMove();
+}
+
+void CX2GUArme_VioletMage::June_AVSI_SI2_AV_GUIDE_FIRE_BALL_HYPER_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.55f ) )
+		June_CreateGuideFireBall( L"DamageEffect_SA_AHM_MagicMissile_Hyper" );
+
+	CommonFrameMove();
+}
+
+// June 32cd78b0 ( normal ) / 32cd7a50 ( hyper ): Blizzard Shower is one effect set at 0.1 s
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_BLIZZARDSHOWER_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AHM_BlizzardShower", this );
+
+	CommonFrameMove();
+}
+
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_BLIZZARDSHOWER_HYPER_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AHM_BlizzardShower_Hyper", this );
+
+	CommonFrameMove();
+}
+
+// June 32cb71a0: a held arrow turns the teleport
+void CX2GUArme_VioletMage::June_AVSI_TELEPORT_START_UPGRADE_StartFuture()
+{
+	CommonStateStartFuture();
+
+	if( m_InputData.pureRight == true )
+		m_FrameDataFuture.syncData.bIsRight = true;
+	else if( m_InputData.pureLeft == true )
+		m_FrameDataFuture.syncData.bIsRight = false;
+}
+
+// June 32cd26b0: replaces March's memo super armor with the advanced teleportation buff and the skill's own buff ( PvP / PvE games only )
+void CX2GUArme_VioletMage::June_AVSI_TELEPORT_START_UPGRADE_Start()
+{
+	CommonStateStart();
+
+	June_AdaptAdvancedTeleportationBuff();
+
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2A_A_AISHA_TELEPORT );
+	if( 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, true, 0, true ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( eSkillID, true );
+		if( CX2Game::GT_PVP == g_pX2Game->GetGameType() )	/// June 322cc1a0: PVP or PVE ( March has no GT_PVE )
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+	}
+}
+
+// June 32ccc130 = March's AVSI_A_AV_Teleport_FrameMoveFuture, 32cb71d0 = March's AVSI_A_AV_Teleport_EventProcess ( both registered as March's )
+
+// June 32cc23c0: an upgraded cast plays its animation at the skill's ANI_SPEED
+void CX2GUArme_VioletMage::June_AVSI_SA_AEM_Chain_Lightning_Start()
+{
+	CommonStateStart();
+
+	if( true == IsEquippedSkillUpgraded( GetNowStateSkillID() ) )
+	{
+		bool bApplyAnimSpeedByItemAbility = true;
+		LUA_GET_VALUE( m_LuaManager, "APPLY_ANIM_SPEED_BY_ITEM_ABILITY", bApplyAnimSpeedByItemAbility, true );
+		ResetAnimSpeed( m_fAnimSpeed, bApplyAnimSpeedByItemAbility, false,
+			June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, static_cast<int>( GetNowStateSkillID() ) ) );
+	}
+}
+
+// June 32cdf7f0: always the _MEMO effect set ( JUNE_BUGS ); the lock-on is March's
+void CX2GUArme_VioletMage::June_AVSI_SA_AEM_Chain_Lightning_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_SA_AEM_CHAIN_LIGHTNING_MEMO", this );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.55f ) )
+	{
+		D3DXVECTOR3 vPos = GetWeaponBonePos( 0, L"TRACE_START0", 0 );
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this,
+			L"DamageEffect_AHM_Chain_Lightning", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+
+		if( NULL != pDamageEffect )
+		{
+			bool bUserUnit = false;
+			UidType gameUnitUID = -1;
+
+			if( CX2Main::XS_PVP_GAME == g_pMain->GetNowStateID() )
+				gameUnitUID = g_pX2Game->GetLockOnNearstTargetInRange( static_cast<CX2Room::TEAM_NUM>( GetTeam() ), vPos, D3DXVECTOR2( 150, 300 ), bUserUnit );
+			else
+				gameUnitUID = g_pX2Game->GetLockOnNearstTargetInRange( static_cast<CX2Room::TEAM_NUM>( GetTeam() ), vPos, D3DXVECTOR2( 150, 750 ), bUserUnit );
+
+			if( bUserUnit == true )
+				pDamageEffect->SetLockOnUnitUID( gameUnitUID );
+			else
+				pDamageEffect->SetLockOnNPCUID( static_cast<int>( gameUnitUID ) );
+
+			pDamageEffect->SetLockOnRandomSeed( (int)GetRandomInt() );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc2440: Chain Lightning's cancel chain waits for 1.2 s, runs only without the gravity ( memo ) lock, and WALK / DASH are ground cancels
+void CX2GUArme_VioletMage::June_AVSI_SA_AEM_Chain_Lightning_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS;
+		}
+		else
+			StateChange( USI_WAIT );
+
+		m_fCanNotAttackTime = 0.1f;
+	}
+
+	if( false == m_bDisableGravity )
+	{
+		const float LOWER_BOUND_INPUT_TIME_CANCEL = 1.2f;
+
+		IF_SKILL_CANCEL_AFTER( LOWER_BOUND_INPUT_TIME_CANCEL )
+		else if( LOWER_BOUND_INPUT_TIME_CANCEL < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+			( m_InputData.pureRight == true || m_InputData.pureLeft == true ) )
+		{
+			StateChange( USI_WAIT );
+		}
+		else if( LOWER_BOUND_INPUT_TIME_CANCEL < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+			( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if( LOWER_BOUND_INPUT_TIME_CANCEL < m_pXSkinAnimFuture->GetNowAnimationTime() && JUNE_ARME_CH2A_ANY_KEY_ZXC )
+		{
+			StateChange( USI_WALK );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32ce2e90: Meteor Call ( June-only ): the effect set lands on the nearest living enemy that stands the way the unit faces within 600, else 600 ahead on the lines
+void CX2GUArme_VioletMage::June_RNSI_SA_AVM_METEO_CALL_NEW_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 1.1f ) )
+	{
+		CX2GameUnit* pTargetUnit = NULL;
+		float fBestDistance = 600.f;
+		for( int i = 0; i < g_pX2Game->GetUnitNum() && false == June32481fa0(); i++ )
+		{
+			CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+			if( false == g_pX2Game->IsValidUnit( pUnit ) || GetTeam() == pUnit->GetTeam() || CX2GameUnit::GUSI_DIE == pUnit->GetGameUnitState() || pUnit->GetNowHp() <= 0.f )
+				continue;
+
+			if( GetIsRight() != JuneIsPosAlongLastTouchLine( pUnit->GetPos( false ) ) )
+				continue;
+
+			if( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() && CX2UnitManager::NCT_BASIC != static_cast<CX2GUNPC*>( pUnit )->GetNPCTemplet().m_ClassType )
+				continue;
+
+			const D3DXVECTOR3 vDiff = pUnit->GetPos( false ) - GetPos( false );
+			const float fDistance = D3DXVec3Length( &vDiff );
+			if( fDistance <= fBestDistance )
+			{
+				pTargetUnit = pUnit;
+				fBestDistance = fDistance;
+			}
+		}
+
+		D3DXVECTOR3 vEffectPos( 0.f, 0.f, 0.f );
+		if( NULL != pTargetUnit )
+			vEffectPos = pTargetUnit->GetPos( false );
+		else
+		{
+			int iTargetLineIndex = 0;
+			if( false == g_pX2Game->GetWorld()->GetLineMap()->GetFixedDistancePositionInAllLine( GetDirVector(), GetPos( false ), 600.f, GetIsRight(), vEffectPos, iTargetLineIndex ) )
+			{
+				vEffectPos = GetPos( false );
+				if( true == GetIsRight() )
+					vEffectPos += GetDirVector() * 600.f;
+				else
+					vEffectPos -= GetDirVector() * 600.f;
+			}
+		}
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_Aisha_MeteoCall", this, NULL, false, -1.f, -1.f, D3DXVECTOR3( 1, 1, 1 ), true,
+			vEffectPos, D3DXVECTOR3( 0, 0, 0 ), D3DXVECTOR3( 0, 0, 0 ) );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc5580: the animation end lands on the ground; the cancels are SKILL ( with the hyper cancel ), WALK and DASH, each after its own time and on the ground
+void CX2GUArme_VioletMage::June_RNSI_SA_AVM_METEO_CALL_NEW_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( true == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_LANDING );
+	}
+	else if( 0.f <= m_fSkillCancelAfter && m_fSkillCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && SpecialAttackEventProcess() == true )
+	{
+	}
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && m_InputData.oneLCtr == true && m_FrameDataFuture.syncData.m_HyperModeCount > 0 && true == CanHyperMode() &&
+		0.f <= m_fSkillCancelAfter && m_fSkillCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && false == IsQuickSlotSpecialItemWaiting() )
+	{
+		m_bHyperModeStartedByInput = true;
+		StateChange( GetHypetMpdeStateID() );
+	}
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) )
+	{
+		StateChangeDashIfPossible();
+	}
+
+	CommonEventProcess();
+}
+
+// June 31ff1e80: a learned passive's ability value ( 0 and false unless the skill is learned; a hyper-class one needs the transcended flag )
+bool CX2GUArme_VioletMage::June_GetPassiveSkillAbilityValue( const int iSkillID_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, float& fOut_ ) const
+{
+	fOut_ = 0.f;
+
+	const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ );
+	const int iLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, true, 0, true );
+	if( iLevel <= 0 )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eSkillID );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == June_UnitFlag3c( GetUnit() ) )
+		return false;
+
+	fOut_ = pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
+	return true;
+}
+
+// June 32cede00 @32cee4cf-32cee7f7: the Meteo Shower fire gap / counts / MP rate at the learned level, then the Magical Body passive ( 22413 ) scales the count and the MP
+void CX2GUArme_VioletMage::June_SetMeteoShowerValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	if( NULL == GetUnit() )
+		return;
+
+	const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true ) );
+
+	m_fFireGap					= pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_CHARGING_TIME, iSkillLevel );
+	m_iMaxFireCount				= static_cast<int>( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_FIRE_COUNT, iSkillLevel ) );
+	m_iMaxFireCountByLoopState	= static_cast<int>( pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, iSkillLevel ) );
+	m_fUseMPConsume				= pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel );
+
+	float fPassive = 0.f;
+	if( true == June_GetPassiveSkillAbilityValue( JUNE_CH2A_P_AEM_MAGICAL_BODY, CX2SkillTree::SA_EFFECTIVE_COUNT, fPassive ) )
+		m_iMaxFireCount = static_cast<int>( fPassive ) * m_iMaxFireCount;
+
+	if( true == June_GetPassiveSkillAbilityValue( JUNE_CH2A_P_AEM_MAGICAL_BODY, CX2SkillTree::SA_MP_CONSUMPTION, fPassive ) )
+		m_fUseMPConsume = m_fUseMPConsume * fPassive;
+}
+
+// June 32ccc990: March's start plus the shock-debuff clean-up of June's loop state
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_StateStart()
+{
+	CommonStateStart();
+
+	if( m_ExtraDamagePack.m_EnchantShock.m_fTime > 0.0f )
+	{
+		m_ExtraDamagePack.m_EnchantShock.m_fTime = 0.f;
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	m_bIsOnSomethingStart = false;
+	if( m_FrameDataNow.unitCondition.bFootOnLine == true )
+		m_bIsOnSomethingStart = true;
+
+	m_bDisableGravity = true;
+	m_PhysicParam.nowSpeed		= D3DXVECTOR2( 0, 500 );
+	m_PhysicParam.passiveSpeed	= D3DXVECTOR2( -1, -1 );
+
+	m_iElapsedFireCount = 0;
+}
+
+// June 32cdae90 ( loop: 32cdb5e0 ) fire block: both meteors are the same damage effect ( JUNE_BUGS )
+void CX2GUArme_VioletMage::June_CreateMeteoShowerAttack()
+{
+	/// -50 .. +50 of the random draw, x 12; the group parity and the facing shift the centre
+	float fRadius = static_cast<float>( ( GetRandomInt( m_iElapsedFireCount * 4 + 1 ) - 50 ) * 12 );
+
+	if( 0 == m_iElapsedFireCount % 2 )
+		fRadius += 250.f;
+	else
+		fRadius -= 250.f;
+
+	if( true == GetIsRight() )
+		fRadius += 500.f;
+	else
+		fRadius -= 500.f;
+
+	D3DXVECTOR3 vDirVector = GetDirVector();
+
+	D3DXVECTOR3 vEffectEndPosition = GetPos() + vDirVector * fRadius;
+	D3DXVECTOR3 vEffectStartPosition = vEffectEndPosition + D3DXVECTOR3( 0.f, 850.f, 0.f );
+
+	D3DXVECTOR3 vRotation = GetRotateDegree();
+	vRotation.z -= 45.f;
+	if( true == GetIsRight() )
+		vEffectStartPosition -= GetDirVector() * 900;
+	else
+		vEffectStartPosition += GetDirVector() * 900;
+
+	g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SA_AHM_MeteoShower_Attack", GetPowerRate(), vEffectStartPosition, vRotation + D3DXVECTOR3( 0, 0, 45 ), vRotation,
+		vEffectEndPosition.y );
+	g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SA_AHM_MeteoShower_Attack", GetPowerRate(), vEffectStartPosition, vRotation + D3DXVECTOR3( 0, 0, 45 ), vRotation,
+		vEffectEndPosition.y );
+}
+
+// June 32cdae90: the loop effect set is replaced every 0.1 s mark; the meteors fall at the fire gap; the air-step sparks burn at 10 / 20
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+	{
+		if( INVALID_EFFECTSET_HANDLE != m_ahEffectSet[EffSetID_June4] )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_ahEffectSet[EffSetID_June4] );
+
+		m_ahEffectSet[EffSetID_June4] = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AHM_MeteoShower_Loop", this );
+	}
+
+	if( m_iElapsedFireCount >= m_iMaxFireCount )
+		return;
+
+	const int fCheckTime = static_cast<int>( m_FrameDataNow.unitCondition.fStateTime / m_fFireGap );
+	if( fCheckTime >= m_iElapsedFireCount )
+	{
+		++m_iElapsedFireCount;
+		June_CreateMeteoShowerAttack();
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepRight = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepRight );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqArmeAirStepLeft  = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqArmeAirStepLeft );
+
+	if( pSeqArmeAirStepRight != NULL )
+		pSeqArmeAirStepRight->SetEmitRate( 10, 20 );
+
+	if( pSeqArmeAirStepLeft != NULL )
+		pSeqArmeAirStepLeft->SetEmitRate( 10, 20 );
+
+	CommonFrameMove();
+}
+
+// June 32cbfad0: the fire count ends the state in the loop state; 0.3 s stops the fall
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_EventProcess()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		m_PhysicParam.nowSpeed = D3DXVECTOR2( 0, 0 );
+	}
+	else if( m_iElapsedFireCount >= m_iMaxFireCount )
+	{
+		StateChange( AVSI_SA_AHM_METEOSHOWER_LOOP );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cccb40
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateStart()
+{
+	CommonStateStart();
+
+	SetNoDetonation( true );
+	m_iElapsedFireCount			= 0;
+	m_bDisableGravity			= true;
+	m_PhysicParam.nowSpeed		= D3DXVECTOR2( 0, 0 );
+	m_PhysicParam.passiveSpeed	= D3DXVECTOR2( -1, -1 );
+}
+
+// June 32cdb5e0: as March's loop FrameMove, without the world colour and with June's effect name
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_LOOP_FrameMove()
+{
+	if( m_ExtraDamagePack.m_EnchantShock.m_fTime > 0.0f )
+	{
+		m_ExtraDamagePack.m_EnchantShock.m_fTime = 0.f;
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	if( m_iElapsedFireCount >= m_iMaxFireCountByLoopState )
+		return;
+
+	const int fCheckTime = static_cast<int>( m_FrameDataNow.unitCondition.fStateTime / m_fFireGap );
+	if( fCheckTime >= m_iElapsedFireCount )
+	{
+		++m_iElapsedFireCount;
+
+		if( false == FlushMp( m_fUseMPConsume ) )
+			return;
+
+		June_CreateMeteoShowerAttack();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cdbb70: also stops the loop effect set
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_LOOP_StateEnd()
+{
+	m_bDisableGravity = false;
+	m_iElapsedFireCount = 0;
+
+	CommonStateEnd();
+	SetNoDetonation( false );
+
+	if( INVALID_EFFECTSET_HANDLE != m_ahEffectSet[EffSetID_June4] )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_ahEffectSet[EffSetID_June4] );
+}
+
+// June 32cb7f00: Fire Road's ready list
+void CX2GUArme_VioletMage::June_AVSI_A_AV_FIRE_ROAD_Init()
+{
+	XSkinMeshReadyInBackground( L"BREAKING_FIST_Attack_Box.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"cube_light_P02.dds" );
+	TextureReadyInBackground( L"cube_light_P01.dds" );
+	TextureReadyInBackground( L"BURSTING_BLADE_flame.dds" );
+	TextureReadyInBackground( L"Flame_REVOLVER.dds" );
+	TextureReadyInBackground( L"Dark_Smoke.dds" );
+	TextureReadyInBackground( L"Particle_Blur.DDS" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+}
+
+// June 32cdc270 / 32cdc4a0: the Fire Road effect set lives for the skill's EFFECTIVE_TIME; false = June leaves the FrameMove ( no unit )
+bool CX2GUArme_VioletMage::June_PlayFireRoad()
+{
+	float fLifeTime = 1.f;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2A_A_AHM_FIRE_ROAD ), true );
+	if( NULL != pSkillTemplet )
+	{
+		if( NULL == GetUnit() )
+			return false;
+
+		const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+		fLifeTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+	}
+
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_A_AHM_FireRoad", this, NULL, false, -1.f, fLifeTime );
+	return true;
+}
+
+void CX2GUArme_VioletMage::June_AVSI_A_AV_FIRE_ROAD_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.24f ) )
+	{
+		if( false == June_PlayFireRoad() )
+			return;
+	}
+
+	CommonFrameMove();
+}
+
+void CX2GUArme_VioletMage::June_AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.24f ) || m_pXSkinAnim->EventTimerOneshot( 0.49f ) )
+	{
+		if( false == June_PlayFireRoad() )
+			return;
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc0c50: the end falls back to WAIT ( JUMP_DOWN and a drop in the air ); a double arrow dashes after 0.25 s, the opposite arrow walks after 0.638 s
+void CX2GUArme_VioletMage::June_AVSI_A_AV_FIRE_ROAD_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else if( ( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) && 0.25f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( ( ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ||
+		( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) ) && 0.638f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( USI_WALK );
+	}
+
+	CommonEventProcess();
+}
+
+// June 329cc2c0: the hyper state takes every callback of the normal one
+void CX2GUArme_VioletMage::June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ )
+{
+	rHyperStateData_.StateInit			= rNormalStateData_.StateInit;
+	rHyperStateData_.StateStartFuture	= rNormalStateData_.StateStartFuture;
+	rHyperStateData_.StateStart			= rNormalStateData_.StateStart;
+	rHyperStateData_.OnFrameMoveFuture	= rNormalStateData_.OnFrameMoveFuture;
+	rHyperStateData_.OnFrameMove		= rNormalStateData_.OnFrameMove;
+	rHyperStateData_.OnCameraMove		= rNormalStateData_.OnCameraMove;
+	rHyperStateData_.OnEventProcess		= rNormalStateData_.OnEventProcess;
+	rHyperStateData_.StateEndFuture		= rNormalStateData_.StateEndFuture;
+	rHyperStateData_.StateEnd			= rNormalStateData_.StateEnd;
+}
+
+#undef JUNE_ARME_CH2A_ANY_KEY_ZXC
+//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

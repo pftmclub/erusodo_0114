@@ -1195,6 +1195,11 @@ void CX2EffectSet::OnFrameMove_CreateEffect( double fTime, float fElapsedTime )
 							}
 						}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
+						// June 321ef6b3: the set's modifier list ( class code fills it ) is applied to each damage effect the set creates
+						if( false == pEffectSetInstance->m_vecJuneModifier.empty() )
+							ApplyDamageEffectModifiers( pEffect, pEffectSetInstance->m_vecJuneModifier );
+#endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 						// @ 321ef6b5-321ef6d5: USE_IS_RIGHT_WHEN_CREATE gives the damage effect's follow-line
 						// facing (June CEffect +0x135 = m_bFollowLineRight) the facing the set was created with
 						if( true == pEffectData->m_bUseIsRightWhenCreate )
@@ -5848,6 +5853,52 @@ void CX2EffectSet::StopEffectSetSilent_LUA( CX2EffectSet::Handle hHandle )
 	StopEffectSet( hHandle );
 }
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
+// June 321db050 ( -> 321dad70 ): pushes { b, tag, ( v, 0, 0 ) } onto the set's list; a dead handle adds nothing
+void CX2EffectSet::AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int iTag_, float fValue_, bool bAdd_ )
+{
+	EffectSetInstance* pEffectSetInstance = GetEffectSetInstance( hHandle_ );
+	if ( NULL == pEffectSetInstance )
+		return;
+
+	EffectSetInstance::JuneDamageEffectModifier modifier;
+	modifier.m_bAdd = bAdd_;
+	modifier.m_iTag = iTag_;
+	modifier.m_vValue = D3DXVECTOR3( fValue_, 0.f, 0.f );
+	pEffectSetInstance->m_vecJuneModifier.push_back( modifier );
+}
+
+// June 321db1b0: v = v3.x; 'add' adds, otherwise multiplies. Tag 2 is the main effect's life time ( 321f2a30 / +0x44c ); the other tags log once and wait for their classes ( checklist 7a )
+void CX2EffectSet::ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect_, const std::vector<EffectSetInstance::JuneDamageEffectModifier>& vecModifier_ )
+{
+	for ( size_t i = 0; i < vecModifier_.size(); i++ )
+	{
+		const EffectSetInstance::JuneDamageEffectModifier& modifier = vecModifier_[i];
+		switch ( modifier.m_iTag )
+		{
+		case 2:
+			{
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pEffect_->GetMainEffect();
+				if ( NULL != pMainEffect )
+				{
+					const float fLifeTime = pMainEffect->GetMaxLifeTime();
+					pMainEffect->SetMaxLifeTime( true == modifier.m_bAdd ? modifier.m_vValue.x + fLifeTime : modifier.m_vValue.x * fLifeTime );
+				}
+			} break;
+
+		default:
+			{
+				static bool s_abLogged[24] = { false };
+				if ( 0 < modifier.m_iTag && modifier.m_iTag < 24 && false == s_abLogged[modifier.m_iTag] )
+				{
+					s_abLogged[modifier.m_iTag] = true;
+					CX2OfflineLog::Server( L"[JUNE_FX] effect-set modifier tag %d is not ported ( its class port brings it, checklist 7a )", modifier.m_iTag );
+				}
+			} break;
+		}
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 //}} kimhc // 2010.4.19 // 비밀던전 작업
 
 

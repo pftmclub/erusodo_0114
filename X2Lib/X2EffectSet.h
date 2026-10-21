@@ -927,6 +927,16 @@ public:
 #ifdef SERV_IRUHADEV_ELYSION_SCRIPT_B
 		bool							m_bJuneStopSilently;	/// Atlas E7: June EffectSetInstance +0x1b0 ( set by StopEffectSet( h, true ) 321e3ee0 @321e3f61 )
 #endif SERV_IRUHADEV_ELYSION_SCRIPT_B
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
+		struct JuneDamageEffectModifier
+		{
+			bool			m_bAdd;
+			int				m_iTag;
+			D3DXVECTOR3		m_vValue;
+			JuneDamageEffectModifier() : m_bAdd( false ), m_iTag( 0 ), m_vValue( 0.f, 0.f, 0.f ) {}
+		};
+		std::vector<JuneDamageEffectModifier>	m_vecJuneModifier;	/// June EffectSetInstance +0x170: 32-byte entries { b, tag, v3 }, filled by class code ( 321dad70 )
+#endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 
 	private:
 		EffectSetInstance() {}; // do not use
@@ -1104,6 +1114,10 @@ public:
 	//}} JHKang / °­Á¤ÈÆ / 2011/01/19
 
 	EffectSetInstance* GetEffectSetInstance( CX2EffectSet::Handle hHandle );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
+	void AddDamageEffectModifier( CX2EffectSet::Handle hHandle_, int iTag_, float fValue_, bool bAdd_ );	/// June 321db050 ( wrapper of 321dad70, v3 = ( v, 0, 0 ) )
+	void ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect_, const std::vector<EffectSetInstance::JuneDamageEffectModifier>& vecModifier_ );	/// June 321db1b0
+#endif SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
 #ifdef SERV_IRUHADEV_JUNE_EFFECTSET_BUFF_LIST
 	// June2017 321e3650 / 321ee480 (effect completion C6c)
 	void AttachBuffFactorToEffectSet( CX2EffectSet::Handle hHandle_, UINT uiBuffFactorID_, int iLevel_ );

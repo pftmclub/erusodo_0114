@@ -4705,3 +4705,26 @@ Flags `SERV_IRUHADEV_JUNE_QUEST_NOT_CASES` and `SERV_IRUHADEV_JUNE_QUEST_NOT_NO_
 - **Client.** `X2State.cpp` `Handler_EGS_UPDATE_QUEST_NOT`, in-game switch, as June's live handler `323e08c0`: `_CASES` adds a `SQT_DUNGEON_CLEAR_COUNT` progress line (no quest-UI create) and puts the `SQT_ITEM_USE` / `SQT_SKILL_USE` / `SQT_LEARN_NEW_SKILL` lines in the `#else`. `_NO_LINEBREAK` puts the 500 px wrap of the `SQT_NPC_HUNT` line in the `#else`.
 - **What changes in game.** A dungeon-clear sub-quest shows its progress line when the dungeon is cleared. The ITEM_USE line of event quest 203070 is gone. Long kill-progress lines are no longer wrapped. Quest progress itself is unchanged.
 - **Revert:** comment out either define (they are independent), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data. The play-test put quest 160 into unit 20's save (backup `db_backup/els_db_20261020_080340_pre_sql.sql`).
+
+### June character pilot: Aisha's Violet Mage / High Magician skills (pilot-char-revamp CH2a, 2026-10-21)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` and `SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER` in `KTDXLIB/Always.h` (SKILL needs LIVE, CORE and the modifier flag). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH2a - Done"; log lines `[JUNE_CHAR] ARME SKILL registered ...` and `[JUNE_SKILL] NUM use ...`.
+- **Client.** `X2GUArme_VioletMage.cpp` `June_SetEquippedSkillFuncHead` registers June's states for Chain Fireball, Gust Screw, Gust Storm, Lightning Bolt, Meteor Call, Binding Circle, Magic Missile, Meteor Shower (+ its loop and end states), Blizzard Shower, Chain Lightning, Teleport and Fire Road, with their upgrade ids; the `June_*` bodies sit in the CH2a block at the end of the file. A June clone that equals March's body is registered as March's member. `X2EffectSet.cpp/.h`: the effect set's June modifier list (tag 2 applied, other tags log once), used by Chain Fireball. Without the flags the skills fall back to March's `case` labels.
+- **What changes in game.** A Violet Mage / High Magician / Void Princess casts the June state of these skills: June's effect sets and damage effects replace March's timed `CreateInstance` calls. Their damage now comes from June's numerical skill data (`NUMERICAL_DATA_INDEX`); the March value is raw, before the skill's power rate. Level 1 values:
+
+| Skill (June id) | March effect = MAGIC | June effect = level-1 value x0.01 |
+|---|---|---|
+| Chain Fireball (22000) | FIREBALL_CHAIN = 1.88 (twice, 0.3 s and 0.8 s), FIREBALL_CHAIN_DOWN = 2.51 | ChainFireBall_Small = 5.76, ChainFireBall_Big = 5.23 |
+| Gust Screw (22001) | GUST_SCREW = 3.36 | GustScrew = 4.68, hyper 4.95 |
+| Gust Storm (22002) | GUST_STORM_LOW = 1.57, GUST_STORM_TOWER = 1.26 | LOW = 4.15, TOWER = 3.75 |
+| Lightning Bolt (22003) | EffectSet_Aisha_Lightning_Bolt (damage inside the set) | LightningBolt_Fire_Damage = 2.43, hyper 3.11 |
+| Meteor Call (22004) | METEO_CALL = 0.69, next hit 1.6 | MeteoCall = 9.61, MeteoCall_Explosion = 5.14 |
+| Binding Circle (22005) | no damage | no damage (bind buff, memo 18 force-down) |
+| Magic Missile (22006) | GUIDE_FIRE_BALL = 2.66 | MagicMissile = 4.9, hyper 4.9 |
+| Meteor Shower (22007) | AISHA_METEO_SHOWER01 = 1.33 and O2 = 2.95 per tick | MeteoShower_Attack = 0.72 (twice per tick), MeteoShower_Explosion = 2.44 |
+| Blizzard Shower (22008) | AISHA_BLIZZARD_SHOWER = 2.95, FROZEN_ATTACK = 2.95 | BlizzardShower = 0.62, _Explosion = 7.16; hyper 0.8 / 9.17 |
+| Chain Lightning (22009) | DamageEffect_AHM_Chain_Lightning = 5.99 | same name = 6.5 |
+| Teleport (22200) | no damage | no damage |
+| Fire Road (22201) | ARME_FIRE_ROAD = 3.08 | A_AHM_FireRoad = 9.97 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (and, if wanted, the modifier flag), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change. The play-test added unit 45 `ArmeHM` (High Magician, level 60, eight CH2a skills in slots 0-3 and 5-8) and re-slotted unit 44 `arishiaaa` (Meteor Call, Binding Circle and Lightning Bolt into B slots 5-7); backups `db_backup/els_db_20261021_120150_pre_manual.sql`, `..._120220_pre_createchar.sql` and the two `elsdb x` ones. Slots 4 and 9 (keys F and T) are June's transcendence slots and hold nothing.

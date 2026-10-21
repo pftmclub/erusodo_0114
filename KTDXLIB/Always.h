@@ -9668,6 +9668,31 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-21
+// Description: June character pilot ( Aisha ) Phase CH2a - the effect set's June modifier list: class code adds { tag, value } entries to a set ( June
+//              AddDamageEffectModifier 321db050 ) and every damage effect the set creates takes them ( 321db1b0 ). Tag 2 ( main effect life time ) only;
+//              the other tags log once and wait for their classes ( checklist 7a ). Revert: undefine the flag ( JUNE_CHAR_EFFECTSET_MODIFIER ) and
+//              SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL.
+#define SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
+#if defined( SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER ) && !defined( SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME )
+#error SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER needs SERV_IRUHADEV_JUNE_EFFECTSET_RUNTIME ( the damage effect creation path )
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
+// Description: June character pilot ( Aisha ) Phase CH2a - Violet Mage / High Magician skill states: Chain Fireball, Gust Screw, Gust Storm, Lightning Bolt,
+//              Meteor Call, Binding Circle, Magic Missile, Meteor Shower, Blizzard Shower, Chain Lightning, Teleport and Fire Road ( June 32cede00 cases ) and
+//              their upgrade ids. Needs LIVE ( June's registration head ), CORE and the modifier list. Revert: undefine the flag ( JUNE_CHAR_ARME_SKILL ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_CORE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE, SERV_IRUHADEV_JUNE_CHAR_ARME_CORE and SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
 // Description: June character pilot ( Aisha ) Phase CH5 - Aisha's skill cut-in table holds June's GFx names ( HQ_CutIn_Aisha_01 ... ) and the
 //              cut-in takes June's code event 0x8b3 art. Needs SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE ( June_ShowActiveSkillCutInAndLight, the log
 //              include ) and SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN ( ActiveSkillShow appends .gfx to the extensionless names; without it they

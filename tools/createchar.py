@@ -158,8 +158,10 @@ def main():
     if c.execute('SELECT 1 FROM unit WHERE nickname=?', (a.nickname,)).fetchone():
         die('nickname %r is already taken' % a.nickname)
     seed = c.execute('SELECT unit_uid FROM unit WHERE level=1 ORDER BY unit_uid LIMIT 1').fetchone()
+    if seed is None:   # no level-1 unit left in the save: the lowest-level one has the same default sizes
+        seed = c.execute('SELECT unit_uid FROM unit ORDER BY level, unit_uid LIMIT 1').fetchone()
     if seed is None:
-        die('no level-1 unit to copy the default inventory sizes from')
+        die('no unit to copy the default inventory sizes from')
     sizes = c.execute('SELECT category, size FROM inventory_size WHERE unit_uid=?', seed).fetchall()
 
     print('create %s  class %d %s  level %d  exp %d  sp %d  ed %d  (user %d, slot %d/%d)'
