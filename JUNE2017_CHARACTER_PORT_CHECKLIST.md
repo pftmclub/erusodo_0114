@@ -98,6 +98,7 @@ It copies the June scripts into `<scratch dir>` and never writes to the June dir
     tsv's x0.01 column at that level;
   - then retire the short-lived `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` (its `Always.h` block and guarded code), in the same phase.
   - (Aisha: CH2a - the first live class: states for 22000-22009 and 22200 / 22201 and their upgrade ids; NUM lines matched the tsv at level 1 on 2026-10-21 and `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` is retired.)
+  - (Aisha: CH2b - 22 of the 24 ids: Dark Cloud, Aging, Death Field, Hell Stone, Magical Makeup, Super Nova, Guillotine Press, Heavy Press, Dark Road, Mana Intake, Energetic Road and their upgrade ids; Energy Drain 22213 / 22234 waits for CH2c, which maps `322f0e60`. The effect-set modifier list gained tag 1 for the upgraded Energetic Road.)
 
 ## 2. DamageData keys June's character scripts use that March does not parse yet
 
@@ -612,7 +613,7 @@ caller with June's, which does not name them; until then they are a visible gap,
 | Raven | `X2GURaven.cpp`: `RAVEN_SEVEN_BURST_1/2_HYPER`, `RAVEN_MAXIMUM_CANNON_HYPER`, `_FLY_HYPER`, `RAVEN_OVER_TAKER_GUARDIAN_STRIKE[_HYPER]`, `RAVEN_OVER_TAKER_XX_FRONT_X`, `EffectSet_RAVEN_VJAVELIN` | `RAVEN_FIGHTER.lua`: `DamageEffect_RRF_ExplosiveHand_Impact`, `EffectSet_RAVEN_OVER_TAKER_GUARDIAN_STRIKE`, `..._HYPER_MEMO`, `EffectSet_RAVEN_VJAVELIN_LAND`, `Effectset_A_RWT_FLAME_SWORD_MEMO` |
 | Elsword | `X2GUElsword_SwordMan.cpp`: `LORD_KNIGHT_SAND_STORM`, `EffectSet_ELSWORD_DOUBLE_SLASH_HYPER` | - |
 | Rena | `X2GULire_ElvenRanger.cpp`: `DamageEffect_LGA_Arc_Shot`, `DamageEffect_Cryotron_Bolt_GUIDED_ARROW` | `Lire_ElvenRanger.lua`: `Effectset_Rena_DiveKickBombingA/B`, `..._B_Memo` |
-| Aisha | `X2GUArme_VioletMage.cpp`: `EffectSet_Aisha_DeathField_FirstImpact`, `EffectSet_Aisha_DeathFieldBomb` | `Arme_VioletMage.lua`: `EffectSet_AHM_Blaze_Step_Damage_MEMO`, `EffectSet_Aisha_Blaze_step_MEMO` |
+| Aisha | `X2GUArme_VioletMage.cpp`: `EffectSet_Aisha_DeathField_FirstImpact`, `EffectSet_Aisha_DeathFieldBomb` | `Arme_VioletMage.lua`: `EffectSet_AHM_Blaze_Step_Damage_MEMO`, `EffectSet_Aisha_Blaze_step_MEMO` | (Aisha: CH2b - the Death Field names are June's `EffectSet_SA_ADM_DeathField` / `_Bomb` now; the Blaze Step ones are CH2a's)
 | Chung | `X2GUChung.cpp`: `DAMAGE_EFFECT_CSI_SI_A_CDC_LEG_SHOT_Mini_Gun_Shell`, `EffectSet_CSI_CIP_LAND_DEMOLISHER_AFTER_EFFECT`; `X2BuffTemplet.cpp`: `CHUNG_BIGBANGSTREAM_MEMO` | `Chung_Iron_Cannon.lua`: `EffectSet_CSI_CSG_COMBO_XFRONTX_FIRE` |
 | Eve | `X2GuEve.cpp`: `EVE_EP_DASH_COMBO_Z` | - |
 Not a class: `BOMB` (`X2GUNPCFunc.cpp`, an NPC function, and June's `Bunker.lua`) has no owner; noted in the C11a Done note.

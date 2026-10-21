@@ -4728,3 +4728,25 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` and `SERV_IRUHADEV_JUNE_CHAR_EFFECTSE
 | Fire Road (22201) | ARME_FIRE_ROAD = 3.08 | A_AHM_FireRoad = 9.97 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (and, if wanted, the modifier flag), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change. The play-test added unit 45 `ArmeHM` (High Magician, level 60, eight CH2a skills in slots 0-3 and 5-8) and re-slotted unit 44 `arishiaaa` (Meteor Call, Binding Circle and Lightning Bolt into B slots 5-7); backups `db_backup/els_db_20261021_120150_pre_manual.sql`, `..._120220_pre_createchar.sql` and the two `elsdb x` ones. Slots 4 and 9 (keys F and T) are June's transcendence slots and hold nothing.
+
+### June character pilot: Aisha's Dark Magician / Battle Magician / Dimension Witch skills (pilot-char-revamp CH2b, 2026-10-21)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's; the modifier flag `SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER` gains tag 1). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH2b - Done"; log lines `[JUNE_CHAR] ARME SKILL registered ...`.
+- **Client.** `June_SetEquippedSkillFuncHead` registers June's states for Dark Cloud, Aging, Death Field, Hell Stone, Magical Makeup, Super Nova, Guillotine Press (+ its loop and end states), Heavy Press, Dark Road, Mana Intake and Energetic Road; the `June_*` bodies sit in the CH2b block at the end of `X2GUArme_VioletMage.cpp`. Dark Cloud, Aging, Guillotine and the Init / Start / End of Death Field and Magical Makeup are March's members (disassembly equal). `X2EffectSet.cpp`: modifier tag 1 (main-effect velocity), used by the upgraded Energetic Road. `June_EndHellStoneWindow` (CH1i) now passes the upgrade swap June passes. **Energy Drain (22213 / 22234) is not registered**: its target search calls June's `322f0e60`, which is not mapped (needs Opus); the skill keeps the default path.
+- **What changes in game.** Most June states have no FrameMove of their own: the cut-in, world colour, sounds and effect sets come from June's `Arme_VioletMage.lua`. March's per-skill damage effects are replaced by June's numerical ones.
+
+| Skill (June id) | March effect = MAGIC / PHYSIC | June effect = level-1 value x0.01 |
+|---|---|---|
+| Dark Cloud (22014) | DARK_CLOUD = 1.83 (hyper 1.83) | DamageEffect_SA_ADM_DarkCloud = 24.14, next hit 1.28 |
+| Aging (22015) | ADM_AGING = 3.81, ADM_AGING_THROW = 0.42 | Aging_Throw = 0.71 (hyper 0.91), Aging_Explosion = 3.84 (hyper 4.91) |
+| Death Field (22016) | AISHA_DEATH_FIELD_FIRST_IMPACT = 4.95, _EXPLOSION = 8.25 | Death_Field = 20.13, Death_Field_Explosion = 9.83 |
+| Hell Stone (22017) | HELL_STONE = 1.99 / 2.79 (hyper the same) | Hell_Stone = 5.04, next 2.68; hyper 5.61, next 3.42 |
+| Magical Makeup (22022) | no damage | no damage (transform + buff) |
+| Super Nova (22023) | ARME_ACTIVE_SUPERNOVA PHYSIC = 4.88 / 9.76 | Super_Nova = 3.38, next 25.21 |
+| Guillotine Press (22024) | ABM_GUILLOTINEPRESS_LAND01 = 8.31, LAND02 = 13.85 PHYSIC | Damage01 = 7.38, Damage02 = 22.17 |
+| Heavy Press (22026) | AISHA_ABM_HEAVYPRESS_01 = 2.6, _02 = 7.83 PHYSIC | Heavy_Press_01 = 6.05, _02 = 7.27 |
+| Dark Road (22206) | June-only | DamageEffect_A_ADM_DarkRoad = 9.97 |
+| Mana Intake (22208) | ARME_MANA_INTAKE = 0 (MP intake value as power rate) | no damage (the MP intake value is the effect set's power rate) |
+| Energetic Road (22211) | June-only | DamageEffect_A_ABM_EnergyRoad = 9.97 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (and, if wanted, the modifier flag), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.

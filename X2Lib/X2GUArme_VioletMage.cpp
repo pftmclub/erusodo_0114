@@ -29277,7 +29277,11 @@ void CX2GUArme_VioletMage::June_EndHellStoneWindow()
 	if( fCoolTimeLeft < 0.0f )
 		fCoolTimeLeft = 0.0f;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+	accessUserSkillTree.SetSkillCoolTimeLeft( accessUserSkillTree.GetUpgradeSwappedSkillID( eSkillID ), fCoolTimeLeft );	/// June passes the upgrade swap flag
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 	accessUserSkillTree.SetSkillCoolTimeLeft( eSkillID, fCoolTimeLeft );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 }
 
 // June 32cc5b20 ( ADW Mana Flow Overdrive ): the buff's stack count follows the missing MP in tenths
@@ -32687,6 +32691,31 @@ namespace
 	{
 		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL registered %s ( skill %d, slot %d%s )", pwszName_, static_cast<int>( eSkillID_ ), iSlotIndex_, true == bSlotB_ ? L" B" : L" A" );
 	}
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
+	/// June Enum.lua ids of CH2b's skills ( RNSI_*; the C++ SKILL_ID enum is March's numbering )
+	const int JUNE_CH2B_SA_ADM_DARK_CLOUD					= 22014;
+	const int JUNE_CH2B_SA_ADM_AGING						= 22015;
+	const int JUNE_CH2B_SA_ADM_DEATH_FIELD					= 22016;
+	const int JUNE_CH2B_SA_ADM_HELL_STONE					= 22017;
+	const int JUNE_CH2B_SA_ABM_MAGICAL_MAKEUP				= 22022;
+	const int JUNE_CH2B_SA_ABM_SUPER_NOVA					= 22023;
+	const int JUNE_CH2B_SA_ABM_GUILLOTINE_PRESS				= 22024;
+	const int JUNE_CH2B_SA_ADW_HEAVY_PRESS					= 22026;
+	const int JUNE_CH2B_SA_ADM_DARK_CLOUD_UPGRADE			= 22039;
+	const int JUNE_CH2B_SA_ABM_MAGICAL_MAKEUP_UPGRADE		= 22040;
+	const int JUNE_CH2B_A_ADM_DARK_ROAD						= 22206;
+	const int JUNE_CH2B_A_ADM_MANA_INTAKE					= 22208;
+	const int JUNE_CH2B_A_ABM_ENERGY_ROAD					= 22211;
+	const int JUNE_CH2B_A_ADM_DARK_ROAD_UPGRADE				= 22219;
+	const int JUNE_CH2B_A_ABM_ENERGY_ROAD_UPGRADE			= 22220;
+
+	/// June slot 94 ( vslot 0x178 ) called with AT_SPECIAL: an NPC asks per attack type, a user answers GetInvincible
+	bool June_IsInvincibleForSpecial( CX2GameUnit* pUnit_ )
+	{
+		return ( CX2GameUnit::GUT_NPC == pUnit_->GetGameUnitType() ) ?
+			static_cast<CX2GUNPC*>( pUnit_ )->JuneGetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit_->GetInvincible();
+	}
+//}} Iruha : 2026-10-21 // June character pilot Phase CH2b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 
 	/// June 32207210: the skill's m_iDeleteSkillIDByUpgrade when it has one, else the id itself
@@ -33015,6 +33044,168 @@ bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SK
 					June_CopyStateCallbacks( hyperStateData, normalStateData );
 				} return false;
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2a
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
+			/// June 32cede00 cases 22014-22026, 22039 / 22040 and 22206-22220 ( Energy Drain 22213 stays on the default path: it needs the unmapped 322f0e60 )
+			case JUNE_CH2B_SA_ADM_DARK_CLOUD:
+			case JUNE_CH2B_SA_ADM_DARK_CLOUD_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_ADM_DARK_CLOUD", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_DARK_CLOUD", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI2_AV_DARK_CLOUD_Init );	/// June 32cb7850 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI2_AV_DARK_CLOUD_HYPER", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2B_SA_ADM_AGING:
+				{
+					June_LogArmeSkill( L"SA_ADM_AGING", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_ADM_AGING", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_ADM_AGING_Init );	/// June 32cb7b00 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_ADM_AGING_HYPER", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2B_SA_ADM_DEATH_FIELD:
+				{
+					June_LogArmeSkill( L"SA_ADM_DEATH_FIELD", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_ADM_DEATHFIELD", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_ADM_DEATHFIELD_Init );	/// June 32cb7990 = March's
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_ADM_DEATHFIELD_StateStart );	/// June 32cbf0f0 = March's
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_ADM_DEATHFIELD_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_ADM_DEATHFIELD_StateEnd );	/// June 32cb79c0 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_ADM_DEATHFIELD", hyperStateData.stateID );
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					hyperStateData.StateEnd			= normalStateData.StateEnd;
+				} return false;
+
+			case JUNE_CH2B_SA_ADM_HELL_STONE:
+				{
+					June_LogArmeSkill( L"SA_ADM_HELL_STONE", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_HELL_STONE", normalStateData.stateID );
+					normalStateData.StateInit			= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI1_AV_HELL_STONE_Init );	/// June 32cb7600 = March's
+					normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI1_AV_HELL_STONE_StateStartFuture );
+					normalStateData.StateStart			= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI1_AV_HELL_STONE_StateStart );
+					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_HELL_STONE_HYPER", hyperStateData.stateID );
+					hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+					hyperStateData.StateStart			= normalStateData.StateStart;
+					hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2B_SA_ABM_MAGICAL_MAKEUP:
+			case JUNE_CH2B_SA_ABM_MAGICAL_MAKEUP_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_ABM_MAGICAL_MAKEUP", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_MAGICAL_MAKEUP", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_MAGICAL_MAKEUP_Init );	/// June 32cc1140 = March's
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateStart );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateEnd );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_MAGICAL_MAKEUP", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );
+				} return false;
+
+			case JUNE_CH2B_SA_ABM_SUPER_NOVA:
+				{
+					June_LogArmeSkill( L"SA_ABM_SUPER_NOVA", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_SUPER_NOVA", normalStateData.stateID );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_SA_ABM_SUPER_NOVA_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_SUPER_NOVA", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2B_SA_ABM_GUILLOTINE_PRESS:
+				{
+					June_LogArmeSkill( L"SA_ABM_GUILLOTINE_PRESS", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_GUILLOTINE_PRESS_START", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_SA_ABM_GUILLOTINE_PRESS_START_EventProcess );	/// June 32cc1090 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_GUILLOTINE_PRESS_START", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP;
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SI_SA_ABM_GUILLOTINE_PRESS_END;
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_GUILLOTINE_PRESS_END", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				} return false;
+
+			case JUNE_CH2B_SA_ADW_HEAVY_PRESS:
+				{
+					June_LogArmeSkill( L"SA_ADW_HEAVY_PRESS", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_HEAVY_PRESS", normalStateData.stateID );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_SA_ABM_HEAVY_PRESS_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI_SA_ABM_HEAVY_PRESS", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2B_A_ADM_DARK_ROAD:
+			case JUNE_CH2B_A_ADM_DARK_ROAD_UPGRADE:
+				{
+					June_LogArmeSkill( L"A_ADM_DARK_ROAD", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "RNSI_A_ADM_DARK_ROAD", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_A_ROAD_Init );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_A_ADM_DARK_ROAD_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_A_ROAD_EventProcess );
+
+					m_LuaManager.MakeTableReference( "RNSI_A_ADM_DARK_ROAD", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH2B_A_ADM_MANA_INTAKE:
+				{
+					June_LogArmeSkill( L"A_ADM_MANA_INTAKE", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_A_ADM_MANA_INTAKE", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_A_ADM_MANA_INTAKE_Init );	/// June 32cb79e0 = March's
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_ADM_MANA_INTAKE_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_A_ADM_MANA_INTAKE_HYPER", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_ADM_MANA_INTAKE_HYPER_FrameMove );
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );
+				} return false;
+
+			case JUNE_CH2B_A_ABM_ENERGY_ROAD:
+			case JUNE_CH2B_A_ABM_ENERGY_ROAD_UPGRADE:
+				{
+					June_LogArmeSkill( L"A_ABM_ENERGY_ROAD", eSkillID_, iSlotIndex_, bSlotB_ );
+					/// June's Start 32cb8e90 only forwards to CommonStateStart: left empty, the engine runs it
+					m_LuaManager.MakeTableReference( "RNSI_A_ABM_ENERGETIC_ROAD", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_A_ROAD_Init );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_A_ABM_ENERGETIC_ROAD_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_RNSI_A_ROAD_EventProcess );
+
+					m_LuaManager.MakeTableReference( "RNSI_A_ABM_ENERGETIC_ROAD", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+//}} Iruha : 2026-10-21 // June character pilot Phase CH2b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 			default:
 				break;
@@ -33967,6 +34158,349 @@ void CX2GUArme_VioletMage::ClearSkillUseReserve()
 }
 #undef JUNE_ARME_CH2A_ANY_KEY_ZXC
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2a
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
+// June 32cd7bf0: Death Field ( normal and hyper ); at 0.8 s every enemy within 480 gets the first-impact set, the death sentence buff and a bomb set delayed by the buff time; gravity returns at 1.4 s
+void CX2GUArme_VioletMage::June_AVSI_SA_ADM_DEATHFIELD_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.8f ) )
+	{
+		const D3DXVECTOR3 vPos = GetPos();
+		const float fRange = 480.f;
+		for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+		{
+			CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+			if( pUnit->GetTeam() == GetTeam() )
+				continue;
+
+			if( true == June_IsInvincibleForSpecial( pUnit ) )
+				continue;
+
+			if( GetDistance3Sq( vPos, pUnit->GetPos() ) < fRange * fRange )
+			{
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_ADM_DeathField", this, pUnit, IsHyperState(), GetPowerRate() );
+
+				pUnit->SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_DEBUFF_DEATH_SENTENCE ), 1, this, 0, false );
+
+				float fDeathSentenceDurationTime = 0.f;
+
+				vector<CX2BuffFinalizerTempletPtr>	vecFinalizerPtr;
+				pUnit->GetBuffFinalizerTempletPtrList( BTI_DEBUFF_DEATH_SENTENCE, vecFinalizerPtr );
+
+				if( !vecFinalizerPtr.empty() )
+				{
+					vector<KBuffFinalizerFactor> vecFactors;
+					vecFinalizerPtr[0]->GetFactor( vecFactors, this );
+
+					if( !vecFactors.empty() && !vecFactors[0].m_vecValues.empty() )
+						fDeathSentenceDurationTime = vecFactors[0].m_vecValues[0];
+				}
+
+				const CX2EffectSet::Handle hEffectBomb = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_ADM_DeathField_Bomb", this, pUnit, true, GetPowerRate() );
+				if( INVALID_EFFECTSET_HANDLE != hEffectBomb )
+				{
+					if( CX2EffectSet::EffectSetInstance* pBomb = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectBomb ) )
+						pBomb->m_fDelayTime = fDeathSentenceDurationTime;
+				}
+			}
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 1.4f ) )
+	{
+		m_bDisableGravity = false;
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc6d70 / 32cc6de0 tail: while the recast window is on ( mode 1 ) a cast opens it for 5 s, the third cast ends it, else the cooldown is held at 1.5 s
+void CX2GUArme_VioletMage::June_HellStoneRecast()
+{
+	if( 1 == m_iJune96e8 )
+	{
+		if( 0 == m_iJune96e4 )
+			m_fJune96e0 = 5.f;
+
+		m_iJune96e4++;
+		if( m_iJune96e4 >= 3 )
+		{
+			June_EndHellStoneWindow();
+			return;
+		}
+
+		if( NULL != GetUnit() )
+		{
+			CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+			accessUserSkillTree.SetSkillCoolTimeLeft( accessUserSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2B_SA_ADM_HELL_STONE ) ), 1.5f );
+		}
+	}
+}
+
+// June 32cc6de0: both Hell Stone state starts run the recast tail ( also the future start )
+void CX2GUArme_VioletMage::June_AVSI_SI1_AV_HELL_STONE_StateStartFuture()
+{
+	CommonStateStartFuture();
+	June_HellStoneRecast();
+}
+
+// June 32cc6d70
+void CX2GUArme_VioletMage::June_AVSI_SI1_AV_HELL_STONE_StateStart()
+{
+	CommonStateStart();
+	June_HellStoneRecast();
+}
+
+// June 32cd81b0 / 32cd83c0: at 0.35 s the Mana Intake effect set plays with the MP intake value as its power rate ( March made a damage effect )
+void CX2GUArme_VioletMage::June_PlayManaIntake( const WCHAR* pwszEffectSetName_ )
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.35f ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2B_A_ADM_MANA_INTAKE ), true );
+		if( NULL != pSkillTemplet )
+		{
+			if( NULL == GetUnit() )
+				return;	/// June leaves without CommonFrameMove
+
+			const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			const float fPowerRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_INTAKE_ABS, iSkillLevel );
+			g_pX2Game->GetEffectSet()->PlayEffectSet( pwszEffectSetName_, this, NULL, false, fPowerRate );
+			PlaySound( L"Aisha_Mana_Intake.ogg" );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+void CX2GUArme_VioletMage::June_AVSI_A_ADM_MANA_INTAKE_FrameMove()
+{
+	June_PlayManaIntake( L"EffectSet_A_AVP_ManaInTake" );
+}
+
+void CX2GUArme_VioletMage::June_AVSI_A_ADM_MANA_INTAKE_HYPER_FrameMove()
+{
+	June_PlayManaIntake( L"EffectSet_A_AVP_ManaInTake_Hyper" );
+}
+
+// June 32cccc20: Heavy Press clears its hit list at 0.7 s ( March also drove the cut-in and world colour, which June's script does )
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ABM_HEAVY_PRESS_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.7f ) )
+		ClearHitUnitList_LUA();
+
+	CommonFrameMove();
+}
+
+// June 32cdcef0: Super Nova; the second set grows with the basic NPCs / other users within 700 ( no invincibility test, unlike March )
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ABM_SUPER_NOVA_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.03f ) )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ABM_SuperNova01", this );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 1.8f ) )
+	{
+		int nCount = 0;
+		for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+		{
+			CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+			if( false == g_pX2Game->IsValidUnit( pUnit ) )
+				continue;
+
+			if( CX2GameUnit::GUSI_DIE == pUnit->GetGameUnitState() || pUnit->GetNowHp() <= 0.f )
+				continue;
+
+			float fOffset = 0.f;
+			if( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() )
+			{
+				CX2GUNPC* pNpc = static_cast<CX2GUNPC*>( pUnit );
+				if( CX2UnitManager::NCT_BASIC != pNpc->GetNPCTemplet().m_ClassType )
+					continue;
+
+				fOffset = ( pNpc->GetUnitWidth( false ) + pNpc->GetUnitHeight( false ) ) * 0.5f;
+			}
+			else if( true == pUnit->IsMyUnit() )
+				continue;
+
+			const D3DXVECTOR3 vDistance = GetPos() - pUnit->GetPos();
+			if( D3DXVec3Length( &vDistance ) - fOffset <= 700.f )
+				++nCount;
+		}
+
+		float fScale = 1.f + ( nCount / 10.f );
+		if( fScale < 1.f )
+			fScale = 1.f;
+		else if( fScale > 2.f )
+			fScale = 2.f;
+
+		float fDamageScale = 1.f + ( nCount * 0.05f );
+		if( fDamageScale < 1.f )
+			fDamageScale = 1.f;
+		else if( fDamageScale > 1.5f )
+			fDamageScale = 1.5f;
+
+		const CX2EffectSet::Handle hSuperNova = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ABM_SuperNova02", this );
+		if( INVALID_EFFECTSET_HANDLE != hSuperNova )
+		{
+			if( CX2EffectSet::EffectSetInstance* pSuperNova = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hSuperNova ) )
+			{
+				pSuperNova->SetPowerRateScale( fDamageScale );
+				pSuperNova->SetEffectScale( D3DXVECTOR3( fScale * GetScaleByUnit().x, fScale * GetScaleByUnit().y, fScale * GetScaleByUnit().z ), true );
+			}
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc7d80: Magical Makeup removes the buffs of its own skill that are still on before it casts again
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateStart()
+{
+	CommonStateStart();
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+	if( NULL != pSkillTemplet )
+	{
+		for( size_t i = 0; i < pSkillTemplet->m_vecBuffFactorPtr.size(); i++ )
+		{
+			if( NULL != pSkillTemplet->m_vecBuffFactorPtr[i] && true == HaveThisBuff( pSkillTemplet->m_vecBuffFactorPtr[i]->GetBuffTempletID() ) )
+				EraseBuffTempletFromGameUnit( pSkillTemplet->m_vecBuffFactorPtr[i]->GetBuffTempletID() );
+		}
+	}
+}
+
+// June 32cc95b0: at 0.7 s the transform fade starts ( March's TransformStart; June's 32cc91b0 is CH4's ), at 2.0 s the buff index 0 lands
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.7f ) )
+	{
+		SetTransformTime( 1.3f );
+		SetUseWorldColor( true );
+
+		if( NULL != GetUnit() && CX2Unit::UC_ARME_DIMENSION_WITCH == GetUnit()->GetClass() )
+			TransformStart( L"Mesh_Arme_ADW_Cash_Upbody_Transforming_Sorted.X" );
+		else
+			TransformStart( L"Mesh_Arme_BM_Cash_Upbody_Transforming_Sorted.X" );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 2.0f ) )
+		SetBuffFactorToGameUnit( GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2B_SA_ABM_MAGICAL_MAKEUP ), true ), 0 );
+
+	CommonFrameMove();
+}
+
+// June 32cc11a0: = March's end except the templet is the upgrade-swapped one
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateEnd()
+{
+	if( !IsTransformed() )
+	{
+		SetTransformTime( 0.f );
+		SetBuffFactorToGameUnit( GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2B_SA_ABM_MAGICAL_MAKEUP ), true ), 0 );
+	}
+
+	SetForceInvincible( 1.f );
+	CommonStateEnd();
+}
+
+// June 32cb8d60 / 32cb8e00 ( Dark Road and Energetic Road share the list )
+void CX2GUArme_VioletMage::June_RNSI_A_ROAD_Init()
+{
+	XSkinMeshReadyInBackground( L"BREAKING_FIST_Attack_Box.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"cube_light_P02.dds" );
+	TextureReadyInBackground( L"cube_light_P01.dds" );
+	TextureReadyInBackground( L"BURSTING_BLADE_flame.dds" );
+	TextureReadyInBackground( L"Flame_REVOLVER.dds" );
+	TextureReadyInBackground( L"Dark_Smoke.dds" );
+	TextureReadyInBackground( L"Particle_Blur.DDS" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+}
+
+// June 32ce33b0 / 32ce35e0: the road set plays with the skill's effective time as its life time ( power rate -1 ); bNoUnit_ is June's early return that skips CommonFrameMove
+CX2EffectSet::Handle CX2GUArme_VioletMage::June_PlayRoadEffectSet( const WCHAR* pwszEffectSetName_, const int iSkillID_, bool& bNoUnit_ )
+{
+	bNoUnit_ = false;
+
+	float fLifeTime = 1.f;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if( NULL != pSkillTemplet )
+	{
+		if( NULL == GetUnit() )
+		{
+			bNoUnit_ = true;
+			return INVALID_EFFECTSET_HANDLE;
+		}
+
+		const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+		fLifeTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+	}
+
+	return g_pX2Game->GetEffectSet()->PlayEffectSet( pwszEffectSetName_, this, NULL, false, -1.f, fLifeTime );
+}
+
+void CX2GUArme_VioletMage::June_RNSI_A_ADM_DARK_ROAD_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.24f ) )
+	{
+		bool bNoUnit = false;
+		June_PlayRoadEffectSet( L"EffectSet_A_ADM_DarkRoad", JUNE_CH2B_A_ADM_DARK_ROAD, bNoUnit );
+		if( true == bNoUnit )
+			return;
+	}
+
+	CommonFrameMove();
+}
+
+void CX2GUArme_VioletMage::June_RNSI_A_ABM_ENERGETIC_ROAD_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.24f ) )
+	{
+		bool bNoUnit = false;
+		const CX2EffectSet::Handle hEffectSet = June_PlayRoadEffectSet( L"EffectSet_A_ABM_EnergyRoad", JUNE_CH2B_A_ABM_ENERGY_ROAD, bNoUnit );
+		if( true == bNoUnit )
+			return;
+
+		// the upgraded road also scales its effects' velocity ( modifier tag 1 ) by the learned move speed value
+		const CX2SkillTree::SkillTemplet* pNowSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+		if( NULL != pNowSkillTemplet && 0 != pNowSkillTemplet->m_iDeleteSkillIDByUpgrade && NULL != GetUnit() )
+		{
+			const CX2SkillTree::SKILL_ID eRoadSkillID = static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH2B_A_ABM_ENERGY_ROAD );
+			const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+			const int iLearnedLevel = userSkillTree.GetSkillLevel( eRoadSkillID, false, 0, true );
+			const CX2SkillTree::SkillTemplet* pLearnedTemplet = ( 0 < iLearnedLevel ) ? userSkillTree.GetUserSkillTemplet( eRoadSkillID, true ) : NULL;
+			float fMoveSpeed = 1.f;
+			if( NULL != pLearnedTemplet && true == pLearnedTemplet->JuneTryGetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iLearnedLevel, false, fMoveSpeed ) )
+				g_pX2Game->GetEffectSet()->AddDamageEffectModifier( hEffectSet, 1, fMoveSpeed, false );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc5780 / 32cc5840 ( identical ): = Fire Road's end, dash after 0.25 s, walk after 0.638 s
+void CX2GUArme_VioletMage::June_RNSI_A_ROAD_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else if( ( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) && 0.25f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( ( ( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ||
+		( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) ) && 0.638f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		StateChange( USI_WALK );
+	}
+
+	CommonEventProcess();
+}
+//}} Iruha : 2026-10-21 // June character pilot Phase CH2b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

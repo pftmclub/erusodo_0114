@@ -5876,6 +5876,25 @@ void CX2EffectSet::ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect
 		const EffectSetInstance::JuneDamageEffectModifier& modifier = vecModifier_[i];
 		switch ( modifier.m_iTag )
 		{
+		case 1:
+			{
+				// June 321db1b0 tag 1: the main effect's velocity, added or multiplied per component by v3 ( = ( v, 0, 0 ) ), also pushed onto the mesh ( 31c8a9b0 )
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pEffect_->GetMainEffect();
+				if ( NULL != pMainEffect )
+				{
+					D3DXVECTOR3 vVelocity = pMainEffect->GetVelocity();
+					if ( true == modifier.m_bAdd )
+						vVelocity += modifier.m_vValue;
+					else
+					{
+						vVelocity.x *= modifier.m_vValue.x;
+						vVelocity.y *= modifier.m_vValue.y;
+						vVelocity.z *= modifier.m_vValue.z;
+					}
+					pMainEffect->SetVelocity( vVelocity );
+					pMainEffect->AddVelocityModifier( modifier.m_bAdd, modifier.m_vValue );
+				}
+			} break;
 		case 2:
 			{
 				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pEffect_->GetMainEffect();

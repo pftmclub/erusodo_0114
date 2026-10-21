@@ -1318,6 +1318,25 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_A_AV_FIRE_ROAD_EventProcess();						/// June 32cc0c50
 		void June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ );	/// June 329cc2c0
 		virtual void ClearSkillUseReserve();								/// June slot 514 ( 31fc9410 ): +0x8eac = 0 and +0x8ea8 ( the reserved MP ) = 0
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2b ( JUNE_CHARACTER_AISHA_PHASES.md )
+		void June_AVSI_SA_ADM_DEATHFIELD_FrameMove();						/// June 32cd7bf0
+		void June_HellStoneRecast();										/// June 32cc6d70 / 32cc6de0 tail
+		void June_AVSI_SI1_AV_HELL_STONE_StateStartFuture();				/// June 32cc6de0
+		void June_AVSI_SI1_AV_HELL_STONE_StateStart();						/// June 32cc6d70
+		void June_PlayManaIntake( const WCHAR* pwszEffectSetName_ );
+		void June_AVSI_A_ADM_MANA_INTAKE_FrameMove();						/// June 32cd81b0
+		void June_AVSI_A_ADM_MANA_INTAKE_HYPER_FrameMove();					/// June 32cd83c0
+		void June_AVSI_SI_SA_ABM_HEAVY_PRESS_FrameMove();					/// June 32cccc20
+		void June_AVSI_SI_SA_ABM_SUPER_NOVA_FrameMove();					/// June 32cdcef0
+		void June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateStart();				/// June 32cc7d80
+		void June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_FrameMove();				/// June 32cc95b0
+		void June_AVSI_SI_SA_ABM_MAGICAL_MAKEUP_StateEnd();					/// June 32cc11a0
+		void June_RNSI_A_ROAD_Init();										/// June 32cb8d60 / 32cb8e00
+		CX2EffectSet::Handle June_PlayRoadEffectSet( const WCHAR* pwszEffectSetName_, const int iSkillID_, bool& bNoUnit_ );
+		void June_RNSI_A_ADM_DARK_ROAD_FrameMove();							/// June 32ce33b0
+		void June_RNSI_A_ABM_ENERGETIC_ROAD_FrameMove();					/// June 32ce35e0
+		void June_RNSI_A_ROAD_EventProcess();								/// June 32cc5780 / 32cc5840
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH2b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
