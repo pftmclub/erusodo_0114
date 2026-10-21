@@ -1645,6 +1645,37 @@ Teleport: cast on the review build (14:15 run), behaves as it should (user); it 
 **Save for the play-test** (backups in `data\db_backup`, tag `ch2b_pre`): unit 46 `ArmeDM` (Dark Magician, level 60: Dark Road slot 0, Dark Cloud 1, Aging 2, Death Field 3, Hell Stone B5, Mana Intake B6) and unit 47 `ArmeBM` (Battle Magician, level 60: Energetic Road 0, Magical Makeup 1, Super Nova 2, Guillotine Press 3, Heavy Press B5).
 **Play-test result (user, 2026-10-21 14:52-14:56; `check logs`, exe md5 `bfab1fd4...`):** `ARME SKILL registered` for all 6 `ArmeDM` and all 5 `ArmeBM` skills (the first `ARME DATA class 15` / `class 23` lines follow). Hits and kills in `offline_server.log`: Dark Road (`DamageEffect_A_ADM_DarkRoad`), Dark Cloud (`..._DarkCloud`, repeated ticks), Aging (`Aging_Throw`, `Aging_Explosion`), Death Field (`Death_Field`, `Death_Field_Explosion`; `EffectSet_SA_ADM_DeathField` + `_Bomb` played once), Mana Intake (`DamageEffect_SA_ADM_Mana_Intake`), Hell Stone (`DamageEffect_SA_ADM_Hell_Stone`), Energetic Road (`DamageEffect_A_ABM_EnergyRoad`, kills), Super Nova (`Super_Nova_Black_Hole`, `Super_Nova`, five kills at once), Guillotine Press (`Damage01`, `Damage02`, kill), Heavy Press (`Heavy_Press_01` hit at 14:56:02 after five casts that found nobody). 0 `Motion Error`, 0 EXCEPTION, no `[JUNE_FX] effect-set modifier tag` line. New `ErrorLog.txt` lines are CH0b's two face textures and CH5's `PC_AISHA_PNG.SWF`, none of CH2b. Not proven by the log: Magical Makeup's transform (no damage line exists), whether the Energetic Road cast was the upgraded one (tag 1 path), Super Nova's scale; the review checks these by reading.
 
+### CH2b -- Review (2026-10-21, Opus)
+
+**Verdict: PASS, no code change.** All 17 June bodies were read in the `funcdis.py` listing, not the decompile. Registration thunks were resolved to their `jmp` targets, and floats and strings were read from the image:
+0.8 (also as a double), 1.4, 480, 624, -1, 0.03, 1.8, 0.5, 700, 10, 2.0, 0.05, 1.5, 0.35, 0.24, 0.7, 1.3, 5.0, 45, 0.25 and 0.638, plus every effect-set, mesh, texture and sound name.
+
+1. **Death Field `32cd7bf0`.** The order is team, slot 0x178( &1 ), then range². The range is 480, or 624 when `31fca9e0( 602020 )` is true; that is June's memo stub, which always returns 0, so 480 always applies (port right).
+   The comparison is a strict `<`. The first set takes the state's hyper byte (`+0x7cbc` -> `+0x10` = `IsHyperState()`) and vslot 0x204 `GetPowerRate`. The buff is vslot 0x21c `( 0x4b, this, 1, 0, 0 )`, which equals the port's March-order call.
+   The death-sentence time is written to `[esp+0x14]` at `@32cd7f93`. Nothing writes that slot again before `@32cd8124` stores it into the bomb's `+0x5c` (`m_fDelayTime`), so the Done note's reading is right. The bomb set passes hyper = 1.
+   1.4 is the `else` branch (gravity `+0x84f3` = 0).
+2. **Super Nova `32cdcef0`.** It is March's function minus the cut-in / world colour and minus `GetInvincible`. The checks are valid unit, `GUSI_DIE`, HP > 0, NPC `NCT_BASIC` with `( w + h ) * 0.5`, or vslot 0x198 `IsMyUnit`. The distance test is `<= 700`.
+   The scale is clamped to [1, 2] and the damage to [1, 1.5]. The instance gets `+0x64` (`SetPowerRateScale`), `+0x70` = scale * vslot 0x24, and `+0x7c` = 1. One detail is not ported: June keeps a unit whose stat pointer `+0xc04` is NULL, while the port reads `GetNowHp()`, as March does (not reachable for a live unit).
+3. **Mana Intake `32cd81b0` / `32cd83c0`.** The two bodies are identical except for the name. The power rate is `32206e50( 0x2c, max( 1, level ), 0, 0 )` (`SA_MP_INTAKE_ABS` = 44). A NULL unit jumps past `CommonFrameMove`. The sound call is `32276220( Aisha_Mana_Intake.ogg, 1, 0 )`, which equals March's defaults.
+4. **Dark Road / Energetic Road `32ce33b0` / `32ce35e0`.** These two are identical apart from the id, the name and the upgrade block. The power rate is -1, the life time is ability 1 (default 1.0), and a NULL unit returns.
+   The upgrade path is `GetNowStateSkillID` -> templet( id, swap ) `+0x178` != 0 -> `32007c40( 0x22, 0x56c3, swap 1, &v )` -> `321db050( h, 1, v, 0 )`. The port uses the same skill tree calls with swap = true.
+   Tag 1 is jump-table entry 0 of `321db1b0` (`@321db216`): the main mesh `+0x534` velocity is added to or multiplied per component (`321f2ac0`), then `31c8a9b0` runs, the same code as `APPLY_DAMAGE_EFFECT_VELOCITY`. JUNE_BUGS 385 is real.
+5. **Hell Stone `32cc6d70` / `32cc6de0`.** Both starts run the tail: if `+0x96e4` is 0, the window `+0x96e0` = 5.0. The count is unsigned and ends the window at >= 3 (`32cc2ab0`); otherwise `32893880( 0x5601, 1.5, swap 1 )` runs.
+   `32cc2ab0` also passes swap 1, so the one-line change to `June_EndHellStoneWindow` is right, and JUNE_BUGS 384 is real. June does not NULL-test `+0x867c` here, while the port does; for a user unit that is only a guard.
+6. **Magical Makeup.** Start erases each `+0xa0` buff factor's `+0x28` BTI that `3227baf0` reports (`3229e160`), using the templet( now state id, swap ). At 0.7 the transform time is 1.3 (`+0x96c8`) and `+0xe10` = 1.
+   The class test reads `+0xaf0` -> `+4` == 0x71 (`UC_ARME_DIMENSION_WITCH`). The names are the ADW / BM `_Transforming_Sorted.X` meshes. At 2.0, slot 0x228( templet( 22022, swap ), 0 ) runs (June has no memo branch).
+   End checks `+0x8c0c`, then time 0, the buff, slot 0x11c( 1.0 ) and `CommonStateEnd`; this is March's with the swapped templet. `TransformStart` stays March's (CH4).
+7. **Registration vs `32cede00`** (`ch0c_skill.tsv` and decompile lines 675-1302). All 11 cases match: labels, table names and callbacks.
+   No hyper copies `Init`, except Magical Makeup's, which goes through `329cc2c0`. Energetic Road's `Start` `32cb8e90` is left unset; `X2GUUser.cpp:7257-7261` then calls `CommonStateStart`, which is the same thing.
+   Guillotine registers LOOP (0xd1, EventProcess `32cf1830` -> `32cc10f0`) and END (0xd2, `329cba60`). The road Init lists match `32cb8d60` / `32cb8e00` (2 meshes, 8 textures, in the same order).
+8. **"= March" claims.** The six EventProcess bodies (`32cbe8a0 32cbedd0 32cbf150 32cbf190 32cbf1d0 32cbf290`) are byte-identical to `32cbe6a0`. `32cc5780` / `32cc5840` are byte-identical to Fire Road's `32cc0c50`.
+   The six Inits list March's assets in March's order. Death Field Start / End and Guillotine START (`0xd1` with y -= 45, else `0xd2`) equal March's.
+9. **Energy Drain.** 22213 / 22234 have no CH2b case and fall to `default: break`. `CH2c.md` names `322f0e60`, READY `32cdc6f0`, SUCCESS `32cdcac0` and FAIL `0xd0` correctly.
+
+**Hygiene:** `flagcheck.py JUNE_CHAR_ARME_SKILL --with JUNE_CHAR_EFFECTSET_MODIFIER --range 20266330^..20266330`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = `X2EffectSet.cpp`, the modifier flag's).
+**No build:** there is no code change, and the deployed exe (md5 `bfab1fd4...`) is the one the user play-tested. The user owes nothing. Next: CH2c (Opus) and CH3a / CH4, which are now unblocked (one at a time, per STATUS).
+
 ## Phase CH3 - Skills: second jobs (104, 105, 113) and hyper actives
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flag as CH2 (or CH0's split). Sub-tag `SKILL`.
