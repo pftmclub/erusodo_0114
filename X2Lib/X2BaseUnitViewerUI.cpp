@@ -495,8 +495,16 @@ void CX2BaseUnitViewerUI::JuneViewerFxCreatePass()
 				pSeq->SetScaleFactor( pEffectData->m_vScale );
 			// June sets seq +0x45a = 1 (write-only) and, for an unmanaged viewer, takes the particle out of the DG
 			// manager: the viewer's own Draw (32957330) is then its only way on screen
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
+			if( false == IsManagedByDGManager() && NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() )
+			{
+				pSeq->SetJuneOutOfDGManager( true );	// June 3295809c; CreateNewParticle reads it for trace children
+				g_pKTDXApp->GetDGManager()->RemoveObjectChain( pSeq );
+			}
+#else SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 			if( false == IsManagedByDGManager() && NULL != g_pKTDXApp && NULL != g_pKTDXApp->GetDGManager() )
 				g_pKTDXApp->GetDGManager()->RemoveObjectChain( pSeq );
+#endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 			if( true == pSeq->GetUseLand() )
 				pSeq->SetLandPosition( JuneViewerFxLandPosition( true, pXSkinAnim ).y );
 

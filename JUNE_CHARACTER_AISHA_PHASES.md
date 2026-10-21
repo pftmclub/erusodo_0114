@@ -1767,6 +1767,28 @@ The review's worktree run (`--files X2Lib/X2GUArme_VioletMage.cpp`) gives `RESUL
 **Play-test hand-off:** see the reply that follows this commit (copy-ready console lines); log tag `[JUNE_CHAR]` / `ARME SKILL`.
 **Save for the play-test** (backups in `data\db_backup`): new unit 51 `ArmeEM` (Elemental Master, level 60: Blaze Step slot 0, Cyclone 1, Chain Burst 2, Circle of Elements 3, Circle Flame B5, Frost Barrage B6, Icicle Spear B7) and unit 52 `ArmeVP` (Void Princess, level 60: Plasma Cutter 0, Phantom Breathing 1, Hell Drop 2, Dark Burst 3, Ruin B5, Petit Angkor B6, Millions B7, Abyss Field B8).
 
+### CH3a -- Review (2026-10-21, Opus)
+
+**Verdict: PASS on CH3a's port; one engine fix found through the Plasma Cutter report, done here for june-engine R9.** Three functions were read in the `funcann.py` listing, not the decompile:
+1. **Plasma Cutter EventProcess `32cbe9f0`.** Animation end (`+0x87d0 +0x2ac`, `+0x7e1c` on something -> 0xd, else 0x11) jumps straight to CommonEventProcess (`0x7d4`), so the head belongs to the chain. Then the AWAKE_LOCK `SKILL_CANCEL_AFTER` (`0x7f4`, BlackHole, `+0x8723`, `0x560`, `32070d60`), BWALK `( +0x86da && +0x7e56 ) || ( +0x86de && !+0x7e56 )`, WALK, DASH (`0x668`), Z `+0x86ea` / X `+0x86ee` on `+0x8c8c`. Matches the port.
+2. **Cyclone FrameMove `32cd9340`.** `31f8ff00` takes 23 dwords (`ret 0x5c`); the second `push 0` before vslot `0x134` is `bReserve`, so the call is `( landY, false, -1, 1, life, count, -1, 0, -1, 0, 0 )` = the port plus March's defaults. No CX2Unit -> `@32cd95c4` returns without CommonFrameMove; no templet -> CommonFrameMove. Matches.
+3. **Hell Drop FrameMove `32cd95d0`.** CanDown `( pos, 30, ..., 0, 1, 0, 1, 0 )`; CreateNPCReq `( 0x627, hyper, 1, pos, IsRight, 0.3, 1, key, team, 1 NAT_ALLY, UID, 0, -1 TN_NONE, 0 NCT_NONE, 1, 0 )` under the vslot `0x198` local-unit test. Matches.
+Routing (item 7): 22012 / 22052 / 22224 / 22225 have no `JUNE_CH3A_*` case and still fall to March's. Items 1-6 were not re-read beyond these three (all passed).
+
+**User report 1: Cyclone looks small.** No code cause: the call above carries no scale, and the damage effect and its mesh are June's bytes. Still open: compare against the June client (`237311JUN17`) and say what differs (width, height, missing swirl).
+
+**User report 2: Plasma Cutter's middle line is sometimes behind Aisha, facing the other way.** Not a CH3a error: June registers only Init + EventProcess, and the effects come from `EFFECT_SET_LIST_EX` (`EffectSet_SA_ADM_Plasma_Cutter` at 0.5 s).
+- The line is particle `PlasmaCutter_02` (`GameMajorParticle22.txt`): a non-billboard 2000 x 30 plane with velocity `XYZ(12000, 0, 0)`. It is a `TraceParticleList` child of `PlasmaCutter_01`, the damage effects' `DEPT_BONE` passive particle.
+- March's `CreateNewParticle` creates trace children with `CreateSequence( NULL, ... )` and only moves them, so the child's axis angle stays 0 and the line flies along world +X whatever the facing: right on a stretch along +X, behind Aisha on one along -X ("sometimes").
+- June `31cf9570 @31cfa186-31cfa2c8` gives the child the parent's effect-alpha byte, `m_AddRotate`, `m_AddRotateRel`, `m_AxisAngleDegree = parent m_AddRotate` (the facing, set each frame by the damage effect's `SetParticleData`), the parent's show state, and DG removal when the parent's `+0x45a` is set.
+- **Fix, flag `SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT`:** June's whole `31cf9570`. The head = March. The trace block is above (`+0x458` = `m_bApplyUnitScale`, so June's vslot `0x20/0x24` pair is March's `SetScaleByUnit` block). The PT_SKINMESH tail: `bAddCollisionData` false, matrix `Rotate( AddRotateRel + AddRotate )` in degrees (JUNE_BUGS 388). New member `m_bJuneOutOfDGManager` (`+0x45a`), set where the unit viewer leaves the DG manager (`32957980 @3295809c`; `32960ad0` is unported). Files: `KTDGParticleSystem.h/.cpp`, `X2BaseUnitViewerUI.cpp`, Always.h. Funcmap `31cf9570 (CH3a review)`; MODS index row.
+- **june-engine R9:** this was not in R9's six items but is its subsystem; R9's plan section, kickoff and STATUS row now say it is done and not to redo it.
+
+**Hygiene.** CH3a: `flagcheck.py JUNE_CHAR_ARME_SKILL --range 3c59d613^..3c59d613`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Fix: `flagcheck.py JUNE_PARTICLE_TRACE_INHERIT --worktree --files <4 files>`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` (the OTHER is a peer's uncommitted Always.h hunk, not committed here); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,698,816 B, dated 2026-10-21 17:52:27, md5 64378b98150baa4d166685a11ee2931a, equal to X2/US_SERVICE/x2.exe (2026-10-21 17:52:19); built at main 2c2577fb + 14 uncommitted code file(s).` (peers' uncommitted files built in too).
+**Play-test:** ArmeVP (unit 52), Plasma Cutter in A slot 0: cast facing left and facing right, on several stretches of a dungeon; the middle line runs the way Aisha faces every time. No log line (visual). Next: CH3a2 (Opus).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high (new mechanisms), then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`,

@@ -9701,6 +9701,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-21
+// Description: June's CParticleEventSequence::CreateNewParticle ( 31cf9570 ): a TraceParticleList child takes the parent's
+//              effect-alpha byte, add rotate, add rotate rel, axis angle ( = parent add rotate ) and show state, and leaves the
+//              DG manager when the parent did ( +0x45a, unit viewer ); a skin-mesh particle adds no collision data and gets the
+//              add rotate on its matrix. Fixes Plasma Cutter's line flying along world +X. Found in pilot-char-revamp CH3a review,
+//              done for june-engine R9. Revert: undefine the flag ( JUNE_PARTICLE_TRACE_INHERIT ).
+#define SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
 // Description: Offline emulator - unsealing a skill ( secret manual ) runs the June level grant at once, so an unsealed skill whose
 //              required level is already met is learned now instead of at the next level-up / relog. Revert: OFFLINE_UNSEAL_GRANT in MODS.md.
 #define SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT

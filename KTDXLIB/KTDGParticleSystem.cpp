@@ -2729,6 +2729,9 @@ CKTDGParticleSystem::CParticleEventSequence::CParticleEventSequence( CKTDGPartic
 #ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
 	m_byEffectAlphaCondition	= 0;		/// June2017 31cf795b
 #endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
+	m_bJuneOutOfDGManager		= false;	/// June2017 31cf7b27
+#endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 	m_bZWriteEnable		= true;	
 
 
@@ -5347,6 +5350,17 @@ CKTDGParticleSystem::CParticle* CKTDGParticleSystem::CParticleEventSequence::Cre
 			pSeq->SetScaleByUnit( GetScaleByUnit() );
 #endif
 #endif GIANT_UNIT_GIANT_EFFECT_TEST
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
+	#ifdef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+			pSeq->m_byEffectAlphaCondition	= m_byEffectAlphaCondition;	// June 31cfa186
+	#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+			pSeq->m_AddRotate				= m_AddRotate;
+			pSeq->m_AddRotateRel			= m_AddRotateRel;
+			pSeq->m_AxisAngleDegree			= m_AddRotate;	// June 31cfa1da: the child's axis angle is the parent's add rotate
+			pSeq->SetShowObject( GetShowObject() );			// June 31cfa221-31cfa290, inlined
+			if( true == m_bJuneOutOfDGManager && NULL != g_pKTDXApp->GetDGManager() )
+				g_pKTDXApp->GetDGManager()->RemoveObjectChain( pSeq );	// June 31cfa2b2
+#endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 			
 		}
 
@@ -5359,7 +5373,16 @@ CKTDGParticleSystem::CParticle* CKTDGParticleSystem::CParticleEventSequence::Cre
 		pPart->m_pXSkinAnim	= CKTDGXSkinAnim::CreateSkinAnimPtr();
 
 		pPart->m_pXSkinAnim->SetAnimXSkinMesh( m_pXSkinMesh, m_pAniXET );
+#ifdef SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
+		pPart->m_pXSkinAnim->AddModelXSkinMesh( m_pXSkinMesh, m_pAniXET, m_pMultiTexXET, m_pChangeTexXET, false, false	// June 31cfa3c5: no collision data
+	#ifdef SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+			, __FILEW__, __LINE__
+	#endif SERV_IRUHADEV_JUNE_RENDER_SKIN_ANIM_REFS
+			);
+		pPart->m_pXSkinAnim->GetMatrix().Rotate( m_AddRotateRel + m_AddRotate );	// June 31cfa438: degrees into the radian setter ( JUNE_BUGS 388 )
+#else SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 		pPart->m_pXSkinAnim->AddModelXSkinMesh( m_pXSkinMesh, m_pAniXET, m_pMultiTexXET, m_pChangeTexXET );
+#endif SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT
 
 		pPart->m_pXSkinAnim->ChangeAnim( 0 );						// note!! 애니메이션을 선택할 수 있게 해야함, 일단은 첫번째 애니메이션을 플레이하도록 
 		pPart->m_pXSkinAnim->Play( CKTDGXSkinAnim::XAP_LOOP );

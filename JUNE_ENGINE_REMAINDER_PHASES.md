@@ -1379,6 +1379,10 @@ independent). Added by R0b. The items are all mapped in the sweep:
 - outline clamp `31cfe050` (map particle system `+0xdc` first);
 - effect state manager lost device (`31d184f0`);
 - skin-mesh XET name rule and close-by-pointer.
+- **Done outside this phase (2026-10-21, pilot-char-revamp CH3a review, flag `SERV_IRUHADEV_JUNE_PARTICLE_TRACE_INHERIT`):** June's whole
+  `CreateNewParticle` `31cf9570` (trace children inherit add rotate / axis angle / alpha byte / show state / DG removal; skin-mesh
+  particles: no collision data, add-rotate matrix rotation). Found through Plasma Cutter's line flying along world +X. R9 does not redo it;
+  its play-test may re-check it (funcmap row `31cf9570 (CH3a review)`, JUNE_BUGS 388).
 
 ## Phase R10 - Skin-anim playback sweep
 
