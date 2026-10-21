@@ -718,7 +718,7 @@ june-effect C9h-5 diffed June's `CX2TFieldNpc::OnFrameMove` (`june2017_re/c9h5_f
   - Elysion E1 ports the gated call sites with June's gate; whichever of E1 and this stage lands second wires them.
 - **Still to identify:** the manager's loader, data file and packets. Name them when this stage is planned.
 
-**Depends on:** Elysion E1 (the call sites). Code event 2215 is switched on from the save DB (standing rule "Event triggers come from the save DB").
+**Depends on:** Elysion E1 (the call sites). Code event 2215 is switched on from the save DB (standing rule "Game events are switched on from the save DB").
 
 ### Stage 19: June event dungeons (june-effect C10d, 2026-10-08)
 
@@ -753,7 +753,7 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   when code event 2143 is on (`g_pInstanceData` map `+0xa18`), the unit is host and the state is older than 1 s. `3200ac50` summons a list of
   NPCs (manager `32696fa0` `+0x260..+0x264`, `CreateNPC` `322e9af0`) in game state 0xb with a dungeon room set. `CX2GUUser::JuneStartEventProcess`
   keeps the gate and logs once that the summon is not ported. Offline never sends `EGS_UPDATE_CODE_EVENT_NOT`, so the event is switched
-  on from the save DB (standing rule "Event triggers come from the save DB"). Related: WIN StateStart `320004b0` plays the `Clear_C/L/E/A/R` particles in `DI_EVENT_2017_TREASURE` (ported, CH1k).
+  on from the save DB (standing rule "Game events are switched on from the save DB"). Related: WIN StateStart `320004b0` plays the `Clear_C/L/E/A/R` particles in `DI_EVENT_2017_TREASURE` (ported, CH1k).
 
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 
@@ -974,10 +974,10 @@ ORDER  BY UnitClass;
   - Prove it with `cl /P` on a file from each project.
 - **CP949.** Make byte-level edits on CP949 files, then verify with `file` and `git diff --stat`.
 - **Packing.** The user packs `.lua` and assets. Build the degrade path, and name the files when the work is done ([[server-lua-packing-is-users-job]]).
-- **Event triggers come from the save DB (user, 2026-10-21; Stages 18, 19 and every event feature).** When an event needs a condition to switch on, do not rebuild June's original condition. That covers a code event (`IsEnableCode`, sent by the server in `EGS_UPDATE_CODE_EVENT_NOT`), an event date window, or a server-side flag.
-  - The trigger is data in `els_db.sql`: the emulator reads it and supplies what the client checks (for example, it fills the code-event map at login).
-  - The stage's planning session designs the table or settings key, and its `X2OfflineDB` migration. `tools/elsdb.py` gains a command to switch an event on and off.
-  - The client-side gate stays as June has it (`IsEnableCode( N )` and the like); only its source changes.
+- **Game events are switched on from the save DB (user, 2026-10-21; Stages 18, 19 and every event feature).** A game event (a seasonal or limited-time event, event dungeon, event NPC, event reward) that June only activates inside a date window or on another original condition does not rely on that condition. Today some only run with the PC clock set back (e.g. to 2016); that is what this replaces.
+  - The trigger is data in `els_db.sql`: an event is on when its row says so, whatever the date. The emulator and the client's event check read it in place of the clock or the server's event list (`EGS_UPDATE_CODE_EVENT_NOT` code events included, where an event uses one).
+  - The stage's planning session designs the table, its `X2OfflineDB` migration, and a `tools/elsdb.py` command to switch an event on and off.
+  - Keep the rest of June's event logic as June has it; only the "is the event active" answer changes source.
 - **Data of record.** The live DB beats `DataBase/` and `ScriptData/` ([[live-db-over-repo-snapshot]]).
 - **Saves.** `els_db.sql` is the user's only copy. Snapshot it before any migration, and remember that migrations are forward-only.
 - **Models.** Justify the model per phase on cost versus failure. Fable 5.1 is not used ([[no-fable-model]]), so the top tier is Opus 5.5 at `xhigh`. Opus does RE and new mechanisms. Sonnet 5.5 does transcription and data work, with a scoped Opus review. State the effort in every kickoff, and record each session's usage in its Done note.
