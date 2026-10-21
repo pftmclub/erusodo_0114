@@ -1332,6 +1332,56 @@ No build: nothing changed in code. `CH1k.md` checked: it still matches (depends 
 
 **In game:** nothing changes (LIVE is undefined). Next: `/x2-phase pilot-char-revamp CH1k review` (Opus 5.5 high).
 
+### CH1k -- Review (2026-10-21, Opus)
+
+**Verdict: PASS, no code change.** Every function was read against its Ghidra decompile. `31fcc740` does not decompile, so it was read from the
+`disasm_range.py` listing. Each head registration was resolved thunk by thunk (`jmp` targets read from the image). The float constants were read from
+the image: 200, 45, 0.93, 5.0, 1000, -1, 1.0, 4.5 and 0.
+
+1. **Damage small / big** (`31fcbed0` / `31fcbf80`). The `> 200` test runs against land y; then vslot 0x7f4( 7 ) before the anim-end test; fall ->
+   `0x22` (June's id of `USI_DAMAGE_AIR_SMALL`, which is 0x21 in March: the match is by name, and CH1 numbers the ids) with y -45; ground -> WAIT.
+   The big one's skip uses the 14 bytes `+0x86da..+0x8712` (no `+0x8702`), the same 14 keys as `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC`, with `> 0.93`.
+2. **START** (`31ffbd70`): everything after CommonStateStart sits under `IsPvp` (`322cc180`) and state `+0xd8 == 10`, so leaving it out is exact
+   offline. **`3201b390`**: CommonEventProcess first; code 0x85f = 2143 (map `+0xa18`, entry `+0x10`), host, `> 1.0` -> `3200ac50`; `>= 4.5` -> WAIT.
+3. **WIN / LOSE** (`320004b0` / `320007e0`): the pet Happy1 / Happy2 (`+0x1e0` / `+0x1e4`, `rand` even) and Sad `+0x1f0`, then `+0x8625` = 1, then
+   vslot 0x11c( state `+0x218` + 5.0 ). The dungeon test is vslot 0x1c4 == 0xa1fe (41470). The five `Clear_*` calls go to `31cf90f0` with
+   ecx = `[g_pData +0x84]` and arguments `( 0, name, 0, 0, 0, 1000, 1000, 1, 1, -1, true, 0, false, -1 )`. March's defaults cover all of them except
+   June's 14th argument, which March's signature does not have.
+4. **`31fca9f0`**: case 6 / 7 rejects templet 3 / 4; templet 7 tests `+0x7e1c` (the same byte March's ANYTIME case reads as `IsOnSomethingFuture`);
+   any other templet must equal the condition. The port's `break` reaches March's `return true`, so the result is the same. `enumprobe.py`:
+   ASUT_DAMAGE 6, ASUT_DAMAGE_EXCEPT_AIR 7. No live caller passes 6 / 7: the only callers are the two new damage callbacks, registered under LIVE.
+5. **Head `32cede00`**:
+   - It checks the bounds 0..4 before `3207c1a0`. It reads the A / B normal tables (`3351b05c` / `3351b184`) and the hyper tables (`3351b170` / `3351b198`).
+   - It sets `+0x11` on the normal state and `0x101` on the hyper state (`m_bHyperState` + the slot byte).
+   - `31fd2af0` is the engine's: `JuneSnapshotBeforeSlotRebind` (X2GUUser.cpp:7017) calls it before the class function.
+   - Transcendence: `31fdbcc0`, then `32206450( tid, 1 )`. When `32207210 == 0x56c9` it registers Init `32cb8450`, FrameMove `32cdfb70` and
+     EventProcess `329cba60` -> `31fcc9d0`, and the hyper state copies them. Then it returns.
+   - The type cases are 5 / 6 / 7 / 0xc / 0xd-0x10, which are `ST_BUFF` / `ACTIVE` / `SPECIAL_ACTIVE` / `RELATIONSHIP` / `HYPER_ACTIVE` / `GRADE_1-3`
+     (`enumprobe.py`). The buff thunks go to `32a77a20` / `31fcbd60`; the item-900 thunks to `329cc0d0` / `329cc170`.
+   - Elemental Storm, Abyss Angor and Fate Space: Init `32cb8650` / `32cb8840` / `32cb89b0`; their EventProcess `329cbfc0` -> `31fcc740`.
+   - The inner `default:` and the skill switch's `default:` both register Power Attack, from `32cb7570` / `32cbe620` / `32cb7580` / `32cbe660`.
+     They match the `June_*` members' funcmap rows.
+   - Under LIVE, March's `#else` keeps March's head.
+6. **`31fcc740` / `31fcc9d0`** (listing): anim end -> JUMP_DOWN / `m_Wait` (`+0x4088`); `31fcc9d0` adds SKIP_TIME (default -1) and the 14-key skip;
+   then SKILL (`+0x8c90`, ground, 0x7f4( 1 )), awakening (blackhole, oneLCtr `+0x8723`, count, 0x560, `32070d60`, `+0x8d4c` = 1), WALK `+0x8c98`,
+   DASH `+0x8c9c` (vslot 0x668), BWALK `+0x8c94`; each on `+0x7e1c`. Same order as the macro chain.
+7. **The 19 members**: every one is the callback June registers for its state:
+   - Meteor LOOP `32cf1a30` -> `32cc6fb0`, END `32cf16a0` -> `32cbfb70`; Lightning `32cc7200` / `32cc2110`;
+   - Guillotine LOOP `32cc10f0` (0xd1 / 0xd2); Ruin LOOP `32cc5990` (END 0xf7); Circle Flame 0xba StartFuture `32cbeee0`, EventProcess `32cbef40`;
+   - Hell Drop: IDLE `32cc74a0` .. FIRE `32cc79b0`, FIRE EventProcess `32cb7ce0` (-> 0xbb).
+   - The loops' key list `31fc7ac0` is `+0x86f2..+0x86fe`, `+0x8706..+0x8712`, `+0x872a`, `+0x872e`: March's eight keys plus Skill5 / SkillEx5.
+   - In the shower END, June's Z / X / walk / dash tests run in the airborne branch with a ground test, so they are dead code in June too. The port keeps them.
+   - Ruin: the five floats `[0]..[4]` and the `[1] <= [3] + [2]` tick match. Its anim test reads `+0x87d0` directly.
+   - `31fca9e0` is `return 0`, so dropping the Hell Drop memo test is exact.
+8. **Decisions.** `+0x218` is written only by `31ef7be0( mode, t )` when `t > 0`; offline nothing writes it, so 0 and 5 s are June's absent value. Agreed.
+   `JUNE_ARME_INPUT_8726` = false: CH1m names the key (its kickoff note is there). Agreed.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_CORE --range 17dddf23^..17dddf23`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+`RESULT: PASS`. The OTHER row is `X2GUArme_VioletMage.cpp` (LIVE: the head wrap, the Power Attack `default:`, the InitState brace). Its 8 deletions are CH1j's own
+stand-in lines (four damage lines, the START comment and stand-in, WIN, LOSE), replaced in place. No build: no code changed. `CH1l.md` checked: its
+"From CH1k" notes (the batch around the head, the virtual `COMMON_BUFF_FrameMove`) stand. No drift found.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
