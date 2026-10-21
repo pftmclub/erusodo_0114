@@ -1900,6 +1900,39 @@ Fix, worktree `--files X2Lib/X2GUArme_VioletMage.cpp`: `files: 1 PASS, ...`; `6 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,715,200 B, dated 2026-10-22 01:50:56, md5 d6e2ffde4c3e5d9782042717b6c44568, equal to X2/US_SERVICE/x2.exe (2026-10-22 01:50:48); built at main 421a38ae + 4 uncommitted code file(s).` The new strings (`EffectSet_SA_AVP_HellDrop_Summon_Loop`, `summon Hell Drop UFO`, `summon Stone Wall`) are in the deployed exe.
 **In game.** No kom change. Save (backups in `data\db_backup`): unit 52 `ArmeVP` has base Hell Drop 22020 (level 1) in A slot 2; new unit 54 `ArmeVP2` (Void Princess, level 99) has **Enhanced Hell Drop 22059 (level 2) in A slot 0**. Log: `[JUNE_CHAR] ARME SKILL summon Hell Drop UFO ( npc 495, skill 22020 | 22059, level, power rate, move scale )`; Stone Wall's line is not expected.
 
+### CH3c -- Review (2026-10-22, Opus)
+
+**Verdict: PASS after one fix** (commits `0107e083` + `0ceb8867` read against the `funcann.py` listings; the fix is under the same flag).
+1. **Cases `0x1ef` / `0x627`.** Jump tables decoded: `0x1ef` -> `3230c439`, `0x627` -> `3230c8c0`, a compiler copy of the same body that rejoins at
+   `3230c53c` (MakeEffectSetBeDeletedWhenDie + ScaleMoveSpeed); the Done note's single listing range covers both. `ebx` = `31fcf430( 31fcf520( npc ) )`
+   (`@3230c359`); `3348c6a8` = `EffectSet_SA_AVP_HellDrop_Summon_Loop`; `323115e0` writes `+0x9620` / `+0x9624` = SetUFO; `32007b10( 0x4c, ebx )`, and
+   March's `SA_REMOTE_SPEED_ABS` is 76 = `0x4c`. June gates only SetUFO on unit type 2; ours keeps the whole body in March's Arme branch (unreachable otherwise).
+2. **`322ece70` flags 0 - FIXED.** June builds the stats from the user's stat line x ( `32071720( level )` x hyper 1.2 [1.3 when transcended, Stage 6] ),
+   attack also x user `+0x4064` (= `m_fStatAtkRateOfSummoned`: the only writer `@3297f6b9` multiplies Eve's ability `0x12` SA_SUMMON_ATK_REL; 1.0 for Aisha),
+   and stores the power rate = socket x buff x `GetAdditionalAttackByType( AT_SPECIAL )`, **without** the skill power rate (`@322ed2ae..322ed3ae`).
+   CH3c (and CH3b's Distortion) kept March's split: stats x hyper only, skill power rate in the power rate. Damage was the same product; the summon's HP
+   and defence were not, and Distortion also lacked the `AT_SPECIAL` factor (CH3c's open note: June multiplies it in for case `0x443` too, `3230c71c`).
+   New `June_SetSummonStatAndPowerRate` does June's split for both cases; `June_SetHellDropSummonInfo` / `June_SetDistortionSummonInfo` take March's
+   `npcStat`, `fStatScale` (already x hyper) and `fStatAtkRate`, as the checklist's `3230c1a0` row asks ("from June's flags"). Distortion now logs a line.
+   Not ported, noted: `322ece70` also stores the level in NPC `+0x8e74` (`@322ed3b8`, every summon), a member March does not name; no reader found here.
+3. **`32757560`** multiplies `+0x324 / +0x328 / +0x32c / +0x330` for `0x1ef / 0x626 / 0x627`; `+0x324` = fWalkSpeed (`31e4cfd0`), `+0x32c` = fJumpSpeed
+   (`31e4e020`), March's struct order walk / run / jump / dash jump: = the port.
+4. **Case `0x1f5`** (`3230c55e`): `322ece70( npc, user, 0xa, 1.0 )`, unit type 2 -> `32cc98e0( uid, 32007b10( 1, ebx ) )` = the port. The only create of
+   NPC 501 in the exe (all 54 calls of `322e67c0`) is `@32cd8cc4` in `32cd8a80`, which CH0 found dead (no pointer, call, jmp or thunk): JUNE_BUGS 393 stands.
+   Cases 496-500 (bat = 500) go to the default `3230ca5c`: no bat case.
+5. **Steering (JUNE_BUGS 394)** confirmed. In the Aisha module (`32cb6e00..32cf6e90`) state `0xbb` appears at `32cb7cea` (CONTROL_FIRE EventProcess),
+   `32cda131` (control FrameMove `32cd9af0`), `32cef337` (registration) and `32ccbb0e` (SetEquippedSkillLevel `32ccb830`: level data for state `0xbb`
+   from 22020's templet, not a state change). No `0x1ef` / `0x626` request anywhere in the module; `32cd95d0`'s only request is `0x627` (`@32cd9920`).
+6. **`GetEquippedActiveSkillTemplet( swapped, true )`**: June does the same double swap (`322ed076`: `31fca8e0( esi, 1 )` with `esi` already swapped);
+   `GetUpgradeSwappedSkillID` of an Enhanced id returns it unchanged.
+
+**Hygiene.** CH3c range `0107e083^..0ceb8867`: `files: 6 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Fix, worktree `--files X2GUArme_VioletMage.cpp / .h, X2Game.cpp`: `files: 3 PASS, ...`; `14 deleted line(s)` (CH3b's and CH3c's own flagged lines), else 0; `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,716,224 B, dated 2026-10-22 05:48:43, md5 f08c19322238e2ddf5b4540e065b5f29, equal to X2/US_SERVICE/x2.exe (2026-10-22 05:48:36); built at main a21326a6 + 3 uncommitted code file(s).` Strings `summon Distortion` and `stat scale` are in the exe.
+**Play-test (user owes):** unit 54 `ArmeVP2` Enhanced Hell Drop 22059 (A slot 0) and unit 53 Enhanced Distortion 22065 (A slot 0): both still cast and hit;
+log `summon Hell Drop UFO ( ..., stat scale, power rate, move scale )` and `summon Distortion ( ..., stat scale, power rate, life ~10 )`.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high (new mechanisms), then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`,

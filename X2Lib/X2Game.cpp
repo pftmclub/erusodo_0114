@@ -17079,7 +17079,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						/// June 3230c1a0 case 0x1ef: the UFO follows June's Hell Drop 22020 after the upgrade swap
-						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC );
+						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADM_HELL_DROP );
@@ -17154,7 +17154,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						/// June 3230c1a0 case 0x627: same body as case 0x1ef
-						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC );
+						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADM_HELL_DROP );
@@ -17543,7 +17543,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					{
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						/// June 3230c1a0 case 0x443: the power rate and the life time follow June's skill 22027
-						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetDistortionSummonInfo( pNPC );
+						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetDistortionSummonInfo( pNPC, npcStat, fStatScale, fStatAtkRate );
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADW_DISTORTION );
 						if( NULL != pSkillTemplet )

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase pilot-char-revamp CH4` |
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
-| Depends on | CH2b review (CH2 was split by CH0); not alongside CH3a / CH3b (same class files) |
+| Depends on | CH2b review (CH2 was split by CH0); not alongside CH3a / CH3b / CH3c (same class files) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`, `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE` (or CH0's split) |
 | Log tag | `[JUNE_CHAR]` (`ARME SKILL`, `ARME MEMO`) |
 | Review | `kickoffs/pilot-char-revamp/CH4-review.md` (the phase writes it when done) |

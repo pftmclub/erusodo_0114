@@ -1379,9 +1379,10 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_SA_ADW_AIR_STUNNER_EndFuture();						/// June 32cb8eb0
 		void June_AVSI_A_ADW_ENERGY_RING_FrameMove();						/// June 32ce3e80
 	public:
-		void June_SetDistortionSummonInfo( CX2GUNPC* pNPC_ );				/// June 3230c1a0 case 0x443
+		void June_SetDistortionSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 case 0x443
 		//{{ Iruha : 2026-10-22 // June character pilot Phase CH3c
-		void June_SetHellDropSummonInfo( CX2GUNPC* pNPC_ );					/// June 3230c1a0 cases 0x1ef / 0x627
+		void June_SetHellDropSummonInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_ );	/// June 3230c1a0 cases 0x1ef / 0x627
+		void June_SetSummonStatAndPowerRate( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSummonSkillID_ );	/// June 322ece70 flags 0
 		void June_SetStoneWallSummonInfo( CX2GUNPC* pNPC_ );				/// June 3230c1a0 case 0x1f5
 		//}} Iruha : 2026-10-22 // June character pilot Phase CH3c
 	protected:
