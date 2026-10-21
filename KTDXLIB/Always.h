@@ -3515,7 +3515,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Applied as a floor on the base rate, so skill, passive,
 //              socket, charge-state and title bonuses still stack on top
 //              of it and a class whose Lua already asks for more keeps it.
-#define SERV_IRUHADEV_MP_REGEN_BOOST
+//#define SERV_IRUHADEV_MP_REGEN_BOOST	// off for the pilot-char-revamp CH4a play-test (user, 2026-10-22); re-define to restore 50 MP/s
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

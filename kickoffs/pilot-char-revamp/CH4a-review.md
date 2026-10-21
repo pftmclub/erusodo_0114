@@ -36,5 +36,8 @@ Review CH4a's commit against June, in the listing, not only the decompile:
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE --range <CH4a commit>^..<CH4a commit>` and the same for
 `SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT`; paste the `files:` / `in this flag's files:` / `RESULT:` lines. A FAIL is a finding.
 
+`SERV_IRUHADEV_MP_REGEN_BOOST` was commented out for CH4a's play-test (user, 2026-10-22): ask the user whether to re-define it now or keep it off
+for the CH4b-CH4d play-tests.
+
 Fix clear transcription errors under the same flag (then `tools/build.py --deploy`); hand design decisions back to the user.
 Write "CH4a -- Review" into the plan doc, update the STATUS row, check `kickoffs/pilot-char-revamp/CH4b.md`, and commit.
