@@ -17454,7 +17454,6 @@ void CX2GUUser::CommonStateStart()
 	/// the state start. m_NowStateData is the new state's by now.
 	StopSoundOnSkillStateEnd( static_cast<int>( GetNowStateSkillID() ) );
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
-#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 	m_vecJuneSpecialOptionValue.resize( 0 );	/// June 32057b80 @320608a9-3206092e
 	if( true == m_LuaManager.BeginTable( "SPECIAL_OPTION_VALUE" ) )
@@ -17465,6 +17464,7 @@ void CX2GUUser::CommonStateStart()
 		m_LuaManager.EndTable();
 	}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
 	/// June CX2GUUser::CommonStateStart 32057b80 @32060990-32060b96 ( C3e-4 ): TIME_STOP_IMMUNE_STATE ( a miss is false ), stored only when it
 	/// changed ( the protected bool +0x7dc4 ). June reads it after the skill-state-end stops ( @320606a9 ); SetStopTime / SetStop2Time read it.
 	/// No March class script has the key ( 76 June class states do; they arrive with the class ports ).
@@ -35055,6 +35055,12 @@ void CX2GUUser::SetInputData( InputData* pInputData )
 		pInputData->oneDoubleSkillEx5	= false;
 		pInputData->pureDoubleSkillEx5	= false;
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
+		pInputData->oneSit			= false;	/// June 31fe83a0 clears the Sit group ( dword 0x13 ) here too
+		pInputData->pureSit			= false;
+		pInputData->oneDoubleSit	= false;
+		pInputData->pureDoubleSit	= false;
+#endif SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
 	}
 
 	if ( !m_vecDownImpossiblePtr.empty() )
