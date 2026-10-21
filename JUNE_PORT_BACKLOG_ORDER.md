@@ -204,6 +204,7 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
 - Moved: R4f (software cursor), R4h's notice text manager and R13d (camera callers outside the camera classes) -> Stage 9; W3 (village world Lua)
   -> june-dungeons (Stage 22).
 - Left in the plan: R4c2 -> R4d, R4g, R4h (pass arguments), R4i, R4j, R5, R6, R7, R9, W2, Z.
+- **Equip collision base `31fd8c00`** (pilot CH1l review, 2026-10-21): June picks each attach-anim equip's normal (`+0x544`) or hyper (`+0x584`) anim by templet `+0xd2` in {9, 11}; March always takes normal. Every class; unported (funcmap R12b). Its riding-pet branch is Stage 17's.
 
 ### Stage 3: skill system core (skill tree engine + skill slots)
 

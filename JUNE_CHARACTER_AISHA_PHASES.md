@@ -1435,6 +1435,16 @@ Build: `DEPLOY OK: X2_offline.exe is 25,681,408 B, dated 2026-10-21 09:06:55, md
 **Open for the review:** (1) the `+0x544 / +0x584` anim-array choice; (2) whether 0x850's March placement (after the shadow block, not inside its effect-on branch) is acceptable.
 **In game:** nothing (LIVE undefined). Review: `kickoffs/pilot-char-revamp/CH1l-review.md` (Opus).
 
+### CH1l review (2026-10-21, Opus): PASS, no code change
+
+- **38 LIVE wraps:** each calls its own `June_*` member with every argument in order and returns its result; every March body is whole in the `#else` (the commit's 10 deleted `.cpp` lines are all inside CORE stand-in code: `m_iJune7ec0 / 8160` -> `iJuneClassSyncInt`, `June_Vslot828`'s `false` -> `JuneIsNotCommonMoveState()`, the `June_RidingOffEnd` registration). Dtor `SAFE_DELETE( m_pStrongMindData )` before `June_Destructor()`, the empty `ParseCommonRandomState` and `ApplyAuraAcceleratorBuffToGameUnit` -> base: as described.
+- **`JuneIsNotCommonMoveState` = `31fd7640`:** `+0x7d04` (`m_ChargeMpState`), vslots 0x438-0x45c, then June ids 0x4b-0x54 (75-84); March `USI_RIDING_WAIT_HABIT..USI_RIDING_DASH_JUMP_LANDING` count out to 74-83 with `JUNE_SKILL_SLOT_10` on, so June = March + 1 holds.
+- **Hooks:** 0x850 @3206c186 sits inside the effect-on branch after the shadow update, exactly where March's call now is (open item 2 settled: the placement matches; the Done note's "not inside" wording was wrong). 0x654 @321a2c5f runs after 0x63c / 0x630 and before 0x634, the same order as `X2UIInventory.cpp`. 0x860 @3230cb1b is the last call of `SetUserSummonedNPCInfo`, as in March; the three June calls before it (`3204e160`, `3200bec0`, `31fd05c0` -> vslot 0x85c) are checklist rows 260 / 266 already. 512: June @32057c4c-cb2 = `0x800( GetNowStateSkillID(), +0x8ea8 )` then `0x764( id, 0x528( 0 ), +0x8ea8 )`, then 0x808 (clear), skipped as a whole when 0x810 is true: matches `JuneReservedSkillStart`.
+- **`iJuneClassSyncInt` wire:** settled off-wire. Neither `SyncData::SetData` (`3201f5f0`) nor `KDYNAMIC_UNIT_USER_SYNC::Deserialize` (`32d5be30`) touches the slot.
+- **NPC `+0x874c` = `m_KeyCode`** and the dirty-state batch reading: agreed.
+- **Open item 1, `+0x544 / +0x584`:** these are `CX2Eqip::m_pNormalXSkinAnim[8]` / `m_pHyperXSkinAnim[8]`. The choice (templet `+0xd2` in {9, 11} -> normal, else hyper) is the base `31fd8c00`'s loop, which `32cc8d30` inlines; funcmap R12b already records it, unported for every class. Arme keeps calling March's base, so it gets the choice when the base is ported -> Stage 2 bullet (engine, every class), with the riding-pet branch going to Stage 17.
+- `cl /Zs` with LIVE defined: X2GUArme_VioletMage / X2GUUser / X2UIInventory / X2Game, 0 errors each. `CH1m.md` already exists and needs no change.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
