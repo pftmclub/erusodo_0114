@@ -764,7 +764,7 @@ What only class code reaches:
   (data036). June's Lua camera table `31fb5920` reads it (`@31fb6123` / `@31fb63e8`) and passes it as `SetTracking`'s 9th argument through June's
   12-arg `PartsLookTrackingCamera` (`31faee30`, `a11` / `a12`) and 10-arg `NomalTrackingCamera` (`31fb3640` / `31fae910`). Ain's port extends those
   `CX2Camera` signatures (and `PlayLuaCamera`'s key reads) and passes them on.
-- **The SUB_CAMERA time sequencer** `31ff5440` (`@31ff61e9-31ff62a1`, user side): picks `SUB_CAMERA%d` by elapsed time, plays it (`31fb6af0`), then sets
+- **The SUB_CAMERA time sequencer** `31ff5df0` (`@31ff61e9-31ff62a1`, user side; CH3a2: first written as `31ff5440`, which is `DoAimingTarget`, the function before it): picks `SUB_CAMERA%d` by elapsed time, plays it (`31fb6af0`), then sets
   the camera's step time to the overshoot (`31fae7b0` = `GetCamera().SetLinearTrackingTime( t )`). March plays SUB_CAMERA tables from class code by name
   (`X2GUArme_VioletMage.cpp:6865` etc.).
 - **`TILTANGLE`** (roll, `-deg * 0.017453292`) is read by the same Lua table but appears in no June or March file: dormant.

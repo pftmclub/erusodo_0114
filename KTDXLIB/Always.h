@@ -9740,3 +9740,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              ClassChangeSkill.lua remap, whose copies here predate June's skill ids. Revert: OFFLINE_CLASS_CHANGE_UNSEAL_REMAP in MODS.md.
 #define SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
+// Description: June CX2GUUser::DoAimingTarget ( 31ff5440 ): the in-front test reads the aiming unit's own last-touch line, not the target's.
+//              Reaches Aisha's Fire / Dark / Energy Ring ( pilot-char-revamp CH3a2 ), Chung and Rena. Revert: JUNE_AIMING_TARGET_OWN_LINE in MODS.md.
+#define SERV_IRUHADEV_JUNE_AIMING_TARGET_OWN_LINE
+//////////////////////////////////////////////////////////////////////////

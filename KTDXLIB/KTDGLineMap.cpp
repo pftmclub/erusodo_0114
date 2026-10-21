@@ -4119,6 +4119,193 @@ void CKTDGLineMap::SetEnableLinebyPos( bool bEnable_, D3DXVECTOR3 vPos_, float f
 }
 #endif SERV_IRUHADEV_JUNE_LINEMAP_QUERY
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+static float June_Clamp01( float f_ )
+{
+	if ( f_ > 1.f )
+		return 1.f;
+	if ( !( 0.f <= f_ ) )
+		return 0.f;
+	return f_;
+}
+
+// June 31c69af0: closest point of each line to the drop ( x, 99999, z ) .. ( x, 0, z ); the drop ends at y 0 ( JUNE_BUGS )
+D3DXVECTOR3 CKTDGLineMap::June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool bUnderPos_ )
+{
+	D3DXVECTOR3 vOut( vPos_.x, ( true == bUnderPos_ ? -99999.f : 99999.f ), vPos_.z );
+
+	const D3DXVECTOR3 vP0( vPos_.x, 99999.f, vPos_.z );
+	const D3DXVECTOR3 vD1( vPos_.x - vPos_.x, 0.f - 99999.f, vPos_.z - vPos_.z );
+	const float fA = D3DXVec3Dot( &vD1, &vD1 );
+
+	const int iNumLine = (int) m_LineList.size();
+	for ( int i = 0; i < iNumLine; i++ )
+	{
+		const LineData* pLineData = m_LineList[i];
+		if ( false == pLineData->bEnable || LT_WALL == pLineData->lineType )
+			continue;
+
+		if ( !( pLineData->startPos.y <= vPos_.y + 100.f || pLineData->endPos.y <= vPos_.y + 100.f ) )
+			continue;
+
+		const bool bInX = ( pLineData->startPos.x <= vPos_.x || pLineData->endPos.x <= vPos_.x ) && ( vPos_.x <= pLineData->startPos.x || vPos_.x <= pLineData->endPos.x );
+		const bool bInZ = ( pLineData->startPos.z <= vPos_.z || pLineData->endPos.z <= vPos_.z ) && ( vPos_.z <= pLineData->startPos.z || vPos_.z <= pLineData->endPos.z );
+		if ( false == bInX && false == bInZ )
+			continue;
+
+		const D3DXVECTOR3 vQ0 = pLineData->startPos;
+		const D3DXVECTOR3 vD2 = pLineData->endPos - pLineData->startPos;
+		const float fE = D3DXVec3Dot( &vD2, &vD2 );
+
+		D3DXVECTOR3 vA = vP0;
+		D3DXVECTOR3 vB = vQ0;
+
+		if ( fA < 10000.f )
+		{
+			if ( 100.f <= fE )
+			{
+				const D3DXVECTOR3 vQP = vP0 - vQ0;
+				vB = vQ0 + vD2 * June_Clamp01( D3DXVec3Dot( &vQP, &vD2 ) / fE );
+			}
+		}
+		else if ( fE < 10000.f )
+		{
+			if ( 100.f <= fA )
+			{
+				const D3DXVECTOR3 vPQ = vQ0 - vP0;
+				vA = vP0 + vD1 * June_Clamp01( D3DXVec3Dot( &vPQ, &vD1 ) / fA );
+			}
+		}
+		else
+		{
+			const D3DXVECTOR3 vR = vQ0 - vP0;
+			const float fB = -D3DXVec3Dot( &vD2, &vD1 );
+			const float fDenom = fE * fA - fB * fB;
+
+			if ( 100.f <= fabs( fDenom ) )
+			{
+				const float fF = D3DXVec3Dot( &vR, &vD1 );
+				float fT = ( -D3DXVec3Dot( &vD2, &vR ) * fA - fF * fB ) / fDenom;
+				float fS = ( fF - fT * fB ) / fA;
+				vA = vP0 + vD1 * fS;
+				vB = vQ0 + vD2 * fT;
+
+				const bool bSIn = ( 0.f <= fS && fS <= 1.f );
+				const bool bTIn = ( 0.f <= fT && fT <= 1.f );
+				if ( false == bSIn || false == bTIn )
+				{
+					if ( true == bSIn || true == bTIn )
+					{
+						if ( false == bSIn )
+						{
+							vA = vP0 + vD1 * June_Clamp01( fS );
+							vB = vQ0;
+							if ( 100.f <= fE )
+							{
+								const D3DXVECTOR3 vQA = vA - vQ0;
+								vB = vQ0 + vD2 * June_Clamp01( D3DXVec3Dot( &vQA, &vD2 ) / fE );
+							}
+						}
+						else
+						{
+							vB = vQ0 + vD2 * June_Clamp01( fT );
+							vA = vP0;
+							if ( 100.f <= fA )
+							{
+								const D3DXVECTOR3 vPB = vB - vP0;
+								vA = vP0 + vD1 * June_Clamp01( D3DXVec3Dot( &vPB, &vD1 ) / fA );
+							}
+						}
+					}
+					else
+					{
+						vA = vP0 + vD1 * June_Clamp01( fS );
+						vB = vQ0;
+						if ( 100.f <= fE )
+						{
+							const D3DXVECTOR3 vQA = vA - vQ0;
+							fT = D3DXVec3Dot( &vQA, &vD2 ) / fE;
+							vB = vQ0 + vD2 * fT;
+						}
+
+						if ( fT < 0.f || 1.f < fT )
+						{
+							const D3DXVECTOR3 vBT = vQ0 + vD2 * June_Clamp01( fT );
+							vA = vP0;
+							if ( 100.f <= fA )
+							{
+								const D3DXVECTOR3 vPB = vBT - vP0;
+								vA = vP0 + vD1 * June_Clamp01( D3DXVec3Dot( &vPB, &vD1 ) / fA );
+							}
+
+							vB = vQ0;
+							if ( 100.f <= fE )
+							{
+								const D3DXVECTOR3 vQA = vA - vQ0;
+								vB = vQ0 + vD2 * June_Clamp01( D3DXVec3Dot( &vQA, &vD2 ) / fE );
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				float fS0 = 0.f;
+				float fS1 = 0.f;
+				if ( 100.f <= fA )
+				{
+					const D3DXVECTOR3 vPQ0 = vQ0 - vP0;
+					const D3DXVECTOR3 vPQ1 = pLineData->endPos - vP0;
+					fS0 = D3DXVec3Dot( &vPQ0, &vD1 ) / fA;
+					fS1 = D3DXVec3Dot( &vPQ1, &vD1 ) / fA;
+				}
+
+				if ( 0.f <= fS0 || 0.f <= fS1 )
+				{
+					if ( fS0 <= 1.f || fS1 <= 1.f )
+					{
+						vA = vP0 + vD1 * ( ( June_Clamp01( fS0 ) + June_Clamp01( fS1 ) ) * 0.5f );
+						if ( 100.f <= fE )
+						{
+							const D3DXVECTOR3 vQA = vA - vQ0;
+							vB = vQ0 + vD2 * ( D3DXVec3Dot( &vQA, &vD2 ) / fE );
+						}
+					}
+					else
+					{
+						vA = D3DXVECTOR3( vPos_.x, 0.f, vPos_.z );
+						if ( fS1 <= fS0 )
+							vB = pLineData->endPos;
+					}
+				}
+				else if ( fS0 < fS1 )
+				{
+					vB = pLineData->endPos;
+				}
+			}
+		}
+
+		if ( fabs( vB.z - vA.z ) + fabs( vB.y - vA.y ) + fabs( vB.x - vA.x ) < 100.f )
+		{
+			if ( true == bUnderPos_ )
+			{
+				const D3DXVECTOR3 vPrev = vOut;
+				if ( vOut.y < vB.y )
+					vOut = vB;
+				if ( vPos_.y < vOut.y )
+					return vPrev;	/// June stops the walk at the first line above the point ( JUNE_BUGS )
+			}
+			else if ( vB.y < vOut.y )
+			{
+				vOut = vB;
+			}
+		}
+	}
+
+	return vOut;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+
 #ifdef  X2OPTIMIZE_LINEMAP_OPTIMIZE_AND_BUG_FIX
 bool    CKTDGLineMap::UpdateLineData( int iIndex, const D3DXVECTOR3& vStart, const D3DXVECTOR3& vEnd )
 {

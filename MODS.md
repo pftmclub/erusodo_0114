@@ -4769,7 +4769,7 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_P
 ### June character pilot: Aisha's Elemental Master / Void Princess skills (pilot-char-revamp CH3a, 2026-10-21)
 
 Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH3a - Done"; log lines `[JUNE_CHAR] ARME SKILL registered ...`.
-- **Client.** `June_SetEquippedSkillFuncHead` registers June's states for Blaze Step, Cyclone, Chain Burst, Plasma Cutter, Phantom Breathing, Hell Drop (+ its 9 steering states, FIRE and DYING), Dark Burst, Circle of Elements, Frost Barrage, Petit Angkor's Millions, Ruin (+ its loop and end states), Icicle Spear, Abyss Field, Circle Flame (+ state 186) and Petit Angkor, with their upgrade ids. The `June_*` bodies sit in the CH3a block at the end of `X2GUArme_VioletMage.cpp`; Inits, Phantom Breathing's EventProcess and most Circle Flame callbacks are March's members (equal bodies). **Not done (CH3a2, Opus):** Lightning Shower (22012 / 22052, unmapped `31c69af0`) and Fire Ring / Dark Ring (22224 / 22225, unmapped `31ff5440`): they still cast March's states.
+- **Client.** `June_SetEquippedSkillFuncHead` registers June's states for Blaze Step, Cyclone, Chain Burst, Plasma Cutter, Phantom Breathing, Hell Drop (+ its 9 steering states, FIRE and DYING), Dark Burst, Circle of Elements, Frost Barrage, Petit Angkor's Millions, Ruin (+ its loop and end states), Icicle Spear, Abyss Field, Circle Flame (+ state 186) and Petit Angkor, with their upgrade ids. The `June_*` bodies sit in the CH3a block at the end of `X2GUArme_VioletMage.cpp`; Inits, Phantom Breathing's EventProcess and most Circle Flame callbacks are March's members (equal bodies). **Not done (CH3a2, Opus):** Lightning Shower (22012 / 22052, unmapped `31c69af0`) and Fire Ring / Dark Ring (22224 / 22225, unmapped `31ff5440`): done in CH3a2 (next section).
 - **What changes in game.** Most June states have no FrameMove: the cut-in, world colour, sounds and effect sets come from June's `Arme_VioletMage.lua`. Hell Drop always summons the memo UFO (`NUI_UFO_AISHA_DROPPER_MEMO`) and the skill state ends at the animation end; the steering states run on June's key test (the sit key can hold the control). Ruin's tick time, duration and MP cost are read from the skill at the learned level. Circle Flame's ice / energy sets are misspelled in June and play nothing (JUNE_BUGS 387).
 
 | Skill (June id) | March effect = MAGIC | June effect = level-1 value x0.01 |
@@ -4791,6 +4791,26 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_P
 | Petit Angkor (22209) | AISHA_SUMMON_BAT_FIRST_BITE / BITE / EXPLOSION = 0.74 | Petit_Angor_Bite / First_Bite = 1.43, Explosion = 3.3 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### June character pilot: Aisha's Lightning Shower, Fire Ring, Dark Ring (pilot-char-revamp CH3a2, 2026-10-21)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH3a2 - Done"; log lines `[JUNE_CHAR] ARME SKILL registered ...`.
+- **Client.** `June_SetEquippedSkillFuncHead` gets June's cases for Lightning Shower (22012 / 22052: normal, loop 221 / 222, end 223), Fire Ring (22224) and Dark Ring (22225). New engine member `CKTDGLineMap::June_GetVerticalCrossLinePos` (June `31c69af0`, `KTDGLineMap.cpp`).
+- **What changes in game.** Lightning Shower's bolts land on the ground ( no 850 drop, no +-500 facing shift ), spread ( rand x 3 - 150 ) x 4 around +-250, mirrored when facing right; a point off the line map snaps to the line under it. Its cut-in and world colour come from June's Lua. Fire / Dark Ring play their ring on the nearest enemy in a forward cone ( SA_DEGREE_X / Y / Z, range SA_SCOPE_ABS = 400 at level 1 ); with no target the cast plays no ring.
+
+| Skill (June id) | March effect = MAGIC | June effect = level-1 value x0.01 |
+|---|---|---|
+| Lightning Shower (22012) | DamageEffect_Lightning_Shower = 3.22 | DamageEffect_Lightning_Shower = 7.35 |
+| Fire Ring (22224) | June-only | DamageEffect_A_AEM_FireRing_Explosion = 18.98 |
+| Dark Ring (22225) | June-only | DamageEffect_A_AEM_DarkRing_Explosion = 18.98 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (the three skills fall back to March's cases with CH3a's), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### June DoAimingTarget reads the aiming unit's own line (JUNE_AIMING_TARGET_OWN_LINE, 2026-10-21)
+
+Flag `SERV_IRUHADEV_JUNE_AIMING_TARGET_OWN_LINE` (`KTDXLIB/Always.h`). June `31ff5440` = March `CX2GUUser::DoAimingTarget` except one line: the in-front test takes the line direction of the aiming unit's own last-touch line (`X2GUUser.cpp`), March the target's.
+- **Reaches:** Aisha's Fire / Dark Ring (CH3a2) and Energy Ring (CH3b), Chung's and Rena's aimed skills (every `DoAimingTarget` caller).
+- **Revert:** comment out the flag, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`.
 
 ### June's skill unseal NOT: the unsealed skill is learned in the same packet (JUNE_UNSEAL_SKILL_NOT, 2026-10-21)
 

@@ -22207,7 +22207,11 @@ float CX2GUUser::DoAimingTarget(float fDist, const D3DXVECTOR3& vCoefficient, bo
 			if( GetIsRight() == false )
 				fDir = -0.1f;
 
+#ifdef SERV_IRUHADEV_JUNE_AIMING_TARGET_OWN_LINE
+			const CKTDGLineMap::LineData* pLineData =  g_pX2Game->GetWorld()->GetLineMap()->GetLineData( GetLastTouchLineIndex() );	/// June 31ff5440 reads its own line
+#else SERV_IRUHADEV_JUNE_AIMING_TARGET_OWN_LINE
 			const CKTDGLineMap::LineData* pLineData =  g_pX2Game->GetWorld()->GetLineMap()->GetLineData( pUnit->GetLastTouchLineIndex() );
+#endif SERV_IRUHADEV_JUNE_AIMING_TARGET_OWN_LINE
 			if( pLineData == NULL )
 				continue;
 

@@ -1762,6 +1762,9 @@ class CKTDGLineMap : public CKTDGObject
 		D3DXVECTOR3 GetCenterPositionLineIndex( int iLineIndex_ );	/// June 31c6ad50
 		void SetEnableLinebyPos( bool bEnable_, D3DXVECTOR3 vPos_, float fDistance_, bool bCheckCanDown_ );	/// June 31c6afb0
 #endif SERV_IRUHADEV_JUNE_LINEMAP_QUERY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+		D3DXVECTOR3 June_GetVerticalCrossLinePos( D3DXVECTOR3 vPos_, bool bUnderPos_ );	/// June 31c69af0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 //}} kimhc // 2010.7.6 // 몬스터가 생성한 라인맵
 		
 #ifdef X2TOOL
