@@ -102,22 +102,9 @@ static void JuneApplyNumericalSkillData( CX2DamageManager::DamageData* pDamageDa
 	const int iLevel = pUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID, false, 0, true );
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( eSkillID, true );
 
-#if defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	WCHAR wszTemplet[256] = L"";
-	if( NULL != pwszTemplet_ )
-		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"%s", pwszTemplet_ );
-	else
-		StringCchPrintfW( wszTemplet, ARRAY_SIZE(wszTemplet), L"(no templet) %S", ( NULL != pTableName_ ? pTableName_ : "(null)" ) );
-#endif // SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE
 
 	if( iLevel <= 0 || NULL == pSkillTemplet )
 	{
-#if defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-		static std::set<int> s_setSkipLogged;
-		if( s_setSkipLogged.size() < 40 && true == s_setSkipLogged.insert( static_cast<int>( eSkillID ) ).second )
-			CX2OfflineLog::Server( L"[JUNE_SKILL] NUM skip skill=%d level=%d templet=%s in %s: override not applied",
-				static_cast<int>( eSkillID ), iLevel, ( NULL != pSkillTemplet ? L"found" : L"none" ), wszTemplet );
-#endif // SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE
 		return;
 	}
 
@@ -144,25 +131,9 @@ static void JuneApplyNumericalSkillData( CX2DamageManager::DamageData* pDamageDa
 	if( pDamageData_->fHitAddMP != row.m_fHitAddMP )
 		pDamageData_->fHitAddMP = row.m_fHitAddMP;
 
-#if defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
-	/// one line per distinct ( templet, skill, level, row source ), the first 80
-	static std::set<std::wstring> s_setUseLogged;
-	WCHAR wszUseKey[400] = L"";
-	StringCchPrintfW( wszUseKey, ARRAY_SIZE(wszUseKey), L"%s|%d|%d|%d|%s", wszTemplet, static_cast<int>( eSkillID ), iLevel,
-		pDamageData_->m_iNumericalDataIndex, pDamageData_->m_wstrNumericalDataName.c_str() );
-	if( s_setUseLogged.size() < 80 && true == s_setUseLogged.insert( wszUseKey ).second )
-		CX2OfflineLog::Server( L"[JUNE_SKILL] NUM use %s skill=%d level=%d by=%s%d%s%s row v=%.2f pvp=%.3f tech=%.1f mp=%.3f -> physic=%.4f magic=%.4f type=%d ( before the power rate )",
-			wszTemplet, static_cast<int>( eSkillID ), iLevel,
-			( 0 < pDamageData_->m_iNumericalDataIndex ? L"index " : L"name " ), pDamageData_->m_iNumericalDataIndex,
-			( true == pDamageData_->m_wstrNumericalDataName.empty() ? L"" : L" " ), pDamageData_->m_wstrNumericalDataName.c_str(),
-			row.m_fValue, row.m_fPvpRate, row.m_fTechPoint, row.m_fHitAddMP,
-			pDamageData_->damage.fPhysic, pDamageData_->damage.fMagic, static_cast<int>( pDamageData_->damageType ) );
-#endif // SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE
 
-#if !( defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE ) )
 	UNREFERENCED_PARAMETER( pwszTemplet_ );
 	UNREFERENCED_PARAMETER( pTableName_ );
-#endif // !( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG && SERV_IRUHADEV_OFFLINE )
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 

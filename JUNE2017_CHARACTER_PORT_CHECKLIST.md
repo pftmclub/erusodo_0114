@@ -97,7 +97,7 @@ It copies the June scripts into `<scratch dir>` and never writes to the June dir
   - show a `[JUNE_SKILL] NUM use ...` line (`python tools/logs.py --tag JUNE_SKILL --grep "NUM"`) whose physic / magic equal the
     tsv's x0.01 column at that level;
   - then retire the short-lived `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` (its `Always.h` block and guarded code), in the same phase.
-  - (Aisha: CH2a - the first live class: states for 22000-22009 and 22200 / 22201 and their upgrade ids; the NUM line and the retire follow its play-test.)
+  - (Aisha: CH2a - the first live class: states for 22000-22009 and 22200 / 22201 and their upgrade ids; NUM lines matched the tsv at level 1 on 2026-10-21 and `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` is retired.)
 
 ## 2. DamageData keys June's character scripts use that March does not parse yet
 

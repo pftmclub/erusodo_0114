@@ -8064,14 +8064,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_SKILL_NUMERICAL needs SERV_IRUHADEV_JUNE_DAMAGEDATA (the NUMERICAL_DATA_INDEX / _NAME parse)
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
 #endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
-// Short-lived: the load-time self-check against june2017_re/c1a_numerical_blocks.tsv ( 40 rows ) and one [JUNE_SKILL] NUM line per distinct use.
-// Remove after the S4 review.
-#define SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
-#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
-#ifndef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
-#error SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG needs SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
-#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
-#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

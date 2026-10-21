@@ -2554,9 +2554,6 @@ public:
 	void    JuneSetSkillAbilityMap( KLuaManager* pLuaManager_, SKILL_ABILITY_TYPE eSkillAbility_, SkillTemplet* pSkillTemplet_, const char* pszKey_ );   /// 3220b740
 	void    JuneLogShortArray( int iSkillID_, int iKind_, int iSize_ );
 	void    JuneLogLoadSummary();
-#ifdef SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
-	void    JuneNumericalSelfCheck() const;
-#endif SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG
 #endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
 
 	int GetMaxSkillLevel( int iUnitClass, SKILL_ID eSkillID );
