@@ -3343,7 +3343,11 @@ public:
 		/// June's skill-use reservation (slot 513 31fc93e0 / slot 514 31fc9410): +0x8eac the skill, +0x8eb4 a 1 s life. June also keeps
 		/// the skill's MP there (+0x8ea8) and spends it when the state starts; March spends it at use, so only the skill is kept
 		void ReserveSkillUseCount( const CX2SkillTree::SKILL_ID eSkillID_ ) { m_eSkillUseReservedSkillID = eSkillID_; m_fSkillUseReserveTime = 1.0f; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+		virtual void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; }	/// June slot 514 ( 31fc9410 ): Arme's override also clears the reserved MP
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		void CountReservedSkillUse();		/// June CommonStateStart 32057b80 @32057c23-d84
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 		bool JuneIsNotCommonMoveState();	/// June 31fd7640, the base of user vslot 0x828

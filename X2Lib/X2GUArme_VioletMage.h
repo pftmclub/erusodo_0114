@@ -1317,6 +1317,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_A_AV_FIRE_ROAD_UPGRADE_FrameMove();					/// June 32cdc4a0
 		void June_AVSI_A_AV_FIRE_ROAD_EventProcess();						/// June 32cc0c50
 		void June_CopyStateCallbacks( UserUnitStateData& rHyperStateData_, const UserUnitStateData& rNormalStateData_ );	/// June 329cc2c0
+		virtual void ClearSkillUseReserve();								/// June slot 514 ( 31fc9410 ): +0x8eac = 0 and +0x8ea8 ( the reserved MP ) = 0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE

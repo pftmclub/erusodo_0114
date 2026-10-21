@@ -33958,6 +33958,12 @@ void CX2GUArme_VioletMage::June_CopyStateCallbacks( UserUnitStateData& rHyperSta
 	rHyperStateData_.StateEnd			= rNormalStateData_.StateEnd;
 }
 
+// June 31fc9410 ( slot 514 ): clears the reserved skill and its reserved MP; without the MP a cast leaves its cost behind and the next lookup asks for both
+void CX2GUArme_VioletMage::ClearSkillUseReserve()
+{
+	CX2GUUser::ClearSkillUseReserve();
+	m_fJune8ea8 = 0.f;
+}
 #undef JUNE_ARME_CH2A_ANY_KEY_ZXC
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
