@@ -2448,6 +2448,10 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		const PhysicParam&			GetPhysicParam() const	{ return m_PhysicParam; }
 		PhysicParam&				AccessPhysicParam()		{ return m_PhysicParam; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+		float						GetWalkSpeedParam() const	{ return m_PhysicParam.fWalkSpeed; }	/// June 31e4cfd0 ( fld [ecx + 0x324] ), bound to Lua for the Hell Drop UFO
+		float						GetJumpSpeedParam() const	{ return m_PhysicParam.fJumpSpeed; }	/// June 31e4e020 ( fld [ecx + 0x32c] )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		void						SetEnableAttackBox( const WCHAR* pName, bool bEnable );
 		bool						SetEnableAttackBox( const CKTDXCollision::CollisionDataListSet& setCollisionDataList_, const WCHAR* pName_, const bool bEnable_ );
 

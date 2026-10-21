@@ -4330,6 +4330,10 @@ void CX2Main::RegisterLuabind()
 	lua_tinker::class_def<CX2GameUnit>( L, "GetIsRight",				&CX2GameUnit::GetIsRight );			/// June @31ded26f ( thunk 31e4eaf0, vslot 0x170 )
 	lua_tinker::class_def<CX2GameUnit>( L, "GetRotateDegree",			&CX2GameUnit::GetRotateDegree );		/// June @31dee047 ( thunk 31e4eac0, vslot 0x150 )
 #endif SERV_IRUHADEV_JUNE_UNIT_BASE_BINDS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+	lua_tinker::class_def<CX2GameUnit>( L, "GetWalkSpeedParam",			&CX2GameUnit::GetWalkSpeedParam );		/// June @31de5878 ( 31e4cfd0 ), read by Ufo_Aisha_Droper_Memo.lua
+	lua_tinker::class_def<CX2GameUnit>( L, "GetJumpSpeedParam",			&CX2GameUnit::GetJumpSpeedParam );		/// June 31e4e020, same script
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 //}}
 	lua_tinker::class_def<CX2GameUnit>( L, "StopSound_LUA",				&CX2GameUnit::StopSound_LUA );
 	lua_tinker::class_def<CX2GameUnit>( L, "GetPos",					&CX2GameUnit::GetPos );
