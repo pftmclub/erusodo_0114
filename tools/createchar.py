@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Create a character straight in the offline save (els_db.sql).
 
-    python tools/createchar.py <nickname> <class> <level> [--sp N] [--ed N] [--dry-run]
+    python tools/createchar.py <nickname> <class> <level> [--sp N] [--ed N] [--no-costume] [--no-gear] [--enchant N] [--dry-run]
 
 <class> is a UNIT_CLASS id (120) or a name fragment (grand_master, blazing, uc_elesis_knight).
 Mirrors CX2OfflineDB::CreateUnit (X2OfflineDB.cpp:1199) plus the level-N exp from the June
@@ -10,8 +10,10 @@ Skills (June skill system S3): June's tree has no default skills; the unit gets 
 tree its level allows (tools/data/june_skill_autolearn.tsv, the rows the v17 migration and the emulator's
 SeedJuneAutoLearn grant), castable ones in the free A slots. SP defaults to June's rule: the 1 SP a new
 character starts with plus GetCalcInitSkillPoint(level) (tools/data/june_skill_init_sp.tsv).
-It does NOT seed hotkeys, gear or the promotion costume - the real create path does
-(X2OfflineServer: BuildCreateUnitAck), this does not. Equip in game.
+Items: the class's promotion costume (PROMO, the GBase_Item rows) is worn in the fashion slots, and the class's
+top-tier weapon + a complete 4-piece armor set go into the equip bag at +10 (top_gear: highest item_level / grade /
+use_level in item.kim that the job can wear, use level <= 99). --no-costume / --no-gear / --enchant N / --kim X adjust it.
+It does NOT seed hotkeys or the beginner gear. Gear is bagged, not worn: equip it in game once the level allows.
 
 Refuses while X2_offline.exe runs (the emulator holds the DB). Always backs the save up to
 <data>/db_backup/ first. Never deletes or edits an existing unit.
@@ -125,6 +127,118 @@ def seed_skills(c, uid, cls, level):
     return granted, slotted
 
 
+# Job -> the class it was promoted from (X2Lib/X2Unit.h GetX2UnitClassCompatibility: a job wears its own line's gear).
+PARENT = {
+    10: 1, 11: 1, 22: 1, 100: 10, 101: 11, 112: 22,
+    14: 2, 15: 2, 23: 2, 104: 14, 105: 15, 113: 23,
+    12: 3, 13: 3, 24: 3, 102: 12, 103: 13, 114: 24,
+    16: 4, 17: 4, 25: 4, 106: 16, 107: 17, 115: 25,
+    18: 5, 19: 5, 26: 5, 108: 18, 109: 19, 116: 26,
+    20: 6, 21: 6, 27: 6, 110: 20, 111: 21, 117: 27,
+    28: 7, 31: 7, 118: 28, 119: 31,
+    29: 8, 30: 8, 120: 29, 121: 30,
+    32: 9, 122: 32,
+}
+
+
+def lineage(cls):
+    out = [cls]
+    while out[-1] in PARENT:
+        out.append(PARENT[out[-1]])
+    return out
+
+
+# The five-piece promotional costume per base class: weapon, body, leg, hand, foot. Transcribed from
+# X2OfflineInventory.cpp GBASE_ITEM (the live dbo.GBase_Item rows); class 9 is unreachable in the real create path
+# (gup_create_unit rejects it) but its ids resolve in June's kim, so a test Add gets them too.
+PROMO = {
+    1: (128000, 128001, 128002, 128003, 128004), 2: (128010, 128011, 128012, 128013, 128014),
+    3: (128005, 128006, 128007, 128008, 128009), 4: (128072, 128073, 128074, 128075, 128076),
+    5: (130134, 130135, 130136, 130137, 130138), 6: (133125, 133126, 133127, 133128, 133129),
+    7: (41460, 41470, 41480, 41490, 41500), 8: (41720, 41721, 41722, 41723, 41724),
+    9: (41757, 41758, 41759, 41760, 41761),
+}
+# NESI_*_FASHION worn slots in the same order (X2Unit.h): weapon 10, body 2, leg 4, hand 6, foot 8.
+COSTUME_SLOTS = (10, 2, 4, 6, 8)
+WORN, BAG_EQUIP = 9, 1
+GEAR_POSITIONS = ('EP_WEAPON_HAND', 'EP_DEFENCE_BODY', 'EP_DEFENCE_LEG', 'EP_DEFENCE_HAND', 'EP_DEFENCE_FOOT')
+USAGE = {'PT_INFINITY': 0, 'PT_ENDURANCE': 1, 'PT_QUANTITY': 2}
+# Names that mark a dev / event / untranslated row, never real endgame gear.
+JUNK_NAME = re.compile(r'test|\[|cobo|dummy', re.I)
+
+
+def load_kim(spec):
+    import kim
+    return kim.Kim(spec), kim
+
+
+def top_gear(k, kimmod, cls):
+    """(weapon, [body, leg, hand, foot]) item ids: the highest item_level / grade / use_level the class can wear.
+
+    Candidates are enchantable, non-fashion, non-pc-bang, English-named, use level <= 99 (the level cap). The weapon is
+    ranked on its own; the armor is the best COMPLETE set (a shared set_id with all four pieces), ties to the lowest id.
+    """
+    era = k.L['era']
+    lab = lambda f, v: kimmod.enum_label(f, v, era)
+    line = lineage(cls)
+    base = line[-1]
+    positions = {kimmod.enum_parse('eqip_position', p, era) for p in GEAR_POSITIONS}
+    weapons, sets = [], {}
+    for i in k.ids():
+        raw = k.raw(i)   # cheap numeric cut first; the full decode only runs for the few thousand survivors
+        if raw['use_level'] > 99 or raw['eqip_position'] not in positions or raw['unit_type'] not in (0, base):
+            continue
+        r = k.record(i)
+        pos = lab('eqip_position', r['eqip_position'])
+        if pos not in GEAR_POSITIONS or lab('item_type', r['item_type']) not in ('IT_WEAPON', 'IT_DEFENCE'):
+            continue
+        if r['fashion'] or r['is_pc_bang'] or r['no_equip'] or not r['can_enchant'] or not r['name'].isascii() \
+                or JUNK_NAME.search(r['name']):
+            continue
+        cond = lab('use_condition', r['use_condition'])
+        if cond not in ('UC_ANYONE', 'UC_ONE_UNIT', 'UC_ONE_CLASS'):
+            continue
+        if r['unit_type'] not in (0, base) or (r['unit_class'] != 0 and r['unit_class'] not in line):
+            continue
+        key = (r['item_level'], r['item_grade'], r['use_level'], -i)
+        if pos == 'EP_WEAPON_HAND':
+            weapons.append((key, i))
+        elif r['set_id']:
+            sets.setdefault(r['set_id'], {}).setdefault(pos, (key, i))
+    if not weapons:
+        die('no weapon in the item table fits class %d' % cls)
+    full = [(max(key for key, _ in d.values()), sid, d) for sid, d in sets.items() if len(d) == 4]
+    if not full:
+        die('no complete 4-piece armor set in the item table fits class %d' % cls)
+    d = max(full, key=lambda x: (x[0], -x[1]))[2]
+    return max(weapons)[1], [d[p][1] for p in GEAR_POSITIONS[1:]]
+
+
+def describe(k, item_id):
+    r = k.record(item_id)
+    return '%d %s (item_level %d, use_level %d)' % (item_id, r['name'], r['item_level'], r['use_level'])
+
+
+def put_item(c, uid, cat, slot, item_id, enchant, usage, endurance):
+    c.execute('INSERT INTO item(unit_uid,category,slot,item_id,count,equipped,endurance,enchant_level,seal_data,usage_type,'
+              'item_state,period,attrib0,attrib1,attrib2,sockets,random_sockets) VALUES(?,?,?,?,1,?,?,?,0,?,1,0,0,0,0,\'\',\'\')',
+              (uid, cat, slot, item_id, 1 if cat == WORN else 0, endurance, enchant, usage))
+
+
+def seed_items(c, k, uid, costume, gear, enchant):
+    """Worn promotion costume (infinite, endurance -1 as the emulator seeds it) + enchanted gear in the equip bag."""
+    for item_id, slot in zip(costume or (), COSTUME_SLOTS):
+        put_item(c, uid, WORN, slot, item_id, 0, USAGE['PT_INFINITY'], -1)
+    if gear:
+        size = c.execute('SELECT size FROM inventory_size WHERE unit_uid=? AND category=?', (uid, BAG_EQUIP)).fetchone()
+        if size is None or size[0] < len(gear):
+            raise SystemExit('createchar: equip bag (category 1) has %s slot(s), need %d' % (size and size[0], len(gear)))
+        for slot, item_id in enumerate(gear):
+            r = k.record(item_id)
+            endurance = r['endurance'] if r['period_type'] == 1 else 0
+            put_item(c, uid, BAG_EQUIP, slot, item_id, enchant, r['period_type'], endurance)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('nickname')
@@ -132,6 +246,10 @@ def main():
     ap.add_argument('level', type=int)
     ap.add_argument('--sp', type=int, help="default 1 + June's GetCalcInitSkillPoint(level)")
     ap.add_argument('--ed', type=int, help='default 0 at level 1, else 1000000')
+    ap.add_argument('--no-costume', action='store_true', help="skip the worn class promotion costume")
+    ap.add_argument('--no-gear', action='store_true', help="skip the top-tier weapon + armor in the equip bag")
+    ap.add_argument('--enchant', type=int, default=10, help='enchant level of the bagged gear (default 10)')
+    ap.add_argument('--kim', default='staged', help='item.kim to pick gear from: staged|june|march|<path>')
     ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--data', default=DATA, help='game data directory')
     a = ap.parse_args()
@@ -166,6 +284,26 @@ def main():
 
     print('create %s  class %d %s  level %d  exp %d  sp %d  ed %d  (user %d, slot %d/%d)'
           % (a.nickname, cls, CLASSES[cls], a.level, exp, sp, ed, user, live + 1, slots))
+    k = costume = gear = None
+    if not (a.no_costume and a.no_gear):
+        k, kimmod = load_kim(a.kim)
+    if not a.no_costume:
+        costume = PROMO[lineage(cls)[-1]]
+        missing = [i for i in costume if k.record(i) is None]
+        if missing:
+            die('promotion costume ids %s are not in kim %s (try --kim june, or --no-costume)' % (missing, a.kim))
+        print('costume (worn):')
+        for i in costume:
+            print('  ' + describe(k, i))
+    if not a.no_gear:
+        weapon, armor = top_gear(k, kimmod, cls)
+        gear = [weapon] + armor
+        print('top gear (equip bag, +%d):' % a.enchant)
+        for i in gear:
+            print('  ' + describe(k, i))
+        need = max(k.record(i)['use_level'] for i in gear)
+        if a.level < need:
+            print('  note: level %d < use level %d - wearable once the character reaches it' % (a.level, need))
     if a.dry_run:
         print('dry run - nothing written')
         return
@@ -190,11 +328,14 @@ def main():
         c.executemany('INSERT OR REPLACE INTO inventory_size(unit_uid,category,size) VALUES(?,?,?)',
                       [(uid, cat, size) for cat, size in sizes])
         granted, slotted = seed_skills(c, uid, cls, a.level)
+        seed_items(c, k, uid, costume, gear, a.enchant)
     row = c.execute('SELECT unit_uid,unit_class,nickname,level,exp,sp,ed FROM unit WHERE unit_uid=?', (uid,)).fetchone()
     ok = c.execute('PRAGMA integrity_check').fetchone()[0]
     c.close()
     print('inserted unit_uid=%d class=%d nick=%s level=%d exp=%d sp=%d ed=%d | integrity_check: %s' % (row + (ok,)))
     print('skills: %d free June row(s) granted, %d on the bar' % (granted, slotted))
+    print('items: %d costume piece(s) worn, %d gear piece(s) in the equip bag%s'
+          % (len(costume or ()), len(gear or ()), ' at +%d' % a.enchant if gear else ''))
 
 
 if __name__ == '__main__':

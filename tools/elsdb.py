@@ -8,7 +8,7 @@
   python tools/elsdb.py x --file stmts.sql            same, statements from a file
   python tools/elsdb.py chars                         every unit: uid, class, nickname, level, ed, sp, item count
   python tools/elsdb.py inv <unit> [--cat N]          a unit's items, with names from item.kim
-  python tools/elsdb.py addchar <nick> <class> <level> [--sp N] [--ed N]    delegates to createchar.py
+  python tools/elsdb.py addchar <nick> <class> <level> [--sp N] [--ed N] [--no-costume] [--no-gear] [--enchant N]    delegates to createchar.py
   python tools/elsdb.py setchar <unit> [--level N] [--exp N] [--ed N] [--sp N] [--nick S] [--class C]
   python tools/elsdb.py additem <unit> <id>[:count] ... [--enchant N] [--equip [--replace]] [--cat N --slot N]
   python tools/elsdb.py delitem <unit> <item_uid|item_id> ... [--by-item-id]
@@ -355,9 +355,12 @@ def cmd_x(a):
 
 def cmd_addchar(a):
     cmd = [sys.executable, os.path.join(HERE, 'createchar.py'), a.nickname, a.unit_class, str(a.level), '--data', a.data]
-    for flag in ('sp', 'ed'):
+    for flag in ('sp', 'ed', 'enchant'):
         if getattr(a, flag) is not None:
             cmd += ['--' + flag, str(getattr(a, flag))]
+    for flag in ('no_costume', 'no_gear'):
+        if getattr(a, flag):
+            cmd.append('--' + flag.replace('_', '-'))
     if a.dry_run:
         cmd.append('--dry-run')
     sys.exit(subprocess.run(cmd).returncode)
@@ -536,7 +539,8 @@ def main():
     s = add('x', cmd_x, True); s.add_argument('sql', nargs='?'); s.add_argument('--file')
     s.add_argument('--allow-ddl', action='store_true'); s.add_argument('--allow-all', action='store_true')
     s = add('addchar', cmd_addchar, True); s.add_argument('nickname'); s.add_argument('unit_class'); s.add_argument('level', type=int)
-    s.add_argument('--sp', type=int); s.add_argument('--ed', type=int)
+    s.add_argument('--sp', type=int); s.add_argument('--ed', type=int); s.add_argument('--enchant', type=int)
+    s.add_argument('--no-costume', action='store_true'); s.add_argument('--no-gear', action='store_true')
     s = add('setchar', cmd_setchar, True); s.add_argument('unit')
     s.add_argument('--level', type=int); s.add_argument('--exp', type=int); s.add_argument('--ed', type=int)
     s.add_argument('--sp', type=int); s.add_argument('--nick'); s.add_argument('--class', dest='unit_class')
