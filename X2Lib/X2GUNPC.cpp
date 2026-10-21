@@ -2998,11 +2998,18 @@ void CX2GUNPC::ScaleMoveSpeed( float fScale )
 {
 	ASSERT( fScale > 0.f );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+	/// June 32757560 scales only NPC 0x1ef, 0x626 and 0x627 ( the Hell Drop UFOs )
+	const int iJuneNpcID = static_cast<int>( GetNPCTemplet().m_nNPCUnitID );
+	if( 495 != iJuneNpcID && 1574 != iJuneNpcID && 1575 != iJuneNpcID )
+		return;
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 	ASSERT( CX2UnitManager::NUI_UFO_AISHA == GetNPCTemplet().m_nNPCUnitID );
 	if( CX2UnitManager::NUI_UFO_AISHA != GetNPCTemplet().m_nNPCUnitID )
 		return; 
 
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 	m_PhysicParam.fWalkSpeed      *= fScale;
 	m_PhysicParam.fRunSpeed       *= fScale;
 	m_PhysicParam.fJumpSpeed      *= fScale;

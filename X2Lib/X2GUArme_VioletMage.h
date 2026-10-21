@@ -1380,6 +1380,10 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_A_ADW_ENERGY_RING_FrameMove();						/// June 32ce3e80
 	public:
 		void June_SetDistortionSummonInfo( CX2GUNPC* pNPC_ );				/// June 3230c1a0 case 0x443
+		//{{ Iruha : 2026-10-22 // June character pilot Phase CH3c
+		void June_SetHellDropSummonInfo( CX2GUNPC* pNPC_ );					/// June 3230c1a0 cases 0x1ef / 0x627
+		void June_SetStoneWallSummonInfo( CX2GUNPC* pNPC_ );				/// June 3230c1a0 case 0x1f5
+		//}} Iruha : 2026-10-22 // June character pilot Phase CH3c
 	protected:
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH3b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL

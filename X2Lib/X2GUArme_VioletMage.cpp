@@ -35937,6 +35937,44 @@ void CX2GUArme_VioletMage::June_SetDistortionSummonInfo( CX2GUNPC* pNPC_ )
 	pNPC_->StartSelfDestruction( fRemainTime );
 }
 //}} Iruha : 2026-10-21 // June character pilot Phase CH3b
+//{{ Iruha : 2026-10-22 // June character pilot Phase CH3c
+// June 3230c1a0 cases 0x1ef / 0x627: power rate and move speed from Hell Drop 22020 after the upgrade swap ( 22059 when Enhanced )
+void CX2GUArme_VioletMage::June_SetHellDropSummonInfo( CX2GUNPC* pNPC_ )
+{
+	if( NULL == pNPC_ || NULL == GetUnit() )
+		return;
+
+	const int iSummonSkillID = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH3A_SA_AVP_HELL_DROP ) );
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSummonSkillID ), true );
+	int iSkillLevel = 0;
+	float fPowerRate = pNPC_->GetDefaultPowerRate();
+	if( NULL != pSkillTemplet )
+	{
+		iSkillLevel = max( 1, June_GetSkillLevel( iSummonSkillID ) );
+		fPowerRate = pSkillTemplet->GetSkillPowerRateValue( iSkillLevel ) * GetSummonPowerRateByBuff( iSummonSkillID ) * GetSummonPowerRateBySocket( iSummonSkillID ) * GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+		pNPC_->SetDefaultPowerRate( fPowerRate );
+	}
+
+	SetUFO( pNPC_ );
+	const CX2EffectSet::Handle hUfoEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AVP_HellDrop_Summon_Loop", pNPC_ );
+	pNPC_->MakeEffectSetBeDeletedWhenDie( hUfoEffect );
+
+	const float fMoveScale = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_REMOTE_SPEED_ABS, iSummonSkillID );
+	pNPC_->ScaleMoveSpeed( fMoveScale );
+
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL summon Hell Drop UFO ( npc %d, skill %d, level %d, power rate %.3f, move scale %.3f )", static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ), iSummonSkillID, iSkillLevel, fPowerRate, fMoveScale );
+}
+
+// June 3230c1a0 case 0x1f5: the case skill is 0 ( 31fcf520 does not list 501 ), so 32007b10( 1, 0 ) is 1.0
+void CX2GUArme_VioletMage::June_SetStoneWallSummonInfo( CX2GUNPC* pNPC_ )
+{
+	if( NULL == pNPC_ )
+		return;
+
+	June_AddStoneWall( pNPC_->GetUID(), 1.0f );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL summon Stone Wall ( npc %d, life time 1.0 )", static_cast<int>( pNPC_->GetNPCTemplet().m_nNPCUnitID ) );
+}
+//}} Iruha : 2026-10-22 // June character pilot Phase CH3c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

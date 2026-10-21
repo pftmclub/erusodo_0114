@@ -17077,6 +17077,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					ASSERT( CX2Unit::UT_ARME == pUser->GetUnit()->GetType() );
 					if( CX2Unit::UT_ARME == pUser->GetUnit()->GetType() )
 					{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+						/// June 3230c1a0 case 0x1ef: the UFO follows June's Hell Drop 22020 after the upgrade swap
+						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC );
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADM_HELL_DROP );
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -17124,6 +17128,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							pNPC->ScaleMoveSpeed( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_REMOTE_SPEED_ABS) );
 		#endif // UPGRADE_SKILL_SYSTEM_2013
 						}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 					}
 					else
 					{
@@ -17147,6 +17152,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					ASSERT( CX2Unit::UT_ARME == pUser->GetUnit()->GetType() );
 					if( CX2Unit::UT_ARME == pUser->GetUnit()->GetType() )
 					{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+						/// June 3230c1a0 case 0x627: same body as case 0x1ef
+						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetHellDropSummonInfo( pNPC );
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADM_HELL_DROP );
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -17188,6 +17197,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 							CX2EffectSet::Handle hUfoEffect = GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_Hell_Drop_Ring_And_Light", pNPC );
 							pNPC->MakeEffectSetBeDeletedWhenDie( hUfoEffect );
 						}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 					}
 					else
 					{
@@ -17273,6 +17283,11 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					/// 31fcf520 does not list 501 (returns 0), so the case skill is 0
 					JuneApplySummonPowerRate( pNPC, pUser, 0 );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+					/// June 3230c1a0 case 0x1f5: June's tree has no March Stone Wall skill, so its end is AddStoneWall( uid, 1.0 )
+					if( NULL == pSkillTemplet && CX2Unit::UT_ARME == pUser->GetUnit()->GetType() )
+						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetStoneWallSummonInfo( pNPC );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 				} break;
 
 #endif AISHA_SECOND_CLASS_CHANGE

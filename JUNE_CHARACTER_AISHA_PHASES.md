@@ -1882,6 +1882,22 @@ Fix, worktree `--files X2Lib/X2GUArme_VioletMage.cpp`: `files: 1 PASS, ...`; `6 
 **Play-test PASSED (user, 2026-10-22):** the Enhanced Distortion (22065, A slot 0, unit 53) summon stays ~10 s; log `registered SA_ADW_DISTORTION ( skill 22065, slot 0 A )`, no Distortion error. User owes nothing. Next: `/x2-phase pilot-char-revamp CH3c` (Sonnet 5.5 high) or `CH4` (Opus 5.5 high), one at a time.
 **CH3c kickoff**: now says every read in a summon case takes the swapped id. Funcmap row `3230c1a0 case 0x443` corrected.
 
+### CH3c - Done (2026-10-22, Sonnet 5.5)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`; commit see `git log` "Phase CH3c"). Funcmap rows `(CH3c)` (3), JUNE_BUGS 393, `MODS.md` section "Aisha's Hell Drop and Stone Wall summons".
+- **Hell Drop UFOs** (June `3230c1a0` cases `0x1ef` / `0x627`, listing `3230c4a1`-`3230c559`). New `CX2GUArme_VioletMage::June_SetHellDropSummonInfo`, called from both `NUI_UFO_AISHA` cases of `CX2Game::SetUserSummonedNPCInfo` inside the Arme branch (March's block, which read `SI_A_ADM_HELL_DROP`, is the `#else`; March keeps its `SetNPCStat`). Every read takes the case skill `ebx` = `31fcf430( 31fcf520( npc ) )` = 22020, **22059 when Enhanced** (CH3b review's rule): level `June_GetSkillLevel`, templet `GetEquippedActiveSkillTemplet( id, true )`, buff and socket terms, and `32007b10( 0x4c, ebx )`.
+  - Power rate = skill power rate x buff x socket x `GetAdditionalAttackByType( AT_SPECIAL )` (March's terms with June's skill id).
+  - `323115e0` = `SetUFO`; the effect is June's `EffectSet_SA_AVP_HellDrop_Summon_Loop` (string at `3348c6a8`) on the NPC, deleted when it dies (`32279a60`).
+  - `32757560( SA_REMOTE_SPEED_ABS )` is `ScaleMoveSpeed` for **both** UFOs; March scaled only the first. `CX2GUNPC::ScaleMoveSpeed` now accepts NPC 495, 1574 and 1575 (June's three ids), where March's guard returned for the memo UFO.
+  - June has no equipped-templet gate and no else branch; ours keeps March's non-Arme `SetNowHp( 0 )`.
+- **Stone Wall** (case `0x1f5`, listing `3230c585`-`3230c59a`). `31fcf520( 501 )` is 0, so June ends the wall with `AddStoneWall( uid, 32007b10( 1, 0 ) = 1.0 )`: new `June_SetStoneWallSummonInfo` (after the existing `JuneApplySummonPowerRate( 0 )`, only when March's skill templet is NULL). June has no Stone Wall state (`AVSI_A_AEM_STONE_WALL` has no June reference), so nothing creates NPC 501: **unreachable in this build**, kept verbatim (JUNE_BUGS 393).
+- **Bats: nothing to port.** `3230c1a0` has no bat case (`summon_npc_skill_map.tsv` lists none; March's `NUI_PIG_BAT_AISHA` case is commented out). Summon Bat Millions (22043) was registered in CH3a.
+- **Not done, noted:** CH3b's `June_SetDistortionSummonInfo` leaves out the `GetAdditionalAttackByType( AT_SPECIAL )` factor that `322ece70` multiplies in (1.0 without a buff). For the CH3c review to decide.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_SKILL --worktree --files <4 code files>`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,715,200 B, dated 2026-10-22 01:50:56, md5 d6e2ffde4c3e5d9782042717b6c44568, equal to X2/US_SERVICE/x2.exe (2026-10-22 01:50:48); built at main 421a38ae + 4 uncommitted code file(s).` The new strings (`EffectSet_SA_AVP_HellDrop_Summon_Loop`, `summon Hell Drop UFO`, `summon Stone Wall`) are in the deployed exe.
+**In game.** No kom change. Save (backups in `data\db_backup`): unit 52 `ArmeVP` has base Hell Drop 22020 (level 1) in A slot 2; new unit 54 `ArmeVP2` (Void Princess, level 99) has **Enhanced Hell Drop 22059 (level 2) in A slot 0**. Log: `[JUNE_CHAR] ARME SKILL summon Hell Drop UFO ( npc 495, skill 22020 | 22059, level, power rate, move scale )`; Stone Wall's line is not expected.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high (new mechanisms), then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`,

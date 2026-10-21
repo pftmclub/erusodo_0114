@@ -4855,3 +4855,9 @@ Flag `SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP` in `KTDXLIB/Always.h`. La
   (set + `unit_skill_unsealed` row) by the first skill of the same `AddSealSkillInfo` row (June `SkillData.lua`, the manual's per-class list) that the new class's tree has; no counterpart -> kept. Switching back maps it back.
   Job advancement by quest is untouched (live does not remap there; the set already persists). Log: `SKILL    class change: unsealed skill A -> B for class C`.
 - **Revert:** comment out the flag, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Rows already remapped stay remapped.
+
+### June character pilot: Aisha's Hell Drop and Stone Wall summons (pilot-char-revamp CH3c, 2026-10-22)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH3c - Done"; log lines `[JUNE_CHAR] ARME SKILL summon ...`.
+- **Client.** `CX2Game::SetUserSummonedNPCInfo`: the Hell Drop UFO cases (`NUI_UFO_AISHA`, `NUI_UFO_AISHA_DROPPER_MEMO`, June `3230c1a0` cases `0x1ef` / `0x627`) call the new `June_SetHellDropSummonInfo`; March's block, which read March's `SI_A_ADM_HELL_DROP`, is the `#else`. The UFO's power rate follows skill 22020 after the upgrade swap (22059 when Enhanced), it is the unit's UFO, plays `EffectSet_SA_AVP_HellDrop_Summon_Loop` and has its move speed scaled by `SA_REMOTE_SPEED_ABS` (both UFOs; March scaled only the first). `CX2GUNPC::ScaleMoveSpeed` accepts NPC 495, 1574 and 1575 as June's `32757560` does. The Stone Wall case (`0x1f5`) adds `June_SetStoneWallSummonInfo` (`AddStoneWall( uid, 1.0 )`); that skill has no June state, so it never runs. June has no bat case in `3230c1a0`.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (all CH2a-CH3c Aisha skill work reverts with it), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
