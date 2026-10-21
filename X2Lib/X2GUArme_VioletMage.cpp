@@ -33683,7 +33683,8 @@ bool CX2GUArme_VioletMage::June_GetPassiveSkillAbilityValue( const int iSkillID_
 	if( CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_eJunePowerRateType && false == June_UnitFlag3c( GetUnit() ) )
 		return false;
 
-	fOut_ = pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
+	const bool bPvpGame = ( NULL != g_pX2Game && CX2Game::GT_PVP == g_pX2Game->GetGameType() );	/// June 322cc1a0: PVP or PVE ( March has no GT_PVE )
+	fOut_ = pSkillTemplet->GetSkillAbilityValue( eType_, iLevel, bPvpGame );
 	return true;
 }
 

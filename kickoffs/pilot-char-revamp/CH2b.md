@@ -6,7 +6,7 @@
 | Plan doc | `JUNE_CHARACTER_AISHA_PHASES.md` (branch `main`) |
 | Depends on | CH2a review |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (one flag for every skill sub-phase) |
-| Log tag | `[JUNE_CHAR]` (`ARME SKILL`) and `[JUNE_SKILL]` (`--grep NUM`) |
+| Log tag | `[JUNE_CHAR]` (`ARME SKILL`); `NUM` lines are gone (`SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` retired in CH2a) |
 | Review | `kickoffs/pilot-char-revamp/CH2b-review.md` (Opus 5.5 high; the phase writes it when done) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
@@ -47,3 +47,10 @@ The class map now lists `32cdcac0` (Energy Drain FrameMove, state 207, thunk `32
 ## From the CH1i review (2026-10-21)
 
 - `June_UpdateEquipViewListInfo` (`32cc9950`, vslot `0x644`) drops the view-list change while transformed. June queues it (`3207b5d0`, with 8-byte objects and a third int); port the queue with TransformStart / End.
+
+## From the CH2a review (2026-10-21)
+
+- The skill cases go into the same switch CH2a used, `June_SetEquippedSkillFuncHead` (before `default:`), not March's `SetEquippedSkillFuncBySkillSlotIndex` body.
+- Reuse `June_AVSI_SKILL_EventProcess` for every June state whose EventProcess is a clone of `32cbe6a0` (compare the bytes); `June_CopyStateCallbacks` is `329cc2c0`; `June32481fa0` and `JUNE_ARME_CH2A_ANY_KEY_ZXC` are file-local in the CH2a block.
+- June's skill-ability lookups pass a PvP flag (`322cc1a0`) in some places and 0 in others: copy whichever June has (the 3-argument `GetSkillAbilityValue`).
+- Damage numbers for `MODS.md` come from the tsv (x0.01); with `NUM` retired, prove damage in game (hits / kills in `offline_server.log`).

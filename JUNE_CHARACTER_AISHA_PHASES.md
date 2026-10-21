@@ -1589,6 +1589,46 @@ mesh / texture line to `ErrorLog.txt`.
 **Play-test result (user, 2026-10-21; `check logs` after the MP fix):** `[JUNE_CHAR] ARME SKILL registered` for every equipped skill on `arishiaaa` (class 2) and `ArmeHM` (class 14); `[JUNE_SKILL] NUM use` for 11 damage effects (Meteor Call 9.61 / 5.14, Lightning Bolt 2.43, Gust Screw 4.68, Gust Storm 4.15 / 3.75, Meteor Shower 0.72 / 2.44, Blizzard Shower 0.62 / 7.16, Chain Lightning 6.5), each equal to the tsv's x0.01 column at level 1 (the earlier run also logged Magic Missile 4.9 and Fire Road 9.97). 0 `Motion Error`, 0 `KEM_ERROR`, 0 EXCEPTION, no `[JUNE_FX] effect-set modifier tag` line. New `ErrorLog.txt` lines against `ErrorLog_pre_CH1.txt` are CH0b's three face textures and `EVENTSCENE\PC_AISHA_PNG.SWF` (not Aisha's skills; CH5's portrait), none of the six June-undefined names. Not seen in the last run: Chain Fireball's damage lines (it cast, `ES_CREATE` logged, but no `NUM` line was written in that run: the review checks it), Binding Circle's bind, Teleport.
 **`SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` retired** (its `Always.h` block, the `X2DamageManager.cpp` log blocks, `JuneNumericalSelfCheck` in `X2SkillTree.cpp/.h`; `cl /Zs` 0 errors on the three TUs). The flag is gone, so no more `NUM` lines. `DEPLOY OK: X2_offline.exe is 25,667,584 B, dated 2026-10-21 13:37:57, md5 4a0b4c9acd0dabebedd7063d9bb4106d, equal to X2/US_SERVICE/x2.exe (2026-10-21 13:37:49); built at main 9658d261 + 4 uncommitted code file(s).`
 
+### CH2a -- Review (2026-10-21, Opus)
+
+**Verdict: PASS, one transcription fix.** Each function was read against its Ghidra decompile, or for the uncarved ones against the `funcdis.py` / `disasm_range.py`
+listing. Every registration thunk was resolved to its `jmp` target from the image. The float constants were read from the image too: 0.3, 0.5, 500,
+0.001, 0.55, 150 / 300 / 750, 1.2, 1.1, 600, 0.1, 250, 850, 45, 900, 10 / 20, 0.24, 0.49, 0.25, 0.638 and 30.
+
+1. **Registration vs `32cede00`** (callback slots read as `UserUnitStateData` dwords 5 / 7 / 9 / 0xb / 0xd / 0xf / 0x11 / 0x15). Every case label, table name
+   and callback matches. Six hypers reuse the normal table name: Gust Storm, Meteor Call, Binding Circle, Chain Lightning, Fire Road and Teleport. The slot-by-slot hypers copy no
+   `Init`; Chain Lightning, Teleport and Fire Road copy everything through `329cc2c0`. The three Meteo Shower states are 0xd9 / 0xda (hyper byte) / 0xdb. The Blizzard hyper's Start / End (`32cbf050` /
+   `32cb7970`) are byte-identical to the normal ones. The generic EventProcess `32cbe6a0` and its 9 clones are byte-identical. Teleport's MP tail matches:
+   `SA_MP_CONSUME_REL` (0x1b), level at least 1, `+0x95b0`.
+2. **Meteo Shower** (`32cdae90` / `32cdb5e0`). The random is `( r*3 - 150 ) * 4` with `r = vslot 0x1c8( elapsed*4 + 1 )`, after the increment. Parity and facing give ±250 / ±500.
+   The start point is +850 up and ∓900 along the facing, with rotation z -45 / +45. `CommonFrameMove` sits inside the `elapsed < max` block (the early return). The loop handle is `+0x95f8`. Emit rate 10 / 20
+   goes to `+0x95a8` / `+0x95ac`. The tail `June_SetMeteoShowerValues` maps 0x18 / 0x1e / 2 / 0x1b to `+0x9728` / `+0x96f8` / `+0x9704` / `+0x971c`; passive 22413
+   does `imul` on the count, and type 0x8f = `SA_MP_CONSUMPTION` (June 143) scales the MP.
+3. **Binding Circle** (`32cd57c0`). The checks run in June's order: team, then slot 94( 1 ), then the squared scope. The bind is `( 0x49, this, 1, 0, 0 )`: the port passes skip = false, as June does (March's default is true).
+   The memo type is 18, and `SA_SCOPE_ABS` = 0x1d.
+4. **Chain Lightning** (`32cc23c0` / `32cdf7f0` / `32cc2440`). The set name is 37 characters long, `…_MEMO`, so JUNE_BUGS 382 is real. `IF_SKILL_CANCEL_AFTER` (the AWAKE_LOCK form) is June's first two blocks. Then come
+   WAIT for Right / Left and dash for the double arrows. Last is WALK on the 14 bytes `+0x86da..+0x8712` without `+0x8702` (F). Start: `ResetAnimSpeed( +0x88fc, +0x8904, 0, value( 0x67 ) )`;
+   the port's re-read of `APPLY_ANIM_SPEED_BY_ITEM_ABILITY` gives the value `CommonStateStart` stores.
+5. **Meteor Call** (`32ce2e90` / `32cc5580`). The filters run valid, team, state 4 (`GUSI_DIE`), HP <= 0, facing, NPC class. Distance uses `<=`, starting from 600. The line-map call is
+   `( dir, pos, 600, isRight, &out, &idx )`, with a ±dir*600 fallback (the decompile's shifted fields are a Ghidra artifact; the listing is consistent). The EventProcess order is
+   landing, skill, hyper (no on-ground test), walk, dash.
+6. **Fire Road / Teleport**: `0.24`, then `0.24 || 0.49`; a NULL unit returns before `CommonFrameMove`; dash at `0.25 <=`, walk at `0.638 <=` against `+0x7e56`.
+7. **Modifier list**: `( handle, 2, +0x95c8, 0 )`; the hook is at `321ef6b3` (after the velocity list `+0x128`, before the follow-line block); tag 2 = mesh `+0x44c` max life, add / multiply.
+8. **"= March"**: the Blizzard Start / End, Meteo Shower End and END StateEnd (emit 0 / 0) are identical.
+
+**Fix (same flag):** `June_GetPassiveSkillAbilityValue` left out June's PvP-or-PvE argument. `31ff1e80` passes `322cc1a0( 0 )` as the third argument of
+`32206e50`; the port now passes `GT_PVP == GetGameType()`, the project's stand-in. This changes nothing offline, since there is no PvP. Hygiene: `flagcheck.py JUNE_CHAR_ARME_SKILL --with
+JUNE_CHAR_EFFECTSET_MODIFIER --range de9b4b6b^..de9b4b6b`: `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted
+line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = the two `X2EffectSet`
+files, which belong to the modifier flag). `9658d261`: `files: 3 PASS`, `RESULT: PASS`. Review fix `--worktree`: `files: 1 PASS`, `RESULT: PASS` (1 deleted line = the CH2a line it replaces).
+`DEPLOY OK: X2_offline.exe is 25,667,072 B, dated 2026-10-21 13:53:15, md5 d8b76905f63f84a3cf55ae32d2b136b8, equal to X2/US_SERVICE/x2.exe (2026-10-21 13:53:08); built at main 63599741 + 1 uncommitted code file(s).`
+
+**Play-test record.** Chain Fireball did deal damage in the 13:29 run. The Done note missed this: `offline_server.log` has `NUM use …ChainFireBall_Small … magic=5.7600` and
+`…_Big … magic=5.2300` (the tsv's 576 / 523 x0.01), both `HIT`, and two NPC kills. Binding Circle: the user saw the enemy bound in game (2026-10-21). That was an earlier run; the 13:29 logs hold only its registration line.
+Teleport was registered but never cast: it is this review's only play-test check.
+**Found, owned elsewhere:** `+0x95c8` (the fire-ball range rate that tag 2 multiplies by) is set by June's `InitPassiveSkillState` `32cecd70` from passive 22400. March's setter (still live,
+`SI_P_AV_FIREBALL_UP`) never finds that id on a June tree, so the rate stays 1.0 until CH4 ports `32cecd70` (already in CH4's map row). Teleport's `m_fMPConsumeRateTeleport` base is the same case.
+
 ## Phase CH3 - Skills: second jobs (104, 105, 113) and hyper actives
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flag as CH2 (or CH0's split). Sub-tag `SKILL`.
