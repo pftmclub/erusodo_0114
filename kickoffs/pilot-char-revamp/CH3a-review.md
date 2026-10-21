@@ -34,6 +34,8 @@ What the phase could get wrong, in the order of risk. **Ghidra's decompile reuse
 6. **"= March" claims in general**: Inits (`32cb77c0 32cb7a60 32cb7ab0 32cb7c00 32cb7c30 32cb7e50`), `32cbfe20` against March's Phantom Breathing EventProcess, the Hell Drop Start / End (`32cb7cb0` / `32cbf320`) against March's.
 7. **Routing**: the deferred ids (Lightning Shower 22012 / 22052, Fire Ring 22224, Dark Ring 22225) still fall to March's cases; `31c69af0` and `31ff5440` are in `CH3a2.md`.
 
+**User concern (2026-10-21, after the play-test passed overall): Cyclone looks small; the user remembers the revamped one as big.** CH3a checked and found no cause: the `32cd95a8` CreateInstance call equals March's (the two June extra trailing args are 0, no scale), and `Aisha_Elemental_Master_Cyclone_Outside` (size 0 -> 1, `EM_Cyclone_Effect_Outside.X`), the three particles and the damage effect are byte-equal to June's; the templet has no scope ability; June's description says "mini tornado". Next step if it still looks wrong: the user compares against the June client (`237311JUN17`) and says what differs (width, height, missing swirl), then check the engine side (main-effect scale, hit-box) in a separate task.
+
 Hygiene: `python tools/flagcheck.py JUNE_CHAR_ARME_SKILL --range <CH3a commit>^..<CH3a commit>`; paste the `files:` / `in this flag's files:` / `RESULT:` lines.
 
 Play-test: a High Magician / Elemental Master (104) with Blaze Step, Cyclone, Chain Burst, Circle of Elements, Frost Barrage, Circle Flame and Elemental Edge; a Void Princess (105) with Plasma Cutter,
