@@ -1499,6 +1499,43 @@ Hygiene: flagcheck `--worktree --files X2Lib/X2GUUser.cpp` PASS for CORE, INPUT_
 Build: `DEPLOY OK: X2_offline.exe is 25,681,920 B, dated 2026-10-21 09:55:32, md5 744ee46f136a4dcb62f6b482a2865551, equal to X2/US_SERVICE/x2.exe (2026-10-21 09:55:25); built at main fee14739 + 1 uncommitted code file(s).`
 In game: nothing (only Aisha's LIVE code reads the Sit bytes). `CH1.md` needs no change.
 
+### CH1 - Done (2026-10-21, Opus)
+
+**The deploy unit is live.** `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE` is defined (`Always.h`), so Aisha runs June's registration, virtuals, skill-use
+steps and pressed-slot reader (CH1j-CH1m). Shipped together with the exe:
+- **Script:** `luasrc.py adopt-june data036 Arme_VioletMage.lua`: June's file replaces March's whole, as `ljconv` bytecode (169,337 B, was 136,603 B;
+  no core-list row, no edit). Backup `24965799\kom_backup_stage_june\20261021_100608`, record `june2017_re/june_adopt_20261021_100608.tsv`.
+  `PACK OK data036` (vs live: ~1 changed, `Arme_VioletMage.lua`); `COPY OK data036 ... 13998632 bytes, 266 entries, md5 344de0cc73f1044e64e04ae409caacd0`
+  (user approved). CH0 assigned no other Lua to CH1.
+- **`[JUNE_CHAR] ARME DATA`** (LIVE, end of `June_InitState`, offline_server.log): class, script, motion, state count and `wait_state_change`, which is
+  1 only when June's script is loaded, because March's has no `AVSI_WAIT_STATE_CHANGE` table.
+- **Fix found by the play-test: START floated with no animation.** CH1l emptied the LIVE `ParseCommonRandomState` ("June has no class parse"),
+  but June parses `INIT_COMMON_RANDOM_STATE` in the base: `31feaac0`, called directly by `CX2GUUser::Init 3204ea20` between vslots 0x3c and 0x48,
+  where March calls the virtual. It takes the table name from `31fdcc20` (unit class -> name; its 86 cases equal `CX2SkillTree::JuneGetUnitClassName`'s,
+  diffed), then runs `31fe6780` (= March's `ParseCommonRandomState( tableName )`, same three lists and pairs). Ported as
+  `CX2GUUser::JuneParseCommonRandomState()` (LIVE), called by Aisha's LIVE override. The other classes keep their March parse until their port.
+  Before the fix the log showed `JUNE_FX C3e-2 roll state 9 ... ( list size 0 ) table ""` for START / WIN / LOSE.
+- **CH1j's two notes.** (1) March's `CommonStateStart` accepts June's empty `ANIM_NAME` of `AVSI_WAIT_STATE_CHANGE`: `ChangeAnim( L"" )` finds
+  no anim set and returns false without logging, so the WIN pose holds until `USEFUL_VALUE0[0]`, then `USI_WAIT`. (2) JUNE_BUGS 379: with no table,
+  `BeginTableByReference` returns false and every key read falls to its default. No crash; kept verbatim.
+- **Scans:** `charport_keys.py Arme_VioletMage`: 224 keys, `june-only=6 neither=2 march-only-site=2 both=214` (CH0: 7 / 2 / 2 / 213). The one change is
+  `SPECIAL_OPTION_VALUE` -> both (CH1m). The six June-only keys are CH1m's routed ones. `charport_scan.py`: identical to
+  `char_arme/plan_charport_scan_20261020.txt` for Arme (NUMERIC 36 / 1; no KEYS / ENUM line). Its SKIPPED list grew by 8 non-character files
+  (decompile timeouts). Rerun the scan from a short path (`%TEMP%\cps`): a long scratch path breaks `ljd_jun2017` (MAX_PATH).
+- **Bounding (7l):** `JUNE_FX C3d-3 bounding states registered for AVSI_ ( USI_BOUNDING_DOWN 102, LANDCRASH 103, UP 104 )` seen. The hit leg cannot
+  be reached offline: only player skills (Lu/Ciel, Ain, Code Empress) carry `RT_BOUNDING`, and there is no PvP.
+
+Hygiene: `flagcheck.py JUNE_CHAR_ARME_LIVE --worktree --files` (4 files): `files: 3 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`; `2 deleted line(s)` (the
+`//#define` and the LIVE-only comment the parse call replaces), `0 encoding change(s)`, `RESULT: PASS`. `cl /Zs` (LIVE): X2GUArme_VioletMage, X2GUUser,
+X2Game, X2UIInventory 0 errors.
+Build (first play-test): `DEPLOY OK: X2_offline.exe is 25,653,248 B, dated 2026-10-21 10:21:09, md5 66d4c01066976849db6351f5057d821d`.
+Build (with the START fix): `DEPLOY OK: X2_offline.exe is 25,653,248 B, dated 2026-10-21 10:49:29, md5 6e2d39295ede2be8800bfda285647e74, equal to X2/US_SERVICE/x2.exe (2026-10-21 10:49:21); built at main 2b76c620 + 4 uncommitted code file(s).`
+
+**Play-test 1 (user, 2026-10-21, Void Princess):** checks 2-6 passed. Check 1 failed: START floated, fixed above. Check 7 ran on the Void Princess
+with the same empty WIN table, so it needs a rerun. ErrorLog against `data\ErrorLog_pre_CH1.txt`: no `Motion Error` and no missing Aisha animation.
+The new Aisha lines are the empty-list C3e-2 lines (fixed) and CH0b's two dangling June face textures. Re-test: START and WIN, on both saves.
+Checklist: 7h / 7l / 7o / 7p rows marked `(Aisha: CH1 ...)`. No new JUNE_BUGS row, no drift.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

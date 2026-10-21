@@ -3453,6 +3453,9 @@ public:
 
 		virtual void ParseCommonRandomState() = NULL;
 		void ParseCommonRandomState( const char* tableName );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		void JuneParseCommonRandomState();		/// June 31feaac0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 		

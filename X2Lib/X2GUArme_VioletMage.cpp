@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2guarme_violetmage.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 #ifdef SERV_APRIL_FOOLS_DAY
@@ -960,7 +963,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::SetAishaMinor
 void CX2GUArme_VioletMage::ParseCommonRandomState()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
-	// June has no class INIT_COMMON_RANDOM_STATE parse; 31fe22d0 rolls the variants in June_InitState
+	JuneParseCommonRandomState();	// June parses in CX2GUUser::Init ( 31feaac0 ), not per class
 }
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
@@ -32364,6 +32367,12 @@ void CX2GUArme_VioletMage::June_InitState()
 	InitEquippedActiveSkillState( false );
 	CX2GUUser::InitState();
 	June_LoadAngorHammerMesh();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	// Not June: CH1 done-gate line, proves June's script (its WAIT_STATE_CHANGE table) and the motion loaded.
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME DATA class %d script %s motion %s states %d wait_state_change %d", static_cast<int>( GetUnit()->GetUnitTemplet()->m_UnitClass ),
+		m_ScriptFileName.c_str(), NULL != m_pMotion ? m_pMotion->GetDeviceID().c_str() : L"(none)", static_cast<int>( m_StateList.size() ),
+		m_StateList.end() != m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( USI_WAIT_STATE_CHANGE ) ) ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 }
 
 // June 32ce1ba0

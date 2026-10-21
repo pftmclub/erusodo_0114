@@ -9653,7 +9653,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              registration, CH1j ) and the later CH1 sub-phases switch the virtuals over. Stays undefined until CH1's final sub-phase
 //              ships it with June's Arme_VioletMage.lua ( one deploy unit ). Needs SERV_IRUHADEV_JUNE_CHAR_ARME_CORE.
 //              Revert: undefine the flag ( JUNE_CHAR_ARME_LIVE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

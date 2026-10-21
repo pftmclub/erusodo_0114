@@ -5860,6 +5860,17 @@ void CX2GUUser::ParseCommonRandomState( const char* tableName )
 		m_LuaManager.EndTable(); // tableName.c_str(), ELSWORD_SWORDMAN
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+/// June 31feaac0, called by CX2GUUser::Init 3204ea20 for every class; 31fdcc20's names = JuneGetUnitClassName's.
+void CX2GUUser::JuneParseCommonRandomState()
+{
+	if( true == m_LuaManager.BeginTable( "INIT_COMMON_RANDOM_STATE" ) )
+	{
+		ParseCommonRandomState( CX2SkillTree::JuneGetUnitClassName( static_cast<int>( GetUnit()->GetClass() ) ).c_str() );
+		m_LuaManager.EndTable();
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 
