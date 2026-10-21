@@ -33206,6 +33206,34 @@ bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SK
 					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
 				} return false;
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2b
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH2c ( JUNE_CHARACTER_AISHA_PHASES.md )
+			case JUNE_CH1I_A_ABM_ENERGY_DRAIN:
+				{
+					June_LogArmeSkill( L"A_ABM_ENERGY_DRAIN", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_A_ABM_ENERGY_DRAIN_READY", normalStateData.stateID );
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_ABM_ENERGY_DRAIN_READY_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_ABM_ENERGY_DRAIN_READY_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_A_ABM_ENERGY_DRAIN_READY", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_A_ABM_ENERGY_DRAIN_SUCCESS;
+					m_LuaManager.MakeTableReference( "AVSI_A_ABM_ENERGY_DRAIN_SUCCESS", stateData.stateID );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_ABM_ENERGY_DRAIN_SUCCESS_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_ABM_ENERGY_DRAIN_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_A_ABM_ENERGY_DRAIN_FAIL;
+					m_LuaManager.MakeTableReference( "AVSI_A_ABM_ENERGY_DRAIN_FAIL", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_ABM_ENERGY_DRAIN_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				} return false;
+//}} Iruha : 2026-10-21 // June character pilot Phase CH2c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 			default:
 				break;
@@ -34501,6 +34529,171 @@ void CX2GUArme_VioletMage::June_RNSI_A_ROAD_EventProcess()
 	CommonEventProcess();
 }
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2b
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH2c ( JUNE_CHARACTER_AISHA_PHASES.md )
+// June 32cdc6f0: the nearest enemy in the view cone and the SCOPE_ABS_Z..Y angle band, within the range ( 500 in PVP )
+void CX2GUArme_VioletMage::June_AVSI_A_ABM_ENERGY_DRAIN_READY_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.47f ) )
+	{
+		m_iDrainEnergyTarget = -1;
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_ABM_ENERGY_DRAIN ), true );
+		if( NULL != pSkillTemplet )
+		{
+			if( NULL == GetUnit() )
+				return;	/// June leaves without CommonFrameMove
+
+			const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			float fDistance = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+			if( CX2Game::GT_PVP == g_pX2Game->GetGameType() )	/// June 322cc1a0: PVP or PVE
+				fDistance = 500.f;
+
+			const float fMaxDegree = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS_Y, iSkillLevel );
+			const float fMinDegree = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS_Z, iSkillLevel );
+
+			for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+			{
+				CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+				if( false == g_pX2Game->IsValidUnit( pUnit ) )
+					continue;
+				if( GetTeam() == pUnit->GetTeam() )
+					continue;
+				if( CX2GameUnit::GUSI_DIE == pUnit->GetGameUnitState() || pUnit->GetNowHp() <= 0.f )
+					continue;
+				if( false == g_pX2Game->JuneIsUnitInViewCone( this, pUnit, 80.f, 40.f, 45.f ) )
+					continue;
+
+				float fOffset = 0.f;
+				if( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() )
+				{
+					CX2GUNPC* pNpc = static_cast<CX2GUNPC*>( pUnit );
+					if( CX2UnitManager::NCT_BASIC != pNpc->GetNPCTemplet().m_ClassType )
+						continue;
+
+					fOffset = ( pNpc->GetOrgUnitSize().y + pNpc->GetOrgUnitSize().x ) * 0.25f;
+				}
+
+				const D3DXVECTOR3 vDistance = pUnit->GetPos() - GetPos();
+				const D3DXVECTOR3 vDegree = GetDirVecToDegree( vDistance );
+				if( vDegree.z < fMinDegree || fMaxDegree < vDegree.z )
+					continue;
+
+				const float fDistanceUnit = D3DXVec3Length( &vDistance ) - fOffset;
+				if( fDistanceUnit <= fDistance )
+				{
+					fDistance = fDistanceUnit;
+					m_iDrainEnergyTarget = i;
+				}
+			}
+		}
+
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL Energy Drain %s ( target %d )", 0 <= m_iDrainEnergyTarget ? L"SUCCESS" : L"FAIL", m_iDrainEnergyTarget );
+		if( m_iDrainEnergyTarget >= 0 )
+			StateChange( AVSI_A_ABM_ENERGY_DRAIN_SUCCESS, true );
+		else
+			StateChange( AVSI_A_ABM_ENERGY_DRAIN_FAIL, true );
+	}
+	else if( m_iDrainEnergyTarget < 0 && m_pXSkinAnim->IsAnimationEnd() == true )
+	{
+		StateChange( AVSI_A_ABM_ENERGY_DRAIN_FAIL, true );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cb7fa0: CommonEventProcess only ( March's READY ran nothing; an unset callback would skip it too )
+void CX2GUArme_VioletMage::June_AVSI_A_ABM_ENERGY_DRAIN_READY_EventProcess()
+{
+	CommonEventProcess();
+}
+
+// June 32cdcac0: the drain hit; June's memo test is its stub ( no MEMO13 double ), a type 18 memo adds to FORCE_DOWN
+void CX2GUArme_VioletMage::June_AVSI_A_ABM_ENERGY_DRAIN_SUCCESS_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) && m_iDrainEnergyTarget >= 0 )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( m_iDrainEnergyTarget );
+		if( NULL != pUnit && true == g_pX2Game->IsValidUnit( pUnit ) )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH1I_A_ABM_ENERGY_DRAIN ), true );
+			if( NULL != pSkillTemplet )
+			{
+				if( NULL == GetUnit() )
+					return;	/// June leaves without CommonFrameMove
+
+				const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+				const float fDrainRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_INTAKE_ABS, iSkillLevel );
+
+				m_DamageData.optrAttackerGameUnit	= this;
+				m_DamageData.impactPoint			= pUnit->GetPos();
+				m_DamageData.optrDefenderGameUnit	= pUnit;
+				m_DamageData.m_fDrainHpRate			= fDrainRate;
+				m_DamageData.reActResult			= m_DamageData.reActType;
+				m_DamageData.m_fDrainMpByReact		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, iSkillLevel );
+				m_DamageData.m_fDrainMpRate			= fDrainRate;
+
+				const CX2GUUser::JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( static_cast<int>( pSkillTemplet->m_eID ) );
+				if( NULL != pMemo && 18 == pMemo->m_iType )
+					m_DamageData.fForceDownValue += pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];
+
+				pUnit->DamageReact( &m_DamageData );
+
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ABM_EnegryDrain01", this );
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_ABM_EnegryDrain02", pUnit, pUnit );
+			}
+		}
+
+		m_iDrainEnergyTarget = -1;
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cc0d10: March's end and walk cancel, then June's cancel chain; no CommonEventProcess, as in March
+void CX2GUArme_VioletMage::June_AVSI_A_ABM_ENERGY_DRAIN_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else if( CAN_WALK_CANCEL && m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.451f )
+	{
+		StateChange( USI_WALK );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) ||
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		m_InputData.pureZ == true )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		m_InputData.pureX == true )
+	{
+		StateChange( GetComboXStateID() );
+	}
+}
+//}} Iruha : 2026-10-21 // June character pilot Phase CH2c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

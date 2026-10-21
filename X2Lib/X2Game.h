@@ -1401,6 +1401,9 @@ class CX2Game : public CKTDXStage
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 		bool IsFront( CX2GameUnit *pMyUnit, CX2GameUnit *pTargetUnit );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+		bool JuneIsUnitInViewCone( CX2GameUnit* pMyUnit_, CX2GameUnit* pTargetUnit_, float fUpDegree_, float fDownDegree_, float fSideDegree_ );	/// June 322f0e60
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		void						UpdateEveElectraSkillSlotIcon();
 	#ifdef SERV_RENA_NIGHT_WATCHER
 		void						UpdateNightWatcherSkillSlotIcon();

@@ -18900,6 +18900,51 @@ bool CX2Game::IsFront( CX2GameUnit *pMyUnit, CX2GameUnit *pTargetUnit )
 }
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+// June 322f0e60: target in my view cone ( height band on the land offset, side angle to my last touched line ); June ignores this
+bool CX2Game::JuneIsUnitInViewCone( CX2GameUnit* pMyUnit_, CX2GameUnit* pTargetUnit_, float fUpDegree_, float fDownDegree_, float fSideDegree_ )
+{
+	const float fUpTan = tanf( static_cast<float>( fUpDegree_ * 3.1415927410125732 / 180.0 ) );
+	const float fDownTan = -tanf( static_cast<float>( fDownDegree_ * 3.1415927410125732 / 180.0 ) );
+	const float fSideRadian = static_cast<float>( fSideDegree_ * 3.1415927410125732 / 180.0 );
+
+	if( NULL == pMyUnit_ || NULL == pTargetUnit_ )
+		return false;
+
+	const D3DXVECTOR3 vTargetPos = pTargetUnit_->GetPos( false );
+	const D3DXVECTOR3 vMyPos = pMyUnit_->GetPos( false );
+	const D3DXVECTOR3& vMyLandPos = pMyUnit_->GetLandPos( false );
+	const D3DXVECTOR3& vTargetLandPos = pTargetUnit_->GetLandPos( false );
+	const D3DXVECTOR3 vLandOffset( vTargetLandPos.x - vMyLandPos.x, 0.f, vTargetLandPos.z - vMyLandPos.z );
+	const float fLandLengthSq = D3DXVec3LengthSq( &vLandOffset );
+	const float fHeight = vTargetPos.y - vMyPos.y;
+
+	const float fUpLimit = fLandLengthSq * fUpTan;
+	const float fDownLimit = fLandLengthSq * fDownTan;
+	if( fUpLimit < 0.f || fDownLimit > 0.f )
+		return false;
+
+	/// June compares the squared height with the tangent, not its square ( JUNE_BUGS 386 )
+	const float fSignedHeightSq = ( vTargetPos.y < vMyPos.y ? -1.f : 1.f ) * ( fHeight * fHeight );
+	if( fSignedHeightSq > fUpLimit || fSignedHeightSq < fDownLimit )
+		return false;
+
+	const CKTDGLineMap::LineData* pLineData = GetWorld()->GetLineMap()->GetLineData( pMyUnit_->GetLastTouchLineIndex( false ) );
+	if( NULL == pLineData )
+		return false;
+
+	const float fFacing = ( true == pMyUnit_->GetIsRight() ) ? 0.1f : -0.1f;
+	D3DXVECTOR3 vToTarget( vTargetPos.x - vMyPos.x, 0.f, vTargetPos.z - vMyPos.z );
+	D3DXVECTOR3 vFacing( pLineData->dirVector.x * fFacing, 0.f, fFacing * pLineData->dirVector.z );
+	D3DXVec3Normalize( &vToTarget, &vToTarget );
+	D3DXVec3Normalize( &vFacing, &vFacing );
+	const float fAngle = acosf( D3DXVec3Dot( &vFacing, &vToTarget ) );
+	if( -fSideRadian > fAngle || fSideRadian < fAngle )
+		return false;
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 void CX2Game::SendNpcUnitFirstSyncPacketImmediateForce( vector<UidType>& vecNonNpcSyncUserList_, OUT KEGS_UPDATE_NPC_UNIT_BUFF_INFO_NOT& kPacket_ )
 {
 	// 호스트인 경우

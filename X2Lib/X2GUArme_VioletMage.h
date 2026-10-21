@@ -1337,6 +1337,12 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_RNSI_A_ABM_ENERGETIC_ROAD_FrameMove();					/// June 32ce35e0
 		void June_RNSI_A_ROAD_EventProcess();								/// June 32cc5780 / 32cc5840
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2b
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH2c ( JUNE_CHARACTER_AISHA_PHASES.md )
+		void June_AVSI_A_ABM_ENERGY_DRAIN_READY_FrameMove();				/// June 32cdc6f0
+		void June_AVSI_A_ABM_ENERGY_DRAIN_READY_EventProcess();			/// June 32cb7fa0
+		void June_AVSI_A_ABM_ENERGY_DRAIN_SUCCESS_FrameMove();				/// June 32cdcac0
+		void June_AVSI_A_ABM_ENERGY_DRAIN_EventProcess();					/// June 32cc0d10
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH2c
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE

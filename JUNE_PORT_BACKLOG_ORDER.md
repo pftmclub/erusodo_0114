@@ -369,6 +369,8 @@ Everything from Stages 5 and 6, plus:
   and their item-type and unit-class guards from K2 (character-port checklist 7g).
 - Ain's SetStopTime / SetStop2Time overrides (june-effect C3e-3, funcmap `32a38e70 / 32a38ea0 (C3e-3)`): the stop time times Ain's
   `+0x97ac`, then the user's 4-argument setters that C3e-4 ports.
+- Ain's Lied Schwach ( `RNSI_A_ALA_LIED_SCHWACH` 32218 ): its target search `32a71030` ( thunk `32a7a210` ) is Energy Drain's shape and calls the
+  view cone `322f0e60`, which pilot CH2c ported as `CX2Game::JuneIsUnitInViewCone` ( funcmap `322f0e60 (CH2b)` row ); reuse it, do not re-port.
 - **Event scenes and cut-in art** (june-gfx Z, 2026-10-19): 439 of the 493 GFx event scenes are Rose quests and 21 are Ain (`GFXEventSceneInfo.xml`, scene `.swf` loose in `data\eventscene\`, all staged); they play once the quest
   system and these classes exist. Rose / Ain / Lu-Ciel cut-in names are June `.gfx` names in data152 / data195 (staged by june-gfx GA); name them in the class tables when the classes are ported.
 

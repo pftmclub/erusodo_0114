@@ -4750,3 +4750,16 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's; the modifier flag `SERV_IRUHA
 | Energetic Road (22211) | June-only | DamageEffect_A_ABM_EnergyRoad = 9.97 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (and, if wanted, the modifier flag), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### June character pilot: Aisha's Energy Drain (pilot-char-revamp CH2c, 2026-10-21)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH2c - Done"; log lines `[JUNE_CHAR] ARME SKILL registered A_ABM_ENERGY_DRAIN` and `[JUNE_CHAR] ARME SKILL Energy Drain SUCCESS / FAIL ( target N )`.
+- **Client.** `June_SetEquippedSkillFuncHead` registers Energy Drain (22213; 22234 through its upgrade base) with June's READY / SUCCESS / FAIL states; the `June_*` bodies sit in the CH2c block at the end of `X2GUArme_VioletMage.cpp`. `X2Game.cpp` gains `JuneIsUnitInViewCone` (June `322f0e60`), the view cone READY uses in place of March's `IsFront`.
+- **What changes in game.** The target must be inside June's cone (height band, 45 degrees to the side of the facing line) and inside the SCOPE_ABS_Z..Y angle band (June data -45 / 45); the range is 500 in PVP. The MEMO13 double drain is gone (June's memo check is a stub). A type 18 memo adds to the hit's force-down value. JUNE_BUGS 386 (the cone uses tan, not tan^2).
+
+| Skill (June id) | March effect = MAGIC / PHYSIC | June effect = level-1 value x0.01 |
+|---|---|---|
+| Energy Drain (22213 / 22234) | no damage effect; the SUCCESS state's DAMAGE_DATA MAGIC = 0.34 x skill power rate, PVP_RATE 0.6 | DamageEffect_ABM_Enegry_Drain_Hand_Attack ("Energy Ball", PHYSIC) = 6.46, SUCCESS state ("Impact", NUMERICAL_DATA_INDEX 2, PHYSIC) = 5.85 |
+| Energy Drain MP / range (22213, level 1) | SA_MP_GAIN_ON_HIT_REL 15, SA_MP_INTAKE_ABS 0.85, SA_PROJECTILE_RANGE_REL 700 | 20, 2, 700 (22234: 910) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.

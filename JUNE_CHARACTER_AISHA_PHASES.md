@@ -1676,6 +1676,39 @@ Teleport: cast on the review build (14:15 run), behaves as it should (user); it 
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = `X2EffectSet.cpp`, the modifier flag's).
 **No build:** there is no code change, and the deployed exe (md5 `bfab1fd4...`) is the one the user play-tested. The user owes nothing. Next: CH2c (Opus) and CH3a / CH4, which are now unblocked (one at a time, per STATUS).
 
+### CH2c - Done (2026-10-21, Opus 5.5)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`; commit see `git log` "Phase CH2c"). Funcmap rows `Char CH2c` (3 CH2b rows corrected, 2 added), JUNE_BUGS 386, `MODS.md` "Aisha's Energy Drain", checklist note under 7ae, Stage 8 bullet.
+- **`322f0e60` mapped and ported** as `CX2Game::JuneIsUnitInViewCone( my, target, up, down, side )` (`X2Game.cpp`, after `IsFront`; June never reads `this`). It has three tests:
+  - **Height band:** ( dy^2, signed ) must lie in [ lenSq * -tan( down ), lenSq * tan( up ) ]. lenSq is the GetLandPos x / z offset (vslot `0x134`); dy comes from GetPos (vslot `0x138`).
+  - **Line:** GetLastTouchLineIndex( false ) must give a valid line.
+  - **Side angle:** acos( dot( normalized facing line dir, normalized target x / z offset ) ) must lie in [ -side, side ]. The facing is the line's dirVector times `0.1 / -0.1` by GetIsRight.
+  - The constants come from the listing, not the decompile: pi, 180, -1.0 and ±0.1. `32fe2c3c` = `_CItan` (import table); `32fe2c94` = `_CIacos`, whose bound IAT value is `msvcr100 +0x40`, the same shift as `_CIsqrt` `32fe2370`.
+- **READY `32cdc6f0`** (`June_AVSI_A_ABM_ENERGY_DRAIN_READY_FrameMove`) is March's search with June's changes:
+  - range = SA 0x1f, or 500 in PVP;
+  - filter order: valid, team, `GUSI_DIE`, HP <= 0, cone ( 80, 40, 45 ), then the NPC basic class with ( h + w ) * 0.25 offset;
+  - `GetDirVecToDegree( d ).z` must lie in [ SA_SCOPE_ABS_Z, SA_SCOPE_ABS_Y ] (June data -45 / 45; `@32cdc9cd-32cdc9ee`, read in the listing);
+  - nearest by `<=`, then SUCCESS / FAIL.
+  - Ours, not June's: one line per cast, `[JUNE_CHAR] ARME SKILL Energy Drain SUCCESS|FAIL ( target N )`.
+- **SUCCESS `32cdcac0`** is March's drain with two June changes:
+  - The DamageData writes are mapped by value source; the drain rates are SA 0x2c and SA 0x1c.
+  - `31fca9e0( 602013 )` is June's GetEqippedSkillMemo stub, so there is no MEMO13 double and no random draw.
+  - A type 0x12 memo adds v[0] to `fForceDownValue`. That is DamageData `+0x3f0`, key `FORCE_DOWN`, XOR-decoded at `32632390 @3263892e`.
+  - The damage itself comes from the state's Lua DAMAGE_DATA (June: numerical index 2, 5.85).
+- **EventProcess `32cc0d10`** (SUCCESS and FAIL) is March's end and walk cancel plus June's cancel chain (skill, bwalk, walk, dash, Z / X), with no CommonEventProcess.
+- **READY EventProcess `32cb7fa0` is a CommonEventProcess forwarder.** Correction to CH2b's "left empty": March's dispatcher (`X2GUUser.cpp` OnEventProcess) has no fallback for an unset EventProcess (only StateStart has one), so it is registered as `June_..._READY_EventProcess`.
+- **Registration** is a copy of `32cede00 @32cefeba-32ceffa5`: READY on the slot states (the hyper copies both callbacks), SUCCESS `0xcf` with both callbacks, FAIL `0xd0` with the EventProcess only. The upgrade id 22234 reaches the 22213 case through `JuneSkillIDByUpgrade`.
+- **Kept as June has it:** JUNE_BUGS 386, the cone compares dy^2 with tan, not tan^2.
+- **Branches found:** `322f0e60` has two other callers.
+  - `32ce08ad` sits inside `32ce0650`, which CH0 marked dead.
+  - `32a71273` sits inside `32a71030`, Ain's `RNSI_A_ALA_LIED_SCHWACH` (32218), an Energy-Drain-shaped search reached through thunk `32a7a210`. It goes to Stage 8 (a bullet in `JUNE_PORT_BACKLOG_ORDER.md`) and reuses the cone.
+- **S3 census:** the generator is not in the repo (only `s3_reform_ids_no_state.tsv`). Its `no_state` verdict means the class file has no case for the id. 22213 now has its case, and 22234 maps onto it, so Aisha has 0 `no_state` rows for Energy Drain.
+
+**Hygiene.** `flagcheck.py JUNE_CHAR_ARME_SKILL --worktree --files <4 code files>`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,681,920 B, dated 2026-10-21 15:28:33, md5 ff50853dbba2f63ee578db8c27767246, equal to X2/US_SERVICE/x2.exe (2026-10-21 15:28:25); built at main 41465bd9 + 4 uncommitted code file(s).` The log strings and `AVSI_A_ABM_ENERGY_DRAIN_FAIL` are in the deployed exe.
+**Save** (backup `data\db_backup`, tag `ch2c_pre`): unit 47 `ArmeBM` (Battle Magician, level 60) now has Energy Drain (22213, level 1) in slot 6 (B bar, second key) beside CH2b's skills.
+**Play-test:** pending (hand-off in the session; log tag `[JUNE_CHAR]`, `--grep "Energy Drain"`).
+
 ## Phase CH3 - Skills: second jobs (104, 105, 113) and hyper actives
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flag as CH2 (or CH0's split). Sub-tag `SKILL`.
