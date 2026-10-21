@@ -17526,6 +17526,10 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					ASSERT( CX2Unit::UT_ARME == pUser->GetUnit()->GetType() );
 					if( CX2Unit::UT_ARME == pUser->GetUnit()->GetType() )
 					{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+						/// June 3230c1a0 case 0x443: the power rate and the life time follow June's skill 22027
+						static_cast<CX2GUArme_VioletMage*>( pUser )->June_SetDistortionSummonInfo( pNPC );
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 						const CX2SkillTree::SkillTemplet* pSkillTemplet = pUser->GetEquippedActiveSkillTemplet( CX2SkillTree::SI_A_ADW_DISTORTION );
 						if( NULL != pSkillTemplet )
 						{
@@ -17565,6 +17569,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 		#endif // UPGRADE_SKILL_SYSTEM_2013
 
 						}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 					}
 					else
 					{

@@ -3081,6 +3081,10 @@ public:
 		/// June CX2GUUser vslot 0x758 (3202ac40): the skill-memo DamageData switch. Called on the attacker by the user layer of
 		/// SetDamageExceptionProcess, and by the NPC override on the NPC's owner.
 		virtual void				JuneApplySkillMemoToDamageData( CX2DamageManager::DamageData* pDamageData_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+		/// June 32089ff0 on one buff factor ( CH3b, Aisha's Impact Hammer ): the time finalizer x fTime_, then the behaviors x fValue_
+		void						JuneRescaleBuffFactorByMemoRate( CX2BuffFactor& refFactor_, const float fTime_, const float fValue_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		/// June CX2GUUser vslot 0x780 (empty 33093ad0 in the user vtable): the per-class hook ( DD, fPowerRate ), the last call of the user
 		/// layer. Only Ara overrides it (32bca010, the Ara port).
 		virtual void				JuneDamageExceptionClassHook( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate_ ) {}

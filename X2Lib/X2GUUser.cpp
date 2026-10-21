@@ -6120,6 +6120,14 @@ static void JuneMemoRescaleDamageDataBuffFactors( CX2DamageManager::DamageData* 
 		JuneMemoRescaleBehaviors( *pDamageData_->m_vecBuffFactorPtr[i], fValue_ );
 	}
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+/// June 32089ff0 on one factor ( CH3b, Aisha's Impact Hammer ): the time finalizer x fTime_, then the behaviors x fValue_
+void CX2GUUser::JuneRescaleBuffFactorByMemoRate( CX2BuffFactor& refFactor_, const float fTime_, const float fValue_ )
+{
+	JuneMemoRescaleTimeFinalizer( refFactor_, fTime_ );
+	JuneMemoRescaleBehaviors( refFactor_, fValue_ );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 

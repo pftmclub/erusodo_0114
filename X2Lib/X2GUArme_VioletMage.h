@@ -1368,6 +1368,20 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_A_AEM_FIRE_RING_FrameMove();						/// June 32ce3880
 		void June_AVSI_A_AVP_DARK_RING_FrameMove();						/// June 32ce3b80
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH3a2
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH3b ( JUNE_CHARACTER_AISHA_PHASES.md )
+		void June_AVSI_SI_A_ADW_DISTORTION_Init();							/// June 32cb7fd0
+		void June_AVSI_SI_A_ADW_DISTORTION_FrameMove();						/// June 32cdda50
+		void June_AVSI_A_ADW_Worm_Hole_FrameMove();							/// June 32ce0f50
+		void June_AVSI_SI_SA_ADW_MORNING_STAR_StartFuture();				/// June 32cc70b0
+		void June_AVSI_SI_SA_ADW_MORNING_STAR_FrameMove();					/// June 32ced8b0
+		void June_PushBuffFactorWithMemoRate( CX2DamageManager::DamageData& damageData_, CX2BuffFactorPtr ptrBuffFactor_, const int iLevel_, const int iSkillID_ );	/// June 322b5320 with the Rate of 31fdbfc0
+		void June_AVSI_SA_ADW_AIR_STUNNER_EventProcess();					/// June 32cc5aa0
+		void June_AVSI_SA_ADW_AIR_STUNNER_EndFuture();						/// June 32cb8eb0
+		void June_AVSI_A_ADW_ENERGY_RING_FrameMove();						/// June 32ce3e80
+	public:
+		void June_SetDistortionSummonInfo( CX2GUNPC* pNPC_ );				/// June 3230c1a0 case 0x443
+	protected:
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH3b
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE

@@ -4806,6 +4806,29 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_P
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (the three skills fall back to March's cases with CH3a's), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
 
+### June character pilot: Aisha's Dimension Witch skills and hyper actives (pilot-char-revamp CH3b, 2026-10-21)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH3b - Done"; log lines `[JUNE_CHAR] ARME SKILL registered ...`.
+- **Client.** `June_SetEquippedSkillFuncHead` gets June's cases for Energy Spurt (22025), Distortion (22027), Screw Driver (22028), Impact Hammer (22029, state `AVSI_SI_SA_ADW_MORNING_STAR`), Air Stunner (22045 + END state 248), Crazy Worm (22046), Impact Zone (22070), Worm Hole (22214) and Energy Ring (22226), with their upgrade ids. The hyper actives 22600-22605 were registered earlier (CH1); their Inits `32cb8650` / `32cb89b0` are March's (preload lists equal).
+- **What changes in game.** Energy Spurt, Screw Driver, Impact Zone and Crazy Worm have no FrameMove: cut-in, world colour, effect sets and sounds come from June's `Arme_VioletMage.lua`. Distortion's summon is requested by the local unit with no self-destruct call; its power rate follows the equipped skill 22027 and it ends after SA_EFFECTIVE_TIME (`CX2Game::SetUserSummonedNPCInfo` Distortion case, `June_SetDistortionSummonInfo`). Impact Hammer's hit buff factor takes the skill's memo 0xf / 0x10 rate (new `CX2GUUser::JuneRescaleBuffFactorByMemoRate`). Air Stunner enters its END state when the animation ends on the ground. Energy Ring is Fire Ring's body with `EffectSet_A_ADW_Energy_Ring`.
+
+| Skill (June id) | March damage | June damage = level-1 value x0.01 |
+|---|---|---|
+| Energy Spurt (22025) | June-only | DamageEffect_SA_ADW_Energy_Spurt = 48.56 |
+| Screw Driver (22028) | DAMAGE_EFFECT_ADW_SCREWDRIVER_Main / FINISH / Sub = PHYSIC 17.64 / 0.61 / 0.61 | Main = 24.69, FINISH / Sub = 1.78 |
+| Impact Hammer (22029) | DAMAGE_EFFECT_ADW_MORNING_STAR_HIT = PHYSIC 11.02 | same name = 12.46 |
+| Air Stunner (22045) | June-only | DamageEffect_SA_ADW_Air_Stunner_Fire = 20.52 |
+| Crazy Worm (22046) | June-only | BlackHole = 3.98, BlackHole_Explosion = 7.2 |
+| Impact Zone (22070) | June-only | DamageEffect_SA_ADW_IMPACT_ZONE_Projectile = 8.13 |
+| Worm Hole (22214) | DamageEffect_Worm_Hole = MAGIC 0.98 | same name = 2.2 |
+| Energy Ring (22226) | June-only | DamageEffect_A_AEM_EnergyRing_Explosion = 18.98 |
+| Distortion (22027) | NPC summon | NPC summon (no skill damage effect) |
+| Elemental Storm (22600) | June-only | ICE 9.51, LIGHTNING 7.35, Gust_Storm 13.84 |
+| Abyss Angor (22601) | June-only | ABYSS_ANGOR_BEAM = 10.99 |
+| Fate Space (22602) | June-only | Attack01 / 02 / 03 = 44.4 / 59.2 / 40.96 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (the skills fall back to March's cases with CH3a's), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
 ### June DoAimingTarget reads the aiming unit's own line (JUNE_AIMING_TARGET_OWN_LINE, 2026-10-21)
 
 Flag `SERV_IRUHADEV_JUNE_AIMING_TARGET_OWN_LINE` (`KTDXLIB/Always.h`). June `31ff5440` = March `CX2GUUser::DoAimingTarget` except one line: the in-front test takes the line direction of the aiming unit's own last-touch line (`X2GUUser.cpp`), March the target's.
