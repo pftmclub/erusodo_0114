@@ -1811,6 +1811,7 @@ Fix: `flagcheck.py JUNE_PARTICLE_TRACE_INHERIT --worktree --files <4 files>`: `f
 **In game.** No kom change (June's `Arme_VioletMage.lua`, DamageEffect and EffectSet are live). Logs: `[JUNE_CHAR] ARME SKILL registered SA_AEM_LIGHTNING_SHOWER / A_AEM_FIRE_RING / A_AVP_DARK_RING`.
 **Save for the play-test** (backups in `data\db_backup`): unit 51 `ArmeEM` (level 99): Fire Ring 22224 in slot 3 (Flame Wave upgrade 22218 unslotted), Lightning Shower 22012 in slot 8; unit 52 `ArmeVP` raised to level 80 (Dark Ring needs 80): Dark Ring 22225 in slot 3 (Dark Burst 22021 unslotted).
 **Play-test hand-off:** see the reply that follows this commit; log tag `[JUNE_CHAR]` / `ARME SKILL`.
+**Play-test PASSED (user, 2026-10-21):** Lightning Shower, Fire Ring and Dark Ring all cast. Logs: `ARME SKILL registered SA_AEM_LIGHTNING_SHOWER ( skill 22012, slot 3 B )`, `A_AEM_FIRE_RING ( skill 22224, slot 0 B )`, `A_AVP_DARK_RING ( skill 22225, slot 3 A )`; ErrorLog has no missing particle / mesh / texture line for them (the `JUNE_FX MP_CRASH Mesh_Lightning_Crash` lines are the bolts reaching the ground). Side note, left as is: a few `ErrorEnum(381) result : 47, File : LIGHTNING.OGG` lines from `CKTDXDeviceSound::Update3DPosition` (a 3D update on a finished sound).
 
 ## Phase CH4 - Passives and class mechanics
 
