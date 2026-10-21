@@ -4871,3 +4871,8 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (needs LIVE and the MP text flag) a
 - **Engine.** `CX2GameUnit::JuneUpNowMpWithText` / `JuneFrameMoveMpChangeText` (June `32278070`, `3229ecc0`): queued MP changes show as "MP +n" / "MP -n" every 0.2 s, ahead of the HP queue.
 - **Save.** Test rows: unit 54 `ArmeVP2` + Dark Deal 22415, unit 53 `ArmeDW` + Advanced Teleportation 22411 (both level 1); backup `db_backup/els_db_20261022_060831_pre_sql.sql`. No schema change.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (then, if wanted, `SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### Dev convenience: free skills for a dev account in June-ported classes (JUNE_DEV_UNLIMITED_SKILL, 2026-10-22)
+
+Flag `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` in `KTDXLIB/Always.h`. Not June: `CX2GUUser::JuneIsDevUnlimitedSkillUse()` is March's in-house skip of the skill cool-time / MP checks (`TOGGLE_UNLIMITED_SKILL_USE`, else `#ifndef _SERVICE_` with `XUAL_DEV`), and a ported class's June skill check (Aisha's `June_SpecialAttackLookup`) skips its block when it is true. Standing rule for every class port (`JUNE_PORT_BACKLOG_ORDER.md` "Standing rules").
+- **Turn off:** define `_SERVICE_` (turns March's off too), or comment out the flag. Then `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.

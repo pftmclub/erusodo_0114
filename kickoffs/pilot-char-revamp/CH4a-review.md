@@ -33,6 +33,9 @@ Review CH4a's commit against June, in the listing, not only the decompile:
 4. Is anything March's `InitPassiveSkillState` set, and June's does not, still read by live code (`m_pStrongMindData`, `m_bIceBall`,
    `m_fShadowOfDisasterRate`, Sprinter's walk / dash multipliers)?
 
+5. **`SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL`** (dev convenience, not June; standing rule): `JuneIsDevUnlimitedSkillUse()` repeats March's gate in
+   `SpecialAttackNoStageChange` (`X2GUArme_VioletMage.cpp` ~5192) exactly, and the June lookup skips the whole block March skips.
+
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE --range <CH4a commit>^..<CH4a commit>` and the same for
 `SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT`; paste the `files:` / `in this flag's files:` / `RESULT:` lines. A FAIL is a finding.
 

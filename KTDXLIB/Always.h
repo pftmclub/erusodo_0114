@@ -9768,3 +9768,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE and SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: Dev convenience, not June - a ported class's June skill check skips cool time and MP for a dev account, under March's own macros ( _SERVICE_ / TOGGLE_UNLIMITED_SKILL_USE ). Revert: undefine the flag ( JUNE_DEV_UNLIMITED_SKILL ).
+#define SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+//////////////////////////////////////////////////////////////////////////

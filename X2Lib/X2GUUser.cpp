@@ -25618,6 +25618,23 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+// Not June: March's per-class SpecialAttackNoStageChange gate, same macros, so _SERVICE_ turns both off
+bool CX2GUUser::JuneIsDevUnlimitedSkillUse() const
+{
+	bool bUnlimited = false;
+#ifdef TOGGLE_UNLIMITED_SKILL_USE
+#if defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ )
+	bUnlimited = ( true == g_pMain->IsMyAuthLevelHigherThan( CX2User::XUAL_OPERATOR ) && true == g_pMain->IsUnlimitedSkillUse() );
+#endif //defined( _IN_HOUSE_ ) || defined( _OPEN_TEST_ )
+#else //TOGGLE_UNLIMITED_SKILL_USE
+#ifndef _SERVICE_
+	bUnlimited = g_pMain->IsMyAuthLevelHigherThan( CX2User::XUAL_DEV );
+#endif _SERVICE_
+#endif //TOGGLE_UNLIMITED_SKILL_USE
+	return bUnlimited;
+}
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 // June 31fcadd0: the pressed skill slot in June's index space ( A 0-3, F 4, B 5-8, T 9 )
 bool CX2GUUser::JuneCommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUserSkillTree_, OUT const CX2UserSkillTree::SkillSlotData* & pSkillSlotDataPressed_, OUT int& iSkillSlotIndexPressed_ )

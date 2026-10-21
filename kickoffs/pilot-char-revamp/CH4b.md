@@ -31,3 +31,9 @@ grep -a "^322752b0\|^31fe19d0\|^32ce9f90\|^32cecd70" june2017_re/funcmap.tsv
    (memory `hand-char-port-material-to-char-ports`).
 
 Delegate the mechanical reads, builds and log reads to subagents. Edit CP949 files with `bytepatch.py` only.
+
+## From the CH4a play-test (2026-10-22)
+
+22416 is a transcendence passive (`SPRT_HYPER_CLASS`), and its gate is `31fceab0`, which returns 0 for an untranscended unit, as Dark Deal did in
+CH4a's log. No save can reach the callback before Stage 6. Prove the engine lists by their run sites (a log line at each run that lists the
+entries), and leave the 22416 in-game check to Stage 6. Say so in the Done note rather than faking a transcended unit.

@@ -30307,7 +30307,11 @@ bool CX2GUArme_VioletMage::June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_
 	}
 
 	const bool bJuneSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if( false == bJuneSkillFree && 3 != iKind && false == JuneIsDevUnlimitedSkillUse() )
+#else SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
 	if( false == bJuneSkillFree && 3 != iKind )
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
 	{
 		float fCoolTimeLeft = pSkillSlotData->m_fCoolTimeLeft;
 		const float fActualCoolTime = GetActualCoolTime( pSkillTemplet, iSkillTempletLevel );
