@@ -69,6 +69,10 @@ public:
 		ASUT_ANYTIME,		// 아무때나 쓸 수 있는 필살기
 		ASUT_AIR_ONLY,		// 공중에서만 쓸 수 있는 필살기, skip_point에서만
 		ASUT_ANYTIME_EXCEPT_AIR, // 공중을 제외한 어디서든(피격 시 포함) 사용 할 수 있는 스킬
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+		ASUT_DAMAGE,				/// June Enum.lua 6
+		ASUT_DAMAGE_EXCEPT_AIR,		/// June Enum.lua 7: damage states, on the ground only ( 31fca9f0 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 	};
 
 

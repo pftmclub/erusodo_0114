@@ -2509,6 +2509,14 @@ public:
 		void JuneDashJumpFrameMoveFuture();	/// June 31fd2520
 		void JuneDashJumpEndFuture();		/// June 31fc7f80
 		void JuneDamageBigStart();			/// June 31fc7fd0
+		void JuneDamageSmallEventProcess();	/// June 31fcbed0
+		void JuneDamageBigEventProcess();	/// June 31fcbf80
+		void JuneStartStateStart();			/// June 31ffbd70
+		void JuneStartEventProcess();		/// June 3201b390
+		void JuneWinStateStart();			/// June 320004b0
+		void JuneLoseStateStart();			/// June 320007e0
+		void JuneGenericActiveSkillEventProcess();			/// June 31fcc9d0
+		void JuneGenericSpecialActiveSkillEventProcess();	/// June 31fcc740
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
 		/// C9h-4h: June's "Heavenly Combat Support Kit" event states ( USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT ), registered for every class ( June 3202b110 ).

@@ -6832,6 +6832,25 @@ bool CX2GUUser::CheckSkillUseCondition( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION
 				return false;
 			}
 		} break;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+
+	case CX2SkillTree::ASUT_DAMAGE:
+	case CX2SkillTree::ASUT_DAMAGE_EXCEPT_AIR:	/// June 31fca9f0
+		{
+			if( CX2SkillTree::ASUT_ANYTIME == eActiveSkillUseConditionSkillTemplet || CX2SkillTree::ASUT_AIR_ONLY == eActiveSkillUseConditionSkillTemplet )
+				return false;
+
+			if( CX2SkillTree::ASUT_DAMAGE_EXCEPT_AIR == eActiveSkillUseConditionSkillTemplet )
+			{
+				if( false == IsOnSomethingFuture() )
+					return false;
+			}
+			else if( eActiveSkillUseCondition != eActiveSkillUseConditionSkillTemplet )
+			{
+				return false;
+			}
+		} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 	case CX2SkillTree::ASUT_GROUND: 
 		{
@@ -31630,6 +31649,230 @@ void CX2GUUser::JuneDamageBigStart()
 	CreateStepDust();
 }
 //}} Iruha : 2026-10-21 // June character pilot Phase CH1j
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH1k
+namespace
+{
+	const int JUNE_DI_EVENT_2017_TREASURE = 41470;	/// June DungeonEnum.lua; March has no such dungeon
+	const int JUNE_CODE_EVENT_START_SUMMON = 2143;	/// June 3201b390: code event read by g_pInstanceData; no June name
+
+	/// June CX2State +0x218 ( result-UI time, set by 31ef7be0 ); March has no result-UI mode, so June's absent value 0
+	float JuneGetStateResultUITime()
+	{
+		return 0.0f;
+	}
+}
+
+// June 31fcbed0
+void CX2GUUser::JuneDamageSmallEventProcess()
+{
+	if( m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y <= 200.0f )
+	{
+		if( false == SpecialAttackEventProcess( CX2SkillTree::ASUT_DAMAGE_EXCEPT_AIR ) )
+		{
+			if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+			{
+				if( false == IsOnSomethingFuture() )
+				{
+					StateChange( USI_DAMAGE_AIR_SMALL, false );
+					m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+				}
+				else
+				{
+					StateChange( USI_WAIT, false );
+				}
+			}
+		}
+	}
+	else
+	{
+		StateChange( USI_DAMAGE_AIR_SMALL, false );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+}
+
+// June 31fcbf80
+void CX2GUUser::JuneDamageBigEventProcess()
+{
+	if( m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y <= 200.0f )
+	{
+		if( false == SpecialAttackEventProcess( CX2SkillTree::ASUT_DAMAGE_EXCEPT_AIR ) )
+		{
+			if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+			{
+				if( false == IsOnSomethingFuture() )
+				{
+					StateChange( USI_DAMAGE_AIR_SMALL, false );
+					m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+				}
+				else
+				{
+					StateChange( USI_WAIT, false );
+				}
+			}
+			ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC
+			{
+				if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.93f )
+					StateChange( USI_WAIT, false );
+			}
+		}
+	}
+	else
+	{
+		StateChange( USI_DAMAGE_AIR_SMALL, false );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+}
+
+// June 31ffbd70
+void CX2GUUser::JuneStartStateStart()
+{
+	CommonStateStart();
+	/// June's PvP best-of-N round particles follow here; no PvP offline
+}
+
+// June 3201b390
+void CX2GUUser::JuneStartEventProcess()
+{
+	CommonEventProcess();
+
+#ifdef SERV_CODE_EVENT
+	if( NULL != g_pInstanceData && true == g_pInstanceData->IsEnableCode( JUNE_CODE_EVENT_START_SUMMON ) )
+	{
+		if( NULL != g_pX2Game && true == g_pX2Game->IsHost() && 1.0f < m_FrameDataFuture.unitCondition.fStateTime )
+		{
+			static bool s_bLogged = false;	/// June 3200ac50 ( event NPC summon ) is Stage 19's
+			if( false == s_bLogged )
+			{
+				s_bLogged = true;
+				CX2OfflineLog::Server( L"[JUNE_CHAR] START code event %d is on, but its summon 3200ac50 is not ported ( Stage 19 )", JUNE_CODE_EVENT_START_SUMMON );
+			}
+		}
+	}
+#endif SERV_CODE_EVENT
+
+	if( 4.5f <= m_FrameDataFuture.unitCondition.fStateTime )
+		StateChange( USI_WAIT, false );
+}
+
+// June 320004b0
+void CX2GUUser::JuneWinStateStart()
+{
+	CommonStateStart();
+
+#ifdef SERV_PET_SYSTEM
+	if( NULL != g_pX2Game && true == g_pX2Game->IsHost() )
+	{
+		CX2PET* pPet = g_pData->GetPetManager()->GetPet( GetUnitUID() );
+		if( NULL != pPet )
+		{
+			if( 0 == rand() % 2 )
+				pPet->StateChange( pPet->m_Happy1State, true, true );
+			else
+				pPet->StateChange( pPet->m_Happy2State, true, true );
+		}
+	}
+#endif SERV_PET_SYSTEM
+
+	m_bDeleteEffectSetOnStateEnd = true;
+	if( NULL != g_pMain && NULL != g_pMain->GetNowState() )
+		SetForceInvincible( JuneGetStateResultUITime() + 5.0f );
+
+	if( NULL != g_pX2Game && JUNE_DI_EVENT_2017_TREASURE == g_pX2Game->GetDungeonID() && NULL != g_pData->GetGameMajorParticle() )
+	{
+		g_pData->GetGameMajorParticle()->CreateSequence( NULL, L"Clear_C", 0, 0, 0, 1000, 1000, 1, 1 );
+		g_pData->GetGameMajorParticle()->CreateSequence( NULL, L"Clear_L", 0, 0, 0, 1000, 1000, 1, 1 );
+		g_pData->GetGameMajorParticle()->CreateSequence( NULL, L"Clear_E", 0, 0, 0, 1000, 1000, 1, 1 );
+		g_pData->GetGameMajorParticle()->CreateSequence( NULL, L"Clear_A", 0, 0, 0, 1000, 1000, 1, 1 );
+		g_pData->GetGameMajorParticle()->CreateSequence( NULL, L"Clear_R", 0, 0, 0, 1000, 1000, 1, 1 );
+	}
+}
+
+// June 320007e0
+void CX2GUUser::JuneLoseStateStart()
+{
+	CommonStateStart();
+
+#ifdef SERV_PET_SYSTEM
+	if( NULL != g_pX2Game && true == g_pX2Game->IsHost() )
+	{
+		CX2PET* pPet = g_pData->GetPetManager()->GetPet( GetUnitUID() );
+		if( NULL != pPet )
+			pPet->StateChange( pPet->m_SadState, true, true );
+	}
+#endif SERV_PET_SYSTEM
+
+	m_bDeleteEffectSetOnStateEnd = true;
+	if( NULL != g_pMain && NULL != g_pMain->GetNowState() )
+		SetForceInvincible( JuneGetStateResultUITime() + 5.0f );
+}
+
+/// June 31fcc740 / 31fcc9d0: the cancel chain after March's body ( the C9h-4c CommonEventProcess block's order )
+#define JUNE_USER_SKILL_STATE_CANCEL_CHAIN \
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter ) \
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) ) \
+	{ \
+		StateChange( USI_WAIT, false ); \
+	} \
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) ) \
+	{ \
+		StateChangeDashIfPossible(); \
+	} \
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) || \
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) ) \
+	{ \
+		StateChange( USI_WAIT, false ); \
+	}
+
+// June 31fcc9d0
+void CX2GUUser::JuneGenericActiveSkillEventProcess()
+{
+	float fSkipTime = -1.f;
+	LUA_GET_VALUE( m_LuaManager, "SKIP_TIME",	fSkipTime,		-1.f );
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN, false );
+		else
+			StateChange( m_CommonState.m_Wait, false );
+	}
+	ELSE_IF_ARROW_ZXASDC_PRESSED_AFTER( fSkipTime )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN, false );
+		else
+			StateChange( m_CommonState.m_Wait, false );
+	}
+	JUNE_USER_SKILL_STATE_CANCEL_CHAIN
+
+	CommonEventProcess();
+}
+
+// June 31fcc740
+void CX2GUUser::JuneGenericSpecialActiveSkillEventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN, false );
+		else
+			StateChange( m_CommonState.m_Wait, false );
+	}
+	JUNE_USER_SKILL_STATE_CANCEL_CHAIN
+
+	CommonEventProcess();
+}
+#undef JUNE_USER_SKILL_STATE_CANCEL_CHAIN
+//}} Iruha : 2026-10-21 // June character pilot Phase CH1k
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 /** @function : DamageAirFlyEventProcess
 	@brief : Fly Type의 공격을 받은 상태의 EventProcess

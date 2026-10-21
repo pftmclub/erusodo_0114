@@ -1290,6 +1290,48 @@ CreateNotEnoughMPEffect. All agree with the transcription.
 `RESULT: PASS`. The 5 deletions are the stand-in line and four "CH1j2 transcribes" comments. `ch1j_review_regcheck.py`: none of the five is MISSING (35 left, all routed).
 No build: nothing changed in code. `CH1k.md` checked: it still matches (depends on this review; scope unchanged). No drift found.
 
+### CH1k - Done (2026-10-21, Opus)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE`; calls into the new code sit behind the undefined `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE`). Funcmap rows `Char CH1k`.
+- **Six CX2GUUser base callbacks**, registered in `June_InitState` in place of CH1j's stand-ins:
+  - `JuneDamageSmallEventProcess` / `JuneDamageBigEventProcess` (`31fcbed0` / `31fcbf80`): Elsword's March body, plus a skill use with condition 7 before the animation-end test.
+  - `JuneStartStateStart` / `JuneStartEventProcess` (`31ffbd70` / `3201b390`).
+  - `JuneWinStateStart` / `JuneLoseStateStart` (`320004b0` / `320007e0`): March's pet reactions, then `m_bDeleteEffectSetOnStateEnd` = true and `SetForceInvincible( state +0x218 + 5 )`. In `DI_EVENT_2017_TREASURE` (41470), WIN also plays the five `Clear_*` sequences on the game major particle system.
+- **Condition 7.** June's `CheckSkillUseCondition` (`31fca9f0`) has `ASUT_DAMAGE` (6) and `ASUT_DAMAGE_EXCEPT_AIR` (7, damage states, ground only).
+  - Both are added to March's enum, with June's case in the live (`ADD_MEMO_1ST_CLASS`) overload.
+  - Cases 1-3 are unchanged, and no caller passes 6 / 7 until LIVE.
+- **`June_SetEquippedSkillFuncHead`** (`32cede00` up to its skill switch). Under LIVE, March's `SetEquippedSkillFuncBySkillSlotIndex` calls it in place of March's head and type switch (`#else` keeps March's).
+  - What the head does: bounds 0..4, then March's four slot arrays (the same as June's tables `3351b05c` / `3351b170` / `3351b184` / `3351b198`).
+  - The transcendence branch (`GetJuneTranscendenceMemoSkillID`, only 22217 registers; inert until Stage 6).
+  - Type cases: ST_BUFF, ST_RELATIONSHIP for 900, and the active types on `32207210( id )`. In those, 22600-22605 are the three hyper actives and `> 22600` is Power Attack. Anything else returns to March's skill cases (keyed on `eSkillID_` until CH2a; June keys on the base id).
+  - The skill switch's `default:` takes June's Power Attack members under LIVE.
+  - Dropped: `31fd2af0` (7i, the engine's), and `+0x11 = 1`. `+0x11` is June's slot-state byte (user slot 330, `3208e430`), which `IsJuneSkillSlotState` answers. Checklist 7i is updated.
+- **`JuneGenericActiveSkillEventProcess` / `JuneGenericSpecialActiveSkillEventProcess`** (`31fcc9d0` / `31fcc740`), which the head registers. Each is March's body plus June's cancel chain: SKILL_CANCEL_AFTER, then WALK / DASH / BWALK, each on ground.
+- **The 19 sub-state members** of the class map's CH1 "helpers" (inert; CH2a-CH3b register them with their skill cases):
+  - the Meteor / Lightning Shower loop and end pairs (`32cc6fb0` / `32cbfb70`, `32cc7200` / `32cc2110`); the ends carry June's cancel chain;
+  - the Guillotine Press loop `32cc10f0`, Circle Flame `32cbeee0` / `32cbef40`, and the Ruin loop `32cc5990` (March has no body; `+0x97a4..+0x97b4`);
+  - Hell Drop: the control FIRE EventProcess `32cb7ce0` and the ten control StateStarts `32cc74a0`..`32cc79b0`.
+  - The Hell Drop starts drop March's memo test, because June's `GetEqippedSkillMemo` (`31fca9e0`) always returns false.
+  - `32cf1b10` is std::deque library code (n/a).
+- **CH1j fix:** `InitState`'s LIVE branch had no closing brace. A `cl /Zs` probe with LIVE defined found it, and one inserted `}` fixes it.
+
+**Decisions (inert; say if you want otherwise):**
+1. CX2State `+0x218` (June's result-UI time, `31ef7be0`, not in March) reads as its absent value 0, so WIN / LOSE invincibility lasts 5 s.
+2. START's PvP best-of-N round particles are not ported (no PvP offline).
+3. June InputData `+0x8726` (a key March lacks) is `false` until CH1m names it.
+
+**Routed:** `3200ac50` (code event 2143 START summon) gets a Stage 19 bullet. The state batch `3207c1a0` / `31fdf970`, which also wraps this function, goes to CH1l, as does the virtual `COMMON_BUFF_FrameMove`. `+0x8726` goes to CH1m. Kickoff notes are added.
+
+**Hygiene.** `cl /Zs` of both TUs passes with and without LIVE (flags: AWAKE_LOCK, SKILL_CANCEL_BY_HYPER_MODE, FINALITY, RELATIONSHIP, UPGRADE_2013, MEMO, CODE_EVENT, PET, SLOT_10 all defined).
+`flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files <5 files>`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- OTHER is the LIVE gate: the head wrap, the Power Attack default and the InitState brace.
+- The 8 deleted lines are CH1j's stand-in registrations inside `June_InitState`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,680,896 B, dated 2026-10-21 07:41:01, md5 ea0b3d7cd8a18f1d99625476ba1ddad2, equal to X2/US_SERVICE/x2.exe (2026-10-21 07:40:54); built at main 1587f86f + 5 uncommitted code file(s).`
+
+**In game:** nothing changes (LIVE is undefined). Next: `/x2-phase pilot-char-revamp CH1k review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

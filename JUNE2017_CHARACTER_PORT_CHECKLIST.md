@@ -414,7 +414,7 @@ drops the call (a second one would only re-read the same delegates). A class por
 
 | June | Class | What the port must bring |
 |---|---|---|
-| `32d223e0` Elsword, `32cede00` Arme, `32cb06d0` Lire, `32c641a0` Raven, `329c8a00` Eve, `32c1f530` Chung, `32bd09d0` Ara, `32b8c470` Elesis, `32a28e00` Add; June-only `32b46580` Luciel, `32ad9b60` Rose, `32a71eb0` Ain | all 12 | Nothing for the snapshot. The same functions set state byte `+0x11` = 1 on the normal and hyper entries (`+0x10` = `m_bHyperState`). `+0x11` is an unidentified June-only `UserUnitStateData` field, so settle it when the class function is ported. |
+| `32d223e0` Elsword, `32cede00` Arme, `32cb06d0` Lire, `32c641a0` Raven, `329c8a00` Eve, `32c1f530` Chung, `32bd09d0` Ara, `32b8c470` Elesis, `32a28e00` Add; June-only `32b46580` Luciel, `32ad9b60` Rose, `32a71eb0` Ain | all 12 | Nothing for the snapshot. The same functions set state byte `+0x11` = 1 on the normal and hyper entries (`+0x10` = `m_bHyperState`). `+0x11` is an unidentified June-only `UserUnitStateData` field, so settle it when the class function is ported. Settled: `+0x11` is the slot-state byte June reads through user slot 330 (`3208e430`; CommonStateStart). March answers it with `IsJuneSkillSlotState` (`X2GUUser.cpp`), so a class port drops the store. (Aisha: CH1k) |
 
 ### 7j. DamageReact damage steps that only class code drives (from June effect completion C10d)
 

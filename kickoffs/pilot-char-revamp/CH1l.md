@@ -28,3 +28,11 @@ Then `kickoffs/pilot-char-revamp/CH1.md` item 3 and its "From CH1a / CH1c / CH1e
 3. **The CX2GUUser hoists** listed in the CH1i notes (`m_iJune8ea0 / 8ea4`, `m_fJune8ea8 / 8eb0`, `m_iJune7ec0 / 8160`, `m_abJune90d3 / 90d0`,
    `m_bJuneAfterImageSaved`, and the CX2GUUser pieces June has: `SetSkillBuffFactors`, `GetSkillLevel`, ...). Where a piece is used only by Aisha, it
    may stay Arme-local; say which in the Done note.
+
+## From CH1k (2026-10-21)
+
+- **The dirty-state batch is in `SetEquippedSkillFuncBySkillSlotIndex` too.** June `32cede00` builds `3207c1a0` on entry and runs `31fdf970` at
+  every exit, so the batch wraps the head (`June_SetEquippedSkillFuncHead`) and March's skill cases that follow it under LIVE. Settle both
+  callers (this one and `SetEquippedSkillLevel`) with one design.
+- **`COMMON_BUFF_FrameMove` is virtual dispatch in June.** The head registers it as June does: `32a77a20` is `jmp [vtable+0x5f0]`, and Arme's body
+  is `32cc6e50` (`June_COMMON_BUFF_FrameMove`). Making that virtual June's body (item 1) is what gives the buff states June's FrameMove.

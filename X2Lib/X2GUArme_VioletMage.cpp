@@ -960,6 +960,7 @@ void CX2GUArme_VioletMage::InitState()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	June_InitState();
+}
 #else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	ASSERT( NULL != GetUnit() );
 
@@ -2845,6 +2846,16 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 
 /*virtual*/ void CX2GUArme_VioletMage::SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	UserUnitStateData* pJuneNormalStateData = NULL;
+	UserUnitStateData* pJuneHyperStateData = NULL;
+	if( false == June_SetEquippedSkillFuncHead( eSkillID_, iSlotIndex_, bSlotB_, &pJuneNormalStateData, &pJuneHyperStateData ) )
+		return;
+
+	UserUnitStateData& normalStateData = *pJuneNormalStateData;
+	UserUnitStateData& hyperStateData = *pJuneHyperStateData;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );	/// the head's lookup; not NULL here
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	if ( iSlotIndex_ < 0 || iSlotIndex_ >= ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ) )
 		return;
 
@@ -2909,6 +2920,7 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 			return;
 		} break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////// 여기서 부터 ACTIVE, SPECIAL ACTIVE 스킬//////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2917,12 +2929,21 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 	{
 	default:
 		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+			m_LuaManager.MakeTableReference( "AVSI_SI_AV_POWER_ATTACK1", normalStateData.stateID );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_EventProcess );
+			m_LuaManager.MakeTableReference( "AVSI_SI_AV_POWER_ATTACK1", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove );
+			hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess );
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 			m_LuaManager.MakeTableReference( "AVSI_SI_AV_POWER_ATTACK1", normalStateData.stateID );
 			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_AV_POWER_ATTACK_FrameMove );
 			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_AV_POWER_ATTACK_EventProcess );
 			m_LuaManager.MakeTableReference( "AVSI_SI_AV_POWER_ATTACK1", hyperStateData.stateID );
 			hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove );
 			hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		} break;
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
@@ -30659,27 +30680,27 @@ void CX2GUArme_VioletMage::June_InitStateCommon()
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_SMALL_FRONT;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_SMALL_FRONT", stateData.stateID );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, DamageSmallFrontEventProcess );	/// stand-in until CH1k ports June 31fcbed0
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageSmallEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_SMALL_BACK;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_SMALL_BACK", stateData.stateID );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, DamageSmallFrontEventProcess );	/// stand-in until CH1k ports June 31fcbed0
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageSmallEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_BIG_FRONT;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_BIG_FRONT", stateData.stateID );
 	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneDamageBigStart );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, DamageBigFrontEventProcess );	/// stand-in until CH1k ports June 31fcbf80
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageBigEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_DAMAGE_BIG_BACK;
 	m_LuaManager.MakeTableReference( "AVSI_DAMAGE_BIG_BACK", stateData.stateID );
 	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneDamageBigStart );
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, DamageBigFrontEventProcess );	/// stand-in until CH1k ports June 31fcbf80
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneDamageBigEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
@@ -31295,22 +31316,22 @@ void CX2GUArme_VioletMage::June_InitState()
 	stateData.Init();
 	stateData.stateID			= USI_START;
 	m_LuaManager.MakeTableReference( tableNameStartUTF8.c_str(), stateData.stateID );
-	/// CH1k ports June 31ffbd70 ( StateStart )
-	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, StartEventProcess );	/// stand-in until CH1k ports June 3201b390
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneStartStateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneStartEventProcess );
 	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, StartEnd );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_WIN;
 	m_LuaManager.MakeTableReference( tableNameWinUTF8.c_str(), stateData.stateID );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, WinStateStart );	/// stand-in until CH1k ports June 320004b0
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneWinStateStart );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneRandomLoseEventProcess );
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
 	stateData.stateID			= USI_LOSE;
 	m_LuaManager.MakeTableReference( tableNameLoseUTF8.c_str(), stateData.stateID );
-	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, LoseStateStart );	/// stand-in until CH1k ports June 320007e0
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JuneLoseStateStart );
 	m_StateList[stateData.stateID] = stateData;
 
 	/// June 32cea0c0 @307 ( id 0x82, checklist 7h )
@@ -32368,5 +32389,416 @@ void CX2GUArme_VioletMage::June_AVSI_AVP_DASH_ATTACK_X2_EventProcess()
 #undef JUNE_ARME_G_DASH_CANCEL
 #undef JUNE_ARME_G_ZX_CANCEL
 //}} Iruha : 2026-10-21 // June character pilot Phase CH1j2
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH1k ( JUNE_CHARACTER_AISHA_PHASES.md )
+namespace
+{
+	/// June Enum.lua RNSI ids; March's SI_HA_* are 2600 ..
+	const int JUNE_RNSI_HA_AEM_ELEMENTAL_STORM			= 22600;
+	const int JUNE_RNSI_HA_AVP_ABYSS_ANGOR				= 22601;
+	const int JUNE_RNSI_HA_ADW_FATE_SPACE				= 22602;
+	const int JUNE_RNSI_HA_AEM_ELEMENTAL_STORM_UPGRADE	= 22603;
+	const int JUNE_RNSI_HA_AVP_ABYSS_ANGOR_UPGRADE		= 22604;
+	const int JUNE_RNSI_HA_ADW_FATE_SPACE_UPGRADE		= 22605;
+
+	/// June 32207210: the skill's m_iDeleteSkillIDByUpgrade when it has one, else the id itself
+	int JuneSkillIDByUpgrade( const int iSkillID_ )
+	{
+		if( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+			return iSkillID_;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+		if( NULL != pSkillTemplet && 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade )
+			return pSkillTemplet->m_iDeleteSkillIDByUpgrade;
+
+		return iSkillID_;
+	}
+}
+
+// June 32cede00 up to its skill switch: true when the skill case is still to be registered ( March's cases until CH2a-CH3b )
+bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ )
+{
+	if( iSlotIndex_ < 0 || iSlotIndex_ > 4 )
+		return false;
+
+	/// June's state batch 3207c1a0 / 31fdf970 around the whole body is CH1l's
+	const int iNormalStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_] );
+	UserUnitStateData& normalStateData = m_StateList[ iNormalStateID ];
+	/// June's 31fd2af0 snapshot is the engine's ( checklist 7i )
+	normalStateData.Init();
+	normalStateData.stateID = iNormalStateID;	/// June's +0x11 = 1 is IsJuneSkillSlotState ( X2GUUser.cpp )
+
+	const int iHyperStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_] );
+	UserUnitStateData& hyperStateData = m_StateList[ iHyperStateID ];
+	hyperStateData.Init();
+	hyperStateData.m_bHyperState = true;
+	hyperStateData.stateID = iHyperStateID;
+
+	*ppNormalStateData_ = &normalStateData;
+	*ppHyperStateData_ = &hyperStateData;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if( NULL == pSkillTemplet )
+		return false;
+
+	const int iTranscendenceSkillID = GetJuneTranscendenceMemoSkillID( eSkillID_ );
+	if( 0 != iTranscendenceSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iTranscendenceSkillID ) ) )
+	{
+		if( JUNE_RNSI_A_AVP_SUMMON_BAT_HEAVY == JuneSkillIDByUpgrade( iTranscendenceSkillID ) )
+		{
+			m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT_HEAVY", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AVP_Summon_Bat_Heavy_Init );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AVP_Summon_Bat_Heavy_FrameMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+
+			m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT_HEAVY", hyperStateData.stateID );
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		}
+		return false;	/// June registers nothing for another transcended skill
+	}
+
+	switch( pSkillTemplet->m_eType )
+	{
+	case CX2SkillTree::ST_BUFF:
+		{
+			m_LuaManager.MakeTableReference( "AVSI_SI_AV_COMMON_BUFF", normalStateData.stateID );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, COMMON_BUFF_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_BUFF_EventProcess );
+
+			m_LuaManager.MakeTableReference( "AVSI_SI_AV_COMMON_BUFF_HYPER", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, COMMON_BUFF_FrameMove );
+			hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_BUFF_EventProcess );
+		} return false;
+
+	case CX2SkillTree::ST_ACTIVE:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE:
+	case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+		{
+			const int iBaseSkillID = JuneSkillIDByUpgrade( eSkillID_ );
+			switch( iBaseSkillID )
+			{
+			case JUNE_RNSI_HA_AEM_ELEMENTAL_STORM:
+			case JUNE_RNSI_HA_AEM_ELEMENTAL_STORM_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "AVSI_HA_AEM_ELEMENTAL_STORM", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_HA_AEM_Elemental_Storm_Init );	/// June 32cb8650, CH3b
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_HA_AEM_ELEMENTAL_STORM", hyperStateData.stateID );
+					hyperStateData.m_bHyperState	= true;
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+				} return false;
+
+			case JUNE_RNSI_HA_AVP_ABYSS_ANGOR:
+			case JUNE_RNSI_HA_AVP_ABYSS_ANGOR_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "AVSI_HA_AVP_ABYSS_ANGOR", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_HA_AVP_Abyss_Angor_Init );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_HA_AVP_ABYSS_ANGOR", hyperStateData.stateID );
+					hyperStateData.m_bHyperState	= true;
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+				} return false;
+
+			case JUNE_RNSI_HA_ADW_FATE_SPACE:
+			case JUNE_RNSI_HA_ADW_FATE_SPACE_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "AVSI_HA_ADW_FATE_SPACE", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_HA_ADW_Fate_space_Init );	/// June 32cb89b0, CH3b
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_HA_ADW_FATE_SPACE", hyperStateData.stateID );
+					hyperStateData.m_bHyperState	= true;
+					hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+				} return false;
+
+			default:
+				break;
+			}
+
+			if( JUNE_RNSI_HA_AEM_ELEMENTAL_STORM < iBaseSkillID )
+			{
+				m_LuaManager.MakeTableReference( "AVSI_SI_AV_POWER_ATTACK1", normalStateData.stateID );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_EventProcess );
+				m_LuaManager.MakeTableReference( "AVSI_SI_AV_POWER_ATTACK1", hyperStateData.stateID );
+				hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_HYPER_FrameMove );
+				hyperStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_AV_POWER_ATTACK_HYPER_EventProcess );
+				return false;
+			}
+		} return true;	/// June switches on iBaseSkillID; March's cases still switch on eSkillID_ until CH2a
+
+	case CX2SkillTree::ST_RELATIONSHIP_SKILL:
+		{
+			if( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == eSkillID_ )
+			{
+				m_LuaManager.MakeTableReference( "AVSI_THROW_ITEM", normalStateData.stateID );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_EventProcess );
+
+				m_LuaManager.MakeTableReference( "AVSI_THROW_ITEM", hyperStateData.stateID );
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			}
+		} return false;
+
+	default:
+		break;
+	}
+
+	return false;
+}
+
+/// June 31fc7ac0: a pure skill key, A S D C Skill5 Q W E R SkillEx5
+#define JUNE_ARME_ANY_SKILL_KEY \
+	( m_InputData.pureA == true || m_InputData.pureS == true || m_InputData.pureD == true || m_InputData.pureC == true \
+	|| m_InputData.pureSkill5 == true \
+	|| m_InputData.pureQ == true || m_InputData.pureW == true || m_InputData.pureE == true || m_InputData.pureR == true \
+	|| m_InputData.pureSkillEx5 == true )
+
+/// June InputData +0x8726, a key March's InputData lacks ( CH1m )
+#define JUNE_ARME_INPUT_8726 false
+
+/// June 32cbfb70 / 32cc2110: the end states' landing test, then June's cancel chain
+#define JUNE_ARME_SHOWER_END_EVENT_PROCESS \
+	if( true == IsOnSomethingFuture() ) \
+	{ \
+		StateChange( USI_JUMP_LANDING ); \
+	} \
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter ) \
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) || \
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) ) \
+	{ \
+		StateChange( USI_WAIT ); \
+	} \
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) ) \
+	{ \
+		StateChange( USI_WAIT ); \
+	} \
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) ) \
+	{ \
+		StateChangeDashIfPossible(); \
+	} \
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		m_InputData.pureZ == true ) \
+	{ \
+		StateChange( GetComboZStateID() ); \
+	} \
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		m_InputData.pureX == true ) \
+	{ \
+		StateChange( GetComboXStateID() ); \
+	} \
+	CommonEventProcess();
+
+// June 32cc6fb0: AVSI_SA_AHM_METEOSHOWER_LOOP.EventProcess
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_LOOP_EventProcess()
+{
+	if ( m_fUseMPConsume > GetNowMp() ||
+		 m_iElapsedFireCount >= m_iMaxFireCountByLoopState ||
+		 0.f >= GetNowHp() ||
+		 ( false == JUNE_ARME_ANY_SKILL_KEY && false == ( 1 == m_iJune975c && true == JUNE_ARME_INPUT_8726 ) ) )
+	{
+		StateChange( AVSI_SA_AHM_METEOSHOWER_END );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cbfb70: AVSI_SA_AHM_METEOSHOWER_END.EventProcess
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_END_EventProcess()
+{
+	JUNE_ARME_SHOWER_END_EVENT_PROCESS
+}
+
+// June 32cc7200: AVSI_SA_AHM_LIGHTNING_SHOWER_LOOP.EventProcess
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_Lightning_Shower_Loop_EventProcess()
+{
+	if ( m_fUseMPConsume > GetNowMp() ||
+		 m_iElapsedFireCount >= m_iMaxFireCountByLoopState ||
+		 0.f >= GetNowHp() ||
+		 ( false == JUNE_ARME_ANY_SKILL_KEY && false == ( 1 == m_iJune975c && true == JUNE_ARME_INPUT_8726 ) ) )
+	{
+		StateChange( AVSI_SA_AHM_LIGHTNING_SHOWER_END );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cc2110: AVSI_SA_AHM_LIGHTNING_SHOWER_END.EventProcess
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_Lightning_Shower_End_EventProcess()
+{
+	JUNE_ARME_SHOWER_END_EVENT_PROCESS
+}
+
+// June 32cc10f0: AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP.EventProcess
+void CX2GUArme_VioletMage::June_AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else
+		StateChange( AVSI_SI_SA_ABM_GUILLOTINE_PRESS_END );
+
+	CommonEventProcess();
+}
+
+// June 32cbeee0: AVSI_SI_A_AV_CIRCLE_FLAME.StartFuture
+void CX2GUArme_VioletMage::June_AVSI_SI_A_AV_CIRCLE_FLAME_StartFuture()
+{
+	CommonStateStartFuture();
+
+	m_bDisableGravity = true;
+	m_PhysicParam.nowSpeed		= D3DXVECTOR2( 0, 0 );
+	m_PhysicParam.passiveSpeed	= D3DXVECTOR2( -1, -1 );
+}
+
+// June 32cbef40: AVSI_SI_A_AV_CIRCLE_FLAME.EventProcess
+void CX2GUArme_VioletMage::June_AVSI_SI_A_AV_CIRCLE_FLAME_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cc5990: AVSI_SA_AVP_RUIN_LOOP.EventProcess ( March has no body for it )
+void CX2GUArme_VioletMage::June_AVSI_SA_AVP_RUIN_LOOP_EventProcess()
+{
+	m_afJune97a4[0] = m_fElapsedTime + m_afJune97a4[0];
+
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() && m_afJune97a4[2] <= m_afJune97a4[0] )
+	{
+		if( GetNowMp() < m_afJune97a4[4] )
+		{
+			StateChange( AVSI_SA_AVP_RUIN_END );
+		}
+		else if( false == JUNE_ARME_ANY_SKILL_KEY )
+		{
+			StateChange( AVSI_SA_AVP_RUIN_END );
+		}
+		else if( m_afJune97a4[1] <= m_afJune97a4[0] )
+		{
+			m_afJune97a4[1] = m_afJune97a4[1] + 1.f;
+
+			if( m_afJune97a4[1] <= m_afJune97a4[3] + m_afJune97a4[2] )
+				FlushMp( m_afJune97a4[4] );
+			else
+				StateChange( AVSI_SA_AVP_RUIN_END );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cb7ce0: AVSI_HELL_DROP_CONTROL_FIRE.EventProcess
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_FIRE_EventProcess()
+{
+	StateChange( AVSI_HELL_DROP_CONTROL_IDLE );
+	CommonEventProcess();
+}
+
+// June 32cc74a0: AVSI_HELL_DROP_CONTROL_IDLE.Start ( June's memo test 31fca9e0 always returns false, so it is dropped here and below )
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_IDLE_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_IDLE.c_str(), true );
+}
+
+// June 32cc7530: AVSI_HELL_DROP_CONTROL_LEFT.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_LEFT_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_LEFT.c_str(), true );
+}
+
+// June 32cc75c0: AVSI_HELL_DROP_CONTROL_RIGHT.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_RIGHT_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_RIGHT.c_str(), true );
+}
+
+// June 32cc7650: AVSI_HELL_DROP_CONTROL_UP.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_UP_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_UP.c_str(), true );
+}
+
+// June 32cc76e0: AVSI_HELL_DROP_CONTROL_DOWN.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_DOWN_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_DOWN.c_str(), true );
+}
+
+// June 32cc7770: AVSI_HELL_DROP_CONTROL_UP_LEFT.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_UP_LEFT_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_UP_LEFT.c_str(), true );
+}
+
+// June 32cc7800: AVSI_HELL_DROP_CONTROL_UP_RIGHT.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_UP_RIGHT_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_UP_RIGHT.c_str(), true );
+}
+
+// June 32cc7890: AVSI_HELL_DROP_CONTROL_DOWN_LEFT.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_DOWN_LEFT_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_DOWN_LEFT.c_str(), true );
+}
+
+// June 32cc7920: AVSI_HELL_DROP_CONTROL_DOWN_RIGHT.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_DOWN_RIGHT_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_GO_DOWN_RIGHT.c_str(), true );
+}
+
+// June 32cc79b0: AVSI_HELL_DROP_CONTROL_FIRE.Start
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_FIRE_StateStart()
+{
+	CommonStateStart();
+	if( NULL != GetUFO() )
+		GetUFO()->StateChange( _CONST_AISHA_::UFO_FIRE.c_str(), true );
+}
+
+#undef JUNE_ARME_SHOWER_END_EVENT_PROCESS
+#undef JUNE_ARME_INPUT_8726
+#undef JUNE_ARME_ANY_SKILL_KEY
+//}} Iruha : 2026-10-21 // June character pilot Phase CH1k
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

@@ -27,3 +27,10 @@ Then `kickoffs/pilot-char-revamp/CH1.md` items 4 and 5 and its "From CH1e" note 
    keys of `ch0_keys.tsv`: confirm each against March's preprocessed reader, and port the missing reader or route it. `SPECIAL_OPTION_VALUE` gets
    parsed in `CommonStateStart` and the `June_GetSpecialOptionValue` stand-in points at the user list. Also cover `SET_LIMIT_MAX_G_SPEED` (7o),
    the 12 `TIME_STOP_IMMUNE_STATE` states (7p) and `AT_COMMAND` (7x).
+
+## From CH1k (2026-10-21)
+
+- **June InputData `+0x8726` is a key March's `InputData` lacks.** It is the 4-byte key between `pureLCtr` (`+0x8722`) and `pureSkill5` (`+0x872a`),
+  read by many June classes (`+0x8726` / `+0x8727`). The Meteor / Lightning Shower loops (`32cc6fb0`, `32cc7200`) hold on it while `m_iJune975c == 1`.
+  CH1k's `JUNE_ARME_INPUT_8726` is a `false` stand-in. Name the key (June's InputData writer and the GAME_ACTION it maps), add it to `InputData`, and
+  point the macro at it.

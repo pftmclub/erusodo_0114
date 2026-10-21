@@ -4216,8 +4216,8 @@ CX2Game +0xc20 (CH1a review)	none in March: CX2Game byte read by the Arme wait /
 31fcbdb0	CX2GUUser::StartIntrudeEventProcess	confirmed	Char CH1j: June registers it for AVSI_START_INTRUDE.EventProcess; March's Arme registers the same table and slot with this member
 31fcbdf0	CX2GUUser::JuneDashJumpStart	PORTED	Char CH1j: registered for AVSI_DASH_JUMP.Start
 31fcbe40	CX2GUUser::DashJumpLandingStartFuture	confirmed	Char CH1j: June registers it for AVSI_DASH_JUMP_LANDING.StartFuture, AVSI_RIDING_DASH_JUMP_LANDING.StartFuture; March's Arme registers the same table and slot with this member
-31fcbed0	CX2GUArme_VioletMage::DamageSmallFrontEventProcess ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 31fcbed0; registered for AVSI_DAMAGE_SMALL_BACK.EventProcess, AVSI_DAMAGE_SMALL_FRONT.EventProcess
-31fcbf80	CX2GUArme_VioletMage::DamageBigFrontEventProcess ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 31fcbf80; registered for AVSI_DAMAGE_BIG_BACK.EventProcess, AVSI_DAMAGE_BIG_FRONT.EventProcess
+31fcbed0	CX2GUUser::JuneDamageSmallEventProcess	PORTED	Char CH1k: = Elsword's March DamageSmallFrontEventProcess ( > 200 above land -> USI_DAMAGE_AIR_SMALL, y -= 45 ) plus SpecialAttackEventProcess( 7 ASUT_DAMAGE_EXCEPT_AIR, vslot 0x7f4 ) before the animation-end test; registered for AVSI_DAMAGE_SMALL_FRONT / _BACK.EventProcess
+31fcbf80	CX2GUUser::JuneDamageBigEventProcess	PORTED	Char CH1k: = 31fcbed0 plus Elsword's ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC ( 14 key bytes +0x86da..+0x8712 ) with anim time > 0.93 -> USI_WAIT; registered for AVSI_DAMAGE_BIG_FRONT / _BACK.EventProcess
 31fcc0e0	CX2GUUser::DamageStandUpEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_STANDUP_BACK.EventProcess, AVSI_DAMAGE_STANDUP_FRONT.EventProcess; March's Arme registers the same table and slot with this member
 31fcc150	CX2GUUser::DamageAirSmallEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_SMALL.EventProcess; March's Arme registers the same table and slot with this member
 31fcc180	CX2GUUser::DamageAirDownEventProcess	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_DOWN.EventProcess; March's Arme registers the same table and slot with this member
@@ -4272,15 +4272,15 @@ CX2Game +0xc20 (CH1a review)	none in March: CX2Game byte read by the Arme wait /
 31fe93f0	CX2GUUser::RidingAttackXStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_X.Start; March's Arme registers the same table and slot with this member
 31fe94e0	CX2GUUser::RidingSpecialMoveStartFuture	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.StartFuture; March's Arme registers the same table and slot with this member
 31ff92d0	CX2GUUser::THROW_ITEM_FrameMove	confirmed	Char CH1j: June registers it for AVSI_THROW_ITEM.FrameMove; March's Arme registers the same table and slot with this member
-31ffbd70	none in March ( Aisha registration slot left empty )	ROUTED	Char CH1j: CH1k ports June 31ffbd70 ( StateStart ); USI_START / WIN / LOSE.Start
+31ffbd70	CX2GUUser::JuneStartStateStart	PORTED	Char CH1k: CommonStateStart, then PvP-only best-of-N round particles ( IsPvp 322cc180, PVP_Best_OF_N_Round / PVP_Best_OF_N_<n> ) not ported: no PvP offline; registered for USI_START.Start
 31ffc280	CX2GUUser::StartIntrudeStart	confirmed	Char CH1j: June registers it for AVSI_START_INTRUDE.Start; March's Arme registers the same table and slot with this member
 31ffc5c0	CX2GUUser::StartIntrudeFrameMove	confirmed	Char CH1j: June registers it for AVSI_START_INTRUDE.FrameMove; March's Arme registers the same table and slot with this member
 31ffcee0	CX2GUUser::DamageAirDownLandingStart	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_DOWN_LANDING.Start; March's Arme registers the same table and slot with this member
 31ffd160	CX2GUUser::DamageAirDownLandingFrameMove	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_AIR_DOWN_LANDING.FrameMove; March's Arme registers the same table and slot with this member
 31ffd310	CX2GUUser::DamageRevengeStart	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_REVENGE.Start; March's Arme registers the same table and slot with this member
 31ffd390	CX2GUUser::DamageRevengeCameraMove	confirmed	Char CH1j: June registers it for AVSI_DAMAGE_REVENGE.CameraMove; March's Arme registers the same table and slot with this member
-320004b0	CX2GUUser::WinStateStart ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 320004b0; registered for USI_START / WIN / LOSE.Start
-320007e0	CX2GUUser::LoseStateStart ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 320007e0; registered for USI_START / WIN / LOSE.Start
+320004b0	CX2GUUser::JuneWinStateStart	PORTED	Char CH1k: March's pet reaction ( host: Happy1 / Happy2 at rand ), then +0x8625 m_bDeleteEffectSetOnStateEnd = 1, vslot 0x11c SetForceInvincible( g_pMain +0x90 state +0x218 + 5.0 ) ( state +0x218 = June-only result-UI time 31ef7be0: absent value 0 ), and in DI_EVENT_2017_TREASURE ( 41470, game vslot 0x1c4 ) Clear_C / L / E / A / R on g_pData +0x84 ( game major particle )
+320007e0	CX2GUUser::JuneLoseStateStart	PORTED	Char CH1k: March's pet SadState, then +0x8625 = 1 and SetForceInvincible( state +0x218 + 5.0 ) as 320004b0
 32001c10	CX2GUUser::RidingWaitStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT.Start; March's Arme registers the same table and slot with this member
 32001dc0	CX2GUUser::RidingWalkStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_WALK.Start; March's Arme registers the same table and slot with this member
 32001f70	CX2GUUser::RidingAttackZStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_ATTACK_Z.Start; March's Arme registers the same table and slot with this member
@@ -4290,7 +4290,7 @@ CX2Game +0xc20 (CH1a review)	none in March: CX2Game byte read by the Arme wait /
 32004760	CX2GUUser::RidingWaitHabitStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_WAIT_HABIT.Start; March's Arme registers the same table and slot with this member
 32004950	CX2GUUser::RidingSpecialMoveStart	confirmed	Char CH1j: June registers it for AVSI_RIDING_SPECIAL_MOVE.Start; March's Arme registers the same table and slot with this member
 32006b90	CX2GUUser::RidingHyperModeEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_HYPER_MODE.EventProcess; March's Arme registers the same table and slot with this member
-3201b390	CX2GUUser::StartEventProcess ( stand-in )	ROUTED	Char CH1j: stand-in until CH1k ports June 3201b390; registered for USI_START / WIN / LOSE.EventProcess
+3201b390	CX2GUUser::JuneStartEventProcess	PORTED	Char CH1k: CommonEventProcess; IsEnableCode( 2143 ) ( g_pInstanceData map +0xa18 ) && host && fStateTime > 1.0 -> 3200ac50 ( not ported, logged once; Stage 19 ); fStateTime >= 4.5 -> USI_WAIT
 3201f780	CX2GUUser::RidingStartEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_START.EventProcess; March's Arme registers the same table and slot with this member
 32030580	CX2GUUser::RidingOnEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_ON.EventProcess; March's Arme registers the same table and slot with this member
 32030d50	CX2GUUser::RidingJumpUpEventProcess	confirmed	Char CH1j: June registers it for AVSI_RIDING_JUMP_UP.EventProcess; March's Arme registers the same table and slot with this member
@@ -4325,3 +4325,23 @@ CX2Game +0xc20 (CH1a review)	none in March: CX2Game byte read by the Arme wait /
 32cc42a0	CX2GUArme_VioletMage::June_AVSI_AVP_DASH_ATTACK_X2_EventProcess	PORTED	Char CH1j2: inert; not carved ( listing ); air -> JUMP_DOWN ( y -45 ), animation end -> WAIT, SKILL_CANCEL_AFTER( +0x8c90 ), walk +0x8c98 / bwalk +0x8c94 / dash +0x8c9c / Z X +0x8c88 ( ground )
 32ce2cc0	CX2GUArme_VioletMage::June_AVSI_AVP_DASH_ATTACK_X2_FrameMove	PORTED	Char CH1j2: inert; not carved ( listing ); = 32ce2b20 with FlushMp( 10 ), Dummy2_Lhand ( 3345bb08 ), rotation unturned, power +0x9640; DamageEffect_ADM_DashJumpZX ( 3351ee64 ); failure ( 0, 0, 0 )
 32ce7170	CX2GUArme_VioletMage::June_AVSI_AEM_DASH_JUMP_X3_FrameMove	PORTED	Char CH1j2: inert; not carved ( listing ); 0.16 timer; 32cc2b90( 4.0 * +0x95bc ); type 1 of 32ce4180 at Dummy2_Lhand, rot z -30; failure ( 0, 0, -30 )
+31fca9f0	CX2GUUser::CheckSkillUseCondition ( June adds conditions 6 / 7 )	PORTED	Char CH1k: cases 1-3 = March; 6 ASUT_DAMAGE / 7 ASUT_DAMAGE_EXCEPT_AIR: templet 3 or 4 -> false, templet 7 -> on the ground ( +0x7e1c ), else cond == templet; added to March's enum and CheckSkillUseCondition under SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+32cede00 @32cede00-32cee1e0 (CH1k)	CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead	PORTED	Char CH1k: bounds 0..4, slot tables 3351b05c / 3351b170 / 3351b184 / 3351b198 = March aNormal / aHyper ( A 50-59, B 60-69 interleaved ); 31fd2af0 dropped ( 7i ); +0x11 = slot-state byte ( user slot 330 3208e430 ) = March IsJuneSkillSlotState; transcendence branch 31fdbcc0 ( only 22217 registers, others nothing ); type 5 COMMON_BUFF, 0xc THROW_ITEM for 900, 6/7/0xd-0x10 on 32207210( id ): 22600 / 22603 Elemental Storm, 22601 / 22604 Abyss Angor, 22602 / 22605 Fate Space, > 22600 Power Attack, else the skill switch ( March's cases until CH2a-CH3b ); batch 3207c1a0 / 31fdf970 -> CH1l
+3200ac50	none in March: START code-event 2143 NPC summon ( host, game state 0xb, dungeon room, list 32696fa0 +0x260 )	routed	Char CH1k: called by 3201b390; offline never enables the code event; -> Stage 19 bullet
+31fcc740	CX2GUUser::JuneGenericSpecialActiveSkillEventProcess	PORTED	Char CH1k: = March GenericSpecialActiveSkillEventProcess, then SKILL_CANCEL_AFTER( +0x8c90 ) ( skill vslot 0x7f4( 1 ) on ground, then awakening ), WALK +0x8c98 / DASH +0x8c9c ( vslot 0x668 ) / BWALK +0x8c94, each on ground; registered by June_SetEquippedSkillFuncHead for the hyper actives
+31fcc9d0	CX2GUUser::JuneGenericActiveSkillEventProcess	PORTED	Char CH1k: = March GenericActiveSkillEventProcess ( SKIP_TIME + 14-key skip ), then the 31fcc740 chain; registered by June_SetEquippedSkillFuncHead for transcended Summon Bat Heavy
+31fcbd60	CX2GUUser::COMMON_BUFF_EventProcess	confirmed	Char CH1k: = March ( the head's ST_BUFF case )
+32a77a20	thunk: jmp [vtable +0x5f0] ( COMMON_BUFF_FrameMove )	confirmed	Char CH1k: the head's ST_BUFF FrameMove; Arme's body is 32cc6e50 June_COMMON_BUFF_FrameMove ( the virtual, CH1l )
+329cc0d0	thunk: jmp [vtable +0x5f4] ( COMMON_RELATIONSHIP_SKILL_FrameMove )	confirmed	Char CH1k: body 320018c0 = March except March's ASSERT
+329cc170	thunk: jmp [vtable +0x5f8] ( COMMON_RELATIONSHIP_SKILL_EventProcess )	confirmed	Char CH1k: body 31fcdc30 = March
+32cc6fb0	CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_LOOP_EventProcess	PORTED	Char CH1k: March + June's key list 31fc7ac0 ( A S D C Skill5 Q W E R SkillEx5 ) and the hold while +0x975c == 1 and InputData +0x8726 ( a key March lacks: stand-in false, CH1m ); END 0xdb
+32cbfb70	CX2GUArme_VioletMage::June_AVSI_SA_AHM_METEOSHOWER_END_EventProcess	PORTED	Char CH1k: ground -> USI_JUMP_LANDING, else June's cancel chain ( awakening on +0x8c90, BWALK, WALK, DASH, Z / X on +0x8c8c, each on ground )
+32cc7200	CX2GUArme_VioletMage::June_AVSI_SA_AHM_Lightning_Shower_Loop_EventProcess	PORTED	Char CH1k: = 32cc6fb0 with END 0xdf
+32cc2110	CX2GUArme_VioletMage::June_AVSI_SA_AHM_Lightning_Shower_End_EventProcess	PORTED	Char CH1k: = 32cbfb70
+32cc10f0	CX2GUArme_VioletMage::June_AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP_EventProcess	PORTED	Char CH1k: = March
+32cbeee0	CX2GUArme_VioletMage::June_AVSI_SI_A_AV_CIRCLE_FLAME_StartFuture	PORTED	Char CH1k: = March ( state 0xba )
+32cbef40	CX2GUArme_VioletMage::June_AVSI_SI_A_AV_CIRCLE_FLAME_EventProcess	PORTED	Char CH1k: = March
+32cc5990	CX2GUArme_VioletMage::June_AVSI_SA_AVP_RUIN_LOOP_EventProcess	PORTED	Char CH1k: none in March; timer +0x97a4 += +0x2b0, then MP / key / tick tests on +0x97a8 .. +0x97b4, FlushMp ( vslot 0xe4 ), END 0xf7
+32cb7ce0	CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_FIRE_EventProcess	PORTED	Char CH1k: = March
+32cc74a0 .. 32cc79b0	CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_{IDLE .. FIRE}_StateStart	PORTED	Char CH1k: = March except the memo test: June's GetEqippedSkillMemo 31fca9e0 always returns false, so it is dropped; UFO +0x9620 StateChange( UFO_AISHA_* std::string, true )
+32cf1b10	std::deque iterator copy	n/a	Char CH1k: library code inside 32cc7df0 / 32ce1770 ( June_GetMemoRiseEntry, CH1i ); nothing to port

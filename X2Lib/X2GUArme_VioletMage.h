@@ -1252,6 +1252,28 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_AVP_DASH_ATTACK_X2_FrameMove();								/// June 32ce2cc0
 		void June_AVSI_AVP_DASH_ATTACK_X2_EventProcess();							/// June 32cc42a0
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1j2
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1k ( JUNE_CHARACTER_AISHA_PHASES.md )
+		bool June_SetEquippedSkillFuncHead( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_, UserUnitStateData** ppNormalStateData_, UserUnitStateData** ppHyperStateData_ );	/// June 32cede00 up to its skill switch
+		void June_AVSI_SA_AHM_METEOSHOWER_LOOP_EventProcess();			/// June 32cc6fb0
+		void June_AVSI_SA_AHM_METEOSHOWER_END_EventProcess();			/// June 32cbfb70
+		void June_AVSI_SA_AHM_Lightning_Shower_Loop_EventProcess();		/// June 32cc7200
+		void June_AVSI_SA_AHM_Lightning_Shower_End_EventProcess();		/// June 32cc2110
+		void June_AVSI_SI_SA_ABM_GUILLOTINE_PRESS_LOOP_EventProcess();	/// June 32cc10f0
+		void June_AVSI_SI_A_AV_CIRCLE_FLAME_StartFuture();				/// June 32cbeee0
+		void June_AVSI_SI_A_AV_CIRCLE_FLAME_EventProcess();				/// June 32cbef40
+		void June_AVSI_SA_AVP_RUIN_LOOP_EventProcess();					/// June 32cc5990
+		void June_AVSI_HELL_DROP_CONTROL_FIRE_EventProcess();			/// June 32cb7ce0
+		void June_AVSI_HELL_DROP_CONTROL_IDLE_StateStart();				/// June 32cc74a0
+		void June_AVSI_HELL_DROP_CONTROL_LEFT_StateStart();				/// June 32cc7530
+		void June_AVSI_HELL_DROP_CONTROL_RIGHT_StateStart();			/// June 32cc75c0
+		void June_AVSI_HELL_DROP_CONTROL_UP_StateStart();				/// June 32cc7650
+		void June_AVSI_HELL_DROP_CONTROL_DOWN_StateStart();				/// June 32cc76e0
+		void June_AVSI_HELL_DROP_CONTROL_UP_LEFT_StateStart();			/// June 32cc7770
+		void June_AVSI_HELL_DROP_CONTROL_UP_RIGHT_StateStart();			/// June 32cc7800
+		void June_AVSI_HELL_DROP_CONTROL_DOWN_LEFT_StateStart();		/// June 32cc7890
+		void June_AVSI_HELL_DROP_CONTROL_DOWN_RIGHT_StateStart();		/// June 32cc7920
+		void June_AVSI_HELL_DROP_CONTROL_FIRE_StateStart();				/// June 32cc79b0
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH1k
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

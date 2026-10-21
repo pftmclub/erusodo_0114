@@ -749,6 +749,11 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   *can* pass units, June still runs the push loop (team / ally rules, plus NPCs with a `CAN_NOT_PASS_SPECIFIED_BONE` state, once per
   bone) only in this dungeon (vslot 0x1c4 == 0xa1a4), at stage index 2 (`+0xc44 +8 == 2`), behind `32530a80` / `31aadcb0`. A4 ported
   the bone push itself (`SERV_IRUHADEV_ELYSION_SCRIPT_A`, `CX2GUUser::ProcessCanPushUnit`'s bone form); this block calls it the same way.
+- **The START-state code-event summon (pilot-char-revamp CH1k, 2026-10-21).** June's user START EventProcess `3201b390` calls `3200ac50`
+  when code event 2143 is on (`g_pInstanceData` map `+0xa18`), the unit is host and the state is older than 1 s. `3200ac50` summons a list of
+  NPCs (manager `32696fa0` `+0x260..+0x264`, `CreateNPC` `322e9af0`) in game state 0xb with a dungeon room set. `CX2GUUser::JuneStartEventProcess`
+  keeps the gate and logs once that the summon is not ported. Offline never sends `EGS_UPDATE_CODE_EVENT_NOT`, so the event needs its
+  own enabling first. Related: WIN StateStart `320004b0` plays the `Clear_C/L/E/A/R` particles in `DI_EVENT_2017_TREASURE` (ported, CH1k).
 
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 
