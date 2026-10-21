@@ -907,6 +907,11 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			DWORD				dwBuffSyncCount;	/// June buff port Phase 8: the buff-change counter (June +0x7e68 Future / +0x8108 Now, syncData +0x34)
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+			KProtectedType<int>		iJuneClassSyncInt;	/// June Future +0x7ec0 / Now +0x8160, a class's synced skill id; off-wire
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
 			SyncData()
 			{
@@ -964,6 +969,11 @@ public:
 //#endif  X2OPTIMIZE_USER_USER_PUSH_PASS_SYNC
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 				dwBuffSyncCount			= 0;
+#endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+				iJuneClassSyncInt		= 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 			}
 
@@ -2621,7 +2631,11 @@ public:
 		void UpdateNotRenderingOtherEquipList();
 		#endif //FIX_ARA_ONE_PIECE_FOR_BERSERK
 	#endif	NOT_RENDERING_OTHER_EQUIP_POS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		virtual void UpdateEquipCollisionData( IN vector<CX2EqipPtr>& m_vecEquipList );	/// June vslot 0x638
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		void UpdateEquipCollisionData( IN vector<CX2EqipPtr>& m_vecEquipList );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		CX2EqipPtr	GetEquipPtrFromEquipViewListByEquipPosition( const CX2Unit::EQIP_POSITION eEquipPosition );			
 		virtual void SetShowViewList( bool bShow_ );
 #endif	NEW_CHARACTER_CHUNG
@@ -3331,6 +3345,15 @@ public:
 		void ReserveSkillUseCount( const CX2SkillTree::SKILL_ID eSkillID_ ) { m_eSkillUseReservedSkillID = eSkillID_; m_fSkillUseReserveTime = 1.0f; }
 		void ClearSkillUseReserve() { m_eSkillUseReservedSkillID = CX2SkillTree::SI_NONE; }
 		void CountReservedSkillUse();		/// June CommonStateStart 32057b80 @32057c23-d84
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+		bool JuneIsNotCommonMoveState();	/// June 31fd7640, the base of user vslot 0x828
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		virtual void JuneAfterEquipSlotChange() {}	/// June user vslot 0x654 ( base 31f3f070, empty )
+		virtual void JuneAfterImageFrameMove() { if( m_pAfterImage != NULL ) m_pAfterImage->OnFrameMove( m_fTime, m_fElapsedTime ); }	/// June user vslot 0x850 ( base 31fd8230 )
+		virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) {}	/// June user vslot 0x860 ( base 3208ddc0, empty )
+		virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) {}	/// June 32057b80 @32057c4c-cb2 ( vslots 0x800 / 0x764 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		/// June slot 303 (base 31e4c550: false): a state in which a skill use is not counted. Only June's Add overrides it (329e65c0:
 		/// state index 0x123-0x126 or 0x12b), a character-port row (JUNE2017_CHARACTER_PORT_CHECKLIST.md section 7)
 		virtual bool IsSkillUseCountExcludedState() const { return false; }

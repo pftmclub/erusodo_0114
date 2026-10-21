@@ -20534,8 +20534,12 @@ void CX2GUUser::CommonFrameMove()
 			m_pUnitShadow->UpdatePosition( m_FrameDataNow.syncData.position, m_FrameDataNow.unitCondition.landPosition, m_FrameDataNow.unitCondition.dirDegree );
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		JuneAfterImageFrameMove();	// June 3206c186
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		if( m_pAfterImage != NULL )
 			m_pAfterImage->OnFrameMove( m_fTime, m_fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	}
 	else
 	{
@@ -40528,6 +40532,9 @@ void CX2GUUser::CountReservedSkillUse()
 	if ( NULL == pSkillTemplet )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	JuneReservedSkillStart( pSkillTemplet );	// June @32057c4c-cb2
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	ClearSkillUseReserve();		/// @32057cbe
 
 	if ( !IsSkillUseCountExcludedState() && 0 < static_cast<int>( eSkillID )
@@ -40548,6 +40555,22 @@ void CX2GUUser::CountReservedSkillUse()
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+// June 31fd7640: false in the wait / charge / walk / jump / dash states and the ten riding move states ( June ids = March + 1 there )
+bool CX2GUUser::JuneIsNotCommonMoveState()
+{
+	const int iNow = GetNowStateID();
+	if( GetWaitStateID() == iNow || GetChargeMpStateID() == iNow || USI_WALK == iNow || USI_DASH == iNow || USI_DASH_END == iNow
+		|| USI_DASH_JUMP == iNow || USI_DASH_JUMP_LANDING == iNow || USI_JUMP_READY == iNow || USI_JUMP_UP == iNow
+		|| GetJumpDownStateID() == iNow || USI_JUMP_LANDING == iNow )
+		return false;
+
+	if( USI_RIDING_WAIT_HABIT <= iNow && iNow <= USI_RIDING_DASH_JUMP_LANDING )
+		return false;
+
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 /** @function : HyperModeBuffEffectStart
 	@brief : 각성 시 나와야하는 이펙트들 시작
 */

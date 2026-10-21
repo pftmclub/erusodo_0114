@@ -136,6 +136,10 @@ CX2GUArme_VioletMage::CX2GUArme_VioletMage( int unitIndex, int teamNum,
 #endif // BALANCE_PATCH_20131107			// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_ConstructorInit();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	for( int i=0; i<EffSetID_END; i++ )
 	{
 		m_ahEffectSet[i] = INVALID_EFFECTSET_HANDLE;
@@ -254,9 +258,15 @@ CX2GUArme_VioletMage::CX2GUArme_VioletMage( int unitIndex, int teamNum,
 	m_fGravityBallPower = 1.f;
 #endif //UPGRADE_SKILL_SYSTEM_2013
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 CX2GUArme_VioletMage::~CX2GUArme_VioletMage(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	SAFE_DELETE( m_pStrongMindData );	// March-only member, still allocated by March InitPassiveSkillState until CH4
+	June_Destructor();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	SAFE_DELETE( m_pStrongMindData );
 
 	if( NULL != g_pX2Game )
@@ -337,10 +347,15 @@ CX2GUArme_VioletMage::~CX2GUArme_VioletMage(void)
 
 	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqLight_Arme_Circle_Flame	);	
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 void CX2GUArme_VioletMage::ReInit( bool bRandom, int startPosIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_ReInit( bRandom, startPosIndex );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::ReInit( bRandom, startPosIndex );
 	
 
@@ -349,9 +364,14 @@ void CX2GUArme_VioletMage::ReInit( bool bRandom, int startPosIndex )
 	
 	m_bZ4up					= false;
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::DamageReact( CX2DamageManager::DamageData* pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_DamageReact( pDamageData );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	KTDXPROFILE();	
 	CX2GUUser::DamageReact( pDamageData );
 	CX2GUUser::DamageReactStateChange( pDamageData );
@@ -422,9 +442,14 @@ void CX2GUArme_VioletMage::DamageReact( CX2DamageManager::DamageData* pDamageDat
 	}
 #endif BALANCE_ELEMENTAL_MASTER_20130117
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::Win()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_Win();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::Win();
 
 #ifdef RIDING_SYSTEM
@@ -436,9 +461,14 @@ void CX2GUArme_VioletMage::Win()
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::Lose()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_Lose();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::Lose();
 
 	if( IsMyUnit() == true && GetNowHp() > 0.0f )
@@ -453,10 +483,15 @@ void CX2GUArme_VioletMage::Lose()
 #endif //RIDING_SYSTEM
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 void CX2GUArme_VioletMage::Draw()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_Draw();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::Draw();
 
 #ifdef RIDING_SYSTEM
@@ -468,6 +503,7 @@ void CX2GUArme_VioletMage::Draw()
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 /*static*/
@@ -489,6 +525,10 @@ void	CX2GUArme_VioletMage::AppendComponentToDeviceList( CKTDXDeviceDataList& lis
 
 void CX2GUArme_VioletMage::InitComponent()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_InitComponent();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::InitComponent();
 
 	if ( IsMyUnit() )
@@ -525,6 +565,7 @@ void CX2GUArme_VioletMage::InitComponent()
 	m_hSeqMPCharge2Up			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2Up", 0,0,0, 0,0 );
 	m_hSeqMPCharge2Up2			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2Up2", 0,0,0, 0,0 );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -539,23 +580,33 @@ void	CX2GUArme_VioletMage::AppendEffectToDeviceList( CKTDXDeviceDataList& listIn
 
 void CX2GUArme_VioletMage::InitEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_InitEffect();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::InitEffect();
 
 	CreateMajorParticleArray();
 	CreateMinorParticleArray();
 }	
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 
 
 /*virtual*/ void CX2GUArme_VioletMage::InitEnchantWeaponEffectUnitSpecific() 
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_InitEnchantWeaponEffectUnitSpecific();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	for( UINT i=0; i<m_vecpWeapon.size(); ++i )
 	{
 		Weapon* pWeapon = m_vecpWeapon[i];
 		pWeapon->InitEnchantParticleForSword();
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 void CX2GUArme_VioletMage::DeleteArmeMajorParticle()
@@ -641,6 +692,10 @@ void	CX2GUArme_VioletMage::AppendMajorParticleToDeviceList( CKTDXDeviceDataList&
 
 /*virtual*/ void CX2GUArme_VioletMage::CreateMajorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CreateMajorParticleArray();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::CreateMajorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -791,6 +846,7 @@ void	CX2GUArme_VioletMage::AppendMajorParticleToDeviceList( CKTDXDeviceDataList&
 		pSeq->SetTriggerWait( true );
 	//}} 라이트닝볼트, 인퍼널웨이브에서 쓰이는 파티클
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::SetAishaMajorParticleByEnum( AISHA_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_ )
 {
@@ -854,6 +910,10 @@ void	CX2GUArme_VioletMage::AppendMinorParticleToDeviceList( CKTDXDeviceDataList&
 
 /*virtual*/ void CX2GUArme_VioletMage::CreateMinorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CreateMinorParticleArray();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::CreateMinorParticleArray();
 
 
@@ -879,6 +939,7 @@ void	CX2GUArme_VioletMage::AppendMinorParticleToDeviceList( CKTDXDeviceDataList&
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::SetAishaMinorParticleByEnum( AISHA_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ )
 {
@@ -898,6 +959,10 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GUArme_VioletMage::SetAishaMinor
 
 void CX2GUArme_VioletMage::ParseCommonRandomState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	// June has no class INIT_COMMON_RANDOM_STATE parse; 31fe22d0 rolls the variants in June_InitState
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 	if( true == m_LuaManager.BeginTable( "INIT_COMMON_RANDOM_STATE" ) )
@@ -954,6 +1019,7 @@ void CX2GUArme_VioletMage::ParseCommonRandomState()
 
 
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 void CX2GUArme_VioletMage::InitState()
@@ -2513,6 +2579,10 @@ void CX2GUArme_VioletMage::InitStateCommon()
 
 void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* = false  */)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_InitEquippedActiveSkillState( bOnlySkillLevel );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::InitEquippedActiveSkillState(bOnlySkillLevel);
 
 #ifdef SKILL_CASH_10_TEST
@@ -2534,9 +2604,14 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 	}
 #endif SKILL_CASH_10_TEST
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 /*virtual*/ void CX2GUArme_VioletMage::InitEtc()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_InitEtc();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::InitEtc();
 
 // #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
@@ -2547,6 +2622,7 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 // 	m_pOrgMotion = m_pMotion;
 // #endif
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 
@@ -4114,6 +4190,10 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 
 /*virtual*/ void CX2GUArme_VioletMage::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_SetEquippedSkillLevel( eSkillID_, bChangeAll_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 	if ( NULL == GetUnit() )
 		return;
@@ -4390,6 +4470,7 @@ void CX2GUArme_VioletMage::InitEquippedActiveSkillState(bool bOnlySkillLevel /* 
 	}
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 /*static*/
@@ -4407,6 +4488,10 @@ void	CX2GUArme_VioletMage::AppendDeviceToDeviceList( CKTDXDeviceDataList& listIn
 
 void CX2GUArme_VioletMage::InitDevice()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_InitDevice();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::InitDevice();
 
 	CKTDXDeviceXSkinMesh* pMesh1 = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Arme_ComboX3Up-1.X" );
@@ -4485,14 +4570,24 @@ void CX2GUArme_VioletMage::InitDevice()
 #endif NO_MORE_EFFECT_HARD_CODING_TEST
 
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::CommonStateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CommonStateStartFuture();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::CommonStateStartFuture();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::CommonStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CommonStateStart();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편 
 	switch ( GetNowStateID() )
 	{
@@ -4522,14 +4617,24 @@ void CX2GUArme_VioletMage::CommonStateStart()
 
 	CX2GUUser::CommonStateStart();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::CommonFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CommonFrameMoveFuture();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::CommonFrameMoveFuture();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::CommonFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CommonFrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::CommonFrameMove();
 
 
@@ -4914,16 +5019,27 @@ void CX2GUArme_VioletMage::CommonFrameMove()
 	}
 #endif
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::CommonStateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CommonStateEndFuture();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::CommonStateEndFuture();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::CommonStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_CommonStateEnd();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::CommonStateEnd();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 //{{ robobeg : 2008-10-28
 //void CX2GUArme_VioletMage::CommonRender()
@@ -4931,6 +5047,10 @@ void CX2GUArme_VioletMage::CommonStateEnd()
 RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 //}} robobeg : 2008-10-28
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	return June_CommonRender_Prepare();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 // 	if( GetRemainHyperModeTime() > 0.0f )
 // 	{
 // 		m_RenderParam.renderType		= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
@@ -4952,9 +5072,14 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
     return CX2GUUser::CommonRender_Prepare();
 //}} robobeg : 2008-10-28
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 /*virtual*/ bool CX2GUArme_VioletMage::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	return June_SpecialAttackEventProcess( eActiveSkillUseCondition );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	/// June buff port Phase 7d: June Arme 32cebe80 (the skill lookup its SpecialAttackEventProcess calls first) starts with
 	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
@@ -5287,11 +5412,16 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 
 	return true;
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 // 상태변화가 없는 필살기는 하드코딩해서 예외 처리 한다
 /*virtual*/ bool CX2GUArme_VioletMage::SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	return June_SpecialAttackNoStageChange( pSkillTemplet );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	if( NULL == pSkillTemplet )
 		return false;
 
@@ -5345,11 +5475,16 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 
 	return true;
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 
 
 /*virtual*/ void CX2GUArme_VioletMage::NoStateChangeActionFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_NoStateChangeActionFrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	switch( m_FrameDataNow.syncData.nowAction )
 	{
 	case UAI_MANA_SHIELD:
@@ -5452,6 +5587,7 @@ RENDER_HINT CX2GUArme_VioletMage::CommonRender_Prepare()
 
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 /** @function : CX2GetActualMPConsume
 	@brief : 사용한 스킬의 MP 소모량을 얻어옴
@@ -6782,6 +6918,10 @@ void CX2GUArme_VioletMage::HyperModeInit()
 
 void CX2GUArme_VioletMage::HyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_HyperModeFrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #ifdef MODIFY_RIDING_PET_AWAKE
 	CommonHyperModeFrameMove( 0.47f, 0.63f );
 #else
@@ -6878,6 +7018,7 @@ void CX2GUArme_VioletMage::HyperModeFrameMove()
 	CommonFrameMove();	
 #endif // MODIFY_RIDING_PET_AWAKE
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::HyperModeCameraMove()
 {
@@ -14540,6 +14681,10 @@ void CX2GUArme_VioletMage::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_
 */
 /*virtual*/ void CX2GUArme_VioletMage::COMMON_BUFF_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_COMMON_BUFF_FrameMove();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #ifndef UPGRADE_SKILL_SYSTEM_2013 // 공통 스킬 개편, 김종훈
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.047f, 0 );
@@ -14581,6 +14726,7 @@ void CX2GUArme_VioletMage::SetSelfDestructSummonedNPC( CX2UnitManager::NPC_UNIT_
 
 	CommonFrameMove();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 //AVSI_SI2_AV_DARK_CLOUD
 void CX2GUArme_VioletMage::AVSI_SI2_AV_DARK_CLOUD_Init()
@@ -18012,6 +18158,10 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 	HRESULT CX2GUArme_VioletMage::OnFrameMove( double fTime, float fElapsedTime )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		return June_OnFrameMove( fTime, fElapsedTime );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		CX2GUUser::OnFrameMove( fTime, fElapsedTime );
 
 		if( m_bNeedToUpdateWeaponEffect == true )
@@ -18022,9 +18172,14 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 
 		return S_OK;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 	void CX2GUArme_VioletMage::NotifyDGManagerChanged( CKTDGManager& refInManager_ )		// DGManager에 등록
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		June_NotifyDGManagerChanged( refInManager_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 		CX2GUUser::NotifyDGManagerChanged( refInManager_ );
 
 // 		if ( IsRecursivelyManagedByDGManager() )
@@ -18038,6 +18193,7 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 // 				refInManager_.RemoveObjectChain( m_TransformWeapon.get() );
 // 		}+
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 	void CX2GUArme_VioletMage::TransformStart( const WCHAR* pWstrMeshName_, const bool bChangeWeapon_ /*= false */ )
 	{	
@@ -19029,10 +19185,15 @@ void CX2GUArme_VioletMage::AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture()
 
 /*virtual*/ void CX2GUArme_VioletMage::DeleteMinorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_DeleteMinorParticle();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::DeleteMinorParticle();
 
 	DeleteArmeMinorParticle();
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ /*= false */ )
 {
@@ -19416,6 +19577,10 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
 
 /*virtual*/ void CX2GUArme_VioletMage::HyperModeBuffEffectStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_HyperModeBuffEffectStart();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2GUUser::HyperModeBuffEffectStart();
 
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
@@ -19430,6 +19595,7 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
 		m_hHyperBoostLArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftViolet",	0,0,0, 0, 0 );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 /** @function : GetAdditionalAccelBuffTime
 	@brief : 엑셀레이터류 버프의 추가시간을 얻어오는 함수
@@ -19509,6 +19675,10 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
 */
 /*virtual*/ void CX2GUArme_VioletMage::ApplyAuraAcceleratorBuffToGameUnit( const CX2SkillTree::SkillTemplet* pSkillTemplet_, const float fAddtionalAccelBuffTime_, const D3DXVECTOR3& vMyPos_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	CX2GUUser::ApplyAuraAcceleratorBuffToGameUnit( pSkillTemplet_, fAddtionalAccelBuffTime_, vMyPos_ );	// June has no Arme override
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	CX2BuffFactorPtr ptrEnergyOfThePlentyFactor 
 		= GetEnergyOfThePlentyBuffFactorClonePtr( pSkillTemplet_->m_eID );
 
@@ -19585,6 +19755,7 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 /** @function : GetEnergyOfThePlentyBuffFactorClonePtr
 	@brief : 풍요의기운(엘마) 패시브 스킬이 가지고 있는 버프팩터를 얻어오는 함수
@@ -19797,6 +19968,10 @@ CX2BuffFactorPtr CX2GUArme_VioletMage::GetEnergyOfThePlentyBuffFactorClonePtr( c
 */
 /*virtual*/ void CX2GUArme_VioletMage::ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_ApplyRenderParamOnEmptyRenderParamByBuff( pRenderParam_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #ifdef RIDING_SYSTEM
 	if ( m_bPassDash )
 		return;
@@ -19813,6 +19988,7 @@ CX2BuffFactorPtr CX2GUArme_VioletMage::GetEnergyOfThePlentyBuffFactorClonePtr( c
 		CX2GameUnit::ApplyRenderParamOnEmptyRenderParamByBuff( pRenderParam_ );
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 #ifdef SERV_ARME_DIMENSION_WITCH	// ADW_DISTORTION
 /** @function : AdaptAdvancedTeleportationBuff
@@ -19889,6 +20065,10 @@ void CX2GUArme_VioletMage::SetDamageExceptionProcess( CX2DamageManager::DamageDa
 #ifdef RIDING_SYSTEM
 /*virtual*/ bool CX2GUArme_VioletMage::CanRidingState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	return June_CanRidingState();
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	if ( GetNowStateID() == CX2GUUser::USI_WAIT || GetNowStateID() == CX2GUUser::USI_WALK || 
 		GetNowStateID() == CX2GUUser::USI_DASH || GetNowStateID() == CX2GUUser::USI_DASH_END || 
 		GetNowStateID() == CX2GUUser::USI_RIDING_WAIT || GetNowStateID() == CX2GUUser::USI_RIDING_WALK ||
@@ -19898,6 +20078,7 @@ void CX2GUArme_VioletMage::SetDamageExceptionProcess( CX2DamageManager::DamageDa
 
 	return false;
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #endif //RIDING_SYSTEM
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013
@@ -21070,8 +21251,13 @@ void CX2GUArme_VioletMage::AVSI_HA_ADW_Fate_space_Init()
 
 /*virtual*/ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	June_ShowActiveSkillCutInAndLightByScript( fTimeToShow_, bOnlyLight_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", fTimeToShow_, m_iSkillCutInSetSubIndex, bOnlyLight_ );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 
 #ifdef MODIFY_RIDING_PET_AWAKE
 
@@ -21206,6 +21392,10 @@ void CX2GUArme_VioletMage::RidingHyperModeCameraMove()
 */
 /*virtual*/ bool CX2GUArme_VioletMage::IsValideSkillRidingOn( CX2SkillTree::SKILL_ID eSkill_ID_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+	return June_IsValideSkillRidingOn( eSkill_ID_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 	if( true == GetRidingOn() )
 	{
 		switch( eSkill_ID_ ) 
@@ -21224,6 +21414,7 @@ void CX2GUArme_VioletMage::RidingHyperModeCameraMove()
 		return true;
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #endif // FIX_NO_STATE_SKILL_BUG
 
 #ifdef ADD_MEMO_1ST_CLASS //김창한
@@ -28674,8 +28865,8 @@ void CX2GUArme_VioletMage::June_ConstructorInit()
 	m_iJune8ea4 = 0;
 	m_fJune8ea8 = 0.f;
 	m_fJune8eb0 = 0.f;
-	m_iJune7ec0 = 0;
-	m_iJune8160 = 0;
+	m_FrameDataFuture.syncData.iJuneClassSyncInt = 0;
+	m_FrameDataNow.syncData.iJuneClassSyncInt = 0;
 	for( int iJuneSlot = 0; iJuneSlot < 10; ++iJuneSlot )
 		m_abJune90d3[iJuneSlot] = false;
 	for( int iJuneSlot = 0; iJuneSlot < 3; ++iJuneSlot )
@@ -29005,7 +29196,7 @@ void CX2GUArme_VioletMage::June_CommonStateStart()
 	CX2GUUser::CommonStateStart();
 
 	// the other units read June's synced member ( Now +0x8160 )
-	const int iJuneMemoRiseSkillID = ( true == IsMyUnit() ) ? m_iJune9754 : m_iJune8160;
+	const int iJuneMemoRiseSkillID = ( true == IsMyUnit() ) ? m_iJune9754 : static_cast<int>( m_FrameDataNow.syncData.iJuneClassSyncInt );
 
 	if( 0 < static_cast<int>( GetNowStateSkillID() ) && static_cast<unsigned int>( GetNowStateSkillID() ) == static_cast<unsigned int>( iJuneMemoRiseSkillID ) )
 	{
@@ -29341,7 +29532,7 @@ void CX2GUArme_VioletMage::June_CommonFrameMove()
 
 	// the other units copy June's synced member ( Now +0x8160 )
 	if( false == IsMyUnit() )
-		m_iJune9754 = m_iJune8160;
+		m_iJune9754 = m_FrameDataNow.syncData.iJuneClassSyncInt;
 
 	June_ManaflowOverdriveFrameMove();
 }
@@ -30038,14 +30229,14 @@ bool CX2GUArme_VioletMage::June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_
 
 	m_fJune8eb0 = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
 
-	if( 0 != m_iJune7ec0 )
-		m_iJune7ec0 = 0;
+	if( 0 != m_FrameDataFuture.syncData.iJuneClassSyncInt )
+		m_FrameDataFuture.syncData.iJuneClassSyncInt = 0;
 
 	if( 3 == iKind )
 	{
 		m_fJune8eb0 = 0.0f;
-		if( m_iJune7ec0 != m_iJune8ea0 )
-			m_iJune7ec0 = m_iJune8ea0;
+		if( m_FrameDataFuture.syncData.iJuneClassSyncInt != m_iJune8ea0 )
+			m_FrameDataFuture.syncData.iJuneClassSyncInt = m_iJune8ea0;
 	}
 	else if( 2 == iKind )
 	{
@@ -30325,7 +30516,7 @@ bool CX2GUArme_VioletMage::June_IsMemoRiseChargeActive()
 // June 32cc7b90 ( vslot 0x828 ): the base test 31fd7640 ( not a common move state ) is not ported, so it answers false
 bool CX2GUArme_VioletMage::June_Vslot828()
 {
-	const bool bJuneNotCommonState = false;	// June 31fd7640: needs the common state list ( CH1 / Opus )
+	const bool bJuneNotCommonState = JuneIsNotCommonMoveState();	// June 31fd7640
 	if( true == bJuneNotCommonState )
 	{
 		const int iStateID = GetNowStateID();
@@ -30367,6 +30558,8 @@ void CX2GUArme_VioletMage::June_Vslot860( CX2GUNPC* pNPC )
 		return;
 
 	const int iNpcID = static_cast<int>( pNPC->GetNPCTemplet().m_nNPCUnitID );
+	if( 0 != pNPC->GetKeyCode() )	// June NPC +0x874c is m_KeyCode ( CreateNPC 3230d97d )
+		return;
 	if( CX2UnitManager::NUI_UFO_AISHA == iNpcID || CX2UnitManager::NUI_UFO_AISHA_DROPPER_MEMO == iNpcID )
 	{
 		const float fFactor = pNPC->GetDefaultPowerRate();
@@ -31088,7 +31281,7 @@ void CX2GUArme_VioletMage::June_InitStateCommon()
 	m_LuaManager.MakeTableReference( "AVSI_RIDING_OFF", stateData.stateID );
 	stateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_RidingOffStart );
 	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingOffEventProcess );
-	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingOffEnd );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUArme_VioletMage, June_RidingOffEnd );	// June's 329cc060 thunk ( vslot 0x610 ) lands on 32cc8ae0
 	m_StateList[stateData.stateID] = stateData;
 
 	stateData.Init();
@@ -32800,5 +32993,16 @@ void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_FIRE_StateStart()
 #undef JUNE_ARME_INPUT_8726
 #undef JUNE_ARME_ANY_SKILL_KEY
 //}} Iruha : 2026-10-21 // June character pilot Phase CH1k
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH1l
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+// June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and 0x764 refunds the memo share
+/*virtual*/ void CX2GUArme_VioletMage::JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	June_SpecialAttackCooldown( iSkillID, m_fJune8ea8 );
+	June_SkillMemoMpRefund( iSkillID, June_IsSkillSlotState( GetNowStateID() ), m_fJune8ea8 );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+//}} Iruha : 2026-10-21 // June character pilot Phase CH1l
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

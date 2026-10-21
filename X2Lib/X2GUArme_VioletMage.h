@@ -1234,8 +1234,6 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		int							m_iJune8ea4;			/// 0; its slot index
 		float						m_fJune8ea8;			/// 0; the MP a reserved skill keeps until its state starts
 		float						m_fJune8eb0;			/// 0; the MP the chosen skill costs
-		int							m_iJune7ec0;			/// 0; the Future frame's synced skill id ( +0x8160 in the Now frame )
-		int							m_iJune8160;			/// 0; the Now frame's synced skill id; nothing copies the Future value yet
 		bool						m_abJune90d3[10];		/// false; slot used marks ( 31fc86e0 )
 		bool						m_abJune90d0[3];		/// false
 		bool						m_bJuneAfterImageSaved;	/// false; June after-image +0x1d1 ( 32cc7c30 )
@@ -1274,6 +1272,18 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_HELL_DROP_CONTROL_DOWN_RIGHT_StateStart();		/// June 32cc7920
 		void June_AVSI_HELL_DROP_CONTROL_FIRE_StateStart();				/// June 32cc79b0
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH1k
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1l ( JUNE_CHARACTER_AISHA_PHASES.md )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		virtual void SetShowViewList( bool bShow_ ) { June_SetShowViewList( bShow_ ); }	/// June vslot 0x63c
+		virtual bool UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList ) { return June_UpdateEquipViewListInfo( pItemToAddInViewList, pItemToRemoveInViewList ); }	/// June vslot 0x644
+		using CX2GUUser::UpdateEquipCollisionData;
+		virtual void UpdateEquipCollisionData( IN vector<CX2EqipPtr>& vecEquipList_ ) { June_UpdateEquipCollisionData( vecEquipList_ ); }	/// June vslot 0x638
+		virtual void JuneAfterEquipSlotChange() { June_Vslot654(); }	/// June vslot 0x654
+		virtual void JuneAfterImageFrameMove() { June_Vslot850(); }	/// June vslot 0x850
+		virtual void JuneSummonedNPCInfo( CX2GUNPC* pNPC_ ) { June_Vslot860( pNPC_ ); }	/// June vslot 0x860
+		virtual void JuneReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH1l
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		////AVSI_DAMAGE_GROGGY

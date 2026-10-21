@@ -1382,6 +1382,59 @@ the image: 200, 45, 0.93, 5.0, 1000, -1, 1.0, 4.5 and 0.
 stand-in lines (four damage lines, the START comment and stand-in, WIN, LOSE), replaced in place. No build: no code changed. `CH1l.md` checked: its
 "From CH1k" notes (the batch around the head, the virtual `COMMON_BUFF_FrameMove`) stand. No drift found.
 
+### CH1l - Done (2026-10-21, Opus)
+
+The virtuals are wired under `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE` (still undefined), plus two inert CX2GUUser hoists under `..._ARME_CORE`. The commit is "Character pilot Phase CH1l".
+
+**1. The virtuals (item 3).** 38 March overrides now run their `June_*` member under LIVE, with March's body in the `#else`:
+- the lifecycle: ctor, dtor, `ReInit`, `InitDevice`, `InitComponent`, `InitEffect`, `InitEtc`;
+- `DamageReact`, `Win`, `Lose`, `Draw`, `OnFrameMove`, `NotifyDGManagerChanged`, the particle arrays, `HyperModeBuffEffectStart`, `HyperModeFrameMove`, `COMMON_BUFF_FrameMove` (`32cc6e50`, CH1k's note);
+- `Common*` x6 and `CommonRender_Prepare`;
+- the 509 step: `SpecialAttackEventProcess` -> `June_SpecialAttackEventProcess`, which calls 510 / 511 directly;
+- `SpecialAttackNoStageChange`, `NoStateChangeActionFrameMove`, `InitEquippedActiveSkillState`, `SetEquippedSkillLevel`, `CanRidingState`, `IsValideSkillRidingOn`, `ShowActiveSkillCutInAndLightByScript`, `ApplyRenderParam...`.
+
+Three cases differ from a plain call:
+- **Dtor:** the LIVE branch also deletes `m_pStrongMindData`. March's `InitPassiveSkillState` still allocates it until CH4.
+- **Dropped March-only virtuals:** `ParseCommonRandomState` is pure virtual in CX2GUUser, so the LIVE body is empty (June rolls the variants in `June_InitState`). `ApplyAuraAcceleratorBuffToGameUnit` calls the base.
+- **New Arme overrides** (header, LIVE):
+  - `SetShowViewList` (0x63c), `UpdateEquipViewListInfo` (0x644).
+  - `UpdateEquipCollisionData( vector& )` (0x638). Under LIVE the CX2GUUser vector overload is `virtual`, as in June; a `using` keeps the no-arg form visible.
+
+**2. June-only user vslots and their March call sites** (each base is empty or March's code; LIVE hooks in CX2GUUser):
+- **0x654** `JuneAfterEquipSlotChange`: `X2UIInventory.cpp`, `Handler_EGS_CHANGE_INVENTORY_SLOT_ACK` (June `321a29a0` @321a2c5d, the only one of five Rfoot sites with the call).
+- **0x850** `JuneAfterImageFrameMove`: replaces March's after-image `OnFrameMove` in `CX2GUUser::CommonFrameMove` (June @3206c186). The base keeps March's call.
+- **0x860** `JuneSummonedNPCInfo`: end of `CX2Game::SetUserSummonedNPCInfo` (June @3230cb1b).
+- **0x610** `RidingOffEnd`: June registers a thunk to vslot 0x610 (`329cc060`), so `June_InitState` now registers `June_RidingOffEnd` directly. Nothing else becomes virtual.
+- **Reserved skill (512)**: `CountReservedSkillUse` calls `JuneReservedSkillStart` before `ClearSkillUseReserve` (June @32057c4c-cb2). Arme's override runs `June_SpecialAttackCooldown( id, m_fJune8ea8 )` and `June_SkillMemoMpRefund( id, state byte +0x11, m_fJune8ea8 )`. June's vslot 0x810 test is not called (March's comment there holds).
+- **No March caller (correct as is):**
+  - 0x604 / 0x608 / 0x60c and 0x680 are called only from Arme code; 0x718 and 0x880 are Arme's own or HUD-only. 0x880 is not a CX2GUUser slot at all: the base vtable ends at 0x87c.
+  - 0x718's other callers are `322cf810` and `322e1bb3`, which belong to the MemoRise HUD (`322f4740`, CH4).
+
+**3. The CH1i-review gaps.**
+- `31fd7640` is now `CX2GUUser::JuneIsNotCommonMoveState` (CORE). It returns false in these states:
+  - wait, charge-MP (`+0x7d04` = `m_ChargeMpState`);
+  - walk, dash, dash end, dash jump and its landing, jump ready / up / down / landing (vslots 0x438-0x45c resolved one by one);
+  - the ten riding move states (June ids are March + 1 there).
+  - vslots 0x520 (now == wait) and 0x578 (false) add nothing.
+- `June_Vslot828` uses it. Its only June caller is `CX2GUUser::OnFrameMove` @3206f99d, which resets the June-only idle timer `+0x91a8 / +0x91ac` (CX2Game `323022b0`, text `0x4b1f`). That timer is not Aisha's -> drift, below.
+- **Future -> Now:** `+0x7ec0 / +0x8160` is one 12-byte protected slot of the frame data, used by many classes. It is now `SyncData::iJuneClassSyncInt` (CORE, `KProtectedType<int>`), so March's frame copy carries it. It is off-wire, and the wire status is not read. `m_iJune7ec0 / 8160` are gone.
+- **NPC `+0x874c` is `m_KeyCode`** (CreateNPC 3230d97d writes it next to `m_bIsActiveMonster` +0x872c). `June_Vslot860` now returns when it is non-zero.
+- **The dirty-state batch** `3207c1a0` / `31fdf970` collects the state ids it edits. At the end it re-protects each entry with June's anti-tamper registry (`0x3376d8d8`, `31c594b0`, funcmap `31c59710`), which March does not have. One decision covers both callers: there is nothing to port.
+- **The equip anim array choice** (`+0x544 / +0x584`) is not settled. It needs the June item-type layout, so it stays open for the CH1l review (item 1 below).
+
+**4. Hoists.** Moved to CX2GUUser: the test above and the sync slot. Everything else from the CH1i list stays Arme-local, because only Aisha's code calls it (`m_iJune8ea0..8eb0`, `m_abJune90d3 / 90d0`, `m_bJuneAfterImageSaved`, `June_SetSkillBuffFactors`, `June_GetSkillLevel` and the others).
+
+**Hygiene.**
+- `flagcheck.py JUNE_CHAR_ARME_CORE --worktree --files` (Arme .cpp/.h, X2GUUser.h/.cpp): `files: 1 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; `2 deleted line(s)` (the two Arme sync members), `0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- LIVE: `0 deleted line(s)`. Its only FAIL is the by-design "not #defined" (CH1j precedent).
+- `cl /Zs` of X2GUArme_VioletMage / X2GUUser / X2UIInventory / X2Game: 0 errors with LIVE defined and with LIVE undefined.
+
+Build: `DEPLOY OK: X2_offline.exe is 25,681,408 B, dated 2026-10-21 09:06:55, md5 21d5d641c6f8407c1eb25d2700351f48, equal to X2/US_SERVICE/x2.exe (2026-10-21 09:06:48); built at main cf8de0cb + 6 uncommitted code file(s).`
+
+**Drift (scope rule):** June's idle timer `+0x91a8 / +0x91ac` (setter `3203e850` @32041ae3, reader CX2Game `323022b0`, reset by user vslot 0x828) is for every class -> Stage 9 (UI sweep) bullet. June's base 0x850 also toggles the after-image for class 13 -> that class's port (checklist 7). `+0x9440` (the MP the reserved skill spent, @32057ce2) is read only by `32b60650 / 32b63be0`, another class -> checklist 7.
+**Open for the review:** (1) the `+0x544 / +0x584` anim-array choice; (2) whether 0x850's March placement (after the shadow block, not inside its effect-on branch) is acceptable.
+**In game:** nothing (LIVE undefined). Review: `kickoffs/pilot-char-revamp/CH1l-review.md` (Opus).
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

@@ -3860,6 +3860,9 @@ bool CX2UIInventory::Handler_EGS_CHANGE_INVENTORY_SLOT_ACK(  HWND hWnd, UINT uMs
 #ifdef	NOT_RENDERING_OTHER_EQUIP_POS
 				pMyUser->UpdateNotRenderingOtherEquipList();
 #endif	NOT_RENDERING_OTHER_EQUIP_POS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+				pMyUser->JuneAfterEquipSlotChange();	// June 321a2c5d ( vslot 0x654 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 				pMyUser->UpdateEquipCollisionData();
 
 				pMyUser->SetEnableAttackBox( L"Rfoot", false );

@@ -828,3 +828,12 @@ S7b ports June's skill tree UI (`CX2UISkillTreeNew2015`). These parts of its cla
 June's decide-page ACK (`3220f2b0`) has two class branches after `InitEquippedActiveSkillState( false )` (vslot 0x684), on the game unit's type (`31e4d0e0`). S7d ports the rest of the handler; the class port adds these:
 - **Unit type 2 (Aisha):** `32ce1770( &true )` on the game unit (@3220f4dc), a walk over the unit's class list (`32cf1b10` / `32a78b90`).
 - **Unit type 9 (Add):** the tree UI's `328e0290( string 3347f014 )` (@3220f53a), the same install / G-Core mark refresh as 7aj.
+
+### 7al. Class pieces CH1l found in the user base (from pilot-char-revamp CH1l)
+
+- **Class 13 after-image toggle:** June's base of user vslot 0x850 (`31fd8230`) toggles the after-image `+0x194 / +0x1d1` for class 13 before
+  `OnFrameMove`; the CH1l hook `JuneAfterImageFrameMove` keeps March's plain call in the base. Port the toggle with that class.
+- **`+0x9440`, the MP a reserved skill spent** (written @32057ce2 in CommonStateStart): read only by `32b60650` / `32b63be0`. Name that class and
+  write it into a CX2GUUser member before its states read it.
+- **New CX2GUUser hooks for every class** (LIVE): `JuneAfterEquipSlotChange` (0x654), `JuneAfterImageFrameMove` (0x850), `JuneSummonedNPCInfo` (0x860),
+  `JuneReservedSkillStart` (512), and the virtual `UpdateEquipCollisionData( vector& )` (0x638). A class port overrides the ones June's class overrides.

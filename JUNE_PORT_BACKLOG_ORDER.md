@@ -448,6 +448,9 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   `@3223e144`; goes with the cash-shop screen bullet above) and cleared at the game-camera creation `322dfed2 @322dfedb`; `PointAndUpdateViewTransform`
   (`31d01640`) from `324ba910 @324baa7c` / `328c41f0` (candidates: March's Field / BattleField `SetShowStateDLG( false )` view); the camera
   sequencers `3276c6f0` / `32d2e520` (name them; class-only ones go to checklist 7af). Brief: `kickoffs/june-engine/R13d.md`.
+- **June's idle timer** (handed here by pilot-char-revamp CH1l, 2026-10-21). User floats `+0x91a8 / +0x91ac` (set @32041ae3 in `3203e850`,
+  reset by `CX2GUUser::OnFrameMove` @3206f99d when user vslot 0x828 answers true), read by CX2Game `323022b0`, which shows text `0x4b1f` with the
+  remaining time. All classes; the 0x828 base is `CX2GUUser::JuneIsNotCommonMoveState` (CH1l). Identify the screen it drives, then port whole.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
