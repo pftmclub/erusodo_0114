@@ -9655,3 +9655,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( JUNE_CHAR_ARME_LIVE ).
 //#define SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
+// Description: June character pilot ( Aisha ) Phase CH1m - InputData gets June's Sit key group ( +0x8726, GA_SIT; CX2Game::KeyProcess 322f7170
+//              @322f7fa4 ). Aisha's MemoRise first-entry press and the shower-loop hold read it. SERV_IRUHADEV_JUNE_CHAR_ARME_CORE needs it.
+//              Revert: undefine the flag ( JUNE_INPUT_SIT_KEY ) and SERV_IRUHADEV_JUNE_CHAR_ARME_CORE.
+#define SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
+//////////////////////////////////////////////////////////////////////////

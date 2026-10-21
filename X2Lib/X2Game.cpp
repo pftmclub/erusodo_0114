@@ -5971,6 +5971,9 @@ void CX2Game::KeyProcess()
 					InputData( GA_SKILL_EX5, m_InputData.pureDoubleSkillEx5, m_InputData.oneDoubleSkillEx5, m_InputData.pureSkillEx5, m_InputData.oneSkillEx5 );
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 				}
+#ifdef SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
+				InputData( GA_SIT, m_InputData.oneSit, m_InputData.oneSit, m_InputData.pureSit, m_InputData.oneSit );	/// June 322f7170 @322f7fa4: both double bytes are the one byte ( JUNE_BUGS )
+#endif SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
 
 #ifdef RIDING_SYSTEM
 				}

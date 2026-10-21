@@ -1040,8 +1040,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_AEM_ZZXX_LOOP_End();							/// June 32cc3b70
 		void June_AVSI_AEM_ZZXX_END_FrameMove();							/// June 32ce28f0
 		void June_AVSI_AEM_ZZXX_END_EventProcess();							/// June 32cc3b90
-		float June_GetSpecialOptionValue( const int iIndex_ ) const;		/// June 31fd6230 ( reads m_vecJuneSpecialOptionValue )
-		std::vector<float>			m_vecJuneSpecialOptionValue;		/// June CX2GUUser +0x93a8: the state's SPECIAL_OPTION_VALUE ( CH1 parses it in CommonStateStart, 32057b80 @320608c8 )
+		float June_GetSpecialOptionValue( const int iIndex_ ) const;		/// June 31fd6230 ( reads CX2GUUser::m_vecJuneSpecialOptionValue )
 		float						m_fJuneZZXXLoopTime;				/// June +0x9784 ( constructor 0, 32ccb02e )
 		CX2EffectSet::Handle		m_hJuneDashJumpChargeEffect;		/// June +0x9788 ( constructor -1, 32ccb034 ): EffectSet_AHM_DashJumpAttackZXX_Loop
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1e

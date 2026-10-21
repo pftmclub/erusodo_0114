@@ -17455,6 +17455,16 @@ void CX2GUUser::CommonStateStart()
 	StopSoundOnSkillStateEnd( static_cast<int>( GetNowStateSkillID() ) );
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
 #ifdef SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+	m_vecJuneSpecialOptionValue.resize( 0 );	/// June 32057b80 @320608a9-3206092e
+	if( true == m_LuaManager.BeginTable( "SPECIAL_OPTION_VALUE" ) )
+	{
+		float fJuneValue = 0.f;
+		for( int i = 1; true == m_LuaManager.GetValue( i, fJuneValue ); ++i )
+			m_vecJuneSpecialOptionValue.push_back( fJuneValue );
+		m_LuaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 	/// June CX2GUUser::CommonStateStart 32057b80 @32060990-32060b96 ( C3e-4 ): TIME_STOP_IMMUNE_STATE ( a miss is false ), stored only when it
 	/// changed ( the protected bool +0x7dc4 ). June reads it after the skill-state-end stops ( @320606a9 ); SetStopTime / SetStop2Time read it.
 	/// No March class script has the key ( 76 June class states do; they arrive with the class ports ).
@@ -25585,6 +25595,51 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+// June 31fcadd0: the pressed skill slot in June's index space ( A 0-3, F 4, B 5-8, T 9 )
+bool CX2GUUser::JuneCommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUserSkillTree_, OUT const CX2UserSkillTree::SkillSlotData* & pSkillSlotDataPressed_, OUT int& iSkillSlotIndexPressed_ )
+{
+	if( true == IsThereEffectiveBlackHoleDamageEffect() || true == m_bSpecialAttackEventProcessedAtThisFrame || true == IsCanNotIntput() )
+		return false;
+
+	const bool abKeyA[5] = { m_InputData.oneA, m_InputData.oneS, m_InputData.oneD, m_InputData.oneC, m_InputData.oneSkill5 };
+	for( int i = 0; i < 5; ++i )
+	{
+		if( true == abKeyA[i] )
+		{
+			pSkillSlotDataPressed_ = cUserSkillTree_.GetSkillSlot( i, false );
+			if( NULL != pSkillSlotDataPressed_ && CX2SkillTree::SI_NONE != pSkillSlotDataPressed_->m_eID )
+				iSkillSlotIndexPressed_ = i;
+			return true;
+		}
+	}
+
+	if( true == m_InputData.oneSkillEx5 && NULL != g_pData && true == cUserSkillTree_.IsJuneSlotUsable( 1 ) )
+	{
+		pSkillSlotDataPressed_ = cUserSkillTree_.GetSkillSlot( 4, true );
+		if( NULL != pSkillSlotDataPressed_ && CX2SkillTree::SI_NONE != pSkillSlotDataPressed_->m_eID )
+			iSkillSlotIndexPressed_ = 9;
+		return true;
+	}
+
+	if( NULL != g_pData && NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() &&
+		false == g_pData->GetUIManager()->GetUISkillTree()->IsExpandSkillSlot() )
+		return true;
+
+	const bool abKeyB[4] = { m_InputData.oneQ, m_InputData.oneW, m_InputData.oneE, m_InputData.oneR };
+	for( int i = 0; i < 4; ++i )
+	{
+		if( true == abKeyB[i] )
+		{
+			pSkillSlotDataPressed_ = cUserSkillTree_.GetSkillSlot( i, true );
+			if( NULL != pSkillSlotDataPressed_ && CX2SkillTree::SI_NONE != pSkillSlotDataPressed_->m_eID )
+				iSkillSlotIndexPressed_ = 5 + i;
+			return true;
+		}
+	}
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_MP
 /// S3d, June2017 31fdbe20 (CX2GUUser vslot 471): the skill's active memo (31fdbbb0); types 3 (MI_LIGHT), 7 (MI_BRILLIANT) and 8 (MI_CRITICAL)
 /// give its v0 (0.0 when it has no value), any other type or no memo 1.0. June's one reader is GetActualMPConsume (3203cf60 @3203cfcf).

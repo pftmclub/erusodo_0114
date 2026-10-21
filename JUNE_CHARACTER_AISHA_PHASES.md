@@ -1445,6 +1445,45 @@ Build: `DEPLOY OK: X2_offline.exe is 25,681,408 B, dated 2026-10-21 09:06:55, md
 - **Open item 1, `+0x544 / +0x584`:** these are `CX2Eqip::m_pNormalXSkinAnim[8]` / `m_pHyperXSkinAnim[8]`. The choice (templet `+0xd2` in {9, 11} -> normal, else hyper) is the base `31fd8c00`'s loop, which `32cc8d30` inlines; funcmap R12b already records it, unported for every class. Arme keeps calling March's base, so it gets the choice when the base is ported -> Stage 2 bullet (engine, every class), with the riding-pet branch going to Stage 17.
 - `cl /Zs` with LIVE defined: X2GUArme_VioletMage / X2GUUser / X2UIInventory / X2Game, 0 errors each. `CH1m.md` already exists and needs no change.
 
+### CH1m - Done (2026-10-21, Opus)
+
+Flags: `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` (the pressed-index reader, the `SPECIAL_OPTION_VALUE` parse, the Arme fixes) and the new
+`SERV_IRUHADEV_JUNE_INPUT_SIT_KEY` (Always.h; CORE needs it). Inert until LIVE: only `June_*` code reads either.
+
+**Item 4, pressed-index space (7ag). Design call:** Aisha alone gets June's space by calling June's own reader. `31fcadd0` is ported whole
+as `CX2GUUser::JuneCommonSpecialAttackEventProcess` (A 0-3, F `oneSkill5` 4, Q/W/E/R 5-8, T `oneSkillEx5` 9 while `IsJuneSlotUsable( 1 )`;
+the guards, the `IsExpandSkillSlot` gate and the SI_NONE test are March's, in June's order). `June_SpecialAttackEventProcess` calls it; March's
+`CommonSpecialAttackEventProcess` keeps 0-3 / 4-7 for every unported class, and Aisha's March body (`#else` LIVE, `:5382-5397`, `CountUsedSkill`)
+still pairs with it. A later class port switches its caller the same way. No shared signature changed. Slot 4 / 9 stay locked until Stage 6.
+
+**`+0x8726` (from CH1k) = the Sit key.** June `CX2Game::KeyProcess 322f7170 @322f7fa4` calls `3230f5f0( 0x27, ... )` on group `+0x390` (user `+0x8726`)
+right after the skill keys; `0x27` = GAMEACTION_SIT (June's RIDING = 0x28; `31f5da70` maps 0x27 to KBI `0x2e` = V). `InputData` gains
+`pureSit / oneSit / pureDoubleSit / oneDoubleSit`; X2Game feeds them after the skill block, passing the one byte for both double arguments
+as June does (JUNE_BUGS 381). `JUNE_ARME_INPUT_8726` = `m_InputData.pureSit` (the shower loops read `+0x8726`, `32cc7071`).
+
+**Two CH1-era transcription fixes in `June_SelectSkillSlotKind` (`32cc7e60`):** the MemoRise first-entry press is `+0x8727` = `oneSit`, not
+`oneSkill5`; and the slot lookup is `3288fff0`'s: index -1, then the first match, A gives `i`, B gives `i + 5` (it gave `i` for both, last match).
+
+**Item 5, hooks and script keys** (each against March's reader):
+| Key | Verdict |
+|---|---|
+| `SPECIAL_OPTION_VALUE` | ported: `CommonStateStart` clears `m_vecJuneSpecialOptionValue` (CX2GUUser, June `+0x93a8`) and pushes values 1..n (`@320608a9-3206092e`), before `TIME_STOP_IMMUNE_STATE` as in June; Arme's stand-in member is gone, `June_GetSpecialOptionValue` reads the user list |
+| `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME` | read already: buff sub-tables found by `STRINGIZEA2( type_ )` (`X2BuffBehaviorTemplet.cpp:22`, `X2BuffFinalizerTemplet.cpp`); the census cannot see stringized names |
+| `SET_LIMIT_MAX_G_SPEED` (7o) | read already (`X2GUUser.cpp:15863`, C3g); June's `AVSI_DAMAGE_BOUNDING_DOWN` carries -4000 |
+| `TIME_STOP_IMMUNE_STATE` (7p) | read already (`:17463`, C3e-4); 12 Aisha states |
+| `AT_COMMAND` (7x) | read already (DAMAGE_DATA `ATTACK_TYPE`); 18 tags arrive with the script; the Elysion stand-in stays until every played class is ported |
+| `EFFECT_SET_LIST_ULTIMATE_EX` | routed: checklist row 397 (`32024ff0` list variants); its gate, the upgraded-skill flag, is off in March until backlog 3c |
+| `IMMUNITY_EDT_LIST_AT_THIS_STATE` | routed: Stage 2 bullet "Per-state immunity lists" (`31fdaaa0`, with `IMMUNITY_LIST_AT_THIS_STATE`, `+0x8638 / +0x8648`) |
+| `FORCE_DYNAMIC_CAMERA_INDEX`, `RETAIN_CAMERA_STATE` | routed: Stage 9 bullet "CommonStateStart's camera keys" (`@3205b934`, `@3205c0e8`, `+0x801c`) |
+
+7l: `JuneInitBoundingStates( "AVSI_" )` and `JuneInitWaitStateChange` are registered (CH1j). C3d-3's review legs (the `JUNE_FX C3d-3` line, a
+bounding hit) are play-test legs; they run in the final CH1 with LIVE.
+
+Hygiene: flagcheck `--worktree --files` PASS for both flags; CORE's 9 deleted lines are the replaced CORE-only lines above.
+Build: `DEPLOY OK: X2_offline.exe is 25,681,920 B, dated 2026-10-21 09:35:06, md5 0606f95a3a128b6f1c061e91190aa579` (main 7a797c44 + these 7 files)
+
+In game: nothing (inert). Open questions: none.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a

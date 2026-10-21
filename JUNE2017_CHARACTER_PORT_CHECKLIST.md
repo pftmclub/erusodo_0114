@@ -479,7 +479,7 @@ user half does nothing until a class port brings June's state tables. Carry the 
 
 | Class | June states with the key | Value |
 |---|---|---|
-| All 12 classes in 7l (13 tables: Lu and Ciel have one each) | `<prefix>DAMAGE_BOUNDING_DOWN` | -4000 |
+| All 12 classes in 7l (13 tables: Lu and Ciel have one each) | `<prefix>DAMAGE_BOUNDING_DOWN` | -4000 | (Aisha: CH1m, user reader `X2GUUser.cpp` C3g; arrives with the script in the final CH1)
 | Raven | `RRF_DASH_JUMP_COMBO_XX` | -5000 |
 | Add | `ANSI_APT_DASH_JUMP_COMBO_ZX` | -4000 |
 
@@ -518,7 +518,7 @@ below still call the 1-argument form. Carry them over with June's arguments (`ju
 
 | Class | June site | June call |
 |---|---|---|
-| All classes | `TIME_STOP_IMMUNE_STATE = TRUE` in 76 June states over 16 class files (`grep -c TIME_STOP_IMMUNE_STATE june_src_fixed/data036_kom/*.src.lua`) | the state table, verbatim |
+| All classes | `TIME_STOP_IMMUNE_STATE = TRUE` in 76 June states over 16 class files (`grep -c TIME_STOP_IMMUNE_STATE june_src_fixed/data036_kom/*.src.lua`) | the state table, verbatim | (Aisha: CH1m, 12 states, reader C3e-4; arrives with the script)
 | Chung | DamageReact `32c0cf90` (vslot `0x60`) @32c0d18c / @32c0d19c / @32c0d1b4 | attacker `SetStopTime( 0.5, false, NULL, false )`, own `SetStopTime( 0.5, false, NULL, false )`, own `SetStop2Time( 0, false, NULL, false )` |
 | Aisha (Violet Mage) | binding circle hyper FrameMove `32cd5d60` @32cd6152 (March `AVSI_SI1_AV_BINDING_CIRCLE_HYPER_FrameMove`) | `SetStopTime( 3.0, false, NULL, true )`: the exe's only forced stop, so it overrides the immune state **(Aisha CH0, 2026-10-20: n/a. `32cd5d60` has no pointer, call, jmp or thunk anywhere in the exe; June registers `AVSI_SI1_AV_BINDING_CIRCLE` for both slots with FrameMove `32cd57c0`, so June never runs this forced stop.)** |
 | Elsword | March `THROW_WOODEN_PIECE_FrameMove` `SetStopTime( 1.5f )` | no June `+0x100` call loads 1.5: confirm June dropped it, then drop it too |
@@ -771,7 +771,7 @@ S5 made the engine 5 + 5 (slot ids A 0-3 + A-TC 4, B 5-8 + B-TC 9; `CX2UserSkill
 `CommonSpecialAttackEventProcess`'s `iSkillSlotIndexPressed_`, `m_iPressedSkillSlotIndex`, `CountUsedSkill`, `GetPressedSkillState` and `CurrentSkillKeyManager` still use March's 0-3 (A) / 4-7 (B), because about 35
 class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way. A class port that adopts June's class code converts at that moment:
 - June's combined index is A 0-4, B 5-9 (`3288fe30`: `> 4` is B, minus 5). Its pressed key reader `31fcadd0` also returns **4** (F, `GA_SKILL5`) and **9** (T, `GA_SKILL_EX5`, only while slot-state key 1 is usable).
-  Change `CommonSpecialAttackEventProcess` and every `> 3` / `-4` decode of the ported class together; the `InputData` groups `oneSkill5` / `oneSkillEx5` already exist (S5 only consumes the press).
+  Change `CommonSpecialAttackEventProcess` and every `> 3` / `-4` decode of the ported class together; the `InputData` groups `oneSkill5` / `oneSkillEx5` already exist (S5 only consumes the press). (Aisha: CH1m, June `31fcadd0` ported whole as `CX2GUUser::JuneCommonSpecialAttackEventProcess`; March's reader stays for the unported classes)
 - The TC slot's states `USI_SPECIAL_ATTACK_5` / `_HYPER_5` / `USI_SPECIAL_ATTACK_SLOTB_5` / `_HYPER_5` exist and the state arrays have 5 entries, but `SetEquippedSkillFunc*`, `SetEquippedSkillLevelCommon`, `CalcEquippedSkillLevelPlusAndMPCost`
   and `ChangeEquippedSkillState` skip the fifth slot, so no class `SetEquippedSkillFuncBySkillSlotIndex` ever sees it. Stage 6 (transcendence) removes those skips and gives each class its TC cases.
 - A-TC is locked because March has no transcendence flag (`CX2Unit +0x3c`, June `328dfab0` / `3220e3b0`); the emulator refuses an equip into 4 / 9. Stage 6 adds the flag and sends key 1 = usable.

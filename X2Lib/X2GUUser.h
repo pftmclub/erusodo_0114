@@ -3604,6 +3604,10 @@ public:
 
 
 		bool CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUserSkillTree_, OUT const CX2UserSkillTree::SkillSlotData* & pSkillSlotDataPressed_, OUT int& iSkillSlotIndexPressed_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
+		bool JuneCommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUserSkillTree_, OUT const CX2UserSkillTree::SkillSlotData* & pSkillSlotDataPressed_, OUT int& iSkillSlotIndexPressed_ );	/// June 31fcadd0: A 0-4, B 5-9
+		std::vector<float> m_vecJuneSpecialOptionValue;		/// June +0x93a8: the state's SPECIAL_OPTION_VALUE ( CommonStateStart @320608c8 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 
 		virtual bool				SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND ) = NULL;
 

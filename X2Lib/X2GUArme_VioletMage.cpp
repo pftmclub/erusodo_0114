@@ -25494,7 +25494,7 @@ void CX2GUArme_VioletMage::June_DashJumpAttackX2EventProcess()
 		true == CanHyperMode() && 0.f <= (fTime_) && (fTime_) < m_pXSkinAnimFuture->GetNowAnimationTime() && false == IsQuickSlotSpecialItemWaiting() ) \
 	{ m_bHyperModeStartedByInput = true; StateChange( GetHypetMpdeStateID() ); }
 
-/// June CX2GUUser +0x93a8: the state's SPECIAL_OPTION_VALUE list ( June 31fd6230, read 0 when out of range ); CH1 parses the key ( 32057b80 @320608c8 ).
+/// June CX2GUUser +0x93a8: the state's SPECIAL_OPTION_VALUE list ( June 31fd6230, read 0 when out of range ).
 float CX2GUArme_VioletMage::June_GetSpecialOptionValue( const int iIndex_ ) const
 {
 	if( 0 <= iIndex_ && iIndex_ < static_cast<int>( m_vecJuneSpecialOptionValue.size() ) )
@@ -29837,7 +29837,7 @@ int CX2GUArme_VioletMage::June_SelectSkillSlotKind( const CX2UserSkillTree& user
 {
 	if( NULL == *ppSlot_ )
 	{
-		if( false == m_InputData.oneSkill5 || true == m_deqJuneMemoRise.empty() )
+		if( false == m_InputData.oneSit || true == m_deqJuneMemoRise.empty() )	/// June +0x8727 = oneSit
 			return 0;
 
 		const int iFirst = 0;
@@ -29846,12 +29846,19 @@ int CX2GUArme_VioletMage::June_SelectSkillSlotKind( const CX2UserSkillTree& user
 		if( NULL == *ppSlot_ )
 			return 0;
 
+		*piIndex_ = -1;
 		for( int i = 0; i < 5; ++i )
 		{
 			if( *ppSlot_ == userSkillTree_.GetSkillSlot( i, false ) )
+			{
 				*piIndex_ = i;
-			else if( *ppSlot_ == userSkillTree_.GetSkillSlot( i, true ) )
-				*piIndex_ = i;
+				break;
+			}
+			if( *ppSlot_ == userSkillTree_.GetSkillSlot( i, true ) )
+			{
+				*piIndex_ = i + 5;
+				break;
+			}
 		}
 
 		if( static_cast<int>( (*ppSlot_)->m_eID ) <= 0 )
@@ -30143,7 +30150,7 @@ bool CX2GUArme_VioletMage::June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_
 	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
 	int iPressedSkillSlotIndex = 0;
 
-	if( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+	if( false == JuneCommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
 		return false;
 
 	int iKind = June_SelectSkillSlotKind( accessUserSkillTree, &pSkillSlotData, &iPressedSkillSlotIndex );
@@ -32755,8 +32762,8 @@ bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SK
 	|| m_InputData.pureQ == true || m_InputData.pureW == true || m_InputData.pureE == true || m_InputData.pureR == true \
 	|| m_InputData.pureSkillEx5 == true )
 
-/// June InputData +0x8726, a key March's InputData lacks ( CH1m )
-#define JUNE_ARME_INPUT_8726 false
+/// June InputData +0x8726 = pureSit ( GA_SIT )
+#define JUNE_ARME_INPUT_8726 m_InputData.pureSit
 
 /// June 32cbfb70 / 32cc2110: the end states' landing test, then June's cancel chain
 #define JUNE_ARME_SHOWER_END_EVENT_PROCESS \

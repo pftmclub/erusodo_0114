@@ -276,6 +276,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			bool pureDoubleSkillEx5;
 			bool oneDoubleSkillEx5;
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
+			bool pureSit;			/// June +0x8726 ( GA_SIT, KeyProcess 322f7170 @322f7fb4 )
+			bool oneSit;
+			bool pureDoubleSit;
+			bool oneDoubleSit;
+#endif SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
 
 			InputData()
 			{
@@ -392,6 +398,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				pureDoubleSkillEx5	= false;
 				oneDoubleSkillEx5	= false;
 #endif SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#ifdef SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
+				pureSit				= false;
+				oneSit				= false;
+				pureDoubleSit		= false;
+				oneDoubleSit		= false;
+#endif SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
 			}
 
 
