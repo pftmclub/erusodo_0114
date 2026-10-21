@@ -1609,6 +1609,27 @@ CH0 decides the adoption needs a reader fix) and `SERV_IRUHADEV_JUNE_CHAR_ARME_U
 **Done gate:** `UnitTemplet` loads with no new error for all nine characters (one select-screen pass). Aisha's hyper cut-in plays June's
 `.gfx`. The tree UI shows Aisha's June-specific pieces.
 
+### CH5 - Done (2026-10-21, Sonnet 5.5)
+
+- **`UnitTemplet.lua` (data036):** converted to core-list BOM source (`luasrc.py convert`, decompile T1; ledger + core row `edit: pilot-char-revamp CH5 per-character rows`).
+  The 7 `UC_ARME_*` blocks (2, 14, 15, 23, 104, 105, 113) are June's text; the other 48 blocks are untouched (block-wise swap, 55 blocks before and after).
+  New in Aisha's rows: `m_HyperCutIn` `HQ_Cutin_AEM/AVP/ADW_Transcendence` on 104 / 105 / 113 (the `.gfx` are in data195, CH0b), names `STR_ID_4792` / `4793` / `17427`,
+  `m_fLobbyRotationY` (ignored by March). No reader fix needed (all keys read since C3t, `UC_150` is nil and skipped), so no `JUNE_CHAR_UNITTEMPLET` flag.
+  `kom.py pack data036`: PACK OK, the only changed entry vs the live kom is `UnitTemplet.lua`. **Copy not done: it waits for the user's yes.**
+- **Cut-in table (flag `SERV_IRUHADEV_JUNE_CHAR_ARME_UI`, needs `ARME_LIVE`):** `s_SkillCutInSet` = June `333ab660` (`HQ_CutIn_Aisha_01/02/03`, `EM_01` x3, `VP_01` x3, `DW_01` x3,
+  no extension; 4 sets x 3, same shape and `SkillCutIn( name )` size/position as March), March's table stays in the `#else`. `s_SkillCutInSetEvent8b3` = `333ab4d0`
+  (`HQ_CutIn_Aisha_CASH_21/22`); `June_ShowActiveSkillCutInAndLight` takes it under `IF_EVENT_ENABLED( 0x8b3 )` (even `rand()` -> CASH_21, as `32cc9680`). March's
+  `ShowActiveSkillCutInAndLight` reads the same table, so March-state skills show the June art too. The `.gfx` of all 12 names exist (CH0b).
+- **Logs (`[JUNE_CHAR] ARME UI`):** `cut-in set/index/name` (June path and March-state path) and `hyper cut-in class/name` (`CX2GUUser::ShowHyperSkillCutInByScript`).
+- **Not ported, routed:** the cut-in item override (`31fd8a50` -> customize manager) -> Stage 12 bullet in `JUNE_PORT_BACKLOG_ORDER.md`. Code event 0x8b3 is never set offline, so that branch is dormant (compiled in).
+- **7ah / 7aj (10-slot dialog, tree UI):** CH0's map assigns them to CH4, not CH5; nothing left for CH5 (the third scope item had no CH5 rows).
+- **Open for the review:** floats `334367ac` / `33435598` (512 / 256) not read in Ghidra; Always.h comment says "March's function would draw textures", but the real reason for the LIVE dependency is the `X2OfflineLog` include.
+  `luasrc.py core --check` fails on `data036 ResultData_new.lua` (a peer's BOM file, not on the core list): not mine, not touched.
+- **Hygiene:** `flagcheck JUNE_CHAR_ARME_UI --worktree --files X2GUArme_VioletMage.cpp X2GUUser.cpp Always.h`: 2 PASS, 1 DEFINE, 0 FAIL; 0 deleted lines, 0 non-ASCII, 0 EOL mismatch; RESULT PASS.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,654,784 B, dated 2026-10-21 11:37:03, md5 148fe470e2bf48ae6dd7a8ac4095d3ee`; the 4 `ARME UI` strings are in the exe.
+- **See it in game:** select screen: all nine characters' names and models; Aisha's skill cut-in shows June hero art with the frame and balloon; a transcendence hyper (104 / 105 / 113) shows `HQ_Cutin_A*_Transcendence`
+  only when the class script's awakening states set `SHOW_HYPER_CUT_IN_TIME`.
+
 ## Phase CH-N - A June-only later class path (template; not run for Aisha)
 
 Written here so Stage 7 does not rediscover it. The first character with a templet-backed June-only class runs it as its own phase. The

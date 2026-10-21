@@ -9664,3 +9664,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( JUNE_INPUT_SIT_KEY ) and SERV_IRUHADEV_JUNE_CHAR_ARME_CORE.
 #define SERV_IRUHADEV_JUNE_INPUT_SIT_KEY
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
+// Description: June character pilot ( Aisha ) Phase CH5 - Aisha's skill cut-in table holds June's GFx names ( HQ_CutIn_Aisha_01 ... ) and the
+//              cut-in takes June's code event 0x8b3 art. Needs SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE ( March's ShowActiveSkillCutInAndLight would
+//              draw the extensionless names as textures ). Revert: undefine the flag ( JUNE_CHAR_ARME_UI ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_UI
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_UI ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_UI ( CH5 ) needs SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif
+//////////////////////////////////////////////////////////////////////////

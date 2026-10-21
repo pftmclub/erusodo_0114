@@ -40170,6 +40170,9 @@ bool CX2GUUser::IsJuneChangeWorldColorNow()
 
 	const SkillCutIn juneHyperCutIn( wstrCutInName );
 	ActiveSkillShow( L"Dummy1_Rhand", juneHyperCutIn.fileName.c_str(), juneHyperCutIn.vSize, juneHyperCutIn.vPosition, false, bOnlyLight_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_UI
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME UI hyper cut-in class %d name %s", static_cast<int>( pUnitTemplet->m_UnitClass ), wstrCutInName.c_str() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_UI
 }
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 

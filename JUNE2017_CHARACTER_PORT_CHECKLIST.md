@@ -565,7 +565,7 @@ Since C3t (`SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME`), `CX2GUUser::ShowHyperSkillCu
 - **The class script:** every June class script sets the key in its awakening states (`ESSI_*_HYPER_MODE`, plus Ara's berserk ones), 17 files.
   No March class script sets it.
 - **June's `UnitTemplet.lua`** (data036): the texture names, `m_HyperCutIn` per class (39 rows), `m_BerserkCutIn` (9),
-  `m_MinorUnitHyperCutIn` (4) and the two `_Trans` keys. March's copy has none of them, so the name is `L""`.
+  `m_MinorUnitHyperCutIn` (4) and the two `_Trans` keys. March's copy has none of them, so the name is `L""`. (Aisha: CH5 - her 7 rows swapped for June's in the core-list `UnitTemplet.lua`; other classes' rows stay March's until their port)
 - **The `HQ_Cutin_*_Transcendence` textures** those rows name.
 
 Class hooks (engine side ported, base bodies in `X2GUUser.h`; the class overrides are this list's):
@@ -595,7 +595,7 @@ it is given and plays it (with `Common_CutIn_Frame` and a `CUT_IN_TALK_` balloon
 (`HQ_CutIn_Elsword_01`, `HQ_CutIn_Raven_BM_01`, `HQ_CutIn_Ain_AAP_hyper`), and the files are `.gfx` in data152 / data194 / data195. March's tables (`s_SkillCutInSet`, `s_SkillCutInSetFoolsDay`) name
 `.dds` textures that are other names (`HQ_CutIn_Elsword_1.dds`, `HQ_CutIn_Raven_Blade_Master_1.dds`): none of the 52 has a `.gfx` (`june2017_re/g4_cutin_names.tsv`, with June's files of the same
 class prefix beside each). **Each class port replaces its table with June's names** (and the set / index layout June's class function reads: June `329cd890` + `32078b70` per class), dropping the
-`.dds`. Until then a class's skill cut-in shows the frame and the balloon but not the hero art. Dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` (G4's `_DEBUG`, while on) shows a full one.
+`.dds`. Until then a class's skill cut-in shows the frame and the balloon but not the hero art. Dev console `JuneGfxCutIn( "HQ_CutIn_Elsword_01" )` (G4's `_DEBUG`, while on) shows a full one. (Aisha: CH5 - table `s_SkillCutInSet` = June `333ab660`, event 0x8b3 pair `333ab4d0`; the item override `31fd8a50` -> Stage 12.)
 
 ### 7u. March-only effect templets the June re-adoption dropped (from June effect completion C11a)
 

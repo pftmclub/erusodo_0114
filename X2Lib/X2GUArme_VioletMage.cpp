@@ -10,6 +10,41 @@ static const CX2GUUser::SkillCutIn s_SkillCutInSetFoolsDay = CX2GUUser::SkillCut
 #endif //APRIL_FOOLS_DAY
 
 // 필살기 쓸 때 cut in image 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_UI
+// June 333ab660: GFx names without extension ( ActiveSkillShow appends .gfx ); 4 sets of 3
+static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
+{
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_02"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_03"),
+	},
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_EM_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_EM_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_EM_01"),
+	},
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_VP_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_VP_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_VP_01"),
+	},
+#ifdef SERV_ARME_DIMENSION_WITCH
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_DW_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_DW_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_DW_01"),
+	},
+#endif SERV_ARME_DIMENSION_WITCH
+};
+
+// June 333ab4d0: the cut-ins of code event 0x8b3
+static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
+{
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_CASH_21"),
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Aisha_CASH_22"),
+};
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_UI
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] = 
 {
 	// 아이샤, 하이매지션, 다크매지션
@@ -42,6 +77,7 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 	},
 #endif
 };
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_UI
 
 
 
@@ -19206,6 +19242,10 @@ void CX2GUArme_VioletMage::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName
  	if( m_pXSkinAnim->EventTimer( fTimeToShow_ ) == true && EventCheck( fTimeToShow_, false ) == true )
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_UI
+		if ( GetShowCutInAndChangeWorldColor() && GetShowActiveSkillShow() )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARME UI cut-in set %d index %u name %s ( March state )", m_iSkillCutInSetIndex, uiCutInIndex_, s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].fileName.c_str() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_UI
 		if ( GetShowCutInAndChangeWorldColor() && GetShowActiveSkillShow() )
 #ifdef SERV_APRIL_FOOLS_DAY
 			( true == m_bIsFoolsDay )?
@@ -30691,7 +30731,14 @@ void CX2GUArme_VioletMage::June_ShowActiveSkillCutInAndLight( const WCHAR* szBon
 	{
 		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_UI
+		// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )
+		IF_EVENT_ENABLED( 0x8b3 )
+			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// June 31e5a860: even rand() -> CASH_21
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME UI cut-in set %d index %u name %s", m_iSkillCutInSetIndex, uiCutInIndex_, cutIn.fileName.c_str() );
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_UI
 		// not ported: the cut-in item override ( 31fd8a50 ) and the event 0x8b3 cut-ins ( 31e5a860 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_UI
 		ActiveSkillShow( szBoneName_, cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
 	}
 }

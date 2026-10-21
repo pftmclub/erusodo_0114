@@ -840,7 +840,7 @@ template block, first run by Ara / Elesis / Add in Stage 7. Priority (user 2026-
 | CH3a | waiting (AEM + AVP: 32 ids, 36 functions) | Sonnet 5.5 / high, Opus review, then user play-test | CH2b review; not with CH4 | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH3a.md` |
 | CH3b | waiting (ADW + hyper actives: 22 ids, 15 functions) | Sonnet 5.5 / high, Opus review, then user play-test | CH3a review; not with CH4 | `X2GUArme_VioletMage.*`, Always.h, `MODS.md` | `CH3b.md` |
 | CH4 | waiting | Opus 5.5 / high, Opus review, then user play-test | CH2b review; not with CH3a / CH3b | `X2GUArme_VioletMage.*`, skill-tree / slot UI (memorize), Always.h | `CH4.md` |
-| CH5 | waiting | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review; may run beside CH2-CH4 | `UnitTemplet.lua` + its reader, cut-in table, 10-slot dialog / tree-UI class pieces, Always.h | `CH5.md` |
+| CH5 | **done 2026-10-21, play-test pending** (data036 packed, copy waits for the user's yes): Aisha's 7 `UnitTemplet` rows are June's (core-list source, other 48 blocks untouched); `s_SkillCutInSet` = June `333ab660` + 0x8b3 pair, flag `SERV_IRUHADEV_JUNE_CHAR_ARME_UI`; item override -> Stage 12; 7ah / 7aj are CH4's. Logs `ARME UI` | Sonnet 5.5 / high, Opus review, then user play-test | CH1 review; may run beside CH2-CH4 | `UnitTemplet.lua` + its reader, cut-in table, 10-slot dialog / tree-UI class pieces, Always.h | `CH5.md`, review `CH5-review.md` |
 | CH6 | waiting | Sonnet 5.5 / medium, then user walk | CH3b, CH4, CH5 reviews | save (test characters), plan doc | `CH6.md` |
 | Z | waiting | Sonnet 5.5 / medium | CH6 | `MODS.md`, checklist, plan doc, backlog, `kickoffs/june-backlog/stage6-plan.md` + `stage7-plan.md` | `Z.md` |
 

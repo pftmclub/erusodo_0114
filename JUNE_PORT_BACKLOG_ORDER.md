@@ -557,6 +557,10 @@ rule that an unowned June system gets its own stage. What it covers:
   manager's sit id (`32363280`, map key 7) and the pending emotion byte `+0x94b0`. `320458f0` plays them on other players
   (`PlayEmotion` `32043380`, the `0x2c` / `0x2d` two-seater). It is wire only, since offline has no other player.
 
+- **The class cut-in item override** (found by pilot-char-revamp CH5, 2026-10-21). Each class's `ShowActiveSkillCutInAndLight` (Aisha: `32cc9680`) asks `31fd8a50` for the user's applied skill
+  cut-in item (unit map `+0x8e58`; needs the equipped custom item and `32890620` / `32206450`), looks it up in the customize manager (`31d70b60`, `3264e800`), and replaces the cut-in with
+  `SkillCutIn( name )` (`32078b70`, 512 x 512). Aisha's port keeps the class table and skips the override; port it here for every class at once (`June_ShowActiveSkillCutInAndLight` marks the site).
+
 - **Item type 14** is June's `IT_CUSTOM` (1,207 customize items in June's `item.kim`, e.g. skill cut-ins). June-item-kim K2 guards
   it; this stage reads it (june-item-kim K0).
 
