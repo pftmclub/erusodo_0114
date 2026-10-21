@@ -1169,6 +1169,66 @@ bool CX2OfflineSkill::UnsealSkill( int iSkillID )
 	return (int)eSkillID;
 }
 
+#ifdef SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+int CX2OfflineSkill::RemapUnsealedForClass( int iNewUnitClass )
+{
+	if( 0 == m_nUnitUID || NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return 0;
+
+	// Live remaps through server-only ClassChangeSkill.lua (P_GSkill_Unsealed_UPD_UnitClassChange); the tree's copy predates June's ids.
+	CX2SkillTree* pTree = g_pData->GetSkillTree();
+	const std::map< int, CX2SkillTree::SealSkillItemInfo >& mapSeal = pTree->GetSealSkillItemTemplet();
+
+	int iRemapped = 0;
+	const std::set< int > setOld = m_setUnsealedSkill;
+	std::set< int >::const_iterator sit;
+	for( sit = setOld.begin(); sit != setOld.end(); ++sit )
+	{
+		const int iOldSkillID = *sit;
+		if( NULL != pTree->GetSkillTreeTemplet( iNewUnitClass, static_cast<CX2SkillTree::SKILL_ID>( iOldSkillID ) ) )
+			continue;
+
+		int iNewSkillID = 0;
+		int iItemID = 0;
+		std::map< int, CX2SkillTree::SealSkillItemInfo >::const_iterator mit;
+		for( mit = mapSeal.begin(); mit != mapSeal.end() && 0 == iNewSkillID; ++mit )
+		{
+			const std::vector< CX2SkillTree::SKILL_ID >& vecSkill = mit->second.m_vecSkillID;
+			if( vecSkill.end() == std::find( vecSkill.begin(), vecSkill.end(), static_cast<CX2SkillTree::SKILL_ID>( iOldSkillID ) ) )
+				continue;
+
+			for( size_t i = 0; i < vecSkill.size(); ++i )
+			{
+				if( NULL != pTree->GetSkillTreeTemplet( iNewUnitClass, vecSkill[i] ) )
+				{
+					iNewSkillID = static_cast<int>( vecSkill[i] );
+					iItemID = mit->first;
+					break;
+				}
+			}
+		}
+
+		if( 0 == iNewSkillID )
+		{
+			CX2OfflineLog::Server( L"SKILL    class change: unsealed skill %d has no counterpart for class %d - kept as is",
+				iOldSkillID, iNewUnitClass );
+			continue;
+		}
+
+		m_setUnsealedSkill.erase( iOldSkillID );
+		m_setUnsealedSkill.insert( iNewSkillID );
+		CX2OfflineDB::Instance()->DeleteUnsealedSkill( m_nUnitUID, iOldSkillID );
+		CX2OfflineDB::Instance()->SaveUnsealedSkill( m_nUnitUID, iNewSkillID );
+		++iRemapped;
+
+		CX2OfflineLog::Server( L"SKILL    class change: unsealed skill %d -> %d for class %d (manual %d's row; stand-in for ClassChangeSkill.lua)",
+			iOldSkillID, iNewSkillID, iNewUnitClass, iItemID );
+	}
+
+	return iRemapped;
+}
+#endif SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+
 //////////////////////////////////////////////////////////////////////////
 // the skill note (phase 22)
 

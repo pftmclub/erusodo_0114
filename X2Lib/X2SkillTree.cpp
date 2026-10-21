@@ -3149,6 +3149,60 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_UNSEAL_SKILL_NOT kEvent;
 	DeSerialize( pBuff, &kEvent );
+#ifdef SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
+	/// June 3220ee30
+	CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree;
+	refUserSkillTree.AddJuneAcquiredSkills( kEvent.m_vecSkillData );	/// 328924c0
+	for( size_t i = 0; i < kEvent.m_vecUnsealedSkillID.size(); ++i )
+		refUserSkillTree.AddSkillUnsealed( static_cast<CX2SkillTree::SKILL_ID>( kEvent.m_vecUnsealedSkillID[i] ) );	/// 32891b40
+
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+	{
+		CX2UISkillTreeNew* pUISkillTree = g_pData->GetUIManager()->GetUISkillTree();
+#ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+		pUISkillTree->JuneReplaceUpgradedSkillSlots( kEvent.m_vecSkillData );	/// 328df480
+#endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
+		if( true == g_pData->GetUIManager()->GetShow( CX2UIManager::UI_MENU_SKILL ) )
+			pUISkillTree->UpdateUI( false, true, true );
+
+		if( false == kEvent.m_vecUnsealedSkillID.empty() )
+		{
+			/// the dialog names the first base skill, upgrade-swapped ( 328905b0 )
+			CX2SkillTree::SKILL_ID eDlgSkillID = static_cast<CX2SkillTree::SKILL_ID>( kEvent.m_vecUnsealedSkillID[0] );
+			for( size_t i = 0; i < kEvent.m_vecUnsealedSkillID.size(); ++i )
+			{
+				const CX2SkillTree::SKILL_ID eSkillID = static_cast<CX2SkillTree::SKILL_ID>( kEvent.m_vecUnsealedSkillID[i] );
+				const SkillTemplet* pTemplet = GetSkillTemplet( eSkillID );
+				if( NULL != pTemplet && 0 == pTemplet->m_iDeleteSkillIDByUpgrade )
+				{
+					eDlgSkillID = refUserSkillTree.GetUpgradeSwappedSkillID( eSkillID );
+					break;
+				}
+			}
+
+			if( NULL != refUserSkillTree.GetUserSkillTemplet( eDlgSkillID, false ) )	/// 328914b0( id, 0 )
+			{
+				pUISkillTree->OpenDLGSkillUnsealed( true );
+				pUISkillTree->UpdateDLGSkillUnsealed( eDlgSkillID );
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+				if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+					g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+			}
+		}
+	}
+
+	if( NULL != g_pData->GetQuestManager() )
+		g_pData->GetQuestManager()->GiveUpForbiddenQuest();	/// 3232ecd0
+#ifdef SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
+#endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+
+	/// my unit's vslot 420 InitPassiveSkillState; June has no NULL test on GetMyUnit
+	if( NULL != g_pX2Game && NULL != g_pMain->GetNowState() && NULL != g_pX2Game->GetMyUnit() )
+		g_pX2Game->GetMyUnit()->InitPassiveSkillState();
+#else SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 
 	g_pData->GetMyUser()->GetSelectUnit()->AccessUnitData().m_UserSkillTree.AddSkillUnsealed( (CX2SkillTree::SKILL_ID) kEvent.m_iSkillID );
 
@@ -3177,6 +3231,7 @@ bool CX2SkillTree::Handler_EGS_UNSEAL_SKILL_NOT( HWND hWnd, UINT uMsg, WPARAM wP
 	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
 		g_pData->GetMyUser()->GetSelectUnit()->JuneResetHudMaxHpMp();
 #endif SERV_IRUHADEV_JUNE_SKILL_HUD_MAXHPMP
+#endif SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 
 	return true;
 }

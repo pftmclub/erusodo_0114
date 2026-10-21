@@ -8081,6 +8081,23 @@ SERIALIZE_DEFINE_GET( KEGS_EXPAND_SKILL_SLOT_NOT, obj, ks )
 
 //////////////////////////////////////////////////////////////////////////
 //{{ 2009. 8. 4  √÷¿∞ªÁ		∫¿¿ŒΩ∫≈≥
+#ifdef SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
+SERIALIZE_DEFINE_PUT( KEGS_UNSEAL_SKILL_NOT, obj, ks )
+{
+	return PUT( m_iSkillID )
+		&& PUT( m_vecSkillData )
+		&& PUT( m_vecUnsealedSkillID )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_UNSEAL_SKILL_NOT, obj, ks )
+{
+	return GET( m_iSkillID )
+		&& GET( m_vecSkillData )
+		&& GET( m_vecUnsealedSkillID )
+		;
+}
+#else SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 SERIALIZE_DEFINE_PUT( KEGS_UNSEAL_SKILL_NOT, obj, ks )
 {
 	return PUT( m_iSkillID )
@@ -8092,6 +8109,7 @@ SERIALIZE_DEFINE_GET( KEGS_UNSEAL_SKILL_NOT, obj, ks )
 	return GET( m_iSkillID )
 		;
 }
+#endif SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 SERIALIZE_DEFINE_PUT( KEGS_JUNE_ACQUIRE_SKILL_NOT, obj, ks )

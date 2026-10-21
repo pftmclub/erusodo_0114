@@ -733,6 +733,9 @@ bool CX2OfflineServer::Handler_EGS_BILL_GET_PURCHASED_CASH_ITEM_REQ( KOfflineSes
 		CX2OfflineSkill::Instance()->Load( kUnit.m_nUnitUID );
 		CX2OfflineSkill::Instance()->InitSkillTree( kUnit.m_iLevel, iNewClass, iSPTotal );
 		pDB->SaveSkillPoint( kUnit.m_nUnitUID, iSPTotal, 0 );
+#ifdef SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+		CX2OfflineSkill::Instance()->RemapUnsealedForClass( iNewClass );
+#endif SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
 
 		kAck.m_iOK = NetError::NET_OK;
 		Reply( kSes, EGS_BILL_GET_PURCHASED_CASH_ITEM_ACK, kAck );

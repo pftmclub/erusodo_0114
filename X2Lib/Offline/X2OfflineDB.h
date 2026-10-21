@@ -761,6 +761,9 @@ public:
 	/// Idempotent - INSERT OR IGNORE, so using a second manual that resolves to
 	/// the same skill cannot double up a row.
 	bool	SaveUnsealedSkill( UidType nUnitUID, int iSkillID );
+#ifdef SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+	bool	DeleteUnsealedSkill( UidType nUnitUID, int iSkillID );
+#endif SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
 
 	/// The skill-note memo pages (phase 22), page index -> memo item ID. The page
 	/// *count* is `unit.skill_note_page` and rides on KOfflineUnitRow instead;

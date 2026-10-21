@@ -5483,6 +5483,10 @@ DECL_PACKET( EGS_EXPAND_SKILL_SLOT_NOT )
 DECL_PACKET( EGS_UNSEAL_SKILL_NOT )
 {
 	int								m_iSkillID;
+#ifdef SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
+	std::vector< KSkillData >		m_vecSkillData;
+	std::vector< short >			m_vecUnsealedSkillID;
+#endif SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 };
 //}}
 

@@ -116,6 +116,11 @@ public:
 	/// client did a moment earlier when it decided to send the packet.
 	static int	SkillForUnsealItem( int iItemID );
 
+#ifdef SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+	/// Class-change item: each unsealed skill the new class's tree lacks becomes the skill the same manual unseals for it (stand-in).
+	int		RemapUnsealedForClass( int iNewUnitClass );
+#endif SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+
 	//////////////////////////////////////////////////////////////////////////
 	// the skill note (phase 22)
 

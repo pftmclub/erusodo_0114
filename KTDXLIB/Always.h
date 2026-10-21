@@ -9712,10 +9712,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-21
-// Description: Offline emulator - unsealing a skill ( secret manual ) runs the June level grant at once, so an unsealed skill whose
-//              required level is already met is learned now instead of at the next level-up / relog. Revert: OFFLINE_UNSEAL_GRANT in MODS.md.
-#define SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT
-#if defined( SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT ) && !defined( SERV_IRUHADEV_JUNE_SKILL_ACQUIRE )
-#error SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( PushJuneSkillGrant )
+// Description: June's skill unseal NOT ( handler 3220ee30, reader 320dd8d0 ): { int, vector<KSkillData>, vector<short> unsealed }. The client
+//              adds the learned skills ( 328924c0 ) and then the unseal ids, so an unsealed skill is learned in the same packet; the dialog opens
+//              only when the skill is acquired ( 328914b0 ). The emulator fills the skill list from the level grant ( stand-in ). Also defined in
+//              KncWX2Server/Common/ServerDefine.h ( ClientPacket.h precedes Always.h ); toggle both together. Revert: JUNE_UNSEAL_SKILL_NOT in MODS.md.
+#define SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
+#if defined( SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT ) && !defined( SERV_IRUHADEV_JUNE_SKILL_ACQUIRE )
+#error SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( AddJuneAcquiredSkills, GrantJuneSkillsByLevel )
 #endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
+// Description: Offline emulator - a class-change item remaps each unsealed skill the new class's tree lacks to the skill the same secret
+//              manual unseals for that class ( June SkillData.lua AddSealSkillInfo ). Labelled stand-in for the live server's
+//              ClassChangeSkill.lua remap, whose copies here predate June's skill ids. Revert: OFFLINE_CLASS_CHANGE_UNSEAL_REMAP in MODS.md.
+#define SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
 //////////////////////////////////////////////////////////////////////////

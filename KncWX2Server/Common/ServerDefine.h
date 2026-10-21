@@ -4731,3 +4731,11 @@
 //              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
 #define SERV_IRUHADEV_JUNE_RANDOM_MISSION
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
+// Description: June's skill unseal NOT ( KEGS_UNSEAL_SKILL_NOT carries the learned skills ), client flag ( offline only ). Also defined in
+//              KTDXLIB/Always.h; this second home exists because ClientPacket.h is compiled before Always.h is reachable. Comment out both together.
+#define SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
+//////////////////////////////////////////////////////////////////////////

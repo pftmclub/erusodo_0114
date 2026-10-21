@@ -1137,16 +1137,22 @@ bool CX2OfflineServer::Handler_EGS_USE_ITEM_IN_INVENTORY_REQ( KOfflineSession& k
 
 		KEGS_UNSEAL_SKILL_NOT kNot;
 		kNot.m_iSkillID = iUnsealSkillID;
+#ifdef SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
+		// June's NOT carries the learned skills; which ones is server-only, so the level grant stands in.
+		KOfflineUnitRow kUnseal;
+		if( true == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kUnseal ) )
+			pSkill->GrantJuneSkillsByLevel( kUnseal.m_iUnitClass, kUnseal.m_iLevel, kNot.m_vecSkillData );
+		kNot.m_vecUnsealedSkillID.push_back( static_cast<short>( iUnsealSkillID ) );
+#endif SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 
 		Reply( kSes, EGS_UNSEAL_SKILL_NOT, kNot );
 
+#ifdef SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
+		CX2OfflineLog::Server( L"SKILL    item %d unsealed skill %d, NOT carries %d learned skill(s)",
+			kRow.m_iItemID, iUnsealSkillID, (int)kNot.m_vecSkillData.size() );
+#else SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 		CX2OfflineLog::Server( L"SKILL    item %d unsealed skill %d", kRow.m_iItemID, iUnsealSkillID );
-#ifdef SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT
-		// The grant skips sealed skills, so the unsealed one waited for the next level-up / relog.
-		KOfflineUnitRow kUnseal;
-		if( true == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kUnseal ) )
-			PushJuneSkillGrant( kSes, kUnseal.m_nUnitUID, kUnseal.m_iUnitClass, kUnseal.m_iLevel, false, L"unseal" );
-#endif SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT
+#endif SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 	}
 
 	// Phase 22: the page count, likewise a _NOT. Without it the client leaves

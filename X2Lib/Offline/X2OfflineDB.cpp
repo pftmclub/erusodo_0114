@@ -3075,6 +3075,32 @@ bool CX2OfflineDB::SaveUnsealedSkill( UidType nUnitUID, int iSkillID )
 	return bOK;
 }
 
+#ifdef SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+bool CX2OfflineDB::DeleteUnsealedSkill( UidType nUnitUID, int iSkillID )
+{
+	KLocker lock( m_cs );
+
+	if( NULL == m_pDB )
+		return false;
+
+	sqlite3_stmt* pStmt = Prepare(
+		"DELETE FROM unit_skill_unsealed WHERE unit_uid = ?1 AND skill_id = ?2;" );
+	if( NULL == pStmt )
+		return false;
+
+	sqlite3_bind_int64( pStmt, 1, (sqlite3_int64)nUnitUID );
+	sqlite3_bind_int(   pStmt, 2, iSkillID );
+
+	bool bOK = ( SQLITE_DONE == sqlite3_step( pStmt ) );
+
+	if( false == bOK )
+		LogError( L"delete unsealed skill" );
+
+	sqlite3_finalize( pStmt );
+	return bOK;
+}
+#endif SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP
+
 bool CX2OfflineDB::LoadSkillNotes( UidType nUnitUID, OUT std::map< char, int >& mapOut )
 {
 	KLocker lock( m_cs );

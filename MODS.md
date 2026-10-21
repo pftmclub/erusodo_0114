@@ -4791,10 +4791,23 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_P
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
 
-### Offline: unsealing a skill grants it at once (OFFLINE_UNSEAL_GRANT, 2026-10-21)
+### June's skill unseal NOT: the unsealed skill is learned in the same packet (JUNE_UNSEAL_SKILL_NOT, 2026-10-21)
 
-Flag `SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT` in `KTDXLIB/Always.h` (`#error` guard: `_JUNE_SKILL_ACQUIRE`).
-- **Bug.** A secret manual (Camilla's, 270970-270973, 271311...) only recorded the unseal. The June level grant (`GrantJuneSkillsByLevel`) skips sealed skills and ran again only at level-up,
-  job change or character select, so an unsealed skill whose level was already met stayed at level 0 (shown unlocked, not learned) until then.
-- **Fix.** `Handler_EGS_USE_ITEM_IN_INVENTORY_REQ` runs `PushJuneSkillGrant( ..., L"unseal" )` right after `EGS_UNSEAL_SKILL_NOT`; log line `[JUNE_SKILL] ACQ push (unseal)`.
-- **Revert:** comment out the flag, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change; skills already granted stay in the save (they would be granted at the next select anyway).
+Flag `SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT`, defined in `KTDXLIB/Always.h` **and** `KncWX2Server/Common/ServerDefine.h` (`ClientPacket.h` precedes `Always.h`; `SECOND_HOMES` in `tools/flagcheck.py`); `#error` guard `_JUNE_SKILL_ACQUIRE`.
+- **Bug.** A secret manual (Camilla's, 270970-270973, 271311...) only marked the skill unsealed; the level grant skips sealed skills and ran again only at level-up / job change / select, so the skill showed unlocked but unlearned.
+- **June.** `KEGS_UNSEAL_SKILL_NOT` is `{ int, vector<KSkillData>, vector<short> unsealed }` (reader `320dd8d0`, the KSkillData vector getter `3211b1e0` = the acquire NOT's). Handler `3220ee30`: `AddJuneAcquiredSkills` (`328924c0`), `AddSkillUnsealed` per id (`32891b40`),
+  `JuneReplaceUpgradedSkillSlots` (`328df480`), tree `UpdateUI` when the skill window is shown, then the unsealed dialog for the first base id (upgrade-swapped, `328905b0`) **only when it is acquired** (`328914b0` = IsSkillAcquired, not AddSkillUnsealed as the old comment said),
+  `GiveUpForbiddenQuest`, the HUD reset, and in a game my unit's `InitPassiveSkillState` (vslot 420; June has no NULL test on GetMyUnit, the port adds one).
+- **Emulator (labelled stand-in, June's server rule is server-only).** `Handler_EGS_USE_ITEM_IN_INVENTORY_REQ` fills the NOT's skill list with `GrantJuneSkillsByLevel` after `UnsealSkill`; an unsealed skill whose level is not yet met comes at its level-up, as before.
+  Log: `SKILL    item N unsealed skill S, NOT carries K learned skill(s)` plus the grant's `[JUNE_SKILL] ACQ grant` line. Replaces the same-day `SERV_IRUHADEV_OFFLINE_UNSEAL_GRANT` (two packets), removed.
+- **Revert:** comment out both defines, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change; skills already granted stay in the save.
+
+### Offline: a class-change item carries unsealed skills to the new job (OFFLINE_CLASS_CHANGE_UNSEAL_REMAP, 2026-10-21)
+
+Flag `SERV_IRUHADEV_OFFLINE_CLASS_CHANGE_UNSEAL_REMAP` in `KTDXLIB/Always.h`. Labelled stand-in, chosen by the user 2026-10-21.
+- **Why.** Unseals are kept by skill id and each job's sealed skill has its own id, so after a class-change item (e.g. Elemental Master -> Void Princess) the new job's counterpart stayed sealed.
+  Live remaps through server-only `ClassChangeSkill.lua` (`GetClassChange_NewSkill`, `P_GSkill_Unsealed_UPD_UnitClassChange`); every copy in `KncWX2Server/ServerResource/` uses pre-2013 ids (2403...), none of June's.
+- **Stand-in.** `CX2OfflineSkill::RemapUnsealedForClass`, called from the class-change item path in `Handlers_Shop.cpp` after `InitSkillTree`: an unsealed skill the new class's tree has is kept; otherwise it is replaced
+  (set + `unit_skill_unsealed` row) by the first skill of the same `AddSealSkillInfo` row (June `SkillData.lua`, the manual's per-class list) that the new class's tree has; no counterpart -> kept. Switching back maps it back.
+  Job advancement by quest is untouched (live does not remap there; the set already persists). Log: `SKILL    class change: unsealed skill A -> B for class C`.
+- **Revert:** comment out the flag, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Rows already remapped stay remapped.
