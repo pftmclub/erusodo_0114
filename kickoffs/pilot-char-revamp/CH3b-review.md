@@ -30,7 +30,7 @@ Review CH3b's commit against June, in the listing, not only the decompile:
    Check `32089ff0` against `JuneRescaleBuffFactorByMemoRate` (time first, then behaviors).
 4. **Air Stunner `32cc5aa0`** (`+0x7e1c` = IsOnSomethingFuture) and `StartFuture` `32cc70b0` (`+0x8900` / `+0x8905`).
 5. **`3230c1a0` case `0x443`** in `June_SetDistortionSummonInfo` (March keeps its stat line; power rate and end follow skill 22027).
-6. The hyper cut-in lines: `logs.py --grep "ARME UI hyper cut-in"` names `HQ_Cutin_AEM / AVP / ADW_Transcendence` for 104 / 105 / 113 (kickoff CH3b, CH5 review).
+6. The hyper actives: play-test passed from A slot 0 (cut-ins `HQ_CutIn_Aisha_*_01`). The F / A-5 slot is dormant until Stage 6, not a finding here. Also check the CH3a Icicle Spear mesh `RNSI_SA_AEM_ICICLE_SPEAR_MESH.Y` (missing in the play-test) as a CH3a open item.
 
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL --range <CH3b commit>^..<CH3b commit>`; paste the `files:` /
 `in this flag's files:` / `RESULT:` lines. A FAIL is a finding.

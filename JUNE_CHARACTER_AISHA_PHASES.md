@@ -1840,9 +1840,15 @@ Fix: `flagcheck.py JUNE_PARTICLE_TRACE_INHERIT --worktree --files <4 files>`: `f
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,715,200 B, dated 2026-10-21 21:02:54, md5 f5cd41f64f2f4b8987aeb118fca60c62, equal to X2/US_SERVICE/x2.exe (2026-10-21 21:02:47); built at main f0623ef2 + 5 uncommitted code file(s).` The new strings (`SA_ADW_AIR_STUNNER`, `A_ADW_ENERGY_RING`, `SA_ADW_IMPACT_HAMMER`, `aisha_A_DISTORTION_dummy.X`) are in the deployed exe.
 **In game.** No kom change. Save (backups in `data\db_backup`): new unit 53 `ArmeDW` (Dimension Witch, level 99): A slots Distortion 0, Energy Spurt 1, Impact Hammer 2, Worm Hole 3, hyper Fate Space 4; B slots Air Stunner 5, Crazy Worm 6, Impact Zone 7, Energy Ring 8. Unit 51 `ArmeEM` gets Elemental Storm and unit 52 `ArmeVP` Abyss Angor in slot 4 (slot 4 as the hyper slot is a guess: if the skill bar shows no hyper skill there, equip it in the skill window). Screw Driver (22028) is not in a free grant: give it through the skill window. Open: the three hyper actives are the first live ones; the cut-in option on Hide is the 7t check.
 
+**Play-test PASSED (user, 2026-10-22).** The three hyper actives cast from A slot 0 (Fate Space 22602, Abyss Angor 22601, Elemental Storm 22600): full state (Fate Space ~6.3 s), cut-ins `HQ_CutIn_Aisha_DW_01` / `_VP_01` / `_EM_01` played, no missing particle / mesh / texture line. Other casts of the first play-test (Worm Hole, Energy Ring, Crazy Worm, Air Stunner) ran without errors.
+- **Finding: the F key is the A-bar transcendence slot, dormant by design.** `CX2GUUser::SetEquippedSkillFunc` / `ChangeEquippedSkillState` skip slot index 4 until Stage 6, so a hyper active in A slot 5 / F is accepted by the lookup but `USI_SPECIAL_ATTACK_5` has no state: the unit stays in its pose until hit. Not a CH3b defect. Hyper actives in a normal slot (A 0-3) work; June's slot for them (the TC slot) comes with Stage 6 ("Unlocking the TC slot", `JUNE_PORT_BACKLOG_ORDER.md`). The test save puts them in slot 0.
+- **Not CH3b's:** `OpenXMesh` fails for `RNSI_SA_AEM_ICICLE_SPEAR_MESH.Y` when Icicle Spear (22068, CH3a) is cast: for the CH3a review.
+- **Final deploy (no debug code):** `DEPLOY OK: X2_offline.exe is 25,715,200 B, dated 2026-10-22 00:36:08, md5 1a3e86a28b123890db2761ff83733fe8, equal to X2/US_SERVICE/x2.exe (2026-10-22 00:36:01); built at main b6f9a386.`
+- The temporary `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL_DEBUG` lines used to find the F-slot cause were removed before the commit of this note (uncommitted, never in `main`).
+
 ### CH3b -- Review
 
-Pending: `kickoffs/pilot-char-revamp/CH3b-review.md` (Opus 5.5 high), after the user's play-test.
+Pending: `kickoffs/pilot-char-revamp/CH3b-review.md` (Opus 5.5 high).
 
 ## Phase CH4 - Passives and class mechanics
 
