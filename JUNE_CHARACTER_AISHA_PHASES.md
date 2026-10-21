@@ -1707,7 +1707,7 @@ Teleport: cast on the review build (14:15 run), behaves as it should (user); it 
 **Hygiene.** `flagcheck.py JUNE_CHAR_ARME_SKILL --worktree --files <4 code files>`: `files: 4 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,681,920 B, dated 2026-10-21 15:28:33, md5 ff50853dbba2f63ee578db8c27767246, equal to X2/US_SERVICE/x2.exe (2026-10-21 15:28:25); built at main 41465bd9 + 4 uncommitted code file(s).` The log strings and `AVSI_A_ABM_ENERGY_DRAIN_FAIL` are in the deployed exe.
 **Save** (backup `data\db_backup`, tag `ch2c_pre`): unit 47 `ArmeBM` (Battle Magician, level 60) now has Energy Drain (22213, level 1) in slot 6 (B bar, second key) beside CH2b's skills.
-**Play-test:** pending (hand-off in the session; log tag `[JUNE_CHAR]`, `--grep "Energy Drain"`).
+**Play-test result (user, 2026-10-21 15:33-15:35; `check logs`, exe md5 `ff50853d...`): PASSED.** `ARME SKILL registered A_ABM_ENERGY_DRAIN ( skill 22213, slot 1 B )`; SUCCESS at 15:33:43 (Energy Ball `DamageEffect_ABM_Enegry_Drain_Hand_Attack` HIT, `Energy Drain SUCCESS ( target 3 )`, `EnegryDrain01` on the user and `02` on NPC 1000014, the NPC died 0.5 s later); FAIL twice (15:33:55, 15:34:06), the next skill cast 3 s later (no stuck state). 0 `Motion Error`, 0 EXCEPTION; the `JUNE_FX unsupported APPLIED_SKILL_ID` lines are the engine's standing note for every class, not this phase.
 
 ## Phase CH3 - Skills: second jobs (104, 105, 113) and hyper actives
 
