@@ -1879,7 +1879,7 @@ Fix: `flagcheck.py JUNE_PARTICLE_TRACE_INHERIT --worktree --files <4 files>`: `f
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
 Fix, worktree `--files X2Lib/X2GUArme_VioletMage.cpp`: `files: 1 PASS, ...`; `6 deleted line(s)` (CH3b's own flagged lines of the replaced body), else 0; `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,715,200 B, dated 2026-10-22 01:00:16, md5 a620bfab687821da1447dacd079bf0a1, equal to X2/US_SERVICE/x2.exe (2026-10-22 01:00:08); built at main 3607b007 + 1 uncommitted code file(s).`
-**User owes:** one play-test of an Enhanced Distortion (below). Next: `/x2-phase pilot-char-revamp CH3c` (Sonnet 5.5 high) or `CH4` (Opus 5.5 high), one at a time.
+**Play-test PASSED (user, 2026-10-22):** the Enhanced Distortion (22065, A slot 0, unit 53) summon stays ~10 s; log `registered SA_ADW_DISTORTION ( skill 22065, slot 0 A )`, no Distortion error. User owes nothing. Next: `/x2-phase pilot-char-revamp CH3c` (Sonnet 5.5 high) or `CH4` (Opus 5.5 high), one at a time.
 **CH3c kickoff**: now says every read in a summon case takes the swapped id. Funcmap row `3230c1a0 case 0x443` corrected.
 
 ## Phase CH4 - Passives and class mechanics
