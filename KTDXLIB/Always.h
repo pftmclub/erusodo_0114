@@ -9712,6 +9712,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-21
+// Description: June's CKTDGUISlot::SetItemTex ( 31cd0650 / 31cd0850 ): the slot keeps its item texture data and refills it in place
+//              ( 31c962c0 ) instead of deleting it. March's delete left a disabled slot ( the locked TC slots A5 / B5 ) drawing freed
+//              texture data ( ErrorEnum 131 every frame, then a crash in CKTDGUIControl::RenderVertex ). Found in the
+//              pilot-char-revamp CH3a review. Revert: undefine the flag ( JUNE_UI_SLOT_ITEM_TEX ).
+#define SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-21
 // Description: June's skill unseal NOT ( handler 3220ee30, reader 320dd8d0 ): { int, vector<KSkillData>, vector<short> unsealed }. The client
 //              adds the learned skills ( 328924c0 ) and then the unseal ids, so an unsealed skill is learned in the same packet; the dialog opens
 //              only when the skill is acquired ( 328914b0 ). The emulator fills the skill list from the level grant ( stand-in ). Also defined in

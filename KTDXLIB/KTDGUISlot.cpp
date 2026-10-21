@@ -787,6 +787,119 @@ bool CKTDGUISlot::ContainsPoint( POINT pt )
 	return true;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX
+// June 31c962c0: refill texture data in place; a key the texture lacks keeps the old UV ( JUNE_BUGS 389 )
+static void JuneResetTexureData_( const WCHAR* pFileName, const WCHAR* pKeyName, CKTDGUIControl::UITextureData* pTexData )
+{
+	if( NULL == pTexData )
+		return;
+
+	wstring key = pKeyName;
+	pTexData->texName	= pFileName;
+	pTexData->keyName	= pKeyName;
+
+	CKTDXDeviceTexture* pTexture = g_pKTDXApp->GetDeviceManager()->OpenTexture( pTexData->texName );
+	if( NULL != pTexData->pTexture && NULL != g_pKTDXApp->GetDeviceManager() )
+	{
+	#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( pTexData->pTexture );
+	#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		g_pKTDXApp->GetDeviceManager()->CloseDevice( pTexData->pTexture->GetDeviceID() );
+	#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+		pTexData->pTexture = NULL;
+	}
+	pTexData->pTexture = pTexture;
+	if( NULL == pTexture )
+		return;
+
+	MakeUpperCase( key );
+	const CKTDXDeviceTexture::TEXTURE_UV* pTexUV = pTexture->GetTexUV( key );
+	if( NULL != pTexUV )
+	{
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_LEFT_TOP]		= pTexUV->leftTop;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP]	= pTexUV->rightTop;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_LEFT_BOTTOM]	= pTexUV->leftBottom;
+		pTexData->uvOrgTexture[CKTDGUIControl::VP_RIGHT_BOTTOM]	= pTexUV->rightBottom;
+		pTexData->texSize = pTexUV->rectSize;
+		pTexData->SetTextureUV();
+	}
+}
+
+// June 31cd0650: the item texture data is kept and refilled, never deleted
+void CKTDGUISlot::SetItemTex( const WCHAR* pFileName )
+{
+	KTDXPROFILE();
+
+	if( NULL == pFileName )
+		return;
+
+	for( ;; )
+	{
+		if( NULL == m_pItemTex )
+			m_pItemTex = new UITextureData();
+
+		m_pItemTex->texName = pFileName;
+		CKTDXDeviceTexture* pTexture = g_pKTDXApp->GetDeviceManager()->OpenTexture( m_pItemTex->texName );
+		if( NULL != m_pItemTex->pTexture && NULL != g_pKTDXApp->GetDeviceManager() )
+		{
+	#ifdef SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+			g_pKTDXApp->GetDeviceManager()->JuneCloseDeviceByPointer( m_pItemTex->pTexture );
+	#else SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+			g_pKTDXApp->GetDeviceManager()->CloseDevice( m_pItemTex->pTexture->GetDeviceID() );
+	#endif SERV_IRUHADEV_JUNE_SOUND_AUTO_RELEASE
+			m_pItemTex->pTexture = NULL;
+		}
+		m_pItemTex->pTexture = pTexture;
+		if( NULL != pTexture )
+			break;
+
+		if( 0 == wcscmp( pFileName, L"HQ_Shop_Ui_Noimage.dds" ) )
+			return;
+		pFileName = L"HQ_Shop_Ui_Noimage.dds";
+	}
+
+	const float fWidth	= (float)m_pItemTex->pTexture->GetWidth();
+	const float fHeight	= (float)m_pItemTex->pTexture->GetHeight();
+
+	m_pItemTex->uvOrgTexture[CKTDGUIControl::VP_LEFT_TOP]		= D3DXVECTOR2( 0, 0 );
+	m_pItemTex->uvOrgTexture[CKTDGUIControl::VP_RIGHT_TOP]		= D3DXVECTOR2( fWidth, 0 );
+	m_pItemTex->uvOrgTexture[CKTDGUIControl::VP_LEFT_BOTTOM]	= D3DXVECTOR2( 0, fHeight );
+	m_pItemTex->uvOrgTexture[CKTDGUIControl::VP_RIGHT_BOTTOM]	= D3DXVECTOR2( fWidth, fHeight );
+	m_pItemTex->texSize = D3DXVECTOR2( fWidth, fHeight );
+	m_pItemTex->SetTextureUV();
+
+	if( m_pNormalPoint != NULL )
+		m_pNormalPoint->pUITextureData = m_pItemTex;
+
+	if( m_pDraggingPoint != NULL )
+		m_pDraggingPoint->pUITextureData = m_pItemTex;
+
+	ChangeState( m_eControlState, true );
+}
+
+// June 31cd0850: a new texture data only for the first call, then refilled in place
+void CKTDGUISlot::SetItemTex( const WCHAR* pFileName, const WCHAR* key )
+{
+	if( NULL == m_pItemTex )
+		m_pItemTex = SetTexureData_( pFileName, key );
+	else
+		JuneResetTexureData_( pFileName, key, m_pItemTex );
+
+	if( NULL == m_pItemTex )
+	{
+		SetItemTex( L"HQ_Shop_Ui_Noimage.dds" );
+		return;
+	}
+
+	if( m_pNormalPoint != NULL )
+		m_pNormalPoint->pUITextureData = m_pItemTex;
+
+	if( m_pDraggingPoint != NULL )
+		m_pDraggingPoint->pUITextureData = m_pItemTex;
+
+	ChangeState( m_eControlState, true );
+}
+#else SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX
 void CKTDGUISlot::SetItemTex( const WCHAR* pFileName )
 {
 	KTDXPROFILE();
@@ -869,6 +982,7 @@ void CKTDGUISlot::SetItemTex( const WCHAR* pFileName, const WCHAR* key )
 
 }
 
+#endif SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX
 void CKTDGUISlot::SetItemTex_LUA( const char* pFileName, const char* key )
 {
 	wstring wstrFileName;
