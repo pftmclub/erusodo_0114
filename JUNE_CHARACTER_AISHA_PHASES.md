@@ -1484,6 +1484,15 @@ Build: `DEPLOY OK: X2_offline.exe is 25,681,920 B, dated 2026-10-21 09:35:06, md
 
 In game: nothing (inert). Open questions: none.
 
+### CH1m review (2026-10-21, Opus): PASS, no code change
+
+- **`JuneCommonSpecialAttackEventProcess` = `31fcadd0`:** guards `322731a0` / `+0x8ac4` / `3226e2e0` in order; A `+0x86f7 / fb / ff / f3` -> 0-3, F `+0x872b` -> 4 with no lock test, each `return 1` with the index set only past the SI_NONE test; T `+0x872f` -> 9 under `32890ee0( 1 )`, `g_pData` null jumps past the expand gate to the B chain (the port reaches the same B chain); expand gate `+0x2cc` / `+0x109`; Q/W/E/R `+0x8707..+0x8713` -> 5-8 as an else-if chain. June also null-tests `[g_pData +0x68] +0x90` before `32890ee0`; the port asks `cUserSkillTree_`, the same tree for the local player. Design call (June's reader for Aisha, March's for the rest) agreed.
+- **Sit key:** `@322f7fa4` pushes `0x27, +0x391, +0x391, +0x390, +0x391` (one, one, pure, one); GA_SIT = 0x27 and GA_RIDING = 0x28 by a compile probe. Both swap branches tail-merge into the call (`322f7e2e` -> `322f7f9d`), the riding branch jumps past it (`322f7ca1` -> `322f7fb6`): the port's placement inside the non-riding `else` matches. JUNE_BUGS 381 and `JUNE_ARME_INPUT_8726` = `pureSit` agreed.
+- **`June_SelectSkillSlotKind`:** `32cc7e60` tests `+0x8727` (`oneSit`); `3288fff0` sets -1, returns the first match, A `i`, B `i + 5`. June matches by skill id, the port by slot pointer; same result, since the slot comes from the same tree.
+- **`SPECIAL_OPTION_VALUE`:** `@320608a9` clears `+0x93a8`, `BeginTable` (`32fe9940`), values from 1 until a miss, `EndTable` (`32fe9a10`) only when the table opened, then the TIME_STOP block (`@32060933`): matches. Arme's getter reads the user list.
+- **Routes:** `31fdaaa0` reads `+0x8638 / +0x8648`; `@3205b934` / `@3205c0e8` are key-string decode sites in `32057b80`, `+0x801c` @3205c275; `32024ff0` exists with the list-variant flags. All as cited.
+- `cl /Zs` with LIVE defined: X2GUArme_VioletMage / X2GUUser / X2Game, 0 errors each. `CH1.md` already covers the final sub-phase; no change.
+
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map and the Ghidra decompile of each listed function), then an Opus review, then a
