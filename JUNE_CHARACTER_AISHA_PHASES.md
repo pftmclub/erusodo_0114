@@ -1846,9 +1846,41 @@ Fix: `flagcheck.py JUNE_PARTICLE_TRACE_INHERIT --worktree --files <4 files>`: `f
 - **Final deploy (no debug code):** `DEPLOY OK: X2_offline.exe is 25,715,200 B, dated 2026-10-22 00:36:08, md5 1a3e86a28b123890db2761ff83733fe8, equal to X2/US_SERVICE/x2.exe (2026-10-22 00:36:01); built at main b6f9a386.`
 - The temporary `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL_DEBUG` lines used to find the F-slot cause were removed before the commit of this note (uncommitted, never in `main`).
 
-### CH3b -- Review
+### CH3b -- Review (2026-10-22, Opus)
 
-Pending: `kickoffs/pilot-char-revamp/CH3b-review.md` (Opus 5.5 high).
+**Verdict: PASS after one fix** (commit `b6f9a386` read against the `funcann.py` listings; the fix is under the same flag).
+1. **Registration `32cede00`.** Jump table (`0x55f0` base, `32cf0830` / `32cf0758`) decoded: `0x5609 0x560b 0x560c 0x560d 0x561d 0x561e 0x5636 0x56c6 0x56d2`
+   each have their own case; every thunk resolved to the port's target (Distortion `32cb7fd0 / 32cdd900 / 32cdda50`, Morning Star Start `32cc1b10`,
+   StartFuture `32cc70b0`, FrameMove `32ced8b0`, Worm Hole `32cb8530 / 32ce0e00 / 32ce0f50`, Air Stunner `32cc5aa0` at `+0x44` and `32cb8eb0` at `+0x4c`
+   = StateEndFuture, Energy Ring `32ce3e80`, Impact Zone Init `32cb8ee0`). Hyper copies: Morning Star and Impact Zone through `329cc2c0`
+   (Impact Zone enters the tail at `32cee97d`, after the Start / FrameMove writes), the rest field by field as ported; `[ebp+0x10] = 1` only on
+   Air Stunner / Crazy Worm / Energy Ring. END state `0xf8`: `+0x44 / +0x48` = `329cba60` only. The upgrade ids never reach the switch
+   (`32207210` maps them to the base first); June's table even sends raw 22235 to the Fire Ring case, unreachable since its templet maps to 22214.
+2. **Distortion `32cdda50`.** Offset = vslot `0x16c` (dir) x 150 x vslot `0x24`.x, `+100 x scale.x` y = March's formula; hyper `0 <` remain; key
+   `( +0x975c - 1 ) ? -1 : 0`; `322e67c0( 0x443, hyper, 1, pos, right, 0.0, 1, key, team, 1, UID, 0, -1, 0, IsMyUnit, 0 )` = Hell Drop's
+   `32cd95d0` list but the 0.0 delay. **Worm Hole `32ce0f50`** = the port (level `( id, 0, 0, 1 )`, `+0x867c` NULL `@32ce0fd7` skips CommonFrameMove).
+3. **Morning Star `32ced8b0`.** Per instance: NULL damage effect / main effect / created hit -> next instance; the first created hit reads
+   `0x560d`: templet NULL or no factor -> CommonFrameMove (the `break`), unit NULL `@32cedd59` -> return past it. `322b5320( factor, level, 1, Rate )`:
+   bClear -> clear `+0x40` + `326309f0`, levelled clone, SetGameUnitBuffFactor, push, then `32089ff0` only for `Rate.bApply` and only on that factor
+   (pointer match), time finalizer x fTime then behaviors x fValue (type 3: `v1 + ( v1 - 1 ) x |r - 1|`) = `JuneRescaleBuffFactorByMemoRate`.
+   `31fdbfc0`: `{1, 1, 0}`, memo 0xf -> fTime, 0x10 -> fValue, empty -> 0, bApply 1.
+4. **Air Stunner `32cc5aa0`**: Future anim end `+0x2ac` and `+0x7e1c` -> StateChange( 0xf8, 0 ), tail CommonEventProcess. **StartFuture `32cc70b0`**:
+   `+0x7cb0` future skill, templet `+0x178`, `32007b10( 0x67 )`, ResetAnimSpeed( `+0x8900`, `+0x8905`, 1, v ) (the `+0x8905` byte is the
+   future `APPLY_ANIM_SPEED_BY_ITEM_ABILITY`, read from Lua as CH2a's Start does).
+5. **`3230c1a0` case `0x443` - FIXED.** The case's skill (`ebx`, `@3230c359`) and `322ece70`'s (`esi`, `@322ed04c`) are `31fcf430( 31fcf520( npc ) )`,
+   22027 after the upgrade swap. Learning the Enhanced Distortion (22065) erases 22027 (`X2UserSkillTree.cpp:802`), so the port's
+   `June_GetLearnedSkillAbilityValue( SA_EFFECTIVE_TIME, 22027 )` read level 0 and returned 1.0: an Enhanced Distortion lived 1 s, not 10.
+   `June_SetDistortionSummonInfo` now takes the swapped id for templet, level (`June_GetSkillLevel` = `31fceab0`), buff / socket terms and the
+   life time; the memo stays `31fdbbb0( 0x560b )`. A NULL templet no longer skips the life time (June always calls `31e4d560`).
+6. **Hyper actives / F slot**: passed, not a finding. **Icicle Spear `RNSI_SA_AEM_ICICLE_SPEAR_MESH.Y`** (CH3a open item): June data, not code.
+   `GameMajorParticle22.txt` 9988 / 10014 (data036, byte-identical to June's) name `...Mesh.y`; June ships only `...Mesh.X`. Kept verbatim, JUNE_BUGS 392.
+
+**Hygiene.** Range `b6f9a386^..b6f9a386`: `files: 5 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Fix, worktree `--files X2Lib/X2GUArme_VioletMage.cpp`: `files: 1 PASS, ...`; `6 deleted line(s)` (CH3b's own flagged lines of the replaced body), else 0; `RESULT: PASS`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,715,200 B, dated 2026-10-22 01:00:16, md5 a620bfab687821da1447dacd079bf0a1, equal to X2/US_SERVICE/x2.exe (2026-10-22 01:00:08); built at main 3607b007 + 1 uncommitted code file(s).`
+**User owes:** one play-test of an Enhanced Distortion (below). Next: `/x2-phase pilot-char-revamp CH3c` (Sonnet 5.5 high) or `CH4` (Opus 5.5 high), one at a time.
+**CH3c kickoff**: now says every read in a summon case takes the swapped id. Funcmap row `3230c1a0 case 0x443` corrected.
 
 ## Phase CH4 - Passives and class mechanics
 

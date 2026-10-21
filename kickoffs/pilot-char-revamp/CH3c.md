@@ -32,4 +32,8 @@ and memo UFO `0x627`, Stone Wall, the Petit Angkor bats); March side: `X2Lib/X2G
 For each Aisha summon case of June `3230c1a0` (read it first: flags passed to `322ece70`, the skill id from `31fcf520`, the follow-ups such
 as `32c86340` / `323115e0`): give the March case June's skill (templet by June id with the upgrade swap, level `GetSkillLevel( id, false, 0, true )`,
 power rate and life time as June), as CH3b did for Distortion. Keep March's `SetNPCStat` line. Anything outside Aisha's cases is not this phase.
+**Use the swapped id for every read (CH3b review).** June's case skill (`ebx`) and `322ece70`'s own (`esi @322ed04c`) are
+`31fcf430( 31fcf520( npc ) )`, the upgrade-swapped id: level (`31fceab0`), templet, buff / socket terms and the `32007b10` life time all take it.
+Learning the Enhanced skill erases the base id, so a read by the base id gets level 0 (life 1.0 s). Only an explicit memo lookup
+(`31fdbbb0( <literal id> )`) keeps the literal. The pattern is `June_SetDistortionSummonInfo` after the review.
 Done gate: Hell Drop's UFO, Stone Wall and the bats get their power rate and their end from the June skill; a log line per case.

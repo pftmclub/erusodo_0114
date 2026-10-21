@@ -35914,17 +35914,22 @@ void CX2GUArme_VioletMage::June_AVSI_A_ADW_ENERGY_RING_FrameMove()
 	June_PlayRingOnAimedTarget( L"EffectSet_A_ADW_Energy_Ring" );
 }
 
-// June 3230c1a0 case 0x443: the summon's power rate follows the equipped skill 22027 and it ends after SA_EFFECTIVE_TIME ( x the memo 0xf value ); March's stat line stays
+// June 3230c1a0 case 0x443: power rate and SA_EFFECTIVE_TIME from the summoning skill 22027 after the upgrade swap, the memo from 22027 itself
 void CX2GUArme_VioletMage::June_SetDistortionSummonInfo( CX2GUNPC* pNPC_ )
 {
-	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH3B_SA_ADW_DISTORTION ), true );
-	if( NULL == pNPC_ || NULL == pSkillTemplet || NULL == GetUnit() )
+	if( NULL == pNPC_ || NULL == GetUnit() )
 		return;
 
-	const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
-	pNPC_->SetDefaultPowerRate( pSkillTemplet->GetSkillPowerRateValue( iSkillLevel ) * GetSummonPowerRateByBuff( JUNE_CH3B_SA_ADW_DISTORTION ) * GetSummonPowerRateBySocket( JUNE_CH3B_SA_ADW_DISTORTION ) );
+	/// June 31fcf430( 31fcf520( 0x443 ) ): 22065 once the Enhanced Distortion is learned
+	const int iSummonSkillID = GetUnit()->GetUnitData().m_UserSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH3B_SA_ADW_DISTORTION ) );
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSummonSkillID ), true );
+	if( NULL != pSkillTemplet )
+	{
+		const int iSkillLevel = max( 1, June_GetSkillLevel( iSummonSkillID ) );
+		pNPC_->SetDefaultPowerRate( pSkillTemplet->GetSkillPowerRateValue( iSkillLevel ) * GetSummonPowerRateByBuff( iSummonSkillID ) * GetSummonPowerRateBySocket( iSummonSkillID ) );
+	}
 
-	float fRemainTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, JUNE_CH3B_SA_ADW_DISTORTION );
+	float fRemainTime = June_GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSummonSkillID );
 	const JuneSkillMemoEntry* pMemo = GetJuneSkillMemoEntry( JUNE_CH3B_SA_ADW_DISTORTION );
 	if( NULL != pMemo && 0xf == pMemo->m_iType )
 		fRemainTime *= pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];
