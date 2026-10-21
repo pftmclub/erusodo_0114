@@ -1343,6 +1343,22 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void June_AVSI_A_ABM_ENERGY_DRAIN_SUCCESS_FrameMove();				/// June 32cdcac0
 		void June_AVSI_A_ABM_ENERGY_DRAIN_EventProcess();					/// June 32cc0d10
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2c
+		//{{ Iruha : 2026-10-21 // June character pilot Phase CH3a ( JUNE_CHARACTER_AISHA_PHASES.md )
+		void June_PlayBlazeStep();
+		void June_AVSI_SA_AHM_BLAZE_STEP_FrameMove();						/// June 32cd85d0
+		void June_AVSI_SA_AHM_BLAZE_STEP_HYPER_FrameMove();					/// June 32cd8850
+		void June_AVSI_SA_AEM_CYCLONE_FrameMove();							/// June 32cd9340
+		void June_AVSI_SI3_AV_CATASTROPHE_EventProcess();					/// June 32cbe9f0
+		void June_AVSI_SA_AVP_HELL_DROP_FrameMove();						/// June 32cd95d0
+		void June_AVSI_SA_AVP_HELL_DROP_EventProcess();						/// June 32cbf2d0
+		void June_AVSI_HELL_DROP_CONTROL_FrameMove();						/// June 32cd9af0
+		void June_AVSI_HELL_DROP_CONTROL_EventProcess();					/// June 32cd9d00
+		void June_AVSI_SA_AVP_RUIN_EventProcess();							/// June 32cc5940
+		void June_SetRuinValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32cede00, the Ruin case tail
+		void June_AVSI_SI_A_AV_CIRCLE_FLAME_READY_FrameMove();				/// June 32cd7470
+		void June_AVSI_SI_A_AV_CIRCLE_FLAME_StateStart();					/// June 32cd75f0
+		void June_AVSI_A_AVP_SUMMON_BAT_FrameMove();						/// June 32cd8ea0
+		//}} Iruha : 2026-10-21 // June character pilot Phase CH3a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 		//}} Iruha : 2026-10-21 // June character pilot Phase CH2a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE

@@ -4763,3 +4763,29 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_P
 | Energy Drain MP / range (22213, level 1) | SA_MP_GAIN_ON_HIT_REL 15, SA_MP_INTAKE_ABS 0.85, SA_PROJECTILE_RANGE_REL 700 | 20, 2, 700 (22234: 910) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### June character pilot: Aisha's Elemental Master / Void Princess skills (pilot-char-revamp CH3a, 2026-10-21)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL` (CH2a's). Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH3a - Done"; log lines `[JUNE_CHAR] ARME SKILL registered ...`.
+- **Client.** `June_SetEquippedSkillFuncHead` registers June's states for Blaze Step, Cyclone, Chain Burst, Plasma Cutter, Phantom Breathing, Hell Drop (+ its 9 steering states, FIRE and DYING), Dark Burst, Circle of Elements, Frost Barrage, Petit Angkor's Millions, Ruin (+ its loop and end states), Icicle Spear, Abyss Field, Circle Flame (+ state 186) and Petit Angkor, with their upgrade ids. The `June_*` bodies sit in the CH3a block at the end of `X2GUArme_VioletMage.cpp`; Inits, Phantom Breathing's EventProcess and most Circle Flame callbacks are March's members (equal bodies). **Not done (CH3a2, Opus):** Lightning Shower (22012 / 22052, unmapped `31c69af0`) and Fire Ring / Dark Ring (22224 / 22225, unmapped `31ff5440`): they still cast March's states.
+- **What changes in game.** Most June states have no FrameMove: the cut-in, world colour, sounds and effect sets come from June's `Arme_VioletMage.lua`. Hell Drop always summons the memo UFO (`NUI_UFO_AISHA_DROPPER_MEMO`) and the skill state ends at the animation end; the steering states run on June's key test (the sit key can hold the control). Ruin's tick time, duration and MP cost are read from the skill at the learned level. Circle Flame's ice / energy sets are misspelled in June and play nothing (JUNE_BUGS 387).
+
+| Skill (June id) | March effect = MAGIC | June effect = level-1 value x0.01 |
+|---|---|---|
+| Blaze Step (22010) | DE_ARME_BLAZE_STEP_01 / 02 / 03 = 0.54 / 0.42 / 0.42 | BlazeStep_Main = 37.07, next 18.54, next 9.27, Sub = 1.61 |
+| Cyclone (22011) | AISHA_ELEMENTAL_MASTER_CYCLONE_OUTSIDE = 0.46 | same name = 2.08 |
+| Chain Burst (22013) | AISHA_CHAIN_BURST_FIREBALL_BIG / SMALL = 1.18 | ChainBurst_Big / Small = 2.81 |
+| Plasma Cutter (22018) | CATASTROPHE_LASER = 1.22, hyper 0.46 | Plasma_Cutter_Main / Sub = 1.08, hyper 0.83 |
+| Phantom Breathing (22019) | PHANTOM_BREATHING = 1.21 | Phantom_Breathing_Attack = 2.22 |
+| Hell Drop (22020) | AISHA_HELL_DROP_STONE = 4.47, EXPLOSION_INVISIBLE = 4.47 | Hell_Drop_Stone = 0.91, Hell_Drop_Invisible = 2.13 |
+| Dark Burst (22021) | June-only | DarkBurst_Big / Small = 2.81 |
+| Circle of Elements (22041) | June-only | Lightning 2.8, Fire 2.24, Ice 2.13 |
+| Frost Barrage (22042) | June-only | Frozen_Edge_Projectile_Damage = 3.33 |
+| Petit Angkor's Millions (22043) | June-only | Bite = 0.45, Explosion = 2.83 |
+| Ruin (22044) | June-only | Destruction_BlackHole = 6.15, Destruction_End = 34.31 |
+| Icicle Spear (22068) | June-only | Projectile = 37.42, ExplosionFX = 47.78 |
+| Abyss Field (22069) | June-only | ABYSS_FIELD_Projectile = 12.91 |
+| Circle Flame (22204) | ARME_SI_A_AV_CIRCLE_FLAME_1 / 2 / 3 = 1.89 | DamageEffect_A_AEM_CircleFlame = 1.38, next 4.05 |
+| Petit Angkor (22209) | AISHA_SUMMON_BAT_FIRST_BITE / BITE / EXPLOSION = 0.74 | Petit_Angor_Bite / First_Bite = 1.43, Explosion = 3.3 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.

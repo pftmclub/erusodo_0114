@@ -100,6 +100,7 @@ It copies the June scripts into `<scratch dir>` and never writes to the June dir
   - (Aisha: CH2a - the first live class: states for 22000-22009 and 22200 / 22201 and their upgrade ids; NUM lines matched the tsv at level 1 on 2026-10-21 and `SERV_IRUHADEV_JUNE_SKILL_NUMERICAL_DEBUG` is retired.)
   - (Aisha: CH2b - 22 of the 24 ids: Dark Cloud, Aging, Death Field, Hell Stone, Magical Makeup, Super Nova, Guillotine Press, Heavy Press, Dark Road, Mana Intake, Energetic Road and their upgrade ids; Energy Drain 22213 / 22234 waits for CH2c, which maps `322f0e60`. The effect-set modifier list gained tag 1 for the upgraded Energetic Road.)
   - (Aisha: CH2c - Energy Drain 22213 / 22234: READY / SUCCESS / FAIL are June's; its target search needs June's view cone `322f0e60`, now `CX2Game::JuneIsUnitInViewCone`, which Ain's Lied Schwach also calls (Stage 8).)
+  - (Aisha: CH3a - 15 of the 18 state-bearing skill cases: Blaze Step, Cyclone, Chain Burst, Plasma Cutter, Phantom Breathing, Hell Drop (+ 11 control states), Dark Burst, Circle of Elements, Frost Barrage, Petit Angkor's Millions, Ruin (+ loop / end), Icicle Spear, Abyss Field, Circle Flame (+ state 186), Petit Angkor, with their upgrade ids. Lightning Shower 22012 / 22052 (unmapped `31c69af0`) and Fire Ring / Dark Ring 22224 / 22225 (unmapped `31ff5440`, the SUB_CAMERA sequencer of 7af) wait for CH3a2; Elemental / Shadow Body have no state (CH4).)
 
 ## 2. DamageData keys June's character scripts use that March does not parse yet
 
@@ -748,7 +749,7 @@ bOnLine, bDroppable )`; March's 7-arg form forwards (index twice, `false`). Clas
   calls `CanDown` (all NULL) in `ProcessLockOn`'s candidate loop (`@3200fcad`) and clears a flag when it fails; March's loop has none. June's
   `ProcessLockOn` is shared with Luciel.
 - Chung Artillery Strike Ready (`@32bfe8c3`, `X2GUChung.cpp:17152`) and Aisha Hell Drop (`@32cd97ba`, `X2GUArme_VioletMage.cpp:16482`) pass the in
-  index and a NULL out index; March's out local is unread, so nothing changes. Aisha's June state always creates `NUI_UFO_AISHA_DROPPER_MEMO` (0x627).
+  index and a NULL out index; March's out local is unread, so nothing changes. Aisha's June state always creates `NUI_UFO_AISHA_DROPPER_MEMO` (0x627). (Aisha: CH3a - `June_AVSI_SA_AVP_HELL_DROP_FrameMove`; Lightning Shower's two `CanDown` calls with a NULL out index wait for CH3a2.)
 - June-only helpers with `NULL, &idx`: user landing prediction `32021390` (Add / Luciel / Arme callers), target-follow prediction `3200eeb0`, line clamp
   `32294530` (Add), Ara landing helper `32bc0420`, Rena Grand Archer `LESI_RGA_GUNGNIR_READY` (`@32ca111a`); Luciel's states (`@32b2fd79`, `@32b33fb7`,
   `@32b33d09`) come with the class. (Aisha: CH1g review, `32021390` only, as `CX2GUArme_VioletMage::JuneLandingPrediction`; it steps nowSpeed.x, not y)

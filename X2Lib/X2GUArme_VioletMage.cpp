@@ -32716,6 +32716,33 @@ namespace
 			static_cast<CX2GUNPC*>( pUnit_ )->JuneGetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit_->GetInvincible();
 	}
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2b
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH3a ( JUNE_CHARACTER_AISHA_PHASES.md )
+	/// June Enum.lua ids of CH3a's skills ( RNSI_*; the C++ SKILL_ID enum is March's numbering )
+	const int JUNE_CH3A_SA_AEM_BLAZE_STEP					= 22010;
+	const int JUNE_CH3A_SA_AEM_CYCLONE						= 22011;
+	const int JUNE_CH3A_SA_AEM_CHAIN_BURST					= 22013;
+	const int JUNE_CH3A_SA_AVP_PLASMA_CUTTER				= 22018;
+	const int JUNE_CH3A_SA_AVP_PHANTOM_BREATHING			= 22019;
+	const int JUNE_CH3A_SA_AVP_HELL_DROP					= 22020;
+	const int JUNE_CH3A_SA_AVP_DARK_BURST					= 22021;
+	const int JUNE_CH3A_SA_AEM_CIRCLE_ELEMENTAL				= 22041;
+	const int JUNE_CH3A_SA_AEM_ELEMENTAL_EDGE				= 22042;
+	const int JUNE_CH3A_SA_AVP_SUMMON_BAT_MILLIONS			= 22043;
+	const int JUNE_CH3A_SA_AVP_RUIN							= 22044;
+	const int JUNE_CH3A_SA_AEM_BLAZE_STEP_UPGRADE			= 22050;
+	const int JUNE_CH3A_SA_AEM_CYCLONE_UPGRADE				= 22051;
+	const int JUNE_CH3A_SA_AEM_CHAIN_BURST_UPGRADE			= 22053;
+	const int JUNE_CH3A_SA_AVP_PLASMA_CUTTER_UPGRADE		= 22057;
+	const int JUNE_CH3A_SA_AVP_PHANTOM_BREATHING_UPGRADE	= 22058;
+	const int JUNE_CH3A_SA_AVP_HELL_DROP_UPGRADE			= 22059;
+	const int JUNE_CH3A_SA_AVP_DARK_BURST_UPGRADE			= 22060;
+	const int JUNE_CH3A_SA_AEM_ICICLE_SPEAR					= 22068;
+	const int JUNE_CH3A_SA_AVP_ABYSS_FIELD					= 22069;
+	const int JUNE_CH3A_A_AEM_CIRCLE_FLAME					= 22204;
+	const int JUNE_CH3A_A_AVP_SUMMON_BAT					= 22209;
+	const int JUNE_CH3A_A_AEM_CIRCLE_FLAME_UPGRADE			= 22228;
+	const int JUNE_CH3A_A_AVP_SUMMON_BAT_UPGRADE			= 22231;
+//}} Iruha : 2026-10-21 // June character pilot Phase CH3a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 
 	/// June 32207210: the skill's m_iDeleteSkillIDByUpgrade when it has one, else the id itself
@@ -33234,6 +33261,258 @@ bool CX2GUArme_VioletMage::June_SetEquippedSkillFuncHead( const CX2SkillTree::SK
 					m_StateList[stateData.stateID] = stateData;
 				} return false;
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2c
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH3a ( JUNE_CHARACTER_AISHA_PHASES.md )
+			/// June 32cede00 cases 22010 / 22011 / 22013 / 22018-22021, 22041-22044, 22068 / 22069, 22204 and 22209, with their upgrade ids
+			case JUNE_CH3A_SA_AEM_BLAZE_STEP:
+			case JUNE_CH3A_SA_AEM_BLAZE_STEP_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AEM_BLAZE_STEP", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_BLAZE_STEP", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_BLAZE_STEP_Init );	/// June 32cb7a60 = March's
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_BLAZE_STEP_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );	/// June 32cbf210 = 32cbe6a0
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AHM_BLAZE_STEP_HYPER", hyperStateData.stateID );
+					hyperStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AHM_BLAZE_STEP_HYPER_Init );	/// June 32cb7ab0 = March's
+					hyperStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AHM_BLAZE_STEP_HYPER_FrameMove );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;	/// June 32cbf250 = 32cbe6a0
+				} return false;
+
+			case JUNE_CH3A_SA_AEM_CYCLONE:
+			case JUNE_CH3A_SA_AEM_CYCLONE_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AEM_CYCLONE", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CYCLONE", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AEM_CYCLONE_Init );	/// June 32cb7c00 = March's
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AEM_CYCLONE_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CYCLONE", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH3A_SA_AEM_CHAIN_BURST:
+			case JUNE_CH3A_SA_AEM_CHAIN_BURST_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AEM_CHAIN_BURST", eSkillID_, iSlotIndex_, bSlotB_ );
+					/// June's FrameMove 32cb7830 only forwards to CommonFrameMove: left empty, the engine runs it
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_CHAIN_BURST", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );	/// June 32cbed50 = 32cbe6a0
+
+					m_LuaManager.MakeTableReference( "AVSI_SI1_AV_CHAIN_BURST", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+				} return false;
+
+			case JUNE_CH3A_SA_AVP_PLASMA_CUTTER:
+			case JUNE_CH3A_SA_AVP_PLASMA_CUTTER_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AVP_PLASMA_CUTTER", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI3_AV_CATASTROPHE", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI3_AV_CATASTROPHE_Init );	/// June 32cb77c0 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI3_AV_CATASTROPHE_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SI3_AV_CATASTROPHE_HYPER", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH3A_SA_AVP_PHANTOM_BREATHING:
+			case JUNE_CH3A_SA_AVP_PHANTOM_BREATHING_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AVP_PHANTOM_BREATHING", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_PHANTOM_BREATHING", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AVP_PHANTOM_BREATHING_Init );	/// June 32cb7e50 = March's
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AVP_PHANTOM_BREATHING_EventProcess );	/// June 32cbfe20 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_PHANTOM_BREATHING", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH3A_SA_AVP_HELL_DROP:
+			case JUNE_CH3A_SA_AVP_HELL_DROP_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AVP_HELL_DROP", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_HELL_DROP", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AVP_HELL_DROP_Init );	/// June 32cb7c30 = March's
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AVP_HELL_DROP_Start );	/// June 32cb7cb0 = March's
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AVP_HELL_DROP_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AVP_HELL_DROP_EventProcess );
+					normalStateData.StateEnd		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SA_AVP_HELL_DROP_StateEnd );	/// June 32cbf320 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_HELL_DROP", hyperStateData.stateID );
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+					hyperStateData.StateEnd			= normalStateData.StateEnd;
+
+					/// June's control states, FIRE and DYING
+					UserUnitStateData stateData;
+
+#define JUNE_REGISTER_HELL_DROP_CONTROL( STATE_ID, TABLE_NAME, START_FUNC ) \
+					stateData.Init(); \
+					stateData.stateID			= STATE_ID; \
+					m_LuaManager.MakeTableReference( TABLE_NAME, stateData.stateID ); \
+					stateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, START_FUNC ); \
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_HELL_DROP_CONTROL_FrameMove ); \
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_HELL_DROP_CONTROL_EventProcess ); \
+					m_StateList[stateData.stateID] = stateData;
+
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_IDLE,		"AVSI_HELL_DROP_CONTROL_IDLE",		June_AVSI_HELL_DROP_CONTROL_IDLE_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_LEFT,		"AVSI_HELL_DROP_CONTROL_LEFT",		June_AVSI_HELL_DROP_CONTROL_LEFT_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_RIGHT,		"AVSI_HELL_DROP_CONTROL_RIGHT",		June_AVSI_HELL_DROP_CONTROL_RIGHT_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_UP,			"AVSI_HELL_DROP_CONTROL_UP",		June_AVSI_HELL_DROP_CONTROL_UP_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_DOWN,		"AVSI_HELL_DROP_CONTROL_DOWN",		June_AVSI_HELL_DROP_CONTROL_DOWN_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_UP_LEFT,	"AVSI_HELL_DROP_CONTROL_UP_LEFT",	June_AVSI_HELL_DROP_CONTROL_UP_LEFT_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_UP_RIGHT,	"AVSI_HELL_DROP_CONTROL_UP_RIGHT",	June_AVSI_HELL_DROP_CONTROL_UP_RIGHT_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_DOWN_LEFT,	"AVSI_HELL_DROP_CONTROL_DOWN_LEFT",	June_AVSI_HELL_DROP_CONTROL_DOWN_LEFT_StateStart )
+					JUNE_REGISTER_HELL_DROP_CONTROL( AVSI_HELL_DROP_CONTROL_DOWN_RIGHT,	"AVSI_HELL_DROP_CONTROL_DOWN_RIGHT", June_AVSI_HELL_DROP_CONTROL_DOWN_RIGHT_StateStart )
+#undef JUNE_REGISTER_HELL_DROP_CONTROL
+
+					stateData.Init();
+					stateData.stateID			= AVSI_HELL_DROP_CONTROL_FIRE;
+					m_LuaManager.MakeTableReference( "AVSI_HELL_DROP_CONTROL_FIRE", stateData.stateID );
+					stateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_HELL_DROP_CONTROL_FIRE_StateStart );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_HELL_DROP_CONTROL_FIRE_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_HELL_DROP_CONTROL_DYING;
+					m_LuaManager.MakeTableReference( "AVSI_HELL_DROP_CONTROL_DYING", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				} return false;
+
+			case JUNE_CH3A_SA_AVP_DARK_BURST:
+			case JUNE_CH3A_SA_AVP_DARK_BURST_UPGRADE:
+				{
+					June_LogArmeSkill( L"SA_AVP_DARK_BURST", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "RNSI_SA_ADM_DARK_BURST", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SKILL_EventProcess );	/// June 32cc5900 = 32cbe6a0
+
+					m_LuaManager.MakeTableReference( "RNSI_SA_ADM_DARK_BURST", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH3A_SA_AEM_CIRCLE_ELEMENTAL:
+				{
+					June_LogArmeSkill( L"SA_AEM_CIRCLE_ELEMENTAL", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CIRCLE_ELEMENTAL", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_CIRCLE_ELEMENTAL", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH3A_SA_AEM_ELEMENTAL_EDGE:
+				{
+					June_LogArmeSkill( L"SA_AEM_ELEMENTAL_EDGE", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ELEMENTAL_EDGE", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ELEMENTAL_EDGE", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH3A_SA_AVP_SUMMON_BAT_MILLIONS:
+				{
+					June_LogArmeSkill( L"SA_AVP_SUMMON_BAT_MILLIONS", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_SUMMON_BAT_MILLIONS", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericSpecialActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_SUMMON_BAT_MILLIONS", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+
+			case JUNE_CH3A_SA_AVP_RUIN:
+				{
+					June_LogArmeSkill( L"SA_AVP_RUIN", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_RUIN", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AVP_RUIN_EventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_RUIN", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SA_AVP_RUIN_LOOP;
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_RUIN_LOOP", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SA_AVP_RUIN_LOOP_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SA_AVP_RUIN_END;
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_RUIN_END", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					June_SetRuinValues( pSkillTemplet );
+				} return false;
+
+			case JUNE_CH3A_SA_AEM_ICICLE_SPEAR:
+				{
+					June_LogArmeSkill( L"SA_AEM_ICICLE_SPEAR", eSkillID_, iSlotIndex_, bSlotB_ );
+					/// June's Init 32cb8ec0 is an empty function
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ICICLE_SPEAR", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AEM_ICICLE_SPEAR", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+				} return false;
+
+			case JUNE_CH3A_SA_AVP_ABYSS_FIELD:
+				{
+					June_LogArmeSkill( L"SA_AVP_ABYSS_FIELD", eSkillID_, iSlotIndex_, bSlotB_ );
+					/// June's Init 32cb8ed0 is an empty function
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_ABYSS_FIELD", normalStateData.stateID );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_SA_AVP_ABYSS_FIELD", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );	/// June 329cc2c0
+				} return false;
+
+			case JUNE_CH3A_A_AEM_CIRCLE_FLAME:
+			case JUNE_CH3A_A_AEM_CIRCLE_FLAME_UPGRADE:
+				{
+					June_LogArmeSkill( L"A_AEM_CIRCLE_FLAME", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_SI_A_AV_CIRCLE_FLAME_READY", normalStateData.stateID );
+					normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_READY_StartFuture );	/// June 32cbee50 = March's
+					normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_A_AV_CIRCLE_FLAME_READY_FrameMove );
+					normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_READY_EventProcess );	/// June 32cbeeb0 = March's
+					normalStateData.StateEndFuture		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_READY_EndFuture );	/// June 32cb7870 = March's
+
+					m_LuaManager.MakeTableReference( "AVSI_SI_A_AV_CIRCLE_FLAME_READY", hyperStateData.stateID );
+					June_CopyStateCallbacks( hyperStateData, normalStateData );
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= AVSI_SI_A_AV_CIRCLE_FLAME;
+					m_LuaManager.MakeTableReference( "AVSI_SI_A_AV_CIRCLE_FLAME", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_Init );	/// June 32cb7890 = March's
+					stateData.StateStartFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_A_AV_CIRCLE_FLAME_StartFuture );
+					stateData.StateStart		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_A_AV_CIRCLE_FLAME_StateStart );
+					stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_FrameMoveFuture );	/// June 32cbef80 = March's
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_FrameMove );	/// June 32cd7800 = March's
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_SI_A_AV_CIRCLE_FLAME_EventProcess );
+					stateData.StateEndFuture	= SET_CB_FUNC( CX2GUArme_VioletMage, AVSI_SI_A_AV_CIRCLE_FLAME_EndFuture );	/// June 32cb78f0 = March's
+					m_StateList[stateData.stateID] = stateData;
+				} return false;
+
+			case JUNE_CH3A_A_AVP_SUMMON_BAT:
+			case JUNE_CH3A_A_AVP_SUMMON_BAT_UPGRADE:
+				{
+					June_LogArmeSkill( L"A_AVP_SUMMON_BAT", eSkillID_, iSlotIndex_, bSlotB_ );
+					m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AVP_Summon_Bat_Heavy_Init );	/// June 32cb7bd0 = the Heavy Init's list ( mesh + AVP_Effect128.tga )
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUArme_VioletMage, June_AVSI_A_AVP_SUMMON_BAT_FrameMove );
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, JuneGenericActiveSkillEventProcess );
+
+					m_LuaManager.MakeTableReference( "AVSI_A_AVP_SUMMON_BAT", hyperStateData.stateID );
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return false;
+//}} Iruha : 2026-10-21 // June character pilot Phase CH3a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 			default:
 				break;
@@ -34694,6 +34973,416 @@ void CX2GUArme_VioletMage::June_AVSI_A_ABM_ENERGY_DRAIN_EventProcess()
 	}
 }
 //}} Iruha : 2026-10-21 // June character pilot Phase CH2c
+//{{ Iruha : 2026-10-21 // June character pilot Phase CH3a ( JUNE_CHARACTER_AISHA_PHASES.md )
+// June 32cd85d0 / 32cd8850: the Blaze Step effect set replaces the last one ( handle +0x977c )
+void CX2GUArme_VioletMage::June_PlayBlazeStep()
+{
+	CX2EffectSet* pEffectSet = g_pX2Game->GetEffectSet();
+	if( NULL == pEffectSet )
+		return;
+
+	if( INVALID_EFFECTSET_HANDLE != m_hJune977c )
+		pEffectSet->StopEffectSet( m_hJune977c );
+
+	m_hJune977c = pEffectSet->PlayEffectSet( L"EffectSet_SA_AEM_BlazeStep", this );
+}
+
+// June 32cd85d0: buff factor 0 ( June's memo stub is false ), then the effect set
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_BLAZE_STEP_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 1.53f ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH3A_SA_AEM_BLAZE_STEP ), true );
+		if( NULL != pSkillTemplet )
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+
+		June_PlayBlazeStep();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cd8850: as the normal one, without the memo test
+void CX2GUArme_VioletMage::June_AVSI_SA_AHM_BLAZE_STEP_HYPER_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 1.53f ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH3A_SA_AEM_BLAZE_STEP ), true );
+		if( NULL != pSkillTemplet )
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+
+		June_PlayBlazeStep();
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cd9340: the Cyclone damage effect 150 in front, without March's memo 16 hit-MP rate
+void CX2GUArme_VioletMage::June_AVSI_SA_AEM_CYCLONE_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.733f ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH3A_SA_AEM_CYCLONE ), true );
+		if( NULL != pSkillTemplet )
+		{
+			if( NULL == GetUnit() )
+				return;	/// June leaves without CommonFrameMove
+
+			const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			const float fLifeTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+			const int iHitCount = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, iSkillLevel ) );
+
+			D3DXVECTOR3 vPos = GetPos();
+			if( true == GetIsRight() )
+				vPos += GetDirVector() * 150.f;
+			else
+				vPos -= GetDirVector() * 150.f;
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"AISHA_ELEMENTAL_MASTER_CYCLONE_OUTSIDE", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(),
+				GetLandPos().y, false, -1.f, 1.f, fLifeTime, iHitCount );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbe9f0: animation end, then the skill cancel chain ( skill, back walk, walk, dash, Z, X ) without a landing test
+void CX2GUArme_VioletMage::June_AVSI_SI3_AV_CATASTROPHE_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	else if( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) ||
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureRight == true || m_InputData.pureLeft == true ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true ) )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		m_InputData.pureZ == true )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if( 0.f <= m_fAttackCancelAfter && m_fAttackCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		m_InputData.pureX == true )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cd95d0: the memo UFO, requested by the local unit ( no host test ), with the HellDrop_Summon_Start effect set
+void CX2GUArme_VioletMage::June_AVSI_SA_AVP_HELL_DROP_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.45f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+			vPos += GetDirVector() * 200.f;
+		else
+			vPos -= GetDirVector() * 200.f;
+		vPos.y += 240.f;
+
+		ResetUFO();
+
+		int iNewLineIndex = m_FrameDataNow.syncData.lastTouchLineIndex;
+		D3DXVECTOR3 vLandPos = vPos;
+		if( false == g_pX2Game->GetWorld()->GetLineMap()->CanDown( vPos, LINE_RADIUS, &vLandPos, &iNewLineIndex, NULL, true, false, true, false ) )
+		{
+			vPos = GetPos();
+			vPos.y += 240.f;
+			iNewLineIndex = m_FrameDataNow.syncData.lastTouchLineIndex;
+		}
+
+		int iHyperMode = 0;
+		if( 0.f < GetRemainHyperModeTime() )
+			iHyperMode = 1;
+
+		/// June's key code is 0 while the sit key mode holds
+		const int iKeyCode = ( 1 == m_iJune975c ) ? 0 : -1;
+		if( true == IsMyUnit() )
+		{
+			g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_UFO_AISHA_DROPPER_MEMO, iHyperMode, true, vPos, GetIsRight(), 0.3f, true, iKeyCode,
+				static_cast<CX2Room::TEAM_NUM>( GetTeam() ), CX2NPCAI::NAT_ALLY, GetUnitUID() );
+		}
+
+		vPos += GetZVector() * -50.f;
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AVP_HellDrop_Summon_Start", this, NULL, false, -1.f, -1.f, D3DXVECTOR3( 1, 1, 1 ), true, vPos, GetRotateDegree(), GetDirVector() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cbf2d0: March's memo 21 branch only
+void CX2GUArme_VioletMage::June_AVSI_SA_AVP_HELL_DROP_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_TimerUFOControl.restart();
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cd9af0: March's body ( the memo 21 gate is June's always-true stub )
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_FrameMove()
+{
+	if( m_TimerUFOControl.elapsed() > m_fHellDropCreateEffectCooltime )
+	{
+		m_fHellDropCreateEffectCooltime = m_fHellDropCreateEffectCooltime + _CONST_AISHA_::CREATE_HELL_DROP_DAMAGE_EFFECT_TIME_GAP;
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AVP_HellDrop_DropStone", GetUFO(), NULL, IsHyperState(), GetPowerRate() );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cd9d00: March's steering, the sit key also holds it ( 975c = 1 ); the timeout also stops the handle +0x95f4
+void CX2GUArme_VioletMage::June_AVSI_HELL_DROP_CONTROL_EventProcess()
+{
+	bool bSpecialAttackKeyPressed = true;
+	switch( m_eSpecialAttackKeyPressed )
+	{
+	case SAKP_A:
+		if( m_InputData.pureA == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	case SAKP_S:
+		if( m_InputData.pureS == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	case SAKP_D:
+		if( m_InputData.pureD == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	case SAKP_C:
+		if( m_InputData.pureC == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	case SAKP_Q:
+		if( m_InputData.pureQ == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	case SAKP_W:
+		if( m_InputData.pureW == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	case SAKP_E:
+		if( m_InputData.pureE == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	case SAKP_R:
+		if( m_InputData.pureR == false )
+			bSpecialAttackKeyPressed = false;
+		break;
+
+	default:
+		bSpecialAttackKeyPressed = false;
+		break;
+	}
+
+	const float MAGIC_CONTROL_RADIUS = 1500.f;
+	const double MAGIC_CONTROL_TIME = 2.9;
+	/// June compares against 1.0 + 0.1 added in double ( 1.1000000014901161 )
+	const double MAGIC_START_TIME = static_cast<double>( _CONST_AISHA_::CREATE_HELL_DROP_DAMAGE_EFFECT_START_TIME ) + static_cast<double>( 0.1f );
+
+	if( ( ( true == bSpecialAttackKeyPressed || ( 1 == m_iJune975c && true == m_InputData.pureSit ) ) && m_TimerUFOControl.elapsed() < MAGIC_CONTROL_TIME )
+		|| m_TimerUFOControl.elapsed() < MAGIC_START_TIME )
+	{
+		D3DXVECTOR3 vDirection( 0, 0, 0 );
+		if( NULL != GetUFO() )
+		{
+			if( GetDistance( GetUFO()->GetPos(), GetPos() ) > MAGIC_CONTROL_RADIUS )
+				vDirection = GetUFO()->GetPos() - GetPos();
+		}
+
+		if( vDirection.x >= 0.f && vDirection.y <= 0.f && true == m_InputData.pureUp && true == m_InputData.pureLeft )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_UP_LEFT )
+				StateChange( AVSI_HELL_DROP_CONTROL_UP_LEFT );
+		}
+		else if( vDirection.x <= 0.f && vDirection.y <= 0.f && true == m_InputData.pureUp && true == m_InputData.pureRight )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_UP_RIGHT )
+				StateChange( AVSI_HELL_DROP_CONTROL_UP_RIGHT );
+		}
+		else if( vDirection.x >= 0.f && vDirection.y >= 0.f && true == m_InputData.pureDown && true == m_InputData.pureLeft )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_DOWN_LEFT )
+				StateChange( AVSI_HELL_DROP_CONTROL_DOWN_LEFT );
+		}
+		else if( vDirection.x <= 0.f && vDirection.y >= 0.f && true == m_InputData.pureDown && true == m_InputData.pureRight )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_DOWN_RIGHT )
+				StateChange( AVSI_HELL_DROP_CONTROL_DOWN_RIGHT );
+		}
+		else if( vDirection.x >= 0.f && true == m_InputData.pureLeft )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_LEFT )
+				StateChange( AVSI_HELL_DROP_CONTROL_LEFT );
+		}
+		else if( vDirection.x <= 0.f && true == m_InputData.pureRight )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_RIGHT )
+				StateChange( AVSI_HELL_DROP_CONTROL_RIGHT );
+		}
+		else if( vDirection.y <= 0.f && true == m_InputData.pureUp )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_UP )
+				StateChange( AVSI_HELL_DROP_CONTROL_UP );
+		}
+		else if( vDirection.y >= 0.f && true == m_InputData.pureDown )
+		{
+			if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_DOWN )
+				StateChange( AVSI_HELL_DROP_CONTROL_DOWN );
+		}
+		else if( GetNowStateID() != AVSI_HELL_DROP_CONTROL_IDLE )
+		{
+			StateChange( AVSI_HELL_DROP_CONTROL_IDLE );
+		}
+	}
+	else if( true == m_bIsHellDropTimerStart )
+	{
+		StateChange( AVSI_HELL_DROP_CONTROL_DYING, true );
+
+		if( INVALID_EFFECTSET_HANDLE != m_ahEffectSet[EffSetID_June3] )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_ahEffectSet[EffSetID_June3] );
+	}
+
+	m_InputData.Init();
+
+	CommonEventProcess();
+}
+
+// June 32cc5940: the animation end restarts the loop clock and enters the loop
+void CX2GUArme_VioletMage::June_AVSI_SA_AVP_RUIN_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_afJune97a4[0] = 0.f;
+		m_afJune97a4[1] = m_afJune97a4[2];
+		StateChange( AVSI_SA_AVP_RUIN_LOOP );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32cede00, the Ruin case tail: EFFECTIVE_TIME, CHARGING_TIME and MP_CONSUME_REL at the learned level
+void CX2GUArme_VioletMage::June_SetRuinValues( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	if( NULL == GetUnit() || NULL == pSkillTemplet_ )
+		return;
+
+	const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true ) );
+	m_afJune97a4[2] = pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+	m_afJune97a4[3] = pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_CHARGING_TIME, iSkillLevel );
+	m_afJune97a4[4] = pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel );
+}
+
+// June 32cd7470: March's READY FrameMove, the light sequence tagged with the alpha condition ( 32296d60 )
+void CX2GUArme_VioletMage::June_AVSI_SI_A_AV_CIRCLE_FLAME_READY_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		D3DXVECTOR3 vBonePos = GetWeaponBonePos( 0, L"Center_Jewel", 0 );
+		m_hSeqLight_Arme_Circle_Flame = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this, L"Light_Arme_Circle_Flame01", vBonePos );
+	}
+
+	if( m_hSeqLight_Arme_Circle_Flame != INVALID_PARTICLE_SEQUENCE_HANDLE )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hSeqLight_Arme_Circle_Flame );
+		if( NULL != pSeq )
+		{
+			D3DXVECTOR3 vBonePos = GetWeaponBonePos( 0, L"Center_Jewel", 0 );
+			pSeq->SetPosition( vBonePos );
+			g_pX2Game->JuneTagEffectAlphaParticle( this, pSeq );
+		}
+		else
+		{
+			m_hSeqLight_Arme_Circle_Flame = INVALID_PARTICLE_SEQUENCE_HANDLE;
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32cd75f0: the Circle Flame effect set by the ball element
+void CX2GUArme_VioletMage::June_AVSI_SI_A_AV_CIRCLE_FLAME_StateStart()
+{
+	CommonStateStart();
+
+	const WCHAR* pwszEffectSetName = L"EffectSet_A_AEM_CircleFlame";
+	if( 1 == m_iJuneBallElement )
+		pwszEffectSetName = L"EffectSet_A_AEM_CircleFame_Ice";
+	else if( 2 == m_iJuneBallElement )
+		pwszEffectSetName = L"EffectSet_A_AEM_CircleFame_Energy";
+
+	if( NULL != g_pX2Game->GetEffectSet() )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( pwszEffectSetName, this );
+}
+
+// June 32cd8ea0: CH1's Heavy FrameMove shape with the equipped templet 22209 and the Petit Angor effect set
+void CX2GUArme_VioletMage::June_AVSI_A_AVP_SUMMON_BAT_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+			vPos += GetDirVector() * 100.f;
+		else
+			vPos -= GetDirVector() * 100.f;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( JUNE_CH3A_A_AVP_SUMMON_BAT ), true );
+		if( NULL != pSkillTemplet )
+		{
+			if( NULL == GetUnit() )
+				return;	/// June leaves without CommonFrameMove
+
+			const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			const float fLifeTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+
+			bool bHyper = false;
+			if( GetRemainHyperModeTime() > 0.f )
+				bHyper = true;
+
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AVP_PetitAngor", this, NULL, bHyper, GetPowerRate(), fLifeTime );
+		}
+
+		vPos.y += 150.f;
+		vPos += GetZVector() * -50.f;
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Aisha_Summon_Smoke", this, NULL, false, -1.f, -1.f,
+			D3DXVECTOR3( 1, 1, 1 ), true, vPos, GetRotateDegree(), GetDirVector() );
+	}
+
+	CommonFrameMove();
+}
+//}} Iruha : 2026-10-21 // June character pilot Phase CH3a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #endif //ADD_MEMO_1ST_CLASS

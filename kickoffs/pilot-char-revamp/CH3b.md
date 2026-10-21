@@ -45,3 +45,8 @@ Written by CH0 (2026-10-20): the split keeps each skill phase near the plan's ~4
 ## From CH1i (2026-10-21)
 
 - The enumerator `AVSI_SA_ADW_AIR_STUNNER_END` ( June script id 248 ) exists since CH1i ( `June_SetEquippedSkillLevel` names it ); register the state, do not add the enumerator again.
+
+## From CH3a (2026-10-21)
+
+- Energy Ring `32ce3e80` calls `31ff5440` (June's SUB_CAMERA time sequencer), which CH3a2 (Opus) maps with Fire Ring / Dark Ring. Port the rest of CH3b; if CH3a2 is not done, Energy Ring is **"this needs Opus"** (leave it on the default path and say so).
+- Helpers now in `june2017_re/`: `funcann.py` (annotated listing) and `funccmp.py` (prove two bodies equal). The CH3a block at the end of `X2GUArme_VioletMage.cpp` is the pattern for the registration cases and the `June_*` bodies.
