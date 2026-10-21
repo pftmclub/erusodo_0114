@@ -626,6 +626,7 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 | stage26-plan | **ready** (start: `/x2-phase new-plan june-movies`, after quest-system Q8 review): June AVI movie system remainder - dungeon first-clear / intro movies, the field / battle-field starts, the other `+0x80a` readers, `31d87560`'s bodies (Q8 built the table, player and quest movie) -> `JUNE_MOVIES_PHASES.md` + `kickoffs/june-movies/` | Opus 5.5 / high | dep: quest-system Q8 review | docs, kickoffs, funcmap | `stage26-plan.md` |
 | stage27-plan | **ready** (start: `/x2-phase new-plan june-lua-scenes`): June Lua event scenes - adopt `EventScene.lua` / `EventSceneObject.lua` with June's DUO keys (`325b1f40` / `325b0020` / `325b0c70`), find the Lua-scene callers (found by quest-system Q8) -> `JUNE_LUA_SCENES_PHASES.md` + `kickoffs/june-lua-scenes/` | Opus 5.5 / high | - | docs, kickoffs, funcmap | `stage27-plan.md` |
 | stage28-plan | **ready** (start: `/x2-phase new-plan june-party`): June party-manager handlers - diff June's `CX2PartyManager` packet handler `3243ee30` against March's (the ready-check's June-only branch `3243cec0`, the auto-party success tail of `3243d4e0`; found by quest-system Q10b) -> `JUNE_PARTY_PHASES.md` + `kickoffs/june-party/` | Opus 5.5 / high | - | docs, kickoffs, funcmap | `stage28-plan.md` |
+| stage29-plan | **done 2026-10-21** (written directly on the user's request, no brief): `JUNE_DUNGEON_RESULT_PHASES.md` (R0-R4, Z) + `kickoffs/june-result/` + the `june-result` block; the dungeon result split out of Stage 9 | Opus 5.5 / high | - | docs, kickoffs | - |
 | stage5-plan | **done 2026-10-20**: pilot = **Aisha** (user, from the gap scan: numerical-only attacks Aisha 1 / Eve 3 / Rena 12 / Ara 14 / Chung 15 / Elsword 20 / Elesis 20 / Raven 25, Add a skeleton); `JUNE_CHARACTER_AISHA_PHASES.md` (CH0-CH6, the CH-N class-path template, Z, the Stage 7 template) + `kickoffs/pilot-char-revamp/` + the `pilot-char-revamp` block; evidence `june2017_re/char_arme/plan_*` | Opus 5.5 / high | - | docs, kickoffs | inline brief (`JUNE_PORT_BACKLOG_ORDER.md` "Stages 3–9 (short)") |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
@@ -846,6 +847,27 @@ template block, first run by Ara / Elesis / Add in Stage 7. Priority (user 2026-
 | Z | waiting | Sonnet 5.5 / medium | CH6 | `MODS.md`, checklist, plan doc, backlog, `kickoffs/june-backlog/stage6-plan.md` + `stage7-plan.md` | `Z.md` |
 
 Running together: CH2c, CH3a, CH3b and CH4 all edit `X2GUArme_VioletMage.*`, so one at a time (CH2c first); CH5 is done.
+
+## june-result - June dungeon result screen: the in-state GFx result UI
+
+Plan `JUNE_DUNGEON_RESULT_PHASES.md` · branch `main` · log tag `[JUNE_RESULT]` (sub-tags `MAP`, `WIDGET`, `EMU`, `FLOW`, `LEGACY`) ·
+flags `SERV_IRUHADEV_JUNE_RESULT_*` (+ `_DEBUG`) · kickoffs `kickoffs/june-result/` · backlog Stage 29, split out of Stage 9 (user, 2026-10-21) · created 2026-10-21.
+
+**Scope:** the dungeon result only. It runs from the end-of-game packet to leaving the dungeon or retrying it: `dungeon_result.gfx`
+(GFx UI 8, already staged in data194), the result-UI mode machine, ESC, the exit box, retry, and the emulator answers. The PvE / PvP
+results, cash shop, option, bingo, the profession close and hide mode 5 stay in Stage 9 (the plan doc's "Scope fence").
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| R0 | **ready** (read-only; start: `/x2-phase june-result R0`): port map `june2017_re/result_r0_map.tsv` + funcmap `Result R0`; decides R4 | Opus 5.5 / high | - (runs with anything) | `june2017_re/`, funcmap, plan doc, kickoffs R1-R4 | `R0.md` |
+| R1 | blocked | Sonnet 5.5 / high, then Opus 5.5 / high review | R0 | new `X2UIDungeonResultAdapter.*` (X2Lib), `X2DungeonGame.*` (adapter member), Always.h; data063 textures if R0 says | `R1.md`, review `R1-review.md` |
+| R2 | blocked | Sonnet 5.5 / high, then Opus 5.5 / medium review | R0; runs alongside R1 | `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.cpp`, `X2OfflineIgnore.cpp`, maybe `EventID_*.h`, Always.h | `R2.md`, review `R2-review.md` |
+| R3 | blocked | Opus 5.5 / high, then Opus 5.5 / high review | R1 review, R2 | `X2State.*`, `X2StateDungeonGame.*`, `X2DungeonGame.*`, Always.h | `R3.md`, review `R3-review.md` |
+| R4 | blocked (conditional: R0 opens or closes it) | Sonnet 5.5 / high, then Opus 5.5 / high review | R3 review | `X2StateDungeonResult.*`, data034 result dialogs | `R4.md`, review `R4-review.md` |
+| Z | blocked | Sonnet 5.5 / medium | R3 review (+ R4 review if run) | `MODS.md`, backlog, memory | `Z.md` |
+
+Running together: R0 now, with anything (read-only). R1 and R2 together after R0. Then R3, then R4 (if opened), then Z. R3 shares
+`X2State.cpp` with quest-system / june-engine rows: not alongside a running code row on that file.
 
 ## Other plans
 

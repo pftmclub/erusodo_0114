@@ -66,6 +66,7 @@ The user's remaining backlog, in the order they listed it:
 | 23 | Offline field rewards stand-in *(added 2026-10-17, user: atlas A6)* | - (found by atlas A6) | Not a backlog item but missing server data: the server `DropTable.lua` / `StaticDropTable.lua` stop at Sander (40025), so Lanox (40029-40032) and Elysion (40035-40038) field kills grant no EXP, ED or items offline. No June server exists, so the rewards are a labelled stand-in (own flag, proposed first, [[design-missing-june-pieces]]). It touches only the offline emulator and server Lua, so it can run alongside any stage. Numbered 23 to keep the earlier numbers stable. |
 | 25 | June fonts and text rendering *(added 2026-10-17, user)* | - (the user: March's text looks un-anti-aliased; use June's fonts) | Not a backlog item but a visible gap: March installs one FreeType face (`Gulim.ttc`) and ships 3 font files in `datai022`; June ships 26 in `data196`. Which faces June installs for the US build, and how it rasterizes them, is unmeasured. It touches the font manager, `X2Main` and one font kom, so it can run alongside Stages 2-8 (not alongside a session in `KTDGFontManager.*` / `KTDGFreeTypeFont.*`). Stage 20's damage-number fonts are separate. Numbered 25 to keep the earlier numbers stable. |
 | 26 | June AVI movie system *(added 2026-10-19, june-gfx G5)* | - (found by june-gfx G0 / G5) | Not a backlog item but a missing system: June plays AVI movies from `DungeonClearMovieTemplet` / `Movie.lua` (dungeon-clear and quest movies) and flags them in `g_pMain +0x80a`; March has none. It is not GFx, so the GFx plan only noted it. |
+| 29 | June dungeon result screen *(added 2026-10-21, user: split out of Stage 9)* | 6 (one screen of it) | The screen every dungeon clear shows. June keeps the player in the dungeon state and opens `dungeon_result.gfx` (GFx UI 8) over the frozen game; March leaves for the old KTDGUI `XS_DUNGEON_RESULT` state. It needs only june-gfx (closed), so it runs now, outside the Stage 9 order. Planned in full as `JUNE_DUNGEON_RESULT_PHASES.md` (R0-R4, Z). |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -433,12 +434,20 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     until then a hand-opened `0xb` (G5 debug) has no owner: ESC opens March's menu and nothing unloads the widget.
   - **Hide modes 2-5 are entered only by June's result-UI / presentation code**: `31f14e40`, `324c95b0`, `324d8600`, `3243be8b` (mode 2), `324ac353` (mode 4), `328c3750` (mode 5, `PresentProlBlackBack`). Each calls `CKTDGUIDialogManager::JuneSetShow( false, mode )`; the lists are ready (March has no caller). `31f02f50`'s toggle and `31d03a10`'s ESC rule already handle them.
   - **The result-UI mode `+0x210`** at `31f1e214` (setter `31ef7be0`, exit box `31f1dd70`, writers listed in the C3p-2 Done note) and the **profession-manager close** at `31f1e27a` (`CX2UIProfessionManager` `32396dc0`, SetShow `3239d190`).
+  - **Moved to Stage 29 (user, 2026-10-21):** the result-UI mode `+0x210` (`31ef7be0` / `31ef7390` / `31ef7c60`, ESC `@31f1e214`,
+    exit box `31f1dd70`) and the dungeon flow's hide modes 2-4 (`324c95b0`, `324c966e`, `324d880f`, `324cf508`) go to
+    `JUNE_DUNGEON_RESULT_PHASES.md`. What stays here: the profession-manager close `@31f1e27a`, PvP's mode 3 (`3251d63d`), PvE's mode 4
+    (`324ac353`), mode 5 (`328c3750`) and the `31f14e40` / `3243be8b` callers, unless that plan's R0 finds them on the dungeon path.
   - **The tutorial guide ESC gate** stays with C3z-4t (june-dungeons). **The GFx show byte `+0x108`** is already written by the toggle; the other writers (`31f25112`, state dtors `324ad780` / `324d5670` / `32520d70`) come with their states.
 - **June's GFx root-UI screens and the other wrapper callers** (handed here by june-gfx Z, 2026-10-19). june-gfx loads `main.gfx` as the host of event scenes and cut-ins and ports no screen. What is left in June's `main.gfx`:
   the cash shop (UI `0xb`), the option window (effect-alpha item above), the PvE / PvP result screens, bingo, the job-professional manager and the tutorial guide. Most of them bypass the 14 AS wrappers
   that `CKTDGGFXManager` already carries (`openUI`, `ShowUI`, `HideUI`, `loadUserWidget`, `unloadWidget`, `showOkPopup`, `changeCharacter`, `clearFocus`, ...): June uses 13 adapter / callback pairs and about 39 `DW_*` wrappers,
   none ported (`june2017_re/g0_gfx_map.tsv`, funcmap `GFx G0` / `GFx G2`). The runtime pieces a screen needs are there: loader, kom-first opener, font config "US", data bindings (G3's wrapper), listener / adapter table, `SimpleWidgetPlayer`.
   The IME text field stand-in (id 0) and the resize path (DXUT reset) are G2's placeholders for the first screen that needs them.
+  **Correction and move (2026-10-21):** the result screens are their own widget files in `data194`, not part of `main.gfx`:
+  `dungeon_result.gfx`, `PVE_result.gfx` and `BATTLE_PVP_result.gfx`, each with 13 `.dds`, all staged by june-gfx GA. The **dungeon**
+  result (`CX2UIDungeonResultAdapter` `32eea7e0`, UI 8) moved to Stage 29. The PvE result (`UIPvEResult`, `XS_PVE_RESULT` `324ab1c0`)
+  and the PvP result stay here.
 - **June's character-window socket total** (handed here by skill-system-core S7p, user 2026-10-19, scope rule). June `3291ba40( out, group )` / `3291cee0` / `3291cfb0` / `3291b4b0`
   are June's form of March's `CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`, read at `:1423`): an equip-group filter (`3286a4b0`; `32350b80`'s group test, S7m review), riding pet, title,
   sets and the party pass (`31ed40c0`, already ported as `CX2Unit::JuneGetPartyShareSocketOptions`). The combat sums are June's since S7k / S7m; only this display total is March-shaped.
@@ -934,6 +943,22 @@ June's `CX2PartyManager` packet handler (`3243ee30`, vtable `33496b80` slot 1) c
 match success (`3243d4e0`) a June-only tail after its popup (`31d70b00`, `31fc6010`, manager `+0x8a`, `32461a70` / `324639a0`). Q10b
 ported only their story-slide-show forced Ends. Offline the AI party sends neither packet, so the handlers are undriven. Not the quest
 plan's subject (scope rule). Brief: `kickoffs/june-backlog/stage28-plan.md`. Planning: `/x2-phase new-plan june-party`. Not started.
+
+### Stage 29: June dungeon result screen (user, 2026-10-21; split out of Stage 9)
+
+March leaves the dungeon state on a clear (`StateChangeResultReq` -> `XS_DUNGEON_RESULT`, KTDGUI `CX2StateDungeonResult`). June keeps
+the player in the dungeon state:
+- the end handler `324db6b0` sets result-UI mode 1;
+- the mode machine `324cf3d0` opens `dungeon_result.gfx` as GFx UI 8 through `CX2UIDungeonResultAdapter` (`32eea7e0`), which has a
+  retry button (ACK `0x649`);
+- ESC is eaten while the result shows, and June's exit box replaces March's.
+
+June's KTDGUI result state still exists (`32515670`). The plan's R0 decides whether a route offline reaches it. The plan is
+`JUNE_DUNGEON_RESULT_PHASES.md`, key `june-result`, STATUS block `june-result`, start `/x2-phase june-result R0`.
+
+**Fence:** the dungeon result only, from the end packet to leaving or retrying, plus the emulator answers it needs. The PvE / PvP
+results, cash shop, option, bingo, the profession close and hide mode 5 stay in Stage 9. Movies stay in Stage 26, the party handlers
+in Stage 28, quest popups with quest-system.
 
 ## Open decisions that gate stages
 
