@@ -1627,6 +1627,9 @@ CH0 decides the adoption needs a reader fix) and `SERV_IRUHADEV_JUNE_CHAR_ARME_U
   `luasrc.py core --check` fails on `data036 ResultData_new.lua` (a peer's BOM file, not on the core list): not mine, not touched.
 - **Hygiene:** `flagcheck JUNE_CHAR_ARME_UI --worktree --files X2GUArme_VioletMage.cpp X2GUUser.cpp Always.h`: 2 PASS, 1 DEFINE, 0 FAIL; 0 deleted lines, 0 non-ASCII, 0 EOL mismatch; RESULT PASS.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 25,654,784 B, dated 2026-10-21 11:37:03, md5 148fe470e2bf48ae6dd7a8ac4095d3ee`; the 4 `ARME UI` strings are in the exe.
+- **Play-test (user, 2026-10-21, after `copy data036` COPY OK md5 `935bf012...`):** select screen and character creation load all characters (PASS). ErrorLog: 0 `KEM_ERROR` / `Motion Error`,
+  nothing on UnitTemplet / `UC_150`; `ARME DATA` lines for classes 2 and 105 normal. **Skill cut-in not tested** (user: skip; June's skills are not ported, so the hero art and the `ARME UI` lines wait for
+  the first ported skill, CH2a, or the review). Hyper cut-in waits for CH3b.
 - **See it in game:** select screen: all nine characters' names and models; Aisha's skill cut-in shows June hero art with the frame and balloon; a transcendence hyper (104 / 105 / 113) shows `HQ_Cutin_A*_Transcendence`
   only when the class script's awakening states set `SHOW_HYPER_CUT_IN_TIME`.
 
