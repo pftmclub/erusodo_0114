@@ -1625,7 +1625,7 @@ files, which belong to the modifier flag). `9658d261`: `files: 3 PASS`, `RESULT:
 
 **Play-test record.** Chain Fireball did deal damage in the 13:29 run. The Done note missed this: `offline_server.log` has `NUM use …ChainFireBall_Small … magic=5.7600` and
 `…_Big … magic=5.2300` (the tsv's 576 / 523 x0.01), both `HIT`, and two NPC kills. Binding Circle: the user saw the enemy bound in game (2026-10-21). That was an earlier run; the 13:29 logs hold only its registration line.
-Teleport was registered but never cast: it is this review's only play-test check.
+Teleport: cast on the review build (14:15 run), behaves as it should (user); it writes no log line. The same run: Chain Fireball x2 and Gust Screw hit, 0 `Motion Error` / `KEM_ERROR` / EXCEPTION.
 **Found, owned elsewhere:** `+0x95c8` (the fire-ball range rate that tag 2 multiplies by) is set by June's `InitPassiveSkillState` `32cecd70` from passive 22400. March's setter (still live,
 `SI_P_AV_FIREBALL_UP`) never finds that id on a June tree, so the rate stays 1.0 until CH4 ports `32cecd70` (already in CH4's map row). Teleport's `m_fMPConsumeRateTeleport` base is the same case.
 
