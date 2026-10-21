@@ -1535,6 +1535,7 @@ Build (with the START fix): `DEPLOY OK: X2_offline.exe is 25,653,248 B, dated 20
 with the same empty WIN table, so it needs a rerun. ErrorLog against `data\ErrorLog_pre_CH1.txt`: no `Motion Error` and no missing Aisha animation.
 The new Aisha lines are the empty-list C3e-2 lines (fixed) and CH0b's two dangling June face textures. Re-test: START and WIN, on both saves.
 Checklist: 7h / 7l / 7o / 7p rows marked `(Aisha: CH1 ...)`. No new JUNE_BUGS row, no drift.
+**Play-test 2 PASSED (user, 2026-10-21, both saves):** run 10:55-11:00 on md5 `6e2d3929...`. START and WIN play June's animations. `ARME DATA` for class 105 (133 states) and class 2 (126 states), `wait_state_change 1` both. The rolls pick real tables (`AVSI_AVP_START` of 3, `AVSI_AVP_WIN`, `AVSI_START` of 1, `AVSI_WIN2` / `AVSI_LOSE2` of 2), and the re-binds land on them. 0 `list size 0` / `re-bind skipped`, 0 `Motion Error`, 0 UNHANDLED. The only new Aisha ErrorLog lines are CH0b's dangling June face textures (`ARME_BASIC_FACE_02`, `_EYECLOSE3 `, `_VP.TGA.TGA`).
 
 ## Phase CH2 - Skills: Violet Mage and the first jobs (classes 2, 14, 15, 23)
 
