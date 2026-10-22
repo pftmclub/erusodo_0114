@@ -348,6 +348,10 @@ kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revam
 
 **Why after Stage 5:** transcendence skills are part of June's revamped kit, so transcending a March-kit character would be ported twice.
 
+- **June's resonance system** *(from june-result R0, 2026-10-22; identify before planning, it may need its own stage)*: gate `3247b460`,
+  plus a resonance level / EXP pair on the unit (`+0xa99` float, `+0xa9d` int64). The dungeon result (`324d60e0`) uses them for
+  `resonanceLevel` and, when the gate is on, for the EXP bars. There is no March counterpart, so the result shows June's off branch.
+
 ### Stage 7: remaining March characters
 
 - Repeat Stages 5 and 6 per character with the proven recipe.
@@ -453,6 +457,8 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   `dungeon_result.gfx`, `PVE_result.gfx` and `BATTLE_PVP_result.gfx`, each with 13 `.dds`, all staged by june-gfx GA. The **dungeon**
   result (`CX2UIDungeonResultAdapter` `32eea7e0`, UI 8) moved to Stage 29. The PvE result (`UIPvEResult`, `XS_PVE_RESULT` `324ab1c0`)
   and the PvP result stay here.
+  *June-result R0 (2026-10-22):* `CX2StatePVEGame` (vtable `3349d06c`) shares the dungeon state's retry vslots 0xe0 / 0xe4 / 0xe8 / 0xec
+  (`324d8600`, `324c83f0`, `324d11e0`, `324c9990`), so the PvE result's retry is the same code R3 ports; its mode step is `324ac1f0`.
 - **June's character-window socket total** (handed here by skill-system-core S7p, user 2026-10-19, scope rule). June `3291ba40( out, group )` / `3291cee0` / `3291cfb0` / `3291b4b0`
   are June's form of March's `CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`, read at `:1423`): an equip-group filter (`3286a4b0`; `32350b80`'s group test, S7m review), riding pet, title,
   sets and the party pass (`31ed40c0`, already ported as `CX2Unit::JuneGetPartyShareSocketOptions`). The combat sums are June's since S7k / S7m; only this display total is March-shaped.
@@ -855,6 +861,11 @@ ones became their own plan: `JUNE_DUNGEONS_PHASES.md`, kickoffs `kickoffs/june-d
   its loader is not mapped yet. Bit 13 makes `3202d3c0` (every class's skill lookup) refuse the common skill 900 `SI_ETC_WS_COMMON_LOVE` in that
   dungeon. March has no counterpart; Aisha's port reads the bit as false. Related: `3202d140` refuses skill 900 in June's PVE game type 4,
   which March lacks. Scope it with the DungeonData readers (C3z-5b).
+  *June-result R0 (2026-10-22):* bit 14 (`31edf8f0( dungeon, 0xe )`) also hides the dungeon result's retry button (`324d1120`).
+- **June event 0x3e7, a post-clear NPC spawn** *(from june-result R0, 2026-10-22)*: the dungeon state's handler `324d1290` (dispatcher
+  `324dbc20` case 0x3e7) reads a position vector, sets state `+0x7a9`, makes the host create NPC 0x55c there (`322e67c0`), and plays a
+  random line from NPC 0x959c by unit type. `+0x7a9` skips the result's 0.1 s wait and hides its exit button and retry. There is no
+  March counterpart, and offline it is unreached (no emulator sends it). Related: `funcmap` row `324d1290 (Result R0)`.
 
 **Depends on:** june-effect C3x-C3z-6 (done). Stage 14/15 for C3z-1b only.
 
@@ -961,6 +972,8 @@ June's `CX2PartyManager` packet handler (`3243ee30`, vtable `33496b80` slot 1) c
 match success (`3243d4e0`) a June-only tail after its popup (`31d70b00`, `31fc6010`, manager `+0x8a`, `32461a70` / `324639a0`). Q10b
 ported only their story-slide-show forced Ends. Offline the AI party sends neither packet, so the handlers are undriven. Not the quest
 plan's subject (scope rule). Brief: `kickoffs/june-backlog/stage28-plan.md`. Planning: `/x2-phase new-plan june-party`. Not started.
+*June-result R0 (2026-10-22):* the party manager also calls the dungeon state's retry refresh (vslot 0xe8, `@32434dd6`). The result's
+`RESULT_SUCCESS_ACK` handler (`324d4cd0`) has a `+0x22d` branch into `324334d0( 0x72 )`, which offline is never taken (always 0).
 
 ### Stage 29: June dungeon result screen (user, 2026-10-21; split out of Stage 9)
 
@@ -977,6 +990,9 @@ June's KTDGUI result state still exists (`32515670`). The plan's R0 decides whet
 **Fence:** the dungeon result only, from the end packet to leaving or retrying, plus the emulator answers it needs. The PvE / PvP
 results, cash shop, option, bingo, the profession close and hide mode 5 stay in Stage 9. Movies stay in Stage 26, the party handlers
 in Stage 28, quest popups with quest-system.
+
+*R0 done (2026-10-22):* the map is `june2017_re/result_r0_map.tsv`. The 0xbd handler is `END_GAME_DUNGEON_RESULT_DATA_NOT`. R4 is
+opened for the training result only. The drift went to Stages 6, 9, 22 and 28.
 
 ## Open decisions that gate stages
 

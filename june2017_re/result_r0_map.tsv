@@ -1,0 +1,101 @@
+june_va	june_name	march_equivalent	verdict	target	evidence
+# --- Packets. June renumbered event ids (offset 0xa-0xd in this range): matched by Get layout / handler shape, never by number. March ids from a cl /EP probe of Event.h.
+0xbd	EGS_END_GAME_DUNGEON_RESULT_DATA_NOT (dispatcher 324dbc20 case 0xbd -> 324db6b0)	EGS_END_GAME_DUNGEON_RESULT_DATA_NOT (0xCA)	D	R3	Corrects funcmap 2524 ("end-of-game packet"): Get 324b2a60 -> 320edc20 = KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT: +0 int m_nSec, +4 int (June-only), +8 bool m_bIsWin, +9 int (June-only), +0xd int m_iDungeonID, +0x11 char m_cDifficulty, +0x12 char m_cDungeonMode, +0x13 vector<KDungeonUnitResultInfo 0xd2 B>, then March's maps/bools plus June-only tail to +0xaf
+0xbb / 0xc0 / 0xc1	EGS_END_GAME_ACK (324c9140) / EGS_STATE_CHANGE_RESULT_ACK (324c91b0) / _NOT (324db5e0)	0xC8 / 0xCD / 0xCE	D	R2	all three keep March's shape; 324c9140 clears state +0x7d9 on failure
+0xbf	EGS_STATE_CHANGE_RESULT_REQ sender 324ccda0	CX2StateDungeonGame::StateChangeResultReq (X2StateDungeonGame.cpp:2702)	D	R2	only caller OnFrameMove 324d8890 @324d8c21: +0x4f5 m_bGameEnd, +0x4f8 wait, +0x4f4 m_bResultStateReq, IsHost 31e4dc30 = March :1074-1083. June still sends it
+0xd5	EGS_UPDATE_UNIT_INFO_NOT handler 324d7360	0xE2	D	R2	@324d73d9 packet m_bGameEnd -> state +0x4f5 (March :3244-3246)
+0x10c / 0x10d / 0x10e	EGS_RESULT_SUCCESS_REQ / _ACK (324d4cd0) / EGS_RESULT_ALL_UNIT_SUCCESS_NOT (324dbb30)	0x116 / 0x117 / 0x118	D	R2/R3	REQ is SendID with NO body (31e57100 @324d85b5); March sends KEGS_RESULT_SUCCESS_REQ (KGamePlayNetworkInfoPackage); the legacy state 32515670 / 3250f6c0 sends the same id
+0x648	retry REQ (324c9530 @324c956f)	none (June-only)	D	R2	SendID, no body; AddServerPacket( 0x649 ); March has no RETRY / REPLAY / RESTART event (probe)
+0x649	retry ACK handler 324c95b0	none (June-only)	D	R2/R3	Get 324ddac0: int iOK + wstring; DeleteServerPacket 31d71ed0; IsValidPacket 31d91680 false -> vslot 0xe4( 1, -1.0 ) re-enable retry; always SetShow( false, 2 ). Success does nothing client-side: the server drives the restart
+0x3e7	post-clear NPC event handler 324d1290	none (June-only)	D	drift: Stage 22	only writer of state +0x7a9 (@324d12ee); spawns NPC 0x55c at the packet position for the host, then a random line from NPC 0x959c by unit type; offline never sends it -> +0x7a9 stays 0
+# --- Result info (g_pData+0x148)
+31edebf0	CX2Data::ResetDungeonResultInfo	X2Data.cpp:2437	D	R3	SAFE_DELETE + new 0x30 B; called from 327c99e0
+327c99e0	CX2DungeonGame::Handler_EGS_END_GAME_DUNGEON_RESULT_DATA_NOT	X2DungeonGame.cpp:2348	D	R3	ResetDungeonResultInfo then g_pData+0x334 ( +0x5d == 0 ) -> 326c5310( 0 ). EndOfflinePartyBots stays in March's body, which R3's 324db6b0 port keeps calling
+327d4170	DungeonResultInfo ctor	X2DungeonGame.cpp:3104	D	R1/R3	+0 m_Sec <- pkt +0, +4 m_bWin <- pkt +8, +8 vector<unit*>, +0x18 <- pkt +0x45 (March m_ucNumOfProtectedSmallCrystals), +0x2c bestSec: no writer in the ctor (June-only, absent 0)
+327d3d60	DungeonResultUnitInfo (200 B) ctor; copy @327d4280-327d4400	DungeonResultUnitInfo (X2DungeonGame.h:25-66)	D	R1	pkt -> client: [0..1] UID, [2] m_bIsDie, [3] TotalScore (<0 -> 0), [4] Combo, [5] Technical, [6] Damaged, [7] KillNPC (pkt +0x65), [8] m_nED (+0x35), [9] m_nEXP (+0x39), [10] OldED (+0x29), [0xc..0xd] OldEXP int64 (+0x2d), [0xe..0x17] 8 March bonus EXPs + 2 June-only ints (+0x3d..+0x61), [0x1b..0x1f] ranks Combo/Technical/Damaged/Time/Total, [0x20] hit rank (+0xae, June-only), [0x23..0x26] June-only floats/ints (+0x9e/+0xa2/+0xa6/+0xaa), [0x29] reward type (+0xb3, June-only), +0xb4 bonus map (pkt +0xc1, June-only)
+320ea560	KDungeonUnitResultInfo Get (0xd2 B)	KDungeonUnitResultInfo (ClientPacket.h:916, 83 B)	D	R2	June: int64 UID, bool, 4 ints, 16 B (31f3ebe0), int OldED, int64 OldEXP, 13 ints, 5 chars, bool, 0x2f B struct, 2 floats, 2 ints, char, int, 2 chars, 3 ints, container, bool. Emulator sends March's 83 B; the June-only fields stay at their absent value
+327c9390	DungeonResultUnitInfo total EXP	none (sum of March fields)	D	R1	EXP + 8 bonuses + 2 June-only ints + 2 more (+0xa0 / +0xa8)
+# --- End handler and the result-UI mode on CX2State
+324db6b0	CX2StateDungeonGame::Handler_EGS_END_GAME_DUNGEON_RESULT_DATA_NOT (June)	X2StateDungeonGame.cpp:3159	D	R3	quest UI 2cc hook; 327c99e0; my slot by UID -> m_bIsDie; win && alive && !3234f870( dungeon+difficulty ) -> first-clear movie 31d7a150 (Stage 26) + 32356a30 (clear mark); +0x148 ? mode 1 for 30.0 (@324db8d7) : 31f16530 leave; dungeon 0xa1ea only: GameWin/Lose/DrawNew effect set. March's AddClearDungeon / NEW_TERM_EVENT text go
+31ef7be0	CX2State set result-UI mode( mode, time )	none	D	R3	+0x210 = mode; 3 -> minimap off, 0 -> minimap on; time stored at +0x218 only if > 0; +0x214 is NOT reset
+31ef7390	CX2State vslot 0xd4 base: +0x214 += elapsed	none	D	R3	called by OnFrameMove only while +0x210 != 0
+31ef7c60	CX2State exit box is up	none	D	R3	dialog +0x224 alive and its +0x6e == 1
+324cf3d0	dungeon / training vslot 0xd4: mode machine	none	D	R3	jump table 324cf7e4. Mode 1: wait +0x214 >= 0.1 unless +0x7a9; tutorial (g_pMain+0x16a = m_bIsPlayingTutorial, funcmap 1080, ported) -> unit +0x2ad = 1, mode 0, vslot 0xf0( 0 ); UI 8 open -> wait; no info -> 0xf0( 0 ); once (+0x7cc) vslot 0xc8 + openUI( 8 ); every tick SetShow( false, 2 ) and quest UI vslot 0x20( 1 ). Mode 2: 0xc0, 0xdc, mode 3. Mode 3: countdown 0xd8( 0, 1, &n ); expired -> mode 4; once (+0x7cd) the solo-fast-clear send 0x1f2 + popup 0x79 (see 0x1f2 row). Mode 4: 0xd8( 1, 1, &n ), UI 8 open -> 0xcc, then 0xf0( 0 )
+0x1f2	fast-solo-clear report from mode 3 @324cf734 (SendID, no body)	none confirmed (by number it falls in March EGS_GET_WISH_LIST_* .. EGS_REPORT_HACK_USER_NOT, 0x1fd-0x204)	I	R3/R2	win && sec <= 120 && one unit && my level <= dungeon-data level (327da150 +0x8c / +0x90) + 20 && g_pKTDXApp+0x218 == 0 && my-user +0x2c < 2 && dungeon != 0x94d4 && dungeon in 0x75b5..0x9857 -> SendID 0x1f2, (g_pData+0x68)+0x54 = 2, g_pMain 31d75660( 0x79, L"", 0, 1 ). Inside 324cf3d0, so R3 ports it whole; g_pMain 31d75660( type, msg, 0, bQuit ) quits (XGM 0x477) only for types 1 / 7 / 0x8c, so 0x79 never quits; R2 labels 0x1f2 IGNORED
+# --- Dungeon / training state vslots (vtables 3349f91c dungeon, 3349e02c training: 0xb0-0xf0 identical)
+324c8b80	vslot 0xb8 (46): new CX2UIDungeonResultAdapter( movie ) -> +0x7c4	none	D	R1	movie = gfx mgr +0x98 vslot 1, or 0 when no GFx manager
+324c8320	vslot 0xbc: delete adapter	none	D	R1	vslot 0 ( 1 )
+324d60e0	vslot 0xc0: fill updateDungeonInfo (+ items)	none	D	R1	no info / no game data / no adapter -> vslot 0xf0( 0 ). Struct 324e20d0 at the field list below; then game vslot 0x228 (sort items) and item fill 324cf8b0
+324c8c20	vslot 0xc4: closeUI( 8 )	none	D	R1	31c445d0 (GFx G2 wrapper)
+324c8350	vslot 0xc8: recreate adapter (0xbc, 0xb8)	none	D	R1	calls vslot 0xbc then 0xb8
+324c8370	vslot 0xcc: closeUI then delete adapter	none	D	R1	calls vslot 0xc4 then 0xbc
+324c8390	vslot 0xd0: mode 4	none	D	R3	no caller found; UI msg 0xbfe writes mode 4 inline instead
+31f17c20	vslot 0xd8 (CX2State base): party-member result dialog update( bool, bool, int* secs )	none	D	R3	DLG_Party_Member_Result_State controls Party_Member_Result_State / Party_Member_Waiting_Time (min:sec); +0x22c / +0x22d = I-am-done flags
+31f08590	vslot 0xdc (CX2State base): create DLG_Party_Member_Result_State.lua at +0x21c	none	D	R3	layer 0.07; March has the dialog name only in KTDGUIDialogManager.cpp:1496 hide presets; the .lua is June-only (data034, 886 B), absent from kom_contents: adopt-june
+324d8600	vslot 0xe0: retry button	none	D	R2/R3	needs +0x7f0 (enabled). In a party (32430b80) -> 324c9530. Solo -> confirm popup type 9 (31d94a20, string 0x5338 with party-manager +0x10 / +0x14 / +0x38). Then SetShow( false, 2 ), vslot 0xe4( 0, -1.0 ). Shared with CX2StatePVEGame (vtable 3349d06c, Stage 9)
+324c83f0	vslot 0xe4: enable retry( bool, float t )	none	D	R3	t > 0 -> +0x7f4 = t (cool-down); else +0x7f0 = b and adapter enableRetryButton( b )
+324c83a0	retry cool-down tick	none	open	R3	counts +0x7f4 down by +0x60 then vslot 0xe4( 1, -1.0 ); no direct caller or pointer found
+324d11e0	vslot 0xe8: refresh showRetryButton	none	D	R3	mode == 3 && adapter -> 32eea1c0( 324d1120() ); also called by the party manager @32434dd6 (Stage 28)
+324d1120	retry allowed	none	D	R1/R3	game type == 2 (dungeon) && !31edf8f0( dungeon, 0xe ) && !vslot 0xf8 (+0x7a9) && 31edf7d0( my UID ): party manager present and (not in a party, or 32430e90 = leader)
+324c9990	vslot 0xec: ESC with popup 9 up	none	D	R3	popup 9 in g_pMain +0x694 -> custom UI msg 0xf (31be40b0( 0x467, 0xf, 0, 1 ))
+324d84c0	vslot 0xf0: send result-confirm	CX2StateDungeonResult::Handler_EGS_RESULT_SUCCESS_REQ (X2StateDungeonResult.cpp:1969)	D	R3	once (+0x22c); +0x22d = arg; close popup 9 (31d915f0) if up; SendID 0x10c; AddServerPacket 0x10d
+324d8f70 case 14	custom UI msg 14: retry popup OK	none	D	R3	@324d92d7: close popup 9, 324c9530
+324c9530	send retry REQ	none	D	R2/R3	31edf7d0( my UID ) && 0x649 not pending -> SendID 0x648, AddServerPacket( 0x649 ), vslot 0xe4( 0, -1.0 )
+324d1210 / 324d1270	item page right / left (callbacks)	none	D	R1	game vslot 0x224( page*12 + 13 ) true -> +0x7c8++ then 324cf8b0 (left mirrors)
+324d4cd0	CX2StateDungeonGame::Handler_EGS_RESULT_SUCCESS_ACK (June-new)	X2StateDungeonResult.cpp:1990	D	R3	valid && !+0x5db: +0x22d -> unit vslot 0x12c( 0x72 ) and in party && !+0x22e -> 324334d0( 0x72 ); else +0x22e -> leave 31f16530; +0x5db = 1
+324dbb30	CX2StateDungeonGame::Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT (June-new; @324dbb9a)	X2StateDungeonResult.cpp:2018	D	R3	tutorial -> SetIsPlayingTutorial( 0 ) + g_pMain +0x16c = 1; !+0x5db -> 31f16530
+31f16530	CX2State::ReturnToPlaceWhereBeforeDungeonStart	X2State.cpp:12106	D	R3	switch on the saved state (g_pData+0x268 +0x9c); same packets as March (JOIN_BATTLE_FIELD / STATE_CHANGE_FIELD)
+31f25038	UI msg 0xbfe (exit box OK)	none	D	R3	mode = 4 (inline), +0x22e = 1 (leave on the ACK)
+327c9330	CX2DungeonGame vslot 0x14c: Handler_EGS_STATE_CHANGE_RESULT_NOT	X2DungeonGame.cpp:2381	D	R3	base 322cd050, +0xd54 = 0, 32f2c790->32f2c3b0. No CreateStateChangeDLG and no XS_DUNGEON_RESULT change
+# --- Widget
+32eea7e0	CX2UIDungeonResultAdapter ctor( movie )	none	D	R1	vtable 3353a060; AddListener 31d1f690; AddBinding 31d1f900: updateDungeonInfo (0x88 B, vtable 3353a0b0), getItem0..11 (0x40 B, vtable 3353a080, init +0x30 = 3, +0x34 = 1, +0x38 / +0x3c = -1), onTabKeyProcess (8 B, 33471e28), showRetryButton / enableRetryButton (0xc B bool, 334c9084, init 1)
+32eea090 / 32eeafd0	adapter dtor / deleting dtor	none	D	R1	31d1f550 then remove the 16 bindings 31d1f600
+32eea6a0	set item value( name, itemID, p4, p5, p6 )	none	D	R1	+8 itemID, +0xc name from item templet 325bb740 -> 328672d0 (empty if id <= 0), +0x34 / +0x38 / +0x3c; Notify 31d1ee10
+32eea1c0 / 32eea1f0	showRetryButton( b ) / enableRetryButton( b )	none	D	R1	binding +8 = b, Notify
+32eeae30	updateDungeonInfo( struct )	none	D	R1	copies the 324e20d0 struct into the 0x88 value (field list below); bExactFit = g_pKTDXApp+0x1bc < 1.0, fSizeX = (float)g_pKTDXApp+0x1a4
+32eeb1d0	DW_DUNGEON_RESULT_VALUE to-AS (vtable 3353a0b0 slot 1)	none	D	R1	member names in the rows below
+32eeaff0	item value to-AS (3353a080 slot 1)	none	D	R1	item members from the 0x40 B value
+324cf8b0	item fill: getItem%d x 12	CX2DungeonGame obtained items; March: KEGS_UPDATE_UNIT_INFO_NOT m_mapItemObtained (ClientPacket.h:1879)	D	R1	game vslot 0x220( page*12, 12, &vec ) from game +0xdf4 (0xc0 B records: +8 item id, +0x14 qty, +0/+4 item UID); empty slot ( 0, 0, -1, -1 ). Callers 324d60e0, 324d1210, 324d1270
+327cedf0	CX2DungeonGame vslot 0x21c: add obtained item	none (March keeps only m_mapItemObtained)	open	R1	merges by item id when +0xc == 2 (adds +0x14), else push_back. Caller not found by xref (virtual); R1 locates it (get-item NOT path likely)
+327cee60 / 327cef20 / 327ca2f0	game vslots 0x220 get page / 0x228 sort / 0x224 has page	none	D	R1	read game +0xdf4 / +0xdf8; 0x228 sorts with the item manager g_pData+0x34 (327d7e30)
+33539ea8..33539ec8	callback table: notifyCloseResultUI 32eea2c0, notfyRetryButton 32eea2e0, notifyInitialize 32eea300, notfyitemSlotArrowLeft 32eea320, notfyitemSlotArrowRight 32eea370	none	D	R1/R3	close -> exit box 31f1dd70( 1 ); retry -> state vslot 0xe0; init -> mode 2; arrows -> dynamic_cast to the dungeon state then 324d1270 / 324d1210 (June spelling "notfy" kept)
+onTabKeyProcess	binding only (8 B, vtable 33471e28 = SimpleWidget class)	none	D	R1	no C++ caller; the movie owns it
+# --- updateDungeonInfo members (AS name <- value offset <- June source -> March source)
+totalRank	+0x08	unit [0x1f] m_cTotalRank	D	R1	KDungeonUnitResultInfo::m_cTotalRank
+sec	+0x0c	resultInfo +0 m_Sec	D	R1	m_nSec
+ED	+0x10	unit [8] m_nED, capped to (unit ED - state +0x7e8) when the unit holds less	D	R1	m_nED; +0x7e8 = ED saved at dungeon start (June-only member, absent -> plain m_nED)
+hitRank	+0x14	unit [0x20] (pkt +0xae)	D	R1	June-only: absent 0
+comboRank / technicalRank / beAttackedRank	+0x18 / +0x1c / +0x20	unit [0x1b] / [0x1c] / [0x1d]	D	R1	m_cComboRank / m_cTechnicalRank / m_cDamagedRank
+totalEXP	+0x24	ftol( (float) 327c9390 )	D	R1	m_nEXP + the 8 bonus EXPs (June-only terms 0)
+oldExpRate / expRate	+0x28 / +0x2c	( OldEXP - level base ) / range and ( unit EXP - base ) / range, clamped 0..1, ExpTable 31edefe0 / 32741030	D	R1	m_nOldEXP + the unit's EXP + ExpTable; resonance branch 3247b460 (unit +0xa99 / +0xa9d) is June-only -> drift
+levelUp	+0x30	OldEXP < level base	D	R1	byte
+level	+0x34	unit level (XOR +0xb4)	D	R1	CX2Unit level
+bExactFit / fSizeX	+0x38 / +0x3c	g_pKTDXApp +0x1bc < 1.0 / +0x1a4	I	R1	screen scale / width; R1 names them against the june-gfx G2 viewport code
+resonanceLevel	+0x40	3247b460 resonance float	D	R1	June-only system: absent 0 -> drift
+reTryButtonShow	+0x44	324d1120()	D	R1	byte
+showExitButton	+0x45	!state +0x7a9	D	R1	offline always true
+expBonusStringSize / expBonusString_%d	+0x48 vector (0x1c B wstrings)	my unit 327cacf0( 2, 1..12 ) > 0: string 31edcfe0( i ) (0xa989..0xa995) with the value	D	R1	June-only bonus map (pkt +0xc1): absent -> empty list. March's 8 bonus fields are not a substitute (never invent)
+edBonusStringSize / edBonusString_%d	+0x58 vector	327cacf0( 1, i )	D	R1	June-only: empty
+rewardType	+0x68	unit [0x29] (pkt +0xb3)	D	R1	June-only: absent 0
+unitType	+0x6c	my CX2Unit +0xaf0 -> [0]	I	R1	unit type; R1 names the March getter
+bestSec	+0x70	resultInfo +0x2c	open	R1	June-only, no writer found: absent 0
+playerCount	+0x74	units listed	D	R1	int
+category_%d%d / userName_%d%d / detailValue_%d%d / IsMyUnit_%d%d / unitType_%d%d	+0x78 per-unit maps	6 categories per unit: 0 TotalScore [3], 1 [0x26] (June-only), 2 ComboScore [4], 3 TechnicalScore [5], 4 [0x25] (June-only), 5 [0x24] / [0x23] * 100 (June-only floats)	D	R1	nickname from CX2Unit +0x50 +0x84 (other units 31ed18b0( UID )); IsMyUnit; unitType +0xaf0
+# --- Load path and GFx pieces
+UI 8	dungeon_result.gfx via openUI( 8 ) 31c44530 / isOpenUI 31c44710 / closeUI 31c445d0	none	D	R1	GFx G2 wrappers (ported). data194 dungeon_result.gfx + 13 dungeon_result_I*.dds already June's (ga_staged_files.tsv:4178-4191, sha1 equal)
+# --- ESC, exit box, hide modes
+31f1e1a0 @31f1e214-31f1e261	HandleMsgByESC result-UI gate	CX2State::HandleMsgByESC (X2State.cpp:4211)	D	R3	C3p-2 item 4: mode 1 / 2 eat ESC; else popup 9 -> vslot 0xec, else exit box 31f1dd70( !31ef7c60() )
+31f1dd70	CX2State exit box( bool )	CX2StateDungeonGame::OpenExitDLG (X2StateDungeonGame.cpp:2751) is the nearest; not the same box	D	R3	DLG_UI_ExitPartyMsgBox.lua (June data034, 3480 B, absent in March: must stage) or msg box 0xbdb with OK 0xbfe / cancel 0xbff
+324cf508 / 324c966e / 324d880f	SetShow( false, 2 ) callers	none	D	R3	mode-1 tick, 0x649 ACK, retry. JuneSetShow 31d05af0 is ported (GFx G5); presets 2-4 already in KTDGUIDialogManager.cpp:1496-1507
+# --- Legacy state and training (R4 decision)
+XS 0xD	CX2StateDungeonResult (factory 31d88bf0, ctor 32515670, setup 32513d30, OnFrameMove 3250f6c0)	X2StateDungeonResult.cpp	closed	-	No June code requests state 0xD: all 72 pushes of XGM_STATE_CHANGE (June 0x471, CX2Main::MsgProc 31d8e2c8) resolved, none 0xD (70 constants, 2 variables = 7 / 0xe). 327c9330 dropped March's XS_DUNGEON_RESULT change
+XS 0x13	CX2StateTrainingResult ctor 324c0f80 (= 32515670 + vtable 3349dc24, +0x30c = 0x10)	X2StateTrainingResult.h:3 (also : CX2StateDungeonResult)	D	R4	REACHED offline: END_TC_GAME_ACK 324c4010 @324c4143 sets +0x7f8 = 5.0; training OnFrameMove 324c38e0 @324c3b6b -> state 0x13. Same route as March X2StateTrainingGame.cpp:110-116. TC is emulated (Handlers_Room.cpp:636)
+3349e02c	CX2StateTrainingGame	X2StateTrainingGame	D	R3	shares 0xb8-0xf0 (mode machine included) with the dungeon state; own 0xf4 (QuitGame 324c3bb0), 0x10c (324c35f0), 0x114 dispatcher 324c4290 falls back to 324dbc20. Training never gets 0xbd, so the widget never opens there
+3349d06c	CX2StatePVEGame shares 0xe0 / 0xe4 / 0xe8 / 0xec	none	D	Stage 9	PvE result is outside the fence
+# --- Data (item 10)
+data063	DLG_UI_Dungeon_Result_01/_02 .tga + .TET	none	D	R1	June-only, not in kom_contents: stage byte-exact
+data034	DLG_UI_ExitPartyMsgBox.lua	none	D	R3	June-only bytecode, not in kom_contents: adopt-june (ljconv)
+data034	DLG_Party_Member_Result_State.lua	none	D	R3	June-only (886 B), not in kom_contents: adopt-june (vslot 0xdc loads it)
+data034	DLG_Dungeon_Result_Reward_Window3.lua	same name, March 2702 B	D	R4	ljconv( June ) 2967 B differs: adopt-june replaces March's
+data034 / datai014	the other 9 DLG_Dungeon_Result_* + DLG_UI_Dungeon_Result.lua	same name	D	-	already ljconv( June ), byte-identical
+data085	ResultBonus / ResultRankArrive / ResultRankRotate / ResultStamp .ogg	same	D	-	sha1 equal to June; R4 drops the ResultStamp call as June does

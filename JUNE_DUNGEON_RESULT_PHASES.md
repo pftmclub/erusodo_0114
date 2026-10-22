@@ -171,6 +171,55 @@ amend the R1-R4 kickoffs (an "Amended by R0" section each).
 **Done gate:** the map tsv has a verdict for every address in Context plus everything R0 found; R1-R4 kickoffs amended; R4 opened or
 closed with the proof; anything outside the fence identified and routed (drift rule).
 
+### R0 - Done (2026-10-22, Opus 5.5 high; read-only, no code, no build)
+
+Map: `june2017_re/result_r0_map.tsv` (100 rows; verdict D = seen, I = inferred, open, closed). Funcmap rows `(Result R0)`. Kickoffs
+R1-R4 have an "Amended by R0" section each. No deploy; nothing for the user to play.
+
+1. **End packet.** June case 0xbd is **`EGS_END_GAME_DUNGEON_RESULT_DATA_NOT`**, not `EGS_END_GAME_NOT`, which corrects funcmap 2524.
+   - Proof: its Get (`320edc20`) is that packet with June-only ints at +4 / +9 and a 0xd2 B unit record.
+   - June renumbered this id range by 0xa-0xd, so packets are matched by layout. Cases 0xbb, 0xc0, 0xc1, 0xd5, 0x10d and 0x10e were
+     matched the same way.
+   - What the handler does: calls the game's handler (`327c99e0`, so `EndOfflinePartyBots` still runs), then sets mode 1 for 30 s.
+     With no result info it leaves through `31f16530` (`ReturnToPlaceWhereBeforeDungeonStart`).
+2. **Mode machine.** All vslots are named: 0xb8-0xcc are the adapter's, 0xd0 is mode 4, 0xd8 / 0xdc are the base party-member
+   dialog, 0xe0-0xec are retry and ESC, 0xf0 is the confirm.
+   - `g_pMain+0x16a` is `m_bIsPlayingTutorial` (funcmap 1080, ported). It is **not a user option**, so there is no question for the user.
+   - State `+0x7a9` is written only by June event 0x3e7, which offline never sends.
+3. **Widget.** It is owned by the dungeon state (`+0x7c4`) and opened as UI 8 through the ported G2 wrappers. The tsv lists all 16
+   bindings and each member with its June and March source.
+   - Values June keeps absent are 0 or empty: hit rank, reward type, bestSec, resonance, the bonus strings, 3 of the 6 detail values.
+   - The item list is June's dungeon-game list (`+0xdf4`). Its writer is a virtual call R1 must locate.
+4. **Leaving.** vslot 0xf0 sends `EGS_RESULT_SUCCESS_REQ` with **no body**, after the 30 s countdown or the exit box OK.
+   - June's game state handles the ACK and `RESULT_ALL_UNIT_SUCCESS_NOT` (`324d4cd0` / `324dbb30`), then calls `31f16530`.
+   - June keeps March's host `STATE_CHANGE_RESULT_REQ` timer (`324ccda0`). Its NOT handler (`327c9330`) dropped the `XS_DUNGEON_RESULT`
+     change.
+5. **Retry.** REQ 0x648 has no body; ACK 0x649 is `{ int, wstring }`. Neither exists in March (probe).
+   - The leader sends the REQ at once; solo goes through a confirm popup (type 9, custom msg 14).
+   - The restart itself was server-side, so R2 proposes a stand-in to the user.
+6. **ESC / exit box:** as C3p-2. The exit box needs June-only `DLG_UI_ExitPartyMsgBox.lua`.
+7. **Hide modes:** only `SetShow( false, 2 )`, at `324cf508`, `324c966e` and `324d880f`. `JuneSetShow` is ported (G5).
+8. **R4: OPENED, one route.** State 0xD is unreachable: all 72 `XGM_STATE_CHANGE` (0x471) pushes were resolved and none is 0xD. The
+   training result (0x13) is reached offline: `END_TC_GAME_ACK` -> 5 s -> state 0x13 -> `324c0f80` = June's `CX2StateDungeonResult`
+   (`32515670`), as in March.
+9. **Training** shares every vslot from 0xb8 to 0xf0, but never receives 0xbd, so the widget never opens there. Its result is R4's
+   route.
+10. **Data.**
+    - Stage byte-exact: data063 `DLG_UI_Dungeon_Result_01/_02` `.tga` + `.TET` (R1); data034 `DLG_UI_ExitPartyMsgBox.lua` and
+      `DLG_Party_Member_Result_State.lua`, both June-only (R3); data034 `DLG_Dungeon_Result_Reward_Window3.lua`, which differs (R4).
+    - Already June's: data194 widget + 13 dds, the other 9 `DLG_Dungeon_Result_*`, `DLG_UI_Dungeon_Result.lua`, the 4 `Result*.ogg`.
+11. **Emulator (R2).**
+    - Accept a bodyless `RESULT_SUCCESS_REQ`; today `ReadReq` fails on it.
+    - Answer 0x648 with 0x649 (stand-in) and ignore 0x1f2 (the mode-3 fast-solo-clear report).
+    - Nothing the emulator sends goes unread.
+
+**Drift (routed, dated bullets in `JUNE_PORT_BACKLOG_ORDER.md`):**
+- 0x3e7 `324d1290`, the post-clear NPC spawn and `+0x7a9` -> Stage 22.
+- The resonance system (`3247b460`, unit `+0xa99` / `+0xa9d`) -> Stage 6.
+- The party manager's retry refresh (`@32434dd6`) and the ACK's `324334d0( 0x72 )` branch -> Stage 28.
+- PvE shares the retry vslots -> Stage 9.
+- The per-dungeon attribute bit 14 hides retry -> the Stage 22 attribute-set bullet.
+
 ## Phase R1 - The GFx widget
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_WIDGET` (+ `_JUNE_RESULT_DEBUG`).
@@ -232,6 +281,8 @@ clear still runs March's result screen.
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`. Sub-tag `LEGACY`.
 **Runs only if R0 opened it** with the reachable routes; otherwise R0's Done note closes it and this section says so.
+**R0 (2026-10-22): OPENED for one route, the training result (state 0x13, `324c0f80`).** State 0xD is unreachable (proof in R0's
+Done note, item 8).
 
 - Port June's `CX2StateDungeonResult` whole (`32515670` ctor, `32513d30` setup, `3250f6c0` OnFrameMove, `3250ef90`, ...) for
   the routes R0 found, and the training result `324c0f80` if it is one of them.
@@ -252,6 +303,8 @@ clear still runs March's result screen.
 
 None at creation. R0 hands any design choice it cannot settle from June's code to the user (e.g. if `g_pMain+0x16a` turns out to be
 a user option).
+- R0 (2026-10-22): `g_pMain+0x16a` is `m_bIsPlayingTutorial`, so no question. One open design choice is left for R2: the offline answer
+  to retry (0x648 / 0x649). The restart lived on the June server, so R2 proposes a stand-in and the user decides.
 
 ## Play-test hand-off
 

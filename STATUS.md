@@ -865,14 +865,14 @@ results, cash shop, option, bingo, the profession close and hide mode 5 stay in 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| R0 | **ready** (read-only; start: `/x2-phase june-result R0`): port map `june2017_re/result_r0_map.tsv` + funcmap `Result R0`; decides R4 | Opus 5.5 / high | - (runs with anything) | `june2017_re/`, funcmap, plan doc, kickoffs R1-R4 | `R0.md` |
-| R1 | blocked | Sonnet 5.5 / high, then Opus 5.5 / high review | R0 | new `X2UIDungeonResultAdapter.*` (X2Lib), `X2DungeonGame.*` (adapter member), Always.h; data063 textures if R0 says | `R1.md`, review `R1-review.md` |
-| R2 | blocked | Sonnet 5.5 / high, then Opus 5.5 / medium review | R0; runs alongside R1 | `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.cpp`, `X2OfflineIgnore.cpp`, maybe `EventID_*.h`, Always.h | `R2.md`, review `R2-review.md` |
+| R0 | **done 2026-10-22** (read-only, no code / build): map `june2017_re/result_r0_map.tsv` + funcmap `(Result R0)`; 0xbd = `END_GAME_DUNGEON_RESULT_DATA_NOT`; R4 **opened** for the training result only; user owes nothing | Opus 5.5 / high | - (runs with anything) | `june2017_re/`, funcmap, plan doc, kickoffs R1-R4 | `R0.md` |
+| R1 | **ready** (start: `/x2-phase june-result R1`) | Sonnet 5.5 / high, then Opus 5.5 / high review | R0 (done) | new `X2UIDungeonResultAdapter.*` (X2Lib), `X2StateDungeonGame.*` (adapter member, per R0), `X2DungeonGame.*` (obtained-item list), Always.h; data063 textures | `R1.md`, review `R1-review.md` |
+| R2 | **ready** (start: `/x2-phase june-result R2`; retry stand-in goes to the user first) | Sonnet 5.5 / high, then Opus 5.5 / medium review | R0 (done); runs alongside R1 | `X2Lib/Offline/Handlers_Room.cpp`, `X2OfflineServer.cpp`, `X2OfflineIgnore.cpp`, maybe `EventID_*.h`, Always.h | `R2.md`, review `R2-review.md` |
 | R3 | blocked | Opus 5.5 / high, then Opus 5.5 / high review | R1 review, R2 | `X2State.*`, `X2StateDungeonGame.*`, `X2DungeonGame.*`, Always.h | `R3.md`, review `R3-review.md` |
-| R4 | blocked (conditional: R0 opens or closes it) | Sonnet 5.5 / high, then Opus 5.5 / high review | R3 review | `X2StateDungeonResult.*`, data034 result dialogs | `R4.md`, review `R4-review.md` |
+| R4 | blocked (**opened by R0**: the training result route, state 0x13) | Sonnet 5.5 / high, then Opus 5.5 / high review | R3 review | `X2StateDungeonResult.*`, data034 result dialogs | `R4.md`, review `R4-review.md` |
 | Z | blocked | Sonnet 5.5 / medium | R3 review (+ R4 review if run) | `MODS.md`, backlog, memory | `Z.md` |
 
-Running together: R0 now, with anything (read-only). R1 and R2 together after R0. Then R3, then R4 (if opened), then Z. R3 shares
+Running together: R0 done (2026-10-22). R1 and R2 now, together. Then R3, then R4 (if opened), then Z. R3 shares
 `X2State.cpp` with quest-system / june-engine rows: not alongside a running code row on that file.
 
 ## Other plans
