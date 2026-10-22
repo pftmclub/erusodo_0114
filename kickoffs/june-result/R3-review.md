@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-result R3 review` |
 | Plan doc | `JUNE_DUNGEON_RESULT_PHASES.md` (branch `main`) |
-| Depends on | Phase R3 done (play-tested 2026-10-22) and Phases R3b + R3c done (their fixes are reviewed here too; R3c: `kickoffs/june-result/R3c.md`) |
+| Depends on | Phase R3 done (play-tested 2026-10-22) and Phases R3b, R3c (read-only map) and R3d done (their fixes are reviewed here too; `kickoffs/june-result/R3c.md`, `R3d.md`) |
 | Flag | `SERV_IRUHADEV_JUNE_RESULT_FLOW` (debug lines under `SERV_IRUHADEV_JUNE_RESULT_DEBUG`) |
 | Log tag | `[JUNE_RESULT] FLOW` (`python tools/logs.py --tag JUNE_RESULT`) |
 
