@@ -274,6 +274,8 @@ clear still runs March's result screen.
 
 **Play-test:** none of its own; the fixed values (ED, EXP, item order) show only after a clear, in R3's hand-off.
 
+**No backdrop in the console run (user, 2026-10-22): expected, not a defect.** The dark panel is the class backdrop `mc_<class>Back` (`DungeonResultMain._playUnitBack`, 12 bitmaps `dungeon_result_I94..IB6.dds`, all present in data194) picked by `unitType`; the movie has no full-screen shape of its own. Before a clear the fill stops at `no result info`, so only the empty first value (`unitType 0`) reaches the movie and no backdrop is drawn. March's `UNIT_TYPE` 1..9 = the clip order, `GetType()` = June's templet read. Seen after a clear (R3, or `JuneResultOpen()` in the clear window while `g_pData`'s result info exists).
+
 ## Phase R2 - Offline emulator for June's flow
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 medium review. Flag `SERV_IRUHADEV_JUNE_RESULT_OFFLINE`. Sub-tag `EMU`.
