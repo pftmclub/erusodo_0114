@@ -9851,3 +9851,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June's dungeon and battlefield ShortCutKeyProcess ( 324d2e20, 324bc8e0 ) have no GA_SIT block, so V is not a sit key there ( it casts Aisha's memorized skill ). Revert: undefine the flag ( JUNE_STATE_NO_SIT_KEY ).
 #define SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R2 - the emulator's answers to June's result flow: the bodyless EGS_RESULT_SUCCESS_REQ ( 324d84c0 ), the retry REQ / ACK 0x648 / 0x649 ( 324c9530 / 324c95b0; stand-in = restart the same dungeon, difficulty, mode and bots as a fresh dungeon start ) and the ignored 0x1f2 fast-solo-clear report ( 324cf734 ). Also defined in ServerDefine.h ( EventID_Client.h / ClientPacket.h precede this file ). Log [JUNE_RESULT] EMU. Revert: undefine both ( JUNE_RESULT_OFFLINE ).
+#define SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+#if defined( SERV_IRUHADEV_JUNE_RESULT_OFFLINE ) && !defined( SERV_IRUHADEV_OFFLINE )
+#error SERV_IRUHADEV_JUNE_RESULT_OFFLINE needs SERV_IRUHADEV_OFFLINE ( the emulator handlers, CX2OfflineLog )
+#endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+//////////////////////////////////////////////////////////////////////////

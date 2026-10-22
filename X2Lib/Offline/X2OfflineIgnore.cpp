@@ -109,6 +109,10 @@ namespace
 		{ L"EGS_CHANGE_RANDOM_QUEST_NOT",	L"a server-originated push that needs a live event schedule" },
 		{ L"EGS_EVENT_QUEST_INFO_NOT",		L"a server-originated push that needs a live event schedule" },
 		{ L"EGS_TITLE_EXPIRATION_NOT",		L"nothing offline issues a rented title" },
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+		// June result R2: 324cf734 sends it bodyless from the result mode machine and waits for no reply.
+		{ L"EGS_JUNE_FAST_SOLO_CLEAR_NOT",	L"June's fast-solo-clear report ( 0x1f2 ), no body and no reply expected; nothing offline reads it" },
+#endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 	};
 
 	const int s_nIgnoreRuleCount = sizeof( s_kIgnoreRule ) / sizeof( s_kIgnoreRule[0] );

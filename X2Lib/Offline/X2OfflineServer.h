@@ -1238,6 +1238,11 @@ private:
 	bool Handler_EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ( KOfflineSession& kSes, const KEvent& kEvent );
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+	/// June dungeon result R2 ( Handlers_Room.cpp ): the retry REQ 0x648, a bodyless SendID.
+	bool Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+#endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+
 	/// Make sure the quest and title state belongs to the character this
 	/// session has selected, and hand back its row. Returns false when there is
 	/// no selected character - every quest handler is a no-op then.

@@ -4919,3 +4919,11 @@ Flag `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL` in `KTDXLIB/Always.h`. The emulator 
 
 Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emulator sends the real `KEGS_USE_FINALITY_SKILL_ACK`, with `m_bNoConsume` false. Log `SKILL    finality skill ...`.
 - **Turn off:** comment out the flag, then `python tools/build.py --deploy`. The packet goes back to UNHANDLED and stones are not consumed. No data change.
+
+### June dungeon result R2: the emulator's answers (flag `SERV_IRUHADEV_JUNE_RESULT_OFFLINE`, 2026-10-22)
+
+- `EGS_RESULT_SUCCESS_REQ` is accepted with no body (June `324d84c0` sends it with SendID); March's struct form still reads.
+- Three June-only event IDs at the end of the `EventID_Client.h` block: `EGS_JUNE_DUNGEON_RETRY_REQ` (0x648, no body), `EGS_JUNE_DUNGEON_RETRY_ACK` (0x649, `{ int, wstring }`) and `EGS_JUNE_FAST_SOLO_CLEAR_NOT` (0x1f2, no body, IGNORED in `X2OfflineIgnore.cpp`).
+- Retry stand-in (user, 2026-10-22): the emulator reopens the same dungeon, difficulty, mode, loot rule and bots through `OpenDungeonGameRoom` + `SendDungeonGameStartNot` and ACKs OK. Nothing sends the REQ until R3 ports June's sender.
+- Defined in `Always.h` and `ServerDefine.h` (`EventID_Client.h` / `ClientPacket.h` precede `Always.h`); `flagcheck.py` `SECOND_HOMES` has the row. Log `[JUNE_RESULT] EMU`.
+- **Turn off:** comment out both defines and rebuild. The IDs vanish, March's `ReadReq` form of the success REQ is the only path.

@@ -654,6 +654,9 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 	case EGS_END_GAME_REQ:					return Handler_EGS_END_GAME_REQ( kSes, kEvent );
 	case EGS_STATE_CHANGE_RESULT_REQ:		return Handler_EGS_STATE_CHANGE_RESULT_REQ( kSes, kEvent );
 	case EGS_RESULT_SUCCESS_REQ:			return Handler_EGS_RESULT_SUCCESS_REQ( kSes, kEvent );
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+	case EGS_JUNE_DUNGEON_RETRY_REQ:		return Handler_EGS_JUNE_DUNGEON_RETRY_REQ( kSes, kEvent );
+#endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 	case EGS_LEAVE_GAME_REQ:				return Handler_EGS_LEAVE_GAME_REQ( kSes, kEvent );
 
 	case EGS_USER_UNIT_DIE_REQ:				return Handler_EGS_USER_UNIT_DIE_REQ( kSes, kEvent );

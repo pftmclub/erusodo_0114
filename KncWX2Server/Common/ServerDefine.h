@@ -4739,3 +4739,11 @@
 //              KTDXLIB/Always.h; this second home exists because ClientPacket.h is compiled before Always.h is reachable. Comment out both together.
 #define SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R2 retry packets, client flag ( offline only ). Also defined in KTDXLIB/Always.h; this second home exists because
+//              EventID_Client.h and ClientPacket.h are compiled before Always.h is reachable. Comment out both together.
+#define SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+//////////////////////////////////////////////////////////////////////////

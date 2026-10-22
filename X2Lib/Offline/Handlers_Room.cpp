@@ -4815,6 +4815,12 @@ bool CX2OfflineServer::Handler_EGS_STATE_CHANGE_RESULT_REQ( KOfflineSession& kSe
 bool CX2OfflineServer::Handler_EGS_RESULT_SUCCESS_REQ( KOfflineSession& kSes, const KEvent& kEvent )
 {
 	KEGS_RESULT_SUCCESS_REQ kReq;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+	// June 324d84c0 sends it with SendID ( no body ); March's legacy result state still sends the telemetry struct.
+	if( 0 == kEvent.m_kbuff.GetLength() )
+		CX2OfflineLog::Server( L"[JUNE_RESULT] EMU result success REQ without a body ( June form )" );
+	else
+#endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 	if( false == ReadReq( kEvent, kReq ) )
 		return false;
 
@@ -4843,6 +4849,55 @@ bool CX2OfflineServer::Handler_EGS_RESULT_SUCCESS_REQ( KOfflineSession& kSes, co
 
 	return Reply( kSes, EGS_RESULT_ALL_UNIT_SUCCESS_NOT, kNot );
 }
+
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+bool CX2OfflineServer::Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes, const KEvent& /*kEvent*/ )
+{
+	// No request body (SendID). June's server restarted the run and the client does nothing on OK ( 324c95b0 ), so this is a stand-in
+	// ( user, 2026-10-22 ): the same dungeon, difficulty, mode, loot rule and bots as a fresh dungeon start, through the quick-start path.
+	KEGS_JUNE_DUNGEON_RETRY_ACK kAck;
+	kAck.m_iOK = NetError::NET_OK;
+
+	if( false == m_kRoom.m_bActive || true == m_kRoom.m_bTutorial ||
+		(char)CX2Room::RT_DUNGEON != m_kRoom.m_kInfo.m_RoomType || 0 == m_kRoom.m_kInfo.m_iDungeonID )
+	{
+		CX2OfflineLog::Server( L"[JUNE_RESULT] EMU retry refused: no retryable dungeon room (active=%d tutorial=%d dungeonID=%d)",
+			(int)m_kRoom.m_bActive, (int)m_kRoom.m_bTutorial, m_kRoom.m_kInfo.m_iDungeonID );
+		kAck.m_iOK = NetError::ERR_ROOM_00;
+		return Reply( kSes, EGS_JUNE_DUNGEON_RETRY_ACK, kAck );
+	}
+
+	KEGS_QUICK_START_DUNGEON_GAME_REQ kStart;
+	kStart.m_iDungeonID			= m_kRoom.m_kInfo.m_iDungeonID;
+	kStart.m_DifficultyLevel	= m_kRoom.m_kInfo.m_DifficultyLevel;
+	kStart.m_cGetItemType		= m_kRoom.m_kInfo.m_cGetItemType;
+	kStart.m_cDungeonMode		= m_kRoom.m_kInfo.m_cDungeonMode;
+
+	// OpenRoom clears the room, bots included: keep them so the party is the same one.
+	const std::vector< KOfflineRoom::KPartyBot > vecBot = m_kRoom.m_vecBot;
+
+#ifdef SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+	// The leave half of a fresh start ( Handler_EGS_LEAVE_ROOM_REQ ): the room-scoped buffs end with the old room.
+	CX2OfflineBuff::Instance()->OnLeaveRoom( kSes.m_nSelectedUnitUID, (int)m_kRoom.m_kInfo.m_RoomType );
+#endif SERV_IRUHADEV_OFFLINE_ITEM_BUFF
+
+	KOfflineUnitRow kRow;
+	if( false == OpenDungeonGameRoom( kSes, kStart, kRow ) )
+	{
+		CX2OfflineLog::Server( L"[JUNE_RESULT] EMU retry failed: could not reopen the dungeon room" );
+		kAck.m_iOK = NetError::ERR_ROOM_00;
+		return Reply( kSes, EGS_JUNE_DUNGEON_RETRY_ACK, kAck );
+	}
+	m_kRoom.m_vecBot = vecBot;
+
+	CX2OfflineLog::Server( L"[JUNE_RESULT] EMU retry: restarting dungeonID=%d dif=%d mode=%d with %u bot(s) (stand-in for June's server restart)",
+		kStart.m_iDungeonID, (int)kStart.m_DifficultyLevel, (int)kStart.m_cDungeonMode, (unsigned int)vecBot.size() );
+
+	Reply( kSes, EGS_JUNE_DUNGEON_RETRY_ACK, kAck );
+
+	return SendDungeonGameStartNot( kSes, kRow );
+}
+#endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 
 bool CX2OfflineServer::Handler_EGS_LEAVE_GAME_REQ( KOfflineSession& kSes, const KEvent& /*kEvent*/ )
 {

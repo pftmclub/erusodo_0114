@@ -55,6 +55,7 @@ SECOND_HOMES = {
     "SERV_IRUHADEV_JUNE_SKILL_CLASS_CHANGE": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket.h precedes Always.h
     "SERV_IRUHADEV_JUNE_RANDOM_MISSION": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
     "SERV_IRUHADEV_JUNE_UNSEAL_SKILL_NOT": "KncWX2Server/Common/ServerDefine.h",  # ClientPacket.h precedes Always.h
+    "SERV_IRUHADEV_JUNE_RESULT_OFFLINE": "KncWX2Server/Common/ServerDefine.h",  # EventID_Client.h / ClientPacket.h precede Always.h
 }
 
 

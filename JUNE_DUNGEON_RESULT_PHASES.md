@@ -254,6 +254,26 @@ clear still runs March's result screen.
 **Done gate:** played with R3: a clear plus a retry plus a leave leaves `UNHANDLED` at baseline only, and every request has an
 `[JUNE_RESULT] EMU` line. On its own, R2 builds clean and the March flow still works (regression).
 
+### R2 - Done (2026-10-22, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RESULT_OFFLINE`, log `[JUNE_RESULT] EMU`)
+
+**What landed** (one commit, `main`):
+- `Handler_EGS_RESULT_SUCCESS_REQ` (`Handlers_Room.cpp`) accepts an empty body (`m_kbuff.GetLength() == 0`, June `324d84c0` SendID) and still reads March's struct; the ACK + `EGS_RESULT_ALL_UNIT_SUCCESS_NOT` answer is unchanged.
+- Three June-only IDs at the end of `EventID_Client.h`: `EGS_JUNE_DUNGEON_RETRY_REQ` (0x648, no body), `EGS_JUNE_DUNGEON_RETRY_ACK` (0x649, `KEGS_JUNE_DUNGEON_RETRY_ACK { int m_iOK; wstring m_wstrJuneUnread }`, Put / Get in `ClientPacket.cpp` in R0's order), `EGS_JUNE_FAST_SOLO_CLEAR_NOT` (0x1f2, no body). June's names are not recoverable.
+- `Handler_EGS_JUNE_DUNGEON_RETRY_REQ` + dispatch row. **Retry stand-in, user's choice 2026-10-22** ("same as start dungeon, same difficulty and dungeon"): the room's dungeon id, difficulty, mode, loot rule and bots are kept, the room-scoped buffs leave (`OnLeaveRoom`), `OpenDungeonGameRoom` reopens it, ACK OK, then `SendDungeonGameStartNot` (`EGS_PARTY_GAME_START_NOT`). Refused with `ERR_ROOM_00` for a tutorial / non-dungeon / inactive room (June re-enables the button).
+- 0x1f2 is an `IGNORED` row in `X2OfflineIgnore.cpp` with its reason; nothing answers it.
+- Flag defined in `Always.h` and the `ServerDefine.h` second home (`flagcheck.py` `SECOND_HOMES` updated). `MODS.md` has the revert line.
+- No `X2OfflineDB` change, no new Lua, no June bug to log.
+
+**Not R2's, handed to R3** (`kickoffs/june-result/R3.md`, "Amended by R2"):
+- Nothing sends 0x648 / 0x1f2 until R3 ports the senders `324c9530` / `324cf734`, so the new handler cannot run in game yet.
+- June's client does nothing on retry OK, so whether the March client can take a second `EGS_PARTY_GAME_START_NOT` while in `XS_DUNGEON_GAME` (state routing, same-state `XGM_STATE_CHANGE`, `RememberComeBackInfoBeforeInstanceGameStart` has no dungeon-game case) is R3's play-test gate. First version of the stand-in was ALL_UNIT_SUCCESS_NOT; that sends the player to the field (March `ReturnToPlaceWhereBeforeDungeonStart`, June `324dbb30`), so it was dropped before writing.
+
+**Hygiene** (`flagcheck.py JUNE_RESULT_OFFLINE --worktree --files ...`): files: 3 PASS, 4 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR; in this flag's files: 0 deleted, 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without token, 0 encoding change; RESULT: PASS. (Range run follows the commit.)
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,735,680 B, dated 2026-10-22 12:50:29, md5 06eaaa64d79fceb154c26c189536eab7, equal to X2/US_SERVICE/x2.exe (2026-10-22 12:50:21); built at main 23706fbc + 11 uncommitted code file(s).` The new strings (`[JUNE_RESULT] EMU retry: restarting`, both event names) are in the exe.
+
+**Drift:** none found; no branch outside the fence.
+
 ## Phase R3 - The in-state result flow
 
 **Run with:** Opus 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_FLOW`. Sub-tag `FLOW`.
