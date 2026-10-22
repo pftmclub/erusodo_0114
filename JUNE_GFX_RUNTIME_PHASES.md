@@ -100,6 +100,7 @@ Flags (debug: `SERV_IRUHADEV_JUNE_GFX_DEBUG`): `_JUNE_GFX_RUNTIME` (G1), `_JUNE_
 | G5 | The gates the backlog owes: `GetShowActiveSkillShow`'s GFx term, C3p-2's ESC gates that read the manager | Sonnet 5.5 high + Opus review | yes | yes |
 | Z | Close-out | Sonnet 5.5 medium | no | no |
 | G6 | Cursor vs the GFx layer: June's per-frame draw order (dialogs, GFx display, `CKTDXCursor`, the scene's cursor) against March's; port only if they differ (added 2026-10-19 from the quest-system Q5b play-test) | Opus 5.5 high + review | maybe | yes if code |
+| G7 | Blend modes: June's D3D9 `applyBlendMode` (`33214cd0`) and its two tables in a HAL subclass, so Erase / Alpha draw nothing on screen as in June (the black skill cut-in frame) (added 2026-10-22 from the user's report) | Sonnet 5.5 high + Opus review | yes | yes |
 
 **Model choice.** Opus for G0 (a wrong reading of the render or input order costs every later phase) and for G2 (a new engine
 mechanism on the shared D3D9 device: render-state leaks and device-reset crashes are the failure mode). Sonnet for G1 / GA (mechanical,
@@ -673,6 +674,68 @@ run only after StateChange has already ended the scene. All of this is R4f's to 
 **Hygiene:** `flagcheck JUNE_GFX_CURSOR_ORDER --range 0a8ca525^..0a8ca525`: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER
 (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (no OTHER row in the commit range). No build: nothing changed.
+
+## Phase G7 - Blend modes (June's applyBlendMode)
+
+**Run with:** Sonnet 5.5 high, then an Opus review. Flag `SERV_IRUHADEV_JUNE_GFX_BLEND`. Sub-tag `MGR`. Added after the Z close-out.
+
+**Why (user, 2026-10-22).** The user skill cut-in's frame draws as solid black. In June it is invisible: only the cut-in art and the talk
+balloon show. G4's "black by design" note read the DDS colours only and missed the blend mode.
+
+**Found (2026-10-22, read-only; Ghidra + byte reads of `unpacked_x2.exe`, nothing mutated).**
+- **The movie.** `Common_CutIn_Frame.gfx` (data152) is byte-identical to June's. Its `frame_effect` sprite (id 11) places chars 7 and 10, the
+  `_I1` sub-image and the `_I8` wedge, with PlaceObject3 blend **12 = Erase**. Sprite 4's colour transforms scale alpha only. Nothing else
+  in the file has a blend mode.
+- **June `33214cd0`** = `D3D9::HAL::applyBlendMode( mode, sourceAc, forceAc )`, HAL vtable `335e09b8` slot `+0x8c` (string `335e0550`).
+  1. `mode > 0xe` -> 0.
+  2. `this+0x2b0` != 0 overrides `mode` (profiler slot, normally 0).
+  3. Modes 3 / 6 set bit 0 of the word at `this+0x4c4`; any other mode clears it.
+  4. **Simple path** when `( this+0x4a4 & 2 ) == 0 && forceAc == 0`. It sets BLENDOP (0xab) = `T12[m].op`, SEPARATEALPHABLENDENABLE (0xce) = 0,
+     SRCBLEND (0x13) = `T20[m].src` (but `sourceAc && src == SRCALPHA` -> ONE), and DESTBLEND (0x14) = `T12[m].dst`.
+  5. **Else** it sets SEPARATEALPHABLENDENABLE = 1, BLENDOP = BLENDOPALPHA (0xd1) = `T20[m].op`, SRCBLEND (same `sourceAc` rule) and DESTBLEND,
+     SRCBLENDALPHA (0xcf) and DESTBLENDALPHA (0xd0), all from `T20`.
+- **Tables** (D3D enum values, not SDK indices):
+  - `T20` = `337493f0`, stride 0x14: op, src, dst, srcA, dstA.
+  - `T12` = `33749520`, stride 0xc: op, `T20`'s src, dst.
+  - Rows 0-14:
+    - None / Normal / Layer / Screen / Difference / Invert / Overlay / Hardlight: `T20` `(1,5,6,2,6)`, `T12` `(1,5,6)`.
+    - Multiply: `(1,9,1,9,1)` / `(1,9,1)`.
+    - Lighten: `(5,5,2,5,2)` / `(5,5,2)`.
+    - Darken: `(4,5,2,5,2)` / `(4,5,2)`.
+    - Add: `(1,5,2,1,2)` / `(1,5,2)`.
+    - Subtract: `(3,5,2,1,2)` / `(3,5,2)`.
+    - Alpha / Erase: `(1,1,1,2,2)` / `(1,1,2)`.
+  - On screen, then, Erase is ADD ZERO / **ONE**: the destination is kept and the shape draws nothing.
+- **Callers.**
+  - PushBlendMode `31ba3ab0` and PopBlendMode `31ba3b30` (slots +0x84 / +0x88) pass `( mode, 0, HALState this+8 bit 0x10 )`. Bit 0x10 is
+    InRenderTarget. They are reached from the queue item `31badc10`.
+  - `this+0x4a4` is `Viewport.Flags`, written only by BeginDisplay `31ba35e0` from the movie viewport. Bit 2 is AlphaComposite.
+  - Nothing remaps or skips 11 / 12. Our viewport flags are 0 (`KTDGGFXManager.cpp:1058`), so cut-ins take the simple path in both clients.
+- **Ours** (SDK 4.2.22; June is 4.0.15).
+  - `D3D9::HAL::applyBlendModeImpl` (`D3D9_HAL.cpp:969`) uses one table for both paths, `HAL::BlendModeTable` (`Render_HAL.cpp:672`).
+  - Its Erase / Alpha rows are ADD, ZERO, **ZERO**, so the colour is written as 0: the black frame (deployed exe file offset `0x185b0f0`).
+  - Multiply (`DESTCOLOR / INVSRCALPHA`), Screen (`INVDESTCOLOR / ONE`) and Invert (`INVDESTCOLOR / INVSRCALPHA`) also differ from June's
+    rows. None, Normal, Layer, Lighten, Darken, Difference, Add, Subtract, Overlay and Hardlight match.
+  - The generic `HAL::applyBlendMode` (`Render_HAL.cpp:~720`) keeps the profiler override and sets `FF_Multiply` for Multiply / **Screen**.
+    June's bit is set for 3 / **6** (Multiply / Darken).
+
+**Port.**
+- Subclass `SFR::D3D9::HAL` in `KTDGGFXManager.cpp` and override the virtual `applyBlendModeImpl( BlendMode, bool, bool )` with
+  `33214cd0`'s body and both June tables, transcribed. Under the flag, `InitLoaderStates` makes the subclass (`:1218`); the `#else` keeps
+  the stock HAL.
+- Modes 15-17 (Overwrite / OverwriteAll / FullAdditive) are 4.2-internal and June has no row for them. Hand them to the base class; do not
+  clamp them to 0.
+- Find what June's `+0x4c4` bit 0 drives (its reader: fill flags / shader choice?). Match the 3 / 6 set inside the override only if it is
+  the same mechanism as our `FF_Multiply`. Otherwise record why not.
+- Port the `+0x2b0` override only if our profiler override is not already the same thing.
+- One line at HAL init: `[JUNE_GFX] MGR blend: June applyBlendMode tables`.
+
+**Done gate.**
+- funcmap rows `(GFx G7)`: `33214cd0`, `31ba3ab0`, `31ba3b30`, `31ba35e0`, `31badc10`, and the two tables.
+- MODS.md line; build + deploy.
+- Play-test:
+  - A real skill cut-in shows the art and the balloon with no black frame, on a right-facing cast and a left-facing cast.
+  - A GFx event scene (`Quest_22329_Start`) still looks as it did.
 
 ## Phase Z - Close-out
 
