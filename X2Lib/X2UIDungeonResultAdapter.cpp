@@ -386,13 +386,8 @@ void CX2StateDungeonGame::JuneResultFill()
 	const float fOldExp = (float)pMyResult->m_nOldEXP;
 	float fOldExpRate = JuneResultClamp01( ( fOldExp - fBase ) / fRange );
 
-	// the ED: the gain, held to what the unit now has above the dungeon-start ED ( state +0x7e8, June-only: 0 here )
-	long long llED = pMyResult->m_nED;
-	{
-		const long long llNowED = (int)kUnitData.m_ED;
-		if ( llNowED < llED + m_llJuneResultStartED )
-			llED = llNowED - m_llJuneResultStartED;
-	}
+	// June caps the gain at the level ED limit ( 328b1880, GameSysVal ) less the start ED; March has no limit table, so June's no-table path
+	const long long llED = pMyResult->m_nED;
 
 	KJuneGfxResultInfo kInfo;
 	kInfo.m_iTotalRank		= (int)pMyResult->m_cTotalRank;
@@ -403,7 +398,7 @@ void CX2StateDungeonGame::JuneResultFill()
 	kInfo.m_iComboRank		= (int)pMyResult->m_cComboRank;
 	kInfo.m_iTechnicalRank	= (int)pMyResult->m_cTechnicalRank;
 	kInfo.m_iBeAttackedRank	= (int)pMyResult->m_cDamagedRank;
-	kInfo.m_iTotalEXP		= const_cast< CX2DungeonGame::DungeonResultUnitInfo* >( pMyResult )->GetTotalExp();	// 327c9390
+	kInfo.m_iTotalEXP		= (int)(float)const_cast< CX2DungeonGame::DungeonResultUnitInfo* >( pMyResult )->GetTotalExp();	// 327c9390, through a float as June ( JUNE_BUGS 407 )
 	kInfo.m_fExpRate		= fExpRate;
 	kInfo.m_fOldExpRate		= fOldExpRate;
 	kInfo.m_bLevelUp		= ( fOldExp < fBase );
@@ -487,8 +482,7 @@ bool CX2DungeonGame::JuneHasObtainedItemPage( unsigned uCount ) const
 	return m_vecJuneObtainedItem.size() >= uCount;
 }
 
-// 327cef20 ( vslot 0x228 ): the item manager's std::sort over the list, by the item grade ( templet nibble +4 >> 0x14 ); an item without a templet never sorts
-// before another ( 327d7300 is the insertion sort June's std::sort uses up to 32 items, which is stable )
+// 327cef20 ( vslot 0x228 ): June's std::sort ( 327d7e30 ) by item grade; unstable above 32 items, a templet-less item never sorts first ( JUNE_BUGS 405 )
 namespace
 {
 	struct KJuneObtainedItemLess
@@ -508,7 +502,7 @@ void CX2DungeonGame::JuneSortObtainedItems()
 {
 	if ( m_vecJuneObtainedItem.empty() == true || g_pData == NULL || g_pData->GetItemManager() == NULL )
 		return;
-	std::stable_sort( m_vecJuneObtainedItem.begin(), m_vecJuneObtainedItem.end(), KJuneObtainedItemLess() );
+	std::sort( m_vecJuneObtainedItem.begin(), m_vecJuneObtainedItem.end(), KJuneObtainedItemLess() );
 }
 
 // notifyCloseResultUI 32eea2c0: June opens the exit box ( 31f1dd70( 1 ) ), R3. In the dev console the widget just closes.

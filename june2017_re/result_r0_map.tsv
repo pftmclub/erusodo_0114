@@ -63,7 +63,7 @@ onTabKeyProcess	binding only (8 B, vtable 33471e28 = SimpleWidget class)	none	D	
 # --- updateDungeonInfo members (AS name <- value offset <- June source -> March source)
 totalRank	+0x08	unit [0x1f] m_cTotalRank	D	R1	KDungeonUnitResultInfo::m_cTotalRank
 sec	+0x0c	resultInfo +0 m_Sec	D	R1	m_nSec
-ED	+0x10	unit [8] m_nED, capped to (unit ED - state +0x7e8) when the unit holds less	D	R1	m_nED; +0x7e8 = ED saved at dungeon start (June-only member, absent -> plain m_nED)
+ED	+0x10	unit [8] m_nED, capped to (level ED limit 328b1880 - state +0x7e8) when over the limit (R1 review)	D	R1	m_nED; +0x7e8 = ED saved at dungeon start (writer 324ccc32); March has no ED-limit table -> plain m_nED
 hitRank	+0x14	unit [0x20] (pkt +0xae)	D	R1	June-only: absent 0
 comboRank / technicalRank / beAttackedRank	+0x18 / +0x1c / +0x20	unit [0x1b] / [0x1c] / [0x1d]	D	R1	m_cComboRank / m_cTechnicalRank / m_cDamagedRank
 totalEXP	+0x24	ftol( (float) 327c9390 )	D	R1	m_nEXP + the 8 bonus EXPs (June-only terms 0)

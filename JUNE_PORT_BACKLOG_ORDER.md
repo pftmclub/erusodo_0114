@@ -688,6 +688,10 @@ the record itself and every field March already reads. The rest has no March own
   is met by the set's equipped parts. They belong to June's socket extraction / apply system (`m_bSocketExtraction` / `m_iSocketApply` / `m_iSocketCondition`, `32883300` /
   `32883450`, item socket count `328836c0`); March's `KItemInfo` has no such fields and the emulator no source. Also here: the usable-expiry part `328823d0` and the equip-group
   set at unit `+0xe40`. Identify and port whole with the socket extraction system; the combat sums already ignore these lists (S7k / S7m).
+- **ED limit by level** (routed from june-result R1 review, 2026-10-22). `LimitsTheMaxEDInfo.lua` (data036, `GameSysVal:AddEDLimitsByLevel( level, a, b )`) fills a
+  per-level map on `g_pData +0x258`; `328b1880` returns the current level's int64 limit (-1 on a miss). Eight readers: item/ED code `3216d8c0`, `328461a0`, `32849da0`,
+  `3286f7b0`, `3286feb0`, `32dd6020`, `32dec9f0`, and the dungeon result `324d60e0`, which caps the shown ED gain at the limit less the ED saved at dungeon start
+  (state `+0x7e8`, writer `324ccc32`; R1 keeps it uncapped, June's no-table path). March has no ED limit at all; offline reach: every ED gain.
 
 Routed elsewhere:
 - the division and render-division tables go to Stage 11;
