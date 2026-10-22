@@ -1398,6 +1398,17 @@ class CX2Game : public CKTDXStage
 #ifdef ELSWORD_WAY_OF_SWORD
 		void						UpdateElswordSkillSlotEffect();
 #endif ELSWORD_WAY_OF_SWORD
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		void						June_RefreshMemoRiseSlot();										/// June 322deb80
+		void						June_ShowMemorizeStatics( const bool* pbShow_ );				/// June 322cf350
+		void						June_MemoRiseSlotFrameMove();									/// June 322f4740
+		void						June_ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ );	/// June 322eca50
+		void						June_ClearAllMemoRiseSlotParticle( const bool bErase_ );		/// June 322ecb60
+		void						June_CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, const float fY_ );	/// June 322f4480
+		bool						June_IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ );	/// June 322cf810
+		void						June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ );	/// June 322cf790
+		void						June_SetMemoRiseTimer( const float& fTime_ ) { m_fJuneMemoRiseTimer = fTime_; }	/// June 322cc030
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 		bool IsFront( CX2GameUnit *pMyUnit, CX2GameUnit *pTargetUnit );
 #endif
@@ -2026,6 +2037,10 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 		float						m_fJuneStateStringTime;		/// June +0xb3c: the state string's display time ( 0 = none )
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >	m_mapJuneMemoRiseParticle;	/// June +0xb28
+		float						m_fJuneMemoRiseTimer;		/// June +0xb38
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		InfoTextManager				m_InfoTextManager;			/// 마나가 부족 하다는 등 화면 가운데에 나오는 메시지
 		bool						m_bSkipKeyPressed;			/// 튜토리얼에서 사용
 		

@@ -479,6 +479,14 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
 - **June's idle timer** (handed here by pilot-char-revamp CH1l, 2026-10-21). User floats `+0x91a8 / +0x91ac` (set @32041ae3 in `3203e850`,
   reset by `CX2GUUser::OnFrameMove` @3206f99d when user vslot 0x828 answers true), read by CX2Game `323022b0`, which shows text `0x4b1f` with the
   remaining time. All classes; the 0x828 base is `CX2GUUser::JuneIsNotCommonMoveState` (CH1l). Identify the screen it drives, then port whole.
+- **June's skill-slot show writers March lacks** (handed here by pilot-char-revamp CH4d, 2026-10-22). UI manager `+0x89` is March's `m_bShowSkillSlot`
+  (setter `32150b70` = `SetShowSkillSlot`, same guard); 8 of June's 16 writers are already March's. Missing: `CX2GUUser::Init` `3204ef16` (dungeon
+  without a riding pet, DCC 8: `SetShowSkillSlot( true )` + `SetShowRidingPetSkillSlot( false )`, anchor `X2GUUser.cpp:1812-1819`); the PvP game ctor
+  `32529e7c` (`true`, after `#endif FIX_OBSERVER_MODE`); the DELETE-key hide `31f036a0` (`31f03719` / `31f03742`, after `ProcessShowMiniMap( bHide )`
+  in `CX2State::ProcessGameScoreAndPostEffect`); `CX2StateMenu` `324617c0`'s UI id `0x2c` branch (gate `31fd0380`). June-only, no March home:
+  photozone states (`324a03ee`, `324a62b5`), the PVE state (`324adbd2`), the tutorial guide manager (`31fc5502`), and `SetShowUI` `32154820`'s guide-step
+  gate and cash-shop early return. Reader that matters now: the class-guide gate `31d71810` (CH4d's `CX2Main::JuneCanShowClassGuide`, Aisha's memorize
+  sparkle; Luciel's `322dd0f0` / `322d8100` / `322d8590` later). Port the four March-reachable writers together.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 

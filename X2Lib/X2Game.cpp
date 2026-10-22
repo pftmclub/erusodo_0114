@@ -262,6 +262,9 @@ m_StateString( L"" ),
 #ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
 m_fJuneStateStringTime( 0.0f ),		/// June ctor 32306600 @323076e6
 #endif SERV_IRUHADEV_JUNE_SKILL_STATE_STRING_TIME
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+m_fJuneMemoRiseTimer( 0.0f ),		/// June ctor @323076da
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 m_bSkipKeyPressed( false ),
 m_pNPCFunc( NULL ),
 m_pDLGMissionOpening( NULL ),
@@ -446,6 +449,13 @@ m_bSkillSlotJustChanged(true)
 				m_pDLGSkillSlot			= new CKTDGUIDialog( this, L"DLG_Game_Skill_Slot.lua" );
 				g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pDLGSkillSlot );
 #endif
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+				{
+					const bool bShowMemorize = false;
+					June_ShowMemorizeStatics( &bShowMemorize );		// June @32307bb4
+					June_ClearAllMemoRiseSlotParticle( true );		// June @32307e99, later in the ctor
+				}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 			}
 		}
 	}
@@ -813,10 +823,17 @@ CX2Game::~CX2Game()
 		&& NULL != g_pData->GetUIManager()->GetUISkillTree()->GetDLGGameSkillSLot() )
 	{
 		g_pData->GetUIManager()->GetUISkillTree()->GetDLGGameSkillSLot()->SetEnable(true);
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		const bool bShowMemorize = false;
+		June_ShowMemorizeStatics( &bShowMemorize );		// June dtor @32308941
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	}
 #ifdef SERV_ADD_CHUNG_SHELLING_GUARDIAN
 	m_vecRemoveDamageEffect.clear();
 #endif
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+	June_ClearAllMemoRiseSlotParticle( true );		// June dtor @32308a9b
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 	bool bLoop      = true;
 	DWORD ret       = NULL;
@@ -2937,6 +2954,10 @@ HRESULT	CX2Game::OnFrameMove( double fTime, float fElapsedTime )
 #endif
 
 		UpdateSkillCoolTime( fElapsedTime );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		if( NULL != GetMyUnit() && NULL != GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == GetMyUnit()->GetUnit()->GetType() )
+			June_MemoRiseSlotFrameMove();		// June @3230901b, right after 322e07e0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 		if( true == g_pKTDXApp->GetDSManager()->GetCapable3DSound() &&
 			true == g_pKTDXApp->GetDSManager()->GetEnable3DSound() )
@@ -13555,6 +13576,346 @@ void CX2Game::UpdateElswordSkillSlotEffect()
 	return;
 }
 #endif ELSWORD_WAY_OF_SWORD
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+// June 322deb80: the memorize slots of the 10-slot dialog for the own Aisha
+void CX2Game::June_RefreshMemoRiseSlot()
+{
+	CX2GUUser* pMyUnit = GetMyUnit();
+	if( NULL == pMyUnit || NULL == pMyUnit->GetUnit() || CX2Unit::UT_ARME != pMyUnit->GetUnit()->GetType() )
+		return;
+
+	CX2GUArme_VioletMage* pArme = static_cast<CX2GUArme_VioletMage*>( pMyUnit );
+	if( true == pArme->June_IsMemoRiseEmpty() )
+	{
+		const bool bShow = false;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO HUD hidden ( no memorized skill )" );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+		June_ShowMemorizeStatics( &bShow );
+		return;
+	}
+
+	const bool bShow = true;
+	June_ShowMemorizeStatics( &bShow );
+
+	if( NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() )
+		return;
+	CKTDGUIDialogType pDLGSkillSlot = g_pData->GetUIManager()->GetUISkillTree()->GetDLGGameSkillSLot();
+	if( NULL == pDLGSkillSlot || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+
+	for( int i = 0; i < 3; ++i )
+	{
+		WCHAR wszSlotName[80] = L"";
+		const WCHAR* pwszHotKeyName = NULL;
+		if( true == g_pMain->GetGameOption().GetIsSkillUITypeA() )
+		{
+			StringCchPrintfW( wszSlotName, ARRAY_SIZE( wszSlotName ), L"Memorize_Slot%d_TypeA", i + 1 );
+			pwszHotKeyName = L"UseMemorizedSkillHotKey_A";
+		}
+		else
+		{
+			StringCchPrintfW( wszSlotName, ARRAY_SIZE( wszSlotName ), L"Memorize_Slot%d_TypeB", i + 1 );
+			pwszHotKeyName = L"UseMemorizedSkillHotKey_B";
+		}
+
+		CKTDGUISlot* pSlot = static_cast<CKTDGUISlot*>( pDLGSkillSlot->GetControl( wszSlotName ) );
+		CKTDGUIStatic* pStaticHotKey = static_cast<CKTDGUIStatic*>( pDLGSkillSlot->GetControl( pwszHotKeyName ) );
+		if( NULL == pSlot )
+			continue;
+
+		const int iSkillID = pArme->June_GetMemoRiseEntry( &i );
+		if( iSkillID < 1 )
+		{
+			pSlot->SetShowEnable( false, false );
+			continue;
+		}
+
+		// June 3288fff0: slot A index i, then slot B index i
+		int iSlotIndex = -1;
+		for( int j = 0; j < 5; ++j )
+		{
+			const CX2UserSkillTree::SkillSlotData* pSlotA = refUserSkillTree.GetSkillSlot( j, false );
+			if( NULL != pSlotA && iSkillID == static_cast<int>( pSlotA->m_eID ) )
+			{
+				iSlotIndex = j;
+				break;
+			}
+			const CX2UserSkillTree::SkillSlotData* pSlotB = refUserSkillTree.GetSkillSlot( j, true );
+			if( NULL != pSlotB && iSkillID == static_cast<int>( pSlotB->m_eID ) )
+			{
+				iSlotIndex = j + 5;
+				break;
+			}
+		}
+		if( -1 == iSlotIndex )
+			break;	// June leaves the loop here, the later slots keep their old state
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO HUD entry %d skill %d equipped slot %d", i, iSkillID, iSlotIndex );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+
+		bool bSlotB = false;
+		if( 4 < iSlotIndex )
+		{
+			iSlotIndex -= 5;
+			bSlotB = true;
+		}
+
+		pSlot->SetSlotData( new CX2MemorizeSkillSlotData( iSlotIndex, bSlotB ) );	// the old slot data leaks, as in June
+		pSlot->SetShowEnable( true, true );
+
+		if( 0 == i && NULL != pStaticHotKey && NULL != pStaticHotKey->GetString( 0 ) )
+			pStaticHotKey->GetString( 0 )->msg = g_pMain->GetKeyPad()->GetKeyString( GAMEACTION_SIT );	// June game action 0x27
+	}
+}
+
+// June 322cf350: hide every memorize static, then show the current UI type's set
+void CX2Game::June_ShowMemorizeStatics( const bool* pbShow_ )
+{
+	if( NULL == m_pDLGSkillSlot )
+		return;
+
+	const WCHAR* apwszAll[] = {
+		L"Static_Memorize_Skill_Slot_TypeA3", L"Static_Memorize_Skill_Slot_TypeA2", L"Static_Memorize_Skill_Slot_TypeA1",
+		L"Static_Memorize_Skill_Slot_TypeB3", L"Static_Memorize_Skill_Slot_TypeB2", L"Static_Memorize_Skill_Slot_TypeB1",
+		L"Memorize_Slot1_TypeA", L"Memorize_Slot2_TypeA", L"Memorize_Slot3_TypeA",
+		L"Memorize_Slot1_TypeB", L"Memorize_Slot2_TypeB", L"Memorize_Slot3_TypeB",
+		L"UseMemorizedSkillHotKey_A", L"UseMemorizedSkillHotKey_B" };
+	for( int i = 0; i < ARRAY_SIZE( apwszAll ); ++i )
+	{
+		CKTDGUIControl* pControl = m_pDLGSkillSlot->GetControl( apwszAll[i] );
+		if( NULL != pControl )
+			pControl->SetShowEnable( false, false );
+	}
+
+	if( true != *pbShow_ )
+		return;
+
+	const WCHAR* apwszTypeA[] = {
+		L"Static_Memorize_Skill_Slot_TypeA3", L"Static_Memorize_Skill_Slot_TypeA2", L"Static_Memorize_Skill_Slot_TypeA1",
+		L"Memorize_Slot1_TypeA", L"Memorize_Slot2_TypeA", L"Memorize_Slot3_TypeA", L"UseMemorizedSkillHotKey_A" };
+	const WCHAR* apwszTypeB[] = {
+		L"Static_Memorize_Skill_Slot_TypeB3", L"Static_Memorize_Skill_Slot_TypeB2", L"Static_Memorize_Skill_Slot_TypeB1",
+		L"Memorize_Slot1_TypeB", L"Memorize_Slot2_TypeB", L"Memorize_Slot3_TypeB", L"UseMemorizedSkillHotKey_B" };
+	const WCHAR** apwszShow = ( true == g_pMain->GetGameOption().GetIsSkillUITypeA() ) ? apwszTypeA : apwszTypeB;
+	for( int i = 0; i < ARRAY_SIZE( apwszTypeA ); ++i )
+	{
+		CKTDGUIControl* pControl = m_pDLGSkillSlot->GetControl( apwszShow[i] );
+		if( NULL != pControl )
+			pControl->SetShowEnable( *pbShow_, false );
+	}
+}
+
+// June 322f4740: the memorize sparkle on the slots a charging Aisha can memorize
+void CX2Game::June_MemoRiseSlotFrameMove()
+{
+	CX2GUUser* pMyUnit = GetMyUnit();
+	if( NULL == pMyUnit || NULL == pMyUnit->GetUnit() || CX2Unit::UT_ARME != pMyUnit->GetUnit()->GetType() )
+		return;
+	if( NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() ||
+		NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return;
+
+	CX2GUArme_VioletMage* pArme = static_cast<CX2GUArme_VioletMage*>( pMyUnit );
+	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+
+	m_fJuneMemoRiseTimer += m_fElapsedTime;
+	const bool bTypeA = g_pData->GetUIManager()->GetUISkillTree()->GetIsSkillUiTypeA();
+	const bool bSwap = g_pData->GetUIManager()->GetUISkillTree()->GetSkillSlotSwap();
+	bool bSlotB = false;
+
+	for( int i = 0; i < 10; ++i )
+	{
+		if( NULL == m_pDLGSkillSlot || false == m_pDLGSkillSlot->GetShow() || false == pArme->June_IsMemoRiseChargeActive() )
+		{
+			June_ClearMemoRiseSlotParticle( i, true );
+			continue;
+		}
+
+		int iIndex = i;
+		if( 4 < iIndex )
+		{
+			iIndex -= 5;
+			bSlotB = true;
+		}
+		if( false == refUserSkillTree.IsJuneSlotUsable( 0 ) && true == bSlotB )
+			break;
+
+		const CX2UserSkillTree::SkillSlotData* pSlotData = refUserSkillTree.GetSkillSlot( iIndex, bSlotB );
+		if( NULL == pSlotData )
+			continue;
+		CKTDGUIStatic* pStaticFade = static_cast<CKTDGUIStatic*>( m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time_Fade" ) );
+		const int iSkillID = static_cast<int>( pSlotData->m_eID );
+		if( true == pArme->June_MemoRiseContains( &iSkillID ) )
+		{
+			June_ClearMemoRiseSlotParticle( i, true );
+			continue;
+		}
+
+		if( true == bSlotB )
+			pStaticFade = static_cast<CKTDGUIStatic*>( m_pDLGSkillSlot->GetControl( L"Static_Skill_Cool_Time_Fade_B" ) );
+
+		bool bShowBar = true;
+		if( false == bTypeA )
+		{
+			if( true == bSwap )
+				bShowBar = ( false != bSlotB );
+			else
+				bShowBar = ( true != bSlotB );
+		}
+
+		if( NULL != pStaticFade && NULL != pStaticFade->GetPicture( iIndex ) && false == pStaticFade->GetPicture( iIndex )->bShow &&
+			true == June_IsMemoRiseSignSlot( pSlotData ) && true == bShowBar )
+		{
+			CKTDGUIControl::CPictureData* pPicture = pStaticFade->GetPicture( iIndex );
+			const D3DXVECTOR2 vDialogPos = pStaticFade->GetDialog()->GetPos();
+			const float fX = pPicture->GetPos().x + vDialogPos.x + pPicture->GetSize().x * 0.5f;
+			const float fCenterY = pPicture->GetPos().y + vDialogPos.y + pPicture->GetSize().y * 0.5f;
+			float fY = fCenterY;
+			if( true == bSwap )
+				fY = ( true == bSlotB ) ? fCenterY + 47.f : fCenterY - 47.f;
+
+			std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >::iterator mit = m_mapJuneMemoRiseParticle.find( i );
+			if( mit != m_mapJuneMemoRiseParticle.end() )
+			{
+				for( UINT k = 0; k < mit->second.size(); ++k )
+				{
+					if( INVALID_PARTICLE_SEQUENCE_HANDLE == mit->second[k] || NULL == g_pData->GetUIMajorParticle() )
+						continue;
+					CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( mit->second[k] );
+					if( NULL == pSeq )
+						continue;
+					const D3DXVECTOR3 vSeqPos = pSeq->GetPosition();
+					const float fDX = fX - vSeqPos.x;
+					const float fDY = fY - vSeqPos.y;
+					if( 0.1f < sqrtf( fDX * fDX + fDY * fDY ) )
+						pSeq->SetPosition( D3DXVECTOR3( fX, fY, 0.f ), true, true );
+				}
+			}
+
+			if( 2.8f <= m_fJuneMemoRiseTimer )
+			{
+				June_ClearMemoRiseSlotParticle( i, true );
+				June_CreateMemoRiseSlotParticle( i, fX, fY );
+			}
+			continue;
+		}
+
+		June_ClearMemoRiseSlotParticle( i, true );
+	}
+
+	if( 2.8f <= m_fJuneMemoRiseTimer )
+		m_fJuneMemoRiseTimer = 0.f;
+}
+
+// June 322eca50: drop slot i's memorize sign and sparkle
+void CX2Game::June_ClearMemoRiseSlotParticle( const int iSlot_, const bool bErase_ )
+{
+	if( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() )
+	{
+		CX2UISkillTreeNew* pUISkillTree = g_pData->GetUIManager()->GetUISkillTree();
+		const bool bSlotB = ( 5 <= iSlot_ );
+		const int iIndex = ( true == bSlotB ) ? iSlot_ - 5 : iSlot_;
+		CX2EquippedSkillSlotData* pEquippedData = pUISkillTree->GetEquippedSlotData( iIndex, bSlotB );	// June 328da5b0 maps 5-9 to bar B itself
+		if( NULL != pEquippedData )
+		{
+			CKTDGUISlot* pSlot = pUISkillTree->GetEquippedSlot( iIndex, bSlotB );
+			if( NULL != pSlot )
+				pEquippedData->ShowSlotPicture( false, pSlot, CX2EquippedSkillSlotData::SESAPT_MEMORIZE, -1, false );
+		}
+	}
+
+	std::map< int, std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > >::iterator mit = m_mapJuneMemoRiseParticle.find( iSlot_ );
+	if( mit == m_mapJuneMemoRiseParticle.end() )
+		return;
+
+	for( UINT k = 0; k < mit->second.size(); ++k )
+	{
+		CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = mit->second[k];
+		if( INVALID_PARTICLE_SEQUENCE_HANDLE != hSeq && NULL != g_pData->GetUIMajorParticle() )
+			g_pData->GetUIMajorParticle()->DestroyInstanceHandle( hSeq );
+	}
+	mit->second.clear();
+	if( true == bErase_ )
+		m_mapJuneMemoRiseParticle.erase( mit );
+}
+
+// June 322ecb60: 322eca50 for all ten slots
+void CX2Game::June_ClearAllMemoRiseSlotParticle( const bool bErase_ )
+{
+	for( int i = 0; i < 10; ++i )
+		June_ClearMemoRiseSlotParticle( i, bErase_ );
+}
+
+// June 322f4480: the sign on slot i and five Aisha_Memorise_P0n sparkles at ( x, y )
+void CX2Game::June_CreateMemoRiseSlotParticle( const int iSlot_, const float fX_, const float fY_ )
+{
+	const bool bShowSign = true;
+	June_ShowMemoRiseSign( &iSlot_, &bShowSign );
+
+	std::vector< CKTDGParticleSystem::CParticleEventSequenceHandle > vecHandle;
+	for( int k = 1; k <= 5; ++k )
+	{
+		WCHAR wszName[256] = L"";
+		StringCchPrintfW( wszName, ARRAY_SIZE( wszName ), L"Aisha_Memorise_P0%d", k );
+		if( NULL == g_pData->GetUIMajorParticle() )
+			continue;
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->CreateSequence( NULL, wszName, fX_, fY_, 0.f );
+		if( NULL == pSeq || INVALID_PARTICLE_SEQUENCE_HANDLE == pSeq->GetHandle() )
+			continue;
+		CKTDGParticleSystem::CParticleEventSequenceHandle hSeq = pSeq->GetHandle();
+		CKTDGParticleSystem::CParticleEventSequence* pInstance = g_pData->GetUIMajorParticle()->GetInstanceSequence( hSeq );
+		if( NULL == pInstance )
+			continue;
+		pInstance->SetOverUI( true );
+		vecHandle.push_back( hSeq );
+	}
+
+	if( m_mapJuneMemoRiseParticle.end() != m_mapJuneMemoRiseParticle.find( iSlot_ ) )
+		June_ClearMemoRiseSlotParticle( iSlot_, true );
+	m_mapJuneMemoRiseParticle.insert( std::make_pair( iSlot_, vecHandle ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO sparkle slot %d at ( %.0f, %.0f ), %u sequence(s)", iSlot_, fX_, fY_, static_cast<UINT>( vecHandle.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+}
+
+// June 322cf810: may the slot's skill take the memorize sign now
+bool CX2Game::June_IsMemoRiseSignSlot( const CX2UserSkillTree::SkillSlotData* pSlotData_ )
+{
+	if( false == g_pMain->JuneCanShowClassGuide( 3 ) )
+		return false;
+	CX2GUUser* pMyUnit = GetMyUnit();
+	if( NULL == pMyUnit || NULL == pSlotData_ )
+		return false;
+
+	const int iSkillID = static_cast<int>( pSlotData_->m_eID );
+	CX2GUArme_VioletMage* pArme = static_cast<CX2GUArme_VioletMage*>( pMyUnit );
+	if( false == pArme->June_IsMemorizableSkill( &iSkillID ) )
+		return false;
+	// vslot 0x714 is June's shared return-false stub 331a4950 for Aisha
+	if( false == pArme->June_IsMemoRiseChargeActive() )
+		return false;
+	return g_pKTDXApp->GetDGManager()->GetDialogManager()->GetShow();
+}
+
+// June 322cf790: show or hide the memorize sign on equipped slot i ( 0-9 )
+void CX2Game::June_ShowMemoRiseSign( const int* piSlot_, const bool* pbShow_ )
+{
+	if( NULL == g_pData->GetUIManager() || NULL == g_pData->GetUIManager()->GetUISkillTree() )
+		return;
+	CX2UISkillTreeNew* pUISkillTree = g_pData->GetUIManager()->GetUISkillTree();
+	const bool bSlotB = ( 4 < *piSlot_ );
+	const int iIndex = ( true == bSlotB ) ? *piSlot_ - 5 : *piSlot_;
+	CX2EquippedSkillSlotData* pEquippedData = pUISkillTree->GetEquippedSlotData( iIndex, bSlotB );	// June 328da5b0 maps 5-9 to bar B itself
+	if( NULL == pEquippedData )
+		return;
+
+	CKTDGUISlot* pSlot = pUISkillTree->GetEquippedSlot( iIndex, bSlotB );
+	if( NULL != pSlot )
+		pEquippedData->ShowSlotPicture( *pbShow_, pSlot, CX2EquippedSkillSlotData::SESAPT_MEMORIZE, -1, false );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 void CX2Game::UpdateEveElectraSkillSlotIcon()
 {
 	const CX2Unit::UNIT_CLASS eUnitClass = g_pData->GetMyUser()->GetSelectUnit()->GetClass();
@@ -14440,6 +14801,16 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 										}									
 									}
 									g_pKTDXApp->GetDeviceManager()->PlaySound( L"Skill_Refresh.ogg", false, false );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+									if( NULL != GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == GetMyUnit()->GetUnit()->GetType() && true == June_IsMemoRiseSignSlot( pSlotData ) )
+									{
+										const bool bShowSign = true;
+										June_ShowMemoRiseSign( &i, &bShowSign );		// June 322e07e0 @322e1bcc
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+										CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO sign slot %d ( cool time ended while charging )", i );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+									}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 									
 								}
 								pStatic_Skill_Cool_Time_Fade->GetPicture(iSlotIndex)->bShow = false;

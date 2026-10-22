@@ -814,6 +814,11 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void ChargeMPEndFuture();
 		void ChargeMPEnd();
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		friend class CX2Game;					// June calls the memorize members as public CX2GUUser virtuals
+		friend class CX2MemorizeSkillSlotData;
+		friend class CX2SkillTree;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 		//{{ Iruha : 2026-10-20 // June character pilot Phase CH1a ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June transcriptions of Aisha's movement / slot-head states ( class map phase CH1a ). Nothing registers or calls them

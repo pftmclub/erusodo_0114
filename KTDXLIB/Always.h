@@ -9821,3 +9821,26 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE and SERV_IRUHADEV_OFFLINE
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: Aisha's memorize HUD ( pilot CH4d ): CX2Game 322deb80 / 322f4740 and helpers, the 10-slot dialog statics, slot data type 5, the memorize sign, mouse-in 29059, the tooltip line, the gate 31d71810, the decide ACK sweep. Revert: undefine the flag ( JUNE_CHAR_ARME_MEMORIZE ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_CORE ) || !defined( ADD_MEMO_1ST_CLASS ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TREE_UI ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_UI ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE needs SERV_IRUHADEV_JUNE_CHAR_ARME_CORE, ADD_MEMO_1ST_CLASS, SERV_IRUHADEV_JUNE_SKILL_TREE_UI and SERV_IRUHADEV_JUNE_SKILL_SLOT_UI
+#endif
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ) && ( !defined( SERV_IRUHADEV_JUNE_GFX_EVENTSCENE ) || !defined( SERV_IRUHADEV_JUNE_QUEST_MOVIE ) || !defined( RIDING_SYSTEM ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE needs SERV_IRUHADEV_JUNE_GFX_EVENTSCENE, SERV_IRUHADEV_JUNE_QUEST_MOVIE and RIDING_SYSTEM
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: Temporary ( pilot CH4d ) - [JUNE_CHAR] ARME MEMO lines: HUD refresh entries, sparkle, sign, timer, hover, tooltip line. Retire in the CH4d review.
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ) || !defined( SERV_IRUHADEV_OFFLINE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE and SERV_IRUHADEV_OFFLINE
+#endif
+//////////////////////////////////////////////////////////////////////////

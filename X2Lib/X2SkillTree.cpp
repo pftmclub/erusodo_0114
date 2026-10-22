@@ -4523,6 +4523,13 @@ bool CX2SkillTree::Handler_EGS_DECIDE_TO_USE_THIS_SKILL_PAGE_ACK( HWND hWnd, UIN
 		{
 			g_pX2Game->GetMyUnit()->SetCanNotInputTime_LUA( 0.5f );
 			g_pX2Game->GetMyUnit()->InitEquippedActiveSkillState( false );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+			if ( NULL != g_pX2Game->GetMyUnit()->GetUnit() && CX2Unit::UT_ARME == g_pX2Game->GetMyUnit()->GetUnit()->GetType() )
+			{
+				const bool bRefresh = true;
+				static_cast<CX2GUArme_VioletMage*>( g_pX2Game->GetMyUnit() )->June_SweepMemoRise( &bRefresh );	// June @3220f4dc
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		}
 
 		/// 3264ad40 ( CX2User::ChangeEquippedSkillState ) for every bar-A entry, then, when slot-state key 0 is above 0 ( 32890ea0 ), every

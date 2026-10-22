@@ -2792,6 +2792,9 @@ public:
 	void			JuneCheckClearMovieEnd();											/// June CX2Main::OnFrameMove 31d90300 @31d91398-31d91419
 	bool			JuneIsClearMoviePlaying() const { return m_bJuneClearMoviePlaying; }	/// June g_pMain +0x80a
 	void			JuneClearClearMoviePlaying() { m_bJuneClearMoviePlaying = false; }		/// June 324d9f80 @324dadc2 ( dungeon game ctor )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+	bool			JuneCanShowClassGuide( const int iGuide_ );							/// June 31d71810
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 private:
 	vector<JuneClearMovieTemplet>	m_vecJuneClearMovieTemplet;		/// +0x7f8

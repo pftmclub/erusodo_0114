@@ -4896,6 +4896,14 @@ Flags `SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS` (engine), CH4a's `SERV_IRUHADEV_JU
 - **Save.** Unit 51 `ArmeEM` carries Cyclone upgrade 22051 in slot 2, where Meteor Shower upgrade 22047 was (backup `db_backup/els_db_20261022_091244_pre_sql.sql`). No schema change.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG`. Then comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (CH4a's half goes with it) and `SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS`. Then `touch X2Lib/stdafx.cpp` and `python tools/build.py --deploy`. No data change.
 
+### June character pilot: Aisha's memorize HUD (pilot-char-revamp CH4d, 2026-10-22)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE` and `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG` (temporary) in `KTDXLIB/Always.h`; slot data type `SDT_JUNE_MEMORIZE` in `KTDXLIB/KTDGUISlot.h`. Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH4d - Done"; log lines `[JUNE_CHAR] ARME MEMO ...`.
+- **HUD.** `CX2Game` gets June's memorize slots of the 10-slot dialog (`322deb80`, statics `322cf350`), the per-frame sparkle pass on slots a charging Aisha can memorize (`322f4740`, `Aisha_Memorise_P01`-`P05`, the `+0xb38` timer and the `+0xb28` particle map), and the memorize sign on equipped slots (`322cf790`, also at a cool-time end while charging). The gate is June's `CX2Main::JuneCanShowClassGuide` (`31d71810`); its last test reads March's own `m_bShowSkillSlot` (June UI manager `+0x89`).
+- **Tree UI.** Slot data type 5 `CX2MemorizeSkillSlotData` (`328d9ac0` / `328e0f10`), the `SESAPT_MEMORIZE` picture (`328e0460` case 2), the 29059 mouse-in without June's write over the slot (JUNE_BUGS 400, user 2026-10-22), the tooltip's memorize line (`328e9160 @328e9710`), and a refresh after every slot swap (`328e0ff0`).
+- **Callers.** Aisha's two stand-ins (`June_GameRefreshMemoRise`, `June_SetGameFloatB38`) now call CX2Game; the skill-page decide ACK sweeps the list (`3220f4dc`); saving the key settings refreshes the hot-key label (`31f5ea00`).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG`, then `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
 ### Dev convenience: free skills for a dev account in June-ported classes (JUNE_DEV_UNLIMITED_SKILL, 2026-10-22)
 
 Flag `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` in `KTDXLIB/Always.h`. Not June: `CX2GUUser::JuneIsDevUnlimitedSkillUse()` is March's in-house skip of the skill cool-time / MP checks (`TOGGLE_UNLIMITED_SKILL_USE`, else `#ifndef _SERVICE_` with `XUAL_DEV`), and a ported class's June skill check (Aisha's `June_SpecialAttackLookup`) skips its block when it is true. Standing rule for every class port (`JUNE_PORT_BACKLOG_ORDER.md` "Standing rules").

@@ -180,6 +180,11 @@ const wstring CX2KeyPad::KEYPAD_STRING[CX2KeyPad::KBI_END] =
 			{
 				SaveSlotData();
 				ShowKeyPad( false );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+				if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() && NULL != g_pX2Game->GetMyUnit()->GetUnit() &&
+					 CX2Unit::UT_ARME == g_pX2Game->GetMyUnit()->GetUnit()->GetType() )
+					g_pX2Game->June_RefreshMemoRiseSlot();	// June 31f5ea00 @31f5ede5
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 				return true;
 			} break;

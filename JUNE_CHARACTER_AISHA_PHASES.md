@@ -2253,6 +2253,44 @@ An Aisha unit logs `open mind level 0, delegate not registered`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,723,904 B, dated 2026-10-22 09:59:11, md5 711725940a645ee23b5f20ff2ab4109d, equal to X2/US_SERVICE/x2.exe (2026-10-22 09:59:04); built at main 3ead589e + 1 uncommitted code file(s).` `cool time` / `mp consume` are no longer in the exe; CH4a's `open mind` still is.
 **In game:** nothing new to see. The `[JUNE_CHAR] ARME SKILL` override lines stop; the overrides themselves run unchanged.
 
+### CH4d - Done (2026-10-22, Opus 5.5)
+
+**Landed** under new flags `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE` and `..._MEMORIZE_DEBUG` (temporary). Rows are in `funcmap.tsv` ("Char CH4d"), and the quirks are JUNE_BUGS 400-402.
+- **CX2Game.** The memorize HUD `322deb80` and its statics `322cf350`. The per-frame sparkle pass `322f4740`, called after `UpdateSkillCoolTime` as June calls it after `322e07e0`. Its helpers:
+  - `322eca50` / `322ecb60` clear one or all slots, called from the constructor and the destructor.
+  - `322f4480` creates the five `Aisha_Memorise_P0n` sparkles.
+  - `322cf790` shows the sign. It also shows when a cool time ends during the charge (`@322e1bcc`).
+  - `322cf810` tests a slot.
+  - `322cc030` is the `+0xb38` timer. The `+0xb28` particle map is new.
+  - Aisha's two stand-ins (`June_GameRefreshMemoRise`, `June_SetGameFloatB38`) now call these.
+- **CX2Main.** `JuneCanShowClassGuide` = June `31d71810`. Ghidra's decompile of it is wrong; the port follows the raw disassembly. Its last test reads UI manager `+0x89`. An earlier lookup called that byte June-only; it is March's `m_bShowSkillSlot`, whose setter `32150b70` = `SetShowSkillSlot`. The user's "port the byte" therefore needed no new member.
+- **Tree UI.**
+  - Slot data type 5 is `CX2MemorizeSkillSlotData` (`328d9ac0` / `328e0f10`, slot `+0x340` = `m_bDragable`), with the new enum value `SDT_JUNE_MEMORIZE`.
+  - `SESAPT_MEMORIZE` is added in both branches of `328e0460`. Its block test `328df840` is always false: Aisha's vslot `0x714` is June's stub `331a4950`.
+  - The tooltip line `328e9160 @328e9710`. `+0x170` is `m_iWOSType`, and action `0x27` is `GAMEACTION_SIT`.
+  - A refresh in `SwapSkillSlot`: `328e0ff0` is the swap, not a TC helper.
+- **29059** (`328ec719`). June writes STR 44613 over the slot control itself. The user decided (2026-10-22): run the case, drop the write (JUNE_BUGS 400).
+- **Callers.** The decide-ACK sweep `3220f4dc` (7ak), and the key-save refresh `31f5ea00` case `0xcf0c` (= `KPUIM_SAVE`).
+- **Not ported.**
+  - `32ce1650` is reached only from `328df9f0`, which has no caller anywhere in the file: dead in June.
+  - The install / G-Core tail of `328e0ff0` stays with checklist 7aj (Add / Rose).
+  - Type 6 and 29078 are Luciel's (Stage 8).
+- **Drift.** The four March-reachable June writers of `m_bShowSkillSlot` that March lacks (`3204ef16`, `32529e7c`, `31f036a0`, `324617c0`), plus the June-only ones, go to a Stage 9 bullet in `JUNE_PORT_BACKLOG_ORDER.md`.
+
+**Hygiene.** `flagcheck JUNE_CHAR_ARME_MEMORIZE --with ..._DEBUG --worktree`: `files: 8 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 3 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The three bare `#endif`s close the `#error` guards in `Always.h`, which is the house style. A `cl /EP` probe shows both flags and every dependency on.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,734,144 B, dated 2026-10-22 10:49:13, md5 bee268918c0498cf469e36de5d37f205, equal to X2/US_SERVICE/x2.exe (2026-10-22 10:49:05); built at main 51974daf + 12 uncommitted code file(s).`
+The strings `Aisha_Memorise_P0%d`, `Memorize_Slot%d_TypeA`, `AISHA_MEMORIZE_SIGN` and `[JUNE_CHAR] ARME MEMO HUD entry` are in the deployed exe.
+
+**In game** (unit 51 `ArmeEM`; Aisha's actives 22000-22069 are WOS type 3):
+- Stand still: the MP charge starts at 0.5 s, and at 2 s (1.5 s into the charge) the equipped memorizable slots sparkle.
+- A skill key pressed then memorizes the skill. The HUD shows up to three memorized icons; the first slot carries the Sit key's name, and Sit casts it.
+- The tooltip of an Aisha active ends with the memorize line.
+- Hovering a memorize slot shows nothing (JUNE_BUGS 400).
+
+**Open questions:** none.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

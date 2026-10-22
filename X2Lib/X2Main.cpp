@@ -17630,3 +17630,27 @@ void CX2Main::JuneOnExitTutorialRestoreKeys()
 	}
 }
 #endif SERV_IRUHADEV_JUNE_TUTORIAL_MODE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+// June 31d71810: may a class HUD guide show now ( guide 1-7; the id is only range-checked )
+bool CX2Main::JuneCanShowClassGuide( const int iGuide_ )
+{
+	if( iGuide_ <= 0 || 7 < iGuide_ )
+		return true;
+	if( NULL != g_pData && true == g_pData->JuneIsEventScenePlaying() )
+		return false;
+	if( XS_DUNGEON_GAME == GetNowStateID() && NULL != GetNowState() &&
+		true == static_cast<CX2StateDungeonGame*>( GetNowState() )->GetDungeonEndingEvent()->m_bStarted )
+		return false;
+	if( true == JuneIsClearMoviePlaying() )
+		return false;
+	if( XS_BATTLE_FIELD == GetNowStateID() && NULL != g_pInstanceData && NULL != g_pInstanceData->GetMiniMapUI() &&
+		NULL != g_pInstanceData->GetMiniMapUI()->GetWorldMapUI() && true == g_pInstanceData->GetMiniMapUI()->GetWorldMapUI()->GetShow() )
+		return false;
+	if( NULL != CX2RidingPetManager::GetInstance() && true == CX2RidingPetManager::GetInstance()->GetRidingOn() )
+		return false;
+	if( NULL == g_pData || NULL == g_pData->GetUIManager() || false == g_pData->GetUIManager()->GetShowSkillslot() )	// June UI manager +0x89
+		return false;
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE

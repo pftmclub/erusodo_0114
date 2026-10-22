@@ -21531,7 +21531,15 @@ namespace
 	/// here ( CH1 / Opus ). Called by 32cd1830 with 2.8.
 	void June_SetGameFloatB38( const float& fValue_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		if( NULL != g_pX2Game )
+			g_pX2Game->June_SetMemoRiseTimer( fValue_ );	// June 32cd1830 @32cd204d
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO timer set %.2f ( charge 1.5 s )", fValue_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		UNREFERENCED_PARAMETER( fValue_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	}
 }
 
@@ -28162,6 +28170,10 @@ namespace
 	/// June 322deb80: CX2Game redraws the MemoRise slots ( unmapped engine callee ); a no-op until it is ported ( CH1 / Opus ).
 	void June_GameRefreshMemoRise()
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		if( NULL != g_pX2Game )
+			g_pX2Game->June_RefreshMemoRiseSlot();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	}
 }
 

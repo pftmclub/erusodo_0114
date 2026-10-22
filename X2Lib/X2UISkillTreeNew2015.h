@@ -385,4 +385,19 @@ public:
 private:
 	void SetLockedSlotUI( CKTDGUISlot* pSlot, const bool bLocked_ );	/// 328e1830
 };
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+// June slot data type 5 ( vt 334c2eac ): an Aisha memorize slot of the 10-slot dialog
+class CX2MemorizeSkillSlotData : public CKTDGUISlotData
+{
+public:
+	CX2MemorizeSkillSlotData( int index, bool bSlotb );		/// June 328d9ac0
+	virtual ~CX2MemorizeSkillSlotData() {}
+	virtual void UpdateUI( CKTDGUISlot* pSlot );			/// June 328e0f10
+
+	CX2SkillTree::SKILL_ID	m_eSkillID;		/// +0x0c
+	int						m_iIndex;		/// +0x10
+	bool					m_bSlotb;		/// +0x14
+};
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 #endif SERV_IRUHADEV_JUNE_SKILL_TREE_UI

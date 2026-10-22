@@ -688,6 +688,15 @@ void CX2EquippedSkillSlotData::SetLockedSlotUI( CKTDGUISlot* pSlot, const bool b
 	/// is character material: handed to the checklist with 328e0aa0.
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+/// June 328df840: true hides the memorize sign; the own Aisha asks vslot 0x714, which is June's return-false stub 331a4950
+static bool JuneIsMemorizeSignBlocked( const int iSkillID_ )
+{
+	UNREFERENCED_PARAMETER( iSkillID_ );
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+
 /// June 328e0460 ( type 2, the Aisha memorize sign, is character material and not built here )
 void CX2EquippedSkillSlotData::ShowSlotPicture( bool bShow, CKTDGUISlot* pSlot, SKILL_EQUIPPED_SLOT_ADD_PICTURE_TYPE eType, int val /*= -1*/, bool bIsSkillLevelUpByItem /*= false*/ )
 {
@@ -706,12 +715,30 @@ void CX2EquippedSkillSlotData::ShowSlotPicture( bool bShow, CKTDGUISlot* pSlot, 
 			pPicture->pPoint->color = D3DXCOLOR( 1, 1, 1, 1 );
 			pPicture->SetColor( true == bIsSkillLevelUpByItem ? D3DXCOLOR( 0.2f, 1.0f, 0.2f, 1.f ) : D3DXCOLOR( 1, 1, 1, 1 ) );
 		}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+		else if ( true == bShow && SESAPT_MEMORIZE == eType )
+		{
+			if ( true == JuneIsMemorizeSignBlocked( static_cast<int>( m_eSkillID ) ) )
+			{
+				pPicture->SetShow( false );
+				return;
+			}
+			if ( false == pPicture->SetTex( L"DLG_UI_Common_Texture63_NEW.tga", L"AISHA_MEMORIZE_SIGN" ) )
+				pPicture->SetTex( L"NoAlphaImage.dds" );
+			pPicture->pPoint->color = D3DXCOLOR( 1, 1, 1, 1 );
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 		pPicture->SetShow( bShow );
 		return;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+	if ( false == bShow )
+		return;
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 	if ( false == bShow || SESAPT_MEMORIZE == eType )
 		return;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 	pPicture = new CKTDGUIControl::CPictureData();
 	CKTDGUIControl::UIPointData* pPoint = new CKTDGUIControl::UIPointData( pSlot->GetNowPoint() );
@@ -741,6 +768,24 @@ void CX2EquippedSkillSlotData::ShowSlotPicture( bool bShow, CKTDGUISlot* pSlot, 
 			pPicture->SetColor( true == bIsSkillLevelUpByItem ? D3DXCOLOR( 0.2f, 1.0f, 0.2f, 1.f ) : D3DXCOLOR( 1, 1, 1, 1 ) );
 		} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+	case SESAPT_MEMORIZE:
+		{
+			if ( true == JuneIsMemorizeSignBlocked( static_cast<int>( m_eSkillID ) ) )
+			{
+				pPicture->SetShow( false );	// June never adds this picture, so it leaks
+				return;
+			}
+			if ( false == pPicture->SetTex( L"DLG_UI_Common_Texture63_NEW.tga", L"AISHA_MEMORIZE_SIGN" ) )
+				pPicture->SetTex( L"NoAlphaImage.dds" );
+			pPicture->pPoint->color = D3DXCOLOR( 1, 1, 1, 1 );
+			const D3DXVECTOR2 vPos = pPicture->GetPos();
+			pPicture->SetPos( D3DXVECTOR2( vPos.x - 1.f, vPos.y - 1.f ) );
+			pPicture->SetSizeX( pPicture->GetSize().x + 2.f );
+			pPicture->SetSizeY( pPicture->GetSize().y + 2.f );
+		} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+
 	default:
 		break;
 	}
@@ -748,6 +793,51 @@ void CX2EquippedSkillSlotData::ShowSlotPicture( bool bShow, CKTDGUISlot* pSlot, 
 	pSlot->AddPicture( static_cast<int>( eType ), pPicture );
 	pPicture->SetShow( bShow );
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+/////////////////////////////////////////////////////////////////////////
+// CX2MemorizeSkillSlotData : slot data type 5 ( vt 334c2eac )
+/////////////////////////////////////////////////////////////////////////
+
+CX2MemorizeSkillSlotData::CX2MemorizeSkillSlotData( int index, bool bSlotb )
+{
+	m_eSlotDataType	= SDT_JUNE_MEMORIZE;
+	m_bDataUpdated	= true;
+	m_eSkillID		= CX2SkillTree::SI_NONE;
+	m_iIndex		= index;
+	m_bSlotb		= bSlotb;
+}
+
+/// June 328e0f10: the equipped skill's icon, or the memorize list is swept ( 328df930 )
+/*virtual*/ void CX2MemorizeSkillSlotData::UpdateUI( CKTDGUISlot* pSlot )
+{
+	if ( NULL == pSlot || NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() ||
+		 NULL == g_pData->GetSkillTree() || CX2Unit::UT_ARME != g_pData->GetMyUser()->GetSelectUnit()->GetType() )
+		return;
+
+	const CX2UserSkillTree& refUserSkillTree = g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_UserSkillTree;
+	const CX2UserSkillTree::SkillSlotData* pSkillData = refUserSkillTree.GetSkillSlot( m_iIndex, m_bSlotb );
+	if ( NULL != pSkillData )
+	{
+		m_eSkillID = pSkillData->m_eID;
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( m_eSkillID );
+		if ( NULL != pSkillTemplet && 0 < refUserSkillTree.GetSkillLevel( m_eSkillID, true, 0, true ) && 0 < static_cast<int>( m_eSkillID ) )
+		{
+			pSlot->SetItemTex( pSkillTemplet->m_wstrIconName.c_str(), pSkillTemplet->m_wstrIconPieceName.c_str() );
+			pSlot->SetDragable( false );
+			return;
+		}
+	}
+
+	/// 328df930: the own unit sweeps its memorize list ( 32ce1770, refresh on )
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetMyUnit() && NULL != g_pX2Game->GetMyUnit()->GetUnit() &&
+		 CX2Unit::UT_ARME == g_pX2Game->GetMyUnit()->GetUnit()->GetType() )
+	{
+		const bool bRefresh = true;
+		static_cast<CX2GUArme_VioletMage*>( g_pX2Game->GetMyUnit() )->June_SweepMemoRise( &bRefresh );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 /////////////////////////////////////////////////////////////////////////
 // CX2UISkillTreeNew
@@ -3176,6 +3266,10 @@ void CX2UISkillTreeNew::SwapSkillSlot(bool bVal, bool bForce/* = false*/)
 	{
 		SwapSkillSlotTypeB( bVal, bForce );
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+	if ( NULL != g_pX2Game )
+		g_pX2Game->June_RefreshMemoRiseSlot();	// June 328e0ff0 @328e1097
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 }
 
 void CX2UISkillTreeNew::SetOffsetPosSkillSLotStatic(const D3DXVECTOR2& vPos_, const D3DXVECTOR2& vAddPos_/* = D3DXVECTOR2(0,0)*/)
@@ -4223,6 +4317,21 @@ void CX2UISkillTreeNew::ShowSkillDesc( bool bShow, CX2SkillTree::SKILL_ID eSkill
 
 	/// @328e9710: Aisha ( unit type 2 ): a skill whose templet +0x170 is 3 gets "\n\n" + STR 30357 with the key of game action 0x27
 	/// ( 32205af0, 31f5ee50 ). March's templet has no +0x170 field: character material ( checklist ).
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+	if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+		 CX2Unit::UT_ARME == g_pData->GetMyUser()->GetSelectUnit()->GetType() && NULL != g_pData->GetSkillTree() )
+	{
+		const CX2SkillTree::SkillTemplet* pMemorizeTemplet = g_pData->GetSkillTree()->GetSkillTemplet( pSkillTemplet->m_eID );
+		if ( NULL != pMemorizeTemplet && 3 == pMemorizeTemplet->m_iWOSType )	// June +0x170 is m_iWOSType ( 32205af0 )
+		{
+			wstrMain += L"\n\n";
+			wstrMain += GET_REPLACED_STRING( ( STR_ID_30357, "L", g_pMain->GetKeyPad()->GetKeyString( GAMEACTION_SIT ) ) );	// June game action 0x27
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO tooltip line skill %d", static_cast<int>( pSkillTemplet->m_eID ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 	wstrMain += L"\n";
 
@@ -4500,6 +4609,25 @@ bool CX2UISkillTreeNew::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
 	case STUCM_TRANSFORM_SKILL_SLOT_MOUSEOUT:	/// 328eba62
 		ShowSkillDesc( false );
 		return true;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
+	case STUCM_MEMORIZE_SKILL_SLOT_MOUSEIN:		/// 328ec719
+		{
+			CKTDGUISlot* pSlot = reinterpret_cast<CKTDGUISlot*>( lParam );
+			if ( NULL == pSlot || NULL == pSlot->GetSlotData() || static_cast<CX2MemorizeSkillSlotData*>( pSlot->GetSlotData() )->m_eSkillID <= 0 )
+				return true;
+			if ( NULL == g_pX2Game || NULL == g_pX2Game->GetMyUnit() )
+				return true;
+			const double dRate = ( static_cast<double>( g_pX2Game->GetMyUnit()->GetCharacterSpecializationA() ) + 1.0 ) * 0.7f * 100.0;
+			const wstring wstrRate = GET_REPLACED_STRING( ( 44613, "f", dRate ) );	// June then writes this over the slot object itself ( JUNE_BUGS ): dropped
+			UNREFERENCED_PARAMETER( wstrRate );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARME MEMO hover skill %d rate %.1f ( text dropped, JUNE_BUGS 400 )",
+				static_cast<int>( static_cast<CX2MemorizeSkillSlotData*>( pSlot->GetSlotData() )->m_eSkillID ), dRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+		}
+		return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE
 
 #ifdef SERV_IRUHADEV_JUNE_SKILL_PAGE
 	/// June's page cases: 29049 328ec068 ( all three Skill_Page radios send it ), 29052 328ec1ef, 29053 328ec3ff, 29055 328ec48e,

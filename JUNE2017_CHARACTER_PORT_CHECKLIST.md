@@ -794,7 +794,7 @@ S6 loads June's `DLG_GAME_SKILL_SLOT_NEW_10slot` and ports its generic parts (sl
 in March drives them, so a class port that needs one shows it and feeds it from its own unit code (June's driver is `CX2Game` `322cd5c0`-`322e07e0`, looping slots 0-9 with `3214f3d0`):
 - `Static_EL_SKILL_B(_B)` / `_R(_B)` (Elsword way of sword; March's `CX2Game::UpdateElswordSkillSlotEffect` already drives them, now over 10 slots), `Static_RoseGlow(_B)` (Rose), `Static_EveRecoveryGuide` / `_Cooltime` /
   `Button_EveRecoveryToolTip`, `Static_LucielSwitchingGuide` / `g_pStatic_LucielCooltime`, `Static_AinDisparateForceGuide` / `g_pStatic_AinCooltime` / `Button_AinDisparateForce` (Ain), the memorize slots
-  `Static_Memorize_Skill_Slot_TypeA1-3` / `TypeB1-3`, `Memorize_Slot1-3_TypeA/B`, `UseMemorizedSkillHotKey_A/B` (Aisha; needs `STUCM_MEMORIZE_SKILL_SLOT_MOUSEIN` = 29059, already in Enum.lua), and `Static_Install_Skill` /
+  `Static_Memorize_Skill_Slot_TypeA1-3` / `TypeB1-3`, `Memorize_Slot1-3_TypeA/B`, `UseMemorizedSkillHotKey_A/B` (Aisha; needs `STUCM_MEMORIZE_SKILL_SLOT_MOUSEIN` = 29059, already in Enum.lua; Aisha: CH4d, driven by `CX2Game::June_RefreshMemoRiseSlot` `322deb80` and `June_ShowMemorizeStatics` `322cf350`), and `Static_Install_Skill` /
   `Static_GCore_Skill` (10 pictures each; June toggles them per slot through `328e0290` for classes 9 and 0xb).
 - `Button_V_Key_ToolTip` (the character-system V key) needs `GAGE_UI_CUSTOM_MSG.STUCM_CHARACTER_SYSTEM_TOOLTIP_ON/OFF` handling (54002 / 54003 exist in Enum.lua only), which March has no feature for.
 - The TC buy-guide buttons send `SMUCM_DISABLED_TRANSCENDENTAL_SKILL_SLOT_MOUSE_UP` / `_EXPAND_..._MOUSE_UP` (208 / 209 here, June 182 / 183); `CX2StateMenu` only logs the click until Stage 6 gives them a transcendence guide.
@@ -823,10 +823,11 @@ S7b ports June's skill tree UI (`CX2UISkillTreeNew2015`). These parts of its cla
 - **Install / G-Core marks** `328e0290`: classes 9 and 0xb toggle `Static_Install_Skill` / `Static_GCore_Skill` per slot through the game unit's vslot 0x71c.
 - **Slot data types 5 and 6** (`328d9ac0` / `328e0f10` Aisha memorize slots, ctor caller `322deb80`; `328d9b00` / `328da050` Luciel transform slot, caller `3200f380`), the equipped slot's
   `SESAPT_MEMORIZE` picture (`328e0460` case 2, `AISHA_MEMORIZE_SIGN`, `328df840` through vslot 0x714), the memorize mouse-in case 29059 (`328ec719`) and the transform-slot cases 29078 / 29079 (`328ed6a8`; 29079 only hides the tooltip, ported).
+  (Aisha: CH4d, type 5 = `CX2MemorizeSkillSlotData`, the `SESAPT_MEMORIZE` picture, 29059 without June's write over the slot (JUNE_BUGS 400). Type 6 and 29078 are Luciel's: Stage 8.)
 - **Luciel's portrait** `328dcba0` / `328db7a0` (unit type 10: the form flag at tree `+0x8c` from unit `+0xe40`, `DLG_UI_Common_Texture91/89/96/103_NEW` keys).
 - **Aisha's memorize line** in the tooltip (`328e9160` @328e9710): unit type 2, templet `+0x170 == 3` (`32205af0`), `"
 
-"` + STR 30357 with the key name of game action 0x27 (`31f5ee50`). March's templet has no `+0x170` field.
+"` + STR 30357 with the key name of game action 0x27 (`31f5ee50`). March's templet has no `+0x170` field. (Aisha: CH4d. `+0x170` is March's `m_iWOSType` (`m_usWOSType` in the Lua), the field CH1i's `June_IsMemorizableSkill` reads; action 0x27 = `GAMEACTION_SIT`.)
 - **Rose's sub-text costs** (`328e2900`, unit type 11: alternate templet MP and raw FP with STR 38426) are ported; they show once a Rose unit exists.
 - **Luciel's command group** (from S7e): the tree's `JuneSetCommandGroup` (June `328e8cd0`, ported) is called only by the unit's form change `3234d930` (my unit's `+0x28` / `+0x2c`
   match, then `3214f050`, `328e8cd0( form )`, `328dcba0`). The class port calls it; the tree's Luciel `_MINOR` command lists (`328e7ba0`, unit type 10) and `COMMAND_DATA_MINOR` (`3220bdb0`,
@@ -835,7 +836,7 @@ S7b ports June's skill tree UI (`CX2UISkillTreeNew2015`). These parts of its cla
 ### 7ak. Skill page decide ACK class pieces (from June skill system S7d)
 
 June's decide-page ACK (`3220f2b0`) has two class branches after `InitEquippedActiveSkillState( false )` (vslot 0x684), on the game unit's type (`31e4d0e0`). S7d ports the rest of the handler; the class port adds these:
-- **Unit type 2 (Aisha):** `32ce1770( &true )` on the game unit (@3220f4dc), a walk over the unit's class list (`32cf1b10` / `32a78b90`).
+- **Unit type 2 (Aisha):** `32ce1770( &true )` on the game unit (@3220f4dc), a walk over the unit's class list (`32cf1b10` / `32a78b90`). (Aisha: CH4d, `June_SweepMemoRise`.)
 - **Unit type 9 (Add):** the tree UI's `328e0290( string 3347f014 )` (@3220f53a), the same install / G-Core mark refresh as 7aj.
 
 ### 7al. Class pieces CH1l found in the user base (from pilot-char-revamp CH1l)
