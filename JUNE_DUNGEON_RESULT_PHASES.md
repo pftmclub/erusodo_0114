@@ -258,6 +258,8 @@ clear still runs March's result screen.
 
 **How to see it:** auth level 3 (set), a dungeon, dev console (END). `JuneResultOpen()` opens the widget (empty before a clear: log `fill: no result info`); `JuneResultClose()` closes it. Log: `python tools/logs.py --tag JUNE_RESULT`.
 
+**Play-test PASSED 2026-10-22** (user: "worked perfectly"; `data063` copied: `COPY OK data063 ... 440 entries, md5 2b96d7f79a8ca6471a883ec7156ff8e6`). ErrorLog: `open: adapter bound, UI 8 opened`, `notifyInitialize`, `fill: no result info` (before a clear), `close: UI 8 closed, adapter deleted`; 0 EXCEPTION, only the baseline `E_DISABLE_HB_CHECK_REQ` UNHANDLED.
+
 ## Phase R2 - Offline emulator for June's flow
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 medium review. Flag `SERV_IRUHADEV_JUNE_RESULT_OFFLINE`. Sub-tag `EMU`.
