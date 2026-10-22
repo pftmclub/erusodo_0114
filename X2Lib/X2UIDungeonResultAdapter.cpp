@@ -25,12 +25,61 @@ static CX2StateDungeonGame* JuneResultNowState()
 	return dynamic_cast< CX2StateDungeonGame* >( g_pMain->GetNowState() );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+// 32eea2c0 / 32eea2e0 / 32eea300 take g_pMain +0x90 at call time and use it as a CX2State, no dungeon cast and no owner; 32eea320 / 32eea370 cast
+static void JuneResultDispatch( int iID )
+{
+	CX2State* pState = ( g_pMain != NULL ) ? static_cast< CX2State* >( g_pMain->GetNowState() ) : NULL;
+	switch ( iID )
+	{
+	case 0:
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		JuneResultWidgetLog( "notifyCloseResultUI" );
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		if ( pState != NULL )
+			pState->JuneOpenExitBox( true );		// 31f1dd70
+		break;
+	case 1:
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		JuneResultWidgetLog( "notfyRetryButton" );
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		if ( pState != NULL )
+			pState->JuneResultRetry();				// vslot 0xe0
+		break;
+	case 2:
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		JuneResultWidgetLog( "notifyInitialize" );
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		if ( pState != NULL )
+			pState->JuneSetResultUIMode( 2, 0.f );	// 31ef7be0
+		break;
+	case 3:
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		JuneResultWidgetLog( "notfyitemSlotArrowLeft" );
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		if ( CX2StateDungeonGame* pDungeon = JuneResultNowState() )
+			pDungeon->JuneResultItemPagePrev();		// 324d1270
+		break;
+	case 4:
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		JuneResultWidgetLog( "notfyitemSlotArrowRight" );
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		if ( CX2StateDungeonGame* pDungeon = JuneResultNowState() )
+			pDungeon->JuneResultItemPageNext();		// 324d1210
+		break;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // CX2UIDungeonResultAdapter
 // ---------------------------------------------------------------------------------------------------------------------------------------
 CX2UIDungeonResultAdapter::CX2UIDungeonResultAdapter( CKTDGGFXManager* pManager )
 	: m_pBridge( NULL )
 {
+#ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+	CKTDGGFXResultBridge::SetFunctionDispatcher( &JuneResultDispatch );
+#endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 	if ( pManager != NULL )
 		m_pBridge = new CKTDGGFXResultBridge( pManager, this );
 }

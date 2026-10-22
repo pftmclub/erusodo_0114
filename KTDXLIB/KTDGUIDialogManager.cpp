@@ -1525,6 +1525,15 @@ void CKTDGUIDialogManager::_BuildJuneHidePresets()
 		m_mapJuneHidePreset[ s_aJuneHidePresetRows[iRow].m_iMode ].insert( std::wstring( s_aJuneHidePresetRows[iRow].m_wszName ) );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+// 31d05060 -> 31d07950: the current hide struct back to empty ( id and previous id 0, names cleared ), the shown byte +0x34 is left alone
+void CKTDGUIDialogManager::JuneResetHideMode()
+{
+	m_iJuneHideMode = 0;
+	m_iJuneHidePrevMode = 0;
+	m_setJuneHideNames.clear();
+}
+#endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 // 31d05af0: +0x34 = bShow; mode = bShow ? 0 : ( mode ? mode : 1 ); the current struct becomes the mode's preset ( previous id = the old current id ),
 // the empty one ( id 0 ) when no preset has that id.
 void CKTDGUIDialogManager::JuneSetShow( bool bShow, int iHideMode )

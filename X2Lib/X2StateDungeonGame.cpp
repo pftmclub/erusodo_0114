@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 
 #include ".\x2statedungeongame.h"
+#ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+#include "KTDGGFXManager.h"
+#endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 
 
 
@@ -152,6 +155,13 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 	m_bJuneResultAckDone		= false;
 	JuneSetResultUIMode( 0, 0.f );		// June 324d9f80
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
+#ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+	JuneResultCloseAndDelete();		// June 324d9f80 @324dadca: unloadWidget( 8 ), 0xbc, mode 0, limit 23.0
+	JuneSetResultUIMode( 0, 0.f );
+	m_fJuneResultModeLimit = 23.f;		// 3349d46c
+	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetDGManager() != NULL && g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );
+#endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef REFORM_ENTRY_POINT
 	if( NULL != m_pCX2GameLoadingTip && NULL != g_pData->GetPartyManager() && NULL != g_pData->GetPartyManager()->GetMyPartyData() )
@@ -479,12 +489,25 @@ CX2StateDungeonGame::~CX2StateDungeonGame(void)
 	g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), false );
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+#ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+	JuneResultCloseAndDelete();		// June 324d5670 @324d5e41: unloadWidget( 8 ) with or without an adapter
+#else SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 	if ( m_pJuneResultAdapter != NULL )
 		JuneResultCloseAndDelete();
+#endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 	JuneSetResultUIMode( 0, 0.f );		// June 324d5670
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
+#ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetJuneGFXManager() != NULL )
+		g_pKTDXApp->GetJuneGFXManager()->SetShow( true );		// June 324d5670 @324d5e5a: +0x108 = 1 ( DELETE in the result hid it )
+	if ( g_pKTDXApp != NULL && g_pKTDXApp->GetDGManager() != NULL && g_pKTDXApp->GetDGManager()->GetDialogManager() != NULL )
+	{
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneResetHideMode();		// 31d05060
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );
+	}
+#endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 	m_pDungeonGame->Release();
 	SAFE_DELETE( m_pDungeonGame );
 	
@@ -978,6 +1001,13 @@ bool CX2StateDungeonGame::QuitGame()
 		if ( m_pDungeonGame != NULL &&
 			m_pDungeonGame->GetCanUseEscFlag() == true )
 		{
+#if defined( SERV_IRUHADEV_JUNE_RESULT_DEBUG ) && defined( SERV_IRUHADEV_JUNE_RESULT_FLOW )
+			{
+				char szJuneBuf[ 96 ] = { 0, };
+				_snprintf_s( szJuneBuf, sizeof( szJuneBuf ), _TRUNCATE, "[JUNE_RESULT] FLOW ESC: leave box ( result mode %d )", GetJuneResultUIMode() );
+				KLOG( "ErrorLog.txt" ) << szJuneBuf << fileout;
+			}
+#endif
 			OpenExitDLG( GET_STRING( STR_ID_2631 ) );
 		}
 		//}} kimhc // 게임 로딩이 끝날때 까지 ESC 처리 안되게 하는 작업 // 2009-06-08

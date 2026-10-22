@@ -9931,3 +9931,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_RESULT_OLD_EXP needs SERV_IRUHADEV_OFFLINE
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R3d - the five result callbacks ( 32eea2c0 .. 32eea370 ) act on the now state at call time and ignore their owner, so a handler the AS object keeps from an earlier run still works ( the owner-link handler died with the first bridge ). Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+#if defined( SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL ) && !defined( SERV_IRUHADEV_JUNE_RESULT_FLOW )
+#error SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL needs SERV_IRUHADEV_JUNE_RESULT_FLOW
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R3d - June's dungeon state dtor / ctor resets ( 324d5670 @324d5e41, 324d9f80 @324dadca ): UI 8 unloaded unconditionally, GFx shown again, the dialog manager's hide struct ( 31d05060 ), flagged-only off, mode limit 23.0. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+#if defined( SERV_IRUHADEV_JUNE_RESULT_STATE_RESET ) && ( !defined( SERV_IRUHADEV_JUNE_RESULT_FLOW ) || !defined( SERV_IRUHADEV_JUNE_GFX_GATES ) )
+#error SERV_IRUHADEV_JUNE_RESULT_STATE_RESET needs SERV_IRUHADEV_JUNE_RESULT_FLOW and SERV_IRUHADEV_JUNE_GFX_GATES ( CKTDGUIDialogManager hide mode )
+#endif
+//////////////////////////////////////////////////////////////////////////

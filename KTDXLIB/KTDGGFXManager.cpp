@@ -2135,6 +2135,29 @@ namespace
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+// June 3353a074 / Call 32eee800 for the five result callbacks: their targets ignore the owner, so the id goes to the dispatcher the adapter registered
+static void ( *s_pfnJuneResultDispatch )( int iID ) = NULL;
+
+class CJuneGfxResultFunctionHandler : public SFG::FunctionHandler
+{
+public:
+	explicit CJuneGfxResultFunctionHandler( int iID ) : m_iID( iID ) {}
+	virtual void Call( const Params& /*kParams*/ )
+	{
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		char szBuf[ 128 ] = { 0, };
+		_snprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, "[JUNE_RESULT] WIDGET call %d%s", m_iID, s_pfnJuneResultDispatch == NULL ? " dropped" : "" );
+		KLOG( "ErrorLog.txt" ) << szBuf << fileout;
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
+		if ( s_pfnJuneResultDispatch != NULL )
+			s_pfnJuneResultDispatch( m_iID );
+	}
+private:
+	int		m_iID;
+};
+#endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+
 class CKTDGGFXResultBridge::CImpl : public IJuneGfxListener
 {
 public:
@@ -2188,9 +2211,23 @@ public:
 		{
 			SFG::Value kCurrent;
 			kObject.GetMember( s_aszResultFunction[ i ], &kCurrent );
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+			{
+				char szBuf[ 160 ] = { 0, };
+				if ( kCurrent.IsObject() == false && kCurrent.IsArray() == false && kCurrent.IsDisplayObject() == false )
+					_snprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, "[JUNE_RESULT] WIDGET init: %s attached", s_aszResultFunction[ i ] );
+				else
+					_snprintf_s( szBuf, sizeof( szBuf ), _TRUNCATE, "[JUNE_RESULT] WIDGET init: %s kept (type %d)", s_aszResultFunction[ i ], static_cast< int >( kCurrent.GetType() ) );
+				KLOG( "ErrorLog.txt" ) << szBuf << fileout;
+			}
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 			if ( kCurrent.IsObject() == false && kCurrent.IsArray() == false && kCurrent.IsDisplayObject() == false )		// @32eea4c6: types 8 / 9 / 10 are left alone
 			{
+#ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+				SF::Ptr< CJuneGfxResultFunctionHandler > pHandler = *new CJuneGfxResultFunctionHandler( i );
+#else SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 				SF::Ptr< CJuneGfxFunctionHandler > pHandler = *new CJuneGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
+#endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 				SFG::Value kFunction;
 				pMovie->CreateFunction( &kFunction, pHandler );
 				kObject.SetMember( s_aszResultFunction[ i ], kFunction );
@@ -2293,6 +2330,9 @@ void CKTDGGFXResultBridge::EnableRetryButton( bool bEnable )										{ m_pImpl-
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 void CKTDGGFXResultBridge::NotifyTabKey()																{ m_pImpl->NotifyTabKey(); }
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
+#ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+void CKTDGGFXResultBridge::SetFunctionDispatcher( void ( *pfnDispatch )( int iID ) )					{ s_pfnJuneResultDispatch = pfnDispatch; }
+#endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 
 // ---------------------------------------------------------------------------------------------------------------------------------------

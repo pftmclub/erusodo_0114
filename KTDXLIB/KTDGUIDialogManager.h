@@ -138,6 +138,9 @@ class CKTDGUIDialogManager : public CKTDXStage
 		/// modes, 5 = the presentation mode; 2-5 are entered only by Stage 9 code ( June 31f14e40, 324c95b0, 324d8600, 3243be8b, 324ac353, 328c3750 ).
 		/// Each mode keeps a name list ( preset, StartUp loader 32597410 ) of the dialogs that still run and draw while the UI is hidden.
 		void	JuneSetShow( bool bShow, int iHideMode );										// 31d05af0
+#ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+		void	JuneResetHideMode();													// 31d05060 / 31d07950: the dungeon state dtor
+#endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 		void	JuneToggleHide();																// 31f02f50: the DELETE-key toggle
 		int		GetJuneHideMode() const { return m_iJuneHideMode; }							// +0xc8
 		int		GetJuneHidePrevMode() const { return m_iJuneHidePrevMode; }					// +0xcc

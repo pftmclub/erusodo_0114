@@ -4949,6 +4949,13 @@ Flag `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL` in `KTDXLIB/Always.h`. The emulator 
 Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emulator sends the real `KEGS_USE_FINALITY_SKILL_ACK`, with `m_bNoConsume` false. Log `SKILL    finality skill ...`.
 - **Turn off:** comment out the flag, then `python tools/build.py --deploy`. The packet goes back to UNHANDLED and stones are not consumed. No data change.
 
+### June dungeon result R3d: retry flow fixes (flags `SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL`, `_STATE_RESET`; debug lines under `_DEBUG`, 2026-10-22)
+
+- **`_NOW_STATE_CALL`** (`KTDGGFXManager.{h,cpp}`, `X2UIDungeonResultAdapter.cpp`): the five result callbacks (`32eea2c0` .. `32eea370`) take `g_pMain +0x90` at call time and ignore their owner. The result `OnExternalCall` now makes an owner-free `CJuneGfxResultFunctionHandler( id )`; its `Call` runs the static dispatcher the adapter ctor registers (`CKTDGGFXResultBridge::SetFunctionDispatcher`). A handler the AS object keeps from run 1 therefore still works in run 2. The owner-link handler is the `#else`.
+- **`_STATE_RESET`** (`X2StateDungeonGame.cpp`, `KTDGUIDialogManager.{h,cpp}`): dtor `324d5670 @324d5e41-324d5eb2` (UI 8 unloaded with or without an adapter, GFx shown `+0x108 = 1`, new `CKTDGUIDialogManager::JuneResetHideMode` = `31d05060`, flagged-only off) and ctor `324d9f80 @324dadca-324dae14` (unload, mode 0, `m_fJuneResultModeLimit = 23.f`, flagged-only off).
+- **Debug** (`_DEBUG`, `ErrorLog.txt`): `[JUNE_RESULT] WIDGET init: <name> attached | kept (type N)` per member, `WIDGET call <id>` (+ `dropped`), `FLOW ESC: leave box ( result mode N )`.
+- **Turn off:** comment out either define in `Always.h` and rebuild; `_NOW_STATE_CALL` off returns the owner-link handler, `_STATE_RESET` off returns the adapter-only unload.
+
 ### June dungeon result R3b: R3 play-test fixes (flags `SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL`, `_RETRY_DIRECT`, `_OLD_EXP`; Tab / F8 under `_FLOW`, 2026-10-22)
 
 - **Tab / F8** (`_FLOW`, `X2StateDungeonGame.cpp` `ShortCutKeyProcess`, March's Tab block in `#else`): Tab with the dialogs hidden notifies the widget's `GameResult.onTabKeyProcess` in result mode 3 (`324c8c40` / `32eea070`); F8 in mode 3 is the retry button (`@324d3e56`). New bridge / adapter call `NotifyTabKey` (`KTDGGFXManager.{h,cpp}`, `X2UIDungeonResultAdapter.{h,cpp}`). Also under `_FLOW`: `X2Main.cpp` `KTDGUIMsgBox` / `KTDGUIOkAndCancelMsgBox` unhide the hidden dialogs only when the stage's result-UI mode is 0 (June `31d7ea40` / `31d7efc0`); March's unconditional `SetShow( true )` is the `#else`.

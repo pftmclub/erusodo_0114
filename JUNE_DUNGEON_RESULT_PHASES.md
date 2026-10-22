@@ -573,6 +573,16 @@ the user as "needs an Opus look", not a guess.
 **Done gate:** a clear, Retry, a second clear shows a normal widget (`notifyInitialize`, fill); a third run the same; ESC during play
 shows March's leave dialog and ESC on the result shows June's exit box with the right text; Close / Keep / Quit work; 0 EXCEPTION.
 
+### R3d - Done (2026-10-22, Sonnet 5.5 high; flags `_JUNE_RESULT_NOW_STATE_CALL`, `_JUNE_RESULT_STATE_RESET`, debug lines under `_DEBUG`)
+
+R3c's port list, items 0-2 (item 3 = no code). Play-test pending.
+- **0. Debug** (`ErrorLog.txt`): `[JUNE_RESULT] WIDGET init: <name> attached | kept (type N)` per member (result `OnExternalCall`), `WIDGET call <id>` (+ ` dropped` when no dispatcher), `FLOW ESC: leave box ( result mode N )` before `OpenExitDLG( 2631 )`. The old owner-link `OnFunction` path (the `#else`) logs nothing new.
+- **1. `_NOW_STATE_CALL`** (`KTDGGFXManager.{h,cpp}`, `X2UIDungeonResultAdapter.cpp`): owner-free `CJuneGfxResultFunctionHandler( id )`; its `Call` runs a static dispatcher the adapter ctor registers (`CKTDGGFXResultBridge::SetFunctionDispatcher`). Ids 0 / 1 / 2 act on `static_cast< CX2State* >( g_pMain->GetNowState() )` (`JuneOpenExitBox( true )` / `JuneResultRetry()` / `JuneSetResultUIMode( 2, 0.f )`, NULL-checked); ids 3 / 4 keep the dungeon cast. The `OnResultAs*` bodies and the owner-link handler line are untouched (`#else`).
+- **2. `_STATE_RESET`**: dtor (`X2StateDungeonGame.cpp`, June `@324d5e41-324d5eb2`): `JuneResultCloseAndDelete()` without the adapter test, mode 0, `GetJuneGFXManager()->SetShow( true )`, new `CKTDGUIDialogManager::JuneResetHideMode()` (`31d05060`), flagged-only off. Ctor (`@324dadca-324dae14`): close and delete, mode 0, `m_fJuneResultModeLimit = 23.f`, flagged-only off. `#include "KTDGGFXManager.h"` added under the flag (first build failed C2027 without it).
+- **Hygiene:** `flagcheck --worktree`: NOW_STATE_CALL RESULT PASS, STATE_RESET RESULT PASS (0 deleted, 0 non-ASCII, 0 EOL mismatch, 0 encoding change); OTHER rows are the earlier flags' files the debug lines and `#else` sit in.
+- **Deploy:** DEPLOY OK: X2_offline.exe is 25,789,952 B, dated 2026-10-22 17:10:07, md5 a6b4da41b7b4251603cbd2c0f52a0960, equal to X2/US_SERVICE/x2.exe.
+- **Revert:** MODS.md "June dungeon result R3d". Nothing left open; if the second run still logs `init: ... attached` and no `call 2`, the cause is AS-side: "needs an Opus look" (ABC of `dungeon_result.gfx`).
+
 ## Phase R4 - June's legacy result state (conditional)
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`. Sub-tag `LEGACY`.

@@ -240,6 +240,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
 	void	NotifyTabKey();															// 32eea070
 #endif SERV_IRUHADEV_JUNE_RESULT_FLOW
+#ifdef SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
+	static void	SetFunctionDispatcher( void ( *pfnDispatch )( int iID ) );		// the five callbacks 32eea2c0 .. 32eea370 never read their owner
+#endif SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL
 
 private:
 	class CImpl;
