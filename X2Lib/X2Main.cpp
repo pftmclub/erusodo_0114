@@ -6628,7 +6628,13 @@ CKTDGUIDialogType CX2Main::KTDGUIMsgBox( D3DXVECTOR2 pos, const WCHAR* pText, CK
 #ifdef DIALOG_SHOW_TOGGLE
 	if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+		// June 31d7ea40 @31d7eab5: no unhide while the now state ( g_pMain +0x90 ) is in a result-UI mode
+		if ( m_pNowState != NULL && static_cast< CX2State* >( m_pNowState )->GetJuneResultUIMode() == 0 )
+			g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( true, 0 );
+#else SERV_IRUHADEV_JUNE_RESULT_FLOW
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true );
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
 		if( g_pInstanceData->GetMiniMapUI() != NULL )
@@ -6801,7 +6807,13 @@ CKTDGUIDialogType CX2Main::KTDGUIOkAndCancelMsgBox( D3DXVECTOR2 pos, const WCHAR
 #ifdef DIALOG_SHOW_TOGGLE
 	if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+		// June 31d7efc0 @31d7f0f2: no unhide while the stage is in a result-UI mode ( +0x210 )
+		if ( pNowState != NULL && static_cast< CX2State* >( pNowState )->GetJuneResultUIMode() == 0 )
+			g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( true, 0 );
+#else SERV_IRUHADEV_JUNE_RESULT_FLOW
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true );
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 		bool bHide = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog();
 		if( g_pInstanceData->GetMiniMapUI() != NULL )

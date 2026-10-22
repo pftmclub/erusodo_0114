@@ -439,8 +439,15 @@ restarts the same dungeon with a loading screen, solo and with bots; Close / Kee
    the hide path draws the mode-2 names (`OkAndCancelMsgBox`, `DLG_Exit_Party_MsgBox` are in it). March already had all of that (R8 / R4c / G5).
    **The defect was input:** June's `MsgProc` `31be3f20 @31be3fe6` lets GFx swallow a mouse event only while dialog manager `+0x110 == 0`,
    and R1's port read it as a `false` stand-in, so every click went to the widget (the three `notifyCloseResultUI`). Fixed under
-   `_DIALOG_MODAL`, with June's flagged-only frame-move `31d06100 @31d06484`. The "drawn behind" report is not explained by the code:
-   a `_DEBUG` line `exit box check:` logs once a second what the hide path sees (name match, hide mode, flagged-only, layer).
+   `_DIALOG_MODAL`, with June's flagged-only frame-move `31d06100 @31d06484`. A `_DEBUG` line `exit box check:` logs once a second what
+   the hide path sees.
+   **Fix 2 (play-test 16:07-16:11: Tab and Retry PASS; ESC brought the regular UI back, then Close did nothing).** The check line showed
+   `hide mode 0, manager shown 1` the moment the box opened: March's `KTDGUIOkAndCancelMsgBox` unhides the dialog manager whenever it is
+   hidden. June's (`31d7efc0 @31d7f0f2`) does that only while the passed stage's result mode (`+0x210`) is 0, and its `KTDGUIMsgBox`
+   (`31d7ea40 @31d7eab5`) checks `g_pMain +0x90`. Its `OKMsgBox` / `OKMsgBoxPlus` / `OkAndCancelEditBox` (`31d7d8c0` / `31d7e4e0` /
+   `31d7fa80`) have no such test. Ported into March's two (`X2Main.cpp`, `_FLOW`). With hide mode 0 the box drew in no pass (flagged-only)
+   and every later Close failed `JuneOpenExitBox`'s mode 2-4 test. June's ESC handler (`31f1e1a0 @31f1e1a0-31f1e261`) re-read: R3's gate
+   = June's (`XS_LOADING`, the ESC key / action 0x34 test, the tutorial-guide gate (C3z-4t), then the result gate).
 3. **Retry restarts at once** (`_RETRY_DIRECT`, user decision): `JuneResultRetry` sends `EGS_JUNE_DUNGEON_RETRY_REQ` directly; June's
    solo box is the `#else`. The emulator (R2) is unchanged: ACK, room reopened with the bots, `EGS_PARTY_GAME_START_NOT` ->
    `XGM_STATE_CHANGE XS_DUNGEON_GAME`. The play-test proves the loading screen.
@@ -459,8 +466,8 @@ not code; the guards' `#endif` carry no token, as R1's / R3's).
 **Drift (routed 2026-10-22):** Tab on the PvE / PvP results (adapters `32ee8620` / `32eee330`) and the uncalled `32eea050`
 (`UIDungeonResult.hideUI`) -> backlog Stage 9, under the R3 leftovers bullet.
 
-**Open for the user:** the debug line settles whether the box is visible; if it is still hidden with `found by name 1` and
-`hidden 1`, the after-GFx draw itself is the next suspect (not the Scaleform version).
+**Open for the user:** the second play-test (ESC / Close / OK / Cancel). Fix 2's hygiene: `flagcheck JUNE_RESULT_FLOW --worktree --files
+X2Lib/X2Main.cpp`: 1 PASS, 0 deleted, RESULT PASS. Fix 2 deploy: `DEPLOY OK: X2_offline.exe is 25,788,416 B, dated 2026-10-22 16:17:41, md5 fda0fbb4d190a33e03670eafe3d8b344, equal to X2/US_SERVICE/x2.exe (2026-10-22 16:17:33); built at main b7b42dba + 1 uncommitted code file(s).`
 
 ## Phase R4 - June's legacy result state (conditional)
 
