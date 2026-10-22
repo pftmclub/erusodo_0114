@@ -2208,6 +2208,51 @@ An Aisha unit logs `open mind level 0, delegate not registered`.
 - No `mp consume` line: none of the played slots has a cost June changes (no aura or fireball slot; Teleport's rates are 1.0 offline). The path is unobserved, and the review reads it in the listing.
 - Packets: only the usual `E_DISABLE_HB_CHECK_REQ` UNHANDLED lines; no EXCEPTION.
 
+### CH4c -- Review (2026-10-22, Opus 5.5)
+
+**Verdict: PASS, no transcription fix.** Every item was read in the listing (`funcann.py`), and the `_DEBUG` flag is retired.
+1. **`32cccc70`.** Cyclone: DD `+0x5c4` == 22011, then `31fca8e0( 22011, 1 )` templet `+0x178` != 0, then `+0x514` = `32007b10( 0x2a, 22051 )`.
+   - Then DD `+0` == 0 (`DT_PHYSIC`) and 22409 > 0. Force-down `+0x3f0` x SA `0x29`, or `1 + ( 1 - v )` when `< 0` (`fcomp 0; test ah, 1`, `@32cccd2f`).
+   - Hit MP `+0x3f8` (protected) x SA `0x1c`. The write is skipped when the value is equal, which changes nothing.
+2. **`32ccfe30`.** The jump table `32cd01d4` = { `32ccff85` aura, `32ccffd7` Teleport, `32cd002c` none }. The index bytes `32cd01e0` put 22202 / 22207 / 22212 / 22221 / 22222 / 22223 on
+   the aura case and 22216 on Teleport, which with 202 / 22200 / 22000 / 22030 is the port's switch.
+   - Aura: `GetSkillLevel( 105, 0, 0, 1 )` x SA `0x1b`. Fireball: `mp - ( 1 - +0x95bc ) x mp x 0.5`. Teleport: x `+0x95b0`, then x `+0x97a0` if `322cc1a0` (JUNE_BUGS 398).
+   - Open Mind: `322d7920( this, SA 0x1d of 22414, empty set )` NULL -> x SA `0x1b`. Then the clamp `< 0`.
+   - Memo: vslot `0x718`, `31fcec40( &id )`, vslot `0x880` false -> x `( 1 - +0x6d04 )`. `+0x6d04` = SpecializationB's object `+0x6c64` + `0xa0` (the protected result,
+     as the walk-speed object in funcmap C3h), so `GetCharacterSpecializationB()` holds. All on the requested id, not the base id.
+3. **`32ce1cc0`.** Types 12 / 13 (`ST_RELATIONSHIP_SKILL` / `ST_HYPER_ACTIVE_SKILL`) return the base.
+   - 22005: byte `+0x7e1c` == 0 -> +5. Teleport 22200 / 22216 + `322cc1a0`: + SA `0x94` of the templet's own id when `> 0`.
+   - Then x `+0x9638`; Open Mind x SA `0x94`; Time Limit (vslot `0x240( 22417, 0, 1 )`, type not 12 / 13) x SA `0x94`; the clamp.
+   - SA `0x94` = `SA_COOLTIME_1` = June 148 under `SERV_IRUHADEV_JUNE_SKILL_TEMPLET`; every other SA id = March's enum (5, `0x1b`, `0x1c`, `0x1d`, `0x25`, `0x29`, `0x2a`).
+4. **Hooks.**
+   - `32cc28b0`: `GetSkillLevel( 22406, 1, 0, 1 )`, `arg != 1` (`AT_SPECIAL`), SA 5. Then vslot `0x1cc( 0x14 )` `< chance` -> 0.
+   - Its caller `@32285cf9`: attacker `+0x264 == 0`, arg DD `+8` = `attackType`. The result is the third factor of `1 - a x b x rate` `@32286073` (March's `fDefenceRateBySkill`).
+     March's `#else` holds only Shadow Death. The Rose `+0x9798` branch right after it is already routed (checklist 7an).
+   - `32cc5c30`: DD `+0` == 0, 22409, SA `0x25` + 1.0 (JUNE_BUGS 399). Its caller `@32049d78`: after the Spiritualized Fury soul term, x `fIncreaseMpRate`.
+     Then vslot `0x748` x the soul rate (unported, 7an) and the PvP-room test, as placed.
+5. **Transform.**
+   - `32cddec0` = the port: BTI 32, `+0xe10`, wing by class `0x71`, dummy `0xa168` / `0x9fe2`, `+0x8c0c`, June TransformStart, `31fda0d0`.
+   - `32cc91b0` = the port, with the `+0x9848` erase `@32cc9531` before the feet.
+   - `32cdbd00`: the weapon swap with the `+0x96c4` null test, then the replay. It runs `3286a230( uid, 0 )` twice on the inventory `+0x2a4` and vslot `0x644`, erases,
+     and calls `31fd5b80( 1 )`, `3201c3a0`, `32cc8d30` and the feet.
+   - `32cc9950` writes `{ add, remove }` from `CX2Item +0` / `+4` and returns 1. Not transformed, it is `3201b930`.
+   - The replay cannot re-queue: the only `TransformEnd` caller is `UnSetSpecificValueByBuffTempletID`, which clears `m_bIsTransformed` first.
+6. **`322d7920`.** The except set (vslot `0x54` UID), protected team `+0x278`, vslot `0x174 == 4` (`GUSI_DIE`), HP `<= 0`, vslot `0x180`.
+   - NPC (`+0x264 == 1`): class `+0x85f8 +4` != 0 skipped, offset `( +0x3e34 + +0x3e30 ) x 0.25` (CH2c's idiom).
+   - Then `|d| - offset <= range`, and range shrinks. The list re-scan `322d7993` only re-checks membership.
+   - `3229a470` / `32028af0` = `June_HaveSkillBuff` (`+0x174 == 5` = `SPRT_HYPER_CLASS`, `+0xa0` factor vector, BTI at factor `+0x28`).
+
+**Hygiene** (`--range f9ea9cc3^..f9ea9cc3`):
+- JUNE_CHAR_ARME_PASSIVE (`--with ..._OVERRIDE_DEBUG`): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 4 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  The OTHER rows are `Always.h` and the three hook files (`JUNE_USER_PASSIVE_HOOKS`).
+- JUNE_USER_PASSIVE_HOOKS: `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 1 ERROR`; the same zero line; `RESULT: FAIL`.
+  The ERROR is the `#error` guard `Always.h:9776`, which names both flags; it is not a hygiene fault. The OTHER rows are the Arme `.cpp` / `.h`.
+
+**Retired:** `SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG`. Its define is commented out (`Always.h:9819`, `bytepatch.py`); the code and its `#error` guard stay.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,723,904 B, dated 2026-10-22 09:59:11, md5 711725940a645ee23b5f20ff2ab4109d, equal to X2/US_SERVICE/x2.exe (2026-10-22 09:59:04); built at main 3ead589e + 1 uncommitted code file(s).` `cool time` / `mp consume` are no longer in the exe; CH4a's `open mind` still is.
+**In game:** nothing new to see. The `[JUNE_CHAR] ARME SKILL` override lines stop; the overrides themselves run unchanged.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

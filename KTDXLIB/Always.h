@@ -9816,7 +9816,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-10-22
 // Description: Temporary ( pilot CH4c ) - [JUNE_CHAR] ARME SKILL lines for the class overrides ( cool time, MP, hit, both hooks, transform queue ), once a second. Retire in the CH4c review.
-#define SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG		// off since the CH4c review ( 2026-10-22 )
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE ) || !defined( SERV_IRUHADEV_OFFLINE ) )
 #error SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE and SERV_IRUHADEV_OFFLINE
 #endif
