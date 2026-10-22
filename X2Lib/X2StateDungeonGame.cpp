@@ -4706,6 +4706,9 @@ bool CX2StateDungeonGame::ShortCutKeyProcess()
 	if ( CameraZoomInAndOutKeyProcess() )
 		return true;
 
+#ifdef SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
+	// June 324d2e20 reads no GA_SIT: V is not a sit key in a dungeon
+#else SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
 	if ( NULL != g_pChatBox && false == g_pChatBox->GetFocusChatEditBox() && GET_KEY_STATE( GA_SIT ) == TRUE )
 	{
 		CX2GUUser* pMyUnit = g_pX2Game->GetMyUnit();
@@ -4728,6 +4731,7 @@ bool CX2StateDungeonGame::ShortCutKeyProcess()
 #endif //RIDING_SYSTEM
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
 
 	//if( NULL != m_pDungeonGame )
 	//{

@@ -9844,3 +9844,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE and SERV_IRUHADEV_OFFLINE
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June's dungeon and battlefield ShortCutKeyProcess ( 324d2e20, 324bc8e0 ) have no GA_SIT block, so V is not a sit key there ( it casts Aisha's memorized skill ). Revert: undefine the flag ( JUNE_STATE_NO_SIT_KEY ).
+#define SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
+//////////////////////////////////////////////////////////////////////////

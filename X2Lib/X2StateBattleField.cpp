@@ -595,6 +595,9 @@ CX2StateBattleField::CX2StateBattleField()
 	if ( CameraZoomInAndOutKeyProcess() )
 		return true;
 
+#ifdef SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
+	// June 324bc8e0 reads no GA_SIT: V is not a sit key in a battlefield
+#else SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
 	if ( NULL != g_pChatBox && false == g_pChatBox->GetFocusChatEditBox() && GET_KEY_STATE( GA_SIT ) == TRUE )
 	{
 		CX2GUUser* pMyUnit = m_pBattleFieldGame->GetMyUnit();
@@ -617,6 +620,7 @@ CX2StateBattleField::CX2StateBattleField()
 #endif //RIDING_SYSTEM
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY
 
 	return false;
 }

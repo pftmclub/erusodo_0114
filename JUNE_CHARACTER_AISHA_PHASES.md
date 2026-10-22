@@ -2291,6 +2291,21 @@ The strings `Aisha_Memorise_P0%d`, `Memorize_Slot%d_TypeA`, `AISHA_MEMORIZE_SIGN
 
 **Open questions:** none.
 
+**Play-test fix 1 (2026-10-22, run 10:51).** Checks 1-3 and 6 passed:
+- sparkles appeared;
+- entries 22042 / 22012 / 22051 were memorized;
+- the hover lines fired.
+
+V sat Aisha down instead of casting. March's `CX2StateBattleField` / `CX2StateDungeonGame::ShortCutKeyProcess` send the sit emotion on `GA_SIT` in the wait state. June's handlers do not:
+- neither the battlefield handler (`324bc8e0`, vslot 129 of vtable `3349d88c`) nor the dungeon handler (`324d2e20`) reads action `0x27`;
+- `0x27` is V: `SetAction( 0x27, DIK_V )` @`31c48cc2`;
+- nothing in June uses STR 2501;
+- the unit's emotion code has no sit trigger either.
+
+The user decided (2026-10-22): drop only that block, under the new engine flag `SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY`. The rest of the two June handlers goes to a Stage 9 bullet.
+- **Hygiene:** `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,733,120 B, dated 2026-10-22 11:16:05, md5 52fae1a51d1c3ecfa473b699f222a8ce, equal to X2/US_SERVICE/x2.exe (2026-10-22 11:15:58); built at main a90ff871 + 3 uncommitted code file(s).`
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

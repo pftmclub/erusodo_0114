@@ -487,6 +487,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   photozone states (`324a03ee`, `324a62b5`), the PVE state (`324adbd2`), the tutorial guide manager (`31fc5502`), and `SetShowUI` `32154820`'s guide-step
   gate and cash-shop early return. Reader that matters now: the class-guide gate `31d71810` (CH4d's `CX2Main::JuneCanShowClassGuide`, Aisha's memorize
   sparkle; Luciel's `322dd0f0` / `322d8100` / `322d8590` later). Port the four March-reachable writers together.
+- **June's dungeon and battlefield shortcut handlers, whole** (handed here by pilot-char-revamp CH4d play-test fix 1, 2026-10-22). Only their missing
+  `GA_SIT` block is ported (`SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY`: V no longer sits there, so Aisha's memorized skill gets it). The rest differs and is
+  unported: `CX2StateDungeonGame::ShortCutKeyProcess` = June `324d2e20` (also the PVE / training states), `CX2StateBattleField::ShortCutKeyProcess` =
+  `324bc8e0` (vslot 129 of `3349d88c`); their action reads are `0x11 0x14 0x15 0x17 0x1b 0x1a 0x2c 0xf 0x38 0x18 0x2a 0x2e 0x32 0x2b` (battlefield) and
+  DIK `0x44 0xa 0x28 0xf 0x38 0x42` plus actions `0x11 0x14 0x15 ...` (dungeon). Diff each against March and port whole; check PvP / village sit too.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 

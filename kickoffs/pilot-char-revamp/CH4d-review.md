@@ -36,6 +36,8 @@ Review CH4d's commit against June, in the listing (`python june2017_re/disasm_ra
 6. **Callers:** `32cd1830 @32cd204d` (timer 2.8), `3220f4dc`, `31f5ea00` case `0xcf0c`; the constructor (`@32307bb4`, `@32307e99`) and destructor
    (`@32308941`, `@32308a9b`) sites.
 7. Confirm `328df9f0` has no caller, so `32ce1650` stays unported.
+8. **Play-test fix 1** (`SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY`): confirm `324bc8e0` and `324d2e20` read no action `0x27`, and that nothing else in June
+   sits the unit on V in a dungeon or battlefield (unit emotion code, `CX2Game` key process `322f7170`).
 
 Then retire `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG` (comment out its define with `bytepatch.py`; the code stays), run flagcheck over the CH4d
 commit, build and deploy, and write the CH4d review note. Next: `CH6` (Sonnet 5.5 medium) once every CH3b / CH4a-CH4d / CH5 review is done.

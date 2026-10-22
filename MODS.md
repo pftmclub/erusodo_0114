@@ -4903,6 +4903,7 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE` and `SERV_IRUHADEV_JUNE_CHAR_ARME_
 - **Tree UI.** Slot data type 5 `CX2MemorizeSkillSlotData` (`328d9ac0` / `328e0f10`), the `SESAPT_MEMORIZE` picture (`328e0460` case 2), the 29059 mouse-in without June's write over the slot (JUNE_BUGS 400, user 2026-10-22), the tooltip's memorize line (`328e9160 @328e9710`), and a refresh after every slot swap (`328e0ff0`).
 - **Callers.** Aisha's two stand-ins (`June_GameRefreshMemoRise`, `June_SetGameFloatB38`) now call CX2Game; the skill-page decide ACK sweeps the list (`3220f4dc`); saving the key settings refreshes the hot-key label (`31f5ea00`).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG`, then `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+- **No sit on V in dungeons and battlefields** (play-test fix 1, flag `SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY`, all classes): June's `324d2e20` / `324bc8e0` have no `GA_SIT` block, so March's sit-emotion block in both `ShortCutKeyProcess` is the `#else`. Sitting by chat emotion still works. Revert: comment out the flag and rebuild.
 
 ### Dev convenience: free skills for a dev account in June-ported classes (JUNE_DEV_UNLIMITED_SKILL, 2026-10-22)
 
