@@ -379,7 +379,7 @@ shortcut, and `RememberComeBackInfoBeforeInstanceGameStart` keeps the old return
 
 **Hygiene** (`flagcheck.py JUNE_RESULT_FLOW --worktree --files ...`): files: 7 PASS, 1 PASS~, 0 DEFINE, 1 OTHER (Always.h: the
 peer's G7 block), 0 FAIL, 0 ERROR; in this flag's files: 0 deleted, 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without
-token, 0 encoding change; RESULT: PASS. Range run after the commit: see the R3 STATUS row.
+token, 0 encoding change; RESULT: PASS. Range `ec274f67^..ec274f67`: 7 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR; 0 deleted; 1 `#endif` without the token (the Always.h `#error` guard, as R1's); RESULT: PASS.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,788,416 B, dated 2026-10-22 15:17:12, md5 889340418ccd5e2cba509ee5d91b7187, equal to X2/US_SERVICE/x2.exe (2026-10-22 15:17:04); built at main 2a25233c + 9 uncommitted code file(s).` The FLOW strings, both dialog names and `EGS_REPORT_HACK_USER_NOT` are in the exe.
 
