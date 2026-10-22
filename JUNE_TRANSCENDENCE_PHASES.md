@@ -248,6 +248,21 @@ No questions for the user. T1 is next.
 - `settranscend 52 0` restores it.
 No crash with the flag on before T4-T6. Prove the struct size with `cl /P` in `X2Lib` and `X2ServerProtocol`.
 
+### T1 - Done (2026-10-23, Sonnet 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_TRANSCEND_UNIT` (`Always.h` + `ServerDefine.h`, `SECOND_HOMES` entry; `Always.h` carries an `#error` guard that it needs `JUNE_QUEST_DATA`, the v21 rung). Save snapshot `db_backup/..._pre_T1_before_v22.sql` taken first.
+- **Unit.** `UnitData::m_iUnitClassTran` (June `+0x3c`), `GetUnitClassTran`, `SetUnitClassTran` (June `3234b4a0`), cleared in `Init`, copied by `SetKUnitInfo` / `SetKRoomUserInfo` / `SetKSquareUserInfo` / `SetKFieldUserInfo`.
+- **Wire.** `int m_iUnitClassTran` right after `m_cUnitClass` in `KUnitInfo`, `KRoomUserInfo`, `KSquareUserInfo`, `KFieldUserInfo`, Put and Get in that place (March's class is a `char`; June's 2-byte class is Stage 8's). Ctors zero it (`KUnitInfo`, `KRoomUserInfo`); the Square and Field copy operators copy it. `KCommunityUserInfo` (`:6300`) and June's flag-less `32360c70` struct untouched.
+  - `cl /P` proof (subagent, VS2010, probe script in the scratchpad): the member is inside all four structs, directly after the class, in both an `X2Lib` TU (`X2Unit.cpp`) and an `X2ServerProtocol` TU (`Event.cpp`). Put / Get come only through `X2Lib/X2ServerPacket.cpp:15` (`#include "CommonPacket.cpp"`; `X2ServerProtocol` does not compile `CommonPacket.cpp`): `Put(m_iUnitClassTran)` follows `Put(m_cUnitClass)` and Get mirrors it, in all four.
+- **Save v22.** `unit.transcendence INTEGER NOT NULL DEFAULT 0` (`iFrom < 22` rung, one `ALTER`); `UNIT_COLUMNS` +`transcendence` (column 23), `KOfflineUnitRow::m_iTranscendence`; `MakeUnitInfoFromRow` and `MakeRoomUserInfo` fill the member. The emulator builds no Square / Field info, so those two only carry what the packets hold. `tools/elsdb.py settranscend <unit> <0|1>` (refuses until the v22 exe has migrated the save) and the x2-db skill line.
+- **Stand-ins now real** (old body in `#else`): `June_UnitFlag3c` (Arme; `!= 0`, equal to `31fceab0`'s `== 1` for a 0 / 1 flag), `JuneIsUnitTranscended`, `CX2UISkillTreeNew::JuneIsMyUnitTranscended` (now defined in `X2UISkillTreeNew2015.cpp`) and the A-TC `bTranscendent`, `JuneSelectUnitClassTran`, `IsForbiddenQuest` (`-1 != tail && my != tail && not QT_EVENT`, June `3232e510 @3232ea22`), the two hyper-class skips in `X2SkillTree.cpp` (local `JuneTreeIsMyUnitTranscended`) and the emulator's `GrantJuneSkillsByLevel` skip (reads the unit row). `X2UISkillTreeNew.cpp:2826` left (dead `#else`).
+- **Log.** `[JUNE_TRANSCEND] UNIT <uid> class <c> transcendence <n> ( select|room|square|field )`, once per unit, source and value (not per refresh); `[JUNE_TRANSCEND] DB MIG v22 done` at the rung.
+- **Hygiene** (`flagcheck --worktree --files` on the 18 code files): `files: 16 PASS, 0 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `git diff --stat`: 247 insertions, 0 deletions.
+- **Deploy.** `DEPLOY OK: X2_offline.exe is 25,792,000 B, dated 2026-10-23 05:28:42, md5 e05dfadba9932ea0127ebf4c2db25df6, equal to X2/US_SERVICE/x2.exe (2026-10-23 05:28:35); built at main 60b60c88 + 18 uncommitted code file(s).`
+- **Not touched (as the kickoff says):** slot-4 / 9 skips and the emulator's equip refusal (T4), the 42030 refusal (T2), `X2StateMenu.cpp:1885` (T4). With a unit at 1 the T4-T6 code does not exist yet, so a transcended unit shows the tree rows 14-17 and an unlocked A-TC slot but nothing else changes.
+
+**How to see it:** start the game once (the exe migrates the save to v22; log `DB MIG v22 done`), select a character: every unit logs `transcendence 0`. Close the game, `python tools/elsdb.py settranscend 52 1`, start again: unit 52 logs `1`.
+
 ## Phase T2 - Becoming transcended: quest, notify, guide
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE`.

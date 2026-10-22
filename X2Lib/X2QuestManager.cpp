@@ -6185,8 +6185,18 @@ bool CX2QuestManager::IsForbiddenQuest( int iQuestID )
 	// none of those quest ids but 31000 is in June's FieldQuest. See the Q3 Done note. )
 	// The quest-level QR_* class tail ( QuestCondition +0x18, default 0 ) must equal the unit's transcendental step ( CX2Unit +0x3c ) unless the quest is a QT_EVENT.
 	// March has no such step: every unit is step 0 ( Stage 6 owns it ).
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	{
+		// June 3232e510 @3232ea22: the quest's class tail is not my unit's +0x3c
+		const CX2Unit* pMyUnit = g_pData->GetMyUser()->GetSelectUnit();
+		const int iMyClassTran = ( NULL != pMyUnit ) ? pMyUnit->GetUnitData().m_iUnitClassTran : 0;
+		if( -1 != pQuestTemplet->m_Condition.m_iUnitClassTran && iMyClassTran != pQuestTemplet->m_Condition.m_iUnitClassTran && QT_EVENT != pQuestTemplet->m_eQuestType )
+			return true;
+	}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	if( -1 != pQuestTemplet->m_Condition.m_iUnitClassTran && 0 != pQuestTemplet->m_Condition.m_iUnitClassTran && QT_EVENT != pQuestTemplet->m_eQuestType )
 		return true;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 	// QT_CHANGE_TRANSCENDENTAL_CLASS quests are forbidden while the code event of the unit's kind is on: 0x920 for type 12 ( UT_AIN ), 0x921 for class 0x87
 	// ( UC_AIN_ERBLUHEN_EMOTION ), 0x923 for class 0x88 ( UC_AIN_APOSTASIA ). March has no Ain, so these never match.

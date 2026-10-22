@@ -1455,6 +1455,9 @@ DECL_DATA( KUnitInfo )
 	UidType                         	m_nUnitUID;
 	u_int								m_uiKNMSerialNum;	//넥슨코리아 메신져에 사용될 씨리얼 넘버
 	char                            	m_cUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	int                             	m_iUnitClassTran;	// June CX2Unit +0x3c, right after the class
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	std::wstring                    	m_wstrNickName;
 
 	std::wstring			        	m_wstrIP;
@@ -1611,6 +1614,9 @@ DECL_DATA( KUnitInfo )
 		m_nUnitUID                  = 0;
 		m_uiKNMSerialNum			= 0;
 		m_cUnitClass                = 0;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		m_iUnitClassTran            = 0;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		m_wstrNickName              = L"";
 		m_wstrIP                    = L"";
 		m_usPort					= 0;
@@ -2271,6 +2277,9 @@ DECL_DATA( KRoomUserInfo )
     UidType                 m_nUnitUID;
     u_int					m_uiKNMSerialNum;	//넥슨코리아 메신져에 사용될 씨리얼 넘버
     char                    m_cUnitClass;    
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+    int                     m_iUnitClassTran;	// June CX2Unit +0x3c, right after the class
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
     std::wstring            m_wstrNickName;
 	//{{ 2012. 04. 17	최육사	던전 로그 컬럼 추가
 #ifdef SERV_ADD_DUNGEON_LOG_COLUMN_NUM_2
@@ -2472,6 +2481,9 @@ DECL_DATA( KRoomUserInfo )
 		m_nUnitUID				= 0;
 		m_uiKNMSerialNum		= 0;
 		m_cUnitClass			= 0;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		m_iUnitClassTran		= 0;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		//{{ 2012. 04. 17	최육사	던전 로그 컬럼 추가
 #ifdef SERV_ADD_DUNGEON_LOG_COLUMN_NUM_2
 		m_iNumResurrectionStone = 0;
@@ -4315,6 +4327,9 @@ DECL_DATA( KSquareUserInfo )
     unsigned short                      	m_usPort;
 
     char                                	m_cUnitClass; 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+    int                                 	m_iUnitClassTran;	// June CX2Unit +0x3c, right after the class
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
     UCHAR                               	m_ucLevel;
 	//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -4375,6 +4390,9 @@ DECL_DATA( KSquareUserInfo )
 		m_wstrIP				= right.m_wstrIP;
 		m_usPort				= right.m_usPort;
 		m_cUnitClass			= right.m_cUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		m_iUnitClassTran		= right.m_iUnitClassTran;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		m_ucLevel				= right.m_ucLevel;
 		//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -6117,6 +6135,9 @@ DECL_DATA( KFieldUserInfo )
 	UidType                             	m_iUnitUID;
 	std::wstring                        	m_wstrNickName;
 	char                                	m_cUnitClass; 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	int                                 	m_iUnitClassTran;	// June CX2Unit +0x3c, right after the class
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	UCHAR                               	m_ucLevel;
 	//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -6188,6 +6209,9 @@ DECL_DATA( KFieldUserInfo )
 		m_iUnitUID			= right.m_iUnitUID;
 		m_wstrNickName		= right.m_wstrNickName;
 		m_cUnitClass		= right.m_cUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		m_iUnitClassTran	= right.m_iUnitClassTran;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		m_ucLevel			= right.m_ucLevel;
 		//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM

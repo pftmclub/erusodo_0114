@@ -184,6 +184,9 @@ void CX2OfflineServer::MakeRoomUserInfo( const KOfflineUnitRow& kRow, OUT KRoomU
 #endif SERV_IRUHADEV_OFFLINE_AUTH_LEVEL
 	kOut.m_nUnitUID			= kRow.m_nUnitUID;
 	kOut.m_cUnitClass		= (char)kRow.m_iUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	kOut.m_iUnitClassTran	= kRow.m_iTranscendence;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	kOut.m_wstrNickName		= kRow.m_wstrNickName;
 	kOut.m_ucLevel			= (unsigned char)kRow.m_iLevel;
 	kOut.m_bIsObserver		= false;

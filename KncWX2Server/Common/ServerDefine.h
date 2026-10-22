@@ -4747,3 +4747,12 @@
 //              EventID_Client.h and ClientPacket.h are compiled before Always.h is reachable. Comment out both together.
 #define SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
+// Description: June transcendence T1, int after the class in KUnitInfo / KRoomUserInfo / KSquareUserInfo / KFieldUserInfo, client flag ( offline only ). Also defined in
+//              KTDXLIB/Always.h; this second home exists because CommonPacket.h is compiled before Always.h is reachable
+//              ( X2Main.h:4 -> X2ServerProtocolLib.h ). Comment out both together.
+#define SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+//////////////////////////////////////////////////////////////////////////

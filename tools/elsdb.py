@@ -13,6 +13,7 @@
   python tools/elsdb.py additem <unit> <id>[:count] ... [--enchant N] [--equip [--replace]] [--cat N --slot N]
   python tools/elsdb.py delitem <unit> <item_uid|item_id> ... [--by-item-id]
   python tools/elsdb.py setting [name [value]]        the `settings` table (cash_start, auth_level, ...)
+  python tools/elsdb.py settranscend <unit> <0|1>     unit.transcendence (schema v22), June's CX2Unit +0x3c flag
   python tools/elsdb.py backup [--tag NAME]           snapshot into <data>/db_backup/ (no restore command on purpose)
   python tools/elsdb.py backups                       list snapshots, newest first
 
@@ -515,6 +516,18 @@ def cmd_setting(a):
         say('%s: %s -> %d' % (a.name, old[0] if old else '(not set)', a.value))
 
 
+def cmd_settranscend(a):
+    if a.value not in (0, 1):
+        die('value must be 0 or 1')
+    with Writer(a, 'settranscend') as c:
+        if 'transcendence' not in [r[1] for r in c.execute('PRAGMA table_info(unit)')]:
+            die('unit has no transcendence column (schema < v22): start the new X2_offline.exe once so it migrates the save')
+        uid, nick = resolve_unit(c, a.unit)
+        old = c.execute('SELECT transcendence FROM unit WHERE unit_uid=?', (uid,)).fetchone()[0]
+        c.execute('UPDATE unit SET transcendence=? WHERE unit_uid=?', (a.value, uid))
+        say('unit %d (%s): transcendence %d -> %d' % (uid, nick, old, a.value))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0], formatter_class=argparse.RawDescriptionHelpFormatter, epilog=__doc__)
     ap.add_argument('--data', default=DATA, help='game data directory (default: %(default)s)')
@@ -552,6 +565,7 @@ def main():
     s = add('delitem', cmd_delitem, True); s.add_argument('unit'); s.add_argument('ids', nargs='+')
     s.add_argument('--by-item-id', action='store_true', help='ids are item_ids (every copy), not item_uids'); s.add_argument('--kim', default='staged')
     s = add('setting', cmd_setting, True); s.add_argument('name', nargs='?'); s.add_argument('value', nargs='?', type=int)
+    s = add('settranscend', cmd_settranscend, True); s.add_argument('unit'); s.add_argument('value', type=int)
 
     a = ap.parse_args()
     if sys.stdout.encoding and sys.stdout.encoding.lower() != 'utf-8':

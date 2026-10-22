@@ -12,6 +12,7 @@ python tools/elsdb.py q "SELECT ..." [--tsv|--json] [--limit N]   # read-only; s
 python tools/elsdb.py inv <unit> [--cat N]      # items with names from item.kim
 python tools/elsdb.py schema [table]
 python tools/elsdb.py setting [name [value]]    # cash_start, auth_level (3 = dev console), select_count.*
+python tools/elsdb.py settranscend <unit> <0|1> # unit.transcendence (schema v22): June's transcended flag; needs the v22 exe to have opened the save once
 
 # writes: backup first, one transaction, integrity_check after; add --dry-run to rehearse (rolls back, no backup)
 python tools/elsdb.py addchar <nick> <class> <level>              # = createchar.py (/x2-create-char)

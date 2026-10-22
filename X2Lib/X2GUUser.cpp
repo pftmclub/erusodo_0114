@@ -31636,8 +31636,12 @@ namespace
 	/// June CX2Unit +0x3c ( transcended ); March has no transcendence before Stage 6
 	bool JuneIsUnitTranscended( const CX2Unit* pUnit_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		UNREFERENCED_PARAMETER( pUnit_ );
 		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	}
 }
 

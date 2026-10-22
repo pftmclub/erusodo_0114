@@ -862,6 +862,10 @@ int CX2OfflineSkill::GrantJuneSkillsByLevel( int iUnitClass, int iUnitLevel, OUT
 		return 0;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	KOfflineUnitRow kTranscendRow;
+	const bool bTranscended = CX2OfflineDB::Instance()->LoadUnit( m_nUnitUID, kTranscendRow ) && 0 != kTranscendRow.m_iTranscendence;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	int iNoLevel = 0;		// no m_RequireCharacterLevel (900, the couple skill: granted by the relationship, not by level)
 	int iHyper = 0;			// SPRT_HYPER_CLASS: June's own level-up list skips these without transcendence (Stage 6)
 	int iSealed = 0;		// born sealed and not unsealed
@@ -881,7 +885,11 @@ int CX2OfflineSkill::GrantJuneSkillsByLevel( int iUnitClass, int iUnitLevel, OUT
 			continue;
 		}
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		if( CX2SkillTree::SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == bTranscended )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		if( CX2SkillTree::SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		{
 			++iHyper;
 			continue;

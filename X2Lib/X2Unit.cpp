@@ -4167,6 +4167,9 @@ void CX2Unit::UnitData::Init()
 	m_UnitUID				= 0;
 	m_UserUID				= 0;
 	m_UnitClass				= UC_NONE;	
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	m_iUnitClassTran		= 0;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 	m_Port					= 0;
 
@@ -4305,11 +4308,33 @@ void CX2Unit::UnitData::Init()
 
 
 
+#if defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ) && defined( SERV_IRUHADEV_OFFLINE )
+/// one line per unit, source and value ( 0 select, 1 room, 2 square, 3 field ), not one per refresh
+static void JuneLogTranscendUnit( const int iSource_, const UidType iUnitUID_, const int iClass_, const int iTran_ )
+{
+	static const WCHAR* s_wszSource[] = { L"select", L"room", L"square", L"field" };
+	static std::map< __int64, int > s_mapLogged;
+
+	const __int64 iKey = static_cast<__int64>( iUnitUID_ ) * 4 + iSource_;
+	std::map< __int64, int >::iterator mit = s_mapLogged.find( iKey );
+	if( mit != s_mapLogged.end() && mit->second == iTran_ )
+		return;
+
+	s_mapLogged[ iKey ] = iTran_;
+	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] UNIT %I64d class %d transcendence %d ( %s )", static_cast<__int64>( iUnitUID_ ), iClass_, iTran_, s_wszSource[ iSource_ ] );
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 void CX2Unit::UnitData::SetKUnitInfo( const KUnitInfo& data )
 {
 	m_UnitUID				= data.m_nUnitUID;
 	m_UserUID				= data.m_iOwnerUserUID;
 	m_UnitClass				= (UNIT_CLASS)data.m_cUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	m_iUnitClassTran		= data.m_iUnitClassTran;
+#ifdef SERV_IRUHADEV_OFFLINE
+	JuneLogTranscendUnit( 0, m_UnitUID, static_cast<int>( m_UnitClass ), m_iUnitClassTran );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 #ifdef SERV_4TH_ANNIVERSARY_EVENT
 	m_iAccountPVPLoseCount = data.m_iAccountPVPLoseCount;
@@ -4548,6 +4573,12 @@ void CX2Unit::UnitData::SetKRoomUserInfo( const KRoomUserInfo& data )
 	m_Age					= data.m_ucAge;
 
 	m_UnitClass				= (UNIT_CLASS)data.m_cUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	m_iUnitClassTran		= data.m_iUnitClassTran;
+#ifdef SERV_IRUHADEV_OFFLINE
+	JuneLogTranscendUnit( 1, m_UnitUID, static_cast<int>( m_UnitClass ), m_iUnitClassTran );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 #ifdef SERV_4TH_ANNIVERSARY_EVENT
 	m_iAccountPVPLoseCount = data.m_iAccountPVPLoseCount;
@@ -4709,6 +4740,12 @@ void CX2Unit::UnitData::SetKSquareUserInfo( const KSquareUserInfo& pKSquareUserI
 {
 	m_UnitUID				= pKSquareUserInfo.m_iUnitUID;
 	m_UnitClass				= (UNIT_CLASS)pKSquareUserInfo.m_cUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	m_iUnitClassTran		= pKSquareUserInfo.m_iUnitClassTran;
+#ifdef SERV_IRUHADEV_OFFLINE
+	JuneLogTranscendUnit( 2, m_UnitUID, static_cast<int>( m_UnitClass ), m_iUnitClassTran );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 	m_IP					= pKSquareUserInfo.m_wstrIP;
 	m_Port					= pKSquareUserInfo.m_usPort;
@@ -4795,6 +4832,12 @@ void CX2Unit::UnitData::SetKFieldUserInfo( const KFieldUserInfo& pKFieldUserInfo
 {
 	m_UnitUID				= pKFieldUserInfo.m_iUnitUID;
 	m_UnitClass				= (UNIT_CLASS)pKFieldUserInfo.m_cUnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	m_iUnitClassTran		= pKFieldUserInfo.m_iUnitClassTran;
+#ifdef SERV_IRUHADEV_OFFLINE
+	JuneLogTranscendUnit( 3, m_UnitUID, static_cast<int>( m_UnitClass ), m_iUnitClassTran );
+#endif SERV_IRUHADEV_OFFLINE
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	
 	m_NickName				= pKFieldUserInfo.m_wstrNickName;
 	m_Level					= pKFieldUserInfo.m_ucLevel;

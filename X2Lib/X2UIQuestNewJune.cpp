@@ -52,7 +52,14 @@ static bool JuneIsVillageOrBattleFieldState()
 /// June's unit +0x3c: the selected unit's transcendence step. Stage 6 owns transcendence; every March unit is step 0.
 static int JuneSelectUnitClassTran()
 {
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return 0;
+
+	return g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	return 0;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 }
 
 static void JuneQuestUILog( const WCHAR* wszFormat, int iA = 0, int iB = 0 )

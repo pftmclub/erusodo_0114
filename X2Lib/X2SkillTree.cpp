@@ -3276,6 +3276,20 @@ void CX2SkillTree::JuneFrameMoveSkillSlotQueue()
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+namespace
+{
+	/// my unit's CX2Unit +0x3c is not 0 ( the hyper-class skips of 32206d30 / 3220d2b0 )
+	bool JuneTreeIsMyUnitTranscended()
+	{
+		if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+			return false;
+
+		return 0 != g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran;
+	}
+}
+
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 /// June 32206d30: every tree skill of the class whose required-level list holds ( level / 5 ) * 5
 void CX2SkillTree::JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT std::vector< int >& vecSkillID_ ) const
 {
@@ -3292,8 +3306,13 @@ void CX2SkillTree::JuneGetSkillListByLevel( int iUnitLevel, int iUnitClass, OUT 
 			continue;
 
 		/// +0x174 == 5 ( SPRT_HYPER_CLASS ) is skipped unless my unit is transcendent ( CX2Unit +0x3c ), which March has no field for ( Stage 6 )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == JuneTreeIsMyUnitTranscended() )
+			continue;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
 			continue;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 		for( UINT i = 0; i < pTemplet->m_vecRequireCharacterLevel.size(); ++i )
 		{
@@ -3347,8 +3366,13 @@ void CX2SkillTree::JuneGetNewSkillOrMemoByLevel( int iLevel_, int iUnitClass_, O
 		if( NULL == pTemplet )
 			continue;
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType && false == JuneTreeIsMyUnitTranscended() )
+			continue;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		if( SPRT_HYPER_CLASS == pTemplet->m_eJunePowerRateType )
 			continue;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 		const int iFirstLevel = ( true == pTemplet->m_vecRequireCharacterLevel.empty() ) ? 0 : pTemplet->m_vecRequireCharacterLevel[0];
 		if( iLevel_ == iFirstLevel )

@@ -28163,8 +28163,12 @@ namespace
 	/// June CX2Unit +0x3c ( read by 31fceab0 as the transcended test ): Transcendence has no source yet ( Stage 6 ), so June's empty value.
 	bool June_UnitFlag3c( const CX2Unit* pUnit_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		UNREFERENCED_PARAMETER( pUnit_ );
 		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	}
 
 	/// June 322deb80: CX2Game redraws the MemoRise slots ( unmapped engine callee ); a no-op until it is ported ( CH1 / Opus ).

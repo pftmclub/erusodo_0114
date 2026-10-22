@@ -374,6 +374,11 @@ class CX2Unit : public CKTDXDeviceHolder, public CX2Unit_PreHeader
 			UidType					m_UnitUID;
 			UidType					m_UserUID;
 			UNIT_CLASS				m_UnitClass;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+			int						m_iUnitClassTran;	// June CX2Unit +0x3c, the transcended flag ( 0 / 1 )
+			int						GetUnitClassTran() const			{ return m_iUnitClassTran; }
+			void					SetUnitClassTran( const int iUnitClassTran_ )	{ m_iUnitClassTran = iUnitClassTran_; }	// June 3234b4a0
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 			
 #ifdef _NEXON_KR_
 			_UInt32_				m_iNMKSerialNum;	//넥슨코리아 메신져에 사용될 시리얼 번호

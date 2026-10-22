@@ -223,7 +223,11 @@ public:
 	/// June 322074e0 ( CX2SkillTree ): the two ids are equal, or eTarget_'s upgrade map / m_iDeleteSkillIDByUpgrade gives eSkill_
 	static bool JuneIsSameOrUpgradeSkill( const int iSkill_, const int iTarget_ );
 	/// June reads CX2Unit +0x3c ( transcendence ); March has no transcendence ( Stage 6 ), so the TC rules see "not transcended"
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	static bool JuneIsMyUnitTranscended();
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	static bool JuneIsMyUnitTranscended() { return false; }
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 	/// March API the June class does not have. Kept so the callers compile; each returns what June's absence means.
 	bool GetNowLearnSkill() const { return false; }			/// June has no learn mode: skills are never blocked by it

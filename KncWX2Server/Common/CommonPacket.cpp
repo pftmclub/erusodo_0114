@@ -1074,6 +1074,9 @@ SERIALIZE_DEFINE_PUT( KUnitInfo, obj, ks )
 		&& PUT( m_nUnitUID ) 
 		&& PUT( m_uiKNMSerialNum ) 
 		&& PUT( m_cUnitClass ) 		
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& PUT( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& PUT( m_wstrNickName ) 
 		&& PUT( m_wstrIP ) 
 		&& PUT( m_usPort ) 
@@ -1207,6 +1210,9 @@ SERIALIZE_DEFINE_GET( KUnitInfo, obj, ks )
 		&& GET( m_nUnitUID )
 		&& GET( m_uiKNMSerialNum )
 		&& GET( m_cUnitClass )		
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& GET( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& GET( m_wstrNickName )
 		&& GET( m_wstrIP )
 		&& GET( m_usPort )
@@ -1729,6 +1735,9 @@ SERIALIZE_DEFINE_PUT( KRoomUserInfo, obj, ks )
 		&& PUT( m_nUnitUID )
 		&& PUT( m_uiKNMSerialNum )
 		&& PUT( m_cUnitClass )		
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& PUT( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& PUT( m_wstrNickName )
 		//{{ 2012. 04. 17	최육사	던전 로그 컬럼 추가
 #ifdef SERV_ADD_DUNGEON_LOG_COLUMN_NUM_2
@@ -1915,6 +1924,9 @@ SERIALIZE_DEFINE_GET( KRoomUserInfo, obj, ks )
 		&& GET( m_nUnitUID )
 		&& GET( m_uiKNMSerialNum )
 		&& GET( m_cUnitClass )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& GET( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& GET( m_wstrNickName )
 		//{{ 2012. 04. 17	최육사	던전 로그 컬럼 추가
 #ifdef SERV_ADD_DUNGEON_LOG_COLUMN_NUM_2
@@ -3830,6 +3842,9 @@ SERIALIZE_DEFINE_PUT( KSquareUserInfo, obj, ks )
 		&& PUT( m_wstrIP )
 		&& PUT( m_usPort )
 		&& PUT( m_cUnitClass )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& PUT( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& PUT( m_ucLevel )
 		//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -3884,6 +3899,9 @@ SERIALIZE_DEFINE_GET( KSquareUserInfo, obj, ks )
 		&& GET( m_wstrIP )
 		&& GET( m_usPort )
 		&& GET( m_cUnitClass )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& GET( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& GET( m_ucLevel )
 		//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -5515,6 +5533,9 @@ SERIALIZE_DEFINE_PUT( KFieldUserInfo, obj, ks )
 	return PUT( m_iUnitUID	)
 		&& PUT( m_wstrNickName )
 		&& PUT( m_cUnitClass )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& PUT( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& PUT( m_ucLevel )
 		//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM
@@ -5581,6 +5602,9 @@ SERIALIZE_DEFINE_GET( KFieldUserInfo, obj, ks )
 	return GET( m_iUnitUID	)
 		&& GET( m_wstrNickName )
 		&& GET( m_cUnitClass )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		&& GET( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		&& GET( m_ucLevel )
 		//{{ 2011. 07. 11	최육사	대전 개편
 #ifdef SERV_PVP_NEW_SYSTEM

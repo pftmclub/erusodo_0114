@@ -18,6 +18,12 @@
 
 CX2OfflineDB* CX2OfflineDB::ms_pInstance = NULL;
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+/*static*/ const char* CX2OfflineDB::UNIT_COLUMNS =
+	"unit_uid, user_uid, unit_class, nickname, level, exp, ed, sp, spirit, "
+	"last_pos, last_line_index, last_pos_value, cur_hp, cur_mp, hyper_gage, abil_count, "
+	"reg_date, del_date, last_date, csp, title_id, skill_note_page, resurrection_stone, transcendence";
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 #ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
 /*static*/ const char* CX2OfflineDB::UNIT_COLUMNS =
 	"unit_uid, user_uid, unit_class, nickname, level, exp, ed, sp, spirit, "
@@ -29,6 +35,7 @@ CX2OfflineDB* CX2OfflineDB::ms_pInstance = NULL;
 	"last_pos, last_line_index, last_pos_value, cur_hp, cur_mp, hyper_gage, abil_count, "
 	"reg_date, del_date, last_date, csp, title_id, skill_note_page";
 #endif SERV_IRUHADEV_OFFLINE_RES_STONE
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 /*static*/ const char* CX2OfflineDB::ITEM_COLUMNS =
 	"item_uid, unit_uid, category, slot, item_id, count, "
@@ -543,6 +550,9 @@ sqlite3_stmt* CX2OfflineDB::Prepare( const char* szSQL )
 #ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
 	kOut.m_iResurrectionStone	= sqlite3_column_int( pStmt, 22 );
 #endif SERV_IRUHADEV_OFFLINE_RES_STONE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	kOut.m_iTranscendence	= sqlite3_column_int( pStmt, 23 );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 }
 
 /*static*/ void CX2OfflineDB::ReadItemRow( sqlite3_stmt* pStmt, OUT KOfflineItemRow& kOut )
@@ -1153,6 +1163,17 @@ bool CX2OfflineDB::Migrate()
 	}
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	if( iFrom < 22 )
+	{
+		// DEFAULT 0 fills every existing unit with "not transcended"
+		if( false == Exec( "BEGIN;" ) )			return false;
+		if( false == Exec( "ALTER TABLE unit ADD COLUMN transcendence INTEGER NOT NULL DEFAULT 0;" ) )	{ Exec( "ROLLBACK;" ); return false; }
+		if( false == Exec( "COMMIT;" ) )		return false;
+
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] DB MIG v22 done: unit.transcendence added, every unit 0" );
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	char szSetVersion[64];
 	_snprintf( szSetVersion, 64, "PRAGMA user_version = %d;", (int)SCHEMA_VERSION );
 	szSetVersion[63] = '\0';

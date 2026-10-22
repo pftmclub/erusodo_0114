@@ -912,6 +912,17 @@ CX2UISkillTreeNew::CX2UISkillTreeNew( CKTDXStage* pNowStage )
 }
 
 /// June 328d9c30
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+/// June 328e6550 / 328ed890 / 328ddff0 / 328e18d0: my unit's CX2Unit +0x3c is not 0
+bool CX2UISkillTreeNew::JuneIsMyUnitTranscended()
+{
+	if( NULL == g_pData || NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() )
+		return false;
+
+	return 0 != g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran;
+}
+
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 void CX2UISkillTreeNew::SetLayer( X2_DIALOG_LAYER layer )
 {
 	if ( NULL != m_pDLGUISkillTree )
@@ -2887,7 +2898,11 @@ void CX2UISkillTreeNew::UpdateJuneSkillSlotLockUI()
 		return;
 
 	/// A-TC ( slot 4 ) is locked while CX2Unit +0x3c ( transcendence ) is 0. March has no such unit state: Stage 6 adds it, so the slot stays locked
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	const bool bTranscendent = JuneIsMyUnitTranscended();
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	const bool bTranscendent = false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	if( false == bTranscendent )
 	{
 		JuneSetSlotLockControls( m_pDLGGameSkillSlot, L"Button_Buy_Guide_Slot_A_TC", L"LOCK_SLOT_A_TC", true );

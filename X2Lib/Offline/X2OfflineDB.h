@@ -396,6 +396,9 @@ struct KOfflineUnitRow
 #ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
 	int				m_iResurrectionStone;	///< unit.resurrection_stone, the counter KEGS_SELECT_UNIT_1_NOT reports
 #endif SERV_IRUHADEV_OFFLINE_RES_STONE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	int				m_iTranscendence;		///< unit.transcendence, June's CX2Unit +0x3c ( 0 / 1 )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 	__int64			m_tRegDate;
 	__int64			m_tDelDate;
 	__int64			m_tLastDate;
@@ -426,6 +429,9 @@ struct KOfflineUnitRow
 #ifdef SERV_IRUHADEV_OFFLINE_RES_STONE
 		, m_iResurrectionStone( 0 )
 #endif SERV_IRUHADEV_OFFLINE_RES_STONE
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		, m_iTranscendence( 0 )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 		, m_tRegDate( 0 )
 		, m_tDelDate( 0 )
 		, m_tLastDate( 0 )
@@ -442,6 +448,12 @@ public:
 	{
 		/// Schema revision. Bump it and add a rung to Migrate() when a later
 		/// phase needs a new table, so existing saves are not wiped.
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		SCHEMA_VERSION			= 22,	///< v22: unit.transcendence ( June transcendence T1 )
+
+		/// As in the v21 branch below, which this one replaces wholesale.
+		DEFAULT_RESURRECTION_STONE	= 10,
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 #ifdef SERV_IRUHADEV_JUNE_QUEST_DATA
 		SCHEMA_VERSION			= 21,	///< v21: quest rows moved onto June's quest data ( June quest system Q2 )
 
@@ -497,6 +509,7 @@ public:
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 #endif SERV_IRUHADEV_JUNE_SKILL_PAGE
 #endif SERV_IRUHADEV_JUNE_QUEST_DATA
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 		//{{ Iruha : 2026-09-16 // Vanilla hardcodes iDelableDay = 1 (one full
 		// day) for every region (GSGameDBThread.cpp). This build has no

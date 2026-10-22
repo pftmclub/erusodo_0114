@@ -952,6 +952,9 @@ bool CX2OfflineServer::EnsureAccount( KOfflineSession& kSes, const std::wstring&
 {
 	MakeDefaultUnitInfo( kOut, kRow.m_nUserUID, kRow.m_nUnitUID,
 		(char)kRow.m_iUnitClass, kRow.m_wstrNickName, kRow.m_iLevel );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	kOut.m_iUnitClassTran		= kRow.m_iTranscendence;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
 
 	kOut.m_iEXP					= kRow.m_iEXP;
 	kOut.m_iED					= kRow.m_iED;
