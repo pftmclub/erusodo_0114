@@ -2096,6 +2096,16 @@ Dark Deal's did in CH4a. No save reaches the callback; the in-game check of Open
 
 An Aisha unit logs `open mind level 0, delegate not registered`.
 
+**Play-test PASSED (logs, 2026-10-22 08:23-08:26 run on md5 `2df0cc57...`).**
+- Units 51, 52 and 28 log `open mind level 0, delegate not registered`.
+- Unit 51 shows every list's first run for user and npc:
+  - frame move `+0x66cc` (user 51, npc 1000011);
+  - attack result `+0x66ac` for user 51 and for **npc 1000025** (the new NAT_NORMAL site);
+  - damage react `+0x66bc` and `+0x66dc`, both sides.
+- Unit 28's Mana Steal gives `area hit +0x66ec: user 28, 0 entries, 0 bound`.
+- Unit 24 (Ara) gives `attack result +0x66ac: user 24, 1 entries, 1 bound` about once a second while hitting (March's `UpNowForcePowerHitOthers`).
+- No CH4b error lines.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if
