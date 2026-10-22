@@ -626,7 +626,7 @@ R3c's port list, items 0-2 (item 3 = no code). Play-test pending.
 because its block sits inside `_FLOW`'s new code in the adapter. OTHER rows are the earlier result flags' files. Review fixes (`--worktree`):
 `_HIDE_MOUSE` and `_FLOW` 1 PASS each; the 2 deleted lines each are the review's own replaced lines inside those flags; RESULT PASS.
 
-**Deploy:** `BUILD OK: X2/US_SERVICE/x2.exe 25,790,464 B, 2026-10-22 23:38:13` (at `0dfe56ca` + the 2 fix files); `DEPLOY REFUSED: X2_offline.exe is running`, so `build.py --deploy-only` runs once the game is closed.
+**Deploy:** `BUILD OK: X2/US_SERVICE/x2.exe 25,790,464 B, 2026-10-22 23:38:13` (at `0dfe56ca` + the 2 fix files); deployed after the game closed: `DEPLOY OK: X2_offline.exe is 25,790,464 B, dated 2026-10-22 23:40:51, md5 0943093fff89a3a279ec8d1239ce2fbd, equal to X2/US_SERVICE/x2.exe (2026-10-22 23:38:13); built at main aea70dae.`
 
 **Logs (17:35-17:37 run, exe `53d3fd66`):** solo clear of 30000: mode 1 -> 5 x `init: ... attached` -> `call 2` -> `notifyInitialize` -> mode 2 ->
 fill -> mode 3 -> exit box (mouse) -> `confirm sent ( quit 1 )` -> ACK -> `all-unit NOT: already left` -> village. 0 EXCEPTION; UNHANDLED only
