@@ -8317,6 +8317,7 @@ SERIALIZE_DEFINE_GET( KEGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ, obj, ks )
 SERIALIZE_DEFINE_PUT( KEGS_JUNE_DUNGEON_RETRY_ACK, obj, ks )
 {
 	return PUT( m_iOK )
+		&& PUT( m_iJuneUnread64 )
 		&& PUT( m_wstrJuneUnread )
 		;
 }
@@ -8324,6 +8325,7 @@ SERIALIZE_DEFINE_PUT( KEGS_JUNE_DUNGEON_RETRY_ACK, obj, ks )
 SERIALIZE_DEFINE_GET( KEGS_JUNE_DUNGEON_RETRY_ACK, obj, ks )
 {
 	return GET( m_iOK )
+		&& GET( m_iJuneUnread64 )
 		&& GET( m_wstrJuneUnread )
 		;
 }

@@ -5619,13 +5619,14 @@ DECL_PACKET( EGS_JUNE_RANDOM_MISSION_REWARD_BUFF_CHEAT_REQ )
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
-// The retry REQ ( 0x648 ) and the 0x1f2 report are SendID, no body. ACK 0x649 ( handler 324c95b0, reader 324ddac0 ): OK, then a wstring the handler does not read.
+// Retry REQ 0x648 and 0x1f2 are SendID, no body; ACK 0x649 reader 320ace20 ( via 324ddac0 ): int, int64, wstring; 324c95b0 reads only the int.
 DECL_PACKET( EGS_JUNE_DUNGEON_RETRY_ACK )
 {
 	int								m_iOK;
+	__int64							m_iJuneUnread64;
 	std::wstring					m_wstrJuneUnread;
 
-	KEGS_JUNE_DUNGEON_RETRY_ACK() : m_iOK( 0 ) {}
+	KEGS_JUNE_DUNGEON_RETRY_ACK() : m_iOK( 0 ), m_iJuneUnread64( 0 ) {}
 };
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 

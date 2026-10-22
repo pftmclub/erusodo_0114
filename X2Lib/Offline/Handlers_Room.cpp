@@ -4889,6 +4889,9 @@ bool CX2OfflineServer::Handler_EGS_JUNE_DUNGEON_RETRY_REQ( KOfflineSession& kSes
 		return Reply( kSes, EGS_JUNE_DUNGEON_RETRY_ACK, kAck );
 	}
 	m_kRoom.m_vecBot = vecBot;
+	// A fresh start gives bots the player's level ( MakePartyBots ); the run may have levelled the player.
+	for( size_t i = 0; i < m_kRoom.m_vecBot.size(); ++i )
+		m_kRoom.m_vecBot[i].m_iLevel = kRow.m_iLevel;
 
 	CX2OfflineLog::Server( L"[JUNE_RESULT] EMU retry: restarting dungeonID=%d dif=%d mode=%d with %u bot(s) (stand-in for June's server restart)",
 		kStart.m_iDungeonID, (int)kStart.m_DifficultyLevel, (int)kStart.m_cDungeonMode, (unsigned int)vecBot.size() );

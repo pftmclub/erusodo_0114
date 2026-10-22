@@ -6,7 +6,7 @@ june_va	june_name	march_equivalent	verdict	target	evidence
 0xd5	EGS_UPDATE_UNIT_INFO_NOT handler 324d7360	0xE2	D	R2	@324d73d9 packet m_bGameEnd -> state +0x4f5 (March :3244-3246)
 0x10c / 0x10d / 0x10e	EGS_RESULT_SUCCESS_REQ / _ACK (324d4cd0) / EGS_RESULT_ALL_UNIT_SUCCESS_NOT (324dbb30)	0x116 / 0x117 / 0x118	D	R2/R3	REQ is SendID with NO body (31e57100 @324d85b5); March sends KEGS_RESULT_SUCCESS_REQ (KGamePlayNetworkInfoPackage); the legacy state 32515670 / 3250f6c0 sends the same id
 0x648	retry REQ (324c9530 @324c956f)	none (June-only)	D	R2	SendID, no body; AddServerPacket( 0x649 ); March has no RETRY / REPLAY / RESTART event (probe)
-0x649	retry ACK handler 324c95b0	none (June-only)	D	R2/R3	Get 324ddac0: int iOK + wstring; DeleteServerPacket 31d71ed0; IsValidPacket 31d91680 false -> vslot 0xe4( 1, -1.0 ) re-enable retry; always SetShow( false, 2 ). Success does nothing client-side: the server drives the restart
+0x649	retry ACK handler 324c95b0	none (June-only)	D	R2/R3	Get 324ddac0 -> 320ace20: int iOK, int64 (+4), wstring (+0xc) (R2 review; R0 missed the int64); DeleteServerPacket 31d71ed0; IsValidPacket 31d91680 false -> vslot 0xe4( 1, -1.0 ) re-enable retry; always SetShow( false, 2 ). Success does nothing client-side: the server drives the restart
 0x3e7	post-clear NPC event handler 324d1290	none (June-only)	D	drift: Stage 22	only writer of state +0x7a9 (@324d12ee); spawns NPC 0x55c at the packet position for the host, then a random line from NPC 0x959c by unit type; offline never sends it -> +0x7a9 stays 0
 # --- Result info (g_pData+0x148)
 31edebf0	CX2Data::ResetDungeonResultInfo	X2Data.cpp:2437	D	R3	SAFE_DELETE + new 0x30 B; called from 327c99e0

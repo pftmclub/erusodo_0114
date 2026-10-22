@@ -296,6 +296,20 @@ clear still runs March's result screen.
 
 **Drift:** none found; no branch outside the fence.
 
+### R2 - Review (2026-10-22, Opus 5.5 medium): PASS after two fixes (same flag, review commit)
+
+1. `EGS_RESULT_SUCCESS_REQ` bodyless: confirmed, the only June SendID at `324d85b5` (in `324d84c0`); the empty-body branch skips `ReadReq` and the ACK + all-unit NOT are unchanged. OK.
+2. Retry REQ / ACK: REQ is SendID 0x648 with AddServerPacket( 0x649 ) (`324c9530`), OK. **ACK fixed:** `324ddac0` calls `320ace20`, which reads int (+0), **int64 (+4, `33052190`, tag 8)**, wstring (+0xc, `33052760`); `324c95b0`'s local is 4 + 8 + wstring. R0's row said int + wstring and R2 copied it. Added `__int64 m_iJuneUnread64` between them in `ClientPacket.h` and in both Put and Get; map row and R3 kickoff corrected. IDs at the end of the `EventID_Client.h` block behind the flag: OK.
+3. 0x1f2: SendID at `324cf739` (push at `324cf734`, code Ghidra has no function for), no body; the ignore row name `EGS_JUNE_FAST_SOLO_CLEAR_NOT` is the enum's. OK.
+4. Retry stand-in vs `Handler_EGS_LEAVE_ROOM_REQ`: buff leave runs; the skipped `SendUpdateBuffInfo` is covered by the one at loading 100; no quest hook on leave (SQT_VISIT_DUNGEON fires at play start, so a retry counts a visit, as a fresh start does); `m_kAutoParty` / village-buff handled by `OpenRoom`. Bots are carried over. **Fixed:** carried bots kept their old `m_iLevel`; they now take the player's current level, as `MakePartyBots` gives on a fresh start.
+5. Second `EGS_PARTY_GAME_START_NOT` inside `XS_DUNGEON_GAME`: not R2's; R3's kickoff names it ("Amended by R2"). OK.
+
+**Hygiene:** R2 range (`--range 36d5e323^..36d5e323`): files: 3 PASS, 4 PASS~, 2 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without token, 0 encoding change; RESULT: PASS. Fix (`--worktree`, 3 files): 3 PASS, 0 FAIL; 2 deleted lines = R2's own comment and constructor lines inside the flag block, replaced; RESULT: PASS.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,776,640 B, dated 2026-10-22 14:00:41, md5 49fbeffc234a1e8eeca33a260a873c3e, equal to X2/US_SERVICE/x2.exe (2026-10-22 14:00:33); built at main 4c656ac3 + 3 uncommitted code file(s).`
+
+**Play-test:** none of its own (nothing sends 0x648 / 0x1f2 until R3); the retry is checked in R3's hand-off.
+
 ## Phase R3 - The in-state result flow
 
 **Run with:** Opus 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_FLOW`. Sub-tag `FLOW`.
