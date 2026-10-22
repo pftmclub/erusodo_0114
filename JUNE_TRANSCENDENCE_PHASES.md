@@ -136,7 +136,7 @@ Also waiting:
 | T6 | Aisha transcended: her readers live, passives 22412-22417, transcended hyper tables, cut-ins, memo, tree rows 14-17, her guide | Sonnet high, Opus review, user play-test | T5 review |
 | T7 | *Opened by T0 only:* transcendence sockets (`SDT_*_TRANSCEND*`) and anything else T0 finds on the subject | per T0 | T6 review |
 | T8 | Walk: unit 52 through Limit Break 1-5, units 51 / 53 by `/tc`, every check on Aisha | Sonnet medium, user play-test | T3, T6 (T7) reviews |
-| Z | Close-out: MODS, checklist transcendence section, Stage 7 template rows, backlog note, `_DEBUG` off | Sonnet medium | T8 |
+| Z | Close-out: MODS, checklist transcendence section (7ao), Stage 7 template rows, backlog note, `_DEBUG` off | Sonnet medium | T8 |
 
 T0 runs now (read-only, beside anything). T2 / T3 share the emulator's class-change code: one after the other. T4 may run beside T2 or T3
 when the kickoffs' files do not overlap (`X2OfflineServer.cpp`'s dispatch table and `Always.h` one at a time). T5 and T6 edit `X2GUUser.*`
@@ -149,7 +149,7 @@ and `X2GUArme_VioletMage.*`: one code phase at a time there.
 **Scope.** Planning settled the representation; T0 settles everything the code phases need, then corrects their kickoffs.
 1. **Readers.** Classify every row of `plan_readers_unit.txt` / `plan_readers_my.txt`, and any reader they miss (other base registers,
    `+0x3c` via `CX2Unit*` getters, `CX2Room` slot units). Classes: engine (T1-T5), Aisha (T6), other class, UI owned by Stage 9.
-   - Other-class rows go to a new checklist section (§7an "Transcendence, per class"), one row per class with its June addresses.
+   - Other-class rows go to a new checklist section (§7ao "Transcendence, per class"), one row per class with its June addresses.
    - Output: `june2017_re/transcend/t0_readers.tsv`.
 2. **Wire.** June's position of the flag in each struct: `KUnitInfo` (`+0x17`), Room / Field / Square.
    - Identify `32360c70`.
@@ -182,7 +182,48 @@ and `X2GUArme_VioletMage.*`: one code phase at a time there.
 9. **Sizing.** Count per phase, split any phase over ~40 transcriptions, and rewrite the T1-T8 kickoffs with the facts (file:line, addresses).
 
 **Done gate:** `t0_readers.tsv` with 0 unclassified rows; every T1-T8 kickoff names its June addresses and March sites; funcmap rows
-`Transcend T0`; checklist §7an; T7 opened or closed with the reason.
+`Transcend T0`; checklist §7ao; T7 opened or closed with the reason.
+
+### T0 - Done (2026-10-23, Opus 5.5)
+
+Read-only: no code, no flag, no build or deploy. Outputs:
+- `june2017_re/transcend/t0_readers.tsv`: 82 rows (the planning scans' 80 functions plus `3291df90` and `31ee0de0`), 0 unclassified.
+  Owners: T1 11, T2 4, T3 2, T4 2, T5 5, T6 5 (`31fceab0` also T5), class code 35, Stage 9 UI 17, Stage 29 1.
+- funcmap: 17 rows `Transcend T0`. Checklist: **7ao** "Transcendence, per class" (7an was already CH4c's; the plan, T6 and Z now say 7ao).
+- Kickoffs T1-T6 rewritten with file:line, June addresses and struct offsets. T7 closed. No phase is over ~40 transcriptions; none split.
+- An extra scan (unit getters, `UnitData +0x14`, class / flag read pairs) found one more reader, `3291df90` (character info), and nothing else.
+
+Findings, by kickoff item:
+1. **Readers.** Engine readers are few. The four base skill helpers gate hyper-class skills: `31fcac90`, `31fcad70`, `31ff1e80` test `!= 0`,
+   `31fceab0` tests `== 1`. Then `HyperModeStart`, `ApplyHyperModeBuff`, the aura, the summon factor and the name-tag icon. Each class's
+   hyper-effect start returns at once for a transcended unit. Elsword's 21416-21418 passives are read from engine code (7ao).
+2. **Wire.** June reads the class as a word and the flag as an int right after it, in four structs: `KUnitInfo` +0x15 / +0x17, Room +0x21 / +0x23,
+   Field +0x24 / +0x26, Square +0x4a / +0x4c. `32360c70` is a flag-less Square-prefixed struct in the field game. No other packet carries the flag.
+3. **Event 0x596** is the NOT of `/tc`'s pair: REQ 0x594 (one int), ACK 0x595. Its payload is two ints; the client uses only the second.
+   `31ef82f0`'s callees are mapped in its funcmap row: the item-stat calculator key `328d6f40`, the popup on `g_pData +0x30c`, the tree UI on the
+   UI manager, the cash-shop close, the quest refresh `3232ecd0` and the class-up notice vslot `0x104`. June has no event names; T2 labels ours.
+4. **Quest.** `IsForbiddenQuest` is already ported with the flag fixed at 0 (`X2QuestManager.cpp:6188`): T1 switches it. `SetUnitQuest`'s compare
+   (`@3233743b`) is missing: T2. Level-up guide: June's `UICustomEventProc` `32712790` maps 1549 to quest manager `( 9, 0 )` and 1550 to the cash shop.
+   March's `LevelUpEvent.lua` is bytecode with FIRST / SECOND only.
+5. **Items.** `AddTranscendentalClassItem` is `3280b6c0`, a map from item to type with getter `32807fe0`. Type 0 is usable only before transcendence
+   (NetError 1727); type 1 only after (1686). `/tc` is `31d809c0`: auth level 3 or more, `arg % 1000`. The NetError texts are decoded (funcmap).
+6. **TC slots.** A-TC needs the flag; B-TC needs slot-state key 1 only. Only `31fc8c20` applies 843 / 844: on awakening, a 0.5 roll, timer 20.0.
+   They act on `SKILL_SLOT_TC` (type 3) skills, which March cannot resolve yet (T4).
+   - Possible June quirk for T4 to confirm: the in-game cool-time loop `322d8100` `break`s at a locked A-TC.
+   - The locked-slot click is June `CX2StateMenu` case 182 (March 208).
+7. **Engine.** Summon factor 1.2 -> 1.3. WakeUp FX + BFI 845 replace the hyper buff. `CharacterStatTable.lua` is per class: June adds one global
+   table, `TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE` (the weapon row differs). The consumer is `CalculateItemStat`, keyed by `328d6f40`.
+   `TRANSCENDENTAL_HYPER_MODE_PARTICLE` has no June data.
+8. **Sockets.** T7 is closed. `SOCKET_PARITY` already has the 8 types and their stats, and no June socket code reads the flag.
+
+**Routed (scope rule):**
+- the June UI readers (HUD portrait, character info, class icon, inventory, GFx cash-shop filter, world-map quest marks) -> Stage 9 bullet;
+- June's 2-byte class on the wire -> Stage 8 bullet;
+- the result screen's class image `324ce260` -> Stage 29 note.
+
+All three are in `JUNE_PORT_BACKLOG_ORDER.md`.
+
+No questions for the user. T1 is next.
 
 ## Phase T1 - The flag: unit, wire, save, emulator, switches
 
@@ -304,7 +345,8 @@ Log `[JUNE_TRANSCEND] ARME`.
 
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
-Placeholder. T0 writes its scope, or closes it with the reason (`SERV_IRUHADEV_JUNE_SOCKET_PARITY` may already cover `SDT_*_TRANSCEND*`).
+**Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types
+and their stats; June's data uses only the four WEAPON types; no June socket code reads the transcendence flag. See `kickoffs/june-transcend/T7.md`.
 
 ## Phase T8 - Walk
 
@@ -324,8 +366,8 @@ Placeholder. T0 writes its scope, or closes it with the reason (`SERV_IRUHADEV_J
 
 **Scope.**
 - `MODS.md` section and revert lines.
-- Checklist §7an marks.
-- The Stage 7 template's transcendence rows (each class port enables its class in T2's allow-list and ports its §7an row).
+- Checklist §7ao marks.
+- The Stage 7 template's transcendence rows (each class port enables its class in T2's allow-list and ports its §7ao row).
 - A backlog Stage 6 closing note; `_DEBUG` flags off; memory.
 
 ## Play-test hand-off (every phase)

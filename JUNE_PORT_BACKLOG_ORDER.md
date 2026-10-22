@@ -361,6 +361,10 @@ kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revam
 - No class ids are added. Evidence: `june2017_re/transcend/`, funcmap rows `Transcend S6`.
 - Routed: the awakening customization effect -> Stage 12; resonance -> Stage 30; achievements (`ACT_TRANCENDENTAL_CLASS_COUNT`) -> Stage 31.
 
+*T0 done (2026-10-23):* the readers are mapped (`june2017_re/transcend/t0_readers.tsv`; 35 class rows in checklist 7ao). Event 0x596 is the
+NOT of the pair 0x594 / 0x595 that `/tc` sends. The ticket rule is decoded (type 0 before, type 1 after transcendence). T7 (sockets) is closed.
+Routed by T0: the June UI readers -> Stage 9; the wire's 2-byte class -> Stage 8; the result screen's class image -> Stage 29.
+
 ### Stage 7: remaining March characters
 
 - Repeat Stages 5 and 6 per character with the proven recipe.
@@ -393,6 +397,10 @@ Everything from Stages 5 and 6, plus:
 - **Event scenes and cut-in art** (june-gfx Z, 2026-10-19): 439 of the 493 GFx event scenes are Rose quests and 21 are Ain (`GFXEventSceneInfo.xml`, scene `.swf` loose in `data\eventscene\`, all staged); they play once the quest
   system and these classes exist. Rose / Ain / Lu-Ciel cut-in names are June `.gfx` names in data152 / data195 (staged by june-gfx GA); name them in the class tables when the classes are ported.
 
+- **June's 2-byte unit class on the wire** *(from june-transcend T0, 2026-10-23)*. June reads the class as a word in every unit-info struct
+  (`KUnitInfo +0x15`, Room `+0x21`, Field `+0x24`, Square `+0x4a`: `movzx ... word ptr` in `3235eb20` / `32360090` / `323614c0` / `32361e00`);
+  March's `m_cUnitClass` is a `char`, which ends at 127. Check it when a class id above 127 first appears (the new characters). Transcendence
+  only adds the int after it (T1).
 **Hard gate:** the live-DB starter-item rows (below).
 
 ### Stage 9: UI sweep
@@ -523,6 +531,13 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   unported: `CX2StateDungeonGame::ShortCutKeyProcess` = June `324d2e20` (also the PVE / training states), `CX2StateBattleField::ShortCutKeyProcess` =
   `324bc8e0` (vslot 129 of `3349d88c`); their action reads are `0x11 0x14 0x15 0x17 0x1b 0x1a 0x2c 0xf 0x38 0x18 0x2a 0x2e 0x32 0x2b` (battlefield) and
   DIK `0x44 0xa 0x28 0xf 0x38 0x42` plus actions `0x11 0x14 0x15 ...` (dungeon). Diff each against March and port whole; check PvP / village sit too.
+- **Transcendence in the June UI** *(from june-transcend T0, 2026-10-23; rows `UI Stage 9` in `june2017_re/transcend/t0_readers.tsv`)*.
+  T2 ports `CX2Data::GetCharacterImageName`'s fifth argument (June `31ee0de0`, bTranscend) for the skill tree. Its other 39 callers pass the
+  unit's flag and are this stage's: the HUD portrait (`CX2MyGageUI` `32e5f3a0` / `32e62190` / `32e62d50` / `32e673e0` / `32e68d20` / `32e6cbb0`),
+  character info (`3291df90`), class name / icon (`32ed5180`), the unit-info struct fill (`328b3350`), inventory (`321a9da0`), boss-raid score
+  (`3215fd30`). Also: the GFx cash shop's transcend-item filter by `TranscendentalClassItem` type (`3222a840` / `3222af00` / `3222ec70` /
+  `32233860`, `3290c490`; getter `32807fe0`, which T3 ports) and the world map's quest marks (`32260ba0`, the `QR_` condition at quest
+  `+0xe0`).
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
@@ -1038,6 +1053,8 @@ in Stage 28, quest popups with quest-system.
 
 *R0 done (2026-10-22):* the map is `june2017_re/result_r0_map.tsv`. The 0xbd handler is `END_GAME_DUNGEON_RESULT_DATA_NOT`. R4 is
 opened for the training result only. The drift went to Stages 6, 9, 22 and 28.
+*June-transcend T0 (2026-10-23):* the result state's class image (`324ce260`, `31ee0de0` type 1) passes the transcendence flag; it is this
+stage's when the result screen draws the class icon.
 
 ### Stage 30: June resonance system (june-transcend planning, 2026-10-22)
 

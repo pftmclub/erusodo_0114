@@ -1,0 +1,83 @@
+june_va	base	test	june_function	owner	march_site	note
+31fcac90	unit	!= 0	CX2GUUser::SetSkillBuffFactors (vslot 143, base)	T6 Aisha	X2GUArme_VioletMage.cpp:29632 June_SetSkillBuffFactors (June_UnitFlag3c)	hyper-class skill of an untranscended unit applies nothing; base function, each class port copies it
+31fcad70	unit	!= 0	CX2GUUser learned skill templet (base)	T6 Aisha	X2GUArme_VioletMage.cpp:30398 June_GetLearnedSkillTemplet	hyper-class templet hidden unless transcended
+31fceab0	unit	== 1	CX2GUUser skill level for a skill id (base)	T6 Aisha; T5 engine	X2GUArme_VioletMage.cpp:29677 June_GetSkillLevel; X2DamageManager.cpp:5120 (no gate)	only base reader that tests == 1; T5 adds the gate at the DamageManager site
+31fdd490	unit	!= 0	CX2GUUser::JuneGetHyperModeTableName	T1 switch	X2GUUser.cpp:31637 JuneIsUnitTranscended (caller :31668)	per-class transcended tables by class (class rows come with each port)
+31fdd800	unit	!= 0	CX2GUUser berserk table name (only caller Ara 32bca580)	class Ara	-	ASI_BERSERK_MODE by class when transcended
+31ff1e80	unit	!= 0	CX2GUUser passive ability value (base)	T6 Aisha	X2GUArme_VioletMage.cpp:34454 June_GetPassiveSkillAbilityValue	hyper-class passive reads 0 unless transcended
+31ffd490	unit	!= 0	CX2GUUser::HyperModeStart tail -> 31fc8c20	T5 engine	X2GUUser.cpp:32136 HyperModeStart	31fc8c20: +0x9328 = 20.0, roll vslot 0x1cc(0) < 0.5 -> BFI 843 + 844 via vslot 0x21c
+3201a8f0	unit	!= 0	CX2GUUser vslot 105: name-tag icon -> 31ff6920	T5 engine	-	31ff6920 draws texture key ICON_TR (needs +0x8bac)
+32028790	unit	!= 0	CX2GUUser::ApplyAuraAcceleratorBuffToGameUnit (vslot 492)	T5 engine	X2GUUser.cpp ApplyAuraAcceleratorBuffToGameUnit	hyper-class aura skill skipped unless transcended
+32063650	unit	== 1	CX2GUUser::CommonFrameMove (skill 21416 RNSI_P_ELK_FIGHT_GOD)	class Elsword	X2GUUser.cpp:18205	Lord Knight passive adds +0x8e50; engine code, Elsword's skill
+32298590	unit	== 0	CX2GameUnit::ApplyHyperModeBuff (vslot 48)	T5 engine	X2GameUnit.cpp:16621	transcended: no vslot 0x21c hyper buff; Effectset_TRANScendence_WakeUp_FX -> +0x9f8; BFI 845 @322988d3
+322ece70	unit	!= 0	summoned-NPC stat helper (awake factor)	T5 engine	CH4 summon code (Stage 6 mark)	awake factor 1.2 (_DAT_3344ce94) -> 1.3 (_DAT_33472a10) when transcended
+32610cb0	unit	!= 0	bool: skill 21417 RNSI_P_ERS_OPEN_MIND learned, hyper-class, transcended	class Elsword	-	no Ghidra function; body 32610cf0..32610d4f
+328b3350	unit	value	UI unit-info struct fill (class +0x70, flag +0x74; own and others' units)	UI Stage 9	-	cases 9 / 0xe / 0xf; unit bases +0x50 and +0x1a0
+32994710	unit	!= 0	CX2GUEve hyper effect start (vslot 19)	class Eve	-	transcended skips the class hyper effect (WakeUp FX replaces it)
+329e23a0	unit	!= 0	CX2GUAdd formation buff: BFI 846 if transcended, else 315	class Add	-	vslot 0x21c( 0x34e or 0x13b )
+329e6f30	unit	!= 0	CX2GUAdd skill-id map (+0x9668) lookup gate	class Add	-	12 callers in Add
+329e6f80	unit	!= 0	CX2GUAdd skill-id map lookup	class Add	-	94 callers
+329e7210	unit	== 0 / != 0	CX2GUAdd state (from 32a245c5)	class Add	-	key 0x72e7
+329e7ca0	unit	!= 0	CX2GUAdd vslot 304	class Add	-	key 0x72e7
+329e7d60	unit	!= 0	CX2GUAdd vslot 305 (Phantom Seek effect)	class Add	-	key 0x72ea
+329e99a0	unit	!= 0	CX2GUAdd state (from 32a2fbb0)	class Add	-	
+329f10e0	unit	!= 0	CX2GUAdd state (from 32a30180)	class Add	-	key 0x72e8
+329f9380	unit	== 0	CX2GUAdd Installation effect	class Add	-	key 0x72ea
+32a02260	unit	!= 0	CX2GUAdd state (from 32a246f9)	class Add	-	
+32a047a0	unit	!= 0	CX2GUAdd vslot 306	class Add	-	keys 0x72e8 / 0x72ec
+32a08150	unit	== 0 / != 0	CX2GUAdd hyper StateStart	class Add	-	transcended: timer 20.0 then 31fc8c20 (engine, T5)
+32a0bfd0	unit	== 0	CX2GUAdd state (from 32a30c70)	class Add	-	
+32a15580	unit	!= 0	CX2GUAdd state (from 32a30f30)	class Add	-	key 0x72ec
+32a19bb0	unit	!= 0	CX2GUAdd state (from 32a310d0)	class Add	-	
+32a599c0	unit	!= 0	CX2GUAin hyper StateStart copy	class Ain	-	calls 31fc8c20 (engine, T5)
+32a6a990	unit	!= 0	CX2GUAin states 0x3c6-0x3c8	class Ain	-	reads +0x9784
+32a71a90	unit	!= 0	CX2GUAin::ApplyHyperModeBuff	class Ain	-	
+32ab1c30	unit	!= 0	CX2GURose hyper effect start (vslot 19)	class Rose	-	
+32b1f0a0	unit	!= 0	CX2GULuciel hyper effect start (vslot 19)	class Luciel	-	
+32b397a0	unit	!= 0	CX2GULuciel CommonFrameMove override (vslot 499)	class Luciel	-	32b14d10 when transcended
+32b74300	unit	!= 0	CX2GUEL hyper effect start (vslot 49)	class Elesis	-	
+32bb22d0	unit	== 0	CX2GUAra hyper effect start (vslot 49)	class Ara	-	
+32c063d0	unit	== 0	CX2GUChung hyper effect start (vslot 49)	class Chung	-	
+32c4e7c0	unit	== 0	CX2GURaven hyper effect start (vslot 49)	class Raven	-	
+32c9b3d0	unit	!= 0	CX2GULire_ElvenRanger hyper effect start (vslot 49)	class Rena	-	
+32cddcc0	unit	!= 0	CX2GUArme_VioletMage::June_HyperModeBuffEffectStart (vslot 49)	T6 Aisha	X2GUArme_VioletMage.cpp:28446 (test :28450)	transcended returns at once (32cddeb6)
+32d0c180	unit	== 0	CX2GUElsword_SwordMan (from SetEquippedSkillFunc 32d27181)	class Elsword	-	
+32d0c820	unit	!= 0	Elsword skill 21418 RNSI_P_ERS_MAGIC_COATING (called by DamageReact 320462a0)	class Elsword	-	hyper-class (+0x174 == 5) passive
+32d17e90	unit	!= 0	CX2GUElsword_SwordMan hyper effect start (vslot 19)	class Elsword	-	
+32d1b9d0	unit	== 1	CX2GUElsword_SwordMan (skill 0x53ac)	class Elsword	-	
+32d1c560	unit	== 1	CX2GUElsword_SwordMan vslot 420	class Elsword	-	three hyper-class tests
+32ed5180	unit	value	UI class name / icon (31ee0de0 type 2)	UI Stage 9	-	17 calls from 32ed7210
+3215fd30	my	value	boss-raid score UI (near CX2BossRaidLongTimeEvent)	UI Stage 9	-	passes the flag into a UI struct
+321a9da0	my	value	CX2UIInventory (31ee0de0 @321aa423)	UI Stage 9	-	
+321b7733	my	!= 0 / == 1	CX2UIInventory::OnRClickedItem 321aa5d0, item cases	T3 item	X2UIInventory.cpp:5866 OnRClickedItem	163200 / 163316 / 163323 / 163325 and 161854: class step 2 and transcended -> NetError 1727; 288493 by 32807fe0 type
+32206d30	my	!= 0	CX2SkillTree::JuneGetSkillListByLevel	T1 switch	X2SkillTree.cpp:3295	SPRT_HYPER_CLASS skipped unless transcended
+3220d2b0	my	!= 0	CX2SkillTree::JuneGetNewSkillOrMemoByLevel	T1 switch	X2SkillTree.cpp:3350	same skip
+3222a840	my	== 0 / == 1	CX2CashShop list filter by 32807fe0 type	UI Stage 9	-	type 0 shown untranscended, type 1 transcended
+3222af00	my	== 0 / == 1	CX2CashShop list filter by 32807fe0 type	UI Stage 9	-	
+3222ec70	my	== 0 / == 1	CX2CashShop list filter by 32807fe0 type	UI Stage 9	-	
+32233860	my	== 0 / == 1	CX2CashShop list filter by 32807fe0 type	UI Stage 9	-	
+32260ba0	my	== quest +0xe0	CX2WorldMapUI field-map quest marks	UI Stage 9	-	same QR_ condition as IsForbiddenQuest
+322d8100	my	== 0	CX2Game in-game slot cool-time UI loop	T4 slots	-	index 4 / 9 skipped unless key 1, or A and transcended; break, not continue (T4 confirms)
+3232e510	my	== quest +0xe0	CX2QuestManager::IsForbiddenQuest	T1 switch	X2QuestManager.cpp:6188	March stand-in: flag fixed at 0
+32336e80	my	== quest +0xe0	CX2QuestManager::SetUnitQuest	T2 quest	X2QuestManager.cpp:1122	compare @3233743b not ported
+323cf570	my	== quest +0xe0	CX2UIQuestNew quest list	T1 switch	X2UIQuestNewJune.cpp:53 JuneSelectUnitClassTran (caller :385)	
+323d0770	my	== quest +0xe0	CX2UIQuestNew quest list	T1 switch	X2UIQuestNewJune.cpp:53 (caller :608)	
+32476050	my	== 0	CX2StateMenu::UICustomEventProc case 182 (A-TC locked click)	T4 slots	X2StateMenu.cpp:1885	June 182 = March 208
+324ce260	my	value	CX2StateDungeonGame result: class image (31ee0de0 type 1)	UI Stage 29	-	june-result plan
+32712e50	my	!= 0	CX2LVUpEventMgr (after UICustomEventProc 32712790)	T2 guide	X2LVUpEventMgr.cpp	copies a list when transcended
+32869900	my	== 1	item-id switch (0x2da9f / 0x2daa0 / 0x5f5eeeb) -> 2 or 0	T3 item	-	caller 32df6960; T3 names it
+328dcba0	my	value	CX2UISkillTreeNew level rows: class image	T2 guide	X2UISkillTreeNew2015.cpp	31ee0de0 type 2 / 328db7a0 with the flag
+328ddff0	my	!= 0	CX2UISkillTreeNew::UpdateSkillTree( id )	T1 switch	X2UISkillTreeNew2015.cpp:1153	
+328dfab0	my	== 0	CX2UISkillTreeNew2015 slot dialog locks	T1 switch	X2UISkillTreeNew2015.cpp:2890 bTranscendent	Button_Buy_Guide_Slot_A_TC
+328e18d0	my	== 0	CX2EquippedSkillSlotData::UpdateUI	T1 switch	X2UISkillTreeNew2015.cpp:2427	A-TC lock; B-TC by key 1 (32890ea0)
+328e6550	my	== 0	CX2UISkillTreeNew::ProcessSkillTreeSlotRMouseUp	T1 switch	X2UISkillTreeNew2015.cpp:596	slot type 3
+328ed890	my	value	CX2UISkillTreeNew::InitSkillTreeUI	T1 switch	X2UISkillTreeNew2015.cpp:1107	CreateSkillTree( class, flag )
+3290c490	my	== 1	CX2CashShop equip preview (class step 2)	UI Stage 9	-	
+32e5f3a0	my	value	CX2MyGageUI portrait (31ee0de0 type 7)	UI Stage 9	-	
+32e62190	my	!= 0	CX2MyGageUI	UI Stage 9	-	switch from 0x25
+32e62d50	my	value	CX2MyGageUI portrait	UI Stage 9	-	
+32e673e0	my	value	CX2MyGageUI portrait	UI Stage 9	-	
+32e68d20	my	value	CX2MyGageUI portrait	UI Stage 9	-	
+32e6cbb0	my	value	CX2MyGageUI portrait	UI Stage 9	-	
+3291df90	unit(stack)	value	CX2UICharInfo class image (31ee0de0 type 5) [T0 scan]	UI Stage 9	-	missed by the planning scans
+31ee0de0	param	== 1	CX2Data::GetCharacterImageName( out, out, class, CIT, bTranscend ) [T0]	T2 guide	X2Data.h:51 CIT_ (no bTranscend arg)	transcended file / key when the image row has one; 39 callers

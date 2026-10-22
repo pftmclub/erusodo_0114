@@ -896,15 +896,15 @@ The save column added by T1 is the switch: until a unit's value is 1, every phas
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| T0 | ready (read-only map) | Opus 5.5 / high | - (runs with anything) | `june2017_re/transcend/`, funcmap, checklist §7an, plan doc, kickoffs T1-T8 | `T0.md` |
-| T1 | waiting on T0 | Sonnet 5.5 / high, then Opus 5.5 / high review | T0 | `X2Unit.*`, `CommonPacket.*`, `ServerDefine.h`, `X2OfflineDB.*`, `X2OfflineServer.cpp`, `Handlers_Unit.cpp` / `Handlers_Room.cpp`, the stand-ins' files, `tools/elsdb.py`, `tools/flagcheck.py`, Always.h | `T1.md` |
+| T0 | **done 2026-10-23**: `june2017_re/transcend/t0_readers.tsv` (82 rows, 0 unclassified), funcmap `Transcend T0`, checklist 7ao (7an was taken), kickoffs T1-T6 rewritten, T7 closed; routed: UI readers -> Stage 9, 2-byte wire class -> Stage 8, result class image -> Stage 29. User owes nothing | Opus 5.5 / high | - (runs with anything) | `june2017_re/transcend/`, funcmap, checklist 7ao, plan doc, kickoffs T1-T8 | `T0.md` |
+| T1 | ready | Sonnet 5.5 / high, then Opus 5.5 / high review | T0 | `X2Unit.*`, `CommonPacket.*`, `ServerDefine.h`, `X2OfflineDB.*`, `X2OfflineServer.cpp`, `Handlers_Unit.cpp` / `Handlers_Room.cpp`, the stand-ins' files, `tools/elsdb.py`, `tools/flagcheck.py`, Always.h | `T1.md` |
 | T2 | waiting on T1 review | Sonnet 5.5 / high, then Opus 5.5 / high review | T1 review | `Handlers_Quest.cpp`, `X2State.cpp`, `X2StateClassChange.*`, `X2LVUpEventMgr.*`, quest UI, `EventID_*.h`, data034 | `T2.md` |
 | T3 | waiting on T2 review | Sonnet 5.5 / high, then Opus 5.5 / high review | T2 review | `X2Data.cpp`, `X2ItemManager.*`, item-use handlers (client + emulator), data036 | `T3.md` |
 | T4 | waiting on T1 review | Sonnet 5.5 / high (Opus if T0 says), then Opus 5.5 / high review | T1 review | `X2GUUser.cpp`, `X2OfflineSkill.cpp`, `X2UISkillTreeNew2015.cpp`, `X2StateMenu.cpp` | `T4.md` |
 | T5 | waiting on T4 review | Opus 5.5 / high, then Opus 5.5 / high review | T4 review | `X2GUUser.*`, `X2GameUnit.*`, stat calculator, data036 `CharacterStatTable.lua` | `T5.md` |
 | T6 | waiting on T5 review | Sonnet 5.5 / high, then Opus 5.5 / high review | T5 review | `X2GUArme_VioletMage.*`, checklist §7an | `T6.md` |
-| T7 | opened or closed by T0 | per T0 | T6 review | per T0 | `T7.md` |
-| T8 | waiting on T3, T6 (T7) reviews | Sonnet 5.5 / medium, user play-test | T3, T6 (T7) reviews | none (walk) | `T8.md` |
+| T7 | **closed by T0 (2026-10-23)**: `SOCKET_PARITY` already covers the 8 `SDT_*_TRANSCEND*` types; no June socket code reads the flag | - | - | - | `T7.md` |
+| T8 | waiting on T3, T6 reviews | Sonnet 5.5 / medium, user play-test | T3, T6 reviews | none (walk) | `T8.md` |
 | Z | waiting on T8 | Sonnet 5.5 / medium | T8 | `MODS.md`, checklist, Aisha plan's Stage 7 template, backlog, memory | `Z.md` |
 
 Running together: T0 now, beside anything. After T1: T2 then T3 (both touch the emulator's class change); T4 may run beside T2 or T3 when

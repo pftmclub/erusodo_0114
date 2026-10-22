@@ -20,10 +20,10 @@ python tools/docsection.py JUNE_CHARACTER_AISHA_PHASES.md "Template for Stage 7"
 
 Do the plan's "Phase Z" scope.
 - **`MODS.md`.** A "June transcendence" section: flags, the save rung, the adopted / staged files, and revert lines.
-- **Checklist §7an.** Marks for Aisha; the other classes' rows stay open for their ports.
+- **Checklist §7ao.** Marks for Aisha; the other classes' rows stay open for their ports.
 - **The Stage 7 template** (`JUNE_CHARACTER_AISHA_PHASES.md`) gets the transcendence rows. Each class port:
   - adds its class to T2's allow-list;
-  - ports its §7an row;
+  - ports its §7ao row;
   - checks its hyper-class skills and transcended hyper table.
 - **Backlog.** A Stage 6 closing note in `JUNE_PORT_BACKLOG_ORDER.md`.
 - **Flags.** Every `_DEBUG` flag is off. Build once if one was on.

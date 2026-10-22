@@ -890,3 +890,30 @@ CH4c added two empty `CX2GUUser` virtuals under `SERV_IRUHADEV_JUNE_USER_PASSIVE
 | `GetCharacterSpecializationB()` (June `+0x6d04`) readers | Eve `329b407b`, Add `32a01ca2`, Ain `32a59fc5`, Rose `32ac77ab`, Lu/Ciel `32b14950` / `32b3794d`, Ara `32ba6f31`, Chung `32bf528d`, Raven `32c49410` / `32c507da`, Rena `32c85838` (Aisha `32cd0197`: CH4c) | the reading function, whole |
 | `AttackResult`'s Way-of-Sword MP factor (`32012b50 @32012d98`, `@32012ee3`): `1 - SpecializationB` in Vigor / Destruction, else `1 + SpecializationA` | Elsword, Elesis | engine block in `CX2GUUser::AttackResult`, with the class |
 | `GetFinalDamage @32285d0a`: unit type 11 (`UT_ROSE`) in states `0x15a` / `0x15b` scales a term by `+0x9798` | Rose (Stage 8) | the branch, with Rose's member |
+
+### 7ao. Transcendence, per class (from june-transcend T0)
+
+June marks a transcended unit with an int at CX2Unit `+0x3c` (T1 adds it to March's `UnitData`). The engine half is june-transcend T1-T5; Aisha is
+T6. Every other class port brings its own rows below (evidence `june2017_re/transcend/t0_readers.tsv`, owner `class <Name>`).
+
+Every class also brings:
+- its id in the emulator's transcend allow-list (T2; user decision 2026-10-22) and its `LevelUpEvent.lua` TYPE row + `DLG_Transcendental_Change_Guide_<Class>.lua`;
+- its cases in `JuneGetHyperModeTableName` (June `31fdd490`, by class 100..) and its transcended hyper cut-in names (`HQ_Cutin_*_Transcendence`);
+- its hyper-class skills (`SPRT_HYPER_CLASS`), their states and `TRANSCENDENTAL_SKILL_DATA` rows;
+- the four base skill helpers with the flag test, if the port copies them as Aisha did: `31fcac90`, `31fcad70`, `31fceab0` (`== 1`), `31ff1e80`;
+- its hyper-effect start, which returns at once for a transcended unit (June's WakeUp FX in `32298590` replaces it).
+
+| Class | June readers of `+0x3c` | What the class port brings |
+|---|---|---|
+| Elsword | `32d17e90` (hyper effect start, vslot 19); `32d0c180` (SetEquippedSkillFunc `32d27181`); `32d0c820` (21418 Magic Coating, from DamageReact `320462a0`); `32d1b9d0` (skill `0x53ac`, `== 1`); `32d1c560` (vslot 420, three `== 1`); engine-code readers of his skills: `32063650` CommonFrameMove (21416 Fight God, `== 1`), `32610cb0` (21417 Open Mind) | each branch, whole; the two engine-code blocks go into March's `CommonFrameMove` / the caller of `32610cb0` with him |
+| Aisha | `32cddcc0`, `31fcac90`, `31fcad70`, `31fceab0`, `31ff1e80` | june-transcend T6 |
+| Rena | `32c9b3d0` (hyper effect start, vslot 49) | the branch |
+| Raven | `32c4e7c0` (hyper effect start, vslot 49) | the branch |
+| Eve | `32994710` (hyper effect start, vslot 19) | the branch |
+| Chung | `32c063d0` (hyper effect start, vslot 49) | the branch |
+| Ara | `32bb22d0` (hyper effect start, vslot 49); `31fdd800` (berserk table by class, only caller `32bca580`) | the branch; `31fdd800` whole (CX2GUUser code only Ara calls) |
+| Elesis | `32b74300` (hyper effect start, vslot 49) | the branch |
+| Add | `329e23a0` (BFI 846 formation buff instead of 315); `329e6f30`, `329e6f80` (skill-id map gates, 12 / 94 callers); `329e7210`, `329e7ca0`, `329e7d60`, `329e99a0`, `329f10e0`, `329f9380`, `32a02260`, `32a047a0`, `32a0bfd0`, `32a15580`, `32a19bb0`; `32a08150` (hyper StateStart, calls `31fc8c20`) | each branch, whole (Stage 7) |
+| Lu/Ciel | `32b1f0a0` (hyper effect start, vslot 19); `32b397a0` (CommonFrameMove override, vslot 499) | the branches (Stage 8) |
+| Rose | `32ab1c30` (hyper effect start, vslot 19) | the branch (Stage 8) |
+| Ain | `32a599c0` (hyper StateStart, calls `31fc8c20`); `32a6a990` (states `0x3c6`-`0x3c8`); `32a71a90` (ApplyHyperModeBuff) | each branch (Stage 8) |
