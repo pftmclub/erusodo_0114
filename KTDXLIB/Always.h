@@ -9785,3 +9785,20 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_OFFLINE_FINALITY_SKILL needs SERV_IRUHADEV_OFFLINE
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June's fifth unit delegate list ( +0x66ec, run by AreaHit 32624610 ) and the NAT_NORMAL NPC attack-result run ( 3276a320 @3276a83e ). Revert: undefine the flag ( JUNE_UNIT_DELEGATE_LIST ).
+#define SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: Temporary ( pilot CH4b ) - a [JUNE_CHAR] line per unit delegate list run, the first run and then non-empty runs once a second. Retire after the CH4b play-test.
+#define SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST ) || !defined( SERV_IRUHADEV_OFFLINE ) )
+#error SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG needs SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST and SERV_IRUHADEV_OFFLINE
+#endif
+//////////////////////////////////////////////////////////////////////////

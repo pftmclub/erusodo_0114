@@ -36017,9 +36017,10 @@ namespace
 	const int JUNE_CH4A_P_AVP_DARK_DEAL					= 22415;
 	const int JUNE_CH4A_SA_ABM_MAGICAL_MAKEUP			= 22022;
 	const int JUNE_CH4A_SA_ABM_SUPER_NOVA				= 22023;
+	const int JUNE_CH4B_P_ADW_OPEN_MIND					= 22416;
 }
 
-// June 32cecd70; the 22416 tail ( +0x66ac delegate, 32ce9f90 ) is CH4b's
+// June 32cecd70
 void CX2GUArme_VioletMage::June_InitPassiveSkillState()
 {
 	CX2GUUser::InitPassiveSkillState();
@@ -36162,12 +36163,38 @@ void CX2GUArme_VioletMage::June_InitPassiveSkillState()
 		}
 	}
 
+	const int iOpenMindLevel = June_GetSkillLevel( JUNE_CH4B_P_ADW_OPEN_MIND );
+	if( 0 < iOpenMindLevel )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUArme_VioletMage, June_OpenMindAttackResult ) );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL passive init ( unit %I64d: open mind level %d, delegate %s )", GetUnitUID(), iOpenMindLevel, 0 < iOpenMindLevel ? L"registered" : L"not registered" );
+
 	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL passive init ( unit %I64d: fireball mp %.3f range %.3f, mp regen %.3f, friendship %d, research %.3f, gravity %d x%.3f, makeup size %.1f, element %d, staff rate %.3f, strong mind %s %.3f / %.3f / %.3f, dark deal %.3f / %.3f, adv teleport %d mp %.3f, overdrive %d %.3f / %.3f )",
 		GetUnitUID(), m_fMPConsumeRateFireBall, m_fFireBallRangeRate, fAddMpChangeRate, true == m_bElementalFriendShip ? 1 : 0, m_fElementalResearchRate,
 		true == m_bResearchGravityBall ? 1 : 0, m_fGravityBallPower, m_fMagicStaffSize, m_iJuneBallElement, m_fMagicStaffExtraRate,
 		NULL != m_pJuneMpRefund ? L"on" : L"off", NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fActiveSkillRate : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fSpecialActiveSkillRate : 0.f,
 		NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fMPRestoreRate : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fChance : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fRate : 0.f,
 		static_cast<int>( m_iAdvancedTeleportationLv ), m_fJune97a0, true == m_bJune978d ? 1 : 0, m_fJune9790, m_fJune9794 );
+}
+
+// June 32ce9f90; the factor's game unit is the defender, as June passes it ( JUNE_BUGS 397 )
+void CX2GUArme_VioletMage::June_OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ )
+{
+	const int iSkillLevel = June_GetSkillLevel( JUNE_CH4B_P_ADW_OPEN_MIND );
+	if( 0 >= iSkillLevel )
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+	if( NULL == pDefender || false == damageData_.JuneIsAttackTrigger( 17 ) )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = June_GetLearnedSkillTemplet( JUNE_CH4B_P_ADW_OPEN_MIND );
+	if( NULL == pSkillTemplet || true == pSkillTemplet->m_vecBuffFactorPtr.empty() )
+		return;
+
+	CX2BuffFactorPtr ptrBuffFactor = pSkillTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillLevel );
+	ptrBuffFactor->SetGameUnitBuffFactor( pDefender );
+	pDefender->SetBuffFactorToGameUnit( *ptrBuffFactor );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL open mind ( unit %I64d: level %d, buff factor to %I64d )", GetUnitUID(), iSkillLevel, pDefender->GetUnitUID() );
 }
 //}} Iruha : 2026-10-22 // June character pilot Phase CH4a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE

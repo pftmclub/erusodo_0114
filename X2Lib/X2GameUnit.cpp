@@ -16944,12 +16944,49 @@ void CX2GameUnit::EraseBuffIdentity( const BUFF_BEHAVIOR_TYPE eType_, const KBuf
 	}	
 }
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
+// Temporary CH4b proof: each list's first run per user / NPC, then its non-empty runs at most once a second
+void CX2GameUnit::JuneLogDelegateRun( const void* pList_, const UINT uiCount_, const UINT uiBound_ ) const
+{
+	int iList = -1;
+	const wchar_t* pwszList = L"";
+	if( pList_ == &m_vecDelegateProcessInAttackResult ) { iList = 0; pwszList = L"attack result +0x66ac"; }
+	else if( pList_ == &m_vecDelegateProcessInDamageReact ) { iList = 1; pwszList = L"damage react +0x66bc"; }
+	else if( pList_ == &m_vecDelegateProcessInCommonFrameMove ) { iList = 2; pwszList = L"frame move +0x66cc"; }
+	else if( pList_ == &m_vecDelegateProcessWithDamageDataInDamageReact ) { iList = 3; pwszList = L"damage react with data +0x66dc"; }
+	else if( pList_ == &m_vecJuneDelegateProcessInAreaHit ) { iList = 4; pwszList = L"area hit +0x66ec"; }
+	if( iList < 0 )
+		return;
+
+	static bool s_abSeen[10] = { false };
+	static DWORD s_adwLast[10] = { 0 };
+	const int iSlot = iList * 2 + ( GUT_USER == GetGameUnitType() ? 0 : 1 );
+	const DWORD dwNow = timeGetTime();
+	if( true == s_abSeen[iSlot] && ( 0 == uiCount_ || dwNow - s_adwLast[iSlot] < 1000 ) )
+		return;
+	s_abSeen[iSlot] = true;
+	s_adwLast[iSlot] = dwNow;
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARME SKILL delegate run ( %s: %s %I64d, %u entries, %u bound )", pwszList,
+		GUT_USER == GetGameUnitType() ? L"user" : L"npc", GetUnitUID(), uiCount_, uiBound_ );
+}
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 /** @function : DoDelegateProcess
 	@brief : 전달 받은 델리게이터들의 모음을 실행 하는 함수
 	@param : 델리게이터 모음(vecDelegateProcess_)
 */
 void CX2GameUnit::DoDelegateProcess( const vector<DelegateProcess>& vecDelegateProcess_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
+	{
+		UINT uiBound = 0;
+		BOOST_FOREACH( const DelegateProcess& delegateProcess, vecDelegateProcess_ )
+		{
+			if ( delegateProcess )
+				++uiBound;
+		}
+		JuneLogDelegateRun( &vecDelegateProcess_, static_cast<UINT>( vecDelegateProcess_.size() ), uiBound );
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 	if ( !vecDelegateProcess_.empty() )
 	{
 		BOOST_FOREACH( const DelegateProcess& delegateProcess, vecDelegateProcess_ )
@@ -16966,6 +17003,17 @@ void CX2GameUnit::DoDelegateProcess( const vector<DelegateProcess>& vecDelegateP
 */
 void CX2GameUnit::DoDelegateProcessWithDamageData( const vector<DelegateProcessWithDamageData>& vecDelegateProcess_, const CX2DamageManager::DamageData& damageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
+	{
+		UINT uiBound = 0;
+		BOOST_FOREACH( const DelegateProcessWithDamageData& delegateProcess, vecDelegateProcess_ )
+		{
+			if ( delegateProcess )
+				++uiBound;
+		}
+		JuneLogDelegateRun( &vecDelegateProcess_, static_cast<UINT>( vecDelegateProcess_.size() ), uiBound );
+	}
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 	if ( !vecDelegateProcess_.empty() )
 	{
 		BOOST_FOREACH( const DelegateProcessWithDamageData& delegateProcess, vecDelegateProcess_ )

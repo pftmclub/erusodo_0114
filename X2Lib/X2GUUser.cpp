@@ -6198,6 +6198,9 @@ void CX2GUUser::InitPassiveSkillState()
 	m_vecDelegateProcessInDamageReact.resize( 0 );
 	m_vecDelegateProcessInCommonFrameMove.resize( 0 );
 	m_vecDelegateProcessWithDamageDataInDamageReact.resize( 0 );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+	m_vecJuneDelegateProcessInAreaHit.resize( 0 );	/// June 31fe19d0 @31fe1a11
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 	
 	// kimhc // 2009-11-27 // 패시브 스킬 초기화 시에 ability값 항등원으로 초기화
 	m_SkillRelatedData.SetForceDownValueRateOfMeleeAttack( 1.f );

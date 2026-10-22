@@ -846,3 +846,29 @@ June's decide-page ACK (`3220f2b0`) has two class branches after `InitEquippedAc
   write it into a CX2GUUser member before its states read it.
 - **New CX2GUUser hooks for every class** (LIVE): `JuneAfterEquipSlotChange` (0x654), `JuneAfterImageFrameMove` (0x850), `JuneSummonedNPCInfo` (0x860),
   `JuneReservedSkillStart` (512), and the virtual `UpdateEquipCollisionData( vector& )` (0x638). A class port overrides the ones June's class overrides.
+
+### 7am. Unit delegate-list registrations per class (from pilot-char-revamp CH4b)
+
+June's five lists are March's four plus the area-hit list (`SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST`): `+0x66ac` attack result
+(`InsertDelegateProcessToAttackResult`), `+0x66bc` damage react, `+0x66cc` frame move (`InsertDelegateProcessToCommonFrameMove`), `+0x66dc` damage
+react with data (`InsertDelegateProcessWithDamageDataToDamageReact`), `+0x66ec` area hit (`InsertJuneDelegateProcessToAreaHit`, nobody registers).
+Each class registers in its `InitPassiveSkillState` (vslot `0x690`) after the base, which clears the lists. Port a class's pushes with it, each
+callback whole (the list entry is a `push edx; call <fn>; ret` thunk; the target is listed). Whole-binary scan, CH4b:
+
+| Class | Registering function | Pushes ( list: callback ) |
+|---|---|---|
+| Elsword | `32d1c560` | A `32d0c4e0`, A `32d1b9d0`, C `32d08ba0`, A `32d0baf0`, A `32d0bc60`, D `32d0c180`, A `32d05af0`, A `32d1a370` |
+| Rena | `32ca7860` | A `32ca2180` (Open Mind), A `32ca2390`, A `32c86790`, A `32ca28b0` |
+| Raven | `32c57660` | A `32c3df50`, C `32c4e5b0`, A `32c28160` |
+| Eve | none | (her summons register through the NPC, below) |
+| Chung | `32c16be0` | A `32c12910`, A `32bdba10` |
+| Ara | `32bcd9c0`, and `32bb0d10` (called from it) | A `32b95910`, A `32ba7e40`, A `32b95980`, A `32b959a0`; A `32baf810`, A `32baad30` |
+| Elesis | `32b88300` | A `32b52470`, A `32b6fd50`, A `32b7e3b0`, A `32b524b0`, A `32b6f820`, A `32b872d0`, A `32b87880` |
+| Add | `32a1ccb0` | A `32a04ce0`, A `329d4190`, A `32a01d20`, D `32a01dd0` |
+| Lu/Ciel (Stage 8) | `32b43d10` (slot `0x7a4` of `334f06fc`) | A `32b14bc0`, A `32b3d380`, A `32b0fc50`, A `32b43590`, A `32b435f0`, A `32b0fce0`, A `32b177b0`, A `32b13c80`, A `32b17f90`, C `32b3e470` |
+| Rose (Stage 8) | `32ad1080` | A `32aa7e90`, A `32ab41c0`, A `32ac5ce0`, A `32ab42f0`, A `32aa7e10`, A `32a7aa80`, D `32ab5720`, A `32ab1710`, A `32ab54f0`, A `32ab04d0`, A `32a7eab0`, A `32aacf00` |
+| Aisha | `32cecd70` | A `32ce9f90` (Open Mind 22416; Aisha: CH4b) |
+
+- **NPC-side pushes for two classes' summons** (`3275f0a0`, an NPC vslot): every NPC gets A `3275a120` (owner `UT_EVE`, skill 25417, MP text) and
+  A `3275a490` (owner `UT_LIRE` -> Rena's `32ca2180`). Port each with its class (Eve, Rena); the registration lives in `CX2GUNPC`.
+- March's own pushes (Elsword, Raven, Ara, Elesis, Add) are March's callbacks; a port replaces them with June's set above.

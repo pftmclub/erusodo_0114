@@ -2042,6 +2042,60 @@ flag, has a review and a play-test, and touches `X2GUArme_VioletMage.*`, so they
 - **In game:** an Aisha hyper skill (units 51-53 hold 99 essence each) takes one essence. The log has `SKILL    finality skill used El's Essence itemUID=..., N left`, and there is no UNHANDLED line.
 - **Play-test PASSED (user, 2026-10-22):** at 07:26:45, `EGS_USE_FINALITY_SKILL_REQ` was HANDLED and the ACK sent. The log line is `SKILL    finality skill used El's Essence itemUID=1679, 98 left`, and unit 51's essence is 98 in the save.
 
+### CH4b - Done (2026-10-22, Opus 5.5)
+
+**Landed.** Commit: see `git log`, "Phase CH4b". Rows: funcmap "Char CH4b".
+- **March already has four of June's five lists**, with June's runners. `+0x66ac` = `m_vecDelegateProcessInAttackResult`, `+0x66bc` =
+  `...InDamageReact`, `+0x66cc` = `...InCommonFrameMove`, `+0x66dc` = `...WithDamageDataInDamageReact`. `322752b0` (RET 8, `edx` = the DamageData) and
+  `32275280` (RET 4) are `DoDelegateProcessWithDamageData` / `DoDelegateProcess`: empty test, null entries skipped.
+- **The 11 run sites.** Nine are March's calls in the same place: CEffect `@31f86a8b`, user AttackResult `@3201399d`, NPC NAT_ALLY `@3276a7a1`,
+  both DamageReacts (B then D), both CommonFrameMoves. Two are June-only, now under the new engine flag `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST`:
+  - `+0x66ec`, the area-hit list (`m_vecJuneDelegateProcessInAreaHit`), run at the end of `CX2DamageManager::AreaHit` (`@32624f73`): for the attacker,
+    after the drain-mana block, whatever the hit count.
+  - `CX2GUNPC::AttackResult` also runs `+0x66ac` for a `NAT_NORMAL` NPC (`@3276a824`-`3276a83e`; March only for `NAT_ALLY`).
+- **Clears.** `31fe19d0` resizes all five (March's `InitPassiveSkillState` four, plus `+0x66ec`), and `ClearAllDelegateProcess` (`3207bfe0`) clears five.
+  The ctor and dtor are the vector's own.
+- **Nobody registers on `+0x66ec`** in June (whole-binary scan, all pushes `3207b770` with a `+0x66xx` `ecx`). It runs empty.
+- **Aisha, 22416 Open Mind** (`SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`). The `32cecd70` tail registers `June_OpenMindAttackResult` (`32ce9f90`, thunk `32cf2d70`)
+  on the attack-result list when `June_GetSkillLevel( 22416 ) > 0`.
+  - The callback runs on a trigger-17 hit (`32610fb0( 0x11 )`) with a defender. It clones the skill's first buff factor at its level and applies
+    it to the defender, whom June also passes as the factor's game unit (JUNE_BUGS 397).
+  - It adds a templet / empty-vector guard that June lacks.
+  - The new log line is `passive init ( unit ...: open mind level N, delegate ... )`.
+- **Other classes' registrations** go to the checklist, new §7am, per class: Elsword, Rena, Raven, Chung, Ara, Elesis, Add, Lu/Ciel, Rose. The
+  NPC-side pushes for Eve / Rena summons (`3275f0a0`) are listed there too.
+- **Temporary proof log** `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG`. `[JUNE_CHAR] ARME SKILL delegate run ( <list>: user|npc <uid>, N entries, M bound )`
+  is written at each list's first run per user / NPC, then for non-empty runs once a second. Retire it in the review.
+
+**Not testable before Stage 6.** 22416 is a transcendence passive (`SPRT_HYPER_CLASS`), and `31fceab0` gives 0 for an untranscended unit, as
+Dark Deal's did in CH4a. No save reaches the callback; the in-game check of Open Mind belongs to Stage 6. The engine lists are proven by their run lines.
+
+**Drift, routed** (scope rule):
+- The June-only unit vslots `0x1e8` (`32011b80`, Celestial Blitz BTI 0x382) and `0x1ec` (`32296570`) run right after the lists.
+- The NPC key `ATTACK_RESULT%d` (`327a0fa0 @327ac7ef` -> `3275a520`).
+- All three are a Stage 2 bullet in `JUNE_PORT_BACKLOG_ORDER.md`; the per-class pushes are checklist §7am.
+
+**Hygiene.**
+- `JUNE_UNIT_DELEGATE_LIST --worktree --files` (Always.h, X2DamageManager, X2GUNPC, X2GUUser, X2GameUnit `.cpp` / `.h`):
+  `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 1 ERROR`. The `in this flag's files:` line is all zeros
+  (no deleted, non-ASCII or EOL-mismatched lines, no bare `#else` / `#endif`, no encoding change).
+  - The ERROR is the `_DEBUG` `#error` guard naming both flags (`Always.h:9801`), as CH4a's was.
+  - The two OTHER rows are the `_DEBUG` blocks.
+- `_DEBUG`: `1 PASS, 2 OTHER`, `RESULT: PASS`.
+- `JUNE_CHAR_ARME_PASSIVE` (Arme `.cpp` / `.h`): `2 PASS`, `RESULT: PASS`. Its 1 deleted line is the stale CH4a comment
+  `// June 32cecd70; the 22416 tail ( ... ) is CH4b's`, now `// June 32cecd70`.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,723,392 B, dated 2026-10-22 07:57:33, md5 2df0cc57ab1463fedbd3b7578899559b, equal to X2/US_SERVICE/x2.exe (2026-10-22 07:57:25); built at main dd15e841 + 8 uncommitted code file(s).` The strings `delegate run` and `open mind level` are in the deployed exe.
+**Save** (backup `db_backup/els_db_20261022_075248_pre_sql.sql`): unit 52 `ArmeVP` gets its learned Mana Steal 22015 into slot 4. June's `DamageEffect_SA_ADM_Mana_Intake` is an `HT_AREA_HIT`, so casting it reaches the area-hit run.
+
+**In game:** play any unit in a dungeon. `offline_server.log` gets one `delegate run` line per list for user and NPC on its first run:
+- frame move `+0x66cc`;
+- attack result `+0x66ac` (the NPC line is the new NAT_NORMAL site);
+- damage react `+0x66bc` / `+0x66dc`;
+- area hit `+0x66ec` (an area-hit attack).
+
+An Aisha unit logs `open mind level 0, delegate not registered`.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

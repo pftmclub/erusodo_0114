@@ -4872,6 +4872,14 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (needs LIVE and the MP text flag) a
 - **Save.** Test rows: unit 54 `ArmeVP2` + Dark Deal 22415, unit 53 `ArmeDW` + Advanced Teleportation 22411 (both level 1); backup `db_backup/els_db_20261022_060831_pre_sql.sql`. No schema change.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (then, if wanted, `SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
 
+### June unit delegate lists and Aisha's Open Mind delegate (pilot-char-revamp CH4b, 2026-10-22)
+
+Flags `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST`, `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG` (temporary) and CH4a's `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH4b - Done"; log lines `[JUNE_CHAR] ARME SKILL delegate run ( ... )`, `... passive init ( unit ...: open mind level ... )`.
+- **Engine.** March already has four of June's five lists with June's runners (`322752b0` / `32275280`). New: the area-hit list `m_vecJuneDelegateProcessInAreaHit` (June `+0x66ec`), cleared in `CX2GUUser::InitPassiveSkillState` and `ClearAllDelegateProcess`, run at the end of `CX2DamageManager::AreaHit` for the attacker; and `CX2GUNPC::AttackResult` also runs the attack-result list for a `NAT_NORMAL` NPC (June `@3276a83e`). June registers nothing on the area-hit list.
+- **Aisha.** `June_InitPassiveSkillState` registers `June_OpenMindAttackResult` (June `32ce9f90`) when Open Mind 22416 is learned; the callback puts the skill's buff factor on the target of a trigger-17 hit (JUNE_BUGS 397). 22416 is a transcendence passive, so it stays unregistered until Stage 6.
+- **Debug.** `..._DEBUG` logs each list's first run per user / NPC and its non-empty runs once a second (`CX2GameUnit::JuneLogDelegateRun`). Retire it after the CH4b play-test.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG` and `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST` (the Open Mind half reverts with `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
 ### Dev convenience: free skills for a dev account in June-ported classes (JUNE_DEV_UNLIMITED_SKILL, 2026-10-22)
 
 Flag `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` in `KTDXLIB/Always.h`. Not June: `CX2GUUser::JuneIsDevUnlimitedSkillUse()` is March's in-house skip of the skill cool-time / MP checks (`TOGGLE_UNLIMITED_SKILL_USE`, else `#ifndef _SERVICE_` with `XUAL_DEV`), and a ported class's June skill check (Aisha's `June_SpecialAttackLookup`) skips its block when it is true. Standing rule for every class port (`JUNE_PORT_BACKLOG_ORDER.md` "Standing rules").

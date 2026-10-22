@@ -959,6 +959,7 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		int							m_iJuneBallElement;			/// June +0x9630: 0 fire, 1 ice, 2 energy ( March: m_bIceBall ); CH4 sets it
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		void June_InitPassiveSkillState();								/// June 32cecd70 ( vslot 0x690 )
+		void June_OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32ce9f90 ( thunk 32cf2d70 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1c
 

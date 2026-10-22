@@ -14673,6 +14673,10 @@ void CX2GUNPC::AttackResult()
 
 		UpDownCrashCamera( m_DamageData.fCameraCrashGap, m_DamageData.fCameraCrashTime );
 	}
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+	else if( NULL != m_pAI && CX2NPCAI::NAT_NORMAL == m_pAI->GetAIType() )
+		DoDelegateProcessInAttackResult( m_DamageData );	/// June 3276a320 @3276a824-3276a83e
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 	
 
 

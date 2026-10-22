@@ -2899,6 +2899,11 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		/// DamageReact 시에만 실행되는 델리게이트 모음(DamageData 인자 사용)
 		void								InsertDelegateProcessWithDamageDataToDamageReact ( const DelegateProcessWithDamageData& delegateProcess_ ) { m_vecDelegateProcessWithDamageDataInDamageReact.push_back( delegateProcess_ ); }
 		void								DoDelegateProcessWithDamageDataInDamageReact ( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecDelegateProcessWithDamageDataInDamageReact, damageData_ ); }
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+		/// June +0x66ec, run by AreaHit 32624610 @32624f7b; June registers nothing on it
+		void								InsertJuneDelegateProcessToAreaHit( const DelegateProcessWithDamageData& delegateProcess_ ) { m_vecJuneDelegateProcessInAreaHit.push_back( delegateProcess_ ); }
+		void								DoJuneDelegateProcessInAreaHit( const CX2DamageManager::DamageData& damageData_ ) { DoDelegateProcessWithDamageData( m_vecJuneDelegateProcessInAreaHit, damageData_ ); }
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 		
 		/// CommonFrameMove에서 수행될 Delegate프로세스
 		void								InsertDelegateProcessToCommonFrameMove( const DelegateProcess& delegateProcess_ ) { m_vecDelegateProcessInCommonFrameMove.push_back( delegateProcess_ ); }
@@ -2910,6 +2915,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 			m_vecDelegateProcessInDamageReact.clear();
 			m_vecDelegateProcessInCommonFrameMove.clear();
 			m_vecDelegateProcessWithDamageDataInDamageReact.clear();
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+			m_vecJuneDelegateProcessInAreaHit.clear();	/// June 3207bfe0 @3207c0a2
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 		}
 
 		virtual void						ChangeModelDetail( int detailPercent ) = 0;
@@ -4197,6 +4205,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 		void DoDelegateProcess( const vector<DelegateProcess>& vecDelegateProcess_ );
 		void DoDelegateProcessWithDamageData( const vector<DelegateProcessWithDamageData>& vecDelegateProcess_, const CX2DamageManager::DamageData& damageData_ );
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
+		void JuneLogDelegateRun( const void* pList_, const UINT uiCount_, const UINT uiBound_ ) const;
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
 
 		void AddToDamagedMap( const CX2GameUnit* pAttackerGameUnit_, const float fFinalDamage_ );
 		UidType GetGameUnitUIDMaxDamage() const;
@@ -5288,6 +5299,9 @@ protected:
 		vector<DelegateProcess>							m_vecDelegateProcessInDamageReact;		/// DamageReact 시에만 실행되는 델리게이트 모음
 		vector<DelegateProcess>							m_vecDelegateProcessInCommonFrameMove;	/// CommonFrameMove 에서 실행되는 델리게이트 모음
 		vector<DelegateProcessWithDamageData>			m_vecDelegateProcessWithDamageDataInDamageReact;		/// DamageReact 시에만 실행되는 델리게이트 모음(DamageData 인자 사용)
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+		vector<DelegateProcessWithDamageData>			m_vecJuneDelegateProcessInAreaHit;		/// June +0x66ec ( AreaHit )
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 
 		vector<CX2EffectSetImpactPointByBuffPtr>	m_vecEffectSetImpactPointByBuffPtr;	/// 타격시 타격포인트에 출력되야하는 이펙트셋리스트
 		vector<CX2EffectSetImpactPointByBuffPtr>	m_vecEffectSetHittedByBuffPtr;		/// 피격시 출력되야하는 이펙트셋리스트

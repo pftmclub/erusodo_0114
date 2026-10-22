@@ -1920,6 +1920,10 @@ bool CX2DamageManager::AreaHit( DamageData* pDamageData, bool bAttackOnlyThisUni
 		}		
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
+	if( NULL != pAttacker )
+		pAttacker->DoJuneDelegateProcessInAreaHit( *pDamageData );	/// June AreaHit 32624610 @32624f73
+#endif SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST
 	if(nCount > 0)
 	{
 		return true;
