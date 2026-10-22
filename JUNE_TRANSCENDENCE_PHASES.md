@@ -261,6 +261,8 @@ Flag `SERV_IRUHADEV_JUNE_TRANSCEND_UNIT` (`Always.h` + `ServerDefine.h`, `SECOND
 - **Deploy.** `DEPLOY OK: X2_offline.exe is 25,792,000 B, dated 2026-10-23 05:28:42, md5 e05dfadba9932ea0127ebf4c2db25df6, equal to X2/US_SERVICE/x2.exe (2026-10-23 05:28:35); built at main 60b60c88 + 18 uncommitted code file(s).`
 - **Not touched (as the kickoff says):** slot-4 / 9 skips and the emulator's equip refusal (T4), the 42030 refusal (T2), `X2StateMenu.cpp:1885` (T4). With a unit at 1 the T4-T6 code does not exist yet, so a transcended unit shows the tree rows 14-17 and an unlocked A-TC slot but nothing else changes.
 
+**Play-test PASSED (2026-10-23, user + logs):** all 38 units `transcendence 0`; unit 52 logged `1` (select, room) and showed tree rows 14-17, the unlocked A-TC slot and the hyper-mode awakening; `settranscend 52 0` reverted it to `0`; no ErrorLog lines, no exceptions.
+
 **How to see it:** start the game once (the exe migrates the save to v22; log `DB MIG v22 done`), select a character: every unit logs `transcendence 0`. Close the game, `python tools/elsdb.py settranscend 52 1`, start again: unit 52 logs `1`.
 
 ## Phase T2 - Becoming transcended: quest, notify, guide
