@@ -2040,6 +2040,7 @@ flag, has a review and a play-test, and touches `X2GUArme_VioletMage.*`, so they
 - **Hygiene:** `flagcheck --worktree --files` gives `files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. The one bare `#endif` is the `Always.h` guard.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 25,720,832 B, dated 2026-10-22 07:21:13, md5 cbefe1e7545334f66187c09bc8085f9f, equal to X2/US_SERVICE/x2.exe (2026-10-22 07:21:05); built at main cfd4498f + 4 uncommitted code file(s).` The string `finality skill used` is in the deployed exe.
 - **In game:** an Aisha hyper skill (units 51-53 hold 99 essence each) takes one essence. The log has `SKILL    finality skill used El's Essence itemUID=..., N left`, and there is no UNHANDLED line.
+- **Play-test PASSED (user, 2026-10-22):** at 07:26:45, `EGS_USE_FINALITY_SKILL_REQ` was HANDLED and the ACK sent. The log line is `SKILL    finality skill used El's Essence itemUID=1679, 98 left`, and unit 51's essence is 98 in the save.
 
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
