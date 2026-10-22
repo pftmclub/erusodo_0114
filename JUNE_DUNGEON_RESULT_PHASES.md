@@ -427,6 +427,41 @@ phase and covers R3 + R3b.
 **Done gate:** Tab / ESC / F8 behave as June's; the exit box and any result dialog are drawn over the widget and take clicks; Retry
 restarts the same dungeon with a loading screen, solo and with bots; Close / Keep / Quit still work; 0 EXCEPTION; UNHANDLED at baseline.
 
+### R3b - Done (2026-10-22, Opus 5.5 high; flags `_JUNE_RESULT_FLOW` (Tab / F8), `_DIALOG_MODAL`, `_RETRY_DIRECT`, `_OLD_EXP`)
+
+**What landed** (one commit, `main`; funcmap rows `(Result R3b)`; `MODS.md` R3b section):
+1. **Shortcuts.** June's `ShortCutKeyProcess` `324d2e20 @324d3da9-324d3e8c`, both keys inside `!bHideDialog`, which is true only on the DELETE
+   frame (June `31f036a0` = March). **Tab:** if the dialog manager is shown, March's quick-quest toggle (+ RM byte); else vslot 0x294
+   `324c8c40`, which in mode 3 notifies the widget's `GameResult.onTabKeyProcess` (`32eea070`). The result hides the dialogs (mode 2),
+   so that is the else branch. March had only the first branch: Tab toggled a hidden window. **F8:** mode 3 && `324d1120` -> now state
+   vslot 0xe0 (retry). **ESC:** R3's gate was right; the box was only unusable (item 2).
+2. **Layering / input.** June draws the exit box in the after-frame pass, after GFx: flagged-only mode on -> `FrontUIRender` skips the bands,
+   the hide path draws the mode-2 names (`OkAndCancelMsgBox`, `DLG_Exit_Party_MsgBox` are in it). March already had all of that (R8 / R4c / G5).
+   **The defect was input:** June's `MsgProc` `31be3f20 @31be3fe6` lets GFx swallow a mouse event only while dialog manager `+0x110 == 0`,
+   and R1's port read it as a `false` stand-in, so every click went to the widget (the three `notifyCloseResultUI`). Fixed under
+   `_DIALOG_MODAL`, with June's flagged-only frame-move `31d06100 @31d06484`. The "drawn behind" report is not explained by the code:
+   a `_DEBUG` line `exit box check:` logs once a second what the hide path sees (name match, hide mode, flagged-only, layer).
+3. **Retry restarts at once** (`_RETRY_DIRECT`, user decision): `JuneResultRetry` sends `EGS_JUNE_DUNGEON_RETRY_REQ` directly; June's
+   solo box is the `#else`. The emulator (R2) is unchanged: ACK, room reopened with the bots, `EGS_PARTY_GAME_START_NOT` ->
+   `XGM_STATE_CHANGE XS_DUNGEON_GAME`. The play-test proves the loading screen.
+4. **Level-cap fill.** June's fill (`324d60e0 @324d6ccb`) = R1: same ExpTable lookup (need at offset 0, 0 for a missing row), rates,
+   clamp and `level up = old EXP < base`. The cause was the emulator: at level 99 EXP is pinned at 870,692,600, kills credit nothing,
+   and `m_nOldEXP = EXP - run reward` fell 1,909 below the pin. `_OLD_EXP` records the unit's EXP at play start (both `ClearPlayRun`
+   sites) and sends that.
+
+**Hygiene** (`flagcheck.py <flag> --worktree --files` the 11 files): `_DIALOG_MODAL` 2 PASS, `_RETRY_DIRECT` 0 PASS / 11 OTHER (its
+lines sit inside `_FLOW`'s file), `_OLD_EXP` 2 PASS: RESULT PASS each, 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 encoding change.
+`_FLOW`: 4 PASS, 2 PASS~, 4 OTHER, 1 ERROR = `Always.h:9920`, the `#if` of `_RETRY_DIRECT`'s `#error` guard naming `_FLOW` (a guard,
+not code; the guards' `#endif` carry no token, as R1's / R3's).
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,788,416 B, dated 2026-10-22 16:05:22, md5 062c8a07f24192b46be6b9f2f715b28c, equal to X2/US_SERVICE/x2.exe (2026-10-22 16:05:15); built at main ef90c227 + 11 uncommitted code file(s).` `exit box check`, `Tab: onTabKeyProcess notified` and `retry REQ sent` are in the exe; `retry: solo ready box` is not (the `#else`).
+
+**Drift (routed 2026-10-22):** Tab on the PvE / PvP results (adapters `32ee8620` / `32eee330`) and the uncalled `32eea050`
+(`UIDungeonResult.hideUI`) -> backlog Stage 9, under the R3 leftovers bullet.
+
+**Open for the user:** the debug line settles whether the box is visible; if it is still hidden with `found by name 1` and
+`hidden 1`, the after-GFx draw itself is the next suspect (not the Scaleform version).
+
 ## Phase R4 - June's legacy result state (conditional)
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`. Sub-tag `LEGACY`.

@@ -9901,3 +9901,33 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_GFX_BLEND needs SERV_IRUHADEV_JUNE_GFX_MANAGER ( KTDGGFXManager.cpp )
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R3b - the dialog manager's modal byte +0x110 is read where June reads it: KTDXApp::MsgProc lets GFx take the mouse only while it is 0 ( 31be3f20 @31be3fe6 ), and OnFrameMove then moves only the flagged dialogs ( 31d06100 @31d06484 ). The exit box takes clicks over the result widget. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
+#if defined( SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL ) && ( !defined( SERV_IRUHADEV_JUNE_GFX_MANAGER ) || !defined( SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS ) )
+#error SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL needs SERV_IRUHADEV_JUNE_GFX_MANAGER and SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R3b - user decision 2026-10-22: Retry sends the retry REQ at once for a solo player and an auto-party run; June's solo ready box ( 324d8600 -> 31d94a20 ) is the #else. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
+#if defined( SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT ) && !defined( SERV_IRUHADEV_JUNE_RESULT_FLOW )
+#error SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT needs SERV_IRUHADEV_JUNE_RESULT_FLOW
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R3b - the emulator's result m_nOldEXP is the unit's EXP when play started; at the level cap the kills credit nothing, so EXP minus the run's reward fell below the cap and the widget showed a level up with an empty bar. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
+#if defined( SERV_IRUHADEV_JUNE_RESULT_OLD_EXP ) && !defined( SERV_IRUHADEV_OFFLINE )
+#error SERV_IRUHADEV_JUNE_RESULT_OLD_EXP needs SERV_IRUHADEV_OFFLINE
+#endif
+//////////////////////////////////////////////////////////////////////////

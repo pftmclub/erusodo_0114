@@ -896,8 +896,14 @@ HRESULT CKTDGUIDialogManager::OnFrameMove( double fTime, float fElapsedTime )
 					string dialogName;
 					ConvertWCHARToChar( dialogName, pDialog->GetName() );
 					LastErrorLog( dialogName.c_str() );
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
+					// June @31d06484: in the flagged-only mode only the flagged dialogs move
+					if ( m_bJuneFlaggedDialogsOnly == false || pDialog->GetJuneDrawInFlaggedMode() == true )
+						pDialog->OnFrameMove( fTime, fElapsedTime );
+#else SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 
                     pDialog->OnFrameMove( fTime, fElapsedTime );
+#endif SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 				}
 /*	
 		    if( pDialog->GetModal() == false )

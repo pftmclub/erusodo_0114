@@ -4949,6 +4949,13 @@ Flag `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL` in `KTDXLIB/Always.h`. The emulator 
 Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emulator sends the real `KEGS_USE_FINALITY_SKILL_ACK`, with `m_bNoConsume` false. Log `SKILL    finality skill ...`.
 - **Turn off:** comment out the flag, then `python tools/build.py --deploy`. The packet goes back to UNHANDLED and stones are not consumed. No data change.
 
+### June dungeon result R3b: R3 play-test fixes (flags `SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL`, `_RETRY_DIRECT`, `_OLD_EXP`; Tab / F8 under `_FLOW`, 2026-10-22)
+
+- **Tab / F8** (`_FLOW`, `X2StateDungeonGame.cpp` `ShortCutKeyProcess`, March's Tab block in `#else`): Tab with the dialogs hidden notifies the widget's `GameResult.onTabKeyProcess` in result mode 3 (`324c8c40` / `32eea070`); F8 in mode 3 is the retry button (`@324d3e56`). New bridge / adapter call `NotifyTabKey` (`KTDGGFXManager.{h,cpp}`, `X2UIDungeonResultAdapter.{h,cpp}`).
+- **`_DIALOG_MODAL`** (`KTDXApp.cpp`, `KTDGUIDialogManager.cpp`): `MsgProc` reads the dialog manager's flagged-only byte where R1's GFx gate had a `false` stand-in (`@31be3fe6`), so the exit box takes the clicks over GFx UI 8; `OnFrameMove` moves only flagged dialogs in that mode (`@31d06484`). Turn off: comment out the define; the widget takes every click again.
+- **`_RETRY_DIRECT`** (`X2UIDungeonResultAdapter.cpp` `JuneResultRetry`): user decision 2026-10-22, Retry sends `EGS_JUNE_DUNGEON_RETRY_REQ` at once for solo and auto-party; June's solo ready box (`324d8600` -> `31d94a20`) is the `#else`. Turn off: comment out the define.
+- **`_OLD_EXP`** (`Offline/X2OfflineServer.h`, `Offline/Handlers_Room.cpp`): the room keeps the unit's EXP at play start (`m_iRunStartEXP`, set after both `ClearPlayRun` calls); the result's `m_nOldEXP` is that value, so a level-99 run no longer reports a level up with an empty bar. Turn off: comment out the define (old `EXP - reward` comes back).
+
 ### June dungeon result R3: the in-state result flow (flag `SERV_IRUHADEV_JUNE_RESULT_FLOW`, 2026-10-22)
 
 - A dungeon clear stays in `XS_DUNGEON_GAME`: June's end handler (`324db6b0`) sets the result-UI mode 1 for 30 s and the dungeon state's mode machine (`324cf3d0`) opens GFx UI 8, fills it, counts down and sends `EGS_RESULT_SUCCESS_REQ`; the ACK / `EGS_RESULT_ALL_UNIT_SUCCESS_NOT` return the player to the field or village. `CX2DungeonGame::Handler_EGS_STATE_CHANGE_RESULT_NOT` no longer changes to `XS_DUNGEON_RESULT` (March's change is the `#else`).

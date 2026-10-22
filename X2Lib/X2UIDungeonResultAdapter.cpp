@@ -82,6 +82,14 @@ void CX2UIDungeonResultAdapter::EnableRetryButton( bool bEnable )
 		m_pBridge->EnableRetryButton( bEnable );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+void CX2UIDungeonResultAdapter::NotifyTabKey()
+{
+	if ( m_pBridge != NULL )
+		m_pBridge->NotifyTabKey();
+}
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
+
 void CX2UIDungeonResultAdapter::OnResultAsClose()
 {
 #ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
@@ -645,6 +653,23 @@ void CX2State::JuneSetResultUIMode( int iMode, float fTime )
 void CX2State::JuneResultModeFrameMove( float fElapsedTime )
 {
 	m_fJuneResultModeTime += fElapsedTime;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+	// R3b: what the hide path sees while the exit box is up, once a second
+	static float s_fJuneExitBoxLogTime = 0.f;
+	s_fJuneExitBoxLogTime += fElapsedTime;
+	if ( JuneResultDlgAlive( m_pDLGJuneExitBox ) == true && 1.f <= s_fJuneExitBoxLogTime )
+	{
+		s_fJuneExitBoxLogTime = 0.f;
+		CKTDGUIDialogManager* pDialogManager = g_pKTDXApp->GetDGManager()->GetDialogManager();
+		CKTDGUIDialogType pByName = pDialogManager->GetDialog( m_pDLGJuneExitBox->GetName() );
+		char szName[ 128 ] = { 0, };
+		WideCharToMultiByte( CP_ACP, 0, m_pDLGJuneExitBox->GetName(), -1, szName, sizeof( szName ) - 1, NULL, NULL );
+		JUNE_RESULT_FLOW_LOG(( "exit box check: name %s, shown %d, found by name %d, hide mode %d, manager shown %d, hidden %d, flagged-only %d, layer %d, front %d",
+			szName, m_pDLGJuneExitBox->GetShow() ? 1 : 0, ( pByName == m_pDLGJuneExitBox ) ? 1 : 0, pDialogManager->GetJuneHideMode(),
+			pDialogManager->GetShow() ? 1 : 0, pDialogManager->GetHideDialog() ? 1 : 0, pDialogManager->GetJuneFlaggedDialogsOnly() ? 1 : 0,
+			m_pDLGJuneExitBox->GetLayer(), m_pDLGJuneExitBox->GetFront() ? 1 : 0 ));
+	}
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 }
 
 // 31ef7c60
@@ -895,6 +920,10 @@ void CX2StateDungeonGame::JuneResultRetry()
 	if ( m_bJuneResultRetryEnabled == false )
 		return;
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
+	// User decision 2026-10-22: solo and auto-party send the REQ at once, no ready box
+	JuneResultSendRetryReq();
+#else SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
 	if ( g_pData->GetPartyManager() != NULL && g_pData->GetPartyManager()->DoIHaveParty() == true )
 	{
 		JuneResultSendRetryReq();
@@ -920,6 +949,17 @@ void CX2StateDungeonGame::JuneResultRetry()
 	g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( false, 2 );		// @324d880f
 	JuneResultEnableRetry( false, -1.f );
 	JUNE_RESULT_FLOW_LOG(( "retry: solo ready box ( dungeon %d, difficulty %d, mode %d )", iDungeonID, iDifficulty, iMode ));
+#endif SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT
+}
+
+// 324c8c40 ( vslot 0x294 ): Tab while the dialogs are hidden, only in mode 3
+void CX2StateDungeonGame::JuneResultTabKey()
+{
+	if ( m_iJuneResultMode == 3 && m_pJuneResultAdapter != NULL )
+	{
+		m_pJuneResultAdapter->NotifyTabKey();
+		JUNE_RESULT_FLOW_LOG(( "Tab: onTabKeyProcess notified" ));
+	}
 }
 
 // 324d11e0 ( vslot 0xe8 ): its only June caller is the party manager ( Stage 28 )

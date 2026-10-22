@@ -2242,6 +2242,14 @@ public:
 		m_pAdapter->NotifyBinding( szBinding );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	void NotifyTabKey()		// 32eea070
+	{
+		if ( m_pAdapter )
+			m_pAdapter->NotifyBinding( JGRS_BINDING_TAB_KEY );
+	}
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
+
 private:
 	static void OnFunction( void* pOwner, int iID, const SFG::FunctionHandler::Params& /*kParams*/ )
 	{
@@ -2282,6 +2290,9 @@ void CKTDGGFXResultBridge::UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo )	
 void CKTDGGFXResultBridge::SetItem( int iIndex, const KJuneGfxResultItem& kItem )					{ m_pImpl->SetItem( iIndex, kItem ); }
 void CKTDGGFXResultBridge::ShowRetryButton( bool bShow )											{ m_pImpl->SetBool( JGRS_BINDING_SHOW_RETRY, bShow ); }
 void CKTDGGFXResultBridge::EnableRetryButton( bool bEnable )										{ m_pImpl->SetBool( JGRS_BINDING_ENABLE_RETRY, bEnable ); }
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+void CKTDGGFXResultBridge::NotifyTabKey()																{ m_pImpl->NotifyTabKey(); }
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 
 // ---------------------------------------------------------------------------------------------------------------------------------------

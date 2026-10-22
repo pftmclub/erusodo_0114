@@ -1630,7 +1630,12 @@ bool CKTDXApp::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	/// message; a 1 from them makes MsgProc return true.
 	else
 	{
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
+		const bool bJuneGfxDialogModal = ( m_pDGManager != NULL && m_pDGManager->GetDialogManager() != NULL
+			&& m_pDGManager->GetDialogManager()->GetJuneFlaggedDialogsOnly() == true );		/// June @31be3fe6
+#else SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 		const bool bJuneGfxDialogModal = false;		/// stand-in for June's dialog manager +0x110
+#endif SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL
 		if( m_pJuneGFXManager != NULL && m_pJuneGFXManager->MsgProcMouse( hWnd, uMsg, wParam, lParam ) == true
 			&& m_pJuneGFXManager->GetShow() == true && bJuneGfxDialogModal == false )
 		{

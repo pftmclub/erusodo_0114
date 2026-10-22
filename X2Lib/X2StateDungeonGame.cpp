@@ -5008,6 +5008,34 @@ bool CX2StateDungeonGame::ShortCutKeyProcess()
 	// 		}
 	//	}
 	//}}
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	// June 324d2e20 @324d3da9: Tab with the dialog manager hidden goes to the result widget ( vslot 0x294 )
+	if ( false == bHideDialog &&
+		g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_TAB) == TRUE  &&
+		g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_LALT) != TRUE )
+	{
+		if ( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetShow() == true )		// @324d3de5
+		{
+			g_pData->GetUIManager()->GetUIQuestNew()->ToggleUserShowQuickQuestDLG();
+#ifdef SERV_IRUHADEV_JUNE_RANDOM_MISSION
+			if( true == CX2RandomMissionManager::GetInstance()->IsActiveState() )
+			{
+				CX2RandomMissionManager::GetInstance()->SetToggleByte( g_pData->GetUIManager()->GetUIQuestNew()->m_bUserShowQuickQuestDLG );
+				CX2RandomMissionManager::GetInstance()->RefreshUI();
+			}
+#endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+		}
+		else
+			JuneResultTabKey();
+	}
+
+	// June @324d3e56: F8 in result mode 3 is the retry button ( 324d1120, then g_pMain +0x90 vslot 0xe0 )
+	if ( false == bHideDialog && g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_F8) == TRUE && m_iJuneResultMode == 3 )
+	{
+		if ( JuneResultRetryAllowed() == true && g_pMain->GetNowState() != NULL )
+			static_cast< CX2State* >( g_pMain->GetNowState() )->JuneResultRetry();
+	}
+#else SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 	if ( false == bHideDialog && 
 		g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState(DIK_TAB) == TRUE  &&
@@ -5023,6 +5051,7 @@ bool CX2StateDungeonGame::ShortCutKeyProcess()
 		}
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
 	}
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 	return false;
 }

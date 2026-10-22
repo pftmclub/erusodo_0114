@@ -20,6 +20,9 @@ public:
 	void	SetItem( int iIndex, int iItemID, int iNum, int iUIDLow, int iUIDHigh );	// 32eea6a0 ( the name "GameResult.getItem<N>" is the index here )
 	void	ShowRetryButton( bool bShow );									// 32eea1c0
 	void	EnableRetryButton( bool bEnable );								// 32eea1f0
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	void	NotifyTabKey();													// 32eea070: "GameResult.onTabKeyProcess"
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 	// ---- the callback handler ( table 33539ea8 ) -----------------------------------------------------------------------------------
 	virtual void	OnResultAsClose();			// notifyCloseResultUI 32eea2c0

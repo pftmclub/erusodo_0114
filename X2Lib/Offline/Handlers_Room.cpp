@@ -1287,6 +1287,9 @@ bool CX2OfflineServer::SendDungeonGameStartNot( KOfflineSession& kSes, const KOf
 	// OpenRoom - otherwise a second run started from the result screen reports
 	// the first one's numbers.
 	m_kRoom.ClearPlayRun();
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
+	m_kRoom.m_iRunStartEXP = kRow.m_iEXP;
+#endif SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
 
 #if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
 	// June effect C3z-6: KDungeonRoom::StartGame's dungeon half (average level, poison limit, extra-stage count).
@@ -1650,6 +1653,9 @@ bool CX2OfflineServer::Handler_EGS_STATE_CHANGE_GAME_START_REQ( KOfflineSession&
 	// OpenRoom - otherwise a second run started from the result screen reports
 	// the first one's numbers.
 	m_kRoom.ClearPlayRun();
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
+	m_kRoom.m_iRunStartEXP = kRow.m_iEXP;
+#endif SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
 
 #if defined( SERV_IRUHADEV_OFFLINE_RELATIVE_NPC_LEVEL ) || defined( SERV_IRUHADEV_OFFLINE_SECRET_POISON )
 	// June effect C3z-6: KDungeonRoom::StartGame's dungeon half (average level, poison limit, extra-stage count).
@@ -4698,7 +4704,12 @@ bool CX2OfflineServer::EndDungeonGame( KOfflineSession& kSes, int iWinTeam )
 	// kBefore was read after the kills had already credited their EXP, so the
 	// "before" figure has to have the run's EXP taken back off - same correction
 	// as the ED line below, and for the same reason.
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
+	// R3b: at the level cap the kills credit nothing, so the subtraction would fall below the cap's EXP
+	kUnitResult.m_nOldEXP			= ( 0 <= m_kRoom.m_iRunStartEXP ) ? m_kRoom.m_iRunStartEXP : kBefore.m_iEXP - iAddEXP;
+#else SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
 	kUnitResult.m_nOldEXP			= kBefore.m_iEXP - iAddEXP;
+#endif SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
 
 	// kBefore was read after the coins were credited, so the "before" ED has to
 	// have them taken back off or the result screen animates from the finished

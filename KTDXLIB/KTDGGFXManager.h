@@ -237,6 +237,9 @@ public:
 	void	SetItem( int iIndex, const KJuneGfxResultItem& kItem );					// 32eea6a0 ( the icon path is the caller's: 328672d0 on the item templet )
 	void	ShowRetryButton( bool bShow );											// 32eea1c0
 	void	EnableRetryButton( bool bEnable );										// 32eea1f0
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	void	NotifyTabKey();															// 32eea070
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 private:
 	class CImpl;

@@ -650,6 +650,7 @@ public:
 	virtual void	JuneResultRetry();											/// 324d8600 ( vslot 0xe0 )
 	virtual void	JuneResultRefreshRetryButton();								/// 324d11e0 ( vslot 0xe8 )
 	virtual void	JuneResultEscWithRetryPopup();								/// 324c9990 ( vslot 0xec )
+	virtual void	JuneResultTabKey();											/// 324c8c40 ( vslot 0x294 )
 	virtual bool	JuneResultSendConfirm( bool bQuit );						/// 324d84c0 ( vslot 0xf0 )
 	bool			JuneResultSendRetryReq();									/// 324c9530
 	bool			JuneResultEndHandler( KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT& kPacket );	/// 324db6b0

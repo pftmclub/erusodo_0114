@@ -263,6 +263,9 @@ public:
 		int				m_iRewardEXP;
 		int				m_iRewardED;
 		int				m_iKillNPCNum;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
+		int				m_iRunStartEXP;		///< R3b: the unit's EXP when play started ( -1: not set ), the result's m_nOldEXP
+#endif SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
 
 		/// What the client reported about its own performance, from
 		/// EGS_MY_USER_UNIT_INFO_TO_SERVER_REQ. Echoed back in the result
@@ -454,6 +457,9 @@ public:
 			m_iRewardEXP		= 0;
 			m_iRewardED			= 0;
 			m_iKillNPCNum		= 0;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
+			m_iRunStartEXP		= -1;
+#endif SERV_IRUHADEV_JUNE_RESULT_OLD_EXP
 			m_kPlayResult.Clear();
 			m_bHavePlayResult	= false;
 			m_mapObtainedItem.clear();

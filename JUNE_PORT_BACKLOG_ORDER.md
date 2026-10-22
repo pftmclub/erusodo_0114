@@ -396,6 +396,10 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     retry box passes ( 230, 200 ), constants `33478a84` / `33457460`); R3 calls March's form. Read what June does with it before porting.
   - The exit box's Quit (`31f23e70` case 0xbff `@31f25076-31f250fe`) has PvP-state branches: confirm already sent in state 9 -> the
     `g_pMain +0x408` test (not 0xc-0xf) and game vslot 0x138; then party manager `324334d0( 0x6b3 )`. They go with the PvP result.
+  - **Tab on the PvE / PvP results (june-result R3b, 2026-10-22).** The PvE result adapter (ctor `32ee8620`, made by `324ac130`) and the PvP
+    one (ctor `32eee330`, made by `3251d3a0`) register the same `GameResult.onTabKeyProcess` trigger as the dungeon result (`32eea070`). Who
+    notifies theirs is not mapped (`324adc20 @324adf87` calls a vslot 0x294 after a dynamic_cast: a candidate). R3b ported only the dungeon state's
+    (funcmap `(Result R3b)`). The dungeon adapter's `32eea050` (notify `UIDungeonResult.hideUI`) has no caller found.
 
 - **June's menu bar and its StoryBook button** (handed here by quest-system Q10, user 2026-10-19: "no opener; Stage 9 owns it").
   - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.
