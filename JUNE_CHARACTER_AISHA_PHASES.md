@@ -2086,7 +2086,7 @@ Dark Deal's did in CH4a. No save reaches the callback; the in-game check of Open
   `// June 32cecd70; the 22416 tail ( ... ) is CH4b's`, now `// June 32cecd70`.
 
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,723,392 B, dated 2026-10-22 07:57:33, md5 2df0cc57ab1463fedbd3b7578899559b, equal to X2/US_SERVICE/x2.exe (2026-10-22 07:57:25); built at main dd15e841 + 8 uncommitted code file(s).` The strings `delegate run` and `open mind level` are in the deployed exe.
-**Save** (backup `db_backup/els_db_20261022_075248_pre_sql.sql`): unit 52 `ArmeVP` gets its learned Mana Steal 22015 into slot 4. June's `DamageEffect_SA_ADM_Mana_Intake` is an `HT_AREA_HIT`, so casting it reaches the area-hit run.
+**Save:** unchanged. Slot 4 is A-5, dormant until Stage 6, so the unit-52 edit was reverted (backups `db_backup/els_db_20261022_075248_pre_sql.sql` and the one after it). The area-hit check uses unit 28 `jtVoidPrincess`: it already has Mana Steal 22015 in slot 5 (B1), and June's `DamageEffect_SA_ADM_Mana_Intake` is an `HT_AREA_HIT`.
 
 **In game:** play any unit in a dungeon. `offline_server.log` gets one `delegate run` line per list for user and NPC on its first run:
 - frame move `+0x66cc`;
