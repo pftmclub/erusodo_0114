@@ -1844,6 +1844,7 @@
     <ClInclude Include="X2Eqip.h" />
     <ClInclude Include="X2EventScene.h" />
     <ClInclude Include="X2GFXEventScene.h" />
+    <ClInclude Include="X2UIDungeonResultAdapter.h" />
     <ClInclude Include="X2SlideShotScriptedManager.h" />
     <ClInclude Include="X2RandomMission.h" />
     <ClInclude Include="X2SlideShotScripted.h" />
@@ -2805,6 +2806,7 @@
     <ClCompile Include="X2Eqip.cpp" />
     <ClCompile Include="X2EventScene.cpp" />
     <ClCompile Include="X2GFXEventScene.cpp" />
+    <ClCompile Include="X2UIDungeonResultAdapter.cpp" />
     <ClCompile Include="X2SlideShotScriptedManager.cpp" />
     <ClCompile Include="X2RandomMission.cpp" />
     <ClCompile Include="X2SlideShotScripted.cpp" />

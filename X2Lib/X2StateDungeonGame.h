@@ -348,6 +348,9 @@ protected:
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+class CX2UIDungeonResultAdapter;	/// June 32eea7e0 ( X2UIDungeonResultAdapter.h )
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 class CX2StateDungeonGame : public CX2StateMenu
 {
 public:
@@ -619,6 +622,33 @@ public:
 
 	virtual HRESULT OnResetDevice();
 	virtual HRESULT OnLostDevice();
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	// June dungeon result R1: the state owns the GFx result widget's adapter ( June +0x7c4 ), its vslots 0xb8-0xe4 are these. Bodies: X2UIDungeonResultAdapter.cpp
+	void	JuneResultCreateAdapter();										/// 324c8b80 ( vslot 0xb8 )
+	void	JuneResultDeleteAdapter();										/// 324c8320 ( vslot 0xbc )
+	void	JuneResultFill();												/// 324d60e0 ( vslot 0xc0 )
+	void	JuneResultCloseUI();											/// 324c8c20 ( vslot 0xc4 )
+	void	JuneResultRecreateAdapter();									/// 324c8350 ( vslot 0xc8 )
+	void	JuneResultCloseAndDelete();										/// 324c8370 ( vslot 0xcc )
+	void	JuneResultEnableRetry( bool bEnable, float fCoolTime );			/// 324c83f0 ( vslot 0xe4 )
+	bool	JuneResultRetryAllowed();										/// 324d1120
+	void	JuneResultFillItems();											/// 324cf8b0
+	void	JuneResultItemPageNext();										/// 324d1210
+	void	JuneResultItemPagePrev();										/// 324d1270
+	void	JuneResultOnClose();											/// notifyCloseResultUI 32eea2c0
+	void	JuneResultOnRetry();											/// notfyRetryButton 32eea2e0
+	void	JuneResultOnInitialize();										/// notifyInitialize 32eea300
+	bool	JuneResultIsBound() const;										/// the adapter exists and has a root movie
+	bool	JuneResultNpcEventActive() const { return m_bJuneResultNpcEvent; }	/// +0x7a9 ( vslot 0xf8 ): Stage 22's post-clear NPC flag, never set offline
+private:
+	CX2UIDungeonResultAdapter*	m_pJuneResultAdapter;			/// +0x7c4
+	int							m_iJuneResultItemPage;			/// +0x7c8
+	bool						m_bJuneResultRetryEnabled;		/// +0x7f0
+	float						m_fJuneResultRetryCool;			/// +0x7f4
+	bool						m_bJuneResultNpcEvent;			/// +0x7a9
+	long long					m_llJuneResultStartED;			/// +0x7e8: the ED saved at dungeon start ( June-only member, no writer here )
+public:
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 
 	virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 

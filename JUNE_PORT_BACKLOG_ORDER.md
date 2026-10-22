@@ -460,6 +460,7 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   and the PvP result stay here.
   *June-result R0 (2026-10-22):* `CX2StatePVEGame` (vtable `3349d06c`) shares the dungeon state's retry vslots 0xe0 / 0xe4 / 0xe8 / 0xec
   (`324d8600`, `324c83f0`, `324d11e0`, `324c9990`), so the PvE result's retry is the same code R3 ports; its mode step is `324ac1f0`.
+  *June-result R1 (2026-10-22):* the dungeon fill `324d60e0` opens with two walks over the dialog stack (`31d05fe0` / `31d05ec0`: for every dialog whose byte `+0x144` / `+0x146` is 1, `FUN_31d08590` -> Release -> delete) on the object at `g_pKTDXApp +0x1fc +0x38c`, run when the state's vslot `0xf8` is false. Not ported: no March counterpart found (probably a June-only `CKTDGUIDialogManager` close-on-result flag pair). Offline reach: every dungeon clear. Related: funcmap `(Result R1)` row `324d60e0`.
 - **June's character-window socket total** (handed here by skill-system-core S7p, user 2026-10-19, scope rule). June `3291ba40( out, group )` / `3291cee0` / `3291cfb0` / `3291b4b0`
   are June's form of March's `CX2UICharInfo::GetMyEquippedSocketData()` (`X2UICharInfo.cpp:2474`, read at `:1423`): an equip-group filter (`3286a4b0`; `32350b80`'s group test, S7m review), riding pet, title,
   sets and the party pass (`31ed40c0`, already ported as `CX2Unit::JuneGetPartyShareSocketOptions`). The combat sums are June's since S7k / S7m; only this display total is March-shaped.

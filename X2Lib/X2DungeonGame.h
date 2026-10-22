@@ -122,6 +122,17 @@ class CX2DungeonGame : public CX2Game
 
 		virtual bool			DetermineLastKill();	
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+		// June dungeon result R1: the items obtained during the game ( June +0xdf4, 0xc0 B records ), vslots 0x21c / 0x220 / 0x224 / 0x228 ( 327cedf0 / 327cee60 / 327ca2f0 / 327cef20 ). Bodies: X2UIDungeonResultAdapter.cpp
+		void					JuneAddObtainedItem( const CX2Item::ItemData& kItemData );
+		bool					JuneGetObtainedItems( unsigned uStart, unsigned uCount, std::vector< CX2Item::ItemData >& vecOut ) const;
+		bool					JuneHasObtainedItemPage( unsigned uCount ) const;
+		void					JuneSortObtainedItems();
+		int						JuneGetObtainedItemCount() const { return (int)m_vecJuneObtainedItem.size(); }
+	private:
+		std::vector< CX2Item::ItemData >	m_vecJuneObtainedItem;
+	public:
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		int						GetWinTeam() { return m_WinTeam; }
 		void					SetWindTeam( CX2Room::TEAM_NUM winTeam ) { m_WinTeam = winTeam; }
         virtual					void ResurrectOtherUser();

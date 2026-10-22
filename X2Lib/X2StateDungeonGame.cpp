@@ -139,6 +139,14 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 	DialogLog( "\nCX2StateDungeonGame::CX2StateDungeonGame Start\n" );
 
 	m_pCX2GameLoadingTip	= new CX2GameLoadingTip();
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	m_pJuneResultAdapter		= NULL;
+	m_iJuneResultItemPage		= 0;
+	m_bJuneResultRetryEnabled	= true;
+	m_fJuneResultRetryCool		= 0.f;
+	m_bJuneResultNpcEvent		= false;
+	m_llJuneResultStartED		= 0;
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef REFORM_ENTRY_POINT
 	if( NULL != m_pCX2GameLoadingTip && NULL != g_pData->GetPartyManager() && NULL != g_pData->GetPartyManager()->GetMyPartyData() )
 	{
@@ -464,6 +472,10 @@ CX2StateDungeonGame::~CX2StateDungeonGame(void)
 	g_pKTDXApp->GetDGManager()->GetCamera().Point( 0,0,-1300, 0,0,0 );
 	g_pKTDXApp->GetDGManager()->SetProjection( g_pKTDXApp->GetDGManager()->GetNear(), g_pKTDXApp->GetDGManager()->GetFar(), false );
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	if ( m_pJuneResultAdapter != NULL )
+		JuneResultCloseAndDelete();
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 	m_pDungeonGame->Release();
 	SAFE_DELETE( m_pDungeonGame );
 	

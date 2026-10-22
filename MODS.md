@@ -4948,3 +4948,12 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - Retry stand-in (user, 2026-10-22): the emulator reopens the same dungeon, difficulty, mode, loot rule and bots through `OpenDungeonGameRoom` + `SendDungeonGameStartNot` and ACKs OK. Nothing sends the REQ until R3 ports June's sender.
 - Defined in `Always.h` and `ServerDefine.h` (`EventID_Client.h` / `ClientPacket.h` precede `Always.h`); `flagcheck.py` `SECOND_HOMES` has the row. Log `[JUNE_RESULT] EMU`.
 - **Turn off:** comment out both defines and rebuild. The IDs vanish, March's `ReadReq` form of the success REQ is the only path.
+
+### June dungeon result R1: the GFx widget (flag `SERV_IRUHADEV_JUNE_RESULT_WIDGET`, debug `SERV_IRUHADEV_JUNE_RESULT_DEBUG`, 2026-10-22)
+
+- New `X2Lib/X2UIDungeonResultAdapter.{h,cpp}` (June `CX2UIDungeonResultAdapter` `32eea7e0`) over `CKTDGGFXResultBridge` in `KTDGGFXManager.{h,cpp}`: listener "UIDungeonResult", the 16 data bindings, `DW_DUNGEON_RESULT_VALUE` and the item value. G3's `CreateBindingImpl` now also walks the listeners' new `OnBindingCreated` (default false).
+- `CX2StateDungeonGame` (`X2StateDungeonGame.{h,cpp}`) owns the adapter: `JuneResult*` methods are June's vslots 0xb8-0xe4, fill `324d60e0`, item fill `324cf8b0`, page arrows. Constructor / destructor lines are flagged.
+- `CX2DungeonGame` gets June's obtained-item list (`JuneAddObtainedItem` ...); its one caller is the flagged block in `CX2Inventory::UpdateInventorySlotList` (`X2Inventory.cpp`).
+- Data: June's `data063` `DLG_UI_Dungeon_Result_01/_02` `.tga` + `.TET` staged byte-exact (`kom.py stage-june`, packed; the copy is the user's yes). Revert: delete the four files from `kom_contents/data063_kom/`, their manifest keys, and repack.
+- Dev console (auth level 3): `JuneResultOpen()` / `JuneResultClose()` (debug flag). March's result flow is untouched.
+- **Turn off:** comment out both defines in `Always.h` and rebuild; the new `.cpp` becomes empty. Log `[JUNE_RESULT] WIDGET`.

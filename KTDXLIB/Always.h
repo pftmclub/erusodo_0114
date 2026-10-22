@@ -9861,3 +9861,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_RESULT_OFFLINE needs SERV_IRUHADEV_OFFLINE ( the emulator handlers, CX2OfflineLog )
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R1 - the GFx widget: CX2UIDungeonResultAdapter ( 32eea7e0 ) and its callback handler, DW_DUNGEON_RESULT_VALUE, the state's adapter vslots 0xb8 / 0xbc / 0xc0 / 0xc4 / 0xc8 / 0xcc and the item fill 324cf8b0, the dungeon game's obtained-item list ( vslots 0x21c-0x228 ) with its caller in CX2Inventory::UpdateInventorySlotList ( 3286d590 ). March's result flow is untouched. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_RESULT_WIDGET
+#if defined( SERV_IRUHADEV_JUNE_RESULT_WIDGET ) && ( !defined( SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN ) || !defined( SERV_IRUHADEV_JUNE_GFX_EVENTSCENE ) )
+#error SERV_IRUHADEV_JUNE_RESULT_WIDGET needs SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN ( the movie's data-binding adapter ) and SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: Temporary ( June dungeon result R1 ) - the [JUNE_RESULT] WIDGET lines and the dev-console opener JuneResultOpen() / JuneResultClose(). Retire in the R1 review.
+#define SERV_IRUHADEV_JUNE_RESULT_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_RESULT_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_RESULT_WIDGET )
+#error SERV_IRUHADEV_JUNE_RESULT_DEBUG needs SERV_IRUHADEV_JUNE_RESULT_WIDGET
+#endif
+//////////////////////////////////////////////////////////////////////////

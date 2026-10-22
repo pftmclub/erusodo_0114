@@ -73,6 +73,9 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	friend class CKTDGGFXSimpleWidgetPlayer;	// reaches the root movie's data-binding adapter ( KTDGGFXManager.cpp )
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	friend class CKTDGGFXResultBridge;			// reaches the root movie's data-binding adapter ( KTDGGFXManager.cpp )
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 	CKTDGGFXManagerImpl*	m_pImpl;
 };
 
@@ -151,6 +154,95 @@ private:
 	CImpl*	m_pImpl;
 };
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// June dungeon result, Phase R1 ( SERV_IRUHADEV_JUNE_RESULT_WIDGET ): the Scaleform half of June's CX2UIDungeonResultAdapter ( RTTI .?AVCX2UIDungeonResultAdapter@@,
+// vtable 3353a060, ctor 32eea7e0, dtor 32eea090 ). It is a listener "UIDungeonResult" on the root movie's adapter and owns the data bindings
+// GameResult.updateDungeonInfo ( DW_DUNGEON_RESULT_VALUE, 0x88 B ), GameResult.getItem0..11 ( 0x40 B ), GameResult.onTabKeyProcess, GameResult.showRetryButton and
+// GameResult.enableRetryButton. Plain types only, so X2Lib keeps March's own include paths.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+struct KJuneGfxResultEntry		// June's 0x28 B map entry: one player in one of the six categories ( node +0xc )
+{
+	bool			m_bIsMyUnit;		// +0
+	std::wstring	m_wstrName;			// +4
+	int				m_iCategory;		// +0x20
+	float			m_fDetailValue;		// +0x24
+	int				m_iUnitType;		// +0x28
+	KJuneGfxResultEntry() : m_bIsMyUnit( false ), m_iCategory( 0 ), m_fDetailValue( 0.f ), m_iUnitType( 0 ) {}
+};
+
+struct KJuneGfxResultInfo		// 324e20d0: the struct 32eeae30 copies into DW_DUNGEON_RESULT_VALUE
+{
+	int				m_iTotalRank;		// [0]
+	int				m_iSec;				// [1]
+	int				m_iBestSec;			// [2]
+	int				m_iED;				// [3]
+	int				m_iHitRank;			// [4]
+	int				m_iComboRank;		// [5]
+	int				m_iTechnicalRank;	// [6]
+	int				m_iBeAttackedRank;	// [7]
+	int				m_iTotalEXP;		// [8]
+	float			m_fExpRate;			// [9]
+	float			m_fOldExpRate;		// [10]
+	bool			m_bLevelUp;			// [11]
+	int				m_iLevel;			// [12]
+	std::vector< std::vector< KJuneGfxResultEntry > >	m_vecCategory;	// [0xe]: six lists, each in June's map order
+	bool			m_bShowExitButton;	// [0x12]
+	int				m_iResonanceLevel;	// [0x13]
+	int				m_iUnitType;		// [0x14]
+	int				m_iPlayerCount;		// [0x15]
+	int				m_iRewardType;		// [0x16]
+	std::vector< std::wstring >	m_vecExpBonusString;	// [0x17]
+	std::vector< std::wstring >	m_vecEdBonusString;		// [0x1b]
+	bool			m_bReTryButtonShow;	// [0x1f]
+	KJuneGfxResultInfo()
+		: m_iTotalRank( 0 ), m_iSec( 0 ), m_iBestSec( 0 ), m_iED( 0 ), m_iHitRank( 0 ), m_iComboRank( 0 ), m_iTechnicalRank( 0 ), m_iBeAttackedRank( 0 )
+		, m_iTotalEXP( 0 ), m_fExpRate( 0.f ), m_fOldExpRate( 0.f ), m_bLevelUp( false ), m_iLevel( 0 ), m_bShowExitButton( false ), m_iResonanceLevel( 0 )
+		, m_iUnitType( 0 ), m_iPlayerCount( 0 ), m_iRewardType( 0 ), m_bReTryButtonShow( false )
+	{
+	}
+};
+
+struct KJuneGfxResultItem		// the 0x40 B GameResult.getItemN value ( 3353a080 ): itemID +8, icon path +0x10, count +0x34, the item UID pair +0x38 / +0x3c
+{
+	int				m_iItemID;
+	std::wstring	m_wstrIconPath;
+	int				m_iNum;
+	int				m_iUIDLow;
+	int				m_iUIDHigh;
+	KJuneGfxResultItem() : m_iItemID( 0 ), m_iNum( 1 ), m_iUIDLow( -1 ), m_iUIDHigh( -1 ) {}
+};
+
+// What the five callbacks of the table 33539ea8 ask of the owner ( the dungeon state )
+class IJuneGfxResultHost
+{
+public:
+	virtual ~IJuneGfxResultHost() {}
+	virtual void	OnResultAsClose() = 0;			// notifyCloseResultUI 32eea2c0
+	virtual void	OnResultAsRetry() = 0;			// notfyRetryButton 32eea2e0
+	virtual void	OnResultAsInitialize() = 0;		// notifyInitialize 32eea300
+	virtual void	OnResultAsArrowLeft() = 0;		// notfyitemSlotArrowLeft 32eea320
+	virtual void	OnResultAsArrowRight() = 0;		// notfyitemSlotArrowRight 32eea370
+};
+
+class CKTDGGFXResultBridge
+{
+public:
+	CKTDGGFXResultBridge( CKTDGGFXManager* pManager, IJuneGfxResultHost* pHost );	// 32eea7e0: listener + 16 bindings ( none without the root movie )
+	~CKTDGGFXResultBridge();														// 32eea090: the listener and the 16 bindings taken off again
+
+	bool	IsBound() const;															// June's adapter +4 != 0
+	void	UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo );						// 32eeae30
+	void	SetItem( int iIndex, const KJuneGfxResultItem& kItem );					// 32eea6a0 ( the icon path is the caller's: 328672d0 on the item templet )
+	void	ShowRetryButton( bool bShow );											// 32eea1c0
+	void	EnableRetryButton( bool bEnable );										// 32eea1f0
+
+private:
+	class CImpl;
+	CImpl*	m_pImpl;
+};
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_DEBUG
 // Dev-console hooks ( C++ Lua bindings, CKTDXApp::RegisterLuabind ): no .lua is involved.

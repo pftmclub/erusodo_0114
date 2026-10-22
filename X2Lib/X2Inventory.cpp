@@ -256,12 +256,36 @@ void CX2Inventory::UpdateInventorySlotList( const std::vector<KInventoryItemInfo
 
 	BOOST_TEST_FOREACH( const KInventoryItemInfo&, itemInfo, vecInventorySlotInfo )
 	{
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+		// June 3286d590 @3286d612: RemoveItem hands back the old item ( 3286bbd0 ), its quantity is the baseline below
+		int iJuneOldQuantity = 0;
+		{
+			const CX2Item* pJuneOldItem = GetItem( (CX2Inventory::SORT_TYPE)itemInfo.m_cSlotCategory, itemInfo.m_sSlotID );
+			if ( pJuneOldItem != NULL )
+				iJuneOldQuantity = pJuneOldItem->GetItemData().m_Quantity;
+		}
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		RemoveItem( (CX2Inventory::SORT_TYPE)itemInfo.m_cSlotCategory, itemInfo.m_sSlotID );
 
 		if( itemInfo.m_iItemUID > 0 )
 		{
 			CX2Item::ItemData kItemData( itemInfo );
 			AddItem( (CX2Inventory::SORT_TYPE)itemInfo.m_cSlotCategory, itemInfo.m_sSlotID, kItemData );
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+			// June 3286d590 @3286d667: every slot but the defence quick slot ( 31edcd10 ) is offered to the game's obtained-item list ( vslot 0x21c ); a quantity item by its change.
+			// June's second argument ( [esp+0x1c0], skips this ) is false for every March caller.
+			if ( itemInfo.m_cSlotCategory != CX2Inventory::ST_E_DEFENCE_QUICK_SLOT && g_pX2Game != NULL )
+			{
+				CX2DungeonGame* pJuneDungeonGame = dynamic_cast< CX2DungeonGame* >( g_pX2Game );
+				if ( pJuneDungeonGame != NULL )
+				{
+					CX2Item::ItemData kJuneObtained = kItemData;
+					if ( kJuneObtained.m_PeriodType == CX2Item::PT_QUANTITY )
+						kJuneObtained.m_Quantity = kItemData.m_Quantity - iJuneOldQuantity;
+					pJuneDungeonGame->JuneAddObtainedItem( kJuneObtained );
+				}
+			}
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		}
 
 		//{{ mauntain : ±Ë≈¬»Ø [2012.07.10] ¿Â¬¯¡ﬂ¿Œ º“∫Òº∫ æ∆¿Ã≈€ »πµÊΩ√ ƒ¸ΩΩ∑‘ ∞ªΩ≈

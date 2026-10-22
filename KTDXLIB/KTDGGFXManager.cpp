@@ -623,6 +623,10 @@ public:
 	virtual ~IJuneGfxListener() {}
 	virtual std::string	GetListenerName() const = 0;
 	virtual bool		OnExternalCall( SFG::Movie* pMovie, const char* szMethod, const SFG::Value* pArgs, unsigned uArgCount ) = 0;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	// vtable slot 3 ( +0xc ), called by 31d1ed90 when the AS side adds an observer to a binding name; the walk stops at the first listener that answers true
+	virtual bool		OnBindingCreated( const std::string& /*strName*/ ) { return false; }
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 };
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_EVENTSCENE
@@ -645,6 +649,10 @@ enum JUNE_GFX_BINDING_KIND
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	JGBK_SIMPLE_WIDGET	= 2,	// G4: "SimpleWidgetPlayer.playSimpleWidget" ( vtable 33471e40, GetValue 31fc7720 ): { widgetID, fileName, parameter1, parameter2 }
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	JGBK_RESULT_INFO	= 3,	// R1: "GameResult.updateDungeonInfo" ( DW_DUNGEON_RESULT_VALUE, vtable 3353a0b0, GetValue 32eeb1d0 )
+	JGBK_RESULT_ITEM	= 4,	// R1: "GameResult.getItemN" ( vtable 3353a080, GetValue 32eeaff0 ): { itemID, iconPath, iNum }
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 };
 
 struct KJuneGfxBindingObserver
@@ -658,6 +666,10 @@ struct KJuneGfxBinding
 	int			m_iKind;
 	bool		m_bValue;
 	std::vector< KJuneGfxBindingObserver >	m_vecObserver;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	KJuneGfxResultInfo	m_kResultInfo;		// R1: the 0x88 B value object
+	KJuneGfxResultItem	m_kResultItem;		// R1: the 0x40 B value object
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
 	int			m_iWidgetID;		// value object +8
 	std::string	m_strFileName;		// +0xc
@@ -775,6 +787,20 @@ public:
 		if ( it != m_mapBinding.end() )
 			it->second.m_bValue = bValue;
 	}
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	void SetBindingResultInfo( const std::string& strName, const KJuneGfxResultInfo& kInfo )	// 32eeae30: the 0x88 B value object
+	{
+		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		if ( it != m_mapBinding.end() )
+			it->second.m_kResultInfo = kInfo;
+	}
+	void SetBindingResultItem( const std::string& strName, const KJuneGfxResultItem& kItem )	// 32eea6a0: the 0x40 B value object
+	{
+		std::map< std::string, KJuneGfxBinding >::iterator it = m_mapBinding.find( strName );
+		if ( it != m_mapBinding.end() )
+			it->second.m_kResultItem = kItem;
+	}
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 	void ClearBindings()
 	{
 		m_mapBinding.clear();
@@ -792,6 +818,12 @@ public:
 		else if ( it->second.m_iKind == JGBK_SIMPLE_WIDGET )
 			BuildWidgetValue( it->second, &kValue );
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+		else if ( it->second.m_iKind == JGBK_RESULT_INFO )
+			BuildResultInfoValue( it->second.m_kResultInfo, &kValue );
+		else if ( it->second.m_iKind == JGBK_RESULT_ITEM )
+			BuildResultItemValue( it->second.m_kResultItem, &kValue );
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 		else
 			kValue.SetNull();
 		std::vector< KJuneGfxBindingObserver > vecObserver = it->second.m_vecObserver;
@@ -823,6 +855,83 @@ private:
 		pValue->SetMember( "parameter2",	SFG::Value( (SF::UInt32)kBinding.m_iParameter2 ) );
 	}
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+	// GetValue 32eeb1d0 ( DW_DUNGEON_RESULT_VALUE ): only with a movie. Types as June sets them: UInt 4, Number 5, Boolean 2, StringW 7.
+	void BuildResultInfoValue( const KJuneGfxResultInfo& kInfo, SFG::Value* pValue )
+	{
+		if ( m_pMovie == NULL )
+			return;
+		m_pMovie->CreateObject( pValue );
+		pValue->SetMember( "totalRank",			SFG::Value( (SF::UInt32)kInfo.m_iTotalRank ) );
+		pValue->SetMember( "sec",				SFG::Value( (SF::UInt32)kInfo.m_iSec ) );
+		pValue->SetMember( "ED",				SFG::Value( (SF::UInt32)kInfo.m_iED ) );
+		pValue->SetMember( "hitRank",			SFG::Value( (SF::UInt32)kInfo.m_iHitRank ) );
+		pValue->SetMember( "comboRank",			SFG::Value( (SF::UInt32)kInfo.m_iComboRank ) );
+		pValue->SetMember( "technicalRank",		SFG::Value( (SF::UInt32)kInfo.m_iTechnicalRank ) );
+		pValue->SetMember( "beAttackedRank",	SFG::Value( (SF::UInt32)kInfo.m_iBeAttackedRank ) );
+		pValue->SetMember( "totalEXP",			SFG::Value( (SF::UInt32)kInfo.m_iTotalEXP ) );
+		pValue->SetMember( "expRate",			SFG::Value( (SF::Double)kInfo.m_fExpRate ) );
+		pValue->SetMember( "oldExpRate",		SFG::Value( (SF::Double)kInfo.m_fOldExpRate ) );
+		pValue->SetMember( "levelUp",			SFG::Value( kInfo.m_bLevelUp ) );
+		pValue->SetMember( "level",				SFG::Value( (SF::Double)kInfo.m_iLevel ) );
+		pValue->SetMember( "bExactFit",			SFG::Value( g_pKTDXApp->GetResolutionScaleY() < 1.0f ) );	// 32eeae30: +0x1bc < 1.0, set when the value is filled
+		pValue->SetMember( "fSizeX",			SFG::Value( (SF::Double)(float)g_pKTDXApp->GetViewport().Width ) );	// 32eeae30: ( float ) app +0x1a4
+		pValue->SetMember( "resonanceLevel",	SFG::Value( (SF::Double)kInfo.m_iResonanceLevel ) );
+		pValue->SetMember( "showExitButton",	SFG::Value( kInfo.m_bShowExitButton ) );
+		pValue->SetMember( "unitType",			SFG::Value( (SF::UInt32)kInfo.m_iUnitType ) );
+		pValue->SetMember( "bestSec",			SFG::Value( (SF::UInt32)kInfo.m_iBestSec ) );
+
+		// 32eeb1d0 @32eeba5f..: category_<rank><category> and its four siblings, ranks in the list's order
+		for ( size_t i = 0; i < kInfo.m_vecCategory.size(); ++i )
+		{
+			const std::vector< KJuneGfxResultEntry >& vecEntry = kInfo.m_vecCategory[ i ];
+			for ( size_t j = 0; j < vecEntry.size(); ++j )
+			{
+				const KJuneGfxResultEntry& kEntry = vecEntry[ j ];
+				char szName[ 260 ] = { 0, };
+				sprintf_s( szName, sizeof( szName ), "category_%d%d", (int)j, (int)i );
+				pValue->SetMember( szName, SFG::Value( (SF::UInt32)kEntry.m_iCategory ) );
+				sprintf_s( szName, sizeof( szName ), "userName_%d%d", (int)j, (int)i );
+				pValue->SetMember( szName, SFG::Value( kEntry.m_wstrName.c_str() ) );
+				sprintf_s( szName, sizeof( szName ), "detailValue_%d%d", (int)j, (int)i );
+				pValue->SetMember( szName, SFG::Value( (SF::Double)kEntry.m_fDetailValue ) );
+				sprintf_s( szName, sizeof( szName ), "IsMyUnit_%d%d", (int)j, (int)i );
+				pValue->SetMember( szName, SFG::Value( kEntry.m_bIsMyUnit ) );
+				sprintf_s( szName, sizeof( szName ), "unitType_%d%d", (int)j, (int)i );
+				pValue->SetMember( szName, SFG::Value( (SF::UInt32)kEntry.m_iUnitType ) );
+			}
+		}
+
+		pValue->SetMember( "playerCount",		SFG::Value( (SF::UInt32)kInfo.m_iPlayerCount ) );
+		pValue->SetMember( "rewardType",		SFG::Value( (SF::UInt32)kInfo.m_iRewardType ) );
+		pValue->SetMember( "expBonusStringSize",SFG::Value( (SF::UInt32)kInfo.m_vecExpBonusString.size() ) );
+		for ( size_t i = 0; i < kInfo.m_vecExpBonusString.size(); ++i )
+		{
+			char szName[ 260 ] = { 0, };
+			sprintf_s( szName, sizeof( szName ), "expBonusString_%d", (int)i );
+			pValue->SetMember( szName, SFG::Value( kInfo.m_vecExpBonusString[ i ].c_str() ) );
+		}
+		pValue->SetMember( "edBonusStringSize",	SFG::Value( (SF::UInt32)kInfo.m_vecEdBonusString.size() ) );
+		for ( size_t i = 0; i < kInfo.m_vecEdBonusString.size(); ++i )
+		{
+			char szName[ 260 ] = { 0, };
+			sprintf_s( szName, sizeof( szName ), "edBonusString_%d", (int)i );
+			pValue->SetMember( szName, SFG::Value( kInfo.m_vecEdBonusString[ i ].c_str() ) );
+		}
+		pValue->SetMember( "reTryButtonShow",	SFG::Value( kInfo.m_bReTryButtonShow ) );
+	}
+
+	// GetValue 32eeaff0: { itemID, iconPath, iNum }
+	void BuildResultItemValue( const KJuneGfxResultItem& kItem, SFG::Value* pValue )
+	{
+		if ( m_pMovie == NULL )
+			return;
+		m_pMovie->CreateObject( pValue );
+		pValue->SetMember( "itemID",	SFG::Value( (SF::UInt32)kItem.m_iItemID ) );
+		pValue->SetMember( "iconPath",	SFG::Value( kItem.m_wstrIconPath.c_str() ) );
+		pValue->SetMember( "iNum",		SFG::Value( (SF::UInt32)kItem.m_iNum ) );
+	}
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 
 	// the table 3344de9c: ( name, native function ) pairs, set on the object dataBindingInit hands over
 	void AttachBindingFunction( SFG::Movie* pMovie, SFG::Value& kObject, const char* szName, int iID )
@@ -855,6 +964,14 @@ private:
 		kObserver.m_kExtra		= kParams.pArgs[2];
 		it->second.m_vecObserver.push_back( kObserver );
 		// 31d1ed90: the listeners are told the name; the scene's ( 32e597d0 ) and the manager's answer false, so nothing follows from it
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+		const std::string strBindingName = kParams.pArgs[0].GetString();
+		for ( std::map< std::string, IJuneGfxListener* >::iterator itL = m_mapListener.begin(); itL != m_mapListener.end(); ++itL )
+		{
+			if ( itL->second != NULL && itL->second->OnBindingCreated( strBindingName ) == true )
+				break;
+		}
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 	}
 
 	// 31d1f3a0 / 31d1f230: the first observer whose two Values equal ( a, b ) goes
@@ -1912,6 +2029,180 @@ CKTDGGFXSimpleWidgetPlayer::~CKTDGGFXSimpleWidgetPlayer()
 bool CKTDGGFXSimpleWidgetPlayer::IsBound() const															{ return m_pImpl->IsBound(); }
 bool CKTDGGFXSimpleWidgetPlayer::PlaySimpleWidget( int iUIID, const char* szFileName, int iParam1, int iParam2 )	{ return m_pImpl->PlaySimpleWidget( iUIID, szFileName, iParam1, iParam2 ); }
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN
+
+#ifdef SERV_IRUHADEV_JUNE_RESULT_WIDGET
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// CKTDGGFXResultBridge ( Phase R1 ): June's CX2UIDungeonResultAdapter ( vtable 3353a060: slot 1 32eeb1a0 = the listener name "UIDungeonResult", slot 2
+// 32eea3c0 = the external-call callback, slot 3 32eea220 = the binding-created notice ). The AS call "gameDataResultFunctionInit( obj )" gets the five native
+// functions of the table 33539ea8 ( function object vtable 3353a074, the same Call 32eee800 as the scene's ); the owner is the dungeon state.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+namespace
+{
+	const char*	JGRS_LISTENER_NAME		= "UIDungeonResult";							// 3353a09c
+	const char*	JGRS_BINDING_INFO		= "GameResult.updateDungeonInfo";				// 3353a03c
+	const char*	JGRS_BINDING_TAB_KEY	= "GameResult.onTabKeyProcess";					// 33539be4
+	const char*	JGRS_BINDING_SHOW_RETRY	= "GameResult.showRetryButton";					// 33539f28
+	const char*	JGRS_BINDING_ENABLE_RETRY = "GameResult.enableRetryButton";				// 33539f08
+	const int	JGRS_ITEM_COUNT			= 12;
+	// table 33539ea8, in June's order ( the spelling "notfy" is June's )
+	const char* const s_aszResultFunction[ 5 ] = { "notifyCloseResultUI", "notfyRetryButton", "notifyInitialize", "notfyitemSlotArrowLeft", "notfyitemSlotArrowRight" };
+
+	std::string JuneGfxResultItemBindingName( int iIndex )
+	{
+		char szName[ 64 ] = { 0, };
+		sprintf_s( szName, sizeof( szName ), "GameResult.getItem%d", iIndex );		// 3349f68c is the state's "GameResult.getItem%d"
+		return szName;
+	}
+}
+
+class CKTDGGFXResultBridge::CImpl : public IJuneGfxListener
+{
+public:
+	CImpl( CKTDGGFXManagerImpl* pMgrImpl, IJuneGfxResultHost* pHost )
+		: m_pHost( pHost ), m_pLink( *new CJuneGfxOwnerLink( this ) )
+	{
+		if ( pMgrImpl != NULL && pMgrImpl->m_pUI != NULL )
+			m_pAdapter = pMgrImpl->m_pUI->GetAdapter();
+		if ( m_pAdapter )		// 32eea7e0 -> 31d1f690, then 31d1f900 x 16
+		{
+			m_pAdapter->AddListener( this );
+			m_pAdapter->AddBinding( JGRS_BINDING_INFO, JGBK_RESULT_INFO );
+			for ( int i = 0; i < JGRS_ITEM_COUNT; ++i )
+				m_pAdapter->AddBinding( JuneGfxResultItemBindingName( i ), JGBK_RESULT_ITEM );
+			m_pAdapter->AddBinding( JGRS_BINDING_TAB_KEY, JGBK_TRIGGER );
+			m_pAdapter->AddBinding( JGRS_BINDING_SHOW_RETRY, JGBK_BOOL );
+			m_pAdapter->SetBindingBool( JGRS_BINDING_SHOW_RETRY, true );		// the 0xc B bool objects start at 1
+			m_pAdapter->AddBinding( JGRS_BINDING_ENABLE_RETRY, JGBK_BOOL );
+			m_pAdapter->SetBindingBool( JGRS_BINDING_ENABLE_RETRY, true );
+		}
+	}
+
+	~CImpl()
+	{
+		m_pLink->m_pOwner = NULL;
+		if ( m_pAdapter )		// 32eea090: 31d1f550 ( the listener ), then 31d1f600 x 16
+		{
+			m_pAdapter->RemoveListener( GetListenerName() );
+			m_pAdapter->RemoveBinding( JGRS_BINDING_INFO );
+			for ( int i = 0; i < JGRS_ITEM_COUNT; ++i )
+				m_pAdapter->RemoveBinding( JuneGfxResultItemBindingName( i ) );
+			m_pAdapter->RemoveBinding( JGRS_BINDING_TAB_KEY );
+			m_pAdapter->RemoveBinding( JGRS_BINDING_SHOW_RETRY );
+			m_pAdapter->RemoveBinding( JGRS_BINDING_ENABLE_RETRY );
+		}
+	}
+
+	// ---- IJuneGfxListener ------------------------------------------------------------------------------------------------------------
+	virtual std::string GetListenerName() const { return JGRS_LISTENER_NAME; }
+
+	// 32eea3c0
+	virtual bool OnExternalCall( SFG::Movie* pMovie, const char* szMethod, const SFG::Value* pArgs, unsigned uArgCount )
+	{
+		if ( szMethod == NULL || strcmp( szMethod, "gameDataResultFunctionInit" ) != 0 )
+			return false;
+		if ( pMovie == NULL || uArgCount < 1 || ( pArgs[0].IsObject() == false && pArgs[0].IsDisplayObject() == false ) )
+			return true;
+
+		SFG::Value kObject( pArgs[0] );
+		for ( int i = 0; i < 5; ++i )
+		{
+			SFG::Value kCurrent;
+			kObject.GetMember( s_aszResultFunction[ i ], &kCurrent );
+			if ( kCurrent.IsObject() == false && kCurrent.IsArray() == false && kCurrent.IsDisplayObject() == false )		// @32eea4c6: types 8 / 9 / 10 are left alone
+			{
+				SF::Ptr< CJuneGfxFunctionHandler > pHandler = *new CJuneGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
+				SFG::Value kFunction;
+				pMovie->CreateFunction( &kFunction, pHandler );
+				kObject.SetMember( s_aszResultFunction[ i ], kFunction );
+			}
+		}
+		return true;
+	}
+
+	// 32eea220: answers true for every name ( June's walk stops here ); the two names it knows are notified at once
+	virtual bool OnBindingCreated( const std::string& strName )
+	{
+		if ( m_pAdapter )
+		{
+			if ( strName == JGRS_BINDING_INFO )
+				m_pAdapter->NotifyBinding( JGRS_BINDING_INFO );
+			else if ( strName == "GameResult.updatePveInfo" )		// 33539c00: June's PvE twin shares this slot; no such binding here, so a no-op
+				m_pAdapter->NotifyBinding( strName );
+		}
+		return true;
+	}
+
+	bool IsBound() const { return m_pAdapter.GetPtr() != NULL; }
+
+	void UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo )		// 32eeae30
+	{
+		if ( !m_pAdapter )
+			return;
+		m_pAdapter->SetBindingResultInfo( JGRS_BINDING_INFO, kInfo );
+		m_pAdapter->NotifyBinding( JGRS_BINDING_INFO );
+	}
+
+	void SetItem( int iIndex, const KJuneGfxResultItem& kItem )		// 32eea6a0
+	{
+		if ( !m_pAdapter )
+			return;
+		const std::string strName = JuneGfxResultItemBindingName( iIndex );
+		if ( m_pAdapter->HasBinding( strName ) == false )
+			return;
+		m_pAdapter->SetBindingResultItem( strName, kItem );
+		m_pAdapter->NotifyBinding( strName );
+	}
+
+	void SetBool( const char* szBinding, bool bValue )			// 32eea1c0 / 32eea1f0
+	{
+		if ( !m_pAdapter )
+			return;
+		if ( m_pAdapter->HasBinding( szBinding ) == true )
+			m_pAdapter->SetBindingBool( szBinding, bValue );
+		m_pAdapter->NotifyBinding( szBinding );
+	}
+
+private:
+	static void OnFunction( void* pOwner, int iID, const SFG::FunctionHandler::Params& /*kParams*/ )
+	{
+		static_cast< CImpl* >( pOwner )->DoFunction( iID );
+	}
+
+	void DoFunction( int iID )
+	{
+		if ( m_pHost == NULL )
+			return;
+		switch ( iID )
+		{
+		case 0:		m_pHost->OnResultAsClose();			break;		// 32eea2c0
+		case 1:		m_pHost->OnResultAsRetry();			break;		// 32eea2e0
+		case 2:		m_pHost->OnResultAsInitialize();	break;		// 32eea300
+		case 3:		m_pHost->OnResultAsArrowLeft();		break;		// 32eea320
+		case 4:		m_pHost->OnResultAsArrowRight();	break;		// 32eea370
+		}
+	}
+
+	IJuneGfxResultHost*					m_pHost;
+	SF::Ptr< CJuneGfxOwnerLink >		m_pLink;
+	SF::Ptr< CLIKDataBindingAdapter >	m_pAdapter;
+};
+
+CKTDGGFXResultBridge::CKTDGGFXResultBridge( CKTDGGFXManager* pManager, IJuneGfxResultHost* pHost )
+	: m_pImpl( new CImpl( pManager != NULL ? pManager->m_pImpl : NULL, pHost ) )
+{
+}
+
+CKTDGGFXResultBridge::~CKTDGGFXResultBridge()
+{
+	SAFE_DELETE( m_pImpl );
+}
+
+bool CKTDGGFXResultBridge::IsBound() const															{ return m_pImpl->IsBound(); }
+void CKTDGGFXResultBridge::UpdateDungeonInfo( const KJuneGfxResultInfo& kInfo )						{ m_pImpl->UpdateDungeonInfo( kInfo ); }
+void CKTDGGFXResultBridge::SetItem( int iIndex, const KJuneGfxResultItem& kItem )					{ m_pImpl->SetItem( iIndex, kItem ); }
+void CKTDGGFXResultBridge::ShowRetryButton( bool bShow )											{ m_pImpl->SetBool( JGRS_BINDING_SHOW_RETRY, bShow ); }
+void CKTDGGFXResultBridge::EnableRetryButton( bool bEnable )										{ m_pImpl->SetBool( JGRS_BINDING_ENABLE_RETRY, bEnable ); }
+#endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // CKTDGGFXManager

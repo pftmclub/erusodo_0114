@@ -34,6 +34,9 @@ using boost::bind;
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 void JuneGfxCutIn_LUA( const char* szName );	/// X2GUUser.cpp
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+#include "X2UIDungeonResultAdapter.h"
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 
 #ifdef	CHECK_KOM_FILE_ON_LOAD
 #include <libxml/parser.h>
@@ -5612,6 +5615,10 @@ void CX2Main::RegisterLuabind()
 #ifdef SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
 	lua_tinker::def( L, "JuneGfxCutIn",					&JuneGfxCutIn_LUA );	/// G4 debug: JuneGfxCutIn( "HQ_CutIn_Elsword_01" )
 #endif SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_RESULT_DEBUG
+	lua_tinker::def( L, "JuneResultOpen",				&JuneResultOpen_LUA );	/// R1 debug: in a dungeon, opens the GFx result widget ( UI 8 ) and fills it from the result info
+	lua_tinker::def( L, "JuneResultClose",				&JuneResultClose_LUA );
+#endif SERV_IRUHADEV_JUNE_RESULT_DEBUG
 #ifdef REFORM_SKILL_NOTE_UI
 	lua_tinker::class_add<CX2SkillNoteManager>( L, "CX2SkillNoteManager" );
 	lua_tinker::class_def<CX2SkillNoteManager>( L, "AddSkillNoteTemplet",						&CX2SkillNoteManager::AddSkillNoteTemplet_LUA);
