@@ -2199,6 +2199,15 @@ An Aisha unit logs `open mind level 0, delegate not registered`.
 - unit 45: Binding Circle cast in the air, +5 s cool time;
 - unit 47: Magical Makeup's transform starts and ends cleanly; an equip changed while transformed shows after it ends.
 
+**Play-test PASSED (logs, 2026-10-22 09:29-09:37 run on md5 `aa4114ab...`, clean exit).**
+- Unit 51: `cool time ( skill 22051 level 1, 12.00 -> 10.80, research 0.90 )` and `22042 15.00 -> 13.50`; `cyclone upgrade ( decrease force down 2.00 )` on each Cyclone hit.
+- Unit 52 (Shadow Death now level 4): `shadow death ignores defence ( level 4, chance 0.20, attack type 0 / 2 )` six times in about 30 s.
+- Unit 53: `magical staff hit ( level 4, force down 9.25 -> 5.55, hit mp 1435.00 -> 1549.80 )`, and `-28.00 -> -39.20` on a negative force-down. When hit: `magical staff mp on hit taken ( rate 2.08 )`.
+- Unit 47: Magical Makeup at 09:36:07, wing at 09:36:09, `MagicalMakeup_End` at 09:37:08, no error. The equip queue was not exercised.
+- Unit 45: Binding Circle was cast (09:35:15) with no `cool time` line. It is `ASUT_GROUND`, so June's off-ground +5 s never fires on a normal cast; a June dead branch, kept.
+- No `mp consume` line: none of the played slots has a cost June changes (no aura or fireball slot; Teleport's rates are 1.0 offline). The path is unobserved, and the review reads it in the listing.
+- Packets: only the usual `E_DISABLE_HB_CHECK_REQ` UNHANDLED lines; no EXCEPTION.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if
