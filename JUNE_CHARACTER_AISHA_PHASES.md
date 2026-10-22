@@ -2306,6 +2306,8 @@ The user decided (2026-10-22): drop only that block, under the new engine flag `
 - **Hygiene:** `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 25,733,120 B, dated 2026-10-22 11:16:05, md5 52fae1a51d1c3ecfa473b699f222a8ce, equal to X2/US_SERVICE/x2.exe (2026-10-22 11:15:58); built at main a90ff871 + 3 uncommitted code file(s).`
 
+**Play-test PASSED (2026-10-22, run 11:17 on the fix-1 build; user: all checks).** Logs: V casts in order (entries pop 22042 -> 22012 -> `HUD hidden`), a new charge memorizes 22042 / 22051 / 22012 (`HUD entry 0-2`), refreshes on swap and key save, signs at cool-time end, 28 sparkle passes, tooltip lines for 22051 / 22038, hover lines (JUNE_BUGS 400). No memorize texture / particle / control error in `ErrorLog.txt`; packets: only the known `E_DISABLE_HB_CHECK_REQ`.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if
