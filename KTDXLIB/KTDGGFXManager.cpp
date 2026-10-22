@@ -1115,10 +1115,7 @@ private:
 };
 
 #ifdef SERV_IRUHADEV_JUNE_GFX_BLEND
-// ---------------------------------------------------------------------------------------------------------------------------------------
-// June's D3D9::HAL::applyBlendModeImpl ( 33214cd0, HAL vslot +0x8c ). 4.2.22 has one table for both paths ( Erase / Alpha = ZERO / ZERO, black );
-// June has two, and on screen Erase / Alpha keep the destination ( ADD ZERO / ONE ).
-// ---------------------------------------------------------------------------------------------------------------------------------------
+// June's D3D9::HAL::applyBlendModeImpl ( 33214cd0 ): two tables, Erase / Alpha keep the destination
 class JuneGfxHAL : public SFR::D3D9::HAL
 {
 public:

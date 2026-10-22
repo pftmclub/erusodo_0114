@@ -766,6 +766,33 @@ built at main a3e20615 + 10 uncommitted code files (peers' edits are in this exe
 balloon, no black frame. Then dev console `PlayEventScene("Quest_22329_Start")`: the scene looks as before. Log: `python tools/logs.py --grep "JUNE_GFX MGR"` must show the blend line.
 **Open.** None; no drifted branch found (Screen / Invert shader behaviour now equals June's by construction).
 
+### Phase G7 - Review (2026-10-22, Opus 5.5 high): PASS, no findings; one comment-only tidy, no rebuild
+
+**Tables.** `T20` (`337493f0`, file offset `0x1ca87f0`) and `T12` (`33749520`, `0x1ca8920`) read from the PE sections of `unpacked_x2.exe`: all 15 x 5 and
+15 x 3 dwords equal `s_aT20` / `s_aT12` (and `T12`'s src column equals `T20`'s on every row, so reading src from `T20` loses nothing).
+
+**`33214cd0` (raw disasm).** D3DPERF begin / end (`3324a8ec` / `3324a8f2`, profiling only, not ported: right); `[+0x4c0]` NULL -> return; `mode >= 0xf` -> 0;
+`[+0x2b0]` != 0 replaces mode; `or word [+0x4c4], 1` for 3 / 6, else `and 0xfffe`. Simple path (`test [+0x4a4], 2`, `forceAc` == 0): 0xab = `T12.op`, 0xce = 0,
+0x13 = `T20.src` (`sourceAc` && 5 -> 2), 0x14 = `T12.dst`. Else 0xce = 1, 0xab = 0xd1 = `T20.op`, 0x13 (same rule), 0x14, 0xcf, 0xd0 from `T20`. Same states, same order
+as `JuneGfxHAL::applyBlendModeImpl`. `VP.Flags` / `View_AlphaComposite` = 2 is `Render_Viewport.h:51`; the stock 4.2.22 Impl (`D3D9_HAL.cpp:969`) sets only these render
+states, so the override drops no side effect. Modes 15-17 reach the base Impl unchanged.
+
+**The two judgement calls: both right.**
+- `+0x2b0`: 4.2.22's `HAL::applyBlendMode` (`Render_HAL.cpp:723`) applies `Profiler.GetBlendMode` (`Render_HAL.h:217`: non-`Blend_None` override wins), after the clamp
+  and before the Impl. That is June's rule at June's point, so no code is needed.
+- `+0x4c4`: a byte scan of `33200000..33260000` finds only two writers, the HAL ctor (`3321a1ad`, zeroes it) and `33214cd0`. Readers `33216004` / `33217de0` / `3321831c` /
+  `33218bd9` push it into the shader lookup `3321d450`, which keys the shader on `fillFlags & 3` (Mul / Inv, the 4.2.22 `FF_Multiply` / `FF_Invert` layout). June keeps
+  the Inv variant but never sets bit 1. The 4.2.22 wrapper (`Render_HAL.cpp:746-750`) is the only D3D9-side writer of `FF_Invert` and runs before the Impl, so clearing
+  `FF_Invert` and setting `FF_Multiply` for 3 / 6 in the override gives June's flags exactly: Screen leaves the Mul shader, Invert leaves the Inv shader, Darken takes Mul.
+  (Under D3D's MIN, Mul's fade-to-white for transparent texels is what keeps Darken's destination, so June's 3 / 6 pairing is consistent.) The wrapper's `FF_Blending` (0x20)
+  only feeds the profiler draw mode and the shader-flag inference, not the shader choice (`Render_Shader.h:386-391`).
+
+**Tidy.** The 4-line banner over `JuneGfxHAL` became one line (comment rule, 2026-10-20). Comment only, so the deployed exe (md5 146cc214) is unchanged and was not rebuilt.
+**Hygiene.** Range `flagcheck JUNE_GFX_BLEND --range 2a25233c^..2a25233c`: `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 2 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+Review worktree (`--files KTDXLIB/KTDGGFXManager.cpp KTDXLIB/Always.h`): `files: 1 PASS`; the 4 deleted lines are the old banner; `RESULT: PASS`.
+**User owes:** nothing. The june-gfx plan is closed again.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
