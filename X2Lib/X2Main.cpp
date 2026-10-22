@@ -6808,8 +6808,9 @@ CKTDGUIDialogType CX2Main::KTDGUIOkAndCancelMsgBox( D3DXVECTOR2 pos, const WCHAR
 	if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
 	{
 #ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
-		// June 31d7efc0 @31d7f0f2: no unhide while the stage is in a result-UI mode ( +0x210 )
-		if ( pNowState != NULL && static_cast< CX2State* >( pNowState )->GetJuneResultUIMode() == 0 )
+		// June 31d7efc0 @31d7f0c5: no unhide while the stage ( NULL: g_pMain +0x90 ) is in a result-UI mode ( +0x210 )
+		CKTDXStage* pJuneResultStage = ( pNowState != NULL ) ? pNowState : m_pNowState;
+		if ( pJuneResultStage != NULL && static_cast< CX2State* >( pJuneResultStage )->GetJuneResultUIMode() == 0 )
 			g_pKTDXApp->GetDGManager()->GetDialogManager()->JuneSetShow( true, 0 );
 #else SERV_IRUHADEV_JUNE_RESULT_FLOW
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetShow( true );

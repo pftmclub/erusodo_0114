@@ -584,6 +584,54 @@ R3c's port list, items 0-2 (item 3 = no code). Play-test pending.
 - **Revert:** MODS.md "June dungeon result R3d". Nothing left open; if the second run still logs `init: ... attached` and no `call 2`, the cause is AS-side: "needs an Opus look" (ABC of `dungeon_result.gfx`).
 - **Play-test fix (2026-10-22, user: the result's ESC box takes no mouse, keyboard works; everything else PASSED; flag `_JUNE_RESULT_HIDE_MOUSE`):** March's `CKTDGUIDialog::MsgProc` (`KTDGUIDialog.cpp:963`) swallowed every mouse message while the dialogs are hidden (result mode 2). June `31cd8940 @31cd8c22`: hidden and hide mode in {2,3,4} -> only a dialog whose name is in the mode's list (`31cda4d0`; `OkAndCancelMsgBox`, `DLG_Exit_Party_MsgBox` for mode 2) is handled; others are ignored. Ported with `CKTDGUIDialogManager::IsJuneHideName`; the swallow is the `#else`. `flagcheck --worktree`: RESULT PASS (0 deleted). `DEPLOY OK: X2_offline.exe is 25,789,952 B, dated 2026-10-22 17:34:14, md5 53d3fd669a30ecc1b5fb1d13627fb59f`. Not yet play-tested: click Cancel / OK / Close on the box with the mouse.
 
+### R3 - Review (2026-10-22, Opus 5.5 high): PASS after two fixes (covers R3, R3b, R3c, R3d)
+
+**Checked against June** (capstone, `disasm_range.py`; Ghidra has no function at `324cf3d0`):
+- **Mode machine `324cf3d0`** (jump table `324cf7e4`): all four cases match. Mode 1 is the 0.1 double compare unless `+0x7a9`, then the tutorial
+  (`g_pMain +0x16a`: game `+0x2ad` = 1, mode 0, vslot 0xf0( 0 )), UI 8 open -> wait, no info (`g_pData +0x148`) -> 0xf0, then once `+0x7cc`
+  (0xc8 + `openUI( 8 )`), then every tick `JuneSetShow( 0, 2 )` and quick slot vslot 0x20( 1 ). Mode 2 is 0xc0 / 0xdc / mode 3. Mode 3 is
+  `_ftol( limit - time )` clamped to 0, 0xd8( 0, 1, &s ), then mode 4 when limit <= time (`fcompp` + `test ah, 0x41`), and the speed check
+  once while time >= 0. Mode 4 is 0xd8( 1, 1, &s ), 0xcc if UI 8 is open, then 0xf0( 0 ). The no-manager confirm is the only addition. R3's
+  `JuneResultSendConfirm` in the fill's early-out is June's (`324d60e0 @324d732f`).
+- **`0x1f2` = `EGS_REPORT_HACK_USER_NOT`**: drop manager `3273b9e3`, behind `+0x54 != 2` and `g_pKTDXApp +0x218` (= March `X2DropItemManager.cpp:72`).
+  The speed check: level from room `+0x70` -> my slot -> unit `+0xb4`, auth `+0x2c < 2` (`XUAL_OPERATOR` = 2), `HUT_AGREE_HACK_USER` = 2,
+  both written only with a server protocol. All match.
+- **Exit box `31f1dd70`:** 250 / 300, OK `0xbff` / Cancel `0xbdb`, close id `0xbdb`. The party box is `DLG_UI_ExitPartyMsgBox.lua` at 0.07, and
+  `+0x110` = 1 at create. **Text `31f17e60`:** in the dungeon (state 0xb) the ids are 39778 / 43515 (solo) / 43487 (`328b26a0`); elsewhere they
+  are 39779 / 43516. **Msgs `31f23e70`:** Keep sets mode 4 inline and `+0x22e`. Quit in 0xb: sent ? ReturnToPlace : 0xf0( 1 ); the `+0x408` /
+  vslot 0x138 branch and leave-party `0x6b3` run in state 9 = `XS_PVP_GAME` only. Cancel: GFx `+0x108` = 1, delete (`0x472`), `+0x110` = 0,
+  0xe4( 1, -1 ).
+- **ACK `324d4cd0`:** valid && !`+0x5db` -> `+0x22d` ? (game 0x12c( 0x72 ), party && !`+0x22e` -> `324334d0( 0x72 )`) : `+0x22e` && now state
+  -> ReturnToPlace. Invalid `0x7d` -> room vslot 0x7c( 1 ). In both builds 0x72 / 0x7d = `NOT_LEAVE_ROOM_REASON_00` / `_14`, 11 apart.
+- **Retry `324d8600` (the `#else` of `_RETRY_DIRECT`):** MT 9 (= March, `SERV_PVP_NEW_SYSTEM` on, `ServerDefine.h:1188`), `MBT_OK_CANCEL`, 10 s,
+  `STR_ID_21304`, ids 14 / 15 / 15. June's extra ( 230.0, 200.0 ) has no March parameter.
+- **R3c / R3d:** callbacks `32eea2c0` / `2e0` / `300` act on `g_pMain +0x90`, as the dispatcher does. Dtor `@324d5e41-324d5eb2` and ctor
+  `@324dadca-324dae14` = 0xc4 / 0xbc / mode 0 (+ limit 23.0) / `+0x108` / `31d05060` / `+0x110` = 0, in order. The `#else` paths keep March's
+  `XS_DUNGEON_RESULT` change and end handler.
+
+**Fixes (built and deployed below):**
+1. **`_RESULT_HIDE_MOUSE` returned `true`.** June `31cd8940 @31cd8c43` / `@31cd8cd3` jumps to `31cd91e2` (`xor al, al`). A hidden dialog
+   outside a mode-2-4 name list, or any hidden dialog in another mode, is *not handled*. The port returned `true`, March's swallow, so the
+   manager's top-down loop (`KTDGUIDialogManager.cpp:1331`) stopped there and called the click handled. It now returns `false`
+   (`KTDGUIDialog.cpp:966`). Outside the result too, clicks with the UI hidden by DELETE are no longer eaten, as in June.
+2. **`KTDGUIOkAndCancelMsgBox` with a NULL stage** skipped the unhide test. June `@31d7f0c5-31d7f0cd` falls back to `g_pMain +0x90`
+   (`X2Main.cpp:6811`, `_FLOW`). JUNE_BUGS 411: the test reads `+0x210` of whatever stage is passed.
+
+**Decisions:** R2's unused `EGS_JUNE_FAST_SOLO_CLEAR_NOT` and its ignore row go in Z (R2's flag, the last client id; kickoff amended). The
+`_DEBUG` flag and the console opener stay until Z, which turns them off: every FLOW line is `_DEBUG`-only and R4 is still open.
+
+**Hygiene:** ranges (one per commit): `_FLOW` `ec274f67`: 7 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, 0 ERROR, 0 deleted, RESULT PASS. `_FLOW`
+`b7b42dba^..03f59bdd`: 5 PASS, 2 PASS~, 4 OTHER, 1 ERROR = `Always.h:9920`, `_RETRY_DIRECT`'s `#error` guard naming `_FLOW`, as R3b recorded.
+`_DIALOG_MODAL` / `_OLD_EXP` / `_NOW_STATE_CALL` / `_STATE_RESET` / `_HIDE_MOUSE`: RESULT PASS, 0 deleted. `_RETRY_DIRECT`: 0 PASS / 11 OTHER,
+because its block sits inside `_FLOW`'s new code in the adapter. OTHER rows are the earlier result flags' files. Review fixes (`--worktree`):
+`_HIDE_MOUSE` and `_FLOW` 1 PASS each; the 2 deleted lines each are the review's own replaced lines inside those flags; RESULT PASS.
+
+**Deploy:** `BUILD OK: X2/US_SERVICE/x2.exe 25,790,464 B, 2026-10-22 23:38:13` (at `0dfe56ca` + the 2 fix files); `DEPLOY REFUSED: X2_offline.exe is running`, so `build.py --deploy-only` runs once the game is closed.
+
+**Logs (17:35-17:37 run, exe `53d3fd66`):** solo clear of 30000: mode 1 -> 5 x `init: ... attached` -> `call 2` -> `notifyInitialize` -> mode 2 ->
+fill -> mode 3 -> exit box (mouse) -> `confirm sent ( quit 1 )` -> ACK -> `all-unit NOT: already left` -> village. 0 EXCEPTION; UNHANDLED only
+`E_DISABLE_HB_CHECK_REQ` (baseline).
+
 ## Phase R4 - June's legacy result state (conditional)
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`. Sub-tag `LEGACY`.
@@ -605,6 +653,7 @@ Done note, item 8).
 - Backlog: a dated note in Stage 29. Stage 9's "GFx owed gates" and "root-UI screens" bullets say what moved and what stayed.
 - Memory `june-result-plan`.
 - Every `_DEBUG` flag off, with a build if one was on.
+- R3 review: remove R2's unused `EGS_JUNE_FAST_SOLO_CLEAR_NOT` and its ignore row (kickoff `Z.md`).
 
 ## Open questions
 
