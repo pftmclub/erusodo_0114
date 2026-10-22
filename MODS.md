@@ -4955,6 +4955,7 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **`_STATE_RESET`** (`X2StateDungeonGame.cpp`, `KTDGUIDialogManager.{h,cpp}`): dtor `324d5670 @324d5e41-324d5eb2` (UI 8 unloaded with or without an adapter, GFx shown `+0x108 = 1`, new `CKTDGUIDialogManager::JuneResetHideMode` = `31d05060`, flagged-only off) and ctor `324d9f80 @324dadca-324dae14` (unload, mode 0, `m_fJuneResultModeLimit = 23.f`, flagged-only off).
 - **Debug** (`_DEBUG`, `ErrorLog.txt`): `[JUNE_RESULT] WIDGET init: <name> attached | kept (type N)` per member, `WIDGET call <id>` (+ `dropped`), `FLOW ESC: leave box ( result mode N )`.
 - **Turn off:** comment out either define in `Always.h` and rebuild; `_NOW_STATE_CALL` off returns the owner-link handler, `_STATE_RESET` off returns the adapter-only unload.
+- **`_RESULT_HIDE_MOUSE`** (`KTDGUIDialog.cpp` MsgProc, `KTDGUIDialogManager.h` `IsJuneHideName`; R3d play-test fix): hidden in hide mode 2-4, only a dialog named in the mode list takes the mouse (June `31cd8940 @31cd8c22`), so the result exit box is clickable. Turn off: comment out the define; the swallow-all returns.
 
 ### June dungeon result R3b: R3 play-test fixes (flags `SERV_IRUHADEV_JUNE_RESULT_DIALOG_MODAL`, `_RETRY_DIRECT`, `_OLD_EXP`; Tab / F8 under `_FLOW`, 2026-10-22)
 
