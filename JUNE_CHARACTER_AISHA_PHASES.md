@@ -2308,6 +2308,61 @@ The user decided (2026-10-22): drop only that block, under the new engine flag `
 
 **Play-test PASSED (2026-10-22, run 11:17 on the fix-1 build; user: all checks).** Logs: V casts in order (entries pop 22042 -> 22012 -> `HUD hidden`), a new charge memorizes 22042 / 22051 / 22012 (`HUD entry 0-2`), refreshes on swap and key save, signs at cool-time end, 28 sparkle passes, tooltip lines for 22051 / 22038, hover lines (JUNE_BUGS 400). No memorize texture / particle / control error in `ErrorLog.txt`; packets: only the known `E_DISABLE_HB_CHECK_REQ`.
 
+### CH4d -- Review (2026-10-22, Opus 5.5)
+
+**Verdict: PASS, no transcription fix.** Every item was read in the raw listing (`funcdis.py`, `disasm_range.py`), and the `_DEBUG` flag is retired.
+1. **`322deb80`.** The type test (unit `+0x867c` -> `+0xaf0` == 2), `32cc2880` empty -> `322cf350( false )`, else `( true )`. g_pMain `+0x278` == 1 picks
+   `Memorize_Slot%d_TypeA` / `UseMemorizedSkillHotKey_A` (`3348afbc` / `33489ff4`), else the `_B` pair. A missing slot control continues, and entry `<= 0` sets `SetShowEnable( 0, 0 )`.
+   - `3288fff0`: per j 0-4, A[j] then B[j], out j or j + 5; a miss returns 0 or -1 and leaves the function (JUNE_BUGS 402).
+   - `new 0x18` -> `328d9ac0( index, bSlotB )` -> `SetSlotData` with no delete (401), `SetShowEnable( 1, 1 )`; entry 0 only: string 0 = `31f5ee50( 0x27 )`.
+2. **`322f4740`.** `+0xb38 += +0x2d0`. `bSlotB` is set once and never reset. Each iteration tests `+0x714` valid, dialog `+0x6e`, vslot `0x718`, else clears with `EBP` = i.
+   - Then `32890ee0( 0 )` false with bSlotB breaks to the reset. The fade static is `Static_Skill_Cool_Time_Fade` (`_B` for B). vslot `0x880` true clears.
+   - The bar rule: `+0x116` (type A) shows; else `+0x115` (swap) gives bSlotB, else !bSlotB. Position: `( pos + dialog pos ) + size x 0.5`, y `+/- 47` (`3348a580`) when swapped,
+     whatever the UI type.
+   - Moves happen above the threshold `0.1f` (`334395e8`, a double of `0.1f`); recreate at `+0xb38 >= 2.8f` (`3351aff0`, `jp` on `test ah, 0x41`), then the same reset.
+3. **Helpers.** The funcmap had `328da5b0` / `328da440` reversed: `328da5b0( i, 0 )` is `GetEquippedSlot` (it maps 5-9 to B itself) and `328da440( index, bar )` is the slot data
+   (control `+0x3c4`). The port's pair of calls is the same; two funcmap rows were corrected.
+   - `322eca50` / `322ecb60`: `ShowSlotPicture( 0, slot, 2, -1, 0 )`, destroy every handle `!= -1` (`31cefbc0`), clear, erase on arg 2.
+   - `322f4480`: the sign first, then five `Aisha_Memorise_P0%d` = `CreateSequence( NULL, name, x, y, 0, -1, -1, -1, -1, -1, 1, 0, 0 )`. The 14th argument (-1) is June-only.
+     A sequence is pushed only with a live instance, and `+0x170` = 1 (SetOverUI). An old entry is cleared before the insert.
+   - `322cf810`: `31d71810( 3 )`, unit, `31fcec40`, vslot `0x714` (Aisha vtable `3351d0b4 +0x714` = `331a4950`, `xor al, al; ret 4`), `0x718` (`32cc7b30`),
+     and dialog manager (`app +0x1fc +0x38c`) `+0x34`.
+4. **`31d71810`** (raw listing): arg `<= 0` / `> 7` -> true; event scene (`g_pData +0x274`, `3226a010`). Then state `0xb` with `+0x5f4`: June's sub stage writes the ending
+   event `+0x5e0` at `+0x10` / `+0x14`, as March's `Start()` does, so `+0x5f4` is `m_bStarted`.
+   - Clear movie `+0x80a`; state `0x15` + `g_pInstanceData +8` -> `32263f10` (lazy-creates, as March's `GetWorldMapUI`) -> `3225ca40` (dialog `+0x6e`).
+   - Riding `321f8a40` (the `GetRidingOnState` shape, `+0x3d6`); UI manager `+0x89` == 0 -> false.
+5. **Tree UI.**
+   - `328d9ac0` = the ctor (vt `334c2eac`, type 5, `+4` = 1).
+   - `328e0f10`: type 2, `GetSkillSlot`, templet `( id, 1 )`, `32890620( id, 1, 0, 1 ) > 0`, id `> 0`; icon from templet `+0x50` / `+0x6c`, slot `+0x340` = 0, else `328df930`
+     (my unit -> `32ce1770( true )`).
+   - `328e0460` case 2, both branches: blocked -> `+8` = 0 and leave (the new picture is never added). Otherwise `DLG_UI_Common_Texture63_NEW.tga` / `AISHA_MEMORIZE_SIGN`, else
+     `NoAlphaImage.dds`, colour 1. A new picture also gets `pos - 1` and `size + 2` (`33437820`).
+   - 29059 `@328ec719`: spec A is a float, `( a + 1.0 ) x 0.7f x 100.0`, STR `0xae45` "f", then `31f61bd0` onto the slot (400). Every path is `mov al, 1`.
+   - `@328e9710`: `edi` = templet, `+8` = `m_eID`; `32205af0` reads node `+0x170` = templet `+0x160` = `m_iWOSType` (`s0a_templet_keys.tsv`). Appends `"\n\n"` and STR 30357 "L".
+   - `328e0ff0 @328e1097`: right after the TypeA / TypeB swap.
+6. **Callers.**
+   - `32cd204d` `322cc030( &2.8 )`.
+   - `3220f4dc` after vslot `0x684( 0 )` with type 2.
+   - `31f5ede5` after save / hide with type 2.
+   - `322e1bb3` / `@322e1bcc`: `GetSkillSlot( index, bar )`, sign on `[esp+0x44]` = the 0-9 counter, then the fade picture hidden.
+   - Ctor `@32307bb4` right after `+0x714` = the skill tree dialog; dtor `@32308941` after `SetEnable( 1 )`; `@32308a9b` clears all.
+   - One placement note: June's `@32307e99` clear-all is not inside March's non-observer branch, and the port's is. That only matters for an observer, which offline never has; no fix.
+7. **`328df9f0`:** no rel32 call / jump / jcc and no absolute pointer anywhere in the file. `32ce1650`'s only caller, `328dfaa0`, is inside it, so both are dead.
+8. **Fix 1.** `324bc8e0` and `324d2e20` push no `0x27` to any input reader; their actions are listed in funcmap. The one other `0x27` read in June's input code is `322f7170 @322f7fb8`
+   (`3230f5f0`), which is the `InputData` sit fill, already ported (`X2Game.cpp:5996`). Its readers are Aisha's memorize and UFO only. `@31e9e853` is the setter `31c48920`.
+   No register-argument read resolves to `0x27`. Nothing else sits the unit on V.
+
+**Hygiene.**
+- `--range a90ff871^..a90ff871`, MEMORIZE `--with ..._DEBUG`: `files: 8 PASS, 3 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; zero deleted /
+  non-ASCII / EOL-mismatched lines, 3 bare `#endif` (the `#error` guards), 0 encoding changes; `RESULT: PASS`.
+- `--range 8ccff12b^..8ccff12b`, NO_SIT_KEY: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; all zero; `RESULT: PASS`.
+- The retirement edit, `--worktree --files KTDXLIB/Always.h`: `RESULT: FAIL` only because `..._MEMORIZE_DEBUG` is no longer defined. Its one deleted line is the define,
+  and the bare `#endif` is the guard's. Encoding and EOL are unchanged.
+
+**Retired:** `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG` (define commented out, `Always.h:9842`, `bytepatch.py`); the code and its `#error` guard stay.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,731,584 B, dated 2026-10-22 11:44:52, md5 0b7c3814d65f40e9844a541508006645, equal to X2/US_SERVICE/x2.exe (2026-10-22 11:44:45); built at main 530ca114 + 1 uncommitted code file(s).` `ARME MEMO` is no longer in the exe; `Aisha_Memorise_P0%d` still is.
+**In game:** nothing new to see. The `[JUNE_CHAR] ARME MEMO` lines stop; the HUD, sparkles, signs, tooltip line and V cast run unchanged.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

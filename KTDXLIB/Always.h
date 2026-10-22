@@ -9839,7 +9839,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-10-22
 // Description: Temporary ( pilot CH4d ) - [JUNE_CHAR] ARME MEMO lines: HUD refresh entries, sparkle, sign, timer, hover, tooltip line. Retire in the CH4d review.
-#define SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG		// off since the CH4d review ( 2026-10-22 )
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ) || !defined( SERV_IRUHADEV_OFFLINE ) )
 #error SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE and SERV_IRUHADEV_OFFLINE
 #endif
