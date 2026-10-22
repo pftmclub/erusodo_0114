@@ -9797,7 +9797,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-10-22
 // Description: Temporary ( pilot CH4b ) - a [JUNE_CHAR] line per unit delegate list run, the first run and then non-empty runs once a second. Retire after the CH4b play-test.
-#define SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG
+//#define SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG		// off since the CH4b review ( 2026-10-22 )
 #if defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST ) || !defined( SERV_IRUHADEV_OFFLINE ) )
 #error SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG needs SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST and SERV_IRUHADEV_OFFLINE
 #endif

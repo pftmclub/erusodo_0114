@@ -2106,6 +2106,46 @@ An Aisha unit logs `open mind level 0, delegate not registered`.
 - Unit 24 (Ara) gives `attack result +0x66ac: user 24, 1 entries, 1 bound` about once a second while hitting (March's `UpNowForcePowerHitOthers`).
 - No CH4b error lines.
 
+### CH4b -- Review (2026-10-22, Opus 5.5)
+
+**Verdict: PASS, no transcription fix.** Every item was read in the listing (Ghidra, `disasm_range.py`). The `_DEBUG` flag is retired.
+1. **Runners.** `322752b0`: empty test (`[v] == [v+4]`), 8-byte entries, null `fn` (`+4`) skipped, `fn( ecx = [e], edx = arg )`, `RET 8`. `32275280`: the same
+   without `edx`, `RET 4`. Both equal March's `DoDelegateProcessWithDamageData` / `DoDelegateProcess`.
+2. **All 11 run sites** (`xrefs_to`: 7 + 4; March has 11 calls, the two new ones included):
+   - CEffect `@31f86a8b`: owner `+0x66ac`, the CEffect's DamageData `+0x200`. User AttackResult `@3201399d`: `+0x66ac`, `+0x3a0`. Both are followed by vslot `0x1e8` (routed).
+   - DamageReact, user `@320471f3` / `@32047202` and NPC `@327b313b` / `@327b314a`: `+0x66bc`, then `+0x66dc` with the DamageData. Vslot `0x1ec` follows on the user side (routed).
+   - CommonFrameMove, user `@32063d5c` and NPC `@327b54b6`: `+0x66cc`.
+   - NPC AttackResult `3276a320`: `m_pAI` `+0x7c98`. Type `+0x38 == 1` (NAT_ALLY) runs `@3276a7a1` only when the ally owner is set (= March).
+     Otherwise `+0x38 == 0` (NAT_NORMAL) runs `+0x66ac` with `+0x3a0` `@3276a83e` and nothing else. The port's `else if` is that branch (`NAT_NORMAL` = 0, `NAT_ALLY` = 1, `X2NPCAI.h:26`).
+   - AreaHit `@32624f7b` (push from `@32624f73`): `if ( attacker ) { drain-mana block; run( attacker + 0x66ec, DamageData ) }`. It is independent of the hit count, as ported.
+     The port sits in March's `#ifdef AREA_HIT` AreaHit, live by the play-test's `area hit +0x66ec` line.
+3. **Clears.** `31fe19d0` resizes `+0x66ac` / `+0x66bc` / `+0x66cc` / `+0x66dc` / `+0x66ec` to 0 (`326df550`, `@31fe1a11` the fifth). `3207bfe0` clears all five (`@3207c0a2`).
+   - **Push scan redone as a byte scan of `.text`** for every operand `+0x66ec`. It found 11 instructions, and none is a push:
+     - the run, the two clears;
+     - the unit ctor / dtor (`322a149c`-`322a14bf`, `322a4c9a`) and two EH unwind funclets (`332b3bbb`, `332b474b`);
+     - one unrelated `[esp + 0x66ec]` (`31ddce0a`).
+   - CH4b's "nobody registers" holds. (130 callers of `3207b770`, several outside carved functions, which is why the byte scan was used.)
+4. **`32ce9f90`** (thunk `32cf2d70`: `push edx; call; ret`):
+   - **Gates:** `31fceab0( 0x5790 )` > 0, then DD `+0x470` observable non-null, then `32610fb0( 0x11 )`, in that order. The port matches: `June_GetSkillLevel`, `optrDefenderGameUnit`, `JuneIsAttackTrigger( 17 )`.
+   - **Clone:** `31fcad70( 22416 )` templet `+0xa0[0]` is cloned (`32089f60`) at `31fceab0( 22416 )`.
+   - **`32d4d670( defender, -1, -1, 1 )`:** the one-argument `SetGameUnitBuffFactor` defaults to that under `ADD_LIVE_CREATOR_FINALIZER` (`X2BuffFactor.h:1002`; defined at `Always.h:2101`). JUNE_BUGS 397 holds.
+   - **The rest:** defender vslot `0x224` (`SetBuffFactorToGameUnit( const CX2BuffFactor& )`, funcmap 322a83b0), then the clone is released.
+   - **Registration** `@32ced5fc`-`32ced623`: `31fceab0( 22416 ) > 0`, then push `{ this, 32cf2d70 }` on `+0x66ac`, the last block of `32cecd70`, as ported.
+   - The port's templet / empty-vector guard is extra. June would fault there, and no row lacks the factor.
+   - **Minor:** the Done note gives AreaHit as `@32624f73` (the push) and `@32624f7b` (the call). Both name the same run.
+
+**Hygiene** (`--range c5498352^..c5498352`):
+- UNIT_DELEGATE_LIST (`--with ..._DEBUG`): `files: 5 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 1 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+  - The bare `#endif` closes the `_DEBUG` `#error` guard in `Always.h`.
+  - The OTHER rows are the Arme `.cpp` / `.h`, which belong to `JUNE_CHAR_ARME_PASSIVE`.
+- JUNE_CHAR_ARME_PASSIVE: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 6 OTHER (other flags), 0 FAIL, 0 ERROR`;
+  `in this flag's files: 1 deleted line(s), ...`; `RESULT: PASS`. The deleted line is the stale CH4a comment.
+
+**Retired:** `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG`. Its define is commented out (`Always.h:9800`, `bytepatch.py`), and the code and its `#error` guard stay.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,722,368 B, dated 2026-10-22 08:45:44, md5 1f66e443052f259350756766acc919be, equal to X2/US_SERVICE/x2.exe (2026-10-22 08:45:37); built at main 8e22fd9e + 1 uncommitted code file(s).` `delegate run` is no longer in the exe; `open mind level` still is.
+**In game:** nothing new to see. The `delegate run` lines stop and the lists run silently. `passive init ( ... open mind level 0, delegate not registered )` still prints.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if
