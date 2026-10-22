@@ -265,6 +265,21 @@ Flag `SERV_IRUHADEV_JUNE_TRANSCEND_UNIT` (`Always.h` + `ServerDefine.h`, `SECOND
 
 **How to see it:** start the game once (the exe migrates the save to v22; log `DB MIG v22 done`), select a character: every unit logs `transcendence 0`. Close the game, `python tools/elsdb.py settranscend 52 1`, start again: unit 52 logs `1`.
 
+### T1 - Review (2026-10-23, Opus 5.5): PASS, no code change
+
+Read-only against June in Ghidra; `5081c06b` is the port.
+- **Unit.** `3234b4a0` is `*(this + 0x3c) = *arg` = `SetUnitClassTran`. The four packet setters each read a 2-byte class then the int: `3235eb20` (+0x15 / +0x17), `32360090` (+0x21 / +0x23), `32361e00` (+0x4a / +0x4c), `323614c0` (+0x26). They store the int at UnitData slot 5, right after the class (slot 4), so the member sits beside the class (CX2Unit +0x3c). March copies it in all four setters.
+- **Wire.** In all four structs the member follows `m_cUnitClass`, and Put and Get sit in the same place. The `KSquareUserInfo` / `KFieldUserInfo` copy ops (`CON_COPYCON_ASSIGNOP`) copy it. Those two have no default ctor in March, so the member is left unset like their other members and is filled only by Get. The emulator builds neither.
+  - Every emulator `KUnitInfo` goes through `MakeUnitInfoFromRow` (select list, select, quest / room / shop / unit updates), and room infos go through `MakeRoomUserInfo`. A later refresh therefore never resets the flag. The bot and create-unit infos rely on the ctor's 0.
+- **Rung v22.** `SCHEMA_VERSION` 22 replaces the v21 branch wholesale (`DEFAULT_RESURRECTION_STONE` kept). The `iFrom < 22` rung has one `ALTER ... DEFAULT 0` and sits after v21. `UNIT_COLUMNS` puts `transcendence` 24th, which is column 23 in `ReadUnitRow`. The unconditional `resurrection_stone` is safe because v16 already `#error`s without `OFFLINE_RES_STONE`. Both unit SELECTs use `UNIT_COLUMNS`, and the unit INSERT leaves the column to its default.
+- **Stand-ins.** Each `#else` keeps the old body.
+  - `IsForbiddenQuest` = `3232e510 @3232ea0e-ea2b` (`tail != -1`, `tail != unit +0x3c`, `type != 1`).
+  - The hyper-class skips test `!= 0`, as June does (`32206d30 @32206d9e`, `3220d2b0 @3220d340`, `31fdd490 @31fdd57f`). So does the A-TC lock (`328e18d0 @328e195e`).
+  - Only `31fceab0` tests `== 1`. `June_UnitFlag3c` uses `!= 0` for all six Arme readers, which is the same result while the save holds only 0 / 1: `elsdb.py` refuses other values, and T2's writers set 0 / 1. Not changed (no rebuild for an unreachable value).
+- **Not touched, as planned:** the slot-4 / 9 skips (`X2GUUser.cpp:6422`), the emulator equip refusal (`X2OfflineSkill.cpp:674`), the 42030 refusal (`Handlers_Quest.cpp:327`) and `X2StateMenu.cpp:1885` are still there for T2 / T4.
+- **Hygiene** (`flagcheck JUNE_TRANSCEND_UNIT --range 5081c06b^..5081c06b`): `files: 16 PASS, 0 PASS~ (blank/marker only), 2 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. No later commit touches the flag.
+- **Kickoffs.** T2 reads right. In T4, `SetEquippedSkillFunc`'s loop moved 4 lines because of T1's `X2GUUser.cpp` insert; it now reads `:40218-40224`. No build, since no code changed; the deployed exe is still T1's (md5 e05dfadb).
+
 ## Phase T2 - Becoming transcended: quest, notify, guide
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE`.
