@@ -1114,6 +1114,84 @@ private:
 	SFG::Value							m_RootValue;		// +0x68..+0x70
 };
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_BLEND
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// June's D3D9::HAL::applyBlendModeImpl ( 33214cd0, HAL vslot +0x8c ). 4.2.22 has one table for both paths ( Erase / Alpha = ZERO / ZERO, black );
+// June has two, and on screen Erase / Alpha keep the destination ( ADD ZERO / ONE ).
+// ---------------------------------------------------------------------------------------------------------------------------------------
+class JuneGfxHAL : public SFR::D3D9::HAL
+{
+public:
+	JuneGfxHAL() : SFR::D3D9::HAL( NULL ) {}
+
+	virtual void applyBlendModeImpl( SFR::BlendMode mode, bool sourceAc = false, bool forceAc = false )
+	{
+		if ( (unsigned)mode > 14 )		// Overwrite / OverwriteAll / FullAdditive: 4.2-internal, no June row ( June clamps to 0 )
+		{
+			SFR::D3D9::HAL::applyBlendModeImpl( mode, sourceAc, forceAc );
+			return;
+		}
+		if ( pDevice == NULL )			// [this+0x4c0] == 0 -> return
+			return;
+
+		// the profiler override ( this+0x2b0 ) is applied by the base applyBlendMode before this call
+		const unsigned uMode = (unsigned)mode;
+		FillFlags &= ~( SFR::FF_Multiply | SFR::FF_Invert );		// this+0x4c4 bit 0 = FF_Multiply: set for 3 ( Multiply ) and 6 ( Darken ); June never sets Invert
+		if ( uMode == 3 || uMode == 6 )
+			FillFlags |= SFR::FF_Multiply;
+
+		// T20 = 337493f0, stride 0x14: op, src, dst, srcAlpha, dstAlpha. T12 = 33749520, stride 0xc: op, src ( same as T20 ), dst. D3D enum values
+		static const struct { DWORD dwOp, dwSrc, dwDst, dwSrcA, dwDstA; } s_aT20[15] =
+		{
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		//  0 None
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		//  1 Normal
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		//  2 Layer
+			{ D3DBLENDOP_ADD,         D3DBLEND_DESTCOLOR, D3DBLEND_ZERO,        D3DBLEND_DESTCOLOR, D3DBLEND_ZERO },		//  3 Multiply
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		//  4 Screen
+			{ D3DBLENDOP_MAX,         D3DBLEND_SRCALPHA,  D3DBLEND_ONE,         D3DBLEND_SRCALPHA, D3DBLEND_ONE },		//  5 Lighten
+			{ D3DBLENDOP_MIN,         D3DBLEND_SRCALPHA,  D3DBLEND_ONE,         D3DBLEND_SRCALPHA, D3DBLEND_ONE },		//  6 Darken
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		//  7 Difference
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_ONE,         D3DBLEND_ZERO, D3DBLEND_ONE },		//  8 Add
+			{ D3DBLENDOP_REVSUBTRACT, D3DBLEND_SRCALPHA,  D3DBLEND_ONE,         D3DBLEND_ZERO, D3DBLEND_ONE },		//  9 Subtract
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		// 10 Invert
+			{ D3DBLENDOP_ADD,         D3DBLEND_ZERO,      D3DBLEND_ZERO,        D3DBLEND_ONE, D3DBLEND_ONE },		// 11 Alpha
+			{ D3DBLENDOP_ADD,         D3DBLEND_ZERO,      D3DBLEND_ZERO,        D3DBLEND_ONE, D3DBLEND_ONE },		// 12 Erase
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		// 13 Overlay
+			{ D3DBLENDOP_ADD,         D3DBLEND_SRCALPHA,  D3DBLEND_INVSRCALPHA, D3DBLEND_ONE,  D3DBLEND_INVSRCALPHA },		// 14 Hardlight
+		};
+		static const struct { DWORD dwOp, dwDst; } s_aT12[15] =
+		{
+			{ D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA }, { D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA }, { D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA },
+			{ D3DBLENDOP_ADD, D3DBLEND_ZERO },																		//  3 Multiply
+			{ D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA },
+			{ D3DBLENDOP_MAX, D3DBLEND_ONE }, { D3DBLENDOP_MIN, D3DBLEND_ONE },										//  5 Lighten, 6 Darken
+			{ D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA },
+			{ D3DBLENDOP_ADD, D3DBLEND_ONE }, { D3DBLENDOP_REVSUBTRACT, D3DBLEND_ONE },								//  8 Add, 9 Subtract
+			{ D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA },
+			{ D3DBLENDOP_ADD, D3DBLEND_ONE }, { D3DBLENDOP_ADD, D3DBLEND_ONE },										// 11 Alpha, 12 Erase: destination kept
+			{ D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA }, { D3DBLENDOP_ADD, D3DBLEND_INVSRCALPHA },
+		};
+
+		const DWORD dwSrc = ( sourceAc && s_aT20[uMode].dwSrc == D3DBLEND_SRCALPHA ) ? D3DBLEND_ONE : s_aT20[uMode].dwSrc;
+		if ( ( VP.Flags & SFR::Viewport::View_AlphaComposite ) == 0 && forceAc == false )		// simple path
+		{
+			pDevice->SetRenderState( D3DRS_BLENDOP, s_aT12[uMode].dwOp );
+			pDevice->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE, FALSE );
+			pDevice->SetRenderState( D3DRS_SRCBLEND, dwSrc );
+			pDevice->SetRenderState( D3DRS_DESTBLEND, s_aT12[uMode].dwDst );
+			return;
+		}
+		pDevice->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE, TRUE );
+		pDevice->SetRenderState( D3DRS_BLENDOP, s_aT20[uMode].dwOp );
+		pDevice->SetRenderState( D3DRS_BLENDOPALPHA, s_aT20[uMode].dwOp );
+		pDevice->SetRenderState( D3DRS_SRCBLEND, dwSrc );
+		pDevice->SetRenderState( D3DRS_DESTBLEND, s_aT20[uMode].dwDst );
+		pDevice->SetRenderState( D3DRS_SRCBLENDALPHA, s_aT20[uMode].dwSrcA );
+		pDevice->SetRenderState( D3DRS_DESTBLENDALPHA, s_aT20[uMode].dwDstA );
+	}
+};
+#endif SERV_IRUHADEV_JUNE_GFX_BLEND
+
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // The manager's Scaleform-typed half
 // ---------------------------------------------------------------------------------------------------------------------------------------
@@ -1215,7 +1293,12 @@ public:
 		m_Loader.SetFileOpener( SF::Ptr< SFG::FileOpener >( *new r3dGFXFileOpener() ) );
 		m_Loader.SetTextClipboard( SF::Ptr< SFG::TextClipboard >( *new FxPlayerTextClipboard() ) );
 
+#ifdef SERV_IRUHADEV_JUNE_GFX_BLEND
+		m_pHAL = *SF_NEW JuneGfxHAL();									// 3321a190( 0 ) -> +0x3c, June's applyBlendMode tables
+		JuneGfxLog( "blend: June applyBlendMode tables" );
+#else
 		m_pHAL = *SF_NEW SFR::D3D9::HAL( NULL );						// 3321a190( 0 ) -> +0x3c
+#endif SERV_IRUHADEV_JUNE_GFX_BLEND
 		m_pRenderer = *SF_NEW SFR::Renderer2D( m_pHAL );				// 31af9560( HAL ) -> +0x40
 		if ( !m_pRenderer )
 		{

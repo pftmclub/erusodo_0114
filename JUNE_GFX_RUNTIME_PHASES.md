@@ -737,6 +737,35 @@ balloon show. G4's "black by design" note read the DDS colours only and missed t
   - A real skill cut-in shows the art and the balloon with no black frame, on a right-facing cast and a left-facing cast.
   - A GFx event scene (`Quest_22329_Start`) still looks as it did.
 
+### Phase G7 - Done (2026-10-22, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_GFX_BLEND`)
+
+**Landed.** `JuneGfxHAL` (a `SFR::D3D9::HAL` subclass, `KTDGGFXManager.cpp`) overrides `applyBlendModeImpl` with June `33214cd0` whole: both
+tables as D3D enums (`T20` `337493f0`, `T12` `33749520`; read from the PE sections of `unpacked_x2.exe` and compared row by row), the simple
+path (`T12` op + dst, `T20` src, SEPARATEALPHA 0), the alpha-composite path (`T20` for all seven states) and the `sourceAc` SRCALPHA -> ONE rule.
+`InitLoaderStates` makes it under the flag (`#else` = stock HAL) and logs `[JUNE_GFX] MGR blend: June applyBlendMode tables`. Modes 15-17 go to the
+base class. Rows `(GFx G7)` in `funcmap.tsv`; MODS.md "june-gfx G7".
+
+**Ghidra answers (read-only).**
+- `this+0x4c4` is `FillFlags`: `33214cd0` is its only writer (bit 0 for modes 3 / 6, else cleared); the readers `33215d70`, `33217c30`, `33218130` pass it to
+  the shader lookups `3321d450` / `33214610`, and `33218130` @332189a4 clears bit 2 (`FF_AlphaWrite`), so the bit layout is 4.2.22's. Same mechanism as
+  our `FF_Multiply`, so ported inside the override: `FF_Multiply` for Multiply (3) and Darken (6) only, `FF_Invert` cleared (June never sets bit 1). The base
+  wrapper had set Multiply/Screen and Invert; Screen and Invert now follow June (normal blend, normal shader).
+- `this+0x2b0` is `ProfileViews.OverrideBlend` (the other readers `lea` it as a sub-object); the base `applyBlendMode` applies `Profiler.GetBlendMode` before the Impl. No code.
+- `31ba3ab0` / `31ba3b30` confirmed: Push / Pop call slot +0x8c with ( mode, 0, HALState bit 0x10 ).
+- Not ported: the `D3DPERF` begin / end event around the body (profiling only; the base wrapper has its own).
+
+**On screen.** Erase / Alpha = ADD ZERO / ONE (destination kept), so the `frame_effect` shapes of `Common_CutIn_Frame.gfx` draw nothing: no black frame.
+Multiply dst is ZERO (4.2.22: INVSRCALPHA); Screen, Invert are the default row; Darken uses the multiply shader.
+
+**Hygiene.** `flagcheck JUNE_GFX_BLEND --worktree --files KTDXLIB/Always.h KTDXLIB/KTDGGFXManager.cpp`: `files: 0 PASS, 1 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 encoding change(s)`; `RESULT: PASS` (the 2 "without token" are the house's bare `#else` and the `#error` guard's `#endif`). `.vcxproj` hunks: none.
+**Deploy.** DEPLOY OK: X2_offline.exe is 25,777,152 B, dated 2026-10-22 15:06:07, md5 146cc2148ce31edac4219b7f65a3a7a6, equal to X2/US_SERVICE/x2.exe (2026-10-22 15:05:59);
+built at main a3e20615 + 10 uncommitted code files (peers' edits are in this exe too). The string `June applyBlendMode tables` is in the deployed exe.
+
+**Play-test (user).** Elsword Lord Knight `jtLordKnight` (uid 25, lv 99): cast a skill whose cut-in art shows (an ultimate / hyper skill), facing right and then left: art and
+balloon, no black frame. Then dev console `PlayEventScene("Quest_22329_Start")`: the scene looks as before. Log: `python tools/logs.py --grep "JUNE_GFX MGR"` must show the blend line.
+**Open.** None; no drifted branch found (Screen / Invert shader behaviour now equals June's by construction).
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.

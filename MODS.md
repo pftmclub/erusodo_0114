@@ -4654,6 +4654,14 @@ Flag `SERV_IRUHADEV_JUNE_GFX_CURSOR_ORDER` in `KTDXLIB/Always.h` (client only; `
 - **What changes in game:** during a GFx event scene the event-scene cursor is drawn over the movie (June `31be3800 @31be3c7c`) instead of under it. A stand-in for June's `CKTDXCursor` until engine Phase R4f, which retires this flag.
 - **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
 
+### June GFx runtime: blend modes (june-gfx G7, 2026-10-22)
+
+Flag `SERV_IRUHADEV_JUNE_GFX_BLEND` in `KTDXLIB/Always.h` (client only; `#error`s without `JUNE_GFX_MANAGER`). Plan `JUNE_GFX_RUNTIME_PHASES.md` "Phase G7"; log line `[JUNE_GFX] MGR blend: June applyBlendMode tables`.
+- **Client.** `KTDGGFXManager.cpp`: `JuneGfxHAL`, a `SFR::D3D9::HAL` subclass overriding `applyBlendModeImpl` with June `33214cd0` and its two tables (`337493f0`, `33749520`); `InitLoaderStates` makes it instead of the stock HAL.
+- **Project files:** none.
+- **What changes in game:** blend 11 / 12 (Alpha / Erase) keep the destination as in June, so the skill cut-in frame (`Common_CutIn_Frame.gfx`) draws nothing instead of solid black. Multiply, Screen, Invert and Darken follow June's rows too.
+- **Revert:** comment out the define, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data or save change.
+
 ### June quest system: quest clear movies (quest-system Q8, 2026-10-19)
 
 Flag `SERV_IRUHADEV_JUNE_QUEST_MOVIE` in `KTDXLIB/Always.h` (needs `JUNE_QUEST_UI`, `REFORM_ENTRY_POINT`, `MOVIE_TEST_BASE`). Plan `JUNE_QUEST_SYSTEM_PHASES.md` "Q8 - Done"; log tag `[JUNE_QUEST] MOVIE`.

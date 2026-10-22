@@ -9881,3 +9881,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_RESULT_DEBUG needs SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June GFx G7 - D3D9::HAL::applyBlendModeImpl ( 33214cd0 ) with June's two blend tables ( 337493f0 / 33749520 ) as a HAL subclass in KTDGGFXManager.cpp, so Erase / Alpha keep the destination ( the skill cut-in frame draws nothing, not black ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_GFX_BLEND
+#if defined( SERV_IRUHADEV_JUNE_GFX_BLEND ) && !defined( SERV_IRUHADEV_JUNE_GFX_MANAGER )
+#error SERV_IRUHADEV_JUNE_GFX_BLEND needs SERV_IRUHADEV_JUNE_GFX_MANAGER ( KTDGGFXManager.cpp )
+#endif
+//////////////////////////////////////////////////////////////////////////
