@@ -2455,6 +2455,24 @@ candidates are Ara 34 / 124, Elesis 35 / 125 and Add 33 / 36 / 123 / 126. Third 
 
 **Done gate:** the user's walk passes; 0 Aisha `no_state` rows except Stage 6's; no new `KEM_ERROR` in the walk's `ErrorLog.txt`.
 
+### CH6 - Done (2026-10-22, Sonnet 5.5)
+
+**No code change, no flag, no build** (nothing to compile; the deployed exe is CH4d's fix-1 build). Save backed up before the walk: `data\db_backup\els_db_20261022_114709_pre_ch6_walk.sql`.
+
+**Scans, before (CH0 / planning, 2026-10-20) -> after (now).**
+| Scan | Before | After |
+|---|---|---|
+| `census.py` | all PASS, 0 `to-implement` | 26 PASS, 0 FAIL, `to-implement 0` (implemented 651 -> 652, handed-off 10 -> 9; the regenerated `census.tsv` / KEY_MATRIX were reverted, not committed) |
+| `charport_keys.py Arme_VioletMage` | 224 keys: june-only 7 / neither 2 / march-only-site 2 / both 213 | 224 keys: **6 / 2 / 2 / 214** (the 6 are CH1m's routed keys; `neither` = `HEAD_IK`, `SLOW_FACTOR`) |
+| `charport_scan.py` (Arme) | NUMERIC 36 no-index / 1 no-DAMAGE; no KEYS / ENUM line | **identical** (diff against `char_arme/plan_charport_scan_20261020.txt` empty apart from the SKIPPED list) |
+| S3 `no_state` (`s3_reform_ids_no_state.tsv`, 7 Aisha classes) | 267 rows / 130 ids, 260 rows no state | **0 unexplained.** Every tree id has a case in `X2GUArme_VioletMage.cpp`, except 35 ids by design: 15 upgrade ids that reach their base case through `JuneSkillIDByUpgrade` (22047-49, 22054-56, 22061, 22062, 22064, 22227, 22229, 22230, 22233, 22234, 22236), 18 passives 22400-22417 (CH4a / CH4b data, no state in June), and 106 / 900 (common hyper aura / Heavenly Love, June's common code) |
+
+The S3 generator is not in the repo (CH2 noted this), so the S3 line is a rebuilt check: ids from the tsv against the `case` labels (and their `const int` ids) in the class file. A real regeneration is Stage 7's job.
+
+**Walk.** The seven Aisha units already exist in the save (CH1-CH4 made them): 44 `arishiaaa` (Violet Mage, lv 16), 45 `ArmeHM` (High Magician, 60), 46 `ArmeDM` (Dark Magician, 60), 47 `ArmeBM` (Battle Magician, 60), 51 `ArmeEM` (Elemental Master, 99), 52 `ArmeVP` (Void Princess, 99), 53 `ArmeDW` (Dimension Witch, 99). Hand-off below in the session; failures go back to the owning phase's flag (`JUNE_CHAR_ARME_*`), not here.
+
+**Gate status:** scans and `no_state` pass; the user's walk and the walk's `ErrorLog.txt` check are open. Log tags `[JUNE_CHAR]` / `[JUNE_SKILL]`.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.
