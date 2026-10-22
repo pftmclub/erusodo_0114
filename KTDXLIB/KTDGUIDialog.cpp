@@ -960,8 +960,18 @@ bool CKTDGUIDialog::MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam 
 		case WM_MOUSEWHEEL:
 			{
 #ifdef DIALOG_SHOW_TOGGLE
+#ifdef SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
+				if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
+				{
+					// June 31cd8940 @31cd8c22: hidden in mode 2-4, only a dialog in the mode's name list is handled
+					if( g_pKTDXApp->GetDGManager()->GetDialogManager()->IsJuneHideModeKeepingHidden() == false
+						|| g_pKTDXApp->GetDGManager()->GetDialogManager()->IsJuneHideName( GetName() ) == false )
+						return true;
+				}
+#else SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
 				if( g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() == true )
 					return true;
+#endif SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
 #endif
 
 #ifdef LOG_LOAD_DLG_SCRIPT

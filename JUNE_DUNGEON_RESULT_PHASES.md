@@ -582,6 +582,7 @@ R3c's port list, items 0-2 (item 3 = no code). Play-test pending.
 - **Hygiene:** `flagcheck --worktree`: NOW_STATE_CALL RESULT PASS, STATE_RESET RESULT PASS (0 deleted, 0 non-ASCII, 0 EOL mismatch, 0 encoding change); OTHER rows are the earlier flags' files the debug lines and `#else` sit in.
 - **Deploy:** DEPLOY OK: X2_offline.exe is 25,789,952 B, dated 2026-10-22 17:10:07, md5 a6b4da41b7b4251603cbd2c0f52a0960, equal to X2/US_SERVICE/x2.exe.
 - **Revert:** MODS.md "June dungeon result R3d". Nothing left open; if the second run still logs `init: ... attached` and no `call 2`, the cause is AS-side: "needs an Opus look" (ABC of `dungeon_result.gfx`).
+- **Play-test fix (2026-10-22, user: the result's ESC box takes no mouse, keyboard works; everything else PASSED; flag `_JUNE_RESULT_HIDE_MOUSE`):** March's `CKTDGUIDialog::MsgProc` (`KTDGUIDialog.cpp:963`) swallowed every mouse message while the dialogs are hidden (result mode 2). June `31cd8940 @31cd8c22`: hidden and hide mode in {2,3,4} -> only a dialog whose name is in the mode's list (`31cda4d0`; `OkAndCancelMsgBox`, `DLG_Exit_Party_MsgBox` for mode 2) is handled; others are ignored. Ported with `CKTDGUIDialogManager::IsJuneHideName`; the swallow is the `#else`. `flagcheck --worktree`: RESULT PASS (0 deleted). `DEPLOY OK: X2_offline.exe is 25,789,952 B, dated 2026-10-22 17:34:14, md5 53d3fd669a30ecc1b5fb1d13627fb59f`. Not yet play-tested: click Cancel / OK / Close on the box with the mouse.
 
 ## Phase R4 - June's legacy result state (conditional)
 

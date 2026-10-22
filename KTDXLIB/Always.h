@@ -9951,3 +9951,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_RESULT_STATE_RESET needs SERV_IRUHADEV_JUNE_RESULT_FLOW and SERV_IRUHADEV_JUNE_GFX_GATES ( CKTDGUIDialogManager hide mode )
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R3d play-test fix - while the dialogs are hidden in mode 2-4, only a dialog named in the hide mode's list takes the mouse ( June 31cd8940 @31cd8c22 ); March's CKTDGUIDialog::MsgProc swallowed every mouse message, so the exit box could not be clicked. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
+#if defined( SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE ) && !defined( SERV_IRUHADEV_JUNE_GFX_GATES )
+#error SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE needs SERV_IRUHADEV_JUNE_GFX_GATES ( CKTDGUIDialogManager hide mode names )
+#endif
+//////////////////////////////////////////////////////////////////////////

@@ -141,6 +141,9 @@ class CKTDGUIDialogManager : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 		void	JuneResetHideMode();													// 31d05060 / 31d07950: the dungeon state dtor
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
+#ifdef SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
+		bool	IsJuneHideName( const WCHAR* wszName ) const { return wszName != NULL && m_setJuneHideNames.find( wszName ) != m_setJuneHideNames.end(); }	// 31cda4d0 set find
+#endif SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE
 		void	JuneToggleHide();																// 31f02f50: the DELETE-key toggle
 		int		GetJuneHideMode() const { return m_iJuneHideMode; }							// +0xc8
 		int		GetJuneHidePrevMode() const { return m_iJuneHidePrevMode; }					// +0xcc
