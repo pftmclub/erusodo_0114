@@ -1,0 +1,133 @@
+id	name	powerRate	bornSealed	eType	reqLevel
+22000	Chain Fireball	ABSENT	False	14	1
+22001	Gust Screw	ABSENT	False	15	5
+22002	Gust Storm	ABSENT	False	16	10
+22003	Lightning Bolt	ABSENT	False	15	15
+22004	Meteor Call	ABSENT	False	16	20
+22005	Binding Circle	ABSENT	True	14	20
+22006	Magic Missile	SPRT_FIRST_CLASS	False	15	15
+22007	Meteor Shower	SPRT_FIRST_CLASS	False	16	30
+22008	Blizzard Shower	SPRT_FIRST_CLASS	True	15	30
+22009	Chain Lightning	SPRT_FIRST_CLASS	False	14	40
+22010	Blaze Step	SPRT_SECOND_CLASS	False	16	35
+22011	Cyclone	SPRT_SECOND_CLASS	False	15	45
+22012	Lightning Shower	SPRT_SECOND_CLASS	True	15	45
+22013	Chain Burst	SPRT_SECOND_CLASS2	False	14	55
+22014	Poisonous Cloud	SPRT_FIRST_CLASS	False	15	15
+22015	Aging	SPRT_FIRST_CLASS	False	16	30
+22016	Death Field	SPRT_FIRST_CLASS	True	15	30
+22017	Hell Stone	SPRT_FIRST_CLASS	False	14	40
+22018	Plasma Cutter	SPRT_SECOND_CLASS	False	16	35
+22019	Phantom Breath	SPRT_SECOND_CLASS	False	15	45
+22020	Hell Drop	SPRT_SECOND_CLASS	True	14	45
+22021	Dark Burst	SPRT_SECOND_CLASS2	False	14	55
+22022	Magical Makeup	SPRT_FIRST_CLASS	False	15	15
+22023	Super Nova	SPRT_FIRST_CLASS	False	16	30
+22024	Guillotine Press	SPRT_FIRST_CLASS	True	15	30
+22025	Energy Spurt	SPRT_SECOND_CLASS	False	16	35
+22026	Heavy Press	SPRT_SECOND_CLASS	False	14	40
+22027	Space Distortion	SPRT_SECOND_CLASS	False	15	45
+22028	Screw Driver	SPRT_SECOND_CLASS	True	15	45
+22029	Impact Hammer	SPRT_SECOND_CLASS2	False	14	55
+22030	#Cffcc00[Enhanced]#CX\nChain Fireball	ABSENT	False	14	71
+22031	#Cffcc00[Enhanced]#CX\nGust Screw	ABSENT	False	15	73
+22032	#Cffcc00[Enhanced]#CX\nGust Storm	ABSENT	False	16	74
+22033	#Cffcc00[Enhanced]#CX\nLightning Bolt	ABSENT	False	15	76
+22034	#Cffcc00[Enhanced]#CX\nMeteor Call	ABSENT	False	16	77
+22035	#Cffcc00[Enhanced]#CX\nBinding Circle	ABSENT	True	14	78
+22036	헬 드롭	SPRT_FIRST_CLASS	False	14	45
+22037	스크류 드라이버	SPRT_SECOND_CLASS	False	15	45
+22038	#Cffcc00[Enhanced]#CX\nMagic Missile	SPRT_FIRST_CLASS	False	15	82
+22039	#Cffcc00[Enhanced]#CX\nPoisonous Cloud	SPRT_FIRST_CLASS	False	15	82
+22040	#Cffcc00[Enhanced]#CX\nMagical Makeup	SPRT_FIRST_CLASS	False	15	82
+22041	Circle of Elements	SPRT_HYPER_CLASS	False	14	70
+22042	Frost Barrage	SPRT_HYPER_CLASS	False	15	90
+22043	Petit Angkor'- Millions	SPRT_HYPER_CLASS	False	14	70
+22044	Ruin	SPRT_HYPER_CLASS	False	15	90
+22045	Air Stunner	SPRT_HYPER_CLASS	False	14	70
+22046	Crazy Worm	SPRT_HYPER_CLASS	False	15	90
+22047	#Cffcc00[Enhanced]#CX Meteor Shower	SPRT_FIRST_CLASS	False	16	86
+22048	#Cffcc00[Enhanced]#CX Blizzard Shower	SPRT_FIRST_CLASS	True	15	87
+22049	#Cffcc00[Enhanced]#CX Chain Lightning	SPRT_FIRST_CLASS	False	14	93
+22050	#Cffcc00[Enhanced]#CX Blaze Step	SPRT_SECOND_CLASS	False	16	91
+22051	#Cffcc00[Enhanced]#CX Cyclone	SPRT_SECOND_CLASS	False	15	94
+22052	#Cffcc00[Enhanced]#CX Lightning Shower	SPRT_SECOND_CLASS	True	15	96
+22053	#Cffcc00[Enhanced]#CX Chain Burst	SPRT_SECOND_CLASS2	False	14	98
+22054	#Cffcc00[Enhanced]#CX Aging	SPRT_FIRST_CLASS	False	16	86
+22055	#Cffcc00[Enhanced]#CX Death Field	SPRT_FIRST_CLASS	True	15	87
+22056	#Cffcc00[Enhanced]#CX Hell Stone	SPRT_FIRST_CLASS	False	14	93
+22057	#Cffcc00[Enhanced]#CX Plasma Cutter	SPRT_SECOND_CLASS	False	16	91
+22058	#Cffcc00[Enhanced]#CX Phantom Breath	SPRT_SECOND_CLASS	False	15	94
+22059	#Cffcc00[Enhanced]#CX Hell Drop	SPRT_SECOND_CLASS	True	14	96
+22060	#Cffcc00[Enhanced]#CX Dark Burst	SPRT_SECOND_CLASS2	False	14	98
+22061	#Cffcc00[Enhanced]#CX Super Nova	SPRT_FIRST_CLASS	False	16	86
+22062	#Cffcc00[Enhanced]#CX Guillotine Press	SPRT_FIRST_CLASS	True	15	87
+22063	#Cffcc00[Enhanced]#CX Energy Spurt	SPRT_SECOND_CLASS	False	16	91
+22064	#Cffcc00[Enhanced]#CX Heavy Press	SPRT_SECOND_CLASS	False	14	93
+22065	#Cffcc00[Enhanced]#CX Space Distortion	SPRT_SECOND_CLASS	False	15	94
+22066	#Cffcc00[Enhanced]#CX Screw Driver	SPRT_SECOND_CLASS	True	15	96
+22067	#Cffcc00[Enhanced]#CX Impact Hammer	SPRT_SECOND_CLASS2	False	14	98
+22068	Icicle Spear	SPRT_HYPER_CLASS	False	16	95
+22069	Abysmal Field	SPRT_HYPER_CLASS	False	16	95
+22070	Impact Zone	SPRT_HYPER_CLASS	False	16	95
+22200	Teleport	ABSENT	False	6	1
+22201	Flame Wave	SPRT_FIRST_CLASS	False	6	15
+22202	Wisdom Aura	SPRT_FIRST_CLASS	False	5	25
+22203	Meditation	SPRT_FIRST_CLASS	False	6	35
+22204	Circle Flame	SPRT_SECOND_CLASS	False	6	35
+22205	Elemental Body	SPRT_SECOND_CLASS	False	6	50
+22206	Dark Wave	SPRT_FIRST_CLASS	False	6	15
+22207	Acceleration Aura	SPRT_FIRST_CLASS	False	5	25
+22208	Mana Steal	SPRT_FIRST_CLASS	False	6	35
+22209	Petit Angkor	SPRT_SECOND_CLASS	False	6	35
+22210	Shadow Body	SPRT_SECOND_CLASS	False	6	50
+22211	Energy Wave	SPRT_FIRST_CLASS	False	6	15
+22212	Power Aura	SPRT_FIRST_CLASS	False	5	25
+22213	Energy Drain	SPRT_FIRST_CLASS	False	6	35
+22214	Worm Hole	SPRT_SECOND_CLASS	False	6	35
+22215	Energetic Body	SPRT_SECOND_CLASS	False	6	50
+22216	#Cffcc00[Enhanced]#CX\nTeleport	ABSENT	False	6	72
+22217	Petit Angkor - Heavy Stone	SPRT_SECOND_CLASS	False	6	35
+22218	#Cffcc00[Enhanced]#CX\nFlame Wave	SPRT_FIRST_CLASS	False	6	81
+22219	#Cffcc00[Enhanced]#CX\nDark Wave	SPRT_FIRST_CLASS	False	6	81
+22220	#Cffcc00[Enhanced]#CX\nEnergy Wave	SPRT_FIRST_CLASS	False	6	81
+22221	#Cffcc00[Enhanced]#CX\nWisdom Aura	SPRT_FIRST_CLASS	False	5	84
+22222	#Cffcc00[Enhanced]#CX\nAcceleration Aura	SPRT_FIRST_CLASS	False	5	84
+22223	#Cffcc00[Enhanced]#CX\nPower Aura	SPRT_FIRST_CLASS	False	5	84
+22224	Ring of Fire	SPRT_HYPER_CLASS	False	6	80
+22225	Ring of Darkness	SPRT_HYPER_CLASS	False	6	80
+22226	Ring of Energy	SPRT_HYPER_CLASS	False	6	80
+22227	#Cffcc00[Enhanced]#CX Meditation	SPRT_FIRST_CLASS	False	6	88
+22228	#Cffcc00[Enhanced]#CX Circle Flame	SPRT_SECOND_CLASS	False	6	89
+22229	#Cffcc00[Enhanced]#CX Elemental Body	SPRT_SECOND_CLASS	False	6	97
+22230	#Cffcc00[Enhanced]#CX Mana Steal	SPRT_FIRST_CLASS	False	6	88
+22231	#Cffcc00[Enhanced]#CX Petit Angkor	SPRT_SECOND_CLASS	False	6	89
+22232	#Cffcc00[Enhanced]#CX Petit Angkor - Heavy Stone	SPRT_SECOND_CLASS	False	6	89
+22233	#Cffcc00[Enhanced]#CX Shadow Body	SPRT_SECOND_CLASS	False	6	97
+22234	#Cffcc00[Enhanced]#CX Energy Drain	SPRT_FIRST_CLASS	False	6	88
+22235	#Cffcc00[Enhanced]#CX Worm Hole	SPRT_SECOND_CLASS	False	6	89
+22236	#Cffcc00[Enhanced]#CX Energetic Body	SPRT_SECOND_CLASS	False	6	97
+22400	Fireball Mastery	SPRT_FIRST_CLASS	False	8	15,
+22401	Endless Mana	SPRT_SECOND_CLASS	False	8	35,
+22402	Elemental Affinity	SPRT_SECOND_CLASS2	False	8	60,
+22403	Elemental Research	SPRT_SECOND_CLASS2	True	8	60,
+22404	Gravity Ball Investigation	SPRT_FIRST_CLASS	False	8	15,
+22405	Shadow's Contract	SPRT_SECOND_CLASS	False	8	35,
+22406	Deathly Shadow	SPRT_SECOND_CLASS2	False	8	60,
+22407	Energy Discharge	SPRT_SECOND_CLASS2	True	8	60,
+22408	Fitness	SPRT_FIRST_CLASS	False	8	15,
+22409	Magic Staff	SPRT_SECOND_CLASS	False	8	35,
+22410	Manaflow Overdrive	SPRT_SECOND_CLASS2	False	8	60,
+22411	Space Leap	SPRT_SECOND_CLASS2	True	8	60,
+22412	Awakened Will: Elemental Master	SPRT_HYPER_CLASS	False	8	70
+22413	Archmage	SPRT_HYPER_CLASS	True	8	90
+22414	Awakened Will: Void Princess	SPRT_HYPER_CLASS	False	8	70
+22415	Void Mistress	SPRT_HYPER_CLASS	True	8	90
+22416	Awakened Will: Dimension Witch	SPRT_HYPER_CLASS	False	8	70
+22417	Time Haste	SPRT_HYPER_CLASS	True	8	90
+22600	Elemental Storm	SPRT_HYPER_SKILL	True	13	65
+22601	Abyss Angkor	SPRT_HYPER_SKILL	True	13	65
+22602	Fate Space	SPRT_HYPER_SKILL	True	13	65
+22603	#Cffcc00[Enhanced]#CX\nElemental Storm	SPRT_HYPER_SKILL	True	13	79
+22604	#Cffcc00[Enhanced]#CX\nAbyss Angkor	SPRT_HYPER_SKILL	True	13	79
+22605	#Cffcc00[Enhanced]#CX\nFate Space	SPRT_HYPER_SKILL	True	13	79

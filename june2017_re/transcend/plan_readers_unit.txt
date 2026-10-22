@@ -1,0 +1,80 @@
+98 hits in 79 functions
+31fcac90: 31fcaceb[0x867c] cmp dword ptr [ecx + 0x3c], 0
+31fcad70: 31fcadc2[0x867c] cmp dword ptr [ecx + 0x3c], 0
+31fceab0: 31fceaef[0x867c] cmp dword ptr [ecx + 0x3c], 1
+31fdd490: 31fdd57f[0x867c] cmp dword ptr [eax + 0x3c], ebx
+31fdd800: 31fdd88a[0x867c] cmp dword ptr [eax + 0x3c], ebx
+31ff1e80: 31ff1ee1[0x867c] cmp dword ptr [ecx + 0x3c], 0
+31ffd490: 31ffd572[0x867c] cmp dword ptr [ecx + 0x3c], 0
+3201a8f0: 3201abec[0x867c] cmp dword ptr [edx + 0x3c], 0
+32028790: 32028b5f[0x867c] cmp dword ptr [ecx + 0x3c], 0
+32063650: 32063aa8[0x867c] cmp dword ptr [eax + 0x3c], 1
+321a9da0: 321aa402[0x90] mov edx, dword ptr [eax + 0x3c]
+321b7733: 321b8c5b[0x90] cmp dword ptr [eax + 0x3c], 0 | 321b8ecd[0x90] cmp dword ptr [eax + 0x3c], 1 | 321bc8e8[0x90] cmp dword ptr [eax + 0x3c], 0
+32206d30: 32206d9e[0x90] cmp dword ptr [edx + 0x3c], 0
+3220d2b0: 3220d340[0x90] cmp dword ptr [eax + 0x3c], ebp
+3222a840: 3222ac9c[0x90] cmp dword ptr [eax + 0x3c], 0 | 3222acc3[0x90] cmp dword ptr [eax + 0x3c], 1
+3222af00: 3222b387[0x90] cmp dword ptr [eax + 0x3c], 0 | 3222b3b4[0x90] cmp dword ptr [eax + 0x3c], 1
+3222ec70: 3222f06c[0x90] cmp dword ptr [eax + 0x3c], 0 | 3222f099[0x90] cmp dword ptr [eax + 0x3c], 1
+32233860: 32233cc7[0x90] cmp dword ptr [ecx + 0x3c], 0 | 32233cee[0x90] cmp dword ptr [eax + 0x3c], 1
+32260ba0: 32260cda[0x90] cmp eax, dword ptr [ecx + 0x3c]
+32298590: 322988b7[0x867c] cmp dword ptr [eax + 0x3c], ebp
+322d8100: 322d8203[0x90] cmp dword ptr [ecx + 0x3c], 0
+322ece70: 322ed006[0x867c] cmp dword ptr [eax + 0x3c], 0
+3232e510: 3232ea22[0x90] cmp eax, dword ptr [ecx + 0x3c]
+32336e80: 3233743b[0x90] cmp eax, dword ptr [ecx + 0x3c]
+323cf570: 323cf69d[0x90] cmp eax, dword ptr [ecx + 0x3c]
+323d0770: 323d08ca[0x90] cmp eax, dword ptr [ecx + 0x3c]
+32476050: 3247860a[0x90] cmp dword ptr [esi + 0x3c], ebx
+324ce260: 324ce440[0x90] mov edx, dword ptr [ecx + 0x3c] | 324ce66c[0x90] mov ecx, dword ptr [ecx + 0x3c]
+32610cb0: 32610d42[0x867c] cmp dword ptr [edx + 0x3c], 0
+32712e50: 327134bd[0x90] cmp dword ptr [eax + 0x3c], ebx
+32869900: 328699a5[0x90] mov eax, dword ptr [eax + 0x3c] | 328699f6[0x90] mov eax, dword ptr [eax + 0x3c]
+328b3350: 328b375d[0x867c] mov edi, dword ptr [edi + 0x3c]
+328dcba0: 328dccc0[0x90] mov ecx, dword ptr [eax + 0x3c]
+328ddff0: 328de0d7[0x90] cmp dword ptr [ecx + 0x3c], 0
+328dfab0: 328dfb0e[0x90] cmp dword ptr [eax + 0x3c], 0
+328e18d0: 328e195e[0x90] cmp dword ptr [eax + 0x3c], 0
+328e6550: 328e682f[0x90] cmp dword ptr [ecx + 0x3c], ebx
+328ed890: 328edb03[0x90] mov ecx, dword ptr [eax + 0x3c]
+3290c490: 3290c6be[0x90] cmp dword ptr [eax + 0x3c], 1
+32994710: 32994766[0x867c] cmp dword ptr [eax + 0x3c], 0
+329e23a0: 329e241d[0x867c] cmp dword ptr [eax + 0x3c], 0
+329e6f30: 329e6f3d[0x867c] cmp dword ptr [eax + 0x3c], 0
+329e6f80: 329e6f97[0x867c] cmp dword ptr [eax + 0x3c], 0
+329e7210: 329e7280[0x867c] cmp dword ptr [eax + 0x3c], 0 | 329e731b[0x867c] cmp dword ptr [eax + 0x3c], 0
+329e7ca0: 329e7cbc[0x867c] cmp dword ptr [eax + 0x3c], 0
+329e7d60: 329e7d70[0x867c] cmp dword ptr [eax + 0x3c], 0
+329e99a0: 329e9aa4[0x867c] cmp dword ptr [eax + 0x3c], 0
+329f10e0: 329f1293[0x867c] cmp dword ptr [eax + 0x3c], 0
+329f9380: 329f94f2[0x867c] cmp dword ptr [eax + 0x3c], 0
+32a02260: 32a023cb[0x867c] cmp dword ptr [eax + 0x3c], ebp
+32a047a0: 32a04853[0x867c] cmp dword ptr [eax + 0x3c], 0 | 32a0490e[0x867c] cmp dword ptr [eax + 0x3c], 0
+32a08150: 32a0827e[0x867c] cmp dword ptr [eax + 0x3c], ebp | 32a0842c[0x867c] cmp dword ptr [eax + 0x3c], ebp | 32a0881c[0x867c] cmp dword ptr [eax + 0x3c], ebp
+32a0bfd0: 32a0c190[0x867c] cmp dword ptr [eax + 0x3c], ebp
+32a15580: 32a155b5[0x867c] cmp dword ptr [eax + 0x3c], 0
+32a19bb0: 32a19bff[0x867c] cmp dword ptr [eax + 0x3c], 0
+32a599c0: 32a59a33[0x867c] cmp dword ptr [eax + 0x3c], 0
+32a6a990: 32a6aae1[0x867c] cmp dword ptr [eax + 0x3c], ebx
+32a71a90: 32a71ad1[0x867c] cmp dword ptr [eax + 0x3c], 0
+32ab1c30: 32ab1c53[0x867c] cmp dword ptr [eax + 0x3c], 0
+32b1f0a0: 32b1f0c3[0x867c] cmp dword ptr [eax + 0x3c], 0
+32b397a0: 32b39d5a[0x867c] cmp dword ptr [eax + 0x3c], 0
+32b74300: 32b74313[0x867c] cmp dword ptr [eax + 0x3c], 0
+32bb22d0: 32bb24cb[0x867c] cmp dword ptr [eax + 0x3c], 0
+32c063d0: 32c06403[0x867c] cmp dword ptr [eax + 0x3c], 0
+32c4e7c0: 32c4e80b[0x867c] cmp dword ptr [eax + 0x3c], 0
+32c9b3d0: 32c9b3e3[0x867c] cmp dword ptr [eax + 0x3c], 0
+32cddcc0: 32cddcd3[0x867c] cmp dword ptr [eax + 0x3c], 0
+32d0c180: 32d0c2d4[0x867c] cmp dword ptr [edx + 0x3c], 0
+32d0c820: 32d0c86d[0x867c] cmp dword ptr [eax + 0x3c], 0
+32d17e90: 32d17eb3[0x867c] cmp dword ptr [eax + 0x3c], 0
+32d1b9d0: 32d1bb52[0x867c] cmp dword ptr [eax + 0x3c], 1
+32d1c560: 32d1d9ba[0x867c] cmp dword ptr [eax + 0x3c], 1 | 32d1daa7[0x867c] cmp dword ptr [eax + 0x3c], 1 | 32d1db8a[0x867c] cmp dword ptr [eax + 0x3c], 1
+32e5f3a0: 32e5f442[0x90] mov edx, dword ptr [eax + 0x3c]
+32e62190: 32e621a9[0x90] cmp dword ptr [eax + 0x3c], 0
+32e62d50: 32e62e28[0x90] mov edx, dword ptr [ecx + 0x3c]
+32e673e0: 32e674d3[0x90] mov eax, dword ptr [edx + 0x3c] | 32e674fd[0x90] mov ecx, dword ptr [eax + 0x3c]
+32e68d20: 32e6915b[0x90] mov eax, dword ptr [edx + 0x3c] | 32e69185[0x90] mov ecx, dword ptr [eax + 0x3c]
+32e6cbb0: 32e6ccab[0x90] mov eax, dword ptr [edx + 0x3c] | 32e6ccd5[0x90] mov ecx, dword ptr [eax + 0x3c]
+32ed5180: 32ed52e2[0x867c] mov ecx, dword ptr [eax + 0x3c]

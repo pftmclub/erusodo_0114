@@ -67,6 +67,8 @@ The user's remaining backlog, in the order they listed it:
 | 25 | June fonts and text rendering *(added 2026-10-17, user)* | - (the user: March's text looks un-anti-aliased; use June's fonts) | Not a backlog item but a visible gap: March installs one FreeType face (`Gulim.ttc`) and ships 3 font files in `datai022`; June ships 26 in `data196`. Which faces June installs for the US build, and how it rasterizes them, is unmeasured. It touches the font manager, `X2Main` and one font kom, so it can run alongside Stages 2-8 (not alongside a session in `KTDGFontManager.*` / `KTDGFreeTypeFont.*`). Stage 20's damage-number fonts are separate. Numbered 25 to keep the earlier numbers stable. |
 | 26 | June AVI movie system *(added 2026-10-19, june-gfx G5)* | - (found by june-gfx G0 / G5) | Not a backlog item but a missing system: June plays AVI movies from `DungeonClearMovieTemplet` / `Movie.lua` (dungeon-clear and quest movies) and flags them in `g_pMain +0x80a`; March has none. It is not GFx, so the GFx plan only noted it. |
 | 29 | June dungeon result screen *(added 2026-10-21, user: split out of Stage 9)* | 6 (one screen of it) | The screen every dungeon clear shows. June keeps the player in the dungeon state and opens `dungeon_result.gfx` (GFx UI 8) over the frozen game; March leaves for the old KTDGUI `XS_DUNGEON_RESULT` state. It needs only june-gfx (closed), so it runs now, outside the Stage 9 order. Planned in full as `JUNE_DUNGEON_RESULT_PHASES.md` (R0-R4, Z). |
+| 30 | June resonance system *(added 2026-10-22, june-transcend planning)* | - (found by june-result R0) | Not a backlog item but a missing system: June's level-99 progression. `KUnitInfo` carries five June-only fields (CX2Unit `+0xa99`..`+0xaa9`); gate `3247b460`; the dungeon result shows its bars. No March counterpart. Brief `kickoffs/june-backlog/stage30-plan.md`. |
+| 31 | June achievement system *(added 2026-10-22, june-transcend planning)* | - (found by june-transcend planning) | Not a backlog item but a missing system: `CX2AchievementManager`, `AchievementData.lua` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI.lua`. March has none. Brief `kickoffs/june-backlog/stage31-plan.md`. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -341,17 +343,23 @@ kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revam
 - The class-change quest (`QT_CHANGE_TRANSCENDENTAL_CLASS`), `TranscendentalClassItem`, and the guide UI.
 - Unlocking the TC slot, `TRANSCENDENTAL_SKILL_DATA`, and `USI_TRANSCENDENTAL_HYPER_MODE`.
 - Transcendence sockets (`SDT_*_TRANSCEND*`) and emulator support.
-- **Awakening effect-set family** (pilot CH1b, 2026-10-20; drift, not Aisha's alone): June's data-driven awakening effects. `32011d20` (equipped-item lookup, CX2Unit `+0xa48` key 15), `31fd66b0` (unit `+0x9578` map find), `32011f50` (stores the effect-set handle at unit `+0x9f4`), `3204b5e0`, `32298590` (`Effectset_TRANScendence_WakeUp_FX` -> `+0x9f8`), stop `32296cb0`. No March member (funcmap `32296cb0`, `32298590`). Every class's awakening frame-move calls them (Aisha's `June_CommonHyperModeFrameMove` `32ce12c0` carries three file-local stand-ins with June's empty-map default). RE first (Opus): what the +0x9578 map holds and who fills it; offline reach = every awakening.
+- **Awakening effect-set family** (pilot CH1b, 2026-10-20). **Moved to Stage 12 by the Stage 6 planning (2026-10-22):** `+0x9578` is a wstring (the set name), not a map. `32011d20` fills it from the applied-customize map (CX2Unit `+0xa48` key 15, `325d2370( 3 )`), so it is a customization item effect. Only `Effectset_TRANScendence_WakeUp_FX` (`32298590` -> `+0x9f8`, stop `32296cb0`) is transcendence; it is `june-transcend` T5.
 - **Skill cut-in art** (june-gfx Z, 2026-10-19): the user skill cut-in is June's GFx widget set (flag `SERV_IRUHADEV_JUNE_GFX_TALK_CUTIN`); the `HQ_CutIn_*.gfx` art ships in the staged data152 / data195. A transcended class's cut-in
   names must be June's `.gfx` names, like any class port (`JUNE2017_CHARACTER_PORT_CHECKLIST.md`, after 7t; candidates per prefix in `june2017_re/g4_cutin_names.tsv`).
 
-**Live-DB gate:** if transcendence uses new class IDs, see the open decision on `GBase_Item` below.
+**Live-DB gate:** if transcendence uses new class IDs, see the open decision on `GBase_Item` below. *Answered by the planning (2026-10-22): it uses none.*
 
 **Why after Stage 5:** transcendence skills are part of June's revamped kit, so transcending a March-kit character would be ported twice.
 
-- **June's resonance system** *(from june-result R0, 2026-10-22; identify before planning, it may need its own stage)*: gate `3247b460`,
-  plus a resonance level / EXP pair on the unit (`+0xa99` float, `+0xa9d` int64). The dungeon result (`324d60e0`) uses them for
-  `resonanceLevel` and, when the gate is on, for the EXP bars. There is no March counterpart, so the result shows June's off branch.
+- **June's resonance system** *(from june-result R0, 2026-10-22)*. **Identified by the Stage 6 planning: its own stage, Stage 30.** It is a level-99
+  progression, not transcendence.
+
+*Planned 2026-10-22 (Opus 5.5, xhigh):* `JUNE_TRANSCENDENCE_PHASES.md` (T0-T8, Z), key `june-transcend`, start `/x2-phase june-transcend T0`.
+- June marks a transcended unit with an int at CX2Unit `+0x3c`, beside the class at `+0x38`. It travels in `KUnitInfo` and the room / field /
+  square infos (setter `3235eb20` and three siblings), and in June event 0x596 (`31ef82f0`).
+- A unit becomes transcended through quest 42030 ("Limit Break 5/5", `QR_TRANSCENDENTAL_CLASS`) or the `TranscendentalClassItem` tickets.
+- No class ids are added. Evidence: `june2017_re/transcend/`, funcmap rows `Transcend S6`.
+- Routed: the awakening customization effect -> Stage 12; resonance -> Stage 30; achievements (`ACT_TRANCENDENTAL_CLASS_COUNT`) -> Stage 31.
 
 ### Stage 7: remaining March characters
 
@@ -613,6 +621,17 @@ rule that an unowned June system gets its own stage. What it covers:
   cut-in item (unit map `+0x8e58`; needs the equipped custom item and `32890620` / `32206450`), looks it up in the customize manager (`31d70b60`, `3264e800`), and replaces the cut-in with
   `SkillCutIn( name )` (`32078b70`, 512 x 512). Aisha's port keeps the class table and skips the override; port it here for every class at once (`June_ShowActiveSkillCutInAndLight` marks the site).
 
+- **The awakening customization effect** (moved here from Stage 6 by its planning, 2026-10-22). Every class's awakening frame-move calls:
+  - `32011d20`: it finds the item with entry `[0x10] == 1` under key 15 of the applied-customize map (CX2Unit `+0xa48`), checks it with `3264ec50`, and
+    writes the set name `325d2370( 3 )` (+ "_Add" for unit type 9) into the GUUser wstring `+0x9578`;
+  - `31fd66b0`: "the name is not empty";
+  - `32011f50`: plays the set into `+0x9f4`, stopped by `32296cb0`.
+  - Also `3204b5e0` (GUUser vslot 147, a switch on effect ids; identify it here).
+  - Aisha's `June_CommonHyperModeFrameMove` (`32ce12c0`) carries file-local stand-ins (`June_AwakeningEffectBegin` / `_SetPresent` / `_Play`)
+    with June's empty default; a class port keeps the same stand-ins until this stage.
+  - Also here: `CharCustomData`'s `CHAR_CUSTOM_HYPER_EFFECT_DATA.BASE_HYPER_EFFECT_NOT_CUSTOM_IN_VIEWER`, whose per-unit-type `EFFECT_SET_NAME_TRANSCENDENTAL`
+    (key read by `326525d0 @32658c12`) names the viewer's transcended awakening sets (Aisha: `Effectset_TRANScendence_WakeUp` / `_FX`).
+  - Offline reach: none until a customize item is applied.
 - **Item type 14** is June's `IT_CUSTOM` (1,207 customize items in June's `item.kim`, e.g. skill cut-ins). June-item-kim K2 guards
   it; this stage reads it (june-item-kim K0).
 
@@ -1020,11 +1039,50 @@ in Stage 28, quest popups with quest-system.
 *R0 done (2026-10-22):* the map is `june2017_re/result_r0_map.tsv`. The 0xbd handler is `END_GAME_DUNGEON_RESULT_DATA_NOT`. R4 is
 opened for the training result only. The drift went to Stages 6, 9, 22 and 28.
 
+### Stage 30: June resonance system (june-transcend planning, 2026-10-22)
+
+Found by june-result R0 (`resonanceLevel` in the dungeon result) and identified by the Stage 6 planning (funcmap rows `Transcend S6`).
+
+**Unit data.** June's `KUnitInfo` ends with five June-only fields. `SetKUnitInfo` `3235eb20` copies packet dwords `0xc9..0xcd` to:
+- CX2Unit `+0xa99` (int);
+- `+0xa9d` / `+0xaa1` (an int64 EXP);
+- `+0xaa5` (int);
+- the byte `+0xaa9`.
+
+**Setter and gate.**
+- The setter `3234b3e0` is called from three packet handlers (`3260c140`, `3260c5d0`, `3260ca30`).
+- The gate `3247b460` is unit level > 98 and byte `+0xaa9`.
+- `322f8920` adds EXP to the int64 (callers `3230b7b0`, `32d53530`).
+
+**Readers.**
+- the dungeon result `324d60e0`;
+- `324b0f80`, `32529f90`, `32473810`, `32476050`, `3260a360`;
+- quest `3232e510`;
+- UI `328b3810`, `3291df90`, `31d8e280`, `32468c70`, `32356640`.
+
+**Offline reach:** none. March's `KUnitInfo` has no fields, so every reader takes June's off branch; level-99 units exist in the save (48-54).
+
+**Depends on:** nothing for planning; code after Stage 9 by the priority rule, unless it blocks play. Brief: `kickoffs/june-backlog/stage30-plan.md`
+(`/x2-phase new-plan june-resonance`).
+
+### Stage 31: June achievement system (june-transcend planning, 2026-10-22)
+
+Found by the Stage 6 planning: June's `AchievementConditionData.lua` counts transcended characters (`ACT_TRANCENDENTAL_CLASS_COUNT` 14,
+ids 70-72). March has no achievement system at all.
+- **June's pieces:**
+  - `CX2AchievementManager` (RTTI `33735a64`; binders `AddAchievementData_LUA` / `AddAchievementCondition_LUA` registered in `31d95080`);
+  - parsers `325fa910` / `325fdd90` / `32600540`;
+  - `AchievementData.lua` / `AchievementConditionData.lua` (data036);
+  - `DLG_Achievement_System_UI.lua` / `DLG_Achievement_System_Piece_Detail_Info.lua`, `ACHIEVEMENT_SCORE_EMBLEM`;
+  - `ERR_ACHIEVEMENT_00-03`, admin handlers.
+- **Offline reach:** none.
+- **Depends on:** nothing for planning; code after Stage 9. Brief: `kickoffs/june-backlog/stage31-plan.md` (`/x2-phase new-plan june-achievement`).
+
 ## Open decisions that gate stages
 
 | Decision | Gates | How to settle |
 |---|---|---|
-| **Starter items for classes the live DB never had.** Live `gup_create_unit` copies exactly ten `dbo.GBase_Item` rows per class and aborts with `-28` otherwise. Rose, Ain, Lu/Ciel, and possibly transcended classes, are almost certainly absent. The no-band-aid rule forbids inventing rows unless the user authorises it, as they did for A2's stat rows. | 8 (and 6 if transcendence adds class IDs) | Ask the user for a live-DB pull (query below). If the rows are absent, the user decides the source: June data, if it exists anywhere, or an explicit, logged, user-chosen set. |
+| **Starter items for classes the live DB never had.** Live `gup_create_unit` copies exactly ten `dbo.GBase_Item` rows per class and aborts with `-28` otherwise. Rose, Ain, Lu/Ciel, and possibly transcended classes, are almost certainly absent. The no-band-aid rule forbids inventing rows unless the user authorises it, as they did for A2's stat rows. | 8 (not 6: the Stage 6 planning found that transcendence adds no class IDs, 2026-10-22) | Ask the user for a live-DB pull (query below). If the rows are absent, the user decides the source: June data, if it exists anywhere, or an explicit, logged, user-chosen set. |
 | **Stat rows for June-only class IDs.** The user authorised inventing `StatTable`/`NpcExpTable` rows 81–99 only for classes that already exist (Atlas A2). The later class paths and the new characters need a **full** per-level row set, and `KncWX2Server/ServerResource/US/` has none for them. | 5, 7, 8 | First look for June-side data: the June binary, any June server Lua, or the live DB. If there is none, ask the user whether A2's permission extends to these classes, and how the rows should be derived. |
 | **Guild quests offline** | 4 | Ask: parse-and-log or a real port. **Answered 2026-10-17: parse-and-log.** |
 | **Scaleform/GFx runtime** for EventScene and quest movies | 4 | Ask: a runtime, or skip with a log line. **Answered 2026-10-17: a runtime, plan `june-gfx` (`JUNE_GFX_RUNTIME_PHASES.md`); its G0 assigns the owed gates below, G5 ports the GFx ones, the rest go to Stage 9.** Whichever lands also owes June's two cut-in hide terms in `GetShowActiveSkillShow` (`31fd3180 @31fd3228`, left out by effect C3t-1): GFx UI `0xb` open (`[g_pKTDXApp+0x1c8]`, `isOpenUI` `31c44710`), and a movie playing (`g_pMain +0x80a`, June's movie table `+0x7f8`; funcmap `(C3t-1)`). Also owes June's ESC gates from effect C3p-2 (`31f1e1a0`, funcmap `(C3p-2)`): the result-UI mode `+0x210` switch (`@31f1e214`, with its setter `31ef7be0` and exit box `31f1dd70`), `closeToTopZorder` + the `CX2UIProfessionManager` close (`@31f1e262`), and the dialog manager's hide modes 2-4 (`31d03a10` / `31d05af0`). Insertion point: the C3p-2 Done note (`python tools/docsection.py JUNE2017_EFFECT_COMPLETION_PHASES.md "C3p-2 - Done (2026-10-15, Opus 5.5 high; every gate mapped, nothing portable, no code, no build)"`); the C3p-2 review adds that June's end-of-game handlers (`324db6b0`, `3252ba10`) open the mode-1 window when result info exists, so ESC is eaten from the end packet until the result UI moves on, where March's ESC still works during the `m_bGameEnd` wait: that comes with this port. |

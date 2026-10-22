@@ -628,7 +628,9 @@ Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only p
 | stage28-plan | **ready** (start: `/x2-phase new-plan june-party`): June party-manager handlers - diff June's `CX2PartyManager` packet handler `3243ee30` against March's (the ready-check's June-only branch `3243cec0`, the auto-party success tail of `3243d4e0`; found by quest-system Q10b) -> `JUNE_PARTY_PHASES.md` + `kickoffs/june-party/` | Opus 5.5 / high | - | docs, kickoffs, funcmap | `stage28-plan.md` |
 | stage29-plan | **done 2026-10-21** (written directly on the user's request, no brief): `JUNE_DUNGEON_RESULT_PHASES.md` (R0-R4, Z) + `kickoffs/june-result/` + the `june-result` block; the dungeon result split out of Stage 9 | Opus 5.5 / high | - | docs, kickoffs | - |
 | stage5-plan | **done 2026-10-20**: pilot = **Aisha** (user, from the gap scan: numerical-only attacks Aisha 1 / Eve 3 / Rena 12 / Ara 14 / Chung 15 / Elsword 20 / Elesis 20 / Raven 25, Add a skeleton); `JUNE_CHARACTER_AISHA_PHASES.md` (CH0-CH6, the CH-N class-path template, Z, the Stage 7 template) + `kickoffs/pilot-char-revamp/` + the `pilot-char-revamp` block; evidence `june2017_re/char_arme/plan_*` | Opus 5.5 / high | - | docs, kickoffs | inline brief (`JUNE_PORT_BACKLOG_ORDER.md` "Stages 3–9 (short)") |
-| stage6-plan | **ready** (start: `/x2-phase new-plan june-transcend`): transcendence on Aisha - class representation, TC slot (A-5 / F), passives 22415 / 22416, awakening effect-set family, quest / item / guide UI, sockets, emulator, resonance identify -> `JUNE_TRANSCENDENCE_PHASES.md` + `kickoffs/june-transcend/` | Opus 5.5 / xhigh | dep: pilot-char-revamp Z (done), Stage 4 quests | docs, funcmap rows (`Transcend S6`) | `stage6-plan.md` |
+| stage6-plan | **done 2026-10-22**: `JUNE_TRANSCENDENCE_PHASES.md` (T0-T8, Z) + `kickoffs/june-transcend/` + the `june-transcend` block. June's transcendence is an int at CX2Unit `+0x3c` (beside the class; `KUnitInfo` / room / field / square infos, June event 0x596 `31ef82f0`), not a class id, so there is no `GBase_Item` gate. Evidence: `june2017_re/transcend/plan_*` and funcmap rows `Transcend S6`. Routed: the awakening customization effect -> Stage 12; resonance -> new Stage 30; achievements -> new Stage 31. Two user decisions are open (plan "Open decisions") | Opus 5.5 / xhigh | dep: pilot-char-revamp Z (done), Stage 4 quests | docs, funcmap rows (`Transcend S6`) | `stage6-plan.md` |
+| stage30-plan | **ready** (start: `/x2-phase new-plan june-resonance`): June's level-99 resonance system (`KUnitInfo` tail -> CX2Unit `+0xa99`..`+0xaa9`, gate `3247b460`, EXP `322f8920`; found by june-result R0, identified by Stage 6 planning) -> `JUNE_RESONANCE_PHASES.md` + `kickoffs/june-resonance/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Resonance S30`) | `stage30-plan.md` |
+| stage31-plan | **ready** (start: `/x2-phase new-plan june-achievement`): June's achievement system (`CX2AchievementManager`, `AchievementData` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI`; none in March) -> `JUNE_ACHIEVEMENT_PHASES.md` + `kickoffs/june-achievement/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Achievement S31`) | `stage31-plan.md` |
 | stage7-plan | **ready** (start: `/x2-phase new-plan char-eve`; one planning session per character: Eve, Chung, Elsword, Raven, Rena (after the `ADD_RENA_SYSTEM` decision), Ara, Elesis, Add): `JUNE_CHARACTER_<NAME>_PHASES.md` + `kickoffs/char-<name>/` from the Aisha template | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
@@ -880,6 +882,33 @@ results, cash shop, option, bingo, the profession close and hide mode 5 stay in 
 
 Running together: R0, R1, R2 done and reviewed, R3 done and play-tested (2026-10-22). R3b and R3c done; R3d (code) now, then the R3 review (covers R3b-R3d), then R4 (if opened), then Z. R3 shares
 `X2State.cpp` with quest-system / june-engine rows: not alongside a running code row on that file.
+
+## june-transcend - June transcendence system, on Aisha (backlog Stage 6)
+
+Plan `JUNE_TRANSCENDENCE_PHASES.md` · branch `main` · log tag `[JUNE_TRANSCEND]` (sub-tags `UNIT`, `WIRE`, `DB`, `CHANGE`, `ITEM`, `SLOT`,
+`ENGINE`, `ARME`) · flags `SERV_IRUHADEV_JUNE_TRANSCEND_*` (+ `_DEBUG`), `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND` · kickoffs
+`kickoffs/june-transcend/` · backlog Stage 6 · created 2026-10-22.
+
+**Planning finding:** June marks a transcended unit with an int at CX2Unit `+0x3c`; the class id is unchanged, so there is no `GBase_Item` gate.
+The save column added by T1 is the switch: until a unit's value is 1, every phase is inert. **User decisions open** (plan "Open decisions"):
+1. who may transcend before their own port (recommended: an allow-list, Aisha now);
+2. the B-5 slot (recommended: June's medal / cube rule).
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| T0 | ready (read-only map) | Opus 5.5 / high | - (runs with anything) | `june2017_re/transcend/`, funcmap, checklist §7an, plan doc, kickoffs T1-T8 | `T0.md` |
+| T1 | waiting on T0 | Sonnet 5.5 / high, then Opus 5.5 / high review | T0 | `X2Unit.*`, `CommonPacket.*`, `ServerDefine.h`, `X2OfflineDB.*`, `X2OfflineServer.cpp`, `Handlers_Unit.cpp` / `Handlers_Room.cpp`, the stand-ins' files, `tools/elsdb.py`, `tools/flagcheck.py`, Always.h | `T1.md` |
+| T2 | waiting on T1 review | Sonnet 5.5 / high, then Opus 5.5 / high review | T1 review | `Handlers_Quest.cpp`, `X2State.cpp`, `X2StateClassChange.*`, `X2LVUpEventMgr.*`, quest UI, `EventID_*.h`, data034 | `T2.md` |
+| T3 | waiting on T2 review | Sonnet 5.5 / high, then Opus 5.5 / high review | T2 review | `X2Data.cpp`, `X2ItemManager.*`, item-use handlers (client + emulator), data036 | `T3.md` |
+| T4 | waiting on T1 review | Sonnet 5.5 / high (Opus if T0 says), then Opus 5.5 / high review | T1 review | `X2GUUser.cpp`, `X2OfflineSkill.cpp`, `X2UISkillTreeNew2015.cpp`, `X2StateMenu.cpp` | `T4.md` |
+| T5 | waiting on T4 review | Opus 5.5 / high, then Opus 5.5 / high review | T4 review | `X2GUUser.*`, `X2GameUnit.*`, stat calculator, data036 `CharacterStatTable.lua` | `T5.md` |
+| T6 | waiting on T5 review | Sonnet 5.5 / high, then Opus 5.5 / high review | T5 review | `X2GUArme_VioletMage.*`, checklist §7an | `T6.md` |
+| T7 | opened or closed by T0 | per T0 | T6 review | per T0 | `T7.md` |
+| T8 | waiting on T3, T6 (T7) reviews | Sonnet 5.5 / medium, user play-test | T3, T6 (T7) reviews | none (walk) | `T8.md` |
+| Z | waiting on T8 | Sonnet 5.5 / medium | T8 | `MODS.md`, checklist, Aisha plan's Stage 7 template, backlog, memory | `Z.md` |
+
+Running together: T0 now, beside anything. After T1: T2 then T3 (both touch the emulator's class change); T4 may run beside T2 or T3 when
+the files do not overlap. T5 and T6 one at a time after T4 (`X2GUUser.*`, `X2GUArme_VioletMage.*`).
 
 ## Other plans
 

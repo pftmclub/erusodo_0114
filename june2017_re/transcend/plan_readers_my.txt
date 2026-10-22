@@ -1,0 +1,31 @@
+30
+3215fd30: 3215ff4a mov edx, dword ptr [eax + 0x3c]
+321a9da0: 321aa402 mov edx, dword ptr [eax + 0x3c]
+321b7733: 321b8c5b cmp dword ptr [eax + 0x3c], 0 | 321b8ecd cmp dword ptr [eax + 0x3c], 1 | 321bc8e8 cmp dword ptr [eax + 0x3c], 0
+32206d30: 32206d9e cmp dword ptr [edx + 0x3c], 0
+3220d2b0: 3220d340 cmp dword ptr [eax + 0x3c], ebp
+3222a840: 3222ac9c cmp dword ptr [eax + 0x3c], 0 | 3222acc3 cmp dword ptr [eax + 0x3c], 1
+3222af00: 3222b387 cmp dword ptr [eax + 0x3c], 0 | 3222b3b4 cmp dword ptr [eax + 0x3c], 1
+3222ec70: 3222f06c cmp dword ptr [eax + 0x3c], 0 | 3222f099 cmp dword ptr [eax + 0x3c], 1
+32233860: 32233cc7 cmp dword ptr [ecx + 0x3c], 0 | 32233cee cmp dword ptr [eax + 0x3c], 1
+32260ba0: 32260cda cmp eax, dword ptr [ecx + 0x3c]
+322d8100: 322d8203 cmp dword ptr [ecx + 0x3c], 0
+3232e510: 3232ea22 cmp eax, dword ptr [ecx + 0x3c]
+32336e80: 3233743b cmp eax, dword ptr [ecx + 0x3c]
+323cf570: 323cf69d cmp eax, dword ptr [ecx + 0x3c]
+323d0770: 323d08ca cmp eax, dword ptr [ecx + 0x3c]
+32476050: 3247860a cmp dword ptr [esi + 0x3c], ebx
+324ce260: 324ce440 mov edx, dword ptr [ecx + 0x3c] | 324ce66c mov ecx, dword ptr [ecx + 0x3c]
+32712e50: 327134bd cmp dword ptr [eax + 0x3c], ebx
+328dcba0: 328dccc0 mov ecx, dword ptr [eax + 0x3c]
+328ddff0: 328de0d7 cmp dword ptr [ecx + 0x3c], 0
+328dfab0: 328dfb0e cmp dword ptr [eax + 0x3c], 0
+328e18d0: 328e195e cmp dword ptr [eax + 0x3c], 0
+328e6550: 328e682f cmp dword ptr [ecx + 0x3c], ebx
+328ed890: 328edb03 mov ecx, dword ptr [eax + 0x3c]
+3290c490: 3290c6be cmp dword ptr [eax + 0x3c], 1
+32e5f3a0: 32e5f442 mov edx, dword ptr [eax + 0x3c]
+32e62190: 32e621a9 cmp dword ptr [eax + 0x3c], 0
+32e673e0: 32e674d3 mov eax, dword ptr [edx + 0x3c] | 32e674fd mov ecx, dword ptr [eax + 0x3c]
+32e68d20: 32e6915b mov eax, dword ptr [edx + 0x3c] | 32e69185 mov ecx, dword ptr [eax + 0x3c]
+32e6cbb0: 32e6ccab mov eax, dword ptr [edx + 0x3c] | 32e6ccd5 mov ecx, dword ptr [eax + 0x3c]
