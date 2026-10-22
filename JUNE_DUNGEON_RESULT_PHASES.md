@@ -469,6 +469,35 @@ not code; the guards' `#endif` carry no token, as R1's / R3's).
 **Open for the user:** the second play-test (ESC / Close / OK / Cancel). Fix 2's hygiene: `flagcheck JUNE_RESULT_FLOW --worktree --files
 X2Lib/X2Main.cpp`: 1 PASS, 0 deleted, RESULT PASS. Fix 2 deploy: `DEPLOY OK: X2_offline.exe is 25,788,416 B, dated 2026-10-22 16:17:41, md5 fda0fbb4d190a33e03670eafe3d8b344, equal to X2/US_SERVICE/x2.exe (2026-10-22 16:17:33); built at main b7b42dba + 1 uncommitted code file(s).`
 
+## Phase R3c - Retry leaves stale state; the exit box's text (user, 2026-10-22)
+
+**Run with:** Opus 5.5 high. Fixes under `SERV_IRUHADEV_JUNE_RESULT_FLOW` or `_RETRY_DIRECT` (a new `_JUNE_RESULT_*` flag for a separate
+change). Sub-tag `FLOW`. The R3 review runs after this phase and covers R3 + R3b + R3c.
+
+**What the R3b play-test showed** (2026-10-22, `ErrorLog.txt` 16:23-16:26, exe md5 `fda0fbb4`, dungeon 30000 solo):
+- PASS: Tab, F8 / Retry restart, ESC and Close reopening the box with the UI kept hidden (`exit box check: ... hide mode 2, hidden 1`).
+- **After a retry the next clear's widget is broken** (user: "shows up like the console opener"). Log 16:25:56: `mode 1`, `end:`,
+  `mode 1: UI 8 opened`, then **no `notifyInitialize`, no mode 2, no fill**. State from the first run survives the retry (user: "the
+  dungeon state is not cleared properly").
+- **The ESC box is the wrong one** (user): it reads like March's in-dungeon leave warning (ED and equipment durability cost) while the
+  dungeon is not complete. Two readings, both to check: (a) the box opens during play after a retry (a stale result mode or ESC path);
+  (b) the strings R3 uses (`39778`, `43515`, `43487` in `JuneSetExitBoxText` 31f17e60) have different text in March's string table.
+
+**Scope:**
+1. **June's retry flow end to end.** From the retry ACK (`324c95b0`) and the restart (June's server restart; offline: R2's
+   `EGS_PARTY_GAME_START_NOT` stand-in) to the next dungeon start: what June closes, deletes and resets on the way (the GFx widget UI 8,
+   `closeUI` / `unloadWidget`, the adapter `+0x7c4` and its bindings, the result mode `+0x210..+0x22f`, the dungeon state's `+0x7a9..+0x7f4`,
+   the obtained-item list, the party result dialog, the hide mode, `m_bJuneResultUIOpened`, the GFx shown byte). Compare with what March
+   does on our path (state change to `XS_DUNGEON_GAME` from `XS_DUNGEON_GAME`, dtor / ctor) and port the missing resets.
+2. **Why the second widget never sends `notifyInitialize`.** Prove it with the log (the movie's listener / `gameDataResultFunctionInit`
+   on the reopened UI 8, the adapter recreate `324c8350`) and fix it the June way.
+3. **The exit box text and when it opens.** Read June's string IDs against March's string table and June's own; if the IDs differ, use
+   June's text the way the plan's data rule says (no invented strings). Confirm ESC during play after a retry reaches March's own leave
+   dialog, not the result exit box.
+
+**Done gate:** a clear, Retry, a second clear shows a normal widget (`notifyInitialize`, fill); a third run the same; ESC during play
+shows March's leave dialog and ESC on the result shows June's exit box with the right text; Close / Keep / Quit work; 0 EXCEPTION.
+
 ## Phase R4 - June's legacy result state (conditional)
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`. Sub-tag `LEGACY`.
