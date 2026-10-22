@@ -333,6 +333,7 @@ kickoffs in `kickoffs/pilot-char-revamp/` and the STATUS block `pilot-char-revam
 - **Stat rows:** every Aisha class already has rows 1-99.
 - **`ADD_RENA_SYSTEM`:** waits for Rena in Stage 7.
 - **The Stage 7 template** is a section of that plan, and its Z rewrites it from what the pilot took.
+- **Closed 2026-10-22 (pilot-char-revamp Z).** Aisha's seven classes run on June's class core, skills, passives, cut-ins and memorize HUD (about 96 commits; CH1 alone needed 14 sub-phases). The corrected phase sizes, the recipe defects and the Stage 7 order are in `JUNE_CHARACTER_AISHA_PHASES.md` "Template for Stage 7" and `kickoffs/june-backlog/stage7-plan.md`; Stage 6's brief is `stage6-plan.md`. Waiting on Stage 6: the transcendence slot (A-5 / F), passives 22415 / 22416, the transcended hyper-mode branch, the awakening effect-set family. Routed elsewhere during the pilot: Stage 2 (base `32028790`, vslots `0x1e8` / `0x1ec`, NPC `ATTACK_RESULT%d`), Stage 8 (`322f0e60` caller Lied Schwach), Stage 9 (`m_bShowSkillSlot` writers, `ShortCutKeyProcess`), Stage 12 (cut-in item override), Stage 17 (riding pet part), Stage 22 (dungeon attribute bit).
 
 ### Stage 6: transcendence system, on the pilot
 

@@ -4905,6 +4905,27 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE` and `SERV_IRUHADEV_JUNE_CHAR_ARME_
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE_DEBUG`, then `SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
 - **No sit on V in dungeons and battlefields** (play-test fix 1, flag `SERV_IRUHADEV_JUNE_STATE_NO_SIT_KEY`, all classes): June's `324d2e20` / `324bc8e0` have no `GA_SIT` block, so March's sit-emotion block in both `ShortCutKeyProcess` is the `#else`. Sitting by chat emotion still works. Revert: comment out the flag and rebuild.
 
+### June character: Aisha, the whole port (pilot-char-revamp, closed 2026-10-22)
+
+Plan `JUNE_CHARACTER_AISHA_PHASES.md` (CH0-CH6, Z); per-phase entries are the `June character pilot:` sections above. All seven classes (2, 14, 15, 23, 104, 105, 113) run on June's class core, skills, passives, cut-ins and memorize HUD.
+
+| Flag (all in `KTDXLIB/Always.h`) | What it holds |
+|---|---|
+| `SERV_IRUHADEV_JUNE_CHAR_ARME_CORE` | the `June_*` members and registration (inert until LIVE) |
+| `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE` | the switch: Aisha runs June's states (defined by the final CH1) |
+| `SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL`, `_EFFECTSET_MODIFIER` | skill states CH2 / CH3 and the effect-set modifier tags |
+| `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`, `_MEMORIZE`, `_UI` | CH4a passives, CH4d memorize HUD, CH5 cut-in table |
+| `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST`, `_MP_CHANGE_TEXT`, `_DEV_UNLIMITED_SKILL`, `_STATE_NO_SIT_KEY`, `_AIMING_TARGET_OWN_LINE`, `_PARTICLE_TRACE_INHERIT` | engine pieces the class needed (shared by later characters) |
+| `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL` | emulator: hyper skills consume El's Essence |
+
+`..._DEBUG` flags (`UNIT_DELEGATE_LIST`, `ARME_OVERRIDE`, `ARME_MEMORIZE`) are retired (commented out); `JUNE_CHAR_DEBUG` was never defined.
+
+**Data (one deploy unit):** 53 koms of June Aisha assets staged byte-exact by CH0b (motions, meshes, textures, cut-in `.gfx`); data036 `Arme_VioletMage.lua` = June's bytecode; data036 `UnitTemplet.lua` = core-list source with Aisha's 7 blocks June's (other 48 untouched).
+
+**Revert, in this order:** (1) comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE` (the rest of the class flags then add only inert members), (2) restore data036 `Arme_VioletMage.lua` and `UnitTemplet.lua` from the kom backups (`kom_backup_tools`) and `kom.py copy data036`, (3) restore the motion koms from `24965799\kom_backup_stage_june61020_055218`, (4) `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Exe, data036 and the motion koms must change together: a June script on the March class, or the reverse, breaks the class. No save-schema change; the seven test units 44-53 stay in `els_db.sql`.
+
+Dormant until Stage 6: transcendence slot (A-5 / F), passives 22415 / 22416, transcended hyper-mode branch. JUNE_BUGS 379-402 list the June quirks kept.
+
 ### Dev convenience: free skills for a dev account in June-ported classes (JUNE_DEV_UNLIMITED_SKILL, 2026-10-22)
 
 Flag `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` in `KTDXLIB/Always.h`. Not June: `CX2GUUser::JuneIsDevUnlimitedSkillUse()` is March's in-house skip of the skill cool-time / MP checks (`TOGGLE_UNLIMITED_SKILL_USE`, else `#ifndef _SERVICE_` with `XUAL_DEV`), and a ported class's June skill check (Aisha's `June_SpecialAttackLookup`) skips its block when it is true. Standing rule for every class port (`JUNE_PORT_BACKLOG_ORDER.md` "Standing rules").

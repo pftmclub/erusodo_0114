@@ -2485,34 +2485,76 @@ The S3 generator is not in the repo (CH2 noted this), so the S3 line is a rebuil
 - Write `kickoffs/june-backlog/stage6-plan.md` (transcendence on Aisha) and `stage7-plan.md`, with their `june-backlog` STATUS rows.
 - Add a backlog Stage 5 closing note.
 
+### Z - Done (2026-10-22, Sonnet 5.5)
+
+- "Template for Stage 7" rewritten (real phase sizes, model choices, recipe defects, per-character table reordered).
+- `kickoffs/june-backlog/stage6-plan.md` (transcendence on Aisha) and `stage7-plan.md` (eight characters, order and reasons) written; both rows in STATUS's `june-backlog` block.
+- `MODS.md`: one "June character: Aisha" section (flags, files, data, revert order). Checklist: the per-phase `(Aisha: CHn)` marks were made by the phases; Z added the close-out line in section 6.
+- Backlog Stage 5 closing note added. `SERV_IRUHADEV_JUNE_CHAR_DEBUG` was never defined; every `_DEBUG` flag is already off, so no build.
+
 ## Template for Stage 7
 
-Stage 7 repeats this doc per character: `JUNE_CHARACTER_<NAME>_PHASES.md`, plan key `char-<name>`, tag `[JUNE_CHAR] <PREFIX>`, flags
-`SERV_IRUHADEV_JUNE_CHAR_<PREFIX>_*`.
+Rewritten by Z on 2026-10-22 from what the pilot took. Stage 7 repeats this doc per character: `JUNE_CHARACTER_<NAME>_PHASES.md`, plan key
+`char-<name>`, tag `[JUNE_CHAR] <PREFIX>`, flags `SERV_IRUHADEV_JUNE_CHAR_<PREFIX>_*`. Order and reasons: `kickoffs/june-backlog/stage7-plan.md`.
+
+**What the pilot took (2026-10-20 .. 2026-10-22, about 96 commits).** Each phase is a Done note, then an Opus review, then (when it changes play) a user play-test.
+
+| Phase | Planned | Took | Lesson |
+|---|---|---|---|
+| CH0 map | 1 | 1 (+ CH0c) | The map is only as good as `charport_states.py`. A `~` row (a name held in a variable) silently inherited the previous sibling's callbacks; 30 of 170 registrations were wrong until CH0c. |
+| CH0b assets | 1 | 1 | 53 koms, 5,688 files staged byte-exact, packed and copied in one run. Straight, cheap, play-test = ErrorLog diff. |
+| CH1 deploy unit | 1 | **14** (CH1a-CH1m + final) | The estimate was off by an order of magnitude. June moved ~20 common state callbacks into `CX2GUUser`; ~600 functions. Behind a second flag `..._LIVE` that stays undefined until the final CH1, so the C++ and June's script go live together. |
+| CH2 skills, first jobs | 1 | 3 (a, b, c) | A skill needs its unmapped helper (`322f0e60` view cone) mapped first; that is an Opus sub-phase, not part of the Sonnet transcription. |
+| CH3 skills, second jobs + hyper | 1 | 4 (a, a2, b, c) | Same: one unmapped helper per sub-phase (`31c69af0`, `31ff5440`), summons need the engine's summon path. |
+| CH4 passives, mechanics | 1 | 4 (a-d) | Passive object, engine delegate lists, overrides, memorize HUD. Each is a different engine piece; plan them as four from the start. |
+| CH5 UI and data | 1 | 1 | `UnitTemplet` rows + cut-in table. The 10-slot dialog and tree-UI pieces turned out to be CH4's (7ah / 7aj). |
+| CH6 walk | 1 | 1 | Scans rerun (census, `charport_keys`, `charport_scan`, S3 `no_state`), then a user walk over one unit per class. No code. |
+| Z | 1 | 1 | Docs only. |
+
+**Model choices that worked.**
+- Opus 5.5 high: CH0, CH0c, the CH1 wiring, any sub-phase that opens with an unmapped function or an engine piece (CH2c, CH3a2, CH4a-CH4d), and **every review**.
+- Sonnet 5.5 high: CH0b, and the sub-phases that are mostly "= March" or a straight transcription of mapped June bodies (CH1d-CH1i, CH2a, CH2b, CH3b, CH3c, CH5).
+- Reviews found a real defect in several transcription phases (CH2a passive flag, CH3b upgrade-swapped id, CH3c power-rate placement, CH4d sit key, CH1 `31feaac0` START float). Keep the review for every sub-phase.
+
+**Rules the pilot settled.**
+- Split by the CH1 / CH4 pattern as soon as the map shows more than ~25 functions (CH1) or more than one engine piece (CH4). Name the sub-phases in the plan's phase table at planning time, not when the first run overflows.
+- Two flags per class: `_CORE` (the wiring) and `_LIVE` (the switch, defined last). Skills, passives, UI and memorize each take their own flag (`_SKILL`, `_PASSIVE`, `_UI`, `_MEMORIZE`).
+- The class script (`<Class>.lua`) is June's bytecode via `adopt-june`; `UnitTemplet.lua` is a shared core-list file, only the character's rows become June's.
+- A temporary `..._DEBUG` flag per sub-phase for the play-test lines, retired in its review.
+- Dev free-skill gate (`JuneIsDevUnlimitedSkillUse()`) in every class's skill-use check (standing rule, 2026-10-22).
+- Anything a phase finds that is not the character's subject is routed by the scope rule the same day (CH6 left nothing unrouted).
+
+**Recipe defects, with the fix to apply from the start.**
+1. `charport_states.py` carry-over on `~` rows. Fixed in CH0c; Stage 7's step 0 runs `ch0c_listing_check.py` on the new map before CH1.
+2. The S3 generator (`s3_reform_ids_no_state.tsv`) is not in the repo. CH6 rebuilt the check by hand (tsv ids against `case` labels and `const int` ids). Stage 7 characters regenerate it in CH0 or reuse the CH6 script idea.
+3. CH1 as one phase. Plan the split up front (CH1a-c registration by state group, then base callbacks, hooks, final).
+4. Helper functions the map calls "unmapped" are found mid-skill. CH0 lists every `unmapped` callee per skill and assigns an Opus sub-phase before the Sonnet one.
+5. The transcendence slot (A-5 / F, slots 4 and 9), 22415 / 22416-style passives and the hyper cut-in names are dormant until Stage 6; do not try to test them.
 
 The phase skeleton is:
-- CH0;
+- CH0 (+ CH0c if the registration check fails);
 - CH0b (every June asset of the character, whole, first; deployed together with CH1 when the character has renamed animations, checklist 7ad);
-- CH1;
-- CH2 / CH3 (skills by job tier);
-- CH4;
+- CH1a..CH1n then CH1 final (class core, behind `_LIVE`);
+- CH2 / CH3 (skills by job tier, one unmapped helper each);
+- CH4a..d (passive state, delegate lists, overrides, memorize-like HUD);
 - CH5;
-- CH-N (only if the character has a templet-backed June-only class);
+- CH-N (only if the character has a templet-backed June-only class; Ara, Elesis, Add);
 - CH6;
 - Z.
 
-The new characters (Stage 8) follow the same asset rule: every June asset of the character, whole, before their code. Z of this plan rewrites
-this section from what the pilot took.
+The new characters (Stage 8) follow the same asset rule: every June asset of the character, whole, before their code.
 
-What differs per character, as known on 2026-10-20 (gap = June attacks whose damage is numerical-only; `l.` = checklist line):
+What differs per character, as known on 2026-10-22 (gap = June attacks whose damage is numerical-only; `l.` = checklist line):
 
 | Character | Gap | Templet-backed June-only class | Known extras |
 |---|---|---|---|
 | Eve | 3 | - | 167 alpha-tag sites (7c); slot encoders in `X2GuEve.cpp` (7ag trap); El Crystal icons, recovery statics (7ah / 7aj); 7a modifier, 7n sync float |
-| Rena | 12 | - | **`ADD_RENA_SYSTEM` decision** (natural force, 77 uses); 7ad renames (`Lire_*`); D8 3405 -> 23405 |
-| Ara | 14 | 34, 124 | `CUSTOM_RENDER_STATE` (7w); 2 new motion files; orb handle retirement needs the user's OK (7e) |
 | Chung | 15 | - | `ChangeMaxCharacterAddResource` already ported; 49 unnamed upgrade ids (7ae); cinematic UI (7r) |
 | Elsword | 20 | - | `DAMAGE_SKILL_ID` x103 in `Elsword_DamageData.lua` (§2); Rune Slayer reflect (7j); S3d memo consumers |
-| Elesis | 20 | 35, 125 | already on June base / SK motions (6 anims lost, accepted); first live reserved-buff path (7ai) |
 | Raven | 25 | - | 7b passive setter `+0x4108`; 7u effect names; power-rate operator (§7 l.243) |
+| Rena | 12 | - | **`ADD_RENA_SYSTEM` decision** (natural force, 77 uses); 7ad renames (`Lire_*`); D8 3405 -> 23405 |
+| Ara | 14 | 34, 124 | `CUSTOM_RENDER_STATE` (7w); 2 new motion files; orb handle retirement needs the user's OK (7e) |
+| Elesis | 20 | 35, 125 | already on June base / SK motions (6 anims lost, accepted); first live reserved-buff path (7ai) |
 | Add | 0 (skeleton) | 33, 36, 123, 126 | March kit incomplete ("the user ports Add from June", l.237); `CUSTOM_RENDER_STATE`; no stat rows for 9 / 32 / 122 at all; 4 new motion files; 13 §7 rows |
+
+Aisha's own closed list for comparison: 7 classes; CH1 14 sub-phases, CH2 3, CH3 4, CH4 4; flags `_CORE _LIVE _SKILL _PASSIVE _UI _MEMORIZE` plus `JUNE_CHAR_EFFECTSET_MODIFIER`, `JUNE_UNIT_DELEGATE_LIST`, `JUNE_MP_CHANGE_TEXT`, `JUNE_DEV_UNLIMITED_SKILL`, `JUNE_STATE_NO_SIT_KEY`, `JUNE_AIMING_TARGET_OWN_LINE`, JUNE_BUGS 379-402.

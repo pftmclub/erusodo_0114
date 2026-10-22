@@ -208,6 +208,8 @@ values, before loading the script. Otherwise **every state after the first refer
    (`luasrc.py core --add <kom> <Class>.lua --origin june --why "edit: <phase> <what>"`, no question), then `adopt-june --source`
    (see `LUA_SOURCE_PHASES.md` Rule 2, skill `x2-adopt-june`). Never copy from `june_src_fixed/` or compile by hand.
 
+- **Pilot close-out (2026-10-22).** Aisha (the Stage 5 pilot) finished: every section-7 row she owned carries an `(Aisha: CHn)` mark in place. Stage 7 characters mark their rows the same way, `(<Name>: CHn)`, in the phase that ports them. The recipe lessons and the character order are in `JUNE_CHARACTER_AISHA_PHASES.md` "Template for Stage 7" and `kickoffs/june-backlog/stage7-plan.md`.
+
 ## 7. Buff-engine hooks that only character code reads (from the June buff port, 4b-i part 3)
 
 The buff port (`JUNE_BUFF_PORT_PHASES.md`, "Phase 4b-i, part 3") ports the buff side of these and
