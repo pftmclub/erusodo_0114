@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase june-result R3 review` |
 | Plan doc | `JUNE_DUNGEON_RESULT_PHASES.md` (branch `main`) |
-| Depends on | Phase R3 done (its Done note, commit and play-test) |
+| Depends on | Phase R3 done (play-tested 2026-10-22) and Phase R3b done (its fixes are reviewed here too) |
 | Flag | `SERV_IRUHADEV_JUNE_RESULT_FLOW` (debug lines under `SERV_IRUHADEV_JUNE_RESULT_DEBUG`) |
 | Log tag | `[JUNE_RESULT] FLOW` (`python tools/logs.py --tag JUNE_RESULT`) |
 
@@ -19,7 +19,7 @@ Then `kickoffs/june-result/R3.md` ("Amended by R0 / R2 / R1"), and JUNE_BUGS row
 
 ## Task
 
-Review Phase R3's commit against June. The things this phase could get wrong:
+Review Phase R3's commit and R3b's fixes (plan section "Phase R3b - R3 play-test fixes (user, 2026-10-22)" and its Done note) against June. The things this phase could get wrong:
 - **The mode machine `324cf3d0`:** the mode-1 order (0.1 s wait as a double compare, tutorial branch, UI 8 open, no info, the once flag
   `+0x7cc`, the per-tick hide and quick-slot show); the mode-3 countdown (`_ftol` of limit - time, the `fcompp` sense) and the
   speed-clear block; mode 4's order. March adds one degrade (no GFx manager / `main.gfx` -> confirm): check it is the only addition.

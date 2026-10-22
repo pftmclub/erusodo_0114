@@ -114,6 +114,7 @@ Flags (debug: `SERV_IRUHADEV_JUNE_RESULT_DEBUG`): `_JUNE_RESULT_WIDGET` (R1), `_
 | R1 | The GFx widget: adapter + callback handler + `DW_DUNGEON_RESULT_VALUE`, the item fill, UI 8 load; dev-console opener | Sonnet 5.5 high + Opus review | yes | yes (console) |
 | R2 | Offline emulator: the retry REQ / ACK, result-confirm timing without the state change, whatever else R0 lists | Sonnet 5.5 high + Opus review (medium) | yes | with R3 |
 | R3 | The in-state flow: `CX2State` mode, end handler, mode machine + vslots, ESC gate, exit box, hide modes, `ALL_UNIT_SUCCESS` in the game state, `0x649` handler | Opus 5.5 high + review | yes | yes |
+| R3b | R3 play-test fixes (user, 2026-10-22): result shortcuts (Tab / ESC / F8), dialogs drawn and clicked over the widget, retry restarts at once | Opus 5.5 high (the R3 review covers it) | yes | yes |
 | R4 | June's legacy `CX2StateDungeonResult` (only if R0 proves a reachable route) | Sonnet 5.5 high + Opus review | yes | yes |
 | Z | Close-out | Sonnet 5.5 medium | no | no |
 
@@ -129,6 +130,7 @@ Flags (debug: `SERV_IRUHADEV_JUNE_RESULT_DEBUG`): `_JUNE_RESULT_WIDGET` (R1), `_
 - R0 is read-only and can run now, alongside anything.
 - R1 and R2 can run together after R0: separate files, and builds queue through the lock.
 - R3 needs the R1 review and R2.
+- R3b runs after R3's play-test; the R3 review runs after R3b and covers both.
 - R4 runs after the R3 review, and only if R0 opened it.
 - Z comes last.
 - R3 edits `X2State.cpp` / `X2StateDungeonGame.cpp` / `X2DungeonGame.cpp`: check STATUS for a running quest-system, june-engine or
@@ -390,6 +392,40 @@ token, 0 encoding change; RESULT: PASS. Range `ec274f67^..ec274f67`: 7 PASS, 1 P
 Quit button's PvP branches -> Stage 9; first-clear movie -> Stage 26 (already); vslot 0xe8's party-manager caller -> Stage 28 (already).
 
 **Open for the user:** copy data034 + data036 (asked at hand-off).
+
+## Phase R3b - R3 play-test fixes (user, 2026-10-22)
+
+**Run with:** Opus 5.5 high. Flags: fixes to R3's code go under `SERV_IRUHADEV_JUNE_RESULT_FLOW` (or a new `_JUNE_RESULT_*` flag
+where the fix is a separate change); the retry decision gets its own flag (below). Sub-tag `FLOW`. The R3 review runs after this
+phase and covers R3 + R3b.
+
+**What the R3 play-test showed** (2026-10-22, `ErrorLog.txt` 15:25-15:29, dungeon 30000 solo):
+- The flow works: clear -> mode 1 -> 2 -> 3 -> 30 s -> 4 -> confirm -> ACK -> all-unit NOT -> field. 0 EXCEPTION.
+- **Shortcuts do nothing while the result shows: Tab, ESC, F8** (user). ESC did open the exit box (`exit box: solo, shown` 15:28:44),
+  but the player could not see or use it (next item).
+- **Layering:** KTDGUI dialogs opened during the result (the solo exit box, the solo retry ready box) are drawn behind the GFx
+  widget and cannot be clicked; clicks reach the widget (three `notifyCloseResultUI` while the box was up; two `retry: solo ready box`,
+  no `retry REQ sent`). So the restart itself was never reached.
+- Side observation: the fill logs `level 99 ( level up )` with EXP rate 0.000 / old 0.000 (R1's fill at the level cap).
+
+**Scope:**
+1. **Shortcuts.** Find what June does with Tab (`GameResult.onTabKeyProcess`, R1's binding list; who calls it in June), ESC (R3's gate,
+   once the box is visible) and F8 during the result (find June's key test for `DIK_F8` 0x42 / its `GA_*` action near the result
+   state and the GFx input path). Port June's handling; a key June does not handle there is reported, not invented.
+2. **Layering and input.** Find how June shows a KTDGUI dialog over GFx UI 8 and routes the mouse to it: the dialog manager's
+   flagged-only mode (+0x110) with the after-frame dialog pass (`31ef76b0`, R4c), the per-dialog `+0x1e0` flag and its writers
+   (`3243bdeb`, `32466df2`, ... found in R3), the GFx render order (`31c43e60`, june-gfx) and the GFx mouse capture
+   (`closeToTopZorder` / hit test). Fix the order for the exit box and any other result dialog. Check STATUS for a running june-gfx row
+   on `KTDGGFXManager.cpp` first.
+3. **Retry restarts at once (user decision, 2026-10-22).** For a solo player and an auto-party run, Retry sends the retry REQ directly:
+   no ready box (June's solo branch `324d8600` opens one; this replaces it), then the loading screen, then the dungeon start. Own flag
+   `SERV_IRUHADEV_JUNE_RESULT_RETRY_DIRECT`, June's box in `#else`. Prove the restart in the play-test (R2's stand-in
+   `EGS_PARTY_GAME_START_NOT` while in `XS_DUNGEON_GAME`; R3's code reading says it can take it). If the loading screen does not show,
+   find why and fix it.
+4. **The level-cap fill** (side observation): compare June's fill `324d60e0` at max level with R1's; fix if R1 differs.
+
+**Done gate:** Tab / ESC / F8 behave as June's; the exit box and any result dialog are drawn over the widget and take clicks; Retry
+restarts the same dungeon with a loading screen, solo and with bots; Close / Keep / Quit still work; 0 EXCEPTION; UNHANDLED at baseline.
 
 ## Phase R4 - June's legacy result state (conditional)
 
