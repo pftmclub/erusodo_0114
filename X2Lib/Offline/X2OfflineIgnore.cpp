@@ -113,6 +113,11 @@ namespace
 		// June result R2: 324cf734 sends it bodyless from the result mode machine and waits for no reply.
 		{ L"EGS_JUNE_FAST_SOLO_CLEAR_NOT",	L"June's fast-solo-clear report ( 0x1f2 ), no body and no reply expected; nothing offline reads it" },
 #endif SERV_IRUHADEV_JUNE_RESULT_OFFLINE
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+		// June result R3: June's 0x1f2 is this event ( its drop manager sends 0x1f2 where March sends it )
+		{ L"EGS_REPORT_HACK_USER_NOT",		L"a hack report ( June's speed-clear check, 324cf734 ); nothing offline reads it" },
+		{ L"EGS_PARTY_GAME_START_OPINION_CHECK_REPLY_NOT",	L"the result confirm declines a pending ready box ( 324d858e ); offline has no party start vote" },
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	};
 
 	const int s_nIgnoreRuleCount = sizeof( s_kIgnoreRule ) / sizeof( s_kIgnoreRule[0] );

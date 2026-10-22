@@ -9882,6 +9882,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif
 //////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: June dungeon result R3 - the in-state result flow: CX2State's result-UI mode ( 31ef7be0 / 31ef7390 / 31ef7c60 ), ESC gate ( @31f1e214 ) and exit box ( 31f1dd70 ); the dungeon state's mode machine ( 324cf3d0 ), vslots 0xd0-0xf0, end handler ( 324db6b0 ), RESULT_SUCCESS_ACK / ALL_UNIT_SUCCESS_NOT ( 324d4cd0 / 324dbb30 ) and retry ACK ( 324c95b0 ); March's XS_DUNGEON_RESULT change is the #else. Data: data034 DLG_UI_ExitPartyMsgBox.lua + DLG_Party_Member_Result_State.lua ( June ), data036 Enum.lua 3 SUCM members. Log [JUNE_RESULT] FLOW. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_FLOW
+#if defined( SERV_IRUHADEV_JUNE_RESULT_FLOW ) && ( !defined( SERV_IRUHADEV_JUNE_RESULT_WIDGET ) || !defined( SERV_IRUHADEV_JUNE_RESULT_OFFLINE ) || !defined( SERV_IRUHADEV_JUNE_GFX_GATES ) || !defined( SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS ) )
+#error SERV_IRUHADEV_JUNE_RESULT_FLOW needs SERV_IRUHADEV_JUNE_RESULT_WIDGET, SERV_IRUHADEV_JUNE_RESULT_OFFLINE, SERV_IRUHADEV_JUNE_GFX_GATES and SERV_IRUHADEV_JUNE_UI_DIALOG_BANDS
+#endif
+//////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha

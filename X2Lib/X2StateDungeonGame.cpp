@@ -146,6 +146,12 @@ CX2StateDungeonGame::CX2StateDungeonGame(void)
 	m_fJuneResultRetryCool		= 0.f;
 	m_bJuneResultNpcEvent		= false;
 	m_llJuneResultStartED		= 0;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	m_bJuneResultUIOpened		= false;
+	m_bJuneResultSpeedChecked	= false;
+	m_bJuneResultAckDone		= false;
+	JuneSetResultUIMode( 0, 0.f );		// June 324d9f80
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
 #ifdef REFORM_ENTRY_POINT
 	if( NULL != m_pCX2GameLoadingTip && NULL != g_pData->GetPartyManager() && NULL != g_pData->GetPartyManager()->GetMyPartyData() )
@@ -476,6 +482,9 @@ CX2StateDungeonGame::~CX2StateDungeonGame(void)
 	if ( m_pJuneResultAdapter != NULL )
 		JuneResultCloseAndDelete();
 #endif SERV_IRUHADEV_JUNE_RESULT_WIDGET
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	JuneSetResultUIMode( 0, 0.f );		// June 324d5670
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	m_pDungeonGame->Release();
 	SAFE_DELETE( m_pDungeonGame );
 	
@@ -1259,6 +1268,18 @@ HRESULT CX2StateDungeonGame::OnFrameMove( double fTime, float fElapsedTime )
 
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	// June 324d8890 @324d8ee0-324d8f2d: the retry cool-down ( 324c83a0 inlined )
+	if ( 0.f < m_fJuneResultRetryCool )
+	{
+		m_fJuneResultRetryCool -= m_fElapsedTime;
+		if ( m_fJuneResultRetryCool <= 0.f )
+		{
+			m_fJuneResultRetryCool = -1.f;
+			JuneResultEnableRetry( true, -1.f );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_EVENT_VALENTINE_DUNGEON
 	if( true == m_bIsValentineDungeon )
 	{
@@ -1745,6 +1766,25 @@ bool CX2StateDungeonGame::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 			} break;
 #endif // SERV_NEW_DEFENCE_DUNGEON_ENTER_LOGIC
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+		case DGUCM_JUNE_RESULT_RETRY_OK:
+			{
+				// June @324d92d7
+				CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData;
+				kUserData.iMyUID = g_pData->GetMyUser()->GetSelectUnit()->GetUID();
+				g_pMain->RemoveTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, kUserData );
+				JuneResultSendRetryReq();
+			} break;
+
+		case DGUCM_JUNE_RESULT_RETRY_CANCEL:
+			{
+				// June @324d9330
+				CX2Main::TimedMessagePopUp::TimedPopupUserData kUserData;
+				kUserData.iMyUID = g_pData->GetMyUser()->GetSelectUnit()->GetUID();
+				g_pMain->RemoveTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST, kUserData );
+				JuneResultEnableRetry( true, -1.f );
+			} break;
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	}
 
 	if ( CX2StateMenu::UICustomEventProc( hWnd, uMsg, wParam, lParam ) == true )
@@ -1885,6 +1925,16 @@ bool CX2StateDungeonGame::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam
 
 #endif // #define SERV_DUNGEON_FORCED_EXIT_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	case EGS_RESULT_SUCCESS_ACK:
+		return Handler_EGS_RESULT_SUCCESS_ACK( hWnd, uMsg, wParam, lParam );
+
+	case EGS_RESULT_ALL_UNIT_SUCCESS_NOT:
+		return Handler_EGS_RESULT_ALL_UNIT_SUCCESS_NOT( hWnd, uMsg, wParam, lParam );
+
+	case EGS_JUNE_DUNGEON_RETRY_ACK:
+		return Handler_EGS_JUNE_DUNGEON_RETRY_ACK( hWnd, uMsg, wParam, lParam );
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	case EGS_END_GAME_DUNGEON_RESULT_DATA_NOT:
 		return Handler_EGS_END_GAME_DUNGEON_RESULT_DATA_NOT( hWnd, uMsg, wParam, lParam );
 		break;
@@ -3173,6 +3223,9 @@ bool CX2StateDungeonGame::Handler_EGS_END_GAME_DUNGEON_RESULT_DATA_NOT( HWND hWn
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_END_GAME_DUNGEON_RESULT_DATA_NOT kPacket;
 	DeSerialize( pBuff, &kPacket );
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	return JuneResultEndHandler( kPacket );		// June 324db6b0
+#else SERV_IRUHADEV_JUNE_RESULT_FLOW
 	//CX2PacketLog::PrintLog( &kPacket );
 
 	//if( g_pMain->DeleteServerPacket( EGS_MY_USER_UNIT_INFO_TO_SERVER_ACK ) == true )
@@ -3244,6 +3297,7 @@ bool CX2StateDungeonGame::Handler_EGS_END_GAME_DUNGEON_RESULT_DATA_NOT( HWND hWn
 
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 }
 
 bool CX2StateDungeonGame::Handler_EGS_UPDATE_UNIT_INFO_NOT( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )

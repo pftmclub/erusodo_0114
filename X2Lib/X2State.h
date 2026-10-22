@@ -89,6 +89,11 @@ class CX2State : public CKTDXStage
 			SUCM_CLOSE_DUNGEON_CLEAR_MOVIE			= 3032,	/// June Enum.lua :918: DLG_Dungeon_Clear_Movie's skip button and close event ( 31f23e70 case 0xbd8 )
 			SUCM_CLOSE_DUNGEON_CLEAR_MOVIE_OK_MSG	= 3033,	/// June Enum.lua :888: the skip box's OK ( case 0xbd9 )
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+			SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX	= 3035,	/// June Enum.lua: the exit box's Cancel and close ( case 0xbdb )
+			SUCM_KEEP_BUTTON_IN_RESULT_STATE_MSG_BOX	= 3070,	/// the party box's Keep ( case 0xbfe )
+			SUCM_QUIT_BUTTON_IN_RESULT_STATE_MSG_BOX	= 3071,	/// Quit, and the solo box's OK ( case 0xbff )
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 		};
 
 	
@@ -939,6 +944,23 @@ class CX2State : public CKTDXStage
 #ifdef SERV_DIRECT_CHARGE_ELSWORD_CASH
 		bool Handler_EGS_CASH_DIRECT_CHARGE_CN_REQ();
 #endif // SERV_DIRECT_CHARGE_ELSWORD_CASH
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+		void			JuneSetResultUIMode( int iMode, float fTime );						/// 31ef7be0
+		int				GetJuneResultUIMode() const { return m_iJuneResultMode; }
+		bool			JuneIsExitBoxShown();												/// 31ef7c60
+		void			JuneOpenExitBox( bool bShow );										/// 31f1dd70
+		void			JuneSetExitBoxText( bool bParty );									/// 31f17e60
+		virtual void	JuneResultSetModeFour() {}											/// vslot 0xd0
+		virtual void	JuneResultModeFrameMove( float fElapsedTime );						/// vslot 0xd4, 31ef7390
+		virtual void	JuneUpdatePartyResultDLG( bool bDone, bool bShowTime, int* piSec );	/// vslot 0xd8, 31f17c20
+		virtual void	JuneCreatePartyResultDLG();											/// vslot 0xdc, 31f08590
+		virtual void	JuneResultRetry() {}												/// vslot 0xe0
+		virtual void	JuneResultEnableRetry( bool bEnable, float fCoolTime ) {}			/// vslot 0xe4
+		virtual void	JuneResultRefreshRetryButton() {}									/// vslot 0xe8
+		virtual void	JuneResultEscWithRetryPopup() {}									/// vslot 0xec
+		virtual bool	JuneResultSendConfirm( bool bQuit ) { return false; }				/// vslot 0xf0
+		virtual bool	JuneResultNpcEventActive() const { return false; }					/// vslot 0xf8
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	protected:
 
 		float			m_fTime;
@@ -968,6 +990,16 @@ class CX2State : public CKTDXStage
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
 		CKTDGUIDialogType	m_pDLGJuneClearMovieSkip;	/// June CX2State +0x1e4: the "stop the video?" box
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+		int					m_iJuneResultMode;				/// +0x210
+		float				m_fJuneResultModeTime;			/// +0x214
+		float				m_fJuneResultModeLimit;			/// +0x218
+		CKTDGUIDialogType	m_pDLGJunePartyResult;			/// +0x21c
+		CKTDGUIDialogType	m_pDLGJuneExitBox;				/// +0x224
+		bool				m_bJuneResultConfirmSent;		/// +0x22c
+		bool				m_bJuneResultQuit;				/// +0x22d
+		bool				m_bJuneResultLeaveOnAck;		/// +0x22e
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 
 
 		bool			m_bOneTimeProcAfterContructor;

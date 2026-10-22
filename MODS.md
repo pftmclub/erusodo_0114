@@ -4949,6 +4949,13 @@ Flag `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL` in `KTDXLIB/Always.h`. The emulator 
 Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emulator sends the real `KEGS_USE_FINALITY_SKILL_ACK`, with `m_bNoConsume` false. Log `SKILL    finality skill ...`.
 - **Turn off:** comment out the flag, then `python tools/build.py --deploy`. The packet goes back to UNHANDLED and stones are not consumed. No data change.
 
+### June dungeon result R3: the in-state result flow (flag `SERV_IRUHADEV_JUNE_RESULT_FLOW`, 2026-10-22)
+
+- A dungeon clear stays in `XS_DUNGEON_GAME`: June's end handler (`324db6b0`) sets the result-UI mode 1 for 30 s and the dungeon state's mode machine (`324cf3d0`) opens GFx UI 8, fills it, counts down and sends `EGS_RESULT_SUCCESS_REQ`; the ACK / `EGS_RESULT_ALL_UNIT_SUCCESS_NOT` return the player to the field or village. `CX2DungeonGame::Handler_EGS_STATE_CHANGE_RESULT_NOT` no longer changes to `XS_DUNGEON_RESULT` (March's change is the `#else`).
+- `CX2State` (`X2State.{h,cpp}`): result-UI mode members, ESC gate in `HandleMsgByESC`, exit box, custom msgs 3035 / 3070 / 3071, vslots 0xd0-0xf8 as virtuals. `CX2StateDungeonGame` (`X2StateDungeonGame.{h,cpp}`): the mode machine, retry, confirm, three packet handlers, DGUCM 14 / 15, the retry cool-down. Bodies in `X2UIDungeonResultAdapter.cpp`. `CX2MiniMapUI` gets the "mini" control show / get. `X2OfflineIgnore.cpp`: `EGS_REPORT_HACK_USER_NOT` (June's 0x1f2 speed-clear report) and `EGS_PARTY_GAME_START_OPINION_CHECK_REPLY_NOT` are IGNORED.
+- Data: June's `data034` `DLG_UI_ExitPartyMsgBox.lua` and `DLG_Party_Member_Result_State.lua` adopted (ljconv bytecode, `luasrc.py adopt-june`); `data036` `Enum.lua` gains `SUCM_CANCEL / KEEP / QUIT_BUTTON_IN_RESULT_STATE_MSG_BOX` (3035 / 3070 / 3071), ledger refreshed. Revert: delete the two dialogs from `kom_contents/data034_kom` (and their manifest keys), remove the three `Enum.lua` lines, repack both.
+- **Turn off:** comment out the define in `Always.h` and rebuild; March's `XS_DUNGEON_RESULT` screen comes back. Log `[JUNE_RESULT] FLOW` (under `_DEBUG`).
+
 ### June dungeon result R2: the emulator's answers (flag `SERV_IRUHADEV_JUNE_RESULT_OFFLINE`, 2026-10-22)
 
 - `EGS_RESULT_SUCCESS_REQ` is accepted with no body (June `324d84c0` sends it with SendID); March's struct form still reads.

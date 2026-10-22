@@ -41,6 +41,16 @@ m_pDLGMsgBox( NULL ),
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
 m_pDLGJuneClearMovieSkip( NULL ),
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+m_iJuneResultMode( 0 ),
+m_fJuneResultModeTime( 0.f ),
+m_fJuneResultModeLimit( 0.f ),
+m_pDLGJunePartyResult( NULL ),
+m_pDLGJuneExitBox( NULL ),
+m_bJuneResultConfirmSent( false ),
+m_bJuneResultQuit( false ),
+m_bJuneResultLeaveOnAck( false ),
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 m_bOneTimeProcAfterContructor( false ),
 m_bIgnoreAllUIEvent( true ),
 m_fIgnoreTime( 0.f ),
@@ -403,6 +413,13 @@ CX2State::~CX2State(void)
 #ifdef SERV_IRUHADEV_JUNE_QUEST_MOVIE
 	SAFE_DELETE_DIALOG( m_pDLGJuneClearMovieSkip );
 #endif SERV_IRUHADEV_JUNE_QUEST_MOVIE
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	JuneSetResultUIMode( 0, 0.f );		// June 31f00c00 @31f014f7
+	SAFE_DELETE_DIALOG( m_pDLGJuneExitBox );
+	SAFE_DELETE_DIALOG( m_pDLGJunePartyResult );
+	if ( NULL != g_pKTDXApp->GetDGManager() && NULL != g_pKTDXApp->GetDGManager()->GetDialogManager() )
+		g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );		// @31f017a9
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 	SAFE_DELETE_DIALOG(m_pMsgOkFailToConnectServer);
 	SAFE_DELETE_DIALOG( m_pDLGLastMsgPopUp );
 	SAFE_DELETE_DIALOG( m_pDLGUserInfo );
@@ -1123,6 +1140,10 @@ HRESULT CX2State::OnFrameMove( double fTime, float fElapsedTime )
 	}
 #endif SERV_ELESIS_UPDATE_EVENT
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	if ( 0 != m_iJuneResultMode )
+		JuneResultModeFrameMove( fElapsedTime );		// June 31f0d390 @31f0e191
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_GLOBAL_MISSION_MANAGER
 	if( NULL != g_pData->GetGlobalMissionManager() )
 	{
@@ -2075,6 +2096,36 @@ bool CX2State::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 				g_pKTDXApp->SendGameMessage( XGM_QUIT_GAME, NULL, NULL, false );
 			}break;
 #endif //SERV_ACCOUNT_BLOCK_MESSAGE_RENEWAL // ACCOUNT_BLOCK_MESSAGE_RENEWAL_KR
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+	case SUCM_KEEP_BUTTON_IN_RESULT_STATE_MSG_BOX:
+		{
+			// June @31f25038: mode 4 without the setter, leave on the confirm ACK
+			m_iJuneResultMode = 4;
+			m_bJuneResultLeaveOnAck = true;
+		} break;
+	case SUCM_QUIT_BUTTON_IN_RESULT_STATE_MSG_BOX:
+		{
+			// June @31f2504e; its PvP-state branches are Stage 9's
+			if ( CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() )
+			{
+				if ( true == m_bJuneResultConfirmSent )
+					ReturnToPlaceWhereBeforeDungeonStart();
+				else
+					JuneResultSendConfirm( true );
+			}
+		} break;
+	case SUCM_CANCEL_BUTTON_IN_RESULT_STATE_MSG_BOX:
+		{
+			// June @31f25103
+			if ( NULL != g_pKTDXApp->GetJuneGFXManager() )
+				g_pKTDXApp->GetJuneGFXManager()->SetShow( true );
+			if ( true == g_pKTDXApp->GetDGManager()->GetDialogManager()->CheckDlg( m_pDLGJuneExitBox ) )
+				g_pKTDXApp->SendGameDlgMessage( XGM_DELETE_DIALOG, m_pDLGJuneExitBox, NULL, false );
+			m_pDLGJuneExitBox = NULL;
+			g_pKTDXApp->GetDGManager()->GetDialogManager()->SetJuneFlaggedDialogsOnly( false );
+			JuneResultEnableRetry( true, -1.f );
+		} break;
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_SKILL_TITLE_NOTICE
 	case SUCM_JUNE_TITLE_TEN_OK:
 		{
@@ -4231,6 +4282,20 @@ bool CX2State::HandleMsgByESC()
 	if ( ( g_pMain->GetNowStateID() != CX2Main::XS_LOADING ) && g_pKTDXApp->GetDIManager()->Getkeyboard()->GetKeyState( DIK_ESCAPE ) == TRUE )
 #endif // SERV_KEY_MAPPING_INT
 	{
+#ifdef SERV_IRUHADEV_JUNE_RESULT_FLOW
+		// June @31f1e214-31f1e261: the result UI takes ESC
+		if ( 0 != m_iJuneResultMode )
+		{
+			if ( 1 != m_iJuneResultMode && 2 != m_iJuneResultMode )
+			{
+				if ( true == g_pMain->IsThereTimedMessagePopup( CX2Main::TimedMessagePopUp::MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST ) )
+					JuneResultEscWithRetryPopup();
+				else
+					JuneOpenExitBox( false == JuneIsExitBoxShown() );
+			}
+			return false;
+		}
+#endif SERV_IRUHADEV_JUNE_RESULT_FLOW
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
 		/// June 31f1e1a0 @31f1e262-31f1e2a0, after June's tutorial guide and result-UI-mode gates ( both June-only systems: C3z-4t / Stage 9 ) and before the
 		/// hide-toggle block: the GFx manager ( g_pKTDXApp +0x1c8 ) runs ActionScript closeToTopZorder ( 31c43bb0 ); a true takes the ESC. June then looks

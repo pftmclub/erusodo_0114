@@ -391,6 +391,12 @@ Everything from Stages 5 and 6, plus:
 
 Port whatever June UI is still March-shaped once Stages 1–8 have delivered their own dialogs.
 
+- **Two result-flow leftovers (june-result R3, 2026-10-22).**
+  - June's `AddTimedMessagePopup` (`31d94a20`) takes one more argument than March's, an ( x, y ) pair after the time-out message (the result
+    retry box passes ( 230, 200 ), constants `33478a84` / `33457460`); R3 calls March's form. Read what June does with it before porting.
+  - The exit box's Quit (`31f23e70` case 0xbff `@31f25076-31f250fe`) has PvP-state branches: confirm already sent in state 9 -> the
+    `g_pMain +0x408` test (not 0xc-0xf) and game vslot 0x138; then party manager `324334d0( 0x6b3 )`. They go with the PvP result.
+
 - **June's menu bar and its StoryBook button** (handed here by quest-system Q10, user 2026-10-19: "no opener; Stage 9 owns it").
   - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.
     Scope: `JUNE_QUEST_SYSTEM_PHASES.md` "Phase Q10c - Story book UI"; kickoff `kickoffs/quest-system/Q10c.md` (its dev-console opener becomes optional once the button lands).
@@ -814,6 +820,11 @@ june-effect C10d found two June damage steps that exist only for event dungeons.
   NPCs (manager `32696fa0` `+0x260..+0x264`, `CreateNPC` `322e9af0`) in game state 0xb with a dungeon room set. `CX2GUUser::JuneStartEventProcess`
   keeps the gate and logs once that the summon is not ported. Offline never sends `EGS_UPDATE_CODE_EVENT_NOT`, so the event is switched
   on from the save DB (standing rule "Game events are switched on from the save DB"). Related: WIN StateStart `320004b0` plays the `Clear_C/L/E/A/R` particles in `DI_EVENT_2017_TREASURE` (ported, CH1k).
+
+- **The `DI_EVENT_HIGHSCHOOL` (41450) result effect (june-result R3, 2026-10-22).** June's dungeon end handler `324db6b0 @324db8f3-324dbaf5`,
+  on a win in 41450 only, walks a June-only UID -> score map in the `EGS_END_GAME_DUNGEON_RESULT_DATA_NOT` tail (R0 map row `0xbd`), compares
+  my score (`327c9480` = my UID) with the other side's and plays `GameWinNew` / `GameLoseNew` / `GameDrawNew` (`322ceaa0` + `31cf90f0`, as
+  the clear effect `327c96e0`). March's packet has no such map and March has no 41450 DungeonData row; R3 ported the rest of the handler.
 
 **Depends on:** nothing in code. It is content, so plan it after Stage 1 has proven how a June dungeon is brought over.
 

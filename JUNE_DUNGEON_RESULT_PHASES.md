@@ -349,6 +349,48 @@ clear still runs March's result screen.
 - A training clear works, if R0 says it shares the code.
 - 0 EXCEPTION; UNHANDLED at baseline.
 
+### R3 - Done (2026-10-22, Opus 5.5 high; flag `SERV_IRUHADEV_JUNE_RESULT_FLOW`, log `[JUNE_RESULT] FLOW`)
+
+**What landed** (one commit, `main`; rows `(Result R3)` in `june2017_re/funcmap.tsv`):
+- **`CX2State`:** the result-UI mode (`31ef7be0` / `31ef7390` / `31ef7c60`, minimap "mini" control on mode 3 / 0), its tick in
+  `OnFrameMove` (`@31f0e191`), the ESC gate (`@31f1e214-31f1e261`), the exit box (`31f1dd70` + text `31f17e60`), the party result dialog
+  (vslots 0xd8 / 0xdc), custom msgs 3035 / 3070 / 3071 (`31f23e70`), and ctor / dtor resets. Vslots 0xd0-0xf8 are virtuals.
+- **`CX2StateDungeonGame`:** the mode machine `324cf3d0`, end handler `324db6b0` (March's in `#else`), `RESULT_SUCCESS_ACK` /
+  `ALL_UNIT_SUCCESS_NOT` (`324d4cd0` / `324dbb30`), retry ACK `324c95b0`, the retry button / REQ / confirm / ESC vslots, DGUCM 14 / 15,
+  and the inlined retry cool-down. R1's three callbacks now call June's targets. `CX2DungeonGame::Handler_EGS_STATE_CHANGE_RESULT_NOT`
+  drops the `XS_DUNGEON_RESULT` change (`327c9330`). March's REQ timer stays, as R0 found.
+- **Data:** June's `data034` `DLG_UI_ExitPartyMsgBox.lua` + `DLG_Party_Member_Result_State.lua` adopted (ljconv). `data036` `Enum.lua`
+  (core list) gains June's three `SUCM_*_IN_RESULT_STATE_MSG_BOX` members; ledger refreshed, `LEDGER CHECK PASS`. `PACK OK` data034 / data036.
+- `JUNE_BUGS` 408-410, `MODS.md` section, emulator ignore rows for `EGS_REPORT_HACK_USER_NOT` and `..._OPINION_CHECK_REPLY_NOT`.
+
+**Corrections to R0 / R2:**
+- **`0x1f2` is June's `EGS_REPORT_HACK_USER_NOT`.** June's drop manager sends it where March does (`3273b9e3`). The mode-3 block is a
+  speed-clear hack check (JUNE_BUGS 410). `g_pKTDXApp +0x218` = `GetFindHacking`, and `31d75660( 0x79 )` is a no-op. R2's
+  `EGS_JUNE_FAST_SOLO_CLEAR_NOT` is now unused (review decides).
+- Game `+0x2ad` is `m_bCanUseESC`, not a unit flag. MT 9 is March's `MT_PARTY_READY_TO_PLAY_DUNGEON_REQUEST` (the solo retry box reuses it).
+  The `0x649` invalid path re-enables retry with `-1.0`, which is the button state, not a cool-down. No June caller sets a cool-down
+  above 0, so the tick never runs.
+
+**Not as June (labelled in code):** with no GFx manager or `main.gfx`, mode 1 confirms at once (June would wait forever); the party
+dialog is null-checked. June's extra `( 230, 200 )` popup argument has no March parameter.
+
+**Retry stand-in (R2):** `HEAP_BROKEN_BY_ROOM` is live, so `EGS_PARTY_GAME_START_NOT` keeps the room. `StateChange` has no same-state
+shortcut, and `RememberComeBackInfoBeforeInstanceGameStart` keeps the old return place. Nothing changed client-side; the play-test proves it.
+
+**Hygiene** (`flagcheck.py JUNE_RESULT_FLOW --worktree --files ...`): files: 7 PASS, 1 PASS~, 0 DEFINE, 1 OTHER (Always.h: the
+peer's G7 block), 0 FAIL, 0 ERROR; in this flag's files: 0 deleted, 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without
+token, 0 encoding change; RESULT: PASS. Range run after the commit: see the R3 STATUS row.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,788,416 B, dated 2026-10-22 15:17:12, md5 889340418ccd5e2cba509ee5d91b7187, equal to X2/US_SERVICE/x2.exe (2026-10-22 15:17:04); built at main 2a25233c + 9 uncommitted code file(s).` The FLOW strings, both dialog names and `EGS_REPORT_HACK_USER_NOT` are in the exe.
+
+**How to see it in game:** the hand-off checks (clear with and without bots, ESC, Close, Retry). Lines `[JUNE_RESULT] FLOW mode`,
+`end:`, `confirm sent`, `confirm ACK`, `all-unit NOT`, `exit box`, `retry`. Training never gets `0xbd`, so it is R4's check.
+
+**Drift (identified, routed 2026-10-22):** `DI_EVENT_HIGHSCHOOL` result effect -> backlog Stage 19; June's extra popup argument and the
+Quit button's PvP branches -> Stage 9; first-clear movie -> Stage 26 (already); vslot 0xe8's party-manager caller -> Stage 28 (already).
+
+**Open for the user:** copy data034 + data036 (asked at hand-off).
+
 ## Phase R4 - June's legacy result state (conditional)
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`. Sub-tag `LEGACY`.
