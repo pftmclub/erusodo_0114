@@ -501,6 +501,67 @@ exact port list (each item: June address, March site, flag, what to write). The 
 **Done gate:** the map, the funcmap rows, and a port list R3d can follow without Ghidra; anything left open is named with what would
 settle it. Drift is routed by the scope fence.
 
+### R3c - Done (2026-10-22, Opus 5.5 high; read-only, no code, no build)
+
+Map `june2017_re/result_r3c_map.tsv` (36 rows), funcmap rows `(Result R3c)`. No source, data or Ghidra edits; no build or deploy.
+
+**1. Retry flow.** June's ACK `324c95b0` = R3 (cool arg `[334380f0]` = -1.0). The restart is R2's stand-in: `EGS_PARTY_GAME_START_NOT` ->
+`XS_DUNGEON_GAME`, and `X2Main.cpp:5653` deletes the old state before it builds the new one. Each run gets a new state and game object, so every
+member (`+0x7a0..+0x7f4`, the result mode, the item list, the party dialog) starts fresh in both clients. The resets that leave the object are June's
+dtor `324d5670 @324d5e41-324d5eb2` and ctor `324d9f80 @324dadca-324dae14`:
+- **missing:** the GFx shown byte `+0x108 = 1`, the dialog manager's hide struct reset `31d05060`, and the ctor's `unloadWidget( 8 )` / mode 0 /
+  limit 23.0 / flagged-only off;
+- **differs:** the dtor unloads UI 8 only when an adapter exists.
+
+The only one a player can see is `+0x108`: DELETE in the result (modes 2-4) sets GFx hidden, and the next state keeps it. The hide mode is
+already reset by the new `CX2State`'s `SetShow( true )` (`X2State.cpp:362`).
+
+**2. No `notifyInitialize` on the second run.** June's five callbacks (`32eea2c0` / `32eea2e0` / `32eea300`, arrows `32eea320` / `32eea370`)
+never read their owner: each takes `g_pMain +0x90` at call time. `gameDataResultFunctionInit` (`32eea3c0 @32eea4c6`) keeps a member that is already
+a function. Ours ports that, but our handler (`KTDGGFXManager.cpp:693-707`) calls through the first bridge's owner link, which the old adapter's dtor
+NULLs (`:2162`). If the AS object outlives `unloadWidget`, the second run's `notifyInitialize` reaches the first run's handler and is dropped
+without a log. That matches the evidence run: `mode 1: UI 8 opened`, then no `notifyInitialize` line.
+
+`dungeon_result.gfx` defines `gfxAS3.gameData:GameDataResult` as a `getInstance` singleton, and `main.gfx` names no `ApplicationDomain`. That makes
+survival likely but unproven: there is no ABC decompiler here. Item 0's debug line settles it, and item 1 is June's behaviour either way.
+
+**3. The exit box.** The deployed `general.ess` is June's own file (md5 `1c039a0b` = 14JUN17 data036). `39778` / `43515` / `43487` are June's
+"exit the dungeon" texts, none mentions ED, and the solo box has `StaticMsgBoxBG`, so `43515` shows: reading (b) is out. The ED / durability text
+is `2631`, from `CX2StateDungeonGame::QuitGame` behind the game's `m_bCanUseESC`. June's `324d1580` has the same gate and string, and a retried
+run starts in result mode 0, so ESC during play reaches it in June too. The box the user saw is June's play-time box, not a stale result path. No fix.
+
+**Drift:**
+- `324d1580`'s `g_pMain +0x16a` branch (`43313` / `562`): already the tutorial plan's (note at `X2StateDungeonGame.cpp:968`).
+- The `+0x80a` clear `@324dadc2`: Stage 26.
+- `324c8880` (two handles): not result.
+- The event-scene / talk-cut-in handlers share the owner-link pattern (`KTDGGFXManager.cpp:693`, `:1848`): bullet in backlog Stage 9.
+
+**R3d port list** (Sonnet; no Ghidra needed):
+- **0. Debug first** (`SERV_IRUHADEV_JUNE_RESULT_DEBUG`, `KLOG( "ErrorLog.txt" )`, KTDXLIB cannot call `JuneResultWidgetLog`):
+  - (a) result `CImpl::OnExternalCall` (`KTDGGFXManager.cpp:2181-2199`): one line per member, `[JUNE_RESULT] WIDGET init: <name> attached` or
+    `kept (type N)`;
+  - (b) the handler's `Call`: `[JUNE_RESULT] WIDGET call <id>`, plus `dropped` when it cannot reach a target;
+  - (c) `X2StateDungeonGame.cpp:979`, before `OpenExitDLG( 2631 )`: `[JUNE_RESULT] FLOW ESC: leave box ( result mode %d )`.
+- **1. Callbacks by the now state** (new flag `SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL`, `#error` guard naming `_FLOW`; June `32eea2c0` /
+  `32eea2e0` / `32eea300` / `32eea320` / `32eea370`, function object `3353a074` / Call `32eee800`):
+  - In `KTDGGFXManager.cpp`, the result `OnExternalCall` creates an owner-free handler: a small `SFG::FunctionHandler` holding only the id, whose
+    `Call` invokes a static `void (*)( int iID )` that `CKTDGGFXResultBridge` exposes as a static setter. The `CJuneGfxFunctionHandler( m_pLink,
+    &CImpl::OnFunction, i )` line goes to the `#else`.
+  - In `X2UIDungeonResultAdapter.cpp`, the adapter's ctor registers a static dispatcher. Ids 0 / 1 / 2 call `JuneOpenExitBox( true )` /
+    `JuneResultRetry()` / `JuneSetResultUIMode( 2, 0.f )` on `static_cast< CX2State* >( g_pMain->GetNowState() )` (NULL-checked, no dungeon
+    cast). Ids 3 / 4 keep `JuneResultNowState()` -> `JuneResultItemPagePrev` / `Next`. Keep the per-callback `_DEBUG` names.
+  - The old `OnResultAs*` bodies stay in the `#else`.
+- **2. State resets** (new flag `SERV_IRUHADEV_JUNE_RESULT_STATE_RESET`, guard naming `_FLOW` and `SERV_IRUHADEV_JUNE_GFX_GATES`):
+  - **dtor** (`X2StateDungeonGame.cpp:481-487`, June `@324d5e41-324d5eb2`, in this order): `JuneResultCloseAndDelete()` without the adapter test
+    (`unloadWidget` is safe without a movie, `KTDGGFXManager.cpp:1760`); `JuneSetResultUIMode( 0, 0.f )`; then `GetJuneGFXManager()->SetShow( true )`
+    if the manager exists; the new `CKTDGUIDialogManager::JuneResetHideMode()` (`31d05060` / `31d07950`: mode and previous mode 0, the name set
+    cleared, `m_bShow` untouched; declare it next to `JuneSetShow`, `KTDGUIDialogManager.h:140`); `SetJuneFlaggedDialogsOnly( false )`.
+  - **ctor** (after the member block `X2StateDungeonGame.cpp:142-155`, June `@324dadca-324dae14`): `JuneResultCloseAndDelete()`,
+    `JuneSetResultUIMode( 0, 0.f )`, `m_fJuneResultModeLimit = 23.f` (`3349d46c`), `SetJuneFlaggedDialogsOnly( false )`.
+- **3. Exit box / ESC:** no code beyond item 0 (c).
+- **If (a) logs `attached` on the second run and there is still no `notifyInitialize`:** the cause is on the AS side; report "needs an Opus look"
+  (decompile the ABC of `dungeon_result.gfx`).
+
 ## Phase R3d - Retry flow fixes (user, 2026-10-22)
 
 **Run with:** Sonnet 5.5 high (the code half; R3c's port list is the spec). Fixes under `SERV_IRUHADEV_JUNE_RESULT_FLOW` or

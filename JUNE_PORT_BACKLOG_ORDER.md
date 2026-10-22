@@ -400,6 +400,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
     one (ctor `32eee330`, made by `3251d3a0`) register the same `GameResult.onTabKeyProcess` trigger as the dungeon result (`32eea070`). Who
     notifies theirs is not mapped (`324adc20 @324adf87` calls a vslot 0x294 after a dynamic_cast: a candidate). R3b ported only the dungeon state's
     (funcmap `(Result R3b)`). The dungeon adapter's `32eea050` (notify `UIDungeonResult.hideUI`) has no caller found.
+  - **GFx callbacks after a widget reload (june-result R3c, 2026-10-22).** June's result callbacks ignore their owner and act on `g_pMain +0x90`
+    at call time, so a handler kept on a persistent AS object still works; ours dies with the bridge that made it (`CJuneGfxFunctionHandler`,
+    `KTDGGFXManager.cpp:693-707`). R3d fixes the dungeon result only. The event-scene and talk-cut-in bridges use the same owner link
+    (`KTDGGFXManager.cpp:1848`, `:2056-2066`) and June's same Call `32eee800`. Whether their June targets read the owner is not checked; a widget
+    reopened in one session would fail the same silent way. Map: `june2017_re/result_r3c_map.tsv`.
 
 - **June's menu bar and its StoryBook button** (handed here by quest-system Q10, user 2026-10-19: "no opener; Stage 9 owns it").
   - **The story book UI itself (quest-system Q10c) moved here too** (user, 2026-10-19): port `CX2UIStoryBook` + menu 0x2f together with the button.

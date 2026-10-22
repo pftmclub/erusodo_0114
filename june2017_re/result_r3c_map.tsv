@@ -1,0 +1,40 @@
+june_va	what_june_does	march_counterpart	verdict	r3d_action	evidence
+# --- 1. Retry flow: retry ACK -> restart -> old state dtor -> new state ctor -> next clear. One row per step / member.
+324c95b0	Handler_EGS_JUNE_DUNGEON_RETRY_ACK: DeleteServerPacket( 0x649 ); invalid -> vslot 0xe4( 1, -1.0 [334380f0] ); then 31d05af0( 0, 2 )	X2UIDungeonResultAdapter.cpp:1106-1119	same	none	@324c961f-324c966e; float 334380f0 = -1.0
+(server)	June's server restarts the run	Handlers_Room.cpp:4865-4911 (R2 stand-in: ACK, OpenDungeonGameRoom, SendDungeonGameStartNot) -> X2PartyManager.cpp:1410 -> XGM_STATE_CHANGE XS_DUNGEON_GAME	stand-in	none	R2; the state change deletes the old state first: X2Main.cpp:5653 RemoveStage, then :5910 new CX2StateDungeonGame
+324d5670 @324d5728	dungeon state dtor: quick slot SetEnable( 1, 0 ) (3294c460), defence-dungeon block (328b26a0) first	X2StateDungeonGame.cpp:380-411	same	none	the end handler's SetEnable( false ) (324db6b0) is undone here in both
+324d5670 @324d5e3c	324c8880: two handles +0x6c0 / +0x744 destroyed (31cdd8d0)	-	not result	none	outside the scope fence; not checked
+324d5670 @324d5e41	vslot 0xc4 = unloadWidget( 8 ), unconditional	X2StateDungeonGame.cpp:481-484 (only when m_pJuneResultAdapter != NULL)	differs	R3d item 2	@324d5e41-324d5e4b
+324d5670 @324d5e4d	vslot 0xbc = delete adapter +0x7c4	X2StateDungeonGame.cpp:483 (JuneResultCloseAndDelete)	same	with item 2	-
+324d5670 @324d5e62	31ef7be0( 0, 0.0 ): result mode 0	X2StateDungeonGame.cpp:486	same	none	-
+324d5670 @324d5e77	GFx manager ( g_pKTDXApp +0x1c8 ) +0x108 = 1 (GFx shown)	none (only the exit box Cancel, X2State.cpp:2121)	missing	R3d item 2	DELETE in the result (31f02f50, modes 2-4) sets it 0; without this the next state keeps GFx hidden
+324d5670 @324d5e90	31d05060 = dialog manager +0xc8 struct reset (31d07950: id 0, previous 0, the three lists cleared; +0x34 shown untouched)	none; CX2State ctor SetShow( true ) X2State.cpp:362 (= JuneSetShow( true, 0 )) gives the same mode 0 in the next state	missing (no visible effect)	R3d item 2	31d05060 = add ecx, 0xc8; jmp 31d07950
+324d5670 @324d5eb2	dialog manager +0x110 = 0 (flagged-only off)	X2State.cpp:420 (CX2State dtor, June @31f017a9)	same	none	June does it in both dtors
+31f00c00 @31f014f7-31f017a9	CX2State dtor: +0x210 = 0 (direct), minimap mini control shown, +0x224 / +0x21c dialogs deleted, +0x110 = 0	X2State.cpp:416-422	same	none	-
+324d9f80 @324da4a7-324da53a	dungeon state ctor: +0x7a0 -1, +0x7a4, +0x7a9, +0x7ac, +0x7b0, +0x7b4..+0x7bc vector, +0x7c4 adapter 0, +0x7c8, +0x7cc, +0x7d0 -1, +0x7d4, +0x7d8, +0x7dc, +0x7e0, +0x7e4 = 1, +0x7e8, +0x7ec, +0x7f0 = 1, +0x7f4	X2StateDungeonGame.cpp:142-155	same	none	a fresh state object per run in both
+324d9f80 @324dadc2	g_pMain +0x80a = 0 (movie playing flag)	none	Stage 26	none	already listed in JUNE_PORT_BACKLOG_ORDER.md Stage 26 ("the dungeon-ctor clear 324dadc2")
+324d9f80 @324dadca	vslot 0xc4 = unloadWidget( 8 )	none	missing	R3d item 2	@324dadc8-324dadd2
+324d9f80 @324dadd4	vslot 0xbc = delete adapter (still NULL here)	none	missing (no-op)	R3d item 2	-
+324d9f80 @324dade9	31ef7be0( 0, 0.0 ): mode 0, the setter shows the minimap mini control back if hidden	X2State.cpp:45 (m_iJuneResultMode( 0 ), no setter call)	differs	R3d item 2	-
+324d9f80 @324dadee	+0x218 (mode limit) = 23.0 [3349d46c]	X2State.cpp:47 (m_fJuneResultModeLimit( 0.f ))	differs (not observed: the end handler sets 30)	R3d item 2	float 3349d46c = 23.0
+324d9f80 @324dae14	dialog manager +0x110 = 0	none (dtor only)	missing	R3d item 2	-
+327cedf0	obtained-item list (CX2DungeonGame)	X2UIDungeonResultAdapter.cpp:449-517 (CX2DungeonGame::m_vecJuneObtainedItem)	same	none	the game object is rebuilt with the state
+324cf3d0 / +0x7cc	UI-opened flag	m_bJuneResultUIOpened, X2StateDungeonGame.cpp:150	same	none	new object
+31f08590 / +0x21c	party result dialog	X2State.cpp:419	same	none	deleted by the CX2State dtor in both
+327c99e0	g_pData result info	X2DungeonGame.cpp:2350 (ResetDungeonResultInfo at the END packet)	same	none	stale during the retried run's play, read only after its END packet
+# --- 2. Why the retried run's widget gets no notifyInitialize
+32eea3c0 @32eea4c6	gameDataResultFunctionInit( obj ): a member that already is an Object / Array / DisplayObject (8 / 9 / 10) is left alone	KTDGGFXManager.cpp:2186-2197	same	none	-
+3353a074 / 32eee800	function object: +8 = the adapter (this of 32eea3c0); Call pushes it and the params; the five targets never read either	CJuneGfxFunctionHandler KTDGGFXManager.cpp:693-707: calls only while the link owner (the CImpl) is alive; CImpl dtor KTDGGFXManager.cpp:2162 NULLs it	differs (the cause)	R3d item 1	a kept member (row above) still holds the first run's handler; ours drops that call silently, June's reaches the now state
+32eea2c0	notifyCloseResultUI: g_pMain +0x90 != 0 -> 31f1dd70( 1 ) on that CX2State, no cast	X2UIDungeonResultAdapter.cpp:93-101 (dynamic_cast to CX2StateDungeonGame)	differs	R3d item 1	raw disasm 32eea2c0-32eea2d6
+32eea2e0	notfyRetryButton: now state vslot 0xe0 (tail jump), no cast	X2UIDungeonResultAdapter.cpp:103-111	differs	R3d item 1	raw disasm 32eea2e0-32eea2f9
+32eea300	notifyInitialize: 31ef7be0( 2, 0.0 ) on the now state, no cast	X2UIDungeonResultAdapter.cpp:113-121	differs	R3d item 1	raw disasm 32eea300-32eea31c
+32eea320 / 32eea370	arrows: __RTDynamicCast CKTDXStage 33726934 -> CX2State 3372c6c8 -> CX2StateDungeonGame 33734dd8, then 324d1270 / 324d1210	X2UIDungeonResultAdapter.cpp:123-140	same	none	RTTI names read at +8 of each type descriptor
+dungeon_result.gfx	defines gfxAS3.gameData:GameDataResult (extends GameDataModel) with getInstance / instance and calls gameDataResultFunctionInit; main.gfx defines GameDataModel, not GameDataResult, and has no ApplicationDomain string	-	unproven	R3d item 0 (_DEBUG)	strings of the CFX-decompressed SWFs (data194); whether the singleton outlives unloadWidget is what the debug line settles; item 1 is June's behaviour either way
+# --- 3. The exit box and ESC after a retry
+general.ess	the deployed table is June's file (md5 1c039a0b45595a2cb315860acf867879 = 14JUN17 data036 General.ess); 39778 / 39779 / 43487 / 43515 / 43516 = June's exit-dungeon / exit-PvP texts, none mentions ED	KTDXStringTable.cpp:161 (GetGeneralString), KTDXApp.cpp:221 / 241 (loose General.ess)	same	none	43515 = "Do you want to exit the dungeon ?\n(Press ESC to close the window.)"; absent from every March-era table
+31f17e60	exit box text: dungeon state -> 39778, solo 43515, party in 38300-38302 43487; else 39779 / 43516; SetString on StaticMsgBoxBG	X2UIDungeonResultAdapter.cpp:730-751; the solo OK / Cancel box has StaticMsgBoxBG (X2Main.cpp:6869)	same	none	-
+324d1580 @324d18c0-	CX2StateDungeonGame::QuitGame: game +0x2ad (m_bCanUseESC) == 1 -> OpenExitDLG( 0xa47 = 2631 "Do you really want to exit?\nThere will be a penalty of ED and the Durability of the item." )	X2StateDungeonGame.cpp:976-983 (STR_ID_2631, same gate)	same	R3d item 0 (_DEBUG line)	this is the box the user saw; June shows it during play as well
+324d1580 head	the +0x7d0 / +0x2ad gate covers the g_pMain +0x16a branch too, which picks 0xa931 (43313 "Cannot receive early level up ...") or 0x232 (562) after party-size tests	X2StateDungeonGame.cpp:963-973 (tutorial: 562, no gate)	differs, routed	none	already routed by X2StateDungeonGame.cpp:968's note ("June's other gates there are the tutorial plan's")
+31f1e1a0 @31f1e214	ESC result gate: mode 0 on the new state -> June's normal ESC chain -> QuitGame	X2State.cpp:4285-4297	same	none	after a retry the new state starts in mode 0 in both, so ESC during play reaches 324d1580 / 2631
+31f1e1a0 @31f1e2d1	hide modes 2-4 eat ESC	X2State.cpp:4319-4322	same	none	a stale mode 2 would eat ESC in play, but the CX2State ctor's SetShow( true ) resets it (X2State.cpp:362)
+(X2State)	SUCM_ESC_PUSH (window SC_CLOSE) calls HandleMsgByESCImp directly, past the result gate	X2State.cpp:1850-1853	not ESC	none	not the ESC key; not compared with June
