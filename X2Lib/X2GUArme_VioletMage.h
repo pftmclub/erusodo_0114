@@ -960,6 +960,17 @@ class CX2GUArme_VioletMage : public CX2GUUser
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		void June_InitPassiveSkillState();								/// June 32cecd70 ( vslot 0x690 )
 		void June_OpenMindAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 32ce9f90 ( thunk 32cf2d70 )
+		void June_SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, OUT float& fPowerRate );	/// June 32cccc70 ( vslot 0x2b8 )
+		float June_GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	/// June 32ccfe30 ( vslot 0x6a0 )
+		virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	/// June 32ce1cc0 ( vslot 0x6a4 )
+		virtual float JuneGetDefenceRateBySkill( const int iAttackType_ );	/// June 32cc28b0 ( vslot 0x428 )
+		virtual float JuneGetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32cc5c30 ( vslot 0x73c )
+		void June_SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	/// June 32cddec0 ( vslot 0x24c )
+		void June_TransformStart( const WCHAR* pWstrMeshName_, const bool bChangeWeapon_ );	/// June 32cc91b0
+		void June_TransformEnd( const bool bChangeWeapon_ );	/// June 32cdbd00
+		CX2GameUnit* June_GetNearestEnemyInRange( float fRange_, const std::set<UidType>& setExceptUID_ ) const;	/// June CX2Game 322d7920
+		bool June_HaveSkillBuff( const int iSkillID_, const UINT uiIndex_, const bool bLearnedOnly_ );	/// June user vslot 0x240 ( 3229a470 )
+		struct JuneEquipViewChange { UidType m_iItemUIDToAdd; UidType m_iItemUIDToRemove; };	/// June +0x9848 element ( 16 bytes )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1c
 
@@ -1169,7 +1180,11 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		float						m_fJune979c;			/// 1.0
 		float						m_fJune97a0;			/// 1.0
 		float						m_afJune97a4[5];		/// 0
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
+		std::vector<JuneEquipViewChange>	m_vecJune9848;	/// June +0x9848: equip view changes queued while transformed
+#else SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		std::vector<int>			m_vecJune9848;			/// empty ( element type unknown, freed by the destructor )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1h
 		//{{ Iruha : 2026-10-21 // June character pilot Phase CH1i ( JUNE_CHARACTER_AISHA_PHASES.md )
 		/// Inert June class overrides from vslot 0x600 and their helpers ( class map phase CH1i ); definitions at the end of

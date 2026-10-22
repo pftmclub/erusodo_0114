@@ -3330,6 +3330,10 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 
 	// 공격자의 스킬에 의한 피격자 방어도 감소
 	float fDefenceRateBySkill = 1.f; 
+#ifdef SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
+	if( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
+		fDefenceRateBySkill = static_cast<CX2GUUser*>( pAttacker )->JuneGetDefenceRateBySkill( static_cast<int>( pAttDamageData->attackType ) );	// June 32284aa0 @32285cf9 ( vslot 0x428 )
+#else SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
 #ifdef NEW_SKILL_TREE
 	if( CX2GameUnit::GUT_USER == pAttacker->GetGameUnitType() )
 	{
@@ -3361,6 +3365,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	#endif //UPGRADE_SKILL_SYSTEM_2013
 	}
 #endif NEW_SKILL_TREE
+#endif SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
 
 
 

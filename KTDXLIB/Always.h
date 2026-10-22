@@ -9762,10 +9762,19 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-10-22
+// Description: June's user passive hooks - vslot 0x428 rates the defence term of GetFinalDamage ( 32284aa0 @32285cf9; March's inline Shadow Death block goes ), vslot 0x73c the MP gained when hit ( DamageReact 320462a0 @32049d78 ). Revert: undefine the flag ( JUNE_USER_PASSIVE_HOOKS ).
+#define SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
 // Description: June character pilot ( Aisha ) Phase CH4a - InitPassiveSkillState is June's ( 32cecd70 ) and the Dark Deal refund shows its MP text. Revert: undefine the flag ( JUNE_CHAR_ARME_PASSIVE ).
 #define SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE ) || !defined( SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT ) )
 #error SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE and SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+#endif
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE ) && !defined( SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE needs SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS ( CH4c )
 #endif
 //////////////////////////////////////////////////////////////////////////
 
@@ -9800,5 +9809,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //#define SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG		// off since the CH4b review ( 2026-10-22 )
 #if defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST ) || !defined( SERV_IRUHADEV_OFFLINE ) )
 #error SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG needs SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST and SERV_IRUHADEV_OFFLINE
+#endif
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: Temporary ( pilot CH4c ) - [JUNE_CHAR] ARME SKILL lines for the class overrides ( cool time, MP, hit, both hooks, transform queue ), once a second. Retire in the CH4c review.
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE ) || !defined( SERV_IRUHADEV_OFFLINE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE and SERV_IRUHADEV_OFFLINE
 #endif
 //////////////////////////////////////////////////////////////////////////

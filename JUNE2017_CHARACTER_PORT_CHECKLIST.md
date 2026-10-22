@@ -315,8 +315,8 @@ Each row below is what turns one of them on. The verdicts are the funcmap rows t
 | `32c57660` (`+0x9688` = skill 24401 learned); `32c43120 @32c43ac4` (`+0x4108` = 2 with `ChangeDamageType`) | Raven | Burning Nasod Hand's damage-type change then applies only to `AT_COMMAND` hits (the user-layer gate `32045340 @320453a0`) | the 24401 setter and the `= 2` write, together with June's `RAVEN_FIGHTER.lua`, which marks 46 attacks `AT_COMMAND`. March data marks none, so the `= 2` write alone switches the passive off |
 | `31fdbbb0` (skill-memo entry for `APPLIED_SKILL_ID`) behind user vslot `0x758` `3202ac40` and the NPC override `32759f30` | every user (and summons with a live master) | June's data-driven skill memo: per memo type, scales damage, force-down, MP gain and buff factors on the hit | June's memo table. C8b stubs the lookup (plan rule 5, returns null) **S3b made the lookup real; S3d (2026-10-18) ported the switch's remaining cases and the engine consumers** (`JUNE_SKILL_MEMO_*`); what stays here is the class code below |
 | `31fdbbb0` / `31fdbcc0` readers in class content (found by S3d): `320284c0 @3202858e` (only caller `3202c360`; skills 31301 / 31321: memo( 31301 ) type 0x10 rescales values 1, 3, 5, 7 of each behavior holding 8+ values ( v + ( v - 1 ) x | v0 - 1 | ), then slot 0x228 for 31321) and `3230c1a0 @3230c742` (SetUserSummonedNPCInfo: memo( 22027 ) type 0xf multiplies a summon rate by v0); plus the 28 class callers of `31fdbcc0` (S3b row 3190) | the classes owning skills 31301 / 31321 / 22027 | class-specific memo effects | The memo lookups are real (S3b); port with the class's states. |
-| the per-class blocks in funcmap rows `329bc560`, `32b80f20`, `32bf28f0`, `32c5c080`, `32cad510`, `32cccc70`, `32d1e0e0`, and Ara's vslot `0x780` `32bca010` | Eve, Elesis, Chung, Raven, Rena, Aisha, Elsword, Ara | Passives keyed on June reform skill IDs (`RNSI_*`) | the blocks themselves (brief: `kickoffs/june-effect/C8c.md`) plus the reform skills; needs effect C5 (`ATTACK_TRIGGER_TYPE`) |
-| D8 (completion plan): Rena's Powerful Bowstring 3405 → 23405 and Sharp Kick 3400 → 23400; Aisha's Fitness 2413 block replaced by Magical Staff 22409 | Rena, Aisha | June re-keys or replaces passives March characters have now | D8 = hand off: March's blocks stay until this port, which swaps in June's versions together with the reform skills |
+| the per-class blocks in funcmap rows `329bc560`, `32b80f20`, `32bf28f0`, `32c5c080`, `32cad510`, `32cccc70`, `32d1e0e0`, and Ara's vslot `0x780` `32bca010` | Eve, Elesis, Chung, Raven, Rena, Aisha, Elsword, Ara | Passives keyed on June reform skill IDs (`RNSI_*`) | the blocks themselves (brief: `kickoffs/june-effect/C8c.md`) plus the reform skills; needs effect C5 (`ATTACK_TRIGGER_TYPE`) (Aisha: CH4c, `32cccc70` whole) |
+| D8 (completion plan): Rena's Powerful Bowstring 3405 → 23405 and Sharp Kick 3400 → 23400; Aisha's Fitness 2413 block replaced by Magical Staff 22409 | Rena, Aisha | June re-keys or replaces passives March characters have now | D8 = hand off: March's blocks stay until this port, which swaps in June's versions together with the reform skills (Aisha: CH4c, Fitness gone, Magical Staff 22409 in) |
 
 ### 7c. Effect-alpha tags that only character code applies (from June effect completion C10a)
 
@@ -709,7 +709,7 @@ What a class port does with its rows:
   (`SERV_IRUHADEV_JUNE_SKILL_TYPE`). A class switch names them as June's does (June's class `SetEquippedSkillFuncBySkillSlotIndex` blocks
   in `june2017_re/s3c_skill_type_readers.tsv` group 7 with 14-16). A class port that calls `ResetLeftSkillCoolTimeBySkillType( ST_SPECIAL_ACTIVE )`
   needs June's rule from `32895390`: a request for 7 matches skills of type 7, 14, 15 and 16. March's version compares exactly, and no
-  non-class March caller asks for 7, so S3c left it.
+  non-class March caller asks for 7, so S3c left it. (Aisha: CH4c, n/a: Aisha never calls it. June's only two callers are Ain's, `32a4c37c` type 6 and `32a762e2` type 7: Stage 8.)
 - **Ain's gauge charge (from the S3c review, 2026-10-18; Stage 8).** `32622bd0` (on a hit) and `32622e80` (when hit) are thiscalls on
   `g_pData +0x58`. They take the unit's (physic + magic) damage times a reaction factor. In `32622bd0` that is times the applied skill's
   `+0x130` level array, with a factor of 1.0 / x / x for types 14 / 15 / 16 and one of its own for 5. Then they feed unit vslots `0x878` / `0x86c`.
@@ -872,3 +872,18 @@ callback whole (the list entry is a `push edx; call <fn>; ret` thunk; the target
 - **NPC-side pushes for two classes' summons** (`3275f0a0`, an NPC vslot): every NPC gets A `3275a120` (owner `UT_EVE`, skill 25417, MP text) and
   A `3275a490` (owner `UT_LIRE` -> Rena's `32ca2180`). Port each with its class (Eve, Rena); the registration lives in `CX2GUNPC`.
 - March's own pushes (Elsword, Raven, Ara, Elesis, Add) are March's callbacks; a port replaces them with June's set above.
+
+### 7an. User passive hooks and specialization readers per class (from pilot-char-revamp CH4c)
+
+CH4c added two empty `CX2GUUser` virtuals under `SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS`, both called by the engine as June calls them:
+- `JuneGetDefenceRateBySkill( attackType )` (vslot `0x428`, base `3208dd70` = 1.0) rates the defence term of `GetFinalDamage` (`32284aa0 @32285cf9`, user attacker only). March's inline Shadow Death block is gone.
+- `JuneGetIncreaseMpRateOnDamageReact( DD )` (vslot `0x73c`, base `3208dd70`) multiplies `fIncreaseMpRate` in the user `DamageReact` (`320462a0 @32049d78`).
+
+| Item | Classes (June override) | What the class port brings |
+|---|---|---|
+| vslot `0x428` | Ain `32a4d570`, EL `32b52260`, Ara `32b956a0`, Aisha `32cc28b0` (Aisha: CH4c) | the override, whole |
+| vslot `0x73c` | Add `329d46b0`, Raven `32c3c7f0`, Aisha `32cc5c30` (Aisha: CH4c) | the override, whole |
+| vslot `0x748`, soul gain when hit (`DamageReact @32049d8a`, times `fIncreaseSoulRate`) | Ain `32a387b0`, Chung `32beeca0`, Raven `32c3c820` | the base virtual (1.0) and its engine call, then the override; not ported yet |
+| `GetCharacterSpecializationB()` (June `+0x6d04`) readers | Eve `329b407b`, Add `32a01ca2`, Ain `32a59fc5`, Rose `32ac77ab`, Lu/Ciel `32b14950` / `32b3794d`, Ara `32ba6f31`, Chung `32bf528d`, Raven `32c49410` / `32c507da`, Rena `32c85838` (Aisha `32cd0197`: CH4c) | the reading function, whole |
+| `AttackResult`'s Way-of-Sword MP factor (`32012b50 @32012d98`, `@32012ee3`): `1 - SpecializationB` in Vigor / Destruction, else `1 + SpecializationA` | Elsword, Elesis | engine block in `CX2GUUser::AttackResult`, with the class |
+| `GetFinalDamage @32285d0a`: unit type 11 (`UT_ROSE`) in states `0x15a` / `0x15b` scales a term by `+0x9798` | Rose (Stage 8) | the branch, with Rose's member |

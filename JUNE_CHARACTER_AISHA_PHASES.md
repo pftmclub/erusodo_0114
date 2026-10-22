@@ -2146,6 +2146,59 @@ An Aisha unit logs `open mind level 0, delegate not registered`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,722,368 B, dated 2026-10-22 08:45:44, md5 1f66e443052f259350756766acc919be, equal to X2/US_SERVICE/x2.exe (2026-10-22 08:45:37); built at main 8e22fd9e + 1 uncommitted code file(s).` `delegate run` is no longer in the exe; `open mind level` still is.
 **In game:** nothing new to see. The `delegate run` lines stop and the lists run silently. `passive init ( ... open mind level 0, delegate not registered )` still prints.
 
+### CH4c - Done (2026-10-22, Opus 5.5)
+
+**Landed.** Commit: see `git log`, "Phase CH4c". Rows: funcmap "Char CH4c"; checklist 7b, D8, 7ae, new §7an; JUNE_BUGS 398 / 399; MODS "CH4c".
+- **Class overrides, June's bodies** under `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (March's in `#else`). June's memo lookup `31fca9e0` always answers false, so every memo branch is dropped.
+  - `SetDamageExceptionProcess` `32cccc70`:
+    - Cyclone 22011 with its upgrade equipped sets `m_fDecreaseForceDown` (June DD `+0x514`) to 22051's `SA_FORCE_DOWN_ABS`.
+    - A physical hit with Magical Staff 22409 scales force-down by `SA_FORCE_DOWN_RANGE_REL` (`1 + ( 1 - v )` when negative) and hit MP by `SA_MP_GAIN_ON_HIT_REL`.
+    - March's Fitness 2413 block is gone (D8).
+  - `GetActualMPConsume` `32ccfe30`:
+    - the auras (202 and 22202-22223) are multiplied by Support Aura 105's `SA_MP_CONSUME_REL`;
+    - Chain Fireball as March;
+    - Teleport is multiplied by `m_fMPConsumeRateTeleport`, then by `m_fJune97a0` only in PvP (JUNE_BUGS 398);
+    - VP Open Mind 22414: if no enemy is within `SA_SCOPE_ABS`, cost is multiplied by `SA_MP_CONSUME_REL`;
+    - the clamp;
+    - during MemoRise charging, a memorizable skill not yet memorized costs `x ( 1 - GetCharacterSpecializationB() )` (June `+0x6d04`).
+  - `GetActualCoolTime` `32ce1cc0` (new override):
+    - types 12 / 13 keep the base;
+    - Binding Circle 22005 off the ground adds 5 s;
+    - Teleport in PvP adds `SA_COOLTIME_1`;
+    - everything is multiplied by `m_fElementalResearchRate`;
+    - Open Mind 22414 as above;
+    - Time Limit 22417's buff on Aisha multiplies by `SA_COOLTIME_1`.
+  - `GetAdditionalAccelBuffTime` `32cc1b90` = March, unchanged. The aura rows (22202 / 22207 / 22212 + upgrades) need only the MP rule above and CH1's buff state. 106 has no class code.
+- **Magical Makeup.**
+  - `SetSpecificValueByBuffTempletID` `32cddec0` = March without the memo 25 variants (and without Meditation, which is dead in March too). `UnSet` `32cde300` = March.
+  - June's `TransformStart` `32cc91b0` / `TransformEnd` `32cdbd00`, the second with the weapon null test, the class collision update `32cc8d30`, and the equip-change queue.
+  - The queue: `m_vecJune9848` is now `{ add UID, remove UID }`. While transformed, `June_UpdateEquipViewListInfo` (`32cc9950`) queues each change, which CH1i had dropped. TransformEnd replays the queue through the inventory and vslot `0x644`.
+- **Engine hooks** (`SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS`; checklist §7an has the other classes' overrides and the unported `0x748`):
+  - `CX2GUUser::JuneGetDefenceRateBySkill` (vslot `0x428`, base 1.0), called on a user attacker in `GetFinalDamage` (`32284aa0 @32285cf9`). It replaces March's inline Shadow Death block, which was keyed on March's own id.
+    - Aisha's override `32cc28b0`: Shadow Death 22406 gives a non-special attack a `SA_EFFECTIVE_RATE` chance of rate 0, which removes the defence term.
+  - `JuneGetIncreaseMpRateOnDamageReact` (vslot `0x73c`) multiplies `fIncreaseMpRate` in the user `DamageReact` (`@32049d78`).
+    - Aisha's override `32cc5c30`: Magical Staff on a physical hit taken gives `1 + SA_ATK_MAGIC_TO_ATK_PHYSIC`, which is about x2 (JUNE_BUGS 399).
+- **Helpers.** `June_GetNearestEnemyInRange` = CX2Game `322d7920`; `June_HaveSkillBuff` = user vslot `0x240` `3229a470` over `32028af0`.
+- **Findings.**
+  - `+0x9790` / `+0x9794` (Overdrive) have no reader anywhere (whole-`.text` scan; other classes' hits at the same offsets are their own members).
+  - 7ae's `32895390` has two callers, both Ain's (types 6 and 7): n/a for Aisha.
+- **Temporary log** `SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG`: `[JUNE_CHAR] ARME SKILL mp consume / cool time / magical staff hit / magical staff mp on hit taken / shadow death ignores defence / cyclone upgrade / transform equip queued / replayed`, at most once a second per site. Retire it in the review.
+
+**Hygiene** (`--worktree --files`):
+- `JUNE_CHAR_ARME_PASSIVE` (Arme `.cpp` / `.h`, `Always.h`): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 1 ERROR`.
+- `JUNE_USER_PASSIVE_HOOKS` (`X2GUUser.h` / `.cpp`, `X2GameUnit.cpp`, `Always.h`): `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 1 ERROR`.
+- Both runs: `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+- The ERROR row in each run is an `Always.h` `#error` guard that names two flags (PASSIVE needs HOOKS; `_DEBUG` needs PASSIVE and OFFLINE), as in CH4a / CH4b. It is not a hygiene fault.
+
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,725,952 B, dated 2026-10-22 09:23:04, md5 aa4114ab39c1bd56280bb50068f31ad5, equal to X2/US_SERVICE/x2.exe (2026-10-22 09:22:56); built at main 14a36ca0 + 6 uncommitted code file(s).` All seven new log strings are in the deployed exe.
+**Save** (backup `db_backup/els_db_20261022_091244_pre_sql.sql`): unit 51 `ArmeEM` slot 2 is Cyclone upgrade 22051 (it was Meteor Shower upgrade 22047).
+**In game:**
+- unit 51: Teleport's cool time x0.9 (research), Cyclone's force-down reduction 2;
+- unit 52: Shadow Death (level 3, 15 %) ignores defence on combo hits;
+- unit 53: Magical Staff force-down / hit MP, and about double MP when hit physically;
+- unit 45: Binding Circle cast in the air, +5 s cool time;
+- unit 47: Magical Makeup's transform starts and ends cleanly; an equip changed while transformed shows after it ends.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

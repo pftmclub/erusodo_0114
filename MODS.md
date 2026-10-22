@@ -4880,6 +4880,22 @@ Flags `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST`, `SERV_IRUHADEV_JUNE_UNIT_DELEGATE
 - **Debug.** `..._DEBUG` logs each list's first run per user / NPC and its non-empty runs once a second (`CX2GameUnit::JuneLogDelegateRun`). Off since the CH4b review (2026-10-22): the define is commented out, the code stays.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST_DEBUG` and `SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST` (the Open Mind half reverts with `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE`), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
 
+### June character pilot: Aisha's overrides and two user passive hooks (pilot-char-revamp CH4c, 2026-10-22)
+
+Flags `SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS` (engine), CH4a's `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (now needs the hooks flag) and `SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG` (temporary) in `KTDXLIB/Always.h`. Plan `JUNE_CHARACTER_AISHA_PHASES.md` "CH4c - Done"; log lines `[JUNE_CHAR] ARME SKILL mp consume / cool time / magical staff ... / shadow death ... / cyclone upgrade / transform equip ...`.
+- **Aisha.** June's bodies for `SetDamageExceptionProcess` (`32cccc70`), `GetActualMPConsume` (`32ccfe30`), a new `GetActualCoolTime` override (`32ce1cc0`), `SetSpecificValueByBuffTempletID` (`32cddec0`), `TransformStart` / `TransformEnd` (`32cc91b0` / `32cdbd00`), and the transform's equip-change queue (`32cc9950`, which CH1i had left dropping changes). March's bodies are the `#else`; the memo branches are gone because June's memo lookup always answers false.
+- **Engine.** Two `CX2GUUser` virtuals, each returning 1.0 in the base. `JuneGetDefenceRateBySkill` (June vslot `0x428`) replaces March's inline Shadow Death block in `CX2GameUnit::GetFinalDamage`. `JuneGetIncreaseMpRateOnDamageReact` (vslot `0x73c`) multiplies the MP a user gains when hit, in `CX2GUUser::DamageReact`.
+- **Damage numbers.** Shadow Death 22406 changes damage:
+  - **March:** `fDefenceRateBySkill` = `SA_UNFIXED_DEFENSE_REL` of March's own skill id, which no save on June's trees has, so 1.0.
+  - **June:** a non-special attack ignores the defence term outright, with chance `SA_EFFECTIVE_RATE` 0.05 / 0.10 / 0.15 / 0.20 (levels 1-4). Unit 52 has level 3 (15 %), unit 54 level 4 (20 %).
+- **Other numbers.** None of these change damage:
+  - Magical Staff 22409: physical force-down x0.9 to x0.6 (a negative force-down x1.1 to x1.4), hit MP x1.02 to x1.08, MP gained when hit physically x2.02 to x2.08 (JUNE_BUGS 399).
+  - Cyclone upgrade 22051: `m_fDecreaseForceDown` 2.
+  - Binding Circle 22005: cast in the air adds 5 s to the cool time.
+  - Teleport: Advanced Teleportation's MP rate applies only in PvP (JUNE_BUGS 398).
+- **Save.** Unit 51 `ArmeEM` carries Cyclone upgrade 22051 in slot 2, where Meteor Shower upgrade 22047 was (backup `db_backup/els_db_20261022_091244_pre_sql.sql`). No schema change.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_OVERRIDE_DEBUG`. Then comment out `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (CH4a's half goes with it) and `SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS`. Then `touch X2Lib/stdafx.cpp` and `python tools/build.py --deploy`. No data change.
+
 ### Dev convenience: free skills for a dev account in June-ported classes (JUNE_DEV_UNLIMITED_SKILL, 2026-10-22)
 
 Flag `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` in `KTDXLIB/Always.h`. Not June: `CX2GUUser::JuneIsDevUnlimitedSkillUse()` is March's in-house skip of the skill cool-time / MP checks (`TOGGLE_UNLIMITED_SKILL_USE`, else `#ifndef _SERVICE_` with `XUAL_DEV`), and a ported class's June skill check (Aisha's `June_SpecialAttackLookup`) skips its block when it is true. Standing rule for every class port (`JUNE_PORT_BACKLOG_ORDER.md` "Standing rules").

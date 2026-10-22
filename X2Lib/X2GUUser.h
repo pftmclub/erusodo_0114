@@ -3191,6 +3191,10 @@ public:
 	public:
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 		virtual float				GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;
+#ifdef SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
+		virtual float				JuneGetDefenceRateBySkill( const int iAttackType_ ) { UNREFERENCED_PARAMETER( iAttackType_ ); return 1.f; }	/// June user vslot 0x428 ( base 3208dd70 ), the attacker's defence-term rate
+		virtual float				JuneGetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ ) { UNREFERENCED_PARAMETER( pDamageData_ ); return 1.f; }	/// June user vslot 0x73c ( base 3208dd70 )
+#endif SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS
 
 #ifdef NEXON_QA_CHEAT_REQ
 		void SetInvincibleAndNoMpConsume_Cheat( bool bValue_ ) { m_bIsInvincibleAndNoMpConsume = bValue_; }
