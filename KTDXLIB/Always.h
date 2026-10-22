@@ -9961,3 +9961,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_RESULT_HIDE_MOUSE needs SERV_IRUHADEV_JUNE_GFX_GATES ( CKTDGUIDialogManager hide mode names )
 #endif
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
+// Description: June dungeon result R4 - the training result ( state 0x13, CX2StateTrainingResult 324c0f80 ) runs June's CX2StateDungeonResult ( ctor 32515670, setup 32513d30, dtor 3250f200, PicChar 3250e5e0 / 3250e7c0, viewer 3250e6c0 ) and its own OnFrameMove 324c1020; all equal March's except: the ctor's UI-init-failure confirm is SendID( EGS_RESULT_SUCCESS_REQ ) without a body ( 32515a54 ), and ShowBonusEXPEvent ( 3250ef90 ) prints bonus type 8 as "x<N>%". Data: data034 DLG_Dungeon_Result_Reward_Window3.lua ( June ). Log [JUNE_RESULT] LEGACY. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_RESULT_LEGACY
+//////////////////////////////////////////////////////////////////////////

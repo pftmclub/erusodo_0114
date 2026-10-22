@@ -1979,8 +1979,14 @@ bool CX2StateDungeonResult::Handler_EGS_RESULT_SUCCESS_REQ()
 		g_pX2Room->MoveGamePlayNetworkInfoFromMapToVector( kPacket.m_kGamePlayNetworkInfo.m_vecGamePlayNetworkInfo );
 #endif	SERV_COLLECTION_OF_RELAY_AND_P2P_INFO
 
+#ifdef SERV_IRUHADEV_JUNE_RESULT_LEGACY
+	// June 32515a54: SendID, no body
+	g_pData->GetServerProtocol()->SendID( EGS_RESULT_SUCCESS_REQ );
+	g_pMain->AddServerPacket( EGS_RESULT_SUCCESS_ACK, 0.f );
+#else SERV_IRUHADEV_JUNE_RESULT_LEGACY
 	g_pData->GetServerProtocol()->SendPacket( EGS_RESULT_SUCCESS_REQ, kPacket );
 	g_pMain->AddServerPacket( EGS_RESULT_SUCCESS_ACK );
+#endif SERV_IRUHADEV_JUNE_RESULT_LEGACY
 
 	DialogLog( "CX2StateDungeonResult::Handler_EGS_RESULT_SUCCESS_REQ End" );
 
@@ -2960,7 +2966,15 @@ CX2StateDungeonResult::RANK_SCORE CX2StateDungeonResult::Get_UI_RANK_SCORE( CX2D
 void CX2StateDungeonResult::ShowBonusEXPEvent( CX2StateDungeonResult::BonusEXPType bonusEXPType, int bonusEXP )
 {
 	wstringstream tempText;
+#ifdef SERV_IRUHADEV_JUNE_RESULT_LEGACY
+	// June 3250ef90: type 8 ( past March's enum ) reads "x<N>%"
+	if ( (int)bonusEXPType == 8 )
+		tempText << L"x" << bonusEXP << L"%";
+	else
+		tempText << L"+" << bonusEXP;
+#else SERV_IRUHADEV_JUNE_RESULT_LEGACY
 	tempText << L"+" << bonusEXP;
+#endif SERV_IRUHADEV_JUNE_RESULT_LEGACY
 
 	CKTDGUIStatic* pStatic = (CKTDGUIStatic*)m_pDLGBack->GetControl( L"Dungeon_Result_EXP_BG" );
 	if ( pStatic != NULL && m_pPicCharBonusEXP != NULL )

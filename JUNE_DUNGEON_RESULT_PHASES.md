@@ -646,6 +646,34 @@ Done note, item 8).
 
 **Done gate:** the route R0 named shows June's dialogs; 0 EXCEPTION; no `Motion Error` / missing-texture lines for the dialogs.
 
+### R4 - Done (2026-10-23, Sonnet 5.5 high; flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`, log `[JUNE_RESULT] LEGACY`: no diagnostic written)
+
+The training route runs June's `CX2StateTrainingResult` `324c0f80` = ctor `32515670` + vtable `3349dc24`; compared with the vtable of `CX2StateDungeonResult`
+(`334a1aac`) its only own slots are the dtor `324c2870`, `OnFrameMove` `324c1020` (999 lines, not the base `3250f6c0`) and `UICustomEventProc` `324c2460`.
+**Compared with March, the route is equal** except two small deltas, so the code port is small:
+- **Equal (read in Ghidra against `X2StateDungeonResult.cpp` / `X2StateTrainingResult.cpp`):** ctor fields and values (0.5 / 4.0 / 2.0 / 1.5 / 2.5 /
+  `ANI_ORDER` 1, training 0x10 = `DRAO_ED_BG`), the six `SoundReady`s and the `ResultStamp.ogg` OpenSound; the dtor (`HEAP_BROKEN_BY_ROOM` is on, so no
+  `DeleteDungeonRoom`, as June); `InitUI` (dialogs, five PicChars incl. the `PC_` prefix, `Dungeon_Info` incl. the Normal / Henir / Secret strings
+  385-388 / 938 / 3747 / 4943, unit viewer + `LobbyWin` / `LobbyLose`, the other-users loop with `CIT_160by160` 2 / Gray 3); training `OnFrameMove` cases
+  0x10-0x17 and 0x1a (level-up block, item loop 15..38, EXP bar `%d / %d (%.1f%%)`, ED / EXP x3500, bonus timer 0.4 s, END timer start); the
+  custom msgs; `UnitViewerProcess` `3250e6c0`, `PicCharFrameMove` `3250e5e0`, `PicCharDrawText` `3250e7c0` (enum order up to `DRAO_EXP`),
+  `LastMsgByESC` `32515470`. Constants were read from `unpacked_x2.exe`.
+- **Delta 1:** the ctor's UI-init-failure confirm (`32515670 @32515a54`) is `SendID( EGS_RESULT_SUCCESS_REQ )` + `AddServerPacket( ACK )`, no body.
+  `CX2StateDungeonResult::Handler_EGS_RESULT_SUCCESS_REQ` now does that; the emulator already reads the bodyless form (R2).
+- **Delta 2:** `ShowBonusEXPEvent` (`3250ef90`) prints bonus type 8 as `x<N>%`; March's enum stops at 7. Nothing fills `m_vecBonusExpType` in the training
+  route, so it is never reached.
+- **`ResultStamp.ogg`:** June's drop is the PlaySound handle at `3251094c` inside the base `3250f6c0` (C9h-7a already did it, `X2StateDungeonResult.cpp:686`);
+  the training route never plays it.
+- **Not done, on purpose:** the base `OnFrameMove` `3250f6c0` (3,195 lines, state 0xD) is not diffed: R0 proved 0xD unreachable and the training state does not call it.
+  June's `DRAO_END` is 0x1a (one more enum member after `DRAO_PICKED_MVP_PLAYER`); nothing in the training route compares past `DRAO_EXP_BAR`.
+- **Data:** `luasrc.py adopt-june data034 DLG_Dungeon_Result_Reward_Window3.lua` (ljconv, 2,967 B, replaces March's 2,702 B; backup
+  `kom_backup_stage_june\20261022_235644`); `ledger --check` PASS. `core --check` has one FAIL, `data036 ResultData_new.lua`, a peer's quest-plan file (Q4c). The other 9
+  `DLG_Dungeon_Result_*` and `DLG_UI_Dungeon_Result.lua` were already June's. `kom.py pack data034`: PACK OK, 968 entries, `~ DLG_Dungeon_Result_Reward_Window3.lua` only.
+  **Copy not done: it overwrites a live archive, the user says yes** (`/x2-kom-packed copy data034`).
+- **Hygiene:** `flagcheck JUNE_RESULT_LEGACY --worktree --files KTDXLIB/Always.h X2Lib/X2StateDungeonResult.cpp`: 1 PASS, 1 DEFINE, 0 FAIL, 0 ERROR; 0 deleted line(s), 0 non-ASCII, 0 EOL-mismatched, 0 encoding change; RESULT PASS.
+- **Deploy:** DEPLOY OK: X2_offline.exe is 25,789,440 B, dated 2026-10-23 00:07:46, md5 f2fcf149f4fe352aa4752b61ca170d6f, equal to X2/US_SERVICE/x2.exe.
+- **Open:** none. Revert: `MODS.md` "June dungeon result R4".
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium.

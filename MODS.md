@@ -4949,6 +4949,12 @@ Flag `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL` in `KTDXLIB/Always.h`. The emulator 
 Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emulator sends the real `KEGS_USE_FINALITY_SKILL_ACK`, with `m_bNoConsume` false. Log `SKILL    finality skill ...`.
 - **Turn off:** comment out the flag, then `python tools/build.py --deploy`. The packet goes back to UNHANDLED and stones are not consumed. No data change.
 
+### June dungeon result R4: June's training result state (flag `SERV_IRUHADEV_JUNE_RESULT_LEGACY`, 2026-10-23)
+
+- The training result (state 0x13, `CX2StateTrainingResult` `324c0f80`) is June's `CX2StateDungeonResult` plus its own `OnFrameMove` `324c1020`; compared with March it differs in two places, both in `X2StateDungeonResult.cpp`: `Handler_EGS_RESULT_SUCCESS_REQ` (the ctor's UI-init-failure confirm) sends `EGS_RESULT_SUCCESS_REQ` with `SendID`, no body (`32515a54`), and `ShowBonusEXPEvent` (`3250ef90`) prints bonus type 8 as `x<N>%`. Neither is reached in a normal training clear.
+- Data: June's `data034` `DLG_Dungeon_Result_Reward_Window3.lua` (ljconv, 2967 B) replaces March's 2702 B; March's copy is under `kom_backup_stage_june\20261022_235644`. Revert: restore it there, repack `data034`.
+- **Turn off:** comment out the define in `Always.h` and rebuild; March's body and packet come back. Log `[JUNE_RESULT] LEGACY` (none written: no diagnostic).
+
 ### June dungeon result R3d: retry flow fixes (flags `SERV_IRUHADEV_JUNE_RESULT_NOW_STATE_CALL`, `_STATE_RESET`; debug lines under `_DEBUG`, 2026-10-22)
 
 - **`_NOW_STATE_CALL`** (`KTDGGFXManager.{h,cpp}`, `X2UIDungeonResultAdapter.cpp`): the five result callbacks (`32eea2c0` .. `32eea370`) take `g_pMain +0x90` at call time and ignore their owner. The result `OnExternalCall` now makes an owner-free `CJuneGfxResultFunctionHandler( id )`; its `Call` runs the static dispatcher the adapter ctor registers (`CKTDGGFXResultBridge::SetFunctionDispatcher`). A handler the AS object keeps from run 1 therefore still works in run 2. The owner-link handler is the `#else`.
