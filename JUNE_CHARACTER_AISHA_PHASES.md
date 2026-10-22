@@ -2471,7 +2471,7 @@ The S3 generator is not in the repo (CH2 noted this), so the S3 line is a rebuil
 
 **Walk.** The seven Aisha units already exist in the save (CH1-CH4 made them): 44 `arishiaaa` (Violet Mage, lv 16), 45 `ArmeHM` (High Magician, 60), 46 `ArmeDM` (Dark Magician, 60), 47 `ArmeBM` (Battle Magician, 60), 51 `ArmeEM` (Elemental Master, 99), 52 `ArmeVP` (Void Princess, 99), 53 `ArmeDW` (Dimension Witch, 99). Hand-off below in the session; failures go back to the owning phase's flag (`JUNE_CHAR_ARME_*`), not here.
 
-**Gate status:** scans and `no_state` pass; the user's walk and the walk's `ErrorLog.txt` check are open. Log tags `[JUNE_CHAR]` / `[JUNE_SKILL]`.
+**Gate status: PASSED (2026-10-22).** Scans and `no_state` pass. Walk on units 44-53 (run 12:32-12:46): user reports nothing wrong with any skill or the game, memorize works. `ErrorLog.txt`: 0 `KEM_ERROR`, no Aisha mesh / particle / texture line; packets: only the known `E_DISABLE_HB_CHECK_REQ`. Energy Drain FAIL `target -1` is June's no-target path. Log tags `[JUNE_CHAR]` / `[JUNE_SKILL]`.
 
 ## Phase Z - Close-out
 
