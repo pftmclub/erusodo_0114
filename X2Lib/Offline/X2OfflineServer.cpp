@@ -711,6 +711,9 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 	case EGS_GET_SKILL_REQ:					return Handler_EGS_GET_SKILL_REQ( kSes, kEvent );
 	case EGS_RESET_SKILL_REQ:				return Handler_EGS_RESET_SKILL_REQ( kSes, kEvent );
 	case EGS_INIT_SKILL_TREE_REQ:			return Handler_EGS_INIT_SKILL_TREE_REQ( kSes, kEvent );
+#ifdef SERV_IRUHADEV_OFFLINE_FINALITY_SKILL
+	case EGS_USE_FINALITY_SKILL_REQ:		return Handler_EGS_USE_FINALITY_SKILL_REQ( kSes, kEvent );
+#endif SERV_IRUHADEV_OFFLINE_FINALITY_SKILL
 	case EGS_CHANGE_SKILL_SLOT_REQ:			return Handler_EGS_CHANGE_SKILL_SLOT_REQ( kSes, kEvent );
 #ifdef SERV_IRUHADEV_JUNE_SKILL_MEMO_PACKET
 	case EGS_JUNE_ACTIVE_SKILL_MEMO_REQ:	return Handler_EGS_JUNE_ACTIVE_SKILL_MEMO_REQ( kSes, kEvent );

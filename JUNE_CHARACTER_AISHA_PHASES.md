@@ -1987,6 +1987,60 @@ flag, has a review and a play-test, and touches `X2GUArme_VioletMage.*`, so they
 **Dev free-skill gate (user, 2026-10-22; standing rule for every port):** `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL`. `CX2GUUser::JuneIsDevUnlimitedSkillUse()` is March's in-house skip (`TOGGLE_UNLIMITED_SKILL_USE` / `#ifndef _SERVICE_`, `XUAL_DEV`), and `June_SpecialAttackLookup` skips its cool-time / MP / hyper-stone block with it. Not June: June's service binary compiled the check out. Rule in `JUNE_PORT_BACKLOG_ORDER.md` "Standing rules" and a checklist section 7 row. Hygiene: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. Deploy: `DEPLOY OK: X2_offline.exe is 25,719,296 B, dated 2026-10-22 06:58:23, md5 f9d4dced8645b4c0e7455689736c3a0d, equal to X2/US_SERVICE/x2.exe (2026-10-22 06:58:15); built at main 87204281 + 4 uncommitted code file(s).`
 **In game:** unit 53's combo fireballs become energy balls, and its Mana Flow Overdrive buff stacks with missing MP. Unit 54 now and then shows a blue "MP +n" when a fireball combo spends MP (the Dark Deal refund). The log line gives each unit's values.
 
+### CH4a -- Review (2026-10-22, Opus 5.5)
+
+**Verdict: PASS, no code change.** Every item was read in the listing (`funcdis.py`, `disasm_range.py`).
+1. **`32cecd70`, block by block.**
+   - **Order and ids match:** 22400, 22402, 22401, 22403, sum, 22022, 22405 / 22415, 22404, 22023, 22409, 22411, 22410, 22416 (CH4b).
+   - **Level calls** are `32890620( id, 1, 0, 1 )`, except 22022 / 22023, which are `( id, 0, 0, 1 )`. The port's `GetSkillLevel( id, true|false, 0, true )` matches.
+   - **Templet source:** 22400, 22403 and 22404 read the skill-tree templet (`32206450`). The others read the user templet (`32890720( id, 1 )`). The port has the same split.
+   - **SA ids:** 0x1b, 0x1f, 0x2b, 0x6a, 0x40, 0x41, 0x42, 6, 5, 0xae and 0xaf all equal March's enum (`X2SkillTree.h:1558`). Each is passed as `( SA, level, 0, 0.0f )`, the same as `GetSkillAbilityValue( SA, level, false )`.
+   - **MP regen:** `SetAdditionalMPChangeRateByPassive( 0 )` first. The set-then-reset pair `329ce830` / `31fd2c20` / `31fd9e00` runs for 22402 and 22403 only, and is skipped when the decoded state `/ 100 == 0x9d` (`AVSI_CHARGE_MP`, CH1a review). The sum is set again when `> 0.0` (`334350e8` = 0.0), with no reset.
+   - **Init values match:** `+0x96d4` 0, `+0x9638` 1, `+0x9640` 1 and `+0x963c` 0, `+0x9634` 1, `+0x96d0` 0, `+0x9630` 0, `+0x983c` 0, `+0x9790` / `+0x9794` 1. `+0x96a8` and `+0x978d` are only ever set, never cleared, in June too.
+   - **22409:** `+0x96d0` and `+0x41d4` both get SA 5, and `+0x41d8` gets `GetSkillPowerRateValue` (`32071720`). In the port these are `m_fMagicStaffExtraRate`, `SetHitCreateDamageEffectRate` and `SetHitCreateDamageEffectPowerRate`.
+   - The Done note's field map is right.
+2. **Strong Mind object.**
+   - **Ctor `32cf2190`:** TimeLimited vtable, `+8` / `+0xc` / `+0x10` set to 0, protected floats at `+0x14` and `+0x20`, size 0x2c.
+   - **Init writes:** SA 0x40 to `+0xc`, 0x41 to `+8`, 0x42 to `+0x14`; Dark Deal's SA 5 to `+0x10` and 0x42 to `+0x20`.
+   - **Readers:** `32ccf4e0`'s jump table (`32ccf9d0` / `32ccf9dc`) sends type 6 to `+0xc` and types 5, 7 and 14-16 to `+8`. `32cc2b90` refunds when `rand < +0x10`, by `+0x20 * mp` through `32278070`. `32cce4b0` calls the object's vtable `+8`, which is OnFrameMove.
+   - All of these match `JuneMpRefundData` (`m_fSpecialActiveSkillRate` = `+8`, `m_fActiveSkillRate` = `+0xc`, `m_fChance`, `m_fMPRestoreRate`, `m_fRate`) and the CH1i readers. JUNE_BUGS 395 holds (`@32ced14a`, `@32ced28b`).
+3. **MP text.**
+   - **`32278070`:** vslot `0xf0` UpNowMp, then queues `delta + 0.005` (`33438ad8`) on `+0x68ac`.
+   - **`3229ecc0`:** when the queue is not empty, the timer `+0x68a8` adds the elapsed time. At `>= 0.2` (`334411a8`, double) the timer is set to 0, the queue is summed and cleared, and the sum is shown:
+     - `> 1`: `"MP +"` (`33488394`) in `+0x158` (Blue);
+     - `< 0`: `"MP -"` (`33478b78`) in `+0x154` (Red);
+     - either way at `GetPos( false )` with y + 50 (`33449120`), dir vslot `0x16c`, `2` = AT_CENTER.
+   - **The `cl` flag** is set whenever the timer fired, including when the sum is in `0..1`. The HP half then stores 0 into its timer and skips its text, and its queue is kept (`@3229f166`-`3229f170`). The port matches.
+   - **Float compare:** the port's `< 0.2f` against June's double 0.2 gives the same result, because no float lies between them.
+4. **March passives June drops.**
+   - **`m_pStrongMindData`:** no live reader.
+   - **`m_bIceBall`:** never written under LIVE (its ctor init sits in `#else LIVE`). All 20 readers are unreachable:
+     - 11 are registered only in dead `#else LIVE` code;
+     - 6 are registered by `InitStateCommon`, which is called only from dead code;
+     - 4 are in March's `SetEquippedSkillFuncBySkillSlotIndex` cases for ids 2200 (Chain Fireball) and Circle Flame. June's skill tree has no such ids, and June registers 22000 / 22200 itself.
+   - **Correction to the Done note:** `m_fShadowOfDisasterRate` **does** have a live reader, `X2GUUser.cpp:28468` (magic critical rate). It stays at its ctor 0 (`X2GUUser.cpp:692`) because nothing writes it under PASSIVE, so the result is June's: the passive is gone.
+   - **Sprinter:** its `m_AdditionalWalkSpeed` / `m_AdditionalDashSpeed` passive multiples are simply not applied, as in June.
+5. **`JUNE_DEV_UNLIMITED_SKILL`.** `JuneIsDevUnlimitedSkillUse()` is the exact negation of March's gate at `X2GUArme_VioletMage.cpp:5192` in all four macro cases (TOGGLE with in-house or open-test, TOGGLE alone, service, non-service). The June block it skips (`:30311`-`:30340`: cool time, MP, hyper stone) is the same set of checks March skips (`:5201`-`:5247`).
+
+**Hygiene** (`--range 4155ef59^..4155ef59`):
+- PASSIVE: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+- MP_CHANGE_TEXT: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 2 OTHER (other flags), 0 FAIL, 1 ERROR`; same zero line; `RESULT: FAIL`. The one ERROR is `Always.h:9767`, PASSIVE's `#error` dependency guard, which names this flag. Its code files are 2 PASS. This is not a hygiene fault: the guard is what CLAUDE.md's build rule 3 asks for.
+- DEV_UNLIMITED_SKILL (`cfd4498f^..cfd4498f`): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`.
+
+**Notes.**
+- The block comment over `CX2GameUnit::JuneFrameMoveHpChangeText` (Atlas E7) still says the MP queue "is not ported". It is now (CH4a). The comment is left as is, since it belongs to another flag's block.
+- **`SERV_IRUHADEV_MP_REGEN_BOOST`** stays commented out until the user says to turn it on, and nobody asks about it (user, 2026-10-22). That replaces the Done note's "re-define it after".
+
+**Added in the review (user, 2026-10-22): hyper skills consume El's Essence offline.**
+- **Problem:** `EGS_USE_FINALITY_SKILL_REQ` (id 1117) was UNHANDLED in the CH4a play-test log (06:41:18). No stone was consumed, and the client's ACK stayed pending.
+- **Fix:** new flag `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL`. `Handlers_Skill.cpp` `Handler_EGS_USE_FINALITY_SKILL_REQ` is the server's `GSUserInventory.cpp` handler:
+  - the event no-consume request is OK only with item 60008064;
+  - otherwise the item must be 130208 (`ERR_FINALITY_SKILL_00` / `_01` / `_02`); `ConsumeOne` takes one (`_03`), and the ACK carries the updated slot.
+- **Revert:** `MODS.md` "Offline: hyper skills consume El's Essence".
+- **Hygiene:** `flagcheck --worktree --files` gives `files: 2 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `RESULT: PASS`. The one bare `#endif` is the `Always.h` guard.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 25,720,832 B, dated 2026-10-22 07:21:13, md5 cbefe1e7545334f66187c09bc8085f9f, equal to X2/US_SERVICE/x2.exe (2026-10-22 07:21:05); built at main cfd4498f + 4 uncommitted code file(s).` The string `finality skill used` is in the deployed exe.
+- **In game:** an Aisha hyper skill (units 51-53 hold 99 essence each) takes one essence. The log has `SKILL    finality skill used El's Essence itemUID=..., N left`, and there is no UNHANDLED line.
+
 ## Phase CH5 - UI and data: UnitTemplet, cut-ins, dialog and tree-UI class pieces
 
 **Run with:** Sonnet 5.5 high, then an Opus review, then a user play-test. Flags `SERV_IRUHADEV_JUNE_CHAR_UNITTEMPLET` (class-agnostic, if

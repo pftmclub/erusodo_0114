@@ -368,6 +368,65 @@ bool CX2OfflineServer::Handler_EGS_INIT_SKILL_TREE_REQ( KOfflineSession& kSes, c
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 }
 
+#ifdef SERV_IRUHADEV_OFFLINE_FINALITY_SKILL
+// GSUserInventory.cpp IMPL_ON_FUNC( EGS_USE_FINALITY_SKILL_REQ ): a hyper skill costs one El's Essence
+bool CX2OfflineServer::Handler_EGS_USE_FINALITY_SKILL_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_USE_FINALITY_SKILL_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	CX2OfflineInventory* pInven = CX2OfflineInventory::Instance();
+
+	KEGS_USE_FINALITY_SKILL_ACK kAck;
+	kAck.m_iOK = NetError::ERR_FINALITY_SKILL_00;
+
+#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+	if( true == kReq.m_bNoConsume )
+	{
+		if( 0 < pInven->CountItemByID( INFINITY_EL_ESSENCE_ITEM_EVENT, false ) )
+		{
+			kAck.m_iOK = NetError::NET_OK;
+			kAck.m_bNoConsume = true;
+		}
+		CX2OfflineLog::Server( L"SKILL    finality skill, event essence: %s", NetError::NET_OK == kAck.m_iOK ? L"free use" : L"refused, no event item" );
+		return Reply( kSes, EGS_USE_FINALITY_SKILL_ACK, kAck );
+	}
+#endif SERV_BALANCE_FINALITY_SKILL_EVENT
+
+	if( CX2EnchantItem::ATI_HYPER_SKILL_STONE != pInven->GetItemID( kReq.m_iItemUID ) )
+	{
+		CX2OfflineLog::Server( L"SKILL    finality skill refused - itemUID=%I64d is not El's Essence", (__int64)kReq.m_iItemUID );
+		return Reply( kSes, EGS_USE_FINALITY_SKILL_ACK, kAck );
+	}
+
+	KOfflineItemRow kItem;
+	if( false == pInven->GetItemRow( kReq.m_iItemUID, kItem ) )
+	{
+		kAck.m_iOK = NetError::ERR_FINALITY_SKILL_01;
+		return Reply( kSes, EGS_USE_FINALITY_SKILL_ACK, kAck );
+	}
+
+	if( kItem.m_iQuantity < 1 )
+	{
+		kAck.m_iOK = NetError::ERR_FINALITY_SKILL_02;
+		return Reply( kSes, EGS_USE_FINALITY_SKILL_ACK, kAck );
+	}
+
+	KInventoryItemInfo kSlotInfo;
+	if( false == pInven->ConsumeOne( kReq.m_iItemUID, kSlotInfo ) )
+	{
+		kAck.m_iOK = NetError::ERR_FINALITY_SKILL_03;
+		return Reply( kSes, EGS_USE_FINALITY_SKILL_ACK, kAck );
+	}
+
+	kAck.m_iOK = NetError::NET_OK;
+	kAck.m_vecKInventorySlotInfo.push_back( kSlotInfo );
+	CX2OfflineLog::Server( L"SKILL    finality skill used El's Essence itemUID=%I64d, %d left", (__int64)kReq.m_iItemUID, kItem.m_iQuantity - 1 );
+	return Reply( kSes, EGS_USE_FINALITY_SKILL_ACK, kAck );
+}
+#endif SERV_IRUHADEV_OFFLINE_FINALITY_SKILL
+
 //////////////////////////////////////////////////////////////////////////
 
 bool CX2OfflineServer::Handler_EGS_CHANGE_SKILL_SLOT_REQ( KOfflineSession& kSes, const KEvent& kEvent )

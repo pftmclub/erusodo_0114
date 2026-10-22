@@ -4876,3 +4876,13 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE` (needs LIVE and the MP text flag) a
 
 Flag `SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL` in `KTDXLIB/Always.h`. Not June: `CX2GUUser::JuneIsDevUnlimitedSkillUse()` is March's in-house skip of the skill cool-time / MP checks (`TOGGLE_UNLIMITED_SKILL_USE`, else `#ifndef _SERVICE_` with `XUAL_DEV`), and a ported class's June skill check (Aisha's `June_SpecialAttackLookup`) skips its block when it is true. Standing rule for every class port (`JUNE_PORT_BACKLOG_ORDER.md` "Standing rules").
 - **Turn off:** define `_SERVICE_` (turns March's off too), or comment out the flag. Then `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. No data change.
+
+### Offline: hyper skills consume El's Essence (OFFLINE_FINALITY_SKILL, 2026-10-22)
+
+Flag `SERV_IRUHADEV_OFFLINE_FINALITY_SKILL` in `KTDXLIB/Always.h`. The emulator answers `EGS_USE_FINALITY_SKILL_REQ`, which used to be logged UNHANDLED and left the client's ACK pending. `Handlers_Skill.cpp` `Handler_EGS_USE_FINALITY_SKILL_REQ` follows `GSUserInventory.cpp` `IMPL_ON_FUNC( EGS_USE_FINALITY_SKILL_REQ )`:
+- the event no-consume request is OK only while item 60008064 is in the inventory;
+- otherwise the item must be El's Essence 130208 (`ERR_FINALITY_SKILL_00` / `_01` / `_02`), and one is consumed (`ConsumeOne`, `_03`);
+- the ACK carries the updated slot.
+
+Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emulator sends the real `KEGS_USE_FINALITY_SKILL_ACK`, with `m_bNoConsume` false. Log `SKILL    finality skill ...`.
+- **Turn off:** comment out the flag, then `python tools/build.py --deploy`. The packet goes back to UNHANDLED and stones are not consumed. No data change.

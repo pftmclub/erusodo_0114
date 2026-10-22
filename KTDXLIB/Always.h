@@ -9775,3 +9775,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: Dev convenience, not June - a ported class's June skill check skips cool time and MP for a dev account, under March's own macros ( _SERVICE_ / TOGGLE_UNLIMITED_SKILL_USE ). Revert: undefine the flag ( JUNE_DEV_UNLIMITED_SKILL ).
 #define SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-22
+// Description: Offline emulator answers EGS_USE_FINALITY_SKILL_REQ ( hyper skill ): one El's Essence 130208 is consumed, as GSUserInventory.cpp's handler does. Revert: undefine the flag ( OFFLINE_FINALITY_SKILL ).
+#define SERV_IRUHADEV_OFFLINE_FINALITY_SKILL
+#if defined( SERV_IRUHADEV_OFFLINE_FINALITY_SKILL ) && !defined( SERV_IRUHADEV_OFFLINE )
+#error SERV_IRUHADEV_OFFLINE_FINALITY_SKILL needs SERV_IRUHADEV_OFFLINE
+#endif
+//////////////////////////////////////////////////////////////////////////
