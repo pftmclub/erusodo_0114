@@ -215,7 +215,7 @@ No crash with the flag on before T4-T6. Prove the struct size with `cl /P` in `X
 - **Emulator.** `CompleteOneQuest` takes `QR_TRANSCENDENTAL_CLASS` instead of refusing (`Handlers_Quest.cpp:331-337`).
   - It applies June's conditions (second job, level 70 or more; T0's list), saves `transcendence = 1`, and returns the unit info in the ACK.
   - Then it sends June's 0x596 notify (offline event id at the end of its block, behind the flag) with June's two ints.
-  - Classes allowed: the user's decision below.
+  - Classes allowed: an allow-list, Aisha's EM / VP / DW now (user decision 1); a refused class gets a log line.
 - **Client.**
   - Port June's handler `31ef82f0` whole.
   - Port `CX2ClassChangePopup::SetShow( bShow, bTranscendGuide )` mode 1 (`324886b0`'s guide branch, `32486790` init, `32711490`, viewer `+0xd84`,
@@ -254,7 +254,7 @@ guide popup, and refreshes the tree; a relog keeps it; a non-second-job / under-
   as June `32024b00` / `31fcadd0` do. `USI_SPECIAL_ATTACK_5` / `_SLOTB_5` get their states.
 - **Emulator:**
   - lift the equip refusal into 4 / 9 per June's rule;
-  - key 1 by the medal 288318 and the quest's 15-day cube 293722, per the user's decision below;
+  - key 1: permanent for a transcended unit (user decision 2, a labelled stand-in); the medal 288318 and the quest's cube 293722 keep June's behaviour;
   - the cool-time / attack slot buffs 843 / 844 if T0 puts them here.
 - **UI:** the lock statics (`328dfab0`, `328e18d0`) already read T1's field. A locked-slot click (`SMUCM_DISABLED_TRANSCENDENTAL_*`, 208 / 209)
   opens what June opens (T0).
@@ -333,10 +333,13 @@ Placeholder. T0 writes its scope, or closes it with the reason (`SERV_IRUHADEV_J
 Dev console first; copy-ready lines with real values (unit, class, skill and slot); per check: where / paste / what it does / look for /
 if not. Log tag `[JUNE_TRANSCEND]` with the phase's sub-tag (`python tools/logs.py --grep "JUNE_TRANSCEND <sub>"`).
 
-## Open decisions (for the user; asked at the end of planning)
+## Open decisions (for the user; asked at the end of planning; both answered 2026-10-22)
 
 1. **Who may transcend before their own port.** June lets all 37 second-job classes take Limit Break. A March-kit class would gain hyper-class
-   tree rows with no states and March's awakening. Recommendation: an emulator allow-list (Aisha now), refusing other classes with a log
-   line; each Stage 7 / 8 port adds its class.
+   tree rows with no states and March's awakening.
+   **Answered (user, 2026-10-22): an allow-list.** The emulator lets only ported classes transcend (Aisha's EM / VP / DW now) and refuses others
+   with a log line. Each Stage 7 / 8 port adds its class. This is a stand-in, not June: label it as one (T2).
 2. **The B-5 / T slot (slot-state key 1).** June opens it only by the Skill Slot Change Medal (Transcendence) or the quest's 15-day cube.
-   The emulator keeps March's `SKILL_SLOT_B_FREE` rule for B-1..4. Recommendation: June's rule (item, with expiry) for key 1.
+   The emulator keeps March's `SKILL_SLOT_B_FREE` rule for B-1..4.
+   **Answered (user, 2026-10-22): free for a transcended unit.** The emulator sends key 1 as permanent once a unit is transcended, extending
+   the B-free rule. The medal and cube stay usable as June has them. This is a stand-in, not June: label it in `MODS.md` (T4).
