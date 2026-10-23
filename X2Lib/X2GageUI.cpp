@@ -1,6 +1,15 @@
 #include "stdafx.h"
 #include ".\X2GageUI.h"
 
+
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+/// The own gauge draws my unit, so the portrait row's transcended column is picked by my unit's flag ( June 31ee0de0 fifth argument )
+static bool JuneIsMyGageTranscended()
+{
+	return NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+		0 != g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran;
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 //{{ robobeg : 2008-10-13
 static const CKTDGStateManager::KState s_akStates[] = 
 {
@@ -1563,7 +1572,11 @@ void CX2MyGageUI::SetCharacterImage( const CX2Unit::UNIT_CLASS eGameUnitClass_ )
 	{
 		wstring fileName;
 		wstring pieceName;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+		if( true == CX2Data::GetCharacterImageName( fileName, pieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, JuneIsMyGageTranscended() ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		if( true == CX2Data::GetCharacterImageName( fileName, pieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage ) )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		{
 			pStaticCharPictures->GetPicture( 0 )->SetTex( fileName.c_str(), pieceName.c_str() );
 			pStaticCharPictures->GetPicture( 0 )->SetSizeAsTextureSize();
@@ -2108,7 +2121,11 @@ void CX2ChungMyGageUI::UpdateCharacterImage()
 		}
 		else
 		{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, JuneIsMyGageTranscended() );
+#else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		}
 
 		ASSERT( !wstrFileName.empty() && !wstrPieceName.empty() );
@@ -3635,7 +3652,11 @@ void CX2AraMyGageUI::UpdateCharacterImage()
 		}
 		else
 		{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, JuneIsMyGageTranscended() );
+#else SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 			CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		}
 
 		ASSERT( !wstrFileName.empty() && !wstrPieceName.empty() );

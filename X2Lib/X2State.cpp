@@ -4071,6 +4071,9 @@ bool CX2State::Handler_EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT( HWND hWnd, UINT uMsg
 	if( NULL != g_pData->GetQuestManager() )
 		g_pData->GetQuestManager()->GiveUpForbiddenQuest();							/// 3232ecd0
 
+	/// The own gauge's portrait has a transcended column ( June 31ee0de0 ); June's NOT does not redraw it, a relog would, so redraw it here
+	if( NULL != CX2GageManager::GetInstance() && NULL != CX2GageManager::GetInstance()->GetMyGageData() )
+		CX2GageManager::GetInstance()->SetCharacterImage( pUnit->GetClass() );
 	/// The class-up notice buttons ( vslot 0x104, 3245abd0 ) have no March home: Stage 9 owns them
 #ifdef SERV_IRUHADEV_OFFLINE
 	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE NOT unit %I64d class %d transcendence %d ( the class-up notice buttons are Stage 9's )",
