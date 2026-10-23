@@ -29196,7 +29196,11 @@ void CX2GUArme_VioletMage::June_Vslot604()
 {
 	CommonStateEnd();
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	if( true == JuneIsHyperModeBuffPending() )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	if( true == JuneIsHyperModeState() )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	{
 		ShowMinorParticleHyperModeTrace();
 		ApplyHyperModeBuff();

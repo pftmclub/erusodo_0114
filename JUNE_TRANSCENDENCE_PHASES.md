@@ -543,6 +543,15 @@ March character's numbers change. `PACK OK data036` (~2 changed: those two files
 
 Open questions: none for design.
 
+**Play-test 2026-10-23 (logs, unit 52 ArmeVP).** Table `loaded 5 row(s)`; weapon 163451 / 163453 (level 95) took 0.08 / 0.08; the
+transcendence cut-in `HQ_Cutin_AVP_Transcendence`; WakeUp FX playing; rolls 0.586 (none) then 0.063 (843 + 844) 20.5 s apart; Hell Drop summons
+x1.3; name mark logged `ICON_TR missing` (expected). **One defect:** the awakening line fired twice per awakening (0.6 s apart), so the FX played
+twice. Cause: Aisha's state-end (`June_Vslot604`, June `32ccda90`) tested the CH1i stand-in `JuneIsHyperModeState()` (state id), which is true
+on both state-end paths. June reads the `+0x952c` byte instead: `CommonStateStart` sets it from vslot `0x51c` (`@320619a6`) and
+`ApplyHyperModeBuff` clears it (`32083190( 0 ) @32298d08`), so June applies once. **Fixed** under the same flag: `m_bJuneHyperModeBuffPending`
+(set in `CommonStateStart`, cleared in `ApplyHyperModeBuff`, read by `June_Vslot604`). The base readers `32006c00` / `3201b8e0` (other classes'
+hyper state-ends) come with their class ports. `DEPLOY OK: X2_offline.exe is 25,828,352 B, dated 2026-10-23 22:47:06, md5 19d37c292b7c6226c510f847321eaf99`; flagcheck PASS (4 files).
+
 ## Phase T6 - Aisha transcended
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND`.

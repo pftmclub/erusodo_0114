@@ -3341,6 +3341,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 		float	m_fJuneTranscendSlotBuffTime;		/// June +0x9328
 		bool	m_bJuneTranscendSlotBuffRolled;		/// June +0x932c
+		bool	m_bJuneHyperModeBuffPending;		/// June +0x952c
+		bool	JuneIsHyperModeBuffPending() const { return m_bJuneHyperModeBuffPending; }
+		void	JuneClearHyperModeBuffPending() { m_bJuneHyperModeBuffPending = false; }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		/// June buff port Phase 8: CX2GUUser's slot 181 (3204e380) and slot 182 (32039bf0)

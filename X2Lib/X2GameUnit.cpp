@@ -16642,6 +16642,8 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 	}
 	else
 		SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_HYPER_MODE ), 1 );
+	if ( GUT_USER == GetGameUnitType() )
+		static_cast<CX2GUUser*>( this )->JuneClearHyperModeBuffPending();		// June 32298590 @32298d08 ( 32083190( 0 ) )
 #else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_HYPER_MODE ), 1 );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE

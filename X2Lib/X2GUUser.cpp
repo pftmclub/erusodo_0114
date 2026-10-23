@@ -1307,6 +1307,7 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	m_fJuneTranscendSlotBuffTime		= 0.f;		// June ctor 3203e850 @32042525
 	m_bJuneTranscendSlotBuffRolled		= false;
+	m_bJuneHyperModeBuffPending			= false;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 	/// June buff port Phase 7e, CX2GUUser ctor (June 3203e850 @32041c8b: the x87 stack holds 334380f0 = -1.0f)
@@ -17531,6 +17532,9 @@ void CX2GUUser::CommonStateStart()
 			m_bJuneTimeStopImmuneState = bJuneTimeStopImmune;
 	}
 #endif SERV_IRUHADEV_JUNE_HIT_STOP_LISTS
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	m_bJuneHyperModeBuffPending = JuneIsHyperModeState();		// June 32057b80 @320619a6 ( vslot 0x51c )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	DoCustomFunctionByBuffInCommonStateStart();
 	ApplyDrainHpBuff();
 
