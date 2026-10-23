@@ -5021,11 +5021,11 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Data.** data036 `TranscendentalClassItem.lua` (new; packed; the copy is the user's yes). Revert: delete it from `kom_contents/data036_kom/`, its manifest key, repack.
 - **Turn off:** comment out the define in `Always.h` and rebuild; the load and the binders go with it, the file stays unread in the kom.
 
-### June transcendence T5: the transcended combat engine (flag `SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE`, + `_DEBUG`, 2026-10-23)
+### June transcendence T5: the transcended combat engine (flag `SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE`, 2026-10-23; `_DEBUG` retired in the review)
 
 - **Flag** (`Always.h`; needs `_UNIT`, `_CHANGE`, `JUNE_EFFECT_ALPHA_OPTION`, `JUNE_SKILL_TEMPLET`, `JUNE_SOCKET_PARITY`). Log `[JUNE_TRANSCEND] ENGINE`.
 - **Awakening** (`X2GUUser.cpp`, `X2GameUnit.cpp`). A transcended unit's awakening gets BFI 845 instead of the hyper buff (BFI 1) and plays
-  `Effectset_TRANScendence_WakeUp_FX` (June `32298590`). On a 0.5 roll it gets BFI 843 + 844, re-rolled every 20 s while BTI 822 / 823 lasts
+  `Effectset_TRANScendence_WakeUp_FX` (June `32298590`). On a 0.5 roll it gets BFI 843 + 844, re-rolled every 20 s while BTI 822 / 823 is on and unfinished
   (`31ffd490` -> `31fc8c20`, `OnFrameMove @3206fed1`).
 - **Name tag** (`RenderName` / `RenderRank`, June `3201a8f0`). The rank now says whether it drew; a transcended unit gets `ICON_TR` left of it
   (`31ff6920`; it draws nothing until June's `DLG_Common_Emblem00.tet` is in). Dungeon 41450 uses the survival colours. **June drops the couple

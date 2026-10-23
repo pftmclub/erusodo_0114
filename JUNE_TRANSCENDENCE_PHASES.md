@@ -552,6 +552,43 @@ on both state-end paths. June reads the `+0x952c` byte instead: `CommonStateStar
 (set in `CommonStateStart`, cleared in `ApplyHyperModeBuff`, read by `June_Vslot604`). The base readers `32006c00` / `3201b8e0` (other classes'
 hyper state-ends) come with their class ports. `DEPLOY OK: X2_offline.exe is 25,828,352 B, dated 2026-10-23 22:47:06, md5 19d37c292b7c6226c510f847321eaf99`; flagcheck PASS (4 files). **Re-check PASSED 22:52:** one `ENGINE awakening` line, rolls 0.682 / 0.079 20.5 s apart, summon x1.3.
 
+### T5 - Review (2026-10-23, Opus 5.5)
+
+**Verdict: PASS, 1 fix**, and `_DEBUG` is retired. Ghidra read-only; constants read from `unpacked_x2.exe` (`charport_consts.read_va`).
+- **Awakening.** `31ffd490` calls `31fc8c20` only in the gauge <= 0 branch, after vslot `0xa8( 0 )` (= March's `else SetHyperModeCount( 0 )`).
+  `31fc8c20`: `+0x9328` = 20.0 (`33438a8c`), `+0x932c` = 0, vslot `0x1cc( 0 )` (GetRandomFloat) < 0.5 (`3343777c`), vslot `0x21c( 0x34b / 0x34c,
+  0, 1, 0, 1 )` = `SetBuffFactorToGameUnitByBuffFactorID( BFI, 1 )` with March's defaults. `3206eaf0 @3206fefc`: `fldz / fcom [+0x9328] / test ah,5
+  / jp` rolls when 0 >= timer, else `timer -= dt` (`[ebp+0x10]`): as ported.
+- **Fix (transcription).** `31fce5f0` tests BTI 822 / 823 and Ain's 966-968 with `3227b860` (on and **not finished**, `+0x65`), not HaveThisBuff
+  (`3227baf0`). T5 used HaveThisBuff, so a finished BTI 822 still in the list kept the re-roll alive until it was erased. Now `HaveUnfinishedBuff`
+  (March's `3227b860`, `SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY`, a top-level define, now in the ENGINE guard). Funcmap row corrected.
+- **ApplyHyperModeBuff `32298590`.** NPC (`+0x264`): BFI 1, no pending clear. Transcended: vslot `0x21c( 0x34d, 0, 1, 0, 1 )` `@322988d3`; name =
+  customize 3 when not `L""` (`31cb2510` vs `3344f1f4`, Stage 12), else `Effectset_TRANScendence_WakeUp_FX` (`33488078`); `321e1e60` with March's
+  defaults; the handle is read back from its out slot (`[esp+0x14] @32298ab4`) into `32296f30( h, 1, 0 )` and never stored. `+0x9f8` is written only
+  `@32298c4d` (untranscended customize 4): T5's correction stands. Users: `3206d480` on a socket list, `32083190( 0 ) @32298d08`.
+- **RenderName `3201a8f0`.** Survival colours when the PvP room type is 2, or state `0xb` (= `XS_DUNGEON_GAME`, `X2Main.h:764` counted) in dungeon
+  `0xa1ea` (41450). Rank flag = `g_pMain +0x21b`, cleared by `+0x21f` and vslot `0x198` (`m_bPvpRank` / `m_bNothing` / `IsMyUnit`); left = `ftol( x )`
+  - width / 2; a drawn rank -> `fild / fsub 24.0 (33455c6c) / ftol @3201abd5`; `+0x3c != 0` -> `31ff6920( left, top )`. `31ff6920`: game type != 3
+  returns; `ICON_TR`; `Draw( x/sx - 22/sx, y/sy - 2/sy, 25/sx, 20.0, lt.x, lt.y, rb.x - lt.x, rb.y - lt.y )` (22 / 2 / 25 are doubles `33474d68` /
+  `33437820` / `33474890`). After the rank June draws only the `+0x96c` guild line (y - 22, `ff96ff00` / `ff062507`): **no couple line**, confirmed.
+- **Not ported, routed:** June's `RenderRank` body (`31ff6aa0`) draws a season emblem when `3241d290` == 2 and skips `PVPRANK_NONE` /
+  `RANK_ARRANGE`; March's draws any rank. Battle-field PvP emblem -> appended to the Stage 9 T5 bullet.
+- **Numbers.** `322ece70`: 1.2 / 1.3 (`3344ce94` / `33472a10`, read). `32630d20 @32631602` -> `31fceab0`: templet `+0x174 == 5` (`32205590`,
+  `SPRT_HYPER_CLASS` = 5) and `+0x3c != 1` -> 0. `328d6c90 @328d6d34`: transcendence != 0, use level >= `0x46`, `[ebx+0x30]` find against `[ebx+0x24]`
+  (JUNE_BUGS 416 right); caller `328d6d70` passes `+0x58`, templet `+0xd5` / `+0xd1`. Loader `328d7890`: same five keys and slots as the normal table.
+- **Data.** `adopt-june --dry-run CharacterStatTable.lua`: `same` (= ljconv June, manifest `2`); `Enum.lua` is BOM source with `UC_150 = 150`;
+  `ledger --check` PASS. `core --check`'s one FAIL is data036 `ResultData_new.lua` (quest plan Q4c), not T5's.
+- **Play-test.** The 22:52 run (after the 22:47 deploy) is the re-check: one awakening line, 5 rows loaded, the weapon row 0.08 / 0.08, x1.3.
+- **`_DEBUG` retired:** the define and its four blocks (name mark, roll, summon, stat row). The awakening and `loaded N row(s)` lines stay.
+- Left as is: `June_Vslot604`'s header comment still names `JuneIsHyperModeState()` (Aisha's flag, outside this one).
+
+Hygiene: T5 range `flagcheck --range 52eead16^..727bd27f --with _DEBUG`: `files: 12 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+`in this flag's files: 2 deleted line(s)` (727bd27's rewrite of T5's own guard), `6 EOL-mismatched` (T5's `X2GUUser.h` note); `RESULT: PASS`.
+Review edit, `--worktree` (4 files): `files: 3 PASS, 0 PASS~, 0 DEFINE, 1 OTHER (Always.h: the _DEBUG define), 0 FAIL, 0 ERROR`;
+`in this flag's files: 26 deleted line(s)` (T5's own `_DEBUG` blocks and the two `HaveThisBuff` lines), `0 EOL-mismatched`; `RESULT: PASS`.
+`DEPLOY OK: X2_offline.exe is 25,827,328 B, dated 2026-10-23 23:12:21, md5 cbdab12a4de69940e94a06b0129d1c72` (built at `78bfac32` + these 4 files).
+The user owes one optional look: unit 52 awakens once (the `ENGINE awakening` line); nothing else changed in play.
+
 ## Phase T6 - Aisha transcended
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND`.

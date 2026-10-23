@@ -295,11 +295,6 @@ void CX2ItemStatCalculator::CalculateItemStat( OUT CX2Item::KItemFormatStatData&
 			map< CX2Unit::EQIP_POSITION, CX2Item::KItemFormatStatData >::const_iterator itJuneEqip = m_mapJuneTranscendEqipStatDataTable.find( pItemTemplet_->GetEqipPosition() );
 			if( m_mapJuneTranscendEqipStatDataTable.end() != itJuneEqip )
 				sEqipStatTable = itJuneEqip->second;
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
-			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE stat row: item %d ( level %d, position %d ) %s: phys def %g, mag def %g",
-				pItemTemplet_->GetItemID(), pItemTemplet_->GetUseLevel(), static_cast<int>( pItemTemplet_->GetEqipPosition() ),
-				m_mapJuneTranscendEqipStatDataTable.end() != itJuneEqip ? L"transcendental" : L"normal ( no transcendental row )", sEqipStatTable.m_fDefPhysic, sEqipStatTable.m_fDefMagic );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
 		}
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 

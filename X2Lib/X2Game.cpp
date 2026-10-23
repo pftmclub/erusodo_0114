@@ -16777,10 +16777,6 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			{
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 				fHyperModeStatScale = ( NULL != pUser->GetUnit() && 0 != pUser->GetUnit()->GetUnitData().m_iUnitClassTran ) ? 1.3f : 1.2f;		// June 322ece70
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
-				if ( 1.2f != fHyperModeStatScale )
-					CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE summon %d by a transcended user: awake stat factor %.1f", static_cast<int>( pNPC->GetNPCTemplet().m_nNPCUnitID ), fHyperModeStatScale );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
 #else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 				fHyperModeStatScale = 1.2f;
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE

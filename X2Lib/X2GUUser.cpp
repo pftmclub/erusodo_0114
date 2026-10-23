@@ -28089,15 +28089,6 @@ void CX2GUUser::JuneRenderTranscendIcon( int iFinalLeft_, int iFinalTop_ )
 		return;
 
 	const CKTDXDeviceTexture::TEXTURE_UV* pTexUV = m_pTextureRank->GetTexUV( L"ICON_TR" );
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
-	static bool s_bJuneIconTrLogged = false;
-	if( false == s_bJuneIconTrLogged )
-	{
-		s_bJuneIconTrLogged = true;
-		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE name mark: unit %d at ( %d, %d ), ICON_TR %s", static_cast<int>( GetUnit()->GetUnitData().m_UnitClass ),
-			iFinalLeft_, iFinalTop_, NULL != pTexUV ? L"drawn" : L"missing from the rank texture ( June's DLG_Common_Emblem00.tet, Stage 15 )" );
-	}
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
 	if( NULL == pTexUV )
 		return;
 
@@ -32341,25 +32332,20 @@ void CX2GUUser::JuneApplyTranscendSlotBuffs()
 		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT, 1 );
 		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT, 1 );
 	}
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
-	if ( true == IsMyUnit() )
-		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE slot buffs: roll %.3f -> %s, next roll in 20 s", fRoll,
-			true == m_bJuneTranscendSlotBuffRolled ? L"BFI 843 + 844 applied" : L"none" );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
 }
 
 // June 31fce5f0: a transcended awakening ( BTI 822 / 823, or a transcended Ain's 966-968 )
 bool CX2GUUser::JuneIsTranscendHyperMode()
 {
-	if ( true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 822 ) ) || true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 823 ) ) )
+	if ( true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 822 ) ) || true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 823 ) ) )		// June 3227b860, not HaveThisBuff
 		return true;
 
 	if ( NULL == GetUnit() || NULL == GetUnit()->GetUnitTemplet() || 12 != static_cast<int>( GetUnit()->GetUnitTemplet()->m_UnitType )
 		|| 0 == GetUnit()->GetUnitData().m_iUnitClassTran )
 		return false;
 
-	return true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 966 ) ) || true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 967 ) )
-		|| true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 968 ) );
+	return true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 966 ) ) || true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 967 ) )
+		|| true == HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 968 ) );
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef HYPER_MODE_FIX

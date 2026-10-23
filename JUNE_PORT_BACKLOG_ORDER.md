@@ -553,6 +553,8 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   (`X2StateDungeonGame.cpp:5532-5623`: ARA, BACK_ROAD, BOSS_MARK and others), so that replace waits for Stage 15 P5's forecast and its owner.
   (2) `32157c10` is a UI object constructor (created by `31edeac0`) whose particle map (`32154f60`, key 4) plays
   `EffectSet_UI_Transcendence_Open` / `_Loop`. Identify it with the character-info / HUD family above.
+  (3) June's `RenderRank` body (`31ff6aa0`, T5 review): a season emblem when `3241d290` == 2 (CX2Unit `+0xa0c`, `+0xa00` >= 5), otherwise the rank
+  emblem only for ranks other than `PVPRANK_NONE` / `PVPRANK_RANK_ARRANGE`; March draws any rank. T5 ported only its bool return.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 
