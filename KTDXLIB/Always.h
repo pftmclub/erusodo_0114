@@ -10018,3 +10018,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_TRANSCEND_ITEM needs SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( JuneTranscendCheck ) and SERV_IRUHADEV_JUNE_TRANSCEND_SLOT ( the medal refusal )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ITEM
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
+// Description: June transcendence T5 - the transcended combat engine: HyperModeStart's slot buffs ( 31ffd490 -> 31fc8c20: BFI 843 / 844 on a 0.5 roll, re-rolled every 20 s by OnFrameMove 3206eaf0 @3206fed1 while 31fce5f0 holds ), ApplyHyperModeBuff ( 32298590: BFI 845 and Effectset_TRANScendence_WakeUp_FX instead of the hyper buff ), RenderName ( 3201a8f0 ) with the ICON_TR mark ( 31ff6920 ), the summon awake factor 1.3 ( 322ece70 ), the hyper-class skill-level gate in ParsingBuffFactorID ( 31fceab0 ), and TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE ( 328d7890 / 328d6c90 ). Log [JUNE_TRANSCEND] ENGINE. Revert: undefine.
+#define SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#if defined( SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) || !defined( SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) || !defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) )
+#error SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE, SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION, SERV_IRUHADEV_JUNE_SKILL_TEMPLET and SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+// Description: T5 play-test lines ( the slot-buff roll, the stat-table pick, the summon factor, the name mark ); retired in the T5 review.
+#define SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+//////////////////////////////////////////////////////////////////////////

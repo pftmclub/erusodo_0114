@@ -903,6 +903,14 @@ Every class also brings:
 - the four base skill helpers with the flag test, if the port copies them as Aisha did: `31fcac90`, `31fcad70`, `31fceab0` (`== 1`), `31ff1e80`;
 - its hyper-effect start, which returns at once for a transcended unit (June's WakeUp FX in `32298590` replaces it).
 
+Base-code branches that june-transcend T5 found and left to the class ports (none of them is transcendence):
+- Raven: `HyperModeStart` `31ffd490`, re-awakening while awake: skill 24419 (`0x5f63`) learned -> vslot `0x23c( 24419, 1, 1 )` (June_SetSkillBuffFactors).
+- Rena: `ApplyHyperModeBuff` `32298590 @322985ec`: unit type 3 -> `32cb50c0` count x 15.0 to vslot `0xf0`, then `32cb6290( 5 )` (ADD_RENA_SYSTEM's
+  nature force; March US compiles that system out).
+- Add / Ain: `OnFrameMove` `3206eaf0 @3206fed1` counts down `+0x9330` (their hyper StateStart sets it before `31fc8c20`).
+- Any class with an aura-accelerator skill: `ApplyAuraAcceleratorBuffToGameUnit` `32028790` is June-changed (targets: same team, within 490000,
+  `CanApplyBuff`, users only; March also takes PvP allies and party members). It has no transcendence test (T0's row was a stack-slot match).
+
 | Class | June readers of `+0x3c` | What the class port brings |
 |---|---|---|
 | Elsword | `32d17e90` (hyper effect start, vslot 19); `32d0c180` (SetEquippedSkillFunc `32d27181`); `32d0c820` (21418 Magic Coating, from DamageReact `320462a0`); `32d1b9d0` (skill `0x53ac`, `== 1`); `32d1c560` (vslot 420, three `== 1`); engine-code readers of his skills: `32063650` CommonFrameMove (21416 Fight God, `== 1`), `32610cb0` (21417 Open Mind) | each branch, whole; the two engine-code blocks go into March's `CommonFrameMove` / the caller of `32610cb0` with him |

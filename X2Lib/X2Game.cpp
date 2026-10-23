@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include ".\x2game.h"
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 //{{ Iruha : 2026-09-05 // AI party members in offline dungeons
 #ifdef SERV_IRUHADEV_OFFLINE
@@ -16772,7 +16775,15 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 			float fHyperModeStatScale = 1.f;
 			if( iHyperMode > 0 ) // 각성하고 필살기를 사용한 경우
 			{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+				fHyperModeStatScale = ( NULL != pUser->GetUnit() && 0 != pUser->GetUnit()->GetUnitData().m_iUnitClassTran ) ? 1.3f : 1.2f;		// June 322ece70
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+				if ( 1.2f != fHyperModeStatScale )
+					CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE summon %d by a transcended user: awake stat factor %.1f", static_cast<int>( pNPC->GetNPCTemplet().m_nNPCUnitID ), fHyperModeStatScale );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 				fHyperModeStatScale = 1.2f;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 			}
 
 #ifdef ADD_RENA_SYSTEM //김창한

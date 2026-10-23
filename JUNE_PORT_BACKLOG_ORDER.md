@@ -548,6 +548,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   already ported; the particle store `32151190` / `321536e0` / `32151fa0` is not); otherwise it removes it. It breaks out when slot-state key 1 is
   unusable and (the slot is B or the unit is not transcended). March has no BTI 820 or guide-4 store, and the slot works without it; it follows T5's
   awakening buffs (BFI 843 / 844 / 845) and the HUD guide family of Stage 9.
+- **Transcendence UI pieces found by june-transcend T5** *(2026-10-23)*. (1) The name mark `ICON_TR` (`31ff6920`) is ported and draws nothing
+  until June's `DLG_Common_Emblem00.tet` (data063) replaces March's. June's copy has `ICON_TR` but lacks keys that March's dungeon map reads
+  (`X2StateDungeonGame.cpp:5532-5623`: ARA, BACK_ROAD, BOSS_MARK and others), so that replace waits for Stage 15 P5's forecast and its owner.
+  (2) `32157c10` is a UI object constructor (created by `31edeac0`) whose particle map (`32154f60`, key 4) plays
+  `EffectSet_UI_Transcendence_Open` / `_Loop`. Identify it with the character-info / HUD family above.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 

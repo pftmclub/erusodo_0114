@@ -3338,6 +3338,10 @@ public:
 		bool	m_bJuneSocketCoolTimeOnHit;
 		float	m_fJuneSocketCoolTimeOnHitCool;
 #endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+		float	m_fJuneTranscendSlotBuffTime;		/// June +0x9328
+		bool	m_bJuneTranscendSlotBuffRolled;		/// June +0x932c
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 		/// June buff port Phase 8: CX2GUUser's slot 181 (3204e380) and slot 182 (32039bf0)
 		virtual bool HasSocketAuraFor( const int iSocketEffectEx_, const BUFF_TEMPLET_ID eBuffTempletID_ ) const;
@@ -3905,7 +3909,14 @@ public:
 #endif SERV_SECRET_HELL
 //}} kimhc // 2010.4.1 // 비밀던전 작업(셋트아이템효과)
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+		bool				RenderRank(int iFinalLeft, int iFinalTop);		/// June 31ff6aa0
+		void				JuneRenderTranscendIcon( int iFinalLeft_, int iFinalTop_ );	/// June 31ff6920
+		void				JuneApplyTranscendSlotBuffs();		/// June 31fc8c20
+		bool				JuneIsTranscendHyperMode();			/// June 31fce5f0
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 		void				RenderRank(int iFinalLeft, int iFinalTop);
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_INTEGRATION
 		//{{ oasis907 : 김상윤 [2010.5.17] // 
 		void				RenderServer(int iFinalLeft, int iFinalTop);

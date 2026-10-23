@@ -1,6 +1,9 @@
 
 #include "StdAfx.h"
 #include ".\x2gameunit.h"
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #if defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) && defined( SERV_IRUHADEV_JUNE_FX_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
 #include "Offline/X2OfflineLog.h"
 #endif // SERV_IRUHADEV_JUNE_DAMAGEDATA && SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
@@ -16620,7 +16623,28 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 */
 /*virtual*/ void CX2GameUnit::ApplyHyperModeBuff()
 {
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	const CX2Unit* pJuneUnit = ( GUT_USER == GetGameUnitType() ? static_cast<CX2GUUser*>( this )->GetUnit() : NULL );
+	if ( NULL != pJuneUnit && 0 != pJuneUnit->GetUnitData().m_iUnitClassTran )
+	{
+		const UINT JUNE_BFI_TRANSCENDENTAL_HYPER_MODE = 845;
+		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_HYPER_MODE, 1 );		// June 32298590 @322988d3
+		bool bJuneWakeUpPlayed = false;
+		if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+		{
+			// June keeps no handle for it ( @32298ab4 )
+			const CX2EffectSet::Handle hJuneWakeUp = g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_TRANScendence_WakeUp_FX", this );
+			g_pX2Game->JuneTagEffectAlphaEffectSet( this, hJuneWakeUp, 1, false );
+			bJuneWakeUpPlayed = ( NULL != g_pX2Game->GetEffectSet()->GetEffectSetInstance( hJuneWakeUp ) );
+		}
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE awakening: class %d, BFI 845 instead of the hyper buff, Effectset_TRANScendence_WakeUp_FX %s",
+			static_cast<int>( pJuneUnit->GetUnitData().m_UnitClass ), true == bJuneWakeUpPlayed ? L"playing" : L"not created" );
+	}
+	else
+		SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_HYPER_MODE ), 1 );
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_HYPER_MODE ), 1 );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 #ifdef HAMEL_SECRET_DUNGEON // 김태환
 	/// 각성시 적용할 버프가 있는지 검사

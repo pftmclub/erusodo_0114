@@ -506,6 +506,47 @@ Ghidra (read-only) against `c70dc0db` and `03b0e6de` (and the `cash_product` row
 **Done gate:** a transcended unit's awakening plays the WakeUp FX, its weapon stat follows June's row, its summons get the 1.3 factor while
 awake; each branch has a `[JUNE_TRANSCEND] ENGINE` line (the `_DEBUG` ones retire in the review).
 
+### T5 - Done (2026-10-23, Opus 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE` (+ `_DEBUG`), commit: this one. Funcmap rows `Transcend T5` (13). JUNE_BUGS 416. MODS entry "T5".
+Hygiene: `flagcheck --worktree`: 7 PASS, 1 OTHER (the `Always.h` define block), 0 FAIL, 0 deleted, RESULT PASS; the 6 EOL notes are the
+`RenderRank` declaration beside an LF-only studio line in `X2GUUser.h`.
+`DEPLOY OK: X2_offline.exe is 25,828,352 B, dated 2026-10-23 22:22:24, md5 b6f6d8bbf4b61dadcbd878621222a646` (the four T5 strings are in the exe).
+
+What landed (all inert until a unit's `transcendence` is non-zero):
+1. **Awakening.** `HyperModeStart` (`31ffd490 @31ffd57a`) -> `JuneApplyTranscendSlotBuffs` (`31fc8c20`): 20 s timer, `GetRandomFloat( 0 ) < 0.5`
+   -> BFI 843 + 844. `OnFrameMove` (`3206eaf0 @3206fed1`) re-rolls every 20 s while `JuneIsTranscendHyperMode` (`31fce5f0`: BTI 822 / 823).
+2. **ApplyHyperModeBuff** (`32298590`): a transcended user gets BFI 845 instead of BFI 1 and plays `Effectset_TRANScendence_WakeUp_FX`, tagged
+   `32296f30( h, 1, 0 )`. **Correction:** June keeps no handle for it; `+0x9f8` is written only by the untranscended customize branch (`@32298c4d`).
+3. **RenderName** (`3201a8f0`, whole): rank returns bool and shifts the edge 24; `ICON_TR` (`31ff6920`); dungeon 41450 colours; no couple line.
+4. **Summons**: awake factor 1.3 for a transcended user (`322ece70`, `X2Game.cpp`). **Buff factors**: `31fceab0`'s `== 1` hyper-class gate in
+   `ParsingBuffFactorID`.
+5. **Stat table**: `TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE` loaded (`328d7890`); used when transcended and the item's use level
+   (`+0xd1`) is >= 70 (`328d6c90`). June's condition has the level test; the plan text did not.
+
+Findings and corrections:
+- **Aura `32028790` has no transcendence test** (T0 matched `[esp + 0x3c]`). Its June-form change (users only) goes to checklist 7ao's note.
+- **`USI_TRANSCENDENTAL_HYPER_MODE`**: no engine path or class script enters it (June `Enum` only); BFI / BTI 845 / 822 carry the awakening.
+- **Cut-ins need no code**: `AVSI_AEM/AVP/ADW_HYPER_MODE` carry `SHOW_HYPER_CUT_IN_TIME`, C3t reads `m_HyperCutIn` (March's `UnitTemplet` has the
+  three `HQ_Cutin_*_Transcendence` names), G4's `ActiveSkillShow` plays the `.gfx` (data195).
+- `TRANSCENDENTAL_HYPER_MODE_PARTICLE`: not ported (no June data). `EffectSet_UI_Transcendence_*` (`32157c10`, a UI object) -> Stage 9 bullet.
+- `CommonFrameMove 32063650` / `32610cb0` are Elsword's passives (T0: class Elsword), untouched.
+
+Routed (scope rule): Raven 24419 in `HyperModeStart`, Rena's type-3 branch in `ApplyHyperModeBuff`, Add / Ain's `+0x9330` countdown, the aura's
+June form -> checklist 7ao note; the customize-set names in `ApplyHyperModeBuff` -> Stage 12 (already there); `ICON_TR`'s texture
+(`DLG_Common_Emblem00.tet`, June's lacks keys March's dungeon map reads) and `32157c10` -> Stage 9 bullet + Stage 15 P5.
+
+**Data not done (permission).** Writing into `24965799\kom_contents\data036_kom` was refused by the session's permission check. Needed, in order:
+1. `Enum.lua`: `UC_150 = 150,` after `UC_AIN_APOSTASIA = 136,` (core-list BOM source; then `luasrc.py refresh data036 Enum.lua`).
+2. `python tools/luasrc.py adopt-june data036 CharacterStatTable.lua` (June's ljconv bytecode). `luasrc.py convert` refuses March's file (no T0
+   source; the decompile is not T1). A row-by-row compare shows all 37 March rows and both formulas equal June's. June adds the transcendental table
+   and the Lu/Ciel / Rose / Ain / third-class rows. Its second class row is `UNIT_CLASS.UC_150`, and March's loader stops at an unknown row, so step 1
+   comes first.
+3. `/elstools pack data036`, then `/x2-kom-packed copy data036` (asks first).
+Until then the loader logs `... has no TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE` and transcended units use the normal rows.
+
+Open questions: none for design.
+
 ## Phase T6 - Aisha transcended
 
 **Run with:** Sonnet 5.5 high, then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND`.

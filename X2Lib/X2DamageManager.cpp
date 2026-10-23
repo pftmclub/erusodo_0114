@@ -5123,7 +5123,18 @@ void CX2DamageManager::ParsingBuffFactorID( KLuaManager& luaManager_, DamageData
 			const CX2GUUser* pGUUser = static_cast<CX2GUUser*>( pAttacker );
 			int iLearnedLevel = 1;
 			if ( NULL != pGUUser->GetUnit() )
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+			{
+				const CX2SkillTree::SkillTemplet* pJuneSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( uiRelativeSkillID ) );
+				if ( NULL != pJuneSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pJuneSkillTemplet->m_eJunePowerRateType
+					&& 1 != pGUUser->GetUnit()->GetUnitData().m_iUnitClassTran )		// June 31fceab0 tests == 1
+					iLearnedLevel = 0;
+				else
+					iLearnedLevel = pGUUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( uiRelativeSkillID ) );
+			}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 				iLearnedLevel = pGUUser->GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( uiRelativeSkillID ) );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 			if ( 0 < iLearnedLevel
 				&& ( 0 == uiRelativeBuffTempletID || pAttacker->HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( uiRelativeBuffTempletID ) ) )

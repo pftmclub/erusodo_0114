@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2guuser.h"
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
 #include "KTDGGFXManager.h"
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
@@ -1301,6 +1304,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_bJuneSocketCoolTimeOnHit			= false;
 	m_fJuneSocketCoolTimeOnHitCool		= 0.f;
 #endif SERV_IRUHADEV_JUNE_SOCKET_COOLTIME_ON_HIT
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	m_fJuneTranscendSlotBuffTime		= 0.f;		// June ctor 3203e850 @32042525
+	m_bJuneTranscendSlotBuffRolled		= false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_START_DELAY
 	/// June buff port Phase 7e, CX2GUUser ctor (June 3203e850 @32041c8b: the x87 stack holds 334380f0 = -1.0f)
 	m_fStartMotionDelayTime			= -1.f;
@@ -7811,6 +7818,15 @@ HRESULT CX2GUUser::OnFrameMove( double fTime, float fElapsedTime )
 		}
 
 	} while( m_bPopAgain == true );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	if ( true == JuneIsTranscendHyperMode() )		// June 3206eaf0 @3206fef1
+	{
+		if ( 0.f < m_fJuneTranscendSlotBuffTime )
+			m_fJuneTranscendSlotBuffTime -= fElapsedTime;
+		else
+			JuneApplyTranscendSlotBuffs();
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 
 	// 더블어택 처리
@@ -27554,8 +27570,15 @@ void CX2GUUser::ReceiveFrameData( DWORD dwFrameMoveCount, const KDYNAMIC_UNIT_US
 	}
 #endif EVE_ELECTRA
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	if( ( NULL != g_pData->GetPVPRoom() &&
+		g_pData->GetPVPRoom()->GetPVPGameType() == CX2PVPRoom::PGT_SURVIVAL ) ||
+		( CX2Main::XS_DUNGEON_GAME == g_pMain->GetNowStateID() && NULL != g_pData->GetDungeonRoom() &&
+		41450 == static_cast<int>( g_pData->GetDungeonRoom()->GetDungeonID() ) ) )		// June 3201aa94: DI_EVENT_HIGHSCHOOL
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	if( NULL != g_pData->GetPVPRoom() &&
 		g_pData->GetPVPRoom()->GetPVPGameType() == CX2PVPRoom::PGT_SURVIVAL )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	{
 		if ( g_pX2Game->GetMyUnit() == this )
 		{
@@ -27615,11 +27638,19 @@ void CX2GUUser::ReceiveFrameData( DWORD dwFrameMoveCount, const KDYNAMIC_UNIT_US
 		bPvpRank = false;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	int iFinalLeftRank = (int)finalPos.x - (iWidthUnitName / 2);
+	if( true == bPvpRank && true == RenderRank( iFinalLeftRank, iFinalTop ) )
+		iFinalLeftRank = static_cast<int>( iFinalLeftRank - 24.f );		// June 3201abd5
+	if( 0 != GetUnit()->GetUnitData().m_iUnitClassTran )
+		JuneRenderTranscendIcon( iFinalLeftRank, iFinalTop );		// June 3201abec
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	if( true == bPvpRank )
 	{
 		int iFinalLeftRank = (int)finalPos.x - (iWidthUnitName / 2);
 		RenderRank(iFinalLeftRank, iFinalTop);
 	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #endif SERV_INTEGRATION
 
 	//{{ 허상형 : [2009/10/13] //	길드이름 출력
@@ -27671,6 +27702,9 @@ void CX2GUUser::ReceiveFrameData( DWORD dwFrameMoveCount, const KDYNAMIC_UNIT_US
 	}
 #endif // _OPEN_TEST_
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	// June 3201a8f0 draws no couple line
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_RELATIONSHIP_EVENT_INT
 	IF_EVENT_ENABLED( CEI_RELATIONSHIP_CODE_EVENT )
 	{
@@ -27695,6 +27729,7 @@ void CX2GUUser::ReceiveFrameData( DWORD dwFrameMoveCount, const KDYNAMIC_UNIT_US
 		}
 	}	
 #endif SERV_RELATIONSHIP_EVENT_INT
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 #ifdef SERV_GATE_OF_DARKNESS_SUPPORT_EVENT
 	if( g_pData->GetMyUser()->GetAuthLevel() >= CX2User::XUAL_OPERATOR )
@@ -27999,6 +28034,75 @@ void CX2GUUser::ReceiveFrameData( DWORD dwFrameMoveCount, const KDYNAMIC_UNIT_US
 #endif //TITLE_SHOWING_PVP_RESULT
 }
 
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+// June 31ff6aa0: true when the rank was drawn
+bool CX2GUUser::RenderRank(int iFinalLeft, int iFinalTop)
+{
+	if( NULL != g_pX2Game && CX2Game::GT_BATTLE_FIELD != g_pX2Game->GetGameType() )
+		return false;
+
+	if(m_pTextureRank == NULL)
+		return false;
+
+	if ( NULL == g_pMain->GetPVPEmblem() )
+		return false;
+
+#ifdef PVP_SEASON2
+	wstring wstrRankKey = g_pMain->GetPVPEmblem()->GetPVPEmblemData( GetUnit()->GetPvpRank() )->m_TextureKey;
+#else
+	wstring wstrRankKey = g_pMain->GetPVPEmblem()->GetPVPEmblemData( GetUnit()->GetPVPEmblem() )->m_TextureKey;
+#endif
+
+	MakeUpperCase( wstrRankKey );
+	const CKTDXDeviceTexture::TEXTURE_UV*	pTexUV = m_pTextureRank->GetTexUV( wstrRankKey );
+	if(pTexUV == NULL)
+		return false;
+
+	float fFinalLeft, fFinalTop, fScaleX, fScaleY, fOffsetX, fOffsetY;
+
+	fOffsetX	= 22.f / g_pKTDXApp->GetResolutionScaleX();
+	fOffsetY	= 2.f / g_pKTDXApp->GetResolutionScaleY();
+	fScaleX		= 20.f / g_pKTDXApp->GetResolutionScaleX();
+	fScaleY		= 20.f;
+	fFinalLeft	= (iFinalLeft) / g_pKTDXApp->GetResolutionScaleX();
+	fFinalTop	= (iFinalTop) / g_pKTDXApp->GetResolutionScaleY();
+
+	fFinalLeft -= fOffsetX;
+	fFinalTop -= fOffsetY;
+
+	m_pTextureRank->Draw( fFinalLeft, fFinalTop, fScaleX, fScaleY,
+		(int)pTexUV->leftTop.x, (int)pTexUV->leftTop.y, (int)pTexUV->rightBottom.x - (int)pTexUV->leftTop.x, (int)pTexUV->rightBottom.y - (int)pTexUV->leftTop.y );
+	return true;
+}
+
+// June 31ff6920: the rank texture's ICON_TR, 25 wide, at the rank's place
+void CX2GUUser::JuneRenderTranscendIcon( int iFinalLeft_, int iFinalTop_ )
+{
+	if( NULL != g_pX2Game && CX2Game::GT_BATTLE_FIELD != g_pX2Game->GetGameType() )
+		return;
+
+	if( NULL == m_pTextureRank )
+		return;
+
+	const CKTDXDeviceTexture::TEXTURE_UV* pTexUV = m_pTextureRank->GetTexUV( L"ICON_TR" );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+	static bool s_bJuneIconTrLogged = false;
+	if( false == s_bJuneIconTrLogged )
+	{
+		s_bJuneIconTrLogged = true;
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE name mark: unit %d at ( %d, %d ), ICON_TR %s", static_cast<int>( GetUnit()->GetUnitData().m_UnitClass ),
+			iFinalLeft_, iFinalTop_, NULL != pTexUV ? L"drawn" : L"missing from the rank texture ( June's DLG_Common_Emblem00.tet, Stage 15 )" );
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+	if( NULL == pTexUV )
+		return;
+
+	const float fScaleX = g_pKTDXApp->GetResolutionScaleX();
+	const float fScaleY = g_pKTDXApp->GetResolutionScaleY();
+	m_pTextureRank->Draw( iFinalLeft_ / fScaleX - 22.f / fScaleX, iFinalTop_ / fScaleY - 2.f / fScaleY, 25.f / fScaleX, 20.f,
+		(int)pTexUV->leftTop.x, (int)pTexUV->leftTop.y, (int)pTexUV->rightBottom.x - (int)pTexUV->leftTop.x, (int)pTexUV->rightBottom.y - (int)pTexUV->leftTop.y );
+}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 void CX2GUUser::RenderRank(int iFinalLeft, int iFinalTop)
 {
 	if( NULL != g_pX2Game && CX2Game::GT_BATTLE_FIELD != g_pX2Game->GetGameType() )
@@ -28036,6 +28140,7 @@ void CX2GUUser::RenderRank(int iFinalLeft, int iFinalTop)
 	m_pTextureRank->Draw( fFinalLeft, fFinalTop, fScaleX, fScaleY, 
 		(int)pTexUV->leftTop.x, (int)pTexUV->leftTop.y, (int)pTexUV->rightBottom.x - (int)pTexUV->leftTop.x, (int)pTexUV->rightBottom.y - (int)pTexUV->leftTop.y );
 }
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef SERV_INTEGRATION
 //{{ oasis907 : 김상윤 [2010.5.17] // 
 void CX2GUUser::RenderServer(int iFinalLeft, int iFinalTop)
@@ -32196,7 +32301,15 @@ void CX2GUUser::HyperModeStart()
 		}
 	}
 	else
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	{
 		SetHyperModeCount( 0 );
+		if ( NULL != GetUnit() && 0 != GetUnit()->GetUnitData().m_iUnitClassTran )
+			JuneApplyTranscendSlotBuffs();		// June 31ffd490 @31ffd57a
+	}
+#else SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+		SetHyperModeCount( 0 );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 	m_FrameDataNow.syncData.m_HyperModeCount = 0;
 	m_bReserveHyperModeZero = false;
@@ -32208,6 +32321,43 @@ void CX2GUUser::HyperModeStart()
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 
 }
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+// June 31fc8c20: 20 s to the next roll; a roll below 0.5 applies both transcendence-slot buffs
+void CX2GUUser::JuneApplyTranscendSlotBuffs()
+{
+	const UINT JUNE_BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT = 843;
+	const UINT JUNE_BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT = 844;
+
+	m_fJuneTranscendSlotBuffTime = 20.f;
+	m_bJuneTranscendSlotBuffRolled = false;
+	const float fRoll = GetRandomFloat( 0 );
+	if ( fRoll < 0.5f )
+	{
+		m_bJuneTranscendSlotBuffRolled = true;
+		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT, 1 );
+		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT, 1 );
+	}
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+	if ( true == IsMyUnit() )
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE slot buffs: roll %.3f -> %s, next roll in 20 s", fRoll,
+			true == m_bJuneTranscendSlotBuffRolled ? L"BFI 843 + 844 applied" : L"none" );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+}
+
+// June 31fce5f0: a transcended awakening ( BTI 822 / 823, or a transcended Ain's 966-968 )
+bool CX2GUUser::JuneIsTranscendHyperMode()
+{
+	if ( true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 822 ) ) || true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 823 ) ) )
+		return true;
+
+	if ( NULL == GetUnit() || NULL == GetUnit()->GetUnitTemplet() || 12 != static_cast<int>( GetUnit()->GetUnitTemplet()->m_UnitType )
+		|| 0 == GetUnit()->GetUnitData().m_iUnitClassTran )
+		return false;
+
+	return true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 966 ) ) || true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 967 ) )
+		|| true == HaveThisBuff( static_cast<BUFF_TEMPLET_ID>( 968 ) );
+}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #ifdef HYPER_MODE_FIX
 void CX2GUUser::HyperModeStartFuture()
 {

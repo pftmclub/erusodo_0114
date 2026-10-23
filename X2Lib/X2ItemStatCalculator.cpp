@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\X2ItemStatCalculator.h"
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 #ifdef SERV_NEW_ITEM_SYSTEM_2013_05
 CX2ItemStatCalculator::CX2ItemStatCalculator():
@@ -56,6 +59,43 @@ void CX2ItemStatCalculator::OpenScriptFile()
 
 			luaManager.EndTable();
 		}
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+		// June 328d7890 @328d82e0: the same rows, for a transcended unit's level-70 items
+		if( true == luaManager.BeginTable( "TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE" ) )
+		{
+			int iTableIndex = 1;
+			while( true == luaManager.BeginTable( iTableIndex  ) )
+			{
+				CX2Unit::EQIP_POSITION eEqipPosition = CX2Unit::EP_NONE;
+
+				LUA_GET_VALUE_ENUM( luaManager,		TDT_TYPE,		eEqipPosition,		CX2Unit::EQIP_POSITION,		CX2Unit::EP_NONE );
+				if( CX2Unit::EP_NONE == eEqipPosition )
+				{
+					luaManager.EndTable();
+					break;
+				}
+
+				CX2Item::KItemFormatStatData sStatData;
+
+				LUA_GET_VALUE( luaManager,		TDT_ATK_PHYSIC,		sStatData.m_fAtkPhysic,		0.f );
+				LUA_GET_VALUE( luaManager,		TDT_DEF_PHYSIC,		sStatData.m_fDefPhysic,		0.f );
+				LUA_GET_VALUE( luaManager,		TDT_ATK_MAGIC,		sStatData.m_fAtkMagic,		0.f );
+				LUA_GET_VALUE( luaManager,		TDT_DEF_MAGIC,		sStatData.m_fDefMagic,		0.f );
+				LUA_GET_VALUE( luaManager,		TDT_HP,				sStatData.m_fBaseHP,		0.f );
+
+				m_mapJuneTranscendEqipStatDataTable.insert( std::make_pair( eEqipPosition, sStatData ) );
+
+				++iTableIndex;
+				luaManager.EndTable();
+			}
+
+			luaManager.EndTable();
+		}
+		if( true == m_mapJuneTranscendEqipStatDataTable.empty() )
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE CharacterStatTable.lua has no TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE: transcended units use the normal rows until June's file is packed into data036" );
+		else
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE loaded %d row(s)", static_cast<int>( m_mapJuneTranscendEqipStatDataTable.size() ) );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 		// 캐릭터별 능력치
 		if( true == luaManager.BeginTable( "CHARACTER_RELATIVE_STAT_TABLE" ) )
@@ -132,6 +172,9 @@ void CX2ItemStatCalculator::ResetItemStatCalculator()
 	m_mapEqipStatDataTable.clear();
 	m_mapCharStatDataTable.clear();
 	m_mapClassStatDataTable.clear();
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+	m_mapJuneTranscendEqipStatDataTable.clear();
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 	OpenScriptFile();
 
@@ -246,6 +289,19 @@ void CX2ItemStatCalculator::CalculateItemStat( OUT CX2Item::KItemFormatStatData&
 		CX2Item::KItemFormatStatData sCharStatTable, sClassStatTable, sEqipStatTable ;
 		GetStatDataTable( eUnitType_, eUnitClass_, pItemTemplet_->GetEqipPosition(), 
 			sCharStatTable, sClassStatTable, sEqipStatTable );
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+		if( 0 != m_iUnitClassTran && 70 <= pItemTemplet_->GetUseLevel() )		// June 328d6c90 @328d6d2d
+		{
+			map< CX2Unit::EQIP_POSITION, CX2Item::KItemFormatStatData >::const_iterator itJuneEqip = m_mapJuneTranscendEqipStatDataTable.find( pItemTemplet_->GetEqipPosition() );
+			if( m_mapJuneTranscendEqipStatDataTable.end() != itJuneEqip )
+				sEqipStatTable = itJuneEqip->second;
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ENGINE stat row: item %d ( level %d, position %d ) %s: phys def %g, mag def %g",
+				pItemTemplet_->GetItemID(), pItemTemplet_->GetUseLevel(), static_cast<int>( pItemTemplet_->GetEqipPosition() ),
+				m_mapJuneTranscendEqipStatDataTable.end() != itJuneEqip ? L"transcendental" : L"normal ( no transcendental row )", sEqipStatTable.m_fDefPhysic, sEqipStatTable.m_fDefMagic );
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE_DEBUG
+		}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 
 		int iItemLevel = pItemTemplet_->GetUseLevel();  
 

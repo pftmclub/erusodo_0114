@@ -5020,3 +5020,22 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 - **Stand-ins (not June; its server is not readable).** The emulator's Book of Transcendence (288493 from the bag, 288319 claimed from the shop; `JuneTranscendCheck`, then the flag and June's 0x596), type 0 items refused for a transcended unit (1727) and type 1 for an untranscended one (1686) in the claim path, Aisha's transcendence class tickets 288323-288325 (class from item.kim; same class 1676, another character 1675, off the allow-list `JuneTranscendCheck`), the medal 288318's untranscended refusal (1686), three shop products in category 33. The medal June mails with the book is not given (key 1 is permanent, T4).
 - **Data.** data036 `TranscendentalClassItem.lua` (new; packed; the copy is the user's yes). Revert: delete it from `kom_contents/data036_kom/`, its manifest key, repack.
 - **Turn off:** comment out the define in `Always.h` and rebuild; the load and the binders go with it, the file stays unread in the kom.
+
+### June transcendence T5: the transcended combat engine (flag `SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE`, + `_DEBUG`, 2026-10-23)
+
+- **Flag** (`Always.h`; needs `_UNIT`, `_CHANGE`, `JUNE_EFFECT_ALPHA_OPTION`, `JUNE_SKILL_TEMPLET`, `JUNE_SOCKET_PARITY`). Log `[JUNE_TRANSCEND] ENGINE`.
+- **Awakening** (`X2GUUser.cpp`, `X2GameUnit.cpp`). A transcended unit's awakening gets BFI 845 instead of the hyper buff (BFI 1) and plays
+  `Effectset_TRANScendence_WakeUp_FX` (June `32298590`). On a 0.5 roll it gets BFI 843 + 844, re-rolled every 20 s while BTI 822 / 823 lasts
+  (`31ffd490` -> `31fc8c20`, `OnFrameMove @3206fed1`).
+- **Name tag** (`RenderName` / `RenderRank`, June `3201a8f0`). The rank now says whether it drew; a transcended unit gets `ICON_TR` left of it
+  (`31ff6920`; it draws nothing until June's `DLG_Common_Emblem00.tet` is in). Dungeon 41450 uses the survival colours. **June drops the couple
+  line** (`SERV_RELATIONSHIP_EVENT_INT`'s `IF_EVENT_ENABLED( CEI_RELATIONSHIP_CODE_EVENT )` block), so it is in the `#else`.
+- **Combat numbers.** Summons made while awake: stat factor 1.3 instead of 1.2 for a transcended user (`X2Game.cpp`, June `322ece70`).
+  `APPLY_LEARNED_SKILL_BUFF_FACTOR_ID`: a hyper-class skill counts as level 0 unless the unit's flag is exactly 1 (`X2DamageManager.cpp`, `31fceab0`).
+- **Item stats** (`X2ItemStatCalculator.*`). `TRANSCENDENTAL_EQIP_POSITION_RELATIVE_STAT_TABLE` is loaded (`328d7890`). A transcended unit's items
+  of use level 70+ take its row (`328d6c90`). Only the weapon row differs from the normal table: phys def and mag def 0.08 instead of 0. A missing
+  table logs one line and the normal rows stay.
+- **Data (not done: needs the user's permission).** data036 needs `Enum.lua` `UC_150 = 150` (core list; June's stat table names it in its second
+  class row, and March's loader stops at an unknown row) and June's `CharacterStatTable.lua` (`adopt-june`, ljconv bytecode). Every row March has is
+  equal to June's, so no March character's numbers change.
+- **Turn off:** comment out the define in `Always.h` and rebuild.
