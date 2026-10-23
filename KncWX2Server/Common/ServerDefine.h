@@ -4764,3 +4764,10 @@
 //              home exists because EventID_Client.h and ClientPacket.h are compiled before Always.h is reachable. Comment out both together.
 #define SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
+// Description: dev console /qdone and /additem, offline only. Also defined in KTDXLIB/Always.h; this second home exists because EventID_Client.h and ClientPacket.h are compiled before Always.h is reachable. Comment out both together.
+#define SERV_IRUHADEV_ADMIN_CHEATS
+//////////////////////////////////////////////////////////////////////////

@@ -5655,6 +5655,24 @@ DECL_PACKET( EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT )
 };
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+DECL_PACKET( EGS_ADMIN_ADD_ITEM_REQ )
+{
+	int								m_iItemID;
+	int								m_iQuantity;
+
+	KEGS_ADMIN_ADD_ITEM_REQ() : m_iItemID( 0 ), m_iQuantity( 1 ) {}
+};
+
+DECL_PACKET( EGS_ADMIN_ADD_ITEM_ACK )
+{
+	int								m_iOK;
+	std::vector< KInventoryItemInfo >	m_vecInventorySlotInfo;
+
+	KEGS_ADMIN_ADD_ITEM_ACK() : m_iOK( 0 ) {}
+};
+#endif SERV_IRUHADEV_ADMIN_CHEATS
+
 
 //////////////////////////////////////////////////////////////////////////
 //{{ 2009. 6. 3  최육사		확성기

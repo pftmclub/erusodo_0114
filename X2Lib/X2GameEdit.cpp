@@ -197,6 +197,27 @@ bool CX2GameEdit::ExecCommand( const WCHAR* pCommandString )
 			tempString = changeCommand;
 		}
 
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+		// /qdone <questID>, /additem <itemID> [qty]: no June Slash_ function, sent straight from here
+		if( tempString == "qdone" || tempString == "additem" )
+		{
+			int iArg1 = 0;
+			int iArg2 = 1;
+			if( sscanf( commandString.c_str() + nowStringIndex, "%d %d", &iArg1, &iArg2 ) < 1 )
+			{
+				AddString( CX2ChatWindow::CT_NORMAL, GET_STRING( STR_ID_217 ) );
+				return false;
+			}
+
+			if( tempString == "qdone" )
+				g_pMain->AdminQuestCompleteCheat( iArg1 );
+			else
+				g_pMain->AdminAddItemCheat( iArg1, iArg2 );
+
+			AddString( CX2ChatWindow::CT_NORMAL, GET_STRING( STR_ID_218 ) );
+			return true;
+		}
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 		slashCommandString += tempString;
 
 #ifdef  X2OPTIMIZE_REMOVE_LUA_INTERPRETER_MODULE

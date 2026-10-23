@@ -711,6 +711,10 @@ bool CX2OfflineServer::Dispatch( KOfflineSession& kSes, const KEvent& kEvent )
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	case EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ:		return Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( kSes, kEvent );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+	case EGS_ADMIN_QUEST_COMPLETE_REQ:					return Handler_EGS_ADMIN_QUEST_COMPLETE_REQ( kSes, kEvent );
+	case EGS_ADMIN_ADD_ITEM_REQ:						return Handler_EGS_ADMIN_ADD_ITEM_REQ( kSes, kEvent );
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 
 	//////////////////////////////////////////////////////////////////////////
 	// the skill tree - Handlers_Skill.cpp

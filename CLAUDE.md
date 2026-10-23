@@ -21,6 +21,10 @@ Every session builds the same tree through one lock, and a full build takes abou
 3. **Keep the tree compiling.** Before saving a new `Always.h` define or a dependency guard (`#error X needs Y`), confirm `Y` really is defined at that line: resolve it with `cl /EP` (see *Toolchains*), not by reading `#ifdef`s. If your own edit breaks the build, fixing or backing it out comes before anything else.
 4. **A build that fails in someone else's edit is not yours to fix.** Do not edit that file and do not keep re-running. Report the error line and its owner (the flag's `Always.h` comment names the phase), then wait. Re-run once the owner has fixed it.
 
+## Rule: play-test items come from `/additem`, not the shop (user, 2026-10-23)
+
+When a play-test needs the user to hold an item, the hand-off gives the dev-console line `/additem <itemID> [qty]` (auth level 3, flag `SERV_IRUHADEV_ADMIN_CHEATS`). Do not insert the item into a shop list and do not point at `/b`: offline `/b` still charges ED and refuses unpriced items. `/qdone <questID>` is the matching command to finish a quest. Both are answered by `Handlers_Quest.cpp`; the log line is `[ADMIN_CHEAT]`.
+
 ## Rule: a code comment is one short line (user, 2026-10-20)
 
 A comment in source says one thing in one line, and only what the code cannot show: the June address, a stand-in, a quirk kept on purpose, or why June differs from March. No comment blocks, no offset / vslot / state-id / key-byte tables, no retelling of the code. The detail belongs in the Done note, `funcmap.tsv` or `JUNE_BUGS.md`, never in the source. This applies to every file and every plan; it does not ask you to rewrite old comments.

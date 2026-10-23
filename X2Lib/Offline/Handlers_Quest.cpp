@@ -298,9 +298,15 @@ bool CX2OfflineServer::Handler_EGS_UPDATE_QUEST_REQ( KOfflineSession& kSes, cons
 //////////////////////////////////////////////////////////////////////////
 // complete
 
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
+										const KEGS_QUEST_COMPLETE_REQ& kReq,
+										OUT KEGS_QUEST_COMPLETE_ACK& kAck, bool bAdmin )
+#else SERV_IRUHADEV_ADMIN_CHEATS
 int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 										const KEGS_QUEST_COMPLETE_REQ& kReq,
 										OUT KEGS_QUEST_COMPLETE_ACK& kAck )
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 {
 	kAck.m_kCompleteQuestInfo.m_iQuestID = kReq.m_iQuestID;
 
@@ -316,7 +322,11 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 	CX2OfflineQuest*		pQuest	= CX2OfflineQuest::Instance();
 	CX2OfflineInventory*	pInven	= CX2OfflineInventory::Instance();
 
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+	const int iCheck = ( true == bAdmin ) ? NetError::NET_OK : pQuest->CheckCompletable( kReq.m_iQuestID, kRow );
+#else SERV_IRUHADEV_ADMIN_CHEATS
 	const int iCheck = pQuest->CheckCompletable( kReq.m_iQuestID, kRow );
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 	if( NetError::NET_OK != iCheck )
 		return iCheck;
 
@@ -418,7 +428,12 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 	// straight back and the completion is refused. Putting them back cannot
 	// itself fail: the slots they came out of are still free.
 	std::map< int, int > mapCondition;
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+	if( false == bAdmin )
+		CX2OfflineQuest::GetConditionItems( kReq.m_iQuestID, mapCondition );
+#else SERV_IRUHADEV_ADMIN_CHEATS
 	CX2OfflineQuest::GetConditionItems( kReq.m_iQuestID, mapCondition );
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 
 	std::vector< KInventoryItemInfo > vecChangedSlot;
 	std::map< int, int > mapTaken;			///< what was actually handed in, for the undo
@@ -1450,5 +1465,92 @@ bool CX2OfflineServer::Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_REQ( KOffli
 	return true;
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+/// /qdone <id> and the quest UI's unconditional-complete button. A quest that is not taken yet is accepted first ( no NPC test );
+/// the sub-quests and the collected items are not checked, the rewards are paid as for a normal hand-in.
+bool CX2OfflineServer::Handler_EGS_ADMIN_QUEST_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_QUEST_COMPLETE_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	KEGS_QUEST_COMPLETE_ACK kAck;
+	kAck.m_kCompleteQuestInfo.m_iQuestID = kReq.m_iQuestID;
+
+	KOfflineUnitRow kRow;
+	if( false == LoadQuestState( kSes, kRow ) )
+	{
+		kAck.m_iOK = NetError::ERR_QUEST_03;
+		return Reply( kSes, EGS_QUEST_COMPLETE_ACK, kAck );
+	}
+
+	if( false == CX2OfflineQuest::Instance()->IsQuesting( kReq.m_iQuestID ) )
+	{
+		KQuestInstance kInst;
+		const int iAccept = CX2OfflineQuest::Instance()->Accept( kReq.m_iQuestID, 0, kRow, true, kInst );
+		if( NetError::NET_OK != iAccept )
+		{
+			CX2OfflineLog::Server( L"[ADMIN_CHEAT] /qdone %d refused: accept NetError %d", kReq.m_iQuestID, iAccept );
+			kAck.m_iOK = iAccept;
+			return Reply( kSes, EGS_QUEST_COMPLETE_ACK, kAck );
+		}
+
+		KEGS_NEW_QUEST_NOT kNot;
+		kNot.m_QuestInst = kInst;
+		CX2OfflineQuest::Instance()->TakeAcceptSlots( kReq.m_iQuestID, kNot.m_vecUpdatedInventorySlot );
+		Reply( kSes, EGS_NEW_QUEST_NOT, kNot );
+	}
+
+	kAck.m_iOK = CompleteOneQuest( kSes, kReq, kAck, true );
+	CX2OfflineLog::Server( L"[ADMIN_CHEAT] /qdone %d: NetError %d", kReq.m_iQuestID, kAck.m_iOK );
+
+	Reply( kSes, EGS_QUEST_COMPLETE_ACK, kAck );
+
+	AfterQuestComplete( kSes );
+
+	return true;
+}
+
+/// /additem <id> [qty]: straight into the bag, no price, no shop list.
+bool CX2OfflineServer::Handler_EGS_ADMIN_ADD_ITEM_REQ( KOfflineSession& kSes, const KEvent& kEvent )
+{
+	KEGS_ADMIN_ADD_ITEM_REQ kReq;
+	if( false == ReadReq( kEvent, kReq ) )
+		return false;
+
+	KEGS_ADMIN_ADD_ITEM_ACK kAck;
+	kAck.m_iOK = NetError::ERR_UNKNOWN;
+
+	const int iQuantity = ( kReq.m_iQuantity > 0 ) ? kReq.m_iQuantity : 1;
+
+	CX2OfflineInventory* pInven = CX2OfflineInventory::Instance();
+
+	if( 0 == kSes.m_nSelectedUnitUID || NULL == CX2OfflineInventory::Templet( kReq.m_iItemID ) )
+	{
+		CX2OfflineLog::Server( L"[ADMIN_CHEAT] /additem %d refused: no selected unit or no such item", kReq.m_iItemID );
+		return Reply( kSes, EGS_ADMIN_ADD_ITEM_ACK, kAck );
+	}
+
+	if( false == pInven->HasRoomFor( kReq.m_iItemID, iQuantity ) )
+	{
+		CX2OfflineLog::Server( L"[ADMIN_CHEAT] /additem refused: no room for %d x item %d", iQuantity, kReq.m_iItemID );
+		kAck.m_iOK = NetError::ERR_BUY_ED_ITEM_05;
+		return Reply( kSes, EGS_ADMIN_ADD_ITEM_ACK, kAck );
+	}
+
+	int iInserted = 0;
+	pInven->InsertItem( kReq.m_iItemID, iQuantity, 0, kAck.m_vecInventorySlotInfo, iInserted );
+
+	kAck.m_iOK = NetError::NET_OK;
+	CX2OfflineLog::Server( L"[ADMIN_CHEAT] /additem: %d of %d x item %d inserted", iInserted, iQuantity, kReq.m_iItemID );
+
+	Reply( kSes, EGS_ADMIN_ADD_ITEM_ACK, kAck );
+
+	QuestOnInventoryChanged( kSes );
+
+	return true;
+}
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 
 #endif SERV_IRUHADEV_OFFLINE

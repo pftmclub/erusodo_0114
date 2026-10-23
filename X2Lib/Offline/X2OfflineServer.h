@@ -1256,6 +1256,11 @@ private:
 	int  JuneTranscendCheck( const KOfflineUnitRow& kRow ) const;
 	void JuneSendTranscendNot( KOfflineSession& kSes, int iUnitClassTran );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+	/// Handlers_Quest.cpp: the dev console's /qdone and /additem.
+	bool Handler_EGS_ADMIN_QUEST_COMPLETE_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+	bool Handler_EGS_ADMIN_ADD_ITEM_REQ( KOfflineSession& kSes, const KEvent& kEvent );
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 
 #ifdef SERV_IRUHADEV_JUNE_RESULT_OFFLINE
 	/// June dungeon result R2 ( Handlers_Room.cpp ): the retry REQ 0x648, a bodyless SendID.
@@ -1275,8 +1280,14 @@ private:
 	/// It does NOT send anything except through the ACK it fills in. What the
 	/// completion sets off is left in m_kQuestAfter for AfterQuestComplete, so
 	/// the caller can put the ACK on the wire first - see the comment there.
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+	/// bAdmin skips the sub-quest check and the hand-in of the collected items ( the quest must already be taken ).
+	int  CompleteOneQuest( KOfflineSession& kSes, const KEGS_QUEST_COMPLETE_REQ& kReq,
+						   OUT KEGS_QUEST_COMPLETE_ACK& kAck, bool bAdmin = false );
+#else SERV_IRUHADEV_ADMIN_CHEATS
 	int  CompleteOneQuest( KOfflineSession& kSes, const KEGS_QUEST_COMPLETE_REQ& kReq,
 						   OUT KEGS_QUEST_COMPLETE_ACK& kAck );
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 
 	/// Everything a finished quest sets off, played out after its ACK has gone.
 	void AfterQuestComplete( KOfflineSession& kSes );

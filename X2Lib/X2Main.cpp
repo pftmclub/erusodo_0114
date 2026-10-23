@@ -12163,6 +12163,34 @@ void CX2Main::ChangeTranscendentalClassCheat( int iValue_ )
 	}
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+void CX2Main::AdminQuestCompleteCheat( int iQuestID_ )
+{
+	if( g_pData->GetMyUser() == NULL || g_pData->GetMyUser()->GetAuthLevel() < CX2User::XUAL_DEV ||
+		g_pData->GetMyUser()->GetSelectUnit() == NULL || iQuestID_ <= 0 )
+		return;
+
+	KEGS_QUEST_COMPLETE_REQ kPacket;
+	kPacket.m_iQuestID = iQuestID_;
+
+	g_pData->GetServerProtocol()->SendPacket( EGS_ADMIN_QUEST_COMPLETE_REQ, kPacket );
+	AddServerPacket( EGS_QUEST_COMPLETE_ACK );
+}
+
+void CX2Main::AdminAddItemCheat( int iItemID_, int iQuantity_ )
+{
+	if( g_pData->GetMyUser() == NULL || g_pData->GetMyUser()->GetAuthLevel() < CX2User::XUAL_DEV ||
+		g_pData->GetMyUser()->GetSelectUnit() == NULL || iItemID_ <= 0 )
+		return;
+
+	KEGS_ADMIN_ADD_ITEM_REQ kPacket;
+	kPacket.m_iItemID	= iItemID_;
+	kPacket.m_iQuantity	= ( iQuantity_ > 0 ) ? iQuantity_ : 1;
+
+	g_pData->GetServerProtocol()->SendPacket( EGS_ADMIN_ADD_ITEM_REQ, kPacket );
+	AddServerPacket( EGS_ADMIN_ADD_ITEM_ACK );
+}
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 void CX2Main::ModifyChangeUnitClass( const char* UnitClassName )
 {
 	wstring wsUnitClassName;

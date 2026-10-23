@@ -1610,6 +1610,10 @@ class CX2Main : public CKTDXStage
 		//{{ 2008. 2. 18  ÃÖÀ°»ç  À¯´Ö Å¬·¡½º Ä¡Æ®
 		void			ChangeUnitClass( char cUnitClass );
 		void			ModifyChangeUnitClass( const char* UnitClassName );
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+		void			AdminQuestCompleteCheat( int iQuestID_ );			/// /qdone
+		void			AdminAddItemCheat( int iItemID_, int iQuantity_ );	/// /additem
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 		void			ChangeTranscendentalClassCheat( int iValue_ );		/// June 31d809c0 ( /tc )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE

@@ -8370,6 +8370,36 @@ SERIALIZE_DEFINE_GET( KEGS_CHANGE_TRANSCENDENTAL_CLASS_NOT, obj, ks )
 		;
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+SERIALIZE_DEFINE_PUT( KEGS_ADMIN_ADD_ITEM_REQ, obj, ks )
+{
+	return PUT( m_iItemID )
+		&& PUT( m_iQuantity )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_ADMIN_ADD_ITEM_REQ, obj, ks )
+{
+	return GET( m_iItemID )
+		&& GET( m_iQuantity )
+		;
+}
+
+SERIALIZE_DEFINE_PUT( KEGS_ADMIN_ADD_ITEM_ACK, obj, ks )
+{
+	return PUT( m_iOK )
+		&& PUT( m_vecInventorySlotInfo )
+		;
+}
+
+SERIALIZE_DEFINE_GET( KEGS_ADMIN_ADD_ITEM_ACK, obj, ks )
+{
+	return GET( m_iOK )
+		&& GET( m_vecInventorySlotInfo )
+		;
+}
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 //}}
 
 

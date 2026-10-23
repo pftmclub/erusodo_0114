@@ -3076,6 +3076,12 @@ bool CX2State::UIServerEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			return Handler_EGS_JUNE_RANDOM_MISSION_NOT( hWnd, uMsg, wParam, lParam );
 		} break;
 #endif SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+	case EGS_ADMIN_ADD_ITEM_ACK:
+		{
+			return Handler_EGS_ADMIN_ADD_ITEM_ACK( hWnd, uMsg, wParam, lParam );
+		} break;
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	case EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK:
 		{
@@ -4019,6 +4025,26 @@ bool CX2State::Handler_EGS_ADMIN_SERVER_STATUS_ACK( HWND hWnd, UINT uMsg, WPARAM
 }
 
 
+#ifdef SERV_IRUHADEV_ADMIN_CHEATS
+bool CX2State::Handler_EGS_ADMIN_ADD_ITEM_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+	KSerBuffer* pBuff = (KSerBuffer*)lParam;
+	KEGS_ADMIN_ADD_ITEM_ACK kEvent;
+	DeSerialize( pBuff, &kEvent );
+
+	if( g_pMain->DeleteServerPacket( EGS_ADMIN_ADD_ITEM_ACK ) == false )
+		return false;
+
+	if( g_pMain->IsValidPacket( kEvent.m_iOK ) == false )
+		return true;
+
+	g_pData->GetMyUser()->GetSelectUnit()->AccessInventory().UpdateInventorySlotList( kEvent.m_vecInventorySlotInfo );
+	if( NULL != g_pData->GetUIManager()->GetUIInventory() )
+		g_pData->GetUIManager()->GetUIInventory()->UpdateInventorySlotList( kEvent.m_vecInventorySlotInfo );
+
+	return true;
+}
+#endif SERV_IRUHADEV_ADMIN_CHEATS
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 /// June 31ef82a0 ( state vtable +0x17c ): the /tc ACK, one int
 bool CX2State::Handler_EGS_ADMIN_CHANGE_TRANSCENDENTAL_CLASS_ACK( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )

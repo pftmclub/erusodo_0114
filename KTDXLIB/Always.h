@@ -9998,3 +9998,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_TRANSCEND_SLOT needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_JUNE_SKILL_SLOT_UI and SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-23
+// Description: dev console /qdone <questID> and /additem <itemID> [qty] - the emulator answers EGS_ADMIN_QUEST_COMPLETE_REQ and a new EGS_ADMIN_ADD_ITEM_REQ / ACK ( offline only ). Also defined in KncWX2Server/Common/ServerDefine.h; comment out both together.
+#define SERV_IRUHADEV_ADMIN_CHEATS
+#if defined( SERV_IRUHADEV_ADMIN_CHEATS ) && ( !defined( SERV_IRUHADEV_OFFLINE ) || !defined( SERV_IRUHADEV_JUNE_QUEST_OFFLINE ) )
+#error SERV_IRUHADEV_ADMIN_CHEATS needs SERV_IRUHADEV_OFFLINE and SERV_IRUHADEV_JUNE_QUEST_OFFLINE
+#endif SERV_IRUHADEV_ADMIN_CHEATS
+//////////////////////////////////////////////////////////////////////////
