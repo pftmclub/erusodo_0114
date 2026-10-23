@@ -634,6 +634,13 @@ unit 53 22045 (0), 22046 (6), 22070 (7), 22226 (8).
 **In game.** Open `offline_server.log`: each transcended unit logs one `ARME passives` line per spawn. Unit 52 casts Summon Bat (22209, slot 2): with the memo it becomes Summon Bat Heavy (22217).
 Open questions: none.
 
+**Play-test PASSED 2026-10-24 (user + logs).** All three units cast their hyper-class skills, awakened with the transcended table and cut-in, and the passives logged non-zero
+(unit 52 `open mind VP 1 scope 600 mp 0.8 cool 0.8, dark deal 1`; unit 53 `open mind DW 1`). One refusal, a **save-setup error of mine, not a code bug:** unit 52 had the enhanced
+Petit Angkor 22231 learned and I had equipped the base 22209, so `GetEquippedActiveSkillTemplet( 22209, true )` swapped it to 22231 and June's slot check (`32cebe80 @32cebf9c`,
+`templet id != slot id`, string 0x8bae) refused the cast with "This skill cannot be used. Please equip another skill". Fixed in the save (22231 equipped, memo 19 on base 22209); the
+cast then worked and the heavy summon played. Two temporary log lines stay for the review to retire: `ARME info text` (in `June_PushInfoText`) and `ARME cast lookup` (in `June_SpecialAttackLookup`).
+Lesson for set-ups: equip the skill the unit has learned (the enhanced one when it is learned). Deploy for the diagnostic build: `DEPLOY OK: X2_offline.exe is 25,828,864 B, dated 2026-10-24 05:28:41, md5 d3e9ef527f6885c8b54ef80628440ad3`.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types
