@@ -13931,39 +13931,6 @@ void CX2Game::June_TranscendSlotGuideFrameMove()
 	if( NULL == g_pData->GetSkillTree() || NULL == pMyUnit || NULL == g_pData->GetUIMajorParticle() || NULL == g_pData->GetUIManager() )
 		return;
 
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-	{
-		static bool s_bAttack = false;
-		static bool s_bCoolTime = false;
-		static float s_fAttackTime = 0.f;
-		static int s_iUseCountAtStart = 0;
-		const bool bAttack = pMyUnit->HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 820 ) );
-		const bool bCoolTime = pMyUnit->HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 821 ) );
-		if( true == bAttack )
-			s_fAttackTime += m_fElapsedTime;
-		if( bAttack != s_bAttack )
-		{
-			if( true == bAttack )
-			{
-				s_fAttackTime = 0.f;
-				s_iUseCountAtStart = pMyUnit->GetSkillUseCount( 3 );
-				CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF BTI 820 on ( TC-slot damage ), hyper time left %.1f", pMyUnit->GetRemainHyperModeTime() );
-			}
-			else
-			{
-				const int iUses = pMyUnit->GetSkillUseCount( 3 ) - s_iUseCountAtStart;
-				CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF BTI 820 off after %.1f s, TC-slot uses %d: ended by %s", s_fAttackTime, iUses, ( 0 < iUses ) ? L"use" : L"time" );
-			}
-			s_bAttack = bAttack;
-		}
-		if( bCoolTime != s_bCoolTime )
-		{
-			CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF BTI 821 %s ( TC-slot cool-time )", ( true == bCoolTime ) ? L"on" : L"off" );
-			s_bCoolTime = bCoolTime;
-		}
-	}
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-
 	CX2UIManager* pUIManager = g_pData->GetUIManager();
 	CX2UISkillTreeNew* pUISkillTree = pUIManager->GetUISkillTree();
 	if( NULL == pUISkillTree )

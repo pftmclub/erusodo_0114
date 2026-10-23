@@ -3109,11 +3109,6 @@ bool CX2UserSkillTree::ApplyResetCoolTime( SkillSlotData& slotData_, const CX2Sk
 	if ( fNewCoolTime != fNowCoolTime )
 		slotData_.m_fCoolTimeLeft = fNewCoolTime;
 
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-	if ( 3 == iSkillSlotType_ )
-		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF cool-time: skill %d gage %d, %.2f -> %.2f ( change type %d, rate %.2f )", static_cast<int>( pSkillTemplet_->m_eID ),
-			iGageIndex_, fNowCoolTime, fNewCoolTime, static_cast<int>( eChangeType_ ), fCoolTimeRate_ );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 	CX2GageManager::GetInstance()->SetMySkillCoolTimeList( iGageIndex_, fNewCoolTime );
 	return bChanged;
 }

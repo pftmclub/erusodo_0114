@@ -3,9 +3,6 @@
 #ifdef NEW_VILLAGE_UI
 
 #include ".\x2uimanager.h"
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-#include "Offline/X2OfflineLog.h"
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 
 //class CX2Slot;
 //class CX2SlotManager::CX2Slot;
@@ -288,9 +285,6 @@ void CX2UIManager::JuneAddGuideParticle( const int iType_, const int iSlot_, con
 	kParticle.m_fY = fY_;
 	m_mmapJuneGuideParticle.insert( std::make_pair( iType_, kParticle ) );
 	m_mapJuneGuideParticleTimer[iType_] = 0.f;
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF glow add: type %d slot %d at ( %.0f, %.0f )", iType_, iSlot_, fX_, fY_ );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 }
 
 // June 32151fa0
@@ -313,9 +307,6 @@ void CX2UIManager::JuneRemoveGuideParticle( const int iType_, const int iSlot_ )
 			if( INVALID_PARTICLE_SEQUENCE_HANDLE != hSeq )
 				g_pData->GetUIMajorParticle()->DestroyInstanceHandle( hSeq );
 		}
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF glow remove: type %d slot %d, %u sequence(s)", iType_, iSlot_, static_cast<UINT>( it->second.m_vecHandle.size() ) );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 		m_mmapJuneGuideParticle.erase( it++ );
 	}
 
@@ -376,16 +367,6 @@ void CX2UIManager::JuneCreateGuideParticle( JuneGuideParticle& kParticle_, const
 			pSeq->SetOverUI( true );
 		kParticle_.m_vecHandle.push_back( hSeq );
 	}
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-	UINT uiValid = 0;
-	for( UINT k = 0; k < kParticle_.m_vecHandle.size(); ++k )
-	{
-		if( INVALID_PARTICLE_SEQUENCE_HANDLE != kParticle_.m_vecHandle[k] )
-			++uiValid;
-	}
-	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF glow spawn: slot %d at ( %.0f, %.0f ), %u of %u sequence(s)", kParticle_.m_iSlot, kParticle_.m_fX, kParticle_.m_fY,
-		uiValid, static_cast<UINT>( kType_.m_vecName.size() ) );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 }
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
 CX2UIManager::~CX2UIManager(void)

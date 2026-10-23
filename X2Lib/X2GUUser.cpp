@@ -26303,10 +26303,6 @@ float CX2GUUser::GetSkillDamageRateBySlotType( const int iSkillID_ ) const
 		}
 	}
 
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-	if ( 3 == iSlotType )
-		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF damage: skill %d in the TC slot, slot-type rate %.2f", iSkillID_, fRate );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 	return fRate;
 }
 
@@ -32335,10 +32331,6 @@ void CX2GUUser::JuneApplyTranscendSlotBuffs()
 		m_bJuneTranscendSlotBuffRolled = true;
 		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_SLOT_ATTACK_EFFECT, 1 );
 		SetBuffFactorToGameUnitByBuffFactorID( JUNE_BFI_TRANSCENDENTAL_SLOT_COOLTIME_EFFECT, 1 );
-#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] SLOTBUFF applied BFI 843 / 844 ( roll %.3f ): BTI 820 %d, BTI 821 %d at once", fRoll,
-			HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 820 ) ) ? 1 : 0, HaveUnfinishedBuff( static_cast<BUFF_TEMPLET_ID>( 821 ) ) ? 1 : 0 );
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 	}
 }
 

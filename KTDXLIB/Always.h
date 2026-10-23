@@ -10047,9 +10047,4 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TREE_UI ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ) )
 #error SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF needs SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ( HaveUnfinishedBuff, m_iUnitClassTran ), SERV_IRUHADEV_JUNE_CHAR_ARME_MEMORIZE ( JuneCanShowClassGuide ), SERV_IRUHADEV_JUNE_SKILL_TREE_UI and SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( IsJuneSlotUsable )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF
-// Description: T6b proof lines ( temporary, the review retires them ): BFI 843 / 844 applied, BTI 820 / 821 on and off with the end reason, the TC slot's cool-time reset and the slot-type damage rate, the glow's add / spawn / remove.
-#define SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
-#if defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF ) || !defined( SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER ) || !defined( SERV_IRUHADEV_OFFLINE ) )
-#error SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG needs SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF, SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER ( GetSkillUseCount ) and SERV_IRUHADEV_OFFLINE ( CX2OfflineLog )
-#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF_DEBUG
 //////////////////////////////////////////////////////////////////////////

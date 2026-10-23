@@ -30284,9 +30284,6 @@ bool CX2GUArme_VioletMage::June_SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_
 		return false;
 
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
-#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
-	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ARME cast lookup ( slot %d skill %d, equipped templet %d, kind %d )", iPressedSkillSlotIndex, static_cast<int>( pSkillSlotData->m_eID ), NULL != pSkillTemplet ? static_cast<int>( pSkillTemplet->m_eID ) : 0, iKind );
-#endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
 	if( NULL == pSkillTemplet )
 		return false;
 

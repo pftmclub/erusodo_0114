@@ -707,7 +707,7 @@ Port extras, kept: null checks on the fade control and its picture (June derefer
   `git log -SJUNE_TRANSCEND_SLOTBUFF c66d52fa..HEAD`: nothing.
 - Retirement `--worktree`: `4 PASS, 1 DEFINE, 0 FAIL`; the 70 deleted lines are the `_DEBUG` blocks; `RESULT: PASS`. `JUNE_CHAR_ARME_TRANSCEND --worktree` (VioletMage): `1 PASS`, 3 deleted (the lookup line), `RESULT: PASS`.
 
-DEPLOY_LINE
+`DEPLOY OK: X2_offline.exe is 25,836,544 B, dated 2026-10-24 06:52:05, md5 d6c695c7d93ca62d5d7244880d7eeb3c` (built at `08a45a91` plus these files). `SLOTBUFF` and `ARME cast lookup` are absent from the exe; `Transcendence_Loop_P1` is present.
 
 T8's kickoff now depends on this review and checks the glow by eye.
 

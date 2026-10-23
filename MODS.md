@@ -5049,7 +5049,7 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
 
 ### June transcendence T6b: the transcendence-slot glow (flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOTBUFF`, 2026-10-24)
 
-- **Flag** (`Always.h`; needs `JUNE_TRANSCEND_ENGINE`, `JUNE_CHAR_ARME_MEMORIZE`, `JUNE_SKILL_TREE_UI`, `JUNE_SKILL_SLOT_10`). `_DEBUG` carries the temporary proof lines. Log `[JUNE_TRANSCEND] SLOTBUFF`.
+- **Flag** (`Always.h`; needs `JUNE_TRANSCEND_ENGINE`, `JUNE_CHAR_ARME_MEMORIZE`, `JUNE_SKILL_TREE_UI`, `JUNE_SKILL_SLOT_10`). The `_DEBUG` proof lines were retired in the review (2026-10-24), so the phase now logs nothing.
 - **What changed:** `CX2Game::June_TranscendSlotGuideFrameMove` (June `322d8100`) and June's UI-manager guide-particle table for type 4 only (`X2UIManager.*`: `Transcendence_Loop_P1-P5` /
   `Open_P1-P5` from `UIMajorParticle.txt`, already June's in data036). A-5 / B-5 glow while BTI 820 holds in an awakening. No game number changes; BFI 843 / 844's behaviours were the buff port's.
-- **Turn off:** comment out both defines in `Always.h` and rebuild.
+- **Turn off:** comment out the define in `Always.h` and rebuild.

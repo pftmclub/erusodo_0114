@@ -28,7 +28,7 @@ T6 found no unported Aisha code (the Done note lists why); the review settles wh
   rows 22412-22417); the `registered` lines for the twelve hyper-class actives; the memo 22217 line; the awakening table and cut-in.
 - **`June_SetEquippedSkillFuncHead`** (`32cede00`): the `31fdbcc0` branch registers only 22217 and nothing for another transcended skill.
 
-- **Retire the two temporary log lines** T6's play-test added under the same flag (`ARME info text` in `June_PushInfoText`, `ARME cast lookup` in `June_SpecialAttackLookup`), then build and deploy.
+- **The temporary log lines are already gone.** The T6b review (2026-10-24) retired `ARME cast lookup` from `June_SpecialAttackLookup`. `ARME info text` was never committed. Build and deploy only if this review fixes something.
 
 Hygiene: `python tools/flagcheck.py SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND --range <T6 commit>^..<T6 commit>`; paste its `files:` / `in this flag's files:` /
 `RESULT:` lines.
