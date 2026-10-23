@@ -60,6 +60,19 @@ namespace
 		bOK = CostumeNameMounted( pTemplet->GetShopImage(), mapCache ) && bOK;
 		return bOK;
 	}
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+	/// A product that is no costume ( no model at all ) is not file-checked: 288318 / 288319 have a shop image no kom holds, and the check withheld them
+	bool JuneItemHasNoModel( const CX2Item::ItemTemplet* pTemplet )
+	{
+		for( int i = 0; i < CX2Item::MAX_MODEL_COUNT_A_ITEM; ++i )
+		{
+			const std::wstring wstrName( pTemplet->GetModelName( i ) );
+			if( false == wstrName.empty() && L"0" != wstrName )
+				return false;
+		}
+		return true;
+	}
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 #endif SERV_IRUHADEV_COSTUME_SHOP
 }
 
@@ -150,7 +163,11 @@ void CX2OfflineCashShop::EnsureLoaded()
 		// this client does not have yet is always offered; for the rest every model /
 		// texture / shop-image name must be in the mounted koms, else the row stays in the
 		// DB and out of the catalog until the files arrive.
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
+		if( kRow.m_iProductNo > COSTUME_SHOP_LAST_SEED_PRODUCT_NO && false == JuneItemHasNoModel( g_pData->GetItemManager()->GetItemTemplet( kRow.m_iItemID ) ) )
+#else SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 		if( kRow.m_iProductNo > COSTUME_SHOP_LAST_SEED_PRODUCT_NO )
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_SLOT
 		{
 			const CX2Item::ItemTemplet* pCostume = g_pData->GetItemManager()->GetItemTemplet( kRow.m_iItemID );
 
