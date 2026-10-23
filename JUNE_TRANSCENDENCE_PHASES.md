@@ -417,6 +417,8 @@ Ghidra (read-only) and raw capstone (`disasm_range.py`) against `32df3d2f`. New 
 **How to see it:** `/additem 288493` on unit 45 (`ArmeHM`, lv 60) or unit 32 (`MagicKnightT`, 1st job): right-click -> "Transcendence can only be
 reached by 2nd Job Class that are over Lv.70.", and no `EGS_USE_ITEM_IN_INVENTORY_REQ` in `offline_packets.log`.
 
+**Play-test PASSED 2026-10-23 (user + logs, md5 db3ace7d):** `/additem 288493` on units 45 and 32, no use request sent (1687 popup); unit 54 `ITEM book 288493 used: unit 54 transcendence 0 -> 1`, NOT and guide popup; a second book on 54 sent nothing (client 1727); `ITEM ticket 288324 ... unit 52 ... NetError 1676`. 0 EXCEPTION.
+
 ## Phase T4 - The TC slots (A-5 / F and B-5 / T)
 
 **Run with:** Sonnet 5.5 high (Opus if T0 finds a new mechanism), then an Opus 5.5 high review. Flag `SERV_IRUHADEV_JUNE_TRANSCEND_SLOT`.
