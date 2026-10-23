@@ -611,6 +611,29 @@ The user owes one optional look: unit 52 awakens once (the `ENGINE awakening` li
 - 0 Aisha `no_state` rows.
 Log `[JUNE_TRANSCEND] ARME`.
 
+### T6 - Done (2026-10-24, Sonnet 5.5)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND` (log only), commit: this one. Funcmap rows `Transcend T6` (6). Checklist 7ao Aisha row closed. MODS entry "T6".
+Hygiene: `flagcheck --worktree --files`: 1 PASS, 1 DEFINE, 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 encoding change; RESULT PASS.
+`DEPLOY OK: X2_offline.exe is 25,828,352 B, dated 2026-10-24 05:08:45, md5 95a5d71a9febcd394728476555a7a7c4` (the `ARME passives` string is in the exe).
+
+**Finding: no Aisha code was left to port.** Each kickoff item was already June's:
+- Readers `31fcac90` / `31fcad70` / `31fceab0` (`== 1`) / `31ff1e80` / `32cddcc0` read `m_iUnitClassTran` since T1; `31fdd490` names `AVSI_AEM/AVP/ADW_HYPER_MODE` for 104 / 105 / 113 (all three tables are in data036 `Arme_VioletMage.lua`).
+- Passives: 22412 (CH1i), 22413 (CH1i, CH2a), 22414 (CH4c), 22415 (CH4a), 22416 (CH4b), 22417 (CH1i, CH4c) all have readers. The census `no_state` rows are exactly these eight passives (22410-22417): data, not states.
+- Actives: all twelve `SPRT_HYPER_CLASS` actives have a `June_SetEquippedSkillFuncHead` case with a `registered` log line (CH3a / CH3a2 / CH3b).
+- Memo 22217: `GetJuneTranscendenceMemoSkillID` (`31fdbcc0`, S3b) and the Summon Bat Heavy branch (CH1k). TC slots: T4. Cut-ins and awakening: T5 (`HQ_Cutin_AVP_Transcendence` seen in its play-test); the three `HQ_Cutin_AEM/AVP/ADW_Transcendence` `.gfx` are in data195.
+- Guide dialog: T2 (popup played). The only edit is a proof log, `[JUNE_TRANSCEND] ARME passives ( unit N: transcended, hyper table, open mind EM / magical body / open mind VP / dark deal / open mind DW / time limit with levels and values )`, written after the CH4a / CH4b passive-init lines.
+- The earlier T5 log already showed unit 52 `dark deal 0.500 / 0.500` (non-zero when transcended; 0 before, CH4a).
+
+No damage number changes, so no MODS damage row. No June branch found outside the subject; nothing routed.
+
+**Save set up for the play-test** (backups `db_backup/els_db_20261024_045823_pre_sql.sql` and the one after): unit 53 `transcendence 1`; 22413 on unit 51 and 22417 on unit 53 (level 1);
+unit 52 learns 22209 (slot 2, memo 19 = `MI_TRANSCENDENCE_1`); hyper actives equipped: unit 51 22041 (slot 1), 22224 (2), 22042 (6), 22068 (7); unit 52 22043 (1), 22225 (3), 22069 (6), 22044 (7), 22058 (4);
+unit 53 22045 (0), 22046 (6), 22070 (7), 22226 (8).
+
+**In game.** Open `offline_server.log`: each transcended unit logs one `ARME passives` line per spawn. Unit 52 casts Summon Bat (22209, slot 2): with the memo it becomes Summon Bat Heavy (22217).
+Open questions: none.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types

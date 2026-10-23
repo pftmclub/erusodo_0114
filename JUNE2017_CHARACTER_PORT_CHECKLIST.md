@@ -914,7 +914,7 @@ Base-code branches that june-transcend T5 found and left to the class ports (non
 | Class | June readers of `+0x3c` | What the class port brings |
 |---|---|---|
 | Elsword | `32d17e90` (hyper effect start, vslot 19); `32d0c180` (SetEquippedSkillFunc `32d27181`); `32d0c820` (21418 Magic Coating, from DamageReact `320462a0`); `32d1b9d0` (skill `0x53ac`, `== 1`); `32d1c560` (vslot 420, three `== 1`); engine-code readers of his skills: `32063650` CommonFrameMove (21416 Fight God, `== 1`), `32610cb0` (21417 Open Mind) | each branch, whole; the two engine-code blocks go into March's `CommonFrameMove` / the caller of `32610cb0` with him |
-| Aisha | `32cddcc0`, `31fcac90`, `31fcad70`, `31fceab0`, `31ff1e80` | june-transcend T6 |
+| Aisha | `32cddcc0`, `31fcac90`, `31fcad70`, `31fceab0`, `31ff1e80` | **done, june-transcend T6 (2026-10-24):** all five were already June's since T1; passives 22412-22417, the twelve hyper-class actives, memo 22217, TC slots and cut-ins were ported by CH1-CH4 / T4 / T5; T6 adds the `[JUNE_TRANSCEND] ARME passives` log line |
 | Rena | `32c9b3d0` (hyper effect start, vslot 49) | the branch |
 | Raven | `32c4e7c0` (hyper effect start, vslot 49) | the branch |
 | Eve | `32994710` (hyper effect start, vslot 19) | the branch |

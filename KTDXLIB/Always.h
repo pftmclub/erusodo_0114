@@ -10028,3 +10028,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE, SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION, SERV_IRUHADEV_JUNE_SKILL_TEMPLET, SERV_IRUHADEV_JUNE_SOCKET_PARITY, SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( JuneIsHyperModeState ) and SERV_IRUHADEV_JUNE_BUFF_TEMPLET_PARITY ( HaveUnfinishedBuff )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-10-24
+// Description: June transcendence T6 - Aisha transcended: one log line per passive init with the six hyper-class passives ( 22412-22417 ) read through the base helpers and the transcended hyper-mode table name. Everything else T6 needs ( readers, states, memo 22217, TC slots, cut-ins ) was ported by CH1-CH4 and T1-T5. Log [JUNE_TRANSCEND] ARME. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_ARME_PASSIVE and SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
+//////////////////////////////////////////////////////////////////////////

@@ -36233,6 +36233,23 @@ void CX2GUArme_VioletMage::June_InitPassiveSkillState()
 		NULL != m_pJuneMpRefund ? L"on" : L"off", NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fActiveSkillRate : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fSpecialActiveSkillRate : 0.f,
 		NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fMPRestoreRate : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fChance : 0.f, NULL != m_pJuneMpRefund ? m_pJuneMpRefund->m_fRate : 0.f,
 		static_cast<int>( m_iAdvancedTeleportationLv ), m_fJune97a0, true == m_bJune978d ? 1 : 0, m_fJune9790, m_fJune9794 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
+	{
+		/// the six SPRT_HYPER_CLASS passives through the base readers ( 31fceab0 == 1, 31ff1e80 != 0 ): levels and values are 0 until transcended
+		float fCoolEM = 0.f, fCount = 0.f, fMp = 0.f, fScope = 0.f, fMpRate = 0.f, fCoolVP = 0.f, fCoolDW = 0.f;
+		June_GetPassiveSkillAbilityValue( 22412, CX2SkillTree::SA_COOLTIME_3, fCoolEM );
+		June_GetPassiveSkillAbilityValue( 22413, CX2SkillTree::SA_EFFECTIVE_COUNT, fCount );
+		June_GetPassiveSkillAbilityValue( 22413, CX2SkillTree::SA_MP_CONSUMPTION, fMp );
+		June_GetPassiveSkillAbilityValue( 22414, CX2SkillTree::SA_SCOPE_ABS, fScope );
+		June_GetPassiveSkillAbilityValue( 22414, CX2SkillTree::SA_MP_CONSUME_REL, fMpRate );
+		June_GetPassiveSkillAbilityValue( 22414, CX2SkillTree::SA_COOLTIME_1, fCoolVP );
+		June_GetPassiveSkillAbilityValue( 22417, CX2SkillTree::SA_COOLTIME_1, fCoolDW );
+		CX2OfflineLog::Server( L"[JUNE_TRANSCEND] ARME passives ( unit %I64d: transcended %d, hyper table %S, open mind EM %d cool %.3f, magical body %d count %.3f mp %.3f, open mind VP %d scope %.3f mp %.3f cool %.3f, dark deal %d, open mind DW %d, time limit %d cool %.3f )",
+			GetUnitUID(), 0 != GetUnit()->GetUnitData().m_iUnitClassTran ? 1 : 0, JuneGetHyperModeTableName( false ).c_str(),
+			June_GetSkillLevel( 22412 ), fCoolEM, June_GetSkillLevel( 22413 ), fCount, fMp,
+			June_GetSkillLevel( 22414 ), fScope, fMpRate, fCoolVP, June_GetSkillLevel( 22415 ), June_GetSkillLevel( 22416 ), June_GetSkillLevel( 22417 ), fCoolDW );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND
 }
 
 // June 32ce9f90; the factor's game unit is the defender, as June passes it ( JUNE_BUGS 397 )

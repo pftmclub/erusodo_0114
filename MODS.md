@@ -5039,3 +5039,10 @@ Unlike the live server's DB ACK, which reuses `KEGS_ITEM_EXTRACT_ACK`, the emula
   and March's loader stops at an unknown row). `CharacterStatTable.lua` is June's (`adopt-june`, ljconv bytecode); every row March has is equal to
   June's. Revert: restore `kom_backup_stage_june\20261023_222737\` and remove the `UC_150` line, refresh, repack.
 - **Turn off:** comment out the define in `Always.h` and rebuild.
+
+### June transcendence T6: Aisha transcended (flag `SERV_IRUHADEV_JUNE_CHAR_ARME_TRANSCEND`, 2026-10-24)
+
+- **Flag** (`Always.h`; needs `JUNE_CHAR_ARME_PASSIVE` and `JUNE_TRANSCEND_ENGINE`). Log `[JUNE_TRANSCEND] ARME`.
+- **What changed:** one log line per passive init in `X2GUArme_VioletMage.cpp` (levels and values of 22412-22417, the hyper-mode table name). No game number changes, so there is no
+  March-vs-June damage row. Aisha's transcended pieces were already June's: readers (T1), states and passives (CH1-CH4), memo 22217 (CH1k), TC slots (T4), awakening (T5).
+- **Turn off:** comment out the define in `Always.h` and rebuild.
