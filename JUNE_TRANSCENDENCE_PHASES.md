@@ -676,6 +676,11 @@ On the next UI frame, one `glow add` and one `glow spawn ... 10 of 10` per TC sl
 `glow remove`. With no cast it ends `by time` after about 10 s. A cool-time line (`X -> 0.00`) appears when BTI 821 lands while the TC skill is cooling. The dev free-skill gate (auth 3) skips the cool-time
 check on cast, so the cool-time cannot be seen in the slot UI itself, only in that log line.
 
+**Play-test PASSED 2026-10-24 (user + logs, unit 52 ArmeVP, exe md5 b565a19a).**
+- **Roll 0.093 (06:34:42):** BTI 820 / 821 on at once, then glow add + spawn `10 of 10` on slots 4 (582, 730) and 9 (582, 683). Phantom Breathing 22058 cast at `slot-type rate 1.20`; 820 off after 3.3 s `ended by use`, both glows removed.
+- **Roll 0.469 (06:35:22):** 22058's cool-time `2.84 -> 0.00`; 820 off after 10.0 s `ended by time`, glows removed.
+- **Outside the buff:** TC casts at 1.00. 0 ErrorLog lines, 0 exceptions. The two `E_DISABLE_HB_CHECK_REQ` UNHANDLED are not this phase's.
+
 ## Phase T7 - Transcendence sockets (opened by T0 only)
 
 **Closed by T0 (2026-10-23).** `SERV_IRUHADEV_JUNE_SOCKET_PARITY` already declares and parses all eight `SDT_*_TRANSCEND*` types
